@@ -76,7 +76,12 @@ def main():
                 fetch_retry(url, audio)
             t0 = time.time()
             result = run_surah(audio, sn, args.riwaya, log=lambda *a: None)
+            import vad as _vad  # noqa: PLC0415
             rec = {"fileRef": url, "sha256": sha256_file(audio),
+                   "vadRel": _vad.LAST_REL,
+                   # نسخة العتبة **لكل سورة**: الفهرس الواحد قد يحمل سوراً
+                   # بـadaptive-1 وأخرى بـadaptive-2، فالترويسة تسرد لا تختار.
+                   "vadVersion": _vad.VAD_VERSION,
                    "entries": result["entries"], "issues": result["issues"],
                    "bands": result["bands"], "totalMs": result["totalMs"]}
             with open(out_json, "w", encoding="utf-8") as f:
@@ -100,15 +105,23 @@ def main():
     # فينقص القارئ صامتاً ويُرفض عند الرفع فيُعاد **كاملاً** — 114 سورة ثمناً
     # لواحدة. وأكثر الفشل عابر (خنق الخادم البعيد، نافذة whisper، ffmpeg).
     # فتمريرةٌ ثانية على الفاشل وحده قبل بناء الفهرس، بمهلة تهدأ فيها المصادر.
+    # ⚠️ تمريرتان لا تكفيان: `a_turki` حُجز ساعةً كاملة بسورةٍ واحدة سقطت
+    # بعطب ترميز عابر (0xa2) ونجحت من أول إعادة يدوية. وقارئٌ كامل يُحجب
+    # بسورة واحدة خسارةٌ غير متناسبة — فأربع تمريرات بتراجع أسّي.
     fails = sweep(surahs)
-    if fails:
-        print(f"↻ إعادة {len(fails)} سورة فشلت: {[s for s, _ in fails]} — بعد 30ث",
+    for attempt in range(3):
+        if not fails:
+            break
+        wait = 30 * (2 ** attempt)
+        print(f"↻ إعادة {len(fails)} سورة فشلت: {[s for s, _ in fails]} — بعد {wait}ث",
               flush=True)
-        time.sleep(30)
+        time.sleep(wait)
         fails = sweep([s for s, _ in fails])
 
+    _rels = sorted(v["vadRel"] for v in per_surah.values() if v.get("vadRel") is not None)
+    _med = _rels[len(_rels) // 2] if _rels else None
     ti = make_timing_index(args.riwaya, args.reciter, "SURAH_FILES",
-                           args.counting or "KUFI", per_surah)
+                           args.counting or "KUFI", per_surah, vad_rel=_med)
     out = os.path.join(WORK, f"timings_{args.riwaya}_{args.reciter}.jz")
     write_jz(out, ti)
     bands = {}
