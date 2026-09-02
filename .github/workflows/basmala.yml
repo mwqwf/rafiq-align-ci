@@ -114,48 +114,32 @@ jobs:
       # ⚠️ قالب مصدر الصوت يُشتقّ من القارئ: يُقرأ من قائمة القرّاء في المستودع
       #    ولا يُخمَّن — قالبٌ خاطئ يُنزّل صوتَ قارئٍ آخر فيُنتج قصّاً كاذباً.
       - name: تمريرة البسملة
+        id: pass
         env:
-          QA_MODEL: ${{ github.workspace }}/assets-archive/ggml/ggml-tiny-ar-quran-q8_0.bin
+          # ⛔ النموذج بمسار الأداة الخاص بها (‏--model) لا بـQA_MODEL: كلٌّ
+          #    يقرأ من متغيّره، ونمرّره صراحةً فلا نعتمد على افتراضٍ يتغيّر.
           KEY: ${{ matrix.key }}
         run: |
           rid="$(basename "$KEY" | cut -d. -f1)"
-          tpl="$(awk -F'\t' -v r="$rid" '!/^#/ && $1==r {print $3; exit}' \
-                 tools/ci_fleet/reciters_ci.tsv tools/ci_fleet/reciters_ci_wave2.tsv 2>/dev/null | head -1)"
+          tpl="$(awk -F'	' -v r="$rid" '!/^#/ && $1==r {print $3; exit}'                  tools/ci_fleet/reciters_ci.tsv tools/ci_fleet/reciters_ci_wave2.tsv 2>/dev/null | head -1)"
           if [ -z "$tpl" ]; then
             echo "⛔ لا قالب صوتٍ للقارئ '$rid' في قوائم المستودع — لا تخمين."
             exit 1
           fi
           echo "القارئ: $rid · المصدر: $tpl"
-          python tools/tasmi_bench/basmala_postpass.py \
-            --index work/index.jz \
-            --url-template "$(echo "$tpl" | sed 's/{surah:03d}/{s:03d}/')" \
-            --out "work/$rid.basmala.jz" \
-            --table "work/${rid}_table.json"
-
-      # ⛔ «بسملة بلا قصّ» أهمّ سطرٍ في المخرج (‏github-8e) — فيُرفع إلى ملخّص
-      #    الوظيفة لا يُدفن في JSON مضغوط. وهو **عيبٌ معلوم بإصلاحٍ غير مبرهن**،
-      #    وإخفاؤه يجعل الوظيفة خضراء على عيبٍ قائم.
-      - name: ملخّص يُقرأ بلا تنزيل
-        if: always()
-        env:
-          KEY: ${{ matrix.key }}
-        run: |
-          rid="$(basename "$KEY" | cut -d. -f1)"
-          python - "work/${rid}_table.json" "$rid" >> "$GITHUB_STEP_SUMMARY" <<'PY'
-          import json, sys
-          try:
-              t = json.load(open(sys.argv[1], encoding="utf-8"))
-          except Exception as ex:
-              print(f"### {sys.argv[2]} — ⛔ لا جدول ({ex})"); raise SystemExit
-          rows = t if isinstance(t, list) else t.get("surahs", [])
-          cut = [r for r in rows if r.get("cut") or r.get("trimmed")]
-          unv = [r for r in rows if (r.get("basmala") and not (r.get("cut") or r.get("trimmed")))]
-          print(f"### {sys.argv[2]}")
-          print(f"- قُصّ: **{len(cut)}** · بسملة بلا قصّ: **{len(unv)}** · مجموع السور: {len(rows)}")
-          if unv:
-              print(f"- ⚠️ **غير متحقَّق ({len(unv)}):** "
-                    + "، ".join(str(r.get("surah") or r.get("s")) for r in unv[:30]))
-          PY
+          rc=0
+          python tools/tasmi_bench/basmala_postpass.py             --index work/index.jz             --url-template "$(echo "$tpl" | sed 's/{surah:03d}/{s:03d}/')"             --model "$GITHUB_WORKSPACE/assets-archive/ggml/ggml-tiny-ar-quran-q8_0.bin"             --out "work/$rid.basmala.jz"             --table "work/${rid}_table.json"             --fail-on-unverified --summary | tee -a "$GITHUB_STEP_SUMMARY" || rc=$?
+          echo "rc=$rc" >> "$GITHUB_OUTPUT"
+          # ⛔ رمزٌ مميِّز لا فشلٌ أحمر (تنبيه github-8e، وهو محقّ):
+          #    0 لا شيء يحتاج قصّاً · 1 قُصّ كل ما وجب · 2 بقيت حالاتٌ غير
+          #    متحقَّقة. **و2 ليس فشلاً**: تلك الحالات **كانت قبل التمريرة ولم
+          #    تسوء بها**، فتحميرُ الوظيفة عليها يعلّم الناس تجاهُل الأحمر —
+          #    وذاك أسوأ من الخضرة الكاذبة التي نتقيها. فيُوسَم تحذيراً ويُرى.
+          if [ "$rc" -eq 2 ]; then
+            echo "> ⚠️ **بقيت حالات «بسملة بلا قصّ متحقَّق»** — تحذيرٌ لا فشل: حالٌ سابقةٌ للتمريرة."               >> "$GITHUB_STEP_SUMMARY"
+          elif [ "$rc" -gt 2 ]; then
+            echo "⛔ خطأ تنفيذ (rc=$rc)"; exit "$rc"
+          fi
 
       - name: المخرَج (الفهرس المقصوص والجدول)
         if: always()
