@@ -18,6 +18,8 @@ export ALIGN_REFINE=1          # ⛔ الجيل الثاني إلزامي (بد�
 #    غابتا أخذت العدة افتراضها (4 و512).
 export WHISPER_THREADS="${WHISPER_THREADS:-4}" WHISPER_AC="${WHISPER_AC:-512}"
 echo "وصفة whisper: -t $WHISPER_THREADS · -ac ${WHISPER_AC:-(مُسقط)} · JOBS=$JOBS"
+# برهانٌ في السجل الحيّ أن المتغيّرات تصل العملية الابنة فعلاً لا الـworkflow وحده:
+env | grep -E "^(ALIGN_REFINE|WHISPER_THREADS|WHISPER_AC)=" | sed "s/^/بيئة العامل: /"
 mkdir -p "$ROOT/logs-copy"
 
 # ⛔ الروايات التي تقبلها `batch_run.py --riwaya`. كانت ثلاثاً في `main` فأسقطت
@@ -27,7 +29,7 @@ mkdir -p "$ROOT/logs-copy"
 #    بإعلانٍ صريح — ⛔ ولا يُحذف سطره من القائمة كي لا يُزاح ترتيب القسمة.
 SUPPORTED_RIWAYAT="hafs warsh qalun douri sousi shuba"
 
-ok_count=0; fail_count=0; skip_count=0
+ok_count=0; fail_count=0; skip_count=0; checked_refine=0
 declare -a FAILED=() SKIPPED=()
 
 supported() {
@@ -48,6 +50,18 @@ run_one() {          # $1=reciterId $2=riwaya $3=baseUrl $4=surahs
   if [ "$rc" -ne 0 ]; then
     echo "❌ $rid: batch_run rc=$rc — يُعزل ويُواصَل"
     fail_count=$((fail_count + 1)); FAILED+=("$rid:batch_run=$rc"); return 0
+  fi
+  # ⛔ حارس الإقلاع (اقتراح github-7d، كلفته ثانيتان): فحصي في بناء الصورة يثبت
+  #    أن وحدة `refine` **تُستورَد**، ولا يثبت أنها **نفَذت** — وهذان أمران
+  #    مختلفان، وشاهدهما الحيّ `tareq_qalun` (‏refineVersion=none · medTargeted=0
+  #    مع 1205 مداخل MED). فإن خرج أول فهرسٍ في الشريحة بلا صقل **وفيه MED**،
+  #    تُوقَف الشريحة كلها بدل أن تُهدر ست ساعات في إنتاج جيلٍ أول.
+  if [ "$checked_refine" = "0" ]; then
+    checked_refine=1
+    _idx="$ROOT/tools/alignment/work/timings_${riwaya}_${rid}.jz"
+    if [ -f "$_idx" ]; then
+      "$PY" "$ROOT/tools/ci_fleet/refine_probe.py" "$_idx"         || { echo "⛔ الشريحة تُوقَف: الصقل لا يعمل"; return 1; }
+    fi
   fi
   "$PY" "$ROOT/tools/ci_fleet/stage_upload.py" --reciter "$rid" --riwaya "$riwaya" \
         --expect-surahs "$surahs" --log "$ROOT/logs-copy/$rid.log" || rc=$?
@@ -93,7 +107,7 @@ while IFS=$'\t' read -r rid riwaya base prio rest; do
   case "$rid" in ''|'#'*) continue;; esac
   [ -n "${prio:-}" ] || continue
   if [ $(( i % SHARDS )) -eq "$SHARD" ]; then
-    run_one "$rid" "$riwaya" "$base" "1-114"
+    run_one "$rid" "$riwaya" "$base" "1-114" || { echo "⛔ توقّف مبكر"; summary; exit 1; }
   fi
   i=$(( i + 1 ))
 done < "$LIST"

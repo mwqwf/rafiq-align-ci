@@ -143,13 +143,18 @@ jobs:
 
       # ── الاستئناف: العمل المنجز يُخبَّأ فيلتقطه التشغيل التالي ───────────
       # batch_run.py لا يعيد سورةً لها json — فالكاش وحده يكسر سقف الست ساعات.
+      # ⛔ الوصفة جزءٌ من المفتاح (أمر github-f4 بعد بلاغ 7d): `batch_run.py` لا
+      #    يعيد سورةً لها `s*.json` — وهذه هي نعمة الاستئناف ونقمته معاً. فكاشٌ
+      #    وُلّد بـ`-ac 512` يُستعاد على تشغيلةٍ بـ`-ac 0` **فلا يُعاد التعرّف
+      #    أصلاً**، ويخرج فهرسٌ بالوصفة القديمة تحت اسم الجديدة. تغيير الوصفة
+      #    يجب أن يُبطل الكاش، ولذلك دخلت في المفتاح لا في التعليق.
       - name: كاش العمل الجزئي
         uses: actions/cache@v4
         with:
           path: tools/alignment/work
-          key: align-work-${{ matrix.shard }}-${{ github.run_id }}
+          key: align-work-ac${{ env.WHISPER_AC }}-${{ matrix.shard }}-${{ github.run_id }}
           restore-keys: |
-            align-work-${{ matrix.shard }}-
+            align-work-ac${{ env.WHISPER_AC }}-${{ matrix.shard }}-
 
       - name: تشغيل السائق
         env:

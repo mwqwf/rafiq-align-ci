@@ -88,8 +88,29 @@ def guard(rid, expect, log_path, th):
     return True, f"مداخل {n} · بصمات {len(fs)}/{len(fs)}"
 
 
+def refine_guard(d):
+    """⛔ برهان أن الصقل **عمل** لا أن وحدته موجودة (بلاغ github-7d، 2026-09-02).
+
+    الفرق جوهري وقد أخطأتُ فيه: فحصُ الإقلاع عندي يثبت أن `refine` **يُستورَد**،
+    ولا يثبت أنه **نفَذ** على مدخل واحد. والشاهد الحيّ `tareq_qalun` — وُلّد
+    بعد الإصلاح وفيه `refineVersion=none` و`medTargeted=0` مع 1205 مدخلاً MED.
+
+    و`medTargeted` هو **المقام**: عدد ما دخل الصقل. فصفرُه يعني أن الصقل لم
+    يعمل أصلاً، لا أنه عمل فلم يجد ما يصقله (‏b9 قاس لقالون 46%).
+    """
+    mt = d.get("medTargeted", 0) or 0
+    rv = d.get("refineVersion") or "none"
+    if mt == 0:
+        return False, (f"⛔ الصقل لم يعمل: medTargeted=0 · refineVersion={rv} — "
+                       "فهرسُ جيلٍ أول يبدو مكتملاً. لا يُرفع.")
+    return True, f"صقل: medTargeted={mt} · refined={d.get('refinedCount', 0)} · {rv}"
+
+
 def shipped_guard(idx, expect, th):
     d = json.load(gzip.open(idx, "rt", encoding="utf-8"))
+    ok_r, why_r = refine_guard(d)
+    if not ok_r:
+        return False, why_r
     n = len(d.get("entries", []))
     hi = sum(1 for e in d["entries"] if e.get("confBand") == "HIGH")
     if expect < 114:
@@ -97,12 +118,12 @@ def shipped_guard(idx, expect, th):
         #    على تشغيلة اختبار من سورة واحدة رفضٌ كاذب: وقع فعلاً في smoke
         #    33581796764 — سورة 108 ثلاث آيات كلها MED ⇒ «HIGH 0/3 < 50%»،
         #    فبدت السلسلة فاشلة وهي سليمة حتى الرفع. تُقاس ولا تحجب هنا.
-        return True, f"مشحون {n} · HIGH {hi} (تشغيلة جزئية: العتبتان لا تنطبقان)"
+        return True, f"مشحون {n} · HIGH {hi} · {why_r} (تشغيلة جزئية: العتبتان لا تنطبقان)"
     if n < th["MIN_SHIPPED"]:
         return False, f"تغطية {n}/6236 < {th['MIN_SHIPPED']}"
     if n and hi < n * 0.5:
         return False, f"HIGH {hi}/{n} < 50%"
-    return True, f"مشحون {n} · HIGH {hi}"
+    return True, f"مشحون {n} · HIGH {hi} · {why_r}"
 
 
 def count_expected(spec):
