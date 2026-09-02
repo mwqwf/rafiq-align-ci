@@ -45,17 +45,50 @@ def frozen_refuse(riwaya, rid):
     `husary_qalun` نصّاً)، والقائمة مصدرها ملف الأسطول لا نسخةً عندي.
     """
     key = f"timings/{riwaya}/{rid}.jz"
+
+    def keys_of(text):
+        out = set()
+        for line in text.splitlines():
+            line = line.split("#", 1)[0].strip()
+            if line:
+                out.add(line.split()[0])
+        return out
+
+    # ⛔ **مصدر الصدق هو الدلو لا الشجرة** (‏D-075، أمر github-f4): شجرة كل
+    #    عدّاءٍ لقطةٌ من لحظة استنساخه، وبها سقط رافع الأسطول — جمَّد b9 فهرساً
+    #    ورافعٌ بنسخةٍ أقدم لم يرَ التجميد فكتب فوقه. والدلو واحدٌ للجميع.
+    frozen = set()
+    try:
+        import boto3
+        c = json.load(open(os.path.join(ROOT, "secure", "r2_credentials.json")))
+        s3 = boto3.client("s3", endpoint_url=c["endpoint"],
+                          aws_access_key_id=c["accessKeyId"],
+                          aws_secret_access_key=c["secretAccessKey"], region_name="auto")
+        frozen |= keys_of(s3.get_object(Bucket=c["bucket"], Key="timings/frozen.txt")
+                          ["Body"].read().decode("utf-8"))
+    except Exception as ex:
+        # ⛔ فشلٌ **مغلق**: قائمةٌ لا تُقرأ ليست قائمةً فارغة. وتعذّر الشبكة
+        #    ليس إذناً بالكتابة فوق مجمَّد.
+        return True, f"⛔ تعذّرت قراءة timings/frozen.txt من الدلو ({ex}) — لا رفع"
+
+    # ⛔ ونضمّ نسخة الشجرة **زيادةً لا بديلاً**: قِيس فعلاً (2026-09-02) أن
+    #    نسخة الدلو كانت تنقص `husary_warsh` الذي في الشجرة ⇒ الاستبدال وحده
+    #    كان **يُضعف** الحارس ويُطلق مجمَّداً. والاتحاد لا يمكن أن يكون أضعف
+    #    من أيٍّ من المصدرين، وأي فرقٍ بينهما يُبلَّغ في السطر أدناه.
+    tree = set()
     try:
         with open(FROZEN_LIST, encoding="utf-8") as f:
-            for line in f:
-                line = line.split("#", 1)[0].strip()
-                if line and line.split()[0] == key:
-                    return True, f"{rid} مجمَّد في frozen.txt"
+            tree = keys_of(f.read())
     except FileNotFoundError:
-        # ⛔ الغياب **يرفض ولا يمرّ** (تنبيه github-82 عبر b9): «الحارس الذي
-        #    يمرّ عند غياب قائمته يتحول إلى لا شيء يوم يُنسى الملف». والغياب
-        #    في Actions أرجح منه على خادمٍ دائم لأن كل عدّاء يبدأ من صفر.
-        return True, f"⛔ {FROZEN_LIST} غائب — الحارس بلا قائمة لا يحرس"
+        tree = set()
+
+    only_tree = tree - frozen
+    if key in frozen:
+        return True, f"{rid} مجمَّد (الدلو)"
+    if key in tree:
+        return True, f"{rid} مجمَّد (الشجرة وحدها — ⚠️ ينقص الدلو: {sorted(only_tree)})"
+    if only_tree:
+        print(f"⚠️ انحرافٌ في قائمة التجميد — في الشجرة ولا في الدلو: {sorted(only_tree)}")
     return False, ""
 
 
