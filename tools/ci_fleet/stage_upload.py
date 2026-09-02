@@ -209,9 +209,17 @@ def main():
               "بحرّاسه، وأي بادئة أخرى كاتبٌ بلا حارس.")
         sys.exit(2)
 
-    refuse, why_frozen = frozen_refuse(a.riwaya, a.reciter)
-    if refuse:
-        print(f"🧊 D-058: {why_frozen} — ⛔ لا رفع ولو إلى staging")
+    # ⛔ التجميد في staging: مَنعٌ مشروط لا مطلق (تصحيح github-f4، 2026-09-02).
+    #    كان حارسي يرفض المجمَّد في staging **مطلقاً** — وهو أشدّ مما يجب:
+    #    ‏`staging` هو **المسار الوحيد لاستبدال مجمَّد** (رفعٌ موسوم ← حكم ←
+    #    رفع تجميدٍ صريح ← ترقية)، فالمنع المطلق يُغلق باب الإصلاح على نفسه.
+    #    والشرطان الباقيان يحفظان المقصد الأصلي: **لا مفتاحاً عارياً** (‏`<id>.jz`
+    #    يُخلط بالمنشور فيلتبس الحكم — وهو ما حذّر منه b9)، **ولا كتابةً فوق
+    #    موجود** (والبصمة في الاسم مشتقّةٌ من المحتوى، فوجود المفتاح يعني
+    #    محتوىً مطابقاً؛ والكتابة عليه تمحو شاهداً بلا أن تضيف شيئاً — D-042).
+    frozen, why_frozen = frozen_refuse(a.riwaya, a.reciter)
+    if frozen and why_frozen.startswith("⛔"):
+        print(f"🧊 {why_frozen}")     # تعذّرت قراءة القائمة ⇒ فشلٌ مغلق
         sys.exit(2)
 
     th = thresholds()
@@ -257,6 +265,24 @@ def main():
             "surahs": str(expect), "sha256-8": sha8, "source": "github-actions"}
     # ⛔ لا manifest ولا كتابة في timings/: الترقية من staging إلى الإنتاج
     #    قرارُ صاحب الأسطول بعد مقارنته بالمنشور، لا قرارَ عدّاءٍ مجاني.
+    # ⛔ شرطا المجمَّد يُطبَّقان هنا، على المفتاح النهائي لا على النية:
+    if frozen:
+        if ".jz" in key and f"{a.reciter}.jz" in key:
+            print(f"🧊 {a.reciter} مجمَّد ⇒ ⛔ لا مفتاح عارٍ في staging "
+                  "(يلتبس بالمنشور فيختلط الحكم). المطلوب `<id>.<sha8>.jz`.")
+            sys.exit(2)
+        try:
+            s3.head_object(Bucket=c["bucket"], Key=key)
+            print(f"🧊 {a.reciter} مجمَّد و`{key}` موجودٌ سلفاً ⇒ ⛔ لا كتابة فوقه. "
+                  "والبصمة مشتقّة من المحتوى، فالموجود مطابقٌ لما كنت سأرفع.")
+            sys.exit(2)
+        except Exception as ex:               # noqa: BLE001
+            if "404" not in str(ex) and "NoSuchKey" not in type(ex).__name__ \
+               and "ClientError" not in type(ex).__name__:
+                print(f"🧊 تعذّر التحقق من وجود `{key}` ({ex}) ⇒ ⛔ لا رفع لمجمَّد بلا يقين")
+                sys.exit(2)
+        print(f"🧊 {a.reciter} مجمَّد — يُرفع بمفتاحٍ موسومٍ جديد (مسار الاستبدال المشروع)")
+
     s3.upload_file(idx, c["bucket"], key,
                    ExtraArgs={"ContentType": "application/gzip", "Metadata": meta})
     print(f"⬆️ رُفع {key} ({os.path.getsize(idx)//1024}ك.ب · "
