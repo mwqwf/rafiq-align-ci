@@ -172,6 +172,19 @@ jobs:
               print("النموذج نُزّل:", os.path.getsize(dst) // 1024 // 1024, "م.ب")
           PY
 
+      # ⛔ برهان استيراد **قبل** التنزيل والنموذج — وهو الدرس نفسه للمرة
+      #    الثالثة: `ci_run.py` يستورد `run.py` وما تستورده هي، ونسختُ الملف
+      #    وحده فسقطت الوظائف السبع كلها بـ`No module named 'run'` بعد أن
+      #    نزّلت النموذج والصوت. **الحزمة تُنسخ كاملةً، والاستيراد يُبرهن أولاً.**
+      - name: برهان أداة التدقيق (⛔ قبل أي تنزيل)
+        run: |
+          python - <<'PY'
+          import sys
+          sys.path.insert(0, "tools/index_qa")
+          import ci_run  # noqa: F401
+          print("✅ ci_run وتبعياتها تُستورَد")
+          PY
+
       - name: تدقيق ${{ matrix.key }}
         env:
           KEY: ${{ matrix.key }}
