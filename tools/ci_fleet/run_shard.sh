@@ -43,14 +43,46 @@ run_one() {          # $1=reciterId $2=riwaya $3=baseUrl $4=surahs
     skip_count=$((skip_count + 1)); SKIPPED+=("$rid:$riwaya"); return 0
   fi
   echo "▶ $rid ($riwaya) سور=$surahs"
-  "$PY" "$ROOT/tools/alignment/batch_run.py" \
-        --reciter "$rid" --riwaya "$riwaya" --base "$base" --surahs "$surahs" \
-        > "$ROOT/logs-copy/$rid.log" 2>&1 || rc=$?
+  # ⛔ التوازي هنا لا في العدة (عيبٌ قاتل كشفه github-f4): `batch_run.py`
+  #    **تسلسليّ بلا توازٍ داخلي** — فحصتُه: صفر Thread/Pool/multiprocessing،
+  #    و`JOBS` كان يُطبَع ولا يُستعمل. ⇒ عدّاءٌ بأربع أنوية يعمل بنواةٍ واحدة،
+  #    والقارئ 5–6 ساعات فيقتله سقف الست ⇒ **صفر قارئ مكتمل**.
+  #    العلاج: JOBS عمليات `batch_run` متوازية، كلٌّ على **حزمة سورٍ** خاصة،
+  #    على مجلد الدفعة نفسه (الملفات لكل سورة فالحزم متباينة لا تتصادم).
+  #    ⛔ والقسمة بمجموع الآي لا بعدد السور — أبطأُ حزمةٍ هي زمن القارئ كله.
+  if [ "$surahs" = "1-114" ] && [ "${JOBS:-1}" -gt 1 ]; then
+    local packs pids=() k=0
+    packs="$("$PY" "$ROOT/tools/ci_fleet/make_bins.py" "$JOBS")" || packs=""
+    if [ -n "$packs" ]; then
+      for pack in $packs; do
+        k=$((k + 1))
+        "$PY" "$ROOT/tools/alignment/batch_run.py" \
+              --reciter "$rid" --riwaya "$riwaya" --base "$base" --surahs "$pack" \
+              > "$ROOT/logs-copy/$rid.part$k.log" 2>&1 &
+        pids+=($!)
+      done
+      echo "  ⇉ $k حزمة متوازية (بمجموع الآي)"
+      for p in "${pids[@]}"; do wait "$p" || rc=$?; done
+      cat "$ROOT/logs-copy/$rid".part*.log > "$ROOT/logs-copy/$rid.log" 2>/dev/null
+      # ⛔ تمريرة ختامية إلزامية: كل عملية بَنَت فهرس حزمتها وحدها. هذه تبني
+      #    الفهرس الكامل، ولا تُعيد تفريغ شيء (‏batch_run لا يعيد سورةً لها json).
+      "$PY" "$ROOT/tools/alignment/batch_run.py" \
+            --reciter "$rid" --riwaya "$riwaya" --base "$base" --surahs "1-114" \
+            >> "$ROOT/logs-copy/$rid.log" 2>&1 || rc=$?
+    fi
+  fi
+  if [ "$rc" -eq 0 ] && [ ! -s "$ROOT/logs-copy/$rid.log" ]; then
+    "$PY" "$ROOT/tools/alignment/batch_run.py" \
+          --reciter "$rid" --riwaya "$riwaya" --base "$base" --surahs "$surahs" \
+          > "$ROOT/logs-copy/$rid.log" 2>&1 || rc=$?
+  fi
   tail -n 40 "$ROOT/logs-copy/$rid.log"
   if [ "$rc" -ne 0 ]; then
     echo "❌ $rid: batch_run rc=$rc — يُعزل ويُواصَل"
     fail_count=$((fail_count + 1)); FAILED+=("$rid:batch_run=$rc"); return 0
   fi
+  # عدّ الملفات بعد التوازي — الحارس اللاحق يفحصها، وهذا سطرٌ للسجل لا حكم.
+  echo "  📄 ملفات السور: $(ls "$ROOT/tools/alignment/work/batch_$rid"/s*.json 2>/dev/null | wc -l)/114"
   # ⛔ حارس الإقلاع (اقتراح github-7d، كلفته ثانيتان): فحصي في بناء الصورة يثبت
   #    أن وحدة `refine` **تُستورَد**، ولا يثبت أنها **نفَذت** — وهذان أمران
   #    مختلفان، وشاهدهما الحيّ `tareq_qalun` (‏refineVersion=none · medTargeted=0
