@@ -146,6 +146,10 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: basmala-${{ strategy.job-index }}
-          path: work/*.json
+          # ⛔ الفهرس المقصوص نفسه مخرَجٌ لا الجدول وحده: هو المادة التي
+          #    يُقرّر عليها الاستبدال، وبلا رفعه يصير التقرير حكماً بلا شاهد.
+          path: |
+            work/*.json
+            work/*.basmala.jz
           if-no-files-found: warn
           retention-days: 7
