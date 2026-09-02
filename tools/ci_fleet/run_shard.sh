@@ -142,16 +142,24 @@ if [ "${SMOKE:-false}" = "true" ]; then
   summary; exit $?
 fi
 
-# ── التوزيع بالقارئ، بنفس قاعدة run_fleet.py حرفياً: i % SHARDS == SHARD ──
-# (‏b9: «مصفوفتك 0..19 بـSHARDS=20 تعمل كما هي بلا تعديل سطر».)
-i=0
-while IFS=$'\t' read -r rid riwaya base prio rest; do
-  case "$rid" in ''|'#'*) continue;; esac
-  [ -n "${prio:-}" ] || continue
-  if [ $(( i % SHARDS )) -eq "$SHARD" ]; then
-    run_one "$rid" "$riwaya" "$base" "1-114" || { echo "⛔ توقّف مبكر"; summary; exit 1; }
-  fi
-  i=$(( i + 1 ))
-done < "$LIST"
+# ── التوزيع بالوزن لا بالقسمة الدورية ────────────────────────────────────
+# ⛔ إذن github-f4 لجبهة CI وحدها؛ وقاعدة b9 («الترتيب هو القسمة، لا يُعاد
+#    ترتيبه») تبقى نافذةً على شرائح الأسطول. وسببه قياس: حجم البقرة يتراوح
+#    28م.ب–373م.ب بين القرّاء (‏13×)، و`i % SHARDS` توزيعٌ أعمى قد يجمع الثقال
+#    في شريحةٍ واحدة — **وأبطأ شريحةٍ هي زمن الموجة كله**.
+#    والحتمية محفوظة: كل شريحة تحسب التوزيع نفسه من الملف نفسه بلا تنسيق.
+#    وعند غياب عمود الوزن يسقط `assign_shard.py` إلى `i % SHARDS` كما كان.
+ASSIGN="$ROOT/tools/ci_fleet/assign_shard.py"
+if [ -f "$ASSIGN" ]; then
+  MINE="$("$PY" "$ASSIGN" "$LIST" "$SHARD" "$SHARDS")"
+else
+  MINE="$(awk -F'\t' -v s="$SHARD" -v n="$SHARDS" \
+          '!/^#/ && NF>=4 { if (i % n == s) print $1"\t"$2"\t"$3"\t"$4; i++ }' "$LIST")"
+fi
+echo "قرّاء هذه الشريحة: $(printf '%s\n' "$MINE" | grep -c .)"
+printf '%s\n' "$MINE" | while IFS=$'\t' read -r rid riwaya base prio; do
+  [ -n "${rid:-}" ] || continue
+  run_one "$rid" "$riwaya" "$base" "1-114" || { echo "⛔ توقّف مبكر"; summary; exit 1; }
+done
 echo "SHARD_DONE $SHARD/$SHARDS"
 summary
