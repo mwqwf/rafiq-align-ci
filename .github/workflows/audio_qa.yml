@@ -220,6 +220,20 @@ jobs:
           #    مستقلّتان تختلفان ⇒ الفهرس متفاوت، وذاك ما تُخفيه المشتركة.
           # ⛔ ويُمرَّر **إن كانت الأداة تقبله**: أداةُ 7e تتطوّر، وعلمٌ لا تعرفه
           #    يُسقط الوظيفة — فنسأل `--help` بدل أن نفترض.
+          # ⛔ أداة 7e تقرأ الاعتماد من **متغيّرات البيئة** لا من ملفٍ في
+          #    `secure/` (رسالتها الصريحة: «ينقص من البيئة: R2_ENDPOINT …»).
+          #    فتُشتقّ منه هنا **داخل الخطوة** بلا طباعة — والملف يبقى للأدوات
+          #    التي تقرؤه (‏stage_upload وغيرها). ولا نفترض شكلاً: نُصدّر
+          #    الأربعة كما تسمّيها هي.
+          eval "$(python - <<'PY'
+          import json, shlex
+          c = json.load(open("secure/r2_credentials.json"))
+          m = {"R2_ENDPOINT": c["endpoint"], "R2_ACCESS_KEY_ID": c["accessKeyId"],
+               "R2_SECRET_ACCESS_KEY": c["secretAccessKey"], "R2_BUCKET": c["bucket"]}
+          for k, v in m.items():
+              print(f"export {k}={shlex.quote(v)}")
+          PY
+          )"
           EXTRA=""
           H="$(python tools/index_qa/ci_run.py --help 2>&1 || true)"
           case "$H" in *--seed-salt*) EXTRA="$EXTRA --seed-salt ci";; esac
