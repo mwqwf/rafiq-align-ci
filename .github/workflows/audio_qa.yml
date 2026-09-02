@@ -56,7 +56,7 @@ jobs:
           python - <<'PY' >> "$GITHUB_OUTPUT"
           import json, os, sys, boto3
           # ⛔ `only` يُنتج **كائنات** كالمسار العام لا نصوصاً: كان يطبع قائمة
-          #    نصوص بينما الوظيفة تقرأ `matrix.item.key` ⇒ مصفوفةٌ لا تُقرأ.
+          #    نصوص بينما الوظيفة تقرأ `matrix.key` ⇒ مصفوفةٌ لا تُقرأ.
           #    ويقبل عدة مفاتيح مفصولةً بفاصلة أو مسافة (دفعةٌ موجَّهة).
           only = os.environ.get("ONLY", "").strip()
           c = json.load(open("secure/r2_credentials.json"))
@@ -74,10 +74,12 @@ jobs:
                       if o["Key"].endswith(".jz"):
                           ks.append((o["LastModified"], o["Key"]))
           ks.sort()
-          # ⛔ البصمة الكاملة تُحسب هنا لا في الوظيفة: `--expect-sha` يرفض
-          #    التدقيق إن تغيّر المحتوى تحت المفتاح — و7e دقّق ليلتها نسخةً
-          #    ناقصة استُبدلت بعدها. والفهرس ~86ك.ب فحسابها كلها زهيد.
-          import gzip, hashlib, io as _io
+          # ⛔ **المفاتيح وحدها في المصفوفة، والبصمة تُحسب في الوظيفة.**
+          #    سببه مقيس: GitHub حجب مخرَج الخطوة كلَّه بـ«may contain secret»
+          #    حين حملت المصفوفةُ بصماتٍ ست عشرية، فخرجت مصفوفةٌ فارغة و**نجحت
+          #    `prepare` بلا وظائف** — خضرةٌ كاذبة أخرى. والوظيفة تنزّل الفهرس
+          #    أصلاً، فحسابُ البصمة عندها لا يكلّف شيئاً ولا يمرّ بمخرَجٍ يُحجب.
+          import gzip, io as _io
           out, skipped = [], []
           for _, k in ks:
               if not only and len(out) >= int(os.environ["LIMIT"]):
@@ -93,7 +95,7 @@ jobs:
               #    **إنفاقُ خانةٍ من العشرين على حكمٍ يسقط بالإعادة**.
               if (not d.get("refineVersion") or d.get("refineVersion") == "none") and not only:
                   skipped.append((k, "جيلٌ أول (لا وسم صقل)")); continue
-              out.append({"key": k, "sha": hashlib.sha256(b).hexdigest()})
+              out.append(k)
           for k, why in skipped:
               print(f"⏭ {k} — {why}", file=sys.stderr)
           print(f"matrix={json.dumps(out)}")
@@ -110,7 +112,7 @@ jobs:
       fail-fast: false          # حكمُ فهرسٍ لا يُسقط أحكام إخوته
       max-parallel: 20          # سقف الحساب — تصريحٌ لا اكتشافٌ عند الاصطفاف
       matrix:
-        item: ${{ fromJSON(needs.prepare.outputs.matrix) }}
+        key: ${{ fromJSON(needs.prepare.outputs.matrix) }}
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
@@ -144,9 +146,9 @@ jobs:
           path: qa_audio
           # المفتاح مشتقٌّ من المفتاح كاملاً، والاسترجاع الجزئي بالبادئة
           # نفسها ⇒ فهارس القارئ الواحد (بصمات مختلفة) تتشارك مخبأه.
-          key: qa-audio-${{ matrix.item.key }}
+          key: qa-audio-${{ matrix.key }}
           restore-keys: |
-            qa-audio-${{ matrix.item.key }}
+            qa-audio-${{ matrix.key }}
             qa-audio-timings-staging/
 
       - name: الاعتماد والنموذج
@@ -170,8 +172,9 @@ jobs:
               print("النموذج نُزّل:", os.path.getsize(dst) // 1024 // 1024, "م.ب")
           PY
 
-      - name: تدقيق ${{ matrix.item.key }}
+      - name: تدقيق ${{ matrix.key }}
         env:
+          KEY: ${{ matrix.key }}
           # ⛔ النموذج من المخبأ لا من الدلو: السكربت لا يعيد التنزيل إن وُجد.
           QA_MODEL: ${{ github.workspace }}/assets-archive/ggml/ggml-tiny-ar-quran-q8_0.bin
           QA_CACHE: ${{ github.workspace }}/qa_audio
@@ -182,7 +185,20 @@ jobs:
           # يُنتظر رفعٌ (‏github-7e).
           # ⛔ والخروج غير الصفري على المرفوض **مقصود**: يُرى الرفض في اللوحة
           #    بلا قراءة سجلّ، ولذلك `fail-fast: false` أعلاه ضرورةٌ لا زينة.
-          python tools/index_qa/ci_run.py             --key "${{ matrix.item.key }}"             --expect-sha "${{ matrix.item.sha }}"             --clusters 20 --per-cluster 10
+          # البصمة تُحسب هنا من الكائن نفسه ثم تُمرَّر — فيبقى `--expect-sha`
+          # حارساً ضد تبدُّل المحتوى تحت المفتاح أثناء التدقيق (درس github-7e).
+          SHA=$(python - <<'PY'
+          import hashlib, json, os, boto3
+          c = json.load(open("secure/r2_credentials.json"))
+          s3 = boto3.client("s3", endpoint_url=c["endpoint"],
+                            aws_access_key_id=c["accessKeyId"],
+                            aws_secret_access_key=c["secretAccessKey"], region_name="auto")
+          b = s3.get_object(Bucket=c["bucket"], Key=os.environ["KEY"])["Body"].read()
+          print(hashlib.sha256(b).hexdigest())
+          PY
+          )
+          echo "البصمة: ${SHA:0:8}…"
+          python tools/index_qa/ci_run.py --key "$KEY" --expect-sha "$SHA"             --clusters 20 --per-cluster 10
           # ⛔ ولا `--out-prefix`: البادئة `state/` هي الافتراض بأمر المشرف
           #    ليقرأها راصد f5 مباشرةً — وتمريرُها هنا يعيد اختراع اصطلاحٍ قائم.
 
