@@ -162,11 +162,21 @@ def main():
         for chunk in iter(lambda: fh.read(1 << 20), b""):
             h.update(chunk)
     sha8 = h.hexdigest()[:8]
-    key = f"{a.prefix}/{a.riwaya}/{a.reciter}.{sha8}.jz"
+    # ⛔ الجزئي يُسمّى جزئياً (طلب github-7e، وهو محقّ): عتبتا التغطية وHIGH
+    #    مُوقَفتان على التشغيلة الجزئية ⇒ الفهرس يصل المدقّق **بلا حارسٍ أوّلي**،
+    #    و«جزئيٌّ» و«ناقصٌ» يبدوان سواءً في عدد المداخل. فالتمييز يُحمل في
+    #    **الاسم والميتاداتا** معاً: الاسم يُرى في الجرد بلا تنزيل، والميتاداتا
+    #    تُقرأ بـHEAD بلا فكّ ضغط.
+    part = "" if expect >= 114 else f".partial{expect}"
+    key = f"{a.prefix}/{a.riwaya}/{a.reciter}{part}.{sha8}.jz"
+    meta = {"partial": "true" if expect < 114 else "false",
+            "surahs": str(expect), "sha256-8": sha8, "source": "github-actions"}
     # ⛔ لا manifest ولا كتابة في timings/: الترقية من staging إلى الإنتاج
     #    قرارُ صاحب الأسطول بعد مقارنته بالمنشور، لا قرارَ عدّاءٍ مجاني.
-    s3.upload_file(idx, c["bucket"], key, ExtraArgs={"ContentType": "application/gzip"})
-    print(f"⬆️ رُفع {key} ({os.path.getsize(idx)//1024}ك.ب)")
+    s3.upload_file(idx, c["bucket"], key,
+                   ExtraArgs={"ContentType": "application/gzip", "Metadata": meta})
+    print(f"⬆️ رُفع {key} ({os.path.getsize(idx)//1024}ك.ب · "
+          f"{'جزئي ' + str(expect) + ' سورة' if expect < 114 else 'كامل 114'})")
 
 
 if __name__ == "__main__":
