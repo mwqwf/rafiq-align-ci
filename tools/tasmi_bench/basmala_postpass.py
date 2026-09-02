@@ -27,12 +27,17 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 ROOT = os.path.dirname(os.path.dirname(HERE))
 sys.path.insert(0, os.path.join(ROOT, "tools", "alignment"))
 sys.path.insert(0, HERE)
-from basmala_local import BAS, WORK, _eq, cut, fuzzy_seq, text_of  # noqa: E402
+from basmala_local import BAS, WORK, _edit, _eq, cut, fuzzy_seq, text_of  # noqa: E402
 from common import load_index, load_text, norm, read_jz, write_jz  # noqa: E402
 
 SKIP = {1, 9}
 MIN_CUT_MS, MAX_CUT_MS = 1500, 5000
 VERIFY_MS = 4000
+# ⛔ سُلَّم الكشف: نافذة 6ث وحدها أسقطت 33 حالة ثبتت لاحقاً بنوافذ أقصر
+# (‏قياس 2026-09-02: التوزيع 1000×1 · 1500×1 · 2000×22 · 3000×7 · 4000×1 · 6000×1).
+# فالكشف يمرّ بالسُّلَّم كلّه، والدرجة التي تظهر فيها البسملة تامّةً **هي**
+# تقدير نهايتها — فلا حاجة لمسحٍ ثانٍ.
+LADDER = (1000, 1500, 2000, 3000, 4000, 6000)
 
 
 def fetch_head(url, dst, nbytes=262144):
@@ -40,10 +45,23 @@ def fetch_head(url, dst, nbytes=262144):
     import urllib.request
     if os.path.exists(dst):
         return dst
-    req = urllib.request.Request(url, headers={"Range": f"bytes=0-{nbytes-1}"})
-    with urllib.request.urlopen(req, timeout=60) as r, open(dst, "wb") as f:
-        f.write(r.read())
-    return dst
+    # ⛔ الخادم يقطع الاتصال عشوائياً (‏5 من 23 سورة في تشغيلةٍ واحدة، وثلاث
+    # في أخرى) — وبلا إعادة محاولةٍ يبدو تذبذبُ الشبكة تذبذباً في **النتيجة**:
+    # ‏18 و19 و20 مقصوصة لثلاث تشغيلاتٍ لنفس المدخل. المحاولة تُعاد ثلاثاً.
+    last = None
+    for attempt in range(3):
+        try:
+            req = urllib.request.Request(url,
+                                         headers={"Range": f"bytes=0-{nbytes-1}"})
+            with urllib.request.urlopen(req, timeout=90) as r, open(dst, "wb") as f:
+                f.write(r.read())
+            if os.path.getsize(dst) > 32768:
+                return dst
+            last = "حمولة أقصر من 32ك.ب"
+        except Exception as ex:
+            last = ex
+        time.sleep(2 * (attempt + 1))
+    raise RuntimeError(f"تعذّر التنزيل بعد ثلاث محاولات: {last}")
 
 
 def _exit_code(trimmed, unverified, args):
@@ -99,31 +117,73 @@ def main():
         clip = os.path.join(WORK, "pp_clip.wav")
         try:
             fetch_head(args.url_template.format(s=s), mp3)
-            heard = text_of(model, cut(mp3, e["startMs"], 6000, clip)).split()
-            row["heard"] = " ".join(heard[:8])
-            if fuzzy_seq(heard) is None:
-                row["verdict"] = "لا بسملة"
-                rows.append(row)
-                continue
             end = None
-            for d in range(MIN_CUT_MS, MAX_CUT_MS + 1, 250):
+            for d in LADDER:
                 w = text_of(model, cut(mp3, e["startMs"], d, clip)).split()
                 j = fuzzy_seq(w)
+                if d == LADDER[0] or j is not None:
+                    row["heard"] = " ".join(w[:8])
                 if j is not None and len(w) >= j + len(BAS):
                     end = d
+                    row["rung"] = d
                     break
+            # ⚠️ درجات السُّلَّم خشنة (‏1000م.ث بين درجتين)، والقصّ عند الدرجة
+            # يحلق حتى ثانيةً من أول الآية. فتُصقل النهاية بمسحٍ ربع-ثانيةٍ
+            # **بين الدرجة السابقة والدرجة المُصيبة** — أربع تفريغات لا أكثر.
+            if end is not None:
+                lo = LADDER[LADDER.index(end) - 1] if LADDER.index(end) else 500
+                for d in range(lo + 250, end, 250):
+                    w = text_of(model, cut(mp3, e["startMs"], d, clip)).split()
+                    j = fuzzy_seq(w)
+                    if j is not None and len(w) >= j + len(BAS):
+                        end = d
+                        row["refinedTo"] = d
+                        break
             if end is None:
-                row["verdict"] = "بسملة بلا نهاية مقدَّرة — لا قصّ"
+                row["verdict"] = "لا بسملة عبر السُّلَّم كلّه — لا قصّ"
                 rows.append(row)
                 continue
             new_start = e["startMs"] + end
             ref = norm(text[start_of[s]]).split()
-            after = text_of(model, cut(mp3, new_start, VERIFY_MS, clip)).split()
+            # ⛔ المقارن العام يشترط طول 4 للتسامح، وأوائل آياتٍ كثيرة ثلاثية
+            # («عبس» «سبح» «حم») فيردّها ولو أصابت: «عبش» و«يسبح» رُفضتا في
+            # hawashi 80 و87 وهما صحيحتان. فيُسمح بخطأ حرفٍ واحد من طول 3.
+            def _ok(a, b):
+                return _eq(a, b) or (min(len(a), len(b)) >= 3 and _edit(a, b) <= 1)
+            # ⛔ التسامح مع مطابقةٍ في الموضع الثاني كان لضجيجٍ عابر، لكنه
+            # يمرّر **بقيّة بسملة**: koshi 39 «وحيم تنزيل الكتاب» و70 «من سال»
+            # قُبلتا والحدّ يترك كلمةً من البسملة قبل الآية. فإن كانت الكلمة
+            # الأولى بسمليّة دُفع الحدّ ربع ثانيةٍ حتى تبدأ الآية من موضعها،
+            # وإلا فلا قصّ.
+            def _verify(st):
+                a = text_of(model, cut(mp3, st, VERIFY_MS, clip)).split()
+                if not a:
+                    return False, a
+                # ⛔ لا تسامح مع موضعٍ ثانٍ: كلمةٌ زائدة قبل أول الآية تعني
+                # أن الحدّ **أبكر مما يجب**، وأغلبها بقيّة بسملةٍ مشوّهةُ
+                # التعرّف لا يمسكها تطابقُ الكلمات (‏koshi 39 «وحيم» عن
+                # «الرحيم»). فالشرط: تبدأ الآية من الكلمة الأولى، وإلا دُفع
+                # الحدّ ربع ثانيةٍ حتى ألفَي ثانية ثم يُرفض القصّ.
+                # الرسم يصل ما يفصله التعرّف: ﴿يَٰٓأَيُّهَا﴾ كلمةٌ واحدة في
+                # النصّ («يايها») وكلمتان في المسموع («يا ايها») — فرُفض قصٌّ
+                # صحيح في koshi 22 وdeban 5. فتُجرَّب الكلمتان موصولتين.
+                if _ok(a[0], ref[0]):
+                    return True, a
+                if len(a) > 1 and _ok(a[0] + a[1], ref[0]):
+                    return True, a
+                return False, a
+
+            ok, after = _verify(new_start)
+            pushed = 0
+            while not ok and after and pushed < 2000:
+                pushed += 250
+                new_start = e["startMs"] + end + pushed
+                ok, after = _verify(new_start)
+            if pushed:
+                row["pushedMs"] = pushed
             row["afterHeard"] = " ".join(after[:6])
-            ok = bool(after) and any(_eq(after[k], ref[0]) for k in (0, 1)
-                                     if k < len(after))
             row["startAfter"] = new_start
-            row["deltaMs"] = end
+            row["deltaMs"] = new_start - e["startMs"]
             if not ok:
                 row["verdict"] = "⛔ لم يتحقّق: ما بعد الحدّ الجديد لا يبدأ بأول الآية"
                 rows.append(row)
