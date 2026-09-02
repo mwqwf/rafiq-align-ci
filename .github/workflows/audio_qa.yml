@@ -202,6 +202,45 @@ jobs:
           # ⛔ ولا `--out-prefix`: البادئة `state/` هي الافتراض بأمر المشرف
           #    ليقرأها راصد f5 مباشرةً — وتمريرُها هنا يعيد اختراع اصطلاحٍ قائم.
 
+      # ⛔ ملفٌ **مرافق** لا تعديلٌ في صيغة 7e (قرار github-f4): الأداة تبقى
+      #    واحدةً ملكَ صاحبها، والنسب يُكتب بجواره. وسببه عمليّ: bd يرقّي ما
+      #    اتفق فيه حكمان — فبلا نسبٍ يصير حكمان متطابقان **دليلاً كاذباً على
+      #    اتفاق** وهما حكمٌ واحد كُتب مرتين.
+      # ⛔ و`if: always()`: الحكم بالرفض يُخرج `ci_run` بغير صفر، والنسب لازمٌ
+      #    للمرفوض كلزومه للمقبول — بل ألزم.
+      - name: ملف النسب المرافق
+        if: always()
+        env:
+          KEY: ${{ matrix.key }}
+          RUN_ID: ${{ github.run_id }}
+        run: |
+          python - <<'PY'
+          import hashlib, json, os, boto3
+          key = os.environ["KEY"]
+          tool = "tools/index_qa/ci_run.py"
+          tool_sha = hashlib.sha256(open(tool, "rb").read()).hexdigest()
+          doc = {
+              "kind": "audio",
+              "source": "ci",
+              "run_id": os.environ["RUN_ID"],
+              "tool": tool,
+              "tool_sha": tool_sha,
+              "verdict_file": f"state/{key.replace('/', '_')}.json",
+              "key": key,
+          }
+          c = json.load(open("secure/r2_credentials.json"))
+          s3 = boto3.client("s3", endpoint_url=c["endpoint"],
+                            aws_access_key_id=c["accessKeyId"],
+                            aws_secret_access_key=c["secretAccessKey"], region_name="auto")
+          out = f"state/{key.replace('/', '_')}.ci.json"
+          # ⛔ لا يكتب إلا تحت `state/` — كل كاتبٍ في وجهته وحدها (قاعدة اليوم).
+          assert out.startswith("state/"), out
+          s3.put_object(Bucket=c["bucket"], Key=out,
+                        Body=json.dumps(doc, ensure_ascii=False, indent=1).encode(),
+                        ContentType="application/json")
+          print("نسب:", out, "· أداة:", tool_sha[:8])
+          PY
+
       - name: السجل مخرَجاً
         if: always()
         uses: actions/upload-artifact@v4
