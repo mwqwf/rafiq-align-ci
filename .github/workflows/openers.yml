@@ -40,11 +40,9 @@ jobs:
           printf '%s' "$R2_CREDENTIALS_JSON" > secure/r2_credentials.json
           python - <<'PY' >> "$GITHUB_OUTPUT"
           import json, os, boto3
-          # ⛔ السبعةُ محجوزةٌ لـ8e (تقسيمٌ صريح بيننا): يفحصها تسلسلياً الآن،
-          #    فتشغيلُها هنا **إنفاق تشغيلتين على مفتاحٍ واحد** — والأسوأ أنه
-          #    يُنتج ملفين قد يختلفان فيلزم حسمُ تعارضٍ لا داعي له أصلاً.
-          RESERVED = {"alijon", "k_alzadi", "m_alzubaidi", "shaheen",
-                      "qurashi", "swlim", "rashad"}
+          # (قائمة الحجز لـ8e أُزيلت 2026-09-02: 8e ساقط ولا يفحص شيئاً.)
+          # ⛔ ومن له شاهدُ مطالع سلفاً يُستثنى في المسح العام — بالمفتاح كاملاً
+          #    (وفيه البصمة)، فنسخةٌ جديدة تُفحص من جديد كما يجب.
           only = os.environ.get("ONLY", "").strip()
           c = json.load(open("secure/r2_credentials.json"))
           s3 = boto3.client("s3", endpoint_url=c["endpoint"],
@@ -54,13 +52,20 @@ jobs:
               keys = [k for k in only.replace(",", " ").split() if k]
           else:
               ks = []
+              scanned = set()
+              for p in s3.get_paginator("list_objects_v2").paginate(
+                      Bucket=c["bucket"], Prefix="state/"):
+                  for o in p.get("Contents", []):
+                      n = o["Key"].split("/")[-1]
+                      if n.endswith(".openers.json"):
+                          scanned.add(n[: -len(".openers.json")])
               for p in s3.get_paginator("list_objects_v2").paginate(
                       Bucket=c["bucket"], Prefix="timings-staging/"):
                   for o in p.get("Contents", []):
                       k = o["Key"]
                       if not k.endswith(".jz") or ".partial" in k:
                           continue
-                      if os.path.basename(k).split(".")[0] in RESERVED:
+                      if k.replace("/", "_") in scanned:
                           continue
                       ks.append((o["LastModified"], k))
               ks.sort()

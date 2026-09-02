@@ -19,12 +19,14 @@ on:
       only:
         description: "مفتاحٌ بعينه (يتجاوز البادئة والحدّ) — للتشخيص"
         default: ""
+      seed_salt:
+        description: "ملحُ بذرة العيّنة — `ci` يكتب audio-ci.json، وغيره (مثل ci2) يكتب audio-<الملح>.json شهادةً ثانية مستقلة (D-090)"
+        default: "ci"
 
-# ⛔ مجموعةٌ خاصة به: لا يزاحم موجات الفهرسة منطقياً — ويبقى التزاحم على
-#    **سقف الحساب (20 مهمة متزامنة)** وهو ما لا تحلّه مجموعةٌ ولا إعداد.
-concurrency:
-  group: rafiq-audio-qa
-  cancel-in-progress: false
+# ⛔ لا مجموعة تزاحم (أُزيلت 2026-09-02، D-090): كانت تُبقي تشغيلةً واحدة
+#    قائمة وأخرى معلّقة **وتُلغي ما قبلها من المعلّق**، فتعذّر إطلاق دفعتين
+#    بملحين. والتزاحم الحقيقي على **سقف الحساب (20 مهمة)** وهو ما لا تحلّه
+#    مجموعةٌ ولا إعداد؛ والوظائف تصطفّ عليه من تلقائها.
 
 env:
   PY: "3.11"
@@ -50,11 +52,16 @@ jobs:
           PREFIX: ${{ github.event.inputs.prefix }}
           LIMIT: ${{ github.event.inputs.limit }}
           ONLY: ${{ github.event.inputs.only }}
+          SEED_SALT: ${{ github.event.inputs.seed_salt }}
         run: |
           mkdir -p secure
           printf '%s' "$R2_CREDENTIALS_JSON" > secure/r2_credentials.json
           python - <<'PY' >> "$GITHUB_OUTPUT"
           import json, os, sys, boto3
+          # اسمُ الحكم تابعٌ للملح: `ci` ⇒ audio-ci.json (الاسم التاريخي)،
+          # وغيرُه ⇒ audio-<الملح>.json — فلا يمحو ملحٌ شهادةَ ملحٍ آخر (D-090).
+          salt = (os.environ.get("SEED_SALT") or "ci").strip()
+          suffix = ".audio-ci.json" if salt == "ci" else f".audio-{salt}.json"
           # ⛔ `only` يُنتج **كائنات** كالمسار العام لا نصوصاً: كان يطبع قائمة
           #    نصوص بينما الوظيفة تقرأ `matrix.key` ⇒ مصفوفةٌ لا تُقرأ.
           #    ويقبل عدة مفاتيح مفصولةً بفاصلة أو مسافة (دفعةٌ موجَّهة).
@@ -73,8 +80,8 @@ jobs:
                       Bucket=c["bucket"], Prefix="state/"):
                   for o2 in p2.get("Contents", []):
                       n = o2["Key"].split("/")[-1]
-                      if n.endswith(".audio-ci.json"):
-                          judged.add(n[: -len(".audio-ci.json")])
+                      if n.endswith(suffix):
+                          judged.add(n[: -len(suffix)])
           ks = []
           if only:
               for k in [x for x in only.replace(",", " ").split() if x]:
@@ -207,6 +214,7 @@ jobs:
           QA_MODEL: ${{ github.workspace }}/assets-archive/ggml/ggml-tiny-ar-quran-q8_0.bin
           QA_CACHE: ${{ github.workspace }}/qa_audio
           R2_CREDENTIALS_JSON: ${{ secrets.R2_CREDENTIALS_JSON }}
+          SEED_SALT: ${{ github.event.inputs.seed_salt }}
         run: |
           # النصّ المرجعي من المستودع نفسه: `core/quran/.../text_<riwaya>.jz`
           # مودَعٌ هنا (4.4م.ب)، ولا نسخة له على الدلو — فالاستنساخ يكفي ولا
@@ -251,7 +259,7 @@ jobs:
           )"
           EXTRA=""
           H="$(python tools/index_qa/ci_run.py --help 2>&1 || true)"
-          case "$H" in *--seed-salt*) EXTRA="$EXTRA --seed-salt ci";; esac
+          case "$H" in *--seed-salt*) EXTRA="$EXTRA --seed-salt ${SEED_SALT:-ci}";; esac
           case "$H" in *--kind*)      EXTRA="$EXTRA --kind audio";; esac
           case "$H" in *--source*)    EXTRA="$EXTRA --source ci";; esac
           case "$H" in *--run-id*)    EXTRA="$EXTRA --run-id ${{ github.run_id }}";; esac
@@ -268,15 +276,18 @@ jobs:
       #    **حكم bd البنيوي** لا إلى حكمي، فأعلن «‏kind=audio» على حكمٍ ليس
       #    صوتياً. ⇒ **من يدّعي حكماً يحمله في جوفه**، والمؤشّر يكذب متى تحرّك
       #    ما يشير إليه.
-      - name: حكم الصوت كاملاً إلى state/<key>.audio-ci.json
+      - name: حكم الصوت كاملاً إلى state/<key>.audio-<الملح>.json
         if: always()
         env:
           KEY: ${{ matrix.key }}
           RUN_ID: ${{ github.run_id }}
+          SEED_SALT: ${{ github.event.inputs.seed_salt }}
         run: |
           python - <<'PY'
           import hashlib, json, os, boto3
           key = os.environ["KEY"]; flat = key.replace("/", "_")
+          salt = (os.environ.get("SEED_SALT") or "ci").strip()
+          suffix = ".audio-ci.json" if salt == "ci" else f".audio-{salt}.json"
           c = json.load(open("secure/r2_credentials.json"))
           s3 = boto3.client("s3", endpoint_url=c["endpoint"],
                             aws_access_key_id=c["accessKeyId"],
@@ -294,8 +305,12 @@ jobs:
               "tool_sha": hashlib.sha256(open("tools/index_qa/ci_run.py", "rb").read()).hexdigest(),
               "run_sha": hashlib.sha256(open("tools/index_qa/run.py", "rb").read()).hexdigest(),
           }
-          out = f"state/{flat}.audio-ci.json"
-          assert out.startswith("state/") and out.endswith(".audio-ci.json"), out
+          out = f"state/{flat}{suffix}"
+          assert out.startswith("state/") and out.endswith(suffix), out
+          # ⛔ برهانُ الملح من جوف الحكم لا من العلم: حكمٌ بملحٍ غير المطلوب لا يُكتب باسمه.
+          got = (doc.get("sample") or {}).get("seedSalt")
+          if got != salt:
+              raise SystemExit(f"⛔ ملحُ الحكم {got!r} ≠ المطلوب {salt!r} — لا يُكتب")
           s3.put_object(Bucket=c["bucket"], Key=out,
                         Body=json.dumps(doc, ensure_ascii=False, indent=1).encode(),
                         ContentType="application/json")
