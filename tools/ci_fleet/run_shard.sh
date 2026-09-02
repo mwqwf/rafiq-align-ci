@@ -1,7 +1,11 @@
 #!/usr/bin/env bash
 # سائق الشريحة داخل عدّاء GitHub.
 # ⛔ لا يعدّل حرفاً من tools/alignment أو tools/cloud — يستهلكها كما هي.
-set -euo pipefail
+#
+# ⛔ مبدأ حاكم بعد سقوط smoke ‏33581431477: **سقوط قارئٍ واحد لا يُسقط الشريحة.**
+#    شريحةٌ فيها 2–3 قراء، وأول قارئٍ رديء كان سيُهدر المهمة كلها — وفي التشغيل
+#    الكامل عشرين مهمة. فكل قارئ يُعزل، ويُحصى، ويُطبع جردٌ في النهاية.
+set -uo pipefail          # ⛔ بلا -e عمداً: العزل مقصود لا مصادفة
 
 ROOT="/root/QuranRafiq"
 PY="$ROOT/.venv/bin/python"
@@ -16,24 +20,70 @@ export WHISPER_THREADS="${WHISPER_THREADS:-4}" WHISPER_AC="${WHISPER_AC:-512}"
 echo "وصفة whisper: -t $WHISPER_THREADS · -ac ${WHISPER_AC:-(مُسقط)} · JOBS=$JOBS"
 mkdir -p "$ROOT/logs-copy"
 
+# ⛔ الروايات التي تقبلها `batch_run.py --riwaya` اليوم. القائمة الحيّة تحوي
+#    البصريين وشعبة (‏sousi/douri/shuba) وهي **مرفوضة بالاسم** فتسقط في السطر
+#    الأول (وقع فعلاً في smoke 33581431477 على soufi_sousi). تُتخطّى بإعلانٍ
+#    صريح — لا تُحذف من القائمة كي لا يختلّ ترتيب القسمة — حتى تصل صيغة
+#    تمريرها من صاحب العدة (github-b9)، فتُضاف هنا سطراً واحداً.
+SUPPORTED_RIWAYAT="hafs warsh qalun"
+
+ok_count=0; fail_count=0; skip_count=0
+declare -a FAILED=() SKIPPED=()
+
+supported() {
+  case " $SUPPORTED_RIWAYAT " in *" $1 "*) return 0;; *) return 1;; esac
+}
+
 run_one() {          # $1=reciterId $2=riwaya $3=baseUrl $4=surahs
-  local rid="$1" riwaya="$2" base="$3" surahs="$4"
+  local rid="$1" riwaya="$2" base="$3" surahs="$4" rc=0
+  if ! supported "$riwaya"; then
+    echo "⏭ $rid: الرواية '$riwaya' لا تقبلها العدة بعد — تُتخطّى (تنتظر صيغة b9)"
+    skip_count=$((skip_count + 1)); SKIPPED+=("$rid:$riwaya"); return 0
+  fi
   echo "▶ $rid ($riwaya) سور=$surahs"
   "$PY" "$ROOT/tools/alignment/batch_run.py" \
         --reciter "$rid" --riwaya "$riwaya" --base "$base" --surahs "$surahs" \
-        2>&1 | tee "$ROOT/logs-copy/$rid.log"
+        > "$ROOT/logs-copy/$rid.log" 2>&1 || rc=$?
+  tail -n 40 "$ROOT/logs-copy/$rid.log"
+  if [ "$rc" -ne 0 ]; then
+    echo "❌ $rid: batch_run rc=$rc — يُعزل ويُواصَل"
+    fail_count=$((fail_count + 1)); FAILED+=("$rid:batch_run=$rc"); return 0
+  fi
   "$PY" "$ROOT/tools/ci_fleet/stage_upload.py" --reciter "$rid" --riwaya "$riwaya" \
-        --expect-surahs "$surahs" --log "$ROOT/logs-copy/$rid.log"
+        --expect-surahs "$surahs" --log "$ROOT/logs-copy/$rid.log" || rc=$?
+  if [ "${rc:-0}" -ne 0 ]; then
+    echo "🛑 $rid: لم يُرفع (حارس أو خطأ) rc=$rc — يُعزل ويُواصَل"
+    fail_count=$((fail_count + 1)); FAILED+=("$rid:upload=$rc"); return 0
+  fi
+  ok_count=$((ok_count + 1))
+}
+
+summary() {
+  echo "──────── جرد الشريحة $SHARD/$SHARDS ────────"
+  echo "نجح: $ok_count · سقط: $fail_count · تُخطّي: $skip_count"
+  [ "${#FAILED[@]}"  -gt 0 ] && printf '  ❌ %s\n' "${FAILED[@]}"
+  [ "${#SKIPPED[@]}" -gt 0 ] && printf '  ⏭ %s\n' "${SKIPPED[@]}"
+  # ⛔ الشريحة تفشل **فقط** إن لم ينجح فيها شيء ولم يكن الباقي تخطّياً مفهوماً —
+  #    فالنجاح الجزئي مخرَجٌ نافع لا فشل، والسجل يحمل التفصيل.
+  if [ "$ok_count" -eq 0 ] && [ "$fail_count" -gt 0 ]; then
+    echo "⛔ الشريحة بلا أي نجاح — تُعلَن فاشلة"; return 1
+  fi
+  return 0
 }
 
 if [ "${SMOKE:-false}" = "true" ]; then
   # ── تجربة قصيرة قبل أي تعميم: قارئ واحد وسورة واحدة قصيرة ──────────────
   rid="${SMOKE_RECITER:-}"
-  if [ -z "$rid" ]; then rid="$(awk -F'\t' '!/^#/ && NF>=4 {print $1; exit}' "$LIST")"; fi
+  if [ -z "$rid" ]; then
+    # ⛔ أول قارئ **برواية مدعومة** لا أول سطر: أول سطر في القائمة الحيّة
+    #    (‏soufi_sousi) رواية غير مقبولة فأسقط أول smoke في السطر الأول.
+    rid="$(awk -F'\t' -v s=" $SUPPORTED_RIWAYAT " \
+           '!/^#/ && NF>=4 && index(s, " " $2 " ") {print $1; exit}' "$LIST")"
+  fi
   line="$(awk -F'\t' -v r="$rid" '!/^#/ && $1==r {print; exit}' "$LIST")"
   [ -n "$line" ] || { echo "⛔ لا سطر للقارئ $rid في $LIST"; exit 1; }
   run_one "$rid" "$(echo "$line" | cut -f2)" "$(echo "$line" | cut -f3)" "${SMOKE_SURAHS:-108}"
-  exit 0
+  summary; exit $?
 fi
 
 # ── التوزيع بالقارئ، بنفس قاعدة run_fleet.py حرفياً: i % SHARDS == SHARD ──
@@ -43,8 +93,9 @@ while IFS=$'\t' read -r rid riwaya base prio rest; do
   case "$rid" in ''|'#'*) continue;; esac
   [ -n "${prio:-}" ] || continue
   if [ $(( i % SHARDS )) -eq "$SHARD" ]; then
-    run_one "$rid" "$riwaya" "$base" "1-114" || echo "❌ $rid سقط — تُكمَل الشريحة"
+    run_one "$rid" "$riwaya" "$base" "1-114"
   fi
   i=$(( i + 1 ))
 done < "$LIST"
 echo "SHARD_DONE $SHARD/$SHARDS"
+summary
