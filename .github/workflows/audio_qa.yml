@@ -1,0 +1,161 @@
+name: rafiq-audio-qa
+
+# تدقيقٌ صوتيّ متوازٍ لفهارس `timings-staging/` — عشرون وظيفة بدل خادمٍ واحد.
+#
+# ⛔ سببه مقيس (github-7e): التفريغ الصوتي عمليةُ whisper واحدة على خادمٍ واحد
+#    (~10 دقائق للفهرس بالعيّنة الممثِّلة) ⇒ **107 فهارس ≈ 18 ساعة**. وبعشرين
+#    وظيفة تصير **≈ساعتين**. والعنق ينتقل من التدقيق إلى الإنتاج حيث يجب.
+#
+# ⛔ لا يعمل تلقائياً: `workflow_dispatch` وحده — لا push ولا cron.
+on:
+  workflow_dispatch:
+    inputs:
+      prefix:
+        description: "بادئة المفاتيح المراد تدقيقها"
+        default: "timings-staging/"
+      limit:
+        description: "أقصى عدد فهارس في هذه الدفعة (وهو أيضاً عدد الوظائف، ≤20)"
+        default: "20"
+      only:
+        description: "مفتاحٌ بعينه (يتجاوز البادئة والحدّ) — للتشخيص"
+        default: ""
+
+# ⛔ مجموعةٌ خاصة به: لا يزاحم موجات الفهرسة منطقياً — ويبقى التزاحم على
+#    **سقف الحساب (20 مهمة متزامنة)** وهو ما لا تحلّه مجموعةٌ ولا إعداد.
+concurrency:
+  group: rafiq-audio-qa
+  cancel-in-progress: false
+
+env:
+  PY: "3.11"
+  # ⛔ مثبَّت كما في align.yml: ثنائيٌّ مختلفٌ بين دفعتين = حكمان لا يُقارَنان.
+  WHISPER_REF: eacbd8234c6654cdbf2c377f72b2106875479bdc
+
+jobs:
+  # ── المصفوفة من الدلو نفسه لا من قائمةٍ مكتوبة بيد ─────────────────────
+  # ⛔ الترتيب `LastModified` تصاعدياً — نفس ترتيب المدقّقين (اتفاق 7e)، فلا
+  #    يختلف ترتيبان بين مرحلتين من الطابور الواحد.
+  prepare:
+    runs-on: ubuntu-latest
+    outputs:
+      matrix: ${{ steps.gen.outputs.matrix }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: { python-version: "3.11" }
+      - run: python -m pip install --quiet boto3
+      - id: gen
+        env:
+          R2_CREDENTIALS_JSON: ${{ secrets.R2_CREDENTIALS_JSON }}
+          PREFIX: ${{ github.event.inputs.prefix }}
+          LIMIT: ${{ github.event.inputs.limit }}
+          ONLY: ${{ github.event.inputs.only }}
+        run: |
+          mkdir -p secure
+          printf '%s' "$R2_CREDENTIALS_JSON" > secure/r2_credentials.json
+          python - <<'PY' >> "$GITHUB_OUTPUT"
+          import json, os, boto3
+          only = os.environ.get("ONLY", "").strip()
+          if only:
+              print(f"matrix={json.dumps([only])}")
+              raise SystemExit
+          c = json.load(open("secure/r2_credentials.json"))
+          s3 = boto3.client("s3", endpoint_url=c["endpoint"],
+                            aws_access_key_id=c["accessKeyId"],
+                            aws_secret_access_key=c["secretAccessKey"], region_name="auto")
+          ks = []
+          for p in s3.get_paginator("list_objects_v2").paginate(
+                  Bucket=c["bucket"], Prefix=os.environ["PREFIX"]):
+              for o in p.get("Contents", []):
+                  if o["Key"].endswith(".jz"):
+                      ks.append((o["LastModified"], o["Key"]))
+          ks.sort()
+          keys = [k for _, k in ks][: int(os.environ["LIMIT"])]
+          print(f"matrix={json.dumps(keys)}")
+          PY
+
+  audit:
+    needs: prepare
+    runs-on: ubuntu-latest
+    timeout-minutes: 350
+    strategy:
+      fail-fast: false          # حكمُ فهرسٍ لا يُسقط أحكام إخوته
+      max-parallel: 20          # سقف الحساب — تصريحٌ لا اكتشافٌ عند الاصطفاف
+      matrix:
+        key: ${{ fromJSON(needs.prepare.outputs.matrix) }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: { python-version: "3.11" }
+
+      - name: أدوات النظام
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq ffmpeg
+          python -m pip install --quiet boto3 numpy
+
+      # ⛔ النموذج يُخبَّأ: 41م.ب × 20 وظيفة في كل دفعة تنزيلٌ بلا طائل.
+      - name: كاش النموذج
+        id: modelcache
+        uses: actions/cache@v4
+        with:
+          path: assets-archive/ggml
+          key: qa-model-q8-v1
+
+      - name: الاعتماد والنموذج
+        env:
+          R2_CREDENTIALS_JSON: ${{ secrets.R2_CREDENTIALS_JSON }}
+        run: |
+          mkdir -p secure
+          printf '%s' "$R2_CREDENTIALS_JSON" > secure/r2_credentials.json
+          python - <<'PY'
+          import json, os, boto3
+          dst = "assets-archive/ggml/ggml-tiny-ar-quran-q8_0.bin"
+          if os.path.exists(dst) and os.path.getsize(dst) > 10_000_000:
+              print("النموذج من الكاش:", os.path.getsize(dst) // 1024 // 1024, "م.ب")
+          else:
+              c = json.load(open("secure/r2_credentials.json"))
+              s3 = boto3.client("s3", endpoint_url=c["endpoint"],
+                                aws_access_key_id=c["accessKeyId"],
+                                aws_secret_access_key=c["secretAccessKey"], region_name="auto")
+              os.makedirs(os.path.dirname(dst), exist_ok=True)
+              s3.download_file(c["bucket"], "models/whisper-tiny-ar-quran/ggml-q8_0.bin", dst)
+              print("النموذج نُزّل:", os.path.getsize(dst) // 1024 // 1024, "م.ب")
+          PY
+
+      # ⚠️ يبقى معلَّقاً على github-7e: هل يكفي `pywhispercpp` أم يلزم ثنائي
+      #    `whisper-cli`؟ إن كفى، وفّرنا بناءً 10–20 دقيقة **في كل وظيفة**.
+      #    ولا أضع بناءً «احتياطاً»: كلفةُ الاحتياط هنا عشرون بناءً في الدفعة.
+      - name: محرك التفريغ (يُملأ من وصفة 7e)
+        run: |
+          echo "⚠️ خطوةٌ معلّقة: بانتظار وصفة github-7e (pywhispercpp أم whisper-cli)."
+          echo "لا تُطلق هذه الوظيفة قبل ملئها — الحكم بلا محرك تفريغ لا معنى له."
+          exit 1
+
+      - name: تدقيق ${{ matrix.key }}
+        env:
+          KEY: ${{ matrix.key }}
+        run: |
+          # ⚠️ سطر الاستدعاء يُملأ من 7e — ولا أخترعه: راياتٌ مخترعة تُنتج
+          #    حكماً يبدو صحيحاً ولا يقابل ما يقيسه هو، وهو أسوأ من لا حكم.
+          echo "python tools/index_qa/run.py \"$KEY\" <رايات 7e>"
+          exit 1
+
+      - name: كتابة الحكم إلى الدلو
+        if: always()
+        env:
+          R2_CREDENTIALS_JSON: ${{ secrets.R2_CREDENTIALS_JSON }}
+          KEY: ${{ matrix.key }}
+        run: |
+          # ⚠️ مسار الحكم يُملأ من 7e — الجرد والترقية عنده، ولا ينفع أن أكتب
+          #    حيث لا يقرأ. (اقتراحي المعروض عليه: `qa-state/<key>.json`.)
+          echo "معلَّق حتى يحدّد 7e مسار state/ واسم الملف."
+
+      - name: السجل مخرَجاً
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: qa-${{ strategy.job-index }}
+          path: tools/index_qa/state/**
+          if-no-files-found: warn
+          retention-days: 7
