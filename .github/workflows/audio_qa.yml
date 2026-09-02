@@ -55,20 +55,24 @@ jobs:
           printf '%s' "$R2_CREDENTIALS_JSON" > secure/r2_credentials.json
           python - <<'PY' >> "$GITHUB_OUTPUT"
           import json, os, sys, boto3
+          # ⛔ `only` يُنتج **كائنات** كالمسار العام لا نصوصاً: كان يطبع قائمة
+          #    نصوص بينما الوظيفة تقرأ `matrix.item.key` ⇒ مصفوفةٌ لا تُقرأ.
+          #    ويقبل عدة مفاتيح مفصولةً بفاصلة أو مسافة (دفعةٌ موجَّهة).
           only = os.environ.get("ONLY", "").strip()
-          if only:
-              print(f"matrix={json.dumps([only])}")
-              raise SystemExit
           c = json.load(open("secure/r2_credentials.json"))
           s3 = boto3.client("s3", endpoint_url=c["endpoint"],
                             aws_access_key_id=c["accessKeyId"],
                             aws_secret_access_key=c["secretAccessKey"], region_name="auto")
           ks = []
-          for p in s3.get_paginator("list_objects_v2").paginate(
-                  Bucket=c["bucket"], Prefix=os.environ["PREFIX"]):
-              for o in p.get("Contents", []):
-                  if o["Key"].endswith(".jz"):
-                      ks.append((o["LastModified"], o["Key"]))
+          if only:
+              for k in [x for x in only.replace(",", " ").split() if x]:
+                  ks.append((s3.head_object(Bucket=c["bucket"], Key=k)["LastModified"], k))
+          else:
+              for p in s3.get_paginator("list_objects_v2").paginate(
+                      Bucket=c["bucket"], Prefix=os.environ["PREFIX"]):
+                  for o in p.get("Contents", []):
+                      if o["Key"].endswith(".jz"):
+                          ks.append((o["LastModified"], o["Key"]))
           ks.sort()
           # ⛔ البصمة الكاملة تُحسب هنا لا في الوظيفة: `--expect-sha` يرفض
           #    التدقيق إن تغيّر المحتوى تحت المفتاح — و7e دقّق ليلتها نسخةً
@@ -76,18 +80,18 @@ jobs:
           import gzip, hashlib, io as _io
           out, skipped = [], []
           for _, k in ks:
-              if len(out) >= int(os.environ["LIMIT"]):
+              if not only and len(out) >= int(os.environ["LIMIT"]):
                   break
               # ⛔ الجزئي يُستثنى: عيّنةٌ ممثِّلة على فهرسٍ ناقص تقيس ما ليس
               #    الفهرس، والحكم عليه حكمٌ على شيءٍ لم يكتمل بعد.
-              if ".partial" in k:
+              if ".partial" in k and not only:
                   skipped.append((k, "جزئي")); continue
               b = s3.get_object(Bucket=c["bucket"], Key=k)["Body"].read()
               d = json.load(gzip.open(_io.BytesIO(b), "rt", encoding="utf-8"))
               # ⛔ والجيل الأول يُستثنى (أمر github-f4): فهرسٌ بلا وسم صقل
               #    سيُعاد إنتاجه بالوصفة الجديدة على كل حال، فتدقيقه الصوتي
               #    **إنفاقُ خانةٍ من العشرين على حكمٍ يسقط بالإعادة**.
-              if not d.get("refineVersion") or d.get("refineVersion") == "none":
+              if (not d.get("refineVersion") or d.get("refineVersion") == "none") and not only:
                   skipped.append((k, "جيلٌ أول (لا وسم صقل)")); continue
               out.append({"key": k, "sha": hashlib.sha256(b).hexdigest()})
           for k, why in skipped:
