@@ -132,6 +132,21 @@ jobs:
           print("✅ refine مستورَد — الصقل حيّ")
           PY
 
+      # ⛔ برهانٌ ثانٍ كان ينقصني وكلّف 19 شريحة × 89 دقيقة: فحصتُ أن `refine`
+      #    **يُستورَد**، ولم أفحص أن **بناء الفهرس نفسه** يستورد. و`validate.py`
+      #    يستورد `coverage_guard` من `tools/cloud/` — وكانت ناقصةً من صورتي
+      #    (نسختُ `run_fleet.py` وحده) فسقط البناء **بعد** انتهاء التفريغ كله.
+      #    ⇒ يُفحص **كل** ما يلزم للبناء قبل أي عمل، لا وحدةً واحدة.
+      - name: برهان سلسلة البناء (⛔ قبل أي فهرسة)
+        run: |
+          python - <<'PY'
+          import sys
+          for p in ("tools/alignment", "tools/alignment_v2", "tools/cloud"):
+              sys.path.insert(0, p)
+          import refine, coverage_guard, validate, pipeline, batch_run  # noqa: F401
+          print("✅ سلسلة البناء كاملة: refine · coverage_guard · validate · pipeline · batch_run")
+          PY
+
       - name: اعتماد R2 والنموذج
         env:
           R2_CREDENTIALS_JSON: ${{ secrets.R2_CREDENTIALS_JSON }}

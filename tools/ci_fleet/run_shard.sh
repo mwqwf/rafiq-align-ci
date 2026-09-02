@@ -157,9 +157,15 @@ else
           '!/^#/ && NF>=4 { if (i % n == s) print $1"\t"$2"\t"$3"\t"$4; i++ }' "$LIST")"
 fi
 echo "قرّاء هذه الشريحة: $(printf '%s\n' "$MINE" | grep -c .)"
-printf '%s\n' "$MINE" | while IFS=$'\t' read -r rid riwaya base prio; do
+# ⛔ **بلا أنبوب**: `printf | while` يجعل الحلقة **صدفةً فرعية**، فتضيع
+#    العدّادات ويصير `exit` خروجاً من الفرعية وحدها ⇒ الجرد يطبع أصفاراً
+#    **والوظيفة تخضرّ على فشلٍ تامّ**. وقع فعلاً في `shard-5`: سقط بناء الفهرس
+#    بـ`ModuleNotFoundError` وخرجت الشريحة **خضراء** بعد 89 دقيقة.
+#    والعلاج إعادة توجيهٍ من ملف لا أنبوب.
+printf '%s\n' "$MINE" > "$ROOT/logs-copy/.mine.tsv"
+while IFS=$'\t' read -r rid riwaya base prio; do
   [ -n "${rid:-}" ] || continue
   run_one "$rid" "$riwaya" "$base" "1-114" || { echo "⛔ توقّف مبكر"; summary; exit 1; }
-done
+done < "$ROOT/logs-copy/.mine.tsv"
 echo "SHARD_DONE $SHARD/$SHARDS"
 summary
