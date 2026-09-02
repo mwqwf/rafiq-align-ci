@@ -21,6 +21,9 @@ on:
       smoke_surahs:
         description: "نطاق السور للتجربة القصيرة"
         default: "108"
+      list:
+        description: "ملف القرّاء (نسبةً إلى tools/ci_fleet/)"
+        default: "reciters_ci.tsv"
 
 # ⛔ مجموعتان لا واحدة: مجموعةٌ واحدة تجعل **تشغيلة القياس تصطفّ خلف الموجة**
 #    فلا تعمل قبل ساعات — وهي إنما أُطلقت لتقيس **الآن** قبل الالتزام بعشرين.
@@ -195,6 +198,7 @@ jobs:
           SMOKE: ${{ github.event.inputs.smoke }}
           SMOKE_RECITER: ${{ github.event.inputs.smoke_reciter }}
           SMOKE_SURAHS: ${{ github.event.inputs.smoke_surahs }}
+          LIST: /root/QuranRafiq/tools/ci_fleet/${{ github.event.inputs.list }}
           GH_TOKEN: ${{ github.token }}
           GITHUB_REPOSITORY: ${{ github.repository }}
           GITHUB_RUN_ID: ${{ github.run_id }}
