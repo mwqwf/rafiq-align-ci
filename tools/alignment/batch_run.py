@@ -31,7 +31,11 @@ def parse_range(s, max_n=114):
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--reciter", required=True)
-    ap.add_argument("--riwaya", required=True, choices=["hafs", "warsh", "qalun"])
+    # ⛔ الروايات الست كلها مدعومة (وُسّع 2026-09-01). ضاقت القائمة إلى ثلاث في
+    # نسخة `main` فأسقطت البصريَّين وشعبة فوراً بـ`invalid choice` — والخطأ
+    # يقع **قبل** أي عمل فيبدو القارئ «فاشلاً» بلا سبب في السجل.
+    ap.add_argument("--riwaya", required=True,
+                    choices=["hafs", "warsh", "qalun", "douri", "sousi", "shuba"])
     ap.add_argument("--base", required=True, help="قالب URL فيه {surah:03d}")
     ap.add_argument("--surahs", default="1-114")
     ap.add_argument("--counting", default=None, help="KUFI/MADANI (الافتراضي: فهرس التطبيق الكوفي)")

@@ -15,6 +15,37 @@ from common import ROOT, read_jz
 
 SECURE = os.path.join(ROOT, "secure", "r2_credentials.json")
 
+# ⛔ درس 2026-09-02: كانت كل الحُرّاس في `run_fleet.py` **مُستدعي** هذا الملف،
+# وهذا الملف نفسه بلا حارسٍ واحد. فأيُّ استدعاءٍ مباشر — جولة رفع يدوية،
+# سكربتٌ عابر، أو حتى التلميح في تحذير `fleet_status.py` — يتجاوز الحُرّاس
+# كلها ويكتب في مسار الإنتاج. **الحارس يكون عند عنق الزجاجة لا عند أحد
+# الداخلين إليه**؛ حارسٌ في المُستدعي يحمي مساراً واحداً ويترك الباب مفتوحاً.
+# ولا راية `--force` هنا عمداً: بابٌ للطوارئ يصير الباب المعتاد.
+def _guards(index_path, riwaya, reciter_id):
+    """يرجع None عند السماح أو نصّ المنع. يفشل مغلقاً عند أي تعذّر."""
+    import subprocess
+    import sys
+    guard = os.path.join(ROOT, "tools", "cloud", "coverage_guard.py")
+    if os.path.exists(guard):
+        r = subprocess.run([sys.executable, guard, "--index", index_path],
+                           capture_output=True, text=True)
+        if r.returncode != 0:
+            return f"تغطية: {(r.stdout or r.stderr).strip()}"
+    else:
+        return f"حارس التغطية مفقود ({guard}) — لا رفع"
+    frozen = os.path.join(ROOT, "tools", "index_qa", "frozen.txt")
+    key = f"timings/{riwaya}/{reciter_id}.jz"
+    try:
+        with open(frozen, encoding="utf-8") as f:
+            for line in f:
+                line = line.split("#", 1)[0].strip()
+                parts = line.split()
+                if len(parts) >= 2 and parts[0] == key:
+                    return f"FROZEN {key} — مجمّد، لا يُكتب فوقه"
+    except FileNotFoundError:
+        return f"قائمة التجميد غائبة ({frozen}) — لا رفع حتى تصل"
+    return None
+
 
 def main():
     ap = argparse.ArgumentParser()
@@ -22,6 +53,15 @@ def main():
     args = ap.parse_args()
     ti = read_jz(args.index)
     key = f"timings/{ti['riwaya']}/{ti['reciterId']}.jz"
+    # ⛔ عقد الوجهات (github-f4): كل كاتبٍ يكتب في وجهته وحدها فلا يبقى باب.
+    # هذا الرافع للإنتاج `timings/` فقط؛ وstaging لسكربت 3a وحده.
+    if not key.startswith("timings/") or key.startswith("timings-"):
+        print(f"⛔ بادئة غير مسموحة: {key} — هذا الرافع لا يكتب إلا في timings/", flush=True)
+        raise SystemExit(4)
+    blocked = _guards(args.index, ti["riwaya"], ti["reciterId"])
+    if blocked:
+        print(f"⛔ رُفض الرفع — {blocked}", flush=True)
+        raise SystemExit(3)
     c = json.load(open(SECURE))
     s3 = boto3.client("s3", endpoint_url=c["endpoint"],
                       aws_access_key_id=c["accessKeyId"],

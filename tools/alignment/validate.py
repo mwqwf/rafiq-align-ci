@@ -7,6 +7,20 @@ import hashlib
 import time
 
 AYAH_COUNTS = {"KUFI": 6236, "MADANI": 6214}
+# عدّ آي كل سورة بالعدّ الكوفي — **مرجعٌ خارج الفهرس**. وهذا شرطُ صحّة حارس
+# الاكتمال: الآية المفقودة **تسقط من الفهرس رأساً ولا تُكتب مدخلاً فارغاً**
+# (قياس github-8e على 1158 آية: صفرُ مدخلٍ بـ`startMs=None`)، فأيّ فحصٍ يمرّ
+# على المدخلات الموجودة وحدها يرى فهرساً سليماً وفيه مئات الآيات غائبة —
+# وهو حال `m_sayed_warsh` المنشور: 5906 مدخلاً بلا خللٍ ظاهر و330 آية بلا مدخل.
+SURAH_AYAHS = [
+    7, 286, 200, 176, 120, 165, 206, 75, 129, 109, 123, 111, 43, 52, 99, 128,
+    111, 110, 98, 135, 112, 78, 118, 64, 77, 227, 93, 88, 69, 60, 34, 30, 73,
+    54, 45, 83, 182, 88, 75, 85, 54, 53, 89, 59, 37, 35, 38, 29, 18, 45, 60,
+    49, 62, 55, 78, 96, 29, 22, 24, 13, 14, 11, 11, 18, 12, 12, 30, 52, 52, 44,
+    28, 28, 20, 56, 40, 31, 50, 40, 46, 42, 29, 19, 36, 25, 22, 17, 19, 26, 30,
+    20, 15, 21, 11, 8, 8, 19, 5, 8, 8, 11, 11, 8, 3, 9, 5, 4, 7, 3, 6, 3, 5, 4,
+    5, 6]
+assert sum(SURAH_AYAHS) == AYAH_COUNTS["KUFI"] and len(SURAH_AYAHS) == 114
 
 
 def band(conf):
@@ -52,6 +66,9 @@ def check_surah(entries, ref_char_counts, total_ms):
     return issues
 
 
+REFINE_VERSION = "v2.1"
+
+
 def make_timing_index(riwaya, reciter_id, source_kind, counting, per_surah,
                       engine_version="align-0.2", strip_low=True):
     """per_surah: {surah_no: {"fileRef":…, "sha256":…, "entries":[…]}} بفهرس كوفي.
@@ -61,6 +78,10 @@ def make_timing_index(riwaya, reciter_id, source_kind, counting, per_surah,
     مقطعي لا حداً ملصوقاً — لا يصلح تشغيلاً منفرداً)، والترويسة exactEnds:true.
     """
     entries, shas = [], []
+    refined_count = 0
+    med_targeted = 0
+    refine_stats = {}
+    present = set()                     # (سورة، رقم الآية) لكل مدخلٍ شُحن
     for sn in sorted(per_surah):
         d = per_surah[sn]
         if d.get("sha256"):
@@ -89,6 +110,29 @@ def make_timing_index(riwaya, reciter_id, source_kind, counting, per_surah,
             # جار LOW غير ملصوق ⇒ النهاية قياس ذاتي لكلمات الآية نفسها ⇒ لا توسم.
             if not (e.get("snapped") or e.get("refined")):
                 row["startApprox"] = True  # بداية غير مسنودة لصمت — عقد v2.1
+            # ⚠️ درس 2026-09-02 (‏github-1e): آثار الصقل كانت تُقرأ هنا ثم تُجرَّد
+            # من المخرج، و`engineVersion` يبقى `align-0.2` في الجيلين — فلا يستطيع
+            # مدقّقٌ فرز Gen-1 عن Gen-2 آلياً. وقد كلّفنا ذلك ساعاتٍ الليلة: كان
+            # الأسطول يفهرس بلا صقل ولا شيء في المخرج يقول ذلك.
+            # **المقام قبل البسط:** `refinedCount` وحده بسطٌ بلا مقام — «17 حدّاً
+            # صُقل» لا معنى له حتى يُعرف من كم. والمقام **لا يُشتقّ من MED
+            # الباقي في الفهرس**: المصقول يخرج من MED بالترقية فيخرج من مقامه،
+            # وقد أعطى ذلك فعلاً نسبة **124%** لأحد القرّاء (قياس github-b9).
+            # فالمقام هنا **ما دخل الصقل فعلاً**: كل مدخل خرج منه أثرٌ — إمّا
+            # `refined` أو `refineSrc` بسبب الإخفاق. وهما يُعدّان على **نفس**
+            # مجموعة المداخل المشحونة كي تكون النسبة نسبةَ شيءٍ واحد.
+            src = e.get("refineSrc")
+            if src or e.get("refined"):
+                med_targeted += 1
+            # وسبب الإخفاق يُحفظ مجمّعاً لا يُطرح: «728 مستهدفاً · 17 مصقولاً ·
+            # 606 بلا مرساة» هو ما كشف أن الصقل لا يعمل على ورش أصلاً (‏7e).
+            # فيُعدّ كل `refineSrc` لا المصقول وحده، ويصير مجموع القيم =
+            # `medTargeted` و`token-snap` = `refinedCount` — تحقّقٌ ذاتيّ.
+            if src:
+                refine_stats[src] = refine_stats.get(src, 0) + 1
+            if e.get("refined"):
+                row["refined"] = True
+                refined_count += 1
             nxt = e["ayahIdx"] + 1
             if nxt < n and nxt not in shipped:
                 nxt_e = next((x for x in surah_entries if x["ayahIdx"] == nxt), None)
@@ -97,11 +141,92 @@ def make_timing_index(riwaya, reciter_id, source_kind, counting, per_surah,
                 elif e["endMs"] == nxt_e["startMs"]:
                     row["endApprox"] = True
             entries.append(row)
+            present.add((sn, e["ayahIdx"] + 1))
+    # ⛔ **حارس الاكتمال: لكل آية مدخلٌ أو وسمُ غيابٍ بسببه** (أمر المشرف
+    # github-f4، 2026-09-02 — بعد أن وجد github-8e في `m_sayed_warsh` المنشور
+    # 79 مدخلاً حيث تُعيد الوصفةُ 83: آياتٌ بلا توقيت أصلاً يعبرها حارس الرفع).
+    #
+    # والغياب **يُصنَّف لا يُعدّ فقط**، لأنّ رقمين متقاربين قد يخفيان علّتين
+    # مختلفتين (قياس github-7d: `dokali` 380 و`tareq` 576، ونصيب «الذيل
+    # المبتور» في الثاني خمسة أضعاف). والأصناف هنا ما تعرفه هذه الدالّة يقيناً:
+    #   • `surah-absent`  السورة لم تُعالَج أصلاً — **فشل جلبٍ لا فشل محاذاة**،
+    #     تُعالَج بإعادة الجلب فتُفرز وحدها (تنبيه 7d: صنفٌ مختلف نوعاً لا درجة).
+    #   • `no-align`      مدخلٌ بلا `startMs` (محاذاةٌ لم تُنتج حدّاً).
+    #   • `low-conf`      أُسقط بـ`strip_low` (‏D-025: LOW لا تُشحن).
+    #   • `swallowed`     السورة عولجت ولا أثر للآية إطلاقاً — بصمة الابتلاع.
+    # وتشخيصُ السبب الأدقّ (فجوة داخلية · بسملة مبتلعة · ذيل مبتور) عند 7d،
+    # ولا يُعاد بناؤه هنا: `tools/qa_coverage/diag.py` هو مكانه.
+    missing, by_reason = [], {}
+    if counting == "KUFI":
+        for sn, total in enumerate(SURAH_AYAHS, start=1):
+            d = per_surah.get(sn)
+            for ayah in range(1, total + 1):
+                if (sn, ayah) in present:
+                    continue
+                if d is None:
+                    reason = "surah-absent"
+                else:
+                    e = next((x for x in d["entries"]
+                              if x.get("ayahIdx") == ayah - 1), None)
+                    if e is None:
+                        reason = "swallowed"
+                    elif e.get("startMs") is None:
+                        reason = "no-align"
+                    else:
+                        reason = "low-conf"
+                missing.append(f"{sn}:{ayah}")
+                by_reason[reason] = by_reason.get(reason, 0) + 1
+        # عقدٌ ذاتيّ التحقّق: المشحون + المفقود = عدد آي المصحف بالضبط.
+        assert len(entries) + len(missing) == AYAH_COUNTS["KUFI"], (
+            f"اختلال الحارس: {len(entries)} مدخلاً + {len(missing)} مفقودة "
+            f"≠ {AYAH_COUNTS['KUFI']}")
+
+    cover = {}
+    if counting == "KUFI":
+        # ⚠️ **الحارس الذي يسقط لا يمرّر:** إن تعذّر قياس التغطية فالفهرس لا
+        # يُبنى — فهرسٌ بلا قياسِ اكتمالٍ هو بالضبط ما مرّ علينا الليلة.
+        import os as _os
+        import sys as _sys
+        _sys.path.insert(0, _os.path.join(
+            _os.path.dirname(_os.path.dirname(_os.path.abspath(__file__))), "cloud"))
+        from coverage_guard import assess as _assess       # noqa: PLC0415
+        cover = _assess({"riwaya": riwaya, "entries": entries})
+        assert cover["count"] == len(missing), (
+            f"اختلاف عدّ الغياب: الحارس {cover['count']} والتصنيف {len(missing)}")
+
     return {
         "schema": 1, "riwaya": riwaya, "reciterId": reciter_id,
         "sourceKind": source_kind, "ayahCounting": counting,
         "ayahCount": AYAH_COUNTS[counting],
         "method": "ASR_ALIGN", "engineVersion": engine_version,
+        # **فرزُ الجيلين آلياً — وبقيمة صريحة لا بعدم:** كانت `null` عند غياب
+        # الصقل، و`null` والحقلُ الغائب يُقرآن سواءً في أكثر المستهلكات، فيختلط
+        # **«قيس فلم يُصقل»** بـ**«لا نعلم»**. والقيمة الصريحة تُعلن جهلها.
+        # (اتفاق github-b9 وgithub-7e وrafiq-mushaf، 2026-09-02.)
+        "refineVersion": (REFINE_VERSION if refined_count else "none"),
+        # ⚠️ **`refinedCount/medTargeted` معدّل نجاح المحاولة لا صحّة النتيجة**
+        # (تحفّظ github-7e، 2026-09-02): قد يُصقل حدٌّ فيبقى خاطئاً، وقد يُترك
+        # حدٌّ سليمٌ بلا صقل. والصحّة لا يقولها إلا القياس الصوتي — وقد قيس
+        # فهرسٌ تغطيته 94.7% فكان أسوأ ما قيس. فالنسبة **تشخيصٌ للمحرك لا
+        # معيار قبولٍ للفهرس**، ولا تُبنى عليها ترقية.
+        "refinedCount": refined_count,
+        "medTargeted": med_targeted,
+        "refineStats": refine_stats,
+        # **وسمُ الغياب صريحٌ دائماً** ولو كان صفراً: الحقل الغائب يُقرأ «لا
+        # نعلم»، والحقل الذي يقول صفراً يقول «قيس فلم يغب شيء».
+        #
+        # و`medianLen`/`biasedShort` **من دالّة الحارس نفسها**
+        # (`tools/cloud/coverage_guard.assess`) لا من حسابٍ ثانٍ هنا — فالمنطق
+        # واحدٌ في موضعين لا نسختان تتباعدان، والترويسة تحمل **الأرقام التي
+        # يحكم بها الحارس** لا أرقاماً تشبهها. ومعناها (قياس github-8e):
+        # الغياب المنحاز إلى القصر بصمةُ **ابتلاعٍ في المحاذاة** لا صمتٍ عارض
+        # (‏`m_sayed_warsh` وسيط الغائب 4 كلمات مقابل 10 للمصحف)، وغيابٌ غير
+        # منحاز علّتُه أخرى (‏`basit_warsh` وسيط 10 مقابل 10).
+        "missing": {"count": len(missing), "byReason": by_reason,
+                    "medianLen": cover.get("medianLen"),
+                    "medianLenAll": cover.get("medianLenAll"),
+                    "biasedShort": cover.get("biasedShort"),
+                    "ids": missing},
         "exactEnds": True,
         "generatedAt": int(time.time() * 1000),
         "audioSha256": shas, "notes": "",

@@ -46,6 +46,8 @@ MAX_EDGE_CHASES = 3          # مطاردة موجَّهة عند استقرار
 EDGE_MARGIN_MS = 400     # حدٌّ يستقر على حافة النافذة = فشل مقنَّع (انظر أدناه)
 PROMOTE_MIN_ACC = 0.75
 MED_CEIL = 0.74          # سقف ثقة من لم يجتز الحارس (يبقى MED)
+MIN_WINDOW_MS = 1_500    # أقصر نافذة تُفرَّغ (ما دونها خارج المقطع/الملف)
+MIN_AYAH_MS = 300        # أدنى مدى تُترك للآية المجاورة عند تحريك حدّها (حارس التجاوز)
 
 
 def clip_words(wav, start_ms, end_ms, tag, cache_dir=None):
@@ -78,7 +80,13 @@ def clip_words(wav, start_ms, end_ms, tag, cache_dir=None):
     for attempt in range(4):
         r = subprocess.run([WHISPER_CLI, "-m", MODEL_Q8, "-f", clip, "-l", "ar", "-oj", "-ojf",
                             "-ml", "1", "-sow", "-nfa", "-dtw", "tiny", "-of", base,
-                            "--no-prints"],
+                            "--no-prints",
+                            # ⚠️ درس 2026-09-02: هذا النداء كان بلا `-t` فيأخذ
+                            # افتراض whisper (أربعة خيوط). ومع اثنتي عشرة عملية
+                            # صار الحمل 44 على 16 نواة — إفراطٌ ×2.75 يبدّد الوقت
+                            # في تبديل السياق. والقياس (github-8e) أن العمليات
+                            # تغلب الخيوط، فيُوحَّد مع مسار التفريغ عبر البيئة.
+                            "-t", os.environ.get("WHISPER_THREADS", "4")],
                            capture_output=True, text=True, timeout=1800,
                            stdin=subprocess.DEVNULL)
         if r.returncode == 0 and os.path.exists(base + ".json"):
@@ -172,7 +180,16 @@ def refine_surah(d, log=print):
                 continue
             seen_slides.add(slide)
             lo, hi = _window(t + slide, seg, total_ms)
-            hyp = clip_words(wav, lo, hi, f"s{d['surah']:03d}_b{k:04d}_{slide}")
+            if hi - lo < MIN_WINDOW_MS:
+                # ⛔ انزلاق/مطاردة أخرجا النافذة من المقطع أو الملف ⇒ مدة سالبة أو تافهة
+                #    (مقيس: husary_warsh 7 — ffmpeg -t -1.238 أسقط السورة كلها). لا تفريغ.
+                why = "skip:window-edge"
+                continue
+            # ⛔ بلاغ github-8e: المفتاح بلا مُعرِّف تشغيل ⇒ تشغيلان متوازيان على
+            # السورة نفسها يكتبان الملف نفسه، فيقرأ أحدهما نصف ملف الآخر
+            # (‏JSONDecodeError). و`os.getpid()` يفصل بينهما بلا كلفة.
+            hyp = clip_words(wav, lo, hi,
+                             f"s{d['surah']:03d}_b{k:04d}_{slide}_p{os.getpid()}")
             if len(hyp) < 2 * MIN_ANCHOR:
                 continue
             why = "skip:no-anchor"
@@ -226,6 +243,13 @@ def refine_surah(d, log=print):
             stats["slid"] += 1
         new_t = int(new_t)
         acc = exact / max(npairs, 1)
+        # ⛔ حارس التجاوز (مقيس على husary_warsh 56:22/23، رفض 7e): حدٌّ مصقول يسبق
+        #    بداية الآية السابقة (أو يتجاوز نهاية الحالية) يقلب إحداهما (بداية > نهاية)
+        #    فتُسقطها make_timing_index ويُخرق ترتيب الفهرس. الحد لا يُكتب — يبقى كما كان.
+        if new_t <= entries[k - 1]["startMs"] + MIN_AYAH_MS or new_t >= e["endMs"] - MIN_AYAH_MS:
+            stats["overrun"] = stats.get("overrun", 0) + 1
+            e["refineSrc"] = "skip:overrun"
+            continue
         e["startMs"] = new_t
         entries[k - 1]["endMs"] = new_t
         e["refined"] = True

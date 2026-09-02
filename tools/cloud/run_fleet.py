@@ -118,7 +118,12 @@ def frozen_check(riwaya, rid):
                     frozen_sha = p[1].lower()
                     break
     except FileNotFoundError:
-        return True, "لا قائمة تجميد"
+        # ⛔ الحارس الذي يمرّ عند غياب قائمته يتحوّل إلى لا شيء يوم يُنسى الملف
+        # (‏github-82). فالغياب فشلٌ مغلق: خادمٌ بلا قائمة لا يرفع شيئاً حتى
+        # تصله — وتعطيلُ رفعٍ يُصلَح بنسخ ملف أهون من كتابةٍ فوق مجمّد لا تُردّ.
+        return False, f"⛔ قائمة التجميد غائبة ({FROZEN_LIST}) — لا رفع حتى تصل"
+    except Exception as ex:
+        return False, f"⛔ قائمة التجميد غير مقروءة ({ex}) — لا رفع"
     if frozen_sha is None:
         return True, "غير مجمّد"
     # المفتاح مجمّد ⇒ لا رفع بحال. ويبقى أن نعرف: أهو سليمٌ أم مُنحرَف؟
@@ -174,6 +179,17 @@ def worker(n):
                 except Exception: pass
                 log.close(); continue
             # ⛔ حارس التجميد في الطريق الإلزامي — لا علمَ بيئةٍ يُطفئه ولا تخطٍّ صامت.
+            # ⛔ حارس التغطية — **عمليةٌ مستقلة** لا دالة هنا: تعديل عتباته أو
+            # منطقه يسري عند حدّ القارئ التالي بلا إعادة تشغيل الأسطول (D-064).
+            cg = subprocess.run([PY_BIN, f"{ROOT}/tools/cloud/coverage_guard.py", "--index", idx],
+                                cwd=ROOT, capture_output=True, text=True, env=env)
+            print(f"   تغطية {rid}: {(cg.stdout or cg.stderr).strip()[:200]}", flush=True)
+            if cg.returncode != 0:
+                print(f"🛑 {rid} رُفض الرفع (تغطية) — يُحذف مخرجه ليُعاد", flush=True)
+                import shutil; shutil.rmtree(f"{ROOT}/tools/alignment/work/batch_{rid}", ignore_errors=True)
+                try: os.remove(idx)
+                except Exception: pass
+                log.close(); continue
             okf, whyf = frozen_check(riwaya, rid)
             if not okf:
                 print(f"⛔ {rid} {whyf} — الفهرس المحلي باقٍ في {idx}", flush=True)
