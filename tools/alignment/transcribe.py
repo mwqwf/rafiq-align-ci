@@ -33,6 +33,27 @@ def speech_segments(total_ms, sil):
     return out
 
 
+# ⚠️ وصفة whisper مُعامَلة — والافتراضات **هي السلوك المنشور بالضبط** كي لا
+# يتغيّر محرّكٌ عايرته D-025 بلا قرار صريح.
+#
+# `WHISPER_THREADS` (افتراض 4): قياس github-8e (‏37eea00) أن العمليات تغلب
+# الخيوط بفارق كبير — 16×1 أسرع 4.7× من 4×4 على المجموع نفسه، لأن whisper
+# يوازي داخل الطبقة لا عبر الملفات فتتقاتل الخيوط على الأنوية. المكسب يُؤخذ
+# بـJOBS عالية وTHREADS=1 **بلا تغيير المحرك**.
+#
+# `WHISPER_AC` (افتراض 512): يُشتبه أنه يبتر ما بعد ~10ث من النافذة (‏8e:
+# 74.9% بين 10 و20ث، و44.9% فوق 20). ونطاق الضرر عندنا محصور بـ10–28ث لأن
+# `MAX_SEG_MS=28_000`، والصقل ينفُذ منه لأنه يفرّغ نوافذ ~9ث بلا `-ac`.
+# ⛔ **يبقى 512 حتى يقيس 8e النطاق الفعلي** — فالإسقاط يغيّر معايرة D-025،
+# وتغييرُ محرّكٍ بلا قياسٍ على مخرجات حقيقية أسوأ من عيبٍ معروف الحدود.
+# `WHISPER_AC=0` يُسقط العلم رأساً (للقياس).
+_thr = os.environ.get("WHISPER_THREADS", "4")
+_ac = os.environ.get("WHISPER_AC", "512")
+WHISPER_FLAGS = ["-bo", "1", "-bs", "1", "-nf", "-t", _thr]
+if _ac not in ("0", "", "off"):
+    WHISPER_FLAGS += ["-ac", _ac]
+
+
 def transcribe_range(wav, start_ms, dur_ms, tag):
     """يقصّ المدى إلى wav مؤقت (whisper-cli يتجاهل -d عملياً) ثم يفرّغه.
     القصّ للمعالجة المحلية فقط — لا يُخزَّن ولا يُوزَّع (D-024)."""
@@ -49,7 +70,7 @@ def transcribe_range(wav, start_ms, dur_ms, tag):
             subprocess.run(
                 [WHISPER_CLI, "-m", MODEL_Q8, "-f", clip, "-l", "ar",
                  "-oj", "-of", out_base, "--no-prints",
-                 "-bo", "1", "-bs", "1", "-nf", "-ac", "512"],  # تسريع مقيس 1.92× بجودة مطابقة (نطابق نصاً معروفاً)
+                 *WHISPER_FLAGS],
                 capture_output=True, check=True, timeout=240, stdin=subprocess.DEVNULL,
             )
             # مخرج فارغ/معطوب = فشل يعاد (رصد 09-01: JSON فارغ من whisper ميت)
