@@ -1,19 +1,40 @@
-# reciters_ci_wave2.tsv — الموجة الثانية (2026-09-02).
-# ⛔ الفريد بمعنى **لا فهرس له على R2** (لا بمعنى «لا يفهرسه الأسطول»): إنذار
-#    انقطاع خوادم Hetzner ≈06:10Z يجعل افتراض «الأسطول يتكفّل به» غير آمن.
-# المصدر: reciters_ci.tsv (51) ناقصَ من له مفتاح في timings/ أو
-#          timings-staging/ (13) ⇒ 38 قارئاً.
-# ⛔ الترتيب هو القسمة i %% SHARDS — لا يُعاد ترتيبه.
+# reciters_ci_wave2.tsv — الموجة الثانية الكاملة (2026-09-02، بعد تعليق أسطول Hetzner).
+# ⛔ المعيار **الواقع لا التوزيع**: كل قارئ لا مفتاح له في timings/ ولا في
+#    timings-staging/ — لأن «الأسطول يبنيه» لم يعد افتراضاً آمناً (الحساب محجوب).
+# المصدر: قائمة الأسطول الحيّة (148) ناقصَ المفهرس (41) ⇒ 107 قارئاً.
+# الترتيب: عمود الأولوية — غير الحفصية أولاً (قالون 1 · ورش 2 · البصريان وشعبة 3 · حفص 4).
+# ⚠️ وداخل الحفصية بقي الترتيب الأصلي: «الأدنى تغطية» لا يُحسب لمن **لا فهرس له**
+#    أصلاً — ولا أخترع مقياساً. فإن أُريد ترتيبٌ داخلها فليكن بمعيارٍ يُصرَّح به.
+# ⛔ الترتيب هو القسمة i %% SHARDS — لا يُعاد ترتيبه بين تشغيلتين.
+nourin_douri	douri	https://server16.mp3quran.net/nourin_siddig/Rewayat-Aldori-A-n-Abi-Amr/{surah:03d}.mp3	3
+huthaify_shuba	shuba	https://server9.mp3quran.net/hthfi/Rewayat-Sho-bah-A-n-Asim/{surah:03d}.mp3	3
+a_turki	hafs	https://server16.mp3quran.net/a_turki/Rewayat-Hafs-A-n-Assem/{surah:03d}.mp3	4
+aamer	hafs	https://server10.mp3quran.net/Aamer/{surah:03d}.mp3	4
+abdullahk	hafs	https://server10.mp3quran.net/Abdullahk/{surah:03d}.mp3	4
+afs	hafs	https://server8.mp3quran.net/afs/{surah:03d}.mp3	4
+akdr	hafs	https://server6.mp3quran.net/akdr/{surah:03d}.mp3	4
+alijon	hafs	https://server16.mp3quran.net/Alijon/Rewayat-Hafs-A-n-Assem/{surah:03d}.mp3	4
+aloosi	hafs	https://server6.mp3quran.net/aloosi/{surah:03d}.mp3	4
+alzain	hafs	https://server9.mp3quran.net/alzain/{surah:03d}.mp3	4
 arkani	hafs	https://server6.mp3quran.net/arkani/{surah:03d}.mp3	4
+asim	hafs	https://server7.mp3quran.net/asim/Rewayat-Hafs-A-n-Assem/{surah:03d}.mp3	4
+bader	hafs	https://server10.mp3quran.net/bader/Rewayat-Hafs-A-n-Assem/{surah:03d}.mp3	4
+balilah	hafs	https://server6.mp3quran.net/balilah/{surah:03d}.mp3	4
+bari	hafs	https://server12.mp3quran.net/bari/{surah:03d}.mp3	4
 bilal	hafs	https://server11.mp3quran.net/bilal/{surah:03d}.mp3	4
+buajan	hafs	https://server8.mp3quran.net/buajan/{surah:03d}.mp3	4
+bukheet	hafs	https://server14.mp3quran.net/bukheet/{surah:03d}.mp3	4
+darweez	hafs	https://server16.mp3quran.net/darweez/Rewayat-Hafs-A-n-Assem/{surah:03d}.mp3	4
 deban	hafs	https://server16.mp3quran.net/deban/Rewayat-Hafs-A-n-Assem/{surah:03d}.mp3	4
 f_hajry	hafs	https://server16.mp3quran.net/f_hajry/Rewayat-Hafs-A-n-Assem/{surah:03d}.mp3	4
 f_khamery	hafs	https://server16.mp3quran.net/f_khamery/Rewayat-Hafs-A-n-Assem/{surah:03d}.mp3	4
 gulan	hafs	https://server8.mp3quran.net/gulan/{surah:03d}.mp3	4
+h_abudalal	hafs	https://server16.mp3quran.net/h_abudalal/Rewayat-Hafs-A-n-Assem/{surah:03d}.mp3	4
 h_aldaghriri	hafs	https://server16.mp3quran.net/H-Aldaghriri/Rewayat-Hafs-A-n-Assem/{surah:03d}.mp3	4
 h_saleh	hafs	https://server16.mp3quran.net/h_saleh/Rewayat-Hafs-A-n-Assem/{surah:03d}.mp3	4
 habdan	hafs	https://server6.mp3quran.net/habdan/{surah:03d}.mp3	4
 hafz	hafs	https://server6.mp3quran.net/hafz/{surah:03d}.mp3	4
+hamza	hafs	https://server9.mp3quran.net/hamza/{surah:03d}.mp3	4
 harthi	hafs	https://server8.mp3quran.net/harthi/{surah:03d}.mp3	4
 hatem	hafs	https://server11.mp3quran.net/hatem/{surah:03d}.mp3	4
 hkm	hafs	https://server12.mp3quran.net/hkm/{surah:03d}.mp3	4
@@ -42,3 +63,53 @@ m_burhaji	hafs	https://server16.mp3quran.net/M_Burhaji/Rewayat-Hafs-A-n-Assem/{s
 m_harfoush	hafs	https://server16.mp3quran.net/M-Harfoush/Rewayat-Hafs-A-n-Assem/{surah:03d}.mp3	4
 m_qari	hafs	https://server8.mp3quran.net/m_qari/{surah:03d}.mp3	4
 mal_allah_jaber	hafs	https://server16.mp3quran.net/mal-allah_jaber/Rewayat-Hafs-A-n-Assem/{surah:03d}.mp3	4
+mansor	hafs	https://server14.mp3quran.net/mansor/{surah:03d}.mp3	4
+mhsny	hafs	https://server11.mp3quran.net/mhsny/{surah:03d}.mp3	4
+mohna	hafs	https://server11.mp3quran.net/mohna/{surah:03d}.mp3	4
+mohsin_harthi	hafs	https://server6.mp3quran.net/mohsin_harthi/{surah:03d}.mp3	4
+mousa	hafs	https://server14.mp3quran.net/mousa/Rewayat-Hafs-A-n-Assem/{surah:03d}.mp3	4
+mrifai	hafs	https://server11.mp3quran.net/mrifai/{surah:03d}.mp3	4
+muftah_sultany	hafs	https://server14.mp3quran.net/muftah_sultany/Rewayat-Hafs-A-n-Assem/{surah:03d}.mp3	4
+mukhtar_haj	hafs	https://server16.mp3quran.net/mukhtar_haj/Rewayat-Hafs-A-n-Assem/{surah:03d}.mp3	4
+mustafa	hafs	https://server8.mp3quran.net/mustafa/{surah:03d}.mp3	4
+nabil	hafs	https://server9.mp3quran.net/nabil/{surah:03d}.mp3	4
+namh	hafs	https://server8.mp3quran.net/namh/{surah:03d}.mp3	4
+nasser_almajed	hafs	https://server14.mp3quran.net/nasser_almajed/{surah:03d}.mp3	4
+nathier	hafs	https://server16.mp3quran.net//nathier/Rewayat-Hafs-A-n-Assem/{surah:03d}.mp3	4
+noah	hafs	https://server8.mp3quran.net/noah/{surah:03d}.mp3	4
+nufais	hafs	https://server16.mp3quran.net/nufais/Rewayat-Hafs-A-n-Assem/{surah:03d}.mp3	4
+obk	hafs	https://server12.mp3quran.net/obk/{surah:03d}.mp3	4
+peshawa	hafs	https://server16.mp3quran.net/peshawa/Rewayat-Hafs-A-n-Assem/{surah:03d}.mp3	4
+qasm	hafs	https://server8.mp3quran.net/qasm/{surah:03d}.mp3	4
+qurashi	hafs	https://server9.mp3quran.net/qurashi/{surah:03d}.mp3	4
+ra3ad	hafs	https://server8.mp3quran.net/ra3ad/{surah:03d}.mp3	4
+rami	hafs	https://server6.mp3quran.net/rami/{surah:03d}.mp3	4
+rashad	hafs	https://server10.mp3quran.net/rashad/{surah:03d}.mp3	4
+ryan	hafs	https://server8.mp3quran.net/ryan/{surah:03d}.mp3	4
+s_alquraishi	hafs	https://server16.mp3quran.net/s_alquraishi/Rewayat-Hafs-A-n-Assem/{surah:03d}.mp3	4
+s_hashemi	hafs	https://server16.mp3quran.net/s_hashemi/Rewayat-Hafs-A-n-Assem/{surah:03d}.mp3	4
+s_sadeiq	hafs	https://server16.mp3quran.net/s_sadeiq/Rewayat-Hafs-A-n-Assem/{surah:03d}.mp3	4
+saad	hafs	https://server16.mp3quran.net/saad/Rewayat-Hafs-A-n-Assem/{surah:03d}.mp3	4
+saber	hafs	https://server8.mp3quran.net/saber/{surah:03d}.mp3	4
+sahood	hafs	https://server8.mp3quran.net/sahood/{surah:03d}.mp3	4
+salah_hashim_m	hafs	https://server12.mp3quran.net/salah_hashim_m/{surah:03d}.mp3	4
+sayed	hafs	https://server12.mp3quran.net/sayed/{surah:03d}.mp3	4
+shah	hafs	https://server12.mp3quran.net/shah/{surah:03d}.mp3	4
+shaheen	hafs	https://server16.mp3quran.net/shaheen/Rewayat-Hafs-A-n-Assem/{surah:03d}.mp3	4
+shaksh	hafs	https://server10.mp3quran.net/shaksh/{surah:03d}.mp3	4
+shamrani	hafs	https://server16.mp3quran.net/shamrani/Rewayat-Hafs-A-n-Assem/{surah:03d}.mp3	4
+shatri2	hafs	https://server11.mp3quran.net/shatri/{surah:03d}.mp3	4
+soufi	hafs	https://server16.mp3quran.net/soufi/Rewayat-Hafs-A-n-Assem/{surah:03d}.mp3	4
+swlim	hafs	https://server14.mp3quran.net/swlim/Rewayat-Hafs-A-n-Assem/{surah:03d}.mp3	4
+taher	hafs	https://server12.mp3quran.net/taher/{surah:03d}.mp3	4
+tblawi	hafs	https://server12.mp3quran.net/tblawi/{surah:03d}.mp3	4
+thubti	hafs	https://server6.mp3quran.net/thubti/{surah:03d}.mp3	4
+trabulsi	hafs	https://server10.mp3quran.net/trabulsi/{surah:03d}.mp3	4
+twfeeq	hafs	https://server6.mp3quran.net/twfeeq/{surah:03d}.mp3	4
+wdee3	hafs	https://server6.mp3quran.net/wdee3/{surah:03d}.mp3	4
+wdod	hafs	https://server8.mp3quran.net/wdod/{surah:03d}.mp3	4
+yahya	hafs	https://server12.mp3quran.net/yahya/{surah:03d}.mp3	4
+yousef	hafs	https://server9.mp3quran.net/yousef/{surah:03d}.mp3	4
+zahrani	hafs	https://server9.mp3quran.net/zahrani/{surah:03d}.mp3	4
+zaki	hafs	https://server9.mp3quran.net/zaki/{surah:03d}.mp3	4
+zaml	hafs	https://server9.mp3quran.net/zaml/{surah:03d}.mp3	4
