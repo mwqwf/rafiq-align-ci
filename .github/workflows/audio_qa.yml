@@ -63,6 +63,18 @@ jobs:
           s3 = boto3.client("s3", endpoint_url=c["endpoint"],
                             aws_access_key_id=c["accessKeyId"],
                             aws_secret_access_key=c["secretAccessKey"], region_name="auto")
+          # ⛔ من له حكمٌ سلفاً يُستثنى (وإلا أُعيد الحكم على المحكوم بينما
+          #    ينتظر خمسةٌ وثلاثون): قِيس فعلاً — دفعةٌ من أربعة أعادت الحكم على
+          #    اثنين محكومَين. والاستثناء **بالبصمة في اسم المفتاح** لا بالقارئ،
+          #    فنسخةٌ جديدة من القارئ نفسه تُحكم من جديد كما يجب.
+          judged = set()
+          if not only:
+              for p2 in s3.get_paginator("list_objects_v2").paginate(
+                      Bucket=c["bucket"], Prefix="state/"):
+                  for o2 in p2.get("Contents", []):
+                      n = o2["Key"].split("/")[-1]
+                      if n.endswith(".audio-ci.json"):
+                          judged.add(n[: -len(".audio-ci.json")])
           ks = []
           if only:
               for k in [x for x in only.replace(",", " ").split() if x]:
@@ -71,7 +83,7 @@ jobs:
               for p in s3.get_paginator("list_objects_v2").paginate(
                       Bucket=c["bucket"], Prefix=os.environ["PREFIX"]):
                   for o in p.get("Contents", []):
-                      if o["Key"].endswith(".jz"):
+                      if o["Key"].endswith(".jz") and o["Key"].replace("/", "_") not in judged:
                           ks.append((o["LastModified"], o["Key"]))
           ks.sort()
           # ⛔ **المفاتيح وحدها في المصفوفة، والبصمة تُحسب في الوظيفة.**
