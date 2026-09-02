@@ -89,7 +89,13 @@ def shipped_guard(idx, expect, th):
     d = json.load(gzip.open(idx, "rt", encoding="utf-8"))
     n = len(d.get("entries", []))
     hi = sum(1 for e in d["entries"] if e.get("confBand") == "HIGH")
-    if expect >= 114 and n < th["MIN_SHIPPED"]:
+    if expect < 114:
+        # ⛔ عتبتا التغطية ونسبة HIGH معايرتان على **فهرس قارئ كامل**. تطبيقهما
+        #    على تشغيلة اختبار من سورة واحدة رفضٌ كاذب: وقع فعلاً في smoke
+        #    33581796764 — سورة 108 ثلاث آيات كلها MED ⇒ «HIGH 0/3 < 50%»،
+        #    فبدت السلسلة فاشلة وهي سليمة حتى الرفع. تُقاس ولا تحجب هنا.
+        return True, f"مشحون {n} · HIGH {hi} (تشغيلة جزئية: العتبتان لا تنطبقان)"
+    if n < th["MIN_SHIPPED"]:
         return False, f"تغطية {n}/6236 < {th['MIN_SHIPPED']}"
     if n and hi < n * 0.5:
         return False, f"HIGH {hi}/{n} < 50%"
