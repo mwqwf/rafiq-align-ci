@@ -155,14 +155,30 @@ jobs:
       #    والشريحة هنا تُقتل غالباً بسقف الست ساعات لا بنجاحها ⇒ الحفظ عند
       #    النجاح وحده يعني **ألّا يُحفظ شيء أبداً**، فيضيع عملُ ست ساعات كاملة.
       #    و`if: always()` يجعل الجزئيّ محفوظاً فيستأنفه التشغيل التالي.
+      # ⛔ نسخة VAD جزءٌ من مفتاح الكاش (قرار github-f4 على تحفّظٍ رفعتُه):
+      #    الرقعة المتكيّفة تغيّر **التقطيع** لا التفريغ، و`batch_run` لا يعيد
+      #    سورةً لها `s*.json` ⇒ شريحةٌ تُعاد بعد الرقعة تستأنف القديم فلا
+      #    يُعاد التقطيع أصلاً، ويخرج فهرسٌ بـVAD القديم تحت اسم الجديد —
+      #    وهو فخّ `tareq_qalun` نفسه في ثوبٍ ثانٍ. **كل معاملٍ يغيّر المخرَج
+      #    يدخل المفتاح، وإلا صار الكاش يكذب باسم السرعة** (قاعدة github-82).
+      #    وقبل وصول الرقعة تُستعمل قيمةٌ ثابتة تميّز الحقبة القديمة، فلا
+      #    تختلط كاشات ما قبلها بما بعدها.
+      - name: وسم نسخة VAD
+        run: |
+          v=$(grep -oE '^VAD_VERSION[[:space:]]*=[[:space:]]*["'"'"']([^"'"'"']+)' \
+              tools/alignment/vad.py 2>/dev/null | sed -E 's/.*["'"'"']//' || true)
+          [ -n "$v" ] || v="legacy-fixed004"
+          echo "VAD_VERSION=$v" >> "$GITHUB_ENV"
+          echo "نسخة VAD: $v"
+
       - name: استعادة العمل الجزئي
         id: workcache
         uses: actions/cache/restore@v4
         with:
           path: tools/alignment/work
-          key: align-work-ac${{ env.WHISPER_AC }}-${{ matrix.shard }}-${{ github.run_id }}
+          key: align-work-ac${{ env.WHISPER_AC }}-vad${{ env.VAD_VERSION }}-${{ matrix.shard }}-${{ github.run_id }}
           restore-keys: |
-            align-work-ac${{ env.WHISPER_AC }}-${{ matrix.shard }}-
+            align-work-ac${{ env.WHISPER_AC }}-vad${{ env.VAD_VERSION }}-${{ matrix.shard }}-
 
       - name: تشغيل السائق
         env:
@@ -183,7 +199,7 @@ jobs:
         uses: actions/cache/save@v4
         with:
           path: tools/alignment/work
-          key: align-work-ac${{ env.WHISPER_AC }}-${{ matrix.shard }}-${{ github.run_id }}
+          key: align-work-ac${{ env.WHISPER_AC }}-vad${{ env.VAD_VERSION }}-${{ matrix.shard }}-${{ github.run_id }}
 
       - name: السجلات مخرَجاً (تُقرأ حتى عند السقوط)
         if: always()
