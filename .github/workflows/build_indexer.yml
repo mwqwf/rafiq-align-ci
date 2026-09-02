@@ -1,0 +1,96 @@
+name: build-indexer
+
+# بناء صورة الفهرسة ودفعها إلى Artifact Registry — **من GitHub لا من جهاز المالك**.
+#
+# ⛔ سببه أمر المالك «تكيّفوا مع النت الضعيف»: بناءٌ ودفعُ صورةٍ من جهازه رهانٌ
+#    على وصلةٍ قد تنقطع بعد نصف رفع. وهنا يُبنى في عدّاءٍ بشبكة مركز بيانات،
+#    فيصير أي تعديلٍ في الوصفة **ضغطةً في عشر دقائق** لا قماراً.
+#
+# ⛔ وبلا مفتاح JSON: `Workload Identity Federation` تُبدِّل رمز OIDC الخاص
+#    بالتشغيلة برمز وصولٍ قصير العمر. **مفتاحٌ طويل الأمد في سرٍّ هو ما نتقيه**:
+#    يُسرَّب فيبقى صالحاً، ولا يُعرف من استعمله ولا متى.
+on:
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: "وسم الصورة (‏latest أو بصمة إيداع)"
+        default: "latest"
+      also_sha_tag:
+        description: "أضف وسماً ببصمة الإيداع أيضاً (يُنصح: يجعل الصورة تشهد على نفسها)"
+        type: boolean
+        default: true
+
+concurrency:
+  group: rafiq-build-indexer
+  cancel-in-progress: false
+
+env:
+  REGISTRY: us-central1-docker.pkg.dev
+  IMAGE: us-central1-docker.pkg.dev/mxqp-8d1e8/rafiq/indexer
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    permissions:
+      contents: read
+      id-token: write          # ⛔ لازمة لـWIF: بها وحدها يصدر رمز OIDC
+    steps:
+      - uses: actions/checkout@v4
+
+      # ⛔ فحصٌ قبل أي عمل: بلا المعرِّفين لا معنى للمضيّ، والفشل هنا **مفهوم**
+      #    بينما الفشل عند `auth` رسالتُه غامضة (‏"unable to get credentials").
+      - name: التحقق من معرّفات WIF
+        run: |
+          missing=""
+          [ -n "${{ vars.WIF_PROVIDER }}" ] || missing="$missing WIF_PROVIDER"
+          [ -n "${{ vars.CI_BUILDER_SA }}" ] || missing="$missing CI_BUILDER_SA"
+          if [ -n "$missing" ]; then
+            echo "⛔ متغيّرات المستودع الناقصة:$missing"
+            echo "تُضاف في Settings ← Secrets and variables ← Actions ← Variables:"
+            echo "  WIF_PROVIDER  = projects/<رقم>/locations/global/workloadIdentityPools/<pool>/providers/<provider>"
+            echo "  CI_BUILDER_SA = ci-builder@mxqp-8d1e8.iam.gserviceaccount.com"
+            exit 1
+          fi
+
+      - id: auth
+        uses: google-github-actions/auth@v2
+        with:
+          workload_identity_provider: ${{ vars.WIF_PROVIDER }}
+          service_account: ${{ vars.CI_BUILDER_SA }}
+
+      - uses: google-github-actions/setup-gcloud@v2
+
+      - name: تفويض Docker للسجلّ
+        run: gcloud auth configure-docker "$REGISTRY" --quiet
+
+      - uses: docker/setup-buildx-action@v3
+
+      # ⛔ الكاش على السجلّ نفسه لا على العدّاء: بناء whisper من المصدر داخل
+      #    الصورة 10–20 دقيقة، وبلا كاشٍ يُدفع الثمن في كل تشغيلة.
+      - name: بناء ودفع
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: tools/cloud_gcp/Dockerfile
+          push: true
+          tags: |
+            ${{ env.IMAGE }}:${{ github.event.inputs.tag }}
+            ${{ github.event.inputs.also_sha_tag == 'true' && format('{0}:{1}', env.IMAGE, github.sha) || '' }}
+          cache-from: type=registry,ref=${{ env.IMAGE }}:buildcache
+          cache-to: type=registry,ref=${{ env.IMAGE }}:buildcache,mode=max
+
+      # ⛔ الصورة تشهد على نفسها: بصمةُ الإيداع الذي بُنيت منه في الملخّص.
+      #    وقد كلّفتنا الليلة فهارسُ لا يُعرف بأي وصفةٍ بُنيت (‏tareq_qalun).
+      - name: ملخّص
+        if: always()
+        run: |
+          {
+            echo "### صورة الفهرسة"
+            echo "- الوسم: \`${{ github.event.inputs.tag }}\`"
+            echo "- الإيداع: \`${{ github.sha }}\`"
+            echo "- الصورة: \`${{ env.IMAGE }}\`"
+            echo ""
+            echo "> ⛔ شغِّل مهام Cloud Run على **وسم البصمة** لا على \`latest\`:"
+            echo "> \`latest\` متحرّك، فمهمتان تُطلقان في ساعتين قد تعملان بوصفتين."
+          } >> "$GITHUB_STEP_SUMMARY"
