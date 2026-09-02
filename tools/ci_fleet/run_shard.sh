@@ -52,6 +52,12 @@ run_one() {          # $1=reciterId $2=riwaya $3=baseUrl $4=surahs
     echo "⏭ $rid: الرواية '$riwaya' لا تقبلها العدة بعد — تُتخطّى بإعلان صريح"
     skip_count=$((skip_count + 1)); SKIPPED+=("$rid:$riwaya"); return 0
   fi
+  # ⛔ السؤال قبل العمل: **هل أنجزه أحدٌ سلفاً؟** (أمر github-f4) — الجبهتان
+  #    تعملان على القائمة نفسها من طرفيها، فالتكرار وارد. والجواب **من الدلو**
+  #    لا من قائمةٍ محلية: القائمة لقطةٌ والدلو حالة.
+  if [ "$surahs" = "1-114" ]      && "$PY" "$ROOT/tools/ci_fleet/already_done.py" "$riwaya" "$rid"; then
+    skip_count=$((skip_count + 1)); SKIPPED+=("$rid:منجَزٌ سلفاً"); return 0
+  fi
   echo "▶ $rid ($riwaya) سور=$surahs"
   # ⛔ التوازي هنا لا في العدة (عيبٌ قاتل كشفه github-f4): `batch_run.py`
   #    **تسلسليّ بلا توازٍ داخلي** — فحصتُه: صفر Thread/Pool/multiprocessing،
