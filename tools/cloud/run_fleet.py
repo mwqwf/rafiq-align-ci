@@ -87,6 +87,52 @@ def shipped_ok(idx):
         pass  # 404 = لا منشور ⇒ يُرفع
     return True, f"مشحون {n} · HIGH {hi}"
 
+FROZEN_LIST = f"{ROOT}/tools/index_qa/frozen.txt"
+R2_PUBLIC = "https://pub-2c2e1dcd92e84a2898820dd38d3e09e6.r2.dev"
+
+
+def frozen_check(riwaya, rid):
+    """حارس التجميد (D-058): فهرسٌ اعتمده التدقيق أو نشره صاحبه لا يُكتب فوقه.
+
+    ⛔ **يفشل صراحةً ولا يتخطى بصمت**، ولا يُصلح انحرافاً بالكتابة: الكتابة
+    تمحو الدليل قبل أن يُعرف ما كُتب ومتى (‏D-042: أصول الإنتاج لا تُعالج
+    بحذفٍ ولا استبدال). سبب وجوده واقعي: الأسطول كتب فوق `husary_qalun`
+    المجمّد فهرساً أضعف (‏5384/3646 مقابل 6186/4217).
+
+    مصدر الصدق **اثنان معاً**: `frozen.txt` (مفتاح + sha) **وقراءة الكائن
+    الحيّ من R2 وحساب sha256 له** — فقائمةٌ بلا تحقق تحمي من الخطأ لا من
+    الانحراف. يرجع (يُسمح بالرفع؟، السبب).
+    """
+    import hashlib
+    import urllib.request
+    key = f"timings/{riwaya}/{rid}.jz"
+    frozen_sha = None
+    try:
+        with open(FROZEN_LIST, encoding="utf-8") as f:
+            for line in f:
+                line = line.split("#", 1)[0].strip()
+                if not line:
+                    continue
+                p = line.split()
+                if len(p) >= 2 and p[0] == key:
+                    frozen_sha = p[1].lower()
+                    break
+    except FileNotFoundError:
+        return True, "لا قائمة تجميد"
+    if frozen_sha is None:
+        return True, "غير مجمّد"
+    # المفتاح مجمّد ⇒ لا رفع بحال. ويبقى أن نعرف: أهو سليمٌ أم مُنحرَف؟
+    try:
+        req = urllib.request.Request(f"{R2_PUBLIC}/{key}", headers={"User-Agent": "Mozilla/5.0"})
+        live = hashlib.sha256(urllib.request.urlopen(req, timeout=60).read()).hexdigest()
+    except Exception as ex:
+        return False, f"FROZEN-CONFLICT {key} — مجمّد وتعذّر التحقق من الحيّ ({ex}) ⇒ لا رفع"
+    if live == frozen_sha:
+        return False, f"مجمّد وسليم ({live[:12]}…) ⇒ لا رفع، ولا شيء ليُكتب"
+    return False, (f"FROZEN-CONFLICT {key} — الحيّ {live[:12]}… ≠ المجمّد "
+                   f"{frozen_sha[:12]}… ⇒ انحرافٌ يُبلَّغ ولا يُصلَح بالكتابة")
+
+
 def worker(n):
     while True:
         try: rid, riwaya, base, prio = q.get_nowait()
@@ -94,10 +140,24 @@ def worker(n):
         if pathlib.Path(f"/root/done/{rid}").exists():
             print(f"⏭ {rid} (منجز)", flush=True); continue
         t0 = time.time(); print(f"▶ {rid} ({riwaya}) {time.strftime('%H:%M:%S')}", flush=True)
+        # ⚠️ تُقرأ عند **بدء كل قارئ** لا عند إقلاع السائق: إعادة تشغيل الأسطول
+        # تُسقط السورة الجارية في كل عملية وتكلّف ساعةً بست إعادات (ليلة 09-02)،
+        # فتغيير وصفة whisper يسري عند حدّ القارئ التالي بلا إعادة تشغيل أحد.
+        env = dict(ENV)
+        try:
+            for ln in open("/root/fleet.env", encoding="utf-8"):
+                ln = ln.split("#", 1)[0].strip()
+                if "=" in ln:
+                    k, _, v = ln.partition("=")
+                    env[k.strip()] = v.strip().strip('"').strip("'")
+        except FileNotFoundError:
+            pass
+        except Exception as ex:
+            print(f"⚠️ /root/fleet.env غير مقروء ({ex}) — تُعتمد الوصفة الافتراضية", flush=True)
         log = open(f"/root/logs/{rid}.log", "w", encoding="utf-8")
         rc = subprocess.call([PY_BIN, f"{ROOT}/tools/alignment/batch_run.py", "--reciter", rid,
                               "--riwaya", riwaya, "--base", base, "--surahs", "1-114"],
-                             cwd=ROOT, stdout=log, stderr=subprocess.STDOUT, timeout=None, env=ENV)
+                             cwd=ROOT, stdout=log, stderr=subprocess.STDOUT, timeout=None, env=env)
         idx = f"{ROOT}/tools/alignment/work/timings_{riwaya}_{rid}.jz"
         ok, why = index_ok(rid) if rc == 0 else (False, f"rc={rc}")
         if rc == 0 and not ok:
@@ -112,6 +172,11 @@ def worker(n):
                 import shutil; shutil.rmtree(f"{ROOT}/tools/alignment/work/batch_{rid}", ignore_errors=True)
                 try: os.remove(idx)
                 except Exception: pass
+                log.close(); continue
+            # ⛔ حارس التجميد في الطريق الإلزامي — لا علمَ بيئةٍ يُطفئه ولا تخطٍّ صامت.
+            okf, whyf = frozen_check(riwaya, rid)
+            if not okf:
+                print(f"⛔ {rid} {whyf} — الفهرس المحلي باقٍ في {idx}", flush=True)
                 log.close(); continue
             print(f"🔒 {rid} حارس الرفع: {why} · {why2}", flush=True)
             u = subprocess.call([PY_BIN, f"{ROOT}/tools/alignment/upload_timings.py", "--index", idx],

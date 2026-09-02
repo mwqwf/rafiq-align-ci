@@ -20,6 +20,8 @@ copy() { mkdir -p "$OUT/$(dirname "$1")"; cp -r "$SRC/$1" "$OUT/$1"; }
 copy tools/alignment
 copy tools/alignment_v2
 copy tools/cloud/run_fleet.py
+# ⛔ قائمة التجميد (D-058): `stage_upload.py` يقرؤها ليرفض المجمَّد ولو في staging.
+copy tools/index_qa/frozen.txt
 copy tools/ci_fleet
 copy core/quran/src/main/assets/quran
 mkdir -p "$OUT/.github/workflows"

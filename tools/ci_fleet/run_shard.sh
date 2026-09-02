@@ -8,6 +8,12 @@ PY="$ROOT/.venv/bin/python"
 LIST="${LIST:-$ROOT/tools/ci_fleet/reciters_ci.tsv}"
 SHARD="${SHARD:-0}"; SHARDS="${SHARDS:-1}"; JOBS="${JOBS:-2}"
 export ALIGN_REFINE=1          # ⛔ الجيل الثاني إلزامي (بدونه فهارس Gen-1)
+# مقابض العدة (‏b9 أضافها في 6105745 بعد قياس 8e) — نستعملها ولا نعدّل العدة.
+# ⛔ قيمتاهما **قرار المشرف** لا قرار هذا السكربت: تُضبطان في `env` الخاص
+#    بالـworkflow (‏WHISPER_THREADS=1 · WHISPER_AC=0). هنا نمرّرهما فقط، وإن
+#    غابتا أخذت العدة افتراضها (4 و512).
+export WHISPER_THREADS="${WHISPER_THREADS:-4}" WHISPER_AC="${WHISPER_AC:-512}"
+echo "وصفة whisper: -t $WHISPER_THREADS · -ac ${WHISPER_AC:-(مُسقط)} · JOBS=$JOBS"
 mkdir -p "$ROOT/logs-copy"
 
 run_one() {          # $1=reciterId $2=riwaya $3=baseUrl $4=surahs

@@ -22,6 +22,7 @@ sys.path.insert(0, os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(
 from common import ROOT, read_jz  # noqa: E402
 
 FLEET = os.path.join(ROOT, "tools", "cloud", "run_fleet.py")
+FROZEN_LIST = os.path.join(ROOT, "tools", "index_qa", "frozen.txt")
 
 
 def thresholds():
@@ -34,6 +35,25 @@ def thresholds():
             raise SystemExit(f"⛔ لم أجد {name} في {FLEET} — العتبات تغيّرت شكلاً. أوقف الرفع وراجع.")
         out[name] = int(m.group(1))
     return out
+
+
+def frozen_refuse(riwaya, rid):
+    """حارس التجميد (D-058) مطبَّقاً على staging أيضاً.
+
+    الرفع هنا إلى `timings-staging/` فلا يكتب فوق الإنتاج أصلاً — لكن إنتاج
+    نسخةٍ منافسة لفهرسٍ **مجمَّد** يخلط الحكم على صاحبه (تحذير github-b9 في
+    `husary_qalun` نصّاً)، والقائمة مصدرها ملف الأسطول لا نسخةً عندي.
+    """
+    key = f"timings/{riwaya}/{rid}.jz"
+    try:
+        with open(FROZEN_LIST, encoding="utf-8") as f:
+            for line in f:
+                line = line.split("#", 1)[0].strip()
+                if line and line.split()[0] == key:
+                    return True
+    except FileNotFoundError:
+        return False
+    return False
 
 
 def guard(rid, expect, log_path, th):
@@ -95,6 +115,10 @@ def main():
     ap.add_argument("--log", default="")
     ap.add_argument("--prefix", default=os.environ.get("STAGING_PREFIX", "timings-staging"))
     a = ap.parse_args()
+
+    if frozen_refuse(a.riwaya, a.reciter):
+        print(f"🧊 {a.reciter}: مجمَّد في frozen.txt (D-058) — ⛔ لا رفع ولو إلى staging")
+        sys.exit(2)
 
     th = thresholds()
     expect = count_expected(a.expect_surahs)
