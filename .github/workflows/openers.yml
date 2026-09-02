@@ -1,0 +1,197 @@
+name: rafiq-openers
+
+# فحص المطالع على فهارس `timings-staging/` — ثماني وظائف متوازية.
+#
+# ⛔ سببه: شرط الترقية الجديد صار عنقاً — 8e يفحص فهرساً في ~10 دقائق تسلسلياً
+#    و24 ينتظرون. وبثمانٍ متوازية يصير الطابور ساعةً لا أربع.
+# ⛔ وثمانٍ لا عشرون: القاعدة الثابتة **≥12 خانة للتدقيق الصوتي دائماً**.
+# ⛔ **ولا حكم ترقية هنا**: يُكتب شاهدٌ في `state/` ويحكم غيره.
+on:
+  workflow_dispatch:
+    inputs:
+      only:
+        description: "مفاتيح مفصولة بفاصلة (يتجاوز المسح العام)"
+        default: ""
+      limit:
+        description: "أقصى عدد مفاتيح في الدفعة"
+        default: "8"
+
+concurrency:
+  group: rafiq-openers
+  cancel-in-progress: false
+
+jobs:
+  prepare:
+    runs-on: ubuntu-latest
+    outputs:
+      matrix: ${{ steps.gen.outputs.matrix }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: { python-version: "3.11" }
+      - run: python -m pip install --quiet boto3
+      - id: gen
+        env:
+          R2_CREDENTIALS_JSON: ${{ secrets.R2_CREDENTIALS_JSON }}
+          ONLY: ${{ github.event.inputs.only }}
+          LIMIT: ${{ github.event.inputs.limit }}
+        run: |
+          mkdir -p secure
+          printf '%s' "$R2_CREDENTIALS_JSON" > secure/r2_credentials.json
+          python - <<'PY' >> "$GITHUB_OUTPUT"
+          import json, os, boto3
+          # ⛔ السبعةُ محجوزةٌ لـ8e (تقسيمٌ صريح بيننا): يفحصها تسلسلياً الآن،
+          #    فتشغيلُها هنا **إنفاق تشغيلتين على مفتاحٍ واحد** — والأسوأ أنه
+          #    يُنتج ملفين قد يختلفان فيلزم حسمُ تعارضٍ لا داعي له أصلاً.
+          RESERVED = {"alijon", "k_alzadi", "m_alzubaidi", "shaheen",
+                      "qurashi", "swlim", "rashad"}
+          only = os.environ.get("ONLY", "").strip()
+          c = json.load(open("secure/r2_credentials.json"))
+          s3 = boto3.client("s3", endpoint_url=c["endpoint"],
+                            aws_access_key_id=c["accessKeyId"],
+                            aws_secret_access_key=c["secretAccessKey"], region_name="auto")
+          if only:
+              keys = [k for k in only.replace(",", " ").split() if k]
+          else:
+              ks = []
+              for p in s3.get_paginator("list_objects_v2").paginate(
+                      Bucket=c["bucket"], Prefix="timings-staging/"):
+                  for o in p.get("Contents", []):
+                      k = o["Key"]
+                      if not k.endswith(".jz") or ".partial" in k:
+                          continue
+                      if os.path.basename(k).split(".")[0] in RESERVED:
+                          continue
+                      ks.append((o["LastModified"], k))
+              ks.sort()
+              keys = [k for _, k in ks][: int(os.environ["LIMIT"])]
+          print(f"matrix={json.dumps(keys)}")
+          PY
+
+  scan:
+    needs: prepare
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    strategy:
+      fail-fast: false
+      max-parallel: 8          # ⛔ ثمانٍ: تبقى ≥12 خانة للتدقيق والموجة
+      matrix:
+        key: ${{ fromJSON(needs.prepare.outputs.matrix) }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: { python-version: "3.11" }
+
+      - name: أدوات النظام
+        run: |
+          sudo apt-get update -qq && sudo apt-get install -y -qq ffmpeg
+          python -m pip install --quiet pywhispercpp numpy boto3
+
+      # ⛔ برهان الاستيراد قبل أي تنزيل — أربع مرات اليوم سقط أنبوبٌ لأن ملفاً
+      #    نُسخ بلا حزمته. الفحص ثانيتان، والثمن كان دقائق في كل مرة.
+      - name: برهان أداة المطالع (⛔ قبل أي تنزيل)
+        run: |
+          python - <<'PY'
+          import sys
+          for p in ("tools/tasmi_bench", "tools/alignment"):
+              sys.path.insert(0, p)
+          import basmala_local, common, openers_scan  # noqa: F401
+          print("✅ openers_scan وتبعياتها تُستورَد")
+          PY
+
+      - name: كاش النموذج
+        uses: actions/cache@v4
+        with:
+          path: assets-archive/ggml
+          key: qa-model-q8-v1        # المفتاح نفسه في كل أنابيبنا: نموذجٌ واحد
+
+      - name: الاعتماد والنموذج
+        env:
+          R2_CREDENTIALS_JSON: ${{ secrets.R2_CREDENTIALS_JSON }}
+        run: |
+          mkdir -p secure
+          printf '%s' "$R2_CREDENTIALS_JSON" > secure/r2_credentials.json
+          python - <<'PY'
+          import json, os, boto3
+          dst = "assets-archive/ggml/ggml-tiny-ar-quran-q8_0.bin"
+          if not (os.path.exists(dst) and os.path.getsize(dst) > 10_000_000):
+              c = json.load(open("secure/r2_credentials.json"))
+              s3 = boto3.client("s3", endpoint_url=c["endpoint"],
+                                aws_access_key_id=c["accessKeyId"],
+                                aws_secret_access_key=c["secretAccessKey"], region_name="auto")
+              os.makedirs(os.path.dirname(dst), exist_ok=True)
+              s3.download_file(c["bucket"], "models/whisper-tiny-ar-quran/ggml-q8_0.bin", dst)
+          print("النموذج:", os.path.getsize(dst) // 1024 // 1024, "م.ب")
+          PY
+
+      - name: فحص ${{ matrix.key }}
+        env:
+          KEY: ${{ matrix.key }}
+          R2_CREDENTIALS_JSON: ${{ secrets.R2_CREDENTIALS_JSON }}
+        run: |
+          eval "$(python - <<'PY'
+          import json, shlex
+          c = json.load(open("secure/r2_credentials.json"))
+          for k, v in {"R2_ENDPOINT": c["endpoint"], "R2_ACCESS_KEY_ID": c["accessKeyId"],
+                       "R2_SECRET_ACCESS_KEY": c["secretAccessKey"], "R2_BUCKET": c["bucket"]}.items():
+              print(f"export {k}={shlex.quote(v)}")
+          PY
+          )"
+          t0=$(date +%s)
+          # ⛔ `--threads 4` **ثابتاً لا من عتاد العدّاء** (قياس 8e في الاتجاهين
+          #    على `hawashi` س86 وس105: تُكشفان بأربعة وتفوتان باثنين). ⇒ عدّاءٌ
+          #    بخيطين يعطي ملفاً **يبدو سليماً وليس إعادةً لقياسه**.
+          python tools/tasmi_bench/openers_scan.py --key "$KEY" --threads 4 \
+            --model "$GITHUB_WORKSPACE/assets-archive/ggml/ggml-tiny-ar-quran-q8_0.bin"
+          echo "ELAPSED=$(( $(date +%s) - t0 ))" >> "$GITHUB_ENV"
+
+      - name: رفع الشاهد إلى state/ بالنسب
+        if: always()
+        env:
+          KEY: ${{ matrix.key }}
+          RUN_ID: ${{ github.run_id }}
+        run: |
+          python - <<'PY'
+          import hashlib, json, os, boto3
+          key = os.environ["KEY"]; flat = key.replace("/", "_")
+          src = f"tools/index_qa/state/{flat}.openers.json"
+          if not os.path.exists(src):
+              print(f"⚠️ لا شاهد في {src} — لا يُكتب ادّعاءٌ بلا فحص"); raise SystemExit(0)
+          doc = json.load(open(src, encoding="utf-8"))
+          tool = "tools/tasmi_bench/openers_scan.py"
+          doc["provenance"] = {
+              "source": "ci", "run_id": os.environ["RUN_ID"], "tool": tool,
+              "tool_sha": hashlib.sha256(open(tool, "rb").read()).hexdigest(),
+              "threads": 4, "elapsedSec": int(os.environ.get("ELAPSED", 0) or 0),
+          }
+          # ⛔ حارس «السرعة المريبة» (تنبيه 8e): الفهرس الكامل **دقائق لا ثوانٍ**،
+          #    وتشغيلةٌ أسرع من ذلك عرَضٌ لصوتٍ فارغ أو حمولةٍ قاصرة — **رقمٌ
+          #    كاذبٌ لا استثناء**. يُوسَم ولا يُحذف: الحكم لقارئه.
+          el = doc["provenance"]["elapsedSec"]
+          if el and el < 60:
+              doc["suspiciouslyFast"] = True
+              print(f"⚠️ زمنٌ مريب: {el}ث لفهرسٍ كامل — يُوسَم للمراجعة")
+          errs = doc.get("errors") or []
+          if errs:
+              print(f"⚠️ سطور بحكم error: {errs} — لا تُعدّ سلامةً (‏8e)")
+          c = json.load(open("secure/r2_credentials.json"))
+          s3 = boto3.client("s3", endpoint_url=c["endpoint"],
+                            aws_access_key_id=c["accessKeyId"],
+                            aws_secret_access_key=c["secretAccessKey"], region_name="auto")
+          out = f"state/{flat}.openers.json"
+          assert out.startswith("state/"), out
+          s3.put_object(Bucket=c["bucket"], Key=out,
+                        Body=json.dumps(doc, ensure_ascii=False, indent=1).encode(),
+                        ContentType="application/json")
+          d = doc.get("defects")
+          print(f"✅ {out} · حكم المطالع: {doc.get('openersVerdict')} · عطوب: {d} · {el}ث")
+          PY
+
+      - name: السجل مخرَجاً
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: openers-${{ strategy.job-index }}
+          path: tools/index_qa/state/*.openers.json
+          if-no-files-found: warn
+          retention-days: 7
