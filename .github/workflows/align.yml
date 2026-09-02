@@ -1,0 +1,170 @@
+name: rafiq-align
+
+# أسطول فهرسة المحاذاة على عدّائي GitHub المجانيين.
+# ⛔ لا يعمل تلقائياً: التشغيل بيدٍ صريحة (workflow_dispatch) — لا push ولا cron.
+on:
+  workflow_dispatch:
+    inputs:
+      shards:
+        description: "عدد الشرائح (= عدد المهام المتوازية، الحد العملي 20)"
+        default: "20"
+      jobs_per_runner:
+        description: "عمليات متوازية داخل كل عدّاء (مستودع عام = 4 vCPU ⇒ 4)"
+        default: "4"
+      smoke:
+        description: "تجربة قصيرة: قارئ واحد وسورة واحدة قصيرة (يُنصح قبل أول تعميم)"
+        type: boolean
+        default: true
+      smoke_reciter:
+        description: "معرّف القارئ للتجربة القصيرة (سطره في reciters.tsv)"
+        default: ""
+      smoke_surahs:
+        description: "نطاق السور للتجربة القصيرة"
+        default: "108"
+
+concurrency:
+  group: rafiq-align
+  cancel-in-progress: false
+
+env:
+  # ⛔ مثبَّت على إيداع بعينه: master يتغيّر بين دفعتين فيختلف الثنائي بلا أن ندري.
+  #    (‏ggml-org/whisper.cpp @ 2026-08-31). تغييره يبطل كاش الثنائي عمداً.
+  WHISPER_REF: eacbd8234c6654cdbf2c377f72b2106875479bdc
+  PY: "3.11"
+
+jobs:
+  # ── المصفوفة تُبنى ديناميكياً من مُدخل shards ────────────────────────────
+  prepare:
+    runs-on: ubuntu-latest
+    outputs:
+      matrix: ${{ steps.gen.outputs.matrix }}
+    steps:
+      - id: gen
+        run: |
+          n=${{ github.event.inputs.shards }}
+          if [ "${{ github.event.inputs.smoke }}" = "true" ]; then n=1; fi
+          echo "matrix=$(python3 -c "import json,sys;print(json.dumps(list(range(int(sys.argv[1])))))" "$n")" >> "$GITHUB_OUTPUT"
+
+  align:
+    needs: prepare
+    runs-on: ubuntu-latest
+    timeout-minutes: 350          # سقف GitHub 360 — نترك 10د للحفظ والرفع
+    strategy:
+      fail-fast: false            # سقوط شريحة لا يُسقط البقية
+      matrix:
+        shard: ${{ fromJSON(needs.prepare.outputs.matrix) }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PY }}
+
+      - name: أدوات النظام
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq ffmpeg cmake build-essential
+          python -m pip install --quiet boto3 numpy
+
+      # ── whisper.cpp: يُبنى مرة ويُخبَّأ ──────────────────────────────────
+      # ⚠️ GGML_NATIVE=OFF عمداً: الكاش يُستهلك على عدّاء قد يختلف طرازه،
+      #    وثنائيٌّ مبنيٌّ بتعليمات معالجٍ آخر يسقط بـSIGILL. الثمن سرعةٌ أقل،
+      #    والبديل (بناء في كل مهمة) يلتهم نصف المهلة عشرين مرة.
+      - name: كاش ثنائي whisper
+        id: whisper-cache
+        uses: actions/cache@v4
+        with:
+          path: whisper-bin
+          key: whisper-cli-${{ runner.os }}-${{ env.WHISPER_REF }}-noNative-v1
+
+      - name: بناء whisper.cpp (عند غياب الكاش)
+        if: steps.whisper-cache.outputs.cache-hit != 'true'
+        run: |
+          # ⛔ إيداعٌ بعينه لا فرع: --branch لا يقبل SHA، فالجلب المباشر للإيداع.
+          mkdir -p wsrc && cd wsrc && git init -q .
+          git remote add origin https://github.com/ggml-org/whisper.cpp.git
+          git fetch -q --depth 1 origin "$WHISPER_REF"
+          git checkout -q FETCH_HEAD
+          cd "$GITHUB_WORKSPACE"
+          cmake -S wsrc -B wsrc/build -DCMAKE_BUILD_TYPE=Release -DGGML_NATIVE=OFF -DWHISPER_BUILD_TESTS=OFF -DWHISPER_BUILD_EXAMPLES=ON
+          cmake --build wsrc/build --config Release -j"$(nproc)"
+          mkdir -p whisper-bin
+          cp "$(find wsrc/build -name whisper-cli -type f | head -1)" whisper-bin/whisper-cli
+          find wsrc/build -name "*.so*" -exec cp {} whisper-bin/ \;
+
+      # ── المسارات التي تتوقعها العدة كما هي (⛔ لا تعديل على شفرة العدة) ──
+      # common.py يبني المسارات من ROOT، وrun_fleet.py يثبّت /root/QuranRafiq
+      # و.venv/bin/python — فنُرضيهما بوصلات لا بتحرير سطر واحد منهما.
+      - name: تركيب المسارات المتوقَّعة
+        run: |
+          mkdir -p assets-archive/ggml/bin/Release
+          cp whisper-bin/whisper-cli assets-archive/ggml/bin/Release/whisper-cli.exe
+          cp whisper-bin/*.so* assets-archive/ggml/bin/Release/ 2>/dev/null || true
+          chmod +x assets-archive/ggml/bin/Release/whisper-cli.exe
+          mkdir -p .venv/bin && ln -sf "$(command -v python)" .venv/bin/python
+          sudo mkdir -p /root && sudo ln -sfn "$GITHUB_WORKSPACE" /root/QuranRafiq
+          sudo chmod 755 /root
+
+      # ⛔ فخّ كلّف أسطول الخوادم 228 سورة الليلة (تحذير github-b9): `pipeline.py`
+      #    يستورد `refine` من tools/alignment_v2 عبر sys.path.insert. إن غاب المجلد
+      #    سقطت كل سورة تبلغ الصقل، **وخرج الفهرس مكتملاً في الظاهر وهو جيلٌ أول**.
+      #    فيُفحص هنا — قبل أي عمل — لا وقت التشغيل.
+      - name: برهان الجيل الثاني (⛔ قبل أي فهرسة)
+        run: |
+          test -d tools/alignment_v2 || { echo "⛔ tools/alignment_v2 غائب"; exit 1; }
+          python - <<'PY'
+          import sys
+          sys.path.insert(0, "tools/alignment_v2")
+          import refine  # noqa: F401
+          print("✅ refine مستورَد — الصقل حيّ")
+          PY
+
+      - name: اعتماد R2 والنموذج
+        env:
+          R2_CREDENTIALS_JSON: ${{ secrets.R2_CREDENTIALS_JSON }}
+        run: |
+          # ⛔ عبر متغير بيئة لا سطر أمر: سطر الأمر يظهر في السجل العام.
+          mkdir -p secure
+          printf '%s' "$R2_CREDENTIALS_JSON" > secure/r2_credentials.json
+          python - <<'PY'
+          import json, os, boto3
+          c = json.load(open("secure/r2_credentials.json"))
+          s3 = boto3.client("s3", endpoint_url=c["endpoint"],
+                            aws_access_key_id=c["accessKeyId"],
+                            aws_secret_access_key=c["secretAccessKey"], region_name="auto")
+          dst = "assets-archive/ggml/ggml-tiny-ar-quran-q8_0.bin"
+          os.makedirs(os.path.dirname(dst), exist_ok=True)
+          s3.download_file(c["bucket"], "models/whisper-tiny-ar-quran/ggml-q8_0.bin", dst)
+          print("النموذج:", os.path.getsize(dst) // 1024 // 1024, "م.ب")
+          PY
+
+      # ── الاستئناف: العمل المنجز يُخبَّأ فيلتقطه التشغيل التالي ───────────
+      # batch_run.py لا يعيد سورةً لها json — فالكاش وحده يكسر سقف الست ساعات.
+      - name: كاش العمل الجزئي
+        uses: actions/cache@v4
+        with:
+          path: tools/alignment/work
+          key: align-work-${{ matrix.shard }}-${{ github.run_id }}
+          restore-keys: |
+            align-work-${{ matrix.shard }}-
+
+      - name: تشغيل السائق
+        env:
+          SHARD: ${{ matrix.shard }}
+          SHARDS: ${{ github.event.inputs.smoke == 'true' && '1' || github.event.inputs.shards }}
+          JOBS: ${{ github.event.inputs.jobs_per_runner }}
+          SMOKE: ${{ github.event.inputs.smoke }}
+          SMOKE_RECITER: ${{ github.event.inputs.smoke_reciter }}
+          SMOKE_SURAHS: ${{ github.event.inputs.smoke_surahs }}
+        run: bash tools/ci_fleet/run_shard.sh
+
+      - name: السجلات مخرَجاً (تُقرأ حتى عند السقوط)
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: logs-shard-${{ matrix.shard }}
+          path: |
+            /root/QuranRafiq/logs-copy/**
+            tools/alignment/work/timings_*.jz
+          if-no-files-found: warn
+          retention-days: 7

@@ -1,0 +1,129 @@
+# -*- coding: utf-8 -*-
+"""حارس الرفع + الرفع إلى timings-staging/ — نسخة CI.
+
+⛔ لماذا ملفٌ مستقل لا استدعاءُ `run_fleet.py`: ذاك سائقٌ بأثرٍ جانبي عند
+الاستيراد (يقرأ القائمة ويشغّل الخيوط في المستوى الأعلى) فلا يمكن استيراد
+دوالّه، **و`upload_timings.py` يكتب في `timings/` وهو مسار الإنتاج الذي
+يشتغل عليه أسطول الخوادم الآن** — الكتابة فيه من CI تصادمٌ صريح.
+
+⛔ ولماذا لا نُعيد كتابة العتبات: تُقرأ **من `run_fleet.py` نفسه** وقت التشغيل،
+فإن غيّرها صاحبها تغيّرت هنا، وإن اختفت **يسقط هذا السكربت بصوتٍ عالٍ** بدل أن
+يرفع بعتبةٍ قديمة صامتة.
+"""
+import argparse
+import glob
+import gzip
+import json
+import os
+import re
+import sys
+
+sys.path.insert(0, os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "alignment"))
+from common import ROOT, read_jz  # noqa: E402
+
+FLEET = os.path.join(ROOT, "tools", "cloud", "run_fleet.py")
+
+
+def thresholds():
+    """العتبات من مصدرها الوحيد — لا نسخة ثانية تتعفّن."""
+    src = open(FLEET, encoding="utf-8").read()
+    out = {}
+    for name in ("GUARD_MIN_ENTRIES", "MIN_SHIPPED"):
+        m = re.search(rf"^{name}\s*=\s*(\d+)", src, re.M)
+        if not m:
+            raise SystemExit(f"⛔ لم أجد {name} في {FLEET} — العتبات تغيّرت شكلاً. أوقف الرفع وراجع.")
+        out[name] = int(m.group(1))
+    return out
+
+
+def guard(rid, expect, log_path, th):
+    """نفس شروط `index_ok`/`shipped_ok`، مقيسةً على نطاق السور المطلوب فعلاً."""
+    d = os.path.join(ROOT, "tools", "alignment", "work", f"batch_{rid}")
+    fs = glob.glob(os.path.join(d, "s*.json"))
+    if len(fs) < expect:
+        return False, f"سور {len(fs)}/{expect}"
+    n, nosha = 0, 0
+    for f in fs:
+        try:
+            j = json.load(open(f, encoding="utf-8"))
+        except Exception as ex:
+            return False, f"json معطوب: {ex}"
+        n += sum(1 for e in j.get("entries", []) if e.get("startMs") is not None)
+        if not j.get("sha256"):
+            nosha += 1
+    if nosha:
+        return False, f"سور بلا بصمة صوت: {nosha}"
+    if expect >= 114 and n < th["GUARD_MIN_ENTRIES"]:
+        return False, f"مداخل {n} < {th['GUARD_MIN_ENTRIES']}"
+    try:
+        lg = open(log_path, encoding="utf-8", errors="ignore").read()
+        bad = lg.count("Error opening input files") + lg.count("Traceback")
+        if bad:
+            return False, f"أخطاء صوت/تنفيذ في السجل: {bad}"
+    except Exception:
+        pass
+    return True, f"مداخل {n} · بصمات {len(fs)}/{len(fs)}"
+
+
+def shipped_guard(idx, expect, th):
+    d = json.load(gzip.open(idx, "rt", encoding="utf-8"))
+    n = len(d.get("entries", []))
+    hi = sum(1 for e in d["entries"] if e.get("confBand") == "HIGH")
+    if expect >= 114 and n < th["MIN_SHIPPED"]:
+        return False, f"تغطية {n}/6236 < {th['MIN_SHIPPED']}"
+    if n and hi < n * 0.5:
+        return False, f"HIGH {hi}/{n} < 50%"
+    return True, f"مشحون {n} · HIGH {hi}"
+
+
+def count_expected(spec):
+    out = set()
+    for part in spec.split(","):
+        if "-" in part:
+            a, b = part.split("-")
+            out.update(range(int(a), int(b) + 1))
+        else:
+            out.add(int(part))
+    return len([x for x in out if 1 <= x <= 114])
+
+
+def main():
+    ap = argparse.ArgumentParser()
+    ap.add_argument("--reciter", required=True)
+    ap.add_argument("--riwaya", required=True)
+    ap.add_argument("--expect-surahs", default="1-114")
+    ap.add_argument("--log", default="")
+    ap.add_argument("--prefix", default=os.environ.get("STAGING_PREFIX", "timings-staging"))
+    a = ap.parse_args()
+
+    th = thresholds()
+    expect = count_expected(a.expect_surahs)
+    ok, why = guard(a.reciter, expect, a.log, th)
+    if not ok:
+        print(f"🛑 {a.reciter} رُفض الرفع: {why}")
+        sys.exit(2)
+
+    idx = os.path.join(ROOT, "tools", "alignment", "work", f"timings_{a.riwaya}_{a.reciter}.jz")
+    if not os.path.exists(idx):
+        print(f"🛑 {a.reciter}: لا فهرس {idx}")
+        sys.exit(2)
+    ok2, why2 = shipped_guard(idx, expect, th)
+    if not ok2:
+        print(f"🛑 {a.reciter} رُفض الرفع (بعد الإسقاط): {why2}")
+        sys.exit(2)
+    print(f"🔒 حارس الرفع: {why} · {why2}")
+
+    import boto3
+    c = json.load(open(os.path.join(ROOT, "secure", "r2_credentials.json")))
+    s3 = boto3.client("s3", endpoint_url=c["endpoint"],
+                      aws_access_key_id=c["accessKeyId"],
+                      aws_secret_access_key=c["secretAccessKey"], region_name="auto")
+    key = f"{a.prefix}/{a.riwaya}/{a.reciter}.jz"
+    # ⛔ لا manifest ولا كتابة في timings/: الترقية من staging إلى الإنتاج
+    #    قرارُ صاحب الأسطول بعد مقارنته بالمنشور، لا قرارَ عدّاءٍ مجاني.
+    s3.upload_file(idx, c["bucket"], key, ExtraArgs={"ContentType": "application/gzip"})
+    print(f"⬆️ رُفع {key} ({os.path.getsize(idx)//1024}ك.ب)")
+
+
+if __name__ == "__main__":
+    main()
