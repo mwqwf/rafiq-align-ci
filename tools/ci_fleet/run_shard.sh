@@ -22,6 +22,16 @@ echo "وصفة whisper: -t $WHISPER_THREADS · -ac ${WHISPER_AC:-(مُسقط)} �
 env | grep -E "^(ALIGN_REFINE|WHISPER_THREADS|WHISPER_AC)=" | sed "s/^/بيئة العامل: /"
 mkdir -p "$ROOT/logs-copy"
 
+# 📡 منارة التقدّم في الخلفية — «ما لا يُرى لا يُدار» (‏github-f4). لا تُفشل
+# الشريحة بحال، وتموت بموت الصدفة أو بالسطر الأخير.
+BEACON_PID=""
+if [ -x "$ROOT/tools/ci_fleet/progress_beacon.sh" ] || [ -f "$ROOT/tools/ci_fleet/progress_beacon.sh" ]; then
+  bash "$ROOT/tools/ci_fleet/progress_beacon.sh" "$ROOT/tools/alignment/work" &
+  BEACON_PID=$!
+fi
+stop_beacon() { [ -n "${BEACON_PID:-}" ] && kill "$BEACON_PID" 2>/dev/null; return 0; }
+trap stop_beacon EXIT
+
 # ⛔ الروايات التي تقبلها `batch_run.py --riwaya`. كانت ثلاثاً في `main` فأسقطت
 #    أول smoke على `soufi_sousi` (‏invalid choice) — وتبيّن أن العيب أصاب
 #    الخوادم الخمسة أيضاً لا جبهتنا وحدها (‏github-b9)، وأُصلح في `8202d40`:

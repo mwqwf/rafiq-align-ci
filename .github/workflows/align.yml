@@ -51,6 +51,9 @@ jobs:
   align:
     needs: prepare
     runs-on: ubuntu-latest
+    # ⛔ للمنارة وحدها: كتابةُ فرع `progress/<shard>`. ولا شيء غيرها يكتب.
+    permissions:
+      contents: write
     timeout-minutes: 350          # سقف GitHub 360 — نترك 10د للحفظ والرفع
     strategy:
       fail-fast: false            # سقوط شريحة لا يُسقط البقية
@@ -188,6 +191,9 @@ jobs:
           SMOKE: ${{ github.event.inputs.smoke }}
           SMOKE_RECITER: ${{ github.event.inputs.smoke_reciter }}
           SMOKE_SURAHS: ${{ github.event.inputs.smoke_surahs }}
+          GH_TOKEN: ${{ github.token }}
+          GITHUB_REPOSITORY: ${{ github.repository }}
+          GITHUB_RUN_ID: ${{ github.run_id }}
         run: bash tools/ci_fleet/run_shard.sh
 
       # ⛔ الحفظ بـ`if: always()` — وهو مقصد الفصل كله: الشريحة تُقتل غالباً
