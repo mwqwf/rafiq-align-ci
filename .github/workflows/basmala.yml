@@ -21,6 +21,10 @@ on:
       only:
         description: "مفتاحٌ بعينه — للتشخيص"
         default: ""
+      upload:
+        description: "⛔ ارفع المقصوص إلى timings-staging ببصمة جديدة (بإذن صريح فقط)"
+        type: boolean
+        default: false
 
 concurrency:
   group: rafiq-basmala
@@ -140,6 +144,55 @@ jobs:
           elif [ "$rc" -gt 2 ]; then
             echo "⛔ خطأ تنفيذ (rc=$rc)"; exit "$rc"
           fi
+
+      # ⛔ الرفع **مأذونٌ لهذا المسار وحده** (أمر github-f4 على `s_alquraishi`):
+      #    التمريرة تُغيّر ولا تحكم، فلا تكتب في الدلو عادةً. وحين يُؤذن، ترفع
+      #    **ببصمةٍ جديدة** ووسمَي `transform` و`parent` — فيُعرف من أين جاء
+      #    الفهرس وبأي تحويل، ولا يلتبس بأصله. ⛔ ولا ترقية من CI.
+      - name: رفع المقصوص (بإذن، وببصمة جديدة)
+        if: ${{ github.event.inputs.upload == 'true' }}
+        env:
+          KEY: ${{ matrix.key }}
+        run: |
+          rid="$(basename "$KEY" | cut -d. -f1)"
+          out="work/$rid.basmala.jz"
+          if [ ! -s "$out" ]; then echo "⛔ لا مخرَج مقصوص — لا رفع"; exit 1; fi
+          python - <<'PY'
+          import hashlib, json, os, sys, boto3
+          sys.path.insert(0, "tools/ci_fleet")
+          from stage_upload import frozen_refuse            # ⛔ حارس التجميد نفسه لا نسخةٌ منه
+          key = os.environ["KEY"]
+          rid = os.path.basename(key).split(".")[0]
+          parent = os.path.basename(key).split(".")[1]
+          riwaya = key.split("/")[1]
+          refuse, why = frozen_refuse(riwaya, rid)
+          if refuse:
+              print(f"🧊 {why} — لا رفع"); raise SystemExit(2)
+          out = f"work/{rid}.basmala.jz"
+          blob = open(out, "rb").read()
+          sha8 = hashlib.sha256(blob).hexdigest()[:8]
+          tbl = json.load(open(f"work/{rid}_table.json", encoding="utf-8"))
+          cut = [str(r["surah"]) for r in tbl.get("rows", []) if "قُصّت" in r.get("verdict", "")]
+          c = json.load(open("secure/r2_credentials.json"))
+          s3 = boto3.client("s3", endpoint_url=c["endpoint"],
+                            aws_access_key_id=c["accessKeyId"],
+                            aws_secret_access_key=c["secretAccessKey"], region_name="auto")
+          dst = f"timings-staging/{riwaya}/{rid}.{sha8}.jz"
+          assert dst.startswith("timings-staging/"), dst
+          try:                                  # ⛔ لا كتابة فوق موجود
+              s3.head_object(Bucket=c["bucket"], Key=dst)
+              print(f"⛔ {dst} موجودٌ سلفاً — والبصمة من المحتوى، فالموجود مطابق. لا كتابة.")
+              raise SystemExit(0)
+          except s3.exceptions.ClientError:
+              pass
+          s3.put_object(Bucket=c["bucket"], Key=dst, Body=blob,
+                        ContentType="application/gzip",
+                        Metadata={"partial": "false", "sha256-8": sha8,
+                                  "source": "ci:" + os.environ.get("GITHUB_RUN_ID", "?"),
+                                  "transform": "basmala_fix:" + ",".join(cut),
+                                  "parent": parent})
+          print(f"⬆️ {dst} · قُصّ {len(cut)} سورة: {','.join(cut)} · الأصل {parent}")
+          PY
 
       - name: المخرَج (الفهرس المقصوص والجدول)
         if: always()
