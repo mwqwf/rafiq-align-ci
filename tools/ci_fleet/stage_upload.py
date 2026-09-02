@@ -65,6 +65,17 @@ def guard(rid, expect, log_path, th):
     fs = glob.glob(os.path.join(d, "s*.json"))
     if len(fs) < expect:
         return False, f"سور {len(fs)}/{expect}"
+    # ⛔ «جزئيٌّ بلا قصد» (اقتراح github-b9 بعد اختباره حارسي بتشغيل فعلي):
+    #    `--expect-surahs` مِقبضٌ بيد المستدعي **يُطفئ عتبتَي التغطية وHIGH**.
+    #    وهذا صحيحٌ للجزئي الحقيقي (تطبيقهما على سورةٍ من ثلاث آيات رفضٌ كاذب)،
+    #    لكنّ الخطر أن تُمرَّر تشغيلةٌ **كاملة** بـ`expect` خاطئ فتخرج بلا
+    #    حراسة وتبدو مقبولة. والفرق يُحسم بالواقع لا بالنية: **الجزئي الحقيقي
+    #    لا يملك 114 سورة**، فوجودها مع `expect` أصغر خطأُ استدعاءٍ لا تشغيلةٌ
+    #    جزئية ⇒ يُوقَف ويُبلَّغ.
+    if expect < 114 and len(fs) >= 114:
+        return False, (f"⛔ جزئيٌّ بلا قصد: {len(fs)} سورة على القرص بينما "
+                       f"--expect-surahs={expect} — خطأُ استدعاءٍ يُطفئ العتبتين. "
+                       "صحّح الاستدعاء ولا تتجاوز.")
     n, nosha = 0, 0
     for f in fs:
         try:
@@ -143,8 +154,21 @@ def main():
     ap.add_argument("--riwaya", required=True)
     ap.add_argument("--expect-surahs", default="1-114")
     ap.add_argument("--log", default="")
-    ap.add_argument("--prefix", default=os.environ.get("STAGING_PREFIX", "timings-staging"))
+    ap.add_argument("--prefix", default=os.environ.get("STAGING_PREFIX", "timings-staging"),
+                    help="⛔ تحت `timings-staging/` وحدها — انظر حارس البادئة أدناه")
     a = ap.parse_args()
+
+    # ⛔ حارس البادئة (قرار github-f4، 2026-09-02): **كل كاتبٍ إلى الدلو يحمل
+    #    حرّاسه داخله، ولا يكتب إلا في وجهته**. هذا السكربت هو الكاتب الوحيد
+    #    إلى `timings-staging/`، و`upload_timings.py` (‏b9) الكاتب الوحيد إلى
+    #    `timings/`. فبادئةٌ ثالثة تعني كاتباً بلا حارسٍ يخصّها — وبها يُفتح
+    #    الباب من حيث سُدّ. والقيد على `--prefix` **و**`STAGING_PREFIX` معاً.
+    root_prefix = (a.prefix or "").strip("/").split("/")[0]
+    if root_prefix != "timings-staging":
+        print(f"⛔ بادئة ممنوعة: {a.prefix!r} — هذا الكاتب لا يكتب إلا تحت "
+              "`timings-staging/`. الكتابة في `timings/` لـ`upload_timings.py` "
+              "بحرّاسه، وأي بادئة أخرى كاتبٌ بلا حارس.")
+        sys.exit(2)
 
     refuse, why_frozen = frozen_refuse(a.riwaya, a.reciter)
     if refuse:
