@@ -383,7 +383,17 @@ def sample_boundaries(idx, clusters=8, per_cluster=6, band=None, long_seg=False,
     """عيّنة عمياء ذاتية الوزن: عناقيد (سور) بالتناسب مع الحجم (PPS) ثم
     حدود بالتساوي داخل كل عنقود. البذرة مشتقة من معرّف القارئ فالعيّنة
     **ثابتة قابلة لإعادة الإنتاج** وتُختار قبل سماع أي شيء (العمى محفوظ)."""
-    seed = int(hashlib.sha256(f"{idx.get('riwaya')}/{idx.get('reciterId')}".encode()).hexdigest()[:12], 16)
+    # ⛔ **البذرةُ من هويّة القارئ وحدها ⇒ كلُّ من شغّل الأداة سحب الحدودَ
+    # نفسها.** وذاك مقصودٌ للتكرار (‏العيّنةُ عمياء ومثبَّتةٌ قبل السماع)، لكنه
+    # يجعل «حكمين متفقين» **إعادةَ قياسٍ لا تعاضدَ شهادتين**: يكشف التقلّب
+    # والعطب العابر، ولا يكشف **خطأ المنهج** — إذ يخطئ المسارانِ الخطأَ نفسه
+    # على الحدود نفسها. (وهو عينُ ما وقع الليلة: محرّكٌ واحد برّأ 211 مطلعاً
+    # بالغلط، وتكرارُه ألفَ مرّةٍ يُعيد البراءة نفسها.)
+    # ⇒ `QA_SEED_SALT` يجعل المسار الثاني يسحب عيّنةً **مستقلّة**، فيصير
+    # اتفاقُهما شهادتين على الفهرس لا شهادةً واحدةً مكرّرة.
+    _salt = os.environ.get("QA_SEED_SALT", "")
+    seed = int(hashlib.sha256(f"{idx.get('riwaya')}/{idx.get('reciterId')}/{_salt}".encode()
+                              ).hexdigest()[:12], 16)
     rng = random.Random(seed)
     keep = None
     if long_seg:
@@ -511,7 +521,14 @@ def _local_audio(url):
     if mir:
         url, mkey, msize = mir
         MIRROR["used"][mkey] = msize
-    p = LOCAL_CACHE / (hashlib.sha256(url.encode()).hexdigest()[:16] + ".mp3")
+    # ⛔ **المخبأُ يُفهرَس برابط المصدر دائماً، لا بالرابط الذي نُزّل منه.**
+    # كان يُحفظ باسمٍ مشتقٍّ من الرابط **بعد** استبداله بالمرآة — ورابطُ
+    # المرآة **موقَّعٌ بمهلة**، فيختلف في كل تشغيل. ⇒ الملفّ يُخزَّن باسمٍ
+    # جديد كل مرّة، ولا يجده الفحصُ الأول أبداً، **فيُعاد تنزيل كل ملفٍّ
+    # مرآويٍّ في كل تشغيلة** والمخبأ ينتفخ بنسخٍ من الشيء نفسه (بلغ 4.3 ج.ب).
+    # وهو عطبٌ صامتٌ تماماً: لا خطأ ولا تحذير، أثرُه الوحيد بطءٌ يُنسب إلى
+    # الشبكة. كُشف بمصادفةِ تفتيشٍ في العمليات، لا ببلاغ.
+    p = p0
     if not p.exists() or p.stat().st_size < 10_000:
         # ⛔ **مهلةٌ صريحة وإعادةُ محاولة.** ‏`urlretrieve` بلا مهلةٍ افتراضية،
         # فاتصالٌ يتوقّف يعلّق العملية **إلى الأبد**: علّق قياس 400 حدّ 54
@@ -818,7 +835,8 @@ def _finish(rep, rows, by_cluster, seed, nerr):
 
     sev = rate(lambda k: k == "جسيم")
     any_ = rate(lambda k: k in ("جسيم", "طفيف"))
-    rep["sample"] = {"seed": seed, "clusters": sorted(by_cluster), "rows": rows,
+    rep["sample"] = {"seed": seed, "seedSalt": os.environ.get("QA_SEED_SALT", ""),
+                     "clusters": sorted(by_cluster), "rows": rows,
                      "severe": sev, "any": any_, "errors": nerr}
     sev_rate = sev[0] / sev[1] if sev[1] else 0.0
     rep["severeRate"] = sev_rate

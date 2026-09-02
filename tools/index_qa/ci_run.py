@@ -62,6 +62,13 @@ def main():
     ap.add_argument("--refined", choices=["yes", "no"])
     ap.add_argument("--out-prefix", default="state",
                     help="بادئة كتابة الأحكام على الدلو")
+    ap.add_argument("--kind", default=os.environ.get("QA_KIND", "audio"),
+                    help="نوع الحكم (‏audio افتراضاً)")
+    ap.add_argument("--source", default=os.environ.get("QA_SOURCE", "local"),
+                    choices=["local", "ci"], help="صاحبُ الحكم (‏local افتراضاً)")
+    ap.add_argument("--seed-salt", default=os.environ.get("QA_SEED_SALT", ""),
+                    help="ملحُ البذرة — يجعل العيّنة مستقلّةً عن عيّنة المشغّل، "
+                         "فيصير اتفاق الحكمين تعاضدَ شهادتين لا إعادةَ قياس")
     ap.add_argument("--run-id", default=os.environ.get("QA_RUN_ID"),
                     help="معرّف التشغيلة (‏run_id) — يُحمل في الحكم")
     ap.add_argument("--dry-run", action="store_true", help="لا يكتب إلى الدلو")
@@ -99,8 +106,9 @@ def main():
 
     t0 = time.time()
     # نسبُ الحكم قبل التدقيق كي يُحمل في الكائن لا يُستنبط لاحقاً.
-    os.environ.setdefault("QA_SOURCE", "ci")
-    os.environ.setdefault("QA_KIND", "audio")
+    os.environ["QA_SEED_SALT"] = a.seed_salt
+    os.environ["QA_SOURCE"] = a.source
+    os.environ["QA_KIND"] = a.kind
     if a.run_id:
         os.environ["QA_RUN_ID"] = a.run_id
     rep = R.audit(a.key, args)

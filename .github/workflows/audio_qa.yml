@@ -107,7 +107,10 @@ jobs:
     # ⛔ 45 لا 350 (‏github-7e): تعليقُ تنزيلٍ يبتلع الست ساعات **ويشغل خانةً
     #    من العشرين طوال المدّة** — وقد وقع عنده فعلاً: 54 دقيقة بلا حركة على
     #    نافذةٍ واحدة. والمهلة القصيرة تُظهر التعليق بدل أن تموّله.
-    timeout-minutes: 45
+    # ⚠️ ورُفعت من 45 إلى 120 (‏أمر github-f4 على قياس 7e): **6.3ث للنافذة
+    #    × 605 نافذة ≈ 64 دقيقة معالجةً صافية** على نواة، فـ45 كانت تقتل عملاً
+    #    سليماً. و120 تبقى قصيرةً بما يكفي لإظهار التعليق (السقف 360).
+    timeout-minutes: 120
     strategy:
       fail-fast: false          # حكمُ فهرسٍ لا يُسقط أحكام إخوته
       max-parallel: 20          # سقف الحساب — تصريحٌ لا اكتشافٌ عند الاصطفاف
@@ -241,17 +244,19 @@ jobs:
           case "$H" in *--source*)    EXTRA="$EXTRA --source ci";; esac
           case "$H" in *--run-id*)    EXTRA="$EXTRA --run-id ${{ github.run_id }}";; esac
           echo "أعلامٌ إضافية مدعومة:${EXTRA:- (لا شيء)}"
-          python tools/index_qa/ci_run.py --key "$KEY" --expect-sha "$SHA"             --clusters 20 --per-cluster 10 $EXTRA
-          # ⛔ ولا `--out-prefix`: البادئة `state/` هي الافتراض بأمر المشرف
-          #    ليقرأها راصد f5 مباشرةً — وتمريرُها هنا يعيد اختراع اصطلاحٍ قائم.
+          python tools/index_qa/ci_run.py --key "$KEY" --expect-sha "$SHA"             --clusters 20 --per-cluster 10 --out-prefix state-ci $EXTRA
+          # ⛔ `--out-prefix state-ci`: ‏`ci_run` و`promote_watch` كانا يكتبان
+          #    **الاسم نفسه** `state/<key>.json` فتصادما، وكتب أحدهما فوق حكم
+          #    الآخر (‏bd، `11e4b17`). فيكتب هنا في بادئةٍ معزولة، ثم يُنقل
+          #    الحكم **كاملاً بعيّنته** إلى `state/<key>.audio-ci.json` —
+          #    اسمٌ لا ينازعه أحد. **ولا يُمسّ ملف bd بحال.**
 
-      # ⛔ ملفٌ **مرافق** لا تعديلٌ في صيغة 7e (قرار github-f4): الأداة تبقى
-      #    واحدةً ملكَ صاحبها، والنسب يُكتب بجواره. وسببه عمليّ: bd يرقّي ما
-      #    اتفق فيه حكمان — فبلا نسبٍ يصير حكمان متطابقان **دليلاً كاذباً على
-      #    اتفاق** وهما حكمٌ واحد كُتب مرتين.
-      # ⛔ و`if: always()`: الحكم بالرفض يُخرج `ci_run` بغير صفر، والنسب لازمٌ
-      #    للمرفوض كلزومه للمقبول — بل ألزم.
-      - name: ملف النسب المرافق
+      # ⛔ الحكم **كاملاً بعيّنته** لا مؤشّراً إليه (أمر github-f4 بعد بلاغ bd):
+      #    ملفُ نسبٍ يشير إلى `state/<key>.json` كان يشير — بعد التصادم — إلى
+      #    **حكم bd البنيوي** لا إلى حكمي، فأعلن «‏kind=audio» على حكمٍ ليس
+      #    صوتياً. ⇒ **من يدّعي حكماً يحمله في جوفه**، والمؤشّر يكذب متى تحرّك
+      #    ما يشير إليه.
+      - name: حكم الصوت كاملاً إلى state/<key>.audio-ci.json
         if: always()
         env:
           KEY: ${{ matrix.key }}
@@ -259,29 +264,31 @@ jobs:
         run: |
           python - <<'PY'
           import hashlib, json, os, boto3
-          key = os.environ["KEY"]
-          tool = "tools/index_qa/ci_run.py"
-          tool_sha = hashlib.sha256(open(tool, "rb").read()).hexdigest()
-          doc = {
-              "kind": "audio",
-              "source": "ci",
-              "run_id": os.environ["RUN_ID"],
-              "tool": tool,
-              "tool_sha": tool_sha,
-              "verdict_file": f"state/{key.replace('/', '_')}.json",
-              "key": key,
-          }
+          key = os.environ["KEY"]; flat = key.replace("/", "_")
           c = json.load(open("secure/r2_credentials.json"))
           s3 = boto3.client("s3", endpoint_url=c["endpoint"],
                             aws_access_key_id=c["accessKeyId"],
                             aws_secret_access_key=c["secretAccessKey"], region_name="auto")
-          out = f"state/{key.replace('/', '_')}.ci.json"
-          # ⛔ لا يكتب إلا تحت `state/` — كل كاتبٍ في وجهته وحدها (قاعدة اليوم).
-          assert out.startswith("state/"), out
+          src = f"state-ci/{flat}.json"
+          try:
+              doc = json.loads(s3.get_object(Bucket=c["bucket"], Key=src)["Body"].read())
+          except Exception as ex:
+              print(f"⚠️ لا حكم في {src} ({ex}) — لا يُكتب ادّعاءٌ بلا حكم")
+              raise SystemExit(0)
+          # ⛔ النسب يُضاف إلى الحكم نفسه لا في ملفٍ ثانٍ: ملفان يفترقان.
+          doc["provenance"] = {
+              "kind": "audio", "source": "ci", "run_id": os.environ["RUN_ID"],
+              "tool": "tools/index_qa/ci_run.py",
+              "tool_sha": hashlib.sha256(open("tools/index_qa/ci_run.py", "rb").read()).hexdigest(),
+              "run_sha": hashlib.sha256(open("tools/index_qa/run.py", "rb").read()).hexdigest(),
+          }
+          out = f"state/{flat}.audio-ci.json"
+          assert out.startswith("state/") and out.endswith(".audio-ci.json"), out
           s3.put_object(Bucket=c["bucket"], Key=out,
                         Body=json.dumps(doc, ensure_ascii=False, indent=1).encode(),
                         ContentType="application/json")
-          print("نسب:", out, "· أداة:", tool_sha[:8])
+          has = "sample" in doc and ("verdict" in doc or "severeRate" in doc)
+          print(f"✅ {out} · فيه عيّنةٌ وحكم: {has}")
           PY
 
       - name: السجل مخرَجاً
