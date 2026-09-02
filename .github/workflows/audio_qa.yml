@@ -70,8 +70,15 @@ jobs:
                   if o["Key"].endswith(".jz"):
                       ks.append((o["LastModified"], o["Key"]))
           ks.sort()
-          keys = [k for _, k in ks][: int(os.environ["LIMIT"])]
-          print(f"matrix={json.dumps(keys)}")
+          # ⛔ البصمة الكاملة تُحسب هنا لا في الوظيفة: `--expect-sha` يرفض
+          #    التدقيق إن تغيّر المحتوى تحت المفتاح — و7e دقّق ليلتها نسخةً
+          #    ناقصة استُبدلت بعدها. والفهرس ~86ك.ب فحسابها كلها زهيد.
+          import hashlib
+          out = []
+          for _, k in ks[: int(os.environ["LIMIT"])]:
+              b = s3.get_object(Bucket=c["bucket"], Key=k)["Body"].read()
+              out.append({"key": k, "sha": hashlib.sha256(b).hexdigest()})
+          print(f"matrix={json.dumps(out)}")
           PY
 
   audit:
@@ -82,7 +89,7 @@ jobs:
       fail-fast: false          # حكمُ فهرسٍ لا يُسقط أحكام إخوته
       max-parallel: 20          # سقف الحساب — تصريحٌ لا اكتشافٌ عند الاصطفاف
       matrix:
-        key: ${{ fromJSON(needs.prepare.outputs.matrix) }}
+        item: ${{ fromJSON(needs.prepare.outputs.matrix) }}
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
@@ -92,7 +99,10 @@ jobs:
         run: |
           sudo apt-get update -qq
           sudo apt-get install -y -qq ffmpeg
-          python -m pip install --quiet boto3 numpy
+          # ⛔ لا بناء whisper: `pywhispercpp` عجلةٌ مبنيّة تحمّل ملف ggml نفسه،
+          #    وقد طابق 7e مخرجاتها بمخرجات الخادم حرفاً بحرف. وفّر 10–20 دقيقة
+          #    **في كل وظيفة من العشرين**، وأبقى الأرقام قابلةً للمقارنة بأرقام الليلة.
+          python -m pip install --quiet pywhispercpp soundfile numpy boto3
 
       # ⛔ النموذج يُخبَّأ: 41م.ب × 20 وظيفة في كل دفعة تنزيلٌ بلا طائل.
       - name: كاش النموذج
@@ -101,6 +111,7 @@ jobs:
         with:
           path: assets-archive/ggml
           key: qa-model-q8-v1
+        # المسار نفسه يُمرَّر بـQA_MODEL فلا يعيد السكربت تنزيله
 
       - name: الاعتماد والنموذج
         env:
@@ -123,33 +134,18 @@ jobs:
               print("النموذج نُزّل:", os.path.getsize(dst) // 1024 // 1024, "م.ب")
           PY
 
-      # ⚠️ يبقى معلَّقاً على github-7e: هل يكفي `pywhispercpp` أم يلزم ثنائي
-      #    `whisper-cli`؟ إن كفى، وفّرنا بناءً 10–20 دقيقة **في كل وظيفة**.
-      #    ولا أضع بناءً «احتياطاً»: كلفةُ الاحتياط هنا عشرون بناءً في الدفعة.
-      - name: محرك التفريغ (يُملأ من وصفة 7e)
-        run: |
-          echo "⚠️ خطوةٌ معلّقة: بانتظار وصفة github-7e (pywhispercpp أم whisper-cli)."
-          echo "لا تُطلق هذه الوظيفة قبل ملئها — الحكم بلا محرك تفريغ لا معنى له."
-          exit 1
-
-      - name: تدقيق ${{ matrix.key }}
+      - name: تدقيق ${{ matrix.item.key }}
         env:
-          KEY: ${{ matrix.key }}
-        run: |
-          # ⚠️ سطر الاستدعاء يُملأ من 7e — ولا أخترعه: راياتٌ مخترعة تُنتج
-          #    حكماً يبدو صحيحاً ولا يقابل ما يقيسه هو، وهو أسوأ من لا حكم.
-          echo "python tools/index_qa/run.py \"$KEY\" <رايات 7e>"
-          exit 1
-
-      - name: كتابة الحكم إلى الدلو
-        if: always()
-        env:
+          # ⛔ النموذج من المخبأ لا من الدلو: السكربت لا يعيد التنزيل إن وُجد.
+          QA_MODEL: ${{ github.workspace }}/assets-archive/ggml/ggml-tiny-ar-quran-q8_0.bin
           R2_CREDENTIALS_JSON: ${{ secrets.R2_CREDENTIALS_JSON }}
-          KEY: ${{ matrix.key }}
         run: |
-          # ⚠️ مسار الحكم يُملأ من 7e — الجرد والترقية عنده، ولا ينفع أن أكتب
-          #    حيث لا يقرأ. (اقتراحي المعروض عليه: `qa-state/<key>.json`.)
-          echo "معلَّق حتى يحدّد 7e مسار state/ واسم الملف."
+          # النصّ المرجعي من المستودع نفسه: `core/quran/.../text_<riwaya>.jz`
+          # مودَعٌ هنا (4.4م.ب)، ولا نسخة له على الدلو — فالاستنساخ يكفي ولا
+          # يُنتظر رفعٌ (‏github-7e).
+          # ⛔ والخروج غير الصفري على المرفوض **مقصود**: يُرى الرفض في اللوحة
+          #    بلا قراءة سجلّ، ولذلك `fail-fast: false` أعلاه ضرورةٌ لا زينة.
+          python tools/index_qa/ci_run.py             --key "${{ matrix.item.key }}"             --expect-sha "${{ matrix.item.sha }}"             --clusters 20 --per-cluster 10
 
       - name: السجل مخرَجاً
         if: always()
