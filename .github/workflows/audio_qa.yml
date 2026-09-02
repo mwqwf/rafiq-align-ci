@@ -84,7 +84,10 @@ jobs:
   audit:
     needs: prepare
     runs-on: ubuntu-latest
-    timeout-minutes: 350
+    # ⛔ 45 لا 350 (‏github-7e): تعليقُ تنزيلٍ يبتلع الست ساعات **ويشغل خانةً
+    #    من العشرين طوال المدّة** — وقد وقع عنده فعلاً: 54 دقيقة بلا حركة على
+    #    نافذةٍ واحدة. والمهلة القصيرة تُظهر التعليق بدل أن تموّله.
+    timeout-minutes: 45
     strategy:
       fail-fast: false          # حكمُ فهرسٍ لا يُسقط أحكام إخوته
       max-parallel: 20          # سقف الحساب — تصريحٌ لا اكتشافٌ عند الاصطفاف
@@ -113,6 +116,21 @@ jobs:
           key: qa-model-q8-v1
         # المسار نفسه يُمرَّر بـQA_MODEL فلا يعيد السكربت تنزيله
 
+      # ⛔ ومخبأ **الصوت** أنفع من مخبأ النموذج بعشرات الأضعاف (‏github-7e):
+      #    النموذج 41م.ب مرّةً، والعيّنة الواحدة تسحب عشرين سورة قد تبلغ
+      #    2–3 ج.ب فيها البقرة وحدها ~196م.ب. والمفتاح **بالقارئ** لأن فهارس
+      #    القارئ الواحد تتشارك ملفاته، ولا يُشارك قارئٌ آخر شيئاً.
+      - name: كاش صوت القارئ
+        uses: actions/cache@v4
+        with:
+          path: qa_audio
+          # المفتاح مشتقٌّ من المفتاح كاملاً، والاسترجاع الجزئي بالبادئة
+          # نفسها ⇒ فهارس القارئ الواحد (بصمات مختلفة) تتشارك مخبأه.
+          key: qa-audio-${{ matrix.item.key }}
+          restore-keys: |
+            qa-audio-${{ matrix.item.key }}
+            qa-audio-timings-staging/
+
       - name: الاعتماد والنموذج
         env:
           R2_CREDENTIALS_JSON: ${{ secrets.R2_CREDENTIALS_JSON }}
@@ -138,6 +156,7 @@ jobs:
         env:
           # ⛔ النموذج من المخبأ لا من الدلو: السكربت لا يعيد التنزيل إن وُجد.
           QA_MODEL: ${{ github.workspace }}/assets-archive/ggml/ggml-tiny-ar-quran-q8_0.bin
+          QA_CACHE: ${{ github.workspace }}/qa_audio
           R2_CREDENTIALS_JSON: ${{ secrets.R2_CREDENTIALS_JSON }}
         run: |
           # النصّ المرجعي من المستودع نفسه: `core/quran/.../text_<riwaya>.jz`
@@ -146,6 +165,8 @@ jobs:
           # ⛔ والخروج غير الصفري على المرفوض **مقصود**: يُرى الرفض في اللوحة
           #    بلا قراءة سجلّ، ولذلك `fail-fast: false` أعلاه ضرورةٌ لا زينة.
           python tools/index_qa/ci_run.py             --key "${{ matrix.item.key }}"             --expect-sha "${{ matrix.item.sha }}"             --clusters 20 --per-cluster 10
+          # ⛔ ولا `--out-prefix`: البادئة `state/` هي الافتراض بأمر المشرف
+          #    ليقرأها راصد f5 مباشرةً — وتمريرُها هنا يعيد اختراع اصطلاحٍ قائم.
 
       - name: السجل مخرَجاً
         if: always()

@@ -11,7 +11,7 @@
 وتموت. ⇒ **منطق الحكم مستورَدٌ من `run.py` ولا يُعاد كتابته** (مصدرٌ واحد
 للقاعدة)، والمختلف هو الغلاف وحده.
 
-**ما تكتبه:** ‏`qa-state/<key>.json` على الدلو — نفس بنية `state/` المحلية
+**ما تكتبه:** ‏`state/<key>.json` على الدلو — نفس بنية `state/` المحلية
 وفيها ما تقرؤه بوابة الترقية: `verdict` · `sha256` · `severeRate` ·
 `ciLow`/`ciHigh` · `fatal` · العيّنة بشواهدها.
 
@@ -60,7 +60,7 @@ def main():
     ap.add_argument("--per-cluster", type=int, default=10)
     ap.add_argument("--band", choices=["HIGH", "MED"])
     ap.add_argument("--refined", choices=["yes", "no"])
-    ap.add_argument("--out-prefix", default="qa-state",
+    ap.add_argument("--out-prefix", default="state",
                     help="بادئة كتابة الأحكام على الدلو")
     ap.add_argument("--dry-run", action="store_true", help="لا يكتب إلى الدلو")
     a = ap.parse_args()
