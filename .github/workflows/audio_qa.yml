@@ -211,7 +211,23 @@ jobs:
           PY
           )
           echo "البصمة: ${SHA:0:8}…"
-          python tools/index_qa/ci_run.py --key "$KEY" --expect-sha "$SHA"             --clusters 20 --per-cluster 10
+          # ⛔ **بذرة عيّنة مستقلة** (‏`--seed-salt ci`) — وهذا أهمّ علمٍ هنا:
+          #    كانت البذرة تُشتقّ من هوية القارئ وحدها، فأسحبُ **الحدود المئتين
+          #    نفسها** التي يسحبها 7e ⇒ اتفاقُنا **إعادةُ قياسٍ لا شهادتان**،
+          #    يكشف التقلّب ولا يكشف خطأ المنهج البتّة (محرّكٌ واحد برّأ 211
+          #    مطلعاً بالغلط، وتكراره ألفاً يُعيد البراءة ألفاً). فبعيّنةٍ
+          #    مستقلّة يصير الاتفاق شهادةً، **ويصير الاختلاف خبراً**: عيّنتان
+          #    مستقلّتان تختلفان ⇒ الفهرس متفاوت، وذاك ما تُخفيه المشتركة.
+          # ⛔ ويُمرَّر **إن كانت الأداة تقبله**: أداةُ 7e تتطوّر، وعلمٌ لا تعرفه
+          #    يُسقط الوظيفة — فنسأل `--help` بدل أن نفترض.
+          EXTRA=""
+          H="$(python tools/index_qa/ci_run.py --help 2>&1 || true)"
+          case "$H" in *--seed-salt*) EXTRA="$EXTRA --seed-salt ci";; esac
+          case "$H" in *--kind*)      EXTRA="$EXTRA --kind audio";; esac
+          case "$H" in *--source*)    EXTRA="$EXTRA --source ci";; esac
+          case "$H" in *--run-id*)    EXTRA="$EXTRA --run-id ${{ github.run_id }}";; esac
+          echo "أعلامٌ إضافية مدعومة:${EXTRA:- (لا شيء)}"
+          python tools/index_qa/ci_run.py --key "$KEY" --expect-sha "$SHA"             --clusters 20 --per-cluster 10 $EXTRA
           # ⛔ ولا `--out-prefix`: البادئة `state/` هي الافتراض بأمر المشرف
           #    ليقرأها راصد f5 مباشرةً — وتمريرُها هنا يعيد اختراع اصطلاحٍ قائم.
 

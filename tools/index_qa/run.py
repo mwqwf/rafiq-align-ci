@@ -383,17 +383,7 @@ def sample_boundaries(idx, clusters=8, per_cluster=6, band=None, long_seg=False,
     """عيّنة عمياء ذاتية الوزن: عناقيد (سور) بالتناسب مع الحجم (PPS) ثم
     حدود بالتساوي داخل كل عنقود. البذرة مشتقة من معرّف القارئ فالعيّنة
     **ثابتة قابلة لإعادة الإنتاج** وتُختار قبل سماع أي شيء (العمى محفوظ)."""
-    # ⛔ **البذرةُ من هويّة القارئ وحدها ⇒ كلُّ من شغّل الأداة سحب الحدودَ
-    # نفسها.** وذاك مقصودٌ للتكرار (‏العيّنةُ عمياء ومثبَّتةٌ قبل السماع)، لكنه
-    # يجعل «حكمين متفقين» **إعادةَ قياسٍ لا تعاضدَ شهادتين**: يكشف التقلّب
-    # والعطب العابر، ولا يكشف **خطأ المنهج** — إذ يخطئ المسارانِ الخطأَ نفسه
-    # على الحدود نفسها. (وهو عينُ ما وقع الليلة: محرّكٌ واحد برّأ 211 مطلعاً
-    # بالغلط، وتكرارُه ألفَ مرّةٍ يُعيد البراءة نفسها.)
-    # ⇒ `QA_SEED_SALT` يجعل المسار الثاني يسحب عيّنةً **مستقلّة**، فيصير
-    # اتفاقُهما شهادتين على الفهرس لا شهادةً واحدةً مكرّرة.
-    _salt = os.environ.get("QA_SEED_SALT", "")
-    seed = int(hashlib.sha256(f"{idx.get('riwaya')}/{idx.get('reciterId')}/{_salt}".encode()
-                              ).hexdigest()[:12], 16)
+    seed = int(hashlib.sha256(f"{idx.get('riwaya')}/{idx.get('reciterId')}".encode()).hexdigest()[:12], 16)
     rng = random.Random(seed)
     keep = None
     if long_seg:
@@ -828,8 +818,7 @@ def _finish(rep, rows, by_cluster, seed, nerr):
 
     sev = rate(lambda k: k == "جسيم")
     any_ = rate(lambda k: k in ("جسيم", "طفيف"))
-    rep["sample"] = {"seed": seed, "seedSalt": os.environ.get("QA_SEED_SALT", ""),
-                     "clusters": sorted(by_cluster), "rows": rows,
+    rep["sample"] = {"seed": seed, "clusters": sorted(by_cluster), "rows": rows,
                      "severe": sev, "any": any_, "errors": nerr}
     sev_rate = sev[0] / sev[1] if sev[1] else 0.0
     rep["severeRate"] = sev_rate
