@@ -54,11 +54,26 @@ if _ac not in ("0", "", "off"):
     WHISPER_FLAGS += ["-ac", _ac]
 
 
+class SegmentFailed(RuntimeError):
+    """فشلُ مقطعٍ واحد — يحمل تشخيصه معه.
+
+    ⛔ صنفٌ خاص لا `RuntimeError` عام: `transcribe` يتسامح مع هذا وحده،
+    ولا يبتلع خطأً آخر فيُخفي عطباً لا نعرفه.
+    """
+
+
 def transcribe_range(wav, start_ms, dur_ms, tag):
     """يقصّ المدى إلى wav مؤقت (whisper-cli يتجاهل -d عملياً) ثم يفرّغه.
     القصّ للمعالجة المحلية فقط — لا يُخزَّن ولا يُوزَّع (D-024)."""
     from common import FFMPEG
-    out_base = wav + f".{tag}"
+    # ⛔ درس 2026-09-02 (‏`trabulsi` سقط في سورتين بـ«seg json مفقود» رغم أربع
+    # تمريدات): المسار كان `wav + tag` بلا مُعرِّف عملية، والسطر الأخير في
+    # هذه الدالة **يحذف الملف بعد قراءته**. فعمليتان على السورة نفسها
+    # (استئنافٌ يتداخل مع تشغيلةٍ حيّة، أو دحرجةٌ تعيد الإطلاق قبل خروج
+    # الأولى) تكتبان الاسم نفسه، فتحذف إحداهما ما تقرؤه الأخرى.
+    # وهو **عطبٌ عابرٌ بطبعه فلا تُصلحه الإعادة** — أربع تمريرات لم تُنقذه.
+    # وهو نفس عطب كاش قصاصات الصقل الذي أصلحتُه بـ`getpid` ولم أُصلحه هنا.
+    out_base = wav + f".{tag}.p{os.getpid()}"
     clip = out_base + ".clip.wav"
     # مهلات صارمة + إعادة واحدة: علّقت الدفعة الأولى على ابن ميت بلا مهلة (درس 08-31)
     for attempt in (1, 2):
@@ -78,9 +93,21 @@ def transcribe_range(wav, start_ms, dur_ms, tag):
                 json.load(_f)
             break
         except (subprocess.TimeoutExpired, subprocess.CalledProcessError,
-                json.JSONDecodeError, FileNotFoundError):
+                json.JSONDecodeError, FileNotFoundError) as ex:
             if attempt == 2:
-                raise
+                # ⛔ الرمز ورسالة stderr **تظهر ولا تُكتم** (أمر github-f4):
+                #    كان الاستثناء يصل بلا رمزٍ ولا رسالة، فيُقرأ «ملف مفقود»
+                #    ولا يُعرف أخرج whisper بغير صفر أم لم يُنفَّذ أصلاً —
+                #    وهما عطبان مختلفان تماماً (‏127 = مكتبة مفقودة).
+                rc = getattr(ex, "returncode", None)
+                err = getattr(ex, "stderr", b"") or b""
+                if isinstance(err, bytes):
+                    err = err.decode("utf-8", "replace")
+                raise SegmentFailed(
+                    f"{type(ex).__name__}"
+                    + (f" rc={rc}" if rc is not None else "")
+                    + (f" · stderr: {err.strip()[:300]}" if err.strip() else "")
+                ) from ex
     if os.path.exists(clip):
         os.remove(clip)
     with open(out_base + ".json", encoding="utf-8", errors="replace") as f:
@@ -94,7 +121,18 @@ def transcribe(wav, total_ms, sil, log=print):
     segs = speech_segments(total_ms, sil)
     out = []
     for i, (s, e) in enumerate(segs):
-        words = transcribe_range(wav, s, e - s, f"seg{i}")
+        # ⛔ مقطعٌ يسقط **لا يُسقط السورة** (أمر github-f4، ودرسٌ مقيس): مقطعٌ
+        #    واحد كان يرمي فتسقط السورة كلها ⇒ 112/114 ⇒ حارس الرفع يرفض
+        #    ⇒ **يُعزل القارئ ويضيع عمله كله**. والفهرس يتحمّل غياب آياتٍ
+        #    أصلاً ويسمّيه (‏alijon: 16 آية غائبة) — فالغياب الموسوم أنفع من
+        #    قارئٍ ضائع، والصمت هو وحده الممنوع.
+        try:
+            words = transcribe_range(wav, s, e - s, f"seg{i}")
+        except SegmentFailed as ex:
+            out.append({"s": s, "e": e, "words": [],
+                        "missing": True, "why": str(ex)})
+            log(f"  ⚠️ segment_missing: {i} [{s/1000:.1f}-{e/1000:.1f}ث] — {ex}")
+            continue
         out.append({"s": s, "e": e, "words": words})
         log(f"  مقطع {i+1}/{len(segs)} [{s/1000:.1f}-{e/1000:.1f}ث]: {' '.join(words)}")
         if (i + 1) % 20 == 0:
