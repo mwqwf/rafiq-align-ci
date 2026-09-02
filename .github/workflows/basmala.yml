@@ -26,9 +26,8 @@ on:
         type: boolean
         default: false
 
-concurrency:
-  group: rafiq-basmala
-  cancel-in-progress: false
+# ⛔ لا مجموعة تزاحم (أُزيلت 2026-09-03 كما في audio_qa — D-090): كانت تُلغي
+#    المعلّق فتمنع إطلاق خمسة إصلاحات معاً؛ والتزاحم الحقيقي على سقف الحساب.
 
 jobs:
   prepare:
