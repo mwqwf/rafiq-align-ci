@@ -54,7 +54,7 @@ jobs:
           mkdir -p secure
           printf '%s' "$R2_CREDENTIALS_JSON" > secure/r2_credentials.json
           python - <<'PY' >> "$GITHUB_OUTPUT"
-          import json, os, boto3
+          import json, os, sys, boto3
           only = os.environ.get("ONLY", "").strip()
           if only:
               print(f"matrix={json.dumps([only])}")
@@ -73,11 +73,25 @@ jobs:
           # ⛔ البصمة الكاملة تُحسب هنا لا في الوظيفة: `--expect-sha` يرفض
           #    التدقيق إن تغيّر المحتوى تحت المفتاح — و7e دقّق ليلتها نسخةً
           #    ناقصة استُبدلت بعدها. والفهرس ~86ك.ب فحسابها كلها زهيد.
-          import hashlib
-          out = []
-          for _, k in ks[: int(os.environ["LIMIT"])]:
+          import gzip, hashlib, io as _io
+          out, skipped = [], []
+          for _, k in ks:
+              if len(out) >= int(os.environ["LIMIT"]):
+                  break
+              # ⛔ الجزئي يُستثنى: عيّنةٌ ممثِّلة على فهرسٍ ناقص تقيس ما ليس
+              #    الفهرس، والحكم عليه حكمٌ على شيءٍ لم يكتمل بعد.
+              if ".partial" in k:
+                  skipped.append((k, "جزئي")); continue
               b = s3.get_object(Bucket=c["bucket"], Key=k)["Body"].read()
+              d = json.load(gzip.open(_io.BytesIO(b), "rt", encoding="utf-8"))
+              # ⛔ والجيل الأول يُستثنى (أمر github-f4): فهرسٌ بلا وسم صقل
+              #    سيُعاد إنتاجه بالوصفة الجديدة على كل حال، فتدقيقه الصوتي
+              #    **إنفاقُ خانةٍ من العشرين على حكمٍ يسقط بالإعادة**.
+              if not d.get("refineVersion") or d.get("refineVersion") == "none":
+                  skipped.append((k, "جيلٌ أول (لا وسم صقل)")); continue
               out.append({"key": k, "sha": hashlib.sha256(b).hexdigest()})
+          for k, why in skipped:
+              print(f"⏭ {k} — {why}", file=sys.stderr)
           print(f"matrix={json.dumps(out)}")
           PY
 

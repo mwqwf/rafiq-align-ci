@@ -114,6 +114,17 @@ jobs:
           cp whisper-bin/whisper-cli assets-archive/ggml/bin/Release/whisper-cli.exe
           cp whisper-bin/*.so* assets-archive/ggml/bin/Release/ 2>/dev/null || true
           chmod +x assets-archive/ggml/bin/Release/whisper-cli.exe
+          # ⛔ برهانٌ أن الثنائي **يعمل** لا أنه موجود: سقطت موجة 33626892332
+          #    بعد 22 دقيقة بـ`exit status 127` على **كل** سورة — أي أن whisper
+          #    لم يُنفَّذ قط (مكتبةٌ مشتركة مفقودة)، والملف موجودٌ وقابلٌ للتنفيذ.
+          #    الفحص ثانيتان، وثمن غيابه كان الموجة كلها.
+          export LD_LIBRARY_PATH="$GITHUB_WORKSPACE/assets-archive/ggml/bin/Release:${LD_LIBRARY_PATH:-}"
+          if ! assets-archive/ggml/bin/Release/whisper-cli.exe --help >/dev/null 2>&1; then
+            echo "⛔ whisper-cli لا يعمل — مكتبةٌ مفقودة أو ثنائيٌّ معطوب:"
+            ldd assets-archive/ggml/bin/Release/whisper-cli.exe 2>&1 | grep -i "not found" || true
+            exit 1
+          fi
+          echo "✅ whisper-cli يعمل · المكتبات: $(ls assets-archive/ggml/bin/Release/*.so* 2>/dev/null | wc -l)"
           mkdir -p .venv/bin && ln -sf "$(command -v python)" .venv/bin/python
           sudo mkdir -p /root && sudo ln -sfn "$GITHUB_WORKSPACE" /root/QuranRafiq
           sudo chmod 755 /root
@@ -213,6 +224,9 @@ jobs:
           SMOKE: ${{ github.event.inputs.smoke }}
           SMOKE_RECITER: ${{ github.event.inputs.smoke_reciter }}
           SMOKE_SURAHS: ${{ github.event.inputs.smoke_surahs }}
+          # ⛔ المكتبات المشتركة بجوار الثنائي لا في مسار النظام ⇒ يلزم
+          #    تصديرها للعملية الابنة، وإلا فـ`exit 127` على كل سورة.
+          LD_LIBRARY_PATH: ${{ github.workspace }}/assets-archive/ggml/bin/Release
           LIST: /root/QuranRafiq/tools/ci_fleet/${{ github.event.inputs.list }}
           GH_TOKEN: ${{ github.token }}
           GITHUB_REPOSITORY: ${{ github.repository }}
