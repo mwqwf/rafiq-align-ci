@@ -50,10 +50,13 @@ def frozen_refuse(riwaya, rid):
             for line in f:
                 line = line.split("#", 1)[0].strip()
                 if line and line.split()[0] == key:
-                    return True
+                    return True, f"{rid} مجمَّد في frozen.txt"
     except FileNotFoundError:
-        return False
-    return False
+        # ⛔ الغياب **يرفض ولا يمرّ** (تنبيه github-82 عبر b9): «الحارس الذي
+        #    يمرّ عند غياب قائمته يتحول إلى لا شيء يوم يُنسى الملف». والغياب
+        #    في Actions أرجح منه على خادمٍ دائم لأن كل عدّاء يبدأ من صفر.
+        return True, f"⛔ {FROZEN_LIST} غائب — الحارس بلا قائمة لا يحرس"
+    return False, ""
 
 
 def guard(rid, expect, log_path, th):
@@ -122,8 +125,9 @@ def main():
     ap.add_argument("--prefix", default=os.environ.get("STAGING_PREFIX", "timings-staging"))
     a = ap.parse_args()
 
-    if frozen_refuse(a.riwaya, a.reciter):
-        print(f"🧊 {a.reciter}: مجمَّد في frozen.txt (D-058) — ⛔ لا رفع ولو إلى staging")
+    refuse, why_frozen = frozen_refuse(a.riwaya, a.reciter)
+    if refuse:
+        print(f"🧊 D-058: {why_frozen} — ⛔ لا رفع ولو إلى staging")
         sys.exit(2)
 
     th = thresholds()
@@ -148,7 +152,17 @@ def main():
     s3 = boto3.client("s3", endpoint_url=c["endpoint"],
                       aws_access_key_id=c["accessKeyId"],
                       aws_secret_access_key=c["secretAccessKey"], region_name="auto")
-    key = f"{a.prefix}/{a.riwaya}/{a.reciter}.jz"
+    # ⛔ البصمة في الاسم (قرار المشرف github-f4، 2026-09-02): المفتاح الثابت
+    #    جعل فاحصاً يلتقط نسخةً **أثناء بنائها** فيحكم على ناقص. واللاحقة أول
+    #    ثماني خانات من sha256 الملف نفسه ⇒ الاسم يرمّز المحتوى، ومطابقة
+    #    اللاحقة بالبصمة فحصٌ مجاني للمستهلك.
+    import hashlib
+    h = hashlib.sha256()
+    with open(idx, "rb") as fh:
+        for chunk in iter(lambda: fh.read(1 << 20), b""):
+            h.update(chunk)
+    sha8 = h.hexdigest()[:8]
+    key = f"{a.prefix}/{a.riwaya}/{a.reciter}.{sha8}.jz"
     # ⛔ لا manifest ولا كتابة في timings/: الترقية من staging إلى الإنتاج
     #    قرارُ صاحب الأسطول بعد مقارنته بالمنشور، لا قرارَ عدّاءٍ مجاني.
     s3.upload_file(idx, c["bucket"], key, ExtraArgs={"ContentType": "application/gzip"})

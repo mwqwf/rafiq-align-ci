@@ -20,12 +20,12 @@ export WHISPER_THREADS="${WHISPER_THREADS:-4}" WHISPER_AC="${WHISPER_AC:-512}"
 echo "وصفة whisper: -t $WHISPER_THREADS · -ac ${WHISPER_AC:-(مُسقط)} · JOBS=$JOBS"
 mkdir -p "$ROOT/logs-copy"
 
-# ⛔ الروايات التي تقبلها `batch_run.py --riwaya` اليوم. القائمة الحيّة تحوي
-#    البصريين وشعبة (‏sousi/douri/shuba) وهي **مرفوضة بالاسم** فتسقط في السطر
-#    الأول (وقع فعلاً في smoke 33581431477 على soufi_sousi). تُتخطّى بإعلانٍ
-#    صريح — لا تُحذف من القائمة كي لا يختلّ ترتيب القسمة — حتى تصل صيغة
-#    تمريرها من صاحب العدة (github-b9)، فتُضاف هنا سطراً واحداً.
-SUPPORTED_RIWAYAT="hafs warsh qalun"
+# ⛔ الروايات التي تقبلها `batch_run.py --riwaya`. كانت ثلاثاً في `main` فأسقطت
+#    أول smoke على `soufi_sousi` (‏invalid choice) — وتبيّن أن العيب أصاب
+#    الخوادم الخمسة أيضاً لا جبهتنا وحدها (‏github-b9)، وأُصلح في `8202d40`:
+#    الست مدعومة والعدّ يبقى KUFI الافتراضي للجميع. ومن لم يُدعم بعدُ يُتخطّى
+#    بإعلانٍ صريح — ⛔ ولا يُحذف سطره من القائمة كي لا يُزاح ترتيب القسمة.
+SUPPORTED_RIWAYAT="hafs warsh qalun douri sousi shuba"
 
 ok_count=0; fail_count=0; skip_count=0
 declare -a FAILED=() SKIPPED=()
@@ -37,7 +37,7 @@ supported() {
 run_one() {          # $1=reciterId $2=riwaya $3=baseUrl $4=surahs
   local rid="$1" riwaya="$2" base="$3" surahs="$4" rc=0
   if ! supported "$riwaya"; then
-    echo "⏭ $rid: الرواية '$riwaya' لا تقبلها العدة بعد — تُتخطّى (تنتظر صيغة b9)"
+    echo "⏭ $rid: الرواية '$riwaya' لا تقبلها العدة بعد — تُتخطّى بإعلان صريح"
     skip_count=$((skip_count + 1)); SKIPPED+=("$rid:$riwaya"); return 0
   fi
   echo "▶ $rid ($riwaya) سور=$surahs"
