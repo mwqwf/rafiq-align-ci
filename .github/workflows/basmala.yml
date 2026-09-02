@@ -1,0 +1,167 @@
+name: rafiq-basmala
+
+# تمريرة قصّ البسملة على فهارس `timings-staging/` — عشرون وظيفة متوازية.
+#
+# ⛔ **وظيفةٌ مستقلة عن `audio_qa` عمداً** (ترجيحي وقرار github-f4): التدقيق
+#    **يحكم ولا يغيّر**، والقصّ **يغيّر ولا يحكم**. وخلطهما يجعل فشل أحدهما
+#    يحجب الآخر، ويجعل مخرَجاً مُعدَّلاً يبدو كأنه حكمٌ على الأصل.
+#
+# ⛔ ولا تكتب هذه الوظيفة في الدلو بحال: مخرَجها **artifact**. سببه قاعدة
+#    «كل كاتبٍ إلى الدلو يحمل حرّاسه داخله» — وقد دخل staging الليلة كاتبٌ
+#    ثالث بلا حارس فكشفناه بميتاداتا فارغة. فلا نضيف رابعاً.
+on:
+  workflow_dispatch:
+    inputs:
+      prefix:
+        description: "بادئة المفاتيح"
+        default: "timings-staging/"
+      limit:
+        description: "عدد الفهارس في الدفعة (= عدد الوظائف، ≤20)"
+        default: "20"
+      only:
+        description: "مفتاحٌ بعينه — للتشخيص"
+        default: ""
+
+concurrency:
+  group: rafiq-basmala
+  cancel-in-progress: false
+
+jobs:
+  prepare:
+    runs-on: ubuntu-latest
+    outputs:
+      matrix: ${{ steps.gen.outputs.matrix }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: { python-version: "3.11" }
+      - run: python -m pip install --quiet boto3
+      - id: gen
+        env:
+          R2_CREDENTIALS_JSON: ${{ secrets.R2_CREDENTIALS_JSON }}
+          PREFIX: ${{ github.event.inputs.prefix }}
+          LIMIT: ${{ github.event.inputs.limit }}
+          ONLY: ${{ github.event.inputs.only }}
+        run: |
+          mkdir -p secure
+          printf '%s' "$R2_CREDENTIALS_JSON" > secure/r2_credentials.json
+          python - <<'PY' >> "$GITHUB_OUTPUT"
+          import json, os, boto3
+          only = os.environ.get("ONLY", "").strip()
+          if only:
+              print(f"matrix={json.dumps([only])}")
+              raise SystemExit
+          c = json.load(open("secure/r2_credentials.json"))
+          s3 = boto3.client("s3", endpoint_url=c["endpoint"],
+                            aws_access_key_id=c["accessKeyId"],
+                            aws_secret_access_key=c["secretAccessKey"], region_name="auto")
+          ks = []
+          for p in s3.get_paginator("list_objects_v2").paginate(
+                  Bucket=c["bucket"], Prefix=os.environ["PREFIX"]):
+              for o in p.get("Contents", []):
+                  if o["Key"].endswith(".jz") and ".basmala." not in o["Key"]:
+                      ks.append((o["LastModified"], o["Key"]))
+          ks.sort()
+          print(f"matrix={json.dumps([k for _, k in ks][: int(os.environ['LIMIT'])])}")
+          PY
+
+  pass:
+    needs: prepare
+    runs-on: ubuntu-latest
+    timeout-minutes: 120        # التمريرة دقائق: 256ك.ب لكل سورة بترويسة Range
+    strategy:
+      fail-fast: false
+      max-parallel: 20
+      matrix:
+        key: ${{ fromJSON(needs.prepare.outputs.matrix) }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: { python-version: "3.11" }
+      - name: أدوات النظام
+        run: |
+          sudo apt-get update -qq && sudo apt-get install -y -qq ffmpeg
+          python -m pip install --quiet pywhispercpp numpy boto3
+
+      - name: كاش النموذج
+        uses: actions/cache@v4
+        with:
+          path: assets-archive/ggml
+          key: qa-model-q8-v1     # ⛔ المفتاح نفسه الذي في audio_qa: نموذجٌ واحد لا نسختان
+
+      - name: الاعتماد والنموذج والفهرس
+        env:
+          R2_CREDENTIALS_JSON: ${{ secrets.R2_CREDENTIALS_JSON }}
+          KEY: ${{ matrix.key }}
+        run: |
+          mkdir -p secure work
+          printf '%s' "$R2_CREDENTIALS_JSON" > secure/r2_credentials.json
+          python - <<'PY'
+          import json, os, boto3
+          c = json.load(open("secure/r2_credentials.json"))
+          s3 = boto3.client("s3", endpoint_url=c["endpoint"],
+                            aws_access_key_id=c["accessKeyId"],
+                            aws_secret_access_key=c["secretAccessKey"], region_name="auto")
+          m = "assets-archive/ggml/ggml-tiny-ar-quran-q8_0.bin"
+          if not (os.path.exists(m) and os.path.getsize(m) > 10_000_000):
+              os.makedirs(os.path.dirname(m), exist_ok=True)
+              s3.download_file(c["bucket"], "models/whisper-tiny-ar-quran/ggml-q8_0.bin", m)
+          key = os.environ["KEY"]
+          s3.download_file(c["bucket"], key, "work/index.jz")
+          print("الفهرس:", key, os.path.getsize("work/index.jz") // 1024, "ك.ب")
+          PY
+
+      # ⚠️ قالب مصدر الصوت يُشتقّ من القارئ: يُقرأ من قائمة القرّاء في المستودع
+      #    ولا يُخمَّن — قالبٌ خاطئ يُنزّل صوتَ قارئٍ آخر فيُنتج قصّاً كاذباً.
+      - name: تمريرة البسملة
+        env:
+          QA_MODEL: ${{ github.workspace }}/assets-archive/ggml/ggml-tiny-ar-quran-q8_0.bin
+          KEY: ${{ matrix.key }}
+        run: |
+          rid="$(basename "$KEY" | cut -d. -f1)"
+          tpl="$(awk -F'\t' -v r="$rid" '!/^#/ && $1==r {print $3; exit}' \
+                 tools/ci_fleet/reciters_ci.tsv tools/ci_fleet/reciters_ci_wave2.tsv 2>/dev/null | head -1)"
+          if [ -z "$tpl" ]; then
+            echo "⛔ لا قالب صوتٍ للقارئ '$rid' في قوائم المستودع — لا تخمين."
+            exit 1
+          fi
+          echo "القارئ: $rid · المصدر: $tpl"
+          python tools/tasmi_bench/basmala_postpass.py \
+            --index work/index.jz \
+            --url-template "$(echo "$tpl" | sed 's/{surah:03d}/{s:03d}/')" \
+            --out "work/$rid.basmala.jz" \
+            --table "work/${rid}_table.json"
+
+      # ⛔ «بسملة بلا قصّ» أهمّ سطرٍ في المخرج (‏github-8e) — فيُرفع إلى ملخّص
+      #    الوظيفة لا يُدفن في JSON مضغوط. وهو **عيبٌ معلوم بإصلاحٍ غير مبرهن**،
+      #    وإخفاؤه يجعل الوظيفة خضراء على عيبٍ قائم.
+      - name: ملخّص يُقرأ بلا تنزيل
+        if: always()
+        env:
+          KEY: ${{ matrix.key }}
+        run: |
+          rid="$(basename "$KEY" | cut -d. -f1)"
+          python - "work/${rid}_table.json" "$rid" >> "$GITHUB_STEP_SUMMARY" <<'PY'
+          import json, sys
+          try:
+              t = json.load(open(sys.argv[1], encoding="utf-8"))
+          except Exception as ex:
+              print(f"### {sys.argv[2]} — ⛔ لا جدول ({ex})"); raise SystemExit
+          rows = t if isinstance(t, list) else t.get("surahs", [])
+          cut = [r for r in rows if r.get("cut") or r.get("trimmed")]
+          unv = [r for r in rows if (r.get("basmala") and not (r.get("cut") or r.get("trimmed")))]
+          print(f"### {sys.argv[2]}")
+          print(f"- قُصّ: **{len(cut)}** · بسملة بلا قصّ: **{len(unv)}** · مجموع السور: {len(rows)}")
+          if unv:
+              print(f"- ⚠️ **غير متحقَّق ({len(unv)}):** "
+                    + "، ".join(str(r.get("surah") or r.get("s")) for r in unv[:30]))
+          PY
+
+      - name: المخرَج (الفهرس المقصوص والجدول)
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: basmala-${{ strategy.job-index }}
+          path: work/*.json
+          if-no-files-found: warn
+          retention-days: 7
