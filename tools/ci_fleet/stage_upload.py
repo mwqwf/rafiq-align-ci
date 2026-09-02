@@ -261,8 +261,22 @@ def main():
     #    تُقرأ بـHEAD بلا فكّ ضغط.
     part = "" if expect >= 114 else f".partial{expect}"
     key = f"{a.prefix}/{a.riwaya}/{a.reciter}{part}.{sha8}.jz"
+    # ⛔ `source` كان ثابتاً «github-actions» فنسب كلَّ كائنٍ إلى CI ولو رفعته
+    #    Cloud Run — فقرأ b9 نسباً كاذباً على فهرسٍ من `fast-8`. والنسب يُقرأ
+    #    من البيئة لا يُفترض: Cloud Run يضبط CLOUD_RUN_EXECUTION دائماً.
+    #    ومعه ما يطلبه عمود زمن القارئ: البدء والمشروع والمنطقة والوظيفة.
     meta = {"partial": "true" if expect < 114 else "false",
-            "surahs": str(expect), "sha256-8": sha8, "source": "github-actions"}
+            "surahs": str(expect), "sha256-8": sha8,
+            "source": "cloud-run" if os.environ.get("CLOUD_RUN_EXECUTION")
+                      else os.environ.get("RAFIQ_SOURCE", "github-actions")}
+    for k, v in (("job", os.environ.get("CLOUD_RUN_JOB")),
+                 ("execution", os.environ.get("CLOUD_RUN_EXECUTION")),
+                 ("task", os.environ.get("CLOUD_RUN_TASK_INDEX")),
+                 ("project", os.environ.get("RAFIQ_PROJECT")),
+                 ("region", os.environ.get("RAFIQ_REGION")),
+                 ("startedAt", os.environ.get("RAFIQ_STARTED_AT"))):
+        if v:
+            meta[k] = str(v)
     # ⛔ لا manifest ولا كتابة في timings/: الترقية من staging إلى الإنتاج
     #    قرارُ صاحب الأسطول بعد مقارنته بالمنشور، لا قرارَ عدّاءٍ مجاني.
     # ⛔ شرطا المجمَّد يُطبَّقان هنا، على المفتاح النهائي لا على النية:
