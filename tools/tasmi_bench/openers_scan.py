@@ -37,8 +37,12 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 ROOT = os.path.dirname(os.path.dirname(HERE))
 sys.path.insert(0, os.path.join(ROOT, "tools", "alignment"))
 sys.path.insert(0, HERE)
-from basmala_local import BAS, _edit, _eq, basmala_tail, cut, fuzzy_seq, text_of  # noqa: E402
+from basmala_local import (BAS, _edit, _eq, _eq_first, basmala_tail, cut,  # noqa: E402
+                           fuzzy_seq, text_of)
 from common import load_index, load_text, norm, read_jz  # noqa: E402
+
+# ⛔ إيداعُ `QuranRafiq` الذي نُسخ منه هذا الملف — يُحدَّث مع كل مزامنة.
+SOURCE_COMMIT = "df25676"
 
 SKIP = {1, 9}
 LADDER = (1000, 1500, 2000, 3000, 4000, 6000)
@@ -92,13 +96,54 @@ def fetch_head(url, dst, need_ms=6000, nbytes=None):
     raise RuntimeError(f"تعذّر التنزيل: {last}")
 
 
+def self_test():
+    """⛔ **حارسٌ بلا اختبارٍ ليس حارساً** — والحالةُ الأولى مقيسةٌ من الدلو
+    لا مفترَضة: صفُّ 28 في `hawashi.96b65571` كان
+    `{"verdict": "clean", "heard": "بسم الله"}` **والصوتُ أكّد الابتلاع فيه**."""
+    def ok(x, y):
+        if min(len(x), len(y)) <= 3:
+            return x == y
+        return _eq(x, y) or _edit(x, y) <= 1
+
+    def starts_ayah(w, ref):
+        if not w:
+            return False
+        if _eq_first(w[0]) and w[0] != ref[0]:
+            return False
+        return ok(w[0], ref[0]) or (len(w) > 1 and ok(w[0] + w[1], ref[0]))
+
+    cases = [
+        ("28 الحالةُ المقيسة", ["بسم", "الله"], ["طسم"], False),
+        ("26 نظيرتُها", ["بسم", "الله"], ["طسم"], False),
+        ("28 سليمةٌ حقاً", ["طسم"], ["طسم"], True),
+        ("27 طس", ["طس"], ["طس"], True),
+        ("2 الم", ["الم"], ["الم"], True),
+        ("36 يس", ["يس"], ["يس"], True),
+        ("خطأُ تعرّفٍ في كلمةٍ طويلة", ["الحمدو", "لله"], ["الحمد", "لله"], True),
+        ("بسملةٌ قبل آيةٍ طويلة", ["بسم", "الله"], ["الحمد", "لله"], False),
+    ]
+    bad = 0
+    for name, w, ref, want in cases:
+        got = starts_ayah(w, ref)
+        bad += got != want
+        print(f"  {'✅' if got == want else '❌'} {name}: {got} (المتوقَّع {want})")
+    print(f"— فُحصت **{len(cases)}** حالة" + (" ⛔ فيها خلل" if bad else " · كلُّها كما يجب"))
+    return 1 if bad else 0
+
+
 def main():
     ap = argparse.ArgumentParser()
-    ap.add_argument("--key", required=True, help="مفتاح تحت timings-staging/")
+    ap.add_argument("--key", help="مفتاح تحت timings-staging/")
+    ap.add_argument("--self-test", action="store_true",
+                    help="اختبارُ مقارن المطالع بحالاتٍ مقيسة — بلا صوتٍ ولا شبكة")
     ap.add_argument("--model", default=os.path.join(HERE, "work", "ggml-q8.bin"))
     ap.add_argument("--threads", type=int, default=4)
     ap.add_argument("--limit", type=int)
     a = ap.parse_args()
+    if a.self_test:
+        raise SystemExit(self_test())
+    if not a.key:
+        ap.error("--key مطلوب (أو --self-test)")
     if not a.key.startswith("timings-staging/"):
         sys.exit("⛔ هذا الفحص لمفاتيح `timings-staging/` وحدها")
     os.makedirs(WORK, exist_ok=True)
@@ -127,11 +172,28 @@ def main():
                   print_progress=False, print_realtime=False)
 
     def ok(x, y):
-        return _eq(x, y) or (min(len(x), len(y)) >= 3 and _edit(x, y) <= 1)
+        # ⛔ **الكلمةُ القصيرةُ تُطابَق حرفاً** (‏عطبٌ مقيسٌ لا متوقَّع،
+        #    2026-09-03): «بسم» و«طسم» يفترقان بحرفٍ واحد، فسماحةُ الحرف
+        #    تبتلع الفرق ⇒ مطلعُ السورة 28 سُمع فيه «بسم الله» **فحُكم
+        #    `clean`** لأنّ «بسم» طابقت «طسم» مرجعَ الآية. والشاهدُ محفوظ:
+        #    ‏`hawashi.96b65571` صفُّ 28 = `{"verdict":"clean","heard":"بسم الله"}`
+        #    والصوتُ أكّد ابتلاعَ البسملة فيه. ⇒ **دون أربعةِ أحرفٍ لا سماحة**،
+        #    فالسماحةُ إنما وُضعت لخطأ تعرّفٍ في كلمةٍ طويلةٍ لا لتمحوَ فرقاً
+        #    دلالياً في كلمةٍ من ثلاثة.
+        if min(len(x), len(y)) <= 3:
+            return x == y
+        return _eq(x, y) or _edit(x, y) <= 1
 
     def starts_ayah(w, ref):
-        return bool(w) and (ok(w[0], ref[0]) or
-                            (len(w) > 1 and ok(w[0] + w[1], ref[0])))
+        if not w:
+            return False
+        # ⛔ **وما بدا أوّلَ بسملةٍ لا يُقرأ أوّلَ آيةٍ إلا بمطابقةٍ حرفية**:
+        #    `_eq_first` نفسُها تقبل «طسم» (‏تنتهي بـ«سم» وطولها ثلاثة)، فلا
+        #    تُميّز البسملةَ من فواتح السور المقطّعة. **والحكمُ للمطابقة لا
+        #    للشبه.**
+        if _eq_first(w[0]) and w[0] != ref[0]:
+            return False
+        return ok(w[0], ref[0]) or (len(w) > 1 and ok(w[0] + w[1], ref[0]))
 
     rows, t0 = [], time.time()
     todo = [(s, e) for s, e in sorted(first.items())
@@ -202,8 +264,16 @@ def main():
            "defects": sum(1 for r in rows if r["verdict"] in ("swallowed", "tail", "suspect")),
            "unknown": sorted(r["surah"] for r in rows if r["verdict"] == "unknown"),
            "tool": "openers_scan.py",
-           "commit": subprocess.check_output(["git", "-C", ROOT, "rev-parse",
-                                              "--short", "HEAD"]).decode().strip(),
+           # ⛔ **البصمةُ تشهد بمصدرِ المنطق لا بمكان التشغيل** (‏D-175/D-177):
+           #    هذا الملفُّ **منسوخٌ** من `QuranRafiq` وهناك تُودع إصلاحاتُه،
+           #    وبوابةُ الترقية تقرأ `commit` وتسأل شجرةَ `QuranRafiq` عنه.
+           #    فختمُ بصمةِ هذا المستودع كان يجعل كلَّ مسحٍ **مجهولَ الأداة**
+           #    فيُردّ حكمُه ولو كان بأحدث منطق — **جمودٌ تامّ وقع فعلاً**.
+           #    ⇒ `commit` = إيداعُ المصدر المنسوخ منه · و`ciCommit` = هذا
+           #    المستودع، فلا يضيع أيُّ نسبٍ ولا يكذب أيُّ حقل.
+           "commit": SOURCE_COMMIT,
+           "ciCommit": subprocess.check_output(["git", "-C", ROOT, "rev-parse",
+                                                "--short", "HEAD"]).decode().strip(),
            "threads": a.threads, "model": os.path.basename(a.model),
            "elapsedSec": round(time.time() - t0), "at": int(time.time()),
            "note": ("‏`swallowed` متحقَّقٌ صوتياً بعد الحدّ المقدَّر؛ و`suspect` "
