@@ -16,9 +16,8 @@ on:
         description: "أقصى عدد مفاتيح في الدفعة"
         default: "8"
 
-concurrency:
-  group: rafiq-openers
-  cancel-in-progress: false
+# ⛔ لا مجموعة تزاحم (أُزيلت 2026-09-03 كما في audio_qa): تشغيلةٌ معلّقة جديدة
+#    كانت تُلغي المعلّقة قبلها (33697142188 أُلغيت بهذا)؛ والتزاحم على سقف الحساب.
 
 jobs:
   prepare:
