@@ -175,6 +175,11 @@ jobs:
           os.makedirs(os.path.dirname(dst), exist_ok=True)
           s3.download_file(c["bucket"], "models/whisper-tiny-ar-quran/ggml-q8_0.bin", dst)
           print("النموذج:", os.path.getsize(dst) // 1024 // 1024, "م.ب")
+          # ⛔ نموذجُ الصقل مستقلٌّ (D-179): التفريغُ العامّ بالسريع والصقلُ
+          #    بالأدقّ — فالعطبُ الجسيم محصورٌ في حدود MED/LOW وهي ما يصقله.
+          rdst = "assets-archive/ggml/ggml-refine-q8_0.bin"
+          s3.download_file(c["bucket"], "models/whisper-base-ar-quran/ggml-q8_0.bin", rdst)
+          print("نموذج الصقل:", os.path.getsize(rdst) // 1024 // 1024, "م.ب")
           PY
 
       # ── الاستئناف: العمل المنجز يُخبَّأ فيلتقطه التشغيل التالي ───────────
@@ -228,6 +233,14 @@ jobs:
           #    تصديرها للعملية الابنة، وإلا فـ`exit 127` على كل سورة.
           LD_LIBRARY_PATH: ${{ github.workspace }}/assets-archive/ggml/bin/Release
           LIST: /root/QuranRafiq/tools/ci_fleet/${{ github.event.inputs.list }}
+          # ⛔ الوصفة المعتمدة (D-176/D-178/D-179): إعادةُ محاذاةٍ مقصودة،
+          #    ورفعُ ما يردّه حارسُ HIGH موسوماً ليُحكم عليه بالقياس لا بالمؤشِّر،
+          #    وصقلٌ بالنموذج الأدقّ على القصاصات وحدَها.
+          FORCE_REALIGN: "1"
+          STAGE_LOW_HIGH: "1"
+          ALIGN_REFINE: "1"
+          REFINE_MODEL: ${{ github.workspace }}/assets-archive/ggml/ggml-refine-q8_0.bin
+          REFINE_DTW: base
           GH_TOKEN: ${{ github.token }}
           GITHUB_REPOSITORY: ${{ github.repository }}
           GITHUB_RUN_ID: ${{ github.run_id }}

@@ -156,6 +156,11 @@ def refine_guard(d):
     return True, f"صقل: medTargeted={mt} · refined={d.get('refinedCount', 0)} · {rv}"
 
 
+# ⛔ أدنى عددِ سورٍ في تشغيلةٍ جزئية تصير عنده نسبةُ HIGH حكماً لا قياساً
+#    (‏دونه العيّنة أصغر من أن تحكم — smoke بسورةٍ واحدة نظيرُها).
+PARTIAL_HIGH_MIN = int(os.environ.get("PARTIAL_HIGH_MIN", "100"))
+
+
 def shipped_guard(idx, expect, th):
     d = json.load(gzip.open(idx, "rt", encoding="utf-8"))
     ok_r, why_r = refine_guard(d)
@@ -164,11 +169,23 @@ def shipped_guard(idx, expect, th):
     n = len(d.get("entries", []))
     hi = sum(1 for e in d["entries"] if e.get("confBand") == "HIGH")
     if expect < 114:
-        # ⛔ عتبتا التغطية ونسبة HIGH معايرتان على **فهرس قارئ كامل**. تطبيقهما
-        #    على تشغيلة اختبار من سورة واحدة رفضٌ كاذب: وقع فعلاً في smoke
-        #    33581796764 — سورة 108 ثلاث آيات كلها MED ⇒ «HIGH 0/3 < 50%»،
-        #    فبدت السلسلة فاشلة وهي سليمة حتى الرفع. تُقاس ولا تحجب هنا.
-        return True, f"مشحون {n} · HIGH {hi} · {why_r} (تشغيلة جزئية: العتبتان لا تنطبقان)"
+        # ⛔ عتبةُ التغطية معايرةٌ على **فهرس قارئ كامل**، فلا تُطبَّق على الجزئي.
+        #    أمّا **نسبة HIGH فنسبةٌ لا عدد**، ولا يمنعها من الحكم إلا **صِغرُ
+        #    العيّنة**: وقع رفضٌ كاذب في smoke 33581796764 — سورة 108 ثلاث آيات
+        #    كلها MED ⇒ «HIGH 0/3 < 50%» فبدت السلسلة فاشلة وهي سليمة.
+        #    ⇒ الحدُّ الفاصل حجمُ التشغيلة لا كونُها جزئية: تشغيلةٌ تغطّي
+        #    `PARTIAL_HIGH_MIN` سورةً فأكثر عيّنةٌ كافيةٌ للحكم، ودونها قياسٌ
+        #    يُذكر ولا يحجب.
+        # ⛔ **وقرارُ المشرف (D-094): صوتٌ رديءٌ رديءٌ ولو كان 113 سورة.** كان
+        #    الجزئي يتخطّى العتبة فدخل `buajan` بـHIGH 2626/6030 = 43.5% وهو
+        #    يُردّ لو جاء كاملاً كما رُدّ obk وsaad — فينفق الطابورُ عليه
+        #    أحكاماً صوتيةً وهي عنقُنا، على مرشّحٍ محكومٍ عليه سلفاً.
+        if expect >= PARTIAL_HIGH_MIN and n and hi < n * 0.5:
+            return False, (f"HIGH {hi}/{n} < 50% (جزئي {expect} سورة — "
+                           f"العتبة تسري على الجزئي كما على الكامل)")
+        note = ("العتبة تسري وقد اجتازها" if expect >= PARTIAL_HIGH_MIN
+                else f"عيّنة دون {PARTIAL_HIGH_MIN} سورة — قياسٌ لا حجب")
+        return True, f"مشحون {n} · HIGH {hi} · {why_r} (جزئي: التغطية لا تنطبق · {note})"
     if n < th["MIN_SHIPPED"]:
         return False, f"تغطية {n}/6236 < {th['MIN_SHIPPED']}"
     if n and hi < n * 0.5:
@@ -234,9 +251,26 @@ def main():
         print(f"🛑 {a.reciter}: لا فهرس {idx}")
         sys.exit(2)
     ok2, why2 = shipped_guard(idx, expect, th)
+    # ⛔ **D-176 — حارسُ نسبة HIGH يحمي عنقاً لم يعد قائماً.**
+    #    وُضع (‏D-094) ليمنع إنفاقَ **أحكامٍ صوتيةٍ شحيحة** على مرشّحٍ رديء
+    #    ساعةَ كان حكمُ الصوت هو العنق. وقد زال ذلك العنق (‏عادت طاقةُ
+    #    Cloud Build وActions)، **وبقي أثرُه الجانبيّ**: القارئُ يُحجب عن
+    #    **staging** فلا يُقاس أبداً — ⇒ **حارسٌ يمنع الدليل لا الضرر.**
+    #    ⛔ ونسبةُ HIGH **مؤشِّرُ ثقةٍ لا قياسُ عطب**؛ والقياسُ الحقيقيّ هو
+    #    **معدّلُ العطب الشديد في عيّنةٍ صوتية**، وهو شرطُ الترقية لا شرطُ
+    #    التهيئة. **وstaging ليس منشوراً** — لا يبلغ مستخدماً.
+    #    ⇒ عند `STAGE_LOW_HIGH=1` يصير الرفضُ **وسماً يُرفع مع الكائن**
+    #    فيقرؤه حكمُ الترقية، ولا يُحذف الدليلُ قبل أن يُنظر فيه.
+    #    ⛔ **والبوابةُ لم تُمسّ**: المستخدمُ محميٌّ حيث كان محميّاً.
+    low_high_note = ""
     if not ok2:
-        print(f"🛑 {a.reciter} رُفض الرفع (بعد الإسقاط): {why2}")
-        sys.exit(2)
+        if os.environ.get("STAGE_LOW_HIGH") == "1" and "HIGH" in why2:
+            low_high_note = why2
+            print(f"⚠️ {a.reciter}: {why2} — يُرفع إلى staging موسوماً "
+                  f"(D-176) وحكمُه للبوابة لا لهذا الحارس")
+        else:
+            print(f"🛑 {a.reciter} رُفض الرفع (بعد الإسقاط): {why2}")
+            sys.exit(2)
     print(f"🔒 حارس الرفع: {why} · {why2}")
 
     import boto3
@@ -297,6 +331,18 @@ def main():
                 sys.exit(2)
         print(f"🧊 {a.reciter} مجمَّد — يُرفع بمفتاحٍ موسومٍ جديد (مسار الاستبدال المشروع)")
 
+    # ⛔ D-176: الوسمُ يُحمل على الكائن نفسه لا في سجلٍّ يُنسى — فمن قرأ
+    #    المرشّحَ بعد ساعةٍ يرى بأيّ شرطٍ دخل. **ووسمٌ لا يصحب أثرَه لا يحرس.**
+    if low_high_note:
+        # ⛔ **بياناتُ S3 الوصفية لا تقبل إلا ASCII** — ووضعُ نصٍّ عربيٍّ فيها
+        #    **يُسقط الرفعَ كلَّه** (`Non ascii characters found in S3 metadata`).
+        #    وقع فعلاً على `asim` فضاع فهرسٌ تامٌّ بعد ساعةِ حوسبة. ⇒ يُشتقّ
+        #    **رقمٌ من الحساب نفسه** لا وصفٌ منقول: `hi/n` كما قِيسا.
+        #    (‏والنصُّ العربيُّ الكاملُ يبقى في سجلّ المهمة، فلا يضيع بيان.)
+        m = re.search(r"HIGH\s+(\d+)\s*/\s*(\d+)", low_high_note)
+        meta["lowHighGuard"] = (f"HIGH {m.group(1)}/{m.group(2)} lt50pct"
+                                if m else "HIGH lt50pct")
+        meta["stagedUnder"] = "D-176"
     s3.upload_file(idx, c["bucket"], key,
                    ExtraArgs={"ContentType": "application/gzip", "Metadata": meta})
     print(f"⬆️ رُفع {key} ({os.path.getsize(idx)//1024}ك.ب · "

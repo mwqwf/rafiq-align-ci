@@ -23,6 +23,18 @@ import time
 sys.path.insert(0, os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "alignment"))
 from align import nw_align  # noqa: E402
 from common import FFMPEG, MODEL_Q8, WHISPER_CLI, norm  # noqa: E402
+
+# ⛔ **الصقلُ هو موضعُ العطب، فهو موضعُ النموذج الأكبر** (‏D-179): قِيس أنّ
+#    الأعطاب الجسيمة **كلَّها تقريباً في حدود `MED`/`LOW`** (19 من 23 عند
+#    `wdod`، وواحدٌ من 114 في `HIGH`) — وهذه بعينها ما يصقله هذا الملف.
+#    وإعادةُ المحاذاة كلِّها بنموذجٍ أكبر تكلّف **أربعة أضعاف** (‏مقيس: 8
+#    آيات/دقيقة مقابل 32)، **والتفريغُ العامّ ليس موضعَ الخطأ**. ⇒ تفريغٌ
+#    عامٌّ بالسريع، **وصقلٌ بالأدقّ على قصاصاتٍ من تسع ثوانٍ** — فيقع الثمنُ
+#    حيث يقع النفع.
+#    ⚠️ و`-dtw` **مقيَّدٌ بنوع النموذج**: مِلاكُ الطوابع الزمنية يختلف بين
+#    `tiny` و`base`، فتمريرُ الخطأ يُفسد الطوابع بلا خطأٍ ظاهر.
+REFINE_MODEL = os.environ.get("REFINE_MODEL") or MODEL_Q8
+REFINE_DTW = os.environ.get("REFINE_DTW") or "tiny"
 from vad import silences  # noqa: E402
 
 from gt import W2  # noqa: E402
@@ -66,7 +78,7 @@ def clip_words(wav, start_ms, end_ms, tag, cache_dir=None):
     os.makedirs(cache_dir, exist_ok=True)
     cache = os.path.join(cache_dir, tag + ".words.json")
     if os.path.exists(cache):
-        with open(cache, encoding="utf-8") as f:
+        with open(cache, encoding="utf-8", errors="replace") as f:
             return json.load(f)
     s = max(0, start_ms - PAD_MS)
     dur = (end_ms + PAD_MS) - s
@@ -78,8 +90,8 @@ def clip_words(wav, start_ms, end_ms, tag, cache_dir=None):
     # ضغط ذاكرة الجهاز يجعل نافذة 9ث تستغرق دقائق أحياناً ⇒ مهلة سخية + إعادة
     # بتراجع أُسّي بدل إسقاط الدفعة كلها (نفس درس transcribe_v2).
     for attempt in range(4):
-        r = subprocess.run([WHISPER_CLI, "-m", MODEL_Q8, "-f", clip, "-l", "ar", "-oj", "-ojf",
-                            "-ml", "1", "-sow", "-nfa", "-dtw", "tiny", "-of", base,
+        r = subprocess.run([WHISPER_CLI, "-m", REFINE_MODEL, "-f", clip, "-l", "ar", "-oj", "-ojf",
+                            "-ml", "1", "-sow", "-nfa", "-dtw", REFINE_DTW, "-of", base,
                             "--no-prints",
                             # ⚠️ درس 2026-09-02: هذا النداء كان بلا `-t` فيأخذ
                             # افتراض whisper (أربعة خيوط). ومع اثنتي عشرة عملية
@@ -87,14 +99,17 @@ def clip_words(wav, start_ms, end_ms, tag, cache_dir=None):
                             # في تبديل السياق. والقياس (github-8e) أن العمليات
                             # تغلب الخيوط، فيُوحَّد مع مسار التفريغ عبر البيئة.
                             "-t", os.environ.get("WHISPER_THREADS", "4")],
-                           capture_output=True, text=True, timeout=1800,
+                           capture_output=True, text=True, errors="replace", timeout=1800,
                            stdin=subprocess.DEVNULL)
         if r.returncode == 0 and os.path.exists(base + ".json"):
             break
         time.sleep(20 * (attempt + 1))
     else:
         raise RuntimeError(f"whisper فشل على النافذة {tag}: {r.returncode}")
-    with open(base + ".json", encoding="utf-8") as f:
+    # ⛔ errors="replace" إلزامي: مخرَج whisper يحمل أحياناً بايتاً غير
+    #    utf-8 (‏0xb6/0xa2) فينهار القارئ الصارم ⇒ **تسقط السورة كلُّها**
+    #    وهي سليمةُ الصوت. مقيس: buajan/45 سقط أربع مرات في تنفيذٍ واحد.
+    with open(base + ".json", encoding="utf-8", errors="replace") as f:
         data = json.load(f)
     words = []
     for seg in data.get("transcription", []):
@@ -147,7 +162,11 @@ def refine_surah(d, log=print):
     """يصقل حدود entries غير المسنودة بنافذة قصيرة حول كل حد مقدَّر."""
     segments, entries, ref = d["segments"], d["entries"], d["refAyahs"]
     wav, total_ms = d["wav"], d["totalMs"]
-    fine_sil = silences(wav, min_silence_ms=60, rel_threshold=0.06)
+    # ⛔ `adaptive=False` إلزامي هنا: السُّلّم وُضع لنداء **التقطيع** وقِيس فيه
+    # وحده. وصمتُ الصقل الدقيق (60م.ث) كثافته منخفضة بطبعه، فيتسلّق السُّلّم
+    # ويرفع العتبة، فيلتقط الصقل «صمتاً» ليس صمتاً — طاقةً منخفضة داخل الكلام
+    # — فيفقد حارس «لا صمت لا حدّ» معناه إذ يجد ما يلتقط عليه دائماً.
+    fine_sil = silences(wav, min_silence_ms=60, rel_threshold=0.06, adaptive=False)
     stats = {"targets": 0, "refined": 0, "no_anchor": 0, "no_words": 0,
              "slid": 0, "edge": 0, "no_silence": 0}
     for k in range(1, len(entries)):
