@@ -33,6 +33,19 @@ from common import load_index, load_text, norm, read_jz, write_jz  # noqa: E402
 SKIP = {1, 9}
 MIN_CUT_MS, MAX_CUT_MS = 1500, 5000
 VERIFY_MS = 4000
+# ⛔ نافذةُ **الرأس** أقصرُ عمداً: أربعُ ثوانٍ تبتلع ذيلَ البسملة فتُخفيه،
+#    و1200م.ث تكفي لكلمةٍ أو كلمتين فتكشفه. **والقِصَرُ هنا ميزةٌ لا نقص.**
+HEAD_MS = int(os.environ.get("BASMALA_HEAD_MS", "1200"))
+# كلماتُ البسملة كما يلفظها التعرّفُ مشوّهةً — وهي ما يجب ألّا يبدأ به المطلع.
+# ⛔ «اسم» أُسقطت: تطابق «الم» بحرفٍ واحد فتردّ مطلعاً صحيحاً.
+BASMALA_WORDS = ("بسم", "الله", "الرحمن", "الرحيم", "رحمن", "رحيم")
+# ⛔ المدخل لا يحمل `durationMs`: المدة **مشتقّة** من `endMs - startMs`، والحارس
+# في tools/index_qa/run.py يُسقط الفهرس كلّه بـ«مداخل بمدة غير صالحة» عند
+# `endMs <= startMs`. وهذه الأداة كانت تُزيح البداية وحدها بلا نظرٍ إلى النهاية،
+# فإن كانت نهاية الآية الأولى مقدَّرةً قصيرةً (‏kyat 55:1 نهايتها 1913 والبسملة
+# 2250) صارت المدة سالبة ورُفض المشتقّ كلّه رغم نظافة حكمه الصوتي.
+# فالقصّ يُرفض إذا لم يبقَ للآية بقيّةٌ معقولة بعد الحدّ الجديد.
+MIN_REMAIN_MS = 500
 # ⛔ سُلَّم الكشف: نافذة 6ث وحدها أسقطت 33 حالة ثبتت لاحقاً بنوافذ أقصر
 # (‏قياس 2026-09-02: التوزيع 1000×1 · 1500×1 · 2000×22 · 3000×7 · 4000×1 · 6000×1).
 # فالكشف يمرّ بالسُّلَّم كلّه، والدرجة التي تظهر فيها البسملة تامّةً **هي**
@@ -173,12 +186,47 @@ def main():
                     return True, a
                 return False, a
 
+            # ⛔ **حارسُ الرأس القصير (‏R-2026-09-03-d/e).** ‏`_verify` يسمع
+            #    **أربع ثوانٍ** (`VERIFY_MS`)، وفي أربع ثوانٍ **يبتلع النموذجُ
+            #    ذيلَ البسملة** فتبدو الآيةُ أوّلَ ما يُسمع — فيمرّ حدٌّ ما زال
+            #    داخل البسملة. مقيسٌ في الإنتاج: `kyat` 2:1 عند 2420 يُسمع في
+            #    أوّل 1500م.ث «اذ ارحمن» (ذيلُ «الرحمن») **وهو مقصوصٌ مُتحقَّقٌ
+            #    منه**. ⇒ **النافذةُ الطويلة تكذب**، فيُفحص الرأسُ القصيرُ
+            #    مستقلاً: إن بدأ بكلمةٍ بسمليّةٍ فالحدُّ أبكرُ مما يجب.
+            def _head_is_basmala(st):
+                h = text_of(model, cut(mp3, st, HEAD_MS, clip)).split()
+                if not h:
+                    return False              # صمتٌ لا يشهد — والتعذّرُ ليس حكماً
+
+                def _near(w, t, k):
+                    return w == t or (min(len(w), len(t)) >= 3 and _edit(w, t) <= k)
+
+                # ⛔ **الفاصلُ ليس شبهاً بالبسملة وحده، بل شبهاً بها أقربَ من
+                #    شبهه بالآية.** جُرّب التسامحُ العدديّ وحدَه (حرفان لكلّ ما
+                #    طولُه ≥5) فردّ مطالعَ صحيحةً: «الحمد» تبعُد عن «الرحمن»
+                #    حرفين، و«افلح» عن «الله» حرفين — **فحارسٌ يمنع القصَّ
+                #    الصحيح**. والمعلومةُ الفارقة عندنا مجّاناً: **نصُّ الآية
+                #    نفسُه**. فما طابق أوائلَ الآية فهو الآيةُ لا بسملة.
+                # ⛔ ولا يُستعمل `_eq` هنا: تسامحُه حرفان لكلّ ما طولُه ≥4،
+                #    وهو مبنيٌّ لمقارنةِ كلمةٍ بنظيرها المعلوم لا لتصنيفِها.
+                for w in h[:3]:
+                    if any(_near(w, r, 1) for r in ref[:3]):
+                        continue              # كلمةُ الآية — لا تُحسب بسملة
+                    for bw in BASMALA_WORDS:
+                        if w == bw or (len(w) >= 4 and _edit(w, bw) <= 2):
+                            return True
+                return False
+
             ok, after = _verify(new_start)
+            if ok and _head_is_basmala(new_start):
+                ok = False                    # الرأسُ ما زال بسملةً — ادفع الحدّ
             pushed = 0
             while not ok and after and pushed < 2000:
                 pushed += 250
                 new_start = e["startMs"] + end + pushed
                 ok, after = _verify(new_start)
+                if ok and _head_is_basmala(new_start):
+                    ok = False
             if pushed:
                 row["pushedMs"] = pushed
             row["afterHeard"] = " ".join(after[:6])
@@ -186,6 +234,15 @@ def main():
             row["deltaMs"] = new_start - e["startMs"]
             if not ok:
                 row["verdict"] = "⛔ لم يتحقّق: ما بعد الحدّ الجديد لا يبدأ بأول الآية"
+                rows.append(row)
+                continue
+            end_ms = e.get("endMs")
+            if end_ms is None or new_start + MIN_REMAIN_MS > end_ms:
+                row["endMs"] = end_ms
+                row["remainMs"] = None if end_ms is None else end_ms - new_start
+                row["verdict"] = ("⛔ لم يُقصّ: لا تبقى مدةٌ صالحة بعد الحدّ "
+                                  f"(النهاية {end_ms} · المتبقّي "
+                                  f"{row['remainMs']}م.ث)")
                 rows.append(row)
                 continue
             row["verdict"] = "✂️ قُصّت (متحقَّقة)"
@@ -211,6 +268,7 @@ def main():
         print(f"   س{r['surah']:3d}: {r['startBefore']} ⇐ {r['startAfter']} "
               f"(+{r['deltaMs']}م.ث) · بعده: {r.get('afterHeard','')[:30]}")
     unverified = [r for r in rows if "لم يتحقّق" in r.get("verdict", "")
+                  or "لم يُقصّ" in r.get("verdict", "")
                   or "بلا نهاية" in r.get("verdict", "")]
     if args.summary:
         print(chr(10) + "## قصّ البسملة — " + os.path.basename(args.index))
