@@ -271,16 +271,17 @@ def structural(idx, key, allow_unmarked=False, txt_ref=None):
         #    فهرسٍ نظيف (وقعت على `wdod.93940007` بعد إسقاط سورة 78).
         #    وهو تطبيقُ قاعدةِ هذا الملفّ نفسِها: **الحسابُ على غير المبرَّر**.
         _dropped_set = set(locals().get("dropped") or ())
-        if _dropped_set:
-            _kept = [i for i in miss_ids
-                     if int(i.split(":")[0]) not in _dropped_set]
-            if _kept:
-                lens = sorted(len(txt_ref[flat(*map(int, i.split(":")))].split())
-                               for i in _kept)
-                med_miss = lens[len(lens) // 2]
-                short = sum(1 for l in lens if l <= 4) / len(lens)
-            miss_ids = _kept or miss_ids
-        enough = len(miss_ids) >= 50 or len(miss_ids) >= 0.01 * 6236
+        # ⛔ **ولا يُمسّ `miss_ids` نفسه:** وسمُ الاكتمال يُقابَل بطوله بعد قليل،
+        #    فمن أنقصه هنا جعل الترويسةَ الصادقة تُرفع «تخالف الحساب» — وقعت
+        #    فعلاً في أوّل صياغةٍ لهذا الإصلاح. الاستثناءُ **لاختبار الشكل وحده**.
+        _bias_ids = [i for i in miss_ids
+                     if int(i.split(":")[0]) not in _dropped_set] or miss_ids
+        if _bias_ids is not miss_ids:
+            lens = sorted(len(txt_ref[flat(*map(int, i.split(":")))].split())
+                          for i in _bias_ids)
+            med_miss = lens[len(lens) // 2]
+            short = sum(1 for l in lens if l <= 4) / len(lens)
+        enough = len(_bias_ids) >= 50 or len(_bias_ids) >= 0.01 * 6236
         if enough and med_miss * 2 < med_all:
             fatal.append(f"الغياب منحازٌ إلى القصار (ابتلاع): وسيط طول المفقودة {med_miss} كلمة "
                          f"مقابل {med_all} في المصحف · و{short:.0%} منها ≤4 كلمات")
