@@ -14,7 +14,7 @@ on:
   workflow_dispatch:
     inputs:
       parent:
-        description: "مفتاحُ الأصل المنشور، مثل timings/hafs/deban.jz"
+        description: "الأصل: timings/<riw>/<id>.jz أو timings-staging/<riw>/<id>.<sha8>.jz"
         required: true
       surahs:
         description: "سورةٌ أو أكثر بفواصل، مثل 22 أو 25,30"
@@ -131,9 +131,12 @@ jobs:
                             aws_secret_access_key=c["secretAccessKey"], region_name="auto")
           cat = json.loads(s3.get_object(Bucket=c["bucket"],
                                          Key="catalog/reciters.json")["Body"].read())
-          parent = os.environ["PARENT"]            # timings/<riwaya>/<id>.jz
+          # الأصلُ إمّا منشورٌ `timings/<riw>/<id>.jz` أو مرشَّحٌ في الاختبار
+          # `timings-staging/<riw>/<id>.<sha8>.jz` — والمعرّفُ أوّلُ مقطعٍ قبل
+          # النقطة في الحالين.
+          parent = os.environ["PARENT"]
           _, riw, fn = parent.split("/")
-          rid = fn[:-3]
+          rid = fn.split(".")[0]
           base = None
           for r in cat.get("riwayat", []):
               if r["id"] != riw:

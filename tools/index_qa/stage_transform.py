@@ -61,7 +61,9 @@ AYAH_COUNTS = [7, 286, 200, 176, 120, 165, 206, 75, 129, 109, 123, 111, 43, 52,
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--file", required=True, help="ملفّ المنتَج المحلّي (.jz)")
-    ap.add_argument("--parent", required=True, help="مفتاح الأصل المنشور")
+    ap.add_argument("--parent", required=True,
+                    help="مفتاحُ الأصل: منشورٌ في timings/ أو مرشَّحٌ في "
+                         "timings-staging/ لقارئه نفسِه")
     ap.add_argument("--parent-sha", required=True)
     ap.add_argument("--op", required=True, help="اسمُ التحويل، مثل basmala_fix")
     ap.add_argument("--reason", required=True)
@@ -74,10 +76,29 @@ def main():
     sha = hashlib.sha256(blob).hexdigest()
     idx = json.loads(gzip.decompress(blob).decode("utf-8"))
 
+    # ⛔ **الأصلُ من الاختبار مقبولٌ لقارئه نفسِه** (‏حكم المشرف 2026-09-05،
+    #    كسرُ الحلقة المغلقة): كان الأصلُ يجب أن يكون منشوراً، فانحبس ثلاثةُ
+    #    فهارسَ أُعيد بناؤها (99.7–99.97%) خلف منشورٍ تغطيتُه 45–86%: تمريرةُ
+    #    البسملة لا تقصّ (‏امتناعٌ صواب)، و`realign_surah` على المنشور يُخرج
+    #    مختلطَ الجيل فيُردّ، والبصمةُ الجيّدة لا تُرقّى لبسملةٍ واحدة. فكلُّ
+    #    بابٍ مغلقٌ بحارسٍ محقّ. ⇒ يُفتح بابٌ **بالحُرّاس نفسِها كلِّها**، لا
+    #    بتجاوزٍ ولا بنشرِ عيبٍ ولو ساعات (‏الموثوقيةُ فوق العدد، أمر المالك).
+    if a.parent.startswith("timings-staging/"):
+        # والحارسُ هنا: الرواية والمعرّف يُستخرجان من المفتاح ويُطابَقان
+        # بترويسة المنتَج — فلا يُرقّع فهرسُ قارئٍ بمخرَجِ قارئٍ آخر.
+        parts = a.parent.split("/")
+        if len(parts) != 3:
+            raise SystemExit(f"⛔ مفتاحُ اختبارٍ غيرُ سويّ: {a.parent}")
+        p_riw, p_rid = parts[1], parts[2].split(".")[0]
+        if idx.get("riwaya") != p_riw or idx.get("reciterId") != p_rid:
+            raise SystemExit(f"⛔ المنتَج يصف {idx.get('riwaya')}/{idx.get('reciterId')} "
+                             f"والأصلُ {p_riw}/{p_rid} — لا يُرقّع قارئٌ بمخرَجِ آخر")
+    elif not a.parent.startswith("timings/"):
+        raise SystemExit(f"⛔ الأصلُ ليس منشوراً ولا في الاختبار: {a.parent}")
     pbody = cl.get_object(Bucket=bucket, Key=a.parent)["Body"].read()
     psha = hashlib.sha256(pbody).hexdigest()
     if not psha.startswith(a.parent_sha.rstrip(".")):
-        raise SystemExit(f"⛔ الأصل المنشور بصمتُه {psha[:16]} لا {a.parent_sha}")
+        raise SystemExit(f"⛔ الأصل بصمتُه {psha[:16]} لا {a.parent_sha}")
     pidx = json.loads(gzip.decompress(pbody).decode("utf-8"))
 
     n_new, n_old = len(idx.get("entries") or []), len(pidx.get("entries") or [])
