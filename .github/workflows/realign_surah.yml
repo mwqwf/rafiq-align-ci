@@ -112,6 +112,49 @@ jobs:
           print("النموذجان جاهزان")
           PY
 
+      - name: ⛔ حارسُ الرابط — لا تخمينَ في قوالب الصوت
+        env:
+          PARENT: ${{ github.event.inputs.parent }}
+          URLT: ${{ github.event.inputs.url_template }}
+        run: |
+          # ⛔ **درسٌ بثمنه (2026-09-05):** أُطلقت إعادتا محاذاةٍ بقالبَي صوتٍ
+          #    **مخمَّنين** بدل قراءتهما من الكتالوج — ولولا أنّهما أُلغيتا
+          #    لحاذتا صوتَ قارئٍ آخر وأنتجتا فهرساً يبدو سليماً وهو كذبٌ تامّ.
+          #    والوصيّةُ لا تحرس؛ الحارسُ يحرس. فالقالبُ يُطابَق بالكتالوج
+          #    **حرفاً** قبل تنزيل بايتٍ واحد.
+          python - <<'PY'
+          import json, os, sys, boto3
+          sys.stdout.reconfigure(encoding="utf-8")
+          c = json.load(open("secure/r2_credentials.json"))
+          s3 = boto3.client("s3", endpoint_url=c["endpoint"],
+                            aws_access_key_id=c["accessKeyId"],
+                            aws_secret_access_key=c["secretAccessKey"], region_name="auto")
+          cat = json.loads(s3.get_object(Bucket=c["bucket"],
+                                         Key="catalog/reciters.json")["Body"].read())
+          parent = os.environ["PARENT"]            # timings/<riwaya>/<id>.jz
+          _, riw, fn = parent.split("/")
+          rid = fn[:-3]
+          base = None
+          for r in cat.get("riwayat", []):
+              if r["id"] != riw:
+                  continue
+              for x in r.get("reciters", []):
+                  if x.get("id") == rid:
+                      base = x.get("base") or ""
+          if base is None:
+              sys.exit(f"⛔ {riw}/{rid} ليس في الكتالوج — لا محاذاةَ لمجهول")
+          if base and not base.endswith("/"):
+              base += "/"
+          want = base + "{s:03d}.mp3"
+          got = os.environ["URLT"]
+          if got != want:
+              sys.exit("⛔ القالبُ المعطى يخالف الكتالوج — يُوقَف قبل تنزيل بايت.
+"
+                       f"   المعطى:  {got}
+   الكتالوج: {want}")
+          print(f"✅ القالبُ يطابق الكتالوج: {want}")
+          PY
+
       - name: إعادة المحاذاة سورةً سورة
         env:
           LD_LIBRARY_PATH: ${{ github.workspace }}/assets-archive/ggml/bin/Release
