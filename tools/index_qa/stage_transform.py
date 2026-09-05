@@ -33,6 +33,7 @@ import argparse
 import gzip
 import hashlib
 import json
+import re
 import sys
 import time
 from pathlib import Path
@@ -48,6 +49,14 @@ sys.path.insert(0, str(HERE))
 import promote                                                       # noqa: E402
 from rename_reciter import entries_sha                               # noqa: E402
 
+
+AYAH_COUNTS = [7, 286, 200, 176, 120, 165, 206, 75, 129, 109, 123, 111, 43, 52,
+               99, 128, 111, 110, 98, 135, 112, 78, 118, 64, 77, 227, 93, 88, 69,
+               60, 34, 30, 73, 54, 45, 83, 182, 88, 75, 85, 54, 53, 89, 59, 37, 35,
+               38, 29, 18, 45, 60, 49, 62, 55, 78, 96, 29, 22, 24, 13, 14, 11, 11,
+               18, 12, 12, 30, 52, 52, 44, 28, 28, 20, 56, 40, 31, 50, 40, 46, 42,
+               29, 19, 36, 25, 22, 17, 19, 26, 30, 20, 15, 21, 11, 8, 8, 19, 5, 8,
+               8, 11, 11, 8, 3, 9, 5, 4, 7, 3, 6, 3, 5, 4, 5, 6]
 
 def main():
     ap = argparse.ArgumentParser()
@@ -72,7 +81,32 @@ def main():
     pidx = json.loads(gzip.decompress(pbody).decode("utf-8"))
 
     n_new, n_old = len(idx.get("entries") or []), len(pidx.get("entries") or [])
-    if n_new != n_old:
+    # ⛔ **استثناءُ `realign_surah` وحدَه (‏قرار المشرف github-10، 2026-09-05):**
+    #    القاعدةُ «التحويلُ يزيح حدوداً ولا يحذف آيات» بُنيت لتحويلاتٍ تُعدّل
+    #    الحدود (‏`basmala_fix`)، و**إعادةُ محاذاة سورةٍ تُعيد مداخلَ غائبة** —
+    #    فاختلافُ العدد فيها **هو المقصود** لا علامةُ خللٍ خفيّ.
+    #    ⛔ ولا يُرفع الحارسُ بل **يُشدَّد**: بدل «تساوٍ» يُشترط أن يكون الفرقُ
+    #    **مطابقاً حسابياً** لعدد آي السور المسمّاة في `--op`، وألّا يمسّ
+    #    التحويلُ مدخلاً خارجها. فمن أعاد سورةً وحذف أخرى صامتاً يُردّ هنا.
+    realigned = []
+    _m = re.match(r"^realign_surah:([\d,\s]+)$", a.op.strip())
+    if _m:
+        realigned = sorted({int(x) for x in re.findall(r"\d+", _m.group(1))})
+    if realigned:
+        have_old = {e["ayahId"] for e in (pidx.get("entries") or [])}
+        have_new = {e["ayahId"] for e in (idx.get("entries") or [])}
+        outside_old = {i for i in have_old if int(i.split(":")[0]) not in realigned}
+        outside_new = {i for i in have_new if int(i.split(":")[0]) not in realigned}
+        if outside_old != outside_new:
+            raise SystemExit("⛔ التحويل مسّ مداخلَ خارج السور المسمّاة — يُردّ")
+        want = sum(AYAH_COUNTS[s - 1] for s in realigned)
+        got = len({i for i in have_new if int(i.split(":")[0]) in realigned})
+        if got != want:
+            raise SystemExit(f"⛔ السورُ المُعادة {realigned}: مداخلُها {got} "
+                             f"والرواية {want} — لا يُرفع ناقص")
+        print(f"  ✔ إعادةُ محاذاة {realigned}: {n_old} ⇐ {n_new} مدخلاً "
+              f"(‏+{n_new - n_old})، وما خارجها لم يُمسّ")
+    elif n_new != n_old:
         raise SystemExit(f"⛔ المداخل {n_new} ≠ الأصل {n_old} — التحويل يزيح "
                          "حدوداً ولا يحذف آيات")
     e_new, e_old = entries_sha(idx.get("entries") or []), entries_sha(
