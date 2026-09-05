@@ -398,10 +398,23 @@ def write_diagnosis(riwaya, rid, idx, guard, index_key=None):
                              "indexETag": etag,
                              "indexGeneratedAt": idx.get("generatedAt"),
                              "indexEntries": len(idx.get("entries") or []),
-                             "staleIf": ("indexETag يخالف بصمة "
-                                         "timings/{riwaya}/{reciter}.jz "
-                                         "الحالية ⇒ التشخيص لا يصف هذا "
-                                         "الفهرس فيُهمَل"),
+                             # ⛔ الشرط ومجالُه معاً: شرطٌ بلا مجالٍ محدَّد
+                             # يُطبَّق حيث لا يصحّ. قابله rafiq-catalog
+                             # بالمرشَّح (timings-staging) فصار كل مرشَّح
+                             # «تشخيصه قديم» أبداً — **قفلٌ يتنكّر في صورة
+                             # انتظار**، لأن التابع لا يكتب تشخيصاً إلا بعد
+                             # نشر. والصواب أن يُقابَل بالمنشور وحده، **لأن
+                             # ما يصفه هذا التشخيص هو الصوت لا الفهرس**،
+                             # والصوت لا يتغيّر بتغيّر الفهرس.
+                             "staleIf": (
+                                 "قابِل indexETag ببصمة "
+                                 "timings/{riwaya}/{reciter}.jz **المنشور** "
+                                 "وحده — لا بمرشَّح timings-staging: "
+                                 "التشخيص يصف الصوت، والمرشَّح لا تشخيص له "
+                                 "قبل نشره. فاختلاف البصمة عن المنشور ⇒ "
+                                 "التشخيص لا يصف هذا الفهرس فيُهمَل؛ "
+                                 "واختلافها عن مرشَّح لا يعني شيئاً."),
+                             "describes": "audio",
                              "refineVersion": idx.get("refineVersion",
                                                       "unknown"),
                              "msPerWord": guard.get("msPerWord"),

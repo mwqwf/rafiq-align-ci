@@ -1,0 +1,71 @@
+name: rafiq-diagnosis
+
+# **توليدُ تشخيص الكتالوج** (`catalog/diagnosis/<riwaya>/<reciter>.json`) على
+# عدّاء GitHub — لا على شبكة المالك.
+#
+# ⛔ سببُه (‏أمر المشرف، 2026-09-05): حارسُ الترقية يقف عند «تشخيصُ الكتالوج
+#    يصف فهرساً آخر»، وتعليقُه يَعِد بأن «القيدَ يُرفع من تلقائه» — والتابعُ
+#    الذي يفي بهذا الوعد (`mirror_follower`) **لا يعمل**، فالقيدُ لا يُرفع
+#    أبداً ويقف كلُّ مرشَّحٍ تشخيصُه بائت. (‏وقف `m_abdulkareem_warsh` دورةً
+#    كاملة.) ⇒ **الوعدُ يحتاج منفّذاً، والمنفّذُ هنا.**
+#
+# ⛔ ولا يُولَّد محلياً بحال: `backfill_diagnosis` **ينزّل الصوت** لقياس المدد
+#    (114 ملفاً للقارئ)، وشبكةُ المالك ضعيفةٌ متقطّعة — قاعدةٌ ثابتة.
+on:
+  workflow_dispatch:
+    inputs:
+      only:
+        description: "riwaya/reciter — أو فارغٌ لكل من له فهرس"
+        default: ""
+      threads:
+        description: "خيوطُ التنزيل على العدّاء"
+        default: "8"
+
+jobs:
+  diagnose:
+    runs-on: ubuntu-latest
+    timeout-minutes: 180
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: { python-version: "3.11" }
+      - run: |
+          sudo apt-get update -qq && sudo apt-get install -y -qq ffmpeg
+          python -m pip install --quiet boto3
+
+      - name: اعتماد R2
+        env:
+          R2_CREDENTIALS_JSON: ${{ secrets.R2_CREDENTIALS_JSON }}
+        run: |
+          # ⛔ عبر متغيّر بيئة لا سطر أمر: سطرُ الأمر يظهر في السجل العام.
+          mkdir -p secure
+          printf '%s' "$R2_CREDENTIALS_JSON" > secure/r2_credentials.json
+
+      - name: توليدُ التشخيص
+        env:
+          ONLY: ${{ github.event.inputs.only }}
+          THREADS: ${{ github.event.inputs.threads }}
+        run: |
+          # `mirror_follower` يستورد نفسه من `/root` (‏منفذُ كتابةٍ واحدٌ للآلي
+          # وللرجعي — صيغتان تدّعيان أنهما واحدة تفترقان عند أوّل تعديل).
+          sudo mkdir -p /root && sudo ln -sfn "$GITHUB_WORKSPACE/tools/cloud" /root/cloud
+          for f in mirror_follower.py backfill_diagnosis.py; do
+            sudo cp "tools/cloud/$f" "/root/$f"
+          done
+          export PYTHONPATH="/root:$GITHUB_WORKSPACE/tools/alignment:$GITHUB_WORKSPACE/tools/index_qa"
+          python - <<'PY'
+          import json, os
+          c = json.load(open("secure/r2_credentials.json"))
+          env = {"R2_BUCKET": c["bucket"], "R2_ENDPOINT": c["endpoint"],
+                 "R2_ACCESS_KEY_ID": c["accessKeyId"],
+                 "R2_SECRET_ACCESS_KEY": c["secretAccessKey"],
+                 "AWS_ACCESS_KEY_ID": c["accessKeyId"],
+                 "AWS_SECRET_ACCESS_KEY": c["secretAccessKey"]}
+          with open(os.environ["GITHUB_ENV"], "a", encoding="utf-8") as f:
+              for k, v in env.items():
+                  f.write(f"{k}={v}\n")
+          print("الاعتمادُ إلى البيئة (‏لا إلى سطر الأمر)")
+          PY
+          ARG=""
+          [ -n "$ONLY" ] && ARG="--only $ONLY"
+          python /root/backfill_diagnosis.py --threads "${THREADS:-8}" $ARG
