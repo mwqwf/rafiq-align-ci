@@ -131,14 +131,54 @@ def main() -> None:
     ap.add_argument("--duration-ref", help="فهرسُنا القائم (.jz) مرجعَ مدّة")
     ap.add_argument("--counts", help="ملفُّ عدِّ آيٍ بديل (JSON، 114 رقماً) لغير حفص")
     ap.add_argument("--workers", type=int, default=6)
+    ap.add_argument("--audio-proof", action="store_true",
+                    help="ينزّل السور ويبصمها (‏على عدّاء CI لا محلياً) — برهانُ "
+                         "أن التوقيت على الملفّ الذي نخدمه، ومصدرُ المدّة الحقيقية")
     args = ap.parse_args()
 
+    audio_sha, audio_dur = [], {}
     counts = COUNTS
     if args.counts:
         counts = json.load(open(args.counts, encoding="utf-8"))
         if len(counts) != 114:
             sys.exit("⛔ ملفُّ العدّ يجب أن يحمل 114 رقماً")
     dur_ref = durations_from_index(args.duration_ref)
+
+    if args.audio_proof:
+        # ⛔ **برهانُ التنزيل ليس حقلَ محرّكٍ بل شهادةُ أن التوقيت على ملفِّنا**
+        #    (‏قاعدة المشرف github-10: ما يشترطه الحارسُ من جنسِ البرهان يُستوفى
+        #    لا يُفرَّع عنه). ومعه تأتي **المدّةُ الحقيقية** فيصير حارسُ البتر
+        #    على مدّةِ الملفّ لا على نهايةِ فهرسنا.
+        import subprocess
+        import tempfile
+        import urllib.request as _u
+        tmp = tempfile.mkdtemp()
+        def grab(s):
+            dst = os.path.join(tmp, f"{s:03d}.mp3")
+            try:
+                _u.urlretrieve(args.url.format(s=s), dst)
+                h = hashlib.sha256(open(dst, "rb").read()).hexdigest()
+                d = subprocess.run(["ffprobe", "-v", "error", "-show_entries",
+                                    "format=duration", "-of",
+                                    "default=nw=1:nk=1", dst],
+                                   capture_output=True, text=True, timeout=120)
+                ms = int(float(d.stdout.strip()) * 1000) if d.stdout.strip() else None
+                os.remove(dst)
+                return s, h, ms
+            except Exception as e:                        # noqa: BLE001
+                return s, None, None
+        with ThreadPoolExecutor(4) as ex:
+            for s_, h, ms in ex.map(grab, range(1, 115)):
+                if h:
+                    audio_dur[s_] = ms
+                audio_sha.append(h or "")
+        ok = sum(1 for h in audio_sha if h)
+        print(f"برهانُ التنزيل: {ok}/114 سورة · مدّاتٌ مقروءة {len(audio_dur)}")
+
+    if audio_dur:
+        # المدّةُ الحقيقية تغلب نهايةَ فهرسنا مرجعاً — فحارسُ البتر يصير
+        # على ما أراده المشرف أصلاً: مدّةُ الملفّ لا نهايةُ آخر آيةٍ عندنا.
+        dur_ref = dict(dur_ref, **{k: v for k, v in audio_dur.items() if v})
 
     def one(s):
         try:
@@ -169,14 +209,16 @@ def main() -> None:
         for a, st, en in built:
             entries.append({"ayahId": f"{s}:{a}", "fileRef": url,
                             "startMs": st, "endMs": en,
-                            "conf": 1.0, "confBand": "HIGH"})
+                            "conf": 0.7, "confBand": "MED"})
 
     total = sum(counts)
     idx = {
         "schema": 1, "riwaya": args.riwaya, "reciterId": args.reciter,
-        "sourceKind": "surah", "ayahCounting": "hafs",
+        "sourceKind": "surah", "ayahCounting": "KUFI",
         "ayahCount": total, "method": "mp3quran-ayat-timing",
         "engineVersion": "mp3quran-timing-v1", "refineVersion": "n/a-source",
+        "refinedCount": 0,
+        "audioSha256": audio_sha,
         "timingSource": {"api": "mp3quran.net/api/v3/ayat_timing",
                          "readId": args.read,
                          "fetchedAt": int(time.time())},
