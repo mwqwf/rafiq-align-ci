@@ -107,10 +107,17 @@ def build_surah(rows, s, want, dur_ref):
         #    (‏`read=1` سورة 036) نسبتُه **39%**. فالحدُّ على **البتر** لا على
         #    الاختلاف: دون 90% أو فوق 110% ⇒ ردّ، وما بينهما تحذيرٌ يُطبع
         #    ويعبر إلى البوابة لتحكم عليه بالعيّنة الصوتية لا بالنسبة.
-        if ratio < 0.90 or ratio > 1.10:
+        # ⛔ **تصحيحٌ ثانٍ بقياس (‏س114 من kurdi):** ذيلُ الصمت نسبتُه من
+        #    السورةِ القصيرةِ كبيرةٌ بطبعها — 4.4ث من 36ث = 12%. فحدُّ 90%
+        #    يردّ سليماً أيضاً. والبترُ الحقيقيُّ 39%. ⇒ الردُّ دون **75%**،
+        #    وما بين 75% و98% **تحذيرٌ يُكتب في الترويسة** (‏لا في السجل وحده،
+        #    أمر المشرف github-10) فتراه البوابةُ وتفحصه بالعيّنة الصوتية.
+        if ratio < 0.75 or ratio > 1.10:
             return None, f"timing_truncated:{out[-1][2]}ms≈{ratio:.0%}×{ref}ms"
         if abs(1 - ratio) > TOL:
-            warn = f"س{s}: نهايةٌ تخالف مرجعنا بـ{abs(1-ratio):.0%} (‏تعبر، والبوابةُ تحكم)"
+            warn = {"surah": s, "lastEndMs": out[-1][2], "refEndMs": ref,
+                    "ratio": round(ratio, 3),
+                    "note": "نهايةٌ تخالف مرجعنا — تعبر، والعيّنةُ الصوتية تحكم"}
     return out, (None if warn is None else ("__warn__", warn))
 
 
@@ -173,6 +180,7 @@ def main() -> None:
         "timingSource": {"api": "mp3quran.net/api/v3/ayat_timing",
                          "readId": args.read,
                          "fetchedAt": int(time.time())},
+        "timingWarnings": warns,
         "missing": {"count": total - len(entries),
                     "byReason": byreason,
                     "ids": []},
@@ -188,7 +196,7 @@ def main() -> None:
     for d in dropped[:12]:
         print("  ⛔", d)
     for w in warns[:12]:
-        print("  ⚠️", w)
+        print("  ⚠️", f"س{w['surah']}: {w['ratio']:.0%} من مرجعنا")
     if len(warns) > 12:
         print(f"  ⚠️ …و{len(warns) - 12} تحذيراً آخر")
     print(f"✅ {args.out} · sha256 {sha[:16]}…")
