@@ -1,0 +1,131 @@
+name: rafiq-probe-ayah
+
+# **مسبارُ آيةٍ بعينها**: يفرّغ المقطعَ الذي يشير إليه مدخلٌ في فهرسٍ مخدوم،
+# فيُفصل بالسمع ما لا يفصله القياس — «التهمةُ تُفصل بالتفريغ على البايتات».
+#
+# ⛔ سببُه (‏أمر المشرف github-10، 2026-09-05): بلاغاتُ P3 على مداخلَ بعينها
+#    (‏`husary_warsh` 2:6 = 28.8ث · `husary_qalun` 23:3 و23:17) لا تُحسم بنسبةٍ
+#    ولا بوسيط: إمّا أن يُسمع فيها كلامُ آيةٍ أخرى فهي ابتلاع، وإمّا لا.
+# ⛔ ولا يكتب في الدلو شيئاً: مخرَجُه سجلٌّ ولقطة.
+on:
+  workflow_dispatch:
+    inputs:
+      key:
+        description: "مفتاحُ الفهرس، مثل timings/warsh/husary_warsh.jz"
+        required: true
+      ayahs:
+        description: "معرّفاتُ آياتٍ بفواصل، مثل 2:6,23:3,23:17"
+        required: true
+      pad:
+        description: "هامشٌ قبل وبعد بالمللي (‏افتراض 0)"
+        default: "0"
+
+env:
+  WHISPER_REF: eacbd8234c6654cdbf2c377f72b2106875479bdc
+
+jobs:
+  probe:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: { python-version: "3.11" }
+      - run: |
+          sudo apt-get update -qq && sudo apt-get install -y -qq ffmpeg cmake build-essential
+          python -m pip install --quiet boto3 numpy
+
+      - name: كاش ثنائي whisper
+        id: whisper-cache
+        uses: actions/cache@v4
+        with:
+          path: whisper-bin
+          key: whisper-cli-${{ runner.os }}-${{ env.WHISPER_REF }}-noNative-v1
+
+      - name: بناء whisper.cpp (عند غياب الكاش)
+        if: steps.whisper-cache.outputs.cache-hit != 'true'
+        run: |
+          mkdir -p wsrc && cd wsrc && git init -q .
+          git remote add origin https://github.com/ggml-org/whisper.cpp.git
+          git fetch -q --depth 1 origin "$WHISPER_REF"
+          git checkout -q FETCH_HEAD && cd ..
+          cmake -S wsrc -B wsrc/build -DCMAKE_BUILD_TYPE=Release -DGGML_NATIVE=OFF \
+                -DWHISPER_BUILD_TESTS=OFF -DWHISPER_BUILD_EXAMPLES=ON
+          cmake --build wsrc/build --config Release -j"$(nproc)"
+          mkdir -p whisper-bin
+          cp "$(find wsrc/build -name whisper-cli -type f | head -1)" whisper-bin/whisper-cli
+          find wsrc/build -name "*.so*" -exec cp {} whisper-bin/ \;
+
+      - name: تنصيب الثنائي والنموذج
+        env:
+          R2_CREDENTIALS_JSON: ${{ secrets.R2_CREDENTIALS_JSON }}
+        run: |
+          mkdir -p assets-archive/ggml/bin/Release secure
+          cp whisper-bin/whisper-cli assets-archive/ggml/bin/Release/whisper-cli.exe
+          cp whisper-bin/*.so* assets-archive/ggml/bin/Release/ 2>/dev/null || true
+          chmod +x assets-archive/ggml/bin/Release/whisper-cli.exe
+          printf '%s' "$R2_CREDENTIALS_JSON" > secure/r2_credentials.json
+          python - <<'PY'
+          import json, boto3
+          c = json.load(open("secure/r2_credentials.json"))
+          s3 = boto3.client("s3", endpoint_url=c["endpoint"],
+                            aws_access_key_id=c["accessKeyId"],
+                            aws_secret_access_key=c["secretAccessKey"], region_name="auto")
+          # ⛔ النموذجُ الأدقّ عمداً: المسبارُ يفصل تهمةً، فلا يُفصل بأضعف شاهد.
+          s3.download_file(c["bucket"], "models/whisper-base-ar-quran/ggml-q8_0.bin",
+                           "assets-archive/ggml/ggml-refine-q8_0.bin")
+          PY
+
+      - name: التفريغ على البايتات
+        env:
+          LD_LIBRARY_PATH: ${{ github.workspace }}/assets-archive/ggml/bin/Release
+          KEY: ${{ github.event.inputs.key }}
+          AYAHS: ${{ github.event.inputs.ayahs }}
+          PAD: ${{ github.event.inputs.pad }}
+        run: |
+          python - <<'PY'
+          import gzip, io, json, os, subprocess, sys
+          import boto3
+          sys.stdout.reconfigure(encoding="utf-8")
+          c = json.load(open("secure/r2_credentials.json"))
+          s3 = boto3.client("s3", endpoint_url=c["endpoint"],
+                            aws_access_key_id=c["accessKeyId"],
+                            aws_secret_access_key=c["secretAccessKey"], region_name="auto")
+          key = os.environ["KEY"]
+          idx = json.load(gzip.open(io.BytesIO(
+              s3.get_object(Bucket=c["bucket"], Key=key)["Body"].read()), "rt", encoding="utf-8"))
+          want = [a.strip() for a in os.environ["AYAHS"].replace(",", " ").split() if a.strip()]
+          pad = int(os.environ.get("PAD") or 0)
+          ent = {e["ayahId"]: e for e in idx.get("entries") or []}
+          BIN = "assets-archive/ggml/bin/Release/whisper-cli.exe"
+          MODEL = "assets-archive/ggml/ggml-refine-q8_0.bin"
+          out = {}
+          for aid in want:
+              e = ent.get(aid)
+              if not e:
+                  print(f"⛔ {aid}: لا مدخلَ له في الفهرس"); continue
+              url, st, en = e["fileRef"], e["startMs"], e["endMs"]
+              mp3 = "s.mp3"
+              if not os.path.exists(mp3) or out.get("_url") != url:
+                  subprocess.run(["curl", "-sL", "-o", mp3, url], check=True, timeout=900)
+                  out["_url"] = url
+              a, b = max(0, st - pad) / 1000.0, (en + pad) / 1000.0
+              subprocess.run(["ffmpeg", "-y", "-v", "error", "-ss", f"{a}", "-to", f"{b}",
+                              "-i", mp3, "-ac", "1", "-ar", "16000", "clip.wav"],
+                             check=True, timeout=300)
+              r = subprocess.run([BIN, "-m", MODEL, "-f", "clip.wav", "-l", "ar",
+                                  "-nt", "-bo", "1", "-bs", "1", "-nf", "-t", "4"],
+                                 capture_output=True, text=True, timeout=900)
+              heard = " ".join(r.stdout.split())
+              print(f"\n=== {aid} · [{st}→{en}] = {(en - st) / 1000:.1f}ث · {url}")
+              print(f"    المسموع: {heard[:400]}")
+              out[aid] = {"startMs": st, "endMs": en, "durMs": en - st, "heard": heard}
+          json.dump(out, open("probe.json", "w", encoding="utf-8"), ensure_ascii=False, indent=1)
+          PY
+
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: probe-${{ github.run_id }}
+          path: probe.json
+          if-no-files-found: warn
