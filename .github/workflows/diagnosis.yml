@@ -58,19 +58,21 @@ jobs:
           sudo chmod 755 /root
           sudo chmod 644 /root/mirror_follower.py /root/backfill_diagnosis.py
           export PYTHONPATH="/root:$GITHUB_WORKSPACE/tools/alignment:$GITHUB_WORKSPACE/tools/index_qa"
-          python - <<'PY'
-          import json, os
+          # ⛔ `GITHUB_ENV` يسري على **الخطوات التالية** لا على الخطوة نفسها —
+          #    فالكتابةُ فيه هنا تترك الأداةَ بلا اعتماد وتسقط بـ«R2_BUCKET غير
+          #    مضبوط» بعد أن بنت كلَّ شيء. فالتصديرُ في الصَّدَفة نفسِها.
+          python - <<'PY' > /tmp/r2env.sh
+          import json
           c = json.load(open("secure/r2_credentials.json"))
-          env = {"R2_BUCKET": c["bucket"], "R2_ENDPOINT": c["endpoint"],
-                 "R2_ACCESS_KEY_ID": c["accessKeyId"],
-                 "R2_SECRET_ACCESS_KEY": c["secretAccessKey"],
-                 "AWS_ACCESS_KEY_ID": c["accessKeyId"],
-                 "AWS_SECRET_ACCESS_KEY": c["secretAccessKey"]}
-          with open(os.environ["GITHUB_ENV"], "a", encoding="utf-8") as f:
-              for k, v in env.items():
-                  f.write(f"{k}={v}\n")
-          print("الاعتمادُ إلى البيئة (‏لا إلى سطر الأمر)")
+          for k, v in (("R2_BUCKET", c["bucket"]), ("R2_ENDPOINT", c["endpoint"]),
+                       ("R2_ACCESS_KEY_ID", c["accessKeyId"]),
+                       ("R2_SECRET_ACCESS_KEY", c["secretAccessKey"]),
+                       ("AWS_ACCESS_KEY_ID", c["accessKeyId"]),
+                       ("AWS_SECRET_ACCESS_KEY", c["secretAccessKey"])):
+              print(f"export {k}='{v}'")
           PY
+          . /tmp/r2env.sh && rm -f /tmp/r2env.sh
+          echo "الاعتمادُ في الصَّدَفة (لا في سطر الأمر ولا في السجل)"
           ARG=""
           [ -n "$ONLY" ] && ARG="--only $ONLY"
           python /root/backfill_diagnosis.py --threads "${THREADS:-8}" $ARG
