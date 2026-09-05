@@ -130,6 +130,8 @@ def main() -> None:
     ap.add_argument("--out", required=True)
     ap.add_argument("--duration-ref", help="فهرسُنا القائم (.jz) مرجعَ مدّة")
     ap.add_argument("--counts", help="ملفُّ عدِّ آيٍ بديل (JSON، 114 رقماً) لغير حفص")
+    ap.add_argument("--count-map", help="خريطةُ عدٍّ من ترقيم الرواية إلى خانات حفص "
+                                        "(‏مخرَجُ build_count_map.py)")
     ap.add_argument("--workers", type=int, default=6)
     ap.add_argument("--audio-proof", action="store_true",
                     help="ينزّل السور ويبصمها (‏على عدّاء CI لا محلياً) — برهانُ "
@@ -192,13 +194,52 @@ def main() -> None:
         for s, rows, err in ex.map(one, range(1, 115)):
             got[s] = (rows, err)
 
+    cmap = {}
+    if args.count_map:
+        cmap = (json.load(open(args.count_map, encoding="utf-8")) or {}).get("map") or {}
+        print(f"خريطةُ العدّ: {len(cmap)} سورة")
+
+    def remap(built, s):
+        """‏[(آية المصدر، بداية، نهاية)] ⇒ [(آية حفص، بداية، نهاية)] بالخريطة.
+
+        ⛔ **قاعدتان من المشرف (2026-09-05)، ولا ثالثةَ لهما:**
+        · آيتان في المصدر تقابلان خانةَ حفصٍ واحدة ⇒ **[بدايةُ الأولى، نهايةُ
+          الأخيرة]** — دمجٌ بلا تخمين.
+        · آيةٌ في المصدر تقابل خانتين فأكثر ⇒ **تُوسم الخاناتُ غائبةً**،
+          ولا يُخترع لها حدٌّ وسط: الحدُّ المخترَع يُسمع الحافظَ موضعاً
+          ويُقرئه غيرَه، وهو أسوأ من غيابٍ معلَن.
+        """
+        m = cmap.get(str(s))
+        if not m:
+            return None, "no_count_map"
+        per = {}
+        wide = set()
+        for a, st, en in built:
+            rng = m.get(str(a))
+            if not rng:
+                return None, f"count_map_gap:{a}"
+            lo, hi = rng
+            if hi > lo:                      # آيةٌ تمتدّ على أكثر من خانة
+                wide.update(range(lo, hi + 1))
+                continue
+            cur = per.get(lo)
+            per[lo] = (min(cur[0], st) if cur else st,
+                       max(cur[1], en) if cur else en)
+        return [(h, v[0], v[1]) for h, v in sorted(per.items())
+                if h not in wide], None
+
     entries, dropped, byreason, warns = [], [], {}, []
     for s in range(1, 115):
         rows, err = got[s]
         if err or not isinstance(rows, list):
             dropped.append(s); byreason["timing_fetch_failed"] = byreason.get("timing_fetch_failed", 0) + counts[s - 1]
             continue
-        built, why = build_surah(rows, s, counts[s - 1], dur_ref)
+        # ⛔ عددُ آي **المصدر** لا عدُّ حفص حين تكون الخريطةُ حاضرة: الحارسُ
+        #    يفحص اكتمالَ ما أرسله المصدر بعدّه هو، ثمّ تُترجم الخريطةُ إلى
+        #    خانات حفص. ومن فحص المصدرَ بعدِّ حفصٍ ردَّ سليماً لأنه عدَّ بعدٍّ
+        #    آخر (‏قِيس: 59.3% غياباً في ستّة قرّاء).
+        want = len(cmap.get(str(s)) or ()) or counts[s - 1]
+        built, why = build_surah(rows, s, want, dur_ref)
         if isinstance(why, tuple):
             warns.append(why[1]); why = None
         if built is None:
@@ -206,6 +247,16 @@ def main() -> None:
             key = why.split(":")[0]
             byreason[key] = byreason.get(key, 0) + counts[s - 1]
             continue
+        if cmap:
+            built2, why2 = remap(built, s)
+            if built2 is None:
+                dropped.append((s, why2))
+                byreason[why2.split(":")[0]] = byreason.get(why2.split(":")[0], 0) + counts[s - 1]
+                continue
+            gone = counts[s - 1] - len(built2)
+            if gone > 0:
+                byreason["count_map_wide_ayah"] = byreason.get("count_map_wide_ayah", 0) + gone
+            built = built2
         url = args.url.format(s=s)
         for a, st, en in built:
             entries.append({"ayahId": f"{s}:{a}", "fileRef": url,
