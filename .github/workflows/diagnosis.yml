@@ -52,6 +52,11 @@ jobs:
           for f in mirror_follower.py backfill_diagnosis.py; do
             sudo cp "tools/cloud/$f" "/root/$f"
           done
+          # ⛔ النسخُ بـsudo يجعل الملفّات ملكَ root و`/root` مغلقاً على
+          #    `runner` ⇒ `Permission denied` عند التشغيل. فالإذنُ يُفتح صراحةً
+          #    بعد النسخ — وإلا فالوظيفةُ تبني كلَّ شيءٍ ثم تسقط عند أوّل سطر.
+          sudo chmod 755 /root
+          sudo chmod 644 /root/mirror_follower.py /root/backfill_diagnosis.py
           export PYTHONPATH="/root:$GITHUB_WORKSPACE/tools/alignment:$GITHUB_WORKSPACE/tools/index_qa"
           python - <<'PY'
           import json, os
