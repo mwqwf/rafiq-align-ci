@@ -19,6 +19,9 @@ on:
       surahs:
         description: "سورةٌ أو أكثر بفواصل، مثل 22 أو 25,30"
         required: true
+      skip_ms:
+        description: "بدءُ المحاذاة بعد n م.ث من رأس الملفّ (لتخطّي بسملةٍ مقيسة)"
+        default: "0"
       url_template:
         description: "قالبُ الصوت، مثل https://server16.mp3quran.net/deban/Rewayat-Hafs-A-n-Assem/{s:03d}.mp3"
         required: true
@@ -170,6 +173,7 @@ jobs:
           SURAHS: ${{ github.event.inputs.surahs }}
           URLT: ${{ github.event.inputs.url_template }}
           RIWAYA: ${{ github.event.inputs.riwaya }}
+          SKIP_MS: ${{ github.event.inputs.skip_ms }}
         run: |
           set -e
           mkdir -p work
@@ -186,8 +190,19 @@ jobs:
           for S in $(echo "$SURAHS" | tr ',' ' '); do
             URL=$(python -c "import os,sys; print(os.environ['URLT'].format(s=int(sys.argv[1])))" "$S")
             echo "── سورة $S ← $URL"
-            ( cd tools/alignment && python pipeline.py --url "$URL" --surah "$S" \
+            SRC="$URL"
+            if [ "${SKIP_MS:-0}" != "0" ]; then
+              curl -sL -o "$GITHUB_WORKSPACE/work/full_$S.mp3" "$URL"
+              SEC=$(python -c "print(int('${SKIP_MS}')/1000)")
+              ffmpeg -y -v error -ss "$SEC" -i "$GITHUB_WORKSPACE/work/full_$S.mp3" -c copy "$GITHUB_WORKSPACE/work/cut_$S.mp3"
+              SRC="file://$GITHUB_WORKSPACE/work/cut_$S.mp3"
+              echo "  تُخطّيت ${SKIP_MS} م.ث من رأس الملفّ (بسملةٌ مقيسة)"
+            fi
+            ( cd tools/alignment && python pipeline.py --url "$SRC" --surah "$S" \
                 --riwaya "$RIWAYA" --json "$GITHUB_WORKSPACE/work/s$S.json" )
+            if [ "${SKIP_MS:-0}" != "0" ]; then
+              python tools/index_qa/shift_entries.py "$GITHUB_WORKSPACE/work/s$S.json" "${SKIP_MS}"
+            fi
             FILES="$FILES $GITHUB_WORKSPACE/work/s$S.json"
           done
           python tools/index_qa/splice_surah.py --index work/parent.jz --surah "$SURAHS" \
