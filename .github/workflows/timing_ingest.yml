@@ -1,0 +1,125 @@
+name: rafiq-timing-ingest
+
+# يبني فهارسَ من **توقيتات mp3quran الرسمية** على ملفّات السور نفسها، ويرفعها
+# إلى `timings-staging/` بـ`stage_source.py` بحُرّاسه التسعة.
+#
+# ⛔ سببُه (‏أمر المشرف github-10، 2026-09-05): «قصٌّ بشريٌّ موثوقٌ أعلى جودةً
+#    من أيّ محاذاةٍ آلية» — والتوقيتُ يغطّي 80 من قرّاء `mode:surah` عندنا،
+#    وقياسُ `kurdi` أعطى **6236/6236 وصفرَ غياب** حيث أعطت محاذاتُنا 6202.
+#
+# ⛔ ولا يمسّ شبكةَ المالك: ‏114 نداءَ JSON لكلّ قارئ تُطلَق من عدّاء GitHub.
+# ⛔ ولا يُرقّي شيئاً: المخرَجُ مرشَّحٌ يمرّ بالبوابة كاملةً — والمصدرُ الرسميُّ
+#    **مرشَّحٌ لا حقيقة** (‏شاهدُه `read=1` سورة 036 تنتهي عند 39% من الملفّ).
+on:
+  workflow_dispatch:
+    inputs:
+      only:
+        description: "معرّفاتٌ بفواصل — فارغٌ يعني الترتيبَ من الملفّ"
+        default: ""
+      limit:
+        description: "أقصى عددٍ في الدفعة (= عدد الوظائف، ≤20)"
+        default: "20"
+      offset:
+        description: "تخطّي أوّلَ n سطراً (للدفعات المتتالية)"
+        default: "0"
+
+env:
+  PY: "3.11"
+  LIST: tools/index_qa/mp3quran_reads.tsv
+
+jobs:
+  prepare:
+    runs-on: ubuntu-latest
+    outputs:
+      matrix: ${{ steps.gen.outputs.matrix }}
+    steps:
+      - uses: actions/checkout@v4
+      - id: gen
+        env:
+          ONLY: ${{ github.event.inputs.only }}
+          LIMIT: ${{ github.event.inputs.limit }}
+          OFFSET: ${{ github.event.inputs.offset }}
+        run: |
+          python - <<'PY' >> "$GITHUB_OUTPUT"
+          import json, os
+          rows = []
+          for ln in open(os.environ["LIST"], encoding="utf-8"):
+              if ln.startswith("#") or not ln.strip():
+                  continue
+              rid, riw, read, url, state = ln.rstrip("\n").split("\t")
+              rows.append({"rid": rid, "riw": riw, "read": read, "url": url})
+          only = [x for x in os.environ.get("ONLY", "").replace(",", " ").split() if x]
+          if only:
+              rows = [r for r in rows if r["rid"] in only]
+          else:
+              off = int(os.environ.get("OFFSET") or 0)
+              rows = rows[off:off + int(os.environ.get("LIMIT") or 20)]
+          print(f"matrix={json.dumps(rows)}")
+          PY
+
+  ingest:
+    needs: prepare
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    strategy:
+      fail-fast: false          # سقوطُ قارئٍ لا يُسقط الدفعة
+      max-parallel: 20
+      matrix:
+        r: ${{ fromJSON(needs.prepare.outputs.matrix) }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: { python-version: "3.11" }
+      - run: python -m pip install --quiet boto3
+
+      - name: اعتماد R2
+        env:
+          R2_CREDENTIALS_JSON: ${{ secrets.R2_CREDENTIALS_JSON }}
+        run: |
+          # ⛔ عبر متغيّر بيئة لا سطر أمر: سطرُ الأمر يظهر في السجل العام.
+          mkdir -p secure
+          printf '%s' "$R2_CREDENTIALS_JSON" > secure/r2_credentials.json
+
+      - name: مرجعُ المدّة من فهرسنا المنشور (إن وُجد)
+        env:
+          RID: ${{ matrix.r.rid }}
+          RIW: ${{ matrix.r.riw }}
+        run: |
+          python - <<'PY'
+          import json, os, boto3
+          c = json.load(open("secure/r2_credentials.json"))
+          s3 = boto3.client("s3", endpoint_url=c["endpoint"],
+                            aws_access_key_id=c["accessKeyId"],
+                            aws_secret_access_key=c["secretAccessKey"], region_name="auto")
+          key = f"timings/{os.environ['RIW']}/{os.environ['RID']}.jz"
+          try:
+              s3.download_file(c["bucket"], key, "parent.jz")
+              print("مرجعُ المدّة:", key)
+          except Exception as e:                          # noqa: BLE001
+              print("لا فهرسَ منشوراً — يمضي بلا مرجعِ مدّة:", type(e).__name__)
+          PY
+
+      - name: جلبُ التوقيتات وبناءُ الفهرس
+        env:
+          RID: ${{ matrix.r.rid }}
+          RIW: ${{ matrix.r.riw }}
+          READ: ${{ matrix.r.read }}
+          URL: ${{ matrix.r.url }}
+        run: |
+          REF=""
+          [ -f parent.jz ] && REF="--duration-ref parent.jz"
+          python tools/index_qa/ingest_mp3quran_timing.py \
+            --reciter "$RID" --riwaya "$RIW" --read "$READ" \
+            --url "$URL" $REF --out "out.jz"
+
+      - name: الرفعُ إلى الاختبار بحُرّاس stage_source
+        env:
+          RID: ${{ matrix.r.rid }}
+          RIW: ${{ matrix.r.riw }}
+          READ: ${{ matrix.r.read }}
+        run: |
+          # ⛔ الحُرّاس تُختبر قبل أوّل رفعٍ في كل تشغيلة — لا ثقةَ بأداةٍ لم تُختبر.
+          python tools/index_qa/stage_source.py --self-test
+          python tools/index_qa/stage_source.py --file out.jz \
+            --reciter "$RID" --riwaya "$RIW" \
+            --source "mp3quran ayat_timing read=$READ" --yes
