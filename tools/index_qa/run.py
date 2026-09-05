@@ -184,7 +184,15 @@ def structural(idx, key, allow_unmarked=False, txt_ref=None):
         # الصيغة المستعملة: {"op": "drop_surah:24", …}
         dropped = []
         op = tr.get("op") or ""
-        dropped += [int(x) for x in re.findall(r"drop_surah:(\d+)", str(op))]
+        # ⛔ **إصلاح 2026-09-05 (D-186):** `drop_surah` يكتب السورَ المُسقطة
+        #    **قائمةً بفواصل** في تحويلٍ واحد (`drop_surah:93,101,103`)،
+        #    وكان هذا السطر يلتقط **الأولى وحدها** — فتُحسب البواقي غياباً
+        #    **غيرَ معلَن** ويُرفع «سور غائبة كلياً» على إسقاطٍ معلَنٍ بسببه.
+        #    وقعت على `kurdi.dc2e7534` (‏أُسقطت 93,101,103 فرُدّت بـ[101,103])
+        #    و`balilah.66c17c23`. والقاعدةُ قائمةٌ كما هي: الإسقاطُ المعلَن
+        #    قرارُ منتَجٍ لا عطبٌ — وإنما كان **القارئُ لا يقرأ ما كُتب**.
+        for _m in re.findall(r"drop_surah:([\d,\s]+)", str(op)):
+            dropped += [int(x) for x in re.findall(r"\d+", _m)]
         d2 = tr.get("dropSurah") or tr.get("drop_surah")
         dropped += [d2] if isinstance(d2, int) else list(d2 or [])
         declared = [x for x in miss_s if x in dropped]
@@ -256,6 +264,22 @@ def structural(idx, key, allow_unmarked=False, txt_ref=None):
         # (‏0.5% عطباً و**صفرٌ في 185 حدّ HIGH**).
         # وأُقرّ التعديل **بعد** صدور حكم ذلك الفهرس لا قبله، كي لا يُقال إن
         # الحارس فُصِّل على الحالة التي بُني لها.
+        # ⛔ **والإسقاطُ المعلَن يُستثنى من اختبار الانحياز (D-186):** الاختبارُ
+        #    شاهدٌ على **الابتلاع**، وابتلاعٌ لم يقع لا يُشهد عليه. وإسقاطُ
+        #    سورةٍ قصيرةٍ بقرارٍ معلَنٍ يجعل وسيطَ المفقود قصيراً **بحكم
+        #    القرار لا بحكم العطب**، فيُرفع «الغياب منحازٌ إلى القصار» على
+        #    فهرسٍ نظيف (وقعت على `wdod.93940007` بعد إسقاط سورة 78).
+        #    وهو تطبيقُ قاعدةِ هذا الملفّ نفسِها: **الحسابُ على غير المبرَّر**.
+        _dropped_set = set(locals().get("dropped") or ())
+        if _dropped_set:
+            _kept = [i for i in miss_ids
+                     if int(i.split(":")[0]) not in _dropped_set]
+            if _kept:
+                lens = sorted(len(txt_ref[flat(*map(int, i.split(":")))].split())
+                               for i in _kept)
+                med_miss = lens[len(lens) // 2]
+                short = sum(1 for l in lens if l <= 4) / len(lens)
+            miss_ids = _kept or miss_ids
         enough = len(miss_ids) >= 50 or len(miss_ids) >= 0.01 * 6236
         if enough and med_miss * 2 < med_all:
             fatal.append(f"الغياب منحازٌ إلى القصار (ابتلاع): وسيط طول المفقودة {med_miss} كلمة "
