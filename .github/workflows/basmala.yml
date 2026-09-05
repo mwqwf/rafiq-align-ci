@@ -137,7 +137,11 @@ jobs:
           KEY: ${{ matrix.key }}
         run: |
           rid="$(basename "$KEY" | cut -d. -f1)"
-          tpl="$(awk -F'	' -v r="$rid" '!/^#/ && $1==r {print $3; exit}'                  tools/ci_fleet/reciters_ci.tsv tools/ci_fleet/reciters_ci_wave2.tsv 2>/dev/null | head -1)"
+          # ⛔ **كلُّ قوائم المستودع لا قائمتان** (‏تصحيحُ 2026-09-05): كان
+          #    البحثُ محصوراً في `reciters_ci*.tsv`، فسقطت تمريرةُ البسملة على
+          #    كلِّ قارئٍ أُضيف في قائمةٍ جديدة بـ«لا قالب صوت» — وهو **قصورُ
+          #    بحثٍ لا نقصُ بيانات**: القالبُ موجودٌ في `reciters_wq_gen1.tsv`.
+          tpl="$(awk -F'	' -v r="$rid" '!/^#/ && $1==r {print $3; exit}'                  tools/ci_fleet/reciters_*.tsv 2>/dev/null | head -1)"
           if [ -z "$tpl" ]; then
             echo "⛔ لا قالب صوتٍ للقارئ '$rid' في قوائم المستودع — لا تخمين."
             exit 1
