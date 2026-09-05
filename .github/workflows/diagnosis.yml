@@ -56,7 +56,7 @@ jobs:
           #    `runner` ⇒ `Permission denied` عند التشغيل. فالإذنُ يُفتح صراحةً
           #    بعد النسخ — وإلا فالوظيفةُ تبني كلَّ شيءٍ ثم تسقط عند أوّل سطر.
           sudo chmod 755 /root
-          sudo chmod 644 /root/mirror_follower.py /root/backfill_diagnosis.py \n                         /root/probe_surah_duration.py
+          sudo chmod 644 /root/mirror_follower.py /root/backfill_diagnosis.py /root/probe_surah_duration.py
           export PYTHONPATH="/root:$GITHUB_WORKSPACE/tools/alignment:$GITHUB_WORKSPACE/tools/index_qa"
           # ⛔ `GITHUB_ENV` يسري على **الخطوات التالية** لا على الخطوة نفسها —
           #    فالكتابةُ فيه هنا تترك الأداةَ بلا اعتماد وتسقط بـ«R2_BUCKET غير
