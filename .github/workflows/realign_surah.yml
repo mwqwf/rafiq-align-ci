@@ -1,0 +1,177 @@
+name: rafiq-realign-surah
+
+# إعادةُ محاذاةِ **سورةٍ أو سورٍ بعينها** في فهرسٍ منشور — لا القارئ كلَّه.
+#
+# ⛔ سببُه مقيس (قرار المشرف github-10، 2026-09-05): العلّةُ في `deban/22`
+#    و`lhdan/103` وأخواتِهما **سورةٌ واحدةٌ مزاحة** لا فهرسٌ فاسد، وإعادةُ
+#    القارئ كاملاً لأجلها إنفاقُ ساعةٍ على منجَز. وهذا المدخل هو **شرطُ إعادة
+#    فتح D-186** بنصّه: متى توفّر، تُعاد السورُ المسقَطة.
+#
+# ⛔ ولا يمسّ شبكةَ المالك: الصوتُ يُنزَّل على عدّاء GitHub لا محلياً.
+# ⛔ ولا يكتب إلا إلى `timings-staging/` عبر `stage_transform.py` بحُرّاسه —
+#    كاتبٌ واحدٌ إلى الدلو لا كاتبان.
+on:
+  workflow_dispatch:
+    inputs:
+      parent:
+        description: "مفتاحُ الأصل المنشور، مثل timings/hafs/deban.jz"
+        required: true
+      surahs:
+        description: "سورةٌ أو أكثر بفواصل، مثل 22 أو 25,30"
+        required: true
+      url_template:
+        description: "قالبُ الصوت، مثل https://server16.mp3quran.net/deban/Rewayat-Hafs-A-n-Assem/{s:03d}.mp3"
+        required: true
+      riwaya:
+        description: "hafs | warsh | qalun"
+        default: "hafs"
+      reason:
+        description: "سببُ التحويل — يُكتب في الترويسة والسجل"
+        required: true
+
+env:
+  PY: "3.11"
+  # ⛔ مثبَّتٌ كما في align.yml: ثنائيٌّ مختلفٌ بين تشغيلتين = حكمان لا يُقارَنان.
+  WHISPER_REF: eacbd8234c6654cdbf2c377f72b2106875479bdc
+
+jobs:
+  realign:
+    runs-on: ubuntu-latest
+    timeout-minutes: 350
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PY }}
+
+      - name: أدوات النظام
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq ffmpeg cmake build-essential
+          python -m pip install --quiet boto3 numpy
+
+      # ⚠️ GGML_NATIVE=OFF عمداً كما في align.yml: الكاش يُستهلك على عدّاءٍ قد
+      #    يختلف طرازه، وثنائيٌّ بتعليمات معالجٍ آخر يسقط بـSIGILL.
+      - name: كاش ثنائي whisper
+        id: whisper-cache
+        uses: actions/cache@v4
+        with:
+          path: whisper-bin
+          key: whisper-cli-${{ runner.os }}-${{ env.WHISPER_REF }}-noNative-v1
+
+      - name: بناء whisper.cpp (عند غياب الكاش)
+        if: steps.whisper-cache.outputs.cache-hit != 'true'
+        run: |
+          mkdir -p wsrc && cd wsrc && git init -q .
+          git remote add origin https://github.com/ggml-org/whisper.cpp.git
+          git fetch -q --depth 1 origin "$WHISPER_REF"
+          git checkout -q FETCH_HEAD
+          cd ..
+          cmake -S wsrc -B wsrc/build -DCMAKE_BUILD_TYPE=Release -DGGML_NATIVE=OFF \
+                -DWHISPER_BUILD_TESTS=OFF -DWHISPER_BUILD_EXAMPLES=ON
+          cmake --build wsrc/build --config Release -j"$(nproc)"
+          mkdir -p whisper-bin
+          cp "$(find wsrc/build -name whisper-cli -type f | head -1)" whisper-bin/whisper-cli
+          find wsrc/build -name "*.so*" -exec cp {} whisper-bin/ \;
+
+      - name: تنصيب الثنائي وبرهانُ عمله
+        run: |
+          mkdir -p assets-archive/ggml/bin/Release
+          cp whisper-bin/whisper-cli assets-archive/ggml/bin/Release/whisper-cli.exe
+          cp whisper-bin/*.so* assets-archive/ggml/bin/Release/ 2>/dev/null || true
+          chmod +x assets-archive/ggml/bin/Release/whisper-cli.exe
+          # ⛔ المكتبات المشتركة بجوار الثنائي لا في مسار النظام ⇒ يلزم تصديرها،
+          #    وإلا فـexit 127 على كل سورة بعد أن تلتهم المهلة.
+          export LD_LIBRARY_PATH="$GITHUB_WORKSPACE/assets-archive/ggml/bin/Release:${LD_LIBRARY_PATH:-}"
+          if ! assets-archive/ggml/bin/Release/whisper-cli.exe --help >/dev/null 2>&1; then
+            echo "⛔ whisper-cli لا يعمل:"; ldd assets-archive/ggml/bin/Release/whisper-cli.exe 2>&1 | grep -i "not found" || true
+            exit 1
+          fi
+          echo "✅ whisper-cli يعمل"
+
+      - name: اعتماد R2 والنموذجان
+        env:
+          R2_CREDENTIALS_JSON: ${{ secrets.R2_CREDENTIALS_JSON }}
+        run: |
+          # ⛔ عبر متغيّر بيئة لا سطر أمر: سطرُ الأمر يظهر في السجل العام.
+          mkdir -p secure
+          printf '%s' "$R2_CREDENTIALS_JSON" > secure/r2_credentials.json
+          python - <<'PY'
+          import json, os, boto3
+          c = json.load(open("secure/r2_credentials.json"))
+          s3 = boto3.client("s3", endpoint_url=c["endpoint"],
+                            aws_access_key_id=c["accessKeyId"],
+                            aws_secret_access_key=c["secretAccessKey"], region_name="auto")
+          os.makedirs("assets-archive/ggml", exist_ok=True)
+          s3.download_file(c["bucket"], "models/whisper-tiny-ar-quran/ggml-q8_0.bin",
+                           "assets-archive/ggml/ggml-tiny-ar-quran-q8_0.bin")
+          # نموذجُ الصقل مستقلٌّ (D-179): التفريغُ بالسريع والصقلُ بالأدقّ.
+          s3.download_file(c["bucket"], "models/whisper-base-ar-quran/ggml-q8_0.bin",
+                           "assets-archive/ggml/ggml-refine-q8_0.bin")
+          print("النموذجان جاهزان")
+          PY
+
+      - name: إعادة المحاذاة سورةً سورة
+        env:
+          LD_LIBRARY_PATH: ${{ github.workspace }}/assets-archive/ggml/bin/Release
+          ALIGN_REFINE: "1"
+          REFINE_MODEL: ${{ github.workspace }}/assets-archive/ggml/ggml-refine-q8_0.bin
+          REFINE_DTW: base
+          WHISPER_AC: "512"
+          WHISPER_THREADS: "4"
+          PARENT: ${{ github.event.inputs.parent }}
+          SURAHS: ${{ github.event.inputs.surahs }}
+          URLT: ${{ github.event.inputs.url_template }}
+          RIWAYA: ${{ github.event.inputs.riwaya }}
+        run: |
+          set -e
+          mkdir -p work
+          python - <<'PY'
+          import json, os, boto3
+          c = json.load(open("secure/r2_credentials.json"))
+          s3 = boto3.client("s3", endpoint_url=c["endpoint"],
+                            aws_access_key_id=c["accessKeyId"],
+                            aws_secret_access_key=c["secretAccessKey"], region_name="auto")
+          s3.download_file(c["bucket"], os.environ["PARENT"], "work/parent.jz")
+          print("نُزّل الأصل:", os.environ["PARENT"])
+          PY
+          FILES=""
+          for S in $(echo "$SURAHS" | tr ',' ' '); do
+            URL=$(python -c "import os,sys; print(os.environ['URLT'].format(s=int(sys.argv[1])))" "$S")
+            echo "── سورة $S ← $URL"
+            ( cd tools/alignment && python pipeline.py --url "$URL" --surah "$S" \
+                --riwaya "$RIWAYA" --json "$GITHUB_WORKSPACE/work/s$S.json" )
+            FILES="$FILES $GITHUB_WORKSPACE/work/s$S.json"
+          done
+          python tools/index_qa/splice_surah.py --index work/parent.jz --surah "$SURAHS" \
+                 --aligned $FILES --url "$URLT" --out work/patched.jz
+
+      - name: رفعٌ إلى الاختبار بحُرّاس stage_transform
+        env:
+          PARENT: ${{ github.event.inputs.parent }}
+          SURAHS: ${{ github.event.inputs.surahs }}
+          REASON: ${{ github.event.inputs.reason }}
+        run: |
+          SHA=$(python - <<'PY'
+          import json, os, hashlib, boto3
+          c = json.load(open("secure/r2_credentials.json"))
+          s3 = boto3.client("s3", endpoint_url=c["endpoint"],
+                            aws_access_key_id=c["accessKeyId"],
+                            aws_secret_access_key=c["secretAccessKey"], region_name="auto")
+          b = s3.get_object(Bucket=c["bucket"], Key=os.environ["PARENT"])["Body"].read()
+          print(hashlib.sha256(b).hexdigest())
+          PY
+          )
+          python tools/index_qa/stage_transform.py --file work/patched.jz \
+                 --parent "$PARENT" --parent-sha "$SHA" \
+                 --op "realign_surah:$SURAHS" --reason "$REASON" \
+                 --by "github-cd" --yes
+
+      - name: جدولُ قبل/بعد (‏أثرٌ يُقرأ لا يُصدَّق)
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: realign-${{ github.run_id }}
+          path: work/s*.json
+          if-no-files-found: warn
