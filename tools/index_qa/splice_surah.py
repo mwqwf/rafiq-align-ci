@@ -56,8 +56,12 @@ def load(p: Path) -> dict:
 
 def dump(d: dict, p: Path) -> str:
     raw = json.dumps(d, ensure_ascii=False, separators=(",", ":")).encode("utf-8")
-    with gzip.open(p, "wb", compresslevel=9, mtime=0) as f:
-        f.write(raw)
+    # ⛔ `mtime` معاملُ `GzipFile` لا `gzip.open` — و`gzip.open` يرفعه TypeError.
+    #    وتثبيتُه صفراً مقصود: بصمةُ الملفّ يجب أن تتبع المحتوى وحده، فترويسةٌ
+    #    فيها زمنُ البناء تُغيّر sha256 لمخرَجٍ لم يتغيّر.
+    with open(p, "wb") as fh:
+        with gzip.GzipFile(fileobj=fh, mode="wb", compresslevel=9, mtime=0) as f:
+            f.write(raw)
     return hashlib.sha256(p.read_bytes()).hexdigest()
 
 
