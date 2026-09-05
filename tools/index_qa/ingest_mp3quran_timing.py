@@ -178,7 +178,8 @@ def main() -> None:
     if audio_dur:
         # المدّةُ الحقيقية تغلب نهايةَ فهرسنا مرجعاً — فحارسُ البتر يصير
         # على ما أراده المشرف أصلاً: مدّةُ الملفّ لا نهايةُ آخر آيةٍ عندنا.
-        dur_ref = dict(dur_ref, **{k: v for k, v in audio_dur.items() if v})
+        # ⛔ `dict(a, **b)` يشترط مفاتيحَ نصّية، ومفاتيحُنا أرقامُ سور.
+        dur_ref = {**dur_ref, **{k: v for k, v in audio_dur.items() if v}}
 
     def one(s):
         try:
