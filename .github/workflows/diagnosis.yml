@@ -49,14 +49,14 @@ jobs:
           # `mirror_follower` يستورد نفسه من `/root` (‏منفذُ كتابةٍ واحدٌ للآلي
           # وللرجعي — صيغتان تدّعيان أنهما واحدة تفترقان عند أوّل تعديل).
           sudo mkdir -p /root && sudo ln -sfn "$GITHUB_WORKSPACE/tools/cloud" /root/cloud
-          for f in mirror_follower.py backfill_diagnosis.py; do
+          for f in mirror_follower.py backfill_diagnosis.py probe_surah_duration.py; do
             sudo cp "tools/cloud/$f" "/root/$f"
           done
           # ⛔ النسخُ بـsudo يجعل الملفّات ملكَ root و`/root` مغلقاً على
           #    `runner` ⇒ `Permission denied` عند التشغيل. فالإذنُ يُفتح صراحةً
           #    بعد النسخ — وإلا فالوظيفةُ تبني كلَّ شيءٍ ثم تسقط عند أوّل سطر.
           sudo chmod 755 /root
-          sudo chmod 644 /root/mirror_follower.py /root/backfill_diagnosis.py
+          sudo chmod 644 /root/mirror_follower.py /root/backfill_diagnosis.py \n                         /root/probe_surah_duration.py
           export PYTHONPATH="/root:$GITHUB_WORKSPACE/tools/alignment:$GITHUB_WORKSPACE/tools/index_qa"
           # ⛔ `GITHUB_ENV` يسري على **الخطوات التالية** لا على الخطوة نفسها —
           #    فالكتابةُ فيه هنا تترك الأداةَ بلا اعتماد وتسقط بـ«R2_BUCKET غير
