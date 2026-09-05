@@ -110,9 +110,13 @@ jobs:
         run: |
           REF=""
           [ -f parent.jz ] && REF="--duration-ref parent.jz"
+          # خريطةُ العدّ لغير حفص (‏mp3quran يعدّ الرواية بعدّها لا بعدّ حفص)
+          CM=""
+          MAP="tools/index_qa/countmap_$RIW.json"
+          [ -f "$MAP" ] && CM="--count-map $MAP"
           python tools/index_qa/ingest_mp3quran_timing.py \
             --reciter "$RID" --riwaya "$RIW" --read "$READ" \
-            --url "$URL" $REF --audio-proof --out "out.jz"
+            --url "$URL" $REF $CM --audio-proof --out "out.jz"
 
       - name: الرفعُ إلى الاختبار بحُرّاس stage_source
         env:
