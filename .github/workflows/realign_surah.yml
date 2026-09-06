@@ -205,8 +205,11 @@ jobs:
             fi
             FILES="$FILES $GITHUB_WORKSPACE/work/s$S.json"
           done
+          # ⛔ **الردُّ بالسورة لا بالدفعة**: آيةٌ واحدةٌ لم تُحلّ كانت تردّ
+          #    ثمانيَ سورٍ سليمةً معها — عقوبةٌ على التجميع لا على العطب.
+          #    والسورةُ التي لم تُحلّ تُترك كما هي وتُسمَّى، والباقياتُ تمضي.
           python tools/index_qa/splice_surah.py --index work/parent.jz --surah "$SURAHS" \
-                 --aligned $FILES --url "$URLT" --out work/patched.jz
+                 --aligned $FILES --url "$URLT" --skip-unresolved --out work/patched.jz
 
       - name: رفعٌ إلى الاختبار بحُرّاس stage_transform
         env:
