@@ -90,8 +90,13 @@ jobs:
                   sha = hashlib.sha256(body).hexdigest()
                   s3.put_object(Bucket=c["bucket"], Key=key, Body=body,
                                 ContentType="audio/mpeg",
+                                # ⛔ الميتاداتا في S3 **ASCII فقط**، واسمُ المصدر
+                                #    عربيّ ⇒ `ParamValidationError` على 112 سورة.
+                                #    فبصمةُ الاسم هنا، والاسمُ نفسُه في مانيفست
+                                #    المرآة بجانبه — لا يضيع ولا يكسر الرفع.
                                 Metadata={"sha256": sha, "src": "archive.org",
-                                          "srcname": row["file"][:200]})
+                                          "srcnamesha": hashlib.sha256(
+                                              row["file"].encode("utf-8")).hexdigest()[:16]})
                   got = s3.head_object(Bucket=c["bucket"], Key=key)["ContentLength"]
                   if got != len(body):
                       failed.append((s, f"ما نزل {got} ≠ ما رُفع {len(body)}")); continue
@@ -103,8 +108,16 @@ jobs:
               print(f"  ⏭ س{s}: {why}")
           for s, why in failed:
               print(f"  ⛔ س{s}: {why}")
-          json.dump({"done": done, "skipped": skipped, "failed": failed},
-                    open("mirror.json", "w", encoding="utf-8"), ensure_ascii=False, indent=1)
+          man = {"reciter": rid, "riwaya": riw,
+                 "names": {str(s): m[str(s)]["file"] for s in range(1, 115)
+                           if str(s) in m},
+                 "done": done, "skipped": skipped, "failed": failed}
+          json.dump(man, open("mirror.json", "w", encoding="utf-8"),
+                    ensure_ascii=False, indent=1)
+          # مانيفستُ المرآة بجانب الصوت: يحفظ الاسمَ الأصليّ لكل سورة.
+          s3.put_object(Bucket=c["bucket"], Key=f"audio/{riw}/{rid}/_mirror.json",
+                        Body=json.dumps(man, ensure_ascii=False).encode("utf-8"),
+                        ContentType="application/json")
           if failed:
               sys.exit(1)
           PY
