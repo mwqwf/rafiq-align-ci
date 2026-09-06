@@ -73,6 +73,9 @@ def main() -> None:
                     help="مخرَجُ pipeline.py لكل سورة، بترتيب --surah")
     ap.add_argument("--url", required=True, help="قالبُ الصوت، مثل https://h/{s:03d}.mp3")
     ap.add_argument("--out", required=True)
+    ap.add_argument("--skip-unresolved", action="store_true",
+                    help="سورةٌ لم تُحلّ كلُّ آياتها تُترك كما هي في الأصل "
+                         "وتُسمّى في المخرَج، بدل ردّ الدفعة كلِّها")
     args = ap.parse_args()
 
     surahs = [int(x) for x in args.surah.replace(",", " ").split()]
@@ -83,20 +86,37 @@ def main() -> None:
     entries = idx.get("entries") or []
     before_out = [e for e in entries if int(e["ayahId"].split(":")[0]) not in surahs]
 
-    new_rows = []
+    new_rows, skipped, taken = [], [], []
     for s, af in zip(surahs, args.aligned):
         res = json.load(open(af, encoding="utf-8"))
         rows = res.get("entries") or []
         want = COUNTS[s - 1]
+        # ⛔ **الردُّ بالسورة لا بالدفعة** (‏تصحيحُ 2026-09-05): كان خللٌ في
+        #    آيةٍ واحدةٍ يردّ اثنتي عشرةَ سورةً سليمةً معها — عقوبةٌ على
+        #    التجميع لا على العطب. فالسورةُ التي لم تُحَلّ **تُترك كما هي في
+        #    الأصل وتُسمَّى**، والباقياتُ تمضي. والمبدأ محفوظ: لا يُكتب ناقصٌ
+        #    في موضعٍ ولا يُمسّ ما لم يُحَلّ.
+        bad = None
         if len(rows) != want:
-            sys.exit(f"⛔ س{s}: رجعت {len(rows)} آية والرواية {want}")
+            bad = f"رجعت {len(rows)} آية والرواية {want}"
+        else:
+            prev = -1
+            for i, r in enumerate(rows):
+                st, en = r.get("startMs"), r.get("endMs")
+                if st is None or en is None:
+                    bad = f"{i + 1} بلا حدود"; break
+                if not (0 <= st < en) or st < prev:
+                    bad = f"{i + 1} حدودٌ غيرُ صاعدة ({st}→{en})"; break
+                prev = en
+        if bad:
+            if not args.skip_unresolved:
+                sys.exit(f"⛔ س{s}:{bad} — السورةُ لم تُحَلّ، ولا يُكتب ناقص")
+            skipped.append(f"س{s}: {bad}")
+            continue
+        taken.append(s)
         prev_end = -1
         for i, r in enumerate(rows):
             st, en = r.get("startMs"), r.get("endMs")
-            if st is None or en is None:
-                sys.exit(f"⛔ س{s}:{i + 1} بلا حدود — السورةُ لم تُحَلّ، ولا يُكتب ناقص")
-            if not (0 <= st < en) or st < prev_end:
-                sys.exit(f"⛔ س{s}:{i + 1} حدودٌ غيرُ صاعدة ({st}→{en}، سابقها {prev_end})")
             prev_end = en
             conf = float(r.get("conf") or 0.0)
             band = "HIGH" if conf >= 0.8 else ("MED" if conf >= 0.5 else "LOW")
@@ -107,6 +127,12 @@ def main() -> None:
                 row["startApprox"] = True
             new_rows.append(row)
 
+    if args.skip_unresolved:
+        surahs = taken
+        before_out = [e for e in entries
+                      if int(e["ayahId"].split(":")[0]) not in surahs]
+        if not surahs:
+            sys.exit("⛔ لم تُحلّ سورةٌ واحدة — لا شيءَ يُستبدل")
     merged = before_out + new_rows
     merged.sort(key=lambda e: (int(e["ayahId"].split(":")[0]),
                                int(e["ayahId"].split(":")[1])))
@@ -135,6 +161,8 @@ def main() -> None:
     out["missing"] = miss
 
     sha = dump(out, Path(args.out))
+    for w in skipped:
+        print("  ⚠️ تُركت كما هي:", w)
     print(f"المداخل {len(entries)} ⇐ {len(merged)} · الغياب {(idx.get('missing') or {}).get('count')}"
           f" ⇐ {miss['count']} · سور {surahs}")
     print(f"✅ {args.out} · sha256 {sha[:16]}…")
