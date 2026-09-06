@@ -24,13 +24,21 @@ def fetch_retry(url, dest, attempts=5, timeout=120):
     القارئ بلا أن يظهر عطبٌ في أي مكان — والخادم البعيد يخنق الطلبات المتلاحقة
     من أربع عمليات متوازية. فالمحاولات خمسٌ **بتراجع أسّي** (1·2·4·8ث) لا
     متلاحقة، ومهلةٌ صريحة على المقبس كي لا تُعلّق الدفعةَ وصلةٌ ميتة بلا نهاية.
+
+    ⛔ درس 2026-09-06 (مقيسٌ لا منقول): **`r2.dev` يردّ 403 لـ`Python-urllib`
+    و200 لـ`Mozilla/5.0`** على المفتاح نفسه في نداءين متتاليين. ومرآتُنا
+    (‏`laghdaf_shinqiti` و113 سورة) تسكن `r2.dev` — فموجةُ محاذاةٍ بلا ترويسةٍ
+    كانت **ستفشل في 113 تنزيلاً وتحرق اثني عشر عدّاءً** بلا سطرِ سببٍ مفهوم.
+    والترويسةُ هنا هي نفسُها في `upload_timings.py:95` منذ قبل — أي أنّ الدرسَ
+    كان معروفاً في ملفٍّ ومجهولاً في جاره.
     """
     import urllib.request
     import time as _time
     last = None
     for i in range(attempts):
         try:
-            with urllib.request.urlopen(url, timeout=timeout) as r:
+            req = urllib.request.Request(url, headers={"User-Agent": "Mozilla/5.0"})
+            with urllib.request.urlopen(req, timeout=timeout) as r:
                 expected = int(r.headers.get("Content-Length") or 0)
                 with open(dest, "wb") as f:
                     while True:
