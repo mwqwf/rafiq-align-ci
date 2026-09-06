@@ -1,0 +1,117 @@
+name: rafiq-mirror-reciter
+
+# **مرآةُ صوتِ قارئٍ إلى R2 بأسماء قياسية** — من مصدرٍ أسماؤه غيرُ قياسية.
+#
+# ⛔ سببُه: `laghdaf_shinqiti` (‏ورش، موريتانيا) آخرُ ما يُكمل ورشاً إلى 13/13،
+#    وصوتُه على archive.org **بأسماءٍ عربيةٍ طويلةٍ غير قياسية** — فلا يُفهرَس
+#    بقالبٍ `{s:03d}`. ⇒ يُنسخ إلى `audio/<riwaya>/<id>/{s:03d}.mp3` بجدول
+#    مطابقةٍ **بُني بتحقّقين مستقلّين** (الاسمُ العربيّ المطبَّع · وحجمُ الملفّ
+#    مقابل عددِ حروف السورة من نصّ الرواية).
+#
+# ⛔ ولا يمسّ شبكةَ المالك: التنزيلُ والرفعُ كلاهما على عدّاء GitHub.
+# ⛔ ولا يُرقّى شيءٌ من هنا: المرآةُ صوتٌ لا فهرس.
+on:
+  workflow_dispatch:
+    inputs:
+      reciter:
+        description: "معرّفُ القارئ في الكتالوج، مثل laghdaf_shinqiti"
+        required: true
+      riwaya:
+        description: "hafs | warsh | qalun | douri | sousi | shuba"
+        required: true
+      map:
+        description: "جدولُ المطابقة في المستودع"
+        default: "tools/laghdaf_map.json"
+      min_confidence:
+        description: "high = لا يُنسخ إلا المتحقَّقُ بشاهدين"
+        default: "high"
+
+jobs:
+  mirror:
+    runs-on: ubuntu-latest
+    timeout-minutes: 180
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: { python-version: "3.11" }
+      - run: python -m pip install --quiet boto3
+
+      - name: اعتماد R2
+        env:
+          R2_CREDENTIALS_JSON: ${{ secrets.R2_CREDENTIALS_JSON }}
+        run: |
+          # ⛔ عبر متغيّر بيئة لا سطر أمر: سطرُ الأمر يظهر في السجل العام.
+          mkdir -p secure
+          printf '%s' "$R2_CREDENTIALS_JSON" > secure/r2_credentials.json
+
+      - name: النسخُ بأسماءٍ قياسية
+        env:
+          RID: ${{ github.event.inputs.reciter }}
+          RIW: ${{ github.event.inputs.riwaya }}
+          MAP: ${{ github.event.inputs.map }}
+          MINC: ${{ github.event.inputs.min_confidence }}
+        run: |
+          python - <<'PY'
+          import hashlib, json, os, sys, urllib.request
+          import boto3
+          sys.stdout.reconfigure(encoding="utf-8")
+          c = json.load(open("secure/r2_credentials.json"))
+          s3 = boto3.client("s3", endpoint_url=c["endpoint"],
+                            aws_access_key_id=c["accessKeyId"],
+                            aws_secret_access_key=c["secretAccessKey"], region_name="auto")
+          rid, riw = os.environ["RID"], os.environ["RIW"]
+          m = json.load(open(os.environ["MAP"], encoding="utf-8"))
+          minc = os.environ.get("MINC", "high")
+          done, skipped, failed = [], [], []
+          for s in range(1, 115):
+              row = m.get(str(s))
+              if not row:
+                  skipped.append((s, "لا سطرَ في الجدول")); continue
+              if minc == "high" and row.get("confidence") != "high":
+                  # ⛔ **لا يُنسخ ما لم يتحقّق بشاهدين**: خطأُ مطابقةِ سورةٍ
+                  #    يُسمع الحافظَ سورةً ويُقرئه غيرَها — وهو أسوأ من غياب
+                  #    القارئ كلِّه. والسطرُ المشكوكُ يُترك ويُسمَّى.
+                  skipped.append((s, f"ثقةٌ {row.get('confidence')} — يحتاج شاهداً سمعياً"))
+                  continue
+              key = f"audio/{riw}/{rid}/{s:03d}.mp3"
+              try:
+                  s3.head_object(Bucket=c["bucket"], Key=key)
+                  done.append((s, "موجودٌ سلفاً")); continue
+              except Exception:                             # noqa: BLE001
+                  pass
+              try:
+                  req = urllib.request.Request(row["url"],
+                                               headers={"User-Agent": "rafiq-mirror/1.0"})
+                  with urllib.request.urlopen(req, timeout=300) as r:
+                      body = r.read()
+                  if len(body) < 10000:
+                      failed.append((s, f"حجمٌ مريب {len(body)}")); continue
+                  # ⛔ البصمةُ تُكتب مع الكائن: مرآةٌ بلا بصمةٍ لا تُثبت أنها هي.
+                  sha = hashlib.sha256(body).hexdigest()
+                  s3.put_object(Bucket=c["bucket"], Key=key, Body=body,
+                                ContentType="audio/mpeg",
+                                Metadata={"sha256": sha, "src": "archive.org",
+                                          "srcname": row["file"][:200]})
+                  got = s3.head_object(Bucket=c["bucket"], Key=key)["ContentLength"]
+                  if got != len(body):
+                      failed.append((s, f"ما نزل {got} ≠ ما رُفع {len(body)}")); continue
+                  done.append((s, f"{len(body) // 1024} ك.ب"))
+              except Exception as e:                        # noqa: BLE001
+                  failed.append((s, f"{type(e).__name__}: {str(e)[:60]}"))
+          print(f"نُسخ {len(done)} · تُخطّي {len(skipped)} · فشل {len(failed)}")
+          for s, why in skipped:
+              print(f"  ⏭ س{s}: {why}")
+          for s, why in failed:
+              print(f"  ⛔ س{s}: {why}")
+          json.dump({"done": done, "skipped": skipped, "failed": failed},
+                    open("mirror.json", "w", encoding="utf-8"), ensure_ascii=False, indent=1)
+          if failed:
+              sys.exit(1)
+          PY
+
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: mirror-${{ github.run_id }}
+          path: mirror.json
+          if-no-files-found: warn
