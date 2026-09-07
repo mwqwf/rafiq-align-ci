@@ -45,6 +45,9 @@ env:
 jobs:
   # ── المصفوفة تُبنى ديناميكياً من مُدخل shards ────────────────────────────
   prepare:
+    # ⛔ الاسمُ يحمل القائمة: `gh run view --json jobs` يقرؤه **والموجةُ جارية**،
+    #    بلا سجلٍّ ولا انتظار — وهو المسلكُ الوحيد الذي لم يسقط في قياس 09-07.
+    name: prepare — ${{ github.event.inputs.list }}
     runs-on: ubuntu-latest
     outputs:
       matrix: ${{ steps.gen.outputs.matrix }}
@@ -54,8 +57,20 @@ jobs:
           n=${{ github.event.inputs.shards }}
           if [ "${{ github.event.inputs.smoke }}" = "true" ]; then n=1; fi
           echo "matrix=$(python3 -c "import json,sys;print(json.dumps(list(range(int(sys.argv[1])))))" "$n")" >> "$GITHUB_OUTPUT"
+          # ⛔ هويّةُ الموجة تُكتب هنا — والسببُ مقيسٌ بثمنه (2026-09-07):
+          #    موجةٌ حبست الطابور ساعتين، و**هويّتُها تعذّر قياسُها بثلاثة مسالك**:
+          #    اسمُ الوظيفة `align (8)` شريحةٌ لا قارئ · سجلُّ الوظيفة الجارية 404 ·
+          #    ومفتاحُ الكاش مُرقَّمٌ بالشريحة لا بالقائمة. فتُقايَض الأولويةُ على ظنّ.
+          #    و`prepare` تتمّ في ثوانٍ ⇒ سجلُّها وملخّصُها يُقرآن فوراً بلا انتظار.
+          echo "الموجة: قائمة=${{ github.event.inputs.list }} · شرائح=$n · smoke=${{ github.event.inputs.smoke }} · قارئ_smoke=${{ github.event.inputs.smoke_reciter }}"
+          {
+            echo "### هويّةُ الموجة"
+            echo "- القائمة: \`${{ github.event.inputs.list }}\`"
+            echo "- الشرائح: \`$n\` · smoke: \`${{ github.event.inputs.smoke }}\`"
+          } >> "$GITHUB_STEP_SUMMARY"
 
   align:
+    name: align ${{ github.event.inputs.list }} (${{ matrix.shard }})
     needs: prepare
     runs-on: ubuntu-latest
     # ⛔ للمنارة وحدها: كتابةُ فرع `progress/<shard>`. ولا شيء غيرها يكتب.
