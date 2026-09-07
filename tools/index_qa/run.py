@@ -482,6 +482,14 @@ def remote_run(jobs, host, threads=2):
 # ───────────────────────── مسارٌ محلي (بلا خادم) ─────────────────────────
 LOCAL_MODEL = ROOT / "tools" / "tasmi_bench" / "work" / "ggml-q8.bin"
 LOCAL_CACHE = Path(os.environ.get("TEMP", "/tmp")) / "rafiq_qa_local"
+
+# ⛔ **ترويسةٌ إلزاميةٌ في كلّ نداءٍ هنا**: `r2.dev` يردّ **403** لـ`Python-urllib`
+#    و**200** لـ`Mozilla/5.0` على المفتاح نفسِه (قِيس 2026-09-06)، وفهارسُ
+#    المرآة تحمل `fileRef` من `r2.dev` رأساً (‏`laghdaf_shinqiti` أوّلُها).
+#    وأربعةُ مواضعَ في هذا الملفّ كانت تنادي بلا ترويسة — فالفحصُ يفشل بلا
+#    سطرِ سببٍ مفهوم. أُصلحت في `common.py` ثم `openers_scan.py` ثم هنا:
+#    **المعرفةُ التي لا تسكن مكانَ الاستعمال لا تحرس.**
+UA = {"User-Agent": "Mozilla/5.0"}
 _LM = None
 
 def _local_model():
@@ -521,7 +529,7 @@ def _mirror_url(url):
         return None
     try:
         import urllib.request
-        rq = urllib.request.Request(url, method="HEAD")
+        rq = urllib.request.Request(url, method="HEAD", headers=UA)
         with urllib.request.urlopen(rq, timeout=30) as r:
             src = int(r.headers.get("Content-Length") or 0)
     except Exception:
@@ -564,7 +572,8 @@ def _local_audio(url):
         last = None
         for attempt in (1, 2, 3):
             try:
-                with urllib.request.urlopen(url, timeout=90) as r, open(p, "wb") as f:
+                rq0 = urllib.request.Request(url, headers=UA)
+                with urllib.request.urlopen(rq0, timeout=90) as r, open(p, "wb") as f:
                     shutil.copyfileobj(r, f)
                 if p.stat().st_size >= 10_000:
                     break
@@ -599,7 +608,7 @@ def _mp3_cbr(url):
     out = None
     try:
         import urllib.request
-        rq = urllib.request.Request(url, headers={"Range": "bytes=0-65535"})
+        rq = urllib.request.Request(url, headers=dict(UA, Range="bytes=0-65535"))
         with urllib.request.urlopen(rq, timeout=45) as r:
             if r.status != 206:              # لا يدعم النطاقات ⇒ لا مجازفة
                 _CBR_INFO[url] = None
@@ -637,7 +646,7 @@ def _range_pcm(url, start_ms, end_ms):
     b1 = audio0 + int(end_ms / 1000 * byps) + pad
     try:
         import io, urllib.request, numpy as np, soundfile as sf
-        rq = urllib.request.Request(url, headers={"Range": f"bytes={b0}-{b1}"})
+        rq = urllib.request.Request(url, headers=dict(UA, Range=f"bytes={b0}-{b1}"))
         with urllib.request.urlopen(rq, timeout=90) as r:
             if r.status != 206:
                 return None
