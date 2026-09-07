@@ -31,6 +31,9 @@ on:
       reason:
         description: "سببُ التحويل — يُكتب في الترويسة والسجل"
         required: true
+      allow_batch:
+        description: "جمعُ أكثر من سورةٍ عمداً (الأصلُ المنعُ — الدرسُ الرابع)"
+        default: "false"
 
 env:
   PY: "3.11"
@@ -174,8 +177,24 @@ jobs:
           URLT: ${{ github.event.inputs.url_template }}
           RIWAYA: ${{ github.event.inputs.riwaya }}
           SKIP_MS: ${{ github.event.inputs.skip_ms }}
+          ALLOW_BATCH: ${{ github.event.inputs.allow_batch }}
         run: |
           set -e
+          # ⛔ حارسُ الدرس الرابع — **موضعُه هنا لأنّ المستندَ لا يحرس** (الدرس 21):
+          #    `splice_surah --skip-unresolved` يمضي بالباقيات، ثم يردّ حارسُ
+          #    الاكتمال في `stage_transform` **الدفعةَ كلَّها** لأن مجموع المداخل
+          #    نقص — فآيةٌ واحدةٌ لم تُحلّ في سورةٍ **ترمي عملَ السورة السليمة**.
+          #    قِيس ثلاثَ مرّات: 34056103284 (‏koshi [37,46]) · 34056100966
+          #    (‏qeniwa [6,31]) · 34152721621 (‏koshi [37,47,108] ⇒ «221 والرواية
+          #    223» — عدّاءٌ كاملٌ ضاع بعد كتابة الدرس في المستند بيومٍ واحد).
+          #    والفحصُ **قبل تنزيل بايت** فلا يُحرق عدّاءٌ ليسقط في آخره.
+          N=$(echo "$SURAHS" | tr ',' ' ' | wc -w)
+          if [ "$N" -gt 1 ] && [ "${ALLOW_BATCH:-false}" != "true" ]; then
+            echo "⛔ $N سورٍ في تشغيلةٍ واحدة ($SURAHS) — سورةٌ واحدةٌ لكلّ تشغيلة."
+            echo "   رتّبها من القصيرة (فوق حدّ العجز) إلى الطويلة، تشغيلةً لكلٍّ."
+            echo "   وإن قُصد الجمعُ عمداً ومع علمٍ بالكلفة: allow_batch=true."
+            exit 1
+          fi
           mkdir -p work
           python - <<'PY'
           import json, os, boto3
