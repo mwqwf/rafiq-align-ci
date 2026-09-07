@@ -1,0 +1,186 @@
+name: rafiq-reciter-probe
+
+# مسبارُ «القرّاء الجدد» — نصفُ الشبكة من الذراع (ب) في الأمر الدائم 2026-09-06.
+#
+# ⛔ **لماذا على CI لا على جهاز المالك؟** كلُّ مرشَّحٍ = 114 `HEAD` + 114 رأساً
+#    بـ`Range` (‏≈1.8 م.ب) + سورتا شاهدٍ كاملتان للتفريغ (‏3–15 م.ب) ≈ **17 م.ب
+#    ونحو 250 طلباً**. ونتُ المالك ضعيفٌ متقطّع (القاعدة ٧) ⇒ الثقيلُ يُنقل
+#    إلى السحابة لتعمل بشبكتها.
+#
+# ⛔ **ولا يحكم هذا الأنبوبُ شيئاً**: يكتب مسباراً خاماً في
+#    `state/newreciters/<id>.probe.json`، والدرجاتُ تُبنى **محلّيّاً** بـ
+#    `reciter_evidence.py --assemble` (‏المرجعان على القرص، والطيُّ شرطُ صحّة —
+#    الدرس 30)، والحكمُ للحُرّاس السبعة في `add_surah_reciter.py`.
+#    **فصلُ القياس عن الحكم مقصود.**
+#
+# ⛔ **ثلاثٌ متوازيةٌ لا عشرون**: الدرس العاشر بثمنه — موجةٌ تلتهم سقفَ الحساب
+#    (20 مهمّة) فتحبس البوابةَ ساعةً. والمسبارُ عملُ خمولٍ **لا يحجب أولوية**.
+
+on:
+  workflow_dispatch:
+    inputs:
+      only:
+        description: "معرّفات مفصولة بفاصلة (تتجاوز ترتيب الملفّ)"
+        default: ""
+      limit:
+        description: "أقصى عدد مرشّحين في الدفعة"
+        default: "3"
+      threads:
+        description: "خيوط whisper"
+        default: "4"
+
+jobs:
+  prepare:
+    # ⛔ الاسمُ يحمل الهويّة — الدرس 21 في ثوبه الخامس: تشغيلةٌ لا يُقرأ هدفُها
+    #    وهي جارية **لا تُدار**، ويُنفق عليها الحكمُ ظنّاً.
+    name: prepare — ${{ github.event.inputs.only || 'من أعلى القائمة' }}
+    runs-on: ubuntu-latest
+    outputs:
+      matrix: ${{ steps.gen.outputs.matrix }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: { python-version: "3.11" }
+      - run: python -m pip install --quiet boto3
+      - id: gen
+        env:
+          R2_CREDENTIALS_JSON: ${{ secrets.R2_CREDENTIALS_JSON }}
+          ONLY: ${{ github.event.inputs.only }}
+          LIMIT: ${{ github.event.inputs.limit }}
+        run: |
+          mkdir -p secure
+          printf '%s' "$R2_CREDENTIALS_JSON" > secure/r2_credentials.json
+          python - <<'PY' >> "$GITHUB_OUTPUT"
+          import json, os, sys, boto3
+          # ⛔ التحذيرُ إلى `stderr` لا إلى `$GITHUB_OUTPUT`: المخرَجُ يُقرأ
+          #    `key=value` سطراً سطراً، وسطرٌ حرٌّ فيه يفسد قراءةَ المصفوفة.
+          warn = lambda m: print(m, file=sys.stderr)
+          rows = []
+          with open("tools/ci_fleet/new_reciters.tsv", encoding="utf-8") as f:
+              for line in f:
+                  line = line.rstrip("\n")
+                  if not line.strip() or line.startswith("#"):
+                      continue
+                  p = line.split("\t")
+                  if len(p) < 6:
+                      warn(f"⚠️ صفٌّ ناقصُ الأعمدة يُتخطّى: {p[:1]}")
+                      continue
+                  rows.append(p[0])
+          only = os.environ.get("ONLY", "").strip()
+          if only:
+              want = [k for k in only.replace(",", " ").split() if k]
+              missing = [k for k in want if k not in rows]
+              if missing:
+                  raise SystemExit(f"⛔ معرّفاتٌ ليست في القائمة: {missing}")
+              keys = want
+          else:
+              # ⛔ **من سُبر لا يُعاد سبرُه**: المسبارُ على الدلو شاهدٌ قائم،
+              #    وإعادتُه تنفق عدّاءً على جوابٍ محفوظ. (وإن أُريد تجديدُه
+              #    فبـ`only` صراحةً — فالتجاوزُ بيدٍ لا بصمت.)
+              c = json.load(open("secure/r2_credentials.json"))
+              s3 = boto3.client("s3", endpoint_url=c["endpoint"],
+                                aws_access_key_id=c["accessKeyId"],
+                                aws_secret_access_key=c["secretAccessKey"],
+                                region_name="auto")
+              done = set()
+              for p in s3.get_paginator("list_objects_v2").paginate(
+                      Bucket=c["bucket"], Prefix="state/newreciters/"):
+                  for o in p.get("Contents", []):
+                      n = o["Key"].split("/")[-1]
+                      if n.endswith(".probe.json"):
+                          done.add(n[: -len(".probe.json")])
+              keys = [k for k in rows if k not in done][: int(os.environ["LIMIT"])]
+          print(f"matrix={json.dumps(keys)}")
+          PY
+
+  probe:
+    # ⛔ الاسمُ يحمل المعرّف — يُقرأ والتشغيلةُ جارية (سجلُّ الجارية 404).
+    name: probe ${{ matrix.id }}
+    needs: prepare
+    if: needs.prepare.outputs.matrix != '[]'
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    strategy:
+      fail-fast: false
+      max-parallel: 3          # ⛔ ثلاثٌ: تبقى ≥17 خانةً للبوابة والموجة
+      matrix:
+        id: ${{ fromJSON(needs.prepare.outputs.matrix) }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: { python-version: "3.11" }
+
+      - name: أدوات النظام
+        run: |
+          sudo apt-get update -qq && sudo apt-get install -y -qq ffmpeg
+          python -m pip install --quiet pywhispercpp numpy boto3
+
+      # ⛔ **الاختبارُ الذاتيُّ قبل أيّ تنزيل**: سقط أنبوبٌ أربعَ مرّاتٍ في يومٍ
+      #    لأن ملفّاً نُسخ بلا حزمته. والفحصُ ثوانٍ، والثمنُ كان دقائق كلَّ مرّة.
+      - name: برهانُ الأداة (⛔ قبل أيّ بايت)
+        run: python tools/index_qa/probe_new_reciter.py --self-test
+
+      - name: كاش النموذج
+        uses: actions/cache@v4
+        with:
+          path: assets-archive/ggml
+          key: qa-model-q8-v1        # المفتاح نفسه في كل أنابيبنا: نموذجٌ واحد
+
+      - name: الاعتماد والنموذج
+        env:
+          R2_CREDENTIALS_JSON: ${{ secrets.R2_CREDENTIALS_JSON }}
+        run: |
+          mkdir -p secure
+          printf '%s' "$R2_CREDENTIALS_JSON" > secure/r2_credentials.json
+          python - <<'PY'
+          import json, os, boto3
+          dst = "assets-archive/ggml/ggml-tiny-ar-quran-q8_0.bin"
+          if not (os.path.exists(dst) and os.path.getsize(dst) > 10_000_000):
+              c = json.load(open("secure/r2_credentials.json"))
+              s3 = boto3.client("s3", endpoint_url=c["endpoint"],
+                                aws_access_key_id=c["accessKeyId"],
+                                aws_secret_access_key=c["secretAccessKey"],
+                                region_name="auto")
+              os.makedirs(os.path.dirname(dst), exist_ok=True)
+              s3.download_file(c["bucket"], "models/whisper-tiny-ar-quran/ggml-q8_0.bin", dst)
+          print("النموذج:", os.path.getsize(dst) // 1024 // 1024, "م.ب")
+          PY
+
+      - name: سبرُ ${{ matrix.id }}
+        env:
+          RID: ${{ matrix.id }}
+          THREADS: ${{ github.event.inputs.threads }}
+        run: |
+          # الصفُّ يُقرأ من القائمة نفسِها — **لا يُعاد كتابةُ رابطٍ بيد**،
+          # فالرابطُ المخمَّن يحاذي قارئاً آخر ولا يكشفه حارس (درسُ 2026-09-05).
+          eval "$(python - <<'PY'
+          import os, shlex
+          rid = os.environ["RID"]
+          for line in open("tools/ci_fleet/new_reciters.tsv", encoding="utf-8"):
+              if line.startswith("#") or not line.strip():
+                  continue
+              p = line.rstrip("\n").split("\t")
+              if p[0] == rid:
+                  for k, v in (("P_RIWAYA", p[1]), ("P_BASE", p[3]),
+                               ("P_WIT", p[4]), ("P_LIC", p[5])):
+                      print(f"export {k}={shlex.quote(v)}")
+                  break
+          else:
+              raise SystemExit(f"⛔ {rid} ليس في القائمة")
+          PY
+          )"
+          python tools/index_qa/probe_new_reciter.py \
+            --id "$RID" --riwaya "$P_RIWAYA" --base "$P_BASE" \
+            --witness "$P_WIT" --license "$P_LIC" \
+            --threads "${THREADS:-4}" \
+            --model "$GITHUB_WORKSPACE/assets-archive/ggml/ggml-tiny-ar-quran-q8_0.bin" \
+            --out "work/${RID}.probe.json" --upload
+
+      - name: المسبارُ مخرَجاً
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: probe-${{ matrix.id }}
+          path: work/*.probe.json
+          if-no-files-found: warn
+          retention-days: 7
