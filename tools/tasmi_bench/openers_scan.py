@@ -84,7 +84,13 @@ def fetch_head(url, dst, need_ms=6000, nbytes=None):
     last = None
     for attempt in range(3):
         try:
-            req = urllib.request.Request(url, headers={"Range": f"bytes=0-{nbytes-1}"})
+            # ⛔ **الترويسةُ إلزامية**: `r2.dev` يردّ **403** لـ`Python-urllib`
+            #    و**200** لـ`Mozilla/5.0` على المفتاح نفسِه (قِيس 2026-09-06)،
+            #    ومرآتُنا كلُّها تسكن `r2.dev`. أُصلحت في `common.py` وحدها
+            #    يومَها فبقي هذا الملفّ يسقط — والدرس: **المعرفةُ التي لا تسكن
+            #    مكانَ الاستعمال لا تحرس**، فمكانُها هنا لا في جارٍ.
+            req = urllib.request.Request(url, headers={
+                "Range": f"bytes=0-{nbytes-1}", "User-Agent": "Mozilla/5.0"})
             with urllib.request.urlopen(req, timeout=90) as r, open(dst, "wb") as f:
                 f.write(r.read())
             if os.path.getsize(dst) > 32768:
