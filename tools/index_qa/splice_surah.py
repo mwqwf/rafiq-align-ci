@@ -160,6 +160,12 @@ def main() -> None:
     miss["byReason"] = by
     out["missing"] = miss
 
+    # ⛔ **التحويلُ يُسمّي ما استُبدل فعلاً لا ما طُلب** (‏2026-09-07): مع
+    #    `--skip-unresolved` قد تُترك سورةٌ كما هي، ثم يُسمّيها `--op` فيطالب
+    #    حارسُ `stage_transform` بعدّها كاملاً فيسقط الإصلاحُ كلُّه. فتُكتب
+    #    القائمةُ المأخوذةُ بجانب المخرَج ليقرأها المُطلِق.
+    Path(str(args.out) + ".taken").write_text(
+        ",".join(str(s) for s in surahs), encoding="utf-8")
     sha = dump(out, Path(args.out))
     for w in skipped:
         print("  ⚠️ تُركت كما هي:", w)
