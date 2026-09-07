@@ -246,9 +246,12 @@ jobs:
           print(hashlib.sha256(b).hexdigest())
           PY
           )
+          # التحويلُ يُسمّي ما استُبدل فعلاً (‏`--skip-unresolved` قد يترك سورة)
+          TAKEN="$(cat work/patched.jz.taken 2>/dev/null)"
+          [ -z "$TAKEN" ] && TAKEN="$SURAHS"
           python tools/index_qa/stage_transform.py --file work/patched.jz \
                  --parent "$PARENT" --parent-sha "$SHA" \
-                 --op "realign_surah:$SURAHS" --reason "$REASON" \
+                 --op "realign_surah:$TAKEN" --reason "$REASON" \
                  --by "github-cd" --yes
 
       - name: جدولُ قبل/بعد (‏أثرٌ يُقرأ لا يُصدَّق)
