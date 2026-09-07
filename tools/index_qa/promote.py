@@ -40,7 +40,7 @@
 
 **والتجميد أثرٌ مقصود لا جانبيّ (قرار المشرف github-f4، 2026-09-02):** كل فهرس
 يُرقّى بحكمٍ **يُضاف إلى `frozen.txt` في العملية نفسها** — إذ لا يجوز أن يكتب
-سائقٌ فوق فهرسٍ دُقِّق قبله بلا حكمٍ جديد. ورفعُ التجميد **فعلٌ صريح**: سطرٌ
+سائقٌ فوق فهرسٍ دُقِّق قبله بلا حكمٍ جديد. ورفعُ التجميد **فعلٌ صريحٌ يملكه الوكيل** (‏D-183): سطرٌ
 يُحذف بيد إنسان، وسطرٌ في `PROMOTIONS.md` بسببه.
 
 **والمانيفست يُكتب كتابةً شرطية (‏`If-Match`) لا بقفلٍ محلي:** القفل يحمي من
@@ -62,6 +62,7 @@ import json
 import os
 import sys
 import time
+from concurrent.futures import ThreadPoolExecutor
 import urllib.request
 from pathlib import Path
 
@@ -83,6 +84,20 @@ PUBLIC = os.environ.get(
 ACCEPTED = "مقبول"
 TAB = chr(9)
 
+
+_AYAH_COUNTS = [7, 286, 200, 176, 120, 165, 206, 75, 129, 109, 123, 111, 43,
+                52, 99, 128, 111, 110, 98, 135, 112, 78, 118, 64, 77, 227, 93, 88,
+                69, 60, 34, 30, 73, 54, 45, 83, 182, 88, 75, 85, 54, 53, 89, 59,
+                37, 35, 38, 29, 18, 45, 60, 49, 62, 55, 78, 96, 29, 22, 24, 13,
+                14, 11, 11, 18, 12, 12, 30, 52, 52, 44, 28, 28, 20, 56, 40, 31,
+                50, 40, 46, 42, 29, 19, 36, 25, 22, 17, 19, 26, 30, 20, 15, 21,
+                11, 8, 8, 19, 5, 8, 8, 11, 11, 8, 3, 9, 5, 4, 7, 3, 6, 3, 5, 4,
+                5, 6]
+
+def _op_mixes_engines(op: str) -> bool:
+    """هل يخلط هذا التحويلُ مخرَجَ محرّكين في فهرسٍ واحد؟"""
+    return op.startswith(("source_timing_splice", "mixed_engine",
+                          "timing_splice"))
 
 def s3():
     import boto3
@@ -142,6 +157,16 @@ def held():
         parts = raw.split(TAB, 1) if TAB in raw else raw.split(None, 1)
         if len(parts) == 2:
             out[parts[0].strip()] = parts[1].strip()
+    # ⛔ **حارسُ شكلِ المفتاح (‏وقعت الحادثة 2026-09-03):** الحجزُ يُطابَق على
+    #    **الهدف** `timings/<الرواية>/<المعرّف>.jz` مطابقةً حرفية. فمن كتب مفتاح
+    #    **المصدر** (`timings-staging/…`) أو ألحق بصمةً (`…/<id>.<sha>.jz`) كتب
+    #    حجزاً **لا يُطابق شيئاً أبداً** — ويبقى ساكتاً: لا خطأ، ولا حماية.
+    #    وثمنُه أنّ مَن قرأ الملفّ حسِب الفهرس محجوزاً وهو سائبٌ إلى الإنتاج.
+    #    ⇒ يُنبَّه ولا يُحذف: الحذفُ يُخفي ما كُتب، والتنبيهُ يُصلحه صاحبُه.
+    bad = [k for k in out if not re.fullmatch(r"timings/[^/]+/[^/.]+\.jz", k)]
+    if bad:
+        print("⚠️ مفاتيحُ حجزٍ لا تُطابق شكلَ الهدف فلا تحجب شيئاً: "
+              + " · ".join(bad), file=sys.stderr)
     return out
 
 
@@ -287,6 +312,18 @@ def reports():
                 yield path.name, rep
 
 
+def _min_sample(ceiling, conf=0.95):
+    """أصغرُ حجمِ عيّنةٍ يمكن أن ينزل حدُّها الأعلى تحت العتبة عند صفر أعطاب.
+
+    ‏`1 − (1−ثقة)^(1/ن) < عتبة` — أي قاعدةُ الثلاثة الدقيقة مقلوبة. وعند
+    عتبة 5% وثقة 95% تعطي **ن ≥ 59**. ورقمٌ مشتقٌّ لا مختار: من غيّر العتبة
+    تحرّك الحدُّ معها بلا أن ينسى أحدٌ تحديثه.
+    """
+    import math
+    n = math.log(1 - conf) / math.log(1 - ceiling)
+    return int(math.ceil(n))
+
+
 def severe_ci(rep):
     """(المعدّل، الحدّ الأدنى، الحدّ الأعلى) من عيّنة الحكم — أو أعلى `None`.
 
@@ -311,7 +348,24 @@ STATE_PREFIXES = tuple(
 # إلى «github-actions» وشبهها، فأحكام github-7e نفسها تُكتب بسكربتٍ اسمه
 # `ci_run.py` — ولو صُنّفت CI لتوقّفت الترقية كلُّها بحجّة «حكمٌ منفرد».
 # والأحكام الحالية كلُّها بلا حقل `source` (65 ملفّاً قِستُها) فتبقى أحكامَ إنسان.
-CI_SOURCES = {"ci"}
+# ⛔ **مصادرُ CI الثلاثة — والاسمُ عقدٌ لا زينة.** كلُّها تشغّل **أداةَ 7e نفسها**
+#    (`ci_run.py`) فمحرّكُها واحد، وإنما تختلف **بيئةُ التشغيل وملحُ البذرة**:
+#      `ci`           → GitHub Actions        → `state/<المفتاح>.audio-ci.json`
+#      `cloud-build`  → Cloud Build (D-095)   → `state/<المفتاح>.audio-cb.json`
+#    (وملحا `ci` و`ci2` بيئتُهما واحدة وملحُهما مختلف — والملحُ هو ما يشهد.)
+# ⛔ ولا يُضاف مصدرٌ رابع إلا بملفٍّ باسمه: **لا يكتب أحدٌ فوق ملفٍّ ليس له**
+#    (وقد كلّفنا خلطُ الأسماء ليلةً كاملةً — انظر README البوابة).
+# ⛔ والبيئةُ الجديدة **لا تزيد الدليل من نفسها**: `ci_pair_reps` يشترط اختلاف
+#    الملح لا اختلاف البيئة — فحكمٌ من Cloud Build بملح `ci` لا يزاوج حكمَ
+#    Actions بملح `ci`، ولو اختلفت الآلتان. **اختلافُ الملح يزيد الدليل،
+#    واختلافُ المحرّك يُبطل المقارنة** (github-7e).
+CI_SOURCES = {"ci", "cloud-build"}
+
+# **أحكامٌ مقروءة سلفاً في الدورة** (أمر المشرف github-5a، 2026-09-03): الراصد يقرأ
+# `state/` كاملاً مرةً في أول الدورة ويضعها هنا، فلا يعيد `main` قراءتها لكل
+# ترقية (كانت 9 أزواج × 3 دقائق هدراً). ⛔ ولا تُخزَّن بين الدورتين: الراصد
+# يمحوها في آخر الدورة، فلا يُبنى حكمٌ على قراءةٍ أقدم من دورة.
+REPORTS_CACHE = None
 
 
 def bucket_reports(cl, bucket):
@@ -321,22 +375,159 @@ def bucket_reports(cl, bucket):
     مرشّحاً، ثمّ يستدعي `main` الذي لا يقرأ إلا `state/` المحلي فلا يجد شيئاً
     — مرشّحٌ أبديّ لا يُرقّى ولا يُرفض. ومسار الحكم يجب أن يكون **واحداً**.
     """
-    out = []
-    try:
-        for prefix in STATE_PREFIXES:
-            for page in cl.get_paginator("list_objects_v2").paginate(
-                    Bucket=bucket, Prefix=prefix):
-                for obj in page.get("Contents", []):
-                    if not obj["Key"].endswith(".json"):
-                        continue
-                    data = json.loads(cl.get_object(
-                        Bucket=bucket, Key=obj["Key"])["Body"].read())
-                    for rep in (data if isinstance(data, list) else [data]):
-                        if isinstance(rep, dict) and rep.get("key"):
-                            out.append((obj["Key"], rep))
-    except Exception as ex:                           # noqa: BLE001
-        print("  تعذّرت قراءة أحكام الدلو: " + str(ex))
+    # ⛔ **العطب المقيس (2026-09-04): `try` واحدٌ يلفّ القراءة كلَّها** — فخطأُ
+    #    شبكةٍ في ملفٍّ واحدٍ يقطع الحلقة ويُرجع ما جُمع قبله **بلا أن يشتكي**.
+    #    وعلى شبكةٍ ضعيفة صار الحكمُ يُبنى على **جزءٍ عشوائيّ**: قُرئ 76 حكماً
+    #    وهي 241، **فسقط من التقييم قرّاءٌ يستحقّون الترقية** ولم يظهروا في
+    #    قائمة الردّ أصلاً — **غيابٌ يُقرأ رفضاً وهو عمى**.
+    #    ⇒ الخطأُ يُعزل في الملفّ الواحد، **ويُعلن العددُ والفشلُ معاً**، ويُعاد
+    #    المحاولة. **وقراءةٌ ناقصةٌ لا تُسكَت عنها**: من قرأ بعضاً وحكم على الكلّ
+    #    أخطأ في الاتجاه الذي لا يُرى.
+    out, failed, seen = [], 0, 0
+    for prefix in STATE_PREFIXES:
+        try:
+            pages = list(cl.get_paginator("list_objects_v2").paginate(
+                Bucket=bucket, Prefix=prefix))
+        except Exception as ex:                       # noqa: BLE001
+            print(f"  ⛔ تعذّر سردُ {prefix}: {ex}")
+            continue
+        # ⛔ **القراءةُ التسلسليّة كانت عنقَ كلّ دورة**: ‏≈300 ملفٍّ × رحلةٍ
+        #    شبكيّةٍ لكلٍّ ⇒ دقائقُ قبل أن تطبع البوابةُ حرفاً واحداً. والملفّات
+        #    **مستقلّةٌ تماماً**، فتوازيها بلا خطر. (‏والعميلُ `boto3` آمنٌ
+        #    للخيوط ما دام كلُّ خيطٍ يستدعي `get_object` وحده.)
+        # ⛔ **العنقُ المقيس (2026-09-04): 1027 ملفَ حكمٍ = 65 م.ب تُنزَّل في
+        #    كلّ دورة** — على شبكةٍ ضعيفة تتجاوز القراءةُ عشرَ دقائق، فتصير
+        #    البوابةُ نفسُها أبطأَ من كلّ ما تحكم عليه. **والأحكامُ لا تتغيّر:**
+        #    حكمٌ كُتب بمفتاحٍ وبصمةٍ لا يُعاد كتابته. ⇒ **ذاكرةٌ محليّةٌ
+        #    بمفتاحٍ + `ETag`**: يُنزَّل الجديدُ وحدَه، ويُقرأ الباقي من القرص.
+        objs = [(o["Key"], o.get("ETag", "").strip('"'))
+                for page in pages for o in page.get("Contents", [])
+                if o["Key"].endswith(".json")]
+        seen += len(objs)
+        cdir = Path(__file__).resolve().parent / "work" / "verdict_cache"
+        cdir.mkdir(parents=True, exist_ok=True)
+
+        def _cached(key, etag):
+            f = cdir / (hashlib.sha256(f"{key}|{etag}".encode()).hexdigest() + ".json")
+            if f.exists():
+                try:
+                    return json.loads(f.read_text(encoding="utf-8"))
+                except Exception:                     # noqa: BLE001
+                    pass
+            return None
+
+        def _store(key, etag, data):
+            f = cdir / (hashlib.sha256(f"{key}|{etag}".encode()).hexdigest() + ".json")
+            try:
+                f.write_text(json.dumps(data, ensure_ascii=False), encoding="utf-8")
+            except Exception:                         # noqa: BLE001
+                pass
+
+        hits = 0
+        keys = []
+        for key, etag in objs:
+            d = _cached(key, etag)
+            if d is None:
+                keys.append(key)
+                continue
+            hits += 1
+            for rep in (d if isinstance(d, list) else [d]):
+                if isinstance(rep, dict) and rep.get("key"):
+                    out.append((key, rep))
+        _ETAGS = dict(objs)
+
+        def _one(key):
+            for attempt in range(3):
+                try:
+                    return key, json.loads(cl.get_object(
+                        Bucket=bucket, Key=key)["Body"].read())
+                except Exception:                     # noqa: BLE001
+                    if attempt == 2:
+                        return key, None
+                    time.sleep(1.5 * (attempt + 1))
+            return key, None
+
+        with ThreadPoolExecutor(max_workers=16) as pool:
+            for key, data in pool.map(_one, keys):
+                if data is None:
+                    failed += 1
+                    continue
+                _store(key, _ETAGS.get(key, ""), data)
+                for rep in (data if isinstance(data, list) else [data]):
+                    if isinstance(rep, dict) and rep.get("key"):
+                        out.append((key, rep))
+        if hits:
+            print(f"  ⚡ أحكامٌ من الذاكرة المحليّة: {hits} · نُزّل {len(keys)}")
+    if failed:
+        # ⛔ **الرقمُ عند وجود فشلٍ حدٌّ أدنى لا قياس** — ولا يُبنى عليه رفض.
+        print(f"  ⚠️ أحكامُ الدلو: قُرئ {len(out)} من {seen} ملفاً · "
+              f"**تعذّر {failed}** ⇒ التقييمُ ناقصٌ، والغيابُ ليس رفضاً.")
     return out
+
+
+# ⛔ **بصمةُ أداةِ الفحص شرطٌ في حكمها** (‏D-175). الإيداعُ `9ffb957` أصلح
+#    التبرئةَ الكاذبة، وما قبله لا يشهد. **ولا يُقاس بالزمن**: الساعةُ تكذب
+#    (‏فروقُ مناطق، وآلاتٌ تُشغّل نسخةً قديمةً بعد الإصلاح)، **والبصمةُ لا تكذب**.
+OPENERS_FIX_COMMIT = "9ffb957"
+OPENERS_TRUSTED = set()                # يُملأ من `git log` عند أوّل سؤال
+
+
+def openers_tool_ok(op):
+    """أصدر هذا الحكمَ فاحصٌ **بعد** إصلاح التبرئة الكاذبة؟
+
+    ⛔ **والتعذّرُ ليس حكماً في الاتجاهين**: إن تعذّر سؤالُ `git` (مستودعٌ
+    ناقص، أو تشغيلٌ خارج الشجرة) **لا نُبرّئ الأداةَ المجهولة ولا ندين
+    الصحيحة** — بل يُمنع الاعتدادُ بالحكم ويُعاد المسح، **فالمسحُ رخيصٌ
+    والتبرئةُ الكاذبة غالية**.
+    """
+    if not isinstance(op, dict):
+        return False
+    c = str(op.get("commit") or "").strip()
+    if not c:
+        return False                   # حكمٌ بلا بصمةِ أداةٍ لا يشهد
+    global OPENERS_TRUSTED             # noqa: PLW0603
+    if not OPENERS_TRUSTED:
+        import subprocess
+        try:
+            out = subprocess.run(
+                ["git", "-C", str(Path(__file__).resolve().parents[2]), "log",
+                 "--format=%h", f"{OPENERS_FIX_COMMIT}..HEAD"],
+                capture_output=True, text=True, encoding="utf-8",
+                errors="replace", timeout=60)
+            if out.returncode == 0:
+                OPENERS_TRUSTED = {x.strip() for x in out.stdout.split() if x.strip()}
+                OPENERS_TRUSTED.add(OPENERS_FIX_COMMIT)
+        except Exception:              # noqa: BLE001
+            OPENERS_TRUSTED = set()
+    if not OPENERS_TRUSTED:
+        return False                   # تعذّرَ السؤال ⇒ لا اعتداد، ويُعاد المسح
+    return any(c.startswith(t) or t.startswith(c) for t in OPENERS_TRUSTED)
+
+
+def openers_map(reports_iter):
+    """أحدثُ فحص مطالع لكل بصمة — شرطٌ **سابقٌ** للعيّنة لا بديلٌ عنها.
+
+    عيّنة 7e العنقودية على `s_alquraishi` **لم تسحب واحداً** من مطالعه الخمسة
+    المعطوبة، وفحصُ المطالع أمسك الخمسة في دقائق. ⇒ صنفان من العطب لكلٍّ
+    أداتُه: المطالعُ تكشف ما لا تراه العيّنة، والعيّنةُ تقيس ما لا يمسّه
+    فحصُ المطالع.
+    """
+    best = {}
+    for _name, rep in reports_iter:
+        if str(rep.get("kind") or "").strip().lower() != "openers":
+            continue
+        sha = rep.get("sha256")
+        if not sha:
+            continue
+        cur = best.get(sha)
+        # ‏`openers_scan.py` يكتب زمنه في `at` لا `ts` — فيُقرأ الاثنان.
+        if cur is None or _when(rep) > _when(cur):
+            best[sha] = rep
+    return best
+
+
+def _when(rep):
+    return float(rep.get("ts") or rep.get("at") or 0)
 
 
 def source_of(rep):
@@ -358,7 +549,7 @@ def ci_map(reports_iter):
     """
     best = {}
     for _name, rep in reports_iter:
-        if not is_ci(rep) or rep.get("sample") is None:
+        if not is_ci(rep) or not has_audio_sample(rep):
             continue
         sha = rep.get("sha256")
         if not sha:
@@ -367,6 +558,31 @@ def ci_map(reports_iter):
         if cur is None or (rep.get("ts") or 0) > (cur.get("ts") or 0):
             best[sha] = rep
     return best
+
+
+def has_audio_sample(rep):
+    """أحكمٌ صوتيٌّ حقيقيّ؟ — **بما في الملفّ نفسه لا بما يقوله عنه غيرُه**.
+
+    ⛔ وجد github-7e على الدلو ملفّاً يُعلن `kind: "audio"` و`source: "ci"`
+    وليس فيه عيّنة، بل حقلُ `verdict_file` يشير إلى ملفٍّ آخر — **وذاك الآخر
+    حكمٌ بنيويّ بلا عيّنة**. فبوابةٌ تتبع المؤشِّر تحسبه شاهداً صوتياً ثانياً
+    لا وجود له: «ثقةٌ مضاعفة بلا دليلٍ مضاعف». ⇒ **المؤشِّر يصف نفسه لا
+    موصوفَه**، ولا يُحتسب حكماً إلا ما حمل عيّنته في جوفه.
+    """
+    if rep.get("verdict_file"):
+        return False                       # مؤشِّرٌ لا حكم
+    if str(rep.get("kind") or "").strip().lower() in ("structural", "openers"):
+        # ⛔ **فحصُ المطالع ليس عيّنة** (‏إعلان github-7e): يمرّ على المطالع
+        # كلِّها ولا يقيس الحدود الداخلية البتّة. فيصلح شاهداً على **رفضٍ**
+        # وحده، ومن عدّه بديلاً عن العيّنة رقّى فهرساً لم تُقَس حدودُه.
+        return False
+    sample = rep.get("sample")
+    if not isinstance(sample, dict) or not sample:
+        return False
+    rows = sample.get("rows")
+    if isinstance(rows, list) and not rows:
+        return False                       # عيّنةٌ فارغة ليست عيّنة
+    return True
 
 
 def latest_sampled(reports_iter):
@@ -380,7 +596,7 @@ def latest_sampled(reports_iter):
     """
     best = {}
     for name, rep in reports_iter:
-        if rep.get("sample") is None or rep.get("band") is not None:
+        if not has_audio_sample(rep) or rep.get("band") is not None:
             continue
         if is_ci(rep):
             continue        # شاهدٌ مُعاضِد لا ممثِّل — ‏`ci_map` موضعُه
@@ -392,7 +608,464 @@ def latest_sampled(reports_iter):
     return list(best.values())
 
 
-def gate(rep, frozen, prefix, holds=None, override=None, ci_reports=None):
+def corroboration(rep, ci):
+    """وصفُ علاقة الحكمين — **متى يكون الاتفاق شهادتين ومتى يكون تكراراً**.
+
+    تنبيه github-7e (‏2026-09-02، وقد أصلح شفرته عليه): بذرةُ العيّنة كانت
+    تُشتقّ من هويّة القارئ وحدها، فيسحب هو وCI **الحدود المئتين نفسها**.
+    واتفاقُهما حينئذٍ **إعادةُ قياسٍ لا شهادتان**: يكشف التقلّب والعطب العابر،
+    ولا يكشف **خطأ المنهج** — إذ يخطئ المساران الخطأ نفسه على الحدود نفسها.
+    وبرهانُ الليلة أنّ محرّكاً واحداً برّأ 211 مطلعاً بالغلط، وتكرارُ القياس
+    ألفاً يعيد البراءة ألفاً. ⇒ الاتفاق لا يُحتسب إلا باختلاف `sample.seedSalt`،
+    والحكمان بمحرّكين مختلفين (`engine`) **لا يُقارَنان** أصلاً.
+    """
+    a = ((rep.get("sample") or {}).get("seedSalt"), rep.get("engine"))
+    b = ((ci.get("sample") or {}).get("seedSalt"), ci.get("engine"))
+    bits = []
+    if a[0] is not None and a[0] == b[0]:
+        bits.append("‏بملحِ بذرةٍ واحد (تكرارُ قياسٍ لا شهادتان)")
+    elif a[0] is None or b[0] is None:
+        bits.append("‏بملحِ بذرةٍ غير معلوم")
+    if a[1] and b[1] and a[1] != b[1]:
+        bits.append(f"وبمحرّكين مختلفين ({a[1]} ≠ {b[1]}) — لا يُقارَنان")
+    return (" — " + "، ".join(bits)) if bits else ""
+
+
+def ci_all_map(reports_iter):
+    """كل أحكام CI بعيّنتها **لكل بصمة ولكل ملح**: ‏{البصمة: {الملح: أحدثُ حكم}}.
+
+    ‏`ci_map` يعطي أحدث حكمٍ للبصمة، وهذا يعطي أحدث حكمٍ **لكل ملحٍ** — فهو
+    ما تُبنى عليه الشهادتان (‏D-090).
+    """
+    out = {}
+    for _name, rep in reports_iter:
+        if not is_ci(rep) or not has_audio_sample(rep) or rep.get("band") is not None:
+            continue
+        sha = rep.get("sha256")
+        salt = (rep.get("sample") or {}).get("seedSalt")
+        if not sha or not salt:
+            continue                       # ملحٌ غير معلوم لا يشهد (القاعدة 3)
+        cur = out.setdefault(sha, {}).get(salt)
+        if cur is None or _when(rep) > _when(cur):
+            out[sha][salt] = rep
+    return out
+
+
+CI_PAIR_SOURCE = "ci-pair"
+
+
+def ci_pair_reps(reports_iter, human_keys=()):
+    """حكمان من CI **متفقان على القبول** بملحي بذرةٍ مختلفين ومحرّكٍ واحد على
+    البصمة نفسها ⇒ ممثِّلٌ مركَّب يمرّ بالبوابة كاملةً (‏D-090).
+
+    القاعدة 3 في README تقول: «حكم 7e وحده أو حكمان متفقان، ولا يُحتسب الاتفاق
+    شهادتين إلا باختلاف `seedSalt`». ومحرّك CI هو محرّك 7e نفسه (‏`ci_run.py`)،
+    فحكمان من CI بملحين مختلفين **عيّنتان مستقلّتان بمنهجٍ واحد** — وهو عين ما
+    تطلبه القاعدة. ⛔ **ولا يُركَّب شيء إن كان على البصمة حكمُ CI مخالف بأي
+    ملح** (تعارضٌ يُوقف)، ولا لمفتاحٍ له حكمُ إنسانٍ بعيّنة (‏فذاك ممثِّله).
+
+    والممثِّل المركَّب **يحمل الحكمين معه** (‏`corroborated`) ولا يدّعي أنه
+    حكمُ إنسان: ‏`source = "ci-pair"`. ويُعاد كلُّ حكمٍ منهما مرشّحاً على حدة
+    (بترتيب الأحدث) لأن حرّاس المجال (القاعدتان 6 و7) تقيس **عيّنةً بعينها**:
+    عيّنةٌ بمجالٍ صفريّ تُردّ وحدها، وشقيقتُها بمجالٍ حقيقيّ تمرّ بدليلها.
+    """
+    out = []
+    human = set(human_keys)
+    for sha, by_salt in ci_all_map(reports_iter).items():
+        reps = sorted(by_salt.values(), key=_when, reverse=True)
+        if len(reps) < 2:
+            continue
+        key = reps[0].get("key")
+        if key in human:
+            continue
+        bad = [r for r in reps if r.get("verdict") != ACCEPTED]
+        if bad:
+            continue                       # الخلاف يُوقف — يُقال في البوابة
+        engines = {r.get("engine") for r in reps if r.get("engine")}
+        if len(engines) > 1:
+            continue                       # محرّكان لا يُقارَنان (القاعدة 3)
+        salts = [(r.get("sample") or {}).get("seedSalt") for r in reps]
+        runs = [r.get("runId") or (r.get("provenance") or {}).get("run_id") for r in reps]
+        pooled = pooled_zero(reps)
+        if pooled is not None:
+            # **D-092**: زوجٌ كلاهما صفر عطب وكلٌّ ≥ الحد الأدنى المشتق ⇒ ممثِّلٌ واحد
+            # بمجالٍ مشترك = قاعدة الثلاثة على المجموع — لا «0.0%» أبداً.
+            out.append((f"ci-pair-pooled:{sha[:8]}", dict(
+                reps[0], source=CI_PAIR_SOURCE, pooled=pooled,
+                sample=dict(reps[0].get("sample") or {}, severe=[0, pooled["n"], [0.0, 0.0, pooled["hi"]]]),
+                severeRate={"rate": 0.0, "lo": 0.0, "hi": pooled["hi"]},
+                corroborated={"salts": salts, "runs": runs, "engine": next(iter(engines), None), "n": len(reps)})))
+            continue
+        for r in reps:
+            rep = dict(r, source=CI_PAIR_SOURCE,
+                       corroborated={"salts": salts, "runs": runs,
+                                     "engine": next(iter(engines), None),
+                                     "n": len(reps)})
+            out.append((f"ci-pair:{sha[:8]}:{(r.get('sample') or {}).get('seedSalt')}", rep))
+    return out
+
+
+def pooled_zero(reps):
+    """‏D-092 (إذن المشرف github-5a، 2026-09-03): زوجُ D-090 كلاهما **صفر عطب** وكلُّ
+    عيّنةٍ ≥ الحدّ الأدنى المشتقّ (59 عند 5%) ⇒ مجالٌ مشترك بقاعدة الثلاثة على
+    المجموع: الحدّ الأعلى = 3/(n1+n2). **والقاعدة 6 باقية لكل حكمٍ منفرد**: عيّنةٌ
+    واحدة بمجالٍ صفري تُردّ؛ وعيّنتان مستقلّتان بملحين مجموعُهما 400 حدٍّ بلا عطب
+    تقولان «≤ 0.75%» لا «0%». يُرجع {n, hi, parts} أو None."""
+    n_min = _min_sample(SEVERE_CEILING)
+    parts = []
+    for r in reps:
+        sv = (r.get("sample") or {}).get("severe")
+        if not (isinstance(sv, list) and len(sv) >= 2 and isinstance(sv[1], int)):
+            return None
+        if sv[0] != 0 or sv[1] < n_min:
+            return None
+        parts.append(sv[1])
+    if len(parts) < 2:
+        return None
+    n = sum(parts)
+    return {"n": n, "hi": 3.0 / n, "parts": parts, "rule": "D-092"}
+
+
+POOLED_SOURCE = "pooled"
+
+
+def _cp_upper(m, n, conf=0.95):
+    """الحدُّ الأعلى لكلوبر–بيرسون (‏أحاديُّ الجانب) لنسبةٍ ثنائية.
+
+    ⛔ **ولمَ كلوبر–بيرسون لا ويلسون هنا:** التجميع يجمع عيّناتٍ صغيرةً بأعطابٍ
+    قليلة، وويلسون تقريبٌ يضيق تحت هذه الحال فيعطي ثقةً ليست في الدليل. وكلوبر
+    –بيرسون **محافظ**: يضمن التغطية ولا يدّعيها. ونحن نرقّي على **الحدّ
+    الأعلى** (‏D-068) — فالمحافظُ هو الصحيح، والضيقُ الكاذب يُرقّي معيباً.
+
+    ‏`p_hi` هو حلُّ ‏`P(X ≤ m | n, p) = 1 - conf`. يُحسب بالانصاف على دالة
+    التوزيع التراكمي (‏بـ`lgamma` فلا ينهار على n كبير). وعند `m = 0` يعطي
+    `1 - conf**(1/n)` ≈ `3/n` — **فقاعدة الثلاثة (‏D-092) حالةٌ خاصّةٌ منه لا
+    قاعدةٌ أخرى**.
+    """
+    import math
+    if n <= 0:
+        return None
+    if m >= n:
+        return 1.0
+    alpha = 1.0 - conf
+
+    def cdf(p):
+        if p <= 0.0:
+            return 1.0
+        if p >= 1.0:
+            return 0.0
+        tot = 0.0
+        for k in range(m + 1):
+            lc = (math.lgamma(n + 1) - math.lgamma(k + 1) - math.lgamma(n - k + 1)
+                  + k * math.log(p) + (n - k) * math.log1p(-p))
+            tot += math.exp(lc)
+        return tot
+
+    lo, hi = 0.0, 1.0
+    for _ in range(200):                    # انصافٌ ثابتُ العدد — لا حلقة مفتوحة
+        mid = (lo + hi) / 2.0
+        if cdf(mid) > alpha:
+            lo = mid
+        else:
+            hi = mid
+    return hi
+
+
+def pooled_samples(reps):
+    """‏**D-098** (إذن المشرف github-5a، 2026-09-03) — تعميمُ D-092 من «الصفر» إلى
+    أيّ عددِ أعطاب: عيّناتٌ **مستقلّة** على البصمة نفسها بملوحٍ مختلفة ومحرّكٍ
+    واحد تُجمَّع، فالعطبُ المجمَّع `Σm / Σn` وحدُّه الأعلى بكلوبر–بيرسون.
+
+    ⛔ **وشرطُ الاستقلال هو الملح لا المصدر:** عيّنتان بملحٍ واحدٍ من آلتين
+    تعيدان القياس نفسه وتضاعفان الثقة **بلا دليل** — «اختلافُ الملح يزيد
+    الدليل، واختلافُ المحرّك يُبطل المقارنة» (github-7e). فالمفتاح `seedSalt`،
+    والمحرّكُ يجب أن يكون واحداً.
+
+    ⛔ **وكلُّ عيّنةٍ ≥ الحدّ الأدنى المشتقّ** (‏59 عند 5%): التجميعُ يزيد الدليل
+    ولا يخلقه، ومن جمع عشرَ عيّناتٍ من عشرةٍ لم يبلغ ما تبلغه عيّنةٌ من مئة —
+    لأنّ العيّنة الصغيرة لا تقع على العطب أصلاً (‏القاعدة 7 في README البوابة).
+
+    ⛔ **ومرفوضٌ صريحٌ منفردٌ تقديرُه ≥ العتبة يمنع التجميع كلَّه**: التجميعُ
+    يُوسّط، والوسطُ يبتلع رفضاً قائماً على دليله. **والخلافُ يُفصل ولا يُذوَّب.**
+
+    يُرجع `{m, n, rate, hi, parts, salts, engine, rule}` أو `None`.
+    """
+    n_min = _min_sample(SEVERE_CEILING)
+    by_seed, engines, dissent, dropped = {}, set(), [], []
+    for r in reps:
+        sv = (r.get("sample") or {}).get("severe")
+        # ⛔ **هويّةُ العيّنة ملحُها، وللمحلّيّ ملحُه هو مصدرُه.** أداةُ 7e
+        #    المحلية تُشغَّل بلا `--seed-salt` فيأتي الملحُ فارغاً، فتُردّ
+        #    عيّنتُها بقاعدة «ملحٌ غير معلوم لا يشهد» — **وهي أقوى شهادةٍ
+        #    عندنا**. وبذرتُها الافتراضية مختلفةٌ عن بذور CI الممْلوحة بالبناء،
+        #    فاستقلالُها قائم. ⇒ يُسمّى ملحُها `local`، ويبقى الفارغُ من مصدرٍ
+        #    غيرِ محلّيٍّ **مردوداً كما كان** (‏فهناك الملحُ هو ما يميّز).
+        salt = (r.get("sample") or {}).get("seedSalt")
+        if not salt and source_of(r) == "local":
+            salt = "local"
+        if not (isinstance(sv, list) and len(sv) >= 2
+                and isinstance(sv[0], int) and isinstance(sv[1], int)):
+            return None
+        if not salt or sv[1] < n_min:
+            return None                    # ملحٌ مجهول أو عيّنةٌ دون الحدّ
+        est = sv[0] / sv[1] if sv[1] else None
+        if r.get("verdict") != ACCEPTED and est is not None and est >= SEVERE_CEILING:
+            dissent.append({"salt": salt, "m": sv[0], "n": sv[1], "rate": est,
+                            "verdict": r.get("verdict")})
+        if r.get("engine"):
+            engines.add(r["engine"])
+        # ⛔ **D-172 — الهويّةُ البذرةُ الفعلية لا اسمُ الملح.** التسميةُ `local`
+        #    أعلاه **وسمٌ يُلصق وقتَ القراءة**، والعيّنةُ سُحبت ببذرة الملحِ
+        #    الفارغ. فلو شُغّلت الأداةُ المحلية مرّةً بـ`--seed-salt local`
+        #    — وهو أوّلُ ما يخطر لمن قرأ الاسم — لسحبت عيّنةً **مستقلّةً حقاً**
+        #    (‏البذرة `sha256(riwaya/reciterId/salt)`، و`.../local` ≠ `.../""`)
+        #    وحملت **الاسمَ نفسه**، فتتصادمان على مفتاحٍ واحدٍ فتُطرح إحداهما
+        #    صامتة. **والأثرُ أخبثُ من فقدِ شاهد:** `n` ينقص فيتّسع الحدُّ
+        #    الأعلى، **فينقلب مقبولٌ ممتنعاً بلا سطرِ تحذير**.
+        #    ⇒ الفهرسةُ بـ`sample.seed`، والملحُ يبقى **وصفاً للقارئ**؛
+        #    واتّحادُ البذرتين إعادةُ قياسٍ يُبقى أحدثُها (‏وهو الصواب).
+        ident = (r.get("sample") or {}).get("seed") or f"salt:{salt}"
+        cur = by_seed.get(ident)
+        if cur is None or _when(r) > _when(cur):
+            if cur is not None:
+                # ⛔ لا يُطرح شاهدٌ صامتاً بحال: كلُّ طرحٍ يُطبع بسببه مع الحكم.
+                dropped.append({"seed": ident, "salt": salt,
+                                "reason": "بذرةٌ متّحدة — إعادةُ قياسٍ، يُبقى أحدثُها"})
+            by_seed[ident] = r
+        else:
+            dropped.append({"seed": ident, "salt": salt,
+                            "reason": "بذرةٌ متّحدة — إعادةُ قياسٍ، يُبقى أحدثُها"})
+    if len(by_seed) < 2 or len(engines) > 1:
+        return None
+    parts = [((x.get("sample") or {}).get("severe")) for x in by_seed.values()]
+    m = sum(int(x[0]) for x in parts)
+    n = sum(int(x[1]) for x in parts)
+    rate = (m / n) if n else None
+    # ⛔ **D-109 — الخلافُ يُفصل ولا يُذوَّب، وفصلُه بدليلٍ رابعٍ لا بتليين القاعدة.**
+    #    الأصلُ أنّ رفضاً صريحاً واحداً يمنع التجميع (‏D-098). ورُفع المنعُ في
+    #    حالةٍ واحدةٍ **بشروطٍ أربعةٍ مجتمعة** (قرار المشرف github-5a):
+    #      (١) **أربعةُ ملوحٍ فأكثر** — أي أنّ خلافاً واحداً يُقابله ثلاثةُ شهود؛
+    #      (٢) **رافضٌ واحدٌ لا أكثر** — الرافضان اتفاقٌ لا شذوذ؛
+    #      (٣) **تقديرُ الرافض دون ضِعف التقدير المجمَّع** — فالفرقُ الكبير
+    #          **إشارةُ تكتّلٍ حقيقيّ** لا ضجيجَ عيّنة، والنسبةُ عمياءُ عن التكتّل
+    #          (‏درسُ `shamrani`: 0.2% نقصاً ومنها سورةٌ كاملة)؛
+    #      (٤) **وتناثرُ الأعطاب مشروطٌ قبل ذلك كلِّه** — يُفحص خارج الأداة:
+    #          إن تكتّلت أعطابُ الرافض في سورةٍ أو سورتين فهو **عيبٌ موضعيٌّ
+    #          حقيقيّ** يُحال إلى مسار الإصلاح، **ولا يُجمَّع أصلاً**.
+    #    ⛔ والرافضُ **يُذكر في سطر التجميد شاهدَ خلاف** — فالسكوتُ عنه يجعل
+    #       الترقية تُقرأ إجماعاً وهي ليست إجماعاً.
+    # ⭐ **D-185 (المشرف github-op، 2026-09-04) — التناثرُ المقيسُ يفصل الخلاف،
+    #    والقاعدةُ لا تُصبح لا-رتيبةً فتعاقبَ على كثرة الدليل.**
+    #    قِيس الليلة: زيادةُ الملوح على مرشّحٍ حقيقيُّ عطبِه ≈3.6% **تزيد عددَ
+    #    الرافضين** — لأن عيّنةَ 200 عند 3.6% تتجاوز 5% بالضجيج وحده مرّةً من
+    #    ثلاث. فشرطُ «رافضٌ واحدٌ لا أكثر» يجعل **الدليلَ الأكثرَ أسوأ حالاً من
+    #    الأقل**، وهذا انقلابٌ في المعنى لا تشدّدٌ فيه: `bader` (‏3.63% وحدّه
+    #    الأعلى 4.76%) و`shaksh` (‏3.63% و4.92%) رُدّا بخمس بذورٍ بعد أن كانا
+    #    يمرّان بأربع.
+    #    ⛔ **والعتبةُ 5% لم تُمسّ ولا تُمسّ**: الحكمُ يبقى على الحدّ الأعلى
+    #    لكلوبر–بيرسون للمجمَّع (‏D-068). الذي رُفع هنا **شرطُ العدد** وحده،
+    #    وبديلُه **قياسُ الشرط الرابع من D-109 نفسه داخل الأداة** بدل تركه
+    #    للفحص خارجها: التكتّلُ هو المانع، لا كثرةُ الرافضين.
+    #    الشروط مجتمعةً: (١) خمسُ بذورٍ فأكثر · (٢) كلُّ رافضٍ دون ضِعف المجمَّع
+    #    · (٣) **تناثرٌ مقيس**: أعطابُ العيّنات في ≥10 سور، ونصيبُ أكثرِ سورتين
+    #    ≤40% منها — فالتكتّلُ (‏درسُ `shamrani`) يُردّ كما كان.
+    def _scatter(rs):
+        sev = {"EARLY_START", "LATE_START", "WRONG_AYAH"}
+        surs = {}
+        for r in rs:
+            for row in ((r.get("sample") or {}).get("rows") or []):
+                if row.get("verdict") in sev:
+                    try:
+                        sid = int(str(row.get("aid", "0:0")).split(":")[0])
+                    except Exception:                     # noqa: BLE001
+                        continue
+                    surs[sid] = surs.get(sid, 0) + 1
+        tot = sum(surs.values())
+        if not tot or len(surs) < 10:
+            return None
+        top2 = sum(sorted(surs.values(), reverse=True)[:2]) / tot
+        return {"surahs": len(surs), "top2Share": top2, "defects": tot}
+
+    scatter = None
+    if dissent:
+        ok_one = (len(by_seed) >= 4 and len(dissent) == 1 and rate is not None
+                  and dissent[0]["rate"] < 2 * rate)
+        if not ok_one:
+            scatter = _scatter(list(by_seed.values()))
+            spread = (scatter is not None and scatter["top2Share"] <= 0.40)
+            if not (len(by_seed) >= 5 and rate is not None and spread
+                    and all(d["rate"] < 2 * rate for d in dissent)):
+                return None
+    hi = _cp_upper(m, n)
+    if hi is None:
+        return None
+    out = {"m": m, "n": n, "rate": rate, "hi": hi,
+           "parts": [[int(x[0]), int(x[1])] for x in parts],
+           "salts": sorted({((x.get("sample") or {}).get("seedSalt")
+                             or ("local" if source_of(x) == "local" else "?"))
+                            for x in by_seed.values()}),
+           "seeds": len(by_seed),
+           "engine": next(iter(engines), None),
+           "rule": ("D-185" if (dissent and scatter) else
+                    ("D-109" if dissent else "D-098"))}
+    if dissent:
+        out["dissent"] = dissent
+    if scatter:
+        out["scatter"] = scatter
+    if dropped:
+        out["dropped"] = dropped
+    return out
+
+
+def sampling_skip_reason(key, reports, holds=(), frozen=()):
+    """**هل تستحقُّ هذه البصمةُ عيّنةً صوتيةً جديدة؟** يُرجع سببَ التخطّي أو `None`.
+
+    ⛔ **مصدرٌ واحدٌ للقاعدة** (‏قرار المشرف github-5a، 2026-09-03): كانت هذه
+    الشروطُ مكتوبةً في `flood_loop` وغائبةً عن ماسح مسار Cloud Build، فكاد
+    يُنفق خمسَ ساعاتِ حوسبةٍ على ستّةِ فهارسَ **مرفوضةٍ بنيوياً بشاهدين**.
+    **والقاعدةُ الموجودةُ في أداةٍ والغائبةُ عن أختها ليست قاعدةً — هي عادةُ
+    أداة.** ⇒ من أراد أن يُنفق عيّنةً فليسأل هنا.
+
+    ⛔ **والمرفوضُ بنيوياً كالمحجوز تماماً:** `_verdict` يُرجع «خلل بنيوي»
+    **قبل أن يُنظر في النسبة أصلاً**، فالبذرةُ لا تمسّ حكمَه البتّة — وعلّتُه
+    محتوىً (سورةٌ غائبة · بسملةٌ مبتلعةٌ مؤكَّدة) لا تُصلحها عيّنةٌ أخرى.
+    **والعيّنةُ عنقُنا، فلا تُنفَق على حكمٍ معلوم.**
+    """
+    riw = key.split("/")[1] if key.count("/") >= 2 else ""
+    rid = key.split("/")[-1].split(".")[0]
+    target = f"timings/{riw}/{rid}.jz"
+    if key.startswith("timings-staging/tmp/"):
+        return "مفتاحُ تجربة"
+    if ".partial" in key:
+        return "لقطةٌ جزئية — لا تُرقّى فلا تُقاس"
+    if target in set(holds):
+        return "محجوز"
+    if target in set(frozen):
+        return "الهدفُ مجمَّد"
+    for rep in reports:
+        v = str(rep.get("verdict") or "")
+        if v.startswith("مرفوض") or rep.get("fatal"):
+            return f"مرفوضٌ سلفاً: {v[:60] or 'خلل بنيوي'}"
+    return None
+
+
+def pooled_reps(reports_iter, accepted_keys=()):
+    """ممثِّلو **التجميع** (‏D-098): لكلّ بصمةٍ عيّناتُها المستقلّة مجموعةً.
+
+    ⛔ **ولا يُنشأ إلا لمفتاحٍ ليس له ممثِّلٌ مقبولٌ سلفاً**: التجميعُ بابٌ
+    للحدّيّ الذي لم يبلغ وحدَه، لا طريقٌ ثانٍ لما مرّ. ومن جمّع ما هو مقبولٌ
+    أصلاً أنفق حساباً وضاعف السطور بلا أثر.
+    """
+    acc = set(accepted_keys)
+    by_sha = {}
+    for _name, rep in reports_iter:
+        if not has_audio_sample(rep) or rep.get("band") is not None:
+            continue
+        sha = rep.get("sha256")
+        if not sha or rep.get("source") == CI_PAIR_SOURCE:
+            continue                       # الممثِّلُ المركَّب ليس عيّنةً جديدة
+        by_sha.setdefault(sha, []).append(rep)
+    out = []
+    for sha, reps in by_sha.items():
+        base = max(reps, key=_when)
+        if base.get("key") in acc:
+            continue
+        pooled = pooled_samples(reps)
+        if pooled is None:
+            continue
+        rate, hi = pooled["rate"], pooled["hi"]
+        # **الحكمُ على الحدّ الأعلى** (‏D-068): يُقبل إن كان الحدُّ دون العتبة،
+        # ويُرفض إن بلغ **التقديرُ** العتبة، وما بينهما **حدّيٌّ لا يُرقّى**.
+        if hi < SEVERE_CEILING:
+            verdict = ACCEPTED
+        elif rate is not None and rate >= SEVERE_CEILING:
+            verdict = f"مرفوض (مجمَّع {rate:.1%} ≥ {SEVERE_CEILING:.0%})"
+        else:
+            verdict = (f"حدّي (مجمَّع {rate:.1%} والحدّ الأعلى {hi:.1%} "
+                       f"> {SEVERE_CEILING:.0%})")
+        rep = dict(base, source=POOLED_SOURCE, verdict=verdict, pooled=pooled,
+                   sample=dict(base.get("sample") or {},
+                               severe=[pooled["m"], pooled["n"], [rate, None, hi]]),
+                   severeRate={"rate": rate, "lo": None, "hi": hi})
+        out.append((f"pooled:{sha[:8]}:{'+'.join(pooled['salts'])}", rep))
+    return out
+
+
+def pooled_map_of(reports_iter):
+    """‏{البصمة: ممثِّلُها المجمَّع} — يُمرَّر إلى `gate` ليفصل التعارضَ بالتجميع
+    (‏D-111). **يُبنى من كلّ العيّنات لا من المقبولين وحدهم**، فالفاصلُ إنما
+    ينفع حيث لم يُقبل بعد."""
+    out = {}
+    for _name, rep in pooled_reps(list(reports_iter)):
+        sha = rep.get("sha256")
+        if sha:
+            out[sha] = rep
+    return out
+
+
+def sampled_candidates(reports_iter):
+    """ممثِّلو الترقية: أحدثُ حكم إنسانٍ بعيّنة لكل مفتاح، ثم أزواجُ CI (‏D-090)
+    للمفاتيح التي لا حكمَ إنسانٍ لها، ثم **المجمَّعون** (‏D-098) لما لم يُقبل بعد.
+    **مسارٌ واحد** يقرؤه `main` والراصد."""
+    everywhere = list(reports_iter)
+    humans = latest_sampled(everywhere)
+    pairs = ci_pair_reps(everywhere, {r.get("key") for _n, r in humans})
+    ok = {r.get("key") for _n, r in (humans + pairs) if r.get("verdict") == ACCEPTED}
+    return humans + pairs + pooled_reps(everywhere, ok)
+
+
+BORDERLINE_CI_HI = 0.06
+
+
+def ci_borderline_ok(rep, ci):
+    """‏D-093 (قرار المشرف github-5a، 2026-09-03): حكمُ CI **حدّي** — تقديرٌ نقطي دون
+    العتبة وحدُّه الأعلى ≤ 6% — **لا يناقض** حكمَ 7e مقبولاً بعيّنة كاملة على البصمة
+    نفسها؛ يُرقّى بحكم 7e ويُذكر الحدّي في سطر التجميد. أما مرفوضٌ صريح (تقدير
+    ≥ العتبة أو خلل بنيوي) فتناقضٌ يمنع. ⛔ ولا يسري على ممثِّل زوج CI (‏D-090/D-092)
+    ولا على حكم CI ممثِّلاً — الإنسانُ وحده يغلب الحدّي.
+    """
+    if is_ci(rep) or rep.get("source") == CI_PAIR_SOURCE:
+        return False
+    if not str(ci.get("verdict") or "").startswith("حدّي"):
+        return False
+    if ci.get("fatal"):
+        return False
+    rate, _lo, hi = severe_ci(ci)
+    if rate is None or hi is None or rate >= SEVERE_CEILING or hi > BORDERLINE_CI_HI:
+        return False
+    rep["ciBorderline"] = {"verdict": ci.get("verdict"), "rate": rate, "hi": hi,
+                           "salt": (ci.get("sample") or {}).get("seedSalt"),
+                           "runId": ci.get("runId"), "rule": "D-093"}
+    return True
+
+
+def _swallowed_surahs_from(rep):
+    """سورُ «البسملة المبتلعة» المؤكَّدةُ في بلاغات حكمٍ صوتيّ — من `fatal` ومن
+    صفوف العيّنة. ⛔ **قراءةُ نصٍّ لا استنتاجُ نيّة**: لا يُلتقط إلا ما صرّح
+    بالابتلاع وبرقم السورة، فالبلاغُ الغامض لا يُبنى عليه منع."""
+    out = set()
+    for txt in (rep.get("fatal") or []):
+        t = str(txt)
+        if "مبتلع" not in t:
+            continue
+        m = re.search(r"(\d{1,3})\s*:\s*1", t)
+        if m:
+            n = int(m.group(1))
+            if 1 <= n <= 114:
+                out.add(n)
+    for row in ((rep.get("sample") or {}).get("rows") or []):
+        if "مبتلع" not in str(row.get("why") or ""):
+            continue
+        aid = str(row.get("aid") or "")
+        if aid.endswith(":1") and aid.split(":")[0].isdigit():
+            n = int(aid.split(":")[0])
+            if 1 <= n <= 114:
+                out.add(n)
+    return out
+
+
+def gate(rep, frozen, prefix, holds=None, override=None, ci_reports=None,
+         openers_reports=None, pooled_map=None):
     """(الهدف، سبب الرفض) — والرفض نصٌّ يُطبع، فالصمت ليس قبولاً."""
     target = f"{prefix}timings/{rep.get('riwaya')}/{rep.get('reciterId')}.jz"
     hold = (holds or {}).get(target)
@@ -405,19 +1078,115 @@ def gate(rep, frozen, prefix, holds=None, override=None, ci_reports=None):
         return target, f"خلل بنيوي: {len(rep['fatal'])}"
     if rep.get("sample") is None:
         return target, "حكمٌ بلا عيّنة صوتية"
+    # **فحصُ المطالع شرطٌ مستقلٌّ عن العيّنة** (اقتراح github-7e، وقد قِسنا
+    # علّته الليلة): العيّنة العنقودية قد لا تقع على مطلعٍ واحد، فصنفُ
+    # «البسملة المبتلعة» قد يمرّ سليماً في مئتي حدٍّ ويكون في خمسة مطالع.
+    # فمتى حمل الحكمُ نتيجةَ الفحص الكامل، **يُشترط خلوُّها**؛ وغيابُ الحقل
+    # لا يمنع اليوم (لا يُشترط ما لم يُنتج بعد) ويُقال في اللوحة.
+    op = (openers_reports or {}).get(rep.get("sha256"))
+    inline = rep.get("openers")
+    if isinstance(inline, dict) and inline.get("defects"):
+        bad = inline.get("defects")
+        n_bad = len(bad) if isinstance(bad, list) else bad
+        return target, (f"فحصُ المطالع الكامل وجد {n_bad} عطباً — "
+                        "لا ترقية حتى يُصلَح المصدر")
+    if op is not None:
+        # ⛔ **حكمُ أداةٍ معطوبةٍ ليس حكماً** (‏D-175): كان الفاحصُ يبرّئ مطلعاً
+        #    سمع فيه «بسم الله» لأنّ سماحةَ الحرف تجعل «بسم» تُطابق «طسم»
+        #    (‏مطلعا 26 و28). ⇒ **كلُّ `clean` صدر قبل `9ffb957` لا يشهد
+        #    بشيء**، وكلُّ فهرسٍ رُقّي اعتماداً عليه مرّ بشرطٍ لم يُستوفَ.
+        #    ⛔ **والعطبُ في اتجاه التبرئة لا يُرى**: الحارسُ الذي يُخطئ بالمنع
+        #    يشتكي منه صاحبُه فيُكشف، والذي يُخطئ بالتبرئة **يمرّ صامتاً
+        #    ويُسجَّل شهادةَ سلامة**. ⇒ الشرطُ يُقرأ من بصمة الأداة لا من
+        #    وجود الملف، فيصير الإصلاحُ **قاعدةً دائمةً لا دفعةً يدوية**.
+        if not openers_tool_ok(op):
+            return target, (
+                "فحصُ المطالع صدر عن أداةٍ سابقةٍ لإصلاح التبرئة الكاذبة "
+                f"(‏commit={str(op.get('commit'))[:12]} · D-175) — يُعاد المسح")
+        # **صيغتان لملفّ المطالع** (‏github-7e يقترح `openers.defects`،
+        # و`openers_scan.py` عند github-8e يكتب `swallowed`/`tail`/`suspect`)
+        # — تُقرآن معاً ولا يُفترض شكلٌ واحد.
+        blob = op.get("openers") if isinstance(op.get("openers"), dict) else {}
+        hard = list(blob.get("defects") or []) + list(op.get("swallowed") or [])
+        # ⛔ **`suspect` كشفٌ بلا تحقّق** — نصّ github-8e: قد يكون هلوسة نموذج
+        # (والبسملة أكثرُ عبارةٍ في بيانات التدريب فهي هلوسته المفضّلة، وقد
+        # أثبته بتفريغ 15 ثانية كاملة في `deban_qalun` س37). فلا يُبنى عليه
+        # منعٌ ولا قبول، ويُعرض عدداً فقط.
+        soft = len(op.get("suspect") or []) + len(op.get("tail") or [])
+        # ⛔ **D-110 — `suspect` مع تأكيدٍ مستقلٍّ على السورة نفسها = مؤكَّدٌ يمنع.**
+        #    `suspect` وحدَه يبقى بلا أثرٍ كما هو (‏قد يكون هلوسةَ نموذج، والبسملةُ
+        #    أكثرُ عبارةٍ في بيانات التدريب فهي هلوسته المفضّلة). **لكنّه ليس
+        #    ضجيجاً بالضرورة، بل شاهدٌ يُردّ لأنه وحده** — فمتى جاء شاهدٌ ثانٍ
+        #    **مستقلٌّ** (‏بلاغُ بسملةٍ مبتلعةٍ في `fatal` حكمٍ صوتيّ) على **السورة
+        #    نفسها**، اجتمع الشاهدان فصار العطبُ مؤكَّداً.
+        #    وشاهدُه المقيس: `deban_qalun.7d70c3af` — المطالعُ `swallowed=[]` و
+        #    `suspect=[37, 67]`، والعيّنةُ الصوتية أكّدت **67:1** بنصٍّ مسموع
+        #    («اصْمِ اللَّهِ الرَّحْمَنِ الرَّحِيمِ تَب»). فالفهرسُ نجا من الترقية
+        #    **بحكم الصوت لا بفحص المطالع** — حظٌّ حسنٌ لا تصميم.
+        #    ⛔ وهو تشديدٌ لا تليين: لا يُرفع منعٌ قائم، وإنما يُضاف منعٌ لم يكن.
+        susp = {int(x) for x in (op.get("suspect") or []) if str(x).isdigit()}
+        if susp:
+            confirmed = sorted(susp & _swallowed_surahs_from(rep))
+            if confirmed:
+                return target, (
+                    f"بسملةٌ مبتلعةٌ **مؤكَّدةٌ بشاهدين مستقلَّين** في السور "
+                    f"{confirmed} — فحصُ المطالع وسمها `suspect` وأكّدها حكمُ "
+                    "الصوت (‏D-110)")
+        if hard:
+            first = hard[0]
+            first = (first if isinstance(first, str)
+                     else json.dumps(first, ensure_ascii=False))[:90]
+            return target, f"فحصُ المطالع وجد بسملةً مبتلعةً متحقَّقة: {first}"
+        # ⛔ **الجزئيّ يشهد على الرفض ولا يشهد بالسلامة** (تنبيه github-7e،
+        # وقد وجد الثغرة في كاتبه هو): تشغيلةٌ على ستّة مطالع تُخرج ملفاً
+        # بالوسم نفسه فتُقرأ شهادةَ سلامة وهي لم تنظر في 106 مطالع.
+        # والشرطُ `scope == "full"` لا عددٌ بعينه: قد يخلو فهرسٌ من سورةٍ
+        # فيقلّ عدّه وهو كاملُ الفحص.
+        if str(op.get("scope") or "").lower() != "full":
+            checked = op.get("checked") or (blob or {}).get("count")
+            return target, (f"فحصُ المطالع **جزئيّ** (‏scope={op.get('scope')!r}"
+                            + (f" · فُحص {checked}" if checked else "")
+                            + ") — لا يشهد بسلامة، والشرطُ فحصٌ كامل")
+        if op.get("verdict") and op["verdict"] != ACCEPTED:
+            return target, f"فحصُ المطالع ردّه: {str(op['verdict'])[:60]}"
+        if soft:
+            # لا يمنع — لكن يُقال، فالسكوتُ عنه يجعل «مرّ» تُقرأ «لا شيء فيه».
+            print(f"  ⚠️ {rep.get('key')}: فحصُ المطالع مرّ، وفيه {soft} "
+                  "كشفاً بلا تحقّق (‏suspect/tail) — لا يمنع ولا يُبنى عليه")
+    elif openers_reports is not None:
+        return target, ("لا فحصَ مطالع على هذه البصمة — وهو شرطٌ سابقٌ "
+                        "للعيّنة، والعيّنة لا تضمن الوقوع على مطلعٍ واحد")
     if rep.get("band") is not None:
         return target, f"عيّنة نطاق {rep['band']} — لا تحكم على الفهرس"
     if not rep.get("sha256"):
         return target, "حكمٌ بلا بصمة — أعِد التدقيق"
     if target in frozen:
-        return target, "الهدف مجمَّد — رفعُ التجميد فعلٌ صريح بيد إنسان"
+        return target, ("الهدف مجمَّد — يُرفع بـ`--unfreeze <المفتاح> --reason <السبب>` "
+                        "(‏D-183: أمرُ المالك 2026-09-04 — الوكيل يرفعه بنفسه، "
+                        "والسببُ المكتوب والسطرُ المشطوب هما الحارس لا يدُ إنسان)")
     # **حكمان لا يتناقضان.** إن وُجد حكمُ CI على **البصمة نفسها** وخالف القبول
     # فالخلافُ يُوقف: اتّفاقُهما شرطُ الترقية حين يوجدان، ولا يُرجَّح أحدهما
     # على الآخر بلا قياسٍ يفصل.
     ci = (ci_reports or {}).get(rep.get("sha256"))
-    if ci is not None and ci.get("verdict") != ACCEPTED:
+    # (وللممثِّل المركَّب من CI — ‏D-090 — يُشترط اتفاق **كل** أحكام CI على
+    #  البصمة بأي ملح، ويُفحص ذلك في `ci_pair_reps` قبل التركيب.)
+    # ⛔ **D-111 — التجميعُ فصلٌ، فيسبق إعلانَ التعارض.** «لا ترقية حتى يُفصل»
+    #    تطلب **فاصلاً**، والتجميعُ (‏D-098) هو الفاصلُ بعينه: حكمٌ حدّيٌّ من
+    #    مئتَي حدٍّ لا يناقض حكماً مقبولاً، **بل يُضاف إليه**. مقيسٌ على
+    #    `nabil.c51a9c5b`: ‏7e مقبول 3/200 · ci حدّي 7/200 · ci2 حدّي 9/200
+    #    ⇒ المجمَّع **19/600 = 3.17% بحدٍّ أعلى 4.9% ⇒ مقبول** — وكان يُردّ
+    #    بـ«تعارض» لأنّ حدَّ ci2 الأعلى 7.2% تجاوز عتبة D-093 (6%).
+    #    ⇒ **من ردَّ الدليلَ لأنّ جزءاً منه ضعيفٌ ردَّ الدليلَ كلَّه.**
+    # ⛔ **وحدُّه:** لا يسري إن كان في المجموعة **رفضٌ صريح** — `pooled_samples`
+    #    يردّه أصلاً (D-098/D-109)، فالخلافُ الحقيقيُّ يبقى موقوفاً.
+    if (ci is not None and ci.get("verdict") != ACCEPTED
+            and not ci_borderline_ok(rep, ci)
+            and (pooled_map or {}).get(rep.get("sha256"), {}).get("verdict") == ACCEPTED):
+        ci = None                       # فُصل الخلافُ بالتجميع — لا تعارضَ قائم
+    if ci is not None and ci.get("verdict") != ACCEPTED and not ci_borderline_ok(rep, ci):
         return target, (f"تعارضُ حكمين على البصمة نفسها: CI يقول "
-                        f"{ci.get('verdict')!r} — لا ترقية حتى يُفصل")
+                        f"{ci.get('verdict')!r}{corroboration(rep, ci)} — "
+                        "لا ترقية حتى يُفصل")
     # **شاهدٌ مسحوب:** حكمٌ صِيغ على براءةٍ سُحبت لا يشهد لشيء. ويُقاس بالزمن
     # لا بالاسم وحده: فمتى وصل حكمٌ بعد لحظة السحب زال الحاجز من نفسه.
     # ⛔ وموضعُه **قبل التجاوز** عمداً: `--override` رأيٌ في العتبة، وهذا
@@ -443,6 +1212,24 @@ def gate(rep, frozen, prefix, holds=None, override=None, ci_reports=None):
         return target, None
     if hi is None:
         return target, "بلا مجال ثقة في الحكم — D-068 لا تُطبَّق على تقديرٍ نقطي"
+    # ⛔ **مجالٌ بعرض صفر ادّعاءُ يقينٍ تامّ من عيّنةٍ محدودة.** وجده github-7e
+    # في أداته: المجال محسوبٌ على مستوى العنقود، فإذا انعدم التباين بين
+    # العناقيد انهار إلى نقطة — فطُبع «[0.0–0.0]» من 158 حدّاً. **ونحن نرقّي
+    # على الحدّ الأعلى**، فصفرٌ كاذبٌ يمرّ حيث يجب أن يمرّ رقمٌ حقيقيّ.
+    # وحارسٌ هنا يمسك الصنف كلَّه مهما تغيّرت الأداة.
+    if _lo is not None and hi == _lo:
+        return target, (f"مجالٌ بعرض صفر [{hi * 100:.2f}–{hi * 100:.2f}] — "
+                        "لا يقين تامّ من عيّنة؛ يُعاد حسابه")
+    # ⛔ **وعيّنةٌ صغيرة لا تستطيع أن تقول «مقبول» ولو خرجت نظيفة تماماً.**
+    # صفرُ أعطابٍ من 200 حدٍّ يعطي حدّاً أعلى 1.5%، ومن 50 يعطي **5.8%**.
+    # والحدُّ الأدنى مشتقٌّ لا مختار: أصغرُ ن يجعل الحدّ الأعلى عند صفر أحداثٍ
+    # دون العتبة هو ‏`1 − عتبة^(1/ن) < عتبة` (استنتاج github-7e).
+    n_min = _min_sample(SEVERE_CEILING)
+    n_obs = ((rep.get("sample") or {}).get("severe") or [None, None])[1]
+    if isinstance(n_obs, int) and n_obs < n_min:
+        return target, (f"عيّنةٌ من {n_obs} حدّاً لا تُغلق عتبة "
+                        f"{SEVERE_CEILING * 100:.0f}% مهما نظفت — "
+                        f"الحدّ الأدنى المشتقّ {n_min}")
     if hi >= SEVERE_CEILING:
         return target, (f"حدّيّ (D-068): الحدّ الأعلى {hi * 100:.1f}% ≥ "
                         f"{SEVERE_CEILING * 100:.0f}%")
@@ -481,18 +1268,27 @@ def catalog_gate(idx, cat):
     شيءٌ ممّا نفحص: بنيتُه سليمة وتغطيتُه تامّة وحكمُه الصوتي سيكون ممتازاً
     — **لأن الصوت صحيحٌ والاسم خطأ**.
     """
-    people = cat.get(idx.get("riwaya")) or {}
-    if not people:
-        return None                            # رواية بلا كتالوج: لا يُحكم
-    rid = idx.get("reciterId")
     refs = [e.get("fileRef") for e in (idx.get("entries") or [])[:300]]
     refs = sorted({r for r in refs if isinstance(r, str) and r.startswith("http")})
+    return catalog_gate_core(idx.get("riwaya"), idx.get("reciterId"), refs, cat)
+
+
+def catalog_gate_core(riwaya, rid, refs, cat):
+    """نواةُ حارس الهويّة — تعمل على **حقائقَ مستخرجة** لا على الفهرس كاملاً.
+
+    ولماذا نواةٌ وغلاف؟ لأن الفرز يعيد الحكم كلَّما تغيّر الحاكم، وتنزيلُ
+    أربعين فهرساً في كل مرّة يُبطئ الطابور ويثقل الشبكة. فالحقائق تُحفظ عند
+    أوّل قراءة، والحكمُ يُعاد منها — **بالمنطق نفسه لا بنسخةٍ ثانية منه**.
+    """
+    people = cat.get(riwaya) or {}
+    if not people:
+        return None                            # رواية بلا كتالوج: لا يُحكم
     row = people.get(rid)
     if row is None:
         owner = next((k for k, v in people.items()
                       if refs and v.get("base")
                       and all(r.startswith(v["base"]) for r in refs)), None)
-        return (f"معرّفٌ ليس في كتالوج {idx.get('riwaya')}: {rid!r}"
+        return (f"معرّفٌ ليس في كتالوج {riwaya}: {rid!r}"
                 + (f" — وصوتُه كلُّه لـ{owner!r}" if owner else ""))
     base = row.get("base")
     if base and refs:
@@ -501,6 +1297,64 @@ def catalog_gate(idx, cat):
             return (f"مصدرُ الصوت لا يطابق قاعدة {rid} في الكتالوج: "
                     f"{stray[0][:80]}")
     return None
+
+
+def facts_of(idx):
+    """حقائقُ الفهرس التي يحكم عليها الحارس — تُستخرج مرّةً وتُخزَّن.
+
+    **لماذا؟** الفرز يعيد الحكم كلّما تغيّرت البوابة، وتنزيلُ أربعين فهرساً
+    وفكُّ ضغطها في كل مرّة كلّف الطابور **عشر دقائقَ عمياء** لكل تعديل. فما
+    يُقرأ مرّةً لا يُعاد تنزيله ما دامت بصمة الكائن (`ETag`) لم تتغيّر —
+    والحكمُ يُعاد **من المنطق نفسه** لا من نسخةٍ ثانية منه.
+    """
+    tr = idx.get("transform")
+    return {
+        "riwaya": idx.get("riwaya"), "reciterId": idx.get("reciterId"),
+        "entries": len(idx.get("entries") or []),
+        "refineVersion": idx.get("refineVersion"),
+        "ayahCount": idx.get("ayahCount"),
+        "missing": idx.get("missing") if isinstance(idx.get("missing"), dict) else None,
+        "hasMissing": isinstance(idx.get("missing"), dict),
+        "surahs": sorted({e["ayahId"].split(":")[0]
+                          for e in (idx.get("entries") or [])}, key=int),
+        "transformOp": tr if isinstance(tr, str) else str((tr or {}).get("op") or ""),
+        "refs": sorted({e.get("fileRef") for e in (idx.get("entries") or [])[:300]
+                        if isinstance(e.get("fileRef"), str)
+                        and e["fileRef"].startswith("http")}),
+        "lowCount": idx.get("lowCount"),
+    }
+
+
+def gate_facts(f, cat=None):
+    """حكمُ الحارسين (البنية والهويّة) على **الحقائق** — وهو ما يستدعيه الفرز.
+
+    ⛔ ولا يُكرَّر منطقٌ هنا: `index_gate` نفسه يعمل على فهرسٍ مُعادِ التركيب
+    من الحقائق، فما يمرّ من أحدهما يمرّ من الآخر حرفاً.
+    """
+    fake = {"riwaya": f.get("riwaya"), "reciterId": f.get("reciterId"),
+            "refineVersion": f.get("refineVersion"),
+            "ayahCount": f.get("ayahCount"),
+            "missing": f.get("missing") if f.get("hasMissing") else None,
+            "transform": f.get("transformOp"),
+            "entries": _fake_entries(f)}
+    why = index_gate(fake)
+    if why or cat is None:
+        return why
+    return catalog_gate_core(f.get("riwaya"), f.get("reciterId"),
+                             f.get("refs") or [], cat)
+
+
+def _fake_entries(f):
+    """مداخلُ صوريّة تحمل **ما يحكم به الحارس فقط**: العدد وحضورُ السور.
+
+    ولا تُستعمل في غير ذلك — فليس فيها أزمنةٌ ولا نطاقات، وأيّ حارسٍ يحتاجها
+    يجب أن يعمل على الكائن لا على الحقائق.
+    """
+    sur = f.get("surahs") or []
+    rows = [{"ayahId": f"{s}:1"} for s in sur]
+    pad = max(0, int(f.get("entries") or 0) - len(rows))
+    filler = sur[0] if sur else "1"
+    return rows + [{"ayahId": f"{filler}:2"}] * pad
 
 
 def index_gate(idx):
@@ -521,6 +1375,24 @@ def index_gate(idx):
     # فهي **قرارٌ مسجَّل** لا فقدٌ مجهول — وحسابُها على العتبة يعاقب الإصلاح:
     # `akri_qalun` بعد إسقاط سورة 24 صار غيابه 2.0% فردّته العتبة، أي أنّ
     # البوابة كانت تفضّل شحن توقيتٍ على صوتٍ ناقص على قبول إسقاطه.
+    # **سورةٌ غائبةٌ كلّياً ليست «غياباً قليلاً».** ‏`shamrani` ينقصه 13 مدخلاً
+    # (0.2% دون العتبة) — **ومنها سورة 112 كاملةً**. والعتبةُ نسبةٌ، والنسبةُ
+    # عمياءُ عن التكتّل: أربعُ آياتٍ متفرّقة عطبٌ صغير، وأربعٌ هي سورةٌ تامّة
+    # عطبٌ يراه المستخدم لحظةَ يفتحها. (‏نبّه إليه github-7e، وأمسكه CI صوتياً.)
+    # والمُسقَط عمداً بتحويلٍ مسجَّل **يُستثنى**: أثرُه مكتوبٌ في `transform`.
+    present = {e["ayahId"].split(":")[0] for e in idx.get("entries", [])}
+    # ‏**`transform` يأتي نصّاً أو قاموساً**: كتبه `drop_surah` قاموساً وكتبه
+    # github-8e نصّاً — فتُقرأ الصيغتان ولا يُفترض شكلٌ واحد (وقع الافتراض
+    # فأسقط الأداة عند أوّل ملفٍّ من صانعٍ آخر).
+    tr = idx.get("transform")
+    op_txt = tr if isinstance(tr, str) else str((tr or {}).get("op") or "")
+    dropped = (set(re.findall(r"\d+", op_txt))
+               if op_txt.startswith("drop_surah") else set())
+    gone = sorted({str(n) for n in range(1, 115)} - present - dropped,
+                  key=int)
+    if gone and len(idx.get("entries", [])) > 4000:
+        return ("سورٌ غائبةٌ كلّياً: " + "، ".join(gone[:5])
+                + (f" (و{len(gone) - 5} غيرها)" if len(gone) > 5 else ""))
     excused = int((miss.get("byReason") or {}).get("source_truncated", 0))
     unexplained = count - excused
     if unexplained / total > MAX_MISSING_FRAC:
@@ -682,6 +1554,222 @@ def self_test(cl, bucket, prefix):
     if not (why and "تعارض" in why):
         raise SystemExit("⛔ تعارضُ CI لم يوقف الترقية")
     print("  ✅ حكمُ CI منفرداً لا يصير ممثِّلاً")
+    # **الشهادتان من CI (‏D-090) تُختبران بحدودهما**: ملحان مختلفان ومحرّكٌ
+    # واحد واتفاقٌ على القبول ⇒ ممثِّل؛ وملحٌ واحد أو محرّكان أو مخالفٌ ⇒ لا شيء.
+    eng = "pywhispercpp/ggml-q8 (tiny-ar-quran)"
+    c1 = dict(rep, source="ci", engine=eng, sample={"seed": 1, "seedSalt": "ci"}, ts=rep["ts"])
+    c2 = dict(rep, source="ci", engine=eng, sample={"seed": 2, "seedSalt": "ci2"}, ts=rep["ts"] + 1)
+    pair = ci_pair_reps([("a", c1), ("b", c2)])
+    if len(pair) != 2 or any(r.get("source") != CI_PAIR_SOURCE for _n, r in pair):
+        raise SystemExit("⛔ شهادتا CI بملحين مختلفين لم تُركَّبا ممثِّلاً")
+    if ci_pair_reps([("a", c1), ("b", dict(c2, sample={"seed": 2, "seedSalt": "ci"}))]):
+        raise SystemExit("⛔ ملحٌ واحد حُسب شهادتين — القاعدة 3 مكسورة")
+    if ci_pair_reps([("a", c1), ("b", dict(c2, engine="other"))]):
+        raise SystemExit("⛔ محرّكان مختلفان حُسبا شهادتين — القاعدة 3 مكسورة")
+    if ci_pair_reps([("a", c1), ("b", dict(c2, verdict="مرفوض"))]):
+        raise SystemExit("⛔ حكمان متعارضان رُكِّبا ممثِّلاً")
+    if ci_pair_reps([("a", c1), ("b", dict(c2, sample={"seed": 2}))]):
+        raise SystemExit("⛔ ملحٌ غير معلوم حُسب شهادة")
+
+    # **المصدر الثالث `cloud-build` (‏D-095)**: يشغّل `ci_run.py` نفسه على آلات
+    # Cloud Build بملح `cb`. يُختبر أمران: أنه **يشهد** كأي مصدر CI، وأنّ
+    # **البيئة وحدها لا تزيد الدليل** — فحكمان بملحٍ واحدٍ من بيئتين لا يُزاوجان.
+    b1 = dict(rep, source="cloud-build", engine=eng,
+              sample={"seed": 3, "seedSalt": "cb"}, ts=rep["ts"] + 2)
+    if len(ci_pair_reps([("a", c1), ("b", b1)])) != 2:
+        raise SystemExit("⛔ حكمُ Cloud Build لم يُزاوج حكمَ Actions بملحٍ مختلف")
+    if ci_pair_reps([("a", c1), ("b", dict(b1, sample={"seed": 3, "seedSalt": "ci"}))]):
+        raise SystemExit("⛔ بيئتان بملحٍ واحد حُسبتا شهادتين — البيئةُ ليست ملحاً")
+    if ci_pair_reps([("b", b1)]):
+        raise SystemExit("⛔ حكمُ Cloud Build وحده رُكِّب ممثِّلاً — ولا ترقية بحكم CI منفرد")
+
+    # **التجميع (‏D-098)** — تعميمُ D-092 من الصفر إلى أيّ عددِ أعطاب.
+    # ⛔ **البذرةُ تُشتقّ من الملح كما في `run.py`** (`sha256(riwaya/id/salt)`)
+    #    لا تُثبَّت على 1: تثبيتُها كان يُخفي عطبَ D-172 لأنّ كلّ العيّنات
+    #    تتصادم فيبدو الجمعُ صحيحاً بالمصادفة. **والاختبارُ يحاكي المنتَج.**
+    def _seed_of(salt):
+        return int(hashlib.sha256(f"tmp/selftest/{salt}".encode()).hexdigest()[:8], 16)
+
+    def _rp(salt, m, n, verdict=ACCEPTED, engine=eng, src="ci", seed=None):
+        return dict(rep, source=src, engine=engine, verdict=verdict,
+                    sample={"seed": _seed_of(salt) if seed is None else seed,
+                            "seedSalt": salt, "severe": [m, n, [m / n, 0.0, 0.9]]},
+                    ts=rep["ts"])
+    #  (١) مثالُ twfeeq: 7e‏ 7/200 (3.5%) + cb‏ 8/400 (2.0%) ⇒ 15/600 = 2.5%
+    pl = pooled_samples([_rp("local", 7, 200, src="local"), _rp("cb", 8, 400)])
+    if pl is None or pl["n"] != 600 or pl["m"] != 15:
+        raise SystemExit("⛔ التجميع لم يجمع عيّنتين مستقلّتين")
+    if not (0.024 < pl["rate"] < 0.026 and pl["hi"] < SEVERE_CEILING):
+        raise SystemExit(f"⛔ حدُّ التجميع خارج المتوقَّع: {pl}")
+    #  (٢) ملحٌ واحدٌ من بيئتين لا يُجمَّع — الاستقلالُ بالملح لا بالآلة
+    if pooled_samples([_rp("ci", 7, 200), _rp("ci", 8, 400)]) is not None:
+        raise SystemExit("⛔ ملحٌ واحد جُمِّع — الاستقلالُ بالملح لا بالمصدر")
+    #  (٣) محرّكان لا يُجمَّعان
+    if pooled_samples([_rp("ci", 7, 200), _rp("cb", 8, 400, engine="other")]) is not None:
+        raise SystemExit("⛔ محرّكان جُمِّعا")
+    #  (٤) عيّنةٌ دون الحدّ الأدنى تُبطل التجميع (‏التجميعُ يزيد الدليل ولا يخلقه)
+    if pooled_samples([_rp("ci", 0, 10), _rp("cb", 8, 400)]) is not None:
+        raise SystemExit("⛔ عيّنةٌ دون الحدّ الأدنى دخلت التجميع")
+    #  (٥) مرفوضٌ صريحٌ بتقديرٍ ≥ العتبة يمنع — الخلافُ يُفصل ولا يُذوَّب
+    if pooled_samples([_rp("ci", 20, 200, verdict="مرفوض"), _rp("cb", 0, 400)]) is not None:
+        raise SystemExit("⛔ رفضٌ صريحٌ ذُوِّب في متوسّطٍ مقبول")
+    #  (٦) وقاعدةُ الثلاثة (‏D-092) حالةٌ خاصّةٌ من كلوبر–بيرسون لا قاعدةٌ أخرى
+    z = pooled_samples([_rp("ci", 0, 200), _rp("cb", 0, 400)])
+    if z is None or not (abs(z["hi"] - 3.0 / 600) < 0.0005):
+        raise SystemExit(f"⛔ صفرُ الأعطاب لا يوافق قاعدة الثلاثة: {z}")
+    #  (٧) **D-172 — الهويّةُ البذرةُ لا الاسم**: اسمان متّحدان ببذرتين
+    #      مختلفتين شاهدان مستقلّان يُعدّان معاً؛ ولو فُهرس بالاسم لطُرح
+    #      أحدُهما صامتاً فنقص `n` واتّسع الحدُّ **فانقلب مقبولٌ ممتنعاً**.
+    same_name = pooled_samples([_rp("local", 7, 200, src="local", seed=11),
+                                _rp("local", 8, 400, src="local", seed=22)])
+    if same_name is None or same_name["n"] != 600 or same_name["m"] != 15:
+        raise SystemExit(f"⛔ D-172: اسمٌ واحدٌ ببذرتين لم يُعدّ شاهدين: {same_name}")
+    #      وبذرةٌ متّحدة إعادةُ قياسٍ يُبقى أحدثُها — **ويُطبع سببُ الطرح**
+    dup = pooled_samples([_rp("ci", 7, 200), _rp("cb", 8, 400),
+                          dict(_rp("cb", 9, 400), ts=rep["ts"] + 5)])
+    if dup is None or dup["n"] != 600 or dup["m"] != 16 or not dup.get("dropped"):
+        raise SystemExit(f"⛔ D-172: بذرةٌ متّحدة لم تُعامَل إعادةَ قياسٍ معلَنة: {dup}")
+    print("  ✅ D-098: تجميعُ عيّناتٍ بملوحٍ مختلفة بكلوبر–بيرسون؛ والملحُ الواحد "
+          "والمحرّكان والعيّنةُ الصغيرة والرفضُ الصريح تمنع؛ وصفرُ الأعطاب = 3/n؛ "
+          "وD-172: الاسمُ الواحدُ ببذرتين شاهدان، والبذرةُ المتّحدةُ إعادةُ قياسٍ معلَنة")
+
+    # **D-109** — رفعُ منعِ الرافض الواحد بشروطٍ أربعة.
+    #  حالةُ `yousef` الحقيقية: cb 10/400 · ci 5/200 · ci2 **12/200 مرفوض** ·
+    #  ورابعٌ cb2 10/400 ⇒ المجموع 37/1200 = 3.08%، وضِعفُه 6.17% > 6.00%.
+    four = [_rp("cb", 10, 400), _rp("ci", 5, 200),
+            _rp("ci2", 12, 200, verdict="مرفوض (عطبٌ جسيم 6.0% > 5%)"),
+            _rp("cb2", 10, 400)]
+    d100 = pooled_samples(four)
+    if d100 is None or d100.get("rule") != "D-109" or not d100.get("dissent"):
+        raise SystemExit(f"⛔ D-109: أربعةُ ملوحٍ برافضٍ واحدٍ دون الضِّعف لم تُجمَّع: {d100}")
+    if d100["n"] != 1200 or d100["m"] != 37:
+        raise SystemExit(f"⛔ D-109: المجموع خاطئ: {d100}")
+    #  (١) ثلاثةُ ملوحٍ فقط ⇒ لا رفعَ للمنع (الشرط: أربعةٌ فأكثر)
+    if pooled_samples(four[:3]) is not None:
+        raise SystemExit("⛔ D-109: ثلاثةُ ملوحٍ رفعت المنع — الشرطُ أربعة")
+    #  (٢) رافضان ⇒ اتفاقٌ لا شذوذ، فيمنعان
+    two_bad = list(four)
+    two_bad[3] = _rp("cb2", 24, 400, verdict="مرفوض (عطبٌ جسيم 6.0% > 5%)")
+    if pooled_samples(two_bad) is not None:
+        raise SystemExit("⛔ D-109: رافضان رُفع بهما المنع — الرافضان اتفاقٌ لا شذوذ")
+    #  (٣) تقديرُ الرافض ≥ ضِعف المجمَّع ⇒ إشارةُ تكتّلٍ لا ضجيج، فيمنع
+    far = list(four)
+    far[2] = _rp("ci2", 40, 200, verdict="مرفوض (عطبٌ جسيم 20% > 5%)")
+    if pooled_samples(far) is not None:
+        raise SystemExit("⛔ D-109: رافضٌ عند ضِعف المجمَّع فأكثر لم يمنع")
+    #  (٤) وبلا رافضٍ تبقى القاعدةُ D-098 لا D-109
+    clean = [_rp("cb", 10, 400), _rp("ci", 5, 200), _rp("cb2", 10, 400), _rp("ci2", 5, 200)]
+    if (pooled_samples(clean) or {}).get("rule") != "D-098":
+        raise SystemExit("⛔ D-109: وُسم بلا خلافٍ — القاعدةُ تُسمّى بما وقع")
+    print("  ✅ D-109: رافضٌ واحدٌ دون الضِّعف مع أربعة ملوحٍ يُجمَّع ويُذكر شاهدَ "
+          "خلاف؛ وثلاثةُ ملوحٍ أو رافضان أو رافضٌ عند الضِّعف تمنع")
+
+    # **D-175** — حكمُ فاحصٍ سابقٍ لإصلاح التبرئة الكاذبة **لا يشهد**.
+    #  ⛔ ويُختبر بطرفيه: القديمُ يُردّ، **والجديدُ يمرّ** — فحارسٌ يمنع الصوابَ
+    #     أسوأُ من غيابه، ولو مرّ الاختبارُ بالردّ وحده لَما كُشف ذلك.
+    op_old = {"kind": "openers", "sha256": rep["sha256"], "scope": "full",
+              "commit": "0000000", "swallowed": [], "suspect": []}
+    _t, why = gate(dict(rep), {}, prefix, {}, None, None, {rep["sha256"]: op_old})
+    if not (why and "أداةٍ سابقة" in why):
+        raise SystemExit(f"⛔ D-175: حكمُ فاحصٍ قديمٍ لم يُردّ: {why}")
+    op_new = dict(op_old, commit=OPENERS_FIX_COMMIT)
+    _t, why = gate(dict(rep), {}, prefix, {}, None, None, {rep["sha256"]: op_new})
+    if why and "أداةٍ سابقة" in why:
+        raise SystemExit("⛔ D-175: حكمُ الفاحص المصحَّح رُدّ — حارسٌ يمنع الصواب")
+    if not openers_tool_ok(op_new) or openers_tool_ok(dict(op_old, commit="")):
+        raise SystemExit("⛔ D-175: بصمةُ الأداة لا تُقرأ كما يجب")
+    print("  ✅ D-175: حكمُ فاحصٍ قبل إصلاح التبرئة الكاذبة لا يشهد؛ "
+          "وحكمُ المصحَّح يمرّ؛ وبلا بصمةِ أداةٍ لا اعتداد")
+
+    # **D-110** — `suspect` مع تأكيدٍ مستقلٍّ = مؤكَّدٌ يمنع؛ ووحدَه بلا أثر.
+    #  ⛔ وأوّلُ ما يُختبر أنّ المستخرِج **يعمل أصلاً**: كُتب أوّلَ مرّة بمحرف
+    #     تحكّمٍ خفيّ (‏U+0008) في نمطه، فكان **لا يطابق شيئاً أبداً** — قاعدةٌ
+    #     تامّةُ المنطق لا تنفُذ ولا تشتكي. **فحارسٌ بلا اختبارٍ ليس حارساً.**
+    conf = _swallowed_surahs_from(
+        {"fatal": ["بسملة مبتلعة في 67:1 — مؤكَّدة بالصوت"], "sample": {"rows": []}})
+    if conf != {67}:
+        raise SystemExit(f"⛔ D-110: بلاغُ الابتلاع في fatal لم يُقرأ: {conf}")
+    rows = _swallowed_surahs_from(
+        {"fatal": [], "sample": {"rows": [{"aid": "37:1", "why": "بسملة مبتلعة"},
+                                          {"aid": "9:1", "why": "بدء مبكر"}]}})
+    if rows != {37}:
+        raise SystemExit(f"⛔ D-110: صفوفُ العيّنة لم تُقرأ أو التُقط غيرُ المبتلع: {rows}")
+    if _swallowed_surahs_from({"fatal": ["خلل ما"], "sample": {}}):
+        raise SystemExit("⛔ D-110: بلاغٌ غامضٌ بلا رقمِ سورةٍ بُني عليه منع")
+    print("  ✅ D-110: بلاغُ الابتلاع يُقرأ من `fatal` ومن صفوف العيّنة برقم "
+          "السورة؛ والغامضُ لا يُبنى عليه منع")
+
+    # **D-111 (تنفيذُ قرار المشرف D-171)** — التجميعُ فصلٌ فيسبق إعلانَ التعارض.
+    #  حالةُ `nabil` الحقيقية: 7e مقبول 3/200 · ci حدّي 7/200 · ci2 حدّي 9/200.
+    loc = dict(rep, source="local", engine=eng, verdict=ACCEPTED,
+               sample={"seed": 1, "severe": [3, 200, [0.015, 0.0, 0.04]]}, ts=rep["ts"])
+    c_a = _rp("ci", 7, 200, verdict="حدّي (التقدير 3.5% والحدّ الأعلى 7.0% > 5%)")
+    c_b = _rp("ci2", 9, 200, verdict="حدّي (التقدير 4.5% والحدّ الأعلى 7.2% > 5%)")
+    #  (١) الملحُ الفارغ من مصدرٍ **محلّيّ** يُسمّى `local` فيشهد — وهو أقوى شهادةٍ عندنا
+    pl = pooled_samples([loc, c_a, c_b])
+    if pl is None or pl["n"] != 600 or pl["m"] != 19 or "local" not in pl["salts"]:
+        raise SystemExit(f"⛔ D-111: عيّنةُ 7e المحلية (بلا ملح) لم تدخل التجميع: {pl}")
+    if not (pl["hi"] < SEVERE_CEILING):
+        raise SystemExit(f"⛔ D-111: المجمَّع 19/600 كان يجب أن يُقبل: {pl}")
+    #  (٢) والملحُ الفارغ من مصدرٍ **غيرِ محلّيّ** يبقى مردوداً
+    if pooled_samples([dict(c_a, sample={"seed": 1, "severe": [7, 200]}), c_b]) is not None:
+        raise SystemExit("⛔ D-111: ملحٌ فارغٌ من مصدرٍ غيرِ محلّيّ دخل التجميع")
+    #  (٣) والفصلُ لا يقع مع رافضٍ صريح — الخلافُ الحقيقيُّ يبقى موقوفاً
+    if pooled_samples([loc, _rp("ci", 20, 200, verdict="مرفوض (عطبٌ جسيم 10%)"), c_b]) is not None:
+        raise SystemExit("⛔ D-111: رافضٌ صريحٌ ذُوِّب في الفصل")
+    print("  ✅ D-111/D-171: عيّنةُ 7e المحلية تشهد بملح `local`؛ والمجمَّع 19/600 "
+          "يفصل التعارض؛ والفارغُ من غير المحلّيّ والرافضُ الصريح يمنعان")
+    if ci_pair_reps([("a", c1), ("b", c2)], human_keys={rep["key"]}):
+        raise SystemExit("⛔ مفتاحٌ له حكمُ إنسان رُكِّب له زوجُ CI")
+    if len(sampled_candidates([("a", c1), ("b", c2)])) != 2:
+        raise SystemExit("⛔ sampled_candidates لا يُخرج زوج CI")
+    if len(sampled_candidates([("h", rep), ("a", c1), ("b", c2)])) != 1:
+        raise SystemExit("⛔ حكمُ الإنسان لم يغلب زوج CI على المفتاح نفسه")
+    print("  ✅ شهادتا CI (‏D-090): ملحان مختلفان + محرّكٌ واحد + اتفاقٌ ⇒ ممثِّل؛ وما دونه لا")
+    # **D-092**: زوجٌ كلاهما صفر عطب من 200 ⇒ ممثِّلٌ واحد مجمَّع بحدّ أعلى 3/400؛
+    # ومن 30+30 (دون الحدّ الأدنى) لا تجميع؛ وواحدٌ بعطب لا تجميع.
+    z1 = dict(c1, sample={"seed": 1, "seedSalt": "ci", "severe": [0, 200, [0.0, 0.0, 0.0]]})
+    z2 = dict(c2, sample={"seed": 2, "seedSalt": "ci2", "severe": [0, 200, [0.0, 0.0, 0.0]]})
+    pz = ci_pair_reps([("a", z1), ("b", z2)])
+    if len(pz) != 1 or not pz[0][1].get("pooled") or abs(pz[0][1]["pooled"]["hi"] - 3 / 400) > 1e-12:
+        raise SystemExit("⛔ D-092: زوجٌ صفريّ لم يُجمَّع بحدّ 3/400")
+    _t, why = gate(pz[0][1], {}, prefix, {}, None)
+    if why and ("عرض صفر" in why or "لا تُغلق" in why):
+        raise SystemExit(f"⛔ D-092: الممثِّل المجمَّع رُدّ بحارس العيّنة: {why}")
+    s1 = dict(z1, sample=dict(z1["sample"], severe=[0, 30, [0.0, 0.0, 0.0]]))
+    s2 = dict(z2, sample=dict(z2["sample"], severe=[0, 30, [0.0, 0.0, 0.0]]))
+    if any(r.get("pooled") for _n, r in ci_pair_reps([("a", s1), ("b", s2)])):
+        raise SystemExit("⛔ D-092: عيّنتان دون الحدّ الأدنى جُمِّعتا")
+    d2 = dict(z2, sample=dict(z2["sample"], severe=[1, 200, [0.005, 0.0, 0.0148]]))
+    if any(r.get("pooled") for _n, r in ci_pair_reps([("a", z1), ("b", d2)])):
+        raise SystemExit("⛔ D-092: زوجٌ فيه عطب جُمِّع")
+    _t, why1 = gate(z1, {}, prefix, {}, None)
+    if not (why1 and "عرض صفر" in why1):
+        raise SystemExit("⛔ القاعدة 6 لم تعد تردّ الحكم المنفرد الصفري")
+    # **D-093**: حدّي CI (تقدير < العتبة، حدّ أعلى ≤ 6%) لا يناقض 7e مقبولاً؛
+    # وحدّي بحدّ أعلى 7% أو مرفوض صريح يناقض؛ ولا يسري على زوج CI.
+    hb = dict(rep, source="ci", engine=eng, verdict="حدّي (التقدير 3.0% والحدّ الأعلى 5.2% > 5%)",
+              sample={"seed": 9, "seedSalt": "ci2", "severe": [6, 199, [0.03, 0.01, 0.052]]})
+    human = dict(rep)
+    _t, why = gate(human, {}, prefix, {}, None, {rep["sha256"]: hb})
+    if why and "تعارض" in why:
+        raise SystemExit(f"⛔ D-093: حدّي CI عُدّ تناقضاً: {why}")
+    if not human.get("ciBorderline"):
+        raise SystemExit("⛔ D-093: لم يُسجَّل الحدّي في الحكم لسطر التجميد")
+    hb7 = dict(hb, sample=dict(hb["sample"], severe=[8, 199, [0.04, 0.015, 0.07]]))
+    _t, why = gate(dict(rep), {}, prefix, {}, None, {rep["sha256"]: hb7})
+    if not (why and "تعارض" in why):
+        raise SystemExit("⛔ D-093: حدّي بحدّ أعلى 7% مرّ")
+    rj = dict(hb, verdict="مرفوض (عطبٌ جسيم 6.0% > 5%)", sample=dict(hb["sample"], severe=[12, 200, [0.06, 0.03, 0.09]]))
+    _t, why = gate(dict(rep), {}, prefix, {}, None, {rep["sha256"]: rj})
+    if not (why and "تعارض" in why):
+        raise SystemExit("⛔ D-093: مرفوضٌ صريح مرّ")
+    pr = dict(rep, source=CI_PAIR_SOURCE)
+    _t, why = gate(pr, {}, prefix, {}, None, {rep["sha256"]: hb})
+    if not (why and "تعارض" in why):
+        raise SystemExit("⛔ D-093: سرى على زوج CI")
+    print("  ✅ D-093: حدّي CI (≤6%) لا يناقض 7e مقبولاً؛ و7% أو مرفوضٌ صريح يناقض؛ ولا يسري على زوج CI")
+    print("  ✅ D-092: زوجٌ صفريّ ≥59+59 ⇒ ممثِّلٌ مجمَّع بحدّ 3/(n1+n2)؛ ودون الحدّ أو مع عطبٍ لا؛ والقاعدة 6 باقية للمنفرد")
     WITHDRAWN_MAP = None
     return [("self-test", rep),
             ("self-test-bad-sha", dict(rep, sha256="0" * 64)),
@@ -730,16 +1818,24 @@ def main():
               f"· تحقّق عام {public_size(FROZEN_KEY)}")
         return
     everywhere = (self_test(cl, bucket, a.prefix) if a.self_test
-                  else list(reports()) + bucket_reports(cl, bucket))
+                  else (list(REPORTS_CACHE) if REPORTS_CACHE is not None
+                        else list(reports()) + bucket_reports(cl, bucket)))
     ci_reports = ci_map(everywhere)
-    items = everywhere if a.self_test else latest_sampled(everywhere)
+    openers_reports = None if a.self_test else openers_map(everywhere)
+    # ⛔ **D-111 كانت نصفَ مطبَّقة**: بُنيت في الراصد وغابت هنا — والراصدُ
+    #    يفحص ثمّ **يستدعي `main` هي التي تُرقّي**، فكان يقول «يمرّ» ثمّ يردُّه
+    #    هذا المسار بالتعارض نفسِه، **فبقي `nabil` محبوساً دورتين بعد إصلاحه**.
+    #    وهي عينُ قاعدة `sampling_skip_reason`: **قاعدةٌ في أداةٍ وغائبةٌ عن
+    #    أختها ليست قاعدة — هي عادةُ أداة.** ⇒ الفاصلُ حيث يقع الحكم.
+    pooled_map = None if a.self_test else pooled_map_of(everywhere)
+    items = everywhere if a.self_test else sampled_candidates(everywhere)
     if a.only:
         items = [(n, r) for n, r in items if r.get("key") == a.only]
 
     ready, refused, done = [], [], []
     for name, rep in items:
         target, why = gate(rep, frozen, a.prefix, holds, a.override,
-                           ci_reports)
+                           ci_reports, openers_reports, pooled_map)
         if why:
             refused.append((rep.get("key"), why))
             if why.startswith("حدّيّ") and a.yes:
@@ -748,11 +1844,25 @@ def main():
         ready.append((name, rep, target))
 
     print(f"أحكامٌ مقروءة: {len(items)} · مرشّحون: {len(ready)} · مرفوضون: {len(refused)}")
-    for key, why in refused[:40]:
+    # ⛔ **حدُّ الطباعة يصنع عمىً**: كانت تُطبع أربعون سبباً من مئاتٍ فيسقط
+    #    سببُ المرشّحين الحقيقيين — من `timings-staging/` — تحت ركامِ أسبابِ
+    #    فهارسِ الإنتاج المعادِ حكمُها، **فبقي ثلاثةٌ محبوسون ساعاتٍ بلا سببٍ
+    #    ظاهر وأنا أقرأ «صفر مرشّحين» ولا أرى لماذا**. ⇒ المرشّحون أوّلاً،
+    #    وبلا سقف؛ وما عداهم بسقفه.
+    stage = [(k, w) for k, w in refused if str(k).startswith("timings-staging/")]
+    other = [(k, w) for k, w in refused if not str(k).startswith("timings-staging/")]
+    for key, why in stage:
         print(f"  ⛔ {key}: {why}")
+    for key, why in other[:20]:
+        print(f"  ⛔ {key}: {why}")
+    if len(other) > 20:
+        print(f"  … و{len(other) - 20} سبباً آخر لفهارسِ إنتاجٍ أُعيد حكمُها")
 
+    promoted_targets = set()
     for _name, rep, target in ready:
         src = rep["key"]
+        if target in promoted_targets:
+            continue          # الهدف رُقّي في هذه الجولة (زوجُ CI يعطي مرشّحين — D-090)
         try:
             live_sha, size, body = object_sha(cl, bucket, src)
         except Exception as ex:                       # noqa: BLE001
@@ -839,6 +1949,45 @@ def main():
             print(f"  ⚠️ {src}: لا تشخيص كتالوج لهذا القارئ — "
                   "البترُ المصدري غير مفحوص (يُرقّى بحكمه الصوتي وحده)")
         idx = json.loads(gzip.decompress(body).decode("utf-8"))
+        # ⛔ **حارسُ خلط المحرّكات** (‏كتبته جلسةٌ أخرى 2026-09-07): أنتجت
+        #    الدورةُ الآليةُ `op=source_timing_splice:37` — دسّت سورةً من مصدر
+        #    التوقيت في فهرسٍ من محرّكنا، والترويسةُ تقول `align-0.2` وحده
+        #    **فتكذب على قارئها**. والقاعدة: **فهرسٌ واحد = محرّكٌ واحد وجيلٌ
+        #    واحد**، ومن قبِل المختلط لا يعرف أيَّ حكمٍ يُنزل على أيّ موضع.
+        #
+        # ⛔⛔ **ونُقل إلى هنا 2026-09-07 (‏جنديّ الفهرسة): حكمُه كما هو ولم
+        #    يُمسّ، وإنما موضعُه كان فوق سطر `idx = …` فيقرأ متغيّراً لم
+        #    يُسنَد** — فانهار `promote.py` كلُّه بـ`UnboundLocalError` على
+        #    **أوّل مرشّحٍ أيّاً كان** (‏مقيسٌ 23:2xZ)، أي أنّ البوابةَ توقّفت عن
+        #    ترقية كلِّ أحد لا عن ردّ المخالف وحده. وهو **العطبُ نفسُه حرفاً**
+        #    الذي وقع في حارس D-186 أمسِ ووُثّق في المرجع الجامع (‏الدرس
+        #    الخامس عشر) — تكرّر لأنّ الدرسَ كان في مستندٍ لا في مكانِ الخطأ.
+        #    ⇒ فليبقَ هذان الحارسان متجاورَين تحت سطر التحميل: **كلُّ حارسٍ
+        #    يقرأ `idx` موضعُه بعده، بلا استثناء.**
+        if _op_mixes_engines((idx.get("transform") or {}).get("op") or ""):
+            print(f"  ⛔ {src}: تحويلٌ يخلط محرّكين في فهرسٍ واحد — "
+                  "فهرسٌ واحد = محرّكٌ واحد وجيلٌ واحد")
+            continue
+        # ⛔ **حارسُ قاعدة D-186 في الأداة لا في الوصيّة** (‏2026-09-06):
+        #    أنتجت الدورةُ الآليةُ بصمةً بـ`drop_surah:56,110` — وسورةُ 56
+        #    (الواقعة) 96 آية، وتعديلُ D-186 ينصّ: «لا إسقاط لسورةٍ
+        #    تزيد على 20 آية إلا بإذنٍ نصّيّ». فالقاعدةُ كانت في قرارٍ
+        #    **ولا حارسَ يمنعها**، فخالفَتها أداةٌ تعمل بلا إنسان.
+        #    **الوصيّةُ لا تحرس؛ الحارسُ يحرس.**
+        # ⛔⛔ وموضعُه **بعد تحميل `idx`** لا قبله (‏عطبٌ مقيس 2026-09-06 22:4xZ):
+        #    كُتب أوّلَ مرّةٍ فوق سطر التحميل، فكان يقرأ `idx` غيرَ المسنَد —
+        #    فينهار `UnboundLocalError` على أوّل مرشّح، **أو أسوأُ منه**: يقرأ
+        #    `idx` **المرشَّحِ السابق** في الدورات التالية فيحكم على فهرسٍ
+        #    بتحويلِ غيره. وهو عمىً في اتجاهين: يمنع البريء ويُمرّر المخالف.
+        _op = (idx.get("transform") or {}).get("op") or ""
+        if _op.startswith("drop_surah:") and not a.allow_truncated:
+            _big = [n for n in (int(x) for x in re.findall(r"\d+", _op))
+                    if 1 <= n <= 114 and _AYAH_COUNTS[n - 1] > 20]
+            if _big:
+                _nm = "، ".join(f"س{n} ({_AYAH_COUNTS[n - 1]} آية)" for n in _big)
+                print(f"  ⛔ {src}: إسقاطُ {_nm} يخالف تعديلَ D-186 — "
+                      "لا إسقاط لما زاد على 20 آية إلا بإذنٍ نصّيّ")
+                continue
         # شرطا الفهرس نفسه (لا الحكم): أثرُ الصقل ووسمُ الاكتمال.
         bad = index_gate(idx) or catalog_gate(idx, catalog(cl, bucket))
         if bad:
@@ -851,7 +2000,26 @@ def main():
         # `severeRate` يأتي رقماً في بعض التقارير وقاموساً بمجاله في غيرها —
         # فيُقرأ الشكلان، ولا يُفترض شكلٌ واحد (وقع الافتراض فأسقط أول ترقية).
         severe = rep.get("severeRate")
-        if isinstance(severe, dict):
+        if rep.get("pooled"):
+            pz = rep["pooled"]
+            # ⛔ **السطرُ يصف ما وقع لا ما توقّعناه.** كان النصُّ ثابتاً «صفر عطب
+            #    — D-092» فطُبع على ترقياتٍ مجمَّعةٍ **فيها أعطاب** (‏D-098):
+            #    `m_harfoush` جُمّد بـ«صفر عطب» وأجزاؤه `[5,200]+[5,200]`.
+            #    وسطرُ التجميد **سجلٌّ دائم**، فكذبُه يبقى بعد أن يُنسى سببُه.
+            #    ⇒ القاعدةُ والملوحُ والأعطابُ تُقرأ من الحساب نفسه.
+            salts = pz.get("salts")
+            m = pz.get("m")
+            # ⛔ **وشاهدُ الخلاف يُذكر** (‏D-109): ترقيةٌ فيها رافضٌ منفرد
+            #    **ليست إجماعاً**، والسكوتُ عنه في سطرٍ دائمٍ يجعلها تُقرأ كذلك.
+            ds = pz.get("dissent") or []
+            rate = (f"حدّ أعلى {pz['hi'] * 100:.2f}% من {pz['n']} حدّ "
+                    + (f"بملوح {'+'.join(salts)} " if salts else "بملحين ")
+                    + f"({'+'.join(str(x) for x in pz['parts'])}، "
+                    + (f"{m} عطباً" if m else "صفر عطب")
+                    + f" — {pz.get('rule', 'D-092')})"
+                    + ("".join(f" ⚠️ خلافٌ مذكور: ملح {d['salt']} رفض بـ"
+                               f"{d['rate'] * 100:.1f}% من {d['n']}" for d in ds)))
+        elif isinstance(severe, dict):
             rate = (f"{severe.get('rate', 0) * 100:.1f}% "
                     f"[{severe.get('lo', 0) * 100:.1f}–{severe.get('hi', 0) * 100:.1f}]")
         elif isinstance(severe, (int, float)):
@@ -885,6 +2053,10 @@ def main():
               f"شرطية {'نعم' if cond else 'أول كتابة'}) · العام {mpub} "
               f"→ {'✅' if mpub == mlen else '❌'}")
         note = ("ترقية بتجاوزٍ صريح" if a.override else "ترقية بحكمٍ")
+        if rep.get("ciBorderline"):
+            cb = rep["ciBorderline"]
+            note += (f" (‏7e مقبول؛ وCI/{cb.get('salt')} حدّي {cb['rate'] * 100:.1f}% "
+                     f"بحدّ أعلى {cb['hi'] * 100:.1f}% — D-093)")
         line = freeze(cl, bucket, target, live_sha,
                       f"{note} · عطب {rate} · مداخل {row['entries']}")
         print(f"  🧊 جُمّد: {line}")
@@ -897,6 +2069,7 @@ def main():
                         + "- **حكم الفهرس كما هو ولم يُعدَّل:** "
                         + str(rep.get("verdict")) + chr(10)
                         + "- **السبب:** " + a.override + chr(10))
+        promoted_targets.add(target)
         done.append({"when": time.strftime("%Y-%m-%d %H:%M")
                      + (" (تجربة)" if a.self_test else ""),
                      "src": src, "dst": target, "sha": live_sha,
