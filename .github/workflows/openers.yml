@@ -73,6 +73,8 @@ jobs:
           PY
 
   scan:
+    # ⛔ الاسمُ يحمل المفتاح — يُقرأ والتشغيلةُ جارية (سجلُّ الجارية 404).
+    name: openers ${{ matrix.key }}
     needs: prepare
     runs-on: ubuntu-latest
     timeout-minutes: 120
