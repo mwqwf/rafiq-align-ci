@@ -2,11 +2,15 @@
 #
 # ⛔ **كلُّ صفٍّ هنا منقولٌ من جدولٍ مقيس**: `docs/qa/WARSH_QALUN_RECITERS_SURVEY_2026-09-05.md`
 #    — روابطُه محقَّقةٌ بـ`HEAD` و`metadata` وعددُ ملفّاتِه مقروء. **ولا يُكتب صفٌّ من ظنّ.**
+#    ورقمُ المرشَّح في المسح (W6 · Q10 …) أوّلُ ما في عمود الملاحظة، فيُراجَع أصلُه بلا بحث.
 #
-# ⛔ **ولا يُدرَج إلا ما كانت تسميةُ ملفّاته `NNN.mp3`**: كثيرٌ من عناصر archive
-#    يسمّي ملفّاته `NNN اسمُ السورة.mp3` (‏Q1 شيخنا ولد سيد الحاج · Q2 الناجي ولد
-#    بلال · W2 لغظف) — والمسبارُ يبني `{base}/{NNN}.mp3`، فتلك تحتاج **جدولَ
-#    مطابقةٍ لأسمائها** ولا تُوضع هنا حتى يُبنى. (وهي علّةُ `laghdaf_shinqiti` نفسُها.)
+# ⛔ **ولا يُدرَج مرشَّحٌ تسميةُ ملفّاته `NNN اسمُ السورة.mp3`**: المسبارُ يبني
+#    `{base}/{NNN}.mp3` (‏`probe_new_reciter.py:196`)، فتلك تحتاج **جدولَ مطابقةٍ
+#    لأسمائها**. والمؤجَّلون بهذا السبب: **Q1** شيخنا ولد سيد الحاج · **Q2** الناجي
+#    ولد بلال · **W2** لغظف (‏وهو `laghdaf_shinqiti` عندنا، وعلّتُه هي هي) ·
+#    **W14** هشام الهراز · **W36** عبد الرحيم نبولسي.
+#    ⚠️ وثلاثةٌ منهم موريتانيّان وأوّلُ الأولوية — فبناءُ جدول المطابقة مردودُه أعلى
+#    من أيّ صفٍّ يُضاف هنا.
 #
 # ⛔ **الترتيبُ هو الأولوية** كما في الأمر الدائم: ورشٌ وقالون · موريتانيا ←
 #    ليبيا ← الجزائر ← المغرب ← غيرها. والمسبارُ يُطلق من أعلى الملفّ نزولاً.
@@ -20,21 +24,90 @@
 # ⭐ سورتا الشاهد **89 و104** لا 1 و112 — قِيس 2026-09-07 (الدرس 31): نصُّ 112
 #    واحدٌ في الروايتين ⇒ `conflict` دائمٌ ⇒ مسبارٌ ثالثٌ مهدورٌ على كلّ مرشَّح.
 #    يُعاد القياسُ بـ`reciter_evidence.py --witness-surahs <رواية>`.
+#
+# ⛔ **ولا يُدرَج مَن عندنا** — قِيس من `catalog/reciters.json` على الدلو
+#    (2026-09-07 23:3xZ): ورشٌ 13 مُعرِّفاً وقالون 11، ولا يصطدم بها معرِّفٌ هنا.
+#
+# ⭐⭐ **وكلُّ صفٍّ هنا محقَّقٌ بـ`HEAD` على `{base}/001.mp3` = 200** (‏قِيس
+#    2026-09-07 23:4xZ، والحجمُ مكتوبٌ في السجلّ). **ولا يُضاف صفٌّ بلا هذا القياس**
+#    — فقد ردَّ خمسةً من ثلاثين، **أحدُها `gharbi_warsh` وكان مُدرَجاً هنا منذ
+#    فتح الذراع**: أي أنّ الموجةَ الأولى كانت ستحرق عدّاءً على مسارٍ ساقط.
 
-# ── موريتانيا ──────────────────────────────────────────────────────────────
+# ── موريتانيا ─────────────────────────────────────────────────────────────────
 rabbani_warsh	warsh	سليمان ولد الرباني	https://archive.org/download/alfirdwsiy1433_35686535653683658668356566586356gmail_002	89,104	archive.org — لا رخصة معلنة (رفعٌ عامّ)	A	W1 · 114 مقروءةٌ من metadata + HEAD 001/002/114 · 64k/44.1 Info(VBR) · شاهدٌ ثانٍ midad 460834 «ورش، مكتمل 114» + islamway 16725
 
-# ── ليبيا ─────────────────────────────────────────────────────────────────
+# ── ليبيا ─────────────────────────────────────────────────────────────────────
 sultani_warsh	warsh	مفتاح محمد السلطني	https://archive.org/download/Al-Quran_Warsh_tilawat_Moftah_Assultany	89,104	archive.org — لا رخصة معلنة (رفعٌ عامّ)	A	W3 · 114 + HEAD ✓ · 128k/44.1/CBR · tilawa.org + islamhouse 475749 + islamweb 1552 · ⚠️ عندنا حفصُه فقط
 sultani_qalun	qalun	مفتاح محمد السلطني	https://archive.org/download/Al-Quran_Qaloon_Moftah_Assultany	89,104	archive.org — لا رخصة معلنة (رفعٌ عامّ)	A	Q3 · 114 + HEAD ✓ · 128k/44.1/CBR · tilawa + islamweb + alkabbah
 noah_warsh	warsh	يوسف بن نوح أحمد	https://archive.org/download/Al-Quran_Warsh_tilawat_Youssef_Noah	89,104	archive.org — لا رخصة معلنة (رفعٌ عامّ)	A	W4 · 114 + HEAD ✓ · 64k/44.1/CBR · tilawa + assabile 319 · ⚠️ البلد غير مؤكد
 noah_qalun	qalun	يوسف بن نوح أحمد	https://archive.org/download/Al-Quran_Qaloon_tilawat_Yousuf_Nooh_Ahmad	89,104	archive.org — لا رخصة معلنة (رفعٌ عامّ)	A	Q8 · 114 + HEAD ✓ · 64k/44.1/CBR · tilawa + assabile 318
 gardeli_qalun	qalun	جوهر القردلي	https://archive.org/download/Al-Quran_Qaloon_tilawat_Jawhar_Gardeli	89,104	archive.org — لا رخصة معلنة (رفعٌ عامّ)	A	Q4 · 114 + HEAD ✓ · 128k/44.1/CBR · tilawa + islamweb 2185 + assabile 550 · ⚠️ ليبيا غير مؤكد
 suhaim_qalun	qalun	محمد أحمد سحيم	https://archive.org/download/Al-Quran_Qaloon_tilawat_Mohammed_Sahim	89,104	archive.org — لا رخصة معلنة (رفعٌ عامّ)	A	Q5 · 114 + HEAD ✓ · 128k/44.1/CBR · tilawa + assabile 206 · ⚠️ ليبيا غير مؤكد
+barrak_qalun	qalun	علي البراق	https://archive.org/download/128-kb---aly---albarraq-by--qaloon----mp3--full--mushaf--quran--114--sora--fro	89,104	archive.org — لا رخصة معلنة (رفعٌ عامّ)	A	Q6 · 114 + HEAD ✓ (archive وsuratmp3 reciter/66/64) · ⚠️ الرأسُ 64k/22kHz رغم «128» في الاسم · assabile 452 · ⚠️ ليبيا غير مؤكد
+kherkhashi_qalun	qalun	أبو يوسف الخرخاشي	https://archive.org/download/alkabbah.com-ABO-YOOSEF-ALKHERKHASHY-QALOON	89,104	archive.org — لا رخصة معلنة (رفعٌ عامّ)	A	Q9 · 114 + HEAD ✓ · 60.3 م.ب/125د (‏ID3 ضخمٌ فلم يُقرأ الرأس) · islamweb 1214 «مصحف مكتمل» · ⚠️ ليبيا غير مؤكد
+qeryo_qalun	qalun	أحمد أحمد عثمان القريو	https://archive.org/download/vy2018_gmail_v002_20180811	89,104	archive.org — لا رخصة معلنة (رفعٌ عامّ)	A	Q10 · 114 + HEAD ✓ · 87.2 م.ب/10886ث · islamweb 1146 «مصحف مكتمل»
 
-# ── الجزائر ───────────────────────────────────────────────────────────────
-gharbi_warsh	warsh	مصطفى غربي	https://archive.org/download/128----kb-mustufa--gharby---by--warsh-mp3--full--mushaf--quran--114--sora---fr	89,104	archive.org («من إسلام هاوس») — لا رخصة معلنة	A	W5 · 114 + HEAD ✓ على نسختين + suratmp3 · 128k/44.1/CBR · tilawa + assabile 91 + suratmp3 يسمّي الرواية
+# ── الجزائر ───────────────────────────────────────────────────────────────────
+hamdan_warsh	warsh	محمد الطيب حمدان	https://archive.org/download/64kb--mohammad--altayyeb--7emdan--by-----warsh-----mp3--full--mushaf--quran--1	89,104	archive.org — لا رخصة معلنة (رفعٌ عامّ)	A	W6 · 114 + HEAD ✓ (archive وsuratmp3 reciter/79/64، و002 = 67.3 م.ب فيهما = الملفُّ نفسُه) · 64k/44.1/Info · assabile 80 · ⚠️ الجزائر غير مؤكد
+wahrani_warsh	warsh	منصور بلحاج الوهراني	https://archive.org/download/Al-Quran_tilawat_Mansour_Al-Wahrani	89,104	archive.org — لا رخصة معلنة (رفعٌ عامّ)	A	W7 · 114 + HEAD ✓ · 64k/22kHz/CBR · 60.7 م.ب/7582ث · tilawa + assabile 549 · (‏نسخةُ الأصبهاني حدرٌ 3879ث — لا تُخلط)
+ibrahimi_warsh	warsh	محمد مقاتلي الإبراهيمي	https://archive.org/download/64---kb---mohammad--moqatly--alebraheemy--algzaery----by--warsh--by--alazraq--	89,104	archive.org — لا رخصة معلنة (رفعٌ عامّ)	A	W8 · 114 + HEAD ✓ (archive وsuratmp3 reciter/87/64) · 64k/44.1/Info · 78.8 م.ب/9845ث · ورش/الأزرق · assabile 546
+belaachya_warsh	warsh	رشيد بلعشية	https://archive.org/download/128----kb-rasheed--bel3asheyya------by--warsh---by--alazraq--mp3--full--mushaf	89,104	archive.org — لا رخصة معلنة (رفعٌ عامّ)	A	W9 · 114 + HEAD ✓ · 128k/44.1/CBR · 82.4 م.ب/5147ث · ورش/الأزرق · tilawa + assabile 423 · ⚠️ البلد غير مؤكد، وغيرُ «سمير بلعشية المغربي»
 
-# ── مصر ───────────────────────────────────────────────────────────────────
+# ── المغرب ────────────────────────────────────────────────────────────────────
+hadidi_warsh	warsh	عبد الكبير الحديدي	https://archive.org/download/QuranByHadidiWarsh	89,104	archive.org — Public Domain Mark 1.0 (معلن)	A	W15 · 114 + HEAD ✓ · 128k/44.1/CBR · 126.2 م.ب/7887ث · الرافعُ باسم الشيخ · assabile 217/3385 + suratmp3 reciter/81/32
+anoun_warsh	warsh	عبد العلي أعنون	https://archive.org/download/Al-Quran_Warsh_tilawat_Abdul_Ali_Aanoun	89,104	archive.org — لا رخصة معلنة (رفعٌ عامّ)	A	W17 · 114 + HEAD ✓ · 128k/44.1/CBR · 153.2 م.ب/9570ث · ورش/الأزرق · tilawa + assabile 461 · (‏وللأصبهاني مسارٌ آخر)
+hssain_warsh	warsh	عبد الحميد احساين	https://archive.org/download/114-sora-abd-alhameed-ahsayn--quran-warsh-64kb_vbr-_mp3	89,104	archive.org — لا رخصة معلنة (رفعٌ عامّ)	A	W18 · 114 + HEAD ✓ · VBR (‏ID3 ضخمٌ فلم يُقرأ رأسُ 112 ضمن 120ك) · 37.6 م.ب/4702ث · assabile 214 + suratmp3 reciter/76/32
+safa_warsh	warsh	محمد صفا	https://archive.org/download/Tilawa.org_003	89,104	archive.org — لا رخصة معلنة (رفعٌ عامّ)	A	W20 · 114 + HEAD ✓ · 128k/44.1/CBR · 115.1 م.ب/7188ث · tilawa + assabile 466
+kholti_warsh	warsh	معاذ الخلطي	https://archive.org/download/Tilawa.org_002	89,104	archive.org — لا رخصة معلنة (رفعٌ عامّ)	A	W21 · 114 + HEAD ✓ · 48k/22kHz/CBR · 49.7 م.ب/8267ث · tilawa + assabile 463/3384 · ⚠️ جودةٌ متوسطة
+maroush_qalun	qalun	كمال المروش	https://archive.org/download/Kamal-Almaroush-Qalon	89,104	archive.org («من طريق الإسلام») — لا رخصة معلنة	A	Q22 · 114 + HEAD ✓ · 32k/22kHz · 47.1 م.ب/11780ث · assabile 3387 + islamweb · ⚠️ جودةٌ متدنيةٌ وبطءٌ شديد (تعليميّ؟) — يُحكم بعد المسبار
+
+# ── مصر · تونس · غيرها ────────────────────────────────────────────────────────
 janaini_qalun	qalun	محمد عمر الجنايني	https://archive.org/download/Al-Quran_Qaloon_tilawat_Aljanaini	89,104	archive.org — لا رخصة معلنة (رفعٌ عامّ)	A	Q23 · 114 + HEAD ✓ · 128k/44.1/CBR · tilawa + assabile 535
 magdi_qalun	qalun	مجدي سالم	https://archive.org/download/Al-Quran_Qaloon_tilawat_Magdi_Salem	89,104	archive.org — لا رخصة معلنة (رفعٌ عامّ)	A	Q24 · 114 + HEAD ✓ · 128k/44.1/CBR · tilawa + assabile 474
+mudhaffar_qalun	qalun	أبو عبد الله منير المظفر التونسي	https://archive.org/download/alfirdwsiy1433689-896-689-869-896-689-89ail_002	89,104	archive.org — لا رخصة معلنة (رفعٌ عامّ)	A	Q27 · 114 + HEAD ✓ (archive وsuratmp3 reciter/68/64) · 38.2 م.ب/9555ث · تونس · assabile 442
+masarawy_warsh	warsh	حسن عيسى المعصراوي	https://archive.org/download/Al_Quran_tilawat_Hassan_Eissa_AlMasarawy	89,104	archive.org — لا رخصة معلنة (رفعٌ عامّ)	A	W31 · 114 + HEAD ✓ · 128k/44.1/CBR · 133.6 م.ب/8344ث · مصر · tilawa + islamweb 2429 (يضعه في الأصبهاني)
+hsaleh_warsh	warsh	حسن محمد صالح	https://archive.org/download/Al-Quran_tilawat_Hassan_Mohammed_Saleh_Warsh	89,104	archive.org — لا رخصة معلنة (رفعٌ عامّ)	A	W32 · 114 + HEAD ✓ · 128k/44.1/CBR · 114.6 م.ب/7158ث · ورش/الأزرق · islamweb 1376 «مصحف مكتمل» + assabile 284 · ⚠️ غيرُ `h_saleh` الحفصيّ عندنا
+
+# ══════════ ⛔⛔ خمسةٌ ردَّها `HEAD` — تسميةٌ **بنمطٍ** لا بأرقامٍ مجرَّدة ══════════
+# قِيس 2026-09-07 23:4xZ: مُعرِّفاتُ archive صحيحةٌ حرفاً (‏تحقَّقت من
+# `advancedsearch.php`) و**في كلٍّ منها 114 ملفَّ mp3 تماماً** (‏من
+# `archive.org/metadata/<id>`) — والمانعُ أنّ أسماءَ الملفّات ليست `NNN.mp3`:
+#
+#   gharbi_warsh    (W5)  ar_001_Mustapha_Gharbi_Warsh.mp3
+#   kantaoui_warsh  (W13) ar_001_Mohammed_El_Kantaoui_Warsh.mp3
+#   chahboun_warsh  (W16) ar_001_Tazi_Mohammed_Chahboun_Warsh.mp3
+#   mbilal_warsh    (W33) ar_001_Musa_Bilal_Warsh.mp3
+#   jabery_warsh    (W19) sura_100_64kb.mp3
+#
+# ⭐ **وهؤلاء غيرُ أصحابِ الأسماء العربية الطويلة** (‏Q1 · Q2 · W2 · W14 · W36):
+#    نمطُهم **منتظمٌ يُشتقّ برقمِ السورة**، فلا يحتاجون جدولَ مطابقةٍ من 114 صفّاً
+#    بل **حقلَ نمطٍ واحداً**. ⇒ خمسةٌ إضافيّون على بُعد حقلٍ واحد.
+#
+# ⛔ **ولا يُصلحه جنديُّ الفهرسة وحدَه، فليس عطباً في أداةٍ بل قرارُ بنية:**
+#    التطبيقُ نفسُه يبني الصوتَ `reciter.base + NNN.mp3`
+#    (`RECITERS_MASTER_REFERENCE.md` القسمُ الثاني §1)، فلو مرَّ المرشَّحُ المسبارَ
+#    **لَعجَز المشغِّلُ عن تشغيله**. ⇒ يلزم حقلُ `filePattern` في `catalog/reciters.json`
+#    يقرؤه المشغِّلُ والمسبارُ معاً — **وهو للمشرف يبتّه**، ويُرفع إليه بهذا النصّ.
+#
+# ────────────────────────── المؤجَّلون بسببٍ مكتوب ──────────────────────────
+# ⛔ لا يُنسى مؤجَّلٌ ولا يُعاد اكتشافُه: هؤلاء **فُحصوا وأُخرجوا بسبب**، فمن أراد
+#    توسيعَ القائمة يبدأ من هنا لا من المسح كلِّه.
+#
+# • **ثقةُ النسبة C** (‏عنوانُ الرافع وحدَه بلا شاهدٍ ثانٍ): W10 أبو الوليد الهاشمي ·
+#   W22 عبد الرحمن موسى · Q11 الركباوي · Q12 جلمام · Q14 الناوي · Q15 أبو شقرة.
+#   ⇒ يُدرَجون إن وُجد شاهدٌ ثانٍ يسمّي الرواية.
+# • **ثقةُ النسبة B**: W29 الدريني · W30 الحداد · W34 العسلي · Q7 أحمد صالح رجب ·
+#   Q13 الأنداري · Q25 صابر عبد الحكم · Q26 دبارة · Q28 الفخفاخ · Q29 الحجلاوي.
+# • **جودةٌ متدنيةٌ جدّاً** (‏≤32k/11kHz): W23 عبد السلام ياسين · W35 كامل البيلي.
+# • ⛔ **W37 محمد كريم سعد راجح** — ثقتُه A و114 + HEAD ✓ (‏56k · 6686ث · islamweb
+#   3035 «مصحف مكتمل»)، **ومانعُه أنّ رابطَه مختصرٌ بنقاطٍ في جدول المسح نفسِه**
+#   (`alfirdwsiy201TTT…gmail_002`) ⇒ كتابتُه هنا تخمينٌ، وقاعدةُ هذا الملفّ تمنعه.
+#   ⇒ يُدرَج متى قِرئ اسمُ العنصر كاملاً من archive.
+# • ⛔ **W38 كمال المروش (ورش)** — «جمعُ الأوجه»: يكرّر المواضعَ بكلّ وجهٍ، فليس
+#   مصحفاً بوجهٍ واحد ⇒ **لا يصلح لمزامنةٍ ولا تعليم** مهما بلغت ثقتُه.
+# • **ناقصون** (‏فلا يعبرون الحارس الأول أصلاً): محمد الراضي ولد إمليح 109/114 ·
+#   محمد الهادي توري 3 سور · Q30 العربي الكثيري 112 (‏ناقص 9 و83) ·
+#   W28 الأيراوي في mp3quran 111 (‏وله على archive 114، ⚠️ وطريقُه متنازَعٌ فيه
+#   بين الأزرق والأصبهاني ⇒ يحتاج حسماً سمعياً قبل الإدراج).
+# • **مرايا مجزّأةٌ أجزاءً لا سوراً** (‏مستبعدةٌ بنيةً): tilawa الكنتاوي 30 جزءاً ·
+#   السلطني الأصبهاني 49 ملفاً · نسخةُ لغظف ذاتُ 30 جزءاً.
