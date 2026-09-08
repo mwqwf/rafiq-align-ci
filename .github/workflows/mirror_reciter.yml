@@ -28,6 +28,9 @@ on:
       extract_audio:
         description: "true = المصدر حاوٍ مرئيّ (mp4) فيُستخرج صوتُه mp3"
         default: "false"
+      replace_dead:
+        description: "true = استبدالُ كائنٍ ثبت أنه حشوٌ لا صوت (بعد حفظ الأصل جانباً)"
+        default: "false"
 
 jobs:
   mirror:
@@ -56,6 +59,7 @@ jobs:
           MAP: ${{ github.event.inputs.map }}
           MINC: ${{ github.event.inputs.min_confidence }}
           XAUD: ${{ github.event.inputs.extract_audio }}
+          RDEAD: ${{ github.event.inputs.replace_dead }}
         run: |
           python - <<'PY'
           import hashlib, json, os, sys, urllib.request
@@ -82,9 +86,25 @@ jobs:
               key = f"audio/{riw}/{rid}/{s:03d}.mp3"
               try:
                   s3.head_object(Bucket=c["bucket"], Key=key)
-                  done.append((s, "موجودٌ سلفاً")); continue
-              except Exception:                             # noqa: BLE001
-                  pass
+                  if os.environ.get("RDEAD") != "true":
+                      done.append((s, "موجودٌ سلفاً")); continue
+                  # ⛔ **الاستبدالُ لا يقع إلا على ميّتٍ مثبَت** (2026-09-08):
+                  #    مرآةُ 09-02 نسخت `s_sadeiq/042.mp3` من الناشر **وهو حشو**،
+                  #    فصارت الميّتةُ عندنا كما هي عنده. والفحصُ هنا يُعاد على
+                  #    كائنِ الدلو نفسِه، فلا يُستبدل حيٌّ بحال.
+                  cur = s3.get_object(Bucket=c["bucket"], Key=key,
+                                      Range="bytes=8000000-8262143")["Body"].read()
+                  if len(set(cur)) >= 200:
+                      done.append((s, f"موجودٌ وحيٌّ ({len(set(cur))} قيمة) — لا يُمَسّ"))
+                      continue
+                  # ⛔ **ولا حذف: الأصلُ يُحفظ جانباً قبل الكتابة** (أمر المالك).
+                  keep = f"audio/{riw}/{rid}/_superseded/{s:03d}.filler.mp3"
+                  s3.copy_object(Bucket=c["bucket"], Key=keep,
+                                 CopySource={"Bucket": c["bucket"], "Key": key})
+                  print(f"  🗄️ حُفظ الأصلُ الميّت: {keep}")
+              except Exception as e:                        # noqa: BLE001
+                  if "NoSuchKey" not in str(e) and "404" not in str(e):
+                      pass
               try:
                   req = urllib.request.Request(row["url"],
                                                headers={"User-Agent": "rafiq-mirror/1.0"})
