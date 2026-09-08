@@ -147,6 +147,20 @@ def ffprobe_duration_ms(path):
         #    0xa2). العطب ترميزٌ لا صوت — فلا يُسكت الصوت من أجل بايتٍ.
         capture_output=True, text=True, errors="replace", check=True,
     ).stdout.strip()
+    if out in ("", "N/A"):
+        # ⛔ **العطبُ نفسُه ينتقل سطراً** (قياس 2026-09-08): بعد أن أُصلح
+        #    `to_wav16k` بـ`-f mp3` عبَرَ التحويل، فسقطت السورةُ هنا بـ`N/A`.
+        #    السببُ واحد: وسمُ ID3 فيه `APIC` يعلن طولاً يتجاوز الوسمَ نفسَه
+        #    (‏obk س36: غلافٌ 11,835 ووسمٌ 6,166)، فيضلّ المُستكشِفُ ولا يبلغ
+        #    ترويسةَ الصوت فلا يعرف المدّة. ⇒ يُفرض المُفكِّك كما في التحويل.
+        #    **درسٌ أعمّ:** إصلاحُ موضعٍ واحدٍ من علّةٍ مشتركة يُزيح العطبَ ولا
+        #    يرفعه — فيُفتَّش عن كلّ من يقرأ الملفّ نفسَه، لا عمّن اشتكى أوّلاً.
+        out = subprocess.run(
+            [FFPROBE, "-v", "error", "-f", "mp3", "-show_entries",
+             "format=duration", "-of", "default=noprint_wrappers=1:nokey=1",
+             path],
+            capture_output=True, text=True, errors="replace", check=True,
+        ).stdout.strip()
     return int(float(out) * 1000)
 
 
