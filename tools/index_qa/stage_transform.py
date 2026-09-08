@@ -58,6 +58,18 @@ AYAH_COUNTS = [7, 286, 200, 176, 120, 165, 206, 75, 129, 109, 123, 111, 43, 52,
                29, 19, 36, 25, 22, 17, 19, 26, 30, 20, 15, 21, 11, 8, 8, 19, 5, 8,
                8, 11, 11, 8, 3, 9, 5, 4, 7, 3, 6, 3, 5, 4, 5, 6]
 
+
+def ascii_meta(v: str) -> str:
+    """يطوي قيمةَ ميتاداتا إلى ASCII — لأن S3 يردّ ما سواه (‏وقع 2026-09-08).
+
+    ⛔ **للميتاداتا وحدَها**: الأصلُ العربيّ يبقى في ترويسة الفهرس (`transform`)
+    فلا تُفقد النسبة. وما لا يُطوى يصير `?` ولا يُحذف الحقلُ بحال، إذ حقلٌ
+    غائبٌ يُقرأ «لا صانعَ له» وهو أسوأُ من نسبةٍ مشوّهة.
+    """
+    s = (v or "").encode("ascii", "replace").decode("ascii")
+    return s or "unknown"
+
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--file", required=True, help="ملفّ المنتَج المحلّي (.jz)")
@@ -109,8 +121,13 @@ def main():
     #    ⛔ ولا يُرفع الحارسُ بل **يُشدَّد**: بدل «تساوٍ» يُشترط أن يكون الفرقُ
     #    **مطابقاً حسابياً** لعدد آي السور المسمّاة في `--op`، وألّا يمسّ
     #    التحويلُ مدخلاً خارجها. فمن أعاد سورةً وحذف أخرى صامتاً يُردّ هنا.
+    #    و`source_timing_splice:<سور>` يدخل البابَ نفسَه **بالحُرّاس نفسِها
+    #    كلِّها**: هو أيضاً يُعيد اشتقاقَ حدود سورةٍ بعينها فيُعيد مداخلَ غائبة
+    #    (‏koshi_warsh/37: 181 ⇐ 182)، والفرقُ في **مصدر الحدود** لا في أثرها.
+    #    ⛔ ولا يُسمَّى «إعادةَ محاذاة» تجوّزاً: الترويسةُ سجلُّ نسبٍ يُقرأ منه
+    #    جيلُ الفهرس، فاسمٌ كاذبٌ فيها أسوأ من غيابه (‏درسُ «مجهولِ الجيل»).
     realigned = []
-    _m = re.match(r"^realign_surah:([\d,\s]+)$", a.op.strip())
+    _m = re.match(r"^(?:realign_surah|source_timing_splice):([\d,\s]+)$", a.op.strip())
     if _m:
         realigned = sorted({int(x) for x in re.findall(r"\d+", _m.group(1))})
     if realigned:
@@ -170,11 +187,17 @@ def main():
     if not a.yes:
         print("(عرضٌ فقط — أضف --yes للرفع)")
         return
+    # ⛔ ميتاداتا S3 لا تقبل إلا ASCII (`validate_ascii_metadata` في botocore)،
+    #    و`--by` يُكتب بالعربية طبعاً — فكان النداءُ **يسقط بعد كلّ الحُرّاس**
+    #    وبعد بناء الحزمة، فيضيع العملُ كلُّه على حرفٍ في حقلٍ وصفيّ. وقع مقيساً
+    #    2026-09-08 (`ParamValidationError` على «جندي الفهرسة»).
+    #    ⇒ يُطوى للميتاداتا وحدَها، **والأصلُ يبقى كما هو في ترويسة الفهرس**
+    #    (`transform.by` أعلاه) — فلا تُفقد النسبةُ ولا يسقط الرفع.
+    put_meta = {"source": "transform-local", "transform": a.op,
+                "parent": psha[:8], "sha256-8": new[:8],
+                "by": ascii_meta(a.by), "premeta": sha[:8]}
     cl.put_object(Bucket=bucket, Key=target, Body=packed,
-                  ContentType="application/gzip",
-                  Metadata={"source": "transform-local", "transform": a.op,
-                            "parent": psha[:8], "sha256-8": new[:8],
-                            "by": a.by, "premeta": sha[:8]})
+                  ContentType="application/gzip", Metadata=put_meta)
     head = cl.head_object(Bucket=bucket, Key=target)
     print(f"↑ رُفع · الدلو {head['ContentLength']} · المحلّي {len(packed)} → "
           f"{'✅' if head['ContentLength'] == len(packed) else '❌'}")
