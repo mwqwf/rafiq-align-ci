@@ -37,7 +37,8 @@ def _repair_prefix_absorption(entries, wav, ref_ayahs, log=print):
     e0 = entries[0]
     if e0["startMs"] is None or e0["startMs"] >= 3000:
         return False
-    fine = [x for x in _sil(wav, min_silence_ms=90, rel_threshold=0.06)
+    # ⛔ ثابتٌ لا متكيّف: السُّلّم لنداء التقطيع وحده (انظر vad.silences).
+    fine = [x for x in _sil(wav, min_silence_ms=90, rel_threshold=0.06, adaptive=False)
             if x[1] <= min(e0["endMs"], 25000)]
     strong = [x for x in fine if (x[1] - x[0]) >= 600 and 3000 <= x[1] <= 20000]
     if not strong:
@@ -122,7 +123,13 @@ def main():
     ap.add_argument("--wav")
     ap.add_argument("--url")
     ap.add_argument("--surah", type=int, required=True)
-    ap.add_argument("--riwaya", default="hafs", choices=["hafs", "warsh", "qalun"])
+    # ⛔ **الروايات الست لا الثلاث** (2026-09-08): كان القيدُ ثلاثاً، فكانت كلُّ
+    #    إعادةِ محاذاةٍ للسوسي أو الدوري أو شعبة تسقط بـ`invalid choice` بعد أن
+    #    نزّلت الأصل — ولهذا جمدت الرواياتُ الصغرى عند 0/1 و1/3 و1/2 لا لعلّةٍ
+    #    في تلاواتها بل لسطرِ argparse. ونصوصُها الستّة موجودةٌ سلفاً في
+    #    `assets/quran/text_<riwaya>.jz` وكلُّها 6236 بلا فراغ (مقيسة قبل التوسيع).
+    ap.add_argument("--riwaya", default="hafs",
+                    choices=["hafs", "warsh", "qalun", "douri", "sousi", "shuba"])
     ap.add_argument("--json")
     args = ap.parse_args()
     audio = args.wav
