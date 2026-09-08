@@ -155,20 +155,58 @@ def main() -> None:
         import tempfile
         import urllib.request as _u
         tmp = tempfile.mkdtemp()
+
+        def _dur_ms(path):
+            """المدّةُ بالمللي، وإلا `None` — **ولا تُسقِط البصمةَ معها أبداً**.
+
+            ⛔ **العلّةُ الواحدةُ في ثالثِ موضعٍ يقرأ الملفَّ نفسَه** (قياس
+            2026-09-08): أُصلح `to_wav16k` بـ`-f mp3`، ثمّ سقط
+            `ffprobe_duration_ms` بـ`N/A` فأُصلح، **وبقي هذا الموضعُ ثالثاً**.
+            وسمُ ID3 فيه إطارُ غلافٍ `APIC` يعلن طولاً يتجاوز الوسمَ نفسَه
+            (‏`obk` س36: غلافٌ 11,835 ووسمٌ 6,166)، فيضلّ المستكشِفُ ولا يبلغ
+            ترويسةَ الصوت فيطبع `N/A` — و`float("N/A")` يرمي.
+            ⇒ يُفرض المُفكِّك احتياطاً كما في الموضعين الأخوين.
+            ⛔ و`errors="replace"`: بايتاتُ الوسم تُسرَّب إلى المخرَج فيرمي
+            فكُّ الترميز (‏سورة 70/`f_hajry`: ‏0xa2).
+            """
+            for extra in ([], ["-f", "mp3"]):
+                try:
+                    out = subprocess.run(
+                        ["ffprobe", "-v", "error"] + extra +
+                        ["-show_entries", "format=duration",
+                         "-of", "default=nw=1:nk=1", path],
+                        capture_output=True, text=True, errors="replace",
+                        timeout=120).stdout.strip()
+                except Exception:                         # noqa: BLE001
+                    continue
+                if out and out != "N/A":
+                    try:
+                        return int(float(out) * 1000)
+                    except ValueError:
+                        pass
+            return None
+
         def grab(s):
+            # ⛔ **البصمةُ والمدّةُ قياسان مستقلّان، فيفشلان مستقلَّين.** كانا
+            #    في `try` واحدة، فكان عجزُ `ffprobe` عن المدّة **يرمي بصمةً
+            #    صحيحةً محسوبةً سلفاً** ويكتب مكانها `""` — وهي بعينُها
+            #    «بصمات فارغة: 1» التي حبست `obk` بفاتلٍ في أربع موجاتِ حكمٍ
+            #    نظيفةٍ (‏0.0–2.0% وصفرُ عطبٍ موضعيّ). والبصمةُ تجزئةُ ملفٍّ
+            #    لا تحتاج ffmpeg أصلاً، فلا وجهَ لسقوطها بسقوطه.
             dst = os.path.join(tmp, f"{s:03d}.mp3")
+            h = ms = None
             try:
                 _u.urlretrieve(args.url.format(s=s), dst)
                 h = hashlib.sha256(open(dst, "rb").read()).hexdigest()
-                d = subprocess.run(["ffprobe", "-v", "error", "-show_entries",
-                                    "format=duration", "-of",
-                                    "default=nw=1:nk=1", dst],
-                                   capture_output=True, text=True, timeout=120)
-                ms = int(float(d.stdout.strip()) * 1000) if d.stdout.strip() else None
+            except Exception:                             # noqa: BLE001
+                h = None
+            if h:
+                ms = _dur_ms(dst)
+            try:
                 os.remove(dst)
-                return s, h, ms
-            except Exception as e:                        # noqa: BLE001
-                return s, None, None
+            except OSError:
+                pass
+            return s, h, ms
         with ThreadPoolExecutor(4) as ex:
             for s_, h, ms in ex.map(grab, range(1, 115)):
                 if h:
