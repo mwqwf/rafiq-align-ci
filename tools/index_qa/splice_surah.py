@@ -27,10 +27,12 @@
 from __future__ import annotations
 
 import argparse
+import bisect
 import gzip
 import hashlib
 import json
 import sys
+import time
 from pathlib import Path
 
 for _s in (sys.stdout, sys.stderr):
@@ -164,6 +166,48 @@ def main() -> None:
     #    `--skip-unresolved` قد تُترك سورةٌ كما هي، ثم يُسمّيها `--op` فيطالب
     #    حارسُ `stage_transform` بعدّها كاملاً فيسقط الإصلاحُ كلُّه. فتُكتب
     #    القائمةُ المأخوذةُ بجانب المخرَج ليقرأها المُطلِق.
+    # ⛔ **بصمةُ التنزيل للسورة التي لم تكن موجودةً أصلاً** (2026-09-08):
+    #    `audioSha256` قائمةٌ **موضعيّة** على السورِ التي نزل صوتُها وقتَ البناء،
+    #    لا على 1..114. فإذا سقط تنزيلُ سورةٍ في المحاذاة الأولى نقصت القائمةُ
+    #    واحداً **وانزاح كلُّ ما بعدها**؛ ثم تأتي `realign_surah` فتردّ مداخلَ
+    #    السورة **ولا تردّ بصمتَها**، فيبقى الفهرس مردوداً بـ«بصمات الصوت
+    #    113/114 — سورٌ بلا برهان تنزيل» وإن كانت مداخلُه تامّة.
+    #    وقِيس على `laghdaf_shinqiti` (‏آخرُ قرّاء ورش): البصمةُ الأولى للسورة 1
+    #    عند الموضع 0، وسورةُ 72 عند **70 لا 71** — أي الانزياحُ مؤكَّدٌ قياساً.
+    # ⇒ فتُحسب البصمةُ من الملفّ نفسِه وتُدرَج **في موضعها من الترتيب**.
+    # ⛔ ولا يعمل هذا إلا للسورة التي **لم يكن لها مدخلٌ واحد** في الأصل، ولا
+    #    يمسّ قائمةً تامّةً (114) ولا قائمةً لا يوافق طولُها سورَ الأصل — فما
+    #    عدا هذه الحالة يخرج المخرَجُ **مطابقاً لما كان حرفاً**.
+    shas = list(out.get("audioSha256") or [])
+    orig_surahs = sorted({int(e["ayahId"].split(":")[0]) for e in entries})
+    added = [s for s in surahs if s not in orig_surahs]
+    if added and len(shas) == len(orig_surahs) and len(shas) < 114:
+        import urllib.request as _u
+        for s in sorted(added):
+            url = args.url.format(s=s)
+            blob, last = None, None
+            for attempt in range(5):                       # شبكةٌ ضعيفةٌ متقطّعة
+                try:
+                    req = _u.Request(url, headers={          # r2.dev يردّ 403 على الوكيل الافتراضي
+                        "User-Agent": "Mozilla/5.0 (QuranRafiq tools)"})
+                    with _u.urlopen(req, timeout=120) as r:
+                        want = int(r.headers.get("Content-Length") or 0)
+                        blob = r.read()
+                    if want and len(blob) != want:          # تنزيلٌ مبتورٌ بصمتٍ لا يُقبل
+                        blob, last = None, f"نزل {len(blob)} من {want}"
+                        continue
+                    break
+                except Exception as e:                      # noqa: BLE001
+                    last, blob = str(e)[:90], None
+                    time.sleep(2 ** attempt)
+            if blob is None:
+                sys.exit(f"⛔ تعذّر جلبُ صوت س{s} لحساب بصمته: {last}")
+            pos = bisect.bisect_left(orig_surahs, s)
+            shas.insert(pos, hashlib.sha256(blob).hexdigest())
+            orig_surahs.insert(pos, s)
+            print(f"  🔑 بصمةُ س{s} أُدرجت في الموضع {pos} · البصمات {len(shas)}/114")
+        out["audioSha256"] = shas
+
     Path(str(args.out) + ".taken").write_text(
         ",".join(str(s) for s in surahs), encoding="utf-8")
     sha = dump(out, Path(args.out))
