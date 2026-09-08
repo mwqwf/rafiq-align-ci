@@ -25,6 +25,9 @@ on:
       min_confidence:
         description: "high = لا يُنسخ إلا المتحقَّقُ بشاهدين"
         default: "high"
+      extract_audio:
+        description: "true = المصدر حاوٍ مرئيّ (mp4) فيُستخرج صوتُه mp3"
+        default: "false"
 
 jobs:
   mirror:
@@ -34,7 +37,9 @@ jobs:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
         with: { python-version: "3.11" }
-      - run: python -m pip install --quiet boto3
+      - run: |
+          sudo apt-get update -qq && sudo apt-get install -y -qq ffmpeg
+          python -m pip install --quiet boto3
 
       - name: اعتماد R2
         env:
@@ -50,6 +55,7 @@ jobs:
           RIW: ${{ github.event.inputs.riwaya }}
           MAP: ${{ github.event.inputs.map }}
           MINC: ${{ github.event.inputs.min_confidence }}
+          XAUD: ${{ github.event.inputs.extract_audio }}
         run: |
           python - <<'PY'
           import hashlib, json, os, sys, urllib.request
@@ -86,6 +92,30 @@ jobs:
                       body = r.read()
                   if len(body) < 10000:
                       failed.append((s, f"حجمٌ مريب {len(body)}")); continue
+                  # ⛔ **فاحصُ الحشو — أرخصُ برهانٍ قاطع** (‏درس 2026-09-08):
+                  #    `s_sadeiq/042.mp3` عند الناشر ملفٌّ سليمُ الترويسة تماماً
+                  #    (‏`ID3` · مزامنةُ إطارٍ صحيحة · مدّةٌ 1051ث) **وحمولتُه حشوٌ
+                  #    مكرَّر** (‏`55 55 55…`)، فالتفريغُ صفرُ كلماتٍ وVAD فترةُ صمتٍ
+                  #    واحدة. والفاصلُ **عدُّ القيم المختلفة**: صوتٌ مضغوطٌ حقيقيّ
+                  #    يقارب 256، وحشوٌ يبقى في العشرات. ⇒ لا يُرفع حشوٌ إلى الدلو.
+                  mid = body[len(body) // 2: len(body) // 2 + 262144]
+                  distinct = len(set(mid))
+                  if distinct < 200:
+                      failed.append((s, f"حشوٌ لا صوت — {distinct} قيمةً مختلفة في "
+                                        f"256ك.ب من الوسط (الحدّ 200)")); continue
+                  if os.environ.get("XAUD") == "true":
+                      # المصدرُ حاوٍ مرئيّ ⇒ يُستخرج الصوتُ وحدَه.
+                      import subprocess, tempfile
+                      with tempfile.TemporaryDirectory() as td:
+                          src = os.path.join(td, "src.bin")
+                          dst = os.path.join(td, "out.mp3")
+                          open(src, "wb").write(body)
+                          subprocess.run(["ffmpeg", "-y", "-v", "error", "-i", src,
+                                          "-vn", "-c:a", "libmp3lame", "-b:a", "128k",
+                                          dst], check=True)
+                          body = open(dst, "rb").read()
+                      if len(body) < 10000:
+                          failed.append((s, "استخراجُ الصوت أخرج ملفاً فارغاً")); continue
                   # ⛔ البصمةُ تُكتب مع الكائن: مرآةٌ بلا بصمةٍ لا تُثبت أنها هي.
                   sha = hashlib.sha256(body).hexdigest()
                   s3.put_object(Bucket=c["bucket"], Key=key, Body=body,
