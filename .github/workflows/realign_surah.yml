@@ -1,5 +1,10 @@
 name: rafiq-realign-surah
 
+# ⛔ الهويّةُ عند الإنشاء لا عند التشغيل — انظر التعليقَ نفسَه في `audio_qa.yml`.
+run-name: >-
+  realign ${{ inputs.riwaya }}/${{ inputs.parent }} · س${{ inputs.surahs }} ·
+  skip=${{ inputs.skip_ms }}
+
 # إعادةُ محاذاةِ **سورةٍ أو سورٍ بعينها** في فهرسٍ منشور — لا القارئ كلَّه.
 #
 # ⛔ سببُه مقيس (قرار المشرف github-10، 2026-09-05): العلّةُ في `deban/22`
