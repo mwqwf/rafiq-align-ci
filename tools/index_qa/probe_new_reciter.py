@@ -60,6 +60,33 @@ for _s in (sys.stdout, sys.stderr):
 TOOL = "probe_new_reciter-1.0"
 UA = {"User-Agent": "Mozilla/5.0 (QuranRafiq probe)"}
 HEAD_BYTES = 16384          # يسع ID3 معتاداً + أوّلَ إطارٍ + ترويسة Xing
+TAG_WINDOW = 8192           # نافذةٌ ثانيةٌ **عند حدّ الوسم** — انظر أدناه
+
+# ⛔⛔ **درسٌ مقيسٌ بثمنه (2026-09-08، جنديّ الفهرسة): النافذةُ الأولى وحدَها
+#     تُجمّد ذراعَ «القرّاء الجدد» كلَّها.** ستّةُ مرشّحين (‏ثلاثةُ ورشٍ وثلاثةُ
+#     قالون، من خمسة عناصرِ archive.org لرافعين مختلفين) خرجت مسابيرُهم
+#     **684 ملفّاً كلُّها `status: 200`** ومع ذلك **`durationMs: null` في كلِّ
+#     ملفّ** بحجّة «لا إطارَ صالحاً في الرأس» ⇒ فيسقط الحارسُ الثاني (‏ومعه
+#     الخامسُ إذ لا مدّة) **لكلِّ مرشَّحٍ إلى الأبد**.
+#
+#     والسببُ في الأداة لا في المحتوى، مقيسٌ بالبايتات لا مظنوناً:
+#       · `rabbani_warsh/104` — وسمُ ID3v2.3 جسمُه **39,150** ⇒ الصوتُ عند 39,160
+#       · `sultani_warsh/104` — وسمُ ID3v2.3 جسمُه **66,731** ⇒ الصوتُ عند 66,741
+#     و`first_frame(head, skip)` تبدأ البحثَ عند `skip` وهو **أبعدُ من طول
+#     المخزن** (16,384) ⇒ الحلقةُ لا تدور دورةً واحدة، فيرجع `None` دائماً.
+#     (‏وما يبدو إطاراً في أوّل 64 بايتاً `ff fe …` إنما هو **علامةُ ترتيبِ
+#     بايتٍ UTF-16 داخل حقلٍ نصّيٍّ من الوسم**، فتوسيعُ النافذة وحدَه يستبدل
+#     بالعمى **مزامنةً كاذبة**.)
+#
+# ⇒ **والعلاجُ نافذةٌ ثانيةٌ عند حدّ الوسم لا توسيعُ الأولى**: توسيعُ الأولى إلى
+#   64ك.ب يضرب الكلفةَ الشبكية أربعةً على **كلّ** ملفٍّ (‏114 × 4 لكل مرشَّح)
+#   ولا يكفي `sultani` أصلاً؛ والثانيةُ تُقرأ **لمن وسمُه أطولُ من النافذة
+#   وحدَه**، وثمنُها ثمانيةُ كيلوبايت.
+#
+# ⛔ **وطولُ الوسم يُطرح من الحجم في كلتا الحالتين**: لو حُسب من النافذة
+#   الثانية لَقُرئ صفراً (‏إذ لا `ID3` عند حدّ الوسم) فتزيد المدّةُ بطول الوسم —
+#   و66ك.ب من 396ك.ب **سُدسُ الملفّ**، فيكذب الحارسُ الخامس في الاتجاه الآمن
+#   ظاهراً والخطرِ حقيقةً.
 
 # جداولُ MPEG-1/2/2.5 — منقولةٌ من `mp3dur.py` عمداً بلا تعديل (‏مصدرٌ واحد
 # للحقيقة يُختبر في الملفّين)، والفرقُ أنّ هذا يقرأ **رأسَ** الملفّ لا كلَّه.
@@ -130,10 +157,17 @@ def xing_frames(head: bytes, fr: dict) -> int | None:
     return None
 
 
-def duration_of(head: bytes, size: int) -> dict:
-    """مدّةُ الملفّ من رأسه وحجمه — ومعها **من أين جاءت**."""
-    skip = id3_size(head)
-    fr = first_frame(head, skip)
+def duration_of(head: bytes, size: int, buf_off: int = 0,
+                tag_bytes: int | None = None) -> dict:
+    """مدّةُ الملفّ من رأسه وحجمه — ومعها **من أين جاءت**.
+
+    `buf_off` موضعُ أوّلِ بايتٍ من `head` داخل الملفّ (‏صفرٌ للنافذة الأولى)،
+    و`tag_bytes` طولُ وسم ID3 مقروءاً من النافذة الأولى. وهما لازمان معاً حين
+    يُقرأ الرأسُ من النافذة الثانية: الوسمُ ليس فيها فيُقرأ صفراً، **فيُمرَّر
+    صراحةً كي يُطرح من الحجم** (‏وإلا زادت المدّةُ بطول الوسم كلِّه).
+    """
+    tag = id3_size(head) if tag_bytes is None else tag_bytes
+    fr = first_frame(head, max(tag - buf_off, 0))
     if fr is None:
         return {"durationMs": None, "durationFrom": "لا إطارَ صالحاً في الرأس"}
     n = xing_frames(head, fr)
@@ -141,7 +175,7 @@ def duration_of(head: bytes, size: int) -> dict:
         ms = round(n * fr["samplesPerFrame"] * 1000.0 / fr["sampleRate"])
         src = "xing"
     else:
-        audio = max(size - skip, 0)
+        audio = max(size - tag, 0)
         ms = round(audio * 8 * 1000.0 / (fr["kbps"] * 1000))
         src = "cbr"
     return {"durationMs": ms, "durationFrom": src, "bitrateKbps": fr["kbps"],
@@ -183,6 +217,18 @@ def probe_file(url: str, attempts: int = 4) -> dict:
             if not row.get("bytes"):
                 row["bytes"] = None
             row.update(duration_of(head, row.get("bytes") or 0))
+            # ⛔ وسمٌ أطولُ من النافذة ⇒ الصوتُ خارجَها بأسره. تُقرأ نافذةٌ
+            #    ثانيةٌ **عند حدّ الوسم وحدَه** — التفصيلُ عند `TAG_WINDOW`.
+            tag = id3_size(head)
+            if row.get("durationMs") is None and tag + 4 > len(head):
+                with _open(url, {"Range": f"bytes={tag}-{tag + TAG_WINDOW - 1}"}) as r2:
+                    tail = r2.read(TAG_WINDOW)
+                row.update(duration_of(tail, row.get("bytes") or 0,
+                                       buf_off=tag, tag_bytes=tag))
+                if row.get("durationMs") is not None:
+                    # الأثرُ مكتوبٌ في المخرَج: من قرأ الصفَّ يعرف من أين جاء.
+                    row["durationFrom"] += "+tag"
+                    row["id3Bytes"] = tag
             row.pop("error", None)
             break
         except Exception as ex:              # noqa: BLE001
@@ -309,6 +355,40 @@ def _self_test() -> None:
         assert worst < 2.0, f"⛔ الرأسُ وحده يخالف عدَّ الإطارات بـ{worst:.2f}%"
         print(f"  ✅ (٧) الرأسُ وحده = عدُّ الإطارات في {len(bench)} ملفّاً "
               f"حقيقيّاً — أقصى فارق {worst:.2f}%")
+
+    # (٨) ⭐⭐ **وسمٌ أطولُ من النافذة** — الحالةُ التي جمّدت الذراعَ كلَّها
+    #     (‏archive.org: ‏39,150 و66,731 بايتاً وسماً). ثلاثةُ أشياءَ تُثبَت هنا،
+    #     وسقوطُ أيٍّ منها يعيد العطبَ بعينه.
+    tag_len = 39_160                                    # وسمٌ + ترويستُه
+    syncsafe = bytes([(tag_len - 10) >> 21 & 0x7F, (tag_len - 10) >> 14 & 0x7F,
+                      (tag_len - 10) >> 7 & 0x7F, (tag_len - 10) & 0x7F])
+    # ⛔ وفي حشو الوسم **مزامنةٌ كاذبة** `ff fe` — وهي عينُ ما رأيناه في
+    #    ملفّات archive.org (‏علامةُ ترتيبِ بايتٍ UTF-16 في حقلٍ نصّيّ).
+    tag8 = b"ID3\x03\x00\x00" + syncsafe + b"TSSE\x00\x00\xff\xfe\x33\x06" \
+        + b"\x00" * (tag_len - 22)
+    assert id3_size(tag8) == tag_len, id3_size(tag8)
+    audio8 = (_frame_bytes(128) + b"\x00" * 413) * 1149        # ‏≈480ك.ب
+    size8 = tag_len + len(audio8)
+
+    # (أ) النافذةُ الأولى وحدَها **عمياءُ لا كاذبة**: لا مدّةَ، ولا مزامنةٌ كاذبة
+    win1 = (tag8 + audio8)[:HEAD_BYTES]
+    d8 = duration_of(win1, size8)
+    assert d8["durationMs"] is None, f"⛔ النافذةُ الأولى ادّعت مدّةً: {d8}"
+
+    # (ب) النافذةُ الثانيةُ عند حدّ الوسم تقرأ الإطار
+    win2 = (tag8 + audio8)[tag_len:tag_len + TAG_WINDOW]
+    d8b = duration_of(win2, size8, buf_off=tag_len, tag_bytes=tag_len)
+    assert d8b["durationMs"] is not None, f"⛔ النافذةُ الثانيةُ عمياءُ أيضاً: {d8b}"
+
+    # (ج) ⛔ **وطولُ الوسم مطروحٌ من الحجم** — وإلا زادت المدّةُ بطوله.
+    want = round(len(audio8) * 8 * 1000.0 / (128 * 1000))
+    assert abs(d8b["durationMs"] - want) <= 1, (d8b["durationMs"], want)
+    naive = duration_of(win2, size8)          # بلا تمريرِ الوسم = الخطأُ عينُه
+    assert naive["durationMs"] - d8b["durationMs"] > 2000, \
+        "⛔ إهمالُ الوسم لم يعد يُغيّر المدّة — فالاختبارُ لا يحرس شيئاً"
+    print(f"  ✅ (٨) وسمٌ {tag_len} بايتاً > النافذة: الأولى عمياء · الثانيةُ "
+          f"{d8b['durationMs']}م.ث · وإهمالُ الوسم كان سيزيدها "
+          f"{naive['durationMs'] - d8b['durationMs']}م.ث")
 
     print(f"✅ --self-test أخضر · {TOOL}")
 
