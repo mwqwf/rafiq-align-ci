@@ -8,7 +8,6 @@ import argparse
 import json
 import os
 import sys
-import urllib.request
 
 # دمج الجيل الثاني (2026-09-01، مذكرة rafiq-v2 التساعية): مشروط بALIGN_REFINE=1
 # كي لا يختلط محركان داخل فهرس واحد — يُفعَّل لدفعة كاملة أو لا يُفعَّل.
@@ -17,7 +16,8 @@ if REFINE:
     sys.path.insert(0, os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "alignment_v2"))
 
 from align import derive_boundaries
-from common import WORK, ffprobe_duration_ms, load_index, load_text, norm, surah_slice, to_wav16k
+from common import (WORK, fetch_retry, ffprobe_duration_ms, load_index, load_text, norm,
+                    surah_slice, to_wav16k)
 from transcribe import transcribe
 from vad import silences
 from validate import band, check_surah
@@ -137,7 +137,17 @@ def main():
         os.makedirs(WORK, exist_ok=True)
         audio = os.path.join(WORK, f"s{args.surah:03d}_{os.path.basename(args.url)}")
         if not os.path.exists(audio):
-            urllib.request.urlretrieve(args.url, audio)
+            # ⛔ **لا `urlretrieve` هنا** (2026-09-08): هي تستعمل الفاتحَ **العامّ**،
+            #    وفاتحُ الوكيل في `common` صار **موضعيّاً** عمداً (‏تنبيه github-17)
+            #    فلا يبلغها وكيلُنا ⇒ تخرج بوكيل بايثون الافتراضي ⇒ **r2.dev يردّ 403**.
+            #    وقِيس بثمنه: كلُّ محاذاةٍ لقارئٍ صوتُه على مرآتنا تسقط قبل تنزيل بايت،
+            #    وبه وحدَه بقي `laghdaf_shinqiti` (آخرُ ورش) محبوساً. وقرّاءُ mp3quran
+            #    لا يكشفونه لأن خادمهم يقبل الوكيل الافتراضي — **فالعطبُ يظهر في
+            #    مضيفٍ واحدٍ دون سائر الأسطول**، وهو أخفى ما يكون.
+            # ⇒ و`fetch_retry` هي الصواب لا لأنها تحمل الوكيل فحسب، بل لأنها
+            #   **تعيد المحاولة بتراجعٍ أسّيّ وتتحقّق من `Content-Length`** — وتنزيلٌ
+            #   مبتورٌ بصمتٍ يُنتج فهرساً على صوتٍ ناقصٍ وهو أسوأ من الفشل الصريح.
+            fetch_retry(args.url, audio)
     result = run_surah(audio, args.surah, args.riwaya)
     if args.json:
         with open(args.json, "w", encoding="utf-8") as f:
