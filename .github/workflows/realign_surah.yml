@@ -39,6 +39,16 @@ on:
       allow_batch:
         description: "جمعُ أكثر من سورةٍ عمداً (الأصلُ المنعُ — الدرسُ الرابع)"
         default: "false"
+      whisper_ac:
+        # ⛔ سببُه مقيس: `koshi_warsh/037.mp3` يدخل حلقةَ تكرارٍ هلوسيّة
+        #    («كل كل كل» · «اهموا اهموا») فلا تُحلّ ولا آية — و**سياقٌ صوتيٌّ
+        #    مقصوصٌ (512 من 1500) علّةٌ معروفةٌ لهذه الحلقة في whisper.cpp**.
+        #    فالمعامل يُعرَض مدخلاً اختياريّاً **بالقيمة نفسِها افتراضاً**، فلا
+        #    يتغيّر شيءٌ لمن لا يمرّره، ويُجرَّب على السورة العصيّة وحدها.
+        # ⛔ وهذا هو السبيلُ المشروع لفتح `koshi_warsh` — لا خلطُ محرّكين
+        #    (`source_timing_splice`) ولا إسقاطُ سورةٍ بـ182 آية.
+        description: "سياقُ whisper الصوتيّ (الافتراض 512؛ 1500 = كاملٌ بلا قصّ)"
+        default: "512"
 
 env:
   PY: "3.11"
@@ -181,7 +191,9 @@ jobs:
           ALIGN_REFINE: "1"
           REFINE_MODEL: ${{ github.workspace }}/assets-archive/ggml/ggml-refine-q8_0.bin
           REFINE_DTW: base
-          WHISPER_AC: "512"
+          # ⛔ الاحتياطُ `|| '512'` ليس زينة: مدخلٌ غائبٌ يُمرَّر فارغاً فيصير
+          #    السياقُ صفراً ويتغيّر المحرّك صمتاً — والصمتُ أخطرُ من الفشل.
+          WHISPER_AC: ${{ github.event.inputs.whisper_ac || '512' }}
           WHISPER_THREADS: "4"
           PARENT: ${{ github.event.inputs.parent }}
           SURAHS: ${{ github.event.inputs.surahs }}
