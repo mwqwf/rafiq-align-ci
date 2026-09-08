@@ -166,6 +166,22 @@ def to_wav16k(src, dst=None):
     """
     dst = dst or src + ".16k.wav"
     if not os.path.exists(dst):
-        subprocess.run([FFMPEG, "-y", "-v", "error", "-i", src, "-vn",
-                        "-ar", "16000", "-ac", "1", dst], check=True)
+        base = [FFMPEG, "-y", "-v", "error"]
+        tail = ["-vn", "-ar", "16000", "-ac", "1", dst]
+        try:
+            subprocess.run(base + ["-i", src] + tail, check=True)
+        except subprocess.CalledProcessError:
+            # ⛔ **الاحتياطُ الثاني — وهو الذي أنقذ `obk` س36** (قياس 2026-09-08):
+            #    وسمُ ID3 فيه إطارُ غلافٍ `APIC` **يعلن 11,835 بايت والوسمُ كلُّه
+            #    6,166** — فيجري المُستكشِفُ خارجَ الوسم إلى الصوت ويفكّ بايتاته
+            #    كصورة، فلا يسجّل تيّارَ صوتٍ قطّ ويقول «Output file does not
+            #    contain any stream». والصوتُ سليمٌ تماماً: أوّلُ إطارٍ عند 6176
+            #    مزامنتُه `ff fb` أي MPEG-1 Layer III صحيح.
+            #    ⇒ `-f mp3` يفرض المُفكِّك فيمسح بحثاً عن المزامنة ويتخطّى الوسم.
+            #    مقيسٌ على البايتات نفسِها: بدونه لا مخرَج، وبه 512,646 بايت.
+            #    ⛔ **احتياطٌ لا بديل**: يُجرَّب بعد الفشل فقط، فالمسارُ الأوّل
+            #    يخدم wav وغيرَه، وفرضُ `mp3` عليها يكسرها.
+            if os.path.exists(dst):
+                os.remove(dst)
+            subprocess.run(base + ["-f", "mp3", "-i", src] + tail, check=True)
     return dst
