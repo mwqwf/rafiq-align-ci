@@ -276,12 +276,23 @@ jobs:
           case "$H" in *--source*)    EXTRA="$EXTRA --source ci";; esac
           case "$H" in *--run-id*)    EXTRA="$EXTRA --run-id ${{ github.run_id }}";; esac
           echo "أعلامٌ إضافية مدعومة:${EXTRA:- (لا شيء)}"
-          python tools/index_qa/ci_run.py --key "$KEY" --expect-sha "$SHA"             --clusters 20 --per-cluster 10 --out-prefix state-ci $EXTRA
+          python tools/index_qa/ci_run.py --key "$KEY" --expect-sha "$SHA"             --clusters 20 --per-cluster 10 --out-prefix "state-ci-${SEED_SALT:-ci}" $EXTRA
           # ⛔ `--out-prefix state-ci`: ‏`ci_run` و`promote_watch` كانا يكتبان
           #    **الاسم نفسه** `state/<key>.json` فتصادما، وكتب أحدهما فوق حكم
           #    الآخر (‏bd، `11e4b17`). فيكتب هنا في بادئةٍ معزولة، ثم يُنقل
           #    الحكم **كاملاً بعيّنته** إلى `state/<key>.audio-ci.json` —
           #    اسمٌ لا ينازعه أحد. **ولا يُمسّ ملف bd بحال.**
+          # ⛔⛔ **والبادئةُ تحمل الملحَ (2026-09-08 — عطبٌ مقيس):** كانت
+          #    `state-ci/<المفتاح>.json` **بلا ملح**، فأربعُ موجاتِ ملحٍ على
+          #    **المفتاح نفسه** تتسابق على اسمٍ واحد: آخرُ كاتبٍ يغلب، ثم يقرأ
+          #    كلُّ عدّاءٍ حكمَ غيره فيردّه حارسُ الملح («ملحُ الحكم 'w4' ≠
+          #    المطلوب 'w1'»). قِيس على `s_sadeiq.0b8cf8e3`: **الأربعةُ كلُّها
+          #    ردّت** (‏34221699066 · 34221712250 · 34221723792 · 34221732098)
+          #    فذهبت ٤٨ دقيقةَ حوسبةٍ هباءً بعد أن تمّ التدقيقُ فعلاً. وسبقَه
+          #    y2 وحده في `obk` — **لأنه سباق: يُخفق متى تداخلت الكتابتان
+          #    ويمرّ متى تباعدتا**، فبدا عطباً عارضاً وهو بنيويّ.
+          # ⇒ **اسمُ الوسيط يحمل كلَّ ما يميّز المنتِج، وإلا صار الاسمُ مشتركاً
+          #    والحكمُ لمن سبق.** والحارسُ أدّى دورَه: منع التلوّث ولم يمنع الهدر.
 
       # ⛔ الحكم **كاملاً بعيّنته** لا مؤشّراً إليه (أمر github-f4 بعد بلاغ bd):
       #    ملفُ نسبٍ يشير إلى `state/<key>.json` كان يشير — بعد التصادم — إلى
@@ -304,7 +315,9 @@ jobs:
           s3 = boto3.client("s3", endpoint_url=c["endpoint"],
                             aws_access_key_id=c["accessKeyId"],
                             aws_secret_access_key=c["secretAccessKey"], region_name="auto")
-          src = f"state-ci/{flat}.json"
+          # ⛔ الوسيطُ بملحه (2026-09-08): بادئةٌ بلا ملحٍ تجعل موجاتِ الملح
+          #    تتسابق على اسمٍ واحد — انظر التعليقَ في خطوة التدقيق أعلاه.
+          src = f"state-ci-{salt}/{flat}.json"
           try:
               doc = json.loads(s3.get_object(Bucket=c["bucket"], Key=src)["Body"].read())
           except Exception as ex:
