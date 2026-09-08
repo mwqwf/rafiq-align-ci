@@ -267,6 +267,46 @@ jobs:
           python tools/index_qa/splice_surah.py --index work/parent.jz --surah "$SURAHS" \
                  --aligned $FILES --url "$URLT" --skip-unresolved --out work/patched.jz
 
+      - name: ملءُ بصمةِ الصوت للسور المُعاد محاذاتُها
+        env:
+          SURAHS: ${{ github.event.inputs.surahs }}
+        run: |
+          # ⛔ **إعادةُ المحاذاة تُصلح المداخل ولا تملأ البراهين** (قياس 2026-09-08):
+          #    `splice_surah` ينسخ ترويسةَ الأصل كما هي، فبصمةُ صوتٍ فارغةٌ في
+          #    الأصل تبقى فارغةً في المرشَّح — و`run.py` يردّه بـ«بصمات فارغة»
+          #    **فيدور القارئُ في حلقةٍ لا تنتهي**: تُصلَح السورةُ ويبقى الحجب.
+          #    (‏`obk` س36 دار ثلاثَ تشغيلات.) والملفُّ منزَّلٌ هنا سلفاً،
+          #    فالبصمةُ تُحسب منه — **برهانُ تنزيلٍ حقيقيٌّ لا مُصطنَع**.
+          python - <<'PY'
+          import gzip, hashlib, json, os
+          idx = json.loads(gzip.decompress(open("work/patched.jz", "rb").read()).decode())
+          sha = idx.get("audioSha256")
+          if not isinstance(sha, list):
+              print("لا قائمةَ بصمات — لا شيء يُملأ"); raise SystemExit
+          while len(sha) < 114:
+              sha.append("")
+          filled = []
+          for s in os.environ["SURAHS"].split(","):
+              s = s.strip()
+              if not s.isdigit():
+                  continue
+              n = int(s)
+              p = f"work/full_{n}.mp3"
+              if not os.path.exists(p):
+                  print(f"⚠️ س{n}: لا ملفَّ منزَّل — تُترك بصمتُه كما هي"); continue
+              h = hashlib.sha256(open(p, "rb").read()).hexdigest()
+              if sha[n - 1] and sha[n - 1] != h:
+                  print(f"⚠️ س{n}: بصمةٌ قائمةٌ تخالف المقيسة — تُترك ولا تُكتب فوقها")
+                  continue
+              sha[n - 1] = h
+              filled.append(n)
+          idx["audioSha256"] = sha
+          with open("work/patched.jz", "wb") as f:
+              f.write(gzip.compress(json.dumps(idx, ensure_ascii=False).encode("utf-8")))
+          print(f"بصماتٌ مُلئت: {filled} · فارغةٌ باقية: "
+                f"{[i + 1 for i, v in enumerate(sha) if not v]}")
+          PY
+
       - name: رفعٌ إلى الاختبار بحُرّاس stage_transform
         env:
           PARENT: ${{ github.event.inputs.parent }}
