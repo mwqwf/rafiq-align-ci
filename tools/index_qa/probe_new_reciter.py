@@ -39,6 +39,7 @@ from __future__ import annotations
 
 import argparse
 import concurrent.futures as cf
+import hashlib
 import json
 import os
 import subprocess
@@ -215,6 +216,9 @@ def probe_file(url: str, attempts: int = 4) -> dict:
         try:
             with _open(url, {"Range": f"bytes=0-{HEAD_BYTES - 1}"}) as r:
                 head = r.read(HEAD_BYTES)
+            # بصمةُ الرأس — بلا نداءٍ زائد: البايتاتُ مقروءةٌ أصلاً للمدّة.
+            # وهي نصفُ كاشفِ «الملفّ نفسُه باسمين» (‏الحارس الثامن في `main`).
+            row["headSha"] = hashlib.sha256(head).hexdigest()[:16]
             if not row.get("bytes"):
                 row["bytes"] = None
             row.update(duration_of(head, row.get("bytes") or 0))
@@ -600,6 +604,35 @@ def main() -> None:
         print("⚠️ أخطاءٌ تُقرأ عجزَ شبكةٍ لا غيابَ ملفّ:",
               json.dumps(dict(list(errs.items())[:5]), ensure_ascii=False))
 
+    # ── الحارسُ الثامن: «الملفّ نفسُه باسمين» ──────────────────────────
+    # ⛔ **سببُه مقيسٌ بثمنه (2026-09-09):** `rabbani_warsh` و`iraoui_warsh`
+    #    مضيا في المسبار والمحاذاة كاملةً — ساعاتِ حوسبةٍ لكلٍّ — ثمّ رُدّا
+    #    عند البوابة بـ«بصمات مكرّرة: 1». والعلّةُ **عند الناشر لا عندنا**:
+    #      `rabbani` 070.mp3 = 071.mp3 (‏2,264,407 بايت، والرأسُ نفسُه)
+    #      `iraoui`  040.mp3 = 041.mp3 (‏14,285,391 بايت، والرأسُ نفسُه)
+    #    ⇒ إعادةُ المحاذاة تنزّل البايتاتِ نفسَها فتُنتج العطبَ نفسَه،
+    #    والإسقاطُ يمنعه D-186 (‏السورُ الأربعُ كلُّها فوق 20 آية).
+    # ⭐ **والكشفُ هنا مجّانيّ:** `bytes` و`headSha` مقروءان أصلاً في المسبار،
+    #    فيُقاس ما كان يُكتشف بعد ساعاتٍ **قبل أن يُنفق عدّاءٌ واحد**.
+    # ⛔ **وشرطان لا شرط:** الطولُ وحدَه يقع فيه تصادفٌ نادر (‏سورتان بمدّةٍ
+    #    واحدةٍ إلى إطار)، والرأسُ وحدَه يتطابق في وسمِ ID3 المكرّر. فمعاً
+    #    يقطعان.
+    dup: dict = {}
+    for s, v in files.items():
+        if v.get("status") != 200 or not v.get("bytes") or not v.get("headSha"):
+            continue
+        dup.setdefault((v["bytes"], v["headSha"]), []).append(int(s))
+    twins = sorted((ss for ss in dup.values() if len(ss) > 1), key=lambda x: x[0])
+    if twins:
+        print("⛔ **عطبُ ناشرٍ — الملفُّ نفسُه لأكثرَ من سورة** "
+              f"({len(twins)} مجموعة):")
+        for ss in twins:
+            b, h = next(k for k, v2 in dup.items() if v2 is ss)
+            print(f"   سور {ss} ← {b:,} بايت · رأس {h}")
+        print("   ⇒ لا تُصلحه محاذاةٌ (البايتاتُ نفسُها) ولا يبيحه D-186 "
+              "إسقاطاً متى زادت السورةُ على 20 آية. **السبيلُ مصدرٌ بديلٌ "
+              "لهذه السور، أو ردُّ القارئ.**")
+
     transcripts: dict = {}
     # ⛔ **ولا يُورَث رقمُ شاهدٍ من ترويسة**: الافتراضُ القديم `89,104` كان
     #    فيه **س104 ميّتةً** (‏نصُّها واحدٌ في الروايتين ⇒ `conflict` دائم)،
@@ -631,6 +664,13 @@ def main() -> None:
     doc = {"probedBy": TOOL, "id": a.id, "riwaya": a.riwaya, "base": a.base,
            "names": names,
            "files": files, "transcripts": transcripts,
+           # يُكتب دائماً — والقائمةُ الفارغةُ خبرٌ أيضاً: «فُحص ولم يوجد».
+           "duplicateFiles": [{"surahs": ss,
+                               "bytes": next(k for k, v2 in dup.items()
+                                             if v2 is ss)[0],
+                               "headSha": next(k for k, v2 in dup.items()
+                                               if v2 is ss)[1]}
+                              for ss in twins],
            "license": {"declared": a.license.strip()},
            "elapsedSec": int(time.time() - t0),
            "runId": os.environ.get("GITHUB_RUN_ID")}
