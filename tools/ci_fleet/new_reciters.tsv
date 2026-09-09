@@ -147,7 +147,7 @@ hsaleh_warsh	warsh	حسن محمد صالح	https://archive.org/download/Al-Qura
 # ═══════════════════════════════════════════════════════════════════════════
 zz_ctrl_husary_warsh	warsh	[ضبط] محمود خليل الحصري — ورش	https://server13.mp3quran.net/husr/Rewayat-Warsh-A-n-Nafi/	46,30,89	[ضبط — لا يُدخل الكتالوج] mp3quran	Z	صفُّ ضبطٍ: مشهودٌ في كتالوجنا warsh/husary_warsh
 zz_ctrl_huthaify_qalun	qalun	[ضبط] علي الحذيفي — قالون	https://server9.mp3quran.net/huthifi_qalon/	89,46,72	[ضبط — لا يُدخل الكتالوج] mp3quran	Z	صفُّ ضبطٍ: مشهودٌ في كتالوجنا qalun/huthaify_qalun
-harraz_warsh	warsh	هشام الهراز	https://server16.mp3quran.net/H-Lharraz/Rewayat-Warsh-A-n-Nafi	46,30,89	mp3quran read 317 — الناشر نفسه الذي نأخذ منه	A	W14 · 114 كاملة متحقَّقة بـHEAD (001 و033 و112 كلها 200) — والمسح ظنّ 33 ناقصة فكُذِّب بالقياس · 128k/44.1/CBR · شواهد: mp3quran + midad 462828 + surahquran 151 + alkabbah
+harraz_warsh	warsh	هشام الهراز	https://server16.mp3quran.net/H-Lharraz/Rewayat-Warsh-A-n-Nafi	30,89,19	mp3quran read 317 — الناشر نفسه الذي نأخذ منه	A	W14 · 114 كاملة متحقَّقة بـHEAD (001 و033 و112 كلها 200) — والمسح ظنّ 33 ناقصة فكُذِّب بالقياس · 128k/44.1/CBR · شواهد: mp3quran + midad 462828 + surahquran 151 + alkabbah · ⛔ سبرُ 05:21Z رُدّ بالحارس 3: س46 مطابقتُها **0.5785** دون 0.60 (‏وس30 0.765 وس89 0.6058 — وورشٌ يفوز في الثلاثة). **والعتبةُ لا تُلمس**، فأُبدل الشاهدُ الراسبُ بـ**س19 (98 آية)** أطولِ ما يفرّق في ورش
 
 # ═══ الدفعةُ الثانية 2026-09-09 ‏02:2xZ — **ما فات الطابورَ من جدول المسح** ═══
 #
@@ -226,3 +226,13 @@ h_dukhain	hafs	هيثم الدخين	https://server16.mp3quran.net/h_dukhain/Rew
 #    مبتورٌ بـ`xxxx`** فلا يُخمَّن (‏درسُ 09-05).
 shaykhna_qalun	qalun	شيخنا ولد سيد الحاج	https://archive.org/download/4666666666666666666666666694696496433_gmail_002	89,46,72	archive.org — لا رخصة معلنة (رفعٌ عامّ)	A	Q1 · موريتانيا — أعلى أولوية · 114 (metadata) + HEAD 001/002/114 ✓ · 32k/44.1/CBR · midad 458330 «قالون مكتمل 114» + assabile 3264 · ⛔ كان مستبعَداً لأنّ ملفّاته «NNN اسم.mp3» — والسببُ زال بـ`--names auto` (2026-09-09)
 naji_qalun	qalun	الناجي ولد بلال	https://archive.org/download/alfirdwsiy14335787878787858750578780578780	89,46,72	archive.org — لا رخصة معلنة (رفعٌ عامّ)	A	Q2 · موريتانيا — أعلى أولوية · 114 (metadata) + HEAD ✓ · ⚠️ 32k/16kHz/CBR أدنى جودةٍ في الجدول · midad 457494 مكتمل 114 + islamweb 2072 · ⛔ كان مستبعَداً لاسمِ الملفّ، والسببُ زال
+
+# ── أُضيف 2026-09-09 ‏07:5xZ: **مصحفٌ كاملٌ في الدوري عن أبي عمرو** غابَ عن
+#    الجدول لأنّ المسحَ الأوّل كان archive-centric، وهذا مصدرُه **mp3quran**.
+#    قِيس من `api/v3/reciters` (‏جلبةٌ واحدة): `surah_total = 114` و`read=211`.
+#    ⛔ والدوريُّ **روايةٌ صغرى** (3/3 عندنا) — وهي أولويةُ المالك بعد ورشٍ
+#    وقالون، لأنّ قارئاً واحداً يرفعها رفعاً ظاهراً.
+#    ⛔ وشاهدُه مقيسٌ بـ`--witness-surahs douri` لا مخمَّناً: **89 · 75 · 79**
+#       (‏30 و40 و46 آية · فرقٌ 2.9% و2.4% و1.7%) — والأقوى تفريقاً (س1 · 3.4%)
+#       **فخٌّ**: سبعُ آياتٍ لا تُعطي whisper سياقاً.
+fateh_douri	douri	الفاتح محمد الزبير	https://server6.mp3quran.net/fateh	89,75,79	mp3quran read 211 — الناشر نفسه الذي نأخذ منه	A	D4 · 114 سورةً معلَنةً في `api/v3/reciters` (‏جُلبت 2026-09-09 ‏07:4xZ) · ⚠️ مصدرُه mp3quran لا archive — فلم يظهر في `WARSH_QALUN_RECITERS_SURVEY` أصلاً · بلا توقيتٍ في `ayat_timing/reads` ⇒ يحتاج محاذاتَنا كاملةً
