@@ -169,6 +169,13 @@ def assemble(probe: dict, riwaya: str) -> dict:
           "files": files,
           "witnesses": wits,
           "license": probe.get("license") or {}}
+    # ⛔ **جدولُ الأسماء يُمرَّر كما هو ولا يُبنى هنا**: هو **قياسُ شبكةٍ** من
+    #    `metadata/<id>/files` — شأنُ المسبار لا شأنُ هذه الأداة. وحذفُه هنا
+    #    عطبٌ صامتٌ بعينه: يمرّ المرشَّحُ الحُرّاسَ السبعةَ كلَّها ويدخل الكتالوجَ
+    #    **بلا `files`**، فيبني المشغِّلُ `base + NNN.mp3` على مضيفٍ لا يرقّم
+    #    ⇒ **مصحفٌ كاملٌ صامت**. (‏قِيس 2026-09-09: سقط الحقلُ في أوّل تمريرة.)
+    if probe.get("names"):
+        ev["names"] = probe["names"]
     return ev
 
 
@@ -364,7 +371,15 @@ def _self_test() -> None:
     ok = assemble({"transcripts": {"1": heard_hafs, "112": "قل هو الله احد"},
                    "files": {}, "license": {"declared": "x"}}, "hafs")
     assert len(ok["witnesses"]) == 2 and ok["builtBy"] == TOOL
-    print("  ✅ (٦) `assemble` يردّ المسبارَ الناقصَ ويبني الشاهدَين من التامّ")
+    assert "names" not in ok, "⛔ اختُرع جدولُ أسماءٍ لمسبارٍ بلا أسماء"
+    # ⛔ **وجدولُ الأسماء يعبر ولا يسقط** — سقوطُه عطبٌ صامت: مصحفٌ يدخل
+    #    الكتالوجَ بلا `files` فيُبنى عنوانُه `NNN.mp3` على مضيفٍ لا يرقّم.
+    nm = [f"ar_{s:03d}_X.mp3" for s in range(1, 115)]
+    ok2 = assemble({"transcripts": {"1": heard_hafs, "112": "قل هو الله احد"},
+                    "files": {}, "license": {"declared": "x"}, "names": nm}, "hafs")
+    assert ok2.get("names") == nm, "⛔ سقط جدولُ الأسماء في `assemble`"
+    print("  ✅ (٦) `assemble` يردّ المسبارَ الناقصَ ويبني الشاهدَين من التامّ · "
+          "وجدولُ الأسماء يعبر كما هو ولا يُخترع")
 
     # (٧) ⛔⛔ **الحارسُ الخامسُ كان ميّتاً**: لا مُنتِجَ لـ`durationPerLetter`.
     #     فيُثبَّت هنا أنّ `assemble` يحسبه، **وأنّ الوحدةَ ثانيةٌ لا مللي**:
