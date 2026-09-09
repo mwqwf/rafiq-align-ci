@@ -45,6 +45,7 @@ import subprocess
 import sys
 import time
 import urllib.error
+import urllib.parse
 import urllib.request
 
 HERE = os.path.dirname(os.path.abspath(__file__))
@@ -317,13 +318,26 @@ def archive_names(base: str) -> list[str] | None:
     return map_names([r.get("name", "") for r in rows if isinstance(r, dict)])
 
 
+# ⛔ **الاسمُ يُرمَّز قبل أن يصير عنواناً** — وثمنُ غيابه مقيسٌ 2026-09-09:
+#    مصحفا `shaykhna_qalun` و`naji_qalun` (‏موريتانيا · رأسُ أولوية المالك)
+#    ملفّاتُهما `001 الفاتحة.mp3` — وفيها **فراغٌ وحروفٌ عربية**. فرفع
+#    `urllib.request` استثناءَ `InvalidURL: URL can't contain control characters`
+#    **على السور الـ114 كلِّها**، فخرج المسبارُ بـ`status: None` × 114 وصفرِ
+#    تفريغ — **ويقرؤه الحارسُ الأوّل «ملفّاتٌ بـHEAD 200: 0/114»، أي مصحفٌ
+#    غائب.** والمصحفُ كاملٌ: العنوانُ المرمَّز نفسُه يردّ `200`.
+#    ⇒ **عطبُ أداةٍ تنكّر في زيّ حكمٍ على المحتوى** — وهو الصنفُ الذي حذّر منه
+#    هذا الملفُّ نفسُه في درسِ `obk`. والتقييدُ في موضعٍ واحدٍ لا موضعين.
+#    (‏و`safe` هنا هو نفسُه في `add_surah_reciter` عند كتابة `files` — فما
+#    يُسبر به هو ما يُشغَّل به، ولا مسطرتان.)
+def surah_url(base: str, surah: int, names: list[str] | None = None) -> str:
+    root = base.rstrip("/")
+    name = names[surah - 1] if names else f"{surah:03d}.mp3"
+    return root + "/" + urllib.parse.quote(name, safe="/-._~()!*'")
+
+
 def probe_all(base: str, workers: int = 8, names: list[str] | None = None) -> dict:
     """السورُ 114 — بالتوازي، والترتيبُ محفوظٌ في المخرَج."""
-    root = base.rstrip("/")
-    if names:
-        urls = {s: f"{root}/{names[s - 1]}" for s in range(1, 115)}
-    else:
-        urls = {s: root + f"/{s:03d}.mp3" for s in range(1, 115)}
+    urls = {s: surah_url(base, s, names) for s in range(1, 115)}
     out: dict = {}
     with cf.ThreadPoolExecutor(max_workers=workers) as ex:
         futs = {ex.submit(probe_file, u): s for s, u in urls.items()}
@@ -492,6 +506,18 @@ def _self_test() -> None:
     print("  ✅ (٩) جدولُ الأسماء: تقابلٌ تامٌّ يُقبل · ناقصٌ ومكرَّرٌ يُردّان · "
           "والرتبةُ الثانيةُ تُجرَّب عند فشل الأولى")
 
+    # (١٠) العنوانُ يُرمَّز — والاختبارُ يحرس ما كلّف موجةً كاملة (2026-09-09):
+    #      اسمٌ فيه فراغٌ وعربيّةٌ كان يرفع `InvalidURL` على 114 سورة، فيخرج
+    #      المسبارُ «0/114» — حكماً على مصحفٍ كامل بعطبِ أداة.
+    u = surah_url("https://x/y/", 1, ["001 الفاتحة.mp3"])
+    assert " " not in u and "%20" in u, f"⛔ الفراغُ لم يُرمَّز: {u}"
+    assert u.encode("ascii", "strict"), "⛔ في العنوان حرفٌ غيرُ ascii"
+    assert surah_url("https://x/y", 7) == "https://x/y/007.mp3", "⛔ الرقميُّ تغيّر"
+    assert surah_url("https://x/y", 1, [gharbi[0]]) == "https://x/y/" + gharbi[0], \
+        "⛔ الاسمُ الـascii رُمّز بلا حاجة"
+    print("  ✅ (١٠) العنوانُ يُرمَّز: الفراغُ والعربيّةُ تصيران `%`، "
+          "والرقميُّ والـascii كما هما")
+
     print(f"✅ --self-test أخضر · {TOOL}")
 
 
@@ -594,7 +620,7 @@ def main() -> None:
         if row.get("status") != 200:
             print(f"⚠️ س{s} حالتُها {row.get('status')} — لا تُفرَّغ")
             continue
-        url = a.base.rstrip("/") + "/" + (names[s - 1] if names else f"{s:03d}.mp3")
+        url = surah_url(a.base, s, names)
         try:
             transcripts[str(s)] = transcribe(url, a.model, a.threads,
                                              os.path.join(HERE, "work"))
