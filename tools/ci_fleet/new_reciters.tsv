@@ -68,26 +68,29 @@ mudhaffar_qalun	qalun	أبو عبد الله منير المظفر التونس�
 masarawy_warsh	warsh	حسن عيسى المعصراوي	https://archive.org/download/Al_Quran_tilawat_Hassan_Eissa_AlMasarawy	106,96,107	archive.org — لا رخصة معلنة (رفعٌ عامّ)	A	W31 · 114 + HEAD ✓ · 128k/44.1/CBR · 133.6 م.ب/8344ث · مصر · tilawa + islamweb 2429 (يضعه في الأصبهاني)
 hsaleh_warsh	warsh	حسن محمد صالح	https://archive.org/download/Al-Quran_tilawat_Hassan_Mohammed_Saleh_Warsh	106,96,107	archive.org — لا رخصة معلنة (رفعٌ عامّ)	A	W32 · 114 + HEAD ✓ · 128k/44.1/CBR · 114.6 م.ب/7158ث · ورش/الأزرق · islamweb 1376 «مصحف مكتمل» + assabile 284 · ⚠️ غيرُ `h_saleh` الحفصيّ عندنا
 
-# ══════════ ⛔⛔ خمسةٌ ردَّها `HEAD` — تسميةٌ **بنمطٍ** لا بأرقامٍ مجرَّدة ══════════
-# قِيس 2026-09-07 23:4xZ: مُعرِّفاتُ archive صحيحةٌ حرفاً (‏تحقَّقت من
-# `advancedsearch.php`) و**في كلٍّ منها 114 ملفَّ mp3 تماماً** (‏من
-# `archive.org/metadata/<id>`) — والمانعُ أنّ أسماءَ الملفّات ليست `NNN.mp3`:
+# ══════════ ✅ حُلَّت: سبعةٌ ردَّها `HEAD` لأنّ أسماءها ليست `NNN.mp3` ══════════
+# قِيس 2026-09-07 23:4xZ أنّ مُعرِّفاتِ archive صحيحةٌ حرفاً و**في كلٍّ منها 114
+# ملفَّ mp3 تماماً**، والمانعُ أنّ الأسماء `ar_001_Mustapha_Gharbi_Warsh.mp3` و
+# `sura_1_64kb.mp3` و`001Al-fatiha.mp3` و`001_.mp3` لا `NNN.mp3`. وكُتب حينها
+# أنّ العلاجَ **حقلُ نمطٍ في الكتالوج قرارُه للمشرف**.
 #
-#   gharbi_warsh    (W5)  ar_001_Mustapha_Gharbi_Warsh.mp3
-#   kantaoui_warsh  (W13) ar_001_Mohammed_El_Kantaoui_Warsh.mp3
-#   chahboun_warsh  (W16) ar_001_Tazi_Mohammed_Chahboun_Warsh.mp3
-#   mbilal_warsh    (W33) ar_001_Musa_Bilal_Warsh.mp3
-#   jabery_warsh    (W19) sura_100_64kb.mp3
+# ⭐⭐ **ونُقض ذلك بالقياس 2026-09-09** — والدرسُ بثمنه: **قبل أن تُرفع «قرارَ
+#    بنية» اقرأ البنيةَ نفسَها**. الحقلُ **موجودٌ في التطبيق والكتالوج منذ
+#    تلاوةِ لغظف الشنقيطي** (‏مضيفٌ يسمّي ملفّاته بالعربية):
+#      · `QuranRepository.kt:243`  ‏`Reciter.files: List<String>`
+#      · `QuranRepository.kt:251`  ‏`files.getOrNull(surah-1)?.let { base + it }
+#                                    ?: (base + pad(surah) + ".mp3")`
+#      · `AudioMirrorBridge.kt:56` ‏يستدلّ برتبةِ الاسم في القائمة عند المرآة
+#    ⇒ **لا قرارَ بنيةٍ ولا حقلَ جديد**، بل نقصٌ في أداتين وحدَهما — وقد سُدّ:
+#      · `probe_new_reciter.py`: ‏`--names auto` (‏الافتراض) يجرّب `001.mp3`
+#        **بسورةٍ واحدة**، فإن ردّت قرأ `metadata/<id>/files` وطابق بتقابلٍ
+#        تامٍّ 1..114 (‏وإلا لم يُطابق شيئاً — لا تخمين)، ويكتب `names` في البرهان.
+#      · `add_surah_reciter.py`: حارسٌ سابعٌ يردّ جدولاً ناقصاً أو فارغاً أو
+#        مكرَّراً، ويكتب `files` مرمَّزةً في صفّ الكتالوج.
 #
-# ⭐ **وهؤلاء غيرُ أصحابِ الأسماء العربية الطويلة** (‏Q1 · Q2 · W2 · W14 · W36):
-#    نمطُهم **منتظمٌ يُشتقّ برقمِ السورة**، فلا يحتاجون جدولَ مطابقةٍ من 114 صفّاً
-#    بل **حقلَ نمطٍ واحداً**. ⇒ خمسةٌ إضافيّون على بُعد حقلٍ واحد.
-#
-# ⛔ **ولا يُصلحه جنديُّ الفهرسة وحدَه، فليس عطباً في أداةٍ بل قرارُ بنية:**
-#    التطبيقُ نفسُه يبني الصوتَ `reciter.base + NNN.mp3`
-#    (`RECITERS_MASTER_REFERENCE.md` القسمُ الثاني §1)، فلو مرَّ المرشَّحُ المسبارَ
-#    **لَعجَز المشغِّلُ عن تشغيله**. ⇒ يلزم حقلُ `filePattern` في `catalog/reciters.json`
-#    يقرؤه المشغِّلُ والمسبارُ معاً — **وهو للمشرف يبتّه**، ويُرفع إليه بهذا النصّ.
+# **والسبعةُ قِيسوا كلُّهم 114/114 من الميتاداتا (2026-09-09 02:5xZ) فأُعيدوا
+# إلى الطابور أعلاه**: gharbi · kentaoui · chahboun · hiyani · mosabelal ·
+# fakhfakh · rakbawi.
 #
 # ────────────────────────── المؤجَّلون بسببٍ مكتوب ──────────────────────────
 # ⛔ لا يُنسى مؤجَّلٌ ولا يُعاد اكتشافُه: هؤلاء **فُحصوا وأُخرجوا بسبب**، فمن أراد
@@ -158,26 +161,19 @@ harraz_warsh	warsh	هشام الهراز	https://server16.mp3quran.net/H-Lharraz
 #    فلا يُحكم على هؤلاء بمسطرةٍ أخرى قبل أن يبتّ المالكُ مسألةَ «حارسٌ يردّ
 #    بشاهدٍ لا يستطيع أن يشهد». والمسبارُ يقيس البنيةَ (‏الحُرّاس 1 و2 و5)
 #    بمعزلٍ عن الشاهد، وهي التي ردّت 16 من 22.
-# ⛔ معلَّق — اسمُ الملفّ «ar_001_Mustapha_Gharbi_Warsh.mp3» لا «NNN.mp3» (‏مقيسٌ من metadata 2026-09-09)
-# gharbi_warsh	warsh	مصطفى غربي	https://archive.org/download/128----kb-mustufa--gharby---by--warsh-mp3--full--mushaf--quran--114--sora---fr	106,96,107	archive.org — لا رخصة معلنة (رفعٌ عامّ)	A	W5 · 114 + HEAD ✓ · 128k/44.1/CBR · 137.4 م.ب/8589ث · الجزائر · tilawa + assabile 91 + suratmp3 reciter/72
-# ⛔ معلَّق — اسمُ الملفّ «ar_001_Mohammed_El_Kantaoui_Warsh.mp3» لا «NNN.mp3» (‏مقيسٌ من metadata 2026-09-09)
-# kentaoui_warsh	warsh	محمد الكنتاوي	https://archive.org/download/128--kb---mohammad--alkentawy----by--rewayt--warsh--mp3--full--mushaf--quran--	106,96,107	archive.org — لا رخصة معلنة (رفعٌ عامّ)	A	W13 · 114 + HEAD ✓ · 128k/44.1/Info · 119.5 م.ب/7466ث · المغرب · tilawa + assabile 81 + suratmp3 reciter/78 · ⛔ مرآة tilawa أجزاءٌ لا سور
-# ⛔ معلَّق — اسمُ الملفّ «ar_001_Tazi_Mohammed_Chahboun_Warsh.mp3» لا «NNN.mp3» (‏مقيسٌ من metadata 2026-09-09)
-# chahboun_warsh	warsh	محمد شهبون التازي	https://archive.org/download/128--kb---altazy--mohammad--shahboon---by--rewayt--warsh--mp3--full--mushaf--q	106,96,107	archive.org — لا رخصة معلنة (رفعٌ عامّ)	A	W16 · 114 + HEAD ✓ · 128k/44.1/CBR · 99.1 م.ب/6192ث · المغرب · assabile 408
-# ⛔ معلَّق — اسمُ الملفّ «sura_100_64kb.mp3» لا «NNN.mp3» (‏مقيسٌ من metadata 2026-09-09)
-# hiyani_warsh	warsh	محمد الجابري الحياني	https://archive.org/download/koran___quran-full--114-sora---by--mohammad-algabry--al7ayyaany--rewayt--warsh	106,96,107	archive.org — لا رخصة معلنة (رفعٌ عامّ)	A	W19 · 114 + HEAD ✓ · 64k/22kHz/Info · 94.8 م.ب/11849ث · assabile 82 + suratmp3 reciter/77 · ⚠️ المغرب غير مؤكد
+gharbi_warsh	warsh	مصطفى غربي	https://archive.org/download/128----kb-mustufa--gharby---by--warsh-mp3--full--mushaf--quran--114--sora---fr	106,96,107	archive.org — لا رخصة معلنة (رفعٌ عامّ)	A	W5 · 114 + HEAD ✓ · 128k/44.1/CBR · 137.4 م.ب/8589ث · الجزائر · tilawa + assabile 91 + suratmp3 reciter/72 · 🔤 أسماءٌ لا أرقام — جدولٌ مطابقٌ 114/114 مقيسٌ من metadata 2026-09-09
+kentaoui_warsh	warsh	محمد الكنتاوي	https://archive.org/download/128--kb---mohammad--alkentawy----by--rewayt--warsh--mp3--full--mushaf--quran--	106,96,107	archive.org — لا رخصة معلنة (رفعٌ عامّ)	A	W13 · 114 + HEAD ✓ · 128k/44.1/Info · 119.5 م.ب/7466ث · المغرب · tilawa + assabile 81 + suratmp3 reciter/78 · ⛔ مرآة tilawa أجزاءٌ لا سور · 🔤 أسماءٌ لا أرقام — جدولٌ مطابقٌ 114/114 مقيسٌ من metadata 2026-09-09
+chahboun_warsh	warsh	محمد شهبون التازي	https://archive.org/download/128--kb---altazy--mohammad--shahboon---by--rewayt--warsh--mp3--full--mushaf--q	106,96,107	archive.org — لا رخصة معلنة (رفعٌ عامّ)	A	W16 · 114 + HEAD ✓ · 128k/44.1/CBR · 99.1 م.ب/6192ث · المغرب · assabile 408 · 🔤 أسماءٌ لا أرقام — جدولٌ مطابقٌ 114/114 مقيسٌ من metadata 2026-09-09
+hiyani_warsh	warsh	محمد الجابري الحياني	https://archive.org/download/koran___quran-full--114-sora---by--mohammad-algabry--al7ayyaany--rewayt--warsh	106,96,107	archive.org — لا رخصة معلنة (رفعٌ عامّ)	A	W19 · 114 + HEAD ✓ · 64k/22kHz/Info · 94.8 م.ب/11849ث · assabile 82 + suratmp3 reciter/77 · ⚠️ المغرب غير مؤكد · 🔤 أسماءٌ لا أرقام — جدولٌ مطابقٌ 114/114 مقيسٌ من metadata 2026-09-09
 iraoui_warsh	warsh	محمد الأيراوي	https://archive.org/download/64--kb-mohammad---aleerawy-----by--warsh----mp3--full--mushaf--quran--114--sora	106,96,107	archive.org — لا رخصة معلنة (رفعٌ عامّ)	A	W28 · archive 114 + HEAD ✓ (‏mp3quran read=104 ناقصٌ 111) · 64k/44.1/Info · 69.1 م.ب/8634ث · ⚠️ الطريق يحتاج حسماً سمعياً (assabile يضعه في الأصبهاني)
-# ⛔ معلَّق — اسمُ الملفّ «ar_001_Musa_Bilal_Warsh.mp3» لا «NNN.mp3» (‏مقيسٌ من metadata 2026-09-09)
-# mosabelal_warsh	warsh	موسى بلال	https://archive.org/download/192---kb-----mosa----belal--by--warsh-mp3--full--mushaf--quran--114--sora---fr	106,96,107	archive.org — لا رخصة معلنة (رفعٌ عامّ)	A	W33 · 114 + HEAD ✓ · 192k/44.1/CBR · 193.2 م.ب/8051ث · أعلى جودةٍ في الجدول · assabile 304 + tilawa · ⛔ مرآة tilawa 108 ناقصة
+mosabelal_warsh	warsh	موسى بلال	https://archive.org/download/192---kb-----mosa----belal--by--warsh-mp3--full--mushaf--quran--114--sora---fr	106,96,107	archive.org — لا رخصة معلنة (رفعٌ عامّ)	A	W33 · 114 + HEAD ✓ · 192k/44.1/CBR · 193.2 م.ب/8051ث · أعلى جودةٍ في الجدول · assabile 304 + tilawa · ⛔ مرآة tilawa 108 ناقصة · 🔤 أسماءٌ لا أرقام — جدولٌ مطابقٌ 114/114 مقيسٌ من metadata 2026-09-09
 rajab_qalun	qalun	أحمد صالح رجب	https://archive.org/download/Quran-Qaloon-sheikh-Ahmad-bensalah-Rajab	106,96,107	archive.org — لا رخصة معلنة (رفعٌ عامّ)	B	Q7 · 114 + HEAD ✓ · 128k/48kHz/CBR · 117.3 م.ب/7324ث · alkabbah 793087
 andari_qalun	qalun	عثمان الطيب الأنداري	https://archive.org/download/mahmood---othman---altayeb--alendary--by--qaloon----mp3--full--mushaf--quran--	106,96,107	archive.org — لا رخصة معلنة (رفعٌ عامّ)	B	Q13 · 114(+1) + HEAD ✓ · 64k/44.1/CBR · 56.6 م.ب/7543ث · el-moslem.com
 saber_qalun	qalun	صابر عبد الحكم	https://archive.org/download/qaloonsaber4	106,96,107	archive.org — لا رخصة معلنة (رفعٌ عامّ)	B	Q25 · 114 + HEAD ✓ · 64k/22kHz/CBR · 64.8 م.ب/8097ث · مصر · «بقصر المنفصل وصلة ميم الجمع» — الوجه مصرَّحٌ به
-# ⛔ معلَّق — اسمُ الملفّ «001Al-fatiha.mp3» لا «NNN.mp3» (‏مقيسٌ من metadata 2026-09-09)
-# fakhfakh_qalun	qalun	الهادي بن الطاهر الفخفاخ	https://archive.org/download/48--kb--alhady--bn--altaher--alfakhfakh--by---qaloon---mp3--full--mushaf--qura	106,96,107	archive.org — لا رخصة معلنة (رفعٌ عامّ)	B	Q28 · 114 + HEAD ✓ · 72.7 م.ب/9090ث · تونس · islamweb 1455
+fakhfakh_qalun	qalun	الهادي بن الطاهر الفخفاخ	https://archive.org/download/48--kb--alhady--bn--altaher--alfakhfakh--by---qaloon---mp3--full--mushaf--qura	106,96,107	archive.org — لا رخصة معلنة (رفعٌ عامّ)	B	Q28 · 114 + HEAD ✓ · 72.7 م.ب/9090ث · تونس · islamweb 1455 · 🔤 أسماءٌ لا أرقام — جدولٌ مطابقٌ 114/114 مقيسٌ من metadata 2026-09-09
 derini_warsh	warsh	عمرو الدريني	https://archive.org/download/amrou-el-derini_Warsh	106,96,107	archive.org — لا رخصة معلنة (رفعٌ عامّ)	B	W29 · 114 + HEAD ✓ · 128k/44.1/CBR · 159.3 م.ب/9957ث · مصر · رُفع 2026-07 · alkabbah 320k
 haddad_warsh	warsh	أحمد الحداد	https://archive.org/download/zzz002_20220607	106,96,107	archive.org — لا رخصة معلنة (رفعٌ عامّ)	B	W30 · 114 + HEAD ✓ · 128k/44.1/Info · 130.7 م.ب/8163ث · مصر · islamweb 1526
-# ⛔ معلَّق — اسمُ الملفّ «001_.mp3» لا «NNN.mp3» (‏مقيسٌ من metadata 2026-09-09)
-# rakbawi_qalun	qalun	محمد أيوب الركباوي	https://archive.org/download/128-kb---mo7ammad---ayyoob--alrakbawy---by--qaloon----mp3--full--mushaf--quran	106,96,107	archive.org — لا رخصة معلنة (رفعٌ عامّ)	C	Q11 · 114(+1) + HEAD ✓ · 128k/44.1/CBR · 93.7 م.ب/5854ث · شاهدٌ واحد
+rakbawi_qalun	qalun	محمد أيوب الركباوي	https://archive.org/download/128-kb---mo7ammad---ayyoob--alrakbawy---by--qaloon----mp3--full--mushaf--quran	106,96,107	archive.org — لا رخصة معلنة (رفعٌ عامّ)	C	Q11 · 114(+1) + HEAD ✓ · 128k/44.1/CBR · 93.7 م.ب/5854ث · شاهدٌ واحد · 🔤 أسماءٌ لا أرقام — جدولٌ مطابقٌ 114/114 مقيسٌ من metadata 2026-09-09
 jelmam_qalun	qalun	أحمد جلمام	https://archive.org/download/256--kb--ahmad--jelmam--by---qaloon----mp3--full--mushaf--quran--114--sora---	106,96,107	archive.org — لا رخصة معلنة (رفعٌ عامّ)	C	Q12 · 114 + HEAD ✓ · ⚠️ الرأس 48k VBR رغم «256» في الاسم · 239 م.ب/7482ث
 nawi_qalun	qalun	عبد الرحمن الناوي	https://archive.org/download/128---32--kb---abd--alrra7man--alnawy----by--qaloon----mp3--full--mushaf--qura	106,96,107	archive.org — لا رخصة معلنة (رفعٌ عامّ)	C	Q14 · 114 + HEAD ✓ · 110.9 م.ب/6923ث · شاهدٌ واحد
 bushaqra_qalun	qalun	عمر أبو شقرة	https://archive.org/download/alfirdwsiy1433_gmail_04554455754245774542574545702_201706	106,96,107	archive.org — لا رخصة معلنة (رفعٌ عامّ)	C	Q15 · 114 + HEAD ✓ · 64k/16kHz/VBR · 23.6 م.ب/7016ث · ⚠️ جودةٌ متدنية

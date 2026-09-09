@@ -237,9 +237,93 @@ def probe_file(url: str, attempts: int = 4) -> dict:
     return row
 
 
-def probe_all(base: str, workers: int = 8) -> dict:
+# ─────────────── جدولُ الأسماء حين لا يكون الاسمُ رقماً ───────────────
+# ⛔ **درسٌ بثمنه (2026-09-08، خمسُ موجاتٍ مهدورة):** خمسةُ مسابرَ رجعت 114
+#    ملفاً بـHEAD 404 والعناصرُ موجودةٌ كلُّها — والمانعُ أنّ الأسماء ليست
+#    `NNN.mp3` بل `ar_001_Mustapha_Gharbi_Warsh.mp3` و`sura_100_64kb.mp3`.
+#    وكُتب حينها أنّ العلاجَ «حقلُ نمطٍ في الكتالوج يبتّه المشرف».
+# ⭐ **وقياسُ 2026-09-09 نقض ذلك:** الكتالوجُ والتطبيقُ **يحملان الحقلَ منذ
+#    تلاوةِ لغظف الشنقيطي**: `Reciter.files` في `QuranRepository.kt:243`
+#    و`surahUrl` فيه `files.getOrNull(surah-1)?.let { base + it }` (:251)،
+#    و`AudioMirrorBridge.kt:56` يستدلّ برتبة الاسم في القائمة عند المرآة.
+#    ⇒ لا قرارَ بنيةٍ ولا حقلَ جديد — **نقصٌ في هذه الأداة وحدَها**: لم تكن
+#    تقرأ الأسماءَ الحقيقية ولا تكتبها في البرهان.
+def _digit_runs(name: str) -> list[str]:
+    """مجموعاتُ الأرقام المتتالية في الاسم، بترتيب ظهورها."""
+    runs, cur = [], ""
+    for ch in name:
+        if ch.isdigit():
+            cur += ch
+        elif cur:
+            runs.append(cur)
+            cur = ""
+    if cur:
+        runs.append(cur)
+    return runs
+
+
+def map_names(names: list[str]) -> list[str] | None:
+    """يطابق أسماءَ الملفّات بأرقام السور — **بتقابلٍ تامٍّ أو لا شيء**.
+
+    ⛔ **لا تُخمَّن الرتبة:** تُجرَّب كلُّ رتبةِ مجموعةِ أرقامٍ في الاسم (‏الأولى
+    ثم الثانية…)، ولا تُقبل إلا التي تعطي **1..114 كلَّها بلا تكرار**. فاسمٌ
+    مثل `sura_100_64kb.mp3` فيه مجموعتان (`100` و`64`)، والأولى وحدَها تعطي
+    تقابلاً — والثانيةُ تعطي تكراراً فتُردّ من تلقائها. **وترتيبُ الأبجدية
+    ليس مطابقةً** ولا يُقبل بديلاً: `010` تسبق `002` في مضيفين معروفين.
+    """
+    mp3 = [n for n in names if n.lower().endswith(".mp3")]
+    if len(mp3) < 114:
+        return None
+    for rank in range(4):
+        table: dict[int, str] = {}
+        for n in mp3:
+            runs = _digit_runs(os.path.basename(n))
+            if len(runs) <= rank:
+                continue
+            try:
+                s = int(runs[rank])
+            except ValueError:                            # noqa: PERF203
+                continue
+            if 1 <= s <= 114 and s not in table:
+                table[s] = n
+            elif 1 <= s <= 114:
+                table[s] = ""                             # تكرارٌ ⇒ إبطال
+        if len(table) == 114 and all(table.values()):
+            return [table[s] for s in range(1, 115)]
+    return None
+
+
+def archive_names(base: str) -> list[str] | None:
+    """أسماءُ عنصرِ archive.org الحقيقية — **نداءٌ واحدٌ يسبق الموجة**."""
+    marker = "archive.org/download/"
+    if marker not in base:
+        return None
+    ident = base.split(marker, 1)[1].strip("/").split("/")[0]
+    if not ident:
+        return None
+    url = f"https://archive.org/metadata/{ident}/files"
+    for k in range(3):
+        try:
+            with _open(url, {}, timeout=90) as r:
+                doc = json.loads(r.read().decode("utf-8", "replace"))
+            break
+        except Exception:                                 # noqa: BLE001
+            if k == 2:
+                return None
+            time.sleep(1.5 * (k + 1))
+    rows = doc.get("result") if isinstance(doc, dict) else doc
+    if not isinstance(rows, list):
+        return None
+    return map_names([r.get("name", "") for r in rows if isinstance(r, dict)])
+
+
+def probe_all(base: str, workers: int = 8, names: list[str] | None = None) -> dict:
     """السورُ 114 — بالتوازي، والترتيبُ محفوظٌ في المخرَج."""
-    urls = {s: base.rstrip("/") + f"/{s:03d}.mp3" for s in range(1, 115)}
+    root = base.rstrip("/")
+    if names:
+        urls = {s: f"{root}/{names[s - 1]}" for s in range(1, 115)}
+    else:
+        urls = {s: root + f"/{s:03d}.mp3" for s in range(1, 115)}
     out: dict = {}
     with cf.ThreadPoolExecutor(max_workers=workers) as ex:
         futs = {ex.submit(probe_file, u): s for s, u in urls.items()}
@@ -390,6 +474,24 @@ def _self_test() -> None:
           f"{d8b['durationMs']}م.ث · وإهمالُ الوسم كان سيزيدها "
           f"{naive['durationMs'] - d8b['durationMs']}م.ث")
 
+    # (٩) جدولُ الأسماء — يُقبل بالتقابل التامّ ويُردّ بغيره
+    gharbi = [f"ar_{s:03d}_Mustapha_Gharbi_Warsh.mp3" for s in range(1, 115)]
+    assert map_names(list(reversed(gharbi))) == gharbi, "⛔ نمطُ الغربي لم يُطابَق"
+    # ⛔ والمجموعةُ الثانية (`64kb`) تُبطل نفسَها بالتكرار فتُختار الأولى
+    jabery = [f"sura_{s}_64kb.mp3" for s in range(1, 115)]
+    assert map_names(jabery) == jabery, "⛔ نمطُ الحياني لم يُطابَق"
+    # ناقصٌ ⇒ لا شيء (‏113 اسماً لا تُقبل «أكثرُها موجود»)
+    assert map_names(gharbi[:-1]) is None, "⛔ قُبلت 113"
+    # مكرَّرٌ ⇒ لا شيء (‏س7 مرّتين وس8 غائبة)
+    dup = list(gharbi)
+    dup[7] = dup[6]
+    assert map_names(dup) is None, "⛔ قُبل جدولٌ فيه تكرار"
+    # ورقمٌ خارج المدى في الرتبة الأولى لا يخدع (‏`2020_007.mp3`)
+    dated = [f"2020_{s:03d}.mp3" for s in range(1, 115)]
+    assert map_names(dated) == dated, "⛔ لم تُجرَّب الرتبةُ الثانية"
+    print("  ✅ (٩) جدولُ الأسماء: تقابلٌ تامٌّ يُقبل · ناقصٌ ومكرَّرٌ يُردّان · "
+          "والرتبةُ الثانيةُ تُجرَّب عند فشل الأولى")
+
     print(f"✅ --self-test أخضر · {TOOL}")
 
 
@@ -417,6 +519,10 @@ def main() -> None:
     ap.add_argument("--id")
     ap.add_argument("--riwaya")
     ap.add_argument("--base", help="مجلّدُ الملفّات (‏تُضاف NNN.mp3)")
+    ap.add_argument("--names", default="auto",
+                    help="`auto` (‏الافتراض: أرقامٌ ثم ميتاداتا archive عند "
+                         "تعذّرها) · `none` (‏أرقامٌ حصراً) · أو مسارُ ملفّ "
+                         "JSON فيه 114 اسماً بترتيب السور")
     ap.add_argument("--license", default="")
     ap.add_argument("--witness", default="89,104",
                     help="سورتا الشاهد (‏`reciter_evidence.py --witness-surahs`)")
@@ -438,7 +544,25 @@ def main() -> None:
         sys.exit("⛔ لا صفَّ رخصةٍ — المصدرُ وما أعلنه يُكتبان بنصّهما")
 
     t0 = time.time()
-    files = probe_all(a.base, a.workers)
+    # ⛔ **الرقمُ أوّلاً والاسمُ عند تعذّره** — لا العكس: أكثرُ المضيفين يرقّمون،
+    #    فنداءُ الميتاداتا لا يُنفق إلا على من ردَّ رقمُه. والقياسُ **سورةٌ واحدة**
+    #    (‏س1) لا 114: موجةٌ كاملةٌ من 404 ثمنُها 114 طلباً بلا فائدة.
+    names = None
+    if a.names == "auto":
+        first = probe_file(a.base.rstrip("/") + "/001.mp3", attempts=2)
+        if first.get("status") != 200:
+            names = archive_names(a.base)
+            if names:
+                print(f"🔤 أسماءٌ لا أرقام — طوبقت 114 من الميتاداتا: "
+                      f"«{names[0]}» … «{names[113]}»")
+            else:
+                print("⚠️ س1 لم ترجع 200 ولا جدولَ أسماءٍ مطابقاً — "
+                      "المسبارُ يمضي بالأرقام، والحكمُ للحُرّاس")
+    elif a.names not in ("", "none"):
+        names = json.load(open(a.names, encoding="utf-8"))
+        if not (isinstance(names, list) and len(names) == 114):
+            sys.exit("⛔ ملفُّ الأسماء ليس قائمةً من 114 اسماً")
+    files = probe_all(a.base, a.workers, names)
     ok = sum(1 for v in files.values() if v.get("status") == 200)
     noh = [s for s, v in files.items()
            if v.get("status") == 200 and not v.get("durationMs")]
@@ -456,7 +580,7 @@ def main() -> None:
         if row.get("status") != 200:
             print(f"⚠️ س{s} حالتُها {row.get('status')} — لا تُفرَّغ")
             continue
-        url = a.base.rstrip("/") + f"/{s:03d}.mp3"
+        url = a.base.rstrip("/") + "/" + (names[s - 1] if names else f"{s:03d}.mp3")
         try:
             transcripts[str(s)] = transcribe(url, a.model, a.threads,
                                              os.path.join(HERE, "work"))
@@ -465,6 +589,7 @@ def main() -> None:
             print(f"⚠️ تعذّر تفريغُ س{s}: {ex}")
 
     doc = {"probedBy": TOOL, "id": a.id, "riwaya": a.riwaya, "base": a.base,
+           "names": names,
            "files": files, "transcripts": transcripts,
            "license": {"declared": a.license.strip()},
            "elapsedSec": int(time.time() - t0),

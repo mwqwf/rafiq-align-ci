@@ -52,6 +52,7 @@ import hashlib
 import json
 import os
 import sys
+import urllib.parse
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, HERE)
@@ -120,6 +121,19 @@ def check_evidence(ev, riwaya):
             break
     if not (ev.get("license") or {}).get("declared"):
         bad.append("6: لا صفَّ رخصةٍ — المصدرُ وما أعلنه يُكتبان بنصّهما")
+    # ⛔ **جدولُ الأسماء إن وُجد يُقاس ولا يُصدَّق:** مضيفٌ لا يرقّم ملفّاته
+    #    يدخل بأسمائه في `Reciter.files` (‏موجودٌ في التطبيق منذ تلاوة لغظف
+    #    الشنقيطي: `QuranRepository.kt:243,251`) — فإن كان الجدولُ ناقصاً أو
+    #    فيه فراغٌ **دخل القارئُ بصوتٍ لا يشتغل**، وهو أسوأُ من ألّا يدخل.
+    names = ev.get("names")
+    if names is not None:
+        if not isinstance(names, list) or len(names) != 114:
+            bad.append(f"7: جدولُ الأسماء {len(names) if isinstance(names, list) else 'ليس قائمة'}"
+                       " والمطلوب 114 بترتيب السور")
+        elif not all(isinstance(n, str) and n.strip() for n in names):
+            bad.append("7: في جدول الأسماء اسمٌ فارغ — لا يُدخَل مصحفٌ بثغرة")
+        elif len(set(names)) != 114:
+            bad.append("7: في جدول الأسماء تكرارٌ — سورتان إلى ملفٍّ واحد")
     return bad
 
 
@@ -149,6 +163,19 @@ def _self_test() -> None:
     assert any(x.startswith("5:") for x in check_evidence(g, "warsh")), "حارس 5"
     h = base(); h["license"] = {}
     assert any(x.startswith("6:") for x in check_evidence(h, "warsh")), "حارس 6"
+    # ⛔ الحارسُ السابع: جدولُ الأسماء يُقبل تامّاً ويُردّ ناقصاً وفارغاً ومكرَّراً
+    good = [f"ar_{s:03d}_X.mp3" for s in range(1, 115)]
+    n0 = base(); n0["names"] = good
+    assert not check_evidence(n0, "warsh"), "⛔ جدولٌ تامٌّ رُدّ"
+    n1 = base(); n1["names"] = good[:-1]
+    assert any(x.startswith("7:") for x in check_evidence(n1, "warsh")), "حارس 7 (نقص)"
+    n2 = base(); n2["names"] = good[:-1] + ["  "]
+    assert any(x.startswith("7:") for x in check_evidence(n2, "warsh")), "حارس 7 (فراغ)"
+    n3 = base(); n3["names"] = good[:-1] + [good[0]]
+    assert any(x.startswith("7:") for x in check_evidence(n3, "warsh")), "حارس 7 (تكرار)"
+    # وغيابُ الجدول أصلاً ليس عطباً — المضيفُ المرقِّمُ هو الأغلب
+    n4 = base(); n4.pop("names", None)
+    assert not check_evidence(n4, "warsh"), "⛔ غيابُ الجدول عُدَّ عطباً"
     # وحفصٌ نفسُه لا يُرفض بمطابقته حفصاً — الشرطُ على غيره
     i = base(); i["witnesses"][0].update(scoreDeclared=0.95, scoreHafs=0.95)
     assert not any("نسبةٌ خاطئة" in x for x in check_evidence(i, "hafs")), "حفص يُستثنى"
@@ -213,6 +240,12 @@ def main() -> None:
                "files200": sum(1 for v in (ev.get("files") or {}).values()
                                if v.get("status") == 200),
                "license": (ev.get("license") or {}).get("declared")}}
+    # ⛔ **والأسماءُ مرمَّزةٌ في الفهرس لا في الشيفرة** — الوصيّةُ نفسُها في
+    #    `QuranRepository.Reciter.files`: البايتاتُ جاهزةً تصل كما هي، فلا
+    #    يختلف السلوكُ بين إصدارات أندرويد.
+    if ev.get("names"):
+        row["files"] = [urllib.parse.quote(n, safe="/-._~()!*'") for n in ev["names"]]
+
     # ⛔ **الذيلُ لا الرأس**: القرّاءُ الجدد أسفلَ القائمة الحالية بحقل ترتيب،
     #    فلا يُزاح عن موضعه من اعتمده المستخدمُ سلفاً.
     row["order"] = len(riw.get("reciters", [])) + 1
