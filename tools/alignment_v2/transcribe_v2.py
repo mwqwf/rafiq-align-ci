@@ -23,7 +23,8 @@ def _run_whisper(clip, base, extra=()):
     for attempt in range(5):
         r = subprocess.run([WHISPER_CLI, "-m", MODEL_Q8, "-f", clip, "-l", "ar", "-oj",
                             "-of", base, "--no-prints", *extra],
-                           capture_output=True, text=True, timeout=600, stdin=subprocess.DEVNULL)
+                           capture_output=True, text=True, errors="replace", timeout=600,
+                           stdin=subprocess.DEVNULL)
         if r.returncode == 0 and os.path.exists(base + ".json"):
             return
         time.sleep(20 * (attempt + 1))  # ضغط ذاكرة: انتظر وأعد (لا تُوازِ أبداً)
@@ -33,7 +34,7 @@ def _run_whisper(clip, base, extra=()):
 def transcribe_range(wav, start_ms, dur_ms, tag, cache_dir, extra=()):
     cache = os.path.join(cache_dir, tag + ".json")
     if os.path.exists(cache):
-        with open(cache, encoding="utf-8") as f:
+        with open(cache, encoding="utf-8", errors="replace") as f:
             return json.load(f)
     base = os.path.join(cache_dir, tag)
     clip = base + ".clip.wav"
@@ -42,7 +43,7 @@ def transcribe_range(wav, start_ms, dur_ms, tag, cache_dir, extra=()):
                    check=True, timeout=120, stdin=subprocess.DEVNULL)
     try:
         _run_whisper(clip, base + ".raw", extra)
-        with open(base + ".raw.json", encoding="utf-8") as f:
+        with open(base + ".raw.json", encoding="utf-8", errors="replace") as f:
             data = json.load(f)
     finally:
         for p in (clip, base + ".raw.json"):

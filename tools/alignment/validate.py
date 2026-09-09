@@ -309,8 +309,21 @@ def make_timing_index(riwaya, reciter_id, source_kind, counting, per_surah,
         # المسار (‏`vad_rel`)؛ فإن لم تُمرَّر كُتبت `null`: «لا نعلم» لا صفر.
         # ⛔ لا `vadVersion` مفردة: `versions` عدُّ السور بكل نسخة، فإن غابت
         # بيانات السور كُتب `null` — ولا يُفترض أن الفهرس كلّه بنسخة الجهاز.
-        "vad": {"versions": vad_versions or None, "rel": rel_block,
-                "writerVersion": VAD_VERSION},
+        # ⚠️ **`writerHostVadVersion` لا `writerVersion`** (اقتراح github-3a):
+        # الاسم القديم يُقرأ «نسخة البناء» وهو **نسخة الجهاز الذي كتب الترويسة
+        # لا التي بنت السور** — وهذا بعينه البابُ الذي دخل منه العيب أول مرّة
+        # حين ظُنّ الفهرس كلّه بنسخةٍ واحدة. والاسم الجديد يقول موضعه صراحةً،
+        # و`versions` تبقى هي **الحقيقة عن البناء**.
+        # **و«غير مسجَّل» تُكتب `"unknown"` صراحةً لا `null`** (طلب github-7d
+        # وgithub-7e): حقلٌ حاضر الاسم غائب المعنى **يوهم أن السؤال طُرح
+        # وأُجيب بالنفي** — وهو أسوأ من غيابه. وهو الفرق نفسه المقرّر في
+        # `refineVersion` بين «قِيس فلم يوجد» و«لا نعلم».
+        "vad": {"versions": vad_versions or "unknown",
+                "rel": rel_block or "unknown"},
+        # نسخة كاشف الصمت على **جهاز الكاتب** — في الجذر لا مُعشَّشة، كي
+        # تُقرأ بلا تخمينٍ في موضعها (طلب github-7d وgithub-7e). ولا يُملأ بها
+        # فراغُ `versions`: نسبةُ الفهرس كلّه إليها كذبٌ على سورٍ بُنيت بغيرها.
+        "writerHostVadVersion": VAD_VERSION,
         "noSilenceShare": (round(no_silence / skips, 3) if skips >= 200 else None),
         "noSilenceToAnchor": (round(no_silence / no_anchor, 2)
                               if no_anchor >= 100 else None),

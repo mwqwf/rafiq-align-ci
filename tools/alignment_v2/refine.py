@@ -33,6 +33,9 @@ from common import FFMPEG, MODEL_Q8, WHISPER_CLI, norm  # noqa: E402
 #    حيث يقع النفع.
 #    ⚠️ و`-dtw` **مقيَّدٌ بنوع النموذج**: مِلاكُ الطوابع الزمنية يختلف بين
 #    `tiny` و`base`، فتمريرُ الخطأ يُفسد الطوابع بلا خطأٍ ظاهر.
+# ⭐ تغطيةُ الصقل: يُسمح بالإسناد إلى **بداية الكلمة الأولى** حين لا صمت
+#    (‏اختياريّ، يُقاس على قارئٍ واحدٍ قبل التعميم).
+WORD_START = os.environ.get("REFINE_WORD_START") == "1"
 REFINE_MODEL = os.environ.get("REFINE_MODEL") or MODEL_Q8
 REFINE_DTW = os.environ.get("REFINE_DTW") or "tiny"
 from vad import silences  # noqa: E402
@@ -238,9 +241,25 @@ def refine_surah(d, log=print):
                 # ‏230/231 = 99.6% ضمن ±300م.ث · و`token-mid` **0/10 = صفر**.
                 # وعلى المنشاوي وحده: snap ‏19/19 = 100% · mid ‏0/8. فالمنتصف ليس
                 # «أضعف قليلاً» بل **خاطئ دائماً** — ورفضه يمحو كل حالات الكسر.
-                why = "skip:no-silence"
-                continue
-            cand = snapped
+                # ⭐ **بديلٌ لم يُقَس من قبل** (‏2026-09-04): المقيسُ الذي بُني
+                #    عليه هذا الحارس هو **منتصفُ الفجوة** (`token-mid` صفرٌ من
+                #    عشرة)، **وليس بدايةَ الكلمة الأولى نفسِها** — وهي معلومةٌ
+                #    **مباشرةٌ من طوابع whisper** لا تخمينَ فيها.
+                #    والقياسُ الذي دعا إليه: الحدودُ التي صقلها هذا الملفّ
+                #    **صفرُ عطبٍ من 24**، والتي امتنع عنها **23 من 176 (13.1%)**
+                #    — فالعلّةُ **تغطيةُ الصقل لا دقّتُه**، وأكبرُ مانعٍ للتغطية
+                #    هذا الحارسُ بعينه (‏1311 امتناعاً عند `wdod`).
+                #    ⛔ **ويبقى مقيَّداً**: سقفُ الثقة `MED` فلا تُمنح شارةٌ بلا
+                #    صمت، وحارسُ التجاوز أدناه يسري كما هو.
+                #    ⛔ **ولا يُعمَّم قبل قياسه على قارئٍ واحد** (‏درس D-179).
+                if not WORD_START:
+                    why = "skip:no-silence"
+                    continue
+                cand = int(b)
+                snapped = None
+                stats["word_start"] = stats.get("word_start", 0) + 1
+            else:
+                cand = snapped
             if not (lo + EDGE_MARGIN_MS <= cand <= hi - EDGE_MARGIN_MS):
                 why = "skip:window-edge"
                 if chases < MAX_EDGE_CHASES:
@@ -272,15 +291,19 @@ def refine_surah(d, log=print):
         e["startMs"] = new_t
         entries[k - 1]["endMs"] = new_t
         e["refined"] = True
-        e["refineSrc"] = "token-snap"          # لا يبقى غيره بعد حارس «لا صمت لا حد»
+        # ⛔ **النسبُ يتبع الطريق**: حدٌّ أُسند إلى صمتٍ ليس كحدٍّ أُسند إلى
+        #    بداية كلمة — والوسمُ يفرّقهما فيُقرأ الأثرُ على حقيقته لاحقاً.
+        e["refineSrc"] = "token-snap" if snapped is not None else "word-start"
         e["refineAcc"] = round(acc, 3)
         e["refineShift"] = new_t - t
         e["refineGap"] = int(b - a)          # اتساع الفجوة بين المرساتين
         cov = e["matched"] / max(e["total"], 1)
         conf = min(1.0, (0.6 * cov + 0.4 * acc) * (1.0 if acc >= 0.5 else 0.8))
-        promoted = acc >= PROMOTE_MIN_ACC
+        promoted = acc >= PROMOTE_MIN_ACC and snapped is not None
         if not promoted:
             conf = min(conf, MED_CEIL)       # الزمن يتحسّن، والشارة لا تُمنح بلا برهان
+        # ⛔ **ولا `HIGH` بلا صمت**: بدايةُ الكلمة تحسّن الزمن ولا تبلغ برهانَ
+        #    الصمت، فسقفُها `MED` مهما بلغت الدقّة.
         e["conf"] = round(conf, 3)
         e["promoted"] = promoted
         e["snapped"] = True

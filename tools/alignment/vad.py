@@ -74,8 +74,13 @@ def silences(wav_path, min_silence_ms=180, rel_threshold=0.04, adaptive=True):
     minutes = max(len(rms) * FRAME_MS / 60000.0, 1e-6)
 
     out = _silences_at(rms, rel_threshold, speech_level, min_silence_ms)
+    if not adaptive:
+        return out          # نداءٌ ثابت (صقل/معايرة): لا يتكيّف ولا يُسجَّل
+    # ⚠️ `LAST_REL` عالميّ، فلو كتبه كلُّ نداء لدهسه آخرُهم — ونداء الصقل
+    # يقع بعد التقطيع، فكانت الترويسة تصف عتبةً لم تُقطَّع بها السورة (ظهرت
+    # 0.06 وهي بصمة نداء الصقل لا اختيار السُّلّم). فلا يكتبه إلا المتكيّف.
     LAST_REL = float(rel_threshold)
-    if not adaptive or len(out) / minutes >= MIN_DENS:
+    if len(out) / minutes >= MIN_DENS:
         return out                      # الافتراضية كافية ⇒ لا تُمَس
     for rel in LADDER:
         if rel <= rel_threshold:
