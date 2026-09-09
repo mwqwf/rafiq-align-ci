@@ -1,0 +1,16 @@
+# reciters_qw_new.tsv — القرّاءُ الجدد في **ورشٍ وقالون** الذين دخلوا الكتالوج
+# بوضع «السورة الكاملة» (‏`ayahCertified:false` · `ayahCoverage:0.0`) وينتظرون
+# فهرسةً آية-بآية. وهم **أولويةُ المالك الأولى** (‏ورش وقالون قبل حفص).
+#
+# المصدر: `catalog/reciters.json` على الدلو — مقروءاً 2026-09-09 ‏02:0xZ:
+#   kherkhashi_qalun · maroush_qalun · masarawy_warsh — الثلاثةُ mode=surah cov=0.0
+#
+# ⛔ والرابطُ **ليس مخمَّناً**: `probe_new_reciter.py:242` يبني عناوينَه
+#    `base.rstrip("/") + f"/{s:03d}.mp3"`، وبها مرّ الحارسُ الأوّل 114/114
+#    لكلٍّ من الثلاثة (‏`state/newreciters/<id>.probe.json` على الدلو).
+#
+# ⛔ والعمودُ الرابع **وزنٌ لا نطاقُ سور**: `run_shard.sh:270` يمرّر «1-114»
+#    دائماً، والعمودُ يُقرأ في `assign_shard.py` لموازنة الشرائح وحدها.
+kherkhashi_qalun	qalun	https://archive.org/download/alkabbah.com-ABO-YOOSEF-ALKHERKHASHY-QALOON/{surah:03d}.mp3	4
+maroush_qalun	qalun	https://archive.org/download/Kamal-Almaroush-Qalon/{surah:03d}.mp3	4
+masarawy_warsh	warsh	https://archive.org/download/Al_Quran_tilawat_Hassan_Eissa_AlMasarawy/{surah:03d}.mp3	4
