@@ -524,8 +524,9 @@ def main() -> None:
                          "تعذّرها) · `none` (‏أرقامٌ حصراً) · أو مسارُ ملفّ "
                          "JSON فيه 114 اسماً بترتيب السور")
     ap.add_argument("--license", default="")
-    ap.add_argument("--witness", default="89,104",
-                    help="سورتا الشاهد (‏`reciter_evidence.py --witness-surahs`)")
+    ap.add_argument("--witness", default="auto",
+                    help="`auto` (‏الافتراض: يُقاس من الرواية بـ"
+                         "`reciter_evidence.best_witnesses`) أو سورتان بفاصلة")
     ap.add_argument("--model", help="نموذج ggml للتفريغ")
     ap.add_argument("--threads", type=int, default=4)
     ap.add_argument("--workers", type=int, default=8)
@@ -574,7 +575,20 @@ def main() -> None:
               json.dumps(dict(list(errs.items())[:5]), ensure_ascii=False))
 
     transcripts: dict = {}
-    wit = [int(x) for x in a.witness.replace(",", " ").split()]
+    # ⛔ **ولا يُورَث رقمُ شاهدٍ من ترويسة**: الافتراضُ القديم `89,104` كان
+    #    فيه **س104 ميّتةً** (‏نصُّها واحدٌ في الروايتين ⇒ `conflict` دائم)،
+    #    والبديلُ الظاهرُ (‏س106/96/107 — أقوى ما يفرّق) **فخٌّ أسوأ**: قِصَرُها
+    #    يُهبِط التفريغَ تحت حدّ الحارس الثالث. فالقياسُ من الرواية نفسِها.
+    # ⛔ **وثلاثةٌ لا اثنان، والسببُ حسابيٌّ لا احتياطيّ:** الشاهدُ الطويل
+    #    يفرّق 1.4–1.7% من كلماته، و`CONFLICT_MARGIN` = 5% ⇒ `conflict`
+    #    **مضمونٌ** لا محتمَل، والحارسُ الرابع يمرّره عند ثلاثةٍ فأكثر
+    #    (`add_surah_reciter.py:115`). فاثنان = رفضٌ مؤكَّد وعدّاءٌ ضائع.
+    if a.witness.strip() == "auto":
+        from reciter_evidence import best_witnesses
+        wit = best_witnesses(a.riwaya, 3)
+        print(f"🎯 شاهدا {a.riwaya} مقيسَين: " + " · ".join(f"س{s}" for s in wit))
+    else:
+        wit = [int(x) for x in a.witness.replace(",", " ").split()]
     for s in wit:
         row = files.get(str(s)) or {}
         if row.get("status") != 200:
