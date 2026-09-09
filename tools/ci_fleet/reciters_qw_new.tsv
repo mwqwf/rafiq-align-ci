@@ -77,3 +77,15 @@ kholti_warsh	warsh	https://archive.org/download/Tilawa.org_002/{surah:03d}.mp3	4
 # ⚠️ والهوامشُ 0.001–0.022 داخل الضجيج: فهذه **عدمُ تكذيب** لا برهانَ إثبات
 fateh_douri	douri	https://server6.mp3quran.net/fateh/{surah:03d}.mp3	4
 harraz_warsh	warsh	https://server16.mp3quran.net/H-Lharraz/Rewayat-Warsh-A-n-Nafi/{surah:03d}.mp3	4
+
+# ── وأُضيف ثلاثةٌ 2026-09-09 ‏08:4xZ (دورةُ الفهرسة): قرّاءٌ **في الكتالوج
+#    وليسوا في أيّ قائمةِ محاذاة** — فُتّشوا بمقابلةِ `catalog/reciters.json`
+#    (‏46 غيرَ مشهود) بقوائم `reciters_*.tsv`، فبانت الثغرة.
+# ⛔ ولا تُطلق موجةٌ بهذا الملفّ ما دامت `34324159188` معلَّقة: `concurrency`
+#    يقتل المعلَّق، فتُنتظر السعة (‏قاعدةُ الطابور، البند ٦).
+# · harraz_warsh و fateh_douri: قوالبُهما من المسبار (‏114/114 بـHEAD 200).
+# · sultani_douri: أُدخل الكتالوجَ في هذه الدورة نفسِها ببرهانٍ مقيس
+#   (‏س75 0.780/0.768 · س79 0.687/0.687 · س89 0.796/0.766 — الدوريُّ يفوز).
+harraz_warsh	warsh	https://server16.mp3quran.net/H-Lharraz/Rewayat-Warsh-A-n-Nafi/{surah:03d}.mp3	4
+fateh_douri	douri	https://server6.mp3quran.net/fateh/{surah:03d}.mp3	4
+sultani_douri	douri	https://server14.mp3quran.net/muftah_sultany/Rewayat-Aldori-A-n-Abi-Amr/{surah:03d}.mp3	4

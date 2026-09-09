@@ -25,6 +25,7 @@
     python tools/tasmi_bench/openers_scan.py --key timings-staging/hafs/alijon.27638af1.jz
 """
 import argparse
+import glob
 import hashlib
 import json
 import os
@@ -53,12 +54,34 @@ RECITERS = os.path.join(ROOT, "tools", "cloud", "reciters.tsv")
 
 
 def url_template(rid):
-    for line in open(RECITERS, encoding="utf-8"):
-        if line.startswith("#"):
+    """⛔ **كلُّ قوائم المستودع لا قائمةٌ واحدة** (‏تصحيحُ 2026-09-09): كان البحثُ
+    محصوراً في `tools/cloud/reciters.tsv`، فسقط فحصُ المطالع على **كلِّ قارئٍ
+    أُضيف في قائمةٍ جديدة** بـ«لا قالب صوت» — و`rajab_qalun` أوّلُ من وقع فيه
+    (‏تشغيلة 34328674459) وقالبُه مكتوبٌ في `tools/ci_fleet/reciters_qw_new.tsv`
+    منذ 04:4xZ. **فهو قصورُ بحثٍ لا نقصُ بيانات.**
+
+    وهذا **عينُ العطب الذي أُصلح في `basmala.yml` يومَ 2026-09-05** ولم يُفتَّش
+    يومَها عن بقيّة من يقرأ القوائم — والدرسُ: متى وجدتَ علّةً في قراءة ملفٍّ
+    ففتِّش عن **كلّ** من يقرأ الملفّ نفسَه، لا عمّن اشتكى أوّلاً.
+    """
+    for path in [RECITERS] + sorted(glob.glob(
+            os.path.join(ROOT, "tools", "ci_fleet", "reciters_*.tsv"))):
+        try:
+            fh = open(path, encoding="utf-8")
+        except OSError:
             continue
-        p = line.rstrip("\n").split("\t")
-        if len(p) > 2 and p[0] == rid:
-            return p[2]
+        with fh:
+            for line in fh:
+                if line.startswith("#"):
+                    continue
+                p = line.rstrip("\n").split("\t")
+                if len(p) > 2 and p[0] == rid and "{surah" in p[2]:
+                    return p[2].strip()
+    # ⛔ و«{surah}» شرطٌ لا زينة: صفّا `fakhfakh_qalun` و`shaykhna_qalun`
+    #    أساسُهما **مجلَّدٌ** لا قالب (‏أسماءُ ملفّاتهما تُقرأ من جدول `files`
+    #    في الكتالوج). فلو رُدّ المجلَّدُ قالباً لبنى الفحصُ عنواناً مكسوراً
+    #    وأخرج 404 في كلّ سورة — **وهو أسوأُ من الردّ**: عطبٌ صامتٌ بدل توقّفٍ
+    #    ناطق. فيُردّ `None` ويقف الفحصُ برسالته.
     return None
 
 
