@@ -153,3 +153,10 @@ yousef	hafs	https://server9.mp3quran.net/yousef/{surah:03d}.mp3	4	unverified
 zahrani	hafs	https://server9.mp3quran.net/zahrani/{surah:03d}.mp3	4	unverified
 zaki	hafs	https://server9.mp3quran.net/zaki/{surah:03d}.mp3	4	unverified
 zaml	hafs	https://server9.mp3quran.net/zaml/{surah:03d}.mp3	4	unverified
+# ⛔ أُضيفا 2026-09-10: عبرا حكمَ العيّنة (0.20% و0.57%) **ورُدّت ترقيتُهما**
+#    لأنّ `openers.yml` يقرأ قالبَ الصوت من هذا الملفِّ وحدَه، وكانا في
+#    قوائم الأسطول لا فيه ⇒ «لا قالب صوتٍ … لا فحص بلا مصدر».
+#    ⇒ القارئُ الذي يدخل موجةً يدخل هذا الملفَّ معها، وإلا حُكم عليه ولم يُرقَّ.
+#    وملفّاتُهما بالأسماء لا بالأرقام فتُحلّ بجدول `files` في الكتالوج.
+fakhfakh_qalun	qalun	https://archive.org/download/48--kb--alhady--bn--altaher--alfakhfakh--by---qaloon---mp3--full--mushaf--qura/	1
+shaykhna_qalun	qalun	https://archive.org/download/4666666666666666666666666694696496433_gmail_002/	1
