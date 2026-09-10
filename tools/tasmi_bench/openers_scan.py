@@ -32,6 +32,7 @@ import os
 import subprocess
 import sys
 import time
+from urllib.parse import quote
 import urllib.request
 
 HERE = os.path.dirname(os.path.abspath(__file__))
@@ -51,6 +52,30 @@ VERIFY_MS = 4000
 WORK = os.path.join(HERE, "work", "openers")
 STATE = os.path.join(ROOT, "tools", "index_qa", "state")
 RECITERS = os.path.join(ROOT, "tools", "cloud", "reciters.tsv")
+
+
+def catalog_base(rid):
+    """أساسُ العنوان من قوائم الأسطول لمضيفٍ لا يرقّم أسماءه.
+
+    ⛔ يُقبل هنا **المجلَّدُ** الذي يردّه `url_template` (‏لأنّه بلا `{surah}`):
+    فمع جدول `files` يصير العنوانُ تامّاً `<الأساس>/<الاسم>`، وبدونه يبقى
+    مردوداً كما كان. فالشرطُ انتقل من «قالبٌ أو لا شيء» إلى «قالبٌ **أو**
+    أساسٌ مع جدول».
+    """
+    for path in [RECITERS] + sorted(glob.glob(
+            os.path.join(ROOT, "tools", "ci_fleet", "reciters_*.tsv"))):
+        try:
+            fh = open(path, encoding="utf-8")
+        except OSError:
+            continue
+        with fh:
+            for line in fh:
+                if line.startswith("#"):
+                    continue
+                p2 = line.rstrip().split("	")
+                if len(p2) > 2 and p2[0] == rid and p2[2].startswith("http"):
+                    return p2[2].strip()
+    return None
 
 
 def url_template(rid):
@@ -188,8 +213,28 @@ def main():
     rid = ti.get("reciterId") or a.key.split("/")[-1].split(".")[0]
     riwaya = ti.get("riwaya") or a.key.split("/")[1]
     tmpl = url_template(rid)
+    names = None
     if not tmpl:
-        sys.exit(f"⛔ لا قالب صوتٍ لـ{rid} في reciters.tsv — لا فحص بلا مصدر")
+        # ⛔⛔ **ومضيفُ المجلَّد ليس عدمَ مصدر** (‏قِيس 2026-09-10): `fakhfakh_qalun`
+        #    و`shaykhna_qalun` عبرا حكمَ العيّنة (0.20% و0.57%) **ورُدّت ترقيتُهما
+        #    مرّتين** بـ«لا قالب صوت» — وهما مصحفان كاملان، وأسماءُ ملفّاتهما
+        #    مكتوبةٌ في جدول `files` بالكتالوج منذ 09-09، ويقرؤها `batch_run`
+        #    و`QuranRepository.kt`. **فالحقيقةُ موجودةٌ ولم يكن هذا الفاحصُ يقرؤها.**
+        # ⇒ يُجرَّب الجدولُ قبل الاستسلام؛ والحارسُ يبقى لمن **لا قالبَ له ولا
+        #    جدول** — فلا يُبنى عنوانٌ مخمَّنٌ يُخرج 404 في كلّ سورة.
+        try:
+            sys.path.insert(0, os.path.join(ROOT, "tools", "alignment"))
+            from batch_run import catalog_files       # noqa: PLC0415
+            names = catalog_files(rid)
+        except Exception as exc:                       # noqa: BLE001
+            print(f"ℹ️ تعذّر جدولُ الكتالوج لـ{rid}: {type(exc).__name__}")
+            names = None
+    if not tmpl and not names:
+        sys.exit(f"⛔ لا قالب صوتٍ لـ{rid} ولا جدولَ أسماءٍ في الكتالوج "
+                 f"— لا فحص بلا مصدر")
+    if names:
+        base = catalog_base(rid) or ""
+        print(f"📇 أسماءُ الملفّات من جدول الكتالوج — {len(names)} مدخلاً")
 
     text = load_text(riwaya)
     start_of = {s["n"]: s["start"] for s in load_index()["surahs"]}
@@ -236,7 +281,9 @@ def main():
         row = {"surah": s, "startMs": e["startMs"]}
         w = []
         try:
-            fetch_head(tmpl.format(surah=s), mp3,
+            _url = (base.rstrip("/") + "/" + quote(names[s])
+                    if names else tmpl.format(surah=s))
+            fetch_head(_url, mp3,
                        need_ms=e["startMs"] + LADDER[-1] + VERIFY_MS)
             end = None
             for d in LADDER:
