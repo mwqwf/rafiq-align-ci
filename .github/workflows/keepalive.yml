@@ -167,3 +167,42 @@ jobs:
         run: |
           set -e
           python tools/index_qa/promote.py --yes 2>&1 | tail -25 || true
+          # ⛔ **ولا تُرفع تجميداتٌ ولا تُتجاوز أحكامٌ من هنا**: `--unfreeze`
+          #    و`--override` و`--allow-truncated` كلُّها تحتاج **سبباً مكتوباً
+          #    يذكر أرقاماً قِيست**، وسببٌ تكتبه آلةٌ بلا قياسٍ هو تزويرٌ لا حوكمة.
+          #    فيبقى ذلك للجلسة، وتكتفي النبضةُ بما لا يحتاج عذراً.
+          echo "ℹ️ ما يحتاج سبباً مكتوباً يبقى للجلسة — انظر docs/ops/RESUME_NOW.md"
+
+      - name: ⚡ اجرد ما ينتظر قراراً بشريّاً
+        # ⛔ **الغرض: ألّا يضيع المحبوسُ في السجلّات.** الحلقةُ تُنتج بلا توقّف،
+        #    فإن حُبس مرشَّحٌ لسببٍ يحتاج قراراً **ولم يُجرد**، بقي محبوساً أبداً
+        #    وهو لا يُرى إلا لمن يقرأ سجلَّ ترقيةٍ قديم.
+        run: |
+          python - <<'PY' | tee -a "$GITHUB_STEP_SUMMARY"
+          import json, boto3, collections
+          c = json.load(open("secure/r2_credentials.json"))
+          s = boto3.client("s3", endpoint_url=c["endpoint"],
+                           aws_access_key_id=c["accessKeyId"],
+                           aws_secret_access_key=c["secretAccessKey"],
+                           region_name="auto")
+          b = c["bucket"]
+          per = collections.Counter()
+          for pg in s.get_paginator("list_objects_v2").paginate(
+                  Bucket=b, Prefix="state-ci"):
+              for o in pg.get("Contents", []):
+                  try:
+                      j = json.loads(s.get_object(Bucket=b, Key=o["Key"])["Body"].read())
+                  except Exception:
+                      continue
+                  v = str(j.get("verdict") or "")
+                  if v.startswith("مقبول"):
+                      continue
+                  kind = ("خلل بنيوي" if "بنيوي" in v else
+                          "عطبٌ جسيم" if "جسيم" in v else
+                          "حدّي" if "حدّي" in v else
+                          "موقوف" if "موقوف" in v else "آخر")
+                  per[kind] += 1
+          print("## ⚡ ما ينتظر قراراً")
+          for k, n in per.most_common():
+              print(f"- {k}: {n} شاهداً")
+          PY
