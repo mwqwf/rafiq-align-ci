@@ -30,6 +30,9 @@ on:
       url_template:
         description: "قالبُ الصوت، مثل https://server16.mp3quran.net/deban/Rewayat-Hafs-A-n-Assem/{s:03d}.mp3"
         required: true
+      reciter_id:
+        description: "معرّفُ القارئ — يلزم لمضيف المجلَّد ليُقرأ جدولُ الأسماء"
+        default: ""
       riwaya:
         description: "hafs | warsh | qalun"
         default: "hafs"
@@ -203,7 +206,15 @@ jobs:
           #    لا تمسّ بقيّةَ القارئ.
           mirror = (f"https://pub-2c2e1dcd92e84a2898820dd38d3e09e6.r2.dev/"
                     f"audio/{riw}/{rid}/" + "{s:03d}.mp3")
-          if got not in (want, mirror):
+          # ⛔⛔ **ومضيفُ المجلَّد بابٌ ثالثٌ مشروع** (‏2026-09-11): أساسُه بلا
+          #    `{s:03d}` وأسماؤه في جدول `files` بالكتالوج. وكان اشتراطُ القالب
+          #    يمنع إصلاحَ سورةٍ واحدةٍ فيُردُّ مصحفٌ كاملٌ لعلّةٍ في سورتين.
+          #    ⇒ يُقبل **الأساسُ نفسُه** إن طابق الكتالوج، ويُشتقّ الاسمُ عند
+          #    التنزيل. والحارسُ يبقى: لا مضيفَ غريباً ولا رابطَ تخمين.
+          folder = base.rstrip("/") if base else None
+          if folder and got.rstrip("/") == folder:
+              print("✅ أساسُ مجلَّدٍ مطابقٌ للكتالوج — الأسماءُ من جدول files")
+          elif got not in (want, mirror):
               print("⛔ القالبُ المعطى يخالف الكتالوج ولا هو مرآتُنا — يُوقَف قبل تنزيل بايت.")
               print(f"   المعطى:   {got}")
               print(f"   الكتالوج: {want}")
@@ -226,6 +237,7 @@ jobs:
           PARENT: ${{ github.event.inputs.parent }}
           SURAHS: ${{ github.event.inputs.surahs }}
           URLT: ${{ github.event.inputs.url_template }}
+          RID: ${{ github.event.inputs.reciter_id }}
           RIWAYA: ${{ github.event.inputs.riwaya }}
           SKIP_MS: ${{ github.event.inputs.skip_ms }}
           ALLOW_BATCH: ${{ github.event.inputs.allow_batch }}
@@ -258,7 +270,8 @@ jobs:
           PY
           FILES=""
           for S in $(echo "$SURAHS" | tr ',' ' '); do
-            URL=$(python -c "import os,sys; print(os.environ['URLT'].format(s=int(sys.argv[1])))" "$S")
+            # ⛔ قالبٌ **أو** جدولُ أسماءٍ من الكتالوج — والتفصيلُ في السكربت.
+            URL=$(python tools/ci_fleet/resolve_url.py "$S")
             echo "── سورة $S ← $URL"
             SRC="$URL"
             if [ "${SKIP_MS:-0}" != "0" ]; then
