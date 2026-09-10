@@ -499,8 +499,8 @@ LOCAL_MODEL = ROOT / "tools" / "tasmi_bench" / "work" / "ggml-q8.bin"
 LOCAL_CACHE = Path(os.environ.get("TEMP", "/tmp")) / "rafiq_qa_local"
 
 # ⛔ **ترويسةٌ إلزاميةٌ في كلّ نداءٍ هنا**: `r2.dev` يردّ **403** لـ`Python-urllib`
-#    و**200** لـ`Mozilla/5.0` على المفتاح نفسِه (قِيس 2026-09-06)، وفهارسُ
-#    المرآة تحمل `fileRef` من `r2.dev` رأساً (‏`laghdaf_shinqiti` أوّلُها).
+#    و**200** لـ`Mozilla/5.0` على المفتاح نفسِه (‏قِيس 2026-09-06)، وفهارسُ
+#    المرآة تحمل `fileRef` من `r2.dev` رأساً (‏`laghdaf_shinqiti` أوّلها).
 #    وأربعةُ مواضعَ في هذا الملفّ كانت تنادي بلا ترويسة — فالفحصُ يفشل بلا
 #    سطرِ سببٍ مفهوم. أُصلحت في `common.py` ثم `openers_scan.py` ثم هنا:
 #    **المعرفةُ التي لا تسكن مكانَ الاستعمال لا تحرس.**
@@ -583,16 +583,30 @@ def _local_audio(url):
         # دقيقة عند نافذةٍ واحدة بلا تقدّمٍ ولا خطأ — والمخبأ لا ينمو والسجل
         # لا يتحرّك، فيبدو بطئاً وهو تعليق. وفي وظيفةٍ سحابية يبتلع المهلة
         # كلها (‏6 ساعات) بلا مخرَج.
+        # ⛔ **الاكتمالُ يُتحقّق بالطول المُعلَن لا بعتبةٍ دنيا.** كان الشرط
+        # `>= 10_000` وحده، فأيُّ تنزيلٍ انقطع في منتصفه يُقبل ويُخبَّأ **إلى
+        # الأبد** ويُعاد استعماله في كل قياس. ووجدتُ في المخبأ سبعة ملفّات
+        # أحجامُها **مضاعَفاتٌ تامّة لـ1 م.ب** — بصمةُ انقطاعٍ عند حدّ مخزن —
+        # منها `a_majed/005.mp3` بـ11 م.ب والمصدرُ 47، و`tareq/037.mp3` بـ1
+        # م.ب والمصدرُ 8.7. وأثرُه أن مداخل آخر السورة تقع **خارج الصوت
+        # المتاح** فتُخفق النافذة، فتنكمش العيّنة من حيث لا يُرى.
         import urllib.request, shutil
         last = None
         for attempt in (1, 2, 3):
             try:
                 rq0 = urllib.request.Request(url, headers=UA)
                 with urllib.request.urlopen(rq0, timeout=90) as r, open(p, "wb") as f:
+                    want = int(r.headers.get("Content-Length") or 0)
                     shutil.copyfileobj(r, f)
-                if p.stat().st_size >= 10_000:
+                got = p.stat().st_size
+                if want and got != want:
+                    p.unlink(missing_ok=True)   # لا يُترك مبتورٌ في المخبأ
+                    last = RuntimeError(f"مبتور: {got} من {want} بايت")
+                    time.sleep(2 * attempt)
+                    continue
+                if got >= 10_000:
                     break
-                last = RuntimeError(f"ملفٌ مبتور ({p.stat().st_size} بايت)")
+                last = RuntimeError(f"ملفٌ مبتور ({got} بايت)")
             except Exception as ex:
                 last = ex
                 time.sleep(2 * attempt)
@@ -845,9 +859,19 @@ def judge(ref_text, prev_text, fwd, dec, long_fwd):
 # ───────────────────────── مجال الثقة العنقودي ─────────────────────────
 _T95 = {2: 12.71, 3: 4.303, 4: 3.182, 5: 2.776, 6: 2.571, 7: 2.447, 8: 2.365, 9: 2.306, 10: 2.262}
 
-def cluster_ci(rates):
+def cluster_ci(rates, n_total=None):
     """مجال 95% **على مستوى العنقود** — التصميم عنقودي، والمجال الثنائي
-    الساذج يُظهر يقيناً أكبر من الحقيقة."""
+    الساذج يُظهر يقيناً أكبر من الحقيقة.
+
+    ⛔ **وانعدامُ التباين ليس يقيناً.** إذا تساوت نسبُ العناقيد كلُّها — وأشيعُ
+    صوره أن تكون **صفراً في كلِّها** — صار `var = 0` فـ`se = 0` فالمجال
+    `[0.0, 0.0]`. وهو **ادّعاءُ يقينٍ تامّ من عيّنةٍ محدودة**: خرج على
+    `alijon@27638af1` مجالاً `0.0% – 0.0%` من 158 حدّاً، والبوابةُ ترقّي على
+    الحدّ الأعلى ⇒ صفرٌ كاذبٌ يمرّ حيث يجب أن يمرّ رقمٌ حقيقيّ (‏1.9%).
+    ⇒ عند انعدام التباين يُرجَع إلى حدٍّ ثنائيٍّ على مجموع الحدود: لصفر
+    الأحداث **قاعدةُ الثلاثة** الدقيقة `1 − 0.05^(1/n)`، ولغيره تقريبُ
+    ويلسون. ويُصرَّح بذلك في `ciNote` فلا يُقرأ الحدُّ على غير وجهه.
+    """
     k = len(rates)
     if k < 2:
         return None
@@ -855,7 +879,20 @@ def cluster_ci(rates):
     var = sum((x - m) ** 2 for x in rates) / (k - 1)
     se = math.sqrt(var / k)
     t = _T95.get(k, 1.96)
-    return m, max(0.0, m - t * se), min(1.0, m + t * se)
+    lo, hi = max(0.0, m - t * se), min(1.0, m + t * se)
+    # ⛔ المقارنةُ بالصفر تماماً تُعطّل الحارس: نسبٌ متساويةٌ نصّاً (‏[0.02]×10)
+    # تترك في `var` بقيّةً من تمثيل العائم (~1e-36) فلا يكون `se` صفراً
+    # بالضبط، فيمرّ المجال المنهار [2%, 2%] بلا تصحيح. والعتبةُ تُصلحها.
+    if se < 1e-12 and n_total:
+        if m == 0.0:
+            hi = 1 - 0.05 ** (1.0 / n_total)          # قاعدة الثلاثة الدقيقة
+        else:                                          # ويلسون (حدٌّ أعلى)
+            z, n = 1.96, float(n_total)
+            c = m + z * z / (2 * n)
+            hi = min(1.0, (c + z * math.sqrt(m * (1 - m) / n + z * z / (4 * n * n)))
+                     / (1 + z * z / n))
+        return m, lo, hi, "degenerate"
+    return m, lo, hi
 
 # ───────────────────────── التدقيق الكامل لفهرس ─────────────────────────
 def _verdict(fatal, rate, ci_high, decision=()):
@@ -880,7 +917,7 @@ def _finish(rep, rows, by_cluster, seed, nerr):
         cl = [sum(1 for k in v if pred(k)) / len(v) for v in by_cluster.values() if v]
         n = sum(len(v) for v in by_cluster.values())
         hit = sum(1 for v in by_cluster.values() for k in v if pred(k))
-        return hit, n, cluster_ci(cl)
+        return hit, n, cluster_ci(cl, n)
 
     sev = rate(lambda k: k == "جسيم")
     any_ = rate(lambda k: k in ("جسيم", "طفيف"))
@@ -1075,7 +1112,23 @@ def audit(key, args):
 # ───────────────────────── الطباعة ─────────────────────────
 LIMITS = ("⚠️ حدود الحكم (تُقرأ معه لا بعده): ليست أذناً بشرية بل تفريغ whisper q8 مقابَلاً بالنص؛\n"
           "   لا تفصل ما دون ~0.3ث؛ تقيس وجود الأثر لا مقداره؛ ولا تُبلّغ إلا بشاهدٍ نصّي بعد تمريرين.\n"
-          "   والنسب من عيّنة عنقودية 8×6 ومجالها واسعٌ بطبعه.")
+          "   والمجال عنقوديٌّ واسعٌ بطبعه — وحجمُ العيّنة يُطبع مع الحكم لا هنا.")
+
+
+def _sample_line(rep):
+    """سطرُ حجم العيّنة **من الحكم نفسه**.
+
+    ⛔ كان نصُّ الحدود يقول «عيّنة عنقودية 8×6» **قيمةً ثابتة في الشفرة**،
+    فطُبعت مع تشغيلةِ 20×10 على `alijon` (‏19 عنقوداً · 200 حدّ) — رقمٌ
+    مطبوعٌ يكذّب تشغيلته. وهو نظيرُ عطبِ سُلَّم 8e حرفاً: **ما لا يُشتقّ من
+    التشغيلة يصير كذباً حين تتغيّر.**"""
+    s = rep.get("sample") or {}
+    cl, rw = len(s.get("clusters") or []), len(s.get("rows") or [])
+    if not rw:
+        return ""
+    ok = rw - sum(1 for r in (s.get("rows") or []) if (r.get("kind") == "غير حاسم"))
+    return (f"   العيّنة: {cl} عنقوداً · {rw} حدّاً · حُكم منها {ok}"
+            f" ({rw - ok} غير حاسم) · نوافذُ أخفقت: {s.get('errors', 0)}")
 
 def show(rep):
     i, s = rep["info"], rep["sample"]

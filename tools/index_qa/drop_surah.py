@@ -58,9 +58,61 @@ def main():
                     help="سورةٌ أو أكثر مفصولةً بفاصلة — تُسقط **معاً** في "
                          "تحويلٍ واحد لا في تحويلين متسلسلين، فالأثر يبقى "
                          "بصمةً واحدة عن الأصل لا سلسلةً يصعب تتبّعها")
-    ap.add_argument("--reason", required=True)
+    ap.add_argument("--reason", required=True,
+                    help="السجلُّ الكامل — للمشرف والمراجعة، لا للمستخدم")
+    # ⛔ **السببُ المعروضُ غيرُ السبب المسجَّل** (‏قياسُ جلسة الواجهة 2026-09-08):
+    #    كتبتُ سجلّاً من ثلاثمئة حرفٍ فيه «−80.8 د.ب» و«server16» و«441 عنصراً»
+    #    ثم عُرض على قارئٍ في شاشة 320dp، **فدفع الدعوةَ وزرَّها خارج الشاشة**
+    #    فقرأ لوماً طويلاً بلا مخرجٍ يراه — وهو نقيضُ غرض البطاقة.
+    #    ⇒ **حقلان لا واحد**: `reason` سجلٌّ كامل يبقى كما هو، و`reasonUser`
+    #    جملةٌ واحدةٌ للقارئ العاديّ.
+    ap.add_argument("--reason-user",
+                    help="جملةٌ واحدةٌ تُعرض للمستخدم (‏دون 120 حرفاً)")
+    # ⛔ **ورمزٌ يُترجَم** — والنصُّ وحدَه لا يكفي: مَن يقرأ بالسواحيلية كان
+    #    يرى عنواناً بلغته وسبباً بالعربية. فالرمزُ يُخرّط في التطبيق إلى نصٍّ
+    #    مترجَم، ويبقى `reasonUser` احتياطاً حين لا يعرف التطبيقُ الرمز.
+    ap.add_argument("--reason-code",
+                    choices=["NO_PUBLISHED_RECORDING", "SOURCE_TRUNCATED",
+                             "SOURCE_CORRUPT", "OTHER"],
+                    help="رمزٌ ثابتٌ يُترجمه التطبيق")
     ap.add_argument("--yes", action="store_true", help="ارفع (الافتراض عرضٌ فقط)")
+    ap.add_argument("--declare-absent", action="store_true",
+                    help="السورةُ غائبةٌ سلفاً — يُعلَن غيابُها بسببه بلا حذفِ شيء")
+    # ⛔⛔ **نقصٌ جزئيّ داخل سورةٍ تعمل** (2026-09-09): `--declare-absent` لا
+    #    يصلح له، وقد كاد يكلّفني **154 آيةً عاملة** حين أجريتُه جافّاً على
+    #    `mukhtar_haj` [20,41] — فالرايةُ تعني «لا تحذف إن لم يكن ثمّة ما
+    #    يُحذف»، فإن وُجدت مداخلُ حذفتها. والحالةُ الشائعة أنّ المصدر نشر
+    #    السورةَ **ناقصةَ الذيل**: 102 من 135 في طه، و149 من 165 في الأنعام.
+    #    ⇒ فبيانُ الغياب كان ثمنُه إسقاطَ ما يعمل، **وذلك ينقض المقصود**.
+    # ✅ والحلّ: الآياتُ الغائبةُ **محسوبةٌ سلفاً** في `missing.ids` تحت
+    #    `unknown` — فلا تحتاج قائمةً جديدة، إنما تحتاج أن يُسمّى سببُها.
+    #    فهذا الوضعُ **يُصنّف ولا يحذف**: صفرُ مداخل تُمَسّ، والعقدُ لا يتغيّر.
+    ap.add_argument("--declare-gap", action="store_true",
+                    help="السورةُ تعمل وبعضُ آياتها غائبٌ — يُسمّى سببُ النقص "
+                         "بلا حذفِ مدخلٍ واحد")
     a = ap.parse_args()
+    if a.declare_gap and a.declare_absent:
+        raise SystemExit("⛔ --declare-gap و--declare-absent وضعان متناقضان: "
+                         "الأوّلُ لسورةٍ تعمل وينقصها بعضُ آياتها، والثاني "
+                         "لسورةٍ لا مدخلَ لها. فاختر ما يصفه القياس.")
+
+    # ⛔⛔ **حقلُ `reason` يُشحن ويُعرض للمستخدم** (‏وراء «التفاصيل» في التطبيق)
+    #    — فلا يُكتب فيه شأنٌ داخليّ. كتبتُ فيه «إذن المالك النصّي» ونصَّ كلامه
+    #    فظهر ذلك في تطبيقٍ يقرأه الناس (‏أمر المالك 2026-09-08: «هذا لا داعي له
+    #    وليس موضع شيء كهذا»). **والسجلُّ الإداريّ موضعُه المستودع**
+    #    (`docs/qa/DROPPED_SURAHS.md`) لا ترويسةُ فهرسٍ منشور.
+    #    ⇒ يُردّ كلُّ نصٍّ يحمل أثرَ حوكمةٍ داخلية، ويُقال للكاتب أين يضعه.
+    _BANNED = ("إذن المالك", "أمر المالك", "بإذنٍ نصّيّ", "بإذن نصي", "المشرف",
+               "D-186", "D-220", "D-098", "D-183", "github-", "المالك")
+    for _word in _BANNED:
+        for _field, _name in ((a.reason, "--reason"),
+                              (a.reason_user or "", "--reason-user")):
+            if _word in _field:
+                raise SystemExit(
+                    f"⛔ {_name} يحمل «{_word}» — وهذا الحقلُ **يُعرض للمستخدم** "
+                    f"في التطبيق. اكتب فيه ما يهمّ القارئَ (‏ما حدث ولماذا لا "
+                    f"يجد الصوت)، وضع الإذنَ والقرارَ الإداريَّ في "
+                    f"docs/qa/DROPPED_SURAHS.md.")
 
     cl, bucket = promote.s3()
     body = cl.get_object(Bucket=bucket, Key=a.key)["Body"].read()
@@ -72,9 +124,36 @@ def main():
     surahs = [int(x) for x in str(a.surah).replace("،", ",").split(",") if x.strip()]
     prefixes = tuple(f"{n}:" for n in surahs)
     dropped = [e for e in idx["entries"] if e["ayahId"].startswith(prefixes)]
-    if not dropped:
-        raise SystemExit(f"⛔ لا مداخل للسور {surahs} في هذا الفهرس")
-    kept = [e for e in idx["entries"] if not e["ayahId"].startswith(prefixes)]
+    # ⛔ **وضعُ التصنيف لا الحذف**: `--declare-gap` **لا يُسقط مدخلاً**، فقائمةُ
+    #    المحذوف تبقى فارغةً عمداً ويمرّ الفهرسُ كما هو. وشرطُه أن تكون السورةُ
+    #    **حاضرةً وناقصةً معاً** — فحاضرةٌ تامّةٌ لا نقصَ فيها يُعلَن، وغائبةٌ
+    #    كلُّها بابُها `--declare-absent`. والخلطُ بينهما يعرض على المستخدم
+    #    وصفاً لا يطابق ما يراه، وذاك أسوأُ من الصمت.
+    if a.declare_gap:
+        if not dropped:
+            raise SystemExit(
+                f"⛔ السور {surahs} لا مدخلَ لها أصلاً — وهذا بابُ "
+                f"--declare-absent لا --declare-gap.")
+        dropped = []
+    elif not dropped and not a.declare_absent:
+        raise SystemExit(f"⛔ لا مداخل للسور {surahs} في هذا الفهرس "
+                         f"— وإن كان غيابُها هو المقصود فأعلنه بـ--declare-absent")
+    if not dropped and not a.declare_gap:
+        # ⛔ **إعلانُ غيابٍ قائم — لا حذفُ شيء** (2026-09-08، بإذن المالك النصّيّ):
+        #    سورةٌ غائبةٌ أصلاً يردّها الحارسُ «سورٌ غائبةٌ كلياً» فيحجب القارئَ
+        #    كلَّه أبداً. والحجبُ صحيحٌ ما دام الغيابُ **صامتاً**؛ فإن ثبت أنّ
+        #    الصوتَ لا وجودَ له وأُذن نصّاً، فالصوابُ أن يُعلَن الغيابُ بسببه
+        #    لا أن يُترك بلا بيان. **والإعلانُ لا يحذف بايتاً** — إنما يكتب في
+        #    التحويل `drop_surah:<n>` وسببَه، فيتحوّل الغيابُ من «عطبٍ مجهول»
+        #    إلى «قرارِ منتَجٍ يُعرض على المستخدم».
+        print(f"ℹ️ السورُ {surahs} غائبةٌ سلفاً — يُكتب إعلانُ الغياب وسببُه، "
+              f"ولا يُحذف مدخلٌ واحد.")
+    # ⛔ **وفي وضع التصنيف يبقى كلُّ مدخل**: حسبتُ `kept` أوّلاً باستثناء السور
+    #    المذكورة، فسقط 154 مدخلاً في وضعٍ لا يحذف شيئاً — **وكشفه حارسُ العقد**
+    #    (‏6034 + 48 ≠ 6236) لا عينِي. فالحارسُ الذي يجمع الحاضرَ والغائبَ
+    #    ويقابله بالمجموع هو الذي منع فهرساً مبتوراً من الرفع.
+    kept = (list(idx["entries"]) if a.declare_gap
+            else [e for e in idx["entries"] if not e["ayahId"].startswith(prefixes)])
 
     # **الفهرس القديم بلا وسم اكتمال:** يُبنى الوسم من المداخل نفسها، والغياب
     # الذي لا نعرف سببه يُسمّى **`unknown` ولا يُخترع له سبب** — فالتحويل يصف
@@ -95,6 +174,42 @@ def main():
         assert len(present) + len(absent) == total
     reasons = dict(miss.get("byReason") or {})
     reasons["source_truncated"] = reasons.get("source_truncated", 0) + len(dropped)
+    # ✅ **التصنيف**: الآياتُ الغائبةُ من هذه السور محسوبةٌ سلفاً في `ids` تحت
+    #    `unknown` — فيُنقل عددُها إلى `source_truncated` **ولا يُضاف مدخلٌ ولا
+    #    يُحذف**، فالعقدُ (‏حاضر + غائب = المجموع) لا يتغيّر بحرف.
+    gap_ids = []
+    if a.declare_gap:
+        _pfx = tuple(f"{n}:" for n in surahs)
+        gap_ids = [i for i in (miss.get("ids") or []) if str(i).startswith(_pfx)]
+        if not gap_ids:
+            raise SystemExit(
+                f"⛔ السور {surahs} حاضرةٌ **تامّةٌ** لا نقصَ فيها — فلا غيابَ "
+                f"يُعلَن. (‏والإعلانُ على تامٍّ يعرض للمستخدم وصفاً لا يطابق "
+                f"ما يراه.)")
+        # ⛔ **ولا يُفترض اسمُ الدلو العامّ**: كتبتُ أوّلاً سحباً من `unknown`
+        #    وحدَه، فلمّا نُشر `nasser_almajed` كان دلوُه `no-align` فنُقل
+        #    **صفر** وبقي `source_truncated: 0` — إعلانٌ صحيحٌ ومحاسبةٌ كاذبة.
+        #    (‏كشفه أنّي قرأتُ `byReason` من الفهرس المنشور بعد الرفع.)
+        # ⇒ تُستنزف الدلاءُ العامّةُ كلُّها بالترتيب، وما لم يُوجد له دلوٌ عامّ
+        #    يبقى عددُه في `transform.gapAyahs` — وهو مصدرُ الحقيقة للتطبيق.
+        _need = len(gap_ids)
+        for _generic in ("unknown", "no-align", "no_align", "unaligned"):
+            if _need <= 0:
+                break
+            _have = reasons.get(_generic, 0)
+            if not _have:
+                continue
+            _take = min(_need, _have)
+            reasons[_generic] = _have - _take
+            if not reasons[_generic]:
+                reasons.pop(_generic)
+            reasons["source_truncated"] = reasons.get("source_truncated", 0) + _take
+            _need -= _take
+        if _need:
+            print(f"⚠️ {_need} آيةً لم يُوجد لها دلوٌ عامٌّ في byReason — "
+                  f"عددُها الصحيح في transform.gapAyahs.")
+        print(f"ℹ️ نقصٌ جزئيّ: {len(gap_ids)} آيةً غائبةً في السور {surahs} "
+              f"سُمّي سببُها، و**صفرُ مداخل حُذفت**.")
     if reasons.get("unknown"):                        # المُسقَط كان محسوباً حاضراً
         pass
     ids = list(miss.get("ids") or []) + [e["ayahId"] for e in dropped]
@@ -108,11 +223,15 @@ def main():
     out["lowCount"] = sum(1 for e in kept if e.get("confBand") == "LOW")
     # **أثرُ التحويل في الترويسة نفسها** — لا في رسالةٍ ولا في سجلٍّ منفصل.
     out["transform"] = {
-        "op": "drop_surah:" + ",".join(str(n) for n in surahs),
+        "op": ("declare_gap:" if a.declare_gap else "drop_surah:")
+              + ",".join(str(n) for n in surahs),
         "fromSha256": live,
         "fromKey": a.key,
         "droppedEntries": len(dropped),
+        **({"gapAyahs": len(gap_ids)} if a.declare_gap else {}),
         "reason": a.reason,
+        **({"reasonUser": a.reason_user} if a.reason_user else {}),
+        **({"reasonCode": a.reason_code} if a.reason_code else {}),
         "at": int(time.time() * 1000),
         "note": ("‏`refineStats` و`medTargeted` و`vad` تصف **البناء الأصلي** ولم"
                  " تُعد حسابها؛ والمعاد حسابه: المداخل وعدّ LOW ووسم الاكتمال."),

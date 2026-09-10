@@ -65,12 +65,23 @@ def main():
     ap.add_argument("--kind", default=os.environ.get("QA_KIND", "audio"),
                     help="نوع الحكم (‏audio افتراضاً)")
     ap.add_argument("--source", default=os.environ.get("QA_SOURCE", "local"),
-                    choices=["local", "ci"], help="صاحبُ الحكم (‏local افتراضاً)")
+                    choices=["local", "ci", "cloud-build"],
+                    help="صاحبُ الحكم (‏local افتراضاً) — و`cloud-build` مصدرُ CI "
+                         "ثالثٌ يشهد بقاعدة D-090/D-095")
     ap.add_argument("--seed-salt", default=os.environ.get("QA_SEED_SALT", ""),
                     help="ملحُ البذرة — يجعل العيّنة مستقلّةً عن عيّنة المشغّل، "
                          "فيصير اتفاق الحكمين تعاضدَ شهادتين لا إعادةَ قياس")
     ap.add_argument("--run-id", default=os.environ.get("QA_RUN_ID"),
                     help="معرّف التشغيلة (‏run_id) — يُحمل في الحكم")
+    # ⛔ **لاحقةُ الاسم صريحةٌ لا مشتقّة** (‏D-095/D-096): اسمُ الملفّ عقدٌ —
+    #    `state/<المفتاح>.json` لـ7e، و`.audio-ci.json` لـActions،
+    #    و`.audio-cb.json` لـCloud Build — **ولا يكتب أحدٌ فوق ملفٍّ ليس له**.
+    #    ولم تُشتقّ اللاحقة من `--seed-salt` تلقائياً لأنّ ذلك **يغيّر أسماء
+    #    المستدعين القائمين بلا أن يطلبوا** (‏`audio_qa.yml` يكتب في بادئةٍ
+    #    معزولة ثم ينسخ باسمٍ ثابت) — فالتغيير الصامت في الأسماء هو بعينه
+    #    العطبُ الذي كلّفنا ليلةً. ⇒ **من أراد لاحقةً سمّاها.**
+    ap.add_argument("--out-suffix", default="",
+                    help="لاحقةٌ صريحةٌ قبل .json (مثل: .audio-cb)")
     ap.add_argument("--dry-run", action="store_true", help="لا يكتب إلى الدلو")
     a = ap.parse_args()
 
@@ -118,8 +129,22 @@ def main():
 
     body = json.dumps(rep, ensure_ascii=False, indent=1).encode("utf-8")
     suffix = ((f".band-{a.band}" if a.band else "")
-              + (f".refined-{a.refined}" if a.refined else ""))
-    out = f"{a.out_prefix}/{a.key.replace('/', '_')}{suffix}.json"
+              + (f".refined-{a.refined}" if a.refined else "")
+              + (a.out_suffix or ""))
+    out = f"{a.out_prefix.rstrip('/')}/{a.key.replace('/', '_')}{suffix}.json"
+    # ⛔ **حارسُ الاسم — على التصادم لا على المصدر.** الممنوعُ أن يكتب مصدرٌ غيرُ
+    #    محلّيٍّ في **اسمِ حكم github-7e بعينه**: `state/<المفتاح>.json`. وبادئةٌ
+    #    معزولة (‏`state-ci` كما يفعل `audio_qa.yml`) ليست تصادماً فلا تُمنع.
+    # ⚠️ **وهذا تصحيحُ حارسٍ كتبتُه أوّلاً على المصدر** فكان يُسقط كلَّ تشغيلات
+    #    `audio_qa.yml` بـexit 2 — **حارسٌ يمنع العطبَ ويمنع العملَ معه**. والقاعدة:
+    #    يُحرَس **الأثرُ الممنوع** لا **الوصفُ المشتبَه**؛ فمن حرس الوصفَ أوقف
+    #    البريءَ والمذنبَ معاً.
+    if (a.source != "local" and not a.dry_run
+            and suffix == "" and a.out_prefix.rstrip("/") == "state"):
+        raise SystemExit(
+            f"⛔ مصدرٌ '{a.source}' سيكتب في {out} — وهو اسمُ حكم github-7e "
+            "المحلي فيمحوه. سمِّ لاحقةً (‏`--out-suffix .audio-cb`) أو اكتب في "
+            "بادئةٍ معزولة (‏`--out-prefix state-ci`).")
     if a.dry_run:
         print(f"\n(تجربة جافّة — لم يُكتب) {out}")
     else:
