@@ -101,11 +101,22 @@ def _op_mixes_engines(op: str) -> bool:
 
 def s3():
     import boto3
+    from botocore.config import Config
+    # ⛔ **صبرٌ يناسب شبكةَ المالك** (‏قِيس 2026-09-09): `certify_catalog` سقط
+    #    ثلاثَ مرّاتٍ متتاليةً بـ`ReadTimeout` وهو يسحب أحكامَ الصوت (‏~160ك.ب
+    #    للحكم الواحد · مئاتُ الأحكام)، **وضاعت في كلّ مرّةٍ نصفُ ساعةٍ من
+    #    السحب المنجَز** — لأنّ مهلةَ القراءة الافتراضية ستّون ثانية، وانقطاعُ
+    #    التيّار في أثناء قراءة الجسم **لا تُعيده botocore أصلاً** (‏إعادةُ
+    #    المحاولة للطلب لا للتدفّق). فالمهلةُ ثلاثُ دقائقَ والمحاولاتُ عشر.
+    #    ⛔ ولا يُغيَّر هذا حكماً ولا عتبة — صبرٌ لا غير.
     c = json.loads(CREDS.read_text(encoding="utf-8"))
+    cfg = Config(connect_timeout=30, read_timeout=180,
+                 retries={"max_attempts": 10, "mode": "standard"},
+                 max_pool_connections=10)
     return boto3.client("s3", endpoint_url=c["endpoint"],
                         aws_access_key_id=c["accessKeyId"],
                         aws_secret_access_key=c["secretAccessKey"],
-                        region_name="auto"), c["bucket"]
+                        region_name="auto", config=cfg), c["bucket"]
 
 
 FROZEN_KEY = os.environ.get("R2_FROZEN_KEY", "timings/frozen.txt")

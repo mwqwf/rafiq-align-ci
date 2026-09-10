@@ -74,3 +74,77 @@ jobs:
           else
             echo "✅ الأسطولُ يعمل (${{ steps.gap.outputs.busy }} تشغيلة) — لا تدخّل."
           fi
+
+  # ⛔⛔ **ولا تكفي الموجاتُ وحدَها:** أمر المالك «حتى لو توقف الجهاز الآن لا
+  #    يتوقف شيء». والموجةُ تُنتج بصماتٍ في المسرح، فإن لم يحكم عليها أحدٌ ولم
+  #    يرقِّ العابرَ **تراكمت بلا فائدة** — يعمل الأسطولُ ولا يزيد المنشورُ
+  #    واحداً. فهذه الوظيفةُ تُتمّ الحلقة: تحكم ثم ترقّي، في السحابة.
+  gate_and_promote:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    permissions:
+      actions: write
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: { python-version: "3.11" }
+      - run: python -m pip install --quiet boto3
+
+      - name: الاعتماد
+        env:
+          R2_CREDENTIALS_JSON: ${{ secrets.R2_CREDENTIALS_JSON }}
+        run: |
+          mkdir -p secure
+          printf '%s' "$R2_CREDENTIALS_JSON" > secure/r2_credentials.json
+
+      - name: بصماتٌ بلا حكمٍ كافٍ
+        id: scan
+        run: |
+          python - <<'PY' >> "$GITHUB_OUTPUT"
+          import json, os, boto3, collections
+          c = json.load(open("secure/r2_credentials.json"))
+          s = boto3.client("s3", endpoint_url=c["endpoint"],
+                           aws_access_key_id=c["accessKeyId"],
+                           aws_secret_access_key=c["secretAccessKey"],
+                           region_name="auto")
+          b = c["bucket"]
+          def keys(p):
+              return [o["Key"] for pg in s.get_paginator("list_objects_v2")
+                      .paginate(Bucket=b, Prefix=p) for o in pg.get("Contents", [])]
+          staged = [k for k in keys("timings-staging/")
+                    if k.endswith(".jz") and "/tmp/" not in k]
+          # ⛔ **يُعدّ الحكمُ بعدد الأملاح لا بوجود شاهد**: شاهدٌ واحد لا يكفي
+          #    للتجميع (D-098)، فبصمةٌ لها ملحٌ واحد ما زالت «بلا حكمٍ كافٍ».
+          salts = collections.Counter()
+          for k in keys("state-ci"):
+              base = k.rsplit("/", 1)[-1].replace(".json", "")
+              salts[base] += 1
+          need = [k for k in staged
+                  if salts.get(k.replace("/", "_"), 0) < 4]
+          # ⛔ **وحدٌّ على الدفعة**: سبعةٌ في نداءٍ واحد ⇒ 5 تشغيلاتٍ فقط
+          #    (مطالع + أربعة أملاح)، ويبقى للموجة متّسعُها من الحصة العشرين.
+          batch = sorted(need)[:7]
+          print("need=" + ",".join(batch))
+          print(f"count={len(batch)}")
+          PY
+
+      - name: أطلق الأحكام
+        if: steps.scan.outputs.count != '0'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          K: ${{ steps.scan.outputs.need }}
+        run: |
+          set -e
+          echo "▶ يُحكم على: $K"
+          gh workflow run openers.yml -f only="$K" -f limit=8
+          for s in k1 k2 k3 k4; do
+            gh workflow run audio_qa.yml -f only="$K" -f seed_salt="$s" -f limit=20
+          done
+
+      - name: رقِّ من عبر
+        # ⛔ **وتُشغَّل دائماً**: أحكامُ النبضة السابقة تنضج بين النبضتين،
+        #    فالترقيةُ لا تنتظر حكماً أطلقناه للتوّ (لن يكتمل قبل انتهائنا).
+        run: |
+          set -e
+          python tools/index_qa/promote.py --yes 2>&1 | tail -25 || true
