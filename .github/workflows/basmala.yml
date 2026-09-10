@@ -148,8 +148,21 @@ jobs:
           fi
           echo "القارئ: $rid · المصدر: $tpl"
           rc=0
+          # ⛔⛔ **`pipefail` شرطُ صحّةِ `rc` لا زينة** (‏عطبٌ مقيسٌ 2026-09-10):
+          #    الأمرُ **أنبوبٌ** ينتهي بـ`tee`، و`bash -e` بلا `pipefail` يجعل
+          #    `$?` رمزَ **آخر** حلقةٍ لا رمزَ بايثون — و`tee` لا يفشل أبداً.
+          #    فكان `rc=0` **دائماً** ولو قُصّت سبعُ بسملات، فيتخطّى حارسُ
+          #    «لا تُرفع بصمةٌ لم يتغيّر فيها شيء» (`rc != '0'`) كلَّ رفعٍ
+          #    مأذونٍ به: تمريرتان (`a_alshahhat` سبعُ بسملات · `qeryo_qalun`)
+          #    أنفقتا 33 دقيقةَ حوسبةٍ وقصّتا فعلاً، **والمخرَجُ لم يصل الدلوَ
+          #    قطّ** — والوظيفةُ خضراء. وكذلك `rc > 2` (خطأُ تنفيذٍ حقيقيّ) كان
+          #    يُبتلع صامتاً. ⇒ **كلُّ رمزِ خروجٍ يُقرأ من أنبوبٍ يحتاج
+          #    `pipefail`، وإلا فهو رمزُ `tee` تتّخذ به قرارَك.**
+          set -o pipefail
           python tools/tasmi_bench/basmala_postpass.py             --index work/index.jz             --url-template "$(echo "$tpl" | sed 's/{surah:03d}/{s:03d}/')"             --model "$GITHUB_WORKSPACE/assets-archive/ggml/ggml-tiny-ar-quran-q8_0.bin"             --out "work/$rid.basmala.jz"             --table "work/${rid}_table.json"             --fail-on-unverified --summary | tee -a "$GITHUB_STEP_SUMMARY" || rc=$?
+          set +o pipefail
           echo "rc=$rc" >> "$GITHUB_OUTPUT"
+          echo "rmz=$rc" # ⛔ يُطبع ليُقرأ من السجل لا من مخرَجٍ خفيّ
           # ⛔ رمزٌ مميِّز لا فشلٌ أحمر (تنبيه github-8e، وهو محقّ):
           #    0 لا شيء يحتاج قصّاً · 1 قُصّ كل ما وجب · 2 بقيت حالاتٌ غير
           #    متحقَّقة. **و2 ليس فشلاً**: تلك الحالات **كانت قبل التمريرة ولم
