@@ -120,7 +120,26 @@ jobs:
           for k in keys("state-ci"):
               base = k.rsplit("/", 1)[-1].replace(".json", "")
               salts[base] += 1
-          need = [k for k in staged
+          # ⛔⛔ **أحدثُ بصمةٍ لكلّ قارئ لا كلُّ بصماته** (‏قِيس في أوّل تشغيلة
+          #    2026-09-10): ابتلع `deban_douri` بخمسِ بصماتٍ متروكةٍ و`husary_douri`
+          #    باثنتين **الدفعةَ السبعَ كلَّها** — فحُكم على مرشّحين ميّتين وبقي
+          #    الأحياءُ بلا حكم. والبصمةُ القديمةُ لا تُرقّى أبداً لأنّ أحدثَ منها
+          #    قائم، فكلُّ عدّاءٍ يُنفق عليها ضائعٌ بيقين.
+          mtime = {}
+          for pg in s.get_paginator("list_objects_v2").paginate(
+                  Bucket=b, Prefix="timings-staging/"):
+              for o in pg.get("Contents", []):
+                  mtime[o["Key"]] = o["LastModified"]
+          newest = {}
+          for k in staged:
+              parts = k.split("/")
+              if len(parts) < 3:
+                  continue
+              rid = parts[2].split(".")[0]
+              who = (parts[1], rid)
+              if who not in newest or mtime.get(k, 0) > mtime.get(newest[who], 0):
+                  newest[who] = k
+          need = [k for k in sorted(newest.values())
                   if salts.get(k.replace("/", "_"), 0) < 4]
           # ⛔ **وحدٌّ على الدفعة**: سبعةٌ في نداءٍ واحد ⇒ 5 تشغيلاتٍ فقط
           #    (مطالع + أربعة أملاح)، ويبقى للموجة متّسعُها من الحصة العشرين.
