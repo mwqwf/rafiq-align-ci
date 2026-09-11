@@ -511,6 +511,17 @@ def openers_tool_ok(op):
         except Exception:              # noqa: BLE001
             OPENERS_TRUSTED = set()
     if not OPENERS_TRUSTED:
+        # ⛔ **لا تُبرَّأ أداةٌ بلا سندٍ مقيس** — لكنّ السؤالَ قد يتعذّر لسببٍ
+        #    بنيويٍّ لا شكَّ فيه: هذا الملفّ يُنسخ إلى مستودع الأسطول، و
+        #    `9ffb957` من تاريخ `QuranRafiq` **لا وجودَ له هناك** ⇒ يُردّ كلُّ
+        #    حكمِ مطالعَ صحيحٍ كذباً، **فيجمد النشرُ كلُّه في السحابة** (وقع
+        #    2026-09-11: `sultani_douri` رُدّ بأداةٍ سليمة). ⇒ السندُ يُولَّد من
+        #    تاريخ `QuranRafiq` نفسِه ويُودَع ملفّاً، فلا يُستبدل قياسٌ بظنّ.
+        f = Path(__file__).with_name("openers_trusted.txt")
+        if f.exists():
+            OPENERS_TRUSTED = {x.strip() for x in
+                               f.read_text(encoding="utf-8").split() if x.strip()}
+    if not OPENERS_TRUSTED:
         return False                   # تعذّرَ السؤال ⇒ لا اعتداد، ويُعاد المسح
     return any(c.startswith(t) or t.startswith(c) for t in OPENERS_TRUSTED)
 
