@@ -511,17 +511,6 @@ def openers_tool_ok(op):
         except Exception:              # noqa: BLE001
             OPENERS_TRUSTED = set()
     if not OPENERS_TRUSTED:
-        # ⛔ **لا تُبرَّأ أداةٌ بلا سندٍ مقيس** — لكنّ السؤالَ قد يتعذّر لسببٍ
-        #    بنيويٍّ لا شكَّ فيه: هذا الملفّ يُنسخ إلى مستودع الأسطول، و
-        #    `9ffb957` من تاريخ `QuranRafiq` **لا وجودَ له هناك** ⇒ يُردّ كلُّ
-        #    حكمِ مطالعَ صحيحٍ كذباً، **فيجمد النشرُ كلُّه في السحابة** (وقع
-        #    2026-09-11: `sultani_douri` رُدّ بأداةٍ سليمة). ⇒ السندُ يُولَّد من
-        #    تاريخ `QuranRafiq` نفسِه ويُودَع ملفّاً، فلا يُستبدل قياسٌ بظنّ.
-        f = Path(__file__).with_name("openers_trusted.txt")
-        if f.exists():
-            OPENERS_TRUSTED = {x.strip() for x in
-                               f.read_text(encoding="utf-8").split() if x.strip()}
-    if not OPENERS_TRUSTED:
         return False                   # تعذّرَ السؤال ⇒ لا اعتداد، ويُعاد المسح
     return any(c.startswith(t) or t.startswith(c) for t in OPENERS_TRUSTED)
 
@@ -1817,6 +1806,17 @@ def main():
                          "يُكتب السبب في السجل، ولا يُعدَّل وسمُ الحكم")
     a = ap.parse_args()
 
+    # ⛔⛔ **`--prefix` بادئةُ كتابةٍ لا مِصفاة** (وقع 2026-09-11): ظُنّ أنه
+    #    يحصر الحكمَ في رواية، فكُتب `--prefix timings-staging/douri/` فنُشرت
+    #    أربعون فهرساً في **شجرةٍ ظِلٍّ** `timings-staging/douri/timings/…`
+    #    ببيانٍ زائفٍ فيها. الشجرةُ الحقيقية سلِمت، لكنّ الكائناتِ بقيت
+    #    (‏ولا حذفَ على الدلو). ⇒ لا تُقبل إلا بادئةُ تجربةٍ صريحة.
+    if a.prefix and not a.prefix.startswith(("tmp/", "test/", "sandbox/")):
+        raise SystemExit(
+            f"⛔ `--prefix {a.prefix}` بادئةُ **كتابة** لا مِصفاة — وهي تُنشئ "
+            "شجرةً ظِلّاً. للحصر استعمل `--only <المفتاح>`؛ وللتجربة "
+            "`--prefix tmp/`.")
+
     if a.unfreeze:
         unfreeze(a.unfreeze, a.reason)
         return
@@ -1879,6 +1879,37 @@ def main():
         print(f"  ⛔ {key}: {why}")
     if len(other) > 20:
         print(f"  … و{len(other) - 20} سبباً آخر لفهارسِ إنتاجٍ أُعيد حكمُها")
+
+    # ⛔⛔ **الصمتُ الثالث** (‏قِيس 2026-09-10): مرشَّحٌ في المسرح **له أحكامٌ
+    #    صوتيّةٌ كاملة** وتُبطلها قاعدةٌ من قواعد التجميع (‏ملحٌ مجهول · محرّكان ·
+    #    رافضان) **لا يخرج له ممثِّلٌ أصلاً**، فلا يُطبع مرشَّحاً ولا مرفوضاً —
+    #    **يختفي**. ومكث `alosfor.4a60a12a` بأحد عشر ملحاً و`qasm.c2daaf98`
+    #    بأربعة **أربعةَ أيّامٍ في هذا الصمت**، ولا سطرَ واحدٌ يدلّ عليهما.
+    #    ⇒ **هذا إعلانٌ لا حكم**: لا يُرقّي ولا يُغيّر بوّابةً، إنما يمنع أن
+    #    يبتلع الصمتُ مرشَّحاً. (‏وهي عينُ قاعدة «المرشّحون أوّلاً وبلا سقف»
+    #    أعلاه: **ما لا يُطبع لا يُعالَج**.)
+    judged = {r.get("key") for _n, r in items}
+    mute = {}
+    for _n, rep in everywhere:
+        k = rep.get("key") or ""
+        if (str(k).startswith("timings-staging/") and k not in judged
+                and has_audio_sample(rep)):
+            mute.setdefault(k, set()).add(
+                ((rep.get("sample") or {}).get("seedSalt") or "—"))
+    # ⛔ **والحدُّ أربعةُ ملوحٍ فأكثر ولقارئٍ غيرِ منشور**: ما دون ذلك صمتٌ
+    #    متوقَّعٌ (‏ملحٌ واحدٌ لا يُجمَّع أصلاً)، وإغراقُ اللوحة به يُعيد العمى
+    #    الذي جاء هذا السطرُ يرفعه. **والمقصودُ: حوسبةُ بوّابةٍ أُنفقت بلا حكم.**
+    live_ids = {str(t).rsplit("/", 1)[-1][:-3] for t in (frozen or {})}
+    for key in sorted(mute):
+        if len(mute[key]) < 4:
+            continue
+        rid = str(key).rsplit("/", 1)[-1].split(".")[0]
+        if rid in live_ids:
+            continue
+        salts = "+".join(sorted(mute[key]))
+        print(f"  🔇 {key}: أحكامٌ صوتيّةٌ موجودة ({len(mute[key])}: {salts}) "
+              f"**ولا ممثِّلَ للتجميع** — يُفحص بـ`pooled_samples` (‏ملحٌ مجهول "
+              f"أو محرّكان أو رافضان)، ولا يُعَدّ مرفوضاً بهذا السطر")
 
     promoted_targets = set()
     for _name, rep, target in ready:

@@ -121,8 +121,12 @@ jobs:
           def keys(p):
               return [o["Key"] for pg in s.get_paginator("list_objects_v2")
                       .paginate(Bucket=b, Prefix=p) for o in pg.get("Contents", [])]
+          # ⛔ و`timings-staging/**/timings/**` شجرةُ ظِلٍّ خلّفها سوءُ استعمال
+          #    `--prefix` (2026-09-11) — فهارسُ منشورةٌ نُسخت في غير موضعها،
+          #    لو حُسبت مسرحاً لأعاد الأسطولُ الحكمَ عليها أبد الدهر.
           staged = [k for k in keys("timings-staging/")
-                    if k.endswith(".jz") and "/tmp/" not in k]
+                    if k.endswith(".jz") and "/tmp/" not in k
+                    and "/timings/" not in k]
           # ⛔ **يُعدّ الحكمُ بعدد الأملاح لا بوجود شاهد**: شاهدٌ واحد لا يكفي
           #    للتجميع (D-098)، فبصمةٌ لها ملحٌ واحد ما زالت «بلا حكمٍ كافٍ».
           salts = collections.Counter()
