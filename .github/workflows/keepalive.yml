@@ -172,8 +172,25 @@ jobs:
                       inflight += json.loads(r.read()).get("workflow_runs")                          .__str__()
           except Exception as e:                       # noqa: BLE001
               print(f"# ⚠️ تعذّر سؤالُ الطابور ({e}) — لا يُستثنى شيء", end="")
+          # ⛔⛔ **ومن يُخدَم بالفعل لا يُعاد الحكمُ عليه** (قِيس 2026-09-11):
+          #    موجاتُ إعادة المحاذاة تُنتج بصماتٍ لقرّاءٍ **منشورين**، فينفق
+          #    النبضُ خمسَ تشغيلاتٍ على مصحفٍ يخدمه الدلو أصلاً — بينما
+          #    غيرُ المنشورين ينتظرون. والتحسينُ الهامشيُّ لا يُقدَّم على
+          #    قارئٍ لا فهرسَ له البتّة. ⇒ يُسقَط المنشورون من الدفعة.
+          published = set()
+          for pg in s.get_paginator("list_objects_v2").paginate(
+                  Bucket=b, Prefix="timings/"):
+              for o in pg.get("Contents", []):
+                  kk = o["Key"]
+                  if kk.endswith(".jz") and kk.count("/") == 2:
+                      published.add((kk.split("/")[1],
+                                     kk.split("/")[2][:-3]))
+          def _who(k):
+              p = k.split("/")
+              return (p[1], p[2].split(".")[0])
           need = [k for k in sorted(newest.values())
-                  if salts.get(k.replace("/", "_"), 0) < 4 and k not in inflight]
+                  if salts.get(k.replace("/", "_"), 0) < 4
+                  and k not in inflight and _who(k) not in published]
           # ⛔ **وحدٌّ على الدفعة**: سبعةٌ في نداءٍ واحد ⇒ 5 تشغيلاتٍ فقط
           #    (مطالع + أربعة أملاح)، ويبقى للموجة متّسعُها من الحصة العشرين.
           # ⛔ **الحدُّ رُفع من 7 إلى 14 (2026-09-10)**: قِيس أنّ الأسطولَ يعمل
