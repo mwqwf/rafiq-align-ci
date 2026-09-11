@@ -107,6 +107,8 @@ jobs:
 
       - name: بصماتٌ بلا حكمٍ كافٍ
         id: scan
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           python - <<'PY' >> "$GITHUB_OUTPUT"
           import json, os, boto3, collections
@@ -146,8 +148,28 @@ jobs:
               who = (parts[1], rid)
               if who not in newest or mtime.get(k, 0) > mtime.get(newest[who], 0):
                   newest[who] = k
+          # ⛔⛔ **وما هو في الطيران يُستثنى** (قِيس 2026-09-11): الشاهدُ لا
+          #    يُكتب إلا بعد انتهاء التشغيلة، فبصمةٌ بُوِّبت قبل دقائقَ تبدو
+          #    «بلا حكمٍ كافٍ» فتُبوَّب ثانيةً وثالثة. ومع نبضٍ كلَّ ربع ساعة
+          #    صار ذلك **إغراقاً**: 19 تشغيلةً في الطابور لثلاث بصمات، تملأ
+          #    حصّةَ العشرين فتُبطئ الموجةَ نفسَها. ⇒ يُسأل الطابورُ أوّلاً.
+          inflight = ""
+          try:
+              import urllib.request
+              tok = os.environ.get("GH_TOKEN", "")
+              repo = os.environ.get("GITHUB_REPOSITORY", "")
+              for st in ("in_progress", "queued", "pending"):
+                  rq = urllib.request.Request(
+                      f"https://api.github.com/repos/{repo}/actions/runs"
+                      f"?status={st}&per_page=100",
+                      headers={"Authorization": f"Bearer {tok}",
+                               "Accept": "application/vnd.github+json"})
+                  with urllib.request.urlopen(rq, timeout=30) as r:
+                      inflight += json.loads(r.read()).get("workflow_runs")                          .__str__()
+          except Exception as e:                       # noqa: BLE001
+              print(f"# ⚠️ تعذّر سؤالُ الطابور ({e}) — لا يُستثنى شيء", end="")
           need = [k for k in sorted(newest.values())
-                  if salts.get(k.replace("/", "_"), 0) < 4]
+                  if salts.get(k.replace("/", "_"), 0) < 4 and k not in inflight]
           # ⛔ **وحدٌّ على الدفعة**: سبعةٌ في نداءٍ واحد ⇒ 5 تشغيلاتٍ فقط
           #    (مطالع + أربعة أملاح)، ويبقى للموجة متّسعُها من الحصة العشرين.
           # ⛔ **الحدُّ رُفع من 7 إلى 14 (2026-09-10)**: قِيس أنّ الأسطولَ يعمل
