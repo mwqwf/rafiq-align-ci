@@ -57,7 +57,7 @@ jobs:
         if: steps.gap.outputs.busy == '0'
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          LIST: ${{ github.event.inputs.list || 'reciters_qw_new2.tsv' }}
+          LIST: ${{ github.event.inputs.list || 'reciters_rest8.tsv' }}
         run: |
           set -e
           # ⛔ **والقائمةُ تُفحص قبل أن تُطلق**: قائمةٌ غائبةٌ تُنتج موجةً تموت
