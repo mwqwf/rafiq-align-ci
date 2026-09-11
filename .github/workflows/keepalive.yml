@@ -33,6 +33,13 @@ permissions:
   actions: write        # ⛔ لازمةٌ لإدلاء workflow_dispatch من داخل العدّاء
   contents: read
 
+# ⛔ نبضةٌ واحدةٌ في كلّ حين: السلسلةُ والجدولةُ قد تلتقيان، ونبضتان معاً
+#    تُطلقان موجتين وتبوّبان المفاتيحَ نفسَها مرّتين. `cancel-in-progress: false`
+#    فلا تُقتل نبضةٌ تعمل — تُترك الثانيةُ معلّقةً أو تسقط.
+concurrency:
+  group: rafiq-keepalive
+  cancel-in-progress: false
+
 jobs:
   pulse:
     runs-on: ubuntu-latest
@@ -211,3 +218,17 @@ jobs:
           for k, n in per.most_common():
               print(f"- {k}: {n} شاهداً")
           PY
+
+      # ⛔ **الجدولةُ وحدها لا تكفي** (مقيسٌ 2026-09-11): نبضاتُ `schedule` على
+      #    GitHub تتأخّر وتُسقَط — رُصدت فجواتٌ 2.5س و5س بين نبضاتٍ «كلَّ ساعة».
+      #    والمالكُ يُغلق جهازَه ⇒ **لا مُوقِظَ محلّيّ**. فيُسلسل النبضُ نفسَه:
+      #    ينتظر ربعَ ساعةٍ ثمّ يستدعي نفسَه مرّةً واحدة. ولا انفلاتَ: مجموعةُ
+      #    التزاحم تمنع تراكبَ نبضتين، ودقائقُ المستودع العامّ بلا حدّ.
+      - name: سلسلةُ النبض — لا تعتمد على الجدولة وحدها
+        if: always()
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          sleep 900
+          gh workflow run keepalive.yml -R "$GITHUB_REPOSITORY" || \
+            echo "⚠️ تعذّرت سلسلةُ النبض — تبقى الجدولةُ سنداً"
