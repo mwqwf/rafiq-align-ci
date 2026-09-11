@@ -73,6 +73,17 @@ except Exception:                          # noqa: BLE001
     VAD_VERSION = None
 
 
+def _check_counting(counting):
+    """⛔ **نظامُ العدّ ليس اسمَ رواية** (وقع 2026-09-11): مُرِّر `--counting hafs`
+    فوُسم فهرسُ `h_saleh` بـ`ayahCounting: "hafs"` — وحفصٌ روايةٌ تقرأ بالعدّ
+    الكوفيّ، فردّته بوّابةُ الترقية «عدٌّ مخالف» وحبست مصحفاً عطبُه **0.36%**.
+    والوسمُ الكاذب أخطرُ من العطب: يُقرأ حكماً على النصّ لا على الأداة."""
+    if counting not in AYAH_COUNTS:
+        raise SystemExit(
+            f"⛔ نظامُ عدٍّ مجهول: {counting!r} — المعروف {sorted(AYAH_COUNTS)}. "
+            "وأسماءُ الروايات (hafs · warsh · qalun) ليست أنظمةَ عدّ.")
+
+
 def make_timing_index(riwaya, reciter_id, source_kind, counting, per_surah,
                       engine_version="align-0.2", strip_low=False, vad_rel=None):
     """per_surah: {surah_no: {"fileRef":…, "sha256":…, "entries":[…]}} بفهرس كوفي.
@@ -182,6 +193,7 @@ def make_timing_index(riwaya, reciter_id, source_kind, counting, per_surah,
     # وتشخيصُ السبب الأدقّ (فجوة داخلية · بسملة مبتلعة · ذيل مبتور) عند 7d،
     # ولا يُعاد بناؤه هنا: `tools/qa_coverage/diag.py` هو مكانه.
     missing, by_reason = [], {}
+    _check_counting(counting)
     if counting == "KUFI":
         for sn, total in enumerate(SURAH_AYAHS, start=1):
             d = per_surah.get(sn)
