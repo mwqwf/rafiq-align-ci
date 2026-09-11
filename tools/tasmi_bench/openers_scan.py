@@ -44,6 +44,10 @@ from basmala_local import (BAS, _edit, _eq, _eq_first, basmala_tail, cut,  # noq
 from common import load_index, load_text, norm, read_jz  # noqa: E402
 
 # ⛔ إيداعُ `QuranRafiq` الذي نُسخ منه هذا الملف — يُحدَّث مع كل مزامنة.
+# ⛔⛔ **ومن غيّره فليُعِد توليد `tools/index_qa/openers_trusted.txt`**:
+#     `git -C <QuranRafiq> log --format=%h 9ffb957..HEAD > .../openers_trusted.txt`
+#     فذلك الملفُّ هو سندُ D-175 في السحابة (تاريخُ `QuranRafiq` غيرُ موجودٍ هنا)،
+#     وبصمةٌ خارجَه تُردّ بـ«أداةٌ سابقةٌ للإصلاح» **فيجمد النشرُ كلُّه صامتاً**.
 SOURCE_COMMIT = "df25676"
 
 SKIP = {1, 9}
