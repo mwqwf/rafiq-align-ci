@@ -80,6 +80,9 @@ def main():
     ap.add_argument("--op", required=True, help="اسمُ التحويل، مثل basmala_fix")
     ap.add_argument("--reason", required=True)
     ap.add_argument("--by", default="github-8e", help="صانعُ التحويل")
+    ap.add_argument("--metadata-only", metavar="سبب",
+                    help="تصحيحُ حقولِ الترويسة وحدها والمداخلُ متطابقةٌ بايتاً "
+                         "— يجب أن يذكر السببُ الحقلَ والقياسَ الذي بُني عليه")
     ap.add_argument("--yes", action="store_true")
     a = ap.parse_args()
 
@@ -150,7 +153,24 @@ def main():
     e_new, e_old = entries_sha(idx.get("entries") or []), entries_sha(
         pidx.get("entries") or [])
     if e_new == e_old:
-        raise SystemExit("⛔ المداخل لم تتغيّر — لا إصلاح هنا")
+        # ⛔⛔ **بابُ التصحيح الترويسيّ — ضيّقٌ ومُسمّى** (‏فُتح 2026-09-11):
+        #    فهرسُ `h_saleh` **عطبُه 0.36%** وبقي محبوساً لأنّ ترويسته تقول
+        #    `ayahCounting: "hafs"` — وحفصٌ **روايةٌ لا نظامَ عدّ**. وقِيس عدُّ
+        #    السور الـ114 كلِّها فطابق الكوفيَّ (6236). وإعادةُ المحاذاة لم
+        #    تُصلحه بل أنتجت **5791 مدخلاً** فردّها حارسُ الرفع بحقّ.
+        #    ⇒ يُفتح بابٌ للترويسة وحدَها: **المداخلُ متطابقةٌ بايتاً** (شرطُ
+        #    الدخول نفسُه)، والمتغيّرُ حقولٌ وصفيّةٌ تُسمّى في السبب. وبغير
+        #    هذا العَلَم يبقى الردُّ كما كان — فلا يمرّ لا-تحويلٍ صامت.
+        if not getattr(a, "metadata_only", None):
+            raise SystemExit("⛔ المداخل لم تتغيّر — لا إصلاح هنا "
+                             "(وإن كان تصحيحاً ترويسيّاً فسمِّه بـ"
+                             "`--metadata-only <السبب>`)")
+        changed = sorted(k for k in set(idx) | set(pidx)
+                         if k not in ("entries", "transform", "generatedAt")
+                         and idx.get(k) != pidx.get(k))
+        if not changed:
+            raise SystemExit("⛔ لا مداخلَ تغيّرت ولا ترويسة — لا شيء هنا")
+        print(f"  ✔ تصحيحٌ ترويسيّ بلا مسِّ مدخلٍ واحد: {changed}")
     for check, name in ((promote.index_gate(idx), "البنية"),
                         (promote.catalog_gate(idx, promote.catalog(cl, bucket)),
                          "الهويّة")):
