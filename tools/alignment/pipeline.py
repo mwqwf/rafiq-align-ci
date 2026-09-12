@@ -11,6 +11,13 @@ import sys
 
 # دمج الجيل الثاني (2026-09-01، مذكرة rafiq-v2 التساعية): مشروط بALIGN_REFINE=1
 # كي لا يختلط محركان داخل فهرس واحد — يُفعَّل لدفعة كاملة أو لا يُفعَّل.
+# ⏱️ **مؤقّتاتُ الأطوار** (أمرُ مشرف التقييم 2026-09-12): قِيست الشاردةُ كاملةً
+#    (2h–5h) ولم يُعرف أين يذهب الزمن. هذه ثوانٍ متراكمةٌ لكلّ طور، يطبعها
+#    `batch_run` في نهاية القارئ — **قياسٌ لا يغيّر سلوكاً ولا حكماً**.
+from time import perf_counter as _perf  # noqa: E402
+
+PHASE = {"ffmpeg": 0.0, "vad": 0.0, "whisper": 0.0, "refine": 0.0}
+
 REFINE = os.environ.get("ALIGN_REFINE") == "1"
 if REFINE:
     sys.path.insert(0, os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "alignment_v2"))
@@ -68,12 +75,16 @@ def run_surah(audio_path, surah_no, riwaya, log=print):
     text = load_text(riwaya)
     a, b, s = surah_slice(index, surah_no)
     ref_ayahs = text[a:b]
+    _t0 = _perf()
     wav = to_wav16k(audio_path)
     total_ms = ffprobe_duration_ms(audio_path)
     log(f"سورة {s['name']} ({surah_no}) — {s['ayahs']} آية، {total_ms//1000}ث، رواية {riwaya}")
+    PHASE["ffmpeg"] += _perf() - _t0; _t0 = _perf()
     sil = silences(wav)
     log(f"VAD: {len(sil)} فترة صمت")
+    PHASE["vad"] += _perf() - _t0; _t0 = _perf()
     segments = transcribe(wav, total_ms, sil, log=log)
+    PHASE["whisper"] += _perf() - _t0; _t0 = _perf()
     log(f"تفريغ: {len(segments)} مقطعاً، {sum(len(s['words']) for s in segments)} كلمة")
     entries = derive_boundaries(segments, ref_ayahs,
                                 with_basmala_prefix=("istiadha_only" if surah_no in (1, 9) else True))
@@ -104,6 +115,7 @@ def run_surah(audio_path, surah_no, riwaya, log=print):
             if dur >= max(1200, ch * 45):
                 e0["conf"] = 0.5  # MED صادقة: تشغيل فقط حتى تحقق أدق
                 log(f"  🩹 آية-1 استعادت مدى معقولاً ({dur}م.ث) — رفعت لMED")
+        PHASE["refine"] += _perf() - _t0
         log(f"  صقل ج2: {rstats['refineStats'] if isinstance(rstats, dict) and 'refineStats' in rstats else rstats}")
     char_counts = [len(norm(t).replace(" ", "")) for t in ref_ayahs]
     issues = check_surah(entries, char_counts, total_ms)

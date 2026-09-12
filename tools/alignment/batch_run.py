@@ -222,6 +222,19 @@ def main():
                            args.counting or "KUFI", per_surah, vad_rel=_med)
     out = os.path.join(WORK, f"timings_{args.riwaya}_{args.reciter}.jz")
     write_jz(out, ti)
+    # ⏱️ سطرُ الأطوار — ثوانٍ متراكمةٌ لهذا القارئ (‏`pipeline.PHASE`).
+    #    يُطبع ويُرفع إلى ملخّص الوظيفة إن وُجد، فيُقرأ بلا فتح سجلّ.
+    try:
+        import pipeline as _pl
+        _ph = " · ".join(f"{k}={int(v)}ث" for k, v in _pl.PHASE.items())
+        _line = f"⏱️ أطوارُ {args.reciter}: {_ph}"
+        print(_line)
+        _sum = os.environ.get("GITHUB_STEP_SUMMARY")
+        if _sum:
+            with open(_sum, "a", encoding="utf-8") as _f:
+                _f.write("- " + _line + chr(10))
+    except Exception as _e:  # noqa: BLE001 — قياسٌ لا يُسقط إنتاجاً
+        print(f"⚠️ تعذّر سطرُ الأطوار: {_e}")
     bands = {}
     for e in ti["entries"]:
         bands[e["confBand"]] = bands.get(e["confBand"], 0) + 1
