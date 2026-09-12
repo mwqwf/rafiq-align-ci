@@ -1,49 +1,16 @@
-# reciters_remaining.tsv — **كلُّ ما بقي فعلاً بلا فهرسٍ منشور** (قِيس من الدلو
-# مباشرةً 2026-09-12 00:2xZ: `timings/<رواية>/<معرّف>.jz` لا من ترويسةٍ مكتوبة
-# ولا من كتالوجٍ قد يكون بائتاً).
-#
-# ⛔⛔ **ولماذا وُلد هذا الملفّ:** النبّاضُ السحابيّ كان يُعيد إطلاق
-#    `reciters_qw_new2.tsv` في كلّ حلقة (‏هي القيمةُ الافتراضيةُ لمدخل
-#    `workflow_dispatch`، والسلسلةُ تُدلي بلا `-f` فتأخذ الافتراضَ) — **وعشرةٌ
-#    من خمسةَ عشرَ فيها منشورون سلفاً**. فموجةُ `34635048337` (‏12 شاردة · بدأت
-#    18:45Z · خمسُ ساعات) **ثلثاها إعادةُ بناءِ منجَز**، وهو عينُ ما جاء
-#    `prune_certified.py` يمنعه — إلا أنّ النبّاضَ لا يُشغّله.
-#    ⇒ وهذا الملفُّ افتراضُ النبّاض الجديد، ويُعاد توليدُه عند كلّ اكتمال.
-#
-# ⛔ **والترتيبُ أمرُ المالك:** ورشٌ وقالون أوّلاً · ثم الرواياتُ الصغرى
-#    (‏**وقد اكتملت كلُّها 2026-09-12: دوري 5/5 · شعبة 2/2 · سوسي 1/1**) ·
-#    ثم حفص · ثم القرّاءُ الجدد من `WARSH_QALUN_RECITERS_SURVEY_2026-09-05.md`.
-#
-# ⛔ **ومن أُخرج عمداً — ولا يُعاد إدراجُه بلا قياسٍ جديد:**
-#    - `chahboun_warsh` — مجمَّع **5.2%** بثمانية ملوحٍ (‏و5.8% بأربع) ⇒ رداءةُ
-#      محاذاةٍ حقيقيّةٌ مقيسة، والملحُ لا يرفعها.
-#    - `iraoui_warsh` · `rabbani_warsh` — **ينتظران إذنَ D-186 نصّاً** (‏سورةٌ
-#      غائبةٌ بإعلان: فصّلت · نوح)، وفهرسُهما مبنيٌّ سلفاً فلا يحتاجان موجة.
-#    - `hatem` 7.0% · `bilal` 10.2% · `f_khamery` 16.0% · `shaksh` 5.7% ·
-#      `h_abudalal` 6.5% · `qasm` 5.1% — **قِيسوا ورسبوا** (‏2026-09-08)،
-#      و`ac=256` لا يرفعهم (‏قِيس بتجربتين 2026-09-09).
-#
-# ⛔ ولا يُنقّح هذا الملفّ وموجتُه جارية — `assign_shard.py` يحسب التوزيعَ منه،
-#    فحذفُ صفٍّ يزيح ما بعده.
-
-# ⭐⭐ **والترتيبُ هنا ليس أولويّةً بل استئنافُ كاش** — وهذا مقيس:
-#    أحدَ عشرَ صفّاً على **اثنتي عشرةَ شاردة** ⇒ **لكلّ قارئٍ شاردتُه وحدَه
-#    وكلُّهم يعملون معاً**، فترتيبُ الأسطر لا يقدّم ورشاً على حفص بشيء.
-#    وإنما يحكمه شيءٌ آخر: `actions/cache` يستعيد بمفتاحٍ فيه **رقمُ الشاردة**
-#    (`align-work-ac0-vad<v>-<shard>-`)، وموجةُ `qw_new2` تُقتل بسقف الستّ
-#    ساعات وقد بقي فيها **maroush(0) · kholti(2) · janaini(8)** يعملون منذ
-#    18:45Z. فمن وُضع هنا على رقم شاردته القديم **استأنف عملَ ستّ ساعاتٍ
-#    محفوظاً** (‏والعملُ لكلّ قارئٍ في `work/batch_<معرّف>/` فلا يختلط اثنان).
-#    ⇒ maroush على 0 · kholti على 2 · janaini على 8. و`noah` كان شريكَ
-#    `maroush` على الشاردة 0 ولا يسع الاثنين موضعٌ واحد، **فيبدأ من أوّله**.
+# ⭐ الباقي القابلُ للتنفيذ — مقيسٌ من الدلو 2026-09-12.
+# ⛔ وأُخرج منه أربعةٌ بقياسٍ مكتوب (ولا يُعادون بلا دليلٍ جديد):
+#    kholti_warsh: 4.75% بثمانية ملوح — بين 4.5 و5 فلا يُحسم بالعيّنة (يلزم n>19500)
+#    mhsny: 17.12% + ابتلاع
+#    janaini_qalun: ابتلاعٌ حتميّ: بصمتان متتاليتان 9 تتابعات و0 فجوة نظيفة
+#    h_saleh: عيّنةٌ 0.12% لكن بلا برهان تنزيل (0/114) وإعادةُ المحاذاة تُنقصه إلى 5791
+# ⛔ وكذلك أُغلق بقياس هذه الليلة: hatem 5.67%/1200 · bilal 8.89%/1800 ·
+#    saad 4.33% لكن ابتلاعٌ في 49 تتابعاً من 53 · chahboun_warsh 5.08%/2400 ·
+#    qasm 6.38% بعد قصّ · shaksh 4.91%/2200 · f_khamery 17.75% · h_abudalal 5.5%.
+# ⏸️ وينتظران مصدراً: iraoui_warsh · rabbani_warsh.
 maroush_qalun	qalun	https://archive.org/download/Kamal-Almaroush-Qalon/{surah:03d}.mp3	4
 harraz_warsh	warsh	https://server16.mp3quran.net/H-Lharraz/Rewayat-Warsh-A-n-Nafi/{surah:03d}.mp3	4
-kholti_warsh	warsh	https://archive.org/download/Tilawa.org_002/{surah:03d}.mp3	4
 noah_qalun	qalun	https://archive.org/download/Al-Quran_Qaloon_tilawat_Yousuf_Nooh_Ahmad/{surah:03d}.mp3	4
-h_saleh	hafs	https://server16.mp3quran.net/h_saleh/Rewayat-Hafs-A-n-Assem/{surah:03d}.mp3	4
-saad	hafs	https://server16.mp3quran.net/saad/Rewayat-Hafs-A-n-Assem/{surah:03d}.mp3	4
 asim	hafs	https://server7.mp3quran.net/asim/Rewayat-Hafs-A-n-Assem/{surah:03d}.mp3	4
-mhsny	hafs	https://server11.mp3quran.net/mhsny/{surah:03d}.mp3	4
-janaini_qalun	qalun	https://archive.org/download/Al-Quran_Qaloon_tilawat_Aljanaini/{surah:03d}.mp3	4
 f_hajry	hafs	https://server16.mp3quran.net/f_hajry/Rewayat-Hafs-A-n-Assem/{surah:03d}.mp3	4
 h_dukhain	hafs	https://server16.mp3quran.net/h_dukhain/Rewayat-Hafs-A-n-Assem/{surah:03d}.mp3	4
