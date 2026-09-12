@@ -61,7 +61,12 @@ def run(items, hyps, cfg="shipped", exclude=()):
             continue
         s = scorer.score(it["refText"].split(), h["text"], c)
         out.append({**it, "ok": True, "hyp": h["text"], "ms": h.get("ms"),
-                    "audioMs": h.get("audioMs"), "correct": s["correct"],
+                    # ⏱️ **وطولُ الصوت يُؤخذ من الخطّة إن لم يُخرجه المسبار** (‏2026-09-12): كلُّ بنود `g4`
+                    # جاءت بـ`ms` من طوابع logcat و**بلا `audioMs`** ⇒ `rtfMedian` صفرٌ صامت (`None`)
+                    # في المنطقة التي يُشحن فيها `guardScope=FINAL` بعينها. و`long_plan.json` يحمل
+                    # `durationSec` فيصلح مقاماً؛ وبنودُ `sample.json` لا تحمله فتبقى بلا RTF بصراحة.
+                    "audioMs": h.get("audioMs") or (it["durationSec"] * 1000 if it.get("durationSec") else None),
+                    "correct": s["correct"],
                     "total": s["total"], "words": s["words"], "additions": s["additions"]})
     return out
 
