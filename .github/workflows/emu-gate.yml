@@ -28,6 +28,10 @@ on:
         description: "رموزُ لغة الفكّ للمسبار (‏D-303 — يحتاج APK يدعم `--es lang`)"
         required: false
         default: ""
+      chain:
+        description: "سلسلةُ الواجهة: cap (المقيس) · caponly (بلا بوّابةِ ضجيج) · gateonly (سقفُ 25)"
+        required: false
+        default: "cap"
       chunk:
         description: "حجمُ الدفعة (‏12 مقيسٌ — 40 تُعلّق المحاكي)"
         required: false
@@ -142,6 +146,7 @@ jobs:
           CAND_TAG: ${{ github.event.inputs.cand_tag }}
           LANGS: ${{ github.event.inputs.langs }}
           CHUNK: ${{ github.event.inputs.chunk }}
+          CHAIN: ${{ github.event.inputs.chain }}
         with:
           api-level: 30
           target: google_apis

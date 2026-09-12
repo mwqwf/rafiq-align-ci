@@ -12,6 +12,10 @@ export RAFIQ_ADB="$ADB"
 SET="${SET:?يلزم SET}"; CHUNK="${CHUNK:-12}"; CAND_TAG="${CAND_TAG:-}"; LANGS="${LANGS:-}"
 # 🎚️ مفاتيحُ المسبار المنطقيّة (‏`decodeGuard` · `criticalPairs`) ولاحقةُ الوسم كي لا تُكتب ذراعٌ فوق أخرى.
 EZ="${EZ:-}"; EI="${EI:-}"; SUF="${TAG_SUFFIX:-}"
+# 🔬 **سلسلةُ الواجهة الأمامية وسيطاً** (‏2026-09-12 · D-335): 60.6٪ على الطويل المضجَّج وقعت
+# **مع** بوّابة الضجيج وسقفِ المجموعة 10ث عاملَين ⇒ يلزم تشريحُهما لا تثبيتُهما:
+#   cap = سقفٌ 10 + بوّابة (المقيس) · caponly = سقفٌ 10 بلا بوّابة · gateonly = بوّابةٌ بسقف 25
+CHAIN="${CHAIN:-cap}"
 EZARGS=""; for f in $EZ; do EZARGS="$EZARGS --ez $f=true"; done
 for f in $EI; do EZARGS="$EZARGS --ei $f"; done
 [ -n "$EZ$EI" ] && echo "🎚️ مفاتيح: $EZ $EI · لاحقةُ الوسم: '${SUF}'"
@@ -40,17 +44,17 @@ for A in $ARMS; do
       # وبالتثبيت الصريح يبقى القياسُ صحيحاً أيضاً **بعد** أن يكسب الجدولُ سطراً جديداً (بوّابةُ v2).
       # 🛡️ ويسندُه حارسُ `emu_sweep.py`: سطرُ `RafiqFrontEnd … lang=` يجب أن يُقرّ بالنيّة وإلا وقف المسح.
       echo "▶ $SET · $A · lang=en (صريحاً — كما يُشحن)"
-      python emu_sweep.py --set "$SET" --chain cap --chunk "$CHUNK" --tag "$A$SUF" --model-path "/data/local/tmp/q8_$A.bin" --es "lang=en" $EZARGS | tail -3
+      python emu_sweep.py --set "$SET" --chain "$CHAIN" --chunk "$CHUNK" --tag "$A$SUF" --model-path "/data/local/tmp/q8_$A.bin" --es "lang=en" $EZARGS | tail -3
     else
       # ⛔ والوسمُ يحمل اللغةَ صراحةً (`v2-ar` لا `v2`): ملفُّ الذراع القديمةِ المخدومةِ بـ`en` يحمل الاسمَ المجرَّد،
       # فلو تساويا لكُتب أحدُهما فوق الآخر و**قورنت ذراعٌ بذراعٍ أخرى بلا أن يظهر في الرقم شيء**.
       echo "▶ $SET · $A · lang=ar (‏D-308: المضبوطُ يُقاس بما دُرِّب عليه)"
-      python emu_sweep.py --set "$SET" --chain cap --chunk "$CHUNK" --tag "$A-ar$SUF" --model-path "/data/local/tmp/q8_$A.bin" --es "lang=ar" $EZARGS | tail -3
+      python emu_sweep.py --set "$SET" --chain "$CHAIN" --chunk "$CHUNK" --tag "$A-ar$SUF" --model-path "/data/local/tmp/q8_$A.bin" --es "lang=ar" $EZARGS | tail -3
     fi
   else
     for L in $LANGS; do
       echo "▶ $SET · $A · lang=$L"
-      python emu_sweep.py --set "$SET" --chain cap --chunk "$CHUNK" --tag "$A-$L" \
+      python emu_sweep.py --set "$SET" --chain "$CHAIN" --chunk "$CHUNK" --tag "$A-$L" \
         --model-path "/data/local/tmp/q8_$A.bin" --es "lang=$L" | tail -3
     done
   fi
