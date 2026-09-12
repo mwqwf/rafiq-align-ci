@@ -222,6 +222,14 @@ def parse_log(log, times=None):
             except ValueError:
                 t = None
         body = ln.rstrip()
+        # 🧾 سطرُ **حاكم المحرك** (‏`RafiqJudge`): أحكامُ الكلمات كما حكم بها `RecitationScorer` داخل التطبيق.
+        # قيمتُه مزدوجة: يقيس المفاتيحَ التي تمسّ الحاكمَ (لا يراها مسبارُ النصّ)، **ويصدّق مرآتَنا البايثونية**
+        # (`scorer.py`) على بنودٍ حقيقيّةٍ من مخرَج المحرك — وكلُّ أرقام اللوحة تستند إلى تلك المرآة.
+        if judges is not None and "RafiqJudge" in body:
+            j = re.search(r"([A-Za-z0-9_\-.]+)\.wav\t(.*)$", body)
+            if j:
+                judges[j.group(1)] = j.group(2).strip()
+            continue
         m = re.search(r"([A-Za-z0-9_\-.]+)\.wav\t(.*)$", body)
         if m:
             out[m.group(1)] = " ".join(m.group(2).split())
