@@ -1,0 +1,41 @@
+# 🧩 **قالبُ مسارٍ جديدٍ في هذا المستودع العامّ** — يُنسخ ولا يُكتب من بياض.
+#
+# ⛔ **لماذا قالبٌ لا تذكيرٌ** (‏2026-09-12): كتبتُ لجلسةٍ أخرى بنصّه «من نسخ مساراً فليضف خطوة
+# ‏r2 creds وإلا فشل»، ثمّ **نسيتُها في أوّل مسارٍ كتبتُه بعدها بساعة** فسقط قبل أن يفكّ حرفاً.
+# **المعرفةُ لا تمنع الخطأ؛ يمنعه قالبٌ أو حارس.**
+#
+# ⚠️ والفرقُ الوحيدُ عن نسخة المستودع الخاصّ: هناك أربعةُ أسرارٍ مستقلّة، وهنا **سرٌّ واحد**
+# ‏`R2_CREDENTIALS_JSON` يُفكّ في الخطوة الأولى إلى الأربعة. ومن نسي فشل **عند أوّل نداء R2**.
+name: TEMPLATE
+on:
+  workflow_dispatch:
+env:
+  PUB: https://pub-2c2e1dcd92e84a2898820dd38d3e09e6.r2.dev
+  UA: "Mozilla/5.0 (QuranRafiq tools)"
+jobs:
+  job:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v4
+      # ⬇️ **لا تُحذف هذه الخطوة ولا تُؤخَّر** — كلُّ أداةٍ تلمس R2 تقرأ هذه المتغيّرات.
+      - name: r2 creds (من السرّ الواحد R2_CREDENTIALS_JSON)
+        env:
+          R2_CREDENTIALS_JSON: ${{ secrets.R2_CREDENTIALS_JSON }}
+        run: |
+          mkdir -p secure && printf '%s' "$R2_CREDENTIALS_JSON" > secure/r2_credentials.json
+          python3 - <<'PY2'
+          import json, os
+          c = json.load(open("secure/r2_credentials.json"))
+          keys = {"R2_ENDPOINT": c["endpoint"], "R2_ACCESS_KEY_ID": c["accessKeyId"], "R2_SECRET_ACCESS_KEY": c["secretAccessKey"], "R2_BUCKET": c["bucket"]}
+          env = open(os.environ["GITHUB_ENV"], "a")
+          for k, v in keys.items():
+              print("::add-mask::" + v); env.write(k + "=" + v + chr(10))
+          env.close()
+          PY2
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      # ⏬ وكلُّ تنزيلٍ بإعادة محاولة: شوطٌ ضاع بـcurl 35 قبل أن يُقلع المحاكي.
+      #   curl -sSL -f --retry 4 --retry-delay 5 --retry-all-errors -A "$UA" -o … "$PUB/…"
+      # 🧪 وكلُّ أداةٍ تُخرج رقماً: إن سكتت فاخرج بخطأ — «صمتُ الأداة لا يُحتسب صفراً» (D-323).
