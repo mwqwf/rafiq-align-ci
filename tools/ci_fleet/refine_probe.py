@@ -13,14 +13,28 @@
 """
 import gzip
 import json
+import os
 import sys
 
 d = json.load(gzip.open(sys.argv[1], "rt", encoding="utf-8"))
 mt = d.get("medTargeted", 0) or 0
 med = sum(1 for e in d.get("entries", []) if e.get("confBand") == "MED")
 rv = d.get("refineVersion") or "none"
-print(f"🔎 برهان الصقل: medTargeted={mt} · refinedCount={d.get('refinedCount', 0)} "
-      f"· refineVersion={rv} · MED في الفهرس={med}")
+stats = d.get("refineStats") or {}
+line = (f"🔎 برهان الصقل: medTargeted={mt} · refinedCount={d.get('refinedCount', 0)} "
+        f"· refineVersion={rv} · MED في الفهرس={med} · refineStats={stats}")
+print(line)
+# ⭐ **الحقولُ الثلاثة في ملخّص الوظيفة** (أمرُ مشرف التقييم 2026-09-12):
+#    قِيس أنّ سطرَ «صقل ج2» **مكتومٌ عمداً** في `batch_run` (‏`log=lambda: None`)،
+#    فاستُدلّ بغيابه على غياب الفعل — وكان الصقلُ يعمل. **والدليلُ حقولُ الأثر
+#    لا سطرُ السجلّ**، فتُرفع إلى الملخّص حيث تُقرأ بلا فتح سجلّ.
+_sum = os.environ.get("GITHUB_STEP_SUMMARY")
+if _sum:
+    try:
+        with open(_sum, "a", encoding="utf-8") as _f:
+            _f.write("- `" + os.path.basename(sys.argv[1]) + "` — " + line + chr(10))
+    except OSError:
+        pass
 if mt == 0 and med > 0:
     print("⛔ الصقل لم يعمل: مقامٌ صفر مع وجود MED — فهرسُ جيلٍ أول يبدو مكتملاً.")
     sys.exit(1)
