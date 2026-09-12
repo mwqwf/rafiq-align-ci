@@ -380,6 +380,13 @@ jobs:
           echo "هويّةُ كاشِ الشريحة $SHARD/$SHARDS ⇐ r$tag"
           printf '  قرّاؤها: %s\n' "$(printf '%s' "$ids" | tr '\n' ' ')"
 
+      # ⛔ والسقوطُ الثالثُ في `restore-keys` هو **الوصفةُ القديمة بلا `m<النموذج>`**:
+      #    أُضيفت البادئةُ `m` إلى **كلّ** السطور (‏022a76d) فقطعت بذلك ما وُضع
+      #    السطرُ الثاني أصلاً لإدراكه («حتى لا تضيع الكاشاتُ المكتوبةُ بالوصفة
+      #    القديمة»). وكلُّ كاشات الأسطول اليومَ بالوصفةِ القديمة — ومنها ما تحفظه
+      #    الموجةُ الجاريةُ `34680415323` عند موتها — فكانت تضيع خمسُ شرائحَ من أوّلها.
+      #    والقيدُ على `tiny` مقصود: القديمةُ كلُّها أُنتجت قبل وجود المُدخل فنموذجُها
+      #    `tiny` قطعاً، فلا تُلوَّث بها مقارنةُ `base`.
       - name: استعادة العمل الجزئي
         id: workcache
         uses: actions/cache/restore@v4
@@ -389,6 +396,7 @@ jobs:
           restore-keys: |
             align-work-m${{ env.MAIN_MODEL }}-ac${{ env.WHISPER_AC }}-vad${{ env.VAD_VERSION }}-r${{ steps.ckey.outputs.tag }}-
             align-work-m${{ env.MAIN_MODEL }}-ac${{ env.WHISPER_AC }}-vad${{ env.VAD_VERSION }}-${{ matrix.shard }}-
+            ${{ env.MAIN_MODEL == 'tiny' && format('align-work-ac{0}-vad{1}-{2}-', env.WHISPER_AC, env.VAD_VERSION, matrix.shard) || 'align-work-legacy-blocked-for-nontiny-' }}
 
       - name: تشغيل السائق
         env:
