@@ -36,6 +36,10 @@ MODELS = {
     "shipped": os.path.join(ROOT, "tools", "finetune", "work", "shipped"),
     # 🧱 النموذجُ المكمَّم q8 — **ما يحمله التطبيق بعينه**، لمسار `--backend cli` (بلا HF ولا شبكة).
     "q8": os.path.join(WORK, "ggml-q8.bin"),
+    # 🧱 **النموذجُ الأكبرُ مكمَّماً** — `whisper-base-ar-quran` q8 (‏81.8 م.ب مقابل 43.5 للصغير).
+    # ⛔ **لم يُقَس قطُّ في هذه اللوحة** رغم وجوده على R2 منذ 09-02: ستُّ وصفاتِ ضبطٍ على النموذج
+    # **الصغير** سقطت، ولم يُجرَّب **تكبيرُ النموذج** — وهو البابُ الوحيدُ الباقي بعد D-347.
+    "base-q8": os.path.join(WORK, "ggml-base-ar-quran-q8_0.bin"),
     "base": "tarteel-ai/whisper-base-ar-quran",
     "tuned-v1": os.path.join(ROOT, "tools", "finetune", "work", "best"),
 }
