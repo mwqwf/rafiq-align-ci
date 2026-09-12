@@ -104,8 +104,7 @@ def main():
         for (e, m), n in sorted(dis.items(), key=lambda kv: -kv[1]):
             print(f"  {n:4d}  {e} ⇒ {m}")
     if rw_diff:
-        print(f"
-⛔ خلافٌ في الرواية ({len(rw_diff)} بنداً) — الحاكمان بإعدادَين مختلفَين فالمقارنةُ باطلة:")
+        print(f"\n⛔ خلافٌ في الرواية ({len(rw_diff)} بنداً) — الحاكمان بإعدادَين مختلفَين فالمقارنةُ باطلة:")
         for i, e, m in rw_diff[:6]:
             print(f"  {i}: محرك {e} · عيّنة {m}")
     if add_diff:
