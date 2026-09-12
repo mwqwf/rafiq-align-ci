@@ -10,6 +10,10 @@ set -euo pipefail
 ADB="${ANDROID_HOME:-${ANDROID_SDK_ROOT:-/usr/local/lib/android/sdk}}/platform-tools/adb"
 export RAFIQ_ADB="$ADB"
 SET="${SET:?يلزم SET}"; CHUNK="${CHUNK:-12}"; CAND_TAG="${CAND_TAG:-}"; LANGS="${LANGS:-}"
+# 🎚️ مفاتيحُ المسبار المنطقيّة (‏`decodeGuard` · `criticalPairs`) ولاحقةُ الوسم كي لا تُكتب ذراعٌ فوق أخرى.
+EZ="${EZ:-}"; SUF="${TAG_SUFFIX:-}"
+EZARGS=""; for f in $EZ; do EZARGS="$EZARGS --ez $f=true"; done
+[ -n "$EZ" ] && echo "🎚️ مفاتيح: $EZ · لاحقةُ الوسم: '${SUF}'"
 
 echo "🔌 $("$ADB" devices | tail -n +2 | tr '\n' ' ')"
 "$ADB" wait-for-device
@@ -27,16 +31,20 @@ for A in $ARMS; do
     # فحُكم على ثلاثة نماذجَ بالرسوب ظلماً. والمشحونُ يبقى على افتراض التطبيق (`en`) لأنّ `ar` تكلّفه 3.1 نقاطٍ من الكشف
     # ⇒ الزوجُ الافتراضيُّ هنا هو **زوجُ الشحن**: المشحونُ كما يُشحن، والمرشَّحُ كما سيُشحن.
     if [ "$A" = "shipped" ]; then
-      # ⛔ **صريحاً لا افتراضاً (‏2026-09-12):** جلسةُ التطبيق تجعل اللغةَ تُشتقّ من **اسم ملفِّ النموذج** — وملفُّنا
-      # هنا `q8_shipped.bin` لا اسمُ المشحون الأصليّ ⇒ كان سيُشتقّ له `ar` **صامتاً** فينزاح خطُّ الأساس كلُّه.
-      # فالذراعُ المشحونة تُمرَّر `lang=en` صراحةً: ما يُقاس لا يُترك لافتراضٍ يملكه غيرُنا.
+      # ⛔ **صريحاً لا افتراضاً (‏2026-09-12 · صُحِّح في D-313):** كلُّ ذراعٍ هنا تُثبِّت لغتَها بالنيّة، ولا
+      # تتّكل على اشتقاقٍ يملكه غيرُنا. والسببُ الحقيقيُّ بعد D-312 **ليس** أنّ `q8_shipped.bin` يُشتقّ له
+      # `ar` — بل أنّه **ليس اسمَ نموذجٍ في جدول `WhisperDecode.SERVING`** (الأسماءُ هناك أسماءُ الشحن
+      # `whisper-tiny-ar-quran…bin` لا أسماءُ `/data/local/tmp/q8_*.bin`) ⇒ **كلُّ** ذراعٍ بلا نيّةٍ تسقط
+      # إلى `DEFAULT=en`، فتتطابق ذراعا `en`/`ar` في حلقة `LANGS` ويُحكم كذباً أنّ «اللغةَ لا أثرَ لها».
+      # وبالتثبيت الصريح يبقى القياسُ صحيحاً أيضاً **بعد** أن يكسب الجدولُ سطراً جديداً (بوّابةُ v2).
+      # 🛡️ ويسندُه حارسُ `emu_sweep.py`: سطرُ `RafiqFrontEnd … lang=` يجب أن يُقرّ بالنيّة وإلا وقف المسح.
       echo "▶ $SET · $A · lang=en (صريحاً — كما يُشحن)"
-      python emu_sweep.py --set "$SET" --chain cap --chunk "$CHUNK" --tag "$A" --model-path "/data/local/tmp/q8_$A.bin" --es "lang=en" | tail -3
+      python emu_sweep.py --set "$SET" --chain cap --chunk "$CHUNK" --tag "$A$SUF" --model-path "/data/local/tmp/q8_$A.bin" --es "lang=en" $EZARGS | tail -3
     else
       # ⛔ والوسمُ يحمل اللغةَ صراحةً (`v2-ar` لا `v2`): ملفُّ الذراع القديمةِ المخدومةِ بـ`en` يحمل الاسمَ المجرَّد،
       # فلو تساويا لكُتب أحدُهما فوق الآخر و**قورنت ذراعٌ بذراعٍ أخرى بلا أن يظهر في الرقم شيء**.
       echo "▶ $SET · $A · lang=ar (‏D-308: المضبوطُ يُقاس بما دُرِّب عليه)"
-      python emu_sweep.py --set "$SET" --chain cap --chunk "$CHUNK" --tag "$A-ar" --model-path "/data/local/tmp/q8_$A.bin" --es "lang=ar" | tail -3
+      python emu_sweep.py --set "$SET" --chain cap --chunk "$CHUNK" --tag "$A-ar$SUF" --model-path "/data/local/tmp/q8_$A.bin" --es "lang=ar" $EZARGS | tail -3
     fi
   else
     for L in $LANGS; do

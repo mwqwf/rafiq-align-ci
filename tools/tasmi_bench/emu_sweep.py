@@ -147,14 +147,20 @@ def run_set(set_name, limit=0, chunk=60, timeout_per_file=90, chain=False):
         for kv in EXTRA_ES:
             k, _, v = kv.partition("=")
             args += ["--es", k, v]
+        # ⛔ **والمنطقيُّ يُمرَّر بـ`--ez` لا بـ`--es`:** المحركُ يقرأ `getBooleanExtra`، وإضافةٌ نصّيّةٌ باسم المفتاح
+        # **لا يراها** فيبقى على افتراضه ⇒ يُقاس الضابطُ مرّتين ويُحكم كذباً أنّ «المفتاحَ لا أثرَ له».
+        for kv in EXTRA_EZ:
+            k, _, v = kv.partition("=")
+            args += ["--ez", k, v or "true"]
         adb(*args)
         # 🚨 **إضافةُ نيّةٍ تُتجاهَل بصمتٍ = ذراعان متطابقتان وحكمٌ كاذب** («اللغةُ لا أثرَ لها»).
         # المحركُ يطبع `RafiqFrontEnd … lang=<x>` عند استقبالها ⇒ تُتحقَّق مرّةً في أوّل دفعة، وإلا وقف المسح.
         global _ES_VERIFIED
-        if EXTRA_ES and not _ES_VERIFIED:
+        if (EXTRA_ES or EXTRA_EZ) and not _ES_VERIFIED:
             time.sleep(3)
             fe = adb("shell", "logcat", "-d", "-s", "RafiqFrontEnd:*").stdout or ""
-            missing = [kv for kv in EXTRA_ES if kv.replace(" ", "") not in fe.replace(" ", "")]
+            want = list(EXTRA_ES) + [(kv if "=" in kv else kv + "=true") for kv in EXTRA_EZ]
+            missing = [kv for kv in want if kv.replace(" ", "") not in fe.replace(" ", "")]
             if missing:
                 raise SystemExit(f"⛔ المسبارُ لم يُقرّ بإضافات النيّة {missing} — سطرُ RafiqFrontEnd: "
                                  f"{fe.strip().splitlines()[-1] if fe.strip() else 'لا شيء'!r}. "
@@ -198,6 +204,7 @@ def parse_log(log):
 
 
 EXTRA_ES = []        # إضافاتُ نيّةٍ نصّيّة من `--es` (D-303)
+EXTRA_EZ = []        # إضافاتُ نيّةٍ منطقيّة من `--ez` — المحركُ يقرؤها بـgetBooleanExtra فلا تصلح `--es`
 _ES_VERIFIED = False # تُتحقَّق مرّةً من سجلّ المحرك: إضافةٌ مُتجاهَلةٌ بصمتٍ تُنتج ذراعَين متطابقتين
 LOCK = os.path.join(WORK, ".emu_sweep.lock")
 
@@ -240,6 +247,8 @@ def main():
     ap.add_argument("--model-path", help="نموذجٌ بديلٌ على الجهاز (مسارٌ مطلق)")
     ap.add_argument("--es", action="append", default=[], metavar="KEY=VAL",
                     help="إضافةُ نيّةٍ نصّيّةٌ تُمرَّر إلى المسبار كما هي (تتكرّر) — مثل `--es lang=ar`")
+    ap.add_argument("--ez", action="append", default=[], metavar="KEY[=BOOL]",
+                    help="إضافةُ نيّةٍ **منطقيّة** (تتكرّر) — مثل `--ez decodeGuard` أو `--ez criticalPairs=true`")
     ap.add_argument("--set", default="g1")
     ap.add_argument("--all", action="store_true")
     ap.add_argument("--limit", type=int, default=0)
@@ -258,7 +267,11 @@ def main():
     if args.es:
         global EXTRA_ES
         EXTRA_ES = list(args.es)
-        print(f"🔤 إضافاتُ نيّة: {' · '.join(EXTRA_ES)}")
+        print(f"🔤 إضافاتٌ نصّيّة: {' · '.join(EXTRA_ES)}")
+    if args.ez:
+        global EXTRA_EZ
+        EXTRA_EZ = list(args.ez)
+        print(f"🎚️ إضافاتٌ منطقيّة: {' · '.join(EXTRA_EZ)}")
 
     if not os.path.exists(ADB):
         print(f"⛔ لا adb في {ADB}")

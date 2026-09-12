@@ -32,6 +32,14 @@ on:
         description: "حجمُ الدفعة (‏12 مقيسٌ — 40 تُعلّق المحاكي)"
         required: false
         default: "12"
+      ez:
+        description: "مفاتيحُ المسبار المنطقيّة مفصولةً بمسافة (‏decodeGuard · criticalPairs)"
+        required: false
+        default: ""
+      tag_suffix:
+        description: "لاحقةُ وسم الذراع مع المفاتيح (‏-dg · -cp) كي لا تُكتب ذراعٌ فوق أخرى"
+        required: false
+        default: ""
 env:
   PUB: https://pub-2c2e1dcd92e84a2898820dd38d3e09e6.r2.dev
   UA: "Mozilla/5.0 (QuranRafiq emu gate)"
@@ -97,15 +105,16 @@ jobs:
         uses: actions/cache@v4
         with:
           path: tools/tasmi_bench/work/sets.tar
-          key: tasmi-sets-${{ hashFiles('tools/tasmi_bench/sample.json', 'tools/tasmi_bench/inject_plan_riwaya.json', 'tools/tasmi_bench/augment.py', 'tools/tasmi_bench/augment_learner.py', 'tools/tasmi_bench/inject_riwaya_local.py') }}
+          key: tasmi-sets-v2-${{ hashFiles('tools/tasmi_bench/sample.json', 'tools/tasmi_bench/inject_plan_riwaya.json', 'tools/tasmi_bench/augment.py', 'tools/tasmi_bench/augment_learner.py', 'tools/tasmi_bench/inject_riwaya_local.py') }}
       - name: بناءُ المجموعات إن غاب الكاش
         if: steps.sets.outputs.cache-hit != 'true'
         run: |
           sudo apt-get install -y -qq ffmpeg > /dev/null
           pip install -q boto3
           cd tools/tasmi_bench
-          python fetch_audio.py && python augment.py --only noise-fan-5 && python augment_learner.py --only learner-combo && python inject_riwaya_local.py
-          tar -cf work/sets.tar -C work wav g2/noise-fan-5 g2/learner-combo g3r/clean g3r/noisy
+          python fetch_audio.py && python augment.py --only noise-fan-5 && python inject_riwaya_local.py
+          for c in learner-combo learner-repeat learner-basmala; do python augment_learner.py --only "$c"; done
+          tar -cf work/sets.tar -C work wav g2/noise-fan-5 g2/learner-combo g2/learner-repeat g2/learner-basmala g3r/clean g3r/noisy
       - name: فكُّ المجموعات
         run: cd tools/tasmi_bench/work && tar -xf sets.tar && rm -f sets.tar && ls -d wav g3r g2 2>/dev/null
       - name: المحاكي + السائقُ نفسُه (‏emu_sweep)
@@ -114,6 +123,8 @@ jobs:
           PYTHONIOENCODING: utf-8
           APK: app.apk
           SET: ${{ matrix.set }}
+          EZ: ${{ github.event.inputs.ez }}
+          TAG_SUFFIX: ${{ github.event.inputs.tag_suffix }}
           CAND_TAG: ${{ github.event.inputs.cand_tag }}
           LANGS: ${{ github.event.inputs.langs }}
           CHUNK: ${{ github.event.inputs.chunk }}
