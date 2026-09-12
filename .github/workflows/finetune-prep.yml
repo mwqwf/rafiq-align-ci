@@ -61,7 +61,6 @@ jobs:
             --max-per-reciter ${{ github.event.inputs.per_reciter }} --per-surah-cap ${{ github.event.inputs.per_surah_cap }} \
             --reciters ${{ matrix.reciters }}
       - name: pack + upload
-        env:
         run: |
           tar -cf ${{ matrix.group }}.tar -C data ${{ matrix.group }}
           ls -l ${{ matrix.group }}.tar; wc -l data/${{ matrix.group }}/manifest.jsonl
