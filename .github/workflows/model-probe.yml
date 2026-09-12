@@ -1,0 +1,53 @@
+# 🔬 **مسبارُ تحميلِ نموذج** — يطبع سببَ فشل `whisper_init` بنصّه بدل «failed to initialize».
+#
+# ⛔ **لماذا وُجد** (‏2026-09-12): النموذجُ الأكبر `whisper-base-ar-quran` q8 (‏81.7 م.ب · ترويسةٌ
+# صحيحةٌ · حجمٌ مطابق) ردّ `whisper-cli` عليه `rc=3: failed to initialize whisper context` **لكلّ
+# بند**، ولأنّ السائقَ يمرّر `-np` (بلا طباعة) ضاعت رسالةُ المحمِّل التفصيليّة. وهذا يشغّله **بلا
+# `-np`** على مقطعٍ واحدٍ فيظهر أيُّ موترٍ أو أيُّ حقلٍ هو العلّة.
+# ⭐ وهو البابُ الوحيدُ الباقي بعد D-347 (بابُ الواجهة مغلقٌ والانهيارُ صوتيّ) ⇒ لا يُترك بلا تشخيص.
+name: model-probe
+on:
+  workflow_dispatch:
+    inputs:
+      url:
+        description: "رابطُ نموذج ggml على R2 (نسبيّاً إلى PUB)"
+        required: false
+        default: "models/whisper-base-ar-quran/ggml-q8_0.bin"
+env:
+  PUB: https://pub-2c2e1dcd92e84a2898820dd38d3e09e6.r2.dev
+  UA: "Mozilla/5.0 (QuranRafiq tools)"
+  WC: c4ac0012a8f5a2082dfca6aad4ddfd8b2c02b337
+jobs:
+  probe:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+      - name: عدّةٌ وبناء
+        run: |
+          sudo apt-get update -qq && sudo apt-get install -y -qq cmake ninja-build ffmpeg > /dev/null
+          git clone -q --depth 1 https://github.com/ggml-org/whisper.cpp wc && cd wc
+          git fetch -q --depth 1 origin "$WC" && git checkout -q FETCH_HEAD
+          cmake -S . -B b -G Ninja -DCMAKE_BUILD_TYPE=Release -DBUILD_SHARED_LIBS=OFF \
+            -DWHISPER_BUILD_TESTS=OFF -DWHISPER_BUILD_SERVER=OFF -DWHISPER_BUILD_EXAMPLES=ON \
+            -DGGML_NATIVE=OFF -DGGML_OPENMP=OFF > /dev/null
+          cmake --build b --target whisper-cli -j"$(nproc)" > /dev/null
+          ls -l b/bin/whisper-cli
+      - name: تنزيلٌ وفحصُ ترويسة
+        run: |
+          curl -sSL -f --retry 4 --retry-delay 5 --retry-all-errors -A "$UA" -o m.bin "$PUB/${{ github.event.inputs.url }}"
+          ls -l m.bin
+          python3 - <<'PY'
+          import struct
+          F = "magic n_vocab n_audio_ctx n_audio_state n_audio_head n_audio_layer n_text_ctx n_text_state n_text_head n_text_layer n_mels ftype".split()
+          v = struct.unpack("<12i", open("m.bin", "rb").read(48))
+          print("الترويسة:", dict(zip(F, v)))
+          print("النوعُ المتوقَّع من n_audio_layer:", {4:"tiny",6:"base",12:"small",24:"medium",32:"large"}.get(v[5], "؟"))
+          PY
+      - name: التحميلُ بصوتٍ عالٍ (بلا -np)
+        run: |
+          # مقطعُ صمتٍ قصير: الغرضُ التحميلُ لا التفريغ
+          ffmpeg -f lavfi -i anullsrc=r=16000:cl=mono -t 2 -y -v error s.wav
+          set +e
+          ./wc/b/bin/whisper-cli -m m.bin -f s.wav -t 2 -l en 2>&1 | tail -40
+          echo "rc=$?"
