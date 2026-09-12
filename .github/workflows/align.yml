@@ -39,6 +39,9 @@ on:
       shards:
         description: "عدد الشرائح (= عدد المهام المتوازية). السقفُ 12 — والباقي للأحكام"
         default: "12"
+      main_model:
+        description: "نموذجُ التفريغ الرئيسيّ: tiny (الافتراض) أو base (أدقّ وأبطأ ~3×)"
+        default: "tiny"
       jobs_per_runner:
         description: "عمليات متوازية داخل كل عدّاء (مستودع عام = 4 vCPU ⇒ 4)"
         default: "4"
@@ -98,6 +101,9 @@ env:
   WHISPER_THREADS: "1"
   # ⛔ يبقى "0" ما لم يُمرَّر — انظر تعليقَ المُدخل `whisper_ac` أعلاه.
   WHISPER_AC: ${{ github.event.inputs.whisper_ac || '0' }}
+  # ⛔ يدخل **مفتاحَ كاش العمل** لا اسمَ الملفّ: كاشُ tiny على تشغيلةِ base
+  #    يُعيد فهرسَ tiny تحت اسم base بلا إعادةِ تفريغٍ أصلاً.
+  MAIN_MODEL: ${{ github.event.inputs.main_model || 'tiny' }}
 
 jobs:
   # ── المصفوفة تُبنى ديناميكياً من مُدخل shards ────────────────────────────
@@ -263,9 +269,19 @@ jobs:
           s3 = boto3.client("s3", endpoint_url=c["endpoint"],
                             aws_access_key_id=c["accessKeyId"],
                             aws_secret_access_key=c["secretAccessKey"], region_name="auto")
+          # ⭐ **مفرِّغٌ رئيسيٌّ اختياريّ** (تجربةُ مشرف التقييم 2026-09-12):
+          #    `base-ar-quran` أدقُّ وأبطأُ ~3× — يُجرَّب على قارئٍ **واحد**
+          #    قريبٍ من العتبة قبل أيّ تعميم. ⛔ والاسمُ يبقى `ggml-tiny-…`
+          #    لأنّ `common.py` يبني المسارَ منه، **والتمييزُ في مفتاح الكاش**
+          #    لا في اسم الملفّ — وإلا استُعيد كاشُ tiny فلم يُعَد تفريغُ شيء
+          #    وخرج فهرسُ tiny تحت اسم base (عينُ فخّ `-ac 512` الموثَّق أدناه).
+          _main = os.environ.get("MAIN_MODEL", "tiny")
+          _src = ("models/whisper-base-ar-quran/ggml-q8_0.bin" if _main == "base"
+                  else "models/whisper-tiny-ar-quran/ggml-q8_0.bin")
+          print("نموذجُ التفريغ الرئيسيّ:", _main, "⇐", _src)
           dst = "assets-archive/ggml/ggml-tiny-ar-quran-q8_0.bin"
           os.makedirs(os.path.dirname(dst), exist_ok=True)
-          s3.download_file(c["bucket"], "models/whisper-tiny-ar-quran/ggml-q8_0.bin", dst)
+          s3.download_file(c["bucket"], _src, dst)
           print("النموذج:", os.path.getsize(dst) // 1024 // 1024, "م.ب")
           # ⛔ نموذجُ الصقل مستقلٌّ (D-179): التفريغُ العامّ بالسريع والصقلُ
           #    بالأدقّ — فالعطبُ الجسيم محصورٌ في حدود MED/LOW وهي ما يصقله.
@@ -357,10 +373,10 @@ jobs:
         uses: actions/cache/restore@v4
         with:
           path: tools/alignment/work
-          key: align-work-ac${{ env.WHISPER_AC }}-vad${{ env.VAD_VERSION }}-r${{ steps.ckey.outputs.tag }}-${{ github.run_id }}
+          key: align-work-m${{ env.MAIN_MODEL }}-ac${{ env.WHISPER_AC }}-vad${{ env.VAD_VERSION }}-r${{ steps.ckey.outputs.tag }}-${{ github.run_id }}
           restore-keys: |
-            align-work-ac${{ env.WHISPER_AC }}-vad${{ env.VAD_VERSION }}-r${{ steps.ckey.outputs.tag }}-
-            align-work-ac${{ env.WHISPER_AC }}-vad${{ env.VAD_VERSION }}-${{ matrix.shard }}-
+            align-work-m${{ env.MAIN_MODEL }}-ac${{ env.WHISPER_AC }}-vad${{ env.VAD_VERSION }}-r${{ steps.ckey.outputs.tag }}-
+            align-work-m${{ env.MAIN_MODEL }}-ac${{ env.WHISPER_AC }}-vad${{ env.VAD_VERSION }}-${{ matrix.shard }}-
 
       - name: تشغيل السائق
         env:
@@ -404,7 +420,7 @@ jobs:
         uses: actions/cache/save@v4
         with:
           path: tools/alignment/work
-          key: align-work-ac${{ env.WHISPER_AC }}-vad${{ env.VAD_VERSION }}-r${{ steps.ckey.outputs.tag }}-${{ github.run_id }}
+          key: align-work-m${{ env.MAIN_MODEL }}-ac${{ env.WHISPER_AC }}-vad${{ env.VAD_VERSION }}-r${{ steps.ckey.outputs.tag }}-${{ github.run_id }}
 
       - name: السجلات مخرَجاً (تُقرأ حتى عند السقوط)
         if: always()
