@@ -174,8 +174,32 @@ jobs:
           if [ -n "${{ github.event.inputs.langs }}" ]; then
             set -- ${{ github.event.inputs.langs }}
             python v2_gate.py --score-only --arms "shipped-$1" "shipped-$2" --md "$M"
-          else
+          elif [ -n "$T" ]; then
             python v2_gate.py --score-only --arms shipped "$T-ar" --md "$M"
+          else
+            # 🛡️ **وضعُ الضابط** (بلا مرشَّح): لا زوجَ يُقارَن، فتُطبع أرقامُ الذراع المشحونة **المطلقة**
+            # ليُقابَل بها المرجعُ المعروف (‏9.44٪ اتّهاماً ضجيجاً · G1 96.87٪). وكان يسقط بـ`--arms shipped -ar`.
+            python - <<'PYJ' | tee "$M"
+          import json, sys
+          sys.path.insert(0, ".")
+          import v2_gate as G
+          plan = json.load(open("inject_plan_riwaya.json", encoding="utf-8"))["items"]
+          print("| المجموعة | ن | اتّهامٌ كاذب | كشف |")
+          print("|---|---:|---:|---:|")
+          for s in ("g3r:noisy", "g3r:clean"):
+              h = G.load_hyps(s, "shipped")
+              if not h: continue
+              d, fa, n, _ = G.judge_arm(plan, h)
+              print(f"| {s} | {n} | {fa*100:.2f}٪ | {d*100:.1f}٪ |")
+          import score as SC
+          sample = SC.load_sample()
+          for s in ("g1", "g2:noise-fan-5", "g2:learner-combo"):
+              h = G.load_hyps(s, "shipped")
+              if not h: continue
+              items = [it for it in sample["items"] if it["id"] in h]
+              a = SC.aggregate(SC.run(items, h, "proposed"))
+              print(f"| {s} · تتبّع | {a['scored']} | — | دقّة {a['accuracy']*100:.2f}٪ |")
+          PYJ
           fi
           { echo "### 📱 emu-gate (المحركُ داخل محاكي العدّاء)"; cat "$M"; } >> "$GITHUB_STEP_SUMMARY"
       - name: رفعٌ إلى R2
