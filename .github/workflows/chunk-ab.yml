@@ -18,6 +18,14 @@ on:
         description: "المجموعات (مفصولةٌ بفواصل) — g4n هي موضعُ العطب"
         required: false
         default: "g4n,g4"
+      model:
+        description: "النموذج: q8 (tiny المشحون) · base-q8 (الأكبر — لم يُقَس قطُّ · D-347)"
+        required: false
+        default: "q8"
+      arms:
+        description: "chunk = ثلاثُ قواعدِ تقطيع · single = قاعدةٌ واحدة (لمقارنة النماذج)"
+        required: false
+        default: "chunk"
 env:
   PUB: https://pub-2c2e1dcd92e84a2898820dd38d3e09e6.r2.dev
   UA: "Mozilla/5.0 (QuranRafiq chunk ab)"
@@ -62,6 +70,10 @@ jobs:
           mkdir -p tools/tasmi_bench/work
           curl -sSL -f --retry 4 --retry-delay 5 --retry-all-errors -A "$UA" \
             -o tools/tasmi_bench/work/ggml-q8.bin "$PUB/models/whisper-tiny-ar-quran/ggml-q8_0.bin"
+          if [ "${{ github.event.inputs.model }}" = "base-q8" ]; then
+            curl -sSL -f --retry 4 --retry-delay 5 --retry-all-errors -A "$UA" -o               tools/tasmi_bench/work/ggml-base-ar-quran-q8_0.bin "$PUB/models/whisper-base-ar-quran/ggml-q8_0.bin"
+          fi
+          ls -l tools/tasmi_bench/work/*.bin
       - name: المجموعاتُ (كاشُ بوّابة المحاكي نفسُه)
         id: sets
         uses: actions/cache@v4
@@ -86,17 +98,20 @@ jobs:
           cd tools/tasmi_bench
           # 🎯 حدودٌ مثاليّةٌ من النسخة النظيفة — تفصل أثرَ **السمع** عن أثر **الحدود**.
           python make_oracle_cuts.py --clean work/g4 --out work/oracle_g4.json
-          for S in $(echo "${{ github.event.inputs.sets }}" | tr ',' ' '); do
-            for R in v2 prop; do
-              echo "▶ $S · قاعدةُ العتبة $R"
-              python local_whisper.py --set "$S" --model q8 --backend cli \
+          for SET in $(echo "${{ github.event.inputs.sets }}" | tr ',' ' '); do
+            if [ "${{ github.event.inputs.arms }}" = "single" ]; then RULES="v2"; else RULES="v2 prop"; fi
+            for R in $RULES; do
+              echo "▶ $SET · قاعدةُ العتبة $R"
+              python local_whisper.py --set "$SET" --model "${{ github.event.inputs.model }}" --backend cli \
                 --cli ../../wc/b/bin/whisper-cli --frontend new --floor-rule "$R" | tail -3
             done
-            echo "▶ $S · حدودٌ مثاليّة"
-            python local_whisper.py --set "$S" --model q8 --backend cli \
-              --cli ../../wc/b/bin/whisper-cli --frontend new --cuts-json work/oracle_g4.json | tail -3
+            if [ "${{ github.event.inputs.arms }}" != "single" ]; then
+              echo "▶ $SET · حدودٌ مثاليّة"
+              python local_whisper.py --set "$SET" --model "${{ github.event.inputs.model }}" --backend cli \
+                --cli ../../wc/b/bin/whisper-cli --frontend new --cuts-json work/oracle_g4.json | tail -3
+            fi
           done
-          ls -l work/hyps_q8_g4*.json 2>/dev/null | tail -8
+          ls -l work/hyps_*_g4*.json 2>/dev/null | tail -8
       - name: الحكم
         env:
           PYTHONIOENCODING: utf-8
@@ -109,7 +124,7 @@ jobs:
           pool = G.pool_items()
           print("| المجموعة | قاعدةُ العتبة | ن | **دقّة** | مجالُ الثقة | مفقود · مُبدَل · زوائد |")
           print("|---|---|---:|---:|---:|---:|")
-          for f in sorted(glob.glob("work/hyps_q8_g4*.json")):
+          for f in sorted(glob.glob("work/hyps_*_g4*.json")):
               h = json.load(io.open(f, encoding="utf-8"))
               h = h.get("hyps", h)
               items = [it for it in pool if it["id"] in h]
@@ -118,7 +133,7 @@ jobs:
               a = SC.aggregate(SC.run(items, h, "proposed"))
               rule = ("🎯 **حدودٌ مثاليّة**" if "_oracle" in f
                       else "**prop** سقفُ 0.9" if "floorprop" in f else "v2 (المشحون)")
-              st = os.path.basename(f).replace("hyps_q8_", "").replace("_fe-new", "").replace("_floorprop", "").replace("_oracle", "").replace(".json", "")
+              st = os.path.basename(f).replace("hyps_", "").replace("_fe-new", "").replace("_floorprop", "").replace("_oracle", "").replace(".json", "")
               print(f"| `{st}` | {rule} | {a['scored']} | **{a['accuracy']*100:.2f}٪** | "
                     f"[{a['ci95'][0]*100:.1f}–{a['ci95'][1]*100:.1f}] | {a['missed']} · {a['substituted']} · {a['additions']} |")
           PYJ
@@ -128,7 +143,7 @@ jobs:
         with:
           name: chunk-ab
           path: |
-            tools/tasmi_bench/work/hyps_q8_g4*.json
+            tools/tasmi_bench/work/hyps_*_g4*.json
             tools/tasmi_bench/work/chunk_ab.md
           retention-days: 14
           if-no-files-found: ignore
