@@ -28,11 +28,16 @@ LETTER = {"C": "CORRECT", "M": "MISSED", "S": "SUBSTITUTED", "U": "UNCERTAIN"}
 
 
 def parse_judge(line):
-    """يعيد (أحكامٌ كقائمةِ حروف، زيادات، حرجٌ) من سطر `RafiqJudge`."""
-    verdicts, adds, crit = [], None, None
+    """يعيد (أحكامٌ كقائمةِ حروف، زيادات، حرجٌ، روايةُ المحرك) من سطر `RafiqJudge`."""
+    verdicts, adds, crit, rw = [], None, None, None
     for part in line.split("\t"):
         part = part.strip()
         if part.startswith("flat="):
+            continue
+        if part.startswith("riwaya="):
+            # ⚠️ الحاكمُ يتصرّف بحسب `RiwayaProfile` (النقلُ لورشٍ · الصلةُ لورشٍ وقالون) ⇒ خلافُ إعدادٍ
+            # يظهر كخلافِ حكمٍ لو لم يُقارَن. والمصدرُ عندنا واحدٌ (بادئةُ اسم الملفّ) فالتطابقُ متوقَّع.
+            rw = part.split("=", 1)[1]
             continue
         if part.startswith("additions="):
             try:
@@ -43,7 +48,7 @@ def parse_judge(line):
             crit = part.split("=", 1)[1].lower() == "true"
         elif part and all(c in "CMSU," for c in part):
             verdicts = [c for c in part.split(",") if c]
-    return verdicts, adds, crit
+    return verdicts, adds, crit, rw
 
 
 def main():
@@ -64,12 +69,15 @@ def main():
     res = score.run(items, h, a.cfg)
 
     words = agree = 0
+    rw_diff = []
     conf = collections.Counter()          # (محرك، مرآة)
     bad_items, add_diff = [], []
     for r, it in zip(res, items):
         if not r["ok"]:
             continue
-        eng, adds, _ = parse_judge(with_judge[it["id"]]["judge"])
+        eng, adds, _, rw = parse_judge(with_judge[it["id"]]["judge"])
+        if rw and rw != it["riwaya"]:
+            rw_diff.append((it["id"], rw, it["riwaya"]))
         mir = [w[1] for w in r["words"]]
         if len(eng) != len(mir):          # طولٌ مختلفٌ = خللٌ بنيويّ لا خلافُ حكم
             bad_items.append((it["id"], f"طولٌ مختلف: محرك {len(eng)} · مرآة {len(mir)}"))
@@ -95,11 +103,16 @@ def main():
         print("\nمواضعُ الخلاف (محرك ⇒ مرآة):")
         for (e, m), n in sorted(dis.items(), key=lambda kv: -kv[1]):
             print(f"  {n:4d}  {e} ⇒ {m}")
+    if rw_diff:
+        print(f"
+⛔ خلافٌ في الرواية ({len(rw_diff)} بنداً) — الحاكمان بإعدادَين مختلفَين فالمقارنةُ باطلة:")
+        for i, e, m in rw_diff[:6]:
+            print(f"  {i}: محرك {e} · عيّنة {m}")
     if add_diff:
         print(f"\n⚠️ خلافٌ في عدد الزيادات ({len(add_diff)} بنداً):")
         for i, e, m in add_diff[:6]:
             print(f"  {i}: محرك {e} · مرآة {m}")
-    if not dis and not bad_items and not add_diff:
+    if not dis and not bad_items and not add_diff and not rw_diff:
         print("\n✅ **صفرُ انحراف** — المرآةُ تحكم كما يحكم المحرك على هذه البنود.")
 
 
