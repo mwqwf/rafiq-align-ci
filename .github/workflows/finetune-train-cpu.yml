@@ -1,4 +1,4 @@
-# 🌐 نسخةُ مستودع الحوسبة العامّ (دقائقُ Actions بلا حدّ) — السكربتات مرآةُ QuranRafiq/tools · السرُّ الواحد R2_CREDENTIALS_JSON
+# 🌐 نسخةُ مستودع الحوسبة العامّ — السرُّ الواحد R2_CREDENTIALS_JSON
 # 🎓 تدريبُ `tuned-v2` على GitHub Actions بلا معالجٍ رسوميّ — **المسارُ الذي يعمل والمالكُ نائمٌ وجهازُه مطفأ** (القاعدة 7 ب).
 # كولاب أسرع (T4 ≈ 25 د) لكنه يموت بإغلاق المتصفّح؛ هذا المسارُ أبطأ (ساعات) لكنه **يستأنف نفسَه**:
 #   كلُّ تشغيلٍ ينزّل الأجزاءَ من R2، ويستأنف من `<prefix>/last.tar` إن وُجد، ويدرّب حتى `time_limit` دقيقة،
@@ -50,6 +50,10 @@ on:
         description: "وسائطُ إضافية لـtrain.py (مثل: --target norm --no-trim)"
         required: false
         default: ""
+      apk_url:
+        description: "APK قابلٌ للتنقيح لبوّابة المحرك (‏emu-gate) بعد اكتمال التدريب"
+        required: false
+        default: "https://pub-2c2e1dcd92e84a2898820dd38d3e09e6.r2.dev/apk/app-debug-a3lang-eefb388c.apk"
 concurrency:
   group: finetune-train-cpu-${{ github.event.inputs.prefix }}
   cancel-in-progress: false
@@ -66,6 +70,7 @@ jobs:
       W: /mnt/ft
       PREFIX: ${{ github.event.inputs.prefix }}
       PARTS: ${{ github.event.inputs.parts }}
+      APK_URL: ${{ github.event.inputs.apk_url }}
     steps:
       - uses: actions/checkout@v4
       - name: r2 creds (من السرّ الواحد R2_CREDENTIALS_JSON)
@@ -132,7 +137,11 @@ jobs:
             bash tools/finetune/to_ggml.sh "$SRC" "$W/ggml" "$W"
             curl -sS -f -X PUT -T "$W/ggml/ggml-q8_0.bin" "$PUT_GGML" && echo "☁️ $PREFIX/ggml-q8_0.bin مرفوع — يُقاس على المحاكي بالبوّابتين"
             # ⚖️ بلا جهاز المالك: تُطلَق بوّابةُ مرآة المحرك على CI فور اكتمال النموذج
-            gh workflow run tasmi-gate.yml -R "$GITHUB_REPOSITORY" -f cand_url="$PUB/$PREFIX/ggml-q8_0.bin" -f tag="$(basename "$PREFIX")"               && echo "⚖️ أُطلقت بوّابةُ tasmi-gate لـ$(basename "$PREFIX")" || echo "⚠️ تعذّر إطلاقُ tasmi-gate"
+            TAG="$(basename "$PREFIX" | sed 's/^out_//')"
+            gh workflow run tasmi-gate.yml -R "$GITHUB_REPOSITORY" -f cand_url="$PUB/$PREFIX/ggml-q8_0.bin" -f tag="$TAG"               && echo "⚖️ مرآةُ CI أُطلقت لـ$TAG" || echo "⚠️ تعذّر إطلاقُ tasmi-gate"
+            # 📱 **والحكمُ الفاصلُ على المحرك** (‏D-306 مصدَّق · D-308: المرشَّحُ يُخدَم بـ`ar` والمشحونُ كما يُشحن).
+            # بهذا تكتمل الحلقةُ بلا جهاز المالك: تدريبٌ ⇐ مرآةٌ ⇐ **محرّكٌ حقيقيّ** ⇐ نتائجُ على R2.
+            gh workflow run emu-gate.yml -R "$GITHUB_REPOSITORY" -f apk_url="$APK_URL" -f cand_tag="$TAG"               -f sets="g3r:noisy,g1" -f langs="" -f chunk=12               && echo "📱 بوّابةُ المحرك أُطلقت لـ$TAG" || echo "⚠️ تعذّر إطلاقُ emu-gate"
           elif [ "${{ github.event.inputs.chain }}" = "true" ]; then
             echo "⏭ لم يكتمل ($LAST) — أطلق الحلقةَ التالية"
             gh workflow run finetune-train-cpu.yml -R "$GITHUB_REPOSITORY" \
