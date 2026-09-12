@@ -219,7 +219,10 @@ jobs:
             set -- ${{ github.event.inputs.langs }}
             python v2_gate.py --score-only --arms "shipped-$1" "shipped-$2" --md "$M"
           elif [ -n "$T" ]; then
-            python v2_gate.py --score-only --arms shipped "$T-ar" --md "$M"
+            # ⛔ **اللاحقةُ تُمرَّر هنا أيضاً** (‏2026-09-13): كان فرعُ المرشَّح يتجاهل `tag_suffix` كما
+            # كان يتجاهله فرعُ الضابط، فيبحث عن `shipped`/`base-ar` والمسحُ كتب `shipped-B`/`base-ar-B`
+            # ⇒ جدولٌ كلُّه «⏳» **وخروجٌ ناجح**. والعطبُ نفسُه في موضعَين، أُصلح أحدُهما ونُسي الآخر.
+            python v2_gate.py --score-only --arms "shipped$SUF" "$T-ar$SUF" --md "$M"
           else
             # 🛡️ **وضعُ الضابط** (بلا مرشَّح): لا زوجَ يُقارَن، فتُطبع أرقامُ الذراع المشحونة **المطلقة**
             # ليُقابَل بها المرجعُ المعروف (‏9.44٪ اتّهاماً ضجيجاً · G1 96.87٪). وكان يسقط بـ`--arms shipped -ar`.
