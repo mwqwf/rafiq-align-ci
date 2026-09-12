@@ -196,6 +196,7 @@ jobs:
           cp "$(find wsrc/build -name whisper-cli -type f | head -1)" whisper-bin/whisper-cli
           find wsrc/build -name "*.so*" -exec cp {} whisper-bin/ \;
 
+
       # ── المسارات التي تتوقعها العدة كما هي (⛔ لا تعديل على شفرة العدة) ──
       # common.py يبني المسارات من ROOT، وrun_fleet.py يثبّت /root/QuranRafiq
       # و.venv/bin/python — فنُرضيهما بوصلات لا بتحرير سطر واحد منهما.
@@ -295,6 +296,20 @@ jobs:
       #    يدخل المفتاح، وإلا صار الكاش يكذب باسم السرعة** (قاعدة github-82).
       #    وقبل وصول الرقعة تُستعمل قيمةٌ ثابتة تميّز الحقبة القديمة، فلا
       #    تختلط كاشات ما قبلها بما بعدها.
+
+      # ⭐ **برهانُ AVX2 من الأثر لا من أمر البناء** (أمرُ مشرف التقييم 2026-09-12):
+      #    أمرُ `cmake` نيّةٌ، و`system_info` شهادةُ الثنائي عن نفسه. ويُطبع في
+      #    ملخّص الوظيفة كي يُقرأ بلا فتح سجلّ — وهو يعمل مع الكاش وبدونه.
+      #    ⛔ وبلا `--no-prints` عمداً: هي التي تكتم السطر المطلوب.
+      - name: برهان AVX2 (system_info من الثنائي نفسه)
+        run: |
+          set -e
+          ffmpeg -v error -f lavfi -i anullsrc=r=16000:cl=mono -t 0.2 -ar 16000 -ac 1 /tmp/sil.wav
+          info=$(./whisper-bin/whisper-cli -m assets-archive/ggml/ggml-tiny-ar-quran-q8_0.bin -f /tmp/sil.wav -l ar 2>&1                  | grep -m1 "system_info" || true)
+          [ -n "$info" ] || info="⚠️ تعذّرت قراءة system_info"
+          echo "$info"
+          echo "- 🧪 $info" >> "$GITHUB_STEP_SUMMARY"
+
       - name: وسم نسخة VAD
         run: |
           v=$(grep -oE '^VAD_VERSION[[:space:]]*=[[:space:]]*["'"'"']([^"'"'"']+)' \
