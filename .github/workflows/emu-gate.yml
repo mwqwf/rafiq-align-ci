@@ -105,36 +105,21 @@ jobs:
         uses: reactivecircus/android-emulator-runner@v2
         env:
           PYTHONIOENCODING: utf-8
+          APK: app.apk
+          SET: ${{ matrix.set }}
+          CAND_TAG: ${{ github.event.inputs.cand_tag }}
+          LANGS: ${{ github.event.inputs.langs }}
+          CHUNK: ${{ github.event.inputs.chunk }}
         with:
           api-level: 30
           target: google_apis
           arch: x86_64
           profile: pixel_2
           ram-size: 4096M
-          disk-size: 6G
           emulator-options: -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none
           disable-animations: true
-          script: |
-            set -e
-            export RAFIQ_ADB="$ANDROID_HOME/platform-tools/adb"
-            "$RAFIQ_ADB" devices; "$RAFIQ_ADB" install -r -g app.apk
-            "$RAFIQ_ADB" push models/shipped.bin /data/local/tmp/q8_shipped.bin
-            [ -f models/cand.bin ] && "$RAFIQ_ADB" push models/cand.bin /data/local/tmp/q8_${{ github.event.inputs.cand_tag }}.bin || true
-            cd tools/tasmi_bench
-            ARMS="shipped"; [ -n "${{ github.event.inputs.cand_tag }}" ] && ARMS="$ARMS ${{ github.event.inputs.cand_tag }}"
-            LANGS="${{ github.event.inputs.langs }}"
-            for A in $ARMS; do
-              if [ -z "$LANGS" ]; then
-                python emu_sweep.py --set "${{ matrix.set }}" --chain cap --chunk ${{ github.event.inputs.chunk }} \
-                  --tag "$A" --model-path "/data/local/tmp/q8_$A.bin" | tail -3
-              else
-                for L in $LANGS; do
-                  python emu_sweep.py --set "${{ matrix.set }}" --chain cap --chunk ${{ github.event.inputs.chunk }} \
-                    --tag "$A-$L" --model-path "/data/local/tmp/q8_$A.bin" --es lang="$L" | tail -3
-                done
-              fi
-            done
-            ls -l work/hyps_emu_*.json | tail -5
+          # ⛔ سطرٌ واحدٌ فقط: الإجراءُ ينفّذ كلَّ سطرٍ بصدفةٍ منفصلة (‏export و cd لا يعبران).
+          script: bash tools/tasmi_bench/ci_emu_run.sh
       - uses: actions/upload-artifact@v4
         if: always()
         with:
