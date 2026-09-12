@@ -182,11 +182,11 @@ def run_set(set_name, limit=0, chunk=60, timeout_per_file=90, chain=False):
             _ES_VERIFIED = True
             print(f"✅ المسبارُ أقرّ بالإضافات: {' · '.join(EXTRA_ES)}", flush=True)
         deadline = time.time() + timeout_per_file * len(batch) + 120
-        seen, last_n, times = {}, -1, {}
+        seen, last_n, times, judges = {}, -1, {}, {}
         while time.time() < deadline:
             time.sleep(15)
-            log = adb("shell", "logcat", "-d", "-s", "RafiqBatch:*").stdout
-            seen = parse_log(log, times)
+            log = adb("shell", "logcat", "-d", "-s", "RafiqBatch:*", "RafiqJudge:*").stdout
+            seen = parse_log(log, times, judges)
             if "__done__" in log or len(seen) >= len(batch):
                 break
             if len(seen) != last_n:
@@ -194,7 +194,8 @@ def run_set(set_name, limit=0, chunk=60, timeout_per_file=90, chain=False):
                 print(f"    … {len(seen)}/{len(batch)}", flush=True)
         for i in batch:
             t = seen.get(i)
-            done[i] = ({"text": t, "rc": 0, **({"ms": times[i]} if i in times else {})}
+            done[i] = ({"text": t, "rc": 0, **({"ms": times[i]} if i in times else {}),
+                        **({"judge": judges[i]} if i in judges else {})}
                        if t is not None else {"error": "لم يظهر في السجل"})
         json.dump({"meta": meta, "hyps": done}, open(out, "w", encoding="utf-8"), ensure_ascii=False)
         ok = sum(1 for i in batch if i in seen)
@@ -203,7 +204,7 @@ def run_set(set_name, limit=0, chunk=60, timeout_per_file=90, chain=False):
     return done
 
 
-def parse_log(log, times=None):
+def parse_log(log, times=None, judges=None):
     """أسطرُ `RafiqBatch` بصيغة `<id>.wav<TAB><text>`.
 
     ⏱️ ومتى أُعطي [times] تُستخرج **أزمنةُ البنود** من طوابع logcat: زمنُ البند = الفارقُ بين سطره والسطر
@@ -215,7 +216,7 @@ def parse_log(log, times=None):
     prev = None
     first = True
     for ln in log.split("\n"):
-        if "RafiqBatch" not in ln:
+        if "RafiqBatch" not in ln and "RafiqJudge" not in ln:
             continue
         t = None
         ts = re.match(r"^(\d\d-\d\d \d\d:\d\d:\d\d\.\d+)", ln)
