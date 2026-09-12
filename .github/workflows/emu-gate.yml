@@ -1,0 +1,196 @@
+# 🌐 نسخةُ مستودع الحوسبة العامّ — السرُّ الواحد R2_CREDENTIALS_JSON · وKVM متاحٌ لعدّاءات المستودعات العامة
+# 📱 **المحاكي على العدّاء — آخرُ حلقةٍ كانت تربط دورةَ القرار بجهاز المالك** (‏D-305، تكليفُ مشرف التقييم 2026-09-12).
+# بوّابةُ CI مرآةٌ صادقةٌ لكنّها ليست المحرك: `whisper-cli` على لينكس ≠ `whisper.cpp` عبر JNI على أندرويد، وقد فوّتت
+# الاتّهامَ الكاذبَ ضجيجاً مرّتين (‏D-280). وهذا يشغّل **المحركَ نفسَه** داخل محاكي أندرويد على عدّاء GitHub (‏KVM متاحٌ
+# لعدّاءات المستودعات العامة) بالمسبار `whisperBatch` والسائق `emu_sweep.py` عينِه ⇒ **الرقمُ الفاصل بلا جهاز المالك**.
+#   gh workflow run emu-gate.yml -f apk_url=…/apk/app-debug-<sha>.apk -f cand_tag=v5
+# ⚠️ يحتاج APK قابلاً للتنقيح (`FLAG_DEBUGGABLE`) لأنّ مفاتيحَ المسابر محجوبةٌ في غيره — ترفعه جلسةُ التطبيق إلى R2.
+name: emu-gate
+on:
+  workflow_dispatch:
+    inputs:
+      apk_url:
+        description: "رابطُ APK (debuggable) على R2"
+        required: true
+      cand_tag:
+        description: "وسمُ المرشَّح (‏يُقرأ نموذجُه من finetune/out_<tag>/ggml-q8_0.bin؛ فارغٌ = المشحونُ وحدَه)"
+        required: false
+        default: ""
+      sets:
+        description: "المجموعات (مفصولةٌ بفواصل)"
+        required: false
+        default: "g3r:noisy,g1"
+      langs:
+        description: "رموزُ لغة الفكّ للمسبار (‏D-303 — يحتاج APK يدعم `--es lang`)"
+        required: false
+        default: ""
+      chunk:
+        description: "حجمُ الدفعة (‏12 مقيسٌ — 40 تُعلّق المحاكي)"
+        required: false
+        default: "12"
+env:
+  PUB: https://pub-2c2e1dcd92e84a2898820dd38d3e09e6.r2.dev
+  UA: "Mozilla/5.0 (QuranRafiq emu gate)"
+jobs:
+  matrix:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    outputs:
+      sets: ${{ steps.m.outputs.sets }}
+    steps:
+      - id: m
+        run: python3 -c "import json,os;print('sets='+json.dumps('${{ github.event.inputs.sets }}'.split(',')))" >> "$GITHUB_OUTPUT"
+  emu:
+    needs: matrix
+    runs-on: ubuntu-latest
+    timeout-minutes: 350
+    strategy:
+      fail-fast: false
+      matrix:
+        set: ${{ fromJson(needs.matrix.outputs.sets) }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: r2 creds (من السرّ الواحد R2_CREDENTIALS_JSON)
+        env:
+          R2_CREDENTIALS_JSON: ${{ secrets.R2_CREDENTIALS_JSON }}
+        run: |
+          mkdir -p secure && printf '%s' "$R2_CREDENTIALS_JSON" > secure/r2_credentials.json
+          python3 - <<'PY2'
+          import json, os
+          c = json.load(open("secure/r2_credentials.json"))
+          keys = {"R2_ENDPOINT": c["endpoint"], "R2_ACCESS_KEY_ID": c["accessKeyId"], "R2_SECRET_ACCESS_KEY": c["secretAccessKey"], "R2_BUCKET": c["bucket"]}
+          env = open(os.environ["GITHUB_ENV"], "a")
+          for k, v in keys.items():
+              print("::add-mask::" + v); env.write(k + "=" + v + chr(10))
+          env.close()
+          PY2
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "17"
+      - name: KVM للمحاكي (عدّاءُ المستودع العامّ يدعم التعشيش)
+        run: |
+          echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
+          sudo udevadm control --reload-rules && sudo udevadm trigger --name-match=kvm
+          ls -l /dev/kvm || echo "⛔ لا /dev/kvm — المحاكي لن يقلع"
+      - name: العدّة والمجموعات والنماذج
+        run: |
+          pip install -q numpy soundfile scipy
+          mkdir -p models
+          curl -sSL -f -A "$UA" -o models/shipped.bin "$PUB/models/whisper-tiny-ar-quran/ggml-q8_0.bin"
+          if [ -n "${{ github.event.inputs.cand_tag }}" ]; then
+            curl -sSL -f -A "$UA" -o models/cand.bin "$PUB/finetune/out_${{ github.event.inputs.cand_tag }}/ggml-q8_0.bin"
+          fi
+          curl -sSL -f -A "$UA" -o app.apk "${{ github.event.inputs.apk_url }}"; ls -l models app.apk
+      - name: مجموعاتُ القياس (كاشُ tasmi-gate نفسُه)
+        id: sets
+        uses: actions/cache@v4
+        with:
+          path: tools/tasmi_bench/work/sets.tar
+          key: tasmi-sets-${{ hashFiles('tools/tasmi_bench/sample.json', 'tools/tasmi_bench/inject_plan_riwaya.json', 'tools/tasmi_bench/augment.py', 'tools/tasmi_bench/augment_learner.py', 'tools/tasmi_bench/inject_riwaya_local.py') }}
+      - name: بناءُ المجموعات إن غاب الكاش
+        if: steps.sets.outputs.cache-hit != 'true'
+        run: |
+          sudo apt-get install -y -qq ffmpeg > /dev/null
+          pip install -q boto3
+          cd tools/tasmi_bench
+          python fetch_audio.py && python augment.py --only noise-fan-5 && python augment_learner.py --only learner-combo && python inject_riwaya_local.py
+          tar -cf work/sets.tar -C work wav g2/noise-fan-5 g2/learner-combo g3r/clean g3r/noisy
+      - name: فكُّ المجموعات
+        run: cd tools/tasmi_bench/work && tar -xf sets.tar && rm -f sets.tar && ls -d wav g3r g2 2>/dev/null
+      - name: المحاكي + السائقُ نفسُه (‏emu_sweep)
+        uses: reactivecircus/android-emulator-runner@v2
+        env:
+          PYTHONIOENCODING: utf-8
+        with:
+          api-level: 30
+          target: google_apis
+          arch: x86_64
+          profile: pixel_2
+          ram-size: 4096M
+          disk-size: 6G
+          emulator-options: -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none
+          disable-animations: true
+          script: |
+            set -e
+            export RAFIQ_ADB="$ANDROID_HOME/platform-tools/adb"
+            "$RAFIQ_ADB" devices; "$RAFIQ_ADB" install -r -g app.apk
+            "$RAFIQ_ADB" push models/shipped.bin /data/local/tmp/q8_shipped.bin
+            [ -f models/cand.bin ] && "$RAFIQ_ADB" push models/cand.bin /data/local/tmp/q8_${{ github.event.inputs.cand_tag }}.bin || true
+            cd tools/tasmi_bench
+            ARMS="shipped"; [ -n "${{ github.event.inputs.cand_tag }}" ] && ARMS="$ARMS ${{ github.event.inputs.cand_tag }}"
+            LANGS="${{ github.event.inputs.langs }}"
+            for A in $ARMS; do
+              if [ -z "$LANGS" ]; then
+                python emu_sweep.py --set "${{ matrix.set }}" --chain cap --chunk ${{ github.event.inputs.chunk }} \
+                  --tag "$A" --model-path "/data/local/tmp/q8_$A.bin" | tail -3
+              else
+                for L in $LANGS; do
+                  python emu_sweep.py --set "${{ matrix.set }}" --chain cap --chunk ${{ github.event.inputs.chunk }} \
+                    --tag "$A-$L" --model-path "/data/local/tmp/q8_$A.bin" --es lang="$L" | tail -3
+                done
+              fi
+            done
+            ls -l work/hyps_emu_*.json | tail -5
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: emu-${{ strategy.job-index }}
+          path: tools/tasmi_bench/work/hyps_emu_*.json
+          retention-days: 7
+          if-no-files-found: ignore
+  judge:
+    needs: emu
+    if: always()
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - name: r2 creds (من السرّ الواحد R2_CREDENTIALS_JSON)
+        env:
+          R2_CREDENTIALS_JSON: ${{ secrets.R2_CREDENTIALS_JSON }}
+        run: |
+          mkdir -p secure && printf '%s' "$R2_CREDENTIALS_JSON" > secure/r2_credentials.json
+          python3 - <<'PY2'
+          import json, os
+          c = json.load(open("secure/r2_credentials.json"))
+          keys = {"R2_ENDPOINT": c["endpoint"], "R2_ACCESS_KEY_ID": c["accessKeyId"], "R2_SECRET_ACCESS_KEY": c["secretAccessKey"], "R2_BUCKET": c["bucket"]}
+          env = open(os.environ["GITHUB_ENV"], "a")
+          for k, v in keys.items():
+              print("::add-mask::" + v); env.write(k + "=" + v + chr(10))
+          env.close()
+          PY2
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - run: pip install -q numpy boto3 soundfile
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: emu-*
+          merge-multiple: true
+          path: tools/tasmi_bench/work
+      - name: الحكمُ على المحرك
+        env:
+          PYTHONIOENCODING: utf-8
+        run: |
+          cd tools/tasmi_bench
+          ls work/hyps_emu_*.json || { echo "⛔ لا مخرَج من المحاكي"; exit 1; }
+          T="${{ github.event.inputs.cand_tag }}"; M="work/emu_${T:-shipped}.md"
+          if [ -n "${{ github.event.inputs.langs }}" ]; then
+            set -- ${{ github.event.inputs.langs }}
+            python v2_gate.py --score-only --arms "shipped-$1" "shipped-$2" --md "$M"
+          else
+            python v2_gate.py --score-only --arms shipped "$T" --md "$M"
+          fi
+          { echo "### 📱 emu-gate (المحركُ داخل محاكي العدّاء)"; cat "$M"; } >> "$GITHUB_STEP_SUMMARY"
+      - name: رفعٌ إلى R2
+        run: |
+          cd tools/tasmi_bench
+          T="${{ github.event.inputs.cand_tag }}"; T="${T:-shipped}"
+          ARGS="work/emu_$T.md finetune/gate/$T/emu.md"
+          for f in work/hyps_emu_*.json; do ARGS="$ARGS $f finetune/gate/$T/emu_$(basename $f)"; done
+          python ../finetune/r2_put.py $ARGS
+          echo "☁️ $PUB/finetune/gate/$T/emu.md"

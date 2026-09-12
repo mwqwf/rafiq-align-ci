@@ -36,6 +36,12 @@ MODEL = f"/data/data/{PKG}/files/models/whisper-tiny-ar-quran-q8_0.bin"
 # ⛔ ولا يُقارَن نموذجٌ مكمَّم بنموذجٍ كاملِ الدقّة — يُحوَّل الطرفان بالطريقة نفسِها.
 REMOTE = "/data/local/tmp/bench"
 ADB = os.path.join(os.environ.get("LOCALAPPDATA", ""), "Android", "Sdk", "platform-tools", "adb.exe")
+# 🐧 D-305: السائقُ نفسُه يعمل على عدّاء لينكس (محاكي CI) — `RAFIQ_ADB` يغلب، ثمّ `adb` من المسار إن غاب مسارُ وندوز.
+if os.environ.get("RAFIQ_ADB"):
+    ADB = os.environ["RAFIQ_ADB"]
+elif not os.path.exists(ADB):
+    import shutil as _sh
+    ADB = _sh.which("adb") or ADB
 
 CONDITIONS = ["g1"] + ["g2:" + c for c in [
     "gain-20", "gain-30", "gain-40",
@@ -137,6 +143,10 @@ def run_set(set_name, limit=0, chunk=60, timeout_per_file=90, chain=False):
         # 🧪 عزلُ السقف: `caponly` = سقفٌ 10 بلا بوّابة · `gateonly` = بوّابةٌ بسقفِ 25 (المشحون)
         cap = {"caponly": 10, "gateonly": 25, "cap": 10, "chain": 10}.get(chain, 25)
         args += ["--ei", "groupCap", str(cap)]
+        # 🔤 D-303: إضافاتُ نيّةٍ حرّةٌ (‏`--es lang=ar`) تُمرَّر كما هي — بها يُقاس رمزُ اللغة على البناء نفسِه بلا إعادة بناء.
+        for kv in EXTRA_ES:
+            k, _, v = kv.partition("=")
+            args += ["--es", k, v]
         adb(*args)
         deadline = time.time() + timeout_per_file * len(batch) + 120
         seen, last_n = {}, -1
@@ -174,6 +184,7 @@ def parse_log(log):
     return out
 
 
+EXTRA_ES = []        # إضافاتُ نيّةٍ نصّيّة من `--es` (D-303)
 LOCK = os.path.join(WORK, ".emu_sweep.lock")
 
 
@@ -213,6 +224,8 @@ def release_lock():
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--model-path", help="نموذجٌ بديلٌ على الجهاز (مسارٌ مطلق)")
+    ap.add_argument("--es", action="append", default=[], metavar="KEY=VAL",
+                    help="إضافةُ نيّةٍ نصّيّةٌ تُمرَّر إلى المسبار كما هي (تتكرّر) — مثل `--es lang=ar`")
     ap.add_argument("--set", default="g1")
     ap.add_argument("--all", action="store_true")
     ap.add_argument("--limit", type=int, default=0)
@@ -228,6 +241,10 @@ def main():
         global MODEL
         MODEL = args.model_path
         print(f"⚙️ النموذج: {MODEL}")
+    if args.es:
+        global EXTRA_ES
+        EXTRA_ES = list(args.es)
+        print(f"🔤 إضافاتُ نيّة: {' · '.join(EXTRA_ES)}")
 
     if not os.path.exists(ADB):
         print(f"⛔ لا adb في {ADB}")
