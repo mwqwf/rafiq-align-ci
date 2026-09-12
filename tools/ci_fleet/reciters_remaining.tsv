@@ -18,8 +18,26 @@
 #    `actions/cache` فيه رقمُ الشاردة لا اسمُ القارئ. فحذفُ صفٍّ من **رأس**
 #    القائمة يُزيح كلَّ من تحته **فيخسرون كاشَهم كلَّهم** (‏ساعاتِ عملٍ محفوظة).
 #    ⇒ حين خرج `maroush_qalun` من الخانة **0** وُضع `noah_warsh` مكانَه لأنّه
-#    **جديدٌ لا كاشَ له يخسره**، فبقي harraz على 1 و noah_qalun على 2
-#    و asim على 3 و f_hajry على 4 كما كانوا في الموجة `34662493606`.
+#    **جديدٌ لا كاشَ له يخسره**.
+#
+# 📐 والترتيبُ أدناه **مقيسٌ من الكاش الحيّ لا مقدَّر** (‏قُرئ بـ`gh cache list`
+#    ‏07:2xZ بعد موت الموجة `34662493606` بسقف الست ساعات). وخانةُ كلّ قارئٍ
+#    في تلك الموجة وحجمُ ما حُفظ له:
+#      0 maroush 0.4م.ب · **1 harraz 237م.ب** · 2 kholti 25.8م.ب ·
+#      **3 noah_qalun 169.7م.ب** · 4 h_saleh 2.3م.ب · 5 saad 178م.ب ·
+#      **6 asim 514.3م.ب** · 7 mhsny 160م.ب · 8 janaini 0.2م.ب ·
+#      **9 f_hajry — لا كاشَ له البتّة** (‏قُتلت شاردتُه قبل خطوة الحفظ) ·
+#      10 h_dukhain 1.8م.ب (‏رُقّي) · 11 فارغة.
+#    ⇒ فالصفوفُ رُتّبت لتُصيب أكبرَ ما يمكن إصابتُه بخمسة صفوف:
+#      **harraz على 1** و**noah_qalun على 3** (‏وهو قالون = أولويّةُ الرواية)
+#      = 407م.ب مستأنَفة. و`asim` **يخسر 514م.ب اضطراراً**: كاشُه على الخانة
+#      **6** ولا يُبلَغ إلا بقائمةٍ من سبعة صفوف، وليس عندنا إلا خمسةُ قرّاء —
+#      وحشوُ الخانات 2·4·5 بصفوفٍ وهميّة يحرق ثلاثةَ عدّائين ستَّ ساعاتٍ لأجل
+#      استئنافِ واحد، فهو خسارةٌ صافية. و`f_hajry` و`noah_warsh` وُضعا على
+#      الخانات الميّتة (0·2·4) **لأنّهما لا يملكان كاشاً يخسرانه**.
+#    ⛔ والعلّةُ الجذريّةُ أنّ مفتاحَ الكاش يحمل **رقمَ الخانة لا اسمَ القارئ**
+#      — وهي تُعالَج في `align.yml` نفسِه (‏مفتاحٌ باسم القارئ وسقوطٌ إلى مفتاح
+#      الخانة) حتى لا يبقى ترتيبُ هذا الملفِّ قيداً على أحد.
 #    (‏وما يستعيده noah_warsh من كاشِ maroush غيرُ ضارّ: مجلّدُ العمل مفصولٌ
 #     باسم القارئ `WORK/batch_{reciter}` فلا يُتلَف ولا يُتخطّى شيء.)
 # ➡️ ونُقل maroush_qalun إلى `reciters_ac256.tsv` (‏حكمُه «مرفوض · خلل بنيوي» —
@@ -27,6 +45,6 @@
 #    لأنّ الكاشَ يبطل بتغيير `ac`، وبقاؤه هنا كان يُعيد البصمةَ نفسَها بـac=0.
 noah_warsh	warsh	https://archive.org/download/Al-Quran_Warsh_tilawat_Youssef_Noah/{surah:03d}.mp3	4
 harraz_warsh	warsh	https://server16.mp3quran.net/H-Lharraz/Rewayat-Warsh-A-n-Nafi/{surah:03d}.mp3	4
-noah_qalun	qalun	https://archive.org/download/Al-Quran_Qaloon_tilawat_Yousuf_Nooh_Ahmad/{surah:03d}.mp3	4
 asim	hafs	https://server7.mp3quran.net/asim/Rewayat-Hafs-A-n-Assem/{surah:03d}.mp3	4
+noah_qalun	qalun	https://archive.org/download/Al-Quran_Qaloon_tilawat_Yousuf_Nooh_Ahmad/{surah:03d}.mp3	4
 f_hajry	hafs	https://server16.mp3quran.net/f_hajry/Rewayat-Hafs-A-n-Assem/{surah:03d}.mp3	4
