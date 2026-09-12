@@ -139,8 +139,8 @@ class Transcriber:
     """
 
     def __init__(self, model_path, device="cpu", frontend="old", threads=4, gate=False,
-                 group_cap=WINDOW_SECONDS * SR, backend="hf", cli=None):
-        self.backend, self.cli, self.model_path, self.threads = backend, cli, model_path, threads
+                 group_cap=WINDOW_SECONDS * SR, backend="hf", cli=None, lang="en"):
+        self.backend, self.cli, self.model_path, self.threads, self.lang = backend, cli, model_path, threads, lang
         self.device = device
         self.frontend = frontend
         self.gate = gate
@@ -214,8 +214,9 @@ class Transcriber:
             _sf.write(tmp, np.asarray(audio, dtype=np.float32), SR, subtype="PCM_16")
             # مرآةُ `jni.c` حرفاً: `language = "en"` (لا ar — قِيس أن الفارق داخل مجال الثقة نظيفاً، لكنّ الاتّهامَ ضجيجاً عند حدّ
             # القرار يتأثّر بكل شيء) · greedy · هبوطُ الحرارة الافتراضيّ · no_context لا أثرَ له في نافذةٍ واحدة ≤ 30ث.
-            r = subprocess.run([self.cli, "-m", self.model_path, "-f", tmp, "-l", "en", "-t", str(self.threads),
-                                "-bo", "1", "-bs", "1", "-nt", "-np"], capture_output=True, text=True,
+            # 🔤 D-298: رمزُ اللغة صار **معاملَ تجربةٍ لا ثابتاً** — المحركُ يفكّ بـ`en` والتدريبُ يُلصق `<|ar|>`.
+            r = subprocess.run([self.cli, "-m", self.model_path, "-f", tmp, "-l", self.lang, "-t", str(self.threads),
+                                "-bo", "1", "-bs", "1", "-nt", "-np", "-nc"], capture_output=True, text=True,
                                encoding="utf-8", errors="replace")
             os.remove(tmp)
             if r.returncode:
@@ -372,6 +373,7 @@ def main():
     ap.add_argument("--backend", default="hf", choices=["hf", "cli"],
                     help="hf = transformers fp32 (المرآة) · cli = whisper-cli بالنموذج q8 نفسِه (مرآةُ المحرك على CI)")
     ap.add_argument("--cli", default=os.environ.get("WHISPER_CLI", ""), help="مسارُ whisper-cli مع --backend cli")
+    ap.add_argument("--lang", default="en", help="رمزُ لغة الفكّ مع --backend cli (en = ما يفعله المحرك اليوم · ar = ما دُرِّب عليه النموذج)")
     ap.add_argument("--parity", help="مخرَجُ whisperBatch من المحاكي للمقارنة الحرفية")
     ap.add_argument("--hyps", help="مع --parity: ملفُّ الفرضيات المحلي")
     args = ap.parse_args()
@@ -417,11 +419,12 @@ def main():
     print(f"⏳ تحميل {model_path} …", flush=True)
     t0 = time.time()
     tr = Transcriber(model_path, frontend=args.frontend, threads=args.threads, gate=args.gate,
-                     group_cap=int(args.group_cap * SR), backend=args.backend, cli=args.cli)
+                     group_cap=int(args.group_cap * SR), backend=args.backend, cli=args.cli, lang=args.lang)
     load_ms = int((time.time() - t0) * 1000)
     meta = {"model": args.model, "modelPath": str(model_path), "set": tag,
             "frontend": args.frontend,
-            "engine": ("whisper.cpp/whisper-cli q8 (مرآةُ المحرك على CI)" if args.backend == "cli"
+            "lang": args.lang,
+            "engine": (f"whisper.cpp/whisper-cli q8 · -l {args.lang} · -nc (مرآةُ المحرك على CI)" if args.backend == "cli"
                        else "transformers-cpu (مرآة LongAudioTranscriber)"), "loadMs": load_ms,
             "flags": "num_beams=1, do_sample=False (greedy — مرآة -bo 1 -bs 1)"}
     print(f"✅ حُمّل في {load_ms/1000:.1f}ث — {len(ids)} بنداً ({len(done)} منجزٌ سابقاً)", flush=True)

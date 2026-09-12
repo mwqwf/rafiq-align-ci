@@ -1,4 +1,4 @@
-# 🌐 نسخةُ مستودع الحوسبة العامّ (دقائقُ Actions بلا حدّ) — السكربتات مرآةُ QuranRafiq/tools · السرُّ الواحد R2_CREDENTIALS_JSON
+# 🌐 نسخةُ مستودع الحوسبة العامّ — السرُّ الواحد R2_CREDENTIALS_JSON
 # ⚖️ **بوّابةُ التسميع على CI — مرآةُ المحرك بلا جهاز المالك** (أمرُ المالك 2026-09-11: ما يعيق العمل بلا جهازه يُقدَّم).
 # تبني مجموعاتِ القياس نفسَها (‏G1 · مروحة 5 · سلوكُ المتعلّم · g3r نظيفاً وضجيجاً) من مصادرها الأصلية على شبكة GitHub
 # (لا يُعاد نشرُ صوتٍ — D-024)، وتبني whisper.cpp، ثم تفرّغ الذراعين (المشحون · المرشَّح) بالنموذج q8 **نفسِه** الذي يحمله
@@ -19,6 +19,10 @@ on:
         description: "رابطُ النموذج المشحون q8"
         required: false
         default: "https://pub-2c2e1dcd92e84a2898820dd38d3e09e6.r2.dev/models/whisper-tiny-ar-quran/ggml-q8_0.bin"
+      langs:
+        description: "رموزُ لغة الفكّ (‏D-298: `en` ما يفعله المحركُ اليوم · `ar` ما دُرِّب عليه النموذج). المتعدّدُ يعطي أربعَ ذُرع."
+        required: false
+        default: "en ar"
 env:
   UA: "Mozilla/5.0 (QuranRafiq tasmi gate)"
 jobs:
@@ -50,7 +54,11 @@ jobs:
           pip install -q numpy soundfile scipy boto3
       - name: whisper.cpp (ثنائيٌّ ساكن)
         run: |
-          git clone -q --depth 1 https://github.com/ggml-org/whisper.cpp /tmp/wcpp
+          # 📌 D-298: يُثبَّت على إيداع `third_party/whisper.cpp` الذي يُبنى منه المحركُ المشحون — وإلا قِيس بمحرّكٍ آخر.
+          WCPP_SHA=c4ac0012a8f5a2082dfca6aad4ddfd8b2c02b337
+          mkdir -p /tmp/wcpp && git -C /tmp/wcpp init -q \
+            && git -C /tmp/wcpp fetch -q --depth 1 https://github.com/ggml-org/whisper.cpp "$WCPP_SHA" \
+            && git -C /tmp/wcpp checkout -q FETCH_HEAD && echo "whisper.cpp @ $(git -C /tmp/wcpp rev-parse --short HEAD)"
           cmake -S /tmp/wcpp -B /tmp/wcpp/build -DCMAKE_BUILD_TYPE=Release -DBUILD_SHARED_LIBS=OFF -DWHISPER_BUILD_TESTS=OFF > /dev/null
           cmake --build /tmp/wcpp/build --config Release -j"$(nproc)" --target whisper-cli > /dev/null
           mkdir -p bin && cp /tmp/wcpp/build/bin/whisper-cli bin/ && bin/whisper-cli --help 2>&1 | head -2
@@ -131,8 +139,14 @@ jobs:
         run: |
           cd tools/tasmi_bench
           T=$(echo "${{ matrix.set }}" | sed 's/:/-/')
-          python local_whisper.py --backend cli --model "$GITHUB_WORKSPACE/models/shipped.bin" --set "${{ matrix.set }}" --gate --group-cap 10 --threads 4 --out "work/hyps_ci-shipped_${T}_gate_cap10.json" | tail -2
-          python local_whisper.py --backend cli --model "$GITHUB_WORKSPACE/models/cand.bin"    --set "${{ matrix.set }}" --gate --group-cap 10 --threads 4 --out "work/hyps_ci-${{ github.event.inputs.tag }}_${T}_gate_cap10.json" | tail -2
+          for L in ${{ github.event.inputs.langs }}; do
+            for A in shipped cand; do
+              [ "$A" = "shipped" ] && ARM="ci-shipped-$L" || ARM="ci-${{ github.event.inputs.tag }}-$L"
+              echo "▶ $T · $ARM"
+              python local_whisper.py --backend cli --model "$GITHUB_WORKSPACE/models/$A.bin" --set "${{ matrix.set }}" \
+                --gate --group-cap 10 --threads 4 --lang "$L" --out "work/hyps_${ARM}_${T}_gate_cap10.json" | tail -1
+            done
+          done
       - uses: actions/upload-artifact@v4
         with:
           name: hyps-${{ strategy.job-index }}
@@ -173,8 +187,20 @@ jobs:
         run: |
           cd tools/tasmi_bench
           ls work/hyps_ci-*.json
-          python v2_gate.py --pattern "work/hyps_{arm}_{tag}_gate_cap10.json" --arms ci-shipped "ci-${{ github.event.inputs.tag }}" --md work/gate_${{ github.event.inputs.tag }}.md
-          { echo "### ⚖️ tasmi-gate · ${{ github.event.inputs.tag }} (مرآةُ المحرك على CI)"; cat work/gate_${{ github.event.inputs.tag }}.md; } >> "$GITHUB_STEP_SUMMARY"
+          TAG="${{ github.event.inputs.tag }}"; M="work/gate_$TAG.md"; : > "$M"
+          # 🔬 D-298: أربعُ مقارناتٍ تعزل أثرَ رمز اللغة عن أثر الضبط — كلُّها على البنود عينِها.
+          for L in ${{ github.event.inputs.langs }}; do
+            echo "### 🔤 المرشَّح مقابل المشحون · كلاهما \`-l $L\`" >> "$M"
+            python v2_gate.py --pattern "work/hyps_{arm}_{tag}_gate_cap10.json" --arms "ci-shipped-$L" "ci-$TAG-$L" --md "work/_p.md" && cat work/_p.md >> "$M"
+          done
+          set -- ${{ github.event.inputs.langs }}
+          if [ $# -ge 2 ]; then
+            for A in shipped "$TAG"; do
+              echo "### 🔤 أثرُ رمز اللغة وحدَه على \`$A\` (‏$1 ⇐ $2)" >> "$M"
+              python v2_gate.py --pattern "work/hyps_{arm}_{tag}_gate_cap10.json" --arms "ci-$A-$1" "ci-$A-$2" --md "work/_p.md" && cat work/_p.md >> "$M"
+            done
+          fi
+          { echo "### ⚖️ tasmi-gate · $TAG (مرآةُ المحرك على CI · whisper.cpp مثبَّت · -nc)"; cat "$M"; } >> "$GITHUB_STEP_SUMMARY"
       - name: رفعُ النتائج إلى R2
         run: |
           cd tools/tasmi_bench
