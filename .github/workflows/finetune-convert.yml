@@ -1,0 +1,89 @@
+# 🌐 نسخةُ مستودع الحوسبة العامّ — السرُّ الواحد R2_CREDENTIALS_JSON
+# ⚡ **حكمٌ على نقطة الحفظ الوسيطة — أسرعُ مكسبٍ مجّانيّ في دورة القرار** (‏D-297).
+# الدورةُ كانت: تدريبٌ 11 ساعة ⇐ ثمّ نعلم أنه رسب. وهذه تحوّلها إلى: **نعلم عند أوّل تقييم** (‏الخطوة 400 ≈ الساعةُ الخامسة).
+# تنزّل `best.tar` (أو last/final) من R2، تحوّلها إلى ggml q8_0 بايثونياً، ترفعها إلى `finetune/out_<out_tag>/`، ثمّ تُطلق `tasmi-gate` عليها.
+#   gh workflow run finetune-convert.yml -f prefix=finetune/out_v4 -f source=best -f out_tag=v4mid
+# ⛔ الوسمُ مستقلٌّ (`v4mid`) كي لا يكتب فوق نموذج الجولة النهائيّ. والتدريبُ يمضي بلا مساس.
+name: finetune-convert
+on:
+  workflow_dispatch:
+    inputs:
+      prefix:
+        description: "بادئةُ نقطة الحفظ على R2"
+        required: false
+        default: "finetune/out_v4"
+      source:
+        description: "أيُّ نقطة: best · last · final"
+        required: false
+        default: "best"
+      out_tag:
+        description: "وسمُ المرشَّح الناتج (‏out_<tag> على R2 وفي البوّابة)"
+        required: false
+        default: "v4mid"
+      gate:
+        description: "أطلق tasmi-gate على الناتج"
+        required: false
+        default: "true"
+permissions:
+  actions: write
+  contents: read
+env:
+  PUB: https://pub-2c2e1dcd92e84a2898820dd38d3e09e6.r2.dev
+  UA: "Mozilla/5.0 (QuranRafiq finetune convert)"
+jobs:
+  convert:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v4
+      - name: r2 creds (من السرّ الواحد R2_CREDENTIALS_JSON)
+        env:
+          R2_CREDENTIALS_JSON: ${{ secrets.R2_CREDENTIALS_JSON }}
+        run: |
+          mkdir -p secure && printf '%s' "$R2_CREDENTIALS_JSON" > secure/r2_credentials.json
+          python3 - <<'PY2'
+          import json, os
+          c = json.load(open("secure/r2_credentials.json"))
+          keys = {"R2_ENDPOINT": c["endpoint"], "R2_ACCESS_KEY_ID": c["accessKeyId"], "R2_SECRET_ACCESS_KEY": c["secretAccessKey"], "R2_BUCKET": c["bucket"]}
+          env = open(os.environ["GITHUB_ENV"], "a")
+          for k, v in keys.items():
+              print("::add-mask::" + v); env.write(k + "=" + v + chr(10))
+          env.close()
+          PY2
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: deps + نقطةُ الحفظ
+        run: |
+          pip install -q torch --index-url https://download.pytorch.org/whl/cpu
+          pip install -q transformers numpy boto3
+          sudo mkdir -p /mnt/ft && sudo chown -R "$USER" /mnt/ft && mkdir -p /mnt/ft/ckpt
+          S="${{ github.event.inputs.source }}"
+          curl -sSL -f -A "$UA" -o "/mnt/ft/$S.tar" "$PUB/${{ github.event.inputs.prefix }}/$S.tar?t=$(date +%s)"
+          tar -xf "/mnt/ft/$S.tar" -C /mnt/ft/ckpt && rm -f "/mnt/ft/$S.tar"
+          ls -l "/mnt/ft/ckpt/$S" | head
+          python3 - "/mnt/ft/ckpt/$S" <<'PY'
+          import json, os, sys
+          d = sys.argv[1]
+          st = os.path.join(d, "step.json")
+          print("محتوى النقطة:", sorted(os.listdir(d))[:12])
+          if os.path.exists(st): print("الخطوة:", json.load(open(st)))
+          PY
+      - name: ggml q8_0
+        run: |
+          S="${{ github.event.inputs.source }}"
+          bash tools/finetune/to_ggml.sh "/mnt/ft/ckpt/$S" /mnt/ft/ggml /mnt/ft
+          ls -l /mnt/ft/ggml
+      - name: رفعٌ إلى R2
+        run: |
+          T="${{ github.event.inputs.out_tag }}"
+          python tools/finetune/r2_put.py /mnt/ft/ggml/ggml-q8_0.bin "finetune/out_$T/ggml-q8_0.bin"
+          echo "☁️ $PUB/finetune/out_$T/ggml-q8_0.bin"
+      - name: أطلق البوّابة
+        if: github.event.inputs.gate == 'true'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          T="${{ github.event.inputs.out_tag }}"
+          gh workflow run tasmi-gate.yml -R "$GITHUB_REPOSITORY" -f cand_url="$PUB/finetune/out_$T/ggml-q8_0.bin" -f tag="$T" \
+            && echo "⚖️ بوّابةُ $T أُطلقت — الجدولُ سيكون على finetune/gate/$T/summary.md"

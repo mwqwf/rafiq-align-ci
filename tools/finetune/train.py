@@ -247,6 +247,11 @@ def main():
     # المرساة: خسارةُ KL بين توزيع الطالب وتوزيع النموذج الأساس المجمَّد على الدفعة نفسِها (تعليمٌ قسريّ بالعناوين نفسِها)،
     # موزونةٌ بمطابقة الأساس للعنوان (‏`--anchor-by-match`: حيث يصيب الأساسُ يُثبَّت، وحيث يخطئ — ورشٌ وقالون — يتعلّم).
     ap.add_argument("--anchor-kl", type=float, default=0.0, help="وزنُ مرساة KL إلى النموذج الأساس (0 = بلا مرساة)")
+    # ⚡ D-297: تجميدُ المشفّر — تسريعٌ وعلاجٌ معاً. مشفّرُ whisper يعالج 1500 إطارَ ميل في كلِّ دفعة (أثقلُ من المفكّك
+    # بمراتب)، فتجميدُه يُسقط تفاضلَه؛ ومع المرساة يُحسب **مرّةً واحدة** ويُمرَّر للطالب والمعلّم معاً (وزنُهما واحدٌ حينئذٍ
+    # بالضرورة) ⇒ ثلاثةُ مرورات مشفِّرٍ تصير واحداً. ⭐ وهو علاجٌ لأنّ العطبَ المقيس (D-295) نسيانٌ **صوتيّ**
+    # (تغبيشُ قرّاءٍ لم يُرَوا)، وفرقُ الروايات معجميٌّ رسميّ يسكن المفكّك ⇒ يُتعلَّم ما يلزم ويُصان ما يُنسى.
+    ap.add_argument("--freeze-encoder", action="store_true", help="جمّدْ مشفّرَ whisper (تسريعٌ ~3× وصونٌ للمتانة الصوتية)")
     ap.add_argument("--anchor-by-match", action="store_true", help="وزنُ المرساة لكلِّ مقطعٍ = مطابقةُ الأساس للعنوان من audit.json (1.0 إن غاب)")
     ap.add_argument("--anchor-temp", type=float, default=1.0)
     ap.add_argument("--drop-edge", type=float, default=0.0,
@@ -322,7 +327,7 @@ def main():
         if per.get(k, 0) < args.eval_n // n_riw: held.append(r); per[k] = per.get(k, 0) + 1
         else: train.append(r)
     hours = sum(r.get("seconds", 0) for r in train) / 3600
-    print(f"train {len(train)} ({hours:.1f} h) · held {len(held)} · riwayat {per} · missing {missing} · device {dev} · target={args.target} · no_trim={args.no_trim}", flush=True)
+    print(f"train {len(train)} ({hours:.1f} h) · held {len(held)} · riwayat {per} · missing {missing} · device {dev} · target={args.target} · no_trim={args.no_trim} · frozen_enc={args.freeze_encoder}", flush=True)
 
     proc = WhisperProcessor.from_pretrained(args.base)
     proc.tokenizer.set_prefix_tokens(language="arabic", task="transcribe")
@@ -330,6 +335,11 @@ def main():
     if args.specaug:
         c = model.config
         c.apply_spec_augment, c.mask_time_prob, c.mask_time_length, c.mask_feature_prob, c.mask_feature_length = True, 0.05, 10, 0.05, 10
+    if args.freeze_encoder:
+        for q in model.model.encoder.parameters(): q.requires_grad_(False)
+        model.model.encoder.eval()
+        n_tr = sum(q.numel() for q in model.parameters() if q.requires_grad)
+        print(f"🧊 المشفّرُ مجمَّد — يُدرَّب {n_tr/1e6:.1f}م من {sum(q.numel() for q in model.parameters())/1e6:.1f}م وسيط", flush=True)
     teacher = None
     if args.anchor_kl > 0:
         teacher = WhisperForConditionalGeneration.from_pretrained(args.base).to(dev).eval()
@@ -340,7 +350,8 @@ def main():
     fe = proc.feature_extractor
 
     steps_total = args.max_steps or int(math.ceil((len(train) // args.bs) * args.epochs / args.accum))
-    opt = torch.optim.AdamW(model.parameters(), lr=args.lr, weight_decay=0.01)
+    trainable = [q for q in model.parameters() if q.requires_grad]
+    opt = torch.optim.AdamW(trainable, lr=args.lr, weight_decay=0.01)
     sched = torch.optim.lr_scheduler.LambdaLR(opt, lambda s: min(1, (s + 1) / args.warmup) * max(0.0, 1 - s / steps_total))
     scaler = torch.amp.GradScaler("cuda", enabled=(dev == "cuda"))
     os.makedirs(args.out, exist_ok=True)
@@ -389,11 +400,16 @@ def main():
         for waves, labels, metas in dl:
             x, labels = feats(fe, waves, dev), labels.to(dev)
             with autocast(dev):
-                out = model(input_features=x, labels=labels)
+                enc = None
+                if args.freeze_encoder:
+                    # المشفّرُ مجمَّدٌ ⇒ مخرَجُه لا يتغيّر بالتدريب وهو **عينُه** مخرَجُ المعلّم (وزنٌ واحد) ⇒ مرورٌ واحدٌ يكفي الثلاثة.
+                    with torch.no_grad():
+                        enc = model.model.encoder(x)
+                out = model(labels=labels, **({"encoder_outputs": enc} if enc is not None else {"input_features": x}))
                 loss = out.loss
                 if teacher is not None:
                     with torch.no_grad():
-                        t_logits = teacher(input_features=x, labels=labels).logits
+                        t_logits = teacher(labels=labels, **({"encoder_outputs": enc} if enc is not None else {"input_features": x})).logits
                     mask = (labels != -100).float()
                     lp = torch.log_softmax(out.logits.float() / args.anchor_temp, -1)
                     tp = torch.softmax(t_logits.float() / args.anchor_temp, -1)
@@ -406,7 +422,7 @@ def main():
                 loss = loss / args.accum
             scaler.scale(loss).backward(); run_loss += loss.item(); micro += 1; micro_in_epoch += 1
             if micro % args.accum: continue
-            scaler.unscale_(opt); torch.nn.utils.clip_grad_norm_(model.parameters(), 1.0)
+            scaler.unscale_(opt); torch.nn.utils.clip_grad_norm_(trainable, 1.0)
             scaler.step(opt); scaler.update(); opt.zero_grad(set_to_none=True); sched.step(); step += 1
             if step % 25 == 0:
                 el = time.time() - t0; rate = (step - seen0) / max(el, 1e-6); eta = (steps_total - step) / max(rate, 1e-6)
