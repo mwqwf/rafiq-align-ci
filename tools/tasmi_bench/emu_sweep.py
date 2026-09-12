@@ -152,6 +152,10 @@ def run_set(set_name, limit=0, chunk=60, timeout_per_file=90, chain=False):
         for kv in EXTRA_EZ:
             k, _, v = kv.partition("=")
             args += ["--ez", k, v or "true"]
+        # 🔢 وعددٌ صحيحٌ بـ`--ei` (مثل `decodeBeam`) — بابٌ ثالثٌ لا يصلح فيه نصٌّ ولا منطقيّ.
+        for kv in EXTRA_EI:
+            k, _, v = kv.partition("=")
+            args += ["--ei", k, v]
         adb(*args)
         # 🚨 **إضافةُ نيّةٍ تُتجاهَل بصمتٍ = ذراعان متطابقتان وحكمٌ كاذب** («اللغةُ لا أثرَ لها»).
         # المحركُ يطبع `RafiqFrontEnd … lang=<x>` عند استقبالها ⇒ تُتحقَّق مرّةً في أوّل دفعة، وإلا وقف المسح.
@@ -163,7 +167,7 @@ def run_set(set_name, limit=0, chunk=60, timeout_per_file=90, chain=False):
             # (‏`criticalPairs` ⇒ `criticalPairsUncertain=true`) فالمطابقةُ الحرفيّةُ تُطلق **إنذاراً كاذباً** وتوقف
             # مسحاً صحيحاً. فيُتحقَّق من ظهور المفتاح، ومن القيمة متى ظهرت بصيغتها الحرفيّة.
             flat = fe.replace(" ", "")
-            want = list(EXTRA_ES) + [(kv if "=" in kv else kv + "=true") for kv in EXTRA_EZ]
+            want = list(EXTRA_ES) + list(EXTRA_EI) + [(kv if "=" in kv else kv + "=true") for kv in EXTRA_EZ]
             missing = []
             for kv in want:
                 k, _, v = kv.partition("=")
@@ -251,6 +255,7 @@ def parse_log(log, times=None):
 
 EXTRA_ES = []        # إضافاتُ نيّةٍ نصّيّة من `--es` (D-303)
 EXTRA_EZ = []        # إضافاتُ نيّةٍ منطقيّة من `--ez` — المحركُ يقرؤها بـgetBooleanExtra فلا تصلح `--es`
+EXTRA_EI = []        # إضافاتُ نيّةٍ عدديّة من `--ei` (‏`decodeBeam=3`)
 _ES_VERIFIED = False # تُتحقَّق مرّةً من سجلّ المحرك: إضافةٌ مُتجاهَلةٌ بصمتٍ تُنتج ذراعَين متطابقتين
 LOCK = os.path.join(WORK, ".emu_sweep.lock")
 
@@ -295,6 +300,8 @@ def main():
                     help="إضافةُ نيّةٍ نصّيّةٌ تُمرَّر إلى المسبار كما هي (تتكرّر) — مثل `--es lang=ar`")
     ap.add_argument("--ez", action="append", default=[], metavar="KEY[=BOOL]",
                     help="إضافةُ نيّةٍ **منطقيّة** (تتكرّر) — مثل `--ez decodeGuard` أو `--ez criticalPairs=true`")
+    ap.add_argument("--ei", action="append", default=[], metavar="KEY=INT",
+                    help="إضافةُ نيّةٍ **عدديّة** (تتكرّر) — مثل `--ei decodeBeam=3`")
     ap.add_argument("--set", default="g1")
     ap.add_argument("--all", action="store_true")
     ap.add_argument("--limit", type=int, default=0)
@@ -318,6 +325,10 @@ def main():
         global EXTRA_EZ
         EXTRA_EZ = list(args.ez)
         print(f"🎚️ إضافاتٌ منطقيّة: {' · '.join(EXTRA_EZ)}")
+    if args.ei:
+        global EXTRA_EI
+        EXTRA_EI = list(args.ei)
+        print(f"🔢 إضافاتٌ عدديّة: {' · '.join(EXTRA_EI)}")
 
     if not os.path.exists(ADB):
         print(f"⛔ لا adb في {ADB}")

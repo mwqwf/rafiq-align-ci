@@ -11,9 +11,10 @@ ADB="${ANDROID_HOME:-${ANDROID_SDK_ROOT:-/usr/local/lib/android/sdk}}/platform-t
 export RAFIQ_ADB="$ADB"
 SET="${SET:?يلزم SET}"; CHUNK="${CHUNK:-12}"; CAND_TAG="${CAND_TAG:-}"; LANGS="${LANGS:-}"
 # 🎚️ مفاتيحُ المسبار المنطقيّة (‏`decodeGuard` · `criticalPairs`) ولاحقةُ الوسم كي لا تُكتب ذراعٌ فوق أخرى.
-EZ="${EZ:-}"; SUF="${TAG_SUFFIX:-}"
+EZ="${EZ:-}"; EI="${EI:-}"; SUF="${TAG_SUFFIX:-}"
 EZARGS=""; for f in $EZ; do EZARGS="$EZARGS --ez $f=true"; done
-[ -n "$EZ" ] && echo "🎚️ مفاتيح: $EZ · لاحقةُ الوسم: '${SUF}'"
+for f in $EI; do EZARGS="$EZARGS --ei $f"; done
+[ -n "$EZ$EI" ] && echo "🎚️ مفاتيح: $EZ $EI · لاحقةُ الوسم: '${SUF}'"
 
 echo "🔌 $("$ADB" devices | tail -n +2 | tr '\n' ' ')"
 "$ADB" wait-for-device

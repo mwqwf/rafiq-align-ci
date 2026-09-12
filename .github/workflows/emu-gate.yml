@@ -36,6 +36,10 @@ on:
         description: "مفاتيحُ المسبار المنطقيّة مفصولةً بمسافة (‏decodeGuard · criticalPairs)"
         required: false
         default: ""
+      ei:
+        description: "مفاتيحُ المسبار العدديّة `KEY=INT` مفصولةً بمسافة (‏decodeBeam=3)"
+        required: false
+        default: ""
       tag_suffix:
         description: "لاحقةُ وسم الذراع مع المفاتيح (‏-dg · -cp) كي لا تُكتب ذراعٌ فوق أخرى"
         required: false
@@ -124,6 +128,7 @@ jobs:
           APK: app.apk
           SET: ${{ matrix.set }}
           EZ: ${{ github.event.inputs.ez }}
+          EI: ${{ github.event.inputs.ei }}
           TAG_SUFFIX: ${{ github.event.inputs.tag_suffix }}
           CAND_TAG: ${{ github.event.inputs.cand_tag }}
           LANGS: ${{ github.event.inputs.langs }}
