@@ -159,8 +159,18 @@ def run_set(set_name, limit=0, chunk=60, timeout_per_file=90, chain=False):
         if (EXTRA_ES or EXTRA_EZ) and not _ES_VERIFIED:
             time.sleep(3)
             fe = adb("shell", "logcat", "-d", "-s", "RafiqFrontEnd:*").stdout or ""
+            # ⚠️ **تُطابَق بالمفتاح لا بـ`مفتاح=قيمة`** (‏درسُ 2026-09-12): المحركُ قد يطبع اسماً أطولَ من اسم الإضافة
+            # (‏`criticalPairs` ⇒ `criticalPairsUncertain=true`) فالمطابقةُ الحرفيّةُ تُطلق **إنذاراً كاذباً** وتوقف
+            # مسحاً صحيحاً. فيُتحقَّق من ظهور المفتاح، ومن القيمة متى ظهرت بصيغتها الحرفيّة.
+            flat = fe.replace(" ", "")
             want = list(EXTRA_ES) + [(kv if "=" in kv else kv + "=true") for kv in EXTRA_EZ]
-            missing = [kv for kv in want if kv.replace(" ", "") not in fe.replace(" ", "")]
+            missing = []
+            for kv in want:
+                k, _, v = kv.partition("=")
+                if k not in flat:
+                    missing.append(kv)
+                elif f"{k}={v}" not in flat and f"={v}" not in flat:
+                    missing.append(f"{kv} (المفتاحُ ظهر والقيمةُ لم تُطابق)")
             if missing:
                 raise SystemExit(f"⛔ المسبارُ لم يُقرّ بإضافات النيّة {missing} — سطرُ RafiqFrontEnd: "
                                  f"{fe.strip().splitlines()[-1] if fe.strip() else 'لا شيء'!r}. "
