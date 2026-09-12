@@ -23,8 +23,16 @@ cd tools/tasmi_bench
 ARMS="shipped"; [ -n "$CAND_TAG" ] && ARMS="$ARMS $CAND_TAG"
 for A in $ARMS; do
   if [ -z "$LANGS" ]; then
-    echo "▶ $SET · $A (افتراضُ التطبيق)"
-    python emu_sweep.py --set "$SET" --chain cap --chunk "$CHUNK" --tag "$A" --model-path "/data/local/tmp/q8_$A.bin" | tail -3
+    # ⛔ **D-308:** ما دُرِّب بـ`<|ar|>` يُقاس بـ`<|ar|>`. خدمةُ مضبوطٍ بـ`en` رفعت اتّهامَه الكاذب **2.22 نقطة**
+    # فحُكم على ثلاثة نماذجَ بالرسوب ظلماً. والمشحونُ يبقى على افتراض التطبيق (`en`) لأنّ `ar` تكلّفه 3.1 نقاطٍ من الكشف
+    # ⇒ الزوجُ الافتراضيُّ هنا هو **زوجُ الشحن**: المشحونُ كما يُشحن، والمرشَّحُ كما سيُشحن.
+    if [ "$A" = "shipped" ]; then
+      echo "▶ $SET · $A (افتراضُ التطبيق en)"
+      python emu_sweep.py --set "$SET" --chain cap --chunk "$CHUNK" --tag "$A" --model-path "/data/local/tmp/q8_$A.bin" | tail -3
+    else
+      echo "▶ $SET · $A · lang=ar (‏D-308: المضبوطُ يُقاس بما دُرِّب عليه)"
+      python emu_sweep.py --set "$SET" --chain cap --chunk "$CHUNK" --tag "$A" --model-path "/data/local/tmp/q8_$A.bin" --es "lang=ar" | tail -3
+    fi
   else
     for L in $LANGS; do
       echo "▶ $SET · $A · lang=$L"
