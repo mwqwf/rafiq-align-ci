@@ -109,7 +109,7 @@ jobs:
         uses: actions/cache@v4
         with:
           path: tools/tasmi_bench/work/sets.tar
-          key: tasmi-sets-v3-${{ hashFiles('tools/tasmi_bench/sample.json', 'tools/tasmi_bench/inject_plan_riwaya.json', 'tools/tasmi_bench/augment.py', 'tools/tasmi_bench/augment_learner.py', 'tools/tasmi_bench/inject_riwaya_local.py', 'tools/tasmi_bench/build_long.py') }}
+          key: tasmi-sets-v4-${{ hashFiles('tools/tasmi_bench/sample.json', 'tools/tasmi_bench/inject_plan_riwaya.json', 'tools/tasmi_bench/augment.py', 'tools/tasmi_bench/augment_learner.py', 'tools/tasmi_bench/inject_riwaya_local.py', 'tools/tasmi_bench/build_long.py') }}
       - name: بناءُ المجموعات إن غاب الكاش
         if: steps.sets.outputs.cache-hit != 'true'
         run: |
@@ -122,9 +122,12 @@ jobs:
           # في **الحكم النهائيّ** (‏`stopAndTranscribe` سقفُه 1200 ث) وكلُ مجموعات البوّابة بنودٌ قصيرةٌ
           # ≤ 30 ث (‏نافذةٌ واحدة) ⇒ كنّا نقرّر في منطقةٍ لا تقيسها بوّابتُنا (‏D-330).
           python build_long.py --ayahs 6
-          tar -cf work/sets.tar -C work wav g2/noise-fan-5 g2/learner-combo g2/learner-repeat g2/learner-basmala g3r/clean g3r/noisy g4 long_plan.json
+          # ‏**وطويلٌ مضجَّج** (‏D-333): الحرسُ أكبرُ كسبه في الضجيج (+1.45) و**صفرٌ** على
+          # الطويل النّظيف ⇒ الصورةُ الرابعةُ هي الفاصلة لقرار `guardScope`.
+          python augment.py --src-dir work/g4 --dest-dir work/g4n --only noise-fan-5
+          tar -cf work/sets.tar -C work wav g2/noise-fan-5 g2/learner-combo g2/learner-repeat g2/learner-basmala g3r/clean g3r/noisy g4 g4n long_plan.json
       - name: فكُّ المجموعات
-        run: cd tools/tasmi_bench/work && tar -xf sets.tar && rm -f sets.tar && ls -d wav g3r g2 g4 2>/dev/null
+        run: cd tools/tasmi_bench/work && tar -xf sets.tar && rm -f sets.tar && ls -d wav g3r g2 g4 g4n 2>/dev/null
       - name: المحاكي + السائقُ نفسُه (‏emu_sweep)
         uses: reactivecircus/android-emulator-runner@v2
         env:
