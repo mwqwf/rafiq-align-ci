@@ -178,11 +178,11 @@ def run_set(set_name, limit=0, chunk=60, timeout_per_file=90, chain=False):
             _ES_VERIFIED = True
             print(f"✅ المسبارُ أقرّ بالإضافات: {' · '.join(EXTRA_ES)}", flush=True)
         deadline = time.time() + timeout_per_file * len(batch) + 120
-        seen, last_n = {}, -1
+        seen, last_n, times = {}, -1, {}
         while time.time() < deadline:
             time.sleep(15)
             log = adb("shell", "logcat", "-d", "-s", "RafiqBatch:*").stdout
-            seen = parse_log(log)
+            seen = parse_log(log, times)
             if "__done__" in log or len(seen) >= len(batch):
                 break
             if len(seen) != last_n:
@@ -190,7 +190,8 @@ def run_set(set_name, limit=0, chunk=60, timeout_per_file=90, chain=False):
                 print(f"    … {len(seen)}/{len(batch)}", flush=True)
         for i in batch:
             t = seen.get(i)
-            done[i] = {"text": t, "rc": 0} if t is not None else {"error": "لم يظهر في السجل"}
+            done[i] = ({"text": t, "rc": 0, **({"ms": times[i]} if i in times else {})}
+                       if t is not None else {"error": "لم يظهر في السجل"})
         json.dump({"meta": meta, "hyps": done}, open(out, "w", encoding="utf-8"), ensure_ascii=False)
         ok = sum(1 for i in batch if i in seen)
         print(f"  دفعة {start//chunk + 1}: {ok}/{len(batch)} ⇒ {out}", flush=True)
@@ -198,17 +199,44 @@ def run_set(set_name, limit=0, chunk=60, timeout_per_file=90, chain=False):
     return done
 
 
-def parse_log(log):
-    """أسطرُ `RafiqBatch` بصيغة `<id>.wav<TAB><text>`."""
+def parse_log(log, times=None):
+    """أسطرُ `RafiqBatch` بصيغة `<id>.wav<TAB><text>`.
+
+    ⏱️ ومتى أُعطي [times] تُستخرج **أزمنةُ البنود** من طوابع logcat: زمنُ البند = الفارقُ بين سطره والسطر
+    قبلَه (وأوّلُ بندٍ يحمل زمنَ تحميل النموذج فيُستثنى) — طريقةُ `emu_score.py` نفسُها.
+    ولماذا يلزم: مفتاحٌ كـ`beam 5` يُشترى بالزمن، والتسميعُ الحيُّ يفكّ **أثناء** التلاوة ⇒ RTF > 1 تأخيرٌ
+    متراكمٌ لا يلحق فيه الشيخُ القارئ. فلا يُحكم على مفتاحٍ بالدقّة وحدَها.
+    """
     out = {}
+    prev = None
+    first = True
     for ln in log.split("\n"):
         if "RafiqBatch" not in ln:
             continue
-        m = re.search(r"([A-Za-z0-9_\-.]+)\.wav\t(.*)$", ln.rstrip())
+        t = None
+        ts = re.match(r"^(\d\d-\d\d \d\d:\d\d:\d\d\.\d+)", ln)
+        if ts:
+            import datetime as _dt
+            try:
+                t = _dt.datetime.strptime("2026-" + ts.group(1), "%Y-%m-%d %H:%M:%S.%f")
+            except ValueError:
+                t = None
+        body = ln.rstrip()
+        m = re.search(r"([A-Za-z0-9_\-.]+)\.wav\t(.*)$", body)
         if m:
             out[m.group(1)] = " ".join(m.group(2).split())
-        elif ln.rstrip().endswith("done"):
+            if times is not None and t and prev:
+                if first:
+                    first = False        # أوّلُ بندٍ يحمل زمنَ تحميل النموذج معه فلا يُحتسب
+                else:
+                    times[m.group(1)] = int((t - prev).total_seconds() * 1000)
+            if t:
+                prev = t
+        elif body.endswith("done"):
             out["__done__"] = ""
+        elif body.rstrip().endswith("start") or " start " in body:
+            if t:
+                prev, first = t, True
     out.pop("__done__", None)
     return out
 
