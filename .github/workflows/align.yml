@@ -14,12 +14,16 @@ run-name: >-
 # ═══ كيف تعرف ما تعمله موجةٌ جارية (⛔ اقرأ هذا قبل التفكير في إلغائها) ═══
 #
 #     git ls-remote origin 'refs/heads/progress/*'
-#     gh api repos/mwqwf/rafiq-align-ci/contents/shard-N.json?ref=progress/N \
+#     gh api 'repos/mwqwf/rafiq-align-ci/contents?ref=progress/N' --jq '.[].name'
+#     gh api repos/mwqwf/rafiq-align-ci/contents/shard-N-RUN.json?ref=progress/N \
 #       --jq .content | base64 -d
 #     ⇒ {"shard":4,"surahs":19,"reciter":"m_sayed_warsh","at":"…","run":"…"}
 #
 # **الهويّةُ والتقدّمُ والحياةُ في سطرٍ واحدٍ لكلّ شريحة، والموجةُ جارية.**
 # و`run` فيه يفصل نبضةَ هذه الموجة عن منارةٍ قديمةٍ لم تُحدَّث بعد.
+# ⛔ واسمُ الملفّ يحمل رقمَ التشغيل منذ 2026-09-12: موجتان فيهما شاردةُ 0
+#    (‏موجةٌ كاملة + تشغيلةُ `ac256` مفردة) كانتا تكتبان على `shard-0.json`
+#    نفسِه فيغلب آخرُ كاتب — فسطرُ الجرد أعلاه يسبق القراءة.
 #
 # ⛔⛔ **وسببُ كتابة هذا هنا مقيسٌ بثمنه (2026-09-07):** كُتب في
 # `docs/RECITERS_MASTER_REFERENCE.md` **ثلاثَ دوراتٍ** أنّ هويّة الموجة «غيرُ

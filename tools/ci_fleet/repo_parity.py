@@ -24,6 +24,17 @@ import os
 import shutil
 import sys
 
+# ⛔ مِخرجٌ بـUTF-8 دائماً — وإلّا مات الحارسُ في اللحظة التي يبلّغ فيها.
+#    قِيس 2026-09-12 على وندوز: طرفيّةُ المالك `cp1256`، فطبع الملخّصَ
+#    («مختلفٌ 21») ثمّ سقط بـ`UnicodeEncodeError` على «⛔» **قبل أن يُسمّي
+#    ملفّاً واحداً**. ⇒ حارسٌ يرى الخطرَ ولا يستطيع قولَه = لا حارس، وأسوأُ
+#    من ذلك أنّ سقوطَه يُقرأ عطباً فيه لا اختلافاً في العدّة.
+for _s in (sys.stdout, sys.stderr):
+    try:
+        _s.reconfigure(encoding="utf-8", errors="replace")
+    except Exception:
+        pass
+
 ROOT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 PEER = os.path.join(os.path.dirname(ROOT), "rafiq-align-ci")
 
