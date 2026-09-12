@@ -310,7 +310,12 @@ class Transcriber:
             audio = al_normalize(raw_audio)
             floor = al_speech_floor(audio)
         window = WINDOW_SECONDS * SR
-        utts = split_at_silences(audio, floor)
+        cuts = getattr(self, "cuts", None)
+        key = getattr(self, "_item_id", None)
+        if cuts and key in cuts:
+            utts = [tuple(c) for c in cuts[key]]
+        else:
+            utts = split_at_silences(audio, floor)
         # 🔀 مرآةُ D-250: تجميعُ النطقات في مجموعاتٍ لا تعبر سكتةً ≥ MAX_GAP ولا تتجاوز [group_cap].
         # [group_cap] قابلٌ للضبط: القاعدةُ المشحونة نافذةٌ كاملة (25ث)، وقِيس أن مجموعةً بهذا الطول
         # فيها كلامٌ غيرُ متجانس (‏مقدّمةٌ + بدايةٌ خاطئة + آية) تجعل whisper-tiny يعطي **كلمةً واحدة**.
@@ -380,6 +385,9 @@ def main():
     # الكلامُ نفسُه نحوَ 5 د.ب فوقها ⇒ تُحسب 54٪ من الإطارات صمتاً فيُقطَّع النطقُ في أثنائه
     # (‏14 نطقاً بدل 6 · 53٪ من القطوع داخلَ كلام). و`prop` هامشٌ نسبيٌّ يضيق حين يضيق المدى،
     # **ومطابقٌ حرفياً في النظيف**. يُقاس أثرُه في الدقّة قبل أن يُقترح على المحرك.
+    # 🎯 **حدودٌ مثاليّةٌ (oracle)** — تُقرأ من ملفٍّ بدل كشفها من الصوت. بها يُفصل أثرُ **الضجيج**
+    # عن أثر **رداءة الحدود**: إن عادت الدقّةُ بالحدود الصحيحة فالعطبُ في الكشف لا في السمع.
+    ap.add_argument("--cuts-json", default="", help="ملفُّ حدودٍ {id: [[a,b],…]} بالعيّنات — يغلب كشفَ السكتات")
     ap.add_argument("--floor-rule", default="v2", choices=["v2", "prop"],
                     help="قاعدةُ عتبة السكوت: v2 ثابتٌ +6 (المشحون) · prop نسبةٌ من المدى (D-345)")
     ap.add_argument("--group-cap", type=float, default=float(WINDOW_SECONDS),
@@ -424,6 +432,8 @@ def main():
         suffix += "_gate"
     if args.floor_rule != "v2":
         suffix += f"_floor{args.floor_rule}"
+    if args.cuts_json:
+        suffix += "_oracle"
     if args.group_cap != WINDOW_SECONDS:
         suffix += f"_cap{args.group_cap:g}"
     out = args.out or os.path.join(WORK, f"hyps_{args.model}_{tag}{suffix}.json")
@@ -446,6 +456,9 @@ def main():
     tr = Transcriber(model_path, frontend=args.frontend, threads=args.threads, gate=args.gate,
                      group_cap=int(args.group_cap * SR), backend=args.backend, cli=args.cli, lang=args.lang,
                      floor_rule=args.floor_rule)
+    if args.cuts_json:
+        tr.cuts = json.load(open(args.cuts_json, encoding="utf-8"))
+        print(f"🎯 حدودٌ مثاليّةٌ لـ{len(tr.cuts)} بنداً من {args.cuts_json}", flush=True)
     load_ms = int((time.time() - t0) * 1000)
     meta = {"model": args.model, "modelPath": str(model_path), "set": tag,
             "frontend": args.frontend,
@@ -462,6 +475,7 @@ def main():
             done[item] = {"error": f"معدّلٌ غير متوقَّع {sr}"}
             continue
         t0 = time.time()
+        tr._item_id = item          # 🎯 لتُقرأ حدودُ هذا البند من ملفّ الحدود المثاليّة إن وُجد
         try:
             bias_ids = tr.bias_for(refs.get(item)) if args.bias else None
             text, parts = tr.transcribe(x, bias_ids, args.bias,
