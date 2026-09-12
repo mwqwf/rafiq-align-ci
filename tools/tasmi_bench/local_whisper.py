@@ -151,6 +151,13 @@ class Transcriber:
             # إلى المحاكي بلا جهاز المالك (يبقى فرقُ JNI/أندرويد وحدَه). الأعلامُ مرآةُ المحرك: greedy بلا طوابع.
             if not cli or not os.path.exists(cli):
                 raise SystemExit(f"⛔ لا whisper-cli في {cli!r} — مرّر --cli أو WHISPER_CLI")
+            # ⛔ **درسُ 2026-09-12:** عَلَمٌ لا تعرفه النسخةُ المثبَّتة يجعل CLI يطبع «usage» **ويخرج بصفر**،
+            # فيُسجَّل نصٌّ فارغٌ لـ202 بند في عشر ثوانٍ ويُقرأ «0.00٪» **كأنه نتيجة**. فالأعلامُ تُستنبَط لا تُفترض.
+            import subprocess as _sp
+            h = _sp.run([cli, "--help"], capture_output=True, text=True, encoding="utf-8", errors="replace")
+            help_txt = (h.stdout or "") + (h.stderr or "")
+            self.cli_flags = [f for f in ("-nc",) if f in help_txt]
+            print(f"🧱 whisper-cli: أعلامٌ إضافيّةٌ مدعومة {self.cli_flags or 'لا شيء'}", flush=True)
             self.gen_kwargs = {}
             return
         import torch
@@ -215,13 +222,18 @@ class Transcriber:
             # مرآةُ `jni.c` حرفاً: `language = "en"` (لا ar — قِيس أن الفارق داخل مجال الثقة نظيفاً، لكنّ الاتّهامَ ضجيجاً عند حدّ
             # القرار يتأثّر بكل شيء) · greedy · هبوطُ الحرارة الافتراضيّ · no_context لا أثرَ له في نافذةٍ واحدة ≤ 30ث.
             # 🔤 D-298: رمزُ اللغة صار **معاملَ تجربةٍ لا ثابتاً** — المحركُ يفكّ بـ`en` والتدريبُ يُلصق `<|ar|>`.
-            r = subprocess.run([self.cli, "-m", self.model_path, "-f", tmp, "-l", self.lang, "-t", str(self.threads),
-                                "-bo", "1", "-bs", "1", "-nt", "-np", "-nc"], capture_output=True, text=True,
-                               encoding="utf-8", errors="replace")
+            cmd = [self.cli, "-m", self.model_path, "-f", tmp, "-l", self.lang, "-t", str(self.threads),
+                   "-bo", "1", "-bs", "1", "-nt", "-np"] + list(getattr(self, "cli_flags", []))
+            r = subprocess.run(cmd, capture_output=True, text=True, encoding="utf-8", errors="replace")
             os.remove(tmp)
             if r.returncode:
                 raise RuntimeError(f"whisper-cli rc={r.returncode}: {r.stderr[-200:]}")
-            return " ".join(r.stdout.split())
+            txt = " ".join(r.stdout.split())
+            # 🚨 الصمتُ ليس نتيجة: ثانيةٌ من التلاوة لا تعطي نصّاً فارغاً إلا بعطب (نموذجٌ لم يُحمَّل · عَلَمٌ مرفوض).
+            if not txt and len(audio) > SR:
+                raise RuntimeError("whisper-cli أعاد نصّاً فارغاً لصوتٍ طوله "
+                                   f"{len(audio)/SR:.1f}ث — stderr: {(r.stderr or '')[-200:]!r}")
+            return txt
         feats = self.proc(audio, sampling_rate=SR, return_tensors="pt").input_features.to(self.device)
         kw = dict(self.gen_kwargs)
         if bias_ids and bias:
