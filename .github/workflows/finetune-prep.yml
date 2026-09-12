@@ -1,0 +1,78 @@
+# 🎓 بناءُ مجموعة تدريب tuned-v2 على شبكة GitHub لا شبكة المالك ولا كولاب (القاعدة 7 + درسُ الجولات الضائعة).
+# أربعُ مهامَّ متوازية، كلٌّ ثمانيةُ قرّاء، تكتب `finetune/data_v2/<g>.tar` على R2. يُشغَّل يدوياً:
+#     gh workflow run finetune-prep
+# الأسرار: R2_ENDPOINT · R2_ACCESS_KEY_ID · R2_SECRET_ACCESS_KEY · R2_BUCKET (موجودةٌ منذ open-tafsirs).
+# ⛔ قرّاءُ عيّنة الاختبار مستبعدون بأسمائهم داخل prep.py — الحكمُ على صوتٍ لم يره النموذج.
+name: finetune-prep
+on:
+  workflow_dispatch:
+    inputs:
+      per_reciter:
+        description: "آياتٌ لكلِّ قارئ"
+        required: false
+        default: "900"
+      per_surah_cap:
+        description: "آياتٌ لكلِّ سورةٍ للقارئ (0 = خلطٌ حرّ يلمس كلَّ السور)"
+        required: false
+        default: "120"
+jobs:
+  prep:
+    runs-on: ubuntu-latest
+    timeout-minutes: 150
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - group: g0
+            reciters: "warsh:basit_warsh,benkirane_warsh,bl3_warsh qalun:akri_qalun,sneineh_qalun hafs:3siri,a_abdl,a_ahmed"
+          - group: g1
+            reciters: "warsh:deban_warsh,koshi_warsh,laghdaf_shinqiti qalun:dokali,huthaify_qalun hafs:a_albadr,a_alemadi,a_alhazmi"
+          - group: g2
+            reciters: "warsh:m_abdulkareem_warsh,m_sayed_warsh qalun:deban_qalun,qeniwa_qalun,tareq_qalun hafs:a_alqrafi,a_alshahhat,a_binaoun"
+          - group: g3
+            reciters: "warsh:qari_warsh,qazabri qalun:kshidan_qalun,trablsi,waleed_qalun hafs:a_ghailan,a_klb,a_maasaraawi"
+    steps:
+      - uses: actions/checkout@v4
+      - name: r2 creds (من السرّ الواحد R2_CREDENTIALS_JSON)
+        env:
+          R2_CREDENTIALS_JSON: ${{ secrets.R2_CREDENTIALS_JSON }}
+        run: |
+          mkdir -p secure && printf '%s' "$R2_CREDENTIALS_JSON" > secure/r2_credentials.json
+          python3 - <<'PY2'
+          import json, os
+          c = json.load(open("secure/r2_credentials.json"))
+          keys = {"R2_ENDPOINT": c["endpoint"], "R2_ACCESS_KEY_ID": c["accessKeyId"], "R2_SECRET_ACCESS_KEY": c["secretAccessKey"], "R2_BUCKET": c["bucket"]}
+          env = open(os.environ["GITHUB_ENV"], "a")
+          for k, v in keys.items():
+              print("::add-mask::" + v); env.write(k + "=" + v + chr(10))
+          env.close()
+          PY2
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: tools
+        run: |
+          sudo apt-get update -qq && sudo apt-get install -y -qq ffmpeg > /dev/null
+          pip install -q numpy soundfile boto3
+          ffmpeg -version | head -1; nproc; df -h / | tail -1
+      - name: prep ${{ matrix.group }}
+        run: |
+          python tools/finetune/prep.py --out data/${{ matrix.group }} --rel-root data --workers 4 \
+            --max-per-reciter ${{ github.event.inputs.per_reciter }} --per-surah-cap ${{ github.event.inputs.per_surah_cap }} \
+            --reciters ${{ matrix.reciters }}
+      - name: pack + upload
+        env:
+        run: |
+          tar -cf ${{ matrix.group }}.tar -C data ${{ matrix.group }}
+          ls -l ${{ matrix.group }}.tar; wc -l data/${{ matrix.group }}/manifest.jsonl
+          python tools/finetune/r2_put.py ${{ matrix.group }}.tar finetune/data_v2/${{ matrix.group }}.tar
+      - name: summary
+        run: |
+          python - <<'PY'
+          import json, collections
+          rows=[json.loads(l) for l in open("data/${{ matrix.group }}/manifest.jsonl", encoding="utf-8")]
+          by=collections.Counter(); sec=collections.Counter()
+          for r in rows: by[(r["riwaya"], r["reciter"])]+=1; sec[r["riwaya"]]+=r["seconds"]
+          for k,v in sorted(by.items()): print(f"{k[0]:6} {k[1]:22} {v}")
+          print({k: round(v/3600,2) for k,v in sec.items()}, "hours ·", len(rows), "rows")
+          PY
