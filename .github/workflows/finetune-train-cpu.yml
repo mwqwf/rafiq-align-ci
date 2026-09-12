@@ -73,11 +73,13 @@ jobs:
           R2_CREDENTIALS_JSON: ${{ secrets.R2_CREDENTIALS_JSON }}
         run: |
           mkdir -p secure && printf '%s' "$R2_CREDENTIALS_JSON" > secure/r2_credentials.json
-          python3 - <<'PY2' >> "$GITHUB_ENV"
-          import json
+          python3 - <<'PY2'
+          import json, os
           c = json.load(open("secure/r2_credentials.json"))
-          for k, v in {"R2_ENDPOINT": c["endpoint"], "R2_ACCESS_KEY_ID": c["accessKeyId"], "R2_SECRET_ACCESS_KEY": c["secretAccessKey"], "R2_BUCKET": c["bucket"]}.items():
-              print(f"::add-mask::{v}"); print(f"{k}={v}")
+          with open(os.environ["GITHUB_ENV"], "a") as env:
+              for k, v in {"R2_ENDPOINT": c["endpoint"], "R2_ACCESS_KEY_ID": c["accessKeyId"], "R2_SECRET_ACCESS_KEY": c["secretAccessKey"], "R2_BUCKET": c["bucket"]}.items():
+                  print(f"::add-mask::{v}"); env.write(f"{k}={v}
+")
           PY2
       - uses: actions/setup-python@v5
         with:
