@@ -109,7 +109,7 @@ jobs:
         uses: actions/cache@v4
         with:
           path: tools/tasmi_bench/work/sets.tar
-          key: tasmi-sets-v2-${{ hashFiles('tools/tasmi_bench/sample.json', 'tools/tasmi_bench/inject_plan_riwaya.json', 'tools/tasmi_bench/augment.py', 'tools/tasmi_bench/augment_learner.py', 'tools/tasmi_bench/inject_riwaya_local.py') }}
+          key: tasmi-sets-v3-${{ hashFiles('tools/tasmi_bench/sample.json', 'tools/tasmi_bench/inject_plan_riwaya.json', 'tools/tasmi_bench/augment.py', 'tools/tasmi_bench/augment_learner.py', 'tools/tasmi_bench/inject_riwaya_local.py', 'tools/tasmi_bench/build_long.py') }}
       - name: بناءُ المجموعات إن غاب الكاش
         if: steps.sets.outputs.cache-hit != 'true'
         run: |
@@ -118,9 +118,13 @@ jobs:
           cd tools/tasmi_bench
           python fetch_audio.py && python augment.py --only noise-fan-5 && python inject_riwaya_local.py
           for c in learner-combo learner-repeat learner-basmala; do python augment_learner.py --only "$c"; done
-          tar -cf work/sets.tar -C work wav g2/noise-fan-5 g2/learner-combo g2/learner-repeat g2/learner-basmala g3r/clean g3r/noisy
+          # ⏱️ **التلاوةُ الطويلة (`g4`) تُبنى أيضاً — ثغرةٌ مقيسةٌ 2026-09-12:** `guardScope=FINAL` يُشحن
+          # في **الحكم النهائيّ** (‏`stopAndTranscribe` سقفُه 1200 ث) وكلُ مجموعات البوّابة بنودٌ قصيرةٌ
+          # ≤ 30 ث (‏نافذةٌ واحدة) ⇒ كنّا نقرّر في منطقةٍ لا تقيسها بوّابتُنا (‏D-330).
+          python build_long.py --ayahs 6
+          tar -cf work/sets.tar -C work wav g2/noise-fan-5 g2/learner-combo g2/learner-repeat g2/learner-basmala g3r/clean g3r/noisy g4 long_plan.json
       - name: فكُّ المجموعات
-        run: cd tools/tasmi_bench/work && tar -xf sets.tar && rm -f sets.tar && ls -d wav g3r g2 2>/dev/null
+        run: cd tools/tasmi_bench/work && tar -xf sets.tar && rm -f sets.tar && ls -d wav g3r g2 g4 2>/dev/null
       - name: المحاكي + السائقُ نفسُه (‏emu_sweep)
         uses: reactivecircus/android-emulator-runner@v2
         env:
@@ -212,11 +216,13 @@ jobs:
               d, fa, n, _ = G.judge_arm(plan, h)
               print(f"| {s} | {n} | {fa*100:.2f}٪ | {d*100:.1f}٪ |")
           import score as SC
-          sample = SC.load_sample()
-          for s in ("g1", "g2:noise-fan-5", "g2:learner-combo"):
+          pool = G.pool_items()          # العيّنة **مع** خطّة التلاوة الطويلة — وإلّا فكلُ مجموعةٍ طويلةٍ تُعطي صفراً صامتاً
+          for s in ("g1", "g2:noise-fan-5", "g2:learner-combo", "g4", "g4n", "g4q", "g4c"):
               h = G.load_hyps(s, ARM)
               if not h: continue
-              items = [it for it in sample["items"] if it["id"] in h]
+              items = [it for it in pool if it["id"] in h]
+              if not items:
+                  print(f"| {s} | ⛔ {len(h)} بنداً بلا مرجع | — | لا رقم |"); continue
               a = SC.aggregate(SC.run(items, h, "proposed"))
               print(f"| {s} · تتبّع | {a['scored']} | — | دقّة {a['accuracy']*100:.2f}٪ |")
           PYJ

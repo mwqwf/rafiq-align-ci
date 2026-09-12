@@ -155,16 +155,34 @@ def _boot_diff(pairs, seed=7, boot=2000):
     return (diffs[int(0.025 * boot)], diffs[int(0.975 * boot) - 1], sum(1 for d in diffs if d > 0) / boot)
 
 
+def pool_items():
+    """بنودُ المرجع كلُّها: عيّنةُ الآية الواحدة (202) **مع** خطّة التلاوة الطويلة (60).
+
+    ⛔ **ثغرةٌ مقيسة (‏2026-09-12):** `score_accuracy` كانت تقرأ `sample.json` وحدَها (202 بنداً بلا بندٍ
+    طويلٍ واحد) ⇒ كلُّ مجموعةٍ من `g4*` تُعطي `common ∩ sample = ∅` فترجع الدالّةُ **None صامتةً**،
+    فلا رقمَ ولا شكوى. وموضعُ شحن `guardScope=FINAL` هو **التلاوةُ الطويلة** بعينها ⇒ كنّا نقرّر في
+    منطقةٍ لا تقيسها بوّابتُنا. و`long_plan.json` يحمل `refText` و`riwaya` فيصلح لـ`score.run` كما هو.
+    """
+    items = list(score.load_sample()["items"])
+    lp = os.path.join(WORK, "long_plan.json")
+    if os.path.exists(lp):
+        items += json.load(open(lp, encoding="utf-8"))["items"]
+    return items
+
+
 def score_accuracy(set_name, arms=None):
     arms = arms or CMP
     ha, hb = load_hyps(set_name, arms[0]), load_hyps(set_name, arms[1])
     common = set(ha) & set(hb)
     if not common:
         return None
-    sample = score.load_sample()
     mis = os.path.join(WORK, "misaligned.json")
     exclude = {m["id"] for m in json.load(open(mis, encoding="utf-8"))["items"]} if os.path.exists(mis) else set()
-    items = [it for it in sample["items"] if it["id"] in common and it["id"] not in exclude]
+    items = [it for it in pool_items() if it["id"] in common and it["id"] not in exclude]
+    if not items:
+        # ⛔ لا صمتَ عند الصفر: بنودٌ موجودةٌ في الذراعَين ولا مرجعَ لها ⇒ عطبُ مرجعٍ لا «لا فرق».
+        raise SystemExit(f"⛔ {set_name}: {len(common)} بنداً في الذراعَين ولا واحدَ منها في المرجع "
+                         f"(`sample.json` + `long_plan.json`) ⇒ لا رقمَ يُحتسب. مثال: {sorted(common)[0]}")
     ra, rb = score.run(items, ha, "proposed"), score.run(items, hb, "proposed")
     aa, ab = score.aggregate(ra), score.aggregate(rb)
     pairs = [(x["correct"], x["total"], y["correct"], y["total"]) for x, y in zip(ra, rb) if x["ok"] and y["ok"]]
