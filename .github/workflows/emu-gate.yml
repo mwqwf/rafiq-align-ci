@@ -169,7 +169,12 @@ jobs:
         if: always()
         with:
           name: emu-${{ strategy.job-index }}
-          path: tools/tasmi_bench/work/hyps_emu_*.json
+          # ⛔ **`long_plan.json` يُرفع مع المخرَج** (‏2026-09-12): مهمّةُ الحكم تُنزّل المخرَجَ وحدَه ولا
+          # تبني المجموعات، و`pool_items()` تقرأ الخطّةَ من `work/` ⇒ بنودُ `g4*` بلا مرجعٍ فتُطبع
+          # «⛔ بلا مرجع» (والحارسُ صادقٌ لكنّ العلّةَ عندنا). فتُحمل الخطّةُ مع الأرقام.
+          path: |
+            tools/tasmi_bench/work/hyps_emu_*.json
+            tools/tasmi_bench/work/long_plan.json
           retention-days: 7
           if-no-files-found: ignore
   judge:

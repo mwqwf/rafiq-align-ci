@@ -122,6 +122,7 @@ jobs:
           sys.path.insert(0, ".")
           import v2_gate as G, score as SC
           pool = G.pool_items()
+          bad = 0
           print("| المجموعة | قاعدةُ العتبة | ن | **دقّة** | مجالُ الثقة | مفقود · مُبدَل · زوائد |")
           print("|---|---|---:|---:|---:|---:|")
           for f in sorted(glob.glob("work/hyps_*_g4*.json")):
@@ -129,13 +130,21 @@ jobs:
               h = h.get("hyps", h)
               items = [it for it in pool if it["id"] in h]
               if not items:
-                  print(f"| {os.path.basename(f)} | ⛔ بلا مرجع | | | | |"); continue
+                  print(f"| {os.path.basename(f)} | ⛔ بلا مرجع | | | | |"); bad += 1; continue
+              ok = [r for r in SC.run(items, h, "proposed") if r.get("ok")]
+              if not ok:
+                  err = next((v.get("error") for v in h.values() if v.get("error")), "؟")
+                  print(f"| {os.path.basename(f)} | ⛔ **صفرُ بندٍ صالح** | 0 | — | — | {err[:80]} |")
+                  bad += 1; continue
               a = SC.aggregate(SC.run(items, h, "proposed"))
               rule = ("🎯 **حدودٌ مثاليّة**" if "_oracle" in f
                       else "**prop** سقفُ 0.9" if "floorprop" in f else "v2 (المشحون)")
               st = os.path.basename(f).replace("hyps_", "").replace("_fe-new", "").replace("_floorprop", "").replace("_oracle", "").replace(".json", "")
               print(f"| `{st}` | {rule} | {a['scored']} | **{a['accuracy']*100:.2f}٪** | "
                     f"[{a['ci95'][0]*100:.1f}–{a['ci95'][1]*100:.1f}] | {a['missed']} · {a['substituted']} · {a['additions']} |")
+          if bad:
+              # ⛔ **صفرٌ ليس نتيجة** (D-323): شوطٌ كلُّ بنوده أخطأت طبع «0.00٪» فبدا رقماً.
+              sys.exit(f"⛔ {bad} ذراعاً بلا بندٍ صالحٍ — لا يُقرأ هذا نتيجةً")
           PYJ
           { echo "### 🔪 chunk-ab (D-345)"; cat work/chunk_ab.md; } >> "$GITHUB_STEP_SUMMARY"
       - uses: actions/upload-artifact@v4
