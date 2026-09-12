@@ -311,6 +311,12 @@ def main():
     ap.add_argument("--limit", type=int, default=0, help="عددُ البنود (للتجربة)")
     ap.add_argument("--force", action="store_true")
     ap.add_argument("--selftest", action="store_true")
+    # ⏱️ **الشرطُ نفسُه على صوتٍ أطول** (‏2026-09-12 · D-333): كسبُ `decodeGuard` أكبرُه في الضجيج
+    # (‏+1.45) وصفرٌ على الطويل **النظيف** ⇒ السؤالُ الفاصلُ «طويلٌ ومضجَّج»، ولا بانيَ له. فصار
+    # المصدرُ والمقصدُ وسيطَين: `--src-dir work/g4 --dest-dir work/g4n --only noise-fan-5`.
+    # ⛔ وبركةُ الثرثرة تبقى من `sample.json`/`wav` بلا تغيير — وإلا تغيّر الشرطُ بين تشغيلَين.
+    ap.add_argument("--src-dir", help="مجلدُ المصدر (افتراضُه work/wav)")
+    ap.add_argument("--dest-dir", help="مجلدُ المقصد (افتراضُه work/g2/<الشرط>؛ ومعه لا يُنشأ مجلدُ شرطٍ فرعيّ)")
     args = ap.parse_args()
 
     from common import FFMPEG  # noqa: E402
@@ -322,11 +328,12 @@ def main():
         return one_file(args.file, args.out_dir or os.path.join(WORK, "one"),
                         args.only or CONDITIONS, FFMPEG)
 
-    ids = sorted(f[:-4] for f in os.listdir(WAV) if f.endswith(".wav"))
+    src = args.src_dir or WAV
+    ids = sorted(f[:-4] for f in os.listdir(src) if f.endswith(".wav"))
     if args.limit:
         ids = ids[: args.limit]
     if not ids:
-        print("⛔ لا ملفات في work/wav — شغّل fetch_audio.py أولاً")
+        print(f"⛔ لا ملفات في {src} — شغّل fetch_audio.py أولاً")
         return 1
     conds = args.only or CONDITIONS
     # ⚠️ **بركةُ الثرثرة تُشتقّ من `sample.json` لا مما وصل من الصوت بعد**: لو اشتُقّت من
@@ -351,7 +358,7 @@ def main():
         manifest["sourceCount"] = len(ids)
 
     for cond in conds:
-        outdir = os.path.join(G2, cond)
+        outdir = args.dest_dir or os.path.join(G2, cond)
         os.makedirs(outdir, exist_ok=True)
         done = 0
         snrs, gains = [], []
@@ -360,7 +367,7 @@ def main():
             if os.path.exists(dst) and not args.force:
                 done += 1
                 continue
-            x, sr = sf.read(os.path.join(WAV, item + ".wav"), dtype="float32")
+            x, sr = sf.read(os.path.join(src, item + ".wav"), dtype="float32")
             if sr != SR or len(x) == 0:
                 continue
             src_pool = [p for p in pool if os.path.basename(p)[:-4] != item] or pool
