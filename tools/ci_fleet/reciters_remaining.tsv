@@ -14,7 +14,9 @@
 #    فائزٌ في الثلاثة · 114/114 ملفّاً بحالة 200) ⇒ مرشَّحُ محاذاةٍ بأولويّة ورش.
 #    ⛔ ورقمُ شاردته 5 يستعيد كاشَ h_dukhain — وهو غيرُ ضارّ لأنّ مجلّدَ العمل
 #    مفصولٌ باسم القارئ (`WORK/batch_{reciter}`)، فلا يُتلَف ولا يُتخطّى شيء.
-maroush_qalun	qalun	https://archive.org/download/Kamal-Almaroush-Qalon/{surah:03d}.mp3	4
+# ➡️ ونُقل maroush_qalun إلى `reciters_ac256.tsv` (‏حكمُه «مرفوض · خلل بنيوي» —
+#    سبعُ بسملاتٍ مبتلعة و16.4% من 800 حدّ): يُعاد بناؤه بـ`whisper_ac=256`
+#    لأنّ الكاشَ يبطل بتغيير `ac`، وبقاؤه هنا كان يُعيد البصمةَ نفسَها بـac=0.
 harraz_warsh	warsh	https://server16.mp3quran.net/H-Lharraz/Rewayat-Warsh-A-n-Nafi/{surah:03d}.mp3	4
 noah_qalun	qalun	https://archive.org/download/Al-Quran_Qaloon_tilawat_Yousuf_Nooh_Ahmad/{surah:03d}.mp3	4
 asim	hafs	https://server7.mp3quran.net/asim/Rewayat-Hafs-A-n-Assem/{surah:03d}.mp3	4
