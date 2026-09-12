@@ -148,6 +148,19 @@ def run_set(set_name, limit=0, chunk=60, timeout_per_file=90, chain=False):
             k, _, v = kv.partition("=")
             args += ["--es", k, v]
         adb(*args)
+        # 🚨 **إضافةُ نيّةٍ تُتجاهَل بصمتٍ = ذراعان متطابقتان وحكمٌ كاذب** («اللغةُ لا أثرَ لها»).
+        # المحركُ يطبع `RafiqFrontEnd … lang=<x>` عند استقبالها ⇒ تُتحقَّق مرّةً في أوّل دفعة، وإلا وقف المسح.
+        global _ES_VERIFIED
+        if EXTRA_ES and not _ES_VERIFIED:
+            time.sleep(3)
+            fe = adb("shell", "logcat", "-d", "-s", "RafiqFrontEnd:*").stdout or ""
+            missing = [kv for kv in EXTRA_ES if kv.replace(" ", "") not in fe.replace(" ", "")]
+            if missing:
+                raise SystemExit(f"⛔ المسبارُ لم يُقرّ بإضافات النيّة {missing} — سطرُ RafiqFrontEnd: "
+                                 f"{fe.strip().splitlines()[-1] if fe.strip() else 'لا شيء'!r}. "
+                                 "‏APK لا يدعمها ⇒ الذراعان ستتطابقان والحكمُ سيكذب.")
+            _ES_VERIFIED = True
+            print(f"✅ المسبارُ أقرّ بالإضافات: {' · '.join(EXTRA_ES)}", flush=True)
         deadline = time.time() + timeout_per_file * len(batch) + 120
         seen, last_n = {}, -1
         while time.time() < deadline:
@@ -185,6 +198,7 @@ def parse_log(log):
 
 
 EXTRA_ES = []        # إضافاتُ نيّةٍ نصّيّة من `--es` (D-303)
+_ES_VERIFIED = False # تُتحقَّق مرّةً من سجلّ المحرك: إضافةٌ مُتجاهَلةٌ بصمتٍ تُنتج ذراعَين متطابقتين
 LOCK = os.path.join(WORK, ".emu_sweep.lock")
 
 
