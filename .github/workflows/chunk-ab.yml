@@ -84,12 +84,17 @@ jobs:
           PYTHONIOENCODING: utf-8
         run: |
           cd tools/tasmi_bench
+          # 🎯 حدودٌ مثاليّةٌ من النسخة النظيفة — تفصل أثرَ **السمع** عن أثر **الحدود**.
+          python make_oracle_cuts.py --clean work/g4 --out work/oracle_g4.json
           for S in $(echo "${{ github.event.inputs.sets }}" | tr ',' ' '); do
             for R in v2 prop; do
               echo "▶ $S · قاعدةُ العتبة $R"
               python local_whisper.py --set "$S" --model q8 --backend cli \
                 --cli ../../wc/b/bin/whisper-cli --frontend new --floor-rule "$R" | tail -3
             done
+            echo "▶ $S · حدودٌ مثاليّة"
+            python local_whisper.py --set "$S" --model q8 --backend cli \
+              --cli ../../wc/b/bin/whisper-cli --frontend new --cuts-json work/oracle_g4.json | tail -3
           done
           ls -l work/hyps_q8_g4*.json 2>/dev/null | tail -8
       - name: الحكم
@@ -111,8 +116,9 @@ jobs:
               if not items:
                   print(f"| {os.path.basename(f)} | ⛔ بلا مرجع | | | | |"); continue
               a = SC.aggregate(SC.run(items, h, "proposed"))
-              rule = "**prop** (D-345)" if "floorprop" in f else "v2 (المشحون)"
-              st = os.path.basename(f).replace("hyps_q8_", "").replace("_fe-new", "").replace("_floorprop", "").replace(".json", "")
+              rule = ("🎯 **حدودٌ مثاليّة**" if "_oracle" in f
+                      else "**prop** سقفُ 0.9" if "floorprop" in f else "v2 (المشحون)")
+              st = os.path.basename(f).replace("hyps_q8_", "").replace("_fe-new", "").replace("_floorprop", "").replace("_oracle", "").replace(".json", "")
               print(f"| `{st}` | {rule} | {a['scored']} | **{a['accuracy']*100:.2f}٪** | "
                     f"[{a['ci95'][0]*100:.1f}–{a['ci95'][1]*100:.1f}] | {a['missed']} · {a['substituted']} · {a['additions']} |")
           PYJ
