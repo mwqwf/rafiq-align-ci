@@ -139,10 +139,20 @@ def run_set(set_name, limit=0, chunk=60, timeout_per_file=90, chain=False):
         fixed = sum(1 for nm, i in names.items() if nm != i)
         if fixed:
             print(f"    🕋 {fixed} بنداً دُفعت باسمٍ يُقرأ منه الروايةُ صحيحةً (مثال: {next(nm for nm, i in names.items() if nm != i)})", flush=True)
-        unknown = [i for nm, i in names.items() if nm == i and i.split("_")[0] not in RIWAYAT]
-        if unknown:
-            print(f"    ⚠️ {len(unknown)} بنداً لا تُشتقّ روايتُها من الاسم ⇒ حاكمُ المسبار سيسقط إلى حفص "
-                  f"(مثال: {unknown[0]}) — أحكامُه على هذه البنود لا تُحتسب.", flush=True)
+        # ⚠️ وحالتان لا حالةٌ واحدة، والفرقُ بينهما فرقُ خطرٍ لا فرقُ صياغة:
+        #   (أ) الاسمُ فيه SSSAAA لكن صدرُه ليس روايةً ⇒ نمطُ المسبار **يطابق** فيسقط إلى حفص ⇒ **حكمٌ كاذب**.
+        #   (ب) الاسمُ بلا SSSAAA (مثل `long_qalun_078_009x6`) ⇒ النمطُ **لا يطابق** فلا يُطبع حكمٌ أصلاً ⇒ **صمتٌ آمن**.
+        # ‏وصمتُ (ب) هو الصوابُ هنا لا عطبٌ يُصلَح: ملفُّ `x6` **ستُّ آياتٍ** فمرجعُ الآية الواحدة خطأٌ ابتداءً.
+        risky = [i for nm, i in names.items()
+                 if nm == i and i.split("_")[0] not in RIWAYAT and re.search(r"\d{3}\d{3}$", i)]
+        silent = [i for nm, i in names.items()
+                  if nm == i and i.split("_")[0] not in RIWAYAT and not re.search(r"\d{3}\d{3}$", i)]
+        if risky:
+            print(f"    ⛔ {len(risky)} بنداً صدرُ اسمها ليس روايةً ومع ذلك يطابق نمطَ المسبار ⇒ **سيسقط إلى حفص "
+                  f"فيحكم بمرجعٍ خاطئ** (مثال: {risky[0]}) — أحكامُ المحرك على هذه البنود لا تُحتسب.", flush=True)
+        if silent:
+            print(f"    ℹ️ {len(silent)} بنداً لا يطابق اسمُها نمطَ المسبار ⇒ لا سطرَ حكمٍ لها (متوقَّعٌ للمجموعات "
+                  f"متعدّدة الآيات: مثال {silent[0]}) — النصُّ يُقاس والحكمُ لا.", flush=True)
         adb("shell", f"chmod 777 {remote}/*.wav")
         adb("shell", "logcat", "-c")
         adb("shell", "am", "force-stop", PKG)
