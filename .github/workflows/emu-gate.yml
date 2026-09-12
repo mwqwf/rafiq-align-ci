@@ -183,6 +183,7 @@ jobs:
       - name: الحكمُ على المحرك
         env:
           PYTHONIOENCODING: utf-8
+          SUF: ${{ github.event.inputs.tag_suffix }}
         run: |
           cd tools/tasmi_bench
           ls work/hyps_emu_*.json || { echo "⛔ لا مخرَج من المحاكي"; exit 1; }
@@ -196,21 +197,24 @@ jobs:
             # 🛡️ **وضعُ الضابط** (بلا مرشَّح): لا زوجَ يُقارَن، فتُطبع أرقامُ الذراع المشحونة **المطلقة**
             # ليُقابَل بها المرجعُ المعروف (‏9.44٪ اتّهاماً ضجيجاً · G1 96.87٪). وكان يسقط بـ`--arms shipped -ar`.
             python - <<'PYJ' | tee "$M"
-          import json, sys
+          import json, os, sys
           sys.path.insert(0, ".")
           import v2_gate as G
+          # ⛔ 2026-09-12: وضعُ الضابط كان يقرأ الذراعَ `shipped` و**يتجاهل لاحقةَ الوسم**،
+          # والمسحُ يكتب `shipped-j` ⇒ لا يجد ملفاً فيُطبع **جدولٌ برأسٍ بلا صفوف** ويُحسب نجاحاً.
+          ARM = "shipped" + os.environ.get("SUF", "")
           plan = json.load(open("inject_plan_riwaya.json", encoding="utf-8"))["items"]
           print("| المجموعة | ن | اتّهامٌ كاذب | كشف |")
           print("|---|---:|---:|---:|")
           for s in ("g3r:noisy", "g3r:clean"):
-              h = G.load_hyps(s, "shipped")
+              h = G.load_hyps(s, ARM)
               if not h: continue
               d, fa, n, _ = G.judge_arm(plan, h)
               print(f"| {s} | {n} | {fa*100:.2f}٪ | {d*100:.1f}٪ |")
           import score as SC
           sample = SC.load_sample()
           for s in ("g1", "g2:noise-fan-5", "g2:learner-combo"):
-              h = G.load_hyps(s, "shipped")
+              h = G.load_hyps(s, ARM)
               if not h: continue
               items = [it for it in sample["items"] if it["id"] in h]
               a = SC.aggregate(SC.run(items, h, "proposed"))
