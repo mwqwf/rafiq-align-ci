@@ -92,18 +92,20 @@ jobs:
           echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
           sudo udevadm control --reload-rules && sudo udevadm trigger --name-match=kvm
           ls -l /dev/kvm || echo "⛔ لا /dev/kvm — المحاكي لن يقلع"
+      # ⚠️ **إعادةُ محاولةٍ إلزاميّة** (‏2026-09-12): شوطٌ سقط بـ`curl 35` (‏SSL) في هذه الخطوة
+      # قبل أن يُقلع المحاكي أصلاً ⇒ ساعةُ عدّاءٍ تضيع لعارضٍ يُعالجُ براية.
       - name: العدّة والمجموعات والنماذج
         run: |
           pip install -q numpy soundfile scipy
           mkdir -p models
-          curl -sSL -f -A "$UA" -o models/shipped.bin "$PUB/models/whisper-tiny-ar-quran/ggml-q8_0.bin"
+          curl -sSL -f --retry 4 --retry-delay 5 --retry-all-errors -A "$UA" -o models/shipped.bin "$PUB/models/whisper-tiny-ar-quran/ggml-q8_0.bin"
           if [ -n "${{ github.event.inputs.cand_tag }}" ]; then
             CU="${{ github.event.inputs.cand_url }}"
             [ -z "$CU" ] && CU="$PUB/finetune/out_${{ github.event.inputs.cand_tag }}/ggml-q8_0.bin"
             echo "⬇️ المرشَّح: $CU"
-            curl -sSL -f -A "$UA" -o models/cand.bin "$CU"
+            curl -sSL -f --retry 4 --retry-delay 5 --retry-all-errors -A "$UA" -o models/cand.bin "$CU"
           fi
-          curl -sSL -f -A "$UA" -o app.apk "${{ github.event.inputs.apk_url }}"; ls -l models app.apk
+          curl -sSL -f --retry 4 --retry-delay 5 --retry-all-errors -A "$UA" -o app.apk "${{ github.event.inputs.apk_url }}"; ls -l models app.apk
       - name: مجموعاتُ القياس (كاشُ tasmi-gate نفسُه)
         id: sets
         uses: actions/cache@v4
