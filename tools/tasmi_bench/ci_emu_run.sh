@@ -30,8 +30,10 @@ for A in $ARMS; do
       echo "▶ $SET · $A (افتراضُ التطبيق en)"
       python emu_sweep.py --set "$SET" --chain cap --chunk "$CHUNK" --tag "$A" --model-path "/data/local/tmp/q8_$A.bin" | tail -3
     else
+      # ⛔ والوسمُ يحمل اللغةَ صراحةً (`v2-ar` لا `v2`): ملفُّ الذراع القديمةِ المخدومةِ بـ`en` يحمل الاسمَ المجرَّد،
+      # فلو تساويا لكُتب أحدُهما فوق الآخر و**قورنت ذراعٌ بذراعٍ أخرى بلا أن يظهر في الرقم شيء**.
       echo "▶ $SET · $A · lang=ar (‏D-308: المضبوطُ يُقاس بما دُرِّب عليه)"
-      python emu_sweep.py --set "$SET" --chain cap --chunk "$CHUNK" --tag "$A" --model-path "/data/local/tmp/q8_$A.bin" --es "lang=ar" | tail -3
+      python emu_sweep.py --set "$SET" --chain cap --chunk "$CHUNK" --tag "$A-ar" --model-path "/data/local/tmp/q8_$A.bin" --es "lang=ar" | tail -3
     fi
   else
     for L in $LANGS; do

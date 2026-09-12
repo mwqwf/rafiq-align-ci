@@ -168,7 +168,7 @@ jobs:
             set -- ${{ github.event.inputs.langs }}
             python v2_gate.py --score-only --arms "shipped-$1" "shipped-$2" --md "$M"
           else
-            python v2_gate.py --score-only --arms shipped "$T" --md "$M"
+            python v2_gate.py --score-only --arms shipped "$T-ar" --md "$M"
           fi
           { echo "### 📱 emu-gate (المحركُ داخل محاكي العدّاء)"; cat "$M"; } >> "$GITHUB_STEP_SUMMARY"
       - name: رفعٌ إلى R2
