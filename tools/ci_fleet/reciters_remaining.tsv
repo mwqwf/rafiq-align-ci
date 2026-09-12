@@ -26,17 +26,24 @@
 # ⛔ ولا يُنقّح هذا الملفّ وموجتُه جارية — `assign_shard.py` يحسب التوزيعَ منه،
 #    فحذفُ صفٍّ يزيح ما بعده.
 
-# ── ورشٌ وقالون: أولويّةُ المالك الأولى (خمسة) ───────────────────────────
-kholti_warsh	warsh	https://archive.org/download/Tilawa.org_002/{surah:03d}.mp3	4
-harraz_warsh	warsh	https://server16.mp3quran.net/H-Lharraz/Rewayat-Warsh-A-n-Nafi/{surah:03d}.mp3	4
+# ⭐⭐ **والترتيبُ هنا ليس أولويّةً بل استئنافُ كاش** — وهذا مقيس:
+#    أحدَ عشرَ صفّاً على **اثنتي عشرةَ شاردة** ⇒ **لكلّ قارئٍ شاردتُه وحدَه
+#    وكلُّهم يعملون معاً**، فترتيبُ الأسطر لا يقدّم ورشاً على حفص بشيء.
+#    وإنما يحكمه شيءٌ آخر: `actions/cache` يستعيد بمفتاحٍ فيه **رقمُ الشاردة**
+#    (`align-work-ac0-vad<v>-<shard>-`)، وموجةُ `qw_new2` تُقتل بسقف الستّ
+#    ساعات وقد بقي فيها **maroush(0) · kholti(2) · janaini(8)** يعملون منذ
+#    18:45Z. فمن وُضع هنا على رقم شاردته القديم **استأنف عملَ ستّ ساعاتٍ
+#    محفوظاً** (‏والعملُ لكلّ قارئٍ في `work/batch_<معرّف>/` فلا يختلط اثنان).
+#    ⇒ maroush على 0 · kholti على 2 · janaini على 8. و`noah` كان شريكَ
+#    `maroush` على الشاردة 0 ولا يسع الاثنين موضعٌ واحد، **فيبدأ من أوّله**.
 maroush_qalun	qalun	https://archive.org/download/Kamal-Almaroush-Qalon/{surah:03d}.mp3	4
-janaini_qalun	qalun	https://archive.org/download/Al-Quran_Qaloon_tilawat_Aljanaini/{surah:03d}.mp3	4
+harraz_warsh	warsh	https://server16.mp3quran.net/H-Lharraz/Rewayat-Warsh-A-n-Nafi/{surah:03d}.mp3	4
+kholti_warsh	warsh	https://archive.org/download/Tilawa.org_002/{surah:03d}.mp3	4
 noah_qalun	qalun	https://archive.org/download/Al-Quran_Qaloon_tilawat_Yousuf_Nooh_Ahmad/{surah:03d}.mp3	4
-
-# ── حفص: ما بقي قابلاً للتنفيذ (ستة) ─────────────────────────────────────
 h_saleh	hafs	https://server16.mp3quran.net/h_saleh/Rewayat-Hafs-A-n-Assem/{surah:03d}.mp3	4
 saad	hafs	https://server16.mp3quran.net/saad/Rewayat-Hafs-A-n-Assem/{surah:03d}.mp3	4
 asim	hafs	https://server7.mp3quran.net/asim/Rewayat-Hafs-A-n-Assem/{surah:03d}.mp3	4
-f_hajry	hafs	https://server16.mp3quran.net/f_hajry/Rewayat-Hafs-A-n-Assem/{surah:03d}.mp3	4
 mhsny	hafs	https://server11.mp3quran.net/mhsny/{surah:03d}.mp3	4
+janaini_qalun	qalun	https://archive.org/download/Al-Quran_Qaloon_tilawat_Aljanaini/{surah:03d}.mp3	4
+f_hajry	hafs	https://server16.mp3quran.net/f_hajry/Rewayat-Hafs-A-n-Assem/{surah:03d}.mp3	4
 h_dukhain	hafs	https://server16.mp3quran.net/h_dukhain/Rewayat-Hafs-A-n-Assem/{surah:03d}.mp3	4
