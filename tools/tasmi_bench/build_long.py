@@ -59,8 +59,12 @@ def main():
     items = []
 
     for riwaya in ("warsh", "qalun"):
-        jz = os.path.join(WORK, f"husary_{riwaya}.jz")
-        d = json.loads(gzip.open(jz, "rt", encoding="utf-8").read())
+        # ⛔ **سقطت ذراعا التلاوة الطويلة في CI بـ`FileNotFoundError: husary_warsh.jz`** (‏2026-09-12):
+        # الأداةُ كانت تفترض الطوابعَ موجودةً على القرص، و`inject_riwaya_local.py` لا يُنزّلها
+        # (‏الذي يُنزّلها هو `inject_riwaya.py` وهو لا يُشغَّل في مسار المحاكي). فصارت تُنزّلها بنفسها
+        # بالدالّة القائمة — أداةٌ لا تكتمل إلا بخطوةٍ في مسارٍ آخرَ تسقط في كلّ مسارٍ سواه.
+        import inject_riwaya as IR
+        d = IR.load_timings(riwaya, WORK)
         text = load_text(riwaya)
         # فهرسٌ: (سورة، آية) ⇒ حدودُها في ملفِّ السورة، للآيات كاملةِ الشاهد وحدَها
         by = {}

@@ -55,13 +55,20 @@ class Config:
                  strip_yeh_barree=True, dagger_optional=True, naql=False, sila=None, mark_sila=True,
                  learner_tolerant=False, wide_uncertain=False, wide_uncertain_min=6,
                  collapse_threshold=0.60, short_cap=3, phon=None, phon_cap=3,
-                 dagger_madd=True, abs_cap=None, drop_subs=()):
+                 dagger_madd=True, abs_cap=None, drop_subs=(), strict_short=False):
         self.match_num, self.match_den = match_num, match_den
         # D-290: جدولُ الإبدال `_SUBS` (‏ة⇒ه · ى⇒ي · الهمزاتُ⇒ا · ء⇒حذف …) هو **أقدمُ رخصةٍ
         # في المِسطرة وأقلُّها فحصاً**: لم تُوزن واحدةٌ منه في دفتر D-286. وهذا المعلَمُ يُلغي
         # إبدالاتٍ بعينِها (بحرفِ المصدر) كي تُوزن كما وُزنت أخواتُها. **`()` = المشحون حرفاً
         # بحرف** (الجدولُ كاملاً) ولا يُغيَّر افتراضُه البتّة؛ الأذرعُ تُمرَّر في أداة القياس وحدَها.
         self.drop_subs = tuple(drop_subs)
+        # 🎚️ **D-323 (جلسةُ التطبيق) — `criticalPairsUncertain`:** الزوجُ القصير (‏≤3 أحرف) يفرق بحرفٍ
+        # واحدٍ يُحسب **صحيحاً** في المشحون، فـ«لم/لن · لا/ما · هو/هي · قل/كل · من/مع» تمرّ وهي كلماتٌ
+        # يقلب إبدالُها المعنى. وبالتفعيل تسقط تلك الرخصةُ من `_matches` ويصير الحكمُ `UNCERTAIN`.
+        # ‏`False` = **المشحون حرفاً بحرف** ولا يُغيَّر افتراضُه: كلُّ خطوط الأساس مقيسةٌ عليه.
+        # ومرآةُ الكوتلن بنصّها: `matches` تُسقط `(!strictShort && n <= 3 && d <= 1)`، و`shortPairUncertain`
+        # تُرجع `max(len(r), len(hyp)) <= 3 && edit(r, hyp) <= 1`.
+        self.strict_short = strict_short
         # D-283: بديلُ رخصةِ القصيرة المقترَحُ في D-282 §4 — جدولُ التباسٍ صوتيٍّ ضيّق.
         # None = **المشحون** (لا جدولَ البتّة) ⇒ السلوكُ الافتراضيُّ لا يتغيّر حرفاً.
         # "same" = إبدالُ حرفٍ واحدٍ من **مخرجٍ واحد**؛ "adj" = يضاف إليه المخرجُ المجاور.
@@ -139,8 +146,14 @@ def norm(word, cfg=DEFAULT):
     # `عَلَىٰ` تُقرأ «على» ويكتبها whisper «علي». فتحويلُها ألفاً يعطي «عليا» فتُحسب
     # الكلمةُ الصحيحة خطأً. وهي 159 موضعاً في أوّل ألفي آيةٍ من رسم ورش وحدَها.
     # ⛔ **D-275:** والخنجريّةُ فوق الألف كذلك **مدُّها لا ألفٌ ثانية**: `اٰمَنَ` هي «آمَنَ»
-    # ويكتبها whisper «آمن» ⇒ «امن»، فتحويلُها ألفاً يعطي «اامن». وهي 847 كلمةً في
-    # الروايات الثلاث (‏382 ورشاً · 261 قالون · 204 حفصاً).
+    # ويكتبها whisper «آمن» ⇒ «امن»، فتحويلُها ألفاً يعطي «اامن».
+    # 📏 **تصحيحُ عددٍ (مناوبةٌ سحابية 2026-09-12 · D-322):** كان مكتوباً هنا وفي المحرك «847 كلمةً في
+    # الروايات الثلاث (‏382 ورشاً · 261 قالون · 204 حفصاً)». وقِيس على أصول المستودع اليومَ
+    # (‏237,729 كلمةً في الروايات الثلاث): الزوجُ الملتصق `اٰ` — وهو وحدَه ما تمسّه هذه القاعدة —
+    # **177 موضعاً · 76 كلمةً فريدة · في ورشٍ وحدَها**، وصفرٌ في حفصٍ وقالون. ولا موضعَ واحدٌ
+    # تفصل فيه حركةٌ بين الألف والخنجرية ⇒ ليست القاعدةُ أضيقَ من رسمها، بل العددُ كان أوسعَ منه.
+    # ⚠️ والقاعدةُ **عاملةٌ لا زائدة**: حذفُها يقلب `اٰمَنَ` إلى «اامن» — يُثبته الضبطُ السالب في
+    # `RecitationNormParityTest` (‏12 انحرافاً).
     w = word.replace("ىٰ", "ى").replace("اٰ", "ا") if cfg.dagger_madd else word
     w = w.replace("ٰ", "ا") if cfg.khanjariya else w
     return _NON_ARABIC.sub("", _apply_subs(_STRIP.sub("", w), cfg))
@@ -247,7 +260,7 @@ def _matches(ref, hyp, cfg):
         if (_d * cfg.match_den <= cfg.match_num * _n
                 and (cfg.abs_cap is None or _d <= cfg.abs_cap)):
             return True
-        if _n <= cfg.short_cap and _d <= 1:
+        if not cfg.strict_short and _n <= cfg.short_cap and _d <= 1:
             return True
         # D-283: يُضاف **بعد** المشحون لا بدَله ⇒ افتراضُه (`phon=None`) لا يغيّر حكماً واحداً.
         if cfg.phon and _phon_ok(r, hyp, cfg):
@@ -274,6 +287,14 @@ def _collapse_guard(words, cfg):
     return [None if w is None else
             ((w[0], UNCERTAIN) + tuple(w[2:]) if w[1] in (MISSED, SUBSTITUTED) else w)
             for w in words]
+
+
+def _short_pair_uncertain(ref, hyp, cfg):
+    """مرآةُ `RecitationScorer.shortPairUncertain`: زوجٌ قصير (‏≤3) بفارق حرفٍ ⇒ شكٌّ لا صحّة."""
+    if not cfg.strict_short:
+        return False
+    refs = ref if isinstance(ref, tuple) else (ref,)
+    return any(max(len(r), len(hyp)) <= 3 and _edit(r, hyp) <= 1 for r in refs)
 
 
 def _near(ref, hyp, cfg):
@@ -343,7 +364,7 @@ def score(ref_words, hyp_text, cfg=DEFAULT):
             break
         pi, pj, op = b
         if op == 0:
-            words[pi] = (pi, CORRECT if _matches(ref[pi], hyp[pj], cfg) else (UNCERTAIN if _near(ref[pi], hyp[pj], cfg) else SUBSTITUTED), hyp[pj])
+            words[pi] = (pi, CORRECT if _matches(ref[pi], hyp[pj], cfg) else (UNCERTAIN if (_near(ref[pi], hyp[pj], cfg) or _short_pair_uncertain(ref[pi], hyp[pj], cfg)) else SUBSTITUTED), hyp[pj])
         elif op == 1:
             words[pi] = (pi, MISSED, None)
         elif op == 2:

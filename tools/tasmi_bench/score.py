@@ -41,8 +41,11 @@ def config_for(name, riwaya):
     ⇒ صار الذراعان واحداً اليوم، ويبقى الاسمان لأن `proposed` موضعُ التجريب القادم.
     """
     # D-248: ملفُّ الرواية — النقل لورش وحده، والصلة لورش وقالون، وصلة ۦ/ۥ للجميع (مرآة RiwayaProfile).
+    # ⚖️ `critical` = المشحونُ **مع** `criticalPairsUncertain` (‏D-323) — إعدادٌ ثالثٌ لا يمسّ الاثنين
+    # قبله، فتبقى كلُّ خطوط الأساس صالحةً ويصير المفتاحُ قابلاً للتصديق على أحكام المحرك.
     return scorer.Config(strip_yeh_barree=True, dagger_optional=True, naql=riwaya == "warsh",
-                         sila=riwaya in ("warsh", "qalun"), mark_sila=True)
+                         sila=riwaya in ("warsh", "qalun"), mark_sila=True,
+                         strict_short=name == "critical")
 
 
 def run(items, hyps, cfg="shipped", exclude=()):
