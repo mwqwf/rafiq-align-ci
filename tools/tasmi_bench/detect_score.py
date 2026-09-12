@@ -23,9 +23,17 @@ sys.path.insert(0, HERE)
 import scorer  # noqa: E402
 
 def cfg_for(riwaya):
-    """حفص بلا نقل، وورش/قالون به — كما يُشحن (‏naqlTolerant)."""
+    """ملفُّ الرواية كما في `score.config_for("proposed", …)` بالضبط — مرآةُ `RiwayaProfile`.
+
+    ⛔ **صُحّح 2026-09-08:** كان هنا `naql = riwaya not in (None, "hafs")`، أي **نقلٌ لقالون
+    أيضاً** — وقالونٌ **يصل ولا ينقل** (‏D-248). فكان الحاكمُ يحتمل في قالون ما لا يُحتمل فيه،
+    فيخفض إنذارَه الكاذب خفضاً كاذباً. ولم يظهر العطبُ قطُّ لأن مجموعةَ الحقن كانت **حفصاً
+    خالصاً** فلا يمرّ بهذا الفرع أصلاً — حتى بُنيت مجموعةُ ورشٍ وقالون.
+    ⇒ **فرعٌ لا تمرّ به عيّنتُك لا يُحرسه اختبارُك.**
+    """
     return scorer.Config(strip_yeh_barree=True, dagger_optional=True,
-                         naql=riwaya not in (None, "hafs"))
+                         naql=riwaya == "warsh",
+                         sila=riwaya in ("warsh", "qalun"), mark_sila=True)
 
 
 def judge(items, hyps):

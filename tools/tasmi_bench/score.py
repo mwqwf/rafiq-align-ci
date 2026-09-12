@@ -31,12 +31,18 @@ def load_sample():
 
 
 def config_for(name, riwaya):
-    """إعداد الحاكم: `shipped` = المشحون اليوم، `proposed` = بعد إصلاحات
-    التقرير (ے→ي، الخنجرية اختيارية، والنقل/الصلة **لورش وقالون وحدهما**
-    لأن إسقاط «ال» في حفص خطأُ تلاوةٍ يجب أن يُكشف)."""
-    if name == "shipped":
-        return scorer.DEFAULT
-    return scorer.Config(strip_yeh_barree=True, dagger_optional=True, naql=riwaya != "hafs")
+    """إعداد الحاكم: `shipped` = المشحون اليوم، `proposed` = بعد إصلاحات التقرير.
+
+    ⛔ **D-276 (‏2026-09-11):** كان `shipped` يعيد `scorer.DEFAULT` وفيه
+    `dagger_optional=False` و`mark_sila=False` والنقل/الصلة مطفأتان للجميع — وذلك
+    **ليس المشحون**: المحرك يضيف صورةَ «بلا خنجرية» وصورتَي ۦ/ۥ بلا شرط، ويقيّد النقلَ
+    والصلةَ بملفّ الرواية (`RiwayaProfile`). والشاهدُ من العدّة نفسِها: حزمةُ التماثل
+    تُولَّد بهذا الإعداد بعينه ثم يطابقها `RecitationScorerParityTest` على المحرك الحقيقي.
+    ⇒ صار الذراعان واحداً اليوم، ويبقى الاسمان لأن `proposed` موضعُ التجريب القادم.
+    """
+    # D-248: ملفُّ الرواية — النقل لورش وحده، والصلة لورش وقالون، وصلة ۦ/ۥ للجميع (مرآة RiwayaProfile).
+    return scorer.Config(strip_yeh_barree=True, dagger_optional=True, naql=riwaya == "warsh",
+                         sila=riwaya in ("warsh", "qalun"), mark_sila=True)
 
 
 def run(items, hyps, cfg="shipped", exclude=()):

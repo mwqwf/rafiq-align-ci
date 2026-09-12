@@ -19,6 +19,19 @@ from remote_whisper import MODEL, TMP, WHISPER, sh, split_windows
 SR = 16000
 
 
+
+def _decode(cmd, src, dst, runner):
+    """⚠️ منسوخةٌ عمداً (لا مستورَدة): هذا السكربت يُنفَّذ على خادمٍ بعيد بلا بقيّة العدّة.
+    الأصلُ وشرحُ العلّة في `tools/tasmi_bench/decode.py`."""
+    r = runner(cmd)
+    ok = r.returncode == 0 and os.path.exists(dst) and os.path.getsize(dst) > 44
+    if ok:
+        return r
+    if str(src).lower().endswith(".mp3") and "-i" in cmd:
+        i = cmd.index("-i")
+        r = runner(cmd[:i] + ["-f", "mp3"] + cmd[i:])
+    return r
+
 def fetch_wav(url, dst, trim=None):
     """ينزّل ويحوّل 16ك.هز؛ و[trim] (بالمللي، مطلقاً في الملف) يقتطع الآية من
     ملف السورة أولاً — فتصير إزاحات الجراحة نسبيةً إلى بداية الآية."""
@@ -34,10 +47,11 @@ def fetch_wav(url, dst, trim=None):
     cmd = ["ffmpeg", "-y", "-v", "error"]
     if trim:
         cmd += ["-ss", f"{trim[0]/1000:.3f}"]
-    cmd += ["-i", src]
+    cmd += ["-i", src, "-vn"]
     if trim:
         cmd += ["-t", f"{(trim[1]-trim[0])/1000:.3f}"]
-    r = sh(cmd + ["-ar", str(SR), "-ac", "1", dst])
+    full = cmd + ["-ar", str(SR), "-ac", "1", dst]
+    r = _decode(full, src, dst, sh)
     os.remove(src)
     if r.returncode:
         raise RuntimeError("ffmpeg: " + r.stderr[-200:])

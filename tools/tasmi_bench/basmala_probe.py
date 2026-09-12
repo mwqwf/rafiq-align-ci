@@ -8,6 +8,7 @@
 import json, os, subprocess, sys, urllib.request
 sys.path.insert(0, "/root/QuranRafiq/tools/alignment")
 from common import FFMPEG, MODEL_Q8, WHISPER_CLI, norm
+from decode import run_decode
 
 W = "/root/basmala"; os.makedirs(W, exist_ok=True)
 WIN_MS = 12_000
@@ -16,9 +17,9 @@ BAS = norm("بسم الله الرحمن الرحيم").split()
 
 def words_of_clip(mp3, start_ms, tag):
     wav = f"{W}/{tag}.wav"
-    subprocess.run([FFMPEG, "-y", "-v", "error", "-ss", f"{start_ms/1000:.3f}",
-                    "-i", mp3, "-t", f"{WIN_MS/1000:.3f}", "-ar", "16000",
-                    "-ac", "1", wav], check=True)
+    run_decode([FFMPEG, "-y", "-v", "error", "-ss", f"{start_ms/1000:.3f}",
+                "-i", mp3, "-vn", "-t", f"{WIN_MS/1000:.3f}", "-ar", "16000",
+                "-ac", "1", wav], mp3, wav)
     base = f"{W}/{tag}"
     r = subprocess.run([WHISPER_CLI, "-m", MODEL_Q8, "-f", wav, "-l", "ar",
                         "-oj", "-ojf", "-ml", "1", "-sow", "-nfa", "-dtw", "tiny",

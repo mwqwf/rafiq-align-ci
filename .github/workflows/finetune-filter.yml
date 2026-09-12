@@ -1,0 +1,163 @@
+# 🌐 نسخةُ مستودع الحوسبة العامّ (دقائقُ Actions بلا حدّ) — السكربتات مرآةُ QuranRafiq/tools · السرُّ الواحد R2_CREDENTIALS_JSON
+# 🔎 تصفيةُ عناوين مجموعة التدريب كاملةً (‏label_audit.py --n 0) — بلا جهاز المالك.
+#   gh workflow run finetune-filter.yml [-f shards=4] [-f launch=true] [-f recipe="…"]
+# D-293/D-294: الجزءُ (~5,960 مقطعاً) يُقسَم شرائحَ (‏--shard i/k) تعمل بالتوازي بـwhisper-cli q8 (‏≈1.5 ث/مقطع)، وكلُّ شريحةٍ
+# تحفظ دورياً وتُرفع ولو قُتلت، ثم تُدمج الشرائحُ بالمفتاح الفريد إلى `finetune/data_v2/<part>.audit.json` (يقرؤه train.py مع
+# `--min-match`)، ثم يُطلق v4 آلياً. ⛔ العتبةُ على `match` بصور الحاكم (‏D-292) لا على الصورة الصارمة.
+name: finetune-filter
+on:
+  workflow_dispatch:
+    inputs:
+      parts:
+        description: "الأجزاء"
+        required: false
+        default: "g0 g1 g2 g3"
+      shards:
+        description: "عددُ الشرائح لكلِّ جزء"
+        required: false
+        default: "4"
+      launch:
+        description: "بعد التصفية: أطلق تدريبَ v4 آلياً (finetune-train-cpu ببادئة out_v4)"
+        required: false
+        default: "true"
+      recipe:
+        description: "وسائطُ train.py لـv4 (‏D-295: مرساةُ KL إلى الأساس + إسقاطُ الحوافّ فقط)"
+        required: false
+        default: "--target norm --no-trim --lr 5e-6 --drop-edge 0.3 --anchor-kl 1.0 --anchor-by-match"
+permissions:
+  actions: write
+  contents: read
+env:
+  PUB: https://pub-2c2e1dcd92e84a2898820dd38d3e09e6.r2.dev
+  UA: "Mozilla/5.0 (QuranRafiq finetune filter)"
+jobs:
+  prep:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    outputs:
+      matrix: ${{ steps.mx.outputs.matrix }}
+    steps:
+      - name: whisper.cpp (ثنائيٌّ ساكن) + النموذج المشحون
+        run: |
+          sudo apt-get install -y -qq cmake build-essential > /dev/null
+          git clone -q --depth 1 https://github.com/ggml-org/whisper.cpp /tmp/wcpp
+          cmake -S /tmp/wcpp -B /tmp/wcpp/build -DCMAKE_BUILD_TYPE=Release -DBUILD_SHARED_LIBS=OFF -DWHISPER_BUILD_TESTS=OFF > /dev/null
+          cmake --build /tmp/wcpp/build --config Release -j"$(nproc)" --target whisper-cli > /dev/null
+          mkdir -p tools_bin && cp /tmp/wcpp/build/bin/whisper-cli tools_bin/
+          curl -sSL -f -A "$UA" -o tools_bin/shipped.bin "$PUB/models/whisper-tiny-ar-quran/ggml-q8_0.bin"; ls -l tools_bin
+      - uses: actions/upload-artifact@v4
+        with:
+          name: tools_bin
+          path: tools_bin
+          retention-days: 2
+      - id: mx
+        run: |
+          python3 - <<'PY' >> "$GITHUB_OUTPUT"
+          import json, os
+          parts = "${{ github.event.inputs.parts }}".split(); k = int("${{ github.event.inputs.shards }}")
+          print("matrix=" + json.dumps({"include": [{"part": p, "shard": f"{i}/{k}", "i": i} for p in parts for i in range(k)]}))
+          PY
+  shard:
+    needs: prep
+    runs-on: ubuntu-latest
+    timeout-minutes: 300
+    strategy:
+      fail-fast: false
+      matrix: ${{ fromJson(needs.prep.outputs.matrix) }}
+    env:
+      P: ${{ matrix.part }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: r2 creds (من السرّ الواحد R2_CREDENTIALS_JSON)
+        env:
+          R2_CREDENTIALS_JSON: ${{ secrets.R2_CREDENTIALS_JSON }}
+        run: |
+          mkdir -p secure && printf '%s' "$R2_CREDENTIALS_JSON" > secure/r2_credentials.json
+          python3 - <<'PY2' >> "$GITHUB_ENV"
+          import json
+          c = json.load(open("secure/r2_credentials.json"))
+          for k, v in {"R2_ENDPOINT": c["endpoint"], "R2_ACCESS_KEY_ID": c["accessKeyId"], "R2_SECRET_ACCESS_KEY": c["secretAccessKey"], "R2_BUCKET": c["bucket"]}.items():
+              print(f"::add-mask::{v}"); print(f"{k}={v}")
+          PY2
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - uses: actions/download-artifact@v4
+        with:
+          name: tools_bin
+          path: tools_bin
+      - name: data
+        run: |
+          pip install -q numpy soundfile
+          chmod +x tools_bin/whisper-cli
+          sudo mkdir -p /mnt/ft && sudo chown -R "$USER" /mnt/ft && mkdir -p /mnt/ft/data
+          curl -sSL -f -A "$UA" -o "/mnt/ft/$P.tar" "$PUB/finetune/data_v2/$P.tar" && tar -xf "/mnt/ft/$P.tar" -C /mnt/ft/data && rm -f "/mnt/ft/$P.tar"
+          cp "/mnt/ft/data/$P/manifest.jsonl" /mnt/ft/data/manifest.jsonl; wc -l /mnt/ft/data/manifest.jsonl; nproc
+      - name: audit shard ${{ matrix.shard }}
+        env:
+          PYTHONIOENCODING: utf-8
+        run: |
+          python tools/finetune/label_audit.py --data /mnt/ft/data --n 0 --shard "${{ matrix.shard }}" --bs 8 --ckpt 10 \
+            --cli "$PWD/tools_bin/whisper-cli" --model "$PWD/tools_bin/shipped.bin" --out "/mnt/ft/$P.s${{ matrix.i }}.audit.json" | grep -v "^[0-9]*/[0-9]*$" | tail -30
+      - name: keep shard (ولو قُتل الشوط)
+        if: always()
+        run: mkdir -p out && cp /mnt/ft/$P.s${{ matrix.i }}.audit.json out/ 2>/dev/null || echo "⚠️ لا مخرَج للشريحة"
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: audit-${{ matrix.part }}-${{ matrix.i }}
+          path: out
+          retention-days: 7
+          if-no-files-found: ignore
+  merge:
+    needs: shard
+    if: always()
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - name: r2 creds (من السرّ الواحد R2_CREDENTIALS_JSON)
+        env:
+          R2_CREDENTIALS_JSON: ${{ secrets.R2_CREDENTIALS_JSON }}
+        run: |
+          mkdir -p secure && printf '%s' "$R2_CREDENTIALS_JSON" > secure/r2_credentials.json
+          python3 - <<'PY2' >> "$GITHUB_ENV"
+          import json
+          c = json.load(open("secure/r2_credentials.json"))
+          for k, v in {"R2_ENDPOINT": c["endpoint"], "R2_ACCESS_KEY_ID": c["accessKeyId"], "R2_SECRET_ACCESS_KEY": c["secretAccessKey"], "R2_BUCKET": c["bucket"]}.items():
+              print(f"::add-mask::{v}"); print(f"{k}={v}")
+          PY2
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - run: pip install -q numpy soundfile boto3
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: audit-*
+          merge-multiple: true
+          path: shards
+      - name: دمجُ الشرائح ورفعُ audit.json لكلِّ جزء
+        env:
+          PYTHONIOENCODING: utf-8
+        run: |
+          ls -l shards || true
+          ARGS=""
+          for p in ${{ github.event.inputs.parts }}; do
+            python tools/finetune/audit_merge.py "shards/$p.audit.json" shards/$p.s*.audit.json | tee -a merge.log || echo "⚠️ $p: لا شرائح"
+            [ -f "shards/$p.audit.json" ] && ARGS="$ARGS shards/$p.audit.json finetune/data_v2/$p.audit.json"
+          done
+          [ -n "$ARGS" ] && python tools/finetune/r2_put.py $ARGS
+          { echo '### 🔎 filter · merged'; echo '```'; cat merge.log; echo '```'; } >> "$GITHUB_STEP_SUMMARY"
+  launch-v4:
+    needs: merge
+    if: github.event.inputs.launch == 'true' && needs.merge.result == 'success'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: أطلق v4 (وصفةُ v3 + تصفيةُ العناوين) — ثم يطلق التدريبُ بوّابةَ CI بنفسه
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh workflow run finetune-train-cpu.yml -R "$GITHUB_REPOSITORY" -f prefix=finetune/out_v4 -f epochs=1.0 \
+            -f extra="${{ github.event.inputs.recipe }}" \
+            && echo "🚀 v4 أُطلق: out_v4 · ${{ github.event.inputs.recipe }}"

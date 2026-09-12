@@ -23,6 +23,19 @@ MODEL = f"{HOME}/QuranRafiq/assets-archive/ggml/ggml-tiny-ar-quran-q8_0.bin"
 TMP = "/tmp/tasmi"
 
 
+
+def _decode(cmd, src, dst, runner):
+    """⚠️ منسوخةٌ عمداً (لا مستورَدة): هذا السكربت يُنفَّذ على خادمٍ بعيد بلا بقيّة العدّة.
+    الأصلُ وشرحُ العلّة في `tools/tasmi_bench/decode.py`."""
+    r = runner(cmd)
+    ok = r.returncode == 0 and os.path.exists(dst) and os.path.getsize(dst) > 44
+    if ok:
+        return r
+    if str(src).lower().endswith(".mp3") and "-i" in cmd:
+        i = cmd.index("-i")
+        r = runner(cmd[:i] + ["-f", "mp3"] + cmd[i:])
+    return r
+
 def sh(cmd):
     return subprocess.run(cmd, capture_output=True, text=True)
 
@@ -43,11 +56,12 @@ def prepare(it):
     cmd = ["ffmpeg", "-y", "-v", "error"]
     if it.get("startMs") is not None:
         cmd += ["-ss", f"{it['startMs']/1000:.3f}"]
-    cmd += ["-i", src]
+    cmd += ["-i", src, "-vn"]
     if it.get("endMs") is not None:
         cmd += ["-t", f"{(it['endMs']-it['startMs'])/1000:.3f}"]
     cmd += ["-ar", "16000", "-ac", "1", wav]
-    r = subprocess.run(cmd, capture_output=True, text=True)
+    r = _decode(cmd, src, wav,
+                lambda c: subprocess.run(c, capture_output=True, text=True))
     os.remove(src)
     if r.returncode:
         raise RuntimeError("ffmpeg: " + r.stderr[-200:])

@@ -21,7 +21,7 @@ sys.path.insert(0, HERE)
 import scorer  # noqa: E402
 
 OUT = os.path.join(ROOT, "engine", "recitation", "src", "test", "resources", "parity_fixture.tsv")
-CODE = {scorer.CORRECT: "C", scorer.MISSED: "M", scorer.SUBSTITUTED: "S"}
+CODE = {scorer.CORRECT: "C", scorer.MISSED: "M", scorer.SUBSTITUTED: "S", scorer.UNCERTAIN: "U"}
 
 
 def cases():
@@ -31,16 +31,21 @@ def cases():
     for it in sample["items"]:
         h = hyps.get(it["id"])
         if h and h.get("text"):
+            # D-248: العمود الرابع صار معرّفَ الرواية (ملفّها في RiwayaProfile) لا علماً منطقياً.
             out.append({"name": it["id"], "ref": it["refText"], "hyp": h["text"],
-                        "naql": it["riwaya"] != "hafs"})
+                        "riwaya": it["riwaya"]})
     # حالات مصنوعة: تلاوة ناقصة/زائدة/مُبدلة/مدغمة على آية معلومة
     ref = next((c["ref"] for c in out if len(c["ref"].split()) >= 4), "بسم الله الرحمن الرحيم")
     w = ref.split()
     if len(w) >= 4:
         plain = " ".join(scorer.norm(x) for x in w)
         out += [
-            {"name": "synth_naql_alif", "ref": "اَ۬لَايْكَةِ لَظَٰلِمِينَ", "hyp": "ليكه لظالمين", "naql": True},
-            {"name": "synth_naql_off_for_hafs", "ref": "اَ۬لَايْكَةِ لَظَٰلِمِينَ", "hyp": "ليكه لظالمين", "naql": False},
+            {"name": "synth_naql_alif", "ref": "اَ۬لَايْكَةِ لَظَٰلِمِينَ", "hyp": "ليكه لظالمين", "riwaya": "warsh"},
+            {"name": "synth_naql_off_for_hafs", "ref": "اَ۬لَايْكَةِ لَظَٰلِمِينَ", "hyp": "ليكه لظالمين", "riwaya": "hafs"},
+            # D-248: قالون يصل الميم ولا ينقل؛ وصلة ۦ/ۥ للجميع
+            {"name": "synth_qalun_sila_no_naql", "ref": "عَلَيْهِمُۥ اَ۬لَارْضُ", "hyp": "عليهمو لرض", "riwaya": "qalun"},
+            {"name": "synth_warsh_sila_and_naql", "ref": "عَلَيْهِمُۥ اَ۬لَارْضُ", "hyp": "عليهمو لرض", "riwaya": "warsh"},
+            {"name": "synth_hafs_ha_sila", "ref": "فَإِنَّهُۥ بِهِۦ", "hyp": "فانهو بهي", "riwaya": "hafs"},
             {"name": "synth_missing_word", "ref": ref,
              "hyp": " ".join(scorer.norm(x) for x in w[:-1])},
             {"name": "synth_extra_word", "ref": ref, "hyp": plain + " ثم"},
@@ -56,8 +61,9 @@ def cases():
 def main():
     data = []
     for c in cases():
-        cfg = scorer.Config(strip_yeh_barree=True, dagger_optional=True,
-                            naql=bool(c.get("naql")))
+        rw = c.get("riwaya", "hafs")
+        cfg = scorer.Config(strip_yeh_barree=True, dagger_optional=True, naql=rw == "warsh",
+                            sila=rw in ("warsh", "qalun"), mark_sila=True)
         s = scorer.score(c["ref"].split(), c["hyp"], cfg)
         data.append({**c, "verdicts": "".join(CODE[v[1]] for v in s["words"]),
                      "additions": s["additions"]})
@@ -66,10 +72,10 @@ def main():
     # (‏org.json مُجوّف)، والحزمة لا تحتمل تبعية لأجل ملف حالات.
     with open(OUT, "w", encoding="utf-8", newline=chr(10)) as f:
         f.write("# مولّد: tools/tasmi_bench/make_parity_fixture.py — لا يُحرَّر يدوياً" + chr(10))
-        f.write(chr(9).join(["# name", "ref", "hyp", "naql", "verdicts", "additions"]) + chr(10))
+        f.write(chr(9).join(["# name", "ref", "hyp", "riwaya", "verdicts", "additions"]) + chr(10))
         for d in data:
             f.write(chr(9).join([d["name"], d["ref"], d["hyp"],
-                                 "1" if d.get("naql") else "0", d["verdicts"],
+                                 d.get("riwaya", "hafs"), d["verdicts"],
                                  " ".join(d["additions"])]) + chr(10))
     print(f"✅ {len(data)} حالة → {OUT}")
 

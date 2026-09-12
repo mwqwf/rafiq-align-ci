@@ -16,6 +16,7 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 ROOT = os.path.dirname(os.path.dirname(HERE))
 sys.path.insert(0, os.path.join(ROOT, "tools", "alignment"))
 from common import FFMPEG, fetch_retry, ffprobe_duration_ms  # noqa: E402
+from decode import run_decode
 
 WORK = os.path.join(HERE, "work")
 WAV = os.path.join(WORK, "wav")
@@ -24,7 +25,11 @@ TMP = os.path.join(WORK, "tmp")
 
 def r2_client():
     import boto3
-    c = json.load(open(os.path.join(ROOT, "secure", "r2_credentials.json")))
+    if os.environ.get("R2_ACCESS_KEY_ID"):          # CI (‏tasmi-gate): الاعتمادُ من أسرار البيئة لا من الملفّ
+        c = {"endpoint": os.environ["R2_ENDPOINT"], "accessKeyId": os.environ["R2_ACCESS_KEY_ID"],
+             "secretAccessKey": os.environ["R2_SECRET_ACCESS_KEY"], "bucket": os.environ["R2_BUCKET"]}
+    else:
+        c = json.load(open(os.path.join(ROOT, "secure", "r2_credentials.json")))
     return boto3.client("s3", endpoint_url=c["endpoint"], aws_access_key_id=c["accessKeyId"],
                         aws_secret_access_key=c["secretAccessKey"], region_name="auto"), c["bucket"]
 
@@ -33,11 +38,11 @@ def to_wav(src, dst, start_ms=None, end_ms=None):
     cmd = [FFMPEG, "-y", "-v", "error"]
     if start_ms is not None:
         cmd += ["-ss", f"{start_ms/1000:.3f}"]
-    cmd += ["-i", src]
+    cmd += ["-i", src, "-vn"]
     if end_ms is not None:
         cmd += ["-t", f"{(end_ms-start_ms)/1000:.3f}"]
     cmd += ["-ar", "16000", "-ac", "1", dst]
-    subprocess.run(cmd, check=True)
+    run_decode(cmd, src, dst)
 
 
 def main():

@@ -1,0 +1,176 @@
+# 🌐 نسخةُ مستودع الحوسبة العامّ (دقائقُ Actions بلا حدّ) — السكربتات مرآةُ QuranRafiq/tools · السرُّ الواحد R2_CREDENTIALS_JSON
+# ⚖️ **بوّابةُ التسميع على CI — مرآةُ المحرك بلا جهاز المالك** (أمرُ المالك 2026-09-11: ما يعيق العمل بلا جهازه يُقدَّم).
+# تبني مجموعاتِ القياس نفسَها (‏G1 · مروحة 5 · سلوكُ المتعلّم · g3r نظيفاً وضجيجاً) من مصادرها الأصلية على شبكة GitHub
+# (لا يُعاد نشرُ صوتٍ — D-024)، وتبني whisper.cpp، ثم تفرّغ الذراعين (المشحون · المرشَّح) بالنموذج q8 **نفسِه** الذي يحمله
+# التطبيق وبالواجهة الأمامية البايثونية المتماثلة (البوّابة + سقف 10ث)، وتحكم بالشرط الزوجيّ وترفع الجدولَ إلى R2.
+#   gh workflow run tasmi-gate.yml -f cand_url=https://pub-…/finetune/out_v3/ggml-q8_0.bin -f tag=v3
+# ويُطلقها `finetune-train-cpu.yml` تلقائياً عند اكتمال نموذج. ⚠️ ليست المحاكي: تبقى الآلةُ الحقيقية تأكيداً نهائياً.
+name: tasmi-gate
+on:
+  workflow_dispatch:
+    inputs:
+      cand_url:
+        description: "رابطُ نموذج q8 المرشَّح على R2"
+        required: true
+      tag:
+        description: "وسمُ المرشَّح (v3 …)"
+        required: true
+      base_url:
+        description: "رابطُ النموذج المشحون q8"
+        required: false
+        default: "https://pub-2c2e1dcd92e84a2898820dd38d3e09e6.r2.dev/models/whisper-tiny-ar-quran/ggml-q8_0.bin"
+env:
+  UA: "Mozilla/5.0 (QuranRafiq tasmi gate)"
+jobs:
+  prep:
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@v4
+      - name: r2 creds (من السرّ الواحد R2_CREDENTIALS_JSON)
+        env:
+          R2_CREDENTIALS_JSON: ${{ secrets.R2_CREDENTIALS_JSON }}
+        run: |
+          mkdir -p secure && printf '%s' "$R2_CREDENTIALS_JSON" > secure/r2_credentials.json
+          python3 - <<'PY2' >> "$GITHUB_ENV"
+          import json
+          c = json.load(open("secure/r2_credentials.json"))
+          for k, v in {"R2_ENDPOINT": c["endpoint"], "R2_ACCESS_KEY_ID": c["accessKeyId"], "R2_SECRET_ACCESS_KEY": c["secretAccessKey"], "R2_BUCKET": c["bucket"]}.items():
+              print(f"::add-mask::{v}"); print(f"{k}={v}")
+          PY2
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: deps
+        run: |
+          sudo apt-get update -qq && sudo apt-get install -y -qq ffmpeg cmake build-essential > /dev/null
+          pip install -q numpy soundfile scipy boto3
+      - name: whisper.cpp (ثنائيٌّ ساكن)
+        run: |
+          git clone -q --depth 1 https://github.com/ggml-org/whisper.cpp /tmp/wcpp
+          cmake -S /tmp/wcpp -B /tmp/wcpp/build -DCMAKE_BUILD_TYPE=Release -DBUILD_SHARED_LIBS=OFF -DWHISPER_BUILD_TESTS=OFF > /dev/null
+          cmake --build /tmp/wcpp/build --config Release -j"$(nproc)" --target whisper-cli > /dev/null
+          mkdir -p bin && cp /tmp/wcpp/build/bin/whisper-cli bin/ && bin/whisper-cli --help 2>&1 | head -2
+      - name: sets cache
+        id: cache
+        uses: actions/cache@v4
+        with:
+          path: tools/tasmi_bench/work/sets.tar
+          key: tasmi-sets-${{ hashFiles('tools/tasmi_bench/sample.json', 'tools/tasmi_bench/inject_plan_riwaya.json', 'tools/tasmi_bench/augment.py', 'tools/tasmi_bench/augment_learner.py', 'tools/tasmi_bench/inject_riwaya_local.py') }}
+      - name: build sets (من المصادر الأصلية — لا يُعاد نشرُ صوت)
+        if: steps.cache.outputs.cache-hit != 'true'
+        run: |
+          cd tools/tasmi_bench
+          python -c "import numpy, soundfile, boto3; print('deps ok')"; which ffmpeg
+          python fetch_audio.py
+          python augment.py --only noise-fan-5
+          python augment_learner.py --only learner-combo
+          python inject_riwaya_local.py
+          for d in work/wav work/g2/noise-fan-5 work/g2/learner-combo work/g3r/clean work/g3r/noisy; do echo "$d: $(ls $d | wc -l)"; done
+          tar -cf work/sets.tar -C work wav g2/noise-fan-5 g2/learner-combo g3r/clean g3r/noisy misaligned.json 2>/dev/null || tar -cf work/sets.tar -C work wav g2/noise-fan-5 g2/learner-combo g3r/clean g3r/noisy
+          ls -l work/sets.tar
+      - uses: actions/upload-artifact@v4
+        with:
+          name: sets
+          path: tools/tasmi_bench/work/sets.tar
+          retention-days: 2
+      - uses: actions/upload-artifact@v4
+        with:
+          name: whisper-cli
+          path: bin/whisper-cli
+          retention-days: 2
+  transcribe:
+    needs: prep
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    strategy:
+      fail-fast: false
+      matrix:
+        set: ["g1", "g2:noise-fan-5", "g2:learner-combo", "g3r:clean", "g3r:noisy"]
+    steps:
+      - uses: actions/checkout@v4
+      - name: r2 creds (من السرّ الواحد R2_CREDENTIALS_JSON)
+        env:
+          R2_CREDENTIALS_JSON: ${{ secrets.R2_CREDENTIALS_JSON }}
+        run: |
+          mkdir -p secure && printf '%s' "$R2_CREDENTIALS_JSON" > secure/r2_credentials.json
+          python3 - <<'PY2' >> "$GITHUB_ENV"
+          import json
+          c = json.load(open("secure/r2_credentials.json"))
+          for k, v in {"R2_ENDPOINT": c["endpoint"], "R2_ACCESS_KEY_ID": c["accessKeyId"], "R2_SECRET_ACCESS_KEY": c["secretAccessKey"], "R2_BUCKET": c["bucket"]}.items():
+              print(f"::add-mask::{v}"); print(f"{k}={v}")
+          PY2
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - run: pip install -q numpy soundfile scipy
+      - uses: actions/download-artifact@v4
+        with:
+          name: sets
+          path: tools/tasmi_bench/work
+      - uses: actions/download-artifact@v4
+        with:
+          name: whisper-cli
+          path: bin
+      - name: models + sets
+        run: |
+          chmod +x bin/whisper-cli
+          mkdir -p models && curl -sSL -f -A "$UA" -o models/shipped.bin "${{ github.event.inputs.base_url }}" && curl -sSL -f -A "$UA" -o models/cand.bin "${{ github.event.inputs.cand_url }}"
+          ls -l models
+          cd tools/tasmi_bench/work && tar -xf sets.tar && rm sets.tar
+      - name: transcribe both arms (البوّابة + سقف 10ث · greedy)
+        env:
+          WHISPER_CLI: ${{ github.workspace }}/bin/whisper-cli
+          PYTHONIOENCODING: utf-8
+        run: |
+          cd tools/tasmi_bench
+          T=$(echo "${{ matrix.set }}" | sed 's/:/-/')
+          python local_whisper.py --backend cli --model "$GITHUB_WORKSPACE/models/shipped.bin" --set "${{ matrix.set }}" --gate --group-cap 10 --threads 4 --out "work/hyps_ci-shipped_${T}_gate_cap10.json" | tail -2
+          python local_whisper.py --backend cli --model "$GITHUB_WORKSPACE/models/cand.bin"    --set "${{ matrix.set }}" --gate --group-cap 10 --threads 4 --out "work/hyps_ci-${{ github.event.inputs.tag }}_${T}_gate_cap10.json" | tail -2
+      - uses: actions/upload-artifact@v4
+        with:
+          name: hyps-${{ strategy.job-index }}
+          path: tools/tasmi_bench/work/hyps_ci-*.json
+          retention-days: 7
+  judge:
+    needs: transcribe
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - name: r2 creds (من السرّ الواحد R2_CREDENTIALS_JSON)
+        env:
+          R2_CREDENTIALS_JSON: ${{ secrets.R2_CREDENTIALS_JSON }}
+        run: |
+          mkdir -p secure && printf '%s' "$R2_CREDENTIALS_JSON" > secure/r2_credentials.json
+          python3 - <<'PY2' >> "$GITHUB_ENV"
+          import json
+          c = json.load(open("secure/r2_credentials.json"))
+          for k, v in {"R2_ENDPOINT": c["endpoint"], "R2_ACCESS_KEY_ID": c["accessKeyId"], "R2_SECRET_ACCESS_KEY": c["secretAccessKey"], "R2_BUCKET": c["bucket"]}.items():
+              print(f"::add-mask::{v}"); print(f"{k}={v}")
+          PY2
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - run: pip install -q numpy boto3
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: hyps-*
+          merge-multiple: true
+          path: tools/tasmi_bench/work
+      - name: الحكمُ الزوجيّ
+        env:
+          PYTHONIOENCODING: utf-8
+        run: |
+          cd tools/tasmi_bench
+          ls work/hyps_ci-*.json
+          python v2_gate.py --pattern "work/hyps_{arm}_{tag}_gate_cap10.json" --arms ci-shipped "ci-${{ github.event.inputs.tag }}" --md work/gate_${{ github.event.inputs.tag }}.md
+          { echo "### ⚖️ tasmi-gate · ${{ github.event.inputs.tag }} (مرآةُ المحرك على CI)"; cat work/gate_${{ github.event.inputs.tag }}.md; } >> "$GITHUB_STEP_SUMMARY"
+      - name: رفعُ النتائج إلى R2
+        run: |
+          cd tools/tasmi_bench
+          TAG="${{ github.event.inputs.tag }}"
+          ARGS="work/gate_$TAG.md finetune/gate/$TAG/summary.md"
+          for f in work/hyps_ci-*.json; do ARGS="$ARGS $f finetune/gate/$TAG/$(basename $f)"; done
+          python ../finetune/r2_put.py $ARGS
+          echo "☁️ https://pub-2c2e1dcd92e84a2898820dd38d3e09e6.r2.dev/finetune/gate/$TAG/summary.md"

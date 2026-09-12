@@ -1,0 +1,65 @@
+# 🌐 نسخةُ مستودع الحوسبة العامّ (دقائقُ Actions بلا حدّ) — السكربتات مرآةُ QuranRafiq/tools · السرُّ الواحد R2_CREDENTIALS_JSON
+# 🔎 تدقيقُ عناوين مجموعة التدريب (‏label_audit.py) على شبكة GitHub — بلا جهاز المالك.
+#   gh workflow run finetune-audit.yml -f part=g0 -f n=600
+# D-294: بـwhisper-cli والنموذجِ q8 المشحون نفسِه (‏≈1.5 ث/مقطع بدل 14.5)، ومهلةٌ تسع الشوط، والرفعُ يقع ولو قُتل الشوط (حفظٌ دوريّ).
+# يرفع النتيجة إلى R2: finetune/audit/<part>.json ويطبع الملخّصَ في ملخّص التشغيل.
+name: finetune-audit
+on:
+  workflow_dispatch:
+    inputs:
+      part:
+        description: "جزءُ البيانات (g0..g3)"
+        required: false
+        default: "g0"
+      n:
+        description: "عددُ المقاطع المعيَّنة"
+        required: false
+        default: "600"
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 300
+    env:
+      PUB: https://pub-2c2e1dcd92e84a2898820dd38d3e09e6.r2.dev
+      UA: "Mozilla/5.0 (QuranRafiq finetune audit)"
+      P: ${{ github.event.inputs.part }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: r2 creds (من السرّ الواحد R2_CREDENTIALS_JSON)
+        env:
+          R2_CREDENTIALS_JSON: ${{ secrets.R2_CREDENTIALS_JSON }}
+        run: |
+          mkdir -p secure && printf '%s' "$R2_CREDENTIALS_JSON" > secure/r2_credentials.json
+          python3 - <<'PY2' >> "$GITHUB_ENV"
+          import json
+          c = json.load(open("secure/r2_credentials.json"))
+          for k, v in {"R2_ENDPOINT": c["endpoint"], "R2_ACCESS_KEY_ID": c["accessKeyId"], "R2_SECRET_ACCESS_KEY": c["secretAccessKey"], "R2_BUCKET": c["bucket"]}.items():
+              print(f"::add-mask::{v}"); print(f"{k}={v}")
+          PY2
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: deps + whisper.cpp + model + data
+        run: |
+          pip install -q numpy soundfile boto3
+          sudo apt-get install -y -qq cmake build-essential > /dev/null
+          git clone -q --depth 1 https://github.com/ggml-org/whisper.cpp /tmp/wcpp
+          cmake -S /tmp/wcpp -B /tmp/wcpp/build -DCMAKE_BUILD_TYPE=Release -DBUILD_SHARED_LIBS=OFF -DWHISPER_BUILD_TESTS=OFF > /dev/null
+          cmake --build /tmp/wcpp/build --config Release -j"$(nproc)" --target whisper-cli > /dev/null
+          mkdir -p bin models && cp /tmp/wcpp/build/bin/whisper-cli bin/
+          curl -sSL -f -A "$UA" -o models/shipped.bin "$PUB/models/whisper-tiny-ar-quran/ggml-q8_0.bin"
+          sudo mkdir -p /mnt/ft && sudo chown -R "$USER" /mnt/ft && mkdir -p /mnt/ft/data
+          curl -sSL -f -A "$UA" -o "/mnt/ft/$P.tar" "$PUB/finetune/data_v2/$P.tar" && tar -xf "/mnt/ft/$P.tar" -C /mnt/ft/data && rm -f "/mnt/ft/$P.tar"
+          cp "/mnt/ft/data/$P/manifest.jsonl" /mnt/ft/data/manifest.jsonl; wc -l /mnt/ft/data/manifest.jsonl; nproc
+      - name: audit
+        env:
+          PYTHONIOENCODING: utf-8
+        run: |
+          python tools/finetune/label_audit.py --data /mnt/ft/data --n "${{ github.event.inputs.n }}" --bs 8 --ckpt 10 \
+            --cli "$PWD/bin/whisper-cli" --model "$PWD/models/shipped.bin" --out "/mnt/ft/audit_$P.json" | tee /mnt/ft/audit.log
+          { echo "### 🔎 label audit · $P"; echo '```'; grep -v "^[0-9]*/[0-9]*$" /mnt/ft/audit.log | tail -60; echo '```'; } >> "$GITHUB_STEP_SUMMARY"
+      - name: upload (ولو قُتل الشوط)
+        if: always()
+        run: |
+          ls -l /mnt/ft/audit_$P.json /mnt/ft/audit.log 2>/dev/null || true
+          [ -f "/mnt/ft/audit_$P.json" ] && python tools/finetune/r2_put.py "/mnt/ft/audit_$P.json" "finetune/audit/$P.json" /mnt/ft/audit.log "finetune/audit/$P.log" || echo "⚠️ لا مخرَج"

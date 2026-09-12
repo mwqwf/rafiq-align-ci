@@ -1,0 +1,3798 @@
+{
+ "meta": {
+  "seed": 1446,
+  "total": 202,
+  "quota": {
+   "hafs": 70,
+   "warsh": 70,
+   "qalun": 60
+  },
+  "strata": {
+   "S": [
+    1,
+    4
+   ],
+   "M": [
+    5,
+    9
+   ],
+   "L": [
+    10,
+    19
+   ],
+   "XL": [
+    20,
+    10000
+   ]
+  },
+  "stratumShare": {
+   "S": 0.25,
+   "M": 0.3,
+   "L": 0.25,
+   "XL": 0.2
+  },
+  "groundTruth": "core/quran/src/main/assets/quran/text_{riwaya}.jz (عدّ كوفي 6236)",
+  "reciters": {
+   "hafs": [
+    "husary_muallim",
+    "minshawi",
+    "abdulbasit",
+    "alafasy"
+   ],
+   "warsh": [
+    "dosary",
+    "yassin"
+   ],
+   "qalun": [
+    "husary_qalun"
+   ]
+  },
+  "qalunTimingIndex": {
+   "reciterId": "husary_qalun",
+   "engineVersion": "align-0.2",
+   "generatedAt": 1788242121984,
+   "ayahCounting": "KUFI"
+  },
+  "limits": [
+   "التلاوة المرجعية مفترضة صحيحة ⇒ المقياس يقيس الإنذار الكاذب لا كشف الخطأ.",
+   "آيات قالون مقصوصة من ملفات سور بفهرسنا (±300م.ث هامش) — مصدر خطأ زائد.",
+   "الحركات والتجويد خارج v1 (D-006)."
+  ]
+ },
+ "items": [
+  {
+   "id": "hafs_minshawi_015076",
+   "riwaya": "hafs",
+   "surah": 15,
+   "ayah": 76,
+   "globalIndex": 1877,
+   "stratum": "S",
+   "wordCount": 3,
+   "reciter": "minshawi",
+   "refText": "وَإِنَّهَا لَبِسَبِيلٍۢ مُّقِيمٍ",
+   "source": {
+    "kind": "ayah_file",
+    "url": "https://everyayah.com/data/Minshawy_Murattal_128kbps/015076.mp3",
+    "reciter": "minshawi",
+    "origin": "everyayah.com"
+   }
+  },
+  {
+   "id": "hafs_abdulbasit_086006",
+   "riwaya": "hafs",
+   "surah": 86,
+   "ayah": 6,
+   "globalIndex": 5936,
+   "stratum": "S",
+   "wordCount": 4,
+   "reciter": "abdulbasit",
+   "refText": "خُلِقَ مِن مَّآءٍۢ دَافِقٍۢ",
+   "source": {
+    "kind": "ayah_file",
+    "url": "https://everyayah.com/data/Abdul_Basit_Murattal_192kbps/086006.mp3",
+    "reciter": "abdulbasit",
+    "origin": "everyayah.com"
+   }
+  },
+  {
+   "id": "hafs_alafasy_053007",
+   "riwaya": "hafs",
+   "surah": 53,
+   "ayah": 7,
+   "globalIndex": 4790,
+   "stratum": "S",
+   "wordCount": 3,
+   "reciter": "alafasy",
+   "refText": "وَهُوَ بِٱلْأُفُقِ ٱلْأَعْلَىٰ",
+   "source": {
+    "kind": "ayah_file",
+    "url": "https://everyayah.com/data/Alafasy_128kbps/053007.mp3",
+    "reciter": "alafasy",
+    "origin": "everyayah.com"
+   }
+  },
+  {
+   "id": "hafs_husary_muallim_056034",
+   "riwaya": "hafs",
+   "surah": 56,
+   "ayah": 34,
+   "globalIndex": 5012,
+   "stratum": "S",
+   "wordCount": 2,
+   "reciter": "husary_muallim",
+   "refText": "وَفُرُشٍۢ مَّرْفُوعَةٍ",
+   "source": {
+    "kind": "ayah_file",
+    "url": "https://everyayah.com/data/Husary_Muallim_128kbps/056034.mp3",
+    "reciter": "husary_muallim",
+    "origin": "everyayah.com"
+   }
+  },
+  {
+   "id": "hafs_minshawi_056081",
+   "riwaya": "hafs",
+   "surah": 56,
+   "ayah": 81,
+   "globalIndex": 5059,
+   "stratum": "S",
+   "wordCount": 4,
+   "reciter": "minshawi",
+   "refText": "أَفَبِهَٰذَا ٱلْحَدِيثِ أَنتُم مُّدْهِنُونَ",
+   "source": {
+    "kind": "ayah_file",
+    "url": "https://everyayah.com/data/Minshawy_Murattal_128kbps/056081.mp3",
+    "reciter": "minshawi",
+    "origin": "everyayah.com"
+   }
+  },
+  {
+   "id": "hafs_abdulbasit_070005",
+   "riwaya": "hafs",
+   "surah": 70,
+   "ayah": 5,
+   "globalIndex": 5379,
+   "stratum": "S",
+   "wordCount": 3,
+   "reciter": "abdulbasit",
+   "refText": "فَٱصْبِرْ صَبْرًۭا جَمِيلًا",
+   "source": {
+    "kind": "ayah_file",
+    "url": "https://everyayah.com/data/Abdul_Basit_Murattal_192kbps/070005.mp3",
+    "reciter": "abdulbasit",
+    "origin": "everyayah.com"
+   }
+  },
+  {
+   "id": "hafs_alafasy_044002",
+   "riwaya": "hafs",
+   "surah": 44,
+   "ayah": 2,
+   "globalIndex": 4415,
+   "stratum": "S",
+   "wordCount": 2,
+   "reciter": "alafasy",
+   "refText": "وَٱلْكِتَٰبِ ٱلْمُبِينِ",
+   "source": {
+    "kind": "ayah_file",
+    "url": "https://everyayah.com/data/Alafasy_128kbps/044002.mp3",
+    "reciter": "alafasy",
+    "origin": "everyayah.com"
+   }
+  },
+  {
+   "id": "hafs_husary_muallim_077009",
+   "riwaya": "hafs",
+   "surah": 77,
+   "ayah": 9,
+   "globalIndex": 5630,
+   "stratum": "S",
+   "wordCount": 3,
+   "reciter": "husary_muallim",
+   "refText": "وَإِذَا ٱلسَّمَآءُ فُرِجَتْ",
+   "source": {
+    "kind": "ayah_file",
+    "url": "https://everyayah.com/data/Husary_Muallim_128kbps/077009.mp3",
+    "reciter": "husary_muallim",
+    "origin": "everyayah.com"
+   }
+  },
+  {
+   "id": "hafs_minshawi_038056",
+   "riwaya": "hafs",
+   "surah": 38,
+   "ayah": 56,
+   "globalIndex": 4025,
+   "stratum": "S",
+   "wordCount": 4,
+   "reciter": "minshawi",
+   "refText": "جَهَنَّمَ يَصْلَوْنَهَا فَبِئْسَ ٱلْمِهَادُ",
+   "source": {
+    "kind": "ayah_file",
+    "url": "https://everyayah.com/data/Minshawy_Murattal_128kbps/038056.mp3",
+    "reciter": "minshawi",
+    "origin": "everyayah.com"
+   }
+  },
+  {
+   "id": "hafs_abdulbasit_100010",
+   "riwaya": "hafs",
+   "surah": 100,
+   "ayah": 10,
+   "globalIndex": 6155,
+   "stratum": "S",
+   "wordCount": 4,
+   "reciter": "abdulbasit",
+   "refText": "وَحُصِّلَ مَا فِى ٱلصُّدُورِ",
+   "source": {
+    "kind": "ayah_file",
+    "url": "https://everyayah.com/data/Abdul_Basit_Murattal_192kbps/100010.mp3",
+    "reciter": "abdulbasit",
+    "origin": "everyayah.com"
+   }
+  },
+  {
+   "id": "hafs_alafasy_074033",
+   "riwaya": "hafs",
+   "surah": 74,
+   "ayah": 33,
+   "globalIndex": 5527,
+   "stratum": "S",
+   "wordCount": 3,
+   "reciter": "alafasy",
+   "refText": "وَٱلَّيْلِ إِذْ أَدْبَرَ",
+   "source": {
+    "kind": "ayah_file",
+    "url": "https://everyayah.com/data/Alafasy_128kbps/074033.mp3",
+    "reciter": "alafasy",
+    "origin": "everyayah.com"
+   }
+  },
+  {
+   "id": "hafs_husary_muallim_089019",
+   "riwaya": "hafs",
+   "surah": 89,
+   "ayah": 19,
+   "globalIndex": 6011,
+   "stratum": "S",
+   "wordCount": 4,
+   "reciter": "husary_muallim",
+   "refText": "وَتَأْكُلُونَ ٱلتُّرَاثَ أَكْلًۭا لَّمًّۭا",
+   "source": {
+    "kind": "ayah_file",
+    "url": "https://everyayah.com/data/Husary_Muallim_128kbps/089019.mp3",
+    "reciter": "husary_muallim",
+    "origin": "everyayah.com"
+   }
+  },
+  {
+   "id": "hafs_minshawi_079009",
+   "riwaya": "hafs",
+   "surah": 79,
+   "ayah": 9,
+   "globalIndex": 5720,
+   "stratum": "S",
+   "wordCount": 2,
+   "reciter": "minshawi",
+   "refText": "أَبْصَٰرُهَا خَٰشِعَةٌۭ",
+   "source": {
+    "kind": "ayah_file",
+    "url": "https://everyayah.com/data/Minshawy_Murattal_128kbps/079009.mp3",
+    "reciter": "minshawi",
+    "origin": "everyayah.com"
+   }
+  },
+  {
+   "id": "hafs_abdulbasit_086001",
+   "riwaya": "hafs",
+   "surah": 86,
+   "ayah": 1,
+   "globalIndex": 5931,
+   "stratum": "S",
+   "wordCount": 2,
+   "reciter": "abdulbasit",
+   "refText": "وَٱلسَّمَآءِ وَٱلطَّارِقِ",
+   "source": {
+    "kind": "ayah_file",
+    "url": "https://everyayah.com/data/Abdul_Basit_Murattal_192kbps/086001.mp3",
+    "reciter": "abdulbasit",
+    "origin": "everyayah.com"
+   }
+  },
+  {
+   "id": "hafs_alafasy_056089",
+   "riwaya": "hafs",
+   "surah": 56,
+   "ayah": 89,
+   "globalIndex": 5067,
+   "stratum": "S",
+   "wordCount": 4,
+   "reciter": "alafasy",
+   "refText": "فَرَوْحٌۭ وَرَيْحَانٌۭ وَجَنَّتُ نَعِيمٍۢ",
+   "source": {
+    "kind": "ayah_file",
+    "url": "https://everyayah.com/data/Alafasy_128kbps/056089.mp3",
+    "reciter": "alafasy",
+    "origin": "everyayah.com"
+   }
+  },
+  {
+   "id": "hafs_husary_muallim_077026",
+   "riwaya": "hafs",
+   "surah": 77,
+   "ayah": 26,
+   "globalIndex": 5647,
+   "stratum": "S",
+   "wordCount": 2,
+   "reciter": "husary_muallim",
+   "refText": "أَحْيَآءًۭ وَأَمْوَٰتًۭا",
+   "source": {
+    "kind": "ayah_file",
+    "url": "https://everyayah.com/data/Husary_Muallim_128kbps/077026.mp3",
+    "reciter": "husary_muallim",
+    "origin": "everyayah.com"
+   }
+  },
+  {
+   "id": "hafs_minshawi_023004",
+   "riwaya": "hafs",
+   "surah": 23,
+   "ayah": 4,
+   "globalIndex": 2676,
+   "stratum": "S",
+   "wordCount": 4,
+   "reciter": "minshawi",
+   "refText": "وَٱلَّذِينَ هُمْ لِلزَّكَوٰةِ فَٰعِلُونَ",
+   "source": {
+    "kind": "ayah_file",
+    "url": "https://everyayah.com/data/Minshawy_Murattal_128kbps/023004.mp3",
+    "reciter": "minshawi",
+    "origin": "everyayah.com"
+   }
+  },
+  {
+   "id": "hafs_abdulbasit_083021",
+   "riwaya": "hafs",
+   "surah": 83,
+   "ayah": 21,
+   "globalIndex": 5868,
+   "stratum": "S",
+   "wordCount": 2,
+   "reciter": "abdulbasit",
+   "refText": "يَشْهَدُهُ ٱلْمُقَرَّبُونَ",
+   "source": {
+    "kind": "ayah_file",
+    "url": "https://everyayah.com/data/Abdul_Basit_Murattal_192kbps/083021.mp3",
+    "reciter": "abdulbasit",
+    "origin": "everyayah.com"
+   }
+  },
+  {
+   "id": "hafs_minshawi_025033",
+   "riwaya": "hafs",
+   "surah": 25,
+   "ayah": 33,
+   "globalIndex": 2887,
+   "stratum": "M",
+   "wordCount": 8,
+   "reciter": "minshawi",
+   "refText": "وَلَا يَأْتُونَكَ بِمَثَلٍ إِلَّا جِئْنَٰكَ بِٱلْحَقِّ وَأَحْسَنَ تَفْسِيرًا",
+   "source": {
+    "kind": "ayah_file",
+    "url": "https://everyayah.com/data/Minshawy_Murattal_128kbps/025033.mp3",
+    "reciter": "minshawi",
+    "origin": "everyayah.com"
+   }
+  },
+  {
+   "id": "hafs_abdulbasit_008051",
+   "riwaya": "hafs",
+   "surah": 8,
+   "ayah": 51,
+   "globalIndex": 1210,
+   "stratum": "M",
+   "wordCount": 9,
+   "reciter": "abdulbasit",
+   "refText": "ذَٰلِكَ بِمَا قَدَّمَتْ أَيْدِيكُمْ وَأَنَّ ٱللَّهَ لَيْسَ بِظَلَّٰمٍۢ لِّلْعَبِيدِ",
+   "source": {
+    "kind": "ayah_file",
+    "url": "https://everyayah.com/data/Abdul_Basit_Murattal_192kbps/008051.mp3",
+    "reciter": "abdulbasit",
+    "origin": "everyayah.com"
+   }
+  },
+  {
+   "id": "hafs_alafasy_083032",
+   "riwaya": "hafs",
+   "surah": 83,
+   "ayah": 32,
+   "globalIndex": 5879,
+   "stratum": "M",
+   "wordCount": 6,
+   "reciter": "alafasy",
+   "refText": "وَإِذَا رَأَوْهُمْ قَالُوٓا۟ إِنَّ هَٰٓؤُلَآءِ لَضَآلُّونَ",
+   "source": {
+    "kind": "ayah_file",
+    "url": "https://everyayah.com/data/Alafasy_128kbps/083032.mp3",
+    "reciter": "alafasy",
+    "origin": "everyayah.com"
+   }
+  },
+  {
+   "id": "hafs_husary_muallim_055009",
+   "riwaya": "hafs",
+   "surah": 55,
+   "ayah": 9,
+   "globalIndex": 4909,
+   "stratum": "M",
+   "wordCount": 6,
+   "reciter": "husary_muallim",
+   "refText": "وَأَقِيمُوا۟ ٱلْوَزْنَ بِٱلْقِسْطِ وَلَا تُخْسِرُوا۟ ٱلْمِيزَانَ",
+   "source": {
+    "kind": "ayah_file",
+    "url": "https://everyayah.com/data/Husary_Muallim_128kbps/055009.mp3",
+    "reciter": "husary_muallim",
+    "origin": "everyayah.com"
+   }
+  },
+  {
+   "id": "hafs_minshawi_037068",
+   "riwaya": "hafs",
+   "surah": 37,
+   "ayah": 68,
+   "globalIndex": 3855,
+   "stratum": "M",
+   "wordCount": 5,
+   "reciter": "minshawi",
+   "refText": "ثُمَّ إِنَّ مَرْجِعَهُمْ لَإِلَى ٱلْجَحِيمِ",
+   "source": {
+    "kind": "ayah_file",
+    "url": "https://everyayah.com/data/Minshawy_Murattal_128kbps/037068.mp3",
+    "reciter": "minshawi",
+    "origin": "everyayah.com"
+   }
+  },
+  {
+   "id": "hafs_abdulbasit_018067",
+   "riwaya": "hafs",
+   "surah": 18,
+   "ayah": 67,
+   "globalIndex": 2206,
+   "stratum": "M",
+   "wordCount": 6,
+   "reciter": "abdulbasit",
+   "refText": "قَالَ إِنَّكَ لَن تَسْتَطِيعَ مَعِىَ صَبْرًۭا",
+   "source": {
+    "kind": "ayah_file",
+    "url": "https://everyayah.com/data/Abdul_Basit_Murattal_192kbps/018067.mp3",
+    "reciter": "abdulbasit",
+    "origin": "everyayah.com"
+   }
+  },
+  {
+   "id": "hafs_alafasy_040036",
+   "riwaya": "hafs",
+   "surah": 40,
+   "ayah": 36,
+   "globalIndex": 4168,
+   "stratum": "M",
+   "wordCount": 9,
+   "reciter": "alafasy",
+   "refText": "وَقَالَ فِرْعَوْنُ يَٰهَٰمَٰنُ ٱبْنِ لِى صَرْحًۭا لَّعَلِّىٓ أَبْلُغُ ٱلْأَسْبَٰبَ",
+   "source": {
+    "kind": "ayah_file",
+    "url": "https://everyayah.com/data/Alafasy_128kbps/040036.mp3",
+    "reciter": "alafasy",
+    "origin": "everyayah.com"
+   }
+  },
+  {
+   "id": "hafs_husary_muallim_067001",
+   "riwaya": "hafs",
+   "surah": 67,
+   "ayah": 1,
+   "globalIndex": 5241,
+   "stratum": "M",
+   "wordCount": 9,
+   "reciter": "husary_muallim",
+   "refText": "تَبَٰرَكَ ٱلَّذِى بِيَدِهِ ٱلْمُلْكُ وَهُوَ عَلَىٰ كُلِّ شَىْءٍۢ قَدِيرٌ",
+   "source": {
+    "kind": "ayah_file",
+    "url": "https://everyayah.com/data/Husary_Muallim_128kbps/067001.mp3",
+    "reciter": "husary_muallim",
+    "origin": "everyayah.com"
+   }
+  },
+  {
+   "id": "hafs_minshawi_026213",
+   "riwaya": "hafs",
+   "surah": 26,
+   "ayah": 213,
+   "globalIndex": 3144,
+   "stratum": "M",
+   "wordCount": 9,
+   "reciter": "minshawi",
+   "refText": "فَلَا تَدْعُ مَعَ ٱللَّهِ إِلَٰهًا ءَاخَرَ فَتَكُونَ مِنَ ٱلْمُعَذَّبِينَ",
+   "source": {
+    "kind": "ayah_file",
+    "url": "https://everyayah.com/data/Minshawy_Murattal_128kbps/026213.mp3",
+    "reciter": "minshawi",
+    "origin": "everyayah.com"
+   }
+  },
+  {
+   "id": "hafs_abdulbasit_055044",
+   "riwaya": "hafs",
+   "surah": 55,
+   "ayah": 44,
+   "globalIndex": 4944,
+   "stratum": "M",
+   "wordCount": 5,
+   "reciter": "abdulbasit",
+   "refText": "يَطُوفُونَ بَيْنَهَا وَبَيْنَ حَمِيمٍ ءَانٍۢ",
+   "source": {
+    "kind": "ayah_file",
+    "url": "https://everyayah.com/data/Abdul_Basit_Murattal_192kbps/055044.mp3",
+    "reciter": "abdulbasit",
+    "origin": "everyayah.com"
+   }
+  },
+  {
+   "id": "hafs_alafasy_051031",
+   "riwaya": "hafs",
+   "surah": 51,
+   "ayah": 31,
+   "globalIndex": 4705,
+   "stratum": "M",
+   "wordCount": 6,
+   "reciter": "alafasy",
+   "refText": "۞ قَالَ فَمَا خَطْبُكُمْ أَيُّهَا ٱلْمُرْسَلُونَ",
+   "source": {
+    "kind": "ayah_file",
+    "url": "https://everyayah.com/data/Alafasy_128kbps/051031.mp3",
+    "reciter": "alafasy",
+    "origin": "everyayah.com"
+   }
+  },
+  {
+   "id": "hafs_husary_muallim_026211",
+   "riwaya": "hafs",
+   "surah": 26,
+   "ayah": 211,
+   "globalIndex": 3142,
+   "stratum": "M",
+   "wordCount": 5,
+   "reciter": "husary_muallim",
+   "refText": "وَمَا يَنۢبَغِى لَهُمْ وَمَا يَسْتَطِيعُونَ",
+   "source": {
+    "kind": "ayah_file",
+    "url": "https://everyayah.com/data/Husary_Muallim_128kbps/026211.mp3",
+    "reciter": "husary_muallim",
+    "origin": "everyayah.com"
+   }
+  },
+  {
+   "id": "hafs_minshawi_089005",
+   "riwaya": "hafs",
+   "surah": 89,
+   "ayah": 5,
+   "globalIndex": 5997,
+   "stratum": "M",
+   "wordCount": 6,
+   "reciter": "minshawi",
+   "refText": "هَلْ فِى ذَٰلِكَ قَسَمٌۭ لِّذِى حِجْرٍ",
+   "source": {
+    "kind": "ayah_file",
+    "url": "https://everyayah.com/data/Minshawy_Murattal_128kbps/089005.mp3",
+    "reciter": "minshawi",
+    "origin": "everyayah.com"
+   }
+  },
+  {
+   "id": "hafs_abdulbasit_021001",
+   "riwaya": "hafs",
+   "surah": 21,
+   "ayah": 1,
+   "globalIndex": 2483,
+   "stratum": "M",
+   "wordCount": 7,
+   "reciter": "abdulbasit",
+   "refText": "ٱقْتَرَبَ لِلنَّاسِ حِسَابُهُمْ وَهُمْ فِى غَفْلَةٍۢ مُّعْرِضُونَ",
+   "source": {
+    "kind": "ayah_file",
+    "url": "https://everyayah.com/data/Abdul_Basit_Murattal_192kbps/021001.mp3",
+    "reciter": "abdulbasit",
+    "origin": "everyayah.com"
+   }
+  },
+  {
+   "id": "hafs_alafasy_026135",
+   "riwaya": "hafs",
+   "surah": 26,
+   "ayah": 135,
+   "globalIndex": 3066,
+   "stratum": "M",
+   "wordCount": 6,
+   "reciter": "alafasy",
+   "refText": "إِنِّىٓ أَخَافُ عَلَيْكُمْ عَذَابَ يَوْمٍ عَظِيمٍۢ",
+   "source": {
+    "kind": "ayah_file",
+    "url": "https://everyayah.com/data/Alafasy_128kbps/026135.mp3",
+    "reciter": "alafasy",
+    "origin": "everyayah.com"
+   }
+  },
+  {
+   "id": "hafs_husary_muallim_037085",
+   "riwaya": "hafs",
+   "surah": 37,
+   "ayah": 85,
+   "globalIndex": 3872,
+   "stratum": "M",
+   "wordCount": 6,
+   "reciter": "husary_muallim",
+   "refText": "إِذْ قَالَ لِأَبِيهِ وَقَوْمِهِۦ مَاذَا تَعْبُدُونَ",
+   "source": {
+    "kind": "ayah_file",
+    "url": "https://everyayah.com/data/Husary_Muallim_128kbps/037085.mp3",
+    "reciter": "husary_muallim",
+    "origin": "everyayah.com"
+   }
+  },
+  {
+   "id": "hafs_minshawi_022059",
+   "riwaya": "hafs",
+   "surah": 22,
+   "ayah": 59,
+   "globalIndex": 2653,
+   "stratum": "M",
+   "wordCount": 8,
+   "reciter": "minshawi",
+   "refText": "لَيُدْخِلَنَّهُم مُّدْخَلًۭا يَرْضَوْنَهُۥ ۗ وَإِنَّ ٱللَّهَ لَعَلِيمٌ حَلِيمٌۭ",
+   "source": {
+    "kind": "ayah_file",
+    "url": "https://everyayah.com/data/Minshawy_Murattal_128kbps/022059.mp3",
+    "reciter": "minshawi",
+    "origin": "everyayah.com"
+   }
+  },
+  {
+   "id": "hafs_abdulbasit_053027",
+   "riwaya": "hafs",
+   "surah": 53,
+   "ayah": 27,
+   "globalIndex": 4810,
+   "stratum": "M",
+   "wordCount": 9,
+   "reciter": "abdulbasit",
+   "refText": "إِنَّ ٱلَّذِينَ لَا يُؤْمِنُونَ بِٱلْءَاخِرَةِ لَيُسَمُّونَ ٱلْمَلَٰٓئِكَةَ تَسْمِيَةَ ٱلْأُنثَىٰ",
+   "source": {
+    "kind": "ayah_file",
+    "url": "https://everyayah.com/data/Abdul_Basit_Murattal_192kbps/053027.mp3",
+    "reciter": "abdulbasit",
+    "origin": "everyayah.com"
+   }
+  },
+  {
+   "id": "hafs_alafasy_008008",
+   "riwaya": "hafs",
+   "surah": 8,
+   "ayah": 8,
+   "globalIndex": 1167,
+   "stratum": "M",
+   "wordCount": 7,
+   "reciter": "alafasy",
+   "refText": "لِيُحِقَّ ٱلْحَقَّ وَيُبْطِلَ ٱلْبَٰطِلَ وَلَوْ كَرِهَ ٱلْمُجْرِمُونَ",
+   "source": {
+    "kind": "ayah_file",
+    "url": "https://everyayah.com/data/Alafasy_128kbps/008008.mp3",
+    "reciter": "alafasy",
+    "origin": "everyayah.com"
+   }
+  },
+  {
+   "id": "hafs_husary_muallim_068045",
+   "riwaya": "hafs",
+   "surah": 68,
+   "ayah": 45,
+   "globalIndex": 5315,
+   "stratum": "M",
+   "wordCount": 6,
+   "reciter": "husary_muallim",
+   "refText": "وَأُمْلِى لَهُمْ ۚ إِنَّ كَيْدِى مَتِينٌ",
+   "source": {
+    "kind": "ayah_file",
+    "url": "https://everyayah.com/data/Husary_Muallim_128kbps/068045.mp3",
+    "reciter": "husary_muallim",
+    "origin": "everyayah.com"
+   }
+  },
+  {
+   "id": "hafs_minshawi_026032",
+   "riwaya": "hafs",
+   "surah": 26,
+   "ayah": 32,
+   "globalIndex": 2963,
+   "stratum": "M",
+   "wordCount": 6,
+   "reciter": "minshawi",
+   "refText": "فَأَلْقَىٰ عَصَاهُ فَإِذَا هِىَ ثُعْبَانٌۭ مُّبِينٌۭ",
+   "source": {
+    "kind": "ayah_file",
+    "url": "https://everyayah.com/data/Minshawy_Murattal_128kbps/026032.mp3",
+    "reciter": "minshawi",
+    "origin": "everyayah.com"
+   }
+  },
+  {
+   "id": "hafs_minshawi_004050",
+   "riwaya": "hafs",
+   "surah": 4,
+   "ayah": 50,
+   "globalIndex": 542,
+   "stratum": "L",
+   "wordCount": 11,
+   "reciter": "minshawi",
+   "refText": "ٱنظُرْ كَيْفَ يَفْتَرُونَ عَلَى ٱللَّهِ ٱلْكَذِبَ ۖ وَكَفَىٰ بِهِۦٓ إِثْمًۭا مُّبِينًا",
+   "source": {
+    "kind": "ayah_file",
+    "url": "https://everyayah.com/data/Minshawy_Murattal_128kbps/004050.mp3",
+    "reciter": "minshawi",
+    "origin": "everyayah.com"
+   }
+  },
+  {
+   "id": "hafs_abdulbasit_021022",
+   "riwaya": "hafs",
+   "surah": 21,
+   "ayah": 22,
+   "globalIndex": 2504,
+   "stratum": "L",
+   "wordCount": 14,
+   "reciter": "abdulbasit",
+   "refText": "لَوْ كَانَ فِيهِمَآ ءَالِهَةٌ إِلَّا ٱللَّهُ لَفَسَدَتَا ۚ فَسُبْحَٰنَ ٱللَّهِ رَبِّ ٱلْعَرْشِ عَمَّا يَصِفُونَ",
+   "source": {
+    "kind": "ayah_file",
+    "url": "https://everyayah.com/data/Abdul_Basit_Murattal_192kbps/021022.mp3",
+    "reciter": "abdulbasit",
+    "origin": "everyayah.com"
+   }
+  },
+  {
+   "id": "hafs_alafasy_019010",
+   "riwaya": "hafs",
+   "surah": 19,
+   "ayah": 10,
+   "globalIndex": 2259,
+   "stratum": "L",
+   "wordCount": 14,
+   "reciter": "alafasy",
+   "refText": "قَالَ رَبِّ ٱجْعَل لِّىٓ ءَايَةًۭ ۚ قَالَ ءَايَتُكَ أَلَّا تُكَلِّمَ ٱلنَّاسَ ثَلَٰثَ لَيَالٍۢ سَوِيًّۭا",
+   "source": {
+    "kind": "ayah_file",
+    "url": "https://everyayah.com/data/Alafasy_128kbps/019010.mp3",
+    "reciter": "alafasy",
+    "origin": "everyayah.com"
+   }
+  },
+  {
+   "id": "hafs_husary_muallim_089016",
+   "riwaya": "hafs",
+   "surah": 89,
+   "ayah": 16,
+   "globalIndex": 6008,
+   "stratum": "L",
+   "wordCount": 10,
+   "reciter": "husary_muallim",
+   "refText": "وَأَمَّآ إِذَا مَا ٱبْتَلَىٰهُ فَقَدَرَ عَلَيْهِ رِزْقَهُۥ فَيَقُولُ رَبِّىٓ أَهَٰنَنِ",
+   "source": {
+    "kind": "ayah_file",
+    "url": "https://everyayah.com/data/Husary_Muallim_128kbps/089016.mp3",
+    "reciter": "husary_muallim",
+    "origin": "everyayah.com"
+   }
+  },
+  {
+   "id": "hafs_minshawi_003136",
+   "riwaya": "hafs",
+   "surah": 3,
+   "ayah": 136,
+   "globalIndex": 428,
+   "stratum": "L",
+   "wordCount": 16,
+   "reciter": "minshawi",
+   "refText": "أُو۟لَٰٓئِكَ جَزَآؤُهُم مَّغْفِرَةٌۭ مِّن رَّبِّهِمْ وَجَنَّٰتٌۭ تَجْرِى مِن تَحْتِهَا ٱلْأَنْهَٰرُ خَٰلِدِينَ فِيهَا ۚ وَنِعْمَ أَجْرُ ٱلْعَٰمِلِينَ",
+   "source": {
+    "kind": "ayah_file",
+    "url": "https://everyayah.com/data/Minshawy_Murattal_128kbps/003136.mp3",
+    "reciter": "minshawi",
+    "origin": "everyayah.com"
+   }
+  },
+  {
+   "id": "hafs_abdulbasit_027068",
+   "riwaya": "hafs",
+   "surah": 27,
+   "ayah": 68,
+   "globalIndex": 3226,
+   "stratum": "L",
+   "wordCount": 12,
+   "reciter": "abdulbasit",
+   "refText": "لَقَدْ وُعِدْنَا هَٰذَا نَحْنُ وَءَابَآؤُنَا مِن قَبْلُ إِنْ هَٰذَآ إِلَّآ أَسَٰطِيرُ ٱلْأَوَّلِينَ",
+   "source": {
+    "kind": "ayah_file",
+    "url": "https://everyayah.com/data/Abdul_Basit_Murattal_192kbps/027068.mp3",
+    "reciter": "abdulbasit",
+    "origin": "everyayah.com"
+   }
+  },
+  {
+   "id": "hafs_alafasy_054009",
+   "riwaya": "hafs",
+   "surah": 54,
+   "ayah": 9,
+   "globalIndex": 4854,
+   "stratum": "L",
+   "wordCount": 10,
+   "reciter": "alafasy",
+   "refText": "۞ كَذَّبَتْ قَبْلَهُمْ قَوْمُ نُوحٍۢ فَكَذَّبُوا۟ عَبْدَنَا وَقَالُوا۟ مَجْنُونٌۭ وَٱزْدُجِرَ",
+   "source": {
+    "kind": "ayah_file",
+    "url": "https://everyayah.com/data/Alafasy_128kbps/054009.mp3",
+    "reciter": "alafasy",
+    "origin": "everyayah.com"
+   }
+  },
+  {
+   "id": "hafs_husary_muallim_026180",
+   "riwaya": "hafs",
+   "surah": 26,
+   "ayah": 180,
+   "globalIndex": 3111,
+   "stratum": "L",
+   "wordCount": 12,
+   "reciter": "husary_muallim",
+   "refText": "وَمَآ أَسْـَٔلُكُمْ عَلَيْهِ مِنْ أَجْرٍ ۖ إِنْ أَجْرِىَ إِلَّا عَلَىٰ رَبِّ ٱلْعَٰلَمِينَ",
+   "source": {
+    "kind": "ayah_file",
+    "url": "https://everyayah.com/data/Husary_Muallim_128kbps/026180.mp3",
+    "reciter": "husary_muallim",
+    "origin": "everyayah.com"
+   }
+  },
+  {
+   "id": "hafs_minshawi_002051",
+   "riwaya": "hafs",
+   "surah": 2,
+   "ayah": 51,
+   "globalIndex": 57,
+   "stratum": "L",
+   "wordCount": 12,
+   "reciter": "minshawi",
+   "refText": "وَإِذْ وَٰعَدْنَا مُوسَىٰٓ أَرْبَعِينَ لَيْلَةًۭ ثُمَّ ٱتَّخَذْتُمُ ٱلْعِجْلَ مِنۢ بَعْدِهِۦ وَأَنتُمْ ظَٰلِمُونَ",
+   "source": {
+    "kind": "ayah_file",
+    "url": "https://everyayah.com/data/Minshawy_Murattal_128kbps/002051.mp3",
+    "reciter": "minshawi",
+    "origin": "everyayah.com"
+   }
+  },
+  {
+   "id": "hafs_abdulbasit_042040",
+   "riwaya": "hafs",
+   "surah": 42,
+   "ayah": 40,
+   "globalIndex": 4311,
+   "stratum": "L",
+   "wordCount": 16,
+   "reciter": "abdulbasit",
+   "refText": "وَجَزَٰٓؤُا۟ سَيِّئَةٍۢ سَيِّئَةٌۭ مِّثْلُهَا ۖ فَمَنْ عَفَا وَأَصْلَحَ فَأَجْرُهُۥ عَلَى ٱللَّهِ ۚ إِنَّهُۥ لَا يُحِبُّ ٱلظَّٰلِمِينَ",
+   "source": {
+    "kind": "ayah_file",
+    "url": "https://everyayah.com/data/Abdul_Basit_Murattal_192kbps/042040.mp3",
+    "reciter": "abdulbasit",
+    "origin": "everyayah.com"
+   }
+  },
+  {
+   "id": "hafs_alafasy_016056",
+   "riwaya": "hafs",
+   "surah": 16,
+   "ayah": 56,
+   "globalIndex": 1956,
+   "stratum": "L",
+   "wordCount": 13,
+   "reciter": "alafasy",
+   "refText": "وَيَجْعَلُونَ لِمَا لَا يَعْلَمُونَ نَصِيبًۭا مِّمَّا رَزَقْنَٰهُمْ ۗ تَٱللَّهِ لَتُسْـَٔلُنَّ عَمَّا كُنتُمْ تَفْتَرُونَ",
+   "source": {
+    "kind": "ayah_file",
+    "url": "https://everyayah.com/data/Alafasy_128kbps/016056.mp3",
+    "reciter": "alafasy",
+    "origin": "everyayah.com"
+   }
+  },
+  {
+   "id": "hafs_husary_muallim_070044",
+   "riwaya": "hafs",
+   "surah": 70,
+   "ayah": 44,
+   "globalIndex": 5418,
+   "stratum": "L",
+   "wordCount": 10,
+   "reciter": "husary_muallim",
+   "refText": "خَٰشِعَةً أَبْصَٰرُهُمْ تَرْهَقُهُمْ ذِلَّةٌۭ ۚ ذَٰلِكَ ٱلْيَوْمُ ٱلَّذِى كَانُوا۟ يُوعَدُونَ",
+   "source": {
+    "kind": "ayah_file",
+    "url": "https://everyayah.com/data/Husary_Muallim_128kbps/070044.mp3",
+    "reciter": "husary_muallim",
+    "origin": "everyayah.com"
+   }
+  },
+  {
+   "id": "hafs_minshawi_020112",
+   "riwaya": "hafs",
+   "surah": 20,
+   "ayah": 112,
+   "globalIndex": 2459,
+   "stratum": "L",
+   "wordCount": 11,
+   "reciter": "minshawi",
+   "refText": "وَمَن يَعْمَلْ مِنَ ٱلصَّٰلِحَٰتِ وَهُوَ مُؤْمِنٌۭ فَلَا يَخَافُ ظُلْمًۭا وَلَا هَضْمًۭا",
+   "source": {
+    "kind": "ayah_file",
+    "url": "https://everyayah.com/data/Minshawy_Murattal_128kbps/020112.mp3",
+    "reciter": "minshawi",
+    "origin": "everyayah.com"
+   }
+  },
+  {
+   "id": "hafs_abdulbasit_038007",
+   "riwaya": "hafs",
+   "surah": 38,
+   "ayah": 7,
+   "globalIndex": 3976,
+   "stratum": "L",
+   "wordCount": 10,
+   "reciter": "abdulbasit",
+   "refText": "مَا سَمِعْنَا بِهَٰذَا فِى ٱلْمِلَّةِ ٱلْءَاخِرَةِ إِنْ هَٰذَآ إِلَّا ٱخْتِلَٰقٌ",
+   "source": {
+    "kind": "ayah_file",
+    "url": "https://everyayah.com/data/Abdul_Basit_Murattal_192kbps/038007.mp3",
+    "reciter": "abdulbasit",
+    "origin": "everyayah.com"
+   }
+  },
+  {
+   "id": "hafs_alafasy_010051",
+   "riwaya": "hafs",
+   "surah": 10,
+   "ayah": 51,
+   "globalIndex": 1414,
+   "stratum": "L",
+   "wordCount": 12,
+   "reciter": "alafasy",
+   "refText": "أَثُمَّ إِذَا مَا وَقَعَ ءَامَنتُم بِهِۦٓ ۚ ءَآلْـَٰٔنَ وَقَدْ كُنتُم بِهِۦ تَسْتَعْجِلُونَ",
+   "source": {
+    "kind": "ayah_file",
+    "url": "https://everyayah.com/data/Alafasy_128kbps/010051.mp3",
+    "reciter": "alafasy",
+    "origin": "everyayah.com"
+   }
+  },
+  {
+   "id": "hafs_husary_muallim_005076",
+   "riwaya": "hafs",
+   "surah": 5,
+   "ayah": 76,
+   "globalIndex": 744,
+   "stratum": "L",
+   "wordCount": 17,
+   "reciter": "husary_muallim",
+   "refText": "قُلْ أَتَعْبُدُونَ مِن دُونِ ٱللَّهِ مَا لَا يَمْلِكُ لَكُمْ ضَرًّۭا وَلَا نَفْعًۭا ۚ وَٱللَّهُ هُوَ ٱلسَّمِيعُ ٱلْعَلِيمُ",
+   "source": {
+    "kind": "ayah_file",
+    "url": "https://everyayah.com/data/Husary_Muallim_128kbps/005076.mp3",
+    "reciter": "husary_muallim",
+    "origin": "everyayah.com"
+   }
+  },
+  {
+   "id": "hafs_minshawi_002146",
+   "riwaya": "hafs",
+   "surah": 2,
+   "ayah": 146,
+   "globalIndex": 152,
+   "stratum": "L",
+   "wordCount": 15,
+   "reciter": "minshawi",
+   "refText": "ٱلَّذِينَ ءَاتَيْنَٰهُمُ ٱلْكِتَٰبَ يَعْرِفُونَهُۥ كَمَا يَعْرِفُونَ أَبْنَآءَهُمْ ۖ وَإِنَّ فَرِيقًۭا مِّنْهُمْ لَيَكْتُمُونَ ٱلْحَقَّ وَهُمْ يَعْلَمُونَ",
+   "source": {
+    "kind": "ayah_file",
+    "url": "https://everyayah.com/data/Minshawy_Murattal_128kbps/002146.mp3",
+    "reciter": "minshawi",
+    "origin": "everyayah.com"
+   }
+  },
+  {
+   "id": "hafs_abdulbasit_007116",
+   "riwaya": "hafs",
+   "surah": 7,
+   "ayah": 116,
+   "globalIndex": 1069,
+   "stratum": "L",
+   "wordCount": 12,
+   "reciter": "abdulbasit",
+   "refText": "قَالَ أَلْقُوا۟ ۖ فَلَمَّآ أَلْقَوْا۟ سَحَرُوٓا۟ أَعْيُنَ ٱلنَّاسِ وَٱسْتَرْهَبُوهُمْ وَجَآءُو بِسِحْرٍ عَظِيمٍۢ",
+   "source": {
+    "kind": "ayah_file",
+    "url": "https://everyayah.com/data/Abdul_Basit_Murattal_192kbps/007116.mp3",
+    "reciter": "abdulbasit",
+    "origin": "everyayah.com"
+   }
+  },
+  {
+   "id": "hafs_minshawi_011093",
+   "riwaya": "hafs",
+   "surah": 11,
+   "ayah": 93,
+   "globalIndex": 1565,
+   "stratum": "XL",
+   "wordCount": 21,
+   "reciter": "minshawi",
+   "refText": "وَيَٰقَوْمِ ٱعْمَلُوا۟ عَلَىٰ مَكَانَتِكُمْ إِنِّى عَٰمِلٌۭ ۖ سَوْفَ تَعْلَمُونَ مَن يَأْتِيهِ عَذَابٌۭ يُخْزِيهِ وَمَنْ هُوَ كَٰذِبٌۭ ۖ وَٱرْتَقِبُوٓا۟ إِنِّى مَعَكُمْ رَقِيبٌۭ",
+   "source": {
+    "kind": "ayah_file",
+    "url": "https://everyayah.com/data/Minshawy_Murattal_128kbps/011093.mp3",
+    "reciter": "minshawi",
+    "origin": "everyayah.com"
+   }
+  },
+  {
+   "id": "hafs_abdulbasit_003160",
+   "riwaya": "hafs",
+   "surah": 3,
+   "ayah": 160,
+   "globalIndex": 452,
+   "stratum": "XL",
+   "wordCount": 20,
+   "reciter": "abdulbasit",
+   "refText": "إِن يَنصُرْكُمُ ٱللَّهُ فَلَا غَالِبَ لَكُمْ ۖ وَإِن يَخْذُلْكُمْ فَمَن ذَا ٱلَّذِى يَنصُرُكُم مِّنۢ بَعْدِهِۦ ۗ وَعَلَى ٱللَّهِ فَلْيَتَوَكَّلِ ٱلْمُؤْمِنُونَ",
+   "source": {
+    "kind": "ayah_file",
+    "url": "https://everyayah.com/data/Abdul_Basit_Murattal_192kbps/003160.mp3",
+    "reciter": "abdulbasit",
+    "origin": "everyayah.com"
+   }
+  },
+  {
+   "id": "hafs_alafasy_049002",
+   "riwaya": "hafs",
+   "surah": 49,
+   "ayah": 2,
+   "globalIndex": 4613,
+   "stratum": "XL",
+   "wordCount": 22,
+   "reciter": "alafasy",
+   "refText": "يَٰٓأَيُّهَا ٱلَّذِينَ ءَامَنُوا۟ لَا تَرْفَعُوٓا۟ أَصْوَٰتَكُمْ فَوْقَ صَوْتِ ٱلنَّبِىِّ وَلَا تَجْهَرُوا۟ لَهُۥ بِٱلْقَوْلِ كَجَهْرِ بَعْضِكُمْ لِبَعْضٍ أَن تَحْبَطَ أَعْمَٰلُكُمْ وَأَنتُمْ لَا تَشْعُرُونَ",
+   "source": {
+    "kind": "ayah_file",
+    "url": "https://everyayah.com/data/Alafasy_128kbps/049002.mp3",
+    "reciter": "alafasy",
+    "origin": "everyayah.com"
+   }
+  },
+  {
+   "id": "hafs_husary_muallim_007143",
+   "riwaya": "hafs",
+   "surah": 7,
+   "ayah": 143,
+   "globalIndex": 1096,
+   "stratum": "XL",
+   "wordCount": 44,
+   "reciter": "husary_muallim",
+   "refText": "وَلَمَّا جَآءَ مُوسَىٰ لِمِيقَٰتِنَا وَكَلَّمَهُۥ رَبُّهُۥ قَالَ رَبِّ أَرِنِىٓ أَنظُرْ إِلَيْكَ ۚ قَالَ لَن تَرَىٰنِى وَلَٰكِنِ ٱنظُرْ إِلَى ٱلْجَبَلِ فَإِنِ ٱسْتَقَرَّ مَكَانَهُۥ فَسَوْفَ تَرَىٰنِى ۚ فَلَمَّا تَجَلَّىٰ رَبُّهُۥ لِلْجَبَلِ جَعَلَهُۥ دَكًّۭا وَخَرَّ مُوسَىٰ صَعِقًۭا ۚ فَلَمَّآ أَفَاقَ قَالَ سُبْحَٰنَكَ تُبْتُ إِلَيْكَ وَأَنَا۠ أَوَّلُ ٱلْمُؤْمِنِينَ",
+   "source": {
+    "kind": "ayah_file",
+    "url": "https://everyayah.com/data/Husary_Muallim_128kbps/007143.mp3",
+    "reciter": "husary_muallim",
+    "origin": "everyayah.com"
+   }
+  },
+  {
+   "id": "hafs_minshawi_003066",
+   "riwaya": "hafs",
+   "surah": 3,
+   "ayah": 66,
+   "globalIndex": 358,
+   "stratum": "XL",
+   "wordCount": 20,
+   "reciter": "minshawi",
+   "refText": "هَٰٓأَنتُمْ هَٰٓؤُلَآءِ حَٰجَجْتُمْ فِيمَا لَكُم بِهِۦ عِلْمٌۭ فَلِمَ تُحَآجُّونَ فِيمَا لَيْسَ لَكُم بِهِۦ عِلْمٌۭ ۚ وَٱللَّهُ يَعْلَمُ وَأَنتُمْ لَا تَعْلَمُونَ",
+   "source": {
+    "kind": "ayah_file",
+    "url": "https://everyayah.com/data/Minshawy_Murattal_128kbps/003066.mp3",
+    "reciter": "minshawi",
+    "origin": "everyayah.com"
+   }
+  },
+  {
+   "id": "hafs_abdulbasit_018022",
+   "riwaya": "hafs",
+   "surah": 18,
+   "ayah": 22,
+   "globalIndex": 2161,
+   "stratum": "XL",
+   "wordCount": 36,
+   "reciter": "abdulbasit",
+   "refText": "سَيَقُولُونَ ثَلَٰثَةٌۭ رَّابِعُهُمْ كَلْبُهُمْ وَيَقُولُونَ خَمْسَةٌۭ سَادِسُهُمْ كَلْبُهُمْ رَجْمًۢا بِٱلْغَيْبِ ۖ وَيَقُولُونَ سَبْعَةٌۭ وَثَامِنُهُمْ كَلْبُهُمْ ۚ قُل رَّبِّىٓ أَعْلَمُ بِعِدَّتِهِم مَّا يَعْلَمُهُمْ إِلَّا قَلِيلٌۭ ۗ فَلَا تُمَارِ فِيهِمْ إِلَّا مِرَآءًۭ ظَٰهِرًۭا وَلَا تَسْتَفْتِ فِيهِم مِّنْهُمْ أَحَدًۭا",
+   "source": {
+    "kind": "ayah_file",
+    "url": "https://everyayah.com/data/Abdul_Basit_Murattal_192kbps/018022.mp3",
+    "reciter": "abdulbasit",
+    "origin": "everyayah.com"
+   }
+  },
+  {
+   "id": "hafs_alafasy_005017",
+   "riwaya": "hafs",
+   "surah": 5,
+   "ayah": 17,
+   "globalIndex": 685,
+   "stratum": "XL",
+   "wordCount": 46,
+   "reciter": "alafasy",
+   "refText": "لَّقَدْ كَفَرَ ٱلَّذِينَ قَالُوٓا۟ إِنَّ ٱللَّهَ هُوَ ٱلْمَسِيحُ ٱبْنُ مَرْيَمَ ۚ قُلْ فَمَن يَمْلِكُ مِنَ ٱللَّهِ شَيْـًٔا إِنْ أَرَادَ أَن يُهْلِكَ ٱلْمَسِيحَ ٱبْنَ مَرْيَمَ وَأُمَّهُۥ وَمَن فِى ٱلْأَرْضِ جَمِيعًۭا ۗ وَلِلَّهِ مُلْكُ ٱلسَّمَٰوَٰتِ وَٱلْأَرْضِ وَمَا بَيْنَهُمَا ۚ يَخْلُقُ مَا يَشَآءُ ۚ وَٱللَّهُ عَلَىٰ كُلِّ شَىْءٍۢ قَدِيرٌۭ",
+   "source": {
+    "kind": "ayah_file",
+    "url": "https://everyayah.com/data/Alafasy_128kbps/005017.mp3",
+    "reciter": "alafasy",
+    "origin": "everyayah.com"
+   }
+  },
+  {
+   "id": "hafs_husary_muallim_014010",
+   "riwaya": "hafs",
+   "surah": 14,
+   "ayah": 10,
+   "globalIndex": 1759,
+   "stratum": "XL",
+   "wordCount": 36,
+   "reciter": "husary_muallim",
+   "refText": "۞ قَالَتْ رُسُلُهُمْ أَفِى ٱللَّهِ شَكٌّۭ فَاطِرِ ٱلسَّمَٰوَٰتِ وَٱلْأَرْضِ ۖ يَدْعُوكُمْ لِيَغْفِرَ لَكُم مِّن ذُنُوبِكُمْ وَيُؤَخِّرَكُمْ إِلَىٰٓ أَجَلٍۢ مُّسَمًّۭى ۚ قَالُوٓا۟ إِنْ أَنتُمْ إِلَّا بَشَرٌۭ مِّثْلُنَا تُرِيدُونَ أَن تَصُدُّونَا عَمَّا كَانَ يَعْبُدُ ءَابَآؤُنَا فَأْتُونَا بِسُلْطَٰنٍۢ مُّبِينٍۢ",
+   "source": {
+    "kind": "ayah_file",
+    "url": "https://everyayah.com/data/Husary_Muallim_128kbps/014010.mp3",
+    "reciter": "husary_muallim",
+    "origin": "everyayah.com"
+   }
+  },
+  {
+   "id": "hafs_minshawi_041016",
+   "riwaya": "hafs",
+   "surah": 41,
+   "ayah": 16,
+   "globalIndex": 4233,
+   "stratum": "XL",
+   "wordCount": 21,
+   "reciter": "minshawi",
+   "refText": "فَأَرْسَلْنَا عَلَيْهِمْ رِيحًۭا صَرْصَرًۭا فِىٓ أَيَّامٍۢ نَّحِسَاتٍۢ لِّنُذِيقَهُمْ عَذَابَ ٱلْخِزْىِ فِى ٱلْحَيَوٰةِ ٱلدُّنْيَا ۖ وَلَعَذَابُ ٱلْءَاخِرَةِ أَخْزَىٰ ۖ وَهُمْ لَا يُنصَرُونَ",
+   "source": {
+    "kind": "ayah_file",
+    "url": "https://everyayah.com/data/Minshawy_Murattal_128kbps/041016.mp3",
+    "reciter": "minshawi",
+    "origin": "everyayah.com"
+   }
+  },
+  {
+   "id": "hafs_abdulbasit_027016",
+   "riwaya": "hafs",
+   "surah": 27,
+   "ayah": 16,
+   "globalIndex": 3174,
+   "stratum": "XL",
+   "wordCount": 20,
+   "reciter": "abdulbasit",
+   "refText": "وَوَرِثَ سُلَيْمَٰنُ دَاوُۥدَ ۖ وَقَالَ يَٰٓأَيُّهَا ٱلنَّاسُ عُلِّمْنَا مَنطِقَ ٱلطَّيْرِ وَأُوتِينَا مِن كُلِّ شَىْءٍ ۖ إِنَّ هَٰذَا لَهُوَ ٱلْفَضْلُ ٱلْمُبِينُ",
+   "source": {
+    "kind": "ayah_file",
+    "url": "https://everyayah.com/data/Abdul_Basit_Murattal_192kbps/027016.mp3",
+    "reciter": "abdulbasit",
+    "origin": "everyayah.com"
+   }
+  },
+  {
+   "id": "hafs_alafasy_003117",
+   "riwaya": "hafs",
+   "surah": 3,
+   "ayah": 117,
+   "globalIndex": 409,
+   "stratum": "XL",
+   "wordCount": 24,
+   "reciter": "alafasy",
+   "refText": "مَثَلُ مَا يُنفِقُونَ فِى هَٰذِهِ ٱلْحَيَوٰةِ ٱلدُّنْيَا كَمَثَلِ رِيحٍۢ فِيهَا صِرٌّ أَصَابَتْ حَرْثَ قَوْمٍۢ ظَلَمُوٓا۟ أَنفُسَهُمْ فَأَهْلَكَتْهُ ۚ وَمَا ظَلَمَهُمُ ٱللَّهُ وَلَٰكِنْ أَنفُسَهُمْ يَظْلِمُونَ",
+   "source": {
+    "kind": "ayah_file",
+    "url": "https://everyayah.com/data/Alafasy_128kbps/003117.mp3",
+    "reciter": "alafasy",
+    "origin": "everyayah.com"
+   }
+  },
+  {
+   "id": "hafs_husary_muallim_009095",
+   "riwaya": "hafs",
+   "surah": 9,
+   "ayah": 95,
+   "globalIndex": 1329,
+   "stratum": "XL",
+   "wordCount": 21,
+   "reciter": "husary_muallim",
+   "refText": "سَيَحْلِفُونَ بِٱللَّهِ لَكُمْ إِذَا ٱنقَلَبْتُمْ إِلَيْهِمْ لِتُعْرِضُوا۟ عَنْهُمْ ۖ فَأَعْرِضُوا۟ عَنْهُمْ ۖ إِنَّهُمْ رِجْسٌۭ ۖ وَمَأْوَىٰهُمْ جَهَنَّمُ جَزَآءًۢ بِمَا كَانُوا۟ يَكْسِبُونَ",
+   "source": {
+    "kind": "ayah_file",
+    "url": "https://everyayah.com/data/Husary_Muallim_128kbps/009095.mp3",
+    "reciter": "husary_muallim",
+    "origin": "everyayah.com"
+   }
+  },
+  {
+   "id": "hafs_minshawi_007043",
+   "riwaya": "hafs",
+   "surah": 7,
+   "ayah": 43,
+   "globalIndex": 996,
+   "stratum": "XL",
+   "wordCount": 39,
+   "reciter": "minshawi",
+   "refText": "وَنَزَعْنَا مَا فِى صُدُورِهِم مِّنْ غِلٍّۢ تَجْرِى مِن تَحْتِهِمُ ٱلْأَنْهَٰرُ ۖ وَقَالُوا۟ ٱلْحَمْدُ لِلَّهِ ٱلَّذِى هَدَىٰنَا لِهَٰذَا وَمَا كُنَّا لِنَهْتَدِىَ لَوْلَآ أَنْ هَدَىٰنَا ٱللَّهُ ۖ لَقَدْ جَآءَتْ رُسُلُ رَبِّنَا بِٱلْحَقِّ ۖ وَنُودُوٓا۟ أَن تِلْكُمُ ٱلْجَنَّةُ أُورِثْتُمُوهَا بِمَا كُنتُمْ تَعْمَلُونَ",
+   "source": {
+    "kind": "ayah_file",
+    "url": "https://everyayah.com/data/Minshawy_Murattal_128kbps/007043.mp3",
+    "reciter": "minshawi",
+    "origin": "everyayah.com"
+   }
+  },
+  {
+   "id": "hafs_abdulbasit_039068",
+   "riwaya": "hafs",
+   "surah": 39,
+   "ayah": 68,
+   "globalIndex": 4125,
+   "stratum": "XL",
+   "wordCount": 23,
+   "reciter": "abdulbasit",
+   "refText": "وَنُفِخَ فِى ٱلصُّورِ فَصَعِقَ مَن فِى ٱلسَّمَٰوَٰتِ وَمَن فِى ٱلْأَرْضِ إِلَّا مَن شَآءَ ٱللَّهُ ۖ ثُمَّ نُفِخَ فِيهِ أُخْرَىٰ فَإِذَا هُمْ قِيَامٌۭ يَنظُرُونَ",
+   "source": {
+    "kind": "ayah_file",
+    "url": "https://everyayah.com/data/Abdul_Basit_Murattal_192kbps/039068.mp3",
+    "reciter": "abdulbasit",
+    "origin": "everyayah.com"
+   }
+  },
+  {
+   "id": "warsh_yassin_074019",
+   "riwaya": "warsh",
+   "surah": 74,
+   "ayah": 19,
+   "globalIndex": 5513,
+   "stratum": "S",
+   "wordCount": 3,
+   "reciter": "yassin",
+   "refText": "فَقُتِلَ كَيْفَ قَدَّرَ",
+   "source": {
+    "kind": "ayah_file",
+    "url": "https://pub-2c2e1dcd92e84a2898820dd38d3e09e6.r2.dev/audio/warsh/yassin/074019.mp3",
+    "reciter": "yassin",
+    "origin": "everyayah.com (مرآة R2)"
+   }
+  },
+  {
+   "id": "warsh_dosary_037174",
+   "riwaya": "warsh",
+   "surah": 37,
+   "ayah": 174,
+   "globalIndex": 3961,
+   "stratum": "S",
+   "wordCount": 4,
+   "reciter": "dosary",
+   "refText": "فَتَوَلَّ عَنْهُمْ حَتَّىٰ حِينٖۖ",
+   "source": {
+    "kind": "ayah_file",
+    "url": "https://pub-2c2e1dcd92e84a2898820dd38d3e09e6.r2.dev/audio/warsh/dosary/037174.mp3",
+    "reciter": "dosary",
+    "origin": "everyayah.com (مرآة R2)"
+   }
+  },
+  {
+   "id": "warsh_yassin_037101",
+   "riwaya": "warsh",
+   "surah": 37,
+   "ayah": 101,
+   "globalIndex": 3888,
+   "stratum": "S",
+   "wordCount": 3,
+   "reciter": "yassin",
+   "refText": "فَبَشَّرْنَٰهُ بِغُلَٰمٍ حَلِيمٖۖ",
+   "source": {
+    "kind": "ayah_file",
+    "url": "https://pub-2c2e1dcd92e84a2898820dd38d3e09e6.r2.dev/audio/warsh/yassin/037101.mp3",
+    "reciter": "yassin",
+    "origin": "everyayah.com (مرآة R2)"
+   }
+  },
+  {
+   "id": "warsh_dosary_068008",
+   "riwaya": "warsh",
+   "surah": 68,
+   "ayah": 8,
+   "globalIndex": 5278,
+   "stratum": "S",
+   "wordCount": 3,
+   "reciter": "dosary",
+   "refText": "فَلَا تُطِعِ اِ۬لْمُكَذِّبِينَۖ",
+   "source": {
+    "kind": "ayah_file",
+    "url": "https://pub-2c2e1dcd92e84a2898820dd38d3e09e6.r2.dev/audio/warsh/dosary/068008.mp3",
+    "reciter": "dosary",
+    "origin": "everyayah.com (مرآة R2)"
+   }
+  },
+  {
+   "id": "warsh_yassin_050013",
+   "riwaya": "warsh",
+   "surah": 50,
+   "ayah": 13,
+   "globalIndex": 4642,
+   "stratum": "S",
+   "wordCount": 4,
+   "reciter": "yassin",
+   "refText": "وَعَادٞ وَفِرْعَوْنُ وَإِخْوَٰنُ لُوطٖ",
+   "source": {
+    "kind": "ayah_file",
+    "url": "https://pub-2c2e1dcd92e84a2898820dd38d3e09e6.r2.dev/audio/warsh/yassin/050013.mp3",
+    "reciter": "yassin",
+    "origin": "everyayah.com (مرآة R2)"
+   }
+  },
+  {
+   "id": "warsh_dosary_075019",
+   "riwaya": "warsh",
+   "surah": 75,
+   "ayah": 19,
+   "globalIndex": 5569,
+   "stratum": "S",
+   "wordCount": 4,
+   "reciter": "dosary",
+   "refText": "ثُمَّ إِنَّ عَلَيْنَا بَيَانَهُۥۖ",
+   "source": {
+    "kind": "ayah_file",
+    "url": "https://pub-2c2e1dcd92e84a2898820dd38d3e09e6.r2.dev/audio/warsh/dosary/075019.mp3",
+    "reciter": "dosary",
+    "origin": "everyayah.com (مرآة R2)"
+   }
+  },
+  {
+   "id": "warsh_yassin_084005",
+   "riwaya": "warsh",
+   "surah": 84,
+   "ayah": 5,
+   "globalIndex": 5888,
+   "stratum": "S",
+   "wordCount": 3,
+   "reciter": "yassin",
+   "refText": "وَأَذِنَتْ لِرَبِّهَا وَحُقَّتْۖ",
+   "source": {
+    "kind": "ayah_file",
+    "url": "https://pub-2c2e1dcd92e84a2898820dd38d3e09e6.r2.dev/audio/warsh/yassin/084005.mp3",
+    "reciter": "yassin",
+    "origin": "everyayah.com (مرآة R2)"
+   }
+  },
+  {
+   "id": "warsh_dosary_056001",
+   "riwaya": "warsh",
+   "surah": 56,
+   "ayah": 1,
+   "globalIndex": 4979,
+   "stratum": "S",
+   "wordCount": 3,
+   "reciter": "dosary",
+   "refText": "إِذَا وَقَعَتِ اِ۬لْوَاقِعَةُ",
+   "source": {
+    "kind": "ayah_file",
+    "url": "https://pub-2c2e1dcd92e84a2898820dd38d3e09e6.r2.dev/audio/warsh/dosary/056001.mp3",
+    "reciter": "dosary",
+    "origin": "everyayah.com (مرآة R2)"
+   }
+  },
+  {
+   "id": "warsh_yassin_026205",
+   "riwaya": "warsh",
+   "surah": 26,
+   "ayah": 205,
+   "globalIndex": 3136,
+   "stratum": "S",
+   "wordCount": 4,
+   "reciter": "yassin",
+   "refText": "أَفَرَٰٓيْتَ إِن مَّتَّعْنَٰهُمْ سِنِينَ",
+   "source": {
+    "kind": "ayah_file",
+    "url": "https://pub-2c2e1dcd92e84a2898820dd38d3e09e6.r2.dev/audio/warsh/yassin/026205.mp3",
+    "reciter": "yassin",
+    "origin": "everyayah.com (مرآة R2)"
+   }
+  },
+  {
+   "id": "warsh_dosary_094001",
+   "riwaya": "warsh",
+   "surah": 94,
+   "ayah": 1,
+   "globalIndex": 6090,
+   "stratum": "S",
+   "wordCount": 4,
+   "reciter": "dosary",
+   "refText": "اَلَمْ نَشْرَحْ لَكَ صَدْرَكَ",
+   "source": {
+    "kind": "ayah_file",
+    "url": "https://pub-2c2e1dcd92e84a2898820dd38d3e09e6.r2.dev/audio/warsh/dosary/094001.mp3",
+    "reciter": "dosary",
+    "origin": "everyayah.com (مرآة R2)"
+   }
+  },
+  {
+   "id": "warsh_yassin_107004",
+   "riwaya": "warsh",
+   "surah": 107,
+   "ayah": 4,
+   "globalIndex": 6200,
+   "stratum": "S",
+   "wordCount": 2,
+   "reciter": "yassin",
+   "refText": "فَوَيْلٞ لِّلْمُصَلِّينَ",
+   "source": {
+    "kind": "ayah_file",
+    "url": "https://pub-2c2e1dcd92e84a2898820dd38d3e09e6.r2.dev/audio/warsh/yassin/107004.mp3",
+    "reciter": "yassin",
+    "origin": "everyayah.com (مرآة R2)"
+   }
+  },
+  {
+   "id": "warsh_dosary_069029",
+   "riwaya": "warsh",
+   "surah": 69,
+   "ayah": 29,
+   "globalIndex": 5351,
+   "stratum": "S",
+   "wordCount": 3,
+   "reciter": "dosary",
+   "refText": "هَّلَكَ عَنِّے سُلْطَٰنِيَهْۖ",
+   "source": {
+    "kind": "ayah_file",
+    "url": "https://pub-2c2e1dcd92e84a2898820dd38d3e09e6.r2.dev/audio/warsh/dosary/069029.mp3",
+    "reciter": "dosary",
+    "origin": "everyayah.com (مرآة R2)"
+   }
+  },
+  {
+   "id": "warsh_yassin_080019",
+   "riwaya": "warsh",
+   "surah": 80,
+   "ayah": 19,
+   "globalIndex": 5776,
+   "stratum": "S",
+   "wordCount": 4,
+   "reciter": "yassin",
+   "refText": "مِن نُّطْفَةٍ خَلَقَهُۥ فَقَدَّرَهُۥ",
+   "source": {
+    "kind": "ayah_file",
+    "url": "https://pub-2c2e1dcd92e84a2898820dd38d3e09e6.r2.dev/audio/warsh/yassin/080019.mp3",
+    "reciter": "yassin",
+    "origin": "everyayah.com (مرآة R2)"
+   }
+  },
+  {
+   "id": "warsh_dosary_037074",
+   "riwaya": "warsh",
+   "surah": 37,
+   "ayah": 74,
+   "globalIndex": 3861,
+   "stratum": "S",
+   "wordCount": 4,
+   "reciter": "dosary",
+   "refText": "إِلَّا عِبَادَ اَ۬للَّهِ اِ۬لْمُخْلَصِينَۖ",
+   "source": {
+    "kind": "ayah_file",
+    "url": "https://pub-2c2e1dcd92e84a2898820dd38d3e09e6.r2.dev/audio/warsh/dosary/037074.mp3",
+    "reciter": "dosary",
+    "origin": "everyayah.com (مرآة R2)"
+   }
+  },
+  {
+   "id": "warsh_yassin_026054",
+   "riwaya": "warsh",
+   "surah": 26,
+   "ayah": 54,
+   "globalIndex": 2985,
+   "stratum": "S",
+   "wordCount": 4,
+   "reciter": "yassin",
+   "refText": "إِنَّ هَٰٓؤُلَآءِ لَشِرْذِمَةٞ قَلِيلُونَ",
+   "source": {
+    "kind": "ayah_file",
+    "url": "https://pub-2c2e1dcd92e84a2898820dd38d3e09e6.r2.dev/audio/warsh/yassin/026054.mp3",
+    "reciter": "yassin",
+    "origin": "everyayah.com (مرآة R2)"
+   }
+  },
+  {
+   "id": "warsh_dosary_056021",
+   "riwaya": "warsh",
+   "surah": 56,
+   "ayah": 21,
+   "globalIndex": 4999,
+   "stratum": "S",
+   "wordCount": 4,
+   "reciter": "dosary",
+   "refText": "وَلَحْمِ طَيْرٖ مِّمَّا يَشْتَهُونَۖ",
+   "source": {
+    "kind": "ayah_file",
+    "url": "https://pub-2c2e1dcd92e84a2898820dd38d3e09e6.r2.dev/audio/warsh/dosary/056021.mp3",
+    "reciter": "dosary",
+    "origin": "everyayah.com (مرآة R2)"
+   }
+  },
+  {
+   "id": "warsh_yassin_111003",
+   "riwaya": "warsh",
+   "surah": 111,
+   "ayah": 3,
+   "globalIndex": 6218,
+   "stratum": "S",
+   "wordCount": 4,
+   "reciter": "yassin",
+   "refText": "سَيَصْلَىٰ نَاراٗ ذَاتَ لَهَبٖ",
+   "source": {
+    "kind": "ayah_file",
+    "url": "https://pub-2c2e1dcd92e84a2898820dd38d3e09e6.r2.dev/audio/warsh/yassin/111003.mp3",
+    "reciter": "yassin",
+    "origin": "everyayah.com (مرآة R2)"
+   }
+  },
+  {
+   "id": "warsh_dosary_086015",
+   "riwaya": "warsh",
+   "surah": 86,
+   "ayah": 15,
+   "globalIndex": 5945,
+   "stratum": "S",
+   "wordCount": 3,
+   "reciter": "dosary",
+   "refText": "إِنَّهُمْ يَكِيدُونَ كَيْداٗ",
+   "source": {
+    "kind": "ayah_file",
+    "url": "https://pub-2c2e1dcd92e84a2898820dd38d3e09e6.r2.dev/audio/warsh/dosary/086015.mp3",
+    "reciter": "dosary",
+    "origin": "everyayah.com (مرآة R2)"
+   }
+  },
+  {
+   "id": "warsh_yassin_070023",
+   "riwaya": "warsh",
+   "surah": 70,
+   "ayah": 23,
+   "globalIndex": 5397,
+   "stratum": "M",
+   "wordCount": 5,
+   "reciter": "yassin",
+   "refText": "اَ۬لذِينَ هُمْ عَلَىٰ صَلَاتِهِمْ دَآئِمُونَۖ",
+   "source": {
+    "kind": "ayah_file",
+    "url": "https://pub-2c2e1dcd92e84a2898820dd38d3e09e6.r2.dev/audio/warsh/yassin/070023.mp3",
+    "reciter": "yassin",
+    "origin": "everyayah.com (مرآة R2)"
+   }
+  },
+  {
+   "id": "warsh_dosary_037112",
+   "riwaya": "warsh",
+   "surah": 37,
+   "ayah": 112,
+   "globalIndex": 3899,
+   "stratum": "M",
+   "wordCount": 5,
+   "reciter": "dosary",
+   "refText": "وَبَشَّرْنَٰهُ بِإِسْحَٰقَ نَبِيٓـٔاٗ مِّنَ اَ۬لصَّٰلِحِينَ",
+   "source": {
+    "kind": "ayah_file",
+    "url": "https://pub-2c2e1dcd92e84a2898820dd38d3e09e6.r2.dev/audio/warsh/dosary/037112.mp3",
+    "reciter": "dosary",
+    "origin": "everyayah.com (مرآة R2)"
+   }
+  },
+  {
+   "id": "warsh_yassin_026111",
+   "riwaya": "warsh",
+   "surah": 26,
+   "ayah": 111,
+   "globalIndex": 3042,
+   "stratum": "M",
+   "wordCount": 6,
+   "reciter": "yassin",
+   "refText": "۞ قَالُوٓاْ أَنُومِنُ لَكَ وَاتَّبَعَكَ اَ۬لَارْذَلُونَۖ",
+   "source": {
+    "kind": "ayah_file",
+    "url": "https://pub-2c2e1dcd92e84a2898820dd38d3e09e6.r2.dev/audio/warsh/yassin/026111.mp3",
+    "reciter": "yassin",
+    "origin": "everyayah.com (مرآة R2)"
+   }
+  },
+  {
+   "id": "warsh_dosary_052024",
+   "riwaya": "warsh",
+   "surah": 52,
+   "ayah": 24,
+   "globalIndex": 4758,
+   "stratum": "M",
+   "wordCount": 8,
+   "reciter": "dosary",
+   "refText": "۞ وَيَطُوفُ عَلَيْهِمْ غِلْمَانٞ لَّهُمْ كَأَنَّهُمْ لُؤْلُؤٞ مَّكْنُونٞۖ",
+   "source": {
+    "kind": "ayah_file",
+    "url": "https://pub-2c2e1dcd92e84a2898820dd38d3e09e6.r2.dev/audio/warsh/dosary/052024.mp3",
+    "reciter": "dosary",
+    "origin": "everyayah.com (مرآة R2)"
+   }
+  },
+  {
+   "id": "warsh_yassin_050042",
+   "riwaya": "warsh",
+   "surah": 50,
+   "ayah": 42,
+   "globalIndex": 4671,
+   "stratum": "M",
+   "wordCount": 7,
+   "reciter": "yassin",
+   "refText": "يَوْمَ يَسْمَعُونَ اَ۬لصَّيْحَةَ بِالْحَقِّۖ ذَٰلِكَ يَوْمُ اُ۬لْخُرُوجِۖ",
+   "source": {
+    "kind": "ayah_file",
+    "url": "https://pub-2c2e1dcd92e84a2898820dd38d3e09e6.r2.dev/audio/warsh/yassin/050042.mp3",
+    "reciter": "yassin",
+    "origin": "everyayah.com (مرآة R2)"
+   }
+  },
+  {
+   "id": "warsh_dosary_029015",
+   "riwaya": "warsh",
+   "surah": 29,
+   "ayah": 15,
+   "globalIndex": 3354,
+   "stratum": "M",
+   "wordCount": 6,
+   "reciter": "dosary",
+   "refText": "فَأَنجَيْنَٰهُ وَأَصْحَٰبَ اَ۬لسَّفِينَةِۖ وَجَعَلْنَٰهَآ ءَايَةٗ لِّلْعَٰلَمِينَۖ",
+   "source": {
+    "kind": "ayah_file",
+    "url": "https://pub-2c2e1dcd92e84a2898820dd38d3e09e6.r2.dev/audio/warsh/dosary/029015.mp3",
+    "reciter": "dosary",
+    "origin": "everyayah.com (مرآة R2)"
+   }
+  },
+  {
+   "id": "warsh_yassin_040024",
+   "riwaya": "warsh",
+   "surah": 40,
+   "ayah": 24,
+   "globalIndex": 4156,
+   "stratum": "M",
+   "wordCount": 7,
+   "reciter": "yassin",
+   "refText": "اِلَىٰ فِرْعَوْنَ وَهَامَٰنَ وَقَارُونَ فَقَالُواْ سَٰحِرٞ كَذَّابٞۖ",
+   "source": {
+    "kind": "ayah_file",
+    "url": "https://pub-2c2e1dcd92e84a2898820dd38d3e09e6.r2.dev/audio/warsh/yassin/040024.mp3",
+    "reciter": "yassin",
+    "origin": "everyayah.com (مرآة R2)"
+   }
+  },
+  {
+   "id": "warsh_dosary_044048",
+   "riwaya": "warsh",
+   "surah": 44,
+   "ayah": 48,
+   "globalIndex": 4461,
+   "stratum": "M",
+   "wordCount": 7,
+   "reciter": "dosary",
+   "refText": "ثُمَّ صُبُّواْ فَوْقَ رَأْسِهِۦ مِنْ عَذَابِ اِ۬لْحَمِيمِ",
+   "source": {
+    "kind": "ayah_file",
+    "url": "https://pub-2c2e1dcd92e84a2898820dd38d3e09e6.r2.dev/audio/warsh/dosary/044048.mp3",
+    "reciter": "dosary",
+    "origin": "everyayah.com (مرآة R2)"
+   }
+  },
+  {
+   "id": "warsh_yassin_069010",
+   "riwaya": "warsh",
+   "surah": 69,
+   "ayah": 10,
+   "globalIndex": 5332,
+   "stratum": "M",
+   "wordCount": 6,
+   "reciter": "yassin",
+   "refText": "فَعَصَوْاْ رَسُولَ رَبِّهِمْ فَأَخَذَهُمُۥٓ أَخْذَةٗ رَّابِيَةًۖ",
+   "source": {
+    "kind": "ayah_file",
+    "url": "https://pub-2c2e1dcd92e84a2898820dd38d3e09e6.r2.dev/audio/warsh/yassin/069010.mp3",
+    "reciter": "yassin",
+    "origin": "everyayah.com (مرآة R2)"
+   }
+  },
+  {
+   "id": "warsh_dosary_032002",
+   "riwaya": "warsh",
+   "surah": 32,
+   "ayah": 2,
+   "globalIndex": 3504,
+   "stratum": "M",
+   "wordCount": 8,
+   "reciter": "dosary",
+   "refText": "تَنزِيلُ اُ۬لْكِتَٰبِ لَا رَيْبَ فِيهِ مِن رَّبِّ اِ۬لْعَٰلَمِينَۖ",
+   "source": {
+    "kind": "ayah_file",
+    "url": "https://pub-2c2e1dcd92e84a2898820dd38d3e09e6.r2.dev/audio/warsh/dosary/032002.mp3",
+    "reciter": "dosary",
+    "origin": "everyayah.com (مرآة R2)"
+   }
+  },
+  {
+   "id": "warsh_yassin_025036",
+   "riwaya": "warsh",
+   "surah": 25,
+   "ayah": 36,
+   "globalIndex": 2890,
+   "stratum": "M",
+   "wordCount": 9,
+   "reciter": "yassin",
+   "refText": "فَقُلْنَا اَ۪ذْهَبَآ إِلَى اَ۬لْقَوْمِ اِ۬لذِينَ كَذَّبُواْ بِـَٔايَٰتِنَاۖ فَدَمَّرْنَٰهُمْ تَدْمِيراٗۖ",
+   "source": {
+    "kind": "ayah_file",
+    "url": "https://pub-2c2e1dcd92e84a2898820dd38d3e09e6.r2.dev/audio/warsh/yassin/025036.mp3",
+    "reciter": "yassin",
+    "origin": "everyayah.com (مرآة R2)"
+   }
+  },
+  {
+   "id": "warsh_dosary_110001",
+   "riwaya": "warsh",
+   "surah": 110,
+   "ayah": 1,
+   "globalIndex": 6213,
+   "stratum": "M",
+   "wordCount": 5,
+   "reciter": "dosary",
+   "refText": "إِذَا جَآءَ نَصْرُ اُ۬للَّهِ وَالْفَتْحُ",
+   "source": {
+    "kind": "ayah_file",
+    "url": "https://pub-2c2e1dcd92e84a2898820dd38d3e09e6.r2.dev/audio/warsh/dosary/110001.mp3",
+    "reciter": "dosary",
+    "origin": "everyayah.com (مرآة R2)"
+   }
+  },
+  {
+   "id": "warsh_yassin_021055",
+   "riwaya": "warsh",
+   "surah": 21,
+   "ayah": 55,
+   "globalIndex": 2537,
+   "stratum": "M",
+   "wordCount": 7,
+   "reciter": "yassin",
+   "refText": "قَالُوٓاْ أَجِئْتَنَا بِالْحَقِّ أَمَ اَنتَ مِنَ اَ۬للَّٰعِبِينَۖ",
+   "source": {
+    "kind": "ayah_file",
+    "url": "https://pub-2c2e1dcd92e84a2898820dd38d3e09e6.r2.dev/audio/warsh/yassin/021055.mp3",
+    "reciter": "yassin",
+    "origin": "everyayah.com (مرآة R2)"
+   }
+  },
+  {
+   "id": "warsh_dosary_019052",
+   "riwaya": "warsh",
+   "surah": 19,
+   "ayah": 52,
+   "globalIndex": 2301,
+   "stratum": "M",
+   "wordCount": 7,
+   "reciter": "dosary",
+   "refText": "وَنَٰدَيْنَٰهُ مِن جَانِبِ اِ۬لطُّورِ اِ۬لَايْمَنِ وَقَرَّبْنَٰهُ نَجِيّاٗۖ",
+   "source": {
+    "kind": "ayah_file",
+    "url": "https://pub-2c2e1dcd92e84a2898820dd38d3e09e6.r2.dev/audio/warsh/dosary/019052.mp3",
+    "reciter": "dosary",
+    "origin": "everyayah.com (مرآة R2)"
+   }
+  },
+  {
+   "id": "warsh_yassin_026146",
+   "riwaya": "warsh",
+   "surah": 26,
+   "ayah": 146,
+   "globalIndex": 3077,
+   "stratum": "M",
+   "wordCount": 5,
+   "reciter": "yassin",
+   "refText": "أَتُتْرَكُونَ فِے مَا هَٰهُنَآ ءَامِنِينَ",
+   "source": {
+    "kind": "ayah_file",
+    "url": "https://pub-2c2e1dcd92e84a2898820dd38d3e09e6.r2.dev/audio/warsh/yassin/026146.mp3",
+    "reciter": "yassin",
+    "origin": "everyayah.com (مرآة R2)"
+   }
+  },
+  {
+   "id": "warsh_dosary_015078",
+   "riwaya": "warsh",
+   "surah": 15,
+   "ayah": 78,
+   "globalIndex": 1879,
+   "stratum": "M",
+   "wordCount": 5,
+   "reciter": "dosary",
+   "refText": "وَإِن كَانَ أَصْحَٰبُ اُ۬لَايْكَةِ لَظَٰلِمِينَۖ",
+   "source": {
+    "kind": "ayah_file",
+    "url": "https://pub-2c2e1dcd92e84a2898820dd38d3e09e6.r2.dev/audio/warsh/dosary/015078.mp3",
+    "reciter": "dosary",
+    "origin": "everyayah.com (مرآة R2)"
+   }
+  },
+  {
+   "id": "warsh_yassin_050033",
+   "riwaya": "warsh",
+   "surah": 50,
+   "ayah": 33,
+   "globalIndex": 4662,
+   "stratum": "M",
+   "wordCount": 7,
+   "reciter": "yassin",
+   "refText": "مَّنْ خَشِيَ اَ۬لرَّحْمَٰنَ بِالْغَيْبِ وَجَآءَ بِقَلْبٖ مُّنِيبٍ",
+   "source": {
+    "kind": "ayah_file",
+    "url": "https://pub-2c2e1dcd92e84a2898820dd38d3e09e6.r2.dev/audio/warsh/yassin/050033.mp3",
+    "reciter": "yassin",
+    "origin": "everyayah.com (مرآة R2)"
+   }
+  },
+  {
+   "id": "warsh_dosary_015054",
+   "riwaya": "warsh",
+   "surah": 15,
+   "ayah": 54,
+   "globalIndex": 1855,
+   "stratum": "M",
+   "wordCount": 8,
+   "reciter": "dosary",
+   "refText": "قَالَ أَبَشَّرْتُمُونِے عَلَىٰٓ أَن مَّسَّنِيَ اَ۬لْكِبَرُ فَبِمَ تُبَشِّرُونِۖ",
+   "source": {
+    "kind": "ayah_file",
+    "url": "https://pub-2c2e1dcd92e84a2898820dd38d3e09e6.r2.dev/audio/warsh/dosary/015054.mp3",
+    "reciter": "dosary",
+    "origin": "everyayah.com (مرآة R2)"
+   }
+  },
+  {
+   "id": "warsh_yassin_002005",
+   "riwaya": "warsh",
+   "surah": 2,
+   "ayah": 5,
+   "globalIndex": 11,
+   "stratum": "M",
+   "wordCount": 8,
+   "reciter": "yassin",
+   "refText": "أُوْلَٰٓئِكَ عَلَىٰ هُدىٗ مِّن رَّبِّهِمْۖ وَأُوْلَٰٓئِكَ هُمُ اُ۬لْمُفْلِحُونَۖ",
+   "source": {
+    "kind": "ayah_file",
+    "url": "https://pub-2c2e1dcd92e84a2898820dd38d3e09e6.r2.dev/audio/warsh/yassin/002005.mp3",
+    "reciter": "yassin",
+    "origin": "everyayah.com (مرآة R2)"
+   }
+  },
+  {
+   "id": "warsh_dosary_019040",
+   "riwaya": "warsh",
+   "surah": 19,
+   "ayah": 40,
+   "globalIndex": 2289,
+   "stratum": "M",
+   "wordCount": 9,
+   "reciter": "dosary",
+   "refText": "إِنَّا نَحْنُ نَرِثُ اُ۬لَارْضَ وَمَنْ عَلَيْهَاۖ وَإِلَيْنَا يُرْجَعُونَۖ ۞",
+   "source": {
+    "kind": "ayah_file",
+    "url": "https://pub-2c2e1dcd92e84a2898820dd38d3e09e6.r2.dev/audio/warsh/dosary/019040.mp3",
+    "reciter": "dosary",
+    "origin": "everyayah.com (مرآة R2)"
+   }
+  },
+  {
+   "id": "warsh_yassin_047027",
+   "riwaya": "warsh",
+   "surah": 47,
+   "ayah": 27,
+   "globalIndex": 4571,
+   "stratum": "M",
+   "wordCount": 7,
+   "reciter": "yassin",
+   "refText": "فَكَيْفَ إِذَا تَوَفَّتْهُمُ اُ۬لْمَلَٰٓئِكَةُ يَضْرِبُونَ وُجُوهَهُمْ وَأَدْبَٰرَهُمْۖ",
+   "source": {
+    "kind": "ayah_file",
+    "url": "https://pub-2c2e1dcd92e84a2898820dd38d3e09e6.r2.dev/audio/warsh/yassin/047027.mp3",
+    "reciter": "yassin",
+    "origin": "everyayah.com (مرآة R2)"
+   }
+  },
+  {
+   "id": "warsh_yassin_059001",
+   "riwaya": "warsh",
+   "surah": 59,
+   "ayah": 1,
+   "globalIndex": 5126,
+   "stratum": "L",
+   "wordCount": 11,
+   "reciter": "yassin",
+   "refText": "سَبَّحَ لِلهِ مَا فِے اِ۬لسَّمَٰوَٰتِ وَمَا فِے اِ۬لَارْضِۖ وَهُوَ اَ۬لْعَزِيزُ اُ۬لْحَكِيمُۖ",
+   "source": {
+    "kind": "ayah_file",
+    "url": "https://pub-2c2e1dcd92e84a2898820dd38d3e09e6.r2.dev/audio/warsh/yassin/059001.mp3",
+    "reciter": "yassin",
+    "origin": "everyayah.com (مرآة R2)"
+   }
+  },
+  {
+   "id": "warsh_dosary_006161",
+   "riwaya": "warsh",
+   "surah": 6,
+   "ayah": 161,
+   "globalIndex": 949,
+   "stratum": "L",
+   "wordCount": 16,
+   "reciter": "dosary",
+   "refText": "قُلِ اِنَّنِے هَد۪يٰنِے رَبِّيَ إِلَىٰ صِرَٰطٖ مُّسْتَقِيمٖۖ دِيناٗ قَيِّماٗ مِّلَّةَ إِبْرَٰهِيمَ حَنِيفاٗۖ وَمَا كَانَ مِنَ اَ۬لْمُشْرِكِينَۖ",
+   "source": {
+    "kind": "ayah_file",
+    "url": "https://pub-2c2e1dcd92e84a2898820dd38d3e09e6.r2.dev/audio/warsh/dosary/006161.mp3",
+    "reciter": "dosary",
+    "origin": "everyayah.com (مرآة R2)"
+   }
+  },
+  {
+   "id": "warsh_yassin_027042",
+   "riwaya": "warsh",
+   "surah": 27,
+   "ayah": 42,
+   "globalIndex": 3200,
+   "stratum": "L",
+   "wordCount": 14,
+   "reciter": "yassin",
+   "refText": "فَلَمَّا جَآءَتْ قِيلَ أَهَٰكَذَا عَرْشُكِ قَالَتْ كَأَنَّهُۥ هُوَۖ وَأُوتِينَا اَ۬لْعِلْمَ مِن قَبْلِهَا وَكُنَّا مُسْلِمِينَۖ",
+   "source": {
+    "kind": "ayah_file",
+    "url": "https://pub-2c2e1dcd92e84a2898820dd38d3e09e6.r2.dev/audio/warsh/yassin/027042.mp3",
+    "reciter": "yassin",
+    "origin": "everyayah.com (مرآة R2)"
+   }
+  },
+  {
+   "id": "warsh_dosary_021002",
+   "riwaya": "warsh",
+   "surah": 21,
+   "ayah": 2,
+   "globalIndex": 2484,
+   "stratum": "L",
+   "wordCount": 11,
+   "reciter": "dosary",
+   "refText": "مَا يَاتِيهِم مِّن ذِكْرٖ مِّن رَّبِّهِم مُّحْدَثٍ اِلَّا اَ۪سْتَمَعُوهُ وَهُمْ يَلْعَبُونَ",
+   "source": {
+    "kind": "ayah_file",
+    "url": "https://pub-2c2e1dcd92e84a2898820dd38d3e09e6.r2.dev/audio/warsh/dosary/021002.mp3",
+    "reciter": "dosary",
+    "origin": "everyayah.com (مرآة R2)"
+   }
+  },
+  {
+   "id": "warsh_yassin_011093",
+   "riwaya": "warsh",
+   "surah": 11,
+   "ayah": 93,
+   "globalIndex": 1565,
+   "stratum": "L",
+   "wordCount": 19,
+   "reciter": "yassin",
+   "refText": "وَيَٰقَوْمِ اِ۪عْمَلُواْ عَلَىٰ مَكَانَتِكُمُۥٓ إِنِّے عَٰمِلٞۖ سَوْفَ تَعْلَمُونَ مَنْ يَّاتِيهِ عَذَابٞ يُخْزِيهِ وَمَنْ هُوَ كَٰذِبٞۖ وَارْتَقِبُوٓاْۖ إِنِّے مَعَكُمْ رَقِيبٞۖ",
+   "source": {
+    "kind": "ayah_file",
+    "url": "https://pub-2c2e1dcd92e84a2898820dd38d3e09e6.r2.dev/audio/warsh/yassin/011093.mp3",
+    "reciter": "yassin",
+    "origin": "everyayah.com (مرآة R2)"
+   }
+  },
+  {
+   "id": "warsh_dosary_059020",
+   "riwaya": "warsh",
+   "surah": 59,
+   "ayah": 20,
+   "globalIndex": 5145,
+   "stratum": "L",
+   "wordCount": 10,
+   "reciter": "dosary",
+   "refText": "لَا يَسْتَوِےٓ أَصْحَٰبُ اُ۬لنّ۪ارِ وَأَصْحَٰبُ اُ۬لْجَنَّةِۖ أَصْحَٰبُ اُ۬لْجَنَّةِ هُمُ اُ۬لْفَآئِزُونَۖ",
+   "source": {
+    "kind": "ayah_file",
+    "url": "https://pub-2c2e1dcd92e84a2898820dd38d3e09e6.r2.dev/audio/warsh/dosary/059020.mp3",
+    "reciter": "dosary",
+    "origin": "everyayah.com (مرآة R2)"
+   }
+  },
+  {
+   "id": "warsh_yassin_009011",
+   "riwaya": "warsh",
+   "surah": 9,
+   "ayah": 11,
+   "globalIndex": 1245,
+   "stratum": "L",
+   "wordCount": 14,
+   "reciter": "yassin",
+   "refText": "فَإِن تَابُواْ وَأَقَامُواْ اُ۬لصَّلَوٰةَ وَءَاتَوُاْ اُ۬لزَّكَوٰةَ فَإِخْوَٰنُكُمْ فِے اِ۬لدِّينِۖ وَنُفَصِّلُ اُ۬لَايَٰتِ لِقَوْمٖ يَعْلَمُونَۖ ۞",
+   "source": {
+    "kind": "ayah_file",
+    "url": "https://pub-2c2e1dcd92e84a2898820dd38d3e09e6.r2.dev/audio/warsh/yassin/009011.mp3",
+    "reciter": "yassin",
+    "origin": "everyayah.com (مرآة R2)"
+   }
+  },
+  {
+   "id": "warsh_dosary_005078",
+   "riwaya": "warsh",
+   "surah": 5,
+   "ayah": 78,
+   "globalIndex": 746,
+   "stratum": "L",
+   "wordCount": 17,
+   "reciter": "dosary",
+   "refText": "لُعِنَ اَ۬لذِينَ كَفَرُواْ مِنۢ بَنِےٓ إِسْرَآءِيلَ عَلَىٰ لِسَانِ دَاوُۥدَ وَعِيسَى اَ۪بْنِ مَرْيَمَۖ ذَٰلِكَ بِمَا عَصَواْ وَّكَانُواْ يَعْتَدُونَۖ",
+   "source": {
+    "kind": "ayah_file",
+    "url": "https://pub-2c2e1dcd92e84a2898820dd38d3e09e6.r2.dev/audio/warsh/dosary/005078.mp3",
+    "reciter": "dosary",
+    "origin": "everyayah.com (مرآة R2)"
+   }
+  },
+  {
+   "id": "warsh_yassin_016040",
+   "riwaya": "warsh",
+   "surah": 16,
+   "ayah": 40,
+   "globalIndex": 1940,
+   "stratum": "L",
+   "wordCount": 10,
+   "reciter": "yassin",
+   "refText": "إِنَّمَا قَوْلُنَا لِشَےْءٍ اِذَآ أَرَدْنَٰهُ أَن نَّقُولَ لَهُۥ كُنۖ فَيَكُونُۖ",
+   "source": {
+    "kind": "ayah_file",
+    "url": "https://pub-2c2e1dcd92e84a2898820dd38d3e09e6.r2.dev/audio/warsh/yassin/016040.mp3",
+    "reciter": "yassin",
+    "origin": "everyayah.com (مرآة R2)"
+   }
+  },
+  {
+   "id": "warsh_dosary_022007",
+   "riwaya": "warsh",
+   "surah": 22,
+   "ayah": 7,
+   "globalIndex": 2601,
+   "stratum": "L",
+   "wordCount": 12,
+   "reciter": "dosary",
+   "refText": "وَأَنَّ اَ۬لسَّاعَةَ ءَاتِيَةٞ لَّا رَيْبَ فِيهَا وَأَنَّ اَ۬للَّهَ يَبْعَثُ مَن فِے اِ۬لْقُبُورِۖ",
+   "source": {
+    "kind": "ayah_file",
+    "url": "https://pub-2c2e1dcd92e84a2898820dd38d3e09e6.r2.dev/audio/warsh/dosary/022007.mp3",
+    "reciter": "dosary",
+    "origin": "everyayah.com (مرآة R2)"
+   }
+  },
+  {
+   "id": "warsh_yassin_004013",
+   "riwaya": "warsh",
+   "surah": 4,
+   "ayah": 13,
+   "globalIndex": 505,
+   "stratum": "L",
+   "wordCount": 18,
+   "reciter": "yassin",
+   "refText": "تِلْكَ حُدُودُ اُ۬للَّهِۖ وَمَنْ يُّطِعِ اِ۬للَّهَ وَرَسُولَهُۥ نُدْخِلْهُ جَنَّٰتٖ تَجْرِے مِن تَحْتِهَا اَ۬لَانْهَٰرُ خَٰلِدِينَ فِيهَاۖ وَذَٰلِكَ اَ۬لْفَوْزُ اُ۬لْعَظِيمُۖ",
+   "source": {
+    "kind": "ayah_file",
+    "url": "https://pub-2c2e1dcd92e84a2898820dd38d3e09e6.r2.dev/audio/warsh/yassin/004013.mp3",
+    "reciter": "yassin",
+    "origin": "everyayah.com (مرآة R2)"
+   }
+  },
+  {
+   "id": "warsh_dosary_028004",
+   "riwaya": "warsh",
+   "surah": 28,
+   "ayah": 4,
+   "globalIndex": 3255,
+   "stratum": "L",
+   "wordCount": 19,
+   "reciter": "dosary",
+   "refText": "إِنَّ فِرْعَوْنَ عَلَا فِے اِ۬لَارْضِ وَجَعَلَ أَهْلَهَا شِيَعاٗ يَسْتَضْعِفُ طَآئِفَةٗ مِّنْهُمْ يُذَبِّحُ أَبْنَآءَهُمْ وَيَسْتَحْيِۦ نِسَآءَهُمُۥٓۖ إِنَّهُۥ كَانَ مِنَ اَ۬لْمُفْسِدِينَۖ",
+   "source": {
+    "kind": "ayah_file",
+    "url": "https://pub-2c2e1dcd92e84a2898820dd38d3e09e6.r2.dev/audio/warsh/dosary/028004.mp3",
+    "reciter": "dosary",
+    "origin": "everyayah.com (مرآة R2)"
+   }
+  },
+  {
+   "id": "warsh_yassin_022033",
+   "riwaya": "warsh",
+   "surah": 22,
+   "ayah": 33,
+   "globalIndex": 2627,
+   "stratum": "L",
+   "wordCount": 11,
+   "reciter": "yassin",
+   "refText": "لَكُمْ فِيهَا مَنَٰفِعُ إِلَىٰٓ أَجَلٖ مُّسَمّىٗ ثُمَّ مَحِلُّهَآ إِلَى اَ۬لْبَيْتِ اِ۬لْعَتِيقِۖ",
+   "source": {
+    "kind": "ayah_file",
+    "url": "https://pub-2c2e1dcd92e84a2898820dd38d3e09e6.r2.dev/audio/warsh/yassin/022033.mp3",
+    "reciter": "yassin",
+    "origin": "everyayah.com (مرآة R2)"
+   }
+  },
+  {
+   "id": "warsh_dosary_026180",
+   "riwaya": "warsh",
+   "surah": 26,
+   "ayah": 180,
+   "globalIndex": 3111,
+   "stratum": "L",
+   "wordCount": 11,
+   "reciter": "dosary",
+   "refText": "وَمَآ أَسْـَٔلُكُمْ عَلَيْهِ مِنَ اَجْرٍۖ اِنَ اَجْرِيَ إِلَّا عَلَىٰ رَبِّ اِ۬لْعَٰلَمِينَۖ",
+   "source": {
+    "kind": "ayah_file",
+    "url": "https://pub-2c2e1dcd92e84a2898820dd38d3e09e6.r2.dev/audio/warsh/dosary/026180.mp3",
+    "reciter": "dosary",
+    "origin": "everyayah.com (مرآة R2)"
+   }
+  },
+  {
+   "id": "warsh_yassin_040027",
+   "riwaya": "warsh",
+   "surah": 40,
+   "ayah": 27,
+   "globalIndex": 4159,
+   "stratum": "L",
+   "wordCount": 13,
+   "reciter": "yassin",
+   "refText": "وَقَالَ مُوس۪ىٰٓ إِنِّے عُذْتُ بِرَبِّے وَرَبِّكُم مِّن كُلِّ مُتَكَبِّرٖ لَّا يُومِنُ بِيَوْمِ اِ۬لْحِسَابِۖ",
+   "source": {
+    "kind": "ayah_file",
+    "url": "https://pub-2c2e1dcd92e84a2898820dd38d3e09e6.r2.dev/audio/warsh/yassin/040027.mp3",
+    "reciter": "yassin",
+    "origin": "everyayah.com (مرآة R2)"
+   }
+  },
+  {
+   "id": "warsh_dosary_063009",
+   "riwaya": "warsh",
+   "surah": 63,
+   "ayah": 9,
+   "globalIndex": 5196,
+   "stratum": "L",
+   "wordCount": 17,
+   "reciter": "dosary",
+   "refText": "يَٰٓأَيُّهَا اَ۬لذِينَ ءَامَنُواْ لَا تُلْهِكُمُۥٓ أَمْوَٰلُكُمْ وَلَآ أَوْلَٰدُكُمْ عَن ذِكْرِ اِ۬للَّهِۖ وَمَنْ يَّفْعَلْ ذَٰلِكَ فَأُوْلَٰٓئِكَ هُمُ اُ۬لْخَٰسِرُونَۖ",
+   "source": {
+    "kind": "ayah_file",
+    "url": "https://pub-2c2e1dcd92e84a2898820dd38d3e09e6.r2.dev/audio/warsh/dosary/063009.mp3",
+    "reciter": "dosary",
+    "origin": "everyayah.com (مرآة R2)"
+   }
+  },
+  {
+   "id": "warsh_yassin_068044",
+   "riwaya": "warsh",
+   "surah": 68,
+   "ayah": 44,
+   "globalIndex": 5314,
+   "stratum": "L",
+   "wordCount": 10,
+   "reciter": "yassin",
+   "refText": "فَذَرْنِے وَمَنْ يُّكَذِّبُ بِهَٰذَا اَ۬لْحَدِيثِۖ سَنَسْتَدْرِجُهُم مِّنْ حَيْثُ لَا يَعْلَمُونَ",
+   "source": {
+    "kind": "ayah_file",
+    "url": "https://pub-2c2e1dcd92e84a2898820dd38d3e09e6.r2.dev/audio/warsh/yassin/068044.mp3",
+    "reciter": "yassin",
+    "origin": "everyayah.com (مرآة R2)"
+   }
+  },
+  {
+   "id": "warsh_dosary_029036",
+   "riwaya": "warsh",
+   "surah": 29,
+   "ayah": 36,
+   "globalIndex": 3375,
+   "stratum": "L",
+   "wordCount": 16,
+   "reciter": "dosary",
+   "refText": "وَإِلَىٰ مَدْيَنَ أَخَاهُمْ شُعَيْباٗ فَقَالَ يَٰقَوْمِ اِ۟عْبُدُواْ اُ۬للَّهَ وَارْجُواْ اُ۬لْيَوْمَ اَ۬لَاخِرَ وَلَا تَعْثَوْاْ فِے اِ۬لَارْضِ مُفْسِدِينَۖ",
+   "source": {
+    "kind": "ayah_file",
+    "url": "https://pub-2c2e1dcd92e84a2898820dd38d3e09e6.r2.dev/audio/warsh/dosary/029036.mp3",
+    "reciter": "dosary",
+    "origin": "everyayah.com (مرآة R2)"
+   }
+  },
+  {
+   "id": "warsh_yassin_006094",
+   "riwaya": "warsh",
+   "surah": 6,
+   "ayah": 94,
+   "globalIndex": 882,
+   "stratum": "XL",
+   "wordCount": 29,
+   "reciter": "yassin",
+   "refText": "وَلَقَدْ جِئْتُمُونَا فُرَٰد۪ىٰ كَمَا خَلَقْنَٰكُمُۥٓ أَوَّلَ مَرَّةٖ وَتَرَكْتُم مَّا خَوَّلْنَٰكُمْ وَرَآءَ ظُهُورِكُمْۖ وَمَا نَر۪ىٰ مَعَكُمْ شُفَعَآءَكُمُ اُ۬لذِينَ زَعَمْتُمُۥٓ أَنَّهُمْ فِيكُمْ شُرَكَٰٓؤُاْۖ لَقَد تَّقَطَّعَ بَيْنَكُمْ وَضَلَّ عَنكُم مَّا كُنتُمْ تَزْعُمُونَۖ",
+   "source": {
+    "kind": "ayah_file",
+    "url": "https://pub-2c2e1dcd92e84a2898820dd38d3e09e6.r2.dev/audio/warsh/yassin/006094.mp3",
+    "reciter": "yassin",
+    "origin": "everyayah.com (مرآة R2)"
+   }
+  },
+  {
+   "id": "warsh_dosary_006065",
+   "riwaya": "warsh",
+   "surah": 6,
+   "ayah": 65,
+   "globalIndex": 853,
+   "stratum": "XL",
+   "wordCount": 27,
+   "reciter": "dosary",
+   "refText": "قُلْ هُوَ اَ۬لْقَادِرُ عَلَىٰٓ أَنْ يَّبْعَثَ عَلَيْكُمْ عَذَاباٗ مِّن فَوْقِكُمُۥٓ أَوْ مِن تَحْتِ أَرْجُلِكُمُۥٓ أَوْ يَلْبِسَكُمْ شِيَعاٗ وَيُذِيقَ بَعْضَكُم بَأْسَ بَعْضٍۖ اُ۟نظُرْ كَيْفَ نُصَرِّفُ اُ۬لَايَٰتِ لَعَلَّهُمْ يَفْقَهُونَۖ",
+   "source": {
+    "kind": "ayah_file",
+    "url": "https://pub-2c2e1dcd92e84a2898820dd38d3e09e6.r2.dev/audio/warsh/dosary/006065.mp3",
+    "reciter": "dosary",
+    "origin": "everyayah.com (مرآة R2)"
+   }
+  },
+  {
+   "id": "warsh_yassin_073020",
+   "riwaya": "warsh",
+   "surah": 73,
+   "ayah": 20,
+   "globalIndex": 5494,
+   "stratum": "XL",
+   "wordCount": 79,
+   "reciter": "yassin",
+   "refText": "۞ اِنَّ رَبَّكَ يَعْلَمُ أَنَّكَ تَقُومُ أَدْن۪ىٰ مِن ثُلُثَيِ اِ۬ليْلِ وَنِصْفِهِۦ وَثُلُثِهِۦ وَطَآئِفَةٞ مِّنَ اَ۬لذِينَ مَعَكَۖ وَاللَّهُ يُقَدِّرُ اُ۬ليْلَ وَالنَّهَارَۖ عَلِمَ أَن لَّن تُحْصُوهُ فَتَابَ عَلَيْكُمْۖ فَاقْرَءُواْ مَا تَيَسَّرَ مِنَ اَ۬لْقُرْءَانِۖ عَلِمَ أَن سَيَكُونُ مِنكُم مَّرْض۪ىٰ وَءَاخَرُونَ يَضْرِبُونَ فِے اِ۬لَارْضِ يَبْتَغُونَ مِن فَضْلِ اِ۬للَّهِ وَءَاخَرُونَ يُقَٰتِلُونَ فِے سَبِيلِ اِ۬للَّهِۖ فَاقْرَءُواْ مَا تَيَسَّرَ مِنْهُۖ وَأَقِيمُواْ اُ۬لصَّلَوٰةَ وَءَاتُواْ اُ۬لزَّكَوٰةَۖ وَأَقْرِضُواْ اُ۬للَّهَ قَرْضاً حَسَناٗۖ وَمَا تُقَدِّمُواْ لِأَنفُسِكُم مِّنْ خَيْرٖ تَجِدُوهُ عِندَ اَ۬للَّهِ هُوَ خَيْراٗ وَأَعْظَمَ أَجْراٗۖ وَاسْتَغْفِرُواْ اُ۬للَّهَۖ إِنَّ اَ۬للَّهَ غَفُورٞ رَّحِيمٞۖ",
+   "source": {
+    "kind": "ayah_file",
+    "url": "https://pub-2c2e1dcd92e84a2898820dd38d3e09e6.r2.dev/audio/warsh/yassin/073020.mp3",
+    "reciter": "yassin",
+    "origin": "everyayah.com (مرآة R2)"
+   }
+  },
+  {
+   "id": "warsh_dosary_003165",
+   "riwaya": "warsh",
+   "surah": 3,
+   "ayah": 165,
+   "globalIndex": 457,
+   "stratum": "XL",
+   "wordCount": 20,
+   "reciter": "dosary",
+   "refText": "اَوَلَمَّآ أَصَٰبَتْكُم مُّصِيبَةٞ قَدَ اَصَبْتُم مِّثْلَيْهَا قُلْتُمُۥٓ أَنّ۪ىٰ هَٰذَاۖ قُلْ هُوَ مِنْ عِندِ أَنفُسِكُمُۥٓۖ إِنَّ اَ۬للَّهَ عَلَىٰ كُلِّ شَےْءٖ قَدِيرٞۖ",
+   "source": {
+    "kind": "ayah_file",
+    "url": "https://pub-2c2e1dcd92e84a2898820dd38d3e09e6.r2.dev/audio/warsh/dosary/003165.mp3",
+    "reciter": "dosary",
+    "origin": "everyayah.com (مرآة R2)"
+   }
+  },
+  {
+   "id": "warsh_yassin_010054",
+   "riwaya": "warsh",
+   "surah": 10,
+   "ayah": 54,
+   "globalIndex": 1417,
+   "stratum": "XL",
+   "wordCount": 21,
+   "reciter": "yassin",
+   "refText": "وَلَوَ اَنَّ لِكُلِّ نَفْسٖ ظَلَمَتْ مَا فِے اِ۬لَارْضِ لَافْتَدَتْ بِهِۦۖ وَأَسَرُّواْ اُ۬لنَّدَامَةَ لَمَّا رَأَوُاْ اُ۬لْعَذَابَ وَقُضِيَ بَيْنَهُم بِالْقِسْطِ وَهُمْ لَا يُظْلَمُونَۖ",
+   "source": {
+    "kind": "ayah_file",
+    "url": "https://pub-2c2e1dcd92e84a2898820dd38d3e09e6.r2.dev/audio/warsh/yassin/010054.mp3",
+    "reciter": "yassin",
+    "origin": "everyayah.com (مرآة R2)"
+   }
+  },
+  {
+   "id": "warsh_dosary_003013",
+   "riwaya": "warsh",
+   "surah": 3,
+   "ayah": 13,
+   "globalIndex": 305,
+   "stratum": "XL",
+   "wordCount": 29,
+   "reciter": "dosary",
+   "refText": "قَدْ كَانَ لَكُمُۥٓ ءَايَةٞ فِے فِئَتَيْنِ اِ۪لْتَقَتَاۖ فِئَةٞ تُقَٰتِلُ فِے سَبِيلِ اِ۬للَّهِ وَأُخْر۪ىٰ كَافِرَةٞ تَرَوْنَهُم مِّثْلَيْهِمْ رَأْيَ اَ۬لْعَيْنِۖ وَاللَّهُ يُوَ۬يِّدُ بِنَصْرِهِۦ مَنْ يَّشَآءُۖ اِ۪نَّ فِے ذَٰلِكَ لَعِبْرَةٗ لِّأُوْلِے اِ۬لَابْصٰ۪رِۖ",
+   "source": {
+    "kind": "ayah_file",
+    "url": "https://pub-2c2e1dcd92e84a2898820dd38d3e09e6.r2.dev/audio/warsh/dosary/003013.mp3",
+    "reciter": "dosary",
+    "origin": "everyayah.com (مرآة R2)"
+   }
+  },
+  {
+   "id": "warsh_yassin_035041",
+   "riwaya": "warsh",
+   "surah": 35,
+   "ayah": 41,
+   "globalIndex": 3700,
+   "stratum": "XL",
+   "wordCount": 20,
+   "reciter": "yassin",
+   "refText": "۞ اِنَّ اَ۬للَّهَ يُمْسِكُ اُ۬لسَّمَٰوَٰتِ وَالَارْضَ أَن تَزُولَاۖ وَلَئِن زَالَتَآ إِنَ اَمْسَكَهُمَا مِنَ اَحَدٖ مِّنۢ بَعْدِهِۦٓۖ إِنَّهُۥ كَانَ حَلِيماً غَفُوراٗۖ",
+   "source": {
+    "kind": "ayah_file",
+    "url": "https://pub-2c2e1dcd92e84a2898820dd38d3e09e6.r2.dev/audio/warsh/yassin/035041.mp3",
+    "reciter": "yassin",
+    "origin": "everyayah.com (مرآة R2)"
+   }
+  },
+  {
+   "id": "warsh_dosary_010023",
+   "riwaya": "warsh",
+   "surah": 10,
+   "ayah": 23,
+   "globalIndex": 1386,
+   "stratum": "XL",
+   "wordCount": 25,
+   "reciter": "dosary",
+   "refText": "فَلَمَّآ أَنج۪يٰهُمُۥٓ إِذَا هُمْ يَبْغُونَ فِے اِ۬لَارْضِ بِغَيْرِ اِ۬لْحَقِّۖ يَٰٓأَيُّهَا اَ۬لنَّاسُ إِنَّمَا بَغْيُكُمْ عَلَىٰٓ أَنفُسِكُمۖ مَّتَٰعُ اُ۬لْحَيَوٰةِ اِ۬لدُّنْي۪اۖ ثُمَّ إِلَيْنَا مَرْجِعُكُمْ فَنُنَبِّئُكُم بِمَا كُنتُمْ تَعْمَلُونَۖ",
+   "source": {
+    "kind": "ayah_file",
+    "url": "https://pub-2c2e1dcd92e84a2898820dd38d3e09e6.r2.dev/audio/warsh/dosary/010023.mp3",
+    "reciter": "dosary",
+    "origin": "everyayah.com (مرآة R2)"
+   }
+  },
+  {
+   "id": "warsh_yassin_013013",
+   "riwaya": "warsh",
+   "surah": 13,
+   "ayah": 13,
+   "globalIndex": 1719,
+   "stratum": "XL",
+   "wordCount": 20,
+   "reciter": "yassin",
+   "refText": "وَيُسَبِّحُ اُ۬لرَّعْدُ بِحَمْدِهِۦ وَالْمَلَٰٓئِكَةُ مِنْ خِيفَتِهِۦۖ وَيُرْسِلُ اُ۬لصَّوَٰعِقَ فَيُصِيبُ بِهَا مَنْ يَّشَآءُ وَهُمْ يُجَٰدِلُونَ فِے اِ۬للَّهِ وَهُوَ شَدِيدُ اُ۬لْمِحَالِۖ ۞",
+   "source": {
+    "kind": "ayah_file",
+    "url": "https://pub-2c2e1dcd92e84a2898820dd38d3e09e6.r2.dev/audio/warsh/yassin/013013.mp3",
+    "reciter": "yassin",
+    "origin": "everyayah.com (مرآة R2)"
+   }
+  },
+  {
+   "id": "warsh_dosary_002249",
+   "riwaya": "warsh",
+   "surah": 2,
+   "ayah": 249,
+   "globalIndex": 255,
+   "stratum": "XL",
+   "wordCount": 60,
+   "reciter": "dosary",
+   "refText": "فَلَمَّا فَصَلَ طَالُوتُ بِالْجُنُودِ قَالَ إِنَّ اَ۬للَّهَ مُبْتَلِيكُم بِنَهَرٖ فَمَن شَرِبَ مِنْهُ فَلَيْسَ مِنِّے وَمَن لَّمْ يَطْعَمْهُ فَإِنَّهُۥ مِنِّيَ إِلَّا مَنِ اِ۪غْتَرَفَ غَرْفَةَۢ بِيَدِهِۦۖ فَشَرِبُواْ مِنْهُ إِلَّا قَلِيلاٗ مِّنْهُمْۖ فَلَمَّا جَاوَزَهُۥ هُوَ وَالذِينَ ءَامَنُواْ مَعَهُۥ قَالُواْ لَا طَاقَةَ لَنَا اَ۬لْيَوْمَ بِجَالُوتَ وَجُنُودِهِۦۖ قَالَ اَ۬لذِينَ يَظُنُّونَ أَنَّهُم مُّلَٰقُواْ اُ۬للَّهِ كَم مِّن فِئَةٖ قَلِيلَةٍ غَلَبَتْ فِئَةٗ كَثِيرَةَۢ بِإِذْنِ اِ۬للَّهِۖ وَاللَّهُ مَعَ اَ۬لصَّٰبِرِينَۖ",
+   "source": {
+    "kind": "ayah_file",
+    "url": "https://pub-2c2e1dcd92e84a2898820dd38d3e09e6.r2.dev/audio/warsh/dosary/002249.mp3",
+    "reciter": "dosary",
+    "origin": "everyayah.com (مرآة R2)"
+   }
+  },
+  {
+   "id": "warsh_yassin_043013",
+   "riwaya": "warsh",
+   "surah": 43,
+   "ayah": 13,
+   "globalIndex": 4337,
+   "stratum": "XL",
+   "wordCount": 20,
+   "reciter": "yassin",
+   "refText": "لِتَسْتَوُۥاْ عَلَىٰ ظُهُورِهِۦ ثُمَّ تَذْكُرُواْ نِعْمَةَ رَبِّكُمُۥٓ إِذَا اَ۪سْتَوَيْتُمْ عَلَيْهِ وَتَقُولُواْ سُبْحَٰنَ اَ۬لذِے سَخَّرَ لَنَا هَٰذَا وَمَا كُنَّا لَهُۥ مُقْرِنِينَ",
+   "source": {
+    "kind": "ayah_file",
+    "url": "https://pub-2c2e1dcd92e84a2898820dd38d3e09e6.r2.dev/audio/warsh/yassin/043013.mp3",
+    "reciter": "yassin",
+    "origin": "everyayah.com (مرآة R2)"
+   }
+  },
+  {
+   "id": "warsh_dosary_006111",
+   "riwaya": "warsh",
+   "surah": 6,
+   "ayah": 111,
+   "globalIndex": 899,
+   "stratum": "XL",
+   "wordCount": 23,
+   "reciter": "dosary",
+   "refText": "۞ وَلَوَ اَنَّنَا نَزَّلْنَآ إِلَيْهِمُ اُ۬لْمَلَٰٓئِكَةَ وَكَلَّمَهُمُ اُ۬لْمَوْت۪ىٰ وَحَشَرْنَا عَلَيْهِمْ كُلَّ شَےْءٖ قِبَلاٗ مَّا كَانُواْ لِيُومِنُوٓاْ إِلَّآ أَنْ يَّشَآءَ اَ۬للَّهُۖ وَلَٰكِنَّ أَكْثَرَهُمْ يَجْهَلُونَۖ",
+   "source": {
+    "kind": "ayah_file",
+    "url": "https://pub-2c2e1dcd92e84a2898820dd38d3e09e6.r2.dev/audio/warsh/dosary/006111.mp3",
+    "reciter": "dosary",
+    "origin": "everyayah.com (مرآة R2)"
+   }
+  },
+  {
+   "id": "warsh_yassin_002243",
+   "riwaya": "warsh",
+   "surah": 2,
+   "ayah": 243,
+   "globalIndex": 249,
+   "stratum": "XL",
+   "wordCount": 29,
+   "reciter": "yassin",
+   "refText": "۞ أَلَمْ تَرَ إِلَى اَ۬لذِينَ خَرَجُواْ مِن دِيٰ۪رِهِمْ وَهُمُۥٓ أُلُوفٌ حَذَرَ اَ۬لْمَوْتِ فَقَالَ لَهُمُ اُ۬للَّهُ مُوتُواْ ثُمَّ أَحْي۪اهُمُۥٓۖ إِنَّ اَ۬للَّهَ لَذُو فَضْلٍ عَلَى اَ۬لنَّاسِۖ وَلَٰكِنَّ أَكْثَرَ اَ۬لنَّاسِ لَا يَشْكُرُونَۖ",
+   "source": {
+    "kind": "ayah_file",
+    "url": "https://pub-2c2e1dcd92e84a2898820dd38d3e09e6.r2.dev/audio/warsh/yassin/002243.mp3",
+    "reciter": "yassin",
+    "origin": "everyayah.com (مرآة R2)"
+   }
+  },
+  {
+   "id": "warsh_dosary_017110",
+   "riwaya": "warsh",
+   "surah": 17,
+   "ayah": 110,
+   "globalIndex": 2138,
+   "stratum": "XL",
+   "wordCount": 22,
+   "reciter": "dosary",
+   "refText": "قُلُ اُ۟دْعُواْ اُ۬للَّهَ أَوُ اُ۟دْعُواْ اُ۬لرَّحْمَٰنَۖ أَيّاٗ مَّا تَدْعُواْ فَلَهُ اُ۬لَاسْمَآءُ اُ۬لْحُسْن۪ىٰۖ وَلَا تَجْهَرْ بِصَلَاتِكَ وَلَا تُخَافِتْ بِهَا وَابْتَغِ بَيْنَ ذَٰلِكَ سَبِيلاٗۖ",
+   "source": {
+    "kind": "ayah_file",
+    "url": "https://pub-2c2e1dcd92e84a2898820dd38d3e09e6.r2.dev/audio/warsh/dosary/017110.mp3",
+    "reciter": "dosary",
+    "origin": "everyayah.com (مرآة R2)"
+   }
+  },
+  {
+   "id": "qalun_husary_qalun_085022",
+   "riwaya": "qalun",
+   "surah": 85,
+   "ayah": 22,
+   "globalIndex": 5930,
+   "stratum": "S",
+   "wordCount": 3,
+   "reciter": "husary_qalun",
+   "refText": "فِے لَوْحٖ مَّحْفُوظُۢۖ",
+   "source": {
+    "kind": "cut_from_surah",
+    "reciter": "husary_qalun",
+    "r2Key": "audio/qalun/husary_qalun/085.mp3",
+    "origin": "mp3quran (مرآة R2) + فهرس توقيتاتنا",
+    "startMs": 202560,
+    "endMs": 208420,
+    "confBand": "HIGH",
+    "nextBand": "EOF",
+    "padMs": 300
+   }
+  },
+  {
+   "id": "qalun_husary_qalun_075031",
+   "riwaya": "qalun",
+   "surah": 75,
+   "ayah": 31,
+   "globalIndex": 5581,
+   "stratum": "S",
+   "wordCount": 4,
+   "reciter": "husary_qalun",
+   "refText": "فَلَا صَدَّقَ وَلَا صَلَّىٰۖ",
+   "source": {
+    "kind": "cut_from_surah",
+    "reciter": "husary_qalun",
+    "r2Key": "audio/qalun/husary_qalun/075.mp3",
+    "origin": "mp3quran (مرآة R2) + فهرس توقيتاتنا",
+    "startMs": 209620,
+    "endMs": 216030,
+    "confBand": "HIGH",
+    "nextBand": "HIGH",
+    "padMs": 300
+   }
+  },
+  {
+   "id": "qalun_husary_qalun_090011",
+   "riwaya": "qalun",
+   "surah": 90,
+   "ayah": 11,
+   "globalIndex": 6033,
+   "stratum": "S",
+   "wordCount": 3,
+   "reciter": "husary_qalun",
+   "refText": "فَلَا اَ۪قْتَحَمَ اَ۬لْعَقَبَةَۖ",
+   "source": {
+    "kind": "cut_from_surah",
+    "reciter": "husary_qalun",
+    "r2Key": "audio/qalun/husary_qalun/090.mp3",
+    "origin": "mp3quran (مرآة R2) + فهرس توقيتاتنا",
+    "startMs": 69300,
+    "endMs": 74550,
+    "confBand": "HIGH",
+    "nextBand": "HIGH",
+    "padMs": 300
+   }
+  },
+  {
+   "id": "qalun_husary_qalun_079024",
+   "riwaya": "qalun",
+   "surah": 79,
+   "ayah": 24,
+   "globalIndex": 5735,
+   "stratum": "S",
+   "wordCount": 4,
+   "reciter": "husary_qalun",
+   "refText": "فَقَالَ أَنَا رَبُّكُمُ اُ۬لْأَعْلَىٰ",
+   "source": {
+    "kind": "cut_from_surah",
+    "reciter": "husary_qalun",
+    "r2Key": "audio/qalun/husary_qalun/079.mp3",
+    "origin": "mp3quran (مرآة R2) + فهرس توقيتاتنا",
+    "startMs": 166440,
+    "endMs": 173770,
+    "confBand": "HIGH",
+    "nextBand": "HIGH",
+    "padMs": 300
+   }
+  },
+  {
+   "id": "qalun_husary_qalun_080002",
+   "riwaya": "qalun",
+   "surah": 80,
+   "ayah": 2,
+   "globalIndex": 5759,
+   "stratum": "S",
+   "wordCount": 3,
+   "reciter": "husary_qalun",
+   "refText": "أَن جَآءَهُ اُ۬لْأَعْمَىٰۖ",
+   "source": {
+    "kind": "cut_from_surah",
+    "reciter": "husary_qalun",
+    "r2Key": "audio/qalun/husary_qalun/080.mp3",
+    "origin": "mp3quran (مرآة R2) + فهرس توقيتاتنا",
+    "startMs": 8650,
+    "endMs": 15240,
+    "confBand": "HIGH",
+    "nextBand": "HIGH",
+    "padMs": 300
+   }
+  },
+  {
+   "id": "qalun_husary_qalun_093002",
+   "riwaya": "qalun",
+   "surah": 93,
+   "ayah": 2,
+   "globalIndex": 6080,
+   "stratum": "S",
+   "wordCount": 3,
+   "reciter": "husary_qalun",
+   "refText": "وَاليْلِ إِذَا سَجَىٰ",
+   "source": {
+    "kind": "cut_from_surah",
+    "reciter": "husary_qalun",
+    "r2Key": "audio/qalun/husary_qalun/093.mp3",
+    "origin": "mp3quran (مرآة R2) + فهرس توقيتاتنا",
+    "startMs": 10710,
+    "endMs": 16310,
+    "confBand": "HIGH",
+    "nextBand": "HIGH",
+    "padMs": 300
+   }
+  },
+  {
+   "id": "qalun_husary_qalun_083019",
+   "riwaya": "qalun",
+   "surah": 83,
+   "ayah": 19,
+   "globalIndex": 5866,
+   "stratum": "S",
+   "wordCount": 4,
+   "reciter": "husary_qalun",
+   "refText": "وَمَا أَدْرَيٰكَ مَا عِلِّيُّونَ",
+   "source": {
+    "kind": "cut_from_surah",
+    "reciter": "husary_qalun",
+    "r2Key": "audio/qalun/husary_qalun/083.mp3",
+    "origin": "mp3quran (مرآة R2) + فهرس توقيتاتنا",
+    "startMs": 193340,
+    "endMs": 202090,
+    "confBand": "HIGH",
+    "nextBand": "HIGH",
+    "padMs": 300
+   }
+  },
+  {
+   "id": "qalun_husary_qalun_042002",
+   "riwaya": "qalun",
+   "surah": 42,
+   "ayah": 2,
+   "globalIndex": 4273,
+   "stratum": "S",
+   "wordCount": 1,
+   "reciter": "husary_qalun",
+   "refText": "عَٓسِٓقَٓۖ",
+   "source": {
+    "kind": "cut_from_surah",
+    "reciter": "husary_qalun",
+    "r2Key": "audio/qalun/husary_qalun/042.mp3",
+    "origin": "mp3quran (مرآة R2) + فهرس توقيتاتنا",
+    "startMs": 11650,
+    "endMs": 24620,
+    "confBand": "HIGH",
+    "nextBand": "HIGH",
+    "padMs": 300
+   }
+  },
+  {
+   "id": "qalun_husary_qalun_077036",
+   "riwaya": "qalun",
+   "surah": 77,
+   "ayah": 36,
+   "globalIndex": 5657,
+   "stratum": "S",
+   "wordCount": 4,
+   "reciter": "husary_qalun",
+   "refText": "وَلَا يُؤْذَنُ لَهُمْ فَيَعْتَذِرُونَۖ",
+   "source": {
+    "kind": "cut_from_surah",
+    "reciter": "husary_qalun",
+    "r2Key": "audio/qalun/husary_qalun/077.mp3",
+    "origin": "mp3quran (مرآة R2) + فهرس توقيتاتنا",
+    "startMs": 260950,
+    "endMs": 268690,
+    "confBand": "HIGH",
+    "nextBand": "HIGH",
+    "padMs": 300
+   }
+  },
+  {
+   "id": "qalun_husary_qalun_101010",
+   "riwaya": "qalun",
+   "surah": 101,
+   "ayah": 10,
+   "globalIndex": 6166,
+   "stratum": "S",
+   "wordCount": 4,
+   "reciter": "husary_qalun",
+   "refText": "وَمَا أَدْرَيٰكَ مَا هِيَهْۖ",
+   "source": {
+    "kind": "cut_from_surah",
+    "reciter": "husary_qalun",
+    "r2Key": "audio/qalun/husary_qalun/101.mp3",
+    "origin": "mp3quran (مرآة R2) + فهرس توقيتاتنا",
+    "startMs": 70060,
+    "endMs": 76580,
+    "confBand": "HIGH",
+    "nextBand": "HIGH",
+    "padMs": 300
+   }
+  },
+  {
+   "id": "qalun_husary_qalun_089026",
+   "riwaya": "qalun",
+   "surah": 89,
+   "ayah": 26,
+   "globalIndex": 6018,
+   "stratum": "S",
+   "wordCount": 4,
+   "reciter": "husary_qalun",
+   "refText": "وَلَا يُوثِقُ وَثَاقَهُۥ أَحَدٞۖ",
+   "source": {
+    "kind": "cut_from_surah",
+    "reciter": "husary_qalun",
+    "r2Key": "audio/qalun/husary_qalun/089.mp3",
+    "origin": "mp3quran (مرآة R2) + فهرس توقيتاتنا",
+    "startMs": 239960,
+    "endMs": 248300,
+    "confBand": "HIGH",
+    "nextBand": "HIGH",
+    "padMs": 300
+   }
+  },
+  {
+   "id": "qalun_husary_qalun_056071",
+   "riwaya": "qalun",
+   "surah": 56,
+   "ayah": 71,
+   "globalIndex": 5049,
+   "stratum": "S",
+   "wordCount": 4,
+   "reciter": "husary_qalun",
+   "refText": "أَفَرَٰ۬يْتُمُ اُ۬لنَّارَ اَ۬لتِے تُورُونَ",
+   "source": {
+    "kind": "cut_from_surah",
+    "reciter": "husary_qalun",
+    "r2Key": "audio/qalun/husary_qalun/056.mp3",
+    "origin": "mp3quran (مرآة R2) + فهرس توقيتاتنا",
+    "startMs": 621040,
+    "endMs": 629840,
+    "confBand": "HIGH",
+    "nextBand": "HIGH",
+    "padMs": 300
+   }
+  },
+  {
+   "id": "qalun_husary_qalun_056040",
+   "riwaya": "qalun",
+   "surah": 56,
+   "ayah": 40,
+   "globalIndex": 5018,
+   "stratum": "S",
+   "wordCount": 3,
+   "reciter": "husary_qalun",
+   "refText": "وَثُلَّةٞ مِّنَ اَ۬لْأٓخِرِينَۖ",
+   "source": {
+    "kind": "cut_from_surah",
+    "reciter": "husary_qalun",
+    "r2Key": "audio/qalun/husary_qalun/056.mp3",
+    "origin": "mp3quran (مرآة R2) + فهرس توقيتاتنا",
+    "startMs": 316960,
+    "endMs": 323680,
+    "confBand": "HIGH",
+    "nextBand": "HIGH",
+    "padMs": 300
+   }
+  },
+  {
+   "id": "qalun_husary_qalun_071020",
+   "riwaya": "qalun",
+   "surah": 71,
+   "ayah": 20,
+   "globalIndex": 5438,
+   "stratum": "S",
+   "wordCount": 4,
+   "reciter": "husary_qalun",
+   "refText": "لِّتَسْلُكُواْ مِنْهَا سُبُلاٗ فِجَاجاٗۖ",
+   "source": {
+    "kind": "cut_from_surah",
+    "reciter": "husary_qalun",
+    "r2Key": "audio/qalun/husary_qalun/071.mp3",
+    "origin": "mp3quran (مرآة R2) + فهرس توقيتاتنا",
+    "startMs": 266520,
+    "endMs": 275380,
+    "confBand": "HIGH",
+    "nextBand": "HIGH",
+    "padMs": 300
+   }
+  },
+  {
+   "id": "qalun_husary_qalun_078010",
+   "riwaya": "qalun",
+   "surah": 78,
+   "ayah": 10,
+   "globalIndex": 5681,
+   "stratum": "S",
+   "wordCount": 3,
+   "reciter": "husary_qalun",
+   "refText": "وَجَعَلْنَا اَ۬ليْلَ لِبَاساٗ",
+   "source": {
+    "kind": "cut_from_surah",
+    "reciter": "husary_qalun",
+    "r2Key": "audio/qalun/husary_qalun/078.mp3",
+    "origin": "mp3quran (مرآة R2) + فهرس توقيتاتنا",
+    "startMs": 62900,
+    "endMs": 69450,
+    "confBand": "HIGH",
+    "nextBand": "HIGH",
+    "padMs": 300
+   }
+  },
+  {
+   "id": "qalun_husary_qalun_110003",
+   "riwaya": "qalun",
+   "surah": 110,
+   "ayah": 3,
+   "globalIndex": 6215,
+   "stratum": "M",
+   "wordCount": 7,
+   "reciter": "husary_qalun",
+   "refText": "فَسَبِّحْ بِحَمْدِ رَبِّكَ وَاسْتَغْفِرْهُۖ إِنَّهُۥ كَانَ تَوَّاباَۢۖ",
+   "source": {
+    "kind": "cut_from_surah",
+    "reciter": "husary_qalun",
+    "r2Key": "audio/qalun/husary_qalun/110.mp3",
+    "origin": "mp3quran (مرآة R2) + فهرس توقيتاتنا",
+    "startMs": 26540,
+    "endMs": 40420,
+    "confBand": "HIGH",
+    "nextBand": "EOF",
+    "padMs": 300
+   }
+  },
+  {
+   "id": "qalun_husary_qalun_051035",
+   "riwaya": "qalun",
+   "surah": 51,
+   "ayah": 35,
+   "globalIndex": 4709,
+   "stratum": "M",
+   "wordCount": 6,
+   "reciter": "husary_qalun",
+   "refText": "فَأَخْرَجْنَا مَن كَانَ فِيهَا مِنَ اَ۬لْمُؤْمِنِينَ",
+   "source": {
+    "kind": "cut_from_surah",
+    "reciter": "husary_qalun",
+    "r2Key": "audio/qalun/husary_qalun/051.mp3",
+    "origin": "mp3quran (مرآة R2) + فهرس توقيتاتنا",
+    "startMs": 313910,
+    "endMs": 324100,
+    "confBand": "HIGH",
+    "nextBand": "HIGH",
+    "padMs": 300
+   }
+  },
+  {
+   "id": "qalun_husary_qalun_047007",
+   "riwaya": "qalun",
+   "surah": 47,
+   "ayah": 7,
+   "globalIndex": 4551,
+   "stratum": "M",
+   "wordCount": 9,
+   "reciter": "husary_qalun",
+   "refText": "يَٰأَيُّهَا اَ۬لذِينَ ءَامَنُواْ إِن تَنصُرُواْ اُ۬للَّهَ يَنصُرْكُمْ وَيُثَبِّتْ أَقْدَامَكُمْۖ",
+   "source": {
+    "kind": "cut_from_surah",
+    "reciter": "husary_qalun",
+    "r2Key": "audio/qalun/husary_qalun/047.mp3",
+    "origin": "mp3quran (مرآة R2) + فهرس توقيتاتنا",
+    "startMs": 210620,
+    "endMs": 227600,
+    "confBand": "HIGH",
+    "nextBand": "HIGH",
+    "padMs": 300
+   }
+  },
+  {
+   "id": "qalun_husary_qalun_051016",
+   "riwaya": "qalun",
+   "surah": 51,
+   "ayah": 16,
+   "globalIndex": 4690,
+   "stratum": "M",
+   "wordCount": 9,
+   "reciter": "husary_qalun",
+   "refText": "ءَاخِذِينَ مَا ءَاتَيٰهُمْ رَبُّهُمْۖ إِنَّهُمْ كَانُواْ قَبْلَ ذَٰلِكَ مُحْسِنِينَۖ",
+   "source": {
+    "kind": "cut_from_surah",
+    "reciter": "husary_qalun",
+    "r2Key": "audio/qalun/husary_qalun/051.mp3",
+    "origin": "mp3quran (مرآة R2) + فهرس توقيتاتنا",
+    "startMs": 103380,
+    "endMs": 118010,
+    "confBand": "HIGH",
+    "nextBand": "HIGH",
+    "padMs": 300
+   }
+  },
+  {
+   "id": "qalun_husary_qalun_052015",
+   "riwaya": "qalun",
+   "surah": 52,
+   "ayah": 15,
+   "globalIndex": 4749,
+   "stratum": "M",
+   "wordCount": 6,
+   "reciter": "husary_qalun",
+   "refText": "أَفَسِحْرٌ هَٰذَا أَمْ أَنتُمْ لَا تُبْصِرُونَۖ",
+   "source": {
+    "kind": "cut_from_surah",
+    "reciter": "husary_qalun",
+    "r2Key": "audio/qalun/husary_qalun/052.mp3",
+    "origin": "mp3quran (مرآة R2) + فهرس توقيتاتنا",
+    "startMs": 100560,
+    "endMs": 111170,
+    "confBand": "HIGH",
+    "nextBand": "HIGH",
+    "padMs": 300
+   }
+  },
+  {
+   "id": "qalun_husary_qalun_067026",
+   "riwaya": "qalun",
+   "surah": 67,
+   "ayah": 26,
+   "globalIndex": 5266,
+   "stratum": "M",
+   "wordCount": 9,
+   "reciter": "husary_qalun",
+   "refText": "قُلْ إِنَّمَا اَ۬لْعِلْمُ عِندَ اَ۬للَّهِ وَإِنَّمَا أَنَا نَذِيرٞ مُّبِينٞۖ",
+   "source": {
+    "kind": "cut_from_surah",
+    "reciter": "husary_qalun",
+    "r2Key": "audio/qalun/husary_qalun/067.mp3",
+    "origin": "mp3quran (مرآة R2) + فهرس توقيتاتنا",
+    "startMs": 494480,
+    "endMs": 509770,
+    "confBand": "HIGH",
+    "nextBand": "HIGH",
+    "padMs": 300
+   }
+  },
+  {
+   "id": "qalun_husary_qalun_113004",
+   "riwaya": "qalun",
+   "surah": 113,
+   "ayah": 4,
+   "globalIndex": 6228,
+   "stratum": "M",
+   "wordCount": 5,
+   "reciter": "husary_qalun",
+   "refText": "وَمِن شَرِّ اِ۬لنَّفَّٰثَٰتِ فِے اِ۬لْعُقَدِ",
+   "source": {
+    "kind": "cut_from_surah",
+    "reciter": "husary_qalun",
+    "r2Key": "audio/qalun/husary_qalun/113.mp3",
+    "origin": "mp3quran (مرآة R2) + فهرس توقيتاتنا",
+    "startMs": 24210,
+    "endMs": 33270,
+    "confBand": "HIGH",
+    "nextBand": "HIGH",
+    "padMs": 300
+   }
+  },
+  {
+   "id": "qalun_husary_qalun_069036",
+   "riwaya": "qalun",
+   "surah": 69,
+   "ayah": 36,
+   "globalIndex": 5358,
+   "stratum": "M",
+   "wordCount": 5,
+   "reciter": "husary_qalun",
+   "refText": "وَلَا طَعَامٌ إِلَّا مِنْ غِسْلِينٖ",
+   "source": {
+    "kind": "cut_from_surah",
+    "reciter": "husary_qalun",
+    "r2Key": "audio/qalun/husary_qalun/069.mp3",
+    "origin": "mp3quran (مرآة R2) + فهرس توقيتاتنا",
+    "startMs": 369900,
+    "endMs": 377250,
+    "confBand": "HIGH",
+    "nextBand": "HIGH",
+    "padMs": 300
+   }
+  },
+  {
+   "id": "qalun_husary_qalun_052039",
+   "riwaya": "qalun",
+   "surah": 52,
+   "ayah": 39,
+   "globalIndex": 4773,
+   "stratum": "M",
+   "wordCount": 5,
+   "reciter": "husary_qalun",
+   "refText": "أَمْ لَهُ اُ۬لْبَنَٰتُ وَلَكُمُ اُ۬لْبَنُونَۖ",
+   "source": {
+    "kind": "cut_from_surah",
+    "reciter": "husary_qalun",
+    "r2Key": "audio/qalun/husary_qalun/052.mp3",
+    "origin": "mp3quran (مرآة R2) + فهرس توقيتاتنا",
+    "startMs": 463080,
+    "endMs": 471080,
+    "confBand": "HIGH",
+    "nextBand": "HIGH",
+    "padMs": 300
+   }
+  },
+  {
+   "id": "qalun_husary_qalun_081027",
+   "riwaya": "qalun",
+   "surah": 81,
+   "ayah": 27,
+   "globalIndex": 5826,
+   "stratum": "M",
+   "wordCount": 5,
+   "reciter": "husary_qalun",
+   "refText": "إِنْ هُوَ إِلَّا ذِكْرٞ لِّلْعَٰلَمِينَ",
+   "source": {
+    "kind": "cut_from_surah",
+    "reciter": "husary_qalun",
+    "r2Key": "audio/qalun/husary_qalun/081.mp3",
+    "origin": "mp3quran (مرآة R2) + فهرس توقيتاتنا",
+    "startMs": 171290,
+    "endMs": 180390,
+    "confBand": "HIGH",
+    "nextBand": "HIGH",
+    "padMs": 300
+   }
+  },
+  {
+   "id": "qalun_husary_qalun_038083",
+   "riwaya": "qalun",
+   "surah": 38,
+   "ayah": 83,
+   "globalIndex": 4052,
+   "stratum": "M",
+   "wordCount": 5,
+   "reciter": "husary_qalun",
+   "refText": "إِلَّا عِبَادَكَ مِنْهُمُ اُ۬لْمُخْلَصِينَۖ ۞",
+   "source": {
+    "kind": "cut_from_surah",
+    "reciter": "husary_qalun",
+    "r2Key": "audio/qalun/husary_qalun/038.mp3",
+    "origin": "mp3quran (مرآة R2) + فهرس توقيتاتنا",
+    "startMs": 1281930,
+    "endMs": 1291260,
+    "confBand": "HIGH",
+    "nextBand": "HIGH",
+    "padMs": 300
+   }
+  },
+  {
+   "id": "qalun_husary_qalun_015009",
+   "riwaya": "qalun",
+   "surah": 15,
+   "ayah": 9,
+   "globalIndex": 1810,
+   "stratum": "M",
+   "wordCount": 7,
+   "reciter": "husary_qalun",
+   "refText": "إِنَّا نَحْنُ نَزَّلْنَا اَ۬لذِّكْرَۖ وَإِنَّا لَهُۥ لَحَٰفِظُونَۖ",
+   "source": {
+    "kind": "cut_from_surah",
+    "reciter": "husary_qalun",
+    "r2Key": "audio/qalun/husary_qalun/015.mp3",
+    "origin": "mp3quran (مرآة R2) + فهرس توقيتاتنا",
+    "startMs": 110420,
+    "endMs": 124470,
+    "confBand": "HIGH",
+    "nextBand": "HIGH",
+    "padMs": 300
+   }
+  },
+  {
+   "id": "qalun_husary_qalun_031024",
+   "riwaya": "qalun",
+   "surah": 31,
+   "ayah": 24,
+   "globalIndex": 3492,
+   "stratum": "M",
+   "wordCount": 7,
+   "reciter": "husary_qalun",
+   "refText": "نُمَتِّعُهُمْ قَلِيلاٗ ثُمَّ نَضْطَرُّهُمْ إِلَىٰ عَذَابٍ غَلِيظٖۖ",
+   "source": {
+    "kind": "cut_from_surah",
+    "reciter": "husary_qalun",
+    "r2Key": "audio/qalun/husary_qalun/031.mp3",
+    "origin": "mp3quran (مرآة R2) + فهرس توقيتاتنا",
+    "startMs": 617160,
+    "endMs": 627480,
+    "confBand": "HIGH",
+    "nextBand": "HIGH",
+    "padMs": 300
+   }
+  },
+  {
+   "id": "qalun_husary_qalun_044015",
+   "riwaya": "qalun",
+   "surah": 44,
+   "ayah": 15,
+   "globalIndex": 4428,
+   "stratum": "M",
+   "wordCount": 6,
+   "reciter": "husary_qalun",
+   "refText": "إِنَّا كَاشِفُواْ اُ۬لْعَذَابِ قَلِيلاًۖ إِنَّكُمْ عَآئِدُونَۖ",
+   "source": {
+    "kind": "cut_from_surah",
+    "reciter": "husary_qalun",
+    "r2Key": "audio/qalun/husary_qalun/044.mp3",
+    "origin": "mp3quran (مرآة R2) + فهرس توقيتاتنا",
+    "startMs": 172940,
+    "endMs": 187200,
+    "confBand": "HIGH",
+    "nextBand": "HIGH",
+    "padMs": 300
+   }
+  },
+  {
+   "id": "qalun_husary_qalun_099006",
+   "riwaya": "qalun",
+   "surah": 99,
+   "ayah": 6,
+   "globalIndex": 6143,
+   "stratum": "M",
+   "wordCount": 6,
+   "reciter": "husary_qalun",
+   "refText": "يَوْمَئِذٖ يَصْدُرُ اُ۬لنَّاسُ أَشْتَاتاٗ لِّيُرَوْاْ أَعْمَٰلَهُمْۖ",
+   "source": {
+    "kind": "cut_from_surah",
+    "reciter": "husary_qalun",
+    "r2Key": "audio/qalun/husary_qalun/099.mp3",
+    "origin": "mp3quran (مرآة R2) + فهرس توقيتاتنا",
+    "startMs": 45660,
+    "endMs": 60340,
+    "confBand": "HIGH",
+    "nextBand": "HIGH",
+    "padMs": 300
+   }
+  },
+  {
+   "id": "qalun_husary_qalun_054032",
+   "riwaya": "qalun",
+   "surah": 54,
+   "ayah": 32,
+   "globalIndex": 4877,
+   "stratum": "M",
+   "wordCount": 7,
+   "reciter": "husary_qalun",
+   "refText": "وَلَقَدْ يَسَّرْنَا اَ۬لْقُرْءَانَ لِلذِّكْرِ فَهَلْ مِن مُّدَّكِرٖۖ",
+   "source": {
+    "kind": "cut_from_surah",
+    "reciter": "husary_qalun",
+    "r2Key": "audio/qalun/husary_qalun/054.mp3",
+    "origin": "mp3quran (مرآة R2) + فهرس توقيتاتنا",
+    "startMs": 397750,
+    "endMs": 411400,
+    "confBand": "HIGH",
+    "nextBand": "HIGH",
+    "padMs": 300
+   }
+  },
+  {
+   "id": "qalun_husary_qalun_050043",
+   "riwaya": "qalun",
+   "surah": 50,
+   "ayah": 43,
+   "globalIndex": 4672,
+   "stratum": "M",
+   "wordCount": 6,
+   "reciter": "husary_qalun",
+   "refText": "إِنَّا نَحْنُ نُحْيِۦ وَنُمِيتُ وَإِلَيْنَا اَ۬لْمَصِيرُۖ",
+   "source": {
+    "kind": "cut_from_surah",
+    "reciter": "husary_qalun",
+    "r2Key": "audio/qalun/husary_qalun/050.mp3",
+    "origin": "mp3quran (مرآة R2) + فهرس توقيتاتنا",
+    "startMs": 646710,
+    "endMs": 657860,
+    "confBand": "HIGH",
+    "nextBand": "HIGH",
+    "padMs": 300
+   }
+  },
+  {
+   "id": "qalun_husary_qalun_052045",
+   "riwaya": "qalun",
+   "surah": 52,
+   "ayah": 45,
+   "globalIndex": 4779,
+   "stratum": "M",
+   "wordCount": 7,
+   "reciter": "husary_qalun",
+   "refText": "فَذَرْهُمْ حَتَّىٰ يُلَٰقُواْ يَوْمَهُمُ اُ۬لذِے فِيهِ يَصْعَقُونَ",
+   "source": {
+    "kind": "cut_from_surah",
+    "reciter": "husary_qalun",
+    "r2Key": "audio/qalun/husary_qalun/052.mp3",
+    "origin": "mp3quran (مرآة R2) + فهرس توقيتاتنا",
+    "startMs": 538470,
+    "endMs": 552060,
+    "confBand": "HIGH",
+    "nextBand": "HIGH",
+    "padMs": 300
+   }
+  },
+  {
+   "id": "qalun_husary_qalun_067017",
+   "riwaya": "qalun",
+   "surah": 67,
+   "ayah": 17,
+   "globalIndex": 5257,
+   "stratum": "L",
+   "wordCount": 12,
+   "reciter": "husary_qalun",
+   "refText": "أَمْ أَمِنتُم مَّن فِے اِ۬لسَّمَآءِ اَ۬نْ يُّرْسِلَ عَلَيْكُمْ حَاصِباٗۖ فَسَتَعْلَمُونَ كَيْفَ نَذِيرِۖ",
+   "source": {
+    "kind": "cut_from_surah",
+    "reciter": "husary_qalun",
+    "r2Key": "audio/qalun/husary_qalun/067.mp3",
+    "origin": "mp3quran (مرآة R2) + فهرس توقيتاتنا",
+    "startMs": 314040,
+    "endMs": 335790,
+    "confBand": "HIGH",
+    "nextBand": "HIGH",
+    "padMs": 300
+   }
+  },
+  {
+   "id": "qalun_husary_qalun_041049",
+   "riwaya": "qalun",
+   "surah": 41,
+   "ayah": 49,
+   "globalIndex": 4266,
+   "stratum": "L",
+   "wordCount": 11,
+   "reciter": "husary_qalun",
+   "refText": "لَّا يَسْـَٔمُ اُ۬لْإِنسَٰنُ مِن دُعَآءِ اِ۬لْخَيْرِۖ وَإِن مَّسَّهُ اُ۬لشَّرُّ فَيَـُٔوسٞ قَنُوطٞۖ",
+   "source": {
+    "kind": "cut_from_surah",
+    "reciter": "husary_qalun",
+    "r2Key": "audio/qalun/husary_qalun/041.mp3",
+    "origin": "mp3quran (مرآة R2) + فهرس توقيتاتنا",
+    "startMs": 1327600,
+    "endMs": 1341010,
+    "confBand": "HIGH",
+    "nextBand": "HIGH",
+    "padMs": 300
+   }
+  },
+  {
+   "id": "qalun_husary_qalun_030042",
+   "riwaya": "qalun",
+   "surah": 30,
+   "ayah": 42,
+   "globalIndex": 3450,
+   "stratum": "L",
+   "wordCount": 14,
+   "reciter": "husary_qalun",
+   "refText": "قُلْ سِيرُواْ فِے اِ۬لْأَرْضِ فَانظُرُواْ كَيْفَ كَانَ عَٰقِبَةُ اُ۬لذِينَ مِن قَبْلُۖ كَانَ أَكْثَرُهُم مُّشْرِكِينَۖ",
+   "source": {
+    "kind": "cut_from_surah",
+    "reciter": "husary_qalun",
+    "r2Key": "audio/qalun/husary_qalun/030.mp3",
+    "origin": "mp3quran (مرآة R2) + فهرس توقيتاتنا",
+    "startMs": 1005980,
+    "endMs": 1026800,
+    "confBand": "HIGH",
+    "nextBand": "HIGH",
+    "padMs": 300
+   }
+  },
+  {
+   "id": "qalun_husary_qalun_042036",
+   "riwaya": "qalun",
+   "surah": 42,
+   "ayah": 36,
+   "globalIndex": 4307,
+   "stratum": "L",
+   "wordCount": 17,
+   "reciter": "husary_qalun",
+   "refText": "فَمَا أُوتِيتُم مِّن شَےْءٖ فَمَتَٰعُ اُ۬لْحَيَوٰةِ اِ۬لدُّنْيَاۖ وَمَا عِندَ اَ۬للَّهِ خَيْرٞ وَأَبْقَىٰ لِلذِينَ ءَامَنُواْ وَعَلَىٰ رَبِّهِمْ يَتَوَكَّلُونَۖ",
+   "source": {
+    "kind": "cut_from_surah",
+    "reciter": "husary_qalun",
+    "r2Key": "audio/qalun/husary_qalun/042.mp3",
+    "origin": "mp3quran (مرآة R2) + فهرس توقيتاتنا",
+    "startMs": 840060,
+    "endMs": 864360,
+    "confBand": "HIGH",
+    "nextBand": "HIGH",
+    "padMs": 300
+   }
+  },
+  {
+   "id": "qalun_husary_qalun_030025",
+   "riwaya": "qalun",
+   "surah": 30,
+   "ayah": 25,
+   "globalIndex": 3433,
+   "stratum": "L",
+   "wordCount": 16,
+   "reciter": "husary_qalun",
+   "refText": "وَمِنْ ءَايَٰتِهِۦ أَن تَقُومَ اَ۬لسَّمَآءُ وَالْأَرْضُ بِأَمْرِهِۦۖ ثُمَّ إِذَا دَعَاكُمْ دَعْوَةٗ مِّنَ اَ۬لْأَرْضِ إِذَا أَنتُمْ تَخْرُجُونَۖ",
+   "source": {
+    "kind": "cut_from_surah",
+    "reciter": "husary_qalun",
+    "r2Key": "audio/qalun/husary_qalun/030.mp3",
+    "origin": "mp3quran (مرآة R2) + فهرس توقيتاتنا",
+    "startMs": 507040,
+    "endMs": 533300,
+    "confBand": "HIGH",
+    "nextBand": "HIGH",
+    "padMs": 300
+   }
+  },
+  {
+   "id": "qalun_husary_qalun_043053",
+   "riwaya": "qalun",
+   "surah": 43,
+   "ayah": 53,
+   "globalIndex": 4377,
+   "stratum": "L",
+   "wordCount": 11,
+   "reciter": "husary_qalun",
+   "refText": "فَلَوْلَا أُلْقِيَ عَلَيْهِ أَسَٰوِرَةٞ مِّن ذَهَبٍ أَوْ جَآءَ مَعَهُ اُ۬لْمَلَٰٓئِكَةُ مُقْتَرِنِينَۖ",
+   "source": {
+    "kind": "cut_from_surah",
+    "reciter": "husary_qalun",
+    "r2Key": "audio/qalun/husary_qalun/043.mp3",
+    "origin": "mp3quran (مرآة R2) + فهرس توقيتاتنا",
+    "startMs": 918250,
+    "endMs": 935280,
+    "confBand": "HIGH",
+    "nextBand": "HIGH",
+    "padMs": 300
+   }
+  },
+  {
+   "id": "qalun_husary_qalun_071026",
+   "riwaya": "qalun",
+   "surah": 71,
+   "ayah": 26,
+   "globalIndex": 5444,
+   "stratum": "L",
+   "wordCount": 10,
+   "reciter": "husary_qalun",
+   "refText": "وَقَالَ نُوحٞ رَّبِّ لَا تَذَرْ عَلَى اَ۬لْأَرْضِ مِنَ اَ۬لْكَٰفِرِينَ دَيَّاراًۖ",
+   "source": {
+    "kind": "cut_from_surah",
+    "reciter": "husary_qalun",
+    "r2Key": "audio/qalun/husary_qalun/071.mp3",
+    "origin": "mp3quran (مرآة R2) + فهرس توقيتاتنا",
+    "startMs": 363050,
+    "endMs": 378280,
+    "confBand": "HIGH",
+    "nextBand": "HIGH",
+    "padMs": 300
+   }
+  },
+  {
+   "id": "qalun_husary_qalun_067008",
+   "riwaya": "qalun",
+   "surah": 67,
+   "ayah": 8,
+   "globalIndex": 5248,
+   "stratum": "L",
+   "wordCount": 13,
+   "reciter": "husary_qalun",
+   "refText": "تَكَادُ تَمَيَّزُ مِنَ اَ۬لْغَيْظِۖ كُلَّمَا أُلْقِيَ فِيهَا فَوْجٞ سَأَلَهُمْ خَزَنَتُهَا أَلَمْ يَأْتِكُمْ نَذِيرٞۖ",
+   "source": {
+    "kind": "cut_from_surah",
+    "reciter": "husary_qalun",
+    "r2Key": "audio/qalun/husary_qalun/067.mp3",
+    "origin": "mp3quran (مرآة R2) + فهرس توقيتاتنا",
+    "startMs": 144760,
+    "endMs": 168770,
+    "confBand": "HIGH",
+    "nextBand": "HIGH",
+    "padMs": 300
+   }
+  },
+  {
+   "id": "qalun_husary_qalun_036082",
+   "riwaya": "qalun",
+   "surah": 36,
+   "ayah": 82,
+   "globalIndex": 3786,
+   "stratum": "L",
+   "wordCount": 10,
+   "reciter": "husary_qalun",
+   "refText": "إِنَّمَا أَمْرُهُۥ إِذَا أَرَادَ شَيْـٔاً أَنْ يَّقُولَ لَهُۥ كُنۖ فَيَكُونُۖ",
+   "source": {
+    "kind": "cut_from_surah",
+    "reciter": "husary_qalun",
+    "r2Key": "audio/qalun/husary_qalun/036.mp3",
+    "origin": "mp3quran (مرآة R2) + فهرس توقيتاتنا",
+    "startMs": 1297200,
+    "endMs": 1313920,
+    "confBand": "HIGH",
+    "nextBand": "HIGH",
+    "padMs": 300
+   }
+  },
+  {
+   "id": "qalun_husary_qalun_042046",
+   "riwaya": "qalun",
+   "surah": 42,
+   "ayah": 46,
+   "globalIndex": 4317,
+   "stratum": "L",
+   "wordCount": 16,
+   "reciter": "husary_qalun",
+   "refText": "وَمَا كَانَ لَهُم مِّنْ أَوْلِيَآءَ يَنصُرُونَهُم مِّن دُونِ اِ۬للَّهِۖ وَمَنْ يُّضْلِلِ اِ۬للَّهُ فَمَا لَهُۥ مِن سَبِيلٍۖ",
+   "source": {
+    "kind": "cut_from_surah",
+    "reciter": "husary_qalun",
+    "r2Key": "audio/qalun/husary_qalun/042.mp3",
+    "origin": "mp3quran (مرآة R2) + فهرس توقيتاتنا",
+    "startMs": 1059370,
+    "endMs": 1082160,
+    "confBand": "HIGH",
+    "nextBand": "HIGH",
+    "padMs": 300
+   }
+  },
+  {
+   "id": "qalun_husary_qalun_031019",
+   "riwaya": "qalun",
+   "surah": 31,
+   "ayah": 19,
+   "globalIndex": 3487,
+   "stratum": "L",
+   "wordCount": 11,
+   "reciter": "husary_qalun",
+   "refText": "وَاقْصِدْ فِے مَشْيِكَۖ وَاغْضُضْ مِن صَوْتِكَۖ إِنَّ أَنكَرَ اَ۬لْأَصْوَٰتِ لَصَوْتُ اُ۬لْحَمِيرِۖ",
+   "source": {
+    "kind": "cut_from_surah",
+    "reciter": "husary_qalun",
+    "r2Key": "audio/qalun/husary_qalun/031.mp3",
+    "origin": "mp3quran (مرآة R2) + فهرس توقيتاتنا",
+    "startMs": 473030,
+    "endMs": 492040,
+    "confBand": "HIGH",
+    "nextBand": "HIGH",
+    "padMs": 300
+   }
+  },
+  {
+   "id": "qalun_husary_qalun_062006",
+   "riwaya": "qalun",
+   "surah": 62,
+   "ayah": 6,
+   "globalIndex": 5182,
+   "stratum": "L",
+   "wordCount": 17,
+   "reciter": "husary_qalun",
+   "refText": "قُلْ يَٰأَيُّهَا اَ۬لذِينَ هَادُواْ إِن زَعَمْتُمْ أَنَّكُمْ أَوْلِيَآءُ لِلهِ مِن دُونِ اِ۬لنَّاسِ فَتَمَنَّوُاْ اُ۬لْمَوْتَ إِن كُنتُمْ صَٰدِقِينَۖ",
+   "source": {
+    "kind": "cut_from_surah",
+    "reciter": "husary_qalun",
+    "r2Key": "audio/qalun/husary_qalun/062.mp3",
+    "origin": "mp3quran (مرآة R2) + فهرس توقيتاتنا",
+    "startMs": 148020,
+    "endMs": 182250,
+    "confBand": "HIGH",
+    "nextBand": "HIGH",
+    "padMs": 300
+   }
+  },
+  {
+   "id": "qalun_husary_qalun_064016",
+   "riwaya": "qalun",
+   "surah": 64,
+   "ayah": 16,
+   "globalIndex": 5214,
+   "stratum": "L",
+   "wordCount": 16,
+   "reciter": "husary_qalun",
+   "refText": "فَاتَّقُواْ اُ۬للَّهَ مَا اَ۪سْتَطَعْتُمْ وَاسْمَعُواْ وَأَطِيعُواْ وَأَنفِقُواْ خَيْراٗ لِّأَنفُسِكُمْۖ وَمَنْ يُّوقَ شُحَّ نَفْسِهِۦ فَأُوْلَٰٓئِكَ هُمُ اُ۬لْمُفْلِحُونَۖ",
+   "source": {
+    "kind": "cut_from_surah",
+    "reciter": "husary_qalun",
+    "r2Key": "audio/qalun/husary_qalun/064.mp3",
+    "origin": "mp3quran (مرآة R2) + فهرس توقيتاتنا",
+    "startMs": 415930,
+    "endMs": 448780,
+    "confBand": "HIGH",
+    "nextBand": "HIGH",
+    "padMs": 300
+   }
+  },
+  {
+   "id": "qalun_husary_qalun_014048",
+   "riwaya": "qalun",
+   "surah": 14,
+   "ayah": 48,
+   "globalIndex": 1797,
+   "stratum": "L",
+   "wordCount": 10,
+   "reciter": "husary_qalun",
+   "refText": "يَوْمَ تُبَدَّلُ اُ۬لْأَرْضُ غَيْرَ اَ۬لْأَرْضِ وَالسَّمَٰوَٰتُۖ وَبَرَزُواْ لِلهِ اِ۬لْوَٰحِدِ اِ۬لْقَهَّارِۖ",
+   "source": {
+    "kind": "cut_from_surah",
+    "reciter": "husary_qalun",
+    "r2Key": "audio/qalun/husary_qalun/014.mp3",
+    "origin": "mp3quran (مرآة R2) + فهرس توقيتاتنا",
+    "startMs": 1415570,
+    "endMs": 1433700,
+    "confBand": "HIGH",
+    "nextBand": "HIGH",
+    "padMs": 300
+   }
+  },
+  {
+   "id": "qalun_husary_qalun_064011",
+   "riwaya": "qalun",
+   "surah": 64,
+   "ayah": 11,
+   "globalIndex": 5209,
+   "stratum": "L",
+   "wordCount": 16,
+   "reciter": "husary_qalun",
+   "refText": "مَا أَصَابَ مِن مُّصِيبَةٍ إِلَّا بِإِذْنِ اِ۬للَّهِۖ وَمَنْ يُّؤْمِنۢ بِاللَّهِ يَهْدِ قَلْبَهُۥۖ وَاللَّهُ بِكُلِّ شَےْءٍ عَلِيمٞۖ",
+   "source": {
+    "kind": "cut_from_surah",
+    "reciter": "husary_qalun",
+    "r2Key": "audio/qalun/husary_qalun/064.mp3",
+    "origin": "mp3quran (مرآة R2) + فهرس توقيتاتنا",
+    "startMs": 292260,
+    "endMs": 319620,
+    "confBand": "HIGH",
+    "nextBand": "HIGH",
+    "padMs": 300
+   }
+  },
+  {
+   "id": "qalun_husary_qalun_057004",
+   "riwaya": "qalun",
+   "surah": 57,
+   "ayah": 4,
+   "globalIndex": 5078,
+   "stratum": "XL",
+   "wordCount": 36,
+   "reciter": "husary_qalun",
+   "refText": "هُوَ اَ۬لذِے خَلَقَ اَ۬لسَّمَٰوَٰتِ وَالْأَرْضَ فِے سِتَّةِ أَيَّامٖ ثُمَّ اَ۪سْتَوَىٰ عَلَى اَ۬لْعَرْشِۖ يَعْلَمُ مَا يَلِجُ فِے اِ۬لْأَرْضِ وَمَا يَخْرُجُ مِنْهَا وَمَا يَنزِلُ مِنَ اَ۬لسَّمَآءِ وَمَا يَعْرُجُ فِيهَاۖ وَهْوَ مَعَكُمْ أَيْنَ مَا كُنتُمْۖ وَاللَّهُ بِمَا تَعْمَلُونَ بَصِيرٞۖ",
+   "source": {
+    "kind": "cut_from_surah",
+    "reciter": "husary_qalun",
+    "r2Key": "audio/qalun/husary_qalun/057.mp3",
+    "origin": "mp3quran (مرآة R2) + فهرس توقيتاتنا",
+    "startMs": 59450,
+    "endMs": 111870,
+    "confBand": "HIGH",
+    "nextBand": "HIGH",
+    "padMs": 300
+   }
+  },
+  {
+   "id": "qalun_husary_qalun_057022",
+   "riwaya": "qalun",
+   "surah": 57,
+   "ayah": 22,
+   "globalIndex": 5096,
+   "stratum": "XL",
+   "wordCount": 21,
+   "reciter": "husary_qalun",
+   "refText": "مَا أَصَابَ مِن مُّصِيبَةٖ فِے اِ۬لْأَرْضِ وَلَا فِے أَنفُسِكُمْ إِلَّا فِے كِتَٰبٖ مِّن قَبْلِ أَن نَّبْرَأَهَاۖ إِنَّ ذَٰلِكَ عَلَى اَ۬للَّهِ يَسِيرٞ",
+   "source": {
+    "kind": "cut_from_surah",
+    "reciter": "husary_qalun",
+    "r2Key": "audio/qalun/husary_qalun/057.mp3",
+    "origin": "mp3quran (مرآة R2) + فهرس توقيتاتنا",
+    "startMs": 719380,
+    "endMs": 748630,
+    "confBand": "HIGH",
+    "nextBand": "HIGH",
+    "padMs": 300
+   }
+  },
+  {
+   "id": "qalun_husary_qalun_048017",
+   "riwaya": "qalun",
+   "surah": 48,
+   "ayah": 17,
+   "globalIndex": 4599,
+   "stratum": "XL",
+   "wordCount": 27,
+   "reciter": "husary_qalun",
+   "refText": "لَّيْسَ عَلَى اَ۬لْأَعْمَىٰ حَرَجٞ وَلَا عَلَى اَ۬لْأَعْرَجِ حَرَجٞ وَلَا عَلَى اَ۬لْمَرِيضِ حَرَجٞۖ وَمَنْ يُّطِعِ اِ۬للَّهَ وَرَسُولَهُۥ نُدْخِلْهُ جَنَّٰتٖ تَجْرِے مِن تَحْتِهَا اَ۬لْأَنْهَٰرُۖ وَمَنْ يَّتَوَلَّ نُعَذِّبْهُ عَذَاباً أَلِيماٗۖ",
+   "source": {
+    "kind": "cut_from_surah",
+    "reciter": "husary_qalun",
+    "r2Key": "audio/qalun/husary_qalun/048.mp3",
+    "origin": "mp3quran (مرآة R2) + فهرس توقيتاتنا",
+    "startMs": 459880,
+    "endMs": 499580,
+    "confBand": "HIGH",
+    "nextBand": "HIGH",
+    "padMs": 300
+   }
+  },
+  {
+   "id": "qalun_husary_qalun_057025",
+   "riwaya": "qalun",
+   "surah": 57,
+   "ayah": 25,
+   "globalIndex": 5099,
+   "stratum": "XL",
+   "wordCount": 28,
+   "reciter": "husary_qalun",
+   "refText": "لَقَدْ أَرْسَلْنَا رُسُلَنَا بِالْبَيِّنَٰتِ وَأَنزَلْنَا مَعَهُمُ اُ۬لْكِتَٰبَ وَالْمِيزَانَ لِيَقُومَ اَ۬لنَّاسُ بِالْقِسْطِۖ وَأَنزَلْنَا اَ۬لْحَدِيدَ فِيهِ بَأْسٞ شَدِيدٞ وَمَنَٰفِعُ لِلنَّاسِۖ وَلِيَعْلَمَ اَ۬للَّهُ مَنْ يَّنصُرُهُۥ وَرُسُلَهُۥ بِالْغَيْبِۖ إِنَّ اَ۬للَّهَ قَوِيٌّ عَزِيزٞۖ",
+   "source": {
+    "kind": "cut_from_surah",
+    "reciter": "husary_qalun",
+    "r2Key": "audio/qalun/husary_qalun/057.mp3",
+    "origin": "mp3quran (مرآة R2) + فهرس توقيتاتنا",
+    "startMs": 795280,
+    "endMs": 848120,
+    "confBand": "HIGH",
+    "nextBand": "HIGH",
+    "padMs": 300
+   }
+  },
+  {
+   "id": "qalun_husary_qalun_041044",
+   "riwaya": "qalun",
+   "surah": 41,
+   "ayah": 44,
+   "globalIndex": 4261,
+   "stratum": "XL",
+   "wordCount": 30,
+   "reciter": "husary_qalun",
+   "refText": "وَلَوْ جَعَلْنَٰهُ قُرْءَاناً أَعْجَمِيّاٗ لَّقَالُواْ لَوْلَا فُصِّلَتْ ءَايَٰتُهُۥۖ ءَٰا۬عْجَمِيّٞ وَعَرَبِيّٞۖ قُلْ هُوَ لِلذِينَ ءَامَنُواْ هُدىٗ وَشِفَآءٞۖ وَالذِينَ لَا يُؤْمِنُونَ فِے ءَاذَانِهِمْ وَقْرٞ وَهْوَ عَلَيْهِمْ عَمىًۖ أُوْلَٰٓئِكَ يُنَادَوْنَ مِن مَّكَانِۢ بَعِيدٖۖ",
+   "source": {
+    "kind": "cut_from_surah",
+    "reciter": "husary_qalun",
+    "r2Key": "audio/qalun/husary_qalun/041.mp3",
+    "origin": "mp3quran (مرآة R2) + فهرس توقيتاتنا",
+    "startMs": 1153100,
+    "endMs": 1215840,
+    "confBand": "HIGH",
+    "nextBand": "HIGH",
+    "padMs": 300
+   }
+  },
+  {
+   "id": "qalun_husary_qalun_048025",
+   "riwaya": "qalun",
+   "surah": 48,
+   "ayah": 25,
+   "globalIndex": 4607,
+   "stratum": "XL",
+   "wordCount": 40,
+   "reciter": "husary_qalun",
+   "refText": "هُمُ اُ۬لذِينَ كَفَرُواْ وَصَدُّوكُمْ عَنِ اِ۬لْمَسْجِدِ اِ۬لْحَرَامِ وَالْهَدْيَ مَعْكُوفاً أَنْ يَّبْلُغَ مَحِلَّهُۥۖ وَلَوْلَا رِجَالٞ مُّؤْمِنُونَ وَنِسَآءٞ مُّؤْمِنَٰتٞ لَّمْ تَعْلَمُوهُمْ أَن تَطَـُٔوهُمْ فَتُصِيبَكُم مِّنْهُم مَّعَرَّةُۢ بِغَيْرِ عِلْمٖ لِّيُدْخِلَ اَ۬للَّهُ فِے رَحْمَتِهِۦ مَنْ يَّشَآءُۖ لَوْ تَزَيَّلُواْ لَعَذَّبْنَا اَ۬لذِينَ كَفَرُواْ مِنْهُمْ عَذَاباً أَلِيماًۖ",
+   "source": {
+    "kind": "cut_from_surah",
+    "reciter": "husary_qalun",
+    "r2Key": "audio/qalun/husary_qalun/048.mp3",
+    "origin": "mp3quran (مرآة R2) + فهرس توقيتاتنا",
+    "startMs": 676380,
+    "endMs": 744360,
+    "confBand": "HIGH",
+    "nextBand": "HIGH",
+    "padMs": 300
+   }
+  },
+  {
+   "id": "qalun_husary_qalun_031031",
+   "riwaya": "qalun",
+   "surah": 31,
+   "ayah": 31,
+   "globalIndex": 3499,
+   "stratum": "XL",
+   "wordCount": 20,
+   "reciter": "husary_qalun",
+   "refText": "أَلَمْ تَرَ أَنَّ اَ۬لْفُلْكَ تَجْرِے فِے اِ۬لْبَحْرِ بِنِعْمَتِ اِ۬للَّهِ لِيُرِيَكُم مِّنْ ءَايَٰتِهِۦۖ إِنَّ فِے ذَٰلِكَ لَأٓيَٰتٖ لِّكُلِّ صَبَّارٖ شَكُورٖۖ ۞",
+   "source": {
+    "kind": "cut_from_surah",
+    "reciter": "husary_qalun",
+    "r2Key": "audio/qalun/husary_qalun/031.mp3",
+    "origin": "mp3quran (مرآة R2) + فهرس توقيتاتنا",
+    "startMs": 781780,
+    "endMs": 809040,
+    "confBand": "HIGH",
+    "nextBand": "HIGH",
+    "padMs": 300
+   }
+  },
+  {
+   "id": "qalun_husary_qalun_058002",
+   "riwaya": "qalun",
+   "surah": 58,
+   "ayah": 2,
+   "globalIndex": 5105,
+   "stratum": "XL",
+   "wordCount": 23,
+   "reciter": "husary_qalun",
+   "refText": "اِ۬لذِينَ يَظَّهَّرُونَ مِنكُم مِّن نِّسَآئِهِم مَّا هُنَّ أُمَّهَٰتِهِمْۖ إِنْ أُمَّهَٰتُهُمْ إِلَّا اَ۬لَّٰٓئِے وَلَدْنَهُمْۖ وَإِنَّهُمْ لَيَقُولُونَ مُنكَراٗ مِّنَ اَ۬لْقَوْلِ وَزُوراٗۖ وَإِنَّ اَ۬للَّهَ لَعَفُوٌّ غَفُورٞۖ",
+   "source": {
+    "kind": "cut_from_surah",
+    "reciter": "husary_qalun",
+    "r2Key": "audio/qalun/husary_qalun/058.mp3",
+    "origin": "mp3quran (مرآة R2) + فهرس توقيتاتنا",
+    "startMs": 39700,
+    "endMs": 86320,
+    "confBand": "HIGH",
+    "nextBand": "HIGH",
+    "padMs": 300
+   }
+  },
+  {
+   "id": "qalun_husary_qalun_042007",
+   "riwaya": "qalun",
+   "surah": 42,
+   "ayah": 7,
+   "globalIndex": 4278,
+   "stratum": "XL",
+   "wordCount": 22,
+   "reciter": "husary_qalun",
+   "refText": "وَكَذَٰلِكَ أَوْحَيْنَا إِلَيْكَ قُرْءَاناً عَرَبِيّاٗ لِّتُنذِرَ أُمَّ اَ۬لْقُرَىٰ وَمَنْ حَوْلَهَا وَتُنذِرَ يَوْمَ اَ۬لْجَمْعِ لَا رَيْبَ فِيهِۖ فَرِيقٞ فِے اِ۬لْجَنَّةِۖ وَفَرِيقٞ فِے اِ۬لسَّعِيرِۖ",
+   "source": {
+    "kind": "cut_from_surah",
+    "reciter": "husary_qalun",
+    "r2Key": "audio/qalun/husary_qalun/042.mp3",
+    "origin": "mp3quran (مرآة R2) + فهرس توقيتاتنا",
+    "startMs": 96640,
+    "endMs": 125090,
+    "confBand": "HIGH",
+    "nextBand": "HIGH",
+    "padMs": 300
+   }
+  },
+  {
+   "id": "qalun_husary_qalun_041037",
+   "riwaya": "qalun",
+   "surah": 41,
+   "ayah": 37,
+   "globalIndex": 4254,
+   "stratum": "XL",
+   "wordCount": 20,
+   "reciter": "husary_qalun",
+   "refText": "وَمِنْ ءَايَٰتِهِ اِ۬ليْلُ وَالنَّهَارُ وَالشَّمْسُ وَالْقَمَرُۖ لَا تَسْجُدُواْ لِلشَّمْسِ وَلَا لِلْقَمَرِۖ وَاسْجُدُواْ لِلهِ اِ۬لذِے خَلَقَهُنَّ إِن كُنتُمْ إِيَّاهُ تَعْبُدُونَۖ۩ ۞",
+   "source": {
+    "kind": "cut_from_surah",
+    "reciter": "husary_qalun",
+    "r2Key": "audio/qalun/husary_qalun/041.mp3",
+    "origin": "mp3quran (مرآة R2) + فهرس توقيتاتنا",
+    "startMs": 937950,
+    "endMs": 973820,
+    "confBand": "HIGH",
+    "nextBand": "HIGH",
+    "padMs": 300
+   }
+  },
+  {
+   "id": "qalun_husary_qalun_060008",
+   "riwaya": "qalun",
+   "surah": 60,
+   "ayah": 8,
+   "globalIndex": 5157,
+   "stratum": "XL",
+   "wordCount": 21,
+   "reciter": "husary_qalun",
+   "refText": "لَّا يَنْهَيٰكُمُ اُ۬للَّهُ عَنِ اِ۬لذِينَ لَمْ يُقَٰتِلُوكُمْ فِے اِ۬لدِّينِ وَلَمْ يُخْرِجُوكُم مِّن دِيَٰرِكُمْ أَن تَبَرُّوهُمْ وَتُقْسِطُواْ إِلَيْهِمْۖ إِنَّ اَ۬للَّهَ يُحِبُّ اُ۬لْمُقْسِطِينَۖ",
+   "source": {
+    "kind": "cut_from_surah",
+    "reciter": "husary_qalun",
+    "r2Key": "audio/qalun/husary_qalun/060.mp3",
+    "origin": "mp3quran (مرآة R2) + فهرس توقيتاتنا",
+    "startMs": 334740,
+    "endMs": 371850,
+    "confBand": "HIGH",
+    "nextBand": "HIGH",
+    "padMs": 300
+   }
+  },
+  {
+   "id": "qalun_husary_qalun_043032",
+   "riwaya": "qalun",
+   "surah": 43,
+   "ayah": 32,
+   "globalIndex": 4356,
+   "stratum": "XL",
+   "wordCount": 25,
+   "reciter": "husary_qalun",
+   "refText": "أَهُمْ يَقْسِمُونَ رَحْمَتَ رَبِّكَۖ نَحْنُ قَسَمْنَا بَيْنَهُم مَّعِيشَتَهُمْ فِے اِ۬لْحَيَوٰةِ اِ۬لدُّنْيَا وَرَفَعْنَا بَعْضَهُمْ فَوْقَ بَعْضٖ دَرَجَٰتٖ لِّيَتَّخِذَ بَعْضُهُم بَعْضاٗ سُخْرِيّاٗۖ وَرَحْمَتُ رَبِّكَ خَيْرٞ مِّمَّا يَجْمَعُونَۖ",
+   "source": {
+    "kind": "cut_from_surah",
+    "reciter": "husary_qalun",
+    "r2Key": "audio/qalun/husary_qalun/043.mp3",
+    "origin": "mp3quran (مرآة R2) + فهرس توقيتاتنا",
+    "startMs": 532330,
+    "endMs": 578750,
+    "confBand": "HIGH",
+    "nextBand": "HIGH",
+    "padMs": 300
+   }
+  }
+ ]
+}

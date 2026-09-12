@@ -26,6 +26,7 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 ROOT = os.path.dirname(os.path.dirname(HERE))
 sys.path.insert(0, os.path.join(ROOT, "tools", "alignment"))
 from common import FFMPEG, norm  # noqa: E402
+from decode import run_decode
 
 WORK = os.path.join(HERE, "work", "basmala")
 BAS = norm("بسم الله الرحمن الرحيم").split()
@@ -90,9 +91,9 @@ def fuzzy_seq(words, target=BAS, start_within=3):
 
 
 def cut(src, start_ms, dur_ms, dst):
-    subprocess.run([FFMPEG, "-y", "-v", "error", "-ss", f"{start_ms/1000:.3f}",
-                    "-i", src, "-t", f"{dur_ms/1000:.3f}", "-ar", "16000",
-                    "-ac", "1", dst], check=True)
+    run_decode([FFMPEG, "-y", "-v", "error", "-ss", f"{start_ms/1000:.3f}",
+                "-i", src, "-vn", "-t", f"{dur_ms/1000:.3f}", "-ar", "16000",
+                "-ac", "1", dst], src, dst)
     return dst
 
 
