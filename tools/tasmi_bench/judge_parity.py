@@ -72,8 +72,12 @@ def main():
     if plan_path:
         items = [it for it in json.load(open(os.path.join(HERE, plan_path), encoding="utf-8"))["items"]
                  if it["id"] in with_judge]
-        j = D.judge(items, h)
-        res = [dict(j[it["id"]], ok=True) if it["id"] in j else {"ok": False} for it in items]
+        # ⛔ **رايةٌ مُتجاهَلةٌ بصمتٍ — عطبٌ وقع هنا (‏2026-09-12):** كنتُ أستدعي `D.judge` وهي تُثبّت
+        # إعدادَها بـ`cfg_for(riwaya)` **فتُسقط `--cfg` كلَّها**، فجاء `--cfg critical` على `g3r`
+        # مطابقاً للمشحون حرفاً بحرف (‏95.392٪ في الحالتين) فبدا كأنّ المرآةَ تنحرف 4.6 نقاط وهي
+        # لم تُشغَّل أصلاً. و`score.run` تُعطي **الإعدادَ نفسَه** (`config_for` مطابقٌ لـ`cfg_for`
+        # حرفاً بحرف) وتحترم الرايةَ ⇒ تُستعمل في المسارين كي لا يبقى للمسارَين مِسطرتان.
+        res = score.run(items, h, a.cfg)
     else:
         sample = score.load_sample()
         items = [it for it in sample["items"] if it["id"] in with_judge]
