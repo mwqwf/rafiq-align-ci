@@ -12,13 +12,21 @@
 #    من 1598 حدّ بثمانية ملوح · مداخل 6206) ⇒ الرقمُ 204/227.
 # 🆕 وأُضيف noah_warsh: دخل الكتالوجَ 06:4xZ بوضع السورة (‏شهودٌ 46·30·89 ورشٌ
 #    فائزٌ في الثلاثة · 114/114 ملفّاً بحالة 200) ⇒ مرشَّحُ محاذاةٍ بأولويّة ورش.
-#    ⛔ ورقمُ شاردته 5 يستعيد كاشَ h_dukhain — وهو غيرُ ضارّ لأنّ مجلّدَ العمل
-#    مفصولٌ باسم القارئ (`WORK/batch_{reciter}`)، فلا يُتلَف ولا يُتخطّى شيء.
+#
+# ⛔⛔ **والترتيبُ هنا ليس أولويّةً بل استئنافُ كاش — ولا يُبدَّل بلا حساب.**
+#    الشاردةُ تأخذ `rows[i::shards]` ⇒ **رقمُ الشاردة = رقمُ الصفّ**، ومفتاحُ
+#    `actions/cache` فيه رقمُ الشاردة لا اسمُ القارئ. فحذفُ صفٍّ من **رأس**
+#    القائمة يُزيح كلَّ من تحته **فيخسرون كاشَهم كلَّهم** (‏ساعاتِ عملٍ محفوظة).
+#    ⇒ حين خرج `maroush_qalun` من الخانة **0** وُضع `noah_warsh` مكانَه لأنّه
+#    **جديدٌ لا كاشَ له يخسره**، فبقي harraz على 1 و noah_qalun على 2
+#    و asim على 3 و f_hajry على 4 كما كانوا في الموجة `34662493606`.
+#    (‏وما يستعيده noah_warsh من كاشِ maroush غيرُ ضارّ: مجلّدُ العمل مفصولٌ
+#     باسم القارئ `WORK/batch_{reciter}` فلا يُتلَف ولا يُتخطّى شيء.)
 # ➡️ ونُقل maroush_qalun إلى `reciters_ac256.tsv` (‏حكمُه «مرفوض · خلل بنيوي» —
 #    سبعُ بسملاتٍ مبتلعة و16.4% من 800 حدّ): يُعاد بناؤه بـ`whisper_ac=256`
 #    لأنّ الكاشَ يبطل بتغيير `ac`، وبقاؤه هنا كان يُعيد البصمةَ نفسَها بـac=0.
+noah_warsh	warsh	https://archive.org/download/Al-Quran_Warsh_tilawat_Youssef_Noah/{surah:03d}.mp3	4
 harraz_warsh	warsh	https://server16.mp3quran.net/H-Lharraz/Rewayat-Warsh-A-n-Nafi/{surah:03d}.mp3	4
 noah_qalun	qalun	https://archive.org/download/Al-Quran_Qaloon_tilawat_Yousuf_Nooh_Ahmad/{surah:03d}.mp3	4
 asim	hafs	https://server7.mp3quran.net/asim/Rewayat-Hafs-A-n-Assem/{surah:03d}.mp3	4
 f_hajry	hafs	https://server16.mp3quran.net/f_hajry/Rewayat-Hafs-A-n-Assem/{surah:03d}.mp3	4
-noah_warsh	warsh	https://archive.org/download/Al-Quran_Warsh_tilawat_Youssef_Noah/{surah:03d}.mp3	4
