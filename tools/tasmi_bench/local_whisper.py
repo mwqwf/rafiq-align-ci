@@ -426,7 +426,14 @@ def main():
     if args.limit:
         ids = ids[: args.limit]
 
+    # ⛔ **مفتاحٌ مجهولٌ لا يصير مساراً بصمت** (‏2026-09-12): كان `MODELS.get(k, k)` يمرّر الاسمَ
+    # نفسَه عند الغياب، فمرّ `base-q8` نصّاً إلى `whisper-cli` فردّ «failed to initialize whisper
+    # context» **لكلّ بند** — رسالةٌ تتّهم النموذجَ والعلّةُ مفتاحٌ غيرُ معرَّف. فصار الغيابُ يُسمّى:
+    # اسمٌ ليس في الجدول ولا هو مسارٌ موجود ⇒ خروجٌ صريحٌ يذكر الأسماءَ المتاحة.
     model_path = MODELS.get(args.model, args.model)
+    if args.model not in MODELS and not os.path.exists(str(model_path)):
+        raise SystemExit(f"⛔ نموذجٌ مجهول {args.model!r}: ليس في الجدول ولا هو ملفٌّ موجود. "
+                         f"المتاح: {', '.join(sorted(MODELS))} — أو مسارٌ صريح.")
     suffix = "" if args.frontend == "old" else f"_fe-{args.frontend}"
     if args.bias:
         suffix += f"_bias{args.bias:g}"
