@@ -167,7 +167,7 @@ jobs:
         uses: actions/cache@v4
         with:
           path: whisper-bin
-          key: whisper-cli-${{ runner.os }}-${{ env.WHISPER_REF }}-noNative-v1
+          key: whisper-cli-${{ runner.os }}-${{ env.WHISPER_REF }}-avx2-v1
 
       - name: بناء whisper.cpp (عند غياب الكاش)
         if: steps.whisper-cache.outputs.cache-hit != 'true'
@@ -178,7 +178,15 @@ jobs:
           git fetch -q --depth 1 origin "$WHISPER_REF"
           git checkout -q FETCH_HEAD
           cd "$GITHUB_WORKSPACE"
-          cmake -S wsrc -B wsrc/build -DCMAKE_BUILD_TYPE=Release -DGGML_NATIVE=OFF -DWHISPER_BUILD_TESTS=OFF -DWHISPER_BUILD_EXAMPLES=ON
+          # ⭐⭐ **`GGML_NATIVE=OFF` وحدَه كان يُسقط AVX2/FMA/F16C** — فالثنائي
+          #    يعمل بتعليماتٍ عدديّةٍ بدائيّة على عدّاءٍ يدعمها كلَّها. والحلُّ
+          #    ليس `NATIVE=ON` (يكسر الكاش بين طُرُز العدّائين ويُسقط بـSIGILL)
+          #    بل **تسميةُ المجموعة صراحةً**: كلُّ عدّائي GitHub x86_64 يدعمون
+          #    AVX2/FMA/F16C، و**AVX512 يبقى مطفأً** لأنّه ليس مضموناً فيهم.
+          #    المكسبُ المقيس في هذا المشروع سابقاً **1.79×**، ولا يمسّ حكماً
+          #    ولا عتبة: النموذجُ والأعلامُ والمخرَجُ كما هي حرفاً.
+          #    ⛔ ويبقى ثنائي `audio_qa.yml` على حاله حفظاً لقابلية المقارنة.
+          cmake -S wsrc -B wsrc/build -DCMAKE_BUILD_TYPE=Release             -DGGML_NATIVE=OFF -DGGML_AVX=ON -DGGML_AVX2=ON -DGGML_FMA=ON             -DGGML_F16C=ON -DGGML_AVX512=OFF             -DWHISPER_BUILD_TESTS=OFF -DWHISPER_BUILD_EXAMPLES=ON
           cmake --build wsrc/build --config Release -j"$(nproc)"
           mkdir -p whisper-bin
           cp "$(find wsrc/build -name whisper-cli -type f | head -1)" whisper-bin/whisper-cli
