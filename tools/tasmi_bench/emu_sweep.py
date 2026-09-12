@@ -194,10 +194,12 @@ def run_set(set_name, limit=0, chunk=60, timeout_per_file=90, chain=False):
             missing = []
             for kv in want:
                 k, _, v = kv.partition("=")
-                if k not in flat:
-                    missing.append(kv)
-                elif f"{k}={v}" not in flat and f"={v}" not in flat:
-                    missing.append(f"{kv} (المفتاحُ ظهر والقيمةُ لم تُطابق)")
+                ks = [k] + ([LOG_ALIAS[k]] if k in LOG_ALIAS else [])
+                hit = next((x for x in ks if x in flat), None)
+                if hit is None:
+                    missing.append(f"{kv} (بحثتُ عن {' أو '.join(ks)})")
+                elif f"{hit}={v}" not in flat and f"={v}" not in flat:
+                    missing.append(f"{kv} (المفتاحُ {hit} ظهر والقيمةُ لم تُطابق)")
             if missing:
                 raise SystemExit(f"⛔ المسبارُ لم يُقرّ بإضافات النيّة {missing} — سطرُ RafiqFrontEnd: "
                                  f"{fe.strip().splitlines()[-1] if fe.strip() else 'لا شيء'!r}. "
@@ -234,6 +236,19 @@ def run_set(set_name, limit=0, chunk=60, timeout_per_file=90, chain=False):
 # ورشٍ وقالون بنصّ حفصٍ وبروفايلِه في **160/160 بنداً**، وبدا أنّ «المرآةَ تُقلّل الاتّهامَ 2.09 نقطة»
 # وهو كذبٌ سببُه المرجعُ لا المرآة. فالعلاجُ عندنا: نُقدّم الروايةَ في الاسم المدفوع ونُعيد الخريطة.
 RIWAYAT = ("hafs", "warsh", "qalun", "shuba", "douri", "sousi")
+
+
+# 🏷️ **أسماءُ الإضافات في السجل تختصر** — والحارسُ يطابق بالاسم، فيلزم جدولٌ صريح.
+# ⛔ **ثلاثةُ إنذاراتٍ كاذبةٍ من هذا الحارس في يومٍ واحد**، كلُّها لأنّ اسمَ النيّة ≠ اسمَ الطبع:
+#   `criticalPairs` ⇒ يُطبع `criticalPairsUncertain` (أطول) · ثمّ صار `critical` (أقصر)
+#   `decodeBeam`    ⇒ يُطبع `beam`   ← أوقف شوطَين وقد **أقرّ** المسبارُ بها فعلاً
+#   `decodeGuard`   ⇒ يُطبع `guard`  ·  `guardScope` ⇒ `scope`  ·  `noiseGate` ⇒ `gate`
+# ⇒ فالمطابقةُ بجدولٍ مصرَّحٍ لا بحدسٍ على الاسم، و**أيُّ مفتاحٍ جديدٍ يُضاف هنا مع اسمه المطبوع**.
+# ⚠️ ودرسٌ أعمُّ: حارسٌ يمنع القياسَ الكاذبَ **ثمنُ إنذاره الكاذبِ شوطٌ كامل** ⇒ يُبنى بجدولٍ لا بظنّ.
+LOG_ALIAS = {
+    "decodeGuard": "guard", "decodeBeam": "beam", "guardScope": "scope",
+    "criticalPairs": "critical", "noiseGate": "gate", "frontendV2": "v2", "groupCap": "cap",
+}
 
 
 def probe_name(i):
