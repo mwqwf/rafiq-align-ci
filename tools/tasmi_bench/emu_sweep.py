@@ -205,11 +205,11 @@ def run_set(set_name, limit=0, chunk=60, timeout_per_file=90, chain=False):
             _ES_VERIFIED = True
             print(f"✅ المسبارُ أقرّ بالإضافات: {' · '.join(EXTRA_ES)}", flush=True)
         deadline = time.time() + timeout_per_file * len(batch) + 120
-        seen, last_n, times, judges = {}, -1, {}, {}
+        seen, last_n, times, judges, snrs = {}, -1, {}, {}, {}
         while time.time() < deadline:
             time.sleep(15)
-            log = adb("shell", "logcat", "-d", "-s", "RafiqBatch:*", "RafiqJudge:*").stdout
-            seen = parse_log(log, times, judges, names)
+            log = adb("shell", "logcat", "-d", "-s", "RafiqBatch:*", "RafiqJudge:*", "RafiqSnr:*").stdout
+            seen = parse_log(log, times, judges, names, snrs)
             if "__done__" in log or len(seen) >= len(batch):
                 break
             if len(seen) != last_n:
@@ -218,7 +218,8 @@ def run_set(set_name, limit=0, chunk=60, timeout_per_file=90, chain=False):
         for i in batch:
             t = seen.get(i)
             done[i] = ({"text": t, "rc": 0, **({"ms": times[i]} if i in times else {}),
-                        **({"judge": judges[i]} if i in judges else {})}
+                        **({"judge": judges[i]} if i in judges else {}),
+                        **({"snr": snrs[i]} if i in snrs else {})}
                        if t is not None else {"error": "لم يظهر في السجل"})
         json.dump({"meta": meta, "hyps": done}, open(out, "w", encoding="utf-8"), ensure_ascii=False)
         ok = sum(1 for i in batch if i in seen)
@@ -248,7 +249,7 @@ def probe_name(i):
     return f"{rw}_{mid or 'x'}_{m.group(1)}{m.group(2)}"
 
 
-def parse_log(log, times=None, judges=None, names=None):
+def parse_log(log, times=None, judges=None, names=None, snrs=None):
     """أسطرُ `RafiqBatch` بصيغة `<id>.wav<TAB><text>`.
 
     ⏱️ ومتى أُعطي [times] تُستخرج **أزمنةُ البنود** من طوابع logcat: زمنُ البند = الفارقُ بين سطره والسطر
@@ -260,7 +261,10 @@ def parse_log(log, times=None, judges=None, names=None):
     prev = None
     first = True
     for ln in log.split("\n"):
-        if "RafiqBatch" not in ln and "RafiqJudge" not in ln:
+        # 🔊 **وسمُ `RafiqSnr`** (‏D-329 · أعلمته جلسةُ التطبيق): `snrDb= noisy= block=` لكلّ بند.
+        # يُقيَّد هنا **قبل** وصول بنائه عملاً بقاعدة D-323: كلُّ وسمٍ جديدٍ يُعلَن اسمُه ويُدخَل في
+        # المصفاة، وإلّا سكت عندنا وقرأنا سكوتَه غياباً. و`-s` تُسكت كلَّ وسمٍ غيرِ مذكور.
+        if "RafiqBatch" not in ln and "RafiqJudge" not in ln and "RafiqSnr" not in ln:
             continue
         t = None
         ts = re.match(r"^(\d\d-\d\d \d\d:\d\d:\d\d\.\d+)", ln)
@@ -274,6 +278,12 @@ def parse_log(log, times=None, judges=None, names=None):
         # 🧾 سطرُ **حاكم المحرك** (‏`RafiqJudge`): أحكامُ الكلمات كما حكم بها `RecitationScorer` داخل التطبيق.
         # قيمتُه مزدوجة: يقيس المفاتيحَ التي تمسّ الحاكمَ (لا يراها مسبارُ النصّ)، **ويصدّق مرآتَنا البايثونية**
         # (`scorer.py`) على بنودٍ حقيقيّةٍ من مخرَج المحرك — وكلُّ أرقام اللوحة تستند إلى تلك المرآة.
+        # 🔊 سطرُ نسبةِ الضجيج — يُحمل في `hyps` بحقلٍ مستقلٍّ لتُعايَر به عتبتا D-329 على المحرك.
+        if snrs is not None and "RafiqSnr" in body:
+            j = re.search(r"([A-Za-z0-9_\-.]+)\.wav	(.*)$", body)
+            if j:
+                snrs[(names or {}).get(j.group(1), j.group(1))] = j.group(2).strip()
+            continue
         if judges is not None and "RafiqJudge" in body:
             j = re.search(r"([A-Za-z0-9_\-.]+)\.wav\t(.*)$", body)
             if j:
