@@ -27,7 +27,17 @@ on:
     inputs:
       list:
         description: "القائمةُ التي تُطلق عند وجود فراغ"
-        default: "reciters_qw_new2.tsv"
+        # ⛔⛔ **ولماذا تغيّر الافتراضُ 2026-09-12 (قِيس من الدلو):** كان
+        #    `reciters_qw_new2.tsv`، و**عشرةٌ من خمسةَ عشرَ فيها منشورون سلفاً**
+        #    (`timings/<رواية>/<معرّف>.jz` موجودٌ لكلٍّ منهم). والسلسلةُ تُدلي
+        #    `gh workflow run keepalive.yml` **بلا `-f`** فتأخذ هذا الافتراضَ
+        #    نفسَه في كلّ حلقة ⇒ **موجةٌ من اثنتي عشرةَ شاردةً ثلثاها إعادةُ
+        #    بناءِ منجَز، إلى ما لا نهاية**. (‏موجةُ `34635048337`: بدأت 18:45Z
+        #    وأنتجت خمسَ ساعاتٍ مرشَّحاتٍ لقرّاءٍ منشورين كلِّهم.)
+        #    و`FORCE_REALIGN: "1"` مثبَّتٌ في `align.yml` فحارسُ «منجَزٌ سلفاً»
+        #    لا يسري ⇒ **الحارسُ عند التوليد لا عند التشغيل**، وهو ما يفعله
+        #    هذا الافتراضُ الجديد.
+        default: "reciters_remaining.tsv"
 
 permissions:
   actions: write        # ⛔ لازمةٌ لإدلاء workflow_dispatch من داخل العدّاء
@@ -64,7 +74,10 @@ jobs:
         if: steps.gap.outputs.busy == '0'
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          LIST: ${{ github.event.inputs.list || 'reciters_final11.tsv' }}
+          # ⛔ والجدولةُ (بلا مدخلات) تأخذ القائمةَ نفسَها — فلا يختلف ما
+          #    تُطلقه السلسلةُ عمّا تُطلقه الساعة. (‏كان `reciters_final11.tsv`
+          #    وفيه ثلاثةٌ مقيسون راسبون: `hatem` و`bilal` و`chahboun_warsh`.)
+          LIST: ${{ github.event.inputs.list || 'reciters_remaining.tsv' }}
         run: |
           set -e
           # ⛔ **والقائمةُ تُفحص قبل أن تُطلق**: قائمةٌ غائبةٌ تُنتج موجةً تموت

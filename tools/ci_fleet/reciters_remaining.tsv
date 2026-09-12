@@ -1,0 +1,42 @@
+# reciters_remaining.tsv — **كلُّ ما بقي فعلاً بلا فهرسٍ منشور** (قِيس من الدلو
+# مباشرةً 2026-09-12 00:2xZ: `timings/<رواية>/<معرّف>.jz` لا من ترويسةٍ مكتوبة
+# ولا من كتالوجٍ قد يكون بائتاً).
+#
+# ⛔⛔ **ولماذا وُلد هذا الملفّ:** النبّاضُ السحابيّ كان يُعيد إطلاق
+#    `reciters_qw_new2.tsv` في كلّ حلقة (‏هي القيمةُ الافتراضيةُ لمدخل
+#    `workflow_dispatch`، والسلسلةُ تُدلي بلا `-f` فتأخذ الافتراضَ) — **وعشرةٌ
+#    من خمسةَ عشرَ فيها منشورون سلفاً**. فموجةُ `34635048337` (‏12 شاردة · بدأت
+#    18:45Z · خمسُ ساعات) **ثلثاها إعادةُ بناءِ منجَز**، وهو عينُ ما جاء
+#    `prune_certified.py` يمنعه — إلا أنّ النبّاضَ لا يُشغّله.
+#    ⇒ وهذا الملفُّ افتراضُ النبّاض الجديد، ويُعاد توليدُه عند كلّ اكتمال.
+#
+# ⛔ **والترتيبُ أمرُ المالك:** ورشٌ وقالون أوّلاً · ثم الرواياتُ الصغرى
+#    (‏**وقد اكتملت كلُّها 2026-09-12: دوري 5/5 · شعبة 2/2 · سوسي 1/1**) ·
+#    ثم حفص · ثم القرّاءُ الجدد من `WARSH_QALUN_RECITERS_SURVEY_2026-09-05.md`.
+#
+# ⛔ **ومن أُخرج عمداً — ولا يُعاد إدراجُه بلا قياسٍ جديد:**
+#    - `chahboun_warsh` — مجمَّع **5.2%** بثمانية ملوحٍ (‏و5.8% بأربع) ⇒ رداءةُ
+#      محاذاةٍ حقيقيّةٌ مقيسة، والملحُ لا يرفعها.
+#    - `iraoui_warsh` · `rabbani_warsh` — **ينتظران إذنَ D-186 نصّاً** (‏سورةٌ
+#      غائبةٌ بإعلان: فصّلت · نوح)، وفهرسُهما مبنيٌّ سلفاً فلا يحتاجان موجة.
+#    - `hatem` 7.0% · `bilal` 10.2% · `f_khamery` 16.0% · `shaksh` 5.7% ·
+#      `h_abudalal` 6.5% · `qasm` 5.1% — **قِيسوا ورسبوا** (‏2026-09-08)،
+#      و`ac=256` لا يرفعهم (‏قِيس بتجربتين 2026-09-09).
+#
+# ⛔ ولا يُنقّح هذا الملفّ وموجتُه جارية — `assign_shard.py` يحسب التوزيعَ منه،
+#    فحذفُ صفٍّ يزيح ما بعده.
+
+# ── ورشٌ وقالون: أولويّةُ المالك الأولى (خمسة) ───────────────────────────
+kholti_warsh	warsh	https://archive.org/download/Tilawa.org_002/{surah:03d}.mp3	4
+harraz_warsh	warsh	https://server16.mp3quran.net/H-Lharraz/Rewayat-Warsh-A-n-Nafi/{surah:03d}.mp3	4
+maroush_qalun	qalun	https://archive.org/download/Kamal-Almaroush-Qalon/{surah:03d}.mp3	4
+janaini_qalun	qalun	https://archive.org/download/Al-Quran_Qaloon_tilawat_Aljanaini/{surah:03d}.mp3	4
+noah_qalun	qalun	https://archive.org/download/Al-Quran_Qaloon_tilawat_Yousuf_Nooh_Ahmad/{surah:03d}.mp3	4
+
+# ── حفص: ما بقي قابلاً للتنفيذ (ستة) ─────────────────────────────────────
+h_saleh	hafs	https://server16.mp3quran.net/h_saleh/Rewayat-Hafs-A-n-Assem/{surah:03d}.mp3	4
+saad	hafs	https://server16.mp3quran.net/saad/Rewayat-Hafs-A-n-Assem/{surah:03d}.mp3	4
+asim	hafs	https://server7.mp3quran.net/asim/Rewayat-Hafs-A-n-Assem/{surah:03d}.mp3	4
+f_hajry	hafs	https://server16.mp3quran.net/f_hajry/Rewayat-Hafs-A-n-Assem/{surah:03d}.mp3	4
+mhsny	hafs	https://server11.mp3quran.net/mhsny/{surah:03d}.mp3	4
+h_dukhain	hafs	https://server16.mp3quran.net/h_dukhain/Rewayat-Hafs-A-n-Assem/{surah:03d}.mp3	4
