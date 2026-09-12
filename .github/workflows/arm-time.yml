@@ -1,0 +1,121 @@
+# 🦾 **المعماريةُ نفسُها مجّاناً وبلا جهاز المالك** — عدّاءُ `arm64` من GitHub (متاحٌ للمستودعات العامة).
+#
+# ⛔ **العطبُ الذي وُجدت له** (‏D-334): محاكي العدّاء `x86_64` **لا يُظهر انهيارَ `greedy`** أصلاً (صفرُ بندٍ
+# من ستّين)، وعلى هاتف المالك `arm64` انهار في بندَين من عشرةٍ فبلغ RTF 1.63، ونسبةُ بطءِ الهاتف عن
+# العدّاء تتفجّر إلى ×9.26 في `greedy` وتبقى ×1.3–2.9 في `beam 5`. فسؤالُ «هل يبوّب الحرسُ أسوأَ
+# الحالات؟» كان مفتوحاً بلا أداةٍ بعد أن استُنفد إذنُ الهاتف. وهذا يشغّل **المحرك نفسَه** (`whisper.cpp`
+# بالرايات نفسِها: `-march=armv8.2-a+fp16` · Release · `-O3`) على `arm64` بخيطَين — سياسةُ `WhisperCpuConfig`
+# على جهاز المالك — فيُقاس **السلوك**: أيتفجّر `greedy` على هذه المعمارية أم لا.
+#
+# ⚠️ وحدُّه يُقال معه: لينكس/glibc لا أندرويد/bionic، والمعالجُ غيرُ معالجِه ⇒ **الرقمُ ليس رقمَ جهازه**،
+# والذي يُنقل منه حكمٌ على السلوك لا قيمةٌ مطلقة.
+name: arm-time
+on:
+  workflow_dispatch:
+    inputs:
+      threads:
+        description: "عددُ الخيوط (‏2 = سياسةُ التطبيق على SM-S948B)"
+        required: false
+        default: "2"
+      src:
+        description: "مجلدُ المجموعة تحت work/ (‏g4 طويلٌ نظيف · g4n طويلٌ مضجَّج)"
+        required: false
+        default: "g4"
+      limit:
+        description: "حدُّ البنود (‏0 = الكلّ)"
+        required: false
+        default: "0"
+env:
+  PUB: https://pub-2c2e1dcd92e84a2898820dd38d3e09e6.r2.dev
+  UA: "Mozilla/5.0 (QuranRafiq arm time)"
+  WC: c4ac0012a8f5a2082dfca6aad4ddfd8b2c02b337   # الالتزامُ المثبَّت — نفسُ الذي في third_party
+jobs:
+  t:
+    runs-on: ubuntu-24.04-arm
+    timeout-minutes: 120
+    steps:
+      - uses: actions/checkout@v4
+      - name: r2 creds (من السرّ الواحد R2_CREDENTIALS_JSON)
+        env:
+          R2_CREDENTIALS_JSON: ${{ secrets.R2_CREDENTIALS_JSON }}
+        run: |
+          mkdir -p secure && printf '%s' "$R2_CREDENTIALS_JSON" > secure/r2_credentials.json
+          python3 - <<'PY2'
+          import json, os
+          c = json.load(open("secure/r2_credentials.json"))
+          keys = {"R2_ENDPOINT": c["endpoint"], "R2_ACCESS_KEY_ID": c["accessKeyId"], "R2_SECRET_ACCESS_KEY": c["secretAccessKey"], "R2_BUCKET": c["bucket"]}
+          env = open(os.environ["GITHUB_ENV"], "a")
+          for k, v in keys.items():
+              print("::add-mask::" + v); env.write(k + "=" + v + chr(10))
+          env.close()
+          PY2
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      # 🛡️ حارسٌ: لو لم يكن العدّاءُ arm64 فالشوطُ **باطلٌ** لا ناقص — لا يُقاس عليه شيء.
+      - name: المعمارية
+        run: |
+          uname -m
+          [ "$(uname -m)" = "aarch64" ] || { echo "⛔ العدّاءُ ليس arm64 ⇒ لا يُقاس عليه شيء"; exit 1; }
+          lscpu | grep -iE "model name|^CPU\(s\)|Flags" | head -3 || true
+      - name: العدّة
+        run: |
+          sudo apt-get update -qq && sudo apt-get install -y -qq cmake ninja-build ffmpeg > /dev/null
+          pip install -q numpy soundfile scipy boto3
+      - name: بناءُ whisper-cli برايات التطبيق نفسِها
+        run: |
+          git clone -q --depth 1 https://github.com/ggml-org/whisper.cpp wc && cd wc
+          git fetch -q --depth 1 origin "$WC" && git checkout -q FETCH_HEAD
+          cmake -S . -B b -G Ninja -DCMAKE_BUILD_TYPE=Release -DBUILD_SHARED_LIBS=OFF \
+            -DWHISPER_BUILD_TESTS=OFF -DWHISPER_BUILD_SERVER=OFF -DWHISPER_BUILD_EXAMPLES=ON \
+            -DGGML_NATIVE=OFF -DGGML_OPENMP=OFF \
+            -DCMAKE_C_FLAGS="-march=armv8.2-a+fp16 -O3" -DCMAKE_CXX_FLAGS="-march=armv8.2-a+fp16 -O3" > /dev/null
+          cmake --build b --target whisper-cli -j"$(nproc)" > /dev/null
+          ls -l b/bin/whisper-cli
+      - name: النموذجُ المشحون
+        run: |
+          curl -sSL -f --retry 4 --retry-delay 5 --retry-all-errors -A "$UA" \
+            -o tools/tasmi_bench/work_model.bin "$PUB/models/whisper-tiny-ar-quran/ggml-q8_0.bin"
+          ls -l tools/tasmi_bench/work_model.bin
+      - name: المجموعاتُ (كاشُ بوّابة المحاكي نفسُه — لا يتعلّق بالمعمارية)
+        id: sets
+        uses: actions/cache@v4
+        with:
+          path: tools/tasmi_bench/work/sets.tar
+          key: tasmi-sets-v4-${{ hashFiles('tools/tasmi_bench/sample.json', 'tools/tasmi_bench/inject_plan_riwaya.json', 'tools/tasmi_bench/augment.py', 'tools/tasmi_bench/augment_learner.py', 'tools/tasmi_bench/inject_riwaya_local.py', 'tools/tasmi_bench/build_long.py') }}
+      - name: بناءُ المجموعات إن غاب الكاش
+        if: steps.sets.outputs.cache-hit != 'true'
+        run: |
+          cd tools/tasmi_bench
+          python fetch_audio.py && python build_long.py --ayahs 6
+          python augment.py --src-dir work/g4 --dest-dir work/g4n --only noise-fan-5
+          tar -cf work/sets.tar -C work wav g4 g4n long_plan.json
+      - name: فكُّ المجموعات
+        run: cd tools/tasmi_bench/work && tar -xf sets.tar && rm -f sets.tar && ls -d g4 g4n 2>/dev/null
+      - name: القياس (ذراعان متداخلتان لكلّ بند)
+        env:
+          PYTHONIOENCODING: utf-8
+        run: |
+          cd tools/tasmi_bench
+          python cli_time.py --cli ../../wc/b/bin/whisper-cli --model work_model.bin \
+            --src "work/${{ github.event.inputs.src }}" --plan work/long_plan.json \
+            --threads "${{ github.event.inputs.threads }}" --limit "${{ github.event.inputs.limit }}" \
+            --md "work/arm_${{ github.event.inputs.src }}_t${{ github.event.inputs.threads }}.md" \
+            --json "work/arm_${{ github.event.inputs.src }}_t${{ github.event.inputs.threads }}.json"
+          cat "work/arm_${{ github.event.inputs.src }}_t${{ github.event.inputs.threads }}.md" >> "$GITHUB_STEP_SUMMARY"
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: arm-time-${{ github.event.inputs.src }}-t${{ github.event.inputs.threads }}
+          path: tools/tasmi_bench/work/arm_*.*
+          retention-days: 14
+          if-no-files-found: ignore
+      - name: رفعٌ إلى R2
+        if: always()
+        run: |
+          cd tools/tasmi_bench
+          S="${{ github.event.inputs.src }}"; T="${{ github.event.inputs.threads }}"
+          for f in work/arm_*.md work/arm_*.json; do
+            [ -f "$f" ] && python ../finetune/r2_put.py "$f" "finetune/armtime/$S-t$T/$(basename $f)"
+          done
+          echo "☁️ $PUB/finetune/armtime/$S-t$T/"
