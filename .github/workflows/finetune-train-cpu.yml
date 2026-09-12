@@ -76,10 +76,11 @@ jobs:
           python3 - <<'PY2'
           import json, os
           c = json.load(open("secure/r2_credentials.json"))
-          with open(os.environ["GITHUB_ENV"], "a") as env:
-              for k, v in {"R2_ENDPOINT": c["endpoint"], "R2_ACCESS_KEY_ID": c["accessKeyId"], "R2_SECRET_ACCESS_KEY": c["secretAccessKey"], "R2_BUCKET": c["bucket"]}.items():
-                  print(f"::add-mask::{v}"); env.write(f"{k}={v}
-")
+          keys = {"R2_ENDPOINT": c["endpoint"], "R2_ACCESS_KEY_ID": c["accessKeyId"], "R2_SECRET_ACCESS_KEY": c["secretAccessKey"], "R2_BUCKET": c["bucket"]}
+          env = open(os.environ["GITHUB_ENV"], "a")
+          for k, v in keys.items():
+              print("::add-mask::" + v); env.write(k + "=" + v + chr(10))
+          env.close()
           PY2
       - uses: actions/setup-python@v5
         with:
