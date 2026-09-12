@@ -128,8 +128,21 @@ def run_set(set_name, limit=0, chunk=60, timeout_per_file=90, chain=False):
         batch = todo[start:start + chunk]
         remote = f"{REMOTE}/{tag_of(set_name)}"
         adb("shell", f"rm -rf {remote}; mkdir -p {remote}; chmod 777 {REMOTE} {remote}")
+        # خريطةُ الاسمِ المدفوع ⇒ المعرّف (‏انظر probe_name)
+        names = {}
         for i in batch:
-            adb("push", os.path.join(src, i + ".wav"), f"{remote}/{i}.wav")
+            nm = probe_name(i)
+            if nm in names and names[nm] != i:
+                raise SystemExit(f"⛔ تضاربُ أسماء: {i} و {names[nm]} يُدفعان بـ{nm}")
+            names[nm] = i
+            adb("push", os.path.join(src, i + ".wav"), f"{remote}/{nm}.wav")
+        fixed = sum(1 for nm, i in names.items() if nm != i)
+        if fixed:
+            print(f"    🕋 {fixed} بنداً دُفعت باسمٍ يُقرأ منه الروايةُ صحيحةً (مثال: {next(nm for nm, i in names.items() if nm != i)})", flush=True)
+        unknown = [i for nm, i in names.items() if nm == i and i.split("_")[0] not in RIWAYAT]
+        if unknown:
+            print(f"    ⚠️ {len(unknown)} بنداً لا تُشتقّ روايتُها من الاسم ⇒ حاكمُ المسبار سيسقط إلى حفص "
+                  f"(مثال: {unknown[0]}) — أحكامُه على هذه البنود لا تُحتسب.", flush=True)
         adb("shell", f"chmod 777 {remote}/*.wav")
         adb("shell", "logcat", "-c")
         adb("shell", "am", "force-stop", PKG)
@@ -186,7 +199,7 @@ def run_set(set_name, limit=0, chunk=60, timeout_per_file=90, chain=False):
         while time.time() < deadline:
             time.sleep(15)
             log = adb("shell", "logcat", "-d", "-s", "RafiqBatch:*", "RafiqJudge:*").stdout
-            seen = parse_log(log, times, judges)
+            seen = parse_log(log, times, judges, names)
             if "__done__" in log or len(seen) >= len(batch):
                 break
             if len(seen) != last_n:
@@ -204,7 +217,28 @@ def run_set(set_name, limit=0, chunk=60, timeout_per_file=90, chain=False):
     return done
 
 
-def parse_log(log, times=None, judges=None):
+# 🕋 **اسمٌ يقرأُه حاكمُ المسبار صحيحاً** — درسٌ مدفوع (‏2026-09-12 · D-326):
+# مسبارُ `whisperBatch` يشتقّ الروايةَ من **أوّل مقطعٍ في اسم الملفّ** (`^([a-z]+)_…(\d{3})(\d{3})\.wav$`)
+# فاسمُ بنود الحشو `inj_warsh_omit_084021.wav` يعطيه `inj` ⇒ **يسقط صامتاً إلى حفص**، فقابل تلاوةَ
+# ورشٍ وقالون بنصّ حفصٍ وبروفايلِه في **160/160 بنداً**، وبدا أنّ «المرآةَ تُقلّل الاتّهامَ 2.09 نقطة»
+# وهو كذبٌ سببُه المرجعُ لا المرآة. فالعلاجُ عندنا: نُقدّم الروايةَ في الاسم المدفوع ونُعيد الخريطة.
+RIWAYAT = ("hafs", "warsh", "qalun", "shuba", "douri", "sousi")
+
+
+def probe_name(i):
+    """اسمٌ للملفّ المدفوع يستخرج منه المسبارُ الروايةَ والآيةَ صحيحةً (أو الاسمُ كما هو إن كان سليماً)."""
+    parts = i.split("_")
+    if parts[0] in RIWAYAT:
+        return i
+    rw = next((q for q in parts if q in RIWAYAT), None)
+    m = re.search(r"(\d{3})(\d{3})$", i)
+    if not rw or not m:
+        return i
+    mid = "".join(q for q in parts if q not in RIWAYAT and not q.isdigit())
+    return f"{rw}_{mid or 'x'}_{m.group(1)}{m.group(2)}"
+
+
+def parse_log(log, times=None, judges=None, names=None):
     """أسطرُ `RafiqBatch` بصيغة `<id>.wav<TAB><text>`.
 
     ⏱️ ومتى أُعطي [times] تُستخرج **أزمنةُ البنود** من طوابع logcat: زمنُ البند = الفارقُ بين سطره والسطر
@@ -233,16 +267,17 @@ def parse_log(log, times=None, judges=None):
         if judges is not None and "RafiqJudge" in body:
             j = re.search(r"([A-Za-z0-9_\-.]+)\.wav\t(.*)$", body)
             if j:
-                judges[j.group(1)] = j.group(2).strip()
+                judges[(names or {}).get(j.group(1), j.group(1))] = j.group(2).strip()
             continue
         m = re.search(r"([A-Za-z0-9_\-.]+)\.wav\t(.*)$", body)
         if m:
-            out[m.group(1)] = " ".join(m.group(2).split())
+            key = (names or {}).get(m.group(1), m.group(1))
+            out[key] = " ".join(m.group(2).split())
             if times is not None and t and prev:
                 if first:
                     first = False        # أوّلُ بندٍ يحمل زمنَ تحميل النموذج معه فلا يُحتسب
                 else:
-                    times[m.group(1)] = int((t - prev).total_seconds() * 1000)
+                    times[key] = int((t - prev).total_seconds() * 1000)
             if t:
                 prev = t
         elif body.endswith("done"):

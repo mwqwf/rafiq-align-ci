@@ -19,6 +19,7 @@ import sys
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, HERE)
+import detect_score as D  # noqa: E402
 import score  # noqa: E402
 import scorer  # noqa: E402
 import v2_gate as G  # noqa: E402
@@ -57,6 +58,9 @@ def main():
     ap.add_argument("--arm", default="shipped")
     ap.add_argument("--pattern", default="work/hyps_emu_{tag}_cap_{arm}.json")
     ap.add_argument("--cfg", default="proposed")
+    # ⛔ D-324: مجموعاتُ الحشو (`g3r`) ليست في `sample.json` فكانت الأداةُ تُصفّر وتُخضرّ.
+    # ونصُّ المرجع لها في خطّة الحشو (`refText`) ⇒ تُصدّق منها، وهي **مجموعةُ الاتّهام الكاذب** فلا تُترك.
+    ap.add_argument("--plan", default="", help="خطّةُ الحشو بدل sample.json (فارغٌ = تُشتقّ لمجموعات g3r)")
     a = ap.parse_args()
     G.PATTERN = a.pattern
     G.CMP = (a.arm, a.arm)
@@ -64,9 +68,16 @@ def main():
     with_judge = {k: v for k, v in h.items() if v.get("judge")}
     if not with_judge:
         sys.exit(f"⛔ لا سطرَ `RafiqJudge` في {a.set}/{a.arm} — يلزم APK يُخرجه (م٢-٥)")
-    sample = score.load_sample()
-    items = [it for it in sample["items"] if it["id"] in with_judge]
-    res = score.run(items, h, a.cfg)
+    plan_path = a.plan or ("inject_plan_riwaya.json" if a.set.startswith("g3r") else "")
+    if plan_path:
+        items = [it for it in json.load(open(os.path.join(HERE, plan_path), encoding="utf-8"))["items"]
+                 if it["id"] in with_judge]
+        j = D.judge(items, h)
+        res = [dict(j[it["id"]], ok=True) if it["id"] in j else {"ok": False} for it in items]
+    else:
+        sample = score.load_sample()
+        items = [it for it in sample["items"] if it["id"] in with_judge]
+        res = score.run(items, h, a.cfg)
 
     words = agree = 0
     rw_diff = []
