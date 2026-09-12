@@ -130,6 +130,22 @@ def fetch_index(key, want_sha=None):
         raise RuntimeError(f"البصمة لا تطابق المطلوب: {sha[:16]}… ≠ {want_sha[:16]}…")
     return json.loads(gzip.decompress(raw).decode("utf-8")), sha
 
+# ───────────────────────── سورٌ أُسقطت بإعلان ─────────────────────────
+def declared_drops(idx):
+    """السورُ التي أُسقطت **بإعلانٍ وسبب** في ترويسة التحويل.
+
+    ⛔ تُقرأ في موضعين (‏فحصُ البصمات وفحصُ التغطية) فوُحّدت هنا: نسختان من
+    القراءة تفترقان يوماً، وقد افترقتا فعلاً حين التقط النمطُ **الأولى وحدها**
+    من `drop_surah:93,101,103` (‏D-186)."""
+    tr = idx.get("transform") or {}
+    out = []
+    for _m in re.findall(r"drop_surah:([\d,\s]+)", str(tr.get("op") or "")):
+        out += [int(x) for x in re.findall(r"\d+", _m)]
+    d2 = tr.get("dropSurah") or tr.get("drop_surah")
+    out += [d2] if isinstance(d2, int) else list(d2 or [])
+    return out
+
+
 # ───────────────────────── الفحص البنيوي ─────────────────────────
 def structural(idx, key, allow_unmarked=False, txt_ref=None):
     """كل بند يُرجع نصاً. القائمة الأولى مُوجِبة للحجب، والثانية مرشّحون لا أحكام."""
@@ -177,10 +193,26 @@ def structural(idx, key, allow_unmarked=False, txt_ref=None):
     info["sha"] = len(sha)
     if len(sha) != 114:
         fatal.append(f"بصمات الصوت {len(sha)}/114 — سورٌ بلا برهان تنزيل")
-    empty = sum(1 for s in sha if not s)
+    # ⛔⛔ **وتُستثنى سورةٌ أُسقطت بإعلانٍ ولا مدخلَ لها — بشرطين معاً لا بواحد**
+    #    (2026-09-12، حالةُ `iraoui_warsh` وهي أوّلُ ما واجه الحارسَ من نوعها):
+    #    بصمةُ الصوت **برهانُ تنزيلٍ لما يُخدَم**، وسورةٌ صفرُ مداخلها لا يُخدَم
+    #    منها شيءٌ أصلاً ⇒ بصمتُها لا تشهد على شيءٍ يسمعه أحد.
+    #    **والشرطان:** (١) مُعلَنةٌ في `transform.op=drop_surah:*` (٢) **وصفرُ
+    #    مداخل** في هذا الفهرس عينِه — فلا يكفي الإعلانُ وحدَه، إذ لو أُعفيت
+    #    سورةٌ **حاضرة** بدعوى الإعلان لصار الإعلانُ باباً لشحن صوتِ سورةٍ
+    #    مكانَ أخرى، **وهو بعينه ما وُضع هذا الحارسُ ليمنعه**.
+    #    ⛔ ولولا هذا الاستثناء لاستحال إصلاحُ عطبِ «ملفٌّ واحدٌ لسورتين» البتّة:
+    #    إبقاءُ البصمة يُرفض بـ«مكرّرة» ومحوُها يُرفض بـ«فارغة» — فيبقى القارئُ
+    #    محبوساً أبداً **أو يُنشر وفيه سورةٌ تُقرأ بصوت غيرها**، وذاك ممنوع.
+    _served = {int(e["ayahId"].split(":")[0]) for e in E}
+    _exempt = {s for s in declared_drops(idx) if s not in _served}
+    _live = [x for i, x in enumerate(sha) if (i + 1) not in _exempt]
+    if _exempt:
+        info["shaExempt"] = sorted(_exempt)
+    empty = sum(1 for s in _live if not s)
     if empty:
         fatal.append(f"بصمات فارغة: {empty}")
-    dup = len([x for x in sha if x]) - len(set(x for x in sha if x))
+    dup = len([x for x in _live if x]) - len(set(x for x in _live if x))
     if dup:
         fatal.append(f"بصمات مكرّرة: {dup} — الملف نفسه لسورتين فأكثر (تنزيلٌ مغشوش)")
 
@@ -197,7 +229,7 @@ def structural(idx, key, allow_unmarked=False, txt_ref=None):
         # باباً لإسقاط ما شئنا: «حُذف بقصد» ليست حجّةً على المستهلك.
         tr = idx.get("transform") or {}
         # الصيغة المستعملة: {"op": "drop_surah:24", …}
-        dropped = []
+        dropped = declared_drops(idx)
         op = tr.get("op") or ""
         # ⛔ **إصلاح 2026-09-05 (D-186):** `drop_surah` يكتب السورَ المُسقطة
         #    **قائمةً بفواصل** في تحويلٍ واحد (`drop_surah:93,101,103`)،
@@ -206,10 +238,6 @@ def structural(idx, key, allow_unmarked=False, txt_ref=None):
         #    وقعت على `kurdi.dc2e7534` (‏أُسقطت 93,101,103 فرُدّت بـ[101,103])
         #    و`balilah.66c17c23`. والقاعدةُ قائمةٌ كما هي: الإسقاطُ المعلَن
         #    قرارُ منتَجٍ لا عطبٌ — وإنما كان **القارئُ لا يقرأ ما كُتب**.
-        for _m in re.findall(r"drop_surah:([\d,\s]+)", str(op)):
-            dropped += [int(x) for x in re.findall(r"\d+", _m)]
-        d2 = tr.get("dropSurah") or tr.get("drop_surah")
-        dropped += [d2] if isinstance(d2, int) else list(d2 or [])
         declared = [x for x in miss_s if x in dropped]
         rest = [x for x in miss_s if x not in dropped]
         if declared:
