@@ -16,6 +16,10 @@ on:
         description: "وسمُ المرشَّح (‏يُقرأ نموذجُه من finetune/out_<tag>/ggml-q8_0.bin؛ فارغٌ = المشحونُ وحدَه)"
         required: false
         default: ""
+      cand_url:
+        description: "رابطٌ صريحٌ لنموذج المرشَّح (يغلب المشتقَّ من الوسم — لنماذجَ خارج finetune/out_*)"
+        required: false
+        default: ""
       sets:
         description: "المجموعات (مفصولةٌ بفواصل)"
         required: false
@@ -82,7 +86,10 @@ jobs:
           mkdir -p models
           curl -sSL -f -A "$UA" -o models/shipped.bin "$PUB/models/whisper-tiny-ar-quran/ggml-q8_0.bin"
           if [ -n "${{ github.event.inputs.cand_tag }}" ]; then
-            curl -sSL -f -A "$UA" -o models/cand.bin "$PUB/finetune/out_${{ github.event.inputs.cand_tag }}/ggml-q8_0.bin"
+            CU="${{ github.event.inputs.cand_url }}"
+            [ -z "$CU" ] && CU="$PUB/finetune/out_${{ github.event.inputs.cand_tag }}/ggml-q8_0.bin"
+            echo "⬇️ المرشَّح: $CU"
+            curl -sSL -f -A "$UA" -o models/cand.bin "$CU"
           fi
           curl -sSL -f -A "$UA" -o app.apk "${{ github.event.inputs.apk_url }}"; ls -l models app.apk
       - name: مجموعاتُ القياس (كاشُ tasmi-gate نفسُه)
