@@ -289,6 +289,19 @@ def _collapse_guard(words, cfg):
             for w in words]
 
 
+def _uncertain(ref, hyp, cfg):
+    """⚠️ **شرطُ «غير متبيَّن» الواحد** — مرآةُ `RecitationScorer.nearAny` بشطرَيه:
+    `if (hyp.length < 4) return shortPairUncertain(...)` ثمّ حدُّ التحرير الموسَّع للروايتَين.
+
+    ⛔ **ولماذا دالّةٌ واحدةٌ لا شرطان:** كان الحكمُ يستعمل `_near or _short_pair_uncertain`
+    و**تكلفةُ المحاذاة تستعمل `_near` وحدَها** ⇒ مع `strict_short` صار المحركُ يعدّ زوجاً قصيراً
+    مشكوكاً **رخيصاً (1)** والمرآةُ تعدّه **إبدالاً (2)**، فاختلف مسارُ الـDP، وضخّم حارسُ الانهيار
+    (0.60) الفرقَ فهبط التماثلُ على `g3r` إلى 96.47٪ (‏D-332 §٣). فصار الشرطُ **مصدراً واحداً**:
+    من غيّره غيّر الحكمَ والتكلفةَ معاً، ولا يتفارقان.
+    """
+    return _near(ref, hyp, cfg) or _short_pair_uncertain(ref, hyp, cfg)
+
+
 def _short_pair_uncertain(ref, hyp, cfg):
     """مرآةُ `RecitationScorer.shortPairUncertain`: زوجٌ قصير (‏≤3) بفارق حرفٍ ⇒ شكٌّ لا صحّة."""
     if not cfg.strict_short:
@@ -334,7 +347,7 @@ def score(ref_words, hyp_text, cfg=DEFAULT):
                     back[ni][nj] = (i, j, op)
 
             if i < R and j < H:
-                relax(i + 1, j + 1, 0 if _matches(ref[i], hyp[j], cfg) else (1 if _near(ref[i], hyp[j], cfg) else 2), 0)
+                relax(i + 1, j + 1, 0 if _matches(ref[i], hyp[j], cfg) else (1 if _uncertain(ref[i], hyp[j], cfg) else 2), 0)
             if i < R:
                 relax(i + 1, j, 3, 1)
             if j < H:
@@ -364,7 +377,7 @@ def score(ref_words, hyp_text, cfg=DEFAULT):
             break
         pi, pj, op = b
         if op == 0:
-            words[pi] = (pi, CORRECT if _matches(ref[pi], hyp[pj], cfg) else (UNCERTAIN if (_near(ref[pi], hyp[pj], cfg) or _short_pair_uncertain(ref[pi], hyp[pj], cfg)) else SUBSTITUTED), hyp[pj])
+            words[pi] = (pi, CORRECT if _matches(ref[pi], hyp[pj], cfg) else (UNCERTAIN if _uncertain(ref[pi], hyp[pj], cfg) else SUBSTITUTED), hyp[pj])
         elif op == 1:
             words[pi] = (pi, MISSED, None)
         elif op == 2:
