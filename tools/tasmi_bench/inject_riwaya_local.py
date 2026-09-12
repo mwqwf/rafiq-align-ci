@@ -31,6 +31,11 @@ SR = 16_000
 
 def surah_wav(riwaya, surah, url, ffmpeg):
     """ملفُّ السورة wav 16ك.هز — تنزيلةٌ واحدةٌ في العمر (شبكةُ المالك شحيحة)."""
+    # ⛔ **المجلدُ يُنشأ هنا لا في `main`** (‏2026-09-12): `build_long.py` يستدعي هذه الدالّةَ وحدَها،
+    # فسقط شوطُ `arm-time` كلُّه بـ`FileNotFoundError` على **كلّ** سورةٍ — و`surah_wav` تُمسك الاستثناءَ
+    # وتطبع تحذيراً وتُعيد `None` فبدا العطبُ شبكةً وهو مجلدٌ غائب. ⛔ **أداةٌ لا تكتمل إلّا بخطوةٍ في
+    # مسارٍ آخرَ تسقط في كلّ مسارٍ سواه** — وهو ثالثُ وقوعٍ لهذا الدرس اليومَ.
+    os.makedirs(CACHE, exist_ok=True)
     dst = os.path.join(CACHE, f"{riwaya}_{surah:03d}.wav")
     if os.path.exists(dst):
         return dst
@@ -42,7 +47,8 @@ def surah_wav(riwaya, surah, url, ffmpeg):
                     "-ar", str(SR), "-ac", "1", dst], mp3, dst)
         return dst
     except Exception as e:
-        print(f"  ⚠️ تعذّر {riwaya} س{surah}: {str(e)[:70]}", flush=True)
+        # ⚠️ ونوعُ الاستثناء يُسمّى: «تعذّر» بلا نوعٍ جعلني أقرأ مجلداً غائباً شبكةً شحيحة.
+        print(f"  ⚠️ تعذّر {riwaya} س{surah}: {type(e).__name__}: {str(e)[:70]}", flush=True)
         return None
     finally:
         if os.path.exists(mp3):
