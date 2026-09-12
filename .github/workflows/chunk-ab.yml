@@ -1,0 +1,114 @@
+# 🔪 **تجربةُ عتبة السكوت (‏D-345)** — أتُصلح القطوعُ الصحيحةُ انهيارَ الطويل المضجَّج؟
+#
+# ⛔ **العطبُ المقيس:** في ضجيجِ 5 د.ب يُقطَّع الصوتُ **14 نطقاً بدل 6**، و**53٪ من القطوع تقع داخلَ
+# كلامٍ مسموع** (‏90٪ من الحدود أبعدُ من 200 م.ث عن حدٍّ حقيقيّ) — لأنّ عتبةَ السكوت هامشٌ **ثابتٌ
+# ‎+6 د.ب** فوق الأرضية، والكلامُ نفسُه هناك نحوَ 5 د.ب فوقها. والقاعدةُ المرشَّحة (`prop`) هامشٌ
+# **نسبةٌ من المدى** محصورٌ في [2, 6] ⇒ يضيق حين يضيق المدى، **ومطابقٌ حرفياً في النظيف**.
+#
+# وهذا يقيس **الدقّة** لا عددَ القطوع: مرآةُ `local_whisper.py` بالنموذج q8 نفسِه (‏`whisper-cli`)
+# على المجموعة نفسِها بالقاعدتَين، والحكمُ بـ`score.py`.
+# ⚠️ والمرآةُ **ليست الحَكَم**: إن ربحت القاعدةُ هنا فالخطوةُ التاليةُ تغييرُ `AudioLevelV2.speechFloor`
+# وقياسُه على المحرك في `emu-gate` — ⛔ ولا يُغيَّر المحركُ على رقمِ مرآةٍ وحدَه (‏درسُ D-264: تغييرُ
+# ترتيبِ الكتم والتقطيع كلّف 20.9 نقطة).
+name: chunk-ab
+on:
+  workflow_dispatch:
+    inputs:
+      sets:
+        description: "المجموعات (مفصولةٌ بفواصل) — g4n هي موضعُ العطب"
+        required: false
+        default: "g4n,g4"
+env:
+  PUB: https://pub-2c2e1dcd92e84a2898820dd38d3e09e6.r2.dev
+  UA: "Mozilla/5.0 (QuranRafiq chunk ab)"
+  WC: c4ac0012a8f5a2082dfca6aad4ddfd8b2c02b337
+jobs:
+  ab:
+    runs-on: ubuntu-latest
+    timeout-minutes: 300
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: العدّة
+        run: |
+          sudo apt-get update -qq && sudo apt-get install -y -qq cmake ninja-build ffmpeg > /dev/null
+          pip install -q numpy soundfile scipy boto3
+      - name: whisper-cli (الالتزامُ المثبَّت)
+        run: |
+          git clone -q --depth 1 https://github.com/ggml-org/whisper.cpp wc && cd wc
+          git fetch -q --depth 1 origin "$WC" && git checkout -q FETCH_HEAD
+          cmake -S . -B b -G Ninja -DCMAKE_BUILD_TYPE=Release -DBUILD_SHARED_LIBS=OFF \
+            -DWHISPER_BUILD_TESTS=OFF -DWHISPER_BUILD_SERVER=OFF -DWHISPER_BUILD_EXAMPLES=ON \
+            -DGGML_NATIVE=OFF -DGGML_OPENMP=OFF > /dev/null
+          cmake --build b --target whisper-cli -j"$(nproc)" > /dev/null && ls -l b/bin/whisper-cli
+      - name: النموذجُ المشحون
+        run: |
+          mkdir -p tools/tasmi_bench/work
+          curl -sSL -f --retry 4 --retry-delay 5 --retry-all-errors -A "$UA" \
+            -o tools/tasmi_bench/work/ggml-q8.bin "$PUB/models/whisper-tiny-ar-quran/ggml-q8_0.bin"
+      - name: المجموعاتُ (كاشُ بوّابة المحاكي نفسُه)
+        id: sets
+        uses: actions/cache@v4
+        with:
+          path: tools/tasmi_bench/work/sets.tar
+          key: tasmi-sets-v5-${{ hashFiles('tools/tasmi_bench/sample.json', 'tools/tasmi_bench/inject_plan_riwaya.json', 'tools/tasmi_bench/augment.py', 'tools/tasmi_bench/augment_learner.py', 'tools/tasmi_bench/inject_riwaya_local.py', 'tools/tasmi_bench/build_long.py') }}
+      - name: بناءُ المجموعات إن غاب الكاش
+        if: steps.sets.outputs.cache-hit != 'true'
+        run: |
+          cd tools/tasmi_bench
+          python fetch_audio.py && python build_long.py --ayahs 6
+          python augment.py --src-dir work/g4 --dest-dir work/g4n --only noise-fan-5
+          python augment.py --src-dir work/g4 --dest-dir work/g4n10 --only noise-fan-10
+          python augment.py --src-dir work/g4 --dest-dir work/g4n20 --only noise-fan-20
+          tar -cf work/sets.tar -C work wav g4 g4n g4n10 g4n20 long_plan.json
+      - name: فكُّ المجموعات
+        run: cd tools/tasmi_bench/work && tar -xf sets.tar && rm -f sets.tar && ls -d g4 g4n 2>/dev/null
+      - name: الذراعان (القاعدتان على المجموعة نفسِها)
+        env:
+          PYTHONIOENCODING: utf-8
+        run: |
+          cd tools/tasmi_bench
+          for S in $(echo "${{ github.event.inputs.sets }}" | tr ',' ' '); do
+            for R in v2 prop; do
+              echo "▶ $S · قاعدةُ العتبة $R"
+              python local_whisper.py --set "$S" --model q8 --backend cli \
+                --cli ../../wc/b/bin/whisper-cli --frontend new --floor-rule "$R" | tail -3
+            done
+          done
+          ls -l work/hyps_q8_g4*.json 2>/dev/null | tail -8
+      - name: الحكم
+        env:
+          PYTHONIOENCODING: utf-8
+        run: |
+          cd tools/tasmi_bench
+          python - <<'PYJ' | tee work/chunk_ab.md
+          import glob, json, io, os, sys
+          sys.path.insert(0, ".")
+          import v2_gate as G, score as SC
+          pool = G.pool_items()
+          print("| المجموعة | قاعدةُ العتبة | ن | **دقّة** | مجالُ الثقة | مفقود · مُبدَل · زوائد |")
+          print("|---|---|---:|---:|---:|---:|")
+          for f in sorted(glob.glob("work/hyps_q8_g4*.json")):
+              h = json.load(io.open(f, encoding="utf-8"))
+              h = h.get("hyps", h)
+              items = [it for it in pool if it["id"] in h]
+              if not items:
+                  print(f"| {os.path.basename(f)} | ⛔ بلا مرجع | | | | |"); continue
+              a = SC.aggregate(SC.run(items, h, "proposed"))
+              rule = "**prop** (D-345)" if "floorprop" in f else "v2 (المشحون)"
+              st = os.path.basename(f).replace("hyps_q8_", "").replace("_fe-new", "").replace("_floorprop", "").replace(".json", "")
+              print(f"| `{st}` | {rule} | {a['scored']} | **{a['accuracy']*100:.2f}٪** | "
+                    f"[{a['ci95'][0]*100:.1f}–{a['ci95'][1]*100:.1f}] | {a['missed']} · {a['substituted']} · {a['additions']} |")
+          PYJ
+          { echo "### 🔪 chunk-ab (D-345)"; cat work/chunk_ab.md; } >> "$GITHUB_STEP_SUMMARY"
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: chunk-ab
+          path: |
+            tools/tasmi_bench/work/hyps_q8_g4*.json
+            tools/tasmi_bench/work/chunk_ab.md
+          retention-days: 14
+          if-no-files-found: ignore

@@ -34,6 +34,8 @@ SR = 16_000
 MODELS = {
     # ⬇️ نسخةٌ محلية (‏HF نزّلها مرةً واحدة) — لا نداءَ شبكةٍ في كل تشغيل
     "shipped": os.path.join(ROOT, "tools", "finetune", "work", "shipped"),
+    # 🧱 النموذجُ المكمَّم q8 — **ما يحمله التطبيق بعينه**، لمسار `--backend cli` (بلا HF ولا شبكة).
+    "q8": os.path.join(WORK, "ggml-q8.bin"),
     "base": "tarteel-ai/whisper-base-ar-quran",
     "tuned-v1": os.path.join(ROOT, "tools", "finetune", "work", "best"),
 }
@@ -139,12 +141,14 @@ class Transcriber:
     """
 
     def __init__(self, model_path, device="cpu", frontend="old", threads=4, gate=False,
-                 group_cap=WINDOW_SECONDS * SR, backend="hf", cli=None, lang="en"):
+                 group_cap=WINDOW_SECONDS * SR, backend="hf", cli=None, lang="en", floor_rule="v2"):
         self.backend, self.cli, self.model_path, self.threads, self.lang = backend, cli, model_path, threads, lang
         self.device = device
         self.frontend = frontend
         self.gate = gate
         self.group_cap = group_cap
+        # 🔪 D-345: قاعدةُ عتبة السكوت — `v2` هامشٌ ثابتٌ +6 د.ب (المشحون) · `prop` نسبةٌ من المدى.
+        self.floor_rule = floor_rule
         if backend == "cli":
             # 🧱 **مرآةُ المحرك على CI (‏2026-09-11):** الواجهةُ الأمامية نفسُها (بوّابة · تقطيع · سقف) بايثونياً،
             # والاستدلالُ بـ`whisper-cli` من whisper.cpp بالنموذج q8 **نفسِه** الذي يحمله التطبيق — أقربُ ما يكون
@@ -300,7 +304,8 @@ class Transcriber:
         if self.frontend == "new":
             import frontend as fe
             audio = fe.normalize_v2(raw_audio)
-            floor = fe.speech_floor_v2(audio)
+            floor = (fe.speech_floor_prop(audio) if getattr(self, 'floor_rule', '') == 'prop'
+                     else fe.speech_floor_v2(audio))
         else:
             audio = al_normalize(raw_audio)
             floor = al_speech_floor(audio)
@@ -371,6 +376,12 @@ def main():
     ap.add_argument("--out")
     ap.add_argument("--ids", help="ملفُّ معرّفاتٍ (واحدٌ في السطر) لتقييد المجموعة")
     ap.add_argument("--threads", type=int, default=4)
+    # 🔪 **D-345:** عتبةُ السكوت هامشٌ ثابتٌ ‎+6 د.ب فوق الأرضية، وعند نسبةِ إشارةٍ 5 د.ب يكون
+    # الكلامُ نفسُه نحوَ 5 د.ب فوقها ⇒ تُحسب 54٪ من الإطارات صمتاً فيُقطَّع النطقُ في أثنائه
+    # (‏14 نطقاً بدل 6 · 53٪ من القطوع داخلَ كلام). و`prop` هامشٌ نسبيٌّ يضيق حين يضيق المدى،
+    # **ومطابقٌ حرفياً في النظيف**. يُقاس أثرُه في الدقّة قبل أن يُقترح على المحرك.
+    ap.add_argument("--floor-rule", default="v2", choices=["v2", "prop"],
+                    help="قاعدةُ عتبة السكوت: v2 ثابتٌ +6 (المشحون) · prop نسبةٌ من المدى (D-345)")
     ap.add_argument("--group-cap", type=float, default=float(WINDOW_SECONDS),
                     help="سقفُ طول المجموعة بالثواني (المشحون 25) — D-262")
     ap.add_argument("--gate", action="store_true",
@@ -411,6 +422,8 @@ def main():
         suffix += f"_lam{args.lam:g}k{args.nbest}"
     if args.gate:
         suffix += "_gate"
+    if args.floor_rule != "v2":
+        suffix += f"_floor{args.floor_rule}"
     if args.group_cap != WINDOW_SECONDS:
         suffix += f"_cap{args.group_cap:g}"
     out = args.out or os.path.join(WORK, f"hyps_{args.model}_{tag}{suffix}.json")
@@ -431,7 +444,8 @@ def main():
     print(f"⏳ تحميل {model_path} …", flush=True)
     t0 = time.time()
     tr = Transcriber(model_path, frontend=args.frontend, threads=args.threads, gate=args.gate,
-                     group_cap=int(args.group_cap * SR), backend=args.backend, cli=args.cli, lang=args.lang)
+                     group_cap=int(args.group_cap * SR), backend=args.backend, cli=args.cli, lang=args.lang,
+                     floor_rule=args.floor_rule)
     load_ms = int((time.time() - t0) * 1000)
     meta = {"model": args.model, "modelPath": str(model_path), "set": tag,
             "frontend": args.frontend,
