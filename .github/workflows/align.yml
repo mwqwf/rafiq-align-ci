@@ -299,13 +299,48 @@ jobs:
           echo "VAD_VERSION=$v" >> "$GITHUB_ENV"
           echo "نسخة VAD: $v"
 
+      # ⛔⛔ هويّةُ الكاش **باسمِ القارئ لا برقمِ الخانة** — والعلّةُ مقيسةٌ بثمنها
+      #    ثلاثَ مرّات (‏آخرُها 2026-09-12): الشريحةُ تأخذ `rows[i::shards]`
+      #    ⇒ رقمُ الخانة = رقمُ الصفّ، وكان المفتاحُ يحمل رقمَ الخانة وحدَه.
+      #    فأيُّ تعديلٍ في **رأس** قائمة الموجة (‏ترقيةُ قارئٍ · إخراجُ آخر)
+      #    يُزيح كلَّ من تحته خانةً **فيخسرون كاشَهم كلَّهم** — ساعاتِ عملٍ
+      #    محفوظة. والقياسُ الأخير: موجةٌ ماتت بسقف الست ساعات وفيها
+      #    `asim` 514م.ب و`noah_qalun` 170م.ب، **ولا سبيلَ لإصابة الخانتين معاً**
+      #    بقائمةٍ أقصرَ من سبعة صفوف ⇒ 514م.ب ضاعت اضطراراً.
+      #    ⇒ العلاجُ أن يتبع الكاشُ **مَن يعمل** لا **أين يقع**، فيصير ترتيبُ
+      #    القائمة حرّاً بلا ثمن. والسقوطُ إلى مفتاح الخانة يبقى **الثانيَ في
+      #    `restore-keys`** حتى لا تضيع الكاشاتُ المكتوبةُ بالوصفة القديمة.
+      - name: هويّةُ كاشِ الشريحة (‏باسمِ القارئ)
+        id: ckey
+        env:
+          SHARD: ${{ matrix.shard }}
+          SHARDS: ${{ github.event.inputs.smoke == 'true' && '1' || github.event.inputs.shards }}
+          LIST_FILE: tools/ci_fleet/${{ github.event.inputs.list }}
+        run: |
+          # ⛔ لا يُسقِط هذا العدّاءَ أبداً: كلُّ تعثّرٍ يسقط إلى وسمِ الخانة
+          #    فيلتقطه `restore-keys` الثاني كما كان قبل هذه الخطوة أصلاً.
+          tag="x${SHARD}"
+          ids="$(python3 tools/ci_fleet/assign_shard.py "$LIST_FILE" "$SHARD" "$SHARDS" 2>/dev/null | cut -f1 | sort || true)"
+          if [ -n "$ids" ]; then
+            n="$(printf '%s\n' "$ids" | wc -l | tr -d ' ')"
+            first="$(printf '%s\n' "$ids" | head -1 | tr -cd 'A-Za-z0-9_')"
+            h="$(printf '%s' "$ids" | sha1sum | cut -c1-10)"
+            # ⛔ `if` لا `[ … ] && …`: الثانيةُ تُرجع 1 عند فشل الشرط، و`set -e`
+            #    الضمنيّةُ في خطوات `run` تُسقط العدّاءَ كلَّه على وسمِ كاشٍ لا غير.
+            if [ -n "$first" ]; then tag="${first}.${n}.${h}"; fi
+          fi
+          echo "tag=$tag" >> "$GITHUB_OUTPUT"
+          echo "هويّةُ كاشِ الشريحة $SHARD/$SHARDS ⇐ r$tag"
+          printf '  قرّاؤها: %s\n' "$(printf '%s' "$ids" | tr '\n' ' ')"
+
       - name: استعادة العمل الجزئي
         id: workcache
         uses: actions/cache/restore@v4
         with:
           path: tools/alignment/work
-          key: align-work-ac${{ env.WHISPER_AC }}-vad${{ env.VAD_VERSION }}-${{ matrix.shard }}-${{ github.run_id }}
+          key: align-work-ac${{ env.WHISPER_AC }}-vad${{ env.VAD_VERSION }}-r${{ steps.ckey.outputs.tag }}-${{ github.run_id }}
           restore-keys: |
+            align-work-ac${{ env.WHISPER_AC }}-vad${{ env.VAD_VERSION }}-r${{ steps.ckey.outputs.tag }}-
             align-work-ac${{ env.WHISPER_AC }}-vad${{ env.VAD_VERSION }}-${{ matrix.shard }}-
 
       - name: تشغيل السائق
@@ -343,13 +378,14 @@ jobs:
       # ⛔ الحفظ بـ`if: always()` — وهو مقصد الفصل كله: الشريحة تُقتل غالباً
       #    بسقف الست ساعات لا تنتهي بنجاح، فحفظٌ عند النجاح وحده = لا حفظ أبداً.
       #    ومفتاح الحفظ يحمل رقم التشغيل، و`restore-keys` أعلاه تلتقط أحدث
-      #    كاشٍ لهذه الشريحة بالوصفة نفسها — فيستأنف التالي ما بلغه السابق.
+      #    كاشٍ **لقرّاء هذه الشريحة** بالوصفة نفسها — فيستأنف التالي ما بلغه
+      #    السابق **ولو تغيّرت خانتُه في القائمة** (‏انظر تعليقَ `ckey` أعلاه).
       - name: حفظ العمل الجزئي (ولو قُتلت الشريحة)
         if: always()
         uses: actions/cache/save@v4
         with:
           path: tools/alignment/work
-          key: align-work-ac${{ env.WHISPER_AC }}-vad${{ env.VAD_VERSION }}-${{ matrix.shard }}-${{ github.run_id }}
+          key: align-work-ac${{ env.WHISPER_AC }}-vad${{ env.VAD_VERSION }}-r${{ steps.ckey.outputs.tag }}-${{ github.run_id }}
 
       - name: السجلات مخرَجاً (تُقرأ حتى عند السقوط)
         if: always()
