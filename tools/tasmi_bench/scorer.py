@@ -392,6 +392,7 @@ def score(ref_words, hyp_text, cfg=DEFAULT):
 
     words = [None] * R
     additions = []
+    located = []   # 📍 (نصُّ الزائدة، موضعُها من كلمات المرجع) — مرآةُ `Score.locatedAdditions`
     i, j = R, H
     while i > 0 or j > 0:
         b = back[i][j]
@@ -403,7 +404,10 @@ def score(ref_words, hyp_text, cfg=DEFAULT):
         elif op == 1:
             words[pi] = (pi, MISSED, None)
         elif op == 2:
+            # 📍 **الموضعُ `pi` لا `pj`:** عمليةُ الزيادة لا تُقدّم المرجعَ، فالزائدةُ تُنطق **قبل**
+            # الكلمة المرجعية ذاتِ الفهرس `pi` (و`R` يعني «بعد آخر كلمة»). مرآةُ `RecitationScorer`.
             additions.insert(0, hyp[pj])
+            located.insert(0, (hyp[pj], pi))
         elif op == 3:
             words[pi] = (pi, CORRECT, hyp[pj] + " " + hyp[pj + 1])
         elif op == 4:
@@ -414,5 +418,5 @@ def score(ref_words, hyp_text, cfg=DEFAULT):
         if words[k] is None:
             words[k] = (k, MISSED, None)
     words = _collapse_guard(words, cfg)
-    return {"words": words, "additions": additions,
+    return {"words": words, "additions": additions, "located": located,
             "correct": sum(1 for w in words if w[1] == CORRECT), "total": R}
