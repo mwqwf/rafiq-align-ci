@@ -67,11 +67,17 @@ jobs:
           API="https://api.github.com/repos/${{ github.repository }}/actions/runs/$RUN_ID"
           # ⛔ والحالةُ تُقرأ أوّلاً: سجلُّ شوطٍ لم ينتهِ **ناقصٌ** فلا يُقرأ حكماً.
           curl -fsS -H "Authorization: Bearer $GH_TOKEN" "$API" -o run.json
-          python3 - <<'PY'
+          # ⛔⛔ **ولا heredoc داخلَ كتلةٍ أو قوسَين — بسببٍ مقيسٍ اليومَ:** YAML يُزيل الإزاحةَ
+          # **الأساسَ** وحدَها، فأيُّ إزاحةٍ زائدةٍ تمنع إغلاقَ الـheredoc فيبتلع ما بعده
+          # (‏ومنه توجيهُ الأثر إلى ملفّه) ⇒ سقط شوطان بلا أثرٍ يُقرأ (‏34756599249 · 34756706486
+          # · 34757235622). ⇒ **تُكتب سطورُ بايثون في ملفٍّ مستقلٍّ ثمّ تُقرأ بـ`cat`.**
+          python3 - <<'PY' > head.md
           import json
           d = json.load(open("run.json", encoding="utf-8"))
-          print(f"== الشوط {d['id']} · {d['name']} · {d['status']} · {d.get('conclusion')}")
+          print(f"- الشوطُ المقروء: `{d['name']}` · {d['status']} · **{d.get('conclusion')}**")
+          print(f"- حالتُه عند السحب: `{d['status']}` · خلاصتُه: **{d.get('conclusion')}**")
           PY
+          cat head.md
           curl -fsSL -H "Authorization: Bearer $GH_TOKEN" "$API/logs" -o logs.zip
           mkdir -p logdir && (cd logdir && unzip -o -q ../logs.zip)
           mkdir -p results
@@ -80,11 +86,7 @@ jobs:
             echo "# 🪵 ذيلُ سجلِّ الشوط $RUN_ID"
             echo
             echo "- سُحب في: $(date -u +%FT%TZ) · بالشوط ${{ github.run_id }} · ذيلٌ $TAIL سطراً لكلّ ملفّ"
-            python3 - <<'PY'
-            import json
-            d = json.load(open("run.json", encoding="utf-8"))
-            print(f"- الشوطُ المقروء: `{d['name']}` · {d['status']} · **{d.get('conclusion')}**")
-            PY
+            cat head.md
             echo "- ⛔ هذا **أثرٌ تشخيصيّ** لا قياس: لا رقمَ منه يدخل اللوحة."
             echo
             for f in $(find logdir -name '*.txt' | sort); do

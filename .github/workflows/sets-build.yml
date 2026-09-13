@@ -63,6 +63,22 @@ jobs:
         run: |
           cd tools/tasmi_bench
           mkdir -p work_sets
+          cat > check_sets.py <<'PY'
+          import glob, json, os, sys
+          n_sample = json.load(open("sample.json", encoding="utf-8"))["meta"]["total"]
+          n_wav = len(glob.glob(os.path.join("work", "wav", "*.wav")))
+          n_plan = len(json.load(open("inject_plan_riwaya.json", encoding="utf-8"))["items"])
+          n_g3r = len(glob.glob(os.path.join("work", "g3r", "clean", "*.wav")))
+          print(f"== المقابلة: sample={n_sample} · wav={n_wav} · plan={n_plan} · g3r/clean={n_g3r}")
+          bad = []
+          if n_wav != n_sample:
+              bad.append(f"wav {n_wav} != عيّنة {n_sample}")
+          if n_g3r != n_plan:
+              bad.append(f"g3r/clean {n_g3r} != خطّة {n_plan}")
+          if bad:
+              sys.exit("⛔ نقصٌ في البناء: " + " · ".join(bad))
+          print("✅ كلُّ بندٍ في العيّنة والخطّة له صوتٌ مبنيّ")
+          PY
           (
             python3 -c "import json;d=json.load(open('sample.json',encoding='utf-8'));print('عيّنةٌ:',d['meta']['total'],'بنداً')"
             python fetch_audio.py
@@ -74,22 +90,10 @@ jobs:
               echo "   $d = $n ملفَّ صوت"
             done
             # ⛔ **والعدُّ يُقابَل بالمرجع لا يُقرأ وحدَه:** «wav=0» تُقرأ «بُني» إن لم يُقابَل.
-            python3 - <<'PY'
-            import glob, json, os, sys
-            n_sample = json.load(open("sample.json", encoding="utf-8"))["meta"]["total"]
-            n_wav = len(glob.glob(os.path.join("work", "wav", "*.wav")))
-            n_plan = len(json.load(open("inject_plan_riwaya.json", encoding="utf-8"))["items"])
-            n_g3r = len(glob.glob(os.path.join("work", "g3r", "clean", "*.wav")))
-            print(f"== المقابلة: sample={n_sample} · wav={n_wav} · plan={n_plan} · g3r/clean={n_g3r}")
-            bad = []
-            if n_wav != n_sample:
-                bad.append(f"wav {n_wav} ≠ عيّنة {n_sample}")
-            if n_g3r != n_plan:
-                bad.append(f"g3r/clean {n_g3r} ≠ خطّة {n_plan}")
-            if bad:
-                sys.exit("⛔ نقصٌ في البناء: " + " · ".join(bad))
-            print("✅ كلُّ بندٍ في العيّنة والخطّة له صوتٌ مبنيّ")
-            PY
+            # ⛔⛔ **والمقابلةُ في ملفٍّ لا في heredoc داخلَ القوسَين** (‏بسببٍ مقيسٍ اليومَ:
+            # إزاحةٌ زائدةٌ تمنع إغلاقَ الـheredoc فيبتلع ما بعده — ومنه التوجيهُ إلى ملفّ الأثر —
+            # فسقط شوطان بلا أثرٍ يُقرأ).
+            python3 check_sets.py
           ) > work_sets/log.txt 2>&1
           rc=$?
           tail -40 work_sets/log.txt
@@ -102,11 +106,11 @@ jobs:
           R=$(cat tools/tasmi_bench/work_sets/rc.txt 2>/dev/null || echo 1)
           M="tools/tasmi_bench/work_sets/log.txt"
           [ -s "$M" ] || { echo "⛔ لا أثرَ"; exit 1; }
-          # ⛔⛔ **ولِمَ شجرةٌ منفصلة — بسببٍ مقيسٍ 2026-09-13:** نجح البناءُ (الخطوة 6) **وسقط
-          # الإيداعُ**، ولا سجلَّ يُقرأ (مضيفُ السجلّات محجوبٌ عن الوكيل) ⇒ فُتِّش في البنية:
-          # هذا المسارُ — وحدَه بين مساراتي — **يُشغّل خطَّ الصوت** فيكتب في الشجرة، و`git merge`
-          # يرفض الدمجَ على شجرةٍ فيها تغييراتٌ تُدهَس. ⇒ فيُنشَر من `git worktree` على
-          # `origin/main` نظيفةً، ولا تُلمس شجرةُ البناء بحال.
+          # 🔧 **وتصحيحُ ظنٍّ كتبتُه هنا أوّلاً:** ظننتُ سقوطَ الإيداع من **شجرةٍ وسخةٍ يرفضها
+          # الدمج**، والسببُ المقيسُ بعد قراءة السجلّ بالوكالة **heredoc مُفرِطُ الإزاحة** في
+          # خطوة البناء: لا يُغلق فيبتلع ما بعده **ومنه توجيهُ الأثر إلى ملفّه** ⇒ فلم يوجد أثرٌ
+          # فسقط الإيداعُ بحقّ. ⇒ والنشرُ من `git worktree` يبقى (فهو أنظفُ على كلّ حال)،
+          # **والعلّةُ تُذكر بحقيقتها لا بظنّي الأوّل**.
           echo "== حالُ الشجرة قبل النشر (تُسجَّل كي يُقرأ الفشلُ القادمُ لا يُظنّ):"
           git status --porcelain | head -20
           OUT="results/sets_build_${{ github.run_id }}.md"
