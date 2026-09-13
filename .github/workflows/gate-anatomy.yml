@@ -168,6 +168,15 @@ jobs:
           # ⭐ تُقاس في **كلّ** قراءةٍ لا بطلبٍ خاصّ: ثمنُها ثوانٍ، وهي الرقمُ الذي يقرّر
           # أيُعرَض توطينُ الزوائد للمستخدم أم يحتاج تهدئةً (‏D-366).
           python extras_noise_probe.py --dirs "work:" --arms $ARMS | tee work/extras_noise.md
+      - name: 🤫 تهدئةُ الزوائد — هدوءٌ مقابل إمساك (‏إن توفّرت النظيفةُ والمحقونة)
+        if: env.CLEAN_OK == '1'
+        env:
+          PYTHONIOENCODING: utf-8
+        run: |
+          cd tools/tasmi_bench
+          # ⛔ الذراعُ الأولى وحدَها: القياسُ هنا بين **قواعدِ عرضٍ** لا بين نموذجَين.
+          A=$(echo $ARMS | cut -d' ' -f1)
+          python extras_quiet_ab.py --dirs "work:" --arm "$A" | tee work/extras_quiet.md
       - name: 🎛️ أثرُ قاعدةِ التعادل (‏إن طُلب — مسطرتان على فرضيّاتٍ واحدة)
         if: env.RULE_AB != ''
         env:
@@ -266,6 +275,9 @@ jobs:
             fi
             if [ -s tools/tasmi_bench/work/extras_clean.md ]; then
               cat tools/tasmi_bench/work/extras_clean.md; echo
+            fi
+            if [ -s tools/tasmi_bench/work/extras_quiet.md ]; then
+              cat tools/tasmi_bench/work/extras_quiet.md; echo
             fi
             if [ -s tools/tasmi_bench/work/rule_ab.md ]; then
               # ⛔ **علامتا `` ` `` داخل «...» تنفيذُ أمرٍ لا اقتباسٌ** — فخرج العنوانُ فارغاً في
