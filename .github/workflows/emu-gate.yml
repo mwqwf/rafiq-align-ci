@@ -56,6 +56,22 @@ on:
         description: "لاحقةُ وسم الذراع مع المفاتيح (‏-dg · -cp) كي لا تُكتب ذراعٌ فوق أخرى"
         required: false
         default: ""
+      arm2_tag:
+        description: "🎛️ وسمُ **ذراع المفتاح** (النموذجُ المشحونُ نفسُه بمفاتيحَ أخرى · مثل `noguard`) — فارغٌ = لا ذراعَ ثالثة"
+        required: false
+        default: ""
+      arm2_es:
+        description: "مفاتيحُ ذراع المفتاح النصّيّة `KEY=VAL` بمسافة (‏`guardScope=ALL`)"
+        required: false
+        default: ""
+      arm2_ez:
+        description: "مفاتيحُ ذراع المفتاح المنطقيّة `KEY=BOOL` بمسافة (‏`decodeGuard=false` — والقيمةُ صريحةٌ هنا كي يُطفأ ما هو مشتغلٌ افتراضاً)"
+        required: false
+        default: ""
+      arm2_ei:
+        description: "مفاتيحُ ذراع المفتاح العدديّة `KEY=INT` بمسافة (‏`decodeBeam=3`)"
+        required: false
+        default: ""
   # ⚙️ **وتُستدعى مساراً قابلاً لإعادة الاستعمال** كي يُشعلها `emu-request.yml` من ملفِّ طلبٍ
   # مدفوعٍ — فبيانةُ الوكيل السحابيّ **لا تستطيع الإدلاء** (‏403 مقيس 2026-09-13).
   # ⛔ **والقيمُ الافتراضيّةُ لا تُكرَّر في المستدعي:** ما غاب من الطلب يُمرَّر فارغاً فيأخذ
@@ -113,6 +129,26 @@ on:
         default: ""
       tag_suffix:
         description: "لاحقةُ وسم الذراع مع المفاتيح (‏-dg · -cp) كي لا تُكتب ذراعٌ فوق أخرى"
+        required: false
+        type: string
+        default: ""
+      arm2_tag:
+        description: "🎛️ وسمُ **ذراع المفتاح** (النموذجُ المشحونُ نفسُه بمفاتيحَ أخرى · مثل `noguard`) — فارغٌ = لا ذراعَ ثالثة"
+        required: false
+        type: string
+        default: ""
+      arm2_es:
+        description: "مفاتيحُ ذراع المفتاح النصّيّة `KEY=VAL` بمسافة (‏`guardScope=ALL`)"
+        required: false
+        type: string
+        default: ""
+      arm2_ez:
+        description: "مفاتيحُ ذراع المفتاح المنطقيّة `KEY=BOOL` بمسافة (‏`decodeGuard=false` — والقيمةُ صريحةٌ هنا كي يُطفأ ما هو مشتغلٌ افتراضاً)"
+        required: false
+        type: string
+        default: ""
+      arm2_ei:
+        description: "مفاتيحُ ذراع المفتاح العدديّة `KEY=INT` بمسافة (‏`decodeBeam=3`)"
         required: false
         type: string
         default: ""
@@ -236,6 +272,10 @@ jobs:
           EZ: ${{ inputs.ez }}
           EI: ${{ inputs.ei }}
           TAG_SUFFIX: ${{ inputs.tag_suffix }}
+          ARM2_TAG: ${{ inputs.arm2_tag }}
+          ARM2_ES: ${{ inputs.arm2_es }}
+          ARM2_EZ: ${{ inputs.arm2_ez }}
+          ARM2_EI: ${{ inputs.arm2_ei }}
           CAND_TAG: ${{ inputs.cand_tag }}
           LANGS: ${{ inputs.langs }}
           CHUNK: ${{ inputs.chunk }}
