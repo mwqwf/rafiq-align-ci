@@ -36,6 +36,61 @@ SRC = os.path.normpath(os.path.join(HERE, "..", "..", "..", "QuranRafiq", "tools
 IGNORED_DIRS = {"__pycache__", "work", "requests", "patches", ".pytest_cache"}
 
 
+def classify_callers(callers, wf_dir):
+    """أيُّ أداةٍ من [callers] **يشغّلها مسارٌ** في `wf_dir`؟ ⇒ [(الأداة، ملفُّ المسار)].
+
+    ⛔ **والنداءُ يُعرَف باسم الملفّ كاملاً** (`x.py`) لا بجذره: `riwaya_gate_arms` يذكره
+    `slip_dagger_gate_arm.py` في شرحه — وذلك **ليس تشغيلاً**. والمسارُ وحدَه يُشغّل.
+    """
+    out = []
+    if not os.path.isdir(wf_dir):
+        return out
+    texts = {}
+    for w in sorted(os.listdir(wf_dir)):
+        if not w.endswith((".yml", ".yaml")):
+            continue
+        try:
+            texts[w] = open(os.path.join(wf_dir, w), encoding="utf-8", errors="replace").read()
+        except OSError:
+            continue
+    for c in callers:
+        for w, t in texts.items():
+            if c in t:
+                out.append((c, w))
+                break
+    return out
+
+
+def _selftest():
+    """⛔ حارسُ التصنيف يُختبر قبل أن يُحكم به (‏قاعدةُ المالك) — بحالاتٍ تُعرف أجوبتُها."""
+    import tempfile
+    bad = 0
+    with tempfile.TemporaryDirectory() as td:
+        wf = os.path.join(td, "workflows")
+        os.makedirs(wf)
+        open(os.path.join(wf, "live.yml"), "w", encoding="utf-8").write(
+            "name: x\njobs:\n  a:\n    steps:\n      - run: python tools/tasmi_bench/parity_full.py --x\n")
+        open(os.path.join(wf, "notes.txt"), "w", encoding="utf-8").write("locator_parity.py")
+        cases = [
+            ("أداةٌ يشغّلها مسارٌ ⇒ حيّة", ["parity_full.py"], [("parity_full.py", "live.yml")]),
+            ("أداةٌ لا يشغّلها مسارٌ ⇒ نائمة", ["locator_parity.py"], []),
+            ("⛔ وذِكرُها في ملفٍّ ليس مساراً (‏txt) لا يجعلها حيّة", ["locator_parity.py"], []),
+            ("وقائمةٌ فارغةٌ لا تُخرج شيئاً", [], []),
+        ]
+        for name, callers, want in cases:
+            got = classify_callers(callers, wf)
+            ok = got == want
+            print(f"  {'✅' if ok else '⛔'} {name}: {got} · المتوقَّع {want}")
+            bad += 0 if ok else 1
+        # ⛔ ومجلدُ مساراتٍ غائبٌ يُعيد فراغاً ولا يرمي (‏تُشغَّل الأداةُ من الأصل أيضاً).
+        got = classify_callers(["parity_full.py"], os.path.join(td, "لا-وجود"))
+        ok = got == []
+        print(f"  {'✅' if ok else '⛔'} مجلدُ مساراتٍ غائبٌ ⇒ فراغٌ لا استثناء: {got}")
+        bad += 0 if ok else 1
+    print("✅ التصنيفُ سليمٌ على حالاته" if not bad else f"⛔ التصنيفُ نفسُه معطوبٌ في {bad} حالة")
+    return 1 if bad else 0
+
+
 def check_pair(HERE, src, sync, label):
     """يفحص مجلدَ مرآةٍ واحداً ضدّ أصله ويطبع، ويُعيد عددَ الانحرافات الباقية بعد العلاج.
 
@@ -120,13 +175,28 @@ def check_pair(HERE, src, sync, label):
                 continue
         if callers:
             danger.append((d, callers))
+    # ⛔⛔ **وخامسةٌ — الحارسُ كان يُنذر بما لا يعرف** (‏قِيس 2026-09-13 ‏22:3xZ): قال «أيُّ مسارٍ
+    # يشغّلها يسقط» **ولم يسأل: أفي المرآة مسارٌ يشغّلها أصلاً؟** فأنفقتُ نداءاتٍ أُجيبُ سؤالاً
+    # كان الحارسُ أقدرَ على جوابه: **صفرُ مسارٍ** في `.github/workflows/` ينادي أيّاً من العشرة.
+    # ⇒ صار يفصّل: **نائمٌ** (لا مسارَ يشغّلها ⇒ ملاحظةٌ لا إنذار) أو **حيٌّ** (مسارٌ يناديها
+    # ⇒ عطبٌ يُوقف الحارسَ بـ1). ⭐ **وحارسٌ يُنذر بما لا يقيسه يُعلّم قارئَه تجاهلَه.**
+    live_any = []
     for d, callers in danger:
+        live = classify_callers(callers, os.path.join(os.path.dirname(os.path.dirname(HERE)), ".github", "workflows"))
         print(f"⛔ **مجلدُ `{d}/` في الأصل ولا وجودَ له في المرآة، و{len(callers)} أداةً هنا "
-              f"تناديه** ⇒ أيُّ مسارٍ يشغّلها يسقط بـ«لا ملفّ»: " + " · ".join(callers[:6])
-              + (" …" if len(callers) > 6 else ""))
+              f"تناديه**: " + " · ".join(callers[:6]) + (" …" if len(callers) > 6 else ""))
+        if live:
+            live_any += [f"{d}/ ⇐ {c} (‏في {w})" for c, w in live]
+            print("   ⛔⛔ **ومسارٌ حيٌّ يناديها فيسقط بـ«لا ملفّ»**: "
+                  + " · ".join(f"{c} في {w}" for c, w in live))
+        else:
+            print("   ℹ️ **نائمٌ**: لا مسارَ في `.github/workflows/` يشغّل واحدةً منها "
+                  "⇒ الغيابُ لا يُسقط شوطاً اليومَ (‏وتُشغَّل من الأصل حيث المجلدُ موجود).")
     if danger:
         print("⭐ **وليس علاجُه نسخاً**: قد يكون الغيابُ مقصوداً (‏مصدرُ محرّكٍ لا يُنشر في "
               "مستودعٍ عامّ) ⇒ فإمّا أن يُمرأى بقرارٍ صريح، وإمّا **ألّا يُنادى من المرآة**.")
+    # ⛔ ولا يُدسّ الحيُّ في قائمة `drift`: تلك أسماءُ ملفّاتٍ يَنسخها `--sync`، ونسخُ مجلدِ
+    #    محرّكٍ إلى مستودعٍ عامّ **نشرٌ** ⇒ يُحسب عطباً يُوقف الحارسَ، ولا يُعالَج بنسخ.
 
     if missing:
         # ⚠️ ملفٌّ هنا وليس في الأصل: **ليس انحرافاً** بالضرورة (قد يكون أداةَ مسارٍ خاصّةً
@@ -136,6 +206,10 @@ def check_pair(HERE, src, sync, label):
         # ⛔ ولا تُقال «✅» مجرّدةً وفوقَها تنبيهٌ — فالعينُ تقرأ آخرَ سطرٍ وتمضي.
         print("✅ لا انحرافَ في الملفّات: كلُّ ملفٍّ له أصلٌ مطابقٌ بايتاً ببايت."
               + (" ⚠️ **لكن فوقَه ما يُنظر فيه.**" if danger else ""))
+        if live_any:
+            print("⛔ **ومع ذلك يخرج بـ1**: مسارٌ حيٌّ ينادي أداةً على مجلدٍ غائبٍ ⇒ "
+                  + " · ".join(live_any))
+            return 1
         return 0
     print("⛔ **انحرافُ مرآة** في " + str(len(drift)) + " ملفّاً:")
     for f in drift:
@@ -154,7 +228,10 @@ def main():
     ap.add_argument("--src", default=SRC, help="أصلُ tasmi_bench (‏وأخواتُه تُشتقّ منه)")
     ap.add_argument("--sync", action="store_true", help="انسخ الأصلَ فوق المرآة (لا يحذف ولا يضيف)")
     ap.add_argument("--only", default="", help="اسمُ مجلدٍ مُمرأًى واحدٍ يُفحَص وحدَه (‏للاختبار)")
+    ap.add_argument("--selftest", action="store_true", help="يختبر تصنيفَ «حيٌّ أم نائم» على حالاتٍ معلومة")
     a = ap.parse_args()
+    if a.selftest:
+        return _selftest()
     # 🪞 **كلُّ مجلدٍ مُمرأًى يُفحَص** — والقائمةُ هنا **مصدرٌ واحدٌ للحقيقة**: ما يُضاف إلى
     # المرآة يُضاف إليها، ⛔ **وإلّا فانحرافُه لا يراه أحدٌ حتى يُعطي رقماً خاطئاً**.
     pairs = [("tasmi_bench", os.path.dirname(os.path.abspath(__file__)), a.src)]
