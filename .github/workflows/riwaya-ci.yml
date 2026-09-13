@@ -70,36 +70,53 @@ jobs:
           PY
           cat "$GITHUB_ENV"
 
-      - name: تنزيلُ الفرضيّات من R2 العامّ (‏بلا مفتاح)
-        run: |
-          cd tools/tasmi_bench && mkdir -p work_riwaya && rm -f work_riwaya/*.json
-          n=0
-          for s in $SETS; do
-            for a in $ARMS; do
-              f="hyps_emu_${s}_cap_${a}.json"
-              u="$PUB/finetune/gate/$TAG/emu_$f"
-              if curl -fsS --retry 3 -o "work_riwaya/$f" "$u"; then
-                echo "✅ $f ($(wc -c < "work_riwaya/$f") بايتاً)"; n=$((n+1))
-              else
-                echo "⛔ غائبٌ: $u"
-              fi
-            done
-          done
-          # ⛔ ذراعٌ واحدةٌ لا تُقارن: الفرقُ بين ذراعَين على البنود عينِها.
-          [ "$n" -ge 2 ] || { echo "⛔ $n ملفاً فقط — والمقارنةُ تحتاج ذراعَين"; exit 1; }
-
-      - name: القياسُ روايةً روايةً بمجالها
+      # ⛔⛔ **خطوةٌ واحدةٌ تُلتقط كلُّها — بسببٍ مقيسٍ 2026-09-13:** سقط أوّلُ شوطٍ لهذا المسار
+      # (`34749355866`) **ولم يُعرَف سببُه**: مضيفُ سجلّات الأشغال
+      # (`results-receiver.actions.githubusercontent.com`) **محجوبٌ عن صندوق الوكيل** (403 عند
+      # الوسيط · مقيس) ⇒ فشلٌ بلا سجلٍّ مقروءٍ **يُقرأ ظنّاً**. ⭐ **فمن حُجب عنه السجلُّ فليُودع
+      # الأثرَ ملفّاً**: يُجمع التنزيلُ والقياسُ في خطوةٍ تُسجّل كلَّ شيءٍ في `log.txt`، ويُودَع
+      # الملفُّ **ولو فشل الشوط** (`if: always()`) ثمّ يُرَدُّ رمزُ الخطأ كي يبقى أحمرَ صادقاً.
+      - name: التنزيلُ والقياسُ — والأثرُ يُسجَّل كلُّه
+        id: measure
+        continue-on-error: true
         env:
           PYTHONIOENCODING: utf-8
         run: |
           cd tools/tasmi_bench
-          python riwaya_acc_ci.py --work work_riwaya --arms $ARMS --sets $SETS | tee work_riwaya/riwaya.md
-          { echo "### 🕌 دقّةُ التتبّع بالرواية (‏$TAG)"; cat work_riwaya/riwaya.md; } >> "$GITHUB_STEP_SUMMARY"
+          mkdir -p work_riwaya && rm -f work_riwaya/*.json
+          # ⛔ **بقوسَين لا بقوسَي كتلة:** `{ … }` ليست صدفةً فرعيّةً فـ`exit` فيها يقتل الخطوةَ
+          # كلَّها قبل `cat` و`RC=` ⇒ يعود الفشلُ صامتاً كما كان. و`( … )` تُنهي الفرعَ وحدَه.
+          (
+            echo "== الطلب: TAG=$TAG · ARMS=$ARMS · SETS=$SETS"
+            n=0
+            for s in $SETS; do
+              for a in $ARMS; do
+                f="hyps_emu_${s}_cap_${a}.json"
+                u="$PUB/finetune/gate/$TAG/emu_$f"
+                if curl -fsS --retry 3 -o "work_riwaya/$f" "$u"; then
+                  echo "✅ $f ($(wc -c < "work_riwaya/$f") بايتاً)"; n=$((n+1))
+                else
+                  echo "⛔ غائبٌ: $u"
+                fi
+              done
+            done
+            echo "== نُزّل $n ملفاً"
+            if [ "$n" -lt 2 ]; then
+              echo "⛔ المقارنةُ تحتاج ذراعَين على البنود عينِها"; exit 1
+            fi
+            echo "== القياس:"
+            python riwaya_acc_ci.py --work work_riwaya --arms $ARMS --sets $SETS
+          ) > work_riwaya/log.txt 2>&1
+          rc=$?
+          cat work_riwaya/log.txt
+          echo "RC=$rc" >> "$GITHUB_ENV"
+          exit "$rc"
 
-      - name: إيداعُ الجدول
+      - name: إيداعُ الأثر — ناجحاً كان أو فاشلاً
+        if: always()
         run: |
-          M="tools/tasmi_bench/work_riwaya/riwaya.md"
-          [ -s "$M" ] || { echo "⛔ لا جدولَ — لا شيءَ يُودَع"; exit 1; }
+          M="tools/tasmi_bench/work_riwaya/log.txt"
+          [ -s "$M" ] || { echo "⛔ لا أثرَ أصلاً — سقط الشوطُ قبل الخطوة"; exit 1; }
           mkdir -p results
           OUT="results/riwaya_ci_${TAG}_${{ github.run_id }}.md"
           {
@@ -107,6 +124,7 @@ jobs:
             echo
             echo "- التاريخ: $(date -u +%FT%TZ) · الذراعان: \`$ARMS\` · المجموعات: \`$SETS\` · الزناد: \`${{ github.event_name }}\`"
             echo "- المصدر: فرضيّاتُ الشوط من \`finetune/gate/${TAG}/\` على R2 — **قراءةٌ لا قياسٌ جديد**"
+            echo "- رمزُ الخروج: \`${RC:-؟}\` — وما دونَ الصفر فشلٌ، والأثرُ أدناه كما هو"
             echo
             cat "$M"
           } > "$OUT"
@@ -114,9 +132,16 @@ jobs:
           git config user.name "rafiq-ci"
           git config user.email "ci@users.noreply.github.com"
           git add "$OUT" results/LATEST_riwaya_ci.md
-          git commit -q -m "results(riwaya-ci): ${TAG} · الشوط ${{ github.run_id }}" || { echo "لا تغيير"; exit 0; }
+          git commit -q -m "results(riwaya-ci): ${TAG} · الشوط ${{ github.run_id }} · rc=${RC:-؟}" || { echo "لا تغيير"; exit 0; }
           for i in 1 2 3; do
             git fetch -q origin main && git merge -q --no-edit origin/main && git push -q origin HEAD:main && { echo "✅ أُودع $OUT"; exit 0; }
             echo "↻ محاولةٌ $i"; sleep 5
           done
           echo "⛔ تعذّر الدفع"; exit 1
+
+      # ⛔ **ولا يُقرأ أخضرُ على فشل:** الأثرُ أُودع، ثمّ يُرَدُّ رمزُ الخطأ.
+      - name: ردُّ حكم القياس
+        if: always()
+        run: |
+          [ "${RC:-1}" = "0" ] || { echo "⛔ سقط القياسُ برمزٍ ${RC:-؟} — والأثرُ مودَعٌ في results/"; exit 1; }
+          echo "✅ القياسُ تمّ"
