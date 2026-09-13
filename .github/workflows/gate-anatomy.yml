@@ -311,6 +311,42 @@ jobs:
           print("\n⚠️ **والفرقُ يُقرأ بمجاله لا بمقداره** — ومجالٌ يعبر الصفرَ «لا يُعتدّ به» "
                 "لا «لا فرق»، ومجالٌ صفريُّ العرض **إعلانُ أنّ الذراعَين متطابقتان** (D-380).")
           PY
+      - name: 🛡️ حارسُ «ذراعان متطابقتان» — على **النصّ** لا على المجال
+        env:
+          PYTHONIOENCODING: utf-8
+        run: |
+          cd tools/tasmi_bench
+          # ⭐ **لِمَ أُضيف (‏2026-09-13):** قراءةُ `shipped-Ncap25` جاءت **+0.00 بمجالٍ صفريِّ
+          # العرض** — وهي بلغةِ D-380 «إعلانُ أنّ الذراعَين متطابقتان» لا نتيجةَ قياس. لكنّ
+          # ذلك **استنتاجٌ من الأرقام**، والحقيقةُ في النصّ نفسِه ⇒ يُقارَن بنداً بنداً فيُقال
+          # **تطابقٌ محقَّقٌ** أو **فرقٌ حقيقيّ**. ⛔ ولا يُسقط الشوطَ: التطابقُ **نتيجةٌ تُكتب**
+          # (مفتاحٌ لم ينعقد) لا عطبٌ يُخفى. (‏ونظيرُه في `ci_emu_run.sh` يمنع كتابةَ رقمٍ كاذبٍ
+          # قبل أن يُولد؛ وهذا يمنع **قراءتَه** بعد أن وُلد.)
+          python3 - <<'PY' | tee work/identical.md
+          import glob, json, os
+          arms = os.environ["ARMS"].split()
+          rows = []
+          for f in sorted(glob.glob(f"work/hyps_emu_*_{arms[0]}.json")):
+              st = os.path.basename(f)[len("hyps_emu_"):-len(f"_{arms[0]}.json")]
+              g = [x for x in glob.glob(f"work/hyps_emu_*_{arms[1]}.json")
+                   if os.path.basename(x).split("_")[2] == st.split("_")[0]]
+              if not g:
+                  continue
+              a = (json.load(open(f, encoding="utf-8")) or {}).get("hyps", {})
+              b = (json.load(open(g[0], encoding="utf-8")) or {}).get("hyps", {})
+              ids = sorted(set(a) & set(b))
+              same = sum(1 for i in ids if (a[i] or {}).get("text") == (b[i] or {}).get("text"))
+              rows.append((st.split("_")[0], len(ids), same))
+          if rows:
+              print("| المجموعة | بنودٌ مشتركة | **نصٌّ متطابقٌ حرفاً** | الحكم |")
+              print("|---|---:|---:|---|")
+              for st, n, same in rows:
+                  v = ("⛔⛔ **الذراعان نسختان** — المفتاحُ لم ينعقد" if n and same == n
+                       else ("⚠️ تطابقٌ جزئيّ" if same else "✅ فرقٌ حقيقيٌّ في النصّ"))
+                  print(f"| `{st}` | {n} | {same} | {v} |")
+              print("\n⭐ **وهذا يُقرأ قبل أيّ فرق:** صفرٌ بمجالٍ صفريِّ العرض ليس «لا أثرَ "
+                    "للمفتاح» بل **«لم تقع التجربةُ»** (D-380) — والتمييزُ بينهما في النصّ لا في المجال.")
+          PY
       - name: التشريحُ صنفاً صنفاً
         env:
           PYTHONIOENCODING: utf-8
@@ -472,7 +508,7 @@ jobs:
           #     التشريحُ الفارغُ فيُكتب سببُه في الملفّ ولا يُسقط الشوط.
           [ -s "$M" ] || echo "⚠️ لا تشريحَ حقنٍ لهذه المجموعات (‏مجموعاتُ \`g4*\` تلاوةٌ طويلةٌ غيرُ محقونة) — والأرقامُ في الجداول أعلاه." > "$M"
           HAVE=0
-          for f in work/track.md work/gate.md work/provenance.md work/anatomy.md; do
+          for f in work/track.md work/gate.md work/provenance.md work/anatomy.md work/identical.md; do
             [ -s "tools/tasmi_bench/$f" ] && HAVE=1
           done
           [ "$HAVE" = "1" ] || { echo "⛔ لا جدولَ فيه مضمونٌ — لا شيءَ يُودَع"; exit 1; }
@@ -496,6 +532,11 @@ jobs:
             # `--pattern`** فتقول «المحرك (المحاكي)» — والنسبُ الصادقُ في الجدول أعلاه لا فيها.
             cat tools/tasmi_bench/work/gate.md
             echo
+            if [ -s tools/tasmi_bench/work/identical.md ]; then
+              echo "## 🛡️ حارسُ «ذراعان متطابقتان» (‏على النصّ لا على المجال)"
+              echo
+              cat tools/tasmi_bench/work/identical.md; echo
+            fi
             if [ -s tools/tasmi_bench/work/track.md ]; then
               echo "## 📏 دقّةُ التتبّع على المجموعات المطلوبة (‏بالمسطرة نفسِها التي يحكم بها الشوط)"
               echo
