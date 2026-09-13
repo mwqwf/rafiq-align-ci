@@ -1,0 +1,150 @@
+# 🧩🕌 **توسيعُ عيّنةِ التتبّع (`sample.json`) توسيعاً فائقاً** — بفحصِ صوتٍ قبل الكتابة.
+#
+# ⛔ **لِمَ وُجد — بسببٍ مقيسٍ** (‏D-423): `warsh` منفرداً **لا يُحسم** بـ71 بنداً
+# (‎−0.57 [‎−3.10 .. +1.74])، وعلاجُ ذلك عيّنةُ **تتبّعٍ** أكبر ⛔ **لا تليينَ حكمٍ ولا عتبة**.
+# وسقفُ عيّنةِ **الحقن** (256 في جزء 30) لا يخصّ هذه — فمسبحُ التتبّع القرآنُ كلُّه.
+#
+# ⛔⛔ **والتوسيعُ فائقٌ شرطاً:** رفعُ الحصّة وحدَه **يزحزح البنودَ القائمة** فتفقد كلُّ أرقام
+# `g1`/`g2` في اللوحة مقارنتَها بما قبلها (‏قِيس في نظيرتها: 32 بنداً من 40 تسقط) ⇒ `--extend`.
+# ⛔ **وفحصُ الصوت في العدّاء لا في صندوق الوكيل:** R2 محجوبٌ هناك (‏403 مقيس) فيردّ الغيابَ
+# كاذباً — وقد جُرّب فردَّ 69 غياباً كلُّها من الحجب.
+#
+# 🔑 **وزنادُه الإيداعُ:** يُدفع `tools/tasmi_bench/requests/sample.json` ‏(`quota` · `extend`).
+# ⚖️ وثمنُه دقيقةٌ أو دقيقتان: لا محاكيَ ولا نموذج — فحصُ روابطَ وكتابةُ ملفّ.
+name: sample-extend
+
+on:
+  workflow_dispatch:
+    inputs:
+      quota:
+        description: "حصصٌ تُبدّل الافتراض (مثال: warsh=140,qalun=120)"
+        required: true
+      extend:
+        description: "توسيعٌ فائقٌ فوق العيّنة القائمة (‏true المقيس)"
+        required: false
+        default: "true"
+  push:
+    paths:
+      - "tools/tasmi_bench/requests/sample.json"
+
+permissions:
+  contents: write
+
+jobs:
+  extend:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: الطلبُ — من الإدلاء أو من الملفِّ المدفوع
+        env:
+          I_QUOTA: ${{ github.event.inputs.quota }}
+          I_EXTEND: ${{ github.event.inputs.extend }}
+        run: |
+          python3 - <<'PY' >> "$GITHUB_ENV"
+          import json, os, sys
+          req = {}
+          p = "tools/tasmi_bench/requests/sample.json"
+          if os.path.exists(p):
+              req = json.load(open(p, encoding="utf-8"))
+          def pick(k, d=""):
+              v = (os.environ.get("I_" + k.upper()) or "").strip()
+              return v or str(req.get(k) or "").strip() or d
+          q = pick("quota")
+          # ⛔ الطلبُ بلا حصّةٍ يسقط هنا لا بعد فحصِ شبكة: «لا تغيير» تُقرأ عطباً وهي طلبٌ فارغ.
+          if not q or "=" not in q:
+              sys.exit(f"⛔ طلبٌ ناقص: quota={q!r} — مثالُه warsh=140")
+          print(f"QUOTA={q}")
+          print("EXTEND=%s" % ("1" if pick("extend", "true").lower() not in ("0", "false", "no") else "0"))
+          PY
+          cat "$GITHUB_ENV"
+
+      - name: التوسيعُ وفحصُ الصوت — والأثرُ يُسجَّل كلُّه
+        id: build
+        continue-on-error: true
+        env:
+          PYTHONIOENCODING: utf-8
+        run: |
+          cd tools/tasmi_bench
+          mkdir -p work_sample
+          cp sample.json work_sample/before.json
+          (
+            ARGS="--quota $QUOTA --out work_sample/after.json --verify-audio"
+            if [ "$EXTEND" = "1" ]; then ARGS="$ARGS --extend work_sample/before.json"; fi
+            echo "== python sample.py $ARGS"
+            python sample.py $ARGS
+          ) > work_sample/log.txt 2>&1
+          rc=$?
+          cat work_sample/log.txt
+          # ⛔ الرمزُ في ملفٍّ داخلَ مجلّد الخطوة (‏درسُ «rc=؟» مرّتين: GITHUB_ENV لا يُقرأ من
+          # خطوةٍ ساقطة، والمسارُ يُكتب نسبةً إلى مجلّد الخطوة لا إلى الجذر).
+          echo "$rc" > work_sample/rc.txt
+          exit "$rc"
+
+      - name: ⛔ حارسُ التوسيع الفائق — قبل الإيداع لا بعده
+        if: always()
+        run: |
+          R=$(cat tools/tasmi_bench/work_sample/rc.txt 2>/dev/null || echo 1)
+          [ "$R" = "0" ] || { echo "ℹ️ سقط البناءُ برمزٍ $R — لا حارسَ يُشغَّل ولا عيّنةَ تُودَع"; exit 0; }
+          python3 - <<'PY'
+          import json, sys
+          a = json.load(open("tools/tasmi_bench/work_sample/before.json", encoding="utf-8"))["items"]
+          b = json.load(open("tools/tasmi_bench/work_sample/after.json", encoding="utf-8"))["items"]
+          if b[:len(a)] != a:
+              sys.exit("⛔ التوسيعُ ليس فائقاً — بندٌ قائمٌ تغيّر ⇒ لا تُودَع العيّنة")
+          old = {(i["riwaya"], i["globalIndex"]) for i in a}
+          new = [(i["riwaya"], i["globalIndex"]) for i in b[len(a):]]
+          if set(new) & old or len(set(new)) != len(new):
+              sys.exit("⛔ آيةٌ مشتركةٌ أو مكرَّرةٌ في الجديد ⇒ لا تُودَع العيّنة")
+          ids = [i["id"] for i in b]
+          if len(set(ids)) != len(ids):
+              sys.exit("⛔ معرّفٌ مكرَّرٌ ⇒ لا تُودَع العيّنة")
+          print(f"✅ فائقٌ: {len(a)} ⇒ {len(b)} بنداً · جديدٌ {len(new)}")
+          PY
+
+      - name: إيداعُ العيّنة والأثر
+        if: always()
+        run: |
+          R=$(cat tools/tasmi_bench/work_sample/rc.txt 2>/dev/null || echo 1)
+          M="tools/tasmi_bench/work_sample/log.txt"
+          [ -s "$M" ] || { echo "⛔ لا أثرَ — سقط الشوطُ قبل الخطوة"; exit 1; }
+          mkdir -p results
+          OUT="results/sample_extend_${{ github.run_id }}.md"
+          {
+            echo "# 🧩 توسيعُ عيّنة التتبّع · الشوط ${{ github.run_id }}"
+            echo
+            echo "- التاريخ: $(date -u +%FT%TZ) · الزناد: \`${{ github.event_name }}\` · الحصص: \`$QUOTA\` · فائقٌ: \`$EXTEND\` · رمزُ الخروج: \`$R\`"
+            echo "- ⛔ ولا رقمَ من هذه العيّنة يدخل اللوحةَ حتى يُقاس **على المحرك** في شوط بوّابة."
+            echo
+            echo '```'
+            cat "$M"
+            echo '```'
+          } > "$OUT"
+          cp "$OUT" results/LATEST_sample_extend.md
+          git config user.name "rafiq-ci"
+          git config user.email "ci@users.noreply.github.com"
+          if [ "$R" = "0" ]; then
+            cp tools/tasmi_bench/work_sample/after.json tools/tasmi_bench/sample.json
+            git add tools/tasmi_bench/sample.json "$OUT" results/LATEST_sample_extend.md
+          else
+            echo "⚠️ لم تُودَع العيّنةُ — أُودع الأثرُ وحدَه"
+            git add "$OUT" results/LATEST_sample_extend.md
+          fi
+          git commit -q -m "sample(riwaya): توسيعٌ فائقٌ ($QUOTA) · الشوط ${{ github.run_id }} · rc=$R" || { echo "لا تغيير"; exit 0; }
+          for i in 1 2 3; do
+            git fetch -q origin main && git merge -q --no-edit origin/main && git push -q origin HEAD:main && { echo "✅ أُودع $OUT"; exit 0; }
+            echo "↻ محاولةٌ $i"; sleep 5
+          done
+          echo "⛔ تعذّر الدفع"; exit 1
+
+      # ⛔ ولا يُقرأ أخضرُ على فشل.
+      - name: ردُّ حكم البناء
+        if: always()
+        run: |
+          R=$(cat tools/tasmi_bench/work_sample/rc.txt 2>/dev/null || echo 1)
+          [ "$R" = "0" ] || { echo "⛔ سقط البناءُ برمزٍ $R — والأثرُ مودَعٌ في results/"; exit 1; }
+          echo "✅ العيّنةُ وُسِّعت وأُودعت"
