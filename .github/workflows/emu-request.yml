@@ -1,0 +1,94 @@
+# 🔑 **زنادُ `emu-gate` للوكيل السحابيّ — إيداعٌ لا إدلاء.**
+#
+# ⛔ **السببُ مقيسٌ لا مفترَض** (‏2026-09-13): بيانةُ الوكيل السحابيّ **لا تستطيع الإدلاء**:
+# `POST …/actions/workflows/<id>/dispatches` ⇒ `403 Resource not accessible by integration`،
+# وجُرّب على مسارٍ جديدٍ **وعلى `keepalive.yml`** فردَّ الشيءَ نفسَه ⇒ المنعُ في الصلاحيّة لا
+# في المسار. ⛔ **ولو اكتُفي بذلك لتوقّفت كلُّ الأشواط الثقيلة على نقرةٍ من المالك** — وهو عينُ
+# ما أُمرنا بإلغائه: «أريد أن نستغني عن الحاسوب نهائيًّا».
+#
+# ⇒ والوكيلُ **يدفع إلى `main`**، فصار الدفعُ زناداً: يُكتب الطلبُ في
+# `tools/tasmi_bench/requests/emu.json` ويُدفع، فيُقرأ هنا ويُستدعى `emu-gate` **نفسُه** لا نسخةٌ
+# منه (‏`workflow_call`) — **فلا مسطرتان تتخالفان، ولا مداخلُ تتقادم في مرآة.**
+#
+#   {"apk_url": "…/app-debug-m5-gate.apk", "cand_tag": "v2-vs-tiny",
+#    "cand_url": "…/models/whisper-tiny-ar-quran-v2/ggml-q8_0.bin",
+#    "sets": "g3r:noisy,g3r:clean", "chain": "cap", "chunk": "12", "tag_suffix": "-W"}
+#
+# ⛔⛔ **ولا افتراضَ هنا لِما يُغيّر المقيس:** `sets` و`chain` و`chunk` **تُسمّى في كلّ طلب**
+# (‏وإلّا سقط الطلبُ بنصّه). والسببُ أنّ المستدعى لا يرى فرقاً بين «لم يُذكر» و«فارغ»: فلو
+# مُرِّر فارغاً **لَبطَل افتراضُ `emu-gate`** ومُسح بمجموعاتٍ لم يقصدها أحد — وتكرارُ القيم هنا
+# مرآةٌ ثانيةٌ تتقادم صامتةً. ⇒ **فالعلاجُ أن يُسأل الطالبُ «على كم تقيس؟» قبل أن يُشعل.**
+# وما عداها (وسمٌ · روابطُ · لغاتٌ · مفاتيحُ مسبارٍ · لاحقة) فارغُه = فارغُ `emu-gate` نفسِه.
+# ⛔⛔ **واللاحقةُ (`tag_suffix`) تُغيَّر في كلّ طلب** — ذراعان بلاحقةٍ واحدةٍ تكتب إحداهما
+# فوق الأخرى، وقد وقع.
+name: emu-request
+on:
+  push:
+    paths:
+      - "tools/tasmi_bench/requests/emu.json"
+# 🔑 والصلاحيّةُ تُمنح من المستدعي لا من المستدعى: `emu-gate` يودع النتيجةَ ويعلّقها في المسألة 1.
+permissions:
+  contents: write
+  issues: write
+jobs:
+  read:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    outputs:
+      apk_url: ${{ steps.r.outputs.apk_url }}
+      cand_tag: ${{ steps.r.outputs.cand_tag }}
+      base_url: ${{ steps.r.outputs.base_url }}
+      cand_url: ${{ steps.r.outputs.cand_url }}
+      sets: ${{ steps.r.outputs.sets }}
+      langs: ${{ steps.r.outputs.langs }}
+      chain: ${{ steps.r.outputs.chain }}
+      chunk: ${{ steps.r.outputs.chunk }}
+      ez: ${{ steps.r.outputs.ez }}
+      ei: ${{ steps.r.outputs.ei }}
+      tag_suffix: ${{ steps.r.outputs.tag_suffix }}
+    steps:
+      - uses: actions/checkout@v4
+      - id: r
+        env:
+          PYTHONIOENCODING: utf-8
+        run: |
+          python3 - <<'PY' >> "$GITHUB_OUTPUT"
+          import json, os, sys
+          KEYS = ("apk_url", "cand_tag", "base_url", "cand_url", "sets",
+                  "langs", "chain", "chunk", "ez", "ei", "tag_suffix")
+          req = json.load(open("tools/tasmi_bench/requests/emu.json", encoding="utf-8"))
+          # ⛔ **المفتاحُ المجهولُ يسقط الطلبَ ولا يُهمَل صامتاً:** خطأٌ مطبعيٌّ في اسم مفتاحٍ
+          # (`cands` مكانَ `cand_url`) يُشعل شوطَ محاكٍ كاملاً **بذراعٍ واحدة** فيضيع بلا حكم.
+          bad = [k for k in req if k not in KEYS]
+          if bad:
+              sys.exit(f"⛔ مفاتيحُ لا يعرفها الطلب: {bad} — والمعروفةُ: {list(KEYS)}")
+          # ⛔ **ما يُغيّر المقيسَ يُسمّى صريحاً:** `with:` لا يعرف «لم يُذكر» من «فارغ»، فالفارغُ
+          # **يُبطل افتراضَ `emu-gate`** ولا يأخذه. ⇒ تُطلب هذه الأربعةُ بأسمائها ولا تُفترض.
+          need = [k for k in ("apk_url", "sets", "chain", "chunk") if not str(req.get(k) or "").strip()]
+          if need:
+              sys.exit(f"⛔ طلبٌ ناقص: {need} — و`sets`/`chain`/`chunk` تُسمّى في كلّ طلبٍ كي يُعلم على كم قِيس")
+          for k in KEYS:
+              v = str(req.get(k) or "").strip()
+              if "\n" in v:
+                  sys.exit(f"⛔ قيمةٌ بسطرَين في {k} — تُرفض كي لا تُفسد مخرَجَ الخطوة")
+              print(f"{k}={v}")
+          PY
+          echo "### 🔑 طلبُ `emu-gate` المدفوع" >> "$GITHUB_STEP_SUMMARY"
+          sed 's/^/- /' "$GITHUB_OUTPUT" >> "$GITHUB_STEP_SUMMARY"
+  gate:
+    needs: read
+    # ⚙️ المسارُ نفسُه لا نسخةٌ منه.
+    uses: ./.github/workflows/emu-gate.yml
+    secrets: inherit
+    with:
+      apk_url: ${{ needs.read.outputs.apk_url }}
+      cand_tag: ${{ needs.read.outputs.cand_tag }}
+      base_url: ${{ needs.read.outputs.base_url }}
+      cand_url: ${{ needs.read.outputs.cand_url }}
+      sets: ${{ needs.read.outputs.sets }}
+      langs: ${{ needs.read.outputs.langs }}
+      chain: ${{ needs.read.outputs.chain }}
+      chunk: ${{ needs.read.outputs.chunk }}
+      ez: ${{ needs.read.outputs.ez }}
+      ei: ${{ needs.read.outputs.ei }}
+      tag_suffix: ${{ needs.read.outputs.tag_suffix }}
