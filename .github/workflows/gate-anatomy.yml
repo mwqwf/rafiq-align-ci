@@ -283,6 +283,25 @@ jobs:
                             aws_secret_access_key=c["secretAccessKey"], region_name="auto")
           tags = collections.defaultdict(lambda: collections.defaultdict(set))
           when, n = {}, 0
+          # ⛔⛔ **والجردُ كان يُسقط صامتاً كلَّ ما لم يكن `_cap_`** (‏ثغرةٌ وُجدت 2026-09-13):
+          #     `partition("_cap_")` يردّ فراغاً لذراعِ `caponly` أو `gateonly` أو **ذراعٍ بلا
+          #     سلسلةٍ أصلاً** (‏`hyps_emu_g4n10_shipped-N2.json`) ⇒ فتُقرأ «غيرُ محفوظة» فيُشعل
+          #     محاكٍ لنصف ساعةٍ على قياسٍ **موجودٍ في الدلو** — وهو ثمنُ درس D-365 بعينه.
+          #     ⭐ والمجموعةُ لا تحمل `_` (‏`tag_of` تصنعها بالشرطات) ⇒ **أوّلُ مقطعٍ هو المجموعة**،
+          #     وما بعده سلسلةٌ إن كان منها وإلّا فالذراعُ. ولا يُسقَط شيءٌ بلا أن يُعَدّ.
+          CHAINS = ("cap", "caponly", "gateonly", "chain", "gate", "lvl")
+          def parse(base):
+              body = base[len("emu_hyps_emu_"):-5]
+              seg = body.split("_")
+              if len(seg) < 2:
+                  return None
+              st = seg[0]
+              if seg[1] in CHAINS:
+                  chain, arm = seg[1], "_".join(seg[2:])
+              else:
+                  chain, arm = "بلا", "_".join(seg[1:])
+              return (st, chain, arm) if arm else None
+          skipped = 0
           tok = None
           while True:
               kw = {"Bucket": c["bucket"], "Prefix": "finetune/gate/"}
@@ -295,11 +314,12 @@ jobs:
                   if not base.startswith("emu_hyps_emu_") or not base.endswith(".json"):
                       continue
                   tag = k.split("finetune/gate/", 1)[1].split("/", 1)[0]
-                  body = base[len("emu_hyps_emu_"):-5]
-                  st, _, arm = body.partition("_cap_")
-                  if not arm:
+                  got = parse(base)
+                  if not got:
+                      skipped += 1
                       continue
-                  tags[tag][st].add(arm)
+                  st, chain, arm = got
+                  tags[tag][(st, chain)].add(arm)
                   when[tag] = max(when.get(tag, ""), o["LastModified"].strftime("%m-%d %H:%M"))
                   n += 1
               if not r.get("IsTruncated"):
@@ -312,14 +332,20 @@ jobs:
           # ⛔ **والأذرعُ تُسرد لكلِّ مجموعةٍ على حدة:** وسمٌ فيه `g1` و`g3r` بأذرعٍ **مختلفة**
           # يُقرأ خطأً لو جُمعت أذرعُه في خانةٍ واحدة — فيُطلب زوجٌ لا وجودَ له في تلك المجموعة
           # فيسقط الشوطُ أو يُقاس على نصف عيّنة. **فالجردُ يُجيب بلا حدس.**
-          print("| الوسم | المجموعة | الأذرع المحفوظة | آخرُ تحديثٍ للوسم |")
-          print("|---|---|---|---|")
+          print("| الوسم | المجموعة | السلسلة | الأذرع المحفوظة | آخرُ تحديثٍ للوسم |")
+          print("|---|---|---|---|---|")
           for tag in sorted(tags):
-              for st in sorted(tags[tag]):
-                  arms = sorted(tags[tag][st])
-                  print(f"| `{tag}` | `{st}` | {' · '.join('`'+x+'`' for x in arms)} | {when.get(tag,'—')} |")
+              for st, chain in sorted(tags[tag]):
+                  arms = sorted(tags[tag][(st, chain)])
+                  print(f"| `{tag}` | `{st}` | `{chain}` | {' · '.join('`'+x+'`' for x in arms)} "
+                        f"| {when.get(tag,'—')} |")
+          if skipped:
+              print(f"\n⚠️ و**{skipped}** ملفّاً لم يُفهَم اسمُه فلم يُدرَج — **يُعَدُّ ولا يُكتَم** "
+                    "(‏وكان الجردُ يُسقط كلَّ ما ليس `_cap_` صامتاً).")
           # 🧹 وخانةٌ تُسهّل أكثرَ ما نحتاجه: أوسمةٌ فيها **زوجٌ في `g1` النظيفة**.
-          pairs = [(t, sorted(tags[t]["g1"])) for t in sorted(tags) if len(tags[t].get("g1", ())) >= 2]
+          g1 = {t: sorted(a for (st, ch), arms in tags[t].items() if st == "g1" for a in arms)
+                for t in tags}
+          pairs = [(t, g1[t]) for t in sorted(tags) if len(g1.get(t, ())) >= 2]
           if pairs:
               print("\n**🧹 وأوسمةٌ تُقاس فيها الزوائدُ الكاذبةُ على تلاوةٍ نظيفة (‏`g1` بذراعَين):**\n")
               for t, arms in pairs:
