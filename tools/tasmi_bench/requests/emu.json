@@ -1,14 +1,14 @@
 {
   "apk_url": "https://github.com/mwqwf/rafiq-align-ci/releases/download/apk-m5-gate/app-debug-m5-gate.apk",
-  "cand_tag": "",
-  "cand_url": "",
+  "cand_tag": "generic",
+  "cand_url": "https://huggingface.co/ggerganov/whisper.cpp/resolve/main/ggml-tiny-q8_0.bin",
   "base_url": "",
-  "sets": "g3r:noisy,g3r:clean,g1",
+  "sets": "g3r:noisy,g3r:clean",
   "chain": "cap",
   "chunk": "12",
-  "tag_suffix": "-G",
-  "arm2_tag": "cap25",
+  "tag_suffix": "-H",
+  "arm2_tag": "",
   "arm2_es": "",
   "arm2_ez": "",
-  "arm2_ei": "groupCap=25"
+  "arm2_ei": ""
 }
