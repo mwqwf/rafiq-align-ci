@@ -436,6 +436,9 @@ def score(ref_words, hyp_text, cfg=DEFAULT):
     for k in range(R):
         if words[k] is None:
             words[k] = (k, MISSED, None)
+    # 🛑 وعلمُ الانهيار **بالهويّة** كما في المحرك: الحارسُ يُعيد القائمةَ نفسَها حين لا يُطلق.
+    # (‏يُحتاج إليه لقياس تهدئةٍ مرشَّحة: «لا تُعرَض الزوائدُ حين انهار التعرّفُ أصلاً» · D-369.)
+    _pre = words
     words = _collapse_guard(words, cfg)
-    return {"words": words, "additions": additions, "located": located,
+    return {"words": words, "additions": additions, "located": located, "collapsed": words is not _pre,
             "correct": sum(1 for w in words if w[1] == CORRECT), "total": R}
