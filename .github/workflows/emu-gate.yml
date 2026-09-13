@@ -16,6 +16,10 @@ on:
         description: "وسمُ المرشَّح (‏يُقرأ نموذجُه من finetune/out_<tag>/ggml-q8_0.bin؛ فارغٌ = المشحونُ وحدَه)"
         required: false
         default: ""
+      base_url:
+        description: "رابطُ نموذج خطِّ الأساس (‏فارغٌ = المشحون tiny) — لمقارنة مرشَّحٍ بمشحونٍ آخرَ في **الشوط نفسِه**"
+        required: false
+        default: ""
       cand_url:
         description: "رابطٌ صريحٌ لنموذج المرشَّح (يغلب المشتقَّ من الوسم — لنماذجَ خارج finetune/out_*)"
         required: false
@@ -106,7 +110,10 @@ jobs:
         run: |
           pip install -q numpy soundfile scipy
           mkdir -p models
-          curl -sSL -f --retry 4 --retry-delay 5 --retry-all-errors -A "$UA" -o models/shipped.bin "$PUB/models/whisper-tiny-ar-quran/ggml-q8_0.bin"
+          BU="${{ github.event.inputs.base_url }}"
+          [ -z "$BU" ] && BU="$PUB/models/whisper-tiny-ar-quran/ggml-q8_0.bin"
+          echo "⬇️ خطُّ الأساس: $BU"
+          curl -sSL -f --retry 4 --retry-delay 5 --retry-all-errors -A "$UA" -o models/shipped.bin "$BU"
           if [ -n "${{ github.event.inputs.cand_tag }}" ]; then
             CU="${{ github.event.inputs.cand_url }}"
             [ -z "$CU" ] && CU="$PUB/finetune/out_${{ github.event.inputs.cand_tag }}/ggml-q8_0.bin"
