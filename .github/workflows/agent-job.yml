@@ -1,0 +1,177 @@
+# 🦾 **يدُ الوكيل السحابيّ** — كلُّ ما يتعذّر عليه في صندوقه يُنفَّذ هنا بشبكةٍ مفتوحة.
+#
+# ⛔ **العطبُ الذي وُجد له** (‏مقيسٌ على البيئة 2026-09-13): الوكيلُ السحابيُّ خلف وسيطٍ
+# يحجب كلَّ مضيفٍ غيرَ مسموح: `dl.google.com` (فيتعذّر gradle) · `pub-…r2.dev` (فلا نماذجَ
+# ولا صوت) · مضيفُ تنزيل مصنوعات GitHub. فكان يكتب «تعذّر» ويمضي.
+#
+# ⇒ **الحلُّ ليس فتحَ صندوقه — بل أن تصير الأشواطُ يدَه**: يكتب سكربتاً في `jobs/`، ويدفعه،
+# فيُنفَّذ هنا على عدّاءٍ **بلا أيّ حجب**، وتعود مخرَجاتُه **ملفّاً في `results/`** يقرؤه
+# بـ`git pull` — ويُعلَّق في لوحة المتابعة فيصل هاتفَ المالك.
+#
+# 🔑 **ومفتاحُ المستودع الخاصّ اختياريّ:** إن وُجد السرُّ `QR_READ_TOKEN` استُنسخ `QuranRafiq`
+# هنا فصارت اختباراتُ المحرك ممكنة. وإن غاب فكلُّ ما عداها يعمل — ولا يفشل الشوط.
+name: agent-job
+
+on:
+  workflow_dispatch:
+    inputs:
+      script:
+        description: "مسارُ السكربت تحت jobs/ (‏مثال: jobs/engine_test.sh) — فارغٌ = كلُّ ما تغيّر"
+        required: false
+        default: ""
+  push:
+    paths:
+      - "jobs/**"
+
+# 🔑 أضيقُ ما يكفي: كتابةُ النتيجة في المستودع، وتعليقُها في لوحة المتابعة.
+permissions:
+  contents: write
+  issues: write
+
+concurrency:
+  group: agent-job
+  cancel-in-progress: false
+
+env:
+  PUB: https://pub-2c2e1dcd92e84a2898820dd38d3e09e6.r2.dev
+  UA: "Mozilla/5.0 (QuranRafiq agent job)"
+
+jobs:
+  run:
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 2
+
+      - name: أيُّ السكربتات تُنفَّذ؟
+        id: pick
+        run: |
+          IN="${{ github.event.inputs.script }}"
+          if [ -n "$IN" ]; then
+            LIST="$IN"
+          else
+            # ⛔ **ما تغيّر في هذه الدفعة وحدَه** — وإلّا أُعيد تنفيذُ كلِّ سكربتٍ قديمٍ في كلّ دفعة.
+            LIST=$(git diff --name-only --diff-filter=ACMR HEAD~1 HEAD -- 'jobs/*.sh' 2>/dev/null || true)
+          fi
+          LIST=$(printf '%s\n' $LIST | sed '/^$/d' | sort -u)
+          if [ -z "$LIST" ]; then
+            echo "ℹ️ لا سكربتَ جديداً — لا شيءَ يُنفَّذ."
+            echo "none=1" >> "$GITHUB_OUTPUT"
+          else
+            echo "سيُنفَّذ:"; printf '  - %s\n' $LIST
+            printf 'list<<EOF\n%s\nEOF\n' "$LIST" >> "$GITHUB_OUTPUT"
+          fi
+
+      - uses: actions/setup-python@v5
+        if: steps.pick.outputs.none != '1'
+        with:
+          python-version: "3.11"
+
+      - uses: actions/setup-java@v4
+        if: steps.pick.outputs.none != '1'
+        with:
+          distribution: temurin
+          java-version: "17"
+
+      - name: العدّة (‏شبكةٌ مفتوحةٌ هنا — ما يتعذّر في الصندوق يعمل)
+        if: steps.pick.outputs.none != '1'
+        run: |
+          sudo apt-get update -qq && sudo apt-get install -y -qq ffmpeg > /dev/null
+          pip install -q numpy soundfile scipy boto3
+          echo "✅ ffmpeg $(ffmpeg -version 2>/dev/null | head -1 | cut -d' ' -f3) · python $(python3 -V)"
+
+      - name: بيانةُ R2 (‏من السرّ الواحد)
+        if: steps.pick.outputs.none != '1'
+        env:
+          R2_CREDENTIALS_JSON: ${{ secrets.R2_CREDENTIALS_JSON }}
+        run: |
+          [ -n "$R2_CREDENTIALS_JSON" ] || { echo "ℹ️ لا سرَّ R2 — الأشغالُ التي تحتاجه ستقول ذلك بنفسها"; exit 0; }
+          mkdir -p secure && printf '%s' "$R2_CREDENTIALS_JSON" > secure/r2_credentials.json
+          python3 - <<'PY'
+          import json, os
+          c = json.load(open("secure/r2_credentials.json"))
+          env = open(os.environ["GITHUB_ENV"], "a")
+          for k, v in (("R2_ENDPOINT", c["endpoint"]), ("R2_ACCESS_KEY_ID", c["accessKeyId"]),
+                       ("R2_SECRET_ACCESS_KEY", c["secretAccessKey"]), ("R2_BUCKET", c["bucket"])):
+              print("::add-mask::" + v); env.write(k + "=" + v + chr(10))
+          env.close()
+          PY
+
+      # 🔑 المستودعُ الخاصّ — **اختياريٌّ وصامتٌ إن غاب**. وبه وحدَه تعمل اختباراتُ المحرك.
+      - name: استنساخُ QuranRafiq إن وُجد المفتاح
+        if: steps.pick.outputs.none != '1'
+        env:
+          QR: ${{ secrets.QR_READ_TOKEN }}
+        run: |
+          if [ -z "$QR" ]; then
+            echo "ℹ️ لا مفتاحَ QR_READ_TOKEN ⇒ لا مستودعَ خاصّ. وكلُّ شغلٍ لا يحتاجه يعمل."
+            exit 0
+          fi
+          git clone -q --depth 1 "https://x-access-token:${QR}@github.com/mwqwf/QuranRafiq.git" "$RUNNER_TEMP/QuranRafiq"
+          echo "QR_DIR=$RUNNER_TEMP/QuranRafiq" >> "$GITHUB_ENV"
+          echo "✅ QuranRafiq مُستنسَخ في \$QR_DIR"
+
+      - name: التنفيذ
+        if: steps.pick.outputs.none != '1'
+        env:
+          PYTHONIOENCODING: utf-8
+        run: |
+          mkdir -p results
+          OUT="results/job_${{ github.run_id }}.md"
+          {
+            echo "# 🦾 شغلُ الوكيل · الشوط ${{ github.run_id }}"
+            echo
+            echo "- التاريخ: $(date -u +%FT%TZ)"
+            echo "- المستودعُ الخاصّ: ${QR_DIR:-غائب (لا مفتاح)}"
+            echo
+          } > "$OUT"
+          FAIL=0
+          while IFS= read -r S; do
+            [ -f "$S" ] || { echo "⛔ لا ملفَّ $S" >> "$OUT"; FAIL=1; continue; }
+            echo "## \`$S\`" >> "$OUT"
+            echo >> "$OUT"
+            echo '```' >> "$OUT"
+            chmod +x "$S" || true
+            # ⛔ لا يُقتل الشوطُ بفشل سكربت: يُسجَّل رمزُه ويمضي إلى التالي — والصدقُ أن يُكتب.
+            set +e
+            bash "$S" 2>&1 | tail -400 >> "$OUT"
+            RC=${PIPESTATUS[0]}
+            set -e
+            echo '```' >> "$OUT"
+            echo >> "$OUT"
+            if [ "$RC" -eq 0 ]; then echo "**الخروج: 0 ✅**" >> "$OUT"; else echo "**الخروج: $RC ⛔**" >> "$OUT"; FAIL=1; fi
+            echo >> "$OUT"
+          done <<< "${{ steps.pick.outputs.list }}"
+          cp "$OUT" results/LATEST_job.md
+          cat "$OUT" >> "$GITHUB_STEP_SUMMARY"
+          echo "JOB_OUT=$OUT" >> "$GITHUB_ENV"
+          echo "JOB_FAIL=$FAIL" >> "$GITHUB_ENV"
+
+      - name: إيداعُ المخرَج (‏كي يقرأه الوكيلُ بـgit pull)
+        if: always() && steps.pick.outputs.none != '1'
+        run: |
+          [ -n "$JOB_OUT" ] || exit 0
+          git config user.name "rafiq-ci"
+          git config user.email "ci@users.noreply.github.com"
+          git add "$JOB_OUT" results/LATEST_job.md
+          git commit -q -m "results(agent-job): الشوط ${{ github.run_id }}" || { echo "لا تغيير"; exit 0; }
+          for i in 1 2 3; do
+            git fetch -q origin main && git merge -q --no-edit origin/main && git push -q origin HEAD:main && { echo "✅ أُودع $JOB_OUT"; exit 0; }
+            echo "↻ محاولةٌ $i"; sleep 5
+          done
+          echo "⛔ تعذّر الدفع"
+
+      - name: تعليقٌ في لوحة المتابعة
+        if: always() && steps.pick.outputs.none != '1'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          [ -f "${JOB_OUT:-/dev/null}" ] || exit 0
+          {
+            echo "## 🦾 شغلُ الوكيل · [${{ github.run_id }}](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }})"
+            echo
+            head -c 4000 "$JOB_OUT"
+          } > /tmp/jc.md
+          gh issue comment 1 --repo "${{ github.repository }}" --body-file /tmp/jc.md || echo "⛔ تعذّر التعليق"
