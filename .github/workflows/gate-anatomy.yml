@@ -72,8 +72,12 @@ jobs:
           # وهي في الحقيقة طلبٌ بلا وسم. ⇒ يُسمّى النقصُ باسمه قبل أن يُلمس الشبكة.
           if not tag or len(arms.split()) != 2:
               sys.exit(f"⛔ طلبٌ ناقص: tag={tag!r} · arms={arms!r} — والأذرعُ اسمان بمسافةٍ لا أكثرَ ولا أقلّ")
+          # 📝 و`note` سببُ الطلب بسطرٍ واحد — يُكتب في ملفّ النتيجة فيُعرف **لِمَ قُرئ** هذا
+          # الشوطُ مرّةً ثانية، ولا يُظنّ تكراراً بلا سبب (درسُ D-365).
+          note = pick("note").replace("\n", " ")[:200]
           for k, v in (("TAG", tag), ("ARMS", arms),
-                       ("SETS", pick("sets", "g3r-clean g3r-noisy")), ("CHAIN", pick("chain", "cap"))):
+                       ("SETS", pick("sets", "g3r-clean g3r-noisy")), ("CHAIN", pick("chain", "cap")),
+                       ("NOTE", note)):
               print(f"{k}={v}")
           PY
           cat "$GITHUB_ENV"
@@ -149,6 +153,7 @@ jobs:
             echo "- التاريخ: $(date -u +%FT%TZ)"
             echo "- الذراعان: \`$ARMS\` · المجموعات: \`$SETS\` · السلسلة: \`$CHAIN\` · الزناد: \`${{ github.event_name }}\`"
             echo "- المصدر: فرضيّاتُ الشوط من \`finetune/gate/${T}/\` على R2 العامّ"
+            [ -n "$NOTE" ] && echo "- سببُ القراءة: $NOTE"
             echo
             echo "## 🧾 نسبُ الفرضيّات (‏من ترويسة كلّ ملفٍّ لا من الزناد)"
             echo
