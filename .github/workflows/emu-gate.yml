@@ -56,6 +56,66 @@ on:
         description: "لاحقةُ وسم الذراع مع المفاتيح (‏-dg · -cp) كي لا تُكتب ذراعٌ فوق أخرى"
         required: false
         default: ""
+  # ⚙️ **وتُستدعى مساراً قابلاً لإعادة الاستعمال** كي يُشعلها `emu-request.yml` من ملفِّ طلبٍ
+  # مدفوعٍ — فبيانةُ الوكيل السحابيّ **لا تستطيع الإدلاء** (‏403 مقيس 2026-09-13).
+  # ⛔ **والقيمُ الافتراضيّةُ لا تُكرَّر في المستدعي:** ما غاب من الطلب يُمرَّر فارغاً فيأخذ
+  # افتراضَه من هنا وحدَه — **مصدرٌ واحدٌ للحقيقة لا مرآتان تتخالفان صامتتَين.**
+  workflow_call:
+    inputs:
+      apk_url:
+        description: "رابطُ APK (debuggable) على R2"
+        required: true
+        type: string
+      cand_tag:
+        description: "وسمُ المرشَّح (‏يُقرأ نموذجُه من finetune/out_<tag>/ggml-q8_0.bin؛ فارغٌ = المشحونُ وحدَه)"
+        required: false
+        type: string
+        default: ""
+      base_url:
+        description: "رابطُ نموذج خطِّ الأساس (‏فارغٌ = المشحون tiny) — لمقارنة مرشَّحٍ بمشحونٍ آخرَ في **الشوط نفسِه**"
+        required: false
+        type: string
+        default: ""
+      cand_url:
+        description: "رابطٌ صريحٌ لنموذج المرشَّح (يغلب المشتقَّ من الوسم — لنماذجَ خارج finetune/out_*)"
+        required: false
+        type: string
+        default: ""
+      sets:
+        description: "المجموعات (مفصولةٌ بفواصل) — ‏g4n في الافتراض بأمر D-341"
+        required: false
+        type: string
+        default: "g3r:noisy,g1,g4n"
+      langs:
+        description: "رموزُ لغة الفكّ للمسبار (‏D-303 — يحتاج APK يدعم `--es lang`)"
+        required: false
+        type: string
+        default: ""
+      chain:
+        description: "سلسلةُ الواجهة: cap (المقيس) · caponly (بلا بوّابةِ ضجيج) · gateonly (سقفُ 25)"
+        required: false
+        type: string
+        default: "cap"
+      chunk:
+        description: "حجمُ الدفعة (‏12 مقيسٌ — 40 تُعلّق المحاكي)"
+        required: false
+        type: string
+        default: "12"
+      ez:
+        description: "مفاتيحُ المسبار المنطقيّة مفصولةً بمسافة (‏decodeGuard · criticalPairs)"
+        required: false
+        type: string
+        default: ""
+      ei:
+        description: "مفاتيحُ المسبار العدديّة `KEY=INT` مفصولةً بمسافة (‏decodeBeam=3)"
+        required: false
+        type: string
+        default: ""
+      tag_suffix:
+        description: "لاحقةُ وسم الذراع مع المفاتيح (‏-dg · -cp) كي لا تُكتب ذراعٌ فوق أخرى"
+        required: false
+        type: string
+        default: ""
 # 🔑 صلاحيّتان لا ثالثة: كتابةُ النتيجة في المستودع، وتعليقُها في لوحة المتابعة (المسألة 1).
 permissions:
   contents: write
@@ -72,7 +132,7 @@ jobs:
       sets: ${{ steps.m.outputs.sets }}
     steps:
       - id: m
-        run: python3 -c "import json,os;print('sets='+json.dumps('${{ github.event.inputs.sets }}'.split(',')))" >> "$GITHUB_OUTPUT"
+        run: python3 -c "import json,os;print('sets='+json.dumps('${{ inputs.sets }}'.split(',')))" >> "$GITHUB_OUTPUT"
   emu:
     needs: matrix
     runs-on: ubuntu-latest
@@ -115,22 +175,22 @@ jobs:
         run: |
           pip install -q numpy soundfile scipy
           mkdir -p models
-          BU="${{ github.event.inputs.base_url }}"
+          BU="${{ inputs.base_url }}"
           [ -z "$BU" ] && BU="$PUB/models/whisper-tiny-ar-quran/ggml-q8_0.bin"
           echo "⬇️ خطُّ الأساس: $BU"
-          if [ -n "${{ github.event.inputs.base_url }}" ]; then
+          if [ -n "${{ inputs.base_url }}" ]; then
             W="⚠️ **خطُّ الأساس ليس المشحون**: ذراعُ \`shipped\` في هذا الشوط هي $BU"
             echo "$W" | tee work_baseline.txt >> "$GITHUB_STEP_SUMMARY" || echo "$W" > work_baseline.txt
             echo "$W"
           fi
           curl -sSL -f --retry 4 --retry-delay 5 --retry-all-errors -A "$UA" -o models/shipped.bin "$BU"
-          if [ -n "${{ github.event.inputs.cand_tag }}" ]; then
-            CU="${{ github.event.inputs.cand_url }}"
-            [ -z "$CU" ] && CU="$PUB/finetune/out_${{ github.event.inputs.cand_tag }}/ggml-q8_0.bin"
+          if [ -n "${{ inputs.cand_tag }}" ]; then
+            CU="${{ inputs.cand_url }}"
+            [ -z "$CU" ] && CU="$PUB/finetune/out_${{ inputs.cand_tag }}/ggml-q8_0.bin"
             echo "⬇️ المرشَّح: $CU"
             curl -sSL -f --retry 4 --retry-delay 5 --retry-all-errors -A "$UA" -o models/cand.bin "$CU"
           fi
-          curl -sSL -f --retry 4 --retry-delay 5 --retry-all-errors -A "$UA" -o app.apk "${{ github.event.inputs.apk_url }}"; ls -l models app.apk
+          curl -sSL -f --retry 4 --retry-delay 5 --retry-all-errors -A "$UA" -o app.apk "${{ inputs.apk_url }}"; ls -l models app.apk
       - name: مجموعاتُ القياس (كاشُ tasmi-gate نفسُه)
         id: sets
         uses: actions/cache@v4
@@ -165,13 +225,13 @@ jobs:
           PYTHONIOENCODING: utf-8
           APK: app.apk
           SET: ${{ matrix.set }}
-          EZ: ${{ github.event.inputs.ez }}
-          EI: ${{ github.event.inputs.ei }}
-          TAG_SUFFIX: ${{ github.event.inputs.tag_suffix }}
-          CAND_TAG: ${{ github.event.inputs.cand_tag }}
-          LANGS: ${{ github.event.inputs.langs }}
-          CHUNK: ${{ github.event.inputs.chunk }}
-          CHAIN: ${{ github.event.inputs.chain }}
+          EZ: ${{ inputs.ez }}
+          EI: ${{ inputs.ei }}
+          TAG_SUFFIX: ${{ inputs.tag_suffix }}
+          CAND_TAG: ${{ inputs.cand_tag }}
+          LANGS: ${{ inputs.langs }}
+          CHUNK: ${{ inputs.chunk }}
+          CHAIN: ${{ inputs.chain }}
         with:
           api-level: 30
           target: google_apis
@@ -227,13 +287,13 @@ jobs:
       - name: الحكمُ على المحرك
         env:
           PYTHONIOENCODING: utf-8
-          SUF: ${{ github.event.inputs.tag_suffix }}
+          SUF: ${{ inputs.tag_suffix }}
         run: |
           cd tools/tasmi_bench
           ls work/hyps_emu_*.json || { echo "⛔ لا مخرَج من المحاكي"; exit 1; }
-          T="${{ github.event.inputs.cand_tag }}"; M="work/emu_${T:-shipped}.md"
-          if [ -n "${{ github.event.inputs.langs }}" ]; then
-            set -- ${{ github.event.inputs.langs }}
+          T="${{ inputs.cand_tag }}"; M="work/emu_${T:-shipped}.md"
+          if [ -n "${{ inputs.langs }}" ]; then
+            set -- ${{ inputs.langs }}
             python v2_gate.py --score-only --arms "shipped-$1" "shipped-$2" --md "$M"
           elif [ -n "$T" ]; then
             # ⛔ **اللاحقةُ تُمرَّر هنا أيضاً** (‏2026-09-13): كان فرعُ المرشَّح يتجاهل `tag_suffix` كما
@@ -274,7 +334,7 @@ jobs:
       - name: رفعٌ إلى R2
         run: |
           cd tools/tasmi_bench
-          T="${{ github.event.inputs.cand_tag }}"; T="${T:-shipped}"
+          T="${{ inputs.cand_tag }}"; T="${T:-shipped}"
           ARGS="work/emu_$T.md finetune/gate/$T/emu.md"
           for f in work/hyps_emu_*.json; do ARGS="$ARGS $f finetune/gate/$T/emu_$(basename $f)"; done
           python ../finetune/r2_put.py $ARGS
@@ -288,7 +348,7 @@ jobs:
       - name: إيداعُ النتيجة في المستودع (‏كي يقرأها الوكيلُ السحابيُّ والمالك)
         if: always()
         run: |
-          T="${{ github.event.inputs.cand_tag }}"; T="${T:-shipped}"
+          T="${{ inputs.cand_tag }}"; T="${T:-shipped}"
           M="tools/tasmi_bench/work/emu_${T}.md"
           [ -f "$M" ] || { echo "⛔ لا جدولَ نتيجةٍ — لا شيءَ يُودَع"; exit 0; }
           mkdir -p results
@@ -297,10 +357,10 @@ jobs:
             echo "# نتيجةُ \`emu-gate\` · الوسم \`${T}\` · الشوط ${{ github.run_id }}"
             echo
             echo "- التاريخ: $(date -u +%FT%TZ)"
-            echo "- المجموعات: \`${{ github.event.inputs.sets }}\`"
-            echo "- خطُّ الأساس: \`${{ github.event.inputs.base_url }}\`" 
-            echo "- المرشَّح: \`${{ github.event.inputs.cand_url }}\`"
-            echo "- السلسلة: \`${{ github.event.inputs.chain }}\` · اللاحقة: \`${{ github.event.inputs.tag_suffix }}\`"
+            echo "- المجموعات: \`${{ inputs.sets }}\`"
+            echo "- خطُّ الأساس: \`${{ inputs.base_url }}\`" 
+            echo "- المرشَّح: \`${{ inputs.cand_url }}\`"
+            echo "- السلسلة: \`${{ inputs.chain }}\` · اللاحقة: \`${{ inputs.tag_suffix }}\`"
             echo
             cat "$M"
           } > "$OUT"
@@ -322,15 +382,15 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          T="${{ github.event.inputs.cand_tag }}"; T="${T:-shipped}"
+          T="${{ inputs.cand_tag }}"; T="${T:-shipped}"
           M="tools/tasmi_bench/work/emu_${T}.md"
           [ -f "$M" ] || { echo "لا جدولَ نتيجةٍ — لا تعليق"; exit 0; }
           {
             echo "## 🧪 ${T} · الشوط [${{ github.run_id }}](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }})"
             echo
-            echo "المجموعات: \`${{ github.event.inputs.sets }}\` · السلسلة: \`${{ github.event.inputs.chain }}\`"
-            if [ -n "${{ github.event.inputs.base_url }}" ]; then
-              echo; echo "> ⚠️ **خطُّ الأساس ليس المشحون**: ذراعُ \`shipped\` هنا هي \`${{ github.event.inputs.base_url }}\`"
+            echo "المجموعات: \`${{ inputs.sets }}\` · السلسلة: \`${{ inputs.chain }}\`"
+            if [ -n "${{ inputs.base_url }}" ]; then
+              echo; echo "> ⚠️ **خطُّ الأساس ليس المشحون**: ذراعُ \`shipped\` هنا هي \`${{ inputs.base_url }}\`"
             fi
             echo
             cat "$M"
