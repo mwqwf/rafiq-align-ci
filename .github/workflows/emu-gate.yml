@@ -56,6 +56,11 @@ on:
         description: "لاحقةُ وسم الذراع مع المفاتيح (‏-dg · -cp) كي لا تُكتب ذراعٌ فوق أخرى"
         required: false
         default: ""
+# 🔑 صلاحيّتان لا ثالثة: كتابةُ النتيجة في المستودع، وتعليقُها في لوحة المتابعة (المسألة 1).
+permissions:
+  contents: write
+  issues: write
+
 env:
   PUB: https://pub-2c2e1dcd92e84a2898820dd38d3e09e6.r2.dev
   UA: "Mozilla/5.0 (QuranRafiq emu gate)"
@@ -310,3 +315,27 @@ jobs:
             echo "↻ محاولةٌ $i"; sleep 5
           done
           echo "⛔ تعذّر الدفع"; exit 0
+      # 📱 **وتُعلَّق في لوحة المتابعة كي تصل هاتفَ المالك** — من تابَع المسألةَ وصله إشعارُ GitHub.
+      # ⛔ والسببُ أنّ الملفَّ في git يُقرأ **متى فُتح**، والإشعارُ يصل **بلا أن يُفتح شيء**.
+      - name: تعليقُ النتيجة في لوحة المتابعة (‏المسألة 1)
+        if: always()
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          T="${{ github.event.inputs.cand_tag }}"; T="${T:-shipped}"
+          M="tools/tasmi_bench/work/emu_${T}.md"
+          [ -f "$M" ] || { echo "لا جدولَ نتيجةٍ — لا تعليق"; exit 0; }
+          {
+            echo "## 🧪 ${T} · الشوط [${{ github.run_id }}](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }})"
+            echo
+            echo "المجموعات: \`${{ github.event.inputs.sets }}\` · السلسلة: \`${{ github.event.inputs.chain }}\`"
+            if [ -n "${{ github.event.inputs.base_url }}" ]; then
+              echo; echo "> ⚠️ **خطُّ الأساس ليس المشحون**: ذراعُ \`shipped\` هنا هي \`${{ github.event.inputs.base_url }}\`"
+            fi
+            echo
+            cat "$M"
+            echo
+            echo "<sub>النتيجةُ محفوظةٌ أيضاً في \`results/\` — والتفسيرُ يكتبه الوكيلُ في لوحة النتائج.</sub>"
+          } > /tmp/comment.md
+          gh issue comment 1 --repo "${{ github.repository }}" --body-file /tmp/comment.md && echo "✅ عُلِّقت" || echo "⛔ تعذّر التعليق"
+
