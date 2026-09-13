@@ -62,7 +62,13 @@ jobs:
                   "langs", "chain", "chunk", "ez", "ei", "tag_suffix",
                   # 🎛️ ذراعُ المفتاح: النموذجُ المشحونُ نفسُه بمفاتيحَ أخرى ⇒ سؤالُ مفتاحٍ
                   #    يُحسم في **شوطٍ واحدٍ** بالصوت عينِه (‏وإلّا قورنت ذراعٌ بمحاكٍ آخر).
-                  "arm2_tag", "arm2_es", "arm2_ez", "arm2_ei")
+                  "arm2_tag", "arm2_es", "arm2_ez", "arm2_ei",
+                  # 📝 **و`note` سببُ الشوط بسطرٍ واحد** (أُضيف 2026-09-13 بعد أن أسقط الحارسُ
+                  #    طلباً بسببها — وهو أصاب: مفتاحٌ مجهولٌ يُسقط الطلبَ ولا يُهمَل).
+                  #    ⚠️ **وصفيّةٌ لا تُمرَّر إلى `emu-gate`**: تُطبع في خلاصة الشوط وحدَها،
+                  #    فسببُ الشوط يُقرأ حيث يُقرأ الشوطُ لا في إيداعٍ بعيد (‏درسُ D-365:
+                  #    شوطٌ بلا سببٍ مكتوبٍ يُعاد إشعالُه).
+                  "note")
           req = json.load(open("tools/tasmi_bench/requests/emu.json", encoding="utf-8"))
           # ⛔ **المفتاحُ المجهولُ يسقط الطلبَ ولا يُهمَل صامتاً:** خطأٌ مطبعيٌّ في اسم مفتاحٍ
           # (`cands` مكانَ `cand_url`) يُشعل شوطَ محاكٍ كاملاً **بذراعٍ واحدة** فيضيع بلا حكم.
@@ -75,12 +81,15 @@ jobs:
           if need:
               sys.exit(f"⛔ طلبٌ ناقص: {need} — و`sets`/`chain`/`chunk` تُسمّى في كلّ طلبٍ كي يُعلم على كم قِيس")
           for k in KEYS:
+              if k == "note":
+                  continue          # وصفيّةٌ: لا تُمرَّر مُدخَلاً — تُطبع في الخلاصة أدناه
               v = str(req.get(k) or "").strip()
               if "\n" in v:
                   sys.exit(f"⛔ قيمةٌ بسطرَين في {k} — تُرفض كي لا تُفسد مخرَجَ الخطوة")
               print(f"{k}={v}")
           PY
-          echo "### 🔑 طلبُ `emu-gate` المدفوع" >> "$GITHUB_STEP_SUMMARY"
+          echo "### 🔑 طلبُ \`emu-gate\` المدفوع" >> "$GITHUB_STEP_SUMMARY"
+          python3 -c "import json;n=str(json.load(open('tools/tasmi_bench/requests/emu.json',encoding='utf-8')).get('note') or '').strip().replace(chr(10),' ');print('**سببُ الشوط:** '+n) if n else None" >> "$GITHUB_STEP_SUMMARY"
           sed 's/^/- /' "$GITHUB_OUTPUT" >> "$GITHUB_STEP_SUMMARY"
   gate:
     needs: read

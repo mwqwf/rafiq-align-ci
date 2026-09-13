@@ -63,3 +63,12 @@
 والقناةُ سليمة.** انظر أعلاه.
 
 </details>
+
+## 2026-09-13 21:15Z — تصادمُ موعدِ المناوبتين عند :40 (جلسةُ المالك المباشرة)
+**ما حاولتُ:** `update_trigger` على `trig_01GRgk7CqZLKi4HrJQ9aoetE` («مناوبة التطبيق») لنقلها من `40 * * * *` إلى `25 * * * *`.
+**الرسالةُ حرفاً:** `update_trigger: this routine was created via "http_api", not by an agent. Agents can only update routines they created (via create_trigger). A routine's own session may still disable itself (enabled=false only).`
+**وحاولتُ أيضاً** تحصينَ أمرِ `trig_01TKQ2UT8V2MMHsYrPFyqW6x` (مسارُ الشفرة) بخطوةِ تثبيتِ مسارِ المستودعَين، فرُدَّ بـ:
+`update_trigger: editing the prompt of a routine whose fires deliver into a session that is not your own is not available via this tool.`
+**ما نجح:** ضبطُ نموذج مناوبة مسار الشفرة إلى `claude-opus-5` بعد أن كان فارغاً.
+**ما يفتحُه:** تعديلُ المالك من لوحة الروتينات (Routines) على claude.ai — نقلُ «مناوبة التطبيق» إلى الدقيقة **25**؛
+أو حذفُ الروتين وإعادةُ إنشائه بواسطة وكيل. والخطرُ القائم: مناوبتا **التطبيق** و**التسميع** تدفعان إلى `main` في `QuranRafiq` في اللحظة نفسها.
