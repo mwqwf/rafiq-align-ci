@@ -178,7 +178,9 @@ jobs:
             cat tools/tasmi_bench/work/gate.md
             echo
             if [ -s tools/tasmi_bench/work/rule_ab.md ]; then
-              echo "## 🎛️ أثرُ قاعدةِ التعادل (‏`$RULE_AB`)"; echo; cat tools/tasmi_bench/work/rule_ab.md; echo
+              # ⛔ **علامتا `` ` `` داخل «...» تنفيذُ أمرٍ لا اقتباسٌ** — فخرج العنوانُ فارغاً في
+              # أوّل شوط (‏`34747396287`). ⇒ تُهرَّب بـ\` كما في بقيّة هذا المسار.
+              echo "## 🎛️ أثرُ قاعدةِ التعادل (ذراعُ \`$RULE_AB\`)"; echo; cat tools/tasmi_bench/work/rule_ab.md; echo
             fi
             echo "## 🔬 تشريحُ الكشف صنفاً صنفاً"
             echo
