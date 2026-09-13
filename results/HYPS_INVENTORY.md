@@ -19,19 +19,19 @@
 | `base-vs-v2` | `g3r-noisy` | `cap` | `base-vs-v2-ar-V2` · `shipped-V2` | 09-13 05:53 |
 | `generic` | `g3r-clean` | `cap` | `generic-ar-H` · `shipped-H` | 09-13 14:41 |
 | `generic` | `g3r-noisy` | `cap` | `generic-ar-H` · `shipped-H` | 09-13 14:41 |
-| `shipped` | `g1` | `cap` | `cap25-G` · `guardon-E` · `nogate-F` · `noguard-D` · `shipped` · `shipped-D` · `shipped-E` · `shipped-F` · `shipped-G` · `shipped-b3` · `shipped-b5` · `shipped-base` · `shipped-dg` · `shipped-dgT` · `shipped-j` · `shipped-jcp` · `shipped-m4` · `shipped-m4cp` · `shipped-offT` | 09-13 22:23 |
-| `shipped` | `g2-learner-basmala` | `cap` | `shipped` | 09-13 22:23 |
-| `shipped` | `g2-learner-combo` | `cap` | `shipped-dg` | 09-13 22:23 |
-| `shipped` | `g2-learner-repeat` | `cap` | `shipped-dg` | 09-13 22:23 |
-| `shipped` | `g2-noise-fan-5` | `cap` | `shipped-b3` · `shipped-b5` · `shipped-dg` · `shipped-dgT` · `shipped-offT` | 09-13 22:23 |
-| `shipped` | `g3r-clean` | `cap` | `cap25-G` · `guardon-E` · `nogate-F` · `noguard-D` · `shipped-D` · `shipped-E` · `shipped-F` · `shipped-G` · `shipped-cp` · `shipped-dg` | 09-13 22:23 |
-| `shipped` | `g3r-noisy` | `cap` | `cap25-G` · `guardon-E` · `nogate-F` · `noguard-D` · `shipped` · `shipped-D` · `shipped-E` · `shipped-F` · `shipped-G` · `shipped-base` · `shipped-cp` · `shipped-dg` · `shipped-j` · `shipped-jcp` · `shipped-m4` · `shipped-m4cp` | 09-13 22:23 |
-| `shipped` | `g4` | `cap` | `nogate-P` · `shipped-L` · `shipped-Ldg` · `shipped-P` | 09-13 22:23 |
-| `shipped` | `g4n` | `cap` | `nogate-P` · `shipped-Gsnr` · `shipped-N` · `shipped-Nb3` · `shipped-Nb5` · `shipped-Ndg` · `shipped-P` · `shipped-base` | 09-13 22:23 |
-| `shipped` | `g4n` | `caponly` | `shipped-Nnogate` | 09-13 22:23 |
-| `shipped` | `g4n` | `gateonly` | `shipped-Ncap25` | 09-13 22:23 |
-| `shipped` | `g4n10` | `cap` | `shipped-N2` | 09-13 22:23 |
-| `shipped` | `g4n20` | `cap` | `shipped-N2` | 09-13 22:23 |
+| `shipped` | `g1` | `cap` | `cap25-G` · `guardon-E` · `nogate-F` · `noguard-D` · `shipped` · `shipped-D` · `shipped-E` · `shipped-F` · `shipped-G` · `shipped-b3` · `shipped-b5` · `shipped-base` · `shipped-dg` · `shipped-dgT` · `shipped-j` · `shipped-jcp` · `shipped-m4` · `shipped-m4cp` · `shipped-offT` | 09-13 22:33 |
+| `shipped` | `g2-learner-basmala` | `cap` | `shipped` | 09-13 22:33 |
+| `shipped` | `g2-learner-combo` | `cap` | `shipped-dg` | 09-13 22:33 |
+| `shipped` | `g2-learner-repeat` | `cap` | `shipped-dg` | 09-13 22:33 |
+| `shipped` | `g2-noise-fan-5` | `cap` | `shipped-b3` · `shipped-b5` · `shipped-dg` · `shipped-dgT` · `shipped-offT` | 09-13 22:33 |
+| `shipped` | `g3r-clean` | `cap` | `cap25-G` · `guardon-E` · `nogate-F` · `noguard-D` · `shipped-D` · `shipped-E` · `shipped-F` · `shipped-G` · `shipped-cp` · `shipped-dg` | 09-13 22:33 |
+| `shipped` | `g3r-noisy` | `cap` | `cap25-G` · `guardon-E` · `nogate-F` · `noguard-D` · `shipped` · `shipped-D` · `shipped-E` · `shipped-F` · `shipped-G` · `shipped-base` · `shipped-cp` · `shipped-dg` · `shipped-j` · `shipped-jcp` · `shipped-m4` · `shipped-m4cp` | 09-13 22:33 |
+| `shipped` | `g4` | `cap` | `nogate-P` · `shipped-L` · `shipped-Ldg` · `shipped-P` | 09-13 22:33 |
+| `shipped` | `g4n` | `cap` | `nogate-P` · `shipped-Gsnr` · `shipped-N` · `shipped-Nb3` · `shipped-Nb5` · `shipped-Ndg` · `shipped-P` · `shipped-base` | 09-13 22:33 |
+| `shipped` | `g4n` | `caponly` | `shipped-Nnogate` | 09-13 22:33 |
+| `shipped` | `g4n` | `gateonly` | `shipped-Ncap25` | 09-13 22:33 |
+| `shipped` | `g4n10` | `cap` | `shipped-N2` | 09-13 22:33 |
+| `shipped` | `g4n20` | `cap` | `shipped-N2` | 09-13 22:33 |
 | `tinyv2` | `g1` | `cap` | `shipped` · `tinyv2-ar` | 09-12 12:43 |
 | `tinyv2` | `g2-noise-fan-5` | `cap` | `shipped` · `tinyv2-ar` | 09-12 12:43 |
 | `tinyv2` | `g3r-noisy` | `cap` | `shipped` · `tinyv2-ar` | 09-12 12:43 |
