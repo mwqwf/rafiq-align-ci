@@ -18,9 +18,13 @@ on:
         required: false
         default: "2"
       src:
-        description: "مجلدُ المجموعة تحت work/ (‏g4 طويلٌ نظيف · g4n طويلٌ مضجَّج)"
+        description: "مجلدُ المجموعة تحت work/ (‏g4 طويلٌ نظيف · g4n طويلٌ مضجَّج · wav آيةٌ مفردة)"
         required: false
         default: "g4"
+      plan:
+        description: "ملفُّ المدد (‏work/long_plan.json للطويل · sample.json للآية المفردة)"
+        required: false
+        default: "work/long_plan.json"
       model:
         description: "النموذج: tiny (المشحون) · base (الأكبر — D-349)"
         required: false
@@ -102,7 +106,7 @@ jobs:
         run: |
           cd tools/tasmi_bench
           python cli_time.py --cli ../../wc/b/bin/whisper-cli --model work_model.bin \
-            --src "work/${{ github.event.inputs.src }}" --plan work/long_plan.json \
+            --src "work/${{ github.event.inputs.src }}" --plan "${{ github.event.inputs.plan }}" \
             --threads "${{ github.event.inputs.threads }}" --limit "${{ github.event.inputs.limit }}" \
             --md "work/arm_${{ github.event.inputs.model }}_${{ github.event.inputs.src }}_t${{ github.event.inputs.threads }}.md" \
             --json "work/arm_${{ github.event.inputs.model }}_${{ github.event.inputs.src }}_t${{ github.event.inputs.threads }}.json"
