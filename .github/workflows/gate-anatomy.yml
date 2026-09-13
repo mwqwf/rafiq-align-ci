@@ -90,17 +90,29 @@ jobs:
         run: |
           cd tools/tasmi_bench && mkdir -p work && rm -f work/hyps_emu_*.json
           n=0
+          # ⛔⛔ **والسلسلةُ تُجرَّب لكلّ ذراعٍ على حدة** (‏أُصلح 2026-09-13): ذراعان في الدلو على
+          #     `g4n` — أصعبِ خليّةٍ نعرفها — محفوظتان بـ`caponly` و`gateonly`، وكان الطلبُ
+          #     يبني الاسمَ بسلسلةٍ **واحدةٍ لكلّ الأذرع** ⇒ **لا تُقرآن أبداً** ولو طُلبتا،
+          #     فيُظَنّ أنّ الفرضيّاتَ غائبةٌ من R2 وتُشعَل نصفُ ساعةِ محاكٍ على قياسٍ موجود.
+          #     ⇒ تُجرَّب السلسلةُ المطلوبةُ أوّلاً ثمّ سائرُ السلاسل ثمّ **بلا سلسلة**، ويُقال
+          #     بأيّها قُرئت — فمقارنةُ ذراعٍ بسلسلةٍ بأخرى بسلسلةٍ **قرارٌ يُرى لا يُخفى**.
           for s in $SETS; do
             for a in $ARMS; do
-              f="hyps_emu_${s}_cap_${a}.json"
-              [ "$CHAIN" = "cap" ] || f="hyps_emu_${s}_${CHAIN}_${a}.json"
-              u="$PUB/finetune/gate/$TAG/emu_$f"
-              if curl -fsS --retry 3 -o "work/$f" "$u"; then
-                echo "✅ $f ($(wc -c < "work/$f") بايتاً)"; n=$((n+1))
-              else
-                # ⚠️ والغائبُ يُسمّى بعنوانه: «لا تشريح» بلا اسمِ الملفّ الغائب يُقرأ عطباً في الأداة.
-                echo "⛔ غائبٌ: $u"
-              fi
+              got=""
+              for c in "$CHAIN" cap caponly gateonly chain gate lvl __none__; do
+                [ -n "$c" ] || continue
+                if [ "$c" = "__none__" ]; then f="hyps_emu_${s}_${a}.json"; else f="hyps_emu_${s}_${c}_${a}.json"; fi
+                u="$PUB/finetune/gate/$TAG/emu_$f"
+                if curl -fsS --retry 2 -o "work/$f" "$u"; then
+                  got="$f"
+                  if [ "$c" = "$CHAIN" ]; then echo "✅ $f ($(wc -c < "work/$f") بايتاً)";
+                  else echo "✅ $f — ⚠️ **بسلسلةٍ غيرِ المطلوبة** (‏$c لا $CHAIN) فيُقرأ ذلك في الجدول"; fi
+                  n=$((n+1)); break
+                fi
+                rm -f "work/$f"
+              done
+              # ⚠️ والغائبُ يُسمّى بعنوانه: «لا تشريح» بلا اسمِ الملفّ الغائب يُقرأ عطباً في الأداة.
+              [ -n "$got" ] || echo "⛔ غائبٌ بكلّ سلسلة: $PUB/finetune/gate/$TAG/emu_hyps_emu_${s}_*_${a}.json"
             done
           done
           # ⛔ **ذراعٌ واحدةٌ لا تُشرَّح:** التشريحُ فرقٌ بين ذراعَين، و`arms_or_die` يسقط بلا الثانية.
@@ -148,6 +160,49 @@ jobs:
               print(f"📜 {len(items)} بنداً طويلاً لها مرجعٌ الآن")
           PY
           echo "CLEAN_OK=$([ -n "$CA" ] && echo 1 || echo 0)" >> "$GITHUB_ENV"
+      - name: 📜 مرجعُ التلاوة الطويلة — يُعاد بناؤه **ويُصدَّق** إن لم يكن محفوظاً
+        env:
+          PYTHONIOENCODING: utf-8
+        run: |
+          cd tools/tasmi_bench
+          # ⭐ **لِمَ هذه الخطوة (‏وُجدت حاجتُها 2026-09-13):** في الدلو ذراعان على `g4n` — أصعبِ
+          # خليّةٍ نعرفها (‏`shipped-Nnogate` بلا بوّابةِ ضجيج · `shipped-Ncap25` بسقفِ 25) —
+          # **ولم يُقرأ لهما رقمٌ قطّ**، مع أنّ D-341 تقول: «كلُّ مفتاحٍ يُقاس على `g4n` قبل أن
+          # يُقرَّر فيه شيء». وسببُ تعذُّر قراءتهما أنّ مرجعَ بنود `g4*` (`long_plan.json`)
+          # **لم يكن يُرفع مع الفرضيّات** قبل إصلاح اليوم ⇒ فيُعاد بناؤه هنا **بالبذرة نفسِها**.
+          case "$SETS" in *g4*) ;; *) echo "ℹ️ لا مجموعةَ `g4` في الطلب — لا مرجعَ يُبنى"; exit 0 ;; esac
+          if [ -s work/long_plan.json ]; then
+            echo "✅ الخطّةُ محفوظةٌ مع الفرضيّات ⇒ لا تُبنى ثانيةً — **والمحفوظُ أصدقُ من المُعاد**"
+            exit 0
+          fi
+          sudo apt-get install -y -qq ffmpeg > /dev/null 2>&1 || true
+          pip install -q numpy soundfile || true
+          python build_long.py --ayahs 6 2>&1 | tail -3 || echo "⚠️ تعذّر بناءُ المرجع (يُقال ولا يُكتَم)"
+          # ⛔⛔ **ولا يُقبل مرجعٌ مُعادٌ حتى تُصدَّق معرّفاتُه:** بنيةُ البناء عشوائيّةٌ ببذرةٍ
+          #     ثابتة، فإن تبدّل صوتٌ أو شفرةٌ تبدّلت البنود ⇒ **مرجعٌ لبندٍ غيرِ الذي قِيس =
+          #     رقمٌ كاذبٌ لا نقصٌ معلَن**. فإن نقص معرّفٌ واحدٌ **تُحذف الخطّةُ** ويُقرأ الجدولُ
+          #     «بلا مرجع» — وهو نقصٌ يُرى، والكاذبُ لا يُرى.
+          python3 - <<'PY'
+          import glob, json, os, sys
+          p = "work/long_plan.json"
+          plan = json.load(open(p, encoding="utf-8")) if os.path.exists(p) else {"items": []}
+          ids = {i["id"] for i in plan.get("items", [])}
+          hyp = set()
+          for f in glob.glob("work/hyps_emu_g4*.json"):
+              hyp |= set((json.load(open(f, encoding="utf-8")) or {}).get("hyps", {}))
+          if not hyp:
+              print("ℹ️ لا فرضيّاتِ `g4` نُزّلت — لا شيءَ يُصدَّق"); sys.exit(0)
+          miss = sorted(hyp - ids)
+          print(f"📜 خطّةٌ مُعادةٌ: {len(ids)} بنداً · وفرضيّاتٌ {len(hyp)} بنداً · "
+                f"مطابَقةٌ {len(hyp) - len(miss)}/{len(hyp)}")
+          if miss:
+              os.path.exists(p) and os.remove(p)
+              print(f"⛔⛔ **{len(miss)} معرّفاً في الفرضيّات ولا مرجعَ له في الخطّة المُعادة** "
+                    f"(‏أوّلُها: {' · '.join(miss[:4])}) ⇒ **حُذفت الخطّةُ**: نقصٌ معلَنٌ خيرٌ من "
+                    "رقمٍ على مرجعٍ ليس مرجعَه.")
+          else:
+              print("✅ كلُّ معرّفٍ في الفرضيّات له مرجعُه ⇒ الخطّةُ المُعادةُ **مصدَّقة**")
+          PY
       - name: مِن أين جاءت الفرضيّات — **من الملفّ لا من الزناد**
         env:
           PYTHONIOENCODING: utf-8
@@ -205,6 +260,57 @@ jobs:
           # بل **قراءةً** لملفّاتٍ كانت محجوبةً عن الوكيل. ⇒ **فالقراءةُ تصير دقيقةً واحدةً هنا.**
           python v2_gate.py --score-only --arms $ARMS --md work/gate.md >/dev/null
           cat work/gate.md
+      - name: 📏 دقّةُ التتبّع للمجموعات المطلوبة — **للذراعَين على البنود عينِها**
+        env:
+          PYTHONIOENCODING: utf-8
+        run: |
+          cd tools/tasmi_bench
+          # ⭐ **لِمَ أُضيف (‏2026-09-13):** جدولُ `v2_gate --score-only` يقيس مجموعاتِه المبنيّةَ
+          # فيه (‏`g3r` و`g1` و`g2`) **ولا يرى `g4*` البتّة**، وأرقامُ التلاوة الطويلة كانت تُحسب
+          # في **شوط المحاكي** وحدَه ⇒ فذراعٌ محفوظةٌ على `g4n` **لا سبيلَ لقراءتها بلا شوطٍ
+          # جديد**، وفي الدلو ذراعان كذلك لم يُقرأ لهما رقمٌ قطّ (D-341: «كلُّ مفتاحٍ يُقاس على
+          # `g4n` قبل أن يُقرَّر فيه شيء»). ⇒ يُحسب هنا **بالمسطرة نفسِها** التي يستعملها الحكمُ
+          # في الشوط (`pool_items` + `score.run(..., "proposed")` + `_boot_diff`).
+          python3 - <<'PY' | tee work/track.md
+          import os, sys
+          sys.path.insert(0, ".")
+          sys.path.insert(0, os.path.join("..", "alignment"))
+          import v2_gate as G, score as SC
+          arms = os.environ["ARMS"].split()
+          sets = os.environ["SETS"].split()
+          def colon(x):
+              return x if (x.startswith("g1") or x.startswith("g4")) else x.replace("-", ":", 1)
+          pool = G.pool_items()
+          print(f"| المجموعة | ن | `{arms[0]}` | `{arms[1]}` | الفرقُ الزوجيّ | مجال 95٪ |")
+          print("|---|---:|---:|---:|---:|---:|")
+          for raw in sets:
+              st = colon(raw)
+              hs = [G.load_hyps(st, a) for a in arms]
+              if not all(hs):
+                  print(f"| `{raw}` | — | — | — | ⛔ فرضيّاتٌ ناقصةٌ لإحدى الذراعَين | — |")
+                  continue
+              ids = sorted(set(hs[0]) & set(hs[1]))
+              items = [it for it in pool if it["id"] in ids]
+              if not items:
+                  # ⛔ بلا مرجعٍ لا رقمَ — ولا يُقرأ الصمتُ صفراً (‏درسُ `pool_items`).
+                  print(f"| `{raw}` | {len(ids)} | — | — | ⛔ **بلا مرجعٍ في العيّنة والخطّة** | — |")
+                  continue
+              res = [SC.run(items, h, "proposed") for h in hs]
+              agg = [SC.aggregate(r) for r in res]
+              by = {}
+              for k, r in enumerate(res):
+                  for row in r:
+                      if row["ok"]:
+                          by.setdefault(row["id"], {})[k] = (row["correct"], row["total"])
+              pairs = [(v[0][0], v[0][1], v[1][0], v[1][1]) for v in by.values() if 0 in v and 1 in v]
+              lo, hi, pup = G._boot_diff(pairs)
+              d = (agg[1]["accuracy"] - agg[0]["accuracy"]) * 100
+              print(f"| `{raw}` | {len(pairs)} | {agg[0]['accuracy']*100:.2f}٪ | "
+                    f"**{agg[1]['accuracy']*100:.2f}٪** | **{d:+.2f}** | "
+                    f"[{lo*100:+.2f} .. {hi*100:+.2f}] · ارتفاعٌ {pup*100:.0f}٪ |")
+          print("\n⚠️ **والفرقُ يُقرأ بمجاله لا بمقداره** — ومجالٌ يعبر الصفرَ «لا يُعتدّ به» "
+                "لا «لا فرق»، ومجالٌ صفريُّ العرض **إعلانُ أنّ الذراعَين متطابقتان** (D-380).")
+          PY
       - name: التشريحُ صنفاً صنفاً
         env:
           PYTHONIOENCODING: utf-8
@@ -212,7 +318,9 @@ jobs:
           cd tools/tasmi_bench
           # ⛔ **بمسافةٍ لا بفاصلة:** `--arms` يأخذ اسمَين، ومجلدُ `--dirs` لاحقتُه فارغةٌ
           # (‏`work:`) كي **لا تُقلَّم** لاحقةُ الوسم من أسماء الأذرع.
-          python detect_anatomy.py --dirs "work:" --arms $ARMS | tee work/anatomy.md
+          # ⛔ **ولا يُسقط الشوطَ كلَّه ما لا يُشرَّح:** التشريحُ عن **الحقن** فمجموعاتُ `g4*` (تلاوةٌ
+          #    طويلةٌ غيرُ محقونة) ليس لها صنفُ حقنٍ ⇒ تُقال ولا تُسقِط الجدولَ الذي قبلَها والذي بعدَه.
+          python detect_anatomy.py --dirs "work:" --arms $ARMS | tee work/anatomy.md             || echo "⚠️ لا تشريحَ حقنٍ لهذه المجموعات (‏غيرُ محقونة) — ويبقى ما سواه" | tee work/anatomy.md
           { echo "### 🔬 تشريحُ الكشف (‏$TAG)"; cat work/anatomy.md; } >> "$GITHUB_STEP_SUMMARY"
       - name: 🧹 الزوائدُ الكاذبةُ على تلاوةٍ نظيفة (‏إن كانت فرضيّاتُ g1 محفوظة)
         if: env.CLEAN_OK == '1'
@@ -229,7 +337,7 @@ jobs:
           cd tools/tasmi_bench
           # ⭐ تُقاس في **كلّ** قراءةٍ لا بطلبٍ خاصّ: ثمنُها ثوانٍ، وهي الرقمُ الذي يقرّر
           # أيُعرَض توطينُ الزوائد للمستخدم أم يحتاج تهدئةً (‏D-366).
-          python extras_noise_probe.py --dirs "work:" --arms $ARMS | tee work/extras_noise.md
+          python extras_noise_probe.py --dirs "work:" --arms $ARMS | tee work/extras_noise.md             || echo "⚠️ تعذّر قياسُ الزوائد لهذه المجموعات — يُقال ولا يُسقِط الشوط" | tee work/extras_noise.md
       - name: 🤫 تهدئةُ الزوائد — هدوءٌ مقابل إمساك (‏إن توفّرت النظيفةُ والمحقونة)
         if: env.CLEAN_OK == '1'
         env:
@@ -283,6 +391,25 @@ jobs:
                             aws_secret_access_key=c["secretAccessKey"], region_name="auto")
           tags = collections.defaultdict(lambda: collections.defaultdict(set))
           when, n = {}, 0
+          # ⛔⛔ **والجردُ كان يُسقط صامتاً كلَّ ما لم يكن `_cap_`** (‏ثغرةٌ وُجدت 2026-09-13):
+          #     `partition("_cap_")` يردّ فراغاً لذراعِ `caponly` أو `gateonly` أو **ذراعٍ بلا
+          #     سلسلةٍ أصلاً** (‏`hyps_emu_g4n10_shipped-N2.json`) ⇒ فتُقرأ «غيرُ محفوظة» فيُشعل
+          #     محاكٍ لنصف ساعةٍ على قياسٍ **موجودٍ في الدلو** — وهو ثمنُ درس D-365 بعينه.
+          #     ⭐ والمجموعةُ لا تحمل `_` (‏`tag_of` تصنعها بالشرطات) ⇒ **أوّلُ مقطعٍ هو المجموعة**،
+          #     وما بعده سلسلةٌ إن كان منها وإلّا فالذراعُ. ولا يُسقَط شيءٌ بلا أن يُعَدّ.
+          CHAINS = ("cap", "caponly", "gateonly", "chain", "gate", "lvl")
+          def parse(base):
+              body = base[len("emu_hyps_emu_"):-5]
+              seg = body.split("_")
+              if len(seg) < 2:
+                  return None
+              st = seg[0]
+              if seg[1] in CHAINS:
+                  chain, arm = seg[1], "_".join(seg[2:])
+              else:
+                  chain, arm = "بلا", "_".join(seg[1:])
+              return (st, chain, arm) if arm else None
+          skipped = 0
           tok = None
           while True:
               kw = {"Bucket": c["bucket"], "Prefix": "finetune/gate/"}
@@ -295,11 +422,12 @@ jobs:
                   if not base.startswith("emu_hyps_emu_") or not base.endswith(".json"):
                       continue
                   tag = k.split("finetune/gate/", 1)[1].split("/", 1)[0]
-                  body = base[len("emu_hyps_emu_"):-5]
-                  st, _, arm = body.partition("_cap_")
-                  if not arm:
+                  got = parse(base)
+                  if not got:
+                      skipped += 1
                       continue
-                  tags[tag][st].add(arm)
+                  st, chain, arm = got
+                  tags[tag][(st, chain)].add(arm)
                   when[tag] = max(when.get(tag, ""), o["LastModified"].strftime("%m-%d %H:%M"))
                   n += 1
               if not r.get("IsTruncated"):
@@ -312,14 +440,20 @@ jobs:
           # ⛔ **والأذرعُ تُسرد لكلِّ مجموعةٍ على حدة:** وسمٌ فيه `g1` و`g3r` بأذرعٍ **مختلفة**
           # يُقرأ خطأً لو جُمعت أذرعُه في خانةٍ واحدة — فيُطلب زوجٌ لا وجودَ له في تلك المجموعة
           # فيسقط الشوطُ أو يُقاس على نصف عيّنة. **فالجردُ يُجيب بلا حدس.**
-          print("| الوسم | المجموعة | الأذرع المحفوظة | آخرُ تحديثٍ للوسم |")
-          print("|---|---|---|---|")
+          print("| الوسم | المجموعة | السلسلة | الأذرع المحفوظة | آخرُ تحديثٍ للوسم |")
+          print("|---|---|---|---|---|")
           for tag in sorted(tags):
-              for st in sorted(tags[tag]):
-                  arms = sorted(tags[tag][st])
-                  print(f"| `{tag}` | `{st}` | {' · '.join('`'+x+'`' for x in arms)} | {when.get(tag,'—')} |")
+              for st, chain in sorted(tags[tag]):
+                  arms = sorted(tags[tag][(st, chain)])
+                  print(f"| `{tag}` | `{st}` | `{chain}` | {' · '.join('`'+x+'`' for x in arms)} "
+                        f"| {when.get(tag,'—')} |")
+          if skipped:
+              print(f"\n⚠️ و**{skipped}** ملفّاً لم يُفهَم اسمُه فلم يُدرَج — **يُعَدُّ ولا يُكتَم** "
+                    "(‏وكان الجردُ يُسقط كلَّ ما ليس `_cap_` صامتاً).")
           # 🧹 وخانةٌ تُسهّل أكثرَ ما نحتاجه: أوسمةٌ فيها **زوجٌ في `g1` النظيفة**.
-          pairs = [(t, sorted(tags[t]["g1"])) for t in sorted(tags) if len(tags[t].get("g1", ())) >= 2]
+          g1 = {t: sorted(a for (st, ch), arms in tags[t].items() if st == "g1" for a in arms)
+                for t in tags}
+          pairs = [(t, g1[t]) for t in sorted(tags) if len(g1.get(t, ())) >= 2]
           if pairs:
               print("\n**🧹 وأوسمةٌ تُقاس فيها الزوائدُ الكاذبةُ على تلاوةٍ نظيفة (‏`g1` بذراعَين):**\n")
               for t, arms in pairs:
@@ -331,7 +465,17 @@ jobs:
         run: |
           T="$TAG"
           M="tools/tasmi_bench/work/anatomy.md"
-          [ -s "$M" ] || { echo "⛔ لا جدولَ — لا شيءَ يُودَع"; exit 1; }
+          # ⛔⛔ **وحارسٌ كان يرمي قياساً صحيحاً (‏وقع في الشوط `34776548806`):** كان الإيداعُ
+          #     مشروطاً بتشريح الحقن وحدَه، فقراءةُ `g4n` (تلاوةٌ طويلةٌ **غيرُ محقونة**) خرج
+          #     تشريحُها فارغاً ⇒ **سقطت الخطوةُ وضاع جدولُ الدقّة الذي حُسب فعلاً** (‏61.01٪
+          #     مقابل 53.50٪). ⭐ **فالشرطُ صار: يُودَع إن وُجد جدولٌ واحدٌ ذو مضمون** — وأمّا
+          #     التشريحُ الفارغُ فيُكتب سببُه في الملفّ ولا يُسقط الشوط.
+          [ -s "$M" ] || echo "⚠️ لا تشريحَ حقنٍ لهذه المجموعات (‏مجموعاتُ \`g4*\` تلاوةٌ طويلةٌ غيرُ محقونة) — والأرقامُ في الجداول أعلاه." > "$M"
+          HAVE=0
+          for f in work/track.md work/gate.md work/provenance.md work/anatomy.md; do
+            [ -s "tools/tasmi_bench/$f" ] && HAVE=1
+          done
+          [ "$HAVE" = "1" ] || { echo "⛔ لا جدولَ فيه مضمونٌ — لا شيءَ يُودَع"; exit 1; }
           mkdir -p results
           OUT="results/anatomy_${T}_${{ github.run_id }}.md"
           {
@@ -352,6 +496,11 @@ jobs:
             # `--pattern`** فتقول «المحرك (المحاكي)» — والنسبُ الصادقُ في الجدول أعلاه لا فيها.
             cat tools/tasmi_bench/work/gate.md
             echo
+            if [ -s tools/tasmi_bench/work/track.md ]; then
+              echo "## 📏 دقّةُ التتبّع على المجموعات المطلوبة (‏بالمسطرة نفسِها التي يحكم بها الشوط)"
+              echo
+              cat tools/tasmi_bench/work/track.md; echo
+            fi
             if [ -s tools/tasmi_bench/work/extras_noise.md ]; then
               cat tools/tasmi_bench/work/extras_noise.md; echo
             fi

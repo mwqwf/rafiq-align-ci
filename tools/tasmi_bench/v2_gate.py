@@ -14,6 +14,7 @@
 - الترتيبُ بالحسم: g3r ضجيجاً (أخطرُ رقمٍ في اللوحة) ثم الضجيجُ الشديد ثم النظيف ثم g3r نظيفاً ثم سلوكُ المتعلّم.
 """
 import argparse
+import glob
 import json
 import os
 import random
@@ -53,9 +54,41 @@ PATTERN = ""                # نمطُ ملفّات الفرضيات بدل ال
 
 
 def out_file(set_name, arm):
+    """مسارُ فرضيّات (مجموعةٍ · ذراع) — **بالسلسلة التي حُفظت بها لا بـ`cap` وحدَها**.
+
+    ⛔⛔ **عطبٌ صامتٌ وُجد 2026-09-13:** كان المسارُ يُبنى بـ`_cap_` **دائماً**، و`load_hyps`
+    تُرجع `{}` عند غياب الملفّ ⇒ فذراعٌ حُفظت بسلسلةٍ أخرى (`caponly` بلا بوّابةِ ضجيج ·
+    `gateonly` بسقفِ 25 · أو **بلا سلسلةٍ أصلاً**) تُقرأ **«غيرَ موجودة»** ولا يُقال شيء:
+    الجدولُ يخرج ناقصاً أو فارغاً ويُظَنّ أنّ الفرضيّاتَ محجوبةٌ في R2. **وفي الدلو ذراعان
+    على `g4n` — أصعبِ خليّةٍ نعرفها — بهذين السلسلتَين، ولم يُقرأ لهما رقمٌ قطّ.**
+    ⇒ يُجرَّب `_cap_` أوّلاً (‏الغالب)، ثمّ **يُبحَث عن أيّ سلسلةٍ للذراع نفسِها**، وتُقال
+    السلسلةُ المختارةُ كي لا يُقارَن رقمٌ بسلسلةٍ برقمٍ بأخرى بلا علم.
+    """
     if PATTERN:
         return os.path.join(HERE, PATTERN.format(arm=arm, tag=E.tag_of(set_name)))
-    return os.path.join(WORK, f"hyps_emu_{E.tag_of(set_name)}_cap_{arm}.json")
+    tag = E.tag_of(set_name)
+    exact = os.path.join(WORK, f"hyps_emu_{tag}_cap_{arm}.json")
+    if os.path.exists(exact):
+        return exact
+    alts = sorted(glob.glob(os.path.join(WORK, f"hyps_emu_{tag}_*_{arm}.json"))
+                  + glob.glob(os.path.join(WORK, f"hyps_emu_{tag}_{arm}.json")))
+    if len(alts) == 1:
+        if alts[0] not in _SAID:
+            _SAID.add(alts[0])
+            print(f"ℹ️ {tag}/{arm}: قُرئت بسلسلةٍ غيرِ `cap` ⇒ {os.path.basename(alts[0])}",
+                  flush=True)
+        return alts[0]
+    if len(alts) > 1:
+        if arm not in _SAID:
+            _SAID.add(arm)
+            print(f"⛔ {tag}/{arm}: **أكثرُ من سلسلةٍ محفوظةٍ** "
+                  f"({' · '.join(os.path.basename(x) for x in alts)}) ⇒ لا تُختار واحدةٌ بالحدس؛ "
+                  "سَمِّ السلسلةَ في الطلب.", flush=True)
+        return exact          # يبقى الغيابُ غياباً — ولا يُخترع رقمٌ من ملفٍّ لم يُطلب
+    return exact
+
+
+_SAID = set()
 
 
 def ids_for(set_name):

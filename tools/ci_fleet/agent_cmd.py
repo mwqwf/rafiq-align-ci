@@ -46,7 +46,15 @@ ALLOWED_WF = {"align.yml", "realign_surah.yml", "openers.yml", "audio_qa.yml",
               "basmala.yml", "restore.yml", "keepalive.yml", "mirror_reciter.yml",
               "reciter_probe.yml", "probe_ayah.yml", "diagnosis.yml", "timing_ingest.yml"}
 # ⛔ والأدواتُ المسموحةُ كلُّها **قارئةٌ أو محكومةٌ بحُرّاسها** — لا صدفةَ فيها.
+# ⛔ و`certify_catalog.py` منها (‏أُضيف 2026-09-13 ‏19:0xZ بقياس): الكتالوجُ
+#    `catalog/reciters.json` هو ما **يقرؤه التطبيق**، وحقلاه `ayahCoverage`
+#    و`ayahCertified` لا يتحرّكان إلا به. وقِيس أنّ بصمتَه بقيت
+#    `a6b98a08a789` (‏77,432 بايتاً) **خمساً وعشرين ساعة** — أي أنّ ليلةَ
+#    استرجاع الـ310 آية لم تصل إلى المستخدم أصلاً، **لأنّ لا بابَ سحابيّاً
+#    كان يفتحه**. وهو محكومٌ بحُرّاسه (يُسقط التوليد كلَّه إن شُهد لمن لا حكمَ
+#    لبصمته، ولا يمسّ غير الحقلين)، فإدخالُه لا يُضعف حارساً.
 ALLOWED_TOOLS = {"index_qa/run.py", "index_qa/triage.py", "index_qa/promote.py",
+                 "index_qa/certify_catalog.py",
                  "index_qa/bucket_watch.py", "index_qa/drop_surah.py",
                  "index_qa/low_coverage_scan.py", "index_qa/dup_sha_sweep.py",
                  "index_qa/duration_profile.py", "index_qa/reciter_evidence.py",
