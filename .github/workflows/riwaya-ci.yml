@@ -1,0 +1,122 @@
+# 🕌📏 **دقّةُ التتبّع روايةً روايةً بمجالِ ثقة** — من فرضيّاتٍ محفوظةٍ، بلا محاكٍ.
+#
+# ⛔ **لِمَ وُجد — بسببٍ مقيسٍ لا مفترَض** (‏D-418): الحكمُ المعلَّقُ على قرارٍ مشحون
+# (‏`Variant.forRiwaya` ⇒ `TINY_V2` لورشٍ وقالون · D-254) يحتاج **دقّةَ الروايتَين بمجالها**،
+# وجدولُ البوّابة يطبع الدقّةَ بالرواية **فرقاً عارياً** ومجالُه **مضمومٌ على الروايات الثلاث**.
+# ⭐ **وفرقٌ بلا مجالٍ يُقرأ على هوى قارئه** (‏درسُ D-351 في صفِّ الكشف بعينه).
+#
+# 🔑 **وزنادُه الإيداعُ** (‏بيانةُ الوكيل لا تستطيع الإدلاء — 403 مقيس):
+# يُدفع `tools/tasmi_bench/requests/riwaya_ci.json` ‏(`tag` · `arms` · `sets`) فيشتعل.
+# ⛔ **والفرضيّاتُ من R2** (‏`finetune/gate/<tag>/emu_hyps_emu_<مجموعة>_cap_<ذراع>.json`) وهو
+# **محجوبٌ عن صندوق الوكيل** ومفتوحٌ للعدّاء ⇒ **هنا موضعُ القراءة لا هناك**.
+# ⚖️ وثمنُه **دقيقةٌ**: لا محاكيَ ولا نموذجَ يُنزَّل — ⇒ **سؤالٌ على شوطٍ مضى لا يُكلّف شوطاً.**
+name: riwaya-ci
+
+on:
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: "وسمُ شوط البوّابة (مجلدُه في R2: finetune/gate/<tag>/)"
+        required: true
+      arms:
+        description: "الذراعان بمسافةٍ — كما في أسماء ملفّات الفرضيّات (مثل: shipped tinyv2-ar)"
+        required: true
+      sets:
+        description: "المجموعاتُ بأسماء الملفّات (‏g1 · g2-noise-fan-5)"
+        required: false
+        default: "g1 g2-noise-fan-5"
+  push:
+    paths:
+      - "tools/tasmi_bench/requests/riwaya_ci.json"
+
+permissions:
+  contents: write
+
+env:
+  PUB: https://pub-2c2e1dcd92e84a2898820dd38d3e09e6.r2.dev
+
+jobs:
+  riwaya:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: الطلبُ — من الإدلاء أو من الملفِّ المدفوع
+        env:
+          I_TAG: ${{ github.event.inputs.tag }}
+          I_ARMS: ${{ github.event.inputs.arms }}
+          I_SETS: ${{ github.event.inputs.sets }}
+        run: |
+          python3 - <<'PY' >> "$GITHUB_ENV"
+          import json, os, sys
+          req = {}
+          p = "tools/tasmi_bench/requests/riwaya_ci.json"
+          if os.path.exists(p):
+              req = json.load(open(p, encoding="utf-8"))
+          def pick(k, d=""):
+              v = (os.environ.get("I_" + k.upper()) or "").strip()
+              return v or str(req.get(k) or "").strip() or d
+          tag, arms = pick("tag"), pick("arms")
+          # ⛔ الطلبُ الناقصُ يسقط قبل أن تُلمس الشبكة — «لا ملفّات» تُقرأ حجباً وهي طلبٌ بلا وسم.
+          if not tag or len(arms.split()) != 2:
+              sys.exit(f"⛔ طلبٌ ناقص: tag={tag!r} · arms={arms!r} — والأذرعُ اسمان بمسافةٍ لا أكثرَ ولا أقلّ")
+          print(f"TAG={tag}")
+          print(f"ARMS={arms}")
+          print("SETS=%s" % pick("sets", "g1 g2-noise-fan-5"))
+          PY
+          cat "$GITHUB_ENV"
+
+      - name: تنزيلُ الفرضيّات من R2 العامّ (‏بلا مفتاح)
+        run: |
+          cd tools/tasmi_bench && mkdir -p work_riwaya && rm -f work_riwaya/*.json
+          n=0
+          for s in $SETS; do
+            for a in $ARMS; do
+              f="hyps_emu_${s}_cap_${a}.json"
+              u="$PUB/finetune/gate/$TAG/emu_$f"
+              if curl -fsS --retry 3 -o "work_riwaya/$f" "$u"; then
+                echo "✅ $f ($(wc -c < "work_riwaya/$f") بايتاً)"; n=$((n+1))
+              else
+                echo "⛔ غائبٌ: $u"
+              fi
+            done
+          done
+          # ⛔ ذراعٌ واحدةٌ لا تُقارن: الفرقُ بين ذراعَين على البنود عينِها.
+          [ "$n" -ge 2 ] || { echo "⛔ $n ملفاً فقط — والمقارنةُ تحتاج ذراعَين"; exit 1; }
+
+      - name: القياسُ روايةً روايةً بمجالها
+        env:
+          PYTHONIOENCODING: utf-8
+        run: |
+          cd tools/tasmi_bench
+          python riwaya_acc_ci.py --work work_riwaya --arms $ARMS --sets $SETS | tee work_riwaya/riwaya.md
+          { echo "### 🕌 دقّةُ التتبّع بالرواية (‏$TAG)"; cat work_riwaya/riwaya.md; } >> "$GITHUB_STEP_SUMMARY"
+
+      - name: إيداعُ الجدول
+        run: |
+          M="tools/tasmi_bench/work_riwaya/riwaya.md"
+          [ -s "$M" ] || { echo "⛔ لا جدولَ — لا شيءَ يُودَع"; exit 1; }
+          mkdir -p results
+          OUT="results/riwaya_ci_${TAG}_${{ github.run_id }}.md"
+          {
+            echo "# دقّةُ التتبّع بالرواية · الوسم \`${TAG}\` · الشوط ${{ github.run_id }}"
+            echo
+            echo "- التاريخ: $(date -u +%FT%TZ) · الذراعان: \`$ARMS\` · المجموعات: \`$SETS\` · الزناد: \`${{ github.event_name }}\`"
+            echo "- المصدر: فرضيّاتُ الشوط من \`finetune/gate/${TAG}/\` على R2 — **قراءةٌ لا قياسٌ جديد**"
+            echo
+            cat "$M"
+          } > "$OUT"
+          cp "$OUT" results/LATEST_riwaya_ci.md
+          git config user.name "rafiq-ci"
+          git config user.email "ci@users.noreply.github.com"
+          git add "$OUT" results/LATEST_riwaya_ci.md
+          git commit -q -m "results(riwaya-ci): ${TAG} · الشوط ${{ github.run_id }}" || { echo "لا تغيير"; exit 0; }
+          for i in 1 2 3; do
+            git fetch -q origin main && git merge -q --no-edit origin/main && git push -q origin HEAD:main && { echo "✅ أُودع $OUT"; exit 0; }
+            echo "↻ محاولةٌ $i"; sleep 5
+          done
+          echo "⛔ تعذّر الدفع"; exit 1
