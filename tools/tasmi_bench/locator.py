@@ -96,7 +96,12 @@ class Locator:
         if not votes:
             return []
         scored = [(f, v + votes.get(f + 1, 0.0) * 0.5, first[f]) for f, v in votes.items()]
-        scored.sort(key=lambda t: -t[1])
+        # ⚖️ **كسرُ التعادل صريحٌ: الأصغرُ فهرساً أوّلاً** (‏D-300 · مرآةُ `QuranLocator.kt`).
+        # هذا الترتيبُ يقرّر أمرين لا واحداً: مَن يدخل في `top` حين يقع القطعُ داخلَ تساوٍ في
+        # الصوت، ومَن **يفوز** في `locate` حين تتساوى الجودةُ (‏أوّلُ الداخلين يكسب: `q > best`).
+        # وكان يقرّرهما ترتيبُ المرور على `dict` هنا وعلى `HashMap` هناك — فرقُ تنفيذٍ يخرج
+        # للمستخدم **جواباً مختلفاً** (‏D-299: المرآة 792 والمحرك 3750 للنصّ نفسِه).
+        scored.sort(key=lambda t: (-t[1], t[0]))
         return scored[:top]
 
     PREAMBLES = (["اعوذ", "بالله", "من", "الشيطان", "الرجيم"], ["بسم", "الله", "الرحمن", "الرحيم"])
@@ -252,7 +257,14 @@ def anchor_one(ref, hyp, cursor, cfg, min_acc=0.5, slack=3, allow_partial=True):
                     and sc["correct"] >= 3 and sc["correct"] == win[1] - win[0] + 1)
     if acc < min_acc and not partial_tail:
         return {"n": n, "correct": 0, "window": None}, cursor
-    return {"n": n, "correct": sc["correct"], "window": win}, win[1] + 1
+    # ⚖️ **المصيبُ هنا = ما لم يُتَّهم** لا «الصحيحُ» وحدَه (‏قِيس 2026-09-12 · D-299): المحركُ يبني
+    # `AyahVerdict(index, n, missed.size, uncertain.size)` فأخطاؤه `MISSED`+`SUBSTITUTED` وحدَها،
+    # و`QuranLocator.locate` يحسب `words - errors` ⇒ **غيرُ المتبيَّن يُعَدُّ مصيباً في ترجيح
+    # المرشّحين**. وكانت المرآةُ تردّ `CORRECT` وحدَه فتبخس كلَّ مرشّحٍ فيه `UNCERTAIN` — وهو
+    # بابٌ واسع (‏D-271: نطاقُ الشكِّ أوسعُ في ورشٍ وقالون). ⚠️ ولا يُمَسّ `sc["correct"]` في شرط
+    # الذيل الجزئيّ أعلاه: المحركُ يستعمل `correctCount` هناك بعينِه (`LongTasmiAnchor.kt:99-102`).
+    kept = n - sum(1 for w in sc["words"] if w[1] in (scorer.MISSED, scorer.SUBSTITUTED))
+    return {"n": n, "correct": kept, "window": win}, win[1] + 1
 
 
 def anchored_per_ayah(ref_list, hyp_text, cfg, min_acc=0.5, slack=3):

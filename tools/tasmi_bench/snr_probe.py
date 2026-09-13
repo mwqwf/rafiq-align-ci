@@ -31,8 +31,8 @@ sys.path.insert(0, HERE)
 
 FRAME = 320
 FLOOR_DBFS = -45.0
-BLOCK_DB = 8.0
-NOISY_DB = 15.0
+BLOCK_DB = 14.0
+NOISY_DB = 18.0
 
 
 def frame_rms(x):
@@ -47,14 +47,28 @@ def db(v):
     return 20.0 * np.log10(max(float(v), 1e-9))
 
 
+def quiet_floor(e, win=50):
+    """🔇 أرضيةٌ بإحصاء الأدنى — مرآةُ `AudioLevelV2.quietFloor` (‏D-344).
+
+    ⛔ المقامُ كان المئينَ العاشرَ من **كلّ** الإطارات، وهو مدىً ديناميٌّ يتأثّر بكثافة الكلام:
+    تلاوةٌ نظيفةٌ متّصلةٌ تُقرأ «صاخبة» (‏14.9 د.ب وسيطاً على `g4dense`) فتُحجب وهي صحيحة.
+    وبأدنى كلِّ نافذةٍ ثانيةً ثمّ مئينِها 25: **25.8** وأدناها 22.3 ⇒ 8.3 د.ب هامشاً فوق الحجب.
+    """
+    if e.size < win:
+        return float(e.min())
+    step = max(1, win // 2)
+    mins = [float(e[i:i + win].min()) for i in range(0, e.size - win + 1, step)]
+    return float(np.percentile(mins, 25))
+
+
 def snr_of(x):
     """(‏snrDb, أرضيةٌ dBFS, أمسموعةٌ الأرضية) — مرآةُ `audibleSnrDb`."""
     e = frame_rms(x)
     if e.size == 0:
         return None, -999.0, False
-    p95, p10 = np.percentile(e, 95), np.percentile(e, 10)
-    floor_db = db(p10)
-    s = db(p95) - db(p10) - 3.0
+    fl = quiet_floor(e)
+    floor_db = db(fl)
+    s = db(np.percentile(e, 95)) - floor_db - 3.0
     return s, floor_db, floor_db > FLOOR_DBFS
 
 
@@ -72,9 +86,16 @@ def main():
     ap.add_argument("--sets", nargs="+", required=True)
     ap.add_argument("--work", default=os.path.join(HERE, "work"))
     ap.add_argument("--md", default="")
+    # 📈 **بندٌ بندٌ لا متوسّطَ مجموعة:** العتبةُ تُقرأ من منحنى «‏snrDb ⇒ دقّة» على البنود كلِّها
+    # مجموعةً واحدةً (‏180 نقطةً بين 9 و25 د.ب)، لا من ثلاثة متوسّطاتٍ — والمتوسّطُ يخفي التشتّت
+    # الذي عليه يُبنى الحجب: ما يهمّ هو **أيُّ بندٍ يُحجب** لا أيُّ مجموعةٍ وسيطُها دون العتبة.
+    ap.add_argument("--json", default="", help="قيمُ كلِّ بندٍ (‏id ⇒ snrDb · أرضية · أمسموعة)")
     a = ap.parse_args()
 
-    L = ["| المجموعة | ن | snrDb وسيطاً | المئين 10 | المئين 90 | أدنى | **< 8 (يُحجب)** | **< 15 (تقريبيّ)** | أرضيةٌ غيرُ مسموعة |",
+    per = {}
+    # ⛔ العنوانُ يُشتقّ من الثابتَين لا يُكتب رقماً: كُتبت «< 8» و«< 15» بعد تغييرهما إلى 14/18
+    # فصار الجدولُ **لافتةً كاذبةً على حسابٍ صحيح** — وهو أخطرُ من خطأ حسابٍ لأنّه لا يُشكّ فيه.
+    L = [f"| المجموعة | ن | snrDb وسيطاً | المئين 10 | المئين 90 | أدنى | **< {BLOCK_DB:g} (يُحجب)** | **< {NOISY_DB:g} (تقريبيّ)** | أرضيةٌ غيرُ مسموعة |",
          "|---|---:|---:|---:|---:|---:|---:|---:|---:|"]
     for s in a.sets:
         d = dir_of(s, a.work)
@@ -87,6 +108,8 @@ def main():
                 continue
             x, _ = sf.read(os.path.join(d, f), dtype="float32")
             v, _fl, audible = snr_of(x)
+            per[s + "/" + f[:-4]] = {"set": s, "id": f[:-4], "snrDb": None if v is None else round(float(v), 2),
+                           "floorDbfs": round(float(_fl), 2), "audible": bool(audible)}
             if not audible:
                 mute += 1
             else:
@@ -104,6 +127,10 @@ def main():
     print(md)
     if a.md:
         open(a.md, "w", encoding="utf-8").write(md + "\n")
+    if a.json:
+        import json as _j
+        _j.dump(per, open(a.json, "w", encoding="utf-8"), ensure_ascii=False)
+        print(str(len(per)) + " بندٍ ⇒ " + a.json)
 
 
 if __name__ == "__main__":

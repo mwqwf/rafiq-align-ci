@@ -23,8 +23,10 @@
     python tools/tasmi_bench/parity_full.py --control       # 🧪 الضابطُ السالب أوّلاً
 
 ⚠️ لا يقيس هذا **صحّةَ** الحكم بل **اتّفاقَ** الحاكمَين. فما اتّفقا على خطئه لا يظهر هنا.
-🧪 **وابدأ بـ`--control` قبل تصديق أيِّ أخضر:** يزرع عطبَ D-276 في المرآة ويتأكّد أنّ المقارنة
-   تصرخ. (سقطت فيه أوّلُ صيغةٍ من هذا الملفّ — انظر `control()`.)
+🧪 **وابدأ بـ`--control` قبل تصديق أيِّ أخضر:** يزرع في المرآة **ثلاثةَ أعطابٍ معزولة** — بابًا
+   لكلِّ رخصةٍ في روايتها (‏D-276 الخنجريّة في حفص · D-248 النقل في ورش · D-231 صلةُ الميم في
+   قالون) — ويتأكّد أنّ المقارنة تصرخ في كلٍّ منها. (سقطت فيه أوّلُ صيغةٍ من هذا الملفّ — انظر
+   `control()`.)
 """
 import argparse
 import io
@@ -198,31 +200,63 @@ def report(r):
               % (name, ref, hyp, m[0], m[1], e))
 
 
+# 🚪 أبوابُ الضابط السالب — **بابٌ لكلِّ رخصةٍ، في روايتها**، لا بابٌ واحدٌ يُقاس على حفصٍ
+# ويُعمَّم على الثلاث. رخصتا ورشٍ وقالون (‏النقلُ وصلةُ ميم الجمع) لا تعملان في حفصٍ أصلاً
+# (`_riwaya_forms` يعود بالصور كما هي إن لم يكن نقلٌ ولا صلة) ⇒ ضابطُ حفصٍ وحدَه **لا يشهد
+# لهما بشيء**: لو انفرط بابُ النقل في المرآة لبقي ضابطُ حفصٍ أخضرَ وهو لم يمرّ به قطّ.
+#
+# وكلُّ عطبٍ هنا يُزرع **معزولاً**: يُغيَّر بابٌ واحدٌ لا غير. ولذلك يُمرَّر `wide_uncertain=True`
+# مع كسرِ الصلة في قالون — فـ`_confusable` يشتقّ سعةَ «غير المتبيَّن» من `naql or sila` (‏D-271)،
+# فإسقاطُ الصلة وحدَها كان سيُسقط معها سعةَ الحكم فيصرخ الضابطُ لسببٍ آخر غير الباب المقصود.
+def _break_dagger(cfg):   # D-276 · الخنجريّةُ غير اختيارية (البابُ الذي وقع فيه العطبُ فعلاً)
+    return scorer.Config(naql=cfg.naql, sila=cfg.sila, dagger_optional=False)
+
+
+def _break_naql(cfg):     # D-248 · بلا نقلٍ (اَ۬لَايْكَةِ ⇒ «ليكه») — ورشٌ وحدَه
+    return scorer.Config(naql=False, sila=cfg.sila)
+
+
+def _break_sila(cfg):     # D-231 · بلا صلةِ ميم الجمع (هُمُۥ ⇒ «همو») — ورشٌ وقالون
+    return scorer.Config(naql=cfg.naql, sila=False, wide_uncertain=True)
+
+
+CONTROL_DOORS = (
+    ("hafs", "D-276 الخنجريّةُ غير اختيارية", _break_dagger),
+    ("warsh", "D-248 بلا نقل", _break_naql),
+    ("qalun", "D-231 بلا صلةِ ميم الجمع", _break_sila),
+)
+
+
 def control(limit=300, jobs=1):
-    """🧪 **ضابطٌ سالب** — يُعطَب إعدادُ المرآة عمداً بعطبِ D-276 (الخنجريّةُ غير اختيارية)
-    ويُتأكَّد أنّ المقارنة **تصرخ**. حارسٌ لا يسقط على عطبٍ مزروع حارسٌ أخرس، وأخضرُه لا يساوي شيئاً.
+    """🧪 **ضابطٌ سالب** — يُعطَب إعدادُ المرآة عمداً، بابًا بابًا، ويُتأكَّد أنّ المقارنة **تصرخ**
+    في كلٍّ منها. حارسٌ لا يسقط على عطبٍ مزروع حارسٌ أخرس، وأخضرُه لا يساوي شيئاً.
 
     ⚠️ وهذا ليس تنظيراً: أوّلُ صيغةٍ من هذا الملفّ **سقطت في الضابط** — كانت تبني المسموعَ
     بـ`norm` فلا يمرّ ببابِ `variants` البتّة، فسكتت عن العطب المزروع سكوتاً تامّاً (0 انحراف
     من 2,276 حالة). ومن هنا وُلدت `whisper_forms` وفصلُ `GEN_CFG_FN` عن `MIRROR_CFG_FN`.
+
+    ⚠️ وسقوطُ بابٍ واحدٍ يُسقط الضابطَ كلَّه: صمتُ بابٍ يعني أنّ أخضرَ تلك الرخصةِ فارغ،
+    لا أنّ البقيّةَ تكفي عنه.
     """
     global MIRROR_CFG_FN
     sound = MIRROR_CFG_FN
-
-    def broken(riwaya):
-        cfg = sound(riwaya)
-        return scorer.Config(naql=cfg.naql, sila=cfg.sila, dagger_optional=False)
-
-    MIRROR_CFG_FN = broken
-    try:
-        r = compare("hafs", limit=limit, examples=2, jobs=jobs)
-    finally:
-        MIRROR_CFG_FN = sound
-    report(r)
-    ok = bool(r["bad"])
-    print("\nالضابط: %s" % ("✅ صرخت المقارنة — الحارسُ حيّ"
-                            if ok else "🚨 سكتت على عطبٍ مزروع — القياسُ أخرس، لا يُوثق بأخضره"))
-    return 0 if ok else 1
+    deaf = []
+    for riwaya, name, breaker in CONTROL_DOORS:
+        MIRROR_CFG_FN = lambda r, _b=breaker: _b(sound(r))
+        try:
+            res = compare(riwaya, limit=limit, examples=2, jobs=jobs)
+        finally:
+            MIRROR_CFG_FN = sound
+        print("\n🚪 البابُ المزروع: %s · %s" % (name, riwaya))
+        report(res)
+        if not res["bad"]:
+            deaf.append((riwaya, name))
+        print("  ⇒ %s" % ("✅ صرخت المقارنة — الحارسُ حيٌّ في هذا الباب"
+                          if res["bad"] else "🚨 سكتت على عطبٍ مزروع — أخضرُ هذا الباب فارغ"))
+    print("\nالضابط: %s" % ("✅ الأبوابُ الثلاثة حيّة"
+                            if not deaf
+                            else "🚨 أبوابٌ خرساء: " + " · ".join(n for _, n in deaf)))
+    return 1 if deaf else 0
 
 
 def main():
