@@ -6,9 +6,9 @@
   "sets": "g3r:noisy,g3r:clean,g1",
   "chain": "cap",
   "chunk": "12",
-  "tag_suffix": "-E",
-  "arm2_tag": "guardon",
+  "tag_suffix": "-F",
+  "arm2_tag": "nogate",
   "arm2_es": "",
-  "arm2_ez": "decodeGuard=true",
-  "arm2_ei": "decodeBeam=5"
+  "arm2_ez": "noiseGate=false",
+  "arm2_ei": ""
 }
