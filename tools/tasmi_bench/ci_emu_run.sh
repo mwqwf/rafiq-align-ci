@@ -92,5 +92,46 @@ if [ -n "$ARM2_TAG" ]; then
   echo "▶ $SET · $ARM2_TAG · ذراعُ مفتاحٍ على q8_shipped.bin ⇐$A2"
   python emu_sweep.py --set "$SET" --chain "$CHAIN" --chunk "$CHUNK" --tag "$ARM2_TAG$SUF" \
     --model-path "/data/local/tmp/q8_shipped.bin" $A2 | tail -3
+  # ⛔⛔ **حارسُ «ذراعان متطابقتان» — بسببٍ مقيسٍ 2026-09-13 (الشوط 34752581140 · D-377):**
+  # طُلبت ذراعُ مفتاحٍ بـ`guardScope=ALL`+`decodeGuard=false` فخرج التشريحُ **بفرقٍ صفريٍّ
+  # في كلِّ صفٍّ ومجالٍ [+0.0 .. +0.0]** — لأنّ مسارَ المسبار (`whisperBatch`) **لا يستدعي
+  # `withFinalGuard`** فكان المفتاحُ لا يغيّر شيئاً، فصارت الذراعان نسختَين. ⭐ والحارسُ
+  # السابقُ (‏«مفتاحٌ واحدٌ على الأقلّ») لم يكفِ: **المفتاحُ وُجد ولم يعمل.**
+  # ⇒ يُقارَن النصُّ المفكوكُ بنداً بنداً: تطابقٌ تامٌّ ⇒ **سقوطٌ صريحٌ** (‏والفرضيّاتُ مرفوعةٌ
+  # في خطوةٍ تالية `if: always()` فلا يضيع المسح، والحمرةُ تمنع أن يُقرأ الصفرُ جواباً).
+  python3 - "$SET" "$CHAIN" "shipped$SUF" "$ARM2_TAG$SUF" <<'PYCMP'
+import json, os, sys
+st, chain, a, b = sys.argv[1], sys.argv[2], sys.argv[3], sys.argv[4]
+tag = st.replace(":", "-")
+def load(arm):
+    p = os.path.join("work", f"hyps_emu_{tag}_{chain}_{arm}.json")
+    if not os.path.exists(p):
+        print(f"ℹ️ لا ملفَّ {p} — لا مقارنة")
+        return None
+    d = json.load(open(p, encoding="utf-8"))
+    # ⛔ **بالمفتاح `hyps` لا بالتخمين:** `emu_sweep` يكتب `{"meta":…, "hyps":{id:{"text":…}}}`
+    # ⇒ قراءةُ الجذر كما هو تُعطي مفتاحَين (`meta`/`hyps`) بلا نصوصٍ فيتساوى كلُّ شيءٍ
+    # **فيصرخ الحارسُ كذباً**. ⭐ وحارسٌ يكذب أسوأُ من لا حارس (‏وقد وقع في هذا المستودع مرّتين).
+    h = d.get("hyps") if isinstance(d, dict) and isinstance(d.get("hyps"), (dict, list)) else None
+    if h is None:
+        h = d.get("items") if isinstance(d, dict) and isinstance(d.get("items"), list) else d
+    if isinstance(h, list):
+        out = {x.get("id"): x.get("text") for x in h if isinstance(x, dict)}
+    else:
+        out = {k: (v.get("text") if isinstance(v, dict) else v) for k, v in h.items()}
+    return {k: v for k, v in out.items() if isinstance(v, str)}
+ha, hb = load(a), load(b)
+if ha is None or hb is None:
+    sys.exit(0)
+common = set(ha) & set(hb)
+if not common:
+    sys.exit(f"⛔ لا بندَ مشتركاً بين {a} و{b} — لا يُقرأ ذلك «لا فرق»")
+same = sum(1 for k in common if (ha[k] or "") == (hb[k] or ""))
+print(f"🔍 {same}/{len(common)} بنداً نصُّهما واحد")
+if same == len(common):
+    sys.exit(f"⛔⛔ **ذراعان متطابقتان تماماً** ({a} · {b}): المفتاحُ لم يغيّر حرفاً في "
+             f"{len(common)} بنداً ⇒ إمّا لا يصل المحركَ في مسار المسبار، وإمّا لا أثرَ له "
+             f"البتّة. **ولا يُقرأ هذا «لا فرقَ يُعتدّ به»** — يُصلَح الربطُ ويُعاد الطلب.")
+PYCMP
 fi
 ls -l work/hyps_emu_*.json | tail -6

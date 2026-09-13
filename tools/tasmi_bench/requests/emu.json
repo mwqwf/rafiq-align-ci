@@ -3,12 +3,12 @@
   "cand_tag": "",
   "cand_url": "",
   "base_url": "",
-  "sets": "g1",
+  "sets": "g3r:noisy,g3r:clean,g1",
   "chain": "cap",
   "chunk": "12",
-  "tag_suffix": "-D",
-  "arm2_tag": "noguard",
-  "arm2_es": "guardScope=ALL",
-  "arm2_ez": "decodeGuard=false",
-  "arm2_ei": ""
+  "tag_suffix": "-E",
+  "arm2_tag": "guardon",
+  "arm2_es": "",
+  "arm2_ez": "decodeGuard=true",
+  "arm2_ei": "decodeBeam=5"
 }
