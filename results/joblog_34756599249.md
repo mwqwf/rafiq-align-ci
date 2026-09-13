@@ -6,7 +6,7 @@
 ## أثرُ السحب
 ```
 + API=https://api.github.com/repos/mwqwf/rafiq-align-ci/actions/runs/34756599249
-+ curl -sS -H 'Authorization: Bearer ghs_15368_eyJhbGciOiJFUzI1NiIsInR5cCI6IkpXVCJ9.eyJhdWQiOiJhdXRobmQiLCJjdHgiOiJXeGM4UTZxdmlDTE9vbWQ4U1QweWYzREQ1dlBrVXR1UndfQnB2UzdEVWtySmtFR2NtOHlHUk40IiwiZXhwIjoxNzg5MzA5NTA1LCJpYXQiOjE3ODkzMDU5MDUsImlzcyI6ImdpdGh1YiIsImp0aSI6IjcxZjIwNjBjLWNiYTgtNDYwNC1hNTgzLWY5N2M0YmRhYWUyOCIsInZlciI6M30.yLnwyzn1ZVrFLXoAq7qFYbJFkRIrWhgtFZF8yqKPMXG8oLoDLssv246UQ2ozC7bHtvmu6v6w2aJRfMb3zmPNFw' https://api.github.com/repos/mwqwf/rafiq-align-ci/actions/runs/34756599249 -o run.json -w 'الحالة=%{http_code}\n'
++ curl -sS -H 'Authorization: Bearer <<<REDACTED-TOKEN>>>' https://api.github.com/repos/mwqwf/rafiq-align-ci/actions/runs/34756599249 -o run.json -w 'الحالة=%{http_code}\n'
 الحالة=200
 + head -c 300 run.json
 {
@@ -18,9 +18,9 @@
   "path": ".github/workflows/sets-build.yml",
   "display_title": "ci(sets-build): 🧱 تحقّقُ بناء مجموعات ا�+ echo
 
-++ curl -sS -o /dev/null -w '%{http_code}' -H 'Authorization: Bearer ghs_15368_eyJhbGciOiJFUzI1NiIsInR5cCI6IkpXVCJ9.eyJhdWQiOiJhdXRobmQiLCJjdHgiOiJXeGM4UTZxdmlDTE9vbWQ4U1QweWYzREQ1dlBrVXR1UndfQnB2UzdEVWtySmtFR2NtOHlHUk40IiwiZXhwIjoxNzg5MzA5NTA1LCJpYXQiOjE3ODkzMDU5MDUsImlzcyI6ImdpdGh1YiIsImp0aSI6IjcxZjIwNjBjLWNiYTgtNDYwNC1hNTgzLWY5N2M0YmRhYWUyOCIsInZlciI6M30.yLnwyzn1ZVrFLXoAq7qFYbJFkRIrWhgtFZF8yqKPMXG8oLoDLssv246UQ2ozC7bHtvmu6v6w2aJRfMb3zmPNFw' https://api.github.com/repos/mwqwf/rafiq-align-ci/actions/runs/34756599249/logs
+++ curl -sS -o /dev/null -w '%{http_code}' -H 'Authorization: Bearer <<<REDACTED-TOKEN>>>' https://api.github.com/repos/mwqwf/rafiq-align-ci/actions/runs/34756599249/logs
 + CODE=302
-++ curl -sS -o /dev/null -w '%{redirect_url}' -H 'Authorization: Bearer ghs_15368_eyJhbGciOiJFUzI1NiIsInR5cCI6IkpXVCJ9.eyJhdWQiOiJhdXRobmQiLCJjdHgiOiJXeGM4UTZxdmlDTE9vbWQ4U1QweWYzREQ1dlBrVXR1UndfQnB2UzdEVWtySmtFR2NtOHlHUk40IiwiZXhwIjoxNzg5MzA5NTA1LCJpYXQiOjE3ODkzMDU5MDUsImlzcyI6ImdpdGh1YiIsImp0aSI6IjcxZjIwNjBjLWNiYTgtNDYwNC1hNTgzLWY5N2M0YmRhYWUyOCIsInZlciI6M30.yLnwyzn1ZVrFLXoAq7qFYbJFkRIrWhgtFZF8yqKPMXG8oLoDLssv246UQ2ozC7bHtvmu6v6w2aJRfMb3zmPNFw' https://api.github.com/repos/mwqwf/rafiq-align-ci/actions/runs/34756599249/logs
+++ curl -sS -o /dev/null -w '%{redirect_url}' -H 'Authorization: Bearer <<<REDACTED-TOKEN>>>' https://api.github.com/repos/mwqwf/rafiq-align-ci/actions/runs/34756599249/logs
 + URL='https://results-receiver.actions.githubusercontent.com/rest/runs/9f6a3120-bf97-464d-98e5-c13067950acc/logs?filename=logs_94133016222.zip&signature=1789305917.765b50759fac1b0c8a2a3fc6b4b0260ac45f299a40b173e5bab2435aa7fbaad6'
 + echo 'نقطةُ السجلّ: 302 · طولُ عنوان التحويل: 222'
 نقطةُ السجلّ: 302 · طولُ عنوان التحويل: 222
