@@ -307,6 +307,16 @@ jobs:
             ARGS="$ARGS $f finetune/gate/$T/emu_$(basename $f)"
           done
           # ⛔ ولا سكوتَ على لا شيء: مجموعةٌ بلا فرضيّاتٍ تُسمّى كي لا تُقرأ «رُفعت».
+          # 📜⭐ **وخطّةُ التلاوة الطويلة تُرفع معها — ثغرةٌ تُسدّ 2026-09-13:** بنودُ `g4*`
+          # مرجعُها في `work/long_plan.json` **لا في `sample.json`** (‏ثغرةُ 09-12 في
+          # `pool_items`) ⇒ القارئُ الرخيصُ (`gate-anatomy`) ينزّل الفرضيّاتَ وحدَها فتخرج
+          # المجموعاتُ الطويلةُ **«⛔ بلا مرجع»**، وموضعُ شحن `guardScope=FINAL` هو التلاوةُ
+          # الطويلةُ بعينها ⇒ **كنّا نقرّر في منطقةٍ لا يقرؤها إلّا شوطُ محاكٍ جديد.**
+          S="$(echo "${{ matrix.set }}" | tr ':' '-')"
+          if [ -f work/long_plan.json ]; then
+            ARGS="$ARGS work/long_plan.json finetune/gate/$T/emu_long_plan_$S.json"
+            echo "📜 وخطّةُ $S معها"
+          fi
           if [ -z "$ARGS" ]; then
             echo "⛔ لا فرضيّاتٍ في work/ لهذه المجموعة — لا رفعَ (يُقال ولا يُكتَم)"
           else
