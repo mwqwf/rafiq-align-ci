@@ -75,8 +75,89 @@ def bounds(words):
     return [out[i] for i in sorted(out)]
 
 
+def eligible(d, text, start, first_surah):
+    """المسبحُ المؤهَّل لنطاقِ سورٍ — **بالشروط الثلاثة نفسِها** التي يبني بها البانّي.
+
+    ⛔ **ولا تُليَّن شرطاً لتكبيره**: `fullEvidence` حدُّ صدقِ التوقيت، ومطابقةُ عدد الكلمات
+    حدُّ صدقِ الاقتران بالنصّ، و‎5..20 كلمةً حدُّ البند المقيس. تكبيرُ المسبح **بنطاقٍ أوسعَ**
+    وحدَه — وذلك ثمنُه تنزيلُ ملفّاتِ سورٍ أكبرَ لا تليينُ شرط.
+    """
+    pool = []
+    for e in d["entries"]:
+        if not e["evidence"].get("fullEvidence"):
+            continue
+        s, a = map(int, e["ayahId"].split(":"))
+        if s < first_surah:
+            continue
+        ref = text[start[s] + a - 1].split()
+        wb = bounds(e["words"])
+        if len(wb) != len(ref) or not (MIN_WORDS <= len(ref) <= MAX_WORDS):
+            continue
+        pool.append((s, a, ref, wb))
+    return pool
+
+
+def audit(work):
+    """🗺️ **قياسُ التغطية قبل التوسيع** — كم يزيد المسبحُ لو وُسِّع النطاقُ تحت جزء 30، وبأيّ ثمن؟
+
+    ⛔ **لِمَ وُجد:** سقفُ خطّة الحقن **256 بنداً** في جزء 30 (‏ورشٌ 128 · قالونُ 146)، وكُتب في
+    دفتر المناوبة أنّ ما فوقَه **يحتاج نطاقَ سورٍ أوسعَ بقياس تغطيةٍ أوّلاً**. وهذا هو القياس:
+    ⭐ **لا يُوسَّع نطاقٌ بالظنّ** — فترويسةُ الفهرس تقول إنّ التغطية **جزئيّةٌ** وإنّ الكهفَ
+    **صفرٌ في ورش**، فالسورةُ قد تكون في الفهرس ولا بندَ فيها البتّة.
+    ⚠️ **وهذا كشفٌ لا شحنٌ:** مخرَجُه جدولٌ يُقرأ، ولا يكتب خطّةً ولا يبدّل `FIRST_SURAH`.
+    """
+    index = load_index()
+    start = {s["n"]: s["start"] for s in index["surahs"]}
+    scopes = [(78, "جزء 30 (المقيسُ اليومَ)"), (67, "جزءا 29–30"), (50, "الأجزاء 26–30"),
+              (36, "الأجزاء 23–30"), (1, "المصحفُ كلُّه")]
+    pools, per_surah, cover = {}, {}, {}
+    for riwaya in ("warsh", "qalun"):
+        d = load_timings(riwaya, work)
+        text = load_text(riwaya)
+        full = sum(1 for e in d["entries"] if e["evidence"].get("fullEvidence"))
+        cover[riwaya] = (full, len(d["entries"]))
+        pools[riwaya] = eligible(d, text, start, 1)
+        for s, a, ref, wb in pools[riwaya]:
+            per_surah.setdefault(s, {"warsh": 0, "qalun": 0})[riwaya] += 1
+
+    print("## 🗺️ سقفُ مسبحِ الحقن الروائيّ بحسب نطاق السور — **قياسٌ لا ظنّ**\n")
+    for r, (f, n) in cover.items():
+        print(f"- `{r}`: **{f}** آيةً كاملةَ الأدلّة من **{n}** في الفهرس كلِّه "
+              f"(‏{100.0*f/max(n,1):.1f}٪) · والمؤهَّلُ منها بشروط البند **{len(pools[r])}**.")
+    print("\n| النطاق | ورش | قالون | المجموع | ⬆️ فوق المقيس | 📥 ملفّاتُ سورٍ تُنزَّل |")
+    print("|---|---:|---:|---:|---:|---:|")
+    base = None
+    for first, name in scopes:
+        w = sum(1 for p in pools["warsh"] if p[0] >= first)
+        q = sum(1 for p in pools["qalun"] if p[0] >= first)
+        files = len({p[0] for p in pools["warsh"] if p[0] >= first}) + \
+                len({p[0] for p in pools["qalun"] if p[0] >= first})
+        base = base if base is not None else w + q
+        print(f"| {name} (‏س≥{first}) | {w} | {q} | **{w + q}** | {w + q - base:+d} | {files} |")
+    print("\n⚠️ **والمسبحُ ليس بنوداً**: البندُ يستهلك آيةً كاملةً (‏آيتان في آيةٍ واحدةٍ ليستا "
+          "شاهدَين مستقلَّين)، ويسقط منه ما كانت كلمتُه الداخليّةُ أقصرَ من "
+          f"{MIN_WORD_MS} م.ث أو لم يُوجد له مانحٌ ⇒ **السقفُ أعلى من المُنتَج دائماً**.")
+    print("⛔ **والثمنُ يُقرأ في العمود الأخير**: كلُّ ملفِّ سورةٍ تنزيلٌ في كلِّ شوطٍ يبني "
+          "المجموعات، وسورُ أوائل المصحف **أثقلُ** من قِصار جزء 30 بمراتب.\n")
+    rows = [(s, v["warsh"], v["qalun"]) for s, v in per_surah.items() if s < 78]
+    rows.sort(key=lambda r: -(r[1] + r[2]))
+    print("### وأغنى السور تحت جزء 30 (‏أوّلُ 15) — ⭐ **والفارغةُ منها لا تُدخَل بالظنّ**\n")
+    print("| السورة | ورش | قالون |")
+    print("|---:|---:|---:|")
+    for s, w, q in rows[:15]:
+        print(f"| {s} | {w} | {q} |")
+    zero = [s for s, v in per_surah.items() if (v["warsh"] == 0) != (v["qalun"] == 0)]
+    if zero:
+        print(f"\n⛔ و**{len(zero)}** سورةً مؤهَّلةٌ في روايةٍ وصفرٌ في الأخرى "
+              f"(‏أوّلُها: {' · '.join(str(s) for s in sorted(zero)[:8])}) ⇒ **نطاقٌ يُدخَل "
+              "لا يعني بندَين متوازيَين** — والتوازنُ بين الروايتين يُقاس لا يُفترض.")
+    return 0
+
+
 def main():
     ap = argparse.ArgumentParser()
+    ap.add_argument("--audit", action="store_true",
+                    help="🗺️ يقيس سقفَ المسبح بحسب نطاق السور ولا يكتب خطّةً البتّة")
     ap.add_argument("--out", default=os.path.join(HERE, "inject_plan_riwaya.json"))
     ap.add_argument("--work", default=os.path.join(HERE, "work"))
     ap.add_argument("--per-op", type=int, default=PER_OP,
@@ -89,6 +170,8 @@ def main():
     ap.add_argument("--extend", default="",
                     help="مسارُ خطّةٍ قائمةٍ تُحفظ بنودُها كما هي ويُبنى عليها (توسيعٌ فائق)")
     args = ap.parse_args()
+    if args.audit:
+        return audit(args.work)
 
     keep, kept_ayat, kept_count = [], set(), {}
     if args.extend:
@@ -111,18 +194,9 @@ def main():
     for riwaya in ("warsh", "qalun"):
         d = load_timings(riwaya, args.work)
         text = load_text(riwaya)
-        pool = []
-        for e in d["entries"]:
-            if not e["evidence"].get("fullEvidence"):
-                continue
-            s, a = map(int, e["ayahId"].split(":"))
-            if s < FIRST_SURAH:
-                continue
-            ref = text[start[s] + a - 1].split()
-            wb = bounds(e["words"])
-            if len(wb) != len(ref) or not (MIN_WORDS <= len(ref) <= MAX_WORDS):
-                continue
-            pool.append((s, a, ref, wb))
+        # ⛔ **المسبحُ من دالّةٍ واحدةٍ** (‏`eligible`) يتقاسمها البانّي والقياسُ (`--audit`):
+        #    مسبحان بشرطَين متفرّقَين يجعلان السقفَ المُعلَن غيرَ السقف المبنيّ **بلا صراخ**.
+        pool = eligible(d, text, start, FIRST_SURAH)
         rng.shuffle(pool)
         census[riwaya] = {"مسبحٌ مؤهَّل": len(pool),
                           "مستعمَلٌ سابقاً": sum(1 for p in pool if (riwaya, p[0], p[1]) in kept_ayat)}

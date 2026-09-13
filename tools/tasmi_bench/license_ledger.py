@@ -54,7 +54,11 @@ import scorer  # noqa: E402
 import parity_full as P  # noqa: E402  (‏whisper_forms + config_for — مصدرٌ واحدٌ للقاعدة)
 from common import load_text  # noqa: E402
 
-RIWAYAT = ("hafs", "warsh", "qalun")
+# 🗺️ D-429: كانت ثلاثاً، والمصحفُ ستّ (‏من قائمة النظر في D-428). والتوسيعُ هنا **يغيّر
+#    طرفَي الميزان معاً**: (أ) الفائدةُ تُحسب على نصوصِ ستٍّ لا ثلاث، و(ب) التكلفةُ على
+#    **اتّجاهات الزلّة** وهي `permutations(RIWAYAT, 2)` ⇒ **6 اتّجاهاتٍ تصير 30**.
+#    ولا شيءَ في الملفّ يتعلّق بمُدخَلٍ محصور: `load_text` و`cfg_for` يعرفان الستَّ.
+RIWAYAT = ("hafs", "warsh", "qalun", "shuba", "douri", "sousi")
 
 
 def shipped(riwaya):
@@ -145,9 +149,13 @@ def measure(text, examples=0):
     base_b_blind = [(e, s, raw, hyp) for e, s, raw, hyp in pb if accepts(ship[e], raw, hyp)]
 
     print("👥 المجتمعان (المصحفُ كلُّه):")
-    print("   أ · تلاوةٌ صحيحة: %d زوجٍ (الروايات الثلاث)" % len(pa))
+    # 📌 اللافتتان تُحسبان ولا تُكتبان: كانتا «الروايات الثلاث» و«الاتّجاهات الستّة» نصّاً،
+    #    فلمّا وُسِّع النطاقُ في D-429 صارتا **تكذبان على القارئ** وهما في متن المخرَج.
+    #    ⇒ كلُّ لافتةٍ تصف نطاقاً يجب أن تُشتقّ منه، وإلّا تخلّفت عنه صامتة.
+    print("   أ · تلاوةٌ صحيحة: %d زوجٍ (%d روايات)" % (len(pa), len(RIWAYAT)))
     print("      ⇒ أرضيّةُ الاتّهام الكاذب بالمشحون: **%d**" % len(base_a))
-    print("   ب · زلّةٌ روائية: %d زوجٍ على الاتّجاهات الستّة" % len(pb))
+    print("   ب · زلّةٌ روائية: %d زوجٍ على %d اتّجاهاً"
+          % (len(pb), len(RIWAYAT) * (len(RIWAYAT) - 1)))
     print("      ⇒ يبتلعها المشحون (عمىً): **%d** (%.2f٪) · يكشف %d"
           % (len(base_b_blind), 100.0 * len(base_b_blind) / max(len(pb), 1),
              len(pb) - len(base_b_blind)))

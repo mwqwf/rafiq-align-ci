@@ -27,8 +27,13 @@ for _s in (sys.stdout, sys.stderr):
         pass
 
 
-def load(dirs, arm, sets=None):
-    """{مُعرِّفُ البند: مللي ثانية} لكلِّ مجموعةٍ مطلوبة — من `hyps_emu_*_<arm>.json`."""
+def load(dirs, arm, sets=None, seen_sets=None):
+    """{مُعرِّفُ البند: مللي ثانية} لكلِّ مجموعةٍ مطلوبة — من `hyps_emu_*_<arm>.json`.
+
+    ⚠️ و[seen_sets] تُجمع فيها **أسماءُ المجموعات التي قُرئت فعلاً**: فالجدولُ يقرأ كلَّ ما في
+    `work/` لا ما في الطلب (‏`g1` تُنزَّل تلقائيّاً لقناة الضجّة) ⇒ **رقمٌ بلا عيّنته نصفُ رقم**،
+    وقد قرأتُ 466 بنداً وفي الطلب مجموعةٌ واحدةٌ فظننتُها هي (‏2026-09-13).
+    """
     out = {}
     for d in dirs:
         base, _, suf = d.partition(":")
@@ -41,9 +46,15 @@ def load(dirs, arm, sets=None):
             except Exception as e:
                 print(f"⛔ لا يُقرأ {p}: {e}")   # يُقال ولا يُكتَم
                 continue
+            got = 0
             for k, v in h.items():
                 if isinstance(v, dict) and isinstance(v.get("ms"), (int, float)):
                     out[k] = float(v["ms"])
+                    got += 1
+            if got and seen_sets is not None:
+                # اسمُ المجموعة من اسم الملفّ: hyps_emu_<المجموعة>_<السلسلة>_<الذراع>.json
+                body = name[len("hyps_emu_"):].rsplit(".json", 1)[0]
+                seen_sets.add(body.rsplit("_", 2)[0] if body.count("_") >= 2 else body)
     return out
 
 
@@ -65,7 +76,8 @@ def main():
     ap.add_argument("--sets", nargs="*", default=None, help="مجموعاتٌ بأسمائها في الملفّ (g1 · g3r-noisy)")
     a = ap.parse_args()
     dirs = a.dirs.split(",")
-    ta, tb = load(dirs, a.arms[0], a.sets), load(dirs, a.arms[1], a.sets)
+    seen = set()
+    ta, tb = load(dirs, a.arms[0], a.sets, seen), load(dirs, a.arms[1], a.sets, seen)
     common = sorted(set(ta) & set(tb))
     if not common:
         # ⛔ **ولا صمتَ عند الصفر:** «لا زمنَ» قد تعني فرضيّاتٍ بلا `ms` (شوطٌ قديم) لا تساوياً.
@@ -76,7 +88,10 @@ def main():
     db = [tb[k] for k in common]
     ratio = [tb[k] / ta[k] for k in common if ta[k] > 0]
     slower = sum(1 for k in common if tb[k] > ta[k])
-    print(f"# ⏱️ ثمنُ الزمن — `{a.arms[0]}` ⇒ `{a.arms[1]}` (‏{len(common)} بنداً مشتركاً · محاكي العدّاء)\n")
+    # ⛔ **والعيّنةُ تُسمّى مع الرقم:** المجموعاتُ التي قُرئت فعلاً لا التي في الطلب.
+    names = " · ".join(sorted(seen)) or "?"
+    print(f"# ⏱️ ثمنُ الزمن — `{a.arms[0]}` ⇒ `{a.arms[1]}` (‏{len(common)} بنداً مشتركاً "
+          f"من **{names}** · محاكي العدّاء)\n")
     print("| المقياس | `%s` | `%s` | النسبة |" % (a.arms[0], a.arms[1]))
     print("|---|---:|---:|---:|")
     for name, q in (("الوسيط", 0.5), ("المئينُ 90", 0.9), ("الأقصى", 1.0)):

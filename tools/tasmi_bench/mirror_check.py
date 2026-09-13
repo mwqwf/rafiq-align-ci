@@ -18,6 +18,7 @@
 import argparse
 import filecmp
 import os
+import re
 import shutil
 import sys
 
@@ -31,16 +32,28 @@ for _s in (sys.stdout, sys.stderr):
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 SRC = os.path.normpath(os.path.join(HERE, "..", "..", "..", "QuranRafiq", "tools", "tasmi_bench"))
+# مجلداتٌ مولَّدةٌ أو مؤقّتةٌ لا يُسأل عن مرآتها
+IGNORED_DIRS = {"__pycache__", "work", "requests", "patches", ".pytest_cache"}
 
 
-def main():
-    ap = argparse.ArgumentParser()
-    ap.add_argument("--src", default=SRC)
-    ap.add_argument("--sync", action="store_true", help="انسخ الأصلَ فوق المرآة (لا يحذف ولا يضيف)")
-    a = ap.parse_args()
-    if not os.path.isdir(a.src):
-        raise SystemExit(f"⛔ لا مجلدَ أصلٍ في {a.src} — لا يُقرأ «لا انحراف» من غياب المقارَن به")
+def check_pair(HERE, src, sync, label):
+    """يفحص مجلدَ مرآةٍ واحداً ضدّ أصله ويطبع، ويُعيد عددَ الانحرافات الباقية بعد العلاج.
 
+    ⛔⛔ **خامسةُ الثغرات (2026-09-13) — والحارسُ كان يفحص مجلداً واحداً:** الفحصُ كان على
+    `tools/tasmi_bench` وحدَه، **و`tools/finetune/` مُمرأًى أيضاً** وتناديه المساراتُ في كلّ
+    شوط (`r2_put.py` في `emu-gate` و`tasmi-gate` و`arm-time` · و`prep.py` في `finetune-prep`).
+    فوُجد فيه انحرافٌ قائمٌ **لم يكشفه أحد**: `target_audit.py` في المرآة هو **نسخةُ ما قبل
+    D-316** (‏التي كانت تُسقط الآيةَ كلَّها فتعمى عن 3,582 آيةً — تغطيةُ 71.2٪ لا غير)، وتعليقُ
+    `prep.py` باقٍ على الرقم المنسوخ. ⇒ **مرآةٌ تُخبر برقمٍ عُلم خطؤه** لو شُغِّلت.
+    """
+    if not os.path.isdir(src):
+        print(f"⛔ لا مجلدَ أصلٍ لـ{label} في {src} — لا يُقرأ «لا انحراف» من غياب المقارَن به")
+        return 1
+    if not os.path.isdir(HERE):
+        print(f"ℹ️ لا مجلدَ مرآةٍ لـ{label} هنا — لا يُفحَص")
+        return 0
+    print(f"— 🪞 **{label}**")
+    a = argparse.Namespace(src=src, sync=sync)
     drift, missing = [], []
     for f in sorted(os.listdir(HERE)):
         # ⛔⛔ **ولا `.py` وحدَها — ثغرةٌ وُجدت 2026-09-13 (D-374 وما بعده):** جسمُ **كلِّ** شوط
@@ -78,12 +91,51 @@ def main():
         else:
             drift = drift + absent   # كي لا يخرج بـ0 والمرآةُ ناقصة
 
+    # ⛔⛔ **ورابعةٌ — والحارسُ نفسُه كان أعمى عنها (2026-09-13):** الحلقتان تمشيان على
+    # **الملفّات المسطَّحة** وحدَها، والأصلُ فيه مجلدُ `engine_judge/` (‏حاكمُ المحرك بالكوتلن)
+    # **لا وجودَ له في المرآة البتّة** — فقال الحارسُ «لا انحراف» وفي المرآة **تسعُ أدواتٍ
+    # تناديه بالاسم** (`parity_full` · `riwaya_surface` · `locator_parity` …). فمتى نادى
+    # مسارٌ إحداها **سقط بـ«لا ملفّ»**، وذلك أوّلُ ما وُجد الحارسُ ليمنعه.
+    # ⭐⭐ **ولا يُعالَج بنسخٍ تلقائيّ:** `QuranRafiq` **خاصّ**، و`engine_judge/` **مصدرُ محرّكٍ
+    # بالكوتلن** — ونسخُه إلى المستودع العامّ **نشرٌ لا مزامنة**. ⇒ الغيابُ هنا **قرارٌ** لا
+    # سهو، وواجبُ الحارس أن يقول **مَن سيسقط به** لا أن يملأه.
+    danger = []
+    for d in sorted(os.listdir(a.src)):
+        if not os.path.isdir(os.path.join(a.src, d)) or d in IGNORED_DIRS:
+            continue
+        if os.path.isdir(os.path.join(HERE, d)):
+            continue          # مُمرأًى فعلاً — وفحصُ داخله بابٌ آخرُ يُفتح حين يُمرأى شيء
+        callers = []
+        # ⛔ **والنداءُ يُعرَف بصورته لا بذكرِ الاسم**: مِن مسارٍ (`engine_judge/…`) أو من اسمٍ
+        #    مقتبَسٍ في `os.path.join` — ولولا ذلك لعُدَّ **كلُّ ملفٍّ يشرح المجلدَ في تعليقه**
+        #    نادياً له. ⭐ وهذا الحارسُ نفسُه يذكره في شرحه ⇒ **لا يعدّ نفسَه**.
+        pat = re.compile(r'%s/|["\']%s["\']' % (re.escape(d), re.escape(d)))
+        for f in sorted(os.listdir(HERE)):
+            if not f.endswith((".py", ".sh")) or f == os.path.basename(__file__):
+                continue
+            try:
+                if pat.search(open(os.path.join(HERE, f), encoding="utf-8", errors="replace").read()):
+                    callers.append(f)
+            except OSError:
+                continue
+        if callers:
+            danger.append((d, callers))
+    for d, callers in danger:
+        print(f"⛔ **مجلدُ `{d}/` في الأصل ولا وجودَ له في المرآة، و{len(callers)} أداةً هنا "
+              f"تناديه** ⇒ أيُّ مسارٍ يشغّلها يسقط بـ«لا ملفّ»: " + " · ".join(callers[:6])
+              + (" …" if len(callers) > 6 else ""))
+    if danger:
+        print("⭐ **وليس علاجُه نسخاً**: قد يكون الغيابُ مقصوداً (‏مصدرُ محرّكٍ لا يُنشر في "
+              "مستودعٍ عامّ) ⇒ فإمّا أن يُمرأى بقرارٍ صريح، وإمّا **ألّا يُنادى من المرآة**.")
+
     if missing:
         # ⚠️ ملفٌّ هنا وليس في الأصل: **ليس انحرافاً** بالضرورة (قد يكون أداةَ مسارٍ خاصّةً
         # بالمستودع العامّ) — يُذكر ولا يُعالَج تلقائيّاً.
         print("ℹ️ هنا ولا أصلَ لها (تُراجَع بالعين): " + " · ".join(missing))
     if not drift:
-        print("✅ لا انحراف: كلُّ ملفٍّ له أصلٌ مطابقٌ بايتاً ببايت.")
+        # ⛔ ولا تُقال «✅» مجرّدةً وفوقَها تنبيهٌ — فالعينُ تقرأ آخرَ سطرٍ وتمضي.
+        print("✅ لا انحرافَ في الملفّات: كلُّ ملفٍّ له أصلٌ مطابقٌ بايتاً ببايت."
+              + (" ⚠️ **لكن فوقَه ما يُنظر فيه.**" if danger else ""))
         return 0
     print("⛔ **انحرافُ مرآة** في " + str(len(drift)) + " ملفّاً:")
     for f in drift:
@@ -95,6 +147,42 @@ def main():
         return 0
     print("⇒ `python tools/tasmi_bench/mirror_check.py --sync` ثمّ أودِع بمسارات صريحة.")
     return 1
+
+
+def main():
+    ap = argparse.ArgumentParser()
+    ap.add_argument("--src", default=SRC, help="أصلُ tasmi_bench (‏وأخواتُه تُشتقّ منه)")
+    ap.add_argument("--sync", action="store_true", help="انسخ الأصلَ فوق المرآة (لا يحذف ولا يضيف)")
+    ap.add_argument("--only", default="", help="اسمُ مجلدٍ مُمرأًى واحدٍ يُفحَص وحدَه (‏للاختبار)")
+    a = ap.parse_args()
+    # 🪞 **كلُّ مجلدٍ مُمرأًى يُفحَص** — والقائمةُ هنا **مصدرٌ واحدٌ للحقيقة**: ما يُضاف إلى
+    # المرآة يُضاف إليها، ⛔ **وإلّا فانحرافُه لا يراه أحدٌ حتى يُعطي رقماً خاطئاً**.
+    pairs = [("tasmi_bench", os.path.dirname(os.path.abspath(__file__)), a.src)]
+    tools_mir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+    tools_src = os.path.dirname(a.src)
+    for d in ("finetune",):
+        pairs.append((d, os.path.join(tools_mir, d), os.path.join(tools_src, d)))
+    # ℹ️ **وحدُّ هذا الحارس يُقال صريحاً**: في المرآة مجلداتٌ أخرى لها أصلٌ هنا
+    # (`alignment*` · `index_qa` · `ci_fleet` · `cloud*`) وهي **مرآةُ مناوبةٍ أخرى** (الفهرسة)
+    # — لا تُفحَص هنا ولا تُلمَس. ⭐ **وتُسمّى كي لا يُقرأ سكوتُ الحارس عنها «لا انحرافَ فيها»**،
+    # فمَن يملكها يضيفها إلى قائمته. (وتُحسب آليّاً فلا تتقادم القائمةُ إن ظهر مجلدٌ جديد.)
+    named = {lbl for lbl, _, _ in pairs}
+    others = []
+    if os.path.isdir(tools_mir) and os.path.isdir(tools_src):
+        for d in sorted(os.listdir(tools_mir)):
+            if d in named or d in IGNORED_DIRS or not os.path.isdir(os.path.join(tools_mir, d)):
+                continue
+            if os.path.isdir(os.path.join(tools_src, d)):
+                others.append(d)
+    if others and not a.only:
+        print("ℹ️ ولا يُفحَص هنا (مرآةُ مناوبةٍ أخرى — وسكوتُنا عنها **ليس** حكماً بسلامتها): "
+              + " · ".join(others))
+    rc = 0
+    for label, mir, src in pairs:
+        if a.only and a.only != label:
+            continue
+        rc = max(rc, check_pair(mir, src, a.sync, label))
+    return rc
 
 
 if __name__ == "__main__":

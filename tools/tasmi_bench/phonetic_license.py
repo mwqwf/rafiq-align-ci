@@ -43,7 +43,11 @@ sys.path.insert(0, os.path.join(ROOT, "tools", "alignment"))
 import scorer  # noqa: E402
 import short_word_benefit as B  # noqa: E402
 
-RIWAYAT = ("hafs", "warsh", "qalun")
+# 🗺️ D-430: صارت ستّاً (‏من قائمة النظر في D-428). ⚠️ **والتوسيعُ يصيب نصفَ التكلفة وحدَه:**
+#    `RIWAYAT` لا تُستعمل إلّا في مسح المصحف (‏طريقةُ D-277)، أمّا **نصفُ الفائدة فمربوطٌ
+#    بحزمةِ تعرّفٍ مودَعةٍ ثلاثيّةِ الرواية** (‏272 حالةً: hafs · qalun · warsh) ⇒ يبقى على
+#    ثلاثٍ **بمُدخَله لا بسهو**، ولا يُوسَّع إلّا بحزمةِ تعرّفٍ أوسعَ — وتلك تقتضي صوتاً.
+RIWAYAT = ("hafs", "warsh", "qalun", "shuba", "douri", "sousi")
 CONFIRMED = B.CONFIRMED
 
 # (المفتاح، العنوان، short_cap، phon)

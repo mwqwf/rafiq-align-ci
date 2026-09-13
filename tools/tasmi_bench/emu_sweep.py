@@ -93,6 +93,46 @@ def tag_of(set_name):
     return f"{kind}-{name}"
 
 
+def bench_stamp():
+    """🧬 **بصمةُ ما قاس** — تُختم في ترويسة كلّ ملفِّ فرضيّات: أيُّ شفرةِ مقياسٍ وأيُّ بناءِ محرّك.
+
+    ⛔ **ولِمَ صارت لازمةً (‏2026-09-13):** انحرفت المرآةُ في `rafiq-align-ci` عن أصلها
+    أربعين دقيقةً (`phonetic_license.py`) — ولو أُشعل شوطٌ فيها لقاس **شفرةً غيرَ التي أُودعت**،
+    والرقمُ الناتجُ **لا شيءَ فيه يقول ذلك**. والفرضيّاتُ تُحفظ في R2 وتُقرأ بعد أيام
+    (‏إصلاحُ D-374) ⇒ فملفٌّ بلا بصمةٍ **رقمٌ بلا شفرته**.
+
+    ⭐ **والبناءُ ببصمة الملفّ لا بعنوانه**: العنوانُ في R2 **يُكتب فوقه** فيصير يدلّ على غيرِ
+    ما قِيس، وأمّا `sha256` فلا يكذب. (‏والعنوانُ يُحفظ معه للقراءة البشريّة وحدَها.)
+    ⚠️ و`?` تعني «لم يُعرف» لا «لا شيء» — فلا تُقرأ تطابقاً.
+    """
+    rev, dirty = "?", ""
+    try:
+        p = sh(["git", "-C", HERE, "rev-parse", "--short", "HEAD"], timeout=15)
+        if p.returncode == 0 and p.stdout.strip():
+            rev = p.stdout.strip()
+            q = sh(["git", "-C", HERE, "status", "--porcelain", "--", HERE], timeout=15)
+            if q.returncode == 0 and q.stdout.strip():
+                dirty = "+غيرُ مودَع"   # ⛔ شوطٌ على شجرةٍ فيها تعديلٌ لم يُدفع ⇒ لا يُعاد إنتاجُه
+    except Exception:
+        pass
+    st = {"benchRev": rev + dirty}
+    for key, env in (("apkSha", "APK_SHA"), ("apkUrl", "APK_URL"), ("runId", "GITHUB_RUN_ID")):
+        v = (os.environ.get(env) or "").strip()
+        if v:
+            st[key] = v
+    return st
+
+
+def mixed_stamp(prev_meta, meta):
+    """⛔ بنودٌ من بصمتَين في ملفٍّ واحدٍ — تُسمّى ولا تُكتم. (فارغٌ = بصمةٌ واحدةٌ أو مجهولة.)
+
+    ⚠️ **والمجهولُ ليس اختلافاً**: ملفُّ ما قبل البصمة (‏`benchRev` غائبٌ) يُستأنف ولا يُتّهم —
+    فالحكمُ «اختلفت» لا يُبنى على «لم تُعرف».
+    """
+    return {k: [prev_meta.get(k), meta.get(k)] for k in ("benchRev", "apkSha")
+            if prev_meta.get(k) and prev_meta.get(k) != meta.get(k)}
+
+
 TAG = ""   # 🏷️ وسمُ الذراع (‏--tag): نموذجان على المحرك نفسِه لا يكتبان في ملفٍّ واحد
 
 def out_path(set_name, chain=False):
@@ -110,9 +150,11 @@ def run_set(set_name, limit=0, chunk=60, timeout_per_file=90, chain=False):
     if limit:
         ids = ids[:limit]
     out = out_path(set_name, chain)
-    done = {}
+    done, prev_meta = {}, {}
     if os.path.exists(out):
-        done = json.load(open(out, encoding="utf-8")).get("hyps", {})
+        _d = json.load(open(out, encoding="utf-8")) or {}
+        done = _d.get("hyps", {})
+        prev_meta = _d.get("meta") or {}
     todo = [i for i in ids if i not in done or "error" in done.get(i, {})]
     print(f"▶ {set_name}: {len(ids)} بنداً ({len(ids)-len(todo)} منجَز) — المتبقّي {len(todo)}", flush=True)
     if not todo:
@@ -122,7 +164,20 @@ def run_set(set_name, limit=0, chunk=60, timeout_per_file=90, chain=False):
             "device": "emulator-5554", "model": MODEL, "set": tag_of(set_name),
             "frontEnd": {"chain": "noiseGate+levelV2", "gate": "noiseGate", "lvl": "levelV2",
                          "cap": "noiseGate+groupCap10", "caponly": "groupCap10",
-                         "gateonly": "noiseGate"}.get(chain, "shipped(v1)")}
+                         "gateonly": "noiseGate"}.get(chain, "shipped(v1)"),
+            **bench_stamp()}
+    # ⛔⛔ **وثقبٌ في البصمة نفسِها يُسدّ قبل أن يُعتمد عليها:** المسحُ **يُستأنف** (‏`done` من
+    # ملفٍّ قائم)، فلو تبدّلت الشفرةُ أو بناءُ المحرك بين الشوطَين لصار الملفُّ **بنوداً من
+    # بصمتَين وترويستُه تعلن واحدةً** — ⭐ وهو الكذبُ الصامتُ الذي وُجدت البصمةُ لتمنعه، فلا
+    # يُغتفر فيها. ⇒ يُذكر الاختلافُ صريحاً في الترويسة (`stampMixed`) ويُصرَخ به في السجلّ.
+    mixed = mixed_stamp(prev_meta, meta) if done else {}
+    if mixed:
+        meta["stampMixed"] = mixed
+        meta["stampMixedItems"] = len(done)
+        print("⛔⛔ استئنافٌ ببصمةٍ أخرى — الملفُّ بنودٌ من بصمتَين: "
+              + json.dumps(mixed, ensure_ascii=False)
+              + f" (‏{len(done)} بنداً قديماً) ⇒ لا يُقارن هذا الملفُّ بذراعٍ كأنّه واحد",
+              flush=True)
     # دفعاتٌ صغيرة: سجلُّ المحاكي حلقيٌّ، ودفعةٌ طويلةٌ تُفقد أوائلَها.
     for start in range(0, len(todo), chunk):
         batch = todo[start:start + chunk]
