@@ -145,6 +145,14 @@ jobs:
           # (‏`work:`) كي **لا تُقلَّم** لاحقةُ الوسم من أسماء الأذرع.
           python detect_anatomy.py --dirs "work:" --arms $ARMS | tee work/anatomy.md
           { echo "### 🔬 تشريحُ الكشف (‏$TAG)"; cat work/anatomy.md; } >> "$GITHUB_STEP_SUMMARY"
+      - name: 🧹 الزوائدُ الكاذبة (‏قناةٌ لا يعدّها الاتّهامُ الكاذب)
+        env:
+          PYTHONIOENCODING: utf-8
+        run: |
+          cd tools/tasmi_bench
+          # ⭐ تُقاس في **كلّ** قراءةٍ لا بطلبٍ خاصّ: ثمنُها ثوانٍ، وهي الرقمُ الذي يقرّر
+          # أيُعرَض توطينُ الزوائد للمستخدم أم يحتاج تهدئةً (‏D-366).
+          python extras_noise_probe.py --dirs "work:" --arms $ARMS | tee work/extras_noise.md
       - name: 🎛️ أثرُ قاعدةِ التعادل (‏إن طُلب — مسطرتان على فرضيّاتٍ واحدة)
         if: env.RULE_AB != ''
         env:
@@ -177,6 +185,9 @@ jobs:
             # `--pattern`** فتقول «المحرك (المحاكي)» — والنسبُ الصادقُ في الجدول أعلاه لا فيها.
             cat tools/tasmi_bench/work/gate.md
             echo
+            if [ -s tools/tasmi_bench/work/extras_noise.md ]; then
+              cat tools/tasmi_bench/work/extras_noise.md; echo
+            fi
             if [ -s tools/tasmi_bench/work/rule_ab.md ]; then
               # ⛔ **علامتا `` ` `` داخل «...» تنفيذُ أمرٍ لا اقتباسٌ** — فخرج العنوانُ فارغاً في
               # أوّل شوط (‏`34747396287`). ⇒ تُهرَّب بـ\` كما في بقيّة هذا المسار.
