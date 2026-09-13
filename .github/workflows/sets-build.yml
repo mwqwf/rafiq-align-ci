@@ -1,0 +1,133 @@
+# 🧱 **بناءُ مجموعات القياس وحدَه — بلا محاكٍ** (تحقّقٌ رخيصٌ قبل أن يُنفق أحدٌ نصفَ ساعة).
+#
+# ⛔ **لِمَ وُجد — بسببٍ مقيسٍ** (‏2026-09-13): وُسِّعت `sample.json` من 202 إلى **271** بنداً،
+# وروابطُ الجديد فُحصت بـHEAD (‏69/69 موجودة) — **لكنّ بناءَ المجموعات لم يُجرَّب**:
+# `fetch_audio.py` ثمّ `augment.py --only noise-fan-5` ثمّ `inject_riwaya_local.py`.
+# وشوطُ البوّابة **يشترط اكتمالَ كلّ معرّفٍ** (`complete()`), فبندٌ واحدٌ لا يُبنى **يُسقط نصفَ
+# ساعةِ محاكٍ** لمن يأتي بعدُ. ⭐ **فمن غيّر العيّنةَ فليَختبر بناءَها — والاختبارُ خمسُ دقائقَ
+# بلا محاكٍ ولا نموذج.**
+#
+# 🔑 وزنادُه الإيداعُ: يُدفع `tools/tasmi_bench/requests/sets.json` ‏(`sets`: أسماءُ المجلّدات).
+name: sets-build
+
+on:
+  workflow_dispatch:
+    inputs:
+      sets:
+        description: "مجلّداتٌ تُعدّ بعد البناء (‏wav · g2/noise-fan-5 · g3r/clean · g3r/noisy)"
+        required: false
+        default: "wav g2/noise-fan-5 g3r/clean g3r/noisy"
+  push:
+    paths:
+      - "tools/tasmi_bench/requests/sets.json"
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: العدّة
+        run: |
+          sudo apt-get update -qq && sudo apt-get install -y -qq ffmpeg >/dev/null
+          # ⛔ العدّةُ كما في `emu-gate` حرفاً (‏numpy·soundfile·scipy·boto3) — لا كما أظنّ:
+          # عدّةٌ ناقصةٌ تُسقط البناءَ فيُقرأ العطبُ في العيّنة وهو في الشوط.
+          pip install -q numpy soundfile scipy boto3
+
+      - name: الطلب
+        env:
+          I_SETS: ${{ github.event.inputs.sets }}
+        run: |
+          python3 - <<'PY' >> "$GITHUB_ENV"
+          import json, os
+          req = {}
+          p = "tools/tasmi_bench/requests/sets.json"
+          if os.path.exists(p):
+              req = json.load(open(p, encoding="utf-8"))
+          v = (os.environ.get("I_SETS") or "").strip() or str(req.get("sets") or "").strip()
+          print("SETS=%s" % (v or "wav g2/noise-fan-5 g3r/clean g3r/noisy"))
+          PY
+          cat "$GITHUB_ENV"
+
+      - name: البناءُ والعدّ — والأثرُ يُسجَّل كلُّه
+        id: build
+        continue-on-error: true
+        env:
+          PYTHONIOENCODING: utf-8
+        run: |
+          cd tools/tasmi_bench
+          mkdir -p work_sets
+          (
+            python3 -c "import json;d=json.load(open('sample.json',encoding='utf-8'));print('عيّنةٌ:',d['meta']['total'],'بنداً')"
+            python fetch_audio.py
+            python augment.py --only noise-fan-5
+            python inject_riwaya_local.py
+            echo "== العدُّ بعد البناء:"
+            for d in $SETS; do
+              n=$(ls "work/$d"/*.wav 2>/dev/null | wc -l)
+              echo "   $d = $n ملفَّ صوت"
+            done
+            # ⛔ **والعدُّ يُقابَل بالمرجع لا يُقرأ وحدَه:** «wav=0» تُقرأ «بُني» إن لم يُقابَل.
+            python3 - <<'PY'
+            import glob, json, os, sys
+            n_sample = json.load(open("sample.json", encoding="utf-8"))["meta"]["total"]
+            n_wav = len(glob.glob(os.path.join("work", "wav", "*.wav")))
+            n_plan = len(json.load(open("inject_plan_riwaya.json", encoding="utf-8"))["items"])
+            n_g3r = len(glob.glob(os.path.join("work", "g3r", "clean", "*.wav")))
+            print(f"== المقابلة: sample={n_sample} · wav={n_wav} · plan={n_plan} · g3r/clean={n_g3r}")
+            bad = []
+            if n_wav != n_sample:
+                bad.append(f"wav {n_wav} ≠ عيّنة {n_sample}")
+            if n_g3r != n_plan:
+                bad.append(f"g3r/clean {n_g3r} ≠ خطّة {n_plan}")
+            if bad:
+                sys.exit("⛔ نقصٌ في البناء: " + " · ".join(bad))
+            print("✅ كلُّ بندٍ في العيّنة والخطّة له صوتٌ مبنيّ")
+            PY
+          ) > work_sets/log.txt 2>&1
+          rc=$?
+          tail -40 work_sets/log.txt
+          echo "$rc" > work_sets/rc.txt
+          exit "$rc"
+
+      - name: إيداعُ الأثر — ناجحاً كان أو فاشلاً
+        if: always()
+        run: |
+          R=$(cat tools/tasmi_bench/work_sets/rc.txt 2>/dev/null || echo 1)
+          M="tools/tasmi_bench/work_sets/log.txt"
+          [ -s "$M" ] || { echo "⛔ لا أثرَ"; exit 1; }
+          mkdir -p results
+          OUT="results/sets_build_${{ github.run_id }}.md"
+          {
+            echo "# 🧱 بناءُ مجموعات القياس · الشوط ${{ github.run_id }}"
+            echo
+            echo "- التاريخ: $(date -u +%FT%TZ) · الزناد: \`${{ github.event_name }}\` · رمزُ الخروج: \`$R\`"
+            echo "- ⛔ هذا تحقّقُ **بناءٍ** لا قياسٌ: لا رقمَ منه يدخل اللوحة."
+            echo
+            echo '```'
+            tail -60 "$M"
+            echo '```'
+          } > "$OUT"
+          cp "$OUT" results/LATEST_sets_build.md
+          git config user.name "rafiq-ci"
+          git config user.email "ci@users.noreply.github.com"
+          git add "$OUT" results/LATEST_sets_build.md
+          git commit -q -m "results(sets-build): الشوط ${{ github.run_id }} · rc=$R" || { echo "لا تغيير"; exit 0; }
+          for i in 1 2 3; do
+            git fetch -q origin main && git merge -q --no-edit origin/main && git push -q origin HEAD:main && { echo "✅ أُودع $OUT"; exit 0; }
+            echo "↻ محاولةٌ $i"; sleep 5
+          done
+          echo "⛔ تعذّر الدفع"; exit 1
+
+      - name: ردُّ الحكم
+        if: always()
+        run: |
+          R=$(cat tools/tasmi_bench/work_sets/rc.txt 2>/dev/null || echo 1)
+          [ "$R" = "0" ] || { echo "⛔ سقط البناءُ برمزٍ $R — والأثرُ مودَعٌ في results/"; exit 1; }
+          echo "✅ المجموعاتُ تُبنى كاملةً"
