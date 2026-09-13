@@ -1,0 +1,89 @@
+name: rafiq-restore
+
+run-name: استرجاعُ آياتٍ مفقودةٍ من فهارسَ منشورة — بلا جهاز المالك
+
+# ⛔⛔ **لماذا وظيفةٌ مستقلّةٌ عن النبّاض؟** `keepalive.yml` يحكم ويرقّي
+#    **لغير المنشورين قصداً** («التحسينُ الهامشيُّ لا يُقدَّم على قارئٍ لا فهرسَ
+#    له البتّة»). وذلك صوابٌ حين يكون التحسينُ هامشيّاً — **وليس هامشيّاً** أن
+#    يجد القارئُ سورةَ الأنعام **سبعين آيةً من مئةٍ وخمسٍ وستّين**. فهذه الحلقةُ
+#    للمنشورين وحدَهم، وشرطُها **زيادةُ آياتٍ حقيقيّةٍ مقيسة**.
+#
+# ⛔ والطريقةُ كلُّها قياسٌ لا تخمين، وقد نُفّذت بيدٍ ليلةَ 2026-09-13 فأثمرت
+#    **383 آيةً منشورة** وتسعةَ قرّاءٍ كاملين. والتفصيلُ في `restore_loop.py`.
+#
+# ⛔ **ولا ترقيةَ إلا بحكمٍ كامل**: القرارُ كلُّه لـ`promote.py` بحُرّاسه —
+#    لا تُخفَّض عتبةٌ ولا يُعطَّل حارس، والتجميدُ يُرفع **للحظةِ ترقيةٍ متحقَّقة**
+#    بسببٍ مكتوبٍ يُسجَّل، ثمّ يعود بالترقية نفسِها.
+
+on:
+  schedule:
+    # ⛔ كلَّ ثلاث ساعات لا كلَّ ساعة: إعادةُ محاذاةِ سورةٍ طويلةٍ تأخذ نحوَ
+    #    ساعة، والنبضُ الأكثفُ يُنتج مرشَّحاتٍ أسرعَ ممّا تُحكَم فيزدحم الطابور.
+    - cron: "41 */3 * * *"
+  workflow_dispatch:
+    inputs:
+      step:
+        description: "scan (يقيس ويُطلق) · gate (يُبوّب) · promote (يرقّي) · all"
+        default: "all"
+      limit:
+        description: "أقصى عددِ سورٍ تُطلق لها محاذاةٌ في هذه الدورة"
+        default: "3"
+
+# ⛔ حلقةٌ واحدةٌ في كلّ حين — حلقتان تُطلقان المحاذاةَ نفسَها مرّتين.
+concurrency:
+  group: rafiq-restore
+  cancel-in-progress: false
+
+permissions:
+  actions: write        # لإدلاء realign_surah / openers / audio_qa
+  contents: read
+
+jobs:
+  restore:
+    runs-on: ubuntu-latest
+    timeout-minutes: 50
+    steps:
+      - uses: actions/checkout@v4
+        with: { fetch-depth: 0 }      # ⛔ التاريخُ كاملاً: حارسُ D-175 يسأل `git log`
+      - uses: actions/setup-python@v5
+        with: { python-version: "3.11" }
+      - run: python -m pip install --quiet boto3
+
+      - name: الاعتماد
+        env:
+          R2_CREDENTIALS_JSON: ${{ secrets.R2_CREDENTIALS_JSON }}
+        run: |
+          mkdir -p secure
+          printf '%s' "$R2_CREDENTIALS_JSON" > secure/r2_credentials.json
+          test -s secure/r2_credentials.json || { echo "⛔ لا اعتماد"; exit 1; }
+
+      # ⛔ يُقاس ويُطلق — ولا يُرقّى هنا. والمحاذاةُ تعمل في وظيفتها المستقلّة.
+      - name: قياسٌ وإطلاقُ محاذاة
+        if: ${{ github.event.inputs.step == 'scan' || github.event.inputs.step == 'all' || github.event.inputs.step == '' }}
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: python tools/ci_fleet/restore_loop.py scan --limit ${{ github.event.inputs.limit || 3 }}
+
+      # ⛔ التبويبُ خمسُ تشغيلاتٍ لكلّ دفعة مهما كبرت (المفاتيح بفواصل).
+      - name: تبويبُ المحسَّنين
+        if: ${{ github.event.inputs.step == 'gate' || github.event.inputs.step == 'all' || github.event.inputs.step == '' }}
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: python tools/ci_fleet/restore_loop.py gate --limit 6
+
+      # ⛔ الترقيةُ آخرُ الخطوات — وما لم يستوفِ حكمَه يُترك للدورة التالية.
+      - name: ترقيةُ ما مرّ بحكمه
+        if: ${{ github.event.inputs.step == 'promote' || github.event.inputs.step == 'all' || github.event.inputs.step == '' }}
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: python tools/ci_fleet/restore_loop.py promote
+
+      - name: خلاصةٌ تُقرأ من الهاتف
+        if: always()
+        run: |
+          {
+            echo "## حلقةُ الاسترجاع — $(date -u '+%Y-%m-%d %H:%MZ')"
+            echo "الخطوة: \`${{ github.event.inputs.step || 'all (جدولة)' }}\`"
+            echo ""
+            echo "راجعْ سجلَّ الخطوات أعلاه: ما قِيس، وما أُطلق، وما رُقّي."
+          } >> "$GITHUB_STEP_SUMMARY"
