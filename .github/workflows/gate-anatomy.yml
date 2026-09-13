@@ -107,12 +107,21 @@ jobs:
           [ "$n" -ge 2 ] || { echo "⛔ $n ملفاً فقط — والتشريحُ يحتاج ذراعَين على البنود عينِها"; exit 1; }
           # 🧹 **وفرضيّاتُ `g1` النظيفةِ إن كانت محفوظةً لهذا الوسم** — تُجرَّب ولا تُشترط:
           # بها يُقاس الزوائدُ الكاذبةُ على **تلاوةٍ صحيحةٍ** وهي الحالةُ الغالبةُ للمستخدم (‏D-368).
-          g=0
+          # ⛔ **والشرطُ لكلِّ ذراعٍ على حدة — لا للذراعَين معاً** (‏عطبٌ مقيسٌ في الشوط
+          # `34748763538`): طُلبت ذراعان إحداهما بلا `g1` فسقط الشرطُ **للاثنتَين** وتخطّى
+          # الشوطُ قياسَ التهدئة **صامتاً** — فانتظرتُ رقماً لا يجيء. **والصمتُ ليس رقماً.**
+          CA=""
           for a in $ARMS; do
             f="hyps_emu_g1_cap_${a}.json"
-            curl -fsS --retry 2 -o "work/$f" "$PUB/finetune/gate/$TAG/emu_$f" && { echo "✅ نظيفة: $f"; g=$((g+1)); } || echo "ℹ️ لا فرضيّاتِ g1 لـ$a في هذا الوسم"
+            if curl -fsS --retry 2 -o "work/$f" "$PUB/finetune/gate/$TAG/emu_$f"; then
+              echo "✅ نظيفة: $f"; CA="$CA $a"
+            else
+              echo "ℹ️ لا فرضيّاتِ g1 لـ$a في هذا الوسم (يُقال ولا يُكتَم)"
+            fi
           done
-          echo "CLEAN_OK=$([ "$g" -ge 2 ] && echo 1 || echo 0)" >> "$GITHUB_ENV"
+          CA="$(echo $CA | xargs echo)"
+          echo "CLEAN_ARMS=$CA" >> "$GITHUB_ENV"
+          echo "CLEAN_OK=$([ -n "$CA" ] && echo 1 || echo 0)" >> "$GITHUB_ENV"
       - name: مِن أين جاءت الفرضيّات — **من الملفّ لا من الزناد**
         env:
           PYTHONIOENCODING: utf-8
@@ -159,7 +168,8 @@ jobs:
           PYTHONIOENCODING: utf-8
         run: |
           cd tools/tasmi_bench
-          python extras_noise_probe.py --dirs "work:" --arms $ARMS --clean | tee work/extras_clean.md
+          # الأذرعُ التي وُجدت لها فرضيّاتُ `g1` وحدَها (‏قد تكون واحدةً — ولا يُسكت ذلك القياس).
+          python extras_noise_probe.py --dirs "work:" --arms $CLEAN_ARMS --clean | tee work/extras_clean.md
       - name: 🧹 الزوائدُ الكاذبة (‏قناةٌ لا يعدّها الاتّهامُ الكاذب)
         env:
           PYTHONIOENCODING: utf-8
@@ -179,7 +189,7 @@ jobs:
           # «نعم لهذا النموذج ولا لذاك»، ولا يُعرف ذلك من ذراعٍ واحدة.
           rm -f work/extras_quiet.md
           touch work/extras_quiet.md
-          for A in $ARMS; do
+          for A in $CLEAN_ARMS; do
             if python extras_quiet_ab.py --dirs "work:" --arm "$A" >> work/extras_quiet.md; then
               echo "" >> work/extras_quiet.md
             else
