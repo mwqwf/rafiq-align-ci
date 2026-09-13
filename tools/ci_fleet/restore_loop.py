@@ -333,7 +333,18 @@ def cmd_promote(a):
                              capture_output=True, text=True, encoding="utf-8",
                              errors="replace", cwd=str(ROOT))
         tail = "\n".join(l for l in dry.stdout.splitlines() if "🔇" not in l)[-400:]
-        if "✅ جاهز" not in dry.stdout:
+        # ⛔ **عطبٌ مقيسٌ 2026-09-13**: هذا الفحصُ الأوّل لا يُمرِّر `--unfreeze`
+        #    أبداً، فهدفٌ مجمَّدٌ يردّه `gate()` بـ«الهدف مجمَّد» **قبل** أن
+        #    يصل إلى طباعة «✅ جاهز» مهما صحّ حكمُه الصوتيُّ والبنيويُّ تماماً —
+        #    فلا يُرفع التجميدُ عن أيّ مرشَّحٍ أبداً ولو استوفى كلَّ شرط. وقع
+        #    فعلاً على `yahya`/`twfeeq`/`h_aldaghriri`/`kyat`/`darweez` بعد أن
+        #    مرّت أحكامُها كلُّها: الحكمُ الصوتيُّ · البنيويُّ · فحصُ المطالع.
+        #    والتجميدُ **آخرُ ما يفحصه `gate()`**، فبلوغُه دليلٌ أنّ كلَّ ما
+        #    قبله صحّ — ⇒ يُحاوَل الرفعُ في هذه الحال أيضاً، **وحارسُ `--yes`
+        #    نفسُه** (‏لا هذا الملفّ) هو مَن يحكم نهائيّاً بعد الرفع الفعليّ.
+        ready = "✅ جاهز" in dry.stdout
+        frozen_only = "الهدف مجمَّد" in dry.stdout
+        if not ready and not frozen_only:
             print(f"   ⏸️ {r['reciter']}: لم يمرّ بعدُ — {tail.splitlines()[-1] if tail else ''}")
             continue
         # ⛔ التجميدُ يُرفع **للحظةِ ترقيةٍ متحقَّقة** لا قبلها
