@@ -136,6 +136,69 @@ def statuses(items, hyps, scorer, cfg_of):
     return out
 
 
+def word_list(dirs, arms, sets, top=30):
+    """📜 **قائمةُ الكلمات التي تُخطئ** — لا نسبةٌ مجهولةٌ بل مادّةٌ تُقرأ وتُصنَّف.
+
+    ⭐ **سندُها D-389:** على التلاوة النظيفة تقاطعُ مواضع الخطأ بين ذراعَين **×13.3** ⇒ الأخطاءُ
+    الباقيةُ **مادّةٌ ثابتةٌ بعينها** لا عمليّةٌ عشوائيّة ⇒ **فتُجرَد وتُصنَّف** (رخصةٌ صوتيّةٌ ·
+    معجمٌ · تشابهُ صورة) فتصير بنداً يُعالَج. ⛔ وهذا **كشفٌ لا شحنٌ**: لا يُغيَّر بها حكمٌ.
+    """
+    sys.path.insert(0, HERE)
+    sys.path.insert(0, os.path.join(os.path.dirname(HERE), "alignment"))
+    import scorer as SCR
+    import v2_gate as G
+    import score as SC
+    import collections
+    for d in dirs:
+        G.WORK = d
+        pool = G.pool_items()
+        for st in sets:
+            key = st if st.startswith(("g1", "g4")) else st.replace("-", ":", 1)
+            for arm in arms:
+                hyps = G.load_hyps(key, arm)
+                if not hyps:
+                    continue
+                items = [it for it in pool if it["id"] in hyps]
+                if not items:
+                    continue
+                cnt = collections.Counter()
+                ex = {}
+                miss = subs = 0
+                for it in items:
+                    h = hyps.get(it["id"]) or {}
+                    if h.get("text") is None or "error" in h:
+                        continue
+                    ref = it["refText"].split()
+                    sc = SCR.score(ref, h["text"], SC.config_for("proposed", it.get("riwaya")))
+                    for w in sc.get("words", []):
+                        if not w or w[1] not in (SCR.MISSED, SCR.SUBSTITUTED):
+                            continue
+                        i = w[0]
+                        heard = w[2] if w[2] is not None else "—"
+                        tag = "مفقودة" if w[1] == SCR.MISSED else "مُبدَلة"
+                        if w[1] == SCR.MISSED:
+                            miss += 1
+                        else:
+                            subs += 1
+                        k = (ref[i] if i < len(ref) else "?", heard, tag)
+                        cnt[k] += 1
+                        ex.setdefault(k, it["id"])
+                if not cnt:
+                    continue
+                print(f"\n### 📜 كلماتُ الخطأ — `{st}` · `{arm}` "
+                      f"(**{sum(cnt.values())}** خطأً: {miss} مفقودةً · {subs} مُبدَلةً · "
+                      f"و**{len(cnt)}** صورةً متمايزة)\n")
+                print("| كلمةُ المرجع | ما سُمع | الحكم | تكراراً | مثالُ بند |")
+                print("|---|---|---|---:|---|")
+                for (r, hd, tag), c in cnt.most_common(top):
+                    print(f"| `{r}` | `{hd}` | {tag} | {c} | `{ex[(r, hd, tag)]}` |")
+                if len(cnt) > top:
+                    print(f"\n… و**{len(cnt) - top}** صورةً أخرى (‏يُطبع أكثرُها تكراراً).")
+    print("\n⛔ **كشفٌ لا شحن:** لا تُغيَّر بهذه القائمة عتبةٌ ولا رخصةٌ — تُصنَّف أوّلاً "
+          "(رخصةٌ صوتيّةٌ · معجمٌ · تشابهُ صورة) **ثمّ يُقاس كلُّ علاجٍ بذراعٍ**.")
+    return 0
+
+
 def run(dirs, arms, sets):
     sys.path.insert(0, HERE)
     sys.path.insert(0, os.path.join(os.path.dirname(HERE), "alignment"))
@@ -263,6 +326,9 @@ def main():
     ap.add_argument("--dirs", default="work:", help="مجلداتُ الفرضيّات (‏`work:` كصيغة التشريح)")
     ap.add_argument("--arms", default="")
     ap.add_argument("--sets", default="g4n g4")
+    ap.add_argument("--words", action="store_true",
+                    help="📜 يطبع قائمةَ الكلمات التي تُخطئ (‏سندُها D-389) بدل جدول الجرف")
+    ap.add_argument("--top", type=int, default=30)
     ap.add_argument("--selftest", action="store_true")
     a = ap.parse_args()
     if a.selftest:
@@ -272,6 +338,8 @@ def main():
     arms = a.arms.split()
     if not arms:
         raise SystemExit("⛔ يلزم `--arms` — ولا يُقاس جرفٌ بلا ذراعٍ تُقرأ")
+    if a.words:
+        return word_list(dirs, arms, a.sets.split(), a.top)
     return run(dirs, arms, a.sets.split())
 
 
