@@ -1,17 +1,17 @@
 # 🧾 جردُ الفرضيّات المحفوظة (‏ما يُقرأ بدقيقةٍ بلا شوطِ محاكٍ)
 
-**151** ملفَّ فرضيّاتٍ في **15** وسماً · وآخرُ تحديثٍ لكلِّ وسمٍ في العمود الأخير.
+**155** ملفَّ فرضيّاتٍ في **15** وسماً · وآخرُ تحديثٍ لكلِّ وسمٍ في العمود الأخير.
 
 ⭐ **وقبل أيّ شوطٍ جديد:** إن كانت ذراعاك في وسمٍ واحدٍ هنا فـ**ادفعْ طلبَ `gate-anatomy`** (دقيقة) ولا تُشعل محاكياً (نصف ساعة) — درسُ D-365.
 
 | الوسم | المجموعة | الأذرع المحفوظة | آخرُ تحديثٍ للوسم |
 |---|---|---|---|
-| `base` | `g1` | `base-ar-B` · `shipped-B` | 09-13 01:07 |
-| `base` | `g2-learner-combo` | `base-ar-B2` · `shipped-B2` | 09-13 01:07 |
-| `base` | `g2-noise-fan-5` | `base-ar-B2` · `shipped-B2` | 09-13 01:07 |
-| `base` | `g3r-clean` | `base-ar-B2` · `shipped-B2` | 09-13 01:07 |
-| `base` | `g3r-noisy` | `base-ar-B` · `shipped-B` | 09-13 01:07 |
-| `base` | `g4n` | `base-ar` · `base-ar-B` · `base-en` · `shipped-B` · `shipped-ar` · `shipped-en` | 09-13 01:07 |
+| `base` | `g1` | `base-ar-B` · `shipped-B` | 09-13 15:35 |
+| `base` | `g2-learner-combo` | `base-ar-B2` · `shipped-B2` | 09-13 15:35 |
+| `base` | `g2-noise-fan-5` | `base-ar-B2` · `shipped-B2` | 09-13 15:35 |
+| `base` | `g3r-clean` | `base-ar-B2` · `base-ar-I` · `shipped-B2` · `shipped-I` | 09-13 15:35 |
+| `base` | `g3r-noisy` | `base-ar-B` · `base-ar-I` · `shipped-B` · `shipped-I` | 09-13 15:35 |
+| `base` | `g4n` | `base-ar` · `base-ar-B` · `base-en` · `shipped-B` · `shipped-ar` · `shipped-en` | 09-13 15:35 |
 | `base-ar-C` | `g4` | `base-ar-C-ar` · `shipped` | 09-13 01:51 |
 | `base-vs-tiny` | `g3r-clean` | `base-vs-tiny-ar-T` · `shipped-T` | 09-13 07:02 |
 | `base-vs-tiny` | `g3r-noisy` | `base-vs-tiny-ar-T` · `shipped-T` | 09-13 07:02 |
