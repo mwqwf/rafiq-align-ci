@@ -67,8 +67,10 @@ def drift_stats(seqs, seed=7, boot=2000):
     diffs.sort()
     lo = diffs[int(0.025 * len(diffs))] if diffs else 0.0
     hi = diffs[int(0.975 * len(diffs)) - 1] if diffs else 0.0
+    errs = sum(1 for s in seqs for x in s if x)
+    hits = sum(1 for s in seqs for i in range(1, len(s)) if s[i - 1] and s[i])
     return {"words": sum(len(s) for s in seqs), "items": len(seqs), "pairs": npairs,
-            "p": p, "q": q, "diff": q - p, "ci": (lo, hi)}
+            "errs": errs, "hits": hits, "p": p, "q": q, "diff": q - p, "ci": (lo, hi)}
 
 
 def statuses(items, hyps, scorer, cfg_of):
@@ -99,8 +101,13 @@ def run(dirs, arms, sets):
     def cfg_of(it):
         return SC.config_for("proposed", it.get("riwaya"))
     print("# 🌊 جرفُ الخطأ في التلاوة الطويلة — **شرطيّةٌ مقابل هامشيّة**\n")
-    print("| المجموعة | الذراع | بنودٌ | كلماتٌ | p (هامشيّة) | **q (شرطيّة)** | الفرق | مجال 95٪ |")
-    print("|---|---|---:|---:|---:|---:|---:|---:|")
+    # ⛔ **وتُطبع الأعدادُ الخامّةُ لا النسبُ وحدَها** (‏درسٌ من أوّل قراءةٍ 22:56Z): جاءت
+    #    الشرطيّةُ **متساويةً إلى أربعة أرقامٍ** في الذراعَين (50.12٪) فاشتبه أنّ ملفّاً واحداً
+    #    قُرئ مرّتَين — ولا يُنشر رقمٌ مشتبَهٌ. ⇒ العددُ يفصل: أعدادٌ مختلفةٌ بنسبةٍ واحدةٍ
+    #    **مصادفةٌ**، وأعدادٌ متطابقةٌ **عطبٌ**.
+    print("| المجموعة | الذراع | بنودٌ | كلماتٌ | أخطاءٌ | أزواجٌ (سابقُها خطأ) | منها خطأٌ | "
+          "p (هامشيّة) | **q (شرطيّة)** | الفرق | مجال 95٪ |")
+    print("|---|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|")
     any_row = False
     for d in dirs:
         G.WORK = d
@@ -112,19 +119,20 @@ def run(dirs, arms, sets):
                     continue
                 items = [it for it in pool if it["id"] in hyps]
                 if not items:
-                    print(f"| `{st}` | `{arm}` | — | — | — | — | ⛔ بلا مرجع | — |")
+                    print(f"| `{st}` | `{arm}` | — | — | — | — | — | — | — | ⛔ بلا مرجع | — |")
                     continue
                 seqs = statuses(items, hyps, SCR, cfg_of)
                 if not seqs:
-                    print(f"| `{st}` | `{arm}` | 0 | — | — | — | ⛔ لا بندَ صالحاً | — |")
+                    print(f"| `{st}` | `{arm}` | 0 | — | — | — | — | — | — | ⛔ لا بندَ صالحاً | — |")
                     continue
                 s = drift_stats(seqs)
                 any_row = True
-                print(f"| `{st}` | `{arm}` | {s['items']} | {s['words']} | {s['p']*100:.2f}٪ | "
+                print(f"| `{st}` | `{arm}` | {s['items']} | {s['words']} | {s['errs']} | "
+                      f"{s['pairs']} | {s['hits']} | {s['p']*100:.2f}٪ | "
                       f"**{s['q']*100:.2f}٪** | **{s['diff']*100:+.2f}** | "
                       f"[{s['ci'][0]*100:+.2f} .. {s['ci'][1]*100:+.2f}] |")
     if not any_row:
-        print("| — | — | — | — | — | — | ⛔ لا فرضيّاتٍ تُقرأ | — |")
+        print("| — | — | — | — | — | — | — | — | — | ⛔ لا فرضيّاتٍ تُقرأ | — |")
         return 1
     print("\n⭐ **كيف يُقرأ:** q ≈ p ⇒ **أخطاءٌ مستقلّةٌ** فالعلاجُ في السمع · q ≫ p ⇒ **جرفٌ** "
           "فالعلاجُ في التقطيع أو إعادة الإرساء. ⚠️ **وهذا تجاورٌ لا سببيّة**: موضعٌ صعبٌ "
