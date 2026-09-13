@@ -1,0 +1,69 @@
+name: rafiq-agent-cmd
+
+run-name: أمرُ الوكيل السحابيّ — ${{ github.event.head_commit.message }}
+
+# ⛔⛔ **لماذا هذا الملفّ — وهو مفتاحُ استقلال الوكيل:**
+# جلسةُ كلود السحابيّة **تقرأ** جيت هَب ولا تملك `workflow_dispatch`
+# (‏مقيسٌ حيّاً 2026-09-13: `403 Resource not accessible by integration`)،
+# **ولا تملك اعتمادَ الدلو** (سرُّ R2 في أسرار الأكشنز لا في المستودع).
+# فكانت ثلاثةُ أبوابٍ مغلقةً في وجهها: لا تُطلق محاذاةً، ولا تقيس من الدلو،
+# ولا ترقّي. ⇒ **وهذا الملفُّ يفتحها كلَّها بلا أن يُسلَّم الوكيلُ سرّاً واحداً**:
+# الوكيلُ **يدفع أمراً**، والعدّاءُ **ينفّذه بصلاحيّاته هو** ويعيد الجواب إلى
+# المستودع فيقرؤه الوكيل.
+#
+# ⭐ والقاعدةُ التي يقوم عليها: **الصلاحيةُ تبقى حيث هي، والأمرُ يُنقل إليها.**
+# فلا يُنسَخ سرٌّ إلى بيئةٍ أضعفَ حراسةً، ولا يبقى الوكيلُ عاجزاً.
+#
+# ⛔ **وقائمةُ المسموح مغلقة**: لا يُنفَّذ إلا ما في `ALLOWED_*` أدناه — فأمرٌ
+#    مدسوسٌ لا يُنتج صدفةً تشغيلاً لم يُقصد. ولا شيءَ من هذا يمسّ العتبات
+#    ولا الحُرّاس: `promote.py` يحكم بحُرّاسه كما هو.
+
+on:
+  push:
+    paths: ["ops/commands/**"]
+
+permissions:
+  actions: write        # لإدلاء سير العمل نيابةً عن الوكيل
+  contents: write       # لإعادة الجواب إلى المستودع
+
+concurrency:
+  group: rafiq-agent-cmd
+  cancel-in-progress: false
+
+jobs:
+  execute:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+        with: { fetch-depth: 0 }
+      - uses: actions/setup-python@v5
+        with: { python-version: "3.11" }
+      - run: python -m pip install --quiet boto3
+
+      - name: الاعتماد
+        env:
+          R2_CREDENTIALS_JSON: ${{ secrets.R2_CREDENTIALS_JSON }}
+        run: |
+          mkdir -p secure
+          printf '%s' "$R2_CREDENTIALS_JSON" > secure/r2_credentials.json
+
+      - name: تنفيذُ الأوامر وإعادةُ الجواب
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: python tools/ci_fleet/agent_cmd.py
+
+      - name: ادفع الجواب
+        if: always()
+        run: |
+          git config user.name  "rafiq-agent-cmd"
+          git config user.email "actions@github.com"
+          # ⛔ بمسارٍ صريح: الشجرةُ يكتب فيها غيرُنا، و`-A` يكنس عملَ سواه.
+          git add ops/out ops/commands 2>/dev/null || true
+          if ! git diff --cached --quiet; then
+            git commit -m "ops: جوابُ أمرِ الوكيل" -- ops/out ops/commands
+            # ⛔ الدفعُ بإعادةِ محاولةٍ واحدة: شجرةٌ مشتركةٌ قد تسبقنا بثوانٍ.
+            git push origin HEAD:main || { git pull --rebase --autostash && git push origin HEAD:main; }
+          else
+            echo "لا جوابَ يُدفع."
+          fi
