@@ -177,10 +177,14 @@ jobs:
           # ⭐ **والذراعان كلتاهما:** القياسُ بين **قواعدِ عرضٍ**، لكنّ نسبةَ الهدوء إلى الإمساك
           # **تختلف بالنموذج** (‏الأكبرُ يسمع الدخيلةَ ضِعفاً · D-366) ⇒ فقرارُ العرض قد يكون
           # «نعم لهذا النموذج ولا لذاك»، ولا يُعرف ذلك من ذراعٍ واحدة.
-          : > work/extras_quiet.md
+          rm -f work/extras_quiet.md
+          touch work/extras_quiet.md
           for A in $ARMS; do
-            python extras_quiet_ab.py --dirs "work:" --arm "$A" >> work/extras_quiet.md && echo >> work/extras_quiet.md \
-              || echo "⛔ تعذّرت التهدئةُ على $A (يُقال ولا يُكتَم)" >> work/extras_quiet.md
+            if python extras_quiet_ab.py --dirs "work:" --arm "$A" >> work/extras_quiet.md; then
+              echo "" >> work/extras_quiet.md
+            else
+              echo "تعذّرت التهدئةُ على $A — يُقال ولا يُكتَم" >> work/extras_quiet.md
+            fi
           done
           cat work/extras_quiet.md
       - name: 🎛️ أثرُ قاعدةِ التعادل (‏إن طُلب — مسطرتان على فرضيّاتٍ واحدة)
