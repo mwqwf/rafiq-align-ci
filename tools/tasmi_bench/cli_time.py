@@ -22,6 +22,8 @@ import subprocess
 import sys
 import time
 
+import soundfile as sf
+
 ARMS = {
     # المشحونُ اليوم: greedy بعتبةِ إنتروبيا 2.40 (افتراضُ المكتبة)
     "greedy": ["-bs", "1", "-et", "2.40"],
@@ -56,7 +58,7 @@ def main():
     ap.add_argument("--cli", required=True)
     ap.add_argument("--model", required=True)
     ap.add_argument("--src", required=True, help="مجلدُ ملفّات wav")
-    ap.add_argument("--plan", required=True, help="‏json فيه items بمفاتيح id و durationSec")
+    ap.add_argument("--plan", default="", help="‏json فيه items بمفاتيح id و durationSec (اختياريّ — وإلّا فمن الملفّ)")
     ap.add_argument("--threads", type=int, default=2, help="⚠️ سياسةُ التطبيق: عدُّ الأنوية التي تردّدها فوق الأدنى")
     ap.add_argument("--lang", default="en", help="‏D-308/D-313: المشحونُ يُخدم بـen صريحاً")
     ap.add_argument("--limit", type=int, default=0)
@@ -64,14 +66,28 @@ def main():
     ap.add_argument("--json", default="")
     a = ap.parse_args()
 
-    plan = json.load(open(a.plan, encoding="utf-8"))
-    items = plan["items"] if isinstance(plan, dict) else plan
-    dur = {it["id"]: it.get("durationSec") for it in items}
-    files = sorted(f for f in os.listdir(a.src) if f.endswith(".wav") and f[:-4] in dur and dur[f[:-4]])
+    # ⏱️ **المدّةُ من الملفّ إن لم تكن في الخطّة** (2026-09-13): `sample.json` — وهي خطّةُ الآية
+    # المفردة — **لا تحمل `durationSec` أصلاً** (‏202 بندٍ · صفرُ مدّة)، فكان الشوطُ يموت بـ«لا ملفَّ
+    # له مدّة» وكأنّ المجموعةَ غائبة، والمجموعةُ حاضرةٌ والمدّةُ في الملفّ نفسِه. ⇒ الخطّةُ صارت
+    # **تحسيناً لا شرطاً**: ما لم تُسمِّ مدّتَه تُقرأ من ترويسة الـwav.
+    dur = {}
+    if a.plan:
+        plan = json.load(open(a.plan, encoding="utf-8"))
+        items = plan["items"] if isinstance(plan, dict) else plan
+        dur = {it["id"]: it.get("durationSec") for it in items if it.get("durationSec")}
+    files = sorted(f for f in os.listdir(a.src) if f.endswith(".wav"))
     if a.limit:
         files = files[: a.limit]
     if not files:
-        raise SystemExit(f"⛔ لا ملفَّ في {a.src} له مدّةٌ في {a.plan}")
+        raise SystemExit(f"⛔ لا ملفَّ wav في {a.src} — لا يُقرأ الصفرُ نتيجةً")
+    miss = 0
+    for f in files:
+        if not dur.get(f[:-4]):
+            info = sf.info(os.path.join(a.src, f))
+            dur[f[:-4]] = info.frames / float(info.samplerate)
+            miss += 1
+    if miss:
+        print(f"⏱️ {miss} بنداً مدّتُها من الملفّ لا من الخطّة", flush=True)
     print(f"⏱️ {len(files)} بنداً · خيوط {a.threads} · لغة {a.lang}", flush=True)
 
     rows = {}
