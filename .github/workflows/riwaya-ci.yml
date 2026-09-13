@@ -111,7 +111,10 @@ jobs:
           cat work_riwaya/log.txt
           # ⛔ **بملفٍّ لا بـ`GITHUB_ENV`** (‏مقيسٌ 2026-09-13): خطوةٌ تخرج بغير صفرٍ **لا يُضمن**
           # أن يُقرأ منها `GITHUB_ENV` ⇒ خرجت ترويسةُ الأثر «rc=؟» فضاع أنفعُ سطرٍ فيه.
-          echo "$rc" > tools/tasmi_bench/work_riwaya/rc.txt
+          # ⛔ **ومجلدُ الخطوة `tools/tasmi_bench`** (‏`cd` أعلاه) فالمسارُ نسبيٌّ إليه لا إلى الجذر:
+          # كُتب أوّلاً بمسار الجذر فصار `tools/tasmi_bench/tools/tasmi_bench/…` ⇒ عاد الأثرُ «rc=؟»
+          # بعد إصلاحه. ⭐ **وإصلاحٌ لم يُقرأ أثرُه بعد الإصلاح ليس إصلاحاً.**
+          echo "$rc" > work_riwaya/rc.txt
           exit "$rc"
 
       - name: إيداعُ الأثر — ناجحاً كان أو فاشلاً
