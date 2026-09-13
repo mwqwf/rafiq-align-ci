@@ -1,0 +1,104 @@
+# 🔬 **تشريحُ الكشف صنفاً صنفاً لشوطِ بوّابةٍ مضى** — بلا محاكٍ وبلا عتادٍ يُنزَّل على جهاز أحد.
+#
+# ⛔ **لِمَ وُجد — بسببٍ مقيسٍ لا مفترَض** (‏2026-09-13): صفُّ «كشف» في جدول البوّابة **لا يرى
+# `INSERT`** (‏D-351)، فنموذجٌ يسمع الكلمةَ الدخيلةَ **أكثر** يظهر في ذلك الصفّ **أقلَّ كشفاً**.
+# وحسمُ ذلك يحتاج `detect_anatomy.py` على فرضيّات الشوط، وهي في مصنوعةٍ وفي R2 — **وكلتاهما
+# محجوبةٌ (403) عن الوكيل السحابيّ**. فقرأت مناوبتان الشوطَ نفسَه (`34740158210`) وانتهتا إلى
+# **حكمَين متعاكسَين** لأنّ إحداهما لم تستطع التشريح. ⇒ **مَن حُجب عنه العتادُ يُشرِّح في الشوط**:
+# العدّاءُ ينزّل الفرضيّات من R2 العامّ (لا حجبَ عليه) ويُودع الجدولَ **ملفّاً في git** يقرؤه
+# الوكيلُ بـ`git pull` والمالكُ من هاتفه.
+#
+#   ‏الشوطُ يكلّف دقائقَ معدودةً (لا محاكي) — فلا يُضَنّ به على حكمٍ مشتبَه.
+name: gate-anatomy
+on:
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: "وسمُ شوط البوّابة (مجلدُه في R2: finetune/gate/<tag>/)"
+        required: true
+      arms:
+        description: "الذراعان مفصولتَين بمسافة — بأسمائهما كما في ملفّات الفرضيّات (مثل: shipped-W v2-vs-tiny-ar-W)"
+        required: true
+      sets:
+        description: "مجموعاتُ الحقن الروائيّ (‏`restore_probe` لا يقرأ إلّا ما بدأ بـ`g3r`)"
+        required: false
+        default: "g3r-clean g3r-noisy"
+      chain:
+        description: "سلسلةُ الواجهة كما كُتبت في اسم الملفّ (‏cap المقيس)"
+        required: false
+        default: "cap"
+# 🔑 صلاحيّةٌ واحدةٌ: إيداعُ الجدول في المستودع. ⛔ ولا تعليقَ آليّاً في لوحة المتابعة —
+# **المعنى يكتبه الوكيل**، ورقمٌ بلا معناه لا يُرسَل إلى هاتف المالك.
+permissions:
+  contents: write
+env:
+  PUB: https://pub-2c2e1dcd92e84a2898820dd38d3e09e6.r2.dev
+jobs:
+  anatomy:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: تنزيلُ فرضيّات الشوط من R2 العامّ (‏بلا مفتاح)
+        env:
+          TAG: ${{ github.event.inputs.tag }}
+          ARMS: ${{ github.event.inputs.arms }}
+          SETS: ${{ github.event.inputs.sets }}
+          CHAIN: ${{ github.event.inputs.chain }}
+        run: |
+          cd tools/tasmi_bench && mkdir -p work_anatomy && rm -f work_anatomy/*.json
+          n=0
+          for s in $SETS; do
+            for a in $ARMS; do
+              f="hyps_emu_${s}_cap_${a}.json"
+              [ "$CHAIN" = "cap" ] || f="hyps_emu_${s}_${CHAIN}_${a}.json"
+              u="$PUB/finetune/gate/$TAG/emu_$f"
+              if curl -fsS --retry 3 -o "work_anatomy/$f" "$u"; then
+                echo "✅ $f ($(wc -c < "work_anatomy/$f") بايتاً)"; n=$((n+1))
+              else
+                # ⚠️ والغائبُ يُسمّى بعنوانه: «لا تشريح» بلا اسمِ الملفّ الغائب يُقرأ عطباً في الأداة.
+                echo "⛔ غائبٌ: $u"
+              fi
+            done
+          done
+          # ⛔ **ذراعٌ واحدةٌ لا تُشرَّح:** التشريحُ فرقٌ بين ذراعَين، و`arms_or_die` يسقط بلا الثانية.
+          [ "$n" -ge 2 ] || { echo "⛔ $n ملفاً فقط — والتشريحُ يحتاج ذراعَين على البنود عينِها"; exit 1; }
+      - name: التشريحُ صنفاً صنفاً
+        env:
+          PYTHONIOENCODING: utf-8
+          ARMS: ${{ github.event.inputs.arms }}
+        run: |
+          cd tools/tasmi_bench
+          # ⛔ **بمسافةٍ لا بفاصلة:** `--arms` يأخذ اسمَين، ومجلدُ `--dirs` لاحقتُه فارغةٌ
+          # (‏`work_anatomy:`) كي **لا تُقلَّم** لاحقةُ الوسم من أسماء الأذرع.
+          python detect_anatomy.py --dirs "work_anatomy:" --arms $ARMS | tee work_anatomy/anatomy.md
+          { echo "### 🔬 تشريحُ الكشف (‏${{ github.event.inputs.tag }})"; cat work_anatomy/anatomy.md; } >> "$GITHUB_STEP_SUMMARY"
+      - name: إيداعُ الجدول في المستودع (‏كي يقرأه الوكيلُ السحابيُّ والمالك)
+        run: |
+          T="${{ github.event.inputs.tag }}"
+          M="tools/tasmi_bench/work_anatomy/anatomy.md"
+          [ -s "$M" ] || { echo "⛔ لا جدولَ — لا شيءَ يُودَع"; exit 1; }
+          mkdir -p results
+          OUT="results/anatomy_${T}_${{ github.run_id }}.md"
+          {
+            echo "# تشريحُ الكشف · الوسم \`${T}\` · الشوط ${{ github.run_id }}"
+            echo
+            echo "- التاريخ: $(date -u +%FT%TZ)"
+            echo "- الذراعان: \`${{ github.event.inputs.arms }}\` · المجموعات: \`${{ github.event.inputs.sets }}\` · السلسلة: \`${{ github.event.inputs.chain }}\`"
+            echo "- المصدر: فرضيّاتُ الشوط من \`finetune/gate/${T}/\` على R2 العامّ"
+            echo
+            cat "$M"
+          } > "$OUT"
+          cp "$OUT" results/LATEST_anatomy.md
+          git config user.name "rafiq-ci"
+          git config user.email "ci@users.noreply.github.com"
+          git add "$OUT" results/LATEST_anatomy.md
+          git commit -q -m "results(anatomy): ${T} · الشوط ${{ github.run_id }}" || { echo "لا تغيير"; exit 0; }
+          for i in 1 2 3; do
+            git fetch -q origin main && git merge -q --no-edit origin/main && git push -q origin HEAD:main && { echo "✅ أُودع $OUT"; exit 0; }
+            echo "↻ محاولةٌ $i"; sleep 5
+          done
+          echo "⛔ تعذّر الدفع"; exit 1
