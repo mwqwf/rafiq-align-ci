@@ -223,6 +223,16 @@ jobs:
             fi
           done
           cat work/extras_quiet.md
+      - name: ⏱️ ثمنُ الزمن بين الذراعَين (‏من `ms` المحفوظة — لا شوطَ زمنٍ خاصّاً)
+        env:
+          PYTHONIOENCODING: utf-8
+        run: |
+          cd tools/tasmi_bench
+          # ⭐ **يُقرأ في كلِّ تشريحٍ لا بطلبٍ خاصّ:** قرارُ مفتاحٍ بلا ثمنِه نصفُ قرار، و`ms`
+          # محفوظةٌ في الفرضيّات أصلاً. ⛔ والسقوطُ **لا يُسقط** التشريحَ كلَّه (فرضيّاتٌ قديمةٌ
+          # بلا `ms` واردةٌ) — يُقال ويُمضى.
+          python hyps_time_ab.py --dirs "work:" --arms $ARMS | tee work/time_ab.md || \
+            echo "ℹ️ لا زمنَ في هذه الفرضيّات (يُقال ولا يُكتَم)" | tee work/time_ab.md
       - name: 🎛️ أثرُ قاعدةِ التعادل (‏إن طُلب — مسطرتان على فرضيّاتٍ واحدة)
         if: env.RULE_AB != ''
         env:
@@ -324,6 +334,9 @@ jobs:
             fi
             if [ -s tools/tasmi_bench/work/extras_quiet.md ]; then
               cat tools/tasmi_bench/work/extras_quiet.md; echo
+            fi
+            if [ -s tools/tasmi_bench/work/time_ab.md ]; then
+              cat tools/tasmi_bench/work/time_ab.md; echo
             fi
             if [ -s tools/tasmi_bench/work/rule_ab.md ]; then
               # ⛔ **علامتا `` ` `` داخل «...» تنفيذُ أمرٍ لا اقتباسٌ** — فخرج العنوانُ فارغاً في
