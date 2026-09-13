@@ -1,6 +1,6 @@
 # 🧾 جردُ الفرضيّات المحفوظة (‏ما يُقرأ بدقيقةٍ بلا شوطِ محاكٍ)
 
-**123** ملفَّ فرضيّاتٍ في **14** وسماً · وآخرُ تحديثٍ لكلِّ وسمٍ في العمود الأخير.
+**129** ملفَّ فرضيّاتٍ في **14** وسماً · وآخرُ تحديثٍ لكلِّ وسمٍ في العمود الأخير.
 
 ⭐ **وقبل أيّ شوطٍ جديد:** إن كانت ذراعاك في وسمٍ واحدٍ هنا فـ**ادفعْ طلبَ `gate-anatomy`** (دقيقة) ولا تُشعل محاكياً (نصف ساعة) — درسُ D-365.
 
@@ -17,17 +17,17 @@
 | `base-vs-tiny` | `g3r-noisy` | `base-vs-tiny-ar-T` · `shipped-T` | 09-13 07:02 |
 | `base-vs-v2` | `g3r-clean` | `base-vs-v2-ar-V2` · `shipped-V2` | 09-13 05:53 |
 | `base-vs-v2` | `g3r-noisy` | `base-vs-v2-ar-V2` · `shipped-V2` | 09-13 05:53 |
-| `shipped` | `g1` | `noguard-D` · `shipped` · `shipped-D` · `shipped-b3` · `shipped-b5` · `shipped-base` · `shipped-dg` · `shipped-dgT` · `shipped-j` · `shipped-jcp` · `shipped-m4` · `shipped-m4cp` · `shipped-offT` | 09-13 11:17 |
-| `shipped` | `g2-learner-basmala` | `shipped` | 09-13 11:17 |
-| `shipped` | `g2-learner-combo` | `shipped-dg` | 09-13 11:17 |
-| `shipped` | `g2-learner-repeat` | `shipped-dg` | 09-13 11:17 |
-| `shipped` | `g2-noise-fan-5` | `shipped-b3` · `shipped-b5` · `shipped-dg` · `shipped-dgT` · `shipped-offT` | 09-13 11:17 |
-| `shipped` | `g3r-clean` | `noguard-D` · `shipped-D` · `shipped-cp` · `shipped-dg` | 09-13 11:17 |
-| `shipped` | `g3r-noisy` | `noguard-D` · `shipped` · `shipped-D` · `shipped-base` · `shipped-cp` · `shipped-dg` · `shipped-j` · `shipped-jcp` · `shipped-m4` · `shipped-m4cp` | 09-13 11:17 |
-| `shipped` | `g4` | `shipped-L` · `shipped-Ldg` | 09-13 11:17 |
-| `shipped` | `g4n` | `shipped-Gsnr` · `shipped-N` · `shipped-Nb3` · `shipped-Nb5` · `shipped-Ndg` · `shipped-base` | 09-13 11:17 |
-| `shipped` | `g4n10` | `shipped-N2` | 09-13 11:17 |
-| `shipped` | `g4n20` | `shipped-N2` | 09-13 11:17 |
+| `shipped` | `g1` | `guardon-E` · `noguard-D` · `shipped` · `shipped-D` · `shipped-E` · `shipped-b3` · `shipped-b5` · `shipped-base` · `shipped-dg` · `shipped-dgT` · `shipped-j` · `shipped-jcp` · `shipped-m4` · `shipped-m4cp` · `shipped-offT` | 09-13 12:21 |
+| `shipped` | `g2-learner-basmala` | `shipped` | 09-13 12:21 |
+| `shipped` | `g2-learner-combo` | `shipped-dg` | 09-13 12:21 |
+| `shipped` | `g2-learner-repeat` | `shipped-dg` | 09-13 12:21 |
+| `shipped` | `g2-noise-fan-5` | `shipped-b3` · `shipped-b5` · `shipped-dg` · `shipped-dgT` · `shipped-offT` | 09-13 12:21 |
+| `shipped` | `g3r-clean` | `guardon-E` · `noguard-D` · `shipped-D` · `shipped-E` · `shipped-cp` · `shipped-dg` | 09-13 12:21 |
+| `shipped` | `g3r-noisy` | `guardon-E` · `noguard-D` · `shipped` · `shipped-D` · `shipped-E` · `shipped-base` · `shipped-cp` · `shipped-dg` · `shipped-j` · `shipped-jcp` · `shipped-m4` · `shipped-m4cp` | 09-13 12:21 |
+| `shipped` | `g4` | `shipped-L` · `shipped-Ldg` | 09-13 12:21 |
+| `shipped` | `g4n` | `shipped-Gsnr` · `shipped-N` · `shipped-Nb3` · `shipped-Nb5` · `shipped-Ndg` · `shipped-base` | 09-13 12:21 |
+| `shipped` | `g4n10` | `shipped-N2` | 09-13 12:21 |
+| `shipped` | `g4n20` | `shipped-N2` | 09-13 12:21 |
 | `tinyv2` | `g1` | `shipped` · `tinyv2-ar` | 09-12 12:43 |
 | `tinyv2` | `g2-noise-fan-5` | `shipped` · `tinyv2-ar` | 09-12 12:43 |
 | `tinyv2` | `g3r-noisy` | `shipped` · `tinyv2-ar` | 09-12 12:43 |
@@ -56,7 +56,7 @@
 **🧹 وأوسمةٌ تُقاس فيها الزوائدُ الكاذبةُ على تلاوةٍ نظيفة (‏`g1` بذراعَين):**
 
 - `base`: `base-ar-B` · `shipped-B`
-- `shipped`: `noguard-D` · `shipped` · `shipped-D` · `shipped-b3` · `shipped-b5` · `shipped-base` · `shipped-dg` · `shipped-dgT` · `shipped-j` · `shipped-jcp` · `shipped-m4` · `shipped-m4cp` · `shipped-offT`
+- `shipped`: `guardon-E` · `noguard-D` · `shipped` · `shipped-D` · `shipped-E` · `shipped-b3` · `shipped-b5` · `shipped-base` · `shipped-dg` · `shipped-dgT` · `shipped-j` · `shipped-jcp` · `shipped-m4` · `shipped-m4cp` · `shipped-offT`
 - `tinyv2`: `shipped` · `tinyv2-ar`
 - `v2`: `shipped` · `v2`
 - `v2-acc-riwaya`: `shipped-C` · `v2-acc-riwaya-ar-C`
