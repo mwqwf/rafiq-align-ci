@@ -121,6 +121,32 @@ jobs:
           done
           CA="$(echo $CA | xargs echo)"
           echo "CLEAN_ARMS=$CA" >> "$GITHUB_ENV"
+          # 📜 **وخطّةُ التلاوة الطويلة إن كانت محفوظةً لهذه المجموعات** — بها وحدَها يصير
+          # لبنود `g4*` مرجعٌ (`pool_items` يقرأ `work/long_plan.json`)، وبلا ذلك تُطبع
+          # «⛔ بلا مرجع» فيُظَنّ العطبُ في الأداة. وتُدمج بنودُ كلِّ مجموعةٍ وُجدت خطّتُها.
+          rm -f work/long_plan.json
+          for s in $SETS; do
+            curl -fsS --retry 2 -o "work/lp_$s.json" "$PUB/finetune/gate/$TAG/emu_long_plan_$s.json" \
+              && echo "📜 خطّةُ $s" || echo "ℹ️ لا خطّةَ طويلةً لـ$s (متوقَّعٌ لمجموعاتٍ قصيرة)"
+          done
+          python3 - <<'PY'
+          import glob, json, os
+          items, seen = [], set()
+          for p in sorted(glob.glob("work/lp_*.json")):
+              try:
+                  d = json.load(open(p, encoding="utf-8"))
+              except Exception as e:
+                  print(f"⛔ خطّةٌ لا تُقرأ {p}: {e}")   # تُقال ولا تُكتَم
+                  continue
+              for it in d.get("items", []):
+                  if it.get("id") in seen:
+                      continue
+                  seen.add(it["id"]); items.append(it)
+          if items:
+              json.dump({"items": items}, open("work/long_plan.json", "w", encoding="utf-8"),
+                        ensure_ascii=False)
+              print(f"📜 {len(items)} بنداً طويلاً لها مرجعٌ الآن")
+          PY
           echo "CLEAN_OK=$([ -n "$CA" ] && echo 1 || echo 0)" >> "$GITHUB_ENV"
       - name: مِن أين جاءت الفرضيّات — **من الملفّ لا من الزناد**
         env:
