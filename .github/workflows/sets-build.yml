@@ -40,6 +40,16 @@ jobs:
           # عدّةٌ ناقصةٌ تُسقط البناءَ فيُقرأ العطبُ في العيّنة وهو في الشوط.
           pip install -q numpy soundfile scipy boto3
 
+      # ⛔ **وسرُّ R2 لازمٌ — بسببٍ مقيسٍ** (الشوط `34757386934`): نُزّلت **211 آيةً مفردةً**
+      # بالـhttp ثمّ سقط `fetch_audio.py` على `secure/r2_credentials.json` **لأنّ بنودَ قالون
+      # تُقصّ من ملفّات سورٍ في دلوٍ خاصّ** (‏S3 لا http). ⇒ يُكتب السرُّ كما يفعل `emu-gate`.
+      - name: سرُّ R2 (من السرّ الواحد R2_CREDENTIALS_JSON)
+        env:
+          R2_CREDENTIALS_JSON: ${{ secrets.R2_CREDENTIALS_JSON }}
+        run: |
+          mkdir -p secure && printf '%s' "$R2_CREDENTIALS_JSON" > secure/r2_credentials.json
+          python3 -c "import json;c=json.load(open('secure/r2_credentials.json'));print('✅ سرُّ R2 مقروءٌ · الدلو', c['bucket'])"
+
       - name: الطلب
         env:
           I_SETS: ${{ github.event.inputs.sets }}
