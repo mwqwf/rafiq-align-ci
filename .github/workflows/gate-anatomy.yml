@@ -340,6 +340,13 @@ jobs:
         run: |
           cd tools/tasmi_bench
           python tie_rule_ab.py --dirs "work:" --arm "$RULE_AB" | tee work/rule_ab.md
+      - name: 🌊 جرفُ الخطأ في التلاوة الطويلة (‏إن طُلبت `g4*`) — تعليلُ D-335 يُقاس
+        env:
+          PYTHONIOENCODING: utf-8
+        run: |
+          cd tools/tasmi_bench
+          case "$SETS" in *g4*) ;; *) echo "ℹ️ لا مجموعةَ `g4` — ولا جرفَ يُقاس (المسطرةُ للطويل)"; exit 0 ;; esac
+          python drift_probe.py --dirs "work:" --arms "$ARMS" --sets "$SETS" | tee work/drift.md             || echo "⚠️ تعذّر قياسُ الجرف (يُقال ولا يُكتَم)" | tee work/drift.md
       - name: 🧾 جردُ الفرضيّات المحفوظة في R2 (‏فلا يُعاد قياسُ ما هو مقروءٌ بدقيقة)
         if: always()
         env:
@@ -438,7 +445,7 @@ jobs:
           #     التشريحُ الفارغُ فيُكتب سببُه في الملفّ ولا يُسقط الشوط.
           [ -s "$M" ] || echo "⚠️ لا تشريحَ حقنٍ لهذه المجموعات (‏مجموعاتُ \`g4*\` تلاوةٌ طويلةٌ غيرُ محقونة) — والأرقامُ في الجداول أعلاه." > "$M"
           HAVE=0
-          for f in work/track.md work/gate.md work/provenance.md work/anatomy.md work/identical.md; do
+          for f in work/track.md work/gate.md work/provenance.md work/anatomy.md work/identical.md work/drift.md; do
             [ -s "tools/tasmi_bench/$f" ] && HAVE=1
           done
           [ "$HAVE" = "1" ] || { echo "⛔ لا جدولَ فيه مضمونٌ — لا شيءَ يُودَع"; exit 1; }
@@ -462,6 +469,9 @@ jobs:
             # `--pattern`** فتقول «المحرك (المحاكي)» — والنسبُ الصادقُ في الجدول أعلاه لا فيها.
             cat tools/tasmi_bench/work/gate.md
             echo
+            if [ -s tools/tasmi_bench/work/drift.md ]; then
+              cat tools/tasmi_bench/work/drift.md; echo
+            fi
             if [ -s tools/tasmi_bench/work/identical.md ]; then
               echo "## 🛡️ حارسُ «ذراعان متطابقتان» (‏على النصّ لا على المجال)"
               echo
