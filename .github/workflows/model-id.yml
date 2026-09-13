@@ -74,7 +74,9 @@ jobs:
           ) > work_modelid/id.md 2>&1
           rc=$?
           cat work_modelid/id.md
-          echo "RC=$rc" >> "$GITHUB_ENV"
+          # ⛔ **بملفٍّ لا بـ`GITHUB_ENV`** (‏مقيسٌ 2026-09-13): خطوةٌ تخرج بغير صفرٍ **لا يُضمن**
+          # أن يُقرأ منها `GITHUB_ENV` ⇒ خرجت ترويسةُ الأثر «rc=؟» فضاع أنفعُ سطرٍ فيه.
+          echo "$rc" > work_modelid/rc.txt
           exit "$rc"
 
       - name: إيداعُ الأثر — ناجحاً كان أو فاشلاً
@@ -87,7 +89,7 @@ jobs:
           {
             echo "# 🧬 هويّةُ ملفّات النماذج · الشوط ${{ github.run_id }}"
             echo
-            echo "- التاريخ: $(date -u +%FT%TZ) · الزناد: \`${{ github.event_name }}\` · رمزُ الخروج: \`${RC:-؟}\`"
+            echo "- التاريخ: $(date -u +%FT%TZ) · الزناد: \`${{ github.event_name }}\` · رمزُ الخروج: \`$(cat work_modelid/rc.txt 2>/dev/null || echo ؟)\`"
             echo "- ⛔ البصمةُ تحسم **هويّةَ المادّة** لا جودتَها: ملفّان متطابقان ⇒ حكمُ أحدهما حكمُ الآخر."
             echo
             cat "$M"
@@ -96,7 +98,7 @@ jobs:
           git config user.name "rafiq-ci"
           git config user.email "ci@users.noreply.github.com"
           git add "$OUT" results/LATEST_model_id.md
-          git commit -q -m "results(model-id): بصماتُ النماذج · الشوط ${{ github.run_id }} · rc=${RC:-؟}" || { echo "لا تغيير"; exit 0; }
+          git commit -q -m "results(model-id): بصماتُ النماذج · الشوط ${{ github.run_id }} · rc=$(cat work_modelid/rc.txt 2>/dev/null || echo ؟)" || { echo "لا تغيير"; exit 0; }
           for i in 1 2 3; do
             git fetch -q origin main && git merge -q --no-edit origin/main && git push -q origin HEAD:main && { echo "✅ أُودع $OUT"; exit 0; }
             echo "↻ محاولةٌ $i"; sleep 5
@@ -107,5 +109,5 @@ jobs:
       - name: ردُّ حكم البصمة
         if: always()
         run: |
-          [ "${RC:-1}" = "0" ] || { echo "⛔ سقطت البصمةُ برمزٍ ${RC:-؟} — والأثرُ مودَعٌ في results/"; exit 1; }
+          [ "$(cat work_modelid/rc.txt 2>/dev/null || echo 1)" = "0" ] || { echo "⛔ سقطت البصمةُ برمزٍ $(cat work_modelid/rc.txt 2>/dev/null || echo ؟) — والأثرُ مودَعٌ في results/"; exit 1; }
           echo "✅ البصماتُ أُخذت"
