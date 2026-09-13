@@ -349,6 +349,20 @@ def _near(ref, hyp, cfg):
     return any(_edit(r, hyp) <= limit for r in refs)
 
 
+# 🎛️ **مفتاحٌ مطفأٌ ينتظر قياساً** (‏D-366): «الحمد لله **كتاب** رب العالمين» تُقرأ **إبدالاً**
+# (‏رب ⇐ كتاب) + دمجاً، لا إقحاماً — لأنّ الكلفتَين متعادلتان (3 = 2 + 1). فيُقال للقارئ
+# «أبدلتَ» وهو **قد قال الكلمةَ صحيحةً وزاد غيرَها**.
+#
+# ⛔ **وترجيحُ الإقحام عند التعادل ليس قاعدةً محليّة** (جُرِّب ففشل): التعادلُ يظهر في **الخانة
+# التي يلتقي فيها المسارانِ**، لا عند خطوة الإقحام. ⇒ فالصوابُ **ترتيبٌ معجميّ**: تُصغَّر الكلفةُ
+# أوّلاً، **ثمّ عددُ الإبدالات** — فيُختار عند التساوي المسارُ الذي **لا يتّهم كلمةً صحيحة**.
+# ويُنفَّذ بضربِ الكلف في 16 وزيادةِ 1 على الإبدال: الترتيبُ الأوّلُ محفوظٌ حرفاً، والثاني يفصل
+# المتعادلات وحدَها. ⛔ ومطفأٌ افتراضاً — يمسّ كلَّ حكمٍ مشحونٍ فلا يُفعَّل إلّا بشوط بوّابة.
+PREFER_INSERT_ON_TIE = False
+_SC = 16          # مضاعفُ الكلفة — يُبقي الترتيبَ الأوّل سليماً
+_SUB_TIE = 1      # ثمنٌ رمزيٌّ للإبدال يفصل المتعادلات وحدَها
+
+
 def score(ref_words, hyp_text, cfg=DEFAULT):
     """يعيد dict: words (verdict لكل كلمة مرجعية) + additions."""
     ref = [_riwaya_forms(variants(w, cfg), cfg) for w in ref_words]
@@ -363,13 +377,18 @@ def score(ref_words, hyp_text, cfg=DEFAULT):
             if d == INF:
                 continue
 
-            def relax(ni, nj, cost, op, i=i, j=j, d=d):
-                if ni <= R and nj <= H and cost < INF and d + cost < dp[ni][nj]:
-                    dp[ni][nj] = d + cost
+            def relax(ni, nj, cost, op, i=i, j=j, d=d, sub=False):
+                if ni > R or nj > H or cost >= INF:
+                    return
+                # 🎛️ الترتيبُ المعجميّ: الكلفةُ ×16 ثمّ ثمنُ الإبدال الرمزيّ (عند التفعيل وحدَه).
+                c = cost * _SC + (_SUB_TIE if (sub and PREFER_INSERT_ON_TIE) else 0) if PREFER_INSERT_ON_TIE else cost
+                if d + c < dp[ni][nj]:
+                    dp[ni][nj] = d + c
                     back[ni][nj] = (i, j, op)
 
             if i < R and j < H:
-                relax(i + 1, j + 1, 0 if _matches(ref[i], hyp[j], cfg) else (1 if _uncertain(ref[i], hyp[j], cfg) else 2), 0)
+                _c = 0 if _matches(ref[i], hyp[j], cfg) else (1 if _uncertain(ref[i], hyp[j], cfg) else 2)
+                relax(i + 1, j + 1, _c, 0, sub=(_c == 2))
             if i < R:
                 relax(i + 1, j, 3, 1)
             if j < H:
