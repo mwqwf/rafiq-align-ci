@@ -93,6 +93,36 @@ def tag_of(set_name):
     return f"{kind}-{name}"
 
 
+def bench_stamp():
+    """🧬 **بصمةُ ما قاس** — تُختم في ترويسة كلّ ملفِّ فرضيّات: أيُّ شفرةِ مقياسٍ وأيُّ بناءِ محرّك.
+
+    ⛔ **ولِمَ صارت لازمةً (‏2026-09-13):** انحرفت المرآةُ في `rafiq-align-ci` عن أصلها
+    أربعين دقيقةً (`phonetic_license.py`) — ولو أُشعل شوطٌ فيها لقاس **شفرةً غيرَ التي أُودعت**،
+    والرقمُ الناتجُ **لا شيءَ فيه يقول ذلك**. والفرضيّاتُ تُحفظ في R2 وتُقرأ بعد أيام
+    (‏إصلاحُ D-374) ⇒ فملفٌّ بلا بصمةٍ **رقمٌ بلا شفرته**.
+
+    ⭐ **والبناءُ ببصمة الملفّ لا بعنوانه**: العنوانُ في R2 **يُكتب فوقه** فيصير يدلّ على غيرِ
+    ما قِيس، وأمّا `sha256` فلا يكذب. (‏والعنوانُ يُحفظ معه للقراءة البشريّة وحدَها.)
+    ⚠️ و`?` تعني «لم يُعرف» لا «لا شيء» — فلا تُقرأ تطابقاً.
+    """
+    rev, dirty = "?", ""
+    try:
+        p = sh(["git", "-C", HERE, "rev-parse", "--short", "HEAD"], timeout=15)
+        if p.returncode == 0 and p.stdout.strip():
+            rev = p.stdout.strip()
+            q = sh(["git", "-C", HERE, "status", "--porcelain", "--", HERE], timeout=15)
+            if q.returncode == 0 and q.stdout.strip():
+                dirty = "+غيرُ مودَع"   # ⛔ شوطٌ على شجرةٍ فيها تعديلٌ لم يُدفع ⇒ لا يُعاد إنتاجُه
+    except Exception:
+        pass
+    st = {"benchRev": rev + dirty}
+    for key, env in (("apkSha", "APK_SHA"), ("apkUrl", "APK_URL"), ("runId", "GITHUB_RUN_ID")):
+        v = (os.environ.get(env) or "").strip()
+        if v:
+            st[key] = v
+    return st
+
+
 TAG = ""   # 🏷️ وسمُ الذراع (‏--tag): نموذجان على المحرك نفسِه لا يكتبان في ملفٍّ واحد
 
 def out_path(set_name, chain=False):
@@ -122,7 +152,8 @@ def run_set(set_name, limit=0, chunk=60, timeout_per_file=90, chain=False):
             "device": "emulator-5554", "model": MODEL, "set": tag_of(set_name),
             "frontEnd": {"chain": "noiseGate+levelV2", "gate": "noiseGate", "lvl": "levelV2",
                          "cap": "noiseGate+groupCap10", "caponly": "groupCap10",
-                         "gateonly": "noiseGate"}.get(chain, "shipped(v1)")}
+                         "gateonly": "noiseGate"}.get(chain, "shipped(v1)"),
+            **bench_stamp()}
     # دفعاتٌ صغيرة: سجلُّ المحاكي حلقيٌّ، ودفعةٌ طويلةٌ تُفقد أوائلَها.
     for start in range(0, len(todo), chunk):
         batch = todo[start:start + chunk]

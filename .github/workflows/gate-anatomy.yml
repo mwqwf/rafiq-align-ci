@@ -159,13 +159,31 @@ jobs:
           # يُسقط رقماً صحيحاً أو يرفع رقماً لا يُشحن به**. ⇒ تُطبع ترويسةُ كلّ ملفٍّ كما هي.
           python3 - <<'PY' | tee work/provenance.md
           import glob, json
-          print("| ملفُّ الفرضيّات | المحرك كما كتبه الشوط | الجهاز | النموذج | الواجهة |")
-          print("|---|---|---|---|---|")
+          print("| ملفُّ الفرضيّات | المحرك كما كتبه الشوط | الجهاز | النموذج | الواجهة | 🧬 شفرةُ المقياس | 🧬 بناءُ المحرك |")
+          print("|---|---|---|---|---|---|---|")
+          revs, apks, old = {}, {}, []
           for p in sorted(glob.glob("work/hyps_emu_*.json")):
               m = (json.load(open(p, encoding="utf-8")) or {}).get("meta") or {}
               fe = m.get("frontEnd")
-              print(f"| `{p.split('/')[-1]}` | {m.get('engine', '⛔ بلا ترويسة')} | "
-                    f"{m.get('device', '—')} | `{m.get('model', '—')}` | `{fe if isinstance(fe, str) else m.get('chain', '—')}` |")
+              f = p.split("/")[-1]
+              rev, apk = m.get("benchRev"), m.get("apkSha")
+              if rev: revs.setdefault(rev, []).append(f)
+              if apk: apks.setdefault(apk, []).append(f)
+              if not rev: old.append(f)
+              print(f"| `{f}` | {m.get('engine', '⛔ بلا ترويسة')} | "
+                    f"{m.get('device', '—')} | `{m.get('model', '—')}` | `{fe if isinstance(fe, str) else m.get('chain', '—')}` | "
+                    f"`{rev or '؟'}` | `{apk or '؟'}` |")
+          # ⛔⛔ **ذراعان بشفرتَي مقياسٍ مختلفتَين ليستا مقارنة**: الفرقُ المقيسُ حينئذٍ قد يكون
+          #     فرقَ شفرةٍ لا فرقَ ذراع — **وهو تشويشٌ صامتٌ لا يظهر في أيّ رقم**. يُقال ولا يُكتم.
+          for label, d in (("شفرةِ المقياس", revs), ("بناءِ المحرك", apks)):
+              if len(d) > 1:
+                  print(f"\n⛔⛔ **اختلافُ {label} بين الملفّات — فالفرقُ قد يكون فرقَها لا فرقَ الذراع:**")
+                  for k, fs in sorted(d.items()):
+                      print(f"- `{k}` ⇐ " + " · ".join(f"`{x}`" for x in fs))
+          if any(r.endswith("غيرُ مودَع") for r in revs):
+              print("\n⛔ **وفيها ما قِيس على شجرةٍ غيرِ مودَعة** ⇒ لا يُعاد إنتاجُه بالبصمة وحدَها.")
+          if old:
+              print(f"\n⚠️ و**{len(old)}** ملفّاً بلا بصمةٍ (‏قِيس قبل 2026-09-13) — «؟» تعني **لم يُعرف** لا «متطابق».")
           PY
       - name: إعادةُ حساب جدول البوّابة من الفرضيّات نفسِها
         env:

@@ -235,6 +235,10 @@ jobs:
             curl -sSL -f --retry 4 --retry-delay 5 --retry-all-errors -A "$UA" -o models/cand.bin "$CU"
           fi
           curl -sSL -f --retry 4 --retry-delay 5 --retry-all-errors -A "$UA" -o app.apk "${{ inputs.apk_url }}"; ls -l models app.apk
+          # 🧬 **بصمةُ البناء الذي قاس — بالملفّ لا بالعنوان.** عنوانُ R2 **يُكتب فوقه**، فرقمٌ
+          # منسوبٌ إلى عنوانٍ قد يصير منسوباً إلى بناءٍ آخرَ بلا أن يتغيّر حرفٌ في النتيجة.
+          # وتُختم في ترويسة كلّ ملفِّ فرضيّاتٍ (`emu_sweep.bench_stamp`) فتبقى في R2 مع المادّة.
+          echo "APK_SHA=$(sha256sum app.apk | cut -c1-12)" >> "$GITHUB_ENV"
       - name: مجموعاتُ القياس (كاشُ tasmi-gate نفسُه)
         id: sets
         uses: actions/cache@v4
@@ -268,6 +272,8 @@ jobs:
         env:
           PYTHONIOENCODING: utf-8
           APK: app.apk
+          APK_SHA: ${{ env.APK_SHA }}
+          APK_URL: ${{ inputs.apk_url }}
           SET: ${{ matrix.set }}
           EZ: ${{ inputs.ez }}
           EI: ${{ inputs.ei }}
