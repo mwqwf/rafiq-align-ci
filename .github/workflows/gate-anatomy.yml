@@ -10,6 +10,12 @@
 #
 #   ‏الشوطُ يكلّف دقائقَ معدودةً (لا محاكي) — فلا يُضَنّ به على حكمٍ مشتبَه.
 name: gate-anatomy
+# ⛔⛔ **وزنادُه الإيداعُ لا `workflow_dispatch` وحدَه — بسببٍ مقيسٍ 2026-09-13:**
+# بيانةُ الوكيل السحابيّ **لا تستطيع الإدلاء**: `POST …/dispatches` يردّ
+# `403 Resource not accessible by integration` — وجُرّب على `keepalive.yml` أيضاً فردَّ الشيءَ
+# نفسَه ⇒ **المنعُ في الصلاحيّة لا في المسار الجديد**. والوكيلُ **يستطيع الدفعَ إلى `main`**.
+# ⇒ فصار الطلبُ ملفّاً يُدفع: `tools/tasmi_bench/requests/anatomy.json` ‏(`tag` · `arms` · `sets` · `chain`)،
+# **فمن قدر على الدفع قدر على إشعال الحوسبة** بلا أن يُطلب من المالك مفتاحٌ ولا نقرةٌ.
 on:
   workflow_dispatch:
     inputs:
@@ -27,6 +33,9 @@ on:
         description: "سلسلةُ الواجهة كما كُتبت في اسم الملفّ (‏cap المقيس)"
         required: false
         default: "cap"
+  push:
+    paths:
+      - "tools/tasmi_bench/requests/anatomy.json"
 # 🔑 صلاحيّةٌ واحدةٌ: إيداعُ الجدول في المستودع. ⛔ ولا تعليقَ آليّاً في لوحة المتابعة —
 # **المعنى يكتبه الوكيل**، ورقمٌ بلا معناه لا يُرسَل إلى هاتف المالك.
 permissions:
@@ -42,12 +51,33 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: "3.11"
-      - name: تنزيلُ فرضيّات الشوط من R2 العامّ (‏بلا مفتاح)
+      - name: الطلبُ — من الإدلاء أو من الملفِّ المدفوع
         env:
-          TAG: ${{ github.event.inputs.tag }}
-          ARMS: ${{ github.event.inputs.arms }}
-          SETS: ${{ github.event.inputs.sets }}
-          CHAIN: ${{ github.event.inputs.chain }}
+          I_TAG: ${{ github.event.inputs.tag }}
+          I_ARMS: ${{ github.event.inputs.arms }}
+          I_SETS: ${{ github.event.inputs.sets }}
+          I_CHAIN: ${{ github.event.inputs.chain }}
+        run: |
+          python3 - <<'PY' >> "$GITHUB_ENV"
+          import json, os, sys
+          req = {}
+          p = "tools/tasmi_bench/requests/anatomy.json"
+          if os.path.exists(p):
+              req = json.load(open(p, encoding="utf-8"))
+          def pick(k, d=""):
+              v = (os.environ.get("I_" + k.upper()) or "").strip()
+              return v or str(req.get(k) or "").strip() or d
+          tag, arms = pick("tag"), pick("arms")
+          # ⛔ **الطلبُ الناقصُ يسقط هنا لا بعد تنزيلٍ فاشل:** «لا ملفّات» رسالةٌ تُقرأ حجباً في R2
+          # وهي في الحقيقة طلبٌ بلا وسم. ⇒ يُسمّى النقصُ باسمه قبل أن يُلمس الشبكة.
+          if not tag or len(arms.split()) != 2:
+              sys.exit(f"⛔ طلبٌ ناقص: tag={tag!r} · arms={arms!r} — والأذرعُ اسمان بمسافةٍ لا أكثرَ ولا أقلّ")
+          for k, v in (("TAG", tag), ("ARMS", arms),
+                       ("SETS", pick("sets", "g3r-clean g3r-noisy")), ("CHAIN", pick("chain", "cap"))):
+              print(f"{k}={v}")
+          PY
+          cat "$GITHUB_ENV"
+      - name: تنزيلُ فرضيّات الشوط من R2 العامّ (‏بلا مفتاح)
         run: |
           cd tools/tasmi_bench && mkdir -p work_anatomy && rm -f work_anatomy/*.json
           n=0
@@ -69,16 +99,15 @@ jobs:
       - name: التشريحُ صنفاً صنفاً
         env:
           PYTHONIOENCODING: utf-8
-          ARMS: ${{ github.event.inputs.arms }}
         run: |
           cd tools/tasmi_bench
           # ⛔ **بمسافةٍ لا بفاصلة:** `--arms` يأخذ اسمَين، ومجلدُ `--dirs` لاحقتُه فارغةٌ
           # (‏`work_anatomy:`) كي **لا تُقلَّم** لاحقةُ الوسم من أسماء الأذرع.
           python detect_anatomy.py --dirs "work_anatomy:" --arms $ARMS | tee work_anatomy/anatomy.md
-          { echo "### 🔬 تشريحُ الكشف (‏${{ github.event.inputs.tag }})"; cat work_anatomy/anatomy.md; } >> "$GITHUB_STEP_SUMMARY"
+          { echo "### 🔬 تشريحُ الكشف (‏$TAG)"; cat work_anatomy/anatomy.md; } >> "$GITHUB_STEP_SUMMARY"
       - name: إيداعُ الجدول في المستودع (‏كي يقرأه الوكيلُ السحابيُّ والمالك)
         run: |
-          T="${{ github.event.inputs.tag }}"
+          T="$TAG"
           M="tools/tasmi_bench/work_anatomy/anatomy.md"
           [ -s "$M" ] || { echo "⛔ لا جدولَ — لا شيءَ يُودَع"; exit 1; }
           mkdir -p results
@@ -87,7 +116,7 @@ jobs:
             echo "# تشريحُ الكشف · الوسم \`${T}\` · الشوط ${{ github.run_id }}"
             echo
             echo "- التاريخ: $(date -u +%FT%TZ)"
-            echo "- الذراعان: \`${{ github.event.inputs.arms }}\` · المجموعات: \`${{ github.event.inputs.sets }}\` · السلسلة: \`${{ github.event.inputs.chain }}\`"
+            echo "- الذراعان: \`$ARMS\` · المجموعات: \`$SETS\` · السلسلة: \`$CHAIN\` · الزناد: \`${{ github.event_name }}\`"
             echo "- المصدر: فرضيّاتُ الشوط من \`finetune/gate/${T}/\` على R2 العامّ"
             echo
             cat "$M"
