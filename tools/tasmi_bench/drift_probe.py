@@ -73,6 +73,54 @@ def drift_stats(seqs, seed=7, boot=2000):
             "errs": errs, "hits": hits, "p": p, "q": q, "diff": q - p, "ci": (lo, hi)}
 
 
+def overlap_stats(pairs, seed=7, boot=2000):
+    """🎯 **أهي مواضعُ صعبةٌ أم انحرافٌ عارض؟** — تقاطعُ مواضع الخطأ بين ذراعَين مقابلَ المصادفة.
+
+    ⛔ **ولِمَ لزم هذا:** D-388 قاست **تجاورَ** الأخطاء وكتبت حدَّها بنفسها: «تجاورٌ لا سببيّة —
+    فموضعٌ صعبٌ يُعطي تجاوراً بلا انحدارٍ ذاتيّ». وهذا يفصلها: الصوتُ والنموذجُ والمحاكي
+    **عينُها** في الذراعَين، والمفتاحُ وحدَه فارقٌ ⇒
+    - تقاطعٌ **أكبرُ من المصادفة بكثير** ⇒ الخطأُ **مربوطٌ بالموضع** (مادّةٌ صعبةٌ · مواضعُ بعينها)؛
+    - تقاطعٌ **≈ المصادفة** ⇒ الخطأُ **مسارُ فكٍّ عارضٌ** يتبدّل بأدنى تغيير ⇒ الجرفُ ذاتيٌّ لا موضعيّ.
+    [pairs] = [(مواضعُ خطأِ الأولى، مواضعُ خطأِ الثانية، عددُ كلمات البند)].
+    """
+    def agg(pick):
+        obs = exp = 0.0
+        for ea, eb, n in pick:
+            if not n:
+                continue
+            obs += len(ea & eb)
+            exp += len(ea) * len(eb) / n          # المصادفةُ: استقلالُ الموضعَين بالنسبتَين
+        return obs, exp
+    obs, exp = agg(pairs)
+    ratio = obs / exp if exp else 0.0
+    rng = random.Random(seed)
+    rs = []
+    for _ in range(boot):
+        pick = [pairs[rng.randrange(len(pairs))] for _ in range(len(pairs))] if pairs else []
+        o2, e2 = agg(pick)
+        if e2:
+            rs.append(o2 / e2)
+    rs.sort()
+    lo = rs[int(0.025 * len(rs))] if rs else 0.0
+    hi = rs[int(0.975 * len(rs)) - 1] if rs else 0.0
+    return {"items": len(pairs), "obs": obs, "exp": exp, "ratio": ratio, "ci": (lo, hi)}
+
+
+def positions(items, hyps, scorer, cfg_of):
+    """‏[معرّف] ⇒ (مواضعُ الخطأ · عددُ الكلمات) — بالحاكم نفسِه."""
+    BAD = {scorer.MISSED, scorer.SUBSTITUTED}
+    out = {}
+    for it in items:
+        h = hyps.get(it["id"]) or {}
+        if h.get("text") is None or "error" in h:
+            continue
+        sc = scorer.score(it["refText"].split(), h["text"], cfg_of(it))
+        ws = [w for w in sc.get("words", []) if w]
+        if len(ws) >= 4:
+            out[it["id"]] = ({i for i, w in enumerate(ws) if w[1] in BAD}, len(ws))
+    return out
+
+
 def statuses(items, hyps, scorer, cfg_of):
     """‏[بندٌ] ⇒ قائمةُ «أخطأ؟» بترتيب كلمات المرجع — بالحاكم نفسِه لا بمسطرةٍ أخرى."""
     BAD = {scorer.MISSED, scorer.SUBSTITUTED}
@@ -134,6 +182,33 @@ def run(dirs, arms, sets):
     if not any_row:
         print("| — | — | — | — | — | — | — | — | — | ⛔ لا فرضيّاتٍ تُقرأ | — |")
         return 1
+    # 🎯 وتقاطعُ المواضع بين الذراعَين — يفصل «مادّةٌ صعبةٌ» من «انحرافٌ عارض»
+    if len(arms) == 2:
+        print("\n## 🎯 أمواضعُ صعبةٌ أم انحرافٌ عارض؟ — تقاطعُ مواضع الخطأ بين الذراعَين\n")
+        print("| المجموعة | بنودٌ | تقاطعٌ ملحوظ | تقاطعٌ بالمصادفة | **النسبة** | مجال 95٪ |")
+        print("|---|---:|---:|---:|---:|---:|")
+        for d in dirs:
+            G.WORK = d
+            pool = G.pool_items()
+            for st in sets:
+                key = st if st.startswith(("g1", "g4")) else st.replace("-", ":", 1)
+                hs = [G.load_hyps(key, a) for a in arms]
+                if not all(hs):
+                    continue
+                its = [it for it in pool if it["id"] in hs[0] and it["id"] in hs[1]]
+                if not its:
+                    continue
+                pa = positions(its, hs[0], SCR, cfg_of)
+                pb = positions(its, hs[1], SCR, cfg_of)
+                prs = [(pa[i][0], pb[i][0], pa[i][1]) for i in pa if i in pb]
+                if not prs:
+                    continue
+                o = overlap_stats(prs)
+                print(f"| `{st}` | {o['items']} | {o['obs']:.0f} | {o['exp']:.1f} | "
+                      f"**×{o['ratio']:.2f}** | [×{o['ci'][0]:.2f} .. ×{o['ci'][1]:.2f}] |")
+        print("\n⭐ **كيف تُقرأ:** ×1 ⇒ مواضعُ الخطأ **مستقلّةٌ بين الذراعَين** فالخطأُ **مسارُ فكٍّ "
+              "عارضٌ** يتبدّل بأدنى تغيير · و×≫1 ⇒ **مربوطٌ بالموضع** (مادّةٌ صعبةٌ بعينها). "
+              "والصوتُ والنموذجُ عينُهما في الذراعَين والمفتاحُ وحدَه فارق.")
     print("\n⭐ **كيف يُقرأ:** q ≈ p ⇒ **أخطاءٌ مستقلّةٌ** فالعلاجُ في السمع · q ≫ p ⇒ **جرفٌ** "
           "فالعلاجُ في التقطيع أو إعادة الإرساء. ⚠️ **وهذا تجاورٌ لا سببيّة**: موضعٌ صعبٌ "
           "يُعطي تجاوراً بلا انحدارٍ ذاتيّ ⇒ **مُرجِّحٌ لا برهان**.")
@@ -164,8 +239,22 @@ def selftest():
     # ④ بلا أخطاءٍ البتّة ⇒ لا أزواجَ ولا انفجار
     z = drift_stats([[False] * 10 for _ in range(5)])
     assert z["pairs"] == 0 and z["q"] == 0.0, z
+    # ⑤ ومسطرةُ التقاطع: مواضعُ متطابقةٌ ⇒ نسبةٌ عالية · ومنفصلةٌ ⇒ صفرٌ · وعشوائيّةٌ ⇒ ≈1
+    same = [({0, 1, 2}, {0, 1, 2}, 30) for _ in range(30)]
+    assert overlap_stats(same)["ratio"] > 9, overlap_stats(same)
+    disj = [({0, 1, 2}, {10, 11, 12}, 30) for _ in range(30)]
+    assert overlap_stats(disj)["ratio"] == 0.0, overlap_stats(disj)
+    rnd = random.Random(11)
+    ind = []
+    for _ in range(200):
+        ea = {rnd.randrange(30) for _ in range(6)}
+        eb = {rnd.randrange(30) for _ in range(6)}
+        ind.append((ea, eb, 30))
+    r = overlap_stats(ind)["ratio"]
+    assert 0.75 < r < 1.25, r
     print(f"✅ اختبارٌ ذاتيّ: مستقلٌّ (فرق {a['diff']*100:+.1f}) · جرفٌ ({b['diff']*100:+.1f}) · "
-          f"تناوبٌ ({c['diff']*100:+.1f}) · وخالٍ من الأخطاء (بلا أزواج)")
+          f"تناوبٌ ({c['diff']*100:+.1f}) · وخالٍ من الأخطاء (بلا أزواج) · "
+          f"وتقاطعٌ: متطابقٌ ≫1 · منفصلٌ 0 · وعشوائيٌّ ×{r:.2f}")
     return 0
 
 
