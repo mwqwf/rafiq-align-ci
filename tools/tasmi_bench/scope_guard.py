@@ -6,6 +6,7 @@
 ⇒ التذكيرُ ثبت فشلُه تجريبيّاً؛ والذي يُوقف الخطأ **ما يخرج بـ1 قبل الإيداع** لا ما يُكتب.
 
     python tools/tasmi_bench/scope_guard.py <مسارات> && git commit -F - -- <المسارات نفسُها>
+    python tools/tasmi_bench/scope_guard.py --selftest      # يختبر الحاجزَ نفسَه
 
 ⭐ **والإيداعُ بقائمة مسارات** (`git commit -- <paths>`) هو العلاجُ لا إلغاءُ الترحيل: إلغاؤه
 يحتاج أوامرَ يمنعها حارسُ الشجرة المشتركة، **والإيداعُ المقيَّد بمسارات يودِع ما سُمّي وحدَه**
@@ -16,6 +17,7 @@
 ⛔ وما عداه — `app/` و`feature/` والترجمات (جلسةُ الواجهة) · `tools/alignment*` و
 `timings-staging/` و`docs/qa/PROMOTIONS.md` (جلسةُ الفهرسة) — **لا يُودَع من هنا**.
 """
+import posixpath
 import subprocess
 import sys
 
@@ -41,12 +43,60 @@ ALLOW = (
 )
 
 
+def canon(p):
+    """يُعيد المسارَ بصورةٍ واحدةٍ للمقارنة، أو `None` إن كان **خارجاً بالبناء**.
+
+    ⛔⛔ **والحاجزُ كان يُخدَع بمسارٍ صحيحٍ نحويّاً (2026-09-13):** المقارنةُ كانت
+    `p.startswith("tools/tasmi_bench/")` على النصّ الخامّ ⇒
+    **`tools/tasmi_bench/../../app/MainActivity.kt` يجتازه** وهو يكتب في `app/`!
+    وكذلك `./tools/tasmi_bench/x.py` **يُرفض** وهو داخلُ النطاق (‏إنذارٌ كاذبٌ يُعلّم تخطّي
+    الحارس). ⇒ يُطبَّع المسارُ أوّلاً (‏شرطةُ وندوز · `./` · `..`)، **والمطلقُ وما يخرج
+    بـ`..` يُرفضان بلا نظرٍ في القائمة**.
+    ⭐ وقاعدةُ المالك: تعديلُ حارسٍ يجعله **أصعبَ خداعاً** لا أوسعَ قبولاً.
+    """
+    q = (p or "").strip().replace("\\", "/")
+    if not q:
+        return None
+    if q.startswith("/") or (len(q) > 1 and q[1] == ":"):
+        return None                      # مطلقٌ: لا يُقاس بنطاقٍ نسبيّ
+    q = posixpath.normpath(q)
+    if q == ".." or q.startswith("../"):
+        return None                      # خرج من الشجرة
+    return q
+
+
 def outside(paths):
-    return [p for p in paths if not any(p.startswith(a) for a in ALLOW)]
+    bad = []
+    for p in paths:
+        q = canon(p)
+        if q is None or not any(q.startswith(a) for a in ALLOW):
+            bad.append(p)
+    return bad
+
+
+def selftest():
+    """⛔ حارسٌ يُختبر قبل أن يُستعمل (قاعدةُ المالك) — وفيه حالتا الخداع اللتان كان يقع فيهما."""
+    ok = ["tools/tasmi_bench/x.py", "./tools/tasmi_bench/x.py", "tools\\tasmi_bench\\x.py",
+          "engine/recitation/src/main/kotlin/A.kt", "docs/qa/TASMI_SCOREBOARD.md",
+          ".github/workflows/emu-gate.yml", "tools/tasmi_bench/./sub/../y.py"]
+    bad = ["app/MainActivity.kt", "tools/tasmi_bench/../../app/MainActivity.kt",
+           "tools/tasmi_bench/../index_qa/promote.py", "/etc/passwd", "C:/tmp/x",
+           "tools/tasmi_benchX/y.py", "docs/qa/PROMOTIONS.md", "../outside.py", "",
+           "tools/alignment/common.py"]
+    f1 = outside(ok)
+    f2 = [p for p in bad if p not in outside(bad)]
+    if f1 or f2:
+        print("⛔ فشلَ الاختبارُ الذاتيّ — رُفض داخلٌ: " + str(f1) + " · واجتاز خارجٌ: " + str(f2))
+        return 1
+    print(f"✅ اختبارٌ ذاتيّ: {len(ok)} داخلاً قُبلت و{len(bad)} خارجاً رُدَّت "
+          "(ومنها `tools/tasmi_bench/../../app/…` — الخداعُ الذي كان يجتاز).")
+    return 0
 
 
 def main():
     args = [a for a in sys.argv[1:] if a.strip()]
+    if args == ["--selftest"]:
+        return selftest()
     if args:
         # 🎯 الوضعُ المفضَّل: تُفحص **المسارات المنويّة** قبل بنائها أمرَ إيداعٍ مقيَّد بها.
         bad = outside(args)
