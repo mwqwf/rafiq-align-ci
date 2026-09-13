@@ -87,7 +87,9 @@ jobs:
           p = "tools/tasmi_bench/requests/threads.json"
           req = json.load(open(p, encoding="utf-8")) if os.path.exists(p) else {}
           d = {"model": "tiny", "src": "g4n", "plan": "work/long_plan.json",
-               "limit": "20", "repeats": "3", "threads_a": "2", "threads_b": "0", "rt": "1.0"}
+               "limit": "20", "repeats": "3", "threads_a": "2", "threads_b": "0", "rt": "1.0",
+               # ميزانيّةُ خطوة القياس بالثواني — تحت المهلة بهامشٍ يكفي البناءَ والنشر.
+               "budget_sec": "3000"}
           for k, v in d.items():
               print("R_%s=%s" % (k.upper(), str(req.get(k, v)).strip() or v))
           note = (os.environ.get("I_NOTE") or "").strip() or str(req.get("note") or "").strip()
@@ -151,7 +153,25 @@ jobs:
           echo "THR_B=$B" >> "$GITHUB_ENV"
           cd tools/tasmi_bench
           rc=0
+          # ⛔⛔ **ميزانيّةُ زمنٍ تُقاس لا تُقدَّر — بعطبٍ وقع في أوّل شوطٍ** (`34786469053`):
+          # قدّرتُ التمريرةَ بثماني دقائقَ فاختَرتُ 20 بنداً وثلاثَ إعاداتٍ (ستّ تمريرات)، فتجاوزت
+          # خطوةُ القياس خمسين دقيقةً وقاربت المهلة — **ولو سقطت بالمهلة لضاع الشوطُ كلُّه بلا
+          # حكمٍ منشور**، لأنّ النشرَ في آخره. ⇒ الآن **تُقاس التمريرةُ الأولى** ثمّ يُحسب ما يسع
+          # الميزانيّةَ، فتُقلَّص الإعاداتُ **ويُعلن تقليصُها** بدل أن يُفقد كلُّ شيء.
+          # ⭐ **والقاعدة: مَن اختار عيّنةً بتقديرِ زمنٍ لم يقِسه فقد راهن بالشوط كلِّه.**
+          BUDGET=${R_BUDGET_SEC:-3000}
+          T0=$(date +%s)
+          done_pairs=0
           for r in $(seq 1 "$R_REPEATS"); do
+            if [ "$done_pairs" -ge 1 ]; then
+              el=$(( $(date +%s) - T0 ))
+              per=$(( el / done_pairs ))
+              left=$(( BUDGET - el ))
+              if [ "$left" -lt "$per" ]; then
+                echo "⚠️ **قُلِّصت الإعاداتُ إلى $done_pairs بحسابٍ مقيس**: التمريرةُ ${per}ث · الباقي ${left}ث من ${BUDGET}ث" | tee -a work_th/head.txt
+                break
+              fi
+            fi
             for side in a b; do
               if [ "$side" = "a" ]; then T="$A"; else T="$B"; fi
               echo "== إعادةٌ $r · ذراعُ $side · خيوطٌ $T"
@@ -159,7 +179,11 @@ jobs:
                 --src "work/$R_SRC" --plan "$R_PLAN" --threads "$T" --limit "$R_LIMIT" \
                 --json "work_th/th_${side}_${r}.json" --md "work_th/th_${side}_${r}.md" || rc=$?
             done
+            done_pairs=$(( done_pairs + 1 ))
           done
+          echo "الإعاداتُ المنجَزة: $done_pairs من $R_REPEATS · بميزانيّةٍ ${BUDGET}ث" | tee -a work_th/head.txt
+          # ⛔ وتمريرةٌ واحدةٌ لا تكفي حكماً زوجيّاً بإعاداتٍ؟ **بل تكفي** (الوسيطُ على إعادةٍ واحدة)
+          #    — والعددُ يُطبع في الأثر فيُقرأ الحكمُ بحجم شهادته لا بحجم ما طُلب.
           echo "$rc" > work_th/rc.txt
           ls -l work_th/
           exit "$rc"
