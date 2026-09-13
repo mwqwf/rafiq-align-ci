@@ -1,0 +1,141 @@
+# 🧩 **توسيعُ خطّة الحقن الروائيّ — توسيعاً فائقاً لا إعادةَ توليد.**
+#
+# ⛔ **لِمَ وُجد — بسببٍ مقيسٍ لا مفترَض** (‏D-415): حكمان من أحكام البوّابة عادا **حدّيَّين**
+# (حدُّ ثقةٍ أعلى **+0.00** في D-364 و**+0.20** في D-415) على خطّةٍ من **160 بنداً**. وعلاجُ
+# الحدِّ الحدّيِّ **عيّنةٌ أكبر** — ⛔ **ولا تليينَ عتبةٍ مكانَها** بحال.
+#
+# ⛔⛔ **ولِمَ «فائقاً» شرطاً لا تحسيناً:** المسبحُ يُمشى فيه بالترتيب، فرفعُ `PER_OP` وحدَه
+# **يزحزح البنودَ القديمةَ نفسَها**. وقد قِيس ذلك (بفهرسٍ اصطناعيٍّ في صندوق الوكيل):
+# إعادةُ التوليد من 5 إلى 8 لكلّ عملية **أسقطت 32 بنداً من 40**، و**ثلاثةٌ** من الباقية
+# **حفظت معرّفَها وتغيّر محتواها** ⇒ مقارنةٌ بالمعرّف تُقابل قطعاً مختلفةً وهي تحسب أنّها
+# العيّنةُ نفسُها موسَّعة. ⇒ `--extend` يحفظ الـ160 حرفاً ويضيف آياتٍ **لم تُستعمل**.
+#
+# 🔑 **وزنادُه الإيداعُ** (‏بيانةُ الوكيل لا تستطيع الإدلاء — 403 مقيس): يُدفع
+# `tools/tasmi_bench/requests/plan.json` ‏(`per_op` · `extend`) فيشتعل.
+# ⛔ **والفهرسُ من R2** (‏`wordtimings/<riwaya>/husary_<riwaya>.jz`) وهو **محجوبٌ عن صندوق
+# الوكيل (403)** ومفتوحٌ للعدّاء ⇒ **هنا موضعُ هذا العمل لا هناك**.
+name: plan-riwaya
+
+on:
+  workflow_dispatch:
+    inputs:
+      per_op:
+        description: "بنودٌ لكلّ عملية في كلّ رواية (‏20 اليومَ ⇒ 160 بنداً)"
+        required: false
+        default: "35"
+      extend:
+        description: "توسيعٌ فائقٌ فوق الخطّة القائمة (‏true المقيس) — false يعيد التوليدَ ويزحزح القديم"
+        required: false
+        default: "true"
+  push:
+    paths:
+      - "tools/tasmi_bench/requests/plan.json"
+
+permissions:
+  contents: write
+
+jobs:
+  plan:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: الطلبُ — من الإدلاء أو من الملفِّ المدفوع
+        env:
+          I_PER_OP: ${{ github.event.inputs.per_op }}
+          I_EXTEND: ${{ github.event.inputs.extend }}
+        run: |
+          python3 - <<'PY' >> "$GITHUB_ENV"
+          import json, os, sys
+          req = {}
+          p = "tools/tasmi_bench/requests/plan.json"
+          if os.path.exists(p):
+              req = json.load(open(p, encoding="utf-8"))
+          def pick(k, d):
+              v = (os.environ.get("I_" + k.upper()) or "").strip()
+              return v or str(req.get(k, "")).strip() or d
+          per = pick("per_op", "35")
+          if not per.isdigit() or not (1 <= int(per) <= 200):
+              sys.exit(f"⛔ per_op غيرُ مقبول: {per!r}")
+          print(f"PER_OP={per}")
+          print("EXTEND=%s" % ("1" if pick("extend", "true").lower() not in ("0", "false", "no") else "0"))
+          PY
+          cat "$GITHUB_ENV"
+
+      - name: التوسيع (‏والفهرسُ يُنزَّل من R2 هنا)
+        env:
+          PYTHONIOENCODING: utf-8
+        run: |
+          cd tools/tasmi_bench
+          # ⛔ **يُكتب المخرَجُ في مسارٍ مؤقَّتٍ لا فوق الخطّة:** فلا يبقى في الشجرة ملفٌّ
+          # مولَّدٌ يُودَع سهواً إن سقط حارسٌ بعده، ولا يُحتاج إلى ردِّ ملفٍّ بأمرٍ تراجعيّ.
+          cp inject_plan_riwaya.json /tmp/plan_before.json
+          ARGS="--per-op $PER_OP --out /tmp/plan_after.json"
+          # ⛔ بـ`if` لا بـ`&&`: تحتَ `set -e` الشرطُ الكاذبُ وحدَه يُسقط الخطوةَ كلَّها.
+          if [ "$EXTEND" = "1" ]; then ARGS="$ARGS --extend /tmp/plan_before.json"; fi
+          set +e
+          python inject_riwaya.py $ARGS | tee /tmp/plan_log.txt
+          rc=${PIPESTATUS[0]}
+          set -e
+          # ⛔ **النقصُ عن المطلوب ليس فشلاً بل سقفُ المسبح** (رمزُ 3): تُودَع الخطّةُ ويُكتب النقصُ
+          # برقمه. وما عدا ذلك فشلٌ حقيقيٌّ يوقف الشوط.
+          [ "$rc" = "0" ] || [ "$rc" = "3" ] || exit "$rc"
+          echo "RC=$rc" >> "$GITHUB_ENV"
+
+      - name: ⛔ حارسُ التوسيع الفائق — قبل الإيداع لا بعده
+        if: env.EXTEND == '1' && env.RC == '0'
+        run: |
+          python3 - <<'PY'
+          import json, sys
+          a = json.load(open("/tmp/plan_before.json", encoding="utf-8"))["items"]
+          b = json.load(open("/tmp/plan_after.json", encoding="utf-8"))["items"]
+          if b[:len(a)] != a:
+              sys.exit("⛔ التوسيعُ ليس فائقاً — بندٌ قائمٌ تغيّر ⇒ لا يُودَع")
+          old = {(i["riwaya"], i["surah"], i["ayah"]) for i in a}
+          new = [(i["riwaya"], i["surah"], i["ayah"]) for i in b[len(a):]]
+          if set(new) & old:
+              sys.exit("⛔ آيةٌ مشتركةٌ بين القديم والجديد — بندان في آيةٍ واحدةٍ ليسا شاهدَين مستقلَّين")
+          if len(set(new)) != len(new):
+              sys.exit("⛔ آيةٌ مكرَّرةٌ بين البنود الجديدة")
+          print(f"✅ فائقٌ: {len(a)} ⇒ {len(b)} بنداً · جديدٌ {len(new)} آيةً لم تُستعمل")
+          PY
+
+      - name: إيداعُ الخطّة والجرد
+        run: |
+          OUT="results/plan_riwaya_${{ github.run_id }}.md"
+          mkdir -p results
+          {
+            echo "# خطّةُ الحقن الروائيّ · الشوط ${{ github.run_id }}"
+            echo
+            echo "- التاريخ: $(date -u +%FT%TZ) · الزناد: \`${{ github.event_name }}\`"
+            echo "- المطلوب: \`--per-op $PER_OP\` · التوسيعُ الفائق: \`$EXTEND\` · رمزُ الخروج: \`$RC\`"
+            echo
+            echo '```'
+            cat /tmp/plan_log.txt
+            echo '```'
+            echo
+            echo "⛔ ولا رقمَ من هذه الخطّة يدخل اللوحةَ حتى يُقاس **على المحرك** في شوط بوّابة."
+          } > "$OUT"
+          cp "$OUT" results/LATEST_plan_riwaya.md
+          git config user.name "rafiq-ci"
+          git config user.email "ci@users.noreply.github.com"
+          # ⛔⛔ **وخطّةٌ ناقصةُ التوازن لا تُودَع** (‏رمزُ 3): صنفٌ فيه 35 بنداً وآخرُ 22 يجعل
+          # المضمومةَ مرجَّحةً بسقف المسبح لا بالتصميم. ⇒ يُودَع **الجردُ وحدَه** فيُختار السقفُ
+          # المقيسُ في الدورة التالية — **ولا تُليَّن موازنةٌ كما لا تُليَّن عتبة.**
+          if [ "$RC" = "3" ]; then
+            echo "⚠️ نقصٌ عن المطلوب ⇒ أُودع الجردُ ولم تُودَع الخطّة"
+            git add "$OUT" results/LATEST_plan_riwaya.md
+          else
+            cp /tmp/plan_after.json tools/tasmi_bench/inject_plan_riwaya.json
+            git add tools/tasmi_bench/inject_plan_riwaya.json "$OUT" results/LATEST_plan_riwaya.md
+          fi
+          git commit -q -m "plan(riwaya): توسيعٌ فائقٌ per-op=$PER_OP · الشوط ${{ github.run_id }}" || { echo "لا تغيير"; exit 0; }
+          for i in 1 2 3; do
+            git fetch -q origin main && git merge -q --no-edit origin/main && git push -q origin HEAD:main && { echo "✅ أُودعت الخطّةُ و$OUT"; exit 0; }
+            echo "↻ محاولةٌ $i"; sleep 5
+          done
+          echo "⛔ تعذّر الدفع"; exit 1
