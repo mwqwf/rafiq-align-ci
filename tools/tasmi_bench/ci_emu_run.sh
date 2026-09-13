@@ -20,6 +20,23 @@ EZARGS=""; for f in $EZ; do EZARGS="$EZARGS --ez $f=true"; done
 for f in $EI; do EZARGS="$EZARGS --ei $f"; done
 [ -n "$EZ$EI" ] && echo "🎚️ مفاتيح: $EZ $EI · لاحقةُ الوسم: '${SUF}'"
 
+# 🎛️⭐ **ذراعُ مفتاحٍ — النموذجُ نفسُه والمفتاحُ وحدَه يختلف** (‏أُضيفت 2026-09-13).
+# ⛔ **العطبُ الذي وُجدت له:** `EZ`/`EI` تُطبَّق على **الذراعَين معاً** ⇒ كلُّ سؤالٍ عن مفتاحِ
+# فكٍّ (‏«أيكبح حارسُ التكرار سماعَ الكلمة الدخيلة؟» — وهي أضعفُ أصناف الكشف) كان يحتاج
+# **شوطَين**، فتُقارَن ذراعٌ بذراعٍ من محاكٍ آخرَ وصوتٍ أُعيد بناؤه — وذاك عينُ ما تمنعه قاعدةُ
+# «الذراعان من الشوط نفسِه». ⇒ فصارت ذراعٌ ثالثةٌ **على `q8_shipped.bin` عينِه** بمفاتيحَ أخرى.
+ARM2_TAG="${ARM2_TAG:-}"; ARM2_ES="${ARM2_ES:-}"; ARM2_EZ="${ARM2_EZ:-}"; ARM2_EI="${ARM2_EI:-}"
+if [ -n "$ARM2_TAG" ]; then
+  # ⛔ **ذراعان متطابقتان تُعطيان «لا أثرَ للمفتاح» كذباً** (درسُ D-303 حرفاً) ⇒ تُرفض ابتداءً.
+  if [ -z "$ARM2_ES$ARM2_EZ$ARM2_EI" ]; then
+    echo "⛔ ARM2_TAG=$ARM2_TAG بلا مفتاحٍ واحد — ذراعٌ مطابقةٌ للمشحون تُعطي «لا أثر» كذباً"; exit 2
+  fi
+  # ⛔ **ولا تُكتب ذراعٌ فوق أخرى:** وسمٌ يساوي `shipped` أو وسمَ المرشَّح يمحو فرضيّاتِه.
+  case "$ARM2_TAG" in
+    shipped|"$CAND_TAG"|"$CAND_TAG-ar") echo "⛔ ARM2_TAG=$ARM2_TAG يمحو ذراعاً قائمة"; exit 2 ;;
+  esac
+fi
+
 echo "🔌 $("$ADB" devices | tail -n +2 | tr '\n' ' ')"
 "$ADB" wait-for-device
 "$ADB" install -r -g "${APK:?يلزم APK}" | tail -2
@@ -59,4 +76,21 @@ for A in $ARMS; do
     done
   fi
 done
+# 🎛️ وذراعُ المفتاح **آخراً** — على النموذج المشحون نفسِه، فالفرقُ مفتاحٌ لا نموذجٌ ولا صوت.
+if [ -n "$ARM2_TAG" ]; then
+  A2=""
+  for kv in $ARM2_ES; do A2="$A2 --es $kv"; done
+  # المنطقيُّ يقبل `مفتاح=false` صريحاً (‏وهذا مقصودُه: إطفاءُ ما هو مشتغلٌ افتراضاً).
+  for kv in $ARM2_EZ; do
+    case "$kv" in *=*) A2="$A2 --ez $kv" ;; *) A2="$A2 --ez $kv=true" ;; esac
+  done
+  for kv in $ARM2_EI; do A2="$A2 --ei $kv"; done
+  # ⛔ **واللغةُ تُثبَّت صريحاً كذراع الشحن** (‏D-313): `q8_shipped.bin` ليس في جدول `SERVING`
+  # فالسكوتُ يسقط إلى `DEFAULT` — ويُقارَن حينها مفتاحٌ بمفتاحٍ **ولغةٍ** لو اختلفت الذراعُ الأخرى.
+  HAS_LANG=0; for kv in $ARM2_ES; do case "$kv" in lang=*) HAS_LANG=1 ;; esac; done
+  [ "$HAS_LANG" = 0 ] && A2="$A2 --es lang=en"
+  echo "▶ $SET · $ARM2_TAG · ذراعُ مفتاحٍ على q8_shipped.bin ⇐$A2"
+  python emu_sweep.py --set "$SET" --chain "$CHAIN" --chunk "$CHUNK" --tag "$ARM2_TAG$SUF" \
+    --model-path "/data/local/tmp/q8_shipped.bin" $A2 | tail -3
+fi
 ls -l work/hyps_emu_*.json | tail -6

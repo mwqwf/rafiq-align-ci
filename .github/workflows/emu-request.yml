@@ -46,6 +46,10 @@ jobs:
       ez: ${{ steps.r.outputs.ez }}
       ei: ${{ steps.r.outputs.ei }}
       tag_suffix: ${{ steps.r.outputs.tag_suffix }}
+      arm2_tag: ${{ steps.r.outputs.arm2_tag }}
+      arm2_es: ${{ steps.r.outputs.arm2_es }}
+      arm2_ez: ${{ steps.r.outputs.arm2_ez }}
+      arm2_ei: ${{ steps.r.outputs.arm2_ei }}
     steps:
       - uses: actions/checkout@v4
       - id: r
@@ -55,7 +59,10 @@ jobs:
           python3 - <<'PY' >> "$GITHUB_OUTPUT"
           import json, os, sys
           KEYS = ("apk_url", "cand_tag", "base_url", "cand_url", "sets",
-                  "langs", "chain", "chunk", "ez", "ei", "tag_suffix")
+                  "langs", "chain", "chunk", "ez", "ei", "tag_suffix",
+                  # 🎛️ ذراعُ المفتاح: النموذجُ المشحونُ نفسُه بمفاتيحَ أخرى ⇒ سؤالُ مفتاحٍ
+                  #    يُحسم في **شوطٍ واحدٍ** بالصوت عينِه (‏وإلّا قورنت ذراعٌ بمحاكٍ آخر).
+                  "arm2_tag", "arm2_es", "arm2_ez", "arm2_ei")
           req = json.load(open("tools/tasmi_bench/requests/emu.json", encoding="utf-8"))
           # ⛔ **المفتاحُ المجهولُ يسقط الطلبَ ولا يُهمَل صامتاً:** خطأٌ مطبعيٌّ في اسم مفتاحٍ
           # (`cands` مكانَ `cand_url`) يُشعل شوطَ محاكٍ كاملاً **بذراعٍ واحدة** فيضيع بلا حكم.
@@ -92,3 +99,7 @@ jobs:
       ez: ${{ needs.read.outputs.ez }}
       ei: ${{ needs.read.outputs.ei }}
       tag_suffix: ${{ needs.read.outputs.tag_suffix }}
+      arm2_tag: ${{ needs.read.outputs.arm2_tag }}
+      arm2_es: ${{ needs.read.outputs.arm2_es }}
+      arm2_ez: ${{ needs.read.outputs.arm2_ez }}
+      arm2_ei: ${{ needs.read.outputs.arm2_ei }}

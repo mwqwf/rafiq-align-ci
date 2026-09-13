@@ -1,10 +1,14 @@
 {
   "apk_url": "https://github.com/mwqwf/rafiq-align-ci/releases/download/apk-m5-gate/app-debug-m5-gate.apk",
-  "cand_tag": "v2-acc-B",
-  "cand_url": "https://pub-2c2e1dcd92e84a2898820dd38d3e09e6.r2.dev/models/whisper-tiny-ar-quran-v2/ggml-q8_0.bin",
+  "cand_tag": "",
+  "cand_url": "",
   "base_url": "",
-  "sets": "g2:noise-fan-5",
+  "sets": "g1",
   "chain": "cap",
   "chunk": "12",
-  "tag_suffix": "-B"
+  "tag_suffix": "-D",
+  "arm2_tag": "noguard",
+  "arm2_es": "guardScope=ALL",
+  "arm2_ez": "decodeGuard=false",
+  "arm2_ei": ""
 }
