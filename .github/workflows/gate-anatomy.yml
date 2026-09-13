@@ -355,6 +355,9 @@ jobs:
           cd tools/tasmi_bench
           case "$SETS" in *g4*) ;; *) echo "ℹ️ لا مجموعةَ `g4` — ولا جرفَ يُقاس (المسطرةُ للطويل)"; exit 0 ;; esac
           python drift_probe.py --dirs "work:" --arms "$ARMS" --sets "$SETS" | tee work/drift.md             || echo "⚠️ تعذّر قياسُ الجرف (يُقال ولا يُكتَم)" | tee work/drift.md
+          # 📜 **وقائمةُ الكلمات تُلحَق** (‏سندُها D-389: أخطاءُ النظيف مادّةٌ ثابتةٌ ×13.3) —
+          #    فالنسبةُ وحدَها لا تُعالَج، والقائمةُ تُصنَّف ثمّ يُقاس علاجُها بذراع.
+          python drift_probe.py --dirs "work:" --arms "$ARMS" --sets "$SETS" --words --top 25 >> work/drift.md             || echo "⚠️ تعذّرت قائمةُ الكلمات (يُقال ولا يُكتَم)" >> work/drift.md
       - name: 🧾 جردُ الفرضيّات المحفوظة في R2 (‏فلا يُعاد قياسُ ما هو مقروءٌ بدقيقة)
         if: always()
         env:
