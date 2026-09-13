@@ -86,10 +86,37 @@ def census(riw, top=12):
             if f < g:
                 # وزنُ الزوج: أقلُّ الطرفَين تكراراً — فهو حدُّ ما يمكن أن يقع فيه الالتباس.
                 pairs[(f, g)] += min(forms[f], forms[g])
+    # 🔊 **تصنيفُ الجوار صوتيّاً (‏D-425):** «جارٌ بحرف» ليست درجةً واحدة. `لكم/لهم` تفترق
+    #    بـك/ه (‏مخرجان متباعدان) و`ان/من` بـا/م — أمّا `تين/طين` فمخرجٌ واحد. فالالتباسُ
+    #    الصوتيُّ **متفاوتُ الاحتمال**، ويُصنَّف بجدول المخارج الذي في `scorer` نفسِه
+    #    (`_PLACE` · D-283) لا بجدولٍ مخترَعٍ هنا. وكلُّ موضعٍ يُنسب إلى **أقربِ** جيرانه:
+    #    فالموضعُ الذي له جارٌ من مخرجٍ واحدٍ أخطرُ مهما كان له من جيرانٍ بعيدة.
+    RANK = ("مخرجٌ واحد", "مخرجٌ مجاور", "مخرجٌ بعيد", "زيادةُ حرفٍ أو نقصُه")
+    kinds = collections.Counter()
+    for f in short:
+        if not nbrs[f]:
+            continue
+        best = len(RANK) - 1
+        for g in nbrs[f]:
+            if len(f) != len(g):                       # حذفٌ أو زيادةٌ لا إبدال
+                best = min(best, 3)
+                continue
+            a, b = next((x, y) for x, y in zip(f, g) if x != y)
+            pa, pb = scorer._PLACE.get(a), scorer._PLACE.get(b)
+            if pa is None or pb is None:               # أحدُهما خارجَ الجدول (‏الألفُ مثلاً)
+                best = min(best, 2)
+            elif pa == pb:
+                best = min(best, 0)
+            elif abs(pa - pb) <= 1:
+                best = min(best, 1)
+            else:
+                best = min(best, 2)
+        kinds[RANK[best]] += forms[f]
+
     return dict(riwaya=riw, tot=tot_pos, short=short_pos, risk=risk_pos,
                 vocab=len(forms), vshort=len(short),
                 vrisk=sum(1 for f in short if nbrs[f]), pairs=pairs, top=top,
-                forms=forms)
+                forms=forms, kinds=kinds)
 
 
 def show(r):
@@ -105,6 +132,20 @@ def show(r):
     for (a, b), w in r["pairs"].most_common(r["top"]):
         print(f"     {a} ⇔ {b}  ({w:,} · {r['forms'][a]:,} / {r['forms'][b]:,})")
     print(f"CENSUS\t{r['riwaya']}\t{r['tot']}\t{r['short']}\t{r['risk']}\t{r['vrisk']}")
+    k = r.get("kinds")
+    if k:
+        tot = r["risk"]
+        print(f"  🔊 **وتصنيفُ الجوار صوتيّاً** (‏الموضعُ يُحسب بأقربِ جيرانه):")
+        for lbl in ("مخرجٌ واحد", "مخرجٌ مجاور", "مخرجٌ بعيد", "زيادةُ حرفٍ أو نقصُه"):
+            n = k.get(lbl, 0)
+            print(f"     {lbl:<22} {n:>7,} ({100 * n / max(tot, 1):5.1f}٪ من ذوات الجوار"
+                  f" · {100 * n / max(r['tot'], 1):5.2f}٪ من المصحف)")
+        near = k.get("مخرجٌ واحد", 0) + k.get("مخرجٌ مجاور", 0)
+        print(f"     ⇒ **الجوارُ القريبُ صوتيّاً (‏واحدٌ أو مجاور): {near:,} "
+              f"({100 * near / max(r['tot'], 1):.2f}٪ من المصحف)** 🚨")
+        print(f"PHON\t{r['riwaya']}\t" + "\t".join(
+            str(k.get(l, 0)) for l in ("مخرجٌ واحد", "مخرجٌ مجاور", "مخرجٌ بعيد",
+                                       "زيادةُ حرفٍ أو نقصُه")))
 
 
 def main():
