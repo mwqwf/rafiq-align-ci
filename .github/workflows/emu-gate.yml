@@ -274,3 +274,39 @@ jobs:
           for f in work/hyps_emu_*.json; do ARGS="$ARGS $f finetune/gate/$T/emu_$(basename $f)"; done
           python ../finetune/r2_put.py $ARGS
           echo "☁️ $PUB/finetune/gate/$T/emu.md"
+
+      # 📌 **النتيجةُ تُودَع في المستودع نفسِه** — لا في مصنوعةٍ ولا في R2 وحدَهما.
+      # ⛔ **السبب مقيسٌ لا مفترَض** (‏2026-09-13): الوكيلُ السحابيّ يستطيع `git clone` و`api.github.com`،
+      # **ولا يستطيع** تنزيلَ مصنوعةٍ (الوسيطُ يردّ 403 على مضيف التنزيل) ولا `r2.dev` (403 كذلك).
+      # وقد قرأ سجلَّ **وظيفةِ المحاكي** بدل **وظيفة الحكم** فخرج بحكمٍ معكوس. ⇒ النتيجةُ تصير **ملفّاً
+      # في git**: يقرؤها بـ`git pull` بلا مفتاحٍ ولا اختيارِ وظيفة، ويقرؤها المالكُ من هاتفه.
+      - name: إيداعُ النتيجة في المستودع (‏كي يقرأها الوكيلُ السحابيُّ والمالك)
+        if: always()
+        run: |
+          T="${{ github.event.inputs.cand_tag }}"; T="${T:-shipped}"
+          M="tools/tasmi_bench/work/emu_${T}.md"
+          [ -f "$M" ] || { echo "⛔ لا جدولَ نتيجةٍ — لا شيءَ يُودَع"; exit 0; }
+          mkdir -p results
+          OUT="results/emu_${T}_${{ github.run_id }}.md"
+          {
+            echo "# نتيجةُ \`emu-gate\` · الوسم \`${T}\` · الشوط ${{ github.run_id }}"
+            echo
+            echo "- التاريخ: $(date -u +%FT%TZ)"
+            echo "- المجموعات: \`${{ github.event.inputs.sets }}\`"
+            echo "- خطُّ الأساس: \`${{ github.event.inputs.base_url }}\`" 
+            echo "- المرشَّح: \`${{ github.event.inputs.cand_url }}\`"
+            echo "- السلسلة: \`${{ github.event.inputs.chain }}\` · اللاحقة: \`${{ github.event.inputs.tag_suffix }}\`"
+            echo
+            cat "$M"
+          } > "$OUT"
+          cp "$OUT" results/LATEST_emu.md
+          git config user.name "rafiq-ci"
+          git config user.email "ci@users.noreply.github.com"
+          git add "$OUT" results/LATEST_emu.md
+          # `actions/checkout` يُبقي بيانةَ الدفع في إعداد المستودع ⇒ لا حاجةَ إلى ترويسةٍ يدويّة.
+          git commit -q -m "results(emu-gate): ${T} · الشوط ${{ github.run_id }}" || { echo "لا تغيير"; exit 0; }
+          for i in 1 2 3; do
+            git fetch -q origin main && git merge -q --no-edit origin/main && git push -q origin HEAD:main && { echo "✅ أُودعت $OUT"; exit 0; }
+            echo "↻ محاولةٌ $i"; sleep 5
+          done
+          echo "⛔ تعذّر الدفع"; exit 0
