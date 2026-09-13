@@ -105,6 +105,14 @@ jobs:
           done
           # ⛔ **ذراعٌ واحدةٌ لا تُشرَّح:** التشريحُ فرقٌ بين ذراعَين، و`arms_or_die` يسقط بلا الثانية.
           [ "$n" -ge 2 ] || { echo "⛔ $n ملفاً فقط — والتشريحُ يحتاج ذراعَين على البنود عينِها"; exit 1; }
+          # 🧹 **وفرضيّاتُ `g1` النظيفةِ إن كانت محفوظةً لهذا الوسم** — تُجرَّب ولا تُشترط:
+          # بها يُقاس الزوائدُ الكاذبةُ على **تلاوةٍ صحيحةٍ** وهي الحالةُ الغالبةُ للمستخدم (‏D-368).
+          g=0
+          for a in $ARMS; do
+            f="hyps_emu_g1_cap_${a}.json"
+            curl -fsS --retry 2 -o "work/$f" "$PUB/finetune/gate/$TAG/emu_$f" && { echo "✅ نظيفة: $f"; g=$((g+1)); } || echo "ℹ️ لا فرضيّاتِ g1 لـ$a في هذا الوسم"
+          done
+          echo "CLEAN_OK=$([ "$g" -ge 2 ] && echo 1 || echo 0)" >> "$GITHUB_ENV"
       - name: مِن أين جاءت الفرضيّات — **من الملفّ لا من الزناد**
         env:
           PYTHONIOENCODING: utf-8
@@ -145,6 +153,13 @@ jobs:
           # (‏`work:`) كي **لا تُقلَّم** لاحقةُ الوسم من أسماء الأذرع.
           python detect_anatomy.py --dirs "work:" --arms $ARMS | tee work/anatomy.md
           { echo "### 🔬 تشريحُ الكشف (‏$TAG)"; cat work/anatomy.md; } >> "$GITHUB_STEP_SUMMARY"
+      - name: 🧹 الزوائدُ الكاذبةُ على تلاوةٍ نظيفة (‏إن كانت فرضيّاتُ g1 محفوظة)
+        if: env.CLEAN_OK == '1'
+        env:
+          PYTHONIOENCODING: utf-8
+        run: |
+          cd tools/tasmi_bench
+          python extras_noise_probe.py --dirs "work:" --arms $ARMS --clean | tee work/extras_clean.md
       - name: 🧹 الزوائدُ الكاذبة (‏قناةٌ لا يعدّها الاتّهامُ الكاذب)
         env:
           PYTHONIOENCODING: utf-8
@@ -160,6 +175,67 @@ jobs:
         run: |
           cd tools/tasmi_bench
           python tie_rule_ab.py --dirs "work:" --arm "$RULE_AB" | tee work/rule_ab.md
+      - name: 🧾 جردُ الفرضيّات المحفوظة في R2 (‏فلا يُعاد قياسُ ما هو مقروءٌ بدقيقة)
+        if: always()
+        env:
+          R2_CREDENTIALS_JSON: ${{ secrets.R2_CREDENTIALS_JSON }}
+          PYTHONIOENCODING: utf-8
+        run: |
+          # ⛔ **لِمَ جردٌ مُودَع؟** درسُ D-365: أُنفق شوطُ محاكٍ على سؤالٍ جوابُه في فرضيّاتٍ
+          # محفوظةٍ — **والوكيلُ لا يستطيع سردَ R2** (لا تصل شبكتُه، ولا السردُ متاحٌ للعامّ).
+          # ⇒ العدّاءُ يسرد **بالسرّ** ويُودع الجردَ ملفّاً في git يقرؤه الجميعُ بـ`git pull`.
+          pip install -q boto3 || { echo "⛔ تعذّر boto3 — لا جرد"; exit 0; }
+          python3 - <<'PY' > /tmp/inv.md || { echo "⛔ تعذّر الجرد (يُقال ولا يُكتَم)"; exit 0; }
+          import json, os, collections, boto3
+          c = json.loads(os.environ["R2_CREDENTIALS_JSON"])
+          s3 = boto3.client("s3", endpoint_url=c["endpoint"], aws_access_key_id=c["accessKeyId"],
+                            aws_secret_access_key=c["secretAccessKey"], region_name="auto")
+          tags = collections.defaultdict(lambda: collections.defaultdict(set))
+          when, n = {}, 0
+          tok = None
+          while True:
+              kw = {"Bucket": c["bucket"], "Prefix": "finetune/gate/"}
+              if tok:
+                  kw["ContinuationToken"] = tok
+              r = s3.list_objects_v2(**kw)
+              for o in r.get("Contents", []):
+                  k = o["Key"]
+                  base = k.split("/")[-1]
+                  if not base.startswith("emu_hyps_emu_") or not base.endswith(".json"):
+                      continue
+                  tag = k.split("finetune/gate/", 1)[1].split("/", 1)[0]
+                  body = base[len("emu_hyps_emu_"):-5]
+                  st, _, arm = body.partition("_cap_")
+                  if not arm:
+                      continue
+                  tags[tag][st].add(arm)
+                  when[tag] = max(when.get(tag, ""), o["LastModified"].strftime("%m-%d %H:%M"))
+                  n += 1
+              if not r.get("IsTruncated"):
+                  break
+              tok = r.get("NextContinuationToken")
+          print("# 🧾 جردُ الفرضيّات المحفوظة (‏ما يُقرأ بدقيقةٍ بلا شوطِ محاكٍ)\n")
+          print(f"**{n}** ملفَّ فرضيّاتٍ في **{len(tags)}** وسماً · وآخرُ تحديثٍ لكلِّ وسمٍ في العمود الأخير.\n")
+          print("⭐ **وقبل أيّ شوطٍ جديد:** إن كانت ذراعاك في وسمٍ واحدٍ هنا فـ**ادفعْ طلبَ "
+                "`gate-anatomy`** (دقيقة) ولا تُشعل محاكياً (نصف ساعة) — درسُ D-365.\n")
+          # ⛔ **والأذرعُ تُسرد لكلِّ مجموعةٍ على حدة:** وسمٌ فيه `g1` و`g3r` بأذرعٍ **مختلفة**
+          # يُقرأ خطأً لو جُمعت أذرعُه في خانةٍ واحدة — فيُطلب زوجٌ لا وجودَ له في تلك المجموعة
+          # فيسقط الشوطُ أو يُقاس على نصف عيّنة. **فالجردُ يُجيب بلا حدس.**
+          print("| الوسم | المجموعة | الأذرع المحفوظة | آخرُ تحديثٍ للوسم |")
+          print("|---|---|---|---|")
+          for tag in sorted(tags):
+              for st in sorted(tags[tag]):
+                  arms = sorted(tags[tag][st])
+                  print(f"| `{tag}` | `{st}` | {' · '.join('`'+x+'`' for x in arms)} | {when.get(tag,'—')} |")
+          # 🧹 وخانةٌ تُسهّل أكثرَ ما نحتاجه: أوسمةٌ فيها **زوجٌ في `g1` النظيفة**.
+          pairs = [(t, sorted(tags[t]["g1"])) for t in sorted(tags) if len(tags[t].get("g1", ())) >= 2]
+          if pairs:
+              print("\n**🧹 وأوسمةٌ تُقاس فيها الزوائدُ الكاذبةُ على تلاوةٍ نظيفة (‏`g1` بذراعَين):**\n")
+              for t, arms in pairs:
+                  print(f"- `{t}`: {' · '.join('`'+x+'`' for x in arms)}")
+          PY
+          mkdir -p results && cp /tmp/inv.md results/HYPS_INVENTORY.md
+          cat results/HYPS_INVENTORY.md >> "$GITHUB_STEP_SUMMARY"
       - name: إيداعُ الجدول في المستودع (‏كي يقرأه الوكيلُ السحابيُّ والمالك)
         run: |
           T="$TAG"
@@ -188,6 +264,9 @@ jobs:
             if [ -s tools/tasmi_bench/work/extras_noise.md ]; then
               cat tools/tasmi_bench/work/extras_noise.md; echo
             fi
+            if [ -s tools/tasmi_bench/work/extras_clean.md ]; then
+              cat tools/tasmi_bench/work/extras_clean.md; echo
+            fi
             if [ -s tools/tasmi_bench/work/rule_ab.md ]; then
               # ⛔ **علامتا `` ` `` داخل «...» تنفيذُ أمرٍ لا اقتباسٌ** — فخرج العنوانُ فارغاً في
               # أوّل شوط (‏`34747396287`). ⇒ تُهرَّب بـ\` كما في بقيّة هذا المسار.
@@ -201,6 +280,7 @@ jobs:
           git config user.name "rafiq-ci"
           git config user.email "ci@users.noreply.github.com"
           git add "$OUT" results/LATEST_anatomy.md
+          [ -s results/HYPS_INVENTORY.md ] && git add results/HYPS_INVENTORY.md
           git commit -q -m "results(anatomy): ${T} · الشوط ${{ github.run_id }}" || { echo "لا تغيير"; exit 0; }
           for i in 1 2 3; do
             git fetch -q origin main && git merge -q --no-edit origin/main && git push -q origin HEAD:main && { echo "✅ أُودع $OUT"; exit 0; }

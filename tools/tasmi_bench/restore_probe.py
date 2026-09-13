@@ -33,7 +33,14 @@ def cfg(riwaya):
                          sila=riwaya in ("warsh", "qalun"), mark_sila=True, strict_short=True)
 
 
-def load(dirs):
+def load(dirs, prefix="hyps_emu_g3r"):
+    """فرضيّاتُ الأذرع من مجلّداتٍ بصيغة `<مجلّد>:<لاحقةٌ تُقلَّم>`.
+
+    📌 و[prefix] **افتراضُه `hyps_emu_g3r`** كما كان حرفاً — وإنّما أُضيف لأنّ قياسَ الزوائد
+    الكاذبة على **تلاوةٍ نظيفةٍ غيرِ محقونة** (`g1`) يحتاج القارئَ نفسَه (‏D-368: الرقمُ على
+    المحقونة **سقفٌ لا متوسّط**). ⛔ ولا يُوسَّع الافتراضُ: `detect_anatomy` يحتاج `g3r` وحدَها
+    (بنودُها تحمل المانحَ وموضعَ الحقن) — **فالتوسيعُ بالطلب لا بالافتراض.**
+    """
     acc = {}
     for spec in dirs:
         d, suf = spec.rsplit(":", 1)
@@ -41,7 +48,7 @@ def load(dirs):
         for f in sorted(os.listdir(d)):
             # ⚠️ **ولا يُفترض أنّ كلَّ ما بدأ بالبادئة يحمل `_cap_`:** في `work/` ملفّاتٌ
             # قديمةٌ بأسماءٍ أخرى، فكان `split(...)[1]` يرمي `IndexError` على أوّلها.
-            if not (f.startswith("hyps_emu_g3r") and f.endswith(".json") and "_cap_" in f):
+            if not (f.startswith(prefix) and f.endswith(".json") and "_cap_" in f):
                 continue
             arm = f[:-5].split("_cap_", 1)[1]
             if arm.endswith("-" + suf):
