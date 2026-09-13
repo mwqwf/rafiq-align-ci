@@ -100,21 +100,31 @@ def judge_words(arms, examples):
         c = collections.Counter(); top = collections.Counter()
         for a in load_text(riw):
             src = a.split()
-            made = {k: f(a).split() for k, f in arms.items()}
-            if any(len(v) != len(src) for v in made.values()):
-                c["آياتٌ متخطّاة (عددُ الكلمات يختلف بعد حذف علامات الوقف)"] += 1
-                continue
-            for i, w in enumerate(src):
-                V = scorer._riwaya_forms(scorer.variants(w, cfg), cfg)
-                c["كلمات"] += 1
-                for k in arms:
-                    h = scorer.norm(made[k][i], cfg)
+            # 🕳️ **D-316:** كان الشرطُ `len(f(a).split()) != len(src)` يُسقط **الآيةَ كلَّها**، وهو ما
+            # أعمى الذراعَ عن 3,582 آيةً من 18,708 (‏حفصٌ وحدَه 2,719 = 43.6٪ من آياته) ⇒ لم يُقَس
+            # إلا 165,398 كلمةً من 232,288 (‏71.2٪). والسببُ **ليس** غموضاً في المحاذاة: كلُّ فرقٍ
+            # في العدّة يساويه بالضبط عددُ الرموز القائمة بذاتها التي يمحوها الهدفُ (علاماتُ الوقف
+            # ۖۗۘۙۚ رمزاً مستقلّاً بين الكلمات) — قِيس على الروايات الثلاث فتطابق الفرقُ مع العدد
+            # في **كلِّ** آيةٍ متخطّاة. فتُسقَط تلك الرموزُ من المصدر بدل أن تُسقَط الآية.
+            for k, f in arms.items():
+                per = [f(w) for w in src]
+                keep = [(w, t) for w, t in zip(src, per) if t]
+                # 🛡️ حارسٌ لا افتراض: الهدفُ المصنوعُ على الآية كاملةً يجب أن يطابق حرفاً بحرف
+                # ما صُنع كلمةً كلمة؛ وإلّا فالمحاذاةُ مشكوكةٌ ⇒ تُخطّى الآيةُ **وتُعَدّ**.
+                made = f(a).split()
+                if [t for _, t in keep] != made:
+                    c[f"{k}: آياتٌ متخطّاة (تعذّرت المحاذاة)"] += 1
+                    continue
+                c[f"{k}: كلمات"] += len(keep)
+                for w, t in keep:
+                    V = scorer._riwaya_forms(scorer.variants(w, cfg), cfg)
+                    h = scorer.norm(t, cfg)
                     if scorer._matches(V, h, cfg):
                         continue
                     kind = "غيرُ متبيَّن" if scorer._near(V, h, cfg) else "إبدالٌ واثق"
                     c[f"{k}: يردّه ({kind})"] += 1
                     if k == "القديم":
-                        top[(w, made[k][i], h, V[0])] += 1
+                        top[(w, t, h, V[0])] += 1
         print(f"  {riw}: " + " · ".join(f"{k} {v}" for k, v in sorted(c.items())))
         agg.update(c)
         for (w, tgt, h, v0), n in top.most_common(examples):

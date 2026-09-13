@@ -36,14 +36,24 @@ SRC = os.path.normpath(os.path.join(HERE, "..", "..", "..", "QuranRafiq", "tools
 IGNORED_DIRS = {"__pycache__", "work", "requests", "patches", ".pytest_cache"}
 
 
-def main():
-    ap = argparse.ArgumentParser()
-    ap.add_argument("--src", default=SRC)
-    ap.add_argument("--sync", action="store_true", help="انسخ الأصلَ فوق المرآة (لا يحذف ولا يضيف)")
-    a = ap.parse_args()
-    if not os.path.isdir(a.src):
-        raise SystemExit(f"⛔ لا مجلدَ أصلٍ في {a.src} — لا يُقرأ «لا انحراف» من غياب المقارَن به")
+def check_pair(HERE, src, sync, label):
+    """يفحص مجلدَ مرآةٍ واحداً ضدّ أصله ويطبع، ويُعيد عددَ الانحرافات الباقية بعد العلاج.
 
+    ⛔⛔ **خامسةُ الثغرات (2026-09-13) — والحارسُ كان يفحص مجلداً واحداً:** الفحصُ كان على
+    `tools/tasmi_bench` وحدَه، **و`tools/finetune/` مُمرأًى أيضاً** وتناديه المساراتُ في كلّ
+    شوط (`r2_put.py` في `emu-gate` و`tasmi-gate` و`arm-time` · و`prep.py` في `finetune-prep`).
+    فوُجد فيه انحرافٌ قائمٌ **لم يكشفه أحد**: `target_audit.py` في المرآة هو **نسخةُ ما قبل
+    D-316** (‏التي كانت تُسقط الآيةَ كلَّها فتعمى عن 3,582 آيةً — تغطيةُ 71.2٪ لا غير)، وتعليقُ
+    `prep.py` باقٍ على الرقم المنسوخ. ⇒ **مرآةٌ تُخبر برقمٍ عُلم خطؤه** لو شُغِّلت.
+    """
+    if not os.path.isdir(src):
+        print(f"⛔ لا مجلدَ أصلٍ لـ{label} في {src} — لا يُقرأ «لا انحراف» من غياب المقارَن به")
+        return 1
+    if not os.path.isdir(HERE):
+        print(f"ℹ️ لا مجلدَ مرآةٍ لـ{label} هنا — لا يُفحَص")
+        return 0
+    print(f"— 🪞 **{label}**")
+    a = argparse.Namespace(src=src, sync=sync)
     drift, missing = [], []
     for f in sorted(os.listdir(HERE)):
         # ⛔⛔ **ولا `.py` وحدَها — ثغرةٌ وُجدت 2026-09-13 (D-374 وما بعده):** جسمُ **كلِّ** شوط
@@ -137,6 +147,27 @@ def main():
         return 0
     print("⇒ `python tools/tasmi_bench/mirror_check.py --sync` ثمّ أودِع بمسارات صريحة.")
     return 1
+
+
+def main():
+    ap = argparse.ArgumentParser()
+    ap.add_argument("--src", default=SRC, help="أصلُ tasmi_bench (‏وأخواتُه تُشتقّ منه)")
+    ap.add_argument("--sync", action="store_true", help="انسخ الأصلَ فوق المرآة (لا يحذف ولا يضيف)")
+    ap.add_argument("--only", default="", help="اسمُ مجلدٍ مُمرأًى واحدٍ يُفحَص وحدَه (‏للاختبار)")
+    a = ap.parse_args()
+    # 🪞 **كلُّ مجلدٍ مُمرأًى يُفحَص** — والقائمةُ هنا **مصدرٌ واحدٌ للحقيقة**: ما يُضاف إلى
+    # المرآة يُضاف إليها، ⛔ **وإلّا فانحرافُه لا يراه أحدٌ حتى يُعطي رقماً خاطئاً**.
+    pairs = [("tasmi_bench", os.path.dirname(os.path.abspath(__file__)), a.src)]
+    tools_mir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+    tools_src = os.path.dirname(a.src)
+    for d in ("finetune",):
+        pairs.append((d, os.path.join(tools_mir, d), os.path.join(tools_src, d)))
+    rc = 0
+    for label, mir, src in pairs:
+        if a.only and a.only != label:
+            continue
+        rc = max(rc, check_pair(mir, src, a.sync, label))
+    return rc
 
 
 if __name__ == "__main__":
