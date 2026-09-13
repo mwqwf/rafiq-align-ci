@@ -39,6 +39,7 @@ from __future__ import annotations
 import argparse
 import json
 import os
+import re
 import statistics
 import subprocess
 import sys
@@ -140,13 +141,42 @@ def gh(*args) -> str:
 
 
 def inflight_reciters() -> set:
+    """عناوينُ التشغيلات الجارية — و**قرّاءُ موجةِ `align.yml` الجارية بأسمائهم**.
+
+    ⛔ **عطبٌ مقيسٌ 2026-09-13**: `align.yml` (موجةُ محاذاةٍ كاملةٍ متعدّدةِ
+    القرّاء) يحمل عنوان تشغيلةٍ مثل «align reciters_partial6.tsv · shards=6»
+    — **لا يحمل اسمَ قارئٍ واحد**. فحصُ `rid in t` القديم لا يرى فيه شيئاً،
+    فكرّر هذا الملفُّ إطلاقَ `realign_surah` على `a_klb` و`a_binaoun` **وهما
+    داخل تلك الموجة نفسِها فعلاً** — ثلاثُ تشغيلاتٍ ضاعت على حارسٍ يردّها حتماً
+    («لا أثرَ صقل» في `stage_transform`: فهرسٌ من الجيل الأوّل لا يُصلحه ترقيعُ
+    سورة، والمحاذاةُ الكاملةُ الجاريةُ هي العلاج الصحيح أصلاً). ⇒ يُقرأ مسارُ
+    كلّ تشغيلةٍ أيضاً، وما كان `align.yml` تُستخرج منه قائمةُ الـtsv من العنوان
+    وتُضاف أسماءُ قرّائها كلُّهم إلى المشغولين — لا عنوانُ التشغيلة وحده.
+    """
     out = set()
     repo = os.environ.get("GITHUB_REPOSITORY", "mwqwf/rafiq-align-ci")
     for st in ("in_progress", "queued", "pending"):
         txt = gh("api", f"repos/{repo}/actions/runs?status={st}&per_page=100",
-                 "-q", ".workflow_runs[].display_title")
+                 "-q", r'.workflow_runs[] | .path + "\t" + .display_title')
         for ln in txt.splitlines():
-            out.add(ln.strip())
+            ln = ln.strip()
+            if not ln:
+                continue
+            path, _, title = ln.partition("\t")
+            out.add(title)
+            if not path.endswith("/align.yml"):
+                continue
+            m = re.match(r"align (\S+\.tsv)", title)
+            if not m:
+                continue
+            tsv = ROOT / "tools" / "ci_fleet" / m.group(1)
+            if not tsv.exists():
+                continue
+            for row in tsv.read_text(encoding="utf-8").splitlines():
+                row = row.strip()
+                if not row or row.startswith("#"):
+                    continue
+                out.add(row.split("\t")[0].strip())
     return out
 
 
