@@ -107,14 +107,76 @@ def qalun_cuttable(index):
     return out, ti
 
 
-def build():
+def verify_audio(new_items):
+    """⛔ **عيّنةٌ فيها بندٌ بلا صوتٍ تُسقط الشوطَ كلَّه** (‏`complete()` في البوّابة يشترط كلَّ
+    المعرّفات) ⇒ تُفحَص روابطُ **الجديد** وحدَها بـHEAD قبل أن تُودَع العيّنة.
+    ⛔ **ويُفحص في العدّاء لا في صندوق الوكيل**: R2 محجوبٌ هناك (‏403 مقيس) فيردّ الغيابَ كاذباً.
+    """
+    import urllib.error
+    import urllib.request
+    missing, checked = [], 0
+    for it in new_items:
+        src = it["source"]
+        if src.get("kind") != "ayah_file":
+            continue                      # المقصوصُ من سورةٍ لا رابطَ آيةٍ له
+        req = urllib.request.Request(src["url"], method="HEAD",
+                                     headers={"User-Agent": "Mozilla/5.0 (QuranRafiq sample)"})
+        checked += 1
+        try:
+            with urllib.request.urlopen(req, timeout=30) as r:
+                if int(r.headers.get("Content-Length") or 0) < 1000:
+                    missing.append((it["id"], f"حجمٌ {r.headers.get('Content-Length')}"))
+        except Exception as e:                                    # noqa: BLE001
+            missing.append((it["id"], str(e)[:60]))
+    print(f"🔎 فُحص {checked} رابطاً جديداً · غائبٌ أو مشتبَهٌ: {len(missing)}")
+    for i, why in missing[:20]:
+        print(f"   ⛔ {i}: {why}")
+    return missing
+
+
+def build(quota=None, extend="", out=None, verify=False):
+    """[quota] حصصٌ تُبدّل `QUOTA` · [extend] عيّنةٌ قائمةٌ **تُحفظ بنودُها بحروفها** ويُبنى عليها.
+
+    ⛔⛔ **ولِمَ `--extend` ولا يُكتفى برفع الحصّة** (‏درسُ D-415 حرفاً): المخزونُ يُخلَط
+    ويُمشى فيه بالترتيب، فرفعُ الحصّة **يزحزح البنودَ القديمةَ نفسَها** (وقد قِيس في نظيرتها
+    `inject_riwaya.py`: من 5 إلى 8 لكلّ عملية **سقط 32 بنداً من 40** و**ثلاثةٌ حفظت معرّفَها
+    وتغيّر محتواها**) ⇒ **فتفقد كلُّ أرقام اللوحة المبنيّةِ على `g1`/`g2` مقارنتَها بما قبلها**.
+    ⇒ **التوسيعُ فائقٌ (superset) أو لا يكون.**
+    """
+    quota = dict(quota or QUOTA)
+    # ⛔ **ومخرَجٌ صريحٌ يُسمّى:** كانت الدالّةُ تكتب فوق `sample.json` دائماً، فتجربةٌ واحدةٌ
+    # تُفسد سندَ كلِّ رقمٍ في اللوحة. ⇒ يُجرَّب في مسارٍ آخرَ ويُودَع بعد الفحص.
+    out = out or SAMPLE
     index = load_index()
     ids = ayah_ids(index)
-    cut, ti = qalun_cuttable(index)
     rng = random.Random(SEED)
     items, used_keys = [], set()
 
-    for riwaya, quota in QUOTA.items():
+    keep, old_meta = [], {}
+    if extend:
+        old = json.load(open(extend, encoding="utf-8"))
+        keep, old_meta = old["items"], old.get("meta") or {}
+        for it in keep:
+            used_keys.add((it["riwaya"], it["globalIndex"]))
+        have = {}
+        for it in keep:
+            have[(it["riwaya"], it["stratum"])] = have.get((it["riwaya"], it["stratum"]), 0) + 1
+        print(f"🧩 توسيعٌ فائقٌ فوق {len(keep)} بنداً قائماً")
+    else:
+        have = {}
+
+    # ⭐ **وفهرسُ قالون لا يُنزَّل إلّا إن احتاجته الحصّة:** توسيعُ **ورشٍ** وحدَه نصٌّ خالصٌ
+    # (‏لا قصَّ ولا فهرس) ⇒ فيصير مُنتَجاً **في صندوق الوكيل** بلا R2 المحجوب، بدل شوطٍ في العدّاء.
+    # ⛔ وإن احتاجته الحصّةُ فالغيابُ يُسمّى باسمه ولا يُتجاوز صامتاً.
+    need_qalun = any(have.get(("qalun", st), 0) < round(quota.get("qalun", 0) * share)
+                     for st, share in STRATUM_SHARE.items())
+    if need_qalun:
+        cut, ti = qalun_cuttable(index)
+    else:
+        cut, ti = {}, None
+        print("ℹ️ حصّةُ قالون مكتملةٌ في العيّنة القائمة ⇒ لا يُنزَّل فهرسُ التوقيتات")
+
+    for riwaya, quota_r in quota.items():
         text = load_text(riwaya)
         pool = {name: [] for name, _, _ in STRATA}
         for gi, (s, a) in ids.items():
@@ -125,11 +187,15 @@ def build():
             if riwaya == "qalun" and f"{s}:{a}" not in cut:
                 continue
             pool[st].append((gi, s, a, words))
+        print(f"   📊 {riwaya}: مخزونٌ مؤهَّلٌ " +
+              " · ".join(f"{st}={len(pool[st])}" for st, _, _ in STRATA))
         for st, share in STRATUM_SHARE.items():
-            want = round(quota * share)
+            want = round(quota_r * share)
             cand = pool[st]
             rng.shuffle(cand)
-            picked = 0
+            # ⛔ **المحفوظُ يُحسب من النصيب ولا يُنقَص:** وإلّا أضافَ التوسيعُ فوق الحصّة كاملةً
+            # فاختلّت نسبُ الطبقات التي وُضعت من توزيع المصحف لا من الذوق.
+            picked = have.get((riwaya, st), 0)
             for gi, s, a, words in cand:
                 if picked >= want:
                     break
@@ -158,27 +224,66 @@ def build():
             if picked < want:
                 print(f"⚠️ {riwaya}/{st}: {picked}/{want} فقط (نفد المخزون المؤهل)")
 
+    if verify and items:
+        bad = verify_audio(items)
+        if bad:
+            # ⛔ ولا تُكتب عيّنةٌ فيها بندٌ لا صوتَ له: خيرٌ أن تُصغَّر الحصّةُ من أن يسقط شوط.
+            raise SystemExit(f"⛔ {len(bad)} بنداً جديداً بلا صوتٍ متحقَّق ⇒ لا تُكتب العيّنة")
+
+    out_items = keep + items
+    ids_seen = [i["id"] for i in out_items]
+    if len(set(ids_seen)) != len(ids_seen):
+        raise SystemExit("⛔ معرّفٌ مكرَّرٌ في العيّنة المبنيّة — لا تُكتب")
+    # ⛔ **حارسُ التوسيع الفائق:** القائمُ أوّلاً وبنصّه — فإن تزحزح بندٌ فالعيّنتان مختلفتان
+    # ولا يُقارن رقمٌ برقمٍ في اللوحة كلِّها.
+    if keep and out_items[:len(keep)] != keep:
+        raise SystemExit("⛔ التوسيعُ ليس فائقاً: بندٌ قائمٌ تغيّر ⇒ لا تُكتب العيّنة")
+
     meta = {
-        "seed": SEED, "total": len(items), "quota": QUOTA,
+        "seed": SEED, "total": len(out_items), "quota": quota,
         "strata": {n: [lo, hi] for n, lo, hi in STRATA}, "stratumShare": STRATUM_SHARE,
         "groundTruth": "core/quran/src/main/assets/quran/text_{riwaya}.jz (عدّ كوفي 6236)",
         "reciters": {k: [r[0] for r in v] for k, v in RECITERS.items()},
-        "qalunTimingIndex": {k: ti[k] for k in ("reciterId", "engineVersion", "generatedAt", "ayahCounting")},
+        # ⛔ وترويسةُ فهرس قالون تُحفظ كما كانت إن لم يُنزَّل الفهرسُ — ولا تُكتب فراغاً يُقرأ «لا فهرس».
+        "qalunTimingIndex": ({k: ti[k] for k in ("reciterId", "engineVersion", "generatedAt", "ayahCounting")}
+                             if ti is not None else old_meta.get("qalunTimingIndex")),
         "limits": [
             "التلاوة المرجعية مفترضة صحيحة ⇒ المقياس يقيس الإنذار الكاذب لا كشف الخطأ.",
             "آيات قالون مقصوصة من ملفات سور بفهرسنا (±300م.ث هامش) — مصدر خطأ زائد.",
             "الحركات والتجويد خارج v1 (D-006).",
         ],
     }
-    json.dump({"meta": meta, "items": items}, open(SAMPLE, "w", encoding="utf-8"),
+    json.dump({"meta": meta, "items": out_items}, open(out, "w", encoding="utf-8"),
               ensure_ascii=False, indent=1)
-    print(f"✅ {len(items)} بنداً → {SAMPLE}")
-    for r in QUOTA:
-        sub = [i for i in items if i["riwaya"] == r]
+    print(f"✅ {len(out_items)} بنداً ({len(keep)} محفوظاً + {len(items)} جديداً) → {out}")
+    for r in quota:
+        sub = [i for i in out_items if i["riwaya"] == r]
         dist = {st: sum(1 for i in sub if i["stratum"] == st) for st, _, _ in STRATA}
         print(f"   {r}: {len(sub)} {dist}")
+    return 0
+
+
+def parse_quota(text):
+    """`warsh=140,qalun=120` ⇒ حصصٌ تُبدّل الافتراض. ⛔ ورواية لا نعرفها تسقط باسمها."""
+    q = dict(QUOTA)
+    for part in [p for p in text.split(",") if p.strip()]:
+        k, _, v = part.partition("=")
+        k = k.strip()
+        if k not in QUOTA:
+            raise SystemExit(f"⛔ روايةٌ لا تُعرف في الحصص: {k!r} — والمعروفةُ {list(QUOTA)}")
+        if not v.strip().isdigit() or not (1 <= int(v) <= 2000):
+            raise SystemExit(f"⛔ حصّةٌ غيرُ مقبولة لـ{k}: {v!r}")
+        q[k] = int(v)
+    return q
 
 
 if __name__ == "__main__":
-    argparse.ArgumentParser(description=__doc__).parse_args()
-    build()
+    ap = argparse.ArgumentParser(description=__doc__)
+    ap.add_argument("--quota", default="", help="حصصٌ تُبدّل الافتراض: warsh=140,qalun=120")
+    ap.add_argument("--extend", default="", help="عيّنةٌ قائمةٌ تُحفظ بنودُها ويُبنى عليها (توسيعٌ فائق)")
+    ap.add_argument("--out", default="", help="مسارُ المخرَج (الافتراضُ sample.json نفسُه)")
+    ap.add_argument("--verify-audio", action="store_true",
+                    help="افحصْ روابطَ البنود الجديدة بـHEAD قبل الكتابة (في العدّاء — R2 محجوبٌ عن الصندوق)")
+    a = ap.parse_args()
+    raise SystemExit(build(parse_quota(a.quota) if a.quota else None, a.extend, a.out or None,
+                           a.verify_audio))

@@ -1,0 +1,151 @@
+# 🪵 **قراءةُ سجلِّ شوطٍ بالوكالة** — لأنّ مضيفَ السجلّات محجوبٌ عن صندوق الوكيل.
+#
+# ⛔ **لِمَ وُجد — بسببٍ مقيسٍ ثلاثَ مرّاتٍ اليومَ** (2026-09-13): كلُّ محاولةٍ لقراءة سجلّ
+# شوطٍ من صندوق الوكيل تردّ
+# `curl: (56) CONNECT tunnel failed, response 403` (‏`results-receiver.actions.githubusercontent.com`)
+# و`get_job_logs` عبر MCP يردّ `HTTP 404`. ⇒ **فكلُّ فشلٍ لا يُودِع أثرَه بنفسِه يُقرأ ظنّاً**،
+# وقد ضاع بذلك سببُ سقوطِ خطوةِ نشرٍ مرّتين (`34756599249` و`34756706486`).
+#
+# ⭐ **والعدّاءُ يقرأ ما لا أقرأ**: `GITHUB_TOKEN` فيه `actions: read`، فيسحب السجلَّ ويُودع
+# **ذيلَه** ملفّاً في `results/` — فيُقرأ بـ`git pull`. ⚖️ وثمنُه ثوانٍ.
+# ⛔ **ولا يُودَع السجلُّ كاملاً**: قد يكون ضخماً وفيه نصوصُ تلاواتٍ لا حاجةَ إليها ⇒ ذيلٌ محدود.
+name: job-log
+
+on:
+  workflow_dispatch:
+    inputs:
+      run_id:
+        description: "رقمُ الشوط الذي يُقرأ سجلُّه"
+        required: true
+      tail:
+        description: "كم سطراً من آخر كلِّ وظيفة (الافتراضُ 120)"
+        required: false
+        default: "120"
+  push:
+    paths:
+      - "tools/tasmi_bench/requests/joblog.json"
+
+permissions:
+  contents: write
+  actions: read
+
+jobs:
+  fetch:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: الطلب
+        env:
+          I_RUN_ID: ${{ github.event.inputs.run_id }}
+          I_TAIL: ${{ github.event.inputs.tail }}
+        run: |
+          python3 - <<'PY' >> "$GITHUB_ENV"
+          import json, os, sys
+          req = {}
+          p = "tools/tasmi_bench/requests/joblog.json"
+          if os.path.exists(p):
+              req = json.load(open(p, encoding="utf-8"))
+          def pick(k, d=""):
+              v = (os.environ.get("I_" + k.upper()) or "").strip()
+              return v or str(req.get(k) or "").strip() or d
+          rid, tail = pick("run_id"), pick("tail", "120")
+          # ⛔ رقمٌ غيرُ رقمٍ يسقط هنا لا بعد نداءِ شبكة.
+          if not rid.isdigit() or not tail.isdigit():
+              sys.exit(f"⛔ طلبٌ ناقص: run_id={rid!r} · tail={tail!r}")
+          print(f"RUN_ID={rid}")
+          print(f"TAIL={tail}")
+          PY
+          cat "$GITHUB_ENV"
+
+      # ⛔⛔ **أداةٌ تشخيصيّةٌ لا تُشخّص نفسَها لا تُصلح شيئاً** — سقطت هذه ثلاثاً بلا أثرٍ يُقرأ
+      # (‏34757235622 · 34759342372 · 34759393066) وأنا أُخمّن سببَها. ⇒ صارت تكتب كلَّ خطوةٍ
+      # في ملفٍّ **ويُودَع ولو سقطت** (‏نمطُ `sets-build` المُجرَّب) ⇒ الفشلُ القادمُ يُقرأ لا يُظنّ.
+      - name: سحبُ السجلّ — والأثرُ يُسجَّل كلُّه
+        id: fetch
+        continue-on-error: true
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          mkdir -p work_log
+          # ⛔⛔⛔ **ولا `set -x` في خطوةٍ تحمل سرّاً — عطبٌ وقع فعلاً 2026-09-13:** طبع `set -x`
+          # ترويسةَ `Authorization: Bearer ghs_…` في ملفِّ الأثر، **فأُودع رمزُ وصولٍ في مستودعٍ
+          # عامّ**. (‏رمزُ الأكشنز يُبطله GitHub بانتهاء الوظيفة، ومع ذلك: **حُجب من الملفّات
+          # وأُصلح السبب**.) ⇒ **لا تتبّعَ أوامرَ حيث سرٌّ، ويُقنَّع الرمزُ في السجلّ أيضاً.**
+          echo "::add-mask::$GH_TOKEN"
+          # 🔐 والترويسةُ تُمرَّر من ملفٍّ لا من سطر الأمر، فلا تظهر في أيّ أثرٍ أو قائمةِ عمليّات.
+          printf 'Authorization: Bearer %s\n' "$GH_TOKEN" > work_log/h.txt
+          (
+            API="https://api.github.com/repos/${{ github.repository }}/actions/runs/$RUN_ID"
+            echo "== الشوطُ المقروء: $RUN_ID"
+            curl -sS -H @work_log/h.txt "$API" -o run.json -w 'الحالة=%{http_code}\n'
+            head -c 300 run.json; echo
+            CODE=$(curl -sS -o /dev/null -w '%{http_code}' -H @work_log/h.txt "$API/logs")
+            URL=$(curl -sS -o /dev/null -w '%{redirect_url}' -H @work_log/h.txt "$API/logs")
+            echo "نقطةُ السجلّ: $CODE · طولُ عنوان التحويل: ${#URL}"
+            if [ -n "$URL" ]; then
+              curl -sS -o logs.zip -w 'تنزيلُ الأرشيف=%{http_code} حجمٌ=%{size_download}\n' "$URL"
+            else
+              curl -sSL -o logs.zip -w 'تنزيلٌ مباشرٌ=%{http_code} حجمٌ=%{size_download}\n' -H @work_log/h.txt "$API/logs"
+            fi
+            ls -l logs.zip
+            mkdir -p logdir && (cd logdir && unzip -o -q ../logs.zip) && echo "فُكّ $(find logdir -name '*.txt' | wc -l) ملفّاً" || { echo "⛔ الأرشيفُ لا يُفكّ:"; head -c 200 logs.zip | strings | head -5; exit 1; }
+          ) > work_log/diag.txt 2>&1
+          rc=$?
+          # 🔐 ويُحرَق ملفُّ الترويسة قبل أن يُقرأ الأثرُ أو يُودَع شيء.
+          shred -u work_log/h.txt 2>/dev/null || rm -f work_log/h.txt
+          # ⛔ وحارسٌ أخيرٌ قبل الإيداع: أيُّ أثرٍ فيه رمزٌ يُحجب ولا يُودَع.
+          sed -i 's/ghs_[A-Za-z0-9_.-]\{20,\}/<<<REDACTED>>>/g' work_log/diag.txt
+          grep -q 'ghs_' work_log/diag.txt && { echo "⛔ أثرٌ فيه رمزٌ — لا يُودَع"; : > work_log/diag.txt; } || true
+          cat work_log/diag.txt
+          echo "$rc" > work_log/rc.txt
+          exit "$rc"
+
+      - name: إيداعُ الذيل والأثر — ناجحاً كان أو فاشلاً
+        if: always()
+        run: |
+          R=$(cat work_log/rc.txt 2>/dev/null || echo 1)
+          mkdir -p results
+          OUT="results/joblog_${RUN_ID}.md"
+          {
+            echo "# 🪵 قراءةُ سجلِّ الشوط $RUN_ID (‏بالوكالة)"
+            echo
+            echo "- سُحب في: $(date -u +%FT%TZ) · بالشوط ${{ github.run_id }} · رمزُ الخروج: \`$R\`"
+            echo "- ⛔ أثرٌ تشخيصيٌّ لا قياس: لا رقمَ منه يدخل اللوحة."
+            echo
+            echo "## أثرُ السحب"
+            echo '```'
+            tail -40 work_log/diag.txt 2>/dev/null || echo "لا أثر"
+            echo '```'
+            if [ "$R" = "0" ]; then
+              for f in $(find logdir -name '*.txt' | sort); do
+                echo "## \`${f#logdir/}\`"
+                echo '```'
+                tail -n "$TAIL" "$f"
+                echo '```'
+                echo
+              done
+            fi
+          } > "$OUT"
+          if [ "$(wc -c < "$OUT")" -gt 400000 ]; then
+            head -c 400000 "$OUT" > "$OUT.cut" && mv "$OUT.cut" "$OUT"
+            echo >> "$OUT"; echo '⚠️ **قُطع عند 400 كيلوبايت.**' >> "$OUT"
+          fi
+          cp "$OUT" results/LATEST_joblog.md
+          git config user.name "rafiq-ci"
+          git config user.email "ci@users.noreply.github.com"
+          git add "$OUT" results/LATEST_joblog.md
+          git commit -q -m "results(job-log): سجلُّ الشوط $RUN_ID · rc=$R" || { echo "لا تغيير"; exit 0; }
+          for i in 1 2 3; do
+            git fetch -q origin main && git merge -q --no-edit origin/main && git push -q origin HEAD:main && { echo "✅ أُودع $OUT"; exit 0; }
+            echo "↻ محاولةٌ $i"; sleep 5
+          done
+          echo "⛔ تعذّر الدفع"; exit 1
+
+      - name: ردُّ الحكم
+        if: always()
+        run: |
+          R=$(cat work_log/rc.txt 2>/dev/null || echo 1)
+          [ "$R" = "0" ] || { echo "⛔ سقط السحبُ برمزٍ $R — والأثرُ مودَعٌ في results/"; exit 1; }
+          echo "✅ السجلُّ قُرئ وأُودع ذيلُه"

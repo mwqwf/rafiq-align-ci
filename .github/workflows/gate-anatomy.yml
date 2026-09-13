@@ -107,12 +107,47 @@ jobs:
           [ "$n" -ge 2 ] || { echo "⛔ $n ملفاً فقط — والتشريحُ يحتاج ذراعَين على البنود عينِها"; exit 1; }
           # 🧹 **وفرضيّاتُ `g1` النظيفةِ إن كانت محفوظةً لهذا الوسم** — تُجرَّب ولا تُشترط:
           # بها يُقاس الزوائدُ الكاذبةُ على **تلاوةٍ صحيحةٍ** وهي الحالةُ الغالبةُ للمستخدم (‏D-368).
-          g=0
+          # ⛔ **والشرطُ لكلِّ ذراعٍ على حدة — لا للذراعَين معاً** (‏عطبٌ مقيسٌ في الشوط
+          # `34748763538`): طُلبت ذراعان إحداهما بلا `g1` فسقط الشرطُ **للاثنتَين** وتخطّى
+          # الشوطُ قياسَ التهدئة **صامتاً** — فانتظرتُ رقماً لا يجيء. **والصمتُ ليس رقماً.**
+          CA=""
           for a in $ARMS; do
             f="hyps_emu_g1_cap_${a}.json"
-            curl -fsS --retry 2 -o "work/$f" "$PUB/finetune/gate/$TAG/emu_$f" && { echo "✅ نظيفة: $f"; g=$((g+1)); } || echo "ℹ️ لا فرضيّاتِ g1 لـ$a في هذا الوسم"
+            if curl -fsS --retry 2 -o "work/$f" "$PUB/finetune/gate/$TAG/emu_$f"; then
+              echo "✅ نظيفة: $f"; CA="$CA $a"
+            else
+              echo "ℹ️ لا فرضيّاتِ g1 لـ$a في هذا الوسم (يُقال ولا يُكتَم)"
+            fi
           done
-          echo "CLEAN_OK=$([ "$g" -ge 2 ] && echo 1 || echo 0)" >> "$GITHUB_ENV"
+          CA="$(echo $CA | xargs echo)"
+          echo "CLEAN_ARMS=$CA" >> "$GITHUB_ENV"
+          # 📜 **وخطّةُ التلاوة الطويلة إن كانت محفوظةً لهذه المجموعات** — بها وحدَها يصير
+          # لبنود `g4*` مرجعٌ (`pool_items` يقرأ `work/long_plan.json`)، وبلا ذلك تُطبع
+          # «⛔ بلا مرجع» فيُظَنّ العطبُ في الأداة. وتُدمج بنودُ كلِّ مجموعةٍ وُجدت خطّتُها.
+          rm -f work/long_plan.json
+          for s in $SETS; do
+            curl -fsS --retry 2 -o "work/lp_$s.json" "$PUB/finetune/gate/$TAG/emu_long_plan_$s.json" \
+              && echo "📜 خطّةُ $s" || echo "ℹ️ لا خطّةَ طويلةً لـ$s (متوقَّعٌ لمجموعاتٍ قصيرة)"
+          done
+          python3 - <<'PY'
+          import glob, json, os
+          items, seen = [], set()
+          for p in sorted(glob.glob("work/lp_*.json")):
+              try:
+                  d = json.load(open(p, encoding="utf-8"))
+              except Exception as e:
+                  print(f"⛔ خطّةٌ لا تُقرأ {p}: {e}")   # تُقال ولا تُكتَم
+                  continue
+              for it in d.get("items", []):
+                  if it.get("id") in seen:
+                      continue
+                  seen.add(it["id"]); items.append(it)
+          if items:
+              json.dump({"items": items}, open("work/long_plan.json", "w", encoding="utf-8"),
+                        ensure_ascii=False)
+              print(f"📜 {len(items)} بنداً طويلاً لها مرجعٌ الآن")
+          PY
+          echo "CLEAN_OK=$([ -n "$CA" ] && echo 1 || echo 0)" >> "$GITHUB_ENV"
       - name: مِن أين جاءت الفرضيّات — **من الملفّ لا من الزناد**
         env:
           PYTHONIOENCODING: utf-8
@@ -159,7 +194,8 @@ jobs:
           PYTHONIOENCODING: utf-8
         run: |
           cd tools/tasmi_bench
-          python extras_noise_probe.py --dirs "work:" --arms $ARMS --clean | tee work/extras_clean.md
+          # الأذرعُ التي وُجدت لها فرضيّاتُ `g1` وحدَها (‏قد تكون واحدةً — ولا يُسكت ذلك القياس).
+          python extras_noise_probe.py --dirs "work:" --arms $CLEAN_ARMS --clean | tee work/extras_clean.md
       - name: 🧹 الزوائدُ الكاذبة (‏قناةٌ لا يعدّها الاتّهامُ الكاذب)
         env:
           PYTHONIOENCODING: utf-8
@@ -174,9 +210,29 @@ jobs:
           PYTHONIOENCODING: utf-8
         run: |
           cd tools/tasmi_bench
-          # ⛔ الذراعُ الأولى وحدَها: القياسُ هنا بين **قواعدِ عرضٍ** لا بين نموذجَين.
-          A=$(echo $ARMS | cut -d' ' -f1)
-          python extras_quiet_ab.py --dirs "work:" --arm "$A" | tee work/extras_quiet.md
+          # ⭐ **والذراعان كلتاهما:** القياسُ بين **قواعدِ عرضٍ**، لكنّ نسبةَ الهدوء إلى الإمساك
+          # **تختلف بالنموذج** (‏الأكبرُ يسمع الدخيلةَ ضِعفاً · D-366) ⇒ فقرارُ العرض قد يكون
+          # «نعم لهذا النموذج ولا لذاك»، ولا يُعرف ذلك من ذراعٍ واحدة.
+          rm -f work/extras_quiet.md
+          touch work/extras_quiet.md
+          for A in $CLEAN_ARMS; do
+            if python extras_quiet_ab.py --dirs "work:" --arm "$A" >> work/extras_quiet.md; then
+              echo "" >> work/extras_quiet.md
+            else
+              echo "تعذّرت التهدئةُ على $A — يُقال ولا يُكتَم" >> work/extras_quiet.md
+            fi
+          done
+          cat work/extras_quiet.md
+      - name: ⏱️ ثمنُ الزمن بين الذراعَين (‏من `ms` المحفوظة — لا شوطَ زمنٍ خاصّاً)
+        env:
+          PYTHONIOENCODING: utf-8
+        run: |
+          cd tools/tasmi_bench
+          # ⭐ **يُقرأ في كلِّ تشريحٍ لا بطلبٍ خاصّ:** قرارُ مفتاحٍ بلا ثمنِه نصفُ قرار، و`ms`
+          # محفوظةٌ في الفرضيّات أصلاً. ⛔ والسقوطُ **لا يُسقط** التشريحَ كلَّه (فرضيّاتٌ قديمةٌ
+          # بلا `ms` واردةٌ) — يُقال ويُمضى.
+          python hyps_time_ab.py --dirs "work:" --arms $ARMS | tee work/time_ab.md || \
+            echo "ℹ️ لا زمنَ في هذه الفرضيّات (يُقال ولا يُكتَم)" | tee work/time_ab.md
       - name: 🎛️ أثرُ قاعدةِ التعادل (‏إن طُلب — مسطرتان على فرضيّاتٍ واحدة)
         if: env.RULE_AB != ''
         env:
@@ -278,6 +334,9 @@ jobs:
             fi
             if [ -s tools/tasmi_bench/work/extras_quiet.md ]; then
               cat tools/tasmi_bench/work/extras_quiet.md; echo
+            fi
+            if [ -s tools/tasmi_bench/work/time_ab.md ]; then
+              cat tools/tasmi_bench/work/time_ab.md; echo
             fi
             if [ -s tools/tasmi_bench/work/rule_ab.md ]; then
               # ⛔ **علامتا `` ` `` داخل «...» تنفيذُ أمرٍ لا اقتباسٌ** — فخرج العنوانُ فارغاً في

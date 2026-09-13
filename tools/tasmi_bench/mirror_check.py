@@ -43,13 +43,40 @@ def main():
 
     drift, missing = [], []
     for f in sorted(os.listdir(HERE)):
-        if not f.endswith(".py"):
+        # ⛔⛔ **ولا `.py` وحدَها — ثغرةٌ وُجدت 2026-09-13 (D-374 وما بعده):** جسمُ **كلِّ** شوط
+        # محاكٍ هو `ci_emu_run.sh` (‏وهو الذي يُنشئ الأذرعَ ويثبّت لغتَها)، وخُطَطُ الحقن
+        # `inject_plan*.json` هي **المدخَلُ المقيسُ** الذي تُحسب عليه أرقامُ الحقن. فكان
+        # الحارسُ يقرأ `.py` فقط ⇒ **انحرافُ سطرٍ في صدفةٍ أو بندٍ في خطّةٍ يمرّ صامتاً**
+        # ويعطي أرقاماً معقولةً لعيّنةٍ غيرِ العيّنة. وعلّةُ وجودِ الحارس عينُها تُوجِب توسيعَه.
+        # ⭐ (‏وفُحص يومَ التوسيع فلم يكن هناك انحرافٌ — فالتوسيعُ **منعٌ** لا إصلاح.)
+        if not f.endswith((".py", ".sh", ".json")):
             continue
         o = os.path.join(a.src, f)
         if not os.path.exists(o):
             missing.append(f)
         elif not filecmp.cmp(os.path.join(HERE, f), o, shallow=False):
             drift.append(f)
+
+    # ⛔⛔ **وثغرةٌ ثالثةٌ سُدّت 2026-09-13 — وقعت في اليوم نفسِه:** الحلقةُ تمشي على **المرآة**،
+    # فملفٌّ **في الأصل ولا نسخةَ له هنا** كان **لا يُرى البتّة**: أُضيف `hyps_time_ab.py` إلى
+    # `QuranRafiq` وأُشير إليه في خطوةِ مسارٍ، فقال الحارسُ «لا انحراف» **وكان المسارُ سيسقط**
+    # بـ«لا ملفّ» في العدّاء. ⇒ يُسرد الأصلُ أيضاً، والغائبُ عن المرآة **انحرافٌ يُنسخ بـ`--sync`**.
+    absent = []
+    for f in sorted(os.listdir(a.src)):
+        if not f.endswith((".py", ".sh", ".json")):
+            continue
+        if not os.path.exists(os.path.join(HERE, f)):
+            absent.append(f)
+
+    if absent:
+        print("⛔ **في الأصل ولا نسخةَ لها في المرآة** (‏وهذه تُسقط المساراتَ التي تناديها): "
+              + " · ".join(absent))
+        if a.sync:
+            for f in absent:
+                shutil.copyfile(os.path.join(a.src, f), os.path.join(HERE, f))
+            print("↻ نُسخت الغائبةُ — أودِعها بمسارٍ صريح.")
+        else:
+            drift = drift + absent   # كي لا يخرج بـ0 والمرآةُ ناقصة
 
     if missing:
         # ⚠️ ملفٌّ هنا وليس في الأصل: **ليس انحرافاً** بالضرورة (قد يكون أداةَ مسارٍ خاصّةً

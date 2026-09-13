@@ -41,7 +41,12 @@ sys.path.insert(0, os.path.join(ROOT, "tools", "alignment"))
 import scorer  # noqa: E402
 from common import load_text  # noqa: E402
 
-RIWAYAT = ("hafs", "warsh", "qalun")
+# 🔎 D-427: كانت ثلاثاً، والمصحفُ ستّ. فشعبةُ والدوريُّ والسوسيُّ **لم تدخل تماثلَ المحرك
+#    والمرآة قطّ**، ورقما D-416 (‏7,521 من 156,557) وD-419 مبنيّان على الثلاث وحدَها —
+#    وهي **ليست** أسوأَ الروايات (‏D-401: الدوريُّ والسوسيُّ أسوأُ من حفصٍ أحدَ عشرَ ضعفاً).
+#    و`config_for` يعطي الثلاثَ الجديدةَ `naql=false · sila=false` وهو ملفُّها في المحرك،
+#    و`RiwayaProfile.of` يعرفها بأسمائها ⇒ لا شيءَ في السلسلة يمنع تعميمَها.
+RIWAYAT = ("hafs", "warsh", "qalun", "shuba", "douri", "sousi")
 CODE = {scorer.CORRECT: "C", scorer.MISSED: "M", scorer.SUBSTITUTED: "S",
         scorer.ADDED: "A", scorer.UNCERTAIN: "U"}
 WORK = os.path.join(HERE, "work")

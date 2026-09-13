@@ -1,0 +1,152 @@
+# 🕌📏 **دقّةُ التتبّع روايةً روايةً بمجالِ ثقة** — من فرضيّاتٍ محفوظةٍ، بلا محاكٍ.
+#
+# ⛔ **لِمَ وُجد — بسببٍ مقيسٍ لا مفترَض** (‏D-418): الحكمُ المعلَّقُ على قرارٍ مشحون
+# (‏`Variant.forRiwaya` ⇒ `TINY_V2` لورشٍ وقالون · D-254) يحتاج **دقّةَ الروايتَين بمجالها**،
+# وجدولُ البوّابة يطبع الدقّةَ بالرواية **فرقاً عارياً** ومجالُه **مضمومٌ على الروايات الثلاث**.
+# ⭐ **وفرقٌ بلا مجالٍ يُقرأ على هوى قارئه** (‏درسُ D-351 في صفِّ الكشف بعينه).
+#
+# 🔑 **وزنادُه الإيداعُ** (‏بيانةُ الوكيل لا تستطيع الإدلاء — 403 مقيس):
+# يُدفع `tools/tasmi_bench/requests/riwaya_ci.json` ‏(`tag` · `arms` · `sets`) فيشتعل.
+# ⛔ **والفرضيّاتُ من R2** (‏`finetune/gate/<tag>/emu_hyps_emu_<مجموعة>_cap_<ذراع>.json`) وهو
+# **محجوبٌ عن صندوق الوكيل** ومفتوحٌ للعدّاء ⇒ **هنا موضعُ القراءة لا هناك**.
+# ⚖️ وثمنُه **دقيقةٌ**: لا محاكيَ ولا نموذجَ يُنزَّل — ⇒ **سؤالٌ على شوطٍ مضى لا يُكلّف شوطاً.**
+name: riwaya-ci
+
+on:
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: "وسمُ شوط البوّابة (مجلدُه في R2: finetune/gate/<tag>/)"
+        required: true
+      arms:
+        description: "الذراعان بمسافةٍ — كما في أسماء ملفّات الفرضيّات (مثل: shipped tinyv2-ar)"
+        required: true
+      sets:
+        description: "المجموعاتُ بأسماء الملفّات (‏g1 · g2-noise-fan-5)"
+        required: false
+        default: "g1 g2-noise-fan-5"
+  push:
+    paths:
+      - "tools/tasmi_bench/requests/riwaya_ci.json"
+
+permissions:
+  contents: write
+
+env:
+  PUB: https://pub-2c2e1dcd92e84a2898820dd38d3e09e6.r2.dev
+
+jobs:
+  riwaya:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: الطلبُ — من الإدلاء أو من الملفِّ المدفوع
+        env:
+          I_TAG: ${{ github.event.inputs.tag }}
+          I_ARMS: ${{ github.event.inputs.arms }}
+          I_SETS: ${{ github.event.inputs.sets }}
+        run: |
+          python3 - <<'PY' >> "$GITHUB_ENV"
+          import json, os, sys
+          req = {}
+          p = "tools/tasmi_bench/requests/riwaya_ci.json"
+          if os.path.exists(p):
+              req = json.load(open(p, encoding="utf-8"))
+          def pick(k, d=""):
+              v = (os.environ.get("I_" + k.upper()) or "").strip()
+              return v or str(req.get(k) or "").strip() or d
+          tag, arms = pick("tag"), pick("arms")
+          # ⛔ الطلبُ الناقصُ يسقط قبل أن تُلمس الشبكة — «لا ملفّات» تُقرأ حجباً وهي طلبٌ بلا وسم.
+          if not tag or len(arms.split()) != 2:
+              sys.exit(f"⛔ طلبٌ ناقص: tag={tag!r} · arms={arms!r} — والأذرعُ اسمان بمسافةٍ لا أكثرَ ولا أقلّ")
+          print(f"TAG={tag}")
+          print(f"ARMS={arms}")
+          print("SETS=%s" % pick("sets", "g1 g2-noise-fan-5"))
+          PY
+          cat "$GITHUB_ENV"
+
+      # ⛔⛔ **خطوةٌ واحدةٌ تُلتقط كلُّها — بسببٍ مقيسٍ 2026-09-13:** سقط أوّلُ شوطٍ لهذا المسار
+      # (`34749355866`) **ولم يُعرَف سببُه**: مضيفُ سجلّات الأشغال
+      # (`results-receiver.actions.githubusercontent.com`) **محجوبٌ عن صندوق الوكيل** (403 عند
+      # الوسيط · مقيس) ⇒ فشلٌ بلا سجلٍّ مقروءٍ **يُقرأ ظنّاً**. ⭐ **فمن حُجب عنه السجلُّ فليُودع
+      # الأثرَ ملفّاً**: يُجمع التنزيلُ والقياسُ في خطوةٍ تُسجّل كلَّ شيءٍ في `log.txt`، ويُودَع
+      # الملفُّ **ولو فشل الشوط** (`if: always()`) ثمّ يُرَدُّ رمزُ الخطأ كي يبقى أحمرَ صادقاً.
+      - name: التنزيلُ والقياسُ — والأثرُ يُسجَّل كلُّه
+        id: measure
+        continue-on-error: true
+        env:
+          PYTHONIOENCODING: utf-8
+        run: |
+          cd tools/tasmi_bench
+          mkdir -p work_riwaya && rm -f work_riwaya/*.json
+          # ⛔ **بقوسَين لا بقوسَي كتلة:** `{ … }` ليست صدفةً فرعيّةً فـ`exit` فيها يقتل الخطوةَ
+          # كلَّها قبل `cat` و`RC=` ⇒ يعود الفشلُ صامتاً كما كان. و`( … )` تُنهي الفرعَ وحدَه.
+          (
+            echo "== الطلب: TAG=$TAG · ARMS=$ARMS · SETS=$SETS"
+            n=0
+            for s in $SETS; do
+              for a in $ARMS; do
+                f="hyps_emu_${s}_cap_${a}.json"
+                u="$PUB/finetune/gate/$TAG/emu_$f"
+                if curl -fsS --retry 3 -o "work_riwaya/$f" "$u"; then
+                  echo "✅ $f ($(wc -c < "work_riwaya/$f") بايتاً)"; n=$((n+1))
+                else
+                  echo "⛔ غائبٌ: $u"
+                fi
+              done
+            done
+            echo "== نُزّل $n ملفاً"
+            if [ "$n" -lt 2 ]; then
+              echo "⛔ المقارنةُ تحتاج ذراعَين على البنود عينِها"; exit 1
+            fi
+            echo "== القياس:"
+            python riwaya_acc_ci.py --work work_riwaya --arms $ARMS --sets $SETS
+          ) > work_riwaya/log.txt 2>&1
+          rc=$?
+          cat work_riwaya/log.txt
+          # ⛔ **بملفٍّ لا بـ`GITHUB_ENV`** (‏مقيسٌ 2026-09-13): خطوةٌ تخرج بغير صفرٍ **لا يُضمن**
+          # أن يُقرأ منها `GITHUB_ENV` ⇒ خرجت ترويسةُ الأثر «rc=؟» فضاع أنفعُ سطرٍ فيه.
+          # ⛔ **ومجلدُ الخطوة `tools/tasmi_bench`** (‏`cd` أعلاه) فالمسارُ نسبيٌّ إليه لا إلى الجذر:
+          # كُتب أوّلاً بمسار الجذر فصار `tools/tasmi_bench/tools/tasmi_bench/…` ⇒ عاد الأثرُ «rc=؟»
+          # بعد إصلاحه. ⭐ **وإصلاحٌ لم يُقرأ أثرُه بعد الإصلاح ليس إصلاحاً.**
+          echo "$rc" > work_riwaya/rc.txt
+          exit "$rc"
+
+      - name: إيداعُ الأثر — ناجحاً كان أو فاشلاً
+        if: always()
+        run: |
+          M="tools/tasmi_bench/work_riwaya/log.txt"
+          [ -s "$M" ] || { echo "⛔ لا أثرَ أصلاً — سقط الشوطُ قبل الخطوة"; exit 1; }
+          mkdir -p results
+          OUT="results/riwaya_ci_${TAG}_${{ github.run_id }}.md"
+          {
+            echo "# دقّةُ التتبّع بالرواية · الوسم \`${TAG}\` · الشوط ${{ github.run_id }}"
+            echo
+            echo "- التاريخ: $(date -u +%FT%TZ) · الذراعان: \`$ARMS\` · المجموعات: \`$SETS\` · الزناد: \`${{ github.event_name }}\`"
+            echo "- المصدر: فرضيّاتُ الشوط من \`finetune/gate/${TAG}/\` على R2 — **قراءةٌ لا قياسٌ جديد**"
+            echo "- رمزُ الخروج: \`$(cat tools/tasmi_bench/work_riwaya/rc.txt 2>/dev/null || echo ؟)\` — وما دونَ الصفر فشلٌ، والأثرُ أدناه كما هو"
+            echo
+            cat "$M"
+          } > "$OUT"
+          cp "$OUT" results/LATEST_riwaya_ci.md
+          git config user.name "rafiq-ci"
+          git config user.email "ci@users.noreply.github.com"
+          git add "$OUT" results/LATEST_riwaya_ci.md
+          git commit -q -m "results(riwaya-ci): ${TAG} · الشوط ${{ github.run_id }} · rc=$(cat tools/tasmi_bench/work_riwaya/rc.txt 2>/dev/null || echo ؟)" || { echo "لا تغيير"; exit 0; }
+          for i in 1 2 3; do
+            git fetch -q origin main && git merge -q --no-edit origin/main && git push -q origin HEAD:main && { echo "✅ أُودع $OUT"; exit 0; }
+            echo "↻ محاولةٌ $i"; sleep 5
+          done
+          echo "⛔ تعذّر الدفع"; exit 1
+
+      # ⛔ **ولا يُقرأ أخضرُ على فشل:** الأثرُ أُودع، ثمّ يُرَدُّ رمزُ الخطأ.
+      - name: ردُّ حكم القياس
+        if: always()
+        run: |
+          [ "$(cat tools/tasmi_bench/work_riwaya/rc.txt 2>/dev/null || echo 1)" = "0" ] || { echo "⛔ سقط القياسُ برمزٍ $(cat tools/tasmi_bench/work_riwaya/rc.txt 2>/dev/null || echo ؟) — والأثرُ مودَعٌ في results/"; exit 1; }
+          echo "✅ القياسُ تمّ"

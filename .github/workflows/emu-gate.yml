@@ -56,6 +56,22 @@ on:
         description: "لاحقةُ وسم الذراع مع المفاتيح (‏-dg · -cp) كي لا تُكتب ذراعٌ فوق أخرى"
         required: false
         default: ""
+      arm2_tag:
+        description: "🎛️ وسمُ **ذراع المفتاح** (النموذجُ المشحونُ نفسُه بمفاتيحَ أخرى · مثل `noguard`) — فارغٌ = لا ذراعَ ثالثة"
+        required: false
+        default: ""
+      arm2_es:
+        description: "مفاتيحُ ذراع المفتاح النصّيّة `KEY=VAL` بمسافة (‏`guardScope=ALL`)"
+        required: false
+        default: ""
+      arm2_ez:
+        description: "مفاتيحُ ذراع المفتاح المنطقيّة `KEY=BOOL` بمسافة (‏`decodeGuard=false` — والقيمةُ صريحةٌ هنا كي يُطفأ ما هو مشتغلٌ افتراضاً)"
+        required: false
+        default: ""
+      arm2_ei:
+        description: "مفاتيحُ ذراع المفتاح العدديّة `KEY=INT` بمسافة (‏`decodeBeam=3`)"
+        required: false
+        default: ""
   # ⚙️ **وتُستدعى مساراً قابلاً لإعادة الاستعمال** كي يُشعلها `emu-request.yml` من ملفِّ طلبٍ
   # مدفوعٍ — فبيانةُ الوكيل السحابيّ **لا تستطيع الإدلاء** (‏403 مقيس 2026-09-13).
   # ⛔ **والقيمُ الافتراضيّةُ لا تُكرَّر في المستدعي:** ما غاب من الطلب يُمرَّر فارغاً فيأخذ
@@ -116,6 +132,26 @@ on:
         required: false
         type: string
         default: ""
+      arm2_tag:
+        description: "🎛️ وسمُ **ذراع المفتاح** (النموذجُ المشحونُ نفسُه بمفاتيحَ أخرى · مثل `noguard`) — فارغٌ = لا ذراعَ ثالثة"
+        required: false
+        type: string
+        default: ""
+      arm2_es:
+        description: "مفاتيحُ ذراع المفتاح النصّيّة `KEY=VAL` بمسافة (‏`guardScope=ALL`)"
+        required: false
+        type: string
+        default: ""
+      arm2_ez:
+        description: "مفاتيحُ ذراع المفتاح المنطقيّة `KEY=BOOL` بمسافة (‏`decodeGuard=false` — والقيمةُ صريحةٌ هنا كي يُطفأ ما هو مشتغلٌ افتراضاً)"
+        required: false
+        type: string
+        default: ""
+      arm2_ei:
+        description: "مفاتيحُ ذراع المفتاح العدديّة `KEY=INT` بمسافة (‏`decodeBeam=3`)"
+        required: false
+        type: string
+        default: ""
 # 🔑 صلاحيّتان لا ثالثة: كتابةُ النتيجة في المستودع، وتعليقُها في لوحة المتابعة (المسألة 1).
 permissions:
   contents: write
@@ -136,7 +172,15 @@ jobs:
   emu:
     needs: matrix
     runs-on: ubuntu-latest
-    timeout-minutes: 350
+    # ⛔⛔ **المهلةُ 120 لا 350 — بسببٍ مقيسٍ 2026-09-13 (الشوط 34747390248):** تعلّقت وظيفةُ
+    # `g1` في خطوة `emu_sweep` **112 دقيقةً** ونظائرُها الثلاثُ في الشوط نفسِه تمّت في 22-26،
+    # فبقي الشوطُ `in_progress` ومعه وظيفةُ `judge` **لا تبدأ**. ⭐ **ولا يستطيع الوكيلُ
+    # السحابيُّ الإلغاء:** `POST …/runs/<id>/cancel` يردّ `403 Resource not accessible by
+    # integration` (‏عينُ منعِ `dispatches`) ⇒ **المهلةُ هي حارسُه الوحيد**، وبـ350 يظلّ
+    # المعلَّقُ ست ساعاتٍ ويُقرأ «ما زال يعمل» فتُؤجَّل قراءةُ نتائجَ حاضرةٍ أصلاً.
+    # وأطولُ شوطٍ كاملٍ مقيسٍ (بذراعَيه ووظيفةِ حكمِه) **49 دقيقة** ⇒ 120 ضِعفان ونصفٌ
+    # لأطولِ ما وقع؛ فهي **لا تقطع سليماً** وتُظهر المعلَّقَ عطباً في ساعتَين لا في ستّ.
+    timeout-minutes: 120
     strategy:
       fail-fast: false
       matrix:
@@ -228,6 +272,10 @@ jobs:
           EZ: ${{ inputs.ez }}
           EI: ${{ inputs.ei }}
           TAG_SUFFIX: ${{ inputs.tag_suffix }}
+          ARM2_TAG: ${{ inputs.arm2_tag }}
+          ARM2_ES: ${{ inputs.arm2_es }}
+          ARM2_EZ: ${{ inputs.arm2_ez }}
+          ARM2_EI: ${{ inputs.arm2_ei }}
           CAND_TAG: ${{ inputs.cand_tag }}
           LANGS: ${{ inputs.langs }}
           CHUNK: ${{ inputs.chunk }}
@@ -242,6 +290,38 @@ jobs:
           disable-animations: true
           # ⛔ سطرٌ واحدٌ فقط: الإجراءُ ينفّذ كلَّ سطرٍ بصدفةٍ منفصلة (‏export و cd لا يعبران).
           script: bash tools/tasmi_bench/ci_emu_run.sh
+      # ☁️⛔ **كلُّ مجموعةٍ ترفع فرضيّاتَها بنفسها — بسببٍ مقيسٍ 2026-09-13 (الشوط 34747390248):**
+      # الرفعُ إلى R2 كان في **وظيفة الحكم** وحدَها (`needs: emu`) ⇒ فحين تعلّقت مجموعةُ `g1`
+      # بقيت فرضيّاتُ **الثلاث الناجحةِ** محجوبةً: مصنوعاتٌ لا يقدر الوكيلُ على تنزيلها (403)،
+      # وR2 فارغٌ (404 على أربعة أسماء) ⇒ **قياسٌ تمّ ولا يُقرأ**، وانتظارٌ أربعَ ساعاتٍ لمهلةٍ.
+      # ⭐ والعلاجُ بنيويٌّ لا صبرٌ: **مَن أنتج رقماً نشره**؛ وسرُّ R2 حاضرٌ في هذه الوظيفة أصلاً.
+      # (‏ووظيفةُ الحكم تُعيد الرفعَ بالمفاتيح عينِها — فالتكرارُ لا يضرّ، والحجبُ يضرّ.)
+      - name: ☁️ رفعُ فرضيّاتِ هذه المجموعةِ وحدَها إلى R2 (‏لا تنتظر أخواتِها)
+        if: always()
+        run: |
+          cd tools/tasmi_bench
+          T="${{ inputs.cand_tag }}"; T="${T:-shipped}"
+          ARGS=""
+          for f in work/hyps_emu_*.json; do
+            [ -e "$f" ] || continue
+            ARGS="$ARGS $f finetune/gate/$T/emu_$(basename $f)"
+          done
+          # ⛔ ولا سكوتَ على لا شيء: مجموعةٌ بلا فرضيّاتٍ تُسمّى كي لا تُقرأ «رُفعت».
+          # 📜⭐ **وخطّةُ التلاوة الطويلة تُرفع معها — ثغرةٌ تُسدّ 2026-09-13:** بنودُ `g4*`
+          # مرجعُها في `work/long_plan.json` **لا في `sample.json`** (‏ثغرةُ 09-12 في
+          # `pool_items`) ⇒ القارئُ الرخيصُ (`gate-anatomy`) ينزّل الفرضيّاتَ وحدَها فتخرج
+          # المجموعاتُ الطويلةُ **«⛔ بلا مرجع»**، وموضعُ شحن `guardScope=FINAL` هو التلاوةُ
+          # الطويلةُ بعينها ⇒ **كنّا نقرّر في منطقةٍ لا يقرؤها إلّا شوطُ محاكٍ جديد.**
+          S="$(echo "${{ matrix.set }}" | tr ':' '-')"
+          if [ -f work/long_plan.json ]; then
+            ARGS="$ARGS work/long_plan.json finetune/gate/$T/emu_long_plan_$S.json"
+            echo "📜 وخطّةُ $S معها"
+          fi
+          if [ -z "$ARGS" ]; then
+            echo "⛔ لا فرضيّاتٍ في work/ لهذه المجموعة — لا رفعَ (يُقال ولا يُكتَم)"
+          else
+            python ../finetune/r2_put.py $ARGS && echo "☁️ رُفعت فرضيّاتُ ${{ matrix.set }}"
+          fi
       - uses: actions/upload-artifact@v4
         if: always()
         with:

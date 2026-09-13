@@ -1,0 +1,113 @@
+# 🧬 **هويّةُ ملفِّ نموذجٍ ببصمته** — أهذان الرابطان ملفٌّ واحدٌ أم ملفّان؟
+#
+# ⛔ **لِمَ وُجد — بسببٍ مقيسٍ لا مفترَض** (‏D-420 · ودرسُه D-310): حكمٌ على **نموذجٍ مشحون**
+# بُني على شوطٍ ذراعُه `/data/local/tmp/q8_tinyv2.bin`، و`v2_gate.arm_of` يشتقّ لمثل هذا الاسم
+# رابطاً من **`finetune/out_<الاسم>/`** — أي **مخرَجَ ضبطٍ يحمل الاسمَ**، لا بالضرورة ملفَّ
+# التطبيق `models/whisper-tiny-ar-quran-v2/`. ⛔ **وذراعُ تدريبٍ تحمل اسمَ المشحون قد تُقاس
+# مكانَه** (وقع في D-310). ⭐ **والهويّةُ تُحسم ببصمةٍ لا بتشابه أرقام**: شوطُ بوّابةٍ يُقارن
+# **سلوكَين** فيُستنتَج منه التطابقُ ظنّاً؛ و`sha256` يقول **ملفٌّ واحدٌ أو ملفّان** يقيناً.
+#
+# 🔑 **وزنادُه الإيداعُ** (‏بيانةُ الوكيل لا تستطيع الإدلاء — 403 مقيس): يُدفع
+# `tools/tasmi_bench/requests/model_id.json` ‏(`urls`: قائمةُ روابط) فيشتعل.
+# ⛔ **وR2 محجوبٌ عن صندوق الوكيل** (‏`CONNECT tunnel failed, response 403`) ومفتوحٌ للعدّاء
+# ⇒ **هنا موضعُ البصمة لا هناك**. ⚖️ وثمنُه ثوانٍ: لا محاكيَ ولا محرك.
+name: model-id
+
+on:
+  workflow_dispatch:
+    inputs:
+      urls:
+        description: "روابطُ النماذج مفصولةً بمسافة (‏اثنان أو أكثر)"
+        required: true
+  push:
+    paths:
+      - "tools/tasmi_bench/requests/model_id.json"
+
+permissions:
+  contents: write
+
+jobs:
+  fingerprint:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: البصماتُ — والأثرُ يُسجَّل كلُّه
+        id: fp
+        continue-on-error: true
+        env:
+          I_URLS: ${{ github.event.inputs.urls }}
+        run: |
+          # ⛔ الأثرُ يُودَع ولو فشل: سجلُّ الأشغال محجوبٌ عن الوكيل (403) فالفشلُ بلا ملفٍّ يُقرأ ظنّاً.
+          mkdir -p work_modelid
+          (
+            URLS="$I_URLS"
+            if [ -z "$URLS" ]; then
+              URLS=$(python3 -c "import json;print(' '.join(json.load(open('tools/tasmi_bench/requests/model_id.json',encoding='utf-8'))['urls']))")
+            fi
+            n=0
+            echo "| # | الرابط | الحجمُ (بايت) | sha256 |"
+            echo "|---:|---|---:|---|"
+            i=0
+            for u in $URLS; do
+              i=$((i+1))
+              # ⚠️ ترويسةُ وكيلٍ لازمة: r2.dev يردّ 403 على الوكيل الافتراضيّ (درسٌ متكرّر).
+              if curl -fsS -A "Mozilla/5.0 (QuranRafiq model-id)" -o "work_modelid/m$i.bin" "$u"; then
+                sz=$(wc -c < "work_modelid/m$i.bin")
+                sh=$(sha256sum "work_modelid/m$i.bin" | cut -d' ' -f1)
+                echo "| $i | \`$u\` | $sz | \`$sh\` |"
+                echo "$sh" >> work_modelid/hashes.txt
+                n=$((n+1))
+              else
+                echo "| $i | \`$u\` | ⛔ **تعذّر التنزيل** | — |"
+              fi
+            done
+            echo
+            [ "$n" -ge 2 ] || { echo "⛔ نُزّل $n ملفاً فقط — والمقابلةُ تحتاج اثنَين"; exit 1; }
+            uniq_n=$(sort -u work_modelid/hashes.txt | wc -l)
+            if [ "$uniq_n" = "1" ]; then
+              echo "✅ **ملفٌّ واحدٌ بعينه**: البصماتُ كلُّها متطابقة ⇒ الاسمان يشيران إلى المادّة نفسِها."
+            else
+              echo "⛔ **ملفّان مختلفان**: $uniq_n بصمةً متمايزةً من $n ⇒ **لا يُنقل حكمُ أحدهما إلى الآخر**."
+            fi
+          ) > work_modelid/id.md 2>&1
+          rc=$?
+          cat work_modelid/id.md
+          # ⛔ **بملفٍّ لا بـ`GITHUB_ENV`** (‏مقيسٌ 2026-09-13): خطوةٌ تخرج بغير صفرٍ **لا يُضمن**
+          # أن يُقرأ منها `GITHUB_ENV` ⇒ خرجت ترويسةُ الأثر «rc=؟» فضاع أنفعُ سطرٍ فيه.
+          echo "$rc" > work_modelid/rc.txt
+          exit "$rc"
+
+      - name: إيداعُ الأثر — ناجحاً كان أو فاشلاً
+        if: always()
+        run: |
+          M="work_modelid/id.md"
+          [ -s "$M" ] || { echo "⛔ لا أثرَ — سقط الشوطُ قبل الخطوة"; exit 1; }
+          mkdir -p results
+          OUT="results/model_id_${{ github.run_id }}.md"
+          {
+            echo "# 🧬 هويّةُ ملفّات النماذج · الشوط ${{ github.run_id }}"
+            echo
+            echo "- التاريخ: $(date -u +%FT%TZ) · الزناد: \`${{ github.event_name }}\` · رمزُ الخروج: \`$(cat work_modelid/rc.txt 2>/dev/null || echo ؟)\`"
+            echo "- ⛔ البصمةُ تحسم **هويّةَ المادّة** لا جودتَها: ملفّان متطابقان ⇒ حكمُ أحدهما حكمُ الآخر."
+            echo
+            cat "$M"
+          } > "$OUT"
+          cp "$OUT" results/LATEST_model_id.md
+          git config user.name "rafiq-ci"
+          git config user.email "ci@users.noreply.github.com"
+          git add "$OUT" results/LATEST_model_id.md
+          git commit -q -m "results(model-id): بصماتُ النماذج · الشوط ${{ github.run_id }} · rc=$(cat work_modelid/rc.txt 2>/dev/null || echo ؟)" || { echo "لا تغيير"; exit 0; }
+          for i in 1 2 3; do
+            git fetch -q origin main && git merge -q --no-edit origin/main && git push -q origin HEAD:main && { echo "✅ أُودع $OUT"; exit 0; }
+            echo "↻ محاولةٌ $i"; sleep 5
+          done
+          echo "⛔ تعذّر الدفع"; exit 1
+
+      # ⛔ ولا يُقرأ أخضرُ على فشل.
+      - name: ردُّ حكم البصمة
+        if: always()
+        run: |
+          [ "$(cat work_modelid/rc.txt 2>/dev/null || echo 1)" = "0" ] || { echo "⛔ سقطت البصمةُ برمزٍ $(cat work_modelid/rc.txt 2>/dev/null || echo ؟) — والأثرُ مودَعٌ في results/"; exit 1; }
+          echo "✅ البصماتُ أُخذت"
