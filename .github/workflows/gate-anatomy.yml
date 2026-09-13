@@ -161,12 +161,14 @@ jobs:
           import glob, json
           print("| ملفُّ الفرضيّات | المحرك كما كتبه الشوط | الجهاز | النموذج | الواجهة | 🧬 شفرةُ المقياس | 🧬 بناءُ المحرك |")
           print("|---|---|---|---|---|---|---|")
-          revs, apks, old = {}, {}, []
+          revs, apks, old, mixed_files = {}, {}, [], []
           for p in sorted(glob.glob("work/hyps_emu_*.json")):
               m = (json.load(open(p, encoding="utf-8")) or {}).get("meta") or {}
               fe = m.get("frontEnd")
               f = p.split("/")[-1]
               rev, apk = m.get("benchRev"), m.get("apkSha")
+              if m.get("stampMixed"):
+                  mixed_files.append((f, m["stampMixed"], m.get("stampMixedItems")))
               if rev: revs.setdefault(rev, []).append(f)
               if apk: apks.setdefault(apk, []).append(f)
               if not rev: old.append(f)
@@ -180,6 +182,12 @@ jobs:
                   print(f"\n⛔⛔ **اختلافُ {label} بين الملفّات — فالفرقُ قد يكون فرقَها لا فرقَ الذراع:**")
                   for k, fs in sorted(d.items()):
                       print(f"- `{k}` ⇐ " + " · ".join(f"`{x}`" for x in fs))
+          # ⛔⛔ **وملفٌّ فيه بنودٌ من بصمتَين ليس ذراعاً واحدة**: استُؤنف مسحُه بعد تبدُّل
+          #     الشفرة أو البناء (‏يكتبه `emu_sweep` في `stampMixed`) ⇒ **لا يُقارن كأنّه واحد**.
+          for f, mx, n in mixed_files:
+              print(f"\n⛔⛔ **`{f}` بنودٌ من بصمتَين** (‏{n} بنداً من الأولى): "
+                    + " · ".join(f"`{k}`: {a} ⇒ {b}" for k, (a, b) in mx.items())
+                    + " ⇒ **لا يُقرأ ذراعاً واحدة**.")
           if any(r.endswith("غيرُ مودَع") for r in revs):
               print("\n⛔ **وفيها ما قِيس على شجرةٍ غيرِ مودَعة** ⇒ لا يُعاد إنتاجُه بالبصمة وحدَها.")
           if old:

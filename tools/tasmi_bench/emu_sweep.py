@@ -123,6 +123,16 @@ def bench_stamp():
     return st
 
 
+def mixed_stamp(prev_meta, meta):
+    """⛔ بنودٌ من بصمتَين في ملفٍّ واحدٍ — تُسمّى ولا تُكتم. (فارغٌ = بصمةٌ واحدةٌ أو مجهولة.)
+
+    ⚠️ **والمجهولُ ليس اختلافاً**: ملفُّ ما قبل البصمة (‏`benchRev` غائبٌ) يُستأنف ولا يُتّهم —
+    فالحكمُ «اختلفت» لا يُبنى على «لم تُعرف».
+    """
+    return {k: [prev_meta.get(k), meta.get(k)] for k in ("benchRev", "apkSha")
+            if prev_meta.get(k) and prev_meta.get(k) != meta.get(k)}
+
+
 TAG = ""   # 🏷️ وسمُ الذراع (‏--tag): نموذجان على المحرك نفسِه لا يكتبان في ملفٍّ واحد
 
 def out_path(set_name, chain=False):
@@ -140,9 +150,11 @@ def run_set(set_name, limit=0, chunk=60, timeout_per_file=90, chain=False):
     if limit:
         ids = ids[:limit]
     out = out_path(set_name, chain)
-    done = {}
+    done, prev_meta = {}, {}
     if os.path.exists(out):
-        done = json.load(open(out, encoding="utf-8")).get("hyps", {})
+        _d = json.load(open(out, encoding="utf-8")) or {}
+        done = _d.get("hyps", {})
+        prev_meta = _d.get("meta") or {}
     todo = [i for i in ids if i not in done or "error" in done.get(i, {})]
     print(f"▶ {set_name}: {len(ids)} بنداً ({len(ids)-len(todo)} منجَز) — المتبقّي {len(todo)}", flush=True)
     if not todo:
@@ -154,6 +166,18 @@ def run_set(set_name, limit=0, chunk=60, timeout_per_file=90, chain=False):
                          "cap": "noiseGate+groupCap10", "caponly": "groupCap10",
                          "gateonly": "noiseGate"}.get(chain, "shipped(v1)"),
             **bench_stamp()}
+    # ⛔⛔ **وثقبٌ في البصمة نفسِها يُسدّ قبل أن يُعتمد عليها:** المسحُ **يُستأنف** (‏`done` من
+    # ملفٍّ قائم)، فلو تبدّلت الشفرةُ أو بناءُ المحرك بين الشوطَين لصار الملفُّ **بنوداً من
+    # بصمتَين وترويستُه تعلن واحدةً** — ⭐ وهو الكذبُ الصامتُ الذي وُجدت البصمةُ لتمنعه، فلا
+    # يُغتفر فيها. ⇒ يُذكر الاختلافُ صريحاً في الترويسة (`stampMixed`) ويُصرَخ به في السجلّ.
+    mixed = mixed_stamp(prev_meta, meta) if done else {}
+    if mixed:
+        meta["stampMixed"] = mixed
+        meta["stampMixedItems"] = len(done)
+        print("⛔⛔ استئنافٌ ببصمةٍ أخرى — الملفُّ بنودٌ من بصمتَين: "
+              + json.dumps(mixed, ensure_ascii=False)
+              + f" (‏{len(done)} بنداً قديماً) ⇒ لا يُقارن هذا الملفُّ بذراعٍ كأنّه واحد",
+              flush=True)
     # دفعاتٌ صغيرة: سجلُّ المحاكي حلقيٌّ، ودفعةٌ طويلةٌ تُفقد أوائلَها.
     for start in range(0, len(todo), chunk):
         batch = todo[start:start + chunk]
