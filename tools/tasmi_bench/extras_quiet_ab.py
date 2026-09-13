@@ -38,8 +38,21 @@ RULES = {
     "لا تُعرَض عند انهيار التعرّف": lambda e, sc: not sc.get("collapsed"),
     "طولُ الزائدة ≥ 4 أحرف": lambda e, sc: len(e[0]) >= 4,
     "زائدتان متجاورتان": None,            # تُحسب على مستوى الآية لا الزائدة
+    # 🆕 **شاهدٌ ثانٍ: جارةٌ متّهمة** — الدخيلةُ الحقيقيّةُ تُحدث ضرراً جانبيّاً في جارتها غالباً
+    # (وهو أصلُ تعريف «الكشف الضيّق» · D-351)، والوهمُ يجيء في آيةٍ **كلُّ كلماتها صحيحة**.
+    # ⇒ فلا تُعرَض زائدةٌ إلّا إن كان في جوارها (‏±1) حكمُ خطإٍ مؤكَّد.
+    "جارةٌ متّهمةٌ (‏±1)": None,
+    "المجّانيّةُ + جارةٌ متّهمة": None,
     "الثلاثُ مجتمعةً": None,
 }
+
+BAD = ("MISSED", "SUBSTITUTED")
+
+
+def has_bad_neighbor(e, sc):
+    """أفي جوار الزائدة (‏±1) كلمةٌ حُكم عليها بخطإٍ **مؤكَّد**؟ — شاهدٌ ثانٍ لا تساهل."""
+    at = e[1]
+    return any(w[1] in BAD and abs(w[0] - at) <= 1 for w in sc["words"] if w)
 
 
 def adjacent_pairs(extras):
@@ -58,6 +71,12 @@ def shown(extras, sc, rule):
     if rule == "زائدتان متجاورتان":
         k = adjacent_pairs(extras)
         return [e for e in extras if e[1] in k]
+    if rule == "جارةٌ متّهمةٌ (‏±1)":
+        return [e for e in extras if has_bad_neighbor(e, sc)]
+    if rule == "المجّانيّةُ + جارةٌ متّهمة":
+        if sc.get("collapsed"):
+            return []
+        return [e for e in extras if has_bad_neighbor(e, sc)]
     if rule == "الثلاثُ مجتمعةً":
         if sc.get("collapsed"):
             return []

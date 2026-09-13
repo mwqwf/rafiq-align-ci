@@ -1,7 +1,7 @@
 {
-  "tag": "base",
-  "arms": "shipped-B base-ar-B",
-  "sets": "g3r-noisy",
+  "tag": "shipped",
+  "arms": "shipped-dg shipped-cp",
+  "sets": "g3r-clean g3r-noisy",
   "chain": "cap",
-  "note": "إعادةُ الطلب بعد إصلاح startup_failure — تهدئةُ الزوائد للذراعَين"
+  "note": "ضِعفُ عيّنةِ الإقحام (80 بنداً) + التهدئةُ الخامسة — والذراعُ shipped-dg هي الوحيدةُ التي تجمع g1 وg3r معاً (مسبارُ decodeGuard مُشعل: قيدٌ يُقال)"
 }
