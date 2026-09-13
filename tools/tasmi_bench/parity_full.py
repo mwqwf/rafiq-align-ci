@@ -267,8 +267,25 @@ def main():
     ap.add_argument("--jobs", type=int, default=0, help="أنوية المرآة (الافتراض: كلُّها)")
     ap.add_argument("--control", action="store_true",
                     help="الضابطُ السالب: يعطب المرآة عمداً ويتأكّد أنّ المقارنة تصرخ")
+    # 🎚️ D-416: المحركُ يشحن `criticalPairsUncertain` **مفعَّلاً** منذ D-323، و`config_for`
+    # لا يضع `strict_short` ⇒ فالمقارنةُ الافتراضيّةُ هنا تقيس مرآةَ اللوحة كما هي (وهو
+    # المقصود: هي الكاشفة). وهذا العلمُ يُجري المقارنةَ على **مرآةٍ مطابقةٍ للمشحون**،
+    # وبه ثبت أنّ الانحرافَ كلَّه (7,521 من 156,557) سببُه هذا العلمُ وحدَه.
+    # ⚠️ المفحوصُ وحدَه يُشدَّد؛ **المولّدُ يبقى على `config_for`** فلا تصير المقارنةُ دائريّة.
+    ap.add_argument("--strict-mirror", action="store_true",
+                    help="قارِنْ بمرآةٍ عليها strict_short=True (‏= criticalPairsUncertain المشحون)")
     args = ap.parse_args()
     os.makedirs(WORK, exist_ok=True)
+    if args.strict_mirror:
+        global MIRROR_CFG_FN
+        _base = MIRROR_CFG_FN
+
+        def _strict(riwaya):
+            c = _base(riwaya)
+            c.strict_short = True
+            return c
+
+        MIRROR_CFG_FN = _strict
     if args.control:
         return control(args.limit or 300, args.jobs or 1)
     total = bad = 0

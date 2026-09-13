@@ -72,8 +72,17 @@ jobs:
           # وهي في الحقيقة طلبٌ بلا وسم. ⇒ يُسمّى النقصُ باسمه قبل أن يُلمس الشبكة.
           if not tag or len(arms.split()) != 2:
               sys.exit(f"⛔ طلبٌ ناقص: tag={tag!r} · arms={arms!r} — والأذرعُ اسمان بمسافةٍ لا أكثرَ ولا أقلّ")
+          # 📝 و`note` سببُ الطلب بسطرٍ واحد — يُكتب في ملفّ النتيجة فيُعرف **لِمَ قُرئ** هذا
+          # الشوطُ مرّةً ثانية، ولا يُظنّ تكراراً بلا سبب (درسُ D-365).
+          note = pick("note").replace("\n", " ")[:200]
+          # 🎛️ `rule_ab`: اسمُ ذراعٍ واحدةٍ يُقاس عليها **أثرُ قاعدةِ التعادل** (مسطرتان على
+          # فرضيّاتٍ واحدة · D-366). فارغٌ = لا يُقاس. ⛔ وتُراجَع صحّةُ الاسم بأنّه إحدى الذراعَين.
+          rule_ab = pick("rule_ab")
+          if rule_ab and rule_ab not in arms.split():
+              sys.exit(f"⛔ `rule_ab`={rule_ab!r} ليست إحدى الذراعَين {arms!r} — ولا تُقاس قاعدةٌ على فرضيّاتٍ لا تُنزَّل")
           for k, v in (("TAG", tag), ("ARMS", arms),
-                       ("SETS", pick("sets", "g3r-clean g3r-noisy")), ("CHAIN", pick("chain", "cap"))):
+                       ("SETS", pick("sets", "g3r-clean g3r-noisy")), ("CHAIN", pick("chain", "cap")),
+                       ("NOTE", note), ("RULE_AB", rule_ab)):
               print(f"{k}={v}")
           PY
           cat "$GITHUB_ENV"
@@ -136,6 +145,13 @@ jobs:
           # (‏`work:`) كي **لا تُقلَّم** لاحقةُ الوسم من أسماء الأذرع.
           python detect_anatomy.py --dirs "work:" --arms $ARMS | tee work/anatomy.md
           { echo "### 🔬 تشريحُ الكشف (‏$TAG)"; cat work/anatomy.md; } >> "$GITHUB_STEP_SUMMARY"
+      - name: 🎛️ أثرُ قاعدةِ التعادل (‏إن طُلب — مسطرتان على فرضيّاتٍ واحدة)
+        if: env.RULE_AB != ''
+        env:
+          PYTHONIOENCODING: utf-8
+        run: |
+          cd tools/tasmi_bench
+          python tie_rule_ab.py --dirs "work:" --arm "$RULE_AB" | tee work/rule_ab.md
       - name: إيداعُ الجدول في المستودع (‏كي يقرأه الوكيلُ السحابيُّ والمالك)
         run: |
           T="$TAG"
@@ -149,6 +165,7 @@ jobs:
             echo "- التاريخ: $(date -u +%FT%TZ)"
             echo "- الذراعان: \`$ARMS\` · المجموعات: \`$SETS\` · السلسلة: \`$CHAIN\` · الزناد: \`${{ github.event_name }}\`"
             echo "- المصدر: فرضيّاتُ الشوط من \`finetune/gate/${T}/\` على R2 العامّ"
+            [ -n "$NOTE" ] && echo "- سببُ القراءة: $NOTE"
             echo
             echo "## 🧾 نسبُ الفرضيّات (‏من ترويسة كلّ ملفٍّ لا من الزناد)"
             echo
@@ -160,6 +177,9 @@ jobs:
             # `--pattern`** فتقول «المحرك (المحاكي)» — والنسبُ الصادقُ في الجدول أعلاه لا فيها.
             cat tools/tasmi_bench/work/gate.md
             echo
+            if [ -s tools/tasmi_bench/work/rule_ab.md ]; then
+              echo "## 🎛️ أثرُ قاعدةِ التعادل (‏`$RULE_AB`)"; echo; cat tools/tasmi_bench/work/rule_ab.md; echo
+            fi
             echo "## 🔬 تشريحُ الكشف صنفاً صنفاً"
             echo
             cat "$M"
