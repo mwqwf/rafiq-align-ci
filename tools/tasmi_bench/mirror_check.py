@@ -18,6 +18,7 @@
 import argparse
 import filecmp
 import os
+import re
 import shutil
 import sys
 
@@ -31,6 +32,8 @@ for _s in (sys.stdout, sys.stderr):
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 SRC = os.path.normpath(os.path.join(HERE, "..", "..", "..", "QuranRafiq", "tools", "tasmi_bench"))
+# مجلداتٌ مولَّدةٌ أو مؤقّتةٌ لا يُسأل عن مرآتها
+IGNORED_DIRS = {"__pycache__", "work", "requests", "patches", ".pytest_cache"}
 
 
 def main():
@@ -78,12 +81,51 @@ def main():
         else:
             drift = drift + absent   # كي لا يخرج بـ0 والمرآةُ ناقصة
 
+    # ⛔⛔ **ورابعةٌ — والحارسُ نفسُه كان أعمى عنها (2026-09-13):** الحلقتان تمشيان على
+    # **الملفّات المسطَّحة** وحدَها، والأصلُ فيه مجلدُ `engine_judge/` (‏حاكمُ المحرك بالكوتلن)
+    # **لا وجودَ له في المرآة البتّة** — فقال الحارسُ «لا انحراف» وفي المرآة **تسعُ أدواتٍ
+    # تناديه بالاسم** (`parity_full` · `riwaya_surface` · `locator_parity` …). فمتى نادى
+    # مسارٌ إحداها **سقط بـ«لا ملفّ»**، وذلك أوّلُ ما وُجد الحارسُ ليمنعه.
+    # ⭐⭐ **ولا يُعالَج بنسخٍ تلقائيّ:** `QuranRafiq` **خاصّ**، و`engine_judge/` **مصدرُ محرّكٍ
+    # بالكوتلن** — ونسخُه إلى المستودع العامّ **نشرٌ لا مزامنة**. ⇒ الغيابُ هنا **قرارٌ** لا
+    # سهو، وواجبُ الحارس أن يقول **مَن سيسقط به** لا أن يملأه.
+    danger = []
+    for d in sorted(os.listdir(a.src)):
+        if not os.path.isdir(os.path.join(a.src, d)) or d in IGNORED_DIRS:
+            continue
+        if os.path.isdir(os.path.join(HERE, d)):
+            continue          # مُمرأًى فعلاً — وفحصُ داخله بابٌ آخرُ يُفتح حين يُمرأى شيء
+        callers = []
+        # ⛔ **والنداءُ يُعرَف بصورته لا بذكرِ الاسم**: مِن مسارٍ (`engine_judge/…`) أو من اسمٍ
+        #    مقتبَسٍ في `os.path.join` — ولولا ذلك لعُدَّ **كلُّ ملفٍّ يشرح المجلدَ في تعليقه**
+        #    نادياً له. ⭐ وهذا الحارسُ نفسُه يذكره في شرحه ⇒ **لا يعدّ نفسَه**.
+        pat = re.compile(r'%s/|["\']%s["\']' % (re.escape(d), re.escape(d)))
+        for f in sorted(os.listdir(HERE)):
+            if not f.endswith((".py", ".sh")) or f == os.path.basename(__file__):
+                continue
+            try:
+                if pat.search(open(os.path.join(HERE, f), encoding="utf-8", errors="replace").read()):
+                    callers.append(f)
+            except OSError:
+                continue
+        if callers:
+            danger.append((d, callers))
+    for d, callers in danger:
+        print(f"⛔ **مجلدُ `{d}/` في الأصل ولا وجودَ له في المرآة، و{len(callers)} أداةً هنا "
+              f"تناديه** ⇒ أيُّ مسارٍ يشغّلها يسقط بـ«لا ملفّ»: " + " · ".join(callers[:6])
+              + (" …" if len(callers) > 6 else ""))
+    if danger:
+        print("⭐ **وليس علاجُه نسخاً**: قد يكون الغيابُ مقصوداً (‏مصدرُ محرّكٍ لا يُنشر في "
+              "مستودعٍ عامّ) ⇒ فإمّا أن يُمرأى بقرارٍ صريح، وإمّا **ألّا يُنادى من المرآة**.")
+
     if missing:
         # ⚠️ ملفٌّ هنا وليس في الأصل: **ليس انحرافاً** بالضرورة (قد يكون أداةَ مسارٍ خاصّةً
         # بالمستودع العامّ) — يُذكر ولا يُعالَج تلقائيّاً.
         print("ℹ️ هنا ولا أصلَ لها (تُراجَع بالعين): " + " · ".join(missing))
     if not drift:
-        print("✅ لا انحراف: كلُّ ملفٍّ له أصلٌ مطابقٌ بايتاً ببايت.")
+        # ⛔ ولا تُقال «✅» مجرّدةً وفوقَها تنبيهٌ — فالعينُ تقرأ آخرَ سطرٍ وتمضي.
+        print("✅ لا انحرافَ في الملفّات: كلُّ ملفٍّ له أصلٌ مطابقٌ بايتاً ببايت."
+              + (" ⚠️ **لكن فوقَه ما يُنظر فيه.**" if danger else ""))
         return 0
     print("⛔ **انحرافُ مرآة** في " + str(len(drift)) + " ملفّاً:")
     for f in drift:
