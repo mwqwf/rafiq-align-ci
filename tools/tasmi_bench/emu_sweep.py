@@ -110,7 +110,13 @@ def bench_stamp():
         p = sh(["git", "-C", HERE, "rev-parse", "--short", "HEAD"], timeout=15)
         if p.returncode == 0 and p.stdout.strip():
             rev = p.stdout.strip()
-            q = sh(["git", "-C", HERE, "status", "--porcelain", "--", HERE], timeout=15)
+            # ⛔⛔ **و`--untracked-files=no` لازمةٌ لا زينة (‏عطبٌ وقع في أوّل شوطٍ حمل البصمة
+            #     — `34785256877`):** مجلدُ `work/` **داخلَ** المفحوص وهو مولَّدٌ غيرُ متعقَّب،
+            #     فوسمَ الشوطَ على عدّاءٍ **نظيفِ الاستنساخ** بـ«غيرُ مودَع» ⇒ **تحذيرٌ يصدُق
+            #     دائماً تحذيرٌ لا يُقرأ**، ويُفقد الوسمَ معناه حين يقع حقّاً.
+            #     ⇒ يُنظر في **المتعقَّب المعدَّل** وحدَه، وهو المقصودُ أصلاً: شفرةٌ تغيّرت ولم تُودَع.
+            q = sh(["git", "-C", HERE, "status", "--porcelain", "--untracked-files=no", "--", HERE],
+                   timeout=15)
             if q.returncode == 0 and q.stdout.strip():
                 dirty = "+غيرُ مودَع"   # ⛔ شوطٌ على شجرةٍ فيها تعديلٌ لم يُدفع ⇒ لا يُعاد إنتاجُه
     except Exception:

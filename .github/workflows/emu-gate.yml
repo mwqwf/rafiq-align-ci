@@ -416,6 +416,22 @@ jobs:
               print(f"| {s} · تتبّع | {a['scored']} | — | دقّة {a['accuracy']*100:.2f}٪ |")
           PYJ
           fi
+          # 📏⭐ **وذراعُ المفتاح تُقاس في نتيجة شوطها لا في قراءةٍ أخرى** (‏ثغرةٌ ظهرت في
+          #    الشوط `34785256877`): وضعُ الضابط يطبع أرقامَ **الذراع المشحونة وحدَها**، فشوطٌ
+          #    كلُّ غرضِه ذراعُ مفتاحٍ (`arm2_tag`) يخرج بنتيجةٍ **لا أثرَ للمفتاح فيها**
+          #    ⇒ مَن قرأ `results/LATEST_emu.md` لم يعلم أنّ تجربةً وقعت. والجدولُ من
+          #    `read_tables.py` **المختبَر** (‏فرقٌ زوجيٌّ ومجالٌ وتفصيلٌ بالرواية).
+          A2="${{ inputs.arm2_tag }}"; T2="${{ inputs.cand_tag }}"
+          PAIR=""
+          if [ -n "$A2" ]; then PAIR="shipped$SUF $A2$SUF";
+          elif [ -n "$T2" ]; then PAIR="shipped$SUF $T2-ar$SUF"; fi
+          if [ -n "$PAIR" ]; then
+            STAGS="$(echo "${{ inputs.sets }}" | tr ',:' ' -')"
+            { echo; echo "## 📏 دقّةُ التتبّع — الذراعان على البنود عينِها (‏\`$PAIR\`)"; echo; } >> "$M"
+            python read_tables.py track --arms "$PAIR" --sets "$STAGS" --dir work >> "$M"               || echo "⚠️ تعذّر جدولُ التتبّع (يُقال ولا يُكتَم)" >> "$M"
+            { echo; echo "## 🛡️ حارسُ «ذراعان متطابقتان» (‏على النصّ)"; echo; } >> "$M"
+            python read_tables.py identical --arms "$PAIR" --dir work >> "$M"               || echo "⚠️ تعذّر حارسُ التطابق (يُقال ولا يُكتَم)" >> "$M"
+          fi
           { echo "### 📱 emu-gate (المحركُ داخل محاكي العدّاء)"; cat "$M"; } >> "$GITHUB_STEP_SUMMARY"
       - name: رفعٌ إلى R2
         run: |
