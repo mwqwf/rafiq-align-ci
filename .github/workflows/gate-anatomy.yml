@@ -79,15 +79,15 @@ jobs:
           cat "$GITHUB_ENV"
       - name: تنزيلُ فرضيّات الشوط من R2 العامّ (‏بلا مفتاح)
         run: |
-          cd tools/tasmi_bench && mkdir -p work_anatomy && rm -f work_anatomy/*.json
+          cd tools/tasmi_bench && mkdir -p work && rm -f work/hyps_emu_*.json
           n=0
           for s in $SETS; do
             for a in $ARMS; do
               f="hyps_emu_${s}_cap_${a}.json"
               [ "$CHAIN" = "cap" ] || f="hyps_emu_${s}_${CHAIN}_${a}.json"
               u="$PUB/finetune/gate/$TAG/emu_$f"
-              if curl -fsS --retry 3 -o "work_anatomy/$f" "$u"; then
-                echo "✅ $f ($(wc -c < "work_anatomy/$f") بايتاً)"; n=$((n+1))
+              if curl -fsS --retry 3 -o "work/$f" "$u"; then
+                echo "✅ $f ($(wc -c < "work/$f") بايتاً)"; n=$((n+1))
               else
                 # ⚠️ والغائبُ يُسمّى بعنوانه: «لا تشريح» بلا اسمِ الملفّ الغائب يُقرأ عطباً في الأداة.
                 echo "⛔ غائبٌ: $u"
@@ -96,19 +96,50 @@ jobs:
           done
           # ⛔ **ذراعٌ واحدةٌ لا تُشرَّح:** التشريحُ فرقٌ بين ذراعَين، و`arms_or_die` يسقط بلا الثانية.
           [ "$n" -ge 2 ] || { echo "⛔ $n ملفاً فقط — والتشريحُ يحتاج ذراعَين على البنود عينِها"; exit 1; }
+      - name: مِن أين جاءت الفرضيّات — **من الملفّ لا من الزناد**
+        env:
+          PYTHONIOENCODING: utf-8
+        run: |
+          cd tools/tasmi_bench
+          # ⛔ **النسبُ يُقرأ من المادّة لا يُفترض من الأمر** (‏2026-09-13): جدولُ `v2_gate` يكتب
+          # «المحرك (المحاكي)» أو «مرآةُ المحرك (whisper-cli)» **بحسب كيف استُدعي** لا بحسب
+          # مصدرِ الفرضيّات ⇒ جدولٌ من فرضيّات محاكٍ قد يُوسَم مرآةً (والعكس)، **والوسمُ الكاذبُ
+          # يُسقط رقماً صحيحاً أو يرفع رقماً لا يُشحن به**. ⇒ تُطبع ترويسةُ كلّ ملفٍّ كما هي.
+          python3 - <<'PY' | tee work/provenance.md
+          import glob, json
+          print("| ملفُّ الفرضيّات | المحرك كما كتبه الشوط | الجهاز | النموذج | الواجهة |")
+          print("|---|---|---|---|---|")
+          for p in sorted(glob.glob("work/hyps_emu_*.json")):
+              m = (json.load(open(p, encoding="utf-8")) or {}).get("meta") or {}
+              fe = m.get("frontEnd")
+              print(f"| `{p.split('/')[-1]}` | {m.get('engine', '⛔ بلا ترويسة')} | "
+                    f"{m.get('device', '—')} | `{m.get('model', '—')}` | `{fe if isinstance(fe, str) else m.get('chain', '—')}` |")
+          PY
+      - name: إعادةُ حساب جدول البوّابة من الفرضيّات نفسِها
+        env:
+          PYTHONIOENCODING: utf-8
+        run: |
+          cd tools/tasmi_bench
+          # ⭐⭐ **ولِمَ يُعاد الحسابُ وقد حُسب في الشوط؟** لأنّ سؤالاً جديداً على شوطٍ مضى كان
+          # يُكلّف **شوطَ محاكٍ جديداً** (‏نصفُ ساعةٍ بذراعَين) وفرضيّاتُه محفوظةٌ في R2 منذ أوّل مرّة.
+          # ⛔ **وقد وقع الثمنُ فعلاً 2026-09-13:** أُشعل الشوط `34743021435` ليقيس `base` ضدّ
+          # المشحون `TINY` وكان **مقيساً في D-349/D-351 بالأرقام عينِها** — والناقصُ لم يكن قياساً
+          # بل **قراءةً** لملفّاتٍ كانت محجوبةً عن الوكيل. ⇒ **فالقراءةُ تصير دقيقةً واحدةً هنا.**
+          python v2_gate.py --score-only --arms $ARMS --md work/gate.md >/dev/null
+          cat work/gate.md
       - name: التشريحُ صنفاً صنفاً
         env:
           PYTHONIOENCODING: utf-8
         run: |
           cd tools/tasmi_bench
           # ⛔ **بمسافةٍ لا بفاصلة:** `--arms` يأخذ اسمَين، ومجلدُ `--dirs` لاحقتُه فارغةٌ
-          # (‏`work_anatomy:`) كي **لا تُقلَّم** لاحقةُ الوسم من أسماء الأذرع.
-          python detect_anatomy.py --dirs "work_anatomy:" --arms $ARMS | tee work_anatomy/anatomy.md
-          { echo "### 🔬 تشريحُ الكشف (‏$TAG)"; cat work_anatomy/anatomy.md; } >> "$GITHUB_STEP_SUMMARY"
+          # (‏`work:`) كي **لا تُقلَّم** لاحقةُ الوسم من أسماء الأذرع.
+          python detect_anatomy.py --dirs "work:" --arms $ARMS | tee work/anatomy.md
+          { echo "### 🔬 تشريحُ الكشف (‏$TAG)"; cat work/anatomy.md; } >> "$GITHUB_STEP_SUMMARY"
       - name: إيداعُ الجدول في المستودع (‏كي يقرأه الوكيلُ السحابيُّ والمالك)
         run: |
           T="$TAG"
-          M="tools/tasmi_bench/work_anatomy/anatomy.md"
+          M="tools/tasmi_bench/work/anatomy.md"
           [ -s "$M" ] || { echo "⛔ لا جدولَ — لا شيءَ يُودَع"; exit 1; }
           mkdir -p results
           OUT="results/anatomy_${T}_${{ github.run_id }}.md"
@@ -118,6 +149,18 @@ jobs:
             echo "- التاريخ: $(date -u +%FT%TZ)"
             echo "- الذراعان: \`$ARMS\` · المجموعات: \`$SETS\` · السلسلة: \`$CHAIN\` · الزناد: \`${{ github.event_name }}\`"
             echo "- المصدر: فرضيّاتُ الشوط من \`finetune/gate/${T}/\` على R2 العامّ"
+            echo
+            echo "## 🧾 نسبُ الفرضيّات (‏من ترويسة كلّ ملفٍّ لا من الزناد)"
+            echo
+            cat tools/tasmi_bench/work/provenance.md
+            echo
+            echo "## ⚖️ جدولُ البوّابة — أُعيد حسابُه من الفرضيّات نفسِها"
+            echo
+            # ⚠️ وترويسةُ `v2_gate` تقول «مرآةُ المحرك» متى مُرِّر `--pattern`؛ وهي هنا **بلا
+            # `--pattern`** فتقول «المحرك (المحاكي)» — والنسبُ الصادقُ في الجدول أعلاه لا فيها.
+            cat tools/tasmi_bench/work/gate.md
+            echo
+            echo "## 🔬 تشريحُ الكشف صنفاً صنفاً"
             echo
             cat "$M"
           } > "$OUT"
