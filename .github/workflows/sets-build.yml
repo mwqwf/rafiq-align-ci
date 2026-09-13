@@ -96,13 +96,19 @@ jobs:
           echo "$rc" > work_sets/rc.txt
           exit "$rc"
 
-      - name: إيداعُ الأثر — ناجحاً كان أو فاشلاً
+      - name: إيداعُ الأثر — في شجرةٍ منفصلةٍ لأنّ البناءَ يُوسِّخ الشجرة
         if: always()
         run: |
           R=$(cat tools/tasmi_bench/work_sets/rc.txt 2>/dev/null || echo 1)
           M="tools/tasmi_bench/work_sets/log.txt"
           [ -s "$M" ] || { echo "⛔ لا أثرَ"; exit 1; }
-          mkdir -p results
+          # ⛔⛔ **ولِمَ شجرةٌ منفصلة — بسببٍ مقيسٍ 2026-09-13:** نجح البناءُ (الخطوة 6) **وسقط
+          # الإيداعُ**، ولا سجلَّ يُقرأ (مضيفُ السجلّات محجوبٌ عن الوكيل) ⇒ فُتِّش في البنية:
+          # هذا المسارُ — وحدَه بين مساراتي — **يُشغّل خطَّ الصوت** فيكتب في الشجرة، و`git merge`
+          # يرفض الدمجَ على شجرةٍ فيها تغييراتٌ تُدهَس. ⇒ فيُنشَر من `git worktree` على
+          # `origin/main` نظيفةً، ولا تُلمس شجرةُ البناء بحال.
+          echo "== حالُ الشجرة قبل النشر (تُسجَّل كي يُقرأ الفشلُ القادمُ لا يُظنّ):"
+          git status --porcelain | head -20
           OUT="results/sets_build_${{ github.run_id }}.md"
           {
             echo "# 🧱 بناءُ مجموعات القياس · الشوط ${{ github.run_id }}"
@@ -113,15 +119,18 @@ jobs:
             echo '```'
             tail -60 "$M"
             echo '```'
-          } > "$OUT"
-          cp "$OUT" results/LATEST_sets_build.md
+          } > /tmp/out.md
           git config user.name "rafiq-ci"
           git config user.email "ci@users.noreply.github.com"
-          git add "$OUT" results/LATEST_sets_build.md
-          git commit -q -m "results(sets-build): الشوط ${{ github.run_id }} · rc=$R" || { echo "لا تغيير"; exit 0; }
           for i in 1 2 3; do
-            git fetch -q origin main && git merge -q --no-edit origin/main && git push -q origin HEAD:main && { echo "✅ أُودع $OUT"; exit 0; }
-            echo "↻ محاولةٌ $i"; sleep 5
+            rm -rf /tmp/pub && git fetch -q origin main && git worktree add -q --detach /tmp/pub origin/main || { echo "↻ شجرةٌ $i"; sleep 5; continue; }
+            mkdir -p /tmp/pub/results
+            cp /tmp/out.md "/tmp/pub/$OUT"
+            cp /tmp/out.md /tmp/pub/results/LATEST_sets_build.md
+            git -C /tmp/pub add "$OUT" results/LATEST_sets_build.md
+            git -C /tmp/pub commit -q -m "results(sets-build): الشوط ${{ github.run_id }} · rc=$R" || { echo "لا تغيير"; exit 0; }
+            git -C /tmp/pub push -q origin HEAD:main && { echo "✅ أُودع $OUT"; exit 0; }
+            echo "↻ دفعٌ $i"; git worktree remove --force /tmp/pub 2>/dev/null; sleep 5
           done
           echo "⛔ تعذّر الدفع"; exit 1
 
