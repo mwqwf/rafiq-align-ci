@@ -162,6 +162,21 @@ def main():
     tools_src = os.path.dirname(a.src)
     for d in ("finetune",):
         pairs.append((d, os.path.join(tools_mir, d), os.path.join(tools_src, d)))
+    # ℹ️ **وحدُّ هذا الحارس يُقال صريحاً**: في المرآة مجلداتٌ أخرى لها أصلٌ هنا
+    # (`alignment*` · `index_qa` · `ci_fleet` · `cloud*`) وهي **مرآةُ مناوبةٍ أخرى** (الفهرسة)
+    # — لا تُفحَص هنا ولا تُلمَس. ⭐ **وتُسمّى كي لا يُقرأ سكوتُ الحارس عنها «لا انحرافَ فيها»**،
+    # فمَن يملكها يضيفها إلى قائمته. (وتُحسب آليّاً فلا تتقادم القائمةُ إن ظهر مجلدٌ جديد.)
+    named = {lbl for lbl, _, _ in pairs}
+    others = []
+    if os.path.isdir(tools_mir) and os.path.isdir(tools_src):
+        for d in sorted(os.listdir(tools_mir)):
+            if d in named or d in IGNORED_DIRS or not os.path.isdir(os.path.join(tools_mir, d)):
+                continue
+            if os.path.isdir(os.path.join(tools_src, d)):
+                others.append(d)
+    if others and not a.only:
+        print("ℹ️ ولا يُفحَص هنا (مرآةُ مناوبةٍ أخرى — وسكوتُنا عنها **ليس** حكماً بسلامتها): "
+              + " · ".join(others))
     rc = 0
     for label, mir, src in pairs:
         if a.only and a.only != label:
