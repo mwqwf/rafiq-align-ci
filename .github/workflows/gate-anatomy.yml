@@ -38,6 +38,14 @@ on:
       - "tools/tasmi_bench/requests/anatomy.json"
 # 🔑 صلاحيّةٌ واحدةٌ: إيداعُ الجدول في المستودع. ⛔ ولا تعليقَ آليّاً في لوحة المتابعة —
 # **المعنى يكتبه الوكيل**، ورقمٌ بلا معناه لا يُرسَل إلى هاتف المالك.
+# 🚦 **صفٌّ لا إلغاء** (‏درسُ 23:06Z · وعلى نمط `arm-threads`):
+# ⛔ **قراءتان معاً تتسابقان على `LATEST_anatomy.md` و`HYPS_INVENTORY.md`** فيصير «الأحدثُ» أقدمَهما
+# (وملفُّ كلِّ شوطٍ باسم رقمه فلا يضيع أثرٌ) ⇒ تُصطفّ. ⭐ ولا `cancel-in-progress`: القراءةُ دقيقةٌ
+# ورقمُها مطلوبٌ، وإلغاؤها يُضيّع سببَ إشعالها.
+concurrency:
+  group: gate-anatomy
+  cancel-in-progress: false
+
 permissions:
   contents: write
 env:

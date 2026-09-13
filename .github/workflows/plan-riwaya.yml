@@ -31,6 +31,13 @@ on:
     paths:
       - "tools/tasmi_bench/requests/plan.json"
 
+# 🚦 **صفٌّ لا إلغاء** (‏درسُ 23:06Z · وعلى نمط `arm-threads`):
+# ⛔⛔ **شوطان معاً يبنيان الخطّةَ على قاعدةٍ واحدةٍ ثمّ يدفعان** فيصير التوسيعُ الفائقُ فائقاً على
+# **قاعدةٍ متقادمة** (حارسُ الفوقيّة يقيس على ما استُنسخ لا على ما في `main` لحظةَ الدفع) ⇒ تُصطفّ.
+concurrency:
+  group: plan-riwaya
+  cancel-in-progress: false
+
 permissions:
   contents: write
 
