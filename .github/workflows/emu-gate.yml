@@ -113,6 +113,11 @@ jobs:
           BU="${{ github.event.inputs.base_url }}"
           [ -z "$BU" ] && BU="$PUB/models/whisper-tiny-ar-quran/ggml-q8_0.bin"
           echo "⬇️ خطُّ الأساس: $BU"
+          if [ -n "${{ github.event.inputs.base_url }}" ]; then
+            W="⚠️ **خطُّ الأساس ليس المشحون**: ذراعُ \`shipped\` في هذا الشوط هي $BU"
+            echo "$W" | tee work_baseline.txt >> "$GITHUB_STEP_SUMMARY" || echo "$W" > work_baseline.txt
+            echo "$W"
+          fi
           curl -sSL -f --retry 4 --retry-delay 5 --retry-all-errors -A "$UA" -o models/shipped.bin "$BU"
           if [ -n "${{ github.event.inputs.cand_tag }}" ]; then
             CU="${{ github.event.inputs.cand_url }}"
