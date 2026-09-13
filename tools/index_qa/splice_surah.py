@@ -134,7 +134,8 @@ def main() -> None:
         before_out = [e for e in entries
                       if int(e["ayahId"].split(":")[0]) not in surahs]
         if not surahs:
-            sys.exit("⛔ لم تُحلّ سورةٌ واحدة — لا شيءَ يُستبدل")
+            why = " · ".join(skipped) if skipped else "لا سببَ مسجَّل"
+            sys.exit(f"⛔ لم تُحلّ سورةٌ واحدة — لا شيءَ يُستبدل ({why})")
     merged = before_out + new_rows
     merged.sort(key=lambda e: (int(e["ayahId"].split(":")[0]),
                                int(e["ayahId"].split(":")[1])))
