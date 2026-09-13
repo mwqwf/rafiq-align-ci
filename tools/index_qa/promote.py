@@ -479,15 +479,25 @@ def bucket_reports(cl, bucket):
 # ⛔ **بصمةُ أداةِ الفحص شرطٌ في حكمها** (‏D-175). الإيداعُ `9ffb957` أصلح
 #    التبرئةَ الكاذبة، وما قبله لا يشهد. **ولا يُقاس بالزمن**: الساعةُ تكذب
 #    (‏فروقُ مناطق، وآلاتٌ تُشغّل نسخةً قديمةً بعد الإصلاح)، **والبصمةُ لا تكذب**.
+# ⛔⛔ **عطبٌ مقيسٌ 2026-09-13**: هذا الملفُّ يعيش في `rafiq-align-ci`، وتاريخُ
+#    الإيداعَين `9ffb957`/`df25676` **في `QuranRafiq` لا هنا** — فسؤالُ
+#    `git log 9ffb957..HEAD` على شجرة هذا المستودع يفشل دائماً (مراجعةٌ
+#    مجهولة)، فيبقى `OPENERS_TRUSTED` فارغاً إلى الأبد ويُرفض **كلُّ** فحصِ
+#    مطالعَ مهما تجدَّد (‏وقع فعلاً على `darweez`/`akri_qalun` رغم إعادة مسحٍ
+#    كاملة). والسندُ الصحيحُ الذي تركه واضعُ `openers_scan.py` بنصّه (تعليقُه
+#    فوق `SOURCE_COMMIT` هناك) هو ملفٌّ ثابتٌ **مولَّدٌ سلفاً من تاريخ
+#    `QuranRafiq` نفسِه**: `tools/index_qa/openers_trusted.txt` — وهو موجودٌ
+#    فعلاً (520 بصمة، جُدِّد 06:19Z اليوم) **ويحوي `df25676` بصريح لفظه**،
+#    ولم يكن هذا الملفُّ يقرأه قطّ. ⇒ يُقرأ الآن من مصدره الصحيح.
 OPENERS_FIX_COMMIT = "9ffb957"
-OPENERS_TRUSTED = set()                # يُملأ من `git log` عند أوّل سؤال
+OPENERS_TRUSTED = set()                # يُملأ من openers_trusted.txt عند أوّل سؤال
 
 
 def openers_tool_ok(op):
     """أصدر هذا الحكمَ فاحصٌ **بعد** إصلاح التبرئة الكاذبة؟
 
-    ⛔ **والتعذّرُ ليس حكماً في الاتجاهين**: إن تعذّر سؤالُ `git` (مستودعٌ
-    ناقص، أو تشغيلٌ خارج الشجرة) **لا نُبرّئ الأداةَ المجهولة ولا ندين
+    ⛔ **والتعذّرُ ليس حكماً في الاتجاهين**: إن تعذّر قراءةُ قائمة الثقة
+    (‏ملفٌّ ناقص، أو تشغيلٌ خارج الشجرة) **لا نُبرّئ الأداةَ المجهولة ولا ندين
     الصحيحة** — بل يُمنع الاعتدادُ بالحكم ويُعاد المسح، **فالمسحُ رخيصٌ
     والتبرئةُ الكاذبة غالية**.
     """
@@ -498,16 +508,11 @@ def openers_tool_ok(op):
         return False                   # حكمٌ بلا بصمةِ أداةٍ لا يشهد
     global OPENERS_TRUSTED             # noqa: PLW0603
     if not OPENERS_TRUSTED:
-        import subprocess
         try:
-            out = subprocess.run(
-                ["git", "-C", str(Path(__file__).resolve().parents[2]), "log",
-                 "--format=%h", f"{OPENERS_FIX_COMMIT}..HEAD"],
-                capture_output=True, text=True, encoding="utf-8",
-                errors="replace", timeout=60)
-            if out.returncode == 0:
-                OPENERS_TRUSTED = {x.strip() for x in out.stdout.split() if x.strip()}
-                OPENERS_TRUSTED.add(OPENERS_FIX_COMMIT)
+            p = Path(__file__).resolve().with_name("openers_trusted.txt")
+            OPENERS_TRUSTED = {ln.strip() for ln in
+                               p.read_text(encoding="utf-8").splitlines() if ln.strip()}
+            OPENERS_TRUSTED.add(OPENERS_FIX_COMMIT)
         except Exception:              # noqa: BLE001
             OPENERS_TRUSTED = set()
     if not OPENERS_TRUSTED:
