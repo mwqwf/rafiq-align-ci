@@ -6,9 +6,9 @@
   "sets": "g3r:noisy,g3r:clean,g1",
   "chain": "cap",
   "chunk": "12",
-  "tag_suffix": "-F",
-  "arm2_tag": "nogate",
+  "tag_suffix": "-G",
+  "arm2_tag": "cap25",
   "arm2_es": "",
-  "arm2_ez": "noiseGate=false",
-  "arm2_ei": ""
+  "arm2_ez": "",
+  "arm2_ei": "groupCap=25"
 }
