@@ -218,13 +218,21 @@ jobs:
           print(f"**{n}** ملفَّ فرضيّاتٍ في **{len(tags)}** وسماً · وآخرُ تحديثٍ لكلِّ وسمٍ في العمود الأخير.\n")
           print("⭐ **وقبل أيّ شوطٍ جديد:** إن كانت ذراعاك في وسمٍ واحدٍ هنا فـ**ادفعْ طلبَ "
                 "`gate-anatomy`** (دقيقة) ولا تُشعل محاكياً (نصف ساعة) — درسُ D-365.\n")
-          print("| الوسم | المجموعات | الأذرع | آخرُ تحديث |")
+          # ⛔ **والأذرعُ تُسرد لكلِّ مجموعةٍ على حدة:** وسمٌ فيه `g1` و`g3r` بأذرعٍ **مختلفة**
+          # يُقرأ خطأً لو جُمعت أذرعُه في خانةٍ واحدة — فيُطلب زوجٌ لا وجودَ له في تلك المجموعة
+          # فيسقط الشوطُ أو يُقاس على نصف عيّنة. **فالجردُ يُجيب بلا حدس.**
+          print("| الوسم | المجموعة | الأذرع المحفوظة | آخرُ تحديثٍ للوسم |")
           print("|---|---|---|---|")
           for tag in sorted(tags):
-              sets = sorted(tags[tag])
-              arms = sorted({a for st in tags[tag].values() for a in st})
-              print(f"| `{tag}` | {' · '.join('`'+x+'`' for x in sets)} | "
-                    f"{' · '.join('`'+x+'`' for x in arms)} | {when.get(tag,'—')} |")
+              for st in sorted(tags[tag]):
+                  arms = sorted(tags[tag][st])
+                  print(f"| `{tag}` | `{st}` | {' · '.join('`'+x+'`' for x in arms)} | {when.get(tag,'—')} |")
+          # 🧹 وخانةٌ تُسهّل أكثرَ ما نحتاجه: أوسمةٌ فيها **زوجٌ في `g1` النظيفة**.
+          pairs = [(t, sorted(tags[t]["g1"])) for t in sorted(tags) if len(tags[t].get("g1", ())) >= 2]
+          if pairs:
+              print("\n**🧹 وأوسمةٌ تُقاس فيها الزوائدُ الكاذبةُ على تلاوةٍ نظيفة (‏`g1` بذراعَين):**\n")
+              for t, arms in pairs:
+                  print(f"- `{t}`: {' · '.join('`'+x+'`' for x in arms)}")
           PY
           mkdir -p results && cp /tmp/inv.md results/HYPS_INVENTORY.md
           cat results/HYPS_INVENTORY.md >> "$GITHUB_STEP_SUMMARY"
