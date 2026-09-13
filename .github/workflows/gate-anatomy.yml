@@ -90,17 +90,29 @@ jobs:
         run: |
           cd tools/tasmi_bench && mkdir -p work && rm -f work/hyps_emu_*.json
           n=0
+          # ⛔⛔ **والسلسلةُ تُجرَّب لكلّ ذراعٍ على حدة** (‏أُصلح 2026-09-13): ذراعان في الدلو على
+          #     `g4n` — أصعبِ خليّةٍ نعرفها — محفوظتان بـ`caponly` و`gateonly`، وكان الطلبُ
+          #     يبني الاسمَ بسلسلةٍ **واحدةٍ لكلّ الأذرع** ⇒ **لا تُقرآن أبداً** ولو طُلبتا،
+          #     فيُظَنّ أنّ الفرضيّاتَ غائبةٌ من R2 وتُشعَل نصفُ ساعةِ محاكٍ على قياسٍ موجود.
+          #     ⇒ تُجرَّب السلسلةُ المطلوبةُ أوّلاً ثمّ سائرُ السلاسل ثمّ **بلا سلسلة**، ويُقال
+          #     بأيّها قُرئت — فمقارنةُ ذراعٍ بسلسلةٍ بأخرى بسلسلةٍ **قرارٌ يُرى لا يُخفى**.
           for s in $SETS; do
             for a in $ARMS; do
-              f="hyps_emu_${s}_cap_${a}.json"
-              [ "$CHAIN" = "cap" ] || f="hyps_emu_${s}_${CHAIN}_${a}.json"
-              u="$PUB/finetune/gate/$TAG/emu_$f"
-              if curl -fsS --retry 3 -o "work/$f" "$u"; then
-                echo "✅ $f ($(wc -c < "work/$f") بايتاً)"; n=$((n+1))
-              else
-                # ⚠️ والغائبُ يُسمّى بعنوانه: «لا تشريح» بلا اسمِ الملفّ الغائب يُقرأ عطباً في الأداة.
-                echo "⛔ غائبٌ: $u"
-              fi
+              got=""
+              for c in "$CHAIN" cap caponly gateonly chain gate lvl __none__; do
+                [ -n "$c" ] || continue
+                if [ "$c" = "__none__" ]; then f="hyps_emu_${s}_${a}.json"; else f="hyps_emu_${s}_${c}_${a}.json"; fi
+                u="$PUB/finetune/gate/$TAG/emu_$f"
+                if curl -fsS --retry 2 -o "work/$f" "$u"; then
+                  got="$f"
+                  if [ "$c" = "$CHAIN" ]; then echo "✅ $f ($(wc -c < "work/$f") بايتاً)";
+                  else echo "✅ $f — ⚠️ **بسلسلةٍ غيرِ المطلوبة** (‏$c لا $CHAIN) فيُقرأ ذلك في الجدول"; fi
+                  n=$((n+1)); break
+                fi
+                rm -f "work/$f"
+              done
+              # ⚠️ والغائبُ يُسمّى بعنوانه: «لا تشريح» بلا اسمِ الملفّ الغائب يُقرأ عطباً في الأداة.
+              [ -n "$got" ] || echo "⛔ غائبٌ بكلّ سلسلة: $PUB/finetune/gate/$TAG/emu_hyps_emu_${s}_*_${a}.json"
             done
           done
           # ⛔ **ذراعٌ واحدةٌ لا تُشرَّح:** التشريحُ فرقٌ بين ذراعَين، و`arms_or_die` يسقط بلا الثانية.
