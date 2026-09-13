@@ -260,118 +260,23 @@ jobs:
           # بل **قراءةً** لملفّاتٍ كانت محجوبةً عن الوكيل. ⇒ **فالقراءةُ تصير دقيقةً واحدةً هنا.**
           python v2_gate.py --score-only --arms $ARMS --md work/gate.md >/dev/null
           cat work/gate.md
-      - name: 📏 دقّةُ التتبّع للمجموعات المطلوبة — **للذراعَين على البنود عينِها**
+      - name: 📏 دقّةُ التتبّع للمجموعات المطلوبة — **للذراعَين على البنود عينِها وبالرواية**
         env:
           PYTHONIOENCODING: utf-8
         run: |
           cd tools/tasmi_bench
-          # ⭐ **لِمَ أُضيف (‏2026-09-13):** جدولُ `v2_gate --score-only` يقيس مجموعاتِه المبنيّةَ
-          # فيه (‏`g3r` و`g1` و`g2`) **ولا يرى `g4*` البتّة**، وأرقامُ التلاوة الطويلة كانت تُحسب
-          # في **شوط المحاكي** وحدَه ⇒ فذراعٌ محفوظةٌ على `g4n` **لا سبيلَ لقراءتها بلا شوطٍ
-          # جديد**، وفي الدلو ذراعان كذلك لم يُقرأ لهما رقمٌ قطّ (D-341: «كلُّ مفتاحٍ يُقاس على
-          # `g4n` قبل أن يُقرَّر فيه شيء»). ⇒ يُحسب هنا **بالمسطرة نفسِها** التي يستعملها الحكمُ
-          # في الشوط (`pool_items` + `score.run(..., "proposed")` + `_boot_diff`).
-          python3 - <<'PY' | tee work/track.md
-          import os, sys
-          sys.path.insert(0, ".")
-          sys.path.insert(0, os.path.join("..", "alignment"))
-          import v2_gate as G, score as SC
-          arms = os.environ["ARMS"].split()
-          sets = os.environ["SETS"].split()
-          def colon(x):
-              return x if (x.startswith("g1") or x.startswith("g4")) else x.replace("-", ":", 1)
-          pool = G.pool_items()
-          print(f"| المجموعة | ن | `{arms[0]}` | `{arms[1]}` | الفرقُ الزوجيّ | مجال 95٪ |")
-          print("|---|---:|---:|---:|---:|---:|")
-          for raw in sets:
-              st = colon(raw)
-              hs = [G.load_hyps(st, a) for a in arms]
-              if not all(hs):
-                  print(f"| `{raw}` | — | — | — | ⛔ فرضيّاتٌ ناقصةٌ لإحدى الذراعَين | — |")
-                  continue
-              ids = sorted(set(hs[0]) & set(hs[1]))
-              items = [it for it in pool if it["id"] in ids]
-              if not items:
-                  # ⛔ بلا مرجعٍ لا رقمَ — ولا يُقرأ الصمتُ صفراً (‏درسُ `pool_items`).
-                  # ⭐ **والسببُ يُسمّى لا يُعمَّم:** مجموعاتُ الحقن (`g3`/`g3r`) مرجعُها **خطّةُ
-                  #    الحقن** لا عيّنةَ التتبّع، وحكمُها «اتّهامٌ كاذبٌ وكشفٌ» في جدول البوّابة
-                  #    أعلاه — **فليست ناقصةَ مرجعٍ بل مقيسةً بمسطرةٍ أخرى**. وقولُ «بلا مرجع»
-                  #    لها يُقرأ عطباً وهو ليس عطباً.
-                  why = ("⛔ **مجموعةُ حقنٍ: حكمُها في جدول البوّابة أعلاه** (‏اتّهامٌ كاذبٌ وكشفٌ) "
-                         "لا في دقّة التتبّع" if raw.startswith(("g3", "g3r"))
-                         else "⛔ **بلا مرجعٍ في العيّنة والخطّة**")
-                  print(f"| `{raw}` | {len(ids)} | — | — | {why} | — |")
-                  continue
-              res = [SC.run(items, h, "proposed") for h in hs]
-              agg = [SC.aggregate(r) for r in res]
-              by = {}
-              for k, r in enumerate(res):
-                  for row in r:
-                      if row["ok"]:
-                          by.setdefault(row["id"], {})[k] = (row["correct"], row["total"])
-              pairs = [(v[0][0], v[0][1], v[1][0], v[1][1]) for v in by.values() if 0 in v and 1 in v]
-              lo, hi, pup = G._boot_diff(pairs)
-              d = (agg[1]["accuracy"] - agg[0]["accuracy"]) * 100
-              print(f"| `{raw}` | {len(pairs)} | {agg[0]['accuracy']*100:.2f}٪ | "
-                    f"**{agg[1]['accuracy']*100:.2f}٪** | **{d:+.2f}** | "
-                    f"[{lo*100:+.2f} .. {hi*100:+.2f}] · ارتفاعٌ {pup*100:.0f}٪ |")
-              # 🕌 **وبالرواية أيضاً — وهي بُعدُ أكثرِ قراراتنا** (‏D-417/D-423: `TINY_V2` لورشٍ
-              #    وقالون، والحكمُ فيها **بالرواية لا بالمضمومة**): المضمومةُ تُخفي روايةً تخسر
-              #    وأخرى تكسب. ⚠️ ومجالُ الرواية الواحدة **أوسعُ** (عيّنتُها أصغر) فلا يُقرأ
-              #    ضيقُ المضمومة عليها.
-              riw = {}
-              for it in items:
-                  v = by.get(it["id"])
-                  if v and 0 in v and 1 in v:
-                      riw.setdefault(it.get("riwaya", "—"), []).append(
-                          (v[0][0], v[0][1], v[1][0], v[1][1]))
-              for r in sorted(riw):
-                  ps = riw[r]
-                  ca = sum(x[0] for x in ps); ta = sum(x[1] for x in ps) or 1
-                  cb = sum(x[2] for x in ps); tb = sum(x[3] for x in ps) or 1
-                  l2, h2, p2 = G._boot_diff(ps)
-                  print(f"| ↳ `{raw}` · {r} | {len(ps)} | {ca/ta*100:.2f}٪ | "
-                        f"**{cb/tb*100:.2f}٪** | **{(cb/tb - ca/ta)*100:+.2f}** | "
-                        f"[{l2*100:+.2f} .. {h2*100:+.2f}] · ارتفاعٌ {p2*100:.0f}٪ |")
-          print("\n⚠️ **والفرقُ يُقرأ بمجاله لا بمقداره** — ومجالٌ يعبر الصفرَ «لا يُعتدّ به» "
-                "لا «لا فرق»، ومجالٌ صفريُّ العرض **إعلانُ أنّ الذراعَين متطابقتان** (D-380).")
-          PY
+          # ⭐ **لِمَ هنا وليس في شوط المحاكي:** جدولُ `v2_gate --score-only` يقيس مجموعاتِه
+          #    المبنيّةَ فيه ولا يرى `g4*` البتّة ⇒ ذراعٌ محفوظةٌ على `g4n` لا تُقرأ بلا شوطٍ
+          #    جديد. والمنطقُ في `read_tables.py` **مختبَراً** (‏`--selftest`) لا مضمَّناً.
+          python read_tables.py track --arms "$ARMS" --sets "$SETS" --dir work | tee work/track.md
       - name: 🛡️ حارسُ «ذراعان متطابقتان» — على **النصّ** لا على المجال
         env:
           PYTHONIOENCODING: utf-8
         run: |
           cd tools/tasmi_bench
-          # ⭐ **لِمَ أُضيف (‏2026-09-13):** قراءةُ `shipped-Ncap25` جاءت **+0.00 بمجالٍ صفريِّ
-          # العرض** — وهي بلغةِ D-380 «إعلانُ أنّ الذراعَين متطابقتان» لا نتيجةَ قياس. لكنّ
-          # ذلك **استنتاجٌ من الأرقام**، والحقيقةُ في النصّ نفسِه ⇒ يُقارَن بنداً بنداً فيُقال
-          # **تطابقٌ محقَّقٌ** أو **فرقٌ حقيقيّ**. ⛔ ولا يُسقط الشوطَ: التطابقُ **نتيجةٌ تُكتب**
-          # (مفتاحٌ لم ينعقد) لا عطبٌ يُخفى. (‏ونظيرُه في `ci_emu_run.sh` يمنع كتابةَ رقمٍ كاذبٍ
-          # قبل أن يُولد؛ وهذا يمنع **قراءتَه** بعد أن وُلد.)
-          python3 - <<'PY' | tee work/identical.md
-          import glob, json, os
-          arms = os.environ["ARMS"].split()
-          rows = []
-          for f in sorted(glob.glob(f"work/hyps_emu_*_{arms[0]}.json")):
-              st = os.path.basename(f)[len("hyps_emu_"):-len(f"_{arms[0]}.json")]
-              g = [x for x in glob.glob(f"work/hyps_emu_*_{arms[1]}.json")
-                   if os.path.basename(x).split("_")[2] == st.split("_")[0]]
-              if not g:
-                  continue
-              a = (json.load(open(f, encoding="utf-8")) or {}).get("hyps", {})
-              b = (json.load(open(g[0], encoding="utf-8")) or {}).get("hyps", {})
-              ids = sorted(set(a) & set(b))
-              same = sum(1 for i in ids if (a[i] or {}).get("text") == (b[i] or {}).get("text"))
-              rows.append((st.split("_")[0], len(ids), same))
-          if rows:
-              print("| المجموعة | بنودٌ مشتركة | **نصٌّ متطابقٌ حرفاً** | الحكم |")
-              print("|---|---:|---:|---|")
-              for st, n, same in rows:
-                  v = ("⛔⛔ **الذراعان نسختان** — المفتاحُ لم ينعقد" if n and same == n
-                       else ("⚠️ تطابقٌ جزئيّ" if same else "✅ فرقٌ حقيقيٌّ في النصّ"))
-                  print(f"| `{st}` | {n} | {same} | {v} |")
-              print("\n⭐ **وهذا يُقرأ قبل أيّ فرق:** صفرٌ بمجالٍ صفريِّ العرض ليس «لا أثرَ "
-                    "للمفتاح» بل **«لم تقع التجربةُ»** (D-380) — والتمييزُ بينهما في النصّ لا في المجال.")
-          PY
+          # ⭐ المنطقُ في `read_tables.py` (‏وله `--selftest`) لا مضمَّناً هنا: شفرةُ YAML
+          #    **لا يفحصها حارسُ المرآة ولا تُختبر** ⇒ وثغرةُ الجرد المضمَّن كانت من هذا الجنس.
+          python read_tables.py identical --arms "$ARMS" --dir work | tee work/identical.md
       - name: التشريحُ صنفاً صنفاً
         env:
           PYTHONIOENCODING: utf-8
