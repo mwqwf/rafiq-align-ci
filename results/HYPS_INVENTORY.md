@@ -1,6 +1,6 @@
 # 🧾 جردُ الفرضيّات المحفوظة (‏ما يُقرأ بدقيقةٍ بلا شوطِ محاكٍ)
 
-**115** ملفَّ فرضيّاتٍ في **14** وسماً · وآخرُ تحديثٍ لكلِّ وسمٍ في العمود الأخير.
+**117** ملفَّ فرضيّاتٍ في **14** وسماً · وآخرُ تحديثٍ لكلِّ وسمٍ في العمود الأخير.
 
 ⭐ **وقبل أيّ شوطٍ جديد:** إن كانت ذراعاك في وسمٍ واحدٍ هنا فـ**ادفعْ طلبَ `gate-anatomy`** (دقيقة) ولا تُشعل محاكياً (نصف ساعة) — درسُ D-365.
 
@@ -34,8 +34,9 @@
 | `v2` | `g1` | `shipped` · `v2` | 09-12 10:30 |
 | `v2` | `g3r-noisy` | `shipped` · `v2` | 09-12 10:30 |
 | `v2-acc-B` | `g2-noise-fan-5` | `shipped-B` · `v2-acc-B-ar-B` | 09-13 10:50 |
-| `v2-acc-riwaya` | `g3r-clean` | `shipped-C` · `v2-acc-riwaya-ar-C` | 09-13 10:52 |
-| `v2-acc-riwaya` | `g3r-noisy` | `shipped-C` · `v2-acc-riwaya-ar-C` | 09-13 10:52 |
+| `v2-acc-riwaya` | `g1` | `shipped-C` · `v2-acc-riwaya-ar-C` | 09-13 10:55 |
+| `v2-acc-riwaya` | `g3r-clean` | `shipped-C` · `v2-acc-riwaya-ar-C` | 09-13 10:55 |
+| `v2-acc-riwaya` | `g3r-noisy` | `shipped-C` · `v2-acc-riwaya-ar-C` | 09-13 10:55 |
 | `v2-vs-tiny` | `g3r-clean` | `shipped-W` · `v2-vs-tiny-ar-W` | 09-13 06:17 |
 | `v2-vs-tiny` | `g3r-noisy` | `shipped-W` · `v2-vs-tiny-ar-W` | 09-13 06:17 |
 | `v2-vs-tiny-240` | `g3r-clean` | `shipped-V240` · `v2-vs-tiny-240-ar-V240` | 09-13 08:06 |
@@ -58,6 +59,7 @@
 - `shipped`: `shipped` · `shipped-b3` · `shipped-b5` · `shipped-base` · `shipped-dg` · `shipped-dgT` · `shipped-j` · `shipped-jcp` · `shipped-m4` · `shipped-m4cp` · `shipped-offT`
 - `tinyv2`: `shipped` · `tinyv2-ar`
 - `v2`: `shipped` · `v2`
+- `v2-acc-riwaya`: `shipped-C` · `v2-acc-riwaya-ar-C`
 - `v3`: `shipped-ar` · `shipped-en` · `v3-ar` · `v3-en`
 - `v4`: `shipped` · `v4-ar`
 - `v5`: `shipped` · `v5-ar`
