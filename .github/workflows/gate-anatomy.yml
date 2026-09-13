@@ -160,6 +160,49 @@ jobs:
               print(f"📜 {len(items)} بنداً طويلاً لها مرجعٌ الآن")
           PY
           echo "CLEAN_OK=$([ -n "$CA" ] && echo 1 || echo 0)" >> "$GITHUB_ENV"
+      - name: 📜 مرجعُ التلاوة الطويلة — يُعاد بناؤه **ويُصدَّق** إن لم يكن محفوظاً
+        env:
+          PYTHONIOENCODING: utf-8
+        run: |
+          cd tools/tasmi_bench
+          # ⭐ **لِمَ هذه الخطوة (‏وُجدت حاجتُها 2026-09-13):** في الدلو ذراعان على `g4n` — أصعبِ
+          # خليّةٍ نعرفها (‏`shipped-Nnogate` بلا بوّابةِ ضجيج · `shipped-Ncap25` بسقفِ 25) —
+          # **ولم يُقرأ لهما رقمٌ قطّ**، مع أنّ D-341 تقول: «كلُّ مفتاحٍ يُقاس على `g4n` قبل أن
+          # يُقرَّر فيه شيء». وسببُ تعذُّر قراءتهما أنّ مرجعَ بنود `g4*` (`long_plan.json`)
+          # **لم يكن يُرفع مع الفرضيّات** قبل إصلاح اليوم ⇒ فيُعاد بناؤه هنا **بالبذرة نفسِها**.
+          case "$SETS" in *g4*) ;; *) echo "ℹ️ لا مجموعةَ `g4` في الطلب — لا مرجعَ يُبنى"; exit 0 ;; esac
+          if [ -s work/long_plan.json ]; then
+            echo "✅ الخطّةُ محفوظةٌ مع الفرضيّات ⇒ لا تُبنى ثانيةً — **والمحفوظُ أصدقُ من المُعاد**"
+            exit 0
+          fi
+          sudo apt-get install -y -qq ffmpeg > /dev/null 2>&1 || true
+          pip install -q numpy soundfile || true
+          python build_long.py --ayahs 6 2>&1 | tail -3 || echo "⚠️ تعذّر بناءُ المرجع (يُقال ولا يُكتَم)"
+          # ⛔⛔ **ولا يُقبل مرجعٌ مُعادٌ حتى تُصدَّق معرّفاتُه:** بنيةُ البناء عشوائيّةٌ ببذرةٍ
+          #     ثابتة، فإن تبدّل صوتٌ أو شفرةٌ تبدّلت البنود ⇒ **مرجعٌ لبندٍ غيرِ الذي قِيس =
+          #     رقمٌ كاذبٌ لا نقصٌ معلَن**. فإن نقص معرّفٌ واحدٌ **تُحذف الخطّةُ** ويُقرأ الجدولُ
+          #     «بلا مرجع» — وهو نقصٌ يُرى، والكاذبُ لا يُرى.
+          python3 - <<'PY'
+          import glob, json, os, sys
+          p = "work/long_plan.json"
+          plan = json.load(open(p, encoding="utf-8")) if os.path.exists(p) else {"items": []}
+          ids = {i["id"] for i in plan.get("items", [])}
+          hyp = set()
+          for f in glob.glob("work/hyps_emu_g4*.json"):
+              hyp |= set((json.load(open(f, encoding="utf-8")) or {}).get("hyps", {}))
+          if not hyp:
+              print("ℹ️ لا فرضيّاتِ `g4` نُزّلت — لا شيءَ يُصدَّق"); sys.exit(0)
+          miss = sorted(hyp - ids)
+          print(f"📜 خطّةٌ مُعادةٌ: {len(ids)} بنداً · وفرضيّاتٌ {len(hyp)} بنداً · "
+                f"مطابَقةٌ {len(hyp) - len(miss)}/{len(hyp)}")
+          if miss:
+              os.path.exists(p) and os.remove(p)
+              print(f"⛔⛔ **{len(miss)} معرّفاً في الفرضيّات ولا مرجعَ له في الخطّة المُعادة** "
+                    f"(‏أوّلُها: {' · '.join(miss[:4])}) ⇒ **حُذفت الخطّةُ**: نقصٌ معلَنٌ خيرٌ من "
+                    "رقمٍ على مرجعٍ ليس مرجعَه.")
+          else:
+              print("✅ كلُّ معرّفٍ في الفرضيّات له مرجعُه ⇒ الخطّةُ المُعادةُ **مصدَّقة**")
+          PY
       - name: مِن أين جاءت الفرضيّات — **من الملفّ لا من الزناد**
         env:
           PYTHONIOENCODING: utf-8
