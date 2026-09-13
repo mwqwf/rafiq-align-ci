@@ -59,45 +59,75 @@ jobs:
           PY
           cat "$GITHUB_ENV"
 
-      - name: سحبُ السجلّ وإيداعُ ذيله
+      # ⛔⛔ **أداةٌ تشخيصيّةٌ لا تُشخّص نفسَها لا تُصلح شيئاً** — سقطت هذه ثلاثاً بلا أثرٍ يُقرأ
+      # (‏34757235622 · 34759342372 · 34759393066) وأنا أُخمّن سببَها. ⇒ صارت تكتب كلَّ خطوةٍ
+      # في ملفٍّ **ويُودَع ولو سقطت** (‏نمطُ `sets-build` المُجرَّب) ⇒ الفشلُ القادمُ يُقرأ لا يُظنّ.
+      - name: سحبُ السجلّ — والأثرُ يُسجَّل كلُّه
+        id: fetch
+        continue-on-error: true
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          set -e
-          API="https://api.github.com/repos/${{ github.repository }}/actions/runs/$RUN_ID"
-          # ⛔ والحالةُ تُقرأ أوّلاً: سجلُّ شوطٍ لم ينتهِ **ناقصٌ** فلا يُقرأ حكماً.
-          curl -fsS -H "Authorization: Bearer $GH_TOKEN" "$API" -o run.json
-          # ⛔⛔ **ولا heredoc داخلَ كتلةٍ أو قوسَين — بسببٍ مقيسٍ اليومَ:** YAML يُزيل الإزاحةَ
-          # **الأساسَ** وحدَها، فأيُّ إزاحةٍ زائدةٍ تمنع إغلاقَ الـheredoc فيبتلع ما بعده
-          # (‏ومنه توجيهُ الأثر إلى ملفّه) ⇒ سقط شوطان بلا أثرٍ يُقرأ (‏34756599249 · 34756706486
-          # · 34757235622). ⇒ **تُكتب سطورُ بايثون في ملفٍّ مستقلٍّ ثمّ تُقرأ بـ`cat`.**
-          python3 - <<'PY' > head.md
-          import json
-          d = json.load(open("run.json", encoding="utf-8"))
-          print(f"- الشوطُ المقروء: `{d['name']}` · {d['status']} · **{d.get('conclusion')}**")
-          print(f"- حالتُه عند السحب: `{d['status']}` · خلاصتُه: **{d.get('conclusion')}**")
-          PY
-          cat head.md
-          curl -fsSL -H "Authorization: Bearer $GH_TOKEN" "$API/logs" -o logs.zip
-          mkdir -p logdir && (cd logdir && unzip -o -q ../logs.zip)
+          mkdir -p work_log
+          # ⛔⛔⛔ **ولا `set -x` في خطوةٍ تحمل سرّاً — عطبٌ وقع فعلاً 2026-09-13:** طبع `set -x`
+          # ترويسةَ `Authorization: Bearer ghs_…` في ملفِّ الأثر، **فأُودع رمزُ وصولٍ في مستودعٍ
+          # عامّ**. (‏رمزُ الأكشنز يُبطله GitHub بانتهاء الوظيفة، ومع ذلك: **حُجب من الملفّات
+          # وأُصلح السبب**.) ⇒ **لا تتبّعَ أوامرَ حيث سرٌّ، ويُقنَّع الرمزُ في السجلّ أيضاً.**
+          echo "::add-mask::$GH_TOKEN"
+          # 🔐 والترويسةُ تُمرَّر من ملفٍّ لا من سطر الأمر، فلا تظهر في أيّ أثرٍ أو قائمةِ عمليّات.
+          printf 'Authorization: Bearer %s\n' "$GH_TOKEN" > work_log/h.txt
+          (
+            API="https://api.github.com/repos/${{ github.repository }}/actions/runs/$RUN_ID"
+            echo "== الشوطُ المقروء: $RUN_ID"
+            curl -sS -H @work_log/h.txt "$API" -o run.json -w 'الحالة=%{http_code}\n'
+            head -c 300 run.json; echo
+            CODE=$(curl -sS -o /dev/null -w '%{http_code}' -H @work_log/h.txt "$API/logs")
+            URL=$(curl -sS -o /dev/null -w '%{redirect_url}' -H @work_log/h.txt "$API/logs")
+            echo "نقطةُ السجلّ: $CODE · طولُ عنوان التحويل: ${#URL}"
+            if [ -n "$URL" ]; then
+              curl -sS -o logs.zip -w 'تنزيلُ الأرشيف=%{http_code} حجمٌ=%{size_download}\n' "$URL"
+            else
+              curl -sSL -o logs.zip -w 'تنزيلٌ مباشرٌ=%{http_code} حجمٌ=%{size_download}\n' -H @work_log/h.txt "$API/logs"
+            fi
+            ls -l logs.zip
+            mkdir -p logdir && (cd logdir && unzip -o -q ../logs.zip) && echo "فُكّ $(find logdir -name '*.txt' | wc -l) ملفّاً" || { echo "⛔ الأرشيفُ لا يُفكّ:"; head -c 200 logs.zip | strings | head -5; exit 1; }
+          ) > work_log/diag.txt 2>&1
+          rc=$?
+          # 🔐 ويُحرَق ملفُّ الترويسة قبل أن يُقرأ الأثرُ أو يُودَع شيء.
+          shred -u work_log/h.txt 2>/dev/null || rm -f work_log/h.txt
+          # ⛔ وحارسٌ أخيرٌ قبل الإيداع: أيُّ أثرٍ فيه رمزٌ يُحجب ولا يُودَع.
+          sed -i 's/ghs_[A-Za-z0-9_.-]\{20,\}/<<<REDACTED>>>/g' work_log/diag.txt
+          grep -q 'ghs_' work_log/diag.txt && { echo "⛔ أثرٌ فيه رمزٌ — لا يُودَع"; : > work_log/diag.txt; } || true
+          cat work_log/diag.txt
+          echo "$rc" > work_log/rc.txt
+          exit "$rc"
+
+      - name: إيداعُ الذيل والأثر — ناجحاً كان أو فاشلاً
+        if: always()
+        run: |
+          R=$(cat work_log/rc.txt 2>/dev/null || echo 1)
           mkdir -p results
           OUT="results/joblog_${RUN_ID}.md"
           {
-            echo "# 🪵 ذيلُ سجلِّ الشوط $RUN_ID"
+            echo "# 🪵 قراءةُ سجلِّ الشوط $RUN_ID (‏بالوكالة)"
             echo
-            echo "- سُحب في: $(date -u +%FT%TZ) · بالشوط ${{ github.run_id }} · ذيلٌ $TAIL سطراً لكلّ ملفّ"
-            cat head.md
-            echo "- ⛔ هذا **أثرٌ تشخيصيّ** لا قياس: لا رقمَ منه يدخل اللوحة."
+            echo "- سُحب في: $(date -u +%FT%TZ) · بالشوط ${{ github.run_id }} · رمزُ الخروج: \`$R\`"
+            echo "- ⛔ أثرٌ تشخيصيٌّ لا قياس: لا رقمَ منه يدخل اللوحة."
             echo
-            for f in $(find logdir -name '*.txt' | sort); do
-              echo "## \`${f#logdir/}\`"
-              echo '```'
-              tail -n "$TAIL" "$f"
-              echo '```'
-              echo
-            done
+            echo "## أثرُ السحب"
+            echo '```'
+            tail -40 work_log/diag.txt 2>/dev/null || echo "لا أثر"
+            echo '```'
+            if [ "$R" = "0" ]; then
+              for f in $(find logdir -name '*.txt' | sort); do
+                echo "## \`${f#logdir/}\`"
+                echo '```'
+                tail -n "$TAIL" "$f"
+                echo '```'
+                echo
+              done
+            fi
           } > "$OUT"
-          # ⛔ وسقفٌ للحجم: سجلٌّ ضخمٌ يُثقل المستودعَ على كلّ مَن يستنسخه.
           if [ "$(wc -c < "$OUT")" -gt 400000 ]; then
             head -c 400000 "$OUT" > "$OUT.cut" && mv "$OUT.cut" "$OUT"
             echo >> "$OUT"; echo '⚠️ **قُطع عند 400 كيلوبايت.**' >> "$OUT"
@@ -106,9 +136,16 @@ jobs:
           git config user.name "rafiq-ci"
           git config user.email "ci@users.noreply.github.com"
           git add "$OUT" results/LATEST_joblog.md
-          git commit -q -m "results(job-log): ذيلُ سجلِّ الشوط $RUN_ID" || { echo "لا تغيير"; exit 0; }
+          git commit -q -m "results(job-log): سجلُّ الشوط $RUN_ID · rc=$R" || { echo "لا تغيير"; exit 0; }
           for i in 1 2 3; do
             git fetch -q origin main && git merge -q --no-edit origin/main && git push -q origin HEAD:main && { echo "✅ أُودع $OUT"; exit 0; }
             echo "↻ محاولةٌ $i"; sleep 5
           done
           echo "⛔ تعذّر الدفع"; exit 1
+
+      - name: ردُّ الحكم
+        if: always()
+        run: |
+          R=$(cat work_log/rc.txt 2>/dev/null || echo 1)
+          [ "$R" = "0" ] || { echo "⛔ سقط السحبُ برمزٍ $R — والأثرُ مودَعٌ في results/"; exit 1; }
+          echo "✅ السجلُّ قُرئ وأُودع ذيلُه"
