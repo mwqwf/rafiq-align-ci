@@ -12,6 +12,7 @@
 أثراً جانبيّاً للحقن نفسِه. فالرقمُ الخارجُ **أدنى ما يمكن**، والحقيقةُ لا تقلّ عنه.
 
     python tools/tasmi_bench/extras_noise_probe.py --dirs work: --arms shipped-T base-vs-tiny-ar-T
+    python tools/tasmi_bench/extras_noise_probe.py --dirs work: --arms … --clean   # g1 النظيفة
 """
 import argparse
 import json
@@ -29,15 +30,20 @@ for _s in (sys.stdout, sys.stderr):
 import scorer  # noqa: E402
 import judge_cfg_probe as J  # noqa: E402
 import restore_probe as R  # noqa: E402
+import v2_gate as G  # noqa: E402
 from detect_anatomy import boot  # noqa: E402
 
 
 def noise_extras(it, hyp, tol=1):
-    """(عددُ الزوائد الكاذبة، عددُ كلمات المرجع) — الكاذبةُ: **غريبةٌ** وبعيدةٌ عن موضع الحقن."""
+    """(عددُ الزوائد الكاذبة، عددُ كلمات المرجع) — الكاذبةُ: **غريبةٌ** وبعيدةٌ عن موضع الحقن.
+
+    ⭐ **وعلى تلاوةٍ نظيفةٍ** (بلا `wordIndex`) **كلُّ غريبةٍ كاذبةٌ** — فلا موضعَ حقنٍ يُستثنى،
+    والقارئُ لم يزد شيئاً أصلاً. وهي **الحالةُ الغالبةُ للمستخدم**.
+    """
     c = J.cfg(it.get("riwaya"), True)
     ref = it["refText"].split()
     s = scorer.score(ref, hyp["text"], c)
-    w = int(it["wordIndex"])
+    w = None if it.get("wordIndex") in (None, "") else int(it["wordIndex"])
     # ⛔ **وصورُ الكلمات تُبنى كما يبنيها الحاكمُ نفسُه** لا بتقريبٍ منها: `variants` ثمّ
     # `_riwaya_forms` — وإلّا صار «غريبٌ» في الأداة غيرَ «غريبٍ» في المحرك، وهو انحرافُ مسطرةٍ صامت.
     forms = [scorer._riwaya_forms(scorer.variants(x, c), c) for x in ref]
@@ -46,7 +52,7 @@ def noise_extras(it, hyp, tol=1):
         # غريبةٌ: لا تطابق كلمةً من الآية (‏قاعدةُ D-267 — الإعادةُ ليست زيادة)
         if any(scorer._matches(f, text, c) for f in forms):
             continue
-        if abs(at - w) > tol:
+        if w is None or abs(at - w) > tol:
             n += 1
     return n, len(ref)
 
@@ -55,13 +61,22 @@ def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--dirs", nargs="+", required=True)
     ap.add_argument("--arms", nargs="+", required=True)
+    ap.add_argument("--clean", action="store_true",
+                    help="مجموعةٌ نظيفةٌ غيرُ محقونة (‏`g1`): المرجعُ من عيّنة المقعد، وكلُّ غريبةٍ كاذبة")
+    ap.add_argument("--prefix", default="", help="بادئةُ ملفّات الفرضيّات (‏الافتراضُ g3r · أو hyps_emu_g1)")
     a = ap.parse_args()
 
-    plan_all = {it["id"]: it for it in json.load(open(J.PLAN, encoding="utf-8"))["items"]}
-    acc = R.load(a.dirs)
+    prefix = a.prefix or ("hyps_emu_g1" if a.clean else "hyps_emu_g3r")
+    if a.clean:
+        # 📌 عيّنةُ الآية الواحدة + خطّةُ التلاوة الطويلة — تحمل `refText` و`riwaya` بلا حقن.
+        plan_all = {it["id"]: it for it in G.pool_items()}
+    else:
+        plan_all = {it["id"]: it for it in json.load(open(J.PLAN, encoding="utf-8"))["items"]}
+    acc = R.load(a.dirs, prefix=prefix)
     arms = R.arms_or_die(acc, a.arms)
 
-    print("# 🧹 الزوائدُ الكاذبة — قناةٌ لا يعدّها «الاتّهامُ الكاذب» المنشور\n")
+    kind = "**تلاوةٌ نظيفةٌ غيرُ محقونة**" if a.clean else "عيّنةُ الحقن `g3r`"
+    print(f"# 🧹 الزوائدُ الكاذبة ({kind}) — قناةٌ لا يعدّها «الاتّهامُ الكاذب» المنشور\n")
     print("**التعريف:** زائدةٌ **غريبةٌ** (لا تطابق كلمةً من الآية · D-267) **وبعيدةٌ عن موضع "
           "الحقن أكثرَ من كلمة** ⇒ لم يزدها القارئُ. والحدُّ محافظ: ما قرُب لا يُحسب كاذباً.\n")
     print("| الذراع | ن | آياتٌ فيها زائدةٌ كاذبةٌ واحدةٌ على الأقلّ | لكلِّ 100 كلمةٍ | مجال 95٪ للنسبة |")
@@ -87,8 +102,12 @@ def main():
     print("\n⛔ **وما يُقرأ من هذا الجدول:** إن كانت النسبةُ عاليةً فـ**عرضُ الزوائد في مواضعها "
           "يُدخل ضجّةً على المستخدم** ولو كان الموضعُ صحيحاً (‏ودقّتُه 100٪ · D-366) ⇒ فالعرضُ "
           "يحتاج عتبةً أو تهدئةً، لا مجرّد حقلٍ جديد. وإن كانت منخفضةً فالبابُ مفتوح.")
-    print("⚠️ **وحدٌّ يُقال:** العيّنةُ **محقونةٌ عمداً** (`g3r`) فهي أصعبُ من تلاوةٍ طبيعيّة؛ "
-          "والرقمُ على تلاوةٍ نظيفةٍ غيرِ محقونةٍ يُقاس على `g1` ولم يُقَس بعد.")
+    if a.clean:
+        print("✅ **وهذه هي الحالةُ الغالبةُ للمستخدم** — تلاوةٌ صحيحةٌ بلا حقن: فكلُّ زائدةٍ "
+              "غريبةٍ هنا **ضجّةٌ محضة**، ولا موضعَ حقنٍ يُستثنى.")
+    else:
+        print("⚠️ **وحدٌّ يُقال:** العيّنةُ **محقونةٌ عمداً** (`g3r`) فهي أصعبُ من تلاوةٍ طبيعيّة؛ "
+              "والرقمُ على النظيفة يُقاس بـ`--clean` على `g1`.")
     return 0
 
 
