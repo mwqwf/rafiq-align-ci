@@ -77,7 +77,11 @@ def scan_text(text, name="<نصّ>"):
 # أكثرُها عرضٌ لا أداة (`ls | wc` · `lscpu | grep` · `cat | head`) — **وحارسٌ يُنذر بما لا يضرّ
 # يُعلّم قارئَه تجاهلَه** (وهو الدرسُ الذي كتبتُه بنفسي قبل ساعات). ⇒ لا يُنذَر إلّا حيث **يسار
 # الأنبوب أداةُ مشروعٍ** (`python` · `gradlew` · `bash tools/…`): تلك وحدَها يُقرأ فشلُها نجاحاً.
-TOOL_PIPE = re.compile(r"(?:^|\s|\()(python3?|\./gradlew|gradlew|bash|sh)\s+[^|]*\|\s*\S")
+# ⛔ **والأنبوبُ `|` وحدَه لا `||`:** كان الاستثناءُ `"||" not in st` يُخفي هذا الخلطَ
+#    (فـ`cmd || echo` كان يُقرأ أنبوباً ويُبرَّأ في آنٍ) ⇒ لمّا رُفع الاستثناءُ ظهر
+#    الخلطُ إنذاراً كاذباً في حالةِ `finetune-audit` من مستودعنا. فصار الفصلُ في الرسم:
+#    `|` لا يليه ولا يسبقه `|`. (‏وضابطُه في `--selftest`: الحالتان معاً.)
+TOOL_PIPE = re.compile(r"(?:^|\s|\()(python3?|\./gradlew|gradlew|bash|sh)\s+[^|]*(?<!\|)\|(?!\|)\s*\S")
 TEST_AND = re.compile(r"^\[\s.*\]\s*&&\s*\S")
 
 
@@ -95,7 +99,16 @@ def scan_block_shell(body, name):
         # في شوط `34795058366`). والعلاجُ `set -o pipefail` في أوّل الكتلة، أو فصلُ الأمرَين.
         # ⛔ **وما عولج صراحةً لا يُنذَر به** (‏إيجابيّتان كاذبتان من مستودعنا نفسِه):
         #    `… | tee` ثمّ `rc=${PIPESTATUS[0]}` — وهو **الصوابُ عينُه** · و`… || echo`.
-        if (TOOL_PIPE.search(st) and not has_pipefail and "||" not in st
+        # ⛔⛔ **تصحيحٌ مقيسٌ 2026-09-14 ‏03:2xZ (مناوبةُ :50):** كان `||` يُعدّ «عِلاجاً صريحاً»
+        #     فيُستثنى — **وهو ليس علاجاً البتّة**. المقيسُ بـ`bash`:
+        #         set +o pipefail; false | tee /dev/null || echo x   ⇒ **لا يُطبع x**
+        #         set -o pipefail; false | tee /dev/null || echo x   ⇒ **يُطبع x**
+        #     أي أنّ `||` بلا `pipefail` **لا يشتعل أصلاً** لأنّ حالةَ الأنبوب حالةُ `tee`.
+        #     ⭐ **والعطبُ الذي بُني هذا الحارسُ لأجله كان بهذه الصورة عينِها** (`… | tee
+        #     work/triage.md || echo …` في `gate-anatomy`) ⇒ **فالحارسُ كان يُبرّئ ما وقع**.
+        #     وبقيت `PIPESTATUS` استثناءً لأنّها تقرأ حالةَ الأداة فعلاً (وقِيس ذلك في
+        #     `plan-riwaya`). ⇒ الحارسُ صار **أصعبَ خداعاً لا أضعف**.
+        if (TOOL_PIPE.search(st) and not has_pipefail
                 and "PIPESTATUS" not in txt):
             risky.append((name, j + 1, "أنبوب",
                           "أداةٌ في أنبوبٍ بكتلةٍ بلا `set -o pipefail` ⇒ فشلُها يُكتم"))
@@ -166,12 +179,27 @@ jobs:
           set -o pipefail
           python tool.py --x | tee work/out.md
 """, 0),
-    ("✅ وأنبوبٌ معطوفٌ عليه `||` قد عولج صراحةً", """
+    ("✅ و`cmd || echo` ليس أنبوباً أصلاً (‏خلطُ الرسم — من `finetune-audit`)", """
+jobs:
+  a:
+    steps:
+      - run: |
+          python tools/finetune/r2_put.py a b || echo "لا مخرَج"
+""", 0),
+    ("⛔ وأنبوبٌ معطوفٌ عليه `||` **بلا** pipefail — و`||` لا يشتعل أصلاً (‏مقيس)", """
 jobs:
   a:
     steps:
       - run: |
           python tool.py | tee out.md || echo "⚠️ سقطت"
+""", 1),
+    ("✅ و`||` **مع** pipefail علاجٌ حقيقيّ (‏الشكلُ المقيسُ في `gate-anatomy`)", """
+jobs:
+  a:
+    steps:
+      - run: |
+          set -o pipefail
+          python tool.py | tee out.md || { echo "⚠️ سقطت" | tee -a out.md; }
 """, 0),
     ("⛔ `[ … ] && …` آخرَ الكتلة يُسقط الخطوةَ بشرطٍ كاذب", """
 jobs:
