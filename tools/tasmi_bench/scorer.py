@@ -60,6 +60,7 @@ class Config:
     def __init__(self, match_num=1, match_den=5, khanjariya=True, extra_subs=(),
                  strip_yeh_barree=True, dagger_optional=True, naql=False, sila=None, mark_sila=True,
                  learner_tolerant=False, wide_uncertain=False, wide_uncertain_min=6,
+                 unheard_lexicon=None,
                  collapse_threshold=0.60, short_cap=3, phon=None, phon_cap=3,
                  dagger_madd=True, abs_cap=None, drop_subs=(), strict_short=False):
         self.match_num, self.match_den = match_num, match_den
@@ -107,6 +108,15 @@ class Config:
         self.wide_uncertain_min = wide_uncertain_min
         # مرآةُ حارس الانهيار (D-268) — العتبةُ نفسُها في المحرك.
         self.collapse_threshold = collapse_threshold
+        # 🤫 **D-445 — قاعدةٌ تُسعَّر قبل أن تُكتب بالكوتلن، ⛔ ولا نظيرَ لها في المحرك اليومَ.**
+        # المقيسُ: **267 من 359** اتّهاماً على الضجيج (74.4٪) مسموعُها **ليس صورةَ أيّ كلمةٍ في
+        # المصحف** (`تسفسوا` · `رفهثا`) ⇒ فقولُ «أخطأت» عليها إخبارٌ بما لا يعلمه المحرك، والصوابُ
+        # `UNCERTAIN` **وهو صنفٌ قائمٌ مشحونٌ** (D-231: يُعرَض ولا يُحسب زلّة) لا صنفٌ جديد.
+        # ⛔⛔ **مطفأةٌ افتراضاً** (`None`): وبها **صفرُ تغييرٍ** فتبقى المرآةُ مرآةً وتبقى
+        #     بصماتُ التماثل كما هي — وهذا هو الشرطُ الذي يجعل قياسَها مجّانيّاً.
+        # ⛔ و**بعد** المحاذاة لا فيها: تكلفةُ الـDP لا تُلمَس (وإلّا تبدّلت المواضعُ فصار
+        #     المقيسُ قاعدةً أخرى)، تماماً كحارس الانهيار — إعادةُ وسمٍ لا إعادةُ محاذاة.
+        self.unheard_lexicon = unheard_lexicon
 
     def label(self):
         bits = [f"عتبة {self.match_num}/{self.match_den}"]
@@ -311,6 +321,32 @@ def _collapse_guard(words, cfg):
             for w in words]
 
 
+def _unheard_guard(words, cfg):
+    """🤫 **مرحلةٌ تُسعَّر ولا تُشحن (D-445): «لم أتبيّن» بدل «أخطأت» متى لم يكن المسموعُ كلمةً.**
+
+    ⛔⛔ **ولا نظيرَ لها في المحرك اليومَ** — وهذا مكتوبٌ بقصد: المرآةُ **مرآةٌ**، وهذه المرحلةُ
+    موضوعةٌ لتُقاس القاعدةُ على فرضيّاتٍ محفوظةٍ **قبل** أن تُكتب بالكوتلن. ومع `unheard_lexicon
+    = None` (الافتراض) تُعيد القائمةَ **بالهويّة** ⇒ صفرُ تغييرٍ في بصمةٍ أو رقم.
+
+    والقاعدةُ: `SUBSTITUTED` مسموعُها **ليس صورةَ أيّ كلمةٍ في المعجم** ⇒ `UNCERTAIN`.
+    ⛔ و`MISSED` **لا تُلمَس**: لا مسموعَ لها أصلاً فلا يُقال «لم أتبيّن» عن صمت.
+
+    ⭐ **وإسنادُها إلى صنفٍ قائم:** `UNCERTAIN` مشحونٌ ومعروضٌ ولا يُحسب زلّةً (D-231) ⇒ فليست
+    قاعدةً تحتاج نصّاً جديداً في `app/` بل **شرطاً جديداً لصنفٍ قائم**.
+    """
+    lex = getattr(cfg, "unheard_lexicon", None)
+    if not lex:
+        return words
+    out, hit = [], False
+    for w in words:
+        if w is not None and w[1] == SUBSTITUTED and w[2] and norm(w[2], cfg) not in lex:
+            out.append((w[0], UNCERTAIN) + tuple(w[2:]))
+            hit = True
+        else:
+            out.append(w)
+    return out if hit else words
+
+
 def _uncertain(ref, hyp, cfg):
     """⚠️ **شرطُ «غير متبيَّن» الواحد** — مرآةُ `RecitationScorer.nearAny` بشطرَيه:
     `if (hyp.length < 4) return shortPairUncertain(...)` ثمّ حدُّ التحرير الموسَّع للروايتَين.
@@ -440,5 +476,8 @@ def score(ref_words, hyp_text, cfg=DEFAULT):
     # (‏يُحتاج إليه لقياس تهدئةٍ مرشَّحة: «لا تُعرَض الزوائدُ حين انهار التعرّفُ أصلاً» · D-369.)
     _pre = words
     words = _collapse_guard(words, cfg)
+    # 🤫 وبعد الانهيار لا قبلَه (‏D-445): لو سبقته هذه المرحلةُ لهبط عدُّ «المؤكَّد» فما أطلقت
+    #    الانهيارَ أصلاً ⇒ قاعدتان تتداخلان ورقمٌ لا يُعرف صاحبُه. والترتيبُ يُقاس لا يُفترض.
+    words = _unheard_guard(words, cfg)
     return {"words": words, "additions": additions, "located": located, "collapsed": words is not _pre,
             "correct": sum(1 for w in words if w[1] == CORRECT), "total": R}
