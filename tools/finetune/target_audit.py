@@ -158,12 +158,131 @@ def judge_ayat(arms):
               f" · زائدة {ta} · مقاطعُ مصابة {th}/{tay} ({pct(th, tay):.1f}٪)")
 
 
+# ── 🧪 حارسُ الحَكَم — **ومَن يحرس مَن يحكم؟** (‏D-490) ───────────────────────────────
+def _with_corpus(ayat, fn, *a, **k):
+    """يُشغّل الذراعَ على **مصحفٍ مصنوعٍ من آيتين** — بلا بياناتٍ ولا شبكةٍ ولا دقيقةِ انتظار.
+
+    ⚠️ ويُعاد الأصلُ في `finally` مهما وقع: مناوبةٌ تستدعي `selftest` ثمّ تقيس حقيقةً
+    يجب ألّا تقيس على مصحفٍ مزوَّر.
+    """
+    import contextlib, io
+    global load_text, RIWAYAT
+    old_lt, old_riw = load_text, RIWAYAT
+    load_text = lambda _riw: list(ayat)      # noqa: E731
+    RIWAYAT = ("hafs",)
+    buf = io.StringIO()
+    try:
+        with contextlib.redirect_stdout(buf):
+            return fn(*a, **k)
+    finally:
+        load_text, RIWAYAT = old_lt, old_riw
+
+
+def selftest():
+    """🧪 **حارسُ الحَكَم** — وهو الأداةُ التي صحّحت رقمَ D-486، فحارسُها يحرس الحَكَم نفسَه.
+
+    ⛔⛔ **والبندُ الأوّلُ فيه هو درسُ D-486 منفَّذاً لا مكتوباً:** الحكمُ على الهدف
+    **بدالّة القرار المشحونة** `scorer._matches` **لا بعضويّة** الهدف في صور الحاكم —
+    والفرقُ بينهما **مقيسٌ على كلمتين حقيقيّتين** لا مفترَض.
+    """
+    ok = True
+
+    def say(good, line):
+        nonlocal ok
+        ok &= bool(good)
+        print(("✅ " if good else "❌ ") + line)
+
+    # ① الهدفُ القديم: بدائلُ D-278 تُطبَّق وعلاماتُ الوقف تُمحى والفراغُ يُجمع
+    say(target_legacy("عَلَىٰ") == "عَلَىا",
+        f"الهدفُ القديم يُبدّل الخنجريّةَ ألفاً (‏وهو عينُ خطأ D-274): عَلَىٰ ⇜ {target_legacy('عَلَىٰ')}")
+    say(target_legacy("ٱلْحَمْدُ  لِلَّهِ") == "الْحَمْدُ لِلَّهِ",
+        "ويُبدّل ألفَ الوصل ويجمع الفراغَ المكرَّر")
+
+    # ② إعدادُ الرواية = المشحون (نقلٌ لورشٍ وحدَه · صلةٌ لورشٍ وقالون)
+    cf = {r: config_for(r) for r in ("hafs", "warsh", "qalun")}
+    say(not cf["hafs"].naql and not cf["hafs"].sila and cf["warsh"].naql and cf["warsh"].sila
+        and not cf["qalun"].naql and cf["qalun"].sila,
+        "إعدادُ الرواية مرآةُ المشحون: النقلُ لورشٍ وحدَه والصلةُ لورشٍ وقالون")
+
+    # ③ النسبةُ لا تقسم على صفر
+    say(pct(0, 0) == 0.0 and pct(1, 0) == 100.0, "والنسبةُ لا تنفجر على مقامٍ صفرٍ")
+
+    # ④ المقيسُ هو المقياسُ نفسُه: `train.py` الحقيقيُّ لا نسخةٌ منه
+    train = load_train()
+    say(os.path.basename(getattr(train, "__file__", "")) == "train.py"
+        and all(callable(getattr(train, n, None)) for n in ("wer", "norm", "target_from_ref")),
+        f"و`train.py` يُحمَّل بشيفرته الحقيقيّة بلا torch ({os.path.basename(train.__file__)})")
+
+    # ⑤ أرضيّةُ WER: حسابٌ مُحسوبٌ باليد على مصحفٍ من ثلاث آيات
+    corpus = ["الحمد لله رب العالمين", "مالك يوم الدين", "اهدنا الصراط المستقيم"]
+    words = sum(len(a.split()) for a in corpus)          # 4 + 3 + 3 = 10
+    agg = _with_corpus(corpus, wer_floor, train,
+                       {"ذاتُه": lambda t: t,
+                        "ناقصٌ كلمةً": lambda t: " ".join(t.split()[:-1])})
+    say(agg["ذاتُه"] == [0, words],
+        f"⭐ الضابطُ الموجَب: النصُّ هدفَ نفسِه ⇒ أرضيّةُ WER **صفرٌ** ({agg['ذاتُه']})")
+    say(agg["ناقصٌ كلمةً"] == [len(corpus), words],
+        f"والضابطُ السالب: حذفُ كلمةٍ من كلّ آيةٍ ⇒ {len(corpus)} أخطاءً بالضبط ({agg['ناقصٌ كلمةً']})")
+
+    # ⑥⭐⭐ **ميزانُ الحاكم لا العضويّة** — على كلمتين من المصحف لا على افتراض
+    #     `دَاوُۥدَ` ⇒ الهدفُ «داوود» والحاكمُ يكتبها «داود»: **ليست عضواً** في صوره
+    #     **ويقبلها** تسامحُ التحريف الجزئيّ ⇒ ليست عطباً. وهذا بعينه ما أخطأتُ فيه في D-486.
+    soft = ["دَاوُۥدَ ٱلنَّبِيِّۦنَ"]
+    cfg = config_for("hafs")
+    memberships = 0
+    for w in soft[0].split():
+        V = scorer._riwaya_forms(scorer.variants(w, cfg), cfg)
+        h = scorer.norm(prep.target_text(w), cfg)
+        if h not in V:
+            memberships += 1
+    c = _with_corpus(soft, judge_words, {"stored": prep.target_text}, 0)
+    rejects = sum(v for k, v in c.items() if "يردّه" in k)
+    say(memberships == 2 and rejects == 0,
+        f"⭐⭐ بالعضويّة كانتا تُعَدّان عطبَين ({memberships})، **وبميزان الحاكم صفرٌ** ({rejects}) — درسُ D-486")
+    say(c.get("stored: كلمات") == 2, f"والكلمتان قِيستا ولم تُتخطّيا ({c.get('stored: كلمات')})")
+
+    # ⑦ والردُّ الحقيقيُّ يُعَدّ ولا يُبتلع: `وُۥرِىَ` (7:20) ⇒ «ووري» والحاكمُ يطلب «وري»
+    c = _with_corpus(["وُۥرِىَ"], judge_words, {"stored": prep.target_text}, 0)
+    say(sum(v for k, v in c.items() if "يردّه" in k) == 1,
+        "والردُّ الحقيقيُّ يُعَدّ: وُۥرِىَ ⇒ «ووري» والحاكمُ يطلب «وري»")
+
+    # ⑧ الآيةُ التي تعذّرت محاذاتُها **تُعَدّ** ولا تُطمس (حارسُ D-316)
+    c = _with_corpus(["الحمد لله"], judge_words, {"مشوَّش": lambda t: t + " زائدة"}, 0)
+    say(sum(v for k, v in c.items() if "متخطّاة" in k) == 1
+        and not any("كلمات" in k and v for k, v in c.items()),
+        "وآيةٌ لا تتّسق فيها المحاذاةُ **تُعَدّ متخطّاةً** ولا تُحسب كلماتُها")
+
+    # ⑨ حارسُ المصدر: القرارُ بدالّة الحاكم لا بالعضويّة — ولو أُعيدت كتابةُ الذراع
+    import inspect
+    src = inspect.getsource(judge_words)
+    say("scorer._matches(" in src and "h in V" not in src,
+        "⛔ وحارسُ المصدر: القرارُ `scorer._matches` ولا عضويّةَ `h in V` في الذراع")
+
+    # ⑩ ذراعُ المحاذاة الكاملة يدور بلا انفجارٍ على مصحفٍ صغير
+    try:
+        _with_corpus(corpus, judge_ayat, {"ذاتُه": lambda t: t})
+        say(True, "وذراعُ المحاذاة الكاملة يدور على مصحفٍ صغيرٍ بلا عطب")
+    except Exception as ex:                     # noqa: BLE001
+        say(False, f"ذراعُ المحاذاة انفجر: {ex}")
+
+    # ⑪ والمصحفُ الحقيقيُّ عاد كما كان بعد الحقن
+    say(load_text.__module__ != __name__ and RIWAYAT == ("hafs", "warsh", "qalun"),
+        "والحقنُ يُرفع بعده: `load_text` الحقيقيّةُ والرواياتُ الثلاثُ عادت")
+
+    print("\n" + ("✅ الحَكَمُ محروسٌ — ويحكم بميزان المشحون لا بالعضويّة"
+                  if ok else "❌ الحَكَمُ لا يفعل ما يدّعي"))
+    return 0 if ok else 1
+
+
 def main():
     ap = argparse.ArgumentParser()
+    ap.add_argument("--selftest", action="store_true", help="حارسُ الحَكَم — بلا مصحفٍ ولا شبكة")
     ap.add_argument("--judge", action="store_true", help="ذراعُ الحاكم كلمةً كلمة")
     ap.add_argument("--ayah", action="store_true", help="ذراعُ الحاكم بالمحاذاة الكاملة (بطيء)")
     ap.add_argument("--examples", type=int, default=6)
     a = ap.parse_args()
+    if a.selftest:
+        return selftest()
 
     train = load_train()
     arms = {"v3(norm)": train.target_from_ref, "stored": prep.target_text, "القديم": target_legacy}
@@ -176,7 +295,8 @@ def main():
         judge_words(arms, a.examples)
     if a.ayah:
         judge_ayat(arms)
+    return 0
 
 
 if __name__ == "__main__":
-    main()
+    raise SystemExit(main())
