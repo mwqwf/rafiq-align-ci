@@ -67,6 +67,56 @@ def wilson(k, n, z=1.96):
     return (max(0.0, c - h) * 100, min(1.0, c + h) * 100)
 
 
+# ---- 🧪 اختبارٌ ذاتيٌّ (أُضيف 2026-09-14 · مناوبةُ :13) ----
+# ⛔ **لِمَ:** ثلاثُ دوالَّ هنا **خالصةٌ** ويُبنى عليها كلُّ رقمِ كشفٍ واتّهامٍ في اللوحة:
+# `cfg_for` (‏ملفُّ الرواية) و`zone` (‏ما يُعدّ كشفاً وما يُعدّ اتّهاماً باطلاً) و`wilson`
+# (‏مجالُ النسبة). وخطأُ أيٍّ منها **يقلب معنى الرقم لا يُسقط الشوط**.
+# ⭐ **وفي شرح `cfg_for` نفسِه درسٌ مكتوبٌ بلا حارس:** «فرعٌ لا تمرّ به عيّنتُك لا يُحرسه
+# اختبارُك» — كان `naql` يُعطى لقالون خطأً فلم يظهر حتى بُنيت عيّنةُ ورشٍ وقالون. فهذا
+# الاختبارُ يمرّ **بكلّ فرعٍ** لا بما تمرّ به العيّنةُ اليومَ. والقيمُ أدناه **مقيسةٌ** من
+# الدوالّ نفسِها قبل كتابتها.
+
+
+def selftest():
+    bad = 0
+
+    def ok(name, got, want):
+        nonlocal bad
+        good = got == want
+        print(f"  {'✅' if good else '⛔'} {name}: {got} · المتوقَّع {want}")
+        bad += 0 if good else 1
+
+    # ① ملفُّ الرواية — D-248: **ورشٌ ينقل ويصل · وقالونُ يصل ولا ينقل** · وسواهما لا ولا.
+    for riw, naql, sila in (("warsh", True, True), ("qalun", False, True), ("hafs", False, False),
+                            ("shuba", False, False), ("douri", False, False), (None, False, False)):
+        c = cfg_for(riw)
+        ok(f"رواية {riw}: نقلٌ وصلة", (c.naql, c.sila), (naql, sila))
+
+    # ② نطاقُ الحقن — ما دخله كشفٌ وما خرج عنه **اتّهامٌ باطل**، وتوسيعُه يقلب المعنى.
+    ok("إبدالٌ في 5 ⇒ ±1", zone({"wordIndex": 5, "op": "SUBSTITUTE"}), (4, 6))
+    ok("وتبديلُ موضعَين (SWAP) يمتدّ كلمةً أخرى", zone({"wordIndex": 5, "op": "SWAP"}), (4, 7))
+    # ⚠️ وحدٌّ يُوصَف لا يُبرَّر: الحقنُ في أوّل كلمةٍ يُعطي حدّاً سالباً — ولا ضررَ لأنّ
+    #    المقارنةَ بالمسافة لا بالفهرسة، **ويُثبَّت كي لا يُصلَح بلا داعٍ**.
+    ok("والحقنُ في الكلمة الأولى ⇒ حدٌّ سالبٌ مقصود", zone({"wordIndex": 0, "op": "SUBSTITUTE"}), (-1, 1))
+
+    # ③ مجالُ ويلسون — أصدقُ من الطبيعيّ عند الأطراف، وهذا **ما يُقاس عليه**.
+    ok("صفرُ نجاحٍ من عشرةٍ ⇒ الحدُّ الأدنى صفر", tuple(round(x, 2) for x in wilson(0, 10)), (0.0, 27.75))
+    ok("وخمسةٌ من عشرةٍ ⇒ متناظر", tuple(round(x, 2) for x in wilson(5, 10)), (23.66, 76.34))
+    ok("والعشرُ من عشرٍ ⇒ سقفٌ 100 وأرضيّةٌ دونه", tuple(round(x, 2) for x in wilson(10, 10)), (72.25, 100.0))
+    ok("ولا عيّنةَ ⇒ صفران بلا قسمةٍ على صفر", wilson(0, 0), (0.0, 0.0))
+    ok("والأرضيّةُ ترتفع بارتفاع النجاح", wilson(39, 40)[0] > wilson(1, 40)[0], True)
+
+    # ④ والبندُ بلا فرضيّةٍ (أو بنصٍّ فارغ · أو بخطأ) **لا يُحتسب** — ولا يُقرأ صفراً.
+    it = {"id": "x", "refText": "الحمد لله رب العالمين", "riwaya": "hafs"}
+    ok("لا فرضيّةَ ⇒ لا بند", len(judge([it], {})), 0)
+    ok("ونصٌّ فارغٌ ⇒ لا بند", len(judge([it], {"x": {"text": ""}})), 0)
+    ok("وفرضيّةٌ بخطإٍ ⇒ لا بند", len(judge([it], {"x": {"error": "boom", "text": "الحمد"}})), 0)
+    ok("وفرضيّةٌ سليمةٌ ⇒ بندٌ واحد", len(judge([it], {"x": {"text": "الحمد لله رب العالمين"}})), 1)
+
+    print("✅ الأداةُ سليمةٌ على حالاتها" if not bad else f"⛔ الأداةُ نفسُها معطوبةٌ في {bad} حالة")
+    return 1 if bad else 0
+
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--plan", default=os.path.join(HERE, "inject_plan.json"))
@@ -75,7 +125,10 @@ def main():
     ap.add_argument("--require-clean-correct", action="store_true",
                     help="لا تحتسب إلا بنداً كانت كلمته المستهدفة صحيحةً قبل الجراحة "
                          "(تحقّقٌ بعديّ من موضع القطع حين تكون الحدود مشتقّة لا مقيسة)")
+    ap.add_argument("--selftest", action="store_true", help="يختبر الدوالَّ الخالصةَ على قيمٍ مقيسة")
     args = ap.parse_args()
+    if args.selftest:
+        raise SystemExit(selftest())
     plan = json.load(open(args.plan, encoding="utf-8"))["items"]
     inj = judge(plan, json.load(open(args.inj, encoding="utf-8"))["hyps"])
     clean = judge(plan, json.load(open(args.clean, encoding="utf-8"))["hyps"]) \
