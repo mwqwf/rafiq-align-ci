@@ -61,7 +61,20 @@ def lexicons(riwayat=("hafs", "warsh", "qalun")):
     return out
 
 
-def judge_with(plan, hyps, lex):
+# 🎚️ **الأذرعُ المقيسةُ** — القاعدةُ كما هي **مردودةٌ** (D-445③: −4.55 اتّهاماً مقابل
+# −18.0 كشفاً)، فالمقيسُ الآن **تضييقُها**: طولُ المسموع · أو أن تكون **جارتُها متَّهَمةً**
+# (‏سندُه D-387: خطأُ الضجيج **متكتّلٌ** 50٪ شرطيّاً مقابل 31٪ هامشيّاً، أمّا الإبدالُ
+# المحقونُ فـ**مفردٌ** — فالشرطُ يفرّق بين الجرف والخطأ الحقيقيّ بلا احتمالات).
+VARIANTS = [
+    ("كما هي (D-445③)", {}),
+    ("طولٌ ≥5", {"unheard_min_len": 5}),
+    ("طولٌ ≥7", {"unheard_min_len": 7}),
+    ("**وجارتُها متَّهَمة**", {"unheard_need_neighbour": True}),
+    ("جارةٌ + طولٌ ≥5", {"unheard_need_neighbour": True, "unheard_min_len": 5}),
+]
+
+
+def judge_with(plan, hyps, lex, **opts):
     """حكمُ الذراع بمسطرةٍ معجمُها [lex] (‏`None` = المشحون) — **ويُعيد `cfg_for` دائماً**.
 
     ⛔ **ولِمَ الحرصُ:** `detect_score.cfg_for` **دالّةٌ عامّةٌ** يناديها كلُّ حكمٍ في هذه
@@ -71,9 +84,11 @@ def judge_with(plan, hyps, lex):
     old = D.cfg_for
     try:
         if lex is not None:
-            def patched(riwaya, _old=old):
+            def patched(riwaya, _old=old, _o=opts):
                 c = _old(riwaya)
                 c.unheard_lexicon = lex.get(riwaya)
+                for k, v in _o.items():
+                    setattr(c, k, v)
                 return c
             D.cfg_for = patched
         return G.judge_arm(plan, hyps)
@@ -128,6 +143,17 @@ def selftest():
     lx = lexicons(("hafs",))
     ok("والمعجمُ يُبنى بالطريق الذي يسلكه الشوط", bool(lx.get("hafs")), True)
 
+    # 🎚️ وضابطا التضييق — وهما **سببُ وجود الأذرع**: الطولُ والجيرة
+    c3 = D.cfg_for("hafs"); c3.unheard_lexicon = _LEX["hafs"]; c3.unheard_min_len = 7
+    ok("طولٌ ≥7 يُبقي `سسنسا` (خمسةُ أحرف) اتّهاماً",
+       scorer.score(ref, _HYPS["t1"]["text"], c3)["words"][2][1], scorer.SUBSTITUTED)
+    c4 = D.cfg_for("hafs"); c4.unheard_lexicon = _LEX["hafs"]; c4.unheard_need_neighbour = True
+    ok("⭐ وخطأٌ **مفردٌ** يبقى اتّهاماً (‏فالكشفُ لا يُكتَم)",
+       scorer.score(ref, _HYPS["t1"]["text"], c4)["words"][2][1], scorer.SUBSTITUTED)
+    ok("⭐ وجارتان لا-كلمتَين ⇒ «لم أتبيّن» للاثنتَين (‏جرفُ ضجيجٍ يُكبَح)",
+       [w[1] for w in scorer.score(ref, "الحمد لله سسنسا زقزق الرحمن الرحيم", c4)["words"]][2:4],
+       [scorer.UNCERTAIN, scorer.UNCERTAIN])
+
     # ② وحكمُ الذراع يتبدّل تبعاً — والكشفُ هو الثمنُ المحتمَل
     dA, faA, nA, _ = judge_with(_PLAN, _HYPS, None)
     dB, faB, nB, _ = judge_with(_PLAN, _HYPS, _LEX)
@@ -174,20 +200,27 @@ def main():
         raise SystemExit("⛔ لم يُبنَ معجمٌ واحد ⇒ **القاعدةُ لم تُقَس** (ولا يُقرأ هذا «لا أثر»)")
 
     dA, faA, n, perA = judge_with(plan, h, None)
-    dB, faB, _, perB = judge_with(plan, h, lex)
 
     print(f"# 🤫 «لم أتبيّن» بدل «أخطأت» — الذراعُ `{a.arm}` · ن = **{len(plan)}**\n")
-    print("**مسطرتان على الفرضيّات عينِها**: المشحونة ⇐ «ما ليس كلمةً من المصحف لا يُتَّهم به».\n")
-    pairs = [(perA[i][0], perA[i][1], perB[i][0], perB[i][1]) for i in perA if i in perB]
-    lo, hi, p = G._boot_diff(pairs)
-    det_pairs = [(perA[i][2], 1, perB[i][2], 1) for i in perA if i in perB]
-    d_lo, d_hi, d_p = G._boot_diff(det_pairs)
-    print("| المقياس | المشحونة | **المرشَّحة** | الفرق [95٪] | احتمالُ السوء |")
-    print("|---|---:|---:|---|---:|")
-    print(f"| اتّهامٌ كاذب | {faA*100:.2f}٪ | **{faB*100:.2f}٪** | {(faB-faA)*100:+.2f} "
-          f"[{lo*100:+.2f} .. {hi*100:+.2f}] | {p*100:.0f}٪ |")
-    print(f"| كشفٌ ضيّق | {dA*100:.1f}٪ | **{dB*100:.1f}٪** | {(dB-dA)*100:+.1f} "
-          f"[{d_lo*100:+.1f} .. {d_hi*100:+.1f}] | {d_p*100:.0f}٪ |")
+    print("**مسطرةٌ واحدةٌ وأذرعٌ من شروطٍ** على الفرضيّات عينِها · والمشحونةُ أساسٌ: "
+          f"اتّهامٌ كاذب **{faA*100:.2f}٪** · كشفٌ ضيّق **{dA*100:.1f}٪**.\n")
+    print("| الشرطُ المرشَّح | اتّهامٌ كاذب | الفرق [95٪] | كشفٌ ضيّق | الفرق [95٪] | **الصرفُ** |")
+    print("|---|---:|---|---:|---|---:|")
+    for name, opts in VARIANTS:
+        dB, faB, _, perB = judge_with(plan, h, lex, **opts)
+        pairs = [(perA[i][0], perA[i][1], perB[i][0], perB[i][1]) for i in perA if i in perB]
+        lo, hi, _p = G._boot_diff(pairs)
+        det_pairs = [(perA[i][2], 1, perB[i][2], 1) for i in perA if i in perB]
+        d_lo, d_hi, _dp = G._boot_diff(det_pairs)
+        gain, cost = (faA - faB) * 100, (dA - dB) * 100
+        # ⭐ **الصرفُ** = نقاطُ كشفٍ تُدفع لكلّ نقطةِ اتّهامٍ تُكسب — ورقمٌ واحدٌ يُقرأ بلا حساب.
+        ratio = "—" if gain <= 0 else ("∞" if cost > 0 and gain == 0 else f"{cost / gain:.2f}")
+        print(f"| {name} | {faB*100:.2f}٪ | {-gain:+.2f} [{lo*100:+.2f} .. {hi*100:+.2f}] | "
+              f"{dB*100:.1f}٪ | {-cost:+.1f} [{d_lo*100:+.1f} .. {d_hi*100:+.1f}] | "
+              f"**{ratio}** |")
+    print("\n⭐ **الصرفُ** = كم نقطةَ كشفٍ تُدفع لكلّ نقطةِ اتّهامٍ كاذبٍ تُكسب — "
+          "و**دون الواحد** يعني كسباً أرخصَ من ثمنه. "
+          "⛔ ولا يُشحن شيءٌ بلا قرارٍ صريحٍ على هذا الجدول.")
     print("\n⛔ **ويُقرأ الصفّان معاً لا أحدُهما:** `UNCERTAIN` لا تُعَدّ كشفاً، فكلُّ نقطةٍ "
           "تُكسب في الاتّهام قد تُدفع من الكشف. ⚠️ **ولا يقيس هذا لحنَ طالبٍ حقيقيٍّ** "
           "(الحقنُ صوتٌ صحيحٌ لكلمةٍ أخرى) — وذلك حدُّ القاعدة لا حدُّ الأداة.")

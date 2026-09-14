@@ -60,7 +60,7 @@ class Config:
     def __init__(self, match_num=1, match_den=5, khanjariya=True, extra_subs=(),
                  strip_yeh_barree=True, dagger_optional=True, naql=False, sila=None, mark_sila=True,
                  learner_tolerant=False, wide_uncertain=False, wide_uncertain_min=6,
-                 unheard_lexicon=None,
+                 unheard_lexicon=None, unheard_min_len=0, unheard_need_neighbour=False,
                  collapse_threshold=0.60, short_cap=3, phon=None, phon_cap=3,
                  dagger_madd=True, abs_cap=None, drop_subs=(), strict_short=False):
         self.match_num, self.match_den = match_num, match_den
@@ -117,6 +117,13 @@ class Config:
         # ⛔ و**بعد** المحاذاة لا فيها: تكلفةُ الـDP لا تُلمَس (وإلّا تبدّلت المواضعُ فصار
         #     المقيسُ قاعدةً أخرى)، تماماً كحارس الانهيار — إعادةُ وسمٍ لا إعادةُ محاذاة.
         self.unheard_lexicon = unheard_lexicon
+        # 🎚️ **وتضييقان يُقاسان** (‏D-445③: القاعدةُ كما هي **مردودةٌ** — تكسب 4.55 من الاتّهام
+        # الكاذب وتدفع **18.0 من الكشف**): `unheard_min_len` يقصرها على المسموع الطويل ·
+        # و`unheard_need_neighbour` يشترط أن تكون **جارةُ الكلمة متَّهَمةً** أيضاً (‏فيقترب من
+        # حارس الانهيار بمقياسٍ أدقَّ من نسبة الآية · وسندُه D-387: خطأُ الضجيج **متكتّلٌ**
+        # 50٪ شرطيّاً مقابل 31٪ هامشيّاً، أمّا الإبدالُ المحقونُ فمفردٌ). **وكلاهما مطفأٌ.**
+        self.unheard_min_len = unheard_min_len
+        self.unheard_need_neighbour = unheard_need_neighbour
 
     def label(self):
         bits = [f"عتبة {self.match_num}/{self.match_den}"]
@@ -337,9 +344,17 @@ def _unheard_guard(words, cfg):
     lex = getattr(cfg, "unheard_lexicon", None)
     if not lex:
         return words
+    min_len = getattr(cfg, "unheard_min_len", 0)
+    need_nb = getattr(cfg, "unheard_need_neighbour", False)
+    # ⛔ والجيرةُ تُقرأ من **القائمة قبل التعديل** فلا تتسلسل: كلمةٌ صارت «لم أتبيّن» لا تُصيّر
+    #    جارتَها كذلك، وإلّا انهارت الآيةُ كلُّها بحكمٍ واحد (‏وذلك بابُ حارس الانهيار لا هذا).
+    accused = {w[0] for w in words if w is not None and w[1] in (MISSED, SUBSTITUTED)}
     out, hit = [], False
     for w in words:
-        if w is not None and w[1] == SUBSTITUTED and w[2] and norm(w[2], cfg) not in lex:
+        if (w is not None and w[1] == SUBSTITUTED and w[2]
+                and norm(w[2], cfg) not in lex
+                and len(norm(w[2], cfg)) >= min_len
+                and (not need_nb or (w[0] - 1) in accused or (w[0] + 1) in accused)):
             out.append((w[0], UNCERTAIN) + tuple(w[2:]))
             hit = True
         else:
