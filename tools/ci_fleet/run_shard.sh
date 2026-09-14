@@ -110,6 +110,31 @@ run_one() {          # $1=reciterId $2=riwaya $3=baseUrl $4=surahs
     skip_count=$((skip_count + 1)); SKIPPED+=("$rid:منجَزٌ سلفاً"); return 0
   fi
   echo "▶ $rid ($riwaya) سور=$surahs"
+  # ⭐⭐ **شوطُ جزءٍ من قارئٍ مقسومٍ على عدّة عدّائين** (‏2026-09-14).
+  #    العلّةُ المقيسة (الموجة 34813198468): زمنُ الموجة = أطولُ شريحة لا مجموعُ
+  #    العمل — أربعُ شرائحَ انتهت في ثانيتين واثنتان تجاوزتا ساعتين وأربعين،
+  #    لأنّ وحدةَ التوزيع «قارئ» والقارئُ لا ينقسم. فهنا ينقسم.
+  # ⛔ **وهذا المسارُ لا يرفع شيئاً بحال**: حصيلتُه كاشُ العمل وحدَه، ويجمعه
+  #    العدّاءُ الخاتم فيسلك مسارَ «المصحف الكامل» بحرّاسه كاملةً غيرَ منقوصة.
+  #    فلا يمكن لفهرسٍ ناقصٍ أن يُنشر من هنا **بنيويّاً** لا بالانضباط.
+  if [ -n "${PART_PACKS:-}" ]; then
+    local ppids=() pk=0
+    for pack in $PART_PACKS; do
+      pk=$((pk + 1))
+      "$PY" "$ROOT/tools/alignment/batch_run.py" \
+            --reciter "$rid" --riwaya "$riwaya" --base "$base" --surahs "$pack" \
+            > "$ROOT/logs-copy/$rid.part$pk.log" 2>&1 &
+      ppids+=($!)
+    done
+    echo "  ⇉ $pk حزمة متوازية · جزءُ ${PART_LABEL:-?} · الحزم: $PART_PACKS"
+    for p in "${ppids[@]}"; do wait "$p" || rc=$?; done
+    cat "$ROOT/logs-copy/$rid".part*.log > "$ROOT/logs-copy/$rid.log" 2>/dev/null
+    tail -n 25 "$ROOT/logs-copy/$rid.log"
+    _have=$(ls "$ROOT/tools/alignment/work/batch_$rid"/s*.json 2>/dev/null | wc -l)
+    echo "  📄 ملفات السور بعد هذا الجزء: $((_have + 0))/114 · rc=$rc"
+    echo "  📦 لا رفعَ من شوطِ جزء — الحصيلةُ كاشُ العمل، والجمعُ في العدّاء الخاتم"
+    ok_count=$((ok_count + 1)); return 0
+  fi
   # ⛔ التوازي هنا لا في العدة (عيبٌ قاتل كشفه github-f4): `batch_run.py`
   #    **تسلسليّ بلا توازٍ داخلي** — فحصتُه: صفر Thread/Pool/multiprocessing،
   #    و`JOBS` كان يُطبَع ولا يُستعمل. ⇒ عدّاءٌ بأربع أنوية يعمل بنواةٍ واحدة،

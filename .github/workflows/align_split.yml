@@ -1,0 +1,652 @@
+name: rafiq-align-split
+
+run-name: >-
+  split ${{ inputs.reciter }}/${{ inputs.riwaya }} · أجزاء=${{ inputs.parts }}
+
+# ⭐⭐ **قسمةُ القارئ الواحد على عدّة عدّائين، ثمّ جمعٌ في عدّاءٍ خاتم.**
+#
+# العلّةُ التي وُلد منها، مقيسةً لا مستنتَجة (الموجة 34813198468، 2026-09-14):
+# أطوارُ «تشغيل السائق» في شرائحها العشر كانت
+#   2ث · 2ث · 2ث · 2ث · 7د · 17د · 45د · 85د · >160د · >160د
+# ⇒ **زمنُ الموجة أطولُ شريحةٍ لا مجموعُ العمل**، وأربعةُ عدّائين جلسوا عاطلين
+# من الدقيقة الثانية. والسببُ أنّ وحدةَ التوزيع «قارئ» في `assign_shard.py`،
+# وقارئٌ كاملُ المصحف لا ينقسم فيصطدم بسقف 350 دقيقة ويُقطع ويُستأنف موجةً بعد موجة.
+#
+# ⛔⛔ **وأمانُه بنيويٌّ لا انضباطيّ** — وهذا شرطُ المالك الأوحد («ألا نُتّهم
+# بتحريف القرآن») مطبَّقاً في الشفرة لا في النيّة:
+#   • شوطُ الجزء يعمل بـ`PART_PACKS`، وذلك الفرعُ في `run_shard.sh`
+#     **لا يستدعي `stage_upload.py` أصلاً** — فلا سبيلَ له إلى الدلو بحال.
+#   • الرفعُ كلُّه في العدّاء الخاتم، على مسار «المصحف الكامل 1-114» نفسِه
+#     بحرّاسه كاملةً: عدُّ الملفّات 114/114 · `refine_probe` · حارسُ الرفع
+#     (بصمات 114/114 · مشحون · HIGH) · `PARTIAL_MIN`. **لم يُخفَّض حدٌّ ولم
+#     يُعطَّل حارسٌ ولم يُقصَّر فحص.**
+#   • والجمعُ من كاش العمل مسلكٌ **مُجرَّبٌ لا مخترَع**: الشريحةُ 9 في الموجة
+#     نفسِها استرجعت كاشاً كاملاً فأنتجت فهرسَ `aamer` (6233 مدخلاً · 114/114)
+#     ومرّ على حارس الرفع **في ثانيتين**. فهذا المسارُ هو ذاك، بكاشاتٍ عدّة.
+#   • والقسمةُ واحدةٌ بمجموع الآي (`make_bins.py <parts×jobs>`)، فالحزمُ
+#     متباينةٌ لا تتداخل، وملفُّ كلّ سورةٍ مستقلّ ⇒ لا تصادمَ في الدمج.
+on:
+  workflow_dispatch:
+    inputs:
+      reciter:
+        description: "معرّف القارئ (سطرُه في قائمةٍ قائمة، أو يُبنى من المدخلات هنا)"
+        required: true
+      riwaya:
+        description: "الرواية (hafs · warsh · qalun · douri · shuba · sousi)"
+        default: "hafs"
+      url_template:
+        description: "قالبُ الرابط، فيه {surah:03d}"
+        required: true
+      parts:
+        description: "عددُ الأجزاء (عدّاءون متوازون على القارئ نفسِه). 2..8"
+        default: "6"
+      jobs_per_runner:
+        description: "عمليات متوازية داخل كل عدّاء (عام = 4 vCPU ⇒ 4)"
+        default: "4"
+      main_model:
+        description: "نموذجُ التفريغ: tiny (الافتراض) أو base"
+        default: "tiny"
+      whisper_ac:
+        description: "‏-ac لـwhisper (0 = بناءُ الأسطول)"
+        default: "0"
+
+# ⛔ مجموعةٌ لكلّ قارئ: قسمتان لقارئٍ واحد تتنازعان كاشَه، وقارئان مختلفان
+#    لا يلتقيان في شيء — وهو عينُ التمييز الذي كلّف `align.yml` أربعَ مراجعات.
+concurrency:
+  group: rafiq-split-${{ inputs.riwaya }}-${{ inputs.reciter }}
+  cancel-in-progress: false
+
+env:
+  WHISPER_REF: eacbd8234c6654cdbf2c377f72b2106875479bdc
+  PY: "3.11"
+  WHISPER_THREADS: "1"
+  WHISPER_AC: ${{ inputs.whisper_ac || '0' }}
+  MAIN_MODEL: ${{ inputs.main_model || 'tiny' }}
+
+jobs:
+  prepare:
+    name: prepare — ${{ inputs.reciter }} × ${{ inputs.parts }}
+    runs-on: ubuntu-latest
+    outputs:
+      matrix: ${{ steps.gen.outputs.matrix }}
+    steps:
+      - id: gen
+        run: |
+          n=${{ inputs.parts }}
+          if [ "$n" -lt 2 ] || [ "$n" -gt 8 ]; then
+            echo "⛔ parts=$n خارج 2..8 — الحدُّ الأعلى لأنّ الجامعَ يستعيد ثمانيةَ كاشاتٍ صريحة"
+            exit 1
+          fi
+          echo "matrix=$(python3 -c "import json,sys;print(json.dumps(list(range(int(sys.argv[1])))))" "$n")" >> "$GITHUB_OUTPUT"
+
+  part:
+    name: جزء ${{ matrix.part }}/${{ inputs.parts }} — ${{ inputs.reciter }}
+    needs: prepare
+    runs-on: ubuntu-latest
+    timeout-minutes: 350
+    strategy:
+      fail-fast: false
+      matrix:
+        part: ${{ fromJSON(needs.prepare.outputs.matrix) }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PY }}
+
+      - name: أدوات النظام
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq ffmpeg cmake build-essential
+          python -m pip install --quiet boto3 numpy
+
+      # ── whisper.cpp: يُبنى مرة ويُخبَّأ ──────────────────────────────────
+      # ⚠️ GGML_NATIVE=OFF عمداً: الكاش يُستهلك على عدّاء قد يختلف طرازه،
+      #    وثنائيٌّ مبنيٌّ بتعليمات معالجٍ آخر يسقط بـSIGILL. الثمن سرعةٌ أقل،
+      #    والبديل (بناء في كل مهمة) يلتهم نصف المهلة عشرين مرة.
+      - name: كاش ثنائي whisper
+        id: whisper-cache
+        uses: actions/cache@v4
+        with:
+          path: whisper-bin
+          key: whisper-cli-${{ runner.os }}-${{ env.WHISPER_REF }}-avx2-v1
+
+      - name: بناء whisper.cpp (عند غياب الكاش)
+        if: steps.whisper-cache.outputs.cache-hit != 'true'
+        run: |
+          # ⛔ إيداعٌ بعينه لا فرع: --branch لا يقبل SHA، فالجلب المباشر للإيداع.
+          mkdir -p wsrc && cd wsrc && git init -q .
+          git remote add origin https://github.com/ggml-org/whisper.cpp.git
+          git fetch -q --depth 1 origin "$WHISPER_REF"
+          git checkout -q FETCH_HEAD
+          cd "$GITHUB_WORKSPACE"
+          # ⭐⭐ **`GGML_NATIVE=OFF` وحدَه كان يُسقط AVX2/FMA/F16C** — فالثنائي
+          #    يعمل بتعليماتٍ عدديّةٍ بدائيّة على عدّاءٍ يدعمها كلَّها. والحلُّ
+          #    ليس `NATIVE=ON` (يكسر الكاش بين طُرُز العدّائين ويُسقط بـSIGILL)
+          #    بل **تسميةُ المجموعة صراحةً**: كلُّ عدّائي GitHub x86_64 يدعمون
+          #    AVX2/FMA/F16C، و**AVX512 يبقى مطفأً** لأنّه ليس مضموناً فيهم.
+          #    المكسبُ المقيس في هذا المشروع سابقاً **1.79×**، ولا يمسّ حكماً
+          #    ولا عتبة: النموذجُ والأعلامُ والمخرَجُ كما هي حرفاً.
+          #    ⛔ ويبقى ثنائي `audio_qa.yml` على حاله حفظاً لقابلية المقارنة.
+          cmake -S wsrc -B wsrc/build -DCMAKE_BUILD_TYPE=Release             -DGGML_NATIVE=OFF -DGGML_AVX=ON -DGGML_AVX2=ON -DGGML_FMA=ON             -DGGML_F16C=ON -DGGML_AVX512=OFF             -DWHISPER_BUILD_TESTS=OFF -DWHISPER_BUILD_EXAMPLES=ON
+          cmake --build wsrc/build --config Release -j"$(nproc)"
+          mkdir -p whisper-bin
+          cp "$(find wsrc/build -name whisper-cli -type f | head -1)" whisper-bin/whisper-cli
+          find wsrc/build -name "*.so*" -exec cp {} whisper-bin/ \;
+
+
+      # ── المسارات التي تتوقعها العدة كما هي (⛔ لا تعديل على شفرة العدة) ──
+      # common.py يبني المسارات من ROOT، وrun_fleet.py يثبّت /root/QuranRafiq
+      # و.venv/bin/python — فنُرضيهما بوصلات لا بتحرير سطر واحد منهما.
+      - name: تركيب المسارات المتوقَّعة
+        run: |
+          mkdir -p assets-archive/ggml/bin/Release
+          cp whisper-bin/whisper-cli assets-archive/ggml/bin/Release/whisper-cli.exe
+          cp whisper-bin/*.so* assets-archive/ggml/bin/Release/ 2>/dev/null || true
+          chmod +x assets-archive/ggml/bin/Release/whisper-cli.exe
+          # ⛔ برهانٌ أن الثنائي **يعمل** لا أنه موجود: سقطت موجة 33626892332
+          #    بعد 22 دقيقة بـ`exit status 127` على **كل** سورة — أي أن whisper
+          #    لم يُنفَّذ قط (مكتبةٌ مشتركة مفقودة)، والملف موجودٌ وقابلٌ للتنفيذ.
+          #    الفحص ثانيتان، وثمن غيابه كان الموجة كلها.
+          export LD_LIBRARY_PATH="$GITHUB_WORKSPACE/assets-archive/ggml/bin/Release:${LD_LIBRARY_PATH:-}"
+          if ! assets-archive/ggml/bin/Release/whisper-cli.exe --help >/dev/null 2>&1; then
+            echo "⛔ whisper-cli لا يعمل — مكتبةٌ مفقودة أو ثنائيٌّ معطوب:"
+            ldd assets-archive/ggml/bin/Release/whisper-cli.exe 2>&1 | grep -i "not found" || true
+            exit 1
+          fi
+          echo "✅ whisper-cli يعمل · المكتبات: $(ls assets-archive/ggml/bin/Release/*.so* 2>/dev/null | wc -l)"
+          mkdir -p .venv/bin && ln -sf "$(command -v python)" .venv/bin/python
+          sudo mkdir -p /root && sudo ln -sfn "$GITHUB_WORKSPACE" /root/QuranRafiq
+          sudo chmod 755 /root
+
+      # ⛔ فخّ كلّف أسطول الخوادم 228 سورة الليلة (تحذير github-b9): `pipeline.py`
+      #    يستورد `refine` من tools/alignment_v2 عبر sys.path.insert. إن غاب المجلد
+      #    سقطت كل سورة تبلغ الصقل، **وخرج الفهرس مكتملاً في الظاهر وهو جيلٌ أول**.
+      #    فيُفحص هنا — قبل أي عمل — لا وقت التشغيل.
+      - name: برهان الجيل الثاني (⛔ قبل أي فهرسة)
+        run: |
+          test -d tools/alignment_v2 || { echo "⛔ tools/alignment_v2 غائب"; exit 1; }
+          python - <<'PY'
+          import sys
+          sys.path.insert(0, "tools/alignment_v2")
+          import refine  # noqa: F401
+          print("✅ refine مستورَد — الصقل حيّ")
+          PY
+
+      # ⛔ برهانٌ ثانٍ كان ينقصني وكلّف 19 شريحة × 89 دقيقة: فحصتُ أن `refine`
+      #    **يُستورَد**، ولم أفحص أن **بناء الفهرس نفسه** يستورد. و`validate.py`
+      #    يستورد `coverage_guard` من `tools/cloud/` — وكانت ناقصةً من صورتي
+      #    (نسختُ `run_fleet.py` وحده) فسقط البناء **بعد** انتهاء التفريغ كله.
+      #    ⇒ يُفحص **كل** ما يلزم للبناء قبل أي عمل، لا وحدةً واحدة.
+      - name: برهان سلسلة البناء (⛔ قبل أي فهرسة)
+        run: |
+          python - <<'PY'
+          import sys
+          for p in ("tools/alignment", "tools/alignment_v2", "tools/cloud"):
+              sys.path.insert(0, p)
+          import refine, coverage_guard, validate, pipeline, batch_run  # noqa: F401
+          print("✅ سلسلة البناء كاملة: refine · coverage_guard · validate · pipeline · batch_run")
+          PY
+
+      - name: اعتماد R2 والنموذج
+        env:
+          R2_CREDENTIALS_JSON: ${{ secrets.R2_CREDENTIALS_JSON }}
+        run: |
+          # ⛔ عبر متغير بيئة لا سطر أمر: سطر الأمر يظهر في السجل العام.
+          mkdir -p secure
+          printf '%s' "$R2_CREDENTIALS_JSON" > secure/r2_credentials.json
+          python - <<'PY'
+          import json, os, boto3
+          c = json.load(open("secure/r2_credentials.json"))
+          s3 = boto3.client("s3", endpoint_url=c["endpoint"],
+                            aws_access_key_id=c["accessKeyId"],
+                            aws_secret_access_key=c["secretAccessKey"], region_name="auto")
+          # ⭐ **مفرِّغٌ رئيسيٌّ اختياريّ** (تجربةُ مشرف التقييم 2026-09-12):
+          #    `base-ar-quran` أدقُّ وأبطأُ ~3× — يُجرَّب على قارئٍ **واحد**
+          #    قريبٍ من العتبة قبل أيّ تعميم. ⛔ والاسمُ يبقى `ggml-tiny-…`
+          #    لأنّ `common.py` يبني المسارَ منه، **والتمييزُ في مفتاح الكاش**
+          #    لا في اسم الملفّ — وإلا استُعيد كاشُ tiny فلم يُعَد تفريغُ شيء
+          #    وخرج فهرسُ tiny تحت اسم base (عينُ فخّ `-ac 512` الموثَّق أدناه).
+          _main = os.environ.get("MAIN_MODEL", "tiny")
+          _src = ("models/whisper-base-ar-quran/ggml-q8_0.bin" if _main == "base"
+                  else "models/whisper-tiny-ar-quran/ggml-q8_0.bin")
+          print("نموذجُ التفريغ الرئيسيّ:", _main, "⇐", _src)
+          dst = "assets-archive/ggml/ggml-tiny-ar-quran-q8_0.bin"
+          os.makedirs(os.path.dirname(dst), exist_ok=True)
+          s3.download_file(c["bucket"], _src, dst)
+          print("النموذج:", os.path.getsize(dst) // 1024 // 1024, "م.ب")
+          # ⛔ نموذجُ الصقل مستقلٌّ (D-179): التفريغُ العامّ بالسريع والصقلُ
+          #    بالأدقّ — فالعطبُ الجسيم محصورٌ في حدود MED/LOW وهي ما يصقله.
+          rdst = "assets-archive/ggml/ggml-refine-q8_0.bin"
+          s3.download_file(c["bucket"], "models/whisper-base-ar-quran/ggml-q8_0.bin", rdst)
+          print("نموذج الصقل:", os.path.getsize(rdst) // 1024 // 1024, "م.ب")
+          PY
+
+      # ── الاستئناف: العمل المنجز يُخبَّأ فيلتقطه التشغيل التالي ───────────
+      # batch_run.py لا يعيد سورةً لها json — فالكاش وحده يكسر سقف الست ساعات.
+      # ⛔ الوصفة جزءٌ من المفتاح (أمر github-f4 بعد بلاغ 7d): `batch_run.py` لا
+      #    يعيد سورةً لها `s*.json` — وهذه هي نعمة الاستئناف ونقمته معاً. فكاشٌ
+      #    وُلّد بـ`-ac 512` يُستعاد على تشغيلةٍ بـ`-ac 0` **فلا يُعاد التعرّف
+      #    أصلاً**، ويخرج فهرسٌ بالوصفة القديمة تحت اسم الجديدة. تغيير الوصفة
+      #    يجب أن يُبطل الكاش، ولذلك دخلت في المفتاح لا في التعليق.
+      # ⛔ الاستعادة والحفظ منفصلان عمداً (إذن github-f4، 2026-09-02):
+      #    `actions/cache` المدمج يحفظ في خطوةٍ لاحقة **لا تُضمَن عند القتل**،
+      #    ووثائقه صامتةٌ عن الإلغاء والفشل تماماً — وإحالتها إلى إجراء `save`
+      #    المستقل «للتحكم الدقيق في وقت الحفظ» هي نفسها قرينةٌ على ذلك.
+      #    والشريحة هنا تُقتل غالباً بسقف الست ساعات لا بنجاحها ⇒ الحفظ عند
+      #    النجاح وحده يعني **ألّا يُحفظ شيء أبداً**، فيضيع عملُ ست ساعات كاملة.
+      #    و`if: always()` يجعل الجزئيّ محفوظاً فيستأنفه التشغيل التالي.
+      # ⛔ نسخة VAD جزءٌ من مفتاح الكاش (قرار github-f4 على تحفّظٍ رفعتُه):
+      #    الرقعة المتكيّفة تغيّر **التقطيع** لا التفريغ، و`batch_run` لا يعيد
+      #    سورةً لها `s*.json` ⇒ شريحةٌ تُعاد بعد الرقعة تستأنف القديم فلا
+      #    يُعاد التقطيع أصلاً، ويخرج فهرسٌ بـVAD القديم تحت اسم الجديد —
+      #    وهو فخّ `tareq_qalun` نفسه في ثوبٍ ثانٍ. **كل معاملٍ يغيّر المخرَج
+      #    يدخل المفتاح، وإلا صار الكاش يكذب باسم السرعة** (قاعدة github-82).
+      #    وقبل وصول الرقعة تُستعمل قيمةٌ ثابتة تميّز الحقبة القديمة، فلا
+      #    تختلط كاشات ما قبلها بما بعدها.
+
+      # ⭐ **برهانُ AVX2 من الأثر لا من أمر البناء** (أمرُ مشرف التقييم 2026-09-12):
+      #    أمرُ `cmake` نيّةٌ، و`system_info` شهادةُ الثنائي عن نفسه. ويُطبع في
+      #    ملخّص الوظيفة كي يُقرأ بلا فتح سجلّ — وهو يعمل مع الكاش وبدونه.
+      #    ⛔ وبلا `--no-prints` عمداً: هي التي تكتم السطر المطلوب.
+      - name: برهان AVX2 (system_info من الثنائي نفسه)
+        run: |
+          set -e
+          ffmpeg -v error -f lavfi -i anullsrc=r=16000:cl=mono -t 0.2 -ar 16000 -ac 1 /tmp/sil.wav
+          info=$(./whisper-bin/whisper-cli -m assets-archive/ggml/ggml-tiny-ar-quran-q8_0.bin -f /tmp/sil.wav -l ar 2>&1                  | grep -m1 "system_info" || true)
+          [ -n "$info" ] || info="⚠️ تعذّرت قراءة system_info"
+          echo "$info"
+          echo "- 🧪 $info" >> "$GITHUB_STEP_SUMMARY"
+
+      - name: وسم نسخة VAD
+        run: |
+          v=$(grep -oE '^VAD_VERSION[[:space:]]*=[[:space:]]*["'"'"']([^"'"'"']+)' \
+              tools/alignment/vad.py 2>/dev/null | sed -E 's/.*["'"'"']//' || true)
+          [ -n "$v" ] || v="legacy-fixed004"
+          echo "VAD_VERSION=$v" >> "$GITHUB_ENV"
+          echo "نسخة VAD: $v"
+
+      # ⛔⛔ هويّةُ الكاش **باسمِ القارئ لا برقمِ الخانة** — والعلّةُ مقيسةٌ بثمنها
+      #    ثلاثَ مرّات (‏آخرُها 2026-09-12): الشريحةُ تأخذ `rows[i::shards]`
+      #    ⇒ رقمُ الخانة = رقمُ الصفّ، وكان المفتاحُ يحمل رقمَ الخانة وحدَه.
+      #    فأيُّ تعديلٍ في **رأس** قائمة الموجة (‏ترقيةُ قارئٍ · إخراجُ آخر)
+      #    يُزيح كلَّ من تحته خانةً **فيخسرون كاشَهم كلَّهم** — ساعاتِ عملٍ
+      #    محفوظة. والقياسُ الأخير: موجةٌ ماتت بسقف الست ساعات وفيها
+      #    `asim` 514م.ب و`noah_qalun` 170م.ب، **ولا سبيلَ لإصابة الخانتين معاً**
+      #    بقائمةٍ أقصرَ من سبعة صفوف ⇒ 514م.ب ضاعت اضطراراً.
+      #    ⇒ العلاجُ أن يتبع الكاشُ **مَن يعمل** لا **أين يقع**، فيصير ترتيبُ
+      #    القائمة حرّاً بلا ثمن. والسقوطُ إلى مفتاح الخانة يبقى **الثانيَ في
+      #    `restore-keys`** حتى لا تضيع الكاشاتُ المكتوبةُ بالوصفة القديمة.
+      - name: صفُّ القارئ وحزمُ هذا الجزء
+        id: row
+        run: |
+          set -e
+          printf '%s\t%s\t%s\t4\n' "${{ inputs.reciter }}" "${{ inputs.riwaya }}" \
+                 "${{ inputs.url_template }}" > tools/ci_fleet/_split_one.tsv
+          n=$(( ${{ inputs.parts }} * ${{ inputs.jobs_per_runner }} ))
+          lo=$(( ${{ matrix.part }} * ${{ inputs.jobs_per_runner }} ))
+          hi=$(( lo + ${{ inputs.jobs_per_runner }} ))
+          packs="$(python3 tools/ci_fleet/make_bins.py "$n" --pick "$lo:$hi")"
+          [ -n "$packs" ] || { echo "⛔ حزمٌ فارغة"; exit 1; }
+          echo "packs=$packs" >> "$GITHUB_OUTPUT"
+          echo "حزمُ الجزء ${{ matrix.part }}: $packs"
+
+      - name: استعادة عمل هذا الجزء
+        uses: actions/cache/restore@v4
+        with:
+          path: tools/alignment/work
+          key: split-m${{ env.MAIN_MODEL }}-ac${{ env.WHISPER_AC }}-vad${{ env.VAD_VERSION }}-${{ inputs.riwaya }}-${{ inputs.reciter }}-${{ inputs.parts }}p${{ matrix.part }}-${{ github.run_id }}
+          restore-keys: |
+            split-m${{ env.MAIN_MODEL }}-ac${{ env.WHISPER_AC }}-vad${{ env.VAD_VERSION }}-${{ inputs.riwaya }}-${{ inputs.reciter }}-${{ inputs.parts }}p${{ matrix.part }}-
+
+      - name: تشغيل شوطِ الجزء (⛔ بلا رفع)
+        env:
+          SHARD: "0"
+          SHARDS: "1"
+          JOBS: ${{ inputs.jobs_per_runner }}
+          SMOKE: "false"
+          SMOKE_SURAHS: "108"
+          LD_LIBRARY_PATH: ${{ github.workspace }}/assets-archive/ggml/bin/Release
+          LIST: /root/QuranRafiq/tools/ci_fleet/_split_one.tsv
+          PART_PACKS: ${{ steps.row.outputs.packs }}
+          PART_LABEL: ${{ matrix.part }}/${{ inputs.parts }}
+          FORCE_REALIGN: "1"
+          STAGE_LOW_HIGH: "1"
+          ALIGN_REFINE: "1"
+          REFINE_MODEL: ${{ github.workspace }}/assets-archive/ggml/ggml-refine-q8_0.bin
+          REFINE_DTW: base
+          GH_TOKEN: ${{ github.token }}
+          GITHUB_REPOSITORY: ${{ github.repository }}
+          GITHUB_RUN_ID: ${{ github.run_id }}
+        run: bash tools/ci_fleet/run_shard.sh
+
+      - name: حفظ عمل الجزء (ولو قُتل)
+        if: always()
+        uses: actions/cache/save@v4
+        with:
+          path: tools/alignment/work
+          key: split-m${{ env.MAIN_MODEL }}-ac${{ env.WHISPER_AC }}-vad${{ env.VAD_VERSION }}-${{ inputs.riwaya }}-${{ inputs.reciter }}-${{ inputs.parts }}p${{ matrix.part }}-${{ github.run_id }}
+
+      - name: السجلات مخرَجاً
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: logs-split-${{ inputs.reciter }}-p${{ matrix.part }}
+          path: |
+            /root/QuranRafiq/logs-copy/**
+          if-no-files-found: warn
+          retention-days: 7
+
+  # ── العدّاءُ الخاتم: يستعيد كاشاتِ الأجزاء كلَّها في المجلد نفسِه، ثمّ يسلك
+  #    مسارَ «المصحف الكامل» بحرّاسه — ولا شيءَ فيه مخفَّف. وهو ثوانٍ لا ساعات
+  #    لأنّ `batch_run` لا يعيد سورةً لها json.
+  # ⛔ `if: always()` مقصود: جزءٌ سقط لا يُلغي الجمعَ — الحارسُ يردّ النقصَ
+  #    عند الرفع بعدّ 114/114، فالحكمُ للقياس لا لِلَون الوظيفة.
+  assemble:
+    name: جمعٌ ورفع — ${{ inputs.reciter }}
+    needs: part
+    if: always()
+    runs-on: ubuntu-latest
+    timeout-minutes: 350
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PY }}
+
+      - name: أدوات النظام
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq ffmpeg cmake build-essential
+          python -m pip install --quiet boto3 numpy
+
+      # ── whisper.cpp: يُبنى مرة ويُخبَّأ ──────────────────────────────────
+      # ⚠️ GGML_NATIVE=OFF عمداً: الكاش يُستهلك على عدّاء قد يختلف طرازه،
+      #    وثنائيٌّ مبنيٌّ بتعليمات معالجٍ آخر يسقط بـSIGILL. الثمن سرعةٌ أقل،
+      #    والبديل (بناء في كل مهمة) يلتهم نصف المهلة عشرين مرة.
+      - name: كاش ثنائي whisper
+        id: whisper-cache
+        uses: actions/cache@v4
+        with:
+          path: whisper-bin
+          key: whisper-cli-${{ runner.os }}-${{ env.WHISPER_REF }}-avx2-v1
+
+      - name: بناء whisper.cpp (عند غياب الكاش)
+        if: steps.whisper-cache.outputs.cache-hit != 'true'
+        run: |
+          # ⛔ إيداعٌ بعينه لا فرع: --branch لا يقبل SHA، فالجلب المباشر للإيداع.
+          mkdir -p wsrc && cd wsrc && git init -q .
+          git remote add origin https://github.com/ggml-org/whisper.cpp.git
+          git fetch -q --depth 1 origin "$WHISPER_REF"
+          git checkout -q FETCH_HEAD
+          cd "$GITHUB_WORKSPACE"
+          # ⭐⭐ **`GGML_NATIVE=OFF` وحدَه كان يُسقط AVX2/FMA/F16C** — فالثنائي
+          #    يعمل بتعليماتٍ عدديّةٍ بدائيّة على عدّاءٍ يدعمها كلَّها. والحلُّ
+          #    ليس `NATIVE=ON` (يكسر الكاش بين طُرُز العدّائين ويُسقط بـSIGILL)
+          #    بل **تسميةُ المجموعة صراحةً**: كلُّ عدّائي GitHub x86_64 يدعمون
+          #    AVX2/FMA/F16C، و**AVX512 يبقى مطفأً** لأنّه ليس مضموناً فيهم.
+          #    المكسبُ المقيس في هذا المشروع سابقاً **1.79×**، ولا يمسّ حكماً
+          #    ولا عتبة: النموذجُ والأعلامُ والمخرَجُ كما هي حرفاً.
+          #    ⛔ ويبقى ثنائي `audio_qa.yml` على حاله حفظاً لقابلية المقارنة.
+          cmake -S wsrc -B wsrc/build -DCMAKE_BUILD_TYPE=Release             -DGGML_NATIVE=OFF -DGGML_AVX=ON -DGGML_AVX2=ON -DGGML_FMA=ON             -DGGML_F16C=ON -DGGML_AVX512=OFF             -DWHISPER_BUILD_TESTS=OFF -DWHISPER_BUILD_EXAMPLES=ON
+          cmake --build wsrc/build --config Release -j"$(nproc)"
+          mkdir -p whisper-bin
+          cp "$(find wsrc/build -name whisper-cli -type f | head -1)" whisper-bin/whisper-cli
+          find wsrc/build -name "*.so*" -exec cp {} whisper-bin/ \;
+
+
+      # ── المسارات التي تتوقعها العدة كما هي (⛔ لا تعديل على شفرة العدة) ──
+      # common.py يبني المسارات من ROOT، وrun_fleet.py يثبّت /root/QuranRafiq
+      # و.venv/bin/python — فنُرضيهما بوصلات لا بتحرير سطر واحد منهما.
+      - name: تركيب المسارات المتوقَّعة
+        run: |
+          mkdir -p assets-archive/ggml/bin/Release
+          cp whisper-bin/whisper-cli assets-archive/ggml/bin/Release/whisper-cli.exe
+          cp whisper-bin/*.so* assets-archive/ggml/bin/Release/ 2>/dev/null || true
+          chmod +x assets-archive/ggml/bin/Release/whisper-cli.exe
+          # ⛔ برهانٌ أن الثنائي **يعمل** لا أنه موجود: سقطت موجة 33626892332
+          #    بعد 22 دقيقة بـ`exit status 127` على **كل** سورة — أي أن whisper
+          #    لم يُنفَّذ قط (مكتبةٌ مشتركة مفقودة)، والملف موجودٌ وقابلٌ للتنفيذ.
+          #    الفحص ثانيتان، وثمن غيابه كان الموجة كلها.
+          export LD_LIBRARY_PATH="$GITHUB_WORKSPACE/assets-archive/ggml/bin/Release:${LD_LIBRARY_PATH:-}"
+          if ! assets-archive/ggml/bin/Release/whisper-cli.exe --help >/dev/null 2>&1; then
+            echo "⛔ whisper-cli لا يعمل — مكتبةٌ مفقودة أو ثنائيٌّ معطوب:"
+            ldd assets-archive/ggml/bin/Release/whisper-cli.exe 2>&1 | grep -i "not found" || true
+            exit 1
+          fi
+          echo "✅ whisper-cli يعمل · المكتبات: $(ls assets-archive/ggml/bin/Release/*.so* 2>/dev/null | wc -l)"
+          mkdir -p .venv/bin && ln -sf "$(command -v python)" .venv/bin/python
+          sudo mkdir -p /root && sudo ln -sfn "$GITHUB_WORKSPACE" /root/QuranRafiq
+          sudo chmod 755 /root
+
+      # ⛔ فخّ كلّف أسطول الخوادم 228 سورة الليلة (تحذير github-b9): `pipeline.py`
+      #    يستورد `refine` من tools/alignment_v2 عبر sys.path.insert. إن غاب المجلد
+      #    سقطت كل سورة تبلغ الصقل، **وخرج الفهرس مكتملاً في الظاهر وهو جيلٌ أول**.
+      #    فيُفحص هنا — قبل أي عمل — لا وقت التشغيل.
+      - name: برهان الجيل الثاني (⛔ قبل أي فهرسة)
+        run: |
+          test -d tools/alignment_v2 || { echo "⛔ tools/alignment_v2 غائب"; exit 1; }
+          python - <<'PY'
+          import sys
+          sys.path.insert(0, "tools/alignment_v2")
+          import refine  # noqa: F401
+          print("✅ refine مستورَد — الصقل حيّ")
+          PY
+
+      # ⛔ برهانٌ ثانٍ كان ينقصني وكلّف 19 شريحة × 89 دقيقة: فحصتُ أن `refine`
+      #    **يُستورَد**، ولم أفحص أن **بناء الفهرس نفسه** يستورد. و`validate.py`
+      #    يستورد `coverage_guard` من `tools/cloud/` — وكانت ناقصةً من صورتي
+      #    (نسختُ `run_fleet.py` وحده) فسقط البناء **بعد** انتهاء التفريغ كله.
+      #    ⇒ يُفحص **كل** ما يلزم للبناء قبل أي عمل، لا وحدةً واحدة.
+      - name: برهان سلسلة البناء (⛔ قبل أي فهرسة)
+        run: |
+          python - <<'PY'
+          import sys
+          for p in ("tools/alignment", "tools/alignment_v2", "tools/cloud"):
+              sys.path.insert(0, p)
+          import refine, coverage_guard, validate, pipeline, batch_run  # noqa: F401
+          print("✅ سلسلة البناء كاملة: refine · coverage_guard · validate · pipeline · batch_run")
+          PY
+
+      - name: اعتماد R2 والنموذج
+        env:
+          R2_CREDENTIALS_JSON: ${{ secrets.R2_CREDENTIALS_JSON }}
+        run: |
+          # ⛔ عبر متغير بيئة لا سطر أمر: سطر الأمر يظهر في السجل العام.
+          mkdir -p secure
+          printf '%s' "$R2_CREDENTIALS_JSON" > secure/r2_credentials.json
+          python - <<'PY'
+          import json, os, boto3
+          c = json.load(open("secure/r2_credentials.json"))
+          s3 = boto3.client("s3", endpoint_url=c["endpoint"],
+                            aws_access_key_id=c["accessKeyId"],
+                            aws_secret_access_key=c["secretAccessKey"], region_name="auto")
+          # ⭐ **مفرِّغٌ رئيسيٌّ اختياريّ** (تجربةُ مشرف التقييم 2026-09-12):
+          #    `base-ar-quran` أدقُّ وأبطأُ ~3× — يُجرَّب على قارئٍ **واحد**
+          #    قريبٍ من العتبة قبل أيّ تعميم. ⛔ والاسمُ يبقى `ggml-tiny-…`
+          #    لأنّ `common.py` يبني المسارَ منه، **والتمييزُ في مفتاح الكاش**
+          #    لا في اسم الملفّ — وإلا استُعيد كاشُ tiny فلم يُعَد تفريغُ شيء
+          #    وخرج فهرسُ tiny تحت اسم base (عينُ فخّ `-ac 512` الموثَّق أدناه).
+          _main = os.environ.get("MAIN_MODEL", "tiny")
+          _src = ("models/whisper-base-ar-quran/ggml-q8_0.bin" if _main == "base"
+                  else "models/whisper-tiny-ar-quran/ggml-q8_0.bin")
+          print("نموذجُ التفريغ الرئيسيّ:", _main, "⇐", _src)
+          dst = "assets-archive/ggml/ggml-tiny-ar-quran-q8_0.bin"
+          os.makedirs(os.path.dirname(dst), exist_ok=True)
+          s3.download_file(c["bucket"], _src, dst)
+          print("النموذج:", os.path.getsize(dst) // 1024 // 1024, "م.ب")
+          # ⛔ نموذجُ الصقل مستقلٌّ (D-179): التفريغُ العامّ بالسريع والصقلُ
+          #    بالأدقّ — فالعطبُ الجسيم محصورٌ في حدود MED/LOW وهي ما يصقله.
+          rdst = "assets-archive/ggml/ggml-refine-q8_0.bin"
+          s3.download_file(c["bucket"], "models/whisper-base-ar-quran/ggml-q8_0.bin", rdst)
+          print("نموذج الصقل:", os.path.getsize(rdst) // 1024 // 1024, "م.ب")
+          PY
+
+      # ── الاستئناف: العمل المنجز يُخبَّأ فيلتقطه التشغيل التالي ───────────
+      # batch_run.py لا يعيد سورةً لها json — فالكاش وحده يكسر سقف الست ساعات.
+      # ⛔ الوصفة جزءٌ من المفتاح (أمر github-f4 بعد بلاغ 7d): `batch_run.py` لا
+      #    يعيد سورةً لها `s*.json` — وهذه هي نعمة الاستئناف ونقمته معاً. فكاشٌ
+      #    وُلّد بـ`-ac 512` يُستعاد على تشغيلةٍ بـ`-ac 0` **فلا يُعاد التعرّف
+      #    أصلاً**، ويخرج فهرسٌ بالوصفة القديمة تحت اسم الجديدة. تغيير الوصفة
+      #    يجب أن يُبطل الكاش، ولذلك دخلت في المفتاح لا في التعليق.
+      # ⛔ الاستعادة والحفظ منفصلان عمداً (إذن github-f4، 2026-09-02):
+      #    `actions/cache` المدمج يحفظ في خطوةٍ لاحقة **لا تُضمَن عند القتل**،
+      #    ووثائقه صامتةٌ عن الإلغاء والفشل تماماً — وإحالتها إلى إجراء `save`
+      #    المستقل «للتحكم الدقيق في وقت الحفظ» هي نفسها قرينةٌ على ذلك.
+      #    والشريحة هنا تُقتل غالباً بسقف الست ساعات لا بنجاحها ⇒ الحفظ عند
+      #    النجاح وحده يعني **ألّا يُحفظ شيء أبداً**، فيضيع عملُ ست ساعات كاملة.
+      #    و`if: always()` يجعل الجزئيّ محفوظاً فيستأنفه التشغيل التالي.
+      # ⛔ نسخة VAD جزءٌ من مفتاح الكاش (قرار github-f4 على تحفّظٍ رفعتُه):
+      #    الرقعة المتكيّفة تغيّر **التقطيع** لا التفريغ، و`batch_run` لا يعيد
+      #    سورةً لها `s*.json` ⇒ شريحةٌ تُعاد بعد الرقعة تستأنف القديم فلا
+      #    يُعاد التقطيع أصلاً، ويخرج فهرسٌ بـVAD القديم تحت اسم الجديد —
+      #    وهو فخّ `tareq_qalun` نفسه في ثوبٍ ثانٍ. **كل معاملٍ يغيّر المخرَج
+      #    يدخل المفتاح، وإلا صار الكاش يكذب باسم السرعة** (قاعدة github-82).
+      #    وقبل وصول الرقعة تُستعمل قيمةٌ ثابتة تميّز الحقبة القديمة، فلا
+      #    تختلط كاشات ما قبلها بما بعدها.
+
+      # ⭐ **برهانُ AVX2 من الأثر لا من أمر البناء** (أمرُ مشرف التقييم 2026-09-12):
+      #    أمرُ `cmake` نيّةٌ، و`system_info` شهادةُ الثنائي عن نفسه. ويُطبع في
+      #    ملخّص الوظيفة كي يُقرأ بلا فتح سجلّ — وهو يعمل مع الكاش وبدونه.
+      #    ⛔ وبلا `--no-prints` عمداً: هي التي تكتم السطر المطلوب.
+      - name: برهان AVX2 (system_info من الثنائي نفسه)
+        run: |
+          set -e
+          ffmpeg -v error -f lavfi -i anullsrc=r=16000:cl=mono -t 0.2 -ar 16000 -ac 1 /tmp/sil.wav
+          info=$(./whisper-bin/whisper-cli -m assets-archive/ggml/ggml-tiny-ar-quran-q8_0.bin -f /tmp/sil.wav -l ar 2>&1                  | grep -m1 "system_info" || true)
+          [ -n "$info" ] || info="⚠️ تعذّرت قراءة system_info"
+          echo "$info"
+          echo "- 🧪 $info" >> "$GITHUB_STEP_SUMMARY"
+
+      - name: وسم نسخة VAD
+        run: |
+          v=$(grep -oE '^VAD_VERSION[[:space:]]*=[[:space:]]*["'"'"']([^"'"'"']+)' \
+              tools/alignment/vad.py 2>/dev/null | sed -E 's/.*["'"'"']//' || true)
+          [ -n "$v" ] || v="legacy-fixed004"
+          echo "VAD_VERSION=$v" >> "$GITHUB_ENV"
+          echo "نسخة VAD: $v"
+
+      # ⛔⛔ هويّةُ الكاش **باسمِ القارئ لا برقمِ الخانة** — والعلّةُ مقيسةٌ بثمنها
+      #    ثلاثَ مرّات (‏آخرُها 2026-09-12): الشريحةُ تأخذ `rows[i::shards]`
+      #    ⇒ رقمُ الخانة = رقمُ الصفّ، وكان المفتاحُ يحمل رقمَ الخانة وحدَه.
+      #    فأيُّ تعديلٍ في **رأس** قائمة الموجة (‏ترقيةُ قارئٍ · إخراجُ آخر)
+      #    يُزيح كلَّ من تحته خانةً **فيخسرون كاشَهم كلَّهم** — ساعاتِ عملٍ
+      #    محفوظة. والقياسُ الأخير: موجةٌ ماتت بسقف الست ساعات وفيها
+      #    `asim` 514م.ب و`noah_qalun` 170م.ب، **ولا سبيلَ لإصابة الخانتين معاً**
+      #    بقائمةٍ أقصرَ من سبعة صفوف ⇒ 514م.ب ضاعت اضطراراً.
+      #    ⇒ العلاجُ أن يتبع الكاشُ **مَن يعمل** لا **أين يقع**، فيصير ترتيبُ
+      #    القائمة حرّاً بلا ثمن. والسقوطُ إلى مفتاح الخانة يبقى **الثانيَ في
+      #    `restore-keys`** حتى لا تضيع الكاشاتُ المكتوبةُ بالوصفة القديمة.
+      - name: صفُّ القارئ
+        run: |
+          printf '%s\t%s\t%s\t4\n' "${{ inputs.reciter }}" "${{ inputs.riwaya }}" \
+                 "${{ inputs.url_template }}" > tools/ci_fleet/_split_one.tsv
+
+      - name: استعادةُ كاشِ الجزء 0
+        if: ${{ 0 < fromJSON(inputs.parts) }}
+        uses: actions/cache/restore@v4
+        with:
+          path: tools/alignment/work
+          key: split-m${{ env.MAIN_MODEL }}-ac${{ env.WHISPER_AC }}-vad${{ env.VAD_VERSION }}-${{ inputs.riwaya }}-${{ inputs.reciter }}-${{ inputs.parts }}p0-${{ github.run_id }}
+          restore-keys: |
+            split-m${{ env.MAIN_MODEL }}-ac${{ env.WHISPER_AC }}-vad${{ env.VAD_VERSION }}-${{ inputs.riwaya }}-${{ inputs.reciter }}-${{ inputs.parts }}p0-
+
+      - name: استعادةُ كاشِ الجزء 1
+        if: ${{ 1 < fromJSON(inputs.parts) }}
+        uses: actions/cache/restore@v4
+        with:
+          path: tools/alignment/work
+          key: split-m${{ env.MAIN_MODEL }}-ac${{ env.WHISPER_AC }}-vad${{ env.VAD_VERSION }}-${{ inputs.riwaya }}-${{ inputs.reciter }}-${{ inputs.parts }}p1-${{ github.run_id }}
+          restore-keys: |
+            split-m${{ env.MAIN_MODEL }}-ac${{ env.WHISPER_AC }}-vad${{ env.VAD_VERSION }}-${{ inputs.riwaya }}-${{ inputs.reciter }}-${{ inputs.parts }}p1-
+
+      - name: استعادةُ كاشِ الجزء 2
+        if: ${{ 2 < fromJSON(inputs.parts) }}
+        uses: actions/cache/restore@v4
+        with:
+          path: tools/alignment/work
+          key: split-m${{ env.MAIN_MODEL }}-ac${{ env.WHISPER_AC }}-vad${{ env.VAD_VERSION }}-${{ inputs.riwaya }}-${{ inputs.reciter }}-${{ inputs.parts }}p2-${{ github.run_id }}
+          restore-keys: |
+            split-m${{ env.MAIN_MODEL }}-ac${{ env.WHISPER_AC }}-vad${{ env.VAD_VERSION }}-${{ inputs.riwaya }}-${{ inputs.reciter }}-${{ inputs.parts }}p2-
+
+      - name: استعادةُ كاشِ الجزء 3
+        if: ${{ 3 < fromJSON(inputs.parts) }}
+        uses: actions/cache/restore@v4
+        with:
+          path: tools/alignment/work
+          key: split-m${{ env.MAIN_MODEL }}-ac${{ env.WHISPER_AC }}-vad${{ env.VAD_VERSION }}-${{ inputs.riwaya }}-${{ inputs.reciter }}-${{ inputs.parts }}p3-${{ github.run_id }}
+          restore-keys: |
+            split-m${{ env.MAIN_MODEL }}-ac${{ env.WHISPER_AC }}-vad${{ env.VAD_VERSION }}-${{ inputs.riwaya }}-${{ inputs.reciter }}-${{ inputs.parts }}p3-
+
+      - name: استعادةُ كاشِ الجزء 4
+        if: ${{ 4 < fromJSON(inputs.parts) }}
+        uses: actions/cache/restore@v4
+        with:
+          path: tools/alignment/work
+          key: split-m${{ env.MAIN_MODEL }}-ac${{ env.WHISPER_AC }}-vad${{ env.VAD_VERSION }}-${{ inputs.riwaya }}-${{ inputs.reciter }}-${{ inputs.parts }}p4-${{ github.run_id }}
+          restore-keys: |
+            split-m${{ env.MAIN_MODEL }}-ac${{ env.WHISPER_AC }}-vad${{ env.VAD_VERSION }}-${{ inputs.riwaya }}-${{ inputs.reciter }}-${{ inputs.parts }}p4-
+
+      - name: استعادةُ كاشِ الجزء 5
+        if: ${{ 5 < fromJSON(inputs.parts) }}
+        uses: actions/cache/restore@v4
+        with:
+          path: tools/alignment/work
+          key: split-m${{ env.MAIN_MODEL }}-ac${{ env.WHISPER_AC }}-vad${{ env.VAD_VERSION }}-${{ inputs.riwaya }}-${{ inputs.reciter }}-${{ inputs.parts }}p5-${{ github.run_id }}
+          restore-keys: |
+            split-m${{ env.MAIN_MODEL }}-ac${{ env.WHISPER_AC }}-vad${{ env.VAD_VERSION }}-${{ inputs.riwaya }}-${{ inputs.reciter }}-${{ inputs.parts }}p5-
+
+      - name: استعادةُ كاشِ الجزء 6
+        if: ${{ 6 < fromJSON(inputs.parts) }}
+        uses: actions/cache/restore@v4
+        with:
+          path: tools/alignment/work
+          key: split-m${{ env.MAIN_MODEL }}-ac${{ env.WHISPER_AC }}-vad${{ env.VAD_VERSION }}-${{ inputs.riwaya }}-${{ inputs.reciter }}-${{ inputs.parts }}p6-${{ github.run_id }}
+          restore-keys: |
+            split-m${{ env.MAIN_MODEL }}-ac${{ env.WHISPER_AC }}-vad${{ env.VAD_VERSION }}-${{ inputs.riwaya }}-${{ inputs.reciter }}-${{ inputs.parts }}p6-
+
+      - name: استعادةُ كاشِ الجزء 7
+        if: ${{ 7 < fromJSON(inputs.parts) }}
+        uses: actions/cache/restore@v4
+        with:
+          path: tools/alignment/work
+          key: split-m${{ env.MAIN_MODEL }}-ac${{ env.WHISPER_AC }}-vad${{ env.VAD_VERSION }}-${{ inputs.riwaya }}-${{ inputs.reciter }}-${{ inputs.parts }}p7-${{ github.run_id }}
+          restore-keys: |
+            split-m${{ env.MAIN_MODEL }}-ac${{ env.WHISPER_AC }}-vad${{ env.VAD_VERSION }}-${{ inputs.riwaya }}-${{ inputs.reciter }}-${{ inputs.parts }}p7-
+
+      - name: جردُ ما اجتمع (قبل الجمع)
+        run: |
+          n=$(ls tools/alignment/work/batch_${{ inputs.reciter }}/s*.json 2>/dev/null | wc -l)
+          echo "📄 اجتمع من الأجزاء: $((n + 0))/114 ملفَّ سورة"
+
+      - name: الجمعُ والرفع (مسارُ المصحف الكامل بحرّاسه)
+        env:
+          SHARD: "0"
+          SHARDS: "1"
+          JOBS: ${{ inputs.jobs_per_runner }}
+          SMOKE: "false"
+          SMOKE_SURAHS: "108"
+          LD_LIBRARY_PATH: ${{ github.workspace }}/assets-archive/ggml/bin/Release
+          LIST: /root/QuranRafiq/tools/ci_fleet/_split_one.tsv
+          FORCE_REALIGN: "1"
+          STAGE_LOW_HIGH: "1"
+          ALIGN_REFINE: "1"
+          REFINE_MODEL: ${{ github.workspace }}/assets-archive/ggml/ggml-refine-q8_0.bin
+          REFINE_DTW: base
+          GH_TOKEN: ${{ github.token }}
+          GITHUB_REPOSITORY: ${{ github.repository }}
+          GITHUB_RUN_ID: ${{ github.run_id }}
+        run: bash tools/ci_fleet/run_shard.sh
+
+      - name: السجلات والفهرس مخرَجاً
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: logs-split-${{ inputs.reciter }}-assemble
+          path: |
+            /root/QuranRafiq/logs-copy/**
+            tools/alignment/work/timings_*.jz
+          if-no-files-found: warn
+          retention-days: 7
