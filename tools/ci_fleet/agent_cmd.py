@@ -29,6 +29,7 @@
 from __future__ import annotations
 
 import json
+import re
 import subprocess
 import sys
 import traceback
@@ -90,34 +91,32 @@ def do_dispatch(c):
     wf = c.get("workflow", "")
     if wf not in ALLOWED_WF:
         return 2, f"⛔ سيرُ عملٍ غيرُ مسموح: {wf!r}\nوالمسموح: {sorted(ALLOWED_WF)}"
-    # ⛔⛔ **يُرشَّح المُدخَلُ بما يُعلنه سيرُ العمل نفسُه** (‏عطبٌ وقع مرّتَين في يومٍ واحد
-    #    2026-09-14: `HTTP 422: Unexpected inputs provided: ["reason"]` على `align_split.yml`
-    #    ثمّ على `reciter_probe.yml`). والسببُ بنيويّ: **`CLAUDE.md` يأمر بتمرير `reason`
-    #    مع كلّ إطلاق**، و**بعضُ** سيور العمل تُعلنه وبعضُها لا ⇒ فالإطلاقُ يسقط بلا عملٍ.
-    # ⭐ **والعلاجُ مرّةً واحدةً هنا لا خمسَ عشرةَ مرّةً في الملفّات:** تُقرأ المُدخَلاتُ
-    #    المُعلَنةُ من ملفّ سير العمل، ويُسقَط ما ليس فيها **ويُعلَن إسقاطُه في الجواب**
-    #    (‏فلا يضيع السببُ صامتاً — وهو قاعدةُ «سببٌ مقيسٌ يُكتب بنصّه»).
-    # ⛔ ولا يُسقَط شيءٌ صامتاً: كلُّ مُسقَطٍ يُطبع، ويبقى محفوظاً في ملفّ الأمر نفسِه.
+    # ⛔⛔ **يُرشَّح المُدخَلُ بجواب GitHub نفسِه لا بتحليلِ ملفّ** (‏2026-09-14):
+    #    العلّةُ أنّ `CLAUDE.md` يأمر بتمرير `reason` مع كلّ إطلاق و**بعضُ** سيور العمل
+    #    تُعلنه وبعضُها لا ⇒ `HTTP 422: Unexpected inputs provided: ["reason"]` (وقع مرّتين).
+    # ⛔ **وعلاجي الأوّلُ كان أسوأَ من العطب**: حلّلتُ الملفَّ بـPyYAML، **وهي غيرُ مثبَّتةٍ
+    #    في بيئة العدّاء** ⇒ `No module named 'yaml'` فسقط كلُّ إطلاقٍ فاشلاً **مغلقاً**.
+    #    ⭐ والدرس: *حارسٌ يعتمد على ما لا يضمن وجودَه يصير هو العطب* — ومَن أضاف اعتماداً
+    #    جديداً في مسارٍ حرجٍ فليسأل أوّلاً: **أهو موجودٌ حيث يعمل؟**
+    # ⇒ **فلا تحليلَ ولا اعتماد**: يُجرَّب الإطلاقُ، فإن ردّ 422 مسمّياً المُدخَلاتِ غيرَ
+    #    المُعلَنة أُسقطت **بأسمائها من الرسالة نفسِها** وأُعيد **مرّةً واحدة**. والمصدرُ
+    #    هو GitHub لا ظنُّنا، ولا يحتاج شيئاً مثبَّتاً.
     given = dict(c.get("inputs") or {})
-    dropped, declared = {}, None
-    try:
-        import yaml
-        _wf = yaml.safe_load(open(ROOT / ".github" / "workflows" / wf, encoding="utf-8"))
-        _on = _wf.get("on") if isinstance(_wf.get("on"), dict) else _wf.get(True)
-        declared = set(((_on or {}).get("workflow_dispatch") or {}).get("inputs") or {})
-    except Exception as e:                       # ملفٌّ غائبٌ أو صياغةٌ لم تُفهم
-        return 2, f"⛔ تعذّرت قراءةُ مُدخَلات {wf}: {e}"
-    if declared is not None:
-        for k in list(given):
-            if k not in declared:
-                dropped[k] = given.pop(k)
-    args = ["gh", "workflow", "run", wf]
-    for k, v in given.items():
-        args += ["-f", f"{k}={v}"]
-    rc, out = run(args)
-    if dropped:
-        out = ("ℹ️ مُدخَلاتٌ أُسقطت لأنّ " + wf + " لا يُعلنها (والإطلاقُ لم يسقط بسببها):\n"
-               + "".join(f"   · {k} = {v}\n" for k, v in dropped.items()) + out)
+
+    def _fire(inp):
+        a = ["gh", "workflow", "run", wf]
+        for k, v in inp.items():
+            a += ["-f", f"{k}={v}"]
+        return run(a)
+
+    rc, out = _fire(given)
+    if rc != 0 and "Unexpected inputs provided" in out:
+        bad = re.findall(r'"([^"]+)"', out[out.index("Unexpected inputs provided"):])
+        dropped = {k: given.pop(k) for k in bad if k in given}
+        if dropped:
+            rc, out2 = _fire(given)
+            out = ("ℹ️ مُدخَلاتٌ لا يُعلنها " + wf + " فأُسقطت وأُعيد الإطلاق:\n"
+                   + "".join(f"   · {k} = {v}\n" for k, v in dropped.items()) + out2)
     return rc, out
 
 
