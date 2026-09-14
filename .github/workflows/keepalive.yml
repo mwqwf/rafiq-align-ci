@@ -276,6 +276,7 @@ jobs:
         #    فإن حُبس مرشَّحٌ لسببٍ يحتاج قراراً **ولم يُجرد**، بقي محبوساً أبداً
         #    وهو لا يُرى إلا لمن يقرأ سجلَّ ترقيةٍ قديم.
         run: |
+          set -o pipefail
           python - <<'PY' | tee -a "$GITHUB_STEP_SUMMARY"
           import json, boto3, collections
           c = json.load(open("secure/r2_credentials.json"))
