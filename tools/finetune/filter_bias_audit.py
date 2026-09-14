@@ -51,12 +51,11 @@ def word_classes(word, cfg):
     return cls
 
 
-def main():
-    ap = argparse.ArgumentParser()
-    ap.add_argument("--min-match", type=float, default=0.85)
-    a = ap.parse_args()
-    thr = a.min_match
-    print(f"العتبة: {thr}  ·  الآيةُ نائبةٌ عن المقطع  ·  القارئُ التامّ (لا خطأ تلاوةٍ واحد)\n")
+def audit(thr):
+    """يقيس ويُعيد الصفوفَ — **دالّةٌ تُنادى من الاختبار كما تُنادى من الأمر** (‏D-494).
+
+    ⛔ ولا تطبع شيئاً: الطباعةُ في [main]، فالمقيسُ يُفحص بالقيمة لا بقراءة نصٍّ مطبوع.
+    """
     rows = []
     for rw in RIWAYAT:
         cfg = cfg_for(rw)
@@ -86,6 +85,19 @@ def main():
             if m_all < thr:
                 worst.append((m_all, n, d_all, " ".join(ws)[:70]))
         rows.append((rw, nw, amb, dag, ay_tot, ay_any, ay_drop_all, ay_drop_dag, cnt, sorted(worst)[:3]))
+    return rows
+
+
+def main():
+    ap = argparse.ArgumentParser()
+    ap.add_argument("--min-match", type=float, default=0.85)
+    ap.add_argument("--selftest", action="store_true", help="حارسُ المقياس — بلا مصحفٍ ولا شبكة")
+    a = ap.parse_args()
+    if a.selftest:
+        return selftest()
+    thr = a.min_match
+    print(f"العتبة: {thr}  ·  الآيةُ نائبةٌ عن المقطع  ·  القارئُ التامّ (لا خطأ تلاوةٍ واحد)\n")
+    rows = audit(thr)
 
     print(f"{'الرواية':8} {'كلمات':>7} {'ذاتُ صورٍ':>9} {'٪':>6} {'خنجريّة':>8} {'٪':>6}")
     for rw, nw, amb, dag, *_ in rows:
@@ -104,5 +116,73 @@ def main():
             print(f"  {rw:6} match={m:.2f} ({n-d}/{n})  {t}")
 
 
+def selftest():
+    """🧪 **حارسُ مقياسِ التحيّز** — بلا مصحفٍ ولا شبكة (‏D-494).
+
+    ⛔⛔ **ولماذا يلزم:** هذا الملفُّ **لا يكتب شيئاً**، فخطرُه ليس إتلافَ بيانات بل **أن يكون
+    رقمُه خطأً**: على جدوله يُقرَّر أنّ عتبةَ `--min-match` تُصفّي **مِسطرةً لا ضجيجاً** وتُعيد
+    مجموعةَ v4 نحوَ حفص. ورقمٌ خطأٌ هنا يُغيّر مجموعةَ تدريبٍ كاملة. ⇒ **تُثبَّت الأصنافُ على
+    كلماتٍ حقيقيّةٍ من المصحف، ويُفحص الحسابُ على مصحفٍ مصنوع.**
+    """
+    global load_text, RIWAYAT          # ⬅️ في الرأس: بايثون يمنع الإعلانَ بعد أوّل استعمال
+    ok = True
+
+    def say(good, line):
+        nonlocal ok
+        ok &= bool(good)
+        print(("✅ " if good else "❌ ") + line)
+
+    # ① الإعدادُ مرآةُ صانع حزمة التماثل (‏وهي المقيسةُ على المحرك) — خمسةُ أعلامٍ لا تُبدَّل
+    c = {r: cfg_for(r) for r in RIWAYAT}
+    say(all(c[r].strip_yeh_barree and c[r].dagger_optional and c[r].mark_sila for r in RIWAYAT)
+        and c["warsh"].naql and not c["hafs"].naql and not c["qalun"].naql
+        and c["warsh"].sila and c["qalun"].sila and not c["hafs"].sila,
+        "الإعدادُ مرآةُ حزمة التماثل: خنجريّةٌ اختيارية · صلةٌ موسومة · نقلٌ لورشٍ وحدَه")
+
+    # ②⭐ الأصنافُ على كلماتٍ **حقيقيّةٍ** من المصحف — لا على افتراض
+    cases = [
+        ("hafs", "ذَٰلِكَ", {"dagger"}), ("warsh", "ذَٰلِكَ", {"dagger"}), ("qalun", "ذَٰلِكَ", {"dagger"}),
+        ("hafs", "ٱلنَّبِيِّۦنَ", {"sila_mark"}), ("warsh", "ٱلنَّبِيِّۦنَ", {"riwaya", "sila_mark"}),
+        ("qalun", "ٱلنَّبِيِّۦنَ", {"sila_mark"}), ("hafs", "دَاوُۥدَ", {"sila_mark"}),
+        ("warsh", "ٱلْحَمْدُ", {"riwaya"}), ("qalun", "ٱلْحَمْدُ", set()), ("hafs", "ٱلْحَمْدُ", set()),
+        ("hafs", "قُلْ", set()), ("warsh", "مِنْ", set()),
+    ]
+    bad = [(r, w, sorted(word_classes(w, c[r])), sorted(x)) for r, w, x in cases
+           if word_classes(w, c[r]) != x]
+    say(not bad, f"الأصنافُ على اثنتي عشرةَ حالةً حقيقيّة — والمخالفُ {bad}")
+    say(word_classes("ٱلْحَمْدُ", c["warsh"]) == {"riwaya"} and not word_classes("ٱلْحَمْدُ", c["hafs"]),
+        "⭐ والفرقُ بالرواية مقيسٌ لا مفترَض: النقلُ يجعل «ٱلْحَمْدُ» ذاتَ صورةٍ في ورشٍ وحدَه")
+
+    # ③ الحسابُ على مصحفٍ مصنوع: آيةٌ من أربعِ كلماتٍ فيها واحدةٌ ذاتُ صورة ⇒ match=0.75
+    import contextlib, io
+    old_lt, old_rw = load_text, RIWAYAT
+    try:
+        load_text = lambda _r: ["قُلْ مِنْ ذَٰلِكَ قُلْ", "قُلْ مِنْ", ""]      # noqa: E731
+        RIWAYAT = ("hafs",)
+        with contextlib.redirect_stdout(io.StringIO()):
+            rows = audit(0.85)
+        (rw, nw, amb, dag, ay_tot, ay_any, dall, ddag, cnt, worst) = rows[0]
+        say(nw == 6 and amb == 1 and dag == 1,
+            f"العدُّ: كلماتٌ {nw} · ذاتُ صورٍ {amb} · خنجريّةٌ {dag} (‏والآيةُ الفارغةُ لا تُعَدّ ولا تقسم على صفر)")
+        say(ay_tot == 2 and ay_any == 1, f"الآياتُ المعدودةُ {ay_tot} · فيها صورةٌ {ay_any}")
+        say(dall == 1 and ddag == 1, f"⭐ آيةُ 1−(1/4)=0.75 دون 0.85 ⇒ تسقط ({dall}) — وهي «مِسطرةٌ لا ضجيج»")
+        # وعتبةٌ أدنى من ذلك لا تُسقطها — فالحسابُ يتبع العتبةَ المعطاة لا رقماً مدفوناً
+        with contextlib.redirect_stdout(io.StringIO()):
+            rows2 = audit(0.70)
+        say(rows2[0][6] == 0, "وعند عتبةٍ 0.70 لا تسقط — فالحسابُ يتبع المعطى لا ثابتاً مدفوناً")
+    finally:
+        load_text, RIWAYAT = old_lt, old_rw
+    say(RIWAYAT == ("hafs", "qalun", "warsh"), "والحقنُ يُرفع بعده: الرواياتُ الثلاثُ عادت")
+
+    # ④ ⛔ والعتبةُ المنشورةُ لا تُبدَّل هنا: 0.85 هي `--min-match` في `finetune-filter.yml`
+    ap = argparse.ArgumentParser()
+    ap.add_argument("--min-match", type=float, default=0.85)
+    say(ap.parse_args([]).min_match == 0.85, "وعتبةُ الافتراض 0.85 كما هي — ولا تُليَّن من هنا")
+
+    print("\n" + ("✅ مقياسُ التحيّز يفعل ما يدّعي — وأصنافُه مثبَّتةٌ على كلماتٍ حقيقيّة"
+                  if ok else "❌ مقياسُ التحيّز لا يفعل ما يدّعي"))
+    return 0 if ok else 1
+
+
 if __name__ == "__main__":
-    main()
+    raise SystemExit(main())
