@@ -423,29 +423,57 @@ def where_stats(rows, SCR=None, SC=None):
         SCR, SC = _mods()
     from common import load_text, load_index
     index = load_index()
+    # ⛔⛔ **وضابطُ المصادفة — سُئل بعد قياس 11:21Z ولم يكن مسؤولاً قبلَه:** «في البند» وحدَها
+    #     لا تُقرأ محاذاةً، فكلمةٌ شائعةٌ (`من` · `ان` · `وما`) توجد في **معظم** البنود
+    #     بالمصادفة. ⇒ يُقاس لكلّ مسموعٍ **أيوجد في بندٍ آخرَ من الرواية نفسِها** (دورانٌ
+    #     بخطوةٍ واحدةٍ على ترتيبٍ مُرتَّبٍ ⇒ **ثابتٌ يُعاد حرفاً**) — فإن تساوى العددان
+    #     فـ«في البند» **مصادفةٌ لا محاذاة**، وإن زاد كثيراً فهو أثرٌ حقيقيٌّ يُعالَج بالإرساء.
+    #     ⭐ **ورقمٌ بلا أرضيّةِ مصادفةٍ يُقرأ أكبرَ من حقّه** — وهذا بابُ خطإٍ مذكورٌ في دفترنا.
+    all_items = sorted({r[3] for r in rows if r[3]})
+    bygrp = {}
+    for it in all_items:
+        g = parse_item(it)
+        if g:
+            bygrp.setdefault(g[0], []).append(it)
+    nxt = {}
+    for _g, lst in bygrp.items():
+        for i, it in enumerate(lst):
+            nxt[it] = lst[(i + 1) % len(lst)] if len(lst) > 1 else None
+    wcache = {}
+
+    def _words(it):
+        if it not in wcache:
+            wcache[it] = item_words(it, load_text, index)
+        return wcache[it]
     out = []
     for ref, heard, riw, item, c, kind, det, other, _head in rows:
         if heard in (None, "—", "") or not item:
             continue
-        riw2, words = item_words(item, load_text, index)
+        riw2, words = _words(item)
         if not words:
-            out.append((ref, heard, item, "؟ بندٌ لم يُبنَ", None, c))
+            out.append((ref, heard, item, "؟ بندٌ لم يُبنَ", None, c, None))
             continue
         cfg = SC.config_for("proposed", riw2 or riw)
         h = SCR.norm(heard, cfg)
         hits = [i for i, w in enumerate(words) if h in forms_of(w, cfg, SCR)]
         refs = [i for i, w in enumerate(words) if w == ref]
+        # أرضيّةُ المصادفة: أيوجد المسموعُ في **بندٍ آخر**؟ (‏`None` = لا بندَ ثانيَ للرواية)
+        alt = nxt.get(item)
+        chance = None
+        if alt:
+            _r3, aw = _words(alt)
+            chance = bool(aw) and any(h in forms_of(w, cfg, SCR) for w in aw)
         # ⛔⛔ **ضابطٌ سالبٌ يسبق كلَّ حكم:** إن لم تُوجد **كلمةُ المرجع نفسُها** في البند
         #     المُعادِ بناؤه فالبناءُ خاطئٌ (‏رواية/سورة/نافذة) ⇒ **«لم يُقَس»** لا «من خارجه»،
         #     وإلّا صار «صفرُ التقاطع» أثرَ عطبٍ في الأداة لا حكماً على البيانات.
         if not refs:
-            out.append((ref, heard, item, "؟ المرجعُ ليس في البند (‏لا يُحكم)", None, c))
+            out.append((ref, heard, item, "؟ المرجعُ ليس في البند (‏لا يُحكم)", None, c, chance))
             continue
         if not hits:
-            out.append((ref, heard, item, "من خارج البند", None, c))
+            out.append((ref, heard, item, "من خارج البند", None, c, chance))
             continue
         d = min(abs(i - j) for i in hits for j in refs)
-        out.append((ref, heard, item, "**في البند**", d, c))
+        out.append((ref, heard, item, "**في البند**", d, c, chance))
     return out
 
 
@@ -455,8 +483,12 @@ def where_table(rows, SCR=None, SC=None):
     print("| كلمةُ المرجع | ما سُمع | البند | أين وُجدت | مسافةُ كلماتٍ عن المرجع | تكراراً |")
     print("|---|---|---|---|---:|---:|")
     tally = collections.Counter()
-    for ref, heard, item, where, d, c in res:
+    chance_n = chance_hit = 0
+    for ref, heard, item, where, d, c, chance in res:
         tally[where] += c
+        if not where.startswith("؟") and chance is not None:
+            chance_n += c
+            chance_hit += c if chance else 0
         print(f"| `{ref}` | `{heard}` | `{item}` | {where} | "
               f"{'—' if d is None else d} | {c} |")
     print("\n**الحصيلة:**\n")
@@ -466,6 +498,18 @@ def where_table(rows, SCR=None, SC=None):
         print(f"| {k} | {v} |")
     unchecked = sum(v for k, v in tally.items() if k.startswith("؟"))
     total = sum(tally.values())
+    judged = total - unchecked
+    inside = tally.get("**في البند**", 0)
+    if chance_n:
+        print(f"\n🎲 **أرضيّةُ المصادفة** (‏المسموعُ في **بندٍ آخرَ** من الرواية نفسِها · دورانٌ "
+              f"بخطوةٍ واحدةٍ ثابتة): **{chance_hit} من {chance_n}** "
+              f"({100.0 * chance_hit / chance_n:.1f}٪) مقابل **في البند** "
+              f"{inside} من {judged} ({100.0 * inside / judged if judged else 0:.1f}٪). "
+              "⇒ فإن تقاربا فـ«في البند» **مصادفةٌ لا محاذاة**، وإن زاد الثاني كثيراً فهو "
+              "أثرٌ يُعالَج بالإرساء. ⭐ **ورقمٌ بلا أرضيّةِ مصادفةٍ يُقرأ أكبرَ من حقّه.**")
+    else:
+        print("\n⚠️ **ولا أرضيّةَ مصادفةٍ في هذه القراءة** (‏بندٌ واحدٌ للرواية أو لم تُبنَ "
+              "البنودُ) ⇒ «في البند» **تُقرأ سقفاً لا وسطاً**.")
     print(f"\n🧪 **الضابطُ السالب:** وُجدت كلمةُ المرجع نفسُها في البند المُعادِ بنائه في "
           f"**{total - unchecked} من {total}** ⇒ البناءُ سليمٌ فيها، **وما لم يُوجَد فيه المرجعُ "
           f"لا يُحكم عليه**. (‏ولولا هذا الضابطُ لقُرئ «صفرُ تقاطعٍ» حكماً وهو قد يكون عطبَ بناءٍ.)")
@@ -1002,6 +1046,17 @@ def selftest():
             ok = False
         if not got[1][3].startswith("؟"):
             print(f"⛔ where_stats: بندٌ لا مرجعَ فيه يجب ألّا يُحكم عليه — جاء {got[1][3]}")
+            ok = False
+        # 🎲 وضابطُ أرضيّة المصادفة: **ببندٍ واحدٍ لا أرضيّةَ** (‏None) · وببندَين تُقاس
+        if got[0][6] is not None:
+            print(f"⛔ بندٌ واحدٌ للرواية ⇒ لا أرضيّةَ مصادفةٍ ممكنة، فجاء {got[0][6]}")
+            ok = False
+        rows_2 = [("باء", "جيم", "qalun", "long_qalun_001_001x1", 1, FAR, "", False, ""),
+                  ("باء", "جيم", "qalun", "long_qalun_002_001x1", 1, FAR, "", False, "")]
+        g2 = where_stats(rows_2, SCR, SC)
+        # المُرقِّعُ يُعيد الكلماتِ عينَها لكلّ بند ⇒ المسموعُ في البند **وفي غيره** ⇒ مصادفة
+        if g2[0][6] is not True or g2[0][3] != "**في البند**":
+            print(f"⛔ أرضيّةُ المصادفة: انتُظر (‏في البند · ووُجد في غيره) فجاء {g2[0][3:]}")
             ok = False
     finally:
         globals()["item_words"] = _real
