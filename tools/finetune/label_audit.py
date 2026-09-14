@@ -106,9 +106,115 @@ def select_rows(rows, n, seed, shard):
         rows = rows[i::k]
     return rows
 
+
+def selftest():
+    """🧪 **حارسُ المدقِّق — بلا صوتٍ ولا نموذجٍ ولا مجموعة** (‏D-485).
+
+    ⚠️ **ولِمَ يُحرَس مدقِّقٌ؟** `match` الذي يحسبه **هو مِصفاةُ v4**: كلُّ مقطعٍ دونه يسقط من
+    بيانات التدريب. فخطؤه لا ينفجر — يُنتج مجموعةً منحازةً بصمت، ثمّ يُدرَّب عليها نموذجٌ
+    يُعرض على المستخدم. ⇒ ما يُقاس هنا **دعاوى مكتوبةٌ في هذا الملفّ نفسِه**.
+    """
+    ok = True
+
+    def say(good, line):
+        nonlocal ok
+        ok &= bool(good)
+        print(("✅ " if good else "❌ ") + line)
+
+    # ① ⛔ **الدعوى المكتوبةُ أعلاه: «`norm` هو `scorer.norm` حرفاً بحرف»** — تُقاس على المصحف
+    #    كلِّه بالرواياتِ الثلاثِ **بإعدادِ كلِّ روايةٍ نفسِه** الذي يستعمله `ref_forms`.
+    try:
+        sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "alignment"))
+        from common import load_text
+        texts = {rw: load_text(rw) for rw in ("hafs", "qalun", "warsh")}
+    except Exception as e:                       # ⛔ ولا يُقرأ غيابُ المصحف سلامةً
+        print(f"❌ تعذّر تحميلُ المصحف ({e}) — ولا يُقرأ هذا نجاحاً")
+        return 1
+
+    def cfg_for(rw):
+        return scorer.Config(strip_yeh_barree=True, dagger_optional=True, naql=rw == "warsh",
+                             sila=rw in ("qalun", "warsh"), mark_sila=True)
+
+    diverge = {}
+    for rw, ayat in texts.items():
+        cfg = cfg_for(rw)
+        bad = [(w, (norm(w) or [""])[0], scorer.norm(w, cfg))
+               for ay in ayat for w in ay.split()
+               if (norm(w) or [""])[0] != scorer.norm(w, cfg)]
+        diverge[rw] = bad
+        n = sum(len(ay.split()) for ay in ayat)
+        say(rw != "hafs" or not bad,
+            f"تماثلُ `norm` — {rw}: {n} كلمةً · اختلافات {len(bad)}"
+            + (" (‏حفصٌ يجب أن يكون صفراً)" if rw == "hafs" else ""))
+
+    # ⛔⛔ **والاختلافُ في ورشٍ وقالون حقيقيٌّ ومُعلَنٌ لا مُنكَر** (‏D-485): صنفُه **واحد**:
+    #    الياءُ فوقها خنجريّةٌ (`يٰ`) — وهي رسمُ الروايتَين لما يُرسم في حفصٍ ألفاً مقصورةً.
+    #    `norm` هنا يبدّل `ىٰ`⇒`ى` ولا يعرف `يٰ`، فتقع الخنجريّةُ في القاعدة العامّة `ٰ`⇒`ا`
+    #    ⇒ «فسوياهن» بدل «فسويهن». ⇒ **يُحرَس بأن يبقى الصنفُ واحداً**: أيُّ اختلافٍ **من صنفٍ
+    #    آخر** انحرافٌ جديدٌ يجب أن يُسقط الحارس.
+    others = [(w, a, b) for rw in ("qalun", "warsh") for (w, a, b) in diverge[rw]
+              if "يٰ" not in w.replace("۪", "")]
+    say(not others, f"وكلُّ اختلافات ورشٍ وقالون من صنف «ي+خنجريّة» وحدَه "
+                    f"(‏{len(diverge['qalun'])} + {len(diverge['warsh'])} موضعاً · "
+                    f"وخارجَ الصنف: {len(others)})")
+
+    # ② `align` — الحالاتُ الأربعُ ومسارُ **الصور** (‏عقدُ D-292)
+    say(align(["ا", "ب", "ج"], ["ا", "ب", "ج"]) == (3, 0, 0, 0), "محاذاة: تطابقٌ تامّ")
+    say(align(["ا", "ب", "ج"], ["ا", "ج"]) == (2, 1, 0, 0), "محاذاة: كلمةٌ مفقودة")
+    say(align(["ا", "ب", "ج"], ["ا", "د", "ج"]) == (2, 0, 1, 0), "محاذاة: كلمةٌ مُبدَلة")
+    say(align(["ا", "ب"], ["ا", "د", "ب"]) == (2, 0, 0, 1), "محاذاة: كلمةٌ زائدة")
+    say(align([("الرحمن", "الرحمان"), ("ا",)], ["الرحمان", "ا"]) == (2, 0, 0, 0),
+        "محاذاة: الصورةُ الثانيةُ تُقبل (‏عقدُ D-292)")
+    say(align([("الرحمن", "الرحمان")], ["زيتون"]) == (0, 0, 1, 0),
+        "ومَن نطق غيرَها لا يُقبل (‏ضابطٌ سالب)")
+    r = align(["ا", "ب", "ج", "د"], ["ا", "س", "د"])
+    say(r[0] + r[1] + r[2] == 4, f"وثابتُ العدّ: مطابَقٌ+مفقودٌ+مُبدَلٌ = طولُ المرجع ({r})")
+
+    # ③ `ref_forms` — صورةٌ واحدةٌ على الأقلّ لكلّ كلمة، ولا فراغ
+    forms = ref_forms(texts["hafs"][0], "hafs")
+    say(forms and all(isinstance(f, tuple) and f and all(f) for f in forms),
+        f"صورُ المرجع: {len(forms)} كلمةً ولا صورةَ فارغة")
+
+    # ④ `select_rows` — البذرةُ تُعيد الترتيبَ نفسَه، والشرائحُ **تقسم ولا تُكرّر ولا تُسقط**
+    rows = [f"r{i}" for i in range(97)]
+    say(select_rows(rows, 0, 11, None) == select_rows(rows, 0, 11, None), "الاختيار: البذرةُ تُعيد الترتيبَ نفسَه")
+    say(select_rows(rows, 0, 11, None) != select_rows(rows, 0, 12, None), "وبذرةٌ أخرى ترتيبٌ آخر")
+    k = 4
+    parts = [select_rows(rows, 0, 11, (i, k)) for i in range(k)]
+    flat = [x for p in parts for x in p]
+    say(sorted(flat) == sorted(rows) and len(flat) == len(set(flat)),
+        f"والشرائحُ {k} تقسم الكلَّ بلا تكرارٍ ولا إسقاط ({[len(p) for p in parts]})")
+    say(len(select_rows(rows, 10, 11, None)) == 10, "و`--n` يقتطع بعد الخلط")
+
+    # ⑤ `dump` ذرّيٌّ: ملفٌّ سليمٌ ولا بقيّةَ `.tmp`
+    import tempfile
+    res = [{"match": 0.9, "match_strict": 0.8, "miss": 0, "sub": 1, "ins": 0, "n": 5, "riwaya": "hafs"},
+           {"match": 0.7, "match_strict": 0.7, "miss": 2, "sub": 0, "ins": 1, "n": 5, "riwaya": "warsh"}]
+    with tempfile.TemporaryDirectory() as td:
+        out = os.path.join(td, "a.json")
+        s = dump(res, out, partial=False)
+        body = json.load(open(out, encoding="utf-8"))
+        say(not os.path.exists(out + ".tmp"), "الكتابةُ ذرّيّةٌ: لا بقيّةَ `.tmp`")
+        say(s["n"] == 2 and abs(s["mean"] - 0.8) < 1e-9 and body["items"] == res,
+            f"والخلاصةُ تُحسب: ن={s['n']} · متوسّط={s['mean']:.2f} · بالرواية={s['by_riwaya']}")
+        say(abs(s["dropped_at_0.85_by_riwaya"]["warsh"] - 1.0) < 1e-9
+            and abs(s["dropped_at_0.85_by_riwaya"]["hafs"]) < 1e-9,
+            "ونسبةُ السقوط تُفصَّل بالرواية (وهي عينُ ما كشف انحيازَ D-292)")
+
+    # ⑥ `relkey` — مفتاحٌ فريدٌ لا اسمَ ملفٍّ مشترك (‏D-293)
+    say(relkey("/mnt/ft/data/g0/warsh/rid/2_255.flac", "/mnt/ft/data") == "g0/warsh/rid/2_255.flac",
+        "المفتاحُ نسبيٌّ بفواصلَ موحّدة")
+    say(relkey("g0/hafs/x/1_1.flac", "/mnt/ft/data") == "g0/hafs/x/1_1.flac", "والنسبيُّ يبقى كما هو")
+
+    print("\n" + ("✅ المدقِّقُ يفعل ما يدّعي — والاختلافُ الوحيدُ مُعلَنٌ ومحدودُ الصنف"
+                  if ok else "❌ المدقِّقُ لا يفعل ما يدّعي"))
+    return 0 if ok else 1
+
+
 def main():
     ap = argparse.ArgumentParser()
-    ap.add_argument("--data", required=True)
+    ap.add_argument("--data", default="", help="جذرُ المجموعة (مطلوبٌ إلا مع `--selftest`)")
+    ap.add_argument("--selftest", action="store_true", help="فحصُ دوالِّ المدقِّق وحدَها — بلا صوتٍ ولا نموذج")
     ap.add_argument("--n", type=int, default=600, help="عددُ المقاطع (0 = الكلّ)")
     ap.add_argument("--base", default="tarteel-ai/whisper-tiny-ar-quran")
     ap.add_argument("--bs", type=int, default=8)
@@ -125,6 +231,10 @@ def main():
     ap.add_argument("--model", default="", help="نموذجُ ggml q8 مع --cli")
     ap.add_argument("--threads", type=int, default=os.cpu_count() or 4)
     a = ap.parse_args()
+    if a.selftest:
+        return selftest()
+    if not a.data:
+        sys.exit("⛔ `--data` مطلوبٌ (جذرُ المجموعة) — أو `--selftest` لفحص الدوالّ وحدَها")
     shard = None
     if a.shard:
         i, k = (int(x) for x in a.shard.split("/"))
@@ -200,4 +310,4 @@ def main():
         print(f"  {r['match']:.2f} {r['id']} ({r['riwaya']}/{r['reciter']}, {r['seconds']}s) miss={r['miss']} sub={r['sub']} ins={r['ins']}\n     ref: {r['ref'][:90]}\n     hyp: {r['hyp'][:90]}")
 
 if __name__ == "__main__":
-    main()
+    raise SystemExit(main())
