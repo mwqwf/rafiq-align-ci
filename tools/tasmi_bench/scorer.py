@@ -61,6 +61,7 @@ class Config:
                  strip_yeh_barree=True, dagger_optional=True, naql=False, sila=None, mark_sila=True,
                  learner_tolerant=False, wide_uncertain=False, wide_uncertain_min=6,
                  unheard_lexicon=None, unheard_min_len=0, unheard_need_neighbour=False,
+                 pair_forgive=None,
                  collapse_threshold=0.60, short_cap=3, phon=None, phon_cap=3,
                  dagger_madd=True, abs_cap=None, drop_subs=(), strict_short=False):
         self.match_num, self.match_den = match_num, match_den
@@ -124,6 +125,12 @@ class Config:
         # 50٪ شرطيّاً مقابل 31٪ هامشيّاً، أمّا الإبدالُ المحقونُ فمفردٌ). **وكلاهما مطفأٌ.**
         self.unheard_min_len = unheard_min_len
         self.unheard_need_neighbour = unheard_need_neighbour
+        # 💠 **بابُ D-443 المقفل** — قائمةُ أزواجٍ `(صورةُ المرجع، المسموع)` تُغفَر بأعيانها.
+        # ⛔ **ولِمَ صار معلَماً بعد أن سُعّر بالنصّ:** ثمنُه هناك قِيس على **ما تقصده خطّةُ
+        # الحقن** (مانحٌ كلمةٌ قرآنيّةٌ ⇒ «صفرُ توافق»)، و**درسُ D-445③ أنّ الثمنَ يُقاس على
+        # ما يسمعه المحرك**: في الضجيج يُفرَّغ الموضعُ المحقونُ لا-كلمةً، فقد يوافق زوجاً في
+        # القائمة فيُغفر **خطأٌ حقيقيّ**. ⇒ فيُقاس بالمسطرتَين كما قِيست أختُها. **ومطفأٌ.**
+        self.pair_forgive = pair_forgive
 
     def label(self):
         bits = [f"عتبة {self.match_num}/{self.match_den}"]
@@ -362,6 +369,30 @@ def _unheard_guard(words, cfg):
     return out if hit else words
 
 
+def _pair_forgive_guard(words, ref, cfg):
+    """💠 مرآةُ **البابِ المقفل** (D-443) — ⛔ ولا نظيرَ لها في المحرك، وهي **للتسعير وحدَه**.
+
+    `pair_forgive` مجموعةُ `(k, h)`: `k` **صورةُ المرجع الأولى** و`h` المسموعُ مطبَّعاً؛
+    فمتى وافق الزوجُ صار الحكمُ `CORRECT` — فهي **رخصةٌ** لا امتناع (‏والفرقُ في الجدول:
+    الرخصةُ تُسقط الكشفَ حيث وافقت، والامتناعُ يُحوّله «غيرَ متبيَّن» وكلاهما لا يُعَدّ كشفاً).
+    ⛔ ومع `None` تُعاد القائمةُ **بالهويّة** ⇒ صفرُ تغيير.
+    ⛔ و`MISSED` لا تُلمَس: لا مسموعَ لها فلا زوجَ يوافقها.
+    """
+    pf = getattr(cfg, "pair_forgive", None)
+    if not pf:
+        return words
+    out, hit = [], False
+    for w in words:
+        if (w is not None and w[1] in (SUBSTITUTED, UNCERTAIN) and w[2]
+                and 0 <= w[0] < len(ref) and ref[w[0]]
+                and (ref[w[0]][0], norm(w[2], cfg)) in pf):
+            out.append((w[0], CORRECT) + tuple(w[2:]))
+            hit = True
+        else:
+            out.append(w)
+    return out if hit else words
+
+
 def _uncertain(ref, hyp, cfg):
     """⚠️ **شرطُ «غير متبيَّن» الواحد** — مرآةُ `RecitationScorer.nearAny` بشطرَيه:
     `if (hyp.length < 4) return shortPairUncertain(...)` ثمّ حدُّ التحرير الموسَّع للروايتَين.
@@ -494,5 +525,8 @@ def score(ref_words, hyp_text, cfg=DEFAULT):
     # 🤫 وبعد الانهيار لا قبلَه (‏D-445): لو سبقته هذه المرحلةُ لهبط عدُّ «المؤكَّد» فما أطلقت
     #    الانهيارَ أصلاً ⇒ قاعدتان تتداخلان ورقمٌ لا يُعرف صاحبُه. والترتيبُ يُقاس لا يُفترض.
     words = _unheard_guard(words, cfg)
+    # 💠 وبابُ D-443 بعدهما: غفرانُ زوجٍ بعينه يجعل الكلمةَ **صحيحةً** (لا «غيرَ متبيَّنة»)
+    #    فهو **رخصةٌ** لا امتناع — والفرقُ بينهما في الجدول: الرخصةُ تُسقط الكشفَ حيث وافقت.
+    words = _pair_forgive_guard(words, ref, cfg)
     return {"words": words, "additions": additions, "located": located, "collapsed": words is not _pre,
             "correct": sum(1 for w in words if w[1] == CORRECT), "total": R}

@@ -24,6 +24,7 @@ import argparse
 import json
 import os
 import sys
+import tempfile
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, HERE)
@@ -72,6 +73,34 @@ VARIANTS = [
     ("**وجارتُها متَّهَمة**", {"unheard_need_neighbour": True}),
     ("جارةٌ + طولٌ ≥5", {"unheard_need_neighbour": True, "unheard_min_len": 5}),
 ]
+
+
+def pairs_from(path):
+    """💠 أزواجُ **البابِ المقفل** (D-443) من أرضيّةٍ مكتوبة — بالبناء نفسِه الذي سُعّرت به.
+
+    ⛔ **ولِمَ تُقاس هنا بعد أن سُعّرت هناك:** سعرُها في D-443 قِيس **على نصّ المصحف**
+    (مواضعُ عمًى) وضابطُها على **مانحي الحقن** — ودرسُ D-445③ أنّ الثمنَ يُقاس على **ما
+    يسمعه المحرك**. فإن وافق زوجٌ في القائمةِ ما سُمع في **موضعٍ محقونٍ** غُفر **خطأٌ حقيقيّ**
+    ولم يظهر ذلك في ضابط المانحين بحال.
+    """
+    import error_triage as T
+    T._mods()
+    d = json.load(open(path, encoding="utf-8"))
+    out = set()
+    cfgs = {}
+    for r in d.get("rows") or []:
+        riw = r.get("riwaya", "")
+        heard = (r.get("heard") or "").strip()
+        if not riw or heard in ("", "—"):
+            continue
+        if riw not in cfgs:
+            cfgs[riw] = D.cfg_for(riw)
+        c = cfgs[riw]
+        fs = T.forms_of(r["ref"], c, scorer)
+        h = scorer.norm(heard, c)
+        if fs and not scorer._matches(fs, h, c):
+            out.add((fs[0], h))
+    return out
 
 
 def judge_with(plan, hyps, lex, **opts):
@@ -154,6 +183,22 @@ def selftest():
        [w[1] for w in scorer.score(ref, "الحمد لله سسنسا زقزق الرحمن الرحيم", c4)["words"]][2:4],
        [scorer.UNCERTAIN, scorer.UNCERTAIN])
 
+    # 💠 وضابطا بابِ D-443: مطفأٌ بالهويّة · و`pairs_from` تُنادى **بالطريق الذي يسلكه الشوط**
+    ok("بلا أزواجٍ تُعاد القائمةُ بالهويّة",
+       scorer._pair_forgive_guard(sA["words"], [("رب",)] * 6, D.cfg_for("hafs")) is sA["words"], True)
+    with tempfile.TemporaryDirectory() as td:
+        fl = os.path.join(td, "floor.json")
+        json.dump({"set": "t", "arm": "t", "rows": [
+            {"riwaya": "hafs", "ref": "رب", "heard": "سسنسا"},
+            {"riwaya": "hafs", "ref": "رب", "heard": ""},          # صفرُ نصٍّ ⇒ لا زوج
+            {"riwaya": "hafs", "ref": "رب", "heard": "رب"},        # مقبولٌ أصلاً ⇒ لا زوج
+        ]}, open(fl, "w", encoding="utf-8"), ensure_ascii=False)
+        pf = pairs_from(fl)
+        ok("`pairs_from` تبني الزوجَ الواحدَ المستحقّ", sorted(pf), [("رب", "سسنسا")])
+        c5 = D.cfg_for("hafs"); c5.pair_forgive = pf
+        ok("⭐ والزوجُ المغفورُ يصير **صحيحاً** (رخصةٌ لا امتناع)",
+           scorer.score(ref, _HYPS["t1"]["text"], c5)["words"][2][1], scorer.CORRECT)
+
     # ② وحكمُ الذراع يتبدّل تبعاً — والكشفُ هو الثمنُ المحتمَل
     dA, faA, nA, _ = judge_with(_PLAN, _HYPS, None)
     dB, faB, nB, _ = judge_with(_PLAN, _HYPS, _LEX)
@@ -186,6 +231,7 @@ def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--dirs", nargs="+", required=True)
     ap.add_argument("--arm", required=True, help="ذراعٌ واحدة — فالمقارنةُ بين مسطرتَين لا نموذجَين")
+    ap.add_argument("--pairs", default="", help="💠 أرضيّةٌ تُبنى منها أزواجُ بابِ D-443 المقفل")
     a = ap.parse_args()
 
     plan_all = {it["id"]: it for it in json.load(open(J.PLAN, encoding="utf-8"))["items"]}
@@ -206,8 +252,22 @@ def main():
           f"اتّهامٌ كاذب **{faA*100:.2f}٪** · كشفٌ ضيّق **{dA*100:.1f}٪**.\n")
     print("| الشرطُ المرشَّح | اتّهامٌ كاذب | الفرق [95٪] | كشفٌ ضيّق | الفرق [95٪] | **الصرفُ** |")
     print("|---|---:|---|---:|---|---:|")
-    for name, opts in VARIANTS:
-        dB, faB, _, perB = judge_with(plan, h, lex, **opts)
+    # ⛔⛔ **ولكلّ ذراعٍ معجمُها** (‏أُصلح بعد الشوط `34865352242`): مُرِّر المعجمُ لكلّ
+    #    الأذرع **بما فيها بابُ D-443**، فكانت ذراعُ الباب تعمل **بالقاعدتَين معاً** ⇒ جاءت
+    #    أرقامُها **مطابقةً حرفاً** لذراع «كما هي» (‏الأزواجُ لا-كلماتٍ أصلاً فغفرتها القاعدةُ
+    #    الأولى قبلها). ⭐ **وذراعان متطابقتان سؤالٌ لا جواب** — والحارسُ أدناه يقولها.
+    arms = [(n, dict(o), lex) for n, o in VARIANTS]
+    if a.pairs:
+        pf = pairs_from(a.pairs)
+        if not pf:
+            raise SystemExit(f"⛔ صفرُ أزواجٍ من `{os.path.basename(a.pairs)}` ⇒ **لم يُقَس** بابٌ على فراغ")
+        print(f"\n💠 **وبابُ D-443 المقفل** مبنيٌّ من `{os.path.basename(a.pairs)}`: "
+              f"**{len(pf)}** زوجاً — ويُقاس هنا **بما يسمعه المحرك** لا بمانحي الخطّة.\n")
+        # ⛔ ومعجمُه **فارغٌ**: يُقاس البابُ وحدَه لا هو ومعه قاعدةُ «لم أتبيّن».
+        arms = arms + [("**بابُ D-443 المقفل**", {"pair_forgive": pf}, {})]
+    seen = {}
+    for name, opts, alex in arms:
+        dB, faB, _, perB = judge_with(plan, h, alex, **opts)
         pairs = [(perA[i][0], perA[i][1], perB[i][0], perB[i][1]) for i in perA if i in perB]
         lo, hi, _p = G._boot_diff(pairs)
         det_pairs = [(perA[i][2], 1, perB[i][2], 1) for i in perA if i in perB]
@@ -218,6 +278,12 @@ def main():
         print(f"| {name} | {faB*100:.2f}٪ | {-gain:+.2f} [{lo*100:+.2f} .. {hi*100:+.2f}] | "
               f"{dB*100:.1f}٪ | {-cost:+.1f} [{d_lo*100:+.1f} .. {d_hi*100:+.1f}] | "
               f"**{ratio}** |")
+        key = (round(faB, 6), round(dB, 6))
+        if key in seen:
+            print(f"| ⛔ **تطابقٌ** | — | **«{name}» و«{seen[key]}» رقماهما سواءٌ حرفاً** ⇒ "
+                  "ذراعان متطابقتان **سؤالٌ لا جواب** (‏أشرطٌ مشتعلان معاً؟ أم لا أثرَ للشرط؟) | "
+                  "— | — | — |")
+        seen.setdefault(key, name)
     print("\n⭐ **الصرفُ** = كم نقطةَ كشفٍ تُدفع لكلّ نقطةِ اتّهامٍ كاذبٍ تُكسب — "
           "و**دون الواحد** يعني كسباً أرخصَ من ثمنه. "
           "⛔ ولا يُشحن شيءٌ بلا قرارٍ صريحٍ على هذا الجدول.")

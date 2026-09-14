@@ -395,7 +395,11 @@ jobs:
           case "$SETS" in *g3r*) ;; *) echo "ℹ️ لا مجموعةَ `g3r` — ولا يُقاس ثمنُ «لم أتبيّن» (لا كشفَ بلا حقن)"; exit 0 ;; esac
           set -o pipefail
           A=$(echo "$ARMS" | awk '{print $1}')
-          python unheard_ab.py --dirs "work:" --arm "$A" > work/unheard.md 2> work/unheard.err || {
+          # 💠 وإن وُجدت أرضيّةٌ مُودَعةٌ أُضيف **بابُ D-443 المقفل** ذراعاً سادسةً — فثمنُه
+          #    هناك قِيس على مانحي الخطّة، وهنا يُقاس على **ما يسمعه المحرك** (‏درسُ D-445③).
+          PAIRS=""
+          [ -f ../../results/CLEAN_FLOOR.json ] && PAIRS="--pairs ../../results/CLEAN_FLOOR.json"
+          python unheard_ab.py --dirs "work:" --arm "$A" $PAIRS > work/unheard.md 2> work/unheard.err || {
             { echo "### 🤫 «لم أتبيّن» — ⚠️ **تعذّر**، ونصُّ الخطأ كما هو:"; echo
               echo '```'; tail -12 work/unheard.err; echo '```'; } >> work/unheard.md; }
           [ -s work/unheard.md ] || echo "⚠️ **خرج فارغاً بلا خطأ** — «لم يُقَس» لا «لا أثر»." > work/unheard.md
