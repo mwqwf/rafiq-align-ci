@@ -146,6 +146,9 @@ jobs:
         env:
           PYTHONIOENCODING: utf-8
         run: |
+          # ⛔ **بلا هذا لا يشتعل `|| echo` أصلاً** (‏قِيس 2026-09-14): حالةُ `cmd | tee` حالةُ
+          #    `tee` ⇒ فشلُ الأداة يُقرأ نجاحاً، **والتسامحُ المقصودُ أدناه لا يعمل**.
+          set -o pipefail
           ls -l shards || true
           ARGS=""
           for p in ${{ github.event.inputs.parts }}; do
