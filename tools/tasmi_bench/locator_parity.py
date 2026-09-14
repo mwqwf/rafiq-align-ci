@@ -328,6 +328,73 @@ def control(stride, limit):
     return ok
 
 
+def selftest():
+    """🧪 **حارسُ الضابطِ السالب — أيستطيع أن يضبط أصلاً؟** (‏D-500 · نظيرُ D-499)
+
+    ⛔⛔ `--control` هنا **ثقيلٌ** (يبني حاكمَ المحدّد ويجري المقارنةَ على المصحف) فلا يُشعَل في
+    كلّ دفعة. وهذا يفحص في ثوانٍ أنّ **الأعطابَ الثلاثةَ المزروعةَ لها أثرٌ فعلاً** وأنّ
+    **رفعَها يُعيد الحالَ** — فعطبٌ بلا أثرٍ يجعل الضابطَ يمرّ فارغاً، وعطبٌ لا يُرفع **يسمّم
+    ما بعده في الشوط نفسِه**. ⭐ والملفُّ نفسُه يحمل شاهدَ ذلك: `RARE_WORD=1` جُرّب فسكت
+    سكوتاً تامّاً (‏0/44) لأنّه **ضيّق البابَ ولم يُغلقه**.
+    """
+    ok = True
+
+    def say(good, line):
+        nonlocal ok
+        ok &= bool(good)
+        print(("✅ " if good else "❌ ") + line)
+
+    loc = L.Locator.__new__(L.Locator)
+    loc.cfg = config_for("hafs")
+    hyp = (BASMALA + " قل هو الله احد").split()
+
+    # ① القيمةُ المشحونةُ تُقرأ **عند الاستيراد** لا وقتَ الاختيار — وإلّا صار الانتقاءُ دائريّاً
+    say(RARE_WORD_REF == L.Locator.RARE_WORD == 4,
+        f"ندرةُ الكلمة المشحونة {RARE_WORD_REF} — وتُحفظ عند الاستيراد فلا يغيّرها الضابط")
+
+    # ②⭐ البابُ الأوّل: إسقاطُ البسملة — أثرٌ مقيسٌ ورفعٌ يُعيد الحال
+    before = loc.strip_preamble(hyp)
+    undo = _break_preamble()
+    during = loc.strip_preamble(hyp)
+    undo()
+    after = loc.strip_preamble(hyp)
+    say(before == 4 and during == 0 and after == 4,
+        f"⭐ بابُ البسملة: يُسقط {before} كلماتٍ · وبالعطب {during} · وبعد الرفع {after}")
+
+    # ③⭐ البابُ الثاني: **يُغلق البابَ ولا يضيّقه** — وهذا نصُّ الدرس المدفوع
+    undo = _break_rare_word()
+    during = L.Locator.RARE_WORD
+    undo()
+    say(during == 0 and L.Locator.RARE_WORD == RARE_WORD_REF,
+        f"⭐ بابُ الكلمة النادرة: العطبُ **صفرٌ لا واحد** ({during}) — والتضييقُ سكت 0/44، والإغلاقُ يصرخ")
+
+    # ④⭐ البابُ الثالث: الذيلُ الجزئيُّ **يُمنع ولو طلبه المنادي** — يُقاس بمسجِّلٍ لا بالظنّ
+    seen = {}
+    orig = L.anchor_one
+    try:
+        L.anchor_one = lambda *a, **k: seen.update(k)
+        undo = _break_partial_tail()
+        L.anchor_one(["أ"], ["أ"], 0, loc.cfg, allow_partial=True)
+        undo()
+    finally:
+        L.anchor_one = orig
+    say(seen.get("allow_partial") is False,
+        f"⭐ بابُ الذيل الجزئيّ: المنادي يطلب `allow_partial=True` **والمزروعُ يمرّرها False** ({seen})")
+    say(L.anchor_one is orig, "ورفعُ العطب يُعيد الدالّةَ الأصليّةَ بعينها")
+
+    # ⑤ ثلاثةُ أبوابٍ بثلاث رواياتٍ — بابٌ لكلّ طبقة (‏درسُ D-297: ضابطُ بابٍ واحدٍ يشهد لبابه ويسكت)
+    say(len(CONTROL_DOORS) == 3 and len({r for _, _, r in CONTROL_DOORS}) == 3,
+        f"وثلاثةُ أبوابٍ في ثلاث رواياتٍ: {[r for _, _, r in CONTROL_DOORS]}")
+
+    # ⑥ والكلامُ غيرُ القرآنيّ عتادُ «الإنذار الكاذب» — لا يُفرَّغ من العيّنة
+    say(len(NOISE) >= 5 and all(n.strip() for n in NOISE),
+        f"وعيّنةُ الكلام غير القرآنيّ {len(NOISE)} أسطر — والإنذارُ الكاذب أسوأُ من «لم أتبيّن»")
+
+    print("\n" + ("✅ الضابطُ السالبُ قادرٌ على أن يضبط — وأعطابُه تُرفع كما زُرعت"
+                  if ok else "❌ الضابطُ السالبُ لا يضبط"))
+    return 0 if ok else 1
+
+
 def rare_probe(riwaya, stride, limit, thresholds=(0.5, 0.4, 0.3, 0.2, 0.1)):
     """📐 حجمُ الفجوة في «حتى لو لم أذكر إلا كلمات نادرة» — وثمنُ سدِّها، بالقياس لا بالرأي.
 
@@ -375,10 +442,14 @@ def main():
     ap.add_argument("--riwaya", choices=RIWAYAT)
     ap.add_argument("--stride", type=int, default=1, help="آيةٌ من كلِّ n (عيّنةٌ حتميّة)")
     ap.add_argument("--limit", type=int, default=0, help="أقصى عددِ آياتٍ بعد الأخذ بالخطوة")
+    ap.add_argument("--selftest", action="store_true",
+                    help="حارسُ الضابط السالب — بلا محرّكٍ ولا مصحف (ثوانٍ)")
     ap.add_argument("--control", action="store_true", help="الضابطُ السالب وحدَه")
     ap.add_argument("--rare-probe", action="store_true",
                     help="📐 قياسُ فجوة «الكلماتِ النادرةِ وحدَها» وثمنِ سدِّها (المرآةُ وحدَها)")
     args = ap.parse_args()
+    if args.selftest:
+        return selftest()
 
     if args.control:
         sys.exit(0 if control(args.stride, args.limit) else 1)
