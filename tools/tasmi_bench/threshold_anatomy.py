@@ -250,6 +250,69 @@ def measure(limit=0, examples=0, with_real=True):
     return base_rows
 
 
+def selftest():
+    """🧪 **حارسُ حسابِ العتبة — بلا مصحفٍ ولا محرّك** (‏D-502).
+
+    ⛔⛔ **ولماذا:** على أرقام هذا الملفّ يُقترح **تضييقُ عتبةِ قبولٍ مشحونة**. وحسابُه كلُّه
+    في أربع دوالَّ صغيرة (`accepts_dn` · `cap_den` · `band` · `min_d`) — **وخطأٌ في واحدةٍ
+    يُعطي جدولاً كاملاً سليمَ الشكل خاطئَ الحكم**. و`--control` هنا ثقيلٌ (يُهيّئ المصحفَ)
+    فلا يُشعَل في كلّ دفعة ⇒ **فالحسابُ يُثبَّت في ثوانٍ**.
+    """
+    ok = True
+
+    def say(good, line):
+        nonlocal ok
+        ok &= bool(good)
+        print(("✅ " if good else "❌ ") + line)
+
+    # ①⭐ قاعدةُ النسبة `d*den <= n` — وهي **الشريطُ الذي يمسّه الذراعُ بعينه**
+    say(accepts_dn([(1, 5)], 5) and not accepts_dn([(1, 5)], 6),
+        "⭐ (d=1, n=5): يقبله **الخُمس** ويردّه **السدس** — وهو الشريطُ الذي يمسّه مرشَّحُ D-286 وحدَه")
+    say(accepts_dn([(2, 10)], 5) and not accepts_dn([(2, 10)], 6),
+        "و(d=2, n=10) مثلُه — فالدرجةُ واحدةٌ والطولُ مضاعف")
+    say(accepts_dn([(1, 6)], 6) and accepts_dn([(1, 6)], 5),
+        "و(d=1, n=6) يقبله الاثنان — فليس في الشريط")
+
+    # ② السقفُ المطلق يعمل **فوق** النسبة لا بدلَها
+    say(accepts_dn([(2, 20)], 5) and not accepts_dn([(2, 20)], 5, 1),
+        "والسقفُ المطلق ≤1 يردّ (d=2, n=20) وقاعدةُ النسبة تقبله — فهو **قطعةٌ أخرى** لا تضييقُ نسبة")
+
+    # ③⭐⭐ رخصةُ الكلمة القصيرة **تبقى ولو مُنع التحريفُ البتّة** — وهي دعوى صفّ `cap0`
+    say(accepts_dn([(1, 3)], 5) and accepts_dn([(1, 3)], INF),
+        "⭐⭐ (d=1, n=3): تقبلها **رخصةُ القصيرة** ولو صار المقامُ ∞ — وهو نصُّ صفِّ `cap0`")
+    say(not accepts_dn([(2, 3)], INF) and not accepts_dn([(2, 3)], 5),
+        "وحرفان في كلمةٍ من ثلاثة **لا تقبلهما الرخصةُ** (‏شرطُها `d ≤ 1`)")
+    say(accepts_dn([(0, 9)], INF), "والمطابقةُ التامّةُ تُقبل في كلّ ذراع")
+
+    # ④⭐ رتابةٌ: مقامٌ أضيقُ لا يقبل ما ردّه الأوسع — والعتبةُ **درجاتٌ** لا مقبض
+    grid = [[(d, n)] for d in range(0, 4) for n in (3, 4, 5, 7, 10, 16, 20)]
+    bad = [(dns, a, b) for dns in grid for a, b in ((4, 5), (5, 6), (6, 7), (7, 8))
+           if accepts_dn(dns, b) and not accepts_dn(dns, a)]
+    say(not bad, f"⭐ ورتابةٌ تامّةٌ على {len(grid)} زوجاً: ما قبله الأضيقُ يقبله الأوسعُ دائماً — والمخالفُ {bad[:2]}")
+
+    # ⑤ `cap_den` و`band`: الدرجةُ التي يقف عندها الزوج
+    say(cap_den([(0, 7)]) == float("inf") and cap_den([(1, 5)]) == 5.0
+        and cap_den([(3, 5), (1, 5)]) == 5.0,
+        "والدرجةُ `cap_den`: ∞ للمطابق · 5 لـ(1,5) · **وأوسعُ صورةٍ تغلب** حين تتعدّد الصور")
+    say(band([(0, 7)]).startswith("∞") and band([(1, 5)]) == "5 ≤ n/d < 6"
+        and band([(2, 5)]).startswith("< 4"),
+        f"واسمُ الشريط: {band([(1, 5)])} · {band([(2, 5)])}")
+    say(min_d([(3, 9), (1, 9)]) == 1, "و`min_d` أقلُّ تحريفٍ بين الصور")
+
+    # ⑥ جدولُ الأذرع: المشحونُ الخُمس · و`den4` **أوسعُ** فهو ضابطُ حيويّة · و`cap0` مقامُه ∞
+    keys = [a[0] for a in ARMS]
+    d = {a[0]: (a[2], a[3]) for a in ARMS}
+    say(len(keys) == len(set(keys)) and d["den5"] == (5, None),
+        f"وأذرعٌ {len(keys)} بمفاتيحَ فريدةٍ، والمشحونُ `den5` مقامُه 5 بلا سقف")
+    say(d["den4"][0] < d["den5"][0],
+        "و`den4` **أوسعُ** من المشحون — فهو ضابطُ حيويّةٍ لا مرشَّحُ شحن")
+    say(d["cap0"][0] == INF, "و`cap0` مقامُه ∞ — «لا تحريفَ البتّة» وتبقى رخصةُ القصيرة")
+
+    print("\n" + ("✅ حسابُ العتبة يفعل ما يدّعي — والرخصةُ القصيرةُ تبقى حيث قيل إنّها تبقى"
+                  if ok else "❌ حسابُ العتبة لا يفعل ما يدّعي"))
+    return 0 if ok else 1
+
+
 def control(limit=400):
     """🧪 الضوابط (قاعدةُ D-279): موجَبٌ · سالبٌ · حيويّة — قبل أيِّ رقم."""
     text = L.prepare(limit)
@@ -302,11 +365,15 @@ def control(limit=400):
 
 if __name__ == "__main__":
     ap = argparse.ArgumentParser(description=__doc__)
+    ap.add_argument("--selftest", action="store_true",
+                    help="حارسُ حساب العتبة — بلا مصحفٍ ولا محرّك (ثوانٍ)")
     ap.add_argument("--control", action="store_true", help="الضوابطُ وحدَها")
     ap.add_argument("--limit", type=int, default=0, help="عددُ الآياتِ لكلِّ رواية (0 = المصحفُ كلُّه)")
     ap.add_argument("--examples", type=int, default=0)
     ap.add_argument("--no-real", action="store_true", help="بلا نصِّ التعرّف الحقيقيّ")
     a = ap.parse_args()
+    if a.selftest:
+        raise SystemExit(selftest())
     if a.control:
         control(a.limit or 400)
     else:
