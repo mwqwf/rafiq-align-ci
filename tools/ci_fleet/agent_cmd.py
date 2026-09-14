@@ -102,8 +102,13 @@ def do_state(c):
                 pub[(riw, k.split("/")[2][:-3])] = o["Size"]
                 per[riw] = per.get(riw, 0) + 1
     cat = json.loads(cl.get_object(Bucket=b, Key="catalog/reciters.json")["Body"].read())
-    total = sum(1 for r in cat["riwayat"] for rc in r.get("reciters", [])
-                if rc.get("mode") != "ayah")
+    # ⭐ الهدفُ يعدّ قرّاءَ الفهرس وحدَهم: قارئُ «الآية» صوتُه ملفٌّ لكلّ آيةٍ فلا فهرسَ له
+    #    ولا يدخل في 162/180 — وكان غيابُ هذا التفصيل يُوهم أنّ قرّاءً سقطوا (سؤالُ المالك 05:40Z).
+    catalog_total = sum(len(r.get("reciters", [])) for r in cat["riwayat"])
+    ayah_mode = [f'{r.get("id") or r.get("riwaya")}/{rc.get("id")}'
+                 for r in cat["riwayat"] for rc in r.get("reciters", [])
+                 if rc.get("mode") == "ayah"]
+    total = catalog_total - len(ayah_mode)
     gaps = {}
     for (riw, rid) in sorted(pub):
         try:
@@ -117,11 +122,15 @@ def do_state(c):
             gaps[f"{riw}/{rid}"] = {"entries": len(idx["entries"]),
                                     "missingSurahs": miss,
                                     "reasonCode": tr.get("reasonCode")}
-    st = {"published": len(pub), "target": total, "byRiwaya": per,
-          "indexesWithGaps": gaps}
+    st = {"published": len(pub), "target": total,
+          "catalogTotal": catalog_total,
+          "ayahModeExcluded": len(ayah_mode), "ayahModeIds": ayah_mode,
+          "byRiwaya": per, "indexesWithGaps": gaps}
     (OUT_DIR / "state.json").write_text(
         json.dumps(st, ensure_ascii=False, indent=1), encoding="utf-8")
-    return 0, (f"المنشور {len(pub)}/{total} · {per}\n"
+    return 0, (f"المنشور {len(pub)}/{total} "
+               f"(الكتالوج {catalog_total} قارئاً · "
+               f"منهم {len(ayah_mode)} بوضع الآية لا فهرسَ لهم) · {per}\n"
                f"فهارسُ فيها نقص: {len(gaps)} — التفصيلُ في ops/out/state.json")
 
 
