@@ -131,6 +131,62 @@ def report(res, title):
     return a
 
 
+# ---- 🧪 اختبارٌ ذاتيٌّ (أُضيف 2026-09-14 · مناوبةُ :13) ----
+# ⛔ **لِمَ:** من هذا الملفِّ يخرج **كلُّ رقمِ دقّةٍ في اللوحة** (‏`run` ⇒ `aggregate` ⇒
+# `by_key`)، وخصائصُه التالية **تُقرأ خطأً إن لم تُكتب**: الدقّةُ **موزونةٌ بالكلمات لا
+# بالبنود**، والبندُ الساقطُ **يُعَدّ ولا يُحتسب**، والوسيطُ في العدد الزوجيّ **أعلى الوسطَين**.
+# ⭐ والقيمُ أدناه **مقيسةٌ من الدوالّ نفسِها** قبل كتابتها لا مفترَضة.
+_A = {"id": "a", "refText": "قل هو الله أحد", "riwaya": "hafs"}
+_B = {"id": "b", "refText": "الحمد لله رب العالمين الرحمن الرحيم مالك يوم الدين", "riwaya": "hafs"}
+
+
+def selftest():
+    bad = 0
+
+    def ok(name, got, want):
+        nonlocal bad
+        good = got == want
+        print(f"  {'✅' if good else '⛔'} {name}: {got} · المتوقَّع {want}")
+        bad += 0 if good else 1
+
+    hyps = {"a": {"text": _A["refText"], "ms": 100, "audioMs": 1000},
+            "b": {"text": "الحمد", "ms": 300}}
+    res = run([_A, _B], hyps)
+    ok("بندٌ مطابقٌ ⇒ كلُّ كلماته صحيحة", (res[0]["correct"], res[0]["total"]), (4, 4))
+    ok("وبندٌ مبتورٌ ⇒ كلمةٌ من تسع", (res[1]["correct"], res[1]["total"]), (1, 9))
+
+    a = aggregate(res)
+    # ⭐⭐ **الدقّةُ موزونةٌ بالكلمات:** 5 من 13 = 38.5٪ — **لا** متوسّطَ البندَين (‏5.6٪+100٪)/2.
+    #     ⇒ **آيةٌ طويلةٌ خاطئةٌ تزن أكثرَ من قصيرةٍ صحيحة**، وهذا ما يُقارَن به بين الذراعَين.
+    ok("دقّةٌ موزونةٌ بالكلمات لا بالبنود", (a["words"], a["correct"], round(a["accuracy"], 4)), (13, 5, 0.3846))
+    ok("والآياتُ التامّةُ تُعَدّ على المحتسَب", (a["perfectAyat"], a["perfectRate"]), (1, 0.5))
+    ok("والمجالُ يحيط بالدقّة", a["ci95"][0] <= a["accuracy"] <= a["ci95"][1], True)
+    ok("وبذرةٌ واحدةٌ ⇒ مجالٌ واحد", aggregate(res)["ci95"] == a["ci95"], True)
+    # ⚠️ **الوسيطُ في العدد الزوجيّ أعلى الوسطَين** (‏`xs[len//2]`) — يُثبَّت كي يُقرأ على وجهه.
+    ok("وسيطُ الزمن في زوجيٍّ = أعلى الوسطَين", a["latencyMsMedian"], 300)
+    # و`rtf` يُحتسب لمن له مقامٌ فقط — لا يُحشى بصفرٍ ولا يُسقط البند.
+    ok("وRTF من ذي المقام وحدَه", a["rtfMedian"], 0.1)
+
+    # ⛔ **والبندُ الساقطُ يُعَدّ ولا يُحتسب** — فلا يُقرأ نقصُ العيّنة «دقّةً أعلى».
+    r2 = aggregate(run([_A, _B], {"a": hyps["a"], "b": {"error": "boom"}}))
+    ok("بندٌ بخطإٍ ⇒ يُعَدّ ساقطاً ولا يدخل الدقّة", (r2["items"], r2["scored"], r2["failed"], r2["correct"]), (2, 1, 1, 4))
+    r3 = run([_A, _B], {"a": {"text": _A["refText"], "rc": 1}, "b": {"text": "الحمد"}})
+    ok("ورمزُ خروجٍ غيرُ صفريٍّ ⇒ ساقطٌ كذلك", (r3[0]["ok"], r3[1]["ok"]), (False, True))
+    ok("وبندٌ لا فرضيّةَ له ⇒ ساقطٌ بسببٍ مكتوب", run([_A], {})[0]["reason"], "غائب")
+    # ⛔ و`exclude` **يُسقط البندَ من العدّ كلِّه** (لا يجعله ساقطاً) — فرقٌ يُقرأ في «ن».
+    ok("والمستثنى لا يُعَدّ أصلاً", len(run([_A, _B], hyps, exclude=("b",))), 1)
+
+    # ⏱️ **وطولُ الصوت من الخطّة إن غاب عن المسبار** — عطبٌ مقيسٌ 2026-09-12 (‏`g4` بلا RTF).
+    ok("طولُ الصوت يُشتقّ من `durationSec`",
+       run([dict(_B, durationSec=12)], {"b": {"text": "الحمد", "ms": 300}})[0]["audioMs"], 12000)
+
+    # 🧭 والتفصيلُ بالرواية موزونٌ بالكلمات كذلك، والساقطُ خارجَه.
+    ok("تفصيلٌ بالرواية بالكلمات", by_key(res, "riwaya")["hafs"]["words"], 13)
+
+    print("✅ الأداةُ سليمةٌ على حالاتها" if not bad else f"⛔ الأداةُ نفسُها معطوبةٌ في {bad} حالة")
+    return 1 if bad else 0
+
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--hyps", default=os.path.join(HERE, "work", "hyps_ar.json"))
@@ -139,7 +195,10 @@ def main():
     ap.add_argument("--cfg", default="shipped", choices=["shipped", "proposed"])
     ap.add_argument("--exclude-misaligned", action="store_true",
                     help="استثنِ بنوداً أثبت الكاشف أن صوتها ليس آيتها (عيب مصدر)")
+    ap.add_argument("--selftest", action="store_true", help="يختبر الحساب على قيمٍ مقيسة")
     args = ap.parse_args()
+    if args.selftest:
+        raise SystemExit(selftest())
     sample = load_sample()
     hyps = json.load(open(args.hyps, encoding="utf-8"))["hyps"]
     exclude = ()
