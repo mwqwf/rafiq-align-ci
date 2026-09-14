@@ -416,7 +416,13 @@ jobs:
           #    فتُكتب أرضيّةُ الذراع الأولى، وإن وُجدت أرضيّةٌ مُودَعةٌ قُوبلت بها الأذرعُ الأخرى.
           FLOOR=""
           [ -f ../../results/CLEAN_FLOOR.json ] && FLOOR="--floor ../../results/CLEAN_FLOOR.json"
-          if python error_triage.py --dirs "work:" --arms "$ARMS" --sets "$SETS" --top 60             --floor-out work/clean_floor.json $FLOOR > work/triage.md 2> work/triage.err; then
+          # 🧭 **و`--where` تُضاف بسببٍ مقيس:** D-391 سألت «أمِن البند نفسِه جاءت الكلمةُ
+          #    المسموعةُ؟» فكان الجوابُ **0 من 29** — ⛔ **لكن على النظيف وحدَه**. وأرضيّةُ
+          #    الضجيج **359 خطأً (×11)** وهي شكوى المستخدم الأولى، **ولم يُسأل عنها قطُّ**.
+          #    والجوابُ يفصل طريقَين: إن جاءت الكلماتُ من البند فالشبهةُ **محاذاةٌ/تكرارٌ**
+          #    (‏يُعالَج بإعادة إرساءٍ وتقصيرِ مجموعة · D-388) وإلّا فهو **سمعٌ** لا يُعالجه
+          #    إلّا صوتٌ أنظفُ أو نموذجٌ. ⇒ تُقاس في كلّ قراءةٍ بلا شوطٍ خاصّ (ثوانٍ من المصحف).
+          if python error_triage.py --dirs "work:" --arms "$ARMS" --sets "$SETS" --top 200 --where             --floor-out work/clean_floor.json $FLOOR > work/triage.md 2> work/triage.err; then
             cat work/triage.md
           else
             { echo "### 🔖 تصنيفُ الأخطاء — ⚠️ **تعذّر**، ونصُّ الخطأ كما هو:"; echo
