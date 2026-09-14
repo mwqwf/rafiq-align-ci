@@ -501,12 +501,14 @@ def floor_positions(dirs, arms, sets):
                 if not hyps:
                     continue
                 rows = []
+                seen_items = []
                 for it in [x for x in pool if x["id"] in hyps]:
                     h = hyps.get(it["id"]) or {}
                     if h.get("text") is None or "error" in h:
                         continue
                     riw = it.get("riwaya")
                     ref = it["refText"].split()
+                    seen_items.append(it["id"])       # 🧾 **التغطيةُ تُسجَّل ولو بلا خطأ**
                     sc = SCR.score(ref, h["text"], SC.config_for("proposed", riw))
                     for w in sc.get("words", []):
                         if not w or w[1] not in (SCR.MISSED, SCR.SUBSTITUTED):
@@ -514,27 +516,52 @@ def floor_positions(dirs, arms, sets):
                         rows.append({"item": it["id"], "idx": w[0], "riwaya": riw,
                                      "ref": ref[w[0]] if w[0] < len(ref) else "?",
                                      "heard": w[2], "status": w[1]})
-                if rows:
-                    out[(st, arm)] = rows
+                if seen_items:
+                    out[(st, arm)] = {"rows": rows, "items": sorted(seen_items)}
     return out
 
 
-def floor_compare(base_rows, arm_rows):
-    """(‏مثبَّتٌ · مُصلَحٌ · جديدٌ) بمقارنة **المواضع** لا الأعداد."""
+def floor_compare(base_rows, arm_rows, shared=None):
+    """(‏مثبَّتٌ · مُصلَحٌ · جديدٌ) بمقارنة **المواضع** لا الأعداد.
+
+    ⛔⛔ **وعلى البنود المشتركة وحدَها متى عُرفت** (`shared`): بندٌ لم تقرأه الذراعُ أصلاً
+    **ليس بنداً أصلحتْه** — ولولا هذا القيدُ لقرأنا نقصَ التغطية «إصلاحاً»، وهو أخطرُ
+    ما في هذا الجدول لأنّه يكذب في الاتّجاه المُرضي.
+    """
     b = {(r["item"], r["idx"]) for r in base_rows}
     a = {(r["item"], r["idx"]) for r in arm_rows}
+    if shared is not None:
+        sh = set(shared)
+        b = {x for x in b if x[0] in sh}
+        a = {x for x in a if x[0] in sh}
     return sorted(b & a), sorted(b - a), sorted(a - b)
 
 
-def floor_table(floor, arm_rows, arm_name, base_name):
-    kept, fixed, new = floor_compare(floor, arm_rows)
+def floor_table(floor, arm_rows, arm_name, base_name, floor_items=None, arm_items=None):
+    """جدولُ المقابلة — ومعه **تغطيةُ البنود** صراحةً (‏وبلا تغطيةٍ يُقال «لم تُعرَف»)."""
+    base_items = set(floor_items) if floor_items else {r["item"] for r in floor}
+    a_items = set(arm_items) if arm_items is not None else {r["item"] for r in arm_rows}
+    shared = base_items & a_items
+    kept, fixed, new = floor_compare(floor, arm_rows, shared)
     print(f"\n### 🧱 مقابلةُ الأرضيّة — `{arm_name}` في مواجهة أرضيّة `{base_name}`\n")
-    print("| | مواضعُ |")
+    print("| | عددٌ |")
     print("|---|---:|")
-    print(f"| أرضيّةُ الأساس | {len(floor)} |")
+    print(f"| بنودُ الأرضيّة {'(‏تغطيةٌ مسجَّلة)' if floor_items else '**(‏من بنود الخطأ وحدَها — التغطيةُ لم تُسجَّل)**'} | {len(base_items)} |")
+    print(f"| بنودُ الذراع | {len(a_items)} |")
+    print(f"| **بنودٌ مشتركةٌ** (‏وعليها وحدَها يُحكم) | **{len(shared)}** |")
+    print(f"| مواضعُ الأرضيّة في المشترك | {len(kept) + len(fixed)} |")
     print(f"| **مثبَّتٌ** (‏بقي خطأً) | {len(kept)} |")
     print(f"| **مُصلَحٌ** | {len(fixed)} |")
     print(f"| **جديدٌ** (‏كسرٌ أحدثتْه) | {len(new)} |")
+    if not shared:
+        print("\n⛔ **لا بندَ مشتركاً ⇒ لا حكمَ** (‏والصفرُ أعلاه «لم يُقَس» لا «لا خطأ»).")
+        return kept, fixed, new
+    if len(shared) < len(base_items):
+        print(f"\n⚠️ **والذراعُ لم تقرأ {len(base_items) - len(shared)} بنداً من الأرضيّة** — "
+              f"وقد أُخرجت من الحساب كي لا يُقرأ نقصُ التغطية «إصلاحاً».")
+    if not floor_items:
+        print("\n⚠️ **وتغطيةُ الأرضيّة نفسِها غيرُ مسجَّلة** (‏ملفٌّ كُتب قبل تسجيلها) ⇒ بنودُها "
+              "هنا **بنودُ خطئها** لا كلُّ ما قرأتْه؛ ويزول هذا القيدُ بأوّل أرضيّةٍ تُكتب بعد اليومَ.")
     net = len(fixed) - len(new)
     print(f"\n**المحصّلة:** {'+' if net > 0 else ''}{net} موضعاً. ⛔ **ولا يُقرأ «أصلحَ» وحدَه**: "
           f"ذراعٌ تُصلح {len(fixed)} وتكسر {len(new)} ليست أفضلَ بـ{len(fixed)} (‏درسُ D-392).")
@@ -681,6 +708,17 @@ def selftest():
     if len(floor_compare([{"item": "i1", "idx": 3}], [{"item": "i2", "idx": 3}])[0]) != 0:
         print("⛔ floor_compare: خلط موضعَين مختلفَي البند")
         ok = False
+    # ⛔ وضابطُ التغطية: بندٌ لم تقرأه الذراعُ ليس بنداً أصلحتْه
+    b2 = [{"item": "i1", "idx": 1}, {"item": "i2", "idx": 2}]
+    a2 = [{"item": "i1", "idx": 1}]
+    k2, f2, n2 = floor_compare(b2, a2, shared={"i1"})
+    if (len(k2), len(f2), len(n2)) != (1, 0, 0):
+        print(f"⛔ التغطية: بندٌ غائبٌ عُدّ إصلاحاً — جاء ({len(k2)} · {len(f2)} · {len(n2)})")
+        ok = False
+    k3, f3, n3 = floor_compare(b2, a2)      # بلا قيدٍ ⇒ يُقرأ «أصلح» كذباً (‏وهو ما نمنعه)
+    if len(f3) != 1:
+        print("⛔ الضابطُ نفسُه فاسدٌ: بلا قيد التغطية كان يجب أن يظهر «إصلاحٌ» كاذب")
+        ok = False
     # ضوابطُ `parse_item` و`where_stats` على نصٍّ صناعيٍّ معلومِ الجواب
     if T_parse := parse_item("long_qalun_092_005x6"):
         if T_parse != ("qalun", 92, 5, 6):
@@ -798,17 +836,20 @@ def main():
             order = [k for k in pos]
             if a.floor_out:
                 st0, arm0 = order[0]
-                json.dump({"set": st0, "arm": arm0, "n": len(pos[(st0, arm0)]),
-                           "rows": pos[(st0, arm0)]},
+                d = pos[(st0, arm0)]
+                json.dump({"set": st0, "arm": arm0, "n": len(d["rows"]),
+                           "items": d["items"], "rows": d["rows"]},
                           open(a.floor_out, "w", encoding="utf-8"), ensure_ascii=False, indent=1)
-                print(f"\n🧱 كُتبت أرضيّةُ `{st0}` · `{arm0}`: **{len(pos[(st0, arm0)])}** موضعاً "
-                      f"⇒ `{os.path.basename(a.floor_out)}` (‏تُقابَل بها أذرعٌ قادمة).")
+                print(f"\n🧱 كُتبت أرضيّةُ `{st0}` · `{arm0}`: **{len(d['rows'])}** موضعاً في "
+                      f"**{len(d['items'])}** بنداً ⇒ `{os.path.basename(a.floor_out)}` "
+                      f"(‏تُقابَل بها أذرعٌ قادمة).")
             if a.floor:
                 d0 = json.load(open(a.floor, encoding="utf-8"))
-                for (st, arm), rows in pos.items():
+                for (st, arm), d in pos.items():
                     if arm == d0.get("arm") and st == d0.get("set"):
                         continue
-                    floor_table(d0["rows"], rows, arm, f"{d0.get('arm')}")
+                    floor_table(d0["rows"], d["rows"], arm, f"{d0.get('arm')}",
+                                d0.get("items"), d["items"])
         # ⛔ **ولا خروجَ صامتٌ:** جدولٌ فارغٌ يُقرأ «لم يُقَس» لا «لا خطأ» ⇒ يُنطق بسببه
         #    ويسقط بالرمز، فلا تُعدّ خطوةٌ فارغةٌ نجاحاً (‏درسُ الشوط `34795058366`).
         if not found:
