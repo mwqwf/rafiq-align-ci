@@ -263,6 +263,61 @@ def build(quota=None, extend="", out=None, verify=False):
     return 0
 
 
+# ---- 🧪 اختبارٌ ذاتيٌّ (أُضيف 2026-09-14 · مناوبةُ :13) ----
+# ⛔ **لِمَ:** من هنا تخرج **عيّنةُ كلّ رقمِ اتّهامٍ كاذبٍ في اللوحة**، وخصّتان فيها **تُقرآن
+# خطأً**: حدودُ الطبقات (‏ما `S` وما `XL`) و**أنّ الحصّةَ المعلَنةَ ليست المبنيّة** — فالطبقاتُ
+# تُدوَّر كلٌّ على حدة فيزيد المجموعُ أو ينقص. ⭐ والقيمُ مقيسةٌ من الملفّ نفسِه قبل كتابتها.
+def selftest():
+    bad = 0
+
+    def ok(name, got, want):
+        nonlocal bad
+        good = got == want
+        print(f"  {'✅' if good else '⛔'} {name}: {got} · المتوقَّع {want}")
+        bad += 0 if good else 1
+
+    ok("حدودُ الطبقات بأطرافها",
+       tuple(stratum_of(n) for n in (1, 4, 5, 9, 10, 19, 20)),
+       ("S", "S", "M", "M", "L", "L", "XL"))
+    # ⚠️ وطرفان يُثبَّتان كي يُقرآ على وجههما: صفرُ كلماتٍ **لا طبقةَ له** (فلا يدخل العيّنة)،
+    #    وسقفُ `XL` **مكتوبٌ (10,000) لا لانهائيّ** — وما فوقه يسقط صامتاً في البناء.
+    ok("وصفرُ كلماتٍ لا طبقةَ له", stratum_of(0), None)
+    ok("وسقفُ XL مكتوبٌ لا مفتوح", (stratum_of(10_000), stratum_of(10_001)), ("XL", None))
+    ok("ولا فجوةَ بين طبقتَين", [stratum_of(n) for n in range(1, 40)].count(None), 0)
+
+    ok("ونصيبُ الطبقات يجمع الواحدَ الصحيح", round(sum(STRATUM_SHARE.values()), 9), 1.0)
+    # ⛔⛔ **والحصّةُ المعلَنةُ ليست المبنيّة**: كلُّ طبقةٍ تُدوَّر وحدَها ⇒ 70 تبني **71**
+    #     (‏17.5 تُدوَّر إلى 18 مرّتَين) — وهو ما يُقرأ في `sample.json` المودَع فلا يُظَنّ عطباً.
+    def built(q):
+        return sum(round(q * sh) for sh in STRATUM_SHARE.values())
+    ok("حصّةُ 70 تبني 71 بالتدوير", built(70), 71)
+    ok("و140 و60 و120 تبني نفسَها", (built(140), built(60), built(120)), (140, 60, 120))
+
+    ok("وحصصُ الافتراض كما شُرحت (قالونُ أقلُّ لأنّ آياته مقصوصة)",
+       (QUOTA["hafs"], QUOTA["warsh"], QUOTA["qalun"]), (70, 70, 60))
+    ok("وقالونُ بقارئٍ واحدٍ اضطراراً · وحفصٌ بأربعة",
+       (len(RECITERS["qalun"]), len(RECITERS["hafs"]), len(RECITERS["warsh"])), (1, 4, 2))
+    ok("ومصدرُ قالونَ ملفُّ سورةٍ لا آية", RECITERS["qalun"][0][1], None)
+    # ⏱️ وهامشُ قصّ قالون يُثبَّت: هو **سندُ حدٍّ يُذكر مع كلّ رقمٍ قالونيّ** لا رقمٌ عابر.
+    ok("وهامشُ القصّ 300م.ث كما يُعلَن مع أرقام قالون", QALUN_PAD_MS, 300)
+
+    # ⭐ **وتسميةُ روايةٍ لا تُصفّر أخواتِها**: النصُّ يُبدّل فوق الافتراض ولا يحلّ محلَّه —
+    #    وهذا ما يجعل `--quota warsh=140` توسيعاً لا إعادةَ بناءٍ بحفصٍ مفقود. (قِيس فصُحّح
+    #    توقُّعي: كنتُ أظنّها تعيد المذكورَ وحدَه.)
+    ok("وحصّةٌ تُسمّى تُبدّل ولا تُلغي الباقي",
+       parse_quota("warsh=140,qalun=120"), {"hafs": 70, "warsh": 140, "qalun": 120})
+    ok("ونصٌّ فارغٌ ⇒ الافتراضُ كما هو", parse_quota(""), dict(QUOTA))
+    for bad_text in ("dosary=10", "warsh=صفر", "warsh=0", "warsh=5000"):
+        try:
+            parse_quota(bad_text)
+            ok(f"⛔ قُبلت حصّةٌ باطلةٌ: {bad_text}", False, True)
+        except SystemExit:
+            ok(f"وحصّةٌ باطلةٌ تسقط باسمها: {bad_text}", True, True)
+
+    print("✅ الأداةُ سليمةٌ على حالاتها" if not bad else f"⛔ الأداةُ نفسُها معطوبةٌ في {bad} حالة")
+    return 1 if bad else 0
+
+
 def parse_quota(text):
     """`warsh=140,qalun=120` ⇒ حصصٌ تُبدّل الافتراض. ⛔ ورواية لا نعرفها تسقط باسمها."""
     q = dict(QUOTA)
@@ -284,6 +339,10 @@ if __name__ == "__main__":
     ap.add_argument("--out", default="", help="مسارُ المخرَج (الافتراضُ sample.json نفسُه)")
     ap.add_argument("--verify-audio", action="store_true",
                     help="افحصْ روابطَ البنود الجديدة بـHEAD قبل الكتابة (في العدّاء — R2 محجوبٌ عن الصندوق)")
+    ap.add_argument("--selftest", action="store_true",
+                    help="يختبر حدودَ الطبقات وحسابَ الحصص على حالاتٍ مقيسة (بلا بناءٍ ولا شبكة)")
     a = ap.parse_args()
+    if a.selftest:
+        raise SystemExit(selftest())
     raise SystemExit(build(parse_quota(a.quota) if a.quota else None, a.extend, a.out or None,
                            a.verify_audio))

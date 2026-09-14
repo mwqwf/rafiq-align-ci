@@ -46,7 +46,83 @@ def judge_with(plan, hyps, rule):
         scorer.PREFER_INSERT_ON_TIE = old
 
 
+# ---- 🧪 اختبارٌ ذاتيٌّ (أُضيف 2026-09-14 · مناوبةُ :13) ----
+# ⛔ **لِمَ:** هذا الملفُّ **يبدّل حالةً عامّةً في المسطرة** (`scorer.PREFER_INSERT_ON_TIE`)
+# ثمّ يُعيدها. وتسرُّبُ هذا العلم **لا يُسقط شوطاً ولا يرمي خطأً**: يُغيّر **كلَّ حكمٍ يليه
+# في العمليّة نفسِها** — فيُقرأ فرقُ ذراعَين وهو فرقُ مسطرتَين. ⇒ فالمحروسُ هنا **إعادةُ
+# العلم** أوّلاً، ثمّ **أنّ للقاعدة أثراً أصلاً** (درسُ D-385: ذراعان متطابقتان سؤالٌ لا جواب).
+# ⭐ والقيمُ أدناه **مقيسةٌ من الدوالّ نفسِها** قبل كتابتها.
+_T_REF = "الحمد لله رب العالمين الرحمن"
+_T_PLAN = [{"id": "t1", "refText": _T_REF, "wordIndex": 2, "op": "SUBSTITUTE", "riwaya": "hafs"}]
+# فرضيّةٌ فيها **كلمةٌ زائدةٌ** في الوسط والباقي مطابقٌ حرفاً — وهذا موضعُ التعادل بعينه.
+_T_HYPS = {"t1": {"text": "الحمد لله مالك رب العالمين الرحمن"}}
+
+
+def selftest():
+    bad = 0
+
+    def ok(name, got, want):
+        nonlocal bad
+        good = got == want
+        print(f"  {'✅' if good else '⛔'} {name}: {got} · المتوقَّع {want}")
+        bad += 0 if good else 1
+
+    ok("المشحونُ اليومَ: لا تُفضَّل القراءةُ إقحاماً", scorer.PREFER_INSERT_ON_TIE, False)
+
+    # ① **وللقاعدة أثرٌ مقيسٌ لا مفترَض** — وهو العطبُ الذي وُجدت له (‏D-366):
+    #    زيادةُ كلمةٍ تجعل المسطرةَ المشحونةَ **تتّهم كلمةً صحيحةً** (‏`رب` ⇒ `SUBSTITUTED`)،
+    #    والمرشَّحةُ تقرؤها **زيادةً** فلا تتّهم أحداً.
+    from detect_score import cfg_for as _cfg                        # noqa: E402
+    ref = _T_REF.split()
+    out = {}
+    for rule in (False, True):
+        old = scorer.PREFER_INSERT_ON_TIE
+        try:
+            scorer.PREFER_INSERT_ON_TIE = rule
+            s = scorer.score(ref, _T_HYPS["t1"]["text"], _cfg("hafs"))
+        finally:
+            scorer.PREFER_INSERT_ON_TIE = old
+        out[rule] = (s["correct"], s["total"], [w[1] for w in s["words"]], s["additions"])
+    ok("المشحونةُ تتّهم كلمةً صحيحةً بسبب زيادةٍ قبلها",
+       (out[False][0], out[False][1], out[False][2][2], out[False][3]), (4, 5, "SUBSTITUTED", []))
+    ok("والمرشَّحةُ تقرؤها زيادةً ولا تتّهم",
+       (out[True][0], out[True][1], out[True][2][2], out[True][3]), (5, 5, "CORRECT", ["مالك"]))
+    ok("⇒ فالذراعان ليستا نسختَين (وإلّا فالمقارنةُ بلا معنى)", out[False] != out[True], True)
+
+    # ② **وحكمُ الذراع يتبدّل تبعاً** — والفرقُ يظهر في الكشف لا في الاتّهام وحدَه.
+    dA = judge_with(_T_PLAN, _T_HYPS, False)[:3]
+    dB = judge_with(_T_PLAN, _T_HYPS, True)[:3]
+    ok("بالمسطرة المشحونة: كشفٌ في موضع الحقن", dA, (1.0, 0.0, 1))
+    ok("وبالمرشَّحة: لا كشفَ (‏قُرئت زيادةً لا خطأً في الموضع)", dB, (0.0, 0.0, 1))
+
+    # ③ ⛔⛔ **والأهمّ: العلمُ يعود دائماً** — في السويّ وفي الاستثناء وفي المطابق.
+    ok("العلمُ يعود بعد نداءٍ سويّ", scorer.PREFER_INSERT_ON_TIE, False)
+    judge_with(_T_PLAN, _T_HYPS, True)
+    ok("ولا يتسرّب ولو طُلبت المرشَّحة", scorer.PREFER_INSERT_ON_TIE, False)
+    boom, kept = RuntimeError("انفجارٌ متعمَّد"), G.judge_arm
+    try:
+        G.judge_arm = lambda *a, **k: (_ for _ in ()).throw(boom)
+        try:
+            judge_with(_T_PLAN, _T_HYPS, True)
+            ok("⛔ الاستثناءُ لم يُرمَ أصلاً", False, True)
+        except RuntimeError as e:
+            ok("واستثناءٌ في وسط الحكم يمرّ ولا يُبتلع", str(e), "انفجارٌ متعمَّد")
+        ok("⭐ والعلمُ يعود **حتى مع الاستثناء**", scorer.PREFER_INSERT_ON_TIE, False)
+    finally:
+        G.judge_arm = kept
+    # ④ وجردُ صنف `INSERT` **لأهله وحدَه**: بندٌ غيرُ مُقحَمٍ لا يُنسب إليه «أسُمعت الدخيلة؟».
+    ok("لا جردَ إقحامٍ لغير المُقحَم", judge_with(_T_PLAN, _T_HYPS, False)[4], {})
+    ok("وللمُقحَمِ جردٌ باسمه",
+       sorted(judge_with([dict(_T_PLAN[0], op="INSERT", donor={"word": "مالك"})],
+                         _T_HYPS, False)[4]), ["t1"])
+
+    print("✅ الأداةُ سليمةٌ على حالاتها" if not bad else f"⛔ الأداةُ نفسُها معطوبةٌ في {bad} حالة")
+    return 1 if bad else 0
+
+
 def main():
+    if "--selftest" in sys.argv:      # ⭐ قبل الوسائط المطلوبة: الاختبارُ لا يحتاج دلواً
+        raise SystemExit(selftest())
     ap = argparse.ArgumentParser()
     ap.add_argument("--dirs", nargs="+", required=True)
     ap.add_argument("--arm", required=True, help="ذراعٌ واحدة — فالمقارنةُ بين مسطرتَين لا بين نموذجَين")
