@@ -69,8 +69,22 @@ def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("n", type=int)
     ap.add_argument("--show", action="store_true")
+    # ⭐ `--pick A:B` يطبع الحزمَ A..B-1 وحدَها مفصولةً بمسافة — وهو ما يجعل
+    #    **قسمةَ القارئ الواحد على عدّة عدّائين** ممكنةً بلا قسمةٍ ثانية:
+    #    القسمةُ هنا واحدةٌ بمجموع الآي، وكلُّ عدّاءٍ يأخذ شريحتَه منها.
+    #    (‏أُضيف 2026-09-14 بعد قياس الموجة 34813198468: أربعُ شرائحَ جلست
+    #     عاطلةً من الدقيقة الثانية واثنتان طحنتا أكثرَ من ساعتين وأربعين.)
+    ap.add_argument("--pick", default="")
     a = ap.parse_args()
     packs, load = bins(max(1, a.n))
+    if a.pick:
+        lo, _, hi = a.pick.partition(":")
+        lo = int(lo)
+        hi = int(hi) if hi else lo + 1
+        if not (0 <= lo < hi <= len(packs)):
+            raise SystemExit(f"⛔ --pick {a.pick} خارج المدى 0..{len(packs)}")
+        print(" ".join(fmt(p) for p in packs[lo:hi]))
+        return
     if a.show:
         for p, l in zip(packs, load):
             print(f"{l:>5} آية · {len(p):>3} سورة · {fmt(p)}")
