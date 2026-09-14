@@ -346,8 +346,8 @@ def door_cost(riwaya, SCR, SC, load_text, min_part=2):
 def table(rows, title):
     """rows = [(مرجع · مسموع · رواية · بند · تكرار · صنف · تفصيل · كلمةٌ أخرى)]"""
     print(f"\n### 🔖 {title}\n")
-    print("| كلمةُ المرجع | ما سُمع | الصنف | البابُ الذي يغفره | كلمةٌ أخرى؟ | تكراراً | تفصيل |")
-    print("|---|---|---|---|:---:|---:|---|")
+    print("| كلمةُ المرجع | ما سُمع | الصنف | البابُ الذي يغفره | كلمةٌ أخرى؟ | تكراراً | مثالُ بند | تفصيل |")
+    print("|---|---|---|---|:---:|---:|---|---|")
     kinds = collections.Counter()
     others = collections.Counter()
     for ref, heard, _riw, _item, c, kind, det, other, _head in rows:
@@ -355,7 +355,7 @@ def table(rows, title):
         if other:
             others[kind] += c
         print(f"| `{ref}` | `{heard}` | {kind} | {DOOR.get(kind, '—')} | "
-              f"{'⛔ نعم' if other else '—'} | {c} | {det} |")
+              f"{'⛔ نعم' if other else '—'} | {c} | `{_item or '—'}` | {det} |")
     heads = collections.Counter()
     for r in rows:
         if r[5] == HEAD and len(r) > 8 and r[8]:
@@ -372,6 +372,104 @@ def table(rows, title):
         for hh, n in heads.most_common():
             print(f"| `{hh}` | {n} |")
     return kinds, others, heads
+
+
+def parse_item(iid):
+    """`long_<رواية>_<سورة>_<أوّلُ آية>x<عدد>` ⇒ (‏رواية · سورة · أوّل آيةٍ · عدد) — أو None.
+
+    (‏وهي صيغةُ `build_long.py` حرفاً بحرف: آياتٌ **متتاليةٌ** من سورةٍ واحدة.)
+    """
+    try:
+        parts = iid.split("_")
+        if len(parts) < 4 or parts[0] != "long":
+            return None
+        riw = parts[1]
+        surah = int(parts[2])
+        tail = parts[3]
+        first, n = tail.split("x")
+        return riw, surah, int(first), int(n)
+    except Exception:
+        return None
+
+
+def item_words(iid, load_text, index):
+    """كلماتُ مرجعِ البند كما بناه `build_long.py` — من المصحف لا من الفرضيّات."""
+    got = parse_item(iid)
+    if not got:
+        return None, None
+    riw, surah, first, n = got
+    start = {x["n"]: x["start"] for x in index["surahs"]}
+    if surah not in start:
+        return None, None
+    text = load_text(riw)
+    words = []
+    for a in range(first, first + n):
+        j = start[surah] + a - 1
+        if j >= len(text):
+            return None, None
+        words += text[j].split()
+    return riw, words
+
+
+def where_stats(rows, SCR=None, SC=None):
+    """🧭 **الكلمةُ التي سُمعت مكانَ غيرها: أمِن البند نفسِه أم من خارجه؟**
+
+    فإن كانت **من كلمات البند** (‏وقريبةً من موضع المرجع) فالشبهةُ **محاذاةٌ أو تكرارُ
+    كلمةٍ**، وإن لم تكن فيه البتّة فهي **سمعٌ** أتى بكلمةٍ من مكانٍ آخرَ من المصحف.
+    ⚠️ **وهذا مُرجِّحٌ لا برهان**: وجودُها في البند قد يكون مصادفةً في كلماتٍ شائعة
+    (`قل` · `ان`) ⇒ **تُقرأ المسافةُ مع الوجود**، والشائعُ يُسمّى.
+    """
+    if SCR is None or SC is None:
+        SCR, SC = _mods()
+    from common import load_text, load_index
+    index = load_index()
+    out = []
+    for ref, heard, riw, item, c, kind, det, other, _head in rows:
+        if heard in (None, "—", "") or not item:
+            continue
+        riw2, words = item_words(item, load_text, index)
+        if not words:
+            out.append((ref, heard, item, "؟ بندٌ لم يُبنَ", None, c))
+            continue
+        cfg = SC.config_for("proposed", riw2 or riw)
+        h = SCR.norm(heard, cfg)
+        hits = [i for i, w in enumerate(words) if h in forms_of(w, cfg, SCR)]
+        refs = [i for i, w in enumerate(words) if w == ref]
+        # ⛔⛔ **ضابطٌ سالبٌ يسبق كلَّ حكم:** إن لم تُوجد **كلمةُ المرجع نفسُها** في البند
+        #     المُعادِ بناؤه فالبناءُ خاطئٌ (‏رواية/سورة/نافذة) ⇒ **«لم يُقَس»** لا «من خارجه»،
+        #     وإلّا صار «صفرُ التقاطع» أثرَ عطبٍ في الأداة لا حكماً على البيانات.
+        if not refs:
+            out.append((ref, heard, item, "؟ المرجعُ ليس في البند (‏لا يُحكم)", None, c))
+            continue
+        if not hits:
+            out.append((ref, heard, item, "من خارج البند", None, c))
+            continue
+        d = min(abs(i - j) for i in hits for j in refs)
+        out.append((ref, heard, item, "**في البند**", d, c))
+    return out
+
+
+def where_table(rows, SCR=None, SC=None):
+    res = where_stats(rows, SCR, SC)
+    print("\n### 🧭 الكلمةُ المسموعةُ — أمِن البند نفسِه أم من خارجه؟\n")
+    print("| كلمةُ المرجع | ما سُمع | البند | أين وُجدت | مسافةُ كلماتٍ عن المرجع | تكراراً |")
+    print("|---|---|---|---|---:|---:|")
+    tally = collections.Counter()
+    for ref, heard, item, where, d, c in res:
+        tally[where] += c
+        print(f"| `{ref}` | `{heard}` | `{item}` | {where} | "
+              f"{'—' if d is None else d} | {c} |")
+    print("\n**الحصيلة:**\n")
+    print("| أين | خطأً |")
+    print("|---|---:|")
+    for k, v in tally.most_common():
+        print(f"| {k} | {v} |")
+    unchecked = sum(v for k, v in tally.items() if k.startswith("؟"))
+    total = sum(tally.values())
+    print(f"\n🧪 **الضابطُ السالب:** وُجدت كلمةُ المرجع نفسُها في البند المُعادِ بنائه في "
+          f"**{total - unchecked} من {total}** ⇒ البناءُ سليمٌ فيها، **وما لم يُوجَد فيه المرجعُ "
+          f"لا يُحكم عليه**. (‏ولولا هذا الضابطُ لقُرئ «صفرُ تقاطعٍ» حكماً وهو قد يكون عطبَ بناءٍ.)")
+    return res, tally
 
 
 def from_pairs(path):
@@ -509,6 +607,38 @@ def selftest():
         if other != want_other:
             print(f"⛔ `{ref}`⇄`{heard}`: عمودُ «كلمةٌ أخرى» انتُظر {want_other} فجاء {other}")
             ok = False
+    # ضوابطُ `parse_item` و`where_stats` على نصٍّ صناعيٍّ معلومِ الجواب
+    if T_parse := parse_item("long_qalun_092_005x6"):
+        if T_parse != ("qalun", 92, 5, 6):
+            print(f"⛔ parse_item: جاء {T_parse}")
+            ok = False
+    else:
+        print("⛔ parse_item ردّ None على معرِّفٍ صحيح")
+        ok = False
+    if parse_item("threads_x") is not None:
+        print("⛔ parse_item قبِل معرِّفاً ليس من `build_long`")
+        ok = False
+    # ⛔ والضابطُ السالبُ: بندٌ لا مرجعَ فيه **لا يُحكم عليه**
+    import types
+    fake_mod = types.SimpleNamespace()
+
+    def _fake_words(iid, _lt, _ix):
+        return "qalun", ["الف", "باء", "جيم"]
+    _real = globals()["item_words"]
+    globals()["item_words"] = _fake_words
+    try:
+        rows_in = [("باء", "جيم", "qalun", "long_qalun_001_001x1", 1, FAR, "", False, ""),
+                   ("دال", "جيم", "qalun", "long_qalun_001_001x1", 1, FAR, "", False, "")]
+        got = where_stats(rows_in, SCR, SC)
+        if got[0][3] != "**في البند**" or got[0][4] != 1:
+            print(f"⛔ where_stats: انتُظر «في البند» بمسافة 1 فجاء {got[0][3:5]}")
+            ok = False
+        if not got[1][3].startswith("؟"):
+            print(f"⛔ where_stats: بندٌ لا مرجعَ فيه يجب ألّا يُحكم عليه — جاء {got[1][3]}")
+            ok = False
+    finally:
+        globals()["item_words"] = _real
+    del fake_mod
     # ضابطُ `naql_cost` على معجمٍ صناعيٍّ معلومِ الجواب: «الارض» يقابلها «لارض» كلمةً أخرى
     def lt2(_r):
         return ["الارض لارض", "الكبري"]
@@ -560,6 +690,8 @@ def main():
     ap.add_argument("--sets", default="")
     ap.add_argument("--top", type=int, default=60)
     ap.add_argument("--cost", action="store_true")
+    ap.add_argument("--where", action="store_true",
+                    help="🧭 أمِن البند نفسِه جاءت الكلمةُ المسموعةُ أم من خارجه؟")
     ap.add_argument("--riwayat", default="warsh qalun")
     ap.add_argument("--heads", default="", help="صدورٌ ساقطةٌ يُقاس سعرُ بابِ كلٍّ منها وحدَه")
     ap.add_argument("--selftest", action="store_true")
@@ -569,6 +701,8 @@ def main():
     if a.pairs:
         rows = annotate(from_pairs(a.pairs))
         table(rows, f"تصنيفُ {sum(r[4] for r in rows)} خطأً — من `{os.path.basename(a.pairs)}`")
+        if a.where:
+            where_table(rows)
     if a.dirs:
         lex_cache = {}
         dirs = [d.split(":", 1)[0] for d in a.dirs.split() if d] or ["work"]
@@ -578,6 +712,8 @@ def main():
             found += 1
             rows = annotate(pairs[:a.top], lex_cache=lex_cache)
             table(rows, f"تصنيفُ أخطاء `{st}` · `{arm}`")
+            if a.where:
+                where_table(rows)
         # ⛔ **ولا خروجَ صامتٌ:** جدولٌ فارغٌ يُقرأ «لم يُقَس» لا «لا خطأ» ⇒ يُنطق بسببه
         #    ويسقط بالرمز، فلا تُعدّ خطوةٌ فارغةٌ نجاحاً (‏درسُ الشوط `34795058366`).
         if not found:
