@@ -365,13 +365,6 @@ def table(rows, title):
     print("|---|---:|---:|---|")
     for kind, n in kinds.most_common():
         print(f"| {kind} | {n} | {others.get(kind, 0)} | {DOOR.get(kind, '—')} |")
-    print("\n### 🔓 بابُ النقل (`ال…` ⇒ `ل…`) — مفتوحٌ في ورشٍ مغلقٌ في قالون\n")
-    print("| الرواية | البابُ اليومَ | مواضعُ يبلغها | **مواضعُ عمًى** | من النصّ |")
-    print("|---|:---:|---:|---:|---:|")
-    for riw in riwayat:
-        reach, cost, tot, open_ = naql_cost(riw, SCR, SC, load_text)
-        print(f"| `{riw}` | {'مفتوحٌ (مشحون)' if open_ else 'مغلق'} | {reach} | **{cost}** | "
-              f"{100.0 * cost / tot:.2f}٪ |")
     if heads:
         print("\n**وصدورُ البتر** (‏ما سقط من أوّل الكلمة) — كلُّ صدرٍ **بابٌ ضيّقٌ** سعرُه يُقاس وحده:\n")
         print("| الصدرُ الساقط | خطأً |")
@@ -454,6 +447,13 @@ def annotate(pairs, SCR=None, SC=None, lex_cache=None):
 def cost_report(riwayat, heads=()):
     SCR, SC = _mods()
     from common import load_text
+    print("\n### 🔓 بابُ النقل (`ال…` ⇒ `ل…`) — مفتوحٌ في ورشٍ مغلقٌ في قالون\n")
+    print("| الرواية | البابُ اليومَ | مواضعُ يبلغها | **مواضعُ عمًى** | من النصّ |")
+    print("|---|:---:|---:|---:|---:|")
+    for riw in riwayat:
+        reach, cost, tot, open_ = naql_cost(riw, SCR, SC, load_text)
+        print(f"| `{riw}` | {'مفتوحٌ (مشحون)' if open_ else 'مغلق'} | {reach} | **{cost}** | "
+              f"{100.0 * cost / tot:.2f}٪ |")
     if heads:
         print("\n### 🎯 سعرُ **بابٍ ضيّقٍ** لكلِّ صدرٍ ساقطٍ — على نصِّ الرواية كلِّه\n")
         print("| الرواية | الصدرُ | مواضعُ يبلغها البابُ | **مواضعُ عمًى** | من النصّ |")
