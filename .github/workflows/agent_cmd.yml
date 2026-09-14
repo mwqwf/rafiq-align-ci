@@ -73,8 +73,20 @@ jobs:
           git add ops/out ops/commands 2>/dev/null || true
           if ! git diff --cached --quiet; then
             git commit -m "ops: جوابُ أمرِ الوكيل" -- ops/out ops/commands
-            # ⛔ الدفعُ بإعادةِ محاولةٍ واحدة: شجرةٌ مشتركةٌ قد تسبقنا بثوانٍ.
-            git push origin HEAD:main || { git pull --rebase --autostash && git push origin HEAD:main; }
+            # ⛔⛔ عطبٌ مقيسٌ 2026-09-14 17:30Z: كانت إعادةُ المحاولة تستعمل
+            #    `pull --rebase` — وهو الممنوعُ نصّاً على هذه الشجرة المشتركة
+            #    (`CLAUDE.md`: «ولا rebase؛ وعند التعذّر git merge --no-edit»).
+            #    وحين يتعارض شوطان على *نفس اسم ملفّ الجواب* (كلاهما نفّذ الأمرَ
+            #    نفسَه بالتزامن فكتب نتيجةً بنصٍّ مختلف) يفشل الدمجُ بتعارض
+            #    add/add، فتُهمَل النتيجةُ المحسوبةُ محلّياً بصمت — وقع فعلاً على
+            #    نتائج `hamza`/`hafz`. ⇒ عند التعارض: ادمج بـ`-X ours` (نتيجتي
+            #    التي حسبتُها الآن تبقى، فكلا الجوابين صادقٌ على الأمر نفسِه ولا
+            #    خسارةَ حقيقةٍ) لا بترك الشوط يفشل صامتاً.
+            git push origin HEAD:main || {
+              git fetch origin main --quiet
+              git merge -X ours --no-edit origin/main
+              git push origin HEAD:main
+            }
           else
             echo "لا جوابَ يُدفع."
           fi
