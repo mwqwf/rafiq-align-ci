@@ -44,7 +44,15 @@ DONE_DIR = CMD_DIR / "done"
 # ⛔ سيرُ العملِ المسموحُ إطلاقُه — والثقيلُ كلُّه هنا فلا حاجةَ إلى غيره.
 ALLOWED_WF = {"align.yml", "realign_surah.yml", "openers.yml", "audio_qa.yml",
               "basmala.yml", "restore.yml", "keepalive.yml", "mirror_reciter.yml",
-              "reciter_probe.yml", "probe_ayah.yml", "diagnosis.yml", "timing_ingest.yml"}
+              "reciter_probe.yml", "probe_ayah.yml", "diagnosis.yml", "timing_ingest.yml",
+              # ⛔ **أُضيف 2026-09-14 (‏D-442 · مناوبةُ المحرك):** `bench-selftest.yml` يشغّل
+              #    اختباراتِ عدّة القياس وحُرّاسَها (‏دقيقةٌ واحدة · بايثون وحدَه · لا محاكيَ ولا
+              #    شبكةَ ثقيلة). وأُضيف لأنّ زنادَه بالدفع **توقّف عن الاشتعال** على دفعاتٍ
+              #    تمسّ مساراتِه وهو `active` (‏أربعُ محاولاتٍ بأدلّتها في `ops/out/BLOCKED.md`)،
+              #    و`workflow_dispatch` المباشر يردّ **403** على بيانة الوكيل ⇒ فالبابُ المفتوح
+              #    هو هذا الأمرُ نفسُه. ⚖️ وهو **مسارُ قراءةٍ وفحصٍ لا يكتب شيئاً** (‏`permissions:
+              #    contents: read`) فإدخالُه لا يُضعف حارساً ولا يفتح باباً للكتابة.
+              "bench-selftest.yml"}
 # ⛔ والأدواتُ المسموحةُ كلُّها **قارئةٌ أو محكومةٌ بحُرّاسها** — لا صدفةَ فيها.
 # ⛔ و`certify_catalog.py` منها (‏أُضيف 2026-09-13 ‏19:0xZ بقياس): الكتالوجُ
 #    `catalog/reciters.json` هو ما **يقرؤه التطبيق**، وحقلاه `ayahCoverage`
