@@ -29,6 +29,7 @@
 from __future__ import annotations
 
 import json
+import re
 import subprocess
 import sys
 import traceback
@@ -90,10 +91,33 @@ def do_dispatch(c):
     wf = c.get("workflow", "")
     if wf not in ALLOWED_WF:
         return 2, f"⛔ سيرُ عملٍ غيرُ مسموح: {wf!r}\nوالمسموح: {sorted(ALLOWED_WF)}"
-    args = ["gh", "workflow", "run", wf]
-    for k, v in (c.get("inputs") or {}).items():
-        args += ["-f", f"{k}={v}"]
-    return run(args)
+    # ⛔⛔ **يُرشَّح المُدخَلُ بجواب GitHub نفسِه لا بتحليلِ ملفّ** (‏2026-09-14):
+    #    العلّةُ أنّ `CLAUDE.md` يأمر بتمرير `reason` مع كلّ إطلاق و**بعضُ** سيور العمل
+    #    تُعلنه وبعضُها لا ⇒ `HTTP 422: Unexpected inputs provided: ["reason"]` (وقع مرّتين).
+    # ⛔ **وعلاجي الأوّلُ كان أسوأَ من العطب**: حلّلتُ الملفَّ بـPyYAML، **وهي غيرُ مثبَّتةٍ
+    #    في بيئة العدّاء** ⇒ `No module named 'yaml'` فسقط كلُّ إطلاقٍ فاشلاً **مغلقاً**.
+    #    ⭐ والدرس: *حارسٌ يعتمد على ما لا يضمن وجودَه يصير هو العطب* — ومَن أضاف اعتماداً
+    #    جديداً في مسارٍ حرجٍ فليسأل أوّلاً: **أهو موجودٌ حيث يعمل؟**
+    # ⇒ **فلا تحليلَ ولا اعتماد**: يُجرَّب الإطلاقُ، فإن ردّ 422 مسمّياً المُدخَلاتِ غيرَ
+    #    المُعلَنة أُسقطت **بأسمائها من الرسالة نفسِها** وأُعيد **مرّةً واحدة**. والمصدرُ
+    #    هو GitHub لا ظنُّنا، ولا يحتاج شيئاً مثبَّتاً.
+    given = dict(c.get("inputs") or {})
+
+    def _fire(inp):
+        a = ["gh", "workflow", "run", wf]
+        for k, v in inp.items():
+            a += ["-f", f"{k}={v}"]
+        return run(a)
+
+    rc, out = _fire(given)
+    if rc != 0 and "Unexpected inputs provided" in out:
+        bad = re.findall(r'"([^"]+)"', out[out.index("Unexpected inputs provided"):])
+        dropped = {k: given.pop(k) for k in bad if k in given}
+        if dropped:
+            rc, out2 = _fire(given)
+            out = ("ℹ️ مُدخَلاتٌ لا يُعلنها " + wf + " فأُسقطت وأُعيد الإطلاق:\n"
+                   + "".join(f"   · {k} = {v}\n" for k, v in dropped.items()) + out2)
+    return rc, out
 
 
 def do_tool(c):
