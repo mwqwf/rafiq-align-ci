@@ -16,6 +16,18 @@ import subprocess
 import time
 import urllib.request
 import wave
+import shutil
+# 🛡️ **وسمُ وكيلٍ في كلّ تنزيل** (‏أُضيف 2026-09-14 · D-438): `urlretrieve` **لا تقبل ترويسةً**
+# فتفتح بالوسم الافتراضيّ `Python-urllib/x.y` ⇒ **403 من `r2.dev`** — عطبٌ مكتوبٌ في دفتر
+# الأعطاب أنّه وقع **ثلاثَ مرّات**، وعُولج في كلّ مرّةٍ في الدالّة التي عضّت وحدَها.
+UA = {"User-Agent": "Mozilla/5.0 (QuranRafiq bench)"}
+
+
+def _download(url, dst, timeout=120):
+    """ينزّل بوسمِ وكيلٍ — بديلُ `urlretrieve` الذي لا ترويسةَ له."""
+    req = urllib.request.Request(url, headers=UA)
+    with urllib.request.urlopen(req, timeout=timeout) as r, open(dst, "wb") as f:
+        shutil.copyfileobj(r, f)
 
 HOME = os.path.expanduser("~")
 WHISPER = f"{HOME}/QuranRafiq/assets-archive/ggml/bin/Release/whisper-cli.exe"
@@ -47,7 +59,7 @@ def prepare(it):
     wav = os.path.join(TMP, it["id"] + ".wav")
     for attempt in range(3):
         try:
-            urllib.request.urlretrieve(it["url"], src)
+            _download(it["url"], src)
             break
         except Exception:
             if attempt == 2:

@@ -1,0 +1,102 @@
+# 🧪🛡️ **عدّةُ القياس تُختبر في كلّ دفعة** — فالحارسُ الذي لا يُشغَّل حارسٌ نائم.
+#
+# ⛔ **لِمَ وُجد (‏2026-09-14 · D-438):** صارت في العدّة **سبعُ أدواتٍ لها `--selftest`**
+# وحارسان للحقيقة الأرضيّة — **ولم يكن يشغّلها شيءٌ تلقائيّاً**. ودرسُ هذا المستودع مكتوبٌ
+# بثمنه: **«حارسٌ لا يُقاس أثرُه ليس حارساً»**، وقد وُجد فيه حارسٌ يُنذر بما لا يقيسه.
+#
+# ⚖️ **وثمنُه دقيقةٌ أو دقيقتان بلا محاكٍ ولا نموذج** (بايثون وحدَه)، وهو في المستودع **العامّ
+# المجّانيّ** ومربوطٌ بمسارات `tools/tasmi_bench/**` وعليه `concurrency` و`timeout-minutes`.
+# ⛔ ولا يُطلق شيئاً في `QuranRafiq` المدفوع.
+name: bench-selftest
+
+on:
+  push:
+    paths:
+      - "tools/tasmi_bench/**"
+  workflow_dispatch:
+
+concurrency:
+  group: bench-selftest-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  selftest:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: 📦 ما تحتاجه أدواتُ الصوت — مقيسٌ لا مظنون
+        run: |
+          set -o pipefail
+          # ⛔ قِيس في الصندوق: ثلاثُ أدواتٍ تسقط بـ`numpy` ثمّ بـ`soundfile` ثمّ بـ`ffmpeg`
+          #    — وسقوطُها بغياب حزمةٍ **ليس إخفاقَ اختبار**، فتُنصَّب قبل أن يُحكم.
+          python -m pip install --quiet numpy soundfile
+          command -v ffmpeg >/dev/null || sudo apt-get install -y -qq ffmpeg
+
+      - name: 🧪 كلُّ أداةٍ لها اختبارٌ ذاتيٌّ تُشغَّل — والعدُّ صريحٌ
+        env:
+          PYTHONIOENCODING: utf-8
+        run: |
+          set -o pipefail
+          # ⛔ **القائمةُ تُشتقّ من الشفرة لا تُكتب بيد**: جدولٌ مكتوبٌ يتقادم فتُنسى أداةٌ
+          #    جديدةٌ بلا اختبارٍ يُشغَّل — وهو بعينه ما وقع للعدّة قبل اليوم.
+          mapfile -t TOOLS < <(grep -l -- '"--selftest"' tools/tasmi_bench/*.py | sort)
+          echo "أدواتٌ لها اختبارٌ ذاتيّ: ${#TOOLS[@]}"
+          # ⛔ **ولا خضرةَ بلا شهادة**: صفرُ أدواتٍ يعني أنّ الاشتقاقَ انكسر، لا أنّ كلَّ شيءٍ سليم.
+          if [ "${#TOOLS[@]}" -lt 5 ]; then
+            echo "⛔ اشتقاقُ القائمة انكسر (${#TOOLS[@]} أدوات) — لا يُقرأ هذا نجاحاً"
+            exit 1
+          fi
+          # ⛔ **مستثنًى واحدٌ بسببٍ مكتوبٍ ومفحوصٍ لا بقائمةِ هوى:** `fixture_audit.py` يقرأ
+          #    حزمةً في `engine/recitation/src/test/resources/` وهي **ليست في المرآة** (المحركُ
+          #    في المستودع الخاصّ) ⇒ سقوطُه هنا «غيرُ منطبقٍ» لا «معطوب». ويُتحقَّق من بقائه كي
+          #    لا يبقى الاستثناءُ بعد زواله.
+          SKIP="tools/tasmi_bench/fixture_audit.py"
+          if [ ! -f "$SKIP" ]; then
+            echo "⛔ المستثنى $SKIP لم يعد موجوداً ⇒ يُحذف استثناؤه"
+            exit 1
+          fi
+          PASS=0; FAIL=0; FAILED=""
+          for t in "${TOOLS[@]}"; do
+            if [ "$t" = "$SKIP" ]; then
+              echo "── $t ⏭️ غيرُ منطبقٍ هنا (يحتاج شجرةَ `engine/` وهي في المستودع الخاصّ)"
+              continue
+            fi
+            echo "── $t"
+            if timeout 180 python "$t" --selftest; then
+              PASS=$((PASS+1))
+            else
+              FAIL=$((FAIL+1)); FAILED="$FAILED $(basename "$t")"
+            fi
+          done
+          echo "| أدواتٌ مختبَرةٌ **$PASS** | إخفاقات **$FAIL** |${FAILED:+ ⛔$FAILED}"
+          echo "| أدواتٌ مختبَرةٌ **$PASS** | إخفاقات **$FAIL** |${FAILED:+ ⛔$FAILED}" >> "$GITHUB_STEP_SUMMARY"
+          exit "$FAIL"
+
+      - name: 🛡️ ولا تنزيلَ بلا وسمِ وكيلٍ (‏403 وقع ثلاثَ مرّات)
+        if: always()
+        run: |
+          set -o pipefail
+          python tools/tasmi_bench/net_guard.py tools/tasmi_bench tools/finetune
+
+      - name: 🧷 والحقيقةُ الأرضيّةُ للعيّنة النظيفة تُقابَل بالمصحف
+        if: always()
+        run: |
+          set -o pipefail
+          python tools/tasmi_bench/plan_guard.py tools/tasmi_bench/sample.json
+
+      - name: 🧾 وخططُ الحقن تُقرأ ولا تُسقط الشوط — سقفُها معلَنٌ في D-433
+        if: always()
+        run: |
+          # ⚠️ **ولِمَ لا تُسقط:** ثلاثةُ بنودِ `SWAP` فيها **مجمَّدةٌ بقرارٍ مكتوب** (‏D-433):
+          #    استبدالُ الخطّة يبدّل 97 بنداً من 160 فيقطع المقارنةَ مع كلّ رقمٍ سالف، وإسقاطُها
+          #    **يرفع** الكشفَ وهي الجهةُ المشتبَهُ فيها. ⇒ **يُعلَن السقفُ ويُقرأ عليه**.
+          #    ⛔ وما جدّ بعدها فمكانُه الخطوةُ الأولى (‏`plan_guard --selftest`) لا هذه.
+          python tools/tasmi_bench/plan_guard.py "tools/tasmi_bench/inject_plan*.json" || true

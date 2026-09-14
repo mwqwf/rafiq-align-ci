@@ -9,6 +9,18 @@ import json, os, subprocess, sys, urllib.request
 sys.path.insert(0, "/root/QuranRafiq/tools/alignment")
 from common import FFMPEG, MODEL_Q8, WHISPER_CLI, norm
 from decode import run_decode
+import shutil
+# 🛡️ **وسمُ وكيلٍ في كلّ تنزيل** (‏أُضيف 2026-09-14 · D-438): `urlretrieve` **لا تقبل ترويسةً**
+# فتفتح بالوسم الافتراضيّ `Python-urllib/x.y` ⇒ **403 من `r2.dev`** — عطبٌ مكتوبٌ في دفتر
+# الأعطاب أنّه وقع **ثلاثَ مرّات**، وعُولج في كلّ مرّةٍ في الدالّة التي عضّت وحدَها.
+UA = {"User-Agent": "Mozilla/5.0 (QuranRafiq bench)"}
+
+
+def _download(url, dst, timeout=120):
+    """ينزّل بوسمِ وكيلٍ — بديلُ `urlretrieve` الذي لا ترويسةَ له."""
+    req = urllib.request.Request(url, headers=UA)
+    with urllib.request.urlopen(req, timeout=timeout) as r, open(dst, "wb") as f:
+        shutil.copyfileobj(r, f)
 
 W = "/root/basmala"; os.makedirs(W, exist_ok=True)
 WIN_MS = 12_000
@@ -48,7 +60,7 @@ def main():
         mp3 = f"{W}/{tag}.mp3"
         try:
             if not os.path.exists(mp3):
-                urllib.request.urlretrieve(it["url"], mp3)
+                _download(it["url"], mp3)
             ws = words_of_clip(mp3, it["startMs"], tag)
             hit = [i for i, x in enumerate(ws) if x["w"] in BAS]
             row = {"reciter": it["reciter"], "surah": it["surah"],
