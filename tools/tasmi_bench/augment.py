@@ -423,7 +423,20 @@ def selftest(ffmpeg):
         ok &= good
         print(f"{'✅' if good else '❌'} noise-fan-{snr}: المقيس {got:.2f} د.ب")
 
-    for rate in (0.8, 1.25, 1.5):
+    # ⛔ **وغيابُ `ffmpeg` لا يُبطل بقيّةَ الحرّاس** (‏صُحّح 2026-09-14): كان الاستثناءُ
+    #    يقتل الاختبارَ كلَّه عند أوّل نداءٍ للسرعة، فتضيع شهادةُ الهاتف والقصّ والصدى معه —
+    #    **عطبٌ يُطفئ خمسةَ حرّاسٍ بسبب أداةٍ واحدةٍ ناقصة**. ⇒ يُعلَن ويُعَدّ إخفاقاً
+    #    (‏فلا يُقرأ نقصُ العدّة نجاحاً) **وتُكمَل البقيّة**.
+    try:
+        apply_speed(x[: SR // 4], 1.25, ffmpeg)
+        speed_ready = True
+    except FileNotFoundError as e:
+        speed_ready = False
+        ok = False
+        print(f"❌ speed: العدّةُ ناقصة — {e.filename or ffmpeg} غيرُ منصَّبٍ في هذا الصندوق "
+              f"(يُنصَّب في المسار). ⛔ ولا يُقرأ هذا نجاحاً، والبقيّةُ تُكمَل.")
+
+    for rate in (0.8, 1.25, 1.5) if speed_ready else ():
         y = apply_speed(x, rate, ffmpeg)
         ratio = len(x) / len(y)
         good = abs(ratio - rate) / rate < 0.05
@@ -458,6 +471,129 @@ def selftest(ffmpeg):
     good = tail_after > tail_before
     ok &= good
     print(f"{'✅' if good else '❌'} reverb: ذيلٌ {tail_before:.5f} ⇒ {tail_after:.5f}")
+
+    # ───────── ما لم يكن مفحوصاً حتى 2026-09-14 ─────────
+    # ⭐ ثلاثةُ أعمدةٍ في اللوحة كانت تُبنى بلا حارس: **الثرثرة** و**المركّب** و**البذرة**.
+
+    # 🎲 **البذرةُ عمودُ كلِّ مقارنةٍ زوجيّة** — ولم تكن مفحوصةً قطُّ:
+    #    إن أعطى شرطان الضجيجَ **نفسَه** فالفرقُ بينهما ليس مستقلّاً، وإن لم تُعِد البذرةُ
+    #    نفسَها فإعادةُ البناء تعطي ملفّاً آخرَ ويُقارَن رقمُ اليوم برقم أمسِ على **مادّتين**.
+    a1 = pink_noise(4000, rng_for("w_002001", "noise-fan-10"))
+    a2 = pink_noise(4000, rng_for("w_002001", "noise-fan-10"))
+    b1 = pink_noise(4000, rng_for("w_002001", "noise-fan-5"))
+    c1 = pink_noise(4000, rng_for("w_002002", "noise-fan-10"))
+    same = bool(np.array_equal(a1, a2))
+    ok &= same
+    print(f"{'✅' if same else '❌'} بذرة: البندُ والشرطُ نفسُهما ⇒ الضجيجُ نفسُه (إعادةُ البناء تُطابق)")
+    indep = (not np.array_equal(a1, b1)) and (not np.array_equal(a1, c1))
+    ok &= indep
+    print(f"{'✅' if indep else '❌'} بذرة: شرطٌ آخرُ أو بندٌ آخرُ ⇒ ضجيجٌ آخرُ (لا تواطؤَ بين الأعمدة)")
+
+    # 🗣️ **الثرثرةُ** (`noise-babble-10`) — مقيسةٌ من طرفٍ إلى طرف ببركةٍ حقيقيّةٍ على القرص.
+    import tempfile
+    with tempfile.TemporaryDirectory() as td:
+        pool = []
+        for i in range(3):
+            p = os.path.join(td, f"pool{i}.wav")
+            g = np.random.default_rng(100 + i)
+            sf.write(p, (0.2 * g.standard_normal(int(1.5 * SR))).astype(np.float32), SR)
+            pool.append(p)
+        nb = babble_noise(len(x), rng_for("w_002001", "noise-babble-10"), pool)
+        good = len(nb) == len(x) and float(np.abs(nb).max()) > 0.5
+        ok &= good
+        print(f"{'✅' if good else '❌'} ثرثرة: طولٌ {len(nb)} · ذروةٌ {float(np.abs(nb).max()):.3f}")
+        y = mix_at_snr(x, nb, 10.0)
+        got = measure_snr(x, y)
+        good = abs(got - 10.0) < 1.5
+        ok &= good
+        print(f"{'✅' if good else '❌'} noise-babble-10: المقيس {got:.2f} د.ب")
+        # ⛔ **وبركةٌ فارغةٌ لا تُنتج «ثرثرةَ صمت» تمرّ صامتة**: تُعلَن صفراً فيراها القارئ.
+        empty = babble_noise(1000, rng_for("x", "y"), [])
+        good = float(np.abs(empty).max()) == 0.0
+        ok &= good
+        print(f"{'✅' if good else '❌'} ثرثرة: بركةٌ فارغةٌ ⇒ صفرٌ صريحٌ لا ضجيجٌ مختلَق")
+
+    # 🧪 **المركّبُ `combo-hard`** — أسوأُ عمودٍ في اللوحة، وادّعاؤه **ثلاثةٌ** لا واحد
+    #    (‏كسبُ ‎−30 · ضجيجٌ عند 10 د.ب · مرشّحُ هاتف).
+    #
+    # ⛔⛔ **ودرسٌ دُفع ثمنُه في هذه الدورة (2026-09-14):** أوّلُ صياغةٍ قاست الادّعاءَين
+    #    **على المخرَج النهائيّ** — هبوطَ الجهارة و`measure_snr` — فسقطا (‎−11.7 و‎−20.2)،
+    #    **وكان الخطأُ في المقياس لا في المحوّل**: `measure_snr` تعرّف الضجيجَ بأنّه
+    #    (المخرَج − النظيف)، ومرشّحُ الهاتف **يغيّر النظيفَ نفسَه** فيُحسب تغييرُه ضجيجاً؛
+    #    و`speech_rms` تُقاس بقناعٍ يُشتقّ من الإشارة نفسِها، وبعد المرشّح صار أعلى ما فيها
+    #    ضجيجاً منبسطاً فاتّسع القناعُ إلى الصمت. (‏وهو أخو درسِ «مرشّحُ النطاق يُفحص بمصدرٍ
+    #    عريض الطيف» أعلاه.) ⇒ **مركّبٌ يُفحص ببصماتٍ مستقلّةٍ لا بإعادة قياس رقمٍ وسيط.**
+    wide2 = (rng.standard_normal(int(3.0 * SR)).astype(np.float32) * 0.2)
+    wide2[: SR // 2] = 0.0
+    wide2[-SR // 2:] = 0.0
+    yc = transform(wide2, "combo-hard", "w_002001", [], ffmpeg)
+    # ⛔⛔ **وسقفٌ مقيسٌ يُعلَن ولا يُصحَّح صامتاً (‏D-483):** `apply_phone` **يُعيد التسوية**
+    #    إلى ذروةٍ لا تقلّ عن 0.2 (‏وهي ضرورةٌ للتكميم 8 بت: إشارةٌ ذروتُها 0.027 لا تملك إلا
+    #    ثلاثةَ مستويات) ⇒ **خطوةُ الكسب ‎−30 في `combo-hard` تُلغى بعدها**:
+    #      · هاتفٌ على إشارةٍ عالية: **+0.5 د.ب** (لا أثر) · وعلى ‎−30 د.ب: **+18.0 د.ب**.
+    #      · فهبوطُ `combo-hard` الحقيقيُّ **≈ ‎−13 د.ب لا ‎−30**.
+    #    ✅ **ونسبةُ الإشارة إلى الضجيج تنجو** لأنّ الخلط يقع **قبل** إعادة التسوية فيُرفعان معاً.
+    #    ⇒ **لا يُبدَّل المحوّلُ هنا** (تبديلُه يقطع المقارنةَ مع كلّ رقمٍ سالفٍ في العمود —
+    #    قاعدةُ D-433 نفسُها)، بل **يُعلَن السقفُ ويُقرأ عليه**: عمودُ `combo-hard` محورُه
+    #    **هاتفٌ + ضجيجٌ**، لا «تسجيلٌ خافتٌ جدّاً».
+    quiet_in = apply_gain(wide2, -30.0)
+    ph_quiet = apply_phone(quiet_in)
+    ph_loud = apply_phone(wide2)
+    def rms2(a):
+        return float(np.sqrt((a.astype(np.float64) ** 2).mean() + 1e-20))
+    lift = 20 * np.log10(rms2(ph_quiet) / rms2(quiet_in))
+    keep = 20 * np.log10(rms2(ph_loud) / rms2(wide2))
+    m_ok = lift > 10.0 and abs(keep) < 3.0 and 0.15 < float(np.abs(ph_quiet).max()) < 0.25
+    ok &= m_ok
+    print(f"{'✅' if m_ok else '❌'} phone: إعادةُ التسوية — خافتٌ {lift:+.1f} د.ب · عالٍ {keep:+.1f} د.ب "
+          f"· ذروةُ الخافت {float(np.abs(ph_quiet).max()):.3f}")
+    # ① فهبوطُ المركّب يُقاس على حقيقته لا على ادّعائه: ‎≈−13 لا ‎−30.
+    drop = 20 * np.log10(rms2(yc) / rms2(wide2))
+    g_ok = -20.0 < drop < -8.0
+    ok &= g_ok
+    print(f"{'✅' if g_ok else '❌'} combo-hard ①كسب: هبوطٌ {drop:+.1f} د.ب — **والمُدّعى ‎−30 يُلغيه الهاتف** (D-483)")
+    # ② الضجيجُ أُضيف **ونسبتُه نجت**: الصمتُ الأصليُّ صفرٌ محض، فما فيه بعد الخلط ضجيجٌ خالص
+    #    ⇒ نسبةُ (النشِط ÷ الصامت) تقارب الـ10 د.ب المُدّعاة (‏والمقيسُ 11.7: المرشّحُ يشكّل الطيفَ).
+    sil_rms = rms2(yc[: SR // 2])
+    act_rms = rms2(yc[SR // 2: -SR // 2])
+    ratio = 20 * np.log10(act_rms / max(sil_rms, 1e-12))
+    n_ok = (float(np.abs(wide2[: SR // 2]).mean()) == 0.0 and sil_rms > 0.0 and 8.0 < ratio < 15.0)
+    ok &= n_ok
+    print(f"{'✅' if n_ok else '❌'} combo-hard ②ضجيج: الصمتُ الأصليُّ صفرٌ ⇒ {sil_rms:.6f} · "
+          f"والنسبةُ {ratio:.1f} د.ب (المُدّعى 10 — **ونجا من إعادة التسوية**)")
+    # ③ المرشّحُ وقع: بصمةُ النطاق على المخرَج نفسِه (وسطٌ فوق الطرفين).
+    def band2(sig, f0, f1):
+        spec = np.abs(np.fft.rfft(sig.astype(np.float64)))
+        n = len(sig)
+        return float(spec[int(f0 * n / SR): int(f1 * n / SR)].mean() + 1e-12)
+    mid_lo = 20 * np.log10(band2(yc, 800, 2000) / band2(yc, 20, 200))
+    mid_hi = 20 * np.log10(band2(yc, 800, 2000) / band2(yc, 5000, 7500))
+    f_ok = mid_lo > 6 and mid_hi > 6
+    ok &= f_ok
+    print(f"{'✅' if f_ok else '❌'} combo-hard ③هاتف: الوسطُ فوق الجهير {mid_lo:+.1f} وفوق الحادّ {mid_hi:+.1f} د.ب")
+
+    # 🧾 **وكلُّ شرطٍ في [CONDITIONS] يُنفَّذ فعلاً ولا يُعيد المدخلَ كما هو** —
+    #    ⛔ فشرطٌ يمرّ بلا أثرٍ عمودٌ في اللوحة **يقيس النظيفَ باسم المضجَّج**.
+    cover_ok = True                      # ⛔ علَمٌ خاصٌّ: حارسٌ يقول «سقطتُ» بذنب غيره حارسٌ يكذب
+    for cond in CONDITIONS:
+        if cond.startswith("speed-") and not speed_ready:
+            print(f"⏭️ {cond}: يحتاج ffmpeg (أُعلن أعلاه إخفاقاً)")
+            continue
+        pool2 = []
+        if cond.startswith("noise-babble-"):
+            with tempfile.TemporaryDirectory() as td2:
+                p = os.path.join(td2, "p.wav")
+                sf.write(p, (0.2 * np.random.default_rng(7).standard_normal(SR)).astype(np.float32), SR)
+                y = transform(x, cond, "w_002001", [p], ffmpeg)
+        else:
+            y = transform(x, cond, "w_002001", pool2, ffmpeg)
+        changed = len(y) != len(x) or not np.allclose(y, x, atol=1e-7)
+        cover_ok &= changed
+        if not changed:
+            print(f"❌ {cond}: **لم يغيّر شيئاً** — عمودٌ يقيس النظيفَ باسم المضجَّج")
+    ok &= cover_ok
+    print(f"{'✅' if cover_ok else '❌'} تغطية: {len(CONDITIONS)} شرطاً كلُّها منفَّذةٌ وذاتُ أثر"
+          + ("" if speed_ready else " (‏عدا السرعةَ — عدّتُها ناقصةٌ هنا وأُعلنت إخفاقاً)"))
 
     print("\n" + ("✅ كل المحوّلات مطابقةٌ لادّعائها" if ok else "❌ محوّلٌ لا يفعل ما يدّعي"))
     return 0 if ok else 1
