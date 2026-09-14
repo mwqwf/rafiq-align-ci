@@ -384,6 +384,22 @@ jobs:
           #    يُرجع حالةَ الأداة، و`||` **يشتعل فعلاً** فيكتب السببَ في الجدول ولا يُسقط الشوط.
           set -o pipefail
           python tie_rule_ab.py --dirs "work:" --arm "$RULE_AB" | tee work/rule_ab.md || { echo "⚠️ **تعذّر قياسُ قاعدة التعادل**" | tee -a work/rule_ab.md; }
+      - name: 🤫 «لم أتبيّن» بدل «أخطأت» — مسطرتان على الفرضيّات عينِها (‏إن طُلبت `g3r*`)
+        env:
+          PYTHONIOENCODING: utf-8
+        run: |
+          cd tools/tasmi_bench
+          # ⛔ **ولا تُقاس إلّا حيث الحقنُ**: القاعدةُ يُقاس ثمنُها بالكشف، والكشفُ يحتاج
+          #    خطّةَ حقنٍ (`g3r*`) — أمّا `g4*` فتلاوةٌ طويلةٌ صحيحةٌ لا كشفَ فيها أصلاً
+          #    ⇒ قياسُها هناك يُعطي **كسباً بلا ثمنٍ** وهو نصفُ الحقيقة (D-445).
+          case "$SETS" in *g3r*) ;; *) echo "ℹ️ لا مجموعةَ `g3r` — ولا يُقاس ثمنُ «لم أتبيّن» (لا كشفَ بلا حقن)"; exit 0 ;; esac
+          set -o pipefail
+          A=$(echo "$ARMS" | awk '{print $1}')
+          python unheard_ab.py --dirs "work:" --arm "$A" > work/unheard.md 2> work/unheard.err || {
+            { echo "### 🤫 «لم أتبيّن» — ⚠️ **تعذّر**، ونصُّ الخطأ كما هو:"; echo
+              echo '```'; tail -12 work/unheard.err; echo '```'; } >> work/unheard.md; }
+          [ -s work/unheard.md ] || echo "⚠️ **خرج فارغاً بلا خطأ** — «لم يُقَس» لا «لا أثر»." > work/unheard.md
+          cat work/unheard.md
       - name: 🌊 جرفُ الخطأ في التلاوة الطويلة (‏إن طُلبت `g4*`) — تعليلُ D-335 يُقاس
         env:
           PYTHONIOENCODING: utf-8
@@ -584,7 +600,7 @@ jobs:
           #     التشريحُ الفارغُ فيُكتب سببُه في الملفّ ولا يُسقط الشوط.
           [ -s "$M" ] || echo "⚠️ لا تشريحَ حقنٍ لهذه المجموعات (‏مجموعاتُ \`g4*\` تلاوةٌ طويلةٌ غيرُ محقونة) — والأرقامُ في الجداول أعلاه." > "$M"
           HAVE=0
-          for f in work/track.md work/gate.md work/provenance.md work/anatomy.md work/identical.md work/drift.md work/triage.md work/pairdoor.md; do
+          for f in work/track.md work/gate.md work/provenance.md work/anatomy.md work/identical.md work/drift.md work/triage.md work/pairdoor.md work/unheard.md; do
             [ -s "tools/tasmi_bench/$f" ] && HAVE=1
           done
           [ "$HAVE" = "1" ] || { echo "⛔ لا جدولَ فيه مضمونٌ — لا شيءَ يُودَع"; exit 1; }
@@ -616,6 +632,9 @@ jobs:
             fi
             if [ -s tools/tasmi_bench/work/pairdoor.md ]; then
               cat tools/tasmi_bench/work/pairdoor.md; echo
+            fi
+            if [ -s tools/tasmi_bench/work/unheard.md ]; then
+              cat tools/tasmi_bench/work/unheard.md; echo
             fi
             if [ -s tools/tasmi_bench/work/identical.md ]; then
               echo "## 🛡️ حارسُ «ذراعان متطابقتان» (‏على النصّ لا على المجال)"
