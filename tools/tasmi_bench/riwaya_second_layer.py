@@ -261,12 +261,177 @@ def control(limit=600):
     return 0 if ok else 1
 
 
+def farsh_index_audit(limit=0):
+    """⭐⭐ **بأيِّ ترقيمٍ يعدُّ `hafsWordIdx` كلماتِ الآية؟** (‏D-505 · قِيس على المصحف كلِّه)
+
+    الرقمُ يُمرَّر إلى الكاشف كما هو، **والكلمةُ التي يقصدها ليست الكلمةَ التي يجدها** إن
+    اختلف الترقيم — فيُقابَل حرفُ الله بغير موضعه. والجوابُ مقيسٌ لا مظنون، على
+    **220,672 صفَّ فرشٍ** في الروايات الخمس:
+
+    | الترقيم | يطابق رسمَ حفصٍ في |
+    |---|---:|
+    | رموزُ الآية كما تنقسم بالفراغ (‏فيها علاماتُ الوقف `ۛ`) | **64.106٪** |
+    | ⭐ **الكلماتُ الحقيقيّةُ وحدَها** (‏ما لا يفرغ بعد `norm`) | **100.000٪** (0 مخالف · 0 خارجَ المدى) |
+
+    ⇒ `hafsWordIdx` **ترتيبُ الكلمة الحقيقيّة**، وعلاماتُ الوقف **لا تُعَدّ**. ومثالُه من
+    البقرة 2: `ذَٰلِكَ ٱلْكِتَٰبُ لَا رَيْبَ ۛ فِيهِ ۛ هُدًۭى` — الرقمُ 5 **هُدًۭى** لا `فِيهِ`.
+    ⛔ ومَن رقّم بالرموز أزاح ثلثَ المواضع وهو يظنّ نفسَه مصيباً.
+
+    ومفتاحُ الآية في الملفّ **1-based** ويُطرح منه واحدٌ عند القراءة: وبإزاحةِ آيةٍ واحدةٍ
+    تسقط المطابقةُ إلى **1.13٪** ⇒ الطرحُ صحيحٌ ومقيسٌ لا منقول.
+
+    يردّ: (‏صفوفٌ · مطابقٌ بترقيم الكلمات الحقيقيّة · مطابقٌ بترقيم الرموز).
+    """
+    per = farsh_diffs()
+    hafs = [a.split() for a in load_text("hafs")]
+    cfg = P.config_for("hafs")
+    rows = real_ok = tok_ok = 0
+    for a, by_r in per.items():
+        if limit and a >= limit:
+            continue
+        toks = hafs[a]
+        real = [j for j, t in enumerate(toks) if scorer.norm(t, cfg)]
+        for _r, lst in by_r.items():
+            for (i, hw, _ow) in lst:
+                rows += 1
+                want = scorer.norm(hw, cfg)
+                if i < len(real) and scorer.norm(toks[real[i]], cfg) == want:
+                    real_ok += 1
+                if i < len(toks) and scorer.norm(toks[i], cfg) == want:
+                    tok_ok += 1
+    return rows, real_ok, tok_ok
+
+
+def selftest():
+    """🧪 **حارسُ الطبقة الثانية** (‏D-505) — والضابطُ الأصليُّ فيها ثقيلٌ (يبني الكاشفَ
+    بالكوتلن ثلاثَ مرّات) فلا يُشعَل في كلّ دفعة، وهذا يفحص في ثانيةٍ ما لا يفحصه هو:
+
+    ⭐⭐ **ترقيمُ كلمة الفرش** — أخطرُ سطرٍ هنا: رقمٌ يُقابَل بغير موضعه يقيس سورةً بأخرى.
+    ⭐ **مفتاحُ الالتحام مع الطبقة الأولى** — لو اختلف حرفٌ في اسم الحالة لصار
+      `eng.get(name)` فارغاً **فتُقرأ «صفرُ عمياء» بشارةً** وهي صمتُ عدّادٍ لا خُضرة.
+    ⭐ **الضابطان السالبان يفعلان ما يدّعيان** — إفراغُ الفرش وزرعُ الكلمة الغريبة.
+    """
+    ok = True
+
+    def say(good, line):
+        nonlocal ok
+        ok &= bool(good)
+        print(("✅ " if good else "❌ ") + line)
+
+    # ①⭐⭐ الترقيم: الكلماتُ الحقيقيّةُ تطابق تماماً، والرموزُ **لا** — فالمسطرةُ تميّز
+    rows, real_ok, tok_ok = farsh_index_audit(limit=400)
+    say(rows > 5000 and real_ok == rows and tok_ok < rows,
+        "⭐⭐ `hafsWordIdx` ترتيبُ الكلمة الحقيقيّة: %d/%d مطابقاً · وبترقيم الرموز %d فقط"
+        % (real_ok, rows, tok_ok))
+
+    # ② ومفتاحُ الآية 1-based: الإزاحةُ بواحدٍ تُسقط المطابقةَ — فالطرحُ ليس زينة
+    per = farsh_diffs()
+    hafs = [a.split() for a in load_text("hafs")]
+    cfg = P.config_for("hafs")
+    shifted = tried = 0
+    for a in sorted(per)[:400]:
+        b = a + 1
+        if b >= len(hafs):
+            continue
+        real = [j for j, t in enumerate(hafs[b]) if scorer.norm(t, cfg)]
+        for _r, lst in per[a].items():
+            for (i, hw, _ow) in lst:
+                tried += 1
+                if i < len(real) and scorer.norm(hafs[b][real[i]], cfg) == scorer.norm(hw, cfg):
+                    shifted += 1
+    say(tried > 1000 and shifted < tried * 0.10,
+        "وبإزاحةِ الآية واحدةً تسقط المطابقةُ إلى %d من %d — فالمفتاحُ 1-based والطرحُ صحيح"
+        % (shifted, tried))
+
+    # ③ الصفوفُ الخاليةُ تُسقَط بعددٍ معلوم — وصفٌّ خالٍ يمرّ يكسر نوعَ `Diff` في المحرك
+    dropped = 0
+    for r in ALL_RIWAYAT:
+        if r == "hafs":
+            continue
+        path = os.path.join(FARSH_DIR, "farsh_%s.jz" % r)
+        d = json.loads(gzip.open(path, "rt", encoding="utf-8").read())
+        dropped += sum(1 for lst in d["diffs"].values() for it in lst
+                       if it[1] is None or it[2] is None)
+    kept = sum(len(lst) for by_r in per.values() for lst in by_r.values())
+    say(dropped == 12 and all(hw and ow for by_r in per.values() for lst in by_r.values()
+                              for (_i, hw, ow) in lst),
+        "الصفوفُ الخاليةُ مُسقَطةٌ: %d (والباقي %d صفّاً كلُّها ذاتُ كلمتَين)" % (dropped, kept))
+
+    # ④ الفاصلان **لا يقعان في نصٍّ عربيّ** — وإلّا انشقّ صفٌّ في منتصفه فصار رقماً كلمةً
+    body = "".join(load_text("hafs")[:500]) + "".join(load_text("warsh")[:500])
+    say(FS1 not in body and FS2 not in body and FS1 != FS2,
+        "فاصلا الحقول %r و%r لا يقعان في المصحف" % (FS1, FS2))
+    enc = encode({"warsh": [(3, "أ", "ب"), (7, "ج", "د")]})
+    back = [tuple(x.split(FS2)) for x in enc.split(FS1)]
+    say(back == [("warsh", "3", "أ", "ب"), ("warsh", "7", "ج", "د")],
+        "والترميزُ يُفكّ كما رُكّب: %r" % (back,))
+
+    # ⑤⭐ مفتاحُ الالتحام: أسماءُ الحالات **هي هي** في الطبقتين — وإلّا قُرئ صمتُ العدّاد خُضرةً
+    mine = {c[0] for c in build_slips(limit=25)}
+    theirs = {c[0] for c in RS.build(limit=25, arms="b")}
+    say(mine and mine == theirs,
+        "⭐ أسماءُ الحالات مطابقةٌ لطبقة `riwaya_surface` (‏%d حالة · فرق %d)"
+        % (len(mine), len(mine ^ theirs)))
+
+    # ⑥ الضابطُ «بلا فرش» يُفرغ الفرشَ **كلَّه** ولا يمسّ شيئاً آخر
+    a = build_slips(limit=25)
+    b = build_slips(limit=25, blind_diffs=True)
+    say(all(x[4] == "" for x in b) and any(x[4] for x in a)
+        and [x[:4] for x in a] == [x[:4] for x in b],
+        "🧪 ضابطُ «بلا فرش» يُفرغ الفرشَ وحدَه (‏غيرُ الفارغ في الأصل %d)"
+        % sum(1 for x in a if x[4]))
+
+    # ⑦ وضابطُ الكلمة الغريبة يزرعها في **المسموع** لا في المرجع
+    c = build_slips(limit=25, foreign=True)
+    names_a, names_c = {x[0] for x in a}, {x[0] for x in c}
+    say(all(x[2] == FOREIGN for x in c) and all(x[1] != FOREIGN for x in c)
+        and names_a < names_c,
+        "🧪 وضابطُ الكلمة الغريبة يزرع «%s» في المسموع وحدَه" % FOREIGN)
+    # ⚠️ ومجتمعُه **أوسعُ عمداً**: شرطُ «الروايتان تتّفقان» لا يُسقط شيئاً والغريبةُ تُزرع في
+    # كلّ كلمةٍ حقيقيّة ⇒ فنسبتُه تُقرأ من مقامه هو لا من مقام الذراع (‏%d مقابل %d).
+    say(len(names_c) > len(names_a),
+        "ومقامُه أوسعُ عمداً: %d موضعاً مقابل %d — فلا تُقسَم أرقامُه على مقام الذراع"
+        % (len(names_c), len(names_a)))
+
+    # ⑧ ذراعُ الأرضيّة **تلاوةٌ صحيحةٌ فعلاً** — لا صورةُ روايةٍ أخرى بالخطإ
+    floor = build_floor(limit=15)
+    good = 0
+    for name, ref, heard, riw, _enc in floor:
+        forms = P.whisper_forms(ref, P.config_for(riw))
+        good += 1 if heard == forms[-1] else 0
+    say(floor and good == len(floor) and all(c[0].startswith("f|") for c in floor),
+        "أرضيّةُ الاتّهام تلاوةٌ صحيحةٌ بروايتها: %d/%d" % (good, len(floor)))
+
+    # ⑨ عتباتُ الضابط لم تُليَّن (‏⛔ العلاجُ عيّنةٌ أكبر لا عتبةٌ أصغر)
+    src = io.open(os.path.abspath(__file__), encoding="utf-8").read()
+    say("ok = n1 >= 20 and n2 == 0 and n3 == 0" in src,
+        "⛔ عتبةُ الضابط كما هي: حيويّةٌ ≥20 · والسالبان **صفرٌ** لا «قليل»")
+
+    # ⑩ حارسُ مصدرٍ على الرقم الذي بُني عليه الحكم
+    doc = farsh_index_audit.__doc__
+    say(all(k in doc for k in ("100.000", "64.106", "220,672", "1.13")),
+        "حارسُ مصدر: أرقامُ الترقيم الثلاثةُ في التوثيق")
+
+    print("\n%s" % ("✅ حارسُ الطبقة الثانية: تمّ" if ok else "❌ حارسُ الطبقة الثانية: أخفق"))
+    return 0 if ok else 1
+
+
 def main():
     ap = argparse.ArgumentParser(description="الطبقةُ الثانية: كاشفُ الانزلاق الروائيّ على المحرك")
     ap.add_argument("--limit", type=int, default=0, help="أوّل ن آية فقط (للتجربة)")
     ap.add_argument("--examples", type=int, default=6)
     ap.add_argument("--control", action="store_true", help="الضوابطُ وحدَها")
+    ap.add_argument("--audit-index", action="store_true",
+                    help="بأيِّ ترقيمٍ يعدُّ `hafsWordIdx` الكلمات؟ — جردٌ على المصحف بلا كاشف")
+    ap.add_argument("--selftest", action="store_true", help="🧪 حارسُ الأداة (ثانيةٌ · بلا كاشف)")
     args = ap.parse_args()
+    if args.selftest:
+        return selftest()
+    if args.audit_index:
+        rows, real_ok, tok_ok = farsh_index_audit(args.limit)
+        print("صفوفُ الفرش %d · بترقيم الكلمات الحقيقيّة %d (%.3f٪) · بترقيم الرموز %d (%.3f٪)"
+              % (rows, real_ok, pct(real_ok, rows), tok_ok, pct(tok_ok, rows)))
+        return 0
     os.makedirs(WORK, exist_ok=True)
     if args.control:
         return control(args.limit or 600)
