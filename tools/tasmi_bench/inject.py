@@ -30,6 +30,10 @@ ROOT = os.path.dirname(os.path.dirname(HERE))
 sys.path.insert(0, os.path.join(ROOT, "tools", "alignment"))
 from common import QURAN_ASSETS, load_index, load_text, read_jz  # noqa: E402
 
+sys.path.insert(0, HERE)
+from plan_guard import has_sound  # noqa: E402
+
+
 BASE = "https://everyayah.com/data/Husary_Muallim_128kbps/"
 SEED = 1447
 PER_OP = 40                      # لكل نوع خطأ
@@ -68,6 +72,13 @@ def main():
             w = words[wi]
             if w[1] - w[0] < 200:                     # مقطعٌ أقصر من 200م.ث ملتبس
                 continue
+            # ⛔ **علامةُ الوقف «كلمةٌ» في العدّ لا في السمع** (‏قِيس 2026-09-14 · D-433):
+            #    `refText.split()` يعدّ `ۖ ۗ ۚ` كلمةً، والمسطرةُ تحكمها **صحيحةً 44 من 44**
+            #    في التلاوة المثاليّة ⇒ فالحقنُ عليها حقيقةٌ أرضيّةٌ كاذبةُ الاسم: لا تُكشَف
+            #    ولا تُتَّهم. ⛔ والخططُ المودَعةُ تبقى بحالها كي تبقى الأرقامُ قابلةً للمقارنة،
+            #    وهذا يمنع **الجديد** وحدَه.
+            if not has_sound(ref[wi]):
+                continue
             s, a = pos[gi]
             it = {"id": f"inj_{op.lower()}_{s:03d}{a:03d}", "op": op,
                   "surah": s, "ayah": a, "globalIndex": gi, "wordIndex": wi,
@@ -82,6 +93,11 @@ def main():
                 nxt = words[wi + 1]
                 if nxt[1] - nxt[0] < 200 or nxt[0] - w[1] > 400:
                     continue          # لا نبدّل عبر سكتةٍ طويلة (يصير قطعاً لا تبديلاً)
+                # ⛔ **ومقطعان متطابقان (أو متداخلان) ⇒ تبديلُ الشيء بنفسِه**: المخرَجُ مطابقٌ
+                #    للأصل حرفاً، فالبندُ **لا يُكشَف أبداً** ويقضم من سقف الصنف بلا ذنبِ محرك
+                #    (‏وقع في ثلاثة بنودٍ من أربعين ⇒ سقفٌ 92.5٪ · D-433). والجارُ بلا صوتٍ مثلُه.
+                if nxt[0] < w[1] or not has_sound(ref[wi + 1]):
+                    continue
                 it["swapMs"] = [max(0, nxt[0] - PAD_MS), nxt[1] + PAD_MS]
                 it["targetWord"] = ref[wi] + " ↔ " + ref[wi + 1]
             if op in ("SUBSTITUTE", "INSERT"):
@@ -89,6 +105,9 @@ def main():
                 for _ in range(50):
                     gj, refj, wj = ok[rng.randrange(len(ok))]
                     j = rng.randrange(len(refj))
+                    if not has_sound(refj[j]):
+                        continue      # ⛔ لا يُقحَم ما لا صوتَ له: زيادةٌ لا تُسمع ليست خطأً
+
                     if refj[j] != ref[wi] and wj[j][1] - wj[j][0] >= 200:
                         sj, aj = pos[gj]
                         it["donor"] = {"url": f"{BASE}{sj:03d}{aj:03d}.mp3",
