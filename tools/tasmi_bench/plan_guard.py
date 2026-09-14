@@ -151,6 +151,140 @@ def report(path, plan):
     return len(fatal)
 
 
+# ---- 🧼 والحقيقةُ الأرضيّةُ الأخرى: **العيّنةُ النظيفة** (`sample.json` · G1) ----
+# ⛔ **ولِمَ تُفحص هي أيضاً:** الحقنُ يقيس الكشف، وهذه تقيس **الاتّهامَ الكاذب** — ودعواها
+# أثقل: «هذا **نصُّ المصحف** في هذه الرواية، وهذا **صوتُ هذه الآية بعينها**». فبندٌ نصُّه من
+# آيةٍ وصوتُه من أخرى **يُحسب اتّهاماً كاذباً في المحرك وهو تحريفٌ في العيّنة**. ⇒ تُقابَل
+# بالأصول لا بنفسها: `text_<riwaya>.jz` و(سورة:آية) في الرابط.
+SAMPLE_FATAL = {
+    "s_wordcount_mismatch": "⛔ `wordCount` يخالف عدَّ `refText`",
+    "s_text_drift": "⛔⛔ `refText` يخالف نصَّ المصحف في روايته",
+    "s_ayah_mismatch": "⛔⛔ رابطُ الصوت (أو مفتاحُ السورة) لا يوافق آيةَ البند",
+    "s_index_mismatch": "⛔ `globalIndex` لا يوافق (سورة:آية)",
+    "s_cut_malformed": "⛔ نافذةُ القصّ معطوبةٌ أو مقلوبة",
+    "s_source_unknown": "⛔ مصدرٌ بلا نوعٍ معروف",
+    "s_id_mismatch": "⛔ المعرّفُ لا يوافق آيةَ البند",
+    "s_dup_id": "⛔ معرّفٌ مكرَّر",
+}
+SAMPLE_WARN = {
+    "s_stratum_mismatch": "⚠️ الطبقةُ تخالف عدَّ الكلمات",
+    "s_reciter_unlisted": "⚠️ قارئٌ ليس في قائمة روايته",
+}
+
+
+def check_sample_item(it, ids=None, texts=None, reciters=None):
+    """يعيد رموزَ العطب في بندِ عيّنةٍ نظيفة.
+
+    [ids] (‏globalIndex → (سورة، آية)) و[texts] (‏رواية → قائمةُ الآيات) **إن توفّرا**؛
+    ⛔ وغيابُهما **لا يُسكِت الحارس**: الفاحصُ يُعلن أنّ فحصَ المصحف **لم يجرِ** (‏درسُ
+    «التخطّي الصامت»: اختبارٌ يتخطّى نفسَه يبقى أخضرَ وهو لا يفحص).
+    """
+    bad = []
+    ref = it.get("refText", "").split()
+    s, a, gi = it.get("surah"), it.get("ayah"), it.get("globalIndex")
+    if it.get("wordCount") != len(ref):
+        bad.append("s_wordcount_mismatch")
+    if stratum_of_words(len(ref)) != it.get("stratum"):
+        bad.append("s_stratum_mismatch")
+    if ids is not None and gi in ids and ids[gi] != (s, a):
+        bad.append("s_index_mismatch")
+    if texts is not None:
+        body = texts.get(it.get("riwaya")) or []
+        if not (isinstance(gi, int) and 0 <= gi < len(body) and body[gi].split() == ref):
+            bad.append("s_text_drift")
+    if reciters is not None and it.get("reciter") not in reciters.get(it.get("riwaya"), ()):
+        bad.append("s_reciter_unlisted")
+    src = it.get("source") or {}
+    kind = src.get("kind")
+    if kind == "ayah_file":
+        if not str(src.get("url", "")).endswith(f"{s:03d}{a:03d}.mp3"):
+            bad.append("s_ayah_mismatch")
+    elif kind == "cut_from_surah":
+        if str(src.get("r2Key", "")).split("/")[-1] != f"{s:03d}.mp3":
+            bad.append("s_ayah_mismatch")
+        if not (0 <= src.get("startMs", -1) < src.get("endMs", -1)):
+            bad.append("s_cut_malformed")
+    else:
+        bad.append("s_source_unknown")
+    if not str(it.get("id", "")).endswith(f"{s:03d}{a:03d}"):
+        bad.append("s_id_mismatch")
+    return bad
+
+
+# طبقاتُ الطول كما في `sample.py` بالضبط — تُكرَّر هنا كي يعمل الحارسُ **بلا أصول المصحف**.
+STRATA = (("S", 1, 4), ("M", 5, 9), ("L", 10, 19), ("XL", 20, 10_000))
+
+
+def stratum_of_words(n):
+    for name, lo, hi in STRATA:
+        if lo <= n <= hi:
+            return name
+    return None
+
+
+def load_mushaf():
+    """يحاول تحميلَ نصّ المصحف وفهرسِه من أصول التطبيق — ويعيد (ids, texts) أو (None, None).
+
+    ⛔ والغيابُ **يُعلَن ولا يُبتلع**: الفاحصُ يطبع «لم يجرِ فحصُ المصحف» ليقرأه مَن يقرأ.
+    """
+    try:
+        root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+        sys.path.insert(0, os.path.join(os.path.dirname(root), "tools", "alignment"))
+        sys.path.insert(0, os.path.join(root, "alignment"))
+        from common import load_index, load_text  # noqa: E402
+        index = load_index()
+        ids = {}
+        for s in index["surahs"]:
+            for a in range(s["ayahs"]):
+                ids[s["start"] + a] = (s["n"], a + 1)
+        return ids, {r: load_text(r) for r in ("hafs", "warsh", "qalun")}
+    except Exception as e:                                         # noqa: BLE001
+        print(f"⚠️ تعذّر تحميلُ نصّ المصحف ({type(e).__name__}) ⇒ **لم يجرِ فحصُ النصّ**")
+        return None, None
+
+
+def check_sample(doc, ids=None, texts=None):
+    """يعيد (‏رمزُ العطب → معرّفات) لعيّنةٍ نظيفةٍ كاملة."""
+    meta = doc.get("meta") or {}
+    reciters = meta.get("reciters")
+    found, seen = {}, set()
+    for it in doc.get("items", []):
+        i = it.get("id", "<بلا معرّف>")
+        if i in seen:
+            found.setdefault("s_dup_id", []).append(i)
+        seen.add(i)
+        for code in check_sample_item(it, ids, texts, reciters):
+            found.setdefault(code, []).append(i)
+    return found
+
+
+def report_sample(path, doc):
+    """يطبع حصيلةَ عيّنةٍ نظيفةٍ ويعيد عددَ أصنافِ العطب القاتل."""
+    ids, texts = load_mushaf()
+    items = doc.get("items", [])
+    found = check_sample(doc, ids, texts)
+    fatal = [c for c in found if c in SAMPLE_FATAL]
+    print(f"\n## `{os.path.basename(path)}` — **{len(items)}** بنداً (عيّنةٌ نظيفة)")
+    checked = "✅ ونصُّ كلِّ بندٍ قوبل بالمصحف" if texts is not None else \
+              "⚠️ **ولم يُقابَل النصُّ بالمصحف** (الأصولُ غائبة) — فلا يُقرأ الأخضرُ تزكيةً للنصّ"
+    if not found:
+        print(f"✅ الحقيقةُ الأرضيّةُ سليمةٌ على كلّ شرطٍ يُفحص. {checked}")
+        return 0
+    print("\n| الحكم | العدد | من البنود |\n|---|---:|---|")
+    for code, ids_ in sorted(found.items(), key=lambda kv: (kv[0] not in SAMPLE_FATAL, kv[0])):
+        label = SAMPLE_FATAL.get(code) or SAMPLE_WARN.get(code, code)
+        print(f"| {label} | **{len(ids_)}** | " + " · ".join(f"`{i}`" for i in ids_[:4])
+              + (" …" if len(ids_) > 4 else "") + " |")
+    print(checked)
+    return len(fatal)
+
+
+def is_sample(doc):
+    """أهي عيّنةٌ نظيفةٌ أم خطّةُ حقن؟ — يُقرأ من شكل البند لا من اسم الملفّ."""
+    items = doc.get("items") or []
+    return bool(items) and "op" not in items[0] and "stratum" in items[0]
+
+
 # ---- 🧪 اختبارٌ ذاتيٌّ (حالاتٌ مقيسةٌ من الدوالّ نفسِها قبل كتابتها) ----
 _REF = "الحمد لله رب العالمين الرحمن الرحيم"
 
@@ -209,6 +343,59 @@ def selftest():
     ok("خطّةٌ فيها مكرَّرٌ ومعطوب", {k: len(v) for k, v in sorted(got.items())},
        {"dup_id": 1, "wordcount_mismatch": 1})
 
+    # ---- 🧼 وحالاتُ العيّنة النظيفة ----
+    TX = {"hafs": ["", "الحمد لله رب العالمين الرحمن الرحيم"], "warsh": ["", "غيرُ ذلك"]}
+    IDS = {1: (1, 2)}
+
+    def _s(**kw):
+        base = {"id": "hafs_husary_muallim_001002", "riwaya": "hafs", "surah": 1, "ayah": 2,
+                "globalIndex": 1, "stratum": "M", "wordCount": 6, "reciter": "husary_muallim",
+                "refText": _REF,
+                "source": {"kind": "ayah_file", "url": "https://x/001002.mp3",
+                           "reciter": "husary_muallim"}}
+        base.update(kw)
+        return base
+
+    R = {"hafs": ["husary_muallim", "minshawi"], "warsh": ["dosary"]}
+    ok("بندُ عيّنةٍ سليمٌ ⇒ لا عطب", check_sample_item(_s(), IDS, TX, R), [])
+    # ⛔⛔ **أخطرُ حالتَين**: نصٌّ ليس نصَّ المصحف · وصوتٌ من آيةٍ أخرى.
+    ok("نصٌّ يخالف المصحف ⇒ قاتل",
+       check_sample_item(_s(refText="الحمد لله رب العالمين الرحمن الرحيب", wordCount=6), IDS, TX, R),
+       ["s_text_drift"])
+    ok("ونصُّ روايةٍ أخرى في بندِ حفصٍ يُمسَك",
+       check_sample_item(_s(riwaya="warsh", reciter="dosary"), IDS, TX, R), ["s_text_drift"])
+    ok("ورابطُ صوتٍ من آيةٍ أخرى ⇒ قاتل",
+       check_sample_item(_s(source={"kind": "ayah_file", "url": "https://x/001003.mp3"}), IDS, TX, R),
+       ["s_ayah_mismatch"])
+    ok("ومفتاحُ سورةٍ أخرى في المقصوص",
+       check_sample_item(_s(source={"kind": "cut_from_surah", "r2Key": "audio/qalun/h/002.mp3",
+                                    "startMs": 10, "endMs": 20}), IDS, TX, R), ["s_ayah_mismatch"])
+    ok("ونافذةُ قصٍّ مقلوبة",
+       check_sample_item(_s(source={"kind": "cut_from_surah", "r2Key": "audio/qalun/h/001.mp3",
+                                    "startMs": 900, "endMs": 20}), IDS, TX, R), ["s_cut_malformed"])
+    ok("ومصدرٌ بلا نوعٍ معروف", check_sample_item(_s(source={"kind": "x"}), IDS, TX, R),
+       ["s_source_unknown"])
+    ok("و`globalIndex` لا يوافق الآية", check_sample_item(_s(globalIndex=7), IDS, TX, R),
+       ["s_text_drift"])   # ⚠️ وفهرسٌ خارجَ المصحف يُقرأ **انحرافَ نصٍّ** لا فهرساً وحدَه
+    ok("ومعرّفٌ لا يوافق آيتَه", check_sample_item(_s(id="hafs_x_001009"), IDS, TX, R),
+       ["s_id_mismatch"])
+    ok("وطبقةٌ تخالف العدَّ ⇒ منبِّهٌ لا قاتل", check_sample_item(_s(stratum="XL"), IDS, TX, R),
+       ["s_stratum_mismatch"])
+    ok("وقارئٌ ليس في قائمة روايته", check_sample_item(_s(reciter="alafasy"), IDS, TX, R),
+       ["s_reciter_unlisted"])
+    # ⛔ **وغيابُ الأصول لا يُنتج خضرةً كاذبة**: فحصُ النصّ لا يجري، وسائرُ الشروط تعمل.
+    ok("وبلا مصحفٍ: لا فحصَ نصٍّ ولا سكوتَ عن سواه",
+       check_sample_item(_s(refText="كلامٌ آخرُ هنا", wordCount=3), None, None, R),
+       ["s_stratum_mismatch"])
+    ok("والطبقاتُ حدودُها كما في `sample.py`",
+       tuple(stratum_of_words(n) for n in (1, 4, 5, 9, 10, 19, 20, 0)),
+       ("S", "S", "M", "M", "L", "L", "XL", None))
+    ok("وتمييزُ العيّنة من الخطّة من شكل البند",
+       (is_sample({"items": [_s()]}), is_sample({"items": [_it()]}), is_sample({"items": []})),
+       (True, False, False))
+    ok("وعيّنةٌ فيها مكرَّرٌ", {k: len(v) for k, v in check_sample(
+        {"items": [_s(), _s()]}, IDS, TX).items()}, {"s_dup_id": 1})
+
     print("✅ الحارسُ سليمٌ على حالاته" if not bad else f"⛔ الحارسُ نفسُه معطوبٌ في {bad} حالة")
     return 1 if bad else 0
 
@@ -224,7 +411,10 @@ def main():
     if not paths:
         raise SystemExit("⛔ لا خطّةَ تُفحص — سمِّ ملفّاً أو نمطاً")
     print("# 🧷 حارسُ الحقيقة الأرضيّة")
-    fatal = sum(report(p, json.load(open(p, encoding="utf-8"))) for p in paths)
+    fatal = 0
+    for p in paths:
+        doc = json.load(open(p, encoding="utf-8"))
+        fatal += report_sample(p, doc) if is_sample(doc) else report(p, doc)
     print(f"\n**الحصيلة:** {len(paths)} خطّةً · أصنافُ عطبٍ قاتلٍ: **{fatal}**")
     return 1 if fatal else 0
 

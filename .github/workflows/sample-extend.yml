@@ -106,6 +106,22 @@ jobs:
           print(f"✅ فائقٌ: {len(a)} ⇒ {len(b)} بنداً · جديدٌ {len(new)}")
           PY
 
+      - name: 🧷 حارسُ الحقيقة الأرضيّة — نصُّ المصحف وصوتُ الآية قبل الإيداع
+        if: always()
+        run: |
+          # ⛔ **لِمَ هنا:** حارسُ التوسيع أعلاه يسأل «أفائقٌ هو؟» ولا يسأل **«أهذا نصُّ المصحف
+          #    وصوتُ هذه الآية؟»** — وبندٌ نصُّه من آيةٍ وصوتُه من أخرى يُقرأ اتّهاماً كاذباً
+          #    في المحرك وهو تحريفٌ في العيّنة. (‏D-433 · قِيس على المودَع: 271 بنداً · صفرُ عطب.)
+          # ⛔ ولا يُستعمل حارسٌ قبل أن يُختبر ⇒ اختبارُه الذاتيُّ أوّلاً في الشوط نفسِه.
+          R=$(cat tools/tasmi_bench/work_sample/rc.txt 2>/dev/null || echo 1)
+          [ "$R" = "0" ] || { echo "ℹ️ سقط البناءُ برمزٍ $R — لا حارسَ يُشغَّل"; exit 0; }
+          python tools/tasmi_bench/plan_guard.py --selftest || {
+            echo "⛔ الحارسُ نفسُه معطوبٌ ⇒ لا يُحكم به ولا تُودَع العيّنة"
+            echo 3 > tools/tasmi_bench/work_sample/rc.txt; exit 1; }
+          python tools/tasmi_bench/plan_guard.py tools/tasmi_bench/work_sample/after.json || {
+            echo "⛔ عطبٌ قاتلٌ في الحقيقة الأرضيّة ⇒ يُودَع الأثرُ وحدَه بلا عيّنة"
+            echo 2 > tools/tasmi_bench/work_sample/rc.txt; exit 1; }
+
       - name: إيداعُ العيّنة والأثر
         if: always()
         run: |
