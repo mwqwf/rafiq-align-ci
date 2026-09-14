@@ -33,6 +33,29 @@ on:
         description: "حدُّ البنود (‏0 = الكلّ)"
         required: false
         default: "0"
+  # 🔑 **وبابٌ ثانٍ: يُستدعى من `arm-request` بإيداعٍ لا بإدلاء** (‏2026-09-14 · دورةُ :50).
+  #    السببُ نفسُه المكتوبُ في `emu-request`: بيانةُ الوكيل تردّ **403** على `dispatches`
+  #    ⇒ فلو بقي هذا المسارُ على الإدلاء وحدَه لبقي **قياسُ الزمن على `arm64` موقوفاً على
+  #    نقرةٍ من المالك** — وهو عينُ ما أُمرنا بإلغائه.
+  # ⚠️ **والمداخلُ تُقرأ بـ`inputs` لا `github.event.inputs`**: الثانيةُ **فارغةٌ** في
+  #    `workflow_call` فيمرّ الشوطُ بخيوطٍ فارغةٍ ونموذجٍ فارغٍ — عطبٌ صامت.
+  workflow_call:
+    inputs:
+      threads:
+        type: string
+        required: true
+      src:
+        type: string
+        required: true
+      plan:
+        type: string
+        required: true
+      model:
+        type: string
+        required: true
+      limit:
+        type: string
+        required: true
 env:
   PUB: https://pub-2c2e1dcd92e84a2898820dd38d3e09e6.r2.dev
   UA: "Mozilla/5.0 (QuranRafiq arm time)"
@@ -83,7 +106,7 @@ jobs:
       - name: النموذجُ المشحون
         run: |
           curl -sSL -f --retry 4 --retry-delay 5 --retry-all-errors -A "$UA" \
-            -o tools/tasmi_bench/work_model.bin "$PUB/models/whisper-${{ github.event.inputs.model }}-ar-quran/ggml-q8_0.bin"
+            -o tools/tasmi_bench/work_model.bin "$PUB/models/whisper-${{ inputs.model }}-ar-quran/ggml-q8_0.bin"
           ls -l tools/tasmi_bench/work_model.bin
       - name: المجموعاتُ (كاشُ بوّابة المحاكي نفسُه — لا يتعلّق بالمعمارية)
         id: sets
@@ -106,15 +129,15 @@ jobs:
         run: |
           cd tools/tasmi_bench
           python cli_time.py --cli ../../wc/b/bin/whisper-cli --model work_model.bin \
-            --src "work/${{ github.event.inputs.src }}" --plan "${{ github.event.inputs.plan }}" \
-            --threads "${{ github.event.inputs.threads }}" --limit "${{ github.event.inputs.limit }}" \
-            --md "work/arm_${{ github.event.inputs.model }}_${{ github.event.inputs.src }}_t${{ github.event.inputs.threads }}.md" \
-            --json "work/arm_${{ github.event.inputs.model }}_${{ github.event.inputs.src }}_t${{ github.event.inputs.threads }}.json"
-          cat "work/arm_${{ github.event.inputs.model }}_${{ github.event.inputs.src }}_t${{ github.event.inputs.threads }}.md" >> "$GITHUB_STEP_SUMMARY"
+            --src "work/${{ inputs.src }}" --plan "${{ inputs.plan }}" \
+            --threads "${{ inputs.threads }}" --limit "${{ inputs.limit }}" \
+            --md "work/arm_${{ inputs.model }}_${{ inputs.src }}_t${{ inputs.threads }}.md" \
+            --json "work/arm_${{ inputs.model }}_${{ inputs.src }}_t${{ inputs.threads }}.json"
+          cat "work/arm_${{ inputs.model }}_${{ inputs.src }}_t${{ inputs.threads }}.md" >> "$GITHUB_STEP_SUMMARY"
       - uses: actions/upload-artifact@v4
         if: always()
         with:
-          name: arm-time-${{ github.event.inputs.src }}-t${{ github.event.inputs.threads }}
+          name: arm-time-${{ inputs.src }}-t${{ inputs.threads }}
           path: tools/tasmi_bench/work/arm_*.*
           retention-days: 14
           if-no-files-found: ignore
@@ -122,7 +145,7 @@ jobs:
         if: always()
         run: |
           cd tools/tasmi_bench
-          S="${{ github.event.inputs.model }}-${{ github.event.inputs.src }}"; T="${{ github.event.inputs.threads }}"
+          S="${{ inputs.model }}-${{ inputs.src }}"; T="${{ inputs.threads }}"
           for f in work/arm_*.md work/arm_*.json; do
             [ -f "$f" ] && python ../finetune/r2_put.py "$f" "finetune/armtime/$S-t$T/$(basename $f)"
           done

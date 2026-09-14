@@ -1,0 +1,89 @@
+# 🦾 **زنادُ `arm-time` للوكيل السحابيّ — إيداعٌ لا إدلاء** (‏2026-09-14 · دورةُ :50).
+#
+# ⛔ **السببُ مقيسٌ لا مفترَض** (‏مكتوبٌ بنصّه في `emu-request`): بيانةُ الوكيل السحابيّ تردّ
+# `403 Resource not accessible by integration` على `POST …/dispatches` ⇒ **قياسُ الزمن على
+# `arm64` — وهو الوحيدُ الذي يرى ما يراه هاتفُ المالك — كان موقوفاً على نقرةٍ منه**.
+#
+# ⇒ والوكيلُ **يدفع إلى `main`**، فصار الدفعُ زناداً: يُكتب الطلبُ في
+# `tools/tasmi_bench/requests/arm.json` ويُدفع، فيُستدعى `arm-time` **نفسُه** لا نسخةٌ منه
+# (‏`workflow_call`) — **فلا مسطرتان تتخالفان**.
+#
+#   {"model": "base", "src": "g4n", "plan": "work/long_plan.json", "limit": "20",
+#    "threads": ["2", "4"], "reason": "عتبةُ م٢: أيتجاوز الأكبرُ الزمنَ الحقيقيّ بنواتَين؟"}
+#
+# ⛔⛔ **ولا افتراضَ لِما يُغيّر المقيس** (‏درسُ `emu-request`): كلُّ حقلٍ **يُسمّى في كلّ طلب**
+# وإلّا سقط الطلبُ بنصّه — فالمستدعى لا يفرّق بين «لم يُذكر» و«فارغ»، وتكرارُ القيم هنا
+# مرآةٌ ثانيةٌ تتقادم صامتةً.
+# ⛔⛔ **وذراعان متطابقتان سؤالٌ لا جواب** (‏D-385): خيطان مكرّران في القائمة **يُسقطان الطلب**
+#     — وقد وقع مثلُه في تشريحٍ سابقٍ فخرجت ذراعان متطابقتَين حرفاً وأُنفق عليهما شوط.
+name: arm-request
+on:
+  push:
+    paths:
+      - "tools/tasmi_bench/requests/arm.json"
+
+# 🚦 **صفٌّ لا إلغاء**: الشوطُ يبني `whisper.cpp` من مصدره ثمّ يقيس، وإلغاؤه في منتصفه
+#    يحرق البناءَ ويترك نصفَ جدول. (‏ومفتاحا R2 مختلفان لكلّ عددِ خيوطٍ فلا تتزاحم الذراعان.)
+concurrency:
+  group: arm-time-fleet
+  cancel-in-progress: false
+
+permissions:
+  contents: write
+
+jobs:
+  read:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    outputs:
+      model: ${{ steps.r.outputs.model }}
+      src: ${{ steps.r.outputs.src }}
+      plan: ${{ steps.r.outputs.plan }}
+      limit: ${{ steps.r.outputs.limit }}
+      threads: ${{ steps.r.outputs.threads }}
+    steps:
+      - uses: actions/checkout@v4
+      - id: r
+        env:
+          PYTHONIOENCODING: utf-8
+        run: |
+          python3 - <<'PY' >> "$GITHUB_OUTPUT"
+          import json, sys
+          req = json.load(open("tools/tasmi_bench/requests/arm.json", encoding="utf-8"))
+          missing = [k for k in ("model", "src", "plan", "limit", "threads") if not req.get(k)]
+          if missing:
+              sys.stderr.write("⛔ حقولٌ ناقصةٌ في الطلب: %s\n" % " · ".join(missing))
+              sys.exit(1)
+          th = req["threads"]
+          if isinstance(th, (str, int)):
+              th = [str(th)]
+          th = [str(t).strip() for t in th]
+          if len(th) != len(set(th)):
+              sys.stderr.write("⛔ خيطان مكرّران في `threads` — ذراعان متطابقتان سؤالٌ لا جواب (D-385)\n")
+              sys.exit(1)
+          if not all(t.isdigit() and int(t) > 0 for t in th):
+              sys.stderr.write("⛔ `threads` أعدادٌ موجبةٌ فقط: %s\n" % th)
+              sys.exit(1)
+          print("model=" + str(req["model"]))
+          print("src=" + str(req["src"]))
+          print("plan=" + str(req["plan"]))
+          print("limit=" + str(req["limit"]))
+          print("threads=" + json.dumps(th))
+          sys.stderr.write("✅ الطلبُ سليم: %s على %s بخيوط %s (حدُّ %s)\n"
+                           % (req["model"], req["src"], th, req["limit"]))
+          PY
+
+  time:
+    needs: read
+    strategy:
+      fail-fast: false
+      matrix:
+        threads: ${{ fromJSON(needs.read.outputs.threads) }}
+    uses: ./.github/workflows/arm-time.yml
+    with:
+      threads: ${{ matrix.threads }}
+      src: ${{ needs.read.outputs.src }}
+      plan: ${{ needs.read.outputs.plan }}
+      model: ${{ needs.read.outputs.model }}
+      limit: ${{ needs.read.outputs.limit }}
+    secrets: inherit
