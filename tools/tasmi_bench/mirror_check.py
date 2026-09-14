@@ -17,6 +17,7 @@
 """
 import argparse
 import filecmp
+import marshal
 import os
 import re
 import shutil
@@ -59,6 +60,139 @@ def classify_callers(callers, wf_dir):
                 out.append((c, w))
                 break
     return out
+
+
+COMMENT_ONLY = re.compile(r"^\s*(#.*)?$")
+
+
+def appended_tail(mir_path, src_path):
+    """⛔ **سابعةُ الثغرات (‏قِيست 10:50Z 2026-09-14): `--sync` كان يمحو قياسَ غيري.**
+
+    وُجد `net_guard.py` منحرفاً، فأمر الحارسُ بـ`--sync` **بلا شرط**. وحقيقةُ الانحراف:
+    ملفُّ المرآة = **الأصلُ بايتاً ببايت + سطرَي تعليقٍ في آخره** كتبتهما مناوبةٌ أخرى
+    مسباراً لزنادٍ (`11c6ea9`: «أتشتعل `bench-selftest` على دفعةٍ بلا وسمِ تخطٍّ؟»)
+    ⇒ **والنسخُ كان يمحو تجربةً جارية** وسؤالاً لم يُجَب بعد، وهو نقضُ قاعدةِ الأسطول:
+    «مَن وجد مسارَ غيره مشغولاً فلا يلمسه — يكتب ما رأى ويمضي».
+
+    ⇒ يُعيد **الذيلَ** (بايتاتٍ) إن كان ملفُّ المرآة يبدأ بالأصل كلِّه وفيه زيادةٌ بعده،
+    و`None` إن كان الاختلافُ في **جسم** الملفّ (‏تخلُّفٌ حقيقيٌّ يُنسخ).
+    ⛔ **وأصلٌ فارغٌ لا يُعدّ بادئةً لأحد** — وإلّا صار كلُّ ملفٍّ «ذيلاً مُلحَقاً».
+    """
+    try:
+        a = open(mir_path, "rb").read()
+        b = open(src_path, "rb").read()
+    except OSError:
+        return None
+    if not b or len(a) <= len(b) or not a.startswith(b):
+        return None
+    return a[len(b):]
+
+
+def append_kind(name, tail, mir_path, src_path):
+    """⇒ `(kind, reason, first_line)` حيث `kind` ∈ {`"تعليق"`, `None`}.
+
+    ⭐⭐ **والحكمُ بالمُنفَّذ لا بالرسم:** «ذيلٌ تعليقٌ» دعوى تُقاس، لا تُصدَّق بالعين —
+    فسطرٌ مُلحَقٌ في آخر ملفٍّ بايثونَ **يُنفَّذ**، وسطرُ `THRESHOLD = 0.01` في آخر حاكمٍ
+    يُلغي عتبتَه فوقَه ويطبع رقماً معقولاً خاطئاً. ⇒ فشرطانِ مجتمعان لا واحد:
+    ① كلُّ سطرٍ في الذيل فراغٌ أو `#`، ② **وترجمةُ الملفَّين واحدةٌ** (`compile` ثمّ
+    `marshal`) ⇒ **ما يُنفَّذ سواءٌ بالقياس**، فلا رقمَ يتغيّر.
+
+    ⛔ **وما لا يُقاس فيه أثرُ الذيل يُحسب انحرافاً**: `.json` **يَبطل بالإلحاق** أصلاً
+    (فلا يُقرأ)، و`.sh` لا مِيزانَ ترجمةٍ له هنا ⇒ كلاهما إلى قائمة العطب، **والتسامحُ
+    لا يُمنح إلّا حيث قِيس**. ⭐ وهذا يجعل الحارسَ أصعبَ خداعاً لا أضعف: مَن أراد
+    تمريرَ شفرةٍ خلف «تعليقٍ» كسرَ الشرطَ الثاني فسقط.
+    """
+    first = ""
+    try:
+        txt = tail.decode("utf-8")
+    except UnicodeDecodeError:
+        return None, "ذيلٌ ليس نصّاً مقروءاً", first
+    lines = [ln for ln in txt.splitlines() if ln.strip()]
+    first = lines[0].strip() if lines else "(فراغٌ محض)"
+    if not all(COMMENT_ONLY.match(ln) for ln in txt.splitlines()):
+        return None, "في الذيل سطرٌ ليس تعليقاً ولا فراغاً ⇒ **شفرةٌ تُنفَّذ**", first
+    if not name.endswith(".py"):
+        return None, "نوعٌ لا يُقاس فيه أثرُ الذيل (‏`.json` يَبطل بالإلحاق) ⇒ لا تسامح", first
+    try:
+        ca = marshal.dumps(compile(open(mir_path, encoding="utf-8").read(), "m", "exec"))
+        cb = marshal.dumps(compile(open(src_path, encoding="utf-8").read(), "m", "exec"))
+    except (SyntaxError, ValueError) as e:
+        return None, f"لا تُترجَم إحداهما ⇒ لا قياسَ: {type(e).__name__}", first
+    if ca != cb:
+        return None, "**ترجمتُهما تختلف** — فالذيلُ يغيّر ما يُنفَّذ ولو رُسم تعليقاً", first
+    return "تعليق", "ترجمةُ الملفَّين واحدةٌ بالقياس ⇒ لا رقمَ يتغيّر", first
+
+
+def _selftest_appended():
+    """⛔ ويُختبر التصنيفُ الجديدُ بحالاتٍ تُعرف أجوبتُها — وفيها **ضابطٌ سالب**."""
+    import tempfile
+    bad = 0
+    base = "# -*- coding: utf-8 -*-\nT = 0.05\n\n\ndef f():\n    return T\n"
+    cases = [
+        ("py: ذيلُ تعليقٍ وفراغ ⇒ تعليقٌ مقيس", "g.py", base, base + "\n# 🧪 مسبارٌ\n", "تعليق"),
+        ("⛔ py: ذيلُ شفرةٍ يلغي عتبةً ⇒ انحراف", "g.py", base, base + "T = 0.01\n", None),
+        ("⛔ py: «تعليقٌ» يكسر الترجمة ⇒ انحراف", "g.py", base, base + "#x\nT=1\n", None),
+        ("⛔ sh: تعليقٌ لا مِيزانَ له ⇒ انحراف", "g.sh", "set -e\n", "set -e\n# مسبار\n", None),
+        ("⛔ json: تعليقٌ يُبطل القراءة ⇒ انحراف", "g.json", '{"a":1}\n', '{"a":1}\n# x\n', None),
+    ]
+    with tempfile.TemporaryDirectory() as td:
+        for i, (nm, fn, src_txt, mir_txt, want) in enumerate(cases):
+            s = os.path.join(td, f"s{i}_{fn}")
+            m = os.path.join(td, f"m{i}_{fn}")
+            open(s, "w", encoding="utf-8").write(src_txt)
+            open(m, "w", encoding="utf-8").write(mir_txt)
+            tail = appended_tail(m, s)
+            got = None if tail is None else append_kind(fn, tail, m, s)[0]
+            ok = got == want
+            print(f"  {'✅' if ok else '⛔'} {nm}: {got!r} · المتوقَّع {want!r}")
+            bad += 0 if ok else 1
+        # ⛔ واختلافٌ في الجسم ليس ذيلاً ولو زاد طولاً (‏تخلُّفٌ حقيقيٌّ يُنسخ)
+        s = os.path.join(td, "body_s.py")
+        m = os.path.join(td, "body_m.py")
+        open(s, "w", encoding="utf-8").write("T = 0.05\n")
+        open(m, "w", encoding="utf-8").write("T = 0.01\n# وذيلٌ أيضاً\n")
+        ok = appended_tail(m, s) is None
+        print(f"  {'✅' if ok else '⛔'} اختلافُ جسمٍ + ذيلٌ ⇒ انحرافٌ لا إلحاق")
+        bad += 0 if ok else 1
+        # ⛔ وأصلٌ فارغٌ لا يجعل المرآةَ «ذيلاً»
+        open(s, "w", encoding="utf-8").write("")
+        ok = appended_tail(m, s) is None
+        print(f"  {'✅' if ok else '⛔'} أصلٌ فارغٌ ⇒ لا يُقرأ إلحاقاً")
+        bad += 0 if ok else 1
+        # ⭐⭐ والأهمُّ: **`--sync` لا يمحو الذيلَ** — يُقاس بالبايتات قبلَه وبعدَه
+        mir = os.path.join(td, "rafiq-align-ci", "tools", "tasmi_bench")
+        srcd = os.path.join(td, "QuranRafiq", "tools", "tasmi_bench")
+        os.makedirs(mir); os.makedirs(srcd)
+        open(os.path.join(srcd, "probe.py"), "w", encoding="utf-8").write(base)
+        open(os.path.join(mir, "probe.py"), "w", encoding="utf-8").write(base + "\n# 🧪 مسبارٌ\n")
+        open(os.path.join(srcd, "lag.py"), "w", encoding="utf-8").write("T = 0.05\n")
+        open(os.path.join(mir, "lag.py"), "w", encoding="utf-8").write("T = 0.01\n")
+        rc = check_pair(mir, srcd, True, "ضابط")
+        after = open(os.path.join(mir, "probe.py"), encoding="utf-8").read()
+        ok = after.endswith("# 🧪 مسبارٌ\n")
+        print(f"  {'✅' if ok else '⛔'} `--sync` أبقى الذيلَ (‏قياسُ غيري لا يُمحى): {after[-14:]!r}")
+        bad += 0 if ok else 1
+        lag = open(os.path.join(mir, "lag.py"), encoding="utf-8").read()
+        ok2 = lag == "T = 0.05\n"
+        print(f"  {'✅' if ok2 else '⛔'} وفي الدفعة نفسِها نُسخ المتخلّفُ الحقيقيّ: {lag!r}")
+        bad += 0 if ok2 else 1
+        ok3 = rc == 0
+        print(f"  {'✅' if ok3 else '⛔'} وذيلُ تعليقٍ مقيسٍ لا يُسقط الحارسَ بعد النسخ: rc={rc}")
+        bad += 0 if ok3 else 1
+        # ⛔ وذيلُ شفرةٍ **يُسقط** الحارسَ ولا يُنسخ عليه
+        open(os.path.join(mir, "probe.py"), "w", encoding="utf-8").write(base + "T = 0.01\n")
+        rc2 = check_pair(mir, srcd, True, "ضابط")
+        kept = open(os.path.join(mir, "probe.py"), encoding="utf-8").read().endswith("T = 0.01\n")
+        print(f"  {'✅' if rc2 == 1 else '⛔'} ذيلُ شفرةٍ ⇒ يخرج بـ1: rc={rc2}")
+        bad += 0 if rc2 == 1 else 1
+        print(f"  {'✅' if kept else '⛔'} ولا يُنسخ عليه بلا إذنٍ صريح")
+        bad += 0 if kept else 1
+        # ⭐ والإذنُ الصريحُ يمحوه (‏بابٌ مفتوحٌ بمفتاحٍ لا بلا مفتاح)
+        rc3 = check_pair(mir, srcd, True, "ضابط", take=True)
+        gone = open(os.path.join(mir, "probe.py"), encoding="utf-8").read() == base
+        print(f"  {'✅' if gone else '⛔'} و`--take-appended` ينسخ الأصلَ فوقه: rc={rc3}")
+        bad += 0 if gone else 1
+    return bad
 
 
 def _selftest():
@@ -108,6 +242,7 @@ def _selftest():
         ok3 = os.path.realpath(got3) == os.path.realpath(mir)
         print(f"  {'✅' if ok3 else '⛔'} اتّجاهٌ سليمٌ يبقى كما هو: {got3}")
         bad += 0 if ok3 else 1
+    bad += _selftest_appended()
     print("✅ التصنيفُ سليمٌ على حالاته" if not bad else f"⛔ التصنيفُ نفسُه معطوبٌ في {bad} حالة")
     return 1 if bad else 0
 
@@ -139,7 +274,7 @@ def resolve_dir(mir, src, label):
     return None, src
 
 
-def check_pair(HERE, src, sync, label):
+def check_pair(HERE, src, sync, label, take=False):
     """يفحص مجلدَ مرآةٍ واحداً ضدّ أصله ويطبع، ويُعيد عددَ الانحرافات الباقية بعد العلاج.
 
     ⛔⛔ **خامسةُ الثغرات (2026-09-13) — والحارسُ كان يفحص مجلداً واحداً:** الفحصُ كان على
@@ -157,7 +292,7 @@ def check_pair(HERE, src, sync, label):
         return 0
     print(f"— 🪞 **{label}**")
     a = argparse.Namespace(src=src, sync=sync)
-    drift, missing = [], []
+    drift, missing, appended = [], [], []
     for f in sorted(os.listdir(HERE)):
         # ⛔⛔ **ولا `.py` وحدَها — ثغرةٌ وُجدت 2026-09-13 (D-374 وما بعده):** جسمُ **كلِّ** شوط
         # محاكٍ هو `ci_emu_run.sh` (‏وهو الذي يُنشئ الأذرعَ ويثبّت لغتَها)، وخُطَطُ الحقن
@@ -171,7 +306,13 @@ def check_pair(HERE, src, sync, label):
         if not os.path.exists(o):
             missing.append(f)
         elif not filecmp.cmp(os.path.join(HERE, f), o, shallow=False):
-            drift.append(f)
+            # 🧪 **أشكالُ الاختلاف ثلاثةٌ لا شكلٌ واحد** (‏انظر `appended_tail`):
+            #    تخلُّفٌ في الجسم · ذيلٌ مقيسُ الأثر · ذيلٌ يُحتمل أن يُنفَّذ.
+            tail = None if take else appended_tail(os.path.join(HERE, f), o)
+            if tail is None:
+                drift.append(f)
+            else:
+                appended.append((f,) + append_kind(f, tail, os.path.join(HERE, f), o))
 
     # ⛔⛔ **وثغرةٌ ثالثةٌ سُدّت 2026-09-13 — وقعت في اليوم نفسِه:** الحلقةُ تمشي على **المرآة**،
     # فملفٌّ **في الأصل ولا نسخةَ له هنا** كان **لا يُرى البتّة**: أُضيف `hyps_time_ab.py` إلى
@@ -250,10 +391,31 @@ def check_pair(HERE, src, sync, label):
         # ⚠️ ملفٌّ هنا وليس في الأصل: **ليس انحرافاً** بالضرورة (قد يكون أداةَ مسارٍ خاصّةً
         # بالمستودع العامّ) — يُذكر ولا يُعالَج تلقائيّاً.
         print("ℹ️ هنا ولا أصلَ لها (تُراجَع بالعين): " + " · ".join(missing))
+
+    # 🧪 **ذيلٌ مُلحَقٌ والأصلُ تحته بايتاً ببايت** — شكلٌ ثالثٌ بين «مطابقٍ» و«متخلّف»،
+    # وهو في العادة **عملٌ جارٍ لمناوبةٍ أخرى** لا سهوٌ. ⇒ يُسمّى ولا يُمحى.
+    app_bad = 0
+    if appended:
+        print("🧪 **ذيلٌ مُلحَقٌ في المرآة** (‏الأصلُ تحته بايتاً ببايت ⇒ **ليس تخلُّفاً**، "
+              "وهو في الغالب مسبارُ مناوبةٍ أخرى):")
+        for f, kind, why, first in appended:
+            mark = "⚠️" if kind else "⛔"
+            print(f"   {mark} {f}: {why} — «{first}»")
+            app_bad += 0 if kind else 1
+        print("⛔ **ولا يُنسخ عليه `--sync`**: النسخُ **يمحو قياساً حيّاً لغيرك** وسؤالاً لم "
+              "يُجَب (‏وقع 10:50Z على `net_guard.py`) — «مَن وجد مسارَ غيره مشغولاً فلا يلمسه». "
+              "⇒ فإن أردتَ محوَه فبإذنٍ صريحٍ وحدَه: `--sync --take-appended`.")
+        if app_bad:
+            print(f"⛔⛔ **و{app_bad} من الذيول يُحتمل أن تغيّر ما يُنفَّذ** ⇒ تُحسب عطباً "
+                  "(‏والتسامحُ لا يُمنح إلّا حيث قِيس أنّ الترجمةَ واحدة).")
     if not drift:
+        if app_bad:
+            # ⛔ ولا «✅» على ذيلٍ لم يُقَس أثرُه — فالسكوتُ عنه يُقرأ تزكيةً.
+            print("⛔ لا انحرافَ في جسم ملفٍّ — **لكنّ ذيلاً غيرَ مقيسٍ يُوقف الحارس** (فوقَه).")
+            return 1
         # ⛔ ولا تُقال «✅» مجرّدةً وفوقَها تنبيهٌ — فالعينُ تقرأ آخرَ سطرٍ وتمضي.
         print("✅ لا انحرافَ في الملفّات: كلُّ ملفٍّ له أصلٌ مطابقٌ بايتاً ببايت."
-              + (" ⚠️ **لكن فوقَه ما يُنظر فيه.**" if danger else ""))
+              + (" ⚠️ **لكن فوقَه ما يُنظر فيه.**" if (danger or appended) else ""))
         if live_any:
             print("⛔ **ومع ذلك يخرج بـ1**: مسارٌ حيٌّ ينادي أداةً على مجلدٍ غائبٍ ⇒ "
                   + " · ".join(live_any))
@@ -265,9 +427,11 @@ def check_pair(HERE, src, sync, label):
     if a.sync:
         for f in drift:
             shutil.copyfile(os.path.join(a.src, f), os.path.join(HERE, f))
-        print("↻ نُسخ الأصلُ فوق المرآة — راجع `git diff` قبل الإيداع.")
-        return 0
-    print("⇒ `python tools/tasmi_bench/mirror_check.py --sync` ثمّ أودِع بمسارات صريحة.")
+        print("↻ نُسخ الأصلُ فوق المرآة — راجع `git diff` قبل الإيداع."
+              + (" ⛔ **وذيولُ الإلحاق لم تُلمَس** (فوقَه)." if appended else ""))
+        return 1 if app_bad else 0
+    print("⇒ `python tools/tasmi_bench/mirror_check.py --sync` ثمّ أودِع بمسارات صريحة"
+          + (" — **ولن يمسّ ذيولَ الإلحاق أعلاه**." if appended else "."))
     return 1
 
 
@@ -275,6 +439,8 @@ def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--src", default=SRC, help="أصلُ tasmi_bench (‏وأخواتُه تُشتقّ منه)")
     ap.add_argument("--sync", action="store_true", help="انسخ الأصلَ فوق المرآة (لا يحذف ولا يضيف)")
+    ap.add_argument("--take-appended", action="store_true",
+                    help="⛔ إذنٌ صريحٌ بمحو ذيلٍ مُلحَقٍ في المرآة (‏قد يكون قياسَ مناوبةٍ أخرى)")
     ap.add_argument("--only", default="", help="اسمُ مجلدٍ مُمرأًى واحدٍ يُفحَص وحدَه (‏للاختبار)")
     ap.add_argument("--selftest", action="store_true", help="يختبر تصنيفَ «حيٌّ أم نائم» على حالاتٍ معلومة")
     a = ap.parse_args()
@@ -310,7 +476,7 @@ def main():
         if mir2 is None:
             rc = max(rc, 1)          # ⛔ مقارنةٌ لم تقع ⇒ سقوطٌ لا سكوت
             continue
-        rc = max(rc, check_pair(mir2, src2, a.sync, label))
+        rc = max(rc, check_pair(mir2, src2, a.sync, label, take=a.take_appended))
     return rc
 
 
