@@ -215,6 +215,36 @@ def head_cost(riwaya, heads, SCR, SC, load_text):
     return cost, reach, sum(occ.values())
 
 
+def naql_cost(riwaya, SCR, SC, load_text):
+    """سعرُ **بابِ النقل** بشكله الصحيح: `ال…` ⇒ `ل…` (‏تسقط ألفُ الوصل نطقاً لا اللامُ معها).
+
+    ولِمَ وحدَه؟ لأنّه **مفتوحٌ في ورشٍ مشحوناً ومغلقٌ في قالون** (`_riwaya_forms`: `naql`)،
+    وسقوطُ ألفِ الوصل في الوصل **ظاهرةٌ عربيّةٌ عامّةٌ لا خاصّةَ ورشٍ** ⇒ فالسؤالُ مقيسٌ:
+    كم موضعاً يبلغه البابُ؟ وكم موضعاً **يعمى** عن كلمةٍ قرآنيّةٍ أخرى لو فُتح؟
+    (‏وفي ورشٍ هذا ثمنٌ **مدفوعٌ اليومَ** لا مقترَح.)
+    """
+    cfg = SC.config_for("proposed", riwaya)
+    occ, forms = counts_of(riwaya, cfg, SCR, load_text)
+    by_form = collections.defaultdict(set)
+    for k, fs in forms.items():
+        for f in fs:
+            by_form[f].add(k)
+    reach = cost = 0
+    for k, fs in forms.items():
+        n = occ[k]
+        hit = paid = False
+        for f in fs:
+            if f.startswith("ال") and len(f) > 3:
+                hit = True
+                if by_form.get("ل" + f[2:], set()) - {k}:
+                    paid = True
+        if hit:
+            reach += n
+        if paid:
+            cost += n
+    return reach, cost, sum(occ.values()), cfg.naql
+
+
 def door_cost(riwaya, SCR, SC, load_text, min_part=2):
     """سعرُ كلِّ بابٍ على نصِّ الرواية كلِّه — بعملة `license_ledger`(ب): **مواضعُ عمًى**.
 
@@ -335,6 +365,13 @@ def table(rows, title):
     print("|---|---:|---:|---|")
     for kind, n in kinds.most_common():
         print(f"| {kind} | {n} | {others.get(kind, 0)} | {DOOR.get(kind, '—')} |")
+    print("\n### 🔓 بابُ النقل (`ال…` ⇒ `ل…`) — مفتوحٌ في ورشٍ مغلقٌ في قالون\n")
+    print("| الرواية | البابُ اليومَ | مواضعُ يبلغها | **مواضعُ عمًى** | من النصّ |")
+    print("|---|:---:|---:|---:|---:|")
+    for riw in riwayat:
+        reach, cost, tot, open_ = naql_cost(riw, SCR, SC, load_text)
+        print(f"| `{riw}` | {'مفتوحٌ (مشحون)' if open_ else 'مغلق'} | {reach} | **{cost}** | "
+              f"{100.0 * cost / tot:.2f}٪ |")
     if heads:
         print("\n**وصدورُ البتر** (‏ما سقط من أوّل الكلمة) — كلُّ صدرٍ **بابٌ ضيّقٌ** سعرُه يُقاس وحده:\n")
         print("| الصدرُ الساقط | خطأً |")
@@ -354,7 +391,13 @@ def from_pairs(path):
 
 
 def from_dirs(dirs, arms, sets):
-    """الأزواجُ من الفرضيّات المحفوظة — بالحاكم نفسِه الذي يحكم به الشوط."""
+    """الأزواجُ من الفرضيّات المحفوظة — بالحاكم نفسِه الذي يحكم به الشوط.
+
+    ⛔ **وصيغةُ `--dirs` هي صيغةُ التشريح نفسُها** (`work:`) ⇒ يُقطع ما بعد النقطتَين
+    ويُجعل المسارُ مطلقاً كما في `drift_probe` حرفاً بحرف. **وقد وقع العطبُ فعلاً:**
+    مُرِّر `work:` كما هو فصار المجلَّدُ `work:/…` فلا فرضيّةً وُجدت، **وخرجت الخطوةُ
+    بصفرِ ثانيةٍ «ناجحةً»** وجدولُها فارغ (الشوط `34795058366`).
+    """
     SCR, SC = _mods()
     import v2_gate as G
     out = []
@@ -466,6 +509,13 @@ def selftest():
         if other != want_other:
             print(f"⛔ `{ref}`⇄`{heard}`: عمودُ «كلمةٌ أخرى» انتُظر {want_other} فجاء {other}")
             ok = False
+    # ضابطُ `naql_cost` على معجمٍ صناعيٍّ معلومِ الجواب: «الارض» يقابلها «لارض» كلمةً أخرى
+    def lt2(_r):
+        return ["الارض لارض", "الكبري"]
+    r_, c_, t_, _o = naql_cost("qalun", SCR, SC, lt2)
+    if (r_, c_, t_) != (2, 1, 3):
+        print(f"⛔ naql_cost صناعيّاً: انتُظر (‏يبلغ 2 · يعمى 1 · المواضع 3) فجاء ({r_} · {c_} · {t_})")
+        ok = False
     # ضابطا `madd_drop` مباشرةً — حدُّها أنّها **حذفٌ فقط** لا إبدال
     if not madd_drop("بالافق", "بلفق") or madd_drop("وحقت", "وحك") or madd_drop("تله", "تله"):
         print("⛔ madd_drop: حدُّها «حذفُ مدٍّ فقط» لم يُحفَظ")
@@ -521,10 +571,19 @@ def main():
         table(rows, f"تصنيفُ {sum(r[4] for r in rows)} خطأً — من `{os.path.basename(a.pairs)}`")
     if a.dirs:
         lex_cache = {}
-        for st, arm, pairs in from_dirs([d for d in a.dirs.split() if d],
-                                        a.arms.split(), a.sets.split()):
+        dirs = [d.split(":", 1)[0] for d in a.dirs.split() if d] or ["work"]
+        dirs = [d if os.path.isabs(d) else os.path.join(HERE, d) for d in dirs]
+        found = 0
+        for st, arm, pairs in from_dirs(dirs, a.arms.split(), a.sets.split()):
+            found += 1
             rows = annotate(pairs[:a.top], lex_cache=lex_cache)
             table(rows, f"تصنيفُ أخطاء `{st}` · `{arm}`")
+        # ⛔ **ولا خروجَ صامتٌ:** جدولٌ فارغٌ يُقرأ «لم يُقَس» لا «لا خطأ» ⇒ يُنطق بسببه
+        #    ويسقط بالرمز، فلا تُعدّ خطوةٌ فارغةٌ نجاحاً (‏درسُ الشوط `34795058366`).
+        if not found:
+            print(f"⛔ لا فرضيّاتٍ قُرئت في {dirs} للذراعَين `{a.arms}` والمجموعات `{a.sets}` "
+                  f"⇒ **لا تصنيفَ** (وهذا «لم يُقَس» لا «لا أخطاء»).")
+            return 3
     if a.cost:
         cost_report(a.riwayat.split(), a.heads.split())
     return 0
