@@ -42,7 +42,37 @@ env:
   WC: c4ac0012a8f5a2082dfca6aad4ddfd8b2c02b337   # الالتزامُ المثبَّت — نفسُ الذي في arm-time
 
 jobs:
+  # ⛔⛔ **حارسُ التكرار — بعطبٍ مقيسٍ 2026-09-13/14:** زنادُ `paths` يشتعل من **مدى دفعةِ غيرِك**
+  # (تدمج الجلساتُ `main` ثمّ تدفع فتحمل دفعتُها إيداعي) ⇒ اشتعل هذا المسارُ **ثلاثَ مرّاتٍ**
+  # بطلبٍ واحدٍ لم يتغيّر، وكلُّ شوطٍ نحوُ خمسين دقيقةً ويدوس `LATEST_threads.md`.
+  # ⇒ **الهويّةُ بصمةُ الطلب**: إن كان لهذه البصمة أثرٌ منشورٌ في `results/` فالشوطُ **يُختصر
+  # إلى ثوانٍ** ولا يُقاس ثانياً. ⭐ **وإعادةٌ مقصودةٌ تُطلب بتغييرِ الطلب** (حرفٌ في `note`
+  # أو `seq`) — فالإعادةُ **قرارٌ** لا صدفةَ دفعةٍ عابرة.
+  gate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    outputs:
+      req: ${{ steps.fp.outputs.req }}
+      dup: ${{ steps.fp.outputs.dup }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: بصمةُ الطلب
+        id: fp
+        run: |
+          R=$(python3 -c "import hashlib;print(hashlib.sha256(open('tools/tasmi_bench/requests/threads.json','rb').read()).hexdigest()[:12])")
+          echo "req=$R" >> "$GITHUB_OUTPUT"
+          git fetch -q --depth=1 origin main
+          if git cat-file -e "origin/main:results/threads_req_$R.md" 2>/dev/null; then
+            echo "dup=1" >> "$GITHUB_OUTPUT"
+            echo "⏭️ **بصمةُ الطلب \`$R\` مقيسةٌ ومنشورةٌ سلفاً** ⇒ لا يُعاد القياس. وللإعادة: غيّر الطلب (‏\`note\` أو \`seq\`)." | tee -a "$GITHUB_STEP_SUMMARY"
+          else
+            echo "dup=0" >> "$GITHUB_OUTPUT"
+            echo "▶️ بصمةُ الطلب \`$R\` جديدةٌ ⇒ يُقاس." | tee -a "$GITHUB_STEP_SUMMARY"
+          fi
+
   t:
+    needs: gate
+    if: needs.gate.outputs.dup != '1'
     runs-on: ubuntu-24.04-arm
     timeout-minutes: 90
     steps:
@@ -235,7 +265,12 @@ jobs:
             mkdir -p /tmp/pub/results
             cp /tmp/out.md "/tmp/pub/$OUT"
             cp /tmp/out.md /tmp/pub/results/LATEST_threads.md
-            git -C /tmp/pub add "$OUT" results/LATEST_threads.md
+            # 🔖 **وأثرُ البصمة يُنشر كي يعرف حارسُ التكرار أنّ هذا الطلبَ قِيس** — سطرٌ يدلّ
+            #    على الشوط لا نسخةٌ ثانيةٌ من الجدول.
+            printf '⏭️ طلبٌ ببصمة `%s` قِيس في الشوط %s ⇒ %s\n' \
+              "${{ needs.gate.outputs.req }}" "${{ github.run_id }}" "$OUT" \
+              > "/tmp/pub/results/threads_req_${{ needs.gate.outputs.req }}.md"
+            git -C /tmp/pub add "$OUT" results/LATEST_threads.md "results/threads_req_${{ needs.gate.outputs.req }}.md"
             git -C /tmp/pub commit -q -m "results(arm-threads): الشوط ${{ github.run_id }} · $THR_A مقابل $THR_B خيطاً" || { echo "لا تغيير"; exit 0; }
             git -C /tmp/pub push -q origin HEAD:main && { echo "✅ أُودع $OUT"; exit 0; }
             echo "↻ دفعٌ $i"; git worktree remove --force /tmp/pub 2>/dev/null; sleep 5
