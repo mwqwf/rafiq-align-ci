@@ -770,6 +770,104 @@ def pair_generalize(rows, SCR, SC, load_text):
     return out, len(keyed), uniq_refs
 
 
+def abstain_stats(rows, SCR, SC, load_text, plans=()):
+    """🤫 **«غيرُ متبيَّن» بدل «أخطأت» — أرخصُ صورةٍ للامتناع، وتُقاس بلا احتمالاتٍ أصلاً.**
+
+    D-444 قاست أنّ أخطاءَ الضجيج **سمعٌ من خارج البند**، وأكثرُها في العين **ليست كلمةً
+    عربيّةً** (`سسنسا` · `رفهثا` · `جسهيد`). وأغلى رافعةٍ باقيةٍ هي **الامتناع**: أن يقول
+    المحركُ «لم أتبيّن» لا «أخطأت». وثقةُ الرموز تحتاج مسباراً في التطبيق **لم يُطبع بعد**،
+    ⇒ فهذه **وكيلٌ نصّيٌّ لا يحتاج احتمالاً**: *أهو كلمةٌ من المصحف أصلاً؟*
+
+    ويُعيد لكلّ رواية: `no_word` (‏المسموعُ **ليس** صورةَ أيّ كلمةٍ في نصّ الرواية ⇒ يصلح
+    للامتناع) · `word` (‏كلمةٌ قرآنيّةٌ قائمةٌ ⇒ **لا يُمتنع عنه**: خطأٌ يُقال) · `mute`.
+
+    ⛔⛔ **وثمنُه يُقاس ولا يُظنّ:** لو امتنع المحركُ عن كلّ لا-كلمةٍ، **فأيُّ خطإٍ حقيقيٍّ
+    يُكتَم؟** وضابطُنا المتاح: `SUBSTITUTE` في خطط الحقن **يُبدل كلمةً بكلمةٍ قرآنيّةٍ أخرى
+    بصوت القارئ** ⇒ إن كان مانحُها **كلمةً** فالامتناعُ لا يكتمها. ⚠️ **وهذا لا يقيس نطقاً
+    خاطئاً من طالبٍ حقيقيّ** (‏لا مادّةَ لنا فيه) — وذلك **أخطرُ ما يُقال في هذا الباب**:
+    نطقٌ فاسدٌ قد يُفرَّغ لا-كلمةً فيُكتَم عن صاحبه. ⇒ **لا يُشحن بهذا وحدَه.**
+    """
+    out = {}
+    for riw in sorted({r["riwaya"] for r in rows}):
+        cfg = SC.config_for("proposed", riw)
+        lex = lexicon_of(riw, cfg, SCR, load_text)
+        d = {"n": 0, "no_word": 0, "word": 0, "mute": 0, "examples": []}
+        for r in rows:
+            if r["riwaya"] != riw:
+                continue
+            heard = (r.get("heard") or "").strip()
+            if heard in ("", "—"):
+                d["mute"] += 1
+                continue
+            d["n"] += 1
+            h = SCR.norm(heard, cfg)
+            if h in lex:
+                d["word"] += 1
+            else:
+                d["no_word"] += 1
+                if len(d["examples"]) < 6:
+                    d["examples"].append(h)
+        out[riw] = d
+    # 🧪 الضابط: مانحُ كلِّ إبدالٍ مصنوعٍ — أهو كلمةٌ (‏فلا يُكتَم) أم لا؟
+    ctrl = {"n": 0, "word": 0, "no_word": 0}
+    lexc = {}
+    for p in plans:
+        try:
+            items = json.load(open(p, encoding="utf-8")).get("items", [])
+        except Exception:
+            continue
+        for it in items:
+            if it.get("op") != "SUBSTITUTE":
+                continue
+            dw = (it.get("donor") or {}).get("word") or ""
+            if not dw:
+                continue
+            riw = it.get("riwaya", "hafs")
+            if riw not in lexc:
+                cfg = SC.config_for("proposed", riw)
+                try:
+                    lexc[riw] = (cfg, lexicon_of(riw, cfg, SCR, load_text))
+                except Exception:
+                    lexc[riw] = (cfg, set())
+            cfg, lex = lexc[riw]
+            ctrl["n"] += 1
+            if SCR.norm(dw, cfg) in lex:
+                ctrl["word"] += 1
+            else:
+                ctrl["no_word"] += 1
+    return out, ctrl
+
+
+def abstain_report(rows, plans=()):
+    """يطبع جدولَ الامتناع النصّيّ وضابطَه — **كشفٌ لا شحنٌ**."""
+    SCR, SC = _mods()
+    from common import load_text
+    out, ctrl = abstain_stats(rows, SCR, SC, load_text, plans)
+    print("\n#### 🤫 **وكيلُ الامتناع النصّيّ** — أهو كلمةٌ من المصحف أصلاً؟ (‏بلا احتمالاتٍ)\n")
+    print("| الرواية | أخطاءٌ فيها نصٌّ | **ليست كلمةً** ⇒ يصلح للامتناع | كلمةٌ قرآنيّةٌ ⇒ خطأٌ يُقال | صفرُ نصٍّ | أمثلة |")
+    print("|---|---:|---:|---:|---:|---|")
+    tn = tnw = 0
+    for riw, d in out.items():
+        pct = 100.0 * d["no_word"] / d["n"] if d["n"] else 0.0
+        tn += d["n"]; tnw += d["no_word"]
+        print(f"| `{riw}` | {d['n']} | **{d['no_word']}** ({pct:.1f}٪) | {d['word']} | {d['mute']} | "
+              + " · ".join(f"`{x}`" for x in d["examples"]) + " |")
+    if tn:
+        print(f"\n⇒ **الحصيلة: {tnw} من {tn} ({100.0 * tnw / tn:.1f}٪)** من الاتّهامات يصلح "
+              "أن يصير «لم أتبيّن» بلا احتمالٍ ولا عتبةٍ جديدة.")
+    if ctrl["n"]:
+        print(f"\n🧪 **الضابطُ (ثمنُ الامتناع على عطبٍ مصنوع):** مانحو **{ctrl['n']}** إبدالاً: "
+              f"**{ctrl['word']}** كلماتٌ قرآنيّةٌ (‏**لا تُكتَم**) · {ctrl['no_word']} ليست. "
+              f"⇒ الامتناعُ يكتم **{100.0 * ctrl['no_word'] / ctrl['n']:.1f}٪** من الإبدالات المصنوعة.")
+    else:
+        print("\n⛔ **ولا ضابطَ في هذه القراءة** (‏لم تُقرأ خطّةٌ) ⇒ الثمنُ **لم يُقَس**.")
+    print("\n⚠️⚠️ **وأخطرُ ما يُقال في هذا الباب:** الإبدالُ المصنوعُ **صوتٌ صحيحٌ لكلمةٍ أخرى**، "
+          "أمّا **نطقُ طالبٍ فاسدٌ** فقد يُفرَّغ **لا-كلمةً** فيُكتَم عن صاحبه — **ولا مادّةَ "
+          "عندنا تقيسه**. ⇒ **لا يُشحن الامتناعُ بهذا وحدَه**، ويبقى قياسُ الثقة (`RafiqConf`) "
+          "هو الحكم.")
+    return out, ctrl
+
+
 def pair_against(rows, other, SCR, SC, load_text):
     """🎯 **قائمةٌ من أرضيّةٍ تُقاس على أرضيّةٍ أخرى** — الخطوةُ التي سمّتها D-443 بنصّها.
 
@@ -1135,6 +1233,28 @@ def selftest():
     if any(g["by_pair"] for g in gu):
         print(f"⛔ pair_generalize: أزواجٌ فريدةٌ يجب أن تُعطي صفرَ غفرانٍ فجاء {gu}")
         ok = False
+    # 🤫 وضابطُ وكيل الامتناع: لا-كلمةٍ تُعدّ · وكلمةٌ قرآنيّةٌ لا تُعدّ · وصفرُ نصٍّ يُفرَز
+    import tempfile
+    rows_a = [
+        {"riwaya": "warsh", "ref": "قل", "heard": "زقزق"},     # ليست كلمةً ⇒ يصلح للامتناع
+        {"riwaya": "warsh", "ref": "قل", "heard": "خير"},      # كلمةٌ قرآنيّةٌ ⇒ خطأٌ يُقال
+        {"riwaya": "warsh", "ref": "قل", "heard": ""},         # صفرُ نصّ
+    ]
+    with tempfile.TemporaryDirectory() as td2:
+        pl = os.path.join(td2, "p.json")
+        json.dump({"items": [
+            {"op": "SUBSTITUTE", "riwaya": "warsh", "targetWord": "قل", "donor": {"word": "خير"}},
+            {"op": "SUBSTITUTE", "riwaya": "warsh", "targetWord": "قل", "donor": {"word": "زقزق"}},
+        ]}, open(pl, "w", encoding="utf-8"), ensure_ascii=False)
+        ab, ct = abstain_stats(rows_a, SCR, SC, lt3, [pl])
+        da = ab["warsh"]
+        if (da["n"], da["no_word"], da["word"], da["mute"]) != (2, 1, 1, 1):
+            print(f"⛔ abstain_stats: انتُظر (‏نصّان · لا-كلمةٌ 1 · كلمةٌ 1 · صامتٌ 1) فجاء {da}")
+            ok = False
+        # ⛔ والضابطُ يَعدّ المانحَ كلمةً لا لا-كلمةً — وإلّا قِيس ثمنُ الامتناع خطأً
+        if (ct["n"], ct["word"], ct["no_word"]) != (2, 1, 1):
+            print(f"⛔ ضابطُ الامتناع: انتُظر (2 · كلمةٌ 1 · لا-كلمةٌ 1) فجاء {ct}")
+            ok = False
     # 🎯 وضابطُ الأرضيّة الأخرى: زوجٌ مشتركٌ يُغفر · ومختلفٌ لا · وأرضيّةٌ فارغةٌ «لم تُقَس»
     g_self = pair_against(rows_g, rows_g, SCR, SC, lt3)
     # ⭐ ومرجعٌ من القائمة بسماعٍ آخر: **بالزوج صفرٌ وبالمرجع واحدٌ** — وهذا معنى العمودَين
@@ -1150,7 +1270,6 @@ def selftest():
               f"فارغةٌ 0) فجاء ({g_self} · {g_off} · {g_new} · {g_nil})")
         ok = False
     # ⛔⛔ **والضابطُ الذي لا يُستغنى عنه:** قائمةٌ فيها زوجُ حقنٍ مصنوعٍ **تُكشف**
-    import tempfile
     with tempfile.TemporaryDirectory() as td:
         plan = os.path.join(td, "p.json")
         json.dump({"items": [
@@ -1258,6 +1377,11 @@ def main():
                       "لم تُقَس** (ولا تُقرأ فراغاً).")
                 return 3
         pair_report(rows, plans, d0.get("items") or (), other, oname)
+        # 🤫 والامتناعُ يُقاس على **الأرضيّة المحجوبة** إن وُجدت (‏وهي الضجيجُ في العادة)
+        #    وإلّا فعلى أرضيّة القائمة — والعنوانُ يقول أيّهما كي لا يلتبس رقمان.
+        src = other if other else rows
+        print(f"\n#### (‏الامتناعُ مقيسٌ على: **{oname or (str(d0.get('set')) + ' · ' + str(d0.get('arm')))}**)")
+        abstain_report(src, plans)
     if a.cost:
         cost_report(a.riwayat.split(), a.heads.split())
     return 0

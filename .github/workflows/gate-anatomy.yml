@@ -437,16 +437,24 @@ jobs:
           WRITE_FLOOR=0
           case "$ARMS" in shipped*)
             case "$SETS" in
-              *g4n*) ;;
+              # 🧱 **وأرضيّةُ الضجيج تُودَع أيضاً — بملفٍّ آخرَ لا بالاسم نفسِه** (‏أُضيف
+              #    11:55Z): D-443③ وD-444 كلاهما احتاج أخطاءَ `g4n` وهي **×11 أخطاءَ
+              #    النظيف وشكوى المستخدم الأولى**، وكانت تُبنى في كلّ شوطٍ وتُرمى مع
+              #    العدّاء ⇒ كلُّ سؤالٍ عنها يكلّف شوطاً. ⛔ **ولا تُخلط بالنظيفة**: أساسان
+              #    مختلفان، وخلطُهما يجعل «الأساسَ» متحرّكاً فلا يقيس شيئاً.
+              *g4n*) WRITE_FLOOR=2 ;;
               *g4*) WRITE_FLOOR=1 ;;
             esac ;;
           esac
+          mkdir -p ../../results
           if [ "$WRITE_FLOOR" = "1" ] && [ -s work/clean_floor.json ]; then
-            mkdir -p ../../results
             cp work/clean_floor.json ../../results/CLEAN_FLOOR.json
             echo "🧱 أُودعت أرضيّةُ المشحون على النظيف (‏أساسٌ تُقابَل به الأذرعُ القادمة)."
+          elif [ "$WRITE_FLOOR" = "2" ] && [ -s work/clean_floor.json ]; then
+            cp work/clean_floor.json ../../results/NOISY_FLOOR.json
+            echo "🧱 أُودعت أرضيّةُ المشحون على المضجَّجة (‏فلا يكلّف السؤالُ عنها شوطاً)."
           else
-            echo "ℹ️ لا تُكتب الأرضيّةُ في هذا الشوط (‏ليست ذراعَ المشحون على `g4` النظيفة)."
+            echo "ℹ️ لا تُكتب الأرضيّةُ في هذا الشوط (‏ليست ذراعَ المشحون على `g4`/`g4n`)."
           fi
       - name: 💠 سعرُ البابِ المقفل — وأتُعمَّم القائمةُ على أرضيّةٍ محجوبةٍ أم تحفظ؟ (D-443)
         if: always()
@@ -645,6 +653,7 @@ jobs:
           git config user.email "ci@users.noreply.github.com"
           git add "$OUT" results/LATEST_anatomy.md
           [ -s results/CLEAN_FLOOR.json ] && git add results/CLEAN_FLOOR.json
+          [ -s results/NOISY_FLOOR.json ] && git add results/NOISY_FLOOR.json
           [ -s results/HYPS_INVENTORY.md ] && git add results/HYPS_INVENTORY.md
           git commit -q -m "results(anatomy): ${T} · الشوط ${{ github.run_id }}" || { echo "لا تغيير"; exit 0; }
           for i in 1 2 3; do
