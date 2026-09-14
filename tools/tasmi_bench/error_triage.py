@@ -629,6 +629,211 @@ def annotate(pairs, SCR=None, SC=None, lex_cache=None):
     return rows
 
 
+def pair_cost(rows, SCR, SC, load_text):
+    """💠 **سعرُ بابٍ مقفَل**: «اغفرْ هذه الأزواجَ بعينها (‏مرجعٌ ⇒ مسموعٌ) ولا شيءَ غيرَها».
+
+    ⭐ **ولِمَ يُقاس هذا البابُ بعد أن سقطت الأبوابُ الثلاثة؟** لأنّ D-390 قاست **أبواباً
+    عامّةً** (صنفٌ كاملٌ من الشبه) فكان ثمنُها 44٪–84٪ من مواضع المصحف ⇒ **ردٌّ بالثمن**.
+    وهذا بابٌ من جنسٍ آخر: **قائمةٌ مقفلةٌ** لا قاعدة — ثمنُها **محصورٌ ببنائه** في مواضع
+    الكلمة المرجعيّة وحدَها، فيُقاس ولا يُظنّ. (‏وD-389: أخطاءُ النظيف **ثابتةُ الموضع**
+    ×13.3 ⇒ قائمةٌ مقفلةٌ هي الشكلُ الذي يناسبها، لا رخصةٌ عامّة.)
+
+    ⇒ يُعيد لكلّ رواية: الأزواجَ الفريدةَ · و**مواضعَ يبلغها البابُ** (‏تكرارُ المرجع في
+    النصّ: عند كلِّ واحدٍ منها يصير المسموعُ مقبولاً) · و**مواضعَ عمًى** منها: ما يكون
+    المسموعُ فيه **صورةَ كلمةٍ قرآنيّةٍ أخرى** ⇒ زلّةٌ حقيقيّةٌ تُبتلَع.
+
+    ⛔ **وحدُّه يُقال:** غفرانُ لا-كلمةٍ ثمنُه **صفرٌ بهذه العملة** ولا يعني «بلا ثمنٍ
+    البتّة»: يبقى احتمالُ أن يُخرج فكُّ ترميزٍ **لتلاوةٍ خاطئةٍ** الرمزَ نفسَه — وذلك
+    **لا يُقاس من نصٍّ** بل بذراعٍ على صوتٍ مُحقَن، وضابطُه أدناه (`plan_collisions`).
+    """
+    out = {}
+    for riw in sorted({r["riwaya"] for r in rows}):
+        cfg = SC.config_for("proposed", riw)
+        occ, forms = counts_of(riw, cfg, SCR, load_text)
+        by_form = collections.defaultdict(set)
+        for k, fs in forms.items():
+            for f in fs:
+                by_form[f].add(k)
+        pairs, seen = [], set()
+        mute = accepted = 0
+        for r in rows:
+            if r["riwaya"] != riw:
+                continue
+            heard = (r.get("heard") or "").strip()
+            if heard in ("", "—"):
+                mute += 1                      # صفرُ نصٍّ: لا زوجَ يُغفر — البابُ لا يبلغه
+                continue
+            fsr = forms_of(r["ref"], cfg, SCR)
+            k, h = fsr[0], SCR.norm(heard, cfg)
+            if SCR._matches(fsr, h, cfg):
+                accepted += 1                  # مقبولٌ أصلاً ⇒ العطبُ في خطِّ القراءة
+                continue
+            if (k, h) in seen:
+                continue
+            seen.add((k, h))
+            others = by_form.get(h, set()) - {k}
+            pairs.append((k, h, occ.get(k, 0), sorted(others)[:2]))
+        out[riw] = {
+            "pairs": pairs,
+            "reach": sum(p[2] for p in pairs),
+            "blind": sum(p[2] for p in pairs if p[3]),
+            "total": sum(occ.values()),
+            "mute": mute,
+            "accepted": accepted,
+        }
+    return out
+
+
+def pair_generalize(rows, SCR, SC, load_text):
+    """⛔⛔ **أتُعمَّم القائمةُ أم تحفظ عيّنتَها؟ — والفرقُ بينهما قياسٌ لا رأي.**
+
+    قائمةٌ مقفلةٌ **مبنيّةٌ من العيّنة التي تُقاس عليها** تكسب دائماً (‏تغفر ما رأته) ⇒ **والرقمُ
+    كذبٌ**. فالسؤالُ: لو بُنيت من **نصفِ البنود** كم تغفر من أخطاء **النصف الآخر**؟ والقسمةُ
+    **ثابتةٌ لا عشوائيّة** (‏بالتناوب على ترتيبٍ مُرتَّب) كي يُعاد الرقمُ حرفاً.
+
+    ويُقاس شكلان: **بالزوج** (مرجعٌ ⇒ مسموعٌ بعينه) و**بالمرجع** (اغفرْ لهذه الكلمةِ أيَّ
+    سماع) — فإن كان الأوّلُ صفراً والثانيُ أكبرَ منه فالمتكرّرُ **الكلمةُ** لا **السماعُ**،
+    ⇒ والشكلُ الذي يُعمَّم هو الأغلى، ⛔ فلا يُقترح قبل أن يُسعَّر بدوره.
+    """
+    cfgs, keyed = {}, []
+    for r in rows:
+        riw = r["riwaya"]
+        if riw not in cfgs:
+            cfgs[riw] = SC.config_for("proposed", riw)
+        heard = (r.get("heard") or "").strip()
+        if heard in ("", "—"):
+            continue
+        fs = forms_of(r["ref"], cfgs[riw], SCR)
+        h = SCR.norm(heard, cfgs[riw])
+        if SCR._matches(fs, h, cfgs[riw]):
+            continue
+        keyed.append((r.get("item", ""), riw, fs[0], h))
+    items = sorted({k[0] for k in keyed})
+    halves = (set(items[0::2]), set(items[1::2]))
+    out = []
+    for i, build in enumerate(halves):
+        test = [k for k in keyed if k[0] not in build]
+        pairs = {(k[1], k[2], k[3]) for k in keyed if k[0] in build}
+        refs = {(k[1], k[2]) for k in keyed if k[0] in build}
+        out.append({
+            "name": f"النصفُ {i + 1}",
+            "built": len(pairs),
+            "n": len(test),
+            "by_pair": sum(1 for k in test if (k[1], k[2], k[3]) in pairs),
+            "by_ref": sum(1 for k in test if (k[1], k[2]) in refs),
+        })
+    uniq_refs = len({(k[1], k[2]) for k in keyed})
+    return out, len(keyed), uniq_refs
+
+
+def plan_collisions(pair_out, SCR, SC, plans):
+    """⛔⛔ **الضابطُ السالبُ للبابِ المقفل — ولا يُقترح بابٌ بلا هذا السؤال:**
+
+    أيغفر هذا البابُ **عطباً مصنوعاً في خططنا** (‏`SUBSTITUTE`: كلمةٌ أُبدلت بكلمةِ آيةٍ
+    أخرى بصوت القارئ نفسِه)؟ فإن وافق زوجٌ من القائمة زوجَ حقنٍ ⇒ **القائمةُ تعمي عن خطإٍ
+    مكتوبٍ في حقيقتنا الأرضيّة**، وذلك ردٌّ لا نقاش فيه.
+
+    ⇒ `(عددُ الإبدالات المفحوصة، قائمةُ التوافقات)`. والمقابلةُ **باتّحاد الأزواج عبر
+    الروايات** (أقسى قراءةٍ) لا برواية كلِّ خطّةٍ وحدَها.
+    """
+    allow = set()
+    for d in pair_out.values():
+        for k, h, _n, _o in d["pairs"]:
+            allow.add((k, h))
+    hits, checked = [], 0
+    for p in plans:
+        try:
+            items = json.load(open(p, encoding="utf-8")).get("items", [])
+        except Exception as e:
+            hits.append(("⛔ لم تُقرأ الخطّة", os.path.basename(p), str(e)))
+            continue
+        for it in items:
+            if it.get("op") != "SUBSTITUTE":
+                continue
+            dw = (it.get("donor") or {}).get("word") or ""
+            tw = it.get("targetWord") or ""
+            if not dw or not tw:
+                continue
+            checked += 1
+            cfg = SC.config_for("proposed", it.get("riwaya", "hafs"))
+            k = forms_of(tw, cfg, SCR)[0]
+            h = SCR.norm(dw, cfg)
+            if (k, h) in allow:
+                hits.append((it.get("id", "?"), k, h))
+    return checked, hits
+
+
+def pair_report(rows, plans=(), items=()):
+    """يطبع جدولَ البابِ المقفل وضابطَه السالب — ولا يُشحن منه شيء."""
+    SCR, SC = _mods()
+    from common import load_text
+    out = pair_cost(rows, SCR, SC, load_text)
+    print("\n### 💠 سعرُ **بابٍ مقفَل** — «اغفرْ هذه الأزواجَ بعينها ولا شيءَ غيرَها»\n")
+    print("| الرواية | أزواجٌ فريدة | مواضعُ يبلغها البابُ | **مواضعُ عمًى** | من النصّ | "
+          "لا يبلغها (صفرُ نصٍّ · مقبولٌ أصلاً) |")
+    print("|---|---:|---:|---:|---:|---:|")
+    for riw, d in out.items():
+        pct = 100.0 * d["blind"] / d["total"] if d["total"] else 0.0
+        print(f"| `{riw}` | {len(d['pairs'])} | {d['reach']} | **{d['blind']}** | {pct:.3f}٪ | "
+              f"{d['mute']} · {d['accepted']} |")
+    for riw, d in out.items():
+        risky = [p for p in d["pairs"] if p[3]]
+        if risky:
+            print(f"\n⛔ **وأزواجُ `{riw}` التي المسموعُ فيها كلمةٌ قرآنيّةٌ أخرى** "
+                  "(‏هذه وحدَها ثمنُ الباب):")
+            for k, h, n, o in risky:
+                print(f"   ⛔ `{k}` ⇒ `{h}` — و`{h}` صورةُ {' · '.join(f'`{x}`' for x in o)} "
+                      f"· مواضعُ `{k}`: {n}")
+    # ⭐⭐ **والثمنُ ليس خاصّيّةَ «القائمةِ المقفلة» بل خاصّيّةُ تكرارِ مرجعها:** زوجٌ واحدٌ
+    #    مرجعُه كلمةٌ عاليةُ التكرار يكلّف أكثرَ من كلِّ ما سواه مجتمعاً ⇒ يُقاس السعرُ
+    #    **بسقوفِ تكرارٍ** لا برقمٍ واحد، فيُرى الحدُّ الذي يصير عنده البابُ رخيصاً.
+    caps = [0, 100, 20, 5]
+    print("\n#### 📉 والسعرُ بسقفِ تكرارِ المرجع (‏0 = بلا سقف) — **زوجٌ واحدٌ ثمنُه أكثرُ من الباقي**\n")
+    print("| الرواية | السقف | أزواجٌ باقية | مواضعُ يبلغها | **مواضعُ عمًى** | من النصّ |")
+    print("|---|---:|---:|---:|---:|---:|")
+    for riw, d in out.items():
+        for c in caps:
+            keep = [p for p in d["pairs"] if not c or p[2] <= c]
+            blind = sum(p[2] for p in keep if p[3])
+            pct = 100.0 * blind / d["total"] if d["total"] else 0.0
+            print(f"| `{riw}` | {'—' if not c else c} | {len(keep)} | "
+                  f"{sum(p[2] for p in keep)} | **{blind}** | {pct:.4f}٪ |")
+    gen, n_keyed, uniq_refs = pair_generalize(rows, SCR, SC, load_text)
+    print("\n#### 🔍 **أتُعمَّم أم تحفظ؟** — تُبنى القائمةُ من نصفِ البنود وتُقاس على النصف الآخر\n")
+    print("| بُنيت من | أزواجٌ فيها | أخطاءُ النصف الآخر | يغفرها **بالزوج** | يغفرها **بالمرجع** |")
+    print("|---|---:|---:|---:|---:|")
+    for g in gen:
+        print(f"| {g['name']} | {g['built']} | {g['n']} | **{g['by_pair']}** | **{g['by_ref']}** |")
+    print(f"\n⭐ **وبنيةُ العيّنة:** {n_keyed} خطأً يقبل الغفرانَ · **{uniq_refs}** مرجعاً "
+          "فريداً ⇒ فكلُّ مرجعٍ يُخطأ فيه مرّةً أو مرّتَين. **والصفرُ في عمود «بالزوج» يعني "
+          "حفظاً لا تعلُّماً** — ولا يُشحن ما هذا برهانُه.")
+    checked, hits = plan_collisions(out, SCR, SC, plans)
+    print(f"\n🧪 **الضابطُ السالبُ:** قوبلت القائمةُ بـ**{checked}** إبدالاً مصنوعاً في "
+          f"خطط الحقن ⇒ **توافقات: {len(hits)}**"
+          + ("" if not hits else " ⛔ " + " · ".join(str(h) for h in hits[:5])))
+    if not checked:
+        print("⛔ **ولا يُقرأ صفرُ توافقٍ سلامةً**: صفرُ إبدالاتٍ مفحوصةٍ يعني أنّ الخططَ "
+              "لم تُقرأ — لا أنّ القائمةَ نظيفة.")
+    if items:
+        nw = 0
+        try:
+            from common import load_index
+            index = load_index()
+            for iid in items:
+                _riw, ws = item_words(iid, load_text, index)
+                nw += len(ws or [])
+        except Exception as e:
+            print(f"⚠️ لم تُبنَ كلماتُ البنود ({e}) ⇒ **سقفُ الكسب لم يُحسب**")
+            nw = 0
+        forg = sum(len(d["pairs"]) for d in out.values())
+        if nw:
+            print(f"\n📐 **وسقفُ الكسب حسابيٌّ لا مقيسٌ على محرّك**: {forg} خطأً يغفرها البابُ "
+                  f"من **{nw}** كلمةً في {len(items)} بنداً ⇒ **{100.0 * forg / nw:.2f}** نقطةً "
+                  "سقفاً (‏وكلُّ زوجٍ يُغفر مرّةً واحدةً في موضعه، فالسقفُ لا يُبلغ إلّا إن "
+                  "تكرّر السماعُ نفسُه). ⛔ **ولا يدخل لوحةَ النتائج رقمٌ لم يُقَس على المحرك.**")
+    return out
+
+
 def cost_report(riwayat, heads=()):
     SCR, SC = _mods()
     from common import load_text
@@ -790,6 +995,59 @@ def selftest():
             print(f"⛔ سعرٌ صناعيّ: انتُظر (‏الذَنَب 1 · الصدر 0) فجاء "
                   f"({out.get(HEAD, 0)} · {out.get(TAIL, 0)}) · المواضع {tot} · الفريدة {nu}")
             ok = False
+    # 💠 **وضوابطُ البابِ المقفل — على نصٍّ صناعيٍّ معلومِ الجواب** (‏وفيه ضابطٌ سالب)
+    def lt3(_r):
+        return ["قل خير", "قل", "قل", "الغيب"]     # «قل» ثلاثُ مواضعَ · «الغيب» موضعٌ
+    rows_p = [
+        {"riwaya": "warsh", "ref": "قل", "heard": "خير"},      # المسموعُ كلمةٌ أخرى ⇒ يُدفع 3
+        {"riwaya": "warsh", "ref": "الغيب", "heard": "زقزق"},  # ليس كلمةً ⇒ يبلغ 1 ويُدفع 0
+        {"riwaya": "warsh", "ref": "الغيب", "heard": ""},      # صفرُ نصٍّ ⇒ لا زوجَ
+        {"riwaya": "warsh", "ref": "قل", "heard": "خير"},      # مكرَّرٌ ⇒ لا يُحسب مرّتَين
+    ]
+    d = pair_cost(rows_p, SCR, SC, lt3)["warsh"]
+    if (len(d["pairs"]), d["reach"], d["blind"], d["mute"]) != (2, 4, 3, 1):
+        print(f"⛔ pair_cost صناعيّاً: انتُظر (‏زوجان · يبلغ 4 · يعمى 3 · صامتٌ 1) فجاء "
+              f"({len(d['pairs'])} · {d['reach']} · {d['blind']} · {d['mute']})")
+        ok = False
+    # 🔍 وضابطُ التعميم: زوجٌ يتكرّر في بندَين **يُغفر** في المحجوب، وفريدٌ **لا يُغفر**
+    rows_g = [
+        {"riwaya": "warsh", "ref": "قل", "heard": "خير", "item": "long_warsh_001_001x1"},
+        {"riwaya": "warsh", "ref": "قل", "heard": "خير", "item": "long_warsh_002_001x1"},
+        {"riwaya": "warsh", "ref": "الغيب", "heard": "زقزق", "item": "long_warsh_002_001x1"},
+    ]
+    gen, nk, ur = pair_generalize(rows_g, SCR, SC, lt3)
+    g1 = [g for g in gen if g["name"].endswith("1")][0]
+    if (nk, ur, g1["by_pair"], g1["n"]) != (3, 2, 1, 2):
+        print(f"⛔ pair_generalize صناعيّاً: انتُظر (3 · مرجعان · يغفر 1 من 2) فجاء "
+              f"({nk} · {ur} · {g1['by_pair']} من {g1['n']})")
+        ok = False
+    # ⛔ وضابطٌ سالبٌ: أزواجٌ لا تتكرّر بين البنود ⇒ **صفرُ غفرانٍ** في المحجوب (‏حفظٌ لا تعميم)
+    rows_u = [
+        {"riwaya": "warsh", "ref": "قل", "heard": "خير", "item": "long_warsh_001_001x1"},
+        {"riwaya": "warsh", "ref": "الغيب", "heard": "زقزق", "item": "long_warsh_002_001x1"},
+    ]
+    gu = pair_generalize(rows_u, SCR, SC, lt3)[0]
+    if any(g["by_pair"] for g in gu):
+        print(f"⛔ pair_generalize: أزواجٌ فريدةٌ يجب أن تُعطي صفرَ غفرانٍ فجاء {gu}")
+        ok = False
+    # ⛔⛔ **والضابطُ الذي لا يُستغنى عنه:** قائمةٌ فيها زوجُ حقنٍ مصنوعٍ **تُكشف**
+    import tempfile
+    with tempfile.TemporaryDirectory() as td:
+        plan = os.path.join(td, "p.json")
+        json.dump({"items": [
+            {"id": "inj_x", "op": "SUBSTITUTE", "riwaya": "warsh", "targetWord": "قل",
+             "donor": {"word": "خير"}},
+            {"id": "inj_y", "op": "OMIT", "riwaya": "warsh", "targetWord": "قل"},
+        ]}, open(plan, "w", encoding="utf-8"), ensure_ascii=False)
+        checked, hits = plan_collisions({"warsh": d}, SCR, SC, [plan])
+        if checked != 1 or len(hits) != 1:
+            print(f"⛔ plan_collisions: انتُظر (‏فُحص 1 · توافقٌ 1) فجاء ({checked} · {len(hits)})")
+            ok = False
+        # وخطّةٌ لا تُقرأ **تُعلَن** ولا تُقرأ «صفرَ توافق»
+        c2, h2s = plan_collisions({"warsh": d}, SCR, SC, [os.path.join(td, "لا-وجود.json")])
+        if c2 != 0 or not h2s:
+            print(f"⛔ خطّةٌ غائبةٌ يجب أن تُعلَن لا أن تمرّ: ({c2} · {h2s})")
+            ok = False
     print("✅ الضوابطُ كلُّها مرّت." if ok else "⛔ سقط ضابطٌ — لا يُقرأ من هذه الأداة رقمٌ.")
     return 0 if ok else 1
 
@@ -808,6 +1066,9 @@ def main():
                     help="🧭 أمِن البند نفسِه جاءت الكلمةُ المسموعةُ أم من خارجه؟")
     ap.add_argument("--riwayat", default="warsh qalun")
     ap.add_argument("--heads", default="", help="صدورٌ ساقطةٌ يُقاس سعرُ بابِ كلٍّ منها وحدَه")
+    ap.add_argument("--pair-door", default="", help="💠 يُسعّر بابَ قائمةٍ مقفلةٍ من أرضيّةٍ مكتوبة")
+    ap.add_argument("--plans", default="inject_plan.json inject_plan_qalun.json inject_plan_riwaya.json",
+                    help="⛔ خططُ الحقن التي تُقابَل بها القائمةُ (الضابطُ السالب)")
     ap.add_argument("--selftest", action="store_true")
     a = ap.parse_args()
     if a.selftest:
@@ -856,6 +1117,17 @@ def main():
             print(f"⛔ لا فرضيّاتٍ قُرئت في {dirs} للذراعَين `{a.arms}` والمجموعات `{a.sets}` "
                   f"⇒ **لا تصنيفَ** (وهذا «لم يُقَس» لا «لا أخطاء»).")
             return 3
+    if a.pair_door:
+        d0 = json.load(open(a.pair_door, encoding="utf-8"))
+        rows = d0.get("rows") or []
+        if not rows:
+            print(f"⛔ لا مواضعَ في `{os.path.basename(a.pair_door)}` ⇒ **لا يُسعَّر بابٌ على "
+                  "فراغ** (وهذا «لم يُقَس» لا «صفرُ ثمن»).")
+            return 3
+        print(f"\n## 💠 بابٌ مقفَلٌ على أرضيّةِ `{d0.get('set')}` · `{d0.get('arm')}` — "
+              f"**{len(rows)}** موضعاً في **{len(d0.get('items') or [])}** بنداً")
+        plans = [p if os.path.isabs(p) else os.path.join(HERE, p) for p in a.plans.split()]
+        pair_report(rows, plans, d0.get("items") or ())
     if a.cost:
         cost_report(a.riwayat.split(), a.heads.split())
     return 0
