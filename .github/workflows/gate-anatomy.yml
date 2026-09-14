@@ -220,7 +220,11 @@ jobs:
           # «المحرك (المحاكي)» أو «مرآةُ المحرك (whisper-cli)» **بحسب كيف استُدعي** لا بحسب
           # مصدرِ الفرضيّات ⇒ جدولٌ من فرضيّات محاكٍ قد يُوسَم مرآةً (والعكس)، **والوسمُ الكاذبُ
           # يُسقط رقماً صحيحاً أو يرفع رقماً لا يُشحن به**. ⇒ تُطبع ترويسةُ كلّ ملفٍّ كما هي.
-          python3 - <<'PY' | tee work/provenance.md
+          # 🪤 **فخُّ الأنبوب الكاتم** (‏كشفه حارسُ `workflow_heredoc_guard.py`، ووقع فعلاً في
+          #    الشوط `34795058366`): حالةُ `cmd | tee f` حالةُ `tee` ⇒ صفرٌ دائماً. فـ`pipefail`
+          #    يُرجع حالةَ الأداة، و`||` **يشتعل فعلاً** فيكتب السببَ في الجدول ولا يُسقط الشوط.
+          set -o pipefail
+          python3 - <<'PY' | tee work/provenance.md || { echo "⚠️ **تعذّر جدولُ النسب** — والأثرُ يُقرأ بحذر" | tee -a work/provenance.md; }
           import glob, json
           print("| ملفُّ الفرضيّات | المحرك كما كتبه الشوط | الجهاز | النموذج | الواجهة | 🧬 شفرةُ المقياس | 🧬 بناءُ المحرك |")
           print("|---|---|---|---|---|---|---|")
@@ -276,7 +280,11 @@ jobs:
           # ⭐ **لِمَ هنا وليس في شوط المحاكي:** جدولُ `v2_gate --score-only` يقيس مجموعاتِه
           #    المبنيّةَ فيه ولا يرى `g4*` البتّة ⇒ ذراعٌ محفوظةٌ على `g4n` لا تُقرأ بلا شوطٍ
           #    جديد. والمنطقُ في `read_tables.py` **مختبَراً** (‏`--selftest`) لا مضمَّناً.
-          python read_tables.py track --arms "$ARMS" --sets "$SETS" --dir work | tee work/track.md
+          # 🪤 **فخُّ الأنبوب الكاتم** (‏كشفه حارسُ `workflow_heredoc_guard.py`، ووقع فعلاً في
+          #    الشوط `34795058366`): حالةُ `cmd | tee f` حالةُ `tee` ⇒ صفرٌ دائماً. فـ`pipefail`
+          #    يُرجع حالةَ الأداة، و`||` **يشتعل فعلاً** فيكتب السببَ في الجدول ولا يُسقط الشوط.
+          set -o pipefail
+          python read_tables.py track --arms "$ARMS" --sets "$SETS" --dir work | tee work/track.md || { echo "⚠️ **تعذّر جدولُ التتبّع** (يُقال ولا يُكتَم) — انظر سجلَّ الخطوة" | tee -a work/track.md; }
       - name: 🛡️ حارسُ «ذراعان متطابقتان» — على **النصّ** لا على المجال
         env:
           PYTHONIOENCODING: utf-8
@@ -284,7 +292,11 @@ jobs:
           cd tools/tasmi_bench
           # ⭐ المنطقُ في `read_tables.py` (‏وله `--selftest`) لا مضمَّناً هنا: شفرةُ YAML
           #    **لا يفحصها حارسُ المرآة ولا تُختبر** ⇒ وثغرةُ الجرد المضمَّن كانت من هذا الجنس.
-          python read_tables.py identical --arms "$ARMS" --dir work | tee work/identical.md
+          # 🪤 **فخُّ الأنبوب الكاتم** (‏كشفه حارسُ `workflow_heredoc_guard.py`، ووقع فعلاً في
+          #    الشوط `34795058366`): حالةُ `cmd | tee f` حالةُ `tee` ⇒ صفرٌ دائماً. فـ`pipefail`
+          #    يُرجع حالةَ الأداة، و`||` **يشتعل فعلاً** فيكتب السببَ في الجدول ولا يُسقط الشوط.
+          set -o pipefail
+          python read_tables.py identical --arms "$ARMS" --dir work | tee work/identical.md || { echo "⚠️ **تعذّر حارسُ التطابق** — ولا يُقرأ غيابُه براءةً" | tee -a work/identical.md; }
       - name: التشريحُ صنفاً صنفاً
         env:
           PYTHONIOENCODING: utf-8
@@ -303,7 +315,11 @@ jobs:
         run: |
           cd tools/tasmi_bench
           # الأذرعُ التي وُجدت لها فرضيّاتُ `g1` وحدَها (‏قد تكون واحدةً — ولا يُسكت ذلك القياس).
-          python extras_noise_probe.py --dirs "work:" --arms $CLEAN_ARMS --clean | tee work/extras_clean.md
+          # 🪤 **فخُّ الأنبوب الكاتم** (‏كشفه حارسُ `workflow_heredoc_guard.py`، ووقع فعلاً في
+          #    الشوط `34795058366`): حالةُ `cmd | tee f` حالةُ `tee` ⇒ صفرٌ دائماً. فـ`pipefail`
+          #    يُرجع حالةَ الأداة، و`||` **يشتعل فعلاً** فيكتب السببَ في الجدول ولا يُسقط الشوط.
+          set -o pipefail
+          python extras_noise_probe.py --dirs "work:" --arms $CLEAN_ARMS --clean | tee work/extras_clean.md || { echo "⚠️ **تعذّر مسبارُ الزوائد على النظيف**" | tee -a work/extras_clean.md; }
       - name: 🧹 الزوائدُ الكاذبة (‏قناةٌ لا يعدّها الاتّهامُ الكاذب)
         env:
           PYTHONIOENCODING: utf-8
@@ -347,7 +363,11 @@ jobs:
           PYTHONIOENCODING: utf-8
         run: |
           cd tools/tasmi_bench
-          python tie_rule_ab.py --dirs "work:" --arm "$RULE_AB" | tee work/rule_ab.md
+          # 🪤 **فخُّ الأنبوب الكاتم** (‏كشفه حارسُ `workflow_heredoc_guard.py`، ووقع فعلاً في
+          #    الشوط `34795058366`): حالةُ `cmd | tee f` حالةُ `tee` ⇒ صفرٌ دائماً. فـ`pipefail`
+          #    يُرجع حالةَ الأداة، و`||` **يشتعل فعلاً** فيكتب السببَ في الجدول ولا يُسقط الشوط.
+          set -o pipefail
+          python tie_rule_ab.py --dirs "work:" --arm "$RULE_AB" | tee work/rule_ab.md || { echo "⚠️ **تعذّر قياسُ قاعدة التعادل**" | tee -a work/rule_ab.md; }
       - name: 🌊 جرفُ الخطأ في التلاوة الطويلة (‏إن طُلبت `g4*`) — تعليلُ D-335 يُقاس
         env:
           PYTHONIOENCODING: utf-8
