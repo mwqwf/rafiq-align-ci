@@ -726,6 +726,43 @@ def pair_generalize(rows, SCR, SC, load_text):
     return out, len(keyed), uniq_refs
 
 
+def pair_against(rows, other, SCR, SC, load_text):
+    """🎯 **قائمةٌ من أرضيّةٍ تُقاس على أرضيّةٍ أخرى** — الخطوةُ التي سمّتها D-443 بنصّها.
+
+    القسمةُ الداخليّةُ (`pair_generalize`) تحجب **البناءَ** ولا تحجب **الصوتَ والنموذج**:
+    بنودُ النصفَين من المجموعة والذراع نفسِهما. وهذه تحجب المجموعةَ كلَّها (‏`g4` ⇒ `g4n`
+    المضجَّجة · أو ملحٌ آخر) ⇒ **فهي الشهادةُ التي يُبنى عليها شحنٌ، لا القسمة.**
+
+    ⛔ **ولا يُقرأ صفرُ تغطيةٍ «ثمناً»**: هو خبرٌ عن **الكسب** وحدَه (‏القائمةُ لا تغفر أخطاءَ
+    هذه الأرضيّة) — والثمنُ مصحفيٌّ قِيس في `pair_cost` ولا يتغيّر بأرضيّة.
+    """
+    def keys(rs):
+        cfgs, out = {}, []
+        for r in rs:
+            riw = r.get("riwaya", "")
+            if riw not in cfgs:
+                cfgs[riw] = SC.config_for("proposed", riw)
+            heard = (r.get("heard") or "").strip()
+            if heard in ("", "—"):
+                continue
+            fs = forms_of(r["ref"], cfgs[riw], SCR)
+            h = SCR.norm(heard, cfgs[riw])
+            if SCR._matches(fs, h, cfgs[riw]):
+                continue
+            out.append((riw, fs[0], h))
+        return out
+    built = set(keys(rows))
+    refs = {(a, b) for a, b, _ in built}
+    tgt = keys(other)
+    return {
+        "built": len(built),
+        "n": len(tgt),
+        "by_pair": sum(1 for k in tgt if k in built),
+        "by_ref": sum(1 for k in tgt if (k[0], k[1]) in refs),
+        "mute": sum(1 for r in other if (r.get("heard") or "").strip() in ("", "—")),
+    }
+
+
 def plan_collisions(pair_out, SCR, SC, plans):
     """⛔⛔ **الضابطُ السالبُ للبابِ المقفل — ولا يُقترح بابٌ بلا هذا السؤال:**
 
@@ -763,7 +800,7 @@ def plan_collisions(pair_out, SCR, SC, plans):
     return checked, hits
 
 
-def pair_report(rows, plans=(), items=()):
+def pair_report(rows, plans=(), items=(), against=None, against_name=""):
     """يطبع جدولَ البابِ المقفل وضابطَه السالب — ولا يُشحن منه شيء."""
     SCR, SC = _mods()
     from common import load_text
@@ -807,6 +844,19 @@ def pair_report(rows, plans=(), items=()):
     print(f"\n⭐ **وبنيةُ العيّنة:** {n_keyed} خطأً يقبل الغفرانَ · **{uniq_refs}** مرجعاً "
           "فريداً ⇒ فكلُّ مرجعٍ يُخطأ فيه مرّةً أو مرّتَين. **والصفرُ في عمود «بالزوج» يعني "
           "حفظاً لا تعلُّماً** — ولا يُشحن ما هذا برهانُه.")
+    if against:
+        g = pair_against(rows, against, SCR, SC, load_text)
+        print(f"\n#### 🎯 **وعلى أرضيّةٍ أخرى محجوبةٍ بتمامها** — `{against_name}`\n")
+        print("| القائمةُ من | أزواجٌ فيها | أخطاءُ الأرضيّة الأخرى | يغفرها **بالزوج** | "
+              "بالمرجع | صفرُ نصٍّ فيها |")
+        print("|---|---:|---:|---:|---:|---:|")
+        pct = 100.0 * g["by_pair"] / g["n"] if g["n"] else 0.0
+        print(f"| الأرضيّةُ الأولى | {g['built']} | {g['n']} | **{g['by_pair']}** ({pct:.1f}٪) | "
+              f"{g['by_ref']} | {g['mute']} |")
+        if not g["n"]:
+            print("⛔ **صفرُ أخطاءٍ في الأرضيّة الأخرى ⇒ لم يُقَس** (ولا يُقرأ هذا تعميماً).")
+        print("⛔ **ولا يُقرأ صفرُ تغطيةٍ ثمناً**: هو خبرٌ عن الكسب وحدَه — والثمنُ مصحفيٌّ "
+              "قِيس أعلاه ولا يتغيّر بأرضيّة.")
     checked, hits = plan_collisions(out, SCR, SC, plans)
     print(f"\n🧪 **الضابطُ السالبُ:** قوبلت القائمةُ بـ**{checked}** إبدالاً مصنوعاً في "
           f"خطط الحقن ⇒ **توافقات: {len(hits)}**"
@@ -1030,6 +1080,20 @@ def selftest():
     if any(g["by_pair"] for g in gu):
         print(f"⛔ pair_generalize: أزواجٌ فريدةٌ يجب أن تُعطي صفرَ غفرانٍ فجاء {gu}")
         ok = False
+    # 🎯 وضابطُ الأرضيّة الأخرى: زوجٌ مشتركٌ يُغفر · ومختلفٌ لا · وأرضيّةٌ فارغةٌ «لم تُقَس»
+    g_self = pair_against(rows_g, rows_g, SCR, SC, lt3)
+    # ⭐ ومرجعٌ من القائمة بسماعٍ آخر: **بالزوج صفرٌ وبالمرجع واحدٌ** — وهذا معنى العمودَين
+    g_off = pair_against(rows_g, [{"riwaya": "warsh", "ref": "الغيب", "heard": "خير",
+                                   "item": "x"}], SCR, SC, lt3)
+    # ومرجعٌ ليس فيها البتّة ⇒ صفرٌ في العمودَين
+    g_new = pair_against(rows_g, [{"riwaya": "warsh", "ref": "خير", "heard": "زقزق",
+                                   "item": "x"}], SCR, SC, lt3)
+    g_nil = pair_against(rows_g, [], SCR, SC, lt3)
+    if (g_self["by_pair"] != g_self["n"] or (g_off["by_pair"], g_off["by_ref"]) != (0, 1)
+            or (g_new["by_pair"], g_new["by_ref"]) != (0, 0) or g_nil["n"]):
+        print(f"⛔ pair_against: انتُظر (‏نفسُها كلُّها · مرجعٌ بسماعٍ آخرَ 0/1 · غريبٌ 0/0 · "
+              f"فارغةٌ 0) فجاء ({g_self} · {g_off} · {g_new} · {g_nil})")
+        ok = False
     # ⛔⛔ **والضابطُ الذي لا يُستغنى عنه:** قائمةٌ فيها زوجُ حقنٍ مصنوعٍ **تُكشف**
     import tempfile
     with tempfile.TemporaryDirectory() as td:
@@ -1069,6 +1133,8 @@ def main():
     ap.add_argument("--pair-door", default="", help="💠 يُسعّر بابَ قائمةٍ مقفلةٍ من أرضيّةٍ مكتوبة")
     ap.add_argument("--plans", default="inject_plan.json inject_plan_qalun.json inject_plan_riwaya.json",
                     help="⛔ خططُ الحقن التي تُقابَل بها القائمةُ (الضابطُ السالب)")
+    ap.add_argument("--against", default="",
+                    help="🎯 أرضيّةٌ أخرى (‏مجموعةٌ محجوبةٌ بتمامها) تُقاس عليها القائمةُ")
     ap.add_argument("--selftest", action="store_true")
     a = ap.parse_args()
     if a.selftest:
@@ -1127,7 +1193,16 @@ def main():
         print(f"\n## 💠 بابٌ مقفَلٌ على أرضيّةِ `{d0.get('set')}` · `{d0.get('arm')}` — "
               f"**{len(rows)}** موضعاً في **{len(d0.get('items') or [])}** بنداً")
         plans = [p if os.path.isabs(p) else os.path.join(HERE, p) for p in a.plans.split()]
-        pair_report(rows, plans, d0.get("items") or ())
+        other, oname = None, ""
+        if a.against:
+            d1 = json.load(open(a.against, encoding="utf-8"))
+            other = d1.get("rows") or []
+            oname = f"{d1.get('set')} · {d1.get('arm')}"
+            if not other:
+                print(f"⛔ لا مواضعَ في `{os.path.basename(a.against)}` ⇒ **الأرضيّةُ الأخرى "
+                      "لم تُقَس** (ولا تُقرأ فراغاً).")
+                return 3
+        pair_report(rows, plans, d0.get("items") or (), other, oname)
     if a.cost:
         cost_report(a.riwayat.split(), a.heads.split())
     return 0

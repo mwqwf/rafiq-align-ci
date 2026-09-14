@@ -442,6 +442,36 @@ jobs:
           else
             echo "ℹ️ لا تُكتب الأرضيّةُ في هذا الشوط (‏ليست ذراعَ المشحون على `g4` النظيفة)."
           fi
+      - name: 💠 سعرُ البابِ المقفل — وأتُعمَّم القائمةُ على أرضيّةٍ محجوبةٍ أم تحفظ؟ (D-443)
+        if: always()
+        env:
+          PYTHONIOENCODING: utf-8
+        run: |
+          set -o pipefail
+          cd tools/tasmi_bench
+          # ⛔ **كشفٌ لا شحنٌ** — يُسعَّر بابُ «اغفرْ هذه الأزواجَ بعينها» بعملة D-390 (مواضعُ
+          #    عمًى في المصحف كلِّه) ويُقابَل بـ125 إبدالاً مصنوعاً في خطط الحقن. ولا يُفتح باب.
+          # 🎯 **والشهادةُ التي يُبنى عليها شحنٌ هي هذه الخطوةُ لا القسمةُ الداخليّة**: القائمةُ
+          #    من أرضيّة المشحون على `g4` النظيفة (‏المُودَعةُ في `results/`) تُقاس على أرضيّةِ
+          #    **هذا الشوط** — فإن كان `SETS` غيرَها (‏`g4n` المضجَّجة · أو ملحٌ آخر) فالأرضيّةُ
+          #    **محجوبةٌ عن البناء والصوت والنموذج** معاً.
+          if [ ! -f ../../results/CLEAN_FLOOR.json ]; then
+            echo "ℹ️ لا أرضيّةَ مُودَعةٌ بعد ⇒ لا قائمةَ تُبنى (‏وهذا «لم يُقَس» لا «صفرُ ثمن»)." > work/pairdoor.md
+            cat work/pairdoor.md; exit 0
+          fi
+          AGAINST=""
+          # ⛔ ولا تُقاس القائمةُ على الأرضيّة التي بُنيت منها — فذلك 100٪ بالبناء لا بالقياس.
+          if [ -s work/clean_floor.json ] && ! cmp -s work/clean_floor.json ../../results/CLEAN_FLOOR.json; then
+            AGAINST="--against work/clean_floor.json"
+          fi
+          if python error_triage.py --pair-door ../../results/CLEAN_FLOOR.json $AGAINST             > work/pairdoor.md 2> work/pairdoor.err; then
+            [ -n "$AGAINST" ] || echo "ℹ️ **لا أرضيّةَ محجوبةٌ في هذا الشوط** (‏أرضيّتُه هي التي بُنيت منها القائمةُ أو لم تُكتب) ⇒ **السعرُ وحدَه قِيس، والتعميمُ لم يُقَس**." >> work/pairdoor.md
+          else
+            { echo "### 💠 البابُ المقفل — ⚠️ **تعذّر**، ونصُّ الخطأ كما هو:"; echo
+              echo '```'; tail -12 work/pairdoor.err; echo '```'; } >> work/pairdoor.md
+          fi
+          [ -s work/pairdoor.md ] || echo "⚠️ **خرج فارغاً بلا خطأ** — «لم يُقَس» لا «صفرُ ثمن»." > work/pairdoor.md
+          cat work/pairdoor.md
       - name: 🧾 جردُ الفرضيّات المحفوظة في R2 (‏فلا يُعاد قياسُ ما هو مقروءٌ بدقيقة)
         if: always()
         env:
@@ -540,7 +570,7 @@ jobs:
           #     التشريحُ الفارغُ فيُكتب سببُه في الملفّ ولا يُسقط الشوط.
           [ -s "$M" ] || echo "⚠️ لا تشريحَ حقنٍ لهذه المجموعات (‏مجموعاتُ \`g4*\` تلاوةٌ طويلةٌ غيرُ محقونة) — والأرقامُ في الجداول أعلاه." > "$M"
           HAVE=0
-          for f in work/track.md work/gate.md work/provenance.md work/anatomy.md work/identical.md work/drift.md work/triage.md; do
+          for f in work/track.md work/gate.md work/provenance.md work/anatomy.md work/identical.md work/drift.md work/triage.md work/pairdoor.md; do
             [ -s "tools/tasmi_bench/$f" ] && HAVE=1
           done
           [ "$HAVE" = "1" ] || { echo "⛔ لا جدولَ فيه مضمونٌ — لا شيءَ يُودَع"; exit 1; }
@@ -569,6 +599,9 @@ jobs:
             fi
             if [ -s tools/tasmi_bench/work/triage.md ]; then
               cat tools/tasmi_bench/work/triage.md; echo
+            fi
+            if [ -s tools/tasmi_bench/work/pairdoor.md ]; then
+              cat tools/tasmi_bench/work/pairdoor.md; echo
             fi
             if [ -s tools/tasmi_bench/work/identical.md ]; then
               echo "## 🛡️ حارسُ «ذراعان متطابقتان» (‏على النصّ لا على المجال)"
