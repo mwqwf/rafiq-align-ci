@@ -55,7 +55,7 @@ for _s in (sys.stdout, sys.stderr):
 ROOT = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(ROOT / "tools" / "index_qa"))
 
-from run import fetch_index, list_indexes, s3                  # noqa: E402
+from run import fetch_index, list_indexes, s3, audit as _run_audit  # noqa: E402
 from drop_surah import SURAH_AYAHS_OF                          # noqa: E402
 
 # مراجعُ كاملةُ الصوت — أربعةٌ لا واحد (§2 أعلاه).
@@ -303,11 +303,34 @@ def _salt_count(key: str) -> int:
     return n
 
 
+def _struct_fatal(key: str):
+    """فحصٌ بنيويٌّ مجّانيٌّ قبل إنفاق أيّ ملحٍ صوتيّ (CLAUDE.md: «لا تُطلق ملحاً
+    قبل الفحص البنيويّ»). ⛔ هذه القاعدةُ نفسُها في `promote.sampling_skip_reason`
+    وكانت غائبةً عن هذا الراصد بعينِه — فكان يُبوِّب `iraoui_warsh` (بصمةٌ مكرّرة:
+    تنزيلٌ مغشوش) و`nufais` (سورةٌ غائبة) لخمسِ تشغيلاتٍ صوتيّةٍ يردّهما الحارسُ
+    فيها مجّاناً لو سُئل أوّلاً. تُرجع نصَّ العطب أو `None` إن سلم أو تعذّر القياسُ
+    نفسُه (‏فلا يُمنع مرشَّحٌ بعطبٍ في أداة الفحص لا في فهرسه)."""
+    import types
+    try:
+        rep = _run_audit(key, types.SimpleNamespace(struct_only=True))
+    except Exception:                                          # noqa: BLE001
+        return None
+    return " · ".join(rep.get("fatal") or []) or None
+
+
 def cmd_gate(a):
     repo = os.environ.get("GITHUB_REPOSITORY", "mwqwf/rafiq-align-ci")
     busy = inflight_reciters()
     todo = [r for r in _staged_improvements()
             if _salt_count(r["key"]) < 4 and r["key"] not in "".join(busy)]
+    struct_bad = []
+    kept = []
+    for r in todo:
+        bad = _struct_fatal(r["key"])
+        (struct_bad if bad else kept).append((r, bad) if bad else r)
+    todo = kept
+    for r, bad in struct_bad:
+        print(f"   ⛔ {r['reciter']}: رُدّ بنيوياً قبل إنفاق ملحٍ — {bad}")
     print(f"محسَّنون بلا حكمٍ كافٍ: {len(todo)}")
     batch = [r["key"] for r in todo[:a.limit]]
     if not batch:
