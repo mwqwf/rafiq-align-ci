@@ -133,7 +133,11 @@ jobs:
             --threads "${{ inputs.threads }}" --limit "${{ inputs.limit }}" \
             --md "work/arm_${{ inputs.model }}_${{ inputs.src }}_t${{ inputs.threads }}.md" \
             --json "work/arm_${{ inputs.model }}_${{ inputs.src }}_t${{ inputs.threads }}.json"
-          cat "work/arm_${{ inputs.model }}_${{ inputs.src }}_t${{ inputs.threads }}.md" >> "$GITHUB_STEP_SUMMARY"
+          # 📖 **والجدولُ يُطبع في السجلّ أيضاً لا في الملخّص وحدَه** (‏2026-09-14):
+          #    ملخّصُ الشوط وR2 **كلاهما غيرُ مقروءٍ من صندوق الوكيل** (‏قِيس: R2 يردّ
+          #    وصلاً فاشلاً، وتنزيلُ الأثر يُحوَّل إلى مضيفٍ محجوب) ⇒ **شوطٌ نجح ورقمُه
+          #    لا يُقرأ كأنّه لم يجرِ**. والسجلُّ يُقرأ بـ`get_job_logs` بلا مفتاح.
+          tee -a "$GITHUB_STEP_SUMMARY" < "work/arm_${{ inputs.model }}_${{ inputs.src }}_t${{ inputs.threads }}.md"
       - uses: actions/upload-artifact@v4
         if: always()
         with:
@@ -145,8 +149,13 @@ jobs:
         if: always()
         run: |
           cd tools/tasmi_bench
+          # 🔑 **والمفتاحُ يحمل العيّنةَ والشوط** (‏2026-09-14): كان `<نموذج>-<مجموعة>-t<خيوط>`
+          #    وحدَه ⇒ **شوطٌ بعشرين بنداً كتب فوق أثر شوطٍ بستّين** (‏وقع فعلاً اليومَ،
+          #    وحارسُ `r2_put` صاح: «كلُّ رقمٍ نُسب إلى هذا العنوان صار ينسب إلى غيره»).
+          #    ⇒ الأثرُ لا يُمحى، والعنوانُ يُسمّي عيّنتَه.
           S="${{ inputs.model }}-${{ inputs.src }}"; T="${{ inputs.threads }}"
+          N="n${{ inputs.limit }}-r${{ github.run_id }}"
           for f in work/arm_*.md work/arm_*.json; do
-            [ -f "$f" ] && python ../finetune/r2_put.py "$f" "finetune/armtime/$S-t$T/$(basename $f)"
+            [ -f "$f" ] && python ../finetune/r2_put.py "$f" "finetune/armtime/$S-t$T-$N/$(basename $f)"
           done
-          echo "☁️ $PUB/finetune/armtime/$S-t$T/"
+          echo "☁️ $PUB/finetune/armtime/$S-t$T-$N/"
