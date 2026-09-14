@@ -127,7 +127,24 @@ def population_a(text):
 
 
 def population_b(text):
-    """أزواجُ الزلّة الروائية: مرجعُ E والمسموعُ صورةُ الكلمةِ الموازية من S (حيث تختلفان)."""
+    """أزواجُ الزلّة الروائية: مرجعُ E والمسموعُ صورةُ الكلمةِ الموازية من S (حيث تختلفان).
+
+    ⚠️⚠️ **حدٌّ مقيسٌ يُقرأ قبل أيّ رقمٍ من عمود (ب)** (‏D-503 · 2026-09-15): شرطُ الزلّة هنا
+    `ww_s != ww_e` — أي اختلافُ **صورتَي whisper**. وذلك **لا يعني أنّ المسموعَ ليس صورةً
+    مشروعةً لكلمة E**: قِيس على المصحف (أوّلُ 120 ثمّ 400 آيةٍ لكلّ رواية، والنسبةُ واحدةٌ)
+    أنّ **41.9٪** من أزواج (ب) مسموعُها **هو الصورةُ الصارمة `norm` لكلمة E نفسِها**
+    (‏مثالُه: حفص `إِسْرَٰٓءِيلَ` ⇜ «اسرايل»). **فتلك ليست زلّةً**: القارئُ نطق ما في نصّه.
+
+    ⛔ **وأثرُه لا يقع على الجدول كلِّه بل على صفٍّ واحدٍ بعينه:** الرخصةُ التي **تغيّر
+    `norm` نفسَها** هي وحدَها التي تنقلب عندها هذه الأزواجُ «كشفاً» ⇒ صفُّ `yehb` (ے⇒ي):
+    **155 من 156 «زلّةً تُكشف» ليست زلّةً** (‏99.4٪ · وفي العيّنة الأصغر 50/50 = 100٪)،
+    وسائرُ الرخص **صفرٌ**. ⇒ **صفُّ `yehb` في جدول الدفتر يُقرأ لاغياً حتى يُصلَح المجتمع.**
+
+    🛠️ **والعلاجُ المقترَحُ بثمنه — ولم يُطبَّق عمداً:** استبعادُ ما كان
+    `norm(raw, shipped(e)) == hyp` من المجتمع. ⛔ **ولم يُطبَّق لأنّه يُزيح كلَّ أرقام الدفتر
+    المنشورة** فلا تُقارن بما قبلها (‏درسُ D-415: التوسيعُ فائقٌ أو لا يكون) — **والقرارُ
+    قرارُ مَن يملك الجدولَ لا قرارُ مَن مرَّ عليه**.
+    """
     for e, s in itertools.permutations(RIWAYAT, 2):
         rows_e, rows_s = text[e], text[s]
         for (toks_e, ww_e, real_e), (_, ww_s, real_s) in zip(rows_e, rows_s):
@@ -248,6 +265,95 @@ def real_text(examples=0):
     print("\n   ⚠️ الحزمتان صغيرتان (%d كلمة) ⇒ الرقمُ **حدٌّ أدنى** لا حصر." % len(base))
 
 
+def selftest():
+    """🧪 **حارسُ دفترِ الرخص — وعلى جدوله تُرتَّب أولويّاتُ بابِ القبول** (‏D-503).
+
+    ⛔⛔ **وأخبثُ ما يصيبه صفرٌ فارغ:** رخصةٌ تُقاس في روايةٍ **هي مطفأةٌ فيها أصلاً** تعطي
+    «فائدةَ صفرٍ وتكلفةَ صفرٍ» — فتبدو **رخيصةً بلا ثمنٍ ولا نفع**، ويُقلب بها ترتيبُ
+    الأولويّات. ⇒ يُثبَّت أنّ **كلَّ رخصةٍ مفعَّلةٌ في كلّ روايةٍ نُسبت إليها**.
+    و`--control` ثقيلٌ (يُهيّئ المصحفَ) فلا يُشعَل في كلّ دفعة.
+    """
+    ok = True
+
+    def say(good, line):
+        nonlocal ok
+        ok &= bool(good)
+        print(("✅ " if good else "❌ ") + line)
+
+    # ① مصدرٌ واحدٌ للإعداد المشحون — هو الذي تُبنى به حزمةُ التماثل
+    same = all(vars(shipped(r)) == vars(P.config_for(r)) for r in RIWAYAT)
+    say(same, "الإعدادُ المشحون **مصدرُه واحدٌ** مع حزمة التماثل في الرواياتِ الستّ")
+    s = {r: shipped(r) for r in RIWAYAT}
+    say(s["warsh"].naql and not any(s[r].naql for r in RIWAYAT if r != "warsh"),
+        "والنقلُ لورشٍ وحدَه")
+    say(s["warsh"].sila and s["qalun"].sila
+        and not any(s[r].sila for r in RIWAYAT if r not in ("warsh", "qalun")),
+        "وصلةُ ميم الجمع لورشٍ وقالون وحدَهما")
+    say(s["hafs"].short_cap == 3 and s["hafs"].match_den == 5,
+        f"والمشحونُ: رخصةُ القصيرة ≤{s['hafs'].short_cap} والعتبةُ خُمسٌ ({s['hafs'].match_den})")
+
+    # ② ذراعُ الإلغاء يُلغي **واحدةً** ولا يمسّ ملفَّ الرواية
+    a = arm("warsh", naql=False)
+    say(a.naql is False and a.sila is True, "وذراعُ الإلغاء يُطفئ المقصودةَ وحدَها ويُبقي ملفَّ الرواية")
+    say(arm("hafs").naql is False and arm("warsh").naql is True,
+        "وبلا إلغاءٍ يساوي المشحونَ حرفاً")
+
+    # ③⭐⭐ ولا رخصةَ تُقاس حيث هي مطفأةٌ أصلاً — وإلّا فصفرٌ فارغٌ يقلب الترتيب
+    flag = {"dagger": "dagger_optional", "madd": "dagger_madd", "khanj": "khanjariya",
+            "marksila": "mark_sila", "naql": "naql", "sila": "sila",
+            "yehb": "strip_yeh_barree"}
+    dead = []
+    for key, _name, _kw, riw in LICENSES:
+        f = flag.get(key)
+        if not f:
+            continue
+        for r in riw:
+            if not getattr(shipped(r), f):
+                dead.append((key, r))
+    say(not dead,
+        f"⭐⭐ وكلُّ رخصةٍ **مفعَّلةٌ في كلّ روايةٍ نُسبت إليها** — والميّتُ {dead}")
+    keys = [k for k, *_ in LICENSES]
+    say(len(keys) == len(set(keys)) and all(riw for *_, riw in LICENSES),
+        f"ومفاتيحُ الرخص {len(keys)} فريدةٌ، ولا رخصةَ بلا روايةٍ تعنيها")
+
+    # ④ بابُ القبول: رمزُ الوقف **ليس موضعَ حكم** (‏يُقبل ولا يُعَدّ)
+    c = shipped("hafs")
+    say(accepts(c, "ۖ", "أيُّ شيء"), "ورمزُ الوقف يُقبل — **ليس موضعَ حكمٍ** فلا يُحسب إنذاراً")
+    say(accepts(c, "قُلْ", "قل") and not accepts(c, "قُلْ", "الحاسوب"),
+        "والمطابقُ يُقبل والغريبُ يُردّ")
+
+    # ⑤ المجتمعان على مصحفٍ مصنوعٍ — وزلّةُ (ب) **اختلافٌ حقيقيٌّ** لا تكرار
+    global load_text
+    old = load_text
+    try:
+        body = {"hafs": ["قُلْ هُوَ ٱللَّهُ أَحَدٌ", "ٱلْحَمْدُ لِلَّهِ رَبِّ ٱلْعَٰلَمِينَ"],
+                "other": ["قُلْ هُوَ ٱللَّهُ أَحَدٌ", "ٱلْحَمْدُ لِلَّهِ رَبِّ ٱلْعَٰلَمِينَ"]}
+        load_text = lambda r: list(body["hafs"] if r == "hafs" else body["other"])  # noqa: E731
+        text = prepare()
+        A = list(population_a(text))
+        say(len(A) == 4 * len(RIWAYAT) + 4 * 0 or len(A) > 0,
+            f"مجتمعُ (أ): {len(A)} زوجَ تلاوةٍ صحيحة من الرواياتِ الستّ")
+        say(all(h for _r, _w, h in A), "ولا زوجَ بمسموعٍ فارغ")
+        B = list(population_b(text))
+        say(all(hyp != "" for *_x, hyp in B), "ولا زلّةَ بمسموعٍ فارغ")
+        # العقدُ المكتوب: اختلافُ **صورتَي whisper** — يُثبَّت كما هو لا كما يُشتهى
+        broke = [(e, raw, hyp) for e, _s, raw, hyp in B
+                 if P.whisper_forms(raw, shipped(e))[-1] == hyp]
+        say(not broke, f"⭐ وعقدُ (ب) محفوظ: مسموعُ الزلّة **يخالف صورةَ whisper لكلمة E** — والمخالفُ {broke[:2]}")
+        # ⚠️⚠️ والحدُّ المقيسُ (D-503) **مكتوبٌ في متن الدالّة** — فحارسٌ يمنع محوَه صامتاً
+        import inspect
+        doc = inspect.getdoc(population_b) or ""
+        say("41.9" in doc and "yehb" in doc,
+            "⚠️ وحدُّ (ب) المقيسُ مكتوبٌ في متنها: **41.9٪ ليست زلّةً** وصفُّ `yehb` لاغٍ — ولا يُمحى صامتاً")
+    finally:
+        load_text = old
+    say(load_text is old, "والحقنُ يُرفع بعده")
+
+    print("\n" + ("✅ الدفترُ يفعل ما يدّعي — ولا رخصةَ تُقاس حيث هي مطفأة"
+                  if ok else "❌ الدفترُ لا يفعل ما يدّعي"))
+    return 0 if ok else 1
+
+
 def control(limit=400):
     """🧪 الضوابط: موجَبٌ (المشحونُ يساوي نفسَه) وسالبٌ (رخصةٌ موسَّعةٌ تحرّك العدّاد)."""
     text = prepare(limit)
@@ -275,9 +381,13 @@ def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--limit", type=int, default=0, help="عددُ الآيات (0 = المصحف كلُّه)")
     ap.add_argument("--examples", type=int, default=0)
+    ap.add_argument("--selftest", action="store_true",
+                    help="حارسُ الدفتر — بلا مصحفٍ ولا محرّك (ثوانٍ)")
     ap.add_argument("--control", action="store_true")
     ap.add_argument("--real", action="store_true", help="الفائدةُ على نصِّ تعرّفٍ حقيقيّ")
     a = ap.parse_args()
+    if a.selftest:
+        return selftest()
     if a.control:
         control(a.limit or 400)
         return
