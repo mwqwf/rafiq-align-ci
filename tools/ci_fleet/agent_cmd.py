@@ -138,13 +138,27 @@ def do_state(c):
             gaps[f"{riw}/{rid}"] = {"entries": len(idx["entries"]),
                                     "missingSurahs": miss,
                                     "reasonCode": tr.get("reasonCode")}
+    # ⭐⭐ **الباقي يُسمَّى بالاسم لا يُعَدّ فحسب** (‏2026-09-14): «المنشور 162/180» رقمٌ
+    #    لا يقول **مَن** الثمانيةَ عشر، فظُنَّ مراراً أنّ موجةَ `reciters_gen1_fix10.tsv`
+    #    ترفعه — وهي **استبدالُ جيلٍ لقرّاءَ منشورين سلفاً** (‏`aamer` و`hafz` وغيرُهما في
+    #    `timings/` أصلاً) فلا ترفع العدَّ بحقّ. ⇒ فالقائمةُ تُشتقّ **بالطرح من الدلو**
+    #    كما يأمر `CLAUDE.md`، وتُكتب هنا حتى لا تُخمَّن مرّةً أخرى.
+    missing = sorted(
+        f'{r.get("id") or r.get("riwaya")}/{rc.get("id")}'
+        for r in cat["riwayat"] for rc in r.get("reciters", [])
+        if rc.get("mode") != "ayah"
+        and ((r.get("id") or r.get("riwaya")), rc.get("id")) not in pub
+    )
     st = {"published": len(pub), "target": total,
+          "missingCount": len(missing), "missingIds": missing,
           "catalogTotal": catalog_total,
           "ayahModeExcluded": len(ayah_mode), "ayahModeIds": ayah_mode,
           "byRiwaya": per, "indexesWithGaps": gaps}
     (OUT_DIR / "state.json").write_text(
         json.dumps(st, ensure_ascii=False, indent=1), encoding="utf-8")
-    return 0, (f"المنشور {len(pub)}/{total} "
+    _miss = ("\n⛔ **الباقي بالاسم** (" + str(len(missing)) + "): "
+             + ("، ".join(missing) if missing else "لا شيء — اكتمل الهدف"))
+    return 0, (f"المنشور {len(pub)}/{total}{_miss}\n"
                f"(الكتالوج {catalog_total} قارئاً · "
                f"منهم {len(ayah_mode)} بوضع الآية لا فهرسَ لهم) · {per}\n"
                f"فهارسُ فيها نقص: {len(gaps)} — التفصيلُ في ops/out/state.json")
