@@ -62,6 +62,8 @@ def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--min-ratio", type=float, default=0.98,
                     help="نسبةُ تغطيةٍ دون هذا الحدّ لسورةٍ حاضرةٍ تُعدّ ناقصة")
+    ap.add_argument("--severe-ratio", type=float, default=0.70,
+                    help="دون هذا الحدّ تُطبع تفصيلاً فوراً (لا في الملخّص فحسب)")
     ap.add_argument("--only", default=None, help="بادئةُ مفتاحٍ لتضييق المسح (مثل hafs/)")
     a = ap.parse_args()
 
@@ -73,6 +75,7 @@ def main():
 
     checked = 0
     total_flags = 0
+    by_surah: dict[int, int] = {}
     for key in keys:
         try:
             idx, _sha = _run.fetch_index(key)
@@ -90,14 +93,30 @@ def main():
             ratio = have / want
             if ratio < a.min_ratio:
                 flags.append((s, have, want, ratio))
+                by_surah[s] = by_surah.get(s, 0) + 1
         if flags:
             total_flags += len(flags)
             flags.sort(key=lambda x: x[3])
-            print(f"⚠️ {key}: {len(flags)} سورةً حاضرةً ناقصة")
-            for s, have, want, ratio in flags[:6]:
-                print(f"    سورة {s}: {have}/{want} ({ratio:.0%})")
+            severe = [f for f in flags if f[3] < a.severe_ratio]
+            # ⚠️ **مُعايَرةٌ لا عطب**: أوّلُ تشغيلةٍ حقيقيّة (2026-09-14) أظهرت
+            # 782 علامةً عند 0.98 — أكثرُها متركّزٌ في سورٍ بعينها (55·102·1…
+            # ذاتِ تكرارٍ أو قِصَر) عبر عشراتِ قرّاءٍ لا صلةَ بينهم، وهو نمطٌ
+            # نظاميٌّ يحتاج حكمَ مناوبة المحرك (تكرارٌ يُدمَج عمداً؟) لا فحصاً
+            # فرديّاً لكلّ قارئ. فطُبع التفصيلُ الكاملُ عند severe فقط، والباقي
+            # في الملخّص وحده كي لا تُغرق الدورةُ القادمة بنفس السبعمئة سطر.
+            if severe:
+                print(f"🔴 {key}: {len(severe)} سورةً ناقصةً بشدّة (دون {a.severe_ratio:.0%})")
+                for s, have, want, ratio in severe[:8]:
+                    print(f"    سورة {s}: {have}/{want} ({ratio:.0%})")
+            else:
+                print(f"⚠️ {key}: {len(flags)} سورةً حاضرةً ناقصة (دون {a.min_ratio:.0%}، لا شديدة)")
 
     print(f"⇒ فُحص {checked} فهرساً منشوراً · سورٌ حاضرةٌ ناقصة: {total_flags}")
+    if by_surah:
+        top = sorted(by_surah.items(), key=lambda x: -x[1])[:10]
+        print("   وأكثرُ السور تكرّراً في هذا النقص (قارئون متأثّرون/162):")
+        for s, n in top:
+            print(f"    سورة {s}: {n} قارئاً")
     return 1 if total_flags else 0
 
 
