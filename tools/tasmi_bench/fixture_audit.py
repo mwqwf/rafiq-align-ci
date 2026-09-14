@@ -30,6 +30,7 @@
     python fixture_audit.py --selftest
 """
 import argparse
+import re
 import importlib
 import io
 import os
@@ -161,8 +162,44 @@ def run_check(module, label):
     return 0
 
 
+ABSENT_MARK = "⛔ENGINE-ABSENT"
+
+
+def audit_engine_absent(src=None, cfg=None):
+    """🏷️ **معالمُ لا نظيرَ لها في المحرك — أكلُّها مطفأةٌ افتراضاً؟**
+
+    ⛔ **لِمَ حارسٌ لا مجرّدُ عادةٍ:** المرآةُ صورةُ الحاكم، وفيها اليومَ معالمُ **وُضعت
+    لتُسعَّر قاعدةٌ قبل أن تُكتب بالكوتلن** (D-443 · D-445). ومع إطفائها **صفرُ تغيير**
+    وبصماتُ التماثل كما هي — فإن أُشعل افتراضُ واحدٍ منها صارت المرآةُ **تحكم بغير ما
+    يحكم به المحرك**، و**كلُّ رقمٍ تطبعه كذبٌ لا يصرخ** (‏وبصمةُ التماثل تمسكه، لكنّ هذا
+    الحارسَ يسمّي السببَ في سطرٍ بدل أن يُترك للتخمين).
+
+    ⭐ **والقائمةُ تُشتقّ من الوسم في الشفرة لا تُكتب بيدٍ** — فجدولٌ مكتوبٌ يتقادم بأوّل
+    معلَمٍ جديدٍ يُضاف بلا ذكرٍ فيه، وهو بعينه ما وقع لعدّة الاختبارات الذاتيّة.
+    """
+    SCR = _mods()
+    if src is None:
+        src = open(os.path.join(HERE, "scorer.py"), encoding="utf-8").read()
+    cfg = SCR.Config() if cfg is None else cfg
+    names = [m.group(1) for m in re.finditer(
+        r"self\.([A-Za-z_][A-Za-z_0-9]*)\s*=[^\n]*" + re.escape(ABSENT_MARK), src)]
+    if not names:
+        print(f"⛔ **صفرُ معالمَ موسومةٍ بـ`{ABSENT_MARK}`** — إمّا انكسر الاشتقاقُ وإمّا "
+              "أُزيل الوسمُ. ⇒ **لا يُقرأ هذا «لا معالمَ غريبة»**.")
+        return 1
+    bad = [n for n in names if getattr(cfg, n, None)]
+    print(f"🏷️ معالمُ لا نظيرَ لها في المحرك: **{len(names)}** ({' · '.join(names)})")
+    if bad:
+        print("⛔⛔ **وافتراضُها مُشعَلٌ** في: " + " · ".join(f"`{n}`" for n in bad)
+              + " ⇒ **المرآةُ تحكم بغير ما يحكم به المحرك** ولا يُقرأ منها رقمٌ حتى تُطفأ.")
+        return 1
+    print("✅ **وكلُّها مطفأةٌ افتراضاً** ⇒ المرآةُ تبقى مرآةً.")
+    return 0
+
+
 def audit_all():
     rc = 0
+    rc |= audit_engine_absent()
     rc |= audit_parity()
     rc |= run_check("make_strict_parity_fixture", "parity_fixture_strict.tsv")
     rc |= run_check("make_locator_top_fixture", "locator_top_fixture.tsv")
@@ -234,6 +271,24 @@ def selftest():
             ok = False
     finally:
         shutil.rmtree(tmpd, ignore_errors=True)
+    # 🏷️ وضوابطُ حارس «لا نظيرَ لها في المحرك» — ثلاثُ حالاتٍ تُعرف أجوبتُها
+    class _Fake:
+        pass
+    f = _Fake()
+    f.unheard_lexicon = {"x"}
+    line = "self.unheard_lexicon = unheard_lexicon  " + ABSENT_MARK
+    if audit_engine_absent(src=line, cfg=f) != 1:
+        print("⛔ معلَمٌ **مُشعَلٌ** يجب أن يُسقط الحارس")
+        ok = False
+    f2 = _Fake()
+    f2.unheard_lexicon = None
+    if audit_engine_absent(src=line, cfg=f2) != 0:
+        print("⛔ ومطفأٌ يجب أن يمرّ (وإلّا صار الحارسُ يردّ كلَّ شيء)")
+        ok = False
+    # ⛔⛔ والأهمّ: **صفرُ وسمٍ لا يُقرأ سلامةً** (‏درسُ «لا خضرةَ بلا شهادة»)
+    if audit_engine_absent(src="self.x = 1", cfg=f2) != 1:
+        print("⛔ صفرُ معالمَ موسومةٍ يجب أن يُقرأ «انكسر الاشتقاقُ» لا «لا معالمَ»")
+        ok = False
     print("✅ المدقّقُ يمسك الانحرافَ المصنوعَ ولا يُنذر بالسليم."
           if ok else "⛔ سقط ضابطُ المدقّق")
     return 0 if ok else 1
@@ -242,10 +297,12 @@ def selftest():
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--selftest", action="store_true")
-    ap.add_argument("--only", default="", choices=["", "parity", "strict", "norm", "locator"])
+    ap.add_argument("--only", default="", choices=["", "parity", "strict", "norm", "locator", "absent"])
     a = ap.parse_args()
     if a.selftest:
         return selftest()
+    if a.only == "absent":
+        return audit_engine_absent()
     if a.only == "parity":
         return audit_parity()
     if a.only == "strict":
