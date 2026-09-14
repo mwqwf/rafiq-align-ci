@@ -16,13 +16,15 @@
 ## كيف يدقّق — وبغير طريقةٍ لكلِّ حزمةٍ بحسب ما تحتاجه
 - `parity_fixture.tsv` — **يُعاد حسابُ الأحكام من صفوفها** (‏المرجعُ والمسموعُ محفوظان
   فيها) بإعداد `make_parity_fixture.cfg_for` نفسِه. ولا يحتاج فرضيّاتٍ ⇒ يعمل بلا شبكة.
-- `parity_fixture_strict.tsv` · `norm_fixture.tsv` — **تُعاد توليداً** إلى ملفٍّ مؤقّتٍ
-  وتُقابَل بايتاً ببايت (مُدخَلاهما في المستودع: الحزمةُ الأولى ونصُّ المصحف).
+- `norm_fixture.tsv` — **تُعاد توليداً** إلى ملفٍّ مؤقّتٍ وتُقابَل بايتاً ببايت
+  (‏مُدخَلُها نصُّ المصحف وهو في المستودع).
+- `parity_fixture_strict.tsv` · `locator_top_fixture.tsv` — **بـ`--check` الذي فيهما
+  أصلاً** ⭐: ما له مدقّقٌ يُدقَّق به **لا بنسخةٍ ثانيةٍ من المنطق** تنحرف عنه.
 
 ⛔ **وما لا يدقّقه يُسمّى**: `parity_fixture.tsv` **لا يُعاد توليدُها** هنا لأنّ صفوفَها
 من فرضيّاتٍ محفوظةٍ في R2 (‏`work/hyps_ar.json`) — فيُدقَّق **عمودُ الأحكام** لا اختيارُ
-الصفوف. وباقي الحزم (`locator_top` · `long_anchor` · `position_parity` · `snr`) **خارجَ
-هذا المدقّق** (‏مولّداتُها تحتاج مُدخَلاتٍ أخرى) — وسكوتُنا عنها **ليس** حكماً بسلامتها.
+الصفوف. وحزمُ `long_anchor` · `position_parity` · `snr` **خارجَ هذا المدقّق** (‏لا
+`--check` فيها ولا مُدخَلَ محلّيّاً) — وسكوتُنا عنها **ليس** حكماً بسلامتها.
 
     python fixture_audit.py            # يدقّق ويخرج بـ1 عند أوّل انحراف
     python fixture_audit.py --selftest
@@ -103,7 +105,13 @@ def audit_regen(module, path, extra=()):
     tmpd = tempfile.mkdtemp(prefix="fixaudit_")
     tmp = os.path.join(tmpd, name)
     saved = getattr(mod, "OUT")
+    saved_argv = sys.argv
     try:
+        # ⛔ **وعزلُ `argv` شرطُ صحّة** (‏وقع فعلاً 2026-09-14): بعضُ المولّدات تقرأ
+        #    `argv` بنفسها (`make_strict_parity_fixture --check`)، فنداءُ `main()`
+        #    ومعه رايةُ المدقّق يُسقطها بـ«وسيطٌ غيرُ معروف» — **فالعطبُ في المدقّق
+        #    يُقرأ عطباً في الحزمة**. ⇒ يُمرَّر لها اسمُها وحدَه.
+        sys.argv = [module]
         mod.OUT = tmp
         for k, v in extra:
             setattr(mod, k, v)
@@ -115,6 +123,7 @@ def audit_regen(module, path, extra=()):
         b = io.open(tmp, encoding="utf-8").read()
     finally:
         mod.OUT = saved
+        sys.argv = saved_argv
         shutil.rmtree(tmpd, ignore_errors=True)
     if a != b:
         la, lb = a.split(NL), b.split(NL)
@@ -131,15 +140,37 @@ def audit_regen(module, path, extra=()):
     return 0
 
 
+def run_check(module, label):
+    """⭐ **ما له `--check` يُدقَّق به لا بنسخةٍ ثانيةٍ من المنطق.**
+
+    `make_strict_parity_fixture` و`make_locator_top_fixture` فيهما `--check` (‏لا يكتب ·
+    يخرج بـ1 إن تخلّفت الحزمةُ) — فهو **مصدرُ الحكم**، ويُستدعى في عمليّةٍ مستقلّةٍ
+    كي لا يختلط `argv` ولا حالةُ الوحدات.
+    """
+    import subprocess
+    p = subprocess.run([sys.executable, os.path.join(HERE, module + ".py"), "--check"],
+                       capture_output=True, text=True, cwd=ROOT)
+    tail = [x for x in (p.stdout + p.stderr).strip().split(chr(10)) if x.strip()][-2:]
+    if p.returncode != 0:
+        print(f"⛔ **{label}**: `{module} --check` خرج بـ{p.returncode}:")
+        for t in tail:
+            print("   · " + t[:160])
+        print(f"   ⇒ العلاجُ: `python tools/tasmi_bench/{module}.py` ثمّ **اقرأ `engine-test`**.")
+        return 1
+    print(f"✅ **{label}**: `{module} --check` راضٍ.")
+    return 0
+
+
 def audit_all():
     rc = 0
     rc |= audit_parity()
-    rc |= audit_regen("make_strict_parity_fixture", os.path.join(RES, "parity_fixture_strict.tsv"))
+    rc |= run_check("make_strict_parity_fixture", "parity_fixture_strict.tsv")
+    rc |= run_check("make_locator_top_fixture", "locator_top_fixture.tsv")
     rc |= audit_regen("make_norm_fixture", os.path.join(RES, "norm_fixture.tsv"))
     print("\n" + ("⛔ **حزمةٌ واحدةٌ على الأقلّ لا تُطابق المرآةَ اليومَ** — ولا يُقرأ رقمٌ من "
                   "المرآة حتى تُسوّى وتُشهَد."
-                  if rc else "✅ الحزمُ الثلاثُ تُطابق المرآةَ اليومَ ⇒ **المرآة == الحزمة == المحرك**"
-                  " (‏والضلعُ الأخيرُ يضمنه `RecitationScorerParityTest` في العدّاء)."))
+                  if rc else "✅ الحزمُ **الأربعُ** تُطابق المرآةَ اليومَ ⇒ **المرآة == الحزمة =="
+                  " المحرك** (‏والضلعُ الأخيرُ يضمنه `RecitationScorerParityTest` في العدّاء)."))
     return rc
 
 
@@ -153,6 +184,16 @@ def selftest():
     if audit_parity(src, limit_report=1) != 0:
         print("⛔ الحزمةُ المُودَعةُ نفسُها منحرفةٌ ⇒ يُسوّى ذلك أوّلاً (وليس عطبَ الضابط)")
         ok = False
+    # ⛔ وضابطُ عزل `argv`: المدقّقُ يُستدعى ومعه رايةٌ خاصّةٌ به، فلا يجوز أن تسقط
+    #    الحزمُ لأنّ مولّداً قرأ رايتَنا (‏العطبُ الذي وقع فعلاً).
+    keep = sys.argv
+    try:
+        sys.argv = [keep[0], "--only", "norm"]
+        if audit_regen("make_norm_fixture", os.path.join(RES, "norm_fixture.tsv")) != 0:
+            print("⛔ عزلُ argv: سقطت حزمةُ التطبيع ومعها رايةُ المدقّق ⇒ العزلُ لا يعمل")
+            ok = False
+    finally:
+        sys.argv = keep
     tmpd = tempfile.mkdtemp(prefix="fixaudit_st_")
     try:
         # ① حرفُ حكمٍ واحدٌ يُقلب ⇒ **يجب** أن يُمسَك
@@ -201,15 +242,16 @@ def selftest():
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--selftest", action="store_true")
-    ap.add_argument("--only", default="", choices=["", "parity", "strict", "norm"])
+    ap.add_argument("--only", default="", choices=["", "parity", "strict", "norm", "locator"])
     a = ap.parse_args()
     if a.selftest:
         return selftest()
     if a.only == "parity":
         return audit_parity()
     if a.only == "strict":
-        return audit_regen("make_strict_parity_fixture",
-                           os.path.join(RES, "parity_fixture_strict.tsv"))
+        return run_check("make_strict_parity_fixture", "parity_fixture_strict.tsv")
+    if a.only == "locator":
+        return run_check("make_locator_top_fixture", "locator_top_fixture.tsv")
     if a.only == "norm":
         return audit_regen("make_norm_fixture", os.path.join(RES, "norm_fixture.tsv"))
     return audit_all()
