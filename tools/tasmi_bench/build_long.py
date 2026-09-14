@@ -115,9 +115,19 @@ def main():
                           "durationSec": round(len(y) / SR, 1)})
             made += 1
 
+    plan_path = os.path.join(WORK, "long_plan.json")
     json.dump({"seed": SEED, "gapsMs": list(GAPS_MS), "items": items},
-              open(os.path.join(WORK, "long_plan.json"), "w", encoding="utf-8"),
+              open(plan_path, "w", encoding="utf-8"),
               ensure_ascii=False, indent=1)
+
+    # 🧷 **حارسُ الحقيقة الأرضيّة قبل أن يُقاس عليها** (‏D-433 · D-436): النصُّ المرجعيُّ هنا
+    # **سلسلةُ آياتِ المدى بترتيبها**، فإن زلّ الترتيبُ أو سقطت آيةٌ من النصّ دون الصوت صار
+    # المقياسُ يحاسب المحركَ على ما لم يُطلب منه. ⇒ يُقابَل بالمصحف **آيةً آيةً** هنا، حيث
+    # الأصولُ حاضرةٌ أصلاً. ⛔ والخطّةُ تُكتب قبل الفحص كي يبقى الأثرُ للتشخيص، والرمزُ يسقط بعده.
+    import plan_guard as PG
+    fatal = PG.report_long(plan_path, {"items": items})
+    if fatal:
+        raise SystemExit("⛔ الحقيقةُ الأرضيّةُ للتلاوة الطويلة معطوبةٌ ⇒ لا يُقاس عليها")
     if items:
         ds = [i["durationSec"] for i in items]
         print(f"✅ {len(items)} تسجيلاً ⇒ {OUT}")

@@ -279,6 +279,109 @@ def report_sample(path, doc):
     return len(fatal)
 
 
+# ---- 🎙️ والحقيقةُ الأرضيّةُ الثالثة: **التلاوةُ الطويلة** (`long_plan.json` · g4/g4n) ----
+# ⛔ **ولِمَ هي الأخطر:** البندُ هنا **آياتٌ متتاليةٌ موصولةٌ في تسجيلٍ واحد**، ونصُّه المرجعيُّ
+# **سلسلةُ نصوصها بالترتيب**. فإن زلّ الترتيبُ أو سقطت آيةٌ من النصّ دون الصوت، صار المقياسُ
+# يحاسب المحركَ على **ما لم يُطلب منه**، أو يعدّ آيةً مسموعةً «ضائعةً» — وهي أرقامُ `g4`/`g4n`
+# التي بُني عليها أكبرُ عطبٍ في اللوحة. ⇒ يُقابَل النصُّ بالمصحف **آيةً آيةً بالترتيب**.
+LONG_FATAL = {
+    "l_wordcount_mismatch": "⛔ `wordCount` يخالف عدَّ `refText`",
+    "l_text_drift": "⛔⛔ `refText` ليس سلسلةَ آياتِ المدى في المصحف بترتيبها",
+    "l_id_mismatch": "⛔ المعرّفُ لا يوافق (سورة · أوّلُ آيةٍ · العدد)",
+    "l_range_bad": "⛔ مدى الآيات غيرُ مقبول (‏`ayahs` أو `firstAyah` غائبٌ أو دون الواحد)",
+    "l_duration_bad": "⛔ `durationSec` غائبٌ أو غيرُ موجب",
+    "l_dup_id": "⛔ معرّفٌ مكرَّر",
+}
+LONG_WARN = {
+    "l_duration_odd": "⚠️ المدّةُ بعيدةٌ جدّاً عن عدّ الكلمات (أقلُّ من 0.15ث أو أكثرُ من 3ث للكلمة)",
+    "l_single_ayah": "⚠️ تسجيلٌ من آيةٍ واحدةٍ — ليس «تلاوةً طويلةً» وإن صحّ بناؤه (اختيارُ `--ayahs 1`)",
+}
+
+
+def check_long_item(it, texts=None, starts=None):
+    """يعيد رموزَ العطب في بندِ تلاوةٍ طويلة. [starts] (سورة → فهرسُ أوّل آيةٍ عالميّ)."""
+    bad = []
+    ref = it.get("refText", "").split()
+    s, first, n = it.get("surah"), it.get("firstAyah"), it.get("ayahs")
+    if it.get("wordCount") != len(ref):
+        bad.append("l_wordcount_mismatch")
+    if not (isinstance(n, int) and n >= 1 and isinstance(first, int) and first >= 1):
+        bad.append("l_range_bad")
+        return bad                       # ما بعده يقرأ المدى فلا يُقرأ على مدىً باطل
+    # ⚠️ والآيةُ الواحدةُ **منبِّهٌ لا قاتل**: بناؤها قد يصحّ (‏`--ayahs 1` اختيارٌ صريح)،
+    #    لكنّها **لا تقيس ما وُجدت له المجموعة** (مسارُ الطويل) ⇒ تُقال ولا تُسقط شوطاً.
+    if n == 1:
+        bad.append("l_single_ayah")
+    if texts is not None and starts is not None:
+        body = texts.get(it.get("riwaya")) or []
+        gi = starts.get(s)
+        want = None
+        if gi is not None and gi + first - 1 + n <= len(body):
+            want = " ".join(body[gi + first - 1 + k] for k in range(n)).split()
+        if want is None or want != ref:
+            bad.append("l_text_drift")
+    if not (isinstance(it.get("durationSec"), (int, float)) and it["durationSec"] > 0):
+        bad.append("l_duration_bad")
+    elif ref and not (0.15 <= it["durationSec"] / len(ref) <= 3.0):
+        bad.append("l_duration_odd")
+    if not str(it.get("id", "")).endswith(f"{s:03d}_{first:03d}x{n}"):
+        bad.append("l_id_mismatch")
+    return bad
+
+
+def check_long(doc, texts=None, starts=None):
+    """يعيد (‏رمزُ العطب → معرّفات) لخطّةِ تلاوةٍ طويلةٍ كاملة."""
+    found, seen = {}, set()
+    for it in doc.get("items", []):
+        i = it.get("id", "<بلا معرّف>")
+        if i in seen:
+            found.setdefault("l_dup_id", []).append(i)
+        seen.add(i)
+        for code in check_long_item(it, texts, starts):
+            found.setdefault(code, []).append(i)
+    return found
+
+
+def report_long(path, doc):
+    """يطبع حصيلةَ خطّةِ تلاوةٍ طويلةٍ ويعيد عددَ أصنافِ العطب القاتل."""
+    ids, texts = load_mushaf()
+    starts = mushaf_starts()
+    items = doc.get("items", [])
+    found = check_long(doc, texts, starts)
+    fatal = [c for c in found if c in LONG_FATAL]
+    print(f"\n## `{os.path.basename(path)}` — **{len(items)}** تسجيلاً (تلاوةٌ طويلة)")
+    checked = ("✅ ونصُّ كلِّ تسجيلٍ قوبل بالمصحف آيةً آيةً" if texts and starts else
+               "⚠️ **ولم يُقابَل النصُّ بالمصحف** (الأصولُ غائبة) — فلا يُقرأ الأخضرُ تزكيةً للنصّ")
+    if not found:
+        print(f"✅ الحقيقةُ الأرضيّةُ سليمةٌ على كلّ شرطٍ يُفحص. {checked}")
+        return 0
+    print("\n| الحكم | العدد | من البنود |\n|---|---:|---|")
+    for code, ids_ in sorted(found.items(), key=lambda kv: (kv[0] not in LONG_FATAL, kv[0])):
+        label = LONG_FATAL.get(code) or LONG_WARN.get(code, code)
+        print(f"| {label} | **{len(ids_)}** | " + " · ".join(f"`{i}`" for i in ids_[:4])
+              + (" …" if len(ids_) > 4 else "") + " |")
+    print(checked)
+    return len(fatal)
+
+
+def mushaf_starts():
+    """(سورة → فهرسُ أوّل آيةٍ عالميّ) أو `None` إن غابت الأصول — ولا يُبتلع الغياب."""
+    try:
+        root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+        sys.path.insert(0, os.path.join(os.path.dirname(root), "tools", "alignment"))
+        sys.path.insert(0, os.path.join(root, "alignment"))
+        from common import load_index  # noqa: E402
+        return {s["n"]: s["start"] for s in load_index()["surahs"]}
+    except Exception:                                              # noqa: BLE001
+        return None
+
+
+def is_long(doc):
+    """أهي تلاوةٌ طويلة؟ — من شكل البند: مدىً من آياتٍ لا آيةٌ واحدة."""
+    items = doc.get("items") or []
+    return bool(items) and "firstAyah" in items[0] and "ayahs" in items[0]
+
+
 def is_sample(doc):
     """أهي عيّنةٌ نظيفةٌ أم خطّةُ حقن؟ — يُقرأ من شكل البند لا من اسم الملفّ."""
     items = doc.get("items") or []
@@ -396,6 +499,55 @@ def selftest():
     ok("وعيّنةٌ فيها مكرَّرٌ", {k: len(v) for k, v in check_sample(
         {"items": [_s(), _s()]}, IDS, TX).items()}, {"s_dup_id": 1})
 
+    # ---- 🎙️ وحالاتُ التلاوة الطويلة ----
+    # مصحفٌ مصغَّرٌ: السورةُ 78 تبدأ عند الفهرس 1، وثلاثُ آياتٍ متتالية.
+    LT = {"warsh": ["(صفرٌ)", "آيةٌ أولى هنا", "وآيةٌ ثانية", "وثالثةٌ أخيرة", "ورابعةٌ خارجَ المدى"]}
+    ST = {78: 1}
+    _long = {"id": "long_warsh_078_001x3", "riwaya": "warsh", "surah": 78, "firstAyah": 1,
+             "ayahs": 3, "refText": "آيةٌ أولى هنا وآيةٌ ثانية وثالثةٌ أخيرة",
+             "wordCount": 7, "durationSec": 12.0}
+
+    def _lg(**kw):
+        d = dict(_long)
+        d.update(kw)
+        return d
+
+    ok("تسجيلٌ طويلٌ سليمٌ ⇒ لا عطب", check_long_item(_long, LT, ST), [])
+    # ⛔⛔ **الحالةُ التي وُجد لها:** النصُّ ليس سلسلةَ آياتِ المدى — آيةٌ سقطت أو تبدّل ترتيبُها.
+    ok("آيةٌ ناقصةٌ من النصّ ⇒ قاتل",
+       check_long_item(_lg(refText="آيةٌ أولى هنا وثالثةٌ أخيرة", wordCount=5), LT, ST),
+       ["l_text_drift"])
+    ok("وترتيبٌ مقلوبٌ ⇒ قاتل",
+       check_long_item(_lg(refText="وآيةٌ ثانية آيةٌ أولى هنا وثالثةٌ أخيرة"), LT, ST),
+       ["l_text_drift"])
+    ok("ومدىً يتجاوز آخرَ السورة ⇒ قاتلٌ لا انفجار",
+       check_long_item(_lg(id="long_warsh_078_003x3", firstAyah=3), LT, ST),
+       ["l_text_drift"])
+    ok("وعدُّ الكلمات يكذب", check_long_item(_lg(wordCount=99), LT, ST), ["l_wordcount_mismatch"])
+    # ⚠️ وتسجيلٌ من آيةٍ واحدةٍ **ليس تلاوةً طويلة** — والمجموعةُ كلُّها تفقد معناها به.
+    # ⚠️ آيةٌ واحدةٌ: **منبِّهٌ لا قاتل** — ومعها ينكسر النصُّ والمعرّفُ فيظهر الثلاثةُ معاً.
+    ok("وآيةٌ واحدةٌ ⇒ منبِّهٌ يُقال ولا يُسقط",
+       check_long_item(_lg(ayahs=1, refText="آيةٌ أولى هنا", wordCount=3,
+                           id="long_warsh_078_001x1", durationSec=4.0), LT, ST), ["l_single_ayah"])
+    ok("ومدىً بلا عددٍ صحيحٍ ⇒ قاتل", check_long_item(_lg(ayahs=0), LT, ST), ["l_range_bad"])
+    ok("ومدّةٌ صفريّةٌ أو غائبة", check_long_item(_lg(durationSec=0), LT, ST), ["l_duration_bad"])
+    # ⚠️ ومدّةٌ بعيدةٌ عن عدّ الكلمات: منبِّهٌ لا قاتل (فالسكتاتُ والترتيلُ يوسّعان المدى).
+    ok("ومدّةٌ 0.5ث لسبعِ كلماتٍ ⇒ منبِّه", check_long_item(_lg(durationSec=0.5), LT, ST),
+       ["l_duration_odd"])
+    ok("و30ث لسبعٍ ⇒ منبِّهٌ كذلك", check_long_item(_lg(durationSec=30.0), LT, ST),
+       ["l_duration_odd"])
+    ok("ومعرّفٌ لا يوافق مداه", check_long_item(_lg(id="long_warsh_078_002x3"), LT, ST),
+       ["l_id_mismatch"])
+    ok("وبلا مصحفٍ: لا فحصَ نصٍّ ولا سكوتَ عن سواه",
+       check_long_item(_lg(refText="كلامٌ آخر", wordCount=99, durationSec=4.0), None, None),
+       ["l_wordcount_mismatch"])
+    ok("وتمييزُ الطويل من النظيف ومن الحقن",
+       (is_long({"items": [_long]}), is_long({"items": [_s()]}), is_long({"items": [_it()]})),
+       (True, False, False))
+    ok("وخطّةٌ طويلةٌ فيها مكرَّر",
+       {k: len(v) for k, v in check_long({"items": [_long, _long]}, LT, ST).items()},
+       {"l_dup_id": 1})
+
     print("✅ الحارسُ سليمٌ على حالاته" if not bad else f"⛔ الحارسُ نفسُه معطوبٌ في {bad} حالة")
     return 1 if bad else 0
 
@@ -414,7 +566,12 @@ def main():
     fatal = 0
     for p in paths:
         doc = json.load(open(p, encoding="utf-8"))
-        fatal += report_sample(p, doc) if is_sample(doc) else report(p, doc)
+        if is_long(doc):
+            fatal += report_long(p, doc)
+        elif is_sample(doc):
+            fatal += report_sample(p, doc)
+        else:
+            fatal += report(p, doc)
     print(f"\n**الحصيلة:** {len(paths)} خطّةً · أصنافُ عطبٍ قاتلٍ: **{fatal}**")
     return 1 if fatal else 0
 
