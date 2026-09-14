@@ -86,8 +86,14 @@ def scan_text(text, lookback=6):
 
 
 def scan_paths(paths):
-    """يفحص ملفّاتِ `.py` في المسارات ويعيد (المسار → الملاحظات)."""
+    """يفحص ملفّاتِ `.py` في المسارات ويعيد (المسار → الملاحظات) — و**عدُّ ما فُحص** يُعاد معها.
+
+    ⛔⛔ **ولا خضرةَ بلا شهادة** (‏D-442): كان الفاحصُ يطبع «✅ لا صورةَ معروفةً باقية» ويخرج
+    بصفرٍ **ولو لم يقرأ ملفّاً واحداً** (مسارٌ خطأٌ أو مجلّدٌ فارغ) — وهو العطبُ نفسُه الذي وقع
+    في `judge_parity` (صفرُ كلماتٍ ⇒ «✅ صفرُ انحراف»). **فصفرُ ملفّاتٍ غيابُ قياسٍ لا سلامة.**
+    """
     found = {}
+    scanned = 0
     for p in paths:
         files = []
         if os.path.isdir(p):
@@ -98,10 +104,11 @@ def scan_paths(paths):
         for f in files:
             if os.path.basename(f) == os.path.basename(__file__):
                 continue                  # الحارسُ نفسُه: أمثلتُه نصوصٌ لا نداءات
+            scanned += 1
             hits = scan_text(open(f, encoding="utf-8", errors="replace").read())
             if hits:
                 found[f] = hits
-    return found
+    return found, scanned
 
 
 def selftest():
@@ -139,6 +146,14 @@ def selftest():
     # ⚠️ وحدٌّ يُقال: عنوانٌ يُبنى في دالّةٍ أخرى ويُمرَّر ⇒ **لا يراه الفحصُ النصّيّ**.
     ok("وحدُّه المكتوب: نداءٌ غيرُ مباشرٍ لا يُرى", codes('fetch(url, dst)'), [])
 
+    # ---- ⛔ ولا خضرةَ بلا شهادة: صفرُ ملفّاتٍ **ليس سلامةً** (D-442) ----
+    import tempfile
+    empty = tempfile.mkdtemp()
+    ok("مجلّدٌ بلا ملفّاتٍ ⇒ صفرُ مفحوص", scan_paths([empty])[1], 0)
+    ok("ومسارٌ لا وجودَ له ⇒ صفرُ مفحوص", scan_paths(["/لا/وجود/له"])[1], 0)
+    ok("وملفٌّ واحدٌ يُعَدّ مفحوصاً",
+       scan_paths([os.path.join(os.path.dirname(os.path.abspath(__file__)), "score.py")])[1], 1)
+
     print("✅ الحارسُ سليمٌ على حالاته" if not bad else f"⛔ الحارسُ نفسُه معطوبٌ في {bad} حالة")
     return 1 if bad else 0
 
@@ -150,9 +165,13 @@ def main():
     a = ap.parse_args()
     if a.selftest:
         return selftest()
-    found = scan_paths(a.paths or ["tools/tasmi_bench"])
+    found, scanned = scan_paths(a.paths or ["tools/tasmi_bench"])
     print("# 🛡️ حارسُ الترويسة — ما يُنزّل بلا وسمِ وكيل\n")
     n = sum(len(v) for v in found.values())
+    if not scanned:
+        print("⛔ **صفرُ ملفّاتٍ فُحصت — ولا يُقرأ هذا سلامةً**: أخطأ المسارُ أم المجلّدُ فارغ؟")
+        return 1
+    print(f"<sub>فُحص **{scanned}** ملفَّ بايثون.</sub>\n")
     if not found:
         print("✅ لا صورةَ معروفةً باقية. ⚠️ وهذا «لا صورةَ معروفة» لا «سلامةٌ مطلقة».")
         return 0

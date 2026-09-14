@@ -59,6 +59,12 @@ WARN = {
 }
 
 
+# ⛔⛔ **ولا خضرةَ بلا شهادة** (‏عطبٌ وقع في `judge_parity` ثمّ **في هذا الحارس نفسِه** · D-442):
+# خطّةٌ بلا بنودٍ كانت تُطبع «✅ سليمة» وتخرج بصفر — **وصفرُ بنودٍ ليس سلامةً بل غيابُ قياس**.
+EMPTY_MSG = ("⛔ **صفرُ بنودٍ في هذا الملفّ — ولا يُقرأ هذا سلامةً**: الحارسُ لم يفحص شيئاً "
+             "(أهو مبتورٌ؟ أم المسارُ خطأ؟).")
+
+
 def has_sound(token):
     """أفي هذا المقطع حرفٌ عربيٌّ يُنطَق؟ — «الكلمةُ» بلا حرفٍ علامةُ وقف."""
     return bool(LETTERS.search(token))
@@ -132,6 +138,9 @@ def report(path, plan):
     found = check_plan(plan)
     fatal = [c for c in found if c in FATAL]
     print(f"\n## `{os.path.basename(path)}` — **{len(items)}** بنداً")
+    if not items:
+        print(EMPTY_MSG)
+        return 1
     if not found:
         print("✅ الحقيقةُ الأرضيّةُ سليمةٌ على كلّ شرطٍ يُفحص.")
         return 0
@@ -265,6 +274,9 @@ def report_sample(path, doc):
     found = check_sample(doc, ids, texts)
     fatal = [c for c in found if c in SAMPLE_FATAL]
     print(f"\n## `{os.path.basename(path)}` — **{len(items)}** بنداً (عيّنةٌ نظيفة)")
+    if not items:
+        print(EMPTY_MSG)
+        return 1
     checked = "✅ ونصُّ كلِّ بندٍ قوبل بالمصحف" if texts is not None else \
               "⚠️ **ولم يُقابَل النصُّ بالمصحف** (الأصولُ غائبة) — فلا يُقرأ الأخضرُ تزكيةً للنصّ"
     if not found:
@@ -350,6 +362,9 @@ def report_long(path, doc):
     found = check_long(doc, texts, starts)
     fatal = [c for c in found if c in LONG_FATAL]
     print(f"\n## `{os.path.basename(path)}` — **{len(items)}** تسجيلاً (تلاوةٌ طويلة)")
+    if not items:
+        print(EMPTY_MSG)
+        return 1
     checked = ("✅ ونصُّ كلِّ تسجيلٍ قوبل بالمصحف آيةً آيةً" if texts and starts else
                "⚠️ **ولم يُقابَل النصُّ بالمصحف** (الأصولُ غائبة) — فلا يُقرأ الأخضرُ تزكيةً للنصّ")
     if not found:
@@ -547,6 +562,16 @@ def selftest():
     ok("وخطّةٌ طويلةٌ فيها مكرَّر",
        {k: len(v) for k, v in check_long({"items": [_long, _long]}, LT, ST).items()},
        {"l_dup_id": 1})
+
+    # ---- ⛔ ولا خضرةَ بلا شهادة: صفرُ بنودٍ **ليس سلامةً** (D-442) ----
+    import io, contextlib
+    def _rc(fn, *args):
+        with contextlib.redirect_stdout(io.StringIO()):
+            return fn(*args)
+    ok("خطّةُ حقنٍ فارغةٌ ⇒ تُردّ لا تُزكّى", _rc(report, "x.json", {"items": []}), 1)
+    ok("وعيّنةٌ نظيفةٌ فارغةٌ كذلك", _rc(report_sample, "x.json", {"items": []}), 1)
+    ok("وتلاوةٌ طويلةٌ فارغةٌ كذلك", _rc(report_long, "x.json", {"items": []}), 1)
+    ok("والمملوءةُ السليمةُ تُزكّى", _rc(report, "x.json", {"padMs": 30, "items": [_it()]}), 0)
 
     print("✅ الحارسُ سليمٌ على حالاته" if not bad else f"⛔ الحارسُ نفسُه معطوبٌ في {bad} حالة")
     return 1 if bad else 0
