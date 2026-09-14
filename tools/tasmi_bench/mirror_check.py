@@ -87,8 +87,56 @@ def _selftest():
         ok = got == []
         print(f"  {'✅' if ok else '⛔'} مجلدُ مساراتٍ غائبٌ ⇒ فراغٌ لا استثناء: {got}")
         bad += 0 if ok else 1
+    # ⛔⛔ **وضابطُ الاتّجاه** (‏سادسةُ الثغرات): مقارنةُ مجلدٍ بنفسِه لا تُقرأ «لا انحراف».
+    with tempfile.TemporaryDirectory() as td:
+        same = os.path.join(td, "QuranRafiq", "tools", "tasmi_bench")
+        os.makedirs(same)
+        # ① لا مرآةَ ⇒ **يُرفض الحكم** (‏None) ولا يُقارَن المجلدُ بنفسِه
+        got = resolve_dir(same, same, "ض")[0]
+        ok = got is None
+        print(f"  {'✅' if ok else '⛔'} أصلٌ بلا مرآةٍ ⇒ يُرفض الحكم: {got}")
+        bad += 0 if ok else 1
+        # ② ومرآةٌ موجودةٌ ⇒ **يُقلب الاتّجاه** إليها
+        mir = os.path.join(td, "rafiq-align-ci", "tools", "tasmi_bench")
+        os.makedirs(mir)
+        got2 = resolve_dir(same, same, "ض")[0]
+        ok2 = got2 is not None and os.path.realpath(got2) == os.path.realpath(mir)
+        print(f"  {'✅' if ok2 else '⛔'} أصلٌ ومرآةٌ ⇒ يُقلب الاتّجاه: {got2}")
+        bad += 0 if ok2 else 1
+        # ③ واتّجاهٌ صحيحٌ أصلاً يُمرَّر كما هو
+        got3 = resolve_dir(mir, same, "ض")[0]
+        ok3 = os.path.realpath(got3) == os.path.realpath(mir)
+        print(f"  {'✅' if ok3 else '⛔'} اتّجاهٌ سليمٌ يبقى كما هو: {got3}")
+        bad += 0 if ok3 else 1
     print("✅ التصنيفُ سليمٌ على حالاته" if not bad else f"⛔ التصنيفُ نفسُه معطوبٌ في {bad} حالة")
     return 1 if bad else 0
+
+
+def resolve_dir(mir, src, label):
+    """⛔⛔ **سادسةُ الثغرات (‏قِيست 2026-09-14): الحارسُ كان يُقارن الأصلَ بنفسِه.**
+
+    `SRC` تُشتقّ من **موضع الملفّ الذي جرى** (`__file__`)، فإن شُغِّلت نسخةُ **الأصل**
+    (‏من `QuranRafiq/` أو بمسارٍ مطلقٍ إليها من أيِّ مكان) صارت `SRC == HERE` حرفاً
+    ⇒ **مقارنةُ مجلدٍ بنفسِه ⇒ «✅ لا انحراف» دائماً وأبداً**. وقد وقع ذلك مراراً
+    في ليلة 09-13/14: قُرئ «لا انحراف» وفي المرآة انحرافٌ قائمٌ ومجلدٌ غائبٌ كامل.
+
+    ⇒ فصار الحارسُ **يقلب الاتّجاه بنفسه** إن وُجدت مرآةٌ أخرى، **ويرفض الحكمَ** إن
+    لم يجدها — ولا يقول «لا انحراف» عن مقارنةٍ لم تقع. ⭐ **وحارسٌ يُخدع بموضع تشغيله
+    ليس حارساً.**
+    """
+    if os.path.realpath(mir) != os.path.realpath(src):
+        return mir, src
+    # نحن على الأصل: تُطلب المرآةُ في المستودع العامّ المعروف
+    up = os.path.dirname(os.path.dirname(os.path.dirname(os.path.realpath(mir))))
+    alt = os.path.join(up, "rafiq-align-ci", "tools", os.path.basename(os.path.realpath(mir)))
+    if os.path.isdir(alt):
+        print(f"🔄 **قُلب الاتّجاه لـ{label}**: جرت نسخةُ الأصل، والمرآةُ المفحوصةُ `{alt}`"
+              " (‏ولولا القلبُ لقارن الأصلَ بنفسِه فقال «لا انحراف» بلا مقارنة).")
+        return alt, src
+    print(f"⛔ **لا يُحكم على {label}**: النسخةُ الجارية هي الأصلُ نفسُه ولا مرآةَ وُجدت في "
+          f"`{alt}` ⇒ **المقارنةُ لم تقع** (ولا يُقرأ هذا «لا انحراف»). شغّلْ نسخةَ المرآة: "
+          "`cd rafiq-align-ci && python tools/tasmi_bench/mirror_check.py`.")
+    return None, src
 
 
 def check_pair(HERE, src, sync, label):
@@ -258,7 +306,11 @@ def main():
     for label, mir, src in pairs:
         if a.only and a.only != label:
             continue
-        rc = max(rc, check_pair(mir, src, a.sync, label))
+        mir2, src2 = resolve_dir(mir, src, label)
+        if mir2 is None:
+            rc = max(rc, 1)          # ⛔ مقارنةٌ لم تقع ⇒ سقوطٌ لا سكوت
+            continue
+        rc = max(rc, check_pair(mir2, src2, a.sync, label))
     return rc
 
 

@@ -58,12 +58,21 @@ def cases():
     return out
 
 
+def cfg_for(rw):
+    """إعدادُ المرآة لهذه الحزمة — **مصدرٌ واحدٌ** يقرؤه المولّدُ ومدقّقُ الحزمة معاً.
+
+    ⛔ ولِمَ يُفرَد؟ لأنّ `fixture_audit.py` يعيد حسابَ الأحكام من صفوف الحزمة نفسِها،
+    فلو نسخ الإعدادَ نسخاً ثانياً لأصبح **مِسطرتان** ينحرف إحداهما صامتةً عن الأخرى.
+    """
+    return scorer.Config(strip_yeh_barree=True, dagger_optional=True, naql=rw == "warsh",
+                         sila=rw in ("warsh", "qalun"), mark_sila=True)
+
+
 def main():
     data = []
     for c in cases():
         rw = c.get("riwaya", "hafs")
-        cfg = scorer.Config(strip_yeh_barree=True, dagger_optional=True, naql=rw == "warsh",
-                            sila=rw in ("warsh", "qalun"), mark_sila=True)
+        cfg = cfg_for(rw)
         s = scorer.score(c["ref"].split(), c["hyp"], cfg)
         data.append({**c, "verdicts": "".join(CODE[v[1]] for v in s["words"]),
                      "additions": s["additions"]})
