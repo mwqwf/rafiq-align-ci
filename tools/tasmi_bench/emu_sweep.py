@@ -268,11 +268,12 @@ def run_set(set_name, limit=0, chunk=60, timeout_per_file=90, chain=False):
             _ES_VERIFIED = True
             print(f"✅ المسبارُ أقرّ بالإضافات: {' · '.join(EXTRA_ES)}", flush=True)
         deadline = time.time() + timeout_per_file * len(batch) + 120
-        seen, last_n, times, judges, snrs = {}, -1, {}, {}, {}
+        seen, last_n, times, judges, snrs, confs = {}, -1, {}, {}, {}, {}
         while time.time() < deadline:
             time.sleep(15)
-            log = adb("shell", "logcat", "-d", "-s", "RafiqBatch:*", "RafiqJudge:*", "RafiqSnr:*").stdout
-            seen = parse_log(log, times, judges, names, snrs)
+            log = adb("shell", "logcat", "-d", "-s", "RafiqBatch:*", "RafiqJudge:*", "RafiqSnr:*",
+                      "RafiqConf:*").stdout
+            seen = parse_log(log, times, judges, names, snrs, confs)
             if "__done__" in log or len(seen) >= len(batch):
                 break
             if len(seen) != last_n:
@@ -282,7 +283,8 @@ def run_set(set_name, limit=0, chunk=60, timeout_per_file=90, chain=False):
             t = seen.get(i)
             done[i] = ({"text": t, "rc": 0, **({"ms": times[i]} if i in times else {}),
                         **({"judge": judges[i]} if i in judges else {}),
-                        **({"snr": snrs[i]} if i in snrs else {})}
+                        **({"snr": snrs[i]} if i in snrs else {}),
+                        **({"conf": confs[i]} if i in confs else {})}
                        if t is not None else {"error": "لم يظهر في السجل"})
         json.dump({"meta": meta, "hyps": done}, open(out, "w", encoding="utf-8"), ensure_ascii=False)
         ok = sum(1 for i in batch if i in seen)
@@ -325,7 +327,7 @@ def probe_name(i):
     return f"{rw}_{mid or 'x'}_{m.group(1)}{m.group(2)}"
 
 
-def parse_log(log, times=None, judges=None, names=None, snrs=None):
+def parse_log(log, times=None, judges=None, names=None, snrs=None, confs=None):
     """أسطرُ `RafiqBatch` بصيغة `<id>.wav<TAB><text>`.
 
     ⏱️ ومتى أُعطي [times] تُستخرج **أزمنةُ البنود** من طوابع logcat: زمنُ البند = الفارقُ بين سطره والسطر
@@ -340,7 +342,15 @@ def parse_log(log, times=None, judges=None, names=None, snrs=None):
         # 🔊 **وسمُ `RafiqSnr`** (‏D-329 · أعلمته جلسةُ التطبيق): `snrDb= noisy= block=` لكلّ بند.
         # يُقيَّد هنا **قبل** وصول بنائه عملاً بقاعدة D-323: كلُّ وسمٍ جديدٍ يُعلَن اسمُه ويُدخَل في
         # المصفاة، وإلّا سكت عندنا وقرأنا سكوتَه غياباً. و`-s` تُسكت كلَّ وسمٍ غيرِ مذكور.
-        if "RafiqBatch" not in ln and "RafiqJudge" not in ln and "RafiqSnr" not in ln:
+        # 🎚️ **وسمُ `RafiqConf`** (‏يُقيَّد **قبل** وجود مُنتِجه — قاعدةُ D-323 نفسُها التي
+        #    سبق أن نفعت مع `RafiqSnr`): ثقةُ الفكِّ لكلِّ كلمة. **والإشارةُ موجودةٌ في المحرك
+        #    منذ D-252** (`TimedWord.p` ⇐ `whisper_full_get_token_data().p`) **ويُسقطها الحاكمُ
+        #    عند بابه** (‏قِرئ 2026-09-14: لا مستهلكَ لـ`Word.p` إلا سطرُ تنقيحٍ بلا معرِّف بند).
+        #    ⇒ متى طبعها المسبارُ بالصيغة أدناه صارت **مقيسةً** بلا تغييرِ شيءٍ هنا:
+        #        RafiqConf: <id>.wav\t<كلمةٌ>:<p> <كلمةٌ>:<p> …
+        #    وحتى ذلك الحين **غيابُها «لم يُطبع» لا «ثقةٌ عالية»**.
+        if ("RafiqBatch" not in ln and "RafiqJudge" not in ln and "RafiqSnr" not in ln
+                and "RafiqConf" not in ln):
             continue
         t = None
         ts = re.match(r"^(\d\d-\d\d \d\d:\d\d:\d\d\.\d+)", ln)
@@ -359,6 +369,11 @@ def parse_log(log, times=None, judges=None, names=None, snrs=None):
             j = re.search(r"([A-Za-z0-9_\-.]+)\.wav	(.*)$", body)
             if j:
                 snrs[(names or {}).get(j.group(1), j.group(1))] = j.group(2).strip()
+            continue
+        if confs is not None and "RafiqConf" in body:
+            j = re.search(r"([A-Za-z0-9_\-.]+)\.wav\t(.*)$", body)
+            if j:
+                confs[(names or {}).get(j.group(1), j.group(1))] = j.group(2).strip()
             continue
         if judges is not None and "RafiqJudge" in body:
             j = re.search(r"([A-Za-z0-9_\-.]+)\.wav\t(.*)$", body)
@@ -383,6 +398,43 @@ def parse_log(log, times=None, judges=None, names=None, snrs=None):
                 prev, first = t, True
     out.pop("__done__", None)
     return out
+
+
+def selftest_parse():
+    """🧪 ضابطُ مصفاة الأوسام — بجوابٍ معلومٍ سلفاً، **ومنه وسمٌ لا مُنتِجَ له بعد**.
+
+    ⛔ ولِمَ يُختبر شيءٌ كهذا؟ لأنّ العطبَ هنا **صامتٌ**: وسمٌ غيرُ مذكورٍ في `-s` يُسكَت
+    فنقرأ سكوتَه غياباً (‏درسُ D-323 مع `RafiqSnr`). فالضابطُ يُثبت أنّ السطرَ **يُلتقط
+    ويُنسب إلى بنده** متى طُبع، وأنّ غيابَه لا يخلق حقلاً كاذباً.
+    """
+    log = "\n".join([
+        "09-14 04:55:01.100  I RafiqBatch: g4_001.wav\tالحمد لله رب العالمين",
+        "09-14 04:55:02.200  I RafiqJudge: g4_001.wav\tCORRECT CORRECT SUBSTITUTED",
+        "09-14 04:55:02.300  I RafiqSnr: g4_001.wav\tsnrDb=21.5 noisy=false",
+        "09-14 04:55:02.400  I RafiqConf: g4_001.wav\tالحمد:0.94 لله:0.88 رب:0.31",
+        "09-14 04:55:03.000  I RafiqBatch: g4_002.wav\tقل هو الله أحد",
+        "09-14 04:55:04.000  I OtherTag: g4_002.wav\tسطرٌ لا يخصّنا",
+    ])
+    times, judges, snrs, confs = {}, {}, {}, {}
+    out = parse_log(log, times, judges, None, snrs, confs)
+    ok = True
+
+    def check(cond, msg):
+        nonlocal ok
+        if not cond:
+            print("⛔ " + msg)
+            ok = False
+    check(out.get("g4_001") == "الحمد لله رب العالمين", f"نصُّ البند الأوّل: {out.get('g4_001')!r}")
+    check(out.get("g4_002") == "قل هو الله أحد", "نصُّ البند الثاني")
+    check(confs.get("g4_001") == "الحمد:0.94 لله:0.88 رب:0.31", f"ثقةُ البند: {confs.get('g4_001')!r}")
+    check("g4_002" not in confs, "بندٌ بلا سطر ثقةٍ يجب ألّا يُخلَق له حقل (‏«لم يُطبع» لا «عالية»)")
+    check(judges.get("g4_001", "").endswith("SUBSTITUTED"), "أحكامُ الحاكم")
+    check(snrs.get("g4_001", "").startswith("snrDb="), "نسبةُ الضجيج")
+    check(all("سطرٌ لا يخصّنا" not in v for v in out.values()), "وسمٌ أجنبيٌّ يجب أن يُتجاهَل")
+    # ⛔ وسطرُ الثقة **لا يُقرأ نصّاً للبند**: لو خلط لصار النصُّ أرقاماً
+    check("0.94" not in out.get("g4_001", ""), "سطرُ الثقة تسرّب إلى نصّ البند")
+    print("✅ مصفاةُ الأوسام سليمةٌ على حالاتها." if ok else "⛔ سقط ضابطُ المصفاة")
+    return 0 if ok else 1
 
 
 EXTRA_ES = []        # إضافاتُ نيّةٍ نصّيّة من `--es` (D-303)
@@ -427,6 +479,7 @@ def release_lock():
 
 def main():
     ap = argparse.ArgumentParser()
+    ap.add_argument("--selftest", action="store_true", help="ضابطُ مصفاة الأوسام (بلا جهاز)")
     ap.add_argument("--model-path", help="نموذجٌ بديلٌ على الجهاز (مسارٌ مطلق)")
     ap.add_argument("--es", action="append", default=[], metavar="KEY=VAL",
                     help="إضافةُ نيّةٍ نصّيّةٌ تُمرَّر إلى المسبار كما هي (تتكرّر) — مثل `--es lang=ar`")
@@ -442,6 +495,8 @@ def main():
                     help="ما يُفعَّل في المحرك: كلاهما (chain) · البوّابة (gate) · الجهارة (lvl)")
     ap.add_argument("--tag", default="", help="وسمُ الذراع في اسم ملفّ المخرَج (مثلاً shipped · v2)")
     args = ap.parse_args()
+    if args.selftest:
+        return selftest_parse()
     if args.tag:
         global TAG
         TAG = args.tag
