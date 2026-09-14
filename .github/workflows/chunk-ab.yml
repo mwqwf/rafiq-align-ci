@@ -116,6 +116,9 @@ jobs:
         env:
           PYTHONIOENCODING: utf-8
         run: |
+          # ⛔ **بلا هذا يُكتم فشلُ الأداة**: حالةُ الأنبوب حالةُ `tee` (‏قِيس 2026-09-14:
+          #    `false | tee f` يخرج بصفر) ⇒ خطوةٌ «ناجحةٌ» وجدولُها لا وجودَ له.
+          set -o pipefail
           cd tools/tasmi_bench
           python - <<'PYJ' | tee work/chunk_ab.md
           import glob, json, io, os, sys

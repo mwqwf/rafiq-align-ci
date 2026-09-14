@@ -82,6 +82,8 @@ jobs:
         env:
           PYTHONIOENCODING: utf-8
         run: |
+          # ⛔ `test -s` أدناه يمسك الجدولَ الفارغَ وحدَه؛ وفشلٌ بعد كتابةِ شيءٍ يمرّ بلا هذا.
+          set -o pipefail
           cd tools/tasmi_bench
           python inject_riwaya.py --audit | tee /tmp/coverage.md
           test -s /tmp/coverage.md   # ⛔ جدولٌ فارغٌ ليس قياساً

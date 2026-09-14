@@ -67,6 +67,49 @@ def scan_text(text, name="<نصّ>"):
                     del opens[tag]
         for tag, oj in opens.items():
             risky.append((name, oj + 1, tag, "لا مُغلِقَ له في الكتلة"))
+        risky += scan_block_shell(body, name)
+    return risky
+
+
+# 🪤 **فخّان آخران في كتل `run:` — كلاهما وقع في أسطولنا ليلةَ 2026-09-13/14 وقُيس اليومَ:**
+#
+# ⛔⛔ **والحارسُ يُضيَّق عمداً إلى ما يكتم فشلاً حقيقيّاً:** أوّلُ صياغةٍ أنذرت بـ**42 موضعاً**
+# أكثرُها عرضٌ لا أداة (`ls | wc` · `lscpu | grep` · `cat | head`) — **وحارسٌ يُنذر بما لا يضرّ
+# يُعلّم قارئَه تجاهلَه** (وهو الدرسُ الذي كتبتُه بنفسي قبل ساعات). ⇒ لا يُنذَر إلّا حيث **يسار
+# الأنبوب أداةُ مشروعٍ** (`python` · `gradlew` · `bash tools/…`): تلك وحدَها يُقرأ فشلُها نجاحاً.
+TOOL_PIPE = re.compile(r"(?:^|\s|\()(python3?|\./gradlew|gradlew|bash|sh)\s+[^|]*\|\s*\S")
+TEST_AND = re.compile(r"^\[\s.*\]\s*&&\s*\S")
+
+
+def scan_block_shell(body, name):
+    """يفحص كتلةً واحدةً عن فخَّي الصَّدَفة المقيسَين (‏الأنبوبُ الكاتم · والشرطُ الأخير)."""
+    risky = []
+    txt = "\n".join(s for _, s in body)
+    has_pipefail = "pipefail" in txt
+    for j, s in body:
+        st = s.strip()
+        if st.startswith("#") or not st:
+            continue
+        # ⛔ **الأنبوبُ يكتم فشلَ أوّله** (‏مقيسٌ: `false | tee f` يخرج بـ**صفر**): فحالةُ الخطوة
+        # حالةُ **آخرِ** الأنبوب لا حالةُ الأداة ⇒ خطوةٌ «ناجحةٌ» وجدولُها لا وجودَ له (وقع فعلاً
+        # في شوط `34795058366`). والعلاجُ `set -o pipefail` في أوّل الكتلة، أو فصلُ الأمرَين.
+        # ⛔ **وما عولج صراحةً لا يُنذَر به** (‏إيجابيّتان كاذبتان من مستودعنا نفسِه):
+        #    `… | tee` ثمّ `rc=${PIPESTATUS[0]}` — وهو **الصوابُ عينُه** · و`… || echo`.
+        if (TOOL_PIPE.search(st) and not has_pipefail and "||" not in st
+                and "PIPESTATUS" not in txt):
+            risky.append((name, j + 1, "أنبوب",
+                          "أداةٌ في أنبوبٍ بكتلةٍ بلا `set -o pipefail` ⇒ فشلُها يُكتم"))
+    # ⛔ **`[ … ] && …` آخرَ الكتلة**: حالةُ النصّ حالةُ آخرِ أمرٍ، فشرطٌ كاذبٌ ⇒ الخطوةُ **تسقط**
+    # بلا خطأٍ مفهوم. ⭐ **وفي الوسط لا يسقط شيء** (‏قِيس بـ`bash -e`: استثناءُ قوائم `&&`) —
+    # فلا يُنذَر به كي لا يُعلَّم القارئُ قاعدةً كاذبةً ثمّ يتجاهل الحارس.
+    real = [(j, s) for j, s in body if s.strip() and not s.strip().startswith("#")]
+    if real:
+        j, s = real[-1]
+        # ⛔ وما تلاه `||` لا يُسقط شيئاً (‏شرطٌ كاذبٌ ⇒ يُنفَّذ البديلُ ⇒ صفر) — إيجابيّةٌ
+        #    كاذبةٌ ثانيةٌ من مستودعنا (`finetune-audit`), فتُستثنى بالقياس لا بالظنّ.
+        if TEST_AND.match(s.strip()) and "||" not in s:
+            risky.append((name, j + 1, "شرطٌ أخير",
+                          "`[ … ] && …` آخرَ الكتلة ⇒ شرطٌ كاذبٌ يُسقط الخطوةَ (قِيس)"))
     return risky
 
 
@@ -107,6 +150,62 @@ jobs:
       - run: |
           printf 'list<<EOF\\n%s\\nEOF\\n' "$LIST" >> "$GITHUB_OUTPUT"
 """, 0),
+    # ---- 🪤 الفخّان المقيسان 2026-09-14 ----
+    ("⛔ أنبوبٌ بلا pipefail يكتم فشلَ أوّله", """
+jobs:
+  a:
+    steps:
+      - run: |
+          python tool.py --x | tee work/out.md
+""", 1),
+    ("✅ وأنبوبٌ في كتلةٍ فيها pipefail سليم", """
+jobs:
+  a:
+    steps:
+      - run: |
+          set -o pipefail
+          python tool.py --x | tee work/out.md
+""", 0),
+    ("✅ وأنبوبٌ معطوفٌ عليه `||` قد عولج صراحةً", """
+jobs:
+  a:
+    steps:
+      - run: |
+          python tool.py | tee out.md || echo "⚠️ سقطت"
+""", 0),
+    ("⛔ `[ … ] && …` آخرَ الكتلة يُسقط الخطوةَ بشرطٍ كاذب", """
+jobs:
+  a:
+    steps:
+      - run: |
+          echo قبلُ
+          [ -f out.md ] && python r2_put.py out.md
+""", 1),
+    ("✅ والشرطُ نفسُه في الوسط لا يُسقط شيئاً (‏قِيس) فلا يُنذَر به", """
+jobs:
+  a:
+    steps:
+      - run: |
+          [ -z "$B" ] && B=4
+          echo "$B"
+""", 0),
+    ("✅ وأنبوبٌ حالتُه تُقرأ من PIPESTATUS — وهو الصوابُ (‏من `plan-riwaya`)", """
+jobs:
+  a:
+    steps:
+      - run: |
+          set +e
+          python inject_riwaya.py $ARGS | tee /tmp/plan_log.txt
+          rc=${PIPESTATUS[0]}
+          set -e
+""", 0),
+    ("✅ وشرطٌ أخيرٌ يتلوه `||` لا يُسقط شيئاً (‏من `finetune-audit`)", """
+jobs:
+  a:
+    steps:
+      - run: |
+          [ -f "/mnt/ft/a.json" ] && python tools/finetune/r2_put.py a b || echo "لا مخرَج"
+""", 0),
 ]
 
 
@@ -139,7 +238,7 @@ def main():
     for r in risky:
         print(f"  ⚠️ {r[0]}:{r[1]} · الوسم `{r[2]}` — {r[3]}")
     if risky:
-        print(f"⛔ {len(risky)} موضعَ خطرٍ — تُكتب سطورُ الشِّفرة في ملفٍّ بدل `heredoc` داخلَ كتلة")
+        print(f"⛔ {len(risky)} موضعَ خطرٍ — العلاجُ بحسب الوسم: شفرةٌ في ملفٍّ بدل `heredoc` · و`set -o pipefail` للأنبوب · و`if` بدل شرطٍ أخير")
         return 1
     print("✅ لا مُغلِقَ heredoc أعمقُ من أساس كتلته ولا مفتوحاً بلا مُغلِق")
     return 0
