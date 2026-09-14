@@ -1309,6 +1309,8 @@ def main():
                     help="⛔ خططُ الحقن التي تُقابَل بها القائمةُ (الضابطُ السالب)")
     ap.add_argument("--against", default="",
                     help="🎯 أرضيّةٌ أخرى (‏مجموعةٌ محجوبةٌ بتمامها) تُقاس عليها القائمةُ")
+    ap.add_argument("--abstain", default="",
+                    help="🤫 يُسعّر وكيلَ الامتناع النصّيّ على أرضيّةٍ مكتوبةٍ وحدَها")
     ap.add_argument("--selftest", action="store_true")
     a = ap.parse_args()
     if a.selftest:
@@ -1382,6 +1384,17 @@ def main():
         src = other if other else rows
         print(f"\n#### (‏الامتناعُ مقيسٌ على: **{oname or (str(d0.get('set')) + ' · ' + str(d0.get('arm')))}**)")
         abstain_report(src, plans)
+    if a.abstain:
+        d2 = json.load(open(a.abstain, encoding="utf-8"))
+        rows2 = d2.get("rows") or []
+        if not rows2:
+            print(f"⛔ لا مواضعَ في `{os.path.basename(a.abstain)}` ⇒ **لا يُسعَّر امتناعٌ على "
+                  "فراغ** (وهذا «لم يُقَس» لا «صفرُ كسب»).")
+            return 3
+        plans2 = [p if os.path.isabs(p) else os.path.join(HERE, p) for p in a.plans.split()]
+        print(f"\n## 🤫 وكيلُ الامتناع على أرضيّةِ `{d2.get('set')}` · `{d2.get('arm')}` — "
+              f"**{len(rows2)}** موضعاً")
+        abstain_report(rows2, plans2)
     if a.cost:
         cost_report(a.riwayat.split(), a.heads.split())
     return 0
