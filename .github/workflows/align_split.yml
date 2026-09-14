@@ -2,6 +2,7 @@ name: rafiq-align-split
 
 run-name: >-
   split ${{ inputs.reciter }}/${{ inputs.riwaya }} · أجزاء=${{ inputs.parts }}
+  ${{ inputs.reason && format('· {0}', inputs.reason) || '' }}
 
 # ⭐⭐ **قسمةُ القارئ الواحد على عدّة عدّائين، ثمّ جمعٌ في عدّاءٍ خاتم.**
 #
@@ -49,6 +50,13 @@ on:
       whisper_ac:
         description: "‏-ac لـwhisper (0 = بناءُ الأسطول)"
         default: "0"
+      reason:
+        # ⛔ يُعلَن هنا لأنّ ناقلَ الأوامر (`CLAUDE.md`) يمرّره مع كلّ إطلاقٍ بحكم
+        #    قاعدةِ «سببٌ مقيسٌ يُكتب بنصّه». وغيابُه أسقط أوّلَ إطلاقٍ بـ422:
+        #    `Unexpected inputs provided: ["reason"]` (‏ops/out/1322_split_hafz.txt).
+        #    فالإعلانُ يحفظ القاعدةَ بدل أن يُسقطها.
+        description: "سببُ الإطلاق — يُكتب في اسم الشوط وسجلِّه"
+        default: ""
 
 # ⛔ مجموعةٌ لكلّ قارئ: قسمتان لقارئٍ واحد تتنازعان كاشَه، وقارئان مختلفان
 #    لا يلتقيان في شيء — وهو عينُ التمييز الذي كلّف `align.yml` أربعَ مراجعات.
