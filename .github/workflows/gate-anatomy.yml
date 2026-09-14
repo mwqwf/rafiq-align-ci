@@ -411,7 +411,12 @@ jobs:
           #     فلا يشتعل `||`، ويبقى الملفُّ فارغاً فيسقط من الأثر **صامتاً**. وقعت في
           #     الشوط `34795058366`: خطوةٌ «ناجحةٌ» بصفرِ ثانيةٍ وجدولٌ لا وجودَ له.
           #     ⇒ الحالةُ تُقرأ من بايثون وحدَه، وكلُّ سقوطٍ **يُكتب نصُّه في الجدول**.
-          if python error_triage.py --dirs "work:" --arms "$ARMS" --sets "$SETS" --top 60 > work/triage.md 2> work/triage.err; then
+          # 🧱 **وأرضيّةُ المواضع تُكتب وتُقابَل**: الفرقُ المجملُ يُخفي انقساماً (‏درسُ D-392:
+          #    +0.14 وفيها قالونُ +1.12 وورشٌ ‎−0.88) — أمّا الموضعُ فلا يُخفي شيئاً.
+          #    فتُكتب أرضيّةُ الذراع الأولى، وإن وُجدت أرضيّةٌ مُودَعةٌ قُوبلت بها الأذرعُ الأخرى.
+          FLOOR=""
+          [ -f ../../results/CLEAN_FLOOR.json ] && FLOOR="--floor ../../results/CLEAN_FLOOR.json"
+          if python error_triage.py --dirs "work:" --arms "$ARMS" --sets "$SETS" --top 60             --floor-out work/clean_floor.json $FLOOR > work/triage.md 2> work/triage.err; then
             cat work/triage.md
           else
             { echo "### 🔖 تصنيفُ الأخطاء — ⚠️ **تعذّر**، ونصُّ الخطأ كما هو:"; echo
@@ -419,6 +424,24 @@ jobs:
             cat work/triage.md
           fi
           [ -s work/triage.md ] || echo "⚠️ **التصنيفُ خرج فارغاً بلا خطأ** — يُقرأ «لم يُقَس» لا «لا أخطاء»." > work/triage.md
+          # ⛔ **والأرضيّةُ المُودَعةُ أرضيّةُ المشحون على النظيف وحدَها** — فلا تُكتب بذراعٍ
+          #    مرشَّحةٍ ولا بمجموعةٍ أخرى، وإلّا صار «الأساسُ» متحرّكاً فلا يقيس شيئاً.
+          # ⛔ و`if` لا `[ … ] && …`: لو كان الشرطُ كاذباً **وهو آخرُ أمرٍ في الكتلة** لسقطت
+          #    الخطوةُ كلُّها (‏الفخُّ الثاني في حارسِنا — ويُتجنَّب بالبناء لا بالحظّ).
+          WRITE_FLOOR=0
+          case "$ARMS" in shipped*)
+            case "$SETS" in
+              *g4n*) ;;
+              *g4*) WRITE_FLOOR=1 ;;
+            esac ;;
+          esac
+          if [ "$WRITE_FLOOR" = "1" ] && [ -s work/clean_floor.json ]; then
+            mkdir -p ../../results
+            cp work/clean_floor.json ../../results/CLEAN_FLOOR.json
+            echo "🧱 أُودعت أرضيّةُ المشحون على النظيف (‏أساسٌ تُقابَل به الأذرعُ القادمة)."
+          else
+            echo "ℹ️ لا تُكتب الأرضيّةُ في هذا الشوط (‏ليست ذراعَ المشحون على `g4` النظيفة)."
+          fi
       - name: 🧾 جردُ الفرضيّات المحفوظة في R2 (‏فلا يُعاد قياسُ ما هو مقروءٌ بدقيقة)
         if: always()
         env:
@@ -582,6 +605,7 @@ jobs:
           git config user.name "rafiq-ci"
           git config user.email "ci@users.noreply.github.com"
           git add "$OUT" results/LATEST_anatomy.md
+          [ -s results/CLEAN_FLOOR.json ] && git add results/CLEAN_FLOOR.json
           [ -s results/HYPS_INVENTORY.md ] && git add results/HYPS_INVENTORY.md
           git commit -q -m "results(anatomy): ${T} · الشوط ${{ github.run_id }}" || { echo "لا تغيير"; exit 0; }
           for i in 1 2 3; do

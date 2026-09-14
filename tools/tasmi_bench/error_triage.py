@@ -481,6 +481,66 @@ def from_pairs(path):
     return out
 
 
+def floor_positions(dirs, arms, sets):
+    """🧱 **مواضعُ الأرضيّة بأعيانها** — (بندٌ · ترتيبُ الكلمة · المرجعُ · ما سُمع) لكلِّ ذراع.
+
+    ⭐ **لِمَ موضعٌ لا نسبة؟** D-392 أرت أنّ الفرقَ المجملَ (+0.14) **يُخفي انقساماً**
+    (‏قالونُ يرتفع وورشٌ يهبط). والموضعُ لا يُخفي شيئاً: ذراعٌ جديدةٌ تُقاس بـ«كم موضعاً
+    من الأرضيّة أصلحتْ وكم موضعاً جديداً أحدثتْ» — **فلا يختبئ كسرٌ خلف إصلاح**.
+    """
+    SCR, SC = _mods()
+    import v2_gate as G
+    out = {}
+    for d in dirs:
+        G.WORK = d
+        pool = G.pool_items()
+        for st in sets:
+            key = st if st.startswith(("g1", "g4")) else st.replace("-", ":", 1)
+            for arm in arms:
+                hyps = G.load_hyps(key, arm)
+                if not hyps:
+                    continue
+                rows = []
+                for it in [x for x in pool if x["id"] in hyps]:
+                    h = hyps.get(it["id"]) or {}
+                    if h.get("text") is None or "error" in h:
+                        continue
+                    riw = it.get("riwaya")
+                    ref = it["refText"].split()
+                    sc = SCR.score(ref, h["text"], SC.config_for("proposed", riw))
+                    for w in sc.get("words", []):
+                        if not w or w[1] not in (SCR.MISSED, SCR.SUBSTITUTED):
+                            continue
+                        rows.append({"item": it["id"], "idx": w[0], "riwaya": riw,
+                                     "ref": ref[w[0]] if w[0] < len(ref) else "?",
+                                     "heard": w[2], "status": w[1]})
+                if rows:
+                    out[(st, arm)] = rows
+    return out
+
+
+def floor_compare(base_rows, arm_rows):
+    """(‏مثبَّتٌ · مُصلَحٌ · جديدٌ) بمقارنة **المواضع** لا الأعداد."""
+    b = {(r["item"], r["idx"]) for r in base_rows}
+    a = {(r["item"], r["idx"]) for r in arm_rows}
+    return sorted(b & a), sorted(b - a), sorted(a - b)
+
+
+def floor_table(floor, arm_rows, arm_name, base_name):
+    kept, fixed, new = floor_compare(floor, arm_rows)
+    print(f"\n### 🧱 مقابلةُ الأرضيّة — `{arm_name}` في مواجهة أرضيّة `{base_name}`\n")
+    print("| | مواضعُ |")
+    print("|---|---:|")
+    print(f"| أرضيّةُ الأساس | {len(floor)} |")
+    print(f"| **مثبَّتٌ** (‏بقي خطأً) | {len(kept)} |")
+    print(f"| **مُصلَحٌ** | {len(fixed)} |")
+    print(f"| **جديدٌ** (‏كسرٌ أحدثتْه) | {len(new)} |")
+    net = len(fixed) - len(new)
+    print(f"\n**المحصّلة:** {'+' if net > 0 else ''}{net} موضعاً. ⛔ **ولا يُقرأ «أصلحَ» وحدَه**: "
+          f"ذراعٌ تُصلح {len(fixed)} وتكسر {len(new)} ليست أفضلَ بـ{len(fixed)} (‏درسُ D-392).")
+    return kept, fixed, new
+
+
 def from_dirs(dirs, arms, sets):
     """الأزواجُ من الفرضيّات المحفوظة — بالحاكم نفسِه الذي يحكم به الشوط.
 
@@ -607,6 +667,20 @@ def selftest():
         if other != want_other:
             print(f"⛔ `{ref}`⇄`{heard}`: عمودُ «كلمةٌ أخرى» انتُظر {want_other} فجاء {other}")
             ok = False
+    # ضوابطُ مقابلةِ الأرضيّة — بجوابٍ معلومٍ سلفاً
+    base = [{"item": "i1", "idx": 3}, {"item": "i1", "idx": 9}, {"item": "i2", "idx": 0}]
+    arm = [{"item": "i1", "idx": 3}, {"item": "i3", "idx": 5}]
+    kept, fixed, new = floor_compare(base, arm)
+    if (len(kept), len(fixed), len(new)) != (1, 2, 1):
+        print(f"⛔ floor_compare: انتُظر (1 · 2 · 1) فجاء ({len(kept)} · {len(fixed)} · {len(new)})")
+        ok = False
+    if floor_compare(base, base) != (sorted({("i1", 3), ("i1", 9), ("i2", 0)}), [], []):
+        print("⛔ floor_compare: ذراعٌ مطابقةٌ يجب أن تعطي صفرَ إصلاحٍ وصفرَ كسر")
+        ok = False
+    # ⛔ والموضعُ يُميَّز بـ(بندٍ · ترتيب) لا بالكلمة: كلمتان متشابهتان في بندَين موضعان
+    if len(floor_compare([{"item": "i1", "idx": 3}], [{"item": "i2", "idx": 3}])[0]) != 0:
+        print("⛔ floor_compare: خلط موضعَين مختلفَي البند")
+        ok = False
     # ضوابطُ `parse_item` و`where_stats` على نصٍّ صناعيٍّ معلومِ الجواب
     if T_parse := parse_item("long_qalun_092_005x6"):
         if T_parse != ("qalun", 92, 5, 6):
@@ -690,6 +764,8 @@ def main():
     ap.add_argument("--sets", default="")
     ap.add_argument("--top", type=int, default=60)
     ap.add_argument("--cost", action="store_true")
+    ap.add_argument("--floor-out", default="", help="🧱 يكتب مواضعَ أرضيّة الذراع الأولى ملفَّ JSON")
+    ap.add_argument("--floor", default="", help="🧱 يقابل الأذرعَ بأرضيّةٍ مكتوبةٍ سلفاً")
     ap.add_argument("--where", action="store_true",
                     help="🧭 أمِن البند نفسِه جاءت الكلمةُ المسموعةُ أم من خارجه؟")
     ap.add_argument("--riwayat", default="warsh qalun")
@@ -714,6 +790,25 @@ def main():
             table(rows, f"تصنيفُ أخطاء `{st}` · `{arm}`")
             if a.where:
                 where_table(rows)
+        if a.floor_out or a.floor:
+            pos = floor_positions(dirs, a.arms.split(), a.sets.split())
+            if not pos:
+                print("⛔ لا فرضيّاتٍ للأرضيّة ⇒ **لم تُقَس** (ولا تُكتب أرضيّةٌ فارغة).")
+                return 3
+            order = [k for k in pos]
+            if a.floor_out:
+                st0, arm0 = order[0]
+                json.dump({"set": st0, "arm": arm0, "n": len(pos[(st0, arm0)]),
+                           "rows": pos[(st0, arm0)]},
+                          open(a.floor_out, "w", encoding="utf-8"), ensure_ascii=False, indent=1)
+                print(f"\n🧱 كُتبت أرضيّةُ `{st0}` · `{arm0}`: **{len(pos[(st0, arm0)])}** موضعاً "
+                      f"⇒ `{os.path.basename(a.floor_out)}` (‏تُقابَل بها أذرعٌ قادمة).")
+            if a.floor:
+                d0 = json.load(open(a.floor, encoding="utf-8"))
+                for (st, arm), rows in pos.items():
+                    if arm == d0.get("arm") and st == d0.get("set"):
+                        continue
+                    floor_table(d0["rows"], rows, arm, f"{d0.get('arm')}")
         # ⛔ **ولا خروجَ صامتٌ:** جدولٌ فارغٌ يُقرأ «لم يُقَس» لا «لا خطأ» ⇒ يُنطق بسببه
         #    ويسقط بالرمز، فلا تُعدّ خطوةٌ فارغةٌ نجاحاً (‏درسُ الشوط `34795058366`).
         if not found:
