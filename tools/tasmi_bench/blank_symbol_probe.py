@@ -47,11 +47,18 @@
 """
 import argparse
 import collections
+import io
+import os
 import sys
 import time
 
-sys.path.insert(0, ".")
-sys.path.insert(0, "../alignment")
+# ⛔ كان المساران **نسبيَّين** (`"."` و`"../alignment"`) فلا يعمل الملفُّ إلّا إن نودي من
+# داخل مجلّده — وشوطُ `bench-selftest` ينادي الأدواتِ **من جذر المستودع** ⇒ انهيارُ استيراد.
+# (‏لم يظهر قبلُ لأنّ الأداةَ لم يكن لها `--selftest` فلم تُنادَ في الشوط قطّ · D-507.)
+HERE = os.path.dirname(os.path.abspath(__file__))
+ROOT = os.path.dirname(os.path.dirname(HERE))
+sys.path.insert(0, HERE)
+sys.path.insert(0, os.path.join(ROOT, "tools", "alignment"))
 
 import scorer  # noqa: E402
 import detect_score  # noqa: E402
@@ -426,8 +433,108 @@ def denom(riwayat, verbose=True):
     return out
 
 
+def selftest():
+    """🧪 **حارسُ مسبار الرمز المنفصل** (‏D-507) — أذرعُه الخمسةُ **ثقيلةٌ** (حفصٌ وحدَه
+    47,864 التحاماً × حكمَين، ولذلك قُسِّمت `--fix` على أقسام) فلا تُشعَل في كلّ دفعة.
+    وهذا يفحص في ثوانٍ أربعةً يسقط القياسُ كلُّه بسقوطها:
+
+    ⭐⭐ **`_score_dropblank` لا تفارق `scorer.score` إلّا في الفارغ** — وهي نسخةٌ ثالثةٌ
+      من المِسطرة في العدّة؛ انحرافُها يجعل «كسبَ الدواء» كسبَ نسختَين لا كسبَ دواء.
+    ⭐⭐ **وأحكامُها تعود إلى فهارس المرجع الأصليّة** — وإزاحةُ فهرسٍ واحدٍ هنا **تتّهم
+      كلمةً بريئةً وتُبرّئ أخرى**، وهي كلماتُ القرآن.
+    ⭐ **والقسمةُ قسمةُ مدخلٍ لا قسمةُ عمل** — أقسامٌ تتداخل أو تُسقط آيةً تعطي رقماً
+      «مجموعاً» وهو ناقصٌ صامتاً.
+    ⛔ **وجدولُ الإدغام مصدرُه واحدٌ** مع `merge_floor` — جدولان يفترقان ⇒ أداتان تقيسان
+      مجتمعَين مختلفَين وتُقارَن أرقامُهما كأنّها واحد.
+    """
+    ok = True
+
+    def say(good, line):
+        nonlocal ok
+        ok &= bool(good)
+        print(("✅ " if good else "❌ ") + line)
+
+    cfg = detect_score.cfg_for("hafs")
+    text = load_text("hafs")
+
+    # ① الفارغُ يُعرَف بالمِسطرة لا بقائمةِ رموزٍ مكتوبةٍ بيدنا
+    with_blank = [a for a in text[:400] if any(_blank_flags(a.split(), cfg))]
+    no_blank = [a for a in text[:400] if not any(_blank_flags(a.split(), cfg))]
+    say(len(with_blank) >= 20 and len(no_blank) >= 20,
+        "آياتٌ فيها رمزٌ %d · وبلا رمزٍ %d (‏في أوّل 400)" % (len(with_blank), len(no_blank)))
+    say(all(scorer.norm(w, cfg) == "" for a in with_blank for w, f in
+            zip(a.split(), _blank_flags(a.split(), cfg)) if f),
+        "و«الفارغُ» ما تُفرغه `norm` — لا ما نسمّيه نحن رمزاً")
+
+    # ②⭐⭐ ضابطُ التماثل مصغَّراً: بلا رمزٍ ⇒ **حكمٌ بحكم**
+    bad = 0
+    for a in no_blank[:60]:
+        ref = a.split()
+        hyp = " ".join(_structural_hyp(ref, cfg))
+        if _score_dropblank(ref, hyp, cfg)["words"] != scorer.score(ref, hyp, cfg)["words"]:
+            bad += 1
+    say(bad == 0, "⭐⭐ آيةٌ بلا رمزٍ: النسخةُ = `scorer.score` حكماً بحكمٍ (%d آية · شواذ %d)"
+        % (min(60, len(no_blank)), bad))
+
+    # ③⭐⭐ الأحكامُ تعود إلى **فهارس المرجع الأصليّة**، والفارغةُ تُوسَم صحيحةً بالبناء
+    miss = shifted = 0
+    for a in with_blank[:60]:
+        ref = a.split()
+        flags = _blank_flags(ref, cfg)
+        r = _score_dropblank(ref, " ".join(_structural_hyp(ref, cfg)), cfg)
+        w = r["words"]
+        if len(w) != len(ref) or [x[0] for x in w] != list(range(len(ref))):
+            shifted += 1
+        if any(w[i][1] != scorer.CORRECT for i, f in enumerate(flags) if f):
+            miss += 1
+    say(shifted == 0 and miss == 0,
+        "⭐⭐ الطولُ والفهارسُ كما في المرجع، والفارغةُ صحيحةٌ بالبناء (‏إزاحة %d · فارغةٌ متّهَمة %d)"
+        % (shifted, miss))
+
+    # ④ وعلى المسموع المثاليّ **لا كلمةَ متّهَمة** — وإلّا كان «كسبُ الدواء» ضجيجاً
+    accused = 0
+    for a in with_blank[:60]:
+        ref = a.split()
+        r = _score_dropblank(ref, " ".join(_structural_hyp(ref, cfg)), cfg)
+        accused += sum(1 for x in r["words"] if x[1] != scorer.CORRECT)
+    say(accused == 0, "وتلاوةٌ مثاليّةٌ ⇒ صفرُ اتّهامٍ بالنسخة (‏%d)" % accused)
+
+    # ⑤ خريطةُ المسموع ⇦ المرجع: طولٌ واحدٌ ومواضعُ غيرُ فارغةٍ حصراً
+    a = with_blank[0].split()
+    idx = _ref_index_of_hyp(a, cfg)
+    say(len(idx) == len(_structural_hyp(a, cfg))
+        and all(scorer.norm(a[i], cfg) for i in idx) and idx == sorted(set(idx)),
+        "خريطةُ «المسموعُ k ⇦ المرجعُ i» طولاً ومحتوًى وترتيباً (‏%d موضعاً)" % len(idx))
+
+    # ⑥⭐ القسمةُ قسمةُ **مدخل**: الأقسامُ تقسم الآياتِ قسمةً تامّةً بلا تداخلٍ ولا إسقاط
+    n = 4
+    parts = [set(i for i in range(200) if i % n == k) for k in range(n)]
+    union = set().union(*parts)
+    pair_overlap = any(parts[i] & parts[j] for i in range(n) for j in range(i + 1, n))
+    say(union == set(range(200)) and not pair_overlap,
+        "⭐ الأقسامُ الأربعةُ تقسم المدخلَ قسمةً تامّةً: اتّحادٌ %d · تداخلٌ %s"
+        % (len(union), pair_overlap))
+
+    # ⑦⛔ جدولُ الإدغام **مصدرٌ واحد** مع `merge_floor` — لا نسختان تفترقان بصمت
+    from merge_floor import ORTHOGRAPHIC as ORTH
+    say(set(IDGHAM_PAIRS) == set(ORTH) and len(IDGHAM_PAIRS) == 10,
+        "⛔ جدولُ «المقطوعِ والموصول» عشرةٌ **مطابقٌ** لجدول `merge_floor` (‏فرق %d)"
+        % len(set(IDGHAM_PAIRS) ^ set(ORTH)))
+
+    # ⑧ حارسُ مصدرٍ على شرط الشحن وعلى الآليّة التي بُني عليها القياس
+    src = io.open(os.path.abspath(__file__), encoding="utf-8").read()
+    say("يُقاس ولا يُشحن" in src and "مرآةُ `RecitationScorer.kt`" in src,
+        "⛔ شرطُ الشحن باقٍ بالنصّ: يُقاس ولا يُشحن، والمرآةُ تُكتب بالكوتلن أوّلاً")
+    say("خضرةٌ مستعارةٌ لا مملوكة" in src,
+        "والآليّةُ المقيسةُ محفوظةٌ: الرمزُ يخضرُّ بمورِدٍ **مُتنازَعٍ عليه**")
+
+    print("\n%s" % ("✅ حارسُ مسبار الرمز: تمّ" if ok else "❌ حارسُ مسبار الرمز: أخفق"))
+    return 0 if ok else 1
+
+
 def main():
     p = argparse.ArgumentParser()
+    p.add_argument("--selftest", action="store_true", help="🧪 حارسُ الأداة (ثوانٍ · خفيف)")
     p.add_argument("--riwaya", default="")
     p.add_argument("--limit", type=int, default=0, help="حدُّ الآيات ذواتِ الرمز (‏للفحص السريع)")
     p.add_argument("--census", action="store_true")
@@ -440,6 +547,8 @@ def main():
     p.add_argument("--upto", type=int, default=0, help="اقصر `--fix` على أوّل N آيةً (‏للضبط)")
     p.add_argument("--all", action="store_true")
     a = p.parse_args()
+    if a.selftest:
+        return selftest()
     riwayat = (a.riwaya,) if a.riwaya else RIWAYAT
     shard = None
     if a.shard:
