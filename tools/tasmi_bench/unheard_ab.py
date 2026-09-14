@@ -41,7 +41,15 @@ import v2_gate as G  # noqa: E402
 
 
 def lexicons(riwayat=("hafs", "warsh", "qalun")):
-    """معجمُ **صورِ** كلّ كلمةٍ في نصّ كلّ رواية — الحكمُ «أهو كلمةٌ أصلاً؟» يُبنى عليه."""
+    """معجمُ **صورِ** كلّ كلمةٍ في نصّ كلّ رواية — الحكمُ «أهو كلمةٌ أصلاً؟» يُبنى عليه.
+
+    ⛔ **و`_mods()` أوّلاً — بسببٍ مقيسٍ لا احتياطاً** (‏الشوط `34847289900`): `common` ليست
+    في `tasmi_bench` بل في `tools/alignment/`، و`error_triage._mods()` هي التي تضعها في
+    المسار. فاستيرادُها بلا ذلك يرمي `ModuleNotFoundError: No module named 'common'`
+    **في العدّاء وحدَه** (‏وفي الصندوق إن شُغّلت من مجلد الأداة) — وهو ما وقع.
+    """
+    import error_triage as T
+    T._mods()                       # يضع `tools/alignment` في المسار (‏وفيه `common`)
     from common import load_text
     from error_triage import lexicon_of
     out = {}
@@ -112,6 +120,13 @@ def selftest():
     # ⛔ ضابطٌ سالبٌ ③: بلا معجمٍ **صفرُ تغييرٍ بالهويّة** (‏لا نسخةٌ جديدةٌ من القائمة)
     w_off = scorer._unheard_guard(sA["words"], D.cfg_for("hafs"))
     ok("بلا معجمٍ تُعاد القائمةُ بالهويّة", w_off is sA["words"], True)
+
+    # ⛔⛔ **وضابطُ المسار — الذي كان ناقصاً فسقط الشوطُ الأوّل** (`34847289900`):
+    #     الاختبارُ كان يبني المعجمَ **بيده** فلا يمرّ بـ`lexicons()` البتّة، فمرّ أخضرَ
+    #     والأداةُ تسقط في العدّاء بـ`ModuleNotFoundError`. ⭐ **اختبارٌ لا يمرّ بالطريق
+    #     الذي يمرّ به الشوطُ لا يحرسه** — فصار يُنادى الطريقُ نفسُه.
+    lx = lexicons(("hafs",))
+    ok("والمعجمُ يُبنى بالطريق الذي يسلكه الشوط", bool(lx.get("hafs")), True)
 
     # ② وحكمُ الذراع يتبدّل تبعاً — والكشفُ هو الثمنُ المحتمَل
     dA, faA, nA, _ = judge_with(_PLAN, _HYPS, None)
