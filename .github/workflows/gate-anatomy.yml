@@ -358,6 +358,15 @@ jobs:
           # 📜 **وقائمةُ الكلمات تُلحَق** (‏سندُها D-389: أخطاءُ النظيف مادّةٌ ثابتةٌ ×13.3) —
           #    فالنسبةُ وحدَها لا تُعالَج، والقائمةُ تُصنَّف ثمّ يُقاس علاجُها بذراع.
           python drift_probe.py --dirs "work:" --arms "$ARMS" --sets "$SETS" --words --top 25 >> work/drift.md             || echo "⚠️ تعذّرت قائمةُ الكلمات (يُقال ولا يُكتَم)" >> work/drift.md
+      - name: 🔖 تصنيفُ الأخطاء الباقية (‏شكلُ العلاقة · وأهي كلمةٌ قرآنيّةٌ أخرى؟)
+        env:
+          PYTHONIOENCODING: utf-8
+        run: |
+          cd tools/tasmi_bench
+          case "$SETS" in *g4*) ;; *) echo "ℹ️ لا مجموعةَ `g4` — ولا تصنيفَ (المسطرةُ للطويل)"; exit 0 ;; esac
+          # ⛔ **كشفٌ لا شحنٌ:** الجدولُ يصنّف الأزواجَ (‏مرجعٌ · ما سُمع) بشكل العلاقة ويُعلن
+          #    ما وافق **كلمةً قرآنيّةً أخرى** — ولا يُفتح به بابٌ ولا تُخفَّض عتبة.
+          python error_triage.py --dirs "work:" --arms "$ARMS" --sets "$SETS" --top 60 | tee work/triage.md             || echo "⚠️ تعذّر التصنيف (يُقال ولا يُكتَم)" | tee work/triage.md
       - name: 🧾 جردُ الفرضيّات المحفوظة في R2 (‏فلا يُعاد قياسُ ما هو مقروءٌ بدقيقة)
         if: always()
         env:
@@ -456,7 +465,7 @@ jobs:
           #     التشريحُ الفارغُ فيُكتب سببُه في الملفّ ولا يُسقط الشوط.
           [ -s "$M" ] || echo "⚠️ لا تشريحَ حقنٍ لهذه المجموعات (‏مجموعاتُ \`g4*\` تلاوةٌ طويلةٌ غيرُ محقونة) — والأرقامُ في الجداول أعلاه." > "$M"
           HAVE=0
-          for f in work/track.md work/gate.md work/provenance.md work/anatomy.md work/identical.md work/drift.md; do
+          for f in work/track.md work/gate.md work/provenance.md work/anatomy.md work/identical.md work/drift.md work/triage.md; do
             [ -s "tools/tasmi_bench/$f" ] && HAVE=1
           done
           [ "$HAVE" = "1" ] || { echo "⛔ لا جدولَ فيه مضمونٌ — لا شيءَ يُودَع"; exit 1; }
@@ -482,6 +491,9 @@ jobs:
             echo
             if [ -s tools/tasmi_bench/work/drift.md ]; then
               cat tools/tasmi_bench/work/drift.md; echo
+            fi
+            if [ -s tools/tasmi_bench/work/triage.md ]; then
+              cat tools/tasmi_bench/work/triage.md; echo
             fi
             if [ -s tools/tasmi_bench/work/identical.md ]; then
               echo "## 🛡️ حارسُ «ذراعان متطابقتان» (‏على النصّ لا على المجال)"
