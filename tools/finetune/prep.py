@@ -134,10 +134,88 @@ for c in COUNTS: OFFS.append(OFFS[-1] + c)
 def ayah_global(ayah_id):
     s, a = map(int, ayah_id.split(":")); return OFFS[s - 1] + a - 1
 
+def selftest():
+    """🧪 **حارسُ المحضِّر — بلا شبكةٍ ولا صوت** (‏D-486).
+
+    ⚠️ **وهو أثقلُ ما في اللَّبِنة:** `target_text` **هي ما يُدرَّب عليه النموذج**. فما تكتبه
+    هنا **يقوله النموذجُ غداً للمستخدم**، فإن ردّه الحاكمُ المشحون صار **اتّهاماً كاذباً بالبناء**.
+    """
+    import re as _re
+    here = os.path.dirname(os.path.abspath(__file__))
+    sys.path.insert(0, os.path.join(here, "..", "tasmi_bench"))
+    sys.path.insert(0, os.path.join(here, "..", "alignment"))
+    ok = True
+
+    def say(good, line):
+        nonlocal ok
+        ok &= bool(good)
+        print(("✅ " if good else "❌ ") + line)
+
+    # ① جدولُ الآيات — **ونسختُه الثانيةُ في `audit_rescore.py`**: لو اختلفا لاستُعيد نصُّ
+    #    آيةٍ أخرى عند إصلاح التدقيق (‏ويحميه هناك حارسُ المطابقة، فيسقط البندُ صامتاً).
+    say(len(COUNTS) == 114 and OFFS[-1] == 6236, f"الجدول: {len(COUNTS)} سورةً · {OFFS[-1]} آية")
+    say(ayah_global("1:1") == 0 and ayah_global("2:1") == 7 and ayah_global("114:6") == 6235,
+        "و`ayah_global`: 1:1⇒0 · 2:1⇒7 · 114:6⇒6235")
+    try:
+        import audit_rescore as _ar
+        say(_ar.COUNTS == COUNTS, "ونسخةُ الجدول في `audit_rescore` مطابقةٌ (لا انحرافَ بين ملفَّين)")
+    except Exception as e:
+        say(False, f"تعذّر مقابلةُ جدول `audit_rescore`: {e}")
+
+    # ② **الهدفُ يجب أن يكون صورةً يقبلها الحاكم** — يُقاس على المصحف كلِّه بالرواياتِ الثلاث.
+    try:
+        import scorer
+        from common import load_text
+    except Exception as e:
+        say(False, f"تعذّر تحميلُ الحاكم/المصحف ({e}) — ولا يُقرأ هذا نجاحاً")
+        return 1
+    LET = _re.compile("[ء-ي]")
+
+    def cfg_for(rw):
+        return scorer.Config(strip_yeh_barree=True, dagger_optional=True, naql=rw == "warsh",
+                             sila=rw in ("qalun", "warsh"), mark_sila=True)
+
+    # ⛔⛔ **سقفٌ مقيسٌ مُعلَنٌ (‏D-486) لا ادّعاءَ سلامة:** بقيَ صنفان يردُّهما الحاكم:
+    #    · **`يٰ`** (ياءٌ فوقها خنجريّة · رسمُ ورشٍ وقالون لما يُرسم في حفصٍ ألفاً مقصورة):
+    #      `SUBS` يعرف `ىٰ` ولا يعرف `يٰ` ⇒ «فسوياهن» والحاكمُ يقبل «فسويهن» وحدَها. **335 لكلٍّ.**
+    #    · **وصلةٌ داخلَ الكلمة** (`ٱلنَّبِيِّۦنَ` ⇒ «النبيين» والحاكمُ يقبل «النبين»/«النبيني»).
+    #    ⚠️ **والاتّجاهُ اتّجاهُ D-276/D-292 نفسُه**: ورشٌ وقالون **×5.6** أكثرَ من حفص.
+    #    ⛔ ولا يُبدَّل `target_text` في إيداعِ حارس: هو **عناوينُ مجموعة v4** المبنيّة،
+    #    وتبديلُه يعني إعادةَ بناءٍ وقراراً مُعلَناً (‏والقرارُ مكتوبٌ في D-486).
+    CAP = {"hafs": 64, "qalun": 363, "warsh": 363}
+    for rw in ("hafs", "qalun", "warsh"):
+        cfg = cfg_for(rw)
+        bad, n, kinds = [], 0, {}
+        for ay in load_text(rw):
+            for w in ay.split():
+                if not LET.search(w):          # ⛔ علامةُ وقفٍ ليست كلمةً (درسُ D-433)
+                    continue
+                n += 1
+                forms = set(f for f in scorer._riwaya_forms(scorer.variants(w, cfg), cfg) if f)
+                if scorer.norm(target_text(w), cfg) not in forms:
+                    bad.append(w)
+                    k = "يٰ" if "يٰ" in w.replace("۪", "") else "وصلةٌ داخليّة"
+                    kinds[k] = kinds.get(k, 0) + 1
+        say(len(bad) <= CAP[rw],
+            f"هدفُ {rw}: {n} كلمةً · يردُّها الحاكم {len(bad)} (السقفُ المُعلَن {CAP[rw]}) · {kinds}")
+
+    # ③ وحالاتٌ بعينها تُثبّت القواعدَ التي أصلحها D-291 (‏وهي التي كانت 2,997 موضعاً)
+    say(target_text("عَلَىٰ") == "عَلَى", "‏D-291: `ىٰ` تبقى ألفاً مقصورةً لا «علىا»")
+    say(target_text("اٰمَنَ") == "اٰمَنَ".replace("اٰ", "ا"), "و`اٰ` تصير ألفاً واحدة")
+    say("ۖ" not in target_text("مِنْهُۖ") and target_text("مِنْهُۖ") == "مِنْهُ", "وعلاماتُ الوقف تُحذف")
+    say(target_text("ٱلْحَمْدُ") == "الْحَمْدُ", "و`ٱ` ألفٌ · والحركاتُ تبقى (هذا هدفٌ مشكول)")
+    say(target_text("  كلمةٌ   ثانيةٌ  ") == "كلمةٌ ثانيةٌ", "والفراغاتُ تُوحَّد")
+
+    print("\n" + ("✅ المحضِّرُ يفعل ما يدّعي — والسقفُ الباقي مُعلَنٌ ومحدودُ الصنف"
+                  if ok else "❌ المحضِّرُ لا يفعل ما يدّعي"))
+    return 0 if ok else 1
+
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--out", default="/content/data")
-    ap.add_argument("--reciters", nargs="+", required=True, help="riwaya:id1,id2 ...")
+    ap.add_argument("--selftest", action="store_true", help="فحصُ الهدف والجدول وحدَهما — بلا شبكةٍ ولا صوت")
+    ap.add_argument("--reciters", nargs="+", default=[], help="riwaya:id1,id2 ...")
     ap.add_argument("--max-per-reciter", type=int, default=2500)
     ap.add_argument("--workers", type=int, default=2)
     ap.add_argument("--seed", type=int, default=1446)
@@ -145,6 +223,10 @@ def main():
     ap.add_argument("--per-surah-cap", type=int, default=0, help="آياتٌ لكل سورةٍ للقارئ (0 = خلطٌ حرٌّ يلمس كلَّ السور)")
     ap.add_argument("--rel-root", default="", help="اكتب المسارات نسبيةً إلى هذا الجذر (للنقل بين الأجهزة)")
     args = ap.parse_args()
+    if args.selftest:
+        return selftest()
+    if not args.reciters:
+        sys.exit("⛔ `--reciters` مطلوبٌ (riwaya:id1,id2) — أو `--selftest` لفحص الهدف والجدول")
     os.makedirs(args.out, exist_ok=True)
     jobs = []
     for spec in args.reciters:
@@ -174,4 +256,4 @@ def main():
     log(f"DONE manifest rows = {len(rows)} · {hours:.2f} h · failed reciters = {failed}")
 
 if __name__ == "__main__":
-    main()
+    raise SystemExit(main())
