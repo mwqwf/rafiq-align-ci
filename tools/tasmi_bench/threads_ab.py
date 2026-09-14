@@ -25,11 +25,14 @@ DECODE = ("greedy", "guard")
 
 
 def load_arm(paths):
-    """يُعيد (عددَ الخيوط، {مسارُ الفكّ: {البند: وسيطُ rtf عبر الإعادات}}، عددَ الإعادات)."""
-    threads, per = None, {d: {} for d in DECODE}
+    """يُعيد (عددَ الخيوط، {مسارُ الفكّ: {البند: وسيطُ rtf}}، عددَ الإعادات، ذروةَ الذاكرة كيبي)."""
+    threads, per, peak = None, {d: {} for d in DECODE}, None
     for p in paths:
         j = json.load(open(p, encoding="utf-8"))
         t = int(j.get("threads", 0))
+        pk = j.get("peak_rss_kb")
+        if pk:
+            peak = max(peak or 0, int(pk))
         if threads is None:
             threads = t
         elif t != threads:
@@ -40,7 +43,7 @@ def load_arm(paths):
                 raise SystemExit(f"⛔ مسارُ الفكّ {d!r} غائبٌ أو فارغٌ في {p} ⇒ لا يُحكم بعيّنةٍ ناقصة")
             for i, r in rows[d].items():
                 per[d].setdefault(i, []).append(float(r["rtf"]))
-    return threads, {d: {i: st.median(v) for i, v in per[d].items()} for d in DECODE}, len(paths)
+    return threads, {d: {i: st.median(v) for i, v in per[d].items()} for d in DECODE}, len(paths), peak
 
 
 def boot_mean_diff(diffs, seed=7, boot=2000):
@@ -56,13 +59,25 @@ def boot_mean_diff(diffs, seed=7, boot=2000):
     return (ms[int(0.025 * boot)], ms[int(0.975 * boot) - 1], sum(1 for m in ms if m > 0) / boot)
 
 
-def compare(a_paths, b_paths, rt=1.0):
-    ta, pa, ra = load_arm(a_paths)
-    tb, pb, rb = load_arm(b_paths)
+def compare(a_paths, b_paths, rt=1.0, mem_pct=15.0, mem_mb=40.0):
+    ta, pa, ra, ka = load_arm(a_paths)
+    tb, pb, rb, kb = load_arm(b_paths)
     # ⛔ ذراعان بعدد الخيوط نفسِه تُعطيان «لا أثرَ للخيوط» كذباً (درسُ D-303) ⇒ يسقط قبل الحكم.
     if ta == tb:
         raise SystemExit(f"⛔ الذراعان بعدد الخيوط نفسِه ({ta}) ⇒ لا سؤالَ تُجيبانه")
     out = {"threads": (ta, tb), "repeats": (ra, rb), "rt": rt, "by_decode": {}}
+    # 🧠 **ثمنُ الذاكرة — وعتبتُه مكتوبةٌ قبل أوّل قراءةٍ له** (‏2026-09-14، ولا تُبنى عتبةٌ بعد
+    # رؤية رقم): يُقبل الثمنُ إن كان الارتفاعُ **دون 15٪ ودون 40 م.ب**؛ وما فوقَه **ليس ردّاً
+    # آليّاً** بل **بندُ قرار** (رجوعٌ أو سقفٌ لعدد الخيوط) يُرفع بنصّه.
+    # ⛔ ولا حكمَ من غيابِ الرقم: قياسٌ بلا `peak_rss_kb` يُقال «لم يُقَس» لا «لا ثمن».
+    if ka and kb:
+        rise_mb = (kb - ka) / 1024.0
+        rise_pct = (kb - ka) * 100.0 / ka
+        out["mem"] = {"kb": (ka, kb), "rise_mb": rise_mb, "rise_pct": rise_pct,
+                      "limits": (mem_pct, mem_mb),
+                      "within": (rise_pct < mem_pct and rise_mb < mem_mb)}
+    else:
+        out["mem"] = None
     for d in DECODE:
         common = sorted(set(pa[d]) & set(pb[d]))
         if not common:
@@ -101,6 +116,17 @@ def render(r):
                  f"{v['over_rt'][0]} ⇐ {v['over_rt'][1]} |")
         if v["dropped"]:
             L.append(f"| ⚠️ بنودٌ غيرُ مشترَكةٍ أُسقطت من `{d}` | {len(v['dropped'])} | | | | | |")
+    m = r.get("mem")
+    if m:
+        L += ["",
+              f"🧠 **ثمنُ الذاكرة** (ذروةُ تفريغةٍ واحدة): **{m['kb'][0] / 1024.0:.1f} ⇒ "
+              f"{m['kb'][1] / 1024.0:.1f} م.ب** ⇐ {m['rise_mb']:+.1f} م.ب ({m['rise_pct']:+.1f}٪) · "
+              + ("✅ داخلَ العتبة المكتوبة قبلَ القراءة" if m["within"]
+                 else f"⛔ **فوقَ العتبة المكتوبة قبلَ القراءة** (‏{m['limits'][0]:g}٪ أو "
+                      f"{m['limits'][1]:g} م.ب) ⇒ **بندُ قرار**: رجوعٌ أو سقفٌ لعدد الخيوط")]
+    else:
+        L += ["", "🧠 **وذروةُ الذاكرة لم تُقَس في هذا الشوط** (‏لا `peak_rss_kb` في الأثر) — "
+                  "⛔ ولا يُقرأ غيابُها «لا ثمنَ لها»."]
     L += ["",
           "⛔ **الحكمُ زوجٌ:** يُقبل رفعُ الخيوط إن **نقص الزمنُ يقيناً** (الحدُّ الأعلى للمجال دون الصفر) "
           f"**ولم يتجاوز** بندٌ الزمنَ الحقيقيَّ ({r['rt']:.2f}) في الذراع الجديدة — **في مسارَي الفكّ كليهما**، "
@@ -114,7 +140,8 @@ def render(r):
         if not v["rt_safe"]:
             why.append(f"بندٌ يتجاوز الزمنَ الحقيقيَّ (أقصى {v['max'][1]:.3f})")
         L.append(f"- `{d}`: " + ("✅ الشرطان متحقّقان" if not why else "⛔ " + " · و".join(why)))
-    L += ["", ("## ✅ الحكم: **رفعُ الخيوط مقبولٌ بالقياس**" if r["verdict"]
+    mem_flag = "" if (not m or m["within"]) else " — ⚠️ **ومعه بندُ قرارٍ في الذاكرة** (أعلاه)"
+    L += ["", ("## ✅ الحكم: **رفعُ الخيوط مقبولٌ بالقياس**" + mem_flag if r["verdict"]
                else "## ⛔ الحكم: **لا يُرفع عددُ الخيوط بهذا الشوط** — والخيطان يبقيان **بقياسٍ لا بعطب**"),
           "",
           f"⚠️ **حدُّ القراءة:** عدّاءُ `arm64` لينكس/glibc بأنويةٍ **متماثلة** لا `big.LITTLE` أندرويد ⇒ "
@@ -123,9 +150,10 @@ def render(r):
 
 
 # ⛔ **والحاكمُ يُختبر قبل أن يُستعمل** (‏قاعدةُ المالك) — بحالاتٍ تُعرف أجوبتُها سلفاً.
-def _mk(threads, rtfs):
-    return {"threads": threads, "rows": {d: {i: {"sec": v, "rtf": v, "segs": 1, "text": ""}
-                                            for i, v in rtfs.items()} for d in DECODE}}
+def _mk(threads, rtfs, peak_kb=None):
+    return {"threads": threads, "peak_rss_kb": peak_kb,
+            "rows": {d: {i: {"sec": v, "rtf": v, "segs": 1, "text": ""}
+                         for i, v in rtfs.items()} for d in DECODE}}
 
 
 def selftest(tmp="/tmp"):
@@ -159,6 +187,29 @@ def selftest(tmp="/tmp"):
         bad += 1
     except SystemExit:
         print("  ✅ ذراعان بعدد خيوطٍ واحدٍ تُردّان قبل الحكم")
+    # 🧠 وثمنُ الذاكرة يُصنَّف بعتبتِه المكتوبة — ثلاثُ حالاتٍ تُعرف أجوبتُها.
+    mem_cases = [
+        ("ارتفاعٌ زهيدٌ ⇒ داخلَ العتبة", 200_000, 210_000, True),
+        ("ارتفاعٌ 25٪ ⇒ فوقَ العتبة", 200_000, 250_000, False),
+        ("ارتفاعٌ 5٪ لكنّه 100 م.ب ⇒ فوقَ العتبة بالمقدار", 2_000_000, 2_100_000, False),
+    ]
+    for name, ka, kb2, want in mem_cases:
+        pa, pb = os.path.join(tmp, "_ma.json"), os.path.join(tmp, "_mb.json")
+        json.dump(_mk(2, {"i0": 0.5, "i1": 0.5}, ka), open(pa, "w", encoding="utf-8"))
+        json.dump(_mk(4, {"i0": 0.4, "i1": 0.4}, kb2), open(pb, "w", encoding="utf-8"))
+        got = compare([pa], [pb])["mem"]["within"]
+        ok = got == want
+        print(f"  {'✅' if ok else '⛔'} {name}: داخلَ العتبة={got} · المتوقَّع {want}")
+        bad += 0 if ok else 1
+    # ⛔ وغيابُ الرقم يُقال «لم يُقَس» لا «لا ثمن».
+    pa, pb = os.path.join(tmp, "_ma.json"), os.path.join(tmp, "_mb.json")
+    json.dump(_mk(2, {"i0": 0.5}), open(pa, "w", encoding="utf-8"))
+    json.dump(_mk(4, {"i0": 0.4}), open(pb, "w", encoding="utf-8"))
+    got = compare([pa], [pb])["mem"]
+    ok = got is None
+    print(f"  {'✅' if ok else '⛔'} أثرٌ بلا ذروةِ ذاكرةٍ ⇒ «لم يُقَس» لا «لا ثمن»: {got}")
+    bad += 0 if ok else 1
+
     # ⛔ ومسارُ فكٍّ ناقصٌ يُردّ ولا يُحتسب نصفَ عيّنة.
     j = _mk(2, {"i0": 0.5}); del j["rows"]["guard"]
     json.dump(j, open(pa, "w", encoding="utf-8"))

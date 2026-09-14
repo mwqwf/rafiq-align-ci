@@ -124,12 +124,26 @@ def main():
     # 🔍 وأثرُ الانهيار يُسمّى: بنودٌ نسبتُها دون 1 هي التي انهار فيها greedy
     bad = sorted(((rows["greedy"][i]["rtf"], i) for i in rows["greedy"]), reverse=True)[:5]
     L.append("\n**أسوأُ خمسةٍ في greedy:** " + " · ".join(f"`{i}` RTF {r:.2f}" for r, i in bad))
+    # 🧠 **وذروةُ الذاكرة تُقاس مع الزمن لا بعده** (‏أُضيفت 2026-09-14 لثمن D-432): رفعُ عدد
+    # الخيوط يشتري زمناً **بذاكرةٍ** (‏كلُّ خيطٍ في ggml مخزنُه)، فلا يُقرأ الكسبُ بلا ثمنِه.
+    # ⛔ **وحدُّ ما يقيسه `ru_maxrss` لـ`RUSAGE_CHILDREN`:** ذروةُ **أكبرِ ابنٍ انتهى** — وكلُّ
+    # ابنٍ هنا تفريغةٌ واحدة ⇒ فهو **ذروةُ تفريغةٍ واحدةٍ في هذه الذراع** لا مجموعَ البنود.
+    # وعلى لينكس بالكيبيبايت (‏وهي بيئةُ الأشواط كلِّها). وغيابُ `resource` لا يُسقط القياسَ.
+    peak_kb = None
+    try:
+        import resource
+        peak_kb = resource.getrusage(resource.RUSAGE_CHILDREN).ru_maxrss
+    except Exception:
+        pass
+    if peak_kb:
+        L.append(f"\n**ذروةُ ذاكرةِ تفريغةٍ واحدةٍ (‏أكبرُ ابن):** {peak_kb / 1024.0:.1f} م.ب "
+                 f"بـ{a.threads} خيطاً")
     md = "\n".join(L)
     print("\n" + md)
     if a.md:
         open(a.md, "w", encoding="utf-8").write(md + "\n")
     if a.json:
-        json.dump({"threads": a.threads, "lang": a.lang, "rows": rows},
+        json.dump({"threads": a.threads, "lang": a.lang, "peak_rss_kb": peak_kb, "rows": rows},
                   open(a.json, "w", encoding="utf-8"), ensure_ascii=False)
 
 
