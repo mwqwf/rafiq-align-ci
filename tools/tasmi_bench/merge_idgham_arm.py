@@ -40,6 +40,7 @@
 """
 import argparse
 import collections
+import io
 import os
 import re
 import sys
@@ -358,6 +359,119 @@ def measure(riw, arm, examples=0, fast=False, unfixed=0):
                 base_sites=base_sites, base_collide=base_collide)
 
 
+def selftest():
+    """🧪 **حارسُ ذراع الإدغام** (‏D-506) — والضوابطُ الثلاثةُ فيها **ثقيلةٌ** (تجري المِسطرةَ
+    على الستّ وعلى المصحف كلِّه في `control_signs`) فلا تُشعَل في كلّ دفعة. وهذا يفحص في
+    ثوانٍ الأربعةَ التي يسقط القياسُ كلُّه بسقوطها:
+
+    ⭐⭐ **نسخةُ المِسطرة لم تنحرف عن أصلها** — `score_arm` **نسخةٌ من `scorer.score`**،
+      وانحرافُها بسطرٍ يجعل كلَّ فرقٍ نقيسه فرقَ نسختَين لا فرقَ ذراع (ضابطُ ٠ مصغَّراً).
+    ⭐ **وسطرُ الذراع يفعل شيئاً أصلاً** — ذراعٌ بلا أثرٍ تعطي «صفرَ تكلفةٍ وصفرَ فائدة»
+      فتبدو رخيصةً بلا ثمنٍ ولا نفع (‏وهو عينُ عطبِ D-503 في دفتر الرخص).
+    ⭐⭐ **وفرزُ الإفلات يفرّق «النفس» من «الغير»** — وعليه وحدَه تقوم التكلفة: إن عدَّ
+      `أَلَّا` إفلاتاً لارتفعت التكلفةُ كذباً، وإن عدَّ `إِلَّا` نفساً **لبُرِّئ مخطئٌ**.
+    ⛔ **والحارسُ يضيّق ولا يوسّع** — رتابةٌ مقيسةٌ: `narrow ⊇ guarded_w1 ⊇ guarded`.
+    """
+    ok = True
+
+    def say(good, line):
+        nonlocal ok
+        ok &= bool(good)
+        print(("✅ " if good else "❌ ") + line)
+
+    cfg = detect_score.cfg_for("hafs")
+    text = load_text("hafs")
+    lex = lexicon(cfg, text)
+
+    # ①⭐⭐ ضابطُ ٠ مصغَّراً: الذراعُ معطَّلةً ⇒ **حكمٌ بحكم** لا «قريبٌ منه»
+    bad = tot = 0
+    for ayah in text[:120]:
+        ref = ayah.split()
+        if not ref:
+            continue
+        n = [scorer.norm(w, cfg) for w in ref]
+        hyp = " ".join(x for x in n if x)
+        a = scorer.score(ref, hyp, cfg)
+        b = score_arm(ref, hyp, cfg, None)
+        tot += 1
+        if a["words"] != b["words"] or a["additions"] != b["additions"]:
+            bad += 1
+    say(tot >= 100 and bad == 0,
+        "⭐⭐ النسخةُ تطابق `scorer.score` حرفاً بحرفٍ عند تعطيل الذراع: %d/%d" % (tot - bad, tot))
+
+    # ② وسطرُ الذراع **يغيّر الحكم** حين يُفتح — وإلّا كان القياسُ على لا شيء
+    fixed = seen = 0
+    for ayah in text:
+        ref = ayah.split()
+        n = [scorer.norm(w, cfg) for w in ref]
+        for i in range(len(n) - 1):
+            if not n[i] or not n[i + 1] or (n[i], n[i + 1]) not in ORTHOGRAPHIC:
+                continue
+            img = ORTHOGRAPHIC[(n[i], n[i + 1])]
+            if img == n[i] + n[i + 1]:
+                continue                     # وصلٌ محضٌ يبلغه `op 4` أصلاً
+            hyp = hyp_merged(n, i, img)
+            before = all(w[1] == scorer.CORRECT for w in scorer.score(ref, hyp, cfg)["words"])
+            after = all(w[1] == scorer.CORRECT
+                        for w in score_arm(ref, hyp, cfg, {i: (img,)})["words"])
+            seen += 1
+            fixed += 1 if (not before and after) else 0
+            if seen >= 12:
+                break
+        if seen >= 12:
+            break
+    say(seen >= 5 and fixed == seen,
+        "⭐ سطرُ الذراع يقلب الساقطَ أخضرَ في %d من %d موضعَ إدغامٍ جُرِّب" % (fixed, seen))
+
+    # ③⭐⭐ فرزُ الإفلات على **المصحف نفسِه**: `أَلَّا` نفسٌ · و`إِلَّا` غيرٌ
+    self_hit = foreign_hit(lex, "الا", "أَن", "لَّا")
+    other_hit = foreign_hit(lex, "الا", "إِ", "لَّا")
+    say(self_hit > 0 and other_hit >= 0 and foreign_hit(lex, "لاتوجدصورة", "أَن", "لَّا") == 0,
+        "فرزُ الإفلات يقرأ المعجمَ: «الا» تصطدم بـ%d صورةٍ خام، وصورةٌ غيرُ موجودةٍ ⇒ 0" % self_hit)
+    say(_marks("أَلَّا") != _marks("إِلَّا") and _marks("أَلَّا", tol_shadda=True) !=
+        _marks("إِلَّا", tol_shadda=True),
+        "⭐⭐ والفارقُ **حركاتٌ بترتيبها**: أَلَّا %s ≠ إِلَّا %s — فلا يُبرَّأ مخطئٌ بحَدْس"
+        % ("".join(_marks("أَلَّا")), "".join(_marks("إِلَّا"))))
+    say(_raw_idgham("أَن", "لَّا") == "أَلَّا" and _raw_idgham("عَن", "مَّا") == "عَمَّا",
+        "وصورةُ الزوج الخامُّ مدغمةً تُبنى بحذف الحرف الأخير بعلاماته: %s · %s"
+        % (_raw_idgham("أَن", "لَّا"), _raw_idgham("عَن", "مَّا")))
+
+    # ④⛔ الحارسُ **يضيّق ولا يوسّع** — رتابةٌ مقيسةٌ لا مدَّعاة
+    cnt = {}
+    for arm in ("narrow", "guarded_w1", "guarded"):
+        c = 0
+        for ayah in text[:1500]:
+            ref = ayah.split()
+            n = [scorer.norm(w, cfg) for w in ref]
+            c += len(arm_sites(ref, n, arm, lex))
+        cnt[arm] = c
+    say(cnt["narrow"] >= cnt["guarded_w1"] >= cnt["guarded"] and cnt["narrow"] > cnt["guarded"],
+        "⛔ ضيقاً: narrow %d ⊇ guarded_w1 %d ⊇ guarded %d — الحارسُ يقصُّ ولا يفتح"
+        % (cnt["narrow"], cnt["guarded_w1"], cnt["guarded"]))
+    say(GUARD_W1_MAX == 1, "⛔ وحدُّ الحارس الموزون كما قِيس: %d" % GUARD_W1_MAX)
+
+    # ⑤ المسموعُ المدمَجُ يُسقط الكلمةَ الثانيةَ ويضع الصورةَ مكانَ الأولى — لا أكثر
+    n = ["الف", "ان", "لا", "باء"]
+    say(hyp_merged(n, 1, "الا") == "الف الا باء",
+        "المسموعُ المدمَج: %r" % hyp_merged(n, 1, "الا"))
+    say(hyp_merged(["", "ان", "لا"], 1, "الا") == "الا",
+        "والرمزُ المطبَّعُ إلى فراغٍ لا يدخل المسموع")
+
+    # ⑥ جدولُ «المقطوعِ والموصول» عشرةُ أزواجٍ بأسمائها — لا يُوسَّع بالسكوت
+    say(len(ORTHOGRAPHIC) == 10 and all(len(k) == 2 for k in ORTHOGRAPHIC),
+        "جدولُ D-409 عشرةُ أزواج: %d" % len(ORTHOGRAPHIC))
+
+    # ⑦ حارسُ مصدرٍ على أرقام الدَّين التي بُنيت عليها الذراع
+    src = io.open(os.path.abspath(__file__), encoding="utf-8").read()
+    say(all(k in src for k in ("52", "28", "D-409", "الاتّهام الكاذب في G3r")),
+        "حارسُ مصدر: 52 موضعاً · 28 ساقطةً · والدَّينُ الصوتيُّ الباقي مكتوبان")
+    say("لا يُشحن شيءٌ قبلَه" in src,
+        "⛔ وشرطُ الشحن باقٍ بالنصّ: لا شحنَ قبل قياس الاتّهام الكاذب بالصوت")
+
+    print("\n%s" % ("✅ حارسُ ذراع الإدغام: تمّ" if ok else "❌ حارسُ ذراع الإدغام: أخفق"))
+    return 0 if ok else 1
+
+
 def main():
     p = argparse.ArgumentParser()
     p.add_argument("--riwaya", choices=SIX + ("all",), default="all")
@@ -365,6 +479,7 @@ def main():
                                      "wide", "both", "all", "guards"),
                    default="both")
     p.add_argument("--control", action="store_true", help="🧪 الضوابطُ الثلاثةُ وحدَها")
+    p.add_argument("--selftest", action="store_true", help="🧪 حارسُ الأداة (ثوانٍ · خفيف)")
     p.add_argument("--identity-limit", type=int, default=400,
                    help="عددُ آياتِ ضابطِ التطابق لكلِّ رواية")
     p.add_argument("--examples", type=int, default=0)
@@ -373,6 +488,8 @@ def main():
     p.add_argument("--unfixed", type=int, default=0,
                    help="اطبع هذا العددَ من المواضع التي سقطت ولم تُصلَح")
     a = p.parse_args()
+    if a.selftest:
+        return selftest()
     riwayat = SIX if a.riwaya == "all" else (a.riwaya,)
     fail = 0
 
