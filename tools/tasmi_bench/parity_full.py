@@ -264,12 +264,92 @@ def control(limit=300, jobs=1):
     return 1 if deaf else 0
 
 
+def selftest():
+    """🧪 **حارسُ مولِّد التماثل — بلا محرّكٍ ولا مصحف** (‏D-499).
+
+    ⛔⛔ **ولماذا يلزم مع وجود `--control`:** الضابطُ السالبُ هنا **ثقيلٌ** (يبني حاكمَ كوتلن
+    ويشغّله)، فلا يُشعَل في كلّ دفعة. وهذا الحارسُ يفحص **قدرةَ الضابط على أن يضبط** في ثوانٍ:
+    أنّ الأبوابَ الثلاثةَ المزروعةَ **تغيّر المرآةَ فعلاً**، وأنّ المولِّدَ **يُنتج كلَّ صنفٍ**،
+    وأنّ توليدَ المسموع **مستقلٌّ عن الإعداد المفحوص**. فلو انكسر أحدُها لصار `--control` نفسُه
+    **يمرّ فارغاً** — وهو العطبُ الذي سقطت فيه أوّلُ صيغةٍ من هذا الملفّ (‏0 انحرافٍ من 2,276).
+    """
+    ok = True
+
+    def say(good, line):
+        nonlocal ok
+        ok &= bool(good)
+        print(("✅ " if good else "❌ ") + line)
+
+    def forms(w, cfg):
+        return sorted(f for f in scorer._riwaya_forms(scorer.variants(w, cfg), cfg) if f)
+
+    # ① الإعدادُ مرآةُ ملفّ الرواية في المحرك
+    c = {r: config_for(r) for r in ("hafs", "warsh", "qalun")}
+    say(c["warsh"].naql and not c["hafs"].naql and not c["qalun"].naql
+        and c["warsh"].sila and c["qalun"].sila and not c["hafs"].sila,
+        "الإعدادُ بالرواية: النقلُ لورشٍ وحدَه والصلةُ لورشٍ وقالون")
+
+    # ②⭐⭐ **الأبوابُ الثلاثةُ المزروعةُ تغيّر المرآةَ فعلاً** — وإلّا مرّ الضابطُ فارغاً
+    doors = [("hafs", "ذَٰلِكَ", _break_dagger, "D-276 الخنجريّة"),
+             ("warsh", "ٱلْأَيْكَةِ", _break_naql, "D-248 النقل"),
+             ("qalun", "هُمُۥ", _break_sila, "D-231 صلةُ ميم الجمع")]
+    for rw, w, br, name in doors:
+        a, b = forms(w, c[rw]), forms(w, br(c[rw]))
+        say(a != b, f"⭐ الباب {name}: «{w}» {a} ⇒ {b} — **العطبُ المزروعُ يغيّر المرآة**")
+
+    # ③ صورُ whisper: بابُ `variants` لا بابُ `norm` وحدَه — وهو موضعُ عطب D-276
+    fz = whisper_forms("ذَٰلِكَ", c["hafs"])
+    say("ذلك" in fz and "ذالك" in fz,
+        f"وصورُ whisper تشمل الإملاءَ الحديث لا الرسمَ وحدَه: {fz}")
+    say(whisper_forms("ۖ", c["hafs"]) and whisper_forms("", c["hafs"]) is not None,
+        "ولا تعود فارغةً البتّة (‏تسقط إلى `norm`)")
+
+    # ④ التصحيف: حرفٌ واحدٌ في الوسط لا غير
+    w0 = "الحمد"
+    t = _typo(w0)
+    say(len(t) == len(w0) and sum(1 for x, y in zip(t, w0) if x != y) == 1 and t != w0,
+        f"والتصحيفُ حرفٌ واحدٌ حتميّ: {w0} ⇜ {t}")
+    say(_typo("") == "", "والفارغُ يبقى فارغاً")
+
+    # ⑤⭐ المولِّدُ يُنتج **كلَّ صنفٍ** — وصنفٌ يغيب يترك بابَ حاكمٍ بلا قياسٍ وأخضرُه فارغ
+    global load_text, GEN_CFG_FN, MIRROR_CFG_FN
+    old_lt, old_gen, old_mir = load_text, GEN_CFG_FN, MIRROR_CFG_FN
+    try:
+        body = ["ذَٰلِكَ ٱلْكِتَٰبُ لَا رَيْبَ فِيهِ هُدًى لِّلْمُتَّقِينَ",
+                "ٱلَّذِينَ يُؤْمِنُونَ بِٱلْغَيْبِ وَيُقِيمُونَ ٱلصَّلَوٰةَ وَمِمَّا رَزَقْنَٰهُمْ يُنفِقُونَ",
+                "وَٱلَّذِينَ يُؤْمِنُونَ بِمَآ أُنزِلَ إِلَيْكَ وَمَآ أُنزِلَ مِن قَبْلِكَ"]
+        load_text = lambda _r: list(body)              # noqa: E731
+        cases = make_cases("hafs")
+        kinds = {n.rsplit("_", 1)[1] for n, _, _ in cases}
+        need = {"clean", "whisper", "drop", "add", "sub", "typo", "merge", "split", "collapse"}
+        say(need <= kinds, f"⭐ الأصنافُ التسعةُ كلُّها تُولَّد — والناقصُ {sorted(need - kinds)}")
+        say(all(ref and hyp for _, ref, hyp in cases), "ولا حالةَ بمرجعٍ أو مسموعٍ فارغ")
+
+        # ⑥⭐⭐ **لا دائريّة**: عطبُ الإعداد **المفحوص** لا يغيّر المسموعَ المولَّد
+        MIRROR_CFG_FN = lambda r: _break_dagger(config_for(r))      # noqa: E731
+        say(make_cases("hafs") == cases,
+            "⭐⭐ ولا دائريّة: عطبُ **الإعداد المفحوص** لا يمسّ المولَّد — وإلّا اتّفقا على الخطأ وسكتا")
+        MIRROR_CFG_FN = old_mir
+        GEN_CFG_FN = lambda r: _break_dagger(config_for(r))         # noqa: E731
+        say(make_cases("hafs") != cases,
+            "وعطبُ **إعداد التوليد** يغيّره — فالفصلُ بينهما حقيقيٌّ لا اسمان لشيء")
+    finally:
+        load_text, GEN_CFG_FN, MIRROR_CFG_FN = old_lt, old_gen, old_mir
+    say(GEN_CFG_FN is config_for and MIRROR_CFG_FN is config_for, "والحقنُ يُرفع بعده")
+
+    print("\n" + ("✅ المولِّدُ يفعل ما يدّعي — والضابطُ السالبُ قادرٌ على أن يضبط"
+                  if ok else "❌ المولِّدُ لا يفعل ما يدّعي"))
+    return 0 if ok else 1
+
+
 def main():
     ap = argparse.ArgumentParser(description="تماثلُ المحرك والمرآة على المصحف كلِّه")
     ap.add_argument("--riwaya", choices=RIWAYAT, help="رواية واحدة (الافتراض: الثلاث)")
     ap.add_argument("--limit", type=int, default=0, help="أوّل ن آية فقط (للتجربة)")
     ap.add_argument("--examples", type=int, default=5, help="كم انحرافاً يُطبع")
     ap.add_argument("--jobs", type=int, default=0, help="أنوية المرآة (الافتراض: كلُّها)")
+    ap.add_argument("--selftest", action="store_true",
+                    help="حارسُ المولِّد — بلا محرّكٍ ولا مصحف (ثوانٍ)")
     ap.add_argument("--control", action="store_true",
                     help="الضابطُ السالب: يعطب المرآة عمداً ويتأكّد أنّ المقارنة تصرخ")
     # 🎚️ D-416: المحركُ يشحن `criticalPairsUncertain` **مفعَّلاً** منذ D-323، و`config_for`
@@ -280,6 +360,8 @@ def main():
     ap.add_argument("--strict-mirror", action="store_true",
                     help="قارِنْ بمرآةٍ عليها strict_short=True (‏= criticalPairsUncertain المشحون)")
     args = ap.parse_args()
+    if args.selftest:
+        return selftest()
     os.makedirs(WORK, exist_ok=True)
     if args.strict_mirror:
         global MIRROR_CFG_FN

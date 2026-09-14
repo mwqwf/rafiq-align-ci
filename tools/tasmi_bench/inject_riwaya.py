@@ -154,8 +154,142 @@ def audit(work):
     return 0
 
 
+def selftest():
+    """🧪 **حارسُ صانع مادّة القياس** — بلا شبكةٍ ولا فهارسَ ولا صوت (‏D-498).
+
+    ⛔⛔ **ولماذا يلزم قبل غيره:** هذا الملفُّ **يصنع البنودَ** التي تُقاس عليها بوّابةُ
+    الاتّهام الكاذب في ورشٍ وقالون. فخطؤه **لا يُرى في شوطٍ أحمر**: خطّةٌ فيها حشوةٌ عند
+    القطع، أو كلمةٌ طرفيّةٌ بدل داخليّة، أو بندان في آيةٍ واحدة — **تعطي أرقاماً تبدو سليمةً
+    وهي تقيس السكّينَ لا النموذج**. ⇒ تُثبَّت القيودُ المكتوبةُ في رأس الملفّ **سلوكاً**.
+    """
+    import tempfile
+    ok = True
+
+    def say(good, line):
+        nonlocal ok
+        ok &= bool(good)
+        print(("✅ " if good else "❌ ") + line)
+
+    # ① `bounds`: الكلمةُ ذاتُ المقاطع تُجمع (أدنى بدايةٍ وأقصى نهاية) وتُرتَّب بالفهرس
+    ws = [{"wordId": "78:5:2", "startMs": 900, "endMs": 1400},
+          {"wordId": "78:5:1", "startMs": 100, "endMs": 500},
+          {"wordId": "78:5:2", "startMs": 1400, "endMs": 1900}]   # مقطعٌ ثانٍ للكلمة 2
+    say(bounds(ws) == [(100, 500), (900, 1900)],
+        f"حدودُ الكلمات: المقاطعُ تُجمع وتُرتَّب بالفهرس ⇒ {bounds(ws)}")
+
+    # ② `eligible`: الشروطُ الثلاثةُ تردّ كلٌّ على حدة — **ولا يُليَّن شرطٌ لتكبير المسبح**
+    text = ["كلمةٌ " * 0] * 0
+    fake_text = [" ".join(f"w{a}_{k}" for k in range(8)) for a in range(1, 6)]
+    start = {78: 0}
+
+    def entry(ayah, nwords=8, full=True, surah=78):
+        return {"ayahId": f"{surah}:{ayah}", "evidence": {"fullEvidence": full},
+                "words": [{"wordId": f"{surah}:{ayah}:{k+1}", "startMs": k * 500,
+                           "endMs": (k + 1) * 500} for k in range(nwords)]}
+
+    say(len(eligible({"entries": [entry(1)]}, fake_text, start, 78)) == 1, "البندُ السويُّ يدخل المسبح")
+    say(eligible({"entries": [entry(1, full=False)]}, fake_text, start, 78) == [],
+        "⛔ و`fullEvidence: false` يُردّ — فبعضُ الحدود مستنتَجٌ لا مقيس")
+    say(eligible({"entries": [entry(1)]}, fake_text, start, 79) == [],
+        "⛔ وما دون نطاق السور يُردّ (‏التغطيةُ جزئيّة)")
+    say(eligible({"entries": [entry(1, nwords=7)]}, fake_text, start, 78) == [],
+        "⛔ واختلافُ عدد الكلمات عن النصّ يُردّ — وهو حدُّ صدقِ الاقتران بالنصّ")
+    short = [" ".join(f"w{k}" for k in range(4))]
+    say(eligible({"entries": [entry(1, nwords=4)]}, short, start, 78) == [],
+        f"⛔ وأقصرُ من {MIN_WORDS} كلماتٍ يُردّ — وحدُّ البند المقيس لا يُليَّن")
+
+    # ③ بناءُ خطّةٍ كاملةٍ على مصحفٍ مصنوعٍ — بلا شبكةٍ ولا صوت
+    global load_timings, load_index, load_text
+    old = (load_timings, load_index, load_text)
+    AY = 40
+    body = [" ".join(f"w{a}_{k}" for k in range(8)) for a in range(1, AY + 1)]
+    try:
+        load_timings = lambda _r, _w: {"entries": [entry(a) for a in range(1, AY + 1)]}   # noqa: E731
+        load_index = lambda: {"surahs": [{"n": 78, "start": 0}]}                          # noqa: E731
+        load_text = lambda _r: list(body)                                                 # noqa: E731
+        import contextlib, io
+        with tempfile.TemporaryDirectory() as td:
+            p1 = os.path.join(td, "plan1.json")
+
+            def build(out, extra=()):
+                argv = sys.argv
+                sys.argv = ["x", "--out", out, "--work", td, "--per-op", "2", *extra]
+                try:
+                    with contextlib.redirect_stdout(io.StringIO()):
+                        rc = main()
+                finally:
+                    sys.argv = argv
+                return rc, json.load(open(out, encoding="utf-8"))
+
+            rc, plan = build(p1)
+            items = plan["items"]
+            say(rc == 0 and len(items) == 16,
+                f"خطّةٌ مبنيّةٌ: {len(items)} بنداً (‏روايتان × أربعُ عملياتٍ × 2)")
+            say(plan.get("pad") == 0 and plan.get("endsPolicy") == "contiguous",
+                "والترويسةُ تقول ما فعلت: `pad=0` و`contiguous`")
+            # ⛔⛔ **بلا حشوةٍ البتّة**: القطعُ يساوي حدَّ الكلمة حرفاً
+            bad_pad = [i for i in items if i["cutMs"] != [i["wordIndex"] * 500, (i["wordIndex"] + 1) * 500]]
+            say(not bad_pad,
+                "⛔ والقطعُ **بلا حشوة**: يساوي حدَّ الكلمة تماماً — والحشوةُ تسحب ذيلَ الجارة فتقيس السكّين")
+            say(all(0 < i["wordIndex"] < i["wordCount"] - 1 for i in items),
+                "والكلمةُ المحقونةُ **داخليّةٌ دائماً**: لا أولى ولا أخيرة")
+            say(len({i["id"] for i in items}) == len(items), "والمعرّفاتُ فريدة")
+            say(len({(i["riwaya"], i["surah"], i["ayah"]) for i in items}) == len(items),
+                "⛔ ولا آيتان في بندَين — فبندان في آيةٍ يتشاركان الصوتَ فلا يستقلّان شاهدَين")
+            ops = {}
+            for i in items:
+                ops[(i["riwaya"], i["op"])] = ops.get((i["riwaya"], i["op"]), 0) + 1
+            say(set(ops.values()) == {2} and len(ops) == 8, f"والنصيبُ متساوٍ لكلّ عمليةٍ ورواية: {sorted(set(ops.values()))}")
+            say(all("donor" in i for i in items if i["op"] in ("SUBSTITUTE", "INSERT")),
+                "والمانحُ حاضرٌ في كلّ إبدالٍ وإقحام — وإلّا أُسقط البند")
+            say(all(i["donor"]["word"] != i["targetWord"] for i in items if "donor" in i),
+                "⛔ والمانحُ **كلمةٌ أخرى** لا نظيرةُ الهدف")
+
+            # ④ الحتميّة: البذرةُ ثابتةٌ ⇒ الخطّةُ نفسُها حرفاً
+            p2 = os.path.join(td, "plan2.json")
+            _, plan2 = build(p2)
+            say(plan2["items"] == items, "والبذرةُ الثابتةُ تعطي الخطّةَ نفسَها حرفاً (حتميّةٌ لا حظّ)")
+
+            # ⑤⭐ التوسيعُ **فائقٌ**: القائمُ يبقى بنصّه وترتيبه، ولا تُعاد آيةٌ استُعملت
+            p3 = os.path.join(td, "plan3.json")
+            argv = sys.argv
+            sys.argv = ["x", "--out", p3, "--work", td, "--per-op", "3", "--extend", p1]
+            try:
+                with contextlib.redirect_stdout(io.StringIO()):
+                    rc3 = main()
+            finally:
+                sys.argv = argv
+            plan3 = json.load(open(p3, encoding="utf-8"))
+            say(rc3 == 0 and plan3["items"][:16] == items,
+                "⭐ التوسيعُ فائق: البنودُ القائمةُ **أوّلاً وبنصّها** فتُقارن العيّنتان")
+            say(len(plan3["items"]) == 24, f"والمجموعُ {len(plan3['items'])} (‏2 ⇐ 3 لكلّ عمليةٍ ورواية)")
+            say(len({(i["riwaya"], i["surah"], i["ayah"]) for i in plan3["items"]}) == len(plan3["items"]),
+                "ولا آيةَ استُعملت تُؤخذ ثانيةً في التوسيع")
+
+            # ⑥⛔ أصلٌ فيه معرّفٌ مكرَّرٌ لا يُبنى عليه
+            bad = os.path.join(td, "bad.json")
+            json.dump({"items": items + [items[0]]}, open(bad, "w", encoding="utf-8"), ensure_ascii=False)
+            argv = sys.argv
+            sys.argv = ["x", "--out", os.path.join(td, "p4.json"), "--work", td, "--extend", bad]
+            try:
+                with contextlib.redirect_stdout(io.StringIO()):
+                    main()
+                say(False, "أصلٌ مكرَّرُ المعرّف لم يُرفض")
+            except SystemExit:
+                say(True, "⛔ وأصلٌ فيه معرّفٌ مكرَّرٌ يُرفض — لا يُبنى على أصلٍ مشتبَه")
+            finally:
+                sys.argv = argv
+    finally:
+        load_timings, load_index, load_text = old
+
+    print("\n" + ("✅ صانعُ المادّة يفعل ما يدّعي — بلا حشوةٍ ولا كلمةٍ طرفيّةٍ ولا آيةٍ مكرّرة"
+                  if ok else "❌ صانعُ المادّة لا يفعل ما يدّعي"))
+    return 0 if ok else 1
+
+
 def main():
     ap = argparse.ArgumentParser()
+    ap.add_argument("--selftest", action="store_true", help="حارسٌ بلا شبكةٍ ولا فهارس")
     ap.add_argument("--audit", action="store_true",
                     help="🗺️ يقيس سقفَ المسبح بحسب نطاق السور ولا يكتب خطّةً البتّة")
     ap.add_argument("--out", default=os.path.join(HERE, "inject_plan_riwaya.json"))
@@ -170,6 +304,8 @@ def main():
     ap.add_argument("--extend", default="",
                     help="مسارُ خطّةٍ قائمةٍ تُحفظ بنودُها كما هي ويُبنى عليها (توسيعٌ فائق)")
     args = ap.parse_args()
+    if args.selftest:
+        return selftest()
     if args.audit:
         return audit(args.work)
 
