@@ -145,8 +145,15 @@ jobs:
           #    فيبقى المقياسُ واحداً بين الطويل والقصير.
           python augment.py --src-dir work/wav --dest-dir work/wavn --only noise-fan-5
           tar -cf work/sets.tar -C work wav wavn g4 g4n g4h long_plan.json
-      - name: فكُّ المجموعات
-        run: cd tools/tasmi_bench/work && tar -xf sets.tar && rm -f sets.tar && ls -d g4 g4n g4h wavn 2>/dev/null
+      # ⛔⛔ **والحزمةُ لا تُحذف بعد الفكّ** (‏عطبٌ مقيسٌ 2026-09-15 · D-525): كان السطرُ
+      #    ‏`rm -f sets.tar` ⇒ فتأتي خطوةُ ما بعد `actions/cache` فلا تجد ما تحفظه وتقول
+      #    حرفاً: «Path Validation Error: Path(s) specified in the action for caching
+      #    do(es) not exist, hence no cache is being saved» ⇒ **الكاشُ لا يُحفظ أبداً**،
+      #    وكلُّ شوطٍ يعيد `fetch_audio` و`build_long` والتضجيج (‏أربعُ دقائقَ في كلّ شوط،
+      #    ثلاثَ مرّاتٍ الليلةَ وحدَها). ⭐ **والتحذيرُ كان في السجلّ منذ أوّل شوطٍ ولم يُقرأ** —
+      #    و«صفراءُ في السجلّ» ليست «لا شيء».
+      - name: فكُّ المجموعات (‏والحزمةُ تبقى كي يُحفظ الكاش)
+        run: cd tools/tasmi_bench/work && tar -xf sets.tar && ls -d g4 g4n g4h wavn 2>/dev/null
       - name: القياس (ذراعان متداخلتان لكلّ بند)
         env:
           PYTHONIOENCODING: utf-8
