@@ -39,6 +39,7 @@
     python tools/tasmi_bench/rare_door_probe.py --riwaya hafs --stride 120
 """
 import argparse
+import io
 import os
 import sys
 
@@ -261,12 +262,76 @@ def probe(riwaya, stride, limit):
               f"{f'{fa_m}/{len(mixed)}':>14}")
 
 
+MIRROR_LINES = 19       # أسطرُ حلقة البحث المقارَنة (‏قِيس 2026-09-15 · D-617)
+
+
+def selftest():
+    """🧪 **حارسُ بابِ النادر** (‏D-617) — والشوطُ الأصليُّ ثقيلٌ (يبني المجتمعَ ويقارن ذراعَين)،
+    وهذا يفحص في ثانيةٍ ما لا يفحصه هو: **أنّ حارسَ النسخ يحرس، وأنّ البابَ هو البابُ الموصوف.**
+
+    ⭐⭐ **ولِمَ وُجد:** في الأداة `check_mirror_copy` يقارن حلقةَ البحث المنسوخةَ بأصلها في
+    `locator.anchor_one` **في كلّ تشغيل** — وهو حارسٌ ممتاز. لكنّه **لم يكن يُشغَّل في الشهادة
+    قطّ** (‏لا رايةَ `--selftest` في الملفّ) ⇒ درسُ D-613 بعينِه: حارسٌ قائمٌ لا يُستدعى.
+    ⛔ **وأخطرُ ما فيه** أنّ مقارنتَه `a == b`، فلو انزاحت المرساتان حتّى صار المقتطَعُ **فارغاً**
+    لصار `[] == []` ⇒ **أخضرُ فارغ**. فيُثبَّت هنا أنّ المقارنةَ **ذاتُ مادّة** بعددها.
+    """
+    ok = True
+
+    def say(good, line):
+        nonlocal ok
+        ok &= bool(good)
+        print(("✅ " if good else "❌ ") + line)
+
+    # ①⭐⭐ حارسُ النسخ يجري **ويقارن مادّةً** لا فراغاً
+    say(check_mirror_copy(), "⭐⭐ حلقةُ البحث مطابقةٌ لـ`locator.anchor_one` (‏الحارسُ الأصليّ)")
+    src_loc = os.path.join(os.path.dirname(os.path.abspath(L.__file__)), "locator.py")
+    body = open(src_loc, encoding="utf-8").read()
+    i = body.index("    n = len(ref)\n")
+    lines = [x for x in body[i:body.index("    prefix_ok", i)].rstrip().splitlines()
+             if not x.strip().startswith("#")]
+    say(len(lines) >= MIRROR_LINES,
+        "⭐⭐ والمقارنةُ **ذاتُ مادّة**: %d سطراً (‏لا تقلّ عن %d) — فلا `[] == []` يمرّ"
+        % (len(lines), MIRROR_LINES))
+
+    # ②⭐ والبابُ هو الموصوفُ في المتن: أربعةُ شروطٍ **مجتمعة** لا ثلاثة
+    src = io.open(os.path.abspath(__file__), encoding="utf-8").read()
+    say("door = (adds == 0 and not subs and len(hit) >= 2 and rare_hits >= min_rare)" in src,
+        "⭐ وشروطُ الباب أربعةٌ مجتمعة: لا زوائد · لا إبدال · مصيبٌ ≥2 · ونادرٌ ≥ `MIN_RARE`")
+    say("and not partial_tail and not door" in src,
+        "⛔ والبابُ **يُضاف** إلى `min_acc` ولا يُبدّلها (‏العتبةُ المشحونةُ لم تُمَسّ)")
+
+    # ③⭐⭐ ومعيارُ الندرة هو معيارُ التصويت نفسُه — لا معيارٌ ثانٍ يُفصَّل على المقاس
+    say("len(flats) <= RARE_WORD_REF" in src and "len(n) < 4" in src
+        and "from locator_parity import" in src,
+        "⭐⭐ ومعيارُ الندرة مستوردٌ من مصدر التصويت (`RARE_WORD_REF` · طولٌ ≥4) لا مُعادٌ هنا")
+
+    # ④ وعتباتُ العيّنة لم تُليَّن
+    say((MIN_RARE, MIXED_K, FAR) == (2, 3, 50),
+        "⛔ وعتباتُ العيّنة كما قِيست: `MIN_RARE`=%d · `MIXED_K`=%d · `FAR`=%d"
+        % (MIN_RARE, MIXED_K, FAR))
+
+    # ⑤⭐ ودَورُ جانبِ الكسب **معلَنٌ في المتن** — فلا يُقرأ الكسبُ وحدَه
+    say("دَورٌ جزئيٌّ بالبناء" in src,
+        "⭐ ودَورُ جانب الكسب مكتوبٌ بنصّه ⇒ لا يُقرأ وحدَه (‏أمانةُ الأداة محفوظةٌ بحارس)")
+
+    # ⑥ ورمزُ الخروج يفرّق: حارسُ النسخ إن سقط **يُسقط الشوط** لا يُطبع تحذيراً فحسب
+    say("if not ok:" in src and "sys.exit(1)" in src,
+        "⛔ وسقوطُ حارس النسخ **يُسقط الشوطَ** لا يمرّ تحذيراً")
+
+    print("\n%s" % ("✅ حارسُ باب النادر: تمّ" if ok else "❌ حارسُ باب النادر: أخفق"))
+    return 0 if ok else 1
+
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--riwaya", choices=RIWAYAT)
     ap.add_argument("--stride", type=int, default=250, help="آيةٌ من كلِّ n (عيّنةٌ حتميّة)")
     ap.add_argument("--limit", type=int, default=0)
+    ap.add_argument("--selftest", action="store_true",
+                    help="🧪 حارسُ الأداة (ثانيةٌ · بلا مجتمعٍ ولا ذراع)")
     args = ap.parse_args()
+    if args.selftest:
+        return selftest()
     ok = check_mirror_copy()
     for r in ((args.riwaya,) if args.riwaya else RIWAYAT):
         probe(r, args.stride, args.limit)
@@ -275,4 +340,4 @@ def main():
 
 
 if __name__ == "__main__":
-    main()
+    sys.exit(main() or 0)
