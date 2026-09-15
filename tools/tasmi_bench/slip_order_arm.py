@@ -218,11 +218,90 @@ def run(examples=8):
     return 0
 
 
+# 🪞 ترتيبُ الأحكام الأربعة — في المحرك وفي المرآة. **وهو كلُّ ما تقوم عليه هذه الذراع**
+#    (‏D-622): إن اختلف الترتيبان فالذراعُ تقيس ترتيباً لا يشحنه أحد.
+KT_ORDER = (
+    "if (RecitationScorer.norm(mine) == h) return null",          # ١ مطابقةُ روايتك
+    "val exact = forms.filter",                                   # ٢ مطابقةُ غيرها حرفيّاً
+    "if (exact.isEmpty() && matches(mine, h, myProfile)) return null",   # ٣ التسامح
+    "val loose = if (exact.isNotEmpty())",                        # ٤ المتساهل
+)
+PY_ORDER = (
+    "if scorer.norm(mine, cfg) == h:",
+    "exact = {r: w for r, w in forms.items()",
+    "if not exact and _matches(mine, h, cfg):",
+    "loose = exact if exact else {",
+)
+KT_SRC = os.path.join(ROOT, "engine", "recitation", "src", "main", "kotlin",
+                      "com", "ali", "rafiq", "recitation", "RiwayaSlipDetector.kt")
+
+
+def selftest():
+    """🧪 **حارسُ ذراع الترتيب** (‏D-622) — والشوطُ الأصليُّ يحتاج مخرَجَ المحرك، وهذا يفحص
+    في ثانيةٍ **الدعوى التي تقوم عليها الذراعُ كلُّها**.
+
+    ⭐⭐ **والدعوى واحدة:** أنّ `detect` هنا **مرآةُ الكوتلن حرفاً**، وأنّ الفرقَ الوحيدَ
+    هو **موضعُ سطرٍ واحد**. فإن انزاح ترتيبُ الأحكام في المحرك ولم يُنقل هنا، صارت الذراعُ
+    تقيس **ترتيباً لا يشحنه أحد** — وتُخرج رقماً لا يكذب أحدٌ في حسابه وهو عن شيءٍ آخر.
+    ⛔ **ولا يكشف ذلك ضابطُ `--control`** (‏يقابل المرآةَ بمخرَجٍ محفوظٍ **قديم**): لو انزاح
+    الاثنان معاً بقي الضابطُ أخضرَ. فالفحصُ هنا **على مصدر المحرك نفسِه**، حيّاً.
+    """
+    ok = True
+
+    def say(good, line):
+        nonlocal ok
+        ok &= bool(good)
+        print(("✅ " if good else "❌ ") + line)
+
+    src = io.open(os.path.abspath(__file__), encoding="utf-8").read()
+
+    # ①⭐⭐ ترتيبُ الأحكام الأربعة **واحدٌ** في المحرك وفي المرآة
+    if os.path.isfile(KT_SRC):
+        kt = io.open(KT_SRC, encoding="utf-8").read()
+        kpos = [kt.find(n) for n in KT_ORDER]
+        say(all(i >= 0 for i in kpos) and kpos == sorted(kpos),
+            "⭐⭐ أحكامُ المحرك الأربعةُ موجودةٌ **وبترتيبها** (‏مطابقةُ روايتك ⇐ مطابقةُ غيرها "
+            "⇐ التسامح ⇐ المتساهل)")
+    else:
+        print("⚠️ **مصدرُ المحرك ليس في هذه النسخة** ⇒ **فحصُ ترتيب المحرك لم يُجرَ هنا** "
+              "(يجري في مستودع الأصل) — ⛔ إعلانٌ بالنصّ لا نجاحٌ صامت.")
+    ppos = [src.find(n) for n in PY_ORDER]
+    say(all(i >= 0 for i in ppos) and ppos == sorted(ppos),
+        "⭐⭐ وأحكامُ المرآة الأربعةُ **بالترتيب نفسِه** ⇒ الذراعُ تقيس المشحونَ لا سواه")
+
+    # ②⭐ والذراعُ **سطرٌ واحدٌ وموضعُه** لا غير
+    # ⚠️ الإبرةُ تُركَّب وقتَ التشغيل وإلّا طابقت سطرَها — **المرّةُ السابعة** اليوم.
+    arm_needle = "order_tolerance_first and _mat" + "ches(mine, h, cfg)"
+    say(src.count(arm_needle) == 1,
+        "⭐ والذراعُ سطرٌ **واحدٌ** بعينه (`order_tolerance_first`) — لا سطران")
+    arm_at = src.find("if " + arm_needle)
+    say(ppos[0] < arm_at < ppos[1],
+        "⭐⭐ وموضعُه **بين** الحكم ١ والحكم ٢ ⇒ يُقدّم التسامحَ على مطابقة غيرها — وهو الذراعُ بعينه")
+
+    # ③⛔ ولا رقمَ بلا مخرَج المحرك — الغيابُ يُعلَن ويُسقط الشوط
+    say("🚨 لا مخرَجَ للمحرك" in src and "return 1" in src,
+        "⛔ وغيابُ مخرَج المحرك **يُعلَن ويُسقط الشوط** لا يمرّ بأرقامٍ من المرآة وحدَها")
+
+    # ④⭐ وحارسُ مصدرٍ على الرقم الذي بُني عليه الحكم — ومقابلتُه بقياسٍ مستقلّ
+    say("510" in src and "99.80" in src,
+        "⭐ وحصّةُ الخنجريّة محفوظةٌ بالرقم (‏510 من 511 = 99.80٪ في الستّ)")
+    say("D-611" in src or "226" in src,
+        "⭐⭐ ومقابَلةٌ بقياسٍ مستقلّ: D-611 وجد **226 من 227 = 99.6٪** على ثلاث رواياتٍ "
+        "بأداةٍ أخرى ⇒ **ظاهرةٌ واحدةٌ شهد لها عدّادان**")
+
+    print("\n%s" % ("✅ حارسُ ذراع الترتيب: تمّ" if ok else "❌ حارسُ ذراع الترتيب: أخفق"))
+    return 0 if ok else 1
+
+
 def main():
     ap = argparse.ArgumentParser(description="ترتيبُ الحكم في كاشف الانزلاق — ضابطٌ وذراعٌ مضادّة")
     ap.add_argument("--examples", type=int, default=8)
     ap.add_argument("--control", action="store_true", help="ضابطُ المرآة وحدَه")
+    ap.add_argument("--selftest", action="store_true",
+                    help="🧪 حارسُ الأداة (ثانيةٌ · بلا محرّكٍ ولا مجتمع)")
     args = ap.parse_args()
+    if args.selftest:
+        return selftest()
     if args.control:
         truth = _engine_truth()
         if truth is None:
