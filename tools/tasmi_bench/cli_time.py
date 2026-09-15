@@ -66,6 +66,74 @@ def silence_stats(rows_arm):
     return empty, words
 
 
+def _default_judges():
+    """🧭 حاكمُ الصور من أدواتنا نفسِها — لا مسطرةٌ ثانيةٌ تتقادم صامتةً.
+
+    يرجع ثلاثةَ توابع: مرجعُ البند من المصحف · صورُ الكلمة المقبولة · تشذيبُ المسموع.
+    ⛔ **والاستيرادُ متأخّرٌ**: `--selftest` يجب أن يعمل في صندوقٍ بلا بيانات (درسُ `soundfile`).
+    """
+    here = os.path.dirname(os.path.abspath(__file__))
+    sys.path.insert(0, here)
+    sys.path.insert(0, os.path.join(os.path.dirname(here), "alignment"))
+    import error_triage as ET
+    import score as SC
+    import scorer as SCR
+    from common import load_index, load_text
+    index = load_index()
+    cfgs = {}
+
+    def cfg(riw):
+        if riw not in cfgs:
+            cfgs[riw] = SC.config_for("proposed", riw)
+        return cfgs[riw]
+
+    return (lambda iid: ET.item_words(iid, load_text, index),
+            lambda w, riw: ET.forms_of(w, cfg(riw), SCR),
+            lambda w, riw: SCR.norm(w, cfg(riw)))
+
+
+def bag_stats(rows_arm, ref_words=None, forms=None, norm=None):
+    """🔁 **كم من كلمات المرجع عادت · وكم قِيل بلا مرجع** — كِيساً لا خطَّ محاذاة.
+
+    ⭐ **لِمَ وُجد** (‏حدُّ D-519 بنصّه): عدُّ الكلمات وحدَه **ليس صواباً** — كلمةٌ خطأٌ تُعَدّ
+    كلمةً، فذراعٌ ترفع العددَ قد تكون استعادت وقد تكون هَلوَست. ⇒ يُقاس **عددان لا واحد**:
+      · **الاستعادة** = كلماتُ المرجع التي وُجد لها مقابلٌ مقبول ÷ كلماتِ المرجع.
+      · **الزائد** = المسموعُ الذي لم يقابل كلمةَ مرجعٍ ÷ المسموعِ كلِّه.
+    فالمرشَّحُ النافعُ **ترتفع استعادتُه ولا يرتفع زائدُه**؛ ومن ارتفع الاثنان فيه فقد
+    قايض فقداً بهَلوَسة، **وهي ثمنٌ لا مكسب**.
+
+    ⛔⛔ **وحدُّ هذه المسطرة يُقال قبل أن يُبنى عليها** — فهي **ليست** حاكمَ التسميع:
+      ① **كِيسٌ لا ترتيب**: كلمةٌ سُمعت في موضعٍ غيرِ موضعها تُحسب استعادةً ⇒ الرقمُ
+         **سقفٌ** للصواب لا الصوابُ نفسُه. وحكمُ الصواب لـ`scorer.py` على خطِّ المحاذاة.
+      ② **الالتقاطُ جَشِعٌ** بترتيب المسموع (أوّلُ مرجعٍ غيرِ مستهلَكٍ يقبلُه)، وكلماتُ المرجع
+         تُستهلَك مرّةً واحدة ⇒ **حلقةُ تكرارٍ لا تُقرأ استعادةً** (وهي الفخُّ الأوّلُ هنا).
+      ③ **ما تعذّر مرجعُه يُعَدّ مجهولاً ويُعلَن، ولا يُبَنّ في الطرفَين** (درسُ `floor_shape`):
+         بندٌ بلا مرجعٍ لا يُنقص الاستعادةَ ولا يُضخّم الزائد.
+    """
+    if ref_words is None:
+        ref_words, forms, norm = _default_judges()
+    ref_n = heard_n = hit = 0
+    unknown = []
+    for iid in sorted(rows_arm):
+        riw, words = ref_words(iid)
+        if not words:
+            unknown.append(iid)
+            continue
+        pool = [set(forms(w, riw)) for w in words]
+        used = [False] * len(pool)
+        ref_n += len(pool)
+        toks = [t for t in (norm(x, riw) for x in (rows_arm[iid].get("text") or "").split()) if t]
+        heard_n += len(toks)
+        for t in toks:
+            for k, fs in enumerate(pool):
+                if not used[k] and t in fs:
+                    used[k] = True
+                    hit += 1
+                    break
+    return {"ref": ref_n, "heard": heard_n, "hit": hit,
+            "excess": heard_n - hit, "unknown": unknown}
+
+
 def run_one(cli, model, wav, arm, threads, lang):
     """يعيد (ثوانيَ الاستدلال بلا التحميل، عددَ المقاطع، النصَّ) — أو يرفع إن سكتت الأداة."""
     cmd = [cli, "-m", model, "-t", str(threads), "-l", lang, "-ojf"] + ARMS[arm] + [wav]
@@ -176,7 +244,22 @@ def main():
     eb, wb = silence_stats(rows[B])
     L.append(f"| 🔇 **بنودٌ تفريغُها فارغ** | **{ea}/{len(files)}** | **{eb}/{len(files)}** |")
     L.append(f"| 📝 كلماتٌ مسموعةٌ كلّيّاً | {wa} | {wb} |")
-    rat = [rows[B][i]["sec"] / rows[A][i]["sec"] for i in rows[A]]
+    # 🔁 **والعددُ وحدَه لا يُقرأ حكماً** (‏حدُّ D-519): تُقاس **الاستعادةُ والزائدُ** معاً.
+    # ⛔ وتعذُّرُ الحاكم لا يُقرأ صفراً ولا يُسقط الشوط — يُكتب بنصِّ خطئه في الجدول نفسِه.
+    bags = {}
+    try:
+        ba, bb = bag_stats(rows[A]), bag_stats(rows[B])
+        bags = {A: ba, B: bb}
+        for lab, key, tot in (("🔁 **استعادةُ كلمات المرجع**", "hit", "ref"),
+                              ("👻 زائدٌ لا يقابل مرجعاً", "excess", "heard")):
+            def pct(d):
+                return f"{d[key]}/{d[tot]} = **{100.0 * d[key] / d[tot]:.1f}٪**" if d[tot] else "—"
+            L.append(f"| {lab} | {pct(ba)} | {pct(bb)} |")
+        if ba["unknown"]:
+            L.append(f"| ⚠️ بنودٌ بلا مرجعٍ (مجهولةٌ لا مبنَّنة) | {len(ba['unknown'])} | {len(bb['unknown'])} |")
+    except Exception as e:
+        L.append(f"| ⛔ مسطرةُ الاستعادة تعذّرت | `{type(e).__name__}: {e}` | — |")
+    rat =[rows[B][i]["sec"] / rows[A][i]["sec"] for i in rows[A]]
     L.append(f"\n**نسبةُ {ARM_LABEL.get(B, B)} إلى {ARM_LABEL.get(A, A)}:** وسيطاً ×{st.median(rat):.2f} · المدى ×{min(rat):.2f}–×{max(rat):.2f} "
              f"· الحرسُ أسرعُ في {sum(1 for x in rat if x < 1)}/{len(rat)} بنداً")
     # 🔍 وأثرُ الانهيار يُسمّى: بنودٌ نسبتُها دون 1 هي التي انهار فيها greedy
@@ -202,7 +285,8 @@ def main():
         open(a.md, "w", encoding="utf-8").write(md + "\n")
     if a.json:
         json.dump({"threads": a.threads, "lang": a.lang, "arms": [A, B], "peak_rss_kb": peak_kb,
-                   "silence": {A: silence_stats(rows[A]), B: silence_stats(rows[B])}, "rows": rows},
+                   "silence": {A: silence_stats(rows[A]), B: silence_stats(rows[B])},
+                   "bag": bags, "rows": rows},
                   open(a.json, "w", encoding="utf-8"), ensure_ascii=False)
 
 
@@ -239,6 +323,41 @@ def _selftest():
     ok(w == 2, f"الكلماتُ اثنتان — جاءت {w}")
     ok(silence_stats({}) == (0, 0), "لا بنودَ ⇒ صفران بلا انفجار")
     ok(silence_stats({"a": {}}) == (1, 0), "بندٌ بلا مفتاح `text` يُعَدّ فارغاً لا يُسقط الأداة")
+
+    # ③ **مسطرةُ الاستعادة والزائد** — بحاكمٍ مُحقَنٍ كي تُقاس في صندوقٍ بلا مصحف.
+    #    (والحقنُ هو نفسُه ما يجعل الضابطَ يُشغَّل دائماً لا في بيئةِ البيانات وحدَها.)
+    REF = {"i1": ("hafs", ["الحمد", "لله", "رب"]), "i2": ("hafs", ["مالك", "يوم"])}
+    fake_ref = lambda iid: REF.get(iid, (None, None))
+    # صورتان مقبولتان لكلمةٍ واحدة — كي يُقاس أنّ المسطرةَ تسأل الحاكمَ لا تُقارن حرفاً
+    fake_forms = lambda w, riw: ["رب", "ربي"] if w == "رب" else [w]
+    fake_norm = lambda w, riw: w.strip("،.")
+
+    def bag(texts):
+        return bag_stats({k: {"text": v} for k, v in texts.items()}, fake_ref, fake_forms, fake_norm)
+
+    b = bag({"i1": "الحمد لله رب"})
+    ok((b["ref"], b["hit"], b["excess"]) == (3, 3, 0), f"تفريغٌ مطابقٌ ⇒ استعادةٌ تامّةٌ بلا زائد — جاء {b}")
+    b = bag({"i1": "الحمد لله ربي"})
+    ok(b["hit"] == 3, f"صورةٌ ثانيةٌ مقبولةٌ تُحسب استعادةً (الحاكمُ لا الحرف) — جاء {b}")
+    b = bag({"i1": "الحمد رب"})
+    ok((b["hit"], b["ref"], b["excess"]) == (2, 3, 0), f"كلمةٌ ساقطةٌ تُنقص الاستعادةَ ولا تصير زائداً — جاء {b}")
+    b = bag({"i1": "الحمد لله رب العالمين"})
+    ok((b["hit"], b["heard"], b["excess"]) == (3, 4, 1), f"مسموعٌ بلا مرجعٍ يُعَدّ زائداً — جاء {b}")
+    # ⛔⛔ **الفخُّ الأوّل:** حلقةُ تكرارٍ ترفع العددَ — ولا يجوز أن ترفع الاستعادة.
+    b = bag({"i1": "الحمد الحمد الحمد لله رب"})
+    ok(b["hit"] == 3 and b["excess"] == 2,
+       f"⛔ حلقةُ تكرارٍ: المرجعُ يُستهلَك مرّةً والمكرّرُ زائدٌ — جاء {b}")
+    # ⛔ وما لا مرجعَ له يُعلَن ولا يُبَنّ في الطرفَين (درسُ `floor_shape`)
+    b = bag({"iX": "كلامٌ كثيرٌ جدّاً"})
+    ok(b["unknown"] == ["iX"] and (b["ref"], b["heard"], b["hit"]) == (0, 0, 0),
+       f"⛔ بندٌ بلا مرجعٍ مجهولٌ لا مبنَّن — جاء {b}")
+    b = bag({"i1": "", "i2": "مالك يوم"})
+    ok((b["ref"], b["hit"], b["heard"]) == (5, 2, 2), f"فارغٌ لا يُسقط ولا يُحتسب زائداً — جاء {b}")
+    ok(bag({})["ref"] == 0 and bag({})["unknown"] == [], "لا بنودَ ⇒ أصفارٌ بلا انفجار")
+    for t in ("الحمد لله رب", "الحمد الحمد", "", "كلمةٌ غريبة"):
+        b = bag({"i1": t})
+        ok(b["excess"] >= 0 and b["hit"] <= b["ref"] and b["hit"] <= b["heard"],
+           f"⛔ حدودُ المسطرة تُنتهك على «{t}»: {b}")
 
     print("🧪 ضوابطُ `cli_time`: %d إخفاقاً" % len(fails))
     for m in fails:
