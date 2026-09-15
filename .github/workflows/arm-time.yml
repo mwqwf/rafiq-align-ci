@@ -18,7 +18,7 @@ on:
         required: false
         default: "2"
       src:
-        description: "مجلدُ المجموعة تحت work/ (‏g4 طويلٌ نظيف · g4n طويلٌ مضجَّج · wav آيةٌ مفردة)"
+        description: "مجلدُ المجموعة تحت work/ (‏g4 نظيف · g4n مروحةٌ 5د.ب · g4h بعيدٌ+مروحةٌ+هاتف · wav آيةٌ مفردة)"
         required: false
         default: "g4"
       plan:
@@ -127,9 +127,15 @@ jobs:
           cd tools/tasmi_bench
           python fetch_audio.py && python build_long.py --ayahs 6
           python augment.py --src-dir work/g4 --dest-dir work/g4n --only noise-fan-5
-          tar -cf work/sets.tar -C work wav g4 g4n long_plan.json
+          # 🔊 **ومجموعةٌ أقسى تُبنى معها** (‏أُضيفت 2026-09-15 · D-517): `g4n` **مروحةٌ عند
+          #    5 د.ب** وحدَها، وشكوى المالك «ضجيجٌ كثيفٌ جدّاً» ومعها **بُعدٌ عن الميكروفون**.
+          #    و`combo-hard` شرطٌ **قائمٌ في العدّة**: خفضُ جهارةٍ 30 د.ب + مروحةٌ 10 د.ب +
+          #    نطاقُ هاتف ⇒ أقربُ ما نملك إلى «بعيدٌ في غرفةٍ صاخبة». ⛔ والبناءُ **إضافةٌ**:
+          #    `g4n` كما هي بالبذرة نفسِها فلا يتبدّل رقمٌ منشور.
+          python augment.py --src-dir work/g4 --dest-dir work/g4h --only combo-hard
+          tar -cf work/sets.tar -C work wav g4 g4n g4h long_plan.json
       - name: فكُّ المجموعات
-        run: cd tools/tasmi_bench/work && tar -xf sets.tar && rm -f sets.tar && ls -d g4 g4n 2>/dev/null
+        run: cd tools/tasmi_bench/work && tar -xf sets.tar && rm -f sets.tar && ls -d g4 g4n g4h 2>/dev/null
       - name: القياس (ذراعان متداخلتان لكلّ بند)
         env:
           PYTHONIOENCODING: utf-8
