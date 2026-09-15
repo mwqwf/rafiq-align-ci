@@ -33,6 +33,7 @@
 import argparse
 import collections
 import os
+import re
 import sys
 
 HERE = os.path.dirname(os.path.abspath(__file__))
@@ -229,10 +230,81 @@ def cost(hits, examples=8):
     return total
 
 
+# 📊 إحصاءُ هذه الصورة على المصحف كلِّه (‏قِيس 2026-09-15 · D-619) — وهو عينُ نصِّ دَين D-402:
+#    «الدوري 159 · السوسي 159 · **ورش 310**».
+STOP_CENSUS = {"hafs": 0, "warsh": 310, "qalun": 0, "shuba": 0, "douri": 159, "sousi": 159}
+
+# ⭐⭐ **قانونُ القسمة** (‏D-619): كلُّ موضعِ `يٰ` في كلِّ روايةٍ ينتمي إلى **صورةٍ واحدةٍ لا غير**
+#    من ثلاثٍ: مجرّدةٌ (ذراعُ D-403) · بعلامة `۪` (هذه الذراع · D-402) · بعلامة `ۭ` (قاعدةُ D-402
+#    المشحونة). ⇒ **مجموعُ الثلاث = كلُّ `يٰ`** بالضبط، في الستّ كلِّها.
+#    ولِمَ يُثبَّت: لأنّه يمنع عطبَين لا يُرى أيٌّ منهما في أداةٍ واحدة — **صورةٌ يتيمةٌ** لا تملكها
+#    قاعدةٌ (فتبقى معطوبةً ولا أحدَ يعلم)، و**صورةٌ تدّعيها قاعدتان** (فتُعالَج مرّتين أو تُحسب
+#    فائدتُها مرّتين في دفترين). ولا يُكشف ذلك إلّا بجمع الثلاث ومقابلتها بالكلّ.
+ALL_YA_DAGGER = {"hafs": 0, "warsh": 335, "qalun": 335, "shuba": 0, "douri": 605, "sousi": 572}
+
+
+def selftest():
+    """🧪 **حارسُ علامة الإمالة الثانية** (‏D-619) — يفحص في ثانيةٍ **حدَّ القاعدة** وعلاقتَها بأخواتها.
+
+    ⭐⭐ **وأثمنُ ما فيه `قانونُ القسمة`**: هذه الذراعُ وذراعُ D-403 (`imala_bare_norm_arm`)
+    وقاعدةُ `ۭ` المشحونة تتقاسم **فضاءً واحداً** هو مواضعُ `يٰ`. ولا تستطيع أداةٌ منفردةٌ أن ترى
+    **الصورةَ اليتيمة** (لا تملكها قاعدةٌ) ولا **الصورةَ المزدوجةَ الادّعاء** (تملكها قاعدتان)،
+    فيُجمع الثلاثُ هنا ويُقابَل بالكلّ. وهو **حارسٌ بين أداتين** لا داخلَ أداة.
+    """
+    ok = True
+
+    def say(good, line):
+        nonlocal ok
+        ok &= bool(good)
+        print(("✅ " if good else "❌ ") + line)
+
+    texts = {r: load_text(r) for r in SIX}
+    got = {r: sum(a.count(TRIPLE) for a in texts[r]) for r in SIX}
+    say(got == STOP_CENSUS,
+        "⭐⭐ الإحصاءُ كما نصّ دَينُ D-402: ورش %d · دوري %d · سوسي %d · وصفرٌ في الثلاث"
+        % (got["warsh"], got["douri"], got["sousi"]))
+    say(all(got[r] == 0 for r in CLEAN_RIWAYAT)
+        and set(IMALA_RIWAYAT) == {"warsh", "douri", "sousi"},
+        "⛔ والقاعدةُ **محصورةٌ** في الممالة (ورش · دوري · سوسي): والثلاثُ الأخرى صفرٌ")
+
+    # ⭐⭐ قانونُ القسمة — الحارسُ الذي لا تراه أداةٌ وحدَها
+    dagger, mark_ed = TRIPLE[1:], "ۭ"
+    bare = re.compile("(?<![ۭ%s])%s" % (TRIPLE[0], dagger))
+    split_ok, rows = True, []
+    for r in SIX:
+        tot = sum(a.count(dagger) for a in texts[r])
+        b = sum(len(bare.findall(w)) for a in texts[r] for w in a.split())
+        ed = sum(a.count(mark_ed + dagger) for a in texts[r])
+        rows.append((r, tot, b, got[r], ed))
+        split_ok &= (b + got[r] + ed == tot) and tot == ALL_YA_DAGGER[r]
+    say(split_ok,
+        "⭐⭐ **قانونُ القسمة**: مجرّدة + `۪` + `ۭ` = كلُّ `يٰ` في الستّ (‏%s)"
+        % " · ".join("%s %d" % (r, t) for r, t, _b, _e, _d in rows))
+    say(rows[1][2] == 25 and rows[5][3] == 159,
+        "⭐ ويُصدّق كلَّ أرقام أختِها D-618: ورشٌ مجرّدةٌ %d · وسوسي `۪` %d"
+        % (rows[1][2], rows[5][3]))
+
+    # ⛔ والرموزُ والتحويلُ كما وُصفا
+    say(TRIPLE == "۪يٰ" and FIXED == "۪ي" and OLD == "۪يا",
+        "⛔ ورموزُ الصورة `U+06EA` + ياءٌ + خنجريّة، والذراعان (ت) و(ق) كما وُصفتا")
+    say(stop_fix("أَدۡر" + TRIPLE + "كَ") == "أَدۡر" + FIXED + "كَ"
+        and stop_old("أَدۡر" + TRIPLE + "كَ") == "أَدۡر" + OLD + "كَ",
+        "⛔ و(ت) تُسقط الخنجريّة و(ق) تجعلها ألفاً — سلوكاً لا دعوى")
+    say("مكتوباً نصّاً لا مقروءاً من القرص" in (stop_old.__doc__ or ""),
+        "⭐ وعلّةُ كتابة (ق) نصّاً محفوظةٌ: لو قُرئت من القرص بعد الشحن لقاست صفراً وكذبت")
+
+    print("\n%s" % ("✅ حارسُ علامة الإمالة الثانية: تمّ" if ok else "❌ الحارس: أخفق"))
+    return 0 if ok else 1
+
+
 def main():
     ap = argparse.ArgumentParser(description="علامةُ الإمالة `۪` في المِسطرة — إحصاءٌ وضابطٌ وتكلفة")
     ap.add_argument("--examples", type=int, default=8)
+    ap.add_argument("--selftest", action="store_true",
+                    help="🧪 حارسُ حدِّ القاعدة وقانونِ القسمة (ثانيةٌ · بلا ضابطٍ ولا تكلفة)")
     args = ap.parse_args()
+    if args.selftest:
+        return selftest()
     ok, hits = census(args.examples)
     agree = hafs_agreement(args.examples)
     blind = cost(hits, args.examples)
