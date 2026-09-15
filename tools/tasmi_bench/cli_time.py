@@ -61,6 +61,12 @@ ARMS = {
     #    يُفكّ قِطَعاً (‏عشرَ ثوانٍ = سقفُ `GROUP_CAP_SECONDS` المشحون · وستٌّ للحدّ الأدنى).
     "chunk10": ["-bs", "1", "-et", "2.40"],
     "chunk6": ["-bs", "1", "-et", "2.40"],
+    # 🛡️ **والتقطيعُ ومعه حارسُ الذيل** (‏D-532): الرايات نفسُها والتقطيعُ نفسُه،
+    #    **والفرقُ الوحيدُ** تشذيبُ المقطوعات التي تبدأ بعد آخر صوتٍ في المقطع —
+    #    وهو ما يفعله `LongAudioTranscriber.tailGuard` في التطبيق ولا تملكه أداةُ المقعد.
+    #    ⇒ `chunk10` مقابل `chunk10g` **يقيس ما يوفّره الحارسُ من هَلوَسةِ الحشو** (D-531).
+    "chunk10g": ["-bs", "1", "-et", "2.40"],
+    "chunk6g": ["-bs", "1", "-et", "2.40"],
 }
 
 # 🧩 **أذرعٌ تُفكُّ الملفَّ قِطَعاً لا دفعةً** (‏أُضيفت 2026-09-15 · D-530): القيمةُ **ثوانيَ
@@ -71,7 +77,10 @@ ARMS = {
 #    APK**: `whisper-cli` يقبل `-ot` (إزاحة) و`-d` (مدّة) ⇒ المقطعُ يُفكّ من الملفّ نفسِه.
 #    ⚠️ **وحدُّها يُقال:** القطعُ هنا **عند حدودٍ ثابتةٍ** لا عند أهدأ نقطةٍ كما يفعل التطبيق
 #    (`quietestCut`) ⇒ **ما تعطيه هذه الذراعُ أرضيّةٌ لا سقفٌ**: التطبيقُ يقطع أرحمَ منها.
-ARM_CHUNK = {"chunk10": 10, "chunk6": 6}
+ARM_CHUNK = {"chunk10": 10, "chunk6": 6, "chunk10g": 10, "chunk6g": 6}
+
+# 🛡️ **وأذرعٌ تُطبّق حارسَ الذيل بعد كلّ مقطع** — مرآةُ `tailGuard` بسماحه المشحون.
+ARM_TAILGUARD = {"chunk10g", "chunk6g"}
 
 # 🏷️ عنوانُ كلّ ذراعٍ في الجدول — والمجهولُ يُسمّى باسمه لا بفراغ.
 ARM_LABEL = {
@@ -82,6 +91,8 @@ ARM_LABEL = {
     "silenceall": "⚠️ تثبُّتٌ: إسكاتٌ دائم",
     "chunk10": "🧩 قِطَعُ 10ث (سقفُ التطبيق)",
     "chunk6": "🧩 قِطَعُ 6ث",
+    "chunk10g": "🧩🛡️ قِطَعُ 10ث + حارسُ الذيل",
+    "chunk6g": "🧩🛡️ قِطَعُ 6ث + حارسُ الذيل",
 }
 _NUM = re.compile(r"([0-9]+\.[0-9]+)")
 
@@ -216,6 +227,46 @@ def bag_stats(rows_arm, ref_words=None, forms=None, norm=None, accepts=None):
 #    ليس قياساً، وwhisper قد يسكت عنه فيُقرأ صفراً).
 MIN_TAIL_MS = 2000
 
+# 🛡️ **سماحُ حارس الذيل — من المحرك حرفاً** (`LongAudioTranscriber.TAIL_SLACK_MS = 500`).
+#    ⛔ ولا يُغيَّر هنا وحدَه: مرآةٌ تفترق عن أصلها تقيس غيرَ ما يُشحن.
+TAIL_SLACK_MS = 500
+
+
+_TS = re.compile(r"^\[(\d+):(\d+):(\d+)\.(\d+)")
+
+
+def seg_start_ms(line):
+    """طابعُ بداية المقطوعة بالملّي من سطرِ `whisper-cli` — أو `None` إن لم يُقرأ.
+
+    ⛔ **و`None` ليست صفراً**: مقطوعةٌ بلا طابعٍ **لا تُشذَّب** (‏الشكُّ لا يُسقط كلاماً).
+    """
+    m = _TS.match(line)
+    if not m:
+        return None
+    h, mi, sec, frac = m.groups()
+    return ((int(h) * 60 + int(mi)) * 60 + int(sec)) * 1000 + int(frac.ljust(3, "0")[:3])
+
+
+def tail_trim(segs, limit_ms, slack_ms=TAIL_SLACK_MS):
+    """🛡️ **مرآةُ `LongAudioTranscriber.tailGuard` حرفاً** (‏D-532).
+
+    القاعدةُ في المحرك: تُشذَّب المقطوعاتُ **من الذيل** ما دام طابعُ بدايتها
+    `>= voicedEndMs + slackMs`، **ويُتوقَّف عند أوّل واحدةٍ دونَه** — فليست تصفيةً عامّةً
+    تُسقط كلَّ ما تجاوز الحدَّ حيث وقع. ⇒ ومقطوعةٌ متجاوزةٌ **يليها** ما هو دون الحدّ
+    **تبقى**، وهذا سلوكُ المحرك بعينه لا تبسيطٌ له (وضابطٌ سالبٌ يثبّته).
+    ⛔ **وما لا طابعَ له لا يُشذَّب** (`None`)، و`limit_ms <= 0` ⇒ لا تشذيب.
+    """
+    if limit_ms <= 0:
+        return segs
+    end = len(segs)
+    while end > 0:
+        st = segs[end - 1][0]
+        if st is not None and st >= limit_ms + slack_ms:
+            end -= 1
+        else:
+            break
+    return segs[:end]
+
 
 def chunk_spans(dur_sec, chunk_sec):
     """🧩 **سلَّمُ الإزاحات** — (إزاحةٌ بالملّي · مدّةٌ بالملّي) تغطّي المدّةَ كلَّها بلا تداخل.
@@ -256,16 +307,40 @@ def run_one(cli, model, wav, arm, threads, lang, dur_sec=None):
         sec = 0.0
         segs = 0
         parts = []
+        guard = arm in ARM_TAILGUARD
+        # 📊 **عدّاداتُ التشذيب — لأنّ التطابقَ سؤالٌ لا جواب** (‏درسُ D-516 حرفاً):
+        #    ذراعان متطابقتان في كلّ رقمٍ إمّا أنّ الحارسَ **لم يجد ما يشذّبه** وإمّا أنّ
+        #    **محلِّلَ الطابع ميّتٌ** — والفرقُ بينهما لا يُظنّ بل يُعَدّ: كم مقطوعةً شُذّبت،
+        #    وكم مقطوعةً **قُرئ طابعُها**، وكم بلا طابع. ⇒ سالبٌ مقروءٌ أو عطبٌ مكشوف.
+        info = {"trimmed": 0, "stamped": 0, "unstamped": 0, "segs": 0}
         for off_ms, len_ms in chunk_spans(dur_sec, chunk):
-            s1, n1, t1 = _run_cli(cli, model, wav,
-                                  ARMS[arm] + ["-ot", str(off_ms), "-d", str(len_ms)],
-                                  threads, lang)
+            s1, n1, t1, sg = _run_cli(cli, model, wav,
+                                      ARMS[arm] + ["-ot", str(off_ms), "-d", str(len_ms)],
+                                      threads, lang)
             sec += s1
-            segs += n1
+            info["segs"] += len(sg)
+            info["stamped"] += sum(1 for st, _ in sg if st is not None)
+            info["unstamped"] += sum(1 for st, _ in sg if st is None)
+            if guard:
+                # 🛡️⛔ **والطوابعُ مطلقةٌ في الملفّ لا نسبيّةٌ للمقطع — قُرئ من المصدر لا ظُنّ**
+                #    (`whisper.cpp@c4ac001`): `seek_start = params.offset_ms/10` (‏سطر 6964)
+                #    و`t0 = seek + 2*(…)` (‏سطر 7731) ⇒ **الطابعُ يحمل الإزاحةَ**.
+                #    ⇒ الحدُّ **`off_ms + len_ms`** لا `len_ms`. ⭐ **وأوّلُ صياغةٍ كتبتُها
+                #    استعملت `len_ms`** — وكانت ستُشذّب كلَّ مقطعٍ بعد الأوّل تشذيباً شبهَ تامٍّ
+                #    وتُخرج «حارساً ينفع» كذباً؛ **والمصدرُ أسقطها قبل أن تُنفَق عليها دقيقة**.
+                kept = tail_trim(sg, off_ms + len_ms)
+                info["trimmed"] += len(sg) - len(kept)
+                sg = kept
+                t1 = " ".join(t for _, t in sg)
+            segs += len(sg) if guard else n1
             if t1.strip():
                 parts.append(t1.strip())
-        return sec, segs, " ".join(parts)
-    return _run_cli(cli, model, wav, ARMS[arm], threads, lang)
+        return sec, segs, " ".join(parts), info
+    sec, n, text, sg = _run_cli(cli, model, wav, ARMS[arm], threads, lang)
+    return sec, n, text, {"segs": len(sg),
+                          "stamped": sum(1 for st, _ in sg if st is not None),
+                          "unstamped": sum(1 for st, _ in sg if st is None),
+                          "trimmed": 0}
 
 
 def _run_cli(cli, model, wav, flags, threads, lang):
@@ -281,10 +356,15 @@ def _run_cli(cli, model, wav, flags, threads, lang):
         elif " total time" in ln:
             m = _NUM.search(ln); tot = float(m.group(1)) if m else None
     if load is None or tot is None:
-        raise SystemExit(f"⛔ لا زمنَ في مخرَج الأداة لـ{os.path.basename(wav)}/{arm} ⇒ لا يُحتسب صفراً:\n{out[-400:]}")
-    segs = [ln for ln in out.splitlines() if ln.startswith("[")]
-    text = " ".join(re.sub(r"^\[[^\]]*\]\s*", "", ln).strip() for ln in segs)
-    return (tot - load) / 1000.0, len(segs), text
+        # ⛔ **ورسالةُ العطب لا تنكسر عند الحاجة إليها** (‏أُصلح 2026-09-15): كانت تُقحم
+        #    `arm` وهو **غيرُ معروفٍ هنا** بعد تفكيك الدالّة ⇒ `NameError` يحجب السببَ
+        #    الحقيقيَّ في اللحظة التي يُقرأ فيها. **ومسارُ خطإٍ مكسورٌ أسوأُ من لا رسالة.**
+        raise SystemExit("⛔ لا زمنَ في مخرَج الأداة لـ%s (رايات %s) ⇒ لا يُحتسب صفراً:\n%s"
+                         % (os.path.basename(wav), " ".join(flags), out[-400:]))
+    lines = [ln for ln in out.splitlines() if ln.startswith("[")]
+    segs = [(seg_start_ms(ln), re.sub(r"^\[[^\]]*\]\s*", "", ln).strip()) for ln in lines]
+    text = " ".join(t for _, t in segs)
+    return (tot - load) / 1000.0, len(segs), text, segs
 
 
 def main():
@@ -352,9 +432,10 @@ def main():
     for k, f in enumerate(files, 1):
         i = f[:-4]
         for arm in (A, B):   # متداخلتان لكلّ بندٍ كي تتقاسما حالةَ الحرارة
-            s, n, txt = run_one(a.cli, a.model, os.path.join(a.src, f), arm, a.threads, a.lang,
-                                dur_sec=dur[i])
-            rows.setdefault(arm, {})[i] = {"sec": s, "rtf": s / dur[i], "segs": n, "text": txt}
+            s, n, txt, info = run_one(a.cli, a.model, os.path.join(a.src, f), arm, a.threads,
+                                      a.lang, dur_sec=dur[i])
+            rows.setdefault(arm, {})[i] = {"sec": s, "rtf": s / dur[i], "segs": n, "text": txt,
+                                           "info": info}
         if k % 5 == 0 or k == len(files):
             print(f"   … {k}/{len(files)}", flush=True)
 
@@ -384,6 +465,17 @@ def main():
     eb, wb = silence_stats(rows[B])
     L.append(f"| 🔇 **بنودٌ تفريغُها فارغ** | **{ea}/{len(files)}** | **{eb}/{len(files)}** |")
     L.append(f"| 📝 كلماتٌ مسموعةٌ كلّيّاً | {wa} | {wb} |")
+
+    # 📊 **وعدّاداتُ الطابع والتشذيب تُطبع دائماً** — فسالبُ الحارس لا يُقرأ إلا بها.
+    def _sum(rows_arm, k):
+        return sum((r.get("info") or {}).get(k, 0) for r in rows_arm.values())
+
+    for lab, key in (("🛡️ مقطوعاتٌ شذّبها حارسُ الذيل", "trimmed"),
+                     ("⚠️ مقطوعاتٌ بلا طابعٍ (لا تُشذَّب)", "unstamped"),
+                     ("📎 مقطوعاتٌ قُرئ طابعُها", "stamped")):
+        va, vb = _sum(rows[A], key), _sum(rows[B], key)
+        if va or vb or key == "trimmed":
+            L.append(f"| {lab} | {va} | {vb} |")
     # 🔁 **والعددُ وحدَه لا يُقرأ حكماً** (‏حدُّ D-519): تُقاس **الاستعادةُ والزائدُ** معاً.
     # ⛔ وتعذُّرُ الحاكم لا يُقرأ صفراً ولا يُسقط الشوط — يُكتب بنصِّ خطئه في الجدول نفسِه.
     bags = {}
@@ -577,6 +669,39 @@ def _selftest():
         ok(ARMS[_n] == ARMS["greedy"], f"⛔ {_n} يجب أن تكون رايات المشحون حرفاً")
         ok(_n in ARM_LABEL, f"⛔ ذراعُ تقطيعٍ بلا عنوان: {_n}")
         ok(ARM_CHUNK[_n] > 0, f"⛔ طولُ مقطعٍ غيرُ موجب: {_n}")
+
+    # ⑦ **محلِّلُ الطابع ومرآةُ حارس الذيل** (‏D-532) — تُقاس في الصندوق بلا أداة.
+    ok(seg_start_ms("[00:00:01.500 --> 00:00:03.000]   نص") == 1500,
+       f"طابعٌ بسيطٌ — جاء {seg_start_ms('[00:00:01.500 --> 00:00:03.000]   نص')}")
+    ok(seg_start_ms("[00:01:02.250 --> 00:01:03.000]  x") == 62250, "دقائقُ وثوانٍ")
+    ok(seg_start_ms("[01:00:00.000 --> 01:00:01.000]  x") == 3600000, "ساعةٌ كاملة")
+    ok(seg_start_ms("لا طابعَ هنا") is None, "⛔ ما لا طابعَ له يعود None لا صفراً")
+    S = [(0, "أ"), (5000, "ب"), (11000, "ج"), (12000, "د")]
+    ok(tail_trim(S, 10000) == S[:2],
+       f"⛔ ما بدأ بعد 10000+500 يُشذَّب من الذيل — جاء {tail_trim(S, 10000)}")
+    ok(tail_trim(S, 12000) == S, "وما دون الحدّ يبقى كلُّه")
+    ok(tail_trim([], 10000) == [], "فارغٌ ⇒ فارغٌ بلا انفجار")
+    ok(tail_trim(S, 0) == S, "حدٌّ غيرُ موجبٍ ⇒ لا تشذيب")
+    # ⛔⛔ **الضابطُ السالبُ الأهمّ**: القاعدةُ **ذيلٌ** لا تصفيةٌ عامّة — متجاوزةٌ يليها
+    #     ما هو دون الحدّ **تبقى**، وهو سلوكُ المحرك بعينه.
+    M = [(0, "أ"), (20000, "ب"), (3000, "ج")]
+    ok(tail_trim(M, 10000) == M,
+       f"⛔ تصفيةٌ عامّةٌ بدل تشذيبِ ذيلٍ — جاء {tail_trim(M, 10000)}")
+    ok(tail_trim([(None, "أ"), (99000, "ب")], 10000) == [(None, "أ")],
+       "والمجهولُ الطابعِ لا يُشذَّب وما بعده يُشذَّب")
+    ok(TAIL_SLACK_MS == 500, "سماحُ الحارس 500 كما في المحرك")
+    # ⛔⛔ **ودلالةُ الحدّ مطلقةٌ** (مصدرُ whisper: `seek_start = offset_ms/10` · `t0 = seek + …`)
+    #     ⇒ مقطعٌ ثانٍ [10000..20000] مقطوعاتُه تبدأ عند 10500 و21000: الأولى **تبقى**
+    #     والثانيةُ تُشذَّب. ولو كان الحدُّ `len_ms` وحدَه لشُذّبت الاثنتان ⇒ حارسٌ يكذب نفعاً.
+    SEC = [(10500, "أ"), (21000, "ب")]
+    ok(tail_trim(SEC, 10000 + 10000) == SEC[:1],
+       f"⛔ الحدُّ إزاحةٌ + طولٌ — جاء {tail_trim(SEC, 20000)}")
+    ok(tail_trim(SEC, 10000) == [],
+       "والحدُّ الخاطئُ (طولٌ وحدَه) يمحو المقطعَ — وهذا ما يحرسه الضابطُ أعلاه")
+    for _n in ARM_TAILGUARD:
+        ok(_n in ARM_CHUNK and _n in ARMS and _n in ARM_LABEL, f"⛔ ذراعُ حارسٍ ناقصةُ التسجيل: {_n}")
+        ok(ARMS[_n] == ARMS["greedy"], f"⛔ {_n} رايات المشحون حرفاً")
+    ok(ARM_CHUNK["chunk10g"] == ARM_CHUNK["chunk10"], "⛔ الحارسُ لا يغيّر طولَ المقطع")
 
     print("🧪 ضوابطُ `cli_time`: %d إخفاقاً" % len(fails))
     for m in fails:
