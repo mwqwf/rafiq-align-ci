@@ -58,6 +58,17 @@ def surah_counts(entries):
     return per
 
 
+def missing_ayahs_in_surah(entries, surah, want):
+    """أرقامُ الآيات **الغائبة** فعلاً من سورةٍ بعينها — لا عدُّها فحسب.
+
+    ⛔ لاختبار فرضيّة مناوبة المحرك (D-504·00:19Z): «انهيارُ حدٍّ بين آيتين
+    متشابهتين» يتنبّأ بأنّ الغائبةَ هي **الطرفُ الثاني** من زوجٍ متشابه —
+    فيلزم رقمُها لا عددُها."""
+    have = {int(e["ayahId"].split(":")[1])
+            for e in entries if int(e["ayahId"].split(":")[0]) == surah}
+    return sorted(set(range(1, want + 1)) - have)
+
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--min-ratio", type=float, default=0.98,
@@ -65,6 +76,8 @@ def main():
     ap.add_argument("--severe-ratio", type=float, default=0.70,
                     help="دون هذا الحدّ تُطبع تفصيلاً فوراً (لا في الملخّص فحسب)")
     ap.add_argument("--only", default=None, help="بادئةُ مفتاحٍ لتضييق المسح (مثل hafs/)")
+    ap.add_argument("--list-missing-for", type=int, default=None,
+                    help="اطبع أرقامَ الآيات الغائبة فعلاً من هذه السورة وحدَها لكلّ فهرسٍ ناقص")
     a = ap.parse_args()
 
     ayahs = canonical_ayahs()
@@ -94,6 +107,9 @@ def main():
             if ratio < a.min_ratio:
                 flags.append((s, have, want, ratio))
                 by_surah[s] = by_surah.get(s, 0) + 1
+                if a.list_missing_for == s:
+                    missing = missing_ayahs_in_surah(idx.get("entries", []), s, want)
+                    print(f"🔎 {key}: سورة {s} الغائبةُ فعلاً {missing}")
         if flags:
             total_flags += len(flags)
             flags.sort(key=lambda x: x[3])
