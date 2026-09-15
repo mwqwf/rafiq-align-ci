@@ -14,6 +14,8 @@
     python tools/tasmi_bench/hyps_log.py --selftest
     python tools/tasmi_bench/hyps_log.py --from-log run.txt --out work/hyps_g4n.json
     python tools/tasmi_bench/hyps_log.py --hyps work/hyps_g4n.json --doors
+    python tools/tasmi_bench/hyps_log.py --hyps work/hyps_g3rn.json \
+        --detect-plan tools/tasmi_bench/inject_plan_riwaya.json   # ⚖️ الصرف
 """
 import argparse
 import json
