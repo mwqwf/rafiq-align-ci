@@ -64,6 +64,8 @@ on:
         type: string
         required: true
 env:
+  # 🔢 **مصدرٌ واحدٌ للعدّ**: يقرؤه مفتاحُ الكاش والبناءُ معاً فلا يتفارقان.
+  INJ6_COUNT: "20"
   PUB: https://pub-2c2e1dcd92e84a2898820dd38d3e09e6.r2.dev
   UA: "Mozilla/5.0 (QuranRafiq arm time)"
   WC: c4ac0012a8f5a2082dfca6aad4ddfd8b2c02b337   # الالتزامُ المثبَّت — نفسُ الذي في third_party
@@ -172,13 +174,18 @@ jobs:
         uses: actions/cache@v4
         with:
           path: tools/tasmi_bench/work/inj6.tar
-          key: tasmi-inj6-v1-${{ hashFiles('tools/tasmi_bench/build_long_inject.py', 'tools/tasmi_bench/build_long.py', 'tools/tasmi_bench/augment.py') }}
+          # 🔢⛔⛔ **والعددُ في المفتاح** (‏أُضيف 12:5xZ · فخٌّ أُغلق قبل أن يقع): `--count`
+          #    **ليس ملفّاً يُبصَم** ⇒ فمن رفعه إلى 40 طلباً لعيّنةٍ أوسعَ **يستعيد كاشَ
+          #    العشرين بعينه** ويقيس على المادّة نفسِها وهو يحسبها ضِعفَها — «عيّنةٌ أوسع»
+          #    كذبٌ لا يصرخ. ⇒ فالعددُ **جزءٌ من اسم الكاش**، ومن غيَّره بنى.
+          #    (‏وهو درسُ `tasmi-sets-v4⇒v5` نفسُه بصورةٍ أخرى: المفتاحُ يُبصم ما يُبنى به.)
+          key: tasmi-inj6-v1-c${{ env.INJ6_COUNT }}-${{ hashFiles('tools/tasmi_bench/build_long_inject.py', 'tools/tasmi_bench/build_long.py', 'tools/tasmi_bench/augment.py') }}
       - name: بناءُ المادّة الطويلة المحقونة إن غاب الكاش
         if: ${{ startsWith(inputs.src, 'g4i') && steps.inj6.outputs.cache-hit != 'true' }}
         run: |
           set -o pipefail
           cd tools/tasmi_bench
-          python build_long_inject.py --count 20
+          python build_long_inject.py --count "$INJ6_COUNT"
           python augment.py --src-dir work/g4i --dest-dir work/g4in --only noise-fan-5
           tar -cf work/inj6.tar -C work g4i g4in long_inject_plan.json
       - name: فكُّ المادّة الطويلة المحقونة (‏والحزمةُ تبقى)
