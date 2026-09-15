@@ -178,6 +178,50 @@ def control(riw, upto, meta, got, cfg):
     return ok, bad, ex
 
 
+def blank_census(riwayat=RIWAYAT):
+    """📊 جردُ **الرموز الفارغة** في نصّ كلِّ رواية — مقامُ الدواء قبلَ أثرِه (‏D-608).
+
+    ⭐⭐ درسُ D-608: رقمُ «يُنقذ رمزاً» ليس خاصّيّةَ روايةٍ بل خاصّيّةُ **أصلِنا النصّيّ**:
+      نصُّ حفص يحمل تسعةَ أصنافٍ من علامات الوقف (4578 رمزاً)، والخمسُ الأخرى **لا تحمل
+      إلّا ۞ وحدَها**. فالفرقُ 10× في الأثر فرقُ أصولٍ عندنا لا فرقُ روايات.
+      ⛔ ولذلك **لا يُقاس أثرُ الدواء خارج حفص إلّا بحدّه هذا مُعلَناً**.
+    """
+    out = []
+    for riw in riwayat:
+        cfg = detect_score.cfg_for(riw)
+        kinds = collections.Counter()
+        ayat = 0
+        for a in load_text(riw):
+            ref = a.split()
+            if not ref:
+                continue
+            marks = [w for w in ref if scorer.norm(w, cfg) == ""]
+            if marks:
+                ayat += 1
+                kinds.update(marks)
+        out.append((riw, ayat, sum(kinds.values()), kinds))
+    return out
+
+
+def blank_structure(riw):
+    """بصمةُ الفارغات البنيويّة: لكلِّ آيةٍ ذاتِ رمزٍ (رقمُها · عددُ كلماتها · مواضعُ الفارغات).
+
+    ⭐ وهي **مفتاحُ لغزِ D-608**: الدوريّ والسوسيّ أعطيا الرقمَ نفسَه حرفاً (8192 · 433 · 3 · 0)
+      فاتُّهمت الأداةُ بأنّها لا تُميّز الروايتين — فكان الحَكَمُ قياساً ثالثاً: النصّان
+      **مختلفان** (3309 آية)، وبصمةُ الفارغات **متطابقة**. فالتطابقُ نتيجةٌ لا عطب.
+    """
+    cfg = detect_score.cfg_for(riw)
+    sig = []
+    for n, a in enumerate(load_text(riw)):
+        ref = a.split()
+        if not ref:
+            continue
+        pos = tuple(i for i, w in enumerate(ref) if scorer.norm(w, cfg) == "")
+        if pos:
+            sig.append((n, len(ref), pos))
+    return sig
+
+
 def selftest():
     """🧪 **حارسُ ذراع الرمز على المحرك** (‏D-604) — وهي **أقوى أداةٍ في العدّة حجّةً**:
     تقيس المشحونَ بعينِه **بلا ترقيعٍ ولا نسخةِ عمل** (‏مدخلان لحاكمٍ واحدٍ غيرِ مُعدَّل).
@@ -263,6 +307,30 @@ def selftest():
     say('for suffix, kp in (("|b", None), ("|a", keep)):' in src,
         "⛔ وضابطُ المرآة يقارن **الذراعين معاً** لا الأولى وحدَها")
 
+    # ⑦⭐⭐ مقامُ الدواء مُعلَنٌ لا مضمر (‏D-608) — وإلّا قُرئ رقمُ الرواية على غير حدّه
+    cen = {r: (ay, tot, k) for r, ay, tot, k in blank_census()}
+    hafs_ay, hafs_tot, hafs_k = cen["hafs"]
+    say((hafs_ay, hafs_tot) == (2719, 4578) and len(hafs_k) == 9,
+        "⭐⭐ حفص: %d آيةً · %d رمزاً · %d أصنافٍ من الوقف"
+        % (hafs_ay, hafs_tot, len(hafs_k)))
+    others = {r: cen[r] for r in RIWAYAT if r != "hafs"}
+    solo = [r for r, (_a, _t, k) in others.items() if list(k) != ["۞"]]
+    say(not solo,
+        "⭐⭐ والخمسُ الأخرى **لا تحمل إلّا ۞** — فأثرُ الدواء فيها محدودٌ بمقامه (‏شواذ %s)"
+        % (solo or "لا شيء"))
+    say([others[r][1] for r in ("warsh", "qalun", "shuba", "douri", "sousi")]
+        == [435, 428, 199, 433, 433],
+        "⭐ وعددُ ۞ نفسُه يختلف بين الأصول (435 · 428 · 199 · 433 · 433) — تفاوتُ مصادرَ لا روايات")
+
+    # ⑧⭐⭐ لغزُ «الدوريّ ≡ السوسيّ»: بصمةٌ واحدةٌ ونصّان مختلفان — نتيجةٌ لا عطبُ أداة
+    td, ts = load_text("douri"), load_text("sousi")
+    ndiff = sum(1 for i in range(min(len(td), len(ts))) if td[i] != ts[i])
+    say(blank_structure("douri") == blank_structure("sousi") and ndiff >= 3000,
+        "⭐⭐ الدوريّ والسوسيّ: بصمةُ الفارغات **واحدة** والنصُّ مختلفٌ في %d آية ⇒ "
+        "تطابقُ الرقمين نتيجةٌ لا عطب" % ndiff)
+    say(blank_structure("hafs") != blank_structure("warsh"),
+        "⛔ ولو تطابقت بصمتا حفصٍ وورشٍ لكان ذلك عطبَ تحميلٍ — وهما مفترقتان")
+
     print("\n%s" % ("✅ حارسُ ذراع الرمز على المحرك: تمّ" if ok else "❌ حارسُ الذراع: أخفق"))
     return 0 if ok else 1
 
@@ -270,6 +338,8 @@ def selftest():
 def main():
     ap = argparse.ArgumentParser(description=__doc__.split("\n")[0])
     ap.add_argument("--selftest", action="store_true", help="🧪 حارسُ الأداة (ثوانٍ · بلا كوتلن)")
+    ap.add_argument("--census", action="store_true",
+                    help="📊 جردُ الرموز الفارغة في الروايات الستّ (‏مقامُ الدواء · بلا كوتلن)")
     ap.add_argument("--riwaya", action="append", choices=RIWAYAT)
     ap.add_argument("--all", action="store_true")
     ap.add_argument("--upto", type=int, default=0, help="قصُّ مدخل المسح عند هذا العدد من الآيات")
@@ -278,6 +348,13 @@ def main():
     args = ap.parse_args()
     if args.selftest:
         return selftest()
+    if args.census:
+        print("  رواية   آياتٌ ذاتُ رمزٍ   رموزٌ   أصنافٌ   الأكثرُ وروداً")
+        for riw, ayat, tot, kinds in blank_census():
+            top = " · ".join("%s×%d" % (w, n) for w, n in kinds.most_common(4))
+            print("  %-7s %9d %10d %8d   %s" % (riw, ayat, tot, len(kinds), top))
+        print("\n  ⭐⭐ ومقامُ الدواء خارجَ حفصٍ محدودٌ بـ۞ وحدَها — فلا يُقرأ رقمُه بلا هذا الحدّ.")
+        return 0
 
     riwayat = RIWAYAT if args.all else tuple(args.riwaya or ("hafs",))
     upto = args.control or args.upto
