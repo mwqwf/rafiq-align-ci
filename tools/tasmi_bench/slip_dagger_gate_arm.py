@@ -91,6 +91,26 @@ def _parity(got, prev, label):
     return bad
 
 
+def verdict_code(*parities):
+    """رمزُ الخروج من نتائج ضوابط المطابقة — **و«لم يُشغَّل» ليس «نجح»** (‏D-509).
+
+    ⛔ **العطبُ الذي أُصلح هنا:** كان السطرُ `return 0 if (p_floor in (0, None) and …)`
+    فيُعيد **صفراً** حين يكون الضابطُ **لم يجرِ أصلاً** (‏`None`: لا مخرَجَ سابقٌ للمقارنة)
+    كما يُعيده حين يجري وينجح. والسطرُ يُطبَع في السجلّ («الضابطُ لم يُشغَّل») **لكنّ
+    رمزَ الخروج يقول نجاحاً**، وسيرُ العملِ يقرأ الرمزَ لا السجلّ.
+    ⇒ وهو **عينُ درس «صفرُ اختباراتٍ جرت ليس نجاحاً»** (D-487) في بابٍ آخر.
+
+    والاصطلاحُ اصطلاحُ `basmala_postpass` نفسُه (‏D-501) فلا اصطلاحان في عدّةٍ واحدة:
+
+        0 = جرت الضوابطُ كلُّها ونجحت · 1 = ضابطٌ **سقط** · 2 = **ضابطٌ لم يُشغَّل**
+    """
+    if any(p not in (0, None) for p in parities):
+        return 1
+    if any(p is None for p in parities):
+        return 2
+    return 0
+
+
 def pct(a, b):
     return 100.0 * a / b if b else 0.0
 
@@ -186,7 +206,11 @@ def measure(limit=0, examples=8):
         print("\n=== أمثلةٌ · زلّةٌ يردّها المشحونُ ويفوّتها ذراعُ (خ) ===")
         for name, ref, heard, ids in lost[:examples]:
             print("  %s · مرجع «%s» · سُمع «%s» ⇒ كان يُنسب إلى %s" % (name, ref, heard, ids))
-    return 0 if (p_floor in (0, None) and p_slip in (0, None)) else 1
+    code = verdict_code(p_floor, p_slip)
+    if code == 2:
+        print("\n⚠️ **رمزُ الخروج 2**: القياسُ تمّ وضابطُ المطابقة **لم يُشغَّل** (لا مخرَجَ سابق)"
+              " ⇒ شغِّل `riwaya_gate_arms.py` ثمّ أعِدْ — ولا يُقرأ هذا نجاحاً (‏D-509).")
+    return code
 
 
 def six(limit=0, examples=8):
@@ -251,13 +275,102 @@ def control(limit=600):
     return 0 if ok else 1
 
 
+def selftest():
+    """🧪 **حارسُ ذراع لافتة الخنجرية** (‏D-509) — وضوابطُها الثلاثةُ **ثقيلةٌ** (تبني حاكمَ
+    الأذرع بالكوتلن ثلاثَ مرّات على المصحف) فلا تُشعَل في كلّ دفعة.
+
+    ⭐⭐ **وأثمنُ ما فيه رمزُ الخروج:** كان «ضابطٌ لم يُشغَّل» يُعيد **صفراً** كما يُعيده
+      النجاحُ — والسجلُّ يقولها والرمزُ يكذّبه، وسيرُ العملِ يقرأ الرمز. أُصلح إلى **2**،
+      والاصطلاحُ اصطلاحُ `basmala_postpass` (D-501) فلا اصطلاحان في عدّةٍ واحدة.
+    ⭐ **وتعريفُ الذراع نفسُه محروسٌ من الشفرة** — لا من ذاكرتنا: السطرُ الكوتلنيُّ الذي
+      تُقاس به يُقرأ من `SlipDaggerArmJudge.kt`، فلو تغيّر لصارت الأرقامُ لذراعٍ أخرى بالاسم نفسِه.
+    """
+    ok = True
+
+    def say(good, line):
+        nonlocal ok
+        ok &= bool(good)
+        print(("✅ " if good else "❌ ") + line)
+
+    # ①⭐⭐ رمزُ الخروج: ثلاثُ حالاتٍ لا حالتان — وكلُّ تركيبٍ يُجرَّب
+    say(verdict_code(0, 0) == 0, "ضابطان جَرَيا ونجحا ⇒ 0")
+    say(verdict_code(3, 0) == 1 and verdict_code(0, 7) == 1 and verdict_code(1, None) == 1,
+        "⛔ وأيُّ اختلافٍ ⇒ 1 (والسقوطُ يغلب «لم يُشغَّل»)")
+    say(verdict_code(None, 0) == 2 and verdict_code(0, None) == 2
+        and verdict_code(None, None) == 2,
+        "⭐⭐ و«لم يُشغَّل» ⇒ **2 لا 0** — وهو العطبُ الذي أُصلح")
+    say(verdict_code() == 0 and verdict_code(0) == 0, "وبلا ضوابطَ لا ينفجر")
+
+    # ② ولا يبقى في الملفّ أثرُ الصيغة القديمة التي تبتلع «لم يُشغَّل»
+    src = io.open(os.path.abspath(__file__), encoding="utf-8").read()
+    say("p_floor in (0, None) and p_slip in (0, None)" not in src.split('"""')[-1],
+        "⛔ ولا تعود الصيغةُ القديمةُ في متن الشفرة")
+
+    # ③ `_prev` يردّ `None` لملفٍّ غائب، ويقرأ الصفوفَ حين يوجد
+    say(_prev("لا-وجودَ-لهذا-الملفّ.tsv") is None, "مخرَجٌ غائبٌ ⇒ `None` لا قاموسٌ فارغ")
+    tmp = os.path.join(WORK, "selftest_prev.tsv")
+    os.makedirs(WORK, exist_ok=True)
+    with io.open(tmp, "w", encoding="utf-8") as f:
+        f.write("b|hafs|warsh|00001|2\tحفص\tورش\n\nb|hafs|qalun|00002|3\t-\t-\n")
+    got = _prev("selftest_prev.tsv")
+    say(got == {"b|hafs|warsh|00001|2": ("حفص", "ورش"),
+                "b|hafs|qalun|00002|3": ("-", "-")},
+        "ويقرأ العمودين ويتخطّى السطرَ الفارغ: %d صفّاً" % len(got or {}))
+
+    # ④ و`_parity` يفرّق «لم يُشغَّل» من «لا اختلاف» ومن «اختلافٌ وقع»
+    a = {"x": ("A", "B", "C"), "y": ("A", "B", "C")}
+    say(_parity(a, None, "🧪") is None, "⭐ `_parity` بلا سابقٍ ⇒ `None` (لا صفر)")
+    say(_parity(a, {"x": ("A", "B"), "y": ("A", "B")}, "🧪") == 0, "وبمطابقٍ ⇒ 0")
+    say(_parity(a, {"x": ("A", "Z"), "y": ("A", "B")}, "🧪") == 1, "وباختلافِ حالةٍ ⇒ 1")
+    os.remove(tmp)
+
+    # ⑤⭐ تعريفُ الذراع يُقرأ من الكوتلن لا من الذاكرة
+    kt = os.path.join(HERE, "engine_judge", "SlipDaggerArmJudge.kt")
+    if os.path.isfile(kt):
+        body = io.open(kt, encoding="utf-8").read()
+        say("exact.isEmpty() || daggerOnly" in body and "daggerOnly" in body,
+            "⭐ وسطرُ الذراع كما تصفه اللوحة: `(exact.isEmpty() || daggerOnly) && matches(…)`")
+    else:
+        # ⛔ حاكمُ الكوتلن ليس في مرآة الحوسبة العامّة (‏درسُ D-505) — يُعلَن ولا يُعَدّ نجاحاً
+        print("⚠️ **`SlipDaggerArmJudge.kt` ليس في هذه النسخة** ⇒ **فحصُ تعريف الذراع لم "
+              "يُجرَ هنا** (يجري في مستودع الأصل) — ⛔ إعلانٌ بالنصّ لا نجاحٌ صامت.")
+    say(DAGGER == "ٰ", "والخنجريّةُ هي U+0670 بعينِها")
+
+    # ⑥ الحالاتُ من مصدرٍ واحد (`riwaya_second_layer`) — لا نسخةَ بناءٍ ثانية
+    # ⛔ بياناتُ الفرش ليست في مرآة الحوسبة العامّة (‏درسُ D-505) ⇒ يُعلَن ما لم يُفحَص
+    have_farsh = all(os.path.isfile(os.path.join(S.FARSH_DIR, "farsh_%s.jz" % r))
+                     for r in S.ALL_RIWAYAT if r != "hafs")
+    mine = {c[0] for c in S.build_slips(limit=20)} if have_farsh else None
+    # ⚠️ ويُبحث عن **التعريف** في أوّل السطر لا عن اسمٍ في أيّ موضع: حارسُ مصدرٍ يطابق
+    #    نصَّ نفسِه حارسٌ ساقطٌ دائماً (وقعت هنا في أوّل كتابةٍ).
+    say("\ndef build_slips" not in src and "\ndef build_floor" not in src,
+        "⛔ ولا بناءَ حالاتٍ هنا: يُستورَد من `riwaya_second_layer`")
+    if mine is None:
+        print("⚠️ **بياناتُ الفرش غائبةٌ في هذه النسخة** ⇒ **فحصُ ثباتِ أسماء الحالات لم "
+              "يُجرَ هنا** (يجري في مستودع الأصل) — ⛔ إعلانٌ بالنصّ لا نجاحٌ صامت.")
+    else:
+        say(mine and mine == {c[0] for c in S.build_slips(limit=20)},
+            "وأسماءُ الحالات ثابتةٌ بين نداءين (‏%d حالة)" % len(mine))
+
+    # ⑦ عتباتُ الضابط لم تُليَّن
+    say("n(ra, 0) >= 20 and n(ra, 2) >= 20" in src
+        and "n(rb, 0) == n(rb, 1) == n(rb, 2) == 0" in src,
+        "⛔ عتبةُ الضابط كما هي: حيويّةٌ ≥20 لكلٍّ · والسالبان **صفرٌ**")
+
+    print("\n%s" % ("✅ حارسُ ذراع الخنجرية: تمّ" if ok else "❌ حارسُ ذراع الخنجرية: أخفق"))
+    return 0 if ok else 1
+
+
 def main():
     ap = argparse.ArgumentParser(description="ذراعُ لافتةِ الخنجرية في كاشف الانزلاق الروائيّ")
+    ap.add_argument("--selftest", action="store_true", help="🧪 حارسُ الأداة (ثوانٍ · بلا حاكم)")
     ap.add_argument("--limit", type=int, default=0, help="أوّل ن آية فقط (للتجربة)")
     ap.add_argument("--examples", type=int, default=8)
     ap.add_argument("--control", action="store_true", help="الضوابطُ وحدَها")
     ap.add_argument("--six", action="store_true", help="أرضيّةُ الرواياتِ الستِّ وحدَها")
     args = ap.parse_args()
+    if args.selftest:
+        return selftest()
     os.makedirs(WORK, exist_ok=True)
     if args.control:
         return control(args.limit or 600)
