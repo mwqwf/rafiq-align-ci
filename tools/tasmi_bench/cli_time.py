@@ -112,6 +112,28 @@ def _default_judges():
             lambda fs, tok, riw: SCR._matches(tuple(fs), tok, cfg(riw)))
 
 
+def judges_with_plan(plan_ref, base=None):
+    """🧭 **ومرجعُ البند من الخطّة حين لا يُقرأ معرّفُه** (‏أُضيف 2026-09-15 · D-523).
+
+    ⛔ **العطبُ الذي وُجدت له:** `error_triage.parse_item` يقرأ صيغةَ الطويل وحدَها
+    (`long_<رواية>_<سورة>_<آية>x<عدد>`)، **وخطّةُ الآية المفردة معرّفاتُها من شكلٍ آخر**
+    (`hafs_minshawi_015076`) ⇒ كلُّ بندٍ قصيرٍ كان يُعَدّ **مجهولاً** فلا يُقاس على المادّة
+    القصيرة شيء — وهي **مادّةُ الحلقة الحيّة** التي يتوقّف عليها سؤالُ `guardScope`.
+    ⭐ **والمرجعُ حاضرٌ في الخطّة نفسِها** (`refText` · `riwaya`) ⇒ يُقرأ منها لا من فرضيّة.
+    ⛔ **والأولويّةُ للمصحف**: ما قرأه `item_words` لا تنسخه الخطّةُ (فالمصحفُ أصلٌ والخطّةُ نقل).
+    """
+    rw, fo, no, ac = base or _default_judges()
+
+    def ref(iid):
+        got = rw(iid)
+        if got and got[1]:
+            return got
+        alt = plan_ref.get(iid)
+        return alt if alt and alt[0] and alt[1] else (None, None)
+
+    return ref, fo, no, ac
+
+
 def bag_stats(rows_arm, ref_words=None, forms=None, norm=None, accepts=None):
     """🔁 **كم من كلمات المرجع عادت · وكم قِيل بلا مرجع** — كِيساً لا خطَّ محاذاة.
 
@@ -226,10 +248,16 @@ def main():
     A, B = arms
 
     dur = {}
+    plan_ref = {}
     if a.plan:
         plan = json.load(open(a.plan, encoding="utf-8"))
         items = plan["items"] if isinstance(plan, dict) else plan
         dur = {it["id"]: it.get("durationSec") for it in items if it.get("durationSec")}
+        # 📖 **والمرجعُ من الخطّة للبنود التي لا يقرأ `parse_item` معرّفَها** (‏الآيةُ المفردة)
+        plan_ref = {it["id"]: (it.get("riwaya"), (it.get("refText") or "").split())
+                    for it in items if it.get("refText") and it.get("riwaya")}
+        if plan_ref:
+            print(f"📖 {len(plan_ref)} بنداً مرجعُه في الخطّة (‏سَنَدٌ للقصير)", flush=True)
     files = sorted(f for f in os.listdir(a.src) if f.endswith(".wav"))
     if a.limit:
         files = files[: a.limit]
@@ -288,7 +316,8 @@ def main():
     # ⛔ وتعذُّرُ الحاكم لا يُقرأ صفراً ولا يُسقط الشوط — يُكتب بنصِّ خطئه في الجدول نفسِه.
     bags = {}
     try:
-        ba, bb = bag_stats(rows[A]), bag_stats(rows[B])
+        J = judges_with_plan(plan_ref) if plan_ref else (None, None, None, None)
+        ba, bb = bag_stats(rows[A], *J), bag_stats(rows[B], *J)
         bags = {A: ba, B: bb}
         for lab, key, tot in (("🔁 **استعادةٌ بقبول الحاكم**", "hit", "ref"),
                               ("🔁 منها مطابقٌ حرفاً", "exact", "ref"),
@@ -440,6 +469,20 @@ def _selftest():
     # ⛔ وحاكمٌ فضفاضٌ لا يخلق استعادةً من لا شيء
     b = bagj({"i1": ""}, lambda i: REF3.get(i, (None, None)))
     ok((b["hit"], b["exact"], b["excess"]) == (0, 0, 0), f"⛔ فارغٌ بحاكمٍ فضفاضٍ صفرٌ — جاء {b}")
+
+    # ⑤ **والسقوطُ إلى مرجع الخطّة** (‏D-523): معرّفٌ لا يُقرأ ⇒ يُؤخذ من الخطّة لا يُعَدّ مجهولاً
+    base = (lambda iid: (None, None), fake_forms, fake_norm, None)
+    PR = {"hafs_minshawi_015076": ("hafs", ["الحمد", "لله"])}
+    rf, fo, no, ac = judges_with_plan(PR, base)
+    b = bag_stats({"hafs_minshawi_015076": {"text": "الحمد لله"}}, rf, fo, no, ac)
+    ok((b["ref"], b["hit"], b["unknown"]) == (2, 2, []),
+       f"⛔ مرجعُ الخطّة يُقرأ للقصير فلا يُعَدّ مجهولاً — جاء {b}")
+    b = bag_stats({"لا_في_الخطّة": {"text": "شيء"}}, rf, fo, no, ac)
+    ok(b["unknown"] == ["لا_في_الخطّة"], f"⛔ وما ليس في الخطّة يبقى مجهولاً مُعلَناً — جاء {b}")
+    # ⛔ وأولويّةُ المصحف على الخطّة (المصحفُ أصلٌ والخطّةُ نقل)
+    rf2, _, _, _ = judges_with_plan({"i9": ("hafs", ["منقولٌ"])},
+                                    (lambda iid: ("hafs", ["أصلٌ"]), fake_forms, fake_norm, None))
+    ok(rf2("i9") == ("hafs", ["أصلٌ"]), "⛔ ما قرأه المصحفُ لا تنسخه الخطّة")
 
     print("🧪 ضوابطُ `cli_time`: %d إخفاقاً" % len(fails))
     for m in fails:

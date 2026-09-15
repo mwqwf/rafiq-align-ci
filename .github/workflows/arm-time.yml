@@ -18,7 +18,7 @@ on:
         required: false
         default: "2"
       src:
-        description: "مجلدُ المجموعة تحت work/ (‏g4 نظيف · g4n مروحةٌ 5د.ب · g4h بعيدٌ+مروحةٌ+هاتف · wav آيةٌ مفردة)"
+        description: "مجلدُ المجموعة تحت work/ (‏g4 نظيف · g4n مروحةٌ 5د.ب · g4h بعيدٌ+مروحةٌ+هاتف · wav آيةٌ مفردة · wavn آيةٌ مفردةٌ بمروحةِ 5د.ب — مادّةُ الحلقة الحيّة)"
         required: false
         default: "g4"
       plan:
@@ -120,7 +120,10 @@ jobs:
         uses: actions/cache@v4
         with:
           path: tools/tasmi_bench/work/sets.tar
-          key: tasmi-sets-v4-${{ hashFiles('tools/tasmi_bench/sample.json', 'tools/tasmi_bench/inject_plan_riwaya.json', 'tools/tasmi_bench/augment.py', 'tools/tasmi_bench/augment_learner.py', 'tools/tasmi_bench/inject_riwaya_local.py', 'tools/tasmi_bench/build_long.py') }}
+          # 🔑 **ورقمُ النسخة يُرفع حين تُضاف مجموعةٌ** (‏v4⇒v5 · 2026-09-15): المفتاحُ يُبصم
+          #    ملفّاتِ البناء **لا هذا الملفّ** ⇒ مجموعةٌ جديدةٌ في الخطوة أدناه **لا تُبنى
+          #    أبداً** ما دام الكاشُ يُستعاد، فيُقاس على مجلَّدٍ غائبٍ ويسقط الشوطُ بلا سبب.
+          key: tasmi-sets-v5-${{ hashFiles('tools/tasmi_bench/sample.json', 'tools/tasmi_bench/inject_plan_riwaya.json', 'tools/tasmi_bench/augment.py', 'tools/tasmi_bench/augment_learner.py', 'tools/tasmi_bench/inject_riwaya_local.py', 'tools/tasmi_bench/build_long.py') }}
       - name: بناءُ المجموعات إن غاب الكاش
         if: steps.sets.outputs.cache-hit != 'true'
         run: |
@@ -133,9 +136,17 @@ jobs:
           #    نطاقُ هاتف ⇒ أقربُ ما نملك إلى «بعيدٌ في غرفةٍ صاخبة». ⛔ والبناءُ **إضافةٌ**:
           #    `g4n` كما هي بالبذرة نفسِها فلا يتبدّل رقمٌ منشور.
           python augment.py --src-dir work/g4 --dest-dir work/g4h --only combo-hard
-          tar -cf work/sets.tar -C work wav g4 g4n g4h long_plan.json
+          # 🎤 **ومادّةُ الحلقة الحيّة: آيةٌ مفردةٌ مضجَّجة** (‏أُضيفت 2026-09-15 · D-523).
+          #    ⛔ **السببُ مقيسٌ:** على الطويل المضجَّج قِيس الحرسُ **أسرعَ ×0.49** و**أكثرَ
+          #    استعادةً بنصفٍ** من `greedy` ⇒ سببُ حصرِ `guardScope` في الحكم النهائيّ (الزمنُ ·
+          #    D-328) **ساقطٌ على هذه المادّة**. لكنّ الحلقةَ الحيّةَ تفكّ **مقاطعَ قصيرة**،
+          #    وزمنُ القصير ليس زمنَ الطويل (‏D-355) ⇒ **لا يُقلَب نطاقٌ مشحونٌ بقياسٍ في
+          #    مادّةٍ أخرى**، وهذه هي المادّةُ التي تحسمه. والبذرةُ والشرطُ نفسُهما (`noise-fan-5`)
+          #    فيبقى المقياسُ واحداً بين الطويل والقصير.
+          python augment.py --src-dir work/wav --dest-dir work/wavn --only noise-fan-5
+          tar -cf work/sets.tar -C work wav wavn g4 g4n g4h long_plan.json
       - name: فكُّ المجموعات
-        run: cd tools/tasmi_bench/work && tar -xf sets.tar && rm -f sets.tar && ls -d g4 g4n g4h 2>/dev/null
+        run: cd tools/tasmi_bench/work && tar -xf sets.tar && rm -f sets.tar && ls -d g4 g4n g4h wavn 2>/dev/null
       - name: القياس (ذراعان متداخلتان لكلّ بند)
         env:
           PYTHONIOENCODING: utf-8
