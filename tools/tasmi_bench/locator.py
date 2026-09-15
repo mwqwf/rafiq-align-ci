@@ -125,6 +125,12 @@ class Locator:
     def anchored(self, ref_list, hyp_text, min_acc=0.5, slack=3):
         return anchored_per_ayah(ref_list, hyp_text, self.cfg, min_acc, slack)
 
+    def _norm_ayah(self, f):
+        """نصُّ الآية `f` مطبَّعاً **مع إسقاط الكلمات الفارغة** (‏D-438) — نظيرةُ `normAyah`
+        في `QuranLocator.kt` حرفاً. رمزُ الوقف يُطبَّع إلى "" فيُخلّف فراغاً زائداً يُفرِّق
+        بين آيتين متطابقتين حرفاً بحرف: 56 آيةً في الستِّ كانت تختفي عن فهرس المتشابهات."""
+        return " ".join(w for w in (scorer.norm(x, self.cfg) for x in self.ayah_words[f]) if w)
+
     def locate(self, hyp_text, max_ayahs=300, stop_after=2):
         hyp = [w for w in (scorer.norm(x, self.cfg) for x in _WS.split(hyp_text)) if w]
         if self.mode == "legacy":
@@ -161,20 +167,20 @@ class Locator:
         q, r, cover, prec, correct = best
         r["quality"] = q
         # 🔁 آياتٌ متطابقة النص (متشابهات تامّة): تُذكر البدائل ليُخبر المستخدم لا ليُخمَّن.
-        got = " ".join(" ".join(scorer.norm(w, self.cfg) for w in self.ayah_words[i]) for i in range(r["start"], r["end"] + 1))
+        got = " ".join(self._norm_ayah(i) for i in range(r["start"], r["end"] + 1))
         # من فهرس النصّ المتطابق (كل المواضع) لا المرشحين وحدهم — كالكوتلن
-        first_norm = " ".join(scorer.norm(w, self.cfg) for w in self.ayah_words[r["start"]])
+        first_norm = self._norm_ayah(r["start"])
         if not hasattr(self, "_identical"):
             ident = {}
-            for i, ws in enumerate(self.ayah_words):
-                ident.setdefault(" ".join(scorer.norm(w, self.cfg) for w in ws), []).append(i)
+            for i in range(len(self.ayah_words)):
+                ident.setdefault(self._norm_ayah(i), []).append(i)
             self._identical = {k: v for k, v in ident.items() if len(v) > 1}
         pool = list(dict.fromkeys(self._identical.get(first_norm, []) + [f for f, _, _ in cands]))
         alts = []
         for f in pool:
             if f == r["start"]:
                 continue
-            span = " ".join(" ".join(scorer.norm(w, self.cfg) for w in self.ayah_words[i])
+            span = " ".join(self._norm_ayah(i)
                             for i in range(f, min(len(self.ayah_words), f + r["end"] - r["start"] + 1)))
             if span == got:
                 alts.append(f)

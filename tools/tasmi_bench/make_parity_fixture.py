@@ -10,7 +10,22 @@
 كلمة زائدة، كلمة مُبدلة، إدغام كلمتين) كي تُغطّى كل الأحكام لا CORRECT وحده.
 
     python tools/tasmi_bench/make_parity_fixture.py
+    python tools/tasmi_bench/make_parity_fixture.py --refresh-verdicts   # بلا شبكة
+
+⭐ **وطَورُ التحديث (`--refresh-verdicts`) — لِمَ وُجد:** التوليدُ الكاملُ يحتاج
+`work/hyps_ar.json` وهي فرضيّاتٌ محفوظةٌ في R2، فلا يعمل حيث تُحجب الشبكة (المناوبةُ
+السحابية). و`fixture_audit.py` **يكشف** الانحرافَ هناك بلا شبكة — لكنّه لا **يُصلحه**،
+فكان أيُّ تغييرٍ مقصودٍ في `norm` يقف عند مدقّقٍ أحمرَ لا سبيلَ إلى تخضيره.
+
+والمفتاحُ أنّ **مُدخَلَ الحاكم محفوظٌ في الحزمة نفسِها**: عمودا `ref` و`hyp` هما ما
+كان يأتي من الفرضيّات. ⇒ فيُعاد حسابُ **عمودَي الحكم والزوائد** من صفوفها بلا شبكة.
+
+⛔ **وحدُّه المكتوبُ صراحةً:** لا يُضيف صفّاً ولا يحذفه — **اختيارُ الصفوف** يبقى
+موقوفاً على الفرضيّات كما وصفَ `fixture_audit.py`. فهذا تحديثُ أحكامٍ لا توليدُ حزمة.
+وهو يطبع **كلَّ صفٍّ تغيّر حكمُه** ليكون التغييرُ فعلاً مقصوداً يُقرأ في الفرق، لا
+تخضيراً صامتاً لمدقّقٍ أحمر.
 """
+import argparse
 import json
 import os
 import sys
@@ -22,6 +37,24 @@ import scorer  # noqa: E402
 
 OUT = os.path.join(ROOT, "engine", "recitation", "src", "test", "resources", "parity_fixture.tsv")
 CODE = {scorer.CORRECT: "C", scorer.MISSED: "M", scorer.SUBSTITUTED: "S", scorer.UNCERTAIN: "U"}
+
+
+def rows_of(path):
+    """صفوفُ الحزمة المُودَعة — **مُدخَلُ الحاكم محفوظٌ فيها** (‏المرجعُ والمسموعُ والرواية).
+
+    وهي القراءةُ نفسُها التي يعتمدها `fixture_audit.py` حين يعيد حسابَ الأحكام بلا شبكة.
+    """
+    out = []
+    with open(path, encoding="utf-8") as f:
+        for line in f:
+            if not line.strip() or line.startswith("#"):
+                continue
+            p = line.rstrip("\n").split("\t")
+            if len(p) < 4:
+                raise SystemExit(f"⛔ صفٌّ ناقصُ الأعمدة في {path}: {p[:1]}")
+            out.append({"name": p[0], "ref": p[1], "hyp": p[2], "riwaya": p[3],
+                        "old_verdicts": p[4] if len(p) > 4 else ""})
+    return out
 
 
 def cases():
@@ -69,13 +102,38 @@ def cfg_for(rw):
 
 
 def main():
-    data = []
-    for c in cases():
+    ap = argparse.ArgumentParser(description=__doc__)
+    ap.add_argument("--refresh-verdicts", action="store_true",
+                    help="يُعيد حسابَ الأحكام من صفوف الحزمة المُودَعة — بلا شبكة، ولا يُضيف صفّاً ولا يحذفه")
+    args = ap.parse_args()
+
+    if args.refresh_verdicts:
+        if not os.path.exists(OUT):
+            raise SystemExit(f"⛔ لا حزمةَ لتُحدَّث: {OUT} غيرُ موجودة ⇒ يلزم التوليدُ الكاملُ بالفرضيّات.")
+        src = rows_of(OUT)
+        print(f"🔁 طَورُ التحديث — {len(src)} صفّاً من الحزمة المُودَعة (‏بلا شبكةٍ ولا فرضيّات)")
+    else:
+        src = cases()
+
+    data, changed = [], []
+    for c in src:
         rw = c.get("riwaya", "hafs")
         cfg = cfg_for(rw)
         s = scorer.score(c["ref"].split(), c["hyp"], cfg)
-        data.append({**c, "verdicts": "".join(CODE[v[1]] for v in s["words"]),
-                     "additions": s["additions"]})
+        v = "".join(CODE[x[1]] for x in s["words"])
+        if c.get("old_verdicts") and c["old_verdicts"] != v:
+            changed.append((c["name"], c["old_verdicts"], v))
+        data.append({**c, "verdicts": v, "additions": s["additions"]})
+
+    if args.refresh_verdicts:
+        # ⭐ كلُّ صفٍّ تغيّر يُطبع: التخضيرُ الصامتُ لمدقّقٍ أحمرَ هو الخطرُ الوحيدُ في هذا الطَور.
+        if changed:
+            print(f"\n⚠️ **تغيّر حكمُ {len(changed)} صفّاً** — اقرأ الفرقَ وتأكّد أنّ التغييرَ مقصود:")
+            for name, old, new in changed:
+                print(f"   {name}: {old} ⇒ {new}")
+        else:
+            print("✅ لا حكمَ تغيّر — الحزمةُ كانت مطابقةً للمرآة أصلاً (‏التحديثُ لا-عمليّ).")
+
     os.makedirs(os.path.dirname(OUT), exist_ok=True)
     # TSV لا JSON: اختبارات الوحدة على Android لا تملك محلّل JSON حقيقياً
     # (‏org.json مُجوّف)، والحزمة لا تحتمل تبعية لأجل ملف حالات.

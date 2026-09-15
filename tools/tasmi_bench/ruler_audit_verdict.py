@@ -47,6 +47,12 @@ from common import load_text  # noqa: E402
 RIWAYAT = ("hafs", "warsh", "qalun", "shuba", "douri", "sousi")
 AUDITED = ("hafs", "warsh", "qalun")     # ما يدور عليه الفحصُ القائم
 
+# 📏 أرضيّةُ الذراع المقابلة — قِيست 2026-09-15 ‏03:1xZ على **مواضعَ عاديّةٍ لا ريبةَ فيها**
+#    (‏العيّنةُ نفسُها من الروايات الستِّ، ومتوسّطُ الطول 4.7 مقابل 4.9 في المريبة).
+#    ⛔ وبدونها يُقرأ عددُ المغفور عطباً هائلاً وهو في أغلبه **حدُّ التطابق العامّ**.
+BASELINE_RATE = 73.4
+BASELINE_N = 2374
+
 
 def suspicious(n):
     """أصنافُ الريبة — هي أصنافُ `T=3` نفسُها."""
@@ -102,9 +108,59 @@ def artifact_double(w, n):
     return False
 
 
+_VOCAB = None
+
+
+def vocab():
+    """كلُّ صورةٍ مطبَّعةٍ **مثبتةٍ في الرسم** عبر الروايات الستِّ — ومعها صورُ `variants`.
+
+    ⛔ **ولِمَ لزمت:** الذراعُ المقابلةُ تحتاج «كلمةً ليست هذه الكلمة»، والاختيارُ باليد يقع في
+    فخٍّ وقعتُ فيه ساعةَ كتابةِ هذا: ظننتُ `خطيئتكم` زلّةً مكانَ `خَطَٰيَىٰكُمۡ` (الدوريّ)
+    **وهي قراءةُ حفصٍ وورشٍ وقالونَ وشعبةَ للموضع نفسِه** (‏الأعراف ١٦١) ⇒ فغفرانُ الحاكم
+    لها صوابٌ لا عطب. فالضدُّ لا يصلح إلّا إن كان **غيرَ مثبتٍ في أيِّ روايةٍ أصلاً**.
+    """
+    global _VOCAB
+    if _VOCAB is None:
+        _VOCAB = set()
+        for riw in RIWAYAT:
+            cfg = detect_score.cfg_for(riw)
+            for a in load_text(riw):
+                for w in a.split():
+                    n = scorer.norm(w, cfg)
+                    if n:
+                        _VOCAB.add(n)
+                        _VOCAB.update(scorer.variants(w, cfg))
+    return _VOCAB
+
+
+# حروفٌ تُبدَّل بها آخرُ الكلمة لصنع الضدّ — مخارجُها متباعدةٌ فلا تُشبه الأصلَ سمعاً.
+_SWAP = "بتجدرسفقكلمنه"
+
+
+def counter_word(m):
+    """⚖️ **الذراعُ المقابلة:** كلمةٌ تُشبه `m` بحرفٍ واحدٍ **وليست كلمةً في المصحف قطّ**.
+
+    فإن حكم الحاكمُ عليها `CORRECT` فالتسامحُ الذي أنجى الإملاءَ الحديثَ **يُنجي الزلّةَ
+    أيضاً** — وذاك عطبٌ بالاتّجاه الآخر لا يلتقطه عدُّ الاتّهام الكاذب وحدَه.
+    ⛔ وتُعاد `None` متى تعذّر ضدٌّ غيرُ مثبت: **فلا يُختبَر** ولا يُحسب نجاحاً ولا فشلاً.
+    """
+    if len(m) < 3:
+        return None
+    V = vocab()
+    for c in _SWAP:
+        if c == m[-1]:
+            continue
+        cand = m[:-1] + c
+        if cand not in V:
+            return cand
+    return None
+
+
 def scan(riwayat, all_rows=False):
     rows = collections.Counter()
     ex = {}
+    ctrl = collections.Counter()
+    cex = {}
     for riw in riwayat:
         cfg = detect_score.cfg_for(riw)
         for i, a in enumerate(load_text(riw)):
@@ -125,7 +181,16 @@ def scan(riwayat, all_rows=False):
                 v = scorer.score(ws, hyp, cfg)["words"][k][1]
                 rows[(riw, n, m, v)] += 1
                 ex.setdefault((riw, n, m, v), (i + 1, ws[k]))
-    return rows, ex
+                # ⚖️ والذراعُ المقابلةُ في **الموضع نفسِه من الآية نفسِها** — لا في كلمةٍ
+                #    معزولة: التسامحُ يُقاس حيث يعمل، وجارةُ الكلمة جزءٌ من المحاذاة.
+                cw = counter_word(m)
+                if cw is not None:
+                    chyp = " ".join(cw if kk == k else (x or "")
+                                    for kk, x in enumerate(norms))
+                    cv = scorer.score(ws, chyp, cfg)["words"][k][1]
+                    ctrl[(riw, n, cw, cv)] += 1
+                    cex.setdefault((riw, n, cw, cv), (i + 1, ws[k]))
+    return rows, ex, ctrl, cex
 
 
 def main():
@@ -135,7 +200,7 @@ def main():
     args = ap.parse_args()
     riwayat = tuple(args.riwaya) if args.riwaya else RIWAYAT
 
-    rows, ex = scan(riwayat, args.all_rows)
+    rows, ex, ctrl, cex = scan(riwayat, args.all_rows)
     bad = {k: c for k, c in rows.items() if k[3] != scorer.CORRECT}
     tot = sum(rows.values())
     new_riw = [r for r in riwayat if r not in AUDITED]
@@ -151,6 +216,25 @@ def main():
             a, w = ex[(riw, n, m, v)]
             mark = "✅" if v == scorer.CORRECT else "🚨"
             print(f"{mark} {riw:7s} {n:16s} {m:16s} {v:12s} {c:>6d}  آية {a}: {w}")
+
+    # ⚖️ الذراعُ المقابلة — بلا هذا يخرج حاكمٌ يغفر كلَّ شيءٍ **أخضرَ** في هذا الفحص.
+    missed = {k: c for k, c in ctrl.items() if k[3] == scorer.CORRECT}
+    ctot, mtot = sum(ctrl.values()), sum(missed.values())
+    rate = 100.0 * mtot / max(ctot, 1)
+    print(f"\n⚖️ **الذراعُ المقابلة** (‏كلمةٌ تُشبه الإملاءَ بحرفٍ وليست في المصحف قطّ): "
+          f"{ctot:,} موضعاً · غُفر **{mtot:,} = {rate:.1f}٪**")
+    print(f"   📏 وأرضيّةُ المقارنة — **{BASELINE_RATE:.1f}٪** على مواضعَ عاديّةٍ لا ريبةَ فيها "
+          f"(‏عيّنةُ {BASELINE_N:,} · بمتوسّط طولٍ مكافئ) ⇒ **الفرقُ {rate - BASELINE_RATE:+.1f} نقطة**.")
+    print("   ⛔ **ولا يُقرأ هذا العددُ عطباً:** أغلبُه حدُّ التطابق العامُّ (`match_num/match_den`)"
+          " وهو معلَمٌ مقصودٌ مقيسٌ في موضعه، لا صنيعةُ مِسطرة. **الفرقُ عن الأرضيّة وحدَه**"
+          " هو ما تضيفه الصورُ المريبة — وهو ما يُتابَع إن كبُر.")
+    if args.all_rows and missed:
+        print(f"\n{'الرواية':8s} {'صورةُ المِسطرة':16s} {'الضدُّ المغفور':16s} {'مواضع':>6s}  مثال")
+        for (riw, n, cw, v), c in sorted(missed.items(), key=lambda x: -x[1])[:20]:
+            a, w = cex[(riw, n, cw, v)]
+            print(f"   {riw:7s} {n:16s} {cw:16s} {c:>6d}  آية {a}: {w}")
+    # ⛔ ورمزُ الخروجُ للاتّهام الكاذب وحدَه: الذراعُ المقابلةُ **مقياسٌ يُتابَع لا بوّابةٌ تُسقِط**،
+    #    وإسقاطُها على معلَمٍ مشحونٍ مقصودٍ يجعل الأداةَ تصرخ كلَّ يومٍ بما ليس جديداً.
     return 1 if bad else 0
 
 

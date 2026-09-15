@@ -52,9 +52,14 @@ def main():
     n_all = len(ayah_words)
 
     # 🔁 المتشابهاتُ التامّة: بدايةٌ نصُّها مطابقٌ حرفاً بحرف ليست «خطأً» بل بديلٌ مشروع (البند 5).
+    # ⚠️ مفتاحُ «المتشابهاتِ التامّة» يُسقط الكلماتِ الفارغة (‏رموزُ الوقف ⇒ "") — وإلّا
+    # فرّق فراغٌ زائدٌ بين آيتين متطابقتين نصّاً (‏D-438: 56 آيةً في الستِّ).
+    def _key(ws):
+        return " ".join(w for w in (scorer.norm(w2, cfg) for w2 in ws) if w)
+
     ident = {}
     for i, ws in enumerate(ayah_words):
-        ident.setdefault(" ".join(scorer.norm(w, cfg) for w in ws), []).append(i)
+        ident.setdefault(_key(ws), []).append(i)
 
     rng = range(n_all if not args.limit else min(args.limit, n_all))
     ranks = {}
@@ -76,7 +81,7 @@ def main():
         r = order.index(f) + 1 if f in order else 0   # 0 = خارج الثمانية
         ranks[r] = ranks.get(r, 0) + 1
         if r != 1:
-            twin = len(ident[" ".join(scorer.norm(w, cfg) for w in ayah_words[f])]) > 1
+            twin = len(ident[_key(ayah_words[f])]) > 1
             suspects.append({"flat": f, "rank": r, "top": order[:3],
                              "votes": [round(c[1], 3) for c in cands[:3]], "twin": twin})
 

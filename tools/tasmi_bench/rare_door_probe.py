@@ -51,7 +51,10 @@ import scorer  # noqa: E402
 from common import load_text  # noqa: E402
 from locator_parity import NOISE, RARE_WORD_REF, config_for, rare_words  # noqa: E402
 
-RIWAYAT = ("hafs", "warsh", "qalun")
+# 🗺️ D-434: صارت ستّاً (‏من قائمة النظر في D-428). ولا شيءَ فيه يتعلّق بمُدخَلٍ محصور:
+#    الحالاتُ تُولَّد من نصّ المصحف وحدَه. ⚠️ **وهو ثقيلٌ كأخيه `locator_parity`** (‏يستدعي
+#    المحدِّدَ لكلِّ حالة) ⇒ تُستعمل `--stride` وتُذكر الخطوةُ مع الرقم.
+RIWAYAT = ("hafs", "warsh", "qalun", "shuba", "douri", "sousi")
 MIN_RARE = 2        # كم كلمةً نادرةً تُطلب لفتح الباب
 MIXED_K = 3         # كم آيةً متباعدةً تُخلط في الحالة السالبة (ب)
 FAR = 50            # أدنى تباعدٍ بين الآيات المخلوطة ⇒ لا مدًى واحدٌ يجمعها بحقّ

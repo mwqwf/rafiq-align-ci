@@ -535,8 +535,13 @@ def parity(emu_path, hyps_path):
             exact += 1
             norm_eq += 1
         else:
-            na = " ".join(scorer.norm(w) for w in a.split())
-            nb = " ".join(scorer.norm(w) for w in b.split())
+            # ⚠️ تُسقَط الكلماتُ الفارغة (‏D-442 · من صنف D-438): التفريغُ يلفظ ترقيماً قائماً
+            # بذاته و`norm` تُرجعه ""، فلو بقي لخلّف فراغاً زائداً يجعل نصَّين **متطابقَين
+            # كلمةً كلمة** يبدوان مختلفَين ⇒ تُحتسب فروقاً وتنخفض نسبةُ الأمانة، وقد تسقط
+            # دون بوّابة 90٪ فيُحكم على المرآة بأنّها «ليست مرآة» بلا سبب. والقصدُ هنا
+            # «تطابقٌ بعد التطبيع» — والترقيمُ ليس ممّا يُقاس.
+            na = " ".join(w for w in (scorer.norm(w) for w in a.split()) if w)
+            nb = " ".join(w for w in (scorer.norm(w) for w in b.split()) if w)
             if na == nb:
                 norm_eq += 1
             else:
