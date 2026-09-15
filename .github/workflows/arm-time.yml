@@ -34,7 +34,7 @@ on:
         required: false
         default: "0"
       arms:
-        description: "ذراعان بالاسم: greedy · guard · hearall (‏الافتراضُ هو المشحونُ سلفاً)"
+        description: "ذراعان بالاسم: greedy · guard · shipguard (مرآةُ المشحون · D-522) · hearall (‏الافتراضُ هو المشحونُ سلفاً)"
         required: false
         default: "greedy,guard"
   # 🔑 **وبابٌ ثانٍ: يُستدعى من `arm-request` بإيداعٍ لا بإدلاء** (‏2026-09-14 · دورةُ :50).
