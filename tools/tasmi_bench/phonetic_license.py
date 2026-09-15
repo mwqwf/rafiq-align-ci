@@ -137,12 +137,140 @@ def exposure_all(riwaya, arms):
     return out
 
 
+# ⚖️ **الأزواجُ الحرجةُ المسمّاةُ في المشروع** (‏D-323 · D-424): كلمتان قرآنيّتان تفترقان
+# بحرفٍ واحدٍ **وينقلب المعنى بينهما**. ⇒ ورخصةٌ تقبل زوجاً منها **تُخضِرُّ كلمةً غيرَ التي
+# في المصحف**، وذلك عمًى لا تسامح. تُكتب مطبَّعةً كما تقارنها المِسطرة.
+CRITICAL_PAIRS = (("لم", "لن"), ("لا", "ما"), ("هو", "هي"), ("قل", "كل"), ("من", "مع"))
+
+
+def pair_accepted(r, h, cap, phon):
+    """أتقبل هذه الذراعُ إبدالَ `r` بـ`h`؟ — بالشرطين اللذين تقرأهما المِسطرة لا بغيرهما."""
+    cfg = cfg_for("hafs", cap, phon)
+    return bool(max(len(r), len(h)) <= cfg.short_cap or scorer._phon_ok(r, h, cfg))
+
+
+def critical_table():
+    """جدولُ الأزواج الحرجة × الأذرع — ⭐ **الوجهُ الذي لم يُقَس في مقترَح D-282 §4**.
+
+    المقيسُ (‏وهو محفوظٌ بالنصّ في الحارس أدناه):
+
+    | الزوج | أ المشحون | ب ≤2 | ج بلا رخصة | **د الضيّق** | هـ الموسَّع |
+    |---|---|---|---|---|---|
+    | لم/لن | ✅ | ✅ | — | — | ✅ |
+    | لا/ما | ✅ | ✅ | — | — | ✅ |
+    | هو/هي | ✅ | ✅ | — | — | — |
+    | **قل/كل** | ✅ | ✅ | — | **✅** | **✅** |
+    | من/مع | ✅ | ✅ | — | — | — |
+
+    ⇒ **الجدولُ الضيّقُ يُغلق أربعةً من الخمسة ويُبقي `قل`⇄`كل`** (ق وك في مخرجٍ واحد
+    `كقغخ`)، **والموسَّعُ يُعيد فتحَ `لم`⇄`لن` و`لا`⇄`ما`** (م/ن مخرجان متجاوران).
+    ⛔ وهذا **نصفُ الميزان الأوّل**: التكلفةُ على المصحف كلِّه (‏`exposure_all`) تقول
+    **34.113٪ مشحوناً · 30.017٪ بالضيّق · 14.595٪ برخصة ≤2** ⇒ الضيّقُ يشتري **4.1 نقطةٍ**
+    ممّا يشتريه الحدُّ ≤2 (‏**19.5 نقطة**). والنصفُ الآخرُ (الفائدة) يُقرأ من مخرَج الأداة
+    نفسِها، وفيه أنّ الضيّقَ يستردّ **4 كلماتٍ من 16**، **إحداها `لَوْ` سُمعت «لم»** وهي
+    **كلمةٌ قرآنيّةٌ أخرى** (تسمّيها الأداةُ 🚨 بنفسها). ⇒ **فالقرارُ يُقرأ بالوجهين معاً.**
+    """
+    rows = []
+    for r, h in CRITICAL_PAIRS:
+        rows.append((r, h, tuple(pair_accepted(r, h, cap, ph) for _, _, cap, ph in ARMS)))
+    return rows
+
+
+def selftest():
+    """🧪 **حارسُ رخصةِ المخارج** (‏D-600) — أداةٌ يُقاس بها **توسيعُ بابِ القبول**، وتوسيعُه
+    يعني **غفرانَ كلمةٍ ليست التي في المصحف**. فما يُثبَّت:
+
+    ⭐⭐ **الذراعُ (أ) هي المشحونُ حرفاً بحرف** — وإلّا قِيس الفرقُ عن غير ما يحكم به المحرك.
+    ⭐⭐ **جدولُ الأزواج الحرجة محفوظٌ بالنصّ** — فلو وُسّع الجدولُ الصوتيُّ يوماً لصرخ.
+    ⭐ **والرخصةُ لا تحتمل حذفاً ولا زيادةً ولا كلمةً طويلة** — `كما`⇄`ما` مردودةٌ في الأذرع كلِّها.
+    ⛔ **والضابطُ السالبُ يضبط:** `phon=None` **لا يسرّب** شيئاً البتّة.
+    """
+    ok = True
+
+    def say(good, line):
+        nonlocal ok
+        ok &= bool(good)
+        print(("✅ " if good else "❌ ") + line)
+
+    # ①⭐⭐ الذراعُ (أ) = المشحون
+    d = scorer.Config()
+    a_key, _, a_cap, a_phon = ARMS[0]
+    say(a_key == "a" and a_cap == d.short_cap == 3 and a_phon is None and d.phon is None,
+        "⭐⭐ الذراعُ (أ) هي المشحونُ: `short_cap=%d · phon=%s`" % (d.short_cap, d.phon))
+    say(len(ARMS) == 5 and len({k for k, _, _, _ in ARMS}) == 5,
+        "وخمسُ أذرعٍ بمفاتيحَ فريدة")
+
+    # ②⛔ الضابطُ السالب: بلا جدولٍ صوتيٍّ لا يمرّ شيء
+    none_cfg = cfg_for("hafs", 0, None)
+    say(not any(scorer._phon_ok(r, h, none_cfg) for r, h in
+                (("قل", "كل"), ("لم", "لن"), ("رب", "لب"), ("سبح", "تبح"))),
+        "⛔ `phon=None` لا يسرّب زوجاً واحداً")
+
+    # ③ صرامةُ الرخصة: طولٌ واحدٌ · اختلافٌ واحدٌ · وسقفُ الطول
+    same = cfg_for("hafs", 0, "same")
+    adj = cfg_for("hafs", 0, "adj")
+    say(not scorer._phon_ok("كما", "ما", same) and not scorer._phon_ok("كما", "ما", adj),
+        "⭐ الحذفُ مردودٌ: `كما`⇄`ما` لا تمرّ في الضيّق ولا الموسَّع")
+    say(not scorer._phon_ok("يعلمون", "يعملون", adj), "والطويلةُ مردودةٌ بسقف `phon_cap`")
+    say(not scorer._phon_ok("قلب", "كلم", adj), "واختلافُ حرفَين مردودٌ")
+    say(scorer._phon_ok("سبح", "تبح", same) and scorer._phon_ok("رب", "لب", same),
+        "وما وُضعت له الرخصةُ يمرّ: `سبح`⇄`تبح` · `رب`⇄`لب`")
+
+    # ④⭐⭐ جدولُ الأزواج الحرجة — الرقمُ الذي يُقرأ عليه القرار
+    rows = {(r, h): v for r, h, v in critical_table()}
+    say(rows[("قل", "كل")] == (True, True, False, True, True),
+        "⭐⭐ `قل`⇄`كل`: **يقبلها الجدولُ الضيّقُ** (ق وك مخرجٌ واحد) — وهي أخطرُ الخمسة")
+    say(rows[("لم", "لن")] == (True, True, False, False, True)
+        and rows[("لا", "ما")] == (True, True, False, False, True),
+        "⭐ و`لم`⇄`لن` و`لا`⇄`ما`: يُغلقهما الضيّقُ **ويُعيد الموسَّعُ فتحَهما**")
+    say(rows[("هو", "هي")] == (True, True, False, False, False)
+        and rows[("من", "مع")] == (True, True, False, False, False),
+        "و`هو`⇄`هي` و`من`⇄`مع`: يُغلقهما الجدولان معاً")
+    say(all(v[2] is False for v in rows.values()),
+        "⛔ و«بلا رخصةٍ البتّة» لا يقبل حرجاً واحداً — فالثمنُ ثمنُ الرخصة لا غير")
+
+    # ⑤ جدولُ المخارج: بناءٌ سليمٌ لا مفصَّلٌ على مقاسِ عيّنة
+    groups = scorer._MAKHARIJ
+    letters = "".join(groups)
+    say(len(groups) == 5 and len(letters) == len(set(letters)),
+        "جدولُ المخارج %d مجموعاتٍ · %d حرفاً بلا تكرار" % (len(groups), len(letters)))
+    say(not set(letters) & set("ءأإآؤئىة"),
+        "⛔ وحروفُه **بعد التطبيع**: لا همزةَ ولا تاءَ مربوطةً ولا ألفاً مقصورة")
+
+    # ⑥⭐ التكلفةُ على المصحف كلِّه: ترتيبٌ مقيسٌ لا مدَّعى (‏ثوانٍ)
+    cost = exposure_all("hafs", ARMS)
+    e = {k: 100.0 * cost[k]["exposed"] / cost[k]["occ"] for k in cost}
+    say(abs(e["c"]) < 1e-9 and e["b"] < e["d"] < e["e"] <= e["a"],
+        "⭐ التعرّضُ: ج %.3f٪ < ب %.3f٪ < د %.3f٪ < هـ %.3f٪ ≤ أ %.3f٪"
+        % (e["c"], e["b"], e["d"], e["e"], e["a"]))
+    say(e["a"] - e["d"] < (e["a"] - e["b"]) / 2,
+        "⭐⭐ ومكسبُ الجدول الضيّق (%.1f نقطة) **دون نصفِ** مكسبِ الحدّ ≤2 (%.1f نقطة)"
+        % (e["a"] - e["d"], e["a"] - e["b"]))
+
+    # ⑦ حارسُ مصدرٍ على ما يُقرأ عليه القرار
+    doc = critical_table.__doc__
+    say(all(k in doc for k in ("34.113", "30.017", "14.595", "قل", "لَوْ")),
+        "حارسُ مصدر: أرقامُ الوجهَين ومثالُ «كلمةٍ قرآنيّةٍ أخرى» في التوثيق")
+
+    print("\n%s" % ("✅ حارسُ رخصةِ المخارج: تمّ" if ok else "❌ حارسُ رخصةِ المخارج: أخفق"))
+    return 0 if ok else 1
+
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--examples", type=int, default=25)
     ap.add_argument("--control", action="store_true")
+    ap.add_argument("--critical", action="store_true", help="جدولُ الأزواج الحرجة × الأذرع")
+    ap.add_argument("--selftest", action="store_true", help="🧪 حارسُ الأداة (ثوانٍ)")
     ap.add_argument("--skip-cost", action="store_true", help="نصفُ الفائدة وحدَه (أسرع)")
     args = ap.parse_args()
+    if args.selftest:
+        return selftest()
+    if args.critical:
+        print("%-12s %s" % ("الزوج", "  ".join(k for k, _, _, _ in ARMS)))
+        for r, h, v in critical_table():
+            print("%-12s %s" % ("%s/%s" % (r, h), "  ".join("✅" if x else "—" for x in v)))
+        return 0
 
     rows = B.load_fixture() + B.load_long()
     by_riw = collections.Counter(r["riwaya"] for r in rows)
