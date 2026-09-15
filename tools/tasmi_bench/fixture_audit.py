@@ -23,8 +23,15 @@
 
 ⛔ **وما لا يدقّقه يُسمّى**: `parity_fixture.tsv` **لا يُعاد توليدُها** هنا لأنّ صفوفَها
 من فرضيّاتٍ محفوظةٍ في R2 (‏`work/hyps_ar.json`) — فيُدقَّق **عمودُ الأحكام** لا اختيارُ
-الصفوف. وحزمُ `long_anchor` · `position_parity` · `snr` **خارجَ هذا المدقّق** (‏لا
-`--check` فيها ولا مُدخَلَ محلّيّاً) — وسكوتُنا عنها **ليس** حكماً بسلامتها.
+الصفوف. (‏ومنذ D-579 يُحدَّث ذلك العمودُ بلا شبكة: `make_parity_fixture --refresh-verdicts`.)
+
+⭐ **وأُضيفت حزمتان 2026-09-15 (D-587):** `position_parity.tsv` و`snr_fixture.tsv` كانتا
+مُستثنَيَتَين بحجّة «لا `--check` فيها ولا مُدخَلَ محلّيّاً» — **والحجّةُ لا تصحّ لهما**:
+مُدخَلُ الأولى `sample.json` المُودَعةُ في الشجرة، والثانيةُ تولّد إشارتَها عدديّاً. وقِيس
+أنّ كلتيهما تُعاد **بايتاً ببايت** بلا شبكة ⇒ دخلتا `audit_regen` كما دخلتها `norm_fixture`.
+
+⛔ **وتبقى `long_anchor` خارجَه** — لا مولّدَ لها في `tools/tasmi_bench/` أصلاً ⇒ **سكوتُنا
+عنها ليس حكماً بسلامتها**، وهي الحزمةُ الوحيدةُ الباقيةُ بلا حارس.
 
     python fixture_audit.py            # يدقّق ويخرج بـ1 عند أوّل انحراف
     python fixture_audit.py --selftest
@@ -204,9 +211,14 @@ def audit_all():
     rc |= run_check("make_strict_parity_fixture", "parity_fixture_strict.tsv")
     rc |= run_check("make_locator_top_fixture", "locator_top_fixture.tsv")
     rc |= audit_regen("make_norm_fixture", os.path.join(RES, "norm_fixture.tsv"))
+    # ⭐ D-587: هاتان كانتا مُستثنَيَتَين بحجّة «لا مُدخَلَ محلّيّاً» — والحجّةُ لا تصحّ:
+    #    `make_position_parity` مُدخَلُه `sample.json` المُودَعة، و`make_snr_fixture`
+    #    يولّد إشارتَه عدديّاً. وكلتاهما تُعاد **بايتاً ببايت** بلا شبكة (قِيس).
+    rc |= audit_regen("make_position_parity", os.path.join(RES, "position_parity.tsv"))
+    rc |= audit_regen("make_snr_fixture", os.path.join(RES, "snr_fixture.tsv"))
     print("\n" + ("⛔ **حزمةٌ واحدةٌ على الأقلّ لا تُطابق المرآةَ اليومَ** — ولا يُقرأ رقمٌ من "
                   "المرآة حتى تُسوّى وتُشهَد."
-                  if rc else "✅ الحزمُ **الأربعُ** تُطابق المرآةَ اليومَ ⇒ **المرآة == الحزمة =="
+                  if rc else "✅ الحزمُ **الستُّ** تُطابق المرآةَ اليومَ ⇒ **المرآة == الحزمة =="
                   " المحرك** (‏والضلعُ الأخيرُ يضمنه `RecitationScorerParityTest` في العدّاء)."))
     return rc
 
