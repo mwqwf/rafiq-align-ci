@@ -14,6 +14,9 @@
 إلى جهاز المستخدم رقماً مطلقاً. الذي يُقاس هنا **سلوكٌ**: أيتفجّر `greedy` على `arm64` أم لا.
 """
 import argparse
+import base64
+import gzip
+import hashlib
 import json
 import os
 import re
@@ -153,7 +156,35 @@ def _default_judges():
             lambda fs, tok, riw: SCR._matches(tuple(fs), tok, cfg(riw)))
 
 
-def accuse_judge(plan_ref=None):
+# 🚪 **أبوابُ الاتّهام** — قاعدةُ D-445 وتضييقاها، **بنصِّ `unheard_ab.VARIANTS`** كي لا
+#    تتفارق مسطرتان لقاعدةٍ واحدة. والأوّلُ **المشحونُ حرفاً بحرف** (لا بابَ البتّة) فيبقى
+#    خطُّ الأساس في الجدول نفسِه لا في شوطٍ آخرَ يُضاف إليه ضجيجُ التشغيلة (‏D-523).
+# ⭐⭐ **ولِمَ تُعاد قاعدةٌ «مردودةٌ» (D-445③: −4.55 اتّهاماً مقابل −18.0 كشفاً):** ذلك الثمنُ
+#    قِيس على **الحقن** (‏صوتُ كلمةٍ أخرى صحيحٌ) وعلى **المشحون دفعةً واحدة**؛ وكسبُها يُقاس
+#    على **ما يسمعه المحرك فعلاً**. والتقطيعُ (D-536) رفع الاتّهامَ الكاذبَ 15.3٪⇒31.0٪
+#    و**الزوائدَ 11⇒506** ⇒ فالمادّةُ التي يقوم عليها هذا البابُ (‏مسموعٌ ليس كلمةً) **تضاعفت
+#    خمسين مرّة**. فالسؤالُ المقيسُ هنا: **أيَستردّ البابُ ثمنَ التقطيع؟** — كسبُه وحدَه،
+#    ⛔ **وثمنُه (الكشف) لا يُقاس على هذه المادّة البتّة** فمادّتُنا صحيحةٌ ولا كشفَ فيها.
+DOORS = [
+    ("المشحون (لا باب)", {}),
+    ("‏D-445 كما هي", {"unheard_lexicon": True}),
+    ("طولٌ ≥5", {"unheard_lexicon": True, "unheard_min_len": 5}),
+    ("وجارتُها متَّهَمة", {"unheard_lexicon": True, "unheard_need_neighbour": True}),
+]
+_LEX = {}
+
+
+def _lexicon(riw, cfg, ET, SCR, load_text):
+    """معجمُ صورِ كلماتِ الرواية — **يُبنى مرّةً** (‏78 ألف كلمةٍ لكلّ رواية، وأربعةُ أبوابٍ
+    تسأله). ⛔ والمفتاحُ الروايةُ وحدَها لأنّ كلَّ إعداداتنا هنا `config_for("proposed", riw)`
+    بعينه — ومن غيَّر ذلك فعليه أن يُضيف الإعدادَ إلى المفتاح.
+    """
+    if riw not in _LEX:
+        _LEX[riw] = ET.lexicon_of(riw, cfg, SCR, load_text)
+    return _LEX[riw]
+
+
+def accuse_judge(plan_ref=None, door=None):
     """⚖️ **حاكمُ التسميع نفسُه** (`scorer.score`) — لا مسطرةَ كِيسٍ ولا عدَّ كلمات.
 
     ⭐⭐ **ولِمَ صار هذا ممكناً ومهمّاً:** مادّتُنا كلُّها **تلاواتُ قرّاءٍ صحيحةٌ** ⇒ **كلُّ
@@ -177,7 +208,13 @@ def accuse_judge(plan_ref=None):
 
     def cfg(riw):
         if riw not in cfgs:
-            cfgs[riw] = SC.config_for("proposed", riw)
+            c = SC.config_for("proposed", riw)
+            # 🚪 **والبابُ يُركَّب على الإعداد المشحون بعدَ بنائه** — لا بدَله: `Config` صنفٌ
+            #    عاديٌّ، و`unheard_lexicon` معلَمٌ **قائمٌ موسومٌ `⛔ENGINE-ABSENT`** ومطفأٌ
+            #    افتراضاً ⇒ فمرورُ الباب الأوّل (`{}`) هو المشحونُ حرفاً بحرف.
+            for k, v in (door or {}).items():
+                setattr(c, k, _lexicon(riw, c, ET, SCR, load_text) if k == "unheard_lexicon" else v)
+            cfgs[riw] = c
         return cfgs[riw]
 
     def ref_of(iid):
@@ -201,8 +238,11 @@ def accuse_stats(rows_arm, judge, SCR):
 
     ⛔ وما تعذّر مرجعُه **يُعَدّ مجهولاً ولا يُبَنّ** (‏الدرسُ نفسُه في كلّ عدّادٍ هنا).
     """
-    out = {"ref": 0, "accused": 0, "uncertain": 0, "correct": 0, "adds": 0,
-           "collapsed": 0, "unknown": 0}
+    # 🚪 **وشطرا الاتّهام يُفصلان** (‏أُضيف D-537): بابُ D-445 **لا يمسّ `MISSED` البتّة**
+    #    (لا مسموعَ لها فلا يُقال «لم أتبيّن» عن صمت) ⇒ فسقفُ ما يستطيعه البابُ هو
+    #    **`subst` وحدَها**. ومَن قرأ المجموعَ وحدَه ظنّ البابَ عاجزاً أو قادراً بلا سند.
+    out = {"ref": 0, "accused": 0, "missed": 0, "subst": 0, "uncertain": 0, "correct": 0,
+           "adds": 0, "collapsed": 0, "unknown": 0}
     for iid in sorted(rows_arm):
         sc = judge(iid, (rows_arm[iid].get("text") or ""))
         if sc is None:
@@ -210,11 +250,70 @@ def accuse_stats(rows_arm, judge, SCR):
             continue
         out["ref"] += sc["total"]
         out["correct"] += sc["correct"]
+        out["missed"] += sum(1 for w in sc["words"] if w[1] == SCR.MISSED)
+        out["subst"] += sum(1 for w in sc["words"] if w[1] == SCR.SUBSTITUTED)
         out["accused"] += sum(1 for w in sc["words"] if w[1] in (SCR.MISSED, SCR.SUBSTITUTED))
         out["uncertain"] += sum(1 for w in sc["words"] if w[1] == SCR.UNCERTAIN)
         out["adds"] += len(sc["additions"])
         out["collapsed"] += 1 if sc["collapsed"] else 0
     return out
+
+
+HYPS_BEGIN, HYPS_END, HYPS_LINE, HYPS_W = "⤓⤓HYPS-BEGIN", "⤓⤓HYPS-END", "⤓", 180
+
+
+def hyps_blob(rows, meta=None):
+    """⤓ **إعادةُ الفرضيّات إلى المقعد** — التفريغُ نفسُه مضغوطاً في **سجلّ الشوط**.
+
+    ⭐⭐ **ولِمَ صار هذا أنفسَ ما في الأداة:** الدلوُ ومضيفُ الأثَرِ **لا يُقرآن من هذا
+    الصندوق** (مقيسٌ مراراً)، فكلُّ قاعدةِ حاكمٍ أردتُ قياسَها كلّفتني **شوطاً كاملاً**
+    ورقمَها يخالطه ضجيجُ تشغيلةٍ جديدة (‏±1.5 نقطة · D-523). والفرضيّاتُ **نصٌّ**: تُضغط
+    وتُرسَل في السجلّ (‏وهو المسارُ الوحيدُ المقروء) ⇒ **فكلُّ قاعدةِ حاكمٍ بعدها مجّانيّةٌ
+    في المقعد**، وتُقاس على **التفريغِ نفسِه** لا على تفريغٍ أخيه.
+    ⛔ **والبصمةُ تُطبع معها**: سجلُّ الأشغال يقطع السطورَ الطويلةَ ويُلوّنها، فبلا بصمةٍ
+       لا يُعرف الناقصُ من التامّ — و«قرأتُ» ليست «قرأتُ صحيحاً».
+    """
+    payload = {"meta": meta or {}, "hyps": {arm: {i: (r.get("text") or "")
+                                                  for i, r in sorted(d.items())}
+                                            for arm, d in sorted(rows.items())}}
+    raw = json.dumps(payload, ensure_ascii=False, sort_keys=True).encode("utf-8")
+    blob = base64.b64encode(gzip.compress(raw, 9, mtime=0)).decode("ascii")
+    out = [f"{HYPS_BEGIN} sha256={hashlib.sha256(raw).hexdigest()} raw={len(raw)} b64={len(blob)}"]
+    out += [f"{HYPS_LINE} {blob[k:k + HYPS_W]}" for k in range(0, len(blob), HYPS_W)]
+    out.append(HYPS_END)
+    return "\n".join(out)
+
+
+def read_hyps(text):
+    """⤓ ونقضُ الضغطِ من نصّ السجلّ — **بالبصمة** (‏وإلّا فليست قراءةً).
+
+    ⛔ وسطورُ الأشغال تحمل طابعَ وقتٍ في صدرها ⇒ يُقتطع ما قبلَ العَلَم لا يُفترض غيابُه.
+    """
+    head = [ln for ln in text.splitlines() if HYPS_BEGIN in ln]
+    if not head:
+        raise SystemExit(f"⛔ لا عَلَمَ `{HYPS_BEGIN}` في النصّ — لا يُقرأ الصفرُ فرضيّاتٍ")
+    m = re.search(r"sha256=([0-9a-f]{64})\s+raw=(\d+)\s+b64=(\d+)", head[-1])
+    if not m:
+        raise SystemExit(f"⛔ عَلَمٌ بلا بصمةٍ ولا طول: {head[-1][-120:]}")
+    sha, n_raw, n_b64 = m.group(1), int(m.group(2)), int(m.group(3))
+    lines, on = [], False
+    for ln in text.splitlines():
+        if HYPS_BEGIN in ln:
+            lines, on = [], True
+            continue
+        if HYPS_END in ln:
+            on = False
+            continue
+        if on and HYPS_LINE in ln:
+            lines.append(ln.split(HYPS_LINE, 1)[1].strip())
+    blob = "".join(lines)
+    if len(blob) != n_b64:
+        raise SystemExit(f"⛔ الكتلةُ ناقصةٌ: {len(blob)} من {n_b64} رمزاً (‏سجلٌّ مقطوع؟)")
+    raw = gzip.decompress(base64.b64decode(blob))
+    got = hashlib.sha256(raw).hexdigest()
+    if got != sha or len(raw) != n_raw:
+        raise SystemExit(f"⛔ بصمةٌ لا توافق: {got[:12]}… مقابل {sha[:12]}… ({len(raw)}/{n_raw})")
+    return json.loads(raw.decode("utf-8"))
 
 
 def judges_with_plan(plan_ref, base=None):
@@ -521,6 +620,10 @@ def main():
                     help="ذراعان بالاسم من ARMS مفصولتان بفاصلة (الافتراض: greedy,guard)")
     ap.add_argument("--md", default="")
     ap.add_argument("--json", default="")
+    # ⤓ **وكتلةُ الفرضيّات في السجلّ** — الطريقُ الوحيدُ الذي يُخرج التفريغَ من العدّاء إلى
+    #    المقعد (‏الدلوُ ومضيفُ الأثَر لا يُقرآن من هنا). ومطفأةٌ افتراضاً: من أرادها سمّاها.
+    ap.add_argument("--dump-hyps", action="store_true",
+                    help="اطبعْ تفريغَ الذراعَين مضغوطاً في السجلّ (‏يُقرأ بـhyps_log.py)")
     a = ap.parse_args()
 
     # ⏱️ **المدّةُ من الملفّ إن لم تكن في الخطّة** (2026-09-13): `sample.json` — وهي خطّةُ الآية
@@ -577,6 +680,13 @@ def main():
                                            "info": info}
         if k % 5 == 0 or k == len(files):
             print(f"   … {k}/{len(files)}", flush=True)
+
+    # ⤓ **والكتلةُ قبلَ الجدول بقصد** (‏D-537): الجدولُ يُقرأ في كلّ شوطٍ بـ`tail` نحوَ 110
+    #    سطراً، فلو جاءت الكتلةُ (نحوُ 70 سطراً) بعدَه **دفعته فوق ما أقرأ** فصار كلُّ شوطٍ
+    #    يحتاج قراءتَين. ⇒ الذيلُ يبقى للجدول، والكتلةُ تُقرأ بذيلٍ أوسعَ عند الحاجة.
+    if a.dump_hyps:
+        print("\n" + hyps_blob(rows, {"arms": [A, B], "src": a.src, "model": a.model,
+                                      "threads": a.threads, "lang": a.lang}), flush=True)
 
     def q(v, p):
         v = sorted(v); x = (len(v) - 1) * p; lo = int(x)
@@ -640,7 +750,13 @@ def main():
     try:
         _j, _SCR = accuse_judge(plan_ref or None)
         aa, ab = accuse_stats(rows[A], _j, _SCR), accuse_stats(rows[B], _j, _SCR)
+        _doors = {}
+        for _dn, _dv in DOORS[1:]:
+            _dj, _ = accuse_judge(plan_ref or None, door=_dv)
+            _doors[_dn] = (accuse_stats(rows[A], _dj, _SCR), accuse_stats(rows[B], _dj, _SCR))
         for _lab, _key in (("🚨 **اتّهامٌ كاذبٌ** (المادّةُ صحيحة)", "accused"),
+                           ("‏↳ منه **«لم تقلها»** (‏`MISSED` — لا يمسُّها بابٌ)", "missed"),
+                           ("‏↳ ومنه **«قلتَ غيرَها»** (‏`SUBSTITUTED` — سقفُ الباب)", "subst"),
                            ("🤫 «لم أتبيّن» (لا يُحسب زلّةً)", "uncertain"),
                            ("✅ مؤكَّدٌ صحيحاً", "correct")):
             def _pc(d, k=_key):
@@ -652,6 +768,22 @@ def main():
                  f" | **{ab['collapsed']}/{len(rows[B])}** |")
         if aa["unknown"] or ab["unknown"]:
             L.append(f"| ⚠️ بنودٌ بلا مرجعٍ عند الحاكم | {aa['unknown']} | {ab['unknown']} |")
+        # 🚪 **وأبوابُ D-445 على التفريغِ نفسِه** — لا شوطَ ثانياً ولا ضجيجَ تشغيلةٍ بينهما:
+        #    القاعدةُ **إعادةُ وسمٍ بعد المحاذاة**، فالمقايسةُ داخلَ الشوط **حكمٌ لا مرجّح**.
+        for _dn, (_da, _db) in _doors.items():
+            def _dpc(d, b):
+                if not d["ref"]:
+                    return "—"
+                _p, _bp = 100.0 * d["accused"] / d["ref"], 100.0 * b["accused"] / b["ref"]
+                return f"{d['accused']}/{d['ref']} = **{_p:.1f}٪** (‏{_p - _bp:+.1f})"
+            L.append(f"| 🚪 بابُ «{_dn}» — اتّهامٌ كاذب | {_dpc(_da, aa)} | {_dpc(_db, ab)} |")
+            # ⛔⛔ **وضابطُ أنّ البابَ بابٌ لا رخصة:** `UNCERTAIN` **يُعرَض ولا يُحسب زلّةً**
+            #    (D-231) ⇒ فالمؤكَّدُ صحيحاً **لا يتغيّر بحرف**، وحارسُ الانهيار سابقٌ له
+            #    فلا يتغيّر عدُّه أيضاً. ومن رأى أحدَهما يتحرّك فالمقيسُ **قاعدةٌ أخرى**.
+            for _k, _w in (("correct", "المؤكَّد"), ("collapsed", "الانهيار")):
+                if (_da[_k], _db[_k]) != (aa[_k], ab[_k]):
+                    L.append(f"| ⛔⛔ **بابُ «{_dn}» حرّك {_w}** | {aa[_k]}⇒{_da[_k]}"
+                             f" | {ab[_k]}⇒{_db[_k]} |")
     except Exception as e:
         L.append(f"| ⛔ حاكمُ الاتّهام تعذّر | `{type(e).__name__}: {e}` | — |")
     rat =[rows[B][i]["sec"] / rows[A][i]["sec"] for i in rows[A]]
@@ -900,6 +1032,58 @@ def _selftest():
     for _n in ARM_QUIETCUT:
         ok(_n in ARM_CHUNK and _n in ARMS and _n in ARM_LABEL, f"⛔ ذراعٌ ناقصةُ التسجيل: {_n}")
         ok(ARMS[_n] == ARMS["greedy"], f"⛔ {_n} رايات المشحون حرفاً")
+
+    # ───────── 🚪 أبوابُ الاتّهام (D-537) — والضابطُ أنّ المفتاحَ **يوجد** ─────────
+    ok(DOORS[0][1] == {}, "⛔ البابُ الأوّلُ خطُّ الأساس: لا معلَمَ فيه البتّة")
+    ok(all(d.get("unheard_lexicon") is True for _, d in DOORS[1:]),
+       "⛔ كلُّ بابٍ بعد الأساس يُشعل المعجمَ صريحاً")
+    ok(len({n for n, _ in DOORS}) == len(DOORS), "⛔ اسمُ بابٍ مكرَّرٌ يُخفي صفّاً بصفّ")
+    try:
+        import inspect
+
+        import scorer as _SCR2
+        _par = set(inspect.signature(_SCR2.Config.__init__).parameters)
+        for _n, _d in DOORS:
+            for _k in _d:
+                # ⛔⛔ **العطبُ الذي بُني له هذا الضابط:** `setattr` على صنفٍ عاديٍّ **يقبل
+                #    كلَّ اسم**، فمعلَمٌ مُخطئٌ حرفاً (`unheard_minlen`) **لا يرمي شيئاً** —
+                #    يُطبَع جدولٌ كاملٌ لبابٍ **لم يُفتح البتّة**، وفرقُه صفرٌ فيُقرأ «القاعدةُ
+                #    لا تنفع». فالأسماءُ تُقابَل بمعالم `Config` نفسِها لا بالظنّ.
+                ok(_k in _par, f"⛔⛔ معلَمٌ لا يعرفه `scorer.Config`: {_k} (‏بابُ «{_n}»)")
+        _c = _SCR2.Config()
+        ok(getattr(_c, "unheard_lexicon", "x") is None,
+           "⛔ وبابُ D-445 **مطفأٌ في الافتراض** — وإلّا فالمرآةُ ليست مرآةً")
+    except ImportError:
+        pass
+
+    # ───────── ⤓ كتلةُ الفرضيّات: تُكتب وتُقرأ وتكشف النقص ─────────
+    _rows = {"greedy": {"a": {"text": "بسم الله الرحمن الرحيم"}, "b": {"text": ""}},
+             "chunk10": {"a": {"text": "الحمد لله رب العالمين"}, "b": {"text": "مالك"}}}
+    _blob = hyps_blob(_rows, {"arms": ["greedy", "chunk10"]})
+    _back = read_hyps(_blob)
+    ok(_back["hyps"]["greedy"]["a"] == "بسم الله الرحمن الرحيم", "⤓ النصُّ يعود حرفاً")
+    ok(_back["hyps"]["greedy"]["b"] == "", "⤓ والفارغُ يعود فارغاً لا غائباً (‏صفُّ الإسكات)")
+    ok(_back["meta"]["arms"] == ["greedy", "chunk10"], "⤓ والترويسةُ تعود معه")
+    # ⛔ وسطورُ الأشغال تحمل طابعَ وقتٍ وسطوراً غريبةً بينها — والقراءةُ تصمد
+    _noisy = "\n".join(["2026-09-15T09:00:00.0000000Z " + ln for ln in _blob.splitlines()])
+    _noisy = "طابعٌ سابق\n" + _noisy + "\n⏱️ سطرٌ لاحق"
+    ok(read_hyps(_noisy) == _back, "⤓ تُقرأ من سجلٍّ بطوابعِ وقتٍ وسطورٍ حولَها")
+    # ⛔⛔ **والنقصُ يُكشف لا يُخمَّن:** سجلٌّ مقطوعٌ يجب أن **يسقط** لا أن يعيد نصفَ تفريغٍ
+    #    فيُقاس على بعض المادّة ويُنشر رقمُه وكأنّه على كلِّها.
+    _cut = "\n".join(_blob.splitlines()[:-2] + [HYPS_END])
+    try:
+        read_hyps(_cut)
+        ok(False, "⛔⛔ كتلةٌ مقطوعةٌ قُرئت بلا صراخ")
+    except SystemExit:
+        pass
+    _bad = _blob.replace("sha256=" + _blob.split("sha256=")[1][:64], "sha256=" + "0" * 64)
+    try:
+        read_hyps(_bad)
+        ok(False, "⛔⛔ بصمةٌ لا توافق قُرئت")
+    except SystemExit:
+        pass
+    ok(max(len(x) for x in _blob.splitlines()[1:-1]) <= HYPS_W + 4,
+       "⤓ سطورُ الكتلة قصيرةٌ فلا يقطعها السجلّ")
 
     print("🧪 ضوابطُ `cli_time`: %d إخفاقاً" % len(fails))
     for m in fails:
