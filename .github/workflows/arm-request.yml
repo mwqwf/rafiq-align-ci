@@ -9,7 +9,8 @@
 # (‏`workflow_call`) — **فلا مسطرتان تتخالفان**.
 #
 #   {"model": "base", "src": "g4n", "plan": "work/long_plan.json", "limit": "20",
-#    "threads": ["2", "4"], "reason": "عتبةُ م٢: أيتجاوز الأكبرُ الزمنَ الحقيقيّ بنواتَين؟"}
+#    "threads": ["2"], "arms": "greedy,hearall",
+#    "reason": "D-513: أيُسكت `no_speech_thold` نوافذَ كاملةً على المضجَّج الطويل؟"}
 #
 # ⛔⛔ **ولا افتراضَ لِما يُغيّر المقيس** (‏درسُ `emu-request`): كلُّ حقلٍ **يُسمّى في كلّ طلب**
 # وإلّا سقط الطلبُ بنصّه — فالمستدعى لا يفرّق بين «لم يُذكر» و«فارغ»، وتكرارُ القيم هنا
@@ -41,6 +42,7 @@ jobs:
       plan: ${{ steps.r.outputs.plan }}
       limit: ${{ steps.r.outputs.limit }}
       threads: ${{ steps.r.outputs.threads }}
+      arms: ${{ steps.r.outputs.arms }}
     steps:
       - uses: actions/checkout@v4
       - id: r
@@ -50,7 +52,7 @@ jobs:
           python3 - <<'PY' >> "$GITHUB_OUTPUT"
           import json, sys
           req = json.load(open("tools/tasmi_bench/requests/arm.json", encoding="utf-8"))
-          missing = [k for k in ("model", "src", "plan", "limit", "threads") if not req.get(k)]
+          missing = [k for k in ("model", "src", "plan", "limit", "threads", "arms") if not req.get(k)]
           if missing:
               sys.stderr.write("⛔ حقولٌ ناقصةٌ في الطلب: %s\n" % " · ".join(missing))
               sys.exit(1)
@@ -68,6 +70,7 @@ jobs:
           print("src=" + str(req["src"]))
           print("plan=" + str(req["plan"]))
           print("limit=" + str(req["limit"]))
+          print("arms=" + str(req["arms"]))
           print("threads=" + json.dumps(th))
           sys.stderr.write("✅ الطلبُ سليم: %s على %s بخيوط %s (حدُّ %s)\n"
                            % (req["model"], req["src"], th, req["limit"]))
@@ -86,4 +89,5 @@ jobs:
       plan: ${{ needs.read.outputs.plan }}
       model: ${{ needs.read.outputs.model }}
       limit: ${{ needs.read.outputs.limit }}
+      arms: ${{ needs.read.outputs.arms }}
     secrets: inherit
