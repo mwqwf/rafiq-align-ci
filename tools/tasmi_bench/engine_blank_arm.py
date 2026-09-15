@@ -37,6 +37,7 @@
 """
 import argparse
 import collections
+import io
 import os
 import subprocess
 import sys
@@ -177,14 +178,106 @@ def control(riw, upto, meta, got, cfg):
     return ok, bad, ex
 
 
+def selftest():
+    """🧪 **حارسُ ذراع الرمز على المحرك** (‏D-604) — وهي **أقوى أداةٍ في العدّة حجّةً**:
+    تقيس المشحونَ بعينِه **بلا ترقيعٍ ولا نسخةِ عمل** (‏مدخلان لحاكمٍ واحدٍ غيرِ مُعدَّل).
+    وشوطُها ثقيلٌ (يبني الكوتلن ويجري المصحف) فلا يُشعَل في الدفعة اليوميّة.
+
+    ⭐⭐ **وأثمنُ ما يُثبَّت أنّ حجّتَها لم تنكسر**: لو تسلّل إليها ترقيعٌ يوماً لصارت تقيس
+      محركاً لم يُشحن **وهي تدّعي أنّها تقيس المشحون** — وذلك أسوأُ من رقمٍ خاطئ.
+    ⭐⭐ **وأنّ الذراعين لا تفترقان إلّا في إسقاط الفارغات** — لو اختلف المسموعُ بينهما
+      لصار الفرقُ فرقَ مدخلَين لا فرقَ دواء.
+    ⭐ **وأنّ فجوةَ `strict_short` قائمةٌ فعلاً** (‏`detect_score.cfg_for` لا يضعه والمحركُ
+      يشحنه مفعَّلاً · D-323) — فهي **علّةُ وجود** ضابط المرآة، ولو زالت لصار الضابطُ زينة.
+    """
+    ok = True
+
+    def say(good, line):
+        nonlocal ok
+        ok &= bool(good)
+        print(("✅ " if good else "❌ ") + line)
+
+    src = io.open(os.path.abspath(__file__), encoding="utf-8").read()
+
+    # ①⭐⭐ لا ترقيعَ البتّة — لا `SHORT_CAP` ولا كتابةَ في مصدر المحرك
+    # ⚠️ ويُفتَّش عن **الاستعمال** لا عن الاسم: متنُ الملفّ يذكر `SHORT_CAP` ليقارن به،
+    #    وحارسٌ يطابق نصَّ نفسِه حارسٌ ساقطٌ دائماً (‏درسُ D-509).
+    # ⭐ والإبرةُ **تُركَّب وقتَ التشغيل** فلا يحويها الملفُّ حرفيّاً — وهو العلاجُ الآليُّ
+    #    لدرس D-509 («حارسُ مصدرٍ يطابق نصَّ نفسِه ساقطٌ دائماً»): وقعتُ فيه ثلاثَ مرّات.
+    needles = ["SHORT_" + "CAP=", "src_" + "cap", "en" + "v=", "os." + "environ"]
+    hits = [x for x in needles if x in src]
+    say(not hits,
+        "⭐⭐ لا ترقيعَ في **الاستعمال**: لا سقفَ يُمرَّر ولا بيئةَ ولا نسخةَ عمل (‏%s)"
+        % (hits or "نظيف"))
+    say("لا يُمَسّ ملفُّ المحرك بحرف" in src and "يقيس المشحونَ بعينِه" in src,
+        "⛔ ودعوى «المشحونُ بعينه» مكتوبةٌ في المتن — فهي تُحاسَب عليها")
+    say("يُقاس ولا يُشحن" in src, "وشرطُ الشحن باقٍ: يُقاس ولا يُشحن")
+
+    # ②⭐⭐ الذراعان مدخلان لحاكمٍ واحد: المسموعُ **واحد**، والمرجعُ يفترق بالفارغات وحدَها
+    cfg, rows, meta = gen_cases("hafs", upto=14)
+    pairs = {}
+    for r in rows:
+        name, ref, hyp, riw = r.split("\t")
+        pairs.setdefault(name[:-2], {})[name[-1]] = (ref, hyp, riw)
+    bad_hyp = [k for k, v in pairs.items() if v["b"][1] != v["a"][1]]
+    bad_ref = []
+    for k, v in pairs.items():
+        keep = [w for w in v["b"][0].split() if scorer.norm(w, cfg)]
+        if keep != v["a"][0].split():
+            bad_ref.append(k)
+    say(pairs and not bad_hyp,
+        "⭐⭐ المسموعُ **واحدٌ** في الذراعين (‏%d زوجاً · شواذ %d)" % (len(pairs), len(bad_hyp)))
+    say(not bad_ref,
+        "⭐⭐ والمرجعُ في «بعدُ» = مرجعُ «قبلُ` بلا الفارغات لا غير (‏شواذ %d)" % len(bad_ref))
+    say(all(len(v) == 2 for v in pairs.values()) and len(rows) == 2 * len(meta),
+        "ولكلِّ حالةٍ سطران لا غير: %d سطراً لـ%d حالة" % (len(rows), len(meta)))
+
+    # ③ ولا تُولَّد حالةٌ لآيةٍ بلا رمز — وإلّا انتفخ المقام بما لا يخصّ الباب
+    say(all(any(_blank_flags(ref, cfg)) for _n, _f, _k, ref, _t in meta),
+        "ولا حالةَ إلّا في آيةٍ فيها رمزٌ فارغ")
+
+    # ④⭐ العدّاداتُ الثلاثةُ بتعريفها — بحاكمٍ مصطنعٍ في الذاكرة
+    ref = ["ذالك", "ۛ", "الكتاب"]
+    flags = [False, True, False]
+    keep = [0, 2]
+    m = [("t", flags, keep, ref, "ذالك الكتاب")]
+    got = {"t|b": "CMC", "t|a": "CC"}          # الرمزُ متّهَمٌ قبلُ · ولا شيءَ بعدُ
+    say(tally(m, got)[:4] == (1, 1, 0, 0), "⭐ يُنقذ رمزاً: %s" % (tally(m, got)[:4],))
+    got = {"t|b": "SMC", "t|a": "CC"}          # وكلمةٌ حقيقيّةٌ زالت تهمتُها
+    say(tally(m, got)[:4] == (1, 1, 1, 0), "⭐ ويُنقذ كلمةً قرآنيّةً: %s" % (tally(m, got)[:4],))
+    got = {"t|b": "CMC", "t|a": "SC"}          # 🚨 الكلفة: تهمةٌ **جديدةٌ** بعدُ
+    say(tally(m, got)[:4] == (1, 1, 0, 1), "🚨 والكلفةُ تُعَدّ: %s" % (tally(m, got)[:4],))
+    got = {"t|b": "CMC"}                       # جوابٌ ناقصٌ من المحرك
+    say(tally(m, got)[0] == 0 and tally(m, got)[4] == 1,
+        "⛔ وما نقص جوابُه **يُعَدّ مفقوداً لا صفراً**: %s" % (tally(m, got)[:5],))
+
+    # ⑤⭐⭐ فجوةُ `strict_short` قائمةٌ — وهي علّةُ وجود ضابط المرآة
+    say(detect_score.cfg_for("hafs").strict_short is False
+        and mirror_cfg("hafs", True).strict_short is True
+        and mirror_cfg("hafs", False).strict_short is False,
+        "⭐⭐ `cfg_for` لا يضع `strict_short` والمرآةُ تضعه بالوجهين — فالضابطُ يُجرى بهما")
+    say("criticalPairsUncertain" in src and "D-323" in src,
+        "وسببُ الفجوة مكتوبٌ باسمه (‏`criticalPairsUncertain` · D-323)")
+
+    # ⑥ والمقارنةُ حرفاً بحرفٍ على الذراعين معاً — لا على واحدةٍ منهما
+    say('for suffix, kp in (("|b", None), ("|a", keep)):' in src,
+        "⛔ وضابطُ المرآة يقارن **الذراعين معاً** لا الأولى وحدَها")
+
+    print("\n%s" % ("✅ حارسُ ذراع الرمز على المحرك: تمّ" if ok else "❌ حارسُ الذراع: أخفق"))
+    return 0 if ok else 1
+
+
 def main():
     ap = argparse.ArgumentParser(description=__doc__.split("\n")[0])
+    ap.add_argument("--selftest", action="store_true", help="🧪 حارسُ الأداة (ثوانٍ · بلا كوتلن)")
     ap.add_argument("--riwaya", action="append", choices=RIWAYAT)
     ap.add_argument("--all", action="store_true")
     ap.add_argument("--upto", type=int, default=0, help="قصُّ مدخل المسح عند هذا العدد من الآيات")
     ap.add_argument("--control", type=int, default=0,
                     metavar="N", help="اجعل المسحَ على أوّل N آية وطابقِ المرآةَ بالمحرك")
     args = ap.parse_args()
+    if args.selftest:
+        return selftest()
 
     riwayat = RIWAYAT if args.all else tuple(args.riwaya or ("hafs",))
     upto = args.control or args.upto
