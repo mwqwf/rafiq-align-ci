@@ -153,6 +153,70 @@ def _default_judges():
             lambda fs, tok, riw: SCR._matches(tuple(fs), tok, cfg(riw)))
 
 
+def accuse_judge(plan_ref=None):
+    """⚖️ **حاكمُ التسميع نفسُه** (`scorer.score`) — لا مسطرةَ كِيسٍ ولا عدَّ كلمات.
+
+    ⭐⭐ **ولِمَ صار هذا ممكناً ومهمّاً:** مادّتُنا كلُّها **تلاواتُ قرّاءٍ صحيحةٌ** ⇒ **كلُّ
+    كلمةٍ يحكم عليها الحاكمُ بـ`MISSED` أو `SUBSTITUTED` اتّهامٌ كاذبٌ بالبناء** — لا تفسيرَ
+    آخر. وهو الرقمُ الذي كتبتُ مراراً أنّه «عند مناوبةٍ أخرى»، **وشطرُه الأوّلُ في يدي**:
+    المرآةُ البايثونيّةُ للحاكم قائمةٌ ومحروسةٌ بحزمة التماثل.
+    ⛔ **وحدُّه يُقال:** **المرآةُ للاتّجاه لا للرقم** — والرقمُ النهائيُّ من المحرك (`emu-gate`).
+    ⭐ **ويُقرأ معه صفّان يُغيّران الحكم**: `UNCERTAIN` (‏معروضٌ ولا يُحسب زلّةً · D-231)،
+    و**حارسُ الانهيار** (`collapsed` · D-268) الذي **يمنع الاتّهامَ حين ينهار التعرّفُ أصلاً**
+    ⇒ فقد يكون التخفيفُ الذي بحثتُ عنه في المفرِّغ **قائماً في الحاكم**.
+    """
+    here = os.path.dirname(os.path.abspath(__file__))
+    sys.path.insert(0, here)
+    sys.path.insert(0, os.path.join(os.path.dirname(here), "alignment"))
+    import error_triage as ET
+    import score as SC
+    import scorer as SCR
+    from common import load_index, load_text
+    index = load_index()
+    cfgs = {}
+
+    def cfg(riw):
+        if riw not in cfgs:
+            cfgs[riw] = SC.config_for("proposed", riw)
+        return cfgs[riw]
+
+    def ref_of(iid):
+        got = ET.item_words(iid, load_text, index)
+        if got and got[1]:
+            return got
+        alt = (plan_ref or {}).get(iid)
+        return alt if alt and alt[0] and alt[1] else (None, None)
+
+    def judge(iid, text):
+        riw, words = ref_of(iid)
+        if not words:
+            return None
+        return SCR.score(words, text or "", cfg(riw))
+
+    return judge, SCR
+
+
+def accuse_stats(rows_arm, judge, SCR):
+    """🚨 **الاتّهامُ الكاذبُ بالعدّ** — ومعه ما يُهدّئه، فالحكمُ لا يُقرأ برقمٍ واحد.
+
+    ⛔ وما تعذّر مرجعُه **يُعَدّ مجهولاً ولا يُبَنّ** (‏الدرسُ نفسُه في كلّ عدّادٍ هنا).
+    """
+    out = {"ref": 0, "accused": 0, "uncertain": 0, "correct": 0, "adds": 0,
+           "collapsed": 0, "unknown": 0}
+    for iid in sorted(rows_arm):
+        sc = judge(iid, (rows_arm[iid].get("text") or ""))
+        if sc is None:
+            out["unknown"] += 1
+            continue
+        out["ref"] += sc["total"]
+        out["correct"] += sc["correct"]
+        out["accused"] += sum(1 for w in sc["words"] if w[1] in (SCR.MISSED, SCR.SUBSTITUTED))
+        out["uncertain"] += sum(1 for w in sc["words"] if w[1] == SCR.UNCERTAIN)
+        out["adds"] += len(sc["additions"])
+        out["collapsed"] += 1 if sc["collapsed"] else 0
+    return out
+
+
 def judges_with_plan(plan_ref, base=None):
     """🧭 **ومرجعُ البند من الخطّة حين لا يُقرأ معرّفُه** (‏أُضيف 2026-09-15 · D-523).
 
@@ -570,6 +634,26 @@ def main():
             L.append(f"| ⚠️ بنودٌ بلا مرجعٍ (مجهولةٌ لا مبنَّنة) | {len(ba['unknown'])} | {len(bb['unknown'])} |")
     except Exception as e:
         L.append(f"| ⛔ مسطرةُ الاستعادة تعذّرت | `{type(e).__name__}: {e}` | — |")
+
+    # 🚨 **وصفوفُ الحاكم — وهي التي يُبنى عليها القرار** (‏D-536): المادّةُ صحيحةٌ فكلُّ
+    #    اتّهامٍ كاذبٌ بالبناء. ⛔ وتعذُّرُ الحاكم يُكتب بنصّه ولا يُقرأ صفراً.
+    try:
+        _j, _SCR = accuse_judge(plan_ref or None)
+        aa, ab = accuse_stats(rows[A], _j, _SCR), accuse_stats(rows[B], _j, _SCR)
+        for _lab, _key in (("🚨 **اتّهامٌ كاذبٌ** (المادّةُ صحيحة)", "accused"),
+                           ("🤫 «لم أتبيّن» (لا يُحسب زلّةً)", "uncertain"),
+                           ("✅ مؤكَّدٌ صحيحاً", "correct")):
+            def _pc(d, k=_key):
+                return (f"{d[k]}/{d['ref']} = **{100.0 * d[k] / d['ref']:.1f}٪**"
+                        if d["ref"] else "—")
+            L.append(f"| {_lab} | {_pc(aa)} | {_pc(ab)} |")
+        L.append(f"| ➕ زوائدُ يعرضها الحاكم | {aa['adds']} | {ab['adds']} |")
+        L.append(f"| 🛑 **بنودٌ أطلق فيها حارسُ الانهيار** | **{aa['collapsed']}/{len(rows[A])}**"
+                 f" | **{ab['collapsed']}/{len(rows[B])}** |")
+        if aa["unknown"] or ab["unknown"]:
+            L.append(f"| ⚠️ بنودٌ بلا مرجعٍ عند الحاكم | {aa['unknown']} | {ab['unknown']} |")
+    except Exception as e:
+        L.append(f"| ⛔ حاكمُ الاتّهام تعذّر | `{type(e).__name__}: {e}` | — |")
     rat =[rows[B][i]["sec"] / rows[A][i]["sec"] for i in rows[A]]
     L.append(f"\n**نسبةُ {ARM_LABEL.get(B, B)} إلى {ARM_LABEL.get(A, A)}:** وسيطاً ×{st.median(rat):.2f} · المدى ×{min(rat):.2f}–×{max(rat):.2f} "
              f"· الحرسُ أسرعُ في {sum(1 for x in rat if x < 1)}/{len(rat)} بنداً")
