@@ -27,6 +27,11 @@
 ⚖️ **وبعدَ D-300 يُقارَن ترتيبُ المرشّحين كلُّه** لا القاطعون وحدَهم: كسرُ التعادل صار صريحاً في
    الطرفين (‏الأصغرُ فهرساً أوّلاً) فلم يبقَ في الترتيب أثرٌ لترتيب المرور على `dict`/`HashMap`.
 
+🧭 **وطبقةُ المحاذاة صارت تُقارَن أيضاً** (‏أُضيف 2026-09-15 · D-623): عمودٌ سابعٌ فيه **حكمُ كلِّ
+   آيةٍ في المدى** (`i:n:correct:نافذة`). لماذا: كان المقارَنُ كلُّه من طبقة التصويت والمدى،
+   **فقاعدةٌ لا تغيّر إلا `correct` — كقاعدة الذيل الجزئيّ — غيرُ مرئيّةٍ عند أيِّ حجمِ عيّنة**
+   (‏قِيس: عطبُها حاسمٌ في 2 من 140 نداءَ محاذاة والمخرَجُ متطابقٌ 15 من 15). انظر `anchored_summary`.
+
 ⚠️ يقيس **اتّفاقَ** المحدّدَين لا **صوابَهما**: ما اتّفقا على خطئه لا يظهر هنا (‏وصوابُه يقيسه
    `locator_bench.py` على تفريغاتٍ حقيقية — وهي تحتاج صوتاً ونموذجاً).
 🧪 **وابدأ بـ`--control`:** يزرع في المرآة **ثلاثةَ أعطابٍ معزولة**، بابًا لكلِّ طبقةٍ من طبقات
@@ -167,12 +172,35 @@ def mirror_cands_scored(loc, text):
     return [(f, v) for f, v, _ in loc.candidates(core)]
 
 
+def anchored_summary(r):
+    """🧭⭐⭐ **حكمُ المحاذاة لكلِّ آية** — نظيرُ `LocatorJudge.anchoredSummary` حرفاً (‏D-623).
+
+    ⛔ **لِمَ أُضيف:** كان المقارَنُ خمسةَ حقولٍ كلُّها من طبقة التصويت والمدى، **وطبقةُ
+    المحاذاة تحتها لا تُقارَن**. وقِيس أثرُ ذلك: عطبُ «الذيل الجزئيّ» حاسمٌ في **2 من 140
+    نداءَ محاذاة** في العيّنة نفسِها، **والمخرَجُ المقارَنُ متطابقٌ 15 من 15** ⇒ صمتُ الضابط
+    **عمى سطحٍ لا فقرُ عيّنة**، وهو حدٌّ **لا يرفعه اتّساعُ العيّنة**.
+
+    والصيغةُ `i:n:correct:بداية-نهاية`، و`-` مكانَ النافذة تعني «لم تُسمع»، و`-` وحدَها
+    تعني «لا موضعَ أصلاً». ⚖️ وتماثلُ الدلالة مع المحرك **قُرئ من مصدره**: الترقيمُ موضعيٌّ
+    في الجهتين (`extend` يعيد `index = i` · والمرآةُ `a["i"] = k`) · و`correct` هنا هو
+    `words - errors` هناك · وغيرُ المسموعة صفرٌ في الجهتين · والنافذةُ `first/last` تقابل `win`.
+    """
+    if r is None:
+        return "-"
+    parts = []
+    for a in r["anchored"]:
+        w = a["window"]
+        parts.append("%d:%d:%d:%s" % (a["i"], a["n"], a["correct"],
+                                      "-" if w is None else "%d-%d" % (w[0], w[1])))
+    return ",".join(parts)
+
+
 def run_mirror(loc, cases):
     out = {}
     for name, text in cases:
         r = loc.locate(text)
         strict, tied = mirror_cands(loc, text)
-        cands = (",".join(str(x) for x in strict), str(tied))
+        cands = (",".join(str(x) for x in strict), str(tied), anchored_summary(r))
         out[name] = ("-", "-", "") + cands if r is None else (
             str(r["start"]), str(r["end"]),
             ",".join(str(x) for x in r.get("alternatives", []))) + cands
@@ -196,8 +224,8 @@ def run_engine(ayat, riwaya, cases, tag):
             if not line.strip():
                 continue
             p = line.rstrip("\n").split("\t")
-            p += [""] * (6 - len(p))
-            out[p[0]] = (p[1], p[2], p[3], p[4], p[5])
+            p += [""] * (7 - len(p))
+            out[p[0]] = (p[1], p[2], p[3], p[4], p[5], p[6])
     return out
 
 
@@ -235,9 +263,9 @@ def rare_report(loc, cases, mirror, engine):
             if ordered[0] == flat:
                 top1 += 1
         # المرشّحون في الجانبين (‏بعدَ D-300: القائمةُ كلُّها بترتيبها، لا القاطعون وحدَهم)
-        if str(flat) in (mirror.get(name, ("",) * 5)[3] or "").split(","):
+        if str(flat) in (mirror.get(name, ("",) * 6)[3] or "").split(","):
             strict_m += 1
-        if str(flat) in (engine.get(name, ("",) * 5)[3] or "").split(","):
+        if str(flat) in (engine.get(name, ("",) * 6)[3] or "").split(","):
             strict_e += 1
         if mirror.get(name, ("-",))[0] != "-":
             located += 1
@@ -305,24 +333,54 @@ def _break_partial_tail():
     return lambda: setattr(L, "anchor_one", orig)
 
 
+# 🚪 الأبوابُ الثلاثةُ، **ولكلِّ بابٍ عيّنتُه** (‏`stride`/`limit`؛ و`None` تعني «عيّنةَ المنادي»).
+# ⭐⭐ ولِمَ صارت لكلِّ بابٍ عيّنةٌ (‏D-625): بابُ الذيل الجزئيّ **سكت على عيّنةٍ عامّة** لسببين
+# **مجتمعَين** لا واحدٍ — سطحٌ ضيّقٌ (‏عولج بالعمود السابع) **وعيّنةٌ لا تحمل العطب**: شكلُ
+# `half` وحدَه هو الذي يُشعله، **وبشرطٍ إضافيّ**: أن تكون دقّةُ نصفِ الآية **دون 0.5** فتحتاج
+# القاعدةَ حقّاً (‏آيةٌ فرديّةُ الكلمات). وعلى `stride 400 · limit 2` لا يقع من ذلك شيءٌ ⇒ صمت.
+# 📐 وقِيس بعدَ العمود السابع: على 40 حالةَ `half` القاعدةُ **حاسمةٌ في 34 نداءً** و**المخرَجُ
+#    يتغيّر في 18 من 40**؛ وعلى `stride 37 · limit 6` صرخ البابُ **3 من 38**.
 CONTROL_DOORS = (
-    ("إسقاطُ الاستعاذة والبسملة (stripPreamble)", _break_preamble, "hafs"),
-    ("ندرةُ الكلمة المفردة في التصويت (RARE_WORD)", _break_rare_word, "warsh"),
-    ("الذيلُ الجزئيُّ في المحاذاة (partial tail)", _break_partial_tail, "qalun"),
+    ("إسقاطُ الاستعاذة والبسملة (stripPreamble)", _break_preamble, "hafs", None, None),
+    ("ندرةُ الكلمة المفردة في التصويت (RARE_WORD)", _break_rare_word, "warsh", None, None),
+    ("الذيلُ الجزئيُّ في المحاذاة (partial tail)", _break_partial_tail, "qalun", 37, 6),
 )
+
+
+def half_ratio(ayah_words):
+    """دقّةُ شكل `half` لآيةٍ بهذا الطول — ودونَ 0.5 **تُطلَب قاعدةُ الذيل الجزئيّ** (وإلّا فلا)."""
+    return max(3, ayah_words // 2) / float(ayah_words) if ayah_words else 1.0
+
+
+def door_bait(riwaya, stride, limit):
+    """كم حالةَ `half` في هذه العيّنة **دقّتُها دون 0.5** — أي: كم فيها من طُعمٍ للباب الثالث.
+
+    ⛔ **عيّنةٌ بلا طُعمٍ تجعل البابَ يسكت وهو سليم**، فيُقرأ سكوتُه «الضابطُ ساقط» وهو كذبٌ
+    على الضابط. فيُعَدّ الطُّعمُ **قبل** الحكم على السكوت (‏نظيرُ «أرضيّةِ السالب» في D-624).
+    """
+    ayat = load_text(riwaya)
+    picks = list(range(0, len(ayat), stride))
+    if limit:
+        picks = picks[:limit]
+    return sum(1 for f in picks
+               if len(ayat[f].split()) >= 3 and half_ratio(len(ayat[f].split())) < 0.5)
 
 
 def control(stride, limit):
     print("🧪 الضابطُ السالب — ثلاثةُ أبوابٍ معزولة، كلُّها يجب أن تصرخ:")
     ok = True
-    for i, (name, breaker, riwaya) in enumerate(CONTROL_DOORS):
+    for i, (name, breaker, riwaya, s2, l2) in enumerate(CONTROL_DOORS):
+        s, l = (s2 or stride), (l2 if l2 is not None else limit)
         undo = breaker()
         try:
-            n, diffs = measure(riwaya, stride, limit, tag=f"ctl{i}", show=2)
+            n, diffs = measure(riwaya, s, l, tag=f"ctl{i}", show=2)
         finally:
             undo()
+        note = "" if (s, l) == (stride, limit) else f" · عيّنتُه stride={s} limit={l}"
+        if not diffs and breaker is _break_partial_tail:
+            note += f" · وطُعمُ العيّنة (‏`half` دقّتُه دون 0.5) = {door_bait(riwaya, s, l)}"
         verdict = "✅ صرخ" if diffs else "⛔ **سكت** — الضابطُ ساقط"
-        print(f"  {verdict}: {name} [{riwaya}] ⇒ {len(diffs)}/{n}")
+        print(f"  {verdict}: {name} [{riwaya}] ⇒ {len(diffs)}/{n}{note}")
         ok = ok and bool(diffs)
     print("🧪 الضابطُ " + ("مرّ ✅ — المقارنةُ ترى الأبوابَ الثلاثة." if ok else "**سقط** ⛔"))
     return ok
@@ -383,12 +441,38 @@ def selftest():
     say(L.anchor_one is orig, "ورفعُ العطب يُعيد الدالّةَ الأصليّةَ بعينها")
 
     # ⑤ ثلاثةُ أبوابٍ بثلاث رواياتٍ — بابٌ لكلّ طبقة (‏درسُ D-297: ضابطُ بابٍ واحدٍ يشهد لبابه ويسكت)
-    say(len(CONTROL_DOORS) == 3 and len({r for _, _, r in CONTROL_DOORS}) == 3,
-        f"وثلاثةُ أبوابٍ في ثلاث رواياتٍ: {[r for _, _, r in CONTROL_DOORS]}")
+    say(len(CONTROL_DOORS) == 3 and len({r for _, _, r, _s, _l in CONTROL_DOORS}) == 3,
+        f"وثلاثةُ أبوابٍ في ثلاث رواياتٍ: {[r for _, _, r, _s, _l in CONTROL_DOORS]}")
 
     # ⑥ والكلامُ غيرُ القرآنيّ عتادُ «الإنذار الكاذب» — لا يُفرَّغ من العيّنة
     say(len(NOISE) >= 5 and all(n.strip() for n in NOISE),
         f"وعيّنةُ الكلام غير القرآنيّ {len(NOISE)} أسطر — والإنذارُ الكاذب أسوأُ من «لم أتبيّن»")
+
+    # ⑦⭐⭐ **وطبقةُ المحاذاة داخلَ السطح المقارَن** (‏D-623): وإلّا فقاعدةٌ لا تغيّر إلا
+    #     `correct` غيرُ مرئيّةٍ عند أيِّ حجمِ عيّنة. يُفحَص بالنتيجة **وبنفيها**.
+    fake = {"start": 3, "end": 4, "anchored": [
+        {"i": 0, "n": 5, "correct": 4, "window": (0, 3)},
+        {"i": 1, "n": 6, "correct": 0, "window": None}]}
+    say(anchored_summary(fake) == "0:5:4:0-3,1:6:0:-" and anchored_summary(None) == "-",
+        f"⭐ العمودُ السابع يلخّص حكمَ كلِّ آية: «{anchored_summary(fake)}» · وبلا موضعٍ «-»")
+    row = run_mirror(L.Locator([a.split() for a in ("قل هو الله احد",)],
+                               config_for("hafs")), [("t", "قل هو الله احد")])["t"]
+    say(len(row) == 6 and row[5] not in ("", "-"),
+        f"وصفُّ المرآة ستّةُ حقولٍ وآخرُها حكمُ المحاذاة **غيرُ فارغ**: {row}")
+
+    # ⑧⭐⭐ **ولكلِّ بابٍ عيّنةٌ تحمله**: بابُ الذيل الجزئيّ لا يُشعله إلا `half` دقّتُه دون 0.5،
+    #     **وعيّنةٌ بلا طُعمٍ تُسكته وهو سليم** فيُقرأ سكوتُه «ضابطٌ ساقط» وهو كذبٌ عليه.
+    say(half_ratio(11) < 0.5 and half_ratio(4) >= 0.5 and half_ratio(3) >= 0.5,
+        f"مسطرةُ الطُّعم: آيةُ 11 كلمةً {half_ratio(11):.2f} (‏تحتاج القاعدة) · وآيةُ 4 {half_ratio(4):.2f} (لا تحتاجها)")
+    # ⭐⭐ وطُعمٌ واحدٌ **لا يكفي**، وهذا قِيس ولم يُفترَض: القاعدةُ يجب أن تحسم **المرشّحَ
+    #     الفائزَ** لا أيَّ نداءٍ — وعلى 40 حالةَ `half` كانت حاسمةً في 34 نداءً **والمخرَجُ
+    #     يتغيّر في 18 فقط** (‏نحوَ النصف). ⇒ فعيّنةُ العامّة (‏400/2) فيها **طُعمٌ واحد**
+    #     وسكت البابُ عليها **وهو سليم**: الفائزُ كان آيةً أخرى قصيرةً طابقت كلَّ ما سُمع.
+    d3 = [d for d in CONTROL_DOORS if d[1] is _break_partial_tail][0]
+    bait, bare = door_bait(d3[2], d3[3], d3[4]), door_bait(d3[2], 400, 2)
+    say(bait >= 3 and bare <= 1 and bait > bare,
+        f"⭐ وعيّنةُ البابِ الثالث فيها **{bait} طُعم** — والعيّنةُ العامّةُ (‏400/2) فيها {bare} "
+        f"وحدَه، **والمخرَجُ يتغيّر في 18 من 40 طُعمٍ** ⇒ طُعمٌ واحدٌ يسكت نحوَ النصف بلا عطبٍ فيه")
 
     print("\n" + ("✅ الضابطُ السالبُ قادرٌ على أن يضبط — وأعطابُه تُرفع كما زُرعت"
                   if ok else "❌ الضابطُ السالبُ لا يضبط"))
