@@ -122,16 +122,68 @@ def report(top=14, riwaya="hafs"):
     return rows
 
 
+# ⚖️ **الحكمُ المقيسُ بعد التكذيب** (‏D-606) — أُبقيت أرقامُه هنا لأنّها ثمنُ فرضيّةٍ سقطت.
+#
+# فرضيّةُ D-508 كانت: «الناقصةُ هي **الطرفُ الثاني** من الزوج المتشابه». وجرّبتها مناوبةُ
+# الفهرسة على الدلو (‏`ops/out/0045_missing_s10{1,2}.txt`) فجاءت **مختلَطة**، وقِيس الخام:
+#
+#   سورة 102 (‏106 غياباً · 54 قارئاً): {1:5 · 2:3 · **3:31** · 4:17 · 5:14 · **6:20** · 7:15 · 8:1}
+#       ⇒ آياتُ الزوجين الأربع (3·4·6·7) تأخذ **83 من 106 = 78٪** وهي نصفُ السورة ⇒ **الجوارُ
+#         سببٌ حقيقيّ**، ⛔ **لكنّ الطرفَ الأوّلَ (3) يضيع أكثرَ من الثاني (4)** — فاتّجاهُ
+#         الفرضيّة مقلوب.
+#   سورة 101 (‏26 غياباً · 11 قارئاً): {**1:8** · 2:3 · **3:0** · 4:2 …}
+#       ⇒ الطرفُ الثاني (3) **صفرٌ** ⇒ الفرضيّةُ **مكذَّبةٌ هنا صراحةً**، والأكثرُ ضياعاً
+#         **الآيةُ 1 «الْقَارِعَةُ» — كلمةٌ واحدة**.
+#
+# ⭐ **والمقيسُ الذي يصمد: قِصَرُ الآية.** الآياتُ ≤3 كلمات تأخذ **58٪** من غياب 101 وهي
+#   36٪ من آياتها، و**56٪** من غياب 102 وهي 50٪ منها. ⇒ **فالخطرُ مركَّبٌ: قِصَرٌ + جوار**،
+#   لا جوارٌ وحدَه. والعلاجُ لم يتغيّر (إلزامُ الحدّ) لكنّ **المؤشّرَ تغيّر**.
+SHORT_AYAH = 3          # حدُّ «الآيةِ القصيرة» بالكلمات الحقيقيّة — مقيسٌ لا مفترَض
+
+
+def risk_table(surah, riwaya="hafs"):
+    """لكلِّ آية: (رقمُها · كلماتُها الحقيقيّة · ألها شبيهٌ في السورة؟ · أقصيرةٌ هي؟).
+
+    ⇒ **مؤشّرُ الخطر المقيس** (‏D-606): القِصَرُ أو الجوارُ — وأشدُّه اجتماعُهما.
+    """
+    cfg = P.config_for(riwaya)
+    text = load_text(riwaya)
+    idx = load_index()
+    a, b, _ = surah_slice(idx, surah)
+    ayat = [norm_ayah(x, cfg) for x in text[a:b]]
+    near_ix = set()
+    for i in range(len(ayat)):
+        for j in range(i + 1, len(ayat)):
+            if near(ayat[i], ayat[j]):
+                near_ix.add(i)
+                near_ix.add(j)
+    out = []
+    for i, x in enumerate(ayat):
+        n = len(x.split())
+        out.append((i + 1, n, i in near_ix, n <= SHORT_AYAH))
+    return out
+
+
 def main():
     ap = argparse.ArgumentParser(description="جردُ التكرار داخلَ السورة — علّةُ النقص النظاميّ")
     ap.add_argument("--riwaya", default="hafs")
     ap.add_argument("--surah", type=int, default=0, help="أزواجُ سورةٍ بعينها")
     ap.add_argument("--pairs", action="store_true", help="اطبع أزواجَ أخطرِ السور")
+    ap.add_argument("--risk", type=int, default=0, metavar="س",
+                    help="مؤشّرُ خطر الآية في سورةٍ بعينها: قِصَرٌ + جوار (‏D-606)")
     ap.add_argument("--top", type=int, default=14)
     ap.add_argument("--selftest", action="store_true", help="🧪 حارسُ الأداة (ثوانٍ)")
     args = ap.parse_args()
     if args.selftest:
         return selftest()
+    if args.risk:
+        print("سورة %d · مؤشّرُ الخطر (‏قِصَرٌ ≤%d كلمات · أو جوارٌ قريب)"
+              % (args.risk, SHORT_AYAH))
+        for k, n, nr, sh in risk_table(args.risk, args.riwaya):
+            tag = ("قصيرةٌ+جوار" if (nr and sh) else "قصيرة" if sh
+                   else "جوار" if nr else "—")
+            print("   آية %3d · كلمات %2d · %s" % (k, n, tag))
+        return 0
     if args.surah:
         ps = pairs_of(args.surah, args.riwaya)
         print("سورة %d · أزواجُ التشابه: %d" % (args.surah, len(ps)))
@@ -145,6 +197,11 @@ def main():
             print("\n  سورة %d · %d زوجاً: %s" % (sn, len(ps),
                   " · ".join("%d⇜%d" % (i, j) for i, j, _ in ps[:12])))
     return 0
+
+
+def s_src_marker():
+    """متنُ الملفّ — يُقرأ من القرص كي لا يطابق الحارسُ نصَّ نفسِه (‏ثابتُ D-604)."""
+    return io.open(os.path.abspath(__file__), encoding="utf-8").read()
 
 
 def selftest():
@@ -201,7 +258,23 @@ def selftest():
     say(len(rows) == 114 and sum(r[1] for r in rows) == 6236,
         "والمصحفُ كاملٌ: %d سورةً · %d آية" % (len(rows), sum(r[1] for r in rows)))
 
-    # ④ الحدُّ مكتوبٌ ومحروس
+    # ④⭐⭐ الفرضيّةُ المكذَّبةُ محفوظةٌ بأرقامها (‏D-606) — **وثمنُها أغلى من صحّتها**
+    r101 = {k: (n, nr, sh) for k, n, nr, sh in risk_table(101)}
+    r102 = {k: (n, nr, sh) for k, n, nr, sh in risk_table(102)}
+    say(r101[1][0] == 1 and r101[1][2] and r101[3][0] == 4,
+        "⭐⭐ 101: الآيةُ 1 كلمةٌ واحدةٌ **قصيرة** (وهي الأكثرُ ضياعاً فعلاً)، والآيةُ 3 أربعُ كلمات")
+    say(r101[3][1] and r102[4][1] and r102[3][1],
+        "وطرفا الزوجين في الجوار كما قِيسا (‏101: 2⇜3 · 102: 3⇜4)")
+    say(SHORT_AYAH == 3 and sum(1 for v in r102.values() if v[2]) == 4
+        and sum(1 for v in r101.values() if v[2]) == 4,
+        "⛔ وحدُّ القِصَر 3 كلمات: أربعُ آياتٍ قصيرةٍ في كلٍّ من 101 و102 (‏وعليه حُسبت النسب)")
+    doc606 = s_src_marker()
+    say("3:31" in doc606 and "3:0" in doc606 and "58٪" in doc606,
+        "⭐⭐ وأرقامُ التكذيب محفوظةٌ في المتن: 102 ⇒ 3:31 · 101 ⇒ 3:**صفر** · والقِصَرُ 58٪")
+    say("فاتّجاهُ" in doc606 and "مقلوب" in doc606,
+        "⛔ ويُقال صريحاً إنّ اتّجاهَ الفرضيّة كان **مقلوباً** — لا يُطوى")
+
+    # ⑤ الحدُّ مكتوبٌ ومحروس
     src = io.open(os.path.abspath(__file__), encoding="utf-8").read()
     say(MAX_WORD_DIFF == 1 and MAX_AFFIX_GAP == 2 and "MAX_WORD_DIFF = 1" in src,
         "⛔ حدُّ الجوار كما قِيس: كلمةٌ واحدةٌ · وفجوةُ كلمتين")
