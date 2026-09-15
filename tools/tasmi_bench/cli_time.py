@@ -104,10 +104,15 @@ def _default_judges():
 
     return (lambda iid: ET.item_words(iid, load_text, index),
             lambda w, riw: ET.forms_of(w, cfg(riw), SCR),
-            lambda w, riw: SCR.norm(w, cfg(riw)))
+            lambda w, riw: SCR.norm(w, cfg(riw)),
+            # ⛔⛔ **وقبولُ الحاكم لا عضويّةُ مجموعة** (‏تصحيحٌ قبل النشر · D-523): `scorer._matches`
+            #    هو ما يقبل به المحرّكُ فعلاً — **مسافةُ تحريرٍ ≤ خُمسِ الطول** ومعها رخصةُ
+            #    القصيرة (‏≤3 حروفٍ تحتمل حرفاً) — وليس التطابقَ حرفاً. ومن قاس بالعضويّة
+            #    **نقَص عدَّه عن حاكمه**: «الرحمان» مقابل «الرحمٰن» يقبلها الحاكمُ وترفضها هي.
+            lambda fs, tok, riw: SCR._matches(tuple(fs), tok, cfg(riw)))
 
 
-def bag_stats(rows_arm, ref_words=None, forms=None, norm=None):
+def bag_stats(rows_arm, ref_words=None, forms=None, norm=None, accepts=None):
     """🔁 **كم من كلمات المرجع عادت · وكم قِيل بلا مرجع** — كِيساً لا خطَّ محاذاة.
 
     ⭐ **لِمَ وُجد** (‏حدُّ D-519 بنصّه): عدُّ الكلمات وحدَه **ليس صواباً** — كلمةٌ خطأٌ تُعَدّ
@@ -124,29 +129,49 @@ def bag_stats(rows_arm, ref_words=None, forms=None, norm=None):
          تُستهلَك مرّةً واحدة ⇒ **حلقةُ تكرارٍ لا تُقرأ استعادةً** (وهي الفخُّ الأوّلُ هنا).
       ③ **ما تعذّر مرجعُه يُعَدّ مجهولاً ويُعلَن، ولا يُبَنّ في الطرفَين** (درسُ `floor_shape`):
          بندٌ بلا مرجعٍ لا يُنقص الاستعادةَ ولا يُضخّم الزائد.
+      ④ **والقبولُ قبولُ الحاكم لا التطابقُ حرفاً** (‏صُحّح قبل النشر · D-523): `scorer._matches`
+         يقبل **مسافةَ تحريرٍ ≤ خُمسِ الطول** ومعها رخصةُ القصيرة ⇒ مَن قاس بالعضويّة وحدَها
+         **نقَص عدَّه عن حاكمه**. ويُطبَع العددان: `hit` بقبول الحاكم و`exact` مطابقاً حرفاً،
+         **والتطابقُ يُلتقَط أوّلاً** كي لا يستهلكَ جارٌ فضفاضٌ صورةً بعينها.
+      ⑤ **و`heard` هنا يُعَدّ بعد التشذيب** ⇒ قد يقلّ بواحدٍ أو اثنَين عن صفّ «كلماتٌ مسموعةٌ
+         كلّيّاً» (‏وهو عدٌّ خامٌ بالمسافات): رمزٌ يُشذَّب إلى فراغٍ ليس كلمةً هنا. **عدّان
+         تعريفاهما مختلفان، فلا يُطرح أحدهما من الآخر.**
     """
     if ref_words is None:
-        ref_words, forms, norm = _default_judges()
-    ref_n = heard_n = hit = 0
+        ref_words, forms, norm, accepts = _default_judges()
+    if accepts is None:
+        accepts = lambda fs, tok, riw: tok in fs     # ⛔ صارمةٌ: للضوابط المُحقَنة وحدَها
+    ref_n = heard_n = hit = exact = dropped = 0
     unknown = []
     for iid in sorted(rows_arm):
         riw, words = ref_words(iid)
         if not words:
             unknown.append(iid)
             continue
-        pool = [set(forms(w, riw)) for w in words]
+        pool = [list(forms(w, riw)) for w in words]
         used = [False] * len(pool)
         ref_n += len(pool)
-        toks = [t for t in (norm(x, riw) for x in (rows_arm[iid].get("text") or "").split()) if t]
+        raw = (rows_arm[iid].get("text") or "").split()
+        toks = [t for t in (norm(x, riw) for x in raw) if t]
+        # 📣 **وما أسقطه التشذيبُ يُعلَن لا يُسكت عنه** (‏D-523): `scorer.norm` يُفرّغ ما ليس
+        #    عربيّاً ⇒ **هَلوَسةٌ لاتينيّةٌ تختفي من الطرفَين** («thank you for watching» ⇒ صفر).
+        #    فلو كان العددُ كبيراً لكان الحكمُ «لا يسمع» وصفاً خاطئاً للعطب: هو يتكلّم بغير
+        #    لغته. ⇒ يُعَدّ ويُطبَع، **وهو نفسُه الذي يفسّر فرقَ المقامَين في الجدول**.
+        dropped += len(raw) - len(toks)
         heard_n += len(toks)
         for t in toks:
-            for k, fs in enumerate(pool):
-                if not used[k] and t in fs:
-                    used[k] = True
-                    hit += 1
-                    break
-    return {"ref": ref_n, "heard": heard_n, "hit": hit,
-            "excess": heard_n - hit, "unknown": unknown}
+            # ⭐ **والتطابقُ حرفاً يُقدَّم على القبول الفضفاض**: لو جاء المسموعُ صورةَ كلمةٍ
+            #    بعينها فلا يُستهلَك بها جارٌ يقبله الحاكمُ بمسافةِ حرفٍ ⇒ العدُّ **لا يُبدَّد**.
+            k = next((i for i, fs in enumerate(pool) if not used[i] and t in fs), None)
+            if k is not None:
+                exact += 1
+            else:
+                k = next((i for i, fs in enumerate(pool) if not used[i] and accepts(fs, t, riw)), None)
+            if k is not None:
+                used[k] = True
+                hit += 1
+    return {"ref": ref_n, "heard": heard_n, "hit": hit, "exact": exact,
+            "excess": heard_n - hit, "dropped": dropped, "unknown": unknown}
 
 
 def run_one(cli, model, wav, arm, threads, lang):
@@ -265,11 +290,14 @@ def main():
     try:
         ba, bb = bag_stats(rows[A]), bag_stats(rows[B])
         bags = {A: ba, B: bb}
-        for lab, key, tot in (("🔁 **استعادةُ كلمات المرجع**", "hit", "ref"),
+        for lab, key, tot in (("🔁 **استعادةٌ بقبول الحاكم**", "hit", "ref"),
+                              ("🔁 منها مطابقٌ حرفاً", "exact", "ref"),
                               ("👻 زائدٌ لا يقابل مرجعاً", "excess", "heard")):
             def pct(d):
                 return f"{d[key]}/{d[tot]} = **{100.0 * d[key] / d[tot]:.1f}٪**" if d[tot] else "—"
             L.append(f"| {lab} | {pct(ba)} | {pct(bb)} |")
+        if ba["dropped"] or bb["dropped"]:
+            L.append(f"| 🗑️ رمزٌ أسقطه التشذيب (‏ليس عربيّاً) | {ba['dropped']} | {bb['dropped']} |")
         if ba["unknown"]:
             L.append(f"| ⚠️ بنودٌ بلا مرجعٍ (مجهولةٌ لا مبنَّنة) | {len(ba['unknown'])} | {len(bb['unknown'])} |")
     except Exception as e:
@@ -364,6 +392,11 @@ def _selftest():
     ok((b["hit"], b["ref"], b["excess"]) == (2, 3, 0), f"كلمةٌ ساقطةٌ تُنقص الاستعادةَ ولا تصير زائداً — جاء {b}")
     b = bag({"i1": "الحمد لله رب العالمين"})
     ok((b["hit"], b["heard"], b["excess"]) == (3, 4, 1), f"مسموعٌ بلا مرجعٍ يُعَدّ زائداً — جاء {b}")
+    # 🗑️ وما يُفرّغه التشذيبُ يُعَدّ ويُعلَن — لا يختفي من الطرفَين صامتاً
+    b = bag_stats({"i1": {"text": "الحمد لله رب"}}, fake_ref, fake_forms, lambda w, r: "" if w == "لله" else w)
+    ok((b["dropped"], b["heard"], b["hit"]) == (1, 2, 2),
+       f"⛔ المُفرَّغُ يُعَدّ مُسقَطاً ويخرج من المقام — جاء {b}")
+    ok(bag({"i1": "الحمد لله رب"})["dropped"] == 0, "ولا يُعَدّ مُسقَطاً ما لم يُفرَّغ")
     # ⛔⛔ **الفخُّ الأوّل:** حلقةُ تكرارٍ ترفع العددَ — ولا يجوز أن ترفع الاستعادة.
     b = bag({"i1": "الحمد الحمد الحمد لله رب"})
     ok(b["hit"] == 3 and b["excess"] == 2,
@@ -379,6 +412,34 @@ def _selftest():
         b = bag({"i1": t})
         ok(b["excess"] >= 0 and b["hit"] <= b["ref"] and b["hit"] <= b["heard"],
            f"⛔ حدودُ المسطرة تُنتهك على «{t}»: {b}")
+        ok(b["exact"] <= b["hit"], f"⛔ المطابقُ حرفاً لا يزيد على المقبول: {b}")
+
+    # ④ **وقبولُ الحاكم يُقاس بحاكمٍ مُحقَنٍ يحاكي مسافةَ حرف** (‏D-523): فالعضويّةُ وحدَها
+    #    كانت **تنقص عن الحاكم**، والبندُ كلُّه قام على هذا التصحيح.
+    def ed1(fs, tok, riw):
+        for f in fs:
+            if abs(len(f) - len(tok)) <= 1 and sum(1 for a, b in zip(f, tok) if a != b) <= 1:
+                return True
+        return False
+
+    def bagj(texts, ref=None):
+        return bag_stats({k: {"text": v} for k, v in texts.items()},
+                         ref or fake_ref, fake_forms, fake_norm, ed1)
+
+    REF2 = {"i1": ("hafs", ["الرحمن", "مالك"])}
+    b = bagj({"i1": "الرحمان مالك"}, lambda i: REF2.get(i, (None, None)))
+    ok(b["hit"] == 2 and b["exact"] == 1,
+       f"⛔ صورةٌ بمسافة حرفٍ يقبلها الحاكمُ وتُعَدّ خارجَ المطابق حرفاً — جاء {b}")
+    b = bagj({"i1": "الرحمان"}, lambda i: REF2.get(i, (None, None)))
+    ok(b["excess"] == 0, f"⛔ ما قبله الحاكمُ ليس زائداً — جاء {b}")
+    # ⛔ والتطابقُ يُلتقَط أوّلاً: «قل» لا تستهلك «قال» فيبقى المطابقُ حرفاً صادقاً
+    REF3 = {"i1": ("hafs", ["قل", "قال"])}
+    b = bagj({"i1": "قال قل"}, lambda i: REF3.get(i, (None, None)))
+    ok(b["hit"] == 2 and b["exact"] == 2,
+       f"⛔ التطابقُ حرفاً يُلتقَط أوّلاً فلا يُبدَّد عدٌّ — جاء {b}")
+    # ⛔ وحاكمٌ فضفاضٌ لا يخلق استعادةً من لا شيء
+    b = bagj({"i1": ""}, lambda i: REF3.get(i, (None, None)))
+    ok((b["hit"], b["exact"], b["excess"]) == (0, 0, 0), f"⛔ فارغٌ بحاكمٍ فضفاضٍ صفرٌ — جاء {b}")
 
     print("🧪 ضوابطُ `cli_time`: %d إخفاقاً" % len(fails))
     for m in fails:
