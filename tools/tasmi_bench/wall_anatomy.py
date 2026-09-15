@@ -43,6 +43,7 @@ import io
 import itertools
 import os
 import sys
+import unicodedata
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 ROOT = os.path.dirname(os.path.dirname(HERE))
@@ -373,6 +374,16 @@ LEDGER_WITH_SIXTH = 4241        # الجدولُ + السدس (D-286) — وال
 WALL_D0 = 110178
 
 
+# 🔤 رموزُ نصوص الستّ كلِّها (‏تُبنى مرّةً عند الحاجة — D-620).
+def _all_text_chars():
+    from common import load_text
+    s = set()
+    for r in RIWAYAT:
+        for a in load_text(r):
+            s.update(a)
+    return s
+
+
 def selftest():
     """🧪 **حارسُ تشريح الجدار** (‏D-614) — والضابطُ القائمُ (`--control`) ثقيلٌ يبني المجتمعَ
     كلَّه، وهذا يفحص في ثانيةٍ ما لا يفحصه هو: **سلامةَ المصنِّف نفسِه**.
@@ -457,6 +468,28 @@ def selftest():
         "🚨 وأسوأُ الأذرع `ء⇒حذف` (‏فائدةٌ %d بكلفة %d) وأنقاها `ى⇒ي` (‏%d بكلفة %d)"
         % (SUB_LEDGER["hamza"][1], SUB_LEDGER["hamza"][2],
            SUB_LEDGER["maqsura"][1], SUB_LEDGER["maqsura"][2]))
+
+    # ⑩⭐⭐ **قسمةُ فضاء الرموز** (‏D-620) — نظيرُ قانون القسمة في D-619، مطبَّقاً على
+    #     **مخرَج التطبيع** نفسِه: أيّ رمزٍ من نصوص الستّ يبقى بعد `norm`؟
+    #     العطبُ الذي يمنعه: رمزٌ **يتيمٌ** ينجو إلى المخرَج وليس حرفاً ⇒ يقارَن كأنّه كلام.
+    letters, others = [], []
+    for ch in sorted(_all_text_chars()):
+        if scorer.norm(ch, scorer.Config()):
+            (letters if "ARABIC LETTER" in unicodedata.name(ch, "") else others).append(ch)
+    say(others == [" "],
+        "⭐⭐ لا رمزَ ينجو من التطبيع إلّا حرفٌ عربيٌّ أو فراغ (‏ناجون %d · غيرُ حرفٍ %r)"
+        % (len(letters) + len(others), others))
+
+    # ⑪⭐⭐ **ورمزٌ يدّعيه آليّتان: الخنجريّة** — والترتيبُ هو الحَكَم، ولا حارسَ له قبلَ اليوم
+    dagger = "ٰ"
+    say(bool(scorer._STRIP.match(dagger)) and scorer.norm(dagger, scorer.Config()) == "ا",
+        "⭐⭐ الخنجريّةُ يطابقها **المَحو** ومع ذلك تخرج `ا` ⇒ **التحويلُ يسبق المَحو**")
+    say(scorer.norm("مَٰلِكِ", scorer.Config()) == "مالك"
+        and scorer.norm("مَلِكِ", scorer.Config()) == "ملك",
+        "⭐⭐ ⇒ `مَٰلِكِ`(حفص) ⇐ «مالك» و`مَلِكِ`(ورش) ⇐ «ملك» — **صورتان متمايزتان في المرجع**")
+    say(scorer._STRIP.sub("", "مَٰلِكِ") == "ملك",
+        "🚨 **ونقيضُه:** لو سبق المَحوُ التحويلَ لصارت صورةُ حفصٍ «ملك» ⇒ **تنطبق على ورش**\n"
+        "     — وهذه الصورةُ بعينُها **226 من 227** اتّهاماً كاذباً في D-611، فالترتيبُ حاملٌ لرقمٍ منشور")
 
     # ⑨⛔ وترويسةُ المجتمع **تُحسب ولا تُكتب** — وإلّا قالت «ستّاً» وهي تعدّ ثلاثين
     # ⚠️ الإبرةُ تُركَّب وقتَ التشغيل (‏وإلّا طابقت سطرَها — **المرّةُ السادسة**، وفي ملفٍّ
