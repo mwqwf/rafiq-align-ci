@@ -33,6 +33,10 @@ on:
         description: "حدُّ البنود (‏0 = الكلّ)"
         required: false
         default: "0"
+      arms:
+        description: "ذراعان بالاسم: greedy · guard · hearall (‏الافتراضُ هو المشحونُ سلفاً)"
+        required: false
+        default: "greedy,guard"
   # 🔑 **وبابٌ ثانٍ: يُستدعى من `arm-request` بإيداعٍ لا بإدلاء** (‏2026-09-14 · دورةُ :50).
   #    السببُ نفسُه المكتوبُ في `emu-request`: بيانةُ الوكيل تردّ **403** على `dispatches`
   #    ⇒ فلو بقي هذا المسارُ على الإدلاء وحدَه لبقي **قياسُ الزمن على `arm64` موقوفاً على
@@ -54,6 +58,9 @@ on:
         type: string
         required: true
       limit:
+        type: string
+        required: true
+      arms:
         type: string
         required: true
 env:
@@ -131,6 +138,7 @@ jobs:
           python cli_time.py --cli ../../wc/b/bin/whisper-cli --model work_model.bin \
             --src "work/${{ inputs.src }}" --plan "${{ inputs.plan }}" \
             --threads "${{ inputs.threads }}" --limit "${{ inputs.limit }}" \
+            --arms "${{ inputs.arms }}" \
             --md "work/arm_${{ inputs.model }}_${{ inputs.src }}_t${{ inputs.threads }}.md" \
             --json "work/arm_${{ inputs.model }}_${{ inputs.src }}_t${{ inputs.threads }}.json"
           # 📖 **والجدولُ يُطبع في السجلّ أيضاً لا في الملخّص وحدَه** (‏2026-09-14):
@@ -154,7 +162,7 @@ jobs:
           #    وحارسُ `r2_put` صاح: «كلُّ رقمٍ نُسب إلى هذا العنوان صار ينسب إلى غيره»).
           #    ⇒ الأثرُ لا يُمحى، والعنوانُ يُسمّي عيّنتَه.
           S="${{ inputs.model }}-${{ inputs.src }}"; T="${{ inputs.threads }}"
-          N="n${{ inputs.limit }}-r${{ github.run_id }}"
+          N="n${{ inputs.limit }}-$(echo '${{ inputs.arms }}' | tr ',' '+')-r${{ github.run_id }}"
           for f in work/arm_*.md work/arm_*.json; do
             [ -f "$f" ] && python ../finetune/r2_put.py "$f" "finetune/armtime/$S-t$T-$N/$(basename $f)"
           done
