@@ -1,0 +1,5 @@
+{"action":"dispatch","workflow":"realign_surah.yml","inputs":{
+  "parent":"timings-staging/hafs/hamza.01f734d9.jz","surahs":"45,73,107","skip_ms":"4840",
+  "url_template":"https://server9.mp3quran.net/hamza/{s:03d}.mp3","reciter_id":"hamza","riwaya":"hafs",
+  "allow_batch":"true",
+  "reason":"تصحيحٌ: الدورةَ الماضية دُفعت 45/73/107 في ثلاث تشغيلاتٍ منفصلةٍ من الأصل نفسِه فتفرّعت إلى ثلاثِ نتائجَ متباينةٍ كلٌّ يصلح سورةً واحدة. هذه تشغيلةٌ واحدةٌ تجمعها معاً بنفس skip_ms=4840 (وسيطُ startMs لآية 1 في تسع سورٍ سليمةٍ من فهرس hamza نفسِه)."}}
