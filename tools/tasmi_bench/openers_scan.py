@@ -27,6 +27,7 @@
 import argparse
 import glob
 import hashlib
+import io
 import json
 import os
 import subprocess
@@ -154,22 +155,47 @@ def fetch_head(url, dst, need_ms=6000, nbytes=None):
     raise RuntimeError(f"تعذّر التنزيل: {last}")
 
 
+def ok(x, y):
+    """مطابقةُ كلمةٍ بكلمة — **والقصيرةُ تُطابَق حرفاً**.
+
+    ⛔ **عطبٌ مقيسٌ لا متوقَّع** (‏2026-09-03): «بسم» و«طسم» يفترقان بحرفٍ واحد،
+    فسماحةُ الحرف تبتلع الفرق ⇒ مطلعُ السورة 28 سُمع فيه «بسم الله» **فحُكم
+    `clean`**. والشاهدُ محفوظ: `hawashi.96b65571` صفُّ 28 =
+    `{"verdict":"clean","heard":"بسم الله"}` والصوتُ أكّد ابتلاعَ البسملة فيه.
+    ⇒ **دون أربعةِ أحرفٍ لا سماحة**، فالسماحةُ إنما وُضعت لخطأ تعرّفٍ في كلمةٍ
+    طويلةٍ لا لتمحوَ فرقاً دلاليّاً في كلمةٍ من ثلاثة.
+    """
+    if min(len(x), len(y)) <= 3:
+        return x == y
+    return _eq(x, y) or _edit(x, y) <= 1
+
+
+def starts_ayah(w, ref):
+    """أيبدأ المسموعُ بأوّل كلمةٍ من الآية؟
+
+    ⛔ **وما بدا أوّلَ بسملةٍ لا يُقرأ أوّلَ آيةٍ إلا بمطابقةٍ حرفية**: `_eq_first`
+    نفسُها تقبل «طسم» (‏تنتهي بـ«سم» وطولها ثلاثة)، فلا تُميّز البسملةَ من فواتح
+    السور المقطّعة. **والحكمُ للمطابقة لا للشبه.**
+    """
+    if not w:
+        return False
+    if _eq_first(w[0]) and w[0] != ref[0]:
+        return False
+    return ok(w[0], ref[0]) or (len(w) > 1 and ok(w[0] + w[1], ref[0]))
+
+
 def self_test():
     """⛔ **حارسٌ بلا اختبارٍ ليس حارساً** — والحالةُ الأولى مقيسةٌ من الدلو
     لا مفترَضة: صفُّ 28 في `hawashi.96b65571` كان
-    `{"verdict": "clean", "heard": "بسم الله"}` **والصوتُ أكّد الابتلاع فيه**."""
-    def ok(x, y):
-        if min(len(x), len(y)) <= 3:
-            return x == y
-        return _eq(x, y) or _edit(x, y) <= 1
+    `{"verdict": "clean", "heard": "بسم الله"}` **والصوتُ أكّد الابتلاع فيه**.
 
-    def starts_ayah(w, ref):
-        if not w:
-            return False
-        if _eq_first(w[0]) and w[0] != ref[0]:
-            return False
-        return ok(w[0], ref[0]) or (len(w) > 1 and ok(w[0] + w[1], ref[0]))
-
+    ⛔⛔ **وعطبان فيه كُشفا 2026-09-15 (‏D-613) — وكلاهما «حارسٌ أخضرُ لا يحرس»:**
+    ① كان يعرّف `ok` و`starts_ayah` **نسختين محلّيّتين داخلَه**، والحقيقيّتان في
+       `main` ⇒ **يختبر صورةً عن المنطق لا المنطقَ**، فلو انحرف المشحونُ بقي أخضر.
+       ⇒ رُفعت الدالّتان إلى المتن **مصدراً واحداً**، ويستعملهما هو و`main` معاً.
+    ② وكانت رايتُه `--self-test` بشَرطة، وسيرُ الشهادة يكتشف بـ`grep -l -- '"--selftest"'`
+       ⇒ **لم يُشغَّل في الشهادة قطّ**. ⇒ أُضيفت `--selftest` (‏والقديمةُ باقيةٌ عاملة).
+    """
     cases = [
         ("28 الحالةُ المقيسة", ["بسم", "الله"], ["طسم"], False),
         ("26 نظيرتُها", ["بسم", "الله"], ["طسم"], False),
@@ -185,14 +211,42 @@ def self_test():
         got = starts_ayah(w, ref)
         bad += got != want
         print(f"  {'✅' if got == want else '❌'} {name}: {got} (المتوقَّع {want})")
-    print(f"— فُحصت **{len(cases)}** حالة" + (" ⛔ فيها خلل" if bad else " · كلُّها كما يجب"))
+
+    # ⛔⛔ وفحوصٌ على **الحارس نفسِه** (‏D-613) — فالعطبان اللذان كُشفا اليوم لا
+    #     تكشفهما حالةٌ واحدةٌ من الحالات أعلاه، وكلاهما يُبقي الأخضرَ أخضر.
+    src = io.open(os.path.abspath(__file__), encoding="utf-8").read()
+    meta = [
+        # ⚠️ **الإبرُ تُركَّب وقتَ التشغيل** (‏ثابتُ 02:2xZ): لو كُتبت حرفيّةً لطابقت
+        #    نصَّ هذا السطر نفسِه — ووقع ذلك هنا فعلاً أوّلَ كتابتِه، فسقط الفحصُ
+        #    وهو صادق. **وحارسٌ يطابق نفسَه ساقطٌ أبداً.**
+        ("⭐⭐ `starts_ayah` و`ok` **في المتن** لا نسختين محلّيّتين",
+         src.count("\nde" + "f starts_ayah(") == 1 and src.count("\nde" + "f ok(") == 1
+         and src.count("de" + "f starts_ayah(") == 1 and src.count("de" + "f ok(") == 1),
+        ("⭐⭐ والمفحوصُ هو **المشحون** بعينِه (‏دالّةُ المتن لا صورةٌ عنها)",
+         starts_ayah.__module__ == __name__ and ok.__module__ == __name__),
+        ("⛔ وسيرُ الشهادة يكتشفه: راية `--selftest` موجودةٌ بنصّها",
+         '"--selftest"' in src),
+        ("⛔ والرايةُ القديمةُ `--self-test` باقيةٌ فلا يُكسر نداءٌ سالف",
+         '"--self-test"' in src),
+        ("⛔ وعتبةُ «دون أربعةِ أحرفٍ لا سماحة» لم تُليَّن",
+         "if min(len(x), len(y)) <= 3:" in src and "return x == y" in src),
+    ]
+    for line, good in meta:
+        bad += not good
+        print(("  ✅ " if good else "  ❌ ") + line)
+
+    print(f"— فُحصت **{len(cases) + len(meta)}** حالة"
+          + (" ⛔ فيها خلل" if bad else " · كلُّها كما يجب"))
     return 1 if bad else 0
 
 
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--key", help="مفتاح تحت timings-staging/")
-    ap.add_argument("--self-test", action="store_true",
+    # ⛔ **الرايتان تُصيبان الوجهةَ نفسَها** (‏D-613): سيرُ الشهادة يكتشف الأدواتِ
+    #    بـ`grep -l -- '"--selftest"'`، وهذه كانت `--self-test` بشَرطةٍ وحدَها
+    #    ⇒ **حارسٌ قائمٌ لم يُشغَّل في الشهادة قطّ**. والقديمةُ تبقى عاملةً فلا يُكسر نداءٌ سالف.
+    ap.add_argument("--self-test", "--selftest", dest="self_test", action="store_true",
                     help="اختبارُ مقارن المطالع بحالاتٍ مقيسة — بلا صوتٍ ولا شبكة")
     ap.add_argument("--model", default=os.path.join(HERE, "work", "ggml-q8.bin"))
     ap.add_argument("--threads", type=int, default=4)
@@ -249,29 +303,8 @@ def main():
     model = Model(a.model, n_threads=a.threads, language="ar",
                   print_progress=False, print_realtime=False)
 
-    def ok(x, y):
-        # ⛔ **الكلمةُ القصيرةُ تُطابَق حرفاً** (‏عطبٌ مقيسٌ لا متوقَّع،
-        #    2026-09-03): «بسم» و«طسم» يفترقان بحرفٍ واحد، فسماحةُ الحرف
-        #    تبتلع الفرق ⇒ مطلعُ السورة 28 سُمع فيه «بسم الله» **فحُكم
-        #    `clean`** لأنّ «بسم» طابقت «طسم» مرجعَ الآية. والشاهدُ محفوظ:
-        #    ‏`hawashi.96b65571` صفُّ 28 = `{"verdict":"clean","heard":"بسم الله"}`
-        #    والصوتُ أكّد ابتلاعَ البسملة فيه. ⇒ **دون أربعةِ أحرفٍ لا سماحة**،
-        #    فالسماحةُ إنما وُضعت لخطأ تعرّفٍ في كلمةٍ طويلةٍ لا لتمحوَ فرقاً
-        #    دلالياً في كلمةٍ من ثلاثة.
-        if min(len(x), len(y)) <= 3:
-            return x == y
-        return _eq(x, y) or _edit(x, y) <= 1
-
-    def starts_ayah(w, ref):
-        if not w:
-            return False
-        # ⛔ **وما بدا أوّلَ بسملةٍ لا يُقرأ أوّلَ آيةٍ إلا بمطابقةٍ حرفية**:
-        #    `_eq_first` نفسُها تقبل «طسم» (‏تنتهي بـ«سم» وطولها ثلاثة)، فلا
-        #    تُميّز البسملةَ من فواتح السور المقطّعة. **والحكمُ للمطابقة لا
-        #    للشبه.**
-        if _eq_first(w[0]) and w[0] != ref[0]:
-            return False
-        return ok(w[0], ref[0]) or (len(w) > 1 and ok(w[0] + w[1], ref[0]))
+    # ⛔ و`ok` و`starts_ayah` **من المتن** لا نسختين هنا (‏D-613): نسختان تتباعدان
+    #    تُبقيان الحارسَ أخضرَ على منطقٍ لم يعد هو المشحون.
 
     rows, t0 = [], time.time()
     todo = [(s, e) for s, e in sorted(first.items())
