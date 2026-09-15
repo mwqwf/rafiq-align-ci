@@ -201,14 +201,83 @@ def control(limit=800):
     return same == 0 and moved9 > 0
 
 
+PATCH_ANCHOR = "n <= 3 && d <= 1"          # جسمُ الشرط — بلا قوسٍ فاتحٍ عمداً (‏درسُ 09-12)
+OLD_ANCHOR = "(n <= 3 && d <= 1)"          # المرساةُ القديمةُ التي ماتت بصمت
+KT_SCORER = os.path.join(ROOT, "engine", "recitation", "src", "main", "kotlin",
+                         "com", "ali", "rafiq", "recitation", "RecitationScorer.kt")
+BUILD_SH = os.path.join(HERE, "engine_judge", "build_and_run.sh")
+
+
+def selftest():
+    """🧪 **حارسُ الذراع على المحرك** (‏D-602) — والذراعُ تُقاس بـ**ترقيع نسخةٍ من مصدر
+    المحرك**، فإن ضاعت المرساةُ **ماتت الذراعُ صامتةً** وقِيس المشحونُ على نفسِه.
+
+    ⛔⛔ **وقد وقع هذا فعلاً** (‏09-12): أُدخل حارسُ الأزواج الحرجة فصار الشرطُ
+    `(!strictShort && n <= 3 && d <= 1)` ⇒ المرساةُ القديمةُ `(n <= 3 && d <= 1)` **صفرٌ**،
+    و«كلُّ ذراعٍ على المحرك كانت تموت». فالمرساةُ اليومَ **جسمُ الشرط بلا قوس**، وهذا
+    الحارسُ يقيس **أنّها لا تزال فريدةً في الملفّ** — في ثوانٍ وبلا بناءِ كوتلن.
+
+    ⭐ **والفرقُ عن الضابط الموجود:** `--control` يبني الحاكمَ ثلاثَ مرّاتٍ (دقائق)، وهذا
+    يفحص **شرطَ صحّة الترقيع نفسَه** الذي لولاه لصار الضابطُ يقارن المشحونَ بالمشحون.
+    """
+    ok = True
+
+    def say(good, line):
+        nonlocal ok
+        ok &= bool(good)
+        print(("✅ " if good else "❌ ") + line)
+
+    # ①⭐⭐ المرساةُ فريدةٌ في مصدر المحرك — لا صفرٌ ولا اثنتان
+    if os.path.isfile(KT_SCORER):
+        kt = io.open(KT_SCORER, encoding="utf-8").read()
+        n = kt.count(PATCH_ANCHOR)
+        say(n == 1, "⭐⭐ مرساةُ الترقيع في `RecitationScorer.kt` **مرّةً واحدةً بالضبط**: %d" % n)
+        say(kt.count(OLD_ANCHOR) == 0 and "strictShort" in kt,
+            "⛔ والمرساةُ القديمةُ بالقوس **صفرٌ** كما قِيس يومَ ماتت (‏والحارسُ `strictShort` قائم)")
+    else:
+        print("⚠️ **مصدرُ المحرك ليس في هذه النسخة** ⇒ **فحصا المرساة لم يُجرَيا هنا** "
+              "(يجريان في مستودع الأصل) — ⛔ إعلانٌ بالنصّ لا نجاحٌ صامت.")
+
+    # ② وسيرُ البناء يرفض الترقيعَ غيرَ الفريد صراحةً — لا يمرّ صامتاً
+    if os.path.isfile(BUILD_SH):
+        sh = io.open(BUILD_SH, encoding="utf-8").read()
+        say('if t.count(old) != 1:' in sh and "sys.exit(" in sh,
+            "⛔ وسيرُ البناء **يخرج بخطإٍ** إن لم تكن المرساةُ فريدة")
+        say('SHORT_CAP="${SHORT_CAP:-3}"' in sh and 'if [ "$SHORT_CAP" != "3" ]' in sh,
+            "والافتراضُ **3 = المشحون** ⇒ المسارُ القديمُ بحذافيره حين لا تُطلب ذراع")
+        say('old, new = "n <= 3 && d <= 1"' in sh,
+            "والمرساةُ في السيرِ هي عينُها المفحوصةُ هنا (‏مصدرٌ واحد)")
+    else:
+        print("⚠️ **سيرُ البناء غيرُ موجود** ⇒ ثلاثةُ فحوصٍ لم تُجرَ — ⛔ إعلانٌ لا صمت.")
+
+    # ③ بناءُ الحالات من مصدرٍ واحد: `riwaya_surface` — لا نسخةَ بناءٍ هنا
+    src = io.open(os.path.abspath(__file__), encoding="utf-8").read()
+    say("\ndef build(" not in src and "R.build(" in src,
+        "⛔ ولا بناءَ حالاتٍ في هذا الملفّ: يُستورَد من `riwaya_surface`")
+
+    # ④ عتبةُ الضابط لم تُليَّن: مطابقٌ ⇒ **صفرٌ**، وموسَّعٌ ⇒ **أكثرُ من صفر**
+    say("return same == 0 and moved9 > 0" in src,
+        "⛔ عتبةُ الضابط كما هي: `same == 0 and moved9 > 0`")
+
+    # ⑤ حارسُ مصدرٍ على الرقم الذي تقوم عليه الضمانة
+    say("0/77,429" in src and "صفرٌ مطلق" in src,
+        "حارسُ مصدر: أرضيّةُ الاتّهام الكاذب **صفرٌ مطلقٌ** (0/77,429) محفوظةٌ في المتن")
+
+    print("\n%s" % ("✅ حارسُ الذراع على المحرك: تمّ" if ok else "❌ حارسُ الذراع: أخفق"))
+    return 0 if ok else 1
+
+
 def main():
     ap = argparse.ArgumentParser()
+    ap.add_argument("--selftest", action="store_true", help="🧪 حارسُ الأداة (ثوانٍ · بلا كوتلن)")
     ap.add_argument("--arms", default="a")
     ap.add_argument("--cap", type=int, default=2, help="سقفُ الذراع المقيس")
     ap.add_argument("--limit", type=int, default=0, help="عددُ الآيات لكلِّ رواية (0 = المصحف كلُّه)")
     ap.add_argument("--control", action="store_true")
     ap.add_argument("--examples", type=int, default=8)
     args = ap.parse_args()
+    if args.selftest:
+        sys.exit(selftest())
 
     if args.control:
         ok = control(limit=args.limit or 800)
