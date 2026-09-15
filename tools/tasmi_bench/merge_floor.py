@@ -20,10 +20,13 @@
      فثلاثُ كلماتٍ مرجعيّةٍ تقابل مسموعةً واحدة، و`op 4` لا يتعدّى **اثنتين**
      ⇒ يُنتظر سقوطُه. وهو الوجهُ المقلوبُ لعطب D-408 حرفاً بحرف: هناك انكسر
      الابتلاعُ لأنّ الفصلَ جعل المسموعَ اثنتين، وهنا لأنّ الدمجَ جعل المرجعَ ثلاثاً.
-     ⚠️ وهذا الصنفُ **في حفصٍ وحدَه تقريباً**: رموزُ الوسط حفصاً 4,360 وفي الخمس
-     الباقية 0–13 (‏نصوصُها بلا علامات وقفٍ وسطيّة) — فلا يُعمَّم رقمُ حفصٍ عليها.
+     ⚠️ وهذا الصنفُ **في حفصٍ وحدَه تقريباً**: مواضعُه حفصاً **4,361** وفي الخمس
+     الباقية **0–13** (‏نصوصُها بلا علامات وقفٍ وسطيّة) — فلا يُعمَّم رقمُ حفصٍ عليها.
+     (‏والرقمُ مواضعُ دمجٍ لا عددَ رموز: رمزان متتاليان موضعٌ واحد · جردٌ بـ`--census`.)
   ٢) `مجاور · أدواتُ الالتحام` — لا رمزَ بينهما، والثانيةُ أداةٌ يُلحمها الإملاءُ
-     (`ما · من · لا · لن · لو · هم · ها · ذا · ان · اذ`) ⇒ 6,271–6,275 موضعاً للرواية.
+     (`ما · من · لا · لن · لو · هم · ها · ذا · ان · اذ`) ⇒ **6,271–6,275 موضعاً في الخمس**،
+     ⚠️ **وحفصٌ 5,778 وحدَه** (‏قِيس في D-603): رموزُ الوقف الوسطيّةُ **تقطع الجوار** فتُخرج
+     الزوجَ من هذا الصنف إلى صنف «عبرَ رمز» ⇒ −493 موضعاً. فالمدى للخمس لا للستّ.
      وهو **سقفُ تعرّضٍ** لا دعوى: ليس كلُّ زوجٍ من هذه يكتبه الإملاءُ ملتحماً
      (`مِن قَبْلُ` لا تُلحَم)، لكنّ كلَّ ما يُلحَم داخلَه. فخضرتُه تُبرّئ ما فوقَها.
 
@@ -33,11 +36,17 @@
     python merge_floor.py --prove            # ضابطٌ موجب: دمجٌ **ثلاثيّ** ⇒ يجب أن يسقط
 """
 import argparse
+import os
+import io
 import collections
 import sys
 
-sys.path.insert(0, ".")
-sys.path.insert(0, "../alignment")
+# ⛔ كان المساران **نسبيَّين** فلا يعمل الملفُّ إلّا إن نودي من داخل مجلّده، وشوطُ
+# `bench-selftest` ينادي من **جذر المستودع** (‏وهو عينُ عطب D-507 — ثاني ملفٍّ فيه).
+HERE = os.path.dirname(os.path.abspath(__file__))
+ROOT = os.path.dirname(os.path.dirname(HERE))
+sys.path.insert(0, HERE)
+sys.path.insert(0, os.path.join(ROOT, "tools", "alignment"))
 
 import scorer  # noqa: E402
 import detect_score  # noqa: E402
@@ -187,14 +196,149 @@ def run(riwaya, klass, sample=0, prove=False):
     return dict(sites=sites, bad=bad, kinds=bad_kinds.most_common(8), ex=ex)
 
 
+def census():
+    """جردُ المواضع لكلِّ رواية — بلا حكمٍ ولا مِسطرة (‏ثوانٍ). يردّ {رواية: (رمز, أداة, جدول)}."""
+    import parity_full as P
+    from common import load_text
+    out = {}
+    for riw in RIWAYAT:
+        cfg = P.config_for(riw)
+        sym = adj = orth = 0
+        for a in load_text(riw):
+            ref = a.split()
+            n = [scorer.norm(w, cfg) for w in ref]
+            sym += len(_sites(ref, n, "via-symbol"))
+            adj += len(_sites(ref, n, "adjacent-particle"))
+            orth += len(_sites(ref, n, "orthographic"))
+        out[riw] = (sym, adj, orth)
+    return out
+
+
+def table_witnesses(riwaya="hafs"):
+    """شواهدُ كلِّ سطرٍ من جدول «المقطوع والموصول» في النصّ — ⛔ **وسطرٌ بلا شاهدٍ قاعدةٌ
+    عن لا شيء**، وهو نصُّ ما يدّعيه متنُ الجدول («كلُّ سطرٍ له شاهدٌ في نصِّ المستودع»)."""
+    import parity_full as P
+    from common import load_text
+    cfg = P.config_for(riwaya)
+    per = collections.Counter()
+    for a in load_text(riwaya):
+        ref = a.split()
+        n = [scorer.norm(w, cfg) for w in ref]
+        for i, j in _sites(ref, n, "orthographic"):
+            per[(n[i], n[j])] += 1
+    return per
+
+
+def selftest():
+    """🧪 **حارسُ أرضيّة الدمج** (‏D-603) — والأرضيّةُ نفسُها **ثقيلةٌ** (≈16 دقيقةً للستّ)
+    فلا تُشعَل في كلّ دفعة؛ وهذا يفحص في ثوانٍ ما لا يفحصه شوطُها:
+
+    ⭐⭐ **كلُّ سطرٍ في جدول «المقطوعِ والموصول» له شاهدٌ في المصحف** — ادّعاءٌ في متن
+      الجدول لم يكن مقيساً. المقيسُ (حفص): **52 موضعاً**، وأقلُّ سطرٍ **1** (‏`عن+ما` ·
+      `كي+لا` · `ان+ما`) ⇒ لا سطرَ بلا شاهد. **وقاعدةٌ عن لا شيءٍ أسوأُ من قاعدةٍ خاطئة.**
+    ⭐⭐ **وصورةُ الجدول ليست الوصلَ المحض** في أيِّ سطر — ولو كانت، لبلغَها `op 4` أصلاً
+      ولم يكن للسطر معنى (‏وهو لبُّ D-409 كلِّه).
+    ⚠️ **وحدٌّ في التوثيق صُحّح بالقياس:** «6,271–6,275 موضعاً للرواية» في صنف الجوار
+      **لا يشمل حفصاً**: حفصٌ **5,778** — لأنّ رموزَ الوقف الوسطيّة (4,361 فجوةً) **تقطع
+      الجوار** فتُخرج الزوجَ من الصنف. ⇒ فالمدى **للخمس**، وحفصٌ أقلُّ بـ497 موضعاً،
+      **والسببُ هو الرمزُ نفسُه** الذي قِيس في D-412 وحُرس في D-507.
+    """
+    ok = True
+
+    def say(good, line):
+        nonlocal ok
+        ok &= bool(good)
+        print(("✅ " if good else "❌ ") + line)
+
+    # ①⭐⭐ لا سطرَ في الجدول بلا شاهدٍ في المصحف
+    per = table_witnesses("hafs")
+    missing = [k for k in ORTHOGRAPHIC if per[k] == 0]
+    say(len(ORTHOGRAPHIC) == 10 and not missing and sum(per.values()) == 52,
+        "⭐⭐ جدولُ «المقطوع والموصول» %d أسطر · شواهدُها %d موضعاً · بلا شاهدٍ: %s"
+        % (len(ORTHOGRAPHIC), sum(per.values()), missing or "لا شيء"))
+    say(min(per[k] for k in ORTHOGRAPHIC) >= 1,
+        "وأقلُّ سطرٍ شاهدٌ واحدٌ على الأقلّ (‏الأدنى %d)" % min(per[k] for k in ORTHOGRAPHIC))
+
+    # ②⭐⭐ الجدولُ **صنفان بالبناء**، وهذا نصُّ حكم D-409 لا مصادفة:
+    #    صورةٌ = وصلٌ محضٌ (يبلغها `op 4` فتصمد) · وصورةٌ مدغمةٌ (لا يبلغها فتسقط).
+    plain = sorted(k for k, v in ORTHOGRAPHIC.items() if v == k[0] + k[1])
+    idg = sorted(k for k, v in ORTHOGRAPHIC.items() if v != k[0] + k[1])
+    say(len(plain) == 5 and len(idg) == 5,
+        "⭐⭐ الجدولُ صنفان: **%d وصلٌ محضٌ** (يصمد) و**%d مدغمٌ** (يسقط) — وهو حكمُ D-409"
+        % (len(plain), len(idg)))
+    say(all(ORTHOGRAPHIC[k][0] == k[0][0] and len(ORTHOGRAPHIC[k]) < len(k[0] + k[1])
+            for k in idg),
+        "⭐ والمدغمُ أقصرُ من الوصل بحرفٍ (‏`ان`+`لا` ⇒ «الا» لا «انلا»): %s"
+        % [ORTHOGRAPHIC[k] for k in idg])
+    say({k[0] for k in idg} <= {"ان", "عن", "ام"},
+        "وأوائلُ المدغم نونٌ أو ميمٌ ساكنةٌ في الرسم — لا عشوائيّةَ في الفرز")
+
+    # ③ جردُ المواضع: المدى للخمس، وحفصٌ خارجَه بسبب الرمز
+    cen = census()
+    five = [cen[r][1] for r in RIWAYAT if r != "hafs"]
+    say(cen["hafs"][0] > 4000 and max(cen[r][0] for r in RIWAYAT if r != "hafs") <= 13,
+        "رمزٌ وسطيٌّ: حفص %d · وأقصى الخمس %d — فلا يُعمَّم رقمُ حفص"
+        % (cen["hafs"][0], max(cen[r][0] for r in RIWAYAT if r != "hafs")))
+    say(6271 <= min(five) and max(five) <= 6275 and cen["hafs"][1] < 6000,
+        "⚠️ جوارُ الأداة: الخمسُ %d–%d **وحفصٌ %d** (‏الرمزُ يقطع الجوار ⇒ −%d)"
+        % (min(five), max(five), cen["hafs"][1], min(five) - cen["hafs"][1]))
+    say(all(cen[r][2] in (51, 52) for r in RIWAYAT),
+        "والجدولُ 52 حفصاً/ورشاً/قالون و51 للدوريّ والسوسيّ: %s"
+        % {r: cen[r][2] for r in RIWAYAT})
+
+    # ④ `_sites` يفرز الأصناف بشرطها لا بالظنّ
+    n = ["من", "", "ما", "كل", "ما", "قال"]
+    ref = ["مِن", "ۖ", "مَّا", "كُلَّ", "مَا", "قَالَ"]
+    say(_sites(ref, n, "via-symbol") == [(0, 2)], "عبرَ رمزٍ: فجوةٌ بين الكلمتين")
+    adj = _sites(ref, n, "adjacent-particle")
+    say(all(n[j] in PARTICLES and j - i == 1 for i, j in adj),
+        "وجوارُ الأداة: لا فجوةَ والثانيةُ أداةٌ من القائمة (‏%s)" % (adj,))
+    say(_sites(ref, n, "orthographic") == [(3, 4)],
+        "والجدولُ: `كل`+`ما` وحدَها هنا (‏%s)" % (_sites(ref, n, "orthographic"),))
+
+    # ⑤⭐ صورُ الالتحام الثلاث — والفرقُ بينها هو بيتُ الدّاء
+    say(_hyp_merge(n, 3, 4, "orthographic") == "من ما كلما قال"
+        and _hyp_merge(n, 3, 4, "concat") == "من ما كلما قال",
+        "الوصلُ والجدولُ يتّفقان حين تكون الصورةُ نفسَها (‏`كل`+`ما`)")
+    say(_hyp_merge(["ان", "لا", "خير"], 0, 1, "orthographic") == "الا خير"
+        and _hyp_merge(["ان", "لا", "خير"], 0, 1, "concat") == "انلا خير"
+        and _hyp_merge(["ان", "لا", "خير"], 0, 1, "idgham") == "الا خير",
+        "⭐⭐ و`أن`+`لا`: الجدولُ «الا» والوصلُ «انلا» — **ولا يبلغ `op 4` الأولى بحال**")
+    say(_hyp_merge3(["ا", "ب", "ج", "د"], (0, 1, 2)) == "ابج د",
+        "وضابطُ الثلاثيّ يدمج ثلاثاً في واحدة")
+
+    # ⑥ الإدغامُ صوتٌ لا إملاء — بشرطه المكتوب
+    say(_tajwid_idgham("رَّحِيمٌ", "غفور", "رحيم"), "إدغامٌ: شدّةٌ على أوّل الثانية")
+    say(not _tajwid_idgham("رحيم", "غفور", "رحيم"), "ولا إدغامَ بلا شدّةٍ في الرسم")
+    say(not _tajwid_idgham("مَّا", "ا", "ما"), "ولا إدغامَ لأولى من حرفٍ واحد")
+
+    # ⑦ حارسُ مصدرٍ على القاعدتين اللتين تمنعان توسيعَ الجدول بالحَدْس
+    src = io.open(os.path.abspath(__file__), encoding="utf-8").read()
+    say("ولا يُزاد فيه سطرٌ بالحَدْس" in src and "ومن شكّ في سطرٍ فليحذفه" in src,
+        "⛔ وقاعدتا الجدول بالنصّ: لا زيادةَ بالحَدْس · ومَن شكّ فليحذف ويُعِد القياس")
+    say("وهذا صوتٌ لا إملاء" in src,
+        "⭐ والفرقُ المحفوظ: `tajwid-idgham` **صوتٌ** و`orthographic` **إملاءٌ محقَّق**")
+
+    print("\n%s" % ("✅ حارسُ أرضيّة الدمج: تمّ" if ok else "❌ حارسُ أرضيّة الدمج: أخفق"))
+    return 0 if ok else 1
+
+
 def main():
     p = argparse.ArgumentParser()
+    p.add_argument("--selftest", action="store_true", help="🧪 حارسُ الأداة (ثوانٍ · بلا مِسطرة)")
+    p.add_argument("--census", action="store_true", help="جردُ المواضع لكلِّ رواية بلا حكم")
     p.add_argument("--riwaya", choices=RIWAYAT + ("all",), default="all")
     p.add_argument("--klass", choices=KLASSES + ("all",), default="all")
     p.add_argument("--sample", type=int, default=0)
     p.add_argument("--prove", action="store_true",
                    help="ضابطٌ موجب: دمجٌ ثلاثيٌّ — أرضيّةٌ خضراءُ هنا **فشلُ الضابط**")
     a = p.parse_args()
+    if a.selftest:
+        return selftest()
+    if a.census:
+        for r, (sy, ad, orth) in census().items():
+            print('%-7s رمزٌ وسطيّ %5d · جوارُ أداة %5d · جدولٌ %4d' % (r, sy, ad, orth))
+        return 0
     riwayat = RIWAYAT if a.riwaya == "all" else (a.riwaya,)
     klasses = KLASSES if a.klass == "all" else (a.klass,)
     fail = 0
