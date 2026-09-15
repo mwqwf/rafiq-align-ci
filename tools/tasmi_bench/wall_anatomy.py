@@ -39,6 +39,7 @@ whisper للكلمتين** (`ww_s != ww_e` شرطُ التوليد) ⇒ **الم
 """
 import argparse
 import collections
+import io
 import itertools
 import os
 import sys
@@ -135,9 +136,14 @@ SOUND_MARKS = frozenset("ٕٔۥۦۧۨ")
 
 
 def classify(raw_e, raw_s):
-    """صنفُ الجدار + الأذرعُ **اللازمة** للانطباق (للصنف ٣)."""
+    """صنفُ الجدار + الأذرعُ **اللازمة** للانطباق (للصنف ٣).
+
+    ⛔ **واختبارُ الخنجريّة يُستدعى من `dagger_only` ولا يُعاد كتابتُه هنا** (‏درسُ D-613):
+    كان مكتوباً مرّتين — هنا وهناك — **ونسختان تتباعدان**. وقد قِيس أنّهما تتّفقان في
+    **224,118 زوجاً** يومَ التوحيد، **وذلك اتّفاقُ حالٍ لا ضمانةُ بنية**. فصار المصدرُ واحداً.
+    """
     if skeleton(raw_e) == skeleton(raw_s):
-        if ("ٰ" in raw_e) != ("ٰ" in raw_s):
+        if dagger_only(raw_e, raw_s):
             return "dagger", ()
         a = collections.Counter(c for c in raw_e if c in SOUND_MARKS)
         b = collections.Counter(c for c in raw_s if c in SOUND_MARKS)
@@ -337,13 +343,91 @@ def control(limit=400):
         print("   %-28s %7d من %d %s" % (name, moved, len(words), "✅" if moved else "🚨 ميّت"))
 
 
+# 📊 جردُ الأصناف على المصحف كلِّه (‏224,118 زوجاً · قِيس 2026-09-15 · D-614).
+#    وهو **مقامُ التشريح**: كلُّ نسبةٍ في هذا الملفّ تُقرأ عليه.
+CENSUS = {"marks_pure": 188792, "subs": 20082, "marks_sound": 8372,
+          "rasm": 6536, "dagger": 336}
+CENSUS_PAIRS = 224118
+
+
+def selftest():
+    """🧪 **حارسُ تشريح الجدار** (‏D-614) — والضابطُ القائمُ (`--control`) ثقيلٌ يبني المجتمعَ
+    كلَّه، وهذا يفحص في ثانيةٍ ما لا يفحصه هو: **سلامةَ المصنِّف نفسِه**.
+
+    ⭐⭐ **وأخطرُ ما هنا أنّ العطبَ لا يُرى:** `classify` يوزّع 224 ألفَ زوجٍ على خمسة أصناف،
+    وحكمُ كلِّ صنفٍ **مختلفٌ تماماً** (جدارُ صوتٍ لا يُعالَج · رخصةٌ وُزنت · رخصةٌ لم تُوزن قطّ).
+    فصنفٌ يبتلع صنفاً **لا يُسقط شيئاً ولا يُنذر**، وإنّما يُحوّل «رخصةً لم تُوزن» إلى
+    «جدارِ صوتٍ» فيُغلق بابٌ مفتوح. ⇒ **الجردُ مثبَّتٌ بالرقم**، والفروقُ البنيويّةُ مثبَّتةٌ بحالات.
+    """
+    ok = True
+
+    def say(good, line):
+        nonlocal ok
+        ok &= bool(good)
+        print(("✅ " if good else "❌ ") + line)
+
+    # ①⭐ حالاتٌ مبنيّةٌ باليد — صنفٌ صنفاً، والحدودُ بينها هي موضعُ الخطر
+    cases = [
+        ("١أ حركاتٌ وحدَها",        "مَلِكِ", "مَلِكُ",  "marks_pure"),
+        ("٢ خنجريّةٌ وحدَها",        "مَٰلِكِ", "مَلِكِ",  "dagger"),
+        ("٣ تاءٌ مربوطة",           "رَحْمَة", "رَحْمَه",  "subs"),
+        ("٣ ألفٌ مقصورة",           "هُدَى",  "هُدَي",   "subs"),
+        ("٤ رسمٌ مختلفٌ صراحةً",     "قَالَ",  "قُل",    "rasm"),
+    ]
+    for name, a, b, want in cases:
+        got, _need = classify(a, b)
+        say(got == want, "%s: %s ⇐⇒ %s ⇒ `%s`" % (name, a, b, got))
+
+    # ②⭐⭐ الصنفُ ٣ **لا يُعاد بأذرعٍ فارغة** — وإلّا فالتصنيفُ يناقض نفسَه
+    k, need = classify("رَحْمَة", "رَحْمَه")
+    say(k == "subs" and need == ("ta",),
+        "⭐⭐ والصنفُ ٣ يسمّي ذراعَه اللازمة: %s" % (need,))
+
+    # ③⭐⭐ اختبارُ الخنجريّة **مصدرٌ واحد** (‏درسُ D-613: نسختان تتباعدان)
+    #     ⚠️ والإبرةُ تُركَّب وقتَ التشغيل وإلّا طابقت سطرَها (‏وقعتُ فيه أربعَ مرّات).
+    src = io.open(os.path.abspath(__file__), encoding="utf-8").read()
+    say(src.count("de" + "f dagger_only(") == 1 and "dagger_only(raw_e, raw_s)" in src,
+        "⭐⭐ اختبارُ الخنجريّة مُعرَّفٌ مرّةً و`classify` **يستدعيه** لا ينسخه")
+    say(dagger_only.__module__ == __name__ and classify.__module__ == __name__,
+        "⭐ والمفحوصُ دالّتا المتن بعينهما لا صورةٌ عنهما")
+
+    # ④ `skeleton` يُسقط الخنجريّة (‏وإلّا لَما انفصل الصنفُ ٢) ويُطبّق ٱ⇒ا و ے⇒ي دائماً
+    say(skeleton("مَٰلِكِ") == skeleton("مَلِكِ"),
+        "⛔ و`skeleton` يُسقط الخنجريّة ⇒ الصنفُ ٢ ينفصل قبل قياس العلامات")
+    say(skeleton("ٱلْحَمْدُ") == skeleton("الحمد") and skeleton("ے") == skeleton("ي"),
+        "⛔ و`ٱ⇒ا` و`ے⇒ي` مطبَّقتان دائماً (‏طباعةٌ لا ينطقها فرق)")
+
+    # ⑤⭐ الأصنافُ الخمسةُ **مسمّاةٌ كلُّها** — وصنفٌ بلا اسمٍ يُطبع مفتاحاً أعجميّاً ويمرّ
+    seen = {classify(a, b)[0] for _n, a, b, _w in cases} | {"marks_sound"}
+    say(seen <= set(CLASS_NAME) and set(CENSUS) == set(CLASS_NAME),
+        "⭐ وكلُّ صنفٍ له اسمٌ وجردٌ: %d أصناف" % len(CLASS_NAME))
+
+    # ⑥⭐⭐ الجردُ المقيسُ محفوظٌ بالرقم — فلو انزاح المصنِّفُ تحتنا **صرخ** بدل أن ينزلق
+    say(sum(CENSUS.values()) == CENSUS_PAIRS,
+        "⭐⭐ وجردُ المصحف يجمع إلى الكلّ: %d = %d زوجاً" % (sum(CENSUS.values()), CENSUS_PAIRS))
+    say(CENSUS["subs"] > CENSUS["rasm"] > CENSUS["dagger"],
+        "⭐ و«رخصةٌ لم تُوزن قطّ» (‏%d) أكبرُ من الرسم (‏%d) ومن الخنجريّة (‏%d)"
+        % (CENSUS["subs"], CENSUS["rasm"], CENSUS["dagger"]))
+
+    # ⑦ أذرعُ الإبدال الستّةُ متمايزةٌ — وذراعان تتقاسمان حرفاً تُفسدان «اللازمة»
+    chars = [c for _k, _n, cs in SUB_ARMS for c in cs]
+    say(len(chars) == len(set(chars)) and len(SUB_ARMS) == 6,
+        "⛔ وأذرعُ الإبدال **ستٌّ لا يتقاسمن حرفاً**: %d حرفاً" % len(chars))
+
+    print("\n%s" % ("✅ حارسُ تشريح الجدار: تمّ" if ok else "❌ حارسُ التشريح: أخفق"))
+    return 0 if ok else 1
+
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--limit", type=int, default=0, help="عددُ الآيات (0 = المصحف كلُّه)")
     ap.add_argument("--examples", type=int, default=0)
     ap.add_argument("--control", action="store_true")
+    ap.add_argument("--selftest", action="store_true", help="🧪 حارسُ الأداة (ثانيةٌ · بلا مجتمع)")
     ap.add_argument("--real", action="store_true", help="عمودُ التكلفة على نصٍّ حقيقيّ")
     a = ap.parse_args()
+    if a.selftest:
+        return selftest()
     if a.control:
         control(a.limit or 400)
         return
@@ -354,4 +438,4 @@ def main():
 
 
 if __name__ == "__main__":
-    main()
+    sys.exit(main() or 0)
