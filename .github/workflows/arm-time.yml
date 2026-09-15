@@ -161,6 +161,35 @@ jobs:
       # ⚖️ **وما تقيسه هذه المادّة:** الثمنُ الوحيدُ الباقي على الطريق الثالث — **أيكتم بابُ
       #    D-445 لحناً حقيقيّاً؟** فـ`g4*` تلاواتٌ صحيحةٌ **لا كشفَ فيها** (كسبٌ بلا ثمن)،
       #    و`g3r` فيه **خطأٌ مصنوعٌ معلومُ الموضع** ⇒ فيه **الصرفُ** يُقاس (D-445③: 3.94).
+      # 🔪🎙️ **ومادّةُ الثمن الصحيحة: طويلةٌ ومحقونة** (‏أُضيفت 2026-09-15 · D-537):
+      # ⛔ **السببُ مقيسٌ:** `g3r` آيةٌ مفردةٌ مدّتُها وسيطاً 10.1ث، و`chunk10` **لا يقطّع
+      #    68٪ من بنودها** ⇒ الذراعان نسخةٌ واحدةٌ على أكثرِها (‏وذراعان متطابقتان سؤالٌ
+      #    لا جواب · D-385). وهذه ستُّ آياتٍ (‏نحوَ 21ث ⇒ ثلاثةُ مقاطع) بلحنٍ معلومِ الموضع
+      #    **وبضجيج `g4n` نفسِه** ⇒ فيُقارَن الثمنُ بالكسب على مادّةٍ واحدةِ الشرط.
+      - name: مادّةُ الحقن الطويلة (‏كاشٌ ثالثٌ مستقلّ)
+        id: inj6
+        if: startsWith(inputs.src, 'g4i')
+        uses: actions/cache@v4
+        with:
+          path: tools/tasmi_bench/work/inj6.tar
+          key: tasmi-inj6-v1-${{ hashFiles('tools/tasmi_bench/build_long_inject.py', 'tools/tasmi_bench/build_long.py', 'tools/tasmi_bench/augment.py') }}
+      - name: بناءُ المادّة الطويلة المحقونة إن غاب الكاش
+        if: ${{ startsWith(inputs.src, 'g4i') && steps.inj6.outputs.cache-hit != 'true' }}
+        run: |
+          set -o pipefail
+          cd tools/tasmi_bench
+          python build_long_inject.py --count 20
+          python augment.py --src-dir work/g4i --dest-dir work/g4in --only noise-fan-5
+          tar -cf work/inj6.tar -C work g4i g4in long_inject_plan.json
+      - name: فكُّ المادّة الطويلة المحقونة (‏والحزمةُ تبقى)
+        if: startsWith(inputs.src, 'g4i')
+        run: |
+          set -o pipefail
+          cd tools/tasmi_bench/work
+          [ -d g4i ] || tar -xf inj6.tar
+          echo "🔪🎙️ نظيفٌ $(ls g4i | wc -l) · مضجَّجٌ $(ls g4in 2>/dev/null | wc -l)"
+          # ⛔ ولا يُقاس على حصىً: ستَّ عشرةَ بنداً حدٌّ أدنى معلَنٌ، وما دونه سقوطٌ.
+          [ "$(ls g4i | wc -l)" -ge 16 ] || { echo "⛔ المادّةُ الطويلةُ المحقونة ناقصة"; exit 1; }
       - name: مادّةُ الحقن (‏كاشٌ مستقلٌّ لا يمسّ كاشَ البوّابة)
         id: inj
         if: startsWith(inputs.src, 'g3r')
