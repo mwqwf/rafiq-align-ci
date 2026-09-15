@@ -642,6 +642,7 @@ def main():
 
     dur = {}
     plan_ref = {}
+    injected = 0          # ⛔ يُهيَّأ قبل الشرط: بلا خطّةٍ كان `NameError` عند الجدول
     if a.plan:
         plan = json.load(open(a.plan, encoding="utf-8"))
         items = plan["items"] if isinstance(plan, dict) else plan
@@ -651,6 +652,13 @@ def main():
                     for it in items if it.get("refText") and it.get("riwaya")}
         if plan_ref:
             print(f"📖 {len(plan_ref)} بنداً مرجعُه في الخطّة (‏سَنَدٌ للقصير)", flush=True)
+        # ⛔⛔ **ومادّةُ الحقن تُعلَن** (‏أُضيف D-537): صفُّ «اتّهامٌ كاذبٌ» صادقٌ **لأنّ
+        #    المادّةَ صحيحةٌ** — فإن كانت الخطّةُ خطّةَ حقنٍ (‏فيها `op` وموضعُ كلمة) فذلك
+        #    الصفُّ **يخلط الكشفَ بالاتّهام** في رقمٍ واحد، ومَن قرأه «اتّهاماً كاذباً»
+        #    عدَّ الكشفَ ذنباً. ⇒ العنوانُ يتبدّل، والحكمُ من `hyps_log --detect-plan`.
+        injected = sum(1 for it in items if it.get("op") and it.get("wordIndex") is not None)
+        if injected:
+            print(f"🔪 خطّةُ حقنٍ: {injected} بنداً فيها خطأٌ مصنوعٌ معلومُ الموضع", flush=True)
     files = sorted(f for f in os.listdir(a.src) if f.endswith(".wav"))
     if a.limit:
         files = files[: a.limit]
@@ -754,7 +762,9 @@ def main():
         for _dn, _dv in DOORS[1:]:
             _dj, _ = accuse_judge(plan_ref or None, door=_dv)
             _doors[_dn] = (accuse_stats(rows[A], _dj, _SCR), accuse_stats(rows[B], _dj, _SCR))
-        for _lab, _key in (("🚨 **اتّهامٌ كاذبٌ** (المادّةُ صحيحة)", "accused"),
+        _acc_lab = ("🚨 **اتّهامٌ كاذبٌ** (المادّةُ صحيحة)" if not injected
+                    else "🚨⚠️ **اتّهامٌ** (‏مادّةٌ محقونة: **كشفٌ + كاذبٌ مخلوطان**)")
+        for _lab, _key in ((_acc_lab, "accused"),
                            ("‏↳ منه **«لم تقلها»** (‏`MISSED` — لا يمسُّها بابٌ)", "missed"),
                            ("‏↳ ومنه **«قلتَ غيرَها»** (‏`SUBSTITUTED` — سقفُ الباب)", "subst"),
                            ("🤫 «لم أتبيّن» (لا يُحسب زلّةً)", "uncertain"),
@@ -770,13 +780,17 @@ def main():
             L.append(f"| ⚠️ بنودٌ بلا مرجعٍ عند الحاكم | {aa['unknown']} | {ab['unknown']} |")
         # 🚪 **وأبوابُ D-445 على التفريغِ نفسِه** — لا شوطَ ثانياً ولا ضجيجَ تشغيلةٍ بينهما:
         #    القاعدةُ **إعادةُ وسمٍ بعد المحاذاة**، فالمقايسةُ داخلَ الشوط **حكمٌ لا مرجّح**.
+        if injected:
+            L.append("| ⚠️⚠️ **ولا يُقرأ صفُّ الاتّهام حكماً على هذه المادّة** | فيه الكشفُ "
+                     "والكاذبُ معاً | والفصلُ بـ`hyps_log --detect-plan` |")
         for _dn, (_da, _db) in _doors.items():
             def _dpc(d, b):
                 if not d["ref"]:
                     return "—"
                 _p, _bp = 100.0 * d["accused"] / d["ref"], 100.0 * b["accused"] / b["ref"]
                 return f"{d['accused']}/{d['ref']} = **{_p:.1f}٪** (‏{_p - _bp:+.1f})"
-            L.append(f"| 🚪 بابُ «{_dn}» — اتّهامٌ كاذب | {_dpc(_da, aa)} | {_dpc(_db, ab)} |")
+            L.append(f"| 🚪 بابُ «{_dn}» — {'اتّهامٌ كاذب' if not injected else 'اتّهامٌ مخلوط'}"
+                     f" | {_dpc(_da, aa)} | {_dpc(_db, ab)} |")
             # ⛔⛔ **وضابطُ أنّ البابَ بابٌ لا رخصة:** `UNCERTAIN` **يُعرَض ولا يُحسب زلّةً**
             #    (D-231) ⇒ فالمؤكَّدُ صحيحاً **لا يتغيّر بحرف**، وحارسُ الانهيار سابقٌ له
             #    فلا يتغيّر عدُّه أيضاً. ومن رأى أحدَهما يتحرّك فالمقيسُ **قاعدةٌ أخرى**.

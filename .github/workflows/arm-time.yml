@@ -18,11 +18,11 @@ on:
         required: false
         default: "2"
       src:
-        description: "مجلدُ المجموعة تحت work/ (‏g4 نظيف · g4n مروحةٌ 5د.ب · g4h بعيدٌ+مروحةٌ+هاتف · wav آيةٌ مفردة · wavn آيةٌ مفردةٌ بمروحةِ 5د.ب — مادّةُ الحلقة الحيّة)"
+        description: "مجلدُ المجموعة تحت work/ (‏g4 نظيف · g4n مروحةٌ 5د.ب · g4h بعيدٌ+مروحةٌ+هاتف · wav آيةٌ مفردة · wavn آيةٌ مفردةٌ بمروحةِ 5د.ب — مادّةُ الحلقة الحيّة · g3rn/g3rc مادّةُ الحقن مضجَّجةً/نظيفةً — وفيها وحدَها يُقاس الثمن)"
         required: false
         default: "g4"
       plan:
-        description: "ملفُّ المدد (‏work/long_plan.json للطويل · sample.json للآية المفردة)"
+        description: "ملفُّ المدد (‏work/long_plan.json للطويل · sample.json للآية المفردة · inject_plan_riwaya.json مع g3r*)"
         required: false
         default: "work/long_plan.json"
       model:
@@ -154,6 +154,39 @@ jobs:
       #    و«صفراءُ في السجلّ» ليست «لا شيء».
       - name: فكُّ المجموعات (‏والحزمةُ تبقى كي يُحفظ الكاش)
         run: cd tools/tasmi_bench/work && tar -xf sets.tar && ls -d g4 g4n g4h wavn 2>/dev/null
+      # 🔪 **ومادّةُ الحقن — بحزمةٍ وكاشٍ مستقلَّين بقصد** (‏أُضيفت 2026-09-15 · D-537):
+      # ⛔ **لِمَ لا تُضاف إلى `sets.tar`:** مفتاحُ ذلك الكاش **مشتركٌ مع `emu-gate`** (‏مناوبةُ
+      #    `:13`) ⇒ فرفعُ نسخته يُبطل كاشَهم ويكلّفهم بناءً لم يطلبوه. **ومَن غيّر مشتركاً
+      #    فليحمل ثمنَه لا ليُحمِّله غيرَه** — فمفتاحٌ آخرُ وحزمةٌ أخرى.
+      # ⚖️ **وما تقيسه هذه المادّة:** الثمنُ الوحيدُ الباقي على الطريق الثالث — **أيكتم بابُ
+      #    D-445 لحناً حقيقيّاً؟** فـ`g4*` تلاواتٌ صحيحةٌ **لا كشفَ فيها** (كسبٌ بلا ثمن)،
+      #    و`g3r` فيه **خطأٌ مصنوعٌ معلومُ الموضع** ⇒ فيه **الصرفُ** يُقاس (D-445③: 3.94).
+      - name: مادّةُ الحقن (‏كاشٌ مستقلٌّ لا يمسّ كاشَ البوّابة)
+        id: inj
+        if: startsWith(inputs.src, 'g3r')
+        uses: actions/cache@v4
+        with:
+          path: tools/tasmi_bench/work/inj.tar
+          key: tasmi-inj-v1-${{ hashFiles('tools/tasmi_bench/inject_plan_riwaya.json', 'tools/tasmi_bench/inject_riwaya_local.py') }}
+      - name: بناءُ مادّة الحقن إن غاب الكاش
+        if: ${{ startsWith(inputs.src, 'g3r') && steps.inj.outputs.cache-hit != 'true' }}
+        run: |
+          set -o pipefail
+          cd tools/tasmi_bench
+          python inject_riwaya_local.py
+          tar -cf work/inj.tar -C work g3r
+      # ⛔ **والحزمةُ تبقى** (‏درسُ D-525 بنصّه: حذفُها يمنع حفظَ الكاش أبداً)، **والأسماءُ
+      #    تُسطَّح** كي يبقى `src` كلمةً واحدةً (‏اسمُ الأثَر ومفتاحُ R2 لا يحملان مِشْطرة).
+      - name: فكُّ مادّة الحقن وتسطيحُ اسمَيها
+        if: startsWith(inputs.src, 'g3r')
+        run: |
+          set -o pipefail
+          cd tools/tasmi_bench/work
+          [ -d g3r ] || tar -xf inj.tar
+          ln -sfn g3r/noisy g3rn && ln -sfn g3r/clean g3rc
+          echo "🔪 مضجَّجٌ $(ls g3rn | wc -l) · نظيفٌ $(ls g3rc | wc -l)"
+          # ⛔ ولا يُقرأ الصفرُ مجموعةً: خيرٌ أن يسقط الشوطُ من أن يُقاس على فراغ.
+          [ "$(ls g3rn | wc -l)" -ge 100 ] || { echo "⛔ مادّةُ الحقن ناقصة"; exit 1; }
       # ⤓ **و`--dump-hyps` في كلّ شوطٍ بلا مفتاح** (‏D-537): التفريغُ **نصٌّ**، ومضيفُ الأثَر
       #    والدلوُ **لا يُقرآن من صندوق المناوبة** (مقيسٌ مراراً) ⇒ فبلا هذه الكتلةِ يضيع
       #    التفريغُ بانتهاء الشوط، وكلُّ قاعدةِ حاكمٍ تُقاس بعده **تكلّف شوطاً جديداً**
