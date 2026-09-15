@@ -26,8 +26,22 @@ import time
 ARMS = {
     # المشحونُ اليوم: greedy بعتبةِ إنتروبيا 2.40 (افتراضُ المكتبة)
     "greedy": ["-bs", "1", "-et", "2.40"],
-    # ‏`decodeGuard`: بحثُ حزمةٍ 5 وعتبةٌ أضيق 1.80 — مرآةُ `jni.c` حرفاً بحرف
+    # ‏`decodeGuard`: بحثُ حزمةٍ 5 وعتبةٌ أضيق 1.80.
+    # ⛔⛔ **وتصحيحٌ في موضعه — كان مكتوباً هنا «مرآةُ `jni.c` حرفاً بحرف» وهو غيرُ صحيح**
+    #    (‏قِيس من المصدر المثبَّت 2026-09-15 · D-522): `whisper_full_default_params` تُعبّئ
+    #    `greedy.best_of = 5` **في حالة GREEDY وحدَها**، وفي BEAM_SEARCH تُعبّئ `beam_search`
+    #    وتترك `greedy.best_of` على **‎−1** (`whisper.cpp:6087` مقابل 6126). و`jni.c` لا يضبطها
+    #    البتّة ⇒ في أشواط **التراجع الحراريّ** (‏`t > 0`) يقرأ المحرّكُ
+    #    `n_decoders_cur = greedy.best_of` (‏سطر 7169/7175) فيصير **مفكّاً واحداً**؛
+    #    أمّا `whisper-cli` فيضبط `wparams.greedy.best_of = 5` **دائماً** (`cli.cpp:1242`).
+    #    ⇒ **هذه الذراعُ أقوى من المشحون** في أصعب النوافذ بعينها، ومرآةُ المشحون هي `shipguard`.
+    #    (‏وذراعُ `greedy` مرآةٌ صحيحةٌ: كلاهما 5 هناك.)
     "guard": ["-bs", "5", "-et", "1.80"],
+    # 🪞 **مرآةُ المشحون الصحيحة** (‏D-522): حزمةُ 5 + عتبةُ 1.80 + **`-bo 1`** — أي
+    #    مفكٌّ واحدٌ في أشواط التراجع كما هي حالُ `jni.c` اليومَ بالضبط. وهي **أرضيّةُ
+    #    القياس** التي يُطرح منها نفعُ `best_of`: `shipguard` ⇒ المشحون · `guard` ⇒ المشحونُ
+    #    ومعه ترشيحُ خمسةِ مرشَّحين في النوافذ الصعبة. ⛔ والفرقُ بينهما **سطرٌ واحدٌ في `jni.c`**.
+    "shipguard": ["-bs", "5", "-et", "1.80", "-bo", "1"],
     # 🔇 **ذراعُ D-513**: المشحونُ نفسُه + **رفعُ إسكاتِ النافذة** (`no_speech_thold`).
     #    المصدرُ المثبَّت (`whisper.cpp@c4ac001:7711`) يُسقط **النافذةَ كلَّها** (ثلاثين ثانية)
     #    حين `no_speech_prob > 0.6` **و**`avg_logprobs < -1.0` ⇒ آياتٌ متتاليةٌ تختفي دفعةً.
@@ -48,7 +62,8 @@ ARMS = {
 # 🏷️ عنوانُ كلّ ذراعٍ في الجدول — والمجهولُ يُسمّى باسمه لا بفراغ.
 ARM_LABEL = {
     "greedy": "greedy",
-    "guard": "beam 5 + et 1.8",
+    "guard": "beam 5 + et 1.8 + bo 5",
+    "shipguard": "🪞 المشحون: beam 5 + et 1.8 + bo 1",
     "hearall": "greedy + nth 1.01",
     "silenceall": "⚠️ تثبُّتٌ: إسكاتٌ دائم",
 }
@@ -64,6 +79,121 @@ def silence_stats(rows_arm):
     empty = sum(1 for r in rows_arm.values() if not (r.get("text") or "").strip())
     words = sum(len((r.get("text") or "").split()) for r in rows_arm.values())
     return empty, words
+
+
+def _default_judges():
+    """🧭 حاكمُ الصور من أدواتنا نفسِها — لا مسطرةٌ ثانيةٌ تتقادم صامتةً.
+
+    يرجع ثلاثةَ توابع: مرجعُ البند من المصحف · صورُ الكلمة المقبولة · تشذيبُ المسموع.
+    ⛔ **والاستيرادُ متأخّرٌ**: `--selftest` يجب أن يعمل في صندوقٍ بلا بيانات (درسُ `soundfile`).
+    """
+    here = os.path.dirname(os.path.abspath(__file__))
+    sys.path.insert(0, here)
+    sys.path.insert(0, os.path.join(os.path.dirname(here), "alignment"))
+    import error_triage as ET
+    import score as SC
+    import scorer as SCR
+    from common import load_index, load_text
+    index = load_index()
+    cfgs = {}
+
+    def cfg(riw):
+        if riw not in cfgs:
+            cfgs[riw] = SC.config_for("proposed", riw)
+        return cfgs[riw]
+
+    return (lambda iid: ET.item_words(iid, load_text, index),
+            lambda w, riw: ET.forms_of(w, cfg(riw), SCR),
+            lambda w, riw: SCR.norm(w, cfg(riw)),
+            # ⛔⛔ **وقبولُ الحاكم لا عضويّةُ مجموعة** (‏تصحيحٌ قبل النشر · D-523): `scorer._matches`
+            #    هو ما يقبل به المحرّكُ فعلاً — **مسافةُ تحريرٍ ≤ خُمسِ الطول** ومعها رخصةُ
+            #    القصيرة (‏≤3 حروفٍ تحتمل حرفاً) — وليس التطابقَ حرفاً. ومن قاس بالعضويّة
+            #    **نقَص عدَّه عن حاكمه**: «الرحمان» مقابل «الرحمٰن» يقبلها الحاكمُ وترفضها هي.
+            lambda fs, tok, riw: SCR._matches(tuple(fs), tok, cfg(riw)))
+
+
+def judges_with_plan(plan_ref, base=None):
+    """🧭 **ومرجعُ البند من الخطّة حين لا يُقرأ معرّفُه** (‏أُضيف 2026-09-15 · D-523).
+
+    ⛔ **العطبُ الذي وُجدت له:** `error_triage.parse_item` يقرأ صيغةَ الطويل وحدَها
+    (`long_<رواية>_<سورة>_<آية>x<عدد>`)، **وخطّةُ الآية المفردة معرّفاتُها من شكلٍ آخر**
+    (`hafs_minshawi_015076`) ⇒ كلُّ بندٍ قصيرٍ كان يُعَدّ **مجهولاً** فلا يُقاس على المادّة
+    القصيرة شيء — وهي **مادّةُ الحلقة الحيّة** التي يتوقّف عليها سؤالُ `guardScope`.
+    ⭐ **والمرجعُ حاضرٌ في الخطّة نفسِها** (`refText` · `riwaya`) ⇒ يُقرأ منها لا من فرضيّة.
+    ⛔ **والأولويّةُ للمصحف**: ما قرأه `item_words` لا تنسخه الخطّةُ (فالمصحفُ أصلٌ والخطّةُ نقل).
+    """
+    rw, fo, no, ac = base or _default_judges()
+
+    def ref(iid):
+        got = rw(iid)
+        if got and got[1]:
+            return got
+        alt = plan_ref.get(iid)
+        return alt if alt and alt[0] and alt[1] else (None, None)
+
+    return ref, fo, no, ac
+
+
+def bag_stats(rows_arm, ref_words=None, forms=None, norm=None, accepts=None):
+    """🔁 **كم من كلمات المرجع عادت · وكم قِيل بلا مرجع** — كِيساً لا خطَّ محاذاة.
+
+    ⭐ **لِمَ وُجد** (‏حدُّ D-519 بنصّه): عدُّ الكلمات وحدَه **ليس صواباً** — كلمةٌ خطأٌ تُعَدّ
+    كلمةً، فذراعٌ ترفع العددَ قد تكون استعادت وقد تكون هَلوَست. ⇒ يُقاس **عددان لا واحد**:
+      · **الاستعادة** = كلماتُ المرجع التي وُجد لها مقابلٌ مقبول ÷ كلماتِ المرجع.
+      · **الزائد** = المسموعُ الذي لم يقابل كلمةَ مرجعٍ ÷ المسموعِ كلِّه.
+    فالمرشَّحُ النافعُ **ترتفع استعادتُه ولا يرتفع زائدُه**؛ ومن ارتفع الاثنان فيه فقد
+    قايض فقداً بهَلوَسة، **وهي ثمنٌ لا مكسب**.
+
+    ⛔⛔ **وحدُّ هذه المسطرة يُقال قبل أن يُبنى عليها** — فهي **ليست** حاكمَ التسميع:
+      ① **كِيسٌ لا ترتيب**: كلمةٌ سُمعت في موضعٍ غيرِ موضعها تُحسب استعادةً ⇒ الرقمُ
+         **سقفٌ** للصواب لا الصوابُ نفسُه. وحكمُ الصواب لـ`scorer.py` على خطِّ المحاذاة.
+      ② **الالتقاطُ جَشِعٌ** بترتيب المسموع (أوّلُ مرجعٍ غيرِ مستهلَكٍ يقبلُه)، وكلماتُ المرجع
+         تُستهلَك مرّةً واحدة ⇒ **حلقةُ تكرارٍ لا تُقرأ استعادةً** (وهي الفخُّ الأوّلُ هنا).
+      ③ **ما تعذّر مرجعُه يُعَدّ مجهولاً ويُعلَن، ولا يُبَنّ في الطرفَين** (درسُ `floor_shape`):
+         بندٌ بلا مرجعٍ لا يُنقص الاستعادةَ ولا يُضخّم الزائد.
+      ④ **والقبولُ قبولُ الحاكم لا التطابقُ حرفاً** (‏صُحّح قبل النشر · D-523): `scorer._matches`
+         يقبل **مسافةَ تحريرٍ ≤ خُمسِ الطول** ومعها رخصةُ القصيرة ⇒ مَن قاس بالعضويّة وحدَها
+         **نقَص عدَّه عن حاكمه**. ويُطبَع العددان: `hit` بقبول الحاكم و`exact` مطابقاً حرفاً،
+         **والتطابقُ يُلتقَط أوّلاً** كي لا يستهلكَ جارٌ فضفاضٌ صورةً بعينها.
+      ⑤ **و`heard` هنا يُعَدّ بعد التشذيب** ⇒ قد يقلّ بواحدٍ أو اثنَين عن صفّ «كلماتٌ مسموعةٌ
+         كلّيّاً» (‏وهو عدٌّ خامٌ بالمسافات): رمزٌ يُشذَّب إلى فراغٍ ليس كلمةً هنا. **عدّان
+         تعريفاهما مختلفان، فلا يُطرح أحدهما من الآخر.**
+    """
+    if ref_words is None:
+        ref_words, forms, norm, accepts = _default_judges()
+    if accepts is None:
+        accepts = lambda fs, tok, riw: tok in fs     # ⛔ صارمةٌ: للضوابط المُحقَنة وحدَها
+    ref_n = heard_n = hit = exact = dropped = 0
+    unknown = []
+    for iid in sorted(rows_arm):
+        riw, words = ref_words(iid)
+        if not words:
+            unknown.append(iid)
+            continue
+        pool = [list(forms(w, riw)) for w in words]
+        used = [False] * len(pool)
+        ref_n += len(pool)
+        raw = (rows_arm[iid].get("text") or "").split()
+        toks = [t for t in (norm(x, riw) for x in raw) if t]
+        # 📣 **وما أسقطه التشذيبُ يُعلَن لا يُسكت عنه** (‏D-523): `scorer.norm` يُفرّغ ما ليس
+        #    عربيّاً ⇒ **هَلوَسةٌ لاتينيّةٌ تختفي من الطرفَين** («thank you for watching» ⇒ صفر).
+        #    فلو كان العددُ كبيراً لكان الحكمُ «لا يسمع» وصفاً خاطئاً للعطب: هو يتكلّم بغير
+        #    لغته. ⇒ يُعَدّ ويُطبَع، **وهو نفسُه الذي يفسّر فرقَ المقامَين في الجدول**.
+        dropped += len(raw) - len(toks)
+        heard_n += len(toks)
+        for t in toks:
+            # ⭐ **والتطابقُ حرفاً يُقدَّم على القبول الفضفاض**: لو جاء المسموعُ صورةَ كلمةٍ
+            #    بعينها فلا يُستهلَك بها جارٌ يقبله الحاكمُ بمسافةِ حرفٍ ⇒ العدُّ **لا يُبدَّد**.
+            k = next((i for i, fs in enumerate(pool) if not used[i] and t in fs), None)
+            if k is not None:
+                exact += 1
+            else:
+                k = next((i for i, fs in enumerate(pool) if not used[i] and accepts(fs, t, riw)), None)
+            if k is not None:
+                used[k] = True
+                hit += 1
+    return {"ref": ref_n, "heard": heard_n, "hit": hit, "exact": exact,
+            "excess": heard_n - hit, "dropped": dropped, "unknown": unknown}
 
 
 def run_one(cli, model, wav, arm, threads, lang):
@@ -118,10 +248,16 @@ def main():
     A, B = arms
 
     dur = {}
+    plan_ref = {}
     if a.plan:
         plan = json.load(open(a.plan, encoding="utf-8"))
         items = plan["items"] if isinstance(plan, dict) else plan
         dur = {it["id"]: it.get("durationSec") for it in items if it.get("durationSec")}
+        # 📖 **والمرجعُ من الخطّة للبنود التي لا يقرأ `parse_item` معرّفَها** (‏الآيةُ المفردة)
+        plan_ref = {it["id"]: (it.get("riwaya"), (it.get("refText") or "").split())
+                    for it in items if it.get("refText") and it.get("riwaya")}
+        if plan_ref:
+            print(f"📖 {len(plan_ref)} بنداً مرجعُه في الخطّة (‏سَنَدٌ للقصير)", flush=True)
     files = sorted(f for f in os.listdir(a.src) if f.endswith(".wav"))
     if a.limit:
         files = files[: a.limit]
@@ -176,7 +312,26 @@ def main():
     eb, wb = silence_stats(rows[B])
     L.append(f"| 🔇 **بنودٌ تفريغُها فارغ** | **{ea}/{len(files)}** | **{eb}/{len(files)}** |")
     L.append(f"| 📝 كلماتٌ مسموعةٌ كلّيّاً | {wa} | {wb} |")
-    rat = [rows[B][i]["sec"] / rows[A][i]["sec"] for i in rows[A]]
+    # 🔁 **والعددُ وحدَه لا يُقرأ حكماً** (‏حدُّ D-519): تُقاس **الاستعادةُ والزائدُ** معاً.
+    # ⛔ وتعذُّرُ الحاكم لا يُقرأ صفراً ولا يُسقط الشوط — يُكتب بنصِّ خطئه في الجدول نفسِه.
+    bags = {}
+    try:
+        J = judges_with_plan(plan_ref) if plan_ref else (None, None, None, None)
+        ba, bb = bag_stats(rows[A], *J), bag_stats(rows[B], *J)
+        bags = {A: ba, B: bb}
+        for lab, key, tot in (("🔁 **استعادةٌ بقبول الحاكم**", "hit", "ref"),
+                              ("🔁 منها مطابقٌ حرفاً", "exact", "ref"),
+                              ("👻 زائدٌ لا يقابل مرجعاً", "excess", "heard")):
+            def pct(d):
+                return f"{d[key]}/{d[tot]} = **{100.0 * d[key] / d[tot]:.1f}٪**" if d[tot] else "—"
+            L.append(f"| {lab} | {pct(ba)} | {pct(bb)} |")
+        if ba["dropped"] or bb["dropped"]:
+            L.append(f"| 🗑️ رمزٌ أسقطه التشذيب (‏ليس عربيّاً) | {ba['dropped']} | {bb['dropped']} |")
+        if ba["unknown"]:
+            L.append(f"| ⚠️ بنودٌ بلا مرجعٍ (مجهولةٌ لا مبنَّنة) | {len(ba['unknown'])} | {len(bb['unknown'])} |")
+    except Exception as e:
+        L.append(f"| ⛔ مسطرةُ الاستعادة تعذّرت | `{type(e).__name__}: {e}` | — |")
+    rat =[rows[B][i]["sec"] / rows[A][i]["sec"] for i in rows[A]]
     L.append(f"\n**نسبةُ {ARM_LABEL.get(B, B)} إلى {ARM_LABEL.get(A, A)}:** وسيطاً ×{st.median(rat):.2f} · المدى ×{min(rat):.2f}–×{max(rat):.2f} "
              f"· الحرسُ أسرعُ في {sum(1 for x in rat if x < 1)}/{len(rat)} بنداً")
     # 🔍 وأثرُ الانهيار يُسمّى: بنودٌ نسبتُها دون 1 هي التي انهار فيها greedy
@@ -202,7 +357,8 @@ def main():
         open(a.md, "w", encoding="utf-8").write(md + "\n")
     if a.json:
         json.dump({"threads": a.threads, "lang": a.lang, "arms": [A, B], "peak_rss_kb": peak_kb,
-                   "silence": {A: silence_stats(rows[A]), B: silence_stats(rows[B])}, "rows": rows},
+                   "silence": {A: silence_stats(rows[A]), B: silence_stats(rows[B])},
+                   "bag": bags, "rows": rows},
                   open(a.json, "w", encoding="utf-8"), ensure_ascii=False)
 
 
@@ -231,6 +387,12 @@ def _selftest():
        "ذراعُ التثبُّت تُشعل البوّابةَ دائماً")
     ok(float(ARMS["hearall"][-1]) > 1.0, "‏العتبةُ احتمالٌ لا يُبلَغ (> 1.0)")
     ok(set(ARM_LABEL) >= set(ARMS), "لكلّ ذراعٍ عنوانٌ في الجدول")
+    # ⑤ **ومرآةُ المشحون تختلف عن `guard` بـ`-bo` وحدَه** (‏D-522) — فلو تساوَتا لضاع السؤال.
+    ok(ARMS["shipguard"][:4] == ARMS["guard"], "‏shipguard تبدأ بذراع الحرس حرفاً")
+    ok(ARMS["shipguard"][4:] == ["-bo", "1"], "‏shipguard تضيف `-bo 1` ولا شيءَ غيرَه")
+    ok("-bo" not in ARMS["guard"], "⛔ و`guard` تُترك على افتراض الأداة (5) فالفرقُ مقيسٌ لا مبنيّ")
+    ok("-nth" not in ARMS["shipguard"] and "-lpt" not in ARMS["shipguard"],
+       "⛔ مرآةُ المشحون لا تمسّ عتبةَ إسكاتٍ ولا ثقة")
 
     # ② عدُّ الإسكات
     R = {"a": {"text": ""}, "b": {"text": "   "}, "c": {"text": "ولا الضالين"}}
@@ -239,6 +401,88 @@ def _selftest():
     ok(w == 2, f"الكلماتُ اثنتان — جاءت {w}")
     ok(silence_stats({}) == (0, 0), "لا بنودَ ⇒ صفران بلا انفجار")
     ok(silence_stats({"a": {}}) == (1, 0), "بندٌ بلا مفتاح `text` يُعَدّ فارغاً لا يُسقط الأداة")
+
+    # ③ **مسطرةُ الاستعادة والزائد** — بحاكمٍ مُحقَنٍ كي تُقاس في صندوقٍ بلا مصحف.
+    #    (والحقنُ هو نفسُه ما يجعل الضابطَ يُشغَّل دائماً لا في بيئةِ البيانات وحدَها.)
+    REF = {"i1": ("hafs", ["الحمد", "لله", "رب"]), "i2": ("hafs", ["مالك", "يوم"])}
+    fake_ref = lambda iid: REF.get(iid, (None, None))
+    # صورتان مقبولتان لكلمةٍ واحدة — كي يُقاس أنّ المسطرةَ تسأل الحاكمَ لا تُقارن حرفاً
+    fake_forms = lambda w, riw: ["رب", "ربي"] if w == "رب" else [w]
+    fake_norm = lambda w, riw: w.strip("،.")
+
+    def bag(texts):
+        return bag_stats({k: {"text": v} for k, v in texts.items()}, fake_ref, fake_forms, fake_norm)
+
+    b = bag({"i1": "الحمد لله رب"})
+    ok((b["ref"], b["hit"], b["excess"]) == (3, 3, 0), f"تفريغٌ مطابقٌ ⇒ استعادةٌ تامّةٌ بلا زائد — جاء {b}")
+    b = bag({"i1": "الحمد لله ربي"})
+    ok(b["hit"] == 3, f"صورةٌ ثانيةٌ مقبولةٌ تُحسب استعادةً (الحاكمُ لا الحرف) — جاء {b}")
+    b = bag({"i1": "الحمد رب"})
+    ok((b["hit"], b["ref"], b["excess"]) == (2, 3, 0), f"كلمةٌ ساقطةٌ تُنقص الاستعادةَ ولا تصير زائداً — جاء {b}")
+    b = bag({"i1": "الحمد لله رب العالمين"})
+    ok((b["hit"], b["heard"], b["excess"]) == (3, 4, 1), f"مسموعٌ بلا مرجعٍ يُعَدّ زائداً — جاء {b}")
+    # 🗑️ وما يُفرّغه التشذيبُ يُعَدّ ويُعلَن — لا يختفي من الطرفَين صامتاً
+    b = bag_stats({"i1": {"text": "الحمد لله رب"}}, fake_ref, fake_forms, lambda w, r: "" if w == "لله" else w)
+    ok((b["dropped"], b["heard"], b["hit"]) == (1, 2, 2),
+       f"⛔ المُفرَّغُ يُعَدّ مُسقَطاً ويخرج من المقام — جاء {b}")
+    ok(bag({"i1": "الحمد لله رب"})["dropped"] == 0, "ولا يُعَدّ مُسقَطاً ما لم يُفرَّغ")
+    # ⛔⛔ **الفخُّ الأوّل:** حلقةُ تكرارٍ ترفع العددَ — ولا يجوز أن ترفع الاستعادة.
+    b = bag({"i1": "الحمد الحمد الحمد لله رب"})
+    ok(b["hit"] == 3 and b["excess"] == 2,
+       f"⛔ حلقةُ تكرارٍ: المرجعُ يُستهلَك مرّةً والمكرّرُ زائدٌ — جاء {b}")
+    # ⛔ وما لا مرجعَ له يُعلَن ولا يُبَنّ في الطرفَين (درسُ `floor_shape`)
+    b = bag({"iX": "كلامٌ كثيرٌ جدّاً"})
+    ok(b["unknown"] == ["iX"] and (b["ref"], b["heard"], b["hit"]) == (0, 0, 0),
+       f"⛔ بندٌ بلا مرجعٍ مجهولٌ لا مبنَّن — جاء {b}")
+    b = bag({"i1": "", "i2": "مالك يوم"})
+    ok((b["ref"], b["hit"], b["heard"]) == (5, 2, 2), f"فارغٌ لا يُسقط ولا يُحتسب زائداً — جاء {b}")
+    ok(bag({})["ref"] == 0 and bag({})["unknown"] == [], "لا بنودَ ⇒ أصفارٌ بلا انفجار")
+    for t in ("الحمد لله رب", "الحمد الحمد", "", "كلمةٌ غريبة"):
+        b = bag({"i1": t})
+        ok(b["excess"] >= 0 and b["hit"] <= b["ref"] and b["hit"] <= b["heard"],
+           f"⛔ حدودُ المسطرة تُنتهك على «{t}»: {b}")
+        ok(b["exact"] <= b["hit"], f"⛔ المطابقُ حرفاً لا يزيد على المقبول: {b}")
+
+    # ④ **وقبولُ الحاكم يُقاس بحاكمٍ مُحقَنٍ يحاكي مسافةَ حرف** (‏D-523): فالعضويّةُ وحدَها
+    #    كانت **تنقص عن الحاكم**، والبندُ كلُّه قام على هذا التصحيح.
+    def ed1(fs, tok, riw):
+        for f in fs:
+            if abs(len(f) - len(tok)) <= 1 and sum(1 for a, b in zip(f, tok) if a != b) <= 1:
+                return True
+        return False
+
+    def bagj(texts, ref=None):
+        return bag_stats({k: {"text": v} for k, v in texts.items()},
+                         ref or fake_ref, fake_forms, fake_norm, ed1)
+
+    REF2 = {"i1": ("hafs", ["الرحمن", "مالك"])}
+    b = bagj({"i1": "الرحمان مالك"}, lambda i: REF2.get(i, (None, None)))
+    ok(b["hit"] == 2 and b["exact"] == 1,
+       f"⛔ صورةٌ بمسافة حرفٍ يقبلها الحاكمُ وتُعَدّ خارجَ المطابق حرفاً — جاء {b}")
+    b = bagj({"i1": "الرحمان"}, lambda i: REF2.get(i, (None, None)))
+    ok(b["excess"] == 0, f"⛔ ما قبله الحاكمُ ليس زائداً — جاء {b}")
+    # ⛔ والتطابقُ يُلتقَط أوّلاً: «قل» لا تستهلك «قال» فيبقى المطابقُ حرفاً صادقاً
+    REF3 = {"i1": ("hafs", ["قل", "قال"])}
+    b = bagj({"i1": "قال قل"}, lambda i: REF3.get(i, (None, None)))
+    ok(b["hit"] == 2 and b["exact"] == 2,
+       f"⛔ التطابقُ حرفاً يُلتقَط أوّلاً فلا يُبدَّد عدٌّ — جاء {b}")
+    # ⛔ وحاكمٌ فضفاضٌ لا يخلق استعادةً من لا شيء
+    b = bagj({"i1": ""}, lambda i: REF3.get(i, (None, None)))
+    ok((b["hit"], b["exact"], b["excess"]) == (0, 0, 0), f"⛔ فارغٌ بحاكمٍ فضفاضٍ صفرٌ — جاء {b}")
+
+    # ⑤ **والسقوطُ إلى مرجع الخطّة** (‏D-523): معرّفٌ لا يُقرأ ⇒ يُؤخذ من الخطّة لا يُعَدّ مجهولاً
+    base = (lambda iid: (None, None), fake_forms, fake_norm, None)
+    PR = {"hafs_minshawi_015076": ("hafs", ["الحمد", "لله"])}
+    rf, fo, no, ac = judges_with_plan(PR, base)
+    b = bag_stats({"hafs_minshawi_015076": {"text": "الحمد لله"}}, rf, fo, no, ac)
+    ok((b["ref"], b["hit"], b["unknown"]) == (2, 2, []),
+       f"⛔ مرجعُ الخطّة يُقرأ للقصير فلا يُعَدّ مجهولاً — جاء {b}")
+    b = bag_stats({"لا_في_الخطّة": {"text": "شيء"}}, rf, fo, no, ac)
+    ok(b["unknown"] == ["لا_في_الخطّة"], f"⛔ وما ليس في الخطّة يبقى مجهولاً مُعلَناً — جاء {b}")
+    # ⛔ وأولويّةُ المصحف على الخطّة (المصحفُ أصلٌ والخطّةُ نقل)
+    rf2, _, _, _ = judges_with_plan({"i9": ("hafs", ["منقولٌ"])},
+                                    (lambda iid: ("hafs", ["أصلٌ"]), fake_forms, fake_norm, None))
+    ok(rf2("i9") == ("hafs", ["أصلٌ"]), "⛔ ما قرأه المصحفُ لا تنسخه الخطّة")
 
     print("🧪 ضوابطُ `cli_time`: %d إخفاقاً" % len(fails))
     for m in fails:
