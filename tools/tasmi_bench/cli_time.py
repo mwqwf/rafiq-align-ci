@@ -57,7 +57,21 @@ ARMS = {
     #    وإن لم يخرج فارغاً فالرايةُ خاملةٌ و**قياسُ D-515 لاغٍ**.
     #    ⛔⛔ **ولا تُشحن بحال**: هي **أسوأُ** من المشحون بالبناء — تُسكت كلَّ شيء.
     "silenceall": ["-bs", "1", "-et", "2.40", "-nth", "0.0", "-lpt", "1.0"],
+    # 🧩 **ذراعا التقطيع** (‏D-530): **رايات المشحون حرفاً** — والفرقُ الوحيدُ أنّ الملفَّ
+    #    يُفكّ قِطَعاً (‏عشرَ ثوانٍ = سقفُ `GROUP_CAP_SECONDS` المشحون · وستٌّ للحدّ الأدنى).
+    "chunk10": ["-bs", "1", "-et", "2.40"],
+    "chunk6": ["-bs", "1", "-et", "2.40"],
 }
+
+# 🧩 **أذرعٌ تُفكُّ الملفَّ قِطَعاً لا دفعةً** (‏أُضيفت 2026-09-15 · D-530): القيمةُ **ثوانيَ
+#    المقطع**. ⛔ **ولِمَ لزمت:** مربّعُ D-528 قاس أنّ **الطويلَ المضجَّج ينهار** (36.5٪) و**القصيرَ
+#    المضجَّج لا ينهار** (82.4٪)، وD-529 وجد الآليّةَ في التطبيق: في الضجيج **لا سكتةَ تُكتشف**
+#    فيتوقّف التقطيعُ ويُفرَّغ التسجيلُ كلُّه. **وعلاجُه بُني مطفأً** (`FALLBACK_CAP_SECONDS`)
+#    ⇒ والسؤالُ الباقي: **كم يستعيد التقطيعُ فعلاً على مفكٍّ حقيقيّ؟** ويُقاس **بلا محاكٍ ولا
+#    APK**: `whisper-cli` يقبل `-ot` (إزاحة) و`-d` (مدّة) ⇒ المقطعُ يُفكّ من الملفّ نفسِه.
+#    ⚠️ **وحدُّها يُقال:** القطعُ هنا **عند حدودٍ ثابتةٍ** لا عند أهدأ نقطةٍ كما يفعل التطبيق
+#    (`quietestCut`) ⇒ **ما تعطيه هذه الذراعُ أرضيّةٌ لا سقفٌ**: التطبيقُ يقطع أرحمَ منها.
+ARM_CHUNK = {"chunk10": 10, "chunk6": 6}
 
 # 🏷️ عنوانُ كلّ ذراعٍ في الجدول — والمجهولُ يُسمّى باسمه لا بفراغ.
 ARM_LABEL = {
@@ -66,6 +80,8 @@ ARM_LABEL = {
     "shipguard": "🪞 المشحون: beam 5 + et 1.8 + bo 1",
     "hearall": "greedy + nth 1.01",
     "silenceall": "⚠️ تثبُّتٌ: إسكاتٌ دائم",
+    "chunk10": "🧩 قِطَعُ 10ث (سقفُ التطبيق)",
+    "chunk6": "🧩 قِطَعُ 6ث",
 }
 _NUM = re.compile(r"([0-9]+\.[0-9]+)")
 
@@ -196,9 +212,64 @@ def bag_stats(rows_arm, ref_words=None, forms=None, norm=None, accepts=None):
             "excess": heard_n - hit, "dropped": dropped, "unknown": unknown}
 
 
-def run_one(cli, model, wav, arm, threads, lang):
-    """يعيد (ثوانيَ الاستدلال بلا التحميل، عددَ المقاطع، النصَّ) — أو يرفع إن سكتت الأداة."""
-    cmd = [cli, "-m", model, "-t", str(threads), "-l", lang, "-ojf"] + ARMS[arm] + [wav]
+# 🧩 أقصرُ ذيلٍ يُفرَد مقطعاً — وما دونه يُضَمّ إلى ما قبله (ثانيتان: شوطٌ على أقلَّ منهما
+#    ليس قياساً، وwhisper قد يسكت عنه فيُقرأ صفراً).
+MIN_TAIL_MS = 2000
+
+
+def chunk_spans(dur_sec, chunk_sec):
+    """🧩 **سلَّمُ الإزاحات** — (إزاحةٌ بالملّي · مدّةٌ بالملّي) تغطّي المدّةَ كلَّها بلا تداخل.
+
+    ⛔ **ولا مقطعَ فارغٌ في الذيل**: بقيّةٌ أقصرُ من عشرِ ملّيّاتٍ **تُضَمّ** إلى ما قبلها
+    بدل أن تُفكَّ وحدَها (‏شوطٌ على 3م.ث ليس قياساً، والأداةُ قد تسكت عنه فيُقرأ صفراً).
+    """
+    if chunk_sec <= 0:
+        raise SystemExit("⛔ طولُ المقطع ثوانٍ موجبةٌ لا %r" % chunk_sec)
+    total = int(round(dur_sec * 1000))
+    step = int(chunk_sec * 1000)
+    out = []
+    off = 0
+    while off < total:
+        left = total - off
+        # ⛔ **ويُنظَر إلى ما سيبقى، لا إلى ما بقي:** لو كان الذيلُ بعد هذا المقطع أقصرَ من
+        #    [MIN_TAIL_MS] ضُمّ إليه الآن. (وأوّلُ صياغةٍ كتبتُها نظرت إلى `left` فأفردت
+        #    ذيلاً 1.6ث على 21.6 — وأسقطها ضابطُها قبل أن تُدفع.)
+        if left <= step + MIN_TAIL_MS:
+            out.append((off, left))
+            break
+        out.append((off, step))
+        off += step
+    return out or [(0, total)]
+
+
+def run_one(cli, model, wav, arm, threads, lang, dur_sec=None):
+    """يعيد (ثوانيَ الاستدلال بلا التحميل، عددَ المقاطع، النصَّ) — أو يرفع إن سكتت الأداة.
+
+    🧩 وذراعُ تقطيعٍ (`ARM_CHUNK`) تُنادي الأداةَ **مرّةً لكلّ مقطع** بـ`-ot`/`-d`،
+    وتجمع الأزمنةَ والنصوص. ⛔ **وزمنُ التحميل مطروحٌ في كلّ نداء** (‏كما هو أصلاً) ⇒
+    **لا يُحتسب تحميلُ النموذج مرّاتٍ**، وهو الصوابُ: التطبيقُ يُحمّل مرّةً ويفكّ قِطَعاً.
+    """
+    chunk = ARM_CHUNK.get(arm)
+    if chunk:
+        if not dur_sec:
+            raise SystemExit("⛔ ذراعُ تقطيعٍ بلا مدّةٍ للملفّ — ولا تُخمَّن المدّة")
+        sec = 0.0
+        segs = 0
+        parts = []
+        for off_ms, len_ms in chunk_spans(dur_sec, chunk):
+            s1, n1, t1 = _run_cli(cli, model, wav,
+                                  ARMS[arm] + ["-ot", str(off_ms), "-d", str(len_ms)],
+                                  threads, lang)
+            sec += s1
+            segs += n1
+            if t1.strip():
+                parts.append(t1.strip())
+        return sec, segs, " ".join(parts)
+    return _run_cli(cli, model, wav, ARMS[arm], threads, lang)
+
+
+def _run_cli(cli, model, wav, flags, threads, lang):
+    cmd = [cli, "-m", model, "-t", str(threads), "-l", lang, "-ojf"] + flags + [wav]
     p = subprocess.run(cmd, capture_output=True, text=True, encoding="utf-8", errors="replace")
     out = (p.stdout or "") + (p.stderr or "")
     if "usage:" in out and "error:" in out:
@@ -281,7 +352,8 @@ def main():
     for k, f in enumerate(files, 1):
         i = f[:-4]
         for arm in (A, B):   # متداخلتان لكلّ بندٍ كي تتقاسما حالةَ الحرارة
-            s, n, txt = run_one(a.cli, a.model, os.path.join(a.src, f), arm, a.threads, a.lang)
+            s, n, txt = run_one(a.cli, a.model, os.path.join(a.src, f), arm, a.threads, a.lang,
+                                dur_sec=dur[i])
             rows.setdefault(arm, {})[i] = {"sec": s, "rtf": s / dur[i], "segs": n, "text": txt}
         if k % 5 == 0 or k == len(files):
             print(f"   … {k}/{len(files)}", flush=True)
@@ -483,6 +555,28 @@ def _selftest():
     rf2, _, _, _ = judges_with_plan({"i9": ("hafs", ["منقولٌ"])},
                                     (lambda iid: ("hafs", ["أصلٌ"]), fake_forms, fake_norm, None))
     ok(rf2("i9") == ("hafs", ["أصلٌ"]), "⛔ ما قرأه المصحفُ لا تنسخه الخطّة")
+
+    # ⑥ **سلَّمُ الإزاحات للتقطيع** (‏D-530) — يُقاس في الصندوق بلا `whisper-cli`.
+    ok(chunk_spans(30.0, 10) == [(0, 10000), (10000, 10000), (20000, 10000)],
+       f"ثلاثونَ ثانيةً بقِطَعِ 10 ⇒ ثلاثةٌ متساوية — جاء {chunk_spans(30.0, 10)}")
+    sp = chunk_spans(21.6, 10)
+    ok(sp == [(0, 10000), (10000, 11600)],
+       f"⛔ الذيلُ القصيرُ يُضَمّ لا يُفرَد — جاء {sp}")
+    for d, c in ((21.6, 10), (30.0, 10), (5.0, 10), (0.4, 6), (37.0, 6)):
+        sp = chunk_spans(d, c)
+        tot = int(round(d * 1000))
+        ok(sp[0][0] == 0, f"⛔ يبدأ من الصفر: {sp}")
+        ok(sum(x[1] for x in sp) == tot, f"⛔ التغطيةُ ناقصةٌ أو زائدةٌ على {d}ث/{c}: {sp}")
+        for k in range(1, len(sp)):
+            ok(sp[k][0] == sp[k - 1][0] + sp[k - 1][1], f"⛔ فجوةٌ أو تداخلٌ في {sp}")
+        ok(all(x[1] > 0 for x in sp), f"⛔ مقطعٌ فارغٌ في {sp}")
+    ok(chunk_spans(5.0, 10) == [(0, 5000)], "أقصرُ من المقطع ⇒ نداءٌ واحدٌ كما هو")
+    # ⛔ وذراعا التقطيع **رايات المشحون حرفاً** — فالفرقُ المقيسُ هو التقطيعُ وحدَه
+    for _n in ARM_CHUNK:
+        ok(_n in ARMS, f"⛔ ذراعُ تقطيعٍ بلا رايات: {_n}")
+        ok(ARMS[_n] == ARMS["greedy"], f"⛔ {_n} يجب أن تكون رايات المشحون حرفاً")
+        ok(_n in ARM_LABEL, f"⛔ ذراعُ تقطيعٍ بلا عنوان: {_n}")
+        ok(ARM_CHUNK[_n] > 0, f"⛔ طولُ مقطعٍ غيرُ موجب: {_n}")
 
     print("🧪 ضوابطُ `cli_time`: %d إخفاقاً" % len(fails))
     for m in fails:
