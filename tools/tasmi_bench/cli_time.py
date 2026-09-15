@@ -67,6 +67,14 @@ ARMS = {
     #    ⇒ `chunk10` مقابل `chunk10g` **يقيس ما يوفّره الحارسُ من هَلوَسةِ الحشو** (D-531).
     "chunk10g": ["-bs", "1", "-et", "2.40"],
     "chunk6g": ["-bs", "1", "-et", "2.40"],
+    # 🔇 **والتقطيعُ عند أهدأ نقطةٍ كما يفعل التطبيق** (‏D-534): الرايات نفسُها وطولُ
+    #    المقطع نفسُه، **والفرقُ الوحيدُ موضعُ القطع** — حدٌّ أعمى في `chunk10` مقابل
+    #    `quietestCut` في `chunk10q`. ⇒ يقيس **آخرَ ما بقي من دعواي** في D-530.
+    "chunk10q": ["-bs", "1", "-et", "2.40"],
+    # 🎯 **ذراعُ العزل التامّ** (‏D-535): سقفٌ **7.4ث** يُنتج على بنودنا (‏~21.6ث)
+    #    **ثلاثةَ مقاطعَ** — وهو عددُ مقاطع `chunk10q` نفسُه ⇒ **يُعزَل موضعُ القطع عن
+    #    عددِ المقاطع عزلاً تامّاً**، وهو المُربِكُ الذي أعلنتُه في D-534 ولم يُعزَل.
+    "chunk74": ["-bs", "1", "-et", "2.40"],
 }
 
 # 🧩 **أذرعٌ تُفكُّ الملفَّ قِطَعاً لا دفعةً** (‏أُضيفت 2026-09-15 · D-530): القيمةُ **ثوانيَ
@@ -77,7 +85,11 @@ ARMS = {
 #    APK**: `whisper-cli` يقبل `-ot` (إزاحة) و`-d` (مدّة) ⇒ المقطعُ يُفكّ من الملفّ نفسِه.
 #    ⚠️ **وحدُّها يُقال:** القطعُ هنا **عند حدودٍ ثابتةٍ** لا عند أهدأ نقطةٍ كما يفعل التطبيق
 #    (`quietestCut`) ⇒ **ما تعطيه هذه الذراعُ أرضيّةٌ لا سقفٌ**: التطبيقُ يقطع أرحمَ منها.
-ARM_CHUNK = {"chunk10": 10, "chunk6": 6, "chunk10g": 10, "chunk6g": 6}
+ARM_CHUNK = {"chunk10": 10, "chunk6": 6, "chunk10g": 10, "chunk6g": 6, "chunk10q": 10,
+             "chunk74": 7.4}
+
+# 🔇 **وأذرعٌ تقطع عند أهدأ نقطةٍ** (‏مرآةُ `capLongGroups`) — تحتاج قراءةَ الصوت.
+ARM_QUIETCUT = {"chunk10q"}
 
 # 🛡️ **وأذرعٌ تُطبّق حارسَ الذيل بعد كلّ مقطع** — مرآةُ `tailGuard` بسماحه المشحون.
 ARM_TAILGUARD = {"chunk10g", "chunk6g"}
@@ -93,6 +105,8 @@ ARM_LABEL = {
     "chunk6": "🧩 قِطَعُ 6ث",
     "chunk10g": "🧩🛡️ قِطَعُ 10ث + حارسُ الذيل",
     "chunk6g": "🧩🛡️ قِطَعُ 6ث + حارسُ الذيل",
+    "chunk10q": "🧩🔇 قِطَعُ 10ث عند أهدأ نقطة",
+    "chunk74": "🧩🎯 قِطَعُ 7.4ث (عددُ المقاطع نفسُه)",
 }
 _NUM = re.compile(r"([0-9]+\.[0-9]+)")
 
@@ -268,6 +282,58 @@ def tail_trim(segs, limit_ms, slack_ms=TAIL_SLACK_MS):
     return segs[:end]
 
 
+SR = 16000   # معدّلُ العيّنة في كلّ مسارات التسميع (‏`LongAudioTranscriber.SAMPLE_RATE`)
+
+
+def quietest_cut(audio, frm, to):
+    """🔇 **مرآةُ `LongAudioTranscriber.quietestCut` حرفاً** (‏D-534).
+
+    إطارُ عشرِ ملّياتٍ (`SAMPLE_RATE/10`) يُمشَّط بخطوةِ نصفِ إطارٍ من [frm] إلى [to]،
+    ويُختار أدناه طاقةً، ويُعاد **منتصفُه** (‏`best + frame/2`) محصوراً بـ[to].
+    ⛔ وإن لم يتّسع إطارٌ واحدٌ فالقيمةُ الابتدائيّةُ `to - frame` كما في المحرك — لا صفرٌ.
+    """
+    frame = SR // 10
+    best = to - frame
+    best_e = None
+    i = frm
+    while i + frame <= to:
+        e = 0.0
+        for k in range(i, i + frame):
+            e += audio[k] * audio[k]
+        if best_e is None or e < best_e:
+            best_e = e
+            best = i
+        i += frame // 2
+    return min(best + frame // 2, to)
+
+
+def cap_long_spans(dur_sec, chunk_sec, audio):
+    """🧩 **مرآةُ `LongAudioTranscriber.capLongGroups` حرفاً** — القطعُ عند أهدأ نقطةٍ.
+
+    ⛔ **ولِمَ لزمت** (‏D-533): قيست أنّ `tailGuard` **لا يوفّر شيئاً** من ثمن التقطيع،
+    فبقي من دعواي «التطبيقُ يملك حارسَين» **حارسٌ واحدٌ غيرُ مقيس**: أنّ التطبيقَ يقطع
+    **عند أهدأ نقطةٍ** لا عند حدٍّ أعمى. ⇒ يُقاس كما قِيس الأوّل: تُنقل الدالّةُ حرفاً.
+    ⭐ **وتُرجع (إزاحةً · مدّةً) بالملّي** كـ[chunk_spans] فتتبادلان الموضعَ بلا فرقٍ آخر.
+    """
+    cap = int(chunk_sec * SR)
+    total = len(audio)
+    out = []
+    a = 0
+    while total - a > cap:
+        hard_end = min(a + cap, total)
+        cut = quietest_cut(audio, a + cap * 2 // 3, hard_end)
+        cut = min(max(cut, a + 1), hard_end)
+        out.append((a, cut))
+        a = cut
+    out.append((a, total))
+    # ⛔ **والمدّةُ تُشتقّ من حدودٍ مشتركةٍ لا تُحوَّل لكلّ مقطعٍ وحدَه** (‏أسقطه ضابطُه):
+    #    تحويلُ (بدايةٍ · طولٍ) كلٌّ على حدةٍ يُقرّب مرّتَين فينشأ **انزلاقُ ملّيٍّ واحد**
+    #    بين مقطعٍ وتاليه (قِيس: مقطعٌ ينتهي عند 15632 والتاليُ يبدأ 15633) ⇒ **فجوةٌ
+    #    تُفقد عيّنات**. والحلُّ: حدودٌ تُحوَّل مرّةً، والمدّةُ فرقُ حدَّين ⇒ **التلاصقُ بالبناء**.
+    bounds = [x * 1000 // SR for x, _ in out] + [total * 1000 // SR]
+    return [(bounds[i], bounds[i + 1] - bounds[i]) for i in range(len(out))]
+
+
 def chunk_spans(dur_sec, chunk_sec):
     """🧩 **سلَّمُ الإزاحات** — (إزاحةٌ بالملّي · مدّةٌ بالملّي) تغطّي المدّةَ كلَّها بلا تداخل.
 
@@ -313,7 +379,16 @@ def run_one(cli, model, wav, arm, threads, lang, dur_sec=None):
         #    **محلِّلَ الطابع ميّتٌ** — والفرقُ بينهما لا يُظنّ بل يُعَدّ: كم مقطوعةً شُذّبت،
         #    وكم مقطوعةً **قُرئ طابعُها**، وكم بلا طابع. ⇒ سالبٌ مقروءٌ أو عطبٌ مكشوف.
         info = {"trimmed": 0, "stamped": 0, "unstamped": 0, "segs": 0}
-        for off_ms, len_ms in chunk_spans(dur_sec, chunk):
+        if arm in ARM_QUIETCUT:
+            # 📦 قراءةُ الصوت **هنا وحدَها** — فذراعٌ لا تحتاجه لا تستوردُ عدّةَ الصوت.
+            import soundfile as sf
+            audio, sr = sf.read(wav, dtype="float32")
+            if sr != SR:
+                raise SystemExit(f"⛔ معدّلُ العيّنة {sr} لا {SR} — لا يُقاس عليه")
+            spans = cap_long_spans(dur_sec, chunk, audio)
+        else:
+            spans = chunk_spans(dur_sec, chunk)
+        for off_ms, len_ms in spans:
             s1, n1, t1, sg = _run_cli(cli, model, wav,
                                       ARMS[arm] + ["-ot", str(off_ms), "-d", str(len_ms)],
                                       threads, lang)
@@ -663,6 +738,10 @@ def _selftest():
             ok(sp[k][0] == sp[k - 1][0] + sp[k - 1][1], f"⛔ فجوةٌ أو تداخلٌ في {sp}")
         ok(all(x[1] > 0 for x in sp), f"⛔ مقطعٌ فارغٌ في {sp}")
     ok(chunk_spans(5.0, 10) == [(0, 5000)], "أقصرُ من المقطع ⇒ نداءٌ واحدٌ كما هو")
+    # 🎯 **وذراعُ العزل يجب أن تُنتج عددَ مقاطع `chunk10q` نفسَه** (‏وإلّا فلا عزل · D-535)
+    ok(len(chunk_spans(21.6, ARM_CHUNK["chunk74"])) == 3,
+       f"⛔ سقفُ 7.4ث على 21.6ث ⇒ ثلاثةُ مقاطعَ — جاء {chunk_spans(21.6, 7.4)}")
+    ok(len(chunk_spans(21.6, 10)) == 2, "وسقفُ 10ث ⇒ مقطعان (فالعددُ هو المُربِك)")
     # ⛔ وذراعا التقطيع **رايات المشحون حرفاً** — فالفرقُ المقيسُ هو التقطيعُ وحدَه
     for _n in ARM_CHUNK:
         ok(_n in ARMS, f"⛔ ذراعُ تقطيعٍ بلا رايات: {_n}")
@@ -702,6 +781,41 @@ def _selftest():
         ok(_n in ARM_CHUNK and _n in ARMS and _n in ARM_LABEL, f"⛔ ذراعُ حارسٍ ناقصةُ التسجيل: {_n}")
         ok(ARMS[_n] == ARMS["greedy"], f"⛔ {_n} رايات المشحون حرفاً")
     ok(ARM_CHUNK["chunk10g"] == ARM_CHUNK["chunk10"], "⛔ الحارسُ لا يغيّر طولَ المقطع")
+
+    # ⑧ **مرآةُ القطعِ عند أهدأ نقطةٍ — والحكمُ عليها أرقامُ المحرك نفسِها** (‏D-534).
+    #    ⭐ هذه ليست توقّعاتي: **هي الأعدادُ التي شهد بها `engine-test` على `LongGroupCapTest`**
+    #    (‏الشوط 34936215431 · 60 صنفاً · 341 اختباراً): 21.6ث بسقف 10 ⇒ **ثلاثةُ مقاطع**،
+    #    وهبوطٌ مصنوعٌ عند 8.0ث ⇒ القطعُ عند **7.867ث**. ⇒ فاتّفاقُ المرآة معها **يُقاس لا يُدّعى**.
+    import math as _m
+
+    def _mk(sec, dip=None, w=0.4):
+        n = int(sec * SR)
+        out = []
+        for i in range(n):
+            t = i / SR
+            q = dip is not None and abs(t - dip) < w / 2
+            out.append(0.001 if q else 0.3 * _m.sin(2 * _m.pi * 180 * t))
+        return out
+
+    a21 = _mk(21.6)
+    sp = cap_long_spans(21.6, 10, a21)
+    ok(len(sp) == 3, f"⛔ 21.6ث بسقف 10 ⇒ ثلاثةُ مقاطعَ كما شهد المحرك — جاء {len(sp)}")
+    ok(all(d <= 10000 for _, d in sp), f"⛔ مقطعٌ يتجاوز السقف: {sp}")
+    ok(sp[0][0] == 0 and abs(sum(d for _, d in sp) - 21600) <= 2,
+       f"⛔ التغطيةُ ناقصةٌ أو زائدة: {sp}")
+    for k in range(1, len(sp)):
+        ok(sp[k][0] == sp[k - 1][0] + sp[k - 1][1], f"⛔ فجوةٌ أو تداخلٌ: {sp}")
+    spq = cap_long_spans(21.6, 10, _mk(21.6, dip=8.0))
+    ok(abs(spq[0][1] - 8000) < 350,
+       f"⛔ القطعُ الأوّلُ عند الهبوط (8.0ث) — جاء {spq[0][1]}م.ث (والمحرك: 7867)")
+    # ⛔ والقطعُ عند أهدأ نقطةٍ **يختلف** عن الحدّ الأعمى، وإلّا فالذراعان سؤالٌ لا جواب
+    ok(spq != chunk_spans(21.6, 10),
+       "⛔ مرآةُ أهدأ نقطةٍ يجب أن تفترق عن الحدود الثابتة — وإلّا فلا شيءَ يُقاس")
+    ok(quietest_cut(_mk(2.0), 0, 100) == min(100 - 1600 + 800, 100),
+       "وما لا يتّسع لإطارٍ يعود كما في المحرك لا صفراً")
+    for _n in ARM_QUIETCUT:
+        ok(_n in ARM_CHUNK and _n in ARMS and _n in ARM_LABEL, f"⛔ ذراعٌ ناقصةُ التسجيل: {_n}")
+        ok(ARMS[_n] == ARMS["greedy"], f"⛔ {_n} رايات المشحون حرفاً")
 
     print("🧪 ضوابطُ `cli_time`: %d إخفاقاً" % len(fails))
     for m in fails:
