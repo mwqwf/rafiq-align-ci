@@ -248,10 +248,68 @@ def cost(hits, examples=8):
     return total
 
 
+# 📊 إحصاءُ الصورة المجرّدة على المصحف كلِّه (‏قِيس 2026-09-15 · D-618) — وهو عينُ ما نصّ عليه
+#    دَينُ D-403: «قالون 335 · ورش 25 · وصفرٌ في حفصٍ وشعبةَ والدوريِّ والسوسيّ».
+BARE_CENSUS = {"hafs": 0, "warsh": 25, "qalun": 335, "shuba": 0, "douri": 0, "sousi": 0}
+
+# 🩻 وما كان يقع **لو رُفع النظرُ الخلفيُّ** من `BARE` — مقيسٌ لا مظنون (‏D-618):
+#    فالنظرُ الخلفيُّ هو **وحدَه** ما يُبقي الدوريَّ والسوسيَّ خارجَ هذه الصورة.
+NO_LOOKBEHIND = {"hafs": 0, "warsh": 335, "qalun": 335, "shuba": 0, "douri": 605, "sousi": 572}
+
+
+def selftest():
+    """🧪 **حارسُ الصورة الخامسة** (‏D-618) — والشوطُ الأصليُّ ثقيلٌ (إحصاءٌ وضابطٌ وتكلفة)،
+    وهذا يفحص في ثانيةٍ **حدَّ القاعدة** الذي عليه مدارُ الإذن بها.
+
+    ⭐⭐ **ولِمَ هو أخطرُ ما في الملفّ:** دَينُ D-403 يشترط أن تكون هذه الصورةُ **محصورةً**
+    في ورشٍ وقالون، «وصفرٌ في حفصٍ وشعبةَ والدوريِّ والسوسيّ». **والحاصرُ حرفٌ واحدٌ في
+    التعبير النمطيّ: النظرُ الخلفيُّ `(?<![ۭ۪])`.** ولو سقط لصار الدوريُّ **605** والسوسيُّ
+    **572** بدل الصفر ⇒ **قاعدةٌ أُذن بها لروايتين تمسّ أربعاً**، وذلك عطبٌ صامتٌ تماماً:
+    الأرقامُ تكبر ولا شيءَ يصرخ. ⇒ فيُثبَّت الإحصاءُ **ونقيضُه** معاً.
+    """
+    ok = True
+
+    def say(good, line):
+        nonlocal ok
+        ok &= bool(good)
+        print(("✅ " if good else "❌ ") + line)
+
+    got = {r: sum(len(BARE.findall(w)) for a in load_text(r) for w in a.split())
+           for r in SIX}
+    say(got == BARE_CENSUS,
+        "⭐⭐ الإحصاءُ كما نصّ دَينُ D-403: قالون %d · ورش %d · وصفرٌ في الأربع"
+        % (got["qalun"], got["warsh"]))
+    say(all(got[r] == 0 for r in CLEAN_RIWAYAT) and set(BARE_RIWAYAT) == {"warsh", "qalun"},
+        "⛔ والقاعدةُ **محصورةٌ** في ورشٍ وقالون: الأربعُ الأخرى صفرٌ")
+
+    # ⭐⭐ والحاصرُ هو النظرُ الخلفيُّ — يُقاس نقيضُه لا يُفترَض
+    no_look = re.compile("ي%s" % DAGGER)
+    got2 = {r: sum(len(no_look.findall(w)) for a in load_text(r) for w in a.split())
+            for r in SIX}
+    say(got2 == NO_LOOKBEHIND,
+        "🩻 ولو رُفع النظرُ الخلفيُّ: دوري **%d** وسوسي **%d** وورش **%d** بدل الصفر والـ25"
+        % (got2["douri"], got2["sousi"], got2["warsh"]))
+    say(got2["douri"] > 0 and got["douri"] == 0 and got2["sousi"] > 0 and got["sousi"] == 0,
+        "⭐⭐ ⇒ **النظرُ الخلفيُّ حاملٌ لا زينة**: هو وحدَه ما يُخرج الدوريَّ والسوسيَّ من الباب")
+
+    # ⛔ وعلامتا الحصر هما المنصوصتان في D-402/D-403 لا غيرُهما
+    say(MARKS == "ۭ۪" and DAGGER == "ٰ",
+        "⛔ وعلامتا الحصر `U+06ED` (D-402) و`U+06EA` (D-403) والخنجريّةُ `U+0670` كما هي")
+    say("(?<![" in BARE.pattern and BARE.pattern.endswith(DAGGER),
+        "⛔ والتعبيرُ يحصر بالنظر الخلفيّ ويشترط الخنجريّةَ **مباشرةً** بعد الياء")
+
+    print("\n%s" % ("✅ حارسُ الصورة الخامسة: تمّ" if ok else "❌ حارسُ الصورة الخامسة: أخفق"))
+    return 0 if ok else 1
+
+
 def main():
     ap = argparse.ArgumentParser(description="الصورةُ المجرّدة `يٰ` في المِسطرة — إحصاءٌ وضابطٌ وتكلفة")
     ap.add_argument("--examples", type=int, default=8)
+    ap.add_argument("--selftest", action="store_true",
+                    help="🧪 حارسُ حدِّ القاعدة (ثانيةٌ · بلا ضابطٍ ولا تكلفة)")
     args = ap.parse_args()
+    if args.selftest:
+        return selftest()
     ok, hits = census(args.examples)
     agree = hafs_agreement(args.examples)
     blind = cost(hits, args.examples)
