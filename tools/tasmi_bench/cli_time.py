@@ -308,11 +308,19 @@ def run_one(cli, model, wav, arm, threads, lang, dur_sec=None):
         segs = 0
         parts = []
         guard = arm in ARM_TAILGUARD
+        # 📊 **عدّاداتُ التشذيب — لأنّ التطابقَ سؤالٌ لا جواب** (‏درسُ D-516 حرفاً):
+        #    ذراعان متطابقتان في كلّ رقمٍ إمّا أنّ الحارسَ **لم يجد ما يشذّبه** وإمّا أنّ
+        #    **محلِّلَ الطابع ميّتٌ** — والفرقُ بينهما لا يُظنّ بل يُعَدّ: كم مقطوعةً شُذّبت،
+        #    وكم مقطوعةً **قُرئ طابعُها**، وكم بلا طابع. ⇒ سالبٌ مقروءٌ أو عطبٌ مكشوف.
+        info = {"trimmed": 0, "stamped": 0, "unstamped": 0, "segs": 0}
         for off_ms, len_ms in chunk_spans(dur_sec, chunk):
             s1, n1, t1, sg = _run_cli(cli, model, wav,
                                       ARMS[arm] + ["-ot", str(off_ms), "-d", str(len_ms)],
                                       threads, lang)
             sec += s1
+            info["segs"] += len(sg)
+            info["stamped"] += sum(1 for st, _ in sg if st is not None)
+            info["unstamped"] += sum(1 for st, _ in sg if st is None)
             if guard:
                 # 🛡️⛔ **والطوابعُ مطلقةٌ في الملفّ لا نسبيّةٌ للمقطع — قُرئ من المصدر لا ظُنّ**
                 #    (`whisper.cpp@c4ac001`): `seek_start = params.offset_ms/10` (‏سطر 6964)
@@ -320,14 +328,19 @@ def run_one(cli, model, wav, arm, threads, lang, dur_sec=None):
                 #    ⇒ الحدُّ **`off_ms + len_ms`** لا `len_ms`. ⭐ **وأوّلُ صياغةٍ كتبتُها
                 #    استعملت `len_ms`** — وكانت ستُشذّب كلَّ مقطعٍ بعد الأوّل تشذيباً شبهَ تامٍّ
                 #    وتُخرج «حارساً ينفع» كذباً؛ **والمصدرُ أسقطها قبل أن تُنفَق عليها دقيقة**.
-                sg = tail_trim(sg, off_ms + len_ms)
+                kept = tail_trim(sg, off_ms + len_ms)
+                info["trimmed"] += len(sg) - len(kept)
+                sg = kept
                 t1 = " ".join(t for _, t in sg)
             segs += len(sg) if guard else n1
             if t1.strip():
                 parts.append(t1.strip())
-        return sec, segs, " ".join(parts)
-    sec, n, text, _ = _run_cli(cli, model, wav, ARMS[arm], threads, lang)
-    return sec, n, text
+        return sec, segs, " ".join(parts), info
+    sec, n, text, sg = _run_cli(cli, model, wav, ARMS[arm], threads, lang)
+    return sec, n, text, {"segs": len(sg),
+                          "stamped": sum(1 for st, _ in sg if st is not None),
+                          "unstamped": sum(1 for st, _ in sg if st is None),
+                          "trimmed": 0}
 
 
 def _run_cli(cli, model, wav, flags, threads, lang):
@@ -419,9 +432,10 @@ def main():
     for k, f in enumerate(files, 1):
         i = f[:-4]
         for arm in (A, B):   # متداخلتان لكلّ بندٍ كي تتقاسما حالةَ الحرارة
-            s, n, txt = run_one(a.cli, a.model, os.path.join(a.src, f), arm, a.threads, a.lang,
-                                dur_sec=dur[i])
-            rows.setdefault(arm, {})[i] = {"sec": s, "rtf": s / dur[i], "segs": n, "text": txt}
+            s, n, txt, info = run_one(a.cli, a.model, os.path.join(a.src, f), arm, a.threads,
+                                      a.lang, dur_sec=dur[i])
+            rows.setdefault(arm, {})[i] = {"sec": s, "rtf": s / dur[i], "segs": n, "text": txt,
+                                           "info": info}
         if k % 5 == 0 or k == len(files):
             print(f"   … {k}/{len(files)}", flush=True)
 
@@ -451,6 +465,17 @@ def main():
     eb, wb = silence_stats(rows[B])
     L.append(f"| 🔇 **بنودٌ تفريغُها فارغ** | **{ea}/{len(files)}** | **{eb}/{len(files)}** |")
     L.append(f"| 📝 كلماتٌ مسموعةٌ كلّيّاً | {wa} | {wb} |")
+
+    # 📊 **وعدّاداتُ الطابع والتشذيب تُطبع دائماً** — فسالبُ الحارس لا يُقرأ إلا بها.
+    def _sum(rows_arm, k):
+        return sum((r.get("info") or {}).get(k, 0) for r in rows_arm.values())
+
+    for lab, key in (("🛡️ مقطوعاتٌ شذّبها حارسُ الذيل", "trimmed"),
+                     ("⚠️ مقطوعاتٌ بلا طابعٍ (لا تُشذَّب)", "unstamped"),
+                     ("📎 مقطوعاتٌ قُرئ طابعُها", "stamped")):
+        va, vb = _sum(rows[A], key), _sum(rows[B], key)
+        if va or vb or key == "trimmed":
+            L.append(f"| {lab} | {va} | {vb} |")
     # 🔁 **والعددُ وحدَه لا يُقرأ حكماً** (‏حدُّ D-519): تُقاس **الاستعادةُ والزائدُ** معاً.
     # ⛔ وتعذُّرُ الحاكم لا يُقرأ صفراً ولا يُسقط الشوط — يُكتب بنصِّ خطئه في الجدول نفسِه.
     bags = {}
