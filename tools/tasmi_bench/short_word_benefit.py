@@ -170,13 +170,133 @@ def classify(lost, vocab):
     return buckets
 
 
+def _selftest_no_fixture(say):
+    """ما يمكن فحصُه بلا حزمتَي التعرّف: المثالُ · شرطُ «غير متبيَّن» · المفردات · حارسُ المصدر."""
+    cfg3, cfg0 = config_for("hafs", 3), config_for("hafs", 0)
+    v3 = scorer.score(["قُلْ"], "كل", cfg3)["words"][0][1]
+    v0 = scorer.score(["قُلْ"], "كل", cfg0)["words"][0][1]
+    say(v3 == scorer.CORRECT and v0 == scorer.SUBSTITUTED,
+        "⭐⭐ `قُلْ` تُسمَع «كل»: المشحونُ **%s** · وبلا رخصةٍ **%s**" % (v3, v0))
+    say(v0 in CONFIRMED, "⛔ والفاقدُ يسقط إلى اتّهامٍ مؤكَّدٍ لا إلى تحفّظ (‏`_near` يشترط ≥4)")
+    vocab = mushaf_vocab()
+    say(len(vocab) > 14000 and "كل" in vocab and "لم" in vocab,
+        "مفرداتُ المصحف للتصنيف: %d صورةً (وفيها «كل» و«لم»)" % len(vocab))
+    doc = selftest.__doc__
+    say(all(k in doc for k in ("34.113", "14.595", "19.5", "0.21", "قُلْ")),
+        "حارسُ مصدر: طرفا الميزان ومثالُه في التوثيق")
+
+
+def selftest():
+    """🧪 **حارسُ ميزان رخصة القصيرة** (‏D-601) — والأداةُ يُقرأ عليها **قرارٌ معلَّقٌ على
+    المالك**، فأرقامُها تُثبَّت بالنصّ لا بالذاكرة.
+
+    ⭐⭐ **الميزانُ كاملاً في مكانٍ واحدٍ لأوّل مرّة** (‏وهو ما لم يكن مجموعاً قبلَ اليوم):
+
+        الفائدةُ (على تعرّفٍ حقيقيٍّ مودَع · 272 حالةً · 3,823 كلمةً مرجعيّة):
+          المشحون ⇒ ≤2      : **12** إنذاراً كاذباً جديداً (0.31 نقطة) — منها **3 مسموعُها
+                              كلمةٌ قرآنيّةٌ أخرى** و**1 رمزُ وقف** ⇒ **الإنقاذُ الخالصُ 8**
+          المشحون ⇒ بلا رخصة: **16** (0.39 نقطة) — منها **6** كلمةٌ قرآنيّةٌ أخرى و1 رمزُ وقف
+        التكلفةُ (على المصحف كلِّه · D-277/D-600): **34.113٪ ⇒ 14.595٪** بالحصر في حرفين.
+
+    ⇒ **الحصرُ في حرفين يشتري 19.5 نقطةً من التعرّض بثمنِ 0.21 نقطةٍ من الإنذار الكاذب**
+      (8 إنقاذاتٍ خالصة)، **ويستردّ 3 مواضعَ كان يبتلعها**. ⛔ قياسٌ يُسلَّم، **ولا يُشحن**.
+
+    ⭐⭐ **والمثالُ الذي يغني عن الشرح:** `قُلْ` تُسمَع «كل» ⇒ **المشحونُ يحكم `CORRECT`**
+      وبلا رخصةٍ `SUBSTITUTED`. كلمتان قرآنيّتان ينقلب بهما المعنى.
+    """
+    ok = True
+
+    def say(good, line):
+        nonlocal ok
+        ok &= bool(good)
+        print(("✅ " if good else "❌ ") + line)
+
+    # ⛔ حزمتا التماثل تحت `engine/` ولا وجودَ لهما في مرآة الحوسبة العامّة (‏درسُ D-505)
+    #    ⇒ ما يلزمها **يُعلَن باسمه** ولا يُعَدّ نجاحاً صامتاً.
+    have_fx = os.path.isfile(FIXTURE) and os.path.isfile(LONG_FIXTURE)
+    if not have_fx:
+        print("⚠️ **حزمتا التعرّف الحقيقيّ غائبتان في هذه النسخة** (‏%s) ⇒ **ستّةُ فحوصٍ لم "
+              "تُجرَ هنا** (ضابطُ التصديق · أرضيّةُ الإنذار · الميزانُ بذراعيه · الضابطُ "
+              "السالبُ بشقَّيه) — وموضعُها مستودعُ الأصل. ⛔ إعلانٌ بالنصّ لا نجاحٌ صامت."
+              % os.path.basename(FIXTURE))
+        _selftest_no_fixture(say)
+        print("\n%s" % ("✅ حارسُ ميزان رخصة القصيرة: تمّ (منقوصاً بإعلان)" if ok
+                         else "❌ حارسُ الميزان: أخفق"))
+        return 0 if ok else 1
+
+    rows = load_fixture() + load_long()
+    base = judge(rows, 3)
+    words_n = len(base)
+
+    # ①⭐⭐ ضابطُ التصديق: الذراعُ (أ) = أحكامُ الحزمة المصدَّقةِ على المحرك
+    total, bad = validate(rows, base)
+    say(len(rows) == 272 and words_n == 3823 and total > 2000 and bad == 0,
+        "⭐⭐ الذراعُ المشحون يطابق الحزمةَ المصدَّقةَ على المحرك: %d/%d · انحرافٌ %d"
+        % (total - bad, total, bad))
+
+    # ② أرضيّةُ الإنذار الكاذب — والتلاواتُ صحيحةٌ فكلُّ اتّهامٍ مؤكَّدٍ كاذبٌ بلا استثناء
+    conf0 = sum(1 for _, v, _, _ in base.values() if v in CONFIRMED)
+    say(conf0 == 269, "أرضيّةُ الإنذار الكاذب في المشحون: %d/%d (%.2f٪)"
+        % (conf0, words_n, 100.0 * conf0 / words_n))
+
+    # ③⭐⭐ الميزان: ما تفقده كلُّ ذراعٍ، مصنَّفاً
+    vocab = mushaf_vocab()
+    say(len(vocab) > 14000 and "كل" in vocab and "لم" in vocab,
+        "مفرداتُ المصحف للتصنيف: %d صورةً (وفيها «كل» و«لم»)" % len(vocab))
+    ledger = {}
+    for cap in (2, 0):
+        lost, _ = diff(base, judge(rows, cap))
+        b = classify(lost, vocab)
+        other = len(b["🚨 المسموعُ **كلمةٌ قرآنيةٌ أخرى** ⇒ ابتلاعُ زلّةٍ محتملة"])
+        waqf = len(b["رمزُ وقفٍ (لا كلمةَ أصلاً)"])
+        ledger[cap] = (len(lost), other, waqf, len(lost) - other - waqf)
+    say(ledger[2] == (12, 3, 1, 8),
+        "⭐⭐ الحصرُ في حرفين: %d إنذاراً جديداً · منها %d كلمةٌ قرآنيّةٌ أخرى و%d رمزُ وقفٍ "
+        "⇒ **الخالصُ %d**" % ledger[2])
+    say(ledger[0] == (16, 6, 1, 9),
+        "وبلا رخصةٍ البتّة: %d · منها %d كلمةٌ قرآنيّةٌ أخرى و%d رمزُ وقفٍ ⇒ الخالصُ %d"
+        % ledger[0])
+    say(ledger[0][0] > ledger[2][0] and ledger[0][1] > ledger[2][1],
+        "⛔ والتضييقُ الأشدُّ يفقد أكثرَ ويستردّ أكثر — رتابةٌ مقيسةٌ لا مفترَضة")
+
+    # ④⭐⭐ المثالُ الذي يغني عن الشرح: كلمةٌ قرآنيّةٌ مكانَ أخرى تمرّ خضراءَ بالمشحون
+    cfg3, cfg0 = config_for("hafs", 3), config_for("hafs", 0)
+    v3 = scorer.score(["قُلْ"], "كل", cfg3)["words"][0][1]
+    v0 = scorer.score(["قُلْ"], "كل", cfg0)["words"][0][1]
+    say(v3 == scorer.CORRECT and v0 == scorer.SUBSTITUTED,
+        "⭐⭐ `قُلْ` تُسمَع «كل»: المشحونُ **%s** · وبلا رخصةٍ **%s**" % (v3, v0))
+
+    # ⑤⛔ الضابطُ السالب: ذراعٌ مطابقٌ ⇒ صفرُ فرق · وذراعٌ موسَّعٌ ⇒ فرقٌ حقيقيّ
+    same_lost, same_moved = diff(base, judge(rows, 3))
+    wide_lost, wide_moved = diff(base, judge(rows, 9))
+    say(not same_lost and not same_moved,
+        "⛔ ذراعٌ مطابقٌ للمشحون ⇒ صفرُ فرقٍ (‏وإلّا فالمقياسُ يسرّب)")
+    say(sum(wide_moved.values()) > 0,
+        "🧪 ورخصةٌ موسَّعةٌ إلى ≤9 **تُحرّك الأحكام** (%d حركة) — فالعدّادُ حيّ"
+        % sum(wide_moved.values()))
+
+    # ⑥ ولا يُتّقى الفقدُ بـ«غير متبيَّن»: القصيرةُ تسقط إلى **اتّهامٍ مؤكَّد**
+    say(v0 in CONFIRMED, "⛔ والفاقدُ يسقط إلى اتّهامٍ مؤكَّدٍ لا إلى تحفّظ (‏`_near` يشترط ≥4)")
+
+    # ⑦ حارسُ مصدرٍ على أرقام الميزان
+    doc = selftest.__doc__
+    say(all(k in doc for k in ("34.113", "14.595", "19.5", "0.21", "قُلْ")),
+        "حارسُ مصدر: طرفا الميزان ومثالُه في التوثيق")
+
+    print("\n%s" % ("✅ حارسُ ميزان رخصة القصيرة: تمّ" if ok else "❌ حارسُ الميزان: أخفق"))
+    return 0 if ok else 1
+
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--examples", type=int, default=25, help="عددُ الكلمات الفاقدة المعروضة")
+    ap.add_argument("--selftest", action="store_true", help="🧪 حارسُ الأداة (ثوانٍ)")
     ap.add_argument("--control", action="store_true", help="تشغيلُ الضابطِ السالب أيضاً")
     ap.add_argument("--corpus", choices=("parity", "long", "both"), default="both",
                     help="حزمةُ التماثل المصدَّقة · تفريغاتُ المرساة الطويلة · كلتاهما")
     args = ap.parse_args()
+    if args.selftest:
+        return selftest()
 
     rows = []
     if args.corpus in ("parity", "both"):
