@@ -35,6 +35,19 @@
 أرقامَ D-281 حرفاً بحرف) · `3` مرّةً أخرى بمصنّفاتٍ أخرى (‏فرقٌ **0** = ضابطٌ سالب) · `9`
 (‏رخصةٌ موسَّعة ⇒ **يجب** أن تتحرّك الأرقام، وإلا فالعدّادُ أخرس).
 
+🚨🚨 **وحكمُ 2026-09-15 (‏D-609): الذراعُ ميتةٌ على هذا الحاكم، وكانت تطبع أصفاراً كأنّها نتيجة.**
+المقيس: السقوفُ **2 و3 و9** تعطي مخرَجاً **متطابقاً بايتاً بايت** على 89,958 حالة
+(‏`md5` واحد) — والترقيعُ **يقع فعلاً** (النسخةُ في `work/kt/src_cap9` تحمل `n <= 9`).
+والسببُ مقروءٌ من المصدر لا مظنون:
+
+    matches(ref, hyp, strictShort = criticalPairsUncertain)   // والمشحونُ `true` (D-231)
+    return d * 5 <= n || (!strictShort && n <= 3 && d <= 1)   // ⇒ الشقُّ الثاني **ميّتٌ**
+
+⇒ الرخصةُ لا تُبلَغ إلّا عبر `looseMatch` (‏`strictShort = false`)، ومستدعياه
+`RiwayaSlipDetector` و`QuranLocator` — و**`EngineJudge` لا يترجمهما أصلاً** (‏ثلاثةُ ملفّاتٍ لا غير).
+⛔ **فلا يُقاس سقفُ الرخصة بهذا الحاكم**، ومكانُه `SlipArmJudge` / `SlipDaggerArmJudge`.
+⇒ **ورمزُ الخروج صار يفرّق:** 0 قيسَ · 1 ضابطٌ أخفق · **2 جرى ولم يَقِسْ شيئاً**.
+
     python tools/tasmi_bench/short_word_engine_arms.py --arms a          # الأرضيّة (الأهمّ)
     python tools/tasmi_bench/short_word_engine_arms.py --arms ab
     python tools/tasmi_bench/short_word_engine_arms.py --control --limit 800
@@ -187,8 +200,26 @@ def b_eng_verdicts(eng, name):
     return eng.get(name, ("", []))[0]
 
 
+def dead_arm_note(cap_base, cap_arm):
+    """🚨 تشخيصُ «جرى ولم يَقِسْ شيئاً» — يُطبع مكانَ الجدول لا تحته (‏D-609)."""
+    return (
+        "\n🚨🚨 **الذراعُ لم تحرّك حكماً واحداً — وهذا ليس نتيجةً بل عدّادٌ أخرس.**\n"
+        "   سقفُ %s وسقفُ %s أعطيا المخرَجَ **نفسَه بايتاً بايت**.\n"
+        "   والترقيعُ **يقع** (‏سيرُ البناء يخرج بخطإٍ لو لم يجد المرساةَ مرّةً واحدة)،\n"
+        "   لكنّ الشرطَ المرقَّعَ **ميّتٌ على هذا الحاكم**:\n"
+        "     `matches(ref, hyp, strictShort = criticalPairsUncertain)` والمشحونُ `true` (D-231)\n"
+        "     ⇒ `(!strictShort && n <= N && d <= 1)` لا يُبلَغ أبداً من `score()`.\n"
+        "   والرخصةُ حيّةٌ عبر `looseMatch` وحدَه ⇒ `RiwayaSlipDetector` و`QuranLocator`،\n"
+        "   و`EngineJudge` **لا يترجمهما**. ⛔ فمكانُ هذا القياس `SlipArmJudge`/`SlipDaggerArmJudge`.\n"
+        % (cap_base, cap_arm))
+
+
 def control(limit=800):
-    """🧪 ضابطُ D-279: موجَبٌ (المشحون يعيد نفسَه) وسالبٌ (رخصةٌ موسَّعةٌ يجب أن تحرّك الأرقام)."""
+    """🧪 ضابطُ D-279: موجَبٌ (المشحون يعيد نفسَه) وسالبٌ (رخصةٌ موسَّعةٌ يجب أن تحرّك الأرقام).
+
+    ⛔⛔ **وعلامةُ الصحّة تتبع الشرطَ لا تسبقه** (‏D-609): كان السطران يُطبعان بـ«✅» **ثابتةً**
+    فبقي «يجب > 0» مكتوباً فوق صفرٍ، والقارئُ يقرأ نجاحاً حيث الإخفاق. ⇒ العلامةُ تُحسب الآن.
+    """
     cases = R.build(limit=limit, arms="ab")
     print("الضابط: %d حالة (‏limit=%d)" % (len(cases), limit))
     e3 = run_cap(cases, 3, "c3")
@@ -196,8 +227,12 @@ def control(limit=800):
     e9 = run_cap(cases, 9, "c9")
     same = sum(1 for n in e3 if e3.get(n) != e3b.get(n))
     moved9 = sum(1 for n in e3 if e3.get(n) != e9.get(n))
-    print("✅ ضابطٌ سالب: سقفٌ مطابقٌ (3⇐3) ⇒ اختلفت %d حالة (يجب 0)" % same)
-    print("✅ عدّادٌ حيّ: رخصةٌ موسَّعة (3⇐9) ⇒ اختلفت %d حالة (يجب > 0)" % moved9)
+    print("%s ضابطٌ سالب: سقفٌ مطابقٌ (3⇐3) ⇒ اختلفت %d حالة (يجب 0)"
+          % ("✅" if same == 0 else "❌", same))
+    print("%s عدّادٌ حيّ: رخصةٌ موسَّعة (3⇐9) ⇒ اختلفت %d حالة (يجب > 0)"
+          % ("✅" if moved9 > 0 else "🚨", moved9))
+    if moved9 == 0:
+        print(dead_arm_note(3, 9))
     return same == 0 and moved9 > 0
 
 
@@ -263,6 +298,35 @@ def selftest():
     say("0/77,429" in src and "صفرٌ مطلق" in src,
         "حارسُ مصدر: أرضيّةُ الاتّهام الكاذب **صفرٌ مطلقٌ** (0/77,429) محفوظةٌ في المتن")
 
+    # ⑥⭐⭐ والذراعُ ميتةٌ على هذا الحاكم — يُثبَّت **سببُها** لا خبرُها (‏D-609)
+    if os.path.isfile(KT_SCORER):
+        kt = io.open(KT_SCORER, encoding="utf-8").read()
+        gate = "criticalPairsUncertain" + ": Boolean = true"
+        say(gate in kt,
+            "⭐⭐ المشحونُ `criticalPairsUncertain = true` (D-231) ⇒ `strictShort` صادقٌ افتراضاً")
+        say("!strictShort && " + PATCH_ANCHOR in kt,
+            "⭐⭐ والمرساةُ **داخلَ** شقِّ `!strictShort` ⇒ ميتةٌ على مسار `score()`")
+        say(kt.count("strictShort = false") == 1 and "fun looseMatch" in kt,
+            "⭐ ولا يفتحها إلّا `looseMatch` (‏موضعٌ واحدٌ يمرّر `strictShort = false`)")
+    else:
+        print("⚠️ **مصدرُ المحرك ليس في هذه النسخة** ⇒ **ثلاثةُ فحوصِ الموت لم تُجرَ هنا** "
+              "(تجري في مستودع الأصل) — ⛔ إعلانٌ بالنصّ لا نجاحٌ صامت.")
+
+    judge = os.path.join(HERE, "engine_judge", "EngineJudge.kt")
+    if os.path.isfile(judge):
+        say("looseMatch" not in io.open(judge, encoding="utf-8").read(),
+            "⛔ و`EngineJudge` لا يستدعي `looseMatch` ولا يترجم مستدعيَيه ⇒ لا مَنفذَ للرخصة")
+    else:
+        print("⚠️ **`EngineJudge.kt` غيرُ موجود** ⇒ فحصُ المنفذ لم يُجرَ — ⛔ إعلانٌ لا صمت.")
+
+    # ⑦⛔ ورمزُ الخروج يفرّق «قِيس» عن «جرى ولم يَقِسْ» — وإلّا قُرئ الصمتُ نجاحاً
+    say("return 2" in src and "\ndef dead_arm_note(" in src,
+        "⛔ ورمزُ الخروج **2** لذراعٍ لم تحرّك حكماً — لا 0")
+    say("if moved == 0:" in src and "ولا يُطبع الجدولُ" in src,
+        "⛔ ولا يُطبع جدولُ الأصفار أصلاً: التشخيصُ مكانَه لا تحتَه")
+    say('("✅" if moved9 > 0 else "🚨")' in src,
+        "⛔ وعلامةُ الصحّة **تتبع الشرطَ**: كانت ✅ ثابتةً فوق صفرٍ يقول «يجب > 0»")
+
     print("\n%s" % ("✅ حارسُ الذراع على المحرك: تمّ" if ok else "❌ حارسُ الذراع: أخفق"))
     return 0 if ok else 1
 
@@ -281,14 +345,25 @@ def main():
 
     if args.control:
         ok = control(limit=args.limit or 800)
-        sys.exit(0 if ok else 1)
+        return 0 if ok else 1
 
     cases = R.build(limit=args.limit, arms=args.arms)
     print("الحالات: %d (‏أذرع=%s · limit=%s)" % (len(cases), args.arms, args.limit or "المصحف كلُّه"))
     base = run_cap(cases, SHIPPED_CAP, "cap%d_%s" % (SHIPPED_CAP, args.arms))
     arm = run_cap(cases, args.cap, "cap%d_%s" % (args.cap, args.arms))
+
+    # ⛔⛔ الضابطُ **قبل** الجدول لا بعدَه (‏D-609): جدولُ أصفارٍ من ذراعٍ ميتةٍ يُقرأ «لا فرق»
+    #    وهو في الحقيقة «لم يُقَس». ⇒ يُطبع التشخيصُ ويُعاد **2** لا **0**.
+    moved = sum(1 for n in base if base.get(n) != arm.get(n))
+    if moved == 0:
+        print(dead_arm_note(SHIPPED_CAP, args.cap))
+        print("⛔ ولا يُطبع الجدولُ: أصفارُه أثرُ عدّادٍ أخرسَ لا أثرُ تساوي السقفين.")
+        return 2
+
+    print("✅ الذراعُ حيّة: حرّكت %d حكماً ⇒ الجدولُ أدناه يُقرأ" % moved)
     report(cases, base, arm, SHIPPED_CAP, args.cap, examples=args.examples)
+    return 0
 
 
 if __name__ == "__main__":
-    main()
+    sys.exit(main() or 0)
