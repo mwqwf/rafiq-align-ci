@@ -723,31 +723,45 @@ def _range_pcm(url, start_ms, end_ms):
 
 
 def _ffmpeg_window_pcm(mp3, start_ms, end_ms):
-    """يفكّ نافذةً قصيرةً بـffmpeg عند عجز libsndfile عن ملف MP3.
+    """يفكّ نافذةً بـffmpeg ويرفض الخرج الجزئي أو المتلف صراحةً.
 
-    هذا مسارُ تعافٍ لا مسارُ حكمٍ جديد: الإحداثيان نفسيهما، والمخرج PCM أحادي
-    16ك.هز نفسه الذي يصل إلى whisper. وإن لم يخرج ffmpeg صوتاً كافياً يبقى
-    الحدّ غيرَ حاسمٍ؛ لا يتحول فشلُ الأداة إلى براءةٍ أو قبول.
+    السماح الزمني أقصاه 80م.ث (نحو ثلاثة إطارات MPEG-1 Layer III عند 44.1ك.هز)،
+    ولا يتجاوز 10% من النافذة. وما زاد على هذا أو احتوى NaN/Inf يبقى خطأ أداة
+    وغير حاسم؛ لا يتحول الملف المتضرر إلى حكم جودة مؤكد.
     """
     import numpy as np
+    rate = 16000
     start = max(0, int(start_ms))
     dur = max(0, int(end_ms) - start)
     if dur <= 0:
         raise RuntimeError(f"نافذةٌ غير صالحة: {start_ms}..{end_ms}م.ث")
+    expected = int(round(dur * rate / 1000))
+    # ≤80م.ث، و≤10% من طول الطلب كي لا يبتلع السماحُ نافذةً قصيرة.
+    tolerance = min(int(rate * 0.080), max(1, expected // 10))
     cmd = ["ffmpeg", "-nostdin", "-v", "error",
            "-ss", f"{start / 1000:.3f}", "-t", f"{dur / 1000:.3f}",
-           "-i", str(mp3), "-f", "f32le", "-ac", "1", "-ar", "16000", "pipe:1"]
+           "-i", str(mp3), "-f", "f32le", "-ac", "1", "-ar", str(rate), "pipe:1"]
     p = subprocess.run(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE,
                        timeout=max(30, int(dur / 1000) + 20), check=False)
     if p.returncode != 0:
         why = p.stderr.decode("utf-8", errors="replace").strip()[-240:]
         raise RuntimeError(f"ffmpeg فشل ({p.returncode}): {why or 'بلا رسالة'}")
-    # float32 = 4 بايت. تُقصّ البقية فقط إن خرجت أداةٌ معطوبة ببايتات ناقصة.
-    raw = p.stdout[:len(p.stdout) - (len(p.stdout) % 4)]
+    raw = p.stdout
+    if len(raw) % 4:
+        raise RuntimeError(f"ffmpeg أخرج float32 غير محاذى ({len(raw)} بايت)")
     x = np.frombuffer(raw, dtype="<f4").copy()
-    if len(x) <= 16000 * 0.2:
-        raise RuntimeError(f"ffmpeg أخرج نافذةً قصيرة ({len(x)} عيّنة)")
-    return x, 16000
+    if not np.isfinite(x).all():
+        raise RuntimeError("ffmpeg أخرج عينات NaN/Inf")
+    if len(x) < expected - tolerance:
+        raise RuntimeError(
+            f"ffmpeg أخرج نافذةً ناقصة: {len(x)}/{expected} عيّنة "
+            f"(السماح {tolerance})")
+    if len(x) > expected + tolerance:
+        raise RuntimeError(
+            f"ffmpeg أخرج نافذةً زائدة: {len(x)}/{expected} عيّنة "
+            f"(السماح {tolerance})")
+    # قد يخرج المفكك بضع عينات زائدة ضمن حافة الإطار؛ الاقتصاص إلى الطلب صريح.
+    return x[:expected], rate
 
 
 _MIRROR_LOCK = threading.Lock()
