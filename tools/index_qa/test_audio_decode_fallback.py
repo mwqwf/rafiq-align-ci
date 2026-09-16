@@ -23,14 +23,20 @@ def _done(pcm):
                                        stderr=b"")
 
 
-def _make_chirp_mp3(root):
-    """إشارة متغيرة زمنياً؛ يكشف مرجعُها أي انزياح، بخلاف نغمة ثابتة."""
+def _make_marker_mp3(root):
+    """ثلاث نبضات زمنية معلومة؛ غلافها يكشف الانزياح بلا حساسية للطور."""
     rate = 44100
-    t = np.arange(rate * 3, dtype="float64") / rate
-    phase = 2 * np.pi * (300 * t + 0.5 * 1600 * t * t)
-    wav = Path(root) / "chirp.wav"
-    mp3 = Path(root) / "chirp.mp3"
-    sf.write(wav, (0.35 * np.sin(phase)).astype("float32"), rate)
+    audio = np.zeros(rate * 3, dtype="float32")
+    for center, freq, amp in ((1.30, 440, 0.25), (1.50, 880, 0.35),
+                              (1.70, 1320, 0.45)):
+        width = int(0.040 * rate)
+        start = int(round((center - 0.020) * rate))
+        t = np.arange(width, dtype="float64") / rate
+        burst = amp * np.sin(2 * np.pi * freq * t) * np.hanning(width)
+        audio[start:start + width] += burst.astype("float32")
+    wav = Path(root) / "markers.wav"
+    mp3 = Path(root) / "markers.mp3"
+    sf.write(wav, audio, rate)
     made = subprocess.run(
         ["ffmpeg", "-nostdin", "-v", "error", "-i", str(wav),
          "-ar", str(rate), "-ac", "1", "-y", str(mp3)],
@@ -39,6 +45,7 @@ def _make_chirp_mp3(root):
     if made.returncode:
         raise RuntimeError(made.stderr.decode(errors="replace"))
     return mp3
+
 
 
 class AudioDecodeFallbackTest(unittest.TestCase):
@@ -81,9 +88,9 @@ class AudioDecodeFallbackTest(unittest.TestCase):
                 R._ffmpeg_window_pcm("shifted.mp3", 0, 500)
 
     def test_real_mp3_matches_independent_decoder_without_offset(self):
-        """ffmpeg يُقارن بـlibsndfile على إشارة متغيرة زمنياً تكشف الانزياح."""
+        """ffmpeg يُقارن بـlibsndfile على نبضات زمنية معلومة تكشف الانزياح."""
         with tempfile.TemporaryDirectory() as td:
-            mp3 = _make_chirp_mp3(td)
+            mp3 = _make_marker_mp3(td)
             got, rate = R._ffmpeg_window_pcm(mp3, 1250, 1750)
             whole, ref_rate = sf.read(mp3, dtype="float32", always_2d=True)
             whole = whole.mean(axis=1)
@@ -124,70 +131,57 @@ class AudioDecodeFallbackTest(unittest.TestCase):
             for test_lag in range(-320, 321)
         )
 
-        def peak_track(x):
-            # إطار 32م.ث وقفزة 5م.ث. دقة الحزمة 16000/512 = 31.25Hz؛
-            # نقارن مسار قمة chirp لا شكل المرشح كله، لأن اختلاف مرشحَي MP3
-            # يغيّر السعات الطيفية ولا يغيّر الإحداثيات الزمنية المطلوبة.
-            size, hop = 512, 80
-            window = np.hanning(size).astype("float32")
-            frames = np.stack([
-                x[i:i + size] * window
+        def envelope(x):
+            # RMS في إطار 10م.ث وقفزة 5م.ث: يلغي فرق الطور ولون مرشح MP3،
+            # ويبقي مواقع النبضات الثلاثة، وهي المطلوب من إحداثيات النافذة.
+            size, hop = 160, 80
+            return np.asarray([
+                np.sqrt(np.mean(np.square(x[i:i + size], dtype="float64")))
                 for i in range(0, len(x) - size + 1, hop)
             ])
-            mag = np.abs(np.fft.rfft(frames, axis=1))
-            peaks = np.argmax(mag[:, 1:], axis=1) + 1
-            # استيفاء قطع مكافئ تحت-حزمي؛ يُقص إلى نصف حزمة كي لا يصبح
-            # قاع ضوضائي قفزةً مصطنعة.
-            track = peaks.astype("float64")
-            for row, p in enumerate(peaks):
-                if 0 < p < mag.shape[1] - 1:
-                    a0, b0, c0 = np.log(np.maximum(mag[row, p - 1:p + 2], 1e-12))
-                    den = a0 - 2 * b0 + c0
-                    if den:
-                        track[row] += np.clip(0.5 * (a0 - c0) / den, -0.5, 0.5)
-            return track
 
-        def track_error(left, right, lag):
+        def env_corr(left, right, lag):
             if lag < 0:
                 a0, b0 = left[:lag], right[-lag:]
             elif lag > 0:
                 a0, b0 = left[lag:], right[:-lag]
             else:
                 a0, b0 = left, right
-            return float(np.mean(np.abs(a0 - b0)))
+            a0, b0 = a0 - a0.mean(), b0 - b0.mean()
+            return float(np.dot(a0, b0) / (np.linalg.norm(a0) * np.linalg.norm(b0)))
 
-        left_track, ref_track = peak_track(got), peak_track(ref16)
-        peak_mae, frame_lag = min(
-            (track_error(left_track, ref_track, test_lag), test_lag)
+        left_env, ref_env = envelope(got), envelope(ref16)
+        env_corr_value, frame_lag = max(
+            (env_corr(left_env, ref_env, test_lag), test_lag)
             for test_lag in range(-4, 5)
         )
         print(
             f"independent-decode waveform_corr={wave_corr:.9f} "
-            f"sample_lag={wave_lag}; peak_mae_bins={peak_mae:.9f} "
+            f"sample_lag={wave_lag}; envelope_corr={env_corr_value:.9f} "
             f"frame_lag={frame_lag}"
         )
         self.assertLessEqual(abs(wave_lag), 160, f"انزياح زائد: {wave_lag} عينة")
-        self.assertLessEqual(peak_mae, 1.0)  # حزمة واحدة = 31.25Hz
+        self.assertGreater(env_corr_value, 0.98)
         self.assertLessEqual(abs(frame_lag), 2)  # 2 × 5م.ث = 10م.ث
 
         # ضابط موجب: انزياح مصطنع 15م.ث يجب أن يتجاوز حد العقد 10م.ث.
         shifted = np.concatenate((np.zeros(240, dtype="float32"), ref16[:-240]))
-        shifted_track = peak_track(shifted)
-        shifted_mae, shifted_lag = min(
-            (track_error(left_track, shifted_track, test_lag), test_lag)
+        shifted_env = envelope(shifted)
+        shifted_corr, shifted_lag = max(
+            (env_corr(left_env, shifted_env, test_lag), test_lag)
             for test_lag in range(-4, 5)
         )
         print(
-            f"shift-control peak_mae_bins={shifted_mae:.9f} "
+            f"shift-control envelope_corr={shifted_corr:.9f} "
             f"frame_lag={shifted_lag}"
         )
-        self.assertLessEqual(shifted_mae, 1.0)
+        self.assertGreater(shifted_corr, 0.98)
         self.assertGreater(abs(shifted_lag), 2)
 
 
     def test_truncated_real_mp3_cannot_become_a_judgment(self):
         with tempfile.TemporaryDirectory() as td:
-            mp3 = _make_chirp_mp3(td)
+            mp3 = _make_marker_mp3(td)
             damaged = Path(td) / "truncated.mp3"
             raw = mp3.read_bytes()
             damaged.write_bytes(raw[:len(raw) // 2])
