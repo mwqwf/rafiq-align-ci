@@ -27,7 +27,7 @@ def _make_chirp_mp3(root):
     """إشارة متغيرة زمنياً؛ يكشف مرجعُها أي انزياح، بخلاف نغمة ثابتة."""
     rate = 44100
     t = np.arange(rate * 3, dtype="float64") / rate
-    phase = 2 * np.pi * (180 * t + 0.5 * 260 * t * t)
+    phase = 2 * np.pi * (300 * t + 0.5 * 1600 * t * t)
     wav = Path(root) / "chirp.wav"
     mp3 = Path(root) / "chirp.mp3"
     sf.write(wav, (0.35 * np.sin(phase)).astype("float32"), rate)
@@ -108,30 +108,71 @@ class AudioDecodeFallbackTest(unittest.TestCase):
         self.assertEqual(rate, 16000)
         self.assertEqual(len(got), 8000)
         self.assertEqual(len(ref16), len(got))
-        def corr_at(lag):
+        def wave_corr_at(lag, right):
             if lag < 0:
-                a0, b0 = got[:lag], ref16[-lag:]
+                a0, b0 = got[:lag], right[-lag:]
             elif lag > 0:
-                a0, b0 = got[lag:], ref16[:-lag]
+                a0, b0 = got[lag:], right[:-lag]
             else:
-                a0, b0 = got, ref16
+                a0, b0 = got, right
             a0, b0 = a0 - a0.mean(), b0 - b0.mean()
             return float(np.dot(a0, b0) / (np.linalg.norm(a0) * np.linalg.norm(b0)))
-        # نبحث ±20م.ث ثم نسمح بنصفها فقط: اختلاف تأخير مفكّ صغير جائز،
-        # أما انزياح نافذة ≥10م.ث فليس النافذة المطلوبة ويُفشل العقد.
-        scored = [(corr_at(lag), lag) for lag in range(-320, 321)]
-        corr, lag = max(scored)
-        # صار اختلاف إعادة أخذ العينات معزولاً؛ 0.98 الآن يقيس اتفاق مفككي
-        # MP3 المستقلين، وlag هو حارس الإحداثيات الصريح.
-        self.assertGreater(corr, 0.98, f"اختلاف فك: corr={corr:.5f}, lag={lag}")
-        self.assertLessEqual(abs(lag), 160, f"انزياح زائد: {lag} عينة")
-        # ضابط موجب: انزياحٌ مصطنع 15م.ث يجب أن يتجاوز حد العقد 10م.ث.
-        ref16 = np.concatenate((np.zeros(240, dtype="float32"), ref16[:-240]))
+
+        # التشابه العيني تشخيصي فقط: مفككا MP3 المستقلان يختلفان طورياً.
+        wave_corr, wave_lag = max(
+            (wave_corr_at(test_lag, ref16), test_lag)
+            for test_lag in range(-320, 321)
+        )
+
+        def spectral(x):
+            # إطار 32م.ث وقفزة 5م.ث: مقدار الطيف يلغي اختلاف الطور بين المفككين،
+            # ويبقي مسار التردد الزمني الذي يكشف انزياح النافذة.
+            size, hop = 512, 80
+            window = np.hanning(size).astype("float32")
+            frames = np.stack([
+                x[i:i + size] * window
+                for i in range(0, len(x) - size + 1, hop)
+            ])
+            mag = np.log1p(np.abs(np.fft.rfft(frames, axis=1))[:, 1:])
+            return mag / np.maximum(np.linalg.norm(mag, axis=1, keepdims=True), 1e-12)
+
+        def spectral_match(left, right, lag):
+            if lag < 0:
+                a0, b0 = left[:lag], right[-lag:]
+            elif lag > 0:
+                a0, b0 = left[lag:], right[:-lag]
+            else:
+                a0, b0 = left, right
+            return float(np.mean(np.sum(a0 * b0, axis=1)))
+
+        left_spec, ref_spec = spectral(got), spectral(ref16)
+        spectral_corr, frame_lag = max(
+            (spectral_match(left_spec, ref_spec, test_lag), test_lag)
+            for test_lag in range(-4, 5)
+        )
+        print(
+            f"independent-decode waveform_corr={wave_corr:.9f} "
+            f"sample_lag={wave_lag}; spectral_corr={spectral_corr:.9f} "
+            f"frame_lag={frame_lag}"
+        )
+        self.assertLessEqual(abs(wave_lag), 160, f"انزياح زائد: {wave_lag} عينة")
+        self.assertGreater(spectral_corr, 0.98)
+        self.assertLessEqual(abs(frame_lag), 2)  # 2 × 5م.ث = 10م.ث
+
+        # ضابط موجب: انزياح مصطنع 15م.ث يجب أن يتجاوز حد العقد 10م.ث.
+        shifted = np.concatenate((np.zeros(240, dtype="float32"), ref16[:-240]))
+        shifted_spec = spectral(shifted)
         shifted_corr, shifted_lag = max(
-            (corr_at(test_lag), test_lag) for test_lag in range(-320, 321)
+            (spectral_match(left_spec, shifted_spec, test_lag), test_lag)
+            for test_lag in range(-4, 5)
+        )
+        print(
+            f"shift-control spectral_corr={shifted_corr:.9f} "
+            f"frame_lag={shifted_lag}"
         )
         self.assertGreater(shifted_corr, 0.98)
-        self.assertGreater(abs(shifted_lag), 160)
+        self.assertGreater(abs(shifted_lag), 2)
+
 
     def test_truncated_real_mp3_cannot_become_a_judgment(self):
         with tempfile.TemporaryDirectory() as td:
@@ -141,6 +182,16 @@ class AudioDecodeFallbackTest(unittest.TestCase):
             damaged.write_bytes(raw[:len(raw) // 2])
             with self.assertRaises(RuntimeError):
                 R._ffmpeg_window_pcm(damaged, 2400, 2900)
+
+    def test_zero_returncode_with_decoder_error_is_rejected(self):
+        pcm = np.ones(8000, dtype="<f4")
+        done = subprocess.CompletedProcess(
+            [], 0, stdout=pcm.tobytes(),
+            stderr=b"[mp3float] Header missing\nError while decoding stream",
+        )
+        with mock.patch.object(R.subprocess, "run", return_value=done):
+            with self.assertRaisesRegex(RuntimeError, "rc=0"):
+                R._ffmpeg_window_pcm("damaged.mp3", 0, 500)
 
     def test_ffmpeg_failure_remains_an_error(self):
         done = subprocess.CompletedProcess([], 1, stdout=b"", stderr=b"decode failed")

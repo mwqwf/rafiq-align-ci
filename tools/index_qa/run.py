@@ -743,9 +743,13 @@ def _ffmpeg_window_pcm(mp3, start_ms, end_ms):
            "-i", str(mp3), "-f", "f32le", "-ac", "1", "-ar", str(rate), "pipe:1"]
     p = subprocess.run(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE,
                        timeout=max(30, int(dur / 1000) + 20), check=False)
+    why = p.stderr.decode("utf-8", errors="replace").strip()[-240:]
     if p.returncode != 0:
-        why = p.stderr.decode("utf-8", errors="replace").strip()[-240:]
         raise RuntimeError(f"ffmpeg فشل ({p.returncode}): {why or 'بلا رسالة'}")
+    # مع -v error لا يظهر في stderr إلا خطأ فكّ حقيقي. وقد يرجع ffmpeg صفراً
+    # بعد إخفاء إطار/حزمة تالفة؛ قبول PCM حينها يحوّل تلف الأداة إلى حكم مؤكد.
+    if why:
+        raise RuntimeError(f"ffmpeg أبلغ خطأ فك مع rc=0: {why}")
     raw = p.stdout
     if len(raw) % 4:
         raise RuntimeError(f"ffmpeg أخرج float32 غير محاذى ({len(raw)} بايت)")
