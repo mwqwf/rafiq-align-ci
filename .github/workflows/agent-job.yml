@@ -8,8 +8,9 @@
 # فيُنفَّذ هنا على عدّاءٍ **بلا أيّ حجب**، وتعود مخرَجاتُه **ملفّاً في `results/`** يقرؤه
 # بـ`git pull` — ويُعلَّق في لوحة المتابعة فيصل هاتفَ المالك.
 #
-# 🔑 **ومفتاحُ المستودع الخاصّ اختياريّ:** إن وُجد السرُّ `QR_READ_TOKEN` استُنسخ `QuranRafiq`
-# هنا فصارت اختباراتُ المحرك ممكنة. وإن غاب فكلُّ ما عداها يعمل — ولا يفشل الشوط.
+# 🔑 **والمستودع الخاص اختياري:** مفتاح نشر SSH للقراءة فقط يخص `QuranRafiq` وحده،
+# لا رمز GitHub واسع الصلاحية. إن غاب بقي ما لا يحتاجه يعمل، ولا ينجح اختبار محرك
+# بادعاء أنه فحص المصدر الخاص.
 name: agent-job
 
 on:
@@ -99,19 +100,26 @@ jobs:
           env.close()
           PY
 
-      # 🔑 المستودعُ الخاصّ — **اختياريٌّ وصامتٌ إن غاب**. وبه وحدَه تعمل اختباراتُ المحرك.
-      - name: استنساخُ QuranRafiq إن وُجد المفتاح
+      # 🔑 المستودع الخاص — مفتاح نشر مقيّد بالقراءة على QuranRafiq فقط.
+      - name: استنساخ QuranRafiq إن وجد مفتاح القراءة المقيد
         if: steps.pick.outputs.none != '1'
         env:
-          QR: ${{ secrets.QR_READ_TOKEN }}
+          QR: ${{ secrets.QR_READ_DEPLOY_KEY }}
         run: |
           if [ -z "$QR" ]; then
-            echo "ℹ️ لا مفتاحَ QR_READ_TOKEN ⇒ لا مستودعَ خاصّ. وكلُّ شغلٍ لا يحتاجه يعمل."
+            echo "ℹ️ لا مفتاح QR_READ_DEPLOY_KEY ⇒ لا مستودع خاص. وكل شغل لا يحتاجه يعمل."
             exit 0
           fi
-          git clone -q --depth 1 "https://x-access-token:${QR}@github.com/mwqwf/QuranRafiq.git" "$RUNNER_TEMP/QuranRafiq"
+          umask 077
+          mkdir -p "$RUNNER_TEMP/qr-ssh"
+          printf '%s\n' "$QR" > "$RUNNER_TEMP/qr-ssh/id_ed25519"
+          chmod 600 "$RUNNER_TEMP/qr-ssh/id_ed25519"
+          # GitHub runner يملك known_hosts موثوقاً؛ لا نقبل مضيفاً جديداً أو مفتاحاً متغيراً.
+          GIT_SSH_COMMAND="ssh -i $RUNNER_TEMP/qr-ssh/id_ed25519 -o IdentitiesOnly=yes -o StrictHostKeyChecking=yes" \
+            git clone -q --depth 1 git@github.com:mwqwf/QuranRafiq.git "$RUNNER_TEMP/QuranRafiq"
+          rm -f "$RUNNER_TEMP/qr-ssh/id_ed25519"
           echo "QR_DIR=$RUNNER_TEMP/QuranRafiq" >> "$GITHUB_ENV"
-          echo "✅ QuranRafiq مُستنسَخ في \$QR_DIR"
+          echo "✅ QuranRafiq مستنسخ في \$QR_DIR بمفتاح قراءة محدود"
 
       - name: التنفيذ
         if: steps.pick.outputs.none != '1'
