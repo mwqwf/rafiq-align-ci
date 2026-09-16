@@ -124,7 +124,7 @@ jobs:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           python - <<'PY' >> "$GITHUB_OUTPUT"
-          import json, os, boto3, collections
+          import json, os, sys, boto3, collections
           c = json.load(open("secure/r2_credentials.json"))
           s = boto3.client("s3", endpoint_url=c["endpoint"],
                            aws_access_key_id=c["accessKeyId"],
@@ -184,7 +184,7 @@ jobs:
                   with urllib.request.urlopen(rq, timeout=30) as r:
                       inflight += json.loads(r.read()).get("workflow_runs")                          .__str__()
           except Exception as e:                       # noqa: BLE001
-              print(f"# ⚠️ تعذّر سؤالُ الطابور ({e}) — لا يُستثنى شيء", end="")
+              raise SystemExit("تعذّر التحقق من الطابور؛ تُمنع الدفعة حتى النبضة التالية") from e
           # ⛔⛔ **ومن يُخدَم بالفعل لا يُعاد الحكمُ عليه** (قِيس 2026-09-11):
           #    موجاتُ إعادة المحاذاة تُنتج بصماتٍ لقرّاءٍ **منشورين**، فينفق
           #    النبضُ خمسَ تشغيلاتٍ على مصحفٍ يخدمه الدلو أصلاً — بينما
@@ -219,7 +219,7 @@ jobs:
                   if rid:
                       excluded.add(rid)
           except FileNotFoundError:
-              print("# ⚠️ لا قائمةَ إخراج — لا يُستثنى أحد", end="")
+              raise SystemExit("قائمة الاستبعاد مفقودة؛ تُمنع الدفعة ولا يُفترض أن الجميع مسموح")
           need = [k for k in sorted(newest.values())
                   if salts.get(k.replace("/", "_"), 0) < 4
                   and k not in inflight and _who(k) not in published
@@ -238,7 +238,7 @@ jobs:
           #    الطابور أكثرُ من ثمانٍ فلا دفعةَ هذه النبضة (والترقيةُ تمضي).
           nq = inflight.count("'status': 'queued'")
           if nq > 8:
-              print(f"# ⏸️ الطابور {nq} > 8 — لا دفعةَ تبويبٍ هذه النبضة", end="")
+              print(f"⏸️ الطابور {nq} > 8 — لا دفعةَ تبويبٍ هذه النبضة", file=sys.stderr)
               batch = []
           else:
               batch = sorted(need)[:14]
@@ -306,6 +306,14 @@ jobs:
               print(f"- {k}: {n} شاهداً")
           PY
 
+  # الانتظار في وظيفة مستقلة: انقضاء مهلة الفحص لا يبتلع إطلاق النبضة التالية.
+  # لا ضمان ضد إلغاء سير العمل كله أو تعطيل Actions؛ الجدولة تبقى سنداً.
+  chain:
+    needs: [pulse, gate_and_promote]
+    if: ${{ always() }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
       # ⛔ **الجدولةُ وحدها لا تكفي** (مقيسٌ 2026-09-11): نبضاتُ `schedule` على
       #    GitHub تتأخّر وتُسقَط — رُصدت فجواتٌ 2.5س و5س بين نبضاتٍ «كلَّ ساعة».
       #    والمالكُ يُغلق جهازَه ⇒ **لا مُوقِظَ محلّيّ**. فيُسلسل النبضُ نفسَه:
@@ -317,5 +325,4 @@ jobs:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           sleep 900
-          gh workflow run keepalive.yml -R "$GITHUB_REPOSITORY" || \
-            echo "⚠️ تعذّرت سلسلةُ النبض — تبقى الجدولةُ سنداً"
+          gh workflow run keepalive.yml -R "$GITHUB_REPOSITORY"
