@@ -104,15 +104,16 @@ jobs:
       - name: استنساخ QuranRafiq إن وجد مفتاح القراءة المقيد
         if: steps.pick.outputs.none != '1'
         env:
-          QR: ${{ secrets.QR_READ_DEPLOY_KEY }}
+          QR_KEY_B64: ${{ secrets.QR_READ_DEPLOY_KEY_B64 }}
         run: |
-          if [ -z "$QR" ]; then
-            echo "ℹ️ لا مفتاح QR_READ_DEPLOY_KEY ⇒ لا مستودع خاص. وكل شغل لا يحتاجه يعمل."
+          if [ -z "$QR_KEY_B64" ]; then
+            echo "ℹ️ لا مفتاح QR_READ_DEPLOY_KEY_B64 ⇒ لا مستودع خاص. وكل شغل لا يحتاجه يعمل."
             exit 0
           fi
           umask 077
           mkdir -p "$RUNNER_TEMP/qr-ssh"
-          printf '%s\n' "$QR" > "$RUNNER_TEMP/qr-ssh/id_ed25519"
+          # Base64 يبقي بنية PEM/OPENSSH كما هي بين Windows وLinux.
+          printf '%s' "$QR_KEY_B64" | base64 --decode > "$RUNNER_TEMP/qr-ssh/id_ed25519"
           chmod 600 "$RUNNER_TEMP/qr-ssh/id_ed25519"
           # GitHub runner يملك known_hosts موثوقاً؛ لا نقبل مضيفاً جديداً أو مفتاحاً متغيراً.
           GIT_SSH_COMMAND="ssh -i $RUNNER_TEMP/qr-ssh/id_ed25519 -o IdentitiesOnly=yes -o StrictHostKeyChecking=yes" \
