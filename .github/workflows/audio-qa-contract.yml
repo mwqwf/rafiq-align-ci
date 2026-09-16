@@ -19,5 +19,8 @@ jobs:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
         with: { python-version: "3.11" }
+      - run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq ffmpeg
       - run: python -m pip install --quiet numpy soundfile
       - run: python -m unittest tools.index_qa.test_audio_decode_fallback -v
