@@ -722,6 +722,34 @@ def _range_pcm(url, start_ms, end_ms):
         return None
 
 
+def _ffmpeg_window_pcm(mp3, start_ms, end_ms):
+    """يفكّ نافذةً قصيرةً بـffmpeg عند عجز libsndfile عن ملف MP3.
+
+    هذا مسارُ تعافٍ لا مسارُ حكمٍ جديد: الإحداثيان نفسيهما، والمخرج PCM أحادي
+    16ك.هز نفسه الذي يصل إلى whisper. وإن لم يخرج ffmpeg صوتاً كافياً يبقى
+    الحدّ غيرَ حاسمٍ؛ لا يتحول فشلُ الأداة إلى براءةٍ أو قبول.
+    """
+    import numpy as np
+    start = max(0, int(start_ms))
+    dur = max(0, int(end_ms) - start)
+    if dur <= 0:
+        raise RuntimeError(f"نافذةٌ غير صالحة: {start_ms}..{end_ms}م.ث")
+    cmd = ["ffmpeg", "-nostdin", "-v", "error",
+           "-ss", f"{start / 1000:.3f}", "-t", f"{dur / 1000:.3f}",
+           "-i", str(mp3), "-f", "f32le", "-ac", "1", "-ar", "16000", "pipe:1"]
+    p = subprocess.run(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE,
+                       timeout=max(30, int(dur / 1000) + 20), check=False)
+    if p.returncode != 0:
+        why = p.stderr.decode("utf-8", errors="replace").strip()[-240:]
+        raise RuntimeError(f"ffmpeg فشل ({p.returncode}): {why or 'بلا رسالة'}")
+    # float32 = 4 بايت. تُقصّ البقية فقط إن خرجت أداةٌ معطوبة ببايتات ناقصة.
+    raw = p.stdout[:len(p.stdout) - (len(p.stdout) % 4)]
+    x = np.frombuffer(raw, dtype="<f4").copy()
+    if len(x) <= 16000 * 0.2:
+        raise RuntimeError(f"ffmpeg أخرج نافذةً قصيرة ({len(x)} عيّنة)")
+    return x, 16000
+
+
 _MIRROR_LOCK = threading.Lock()
 
 
@@ -765,7 +793,7 @@ def _prefetch(jobs, workers=4):
 
 
 def local_run(jobs, _host=None, _threads=None):
-    """يقصّ بـ`soundfile` (يفكّ MP3 بلا ffmpeg) ويفرّغ بالنموذج المحلي."""
+    """يفكّ النافذة ويفرّغها؛ ffmpeg احتياطٌ صريحٌ لتعذّر libsndfile."""
     import numpy as np, soundfile as sf
     m = _local_model()
     _prefetch(jobs)
@@ -777,10 +805,18 @@ def local_run(jobs, _host=None, _threads=None):
                 x, r = got
             else:
                 mp3 = _local_audio(j["url"])
-                r = sf.info(mp3).samplerate
-                a, b = int(max(0, j["startMs"]) / 1000 * r), int(j["endMs"] / 1000 * r)
-                x, _ = sf.read(mp3, start=a, stop=b, dtype="float32", always_2d=True)
-                x = x.mean(axis=1)
+                try:
+                    r = sf.info(mp3).samplerate
+                    a = int(max(0, j["startMs"]) / 1000 * r)
+                    b = int(j["endMs"] / 1000 * r)
+                    x, _ = sf.read(mp3, start=a, stop=b, dtype="float32", always_2d=True)
+                    x = x.mean(axis=1)
+                except Exception:
+                    # بعضُ أصول MP3 تُسمِع mpg123 أخطاء resync ثم يعجز
+                    # libsndfile عن النافذة. ffmpeg المثبّت أصلاً في audio_qa
+                    # أكثرُ تحمّلاً؛ فإن عجز هو أيضاً يسجّل الحدّ «غير حاسم»
+                    # عبر غلاف الاستثناء أدناه، ولا يغيّر أيّ عتبة أو حكم.
+                    x, r = _ffmpeg_window_pcm(mp3, j["startMs"], j["endMs"])
             n = int(len(x) * 16000 / r)
             y = np.interp(np.linspace(0, len(x) - 1, n), np.arange(len(x)), x).astype("float32")
             res[j["id"]] = {"text": " ".join(sg.text for sg in m.transcribe(y)).strip(), "ms": 0}
