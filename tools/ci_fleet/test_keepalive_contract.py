@@ -1,6 +1,8 @@
 """اختبار عقد النبض دون اتصال بالدلو أو إطلاق عمل إنتاجي."""
 import ast
+import os
 from pathlib import Path
+import subprocess
 import unittest
 import yaml
 
@@ -47,6 +49,27 @@ class KeepaliveContract(unittest.TestCase):
     def test_hourly_backup_and_no_parallel_pulses(self):
         self.assertTrue(self.workflow['on']['schedule'])
         self.assertEqual(self.workflow['concurrency']['cancel-in-progress'], 'false')
+
+    def promotion_script(self):
+        steps = self.workflow['jobs']['gate_and_promote']['steps']
+        return next(s['run'] for s in steps if s.get('name') == 'رقِّ من عبر')
+
+    def test_promotion_does_not_hide_infrastructure_errors(self):
+        script = self.promotion_script()
+        self.assertIn('set -euo pipefail', script)
+        self.assertNotIn('||', script)
+        self.assertIn('python tools/index_qa/promote.py --yes 2>&1 | tail -25', script)
+
+    @unittest.skipIf(os.name == 'nt', 'فحص Bash الفعلي يعمل على عداء Linux السحابي')
+    def test_promotion_exit_status_reaches_job_without_touching_r2(self):
+        for code in (0, 7):
+            with self.subTest(code=code):
+                script = self.promotion_script().replace(
+                    'python tools/index_qa/promote.py --yes',
+                    f'python -c "raise SystemExit({code})"',
+                )
+                result = subprocess.run(['bash', '-c', script], capture_output=True, timeout=10)
+                self.assertEqual(result.returncode, code)
 
 
 if __name__ == '__main__':
