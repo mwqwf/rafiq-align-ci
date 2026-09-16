@@ -124,53 +124,64 @@ class AudioDecodeFallbackTest(unittest.TestCase):
             for test_lag in range(-320, 321)
         )
 
-        def spectral(x):
-            # إطار 32م.ث وقفزة 5م.ث: مقدار الطيف يلغي اختلاف الطور بين المفككين،
-            # ويبقي مسار التردد الزمني الذي يكشف انزياح النافذة.
+        def peak_track(x):
+            # إطار 32م.ث وقفزة 5م.ث. دقة الحزمة 16000/512 = 31.25Hz؛
+            # نقارن مسار قمة chirp لا شكل المرشح كله، لأن اختلاف مرشحَي MP3
+            # يغيّر السعات الطيفية ولا يغيّر الإحداثيات الزمنية المطلوبة.
             size, hop = 512, 80
             window = np.hanning(size).astype("float32")
             frames = np.stack([
                 x[i:i + size] * window
                 for i in range(0, len(x) - size + 1, hop)
             ])
-            mag = np.log1p(np.abs(np.fft.rfft(frames, axis=1))[:, 1:])
-            return mag / np.maximum(np.linalg.norm(mag, axis=1, keepdims=True), 1e-12)
+            mag = np.abs(np.fft.rfft(frames, axis=1))
+            peaks = np.argmax(mag[:, 1:], axis=1) + 1
+            # استيفاء قطع مكافئ تحت-حزمي؛ يُقص إلى نصف حزمة كي لا يصبح
+            # قاع ضوضائي قفزةً مصطنعة.
+            track = peaks.astype("float64")
+            for row, p in enumerate(peaks):
+                if 0 < p < mag.shape[1] - 1:
+                    a0, b0, c0 = np.log(np.maximum(mag[row, p - 1:p + 2], 1e-12))
+                    den = a0 - 2 * b0 + c0
+                    if den:
+                        track[row] += np.clip(0.5 * (a0 - c0) / den, -0.5, 0.5)
+            return track
 
-        def spectral_match(left, right, lag):
+        def track_error(left, right, lag):
             if lag < 0:
                 a0, b0 = left[:lag], right[-lag:]
             elif lag > 0:
                 a0, b0 = left[lag:], right[:-lag]
             else:
                 a0, b0 = left, right
-            return float(np.mean(np.sum(a0 * b0, axis=1)))
+            return float(np.mean(np.abs(a0 - b0)))
 
-        left_spec, ref_spec = spectral(got), spectral(ref16)
-        spectral_corr, frame_lag = max(
-            (spectral_match(left_spec, ref_spec, test_lag), test_lag)
+        left_track, ref_track = peak_track(got), peak_track(ref16)
+        peak_mae, frame_lag = min(
+            (track_error(left_track, ref_track, test_lag), test_lag)
             for test_lag in range(-4, 5)
         )
         print(
             f"independent-decode waveform_corr={wave_corr:.9f} "
-            f"sample_lag={wave_lag}; spectral_corr={spectral_corr:.9f} "
+            f"sample_lag={wave_lag}; peak_mae_bins={peak_mae:.9f} "
             f"frame_lag={frame_lag}"
         )
         self.assertLessEqual(abs(wave_lag), 160, f"انزياح زائد: {wave_lag} عينة")
-        self.assertGreater(spectral_corr, 0.98)
+        self.assertLessEqual(peak_mae, 1.0)  # حزمة واحدة = 31.25Hz
         self.assertLessEqual(abs(frame_lag), 2)  # 2 × 5م.ث = 10م.ث
 
         # ضابط موجب: انزياح مصطنع 15م.ث يجب أن يتجاوز حد العقد 10م.ث.
         shifted = np.concatenate((np.zeros(240, dtype="float32"), ref16[:-240]))
-        shifted_spec = spectral(shifted)
-        shifted_corr, shifted_lag = max(
-            (spectral_match(left_spec, shifted_spec, test_lag), test_lag)
+        shifted_track = peak_track(shifted)
+        shifted_mae, shifted_lag = min(
+            (track_error(left_track, shifted_track, test_lag), test_lag)
             for test_lag in range(-4, 5)
         )
         print(
-            f"shift-control spectral_corr={shifted_corr:.9f} "
+            f"shift-control peak_mae_bins={shifted_mae:.9f} "
             f"frame_lag={shifted_lag}"
         )
-        self.assertGreater(shifted_corr, 0.98)
+        self.assertLessEqual(shifted_mae, 1.0)
         self.assertGreater(abs(shifted_lag), 2)
 
 
