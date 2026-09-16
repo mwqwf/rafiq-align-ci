@@ -108,8 +108,17 @@ class AudioDecodeFallbackTest(unittest.TestCase):
         # أما انزياح نافذة ≥10م.ث فليس النافذة المطلوبة ويُفشل العقد.
         scored = [(corr_at(lag), lag) for lag in range(-320, 321)]
         corr, lag = max(scored)
-        self.assertGreater(corr, 0.98, f"اختلاف فك: corr={corr:.5f}, lag={lag}")
+        # المفككان المستقلان يختلفان في مرشح MP3/إعادة أخذ العينات؛ 0.90 يفصل
+        # الإشارة نفسها عن نافذة مزاحة، بينما lag هو حارس الإحداثيات الصريح.
+        self.assertGreater(corr, 0.90, f"اختلاف فك: corr={corr:.5f}, lag={lag}")
         self.assertLessEqual(abs(lag), 160, f"انزياح زائد: {lag} عينة")
+        # ضابط موجب: انزياحٌ مصطنع 15م.ث يجب أن يتجاوز حد العقد 10م.ث.
+        ref16 = np.concatenate((np.zeros(240, dtype="float32"), ref16[:-240]))
+        shifted_corr, shifted_lag = max(
+            (corr_at(test_lag), test_lag) for test_lag in range(-320, 321)
+        )
+        self.assertGreater(shifted_corr, 0.90)
+        self.assertGreater(abs(shifted_lag), 160)
 
     def test_truncated_real_mp3_cannot_become_a_judgment(self):
         with tempfile.TemporaryDirectory() as td:
