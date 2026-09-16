@@ -89,12 +89,25 @@ class AudioDecodeFallbackTest(unittest.TestCase):
             whole = whole.mean(axis=1)
             a, b = int(1.250 * ref_rate), int(1.750 * ref_rate)
             ref = whole[a:b]
-            ref16 = np.interp(
-                np.linspace(0, len(ref) - 1, len(got)),
-                np.arange(len(ref)), ref,
-            ).astype("float32")
+            # نعزل **الفك** المستقل عن اختلاف مرشّح إعادة أخذ العينات:
+            # libsndfile يفك MP3 كاملاً، ثم يمر المرجع lossless عبر مرشح ffmpeg
+            # نفسه إلى 16kHz. المقارنة السابقة استعملت np.interp الخطي للمرجع
+            # مقابل swresample للمسار الفعلي، فكانت تقيس مرشحين لا مفككين.
+            ref_wav = Path(td) / "independent-reference.wav"
+            sf.write(ref_wav, ref, ref_rate, subtype="FLOAT")
+            ref_done = subprocess.run(
+                ["ffmpeg", "-nostdin", "-v", "error", "-i", str(ref_wav),
+                 "-f", "f32le", "-ac", "1", "-ar", "16000", "pipe:1"],
+                capture_output=True, check=False,
+            )
+            self.assertEqual(
+                ref_done.returncode, 0, ref_done.stderr.decode(errors="replace")
+            )
+            self.assertEqual(len(ref_done.stdout) % 4, 0)
+            ref16 = np.frombuffer(ref_done.stdout, dtype="<f4").copy()
         self.assertEqual(rate, 16000)
         self.assertEqual(len(got), 8000)
+        self.assertEqual(len(ref16), len(got))
         def corr_at(lag):
             if lag < 0:
                 a0, b0 = got[:lag], ref16[-lag:]
@@ -108,16 +121,16 @@ class AudioDecodeFallbackTest(unittest.TestCase):
         # أما انزياح نافذة ≥10م.ث فليس النافذة المطلوبة ويُفشل العقد.
         scored = [(corr_at(lag), lag) for lag in range(-320, 321)]
         corr, lag = max(scored)
-        # المفككان المستقلان يختلفان في مرشح MP3/إعادة أخذ العينات؛ 0.90 يفصل
-        # الإشارة نفسها عن نافذة مزاحة، بينما lag هو حارس الإحداثيات الصريح.
-        self.assertGreater(corr, 0.90, f"اختلاف فك: corr={corr:.5f}, lag={lag}")
+        # صار اختلاف إعادة أخذ العينات معزولاً؛ 0.98 الآن يقيس اتفاق مفككي
+        # MP3 المستقلين، وlag هو حارس الإحداثيات الصريح.
+        self.assertGreater(corr, 0.98, f"اختلاف فك: corr={corr:.5f}, lag={lag}")
         self.assertLessEqual(abs(lag), 160, f"انزياح زائد: {lag} عينة")
         # ضابط موجب: انزياحٌ مصطنع 15م.ث يجب أن يتجاوز حد العقد 10م.ث.
         ref16 = np.concatenate((np.zeros(240, dtype="float32"), ref16[:-240]))
         shifted_corr, shifted_lag = max(
             (corr_at(test_lag), test_lag) for test_lag in range(-320, 321)
         )
-        self.assertGreater(shifted_corr, 0.90)
+        self.assertGreater(shifted_corr, 0.98)
         self.assertGreater(abs(shifted_lag), 160)
 
     def test_truncated_real_mp3_cannot_become_a_judgment(self):
