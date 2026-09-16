@@ -5,6 +5,7 @@ from __future__ import annotations
 
 import subprocess
 import sys
+import tempfile
 import unittest
 from pathlib import Path
 from types import SimpleNamespace
@@ -27,6 +28,22 @@ class AudioDecodeFallbackTest(unittest.TestCase):
         cmd = call.call_args.args[0]
         self.assertEqual(cmd[cmd.index("-ss") + 1], "1.250")
         self.assertEqual(cmd[cmd.index("-t") + 1], "0.500")
+
+    def test_ffmpeg_decodes_a_real_mp3_window(self):
+        """اختبار تكاملي فعلي: ffmpeg يولّد MP3 ثم يفكّ الإحداثيين المطلوبين."""
+        with tempfile.TemporaryDirectory() as td:
+            mp3 = Path(td) / "tone.mp3"
+            made = subprocess.run(
+                ["ffmpeg", "-nostdin", "-v", "error", "-f", "lavfi",
+                 "-i", "sine=frequency=440:duration=3", "-ar", "44100",
+                 "-ac", "2", "-y", str(mp3)],
+                capture_output=True, check=False,
+            )
+            self.assertEqual(made.returncode, 0, made.stderr.decode(errors="replace"))
+            got, rate = R._ffmpeg_window_pcm(mp3, 1250, 1750)
+        self.assertEqual(rate, 16000)
+        self.assertEqual(len(got), 8000)
+        self.assertGreater(float(np.max(np.abs(got))), 0.01)
 
     def test_ffmpeg_failure_remains_an_error(self):
         done = subprocess.CompletedProcess([], 1, stdout=b"", stderr=b"decode failed")
