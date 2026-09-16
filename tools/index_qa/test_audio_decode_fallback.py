@@ -95,8 +95,21 @@ class AudioDecodeFallbackTest(unittest.TestCase):
             ).astype("float32")
         self.assertEqual(rate, 16000)
         self.assertEqual(len(got), 8000)
-        corr = float(np.corrcoef(got, ref16)[0, 1])
-        self.assertGreater(corr, 0.98, f"انزياح/اختلاف فك: corr={corr:.5f}")
+        def corr_at(lag):
+            if lag < 0:
+                a0, b0 = got[:lag], ref16[-lag:]
+            elif lag > 0:
+                a0, b0 = got[lag:], ref16[:-lag]
+            else:
+                a0, b0 = got, ref16
+            a0, b0 = a0 - a0.mean(), b0 - b0.mean()
+            return float(np.dot(a0, b0) / (np.linalg.norm(a0) * np.linalg.norm(b0)))
+        # نبحث ±20م.ث ثم نسمح بنصفها فقط: اختلاف تأخير مفكّ صغير جائز،
+        # أما انزياح نافذة ≥10م.ث فليس النافذة المطلوبة ويُفشل العقد.
+        scored = [(corr_at(lag), lag) for lag in range(-320, 321)]
+        corr, lag = max(scored)
+        self.assertGreater(corr, 0.98, f"اختلاف فك: corr={corr:.5f}, lag={lag}")
+        self.assertLessEqual(abs(lag), 160, f"انزياح زائد: {lag} عينة")
 
     def test_truncated_real_mp3_cannot_become_a_judgment(self):
         with tempfile.TemporaryDirectory() as td:
