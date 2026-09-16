@@ -1,0 +1,105 @@
+name: package-catalog-cloud
+
+on:
+  push:
+    paths:
+      - .github/workflows/package-catalog-cloud.yml
+      - tools/packages/certified_catalog_gate.py
+      - tools/packages/test_certified_catalog_gate.py
+  workflow_dispatch:
+    inputs:
+      publish:
+        description: "انشر بعد نجاح البناء والحراس"
+        type: boolean
+        default: false
+      expected_reciters_sha256:
+        description: "SHA-256 الحالي لـcatalog/reciters.json"
+        required: false
+      expected_packages_sha256:
+        description: "SHA-256 الحالي لـpackages/catalog.json"
+        required: false
+      reason:
+        description: "سبب النشر المقيس"
+        required: false
+
+permissions:
+  contents: read
+
+concurrency:
+  group: package-catalog-cloud
+  cancel-in-progress: false
+
+jobs:
+  build-and-gate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    env:
+      R2_BASE: https://pub-2c2e1dcd92e84a2898820dd38d3e09e6.r2.dev
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: { python-version: "3.11" }
+      - run: python -m unittest tools.packages.test_certified_catalog_gate -v
+      - name: اقرأ مصدر البناء الخاص بلا نسخه إلى العام
+        env:
+          QR_READ_DEPLOY_KEY_B64: ${{ secrets.QR_READ_DEPLOY_KEY_B64 }}
+        run: |
+          set -euo pipefail
+          test -n "$QR_READ_DEPLOY_KEY_B64"
+          KEY="$RUNNER_TEMP/qr-read-key"
+          printf '%s' "$QR_READ_DEPLOY_KEY_B64" | base64 -d > "$KEY"
+          chmod 600 "$KEY"
+          GIT_SSH_COMMAND="ssh -i $KEY -o IdentitiesOnly=yes -o StrictHostKeyChecking=accept-new" \
+            git clone --depth 1 git@github.com:mwqwf/QuranRafiq.git "$RUNNER_TEMP/QuranRafiq"
+          rm -f "$KEY"
+          echo "private_source_sha=$(git -C "$RUNNER_TEMP/QuranRafiq" rev-parse HEAD)" >> "$GITHUB_STEP_SUMMARY"
+      - name: تحقق من بصمات ما قبل النشر
+        if: github.event_name == 'workflow_dispatch' && inputs.publish
+        env:
+          EXPECT_RECITERS: ${{ inputs.expected_reciters_sha256 }}
+          EXPECT_PACKAGES: ${{ inputs.expected_packages_sha256 }}
+          REASON: ${{ inputs.reason }}
+        run: |
+          set -euo pipefail
+          test -n "$REASON" && test -n "$EXPECT_RECITERS" && test -n "$EXPECT_PACKAGES"
+          GOT_RECITERS=$(curl -fsS "$R2_BASE/catalog/reciters.json" | sha256sum | cut -d' ' -f1)
+          GOT_PACKAGES=$(curl -fsS "$R2_BASE/packages/catalog.json" | sha256sum | cut -d' ' -f1)
+          test "$GOT_RECITERS" = "$EXPECT_RECITERS"
+          test "$GOT_PACKAGES" = "$EXPECT_PACKAGES"
+      - name: ابن الكتالوج بالمسار الحالي ثم مرره من بوابة التصديق
+        run: |
+          set -euo pipefail
+          APP="$RUNNER_TEMP/QuranRafiq"
+          WORK="$RUNNER_TEMP/package-catalog"
+          python "$APP/tools/packages/watch_catalog.py" --once --dry-run --work "$WORK"
+          python tools/packages/certified_catalog_gate.py \
+            --input "$WORK/catalog.json" \
+            --output "$WORK/catalog.certified.json" \
+            --min-timing 111 | tee "$WORK/gate-summary.json"
+          jq '{generatedAt, packages:(.packages|length), certifiedGate, failures, rejectedCount:(.rejected|length)}' \
+            "$WORK/catalog.certified.json" | tee -a "$GITHUB_STEP_SUMMARY"
+          sha256sum "$WORK/catalog.certified.json" | tee -a "$GITHUB_STEP_SUMMARY"
+      - name: انشر نسخة مؤرخة ثم الحية وتحقق من SHA العام
+        if: github.event_name == 'workflow_dispatch' && inputs.publish
+        env:
+          R2_CREDENTIALS_JSON: ${{ secrets.R2_CREDENTIALS_JSON }}
+          EXPECT_RECITERS: ${{ inputs.expected_reciters_sha256 }}
+          EXPECT_PACKAGES: ${{ inputs.expected_packages_sha256 }}
+        run: |
+          set -euo pipefail
+          python -m pip install --quiet boto3
+          CREDS="$RUNNER_TEMP/r2-credentials.json"
+          printf '%s' "$R2_CREDENTIALS_JSON" > "$CREDS"
+          test "$(curl -fsS "$R2_BASE/catalog/reciters.json" | sha256sum | cut -d' ' -f1)" = "$EXPECT_RECITERS"
+          test "$(curl -fsS "$R2_BASE/packages/catalog.json" | sha256sum | cut -d' ' -f1)" = "$EXPECT_PACKAGES"
+          PYTHONPATH="$RUNNER_TEMP/QuranRafiq/tools/packages" python -c \
+            'import sys,watch_catalog as w; sys.exit(0 if w.publish(sys.argv[1],sys.argv[2],sys.argv[3]) else 1)' \
+            "$RUNNER_TEMP/package-catalog/catalog.certified.json" "$CREDS" "$R2_BASE"
+          rm -f "$CREDS"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: package-catalog-candidate-${{ github.sha }}
+          path: |
+            ${{ runner.temp }}/package-catalog/catalog.certified.json
+            ${{ runner.temp }}/package-catalog/gate-summary.json
+          retention-days: 3
