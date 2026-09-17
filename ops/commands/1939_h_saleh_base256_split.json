@@ -1,0 +1,14 @@
+{
+  "action": "dispatch",
+  "workflow": "align_split.yml",
+  "inputs": {
+    "reciter": "h_saleh",
+    "riwaya": "hafs",
+    "url_template": "https://server16.mp3quran.net/h_saleh/Rewayat-Hafs-A-n-Assem/{surah:03d}.mp3",
+    "parts": "8",
+    "jobs_per_runner": "4",
+    "main_model": "base",
+    "whisper_ac": "256",
+    "reason": "تغيير جوهري موثق: الفهرس القديم tiny/ac0 كان نظيف الصوت 0.12% لكنه بلا بصمات 0/114، وإعادة المحاذاة بالمحرك نفسه هبطت إلى 5791؛ يُعاد البناء كاملاً عبر split بمحرك base/ac256 دون خفض حد 5%، بعد إغلاق h_abudalal.2df7c0cd بنيوياً 4/4"
+  }
+}
