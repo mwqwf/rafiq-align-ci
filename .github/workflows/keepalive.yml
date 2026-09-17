@@ -259,7 +259,20 @@ jobs:
               batch = sorted(need)[:14]
           print("need=" + ",".join(batch))
           print(f"count={len(batch)}")
+          print(f"eligible_count={len(need)}")
+          print(f"queued_count={nq}")
+          print(f"queue_blocked={'true' if nq > 8 else 'false'}")
           PY
+
+      - name: خلاصة بوابة الأحكام
+        run: |
+          {
+            echo "## بوابة الأحكام"
+            echo "- المؤهلون قبل حارس الطابور: ${{ steps.scan.outputs.eligible_count }}"
+            echo "- التشغيلات المنتظرة: ${{ steps.scan.outputs.queued_count }}"
+            echo "- منع الازدحام: ${{ steps.scan.outputs.queue_blocked }}"
+            echo "- الدفعة: ${{ steps.scan.outputs.count }}"
+          } >> "$GITHUB_STEP_SUMMARY"
 
       - name: أطلق الأحكام
         if: steps.scan.outputs.count != '0'
