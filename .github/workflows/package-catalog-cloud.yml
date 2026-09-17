@@ -137,7 +137,9 @@ jobs:
           print("certificate_catalog_sha256=" + snapshot["catalogSha256"])
           PY
           if [[ "${{ github.event_name }}" == workflow_dispatch && "${{ inputs.publish }}" == true ]]; then
-            test "$(jq -r '.certifiedGate.timingCertified' "$WORK/catalog.certified.json")" = 159
+            SNAPSHOT_CERTIFIED=$(jq -r '.indexes | length' "$WORK/certified-indexes.json")
+            CANDIDATE_CERTIFIED=$(jq -r '.certifiedGate.timingCertified' "$WORK/catalog.certified.json")
+            test "$CANDIDATE_CERTIFIED" = "$SNAPSHOT_CERTIFIED"
           fi
       - name: طابق أثر المرشح المراجع مع إعادة البناء الحية
         if: github.event_name == 'workflow_dispatch' && inputs.publish
