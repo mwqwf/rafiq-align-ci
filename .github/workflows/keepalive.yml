@@ -83,9 +83,17 @@ jobs:
           # ⛔ **والقائمةُ تُفحص قبل أن تُطلق**: قائمةٌ غائبةٌ تُنتج موجةً تموت
           #    في أوّل خطوةٍ وتبدو في اللوحة «جارية» — والإعلانُ ليس أثراً.
           test -f "tools/ci_fleet/$LIST" || { echo "⛔ لا وجود لـ$LIST"; exit 1; }
-          echo "▶ الأسطولُ فارغ — تُطلق $LIST"
+          ROWS=$(awk -F '\t' 'NF && $1 !~ /^[[:space:]]*#/ { n++ } END { print n+0 }' \
+                    "tools/ci_fleet/$LIST")
+          if [ "$ROWS" -eq 0 ]; then
+            echo "✅ لا قارئَ مؤهلاً في $LIST — لا تُطلق موجةً فارغة"
+            exit 0
+          fi
+          SHARDS=$ROWS
+          [ "$SHARDS" -le 12 ] || SHARDS=12
+          echo "▶ الأسطولُ فارغ — تُطلق $LIST ($ROWS قارئ · $SHARDS شاردة)"
           gh workflow run align.yml \
-            -f shards=12 -f jobs_per_runner=4 -f smoke=false -f list="$LIST"
+            -f shards="$SHARDS" -f jobs_per_runner=4 -f smoke=false -f list="$LIST"
 
       - name: خلاصة
         run: |

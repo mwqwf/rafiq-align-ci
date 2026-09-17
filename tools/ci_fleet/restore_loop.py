@@ -66,11 +66,42 @@ SOUND = 0.85          # وسيطُ نسبةِ الحجم الذي دونه يُ�
 LOWCOV = 0.75         # تغطيةُ سورةٍ حاضرةٍ تُعدّ دونها ناقصة
 MIN_AYAHS = 3         # لا يُنفق عدّاءٌ على أقلَّ من هذا
 
+# مصدرٌ بديلٌ **لسورةٍ بعينها** بعد قياس المصدر الأصلي، لا استبدالٌ عشوائيّ
+# للمصحف كله. `3siri/9` في المصدر المسجّل حجمه 10,582,833 بايت ونسبةُ حجمه
+# إلى المتوقّع بوسيط المراجع الأربعة 0.19 (restore 35185281620)، بينما المصدر
+# البديل لنفس القارئ والرواية يعلن 114 سورة وحجمُ س9 فيه 57,088,047 بايت.
+# يبقى `source_ratio` أدناه هو الحارس الفعلي: إن لم يبلغ 0.85 لا تُطلق المحاذاة.
+SOURCE_OVERRIDES = {
+    ("hafs", "3siri", 9):
+        "https://media.way2quran.com/ibrahim-al-asiri/hafs-an-asim/",
+}
+
 
 def head_len(url: str) -> int:
-    rq = urllib.request.Request(url, method="HEAD", headers=UA)
-    with urllib.request.urlopen(rq, timeout=45) as r:
-        return int(r.headers.get("Content-Length", 0))
+    def measured(response) -> int:
+        content_range = response.headers.get("Content-Range", "")
+        if "/" in content_range:
+            total = content_range.rsplit("/", 1)[-1]
+            if total.isdigit():
+                return int(total)
+        return int(response.headers.get("Content-Length", 0))
+
+    try:
+        rq = urllib.request.Request(url, method="HEAD", headers=UA)
+        with urllib.request.urlopen(rq, timeout=45) as r:
+            size = measured(r)
+        if size:
+            return size
+    except Exception:                                          # noqa: BLE001
+        pass
+    # بعض مرايا الصوت لا تجيب HEAD مع أنها تخدم الملف كاملاً. GET لبايتٍ واحد
+    # يثبت الوجود والحجم من Content-Range، ولا ينزّل الملف إلى العدّاء.
+    rq = urllib.request.Request(url, headers={**UA, "Range": "bytes=0-0"})
+    with urllib.request.urlopen(rq, timeout=60) as r:
+        size = measured(r)
+    if not size:
+        raise ValueError(f"لا طولَ قابلاً للقياس: {url}")
+    return size
 
 
 def surah_ends(idx) -> dict:
@@ -100,6 +131,12 @@ def catalog_bases() -> dict:
             if rc.get("mode") != "ayah":
                 out[(riw, rc.get("id"))] = rc.get("base")
     return out
+
+
+def source_base(bases: dict, riwaya: str, reciter: str, surah: int) -> str | None:
+    """المصدر المقاس للسورة، ثم مصدر الكتالوج لبقية السور."""
+    return SOURCE_OVERRIDES.get((riwaya, reciter, surah),
+                                bases.get((riwaya, reciter)))
 
 
 def source_ratio(idx, base: str, surah: int, refs) -> float | None:
@@ -285,10 +322,12 @@ def cmd_scan(a):
         if any(rid in t for t in busy):
             print(f"   ⏭️ {rid} س{s}: في الطيران — يُترك")
             continue
-        base = bases.get((riw, rid))
+        base = source_base(bases, riw, rid, s)
         if not base:
             print(f"   ⛔ {rid}: لا مصدرَ في الكتالوج")
             continue
+        if (riw, rid, s) in SOURCE_OVERRIDES:
+            print(f"   🔁 {rid} س{s}: مصدرٌ بديلٌ مقاس؛ المصدرُ المسجّل مبتور")
         idx, _ = fetch_index(r["key"])
         # ⛔⛔ **فهرسُ الجيل الأوّل لا يُصلحه ترقيعُ سورة** — قاعدةُ `CLAUDE.md` نصّاً،
         #    و`stage_transform` يردّه **حتماً** بـ«الفهرس بلا أثر صقلٍ في ترويسته —

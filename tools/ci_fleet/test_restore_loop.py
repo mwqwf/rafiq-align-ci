@@ -1,4 +1,5 @@
 import datetime as dt
+import email.message
 import types
 import unittest
 from unittest import mock
@@ -27,7 +28,45 @@ class _S3:
         return _Paginator()
 
 
+class _Response:
+    def __init__(self, headers):
+        self.headers = email.message.Message()
+        for key, value in headers.items():
+            self.headers[key] = value
+
+    def __enter__(self):
+        return self
+
+    def __exit__(self, *_args):
+        return False
+
+
 class RestoreLoopTests(unittest.TestCase):
+    def test_head_len_uses_one_byte_range_when_head_is_unsupported(self):
+        responses = [OSError("HEAD unsupported"),
+                     _Response({"Content-Range": "bytes 0-0/57088047"})]
+
+        def open_side_effect(request, **_kwargs):
+            response = responses.pop(0)
+            if isinstance(response, Exception):
+                raise response
+            self.assertEqual(request.get_header("Range"), "bytes=0-0")
+            return response
+
+        with mock.patch.object(loop.urllib.request, "urlopen",
+                               side_effect=open_side_effect):
+            self.assertEqual(loop.head_len("https://audio/009.mp3"), 57_088_047)
+
+    def test_source_override_is_scoped_to_exact_reciter_and_surah(self):
+        bases = {("hafs", "3siri"): "https://catalog/3siri/"}
+        self.assertEqual(
+            loop.source_base(bases, "hafs", "3siri", 9),
+            "https://media.way2quran.com/ibrahim-al-asiri/hafs-an-asim/",
+        )
+        self.assertEqual(loop.source_base(bases, "hafs", "3siri", 8),
+                         "https://catalog/3siri/")
+        self.assertIsNone(loop.source_base({}, "hafs", "missing", 9))
+
     def test_effective_indexes_chains_latest_staged_gain(self):
         indexes = {
             "timings/hafs/nufais.jz": _idx(10),
