@@ -217,7 +217,7 @@ jobs:
       # قبل أن يُقلع المحاكي أصلاً ⇒ ساعةُ عدّاءٍ تضيع لعارضٍ يُعالجُ براية.
       - name: العدّة والمجموعات والنماذج
         run: |
-          pip install -q numpy soundfile scipy
+          pip install -q numpy soundfile scipy boto3
           mkdir -p models
           BU="${{ inputs.base_url }}"
           [ -z "$BU" ] && BU="$PUB/models/whisper-tiny-ar-quran/ggml-q8_0.bin"
@@ -265,8 +265,21 @@ jobs:
           python augment.py --src-dir work/g4 --dest-dir work/g4n10 --only noise-fan-10
           python augment.py --src-dir work/g4 --dest-dir work/g4n20 --only noise-fan-20
           tar -cf work/sets.tar -C work wav g2/noise-fan-5 g2/learner-combo g2/learner-repeat g2/learner-basmala g3r/clean g3r/noisy g4 g4n g4n10 g4n20 long_plan.json
-      - name: فكُّ المجموعات
-        run: cd tools/tasmi_bench/work && tar -xf sets.tar && rm -f sets.tar && ls -d wav g3r g2 g4 g4n g4n10 g4n20 2>/dev/null
+      - name: فكُّ المجموعة المطلوبة والتحقق منها
+        env:
+          SET: ${{ matrix.set }}
+        run: |
+          cd tools/tasmi_bench/work
+          tar -xf sets.tar
+          rm -f sets.tar
+          ROOT="${SET%%:*}"
+          test -d wav
+          test -d "$ROOT"
+          case "$ROOT" in
+            g4*) test -f long_plan.json ;;
+          esac
+          ls -d wav "$ROOT"
+          [ ! -f long_plan.json ] || ls -l long_plan.json
       - name: المحاكي + السائقُ نفسُه (‏emu_sweep)
         uses: reactivecircus/android-emulator-runner@v2
         env:
