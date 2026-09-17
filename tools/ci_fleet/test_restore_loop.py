@@ -97,6 +97,21 @@ class RestoreLoopTests(unittest.TestCase):
         self.assertEqual([(r["surah"], r["key"]) for r in got], [
             (46, "timings-staging/hafs/nufais.new.jz")])
 
+    def test_candidates_skips_non_kufi_index_without_stopping_fleet(self):
+        bad = {"entries": [{"ayahId": "1:1"}], "ayahCounting": "qalun"}
+        good = {"entries": [{"ayahId": "1:1"}], "refineVersion": "test"}
+        expected = [1] * 114
+        expected[1] = 4
+        with mock.patch.object(loop, "effective_indexes", return_value=[
+                 {"key": "timings/qalun/non_kufi.jz", "liveKey": "bad", "index": bad},
+                 {"key": "timings/hafs/good.jz", "liveKey": "good", "index": good},
+             ]), mock.patch.object(
+                 loop, "SURAH_AYAHS_OF",
+                 side_effect=[SystemExit("⛔ عدٌّ غير كوفيّ"), expected]):
+            got = loop.candidates()
+        self.assertEqual([(r["reciter"], r["surah"], r["gap"]) for r in got],
+                         [("good", 2, 4)])
+
     def test_scan_passes_staged_parent_to_realign(self):
         row = {"riwaya": "hafs", "reciter": "nufais", "surah": 46,
                "have": 0, "expected": 35, "gap": 35,

@@ -284,7 +284,13 @@ def candidates():
         k, idx = r["key"], r["index"]
         riw, rid = k.split("/")[1], k.split("/")[2][:-3]
         rid = rid.split(".")[0]
-        counts = SURAH_AYAHS_OF(idx)
+        try:
+            counts = SURAH_AYAHS_OF(idx)
+        except SystemExit as e:
+            # لا نحوّل عدّ روايةٍ إلى كوفيّ تخميناً، ولا نُسقط جردَ القرّاء
+            # الآخرين بسبب فهرسٍ واحد. يُغلق هذا الفهرس وحده ويظل صوته كما هو.
+            print(f"   ⛔ {k}: يُترك من جرد الاسترجاع — {e}", file=sys.stderr)
+            continue
         per = {}
         for e in idx["entries"]:
             s = int(e["ayahId"].split(":")[0])
