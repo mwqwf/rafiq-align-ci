@@ -6,6 +6,12 @@ on:
       - tools/index_qa/test_promote_source_remediation.py
       - tools/ci_fleet/source_overrides.json
       - .github/workflows/promote-source-remediation-contract.yml
+  pull_request:
+    paths:
+      - tools/index_qa/promote.py
+      - tools/index_qa/test_promote_source_remediation.py
+      - tools/ci_fleet/source_overrides.json
+      - .github/workflows/promote-source-remediation-contract.yml
   workflow_dispatch:
 permissions:
   contents: read
