@@ -1,18 +1,18 @@
 {
   "apk_url": "https://github.com/mwqwf/rafiq-align-ci/releases/download/apk-m5-gate/app-debug-m5-gate.apk",
-  "cand_tag": "",
-  "cand_url": "",
+  "cand_tag": "base-long-20260917",
+  "cand_url": "https://pub-2c2e1dcd92e84a2898820dd38d3e09e6.r2.dev/models/whisper-base-ar-quran/ggml-q8_0.bin",
   "base_url": "",
-  "sets": "g1,g4n",
+  "sets": "g4,g4n",
   "chain": "cap",
   "chunk": "12",
   "langs": "",
   "ez": "",
   "ei": "",
-  "tag_suffix": "-FV2",
-  "arm2_tag": "frontendv2",
+  "tag_suffix": "-BL17",
+  "arm2_tag": "",
   "arm2_es": "",
-  "arm2_ez": "frontendV2=true",
+  "arm2_ez": "",
   "arm2_ei": "",
-  "note": "D-493: علّةُ إطفاء AudioLevelV2 (D-259) تصف ترتيباً قلبه D-265 — اليومَ تقع التسويةُ على الصوت الخام قبل البوّابة، وهو شرطُ العودة الذي كتبه D-259 لنفسه. والنتيجةُ المقيسةُ (G1: 99.52٪ ⇒ 97.97٪ بكلتيهما معاً) لا تُنقض بتفسيرٍ بل بشوطٍ ⇒ الذراعان على البنود عينِها: المشحونُ كما هو (بوّابةُ ضجيجٍ وحدَها) مقابلَ المشحون + frontendV2. وg1 للمقارنة بالرقم القديم، وg4n لأنّ شكوى المستخدم الأولى «لا يسمع» في الضجيج. ⛔ ولا يُرفع المفتاحُ إلا إن ارتفعت الدقّةُ ولم يرتفع الاتّهامُ الكاذب."
+  "note": "قياس غير مكرر لقرار PR #2: TINY المشحون مقابل BASE على التلاوة الطويلة النظيفة g4 والمضججة g4n عبر JNI داخل Android؛ لا تغيير عتبات ولا نشر."
 }
