@@ -127,6 +127,7 @@ DIAGNOSIS_KEY = "catalog/diagnosis/{riwaya}/{reciter}.json"
 # أحكامُ البتر المصدري في مفردات فارز github-12 — تُقرأ ولا يُجتهد فيها.
 # (‏`ALIGNMENT_FAILED` ليست منها: الفهرس يغطّي الملفّ والعلّة في المحاذاة.)
 TRUNCATED_VERDICTS = {"AUDIO_SHORT"}
+SOURCE_OVERRIDES = ROOT / "tools" / "ci_fleet" / "source_overrides.json"
 
 
 
@@ -211,6 +212,56 @@ def truncation(cl, bucket, riwaya, reciter, index_etag=None):
            if str(row.get("verdict") or "").upper() in TRUNCATED_VERDICTS
            or "TRUNCAT" in str(row.get("verdict") or "").upper()]
     return bad, "match"
+
+
+def registered_source_remediation(idx, riwaya, reciter, surah, overrides=None):
+    """تحقّق أن السورة المبتورة أُعيد بناؤها على بديلٍ مسجّل كاملٍ بعينه.
+
+    هذا ليس تجاوزاً لحكم البتر: لا يُعفي إلا السورة نفسها، للقارئ والرواية
+    نفسيهما، عندما تشير **كل آياتها** إلى ملف البديل المسجّل. أي نقصٍ أو
+    اختلافٍ في الرابط يبقي حارس البتر مغلقاً.
+    """
+    try:
+        surah = int(surah)
+    except (TypeError, ValueError):
+        return False, "رقم السورة غير صالح"
+    if not 1 <= surah <= len(_AYAH_COUNTS):
+        return False, "رقم السورة خارج المصحف"
+
+    if overrides is None:
+        try:
+            overrides = json.loads(SOURCE_OVERRIDES.read_text(encoding="utf-8"))
+        except Exception as ex:                       # noqa: BLE001
+            return False, f"تعذّرت قراءة سجل بدائل المصدر: {ex}"
+    if not isinstance(overrides, list):
+        return False, "سجل بدائل المصدر ليس قائمة"
+
+    matches = [
+        row for row in overrides if isinstance(row, dict)
+        and str(row.get("riwaya") or "") == str(riwaya)
+        and str(row.get("reciter") or "") == str(reciter)
+        and str(row.get("surah") or "") == str(surah)
+    ]
+    if len(matches) != 1:
+        return False, f"لا يوجد بديل مسجّل وحيد ({len(matches)})"
+    row = matches[0]
+    base = str(row.get("base") or "").rstrip("/")
+    evidence = str(row.get("evidence") or "").strip()
+    if not re.fullmatch(r"https://[^\s]+", base) or not evidence:
+        return False, "سجل البديل بلا رابط HTTPS أو بلا دليل قياس"
+
+    entries = [e for e in (idx.get("entries") or [])
+               if str(e.get("ayahId") or "").split(":", 1)[0] == str(surah)]
+    expected_ids = {f"{surah}:{ayah}" for ayah in range(1, _AYAH_COUNTS[surah - 1] + 1)}
+    got_ids = {str(e.get("ayahId") or "") for e in entries}
+    if len(entries) != len(expected_ids) or got_ids != expected_ids:
+        return False, (f"تغطية البديل غير كاملة: {len(entries)}/"
+                       f"{len(expected_ids)} بمدخلات فريدة صحيحة")
+    expected_ref = f"{base}/{surah:03d}.mp3"
+    wrong = [e.get("fileRef") for e in entries if e.get("fileRef") != expected_ref]
+    if wrong:
+        return False, f"{len(wrong)} مدخلاً لا يشير إلى ملف البديل المسجّل"
+    return True, f"{surah}:1–{surah}:{len(expected_ids)} على {expected_ref}"
 
 
 def parse_frozen(text):
@@ -1961,6 +2012,21 @@ def main():
         idx_peek = json.loads(gzip.decompress(body).decode("utf-8"))
         gone = {e["ayahId"].split(":")[0] for e in idx_peek.get("entries", [])}
         cut = [r for r in cut if str(r.get("surah")) in gone]
+        # المرشّح قد يكون أصلح **الصوت المشار إليه نفسه** ببديلٍ مسجّل محصور
+        # في السورة. لا يكفي نجاح QA ولا اكتمال العدد وحدهما: يجب أن يطابق كل
+        # ayahId رابطَ البديل exact للقارئ/الرواية/السورة، وإلا يبقى المنع.
+        unresolved_cut = []
+        for cut_row in cut:
+            fixed, evidence = registered_source_remediation(
+                idx_peek, rep["riwaya"], rep["reciterId"], cut_row.get("surah"))
+            if fixed:
+                print(f"  ✅ {src}: عولج بترُ س{cut_row.get('surah')} ببديلٍ "
+                      f"مسجّل كامل — {evidence}")
+            else:
+                unresolved_cut.append(cut_row)
+                print(f"     ↳ س{cut_row.get('surah')}: البديل لا يعفي من "
+                      f"حارس البتر — {evidence}")
+        cut = unresolved_cut
         if cut:
             names = "، ".join(str(r.get("surah")) for r in cut[:5])
             # **إن كان لها علاجٌ مسجَّل فقُله** — لئلا يُعاد عملٌ تمّ. ووسمُ
