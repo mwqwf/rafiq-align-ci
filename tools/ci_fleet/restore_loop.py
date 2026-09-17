@@ -180,16 +180,73 @@ def inflight_reciters() -> set:
     return out
 
 
-def candidates():
-    """السورُ التي يُرجى استرجاعُها، الأكثرُ آياتٍ أوّلاً."""
-    rows = []
-    for r in list_indexes():
-        k = r["key"]
+def latest_staged_indexes() -> dict[tuple[str, str], str]:
+    """أحدثُ مرشّحِ مسرحٍ لكلّ قارئ.
+
+    ⛔ حلقةٌ مقيسةٌ في الشوطين 35164079148 و35185281620: أصلح الشوطُ الأول
+    `nufais/47` في المسرح (+38)، ثم عاد `scan` إلى الفهرس المنشور نفسه فأطلق
+    **السورة 47 ذاتها** ثانيةً، لأنّه لم يرَ المرشّح المرحلي قط. والأسوأ أنّ
+    إطلاق السورة 46 لاحقاً من المنشور كان سيُسقط إصلاح 47، فتتبادل السورتان
+    إلى ما لا نهاية. لذلك تكون الزيادةُ المرحليةُ أباً للدورة التالية، ولا
+    يصير ذلك نشراً أو قبولاً: بوابةُ `gate` وحارسُ `promote.py` باقيان كما هما.
+    """
+    cl, b = s3()
+    newest = {}
+    newest_mtime = {}
+    for pg in cl.get_paginator("list_objects_v2").paginate(
+            Bucket=b, Prefix="timings-staging/"):
+        for o in pg.get("Contents", []):
+            k = o["Key"]
+            if not k.endswith(".jz") or "/tmp/" in k or "/timings/" in k:
+                continue
+            p = k.split("/")
+            if len(p) < 3:
+                continue
+            who = (p[1], p[2].split(".")[0])
+            mt = o.get("LastModified", 0)
+            if who not in newest or mt > newest_mtime[who]:
+                newest[who] = k
+                newest_mtime[who] = mt
+    return newest
+
+
+def effective_indexes():
+    """الفهارس المنشورة، مع تسلسل أحدث زيادةٍ مرحليةٍ فوق أصلها المنشور."""
+    staged = latest_staged_indexes()
+    out = []
+    for row in list_indexes():
+        live_key = row["key"]
         try:
-            idx, _ = fetch_index(k)
+            live_idx, _ = fetch_index(live_key)
         except Exception:                                      # noqa: BLE001
             continue
+        p = live_key.split("/")
+        who = (p[1], p[2][:-3])
+        key, idx = live_key, live_idx
+        staged_key = staged.get(who)
+        if staged_key:
+            try:
+                staged_idx, _ = fetch_index(staged_key)
+            except Exception:                                  # noqa: BLE001
+                staged_idx = None
+            # لا يُسلسل تجميلاً أو مرشحاً ناقصاً: الزيادة المقيسة وحدها.
+            if staged_idx and len(staged_idx.get("entries", [])) > len(live_idx.get("entries", [])):
+                key, idx = staged_key, staged_idx
+        out.append({"key": key, "liveKey": live_key, "index": idx})
+    return out
+
+
+def candidates():
+    """السورُ التي يُرجى استرجاعُها، الأكثرُ آياتٍ أوّلاً.
+
+    يبدأ القياسُ من أحدث زيادةٍ مرحليةٍ، لا من المنشور القديم، كي تتراكم
+    إصلاحاتُ السور ولا تُعاد أو يُسقط بعضُها بعضاً قبل البوابة النهائية.
+    """
+    rows = []
+    for r in effective_indexes():
+        k, idx = r["key"], r["index"]
         riw, rid = k.split("/")[1], k.split("/")[2][:-3]
+        rid = rid.split(".")[0]
         counts = SURAH_AYAHS_OF(idx)
         per = {}
         for e in idx["entries"]:
@@ -200,7 +257,8 @@ def candidates():
             gap = exp - have
             if gap >= MIN_AYAHS and (have == 0 or have / exp < LOWCOV):
                 rows.append({"riwaya": riw, "reciter": rid, "surah": s,
-                             "have": have, "expected": exp, "gap": gap, "key": k})
+                             "have": have, "expected": exp, "gap": gap,
+                             "key": k, "liveKey": r["liveKey"]})
     rows.sort(key=lambda x: -x["gap"])
     return rows
 
@@ -262,7 +320,7 @@ def cmd_scan(a):
                   f"الآية الأولى في جارات السورة عند هذا القارئ نفسِه.")
         out = gh("workflow", "run", "realign_surah.yml",
                  "--repo", os.environ.get("GITHUB_REPOSITORY", "mwqwf/rafiq-align-ci"),
-                 "-f", f"parent=timings/{riw}/{rid}.jz", "-f", f"surahs={s}",
+                 "-f", f"parent={r['key']}", "-f", f"surahs={s}",
                  "-f", f"skip_ms={skip}", "-f", f"url_template={base}{{s:03d}}.mp3",
                  "-f", f"reciter_id={rid}", "-f", f"riwaya={riw}", "-f", f"reason={reason}")
         print(f"      ▶ أُطلقت إعادةُ المحاذاة {out.strip()}")
