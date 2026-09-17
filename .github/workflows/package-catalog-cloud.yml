@@ -1,0 +1,172 @@
+name: package-catalog-cloud
+
+on:
+  push:
+    paths:
+      - .github/workflows/package-catalog-cloud.yml
+      - tools/packages/certified_catalog_gate.py
+      - tools/packages/test_certified_catalog_gate.py
+      - tools/packages/catalog_backup.py
+      - tools/packages/test_catalog_backup.py
+      - tools/index_qa/certify_catalog.py
+  workflow_dispatch:
+    inputs:
+      publish:
+        description: "انشر بعد نجاح البناء والحراس"
+        type: boolean
+        default: false
+      expected_reciters_sha256:
+        description: "SHA-256 الحالي لـcatalog/reciters.json"
+        required: false
+      expected_packages_sha256:
+        description: "SHA-256 الحالي لـpackages/catalog.json"
+        required: false
+      approved_candidate_sha256:
+        description: "SHA-256 المرشح الذي راجعه المشرف"
+        required: false
+      reason:
+        description: "سبب النشر المقيس"
+        required: false
+
+permissions:
+  contents: read
+
+concurrency:
+  group: package-catalog-cloud
+  cancel-in-progress: false
+
+jobs:
+  build-and-gate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    env:
+      R2_BASE: https://pub-2c2e1dcd92e84a2898820dd38d3e09e6.r2.dev
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: { python-version: "3.11" }
+      - name: اختبارات الحراس
+        run: |
+          python -m unittest \
+            tools.packages.test_certified_catalog_gate \
+            tools.packages.test_catalog_backup -v
+          python tools/index_qa/certify_catalog.py --self-test
+      - name: اعتماد R2 يبقى داخل Actions
+        env:
+          R2_CREDENTIALS_JSON: ${{ secrets.R2_CREDENTIALS_JSON }}
+        run: |
+          set -euo pipefail
+          test -n "$R2_CREDENTIALS_JSON"
+          python -m pip install --quiet boto3
+          mkdir -p secure
+          printf '%s' "$R2_CREDENTIALS_JSON" > secure/r2_credentials.json
+          chmod 600 secure/r2_credentials.json
+      - name: اقرأ مصدر البناء الخاص بلا نسخه إلى العام
+        env:
+          QR_READ_DEPLOY_KEY_B64: ${{ secrets.QR_READ_DEPLOY_KEY_B64 }}
+        run: |
+          set -euo pipefail
+          test -n "$QR_READ_DEPLOY_KEY_B64"
+          KEY="$RUNNER_TEMP/qr-read-key"
+          printf '%s' "$QR_READ_DEPLOY_KEY_B64" | base64 -d > "$KEY"
+          chmod 600 "$KEY"
+          GIT_SSH_COMMAND="ssh -i $KEY -o IdentitiesOnly=yes -o StrictHostKeyChecking=accept-new" \
+            git clone --quiet --depth 1 git@github.com:mwqwf/QuranRafiq.git "$RUNNER_TEMP/QuranRafiq"
+          rm -f "$KEY"
+          echo "private_source_sha=$(git -C "$RUNNER_TEMP/QuranRafiq" rev-parse HEAD)" >> "$GITHUB_STEP_SUMMARY"
+      - name: تحقق من بصمات ما قبل النشر
+        if: github.event_name == 'workflow_dispatch' && inputs.publish
+        env:
+          EXPECT_RECITERS: ${{ inputs.expected_reciters_sha256 }}
+          EXPECT_PACKAGES: ${{ inputs.expected_packages_sha256 }}
+          APPROVED_CANDIDATE: ${{ inputs.approved_candidate_sha256 }}
+          REASON: ${{ inputs.reason }}
+        run: |
+          set -euo pipefail
+          test -n "$REASON" && test -n "$EXPECT_RECITERS" && test -n "$EXPECT_PACKAGES"
+          test -n "$APPROVED_CANDIDATE"
+          GOT_RECITERS=$(curl -fsS "$R2_BASE/catalog/reciters.json" | sha256sum | cut -d' ' -f1)
+          GOT_PACKAGES=$(curl -fsS "$R2_BASE/packages/catalog.json" | sha256sum | cut -d' ' -f1)
+          test "$GOT_RECITERS" = "$EXPECT_RECITERS"
+          test "$GOT_PACKAGES" = "$EXPECT_PACKAGES"
+      - name: ابن الكتالوج بالمسار الحالي ثم مرره من بوابة التصديق
+        run: |
+          set -euo pipefail
+          APP="$RUNNER_TEMP/QuranRafiq"
+          WORK="$RUNNER_TEMP/package-catalog"
+          mkdir -p "$WORK"
+          curl -fsS "$R2_BASE/packages/catalog.json" -o "$WORK/catalog.before.json"
+          if ! python tools/index_qa/certify_catalog.py \
+              --certificate-snapshot "$WORK/certified-indexes.json" \
+              >"$RUNNER_TEMP/certify-catalog.log" 2>&1; then
+            echo "⛔ فشل إنشاء snapshot الشهادة من R2؛ التفاصيل محجوبة من السجل العام"
+            exit 1
+          fi
+          if ! python "$APP/tools/packages/watch_catalog.py" --once --dry-run --work "$WORK" \
+              >"$RUNNER_TEMP/private-build.log" 2>&1; then
+            echo "⛔ فشل بناء المرشح الخاص؛ التفاصيل محجوبة من السجل العام"
+            exit 1
+          fi
+          python tools/packages/certified_catalog_gate.py \
+            --input "$WORK/catalog.json" \
+            --output "$WORK/catalog.certified.json" \
+            --certificate-snapshot "$WORK/certified-indexes.json" \
+            --previous "$WORK/catalog.before.json" \
+            --id-diff "$WORK/id-diff.json" \
+            --min-timing 111 > "$WORK/gate-summary.json"
+          CANDIDATE_SHA=$(sha256sum "$WORK/catalog.certified.json" | cut -d' ' -f1)
+          python - "$WORK" "$CANDIDATE_SHA" >> "$GITHUB_STEP_SUMMARY" <<'PY'
+          import json, pathlib, sys
+          work, sha = pathlib.Path(sys.argv[1]), sys.argv[2]
+          candidate = json.loads((work / "catalog.certified.json").read_text())
+          diff = json.loads((work / "id-diff.json").read_text())
+          snapshot = json.loads((work / "certified-indexes.json").read_text())
+          print("candidate_sha256=" + sha)
+          print("candidate_packages=" + str(len(candidate.get("packages", []))))
+          print("certified_timing=" + str(len(diff["afterCertified"])))
+          print("previous_certified_timing=" + str(len(diff["beforeCertified"])))
+          print("added=" + str(len(diff["added"])))
+          print("removed=" + str(len(diff["removed"])))
+          print("certificate_catalog_sha256=" + snapshot["catalogSha256"])
+          PY
+          if [[ "${{ github.event_name }}" == workflow_dispatch && "${{ inputs.publish }}" == true ]]; then
+            test "$CANDIDATE_SHA" = "${{ inputs.approved_candidate_sha256 }}"
+          fi
+      - name: انشر نسخة مؤرخة ثم الحية وتحقق من SHA العام
+        if: github.event_name == 'workflow_dispatch' && inputs.publish
+        env:
+          R2_CREDENTIALS_JSON: ${{ secrets.R2_CREDENTIALS_JSON }}
+          EXPECT_RECITERS: ${{ inputs.expected_reciters_sha256 }}
+          EXPECT_PACKAGES: ${{ inputs.expected_packages_sha256 }}
+          APPROVED_CANDIDATE: ${{ inputs.approved_candidate_sha256 }}
+        run: |
+          set -euo pipefail
+          python -m pip install --quiet boto3
+          CREDS="$RUNNER_TEMP/r2-credentials.json"
+          printf '%s' "$R2_CREDENTIALS_JSON" > "$CREDS"
+          test "$(curl -fsS "$R2_BASE/catalog/reciters.json" | sha256sum | cut -d' ' -f1)" = "$EXPECT_RECITERS"
+          test "$(curl -fsS "$R2_BASE/packages/catalog.json" | sha256sum | cut -d' ' -f1)" = "$EXPECT_PACKAGES"
+          test "$(jq -r .catalogSha256 "$RUNNER_TEMP/package-catalog/certified-indexes.json")" = "$EXPECT_RECITERS"
+          test "$(sha256sum "$RUNNER_TEMP/package-catalog/catalog.certified.json" | cut -d' ' -f1)" = "$APPROVED_CANDIDATE"
+          python tools/packages/catalog_backup.py \
+            --credentials "$CREDS" --expected-sha256 "$EXPECT_PACKAGES" \
+            > "$RUNNER_TEMP/backup-summary.json"
+          jq '{backupKey,sha256,bytes}' "$RUNNER_TEMP/backup-summary.json" >> "$GITHUB_STEP_SUMMARY"
+          if ! PYTHONPATH="$RUNNER_TEMP/QuranRafiq/tools/packages" python -c \
+            'import sys,watch_catalog as w; sys.exit(0 if w.publish(sys.argv[1],sys.argv[2],sys.argv[3]) else 1)' \
+            "$RUNNER_TEMP/package-catalog/catalog.certified.json" "$CREDS" "$R2_BASE" \
+            > "$RUNNER_TEMP/private-publish.log" 2>&1; then
+            echo "⛔ فشل النشر بعد حفظ النسخة السابقة؛ التفاصيل محجوبة من السجل العام"
+            exit 1
+          fi
+          rm -f "$CREDS"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: package-catalog-candidate-${{ github.sha }}
+          path: |
+            ${{ runner.temp }}/package-catalog/catalog.certified.json
+            ${{ runner.temp }}/package-catalog/catalog.before.json
+            ${{ runner.temp }}/package-catalog/certified-indexes.json
+            ${{ runner.temp }}/package-catalog/id-diff.json
+            ${{ runner.temp }}/package-catalog/gate-summary.json
+          retention-days: 3

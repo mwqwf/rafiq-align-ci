@@ -33,6 +33,7 @@ import os
 import sys
 import time
 from concurrent.futures import ThreadPoolExecutor
+from pathlib import Path
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, HERE)
@@ -108,6 +109,46 @@ def certify(cat, served, verdict_shas, rejected_shas=frozenset()):
     return cat, stat
 
 
+def certificate_snapshot(cat, served, verdict_evidence, rejected_shas,
+                         catalog_sha256):
+    """Bind every certified timing reader to its exact live bytes and verdicts.
+
+    `ayahCertified` is an output of the guard, not evidence for this snapshot.
+    Evidence must be a live state document whose *full* sha256 field equals the
+    exact object body read in this run.  Native per-ayah readers have no timing
+    package, so they are intentionally absent.
+    """
+    indexes = {}
+    for riwaya in cat.get("riwayat", []):
+        rid = riwaya["id"]
+        for reciter in riwaya.get("reciters", []):
+            if reciter.get("mode") == "ayah" or not reciter.get("ayahCertified"):
+                continue
+            key = f"timings/{rid}/{reciter['id']}.jz"
+            if key not in served:
+                raise ValueError(f"شهادة بلا ملف حي: {key}")
+            entries, ayah_count, sha, fatal = served[key]
+            evidence = sorted(verdict_evidence.get(sha) or [])
+            if fatal or sha in rejected_shas or not evidence:
+                raise ValueError(f"شهادة بلا verdict حي كامل البصمة: {key}")
+            indexes[f"{rid}/{reciter['id']}"] = {
+                "key": key,
+                "sha256": sha,
+                "entries": entries,
+                "ayahCount": ayah_count,
+                "coverage": reciter["ayahCoverage"],
+                "rejected": False,
+                "verdictKeys": evidence,
+            }
+    return {
+        "schema": 1,
+        "certifier": CERTIFIER,
+        "catalogKey": CATALOG_KEY,
+        "catalogSha256": catalog_sha256,
+        "indexes": indexes,
+    }
+
+
 def _self_test() -> None:
     cat = {"riwayat": [{"id": "hafs", "reciters": [
         {"id": "a", "mode": "ayah"},
@@ -148,6 +189,17 @@ def _self_test() -> None:
         "⛔ والبسملةُ المبتلعة عطبٌ ولو كان في الفهرس إسقاطٌ معلَنٌ لسورةٍ أخرى"
     assert undeclared_fatal([], "") is False, "بلا فاتلٍ لا مانع"
     print("  ✅ الشرطُ الرابع يفصل **أثرَ الإسقاط المعلَن** عن **العطب المقيس**")
+    snap = certificate_snapshot(out, served, {"SHB": ["state/b.audio-k1.json"]},
+                                set(), "f" * 64)
+    assert list(snap["indexes"]) == ["hafs/b"]
+    assert snap["indexes"]["hafs/b"]["sha256"] == "SHB"
+    try:
+        certificate_snapshot(out, served, {}, set(), "f" * 64)
+    except ValueError:
+        pass
+    else:
+        raise AssertionError("⛔ snapshot قبل verdict كامل البصمة")
+    print("  ✅ snapshot يربط المعرّف بالبصمة الكاملة وverdict حي غير مرفوض")
     print(f"✅ --self-test أخضر · {CERTIFIER}")
 
 
@@ -155,6 +207,7 @@ def main() -> None:
     ap = argparse.ArgumentParser()
     ap.add_argument("--yes", action="store_true")
     ap.add_argument("--self-test", action="store_true")
+    ap.add_argument("--certificate-snapshot")
     a = ap.parse_args()
     if a.self_test:
         _self_test()
@@ -222,8 +275,8 @@ def main() -> None:
         sys.exit(f"⛔ قائمةُ الأحكام {len(shas)} سطراً فقط — قراءةٌ ناقصةٌ يقيناً، "
                  "ولا تُسقَط شهادةٌ بها")
     # الحكمُ يُنسب إلى البصمة: مفتاحُ الحالة يحمل بادئتَها الثمانية.
-    verdict_shas = {s for _, (_, _, s, _) in served.items()
-                    if any(s[:8] in k for k in shas)}
+    key_verdict_shas = {s for _, (_, _, s, _) in served.items()
+                        if any(s[:8] in k for k in shas)}
 
     # ── الشرطُ الرابع: يُقرأ ما في ملفّ الحكم لا وجودُه وحدَه ──────────────
     # ⛔ **والقراءةُ للفواتل وحدَها**: أما «مرفوض (عطبٌ جسيم %)» فمقياسٌ عيّنيّ
@@ -233,7 +286,7 @@ def main() -> None:
     #    · `trablsi` 1/10 · `waleed_qalun` 2/8). **فالفاتلُ وحدَه هو الحاكم:
     #    موضعٌ مسمَّىً بالاسم أدانه الصوت، لا رقمٌ عامّ.**
     audio_keys = [k for k in shas if ".audio-" in k and k.endswith(".json")]
-    want = {s[:8]: s for s in verdict_shas}
+    want = {s[:8]: s for s in key_verdict_shas}
     mine = [k for k in audio_keys if any(p in k for p in want)]
 
     def verdict(k, tries=3):
@@ -247,6 +300,15 @@ def main() -> None:
                 time.sleep(2 ** i)
     with ThreadPoolExecutor(4) as ex:
         docs = dict(ex.map(verdict, mine))
+    # A sha8 in a key is only a locator.  Certification evidence is the full
+    # sha256 inside the live verdict document, and it must equal the live
+    # timing object read above.
+    verdict_evidence = {}
+    for key, doc in docs.items():
+        full_sha = str(doc.get("sha256") or "")
+        if full_sha in key_verdict_shas and full_sha[:8] in key:
+            verdict_evidence.setdefault(full_sha, []).append(key)
+    verdict_shas = set(verdict_evidence)
     rejected_shas, why = set(), {}
     for k, d in docs.items():
         sha = next((s for p, s in want.items() if p in k), None)
@@ -290,6 +352,17 @@ def main() -> None:
         return c
     if json.dumps(strip(before), sort_keys=True) != json.dumps(strip(after), sort_keys=True):
         sys.exit("⛔ تغيّر حقلٌ غيرُ الحقلين في الكتالوج — يُوقَف")
+
+    if a.certificate_snapshot:
+        try:
+            snapshot = certificate_snapshot(
+                after, served, verdict_evidence, rejected_shas,
+                hashlib.sha256(raw_cat).hexdigest())
+        except ValueError as error:
+            sys.exit(f"⛔ {error}")
+        Path(a.certificate_snapshot).write_text(
+            json.dumps(snapshot, ensure_ascii=False, indent=1) + "\n",
+            encoding="utf-8")
 
     print(f"مشهودون {stat['certified']}/{stat['total']} = "
           f"{stat['certified'] / stat['total']:.1%}")
