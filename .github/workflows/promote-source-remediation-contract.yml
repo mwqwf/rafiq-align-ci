@@ -1,0 +1,29 @@
+name: promote-source-remediation-contract
+on:
+  push:
+    paths:
+      - tools/index_qa/promote.py
+      - tools/index_qa/test_promote_source_remediation.py
+      - tools/ci_fleet/source_overrides.json
+      - .github/workflows/promote-source-remediation-contract.yml
+  pull_request:
+    paths:
+      - tools/index_qa/promote.py
+      - tools/index_qa/test_promote_source_remediation.py
+      - tools/ci_fleet/source_overrides.json
+      - .github/workflows/promote-source-remediation-contract.yml
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: promote-source-remediation-contract-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: { python-version: "3.11" }
+      - run: python -m unittest tools.index_qa.test_promote_source_remediation -v
