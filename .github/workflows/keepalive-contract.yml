@@ -8,6 +8,9 @@ on:
       - tools/ci_fleet/restore_loop.py
       - tools/ci_fleet/reciters_remaining.tsv
       - tools/ci_fleet/test_keepalive_contract.py
+      - tools/ci_fleet/test_agent_cmd_contract.py
+      - tools/ci_fleet/agent_cmd.py
+      - .github/workflows/package-catalog-cloud.yml
       - tools/ci_fleet/test_restore_loop.py
   workflow_dispatch:
 permissions:
