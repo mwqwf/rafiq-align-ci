@@ -68,6 +68,13 @@ class RestoreLoopTests(unittest.TestCase):
                          "https://catalog/3siri/")
         self.assertIsNone(loop.source_base({}, "hafs", "missing", 9))
 
+    def test_failed_realign_is_blocked_only_for_same_source_and_engine(self):
+        old = "https://server6.mp3quran.net/kurdi/"
+        self.assertTrue(loop.blocked_realign("hafs", "kurdi", 93, old))
+        self.assertFalse(loop.blocked_realign(
+            "hafs", "kurdi", 93, "https://verified-alternate.example/kurdi/"))
+        self.assertFalse(loop.blocked_realign("hafs", "kurdi", 92, old))
+
     def test_realign_guard_reads_same_surah_scoped_override_file(self):
         body = (Path(__file__).resolve().parents[2] / ".github" / "workflows" /
                 "realign_surah.yml").read_text(encoding="utf-8")
@@ -149,6 +156,24 @@ class RestoreLoopTests(unittest.TestCase):
         self.assertIn("surahs=46", flat)
         self.assertIn("--ref", flat)
         self.assertIn("feature", flat)
+
+    def test_scan_does_not_repeat_tool_failure_on_unchanged_source(self):
+        row = {"riwaya": "hafs", "reciter": "kurdi", "surah": 93,
+               "have": 0, "expected": 11, "gap": 11,
+               "key": "timings/hafs/kurdi.jz",
+               "liveKey": "timings/hafs/kurdi.jz"}
+        calls = []
+        with mock.patch.object(loop, "catalog_bases", return_value={
+                 ("hafs", "kurdi"): "https://server6.mp3quran.net/kurdi/"}), \
+             mock.patch.object(loop, "fetch_index", return_value=(_idx(12), None)), \
+             mock.patch.object(loop, "surah_ends", return_value={93: 10_000}), \
+             mock.patch.object(loop, "inflight_reciters", return_value=set()), \
+             mock.patch.object(loop, "candidates", return_value=[row]), \
+             mock.patch.object(loop, "source_ratio", return_value=1.0), \
+             mock.patch.object(loop, "measured_skip", return_value=3580), \
+             mock.patch.object(loop, "gh", side_effect=lambda *a: calls.append(a)):
+            loop.cmd_scan(types.SimpleNamespace(limit=1))
+        self.assertEqual(calls, [])
 
 
 if __name__ == "__main__":
