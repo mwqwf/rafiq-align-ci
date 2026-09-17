@@ -71,6 +71,7 @@ jobs:
           echo "busy=$BUSY" >> "$GITHUB_OUTPUT"
 
       - name: أطلق موجةً عند الفراغ
+        id: launch
         if: steps.gap.outputs.busy == '0'
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -80,6 +81,9 @@ jobs:
           LIST: ${{ github.event.inputs.list || 'reciters_remaining.tsv' }}
         run: |
           set -e
+          # الخلاصةُ لا تستنتج الإطلاقَ من فراغ الأسطول: قد تكون القائمةُ
+          # فارغةً أيضاً. لا يُقلب هذا الخرج إلا بعد نجاح workflow_dispatch.
+          echo "launched=false" >> "$GITHUB_OUTPUT"
           # ⛔ **والقائمةُ تُفحص قبل أن تُطلق**: قائمةٌ غائبةٌ تُنتج موجةً تموت
           #    في أوّل خطوةٍ وتبدو في اللوحة «جارية» — والإعلانُ ليس أثراً.
           test -f "tools/ci_fleet/$LIST" || { echo "⛔ لا وجود لـ$LIST"; exit 1; }
@@ -94,11 +98,14 @@ jobs:
           echo "▶ الأسطولُ فارغ — تُطلق $LIST ($ROWS قارئ · $SHARDS شاردة)"
           gh workflow run align.yml \
             -f shards="$SHARDS" -f jobs_per_runner=4 -f smoke=false -f list="$LIST"
+          echo "launched=true" >> "$GITHUB_OUTPUT"
 
       - name: خلاصة
         run: |
-          if [ "${{ steps.gap.outputs.busy }}" = "0" ]; then
+          if [ "${{ steps.launch.outputs.launched }}" = "true" ]; then
             echo "🚀 كان فارغاً فأُطلقت موجة."
+          elif [ "${{ steps.gap.outputs.busy }}" = "0" ]; then
+            echo "✅ الأسطولُ فارغ والقائمةُ بلا قارئٍ مؤهّل — لم تُطلق موجة."
           else
             echo "✅ الأسطولُ يعمل (${{ steps.gap.outputs.busy }} تشغيلة) — لا تدخّل."
           fi

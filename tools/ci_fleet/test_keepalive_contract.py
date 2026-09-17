@@ -52,11 +52,18 @@ class KeepaliveContract(unittest.TestCase):
 
     def test_wave_size_tracks_live_rows_and_empty_list_does_not_launch(self):
         steps = self.workflow['jobs']['pulse']['steps']
-        body = next(s['run'] for s in steps if s.get('name') == 'أطلق موجةً عند الفراغ')
+        launch = next(s for s in steps if s.get('name') == 'أطلق موجةً عند الفراغ')
+        body = launch['run']
+        summary = next(s['run'] for s in steps if s.get('name') == 'خلاصة')
+        self.assertEqual(launch['id'], 'launch')
         self.assertIn('ROWS=$(awk', body)
         self.assertIn('[ "$SHARDS" -le 12 ] || SHARDS=12', body)
         self.assertIn('if [ "$ROWS" -eq 0 ]', body)
         self.assertIn('-f shards="$SHARDS"', body)
+        self.assertLess(body.index('launched=false'), body.index('if [ "$ROWS" -eq 0 ]'))
+        self.assertGreater(body.index('launched=true'), body.index('gh workflow run align.yml'))
+        self.assertIn('steps.launch.outputs.launched', summary)
+        self.assertIn('لم تُطلق موجة', summary)
 
     def promotion_script(self):
         steps = self.workflow['jobs']['gate_and_promote']['steps']
