@@ -1,0 +1,14 @@
+{
+  "action": "dispatch",
+  "workflow": "align_split.yml",
+  "inputs": {
+    "reciter": "h_abudalal",
+    "riwaya": "hafs",
+    "url_template": "https://server16.mp3quran.net/h_abudalal/Rewayat-Hafs-A-n-Assem/{surah:03d}.mp3",
+    "parts": "8",
+    "jobs_per_runner": "4",
+    "main_model": "base",
+    "whisper_ac": "256",
+    "reason": "قارئ مختلف قريب من العتبة: الحكم السابق 5.5% على tiny-ar-quran؛ يُختبر المصدر نفسه بمحرك base/ac256 دون خفض حد 5%، بعد إغلاق qasm.90e754c9 بنيوياً 4/4"
+  }
+}
