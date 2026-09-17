@@ -12,6 +12,14 @@ name: rafiq-diagnosis
 # ⛔ ولا يُولَّد محلياً بحال: `backfill_diagnosis` **ينزّل الصوت** لقياس المدد
 #    (114 ملفاً للقارئ)، وشبكةُ المالك ضعيفةٌ متقطّعة — قاعدةٌ ثابتة.
 on:
+  push:
+    paths:
+      - tools/cloud/backfill_diagnosis.py
+      - .github/workflows/diagnosis.yml
+  pull_request:
+    paths:
+      - tools/cloud/backfill_diagnosis.py
+      - .github/workflows/diagnosis.yml
   workflow_dispatch:
     inputs:
       only:
@@ -22,7 +30,18 @@ on:
         default: "8"
 
 jobs:
+  contract:
+    runs-on: ubuntu-latest
+    timeout-minutes: 2
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: { python-version: "3.11" }
+      - run: python tools/cloud/backfill_diagnosis.py --self-test
+
   diagnose:
+    if: github.event_name == 'workflow_dispatch'
+    needs: contract
     runs-on: ubuntu-latest
     timeout-minutes: 180
     steps:
@@ -75,4 +94,5 @@ jobs:
           echo "الاعتمادُ في الصَّدَفة (لا في سطر الأمر ولا في السجل)"
           ARG=""
           [ -n "$ONLY" ] && ARG="--only $ONLY"
+          python /root/backfill_diagnosis.py --self-test
           python /root/backfill_diagnosis.py --threads "${THREADS:-8}" $ARG
