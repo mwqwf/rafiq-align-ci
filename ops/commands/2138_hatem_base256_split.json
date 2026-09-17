@@ -1,0 +1,14 @@
+{
+  "action": "dispatch",
+  "workflow": "align_split.yml",
+  "inputs": {
+    "reciter": "hatem",
+    "riwaya": "hafs",
+    "url_template": "https://server11.mp3quran.net/hatem/{surah:03d}.mp3",
+    "parts": "8",
+    "jobs_per_runner": "4",
+    "main_model": "base",
+    "whisper_ac": "256",
+    "reason": "تغيير جوهري موثق: مرشح hatem القديم 6211/6236 قيس بمحرك tiny-ar-quran وأعطى 4.0–6.5% بين الأملاح؛ هذه إعادة بناء كاملة split بمحرك base/ac256 على المصدر المسجل exact دون خفض حد 5%، بعد إغلاق h_saleh لأن base/ac256 أعطى 5734<5900 بلا مرشح"
+  }
+}
