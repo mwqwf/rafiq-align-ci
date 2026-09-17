@@ -1,0 +1,12 @@
+{
+  "action": "dispatch",
+  "workflow": "package-catalog-cloud.yml",
+  "inputs": {
+    "publish": "true",
+    "expected_reciters_sha256": "f240757a77110b67c74122d6540bb44bf3e51052349ae9f5e0e50da4173217b1",
+    "expected_packages_sha256": "efe4a02c1598e0f7cddc48a955d2388f96733e9768e8b001374a58e36c527875",
+    "approved_candidate_sha256": "3c0fe8dbe16c69ca75fb1227fc15aca2f7442b37210d90f456dba8faf65786f1",
+    "approved_artifact_id": "10495404678",
+    "reason": "إلحاق hafs/3siri بعد ترقية 6236/6236 وشهادة SHA-256 حية؛ added=1 removed=0"
+  }
+}
