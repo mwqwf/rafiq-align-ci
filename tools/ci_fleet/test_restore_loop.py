@@ -140,12 +140,15 @@ class RestoreLoopTests(unittest.TestCase):
              mock.patch.object(loop, "candidates", return_value=[row]), \
              mock.patch.object(loop, "source_ratio", return_value=1.0), \
              mock.patch.object(loop, "measured_skip", return_value=7340), \
-             mock.patch.object(loop, "gh", side_effect=fake_gh):
+             mock.patch.object(loop, "gh", side_effect=fake_gh), \
+             mock.patch.dict(loop.os.environ, {"GITHUB_REF_NAME": "feature"}):
             loop.cmd_scan(types.SimpleNamespace(limit=1))
 
         flat = calls[-1]
         self.assertIn("parent=timings-staging/hafs/nufais.new.jz", flat)
         self.assertIn("surahs=46", flat)
+        self.assertIn("--ref", flat)
+        self.assertIn("feature", flat)
 
 
 if __name__ == "__main__":

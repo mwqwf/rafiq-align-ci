@@ -365,11 +365,16 @@ def cmd_scan(a):
                   f"ونسبةُ حجمِ المصدر إلى المتوقَّع {ratio:.2f} بوسيطِ {len(refs)} مراجعَ "
                   f"⇒ المصدرُ حاضرٌ والنقصُ في محاذاتنا. والتخطّي {skip}م.ث وسيطُ بدءِ "
                   f"الآية الأولى في جارات السورة عند هذا القارئ نفسِه.")
-        out = gh("workflow", "run", "realign_surah.yml",
-                 "--repo", os.environ.get("GITHUB_REPOSITORY", "mwqwf/rafiq-align-ci"),
-                 "-f", f"parent={r['key']}", "-f", f"surahs={s}",
+        call = ["workflow", "run", "realign_surah.yml",
+                "--repo", os.environ.get("GITHUB_REPOSITORY", "mwqwf/rafiq-align-ci")]
+        # تشغيلُ فرعٍ تجريبي يجب أن يستهلك حارسه هو، لا نسخة main القديمة.
+        # وعلى main تكون القيمة main نفسها فلا يتغيّر مسار الإنتاج.
+        if os.environ.get("GITHUB_REF_NAME"):
+            call += ["--ref", os.environ["GITHUB_REF_NAME"]]
+        call += ["-f", f"parent={r['key']}", "-f", f"surahs={s}",
                  "-f", f"skip_ms={skip}", "-f", f"url_template={base}{{s:03d}}.mp3",
-                 "-f", f"reciter_id={rid}", "-f", f"riwaya={riw}", "-f", f"reason={reason}")
+                 "-f", f"reciter_id={rid}", "-f", f"riwaya={riw}", "-f", f"reason={reason}"]
+        out = gh(*call)
         print(f"      ▶ أُطلقت إعادةُ المحاذاة {out.strip()}")
         done += 1
     print(f"⇒ أُطلق {done}")
