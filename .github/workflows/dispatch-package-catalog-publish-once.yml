@@ -1,0 +1,40 @@
+name: dispatch-package-catalog-publish-once
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - .github/workflows/dispatch-package-catalog-publish-once.yml
+
+permissions:
+  actions: write
+  contents: read
+
+jobs:
+  dispatch:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: أطلق النشر المحروس بالقيم المراجعة
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          jq -n '{
+            ref: "main",
+            inputs: {
+              publish: "true",
+              expected_reciters_sha256: "1ac0eb0044a8c05f2447b374ddf496c1d36408a1a18f49c6b41d3635cfe0a3a1",
+              expected_packages_sha256: "1408a6abdec565adfe240edac424cfa1a4615d8102c1c8e1333a249374a950ee",
+              approved_candidate_sha256: "efe4a02c1598e0f7cddc48a955d2388f96733e9768e8b001374a58e36c527875",
+              approved_artifact_id: "10482662680",
+              reason: "Owner-authorized guarded delivery: live rebuild 35187087673 measured 159 timing packages, added 81, removed 0, failures 0"
+            }
+          }' > "$RUNNER_TEMP/dispatch.json"
+          curl -fsSL -X POST \
+            -H "Authorization: Bearer $GH_TOKEN" \
+            -H "Accept: application/vnd.github+json" \
+            -H "X-GitHub-Api-Version: 2022-11-28" \
+            "https://api.github.com/repos/$GITHUB_REPOSITORY/actions/workflows/package-catalog-cloud.yml/dispatches" \
+            --data-binary @"$RUNNER_TEMP/dispatch.json"
+          echo "Dispatched guarded publish for approved artifact 10482662680." >> "$GITHUB_STEP_SUMMARY"
