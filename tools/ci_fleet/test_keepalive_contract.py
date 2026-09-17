@@ -46,6 +46,15 @@ class KeepaliveContract(unittest.TestCase):
                 self.assertFalse(any(k.arg == 'end' and isinstance(k.value, ast.Constant)
                                      and k.value.value == '' for k in node.keywords))
 
+    def test_scan_exposes_safe_queue_diagnostics(self):
+        steps = self.workflow['jobs']['gate_and_promote']['steps']
+        scan = next(s['run'] for s in steps if s.get('id') == 'scan')
+        summary = next(s['run'] for s in steps if s.get('name') == 'خلاصة بوابة الأحكام')
+        for output in ('eligible_count=', 'queued_count=', 'queue_blocked='):
+            self.assertIn(output, scan)
+        for output in ('eligible_count', 'queued_count', 'queue_blocked'):
+            self.assertIn(f'steps.scan.outputs.{output}', summary)
+
     def test_hourly_backup_and_no_parallel_pulses(self):
         self.assertTrue(self.workflow['on']['schedule'])
         self.assertEqual(self.workflow['concurrency']['cancel-in-progress'], 'false')
