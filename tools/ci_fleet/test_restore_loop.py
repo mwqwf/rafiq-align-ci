@@ -1,5 +1,6 @@
 import datetime as dt
 import email.message
+from pathlib import Path
 import types
 import unittest
 from unittest import mock
@@ -66,6 +67,14 @@ class RestoreLoopTests(unittest.TestCase):
         self.assertEqual(loop.source_base(bases, "hafs", "3siri", 8),
                          "https://catalog/3siri/")
         self.assertIsNone(loop.source_base({}, "hafs", "missing", 9))
+
+    def test_realign_guard_reads_same_surah_scoped_override_file(self):
+        body = (Path(__file__).resolve().parents[2] / ".github" / "workflows" /
+                "realign_surah.yml").read_text(encoding="utf-8")
+        self.assertIn("SURAHS: ${{ github.event.inputs.surahs }}", body)
+        self.assertIn('tools/ci_fleet/source_overrides.json', body)
+        self.assertIn('len(selected) == len(surahs)', body)
+        self.assertIn('got not in (want, mirror, override)', body)
 
     def test_effective_indexes_chains_latest_staged_gain(self):
         indexes = {

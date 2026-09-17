@@ -72,8 +72,10 @@ MIN_AYAHS = 3         # لا يُنفق عدّاءٌ على أقلَّ من هذ
 # البديل لنفس القارئ والرواية يعلن 114 سورة وحجمُ س9 فيه 57,088,047 بايت.
 # يبقى `source_ratio` أدناه هو الحارس الفعلي: إن لم يبلغ 0.85 لا تُطلق المحاذاة.
 SOURCE_OVERRIDES = {
-    ("hafs", "3siri", 9):
-        "https://media.way2quran.com/ibrahim-al-asiri/hafs-an-asim/",
+    (row["riwaya"], row["reciter"], int(row["surah"])): row["base"]
+    for row in json.loads(
+        (ROOT / "tools" / "ci_fleet" / "source_overrides.json").read_text(
+            encoding="utf-8"))
 }
 
 
