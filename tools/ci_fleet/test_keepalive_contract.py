@@ -50,9 +50,17 @@ class KeepaliveContract(unittest.TestCase):
         steps = self.workflow['jobs']['gate_and_promote']['steps']
         scan = next(s['run'] for s in steps if s.get('id') == 'scan')
         summary = next(s['run'] for s in steps if s.get('name') == 'خلاصة بوابة الأحكام')
-        for output in ('eligible_count=', 'queued_count=', 'queue_blocked='):
+        for output in (
+            'eligible_count=', 'queued_count=', 'queue_blocked=',
+            'tracked_key=', 'tracked_salts=', 'tracked_inflight=',
+            'tracked_published=', 'tracked_excluded=',
+        ):
             self.assertIn(output, scan)
-        for output in ('eligible_count', 'queued_count', 'queue_blocked'):
+        for output in (
+            'eligible_count', 'queued_count', 'queue_blocked',
+            'tracked_key', 'tracked_salts', 'tracked_inflight',
+            'tracked_published', 'tracked_excluded',
+        ):
             self.assertIn(f'steps.scan.outputs.{output}', summary)
 
     def test_hourly_backup_and_no_parallel_pulses(self):

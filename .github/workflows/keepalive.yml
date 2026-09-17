@@ -235,6 +235,22 @@ jobs:
                       excluded.add(rid)
           except FileNotFoundError:
               raise SystemExit("قائمة الاستبعاد مفقودة؛ تُمنع الدفعة ولا يُفترض أن الجميع مسموح")
+          # تشخيصٌ آمنٌ للمرشّح الجاري: يبيّن أيَّ حارسٍ أسقطه من
+          # الأهلية من غير كشف أسرار أو تغيير قرار البوابة.
+          tracked = next((k for k in sorted(newest.values())
+                          if _who(k)[1] == "h_abudalal"), "")
+          if tracked:
+              print("tracked_key=" + tracked)
+              print(f"tracked_salts={salts.get(tracked.replace('/', '_'), 0)}")
+              print(f"tracked_inflight={'true' if tracked in inflight else 'false'}")
+              print(f"tracked_published={'true' if _who(tracked) in published else 'false'}")
+              print(f"tracked_excluded={'true' if _who(tracked)[1] in excluded else 'false'}")
+          else:
+              print("tracked_key=none")
+              print("tracked_salts=none")
+              print("tracked_inflight=false")
+              print("tracked_published=false")
+              print("tracked_excluded=false")
           need = [k for k in sorted(newest.values())
                   if salts.get(k.replace("/", "_"), 0) < 4
                   and k not in inflight and _who(k) not in published
@@ -272,6 +288,11 @@ jobs:
             echo "- التشغيلات المنتظرة: ${{ steps.scan.outputs.queued_count }}"
             echo "- منع الازدحام: ${{ steps.scan.outputs.queue_blocked }}"
             echo "- الدفعة: ${{ steps.scan.outputs.count }}"
+            echo "- المرشح المتتبّع: ${{ steps.scan.outputs.tracked_key }}"
+            echo "- أملاحه: ${{ steps.scan.outputs.tracked_salts }}"
+            echo "- في الطيران: ${{ steps.scan.outputs.tracked_inflight }}"
+            echo "- منشور: ${{ steps.scan.outputs.tracked_published }}"
+            echo "- مستبعد: ${{ steps.scan.outputs.tracked_excluded }}"
           } >> "$GITHUB_STEP_SUMMARY"
 
       - name: أطلق الأحكام
