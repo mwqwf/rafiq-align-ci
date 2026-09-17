@@ -26,7 +26,8 @@ def is_surah_index(idx, catalog_row):
     """
     kind = idx.get("sourceKind")
     if kind is not None:
-        return str(kind).upper() == "SURAH_FILES", "sourceKind={}".format(kind)
+        normalized = str(kind).strip().upper().replace("-", "_")
+        return normalized in {"SURAH", "SURAH_FILES"}, "sourceKind={}".format(kind)
     mode = str((catalog_row or {}).get("mode") or "").lower()
     hashes = idx.get("audioSha256")
     ok = mode in {"surah", "surah_files", "surah-files"} and (
@@ -40,12 +41,13 @@ def is_surah_index(idx, catalog_row):
 def self_test():
     hashes = ["x"] * 114
     assert is_surah_index({"sourceKind": "SURAH_FILES"}, {"mode": "ayah"})[0]
+    assert is_surah_index({"sourceKind": "surah"}, {"mode": "ayah"})[0]
     assert not is_surah_index({"sourceKind": "AYAH_FILES",
                                "audioSha256": hashes}, {"mode": "surah"})[0]
     assert is_surah_index({"audioSha256": hashes}, {"mode": "surah"})[0]
     assert not is_surah_index({"audioSha256": hashes}, {"mode": "ayah"})[0]
     assert not is_surah_index({"audioSha256": hashes[:-1]}, {"mode": "surah"})[0]
-    print("✅ legacy diagnosis source gate: 5/5")
+    print("✅ legacy diagnosis source gate: 6/6")
 
 
 def main():
