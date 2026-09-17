@@ -1,0 +1,14 @@
+{
+  "action": "dispatch",
+  "workflow": "align_split.yml",
+  "inputs": {
+    "reciter": "qasm",
+    "riwaya": "hafs",
+    "url_template": "https://server8.mp3quran.net/qasm/{surah:03d}.mp3",
+    "parts": "8",
+    "jobs_per_runner": "4",
+    "main_model": "base",
+    "whisper_ac": "256",
+    "reason": "محرك جديد موثق: رفض tiny/ac0 السابق 6.38% بعد القص؛ يُختبر base/ac256 دون خفض حد 5% وبقسمة 8 أجزاء"
+  }
+}
