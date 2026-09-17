@@ -24,12 +24,16 @@ on:
       approved_candidate_sha256:
         description: "SHA-256 المرشح الذي راجعه المشرف"
         required: false
+      approved_artifact_id:
+        description: "رقم أثر Actions الذي يحمل بايتات المرشح المراجع"
+        required: false
       reason:
         description: "سبب النشر المقيس"
         required: false
 
 permissions:
   contents: read
+  actions: read
 
 concurrency:
   group: package-catalog-cloud
@@ -49,7 +53,8 @@ jobs:
         run: |
           python -m unittest \
             tools.packages.test_certified_catalog_gate \
-            tools.packages.test_catalog_backup -v
+            tools.packages.test_catalog_backup \
+            tools.packages.test_approved_candidate -v
           python tools/index_qa/certify_catalog.py --self-test
       - name: اعتماد R2 يبقى داخل Actions
         env:
@@ -80,11 +85,13 @@ jobs:
           EXPECT_RECITERS: ${{ inputs.expected_reciters_sha256 }}
           EXPECT_PACKAGES: ${{ inputs.expected_packages_sha256 }}
           APPROVED_CANDIDATE: ${{ inputs.approved_candidate_sha256 }}
+          APPROVED_ARTIFACT: ${{ inputs.approved_artifact_id }}
           REASON: ${{ inputs.reason }}
         run: |
           set -euo pipefail
           test -n "$REASON" && test -n "$EXPECT_RECITERS" && test -n "$EXPECT_PACKAGES"
           test -n "$APPROVED_CANDIDATE"
+          [[ "$APPROVED_ARTIFACT" =~ ^[0-9]+$ ]]
           GOT_RECITERS=$(curl -fsS "$R2_BASE/catalog/reciters.json" | sha256sum | cut -d' ' -f1)
           GOT_PACKAGES=$(curl -fsS "$R2_BASE/packages/catalog.json" | sha256sum | cut -d' ' -f1)
           test "$GOT_RECITERS" = "$EXPECT_RECITERS"
@@ -130,8 +137,37 @@ jobs:
           print("certificate_catalog_sha256=" + snapshot["catalogSha256"])
           PY
           if [[ "${{ github.event_name }}" == workflow_dispatch && "${{ inputs.publish }}" == true ]]; then
-            test "$CANDIDATE_SHA" = "${{ inputs.approved_candidate_sha256 }}"
+            test "$(jq -r '.certifiedGate.timingCertified' "$WORK/catalog.certified.json")" = 159
           fi
+      - name: طابق أثر المرشح المراجع مع إعادة البناء الحية
+        if: github.event_name == 'workflow_dispatch' && inputs.publish
+        env:
+          GH_TOKEN: ${{ github.token }}
+          APPROVED_ARTIFACT: ${{ inputs.approved_artifact_id }}
+          APPROVED_CANDIDATE: ${{ inputs.approved_candidate_sha256 }}
+          EXPECT_RECITERS: ${{ inputs.expected_reciters_sha256 }}
+          EXPECT_PACKAGES: ${{ inputs.expected_packages_sha256 }}
+        run: |
+          set -euo pipefail
+          APPROVED="$RUNNER_TEMP/package-catalog-approved"
+          mkdir -p "$APPROVED"
+          curl -fsSL \
+            -H "Authorization: Bearer $GH_TOKEN" \
+            -H "Accept: application/vnd.github+json" \
+            -H "X-GitHub-Api-Version: 2022-11-28" \
+            "https://api.github.com/repos/$GITHUB_REPOSITORY/actions/artifacts/$APPROVED_ARTIFACT/zip" \
+            -o "$RUNNER_TEMP/approved-candidate.zip"
+          unzip -q "$RUNNER_TEMP/approved-candidate.zip" -d "$APPROVED"
+          python tools/packages/approved_candidate.py \
+            --approved "$APPROVED/catalog.certified.json" \
+            --fresh "$RUNNER_TEMP/package-catalog/catalog.certified.json" \
+            --approved-before "$APPROVED/catalog.before.json" \
+            --approved-snapshot "$APPROVED/certified-indexes.json" \
+            --expected-candidate-sha256 "$APPROVED_CANDIDATE" \
+            --expected-packages-sha256 "$EXPECT_PACKAGES" \
+            --expected-reciters-sha256 "$EXPECT_RECITERS" \
+            --output "$RUNNER_TEMP/approved-summary.json" \
+            >> "$GITHUB_STEP_SUMMARY"
       - name: انشر نسخة مؤرخة ثم الحية وتحقق من SHA العام
         if: github.event_name == 'workflow_dispatch' && inputs.publish
         env:
@@ -147,18 +183,20 @@ jobs:
           test "$(curl -fsS "$R2_BASE/catalog/reciters.json" | sha256sum | cut -d' ' -f1)" = "$EXPECT_RECITERS"
           test "$(curl -fsS "$R2_BASE/packages/catalog.json" | sha256sum | cut -d' ' -f1)" = "$EXPECT_PACKAGES"
           test "$(jq -r .catalogSha256 "$RUNNER_TEMP/package-catalog/certified-indexes.json")" = "$EXPECT_RECITERS"
-          test "$(sha256sum "$RUNNER_TEMP/package-catalog/catalog.certified.json" | cut -d' ' -f1)" = "$APPROVED_CANDIDATE"
+          APPROVED="$RUNNER_TEMP/package-catalog-approved/catalog.certified.json"
+          test "$(sha256sum "$APPROVED" | cut -d' ' -f1)" = "$APPROVED_CANDIDATE"
           python tools/packages/catalog_backup.py \
             --credentials "$CREDS" --expected-sha256 "$EXPECT_PACKAGES" \
             > "$RUNNER_TEMP/backup-summary.json"
           jq '{backupKey,sha256,bytes}' "$RUNNER_TEMP/backup-summary.json" >> "$GITHUB_STEP_SUMMARY"
           if ! PYTHONPATH="$RUNNER_TEMP/QuranRafiq/tools/packages" python -c \
             'import sys,watch_catalog as w; sys.exit(0 if w.publish(sys.argv[1],sys.argv[2],sys.argv[3]) else 1)' \
-            "$RUNNER_TEMP/package-catalog/catalog.certified.json" "$CREDS" "$R2_BASE" \
+            "$APPROVED" "$CREDS" "$R2_BASE" \
             > "$RUNNER_TEMP/private-publish.log" 2>&1; then
             echo "⛔ فشل النشر بعد حفظ النسخة السابقة؛ التفاصيل محجوبة من السجل العام"
             exit 1
           fi
+          test "$(curl -fsS "$R2_BASE/packages/catalog.json" | sha256sum | cut -d' ' -f1)" = "$APPROVED_CANDIDATE"
           rm -f "$CREDS"
       - uses: actions/upload-artifact@v4
         with:
