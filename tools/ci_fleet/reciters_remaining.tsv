@@ -90,6 +90,8 @@
 #      محاذاة» يُسجَّل ويُنتقل عنه. وإبقاؤه هنا كان يُعيد بصمةَ `ac=0` نفسَها عند
 #      كلّ إعادة إطلاق فتُنفق عليها البوّابةُ **خمسَ تشغيلاتٍ** بلا احتمالِ تغيّرِ حكم.
 #    (‏وحذفُه اليومَ لا يُكلّف كاشاً: مفتاحُ `align.yml:361` صار وسماً باسم القارئ.)
-noah_warsh	warsh	https://archive.org/download/Al-Quran_Warsh_tilawat_Youssef_Noah/{surah:03d}.mp3	4
-asim	hafs	https://server7.mp3quran.net/asim/Rewayat-Hafs-A-n-Assem/{surah:03d}.mp3	4
-f_hajry	hafs	https://server16.mp3quran.net/f_hajry/Rewayat-Hafs-A-n-Assem/{surah:03d}.mp3	4
+# 2026-09-17: أُخرج asim/noah_warsh/f_hajry بعد أحكامٍ مكتملة (انظر
+# excluded_reciters.txt). التالي ليس تكرارَ حكم: `a_binaoun` منشورٌ من الجيل
+# الأول (2246/6236)، وrestore_loop يثبت أن ترقيع سورةٍ لا يصلحه؛ علاجه إعادةُ
+# بناءٍ كاملة v2.1 من مصدره الحي نفسه، ثم بوابةُ التحسين للمنشورين.
+a_binaoun	hafs	https://server16.mp3quran.net/a_binaoun/Rewayat-Hafs-A-n-Assem/{surah:03d}.mp3	4

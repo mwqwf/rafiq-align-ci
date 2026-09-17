@@ -50,6 +50,14 @@ class KeepaliveContract(unittest.TestCase):
         self.assertTrue(self.workflow['on']['schedule'])
         self.assertEqual(self.workflow['concurrency']['cancel-in-progress'], 'false')
 
+    def test_wave_size_tracks_live_rows_and_empty_list_does_not_launch(self):
+        steps = self.workflow['jobs']['pulse']['steps']
+        body = next(s['run'] for s in steps if s.get('name') == 'أطلق موجةً عند الفراغ')
+        self.assertIn('ROWS=$(awk', body)
+        self.assertIn('[ "$SHARDS" -le 12 ] || SHARDS=12', body)
+        self.assertIn('if [ "$ROWS" -eq 0 ]', body)
+        self.assertIn('-f shards="$SHARDS"', body)
+
     def promotion_script(self):
         steps = self.workflow['jobs']['gate_and_promote']['steps']
         return next(s['run'] for s in steps if s.get('name') == 'رقِّ من عبر')
