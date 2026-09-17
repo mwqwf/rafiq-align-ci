@@ -160,6 +160,7 @@ jobs:
         env:
           PARENT: ${{ github.event.inputs.parent }}
           URLT: ${{ github.event.inputs.url_template }}
+          SURAHS: ${{ github.event.inputs.surahs }}
         run: |
           # ⛔ **درسٌ بثمنه (2026-09-05):** أُطلقت إعادتا محاذاةٍ بقالبَي صوتٍ
           #    **مخمَّنين** بدل قراءتهما من الكتالوج — ولولا أنّهما أُلغيتا
@@ -194,6 +195,8 @@ jobs:
               base += "/"
           want = base + "{s:03d}.mp3"
           got = os.environ["URLT"]
+          surahs = [int(x.strip()) for x in os.environ["SURAHS"].split(",")
+                    if x.strip().isdigit()]
           # ⛔ **ومرآتُنا وحدَها استثناءٌ — لأنها ليست تخميناً** (2026-09-08):
           #    الحارسُ وُضع ليمنع **رابطاً مخمَّناً** لمضيفٍ غريب. ومرآتُنا في
           #    دلونا مسارٌ قانونيّ **مشتقٌّ من الرواية والمعرّف نفسِهما**، وما
@@ -206,6 +209,19 @@ jobs:
           #    لا تمسّ بقيّةَ القارئ.
           mirror = (f"https://pub-2c2e1dcd92e84a2898820dd38d3e09e6.r2.dev/"
                     f"audio/{riw}/{rid}/" + "{s:03d}.mp3")
+          # مصدرٌ خارجيٌّ بديل لا يُقبل بمجرد مطابقته اسماً: يجب أن يكون مسجلاً
+          # لهذا القارئ والرواية **ولكل سورة مطلوبة بعينها** في ملف الأدلة الذي
+          # يقرأه restore_loop نفسه، ثم يبقى قياس الحجم وحارس التحويل بعده.
+          overrides = json.load(open("tools/ci_fleet/source_overrides.json",
+                                     encoding="utf-8"))
+          selected = [o for o in overrides
+                      if o.get("riwaya") == riw and o.get("reciter") == rid
+                      and int(o.get("surah", 0)) in surahs]
+          override = None
+          if surahs and len(selected) == len(surahs):
+              bases = {str(o.get("base") or "") for o in selected}
+              if len(bases) == 1:
+                  override = bases.pop().rstrip("/") + "/{s:03d}.mp3"
           # ⛔⛔ **ومضيفُ المجلَّد بابٌ ثالثٌ مشروع** (‏2026-09-11): أساسُه بلا
           #    `{s:03d}` وأسماؤه في جدول `files` بالكتالوج. وكان اشتراطُ القالب
           #    يمنع إصلاحَ سورةٍ واحدةٍ فيُردُّ مصحفٌ كاملٌ لعلّةٍ في سورتين.
@@ -214,14 +230,17 @@ jobs:
           folder = base.rstrip("/") if base else None
           if folder and got.rstrip("/") == folder:
               print("✅ أساسُ مجلَّدٍ مطابقٌ للكتالوج — الأسماءُ من جدول files")
-          elif got not in (want, mirror):
+          elif got not in (want, mirror, override):
               print("⛔ القالبُ المعطى يخالف الكتالوج ولا هو مرآتُنا — يُوقَف قبل تنزيل بايت.")
               print(f"   المعطى:   {got}")
               print(f"   الكتالوج: {want}")
               print(f"   المرآة:   {mirror}")
+              print(f"   البديل المقاس: {override or '(لا يوجد لهذه السورة)'}")
               sys.exit(1)
           print(f"✅ القالبُ مقبول: {got}"
-                + ("" if got == want else "  (مرآتُنا — لا مضيفٌ غريب)"))
+                + ("" if got == want else
+                   "  (بديلٌ مقاس ومحصور بالسورة)" if got == override else
+                   "  (مرآتُنا — لا مضيفٌ غريب)"))
           PY
 
       - name: إعادة المحاذاة سورةً سورة

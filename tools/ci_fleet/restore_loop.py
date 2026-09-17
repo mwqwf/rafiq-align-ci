@@ -66,11 +66,44 @@ SOUND = 0.85          # وسيطُ نسبةِ الحجم الذي دونه يُ�
 LOWCOV = 0.75         # تغطيةُ سورةٍ حاضرةٍ تُعدّ دونها ناقصة
 MIN_AYAHS = 3         # لا يُنفق عدّاءٌ على أقلَّ من هذا
 
+# مصدرٌ بديلٌ **لسورةٍ بعينها** بعد قياس المصدر الأصلي، لا استبدالٌ عشوائيّ
+# للمصحف كله. `3siri/9` في المصدر المسجّل حجمه 10,582,833 بايت ونسبةُ حجمه
+# إلى المتوقّع بوسيط المراجع الأربعة 0.19 (restore 35185281620)، بينما المصدر
+# البديل لنفس القارئ والرواية يعلن 114 سورة وحجمُ س9 فيه 57,088,047 بايت.
+# يبقى `source_ratio` أدناه هو الحارس الفعلي: إن لم يبلغ 0.85 لا تُطلق المحاذاة.
+SOURCE_OVERRIDES = {
+    (row["riwaya"], row["reciter"], int(row["surah"])): row["base"]
+    for row in json.loads(
+        (ROOT / "tools" / "ci_fleet" / "source_overrides.json").read_text(
+            encoding="utf-8"))
+}
+
 
 def head_len(url: str) -> int:
-    rq = urllib.request.Request(url, method="HEAD", headers=UA)
-    with urllib.request.urlopen(rq, timeout=45) as r:
-        return int(r.headers.get("Content-Length", 0))
+    def measured(response) -> int:
+        content_range = response.headers.get("Content-Range", "")
+        if "/" in content_range:
+            total = content_range.rsplit("/", 1)[-1]
+            if total.isdigit():
+                return int(total)
+        return int(response.headers.get("Content-Length", 0))
+
+    try:
+        rq = urllib.request.Request(url, method="HEAD", headers=UA)
+        with urllib.request.urlopen(rq, timeout=45) as r:
+            size = measured(r)
+        if size:
+            return size
+    except Exception:                                          # noqa: BLE001
+        pass
+    # بعض مرايا الصوت لا تجيب HEAD مع أنها تخدم الملف كاملاً. GET لبايتٍ واحد
+    # يثبت الوجود والحجم من Content-Range، ولا ينزّل الملف إلى العدّاء.
+    rq = urllib.request.Request(url, headers={**UA, "Range": "bytes=0-0"})
+    with urllib.request.urlopen(rq, timeout=60) as r:
+        size = measured(r)
+    if not size:
+        raise ValueError(f"لا طولَ قابلاً للقياس: {url}")
+    return size
 
 
 def surah_ends(idx) -> dict:
@@ -100,6 +133,12 @@ def catalog_bases() -> dict:
             if rc.get("mode") != "ayah":
                 out[(riw, rc.get("id"))] = rc.get("base")
     return out
+
+
+def source_base(bases: dict, riwaya: str, reciter: str, surah: int) -> str | None:
+    """المصدر المقاس للسورة، ثم مصدر الكتالوج لبقية السور."""
+    return SOURCE_OVERRIDES.get((riwaya, reciter, surah),
+                                bases.get((riwaya, reciter)))
 
 
 def source_ratio(idx, base: str, surah: int, refs) -> float | None:
@@ -247,7 +286,13 @@ def candidates():
         k, idx = r["key"], r["index"]
         riw, rid = k.split("/")[1], k.split("/")[2][:-3]
         rid = rid.split(".")[0]
-        counts = SURAH_AYAHS_OF(idx)
+        try:
+            counts = SURAH_AYAHS_OF(idx)
+        except SystemExit as e:
+            # لا نحوّل عدّ روايةٍ إلى كوفيّ تخميناً، ولا نُسقط جردَ القرّاء
+            # الآخرين بسبب فهرسٍ واحد. يُغلق هذا الفهرس وحده ويظل صوته كما هو.
+            print(f"   ⛔ {k}: يُترك من جرد الاسترجاع — {e}", file=sys.stderr)
+            continue
         per = {}
         for e in idx["entries"]:
             s = int(e["ayahId"].split(":")[0])
@@ -285,10 +330,12 @@ def cmd_scan(a):
         if any(rid in t for t in busy):
             print(f"   ⏭️ {rid} س{s}: في الطيران — يُترك")
             continue
-        base = bases.get((riw, rid))
+        base = source_base(bases, riw, rid, s)
         if not base:
             print(f"   ⛔ {rid}: لا مصدرَ في الكتالوج")
             continue
+        if (riw, rid, s) in SOURCE_OVERRIDES:
+            print(f"   🔁 {rid} س{s}: مصدرٌ بديلٌ مقاس؛ المصدرُ المسجّل مبتور")
         idx, _ = fetch_index(r["key"])
         # ⛔⛔ **فهرسُ الجيل الأوّل لا يُصلحه ترقيعُ سورة** — قاعدةُ `CLAUDE.md` نصّاً،
         #    و`stage_transform` يردّه **حتماً** بـ«الفهرس بلا أثر صقلٍ في ترويسته —
@@ -318,11 +365,16 @@ def cmd_scan(a):
                   f"ونسبةُ حجمِ المصدر إلى المتوقَّع {ratio:.2f} بوسيطِ {len(refs)} مراجعَ "
                   f"⇒ المصدرُ حاضرٌ والنقصُ في محاذاتنا. والتخطّي {skip}م.ث وسيطُ بدءِ "
                   f"الآية الأولى في جارات السورة عند هذا القارئ نفسِه.")
-        out = gh("workflow", "run", "realign_surah.yml",
-                 "--repo", os.environ.get("GITHUB_REPOSITORY", "mwqwf/rafiq-align-ci"),
-                 "-f", f"parent={r['key']}", "-f", f"surahs={s}",
+        call = ["workflow", "run", "realign_surah.yml",
+                "--repo", os.environ.get("GITHUB_REPOSITORY", "mwqwf/rafiq-align-ci")]
+        # تشغيلُ فرعٍ تجريبي يجب أن يستهلك حارسه هو، لا نسخة main القديمة.
+        # وعلى main تكون القيمة main نفسها فلا يتغيّر مسار الإنتاج.
+        if os.environ.get("GITHUB_REF_NAME"):
+            call += ["--ref", os.environ["GITHUB_REF_NAME"]]
+        call += ["-f", f"parent={r['key']}", "-f", f"surahs={s}",
                  "-f", f"skip_ms={skip}", "-f", f"url_template={base}{{s:03d}}.mp3",
-                 "-f", f"reciter_id={rid}", "-f", f"riwaya={riw}", "-f", f"reason={reason}")
+                 "-f", f"reciter_id={rid}", "-f", f"riwaya={riw}", "-f", f"reason={reason}"]
+        out = gh(*call)
         print(f"      ▶ أُطلقت إعادةُ المحاذاة {out.strip()}")
         done += 1
     print(f"⇒ أُطلق {done}")
