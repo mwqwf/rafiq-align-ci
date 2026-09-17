@@ -6,6 +6,7 @@ on:
       - .github/workflows/restore.yml
       - .github/workflows/keepalive-contract.yml
       - tools/ci_fleet/restore_loop.py
+      - tools/ci_fleet/blocked_realigns.json
       - tools/ci_fleet/reciters_remaining.tsv
       - tools/ci_fleet/test_keepalive_contract.py
       - tools/ci_fleet/test_agent_cmd_contract.py

@@ -78,6 +78,21 @@ SOURCE_OVERRIDES = {
             encoding="utf-8"))
 }
 
+# محاولاتُ realign التي انتهت بلا مرشّحٍ على **المصدر والمحرّك نفسيهما**.
+# هذا سجلّ مانعٍ للهدر، لا حكمُ جودة: تغييرُ المصدر المسجّل أو المحرّك يجعل
+# البصمة مختلفةً ويعيدها إلى الأهلية، أما إعادةُ الأمر نفسه فتعيد العطب نفسه.
+_blocked_path = ROOT / "tools" / "ci_fleet" / "blocked_realigns.json"
+BLOCKED_REALIGNS = {
+    (row["riwaya"], row["reciter"], int(row["surah"]), row["source"],
+     row["engine"])
+    for row in json.loads(_blocked_path.read_text(encoding="utf-8"))
+}
+REALIGN_ENGINE = "realign-surah-v1"
+
+
+def blocked_realign(riwaya: str, reciter: str, surah: int, source: str) -> bool:
+    return (riwaya, reciter, surah, source, REALIGN_ENGINE) in BLOCKED_REALIGNS
+
 
 def head_len(url: str) -> int:
     def measured(response) -> int:
@@ -333,6 +348,10 @@ def cmd_scan(a):
         base = source_base(bases, riw, rid, s)
         if not base:
             print(f"   ⛔ {rid}: لا مصدرَ في الكتالوج")
+            continue
+        if blocked_realign(riw, rid, s, base):
+            print(f"   ⏭️ {rid} س{s}: المحاولةُ نفسها انتهت بلا مرشّح — "
+                  "لا تُعاد بلا مصدرٍ أو محرّكٍ جديد موثّق")
             continue
         if (riw, rid, s) in SOURCE_OVERRIDES:
             print(f"   🔁 {rid} س{s}: مصدرٌ بديلٌ مقاس؛ المصدرُ المسجّل مبتور")
