@@ -73,7 +73,8 @@ env:
 
 jobs:
   prepare:
-    # Owner-approved capped exception 2026-09-18: public standard runner; one a_klb build only.
+    # Owner financial control: capped a_klb run dispatched; block further allocations.
+    if: ${{ false }}
     name: prepare — ${{ inputs.reciter }} × ${{ inputs.parts }}
     runs-on: ubuntu-latest
     outputs:
@@ -89,7 +90,8 @@ jobs:
           echo "matrix=$(python3 -c "import json,sys;print(json.dumps(list(range(int(sys.argv[1])))))" "$n")" >> "$GITHUB_OUTPUT"
 
   part:
-    # Owner-approved capped exception 2026-09-18: public standard runner; one a_klb build only.
+    # Owner financial control: capped a_klb run dispatched; block further allocations.
+    if: ${{ false }}
     name: جزء ${{ matrix.part }}/${{ inputs.parts }} — ${{ inputs.reciter }}
     needs: prepare
     runs-on: ubuntu-latest
@@ -354,7 +356,8 @@ jobs:
   # ⛔ `if: always()` مقصود: جزءٌ سقط لا يُلغي الجمعَ — الحارسُ يردّ النقصَ
   #    عند الرفع بعدّ 114/114، فالحكمُ للقياس لا لِلَون الوظيفة.
   assemble:
-    # Owner-approved capped exception 2026-09-18: public standard runner; one a_klb build only.
+    # Owner financial control: capped a_klb run dispatched; block further allocations.
+    if: ${{ false }}
     name: جمعٌ ورفع — ${{ inputs.reciter }}
     needs: part
     # Previous job condition retained below for reversal:
