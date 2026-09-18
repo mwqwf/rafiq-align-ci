@@ -162,6 +162,8 @@ env:
   UA: "Mozilla/5.0 (QuranRafiq emu gate)"
 jobs:
   matrix:
+    # Owner financial stop 2026-09-18: no runner allocation until verified free.
+    if: ${{ false }}
     runs-on: ubuntu-latest
     timeout-minutes: 5
     outputs:
@@ -170,6 +172,8 @@ jobs:
       - id: m
         run: python3 -c "import json,os;print('sets='+json.dumps('${{ inputs.sets }}'.split(',')))" >> "$GITHUB_OUTPUT"
   emu:
+    # Owner financial stop 2026-09-18: no runner allocation until verified free.
+    if: ${{ false }}
     needs: matrix
     runs-on: ubuntu-latest
     # ⛔⛔ **المهلةُ 120 لا 350 — بسببٍ مقيسٍ 2026-09-13 (الشوط 34747390248):** تعلّقت وظيفةُ
@@ -354,8 +358,11 @@ jobs:
           retention-days: 7
           if-no-files-found: ignore
   judge:
+    # Owner financial stop 2026-09-18: no runner allocation until verified free.
+    if: ${{ false }}
     needs: emu
-    if: always()
+    # Previous job condition retained below for reversal:
+    # if: always()
     runs-on: ubuntu-latest
     timeout-minutes: 20
     steps:
