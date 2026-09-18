@@ -71,6 +71,8 @@ env:
   WC: c4ac0012a8f5a2082dfca6aad4ddfd8b2c02b337   # الالتزامُ المثبَّت — نفسُ الذي في third_party
 jobs:
   t:
+    # Owner financial stop 2026-09-18: no runner allocation until verified free.
+    if: ${{ false }}
     runs-on: ubuntu-24.04-arm
     timeout-minutes: 120
     steps:
