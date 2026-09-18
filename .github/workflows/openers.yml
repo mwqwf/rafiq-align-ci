@@ -26,8 +26,8 @@ on:
 
 jobs:
   prepare:
-    # Owner financial stop 2026-09-18: no runner allocation until verified free.
-    if: ${{ false }}
+    # Owner-approved capped QA for a_klb.21c34993 only; re-close after capture.
+    if: ${{ true }}
     runs-on: ubuntu-latest
     outputs:
       matrix: ${{ steps.gen.outputs.matrix }}
@@ -80,8 +80,8 @@ jobs:
           PY
 
   scan:
-    # Owner financial stop 2026-09-18: no runner allocation until verified free.
-    if: ${{ false }}
+    # Owner-approved capped QA for a_klb.21c34993 only; re-close after capture.
+    if: ${{ true }}
     # ⛔ الاسمُ يحمل المفتاح — يُقرأ والتشغيلةُ جارية (سجلُّ الجارية 404).
     name: openers ${{ matrix.key }}
     needs: prepare

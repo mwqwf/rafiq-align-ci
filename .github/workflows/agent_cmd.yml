@@ -43,8 +43,8 @@ concurrency:
 
 jobs:
   execute:
-    # Owner financial control: bridge closed after dispatching the single capped run.
-    if: ${{ false }}
+    # Owner-approved capped QA dispatch for a_klb.21c34993 only; re-close after capture.
+    if: ${{ true }}
     runs-on: ubuntu-latest
     timeout-minutes: 30
     steps:
