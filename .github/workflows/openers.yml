@@ -26,6 +26,8 @@ on:
 
 jobs:
   prepare:
+    # Owner financial stop 2026-09-18: no runner allocation until verified free.
+    if: ${{ false }}
     runs-on: ubuntu-latest
     outputs:
       matrix: ${{ steps.gen.outputs.matrix }}
@@ -78,6 +80,8 @@ jobs:
           PY
 
   scan:
+    # Owner financial stop 2026-09-18: no runner allocation until verified free.
+    if: ${{ false }}
     # ⛔ الاسمُ يحمل المفتاح — يُقرأ والتشغيلةُ جارية (سجلُّ الجارية 404).
     name: openers ${{ matrix.key }}
     needs: prepare
