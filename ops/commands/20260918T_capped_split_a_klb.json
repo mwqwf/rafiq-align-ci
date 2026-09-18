@@ -1,0 +1,14 @@
+{
+  "action": "dispatch",
+  "workflow": "align_split.yml",
+  "inputs": {
+    "reciter": "a_klb",
+    "riwaya": "hafs",
+    "url_template": "https://server8.mp3quran.net/a_klb/{surah:03d}.mp3",
+    "parts": "4",
+    "jobs_per_runner": "4",
+    "main_model": "tiny",
+    "whisper_ac": "0",
+    "reason": "Owner-approved capped completion: a_klb is partial 2607/6236; fresh 114/114 source probe run 35335991441 passed; one full v2.1 rebuild, no gate reduction"
+  }
+}
