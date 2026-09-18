@@ -20,6 +20,8 @@ concurrency:
   cancel-in-progress: true
 jobs:
   test:
+    # Owner financial stop 2026-09-18: no runner allocation until verified free.
+    if: ${{ false }}
     runs-on: ubuntu-latest
     timeout-minutes: 5
     steps:
