@@ -1,3 +1,7 @@
+## OWNER FINAL INDEXING STOP — 2026-09-18
+
+The owner permanently stopped Quran indexing work. No agent, model, automation, or session may resume indexing research, source discovery, probing, alignment, QA, promotion, packaging, publishing, workflow dispatch, trigger restoration, or monitoring. Do not create replacement follow-ups. Preserve existing evidence read-only. This stop can be lifted only by a new explicit owner instruction that specifically names indexing.
+
 # تكليفُ الوكيل السحابيّ — «مصحفك» · جنديُّ الفهرسة والاسترجاع
 
 > اقرأ هذا الملفَّ كاملاً ثمّ ابدأ. **لا تنتظر تعليماتٍ من أحد** — تكليفُك هنا.
