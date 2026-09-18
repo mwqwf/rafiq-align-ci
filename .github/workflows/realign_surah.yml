@@ -74,6 +74,8 @@ env:
 
 jobs:
   realign:
+    # Owner financial stop 2026-09-18: no runner allocation until verified free.
+    if: ${{ false }}
     # ⛔ الاسمُ يحمل الهويّة — `gh run view --json jobs` يقرؤه **والتشغيلةُ جارية**،
     #    بلا سجلٍّ (‏سجلُّ الجارية 404) ولا انتظار. أُضيف بعد أن سُدّت العلّةُ نفسُها في
     #    `align.yml` وحدَها فبقيت هنا: تشغيلةٌ اصطفّت 21:38Z **وهويّتُها متعذّرةُ
