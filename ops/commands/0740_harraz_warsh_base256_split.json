@@ -1,0 +1,14 @@
+{
+  "action": "dispatch",
+  "workflow": "align_split.yml",
+  "inputs": {
+    "reciter": "harraz_warsh",
+    "riwaya": "warsh",
+    "url_template": "https://server16.mp3quran.net/H-Lharraz/Rewayat-Warsh-A-n-Nafi/{surah:03d}.mp3",
+    "parts": "8",
+    "jobs_per_runner": "4",
+    "main_model": "base",
+    "whisper_ac": "256",
+    "reason": "محاولة مختلفة جوهرياً: الحكم القديم ~12.1% كان tiny/ac0 مع ابتلاع 75:1 و90:1 و104:1؛ هذه full split base/ac256 على المصدر المسجل exact، بلا خفض عتبة 5%."
+  }
+}
