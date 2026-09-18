@@ -20,6 +20,8 @@ on:
 
 jobs:
   probe:
+    # Owner final stop 2026-09-18: indexing is permanently stopped.
+    if: ${{ false }}
     runs-on: ubuntu-latest
     timeout-minutes: 90
     steps:
