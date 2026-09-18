@@ -1,0 +1,14 @@
+{
+  "action": "dispatch",
+  "workflow": "align_split.yml",
+  "inputs": {
+    "reciter": "maroush_qalun",
+    "riwaya": "qalun",
+    "url_template": "https://archive.org/download/Kamal-Almaroush-Qalon/{surah:03d}.mp3",
+    "parts": "8",
+    "jobs_per_runner": "4",
+    "main_model": "base",
+    "whisper_ac": "256",
+    "reason": "تغيير جوهري موثق: حكم maroush_qalun القديم tiny/ac0 كان رفضاً بنيوياً 4/4 بمجمع 16.4% وسبع بسملات مبتلعة؛ وتجربة ac256 الأحادية run34695303065 ألغيت عند سقف 6 ساعات بلا مرشح. هذه إعادة بناء كاملة split بمحرك base/ac256 على المصدر المسجل exact دون خفض حد 5%، بعد إغلاق chahboun_warsh.c877c02c بنيوياً 4/4"
+  }
+}
