@@ -238,7 +238,7 @@ jobs:
           # تشخيصٌ آمنٌ للمرشّح الجاري: يبيّن أيَّ حارسٍ أسقطه من
           # الأهلية من غير كشف أسرار أو تغيير قرار البوابة.
           tracked = next((k for k in sorted(newest.values())
-                          if _who(k)[1] == "shaksh"), "")
+                          if _who(k)[1] == "chahboun_warsh"), "")
           if tracked:
               print("tracked_key=" + tracked)
               print(f"tracked_salts={salts.get(tracked.replace('/', '_'), 0)}")
