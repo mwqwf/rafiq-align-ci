@@ -55,6 +55,8 @@ jobs:
   # قبله يُقال حدُّه ولا يُسكت عنه** — وهذا الإيداعُ نفسُه **تجربتُه الحيّة**: يغيّر المسارَ ولا
   # يمسّ الطلبَ، فالمنتظَرُ أن تُختصر وظيفةُ القياس بثوانٍ — **ويُقرأ ذلك من الأثر لا يُفترض**.
   gate:
+    # Owner financial stop 2026-09-18: no runner allocation until verified free.
+    if: ${{ false }}
     runs-on: ubuntu-latest
     timeout-minutes: 5
     outputs:
@@ -77,8 +79,11 @@ jobs:
           fi
 
   t:
+    # Owner financial stop 2026-09-18: no runner allocation until verified free.
+    if: ${{ false }}
     needs: gate
-    if: needs.gate.outputs.dup != '1'
+    # Previous job condition retained below for reversal:
+    # if: needs.gate.outputs.dup != '1'
     runs-on: ubuntu-24.04-arm
     timeout-minutes: 90
     steps:
