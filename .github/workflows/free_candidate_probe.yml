@@ -1,0 +1,76 @@
+name: rafiq-free-candidate-probe
+
+run-name: free-probe ${{ inputs.reciter }} · ${{ inputs.reason }}
+
+on:
+  workflow_dispatch:
+    inputs:
+      reciter:
+        required: true
+      riwaya:
+        default: "hafs"
+      base:
+        required: true
+      witness:
+        default: "46,30,89"
+      license:
+        default: "MP3Quran official public source"
+      reason:
+        default: ""
+
+jobs:
+  probe:
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: { python-version: "3.11" }
+      - name: Install probe dependencies
+        run: |
+          sudo apt-get update -qq && sudo apt-get install -y -qq ffmpeg
+          python -m pip install --quiet pywhispercpp numpy boto3
+      - name: Self-test before download
+        run: python tools/index_qa/probe_new_reciter.py --self-test
+      - name: Credentials and model from R2
+        env:
+          R2_CREDENTIALS_JSON: ${{ secrets.R2_CREDENTIALS_JSON }}
+        run: |
+          mkdir -p secure assets-archive/ggml
+          printf '%s' "$R2_CREDENTIALS_JSON" > secure/r2_credentials.json
+          python - <<'PY'
+          import json, os, boto3
+          c = json.load(open("secure/r2_credentials.json"))
+          s3 = boto3.client("s3", endpoint_url=c["endpoint"],
+                            aws_access_key_id=c["accessKeyId"],
+                            aws_secret_access_key=c["secretAccessKey"], region_name="auto")
+          dst = "assets-archive/ggml/ggml-tiny-ar-quran-q8_0.bin"
+          s3.download_file(c["bucket"], "models/whisper-tiny-ar-quran/ggml-q8_0.bin", dst)
+          print("model MiB:", os.path.getsize(dst) // 1024 // 1024)
+          PY
+      - name: Probe candidate and upload evidence to R2
+        env:
+          RID: ${{ inputs.reciter }}
+          RIW: ${{ inputs.riwaya }}
+          BASE: ${{ inputs.base }}
+          WITNESS: ${{ inputs.witness }}
+          LICENSE: ${{ inputs.license }}
+        run: |
+          python tools/index_qa/probe_new_reciter.py \
+            --id "$RID" --riwaya "$RIW" --base "$BASE" \
+            --witness "$WITNESS" --license "$LICENSE" \
+            --threads 4 \
+            --model "$GITHUB_WORKSPACE/assets-archive/ggml/ggml-tiny-ar-quran-q8_0.bin" \
+            --out "work/${RID}.probe.json" --upload
+      - name: Summary only
+        if: always()
+        run: |
+          python - <<'PY'
+          import glob, json
+          fs=glob.glob("work/*.probe.json")
+          if not fs:
+              print("No probe document produced")
+              raise SystemExit(0)
+          d=json.load(open(fs[0]))
+          print(json.dumps({k:d.get(k) for k in ("id","riwaya","files","witnesses","errors")}, ensure_ascii=False))
+          PY
