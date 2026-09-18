@@ -132,6 +132,9 @@ def guard(rid, expect, log_path, th):
     return True, f"مداخل {n} · بصمات {len(fs)}/{len(fs)}"
 
 
+CTC_ENGINES = {"ctc-seg-1"}
+
+
 def refine_guard(d):
     """⛔ برهان أن الصقل **عمل** لا أن وحدته موجودة (بلاغ github-7d، 2026-09-02).
 
@@ -144,6 +147,14 @@ def refine_guard(d):
     """
     mt = d.get("medTargeted", 0) or 0
     rv = d.get("refineVersion") or "none"
+    # ⭐ محرّكُ CTC القسريّ (2026-09-18) لا طورَ صقلٍ فيه أصلاً: الصقلُ علاجُ
+    #    حدود Whisper المتوسّطة، وCTC يضع كلَّ حرفٍ بنفسه. فالإعفاءُ **باسم
+    #    محرّكٍ بعينه في الترويسة** لا بغياب الحقل — وفهرسُ Whisper بلا صقل
+    #    يبقى مردوداً كما كان. والحكمُ الحاسم للبوّابة الصوتيّة بعتبتها 5%.
+    if d.get("engineVersion") in CTC_ENGINES:
+        if any(e.get("refined") for e in d.get("entries", [])):
+            return False, "⛔ فهرسٌ موسومٌ CTC وفيه آثارُ صقل Whisper — محرّكان مختلطان"
+        return True, f"محرّك {d['engineVersion']} (محاذاةٌ قسريّة بلا صقل)"
     if mt == 0:
         return False, (f"⛔ الصقل لم يعمل: medTargeted=0 · refineVersion={rv} — "
                        "فهرسُ جيلٍ أول يبدو مكتملاً. لا يُرفع.")

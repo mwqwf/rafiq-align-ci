@@ -10,11 +10,19 @@ work/timings_{riwaya}_{reciter}.jz بصيغة 4.2 + تقرير نطاقات ال
 import argparse
 import json
 import os
+import sys
 import tempfile
 import time
 
 from common import ROOT, WORK, fetch_retry, load_index, write_jz
 from pipeline import run_surah
+
+# ⭐ محرّكُ CTC القسريّ (خطة 2026-09-18) — بمفتاحٍ صريحٍ لا يقع سهواً،
+#    ويُكتب اسمُه في `engineVersion` فلا يلتبس فهرسُه بفهارس Whisper.
+ENGINE = os.environ.get("ALIGN_ENGINE", "")
+if ENGINE == "ctc":
+    sys.path.insert(0, os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "alignment_v3"))
+    from ctc_seg import ENGINE as _CTC_ENGINE, run_surah  # noqa: F811
 from validate import make_timing_index, sha256_file
 
 
@@ -219,7 +227,8 @@ def main():
     _rels = sorted(v["vadRel"] for v in per_surah.values() if v.get("vadRel") is not None)
     _med = _rels[len(_rels) // 2] if _rels else None
     ti = make_timing_index(args.riwaya, args.reciter, "SURAH_FILES",
-                           args.counting or "KUFI", per_surah, vad_rel=_med)
+                           args.counting or "KUFI", per_surah, vad_rel=_med,
+                           **({"engine_version": _CTC_ENGINE} if ENGINE == "ctc" else {}))
     out = os.path.join(WORK, f"timings_{args.riwaya}_{args.reciter}.jz")
     write_jz(out, ti)
     # ⏱️ سطرُ الأطوار — ثوانٍ متراكمةٌ لهذا القارئ (‏`pipeline.PHASE`).
