@@ -120,6 +120,8 @@ env:
 jobs:
   # ── المصفوفة تُبنى ديناميكياً من مُدخل shards ────────────────────────────
   prepare:
+    # Owner financial stop 2026-09-18: no runner allocation until verified free.
+    if: ${{ false }}
     # ⛔ الاسمُ يحمل القائمة: `gh run view --json jobs` يقرؤه **والموجةُ جارية**،
     #    بلا سجلٍّ ولا انتظار — وهو المسلكُ الوحيد الذي لم يسقط في قياس 09-07.
     name: prepare — ${{ github.event.inputs.list }}
@@ -156,6 +158,8 @@ jobs:
           } >> "$GITHUB_STEP_SUMMARY"
 
   align:
+    # Owner financial stop 2026-09-18: no runner allocation until verified free.
+    if: ${{ false }}
     name: align ${{ github.event.inputs.list }} (${{ matrix.shard }})
     needs: prepare
     runs-on: ubuntu-latest
