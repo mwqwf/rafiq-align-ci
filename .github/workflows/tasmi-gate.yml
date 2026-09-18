@@ -27,6 +27,8 @@ env:
   UA: "Mozilla/5.0 (QuranRafiq tasmi gate)"
 jobs:
   prep:
+    # Owner financial stop 2026-09-18: no runner allocation until verified free.
+    if: ${{ false }}
     runs-on: ubuntu-latest
     timeout-minutes: 90
     steps:
@@ -91,6 +93,8 @@ jobs:
           path: bin/whisper-cli
           retention-days: 2
   transcribe:
+    # Owner financial stop 2026-09-18: no runner allocation until verified free.
+    if: ${{ false }}
     needs: prep
     runs-on: ubuntu-latest
     timeout-minutes: 120
@@ -153,6 +157,8 @@ jobs:
           path: tools/tasmi_bench/work/hyps_ci-*.json
           retention-days: 7
   judge:
+    # Owner financial stop 2026-09-18: no runner allocation until verified free.
+    if: ${{ false }}
     needs: transcribe
     runs-on: ubuntu-latest
     timeout-minutes: 20
