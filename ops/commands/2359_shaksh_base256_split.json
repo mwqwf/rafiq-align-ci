@@ -1,0 +1,14 @@
+{
+  "action": "dispatch",
+  "workflow": "align_split.yml",
+  "inputs": {
+    "reciter": "shaksh",
+    "riwaya": "hafs",
+    "url_template": "https://server10.mp3quran.net/shaksh/{surah:03d}.mp3",
+    "parts": "8",
+    "jobs_per_runner": "4",
+    "main_model": "base",
+    "whisper_ac": "256",
+    "reason": "تغيير جوهري موثق: حكم shaksh القديم tiny/ac0 كان 4.91% من 2200 لكن مجمعه 5.7%، وتجربة tiny/ac256 السابقة run34689048397 ألغيت عند سقف 6 ساعات بلا مرشح؛ هذه إعادة بناء كاملة split بمحرك base/ac256 على المصدر المسجل exact دون خفض حد 5%، بعد إغلاق hatem.4932e71c بنيوياً 4/4"
+  }
+}
