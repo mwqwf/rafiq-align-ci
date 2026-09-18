@@ -41,6 +41,8 @@ permissions:
   issues: write
 jobs:
   read:
+    # Owner financial stop 2026-09-18: no runner allocation until verified free.
+    if: ${{ false }}
     runs-on: ubuntu-latest
     timeout-minutes: 5
     outputs:
@@ -101,6 +103,8 @@ jobs:
           python3 -c "import json;n=str(json.load(open('tools/tasmi_bench/requests/emu.json',encoding='utf-8')).get('note') or '').strip().replace(chr(10),' ');print('**سببُ الشوط:** '+n) if n else None" >> "$GITHUB_STEP_SUMMARY"
           sed 's/^/- /' "$GITHUB_OUTPUT" >> "$GITHUB_STEP_SUMMARY"
   gate:
+    # Owner financial stop 2026-09-18: no runner allocation until verified free.
+    if: ${{ false }}
     needs: read
     # ⚙️ المسارُ نفسُه لا نسخةٌ منه.
     uses: ./.github/workflows/emu-gate.yml
