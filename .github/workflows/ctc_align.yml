@@ -71,6 +71,8 @@ jobs:
           echo "surahs=$p" >> "$GITHUB_OUTPUT"; echo "السور: $p"
       - name: المحاذاة (⛔ بلا رفع)
         run: |
+          set -o pipefail
+          sudo chmod 755 /root   # batch_run يقرأ /root/skip_surahs.txt اختيارياً
           mkdir -p logs
           /usr/bin/time -v python tools/alignment/batch_run.py --reciter "${{ inputs.reciter }}" \
             --riwaya "${{ inputs.riwaya }}" --base "${{ inputs.url_template }}" \
@@ -101,6 +103,7 @@ jobs:
           path: dl
       - name: جمع ملفات السور
         run: |
+          sudo chmod 755 /root
           d=tools/alignment/work/batch_${{ inputs.reciter }}; mkdir -p "$d" logs-copy
           find dl -name 's*.json' -exec cp {} "$d"/ \;
           cat dl/*/logs/*.log > logs-copy/parts.log 2>/dev/null || true
