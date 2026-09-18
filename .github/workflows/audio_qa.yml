@@ -47,8 +47,8 @@ jobs:
   # ⛔ الترتيب `LastModified` تصاعدياً — نفس ترتيب المدقّقين (اتفاق 7e)، فلا
   #    يختلف ترتيبان بين مرحلتين من الطابور الواحد.
   prepare:
-    # Owner-approved capped QA for a_klb.21c34993 only; re-close after capture.
-    if: ${{ true }}
+    # Owner financial stop 2026-09-18: no runner allocation until verified free.
+    if: ${{ false }}
     runs-on: ubuntu-latest
     outputs:
       matrix: ${{ steps.gen.outputs.matrix }}
@@ -132,8 +132,8 @@ jobs:
           PY
 
   audit:
-    # Owner-approved capped QA for a_klb.21c34993 only; re-close after capture.
-    if: ${{ true }}
+    # Owner financial stop 2026-09-18: no runner allocation until verified free.
+    if: ${{ false }}
     # ⛔ الاسمُ يحمل المفتاحَ والملح — يُقرأ والتشغيلةُ جارية (سجلُّ الجارية 404).
     #    وبدونه لا يُعرف أيُّ فهرسٍ يشغل الخانة، فتُقايَض الأولويةُ على ظنّ.
     name: qa ${{ matrix.key }} · ${{ github.event.inputs.seed_salt }}
