@@ -1,0 +1,14 @@
+{
+  "action": "dispatch",
+  "workflow": "align_split.yml",
+  "inputs": {
+    "reciter": "chahboun_warsh",
+    "riwaya": "warsh",
+    "url_template": "https://archive.org/download/128--kb---altazy--mohammad--shahboon---by--rewayt--warsh--mp3--full--mushaf--q/ar_{surah:03d}_Tazi_Mohammed_Chahboun_Warsh.mp3",
+    "parts": "8",
+    "jobs_per_runner": "4",
+    "main_model": "base",
+    "whisper_ac": "256",
+    "reason": "تغيير جوهري موثق: حكم chahboun_warsh القديم tiny/ac0 كان 5.08% من 2400 والمجمع 5.2%، وتجربة base/ac0 الأحادية run34688288330 ألغيت عند سقف 6 ساعات بعد 69/114 بلا مرشح؛ هذه إعادة بناء كاملة split بمحرك base/ac256 على المصدر المسجل exact دون خفض حد 5%، بعد إغلاق shaksh.69c7a41e بنيوياً 4/4"
+  }
+}
