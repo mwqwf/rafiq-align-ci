@@ -29,6 +29,8 @@ env:
 
 jobs:
   prepare:
+    # Owner financial stop 2026-09-18: no runner allocation until verified free.
+    if: ${{ false }}
     runs-on: ubuntu-latest
     outputs:
       matrix: ${{ steps.gen.outputs.matrix }}
@@ -58,6 +60,8 @@ jobs:
           PY
 
   ingest:
+    # Owner financial stop 2026-09-18: no runner allocation until verified free.
+    if: ${{ false }}
     needs: prepare
     runs-on: ubuntu-latest
     timeout-minutes: 90
