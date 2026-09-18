@@ -43,6 +43,8 @@ concurrency:
 
 jobs:
   execute:
+    # Owner financial stop 2026-09-18: temporary free-route exception is closed.
+    if: ${{ false }}
     runs-on: ubuntu-latest
     timeout-minutes: 30
     steps:
