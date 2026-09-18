@@ -56,7 +56,7 @@ jobs:
         run: |
           sudo apt-get update -qq && sudo apt-get install -y -qq ffmpeg
           python -m pip install --quiet --index-url https://download.pytorch.org/whl/cpu torch
-          python -m pip install --quiet transformers ctc-segmentation numpy
+          python -m pip install --quiet "numpy<2" transformers ctc-segmentation && python -c "import ctc_segmentation, numpy; print('ctc ok', numpy.__version__)"
       - name: كاش النموذج
         uses: actions/cache@v4
         with:
