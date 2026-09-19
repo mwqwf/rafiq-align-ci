@@ -57,8 +57,15 @@ for o in ls("timings-staging/"):
     rid = k.split("/")[-1].split(".")[0]
     if rid not in latest or o["LastModified"] > latest[rid]["LastModified"]:
         latest[rid] = o
-for o in latest.values():
+runs = json.loads(subprocess.run(
+    ["gh", "run", "list", "-R", REPO, "-w", "ctc_align.yml", "-L", "60",
+     "--json", "displayTitle,status"], capture_output=True, text=True).stdout or "[]")
+busy = {r["displayTitle"].split()[1].split("/")[0] for r in runs if r["status"] != "completed"}
+for rid, o in latest.items():
     k = o["Key"]
+    if rid in busy:                              # فهرسةٌ أحدثُ جارية: لا بوابةَ ولا ترقيةَ لما قبلها
+        print(f"⏳ {k}: فهرسةٌ أحدث جارية لـ{rid}")
+        continue
     sha8 = k.rsplit(".", 2)[-2]
     if sha8 in frozen:                          # رُقّي سلفاً
         continue
