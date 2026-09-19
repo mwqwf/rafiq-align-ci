@@ -1,0 +1,37 @@
+name: rafiq-ctc-driver
+
+# سائقُ خطّ CTC في السحابة (أمر المالك 2026-09-19): بوابةٌ ⇐ ترقية ⇐ تصديق الكتالوج.
+# 💰 مستودعٌ عامّ + عدّاد قياسيّ ⇒ مجّانيّ (إذن المالك المالي 2026-09-18).
+on:
+  schedule:
+    - cron: "*/20 * * * *"
+  workflow_dispatch:
+
+permissions:
+  actions: write
+  contents: write
+
+concurrency:
+  group: rafiq-ctc-driver
+  cancel-in-progress: false
+
+jobs:
+  drive:
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: {python-version: "3.11"}
+      - run: python -m pip install --quiet boto3 numpy
+      - name: اعتماد R2
+        env: {R2_CREDENTIALS_JSON: "${{ secrets.R2_CREDENTIALS_JSON }}"}
+        run: mkdir -p secure && printf '%s' "$R2_CREDENTIALS_JSON" > secure/r2_credentials.json
+      - name: السائق
+        env: {GH_TOKEN: "${{ github.token }}", PYTHONIOENCODING: utf-8}
+        run: python tools/ci_fleet/ctc_driver.py
+      - name: إيداع التجميد وسجلّ الترقيات
+        run: |
+          git config user.name "rafiq-ctc-driver"; git config user.email "actions@users.noreply.github.com"
+          git add tools/index_qa/frozen.txt docs/qa/PROMOTIONS.md 2>/dev/null || true
+          git diff --cached --quiet || { git commit -m "ops(ctc-driver): ترقيات آلية [skip ci]" && git pull --no-rebase --no-edit origin main && git push origin HEAD:main; }
