@@ -47,8 +47,7 @@ jobs:
   # ⛔ الترتيب `LastModified` تصاعدياً — نفس ترتيب المدقّقين (اتفاق 7e)، فلا
   #    يختلف ترتيبان بين مرحلتين من الطابور الواحد.
   prepare:
-    # Owner financial stop 2026-09-18: no runner allocation until verified free.
-    if: ${{ false }}
+    # Financial stop lifted for this gate by the owner 2026-09-18 (public repo, standard runner).
     runs-on: ubuntu-latest
     outputs:
       matrix: ${{ steps.gen.outputs.matrix }}
@@ -132,8 +131,7 @@ jobs:
           PY
 
   audit:
-    # Owner financial stop 2026-09-18: no runner allocation until verified free.
-    if: ${{ false }}
+    # Financial stop lifted for this gate by the owner 2026-09-18 (public repo, standard runner).
     # ⛔ الاسمُ يحمل المفتاحَ والملح — يُقرأ والتشغيلةُ جارية (سجلُّ الجارية 404).
     #    وبدونه لا يُعرف أيُّ فهرسٍ يشغل الخانة، فتُقايَض الأولويةُ على ظنّ.
     name: qa ${{ matrix.key }} · ${{ github.event.inputs.seed_salt }}
