@@ -30,7 +30,8 @@ env:
 jobs:
   prepare:
     # Owner financial stop 2026-09-18: one-off verified-free trial completed; blocked reversibly.
-    if: ${{ false }}
+    # أُعيد الفتح 2026-09-19 بأمر المالك بإكمال الفهرسة. تحقّقٌ ماليّ قبل الفتح:
+    # مستودعٌ عامّ + عدّاء ubuntu-latest قياسيّ ⇒ الدقائق مجّانيّة، بلا larger runner.
     runs-on: ubuntu-latest
     outputs:
       matrix: ${{ steps.gen.outputs.matrix }}
@@ -61,7 +62,8 @@ jobs:
 
   ingest:
     # Owner financial stop 2026-09-18: one-off verified-free trial completed; blocked reversibly.
-    if: ${{ false }}
+    # أُعيد الفتح 2026-09-19 بأمر المالك بإكمال الفهرسة. تحقّقٌ ماليّ قبل الفتح:
+    # مستودعٌ عامّ + عدّاء ubuntu-latest قياسيّ ⇒ الدقائق مجّانيّة، بلا larger runner.
     needs: prepare
     runs-on: ubuntu-latest
     timeout-minutes: 90

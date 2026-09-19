@@ -74,7 +74,8 @@ env:
 jobs:
   prepare:
     # Owner financial control: capped a_klb run dispatched; block further allocations.
-    if: ${{ false }}
+    # أُعيد الفتح 2026-09-19 بأمر المالك بإكمال الفهرسة. تحقّقٌ ماليّ قبل الفتح:
+    # مستودعٌ عامّ + عدّاء ubuntu-latest قياسيّ ⇒ الدقائق مجّانيّة، بلا larger runner.
     name: prepare — ${{ inputs.reciter }} × ${{ inputs.parts }}
     runs-on: ubuntu-latest
     outputs:
@@ -91,7 +92,8 @@ jobs:
 
   part:
     # Owner financial control: capped a_klb run dispatched; block further allocations.
-    if: ${{ false }}
+    # أُعيد الفتح 2026-09-19 بأمر المالك بإكمال الفهرسة. تحقّقٌ ماليّ قبل الفتح:
+    # مستودعٌ عامّ + عدّاء ubuntu-latest قياسيّ ⇒ الدقائق مجّانيّة، بلا larger runner.
     name: جزء ${{ matrix.part }}/${{ inputs.parts }} — ${{ inputs.reciter }}
     needs: prepare
     runs-on: ubuntu-latest
@@ -357,7 +359,8 @@ jobs:
   #    عند الرفع بعدّ 114/114، فالحكمُ للقياس لا لِلَون الوظيفة.
   assemble:
     # Owner financial control: capped a_klb run dispatched; block further allocations.
-    if: ${{ false }}
+    # أُعيد الفتح 2026-09-19 بأمر المالك بإكمال الفهرسة. تحقّقٌ ماليّ قبل الفتح:
+    # مستودعٌ عامّ + عدّاء ubuntu-latest قياسيّ ⇒ الدقائق مجّانيّة، بلا larger runner.
     name: جمعٌ ورفع — ${{ inputs.reciter }}
     needs: part
     # Previous job condition retained below for reversal:

@@ -32,7 +32,8 @@ on:
 jobs:
   contract:
     # Owner financial stop 2026-09-18: no runner allocation until verified free.
-    if: ${{ false }}
+    # أُعيد الفتح 2026-09-19 بأمر المالك بإكمال الفهرسة. تحقّقٌ ماليّ قبل الفتح:
+    # مستودعٌ عامّ + عدّاء ubuntu-latest قياسيّ ⇒ الدقائق مجّانيّة، بلا larger runner.
     runs-on: ubuntu-latest
     timeout-minutes: 2
     steps:
@@ -43,7 +44,8 @@ jobs:
 
   diagnose:
     # Owner financial stop 2026-09-18: no runner allocation until verified free.
-    if: ${{ false }}
+    # أُعيد الفتح 2026-09-19 بأمر المالك بإكمال الفهرسة. تحقّقٌ ماليّ قبل الفتح:
+    # مستودعٌ عامّ + عدّاء ubuntu-latest قياسيّ ⇒ الدقائق مجّانيّة، بلا larger runner.
     # Previous job condition retained below for reversal:
     # if: github.event_name == 'workflow_dispatch'
     needs: contract
