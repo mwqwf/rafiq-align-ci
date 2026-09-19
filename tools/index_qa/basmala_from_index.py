@@ -45,16 +45,27 @@ def first_ayah_starts(idx):
     return {s: v for s, v in out.items() if isinstance(v, int) and s not in SKIP}
 
 
+# ⛔⛔ **هامشُ أمانٍ تحت أقصرِ بسملة** — والخطآن ليسا سواء (مقيسٌ 2026-09-19):
+#    التخطّي **الزائدُ يقضم الآيةَ الأولى فتسقط بلا حدود** ⇒ يردّ الحارسُ السورةَ
+#    كلَّها («لم تُحلّ سورةٌ واحدة»)، والناقصُ يترك شيئاً من البسملة في مدى الآية
+#    الأولى فحسب — عيبٌ يسيرٌ يُصلحه الصقل. ⇒ **فالخطأُ يُمال به إلى الناقص.**
+#    الشاهد: `noah_warsh` س28 بوسيطِ الجارات 2956م.ث ⇒ «آيات بلا حدود: [1, 54]»
+#    و86 آيةً من 88 حُلّت — فسقطت السورةُ كلُّها لأجل الأولى وحدَها.
+SAFETY_MS = 250      # فوق حدّ التمييز (~0.3ث) بقليل، ودون أن يُفرّط في البسملة
+
+
 def report(starts, label, pool):
     vals = sorted(v for s, v in starts.items() if s in pool)
     if len(vals) < 3:
         print(f"  {label}: عيّنةٌ دون الثلاث ({len(vals)}) — لا يُحكم بها")
         return None
     med = int(statistics.median(vals))
+    q1 = vals[len(vals) // 4]
+    safe = max(0, vals[0] - SAFETY_MS)
     print(f"  {label}: وسيط {med}م.ث · عيّنة {len(vals)} · "
-          f"مدى [{vals[0]}..{vals[-1]}] · ربيعان "
-          f"[{vals[len(vals)//4]}..{vals[-1-len(vals)//4]}]")
-    return med
+          f"مدى [{vals[0]}..{vals[-1]}] · ربيعٌ أدنى {q1} · "
+          f"**آمن {safe}** (أقصرُ بسملةٍ − {SAFETY_MS})")
+    return safe
 
 
 def main():
@@ -77,7 +88,8 @@ def main():
         out[t] = med if med is not None else med_all
 
     if targets:
-        print("\n⇒ التخطّي المقترَح لكلّ سورة (‏يُمرَّر skip_ms):")
+        print("\n⇒ التخطّي الآمن لكلّ سورة (‏يُمرَّر skip_ms) — "
+              "أقصرُ بسملةٍ عند الجارات ناقصَ هامشِ الأمان، لا الوسيط:")
         for t in targets:
             v = out[t]
             print(f"   س{t}: skip_ms={v}" if v else f"   س{t}: ⛔ لا قياس")
