@@ -87,6 +87,10 @@ def _segment(lpz, n_samples, texts):
     cfg.index_duration = n_samples / lpz.shape[0] / SR
     cfg.blank = blank
     gt, utt = cs.prepare_token_list(cfg, tokens)
+    # سقفُ النافذة الافتراضيّ (64000 إطار) أسقط سوراً طويلةً حتميّاً (يوسف عند bilal).
+    # يُرفع إلى طول الصوت كلّه ما دام جدولُ الترصيد (نافذة × رموز × 4ب) دون ~4ج.ب.
+    cfg.max_window_size = max(cfg.max_window_size,
+                              min(lpz.shape[0], int(4e9 // (4 * max(len(gt), 1)))))
     timings, char_probs, _ = cs.ctc_segmentation(cfg, lpz, gt)
     return cs.determine_utterance_segments(cfg, utt, char_probs, timings, texts)
 
