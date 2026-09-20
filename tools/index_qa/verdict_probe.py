@@ -16,7 +16,9 @@
 
 الاستعمال:  verdict_probe.py <riwaya>/<id> [...]
 """
+import gzip
 import hashlib
+import io
 import json
 import sys
 from pathlib import Path
@@ -62,6 +64,23 @@ def main():
         sha = hashlib.sha256(raw).hexdigest()
         print(f"■ {spec}\n   المفتاح {key} · {len(raw):,} بايتاً"
               f"\n   البصمةُ المحكومُ بها {sha}")
+        # ⛔⛔ **الشهادةُ تُمنع بأربعةِ شروطٍ لا بواحد** — و`certify()` يقرأ
+        #    ثلاثةً منها من **جوف الفهرس نفسِه** لا من الأحكام:
+        #    التغطية · و`qa.fatal` · و`transform.op` (‏الذي يميّز الإسقاطَ
+        #    المعلَنَ عن العطب). ⭐ فمن نظر إلى الأحكام وحدَها ظنّ المانعَ
+        #    فيها وهو في الفهرس، **فعالج غيرَ المريض**.
+        try:
+            d = json.load(gzip.open(io.BytesIO(raw), "rt", encoding="utf-8"))
+            qa = d.get("qa") or {}
+            n, tot = len(d.get("entries") or []), d.get("ayahCount") or 6236
+            print(f"   تغطية {n}/{tot} = {n / max(1, tot):.4f}"
+                  f" · qa.fatal={qa.get('fatal')!r}"
+                  f" · transform.op={(d.get('transform') or {}).get('op')!r}")
+            if qa.get("fatal"):
+                print("   ⛔ **المانعُ هنا**: `qa.fatal` في الفهرس نفسِه "
+                      "⇒ لا شهادةَ مهما بلغت الأحكامُ الصوتيّة.")
+        except Exception as e:                            # noqa: BLE001
+            print(f"   ⚠️ تعذّرت قراءةُ جوف الفهرس: {e}")
         probe = sha[:8]
         hits = [k for k in audio if probe and probe in k]
         if not hits:
