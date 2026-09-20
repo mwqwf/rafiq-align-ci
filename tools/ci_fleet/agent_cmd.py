@@ -113,6 +113,14 @@ ALLOWED_TOOLS = {"index_qa/run.py", "index_qa/triage.py", "index_qa/promote.py",
                  #    التوقيت؟» ولا تسأل «أيصلح هذا للعرض والتشغيل؟».
                  # ⚖️ قارئٌ محض: يقرأ catalog/reciters.json ويعدّ العطب، لا يكتب.
                  "index_qa/catalog_audit.py",
+                 # ⛔ **أُضيف 2026-09-20:** كاشفُ **المرشَّح اليتيم** — ناجٍ
+                 #    بنيويّاً بلا بوّابةٍ صوتيّة. ووُلد من عطبٍ مقيس: فهرسُ
+                 #    `a_binaoun.3987d0e4` نجا 09-15 وبقي خمسةَ أيّامٍ منسيّاً
+                 #    بينما المنشورُ عند المستخدم 2246/6236 مدخلاً ⇒ 3924 آيةً
+                 #    جاهزةً محجوبة. ولا حلقةَ كانت تسأل «أيُّ ناجٍ بلا بوّابة؟».
+                 # ⚖️ قارئٌ محض: يسرد `timings-staging/` و`state/` ويطبع قائمةَ
+                 #    عملٍ، لا يكتب بايتاً ولا يُطلق تشغيلةً ولا يُجيز ترقية.
+                 "index_qa/orphan_candidates.py",
                  "index_qa/verdict_probe.py",
                  "index_qa/test_declared_sha_fatal.py",
                  "ci_fleet/repo_parity.py"}
