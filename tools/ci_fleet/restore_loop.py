@@ -77,7 +77,19 @@ REFS = ["timings/hafs/a_turki.jz", "timings/hafs/bari.jz",
         "timings/hafs/harthi.jz", "timings/hafs/abdullahk.jz"]
 UA = {"User-Agent": "Mozilla/5.0"}
 SOUND = 0.85          # وسيطُ نسبةِ الحجم الذي دونه يُعدّ المصدرُ مبتوراً
-LOWCOV = 0.75         # تغطيةُ سورةٍ حاضرةٍ تُعدّ دونها ناقصة
+# ⛔⛔ **فجوةٌ بنيويّةٌ قِيست 2026-09-20 وسُدّت هنا:** كانت `LOWCOV = 0.75`
+#    بينما `index_qa/low_coverage_scan.py` يشتكي عند **0.98** ⇒ النطاقُ
+#    **[0.75, 0.98)** لا تلمسه حلقةٌ واحدة: الماسحُ يراه ولا يُصلحه، والحلقةُ
+#    تُصلح ولا تراه. ومقيسٌ من الدلو أنّ فيه **معظمَ الـ667 سورةً الحاضرةَ
+#    الناقصة** (‏21 فهرساً فقط دون 70٪، والباقي في النطاق الأعمى) ⇒ **646 سورةً
+#    كانت محرومةً من أيّ علاجٍ إلى الأبد**، وهي «آخرُ سطرٍ» في عمل الفهرسة.
+# ✅ **وتوسيعُها لا يفجّر الإنفاق**: السقفُ `--limit` لكلّ شوطٍ (‏3 في
+#    `restore.yml`) هو الذي يحكم الصرف، والترتيبُ `-gap` يُقدّم الأكبرَ نقصاً
+#    ⇒ الأثرُ أنّ الصغيرَ **يدخل الطابورَ** بدل أن يكون غيرَ مرئيّ، لا أن
+#    تُطلق مئاتُ التشغيلات. ومَن أراد تسريعاً فالدِّيالُ `--limit` لا هذه.
+# ⛔ وليست عتبةَ حارس: `SOUND` (‏0.85) و«العطب الجسيم» (‏5٪) لم تُمَسّا، وهذه
+#    **مِصفاةُ اختيارِ عملٍ** — توسيعُها يزيد ما يُفحص ولا يُجيز شيئاً.
+LOWCOV = float(os.environ.get("RESTORE_LOWCOV", "0.98"))   # تغطيةُ سورةٍ حاضرةٍ تُعدّ دونها ناقصة
 MIN_AYAHS = 3         # لا يُنفق عدّاءٌ على أقلَّ من هذا
 
 # مصدرٌ بديلٌ **لسورةٍ بعينها** بعد قياس المصدر الأصلي، لا استبدالٌ عشوائيّ
@@ -168,6 +180,17 @@ def source_base(bases: dict, riwaya: str, reciter: str, surah: int) -> str | Non
     """المصدر المقاس للسورة، ثم مصدر الكتالوج لبقية السور."""
     return SOURCE_OVERRIDES.get((riwaya, reciter, surah),
                                 bases.get((riwaya, reciter)))
+
+
+def needs_restore(have: int, exp: int) -> bool:
+    """أتستحقّ هذه السورةُ محاولةَ استرجاع؟ — شرطٌ واحدٌ في دالّةٍ **تُختبر**.
+
+    ⛔ كان سطراً داخلَ حلقةٍ لا يُقاس إلا بتشغيل الدلو كلِّه، فأُخرج كما هو
+    حرفاً (‏لا تغييرَ في منطقه) ليُقابَل بحالاتٍ معلومةِ الجواب.
+    ⚖️ وهو **مِصفاةُ عملٍ لا حارسُ نشر**: يقول «انظر في هذه»، ولا يقول «رقِّ».
+    """
+    gap = exp - have
+    return gap >= MIN_AYAHS and (have == 0 or have / exp < LOWCOV)
 
 
 def source_ratio(idx, base: str, surah: int, refs) -> float | None:
@@ -329,7 +352,7 @@ def candidates():
         for s in range(1, 115):
             have, exp = per.get(s, 0), counts[s - 1]
             gap = exp - have
-            if gap >= MIN_AYAHS and (have == 0 or have / exp < LOWCOV):
+            if needs_restore(have, exp):
                 rows.append({"riwaya": riw, "reciter": rid, "surah": s,
                              "have": have, "expected": exp, "gap": gap,
                              "key": k, "liveKey": r["liveKey"]})
