@@ -60,9 +60,43 @@ def collect(node, out=None, seen=None):
     return out
 
 
+def skeleton(node, depth=0, path="$"):
+    """هيكلُ الوثيقة — **لأنّ التخمينَ أنفق دورتين** (2026-09-20).
+
+    ⭐ حين لا تعرف شكلَ البيانات فاطبعه، ولا تبنِ مُحلِّلاً على ظنٍّ ثمّ
+    تُصدّق مخرجَه. صفرُ صفوفٍ ثمّ ستّةٌ من 77 كيلوبايت: كلاهما ظنٌّ كاذب.
+    """
+    pad = "  " * depth
+    if isinstance(node, dict):
+        print(f"{pad}{path} {{}} · {len(node)} مفتاحاً: "
+              f"{', '.join(list(node)[:12])}")
+        if depth < 2:
+            for k in list(node)[:4]:
+                skeleton(node[k], depth + 1, k)
+    elif isinstance(node, list):
+        print(f"{pad}{path} [] · {len(node)} عنصراً")
+        if node and depth < 3:
+            skeleton(node[0], depth + 1, f"{path}[0]")
+    else:
+        print(f"{pad}{path} = {str(node)[:60]!r}")
+
+
 def main():
     cl, bucket = s3()
-    raw = cl.get_object(Bucket=bucket, Key="catalog/reciters.json")["Body"].read()
+    key = "catalog/reciters.json"
+    for a in sys.argv[1:]:
+        if a.startswith("--key="):
+            key = a.split("=", 1)[1]
+    raw = cl.get_object(Bucket=bucket, Key=key)["Body"].read()
+    if "--skeleton" in sys.argv:
+        print(f"المفتاح {key} · {len(raw):,} بايتاً")
+        skeleton(json.loads(raw.decode("utf-8")))
+        # وأسماءُ كلِّ ملفّات الكتالوج في الدلو — فلعلّ التطبيقَ يقرأ غيرَه
+        print("\nملفّاتُ catalog/ في الدلو:")
+        for o in (cl.list_objects_v2(Bucket=bucket, Prefix="catalog/")
+                  .get("Contents") or []):
+            print(f"   {o['Key']:<45} {o['Size']:>10,}")
+        return 0
     doc = json.loads(raw.decode("utf-8"))
     rows = collect(doc)
     print(f"الكتالوج: {len(rows)} قارئاً · {len(raw):,} بايتاً\n")
