@@ -32,12 +32,49 @@ LATIN = re.compile(r"[A-Za-z]")
 ARABIC = re.compile(r"[؀-ۿݐ-ݿﭐ-﷿ﹰ-﻿]")
 
 
+def collect(node, out=None, seen=None):
+    """كلُّ قاموسٍ فيه `id` هو صفُّ قارئ — أيّاً كان عمقُه في الشجرة.
+
+    ⭐ **ولا يُفترض الشكل**: الكتالوج قد يكون قائمةً، أو قاموساً بالرواية،
+    أو قاموساً بالمعرّف. فالبحثُ عن **الصفة** لا عن **المسار**.
+    """
+    out = [] if out is None else out
+    seen = set() if seen is None else seen
+    if isinstance(node, dict):
+        if "id" in node and not isinstance(node.get("id"), (dict, list)):
+            if id(node) not in seen:
+                seen.add(id(node))
+                out.append(node)
+            return out
+        for k, v in node.items():
+            # قاموسٌ مفتاحُه المعرّفُ وقيمتُه الصفُّ بلا حقل `id`
+            if isinstance(v, dict) and "id" not in v and (
+                    "name" in v or "base" in v or "mode" in v):
+                v = dict(v, id=k)
+                out.append(v)
+            else:
+                collect(v, out, seen)
+    elif isinstance(node, list):
+        for v in node:
+            collect(v, out, seen)
+    return out
+
+
 def main():
     cl, bucket = s3()
     raw = cl.get_object(Bucket=bucket, Key="catalog/reciters.json")["Body"].read()
     doc = json.loads(raw.decode("utf-8"))
-    rows = doc if isinstance(doc, list) else (doc.get("reciters") or doc.get("items") or [])
+    rows = collect(doc)
     print(f"الكتالوج: {len(rows)} قارئاً · {len(raw):,} بايتاً\n")
+    # ⛔⛔ **حارسٌ لا يجد شيئاً ليس حارساً ناجحاً** (‏وقعت 2026-09-20 نصّاً):
+    #    قرأتُ الكتالوجَ بشكلٍ مفترَضٍ (`list` أو `reciters`) فخرجت بصفرِ صفوف
+    #    وطبعتُ «✅ لا عطبَ ظاهر» — بينما شاشةُ المالك تعرض `kentaoui_warsh`
+    #    و`asali_warsh` بحروفٍ لاتينيّة. ⇒ **الصفرُ ليس براءةً بل فشلُ قراءة.**
+    if not rows:
+        print("⛔ لم يُقرأ صفٌّ واحد — الشكلُ غيرُ متوقَّع، لا براءة.")
+        print("   المفاتيحُ العليا: " + ", ".join(list(doc)[:20]
+                                                 if isinstance(doc, dict) else ["<list>"]))
+        return 2
 
     latin, no_name, no_base, odd = [], [], [], []
     for r in rows:
