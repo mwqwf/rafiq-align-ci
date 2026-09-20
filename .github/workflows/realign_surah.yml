@@ -74,7 +74,6 @@ env:
 
 jobs:
   realign:
-    # Owner financial stop 2026-09-18: no runner allocation until verified free.
     # أُعيد الفتح 2026-09-19 بأمر المالك بإكمال الفهرسة. تحقّقٌ ماليّ قبل الفتح:
     # مستودعٌ عامّ + عدّاء ubuntu-latest قياسيّ ⇒ الدقائق مجّانيّة، بلا larger runner.
     # ⛔ الاسمُ يحمل الهويّة — `gh run view --json jobs` يقرؤه **والتشغيلةُ جارية**،

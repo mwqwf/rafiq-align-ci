@@ -31,7 +31,6 @@ on:
 
 jobs:
   contract:
-    # Owner financial stop 2026-09-18: no runner allocation until verified free.
     # أُعيد الفتح 2026-09-19 بأمر المالك بإكمال الفهرسة. تحقّقٌ ماليّ قبل الفتح:
     # مستودعٌ عامّ + عدّاء ubuntu-latest قياسيّ ⇒ الدقائق مجّانيّة، بلا larger runner.
     runs-on: ubuntu-latest
@@ -43,7 +42,6 @@ jobs:
       - run: python tools/cloud/backfill_diagnosis.py --self-test
 
   diagnose:
-    # Owner financial stop 2026-09-18: no runner allocation until verified free.
     # أُعيد الفتح 2026-09-19 بأمر المالك بإكمال الفهرسة. تحقّقٌ ماليّ قبل الفتح:
     # مستودعٌ عامّ + عدّاء ubuntu-latest قياسيّ ⇒ الدقائق مجّانيّة، بلا larger runner.
     # Previous job condition retained below for reversal:
