@@ -121,6 +121,7 @@ ALLOWED_TOOLS = {"index_qa/run.py", "index_qa/triage.py", "index_qa/promote.py",
                  # ⚖️ قارئٌ محض: يسرد `timings-staging/` و`state/` ويطبع قائمةَ
                  #    عملٍ، لا يكتب بايتاً ولا يُطلق تشغيلةً ولا يُجيز ترقية.
                  "index_qa/orphan_candidates.py",
+                 "index_qa/test_orphan_filter.py",
                  "index_qa/verdict_probe.py",
                  "index_qa/test_declared_sha_fatal.py",
                  "ci_fleet/repo_parity.py"}
