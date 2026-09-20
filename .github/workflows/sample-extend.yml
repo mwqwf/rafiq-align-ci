@@ -32,8 +32,6 @@ permissions:
 
 jobs:
   extend:
-    # Owner financial stop 2026-09-18: no runner allocation until verified free.
-    if: ${{ false }}
     runs-on: ubuntu-latest
     timeout-minutes: 25
     steps:

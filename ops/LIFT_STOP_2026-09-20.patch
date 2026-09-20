@@ -1,0 +1,441 @@
+diff -ruN .github/workflows/agent-job.yml /tmp/claude-0/-home-user/84961b63-2a65-586b-b5a9-c14c64a5f62c/scratchpad/wf/rafiq-align-ci/.github/workflows/agent-job.yml
+--- a/.github/workflows/agent-job.yml	2026-09-19 11:50:10.249248097 +0000
++++ b/.github/workflows/agent-job.yml	2026-09-20 15:35:38.628024274 +0000
+@@ -39,8 +39,6 @@
+ 
+ jobs:
+   run:
+-    # Owner financial stop 2026-09-18: no runner allocation until verified free.
+-    if: ${{ false }}
+     runs-on: ubuntu-latest
+     timeout-minutes: 120
+     steps:
+diff -ruN .github/workflows/align.yml /tmp/claude-0/-home-user/84961b63-2a65-586b-b5a9-c14c64a5f62c/scratchpad/wf/rafiq-align-ci/.github/workflows/align.yml
+--- a/.github/workflows/align.yml	2026-09-19 11:50:10.249248097 +0000
++++ b/.github/workflows/align.yml	2026-09-20 15:35:38.629226719 +0000
+@@ -120,8 +120,6 @@
+ jobs:
+   # ── المصفوفة تُبنى ديناميكياً من مُدخل shards ────────────────────────────
+   prepare:
+-    # Owner financial stop 2026-09-18: no runner allocation until verified free.
+-    if: ${{ false }}
+     # ⛔ الاسمُ يحمل القائمة: `gh run view --json jobs` يقرؤه **والموجةُ جارية**،
+     #    بلا سجلٍّ ولا انتظار — وهو المسلكُ الوحيد الذي لم يسقط في قياس 09-07.
+     name: prepare — ${{ github.event.inputs.list }}
+@@ -158,8 +156,6 @@
+           } >> "$GITHUB_STEP_SUMMARY"
+ 
+   align:
+-    # Owner financial stop 2026-09-18: no runner allocation until verified free.
+-    if: ${{ false }}
+     name: align ${{ github.event.inputs.list }} (${{ matrix.shard }})
+     needs: prepare
+     runs-on: ubuntu-latest
+diff -ruN .github/workflows/arm-request.yml /tmp/claude-0/-home-user/84961b63-2a65-586b-b5a9-c14c64a5f62c/scratchpad/wf/rafiq-align-ci/.github/workflows/arm-request.yml
+--- a/.github/workflows/arm-request.yml	2026-09-19 11:50:10.249248097 +0000
++++ b/.github/workflows/arm-request.yml	2026-09-20 15:35:38.630601430 +0000
+@@ -34,8 +34,6 @@
+ 
+ jobs:
+   read:
+-    # Owner financial stop 2026-09-18: no runner allocation until verified free.
+-    if: ${{ false }}
+     runs-on: ubuntu-latest
+     timeout-minutes: 5
+     outputs:
+@@ -79,8 +77,6 @@
+           PY
+ 
+   time:
+-    # Owner financial stop 2026-09-18: no runner allocation until verified free.
+-    if: ${{ false }}
+     needs: read
+     strategy:
+       fail-fast: false
+diff -ruN .github/workflows/arm-threads.yml /tmp/claude-0/-home-user/84961b63-2a65-586b-b5a9-c14c64a5f62c/scratchpad/wf/rafiq-align-ci/.github/workflows/arm-threads.yml
+--- a/.github/workflows/arm-threads.yml	2026-09-19 11:50:10.249248097 +0000
++++ b/.github/workflows/arm-threads.yml	2026-09-20 15:35:38.631169908 +0000
+@@ -55,8 +55,6 @@
+   # قبله يُقال حدُّه ولا يُسكت عنه** — وهذا الإيداعُ نفسُه **تجربتُه الحيّة**: يغيّر المسارَ ولا
+   # يمسّ الطلبَ، فالمنتظَرُ أن تُختصر وظيفةُ القياس بثوانٍ — **ويُقرأ ذلك من الأثر لا يُفترض**.
+   gate:
+-    # Owner financial stop 2026-09-18: no runner allocation until verified free.
+-    if: ${{ false }}
+     runs-on: ubuntu-latest
+     timeout-minutes: 5
+     outputs:
+@@ -79,8 +77,6 @@
+           fi
+ 
+   t:
+-    # Owner financial stop 2026-09-18: no runner allocation until verified free.
+-    if: ${{ false }}
+     needs: gate
+     # Previous job condition retained below for reversal:
+     # if: needs.gate.outputs.dup != '1'
+diff -ruN .github/workflows/arm-time.yml /tmp/claude-0/-home-user/84961b63-2a65-586b-b5a9-c14c64a5f62c/scratchpad/wf/rafiq-align-ci/.github/workflows/arm-time.yml
+--- a/.github/workflows/arm-time.yml	2026-09-19 11:50:10.249248097 +0000
++++ b/.github/workflows/arm-time.yml	2026-09-20 15:35:38.631703959 +0000
+@@ -71,8 +71,6 @@
+   WC: c4ac0012a8f5a2082dfca6aad4ddfd8b2c02b337   # الالتزامُ المثبَّت — نفسُ الذي في third_party
+ jobs:
+   t:
+-    # Owner financial stop 2026-09-18: no runner allocation until verified free.
+-    if: ${{ false }}
+     runs-on: ubuntu-24.04-arm
+     timeout-minutes: 120
+     steps:
+diff -ruN .github/workflows/audio-qa-contract.yml /tmp/claude-0/-home-user/84961b63-2a65-586b-b5a9-c14c64a5f62c/scratchpad/wf/rafiq-align-ci/.github/workflows/audio-qa-contract.yml
+--- a/.github/workflows/audio-qa-contract.yml	2026-09-19 11:50:10.249248097 +0000
++++ b/.github/workflows/audio-qa-contract.yml	2026-09-20 15:35:38.631943620 +0000
+@@ -13,8 +13,6 @@
+   cancel-in-progress: true
+ jobs:
+   test:
+-    # Owner financial stop 2026-09-18: no runner allocation until verified free.
+-    if: ${{ false }}
+     runs-on: ubuntu-latest
+     timeout-minutes: 5
+     steps:
+diff -ruN .github/workflows/build_indexer.yml /tmp/claude-0/-home-user/84961b63-2a65-586b-b5a9-c14c64a5f62c/scratchpad/wf/rafiq-align-ci/.github/workflows/build_indexer.yml
+--- a/.github/workflows/build_indexer.yml	2026-09-19 11:50:10.249248097 +0000
++++ b/.github/workflows/build_indexer.yml	2026-09-20 15:35:38.632959633 +0000
+@@ -30,8 +30,6 @@
+ 
+ jobs:
+   build:
+-    # Owner financial stop 2026-09-18: no runner allocation until verified free.
+-    if: ${{ false }}
+     runs-on: ubuntu-latest
+     timeout-minutes: 60
+     permissions:
+diff -ruN .github/workflows/chunk-ab.yml /tmp/claude-0/-home-user/84961b63-2a65-586b-b5a9-c14c64a5f62c/scratchpad/wf/rafiq-align-ci/.github/workflows/chunk-ab.yml
+--- a/.github/workflows/chunk-ab.yml	2026-09-19 11:50:10.249248097 +0000
++++ b/.github/workflows/chunk-ab.yml	2026-09-20 15:35:38.633315161 +0000
+@@ -32,8 +32,6 @@
+   WC: c4ac0012a8f5a2082dfca6aad4ddfd8b2c02b337
+ jobs:
+   ab:
+-    # Owner financial stop 2026-09-18: no runner allocation until verified free.
+-    if: ${{ false }}
+     runs-on: ubuntu-latest
+     timeout-minutes: 300
+     steps:
+diff -ruN .github/workflows/emu-gate.yml /tmp/claude-0/-home-user/84961b63-2a65-586b-b5a9-c14c64a5f62c/scratchpad/wf/rafiq-align-ci/.github/workflows/emu-gate.yml
+--- a/.github/workflows/emu-gate.yml	2026-09-19 11:50:10.249248097 +0000
++++ b/.github/workflows/emu-gate.yml	2026-09-20 15:35:38.634489032 +0000
+@@ -162,8 +162,6 @@
+   UA: "Mozilla/5.0 (QuranRafiq emu gate)"
+ jobs:
+   matrix:
+-    # Owner financial stop 2026-09-18: no runner allocation until verified free.
+-    if: ${{ false }}
+     runs-on: ubuntu-latest
+     timeout-minutes: 5
+     outputs:
+@@ -172,8 +170,6 @@
+       - id: m
+         run: python3 -c "import json,os;print('sets='+json.dumps('${{ inputs.sets }}'.split(',')))" >> "$GITHUB_OUTPUT"
+   emu:
+-    # Owner financial stop 2026-09-18: no runner allocation until verified free.
+-    if: ${{ false }}
+     needs: matrix
+     runs-on: ubuntu-latest
+     # ⛔⛔ **المهلةُ 120 لا 350 — بسببٍ مقيسٍ 2026-09-13 (الشوط 34747390248):** تعلّقت وظيفةُ
+@@ -358,8 +354,6 @@
+           retention-days: 7
+           if-no-files-found: ignore
+   judge:
+-    # Owner financial stop 2026-09-18: no runner allocation until verified free.
+-    if: ${{ false }}
+     needs: emu
+     # Previous job condition retained below for reversal:
+     # if: always()
+diff -ruN .github/workflows/emu-request.yml /tmp/claude-0/-home-user/84961b63-2a65-586b-b5a9-c14c64a5f62c/scratchpad/wf/rafiq-align-ci/.github/workflows/emu-request.yml
+--- a/.github/workflows/emu-request.yml	2026-09-19 11:50:10.249248097 +0000
++++ b/.github/workflows/emu-request.yml	2026-09-20 15:35:38.634944912 +0000
+@@ -41,8 +41,6 @@
+   issues: write
+ jobs:
+   read:
+-    # Owner financial stop 2026-09-18: no runner allocation until verified free.
+-    if: ${{ false }}
+     runs-on: ubuntu-latest
+     timeout-minutes: 5
+     outputs:
+@@ -103,8 +101,6 @@
+           python3 -c "import json;n=str(json.load(open('tools/tasmi_bench/requests/emu.json',encoding='utf-8')).get('note') or '').strip().replace(chr(10),' ');print('**سببُ الشوط:** '+n) if n else None" >> "$GITHUB_STEP_SUMMARY"
+           sed 's/^/- /' "$GITHUB_OUTPUT" >> "$GITHUB_STEP_SUMMARY"
+   gate:
+-    # Owner financial stop 2026-09-18: no runner allocation until verified free.
+-    if: ${{ false }}
+     needs: read
+     # ⚙️ المسارُ نفسُه لا نسخةٌ منه.
+     uses: ./.github/workflows/emu-gate.yml
+diff -ruN .github/workflows/finetune-audit.yml /tmp/claude-0/-home-user/84961b63-2a65-586b-b5a9-c14c64a5f62c/scratchpad/wf/rafiq-align-ci/.github/workflows/finetune-audit.yml
+--- a/.github/workflows/finetune-audit.yml	2026-09-19 11:50:10.249248097 +0000
++++ b/.github/workflows/finetune-audit.yml	2026-09-20 15:35:38.635231445 +0000
+@@ -17,8 +17,6 @@
+         default: "600"
+ jobs:
+   audit:
+-    # Owner financial stop 2026-09-18: no runner allocation until verified free.
+-    if: ${{ false }}
+     runs-on: ubuntu-latest
+     timeout-minutes: 300
+     env:
+diff -ruN .github/workflows/finetune-convert.yml /tmp/claude-0/-home-user/84961b63-2a65-586b-b5a9-c14c64a5f62c/scratchpad/wf/rafiq-align-ci/.github/workflows/finetune-convert.yml
+--- a/.github/workflows/finetune-convert.yml	2026-09-19 11:50:10.249248097 +0000
++++ b/.github/workflows/finetune-convert.yml	2026-09-20 15:35:38.635504576 +0000
+@@ -32,8 +32,6 @@
+   UA: "Mozilla/5.0 (QuranRafiq finetune convert)"
+ jobs:
+   convert:
+-    # Owner financial stop 2026-09-18: no runner allocation until verified free.
+-    if: ${{ false }}
+     runs-on: ubuntu-latest
+     timeout-minutes: 60
+     steps:
+diff -ruN .github/workflows/finetune-filter.yml /tmp/claude-0/-home-user/84961b63-2a65-586b-b5a9-c14c64a5f62c/scratchpad/wf/rafiq-align-ci/.github/workflows/finetune-filter.yml
+--- a/.github/workflows/finetune-filter.yml	2026-09-19 11:50:10.249248097 +0000
++++ b/.github/workflows/finetune-filter.yml	2026-09-20 15:35:38.635921214 +0000
+@@ -32,8 +32,6 @@
+   UA: "Mozilla/5.0 (QuranRafiq finetune filter)"
+ jobs:
+   prep:
+-    # Owner financial stop 2026-09-18: no runner allocation until verified free.
+-    if: ${{ false }}
+     runs-on: ubuntu-latest
+     timeout-minutes: 30
+     outputs:
+@@ -60,8 +58,6 @@
+           print("matrix=" + json.dumps({"include": [{"part": p, "shard": f"{i}/{k}", "i": i} for p in parts for i in range(k)]}))
+           PY
+   shard:
+-    # Owner financial stop 2026-09-18: no runner allocation until verified free.
+-    if: ${{ false }}
+     needs: prep
+     runs-on: ubuntu-latest
+     timeout-minutes: 300
+@@ -117,8 +113,6 @@
+           retention-days: 7
+           if-no-files-found: ignore
+   merge:
+-    # Owner financial stop 2026-09-18: no runner allocation until verified free.
+-    if: ${{ false }}
+     needs: shard
+     # Previous job condition retained below for reversal:
+     # if: always()
+@@ -165,8 +159,6 @@
+           [ -n "$ARGS" ] && python tools/finetune/r2_put.py $ARGS
+           { echo '### 🔎 filter · merged'; echo '```'; cat merge.log; echo '```'; } >> "$GITHUB_STEP_SUMMARY"
+   launch-v4:
+-    # Owner financial stop 2026-09-18: no runner allocation until verified free.
+-    if: ${{ false }}
+     needs: merge
+     # Previous job condition retained below for reversal:
+     # if: github.event.inputs.launch == 'true' && needs.merge.result == 'success'
+diff -ruN .github/workflows/finetune-prep.yml /tmp/claude-0/-home-user/84961b63-2a65-586b-b5a9-c14c64a5f62c/scratchpad/wf/rafiq-align-ci/.github/workflows/finetune-prep.yml
+--- a/.github/workflows/finetune-prep.yml	2026-09-19 11:50:10.249248097 +0000
++++ b/.github/workflows/finetune-prep.yml	2026-09-20 15:35:38.636215219 +0000
+@@ -17,8 +17,6 @@
+         default: "120"
+ jobs:
+   prep:
+-    # Owner financial stop 2026-09-18: no runner allocation until verified free.
+-    if: ${{ false }}
+     runs-on: ubuntu-latest
+     timeout-minutes: 150
+     strategy:
+diff -ruN .github/workflows/finetune-train-cpu.yml /tmp/claude-0/-home-user/84961b63-2a65-586b-b5a9-c14c64a5f62c/scratchpad/wf/rafiq-align-ci/.github/workflows/finetune-train-cpu.yml
+--- a/.github/workflows/finetune-train-cpu.yml	2026-09-19 11:50:10.249248097 +0000
++++ b/.github/workflows/finetune-train-cpu.yml	2026-09-20 15:35:38.636542130 +0000
+@@ -62,8 +62,6 @@
+   contents: read
+ jobs:
+   train:
+-    # Owner financial stop 2026-09-18: no runner allocation until verified free.
+-    if: ${{ false }}
+     runs-on: ubuntu-latest
+     timeout-minutes: 355
+     env:
+diff -ruN .github/workflows/gate-anatomy.yml /tmp/claude-0/-home-user/84961b63-2a65-586b-b5a9-c14c64a5f62c/scratchpad/wf/rafiq-align-ci/.github/workflows/gate-anatomy.yml
+--- a/.github/workflows/gate-anatomy.yml	2026-09-19 11:50:10.249248097 +0000
++++ b/.github/workflows/gate-anatomy.yml	2026-09-20 15:35:38.637081014 +0000
+@@ -52,8 +52,6 @@
+   PUB: https://pub-2c2e1dcd92e84a2898820dd38d3e09e6.r2.dev
+ jobs:
+   anatomy:
+-    # Owner financial stop 2026-09-18: no runner allocation until verified free.
+-    if: ${{ false }}
+     runs-on: ubuntu-latest
+     timeout-minutes: 20
+     steps:
+diff -ruN .github/workflows/job-log.yml /tmp/claude-0/-home-user/84961b63-2a65-586b-b5a9-c14c64a5f62c/scratchpad/wf/rafiq-align-ci/.github/workflows/job-log.yml
+--- a/.github/workflows/job-log.yml	2026-09-19 11:50:10.249248097 +0000
++++ b/.github/workflows/job-log.yml	2026-09-20 15:35:38.638490751 +0000
+@@ -31,8 +31,6 @@
+ 
+ jobs:
+   fetch:
+-    # Owner financial stop 2026-09-18: no runner allocation until verified free.
+-    if: ${{ false }}
+     runs-on: ubuntu-latest
+     timeout-minutes: 15
+     steps:
+diff -ruN .github/workflows/keepalive-contract.yml /tmp/claude-0/-home-user/84961b63-2a65-586b-b5a9-c14c64a5f62c/scratchpad/wf/rafiq-align-ci/.github/workflows/keepalive-contract.yml
+--- a/.github/workflows/keepalive-contract.yml	2026-09-19 11:50:10.249248097 +0000
++++ b/.github/workflows/keepalive-contract.yml	2026-09-20 15:35:38.638724246 +0000
+@@ -21,8 +21,6 @@
+   cancel-in-progress: true
+ jobs:
+   test:
+-    # Owner financial stop 2026-09-18: no runner allocation until verified free.
+-    if: ${{ false }}
+     runs-on: ubuntu-latest
+     timeout-minutes: 5
+     steps:
+diff -ruN .github/workflows/keepalive.yml /tmp/claude-0/-home-user/84961b63-2a65-586b-b5a9-c14c64a5f62c/scratchpad/wf/rafiq-align-ci/.github/workflows/keepalive.yml
+--- a/.github/workflows/keepalive.yml	2026-09-19 11:50:10.249248097 +0000
++++ b/.github/workflows/keepalive.yml	2026-09-20 15:35:38.639355567 +0000
+@@ -52,8 +52,6 @@
+ 
+ jobs:
+   pulse:
+-    # Owner financial stop 2026-09-18: no runner allocation until verified free.
+-    if: ${{ false }}
+     runs-on: ubuntu-latest
+     timeout-minutes: 10
+     steps:
+@@ -117,8 +115,6 @@
+   #    يرقِّ العابرَ **تراكمت بلا فائدة** — يعمل الأسطولُ ولا يزيد المنشورُ
+   #    واحداً. فهذه الوظيفةُ تُتمّ الحلقة: تحكم ثم ترقّي، في السحابة.
+   gate_and_promote:
+-    # Owner financial stop 2026-09-18: no runner allocation until verified free.
+-    if: ${{ false }}
+     runs-on: ubuntu-latest
+     timeout-minutes: 25
+     permissions:
+@@ -364,8 +360,6 @@
+   # الانتظار في وظيفة مستقلة: انقضاء مهلة الفحص لا يبتلع إطلاق النبضة التالية.
+   # لا ضمان ضد إلغاء سير العمل كله أو تعطيل Actions؛ الجدولة تبقى سنداً.
+   chain:
+-    # Owner financial stop 2026-09-18: no runner allocation until verified free.
+-    if: ${{ false }}
+     needs: [pulse, gate_and_promote]
+     # Previous job condition retained below for reversal:
+     # if: ${{ always() }}
+diff -ruN .github/workflows/model-id.yml /tmp/claude-0/-home-user/84961b63-2a65-586b-b5a9-c14c64a5f62c/scratchpad/wf/rafiq-align-ci/.github/workflows/model-id.yml
+--- a/.github/workflows/model-id.yml	2026-09-19 11:50:10.249248097 +0000
++++ b/.github/workflows/model-id.yml	2026-09-20 15:35:38.639962583 +0000
+@@ -28,8 +28,6 @@
+ 
+ jobs:
+   fingerprint:
+-    # Owner financial stop 2026-09-18: no runner allocation until verified free.
+-    if: ${{ false }}
+     runs-on: ubuntu-latest
+     timeout-minutes: 20
+     steps:
+diff -ruN .github/workflows/model-probe.yml /tmp/claude-0/-home-user/84961b63-2a65-586b-b5a9-c14c64a5f62c/scratchpad/wf/rafiq-align-ci/.github/workflows/model-probe.yml
+--- a/.github/workflows/model-probe.yml	2026-09-19 11:50:10.249248097 +0000
++++ b/.github/workflows/model-probe.yml	2026-09-20 15:35:38.640209483 +0000
+@@ -19,8 +19,6 @@
+   WC: c4ac0012a8f5a2082dfca6aad4ddfd8b2c02b337
+ jobs:
+   probe:
+-    # Owner financial stop 2026-09-18: no runner allocation until verified free.
+-    if: ${{ false }}
+     runs-on: ubuntu-latest
+     timeout-minutes: 25
+     steps:
+diff -ruN .github/workflows/plan-riwaya.yml /tmp/claude-0/-home-user/84961b63-2a65-586b-b5a9-c14c64a5f62c/scratchpad/wf/rafiq-align-ci/.github/workflows/plan-riwaya.yml
+--- a/.github/workflows/plan-riwaya.yml	2026-09-19 11:50:10.249248097 +0000
++++ b/.github/workflows/plan-riwaya.yml	2026-09-20 15:35:38.640976934 +0000
+@@ -43,8 +43,6 @@
+ 
+ jobs:
+   plan:
+-    # Owner financial stop 2026-09-18: no runner allocation until verified free.
+-    if: ${{ false }}
+     runs-on: ubuntu-latest
+     timeout-minutes: 20
+     steps:
+diff -ruN .github/workflows/promote-source-remediation-contract.yml /tmp/claude-0/-home-user/84961b63-2a65-586b-b5a9-c14c64a5f62c/scratchpad/wf/rafiq-align-ci/.github/workflows/promote-source-remediation-contract.yml
+--- a/.github/workflows/promote-source-remediation-contract.yml	2026-09-19 11:50:10.249248097 +0000
++++ b/.github/workflows/promote-source-remediation-contract.yml	2026-09-20 15:35:38.641320380 +0000
+@@ -20,8 +20,6 @@
+   cancel-in-progress: true
+ jobs:
+   test:
+-    # Owner financial stop 2026-09-18: no runner allocation until verified free.
+-    if: ${{ false }}
+     runs-on: ubuntu-latest
+     timeout-minutes: 5
+     steps:
+diff -ruN .github/workflows/riwaya-ci.yml /tmp/claude-0/-home-user/84961b63-2a65-586b-b5a9-c14c64a5f62c/scratchpad/wf/rafiq-align-ci/.github/workflows/riwaya-ci.yml
+--- a/.github/workflows/riwaya-ci.yml	2026-09-19 11:50:10.249248097 +0000
++++ b/.github/workflows/riwaya-ci.yml	2026-09-20 15:35:38.642446476 +0000
+@@ -37,8 +37,6 @@
+ 
+ jobs:
+   riwaya:
+-    # Owner financial stop 2026-09-18: no runner allocation until verified free.
+-    if: ${{ false }}
+     runs-on: ubuntu-latest
+     timeout-minutes: 20
+     steps:
+diff -ruN .github/workflows/sample-extend.yml /tmp/claude-0/-home-user/84961b63-2a65-586b-b5a9-c14c64a5f62c/scratchpad/wf/rafiq-align-ci/.github/workflows/sample-extend.yml
+--- a/.github/workflows/sample-extend.yml	2026-09-19 11:50:10.249248097 +0000
++++ b/.github/workflows/sample-extend.yml	2026-09-20 15:35:38.642852666 +0000
+@@ -32,8 +32,6 @@
+ 
+ jobs:
+   extend:
+-    # Owner financial stop 2026-09-18: no runner allocation until verified free.
+-    if: ${{ false }}
+     runs-on: ubuntu-latest
+     timeout-minutes: 25
+     steps:
+diff -ruN .github/workflows/sets-build.yml /tmp/claude-0/-home-user/84961b63-2a65-586b-b5a9-c14c64a5f62c/scratchpad/wf/rafiq-align-ci/.github/workflows/sets-build.yml
+--- a/.github/workflows/sets-build.yml	2026-09-19 11:50:10.249248097 +0000
++++ b/.github/workflows/sets-build.yml	2026-09-20 15:35:38.643207446 +0000
+@@ -26,8 +26,6 @@
+ 
+ jobs:
+   build:
+-    # Owner financial stop 2026-09-18: no runner allocation until verified free.
+-    if: ${{ false }}
+     runs-on: ubuntu-latest
+     timeout-minutes: 40
+     steps:
+diff -ruN .github/workflows/tasmi-gate.yml /tmp/claude-0/-home-user/84961b63-2a65-586b-b5a9-c14c64a5f62c/scratchpad/wf/rafiq-align-ci/.github/workflows/tasmi-gate.yml
+--- a/.github/workflows/tasmi-gate.yml	2026-09-19 11:50:10.249248097 +0000
++++ b/.github/workflows/tasmi-gate.yml	2026-09-20 15:35:38.643612035 +0000
+@@ -27,8 +27,6 @@
+   UA: "Mozilla/5.0 (QuranRafiq tasmi gate)"
+ jobs:
+   prep:
+-    # Owner financial stop 2026-09-18: no runner allocation until verified free.
+-    if: ${{ false }}
+     runs-on: ubuntu-latest
+     timeout-minutes: 90
+     steps:
+@@ -93,8 +91,6 @@
+           path: bin/whisper-cli
+           retention-days: 2
+   transcribe:
+-    # Owner financial stop 2026-09-18: no runner allocation until verified free.
+-    if: ${{ false }}
+     needs: prep
+     runs-on: ubuntu-latest
+     timeout-minutes: 120
+@@ -157,8 +153,6 @@
+           path: tools/tasmi_bench/work/hyps_ci-*.json
+           retention-days: 7
+   judge:
+-    # Owner financial stop 2026-09-18: no runner allocation until verified free.
+-    if: ${{ false }}
+     needs: transcribe
+     runs-on: ubuntu-latest
+     timeout-minutes: 20

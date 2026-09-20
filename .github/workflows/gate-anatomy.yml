@@ -52,8 +52,6 @@ env:
   PUB: https://pub-2c2e1dcd92e84a2898820dd38d3e09e6.r2.dev
 jobs:
   anatomy:
-    # Owner financial stop 2026-09-18: no runner allocation until verified free.
-    if: ${{ false }}
     runs-on: ubuntu-latest
     timeout-minutes: 20
     steps:

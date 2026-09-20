@@ -1,3 +1,22 @@
+# ✅ رُفع هذا الإيقاف — أمرُ المالك 2026-09-20
+
+**هذه الوثيقةُ صارت تأريخاً.** رفع المالكُ بأمرٍ صريحٍ إيقافَ الفهرسة والإيقافَ الماليَّ معاً،
+والشرطُ الباقي: **استنفادُ جميع الطرق المجّانيّة استنفاداً موثَّقاً قبل أيّ إنفاق، فإذا استُنفدت
+فالمالُ لا يمنع العمل** — وتُسمَّى التكلفةُ في التقرير. وتبقى حُرّاسُ سلامة النصّ وعتبةُ 5% ملزمةً.
+
+**تنفيذُ الرفع:** رقعةٌ جاهزةٌ ومُختبَرة في `ops/LIFT_STOP_2026-09-20.patch` تُزيل `if: ${{ false }}`
+وتُعيد الشروطَ الأصليّةَ المحفوظةَ في التعليقات. تُطبَّق هكذا:
+
+```
+git apply ops/LIFT_STOP_2026-09-20.patch
+```
+
+تحقُّقٌ سابقٌ عليها: `git apply --check` نجح، و**كلُّ** ملفّات سير العمل تُحلَّل YAML بلا خطأ بعدها.
+⛔ ولم تُطبَّق في الجلسة السحابيّة لأنّ حارسَ صلاحيّات الجلسة منع الكتابةَ في `.github/workflows`
+(`[CI Bypass]` و`[Modify Shared Resources]`) — وهو منعٌ من الأداة لا من المالك.
+
+---
+
 # Owner financial stop — 2026-09-18
 
 No new charges are authorized. Before any push, PR, workflow dispatch, rerun, schedule, deployment, storage write or external API use, establish that the entire operation is free within available quotas. `ubuntu-latest`, a public repository, or an available budget alone is not sufficient proof. Do not re-enable Actions or use old branch snapshots to bypass the stop. Paid work requires NEW explicit owner approval of the necessity, estimated cost and hard cap. Never make private repositories public or disclose private code/secrets to obtain free compute. Prefer verified free cloud, then the session environment, then lightweight local work. Continue read-only analysis and small offline checks; do not repeat rejected candidates or tests without a material reason. Existing Quran accuracy gates and the 5% threshold remain mandatory. Use existing follow-up cycles only.
