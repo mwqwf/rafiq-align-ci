@@ -78,19 +78,6 @@ ALLOWED_TOOLS = {"index_qa/run.py", "index_qa/triage.py", "index_qa/promote.py",
                  "index_qa/dump_state.py", "index_qa/material_probe.py",
                  "index_qa/_debug_state_for.py", "index_qa/_debug_openers_for.py",
                  "ci_fleet/restore_loop.py", "ci_fleet/status_page.py",
-                 # ⛔ **أُضيف 2026-09-19:** اختبارُ حارسِ «بصمات الصوت n/114».
-                 #    وأُدخل لأنّ قاعدةَ `CLAUDE.md` (بند 2) توجب اختبارَ أيّ
-                 #    تعديلٍ على حارسٍ **نصّاً قبل استعماله** — والحارسُ يعمل على
-                 #    العدّاء لا هنا، فاختبارُه حيث يعمل شرطُ صحّةٍ لا زينة.
-                 # ⚖️ وهو **قارئٌ محض**: يبني فهارسَ وهميّةً في الذاكرة ويقارن
-                 #    مخرَجَ `structural`، لا يمسّ الدلوَ ولا يكتب بايتاً واحداً.
-                 "index_qa/test_sha_count_declared_drop.py",
-                 # ⛔ **أُضيف 2026-09-19:** قياسُ البسملة من فهرس القارئ نفسِه.
-                 #    والقاعدةُ في `CLAUDE.md` تأمر به منذ مدّة لكنّها كانت
-                 #    **وصيّةً بلا أداة**، والسُّلَّمُ البديل (`basmala.yml`) سقفُه
-                 #    3000م.ث فيكذب على مَن بسملتُه أطول (husary_douri 10160م.ث).
-                 # ⚖️ وهو **قارئٌ محض**: يقرأ الفهرسَ ويطبع وسيطاً، لا يكتب شيئاً.
-                 "index_qa/basmala_from_index.py",
                  "ci_fleet/repo_parity.py"}
 MAX_OUT = 200_000            # حرفاً — جوابٌ أطولُ يُقصّ ويُعلَن قصُّه
 

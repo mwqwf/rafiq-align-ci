@@ -32,8 +32,6 @@ env:
   WC: c4ac0012a8f5a2082dfca6aad4ddfd8b2c02b337
 jobs:
   ab:
-    # Owner financial stop 2026-09-18: no runner allocation until verified free.
-    if: ${{ false }}
     runs-on: ubuntu-latest
     timeout-minutes: 300
     steps:

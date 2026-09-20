@@ -41,9 +41,6 @@ concurrency:
 
 jobs:
   build-and-gate:
-    # Owner financial stop 2026-09-18: no runner allocation until verified free.
-    # أُعيد الفتح 2026-09-19 بأمر المالك بإكمال الفهرسة. تحقّقٌ ماليّ قبل الفتح:
-    # مستودعٌ عامّ + عدّاء ubuntu-latest قياسيّ ⇒ الدقائق مجّانيّة، بلا larger runner.
     runs-on: ubuntu-latest
     timeout-minutes: 30
     env:

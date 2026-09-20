@@ -34,8 +34,6 @@ permissions:
 
 jobs:
   read:
-    # Owner financial stop 2026-09-18: no runner allocation until verified free.
-    if: ${{ false }}
     runs-on: ubuntu-latest
     timeout-minutes: 5
     outputs:
@@ -79,8 +77,6 @@ jobs:
           PY
 
   time:
-    # Owner financial stop 2026-09-18: no runner allocation until verified free.
-    if: ${{ false }}
     needs: read
     strategy:
       fail-fast: false

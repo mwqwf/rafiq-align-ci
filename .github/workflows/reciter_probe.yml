@@ -36,9 +36,6 @@ on:
 
 jobs:
   prepare:
-    # Owner financial stop 2026-09-18: no runner allocation until verified free.
-    # أُعيد الفتح 2026-09-19 بأمر المالك بإكمال الفهرسة. تحقّقٌ ماليّ قبل الفتح:
-    # مستودعٌ عامّ + عدّاء ubuntu-latest قياسيّ ⇒ الدقائق مجّانيّة، بلا larger runner.
     # ⛔ الاسمُ يحمل الهويّة — الدرس 21 في ثوبه الخامس: تشغيلةٌ لا يُقرأ هدفُها
     #    وهي جارية **لا تُدار**، ويُنفق عليها الحكمُ ظنّاً.
     name: prepare — ${{ github.event.inputs.only || 'من أعلى القائمة' }}
@@ -102,14 +99,10 @@ jobs:
           PY
 
   probe:
-    # Owner financial stop 2026-09-18: no runner allocation until verified free.
-    # أُعيد الفتح 2026-09-19 بأمر المالك بإكمال الفهرسة. تحقّقٌ ماليّ قبل الفتح:
-    # مستودعٌ عامّ + عدّاء ubuntu-latest قياسيّ ⇒ الدقائق مجّانيّة، بلا larger runner.
     # ⛔ الاسمُ يحمل المعرّف — يُقرأ والتشغيلةُ جارية (سجلُّ الجارية 404).
     name: probe ${{ matrix.id }}
     needs: prepare
-    # Previous job condition retained below for reversal:
-    # if: needs.prepare.outputs.matrix != '[]'
+    if: needs.prepare.outputs.matrix != '[]'
     runs-on: ubuntu-latest
     timeout-minutes: 90
     strategy:

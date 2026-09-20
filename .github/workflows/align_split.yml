@@ -73,9 +73,6 @@ env:
 
 jobs:
   prepare:
-    # Owner financial control: capped a_klb run dispatched; block further allocations.
-    # أُعيد الفتح 2026-09-19 بأمر المالك بإكمال الفهرسة. تحقّقٌ ماليّ قبل الفتح:
-    # مستودعٌ عامّ + عدّاء ubuntu-latest قياسيّ ⇒ الدقائق مجّانيّة، بلا larger runner.
     name: prepare — ${{ inputs.reciter }} × ${{ inputs.parts }}
     runs-on: ubuntu-latest
     outputs:
@@ -91,9 +88,6 @@ jobs:
           echo "matrix=$(python3 -c "import json,sys;print(json.dumps(list(range(int(sys.argv[1])))))" "$n")" >> "$GITHUB_OUTPUT"
 
   part:
-    # Owner financial control: capped a_klb run dispatched; block further allocations.
-    # أُعيد الفتح 2026-09-19 بأمر المالك بإكمال الفهرسة. تحقّقٌ ماليّ قبل الفتح:
-    # مستودعٌ عامّ + عدّاء ubuntu-latest قياسيّ ⇒ الدقائق مجّانيّة، بلا larger runner.
     name: جزء ${{ matrix.part }}/${{ inputs.parts }} — ${{ inputs.reciter }}
     needs: prepare
     runs-on: ubuntu-latest
@@ -358,13 +352,9 @@ jobs:
   # ⛔ `if: always()` مقصود: جزءٌ سقط لا يُلغي الجمعَ — الحارسُ يردّ النقصَ
   #    عند الرفع بعدّ 114/114، فالحكمُ للقياس لا لِلَون الوظيفة.
   assemble:
-    # Owner financial control: capped a_klb run dispatched; block further allocations.
-    # أُعيد الفتح 2026-09-19 بأمر المالك بإكمال الفهرسة. تحقّقٌ ماليّ قبل الفتح:
-    # مستودعٌ عامّ + عدّاء ubuntu-latest قياسيّ ⇒ الدقائق مجّانيّة، بلا larger runner.
     name: جمعٌ ورفع — ${{ inputs.reciter }}
     needs: part
-    # Previous job condition retained below for reversal:
-    # if: always()
+    if: always()
     runs-on: ubuntu-latest
     timeout-minutes: 350
     steps:

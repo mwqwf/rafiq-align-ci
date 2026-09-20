@@ -52,8 +52,6 @@ concurrency:
 
 jobs:
   pulse:
-    # Owner financial stop 2026-09-18: no runner allocation until verified free.
-    if: ${{ false }}
     runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:
@@ -117,8 +115,6 @@ jobs:
   #    يرقِّ العابرَ **تراكمت بلا فائدة** — يعمل الأسطولُ ولا يزيد المنشورُ
   #    واحداً. فهذه الوظيفةُ تُتمّ الحلقة: تحكم ثم ترقّي، في السحابة.
   gate_and_promote:
-    # Owner financial stop 2026-09-18: no runner allocation until verified free.
-    if: ${{ false }}
     runs-on: ubuntu-latest
     timeout-minutes: 25
     permissions:
@@ -364,11 +360,8 @@ jobs:
   # الانتظار في وظيفة مستقلة: انقضاء مهلة الفحص لا يبتلع إطلاق النبضة التالية.
   # لا ضمان ضد إلغاء سير العمل كله أو تعطيل Actions؛ الجدولة تبقى سنداً.
   chain:
-    # Owner financial stop 2026-09-18: no runner allocation until verified free.
-    if: ${{ false }}
     needs: [pulse, gate_and_promote]
-    # Previous job condition retained below for reversal:
-    # if: ${{ always() }}
+    if: ${{ always() }}
     runs-on: ubuntu-latest
     timeout-minutes: 20
     steps:

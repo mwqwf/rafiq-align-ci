@@ -32,8 +32,6 @@ env:
   UA: "Mozilla/5.0 (QuranRafiq finetune filter)"
 jobs:
   prep:
-    # Owner financial stop 2026-09-18: no runner allocation until verified free.
-    if: ${{ false }}
     runs-on: ubuntu-latest
     timeout-minutes: 30
     outputs:
@@ -60,8 +58,6 @@ jobs:
           print("matrix=" + json.dumps({"include": [{"part": p, "shard": f"{i}/{k}", "i": i} for p in parts for i in range(k)]}))
           PY
   shard:
-    # Owner financial stop 2026-09-18: no runner allocation until verified free.
-    if: ${{ false }}
     needs: prep
     runs-on: ubuntu-latest
     timeout-minutes: 300
@@ -117,11 +113,8 @@ jobs:
           retention-days: 7
           if-no-files-found: ignore
   merge:
-    # Owner financial stop 2026-09-18: no runner allocation until verified free.
-    if: ${{ false }}
     needs: shard
-    # Previous job condition retained below for reversal:
-    # if: always()
+    if: always()
     runs-on: ubuntu-latest
     timeout-minutes: 20
     steps:
@@ -165,11 +158,8 @@ jobs:
           [ -n "$ARGS" ] && python tools/finetune/r2_put.py $ARGS
           { echo '### 🔎 filter · merged'; echo '```'; cat merge.log; echo '```'; } >> "$GITHUB_STEP_SUMMARY"
   launch-v4:
-    # Owner financial stop 2026-09-18: no runner allocation until verified free.
-    if: ${{ false }}
     needs: merge
-    # Previous job condition retained below for reversal:
-    # if: github.event.inputs.launch == 'true' && needs.merge.result == 'success'
+    if: github.event.inputs.launch == 'true' && needs.merge.result == 'success'
     runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:

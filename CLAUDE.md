@@ -1,3 +1,7 @@
+> **اللغة: العربية في كل ردٍّ وتقريرٍ ورسالةِ حالة — بلا استثناء.** حتى لو كان الطلبُ أو الكودُ أو السجلاتُ أو هذا الملفُّ نفسُه بالإنجليزية، وحتى في الجلسات السحابية وتقارير CI ورسائل commit. أسماء الكود والمصطلحات التقنية تبقى بصيغتها داخل الجملة العربية.
+>
+> **اقرأ أولاً قبل أي عمل:** `.agents/skills/workstyle/SKILL.md` — الدستور التنفيذيّ (عتبة الإذن · معيار «أُنجز» · ما لا يُقبل عذراً · شكل التقرير)، ثم مهارةَ المشروع المعنية في `.agents/skills/`. هذه المهارات نسخةٌ مطابقة للمحليّة وتعمل في الجلسات السحابية بلا جهاز المالك.
+
 ## OWNER FINAL INDEXING STOP — 2026-09-18
 
 The owner permanently stopped Quran indexing work. No agent, model, automation, or session may resume indexing research, source discovery, probing, alignment, QA, promotion, packaging, publishing, workflow dispatch, trigger restoration, or monitoring. Do not create replacement follow-ups. Preserve existing evidence read-only. This stop can be lifted only by a new explicit owner instruction that specifically names indexing.
