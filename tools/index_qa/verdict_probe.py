@@ -16,6 +16,7 @@
 
 الاستعمال:  verdict_probe.py <riwaya>/<id> [...]
 """
+import hashlib
 import json
 import sys
 from pathlib import Path
@@ -47,17 +48,21 @@ def main():
     bad = 0
     for spec in sys.argv[1:]:
         key = f"timings/{spec}.jz"
+        # ⛔⛔ **قِسْ بالمقياس الذي يحكم به الحارسُ لا بأيّ مقياس** (وقعت
+        #    2026-09-20): قِستُ أوّلاً بـ`etag`، فقال المسبارُ «الحكمُ لم يصل»
+        #    وهو لم يبحث عن البصمة أصلاً. و`certify()` يأخذ البصمةَ
+        #    **sha256 لجسم الكائن الخام كما هو**، لا من ترويسةٍ ولا من etag.
+        #    ⭐ ومسبارٌ يقيس غيرَ ما يقيسه الحارسُ يُنتج تشخيصاً كاذباً واثقاً.
         try:
-            head = cl.head_object(Bucket=bucket, Key=key)
+            raw = cl.get_object(Bucket=bucket, Key=key)["Body"].read()
         except Exception as e:                            # noqa: BLE001
             print(f"⛔ {spec}: لا كائنَ منشورٌ بهذا المفتاح — {e}")
             bad += 1
             continue
-        sha = (head.get("Metadata") or {}).get("sha256") or ""
-        etag = head["ETag"].strip('"')
-        print(f"■ {spec}\n   المفتاح {key}\n   بصمةُ الترويسة "
-              f"{sha or '(غائبة)'} · etag {etag}")
-        probe = sha[:8] or etag[:8]
+        sha = hashlib.sha256(raw).hexdigest()
+        print(f"■ {spec}\n   المفتاح {key} · {len(raw):,} بايتاً"
+              f"\n   البصمةُ المحكومُ بها {sha}")
+        probe = sha[:8]
         hits = [k for k in audio if probe and probe in k]
         if not hits:
             # ⛔ لا حكمَ بهذه البصمة: فإمّا أنّ الملحَ كُتب لبصمةٍ أخرى (فهرسٌ
