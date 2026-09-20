@@ -97,8 +97,14 @@ def main():
                            .read().decode("utf-8"))
             full = str(d.get("sha256") or "")
             ok = "✅ يطابق" if full == sha else f"⛔ يصف {full[:12]}… لا هذا"
+            fats = d.get("fatal") or []
             print(f"      {k}\n         {ok} · حكم={d.get('verdict')} "
-                  f"· فواتل={len(d.get('fatal') or [])}")
+                  f"· فواتل={len(fats)}")
+            # ⛔ **نصُّ الفاتل هو الحكم، لا عدده**: `undeclared_fatal()` يقارن
+            #    بدايةَ النصّ بقائمة آثار الإسقاط المعلَن. فعددٌ بلا نصٍّ لا
+            #    يقول أمعذورٌ هو أم عطبٌ حقيقيّ.
+            for f in fats[:3]:
+                print(f"            ⛔ {str(f)[:120]}")
     return 1 if bad else 0
 
 

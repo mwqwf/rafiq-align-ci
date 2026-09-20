@@ -136,6 +136,24 @@ def main():
                                     if r else "⛔ غيرُ موجودٍ في الكتالوج"))
         print()
 
+    # ⭐ جردُ الأوضاع بالرواية — للحكم على دعوى «لا صوتَ منشوراً مقطوعاً
+    #   آيةً آية إلا لحفص وورش» **بقياسٍ من الدلو لا بتسليمٍ ولا بردّ**.
+    #   (‏وردت من مناوبةٍ أخرى 2026-09-20، وما كتبته مناوبةٌ خبرٌ لا أمر.)
+    if "--modes" in sys.argv:
+        cen = {}
+        for r in rows:
+            k = (r.get("riwaya") or r.get("_riwaya") or "?", r.get("mode") or "?")
+            cen[k] = cen.get(k, 0) + 1
+        for r in doc.get("riwayat", []) if isinstance(doc, dict) else []:
+            ids = {x.get("id") for x in (r.get("reciters") or [])}
+            per = {}
+            for x in (r.get("reciters") or []):
+                m = x.get("mode") or "?"
+                per[m] = per.get(m, 0) + 1
+            print(f"   {r.get('id'):<8} «{r.get('name')}» — {len(ids)} قارئاً · "
+                  + " · ".join(f"{m}:{n}" for m, n in sorted(per.items())))
+        print()
+
     latin, no_name, no_base, odd = [], [], [], []
     for r in rows:
         rid = r.get("id") or "?"
