@@ -29,6 +29,7 @@
 from __future__ import annotations
 
 import json
+import os
 import re
 import subprocess
 import sys
@@ -41,6 +42,8 @@ ROOT = Path(__file__).resolve().parents[2]
 CMD_DIR = ROOT / "ops" / "commands"
 OUT_DIR = ROOT / "ops" / "out"
 DONE_DIR = CMD_DIR / "done"
+# ⛔ حدُّ المحاولات لأمرٍ لا يكتمل — انظر `main` أدناه.
+MAX_TRIES = int(os.environ.get("AGENT_CMD_MAX_TRIES", "3"))
 
 # ⛔ سيرُ العملِ المسموحُ إطلاقُه — والثقيلُ كلُّه هنا فلا حاجةَ إلى غيره.
 ALLOWED_WF = {"align.yml", "realign_surah.yml", "openers.yml", "audio_qa.yml",
@@ -122,6 +125,10 @@ ALLOWED_TOOLS = {"index_qa/run.py", "index_qa/triage.py", "index_qa/promote.py",
                  #    عملٍ، لا يكتب بايتاً ولا يُطلق تشغيلةً ولا يُجيز ترقية.
                  "index_qa/orphan_candidates.py",
                  "index_qa/test_orphan_filter.py",
+                 "ci_fleet/test_agent_cmd_tries.py",
+                 "ci_fleet/test_agent_cmd_push.py",
+                 "ci_fleet/test_source_ratio_refs.py",
+                 "ci_fleet/test_needs_restore.py",
                  "index_qa/verdict_probe.py",
                  "index_qa/test_declared_sha_fatal.py",
                  "ci_fleet/repo_parity.py"}
@@ -246,7 +253,36 @@ def main():
         print("لا أمرَ جديد."); return
     for f in cmds:
         name = f.stem
-        print(f"\n══ أمر: {name}")
+        # ⛔⛔ **حارسُ المحاولات — عطبٌ مقيسٌ 2026-09-20:** أمرٌ أبطأُ من
+        #    `timeout-minutes` **لا يكتمل أبداً**: يُلغى الشوطُ قبل أن يُنفَّذ ما
+        #    بعده، ويبقى الأمرُ في مجلّده، فيُعاد الكرّةَ في كلّ شوطٍ تالٍ ⇒
+        #    **حجزٌ دائمٌ للطابور**. وقع على الشوطين 235 و236: نحوُ نصفِ ساعةٍ
+        #    لكلٍّ بلا جوابٍ واحدٍ وعشرةُ أوامرَ محتجزة.
+        # ✅ والعلاجُ أن تتعلّم القناةُ من محاولاتها: تُسجَّل المحاولةُ **قبل**
+        #    التنفيذ وتُدفع، فإن مات الشوطُ بقي السجلُّ شاهداً. وبعد حدٍّ
+        #    معلوم يُنحّى الأمرُ بجوابٍ يقول سببَه، **ولا يُحذف صامتاً**.
+        # ⚖️ ولا يُسقط عملاً صحيحاً: الحدُّ ثلاثُ محاولاتٍ، والأمرُ الناجحُ
+        #    يمحو عدّادَه أوّلَ ما يتمّ، فلا يبلغ الحدَّ إلا ما لا يكتمل أصلاً.
+        tries_p = OUT_DIR / f"{name}.attempts"
+        tries = 0
+        try:
+            tries = int(tries_p.read_text(encoding="utf-8").strip() or 0)
+        except Exception:                                         # noqa: BLE001
+            tries = 0
+        if tries >= MAX_TRIES:
+            msg = (f"⛔ نُحّي بعد {tries} محاولةٍ لم تكتمل — الأمرُ أبطأُ من سقف "
+                   f"الوظيفة (`timeout-minutes`) فكان يحجز الطابورَ أبداً.\n"
+                   f"⚖️ ولم يُحذف: جوابُه هذا، وملفُّه في `ops/commands/done/`، "
+                   f"ويُعاد بأداةٍ أسرعَ أو بسقفٍ أعلى بقرارٍ مكتوب.")
+            print(msg)
+            (OUT_DIR / f"{name}.txt").write_text(f"# rc=98\n{msg}", encoding="utf-8")
+            tries_p.unlink(missing_ok=True)
+            f.replace(DONE_DIR / f.name)
+            _push_answer(name)
+            continue
+        tries_p.write_text(str(tries + 1), encoding="utf-8")
+        _push_answer(f"{name}.محاولة{tries + 1}")
+        print(f"\n══ أمر: {name}  (المحاولةُ {tries + 1}/{MAX_TRIES})")
         try:
             c = json.loads(f.read_text(encoding="utf-8"))
             h = HANDLERS.get(c.get("action"))
@@ -262,6 +298,8 @@ def main():
         print(out[:4000])
         (OUT_DIR / f"{name}.txt").write_text(
             f"# rc={rc}\n{out}", encoding="utf-8")
+        # ✅ تمّ ⇒ يُمحى عدّادُه فلا يُحسب عليه ما مضى.
+        tries_p.unlink(missing_ok=True)
         # ⛔ يُنقل المنفَّذُ فلا يُعاد تنفيذُه عند كلّ دفعةٍ تالية
         f.replace(DONE_DIR / f.name)
         # ⛔⛔ **ويُدفع الجوابُ الآن لا في آخر الشوط** (عطبٌ مقيسٌ 2026-09-20):
