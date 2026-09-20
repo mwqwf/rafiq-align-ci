@@ -126,6 +126,7 @@ ALLOWED_TOOLS = {"index_qa/run.py", "index_qa/triage.py", "index_qa/promote.py",
                  "index_qa/orphan_candidates.py",
                  "index_qa/test_orphan_filter.py",
                  "ci_fleet/test_agent_cmd_tries.py",
+                 "ci_fleet/test_state_declared_reasons.py",
                  "ci_fleet/test_agent_cmd_push.py",
                  "ci_fleet/test_source_ratio_refs.py",
                  "ci_fleet/test_needs_restore.py",
@@ -213,9 +214,29 @@ def do_state(c):
         miss = [s for s in range(1, 115) if s not in srs]
         if miss or len(idx["entries"]) < 6236:
             tr = idx.get("transform") or {}
+            # ⛔⛔ **عطبُ تضليلٍ مقيسٌ 2026-09-20:** كان `reasonCode` يُقرأ من
+            #    ترويسة `transform` **وحدَها** — وهي لا تُكتب إلا حين يُنتَج
+            #    الفهرسُ بـ`drop_surah.py`. أمّا الفهرسُ الذي يُعلن نقصَه داخل
+            #    `missing.byReason` (‏وهو ما يقرؤه `run.py` ويطبعه «بعذرٍ
+            #    معلَن») فكان يُقرأ هنا **«بلا سببٍ مُعلَن»** وهو مُعلِنٌ فعلاً.
+            # 🔥 والثمنُ دُفع اليومَ: عرضتُ على المالك «قراراً» مبنيّاً على أنّ
+            #    `nufais` يُغيّب 46 و47 **صامتاً**، والحقُّ أنّ منشورَه يُعلن
+            #    **73 من 81** غياباً بعذرِ البتر المصدريّ — فالسؤالُ كان على
+            #    باطل. ⭐ **وجردٌ يقول «لا سبب» وهو لم يبحث عنه في موضعه
+            #    يصنع قراراتٍ كاذبةً واثقة.**
+            # ⚖️ ولا يُخفى شيء: يُطبع مصدرُ العذر وتفصيلُه، ويبقى `reasonCode`
+            #    على معناه الأوّل (ترويسةُ التحويل) فلا يُخلط البابان.
+            mh = idx.get("missing") or {}
+            by_reason = mh.get("byReason") if isinstance(
+                mh.get("byReason"), dict) else {}
+            excused = sum(int(v or 0) for v in by_reason.values())
             gaps[f"{riw}/{rid}"] = {"entries": len(idx["entries"]),
                                     "missingSurahs": miss,
-                                    "reasonCode": tr.get("reasonCode")}
+                                    "reasonCode": tr.get("reasonCode"),
+                                    "declaredReasons": by_reason or None,
+                                    "declaredCount": excused,
+                                    "undeclaredCount": max(
+                                        0, 6236 - len(idx["entries"]) - excused)}
     # ⭐⭐ **الباقي يُسمَّى بالاسم لا يُعَدّ فحسب** (‏2026-09-14): «المنشور 162/180» رقمٌ
     #    لا يقول **مَن** الثمانيةَ عشر، فظُنَّ مراراً أنّ موجةَ `reciters_gen1_fix10.tsv`
     #    ترفعه — وهي **استبدالُ جيلٍ لقرّاءَ منشورين سلفاً** (‏`aamer` و`hafz` وغيرُهما في
