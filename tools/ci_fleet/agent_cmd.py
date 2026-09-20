@@ -230,9 +230,18 @@ def do_state(c):
             by_reason = mh.get("byReason") if isinstance(
                 mh.get("byReason"), dict) else {}
             excused = sum(int(v or 0) for v in by_reason.values())
+            # ⛔ **وبقيّةُ العطب نفسِه:** فهرسٌ أُنتج بـ`drop_surah` قد يحمل
+            #    `transform.op = "drop_surah:24,107"` **بلا** `reasonCode` —
+            #    فيبقى الحقلُ `None` ويُقرأ «بلا سببٍ مُعلَن» وهو مُعلِنٌ
+            #    بترويسته. الشاهد: `qalun/akri_qalun` المنشور.
+            #    ⇒ يُشتقّ من `op` عند غيابه، ويُطبع `transformOp` صريحاً.
+            rcode = tr.get("reasonCode")
+            if not rcode and str(tr.get("op") or "").startswith("drop_surah"):
+                rcode = "DECLARED_BY_TRANSFORM"
             gaps[f"{riw}/{rid}"] = {"entries": len(idx["entries"]),
                                     "missingSurahs": miss,
-                                    "reasonCode": tr.get("reasonCode"),
+                                    "reasonCode": rcode,
+                                    "transformOp": tr.get("op"),
                                     "declaredReasons": by_reason or None,
                                     "declaredCount": excused,
                                     "undeclaredCount": max(
