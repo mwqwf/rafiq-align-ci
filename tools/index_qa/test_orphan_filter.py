@@ -56,6 +56,40 @@ def keep(staging, pub):
     return out, sup_new, sup_pub
 
 
+def classify(sha, pending_sha, struct_sha, n_audio):
+    """نفسُ فرزِ الأداة بين البابَين — الوقفُ أسبقُ من اليتم."""
+    if sha and sha in pending_sha:
+        return "pending"
+    if sha in struct_sha and n_audio < 4:
+        return "orphan"
+    return "none"
+
+
+def test_two_doors() -> bool:
+    """⛔ صنفان من النسيان لا صنفٌ واحد، ولا يُخلط النداءان:
+    **يتيمٌ** بوّابتُه ناقصة ⇒ يُستكمل بملوحٍ ومطالع؛
+    و**موقوفٌ** بوّابتُه تامّةٌ ولا عطبَ فيه ⇒ ينتظر قرارَ المالك وحدَه.
+    والشاهدُ الحيّ: nufais.64811f36 — ثلاثةَ عشرَ ملحاً بلا عطبٍ واحد، موقوفٌ
+    منذ 2026-09-05، ولا جردَ في الأسطول كان يُظهره.
+    """
+    P = {"64811f36": "موقوف — قرارُ منتَجٍ مطلوب: سورٌ محذوفةٌ بإعلانٍ وسبب: [46, 47]"}
+    S = {"64811f36", "3987d0e4"}
+    cases = [
+        ("64811f36", 13, "pending", "موقوفٌ ببوّابةٍ تامّة ⇒ بابُ القرار لا بابُ اليتم"),
+        ("64811f36", 0, "pending", "وموقوفٌ بلا ملوحٍ يبقى موقوفاً — الوقفُ أسبقُ"),
+        ("3987d0e4", 0, "orphan", "ناجٍ بنيويّاً بلا ملوح ⇒ يتيم"),
+        ("3987d0e4", 4, "none", "ناجٍ ببوّابةٍ تامّةٍ ⇒ لا شكوى"),
+        ("zzzzzzzz", 0, "none", "لا فحصَ بنيويَّ له ⇒ لا يُشتكى منه"),
+    ]
+    ok = True
+    for sha, n, exp, desc in cases:
+        got = classify(sha, P, S, n)
+        good = got == exp
+        ok &= good
+        print(f"{'✅' if good else '🔴'} {desc}")
+    return ok
+
+
 def main() -> int:
     staging = [
         ("timings-staging/hafs/zayd.aaaaaaaa.jz", T(10)),   # بصمةٌ قديمة
@@ -67,6 +101,8 @@ def main() -> int:
     ]
     pub = {"timings/hafs/omar.jz": T(35), "timings/hafs/zayd.jz": T(5)}
 
+    ok_doors = test_two_doors()
+    print()
     kept, sup_new, sup_pub = keep(staging, pub)
     checks = [
         ("الأحدثُ لزيدٍ يبقى", "timings-staging/hafs/zayd.bbbbbbbb.jz" in kept),
@@ -88,7 +124,7 @@ def main() -> int:
     print(f"⇒ من {len(staging) - 1} فهرساً في المسرح بقي {len(kept)} للشكوى، "
           f"وطُرح {sup_new + sup_pub} متجاوَزاً — **والمطروحُ يُعلَن بعدده**.")
     print("⛔ ولا تُخفي المصفاةُ شيئاً نهائيّاً: `--all` يُظهر الكلَّ.")
-    return 0 if ok else 1
+    return 0 if (ok and ok_doors) else 1
 
 
 if __name__ == "__main__":

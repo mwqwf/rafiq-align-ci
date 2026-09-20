@@ -90,7 +90,15 @@ def main():
 
     reports = list(promote.bucket_reports(cl, bucket))
     # ⛔ الحكمُ على البصمة لا على الاسم: فهرسان لقارئٍ واحدٍ ببصمتين حكمان.
-    struct_sha, audio_sha, openers_sha = set(), {}, set()
+    # ⛔⛔ **صنفٌ ثانٍ من النسيان، قِيس 2026-09-20:** `run.py` يُخرج حقلاً ثالثاً
+    #    اسمُه `decision` — «موقوف — قرارُ منتَجٍ مطلوب» — لا هو عطبٌ ولا هو
+    #    إجازة، بل بابٌ يُعرض على المالك عمداً (حذفُ سورةٍ **بإعلانٍ وسبب**).
+    #    **ولا يقرؤه `promote.py` ولا `triage.py`** ⇒ لا جردَ في الأسطول كلِّه
+    #    يُظهر الموقوفين، فيركد المرشَّحُ السليمُ بلا أن يسأل عنه أحد.
+    #    الشاهد: `nufais.64811f36` — **ثلاثةَ عشرَ ملحاً مستقلّاً بلا عطبٍ واحد**
+    #    وموقوفٌ منذ 2026-09-05. ⇒ يُجرَد هنا في بابٍ مستقلّ.
+    # ⚖️ ولا يُقترح تجاوزُه: الحارسُ يقول «هذا ينتظر قرارَك» ولا يقرّر.
+    struct_sha, audio_sha, openers_sha, pending_sha = set(), {}, set(), {}
     for _name, rep in reports:
         sha = rep.get("sha256")
         if not sha:
@@ -100,6 +108,9 @@ def main():
             struct_sha.add(sha)
         elif kind == "openers":
             openers_sha.add(sha)
+        verd = str(rep.get("verdict") or "")
+        if verd.startswith("موقوف"):
+            pending_sha.setdefault(sha, verd)
         if promote.has_audio_sample(rep):
             # الملوحُ الأربعةُ شهاداتٌ مستقلّة، فتُعدّ بمصادرها لا بعددها.
             audio_sha.setdefault(sha, set()).add(
@@ -124,7 +135,7 @@ def main():
             if k not in newest or mtime > newest[k][1]:
                 newest[k] = (key, mtime)
 
-    rows, superseded_newer, superseded_pub = [], 0, 0
+    rows, pending_rows, superseded_newer, superseded_pub = [], [], 0, 0
     for key, mtime, size in staging:
         m = KEY_RE.match(key)
         if not m:
@@ -149,7 +160,11 @@ def main():
         n_audio = len(audio_sha.get(sha, ())) if sha else 0
         has_struct = bool(sha and sha in struct_sha)
         has_open = bool(sha and sha in openers_sha)
-        if has_struct and n_audio < 4:
+        if sha and sha in pending_sha:
+            # ⛔ موقوفٌ على قرار — لا يُعَدّ «بوّابةً ناقصة»: بوّابتُه تمّت وحكمُه
+            #    ليس عطباً. فبابُه مستقلٌّ كي لا يُخلط النداءان.
+            pending_rows.append((key, age_h, n_audio, pending_sha[sha]))
+        elif has_struct and n_audio < 4:
             rows.append((key, age_h, has_open, n_audio, pub_key in pub, size))
 
     skipped = superseded_newer + superseded_pub
@@ -157,7 +172,21 @@ def main():
         print(f"ℹ️ طُرح من الشكوى {skipped} مرشَّحاً **متجاوَزاً لا منسيّاً**: "
               f"{superseded_newer} سبقتها بصمةٌ أحدثُ للقارئ نفسِه · "
               f"{superseded_pub} سبقها نشرٌ أحدثُ منها. (‏`--all` يُظهرها.)")
+    if pending_rows:
+        pending_rows.sort(key=lambda r: -r[1])
+        print(f"⚖️ **موقوفون على قرارِ منتَج — بوّابتُهم تامّةٌ ولا عطبَ فيهم:** "
+              f"{len(pending_rows)}")
+        print("   (‏هذا نداءٌ على المالك لا على الأداة — ولا يُتجاوز بيدِ وكيل.)")
+        for key, age_h, n_audio, verd in pending_rows:
+            print(f"  ⚖️ {key}")
+            print(f"      عمرُه {age_h:.0f} ساعة · ملوحٌ بعيّنة: {n_audio}")
+            print(f"      {verd}")
+        print()
+
     if not rows:
+        if pending_rows:
+            print("✅ ولا مرشَّحَ يتيماً بمعنى البوّابة الناقصة.")
+            return 1
         print("✅ لا مرشَّحَ يتيماً: كلُّ ناجٍ بنيويّاً له بوّابةٌ صوتيّةٌ تامّة أو يعمل الآن.")
         return 0
 
