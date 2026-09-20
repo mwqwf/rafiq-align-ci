@@ -62,13 +62,17 @@ def list_staging(cl, bucket, only=None):
 
 
 def published_keys(cl, bucket):
-    """المنشورُ فعلاً — فاليتيمُ الذي رُقّي بعدُ ليس يتيماً."""
-    out = set()
+    """المنشورُ فعلاً **وزمنُه** — فاليتيمُ الذي رُقّي بعدُ ليس يتيماً.
+
+    ⛔ الزمنُ لازمٌ لا زينة: مرشَّحٌ رُفع ثمّ نُشر للقارئ فهرسٌ **أحدثُ منه**
+    ليس منسيّاً بل **متجاوَزاً**، والشكوى منه ضجيجٌ يُغرق الحقيقيَّ.
+    """
+    out = {}
     for page in cl.get_paginator("list_objects_v2").paginate(
             Bucket=bucket, Prefix="timings/"):
         for obj in page.get("Contents", []):
             if obj["Key"].endswith(".jz"):
-                out.add(obj["Key"])
+                out[obj["Key"]] = obj["LastModified"]
     return out
 
 
@@ -77,6 +81,8 @@ def main():
     ap.add_argument("--min-age-hours", type=float, default=6.0,
                     help="لا يُشتكى من مرشّحٍ أحدثَ من هذا — بوّابتُه قد تكون تعمل الآن")
     ap.add_argument("--only", default=None, help="بادئةُ روايةٍ أو اسمِ قارئ")
+    ap.add_argument("--all", action="store_true",
+                    help="أظهر المتجاوَزَ أيضاً (بصمةً سبقتها أحدثُ، أو سبقها نشرٌ)")
     a = ap.parse_args()
 
     cl, bucket = promote.s3()
@@ -100,11 +106,37 @@ def main():
                 str(rep.get("source") or rep.get("salt") or _name))
 
     pub = published_keys(cl, bucket)
-    rows = []
-    for key, mtime, size in list_staging(cl, bucket, a.only):
+
+    # ⛔⛔ **درسٌ من أوّل تشغيلٍ لهذه الأداة (2026-09-20): صاحت 449 مرّة.**
+    #    وحارسٌ يشتكي من كلّ شيءٍ لا يُعمل به، كما أنّ حارساً لا يجد شيئاً ليس
+    #    حارساً — **كلاهما يُقرأ صمتاً**. والسببُ أنّ المسرحَ يحتفظ بكلّ بصمةٍ
+    #    جُرّبت، فأغلبُ الـ449 **متجاوَزٌ لا منسيّ**:
+    #    (أ) بصمةٌ أقدمُ لقارئٍ له في المسرح بصمةٌ **أحدث** ⇒ العملُ انتقل عنها؛
+    #    (ب) أو فهرسُ القارئ المنشورُ **أحدثُ من المرشَّح** ⇒ رُقّي بعده بغيره.
+    #    ⇒ يُبقى لكلّ قارئٍ **أحدثُ بصمةٍ** وحدَها، ويُطرح ما سبقه النشر.
+    #    ⚖️ ولا يُخفى شيءٌ بلا بيان: `--all` يُظهر الكلَّ، والعددُ المطروح يُطبع.
+    staging = list_staging(cl, bucket, a.only)
+    newest = {}
+    for key, mtime, _size in staging:
+        m = KEY_RE.match(key)
+        if m:
+            k = (m["riwaya"], m["rid"])
+            if k not in newest or mtime > newest[k][1]:
+                newest[k] = (key, mtime)
+
+    rows, superseded_newer, superseded_pub = [], 0, 0
+    for key, mtime, size in staging:
         m = KEY_RE.match(key)
         if not m:
             continue
+        if not a.all:
+            if newest.get((m["riwaya"], m["rid"]), (key,))[0] != key:
+                superseded_newer += 1
+                continue
+            pub_t = pub.get(f"timings/{m['riwaya']}/{m['rid']}.jz")
+            if pub_t is not None and pub_t > mtime:
+                superseded_pub += 1
+                continue
         age_h = (now - mtime).total_seconds() / 3600.0
         if age_h < a.min_age_hours:
             continue
@@ -120,6 +152,11 @@ def main():
         if has_struct and n_audio < 4:
             rows.append((key, age_h, has_open, n_audio, pub_key in pub, size))
 
+    skipped = superseded_newer + superseded_pub
+    if skipped:
+        print(f"ℹ️ طُرح من الشكوى {skipped} مرشَّحاً **متجاوَزاً لا منسيّاً**: "
+              f"{superseded_newer} سبقتها بصمةٌ أحدثُ للقارئ نفسِه · "
+              f"{superseded_pub} سبقها نشرٌ أحدثُ منها. (‏`--all` يُظهرها.)")
     if not rows:
         print("✅ لا مرشَّحَ يتيماً: كلُّ ناجٍ بنيويّاً له بوّابةٌ صوتيّةٌ تامّة أو يعمل الآن.")
         return 0
