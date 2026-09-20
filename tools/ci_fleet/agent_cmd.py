@@ -98,6 +98,7 @@ ALLOWED_TOOLS = {"index_qa/run.py", "index_qa/triage.py", "index_qa/promote.py",
                  # ⚖️ قارئٌ محض: يقرأ catalog/reciters.json ويعدّ العطب، لا يكتب.
                  "index_qa/catalog_audit.py",
                  "index_qa/verdict_probe.py",
+                 "index_qa/test_declared_sha_fatal.py",
                  "ci_fleet/repo_parity.py"}
 MAX_OUT = 200_000            # حرفاً — جوابٌ أطولُ يُقصّ ويُعلَن قصُّه
 
