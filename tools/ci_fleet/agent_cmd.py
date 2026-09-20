@@ -97,6 +97,12 @@ ALLOWED_TOOLS = {"index_qa/run.py", "index_qa/triage.py", "index_qa/promote.py",
                  "index_qa/dump_state.py", "index_qa/material_probe.py",
                  "index_qa/_debug_state_for.py", "index_qa/_debug_openers_for.py",
                  "ci_fleet/restore_loop.py", "ci_fleet/status_page.py",
+                 # ⛔ **أُضيف 2026-09-20:** قراءةُ مخرَجِ تشغيلةٍ نصّاً.
+                 #    سبرُ CTC بلا رفعٍ يضع حكمَه في مخرَجٍ صغير، وسجلُّ الشوط
+                 #    يُقصّ من ذيله فلا تصل الأسطرُ الحاسمة ⇒ تُقرأ «نجاحاً»
+                 #    بلا أثرٍ منظور. ⚖️ وهو **قارئٌ محض**: gh api قراءةً وفكُّ
+                 #    ضغطٍ في الذاكرة وطباعةٌ بسقفِ بايتات — لا يمسّ الدلوَ ولا حارساً.
+                 "ci_fleet/show_artifact.py",
                  # ⛔ **أُضيف 2026-09-19:** اختبارُ حارسِ «بصمات الصوت n/114».
                  #    وأُدخل لأنّ قاعدةَ `CLAUDE.md` (بند 2) توجب اختبارَ أيّ
                  #    تعديلٍ على حارسٍ **نصّاً قبل استعماله** — والحارسُ يعمل على
