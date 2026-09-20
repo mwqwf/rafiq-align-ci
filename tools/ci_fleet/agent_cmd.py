@@ -263,7 +263,55 @@ def main():
             f"# rc={rc}\n{out}", encoding="utf-8")
         # ⛔ يُنقل المنفَّذُ فلا يُعاد تنفيذُه عند كلّ دفعةٍ تالية
         f.replace(DONE_DIR / f.name)
+        # ⛔⛔ **ويُدفع الجوابُ الآن لا في آخر الشوط** (عطبٌ مقيسٌ 2026-09-20):
+        #    كان الدفعُ خطوةً أخيرةً وحدَها، فإذا بلغ الشوطُ `timeout-minutes`
+        #    أُلغي **قبلها** ⇒ **ضاعت أجوبةُ الأوامر كلِّها** ولو كانت قد
+        #    نُفّذت فعلاً وكتبت في الدلو. وقع اليومَ على الشوط 35528235170:
+        #    ترقيتان نُفّذتا ولا أثرَ لجوابهما، فلا يُعرف أتمّتا أم لا إلا
+        #    بجردٍ جديدٍ من الدلو. ⇒ **الجوابُ يُحفظ بعد كلّ أمر**، فالسقفُ
+        #    يقطع ما لم يُنفَّذ بعدُ ولا يمحو ما نُفِّذ.
+        # ⚖️ وهو آمنٌ: نفسُ الإيداع بمسارٍ صريح، ونفسُ علاج التعارض `-X ours`
+        #    الموصوف في `agent_cmd.yml`؛ وفشلُ الدفع **لا يوقف بقيّةَ الأوامر**
+        #    لأنّ الخطوةَ الأخيرة تبقى شبكةَ أمانٍ لما لم يُدفع.
+        _push_answer(name)
     print("\n⇒ تمّت الأوامر.")
+
+
+def _push_answer(name: str) -> None:
+    """يُودع جوابَ أمرٍ واحدٍ ويدفعه فوراً — بمسارٍ صريحٍ ولا `-A`."""
+    import subprocess
+    paths = ["ops/out", "ops/commands"]
+    try:
+        subprocess.run(["git", "config", "user.name", "rafiq-agent-cmd"],
+                       cwd=ROOT, check=False)
+        subprocess.run(["git", "config", "user.email", "actions@github.com"],
+                       cwd=ROOT, check=False)
+        # ⛔ **عطبٌ التقطه الاختبار:** `git add a b` يسقط كلُّه إن غاب أحدُ
+        #    المسارَين (`pathspec … did not match`) **فلا يُدفع شيء**. والمسارُ
+        #    `ops/commands` قد يخلو فعلاً بعد نقل آخر أمرٍ إلى `done/`.
+        #    ⇒ كلُّ مسارٍ على حدةٍ، وغيابُ أحدِها لا يُبطل الآخر.
+        live = [p for p in paths if (ROOT / p).exists()]
+        for p in live:
+            subprocess.run(["git", "add", "--", p], cwd=ROOT, check=False)
+        if not live or subprocess.run(["git", "diff", "--cached", "--quiet"],
+                                      cwd=ROOT).returncode == 0:
+            return                                     # لا جديدَ يُدفع
+        # ⛔ وبالمسارات **الحاضرةِ** وحدَها هنا أيضاً: `commit -- a b` يسقط
+        #    كسقوط `add` سواءً بسواء، وهو موضعُ العطب الذي أخفاه الأوّل.
+        subprocess.run(["git", "commit", "-m", f"ops: جوابُ الأمر {name}",
+                        "--", *live], cwd=ROOT, check=False)
+        if subprocess.run(["git", "push", "origin", "HEAD:main"],
+                          cwd=ROOT).returncode != 0:
+            subprocess.run(["git", "fetch", "origin", "main", "--quiet"],
+                           cwd=ROOT, check=False)
+            # ⛔ لا `rebase` على هذه الشجرة المشتركة — `CLAUDE.md` نصّاً.
+            subprocess.run(["git", "merge", "-X", "ours", "--no-edit",
+                            "origin/main"], cwd=ROOT, check=False)
+            subprocess.run(["git", "push", "origin", "HEAD:main"],
+                           cwd=ROOT, check=False)
+    except Exception as ex:                                       # noqa: BLE001
+        # ⛔ لا يُوقف فشلُ الدفع بقيّةَ الأوامر: الخطوةُ الأخيرة شبكةُ أمان.
+        print(f"⚠️ تعذّر دفعُ جواب {name} الآن (يبقى للخطوة الأخيرة): {ex}")
 
 
 if __name__ == "__main__":
