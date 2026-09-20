@@ -41,6 +41,17 @@ def collect(node, out=None, seen=None):
     out = [] if out is None else out
     seen = set() if seen is None else seen
     if isinstance(node, dict):
+        # ⛔⛔ **الحاوي يشبه الصفّ** (‏وقعت 2026-09-20): شكلُ الكتالوج
+        #    `riwayat[6]` وكلُّ روايةٍ `{id, name, reciters[]}` — ففيها `id`
+        #    و`name` كالصفّ تماماً، فتوقّف الجمعُ عندها وأعطى **6 قرّاء** بدل
+        #    المئتين. ⭐ **والفارقُ أنّ الحاويَ يحمل أبناءً من جنسه.**
+        kids = [v for v in node.values()
+                if isinstance(v, list) and any(isinstance(x, dict) and "id" in x
+                                               for x in v)]
+        if kids:
+            for v in kids:
+                collect(v, out, seen)
+            return out
         if "id" in node and not isinstance(node.get("id"), (dict, list)):
             if id(node) not in seen:
                 seen.add(id(node))
