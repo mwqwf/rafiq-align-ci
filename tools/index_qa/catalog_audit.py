@@ -121,6 +121,21 @@ def main():
                                                  if isinstance(doc, dict) else ["<list>"]))
         return 2
 
+    # ⭐ `--show a,b,c`: يعرض صفوفاً بأعيانها كما هي في الدلو — لأنّ الفصلَ
+    #   بين «عطبٍ في بياناتي» و«عطبٍ في التطبيق» يحتاج مقابلةَ ما تعرضه
+    #   الشاشةُ بما يقوله المصدرُ حرفاً، لا استنتاجاً من إحصاء.
+    want = set()
+    for a in sys.argv[1:]:
+        if a.startswith("--show="):
+            want |= {x.strip() for x in a.split("=", 1)[1].split(",") if x.strip()}
+    if want:
+        by = {r.get("id"): r for r in rows}
+        for w in sorted(want):
+            r = by.get(w)
+            print(f"   {w:<20} " + (json.dumps(r, ensure_ascii=False)
+                                    if r else "⛔ غيرُ موجودٍ في الكتالوج"))
+        print()
+
     latin, no_name, no_base, odd = [], [], [], []
     for r in rows:
         rid = r.get("id") or "?"
