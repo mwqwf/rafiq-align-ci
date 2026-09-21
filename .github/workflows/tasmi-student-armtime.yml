@@ -35,7 +35,7 @@ jobs:
         run: |
           [ "$(uname -m)" = "aarch64" ] || { echo "⛔ إخفاقٌ مُعلَن: العدّاءُ ليس arm64"; exit 1; }
           pip install -q torch --index-url https://download.pytorch.org/whl/cpu
-          pip install -q "transformers>=4.44,<5" onnx onnxruntime numpy
+          pip install -q "transformers>=4.44,<5" onnx onnxscript onnxruntime numpy
           python -c "import torch,onnxruntime;print('torch',torch.__version__,'ort',onnxruntime.__version__)"
       - name: القياس
         env:
@@ -66,7 +66,7 @@ jobs:
           from onnxruntime.quantization import quantize_dynamic, QuantType
           dummy = torch.zeros(1, 16000 * 5)
           torch.onnx.export(m, dummy, "st.onnx", input_names=["x"], output_names=["y"],
-                            dynamic_axes={"x": {1: "t"}, "y": {1: "f"}}, opset_version=17)
+                            dynamic_axes={"x": {1: "t"}, "y": {1: "f"}}, opset_version=17, dynamo=False)
           quantize_dynamic("st.onnx", "st_q8.onnx", weight_type=QuantType.QInt8)
           so = ort.SessionOptions(); so.intra_op_num_threads = T; so.inter_op_num_threads = 1
           s32 = ort.InferenceSession("st.onnx", so, providers=["CPUExecutionProvider"])
