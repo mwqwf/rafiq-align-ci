@@ -68,9 +68,11 @@ jobs:
           torch.onnx.export(m, dummy, "st.onnx", input_names=["x"], output_names=["y"],
                             dynamic_axes={"x": {1: "t"}, "y": {1: "f"}}, opset_version=17, dynamo=False)
           quantize_dynamic("st.onnx", "st_q8.onnx", weight_type=QuantType.QInt8)
+          quantize_dynamic("st.onnx", "st_q8mm.onnx", weight_type=QuantType.QInt8, op_types_to_quantize=["MatMul"])  # صيغةُ الشحن (D-752)
           so = ort.SessionOptions(); so.intra_op_num_threads = T; so.inter_op_num_threads = 1
           s32 = ort.InferenceSession("st.onnx", so, providers=["CPUExecutionProvider"])
           s8 = ort.InferenceSession("st_q8.onnx", so, providers=["CPUExecutionProvider"])
+          s8mm = ort.InferenceSession("st_q8mm.onnx", so, providers=["CPUExecutionProvider"])
           print(f"📦 ONNX fp32 {os.path.getsize('st.onnx')/1e6:.1f} م.ب · int8 {os.path.getsize('st_q8.onnx')/1e6:.1f} م.ب")
 
           arms = {
@@ -78,6 +80,7 @@ jobs:
             "torch-int8": lambda x: q(torch.from_numpy(x)).logits,
             "ort-fp32":   lambda x: s32.run(None, {"x": x}),
             "ort-int8":   lambda x: s8.run(None, {"x": x}),
+            "ort-int8-matmul (ship)": lambda x: s8mm.run(None, {"x": x}),
           }
           rng = np.random.default_rng(1446)
           lens = [3, 5, 10, 20, 30, 60, 90]
@@ -99,9 +102,9 @@ jobs:
           for name, row in res.items():
               mx = max(row.values()); worst = max(worst, mx) if name.startswith("ort-int8") else worst
               print(f"| {name} | " + " | ".join(f"{row[L]:.3f}" for L in lens) + f" | **{mx:.3f}** |")
-          ship = res["ort-int8"]
+          ship = res["ort-int8-matmul (ship)"]
           over = [L for L, v in ship.items() if v >= 1.0]
-          print(f"\n⇒ المسارُ المخطَّطُ للشحن (ONNX int8): أقصى RTF **{max(ship.values()):.3f}** · "
+          print(f"\n⇒ صيغةُ الشحن المعتمدة (ONNX int8 · MatMul وحدَها · D-752): أقصى RTF **{max(ship.values()):.3f}** · "
                 f"أطوالٌ تتجاوز الزمنَ الحقيقيّ: {over if over else 'لا شيء'}")
           print("⛔ لينكس/glibc لا أندرويد/bionic · والصوتُ ضجيجٌ بأطوالٍ مسمّاة (الكلفةُ دالّةُ الطول لا المحتوى)")
           json.dump(res, open("student_armtime.json", "w"), ensure_ascii=False, indent=1)
