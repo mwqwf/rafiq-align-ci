@@ -1,0 +1,154 @@
+# 🎓 **سلسلةُ تدريب طالب M3 — تستأنف نفسَها، وكلُّ شيءٍ يبقى داخلَ هذا المستودع.**
+#
+# ⛔ **العطبُ الذي وُجدت له** ([[D-736]] ⇐ [[D-742]]): دفترُ Kaggle استنسخ مستودعاً **خاصّاً**
+# فوقف على سؤال اعتمادٍ أبداً. والشيفرةُ هنا تصل **بمفتاح القراءة المقيّد** الذي يملكه المالك
+# سلفاً (`QR_READ_DEPLOY_KEY_B64`) — بلا رفعِ شيفرةٍ ولا كلمةِ سرٍّ في دفتر.
+#
+# ⛔ **ونقطةُ الحفظ لا تخرج إلى خدمةٍ خارجيّة**: تبقى في **ذاكرة أشواط GitHub** في المستودع
+# الذي يجري فيه الشوطُ نفسُه. والمفتاحُ يحمل رقمَ الشوط (الذاكرةُ لا يُكتب فوقها)،
+# و`restore-keys` يلتقط أحدثَ نقطةٍ بالبادئة.
+#
+# 💰 مستودعٌ عامّ + عدّاءٌ قياسيّ `ubuntu-latest` ⇒ بلا فوترة.
+# ⛔ ولا تُبدَّل وسائطُ التدريب بين الحلقات: الاستئنافُ لا يصحّ إلّا بالوسائط نفسِها.
+name: tasmi-student-train
+
+on:
+  workflow_dispatch:
+    inputs:
+      steps:
+        description: "سقفُ الخطوات التراكميّ لهذه الحلقة (الهدفُ 3200)"
+        required: true
+        default: "600"
+      final:
+        description: "1 = تكميمٌ وخلاصةٌ في نهاية الحلقة"
+        required: false
+        default: "0"
+      chain:
+        description: "1 = تُطلق الحلقةَ التاليةَ بنفسها"
+        required: false
+        default: "1"
+      increment:
+        description: "زيادةُ الخطوات لكلّ حلقةٍ تالية"
+        required: false
+        default: "600"
+
+concurrency:
+  group: tasmi-student-train
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+  actions: write
+
+env:
+  PUB: https://pub-2c2e1dcd92e84a2898820dd38d3e09e6.r2.dev
+  UA: "Mozilla/5.0 (QuranRafiq agent job)"
+
+jobs:
+  train:
+    runs-on: ubuntu-latest
+    timeout-minutes: 350
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: {python-version: "3.11"}
+
+      - name: 🔑 الشيفرةُ بمفتاح القراءة المقيّد
+        env:
+          QR_KEY_B64: ${{ secrets.QR_READ_DEPLOY_KEY_B64 }}
+        run: |
+          [ -n "$QR_KEY_B64" ] || { echo "⛔ إخفاقٌ مُعلَن: لا مفتاحَ قراءة"; exit 1; }
+          umask 077
+          mkdir -p "$RUNNER_TEMP/qr-ssh"
+          printf '%s' "$QR_KEY_B64" | base64 --decode > "$RUNNER_TEMP/qr-ssh/id_ed25519"
+          chmod 600 "$RUNNER_TEMP/qr-ssh/id_ed25519"
+          GIT_SSH_COMMAND="ssh -i $RUNNER_TEMP/qr-ssh/id_ed25519 -o IdentitiesOnly=yes -o StrictHostKeyChecking=yes" \
+            git clone -q --depth 1 git@github.com:mwqwf/QuranRafiq.git "$RUNNER_TEMP/QuranRafiq"
+          rm -f "$RUNNER_TEMP/qr-ssh/id_ed25519"
+          echo "QR_DIR=$RUNNER_TEMP/QuranRafiq" >> "$GITHUB_ENV"
+
+      - name: العُدّة
+        run: |
+          sudo apt-get update -qq && sudo apt-get install -y -qq ffmpeg > /dev/null
+          pip install -q "torch>=2.2" --index-url https://download.pytorch.org/whl/cpu
+          pip install -q "transformers>=4.44,<5" soundfile numpy
+          python3 -c "import torch,transformers;print('torch',torch.__version__)"
+
+      - name: استعادةُ نقطة الحفظ (داخلَ GitHub)
+        uses: actions/cache/restore@v4
+        with:
+          path: /tmp/out_student
+          key: tasmi-student-m3-${{ github.run_id }}
+          restore-keys: tasmi-student-m3-
+
+      - name: الوسمُ والمعلّمُ والبيانات
+        run: |
+          set -e
+          cd "$QR_DIR"
+          mkdir -p tools/tasmi_bench/work /tmp/data
+          curl -sSL -A "$UA" "$PUB/tasmi/g2p_labels_2026-09-20.jsonl.gz" | gunzip > tools/tasmi_bench/work/g2p_labels.jsonl
+          N=$(wc -l < tools/tasmi_bench/work/g2p_labels.jsonl)
+          [ "$N" = "37416" ] || { echo "⛔ إخفاقٌ مُعلَن: الوسمُ $N لا 37416"; exit 1; }
+          TAR="$PUB/finetune/ctc_r3/best.tar"
+          python3 tools/tasmi_phoneme/range_get.py --url "$TAR" --out /tmp/best.tar --end 755435007 --chunk 8388608 > /dev/null
+          python3 tools/tasmi_phoneme/tar_pick.py --from-file /tmp/best.tar --url "$TAR" --verify 8 \
+            --dest tools/tasmi_phoneme/work/out_ctc --want model.safetensors vocab.json > /dev/null
+          rm -f /tmp/best.tar /tmp/best.tar.parts.json
+          python3 tools/tasmi_phoneme/teacher_config_fix.py
+          python3 tools/finetune/prep.py --out /tmp/data --workers 8 --max-per-reciter 400 --per-surah-cap 40 \
+            --reciters warsh:basit_warsh,benkirane_warsh,deban_warsh,koshi_warsh,m_sayed_warsh \
+                       qalun:akri_qalun,dokali,huthaify_qalun,qeniwa_qalun,tareq_qalun \
+                       hafs:a_abdl,a_albadr,a_alqrafi,a_alshahhat,a_alhazmi 2>&1 | tail -3
+          ROWS=$(wc -l < /tmp/data/manifest.jsonl 2>/dev/null || echo 0)
+          [ "$ROWS" -ge 3000 ] || { echo "⛔ إخفاقٌ مُعلَن: المجموعةُ $ROWS صفّاً"; exit 1; }
+          echo "📚 $ROWS صفّاً"
+
+      - name: التدريب
+        env:
+          PYTHONIOENCODING: utf-8
+        run: |
+          set -e
+          cd "$QR_DIR"
+          RESUME=""; DONE=0
+          if [ -f /tmp/out_student/trainer_state.json ] && [ -f /tmp/out_student/config.json ]; then
+            DONE=$(python3 -c "import json;print(json.load(open('/tmp/out_student/trainer_state.json'))['step'])")
+            RESUME="--resume"; echo "↻ استئنافٌ من $DONE"
+          fi
+          TARGET=${{ inputs.steps }}
+          if [ "$TARGET" -le "$DONE" ]; then echo "SKIP=1" >> "$GITHUB_ENV"; echo "✅ $DONE ≥ $TARGET"; exit 0; fi
+          Q=""; [ "${{ inputs.final }}" = "1" ] && Q="--quantize"
+          T0=$(date +%s)
+          python3 tools/tasmi_phoneme/ctc_train.py \
+            --labels tools/tasmi_bench/work/g2p_labels.jsonl --items /tmp/data/manifest.jsonl \
+            --wav-dir / --index core/quran/src/main/assets/quran/index.jz \
+            --student-from tools/tasmi_phoneme/work/out_ctc \
+            --student-hidden 384 --student-layers 8 --student-heads 8 \
+            --steps "$TARGET" --bs 16 --lr 1e-4 --max-seconds 12 --eval-every 200 --log-every 100 \
+            --holdout-reciters m_sayed_warsh,tareq_qalun,a_alhazmi $RESUME $Q \
+            --out /tmp/out_student 2>&1 | tail -30
+          T1=$(date +%s)
+          NOW=$(python3 -c "import json;print(json.load(open('/tmp/out_student/trainer_state.json'))['step'])")
+          echo "NOW=$NOW" >> "$GITHUB_ENV"
+          echo "⏱️ $(( (T1-T0)/60 )) دقيقةً · $DONE ⇐ $NOW" | tee -a "$GITHUB_STEP_SUMMARY"
+          [ -f /tmp/out_student/summary.json ] && cat /tmp/out_student/summary.json | tee -a "$GITHUB_STEP_SUMMARY" || true
+
+      - name: حفظُ نقطة الحفظ
+        if: always() && env.SKIP != '1'
+        uses: actions/cache/save@v4
+        with:
+          path: /tmp/out_student
+          key: tasmi-student-m3-${{ github.run_id }}
+
+      - name: الحلقةُ التالية
+        if: success() && inputs.chain == '1' && env.SKIP != '1'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          NOW=${NOW:-0}
+          if [ "$NOW" -ge 3200 ]; then echo "🏁 بلغت 3200"; exit 0; fi
+          NEXT=$(( NOW + ${{ inputs.increment }} ))
+          [ "$NEXT" -gt 3200 ] && NEXT=3200
+          FINAL=0; [ "$NEXT" -ge 3200 ] && FINAL=1
+          gh workflow run tasmi-student-train --repo "$GITHUB_REPOSITORY" \
+            -f steps="$NEXT" -f final="$FINAL" -f chain=1 -f increment=${{ inputs.increment }}
+          echo "⏭️ الحلقةُ التاليةُ إلى $NEXT (نهائيّة=$FINAL)"
