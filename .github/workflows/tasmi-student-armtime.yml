@@ -1,0 +1,113 @@
+# 🦾⏱️ **زمنُ الطالب الضيّق على `arm64` — الشرطُ 7 من بوّابة الشحن ([[D-745]] · [[D-748]]).**
+#
+# ⭐ **الزمنُ دالّةُ معماريّةٍ لا دالّةُ أوزان**: نموذجٌ مدرَّبٌ وآخرُ عشوائيٌّ بالشكل نفسِه يكلّفان الحسابَ
+# نفسَه (مُشفِّرُ CTC لا يتفرّع بالمحتوى). ⇒ يُبنى الطالبُ **من إعداده بأوزانٍ عشوائيّة** — فلا تُنشر
+# أوزانٌ ولا تُنقل شيفرةٌ خاصّة، والمقيسُ هو هو.
+#
+# ويُقاس بمحرّكَين: `torch` (fp32 · int8 ديناميكيّ) و**`ONNX Runtime`** (fp32 · int8) — والأخيرُ هو
+# المخطَّطُ للشحن في M3 («ONNX int8 على sherpa-onnx/ONNX Runtime»). **وخيطان** كسياسة التطبيق.
+#
+# ⛔ **وحدُّه يُقال معه** (‏كما في `arm-time`): لينكس/glibc لا أندرويد/bionic، والمعالجُ غيرُ معالجِ
+#    الهاتف ⇒ **حكمٌ على السلوك (أيتجاوز الزمنَ الحقيقيّ؟) لا قيمةٌ مطلقةٌ لجهاز المالك**.
+#    والصوتُ ضجيجٌ بأطوالٍ مسمّاة — لأنّ الكلفةَ دالّةُ الطول لا المحتوى.
+# 💰 مستودعٌ عامّ + عدّاءٌ قياسيّ `ubuntu-24.04-arm` ⇒ بلا فوترة.
+name: tasmi-student-armtime
+
+on:
+  workflow_dispatch:
+    inputs:
+      threads:
+        description: "عددُ الخيوط (2 = سياسةُ التطبيق)"
+        required: false
+        default: "2"
+
+permissions:
+  contents: read
+
+jobs:
+  time:
+    runs-on: ubuntu-24.04-arm
+    timeout-minutes: 60
+    steps:
+      - uses: actions/setup-python@v5
+        with: {python-version: "3.11"}
+      - name: العُدّة
+        run: |
+          [ "$(uname -m)" = "aarch64" ] || { echo "⛔ إخفاقٌ مُعلَن: العدّاءُ ليس arm64"; exit 1; }
+          pip install -q torch --index-url https://download.pytorch.org/whl/cpu
+          pip install -q "transformers>=4.44,<5" onnx onnxruntime numpy
+          python -c "import torch,onnxruntime;print('torch',torch.__version__,'ort',onnxruntime.__version__)"
+      - name: القياس
+        env:
+          THREADS: ${{ inputs.threads }}
+          PYTHONIOENCODING: utf-8
+        run: |
+          python - <<'PY'
+          import os, time, statistics, json, numpy as np, torch
+          from transformers import Wav2Vec2Config, Wav2Vec2ForCTC
+          T = int(os.environ.get("THREADS", "2"))
+          torch.set_num_threads(T)
+          base = Wav2Vec2Config.from_pretrained("facebook/wav2vec2-base")
+          cfg = Wav2Vec2Config(vocab_size=56, hidden_size=384, num_hidden_layers=8, num_attention_heads=8,
+                               intermediate_size=1536, conv_dim=base.conv_dim, conv_stride=base.conv_stride,
+                               conv_kernel=base.conv_kernel, num_conv_pos_embeddings=base.num_conv_pos_embeddings,
+                               num_conv_pos_embedding_groups=base.num_conv_pos_embedding_groups,
+                               feat_extract_norm=base.feat_extract_norm, do_stable_layer_norm=base.do_stable_layer_norm,
+                               pad_token_id=0)
+          torch.manual_seed(0)
+          m = Wav2Vec2ForCTC(cfg).eval()
+          n = sum(p.numel() for p in m.parameters())
+          print(f"🪶 الطالب: {n/1e6:.2f} م.معلمة (يجب ≈19.8) · خيوط {T} · {os.uname().machine}")
+          assert 19.0e6 < n < 20.5e6, "⛔ إخفاقٌ مُعلَن: المعماريّةُ ليست معماريّةَ الطالب"
+          q = torch.ao.quantization.quantize_dynamic(m, {torch.nn.Linear}, dtype=torch.qint8)
+
+          # ONNX: تصديرٌ ثمّ تكميمٌ ديناميكيّ
+          import onnxruntime as ort
+          from onnxruntime.quantization import quantize_dynamic, QuantType
+          dummy = torch.zeros(1, 16000 * 5)
+          torch.onnx.export(m, dummy, "st.onnx", input_names=["x"], output_names=["y"],
+                            dynamic_axes={"x": {1: "t"}, "y": {1: "f"}}, opset_version=17)
+          quantize_dynamic("st.onnx", "st_q8.onnx", weight_type=QuantType.QInt8)
+          so = ort.SessionOptions(); so.intra_op_num_threads = T; so.inter_op_num_threads = 1
+          s32 = ort.InferenceSession("st.onnx", so, providers=["CPUExecutionProvider"])
+          s8 = ort.InferenceSession("st_q8.onnx", so, providers=["CPUExecutionProvider"])
+          print(f"📦 ONNX fp32 {os.path.getsize('st.onnx')/1e6:.1f} م.ب · int8 {os.path.getsize('st_q8.onnx')/1e6:.1f} م.ب")
+
+          arms = {
+            "torch-fp32": lambda x: m(torch.from_numpy(x)).logits,
+            "torch-int8": lambda x: q(torch.from_numpy(x)).logits,
+            "ort-fp32":   lambda x: s32.run(None, {"x": x}),
+            "ort-int8":   lambda x: s8.run(None, {"x": x}),
+          }
+          rng = np.random.default_rng(1446)
+          lens = [3, 5, 10, 20, 30, 60, 90]
+          res = {}
+          with torch.inference_mode():
+              for name, f in arms.items():
+                  f(rng.standard_normal((1, 16000 * 2)).astype(np.float32))   # إحماءٌ يُرمى
+                  row = {}
+                  for L in lens:
+                      x = rng.standard_normal((1, 16000 * L)).astype(np.float32) * 0.1
+                      ts = []
+                      for _ in range(3):
+                          t0 = time.perf_counter(); f(x); ts.append(time.perf_counter() - t0)
+                      row[L] = round(statistics.median(ts) / L, 4)
+                  res[name] = row
+          print("\n| RTF (وسيطُ ثلاثة) على arm64 · خيوط %d | " % T + " | ".join(f"{L}ث" for L in lens) + " | أقصى |")
+          print("|---|" + "---:|" * (len(lens) + 1))
+          worst = 0
+          for name, row in res.items():
+              mx = max(row.values()); worst = max(worst, mx) if name.startswith("ort-int8") else worst
+              print(f"| {name} | " + " | ".join(f"{row[L]:.3f}" for L in lens) + f" | **{mx:.3f}** |")
+          ship = res["ort-int8"]
+          over = [L for L, v in ship.items() if v >= 1.0]
+          print(f"\n⇒ المسارُ المخطَّطُ للشحن (ONNX int8): أقصى RTF **{max(ship.values()):.3f}** · "
+                f"أطوالٌ تتجاوز الزمنَ الحقيقيّ: {over if over else 'لا شيء'}")
+          print("⛔ لينكس/glibc لا أندرويد/bionic · والصوتُ ضجيجٌ بأطوالٍ مسمّاة (الكلفةُ دالّةُ الطول لا المحتوى)")
+          json.dump(res, open("student_armtime.json", "w"), ensure_ascii=False, indent=1)
+          PY
+      - uses: actions/upload-artifact@v4
+        with:
+          name: student-armtime
+          path: student_armtime.json
+          retention-days: 30
