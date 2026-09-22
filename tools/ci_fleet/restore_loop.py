@@ -492,23 +492,37 @@ def _staged_improvements():
             if (o["Key"].endswith(".jz") and "/timings/" not in o["Key"]
                     and not is_partial(o["Key"])):
                 staged.append(o["Key"]); mt[o["Key"]] = o["LastModified"]
-    newest = {}
+    # ⛔ **كلُّ مرشّحي القارئ لا أحدثُهم وحده** (مقيسٌ 2026-09-22): محاذاةُ سورةٍ
+    #    واحدةٍ من الحلقة تُرفع بعد محاذاة CTC الكاملة فتصير «الأحدث» وهي أقلُّ مداخلَ،
+    #    فتُظلّل البصمةَ الكاملة (khalf +26 · soufi +25 نجتا بنيويّاً ولم تُبوَّبا).
+    #    ⇒ يُختار **أكبرُ المرشّحين زيادةً** (والأحدثُ عند التساوي). ولا يمسّ هذا حارساً:
+    #    المختارُ يمرّ بالبوّابة والملوح الأربعة و`promote.py` كاملةً كما كان.
+    cands = {}
     for k in staged:
         p = k.split("/")
         if len(p) < 3:
             continue
         who = (p[1], p[2].split(".")[0])
-        if who in live and (who not in newest or mt[k] > mt[newest[who]]):
-            newest[who] = k
+        if who in live:
+            cands.setdefault(who, []).append(k)
     out = []
-    for who, k in newest.items():
+    for who, ks in cands.items():
         try:
-            n, _ = fetch_index(k); o, _ = fetch_index(live[who])
+            o, _ = fetch_index(live[who])
         except Exception:                                      # noqa: BLE001
             continue
-        if len(n["entries"]) > len(o["entries"]):
-            out.append({"key": k, "live": live[who], "gain": len(n["entries"]) - len(o["entries"]),
-                        "riwaya": who[0], "reciter": who[1]})
+        best = None
+        for k in sorted(ks, key=lambda x: mt[x], reverse=True):
+            try:
+                n, _ = fetch_index(k)
+            except Exception:                                  # noqa: BLE001
+                continue
+            g = len(n["entries"]) - len(o["entries"])
+            if g > 0 and (best is None or g > best["gain"]):
+                best = {"key": k, "live": live[who], "gain": g,
+                        "riwaya": who[0], "reciter": who[1]}
+        if best:
+            out.append(best)
     out.sort(key=lambda x: -x["gain"])
     return out
 
