@@ -455,8 +455,30 @@ def cmd_scan(a):
 
 
 # ───────────────────────── gate: يُبوّب المحسَّنين ─────────────────────────
+PARTIAL_RE = re.compile(r"\.partial\d+\.")
+
+
+def is_partial(key: str) -> bool:
+    """أفهرسٌ جزئيٌّ هو؟ (‏`<قارئ>.partial113.<بصمة>.jz`)
+
+    ⛔ **العطبُ الذي وُلدت منه هذه الدالّة — مقيسٌ 2026-09-22:** شوطُ CTC الذي
+    يتعثّر في سورةٍ أو أكثر يرفع فهرساً باسمٍ فيه `partialNNN`، **ومداخلُه قد
+    تفوق المنشورَ** رغم نقص سوره. فكان `_staged_improvements` يختاره لأنّه
+    **الأحدث**، فيقع ضرران مقيسان:
+      ١) **هدرٌ**: خمسُ تشغيلاتِ بوّابةٍ (مطالعٌ وأربعةُ ملوح) تُنفق على فهرسٍ
+         **يردّه `promote` يقيناً** بشرط 114/114 (وقع على sahood.partial113).
+      ٢) **وأخطرُ منه حجبٌ**: الجزئيُّ **يُظلّل** المرشّحَ الكاملَ للقارئ نفسِه
+         لأنّ الأحدثَ وحدَه يُؤخذ ⇒ فهرسٌ تامٌّ جاهزٌ لا يُبوَّب ولا يُرقّى.
+    ⚖️ وهذا **تشديدٌ لا تخفيف**: لا يُجيز شيئاً، ولا يمسّ عتبةً ولا حكماً —
+    يمنع إنفاقاً على ما لا يُقبل، ويُبقي البابَ للكامل وحدَه.
+    """
+    return bool(PARTIAL_RE.search(key.rsplit("/", 1)[-1]))
+
+
 def _staged_improvements():
-    """بصماتُ مسرحٍ لقارئٍ **منشور** مداخلُها أكثرُ من المنشور."""
+    """بصماتُ مسرحٍ لقارئٍ **منشور** مداخلُها أكثرُ من المنشور.
+
+    ⛔ والجزئيُّ (`partialNNN`) يُستبعد هنا: يُنفق البوّابةَ ويُظلّل الكامل."""
     cl, b = s3()
     live, staged = {}, []
     for pg in cl.get_paginator("list_objects_v2").paginate(Bucket=b, Prefix="timings/"):
@@ -467,7 +489,8 @@ def _staged_improvements():
     mt = {}
     for pg in cl.get_paginator("list_objects_v2").paginate(Bucket=b, Prefix="timings-staging/"):
         for o in pg.get("Contents", []):
-            if o["Key"].endswith(".jz") and "/timings/" not in o["Key"]:
+            if (o["Key"].endswith(".jz") and "/timings/" not in o["Key"]
+                    and not is_partial(o["Key"])):
                 staged.append(o["Key"]); mt[o["Key"]] = o["LastModified"]
     newest = {}
     for k in staged:
