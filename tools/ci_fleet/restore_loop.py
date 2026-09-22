@@ -480,12 +480,13 @@ def _staged_improvements():
 
     ⛔ والجزئيُّ (`partialNNN`) يُستبعد هنا: يُنفق البوّابةَ ويُظلّل الكامل."""
     cl, b = s3()
-    live, staged = {}, []
+    live, staged, lmt = {}, [], {}
     for pg in cl.get_paginator("list_objects_v2").paginate(Bucket=b, Prefix="timings/"):
         for o in pg.get("Contents", []):
             k = o["Key"]
             if k.endswith(".jz") and k.count("/") == 2:
                 live[(k.split("/")[1], k.split("/")[2][:-3])] = k
+                lmt[k] = o["LastModified"]
     mt = {}
     for pg in cl.get_paginator("list_objects_v2").paginate(Bucket=b, Prefix="timings-staging/"):
         for o in pg.get("Contents", []):
@@ -503,7 +504,9 @@ def _staged_improvements():
         if len(p) < 3:
             continue
         who = (p[1], p[2].split(".")[0])
-        if who in live:
+        # ⚡ ما رُفع قبل المنشور لا يُحمَّل: الترقيةُ تُحدِّث المنشور، فالأقدمُ منه
+        #    إمّا رُقّي أو سُبق — وتحميلُ المسرح كلِّه أبطأَ الجسرَ ساعةً (مقيسٌ).
+        if who in live and mt[k] > lmt[live[who]]:
             cands.setdefault(who, []).append(k)
     out = []
     for who, ks in cands.items():
