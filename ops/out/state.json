@@ -130,14 +130,14 @@
    "undeclaredCount": 0
   },
   "hafs/a_albadr": {
-   "entries": 6220,
+   "entries": 6235,
    "missingSurahs": [],
    "reasonCode": null,
-   "transformOp": "realign_surah:2",
+   "transformOp": null,
    "declaredReasons": {
-    "no-align": 153
+    "no-align": 1
    },
-   "declaredCount": 153,
+   "declaredCount": 1,
    "undeclaredCount": 0
   },
   "hafs/a_alhazmi": {
@@ -204,17 +204,6 @@
     "no-align": 3
    },
    "declaredCount": 3,
-   "undeclaredCount": 0
-  },
-  "hafs/alijon": {
-   "entries": 6220,
-   "missingSurahs": [],
-   "reasonCode": null,
-   "transformOp": null,
-   "declaredReasons": {
-    "no-align": 16
-   },
-   "declaredCount": 16,
    "undeclaredCount": 0
   },
   "hafs/alosfor": {
@@ -1413,10 +1402,10 @@
    "undeclaredCount": 0
   },
   "warsh/m_abdulkareem_warsh": {
-   "entries": 6220,
+   "entries": 6224,
    "missingSurahs": [],
    "reasonCode": null,
-   "transformOp": null,
+   "transformOp": "realign_surah:55",
    "declaredReasons": {
     "no-align": 16
    },
