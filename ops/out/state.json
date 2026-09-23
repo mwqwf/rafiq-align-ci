@@ -545,14 +545,14 @@
    "undeclaredCount": 0
   },
   "hafs/lahoni": {
-   "entries": 6224,
+   "entries": 6235,
    "missingSurahs": [],
    "reasonCode": null,
    "transformOp": null,
    "declaredReasons": {
-    "no-align": 12
+    "no-align": 1
    },
-   "declaredCount": 12,
+   "declaredCount": 1,
    "undeclaredCount": 0
   },
   "hafs/lhdan": {
@@ -701,14 +701,14 @@
    "undeclaredCount": 0
   },
   "hafs/nabil": {
-   "entries": 6225,
+   "entries": 6235,
    "missingSurahs": [],
    "reasonCode": null,
-   "transformOp": "basmala_fix_v4",
+   "transformOp": null,
    "declaredReasons": {
-    "no-align": 11
+    "no-align": 1
    },
-   "declaredCount": 11,
+   "declaredCount": 1,
    "undeclaredCount": 0
   },
   "hafs/nasser_almajed": {
@@ -817,17 +817,14 @@
    "undeclaredCount": 0
   },
   "hafs/s_sadeiq": {
-   "entries": 6165,
-   "missingSurahs": [
-    42
-   ],
-   "reasonCode": "NO_PUBLISHED_RECORDING",
-   "transformOp": "drop_surah:42",
+   "entries": 6235,
+   "missingSurahs": [],
+   "reasonCode": null,
+   "transformOp": "realign_surah:113",
    "declaredReasons": {
-    "no-align": 71,
-    "source_truncated": 0
+    "no-align": 3
    },
-   "declaredCount": 71,
+   "declaredCount": 3,
    "undeclaredCount": 0
   },
   "hafs/saber": {
@@ -1379,15 +1376,14 @@
    "undeclaredCount": 0
   },
   "warsh/laghdaf_shinqiti": {
-   "entries": 6224,
+   "entries": 6229,
    "missingSurahs": [],
    "reasonCode": null,
-   "transformOp": "realign_surah:71",
+   "transformOp": null,
    "declaredReasons": {
-    "no-align": 12,
-    "surah-absent": 28
+    "no-align": 7
    },
-   "declaredCount": 40,
+   "declaredCount": 7,
    "undeclaredCount": 0
   },
   "warsh/m_abdulkareem_warsh": {
