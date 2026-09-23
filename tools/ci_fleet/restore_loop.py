@@ -617,6 +617,14 @@ def cmd_promote(a):
                               capture_output=True, text=True, encoding="utf-8",
                               errors="replace", cwd=str(ROOT))
         ok = "→ ✅" in done.stdout
+        # ⛔⛔ **يُسدّ ما رُفع إن رُدّت الترقية** (عطبٌ مقيسٌ 2026-09-23): رفعٌ بلا
+        #    ترقيةٍ ناجحة ترك الهدفَ مفتوحاً، فرقّى `keepalive` فوقه نسخةً أقدم
+        #    (رجع fateh_douri 6235⇒6209 وtrabulsi 6236⇒6214). ⇒ يُعاد التجميدُ على
+        #    المنشور الحاليّ فوراً — تشديدٌ لا إرخاء، ولا يكتب في timings/.
+        if not ok:
+            subprocess.run([sys.executable, str(ROOT / "tools" / "ci_fleet" / "refreeze.py"),
+                            r["live"], "", "سدٌّ بعد ترقيةٍ مردودة — يُغلق الرفعَ السابق"],
+                           cwd=str(ROOT), text=True)
         print(f"   {'✅ رُقّي' if ok else '⛔ لم يُرقَّ'} {r['reciter']} (+{r['gain']})")
         for l in done.stdout.splitlines():
             if "🧊" in l or "⛔" in l:
