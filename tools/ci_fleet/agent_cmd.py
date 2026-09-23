@@ -89,7 +89,8 @@ ALLOWED_WF = {"align.yml", "realign_surah.yml", "openers.yml", "audio_qa.yml",
 #    استرجاع الـ310 آية لم تصل إلى المستخدم أصلاً، **لأنّ لا بابَ سحابيّاً
 #    كان يفتحه**. وهو محكومٌ بحُرّاسه (يُسقط التوليد كلَّه إن شُهد لمن لا حكمَ
 #    لبصمته، ولا يمسّ غير الحقلين)، فإدخالُه لا يُضعف حارساً.
-ALLOWED_TOOLS = {"index_qa/run.py", "index_qa/triage.py", "index_qa/promote.py",
+ALLOWED_TOOLS = {"ci_fleet/refreeze.py",  # يسدّ تجميداً رُفع بلا ترقية (2026-09-23)
+                 "index_qa/run.py", "index_qa/triage.py", "index_qa/promote.py",
                  "index_qa/certify_catalog.py",
                  "index_qa/bucket_watch.py", "index_qa/drop_surah.py",
                  "index_qa/low_coverage_scan.py", "index_qa/dup_sha_sweep.py",
