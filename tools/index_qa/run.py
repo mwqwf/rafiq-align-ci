@@ -732,12 +732,26 @@ def _range_pcm(url, start_ms, end_ms):
         return None
 
 
-def _ffmpeg_window_pcm(mp3, start_ms, end_ms):
+def _file_duration_ms(mp3):
+    """مدّةُ الملفّ بعدّ إطاراته (‏`mp3dur.dur`) — بلا ffprobe ولا تقدير."""
+    sys.path.insert(0, str(Path(__file__).parent))
+    import mp3dur
+    return mp3dur.dur(str(mp3))[0] * 1000.0
+
+
+def _ffmpeg_window_pcm(mp3, start_ms, end_ms, ayah_end_ms=None, file_dur_ms=None):
     """يفكّ نافذةً بـffmpeg ويرفض الخرج الجزئي أو المتلف صراحةً.
 
     السماح الزمني أقصاه 80م.ث (نحو ثلاثة إطارات MPEG-1 Layer III عند 44.1ك.هز)،
     ولا يتجاوز 10% من النافذة. وما زاد على هذا أو احتوى NaN/Inf يبقى خطأ أداة
     وغير حاسم؛ لا يتحول الملف المتضرر إلى حكم جودة مؤكد.
+
+    ⭐ **الاستثناءُ الوحيد: نافذةٌ تمتدّ بعد نهاية الملفّ** (‏نافذةُ L بـ8ث على
+    آخر آيةٍ في ملفّها: yousef 102:8 و93:11). تُحشى بصمتٍ **بشروطٍ مجتمعة**:
+    ‏`ayah_end_ms` معطى (‏لا يُعطى إلا لآخر مدخلٍ في ملفّه)، والطلبُ يتجاوز مدّةَ
+    الملفّ المقيسة بعدّ الإطارات، والمفكوكُ بلغ نهايةَ الملفّ نفسَها (‏فالنقصُ
+    كلُّه بعدها)، ونهايةُ الآية داخل الملفّ. ⛔ وما سوى ذلك — ملفٌّ مبتور
+    تقع الآيةُ خارجه، أو نقصٌ في وسط الملفّ — يبقى خطأً كما كان.
     """
     import numpy as np
     rate = 16000
@@ -766,6 +780,14 @@ def _ffmpeg_window_pcm(mp3, start_ms, end_ms):
     x = np.frombuffer(raw, dtype="<f4").copy()
     if not np.isfinite(x).all():
         raise RuntimeError("ffmpeg أخرج عينات NaN/Inf")
+    if len(x) < expected - tolerance and ayah_end_ms is not None:
+        fd = _file_duration_ms(mp3) if file_dur_ms is None else float(file_dur_ms)
+        tol_ms = tolerance * 1000.0 / rate
+        got_end = start + len(x) * 1000.0 / rate
+        if (fd > 0 and start < fd and start + dur > fd
+                and got_end >= fd - tol_ms          # المفكوكُ بلغ نهايةَ الملفّ
+                and int(ayah_end_ms) <= fd):        # والآيةُ كلُّها داخله
+            x = np.concatenate([x, np.zeros(expected - len(x), dtype=x.dtype)])
     if len(x) < expected - tolerance:
         raise RuntimeError(
             f"ffmpeg أخرج نافذةً ناقصة: {len(x)}/{expected} عيّنة "
@@ -844,7 +866,9 @@ def local_run(jobs, _host=None, _threads=None):
                     # libsndfile عن النافذة. ffmpeg المثبّت أصلاً في audio_qa
                     # أكثرُ تحمّلاً؛ فإن عجز هو أيضاً يسجّل الحدّ «غير حاسم»
                     # عبر غلاف الاستثناء أدناه، ولا يغيّر أيّ عتبة أو حكم.
-                    x, r = _ffmpeg_window_pcm(mp3, j["startMs"], j["endMs"])
+                    # ‏`ayahEndMs` لا يحمله إلا آخرُ مدخلٍ في ملفّه (‏انظر بناءَ المهامّ).
+                    kw = {"ayah_end_ms": j["ayahEndMs"]} if j.get("ayahEndMs") is not None else {}
+                    x, r = _ffmpeg_window_pcm(mp3, j["startMs"], j["endMs"], **kw)
             n = int(len(x) * 16000 / r)
             y = np.interp(np.linspace(0, len(x) - 1, n), np.arange(len(x)), x).astype("float32")
             res[j["id"]] = {"text": " ".join(sg.text for sg in m.transcribe(y)).strip(), "ms": 0}
@@ -1121,6 +1145,13 @@ def audit(key, args):
         rep["census"] = {"surahs": _cs, "population": len(sample),
                          "note": "إحصاءٌ شاملٌ لكلّ آيةٍ في هذه السور — لا عيّنة"}
 
+    # ⭐ آخرُ مدخلٍ في كلّ ملفّ صوت: وحده يجوز أن تمتدّ نافذتُه بعد نهاية الملفّ
+    #    فتُحشى بصمت (‏`_ffmpeg_window_pcm`)؛ وغيرُه نقصُه عطبٌ لا حشو.
+    _last = {}
+    for _e in idx["entries"]:
+        _f, _st = _e.get("fileRef"), _e.get("startMs")
+        if _f and _st is not None and (_f not in _last or _st > _last[_f]):
+            _last[_f] = _st
     jobs, meta = [], {}
     for s, e in sample:
         aid = e["ayahId"]
@@ -1129,9 +1160,11 @@ def audit(key, args):
         meta[aid] = {"s": s, "ref": txt[flat(s, a)], "prev": prev,
                      "band": e.get("confBand"), "startApprox": e.get("startApprox", False)}
         u = e["fileRef"]
-        jobs += [{"id": f"F|{aid}", "url": u, "startMs": st, "endMs": st + FWD_MS},
+        tail = ({"ayahEndMs": e["endMs"]}
+                if _last.get(u) == st and e.get("endMs") is not None else {})
+        jobs += [{"id": f"F|{aid}", "url": u, "startMs": st, "endMs": st + FWD_MS, **tail},
                  {"id": f"D|{aid}", "url": u, "startMs": max(0, st - DEC_MS), "endMs": st},
-                 {"id": f"L|{aid}", "url": u, "startMs": st, "endMs": st + LONG_MS}]
+                 {"id": f"L|{aid}", "url": u, "startMs": st, "endMs": st + LONG_MS, **tail}]
 
     # مسبار المطالع: العتبة (< 3ث) تُرشِّح والصوت يحكم. نقصّ من مطلع الآية
     # الأولى 6ث؛ فإن ظهرت البسملة **داخل** المدخل فهي مبتلعة يقيناً، وإلا

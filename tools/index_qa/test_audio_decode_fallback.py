@@ -237,5 +237,64 @@ class AudioDecodeFallbackTest(unittest.TestCase):
         self.assertIn("RuntimeError: ffmpeg", errors[job["id"]])
 
 
+class WindowPastEndOfFileTest(unittest.TestCase):
+    """نافذةٌ تمتدّ بعد نهاية الملفّ (‏yousef 102:8 · 93:11): الحشوُ بصمتٍ بشروطٍ مجتمعة."""
+
+    def _call(self, got_ms, file_dur_ms, ayah_end_ms, start=0, end=8000):
+        pcm = np.full(int(got_ms * 16), 0.25, dtype="<f4")
+        with mock.patch.object(R.subprocess, "run", return_value=_done(pcm)):
+            return R._ffmpeg_window_pcm("tail.mp3", start, end,
+                                        ayah_end_ms=ayah_end_ms, file_dur_ms=file_dur_ms)
+
+    def test_shortfall_after_eof_with_ayah_inside_is_padded(self):
+        got, rate = self._call(got_ms=7746.5625, file_dur_ms=7750, ayah_end_ms=7400)
+        self.assertEqual((len(got), rate), (128000, 16000))
+        self.assertTrue((got[:123945] == 0.25).all())
+        self.assertTrue((got[123945:] == 0).all())
+
+    def test_shortfall_with_ayah_beyond_file_end_is_rejected(self):
+        # ملفٌّ مبتور: الآيةُ نفسُها تنتهي بعد آخر إطار.
+        with self.assertRaisesRegex(RuntimeError, "ناقصة"):
+            self._call(got_ms=7746.5625, file_dur_ms=7750, ayah_end_ms=7900)
+
+    def test_shortfall_in_middle_of_file_is_rejected(self):
+        # الملفُّ أطول من النافذة: النقصُ عطبُ فكٍّ لا نهايةُ ملفّ.
+        with self.assertRaisesRegex(RuntimeError, "ناقصة"):
+            self._call(got_ms=5313.6875, file_dur_ms=60000, ayah_end_ms=4000)
+
+    def test_shortfall_that_stops_before_eof_is_rejected(self):
+        # الطلبُ يتجاوز النهاية لكنّ المفكوك انقطع قبلها بثانيتين: نقصٌ في الوسط.
+        with self.assertRaisesRegex(RuntimeError, "ناقصة"):
+            self._call(got_ms=5750, file_dur_ms=7750, ayah_end_ms=5000)
+
+    def test_without_ayah_end_the_error_stays(self):
+        with self.assertRaisesRegex(RuntimeError, "ناقصة"):
+            self._call(got_ms=7746.5625, file_dur_ms=7750, ayah_end_ms=None)
+
+    def test_real_mp3_tail_window_measured_by_frame_count(self):
+        with tempfile.TemporaryDirectory() as td:
+            mp3 = _make_marker_mp3(td)                    # ≈3ث
+            got, rate = R._ffmpeg_window_pcm(mp3, 2000, 4000, ayah_end_ms=2900)
+            self.assertEqual(len(got), 32000)
+            self.assertTrue((got[-8000:] == 0).all())
+            with self.assertRaisesRegex(RuntimeError, "ناقصة"):
+                R._ffmpeg_window_pcm(mp3, 2000, 4000, ayah_end_ms=3500)
+
+    def test_local_run_passes_ayah_end_only_when_job_carries_it(self):
+        pcm = np.ones(8000, dtype="float32")
+        model = SimpleNamespace(transcribe=lambda _: [SimpleNamespace(text="ok")])
+        job = {"id": "L|102:8", "url": "https://example/102.mp3",
+               "startMs": 1000, "endMs": 1500, "ayahEndMs": 1400}
+        fake_sf = SimpleNamespace(info=mock.Mock(side_effect=RuntimeError("libsndfile")))
+        with (mock.patch.dict(sys.modules, {"soundfile": fake_sf}),
+              mock.patch.object(R, "_local_model", return_value=model),
+              mock.patch.object(R, "_prefetch"),
+              mock.patch.object(R, "_range_pcm", return_value=None),
+              mock.patch.object(R, "_local_audio", return_value="tail.mp3"),
+              mock.patch.object(R, "_ffmpeg_window_pcm", return_value=(pcm, 16000)) as fallback):
+            R.local_run([job])
+        fallback.assert_called_once_with("tail.mp3", 1000, 1500, ayah_end_ms=1400)
+
+
 if __name__ == "__main__":
     unittest.main()
