@@ -101,6 +101,23 @@ def _op_mixes_engines(op: str) -> bool:
 
 CENSUS_PREFIX = "state-census/"
 
+# ⭐ **تحويلاتُ دمجِ سور النقص بمحرّكٍ آخر، ومحرّكُ كلٍّ منها** (‏2026-09-24):
+#    ‏`ctc_surah_splice` يدمج سوراً حوذيت بـCTC في فهرسٍ منشورٍ بـWhisper، و
+#    ‏`whisper_surah_splice` عكسُه: سوراً حوذيت بـWhisper في فهرسٍ منشورٍ بـCTC
+#    (‏المحرّكُ حتميّ، فإعادةُ CTC على نقصه تعيد النقصَ نفسَه).
+#    ⛔ مصدرٌ واحدٌ يقرؤه كلُّ حارس (‏`stage_transform` · `census_gate` ·
+#    ‏`ci_run --census`) — فلا يُضاف اسمٌ في موضعٍ ويُنسى في جاره فيتسلّل منه
+#    دمجٌ بلا إحصاء. والقيمةُ هي المحرّكُ الذي **يجب** أن تُعلَن به كلُّ سورةٍ
+#    مأخوذة؛ ومحرّكٌ آخر في الإعلان يُردّ ولا يُصحَّح.
+SPLICE_OPS = {"ctc_surah_splice": "ctc-seg-1",
+              "whisper_surah_splice": "align-0.2"}
+
+
+def splice_op_name(op: str) -> str | None:
+    """اسمُ تحويل الدمج إن كان `op` منه (‏«الاسم:السور»)، وإلا None."""
+    head = str(op or "").strip().split(":", 1)[0]
+    return head if head in SPLICE_OPS and ":" in str(op) else None
+
 
 def census_gate(cl, bucket, src, live_sha, idx):
     """سببُ ردِّ فهرسٍ مدموجِ المحرّكين، أو None. **الغيابُ ردٌّ لا تساهل.**
@@ -112,13 +129,15 @@ def census_gate(cl, bucket, src, live_sha, idx):
     **كلُّ آيةٍ** في كلّ سورةٍ أُخذت من المحرّك الآخر مسموعةٌ ومحكومة (‏إحصاءٌ
     لا عيّنة) على **بصمة هذا الفهرس بعينها**، ثمّ حكمُ الملوح الأربعة للفهرس
     كلِّه كما هو. فهو حارسٌ **زائد** على ما قبله لا بديلٌ عنه.
+    والعكسُ (‏`whisper_surah_splice`: سورُ Whisper في فهرس CTC) يمرّ بالشرط
+    نفسِه حرفاً، لأنّ السجلَّ يُقرأ بما خالف `engineVersion` أيّاً كان.
     """
     tr = idx.get("transform")
     op = str((tr or {}).get("op") or "") if isinstance(tr, dict) else str(tr or "")
     ebs = {k for k, v in (idx.get("engineBySurah") or {}).items()
            if v and v != idx.get("engineVersion")}
     if not ebs:
-        if op.startswith("ctc_surah_splice:"):
+        if splice_op_name(op):
             return "تحويلُ دمجٍ بلا سجلّ محرّكاتٍ في الترويسة — إعلانٌ ناقص"
         return None
     key = CENSUS_PREFIX + src.replace("/", "_") + ".json"

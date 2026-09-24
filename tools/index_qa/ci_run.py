@@ -128,7 +128,8 @@ def main():
         tr0 = idx0.get("transform")
         op0 = str((tr0 or {}).get("op") or "") if isinstance(tr0, dict) else str(tr0 or "")
         ebs = idx0.get("engineBySurah") or {}
-        if not op0.startswith("ctc_surah_splice:") or not ebs:
+        from promote import splice_op_name                     # noqa: PLC0415
+        if not splice_op_name(op0) or not ebs:
             raise SystemExit(f"⛔ لا دمجَ محرّكين في هذا الفهرس (op={op0!r}) — لا إحصاء")
         os.environ["QA_CENSUS_SURAHS"] = ",".join(sorted(ebs, key=int))
         a.kind, a.out_prefix, a.seed_salt, a.out_suffix = (

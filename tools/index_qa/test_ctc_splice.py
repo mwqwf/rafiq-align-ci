@@ -211,8 +211,8 @@ class CensusGate(unittest.TestCase):
 
 
 class StageGuard(unittest.TestCase):
-    def _stage(self, child, op):
-        parent = _parent()
+    def _stage(self, child, op, parent=None):
+        parent = parent or _parent()
         pbody = gzip.compress(json.dumps(parent).encode())
         s3 = _S3({"timings/hafs/zz.jz": pbody})
         with tempfile.TemporaryDirectory() as t:
@@ -250,6 +250,142 @@ class StageGuard(unittest.TestCase):
         d["entries"] = [e for e in d["entries"] if e["ayahId"] != "1:1"]
         d["missing"] = {"count": 1, "ids": ["1:1"], "byReason": {}}
         self.assertIn("خارج السور", self._stage(d, "ctc_surah_splice:112,113"))
+
+
+# ═══ المسارُ المعاكس: سورُ Whisper مدموجةً في فهرسٍ منشورٍ بـCTC (‏whisper_splice.yml) ═══
+#    الحُرّاسُ نفسُها يجب أن **تردّ** في الاسم الجديد كما تردّ في القديم — لا أن
+#    يمرّ منها ما لم يُعلَن أو لم يُحصَ لأنّ اسمَه لم يُعرف بعد.
+W_OP = "whisper_surah_splice:112,113"
+
+
+def _ctc_parent():
+    d = _parent()
+    d["engineVersion"] = "ctc-seg-1"
+    return d
+
+
+def _wspliced():
+    d = _ctc_parent()
+    d["entries"] = _entries({})
+    d["missing"] = {"count": 0, "ids": [], "byReason": {}}
+    d["engineBySurah"] = {"112": "align-0.2", "113": "align-0.2"}
+    d["transform"] = {"op": W_OP}
+    return d
+
+
+class WhisperSpliceNames(unittest.TestCase):
+    def test_both_ops_known_with_their_engines(self):
+        self.assertEqual(promote.SPLICE_OPS["whisper_surah_splice"], "align-0.2")
+        self.assertEqual(promote.SPLICE_OPS["ctc_surah_splice"], "ctc-seg-1")
+        self.assertEqual(promote.splice_op_name(W_OP), "whisper_surah_splice")
+        self.assertEqual(promote.splice_op_name("ctc_surah_splice:5"), "ctc_surah_splice")
+        self.assertIsNone(promote.splice_op_name("realign_surah:5"))
+        self.assertIsNone(promote.splice_op_name("whisper_surah_splice"))   # بلا سور
+
+    def test_whisper_tag_is_what_batch_run_writes(self):
+        # ‏الوسمُ المطلوبُ في الحارس هو ما يكتبه محرّكُ الأسطول فعلاً — لا رقمٌ باليد.
+        sys.path.insert(0, str(HERE.parent / "alignment"))
+        import inspect
+        import validate                                          # noqa: PLC0415
+        dflt = inspect.signature(validate.make_timing_index).parameters["engine_version"].default
+        self.assertEqual(dflt, promote.SPLICE_OPS["whisper_surah_splice"])
+
+    def test_splice_writes_whisper_tag_on_ctc_parent(self):
+        with tempfile.TemporaryDirectory() as t:
+            tmp = Path(t)
+            _write(tmp / "p.jz", _ctc_parent())
+            f = tmp / "s112.json"
+            f.write_text(json.dumps(_aligned(112)), encoding="utf-8")
+            r = subprocess.run([sys.executable, str(HERE / "splice_surah.py"), "--index",
+                                str(tmp / "p.jz"), "--surah", "112", "--aligned", str(f),
+                                "--url", URL, "--skip-unresolved", "--engine-tag", "align-0.2",
+                                "--out", str(tmp / "o.jz")],
+                               capture_output=True, text=True, encoding="utf-8")
+            self.assertEqual(r.returncode, 0, r.stdout + r.stderr)
+            out = _load(tmp / "o.jz")
+        self.assertEqual(out["engineVersion"], "ctc-seg-1")
+        self.assertEqual(out["engineBySurah"], {"112": "align-0.2"})
+
+
+class WhisperCensusGate(CensusGate):
+    """كلُّ اختبارات `CensusGate` تُعاد على المسار المعاكس بالوراثة، وفوقها ما يخصّه."""
+
+    def gate(self, rep, idx=None, sha="S"):
+        objs = {} if rep is None else {self.KEY: json.dumps(rep).encode()}
+        return promote.census_gate(_S3(objs), "b", self.SRC, sha, idx or _wspliced())
+
+    def test_no_mixing_needs_no_census(self):
+        self.assertIsNone(self.gate(None, _ctc_parent()))
+
+    def test_header_mixing_without_splice_op_still_needs_census(self):
+        d = _wspliced()
+        d["transform"] = {"op": "realign_surah:5"}
+        self.assertIn("بلا إحصاء", self.gate(None, d))
+
+    def test_whisper_op_without_header_refused(self):
+        d = _wspliced()
+        d.pop("engineBySurah")
+        self.assertIn("بلا سجلّ", self.gate(_census("S"), d))
+
+    def test_whisper_missing_census_refused(self):
+        self.assertIn("بلا إحصاء", self.gate(None))
+
+    def test_whisper_census_on_other_sha_refused(self):
+        self.assertIn("بصمةٍ أخرى", self.gate(_census("X")))
+
+    def test_whisper_tag_equal_to_index_engine_is_not_mixing(self):
+        # ‏سورةٌ معلَنةٌ بمحرّك الفهرس نفسِه ليست دمجاً، لكنّ اسمَ الدمج بلا سجلٍّ يُردّ.
+        d = _wspliced()
+        d["engineBySurah"] = {"112": "ctc-seg-1", "113": "ctc-seg-1"}
+        self.assertIn("بلا سجلّ", self.gate(None, d))
+
+
+class WhisperStageGuard(StageGuard):
+    """حُرّاسُ `stage_transform` للاسم الجديد على أصلٍ منشورٍ بـCTC."""
+
+    def _w(self, child, op=W_OP):
+        return self._stage(child, op, parent=_ctc_parent())
+
+    def test_declared_whisper_splice_accepted(self):
+        self.assertIsNone(self._w(_wspliced()))
+
+    def test_whisper_undeclared_surah_refused(self):
+        d = _wspliced()
+        d["engineBySurah"] = {"112": "align-0.2"}
+        self.assertIn("بلا إعلانٍ", self._w(d))
+
+    def test_whisper_no_header_refused(self):
+        d = _wspliced()
+        d.pop("engineBySurah")
+        self.assertIn("بلا إعلانٍ", self._w(d))
+
+    def test_whisper_extra_declared_surah_refused(self):
+        d = _wspliced()
+        d["engineBySurah"]["5"] = "align-0.2"
+        self.assertIn("لم يمسّها", self._w(d))
+
+    def test_whisper_wrong_engine_declared_refused(self):
+        # ⛔ التشديد: «غيرُ محرّك الفهرس» لا يكفي — يجب أن يكون محرّكَ التحويل بعينه.
+        d = _wspliced()
+        d["engineBySurah"]["113"] = "mp3quran-timing-v1"
+        self.assertIn("معلَنةٌ بغيره", self._w(d))
+
+    def test_ctc_op_declared_as_whisper_refused(self):
+        # ‏وفي الاسم القديم بالشدّة نفسِها: دمجٌ CTC معلَنٌ بمحرّكٍ آخر يُردّ.
+        d = _spliced()
+        d["engineBySurah"]["112"] = "mp3quran-timing-v1"
+        self.assertIn("معلَنةٌ بغيره", self._stage(d, "ctc_surah_splice:112,113"))
+
+    def test_whisper_outside_entries_untouched(self):
+        d = _wspliced()
+        d["entries"] = [e for e in d["entries"] if e["ayahId"] != "1:1"]
+        d["missing"] = {"count": 1, "ids": ["1:1"], "byReason": {}}
+        self.assertIn("خارج السور", self._w(d))
+
+    def test_whisper_incomplete_surah_refused(self):
+        d = _wspliced()
+        d["entries"] = [e for e in d["entries"] if e["ayahId"] != "113:5"]
+        self.assertIn("لا يُرفع ناقص", self._w(d))
 
 
 if __name__ == "__main__":

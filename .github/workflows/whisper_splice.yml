@@ -1,0 +1,420 @@
+name: rafiq-whisper-splice
+
+run-name: >-
+  whisper-splice ${{ inputs.parent }}${{ inputs.surahs && format(' · س{0}', inputs.surahs) || '' }}
+
+# ⭐ **المسارُ المعاكس لـ`ctc_splice.yml`** (‏إذن المالك 2026-09-24 بالتسريع
+#    بشرط ألّا يُمسّ القرآن): النقصُ الباقي أغلبُه في فهارسَ منشورةٍ بـCTC
+#    (‏`engineVersion=ctc-seg-1`)، والمحرّكُ حتميّ — فإعادتُه عليها تعيد النقصَ
+#    نفسَه. فهنا تُحاذى **سورُ النقص وحدها بمحرّك Whisper**، ويُدمج منها
+#    **ما حُلَّ كاملاً فقط**، ولا يُمسّ ما سواها بايتاً.
+#
+# ⚙️ **والمحاذاةُ هي محاذاةُ الأسطول نفسُها لا نسخةٌ منها**: `batch_run.py` بلا
+#    `ALIGN_ENGINE` ⇒ `pipeline.run_surah` (‏Whisper + `derive_boundaries` ببادئة
+#    الاستعاذة والبسملة + `_repair_prefix_absorption` + صقلُ الجيل الثاني)،
+#    بمتغيّرات `align.yml` حرفاً: `ALIGN_REFINE=1` · `REFINE_DTW=base` ·
+#    ‏`WHISPER_AC=0` · `WHISPER_THREADS=1` بعمليّةٍ لكلّ نواة · النموذجُ tiny
+#    للتفريغ وbase للصقل. وهو الطريقُ الذي بنى كلَّ فهرسٍ منشورٍ بـ`align-0.2`.
+#
+# ⛔ **البسملة** — لا يُنسخ `realign_surah` بـ`skip_ms=0` أعمى (‏يبتلعها في
+#    تسعٍ من تسع). فالبسملةُ تُقاس **من الأصل نفسِه** (‏وسيطُ بدءِ الآية الأولى
+#    في جارات السورة، كـ`restore_loop.measured_skip`)، وكلُّ سورةٍ بدأت آيتُها
+#    الأولى قبل نصف ذلك **مبتلِعةٌ** ⇒ تُعاد خطوتين: يُقصّ المقيسُ من رأس
+#    الملفّ، وتُحاذى البقيّةُ بـ`pipeline.py`، وتُزاح الحدودُ بالمقدار نفسِه
+#    (‏`shift_entries.py`). فإن بقيت مبتلِعةً أو سقطت **تُترك كما هي وتُسمّى**.
+#
+# ⛔ والحُرّاسُ هي حُرّاسُ `ctc_splice` كلُّها، وأشدّ:
+#    - القالبُ يُطابَق بالكتالوج قبل تنزيل بايت، ومضيفُ المجلَّد مرفوض.
+#    - **كلُّ أصلٍ محرّكُه غيرُ `ctc-seg-1` يُردّ.**
+#    - سورُ النقص من الأصل نفسِه، وسورةٌ تامّةٌ فيه تُردّ.
+#    - ‏`splice_surah --skip-unresolved --engine-tag align-0.2`: والوسمُ يُقاس من
+#      `engineVersion` في مخرَج `batch_run` نفسِه ويُطابَق بـ`promote.SPLICE_OPS`.
+#    - ‏`stage_transform` يطلب إعلانَ كلِّ سورةٍ بـ`align-0.2` بعينه، والترقيةُ
+#      تطلب **إحصاءً صوتيّاً شاملاً** لكلّ آيةٍ فيها (‏`splice_census.yml`).
+# 💰 مستودعٌ عامّ + عدّاد ubuntu-latest القياسيّ ⇒ دقائقُ مجّانيّة.
+on:
+  workflow_dispatch:
+    inputs:
+      parent: {description: "الأصل المنشور بـCTC: timings/<riw>/<id>.jz", required: true}
+      url_template: {description: "قالبُ الصوت من الكتالوج، فيه {s:03d}", required: true}
+      riwaya: {description: "الرواية", default: "hafs"}
+      surahs: {description: "فارغ = كلُّ سورةٍ ناقصةٍ في الأصل (مقيسةً منه)", default: ""}
+      reason: {description: "سببُ التحويل", required: true}
+
+concurrency:
+  group: rafiq-whisper-splice-${{ inputs.parent }}
+  cancel-in-progress: false
+
+env:
+  PY: "3.11"
+  # ⛔ مثبَّتٌ كما في align.yml وrealign_surah.yml: ثنائيٌّ مختلفٌ = حكمان لا يُقارَنان.
+  WHISPER_REF: eacbd8234c6654cdbf2c377f72b2106875479bdc
+
+jobs:
+  splice:
+    name: whisper-splice ${{ github.event.inputs.parent }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 350
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: {python-version: "${{ env.PY }}"}
+      - name: أدوات النظام
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq ffmpeg cmake build-essential
+          python -m pip install --quiet boto3 numpy
+
+      # ⚠️ الكاشُ نفسُه والبناءُ نفسُه كما في realign_surah.yml (GGML_NATIVE=OFF:
+      #    عدّاءٌ بطرازٍ آخر يسقط بـSIGILL على ثنائيٍّ بتعليماتِ غيره).
+      - name: كاش ثنائي whisper
+        id: whisper-cache
+        uses: actions/cache@v4
+        with:
+          path: whisper-bin
+          key: whisper-cli-${{ runner.os }}-${{ env.WHISPER_REF }}-noNative-v1
+
+      - name: بناء whisper.cpp (عند غياب الكاش)
+        if: steps.whisper-cache.outputs.cache-hit != 'true'
+        run: |
+          mkdir -p wsrc && cd wsrc && git init -q .
+          git remote add origin https://github.com/ggml-org/whisper.cpp.git
+          git fetch -q --depth 1 origin "$WHISPER_REF"
+          git checkout -q FETCH_HEAD
+          cd ..
+          cmake -S wsrc -B wsrc/build -DCMAKE_BUILD_TYPE=Release -DGGML_NATIVE=OFF \
+                -DWHISPER_BUILD_TESTS=OFF -DWHISPER_BUILD_EXAMPLES=ON
+          cmake --build wsrc/build --config Release -j"$(nproc)"
+          mkdir -p whisper-bin
+          cp "$(find wsrc/build -name whisper-cli -type f | head -1)" whisper-bin/whisper-cli
+          find wsrc/build -name "*.so*" -exec cp {} whisper-bin/ \;
+
+      - name: تنصيب الثنائي وبرهانُ عمله
+        run: |
+          mkdir -p assets-archive/ggml/bin/Release
+          cp whisper-bin/whisper-cli assets-archive/ggml/bin/Release/whisper-cli.exe
+          cp whisper-bin/*.so* assets-archive/ggml/bin/Release/ 2>/dev/null || true
+          chmod +x assets-archive/ggml/bin/Release/whisper-cli.exe
+          export LD_LIBRARY_PATH="$GITHUB_WORKSPACE/assets-archive/ggml/bin/Release:${LD_LIBRARY_PATH:-}"
+          if ! assets-archive/ggml/bin/Release/whisper-cli.exe --help >/dev/null 2>&1; then
+            echo "⛔ whisper-cli لا يعمل:"; ldd assets-archive/ggml/bin/Release/whisper-cli.exe 2>&1 | grep -i "not found" || true
+            exit 1
+          fi
+          echo "✅ whisper-cli يعمل"
+          # ‏batch_run يقرأ /root/skip_surahs.txt — و/root المغلق يرفع PermissionError لا FileNotFoundError.
+          sudo chmod 755 /root
+
+      - name: برهانُ سلسلة البناء والصقل (⛔ قبل أي محاذاة)
+        run: |
+          python - <<'PY'
+          import sys
+          for p in ("tools/alignment", "tools/alignment_v2"):
+              sys.path.insert(0, p)
+          import refine, validate, pipeline, batch_run  # noqa: F401
+          assert batch_run.ENGINE == "", f"⛔ ALIGN_ENGINE={batch_run.ENGINE!r} — هذا مسارُ Whisper"
+          print("✅ refine · validate · pipeline · batch_run — والمحرّك Whisper")
+          PY
+
+      - name: اعتماد R2 والنموذجان
+        env: {R2_CREDENTIALS_JSON: "${{ secrets.R2_CREDENTIALS_JSON }}"}
+        run: |
+          mkdir -p secure
+          printf '%s' "$R2_CREDENTIALS_JSON" > secure/r2_credentials.json
+          python - <<'PY'
+          import json, os, boto3
+          c = json.load(open("secure/r2_credentials.json"))
+          s3 = boto3.client("s3", endpoint_url=c["endpoint"],
+                            aws_access_key_id=c["accessKeyId"],
+                            aws_secret_access_key=c["secretAccessKey"], region_name="auto")
+          os.makedirs("assets-archive/ggml", exist_ok=True)
+          # ‏النموذجان كما في الأسطول (‏MAIN_MODEL=tiny افتراضُ align.yml): التفريغُ بالسريع والصقلُ بالأدقّ.
+          s3.download_file(c["bucket"], "models/whisper-tiny-ar-quran/ggml-q8_0.bin",
+                           "assets-archive/ggml/ggml-tiny-ar-quran-q8_0.bin")
+          s3.download_file(c["bucket"], "models/whisper-base-ar-quran/ggml-q8_0.bin",
+                           "assets-archive/ggml/ggml-refine-q8_0.bin")
+          print("النموذجان جاهزان")
+          PY
+
+      - name: ⛔ حارسُ الرابط والمحرّك، وسورُ النقص وبسملتُها من الأصل نفسه
+        id: plan
+        env:
+          PARENT: ${{ github.event.inputs.parent }}
+          URLT: ${{ github.event.inputs.url_template }}
+          RIW: ${{ github.event.inputs.riwaya }}
+          WANT: ${{ github.event.inputs.surahs }}
+        run: |
+          python - <<'PY'
+          import gzip, hashlib, json, os, re, statistics, sys, boto3
+          sys.stdout.reconfigure(encoding="utf-8")
+          sys.path.insert(0, "tools/index_qa")
+          from splice_surah import COUNTS
+          c = json.load(open("secure/r2_credentials.json"))
+          s3 = boto3.client("s3", endpoint_url=c["endpoint"],
+                            aws_access_key_id=c["accessKeyId"],
+                            aws_secret_access_key=c["secretAccessKey"], region_name="auto")
+          parent = os.environ["PARENT"]
+          if not parent.startswith("timings/") or parent.count("/") != 2:
+              sys.exit(f"⛔ الأصلُ يجب أن يكون منشوراً timings/<riw>/<id>.jz: {parent}")
+          _, riw, fn = parent.split("/")
+          rid = fn[:-3]
+          if riw != os.environ["RIW"]:
+              sys.exit(f"⛔ الرواية {os.environ['RIW']} والأصلُ {riw}")
+          cat = json.loads(s3.get_object(Bucket=c["bucket"], Key="catalog/reciters.json")["Body"].read())
+          base = None
+          for r in cat.get("riwayat", []):
+              if r["id"] == riw:
+                  for x in r.get("reciters", []):
+                      if x.get("id") == rid:
+                          base = x.get("base") or ""
+          if base is None:
+              sys.exit(f"⛔ {riw}/{rid} ليس في الكتالوج — لا محاذاةَ لمجهول")
+          got = os.environ["URLT"]
+          want_t = (base if base.endswith("/") else base + "/") + "{s:03d}.mp3"
+          # ⛔ مضيفُ المجلَّد لا يُدمج هنا: الدمجُ يبني `fileRef` بالتنسيق (‏كما في ctc_splice).
+          if "{s:03d}" not in got:
+              sys.exit("⛔ مضيفُ مجلَّدٍ بلا {s:03d} — غيرُ مدعومٍ في هذا المسار")
+          if got != want_t:
+              sys.exit(f"⛔ القالبُ يخالف الكتالوج — يُوقَف قبل تنزيل بايت\n   المعطى {got}\n   الكتالوج {want_t}")
+          body = s3.get_object(Bucket=c["bucket"], Key=parent)["Body"].read()
+          open("parent.jz", "wb").write(body)
+          idx = json.loads(gzip.decompress(body).decode("utf-8"))
+          if idx.get("reciterId") != rid or idx.get("riwaya") != riw:
+              sys.exit("⛔ الأصلُ يصف قارئاً آخر")
+          # ⛔ هذا المسارُ لفهارس CTC وحدها: فهرسُ Whisper يُعاد بـctc_splice أو realign_surah.
+          if idx.get("engineVersion") != "ctc-seg-1":
+              sys.exit(f"⛔ محرّكُ الأصل {idx.get('engineVersion')!r} لا ctc-seg-1 — ليس لهذا المسار")
+          have, first = {}, {}
+          for e in idx["entries"]:
+              s, a = (int(x) for x in e["ayahId"].split(":"))
+              have[s] = have.get(s, 0) + 1
+              if a == 1:
+                  first[s] = e.get("startMs") or 0
+          gaps = [s for s in range(1, 115) if have.get(s, 0) < COUNTS[s - 1]]
+          asked = [int(x) for x in re.findall(r"\d+", os.environ.get("WANT", ""))]
+          todo = asked or gaps
+          extra = [s for s in todo if s not in gaps]
+          if extra:
+              sys.exit(f"⛔ سورٌ تامّةٌ في الأصل لا تُمسّ: {extra}")
+          if not todo:
+              sys.exit("⛔ لا نقصَ في الأصل — لا شيء يُحاذى")
+          # ⭐ البسملةُ مقيسةٌ من القارئ نفسِه (‏`restore_loop.measured_skip`): وسيطُ بدء
+          #    الآية الأولى في جارات السورة — لا سُلَّمٌ ثابت ولا صفر.
+          skip = {}
+          for s in todo:
+              nb = [first[x] for x in (s - 2, s - 1, s + 1, s + 2) if first.get(x)]
+              skip[s] = int(statistics.median(nb)) if nb else None
+          json.dump({str(k): v for k, v in skip.items()}, open("basmala_skip.json", "w"))
+          sha = hashlib.sha256(body).hexdigest()
+          print(f"الأصل {parent} ({sha[:12]}) · محرّكه {idx.get('engineVersion')} · "
+                f"سورُ النقص {len(gaps)} · المطلوبة {todo}")
+          print("البسملةُ المقيسة (م.ث):", {k: v for k, v in skip.items()})
+          with open(os.environ["GITHUB_OUTPUT"], "a") as f:
+              f.write(f"rid={rid}\nsha={sha}\nsurahs={','.join(map(str, todo))}\n")
+          PY
+
+      - name: المحاذاة بـWhisper لسور النقص وحدها — وصفةُ الأسطول (⛔ بلا رفع)
+        env:
+          URLT: ${{ github.event.inputs.url_template }}
+          RIW: ${{ github.event.inputs.riwaya }}
+          RID: ${{ steps.plan.outputs.rid }}
+          SURAHS: ${{ steps.plan.outputs.surahs }}
+          LD_LIBRARY_PATH: ${{ github.workspace }}/assets-archive/ggml/bin/Release
+          ALIGN_REFINE: "1"
+          REFINE_MODEL: ${{ github.workspace }}/assets-archive/ggml/ggml-refine-q8_0.bin
+          REFINE_DTW: base
+          WHISPER_AC: "0"
+          WHISPER_THREADS: "1"
+        run: |
+          set -o pipefail
+          unset ALIGN_ENGINE
+          BASE="$(printf '%s' "$URLT" | sed 's/{s:03d}/{surah:03d}/')"
+          # ‏عمليّةٌ لكلّ نواةٍ بخيطٍ واحد كما في الأسطول (‏قرار github-f4)، والحزمُ
+          #    متوازنةٌ بمجموع الآي لا بعدد السور (‏كـmake_bins).
+          PACKS="$(python - <<'PY'
+          import os, sys
+          sys.path.insert(0, "tools/index_qa")
+          from splice_surah import COUNTS
+          ss = sorted((int(x) for x in os.environ["SURAHS"].split(",") if x), key=lambda s: -COUNTS[s - 1])
+          n = max(1, min(os.cpu_count() or 1, len(ss)))
+          bins = [[] for _ in range(n)]; w = [0] * n
+          for s in ss:
+              i = w.index(min(w)); bins[i].append(s); w[i] += COUNTS[s - 1]
+          print(" ".join(",".join(map(str, sorted(b))) for b in bins if b))
+          PY
+          )"
+          echo "الحزم: $PACKS"
+          pids=(); k=0
+          for P in $PACKS; do
+            k=$((k + 1))
+            python tools/alignment/batch_run.py --reciter "$RID" --riwaya "$RIW" \
+              --base "$BASE" --surahs "$P" > "whisper.part$k.log" 2>&1 &
+            pids+=($!)
+          done
+          rc=0
+          for p in "${pids[@]}"; do wait "$p" || rc=$?; done
+          cat whisper.part*.log | tee whisper.log
+          # ‏تمريرةُ جمعٍ واحدةٌ كما في run_shard: لا تُعيد سورةً لها ملفّ، وتعيد ما
+          #    سقط تسلسليّاً، وتكتب فهرسَها مرّةً واحدة (‏الحزمُ المتوازية تتسابق عليه).
+          python tools/alignment/batch_run.py --reciter "$RID" --riwaya "$RIW" \
+            --base "$BASE" --surahs "$SURAHS" 2>&1 | tee -a whisper.log || rc=$?
+          echo "rc=$rc — والحكمُ بملفّات السور لا بالرمز: ما لم يُكتب يبقى كما هو"
+
+      - name: ⛔ حارسُ البسملة — والمبتلِعةُ تُعاد خطوتين (قصٌّ مقيسٌ ثم إزاحة)
+        env:
+          URLT: ${{ github.event.inputs.url_template }}
+          RIW: ${{ github.event.inputs.riwaya }}
+          RID: ${{ steps.plan.outputs.rid }}
+          SURAHS: ${{ steps.plan.outputs.surahs }}
+          LD_LIBRARY_PATH: ${{ github.workspace }}/assets-archive/ggml/bin/Release
+          ALIGN_REFINE: "1"
+          REFINE_MODEL: ${{ github.workspace }}/assets-archive/ggml/ggml-refine-q8_0.bin
+          REFINE_DTW: base
+          WHISPER_AC: "0"
+          WHISPER_THREADS: "4"
+        run: |
+          unset ALIGN_ENGINE
+          python - <<'PY'
+          import hashlib, json, os, subprocess, sys
+          sys.stdout.reconfigure(encoding="utf-8")
+          ws = os.environ["GITHUB_WORKSPACE"]
+          d = f"{ws}/tools/alignment/work/batch_{os.environ['RID']}"
+          skip = {int(k): v for k, v in json.load(open("basmala_skip.json")).items()}
+          urlt = os.environ["URLT"]
+
+          def first_start(rec):
+              ents = rec.get("entries") or []
+              return ents[0].get("startMs") if ents else None
+
+          def swallowed(s, rec):
+              # ⛔ الفاتحةُ (‏بسملتُها آية) والتوبةُ (‏بلا بسملة) خارج هذا الحارس.
+              k = skip.get(s)
+              if s in (1, 9) or not k or k < 1500:
+                  return False
+              st = first_start(rec)
+              return st is None or st < k // 2
+
+          for s in (int(x) for x in os.environ["SURAHS"].split(",") if x):
+              j = f"{d}/s{s:03d}.json"
+              if not os.path.exists(j):
+                  continue
+              rec = json.load(open(j, encoding="utf-8"))
+              k = skip.get(s)
+              if s not in (1, 9) and not k:
+                  print(f"⚠️ س{s}: لا جارَ يقيس البسملة — يبقى الحكمُ لفحص المطالع")
+              if not swallowed(s, rec):
+                  print(f"✅ س{s}: الآيةُ الأولى تبدأ {first_start(rec)}م.ث · البسملةُ المقيسة {k}")
+                  continue
+              print(f"🔁 س{s}: الآيةُ الأولى تبدأ {first_start(rec)}م.ث والبسملةُ المقيسة {k} "
+                    f"⇒ مبتلِعة — تُعاد بقصِّ {k}م.ث ثمّ إزاحة")
+              url = urlt.format(s=s)
+              full, cut = f"{ws}/full_{s}.mp3", f"{ws}/cut_{s}.mp3"
+              out = f"{ws}/tail_{s}.json"
+              try:
+                  subprocess.run(["curl", "-sfL", "--retry", "5", "--retry-delay", "3",
+                                  "-A", "rafiq-align/1.0", "-o", full, url], check=True)
+                  subprocess.run(["ffmpeg", "-y", "-v", "error", "-ss", str(k / 1000),
+                                  "-i", full, "-c", "copy", cut], check=True)
+                  subprocess.run([sys.executable, "pipeline.py", "--url", f"file://{cut}",
+                                  "--surah", str(s), "--riwaya", os.environ["RIW"],
+                                  "--json", out], check=True, cwd=f"{ws}/tools/alignment")
+                  subprocess.run([sys.executable, "tools/index_qa/shift_entries.py", out, str(k)],
+                                 check=True)
+                  res = json.load(open(out, encoding="utf-8"))
+                  new = {"fileRef": url, "sha256": hashlib.sha256(open(full, "rb").read()).hexdigest(),
+                         "entries": res["entries"], "issues": res.get("issues"),
+                         "bands": res.get("bands"), "totalMs": res.get("totalMs"),
+                         "shiftedBy": k, "basmalaSkipMs": k}
+                  if swallowed(s, new):
+                      raise RuntimeError(f"الآيةُ الأولى بعد الإزاحة {first_start(new)}م.ث")
+                  json.dump(new, open(j, "w", encoding="utf-8"), ensure_ascii=False)
+                  print(f"✅ س{s}: أُعيدت — الآيةُ الأولى {first_start(new)}م.ث")
+              except Exception as e:                           # noqa: BLE001
+                  # ⛔ لا تُدمج سورةٌ ببسملةٍ مبتلَعة: تُترك كما هي في الأصل وتُسمّى.
+                  os.remove(j)
+                  print(f"⛔ س{s}: تعذّرت إعادتُها ({str(e)[:120]}) — تبقى كما هي في الأصل")
+          PY
+
+      - name: الدمجُ بحُرّاسه وبصماتُ الصوت
+        env:
+          URLT: ${{ github.event.inputs.url_template }}
+          RIW: ${{ github.event.inputs.riwaya }}
+          RID: ${{ steps.plan.outputs.rid }}
+          SURAHS: ${{ steps.plan.outputs.surahs }}
+        run: |
+          set -e
+          # ⛔ وسمُ المحرّك **مقيسٌ من مخرَج batch_run نفسِه** ومطابَقٌ بجدول الحُرّاس —
+          #    لا يُكتب باليد فيكذب إن تغيّرت نسخةُ المحرّك.
+          TAG="$(python - <<'PY'
+          import glob, gzip, json, os, sys
+          sys.path.insert(0, "tools/index_qa")
+          from promote import SPLICE_OPS
+          want = SPLICE_OPS["whisper_surah_splice"]
+          p = f"tools/alignment/work/timings_{os.environ['RIW']}_{os.environ['RID']}.jz"
+          got = json.loads(gzip.decompress(open(p, "rb").read()).decode()).get("engineVersion")
+          if got != want:
+              sys.exit(f"⛔ محرّكُ المحاذاة {got!r} وجدولُ الحُرّاس {want!r} — لا يُدمج")
+          print(got)
+          PY
+          )"
+          echo "وسمُ المحرّك: $TAG"
+          d="tools/alignment/work/batch_$RID"
+          S=""; F=""
+          for s in $(echo "$SURAHS" | tr ',' ' '); do
+            j=$(printf "%s/s%03d.json" "$d" "$s")
+            if [ -f "$j" ]; then S="$S,$s"; F="$F $j"; else echo "⚠️ س$s: لم تُحاذَ — تبقى كما هي"; fi
+          done
+          S="${S#,}"
+          [ -n "$S" ] || { echo "⛔ لا سورةَ حوذيت"; exit 1; }
+          python tools/index_qa/splice_surah.py --index parent.jz --surah "$S" \
+                 --aligned $F --url "$URLT" --skip-unresolved --engine-tag "$TAG" \
+                 --out patched.jz
+          python - <<'PY'
+          import gzip, json, os
+          d = f"tools/alignment/work/batch_{os.environ['RID']}"
+          idx = json.loads(gzip.decompress(open("patched.jz", "rb").read()).decode())
+          taken = [int(x) for x in open("patched.jz.taken").read().split(",") if x]
+          present = sorted({int(e["ayahId"].split(":")[0]) for e in idx["entries"]})
+          sha = idx.get("audioSha256")
+          if isinstance(sha, list) and len(sha) == len(present):
+              pos = {s: i for i, s in enumerate(present)}
+              for s in taken:
+                  rec = json.load(open(f"{d}/s{s:03d}.json", encoding="utf-8"))
+                  # ⛔ الفهرسُ يُشير إلى ملفّ الكتالوج نفسِه — والبصمةُ من الملفّ
+                  #    الذي نُزّل وحوذي فعلاً في هذه التشغيلة، لا مُصطنعة.
+                  for e in idx["entries"]:
+                      if int(e["ayahId"].split(":")[0]) == s and e["fileRef"] != rec["fileRef"]:
+                          raise SystemExit(f"⛔ س{s}: fileRef المدموج {e['fileRef']} ≠ المحاذى {rec['fileRef']}")
+                  if rec.get("sha256"):
+                      if sha[pos[s]] and sha[pos[s]] != rec["sha256"]:
+                          print(f"🔄 س{s}: بصمةُ الصوت تبدّلت عند المصدر — تُكتب المقيسة")
+                      sha[pos[s]] = rec["sha256"]
+              idx["audioSha256"] = sha
+          else:
+              print(f"⚠️ قائمةُ البصمات {len(sha) if isinstance(sha, list) else '—'} "
+                    f"والسورُ {len(present)} — تُترك كما هي")
+          with open("patched.jz", "wb") as f:
+              f.write(gzip.compress(json.dumps(idx, ensure_ascii=False).encode("utf-8")))
+          print("المأخوذ:", taken, "· engineBySurah:", idx.get("engineBySurah"))
+          PY
+
+      - name: رفعٌ إلى الاختبار بحُرّاس stage_transform
+        env:
+          PARENT: ${{ github.event.inputs.parent }}
+          SHA: ${{ steps.plan.outputs.sha }}
+          REASON: ${{ github.event.inputs.reason }}
+        run: |
+          TAKEN="$(cat patched.jz.taken)"
+          python tools/index_qa/stage_transform.py --file patched.jz \
+                 --parent "$PARENT" --parent-sha "$SHA" \
+                 --op "whisper_surah_splice:$TAKEN" --reason "$REASON" \
+                 --by "github-whisper-splice" --yes
+
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: whisper-splice-${{ github.run_id }}
+          path: |
+            tools/alignment/work/batch_*/s*.json
+            whisper.log
+            basmala_skip.json
+          retention-days: 7

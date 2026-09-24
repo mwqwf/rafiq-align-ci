@@ -130,8 +130,8 @@ def main():
     #    ⛔ ولا يُسمَّى «إعادةَ محاذاة» تجوّزاً: الترويسةُ سجلُّ نسبٍ يُقرأ منه
     #    جيلُ الفهرس، فاسمٌ كاذبٌ فيها أسوأ من غيابه (‏درسُ «مجهولِ الجيل»).
     realigned = []
-    _m = re.match(r"^(?:realign_surah|source_timing_splice|ctc_surah_splice):([\d,\s]+)$",
-                  a.op.strip())
+    _m = re.match(r"^(?:realign_surah|source_timing_splice|ctc_surah_splice"
+                  r"|whisper_surah_splice):([\d,\s]+)$", a.op.strip())
     if _m:
         realigned = sorted({int(x) for x in re.findall(r"\d+", _m.group(1))})
     # ⛔ **دمجُ محرّكين لا يُرفع إلا معلَناً سورةً سورة** (‏إذن المالك 2026-09-24):
@@ -139,14 +139,25 @@ def main():
     #    التحويل بمحرّكٍ غير محرّك الفهرس، **ولا سورةً سواها** إلا ما ورثه
     #    الأصلُ نفسُه — فحارسُ الترقية يطلب إحصاءً شاملاً لما في هذا السجلّ،
     #    وسجلٌّ ناقصٌ كان يُعفي سورةً من السماع.
+    #    و`whisper_surah_splice` (‏سورُ Whisper في فهرس CTC) بالحُرّاس نفسِها حرفاً،
+    #    ⛔ **ويُشدَّد الاثنان**: السورةُ المسمّاةُ يجب أن تُعلَن **بمحرّك تحويلها
+    #    بعينه** (‏`promote.SPLICE_OPS`) — فدمجُ Whisper معلَناً بـCTC أو العكسُ
+    #    كذبٌ في سجلّ النسب يُردّ، ولا يكفي أنّه «غيرُ محرّك الفهرس».
     ebs = idx.get("engineBySurah") or {}
     p_ebs = pidx.get("engineBySurah") or {}
-    if a.op.strip().startswith("ctc_surah_splice:"):
+    _splice = promote.splice_op_name(a.op)
+    if _splice:
         named = {str(s) for s in realigned}
         tagged = {k for k, v in ebs.items() if v and v != idx.get("engineVersion")}
         if not named or not named <= tagged:
             raise SystemExit(f"⛔ دمجُ محرّكين بلا إعلانٍ لكلّ سورة: المسمّاة "
                              f"{sorted(named, key=int)} والمعلَنة {sorted(tagged, key=int)}")
+        want_eng = promote.SPLICE_OPS[_splice]
+        wrong = sorted((k for k in named if ebs.get(k) != want_eng), key=int)
+        if wrong:
+            raise SystemExit(f"⛔ {_splice} يُعلن سورَه بـ{want_eng}، والسور "
+                             f"{wrong} معلَنةٌ بغيره: "
+                             f"{sorted({ebs.get(k) for k in wrong})}")
         extra = tagged - named - set(p_ebs)
         if extra:
             raise SystemExit(f"⛔ سورٌ معلَنةٌ بمحرّكٍ آخر لم يمسّها التحويل ولا "

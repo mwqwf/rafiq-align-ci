@@ -25,6 +25,8 @@ jobs:
     outputs:
       matrix: ${{ steps.gen.outputs.matrix }}
     steps:
+      # ‏المرشّحُ يقرأ أسماءَ تحويلات الدمج من `promote.SPLICE_OPS` لا من نسخةٍ هنا.
+      - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
         with: { python-version: "3.11" }
       - run: python -m pip install --quiet boto3
@@ -38,6 +40,8 @@ jobs:
           printf '%s' "$R2_CREDENTIALS_JSON" > secure/r2_credentials.json
           python - <<'PY' >> "$GITHUB_OUTPUT"
           import gzip, hashlib, json, os, sys, boto3
+          sys.path.insert(0, "tools/index_qa")
+          from promote import splice_op_name
           c = json.load(open("secure/r2_credentials.json"))
           s3 = boto3.client("s3", endpoint_url=c["endpoint"],
                             aws_access_key_id=c["accessKeyId"],
@@ -50,7 +54,8 @@ jobs:
               d = json.loads(gzip.decompress(b).decode("utf-8"))
               tr = d.get("transform")
               op = str((tr or {}).get("op") or "") if isinstance(tr, dict) else str(tr or "")
-              if not op.startswith("ctc_surah_splice:") or not d.get("engineBySurah"):
+              # ‏الاسمان من مصدرٍ واحد (`promote.SPLICE_OPS`): دمجُ CTC في Whisper وعكسُه.
+              if not splice_op_name(op) or not d.get("engineBySurah"):
                   print(f"⏭ {k} — لا دمجَ محرّكين", file=sys.stderr); continue
               sha = hashlib.sha256(b).hexdigest()
               try:
