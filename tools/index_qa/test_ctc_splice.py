@@ -195,6 +195,11 @@ class CensusGate(unittest.TestCase):
     def test_unheard_ayah_refused(self):
         self.assertIn("تعذّر", self.gate(_census("S", fail=1)))
 
+    def test_window_error_alone_refused(self):
+        rep = _census("S")
+        rep["sample"]["errors"] = 1
+        self.assertIn("1 نافذةً", self.gate(rep))
+
     def test_severe_over_five_percent_refused(self):
         # س112+س113 = 4+5 = 9 آيات ⇒ آيةٌ جسيمةٌ واحدة 11% > 5%
         self.assertIn("عطبٌ جسيم", self.gate(_census("S", severe=1)))

@@ -138,8 +138,12 @@ def census_gate(cl, bucket, src, live_sha, idx):
     if rep.get("fatal"):
         return "الإحصاءُ وجد خللاً: " + str(rep["fatal"][0])[:80]
     bad = sum(1 for r in rows if r.get("verdict") == "تعذّر")
-    if bad or (rep.get("sample") or {}).get("errors"):
-        return f"في الإحصاء {bad} آيةً تعذّر سماعُها — لا يُحكم على ما لم يُسمع"
+    nerr = (rep.get("sample") or {}).get("errors") or 0
+    if bad or nerr:
+        # ⛔ نافذةٌ واحدةٌ تعذّر تفريغُها تكفي للردّ ولو سُمعت آيتُها من نافذةٍ أخرى —
+        #    والعلاجُ إعادةُ الإحصاء (‏splice_census.yml ‎force=true) لا تليينُ الشرط.
+        return (f"في الإحصاء {bad} آيةً تعذّر سماعُها و{nerr} نافذةً تعذّر تفريغُها"
+                " — لا يُحكم على ما لم يُسمع")
     sev = sum(1 for r in rows if r.get("kind") == "جسيم")
     # ⛔ العتبةُ 5% نفسُها لا تُمسّ؛ وعلى **المجتمع كلِّه** لا تقديرٍ له، فلا
     #    مجالَ ثقةٍ هنا: ليس في الإحصاء الشامل خطأُ معاينةٍ يُحتاط له.

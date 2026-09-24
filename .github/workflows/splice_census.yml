@@ -14,6 +14,10 @@ on:
       only:
         description: "مفتاحٌ أو أكثر بفواصل في timings-staging/ — ما لا دمجَ فيه يُتخطّى"
         required: true
+      force:
+        description: "true = يُعاد الإحصاءُ ولو أُحصي على البصمة نفسها (‏نافذةٌ تعذّرت فردّ الحارسُ)"
+        required: false
+        default: "false"
 
 jobs:
   prepare:
@@ -28,6 +32,7 @@ jobs:
         env:
           R2_CREDENTIALS_JSON: ${{ secrets.R2_CREDENTIALS_JSON }}
           ONLY: ${{ github.event.inputs.only }}
+          FORCE: ${{ github.event.inputs.force }}
         run: |
           mkdir -p secure
           printf '%s' "$R2_CREDENTIALS_JSON" > secure/r2_credentials.json
@@ -52,7 +57,7 @@ jobs:
                   old = json.loads(s3.get_object(
                       Bucket=c["bucket"],
                       Key="state-census/" + k.replace("/", "_") + ".json")["Body"].read())
-                  if old.get("sha256") == sha:
+                  if old.get("sha256") == sha and os.environ.get("FORCE") != "true":
                       print(f"⏭ {k} — أُحصي على هذه البصمة سلفاً", file=sys.stderr); continue
               except Exception:
                   pass
