@@ -1,0 +1,60 @@
+# 📱 سيناريوهاتُ «سمّع معي» على المحاكي (أمرُ المالك 2026-09-24) — بناءُ debug لا يُودَع هنا:
+# يُجلب من مفتاحٍ مؤقّتٍ عشوائيٍّ في R2 ويُحذف فوراً. المخرجُ سطورُ نجاح/إخفاق فقط في ops/out/app_e2e.txt.
+name: app-e2e
+on:
+  push:
+    branches: [main]
+    paths: ["ops/e2e/request.json"]
+concurrency:
+  group: emu-gate-fleet
+  cancel-in-progress: false
+permissions:
+  contents: write
+jobs:
+  e2e:
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@v4
+      - name: جلبُ الـAPK المؤقّت ثم حذفُه من الدلو
+        env:
+          R2_CREDENTIALS_JSON: ${{ secrets.R2_CREDENTIALS_JSON }}
+        run: |
+          pip install -q boto3
+          python3 - <<'PY'
+          import json, os, boto3
+          c = json.loads(os.environ["R2_CREDENTIALS_JSON"])
+          key = json.load(open("ops/e2e/request.json"))["apk_key"]
+          assert key.startswith("tmp/e2e/"), key
+          s = boto3.client("s3", endpoint_url=c["endpoint"], aws_access_key_id=c["accessKeyId"], aws_secret_access_key=c["secretAccessKey"])
+          s.download_file(c["bucket"], key, "app.apk")
+          s.delete_object(Bucket=c["bucket"], Key=key)
+          print("apk bytes", os.path.getsize("app.apk"))
+          PY
+      - name: KVM
+        run: |
+          echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
+          sudo udevadm control --reload-rules && sudo udevadm trigger --name-match=kvm
+          ls -l /dev/kvm
+      - name: التسجيلات (مصادرُ عامّةٌ منشورة)
+        run: sudo apt-get -qq update && sudo apt-get -qq install -y ffmpeg >/dev/null && bash tools/app_e2e/prep_audio.sh
+      - name: المحاكي + السيناريوهات
+        uses: reactivecircus/android-emulator-runner@v2
+        with:
+          api-level: 30
+          target: google_apis
+          arch: x86_64
+          profile: pixel_2
+          ram-size: 4096M
+          emulator-options: -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none
+          disable-animations: true
+          script: bash tools/app_e2e/run.sh
+      - name: كتابةُ النتيجة
+        if: always()
+        run: |
+          rm -f app.apk
+          mkdir -p ops/out
+          { echo "run ${{ github.run_id }} $(date -u +%FT%TZ)"; cat e2e/result.txt 2>/dev/null || echo "no result"; } > ops/out/app_e2e.txt
+          git config user.name "github-actions[bot]"; git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add ops/out/app_e2e.txt && git commit -m "ops: نتيجةُ app-e2e" -- ops/out/app_e2e.txt || exit 0
+          for i in 1 2 3; do git pull --no-rebase --no-edit origin main && git push origin HEAD:main && break; sleep 5; done
