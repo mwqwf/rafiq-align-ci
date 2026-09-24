@@ -195,6 +195,19 @@ def do_tool(c):
     return run([sys.executable, str(ROOT / "tools" / tool), *args])
 
 
+def _gap_surahs(entries):
+    """{سورة: عددُ آياتها الغائبة} للسور الحاضرة الناقصة والغائبة معاً — قراءةٌ محضة."""
+    import gzip as _gz
+    idx = json.loads(_gz.decompress((ROOT / "core" / "quran" / "src" / "main" / "assets"
+                                     / "quran" / "index.jz").read_bytes()).decode("utf-8"))
+    want = {s["n"]: s["ayahs"] for s in idx["surahs"]}
+    have = {}
+    for e in entries:
+        s = int(e["ayahId"].split(":")[0])
+        have[s] = have.get(s, 0) + 1
+    return {str(s): want[s] - have.get(s, 0) for s in sorted(want) if have.get(s, 0) < want[s]}
+
+
 def do_state(c):
     """جردٌ كاملٌ من الدلو — به يرى الوكيلُ ما لا يصله اعتمادُه."""
     sys.path.insert(0, str(ROOT / "tools" / "index_qa"))
@@ -257,7 +270,13 @@ def do_state(c):
                                     "declaredReasons": by_reason or None,
                                     "declaredCount": excused,
                                     "undeclaredCount": max(
-                                        0, 6236 - len(idx["entries"]) - excused)}
+                                        0, 6236 - len(idx["entries"]) - excused),
+                                    # ⭐ (‏2026-09-24، مناوبةُ الفهرسة): محرّكُ المنشور وسورُ النقص.
+                                    #    CTC حتميٌّ على الصوت نفسِه، فإعادتُه على فهرسٍ **منشورٍ
+                                    #    بـCTC** تُعيد النقصَ نفسَه وتحرق أربعَ وظائفَ ساعةً ونصفاً
+                                    #    بلا مدخلٍ واحد. فالمحرّكُ يُقرأ هنا لتُختار الأهدافُ به.
+                                    "engine": idx.get("engineVersion"),
+                                    "gapSurahs": _gap_surahs(idx["entries"])}
     # ⭐⭐ **الباقي يُسمَّى بالاسم لا يُعَدّ فحسب** (‏2026-09-14): «المنشور 162/180» رقمٌ
     #    لا يقول **مَن** الثمانيةَ عشر، فظُنَّ مراراً أنّ موجةَ `reciters_gen1_fix10.tsv`
     #    ترفعه — وهي **استبدالُ جيلٍ لقرّاءَ منشورين سلفاً** (‏`aamer` و`hafz` وغيرُهما في
