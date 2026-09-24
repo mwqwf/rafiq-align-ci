@@ -156,6 +156,16 @@ jobs:
           set -eo pipefail
           cd tools/tasmi_bench/work && tar -xf sets.tar wav && cd -
           ls tools/tasmi_bench/work/wav/*.wav | sort | head -24 > /tmp/tset.txt
+          # ⛔ الشوطُ الأوّل: المكمَّماتُ خرجت في 0.1ث بلا تفريغ (لم تُحمَّل) فقُرئت «RTF 0» ⇒ فحصُ تحميلٍ صريحٌ يُسقط الشوط
+          W1=$(head -1 /tmp/tset.txt); BAD=0
+          for m in models/*.bin; do
+            if out=$(bin/whisper-cli -m "$m" -l ar -t 4 -bo 1 -bs 1 -nt -f "$W1" 2>&1) && [ -n "$(echo "$out" | grep -v '^whisper_\|^system_info\|^main:\|^ggml\|^$' | head -1)" ]; then
+              echo "✅ $m يُحمَّل ويفرّغ"
+            else
+              BAD=1; echo "⛔ $m:"; echo "$out" | tail -25
+            fi
+          done
+          [ "$BAD" = 0 ] || exit 1
           python - <<'PY'
           import json, os, subprocess, soundfile as sf
           files = open("/tmp/tset.txt").read().split()
