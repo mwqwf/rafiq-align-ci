@@ -133,6 +133,12 @@ jobs:
           d = snapshot_download(os.environ["HF_BASE"], local_dir="/tmp/hf_base",
                                 allow_patterns=["*.json", "*.bin", "*.safetensors", "*.txt"])
           print(sorted(os.listdir(d)))
+          # ⛔ مقيس (الشوط 35981279426): المحوِّلُ يكتب n_text_ctx من `max_length` (1024 هنا) والموترُ طولُه
+          #    `max_target_positions` (448) ⇒ «decoder.positional_embedding has wrong size» فلا يُحمَّل. يُوحَّدان.
+          import json
+          p = os.path.join(d, "config.json"); c = json.load(open(p))
+          print("max_length", c.get("max_length"), "⇐ max_target_positions", c["max_target_positions"])
+          c["max_length"] = c["max_target_positions"]; json.dump(c, open(p, "w"), indent=1)
           PY
           # ⚠️ أوزانٌ قد تُحفظ bf16 ⇒ تُرفع إلى float32 قبل numpy (الدرسُ نفسُه في kaggle_model_ladder.py)
           sed -i 's/\.squeeze()\.numpy()/.squeeze().float().numpy()/' bin/convert-h5-to-ggml.py
