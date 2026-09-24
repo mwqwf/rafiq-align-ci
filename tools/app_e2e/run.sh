@@ -39,7 +39,9 @@ scenario(){ # name wav riwaya
   local flat; flat=$(grep -o "locked [A-Z]* flat=[0-9]*" "e2e/$name.log" | head -1 | grep -o "[0-9]*$")
   if [ -n "$flat" ] && [ $(( flat>EXP ? flat-EXP : EXP-flat )) -le 1 ]; then r=PASS; else r=FAIL; fi
   say "SCENARIO $name riwaya=$riw expect_flat=$EXP(±1: 18:22/23) locked_flat=${flat:-none} => $r"
-  grep -E "audio|locate|locked|done|events" "e2e/$name.log" | sed -E 's/^.{0,19}//' | cut -c1-260 | head -14 | sed 's/^/  | /' | tee -a "$OUT" >/dev/null
+  # 📜 كلُّ سطور audio/locate/locked (‏لا أوّلُ 14 فقط) ثمّ ذيلُ الأحداث — ليُشخَّص اللاتثبيت
+  { grep -E "audio|locate|locked" "e2e/$name.log"; grep -E "done|events" "e2e/$name.log" | tail -6; } \
+    | sed -E 's/^.{0,19}//' | cut -c1-260 | head -120 | sed 's/^/  | /' | tee -a "$OUT" >/dev/null
   stop_app
   adb shell run-as $PKG rm -f files/tasmi_inject.wav
 }

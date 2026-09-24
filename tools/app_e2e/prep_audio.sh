@@ -9,7 +9,8 @@ get h23.mp3 https://everyayah.com/data/Husary_128kbps/018023.mp3
 get bas.mp3 https://everyayah.com/data/Husary_128kbps/001001.mp3
 get q.jz "https://pub-2c2e1dcd92e84a2898820dd38d3e09e6.r2.dev/timings/qalun/husary_qalun.jz"
 get q018.mp3 https://server13.mp3quran.net/husr/Rewayat-Qalon-A-n-Nafi/018.mp3
-W(){ ffmpeg -loglevel error -y "$@" -ac 1 -ar 16000 -c:a pcm_s16le; }
+# ⚠️ خياراتُ المخرج قبل اسمه: كانت بعده فبقي hafs_start.wav ‏44.1ك ستيريو (قرأ التطبيقُ 391ث بدل 45)
+W(){ local out="${!#}"; ffmpeg -loglevel error -y "${@:1:$#-1}" -ac 1 -ar 16000 -c:a pcm_s16le "$out"; }
 W -i h22.mp3 hafs_start.wav
 D=$(ffprobe -v error -show_entries format=duration -of csv=p=0 h22.mp3)
 MID=$(python3 -c "print(round(float('$D')*0.45,2))")
@@ -26,3 +27,8 @@ PY
 )
 ffmpeg -loglevel error -y -ss "$S" -to "$E" -i q018.mp3 -ac 1 -ar 16000 -c:a pcm_s16le qalun_start.wav
 for f in *.wav; do echo "$f $(ffprobe -v error -show_entries format=duration -of csv=p=0 "$f")"; done
+# ✅ كلُّ حقنةٍ 16000 ه.ز أحاديّةٌ s16 — وإلا فالسيناريو يقيس صوتاً آخر
+for f in *.wav; do
+  fmt=$(ffprobe -v error -select_streams a:0 -show_entries stream=sample_rate,channels,sample_fmt -of csv=p=0 "$f")
+  case "$fmt" in 16000,1,s16|s16,16000,1) ;; *) echo "BAD FORMAT $f: $fmt" >&2; exit 1;; esac
+done
