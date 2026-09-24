@@ -1,19 +1,19 @@
 {
   "apk_url": "https://github.com/mwqwf/rafiq-align-ci/releases/download/apk-m5-gate/app-debug-m5-gate.apk",
-  "cand_tag": "base-q51",
+  "cand_tag": "base-q51-vs-q8",
   "cand_url": "https://github.com/mwqwf/rafiq-align-ci/releases/download/model-whisper-base-ar-quran-q51/ggml-q5_1.bin",
-  "base_url": "",
+  "base_url": "https://pub-2c2e1dcd92e84a2898820dd38d3e09e6.r2.dev/models/whisper-base-ar-quran/ggml-q8_0.bin",
   "sets": "g1,g2:noise-fan-5,g2:learner-combo,g3r:clean,g3r:noisy,g4n",
   "chain": "cap",
   "chunk": "12",
   "langs": "",
   "ez": "",
   "ei": "",
-  "tag_suffix": "-S51A",
+  "tag_suffix": "-S51B",
   "arm2_tag": "",
   "arm2_es": "",
   "arm2_ez": "",
   "arm2_ei": "",
   "base_lang": "",
-  "note": "إذنُ المالك 2026-09-24 «إذني ممنوحٌ إذا نجح»: base q5_1 (ar) مقابل tiny المشحون (en) على المحرك قبل أيّ شحن."
+  "note": "إذنُ المالك 2026-09-24: base q5_1 (ar) مقابل base q8 كما يُشحن اليوم في حزمة «الدقّة الأعلى» (en، ليس في جدول SERVING) — زوجُ الاستبدال نفسُه."
 }
