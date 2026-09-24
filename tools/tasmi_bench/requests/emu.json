@@ -1,20 +1,18 @@
 {
   "apk_url": "https://github.com/mwqwf/rafiq-align-ci/releases/download/apk-m5-gate/app-debug-m5-gate.apk",
-  "cand_tag": "base-q51-vs-q8",
-  "cand_url": "https://github.com/mwqwf/rafiq-align-ci/releases/download/model-whisper-base-ar-quran-q51/ggml-q5_1.bin",
-  "base_url": "https://pub-2c2e1dcd92e84a2898820dd38d3e09e6.r2.dev/models/whisper-base-ar-quran/ggml-q8_0.bin",
-  "sets": "g1,g2:learner-combo",
+  "cand_tag": "base-long-20260917",
+  "cand_url": "https://pub-2c2e1dcd92e84a2898820dd38d3e09e6.r2.dev/models/whisper-base-ar-quran/ggml-q8_0.bin",
+  "base_url": "",
+  "sets": "g4,g4n",
   "chain": "cap",
   "chunk": "12",
   "langs": "",
   "ez": "",
   "ei": "",
-  "tag_suffix": "-S51D",
+  "tag_suffix": "-BL17R",
   "arm2_tag": "",
   "arm2_es": "",
   "arm2_ez": "",
   "arm2_ei": "",
-  "base_lang": "",
-  "note": "إكمالُ الزوج الثاني (q5_1 مقابل base-q8 كما يُشحن): g1 سقطت بعطب فحص المجلّد، وlearner-combo قُطعت عند 120 د بعد 96/271 ⇒ مهلة 300.",
-  "timeout_min": "300"
+  "note": "إعادة قياس g4/g4n عبر JNI بعد إصلاح تحقق cache-hit في emu-gate بالالتزام 658bcd6؛ TINY المشحون مقابل BASE، بلا تغيير عتبات أو نشر."
 }
