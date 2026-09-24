@@ -176,5 +176,145 @@ class RestoreLoopTests(unittest.TestCase):
         self.assertEqual(calls, [])
 
 
+
+# ───── الإحصاءُ الشامل والتشخيصُ الآليّ (‏عطبان مقيسان 2026-09-24) ─────
+def _spliced_idx(op="ctc_surah_splice:45,46"):
+    return {"entries": [], "engineVersion": "align-0.2",
+            "engineBySurah": {"45": "ctc-seg-1", "46": "ctc-seg-1"},
+            "transform": {"op": op}}
+
+
+class CensusDispatchTests(unittest.TestCase):
+    def test_spliced_without_census_needs_it(self):
+        self.assertTrue(loop.needs_census(_spliced_idx(), "S", None))
+
+    def test_census_on_same_sha_is_not_repeated(self):
+        self.assertFalse(loop.needs_census(_spliced_idx(), "S", {"sha256": "S"}))
+
+    def test_census_on_other_sha_is_redone(self):
+        self.assertTrue(loop.needs_census(_spliced_idx(), "S", {"sha256": "X"}))
+
+    def test_whisper_splice_also_needs_census(self):
+        d = _spliced_idx("whisper_surah_splice:45")
+        d["engineVersion"] = "ctc-seg-1"
+        d["engineBySurah"] = {"45": "align-0.2"}
+        self.assertTrue(loop.needs_census(d, "S", None))
+
+    def test_unspliced_index_needs_no_census(self):
+        self.assertFalse(loop.needs_census(_idx(3), "S", None))
+        d = _spliced_idx("drop_surah:93")
+        self.assertFalse(loop.needs_census(d, "S", None))
+
+    def test_splice_op_without_foreign_engine_needs_no_census(self):
+        d = _spliced_idx()
+        d["engineBySurah"] = {"45": "align-0.2"}
+        self.assertFalse(loop.needs_census(d, "S", None))
+
+    def test_fully_salted_candidate_gets_census(self):
+        # ⭐ حالةُ a_alhazmi: أربعةُ ملوحٍ مكتملة فلا يدخل الدفعة، وإحصاؤه غائب
+        imp = [{"key": "timings-staging/hafs/a_alhazmi.6e289031.jz"},
+               {"key": "timings-staging/hafs/lhdan.04f3d6be.jz"},
+               {"key": "timings-staging/hafs/clean.aaaa.jz"},
+               {"key": "timings-staging/hafs/waiting.bbbb.jz"},
+               {"key": "timings-staging/hafs/busy.cccc.jz"}]
+        salts = {"timings-staging/hafs/a_alhazmi.6e289031.jz": 4,
+                 "timings-staging/hafs/lhdan.04f3d6be.jz": 1,
+                 "timings-staging/hafs/clean.aaaa.jz": 4,
+                 "timings-staging/hafs/waiting.bbbb.jz": 0,
+                 "timings-staging/hafs/busy.cccc.jz": 4}
+        due = {"timings-staging/hafs/a_alhazmi.6e289031.jz": True,
+               "timings-staging/hafs/lhdan.04f3d6be.jz": True,
+               "timings-staging/hafs/clean.aaaa.jz": False,
+               "timings-staging/hafs/waiting.bbbb.jz": True,
+               "timings-staging/hafs/busy.cccc.jz": True}
+        asked = []
+
+        def _due(k):
+            asked.append(k)
+            return due[k]
+        got = loop.census_keys(imp, ["timings-staging/hafs/lhdan.04f3d6be.jz"],
+                               # عنوانُ تشغيلةٍ جارية (‏إحصاءٌ على المفتاح نفسِه)
+                               {"census timings-staging/hafs/busy.cccc.jz"},
+                               salts.get, _due)
+        self.assertEqual(got, ["timings-staging/hafs/a_alhazmi.6e289031.jz",
+                               "timings-staging/hafs/lhdan.04f3d6be.jz"])
+        # ما ينتظر دورَه في دفعةٍ لاحقة وما يُحاذى الآن لا يُقرأ ولا يُحصى
+        self.assertNotIn("timings-staging/hafs/waiting.bbbb.jz", asked)
+        self.assertNotIn("timings-staging/hafs/busy.cccc.jz", asked)
+
+    def test_gate_dispatches_census_even_with_empty_batch(self):
+        k = "timings-staging/hafs/a_alhazmi.6e289031.jz"
+        calls = []
+        with mock.patch.object(loop, "inflight_reciters", return_value=set()), \
+             mock.patch.object(loop, "_staged_improvements",
+                               return_value=[{"key": k, "gain": 5, "reciter": "a_alhazmi"}]), \
+             mock.patch.object(loop, "_salt_count", return_value=4), \
+             mock.patch.object(loop, "_census_due", return_value=True), \
+             mock.patch.object(loop, "gh", side_effect=lambda *x: calls.append(x) or ""):
+            loop.cmd_gate(types.SimpleNamespace(limit=6))
+        self.assertEqual(len(calls), 1)
+        self.assertIn("splice_census.yml", calls[0])
+        self.assertIn(f"only={k}", calls[0])
+
+    def test_gate_skips_census_when_already_counted(self):
+        calls = []
+        with mock.patch.object(loop, "inflight_reciters", return_value=set()), \
+             mock.patch.object(loop, "_staged_improvements",
+                               return_value=[{"key": "timings-staging/hafs/x.1.jz",
+                                              "gain": 5, "reciter": "x"}]), \
+             mock.patch.object(loop, "_salt_count", return_value=4), \
+             mock.patch.object(loop, "_census_due", return_value=False), \
+             mock.patch.object(loop, "gh", side_effect=lambda *x: calls.append(x) or ""):
+            loop.cmd_gate(types.SimpleNamespace(limit=6))
+        self.assertEqual(calls, [])
+
+
+class DiagnosisDispatchTests(unittest.TestCase):
+    STALE = ("  ⏳ timings-staging/hafs/lhdan.04f3d6be.jz: تشخيص الكتالوج يصف "
+             "فهرساً آخر (بصمةٌ مخالفة) — يُنتظر ولا يُرقّى\n")
+
+    def _promote(self, dry_out, real_out=""):
+        calls = []
+
+        def run(cmd, **_kw):
+            if "--unfreeze" in cmd or "refreeze.py" in " ".join(map(str, cmd)):
+                return types.SimpleNamespace(stdout="", returncode=0)
+            out = real_out if "--yes" in cmd else dry_out
+            return types.SimpleNamespace(stdout=out, returncode=0)
+        imp = [{"key": "timings-staging/hafs/lhdan.04f3d6be.jz", "gain": 3,
+                "reciter": "lhdan", "live": "timings/hafs/lhdan.jz"}]
+        with mock.patch.object(loop, "_staged_improvements", return_value=imp), \
+             mock.patch.object(loop, "_salt_count", return_value=4), \
+             mock.patch.object(loop.subprocess, "run", side_effect=run), \
+             mock.patch.object(loop, "gh", side_effect=lambda *x: calls.append(x) or ""):
+            loop.cmd_promote(types.SimpleNamespace())
+        return calls
+
+    def test_waiting_branch_dispatches_diagnosis(self):
+        # ⭐ حالةُ lhdan: التجربةُ الجافّةُ تردّه فيقع في «⏸️ لم يمرّ بعدُ»
+        calls = self._promote(self.STALE)
+        self.assertEqual(len(calls), 1)
+        self.assertIn("diagnosis.yml", calls[0])
+        self.assertIn("only=hafs/lhdan", calls[0])
+
+    def test_failed_promotion_branch_still_dispatches(self):
+        calls = self._promote("✅ جاهز\n", self.STALE)
+        self.assertEqual([c for c in calls if "diagnosis.yml" in c].__len__(), 1)
+
+    def test_other_waiting_reason_dispatches_nothing(self):
+        self.assertEqual(self._promote("  🔴 سورٌ مبتورةٌ في المصدر (24)\n"), [])
+
+    def test_once_per_reciter_per_round(self):
+        fired = set()
+        with mock.patch.object(loop, "gh", return_value="") as g:
+            self.assertTrue(loop.maybe_diagnose(
+                "timings-staging/hafs/lhdan.04f3d6be.jz", self.STALE, fired))
+            self.assertFalse(loop.maybe_diagnose(
+                "timings-staging/hafs/lhdan.99999999.jz", self.STALE, fired))
+            self.assertTrue(loop.maybe_diagnose(
+                "timings-staging/hafs/a_alhazmi.6e289031.jz", self.STALE, fired))
+        self.assertEqual(g.call_count, 2)
+
+
 if __name__ == "__main__":
     unittest.main()

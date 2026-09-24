@@ -556,11 +556,74 @@ def _struct_fatal(key: str):
     return " · ".join(rep.get("fatal") or []) or None
 
 
+CENSUS_PREFIX = "state-census/"
+
+
+def needs_census(idx: dict, sha: str, census_rep: dict | None) -> bool:
+    """أيلزم هذا الفهرسَ إحصاءٌ شاملٌ **لم يُجرَ بعدُ على بصمته**؟
+
+    الشرطُ صارمٌ في الاتجاهين، ومرآةٌ لتخطّي `splice_census.yml` نفسِه:
+      · تحويلُه دمجٌ من `promote.SPLICE_OPS` **و**في ترويسته سورٌ بمحرّكٍ آخر؛
+      · **ولا** ملفَّ إحصاءٍ على البصمة نفسِها (‏غائبٌ أو على بصمةٍ أخرى).
+    ⇒ لا إحصاءَ لما لا دمجَ فيه، ولا إحصاءَ مكرّراً لما أُحصي على بصمته.
+    ⚖️ لا يحكم بشيء: `census_gate` في `promote.py` يبقى الحَكَم كما هو."""
+    from promote import splice_op_name
+    tr = idx.get("transform")
+    op = str((tr or {}).get("op") or "") if isinstance(tr, dict) else str(tr or "")
+    if not splice_op_name(op):
+        return False
+    ebs = {k for k, v in (idx.get("engineBySurah") or {}).items()
+           if v and v != idx.get("engineVersion")}
+    if not ebs:
+        return False
+    return not (isinstance(census_rep, dict) and census_rep.get("sha256") == sha)
+
+
+def _census_due(key: str) -> bool:
+    """`needs_census` مقروءاً من الدلو. تعذّرُ قراءة الفهرس ⇒ لا إطلاق (‏لا يُنفَق
+    على ما لم يُقرأ)؛ وغيابُ ملفّ الإحصاء ⇒ يلزم."""
+    try:
+        idx, sha = fetch_index(key)
+    except Exception:                                          # noqa: BLE001
+        return False
+    cl, b = s3()
+    try:
+        rep = json.loads(cl.get_object(
+            Bucket=b, Key=CENSUS_PREFIX + key.replace("/", "_") + ".json")["Body"].read())
+    except Exception:                                          # noqa: BLE001
+        rep = None
+    return needs_census(idx, sha, rep)
+
+
+def census_keys(improvements, batch, busy, salt_count, due) -> list[str]:
+    """مفاتيحُ يُطلق لها `splice_census.yml` في هذه الجولة.
+
+    ⛔ **العطبُ الذي وُلدت منه — مقيسٌ 2026-09-24** (‏`ops/out/2135d_promote.txt`):
+    كان الإحصاءُ يُطلق **مع الدفعة وحدها**، والدفعةُ مَن نقصت ملوحُه عن أربعة.
+    فمرشّحٌ استوفى ملوحَه الأربعة **قبل** أن يُضاف الإحصاءُ إلى البوّابة
+    (‏`a_alhazmi.6e289031`) لا يدخل الدفعةَ أبداً ⇒ لا يُحصى أبداً ⇒ يردّه
+    `census_gate` في كلّ جولةٍ إلى الأبد. ⇒ يُنظر في **كلّ** محسَّن: ما في
+    الدفعة، وما اكتملت ملوحُه؛ لا ما ينتظر دورَه في دفعةٍ لاحقة (‏يُحصى معها)
+    ولا ما يُحاذى الآن. ثمّ لا يبقى إلا ما يلزمه إحصاءٌ على بصمته (`due`)."""
+    busy_s = "".join(busy)
+    out = []
+    for r in improvements:
+        k = r["key"]
+        if k in out or k in busy_s:
+            continue
+        if k in batch or salt_count(k) >= 4:
+            if due(k):
+                out.append(k)
+    return out
+
+
 def cmd_gate(a):
     repo = os.environ.get("GITHUB_REPOSITORY", "mwqwf/rafiq-align-ci")
     busy = inflight_reciters()
-    todo = [r for r in _staged_improvements()
-            if _salt_count(r["key"]) < 4 and r["key"] not in "".join(busy)]
+    imp = _staged_improvements()
+    salts = {r["key"]: _salt_count(r["key"]) for r in imp}
+    todo = [r for r in imp
+            if salts[r["key"]] < 4 and r["key"] not in "".join(busy)]
     struct_bad = []
     kept = []
     for r in todo:
@@ -571,6 +634,13 @@ def cmd_gate(a):
         print(f"   ⛔ {r['reciter']}: رُدّ بنيوياً قبل إنفاق ملحٍ — {bad}")
     print(f"محسَّنون بلا حكمٍ كافٍ: {len(todo)}")
     batch = [r["key"] for r in todo[:a.limit]]
+    # ⭐ الإحصاءُ الشاملُ يُحسب قبل الخروج: مرشّحٌ اكتملت ملوحُه لا يُبوَّب
+    #    لكنّه قد يكون محبوساً بغياب إحصائه وحده (‏انظر `census_keys`).
+    cen = census_keys(imp, batch, busy, lambda k: salts.get(k, 0), _census_due)
+    if cen:
+        gh("workflow", "run", "splice_census.yml", "--repo", repo, "-f",
+           f"only={','.join(cen)}")
+        print(f"⇒ أُطلق الإحصاءُ الشامل لـ{len(cen)}: {', '.join(cen)}")
     if not batch:
         print("لا شيء يُبوَّب."); return
     keys = ",".join(batch)
@@ -582,14 +652,39 @@ def cmd_gate(a):
         gh("workflow", "run", "audio_qa.yml", "--repo", repo, "-f", f"only={keys}",
            "-f", f"limit={len(batch)}", "-f", f"seed_salt={salt}")
     # ⭐ المدموجُ بمحرّكين يلزمه إحصاءٌ شاملٌ فوق الملوح (‏حارسُ `census_gate`)؛
-    #    والتشغيلةُ نفسُها تتخطّى ما لا دمجَ فيه وما أُحصي على بصمته.
-    gh("workflow", "run", "splice_census.yml", "--repo", repo, "-f", f"only={keys}")
-    print(f"⇒ بُوِّب {len(batch)} بستِّ تشغيلات (‏والإحصاءُ يتخطّى غيرَ المدموج)")
+    #    وقد أُطلق أعلاه لما يلزمه وحدَه من الدفعة ومن مكتملي الملوح.
+    print(f"⇒ بُوِّب {len(batch)} بخمس تشغيلات (‏مطالعُ وأربعةُ ملوح)")
 
 
 # ───────────────────────── promote: يرقّي ما مرّ ─────────────────────────
+DIAG_STALE = "تشخيص الكتالوج يصف فهرساً آخر"
+
+
+def maybe_diagnose(key: str, out: str, fired: set) -> bool:
+    """يُطلق `diagnosis.yml` لقارئ المفتاح إن ردّته الترقيةُ (‏تجريبيّةً أو فعليّة)
+    بـ«تشخيص الكتالوج يصف فهرساً آخر»، **مرّةً واحدةً للقارئ في الجولة**.
+
+    ⛔ **العطبُ الذي وُلدت منه — مقيسٌ 2026-09-24** (‏`ops/out/2135d_promote.txt`
+    السطر 19): الإطلاقُ كان في فرع «⛔ لم يُرقَّ» وحده، أي بعد تجربة الترقية
+    الفعليّة. و`lhdan` تردّه التجربةُ الجافّةُ نفسُها بهذا السبب فيسقط في فرع
+    «⏸️ لم يمرّ بعدُ» ⇒ لا يُطلق له التشخيصُ أبداً ⇒ محبوسٌ إلى الأبد.
+    ⚖️ لا يمسّ حكماً: التشخيصُ الجديد يُقرأ في الجولة التالية بحارس `promote.py` نفسِه."""
+    if DIAG_STALE not in (out or ""):
+        return False
+    riw, rid = key.split("/")[1], key.split("/")[2].split(".")[0]
+    who = f"{riw}/{rid}"
+    if who in fired:
+        return False
+    fired.add(who)
+    repo = os.environ.get("GITHUB_REPOSITORY", "mwqwf/rafiq-align-ci")
+    gh("workflow", "run", "diagnosis.yml", "--repo", repo, "-f", f"only={who}")
+    print(f"      ↻ أُطلق diagnosis.yml لـ{who} — يُرقّى في الجولة التالية")
+    return True
+
+
 def cmd_promote(a):
     prom = str(ROOT / "tools" / "index_qa" / "promote.py")
+    fired: set = set()
     for r in _staged_improvements():
         if _salt_count(r["key"]) < 4:
             continue
@@ -610,6 +705,7 @@ def cmd_promote(a):
         frozen_only = "الهدف مجمَّد" in dry.stdout
         if not ready and not frozen_only:
             print(f"   ⏸️ {r['reciter']}: لم يمرّ بعدُ — {tail.splitlines()[-1] if tail else ''}")
+            maybe_diagnose(r["key"], dry.stdout, fired)
             continue
         # ⛔ التجميدُ يُرفع **للحظةِ ترقيةٍ متحقَّقة** لا قبلها
         why = (f"استرجاعُ آياتٍ مفقودة: المرشَّحُ {r['key'].split('/')[-1]} يزيد "
@@ -637,11 +733,8 @@ def cmd_promote(a):
         #    تُردّ بـ«تشخيص الكتالوج يصف فهرساً آخر» فيبقى المرشّحُ ساعةً أو أكثر
         #    حتى يُطلق أحدٌ `diagnosis.yml` بيده. فيُطلق هنا، والحارسُ نفسُه لا يُمسّ:
         #    الترقيةُ تنتظر التشخيصَ الجديد في الجولة التالية كما كانت.
-        if not ok and "تشخيص الكتالوج يصف فهرساً آخر" in done.stdout:
-            riw, rid = r["key"].split("/")[1], r["key"].split("/")[2].split(".")[0]
-            repo = os.environ.get("GITHUB_REPOSITORY", "mwqwf/rafiq-align-ci")
-            gh("workflow", "run", "diagnosis.yml", "--repo", repo, "-f", f"only={riw}/{rid}")
-            print(f"      ↻ أُطلق diagnosis.yml لـ{riw}/{rid} — يُرقّى في الجولة التالية")
+        if not ok:
+            maybe_diagnose(r["key"], done.stdout, fired)
 
 
 def main():
