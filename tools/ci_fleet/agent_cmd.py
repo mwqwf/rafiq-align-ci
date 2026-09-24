@@ -47,6 +47,9 @@ MAX_TRIES = int(os.environ.get("AGENT_CMD_MAX_TRIES", "3"))
 
 # ⛔ سيرُ العملِ المسموحُ إطلاقُه — والثقيلُ كلُّه هنا فلا حاجةَ إلى غيره.
 ALLOWED_WF = {"align.yml", "realign_surah.yml", "openers.yml", "audio_qa.yml",
+              # ⭐ 2026-09-24 (‏إذن المالك بالتسريع): محاذاةُ سور النقص وحدها بـCTC
+              #    ودمجُها، وإحصاؤها الصوتيُّ الشامل الذي تطلبه الترقية.
+              "ctc_splice.yml", "splice_census.yml",
               "basmala.yml", "restore.yml", "keepalive.yml", "mirror_reciter.yml",
               "reciter_probe.yml", "free_candidate_probe.yml", "probe_ayah.yml", "diagnosis.yml", "timing_ingest.yml",
               # ⛔ **أُضيف 2026-09-14 (‏D-442 · مناوبةُ المحرك):** `bench-selftest.yml` يشغّل

@@ -78,6 +78,10 @@ def main() -> None:
     ap.add_argument("--skip-unresolved", action="store_true",
                     help="سورةٌ لم تُحلّ كلُّ آياتها تُترك كما هي في الأصل "
                          "وتُسمّى في المخرَج، بدل ردّ الدفعة كلِّها")
+    ap.add_argument("--engine-tag", default="",
+                    help="محرّكُ المحاذاة المدموجة إن خالف محرّكَ الفهرس (‏مثل "
+                         "ctc-seg-1) — يُكتب في `engineBySurah` لكلّ سورةٍ أُخذت، "
+                         "فيطلب حارسُ الترقية إحصاءً صوتيّاً شاملاً لها")
     args = ap.parse_args()
 
     surahs = [int(x) for x in args.surah.replace(",", " ").split()]
@@ -146,6 +150,18 @@ def main() -> None:
         sys.exit("⛔ تغيّر مدخلٌ خارج السور المطلوبة — يُوقَف ولا يُصلَح بصمت")
 
     out = dict(idx, entries=merged)
+    # ⛔ **الخلطُ يُعلَن في الترويسة ولا يُخفى** (‏2026-09-24): سورةٌ أُخذت من
+    #    محرّكٍ غيرِ محرّك الفهرس تُسجَّل باسمه، وما أُعيد بمحرّك الفهرس نفسِه
+    #    يُمحى من السجلّ — فيبقى `engineBySurah` وصفاً صادقاً لكلّ سورة.
+    ebs = {k: v for k, v in dict(idx.get("engineBySurah") or {}).items()
+           if int(k) not in surahs}
+    if args.engine_tag and args.engine_tag != idx.get("engineVersion"):
+        for s in surahs:
+            ebs[str(s)] = args.engine_tag
+    if ebs:
+        out["engineBySurah"] = dict(sorted(ebs.items(), key=lambda kv: int(kv[0])))
+    else:
+        out.pop("engineBySurah", None)
     miss = dict(out.get("missing") or {})
     ids = [e["ayahId"] for e in merged]
     have = set(ids)

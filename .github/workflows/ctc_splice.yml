@@ -1,0 +1,210 @@
+name: rafiq-ctc-splice
+
+run-name: >-
+  ctc-splice ${{ inputs.parent }}${{ inputs.surahs && format(' · س{0}', inputs.surahs) || '' }}
+
+# ⭐ **محاذاةُ سور النقص وحدها بـCTC ودمجُها في الفهرس المنشور** (‏إذن المالك
+#    2026-09-24: «نفّذ التسريع … المهمُّ ألّا يمسّ القرآنَ بشيء»).
+#    كان القارئُ المنشورُ بـWhisper يُعاد كاملاً بـCTC (‏4 أجزاء + خاتم ≈ ساعةٌ ونصف)
+#    لأجل آياتٍ غائبةٍ في سورٍ قليلة، ثمّ يُرقّى فقط إن زاد مجموعُه — فسورةٌ
+#    تحسّنت وأخرى ساءت تتقاصّان. وهنا وظيفةٌ واحدة تحاذي سورَ النقص وحدها،
+#    وتأخذ منها **ما حُلَّ كاملاً فقط**، ولا تمسّ ما سواها بايتاً.
+#
+# ⛔ والحُرّاسُ زائدةٌ لا ناقصة:
+#    - القالبُ يُطابَق بالكتالوج قبل تنزيل بايت (‏كما في realign_surah).
+#    - ‏`splice_surah --skip-unresolved`: سورةٌ فيها آيةٌ بلا حدود تُترك كما هي،
+#      وما خارج السور المأخوذة يُقارَن حرفاً.
+#    - الترويسةُ تُعلن `engineBySurah` لكلّ سورةٍ مأخوذة، و`stage_transform`
+#      يردّ إعلاناً ناقصاً.
+#    - الترقيةُ تطلب **إحصاءً صوتيّاً شاملاً لكلّ آيةٍ** في تلك السور
+#      (‏`splice_census.yml`) فوق الملوح الأربعة للفهرس كلّه.
+# 💰 مستودعٌ عامّ + عدّاد ubuntu-latest القياسيّ ⇒ دقائقُ مجّانيّة.
+on:
+  workflow_dispatch:
+    inputs:
+      parent: {description: "الأصل المنشور: timings/<riw>/<id>.jz", required: true}
+      url_template: {description: "قالبُ الصوت من الكتالوج، فيه {s:03d}", required: true}
+      riwaya: {description: "الرواية", default: "hafs"}
+      surahs: {description: "فارغ = كلُّ سورةٍ ناقصةٍ في الأصل (مقيسةً منه)", default: ""}
+      reason: {description: "سببُ التحويل", required: true}
+
+concurrency:
+  group: rafiq-ctc-splice-${{ inputs.parent }}
+  cancel-in-progress: false
+
+env:
+  PY: "3.11"
+  ALIGN_ENGINE: ctc
+  HF_HOME: ${{ github.workspace }}/.hf
+
+jobs:
+  splice:
+    name: ctc-splice ${{ github.event.inputs.parent }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 350
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: {python-version: "${{ env.PY }}"}
+      - name: الأدوات
+        run: |
+          sudo apt-get update -qq && sudo apt-get install -y -qq ffmpeg
+          python -m pip install --quiet --index-url https://download.pytorch.org/whl/cpu torch
+          python -m pip install --quiet "numpy<2" transformers ctc-segmentation boto3
+      - name: كاش النموذج
+        uses: actions/cache@v4
+        with:
+          path: .hf
+          key: ctc-model-jonatasgrosman-xlsr53-ar-v1
+      - name: اعتماد R2
+        env: {R2_CREDENTIALS_JSON: "${{ secrets.R2_CREDENTIALS_JSON }}"}
+        run: mkdir -p secure && printf '%s' "$R2_CREDENTIALS_JSON" > secure/r2_credentials.json
+
+      - name: ⛔ حارسُ الرابط وسورُ النقص من الأصل نفسه
+        id: plan
+        env:
+          PARENT: ${{ github.event.inputs.parent }}
+          URLT: ${{ github.event.inputs.url_template }}
+          RIW: ${{ github.event.inputs.riwaya }}
+          WANT: ${{ github.event.inputs.surahs }}
+        run: |
+          python - <<'PY'
+          import gzip, hashlib, json, os, re, sys, boto3
+          sys.stdout.reconfigure(encoding="utf-8")
+          sys.path.insert(0, "tools/index_qa")
+          from splice_surah import COUNTS
+          c = json.load(open("secure/r2_credentials.json"))
+          s3 = boto3.client("s3", endpoint_url=c["endpoint"],
+                            aws_access_key_id=c["accessKeyId"],
+                            aws_secret_access_key=c["secretAccessKey"], region_name="auto")
+          parent = os.environ["PARENT"]
+          if not parent.startswith("timings/") or parent.count("/") != 2:
+              sys.exit(f"⛔ الأصلُ يجب أن يكون منشوراً timings/<riw>/<id>.jz: {parent}")
+          _, riw, fn = parent.split("/")
+          rid = fn[:-3]
+          if riw != os.environ["RIW"]:
+              sys.exit(f"⛔ الرواية {os.environ['RIW']} والأصلُ {riw}")
+          cat = json.loads(s3.get_object(Bucket=c["bucket"], Key="catalog/reciters.json")["Body"].read())
+          base = None
+          for r in cat.get("riwayat", []):
+              if r["id"] == riw:
+                  for x in r.get("reciters", []):
+                      if x.get("id") == rid:
+                          base = x.get("base") or ""
+          if base is None:
+              sys.exit(f"⛔ {riw}/{rid} ليس في الكتالوج — لا محاذاةَ لمجهول")
+          got = os.environ["URLT"]
+          want_t = (base if base.endswith("/") else base + "/") + "{s:03d}.mp3"
+          # ⛔ مضيفُ المجلَّد (‏أسماءٌ من جدول files) لا يُدمج هنا بعد: قالبُ
+          #    الدمج يبني `fileRef` بالتنسيق، ومجلَّدٌ بلا `{s:03d}` يكتب المجلَّدَ
+          #    نفسَه مرجعاً لكلّ آية — فيُوقَف ولا يُخمَّن.
+          if "{s:03d}" not in got:
+              sys.exit("⛔ مضيفُ مجلَّدٍ بلا {s:03d} — غيرُ مدعومٍ في هذا المسار")
+          if got != want_t:
+              sys.exit(f"⛔ القالبُ يخالف الكتالوج — يُوقَف قبل تنزيل بايت\n   المعطى {got}\n   الكتالوج {want_t}")
+          body = s3.get_object(Bucket=c["bucket"], Key=parent)["Body"].read()
+          open("parent.jz", "wb").write(body)
+          idx = json.loads(gzip.decompress(body).decode("utf-8"))
+          if idx.get("reciterId") != rid or idx.get("riwaya") != riw:
+              sys.exit("⛔ الأصلُ يصف قارئاً آخر")
+          if idx.get("engineVersion") == "ctc-seg-1":
+              sys.exit("⛔ الأصلُ منشورٌ بـCTC نفسِه — المحرّكُ حتميّ فإعادتُه تعيد النقصَ نفسَه")
+          have = {}
+          for e in idx["entries"]:
+              s = int(e["ayahId"].split(":")[0]); have[s] = have.get(s, 0) + 1
+          gaps = [s for s in range(1, 115) if have.get(s, 0) < COUNTS[s - 1]]
+          asked = [int(x) for x in re.findall(r"\d+", os.environ.get("WANT", ""))]
+          todo = asked or gaps
+          extra = [s for s in todo if s not in gaps]
+          if extra:
+              sys.exit(f"⛔ سورٌ تامّةٌ في الأصل لا تُمسّ: {extra}")
+          if not todo:
+              sys.exit("⛔ لا نقصَ في الأصل — لا شيء يُحاذى")
+          sha = hashlib.sha256(body).hexdigest()
+          print(f"الأصل {parent} ({sha[:12]}) · محرّكه {idx.get('engineVersion')} · "
+                f"سورُ النقص {len(gaps)} · المطلوبة {todo}")
+          with open(os.environ["GITHUB_OUTPUT"], "a") as f:
+              f.write(f"rid={rid}\nsha={sha}\nsurahs={','.join(map(str, todo))}\n")
+          PY
+
+      - name: المحاذاة بـCTC لسور النقص وحدها (⛔ بلا رفع)
+        env:
+          URLT: ${{ github.event.inputs.url_template }}
+          RIW: ${{ github.event.inputs.riwaya }}
+          RID: ${{ steps.plan.outputs.rid }}
+          SURAHS: ${{ steps.plan.outputs.surahs }}
+        run: |
+          set -o pipefail
+          sudo chmod 755 /root
+          # ‏batch_run يكتب ملفَّ سورةٍ لكلّ ما نجح؛ وفهرسُه الجزئيُّ في آخره لا يُستعمل.
+          BASE="$(printf '%s' "$URLT" | sed 's/{s:03d}/{surah:03d}/')"
+          python tools/alignment/batch_run.py --reciter "$RID" --riwaya "$RIW" \
+            --base "$BASE" --surahs "$SURAHS" 2>&1 | tee ctc.log
+
+      - name: الدمجُ بحُرّاسه وبصماتُ الصوت
+        env:
+          URLT: ${{ github.event.inputs.url_template }}
+          RID: ${{ steps.plan.outputs.rid }}
+          SURAHS: ${{ steps.plan.outputs.surahs }}
+        run: |
+          set -e
+          d="tools/alignment/work/batch_$RID"
+          S=""; F=""
+          for s in $(echo "$SURAHS" | tr ',' ' '); do
+            j=$(printf "%s/s%03d.json" "$d" "$s")
+            if [ -f "$j" ]; then S="$S,$s"; F="$F $j"; else echo "⚠️ س$s: لم تُحاذَ — تبقى كما هي"; fi
+          done
+          S="${S#,}"
+          [ -n "$S" ] || { echo "⛔ لا سورةَ حوذيت"; exit 1; }
+          python tools/index_qa/splice_surah.py --index parent.jz --surah "$S" \
+                 --aligned $F --url "$URLT" --skip-unresolved --engine-tag ctc-seg-1 \
+                 --out patched.jz
+          python - <<'PY'
+          import gzip, json, os
+          d = f"tools/alignment/work/batch_{os.environ['RID']}"
+          idx = json.loads(gzip.decompress(open("patched.jz", "rb").read()).decode())
+          taken = [int(x) for x in open("patched.jz.taken").read().split(",") if x]
+          present = sorted({int(e["ayahId"].split(":")[0]) for e in idx["entries"]})
+          sha = idx.get("audioSha256")
+          if isinstance(sha, list) and len(sha) == len(present):
+              pos = {s: i for i, s in enumerate(present)}
+              for s in taken:
+                  rec = json.load(open(f"{d}/s{s:03d}.json", encoding="utf-8"))
+                  # ⛔ الفهرسُ يُشير إلى ملفّ الكتالوج نفسِه — والبصمةُ من الملفّ
+                  #    الذي نُزّل وحوذي فعلاً في هذه التشغيلة، لا مُصطنعة.
+                  for e in idx["entries"]:
+                      if int(e["ayahId"].split(":")[0]) == s and e["fileRef"] != rec["fileRef"]:
+                          raise SystemExit(f"⛔ س{s}: fileRef المدموج {e['fileRef']} ≠ المحاذى {rec['fileRef']}")
+                  if rec.get("sha256"):
+                      if sha[pos[s]] and sha[pos[s]] != rec["sha256"]:
+                          print(f"🔄 س{s}: بصمةُ الصوت تبدّلت عند المصدر — تُكتب المقيسة")
+                      sha[pos[s]] = rec["sha256"]
+              idx["audioSha256"] = sha
+          else:
+              print(f"⚠️ قائمةُ البصمات {len(sha) if isinstance(sha, list) else '—'} "
+                    f"والسورُ {len(present)} — تُترك كما هي")
+          with open("patched.jz", "wb") as f:
+              f.write(gzip.compress(json.dumps(idx, ensure_ascii=False).encode("utf-8")))
+          print("المأخوذ:", taken, "· engineBySurah:", idx.get("engineBySurah"))
+          PY
+
+      - name: رفعٌ إلى الاختبار بحُرّاس stage_transform
+        env:
+          PARENT: ${{ github.event.inputs.parent }}
+          SHA: ${{ steps.plan.outputs.sha }}
+          REASON: ${{ github.event.inputs.reason }}
+        run: |
+          TAKEN="$(cat patched.jz.taken)"
+          python tools/index_qa/stage_transform.py --file patched.jz \
+                 --parent "$PARENT" --parent-sha "$SHA" \
+                 --op "ctc_surah_splice:$TAKEN" --reason "$REASON" \
+                 --by "github-ctc-splice" --yes
+
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: ctc-splice-${{ github.run_id }}
+          path: |
+            tools/alignment/work/batch_*/s*.json
+            ctc.log
+          retention-days: 7

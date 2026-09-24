@@ -99,6 +99,55 @@ def _op_mixes_engines(op: str) -> bool:
     return op.startswith(("source_timing_splice", "mixed_engine",
                           "timing_splice"))
 
+CENSUS_PREFIX = "state-census/"
+
+
+def census_gate(cl, bucket, src, live_sha, idx):
+    """سببُ ردِّ فهرسٍ مدموجِ المحرّكين، أو None. **الغيابُ ردٌّ لا تساهل.**
+
+    ⭐ إذنُ المالك 2026-09-24 («نفّذ التسريع … المهمُّ ألّا يمسّ القرآنَ بشيء»):
+    تُحاذى سورُ النقص وحدها بـCTC وتُدمج في فهرس Whisper المنشور بدل إعادة
+    القارئ كاملاً. وحارسُ «فهرسٌ واحد = محرّكٌ واحد» وُضع لأنّ **حكمَ العيّنة
+    لا يُعرف على أيّ محرّكٍ وقع**. فالدمجُ لا يمرّ إلا بما يرفع ذلك الجهل:
+    **كلُّ آيةٍ** في كلّ سورةٍ أُخذت من المحرّك الآخر مسموعةٌ ومحكومة (‏إحصاءٌ
+    لا عيّنة) على **بصمة هذا الفهرس بعينها**، ثمّ حكمُ الملوح الأربعة للفهرس
+    كلِّه كما هو. فهو حارسٌ **زائد** على ما قبله لا بديلٌ عنه.
+    """
+    tr = idx.get("transform")
+    op = str((tr or {}).get("op") or "") if isinstance(tr, dict) else str(tr or "")
+    ebs = {k for k, v in (idx.get("engineBySurah") or {}).items()
+           if v and v != idx.get("engineVersion")}
+    if not ebs:
+        if op.startswith("ctc_surah_splice:"):
+            return "تحويلُ دمجٍ بلا سجلّ محرّكاتٍ في الترويسة — إعلانٌ ناقص"
+        return None
+    key = CENSUS_PREFIX + src.replace("/", "_") + ".json"
+    try:
+        rep = json.loads(cl.get_object(Bucket=bucket, Key=key)["Body"].read())
+    except Exception:                                  # noqa: BLE001
+        return f"سورٌ بمحرّكٍ آخر ({','.join(sorted(ebs, key=int))}) بلا إحصاءٍ شامل في {key}"
+    if rep.get("sha256") != live_sha:
+        return "الإحصاءُ الشامل على بصمةٍ أخرى — يُعاد على هذه"
+    got = {str(s) for s in (rep.get("census") or {}).get("surahs") or []}
+    if got != ebs:
+        return f"الإحصاءُ غطّى {sorted(got, key=int)} والمدموجُ {sorted(ebs, key=int)}"
+    want = sum(_AYAH_COUNTS[int(s) - 1] for s in ebs)
+    rows = (rep.get("sample") or {}).get("rows") or []
+    if len(rows) != want or len({r.get("aid") for r in rows}) != want:
+        return f"الإحصاءُ سمع {len(rows)} آيةً والمدموجُ {want} — لا يُقبل ناقص"
+    if rep.get("fatal"):
+        return "الإحصاءُ وجد خللاً: " + str(rep["fatal"][0])[:80]
+    bad = sum(1 for r in rows if r.get("verdict") == "تعذّر")
+    if bad or (rep.get("sample") or {}).get("errors"):
+        return f"في الإحصاء {bad} آيةً تعذّر سماعُها — لا يُحكم على ما لم يُسمع"
+    sev = sum(1 for r in rows if r.get("kind") == "جسيم")
+    # ⛔ العتبةُ 5% نفسُها لا تُمسّ؛ وعلى **المجتمع كلِّه** لا تقديرٍ له، فلا
+    #    مجالَ ثقةٍ هنا: ليس في الإحصاء الشامل خطأُ معاينةٍ يُحتاط له.
+    if sev / want > 0.05:            # ثابتٌ لا يُقرأ من البيئة
+        return f"الإحصاءُ الشامل: عطبٌ جسيم {sev}/{want} ({sev / want:.1%}) > 5%"
+    return None
+
+
 def s3():
     import boto3
     from botocore.config import Config
@@ -638,7 +687,8 @@ def has_audio_sample(rep):
     """
     if rep.get("verdict_file"):
         return False                       # مؤشِّرٌ لا حكم
-    if str(rep.get("kind") or "").strip().lower() in ("structural", "openers"):
+    if str(rep.get("kind") or "").strip().lower() in ("structural", "openers",
+                                                       "splice-census"):
         # ⛔ **فحصُ المطالع ليس عيّنة** (‏إعلان github-7e): يمرّ على المطالع
         # كلِّها ولا يقيس الحدود الداخلية البتّة. فيصلح شاهداً على **رفضٍ**
         # وحده، ومن عدّه بديلاً عن العيّنة رقّى فهرساً لم تُقَس حدودُه.
@@ -2103,6 +2153,10 @@ def main():
         #    فينهار `UnboundLocalError` على أوّل مرشّح، **أو أسوأُ منه**: يقرأ
         #    `idx` **المرشَّحِ السابق** في الدورات التالية فيحكم على فهرسٍ
         #    بتحويلِ غيره. وهو عمىً في اتجاهين: يمنع البريء ويُمرّر المخالف.
+        _cg = census_gate(cl, bucket, src, live_sha, idx)
+        if _cg:
+            print(f"  ⛔ {src}: {_cg}")
+            continue
         _op = (idx.get("transform") or {}).get("op") or ""
         if _op.startswith("drop_surah:") and not a.allow_truncated:
             _big = [n for n in (int(x) for x in re.findall(r"\d+", _op))

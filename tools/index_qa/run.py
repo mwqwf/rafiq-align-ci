@@ -460,6 +460,16 @@ def sample_boundaries(idx, clusters=8, per_cluster=6, band=None, long_seg=False,
     # ⇒ `QA_SEED_SALT` يجعل المسار الثاني يسحب عيّنةً **مستقلّة**، فيصير
     # اتفاقُهما شهادتين على الفهرس لا شهادةً واحدةً مكرّرة.
     _salt = os.environ.get("QA_SEED_SALT", "")
+    # ⭐ **الإحصاءُ الشامل لا العيّنة** (‏إذن المالك 2026-09-24 بمحاذاة سور النقص
+    #    وحدها بـCTC ودمجها في فهرسٍ بمحرّكٍ آخر): السورُ المدموجةُ **كلُّ آيةٍ
+    #    فيها** تُسمع وتُحكم، لا عيّنةٌ منها — فحكمُها قياسٌ للمجتمع كلِّه لا
+    #    تقديرٌ له. ويُفعَّل بـ`QA_CENSUS_SURAHS` وحده، فلا يمسّ عيّنةَ الملوح.
+    _census = os.environ.get("QA_CENSUS_SURAHS", "").strip()
+    if _census:
+        want = {int(x) for x in re.findall(r"\d+", _census)}
+        seed = int(hashlib.sha256(f"census/{sorted(want)}".encode()).hexdigest()[:12], 16)
+        return seed, [(int(e["ayahId"].split(":")[0]), e) for e in idx.get("entries", [])
+                      if int(e["ayahId"].split(":")[0]) in want]
     seed = int(hashlib.sha256(f"{idx.get('riwaya')}/{idx.get('reciterId')}/{_salt}".encode()
                               ).hexdigest()[:12], 16)
     rng = random.Random(seed)
@@ -1106,6 +1116,10 @@ def audit(key, args):
     if not sample:
         rep["verdict"] = "تعذّرت العيّنة (لا سور كافية في الفهرس)"
         return rep
+    if os.environ.get("QA_CENSUS_SURAHS", "").strip():
+        _cs = sorted({s for s, _ in sample})
+        rep["census"] = {"surahs": _cs, "population": len(sample),
+                         "note": "إحصاءٌ شاملٌ لكلّ آيةٍ في هذه السور — لا عيّنة"}
 
     jobs, meta = [], {}
     for s, e in sample:

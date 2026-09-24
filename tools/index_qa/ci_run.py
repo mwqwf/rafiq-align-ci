@@ -83,6 +83,10 @@ def main():
     ap.add_argument("--out-suffix", default="",
                     help="لاحقةٌ صريحةٌ قبل .json (مثل: .audio-cb)")
     ap.add_argument("--dry-run", action="store_true", help="لا يكتب إلى الدلو")
+    ap.add_argument("--census", action="store_true",
+                    help="إحصاءٌ شاملٌ لكلّ آيةٍ في السور المدموجة بمحرّكٍ آخر "
+                         "(‏تُقرأ من ترويسة الفهرس `engineBySurah` لا من المُطلِق) "
+                         "ويُكتب في `state-census/` وحدها")
     a = ap.parse_args()
 
     import run as R
@@ -115,6 +119,21 @@ def main():
         refined=a.refined, long_seg=False, batch=48, threads=1,
         host=None, expect_sha=a.expect_sha)
 
+    if a.census:
+        # ⛔ **السورُ من الفهرس نفسِه لا من المُطلِق**: مَن يسمّي السورَ
+        #    يستطيع أن يُسقط منها ما يخشى حكمه. والإحصاءُ يُكتب في بادئةٍ
+        #    معزولة لا يقرؤها قارئو `state/` (‏عدّادُ الملوح وحُكّامُ العيّنة)،
+        #    فلا يُحسب ملحاً ولا يختلط بعيّنة.
+        idx0, _sha0 = R.fetch_index(a.key, a.expect_sha)
+        tr0 = idx0.get("transform")
+        op0 = str((tr0 or {}).get("op") or "") if isinstance(tr0, dict) else str(tr0 or "")
+        ebs = idx0.get("engineBySurah") or {}
+        if not op0.startswith("ctc_surah_splice:") or not ebs:
+            raise SystemExit(f"⛔ لا دمجَ محرّكين في هذا الفهرس (op={op0!r}) — لا إحصاء")
+        os.environ["QA_CENSUS_SURAHS"] = ",".join(sorted(ebs, key=int))
+        a.kind, a.out_prefix, a.seed_salt, a.out_suffix = (
+            "splice-census", "state-census", "census", "")
+        print(f"إحصاءٌ شامل للسور: {os.environ['QA_CENSUS_SURAHS']}")
     t0 = time.time()
     # نسبُ الحكم قبل التدقيق كي يُحمل في الكائن لا يُستنبط لاحقاً.
     os.environ["QA_SEED_SALT"] = a.seed_salt

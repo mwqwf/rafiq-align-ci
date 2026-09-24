@@ -130,9 +130,29 @@ def main():
     #    ⛔ ولا يُسمَّى «إعادةَ محاذاة» تجوّزاً: الترويسةُ سجلُّ نسبٍ يُقرأ منه
     #    جيلُ الفهرس، فاسمٌ كاذبٌ فيها أسوأ من غيابه (‏درسُ «مجهولِ الجيل»).
     realigned = []
-    _m = re.match(r"^(?:realign_surah|source_timing_splice):([\d,\s]+)$", a.op.strip())
+    _m = re.match(r"^(?:realign_surah|source_timing_splice|ctc_surah_splice):([\d,\s]+)$",
+                  a.op.strip())
     if _m:
         realigned = sorted({int(x) for x in re.findall(r"\d+", _m.group(1))})
+    # ⛔ **دمجُ محرّكين لا يُرفع إلا معلَناً سورةً سورة** (‏إذن المالك 2026-09-24):
+    #    ‏`ctc_surah_splice` يجب أن يحمل `engineBySurah` يسمّي **كلَّ** سورةٍ في
+    #    التحويل بمحرّكٍ غير محرّك الفهرس، **ولا سورةً سواها** إلا ما ورثه
+    #    الأصلُ نفسُه — فحارسُ الترقية يطلب إحصاءً شاملاً لما في هذا السجلّ،
+    #    وسجلٌّ ناقصٌ كان يُعفي سورةً من السماع.
+    ebs = idx.get("engineBySurah") or {}
+    p_ebs = pidx.get("engineBySurah") or {}
+    if a.op.strip().startswith("ctc_surah_splice:"):
+        named = {str(s) for s in realigned}
+        tagged = {k for k, v in ebs.items() if v and v != idx.get("engineVersion")}
+        if not named or not named <= tagged:
+            raise SystemExit(f"⛔ دمجُ محرّكين بلا إعلانٍ لكلّ سورة: المسمّاة "
+                             f"{sorted(named, key=int)} والمعلَنة {sorted(tagged, key=int)}")
+        extra = tagged - named - set(p_ebs)
+        if extra:
+            raise SystemExit(f"⛔ سورٌ معلَنةٌ بمحرّكٍ آخر لم يمسّها التحويل ولا "
+                             f"ورثها الأصل: {sorted(extra, key=int)}")
+    elif set(ebs) - set(p_ebs):
+        raise SystemExit("⛔ سجلُّ المحرّكات زاد سوراً في تحويلٍ لا يدمج محرّكين — يُردّ")
     if realigned:
         have_old = {e["ayahId"] for e in (pidx.get("entries") or [])}
         have_new = {e["ayahId"] for e in (idx.get("entries") or [])}

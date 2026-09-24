@@ -581,7 +581,10 @@ def cmd_gate(a):
     for salt in ("rs1", "rs2", "rs3", "rs4"):
         gh("workflow", "run", "audio_qa.yml", "--repo", repo, "-f", f"only={keys}",
            "-f", f"limit={len(batch)}", "-f", f"seed_salt={salt}")
-    print(f"⇒ بُوِّب {len(batch)} بخمسِ تشغيلات")
+    # ⭐ المدموجُ بمحرّكين يلزمه إحصاءٌ شاملٌ فوق الملوح (‏حارسُ `census_gate`)؛
+    #    والتشغيلةُ نفسُها تتخطّى ما لا دمجَ فيه وما أُحصي على بصمته.
+    gh("workflow", "run", "splice_census.yml", "--repo", repo, "-f", f"only={keys}")
+    print(f"⇒ بُوِّب {len(batch)} بستِّ تشغيلات (‏والإحصاءُ يتخطّى غيرَ المدموج)")
 
 
 # ───────────────────────── promote: يرقّي ما مرّ ─────────────────────────
