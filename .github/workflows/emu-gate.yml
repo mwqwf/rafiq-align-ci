@@ -517,9 +517,11 @@ jobs:
           git commit -q -m "results(emu-gate): ${T} · الشوط ${{ github.run_id }}" || { echo "لا تغيير"; exit 0; }
           # ⛔ **إلى الفرع الذي أشعل الشوطَ لا إلى `main` دائماً** (‏2026-09-24): طلبٌ مدفوعٌ من فرعٍ كان يدمج
           #    الفرعَ كلَّه في `main` بخطوة الإيداع هذه (‏`HEAD` هو رأسُ الفرع) ⇒ تغييراتٌ بلا مراجعةٍ في `main`.
+          # ⛔ و`-X ours`: شوطان متتاليان يكتبان `results/LATEST_emu.md` فيتعارضان (‏مقيسٌ في الشوط 35992469984
+          #    فلم تُودَع نتيجتُه)؛ والأحدثُ هو هذا الشوط، وملفُّه المسمّى برقمه لا يتعارض أصلاً.
           BR="${{ github.ref_name }}"
           for i in 1 2 3; do
-            git fetch -q origin "$BR" && git merge -q --no-edit "origin/$BR" && git push -q origin "HEAD:$BR" && { echo "✅ أُودعت $OUT في $BR"; exit 0; }
+            git fetch -q origin "$BR" && git merge -q --no-edit -X ours "origin/$BR" && git push -q origin "HEAD:$BR" && { echo "✅ أُودعت $OUT في $BR"; exit 0; }
             echo "↻ محاولةٌ $i"; sleep 5
           done
           echo "⛔ تعذّر الدفع"; exit 0
