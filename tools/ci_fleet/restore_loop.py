@@ -630,8 +630,18 @@ def cmd_promote(a):
                            cwd=str(ROOT), text=True)
         print(f"   {'✅ رُقّي' if ok else '⛔ لم يُرقَّ'} {r['reciter']} (+{r['gain']})")
         for l in done.stdout.splitlines():
-            if "🧊" in l or "⛔" in l:
+            if any(m in l for m in ("🧊", "⛔", "⏳", "🔴")):
                 print("      " + l.strip()[:160])
+        # ⭐ **تشخيصُ الكتالوج القديم يُجدَّد آليّاً** (‏قِيس 2026-09-24 أربعَ مرّات:
+        #    darweez · a_alhazmi · mrifai · bader، ثمّ deban · husary_qalun): الترقيةُ
+        #    تُردّ بـ«تشخيص الكتالوج يصف فهرساً آخر» فيبقى المرشّحُ ساعةً أو أكثر
+        #    حتى يُطلق أحدٌ `diagnosis.yml` بيده. فيُطلق هنا، والحارسُ نفسُه لا يُمسّ:
+        #    الترقيةُ تنتظر التشخيصَ الجديد في الجولة التالية كما كانت.
+        if not ok and "تشخيص الكتالوج يصف فهرساً آخر" in done.stdout:
+            riw, rid = r["key"].split("/")[1], r["key"].split("/")[2].split(".")[0]
+            repo = os.environ.get("GITHUB_REPOSITORY", "mwqwf/rafiq-align-ci")
+            gh("workflow", "run", "diagnosis.yml", "--repo", repo, "-f", f"only={riw}/{rid}")
+            print(f"      ↻ أُطلق diagnosis.yml لـ{riw}/{rid} — يُرقّى في الجولة التالية")
 
 
 def main():
