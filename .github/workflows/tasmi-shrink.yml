@@ -56,11 +56,13 @@ jobs:
           pip install -q numpy soundfile scipy boto3
       - name: whisper.cpp (ثنائيٌّ ساكن · الإيداعُ المشحون نفسُه)
         run: |
+          # ⛔ مقيس (الشوط 35981806735): ثنائيٌّ بُني بـGGML_NATIVE على آلةٍ خرج بـSIGILL (rc=132) على آلةٍ أخرى،
+          #    والمهامُّ هنا على آلاتٍ مختلفة ⇒ بناءٌ محمولٌ بـAVX2 (كلُّ مشغّلات GitHub تدعمه).
           set -eo pipefail
           mkdir -p /tmp/wcpp && git -C /tmp/wcpp init -q \
             && git -C /tmp/wcpp fetch -q --depth 1 https://github.com/ggml-org/whisper.cpp "$WCPP_SHA" \
             && git -C /tmp/wcpp checkout -q FETCH_HEAD
-          cmake -S /tmp/wcpp -B /tmp/wcpp/build -DCMAKE_BUILD_TYPE=Release -DBUILD_SHARED_LIBS=OFF -DWHISPER_BUILD_TESTS=OFF > /dev/null
+          cmake -S /tmp/wcpp -B /tmp/wcpp/build -DCMAKE_BUILD_TYPE=Release -DBUILD_SHARED_LIBS=OFF -DWHISPER_BUILD_TESTS=OFF -DGGML_NATIVE=OFF -DGGML_AVX=ON -DGGML_AVX2=ON -DGGML_FMA=ON -DGGML_F16C=ON > /dev/null
           cmake --build /tmp/wcpp/build --config Release -j"$(nproc)" --target whisper-cli whisper-quantize > /dev/null
           mkdir -p bin && cp /tmp/wcpp/build/bin/whisper-cli /tmp/wcpp/build/bin/whisper-quantize bin/
           cp /tmp/wcpp/models/convert-h5-to-ggml.py bin/
