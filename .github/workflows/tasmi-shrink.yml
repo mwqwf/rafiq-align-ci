@@ -159,10 +159,11 @@ jobs:
           # ⛔ الشوطُ الأوّل: المكمَّماتُ خرجت في 0.1ث بلا تفريغ (لم تُحمَّل) فقُرئت «RTF 0» ⇒ فحصُ تحميلٍ صريحٌ يُسقط الشوط
           W1=$(head -1 /tmp/tset.txt); BAD=0
           for m in models/*.bin; do
-            if out=$(bin/whisper-cli -m "$m" -l ar -t 4 -bo 1 -bs 1 -nt -f "$W1" 2>&1) && [ -n "$(echo "$out" | grep -v '^whisper_\|^system_info\|^main:\|^ggml\|^$' | head -1)" ]; then
+            out=$(bin/whisper-cli -m "$m" -l ar -t 4 -bo 1 -bs 1 -nt -ng -f "$W1" 2>&1; echo "rc=$?")
+            if echo "$out" | grep -q "^rc=0$" && echo "$out" | grep -qP "[\x{0600}-\x{06FF}]"; then
               echo "✅ $m يُحمَّل ويفرّغ"
             else
-              BAD=1; echo "⛔ $m:"; echo "$out" | tail -25
+              BAD=1; echo "⛔ $m:"; echo "$out" | tail -40
             fi
           done
           [ "$BAD" = 0 ] || exit 1
