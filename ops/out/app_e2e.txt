@@ -1,56 +1,64 @@
-run 35966249343 2026-09-24T06:59:50Z
+run 35968226767 2026-09-24T07:28:00Z
 install: OK
-SCENARIO offline_recite_with_me ui_text: Recite with me / Visible / Reciting in the riwaya of Ḥafṣ ʿan ʿĀṣim / What is checked? / Which riwaya do you recite? We will check you against Ḥafṣ ʿan ʿĀṣim unless you change it. / Yes, Ḥafṣ ʿan ʿĀṣim / Another riwaya / Could not start the recitation check / Recite again
+SCENARIO offline_recite_with_me ui_text: Recite with me / Visible / Reciting in the riwaya of Ḥafṣ ʿan ʿĀṣim / What is checked? / Which riwaya do you recite? We will check you against Ḥafṣ ʿan ʿĀṣim unless you change it. / Yes, Ḥafṣ ʿan ʿĀṣim / Another riwaya / No network connection and no recitation model on this device, so your recording
 SCENARIO hafs_start riwaya=hafs expect_flat=2161(±1: 18:22/23) locked_flat=none => FAIL
-  |  6214  6248 D recite  : locate cloud ms=2582 heard=اشتركوا في القناة
-  |  6214  6268 D recite  : locate cloud ms=1296 heard=اشتركوا في القناة
-  |  6214  6249 D recite  : locate cloud ms=3945 heard=شكرا للمشاهدة
-  |  6214  6250 D recite  : locate cloud ms=1819 heard=اشتركوا في القناة
-  |  6214  6249 D recite  : locate cloud ms=1840 heard=اشتركوا في القناة
-  |  6214  6248 D recite  : locate cloud ms=3413 heard=اشتركوا في القناة
-  |  6214  6268 D recite  : locate cloud ms=1996 heard=موسيقى
-  |  6214  6250 D recite  : locate cloud ms=1487 heard=اشتركوا في القناة
-  |  6214  6249 D recite  : locate cloud ms=5009 heard=null
-  |  6214  6268 D recite  : locate cloud ms=3204 heard=اشتركوا في القناة
-  |  6214  6250 D recite  : locate cloud ms=3039 heard=اشتركوا في القناة
-  |  6214  6250 D recite  : locate cloud ms=4474 heard=اشتركوا في القناة
-  |  6214  6250 D recite  : locate cloud ms=2637 heard=اشتركوا في القناة
-  |  6214  6248 D recite  : locate cloud ms=1915 heard=اشتركوا في القناة
+  |  6346  6346 D recite  : audio inject samples=6260032
+  |  6346  6381 D recite  : locate cloud ms=1224 heard=شكرا للمشاهدة
+  |  6346  6378 D recite  : locate cloud ms=5351 heard=null
+  |  6346  6381 D recite  : locate cloud ms=3368 heard=اشتركوا في القناة
+  |  6346  6378 D recite  : locate cloud ms=1228 heard=اشتركوا في القناة
+  |  6346  6381 D recite  : locate cloud ms=1790 heard=اشتركوا في القناة
+  |  6346  6378 D recite  : locate cloud ms=896 heard=اشتركوا في القناة
+  |  6346  6378 D recite  : locate cloud ms=2775 heard=موسيقى
+  |  6346  6396 D recite  : locate cloud ms=1714 heard=شكرا
+  |  6346  6378 D recite  : locate cloud ms=1733 heard=اشتركوا في القناة
+  |  6346  6381 D recite  : locate cloud ms=2659 heard=اشتركوا في القناة
+  |  6346  6378 D recite  : locate cloud ms=2552 heard=اشتركوا في القناة
+  |  6346  6396 D recite  : locate cloud ms=1818 heard=شكرا
+  |  6346  6378 D recite  : locate cloud ms=1704 heard=اشتركوا في القناة
 SCENARIO hafs_mid riwaya=hafs expect_flat=2161(±1: 18:22/23) locked_flat=2162 => PASS
-  |  6214  6248 D recite  : locate cloud ms=1200 heard=اشتركوا في القناة
-  |  6214  6268 D recite  : locate cloud ms=1356 heard=اشتركوا في القناة
-  |  6541  6574 D recite  : locate cloud ms=1765 heard=اشتركوا في القناة
-  |  6541  6573 D recite  : locate cloud ms=1420 heard=اشتركوا في القناة
-  |  6541  6590 D recite  : locate cloud ms=1809 heard=اشتركوا في القناة
-  |  6541  6590 D recite  : locate cloud ms=1545 heard=قُرْ رَبِّي أَعْمَ
-  |  6541  6577 D recite  : locate cloud ms=3173 heard=قرآن بي
-  |  6541  6577 D recite  : locate cloud ms=2018 heard=قل ربي أعلم بعدة
-  |  6541  6575 D recite  : locate cloud ms=2087 heard=ربي أعلم بعدتهم
-  |  6541  6590 D recite  : locate cloud ms=1307 heard=ويعلموا بعدتهم ما يعلموه
-  |  6541  6577 D recite  : locate cloud ms=4699 heard=أعلم بعدتهم ما يعلم
-  |  6541  6574 D recite  : locate cloud ms=1416 heard=ما يعلموهم إلا قليل
-  |  6541  6575 D recite  : locate cloud ms=2081 heard=مما يعلموهم إلا قليل
-  |  6541  6577 D recite  : locate cloud ms=1604 heard=اشتركوا في القناة
+  |  6346  6378 D recite  : locate cloud ms=2138 heard=اشتركوا في القناة
+  |  6346  6396 D recite  : locate cloud ms=1310 heard=اشتركوا في القناة
+  |  6881  6881 D recite  : audio inject samples=836107
+  |  6881  6913 D recite  : locate cloud ms=3036 heard=اشتركوا في القناة
+  |  6881  6912 D recite  : locate cloud ms=2744 heard=اشتركوا في القناة
+  |  6881  6913 D recite  : locate cloud ms=1867 heard=قرآن بي
+  |  6881  6912 D recite  : locate cloud ms=2063 heard=قُرْ رَبِّي أَعْمُ
+  |  6881  6914 D recite  : locate cloud ms=1167 heard=قل ربي أعلم بعدة
+  |  6881  6916 D recite  : locate cloud ms=3618 heard=قل ربي أعلم بي
+  |  6881  6914 D recite  : locate cloud ms=1774 heard=ربي أعلم بعدتهم
+  |  6881  6914 D recite  : locate cloud ms=1067 heard=ويعلموا بعدتهم ما يعلمه
+  |  6881  6913 D recite  : locate cloud ms=1403 heard=لعدتهم ما يعلمهم إلا
+  |  6881  6912 D recite  : locate cloud ms=878 heard=ما يعلموهم إلا قليل
+  |  6881  6916 D recite  : locate cloud ms=1116 heard=مما يعلموهم إلا قليل
 SCENARIO qalun_start riwaya=qalun expect_flat=2161(±1: 18:22/23) locked_flat=2162 => PASS
-  |  7031  7063 D recite  : locate cloud ms=1273 heard=سيقول
-  |  7031  7064 D recite  : locate cloud ms=1788 heard=سيقولون ثلاثة
-  |  7031  7067 D recite  : locate cloud ms=3516 heard=سيقولون سأل
-  |  7031  7067 D recite  : locate cloud ms=1616 heard=سيقولون ثلاثة الرابع هم كبير
-  |  7031  7064 D recite  : locate cloud ms=1242 heard=سلاسة رابعهم كلبهم
-  |  7031  7067 D recite  : locate cloud ms=2708 heard=ثلاثة الرابعهم كلبهم ويقول
-  |  7031  7066 D recite  : locate cloud ms=1985 heard=الرابعهم كلبهم ويقولون
-  |  7031  7064 D recite  : locate cloud ms=1088 heard=ويقولون خمسة ساعة
-  |  7031  7064 D recite  : locate cloud ms=1107 heard=ويقولون خمسة سادسون
-  |  7031  7067 D recite  : locate cloud ms=953 heard=خمسة سادسهم كلبهم
-  |  7031  7066 D recite  : locate cloud ms=1385 heard=قمسة سادسهم كلبهم رجم
-  |  7031  7064 D recite  : locate cloud ms=2152 heard=سادسهم كلبهم رجما بي
-  |  7031  7067 D recite  : locate cloud ms=1565 heard=كلبهم رجما بالغير
-  |  7031  7064 D recite  : locate cloud ms=1007 heard=كلبهم رجما بالغيب
-SCENARIO hafs_basmala_prefix riwaya=hafs expect_flat=2161(±1: 18:22/23) locked_flat=0 => FAIL
-  |  7182  7215 D recite  : locate cloud ms=1817 heard=بسم الله
-  |  7182  7213 D recite  : locate cloud ms=3032 heard=بسم الله الرحمن الرحيم
-  |  7182  7214 D recite  : locate cloud ms=1675 heard=بسم الله الرحمن الرحيم
-  |  7182  7217 D recite  : locate cloud ms=4736 heard=بسم الله الرحمن الرحيم
-  |  7182  7215 D recite  : locked CLOUD flat=0 after ms=9345
-  |  7182  7217 D recite  : locate cloud ms=3587 heard=رحيم سيقولون
+  |  7025  7025 D recite  : audio inject samples=1144245
+  |  7025  7059 D recite  : locate cloud ms=1596 heard=سيقول
+  |  7025  7058 D recite  : locate cloud ms=2858 heard=سيقولون سأل
+  |  7025  7060 D recite  : locate cloud ms=3057 heard=سيقولون ثلاثة
+  |  7025  7057 D recite  : locate cloud ms=2108 heard=سيقولون ثلاثة الرابع هم كي
+  |  7025  7059 D recite  : locate cloud ms=1433 heard=سلاسة رابعهم كلبهم
+  |  7025  7058 D recite  : locate cloud ms=2355 heard=ثلاثة الرابعهم كلبهم ويقول
+  |  7025  7057 D recite  : locate cloud ms=1706 heard=الرابعهم كلبهم ويقولون
+  |  7025  7058 D recite  : locate cloud ms=2864 heard=كلبهم ويقولون خمسة
+  |  7025  7059 D recite  : locate cloud ms=3560 heard=ويقولون خمسة ساعة
+  |  7025  7071 D recite  : locate cloud ms=1769 heard=خمسة سادسهم كلبهم
+  |  7025  7059 D recite  : locate cloud ms=1839 heard=قمسة سادسهم كلبهم رجم
+  |  7025  7058 D recite  : locate cloud ms=1138 heard=سادسهم كلبهم رجما بي
+  |  7025  7071 D recite  : locate cloud ms=1959 heard=كلبهم رجما بالغير
+SCENARIO hafs_basmala_prefix riwaya=hafs expect_flat=2161(±1: 18:22/23) locked_flat=none => FAIL
+  |  7185  7185 D recite  : audio inject samples=1217579
+  |  7185  7222 D recite  : locate cloud ms=1409 heard=بسم الله
+  |  7185  7222 D recite  : locate cloud ms=1497 heard=بسم الله الرحمن الرحيم
+  |  7185  7231 D recite  : locate cloud ms=3445 heard=بسم الله الرحمن الرحيم
+  |  7185  7218 D recite  : locate cloud ms=979 heard=بسم الله الرحمن الرحيم
+  |  7185  7231 D recite  : locate cloud ms=1462 heard=سيقولون
+  |  7185  7218 D recite  : locate cloud ms=4183 heard=سيقوم
+  |  7185  7231 D recite  : locate cloud ms=1968 heard=سيقولون ثلاثة رات
+  |  7185  7222 D recite  : locate cloud ms=1798 heard=سيقولون ثلاثة رابعون
+  |  7185  7219 D recite  : locate cloud ms=2965 heard=ثلاثة رابعهم كالبول
+  |  7185  7220 D recite  : locate cloud ms=1867 heard=ثلاثة رابعهم كلبهم
+  |  7185  7218 D recite  : locate cloud ms=1987 heard=ويطابعهم كلبهم ويقولون خم
+  |  7185  7219 D recite  : locate cloud ms=1411 heard=كلبهم ويقولون خمسة
+  |  7185  7231 D recite  : locate cloud ms=1370 heard=ويقولون خمسة سادي
 CRASH: none
