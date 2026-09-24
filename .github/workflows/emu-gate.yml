@@ -72,6 +72,10 @@ on:
         description: "مفاتيحُ ذراع المفتاح العدديّة `KEY=INT` بمسافة (‏`decodeBeam=3`)"
         required: false
         default: ""
+      base_lang:
+        description: "لغةُ فكِّ ذراع خطّ الأساس (‏فارغٌ = en كما يُشحن tiny) — `ar` حين يكون خطُّ الأساس `base` المدرَّبَ بـ<|ar|>"
+        required: false
+        default: ""
   # ⚙️ **وتُستدعى مساراً قابلاً لإعادة الاستعمال** كي يُشعلها `emu-request.yml` من ملفِّ طلبٍ
   # مدفوعٍ — فبيانةُ الوكيل السحابيّ **لا تستطيع الإدلاء** (‏403 مقيس 2026-09-13).
   # ⛔ **والقيمُ الافتراضيّةُ لا تُكرَّر في المستدعي:** ما غاب من الطلب يُمرَّر فارغاً فيأخذ
@@ -149,6 +153,11 @@ on:
         default: ""
       arm2_ei:
         description: "مفاتيحُ ذراع المفتاح العدديّة `KEY=INT` بمسافة (‏`decodeBeam=3`)"
+        required: false
+        type: string
+        default: ""
+      base_lang:
+        description: "لغةُ فكِّ ذراع خطّ الأساس (‏فارغٌ = en كما يُشحن tiny) — `ar` حين يكون خطُّ الأساس `base` المدرَّبَ بـ<|ar|>"
         required: false
         type: string
         default: ""
@@ -296,6 +305,7 @@ jobs:
           ARM2_EZ: ${{ inputs.arm2_ez }}
           ARM2_EI: ${{ inputs.arm2_ei }}
           CAND_TAG: ${{ inputs.cand_tag }}
+          SHIPPED_LANG: ${{ inputs.base_lang }}
           LANGS: ${{ inputs.langs }}
           CHUNK: ${{ inputs.chunk }}
           CHAIN: ${{ inputs.chain }}
@@ -487,8 +497,11 @@ jobs:
           git add "$OUT" results/LATEST_emu.md
           # `actions/checkout` يُبقي بيانةَ الدفع في إعداد المستودع ⇒ لا حاجةَ إلى ترويسةٍ يدويّة.
           git commit -q -m "results(emu-gate): ${T} · الشوط ${{ github.run_id }}" || { echo "لا تغيير"; exit 0; }
+          # ⛔ **إلى الفرع الذي أشعل الشوطَ لا إلى `main` دائماً** (‏2026-09-24): طلبٌ مدفوعٌ من فرعٍ كان يدمج
+          #    الفرعَ كلَّه في `main` بخطوة الإيداع هذه (‏`HEAD` هو رأسُ الفرع) ⇒ تغييراتٌ بلا مراجعةٍ في `main`.
+          BR="${{ github.ref_name }}"
           for i in 1 2 3; do
-            git fetch -q origin main && git merge -q --no-edit origin/main && git push -q origin HEAD:main && { echo "✅ أُودعت $OUT"; exit 0; }
+            git fetch -q origin "$BR" && git merge -q --no-edit "origin/$BR" && git push -q origin "HEAD:$BR" && { echo "✅ أُودعت $OUT في $BR"; exit 0; }
             echo "↻ محاولةٌ $i"; sleep 5
           done
           echo "⛔ تعذّر الدفع"; exit 0

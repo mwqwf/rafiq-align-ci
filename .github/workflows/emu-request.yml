@@ -59,6 +59,7 @@ jobs:
       arm2_es: ${{ steps.r.outputs.arm2_es }}
       arm2_ez: ${{ steps.r.outputs.arm2_ez }}
       arm2_ei: ${{ steps.r.outputs.arm2_ei }}
+      base_lang: ${{ steps.r.outputs.base_lang }}
     steps:
       - uses: actions/checkout@v4
       - id: r
@@ -72,6 +73,8 @@ jobs:
                   # 🎛️ ذراعُ المفتاح: النموذجُ المشحونُ نفسُه بمفاتيحَ أخرى ⇒ سؤالُ مفتاحٍ
                   #    يُحسم في **شوطٍ واحدٍ** بالصوت عينِه (‏وإلّا قورنت ذراعٌ بمحاكٍ آخر).
                   "arm2_tag", "arm2_es", "arm2_ez", "arm2_ei",
+                  # 🗣️ لغةُ ذراع خطّ الأساس حين لا يكون `tiny` المشحون (‏`base` يُفكّ بـ`ar` · D-308).
+                  "base_lang",
                   # 📝 **و`note` سببُ الشوط بسطرٍ واحد** (أُضيف 2026-09-13 بعد أن أسقط الحارسُ
                   #    طلباً بسببها — وهو أصاب: مفتاحٌ مجهولٌ يُسقط الطلبَ ولا يُهمَل).
                   #    ⚠️ **وصفيّةٌ لا تُمرَّر إلى `emu-gate`**: تُطبع في خلاصة الشوط وحدَها،
@@ -121,3 +124,4 @@ jobs:
       arm2_es: ${{ needs.read.outputs.arm2_es }}
       arm2_ez: ${{ needs.read.outputs.arm2_ez }}
       arm2_ei: ${{ needs.read.outputs.arm2_ei }}
+      base_lang: ${{ needs.read.outputs.base_lang }}

@@ -1,0 +1,148 @@
+# 📦☁️ **نشرُ مرشَّح التصغير في الدلو** — كي يقرأه شوطُ المحاكي (`emu-gate`) ثمّ التطبيقُ إن نجح.
+#
+# ⭐ إذنُ المالك 2026-09-24 («إذني ممنوحٌ إذا نجح»): يُقاس `base` q5_1 على المحرك الحقيقيّ (‏JNI في المحاكي)،
+#    و`emu-gate` يقرأ النموذجَ **برابط** ⇒ يلزم مفتاحٌ ثابتٌ في R2. والملفُّ يُعاد بناؤه هنا **بالطريق نفسِه**
+#    الذي قِيس في `tasmi-shrink.yml` (‏whisper.cpp `c4ac001` · تحويلُ HF ⇒ f16 ⇒ q5_1)، وتُطبع بصمتُه.
+# 💰 **المجّانيّةُ تُثبَت قبل الكتابة لا بعدها:** يُجمع حجمُ الدلو كلِّه، ولا يُرفع إلّا إن بقي المجموعُ مع الملفّ
+#    تحت حصّة R2 المجّانيّة (‏10 ج.ب تخزيناً)؛ وإلّا سقط الشوطُ بنصّ الرقم. والرفعُ `--no-clobber` فلا يُكتب فوق قائم.
+# 🔑 الزناد: دفعُ `tools/tasmi_bench/requests/shrink_publish.json` وفيه `{"qtype": "q5_1", "key": "models/…"}`.
+name: tasmi-shrink-publish
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - "tools/tasmi_bench/requests/shrink_publish.json"
+permissions:
+  contents: write
+concurrency:
+  group: tasmi-shrink-publish
+  cancel-in-progress: false
+env:
+  UA: "Mozilla/5.0 (QuranRafiq tasmi shrink)"
+  PUB: https://pub-2c2e1dcd92e84a2898820dd38d3e09e6.r2.dev
+  WCPP_SHA: c4ac0012a8f5a2082dfca6aad4ddfd8b2c02b337
+  HF_BASE: tarteel-ai/whisper-base-ar-quran
+  FREE_BYTES: "10000000000"
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - id: req
+        run: |
+          python3 - <<'PY' >> "$GITHUB_OUTPUT"
+          import json, re, sys
+          r = json.load(open("tools/tasmi_bench/requests/shrink_publish.json", encoding="utf-8"))
+          q, k = r["qtype"], r["key"]
+          if not re.fullmatch(r"q[0-9]_[0-9k]", q) or not re.fullmatch(r"models/[a-z0-9._/-]+\.bin", k):
+              sys.exit(f"⛔ طلبٌ غيرُ سليم: {r}")
+          print(f"qtype={q}"); print(f"key={k}")
+          PY
+      - name: r2 creds (من السرّ الواحد R2_CREDENTIALS_JSON)
+        env:
+          R2_CREDENTIALS_JSON: ${{ secrets.R2_CREDENTIALS_JSON }}
+        run: |
+          mkdir -p secure && printf '%s' "$R2_CREDENTIALS_JSON" > secure/r2_credentials.json
+          python3 - <<'PY2'
+          import json, os
+          c = json.load(open("secure/r2_credentials.json"))
+          keys = {"R2_ENDPOINT": c["endpoint"], "R2_ACCESS_KEY_ID": c["accessKeyId"], "R2_SECRET_ACCESS_KEY": c["secretAccessKey"], "R2_BUCKET": c["bucket"]}
+          env = open(os.environ["GITHUB_ENV"], "a")
+          for k, v in keys.items():
+              print("::add-mask::" + v); env.write(k + "=" + v + chr(10))
+          env.close()
+          PY2
+      - name: deps
+        run: |
+          sudo apt-get update -qq && sudo apt-get install -y -qq cmake build-essential > /dev/null
+          pip install -q --index-url https://download.pytorch.org/whl/cpu torch
+          pip install -q "transformers<5" huggingface_hub numpy boto3
+          git clone -q --depth 1 https://github.com/openai/whisper /tmp/oai
+      - name: whisper.cpp (الإيداعُ نفسُه · بناءٌ محمول)
+        run: |
+          set -eo pipefail
+          mkdir -p /tmp/wcpp && git -C /tmp/wcpp init -q \
+            && git -C /tmp/wcpp fetch -q --depth 1 https://github.com/ggml-org/whisper.cpp "$WCPP_SHA" \
+            && git -C /tmp/wcpp checkout -q FETCH_HEAD
+          cmake -S /tmp/wcpp -B /tmp/wcpp/build -DCMAKE_BUILD_TYPE=Release -DBUILD_SHARED_LIBS=OFF -DWHISPER_BUILD_TESTS=OFF -DGGML_NATIVE=OFF -DGGML_AVX=ON -DGGML_AVX2=ON -DGGML_FMA=ON -DGGML_F16C=ON > /dev/null
+          cmake --build /tmp/wcpp/build --config Release -j"$(nproc)" --target whisper-cli whisper-quantize > /dev/null
+          mkdir -p bin && cp /tmp/wcpp/build/bin/whisper-cli /tmp/wcpp/build/bin/whisper-quantize bin/
+          cp /tmp/wcpp/models/convert-h5-to-ggml.py bin/
+      - name: HF ⇒ ggml f16 ⇒ التكميم المطلوب (‏الطريقُ المقيسُ نفسُه)
+        run: |
+          set -eo pipefail
+          python - <<'PY'
+          import json, os
+          from huggingface_hub import HfApi, snapshot_download
+          rev = HfApi().model_info(os.environ["HF_BASE"]).sha
+          d = snapshot_download(os.environ["HF_BASE"], revision=rev, local_dir="/tmp/hf_base",
+                                allow_patterns=["*.json", "*.bin", "*.safetensors", "*.txt"])
+          p = os.path.join(d, "config.json"); c = json.load(open(p))
+          c["max_length"] = c["max_target_positions"]; json.dump(c, open(p, "w"), indent=1)
+          open("/tmp/hf_rev", "w").write(rev); print("HF revision", rev)
+          PY
+          sed -i 's/\.squeeze()\.numpy()/.squeeze().float().numpy()/' bin/convert-h5-to-ggml.py
+          mkdir -p /tmp/conv models && python bin/convert-h5-to-ggml.py /tmp/hf_base /tmp/oai /tmp/conv
+          bin/whisper-quantize /tmp/conv/ggml-model.bin models/cand.bin "${{ steps.req.outputs.qtype }}" > /dev/null
+          rm -f /tmp/conv/ggml-model.bin
+          ls -l models
+      - name: فحصُ التحميل (‏يُفرّغ عربيّاً بلا خطأ)
+        run: |
+          set -eo pipefail
+          curl -sSL -f --retry 4 --retry-all-errors -A "$UA" -o /tmp/a.mp3 "https://download.quranicaudio.com/qdc/mishari_al_afasy/murattal/112.mp3" \
+            || curl -sSL -f --retry 4 --retry-all-errors -A "$UA" -o /tmp/a.mp3 "https://server8.mp3quran.net/afs/112.mp3"
+          sudo apt-get install -y -qq ffmpeg > /dev/null
+          ffmpeg -loglevel error -y -i /tmp/a.mp3 -ar 16000 -ac 1 -t 25 /tmp/a.wav
+          out=$(bin/whisper-cli -m models/cand.bin -l ar -t 4 -nt -ng -f /tmp/a.wav 2>&1; echo "rc=$?")
+          echo "$out" | tail -4
+          echo "$out" | grep -q "^rc=0$" && echo "$out" | grep -qP "[\x{0600}-\x{06FF}]" || { echo "⛔ لا يُحمَّل أو لا يفرّغ"; exit 1; }
+      - name: 💰 حصّةُ R2 المجّانيّة قبل الكتابة
+        run: |
+          python3 - <<'PY'
+          import os, sys, boto3
+          s3 = boto3.client("s3", endpoint_url=os.environ["R2_ENDPOINT"], aws_access_key_id=os.environ["R2_ACCESS_KEY_ID"],
+                            aws_secret_access_key=os.environ["R2_SECRET_ACCESS_KEY"], region_name="auto")
+          tot = n = 0
+          for page in s3.get_paginator("list_objects_v2").paginate(Bucket=os.environ["R2_BUCKET"]):
+              for o in page.get("Contents", []):
+                  tot += o["Size"]; n += 1
+          add = os.path.getsize("models/cand.bin"); free = int(os.environ["FREE_BYTES"])
+          line = f"الدلو: {n} ملفّاً · {tot/1e9:.3f} ج.ب · والملفُّ {add/1e6:.1f} م.ب ⇒ {(tot+add)/1e9:.3f} من {free/1e9:.0f} ج.ب مجّاناً"
+          print(line); open("/tmp/bucket.txt", "w").write(line)
+          if tot + add >= free:
+              sys.exit("⛔ الكتابةُ تتجاوز الحصّةَ المجّانيّة ⇒ لا رفع (يلزم إذنٌ ماليٌّ جديد)")
+          PY
+      - name: الرفعُ (‏لا يُكتب فوق قائم) ثمّ التحقّقُ من الرابط العامّ بالبصمة
+        run: |
+          set -eo pipefail
+          K="${{ steps.req.outputs.key }}"
+          python tools/finetune/r2_put.py --no-clobber models/cand.bin "$K"
+          sleep 5
+          curl -sSL -f --retry 4 --retry-all-errors -A "$UA" -o /tmp/pub.bin "$PUB/$K"
+          A=$(sha256sum models/cand.bin | cut -d' ' -f1); B=$(sha256sum /tmp/pub.bin | cut -d' ' -f1)
+          echo "محلّيّ $A · عامّ $B"
+          [ "$A" = "$B" ] || { echo "⛔ الرابطُ العامُّ لا يطابق الملفّ (مفتاحٌ قائمٌ قديم؟)"; exit 1; }
+          python3 - "$K" "$A" <<'PY'
+          import json, os, sys
+          k, sha = sys.argv[1], sys.argv[2]
+          doc = {"key": k, "url": os.environ["PUB"] + "/" + k, "bytes": os.path.getsize("models/cand.bin"), "sha256": sha,
+                 "qtype": "${{ steps.req.outputs.qtype }}", "hf_repo": os.environ["HF_BASE"], "hf_revision": open("/tmp/hf_rev").read(),
+                 "whisper_cpp": os.environ["WCPP_SHA"], "bucket": open("/tmp/bucket.txt").read(), "run_id": "${{ github.run_id }}"}
+          os.makedirs("ops/shrink", exist_ok=True)
+          json.dump(doc, open("ops/shrink/publish.json", "w", encoding="utf-8"), ensure_ascii=False, indent=1)
+          print(json.dumps(doc, ensure_ascii=False, indent=1))
+          PY
+      - name: إيداعُ الوصف في الفرع
+        run: |
+          set -eo pipefail
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add ops/shrink/publish.json && git commit -q -m "ops: نُشر مرشَّحُ التصغير في الدلو · ${{ github.run_id }}" -- ops/shrink/publish.json
+          for i in 1 2 3 4; do
+            git push origin "HEAD:${{ github.ref_name }}" && break
+            git fetch -q origin "${{ github.ref_name }}" && git merge --no-edit -q "origin/${{ github.ref_name }}"; sleep $((i*3))
+          done

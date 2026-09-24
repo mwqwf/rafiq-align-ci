@@ -60,8 +60,10 @@ for A in $ARMS; do
       # إلى `DEFAULT=en`، فتتطابق ذراعا `en`/`ar` في حلقة `LANGS` ويُحكم كذباً أنّ «اللغةَ لا أثرَ لها».
       # وبالتثبيت الصريح يبقى القياسُ صحيحاً أيضاً **بعد** أن يكسب الجدولُ سطراً جديداً (بوّابةُ v2).
       # 🛡️ ويسندُه حارسُ `emu_sweep.py`: سطرُ `RafiqFrontEnd … lang=` يجب أن يُقرّ بالنيّة وإلا وقف المسح.
-      echo "▶ $SET · $A · lang=en (صريحاً — كما يُشحن)"
-      python emu_sweep.py --set "$SET" --chain "$CHAIN" --chunk "$CHUNK" --tag "$A$SUF" --model-path "/data/local/tmp/q8_$A.bin" --es "lang=en" $EZARGS | tail -3
+      # 🗣️ و`SHIPPED_LANG` حين يكون خطُّ الأساس نموذجاً آخرَ (‏`base` q8 مدرَّبٌ بـ<|ar|> ⇒ يُقاس بـ`ar` · D-308).
+      BL="${SHIPPED_LANG:-en}"
+      echo "▶ $SET · $A · lang=$BL (صريحاً — كما يُشحن)"
+      python emu_sweep.py --set "$SET" --chain "$CHAIN" --chunk "$CHUNK" --tag "$A$SUF" --model-path "/data/local/tmp/q8_$A.bin" --es "lang=$BL" $EZARGS | tail -3
     else
       # ⛔ والوسمُ يحمل اللغةَ صراحةً (`v2-ar` لا `v2`): ملفُّ الذراع القديمةِ المخدومةِ بـ`en` يحمل الاسمَ المجرَّد،
       # فلو تساويا لكُتب أحدُهما فوق الآخر و**قورنت ذراعٌ بذراعٍ أخرى بلا أن يظهر في الرقم شيء**.
