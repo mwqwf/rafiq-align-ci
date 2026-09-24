@@ -1203,7 +1203,11 @@ def audit(key, args):
     for o in op_rows:
         if o["verdict"].startswith("بسملة"):
             rep["fatal"].append(f"بسملة مبتلعة في {o['surah']}:1 — مؤكَّدة بالصوت: «{o['heard'][:40]}»")
-    return _finish(rep, rows, by_cluster, seed, len(errs))
+    out = _finish(rep, rows, by_cluster, seed, len(errs))
+    # ‏أسماءُ النوافذ المتعذّرة وعللُها تُحفظ مع العدد — ليُعرف أهي نافذةُ آيةٍ
+    # (‏F/D/L) أم مسبارُ مطلع (‏O/P)، ولا يُكتفى بعددٍ لا يُفسَّر.
+    rep["sample"]["errorWindows"] = {k: str(v)[:160] for k, v in sorted(errs.items())[:60]}
+    return out
 
 # ───────────────────────── الطباعة ─────────────────────────
 LIMITS = ("⚠️ حدود الحكم (تُقرأ معه لا بعده): ليست أذناً بشرية بل تفريغ whisper q8 مقابَلاً بالنص؛\n"
@@ -1256,6 +1260,8 @@ def show(rep):
             print(f"  📐 {nm}: {hit}/{n} = {hit/n:.1%}{c}")
         if s["errors"]:
             print(f"  ⚠️ نوافذ تعذّر تفريغها: {s['errors']}")
+            for _k, _v in (s.get("errorWindows") or {}).items():
+                print(f"     · {_k}: {_v}")
     print(f"\n  ⇒ الحكم: {rep['verdict']}\n{LIMITS}")
 
 # ───────────────────────── main ─────────────────────────
