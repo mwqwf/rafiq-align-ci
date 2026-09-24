@@ -1,0 +1,65 @@
+# 🔬 **تشريحُ الكشف لمرشَّحي التصغير** — على فرضيّات شوطٍ سابقٍ من `tasmi-shrink.yml` بلا تفريغٍ جديد.
+#
+# ⛔ لِمَ: صفُّ «كشف» في `v2_gate` لا يرى `INSERT` (D-351)، و`base` بكلّ تكميماته نزل فيه على g3r النظيفة أمام
+# `tiny` (‏q8 ‎−6.2 · q5_1 ‎−4.2 [‎−8.8..0.0]). فيُفصَّل صنفاً صنفاً، بالكشف الضيّق والموسَّع (كلمةُ المانح تُسمع زائدةً)،
+# قبل أن يُقرأ حكماً على قدرة النموذج.
+# 🔑 الزناد: دفعُ `tools/tasmi_bench/requests/shrink_anatomy.json` وفيه `{"run_id": …}`.
+name: tasmi-shrink-anatomy
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - "tools/tasmi_bench/requests/shrink_anatomy.json"
+permissions:
+  contents: write
+  actions: read
+jobs:
+  anatomy:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - run: pip install -q numpy
+      - id: req
+        run: echo "run_id=$(python3 -c "import json;print(json.load(open('tools/tasmi_bench/requests/shrink_anatomy.json'))['run_id'])")" >> "$GITHUB_OUTPUT"
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: hyps-*
+          merge-multiple: true
+          path: tools/tasmi_bench/work/src
+          run-id: ${{ steps.req.outputs.run_id }}
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+      - name: التشريح — كلُّ ذراعٍ مقابل المشحون
+        env:
+          PYTHONIOENCODING: utf-8
+        run: |
+          set -eo pipefail
+          cd tools/tasmi_bench
+          mkdir -p work/anat
+          # تسميةُ `detect_anatomy` (‏hyps_emu_<tag>_cap_<arm>.json) من تسمية المرآة (‏hyps_ci-<arm>_<tag>_gate_cap10.json)
+          for f in work/src/hyps_ci-*_g3r-*_gate_cap10.json; do
+            b=$(basename "$f" _gate_cap10.json); arm=${b#hyps_ci-}; tag=${arm##*_}; arm=${arm%_*}
+            cp "$f" "work/anat/hyps_emu_${tag}_cap_${arm}.json"
+          done
+          ls work/anat | head -40
+          OUT=work/anatomy.md; : > "$OUT"
+          for c in base-q8-ar base-q51-ar base-q50-ar base-q4k-ar base-q40-ar base-q6k-ar; do
+            echo "## tiny-q8-en ⇐ $c" >> "$OUT"
+            python detect_anatomy.py --dirs work/anat:zz --arms tiny-q8-en "$c" >> "$OUT" 2>&1 || echo "⛔ تعذّر $c" >> "$OUT"
+          done
+          cat "$OUT" >> "$GITHUB_STEP_SUMMARY"
+          D="../../ops/shrink/${{ steps.req.outputs.run_id }}"; mkdir -p "$D" && cp "$OUT" "$D/anatomy.md"
+      - name: إيداعُ التشريح نصّاً في الفرع
+        run: |
+          set -eo pipefail
+          D="ops/shrink/${{ steps.req.outputs.run_id }}"
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add "$D/anatomy.md" && git commit -q -m "ops: تشريحُ كشف tasmi-shrink ${{ steps.req.outputs.run_id }}" -- "$D/anatomy.md"
+          for i in 1 2 3 4; do
+            git push origin "HEAD:${{ github.ref_name }}" && break
+            git fetch -q origin "${{ github.ref_name }}" && git merge --no-edit -q "origin/${{ github.ref_name }}"; sleep $((i*3))
+          done
