@@ -10,8 +10,13 @@ BASE = "https://mushafak-api.mushafak.workers.dev"
 CLIPS = ["001002", "002255", "018022"]
 
 
-def call(method, path, data=None, headers=None, timeout=20):
-    req = urllib.request.Request(BASE + path, data=data, method=method, headers=headers or {})
+UA = "Dalvik/2.1.0 (Linux; U; Android 14; Pixel 7 Build/UQ1A)"   # كطلب التطبيق (HttpURLConnection)
+
+
+def call(method, path, data=None, headers=None, timeout=20, ua=UA):
+    h = dict(headers or {})
+    if ua: h["user-agent"] = ua
+    req = urllib.request.Request(BASE + path, data=data, method=method, headers=h)
     t0 = time.time()
     try:
         with urllib.request.urlopen(req, timeout=timeout) as r:
@@ -37,8 +42,9 @@ def main():
     import shutil
     if not shutil.which("ffmpeg"):   # صورةُ العدّاد قد تخلو منه
         subprocess.run("sudo apt-get -qq update && sudo apt-get -qq install -y ffmpeg >/dev/null", shell=True)
-    s, body, dt = call("GET", "/v1/app/version")
-    print(f"GET /v1/app/version → {s} ({dt:.2f}s) {body[:120]!r}")
+    for ua in (UA, "okhttp/4.12.0", None):
+        s, body, dt = call("GET", "/v1/app/version", ua=ua)
+        print(f"GET /v1/app/version ua={ua or 'Python-urllib'} → {s} ({dt:.2f}s) {body[:120]!r}")
     s, body, dt = call("POST", "/v1/device", json.dumps({"app_version": "probe", "platform": "ci-probe"}).encode(),
                        {"content-type": "application/json"})
     print(f"POST /v1/device → {s} ({dt:.2f}s)")
