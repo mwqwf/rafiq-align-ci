@@ -201,6 +201,14 @@ jobs:
             done
           fi
           { echo "### ⚖️ tasmi-gate · $TAG (مرآةُ المحرك على CI · whisper.cpp مثبَّت · -nc)"; cat "$M"; } >> "$GITHUB_STEP_SUMMARY"
+      - name: رفعُ النتائج إلى R2
+        run: |
+          cd tools/tasmi_bench
+          TAG="${{ github.event.inputs.tag }}"
+          ARGS="work/gate_$TAG.md finetune/gate/$TAG/summary.md"
+          for f in work/hyps_ci-*.json; do ARGS="$ARGS $f finetune/gate/$TAG/$(basename $f)"; done
+          python ../finetune/r2_put.py $ARGS
+          echo "☁️ https://pub-2c2e1dcd92e84a2898820dd38d3e09e6.r2.dev/finetune/gate/$TAG/summary.md"
       - name: 🚪 بوّابة المتعلّم الحقيقي g5 (الطبقة أ · وسومٌ وتفريغاتٌ مخزّنة · بلا صوتٍ ولا شبكة)
         env:
           PYTHONIOENCODING: utf-8
@@ -210,14 +218,9 @@ jobs:
           # ⚖️ المسطرة الموحّدة (D-726 · D-724 · len==n_ref) وعدمُ الدونيّة أمام خطّ الأساس المودَع:
           #    أعلى مجال 95٪ لفرق الاتّهام الكاذب ≤ +0.5 نقطة، والكشفُ لا يهبط أكثر من كلمتين.
           # ⛔ الطبقة (ب) بصوت المرشَّح نفسه تنتظر learner-audio.yml؛ هذه تحرس مرآةَ الحاكم وحدها.
+          # ⚖️ بعد رفع نتائج المرشَّح (لا تحجبها بوّابةٌ لا تقرأ صوتَه)، والجدولُ يُلحق بالملخّص ولو سقطت.
+          rc=0
           python learner_gate.py --baseline learner_gate_baseline_v1.json --gate base tiny+base:veto \
-            --md work/learner_gate.md --out work/learner_gate.json
-          cat work/learner_gate.md >> "$GITHUB_STEP_SUMMARY"
-      - name: رفعُ النتائج إلى R2
-        run: |
-          cd tools/tasmi_bench
-          TAG="${{ github.event.inputs.tag }}"
-          ARGS="work/gate_$TAG.md finetune/gate/$TAG/summary.md"
-          for f in work/hyps_ci-*.json; do ARGS="$ARGS $f finetune/gate/$TAG/$(basename $f)"; done
-          python ../finetune/r2_put.py $ARGS
-          echo "☁️ https://pub-2c2e1dcd92e84a2898820dd38d3e09e6.r2.dev/finetune/gate/$TAG/summary.md"
+            --md work/learner_gate.md --out work/learner_gate.json || rc=$?
+          if [ -f work/learner_gate.md ]; then cat work/learner_gate.md >> "$GITHUB_STEP_SUMMARY"; fi
+          exit $rc

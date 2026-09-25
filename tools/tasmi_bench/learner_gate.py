@@ -94,7 +94,8 @@ def check_text(rows: list) -> dict:
         if rw not in texts:
             p = os.path.join(ASSETS, f"text_{rw}.jz")
             if not os.path.exists(p):
-                return {"checked": False, "reason": "لا نصَّ موثَّقاً في المستودع: " + p}
+                # ⛔ غيابُ النصّ الموثَّق يوقف الأداة (كما يقول رأسُها) ولا يمرّ بـ«checked: False» صامتاً.
+                raise SystemExit("⛔ لا نصَّ موثَّقاً في المستودع لمطابقة ملفّ الذهب: " + p)
             texts[rw] = json.loads(zlib.decompress(open(p, "rb").read(), 47))
         if texts[rw][r["flat"]] != r["ref_text"]:
             bad.append(r["key"])
@@ -205,7 +206,10 @@ class Boot:
 
     def ci(self, fn) -> list:
         v = sorted(fn(s) for s in self.samples)
-        lo, hi = v[int(0.025 * len(v))], v[int(0.975 * len(v)) - 1]
+        # مئينان متناظران: كان الأعلى `v[int(0.975n)-1]` يقع دون المتناظر بمرتبةٍ حين لا يكون 0.025n صحيحاً،
+        # فيخفض الحدَّ الأعلى الذي يُحكم عليه شرطُ عدم الدونيّة (أيسرُ خداعاً). الآن `v[n-1-k]` مع `v[k]`.
+        k = int(0.025 * len(v))
+        lo, hi = v[k], v[len(v) - 1 - k]
         return [round(lo, 2), round(hi, 2)]
 
 
