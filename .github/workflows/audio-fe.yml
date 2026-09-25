@@ -1,0 +1,157 @@
+# 🎚️ **المعالجةُ الصوتيّة قبل النموذج على المتعلّمين — قياسٌ فقط، لا يُشحن ولا يكتب على R2.**
+#
+# الزناد: دفعُ `ops/audiofe/request.json` إلى الفرع المعيّن (الجلسةُ لا تملك workflow_dispatch: 403).
+#   {"reason": "…", "models": ["tiny", "base_q5_1"], "conds": ["clean", "fan10", "fan5", "quiet30"],
+#    "arms": ["off", "ship", "v2", "hpf", "mild", "pad"]}
+# الخطوات: صوتُ المتعلّمين من ذاكرة forced-judge (actions/cache · المفتاحُ نفسُه، وإن غاب جُلب من HF) ⇐
+# whisper.cpp @ c4ac0012 ⇐ لكلّ (نموذج × ظرف): الأذرعُ كلُّها بمرآة المحرك (tools/audiofe) ⇐
+# إيداعُ results/audiofe_learners.json (تفريغاتٌ ونصوصٌ قصيرة) على الفرع نفسِه. والحكمُ بمسطرة learner_gate يُحسب خارجاً.
+# 💰 المستودعُ عامّ · ubuntu-latest القياسيّ · timeout لكلّ مهمّة · لا R2 · Artifacts صغيرةٌ ليومٍ واحد.
+name: audio-fe
+on:
+  push:
+    branches: ["claude/project-thread-kwr0kl"]
+    paths: ["ops/audiofe/request.json"]
+
+concurrency:
+  group: audio-fe
+  cancel-in-progress: false
+
+permissions:
+  contents: write
+
+env:
+  PYTHONIOENCODING: utf-8
+  WCPP_SHA: c4ac0012a8f5a2082dfca6aad4ddfd8b2c02b337
+
+jobs:
+  prep:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    outputs:
+      matrix: ${{ steps.req.outputs.matrix }}
+      arms: ${{ steps.req.outputs.arms }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - run: pip install -q numpy soundfile regex
+      - id: req
+        run: |
+          python3 - <<'PY' >> "$GITHUB_OUTPUT"
+          import json, sys
+          r = json.load(open("ops/audiofe/request.json", encoding="utf-8"))
+          okm, okc, oka = {"tiny", "tiny_v2", "base_q5_1"}, {"clean", "fan10", "fan5", "quiet30"}, {"off", "ship", "v2", "hpf", "mild", "pad"}
+          m, c, a = r.get("models") or [], r.get("conds") or [], r.get("arms") or []
+          if not r.get("reason") or not m or not c or not a or not set(m) <= okm or not set(c) <= okc or not set(a) <= oka:
+              sys.stderr.write("⛔ طلبٌ غير صالح\n"); sys.exit(1)
+          print("matrix=" + json.dumps({"model": m, "cond": c}))
+          print("arms=" + " ".join(a))
+          PY
+      - name: learner audio cache
+        id: ac
+        uses: actions/cache@v4
+        with:
+          path: work/learner_audio
+          key: learner-audio-sobolev-v1-${{ hashFiles('tools/tasmi_bench/learner_gold_v1.jsonl') }}
+      - name: ⬇️ جلبُ صوت المتعلّمين (إن غاب من الذاكرة)
+        if: steps.ac.outputs.cache-hit != 'true'
+        run: python tools/tasmi_bench/forced_judge.py fetch --out work/learner_audio
+      - run: python3 -c "import json; m=json.load(open('work/learner_audio/manifest.json')); print(len(m['items']), 'مقطعاً · مفقود', len(m['missing']))"
+
+  run:
+    needs: prep
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    strategy:
+      fail-fast: false
+      matrix: ${{ fromJSON(needs.prep.outputs.matrix) }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: deps
+        run: |
+          sudo apt-get update -qq && sudo apt-get install -y -qq ffmpeg cmake build-essential > /dev/null
+          pip install -q numpy soundfile regex
+      - uses: actions/cache/restore@v4
+        with:
+          path: work/learner_audio
+          key: learner-audio-sobolev-v1-${{ hashFiles('tools/tasmi_bench/learner_gold_v1.jsonl') }}
+          fail-on-cache-miss: true
+      - name: whisper.cpp @ c4ac0012
+        run: |
+          set -eo pipefail
+          mkdir -p /tmp/wcpp && git -C /tmp/wcpp init -q
+          git -C /tmp/wcpp fetch -q --depth 1 https://github.com/ggml-org/whisper.cpp "$WCPP_SHA"
+          git -C /tmp/wcpp checkout -q FETCH_HEAD
+          cmake -S /tmp/wcpp -B /tmp/wcpp/build -DCMAKE_BUILD_TYPE=Release -DBUILD_SHARED_LIBS=OFF -DWHISPER_BUILD_TESTS=OFF > /dev/null
+          cmake --build /tmp/wcpp/build --config Release -j"$(nproc)" --target whisper-cli > /dev/null
+          mkdir -p bin && cp /tmp/wcpp/build/bin/whisper-cli bin/
+      - name: ⬇️ النموذج (بالبصمة)
+        run: |
+          set -eo pipefail
+          python3 - <<'PY'
+          import hashlib, sys, urllib.request
+          sys.path.insert(0, "tools/tasmi_bench")
+          import forced_judge as fj
+          s = fj.MODELS["${{ matrix.model }}"]
+          b = urllib.request.urlopen(urllib.request.Request(s["url"], headers={"User-Agent": "Mozilla/5.0"}), timeout=300).read()
+          h = hashlib.sha256(b).hexdigest()
+          if h != s["sha256"]:
+              sys.exit(f"⛔ بصمةٌ مختلفة {h}")
+          open("model.bin", "wb").write(b); print("✅", len(b), h[:12])
+          PY
+      - name: 🎚️ الأذرع
+        run: |
+          set -eo pipefail
+          mkdir -p work/raw
+          python tools/audiofe/run_fe.py --model ${{ matrix.model }} --model-path model.bin --cli bin/whisper-cli \
+            --audio work/learner_audio --cond ${{ matrix.cond }} --arms ${{ needs.prep.outputs.arms }} \
+            --threads "$(nproc)" --out work/raw/fe_${{ matrix.model }}_${{ matrix.cond }}.json 2>&1 | tail -30
+      - uses: actions/upload-artifact@v4
+        with:
+          name: fe-${{ matrix.model }}-${{ matrix.cond }}
+          path: work/raw/fe_${{ matrix.model }}_${{ matrix.cond }}.json
+          retention-days: 1
+
+  report:
+    needs: [prep, run]
+    if: always()
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: fe-*
+          path: work/art
+          merge-multiple: true
+        continue-on-error: true
+      - name: 📦 دمجُ المخرَجات
+        run: |
+          set -o pipefail
+          mkdir -p results
+          python3 - <<'PY'
+          import glob, json
+          out = {"run": "${{ github.run_id }}", "sha": "${{ github.sha }}", "parts": {}}
+          for p in sorted(glob.glob("work/art/fe_*.json")):
+              out["parts"][p.rsplit("/", 1)[1]] = json.load(open(p, encoding="utf-8"))
+          json.dump(out, open("results/audiofe_learners.json", "w", encoding="utf-8"), ensure_ascii=False)
+          print(len(out["parts"]), "جزءاً")
+          for n, d in out["parts"].items():
+              print(n, d["seconds"], {k: len(v) for k, v in d["errors"].items()})
+          PY
+      - name: إيداعُ النتيجة على الفرع نفسِه
+        run: |
+          git config user.name "audio-fe-bot"
+          git config user.email "actions@users.noreply.github.com"
+          git add results/audiofe_learners.json
+          git commit -q -m "نتائج المعالجة الصوتية قبل النموذج على المتعلّمين (تشغيل ${{ github.run_id }} · prep=${{ needs.prep.result }} · run=${{ needs.run.result }})" -- results/ || exit 0
+          for i in 1 2 3 4; do
+            git pull -q --no-rebase --no-edit origin "${GITHUB_REF_NAME}" && git push -q origin "HEAD:${GITHUB_REF_NAME}" && exit 0
+            sleep $((2 ** i))
+          done
+          exit 1
