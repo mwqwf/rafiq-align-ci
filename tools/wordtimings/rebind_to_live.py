@@ -8,6 +8,7 @@
 **العلاج هنا (لا توليدَ لتوقيتٍ ولا تعديلَ لرقم):**
 - تُبقى الآيةُ كما هي بايتاً بمعناها إن وقعت **كلُّ** كلماتها داخل حدود الآية الحيّة ±300 م.ث
   (‏`live.startMs - 300 <= w.startMs <= w.endMs <= live.endMs + 300`)، وكانت الكلمات مرتّبةً غير مقلوبة.
+- ولا تُبقى إلا آيةٌ مدخلُها في الفهرس الحيّ HIGH (كعقد الملف الأصليّ \`p2_unknownOrNotHigh == 0\`).
 - ويُحذف ما سوى ذلك، وكلُّ آيةٍ غابت عن الفهرس الحيّ. ⛔ لا قصَّ ولا إزاحةَ ولا تقريب.
 - ويُكتب `generatedAgainst.sha256` ببصمة الفهرس الحيّ، ويُحفظ الأصلُ القديم في `rebind.from`.
 
@@ -34,9 +35,17 @@ def read_jz_bytes(b):
 
 
 def live_bounds(index_doc):
-    """«سورة:آية» ← (بداية، نهاية) من الفهرس الحيّ — ما له حدّان رقميّان فقط."""
+    """«سورة:آية» ← (بداية، نهاية) من الفهرس الحيّ — ما له حدّان رقميّان **وحُكمُه HIGH** فقط.
+
+    ⛔ تدقيق البند (الجولة الثالثة): الملفُّ الأصليُّ لم يحمل آيةً إلا وهي HIGH في فهرسه
+    (‏`verification.p2_unknownOrNotHigh == 0`)، والتطبيقُ يعدّ MED «تشغيلاً فقط لا تظليل»
+    ويُسقط LOW كأنّه غير موجود. فحدودُ مدخلٍ MED أو LOW ليست بيّنةً يُربط عليها التظليل،
+    والتطابقُ معها لا يُثبت شيئاً (في LOW خاصّة). ⇒ يُبقى العقدُ الأصليّ ولا يُرخى.
+    """
     out = {}
     for e in index_doc.get("entries", []):
+        if e.get("confBand", "HIGH") != "HIGH":
+            continue
         s, t = e.get("startMs"), e.get("endMs")
         if isinstance(s, int) and isinstance(t, int) and t > s:
             out[e["ayahId"]] = (s, t)
@@ -98,7 +107,8 @@ def rebind(index_bytes, words_bytes, index_file_name):
     stats = {
         "method": "GATED_REBIND_NO_GUESS",
         "toleranceMs": TOL_MS,
-        "rule": "keep an ayah only if every word lies within [live.startMs-300, live.endMs+300], "
+        "rule": "keep an ayah only if its live entry is confBand HIGH and every word lies within "
+                "[live.startMs-300, live.endMs+300], "
                 "words ordered and non-inverted; drop the rest; no word time is changed",
         "fromSha256": old_ga.get("sha256"),
         "fromEntries": len(doc["entries"]),
