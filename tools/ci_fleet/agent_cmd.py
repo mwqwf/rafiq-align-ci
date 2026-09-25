@@ -320,6 +320,13 @@ def main():
         print("لا أمرَ جديد."); return
     for f in cmds:
         name = f.stem
+        # ⛔ **عطبٌ مقيسٌ 2026-09-25** (‏الشوط 36161591140): دمجُ `origin/main` داخل
+        #    `_push_answer` يجلب ما نقله شوطٌ سابقٌ إلى `done/`، فيختفي الأمرُ من تحت
+        #    القائمة المحسوبة أوّلَ الشوط ⇒ `FileNotFoundError` يُسقط الشوطَ كلَّه وما
+        #    بعده من أوامر. ⇒ أمرٌ غاب ملفُّه نفّذه غيرُنا، فيُتخطّى ولا يُعاد.
+        if not f.exists():
+            print(f"⏭ {name}: نُفّذ في شوطٍ آخر (نُقل ملفُّه) — يُتخطّى")
+            continue
         # ⛔⛔ **حارسُ المحاولات — عطبٌ مقيسٌ 2026-09-20:** أمرٌ أبطأُ من
         #    `timeout-minutes` **لا يكتمل أبداً**: يُلغى الشوطُ قبل أن يُنفَّذ ما
         #    بعده، ويبقى الأمرُ في مجلّده، فيُعاد الكرّةَ في كلّ شوطٍ تالٍ ⇒
@@ -368,7 +375,8 @@ def main():
         # ✅ تمّ ⇒ يُمحى عدّادُه فلا يُحسب عليه ما مضى.
         tries_p.unlink(missing_ok=True)
         # ⛔ يُنقل المنفَّذُ فلا يُعاد تنفيذُه عند كلّ دفعةٍ تالية
-        f.replace(DONE_DIR / f.name)
+        if f.exists():
+            f.replace(DONE_DIR / f.name)
         # ⛔⛔ **ويُدفع الجوابُ الآن لا في آخر الشوط** (عطبٌ مقيسٌ 2026-09-20):
         #    كان الدفعُ خطوةً أخيرةً وحدَها، فإذا بلغ الشوطُ `timeout-minutes`
         #    أُلغي **قبلها** ⇒ **ضاعت أجوبةُ الأوامر كلِّها** ولو كانت قد
@@ -411,8 +419,15 @@ def _push_answer(name: str) -> None:
             subprocess.run(["git", "fetch", "origin", "main", "--quiet"],
                            cwd=ROOT, check=False)
             # ⛔ لا `rebase` على هذه الشجرة المشتركة — `CLAUDE.md` نصّاً.
-            subprocess.run(["git", "merge", "-X", "ours", "--no-edit",
-                            "origin/main"], cwd=ROOT, check=False)
+            merged = subprocess.run(["git", "merge", "-X", "ours", "--no-edit",
+                                     "origin/main"], cwd=ROOT, check=False)
+            # ⛔ **عطبٌ مقيسٌ 2026-09-25** (‏الشوط 36163812825): تعارضٌ لا يحلّه
+            #    `-X ours` (‏حذفٌ/تعديل) يترك الدمجَ معلّقاً، فيسقط كلُّ إيداعٍ بعده
+            #    بـ«cannot do a partial commit during a merge» ويضيع الجوابُ. ⇒ يُلغى
+            #    الدمجُ المعلّق فيبقى الإيداعُ محلّياً، ويُعاد دفعُه بعد الأمر التالي.
+            if merged.returncode != 0:
+                subprocess.run(["git", "merge", "--abort"], cwd=ROOT, check=False)
+                return
             subprocess.run(["git", "push", "origin", "HEAD:main"],
                            cwd=ROOT, check=False)
     except Exception as ex:                                       # noqa: BLE001

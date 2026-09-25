@@ -91,6 +91,8 @@ jobs:
           git config user.name  "rafiq-agent-cmd"
           git config user.email "actions@github.com"
           # ⛔ بمسارٍ صريح: الشجرةُ يكتب فيها غيرُنا، و`-A` يكنس عملَ سواه.
+          # ⛔ دمجٌ معلّقٌ من شوط الأوامر يُسقط كلَّ إيداعٍ جزئيّ (2026-09-25) ⇒ يُلغى أوّلاً.
+          if [ -f .git/MERGE_HEAD ]; then git merge --abort || true; fi
           git add ops/out ops/commands 2>/dev/null || true
           if ! git diff --cached --quiet; then
             git commit -m "ops: جوابُ أمرِ الوكيل" -- ops/out ops/commands
@@ -105,8 +107,13 @@ jobs:
             #    خسارةَ حقيقةٍ) لا بترك الشوط يفشل صامتاً.
             git push origin HEAD:main || {
               git fetch origin main --quiet
-              git merge -X ours --no-edit origin/main
-              git push origin HEAD:main
+              if git merge -X ours --no-edit origin/main; then
+                git push origin HEAD:main
+              else
+                # تعارضٌ لا يحلّه ours: يُكتب في السجلّ ولا يُترك الدمجُ معلّقاً.
+                git merge --abort || true
+                echo "⚠️ تعذّر دمجُ الجواب مع main — يُعاد بدفعةٍ تالية"; exit 1
+              fi
             }
           else
             echo "لا جوابَ يُدفع."
