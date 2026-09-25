@@ -43,6 +43,7 @@ import re
 import statistics
 import subprocess
 import sys
+import time
 import urllib.request
 from pathlib import Path
 
@@ -530,15 +531,23 @@ def _staged_improvements():
     return out
 
 
+_AUDIO_KEYS: list | None = None
+
+
 def _salt_count(key: str) -> int:
-    cl, b = s3()
+    # ⚡ **سردُ `state/` مرّةً في العمليّة لا مرّةً لكلّ مرشّح** (مقيسٌ 2026-09-25:
+    #    تجاوزت جولةُ الترقية سقفَ الثلاثين دقيقة مع تكاثر المرشّحين، وكلُّ مرشّحٍ
+    #    كان يسرد الدلوَ كلَّه من جديد). والعدُّ نفسُه لا يتغيّر: الملوحُ تُكتب
+    #    في شوطٍ آخر، فما لم يُرَ في هذه الجولة يُرى في التالية.
+    global _AUDIO_KEYS
+    if _AUDIO_KEYS is None:
+        cl, b = s3()
+        _AUDIO_KEYS = [o["Key"]
+                       for pg in cl.get_paginator("list_objects_v2").paginate(
+                           Bucket=b, Prefix="state/")
+                       for o in pg.get("Contents", []) if "audio-" in o["Key"]]
     stem = key.replace("/", "_").replace(".jz", "")
-    n = 0
-    for pg in cl.get_paginator("list_objects_v2").paginate(Bucket=b, Prefix="state/"):
-        for o in pg.get("Contents", []):
-            if stem in o["Key"] and "audio-" in o["Key"]:
-                n += 1
-    return n
+    return sum(1 for k in _AUDIO_KEYS if stem in k)
 
 
 def _struct_fatal(key: str):
@@ -682,12 +691,25 @@ def maybe_diagnose(key: str, out: str, fired: set) -> bool:
     return True
 
 
+PROMOTE_BUDGET_S = int(os.environ.get("PROMOTE_BUDGET_S", "1200"))
+
+
 def cmd_promote(a):
     prom = str(ROOT / "tools" / "index_qa" / "promote.py")
     fired: set = set()
-    for r in _staged_improvements():
-        if _salt_count(r["key"]) < 4:
-            continue
+    # ⛔ **مهلةُ الجولة** (مقيسٌ 2026-09-25): جولةٌ أطولُ من سقف الوظيفة (30 د)
+    #    تُقتل قبل أن تُطبع نتيجةٌ واحدة، فيضيع ما رُقّي وما رُدّ ويُحجز الطابور.
+    #    ⇒ لا يُبدأ مرشّحٌ جديدٌ بعد نفاد المهلة، ويُسمّى المؤجَّلون صراحةً
+    #    ليُفحصوا في الجولة التالية. ⚖️ لا يُمسّ حارس: المرشّحُ الذي بدأ يُكمل
+    #    فحصَه وترقيتَه وسدَّه كما كان، والمؤجَّلُ لا يُرقّى ولا يُرفض.
+    t0 = time.monotonic()
+    cands = [r for r in _staged_improvements() if _salt_count(r["key"]) >= 4]
+    for i, r in enumerate(cands):
+        if time.monotonic() - t0 > PROMOTE_BUDGET_S:
+            rest = [x["reciter"] for x in cands[i:]]
+            print(f"   ⏳ نفدت مهلةُ الجولة ({PROMOTE_BUDGET_S}ث) — أُجّل {len(rest)} "
+                  f"إلى الجولة التالية: {', '.join(rest)}")
+            break
         dry = subprocess.run([sys.executable, prom, "--only", r["key"]],
                              capture_output=True, text=True, encoding="utf-8",
                              errors="replace", cwd=str(ROOT))
