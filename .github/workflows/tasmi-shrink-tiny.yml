@@ -23,7 +23,9 @@ env:
   PUB: https://pub-2c2e1dcd92e84a2898820dd38d3e09e6.r2.dev
   WCPP_SHA: c4ac0012a8f5a2082dfca6aad4ddfd8b2c02b337
   HF_BASE: tarteel-ai/whisper-tiny-ar-quran
-  QTYPES: "q6_k q5_1 q5_0"
+  # ⛔ مقيس (الشوط 36155840715): `q6_k` لا يُحمَّل للنموذج الصغير — «wrong size… got 80745, expected
+  #    30965760»: كتلُ k-quant بطول 256 وعرضُ `tiny` 384 لا يقبل القسمة عليها. فيبقى ما كتلُه 32.
+  QTYPES: "q5_1 q5_0"
 jobs:
   prep:
     runs-on: ubuntu-latest
@@ -213,7 +215,7 @@ jobs:
       max-parallel: 4
       matrix:
         set: ["g1", "g2:noise-fan-5", "g2:learner-combo", "g3r:clean", "g3r:noisy"]
-        arm: ["tiny-q8:en", "tiny-q6k:en", "tiny-q51:en", "tiny-q50:en"]
+        arm: ["tiny-q8:en", "tiny-q51:en", "tiny-q50:en"]
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
@@ -287,7 +289,7 @@ jobs:
             [ -n "$4" ] && cp "work/$3_gate_summary.json" "$4" || true
           }
           # ⚖️ المرجعُ الواحدُ هو المشحون: الملخّصُ نفسُه يُحفظ في الخانتَين فيحكم الحَكَمُ بقاعدته كما هي.
-          for c in q6k q51 q50; do
+          for c in q51 q50; do
             ls work/hyps_ci-tiny-$c-en_*.json > /dev/null 2>&1 || { echo "⏭️ tiny-$c بلا فرضيّات" >> "$M"; continue; }
             cmp "tiny-$c (en) مقابل المشحون tiny q8 (en)" ci-tiny-q8-en "ci-tiny-$c-en" "$S/vs_shipped_tiny-$c.json"
             cp "$S/vs_shipped_tiny-$c.json" "$S/vs_base_tiny-$c.json"
