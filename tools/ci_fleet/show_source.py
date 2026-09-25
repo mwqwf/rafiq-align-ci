@@ -26,21 +26,62 @@ sys.path.insert(0, str(Path(__file__).resolve().parent))
 import restore_loop as rl                                            # noqa: E402
 
 
+def catalog_file_tables(cat: dict) -> set:
+    """مفاتيحُ `(الرواية، القارئ)` لكلّ قارئٍ له جدولُ `files` في الكتالوج.
+
+    ⛔ **سببُها مقيسٌ (2026-09-25):** كانت الأداةُ تطبع `{base}{s:03d}.mp3`
+    لكلّ قارئ، وقرّاءُ مجلّدات archive.org (‏مثل `warsh/gharbi_warsh`
+    وأسماؤه `ar_036_Mustapha_Gharbi_Warsh.mp3`) لا يجمعهم قالبٌ رقميّ —
+    فيعطي القالبُ 404 **ويُحكم على مصدرٍ حيٍّ كذباً بأنّه ميت**.
+    ⚖️ دالّةٌ محضة على كتالوجٍ مقروء: بلا شبكةٍ ولا دلو، فتُختبر.
+    """
+    out = set()
+    for r in cat.get("riwayat", []):
+        riw = r.get("id") or r.get("key")
+        for rc in r.get("reciters", []):
+            if rc.get("files"):
+                out.add((riw, rc.get("id")))
+    return out
+
+
+def fetch_catalog() -> dict:
+    """الكتالوجُ نفسُه من الدلو — قراءةٌ محضة بعميل `restore_loop`."""
+    import json                                                      # noqa: PLC0415
+    cl, b = rl.s3()
+    return json.loads(cl.get_object(Bucket=b,
+                                    Key="catalog/reciters.json")["Body"].read())
+
+
+def describe(a: str, bases: dict, folders: set) -> tuple[list[str], int]:
+    """أسطرُ المخرَج لقارئٍ واحد ورمزُ الخروج — بلا شبكة، فتُختبر."""
+    riwaya, _, rid = a.partition("/")
+    base = rl.source_base(bases, riwaya, rid, 1)
+    if not base:
+        return [f"⛔ {a}\tلا مصدرَ في الكتالوج — ولا يُخمَّن"], 1
+    if (riwaya, rid) in folders:
+        # مضيفُ مجلّد: الأساسُ وحدَه بلا `{s:03d}`، والأسماءُ من جدول files.
+        folder = base.rstrip("/")
+        return [f"✅ {a}\t{folder}",
+                "   📂 مجلّدٌ لا قالب: أسماءُ الملفّات تُحلّ من جدول `files` في "
+                "الكتالوج (‏`resolve_url.py`) — فالقالبُ الرقميُّ 404 لا يعني موتَ المصدر.",
+                f"   ⇒ الأداةُ المناسبة `realign_surah.yml` بـ`url_template={folder}` "
+                f"و`reciter_id={rid}`؛ ⛔ ولا يصلح `ctc_splice` ولا `whisper_splice` "
+                "(‏يشترطان قالباً رقميّاً)."], 0
+    return [f"✅ {a}\t{base}{{s:03d}}.mp3"], 0
+
+
 def main() -> int:
     args = sys.argv[1:]
     bases = rl.catalog_bases()
     if not args:
         print(f"الكتالوجُ فيه {len(bases)} مدخلاً. مرّر <رواية>/<قارئ> لطباعة مصدره.")
         return 0
+    folders = catalog_file_tables(fetch_catalog())
     rc = 0
     for a in args:
-        riwaya, _, rid = a.partition("/")
-        base = rl.source_base(bases, riwaya, rid, 1)
-        if base:
-            print(f"✅ {a}\t{base}{{s:03d}}.mp3")
-        else:
-            print(f"⛔ {a}\tلا مصدرَ في الكتالوج — ولا يُخمَّن")
-            rc = 1
+        lines, code = describe(a, bases, folders)
+        print("\n".join(lines))
+        rc = rc or code
     return rc
 
 
