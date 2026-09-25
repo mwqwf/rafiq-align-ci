@@ -43,6 +43,7 @@ jobs:
       limit: ${{ steps.r.outputs.limit }}
       threads: ${{ steps.r.outputs.threads }}
       arms: ${{ steps.r.outputs.arms }}
+      model_url: ${{ steps.r.outputs.model_url }}
     steps:
       - uses: actions/checkout@v4
       - id: r
@@ -71,6 +72,11 @@ jobs:
           print("plan=" + str(req["plan"]))
           print("limit=" + str(req["limit"]))
           print("arms=" + str(req["arms"]))
+          mu = str(req.get("model_url") or "")
+          if mu and not mu.startswith("https://github.com/mwqwf/rafiq-align-ci/releases/download/"):
+              sys.stderr.write("⛔ `model_url` يُقبل من إصدارات هذا المستودع وحدَها: %s\n" % mu)
+              sys.exit(1)
+          print("model_url=" + mu)
           print("threads=" + json.dumps(th))
           sys.stderr.write("✅ الطلبُ سليم: %s على %s بخيوط %s (حدُّ %s)\n"
                            % (req["model"], req["src"], th, req["limit"]))
@@ -90,4 +96,5 @@ jobs:
       model: ${{ needs.read.outputs.model }}
       limit: ${{ needs.read.outputs.limit }}
       arms: ${{ needs.read.outputs.arms }}
+      model_url: ${{ needs.read.outputs.model_url }}
     secrets: inherit

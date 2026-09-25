@@ -37,6 +37,10 @@ on:
         description: "ذراعان بالاسم: greedy · guard · shipguard (مرآةُ المشحون · D-522) · hearall (‏الافتراضُ هو المشحونُ سلفاً)"
         required: false
         default: "greedy,guard"
+      model_url:
+        description: "رابطُ نموذجٍ صريح (‏فارغٌ = ‏q8 المشحونُ لـ`model`) — لمرشّحي التصغير المستضافين في إصدارات هذا المستودع"
+        required: false
+        default: ""
   # 🔑 **وبابٌ ثانٍ: يُستدعى من `arm-request` بإيداعٍ لا بإدلاء** (‏2026-09-14 · دورةُ :50).
   #    السببُ نفسُه المكتوبُ في `emu-request`: بيانةُ الوكيل تردّ **403** على `dispatches`
   #    ⇒ فلو بقي هذا المسارُ على الإدلاء وحدَه لبقي **قياسُ الزمن على `arm64` موقوفاً على
@@ -63,6 +67,10 @@ on:
       arms:
         type: string
         required: true
+      model_url:
+        type: string
+        required: false
+        default: ""
 env:
   # 🔢 **مصدرٌ واحدٌ للعدّ**: يقرؤه مفتاحُ الكاش والبناءُ معاً فلا يتفارقان.
   INJ6_COUNT: "20"
@@ -114,8 +122,14 @@ jobs:
           ls -l b/bin/whisper-cli
       - name: النموذجُ المشحون
         run: |
+          # 📦 **ومرشّحُ التصغير برابطه الصريح** (‏2026-09-25): `base` q5_1/q4_0 مستضافان في إصدارات هذا
+          #    المستودع العامّ لا في الدلو (‏الدلوُ فوق حصّته المجّانيّة ⇒ كلُّ كتابةٍ فيه مدفوعة).
+          U="${{ inputs.model_url }}"
+          [ -n "$U" ] || U="$PUB/models/whisper-${{ inputs.model }}-ar-quran/ggml-q8_0.bin"
+          echo "النموذج: $U"
           curl -sSL -f --retry 4 --retry-delay 5 --retry-all-errors -A "$UA" \
-            -o tools/tasmi_bench/work_model.bin "$PUB/models/whisper-${{ inputs.model }}-ar-quran/ggml-q8_0.bin"
+            -o tools/tasmi_bench/work_model.bin "$U"
+          sha256sum tools/tasmi_bench/work_model.bin
           ls -l tools/tasmi_bench/work_model.bin
       - name: المجموعاتُ (كاشُ بوّابة المحاكي نفسُه — لا يتعلّق بالمعمارية)
         id: sets
@@ -252,8 +266,10 @@ jobs:
           path: tools/tasmi_bench/work/arm_*.*
           retention-days: 14
           if-no-files-found: ignore
+      # 💰 **ولا كتابةَ في الدلو من فرع** (‏2026-09-25): الدلوُ 323.8 ج.ب فوق حصّته المجّانيّة (10) ⇒
+      #    كلُّ كتابةٍ مدفوعة، والجدولُ يُقرأ من سجلّ الشوط وأثَره.
       - name: رفعٌ إلى R2
-        if: always()
+        if: always() && github.ref_name == 'main'
         run: |
           cd tools/tasmi_bench
           # 🔑 **والمفتاحُ يحمل العيّنةَ والشوط** (‏2026-09-14): كان `<نموذج>-<مجموعة>-t<خيوط>`
