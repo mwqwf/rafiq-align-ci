@@ -127,9 +127,10 @@ def main():
         idx0, _sha0 = R.fetch_index(a.key, a.expect_sha)
         tr0 = idx0.get("transform")
         op0 = str((tr0 or {}).get("op") or "") if isinstance(tr0, dict) else str(tr0 or "")
-        ebs = idx0.get("engineBySurah") or {}
-        from promote import splice_op_name                     # noqa: PLC0415
-        if not splice_op_name(op0) or not ebs:
+        # ‏مرآةُ `census_gate`: سورٌ بمحرّكٍ آخر ولو كان آخرُ تحويلٍ إعلانَ غياب (2026-09-25).
+        ebs = {k: v for k, v in (idx0.get("engineBySurah") or {}).items()
+               if v and v != idx0.get("engineVersion")}
+        if not ebs:
             raise SystemExit(f"⛔ لا دمجَ محرّكين في هذا الفهرس (op={op0!r}) — لا إحصاء")
         os.environ["QA_CENSUS_SURAHS"] = ",".join(sorted(ebs, key=int))
         a.kind, a.out_prefix, a.seed_salt, a.out_suffix = (

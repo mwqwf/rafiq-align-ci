@@ -41,7 +41,6 @@ jobs:
           python - <<'PY' >> "$GITHUB_OUTPUT"
           import gzip, hashlib, json, os, sys, boto3
           sys.path.insert(0, "tools/index_qa")
-          from promote import splice_op_name
           c = json.load(open("secure/r2_credentials.json"))
           s3 = boto3.client("s3", endpoint_url=c["endpoint"],
                             aws_access_key_id=c["accessKeyId"],
@@ -55,7 +54,10 @@ jobs:
               tr = d.get("transform")
               op = str((tr or {}).get("op") or "") if isinstance(tr, dict) else str(tr or "")
               # ‏الاسمان من مصدرٍ واحد (`promote.SPLICE_OPS`): دمجُ CTC في Whisper وعكسُه.
-              if not splice_op_name(op) or not d.get("engineBySurah"):
+              # ‏ومرآةُ `census_gate`: سورٌ بمحرّكٍ آخر ولو كان آخرُ تحويلٍ إعلانَ غياب (2026-09-25).
+              ebs = [s for s, v in (d.get("engineBySurah") or {}).items()
+                     if v and v != d.get("engineVersion")]
+              if not ebs:
                   print(f"⏭ {k} — لا دمجَ محرّكين", file=sys.stderr); continue
               sha = hashlib.sha256(b).hexdigest()
               try:

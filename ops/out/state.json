@@ -198,10 +198,10 @@
    }
   },
   "hafs/balilah": {
-   "entries": 6214,
+   "entries": 6228,
    "missingSurahs": [],
    "reasonCode": null,
-   "transformOp": "realign_surah:102",
+   "transformOp": "ctc_surah_splice:3,26,40,42,44,46,50,68,74,75,79",
    "declaredReasons": {
     "no-align": 29
    },
@@ -209,19 +209,8 @@
    "undeclaredCount": 0,
    "engine": "align-0.2",
    "gapSurahs": {
-    "3": 1,
-    "26": 2,
-    "40": 2,
-    "42": 1,
-    "44": 1,
-    "46": 1,
-    "50": 2,
     "51": 3,
-    "55": 5,
-    "68": 1,
-    "74": 1,
-    "75": 1,
-    "79": 1
+    "55": 5
    }
   },
   "hafs/darweez": {

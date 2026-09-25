@@ -95,7 +95,8 @@ ALLOWED_WF = {"align.yml", "realign_surah.yml", "openers.yml", "audio_qa.yml",
 #    كان يفتحه**. وهو محكومٌ بحُرّاسه (يُسقط التوليد كلَّه إن شُهد لمن لا حكمَ
 #    لبصمته، ولا يمسّ غير الحقلين)، فإدخالُه لا يُضعف حارساً.
 ALLOWED_TOOLS = {"ci_fleet/refreeze.py", "tasmi_bench/cloud_stream_probe.py",  # 🩺 صحّةُ التفريغ السحابيّ (2026-09-25)  # يسدّ تجميداً رُفع بلا ترقية (2026-09-23)
-                 "index_qa/run.py", "index_qa/triage.py", "index_qa/promote.py",
+                 "index_qa/run.py", "ci_fleet/alt_source.py", "ci_fleet/find_sources.py",  # 🔁 تسجيلٌ بديلٌ للقارئ نفسه (2026-09-25)
+                 "index_qa/triage.py", "index_qa/promote.py",
                  "index_qa/certify_catalog.py",
                  "index_qa/bucket_watch.py", "index_qa/drop_surah.py",
                  "index_qa/low_coverage_scan.py", "index_qa/dup_sha_sweep.py",
@@ -319,6 +320,13 @@ def main():
         print("لا أمرَ جديد."); return
     for f in cmds:
         name = f.stem
+        # ⛔ **عطبٌ مقيسٌ 2026-09-25** (‏الشوط 36161591140): دمجُ `origin/main` داخل
+        #    `_push_answer` يجلب ما نقله شوطٌ سابقٌ إلى `done/`، فيختفي الأمرُ من تحت
+        #    القائمة المحسوبة أوّلَ الشوط ⇒ `FileNotFoundError` يُسقط الشوطَ كلَّه وما
+        #    بعده من أوامر. ⇒ أمرٌ غاب ملفُّه نفّذه غيرُنا، فيُتخطّى ولا يُعاد.
+        if not f.exists():
+            print(f"⏭ {name}: نُفّذ في شوطٍ آخر (نُقل ملفُّه) — يُتخطّى")
+            continue
         # ⛔⛔ **حارسُ المحاولات — عطبٌ مقيسٌ 2026-09-20:** أمرٌ أبطأُ من
         #    `timeout-minutes` **لا يكتمل أبداً**: يُلغى الشوطُ قبل أن يُنفَّذ ما
         #    بعده، ويبقى الأمرُ في مجلّده، فيُعاد الكرّةَ في كلّ شوطٍ تالٍ ⇒
@@ -348,6 +356,14 @@ def main():
             continue
         tries_p.write_text(str(tries + 1), encoding="utf-8")
         _push_answer(f"{name}.محاولة{tries + 1}")
+        # ⛔ ودفعُ المحاولة نفسُه يدمج `origin/main`، فقد يجلب نقلَ الأمر إلى
+        #    `done/` من شوطٍ نفّذه قبلنا (مقيسٌ 2026-09-25: كُتب فوق جوابٍ صحيحٍ
+        #    لـ`0925_1755a_scan` خطأُ «الملفّ غير موجود»). ⇒ يُعاد الفحصُ هنا، ولا
+        #    يُكتب جوابٌ ولا يُترك عدّاد.
+        if not f.exists():
+            tries_p.unlink(missing_ok=True)
+            print(f"⏭ {name}: نُفّذ في شوطٍ آخر (نُقل ملفُّه أثناء الدفع) — يُتخطّى")
+            continue
         print(f"\n══ أمر: {name}  (المحاولةُ {tries + 1}/{MAX_TRIES})")
         try:
             c = json.loads(f.read_text(encoding="utf-8"))
@@ -367,7 +383,8 @@ def main():
         # ✅ تمّ ⇒ يُمحى عدّادُه فلا يُحسب عليه ما مضى.
         tries_p.unlink(missing_ok=True)
         # ⛔ يُنقل المنفَّذُ فلا يُعاد تنفيذُه عند كلّ دفعةٍ تالية
-        f.replace(DONE_DIR / f.name)
+        if f.exists():
+            f.replace(DONE_DIR / f.name)
         # ⛔⛔ **ويُدفع الجوابُ الآن لا في آخر الشوط** (عطبٌ مقيسٌ 2026-09-20):
         #    كان الدفعُ خطوةً أخيرةً وحدَها، فإذا بلغ الشوطُ `timeout-minutes`
         #    أُلغي **قبلها** ⇒ **ضاعت أجوبةُ الأوامر كلِّها** ولو كانت قد
@@ -410,8 +427,15 @@ def _push_answer(name: str) -> None:
             subprocess.run(["git", "fetch", "origin", "main", "--quiet"],
                            cwd=ROOT, check=False)
             # ⛔ لا `rebase` على هذه الشجرة المشتركة — `CLAUDE.md` نصّاً.
-            subprocess.run(["git", "merge", "-X", "ours", "--no-edit",
-                            "origin/main"], cwd=ROOT, check=False)
+            merged = subprocess.run(["git", "merge", "-X", "ours", "--no-edit",
+                                     "origin/main"], cwd=ROOT, check=False)
+            # ⛔ **عطبٌ مقيسٌ 2026-09-25** (‏الشوط 36163812825): تعارضٌ لا يحلّه
+            #    `-X ours` (‏حذفٌ/تعديل) يترك الدمجَ معلّقاً، فيسقط كلُّ إيداعٍ بعده
+            #    بـ«cannot do a partial commit during a merge» ويضيع الجوابُ. ⇒ يُلغى
+            #    الدمجُ المعلّق فيبقى الإيداعُ محلّياً، ويُعاد دفعُه بعد الأمر التالي.
+            if merged.returncode != 0:
+                subprocess.run(["git", "merge", "--abort"], cwd=ROOT, check=False)
+                return
             subprocess.run(["git", "push", "origin", "HEAD:main"],
                            cwd=ROOT, check=False)
     except Exception as ex:                                       # noqa: BLE001

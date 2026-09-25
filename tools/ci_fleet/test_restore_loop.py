@@ -204,8 +204,12 @@ class CensusDispatchTests(unittest.TestCase):
 
     def test_unspliced_index_needs_no_census(self):
         self.assertFalse(loop.needs_census(_idx(3), "S", None))
-        d = _spliced_idx("drop_surah:93")
-        self.assertFalse(loop.needs_census(d, "S", None))
+
+    def test_declared_on_top_of_splice_still_needs_census(self):
+        # إعلانُ غيابٍ فوق مدموجٍ يستبدل op ويُبقي سورَ المحرّك الآخر (2026-09-25)
+        d = _spliced_idx("drop_surah:24,107")
+        self.assertTrue(loop.needs_census(d, "S", None))
+        self.assertFalse(loop.needs_census(d, "S", {"sha256": "S"}))
 
     def test_splice_op_without_foreign_engine_needs_no_census(self):
         d = _spliced_idx()

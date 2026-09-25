@@ -673,15 +673,16 @@ def needs_census(idx: dict, sha: str, census_rep: dict | None) -> bool:
     """أيلزم هذا الفهرسَ إحصاءٌ شاملٌ **لم يُجرَ بعدُ على بصمته**؟
 
     الشرطُ صارمٌ في الاتجاهين، ومرآةٌ لتخطّي `splice_census.yml` نفسِه:
-      · تحويلُه دمجٌ من `promote.SPLICE_OPS` **و**في ترويسته سورٌ بمحرّكٍ آخر؛
+      · في ترويسته سورٌ بمحرّكٍ آخر (‏أيّاً كان اسمُ تحويله الأخير)؛
       · **ولا** ملفَّ إحصاءٍ على البصمة نفسِها (‏غائبٌ أو على بصمةٍ أخرى).
-    ⇒ لا إحصاءَ لما لا دمجَ فيه، ولا إحصاءَ مكرّراً لما أُحصي على بصمته.
+    ⇒ لا إحصاءَ لما لا محرّكَ آخرَ فيه، ولا إحصاءَ مكرّراً لما أُحصي على بصمته.
     ⚖️ لا يحكم بشيء: `census_gate` في `promote.py` يبقى الحَكَم كما هو."""
-    from promote import splice_op_name
-    tr = idx.get("transform")
-    op = str((tr or {}).get("op") or "") if isinstance(tr, dict) else str(tr or "")
-    if not splice_op_name(op):
-        return False
+    # ⛔ **عطبٌ مقيسٌ 2026-09-25** (‏`ops/out/1435d_promote.txt`): إعلانُ غيابٍ
+    #    (`drop_surah`) فوق مرشّحٍ مدموج يستبدل `transform.op`، فيبقى في الترويسة
+    #    سورٌ بمحرّكٍ آخر و`census_gate` يطلب إحصاءها، بينما كان هذا الشرطُ يسأل
+    #    عن اسم التحويل وحده فلا يُطلق إحصاءً أبداً ⇒ حبسٌ دائم (akri_qalun.e7f2fc9f).
+    #    ⇒ الشرطُ الآن مرآةُ `census_gate` حرفاً: كلُّ سورةٍ بمحرّكٍ غيرِ محرّك الفهرس.
+    #    وهذا يزيد الإحصاءَ ولا يُنقصه، فلا يُضعف حارساً.
     ebs = {k for k, v in (idx.get("engineBySurah") or {}).items()
            if v and v != idx.get("engineVersion")}
     if not ebs:
