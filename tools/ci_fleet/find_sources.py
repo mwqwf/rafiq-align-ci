@@ -93,8 +93,20 @@ def archive_numbered(ident: str):
     return table if len(table) >= 100 else None
 
 
+def show_files(ident: str, surahs) -> int:
+    """يطبع أسماءَ ملفّات السور المطلوبة في عنصر archive.org وحجمَها — لتسجيل قالبٍ صحيح."""
+    table = archive_numbered(ident) or {}
+    for s in surahs:
+        n = table.get(s)
+        url = f"https://archive.org/download/{ident}/{urllib.parse.quote(n)}" if n else None
+        print(f"{ident} س{s}: {n} · {url} · {rl.head_len(url) if url else '—'} بايت")
+    return 0
+
+
 def main() -> int:
     args = sys.argv[1:]
+    if args[:1] == ["--files"]:
+        return show_files(args[1], [int(x) for x in args[2].split(",")])
     if not args:
         print(__doc__)
         return 0
