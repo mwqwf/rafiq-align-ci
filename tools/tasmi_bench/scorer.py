@@ -10,6 +10,7 @@
     match_ratio  — عتبة القبول (الأصل: تحريف ≤ خُمس الطول)
     khanjariya   — معاملة الألف الخنجرية ألفاً (الأصل: نعم)
 """
+import os
 import re
 
 MISSED, ADDED, CORRECT, SUBSTITUTED, UNCERTAIN = "MISSED", "ADDED", "CORRECT", "SUBSTITUTED", "UNCERTAIN"
@@ -68,7 +69,7 @@ class Config:
                  unheard_lexicon=None, unheard_min_len=0, unheard_need_neighbour=False,
                  pair_forgive=None,
                  collapse_threshold=0.60, short_cap=3, phon=None, phon_cap=3,
-                 dagger_madd=True, abs_cap=None, drop_subs=(), strict_short=False):
+                 dagger_madd=True, abs_cap=None, drop_subs=(), strict_short=False, critical_long=None):
         self.match_num, self.match_den = match_num, match_den
         # D-290: جدولُ الإبدال `_SUBS` (‏ة⇒ه · ى⇒ي · الهمزاتُ⇒ا · ء⇒حذف …) هو **أقدمُ رخصةٍ
         # في المِسطرة وأقلُّها فحصاً**: لم تُوزن واحدةٌ منه في دفتر D-286. وهذا المعلَمُ يُلغي
@@ -82,6 +83,11 @@ class Config:
         # ومرآةُ الكوتلن بنصّها: `matches` تُسقط `(!strictShort && n <= 3 && d <= 1)`، و`shortPairUncertain`
         # تُرجع `max(len(r), len(hyp)) <= 3 && edit(r, hyp) <= 1`.
         self.strict_short = strict_short
+        # ⚖️ **خطة 2026-09-23 §4-ج — الأزواجُ الحرجة الطويلة** (مرآةُ `RecitationScorer.criticalPairsLong`):
+        # مجموعةُ أزواجٍ `(a, b)` (a<b) من صور المصحف المطبَّعة بمسافة 1 وأطولُها ≥5 (‏`load_critical_long`)؛
+        # فإن طابقت الصورةُ المسموعَ بقاعدة الخُمس وهي **غيرُه حرفاً** وكان الزوجُ في المجموعة سقطت
+        # الرخصةُ لهذه الصورة ⇒ `_near` يجعلها `UNCERTAIN`. ‏`None` = بلا فهرس.
+        self.critical_long = critical_long
         # D-283: بديلُ رخصةِ القصيرة المقترَحُ في D-282 §4 — جدولُ التباسٍ صوتيٍّ ضيّق.
         # None = **المشحون** (لا جدولَ البتّة) ⇒ السلوكُ الافتراضيُّ لا يتغيّر حرفاً.
         # "same" = إبدالُ حرفٍ واحدٍ من **مخرجٍ واحد**؛ "adj" = يضاف إليه المخرجُ المجاور.
@@ -301,6 +307,11 @@ def _phon_ok(r, hyp, cfg):
 
 def _matches(ref, hyp, cfg):
     refs = ref if isinstance(ref, tuple) else (ref,)
+    # 🛡️ الذراع V (‏D-819 · مرآةُ `RecitationScorer.matchesAny`): الفهرسُ يُغلق على **كلّ صور المرجع** —
+    # إن كان المسموعُ أختاً في الفهرس لأيّ صورةٍ وليس هو إحداها ⇒ لا مطابقة (و`_near` يحكم «غير متبيَّن»).
+    if cfg.critical_long and hyp not in refs and any(
+            ((r, hyp) if r < hyp else (hyp, r)) in cfg.critical_long for r in refs):
+        return False
     for r in refs:
         _n = max(len(r), len(hyp)); _d = _edit(r, hyp)
         # 2026-09-05 (أمر المالك: أقل حساسية): الخُمس يبقى، والقصيرة (≤3) تحتمل حرفاً (المقيس: B) — مطابق للكوتلن.
@@ -317,6 +328,32 @@ def _matches(ref, hyp, cfg):
         if cfg.phon and _phon_ok(r, hyp, cfg):
             return True
     return False
+
+
+_CRITICAL_LONG = {}
+
+
+def load_critical_long(riwaya):
+    """فهرسُ الأزواج الحرجة الطويلة للرواية من مورد المحرك (‏`make_critical_pairs_index.py`)."""
+    if riwaya not in _CRITICAL_LONG:
+        root = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+        path = os.path.join(root, "engine", "recitation", "src", "main", "resources", "tasmi", "critical_pairs.tsv")
+        # المرآةُ العامّة بلا مورد المحرك: يُقرأ من مستودع الأصل المجاور إن وُجد (‏نسخةُ عملٍ في الجلسة).
+        # ويُقدَّم مسارٌ صريحٌ في `CRITICAL_PAIRS_TSV` إن ضُبط.
+        path = os.environ.get("CRITICAL_PAIRS_TSV") or path
+        if not os.path.isfile(path):
+            path = os.path.join(os.path.dirname(root), "QuranRafiq", "engine", "recitation", "src", "main",
+                                "resources", "tasmi", "critical_pairs.tsv")
+        bit = {"hafs": 1, "warsh": 2, "qalun": 4, "shuba": 8, "douri": 16, "sousi": 32}[riwaya]
+        out = set()
+        for line in open(path, encoding="utf-8"):
+            if not line.strip() or line.startswith("#"):
+                continue
+            a, b, m = line.rstrip("\n").split("\t")
+            if int(m) & bit:
+                out.add((a, b))
+        _CRITICAL_LONG[riwaya] = frozenset(out)
+    return _CRITICAL_LONG[riwaya]
 
 
 COLLAPSE_MIN_WORDS = 5
