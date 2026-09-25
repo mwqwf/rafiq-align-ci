@@ -1,0 +1,115 @@
+# ⏱️ **التوقيت الكلمي لورش وقالون على الفهرس الحيّ** (البند 2 من الجولة الثالثة · QuranRafiq).
+#
+# الملفّان المنشوران في R2 مبنيّان على فهرسٍ مضى، فيُصمتهما حارسُ النسب في التطبيق ويحذفهما.
+# هنا ربطٌ مبوّب: تُبقى الآيةُ إن وقعت كلُّ كلماتها داخل حدود الآية الحيّة ±300 م.ث، ويُحذف الباقي
+# بلا تخمين، ويُكتب generatedAgainst.sha256 ببصمة الفهرس الحيّ (tools/wordtimings/rebind_to_live.py).
+# 📦 المصدر: R2 العامّ قراءةً فقط. ⛔ لا كتابةَ في الدلو: النشرُ أصلٌ في إصدار GitHub.
+# 💰 مجّانيّ: مستودعٌ عامّ · ubuntu-latest بعدّادٍ قياسيّ · إصداراتُ GitHub بلا تكلفة · لا Artifacts ولا Cache.
+# 🔑 الزناد: دفعُ tools/wordtimings/requests/rebind.json.
+name: wordtimings-publish
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - "tools/wordtimings/requests/rebind.json"
+permissions:
+  contents: write
+concurrency:
+  group: wordtimings-publish
+  cancel-in-progress: false
+env:
+  UA: "Mozilla/5.0 (QuranRafiq wordtimings publish)"
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: البناءُ والتحقّقُ والنشرُ في إصدارٍ لكل رواية ثم التحقّقُ من الرابط العامّ
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          set -eo pipefail
+          python3 - <<'PY'
+          import hashlib, json, os, subprocess, sys, time, urllib.request
+          sys.path.insert(0, "tools/wordtimings")
+          import rebind_to_live as R
+          req = json.load(open("tools/wordtimings/requests/rebind.json", encoding="utf-8"))
+          repo = os.environ["GITHUB_REPOSITORY"]; ua = os.environ["UA"]
+          def get(url):
+              for i in range(5):
+                  try:
+                      return urllib.request.urlopen(urllib.request.Request(url, headers={"User-Agent": ua}), timeout=120).read()
+                  except Exception as e:
+                      print("retry", url, e); time.sleep(4 * (i + 1))
+              sys.exit(f"⛔ تعذّر الجلب: {url}")
+          os.makedirs("/tmp/w", exist_ok=True)
+          out = []
+          for it in req["items"]:
+              r, rid = it["riwaya"], it["reciterId"]
+              assert r.isalpha() and r.islower() and rid.replace("_", "").isalnum(), (r, rid)
+              ib = get(f"{req['source']}timings/{r}/{rid}.jz")
+              wb = get(f"{req['source']}wordtimings/{r}/{rid}.jz")
+              live = hashlib.sha256(ib).hexdigest()
+              if live != it["expectLiveSha256"]:
+                  sys.exit(f"⛔ {r}: الفهرس الحيّ تغيّر ({live}) عن المتوقَّع — يُعاد القياس قبل النشر")
+              # ضابطٌ سلبيّ: الملف القديم يجب أن يرسب في التحقّق نفسه (وإلا فالمحقِّق أعمى).
+              old = R.verify(ib, wb, it["min"])
+              print(f"{r} القديم:", json.dumps(old, ensure_ascii=False))
+              if old["ok"]:
+                  sys.exit(f"⛔ {r}: الملف القديم اجتاز التحقّق — المحقِّق لا يميّز")
+              doc, st = R.rebind(ib, wb, f"timings_{r}_{rid}.jz")
+              data = R.dump_jz(doc)
+              sha = hashlib.sha256(data).hexdigest()
+              rep = R.verify(ib, data, it["min"])
+              print(f"{r} الجديد:", json.dumps(st, ensure_ascii=False), json.dumps(rep, ensure_ascii=False))
+              if not rep["ok"]:
+                  sys.exit(f"⛔ {r}: المبنيّ رسب في التحقّق")
+              if sha != it.get("localBuildSha256"):
+                  print(f"ℹ️ {r}: بصمة البناء هنا {sha} تخالف البناء المحلّي — يُثبَّت في التطبيق ما نُشر هنا")
+              name = f"{rid}.jz"
+              path = f"/tmp/w/{name}"; open(path, "wb").write(data)
+              tag = f"wordtimings-{r}-{rid}-{live[:8]}"
+              if subprocess.run(["gh", "release", "view", tag, "--repo", repo], capture_output=True).returncode == 0:
+                  print(f"ℹ️ {tag} قائم — لا يُكتب فوقه (يُتحقّق من الرابط أدناه)")
+              else:
+                  subprocess.run(["gh", "release", "create", tag, path, "--repo", repo,
+                                  "--target", os.environ["GITHUB_SHA"],
+                                  "--title", f"التوقيت الكلمي — {rid} على الفهرس الحيّ {live[:8]}",
+                                  "--notes", f"ربطٌ مبوّب بلا تخمين (±300 م.ث): {st['kept']}/{st['fromEntries']} آية · "
+                                             f"generatedAgainst.sha256 `{live}` · sha256 `{sha}` · {len(data)} بايت. "
+                                             "المصدر R2 العامّ قراءةً فقط؛ لا كتابةَ في الدلو. يستعمله تطبيقُ «مصحفك»."], check=True)
+              url = f"https://github.com/{repo}/releases/download/{tag}/{name}"
+              time.sleep(3)
+              pub = get(url)
+              psha = hashlib.sha256(pub).hexdigest()
+              prep = R.verify(ib, pub, it["min"])
+              print(f"{r} من الرابط العامّ: {psha} · {len(pub)} بايت ·", json.dumps(prep, ensure_ascii=False))
+              if psha != sha or not prep["ok"]:
+                  sys.exit(f"⛔ {r}: الرابطُ العامُّ لا يطابق أو رسب (أصلٌ قائمٌ مختلف؟)")
+              out.append({"riwaya": r, "reciterId": rid, "url": url, "tag": tag, "bytes": len(pub), "sha256": psha,
+                          "liveIndexSha256": live, "ayat": prep["ayat"], "words": prep["words"],
+                          "wordsOutOfBounds": prep["wordsOutOfBounds"], "fromEntries": st["fromEntries"],
+                          "droppedOutOfBounds": st["droppedOutOfBounds"], "droppedAbsentInLive": st["droppedAbsentInLive"],
+                          "oldFile": {"sha256": hashlib.sha256(wb).hexdigest(), "declared": old["declaredSha256"],
+                                      "badAyat": old["badAyat"], "wordsOutOfBounds": old["wordsOutOfBounds"]}})
+          os.makedirs("ops/wordtimings", exist_ok=True)
+          json.dump({"run_id": os.environ["GITHUB_RUN_ID"], "items": out,
+                     "hosting": "إصداراتٌ في المستودع العامّ — مجّانيّة؛ لا كتابةَ في R2"},
+                    open("ops/wordtimings/published.json", "w", encoding="utf-8"), ensure_ascii=False, indent=1)
+          print(open("ops/wordtimings/published.json", encoding="utf-8").read())
+          PY
+      - name: إيداعُ الوصف في الفرع
+        run: |
+          set -eo pipefail
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add ops/wordtimings/published.json
+          git commit -q -m "ops: نُشر التوقيتُ الكلمي لورش وقالون على الفهرس الحيّ · ${{ github.run_id }}" -- ops/wordtimings/published.json || { echo "لا تغيير"; exit 0; }
+          for i in 1 2 3 4; do
+            git push origin "HEAD:${{ github.ref_name }}" && break
+            git fetch -q origin "${{ github.ref_name }}" && git merge --no-edit -q "origin/${{ github.ref_name }}"; sleep $((i*3))
+          done
