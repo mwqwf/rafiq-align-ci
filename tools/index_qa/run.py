@@ -882,6 +882,24 @@ def push_worker(host):
 
 # ───────────────────────── الحكم بتمريرين ─────────────────────────
 FWD_MS, DEC_MS, LONG_MS = 5000, 4200, 8000
+# ‏أقصرُ نافذةٍ حاسمةٍ (‏D) تُبنى قبل الحدّ. دونها لا صوتَ يُسمع فيه شاهد:
+# ‏الشاهدُ في `_match_from` كلمةٌ فأكثر (‏≥ MIN_TOTAL حروفاً هيكلية أو ثلاثةٌ على
+# ‏المطلع)، والأداةُ لا تفصل ما دون ~0.3ث (‏LIMITS). فنافذةٌ أقصر لا تقدر إلا على
+# ‏«صمت» — أي لا تقدر إلا على التبرئة — فلا تُبنى أصلاً، ويُعلَم الحكمُ بغيابها.
+# ‏⛔ وقع 2026-09-25 على إحصاء `a_alhazmi@6e289031`: الآية 87:1 تبدأ عند 0م.ث في
+# ‏ملفّها ⇒ نافذةٌ 0→0 ⇒ `np.interp` على مصفوفةٍ فارغة ⇒ «نافذةٌ تعذّر تفريغُها».
+MIN_DEC_MS = 300
+
+
+def dec_window(st):
+    """نافذةُ ما قبل الحدّ `(startMs, endMs)`، أو None إن لم يكن قبله صوتٌ يُسمع.
+
+    ‏None حين `st < MIN_DEC_MS` (‏ومنه st=0: الآيةُ أوّلُ ملفّها). وغيابُها ليس
+    ‏«سُمع فلم يوجد أثر»: `judge(..., no_pre=True)` لا يبرّئ به (‏انظره)."""
+    if st is None or st < MIN_DEC_MS:
+        return None
+    return max(0, st - DEC_MS), st
+
 MIN_BLOCK = 4      # أصغر كتلة تطابق يُعتدّ بها (حرفاً)
 MIN_TOTAL = 6      # مجموع الحروف المتطابقة اللازم لإثبات «هذا هو النص»
 MIN_LEAK  = 6      # أقل تسرّبٍ يُعتدّ به: كلمةٌ قرآنية قصيرة («راجعون»، «العٰلمين»)
@@ -924,8 +942,12 @@ def _whole_words(ws, nchars):
             break
     return n
 
-def judge(ref_text, prev_text, fwd, dec, long_fwd):
-    """يُرجع (الحكم، الصنف، الشاهد). الصنف: جسيم | طفيف | بريء | غير حاسم."""
+def judge(ref_text, prev_text, fwd, dec, long_fwd, no_pre=False):
+    """يُرجع (الحكم، الصنف، الشاهد). الصنف: جسيم | طفيف | بريء | غير حاسم.
+
+    ‏`no_pre=True`: لا صوتَ قبل الحدّ (‏`dec_window` ردّ None) فلم تُبنَ النافذةُ
+    ‏الحاسمة. وهي في هذا الحكم **مبرِّئةٌ لا مُدينة** (‏صمتُها يبرّئ اشتباهَ التأخّر)،
+    ‏فغيابُها لا يُقرأ صمتاً: يبقى حكمُ التمرير الأوّل (‏سقوطُ المطلع) قائماً بصنفه."""
     rw, ref_sk = words(ref_text), skel(ref_text)[:60]
     pw, prev_sk = words(prev_text), skel(prev_text)[-40:]
     if not skel(fwd or ""):
@@ -961,14 +983,20 @@ def judge(ref_text, prev_text, fwd, dec, long_fwd):
         return "بريء", "بريء", f"المطلع مطابق: «{fwd[:45]}»"
 
     # التمرير الثاني الحاسم: نافذةٌ **تنتهي** عند الحدّ — ظهور كلمات الآية فيها = تأخّرٌ يقيناً
+    lost = _whole_words(rw, rm.a)
+    kind = "جسيم" if lost >= 1 else "طفيف"
+    what = f"«{' '.join(rw[:lost])}»" if lost else f"مطلع «{rw[0]}»"
+    if no_pre:
+        # ‏⛔ الأشدّ عمداً: لا نافذةَ تبرّئ، والتمريرُ الأوّل سمع الآيةَ من وسطها.
+        #    والوسمُ `LATE_START` نفسُه لتعدّه الحُرّاسُ (‏`_scatter` في promote.py)
+        #    عطباً كما تعدّ نظيرَه — فالمقروءُ للمستخدم آيةٌ ساقطُ مطلعِها أيّاً كانت العلّة.
+        return "LATE_START", kind, (f"يسقط {what} ({lost} كلمة كاملة) · القصاصة تبدأ «{fwd[:38]}» "
+                                    f"· ولا صوتَ قبل الحدّ (دون {MIN_DEC_MS}م.ث) فلا نافذةَ حاسمةً تبرّئ")
     d = skel(dec or "")
     dm = _match_from(ref_sk[:rm.a + 20], d)
     if not dm:
         return "بريء", "بريء", (f"اشتباه تأخّر لم تؤكّده النافذة الحاسمة (قبل الحدّ سُمع: "
                                 f"«{(dec or 'صمت')[:35]}») — إنذارٌ أول كاذب")
-    lost = _whole_words(rw, rm.a)
-    kind = "جسيم" if lost >= 1 else "طفيف"
-    what = f"«{' '.join(rw[:lost])}»" if lost else f"مطلع «{rw[0]}»"
     return "LATE_START", kind, (f"يسقط {what} ({lost} كلمة كاملة) · القصاصة تبدأ «{fwd[:38]}» "
                                 f"· والنافذة الحاسمة قبل الحدّ فيها نصّ الآية: «{(dec or '')[:38]}»")
 
@@ -1084,7 +1112,8 @@ def rejudge(key, args):
         s, a = map(int, x["aid"].split(":"))
         prev = txt[flat(s, a - 1)] if a > 1 else (BASMALA if s not in (1, 9) else "")
         h = x["heard"]
-        v, kind, why = judge(txt[flat(s, a)], prev, h.get("fwd"), h.get("dec"), h.get("long"))
+        v, kind, why = judge(txt[flat(s, a)], prev, h.get("fwd"), h.get("dec"), h.get("long"),
+                             no_pre=bool(x.get("noPreAudio")))
         rows.append({**x, "verdict": v, "kind": kind, "why": why})
         by_cluster.setdefault(x["cluster"], []).append(kind)
     return _finish(rep, rows, by_cluster, old["seed"], old["errors"])
@@ -1157,14 +1186,16 @@ def audit(key, args):
         aid = e["ayahId"]
         a, st = int(aid.split(":")[1]), e["startMs"]
         prev = txt[flat(s, a - 1)] if a > 1 else (BASMALA if s not in (1, 9) else "")
-        meta[aid] = {"s": s, "ref": txt[flat(s, a)], "prev": prev,
+        dw = dec_window(st)
+        meta[aid] = {"s": s, "ref": txt[flat(s, a)], "prev": prev, "noPre": dw is None,
                      "band": e.get("confBand"), "startApprox": e.get("startApprox", False)}
         u = e["fileRef"]
         tail = ({"ayahEndMs": e["endMs"]}
                 if _last.get(u) == st and e.get("endMs") is not None else {})
         jobs += [{"id": f"F|{aid}", "url": u, "startMs": st, "endMs": st + FWD_MS, **tail},
-                 {"id": f"D|{aid}", "url": u, "startMs": max(0, st - DEC_MS), "endMs": st},
                  {"id": f"L|{aid}", "url": u, "startMs": st, "endMs": st + LONG_MS, **tail}]
+        if dw is not None:   # ‏لا نافذةَ حاسمةً حيث لا صوتَ قبل الحدّ — والحكمُ يعلم بغيابها
+            jobs.append({"id": f"D|{aid}", "url": u, "startMs": dw[0], "endMs": dw[1]})
 
     # مسبار المطالع: العتبة (< 3ث) تُرشِّح والصوت يحكم. نقصّ من مطلع الآية
     # الأولى 6ث؛ فإن ظهرت البسملة **داخل** المدخل فهي مبتلعة يقيناً، وإلا
@@ -1202,9 +1233,10 @@ def audit(key, args):
             rows.append({"aid": aid, "cluster": m["s"], "verdict": "تعذّر", "kind": "غير حاسم",
                          "why": errs[f"F|{aid}"], "band": m["band"]})
             continue
-        v, kind, why = judge(m["ref"], m["prev"], g("F"), g("D"), g("L"))
+        v, kind, why = judge(m["ref"], m["prev"], g("F"), g("D"), g("L"), no_pre=m["noPre"])
         rows.append({"aid": aid, "cluster": m["s"], "verdict": v, "kind": kind, "why": why,
                      "band": m["band"], "startApprox": m["startApprox"],
+                     **({"noPreAudio": True} if m["noPre"] else {}),
                      "heard": {"fwd": g("F"), "dec": g("D"), "long": g("L")}})
         by_cluster.setdefault(m["s"], []).append(kind)
 
