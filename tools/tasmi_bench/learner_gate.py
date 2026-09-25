@@ -25,7 +25,8 @@
 (‏`strict_short=True` مع فهرس `critical_long` مشتقّاً من النصّ الموثَّق) كما يحكم التطبيقُ المشحون؛ و`--no-engine-cfg`
 يعيد مرآةَ `cfg_for` القديمة للمقارنة وحدَها. ويُكتب الإعدادُ في خطّ الأساس، **وخطٌّ بإعدادٍ غيرِ إعداد الشوط يوقف الأداة**.
 وثلاثةُ أعمدةٍ تُطبع بجانب الاتّهام والكشف ولا تدخل البوّابة:
-- **الشكّ:** كلماتٌ سليمةٌ لم تُتّهم وحكمُ الشاهد الأوّل عليها `UNCERTAIN` (‏تُعرض ولا تُحسب زلّة · D-231).
+- **الشكّ:** كلماتٌ سليمةٌ لم تُتّهم وحكمُ الشاهد الأوّل عليها `UNCERTAIN`، ومعها في `veto` ما نقضه الثاني
+  (‏`reconcile` يقلبه `UNCERTAIN`) — تُعرض ولا تُحسب زلّة · D-231.
 - **الكشفُ بحسب وسم الصفّ** (‏`error_tags`، وهي على الصفّ لا على الكلمة): فطبقةُ «التجويد وحده» تُطبع مستقلّةً لا تُحذف.
 - **تسرّبُ الإبدال عند مسافة 2** (‏`--leak`): كلُّ كلمةٍ من التسجيلات السليمة تُبدَّل في **المرجع** بكلمةٍ قرآنيةٍ
   مسافتُها 2، والتفريغُ كما هو (‏فالقارئُ قرأ غيرَ المطلوب)؛ التسرّبُ = لا اتّهامَ ولا شكّ. ⛔ دراسةٌ داخليةٌ
@@ -157,9 +158,15 @@ def verdicts(sc, cfg_for, rows: list, witness: str) -> list:
     return out
 
 
-def arm_uncertain(per_w: dict, ws: list, acc: list) -> list:
-    """لكل كلمة: لم تتّهمها الذراعُ وحكمُ شاهدها الأوّل `UNCERTAIN` (‏كما يعرضها التطبيق)."""
-    return [[(not a) and s == "UNCERTAIN" for a, s in zip(ar, sr)] for ar, sr in zip(acc, per_w[ws[0]])]
+def unc_word(s: str, accused: bool, rule) -> bool:
+    """كلمةٌ تُعرض «غيرَ متبيَّنة»: لم تُتّهم، وحكمُ الشاهد الأوّل `UNCERTAIN` — **أو نقضها الثاني** في ذراع `veto`:
+    ‏`LongTasmiAnchor.reconcile` يقلب ما اتّهمه الأوّلُ وسمعه الثاني صحيحاً إلى `UNCERTAIN` (‏لا إلى صحيح)."""
+    return (not accused) and (s == "UNCERTAIN" or (rule == "veto" and s in ACCUSE))
+
+
+def arm_uncertain(per_w: dict, ws: list, acc: list, rule=None) -> list:
+    """لكل كلمة: هل يعرضها التطبيقُ شكّاً (‏`unc_word`)."""
+    return [[unc_word(s, a, rule) for a, s in zip(ar, sr)] for ar, sr in zip(acc, per_w[ws[0]])]
 
 
 def tag_of(r: dict) -> str:
@@ -234,7 +241,7 @@ def leak_d2(sc, cfg_for, base_cfg_for, rows: list, witnesses: list, arms: dict) 
             st = {w: [t[1] for t in sc.score(ref2, r["hyp"][w], cf)["words"]] for w in witnesses}
             for a, (ws, rule) in arms.items():
                 acc = arm_accusations({w: [st[w]] for w in ws}, ws, rule)[0][j]
-                unc = (not acc) and st[ws[0]][j] == "UNCERTAIN"
+                unc = unc_word(st[ws[0]][j], acc, rule)
                 d = res[a]
                 d["n"] += 1
                 d["acc"] += acc
@@ -413,7 +420,7 @@ def main() -> int:
     boot = Boot(rows, x.boot)
     per_w = {w: verdicts(sc, cfg_for, rows, w) for w in sorted(need)}
     acc = {a: arm_accusations(per_w, *parsed[a]) for a in arms}
-    unc = {a: arm_uncertain(per_w, parsed[a][0], acc[a]) for a in arms}
+    unc = {a: arm_uncertain(per_w, parsed[a][0], acc[a], parsed[a][1]) for a in arms}
 
     res = {
         "gold": os.path.basename(x.gold), "gold_rows": len(rows0), "gold_meta": meta and meta.get("name"),
@@ -523,7 +530,12 @@ def selftest(x) -> int:
     # الشكُّ: غيرُ متّهَمةٍ وحكمُ الشاهد الأوّل UNCERTAIN — والمتّهَمةُ لا تُعدّ شكّاً ولو شكّ فيها الثاني.
     per_u = {"a": [["UNCERTAIN", "SUBSTITUTED", "CORRECT"]], "b": [["CORRECT", "UNCERTAIN", "UNCERTAIN"]]}
     acc_u = arm_accusations(per_u, ["a", "b"], "veto")
-    assert acc_u == [[False, True, False]] and arm_uncertain(per_u, ["a", "b"], acc_u) == [[True, False, False]]
+    assert acc_u == [[False, True, False]] and arm_uncertain(per_u, ["a", "b"], acc_u, "veto") == [[True, False, False]]
+    # والمنقوضُ (‏اتّهمه الأوّلُ وسمعه الثاني صحيحاً) يُعرض شكّاً في `veto` كما في `reconcile` — لا صحيحاً ولا تسرّباً؛
+    # وفي `and` يبقى خارج الشكّ (‏قاعدةٌ غيرُ مشحونة).
+    per_v = {"a": [["SUBSTITUTED", "MISSED"]], "b": [["CORRECT", "SUBSTITUTED"]]}
+    assert arm_uncertain(per_v, ["a", "b"], arm_accusations(per_v, ["a", "b"], "veto"), "veto") == [[True, False]]
+    assert arm_uncertain(per_v, ["a", "b"], arm_accusations(per_v, ["a", "b"], "and"), "and") == [[False, False]]
     # الكشفُ بوسم الصفّ: كلُّ كلمةٍ خاطئةٍ تُنسب إلى وسوم صفّها، والسالبُ خارجٌ.
     tr = [{"kind": "موجب", "labels": "110", "error_tags": ["Tajweed", "Letters"]},
           {"kind": "موجب", "labels": "01", "error_tags": ["Letters"]},
