@@ -1,0 +1,105 @@
+# 🖋️ **خطوطُ المجمع الرسمية لكل رواية برابطٍ ثابت** (D-824 في QuranRafiq).
+#
+# التطبيقُ كان يرسم نصَّ ورش/قالون/… بخطّ حفص أو أميري فيظهر كأنه حفص (الفاءُ والقافُ بنقط المشرق، والوقفُ «صلى»).
+# خطُّ المجمع لكل رواية (≈0.7–0.9 م.ب) يُنزّله التطبيقُ عند أول عرضٍ للرواية، والتحقّقُ ببصمةٍ مثبّتةٍ في التطبيق.
+# 📦 المصدر: حزمُ المجمع الرسمية v2 المؤرشفة في R2 العامّ `archive/qurancomplex/` (قراءةٌ فقط — لا كتابةَ في الدلو)؛
+#    موقعُ المجمع يرفض الاتصال من شبكاتنا (DATA_LICENSE_REGISTRY صفّا 2 و27).
+# ⚖️ الرخصة (مضمَّنةٌ في الخط، جدول name معرّف 13): استعمالٌ ونسخٌ وتوزيعٌ مجّانيّ **بلا تعديلٍ ولا بيع** ⇒ الملفُّ يُنشر
+#    كما هو بايتاً ببايت (البصمةُ تفرض ذلك)، ونصُّ الرخصة بجواره.
+# 💰 مجّانيّ: مستودعٌ عامّ · ubuntu-latest بعدّادٍ قياسيّ · إصداراتُ GitHub بلا تكلفة · لا Artifacts ولا Cache.
+# 🔑 الزناد: دفعُ `tools/fonts/requests/kfgqpc_fonts.json`.
+name: font-publish
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - "tools/fonts/requests/kfgqpc_fonts.json"
+permissions:
+  contents: write
+concurrency:
+  group: font-publish
+  cancel-in-progress: false
+env:
+  UA: "Mozilla/5.0 (QuranRafiq font publish)"
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: الجلبُ والتحقّقُ بالبصمة والنشرُ في إصدارٍ لكل رواية
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          set -eo pipefail
+          pip install -q fonttools
+          python3 - <<'PY'
+          import hashlib, json, os, subprocess, sys, time, urllib.request, zipfile
+          from fontTools.ttLib import TTFont
+          req = json.load(open("tools/fonts/requests/kfgqpc_fonts.json", encoding="utf-8"))
+          repo = os.environ["GITHUB_REPOSITORY"]; ua = os.environ["UA"]
+          def get(url, path):
+              for i in range(4):
+                  try:
+                      r = urllib.request.urlopen(urllib.request.Request(url, headers={"User-Agent": ua}), timeout=120)
+                      open(path, "wb").write(r.read()); return
+                  except Exception as e:
+                      print("retry", url, e); time.sleep(3 * (i + 1))
+              sys.exit(f"⛔ تعذّر الجلب: {url}")
+          out = []
+          os.makedirs("/tmp/f", exist_ok=True)
+          for f in req["fonts"]:
+              r = f["riwaya"]
+              assert r.isalpha() and r.islower(), r
+              z = f"/tmp/f/{f['zip']}"
+              get(req["source"] + f["zip"], z)
+              name = os.path.basename(f["member"])
+              data = zipfile.ZipFile(z).read(f["member"])
+              sha = hashlib.sha256(data).hexdigest()
+              if len(data) != f["bytes"] or sha != f["sha256"]:
+                  sys.exit(f"⛔ {r}: الملفُّ لا يطابق البصمة المثبّتة ({len(data)} · {sha})")
+              ttf = f"/tmp/f/{name}"; open(ttf, "wb").write(data)
+              t = TTFont(ttf)
+              lic = [n.toUnicode() for n in t["name"].names if n.nameID in (0, 13) and n.platformID == 3]
+              lic_path = f"/tmp/f/{name[:-4]}-LICENSE.txt"
+              open(lic_path, "w", encoding="utf-8").write(
+                  "KFGQPC font — license text as embedded in the font's name table (IDs 0 and 13), unmodified file.\n"
+                  f"Source package: {f['zip']} (King Fahd Glorious Quran Printing Complex, v2)\nSHA-256: {sha}\n\n" + "\n\n".join(lic))
+              tag = f"font-kfgqpc-{r}-v2"
+              if subprocess.run(["gh", "release", "view", tag, "--repo", repo], capture_output=True).returncode == 0:
+                  print(f"ℹ️ {tag} قائم — لا يُكتب فوقه (يُتحقّق من البصمة أدناه)")
+              else:
+                  subprocess.run(["gh", "release", "create", tag, ttf, lic_path, "--repo", repo,
+                                  "--target", os.environ["GITHUB_SHA"],
+                                  "--title", f"خطُّ مجمع الملك فهد لرواية {r} (v2 · بلا تعديل)",
+                                  "--notes", f"الملفُّ `{name}` من حزمة المجمع الرسمية `{f['zip']}` بايتاً ببايت · sha256 `{sha}` · "
+                                             "الرخصةُ مضمَّنةٌ في الخط ونصُّها في الملف المرافق: استعمالٌ ونسخٌ وتوزيعٌ مجّانيّ بلا تعديلٍ ولا بيع. "
+                                             "يستعمله تطبيقُ «مصحفك» لرسم نصّ الرواية (D-824)."], check=True)
+              url = f"https://github.com/{repo}/releases/download/{tag}/{name}"
+              time.sleep(3)
+              get(url, "/tmp/f/pub.ttf")
+              pub = hashlib.sha256(open("/tmp/f/pub.ttf", "rb").read()).hexdigest()
+              print(f"{r}: محلّيّ {sha} · عامّ {pub}")
+              if pub != sha:
+                  sys.exit(f"⛔ {r}: الرابطُ العامُّ لا يطابق (أصلٌ قائمٌ مختلف؟)")
+              out.append({"riwaya": r, "url": url, "bytes": len(data), "sha256": sha, "source_zip": f["zip"]})
+          os.makedirs("ops/fonts", exist_ok=True)
+          json.dump({"run_id": os.environ["GITHUB_RUN_ID"], "fonts": out,
+                     "hosting": "إصداراتٌ في المستودع العامّ — مجّانيّة؛ لا كتابةَ في R2"},
+                    open("ops/fonts/published.json", "w", encoding="utf-8"), ensure_ascii=False, indent=1)
+          print(open("ops/fonts/published.json", encoding="utf-8").read())
+          PY
+      - name: إيداعُ الوصف في الفرع
+        run: |
+          set -eo pipefail
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add ops/fonts/published.json
+          git commit -q -m "ops: نُشرت خطوطُ المجمع للروايات · ${{ github.run_id }}" -- ops/fonts/published.json || { echo "لا تغيير"; exit 0; }
+          for i in 1 2 3 4; do
+            git push origin "HEAD:${{ github.ref_name }}" && break
+            git fetch -q origin "${{ github.ref_name }}" && git merge --no-edit -q "origin/${{ github.ref_name }}"; sleep $((i*3))
+          done
