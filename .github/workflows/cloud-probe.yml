@@ -1,0 +1,29 @@
+# 🩺 مسبارُ صحّةِ التفريغ السحابيّ (‏/v1/tasmi/stream) — مستقلٌّ عن طابور agent_cmd كي لا ينتظر دفعاتِ الفهرسة.
+# يُشعَل بدفع ops/probe/request.txt، ويكتب جوابه في ops/out/cloud_probe.txt. عدّادٌ قياسيٌّ في مستودعٍ عامّ.
+name: cloud-probe
+on:
+  push:
+    branches: [main]
+    paths: ["ops/probe/request.txt"]
+concurrency:
+  group: cloud-probe
+  cancel-in-progress: false
+permissions:
+  contents: write
+jobs:
+  probe:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - name: المسبار
+        run: |
+          set -o pipefail
+          mkdir -p ops/out
+          { echo "run ${{ github.run_id }} $(date -u +%FT%TZ)"; python3 tools/tasmi_bench/cloud_stream_probe.py 2>&1; } | tee ops/out/cloud_probe.txt
+      - name: دفعُ الجواب
+        run: |
+          git config user.name rafiq-cloud-probe; git config user.email actions@github.com
+          git add ops/out/cloud_probe.txt
+          git commit -q -m "ops: جوابُ مسبار التفريغ السحابيّ" -- ops/out/cloud_probe.txt
+          for i in 1 2 3 4; do git pull -q --no-rebase --no-edit origin main && git push -q origin HEAD:main && break; sleep $((i*3)); done
