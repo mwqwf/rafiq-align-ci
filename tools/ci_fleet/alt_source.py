@@ -7,6 +7,12 @@
 والحكمُ «سليم» بالعتبة نفسها `SOUND`؛ ولا يُقترح إلا بديلٌ سليم.
 
     python tools/ci_fleet/alt_source.py hafs/mukhtar_haj:20,41 hafs/ra3ad:72
+    python tools/ci_fleet/alt_source.py --candidates tools/ci_fleet/alt_candidates.json
+
+والصيغةُ الثانية تقيس قوالبَ من مضيفاتٍ أخرى (‏quranicaudio · archive.org · …) جُمعت
+بحثاً بشرط «القارئ نفسه والرواية نفسها بدليلٍ مكتوب». القياسُ وحده لا يُثبت الهويّة:
+مصدرٌ سليمُ النسبة يُسجَّل في `source_overrides.json` **مع دليل هويّته**، ثم يمرّ
+بالمحاذاة والملوح الأربعة وحارس البتر كسائر المصادر.
 
 ⛔ القارئُ يُطابَق بمعرّفه في mp3quran (‏صاحبُ الخادم المسجَّل)، لا بتشابه الاسم:
    صوتُ قارئٍ آخر على سورةٍ لا يُنشر أبداً ولو اكتمل العدّ.
@@ -45,8 +51,53 @@ def owner_of(allr: list, base: str):
     return None, None
 
 
+def measure_candidates(path: str, refs) -> int:
+    """يقيس كلَّ قالبٍ مرشّح (أو جدولَ ملفّاتٍ بأسماء) على الفهرس المنشور للقارئ."""
+    rows = json.loads(Path(path).read_text(encoding="utf-8"))
+    for c in rows:
+        riw, rid = c["riwaya"], c["reciter"]
+        try:
+            idx, _ = rl.fetch_index(f"timings/{riw}/{rid}.jz")
+        except Exception as e:                                # noqa: BLE001
+            print(f"⛔ {riw}/{rid}: الفهرسُ المنشور متعذّر — {e}")
+            continue
+        tpl, files = c.get("template") or "", c.get("files") or {}
+        print(f"== {riw}/{rid} · {c.get('style', '؟')} · {tpl or 'ملفّاتٌ بأسماء'}")
+        print(f"   الدليل: {c.get('evidence', '—')}")
+        for s in c.get("surahs") or []:
+            if tpl:
+                # القالبُ يُحوَّل إلى أساسٍ + جدولِ أسماءٍ حتى تعمل `source_ratio` كما هي.
+                names = {n: tpl.split("/")[-1].format(s=n) for n in range(1, 115)}
+                base = tpl.rsplit("/", 1)[0] + "/"
+            else:
+                if str(s) not in files:
+                    print(f"   · س{s}: لا رابطَ لها في المرشّح")
+                    continue
+                base, names = "", {int(k): v for k, v in files.items()}
+            size = None
+            if not tpl:
+                # روابطُ كاملةٌ بأسماء: `source_ratio` تبني «/‏<اسمٍ مُرمَّز>»، فيُفكّ هنا.
+                from urllib.parse import unquote                  # noqa: PLC0415
+                size = lambda u: rl.head_len(unquote(u.lstrip("/")))  # noqa: E731
+            try:
+                ratio = rl.source_ratio(idx, base, s, refs, names, size=size)
+            except KeyError:
+                ratio = None
+                print(f"   ⚠️ س{s}: سورُ السبر ليست كلُّها في جدول الروابط — لا قياس")
+            except Exception as e:                            # noqa: BLE001
+                ratio = None
+                print(f"   ⚠️ س{s}: {e}")
+            tag = ("سليم" if ratio is not None and ratio >= rl.SOUND
+                   else "مبتور/مجهول")
+            print(f"   ▶ س{s} · نسبة {ratio} ({tag})")
+    return 0
+
+
 def main() -> int:
     args = sys.argv[1:]
+    if args[:1] == ["--candidates"] and len(args) == 2:
+        refs = [rl.surah_ends(rl.fetch_index(k)[0]) for k in rl.REFS]
+        return measure_candidates(args[1], refs)
     if not args:
         print(__doc__)
         return 0
