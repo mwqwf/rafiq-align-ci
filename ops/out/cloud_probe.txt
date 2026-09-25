@@ -1,4 +1,4 @@
-run 36105063449 2026-09-25T06:56:09Z
+run 36110412984 2026-09-25T07:58:43Z
 
 Running kernel seems to be up-to-date.
 
@@ -9,12 +9,12 @@ No containers need to be restarted.
 No user sessions are running outdated binaries.
 
 No VM guests are running outdated hypervisor (qemu) binaries on this host.
-GET /v1/app/version ua=Dalvik/2.1.0 (Linux; U; Android 14; Pixel 7 Build/UQ1A) → 200 (0.28s) b'{"latest":42,"latest_name":"1.10.3","message":"","min_supported":0,"store_url":"https://play.google.com/store/apps/detai'
-GET /v1/app/version ua=okhttp/4.12.0 → 200 (0.20s) b'{"latest":42,"latest_name":"1.10.3","message":"","min_supported":0,"store_url":"https://play.google.com/store/apps/detai'
-GET /v1/app/version ua=Python-urllib → 403 (0.02s) b'error code: 1010\n'
-POST /v1/device → 200 (0.15s)
-POST /v1/tasmi/stream 001002 → 502 (0.51s) {"error":"upstream"}
-POST /v1/tasmi/stream 002255 → 502 (0.41s) {"error":"upstream"}
-POST /v1/tasmi/stream 018022 → 502 (0.29s) {"error":"upstream"}
+GET /v1/app/version ua=Dalvik/2.1.0 (Linux; U; Android 14; Pixel 7 Build/UQ1A) → 200 (0.38s) b'{"latest":42,"latest_name":"1.10.3","message":"","min_supported":0,"store_url":"https://play.google.com/store/apps/detai'
+GET /v1/app/version ua=okhttp/4.12.0 → 200 (0.17s) b'{"latest":42,"latest_name":"1.10.3","message":"","min_supported":0,"store_url":"https://play.google.com/store/apps/detai'
+GET /v1/app/version ua=Python-urllib → 403 (0.05s) b'error code: 1010\n'
+POST /v1/device → 200 (0.20s)
+POST /v1/tasmi/stream 001002 → 502 (0.63s) {"error":"upstream"}
+POST /v1/tasmi/stream 002255 → 502 (0.45s) {"error":"upstream"}
+POST /v1/tasmi/stream 018022 → 502 (0.37s) {"error":"upstream"}
 DELETE /v1/device → 200
 الخلاصة: ⛔ 3/3 مقاطع فشلت
