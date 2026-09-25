@@ -148,3 +148,17 @@ class PromoteFallbackTests(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class FinalRejectionTests(unittest.TestCase):
+    """لا يُنزل إلى المرشّح الأصغر إلا على ردٍّ نهائيٍّ مسمّى."""
+
+    def test_final_markers(self):
+        self.assertTrue(loop.final_rejection("🔴 x: سورٌ مبتورةٌ في المصدر (24) — لا ترقية"))
+        self.assertTrue(loop.final_rejection("الإحصاءُ الشامل: عطبٌ جسيم 6/62 (9.7%) > 5%"))
+        self.assertTrue(loop.final_rejection("⛔ x: خلل بنيوي: 2"))
+
+    def test_transient_is_not_final(self):
+        self.assertFalse(loop.final_rejection("لم يمرّ بعدُ — لا حكمَ مطالع"))
+        self.assertFalse(loop.final_rejection(""))
+        self.assertFalse(loop.final_rejection(None))
