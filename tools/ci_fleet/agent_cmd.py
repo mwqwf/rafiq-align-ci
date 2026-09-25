@@ -95,7 +95,7 @@ ALLOWED_WF = {"align.yml", "realign_surah.yml", "openers.yml", "audio_qa.yml",
 #    كان يفتحه**. وهو محكومٌ بحُرّاسه (يُسقط التوليد كلَّه إن شُهد لمن لا حكمَ
 #    لبصمته، ولا يمسّ غير الحقلين)، فإدخالُه لا يُضعف حارساً.
 ALLOWED_TOOLS = {"ci_fleet/refreeze.py", "tasmi_bench/cloud_stream_probe.py",  # 🩺 صحّةُ التفريغ السحابيّ (2026-09-25)  # يسدّ تجميداً رُفع بلا ترقية (2026-09-23)
-                 "index_qa/run.py", "ci_fleet/alt_source.py",  # 🔁 تسجيلٌ بديلٌ للقارئ نفسه (2026-09-25)
+                 "index_qa/run.py", "ci_fleet/alt_source.py", "ci_fleet/find_sources.py",  # 🔁 تسجيلٌ بديلٌ للقارئ نفسه (2026-09-25)
                  "index_qa/triage.py", "index_qa/promote.py",
                  "index_qa/certify_catalog.py",
                  "index_qa/bucket_watch.py", "index_qa/drop_surah.py",
