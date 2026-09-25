@@ -1,0 +1,1990 @@
+{
+ "gold": "learner_gold_v1.jsonl",
+ "preregistered": {
+  "CONFIRM_Q": 0.1,
+  "RESCUE_Q": 0.005,
+  "RESYNC_Q": 0.005,
+  "FOLDS": 5,
+  "STAT": "sum",
+  "MAX_FORMS": 12,
+  "FORCED_LANG": "ar"
+ },
+ "ruler": {
+  "kept_rows_before_audio": 198,
+  "dropped": {
+   "audio_offset_nonzero_or_unknown": 38,
+   "len_mismatch": 0,
+   "kind_contradicts_labels": 0,
+   "missing_witness": 0
+  },
+  "rows_with_audio_all_models": 198,
+  "recordings": 45
+ },
+ "models": {
+  "base_q5_1": {
+   "sha256": "acc1f03c8b1468b674b4fab50e0b2312cff982ba0001cd16fe36ca23862b6536",
+   "free_lang": "ar",
+   "forced_lang": "ar",
+   "resync_tau": -29.953,
+   "bpe_parity": {
+    "equal": 196,
+    "total": 197
+   },
+   "seconds": {
+    "free": 398,
+    "forced": 782,
+    "forced_resync": 14
+   },
+   "long_rows_skipped": 1,
+   "errors": 0,
+   "auc_p1": {
+    "marked_vs_clean": 0.7009,
+    "n_pos": 51,
+    "n_neg": 655,
+    "within_substituted": 0.6049,
+    "n_sub_true": 6,
+    "n_sub_false": 27
+   },
+   "auc_p2": {
+    "marked_vs_clean": 0.7009,
+    "n_pos": 51,
+    "n_neg": 655,
+    "within_substituted": 0.6049,
+    "n_sub_true": 6,
+    "n_sub_false": 27
+   },
+   "thresholds_full_sample": {
+    "confirm": {
+     "confirm_full": -16.517,
+     "rescue_full": -29.953
+    },
+    "rescue": {
+     "confirm_full": -16.517,
+     "rescue_full": -29.953
+    },
+    "confirm+resync": {
+     "confirm_full": -16.517,
+     "rescue_full": -29.953
+    },
+    "rescue+resync": {
+     "confirm_full": -16.517,
+     "rescue_full": -29.953
+    }
+   },
+   "arms": {
+    "baseline": {
+     "fa": 41,
+     "clean_words": 666,
+     "fa_pct": 6.16,
+     "fa_wilson95": [
+      4.57,
+      8.25
+     ],
+     "fa_cluster95": [
+      3.43,
+      8.93
+     ],
+     "det": 7,
+     "marked_words": 51,
+     "det_pct": 13.7,
+     "det_wilson95": [
+      6.81,
+      25.72
+     ],
+     "det_cluster95": [
+      5.0,
+      24.44
+     ],
+     "clean_recordings_accused": 25,
+     "clean_recordings": 154,
+     "by_riwaya": {
+      "hafs": {
+       "fa": 26,
+       "clean": 439,
+       "fa_pct": 5.92,
+       "det": 5,
+       "marked": 40,
+       "det_pct": 12.5
+      },
+      "qalun": {
+       "fa": 15,
+       "clean": 227,
+       "fa_pct": 6.61,
+       "det": 2,
+       "marked": 11,
+       "det_pct": 18.2
+      }
+     }
+    },
+    "confirm": {
+     "fa": 19,
+     "clean_words": 666,
+     "fa_pct": 2.85,
+     "fa_wilson95": [
+      1.83,
+      4.41
+     ],
+     "fa_cluster95": [
+      1.04,
+      4.81
+     ],
+     "det": 2,
+     "marked_words": 51,
+     "det_pct": 3.9,
+     "det_wilson95": [
+      1.08,
+      13.22
+     ],
+     "det_cluster95": [
+      0.0,
+      10.53
+     ],
+     "clean_recordings_accused": 13,
+     "clean_recordings": 154,
+     "by_riwaya": {
+      "hafs": {
+       "fa": 10,
+       "clean": 439,
+       "fa_pct": 2.28,
+       "det": 2,
+       "marked": 40,
+       "det_pct": 5.0
+      },
+      "qalun": {
+       "fa": 9,
+       "clean": 227,
+       "fa_pct": 3.96,
+       "det": 0,
+       "marked": 11,
+       "det_pct": 0.0
+      }
+     }
+    },
+    "rescue": {
+     "fa": 43,
+     "clean_words": 666,
+     "fa_pct": 6.46,
+     "fa_wilson95": [
+      4.83,
+      8.58
+     ],
+     "fa_cluster95": [
+      3.68,
+      9.17
+     ],
+     "det": 7,
+     "marked_words": 51,
+     "det_pct": 13.7,
+     "det_wilson95": [
+      6.81,
+      25.72
+     ],
+     "det_cluster95": [
+      5.0,
+      24.44
+     ],
+     "clean_recordings_accused": 27,
+     "clean_recordings": 154,
+     "by_riwaya": {
+      "hafs": {
+       "fa": 28,
+       "clean": 439,
+       "fa_pct": 6.38,
+       "det": 5,
+       "marked": 40,
+       "det_pct": 12.5
+      },
+      "qalun": {
+       "fa": 15,
+       "clean": 227,
+       "fa_pct": 6.61,
+       "det": 2,
+       "marked": 11,
+       "det_pct": 18.2
+      }
+     }
+    },
+    "confirm+rescue": {
+     "fa": 21,
+     "clean_words": 666,
+     "fa_pct": 3.15,
+     "fa_wilson95": [
+      2.07,
+      4.77
+     ],
+     "fa_cluster95": [
+      1.38,
+      5.08
+     ],
+     "det": 2,
+     "marked_words": 51,
+     "det_pct": 3.9,
+     "det_wilson95": [
+      1.08,
+      13.22
+     ],
+     "det_cluster95": [
+      0.0,
+      10.53
+     ],
+     "clean_recordings_accused": 15,
+     "clean_recordings": 154,
+     "by_riwaya": {
+      "hafs": {
+       "fa": 12,
+       "clean": 439,
+       "fa_pct": 2.73,
+       "det": 2,
+       "marked": 40,
+       "det_pct": 5.0
+      },
+      "qalun": {
+       "fa": 9,
+       "clean": 227,
+       "fa_pct": 3.96,
+       "det": 0,
+       "marked": 11,
+       "det_pct": 0.0
+      }
+     }
+    },
+    "confirm+resync": {
+     "fa": 19,
+     "clean_words": 666,
+     "fa_pct": 2.85,
+     "fa_wilson95": [
+      1.83,
+      4.41
+     ],
+     "fa_cluster95": [
+      1.04,
+      4.81
+     ],
+     "det": 2,
+     "marked_words": 51,
+     "det_pct": 3.9,
+     "det_wilson95": [
+      1.08,
+      13.22
+     ],
+     "det_cluster95": [
+      0.0,
+      10.53
+     ],
+     "clean_recordings_accused": 13,
+     "clean_recordings": 154,
+     "by_riwaya": {
+      "hafs": {
+       "fa": 10,
+       "clean": 439,
+       "fa_pct": 2.28,
+       "det": 2,
+       "marked": 40,
+       "det_pct": 5.0
+      },
+      "qalun": {
+       "fa": 9,
+       "clean": 227,
+       "fa_pct": 3.96,
+       "det": 0,
+       "marked": 11,
+       "det_pct": 0.0
+      }
+     }
+    },
+    "rescue+resync": {
+     "fa": 43,
+     "clean_words": 666,
+     "fa_pct": 6.46,
+     "fa_wilson95": [
+      4.83,
+      8.58
+     ],
+     "fa_cluster95": [
+      3.68,
+      9.17
+     ],
+     "det": 7,
+     "marked_words": 51,
+     "det_pct": 13.7,
+     "det_wilson95": [
+      6.81,
+      25.72
+     ],
+     "det_cluster95": [
+      5.0,
+      24.44
+     ],
+     "clean_recordings_accused": 27,
+     "clean_recordings": 154,
+     "by_riwaya": {
+      "hafs": {
+       "fa": 28,
+       "clean": 439,
+       "fa_pct": 6.38,
+       "det": 5,
+       "marked": 40,
+       "det_pct": 12.5
+      },
+      "qalun": {
+       "fa": 15,
+       "clean": 227,
+       "fa_pct": 6.61,
+       "det": 2,
+       "marked": 11,
+       "det_pct": 18.2
+      }
+     }
+    },
+    "confirm+rescue+resync": {
+     "fa": 21,
+     "clean_words": 666,
+     "fa_pct": 3.15,
+     "fa_wilson95": [
+      2.07,
+      4.77
+     ],
+     "fa_cluster95": [
+      1.38,
+      5.08
+     ],
+     "det": 2,
+     "marked_words": 51,
+     "det_pct": 3.9,
+     "det_wilson95": [
+      1.08,
+      13.22
+     ],
+     "det_cluster95": [
+      0.0,
+      10.53
+     ],
+     "clean_recordings_accused": 15,
+     "clean_recordings": 154,
+     "by_riwaya": {
+      "hafs": {
+       "fa": 12,
+       "clean": 439,
+       "fa_pct": 2.73,
+       "det": 2,
+       "marked": 40,
+       "det_pct": 5.0
+      },
+      "qalun": {
+       "fa": 9,
+       "clean": 227,
+       "fa_pct": 3.96,
+       "det": 0,
+       "marked": 11,
+       "det_pct": 0.0
+      }
+     }
+    }
+   },
+   "vs_baseline": {
+    "confirm": {
+     "fa_delta_pts": -3.3,
+     "fa_delta_cluster95": [
+      -5.18,
+      -1.63
+     ],
+     "fa_mcnemar": {
+      "a_only": 22,
+      "b_only": 0,
+      "p": 4.77e-07
+     },
+     "det_delta_words": -5,
+     "det_delta_pts": -9.8,
+     "det_delta_cluster95": [
+      -20.0,
+      -2.08
+     ],
+     "det_mcnemar": {
+      "a_only": 5,
+      "b_only": 0,
+      "p": 0.0625
+     },
+     "non_inferior": false
+    },
+    "rescue": {
+     "fa_delta_pts": 0.3,
+     "fa_delta_cluster95": [
+      0.0,
+      0.78
+     ],
+     "fa_mcnemar": {
+      "a_only": 0,
+      "b_only": 2,
+      "p": 0.5
+     },
+     "det_delta_words": 0,
+     "det_delta_pts": 0.0,
+     "det_delta_cluster95": [
+      0.0,
+      0.0
+     ],
+     "det_mcnemar": {
+      "a_only": 0,
+      "b_only": 0,
+      "p": 1.0
+     },
+     "non_inferior": false
+    },
+    "confirm+rescue": {
+     "fa_delta_pts": -3.0,
+     "fa_delta_cluster95": [
+      -4.88,
+      -1.28
+     ],
+     "fa_mcnemar": {
+      "a_only": 22,
+      "b_only": 2,
+      "p": 3.59e-05
+     },
+     "det_delta_words": -5,
+     "det_delta_pts": -9.8,
+     "det_delta_cluster95": [
+      -20.0,
+      -2.08
+     ],
+     "det_mcnemar": {
+      "a_only": 5,
+      "b_only": 0,
+      "p": 0.0625
+     },
+     "non_inferior": false
+    },
+    "confirm+resync": {
+     "fa_delta_pts": -3.3,
+     "fa_delta_cluster95": [
+      -5.18,
+      -1.63
+     ],
+     "fa_mcnemar": {
+      "a_only": 22,
+      "b_only": 0,
+      "p": 4.77e-07
+     },
+     "det_delta_words": -5,
+     "det_delta_pts": -9.8,
+     "det_delta_cluster95": [
+      -20.0,
+      -2.08
+     ],
+     "det_mcnemar": {
+      "a_only": 5,
+      "b_only": 0,
+      "p": 0.0625
+     },
+     "non_inferior": false
+    },
+    "rescue+resync": {
+     "fa_delta_pts": 0.3,
+     "fa_delta_cluster95": [
+      0.0,
+      0.78
+     ],
+     "fa_mcnemar": {
+      "a_only": 0,
+      "b_only": 2,
+      "p": 0.5
+     },
+     "det_delta_words": 0,
+     "det_delta_pts": 0.0,
+     "det_delta_cluster95": [
+      0.0,
+      0.0
+     ],
+     "det_mcnemar": {
+      "a_only": 0,
+      "b_only": 0,
+      "p": 1.0
+     },
+     "non_inferior": false
+    },
+    "confirm+rescue+resync": {
+     "fa_delta_pts": -3.0,
+     "fa_delta_cluster95": [
+      -4.88,
+      -1.28
+     ],
+     "fa_mcnemar": {
+      "a_only": 22,
+      "b_only": 2,
+      "p": 3.59e-05
+     },
+     "det_delta_words": -5,
+     "det_delta_pts": -9.8,
+     "det_delta_cluster95": [
+      -20.0,
+      -2.08
+     ],
+     "det_mcnemar": {
+      "a_only": 5,
+      "b_only": 0,
+      "p": 0.0625
+     },
+     "non_inferior": false
+    }
+   },
+   "far_accusation_positive_rows": {
+    "baseline": {
+     "acc": 12,
+     "words": 119,
+     "pct": 10.08
+    },
+    "confirm": {
+     "acc": 10,
+     "words": 119,
+     "pct": 8.4
+    },
+    "rescue": {
+     "acc": 12,
+     "words": 119,
+     "pct": 10.08
+    },
+    "confirm+rescue": {
+     "acc": 10,
+     "words": 119,
+     "pct": 8.4
+    },
+    "confirm+resync": {
+     "acc": 10,
+     "words": 119,
+     "pct": 8.4
+    },
+    "rescue+resync": {
+     "acc": 12,
+     "words": 119,
+     "pct": 10.08
+    },
+    "confirm+rescue+resync": {
+     "acc": 10,
+     "words": 119,
+     "pct": 8.4
+    }
+   },
+   "det_by_error_tag": {
+    "Tajweed": {
+     "baseline": [
+      2,
+      17
+     ],
+     "confirm": [
+      0,
+      17
+     ],
+     "rescue": [
+      2,
+      17
+     ]
+    },
+    "Wording": {
+     "baseline": [
+      0,
+      4
+     ],
+     "confirm": [
+      0,
+      4
+     ],
+     "rescue": [
+      0,
+      4
+     ]
+    },
+    "Tashkeel": {
+     "baseline": [
+      0,
+      4
+     ],
+     "confirm": [
+      0,
+      4
+     ],
+     "rescue": [
+      0,
+      4
+     ]
+    },
+    "Letters": {
+     "baseline": [
+      5,
+      37
+     ],
+     "confirm": [
+      2,
+      37
+     ],
+     "rescue": [
+      5,
+      37
+     ]
+    }
+   },
+   "score_quantiles_p1": {
+    "clean": {
+     "0.005": -29.953,
+     "0.05": -20.571,
+     "0.1": -16.517,
+     "0.25": -0.622,
+     "0.5": -0.002
+    },
+    "marked": {
+     "0.005": -29.05,
+     "0.05": -22.092,
+     "0.1": -15.992,
+     "0.25": -8.393,
+     "0.5": -2.771
+    }
+   },
+   "ship_criterion": {
+    "confirm": {
+     "fa_ci_upper_le_0": true,
+     "det_drop_le_2": false,
+     "no_riwaya_worse_fa": true,
+     "pass": false
+    },
+    "confirm+resync": {
+     "fa_ci_upper_le_0": true,
+     "det_drop_le_2": false,
+     "no_riwaya_worse_fa": true,
+     "pass": false
+    }
+   }
+  },
+  "tiny": {
+   "sha256": "ef01ab441b004f9e6f1ea98d397b43452b3a45efab7c3928ab37af655dde8b52",
+   "free_lang": "en",
+   "forced_lang": "ar",
+   "resync_tau": -32.908,
+   "bpe_parity": {
+    "equal": 197,
+    "total": 197
+   },
+   "seconds": {
+    "free": 98,
+    "forced": 190,
+    "forced_resync": 4
+   },
+   "long_rows_skipped": 1,
+   "errors": 0,
+   "auc_p1": {
+    "marked_vs_clean": 0.655,
+    "n_pos": 51,
+    "n_neg": 655,
+    "within_substituted": 0.7587,
+    "n_sub_true": 12,
+    "n_sub_false": 77
+   },
+   "auc_p2": {
+    "marked_vs_clean": 0.655,
+    "n_pos": 51,
+    "n_neg": 655,
+    "within_substituted": 0.7587,
+    "n_sub_true": 12,
+    "n_sub_false": 77
+   },
+   "thresholds_full_sample": {
+    "confirm": {
+     "confirm_full": -14.1043,
+     "rescue_full": -32.908
+    },
+    "rescue": {
+     "confirm_full": -14.1043,
+     "rescue_full": -32.908
+    },
+    "confirm+resync": {
+     "confirm_full": -14.1246,
+     "rescue_full": -32.908
+    },
+    "rescue+resync": {
+     "confirm_full": -14.1246,
+     "rescue_full": -32.908
+    }
+   },
+   "arms": {
+    "baseline": {
+     "fa": 94,
+     "clean_words": 666,
+     "fa_pct": 14.11,
+     "fa_wilson95": [
+      11.68,
+      16.96
+     ],
+     "fa_cluster95": [
+      9.8,
+      17.94
+     ],
+     "det": 13,
+     "marked_words": 51,
+     "det_pct": 25.5,
+     "det_wilson95": [
+      15.55,
+      38.87
+     ],
+     "det_cluster95": [
+      15.71,
+      39.47
+     ],
+     "clean_recordings_accused": 60,
+     "clean_recordings": 154,
+     "by_riwaya": {
+      "hafs": {
+       "fa": 54,
+       "clean": 439,
+       "fa_pct": 12.3,
+       "det": 10,
+       "marked": 40,
+       "det_pct": 25.0
+      },
+      "qalun": {
+       "fa": 40,
+       "clean": 227,
+       "fa_pct": 17.62,
+       "det": 3,
+       "marked": 11,
+       "det_pct": 27.3
+      }
+     }
+    },
+    "confirm": {
+     "fa": 24,
+     "clean_words": 666,
+     "fa_pct": 3.6,
+     "fa_wilson95": [
+      2.43,
+      5.31
+     ],
+     "fa_cluster95": [
+      2.21,
+      5.08
+     ],
+     "det": 3,
+     "marked_words": 51,
+     "det_pct": 5.9,
+     "det_wilson95": [
+      2.02,
+      15.92
+     ],
+     "det_cluster95": [
+      0.0,
+      12.5
+     ],
+     "clean_recordings_accused": 23,
+     "clean_recordings": 154,
+     "by_riwaya": {
+      "hafs": {
+       "fa": 11,
+       "clean": 439,
+       "fa_pct": 2.51,
+       "det": 2,
+       "marked": 40,
+       "det_pct": 5.0
+      },
+      "qalun": {
+       "fa": 13,
+       "clean": 227,
+       "fa_pct": 5.73,
+       "det": 1,
+       "marked": 11,
+       "det_pct": 9.1
+      }
+     }
+    },
+    "rescue": {
+     "fa": 95,
+     "clean_words": 666,
+     "fa_pct": 14.26,
+     "fa_wilson95": [
+      11.81,
+      17.13
+     ],
+     "fa_cluster95": [
+      10.06,
+      18.08
+     ],
+     "det": 13,
+     "marked_words": 51,
+     "det_pct": 25.5,
+     "det_wilson95": [
+      15.55,
+      38.87
+     ],
+     "det_cluster95": [
+      15.71,
+      39.47
+     ],
+     "clean_recordings_accused": 61,
+     "clean_recordings": 154,
+     "by_riwaya": {
+      "hafs": {
+       "fa": 55,
+       "clean": 439,
+       "fa_pct": 12.53,
+       "det": 10,
+       "marked": 40,
+       "det_pct": 25.0
+      },
+      "qalun": {
+       "fa": 40,
+       "clean": 227,
+       "fa_pct": 17.62,
+       "det": 3,
+       "marked": 11,
+       "det_pct": 27.3
+      }
+     }
+    },
+    "confirm+rescue": {
+     "fa": 25,
+     "clean_words": 666,
+     "fa_pct": 3.75,
+     "fa_wilson95": [
+      2.56,
+      5.48
+     ],
+     "fa_cluster95": [
+      2.37,
+      5.15
+     ],
+     "det": 3,
+     "marked_words": 51,
+     "det_pct": 5.9,
+     "det_wilson95": [
+      2.02,
+      15.92
+     ],
+     "det_cluster95": [
+      0.0,
+      12.5
+     ],
+     "clean_recordings_accused": 24,
+     "clean_recordings": 154,
+     "by_riwaya": {
+      "hafs": {
+       "fa": 12,
+       "clean": 439,
+       "fa_pct": 2.73,
+       "det": 2,
+       "marked": 40,
+       "det_pct": 5.0
+      },
+      "qalun": {
+       "fa": 13,
+       "clean": 227,
+       "fa_pct": 5.73,
+       "det": 1,
+       "marked": 11,
+       "det_pct": 9.1
+      }
+     }
+    },
+    "confirm+resync": {
+     "fa": 24,
+     "clean_words": 666,
+     "fa_pct": 3.6,
+     "fa_wilson95": [
+      2.43,
+      5.31
+     ],
+     "fa_cluster95": [
+      2.21,
+      5.08
+     ],
+     "det": 3,
+     "marked_words": 51,
+     "det_pct": 5.9,
+     "det_wilson95": [
+      2.02,
+      15.92
+     ],
+     "det_cluster95": [
+      0.0,
+      12.5
+     ],
+     "clean_recordings_accused": 23,
+     "clean_recordings": 154,
+     "by_riwaya": {
+      "hafs": {
+       "fa": 11,
+       "clean": 439,
+       "fa_pct": 2.51,
+       "det": 2,
+       "marked": 40,
+       "det_pct": 5.0
+      },
+      "qalun": {
+       "fa": 13,
+       "clean": 227,
+       "fa_pct": 5.73,
+       "det": 1,
+       "marked": 11,
+       "det_pct": 9.1
+      }
+     }
+    },
+    "rescue+resync": {
+     "fa": 95,
+     "clean_words": 666,
+     "fa_pct": 14.26,
+     "fa_wilson95": [
+      11.81,
+      17.13
+     ],
+     "fa_cluster95": [
+      10.06,
+      18.08
+     ],
+     "det": 13,
+     "marked_words": 51,
+     "det_pct": 25.5,
+     "det_wilson95": [
+      15.55,
+      38.87
+     ],
+     "det_cluster95": [
+      15.71,
+      39.47
+     ],
+     "clean_recordings_accused": 61,
+     "clean_recordings": 154,
+     "by_riwaya": {
+      "hafs": {
+       "fa": 55,
+       "clean": 439,
+       "fa_pct": 12.53,
+       "det": 10,
+       "marked": 40,
+       "det_pct": 25.0
+      },
+      "qalun": {
+       "fa": 40,
+       "clean": 227,
+       "fa_pct": 17.62,
+       "det": 3,
+       "marked": 11,
+       "det_pct": 27.3
+      }
+     }
+    },
+    "confirm+rescue+resync": {
+     "fa": 25,
+     "clean_words": 666,
+     "fa_pct": 3.75,
+     "fa_wilson95": [
+      2.56,
+      5.48
+     ],
+     "fa_cluster95": [
+      2.37,
+      5.15
+     ],
+     "det": 3,
+     "marked_words": 51,
+     "det_pct": 5.9,
+     "det_wilson95": [
+      2.02,
+      15.92
+     ],
+     "det_cluster95": [
+      0.0,
+      12.5
+     ],
+     "clean_recordings_accused": 24,
+     "clean_recordings": 154,
+     "by_riwaya": {
+      "hafs": {
+       "fa": 12,
+       "clean": 439,
+       "fa_pct": 2.73,
+       "det": 2,
+       "marked": 40,
+       "det_pct": 5.0
+      },
+      "qalun": {
+       "fa": 13,
+       "clean": 227,
+       "fa_pct": 5.73,
+       "det": 1,
+       "marked": 11,
+       "det_pct": 9.1
+      }
+     }
+    }
+   },
+   "vs_baseline": {
+    "confirm": {
+     "fa_delta_pts": -10.51,
+     "fa_delta_cluster95": [
+      -13.61,
+      -7.23
+     ],
+     "fa_mcnemar": {
+      "a_only": 70,
+      "b_only": 0,
+      "p": 1.69e-21
+     },
+     "det_delta_words": -10,
+     "det_delta_pts": -19.6,
+     "det_delta_cluster95": [
+      -34.29,
+      -9.09
+     ],
+     "det_mcnemar": {
+      "a_only": 10,
+      "b_only": 0,
+      "p": 0.00195
+     },
+     "non_inferior": false
+    },
+    "rescue": {
+     "fa_delta_pts": 0.15,
+     "fa_delta_cluster95": [
+      0.0,
+      0.53
+     ],
+     "fa_mcnemar": {
+      "a_only": 0,
+      "b_only": 1,
+      "p": 1.0
+     },
+     "det_delta_words": 0,
+     "det_delta_pts": 0.0,
+     "det_delta_cluster95": [
+      0.0,
+      0.0
+     ],
+     "det_mcnemar": {
+      "a_only": 0,
+      "b_only": 0,
+      "p": 1.0
+     },
+     "non_inferior": false
+    },
+    "confirm+rescue": {
+     "fa_delta_pts": -10.36,
+     "fa_delta_cluster95": [
+      -13.57,
+      -6.95
+     ],
+     "fa_mcnemar": {
+      "a_only": 70,
+      "b_only": 1,
+      "p": 6.1e-20
+     },
+     "det_delta_words": -10,
+     "det_delta_pts": -19.6,
+     "det_delta_cluster95": [
+      -34.29,
+      -9.09
+     ],
+     "det_mcnemar": {
+      "a_only": 10,
+      "b_only": 0,
+      "p": 0.00195
+     },
+     "non_inferior": false
+    },
+    "confirm+resync": {
+     "fa_delta_pts": -10.51,
+     "fa_delta_cluster95": [
+      -13.61,
+      -7.23
+     ],
+     "fa_mcnemar": {
+      "a_only": 70,
+      "b_only": 0,
+      "p": 1.69e-21
+     },
+     "det_delta_words": -10,
+     "det_delta_pts": -19.6,
+     "det_delta_cluster95": [
+      -34.29,
+      -9.09
+     ],
+     "det_mcnemar": {
+      "a_only": 10,
+      "b_only": 0,
+      "p": 0.00195
+     },
+     "non_inferior": false
+    },
+    "rescue+resync": {
+     "fa_delta_pts": 0.15,
+     "fa_delta_cluster95": [
+      0.0,
+      0.53
+     ],
+     "fa_mcnemar": {
+      "a_only": 0,
+      "b_only": 1,
+      "p": 1.0
+     },
+     "det_delta_words": 0,
+     "det_delta_pts": 0.0,
+     "det_delta_cluster95": [
+      0.0,
+      0.0
+     ],
+     "det_mcnemar": {
+      "a_only": 0,
+      "b_only": 0,
+      "p": 1.0
+     },
+     "non_inferior": false
+    },
+    "confirm+rescue+resync": {
+     "fa_delta_pts": -10.36,
+     "fa_delta_cluster95": [
+      -13.57,
+      -6.95
+     ],
+     "fa_mcnemar": {
+      "a_only": 70,
+      "b_only": 1,
+      "p": 6.1e-20
+     },
+     "det_delta_words": -10,
+     "det_delta_pts": -19.6,
+     "det_delta_cluster95": [
+      -34.29,
+      -9.09
+     ],
+     "det_mcnemar": {
+      "a_only": 10,
+      "b_only": 0,
+      "p": 0.00195
+     },
+     "non_inferior": false
+    }
+   },
+   "far_accusation_positive_rows": {
+    "baseline": {
+     "acc": 15,
+     "words": 119,
+     "pct": 12.61
+    },
+    "confirm": {
+     "acc": 8,
+     "words": 119,
+     "pct": 6.72
+    },
+    "rescue": {
+     "acc": 15,
+     "words": 119,
+     "pct": 12.61
+    },
+    "confirm+rescue": {
+     "acc": 8,
+     "words": 119,
+     "pct": 6.72
+    },
+    "confirm+resync": {
+     "acc": 8,
+     "words": 119,
+     "pct": 6.72
+    },
+    "rescue+resync": {
+     "acc": 15,
+     "words": 119,
+     "pct": 12.61
+    },
+    "confirm+rescue+resync": {
+     "acc": 8,
+     "words": 119,
+     "pct": 6.72
+    }
+   },
+   "det_by_error_tag": {
+    "Tajweed": {
+     "baseline": [
+      6,
+      17
+     ],
+     "confirm": [
+      0,
+      17
+     ],
+     "rescue": [
+      6,
+      17
+     ]
+    },
+    "Wording": {
+     "baseline": [
+      0,
+      4
+     ],
+     "confirm": [
+      0,
+      4
+     ],
+     "rescue": [
+      0,
+      4
+     ]
+    },
+    "Tashkeel": {
+     "baseline": [
+      0,
+      4
+     ],
+     "confirm": [
+      0,
+      4
+     ],
+     "rescue": [
+      0,
+      4
+     ]
+    },
+    "Letters": {
+     "baseline": [
+      8,
+      37
+     ],
+     "confirm": [
+      3,
+      37
+     ],
+     "rescue": [
+      8,
+      37
+     ]
+    }
+   },
+   "score_quantiles_p1": {
+    "clean": {
+     "0.005": -32.908,
+     "0.05": -19.125,
+     "0.1": -14.104,
+     "0.25": -3.049,
+     "0.5": -0.198
+    },
+    "marked": {
+     "0.005": -36.104,
+     "0.05": -29.698,
+     "0.1": -14.88,
+     "0.25": -9.226,
+     "0.5": -3.855
+    }
+   },
+   "cli_vs_stored_D735": {
+    "fa_delta_pts": 2.55,
+    "fa_delta_cluster95": [
+     0.65,
+     5.04
+    ],
+    "fa_mcnemar": {
+     "a_only": 8,
+     "b_only": 25,
+     "p": 0.00455
+    },
+    "det_delta_words": 0,
+    "det_delta_pts": 0.0,
+    "det_delta_cluster95": [
+     0.0,
+     0.0
+    ],
+    "det_mcnemar": {
+     "a_only": 0,
+     "b_only": 0,
+     "p": 1.0
+    },
+    "non_inferior": false
+   },
+   "ship_criterion": {
+    "confirm": {
+     "fa_ci_upper_le_0": true,
+     "det_drop_le_2": false,
+     "no_riwaya_worse_fa": true,
+     "pass": false
+    },
+    "confirm+resync": {
+     "fa_ci_upper_le_0": true,
+     "det_drop_le_2": false,
+     "no_riwaya_worse_fa": true,
+     "pass": false
+    }
+   }
+  },
+  "tiny_v2": {
+   "sha256": "62f3459d6d18f58f148584b2fc122f75d98230cbc8b33a536aa897aa71756fc3",
+   "free_lang": "en",
+   "forced_lang": "ar",
+   "resync_tau": -28.1734,
+   "bpe_parity": {
+    "equal": 195,
+    "total": 197
+   },
+   "seconds": {
+    "free": 100,
+    "forced": 177,
+    "forced_resync": 2
+   },
+   "long_rows_skipped": 1,
+   "errors": 0,
+   "auc_p1": {
+    "marked_vs_clean": 0.7259,
+    "n_pos": 51,
+    "n_neg": 655,
+    "within_substituted": 0.6205,
+    "n_sub_true": 16,
+    "n_sub_false": 98
+   },
+   "auc_p2": {
+    "marked_vs_clean": 0.726,
+    "n_pos": 51,
+    "n_neg": 655,
+    "within_substituted": 0.6205,
+    "n_sub_true": 16,
+    "n_sub_false": 98
+   },
+   "thresholds_full_sample": {
+    "confirm": {
+     "confirm_full": -9.6881,
+     "rescue_full": -28.1734
+    },
+    "rescue": {
+     "confirm_full": -9.6881,
+     "rescue_full": -28.1734
+    },
+    "confirm+resync": {
+     "confirm_full": -9.6082,
+     "rescue_full": -28.1734
+    },
+    "rescue+resync": {
+     "confirm_full": -9.6082,
+     "rescue_full": -28.1734
+    }
+   },
+   "arms": {
+    "baseline": {
+     "fa": 126,
+     "clean_words": 666,
+     "fa_pct": 18.92,
+     "fa_wilson95": [
+      16.13,
+      22.07
+     ],
+     "fa_cluster95": [
+      13.36,
+      24.41
+     ],
+     "det": 18,
+     "marked_words": 51,
+     "det_pct": 35.3,
+     "det_wilson95": [
+      23.63,
+      49.01
+     ],
+     "det_cluster95": [
+      21.74,
+      52.27
+     ],
+     "clean_recordings_accused": 74,
+     "clean_recordings": 154,
+     "by_riwaya": {
+      "hafs": {
+       "fa": 80,
+       "clean": 439,
+       "fa_pct": 18.22,
+       "det": 14,
+       "marked": 40,
+       "det_pct": 35.0
+      },
+      "qalun": {
+       "fa": 46,
+       "clean": 227,
+       "fa_pct": 20.26,
+       "det": 4,
+       "marked": 11,
+       "det_pct": 36.4
+      }
+     }
+    },
+    "confirm": {
+     "fa": 46,
+     "clean_words": 666,
+     "fa_pct": 6.91,
+     "fa_wilson95": [
+      5.22,
+      9.09
+     ],
+     "fa_cluster95": [
+      3.59,
+      10.28
+     ],
+     "det": 8,
+     "marked_words": 51,
+     "det_pct": 15.7,
+     "det_wilson95": [
+      8.17,
+      28.01
+     ],
+     "det_cluster95": [
+      8.33,
+      26.32
+     ],
+     "clean_recordings_accused": 39,
+     "clean_recordings": 154,
+     "by_riwaya": {
+      "hafs": {
+       "fa": 21,
+       "clean": 439,
+       "fa_pct": 4.78,
+       "det": 6,
+       "marked": 40,
+       "det_pct": 15.0
+      },
+      "qalun": {
+       "fa": 25,
+       "clean": 227,
+       "fa_pct": 11.01,
+       "det": 2,
+       "marked": 11,
+       "det_pct": 18.2
+      }
+     }
+    },
+    "rescue": {
+     "fa": 127,
+     "clean_words": 666,
+     "fa_pct": 19.07,
+     "fa_wilson95": [
+      16.27,
+      22.23
+     ],
+     "fa_cluster95": [
+      13.36,
+      24.62
+     ],
+     "det": 18,
+     "marked_words": 51,
+     "det_pct": 35.3,
+     "det_wilson95": [
+      23.63,
+      49.01
+     ],
+     "det_cluster95": [
+      21.74,
+      52.27
+     ],
+     "clean_recordings_accused": 75,
+     "clean_recordings": 154,
+     "by_riwaya": {
+      "hafs": {
+       "fa": 81,
+       "clean": 439,
+       "fa_pct": 18.45,
+       "det": 14,
+       "marked": 40,
+       "det_pct": 35.0
+      },
+      "qalun": {
+       "fa": 46,
+       "clean": 227,
+       "fa_pct": 20.26,
+       "det": 4,
+       "marked": 11,
+       "det_pct": 36.4
+      }
+     }
+    },
+    "confirm+rescue": {
+     "fa": 47,
+     "clean_words": 666,
+     "fa_pct": 7.06,
+     "fa_wilson95": [
+      5.35,
+      9.26
+     ],
+     "fa_cluster95": [
+      3.61,
+      10.53
+     ],
+     "det": 8,
+     "marked_words": 51,
+     "det_pct": 15.7,
+     "det_wilson95": [
+      8.17,
+      28.01
+     ],
+     "det_cluster95": [
+      8.33,
+      26.32
+     ],
+     "clean_recordings_accused": 40,
+     "clean_recordings": 154,
+     "by_riwaya": {
+      "hafs": {
+       "fa": 22,
+       "clean": 439,
+       "fa_pct": 5.01,
+       "det": 6,
+       "marked": 40,
+       "det_pct": 15.0
+      },
+      "qalun": {
+       "fa": 25,
+       "clean": 227,
+       "fa_pct": 11.01,
+       "det": 2,
+       "marked": 11,
+       "det_pct": 18.2
+      }
+     }
+    },
+    "confirm+resync": {
+     "fa": 46,
+     "clean_words": 666,
+     "fa_pct": 6.91,
+     "fa_wilson95": [
+      5.22,
+      9.09
+     ],
+     "fa_cluster95": [
+      3.59,
+      10.28
+     ],
+     "det": 8,
+     "marked_words": 51,
+     "det_pct": 15.7,
+     "det_wilson95": [
+      8.17,
+      28.01
+     ],
+     "det_cluster95": [
+      8.33,
+      26.32
+     ],
+     "clean_recordings_accused": 39,
+     "clean_recordings": 154,
+     "by_riwaya": {
+      "hafs": {
+       "fa": 21,
+       "clean": 439,
+       "fa_pct": 4.78,
+       "det": 6,
+       "marked": 40,
+       "det_pct": 15.0
+      },
+      "qalun": {
+       "fa": 25,
+       "clean": 227,
+       "fa_pct": 11.01,
+       "det": 2,
+       "marked": 11,
+       "det_pct": 18.2
+      }
+     }
+    },
+    "rescue+resync": {
+     "fa": 127,
+     "clean_words": 666,
+     "fa_pct": 19.07,
+     "fa_wilson95": [
+      16.27,
+      22.23
+     ],
+     "fa_cluster95": [
+      13.36,
+      24.62
+     ],
+     "det": 18,
+     "marked_words": 51,
+     "det_pct": 35.3,
+     "det_wilson95": [
+      23.63,
+      49.01
+     ],
+     "det_cluster95": [
+      21.74,
+      52.27
+     ],
+     "clean_recordings_accused": 75,
+     "clean_recordings": 154,
+     "by_riwaya": {
+      "hafs": {
+       "fa": 81,
+       "clean": 439,
+       "fa_pct": 18.45,
+       "det": 14,
+       "marked": 40,
+       "det_pct": 35.0
+      },
+      "qalun": {
+       "fa": 46,
+       "clean": 227,
+       "fa_pct": 20.26,
+       "det": 4,
+       "marked": 11,
+       "det_pct": 36.4
+      }
+     }
+    },
+    "confirm+rescue+resync": {
+     "fa": 47,
+     "clean_words": 666,
+     "fa_pct": 7.06,
+     "fa_wilson95": [
+      5.35,
+      9.26
+     ],
+     "fa_cluster95": [
+      3.61,
+      10.53
+     ],
+     "det": 8,
+     "marked_words": 51,
+     "det_pct": 15.7,
+     "det_wilson95": [
+      8.17,
+      28.01
+     ],
+     "det_cluster95": [
+      8.33,
+      26.32
+     ],
+     "clean_recordings_accused": 40,
+     "clean_recordings": 154,
+     "by_riwaya": {
+      "hafs": {
+       "fa": 22,
+       "clean": 439,
+       "fa_pct": 5.01,
+       "det": 6,
+       "marked": 40,
+       "det_pct": 15.0
+      },
+      "qalun": {
+       "fa": 25,
+       "clean": 227,
+       "fa_pct": 11.01,
+       "det": 2,
+       "marked": 11,
+       "det_pct": 18.2
+      }
+     }
+    }
+   },
+   "vs_baseline": {
+    "confirm": {
+     "fa_delta_pts": -12.01,
+     "fa_delta_cluster95": [
+      -15.93,
+      -8.63
+     ],
+     "fa_mcnemar": {
+      "a_only": 80,
+      "b_only": 0,
+      "p": 1.65e-24
+     },
+     "det_delta_words": -10,
+     "det_delta_pts": -19.6,
+     "det_delta_cluster95": [
+      -32.56,
+      -7.81
+     ],
+     "det_mcnemar": {
+      "a_only": 10,
+      "b_only": 0,
+      "p": 0.00195
+     },
+     "non_inferior": false
+    },
+    "rescue": {
+     "fa_delta_pts": 0.15,
+     "fa_delta_cluster95": [
+      0.0,
+      0.45
+     ],
+     "fa_mcnemar": {
+      "a_only": 0,
+      "b_only": 1,
+      "p": 1.0
+     },
+     "det_delta_words": 0,
+     "det_delta_pts": 0.0,
+     "det_delta_cluster95": [
+      0.0,
+      0.0
+     ],
+     "det_mcnemar": {
+      "a_only": 0,
+      "b_only": 0,
+      "p": 1.0
+     },
+     "non_inferior": true
+    },
+    "confirm+rescue": {
+     "fa_delta_pts": -11.86,
+     "fa_delta_cluster95": [
+      -15.73,
+      -8.6
+     ],
+     "fa_mcnemar": {
+      "a_only": 80,
+      "b_only": 1,
+      "p": 6.78e-23
+     },
+     "det_delta_words": -10,
+     "det_delta_pts": -19.6,
+     "det_delta_cluster95": [
+      -32.56,
+      -7.81
+     ],
+     "det_mcnemar": {
+      "a_only": 10,
+      "b_only": 0,
+      "p": 0.00195
+     },
+     "non_inferior": false
+    },
+    "confirm+resync": {
+     "fa_delta_pts": -12.01,
+     "fa_delta_cluster95": [
+      -15.93,
+      -8.63
+     ],
+     "fa_mcnemar": {
+      "a_only": 80,
+      "b_only": 0,
+      "p": 1.65e-24
+     },
+     "det_delta_words": -10,
+     "det_delta_pts": -19.6,
+     "det_delta_cluster95": [
+      -32.56,
+      -7.81
+     ],
+     "det_mcnemar": {
+      "a_only": 10,
+      "b_only": 0,
+      "p": 0.00195
+     },
+     "non_inferior": false
+    },
+    "rescue+resync": {
+     "fa_delta_pts": 0.15,
+     "fa_delta_cluster95": [
+      0.0,
+      0.45
+     ],
+     "fa_mcnemar": {
+      "a_only": 0,
+      "b_only": 1,
+      "p": 1.0
+     },
+     "det_delta_words": 0,
+     "det_delta_pts": 0.0,
+     "det_delta_cluster95": [
+      0.0,
+      0.0
+     ],
+     "det_mcnemar": {
+      "a_only": 0,
+      "b_only": 0,
+      "p": 1.0
+     },
+     "non_inferior": true
+    },
+    "confirm+rescue+resync": {
+     "fa_delta_pts": -11.86,
+     "fa_delta_cluster95": [
+      -15.73,
+      -8.6
+     ],
+     "fa_mcnemar": {
+      "a_only": 80,
+      "b_only": 1,
+      "p": 6.78e-23
+     },
+     "det_delta_words": -10,
+     "det_delta_pts": -19.6,
+     "det_delta_cluster95": [
+      -32.56,
+      -7.81
+     ],
+     "det_mcnemar": {
+      "a_only": 10,
+      "b_only": 0,
+      "p": 0.00195
+     },
+     "non_inferior": false
+    }
+   },
+   "far_accusation_positive_rows": {
+    "baseline": {
+     "acc": 21,
+     "words": 119,
+     "pct": 17.65
+    },
+    "confirm": {
+     "acc": 11,
+     "words": 119,
+     "pct": 9.24
+    },
+    "rescue": {
+     "acc": 21,
+     "words": 119,
+     "pct": 17.65
+    },
+    "confirm+rescue": {
+     "acc": 11,
+     "words": 119,
+     "pct": 9.24
+    },
+    "confirm+resync": {
+     "acc": 12,
+     "words": 119,
+     "pct": 10.08
+    },
+    "rescue+resync": {
+     "acc": 21,
+     "words": 119,
+     "pct": 17.65
+    },
+    "confirm+rescue+resync": {
+     "acc": 12,
+     "words": 119,
+     "pct": 10.08
+    }
+   },
+   "det_by_error_tag": {
+    "Tajweed": {
+     "baseline": [
+      9,
+      17
+     ],
+     "confirm": [
+      3,
+      17
+     ],
+     "rescue": [
+      9,
+      17
+     ]
+    },
+    "Wording": {
+     "baseline": [
+      0,
+      4
+     ],
+     "confirm": [
+      0,
+      4
+     ],
+     "rescue": [
+      0,
+      4
+     ]
+    },
+    "Tashkeel": {
+     "baseline": [
+      0,
+      4
+     ],
+     "confirm": [
+      0,
+      4
+     ],
+     "rescue": [
+      0,
+      4
+     ]
+    },
+    "Letters": {
+     "baseline": [
+      12,
+      37
+     ],
+     "confirm": [
+      6,
+      37
+     ],
+     "rescue": [
+      12,
+      37
+     ]
+    }
+   },
+   "score_quantiles_p1": {
+    "clean": {
+     "0.005": -28.173,
+     "0.05": -13.043,
+     "0.1": -9.688,
+     "0.25": -4.945,
+     "0.5": -1.153
+    },
+    "marked": {
+     "0.005": -19.275,
+     "0.05": -17.648,
+     "0.1": -13.576,
+     "0.25": -10.264,
+     "0.5": -5.39
+    }
+   },
+   "ship_criterion": {
+    "confirm": {
+     "fa_ci_upper_le_0": true,
+     "det_drop_le_2": false,
+     "no_riwaya_worse_fa": true,
+     "pass": false
+    },
+    "confirm+resync": {
+     "fa_ci_upper_le_0": true,
+     "det_drop_le_2": false,
+     "no_riwaya_worse_fa": true,
+     "pass": false
+    }
+   }
+  }
+ },
+ "stored_tiny_D735": {
+  "fa": 77,
+  "clean_words": 666,
+  "fa_pct": 11.56,
+  "fa_wilson95": [
+   9.35,
+   14.21
+  ],
+  "fa_cluster95": [
+   7.25,
+   15.64
+  ],
+  "det": 13,
+  "marked_words": 51,
+  "det_pct": 25.5,
+  "det_wilson95": [
+   15.55,
+   38.87
+  ],
+  "det_cluster95": [
+   15.71,
+   39.47
+  ],
+  "clean_recordings_accused": 54,
+  "clean_recordings": 154,
+  "by_riwaya": {
+   "hafs": {
+    "fa": 46,
+    "clean": 439,
+    "fa_pct": 10.48,
+    "det": 10,
+    "marked": 40,
+    "det_pct": 25.0
+   },
+   "qalun": {
+    "fa": 31,
+    "clean": 227,
+    "fa_pct": 13.66,
+    "det": 3,
+    "marked": 11,
+    "det_pct": 27.3
+   }
+  }
+ },
+ "md": "### ⚖️ الحكمُ القسريّ على المتعلّمين · 198 صفّاً · 45 تسجيلاً (مسطرة learner_gate)\nالعتباتُ المسجّلةُ سلفاً: التأكيد p10 · الإنقاذ p0.5 (استكشافيّ) · المزامنة p0.5 · تحقّقٌ متقاطعٌ 5 طيّاتٍ بالتسجيل\n\n- المخزَّن tiny (D-735): اتّهام 11.56٪ [9.35, 14.21] · كشف 25.5٪ (13/51)\n\n#### base_q5_1 · حرٌّ `ar` · قسريّ `ar` · BPE 196/197 · τ_resync=-29.95 · AUC (موسوم/سليم) 0.7009 · داخل SUBSTITUTED 0.6049 (6 صادق/27 كاذب)\n| الذراع | الاتّهام الكاذب | عنقودي 95٪ | الكشف | Δاتّهام [95٪] | Δكشف | McNemar اتّهام | بعيد (موجب) |\n|---|---|---|---|---|---|---|---|\n| baseline | 41/666 = 6.16٪ | [3.43, 8.93] | 7/51 = 13.7٪ | — | — | — | 10.08٪ |\n| confirm | 19/666 = 2.85٪ | [1.04, 4.81] | 2/51 = 3.9٪ | -3.3 [-5.18, -1.63] | -5 | 22↔0 p=4.77e-07 | 8.4٪ |\n| rescue | 43/666 = 6.46٪ | [3.68, 9.17] | 7/51 = 13.7٪ | +0.3 [0.0, 0.78] | +0 | 0↔2 p=0.5 | 10.08٪ |\n| confirm+rescue | 21/666 = 3.15٪ | [1.38, 5.08] | 2/51 = 3.9٪ | -3.0 [-4.88, -1.28] | -5 | 22↔2 p=3.59e-05 | 8.4٪ |\n| confirm+resync | 19/666 = 2.85٪ | [1.04, 4.81] | 2/51 = 3.9٪ | -3.3 [-5.18, -1.63] | -5 | 22↔0 p=4.77e-07 | 8.4٪ |\n| rescue+resync | 43/666 = 6.46٪ | [3.68, 9.17] | 7/51 = 13.7٪ | +0.3 [0.0, 0.78] | +0 | 0↔2 p=0.5 | 10.08٪ |\n| confirm+rescue+resync | 21/666 = 3.15٪ | [1.38, 5.08] | 2/51 = 3.9٪ | -3.0 [-4.88, -1.28] | -5 | 22↔2 p=3.59e-05 | 8.4٪ |\n- الكشفُ بحسب وسم الخطأ (أساس/تأكيد): Letters 5/37→2 · Tajweed 2/17→0 · Tashkeel 0/4→0 · Wording 0/4→0\n- مئيناتُ الدرجة القسريّة: سليم {'0.005': -29.953, '0.05': -20.571, '0.1': -16.517, '0.25': -0.622, '0.5': -0.002} · موسوم {'0.005': -29.05, '0.05': -22.092, '0.1': -15.992, '0.25': -8.393, '0.5': -2.771}\n- معيارُ شحن التأكيد: confirm ❌ · confirm+resync ❌\n\n#### tiny · حرٌّ `en` · قسريّ `ar` · BPE 197/197 · τ_resync=-32.91 · AUC (موسوم/سليم) 0.655 · داخل SUBSTITUTED 0.7587 (12 صادق/77 كاذب)\n| الذراع | الاتّهام الكاذب | عنقودي 95٪ | الكشف | Δاتّهام [95٪] | Δكشف | McNemar اتّهام | بعيد (موجب) |\n|---|---|---|---|---|---|---|---|\n| baseline | 94/666 = 14.11٪ | [9.8, 17.94] | 13/51 = 25.5٪ | — | — | — | 12.61٪ |\n| confirm | 24/666 = 3.6٪ | [2.21, 5.08] | 3/51 = 5.9٪ | -10.51 [-13.61, -7.23] | -10 | 70↔0 p=1.69e-21 | 6.72٪ |\n| rescue | 95/666 = 14.26٪ | [10.06, 18.08] | 13/51 = 25.5٪ | +0.15 [0.0, 0.53] | +0 | 0↔1 p=1.0 | 12.61٪ |\n| confirm+rescue | 25/666 = 3.75٪ | [2.37, 5.15] | 3/51 = 5.9٪ | -10.36 [-13.57, -6.95] | -10 | 70↔1 p=6.1e-20 | 6.72٪ |\n| confirm+resync | 24/666 = 3.6٪ | [2.21, 5.08] | 3/51 = 5.9٪ | -10.51 [-13.61, -7.23] | -10 | 70↔0 p=1.69e-21 | 6.72٪ |\n| rescue+resync | 95/666 = 14.26٪ | [10.06, 18.08] | 13/51 = 25.5٪ | +0.15 [0.0, 0.53] | +0 | 0↔1 p=1.0 | 12.61٪ |\n| confirm+rescue+resync | 25/666 = 3.75٪ | [2.37, 5.15] | 3/51 = 5.9٪ | -10.36 [-13.57, -6.95] | -10 | 70↔1 p=6.1e-20 | 6.72٪ |\n- الكشفُ بحسب وسم الخطأ (أساس/تأكيد): Letters 8/37→3 · Tajweed 6/17→0 · Tashkeel 0/4→0 · Wording 0/4→0\n- مئيناتُ الدرجة القسريّة: سليم {'0.005': -32.908, '0.05': -19.125, '0.1': -14.104, '0.25': -3.049, '0.5': -0.198} · موسوم {'0.005': -36.104, '0.05': -29.698, '0.1': -14.88, '0.25': -9.226, '0.5': -3.855}\n- whisper-cli q8 مقابل المخزَّن D-735 (HF): Δاتّهام +2.55 [0.65, 5.04] (McNemar 8↔25 p=0.00455) · Δكشف +0\n- معيارُ شحن التأكيد: confirm ❌ · confirm+resync ❌\n\n#### tiny_v2 · حرٌّ `en` · قسريّ `ar` · BPE 195/197 · τ_resync=-28.17 · AUC (موسوم/سليم) 0.7259 · داخل SUBSTITUTED 0.6205 (16 صادق/98 كاذب)\n| الذراع | الاتّهام الكاذب | عنقودي 95٪ | الكشف | Δاتّهام [95٪] | Δكشف | McNemar اتّهام | بعيد (موجب) |\n|---|---|---|---|---|---|---|---|\n| baseline | 126/666 = 18.92٪ | [13.36, 24.41] | 18/51 = 35.3٪ | — | — | — | 17.65٪ |\n| confirm | 46/666 = 6.91٪ | [3.59, 10.28] | 8/51 = 15.7٪ | -12.01 [-15.93, -8.63] | -10 | 80↔0 p=1.65e-24 | 9.24٪ |\n| rescue | 127/666 = 19.07٪ | [13.36, 24.62] | 18/51 = 35.3٪ | +0.15 [0.0, 0.45] | +0 | 0↔1 p=1.0 | 17.65٪ |\n| confirm+rescue | 47/666 = 7.06٪ | [3.61, 10.53] | 8/51 = 15.7٪ | -11.86 [-15.73, -8.6] | -10 | 80↔1 p=6.78e-23 | 9.24٪ |\n| confirm+resync | 46/666 = 6.91٪ | [3.59, 10.28] | 8/51 = 15.7٪ | -12.01 [-15.93, -8.63] | -10 | 80↔0 p=1.65e-24 | 10.08٪ |\n| rescue+resync | 127/666 = 19.07٪ | [13.36, 24.62] | 18/51 = 35.3٪ | +0.15 [0.0, 0.45] | +0 | 0↔1 p=1.0 | 17.65٪ |\n| confirm+rescue+resync | 47/666 = 7.06٪ | [3.61, 10.53] | 8/51 = 15.7٪ | -11.86 [-15.73, -8.6] | -10 | 80↔1 p=6.78e-23 | 10.08٪ |\n- الكشفُ بحسب وسم الخطأ (أساس/تأكيد): Letters 12/37→6 · Tajweed 9/17→3 · Tashkeel 0/4→0 · Wording 0/4→0\n- مئيناتُ الدرجة القسريّة: سليم {'0.005': -28.173, '0.05': -13.043, '0.1': -9.688, '0.25': -4.945, '0.5': -1.153} · موسوم {'0.005': -19.275, '0.05': -17.648, '0.1': -13.576, '0.25': -10.264, '0.5': -5.39}\n- معيارُ شحن التأكيد: confirm ❌ · confirm+resync ❌\n\n⛔ قياسٌ لا شحن: «الإنقاذ» استكشافيّ ويبقى مطفأً ما لم يجتز ≤0.5٪ لكلّ رواية على g3r/g4n والحقن."
+}
