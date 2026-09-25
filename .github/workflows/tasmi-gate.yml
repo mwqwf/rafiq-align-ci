@@ -201,6 +201,18 @@ jobs:
             done
           fi
           { echo "### ⚖️ tasmi-gate · $TAG (مرآةُ المحرك على CI · whisper.cpp مثبَّت · -nc)"; cat "$M"; } >> "$GITHUB_STEP_SUMMARY"
+      - name: 🚪 بوّابة المتعلّم الحقيقي g5 (الطبقة أ · وسومٌ وتفريغاتٌ مخزّنة · بلا صوتٍ ولا شبكة)
+        env:
+          PYTHONIOENCODING: utf-8
+        run: |
+          set -o pipefail
+          cd tools/tasmi_bench
+          # ⚖️ المسطرة الموحّدة (D-726 · D-724 · len==n_ref) وعدمُ الدونيّة أمام خطّ الأساس المودَع:
+          #    أعلى مجال 95٪ لفرق الاتّهام الكاذب ≤ +0.5 نقطة، والكشفُ لا يهبط أكثر من كلمتين.
+          # ⛔ الطبقة (ب) بصوت المرشَّح نفسه تنتظر learner-audio.yml؛ هذه تحرس مرآةَ الحاكم وحدها.
+          python learner_gate.py --baseline learner_gate_baseline_v1.json --gate base tiny+base:veto \
+            --md work/learner_gate.md --out work/learner_gate.json
+          cat work/learner_gate.md >> "$GITHUB_STEP_SUMMARY"
       - name: رفعُ النتائج إلى R2
         run: |
           cd tools/tasmi_bench
