@@ -307,7 +307,7 @@ def _phon_ok(r, hyp, cfg):
 
 def _matches(ref, hyp, cfg):
     refs = ref if isinstance(ref, tuple) else (ref,)
-    # 🛡️ الذراع V (‏D-819 · مرآةُ `RecitationScorer.matchesAny`): الفهرسُ يُغلق على **كلّ صور المرجع** —
+    # 🛡️ الذراع V (‏D-822 · مرآةُ `RecitationScorer.matchesAny`): الفهرسُ يُغلق على **كلّ صور المرجع** —
     # إن كان المسموعُ أختاً في الفهرس لأيّ صورةٍ وليس هو إحداها ⇒ لا مطابقة (و`_near` يحكم «غير متبيَّن»).
     if cfg.critical_long and hyp not in refs and any(
             ((r, hyp) if r < hyp else (hyp, r)) in cfg.critical_long for r in refs):
