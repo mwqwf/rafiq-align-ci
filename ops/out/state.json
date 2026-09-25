@@ -1103,33 +1103,19 @@
    }
   },
   "sousi/soufi_sousi": {
-   "entries": 6216,
+   "entries": 6234,
    "missingSurahs": [],
    "reasonCode": null,
-   "transformOp": "realign_surah:114",
+   "transformOp": null,
    "declaredReasons": {
-    "no-align": 25
+    "no-align": 2
    },
-   "declaredCount": 25,
+   "declaredCount": 2,
    "undeclaredCount": 0,
-   "engine": "align-0.2",
+   "engine": "ctc-seg-1",
    "gapSurahs": {
-    "1": 1,
     "19": 1,
-    "20": 1,
-    "26": 1,
-    "36": 1,
-    "40": 1,
-    "41": 1,
-    "42": 1,
-    "43": 2,
-    "44": 1,
-    "45": 1,
-    "50": 1,
-    "69": 1,
-    "102": 4,
-    "108": 1,
-    "109": 1
+    "53": 1
    }
   },
   "warsh/bl3_warsh": {
