@@ -1,0 +1,146 @@
+{
+ "candidates": {
+  "base-q40": {
+   "complete": true,
+   "vs_shipped": {
+    "better": [
+     "g1 تتبّع +1.09",
+     "g2:noise-fan-5 تتبّع +7.53",
+     "g2:learner-combo تتبّع +3.40",
+     "g3r:noisy اتّهام -3.35",
+     "g3r:clean اتّهام -3.35"
+    ],
+    "worse": []
+   },
+   "vs_base": {
+    "worse": [
+     "g2:noise-fan-5 تتبّع -0.75"
+    ]
+   },
+   "pass": false,
+   "timing": {
+    "mb": 46.5,
+    "lang": "ar",
+    "audio_sec": 408.2,
+    "rtf_t4": 0.092,
+    "peak_rss_mb_t4": 240.3,
+    "rtf_t2": 0.105,
+    "peak_rss_mb_t2": 239.6
+   }
+  },
+  "base-q4k": {
+   "complete": true,
+   "vs_shipped": {
+    "better": [
+     "g1 تتبّع +1.44",
+     "g2:noise-fan-5 تتبّع +8.00",
+     "g2:learner-combo تتبّع +3.40",
+     "g3r:noisy اتّهام -3.11",
+     "g3r:clean اتّهام -2.24"
+    ],
+    "worse": [
+     "g3r:clean كشف -4.6"
+    ]
+   },
+   "vs_base": {
+    "worse": []
+   },
+   "pass": false,
+   "timing": {
+    "mb": 46.5,
+    "lang": "ar",
+    "audio_sec": 408.2,
+    "rtf_t4": 0.089,
+    "peak_rss_mb_t4": 239.7,
+    "rtf_t2": 0.099,
+    "peak_rss_mb_t2": 240.5
+   }
+  },
+  "base-q50": {
+   "complete": true,
+   "vs_shipped": {
+    "better": [
+     "g1 تتبّع +1.28",
+     "g2:noise-fan-5 تتبّع +7.81",
+     "g2:learner-combo تتبّع +3.50",
+     "g3r:noisy اتّهام -2.73",
+     "g3r:clean اتّهام -2.86"
+    ],
+    "worse": [
+     "g3r:clean كشف -5.4"
+    ]
+   },
+   "vs_base": {
+    "worse": [
+     "g2:noise-fan-5 تتبّع -0.47"
+    ]
+   },
+   "pass": false,
+   "timing": {
+    "mb": 55.3,
+    "lang": "ar",
+    "audio_sec": 408.2,
+    "rtf_t4": 0.143,
+    "peak_rss_mb_t4": 249.0,
+    "rtf_t2": 0.158,
+    "peak_rss_mb_t2": 248.6
+   }
+  },
+  "base-q51": {
+   "complete": true,
+   "vs_shipped": {
+    "better": [
+     "g1 تتبّع +1.31",
+     "g2:noise-fan-5 تتبّع +8.24",
+     "g2:learner-combo تتبّع +3.37",
+     "g3r:noisy اتّهام -3.60",
+     "g3r:clean اتّهام -2.61"
+    ],
+    "worse": []
+   },
+   "vs_base": {
+    "worse": []
+   },
+   "pass": true,
+   "timing": {
+    "mb": 59.7,
+    "lang": "ar",
+    "audio_sec": 408.2,
+    "rtf_t4": 0.145,
+    "peak_rss_mb_t4": 253.3,
+    "rtf_t2": 0.159,
+    "peak_rss_mb_t2": 253.1
+   }
+  },
+  "base-q6k": {
+   "complete": false,
+   "vs_shipped": {
+    "better": [
+     "g2:noise-fan-5 تتبّع +8.46",
+     "g2:learner-combo تتبّع +3.22",
+     "g3r:noisy اتّهام -3.35",
+     "g3r:clean اتّهام -2.86"
+    ],
+    "worse": [
+     "g3r:clean كشف -7.9"
+    ]
+   },
+   "vs_base": {
+    "worse": []
+   },
+   "pass": false,
+   "timing": {
+    "mb": 64.7,
+    "lang": "ar",
+    "audio_sec": 408.2,
+    "rtf_t4": 0.112,
+    "peak_rss_mb_t4": 256.8,
+    "rtf_t2": 0.128,
+    "peak_rss_mb_t2": 257.9
+   }
+  }
+ },
+ "pick": "base-q51",
+ "baseline_mb": 81.8,
+ "shipped_mb": 43.5
+}

@@ -115,7 +115,7 @@ jobs:
                  "whisper_cpp": os.environ["WCPP_SHA"], "run_id": "${{ github.run_id }}",
                  "hosting": "إصدارٌ في المستودع العامّ — مجّانيّ؛ ودلوُ R2 ‏323.8 ج.ب فوق حصّته المجّانيّة (10) فلم يُكتب فيه"}
           os.makedirs("ops/shrink", exist_ok=True)
-          json.dump(doc, open("ops/shrink/publish.json", "w", encoding="utf-8"), ensure_ascii=False, indent=1)
+          json.dump(doc, open("ops/shrink/publish-${{ steps.req.outputs.qtype }}.json", "w", encoding="utf-8"), ensure_ascii=False, indent=1)
           print(json.dumps(doc, ensure_ascii=False, indent=1))
           PY
       - name: إيداعُ الوصف في الفرع
@@ -123,7 +123,7 @@ jobs:
           set -eo pipefail
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add ops/shrink/publish.json && git commit -q -m "ops: نُشر مرشَّحُ التصغير في الدلو · ${{ github.run_id }}" -- ops/shrink/publish.json
+          git add ops/shrink/publish-${{ steps.req.outputs.qtype }}.json && git commit -q -m "ops: نُشر مرشَّحُ التصغير في الدلو · ${{ github.run_id }}" -- ops/shrink/publish-${{ steps.req.outputs.qtype }}.json
           for i in 1 2 3 4; do
             git push origin "HEAD:${{ github.ref_name }}" && break
             git fetch -q origin "${{ github.ref_name }}" && git merge --no-edit -q "origin/${{ github.ref_name }}"; sleep $((i*3))
