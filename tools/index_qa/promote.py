@@ -1204,6 +1204,31 @@ def _swallowed_surahs_from(rep):
     return out
 
 
+def shrink_refusal(cl, bucket, target, n_new, allow_shrink=None, reason=None):
+    """سببُ الردّ إن كان المرشّحُ أقلَّ مداخلَ من المنشور، وإلا `None`.
+
+    ⛔ تعذّرُ قراءة المنشور القائم يُردّ به لا يُعفى (الغيابُ ليس سلامة)؛ أمّا
+    هدفٌ لا وجودَ له أصلاً (أوّلُ نشر) فلا منشورَ يُنقَص."""
+    try:
+        body = cl.get_object(Bucket=bucket, Key=target)["Body"].read()
+    except Exception as ex:                                   # noqa: BLE001
+        code = str(getattr(ex, "response", {}).get("Error", {}).get("Code", ""))
+        if code in ("NoSuchKey", "404"):
+            return None
+        return f"تعذّرت قراءةُ المنشور لمقارنة المداخل ({str(ex)[:60]}) — لا ترقية"
+    try:
+        n_old = len(json.loads(gzip.decompress(body).decode("utf-8")).get("entries", []))
+    except Exception as ex:                                   # noqa: BLE001
+        return f"المنشورُ لا يُقرأ فهرساً ({str(ex)[:60]}) — لا ترقية"
+    if n_new >= n_old:
+        return None
+    if allow_shrink and allow_shrink == target and (reason or "").strip():
+        print(f"  ⚠️ {target}: إنقاصٌ مأذونٌ باسمه {n_old}⇒{n_new} — {reason.strip()[:120]}")
+        return None
+    return (f"المرشّحُ أقلُّ مداخلَ من المنشور ({n_new} < {n_old}) — لا ترقيةَ تُنقص "
+            "المنشور إلا بـ`--allow-shrink <الهدف> --reason <السبب>`")
+
+
 def gate(rep, frozen, prefix, holds=None, override=None, ci_reports=None,
          openers_reports=None, pooled_map=None):
     """(الهدف، سبب الرفض) — والرفض نصٌّ يُطبع، فالصمت ليس قبولاً."""
@@ -1926,6 +1951,8 @@ def main():
     ap.add_argument("--sync-frozen", action="store_true",
                     help="ادفع المرآة المحلية إلى قائمة الدلو (دمجٌ لا استبدال)")
     ap.add_argument("--unfreeze", metavar="KEY", help="رفع تجميدٍ بسببٍ مكتوب")
+    ap.add_argument("--allow-shrink", metavar="KEY",
+                    help="يأذن بإنقاص مداخل هذا الهدف المنشور بعينه — ومعه --reason إلزاماً")
     ap.add_argument("--reason", help="سبب رفع التجميد — إلزامي معه")
     ap.add_argument("--allow-truncated", metavar="سبب",
                     help="ترقيةُ فهرسٍ فيه سورةٌ مبتورةُ المصدر — يجب أن يذكر "
@@ -2193,6 +2220,17 @@ def main():
         bad = index_gate(idx) or catalog_gate(idx, catalog(cl, bucket))
         if bad:
             print(f"  ⛔ {src}: {bad}")
+            continue
+        # ⛔⛔ **لا ترقيةَ تُنقص المنشور** (عطبٌ مقيسٌ 2026-09-25 03:00Z): رقّى
+        #    النبّاضُ `soufi_sousi.75528eb3` (6216 مدخلاً) فوق منشورٍ بـ6234 لأنّ
+        #    الهدفَ تُرك مفتوحاً وحكمَه مقبول — فغابت 18 آيةً عن المستخدم. وشرطُ
+        #    الزيادة كان في `restore_loop` وحده والنبّاضُ لا يمرّ به. ⇒ الحارسُ هنا
+        #    حيث يمرّ كلُّ كاتب. ولا يُتجاوز إلا بـ`--allow-shrink` يسمّي الهدفَ
+        #    نفسَه مع `--reason` (كإسقاطٍ مقصودٍ لسورةٍ تالفة).
+        _shrink = shrink_refusal(cl, bucket, target, len(idx.get("entries", [])),
+                                 a.allow_shrink, a.reason)
+        if _shrink:
+            print(f"  ⛔ {src}: {_shrink}")
             continue
         row = {"riwaya": rep["riwaya"], "reciterId": rep["reciterId"],
                "entries": len(idx.get("entries", [])),
