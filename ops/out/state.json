@@ -115,10 +115,10 @@
    }
   },
   "hafs/a_alshahhat": {
-   "entries": 6234,
+   "entries": 6235,
    "missingSurahs": [],
    "reasonCode": null,
-   "transformOp": null,
+   "transformOp": "whisper_surah_splice:53",
    "declaredReasons": {
     "no-align": 2
    },
@@ -126,8 +126,7 @@
    "undeclaredCount": 0,
    "engine": "ctc-seg-1",
    "gapSurahs": {
-    "20": 1,
-    "53": 1
+    "20": 1
    }
   },
   "hafs/a_klb": {
@@ -352,24 +351,6 @@
     "74": 2
    }
   },
-  "hafs/jamal": {
-   "entries": 6226,
-   "missingSurahs": [],
-   "reasonCode": null,
-   "transformOp": null,
-   "declaredReasons": {
-    "no-align": 10
-   },
-   "declaredCount": 10,
-   "undeclaredCount": 0,
-   "engine": "align-0.2",
-   "gapSurahs": {
-    "18": 1,
-    "45": 1,
-    "55": 2,
-    "89": 6
-   }
-  },
   "hafs/kafi": {
    "entries": 6235,
    "missingSurahs": [],
@@ -563,21 +544,6 @@
     "77": 1
    }
   },
-  "hafs/mustafa": {
-   "entries": 6193,
-   "missingSurahs": [],
-   "reasonCode": null,
-   "transformOp": null,
-   "declaredReasons": {
-    "no-align": 43
-   },
-   "declaredCount": 43,
-   "undeclaredCount": 0,
-   "engine": "align-0.2",
-   "gapSurahs": {
-    "3": 43
-   }
-  },
   "hafs/nabil": {
    "entries": 6235,
    "missingSurahs": [],
@@ -685,21 +651,6 @@
     "102": 3
    }
   },
-  "hafs/s_sadeiq": {
-   "entries": 6235,
-   "missingSurahs": [],
-   "reasonCode": null,
-   "transformOp": "realign_surah:113",
-   "declaredReasons": {
-    "no-align": 3
-   },
-   "declaredCount": 3,
-   "undeclaredCount": 0,
-   "engine": "ctc-seg-1",
-   "gapSurahs": {
-    "89": 1
-   }
-  },
   "hafs/saber": {
    "entries": 6235,
    "missingSurahs": [],
@@ -713,21 +664,6 @@
    "engine": "ctc-seg-1",
    "gapSurahs": {
     "89": 1
-   }
-  },
-  "hafs/shaksh": {
-   "entries": 6235,
-   "missingSurahs": [],
-   "reasonCode": null,
-   "transformOp": null,
-   "declaredReasons": {
-    "no-align": 1
-   },
-   "declaredCount": 1,
-   "undeclaredCount": 0,
-   "engine": "ctc-seg-1",
-   "gapSurahs": {
-    "56": 1
    }
   },
   "hafs/twfeeq": {
@@ -901,21 +837,6 @@
     "56": 1
    }
   },
-  "qalun/maroush_qalun": {
-   "entries": 6235,
-   "missingSurahs": [],
-   "reasonCode": null,
-   "transformOp": null,
-   "declaredReasons": {
-    "no-align": 1
-   },
-   "declaredCount": 1,
-   "undeclaredCount": 0,
-   "engine": "ctc-seg-1",
-   "gapSurahs": {
-    "22": 1
-   }
-  },
   "qalun/noah_qalun": {
    "entries": 6233,
    "missingSurahs": [],
@@ -995,21 +916,6 @@
    "gapSurahs": {
     "32": 1,
     "54": 1
-   }
-  },
-  "qalun/waleed_qalun": {
-   "entries": 6235,
-   "missingSurahs": [],
-   "reasonCode": null,
-   "transformOp": null,
-   "declaredReasons": {
-    "no-align": 1
-   },
-   "declaredCount": 1,
-   "undeclaredCount": 0,
-   "engine": "ctc-seg-1",
-   "gapSurahs": {
-    "83": 1
    }
   },
   "shuba/deban_shuba": {
@@ -1157,21 +1063,6 @@
    "engine": "ctc-seg-1",
    "gapSurahs": {
     "85": 1
-   }
-  },
-  "warsh/m_sayed_warsh": {
-   "entries": 6235,
-   "missingSurahs": [],
-   "reasonCode": null,
-   "transformOp": null,
-   "declaredReasons": {
-    "no-align": 1
-   },
-   "declaredCount": 1,
-   "undeclaredCount": 0,
-   "engine": "ctc-seg-1",
-   "gapSurahs": {
-    "56": 1
    }
   },
   "warsh/noah_warsh": {
