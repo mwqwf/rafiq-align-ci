@@ -141,6 +141,7 @@ class RestoreLoopTests(unittest.TestCase):
 
         with mock.patch.object(loop, "catalog_bases",
                                return_value={("hafs", "nufais"): "https://audio/"}), \
+             mock.patch.object(loop, "catalog_file_tables", return_value={}), \
              mock.patch.object(loop, "fetch_index", return_value=(_idx(12), None)), \
              mock.patch.object(loop, "surah_ends", return_value={46: 10_000}), \
              mock.patch.object(loop, "inflight_reciters", return_value=set()), \
@@ -165,6 +166,7 @@ class RestoreLoopTests(unittest.TestCase):
         calls = []
         with mock.patch.object(loop, "catalog_bases", return_value={
                  ("hafs", "kurdi"): "https://server6.mp3quran.net/kurdi/"}), \
+             mock.patch.object(loop, "catalog_file_tables", return_value={}), \
              mock.patch.object(loop, "fetch_index", return_value=(_idx(12), None)), \
              mock.patch.object(loop, "surah_ends", return_value={93: 10_000}), \
              mock.patch.object(loop, "inflight_reciters", return_value=set()), \

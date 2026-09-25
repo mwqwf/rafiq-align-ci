@@ -188,6 +188,36 @@ def catalog_bases() -> dict:
     return out
 
 
+def file_tables(cat: dict) -> dict:
+    """`{(الرواية، القارئ): {سورة: اسم} أو None}` لكلّ قارئٍ له جدولُ `files`.
+
+    القيمةُ `None` تعني جدولاً ليس 114 بالضبط ⇒ لا يُقاس ولا يُطلق (‏شرطُ
+    `batch_run.catalog_files` نفسُه). ومَن لا جدولَ له لا يظهر هنا فيبقى على
+    القالب الرقميّ حرفاً. ⚖️ دالّةٌ محضةٌ على كتالوجٍ مقروء: بلا شبكةٍ ولا دلو.
+    """
+    out = {}
+    for r in cat.get("riwayat", []):
+        riw = r.get("id") or r.get("key")
+        for rc in r.get("reciters", []):
+            files = rc.get("files")
+            if files:
+                out[(riw, rc.get("id"))] = (
+                    {i + 1: n for i, n in enumerate(files)} if len(files) == 114 else None)
+    return out
+
+
+def catalog_file_tables() -> dict:
+    cl, b = s3()
+    return file_tables(json.loads(
+        cl.get_object(Bucket=b, Key="catalog/reciters.json")["Body"].read()))
+
+
+def realign_template(base: str, names: dict | None) -> str:
+    """ما يُمرَّر `url_template` إلى `realign_surah.yml`: المجلّدُ وحدَه لقارئ
+    الجدول (‏يحلّه `resolve_url.py` بـ`reciter_id`)، والقالبُ الرقميُّ لغيره."""
+    return base.rstrip("/") if names is not None else f"{base}{{s:03d}}.mp3"
+
+
 def source_base(bases: dict, riwaya: str, reciter: str, surah: int) -> str | None:
     """المصدر المقاس للسورة، ثم مصدر الكتالوج لبقية السور."""
     return SOURCE_OVERRIDES.get((riwaya, reciter, surah),
@@ -212,15 +242,33 @@ def needs_restore(have: int, exp: int) -> bool:
     return big_enough and (have == 0 or cov < LOWCOV)
 
 
-def source_ratio(idx, base: str, surah: int, refs) -> float | None:
-    """نسبةُ حجمِ الملفّ إلى المتوقَّع — **وسيطُ أربعةِ مراجع**."""
+def source_ratio(idx, base: str, surah: int, refs, names: dict | None = None,
+                 size=None) -> float | None:
+    """نسبةُ حجمِ الملفّ إلى المتوقَّع — **وسيطُ أربعةِ مراجع**.
+
+    `names`: جدولُ `files` من الكتالوج `{سورة: اسم}` لمضيف المجلّد، أو `None`
+    فيبقى القالبُ الرقميُّ `{base}{s:03d}.mp3` حرفاً كما كان.
+    ⛔ **عطبٌ مقيسٌ 2026-09-25:** كان القالبُ الرقميُّ يُبنى لـ`warsh/gharbi_warsh`
+    وأسماؤه `ar_036_Mustapha_Gharbi_Warsh.mp3` ⇒ 404 ⇒ «نسبة=None» في كلّ شوط،
+    فتُرك 18 آيةً في ثماني سور بحكمٍ كاذبٍ بموت المصدر. والرابطُ الآن يُحلّ من
+    الجدول بمنطق `resolve_url.py` نفسِه، ولا يُخمَّن: سورةٌ لا اسمَ لها ⇒ لا قياس.
+    `size`: دالّةُ الحجم (‏الافتراضُ `head_len`) — تُحقن في الاختبار بلا شبكة.
+    """
+    size = size or head_len
+
+    def url(s: int) -> str:
+        if names is None:
+            return f"{base}{s:03d}.mp3"
+        from urllib.parse import quote                         # noqa: PLC0415
+        return base.rstrip("/") + "/" + quote(names[s])        # KeyError ⇒ لا تخمين
+
     d = surah_ends(idx)
     probe = [s for s in sorted(d, key=lambda x: -d[x]) if s != surah][:3]
     if not probe:
         return None
     try:
-        bps = sum(head_len(f"{base}{s:03d}.mp3") / (d[s] / 1000.0) for s in probe) / len(probe)
-        actual = head_len(f"{base}{surah:03d}.mp3")
+        bps = sum(size(url(s)) / (d[s] / 1000.0) for s in probe) / len(probe)
+        actual = size(url(surah))
     except Exception as e:                                     # noqa: BLE001
         print(f"      ⚠️ تعذّر السبر: {e}")
         return None
@@ -382,6 +430,7 @@ def candidates():
 # ───────────────────────── scan: يقيس ثمّ يُطلق المحاذاة ─────────────────────────
 def cmd_scan(a):
     bases = catalog_bases()
+    tables = catalog_file_tables()
     refs = []
     for k in REFS:
         try:
@@ -426,7 +475,14 @@ def cmd_scan(a):
             print(f"      ⛔ {rid}: فهرسٌ من الجيل الأوّل (لا أثرَ صقلٍ في الترويسة) — "
                   f"يردّه الحارسُ حتماً. **العلاجُ محاذاةٌ كاملةٌ لا ترقيعُ سورة.**")
             continue
-        ratio = source_ratio(idx, base, s, refs)
+        # جدولُ files يُحلّ به رابطُ السورة — إلا لمصدرٍ بديلٍ مقاس (قالبٌ رقميّ).
+        names = None
+        if (riw, rid, s) not in SOURCE_OVERRIDES and (riw, rid) in tables:
+            names = tables[(riw, rid)]
+            if names is None:
+                print(f"   ⛔ {rid}: جدولُ files في الكتالوج ليس 114 — لا قياسَ ولا تخمين")
+                continue
+        ratio = source_ratio(idx, base, s, refs, names)
         skip = measured_skip(idx, s)
         if ratio is None or skip is None:
             print(f"   ⚠️ {rid} س{s}: قياسٌ ناقص (نسبة={ratio} تخطٍّ={skip}) — يُترك")
@@ -447,7 +503,7 @@ def cmd_scan(a):
         if os.environ.get("GITHUB_REF_NAME"):
             call += ["--ref", os.environ["GITHUB_REF_NAME"]]
         call += ["-f", f"parent={r['key']}", "-f", f"surahs={s}",
-                 "-f", f"skip_ms={skip}", "-f", f"url_template={base}{{s:03d}}.mp3",
+                 "-f", f"skip_ms={skip}", "-f", f"url_template={realign_template(base, names)}",
                  "-f", f"reciter_id={rid}", "-f", f"riwaya={riw}", "-f", f"reason={reason}"]
         out = gh(*call)
         print(f"      ▶ أُطلقت إعادةُ المحاذاة {out.strip()}")
