@@ -1,13 +1,43 @@
-# rc=3
-⛔ تعذّر تنفيذُ الأمر:
-Traceback (most recent call last):
-  File "/home/runner/work/rafiq-align-ci/rafiq-align-ci/tools/ci_fleet/agent_cmd.py", line 361, in main
-    c = json.loads(f.read_text(encoding="utf-8"))
-                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/opt/hostedtoolcache/Python/3.11.16/x64/lib/python3.11/pathlib.py", line 1058, in read_text
-    with self.open(mode='r', encoding=encoding, errors=errors) as f:
-         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/opt/hostedtoolcache/Python/3.11.16/x64/lib/python3.11/pathlib.py", line 1044, in open
-    return io.open(self, mode, buffering, encoding, errors, newline)
-           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-FileNotFoundError: [Errno 2] No such file or directory: '/home/runner/work/rafiq-align-ci/rafiq-align-ci/ops/commands/0925_1755a_scan.json'
+# rc=0
+مرشَّحون: 19 · مجموعُ الآيات المرجوّة: 330
+      ⚠️ تعذّر السبر: HTTP Error 404: Not Found
+   ⚠️ asim س38: قياسٌ ناقص (نسبة=None تخطٍّ=23915) — يُترك
+   akri_qalun       س24   0/64 · نسبةُ المصدر 0.43 (مبتور) · تخطٍّ 9073م.ث
+      ⇒ مبتورٌ عند الناشر — لا تُنفَق عليه محاذاة.
+   nufais           س47   0/38 · نسبةُ المصدر 1.49 (سليم) · تخطٍّ 7340م.ث
+      ▶ أُطلقت إعادةُ المحاذاة https://github.com/mwqwf/rafiq-align-ci/actions/runs/36170444231
+   nufais           س46   0/35 · نسبةُ المصدر 0.83 (مبتور) · تخطٍّ 7340م.ث
+      ⇒ مبتورٌ عند الناشر — لا تُنفَق عليه محاذاة.
+   🔁 mukhtar_haj س20: مصدرٌ بديلٌ مقاس؛ المصدرُ المسجّل مبتور
+   mukhtar_haj      س20   102/135 · نسبةُ المصدر 1.21 (سليم) · تخطٍّ 6075م.ث
+      ▶ أُطلقت إعادةُ المحاذاة https://github.com/mwqwf/rafiq-align-ci/actions/runs/36170453671
+   🔁 nasser_almajed س6: مصدرٌ بديلٌ مقاس؛ المصدرُ المسجّل مبتور
+   nasser_almajed   س6    149/165 · نسبةُ المصدر 1.30 (سليم) · تخطٍّ 4030م.ث
+      ▶ أُطلقت إعادةُ المحاذاة https://github.com/mwqwf/rafiq-align-ci/actions/runs/36170463830
+   gharbi_warsh     س36   75/83 · نسبةُ المصدر 0.93 (سليم) · تخطٍّ 4990م.ث
+      ▶ أُطلقت إعادةُ المحاذاة https://github.com/mwqwf/rafiq-align-ci/actions/runs/36170471178
+   akri_qalun       س107  0/7 · نسبةُ المصدر 0.54 (مبتور) · تخطٍّ 10044م.ث
+      ⇒ مبتورٌ عند الناشر — لا تُنفَق عليه محاذاة.
+   ra3ad            س72   21/28 · نسبةُ المصدر 0.72 (مبتور) · تخطٍّ 4590م.ث
+      ⇒ مبتورٌ عند الناشر — لا تُنفَق عليه محاذاة.
+   rakbawi_qalun    س55   71/78 · نسبةُ المصدر 1.03 (سليم) · تخطٍّ 3860م.ث
+      ▶ أُطلقت إعادةُ المحاذاة https://github.com/mwqwf/rafiq-align-ci/actions/runs/36170482562
+   ra3ad            س71   23/28 · نسبةُ المصدر 0.78 (مبتور) · تخطٍّ 4610م.ث
+      ⇒ مبتورٌ عند الناشر — لا تُنفَق عليه محاذاة.
+   yousef           س55   73/78 · نسبةُ المصدر 0.85 (سليم) · تخطٍّ 7120م.ث
+      ▶ أُطلقت إعادةُ المحاذاة https://github.com/mwqwf/rafiq-align-ci/actions/runs/36170488404
+   balilah          س55   73/78 · نسبةُ المصدر 0.53 (مبتور) · تخطٍّ 4480م.ث
+      ⇒ مبتورٌ عند الناشر — لا تُنفَق عليه محاذاة.
+   gharbi_warsh     س28   85/88 · نسبةُ المصدر 1.13 (سليم) · تخطٍّ 7220م.ث
+      ▶ أُطلقت إعادةُ المحاذاة https://github.com/mwqwf/rafiq-align-ci/actions/runs/36170497714
+   ⏭️ ra3ad س102: المحاولةُ نفسها انتهت بلا مرشّح — لا تُعاد بلا مصدرٍ أو محرّكٍ جديد موثّق
+   🔁 balilah س51: مصدرٌ بديلٌ مقاس؛ المصدرُ المسجّل مبتور
+   balilah          س51   57/60 · نسبةُ المصدر 1.21 (سليم) · تخطٍّ 4010م.ث
+      ▶ أُطلقت إعادةُ المحاذاة https://github.com/mwqwf/rafiq-align-ci/actions/runs/36170505270
+   a_alqrafi        س114  5/6 · نسبةُ المصدر 0.94 (سليم) · تخطٍّ 3052م.ث
+      ▶ أُطلقت إعادةُ المحاذاة https://github.com/mwqwf/rafiq-align-ci/actions/runs/36170510737
+   darweez          س96   18/19 · نسبةُ المصدر 0.40 (مبتور) · تخطٍّ 2511م.ث
+      ⇒ مبتورٌ عند الناشر — لا تُنفَق عليه محاذاة.
+   a_alhazmi        س112  3/4 · نسبةُ المصدر 0.51 (مبتور) · تخطٍّ 2430م.ث
+      ⇒ مبتورٌ عند الناشر — لا تُنفَق عليه محاذاة.
+⇒ أُطلق 9

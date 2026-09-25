@@ -356,6 +356,14 @@ def main():
             continue
         tries_p.write_text(str(tries + 1), encoding="utf-8")
         _push_answer(f"{name}.محاولة{tries + 1}")
+        # ⛔ ودفعُ المحاولة نفسُه يدمج `origin/main`، فقد يجلب نقلَ الأمر إلى
+        #    `done/` من شوطٍ نفّذه قبلنا (مقيسٌ 2026-09-25: كُتب فوق جوابٍ صحيحٍ
+        #    لـ`0925_1755a_scan` خطأُ «الملفّ غير موجود»). ⇒ يُعاد الفحصُ هنا، ولا
+        #    يُكتب جوابٌ ولا يُترك عدّاد.
+        if not f.exists():
+            tries_p.unlink(missing_ok=True)
+            print(f"⏭ {name}: نُفّذ في شوطٍ آخر (نُقل ملفُّه أثناء الدفع) — يُتخطّى")
+            continue
         print(f"\n══ أمر: {name}  (المحاولةُ {tries + 1}/{MAX_TRIES})")
         try:
             c = json.loads(f.read_text(encoding="utf-8"))
