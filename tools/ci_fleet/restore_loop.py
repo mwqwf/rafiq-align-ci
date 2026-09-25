@@ -948,6 +948,17 @@ def cmd_explain(a):
                   f"ملوح {_salt_count(k)} · {'يُسقَط: ' + '، '.join(why) if why else 'مرشَّح'}")
 
 
+def cmd_skip(a):
+    """التخطّي المقيس لسورةٍ من فهرسٍ منشور — قراءةٌ فقط، لإطلاقٍ يدويٍّ لفجوةٍ صغيرة
+    لا يلتقطها المسح (2026-09-25)."""
+    o, _ = fetch_index(f"timings/{a.who}.jz")
+    fs = first_starts(o)
+    for s in a.surahs:
+        nb = {x: fs.get(x) for x in (s - 2, s - 1, s + 1, s + 2)}
+        print(f"{a.who} س{s}: التخطّي المقيس {measured_skip(o, s)} · الجارات {nb} · "
+              f"بدء آيتها الأولى في المنشور {fs.get(s)}")
+
+
 def main():
     ap = argparse.ArgumentParser(description=__doc__)
     sub = ap.add_subparsers(dest="cmd", required=True)
@@ -955,7 +966,11 @@ def main():
     p2 = sub.add_parser("gate");    p2.add_argument("--limit", type=int, default=6)
     sub.add_parser("promote")
     p4 = sub.add_parser("explain"); p4.add_argument("who", nargs="+", help="riwaya/reciter")
+    p5 = sub.add_parser("skip"); p5.add_argument("who", help="riwaya/reciter")
+    p5.add_argument("surahs", nargs="+", type=int)
     a = ap.parse_args()
+    if a.cmd == "skip":
+        cmd_skip(a); return
     if a.cmd == "explain":
         for w in a.who:
             cmd_explain(argparse.Namespace(who=w))
