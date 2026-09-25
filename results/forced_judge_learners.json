@@ -25,86 +25,86 @@
    "sha256": "acc1f03c8b1468b674b4fab50e0b2312cff982ba0001cd16fe36ca23862b6536",
    "free_lang": "ar",
    "forced_lang": "ar",
-   "resync_tau": -29.6461,
+   "resync_tau": -29.953,
    "bpe_parity": {
-    "equal": 197,
+    "equal": 196,
     "total": 197
    },
    "seconds": {
-    "free": 346,
-    "forced": 717,
+    "free": 398,
+    "forced": 782,
     "forced_resync": 14
    },
    "long_rows_skipped": 1,
    "errors": 0,
    "auc_p1": {
-    "marked_vs_clean": 0.7007,
+    "marked_vs_clean": 0.7009,
     "n_pos": 51,
     "n_neg": 655,
-    "within_substituted": 0.6173,
-    "n_sub_true": 7,
-    "n_sub_false": 28
+    "within_substituted": 0.6049,
+    "n_sub_true": 6,
+    "n_sub_false": 27
    },
    "auc_p2": {
-    "marked_vs_clean": 0.7007,
+    "marked_vs_clean": 0.7009,
     "n_pos": 51,
     "n_neg": 655,
-    "within_substituted": 0.6173,
-    "n_sub_true": 7,
-    "n_sub_false": 28
+    "within_substituted": 0.6049,
+    "n_sub_true": 6,
+    "n_sub_false": 27
    },
    "thresholds_full_sample": {
     "confirm": {
-     "confirm_full": -16.4416,
-     "rescue_full": -29.6461
+     "confirm_full": -16.517,
+     "rescue_full": -29.953
     },
     "rescue": {
-     "confirm_full": -16.4416,
-     "rescue_full": -29.6461
+     "confirm_full": -16.517,
+     "rescue_full": -29.953
     },
     "confirm+resync": {
-     "confirm_full": -16.4416,
-     "rescue_full": -29.6461
+     "confirm_full": -16.517,
+     "rescue_full": -29.953
     },
     "rescue+resync": {
-     "confirm_full": -16.4416,
-     "rescue_full": -29.6461
+     "confirm_full": -16.517,
+     "rescue_full": -29.953
     }
    },
    "arms": {
     "baseline": {
-     "fa": 42,
+     "fa": 41,
      "clean_words": 666,
-     "fa_pct": 6.31,
+     "fa_pct": 6.16,
      "fa_wilson95": [
-      4.7,
-      8.41
+      4.57,
+      8.25
      ],
      "fa_cluster95": [
-      3.55,
-      9.08
+      3.43,
+      8.93
      ],
-     "det": 8,
+     "det": 7,
      "marked_words": 51,
-     "det_pct": 15.7,
+     "det_pct": 13.7,
      "det_wilson95": [
-      8.17,
-      28.01
+      6.81,
+      25.72
      ],
      "det_cluster95": [
-      6.98,
-      27.08
+      5.0,
+      24.44
      ],
-     "clean_recordings_accused": 26,
+     "clean_recordings_accused": 25,
      "clean_recordings": 154,
      "by_riwaya": {
       "hafs": {
-       "fa": 27,
+       "fa": 26,
        "clean": 439,
-       "fa_pct": 6.15,
-       "det": 6,
+       "fa_pct": 5.92,
+       "det": 5,
        "marked": 40,
-       "det_pct": 15.0
+       "det_pct": 12.5
       },
       "qalun": {
        "fa": 15,
@@ -161,38 +161,38 @@
      }
     },
     "rescue": {
-     "fa": 44,
+     "fa": 43,
      "clean_words": 666,
-     "fa_pct": 6.61,
+     "fa_pct": 6.46,
      "fa_wilson95": [
-      4.96,
-      8.75
+      4.83,
+      8.58
      ],
      "fa_cluster95": [
-      3.85,
-      9.29
+      3.68,
+      9.17
      ],
-     "det": 8,
+     "det": 7,
      "marked_words": 51,
-     "det_pct": 15.7,
+     "det_pct": 13.7,
      "det_wilson95": [
-      8.17,
-      28.01
+      6.81,
+      25.72
      ],
      "det_cluster95": [
-      6.98,
-      27.08
+      5.0,
+      24.44
      ],
-     "clean_recordings_accused": 28,
+     "clean_recordings_accused": 27,
      "clean_recordings": 154,
      "by_riwaya": {
       "hafs": {
-       "fa": 29,
+       "fa": 28,
        "clean": 439,
-       "fa_pct": 6.61,
-       "det": 6,
+       "fa_pct": 6.38,
+       "det": 5,
        "marked": 40,
-       "det_pct": 15.0
+       "det_pct": 12.5
       },
       "qalun": {
        "fa": 15,
@@ -293,38 +293,38 @@
      }
     },
     "rescue+resync": {
-     "fa": 44,
+     "fa": 43,
      "clean_words": 666,
-     "fa_pct": 6.61,
+     "fa_pct": 6.46,
      "fa_wilson95": [
-      4.96,
-      8.75
+      4.83,
+      8.58
      ],
      "fa_cluster95": [
-      3.85,
-      9.29
+      3.68,
+      9.17
      ],
-     "det": 8,
+     "det": 7,
      "marked_words": 51,
-     "det_pct": 15.7,
+     "det_pct": 13.7,
      "det_wilson95": [
-      8.17,
-      28.01
+      6.81,
+      25.72
      ],
      "det_cluster95": [
-      6.98,
-      27.08
+      5.0,
+      24.44
      ],
-     "clean_recordings_accused": 28,
+     "clean_recordings_accused": 27,
      "clean_recordings": 154,
      "by_riwaya": {
       "hafs": {
-       "fa": 29,
+       "fa": 28,
        "clean": 439,
-       "fa_pct": 6.61,
-       "det": 6,
+       "fa_pct": 6.38,
+       "det": 5,
        "marked": 40,
-       "det_pct": 15.0
+       "det_pct": 12.5
       },
       "qalun": {
        "fa": 15,
@@ -383,26 +383,26 @@
    },
    "vs_baseline": {
     "confirm": {
-     "fa_delta_pts": -3.45,
+     "fa_delta_pts": -3.3,
      "fa_delta_cluster95": [
-      -5.19,
-      -1.83
+      -5.18,
+      -1.63
      ],
      "fa_mcnemar": {
-      "a_only": 23,
+      "a_only": 22,
       "b_only": 0,
-      "p": 2.38e-07
+      "p": 4.77e-07
      },
-     "det_delta_words": -6,
-     "det_delta_pts": -11.8,
+     "det_delta_words": -5,
+     "det_delta_pts": -9.8,
      "det_delta_cluster95": [
-      -22.5,
-      -3.33
+      -20.0,
+      -2.08
      ],
      "det_mcnemar": {
-      "a_only": 6,
+      "a_only": 5,
       "b_only": 0,
-      "p": 0.0312
+      "p": 0.0625
      },
      "non_inferior": false
     },
@@ -431,50 +431,50 @@
      "non_inferior": false
     },
     "confirm+rescue": {
-     "fa_delta_pts": -3.15,
+     "fa_delta_pts": -3.0,
      "fa_delta_cluster95": [
-      -4.95,
-      -1.47
+      -4.88,
+      -1.28
      ],
      "fa_mcnemar": {
-      "a_only": 23,
+      "a_only": 22,
       "b_only": 2,
-      "p": 1.94e-05
+      "p": 3.59e-05
      },
-     "det_delta_words": -6,
-     "det_delta_pts": -11.8,
+     "det_delta_words": -5,
+     "det_delta_pts": -9.8,
      "det_delta_cluster95": [
-      -22.5,
-      -3.33
+      -20.0,
+      -2.08
      ],
      "det_mcnemar": {
-      "a_only": 6,
+      "a_only": 5,
       "b_only": 0,
-      "p": 0.0312
+      "p": 0.0625
      },
      "non_inferior": false
     },
     "confirm+resync": {
-     "fa_delta_pts": -3.45,
+     "fa_delta_pts": -3.3,
      "fa_delta_cluster95": [
-      -5.19,
-      -1.83
+      -5.18,
+      -1.63
      ],
      "fa_mcnemar": {
-      "a_only": 23,
+      "a_only": 22,
       "b_only": 0,
-      "p": 2.38e-07
+      "p": 4.77e-07
      },
-     "det_delta_words": -6,
-     "det_delta_pts": -11.8,
+     "det_delta_words": -5,
+     "det_delta_pts": -9.8,
      "det_delta_cluster95": [
-      -22.5,
-      -3.33
+      -20.0,
+      -2.08
      ],
      "det_mcnemar": {
-      "a_only": 6,
+      "a_only": 5,
       "b_only": 0,
-      "p": 0.0312
+      "p": 0.0625
      },
      "non_inferior": false
     },
@@ -503,26 +503,26 @@
      "non_inferior": false
     },
     "confirm+rescue+resync": {
-     "fa_delta_pts": -3.15,
+     "fa_delta_pts": -3.0,
      "fa_delta_cluster95": [
-      -4.95,
-      -1.47
+      -4.88,
+      -1.28
      ],
      "fa_mcnemar": {
-      "a_only": 23,
+      "a_only": 22,
       "b_only": 2,
-      "p": 1.94e-05
+      "p": 3.59e-05
      },
-     "det_delta_words": -6,
-     "det_delta_pts": -11.8,
+     "det_delta_words": -5,
+     "det_delta_pts": -9.8,
      "det_delta_cluster95": [
-      -22.5,
-      -3.33
+      -20.0,
+      -2.08
      ],
      "det_mcnemar": {
-      "a_only": 6,
+      "a_only": 5,
       "b_only": 0,
-      "p": 0.0312
+      "p": 0.0625
      },
      "non_inferior": false
     }
@@ -562,6 +562,80 @@
      "acc": 10,
      "words": 119,
      "pct": 8.4
+    }
+   },
+   "det_by_error_tag": {
+    "Tajweed": {
+     "baseline": [
+      2,
+      17
+     ],
+     "confirm": [
+      0,
+      17
+     ],
+     "rescue": [
+      2,
+      17
+     ]
+    },
+    "Wording": {
+     "baseline": [
+      0,
+      4
+     ],
+     "confirm": [
+      0,
+      4
+     ],
+     "rescue": [
+      0,
+      4
+     ]
+    },
+    "Tashkeel": {
+     "baseline": [
+      0,
+      4
+     ],
+     "confirm": [
+      0,
+      4
+     ],
+     "rescue": [
+      0,
+      4
+     ]
+    },
+    "Letters": {
+     "baseline": [
+      5,
+      37
+     ],
+     "confirm": [
+      2,
+      37
+     ],
+     "rescue": [
+      5,
+      37
+     ]
+    }
+   },
+   "score_quantiles_p1": {
+    "clean": {
+     "0.005": -29.953,
+     "0.05": -20.571,
+     "0.1": -16.517,
+     "0.25": -0.622,
+     "0.5": -0.002
+    },
+    "marked": {
+     "0.005": -29.05,
+     "0.05": -22.092,
+     "0.1": -15.992,
+     "0.25": -8.393,
+     "0.5": -2.771
     }
    },
    "ship_criterion": {
@@ -583,50 +657,50 @@
    "sha256": "ef01ab441b004f9e6f1ea98d397b43452b3a45efab7c3928ab37af655dde8b52",
    "free_lang": "en",
    "forced_lang": "ar",
-   "resync_tau": -33.0544,
+   "resync_tau": -32.908,
    "bpe_parity": {
     "equal": 197,
     "total": 197
    },
    "seconds": {
-    "free": 159,
-    "forced": 280,
-    "forced_resync": 5
+    "free": 98,
+    "forced": 190,
+    "forced_resync": 4
    },
    "long_rows_skipped": 1,
    "errors": 0,
    "auc_p1": {
-    "marked_vs_clean": 0.6547,
+    "marked_vs_clean": 0.655,
     "n_pos": 51,
     "n_neg": 655,
-    "within_substituted": 0.7555,
+    "within_substituted": 0.7587,
     "n_sub_true": 12,
-    "n_sub_false": 76
+    "n_sub_false": 77
    },
    "auc_p2": {
-    "marked_vs_clean": 0.6547,
+    "marked_vs_clean": 0.655,
     "n_pos": 51,
     "n_neg": 655,
-    "within_substituted": 0.7555,
+    "within_substituted": 0.7587,
     "n_sub_true": 12,
-    "n_sub_false": 76
+    "n_sub_false": 77
    },
    "thresholds_full_sample": {
     "confirm": {
-     "confirm_full": -14.1411,
-     "rescue_full": -33.0544
+     "confirm_full": -14.1043,
+     "rescue_full": -32.908
     },
     "rescue": {
-     "confirm_full": -14.1411,
-     "rescue_full": -33.0544
+     "confirm_full": -14.1043,
+     "rescue_full": -32.908
     },
     "confirm+resync": {
-     "confirm_full": -14.2922,
-     "rescue_full": -33.0544
+     "confirm_full": -14.1246,
+     "rescue_full": -32.908
     },
     "rescue+resync": {
-     "confirm_full": -14.2922,
-     "rescue_full": -33.0544
+     "confirm_full": -14.1246,
+     "rescue_full": -32.908
     }
    },
    "arms": {
@@ -639,8 +713,8 @@
       16.96
      ],
      "fa_cluster95": [
-      9.49,
-      18.28
+      9.8,
+      17.94
      ],
      "det": 13,
      "marked_words": 51,
@@ -657,17 +731,17 @@
      "clean_recordings": 154,
      "by_riwaya": {
       "hafs": {
-       "fa": 51,
+       "fa": 54,
        "clean": 439,
-       "fa_pct": 11.62,
+       "fa_pct": 12.3,
        "det": 10,
        "marked": 40,
        "det_pct": 25.0
       },
       "qalun": {
-       "fa": 43,
+       "fa": 40,
        "clean": 227,
-       "fa_pct": 18.94,
+       "fa_pct": 17.62,
        "det": 3,
        "marked": 11,
        "det_pct": 27.3
@@ -727,8 +801,8 @@
       17.13
      ],
      "fa_cluster95": [
-      9.75,
-      18.33
+      10.06,
+      18.08
      ],
      "det": 13,
      "marked_words": 51,
@@ -745,17 +819,17 @@
      "clean_recordings": 154,
      "by_riwaya": {
       "hafs": {
-       "fa": 52,
+       "fa": 55,
        "clean": 439,
-       "fa_pct": 11.85,
+       "fa_pct": 12.53,
        "det": 10,
        "marked": 40,
        "det_pct": 25.0
       },
       "qalun": {
-       "fa": 43,
+       "fa": 40,
        "clean": 227,
-       "fa_pct": 18.94,
+       "fa_pct": 17.62,
        "det": 3,
        "marked": 11,
        "det_pct": 27.3
@@ -859,8 +933,8 @@
       17.13
      ],
      "fa_cluster95": [
-      9.75,
-      18.33
+      10.06,
+      18.08
      ],
      "det": 13,
      "marked_words": 51,
@@ -877,17 +951,17 @@
      "clean_recordings": 154,
      "by_riwaya": {
       "hafs": {
-       "fa": 52,
+       "fa": 55,
        "clean": 439,
-       "fa_pct": 11.85,
+       "fa_pct": 12.53,
        "det": 10,
        "marked": 40,
        "det_pct": 25.0
       },
       "qalun": {
-       "fa": 43,
+       "fa": 40,
        "clean": 227,
-       "fa_pct": 18.94,
+       "fa_pct": 17.62,
        "det": 3,
        "marked": 11,
        "det_pct": 27.3
@@ -943,8 +1017,8 @@
     "confirm": {
      "fa_delta_pts": -10.51,
      "fa_delta_cluster95": [
-      -13.83,
-      -6.82
+      -13.61,
+      -7.23
      ],
      "fa_mcnemar": {
       "a_only": 70,
@@ -991,8 +1065,8 @@
     "confirm+rescue": {
      "fa_delta_pts": -10.36,
      "fa_delta_cluster95": [
-      -13.77,
-      -6.55
+      -13.57,
+      -6.95
      ],
      "fa_mcnemar": {
       "a_only": 70,
@@ -1015,8 +1089,8 @@
     "confirm+resync": {
      "fa_delta_pts": -10.51,
      "fa_delta_cluster95": [
-      -13.83,
-      -6.82
+      -13.61,
+      -7.23
      ],
      "fa_mcnemar": {
       "a_only": 70,
@@ -1063,8 +1137,8 @@
     "confirm+rescue+resync": {
      "fa_delta_pts": -10.36,
      "fa_delta_cluster95": [
-      -13.77,
-      -6.55
+      -13.57,
+      -6.95
      ],
      "fa_mcnemar": {
       "a_only": 70,
@@ -1087,9 +1161,9 @@
    },
    "far_accusation_positive_rows": {
     "baseline": {
-     "acc": 16,
+     "acc": 15,
      "words": 119,
-     "pct": 13.45
+     "pct": 12.61
     },
     "confirm": {
      "acc": 8,
@@ -1097,9 +1171,9 @@
      "pct": 6.72
     },
     "rescue": {
-     "acc": 16,
+     "acc": 15,
      "words": 119,
-     "pct": 13.45
+     "pct": 12.61
     },
     "confirm+rescue": {
      "acc": 8,
@@ -1112,15 +1186,113 @@
      "pct": 6.72
     },
     "rescue+resync": {
-     "acc": 16,
+     "acc": 15,
      "words": 119,
-     "pct": 13.45
+     "pct": 12.61
     },
     "confirm+rescue+resync": {
      "acc": 8,
      "words": 119,
      "pct": 6.72
     }
+   },
+   "det_by_error_tag": {
+    "Tajweed": {
+     "baseline": [
+      6,
+      17
+     ],
+     "confirm": [
+      0,
+      17
+     ],
+     "rescue": [
+      6,
+      17
+     ]
+    },
+    "Wording": {
+     "baseline": [
+      0,
+      4
+     ],
+     "confirm": [
+      0,
+      4
+     ],
+     "rescue": [
+      0,
+      4
+     ]
+    },
+    "Tashkeel": {
+     "baseline": [
+      0,
+      4
+     ],
+     "confirm": [
+      0,
+      4
+     ],
+     "rescue": [
+      0,
+      4
+     ]
+    },
+    "Letters": {
+     "baseline": [
+      8,
+      37
+     ],
+     "confirm": [
+      3,
+      37
+     ],
+     "rescue": [
+      8,
+      37
+     ]
+    }
+   },
+   "score_quantiles_p1": {
+    "clean": {
+     "0.005": -32.908,
+     "0.05": -19.125,
+     "0.1": -14.104,
+     "0.25": -3.049,
+     "0.5": -0.198
+    },
+    "marked": {
+     "0.005": -36.104,
+     "0.05": -29.698,
+     "0.1": -14.88,
+     "0.25": -9.226,
+     "0.5": -3.855
+    }
+   },
+   "cli_vs_stored_D735": {
+    "fa_delta_pts": 2.55,
+    "fa_delta_cluster95": [
+     0.65,
+     5.04
+    ],
+    "fa_mcnemar": {
+     "a_only": 8,
+     "b_only": 25,
+     "p": 0.00455
+    },
+    "det_delta_words": 0,
+    "det_delta_pts": 0.0,
+    "det_delta_cluster95": [
+     0.0,
+     0.0
+    ],
+    "det_mcnemar": {
+     "a_only": 0,
+     "b_only": 0,
+     "p": 1.0
+    },
+    "non_inferior": false
    },
    "ship_criterion": {
     "confirm": {
@@ -1141,86 +1313,86 @@
    "sha256": "62f3459d6d18f58f148584b2fc122f75d98230cbc8b33a536aa897aa71756fc3",
    "free_lang": "en",
    "forced_lang": "ar",
-   "resync_tau": -28.2912,
+   "resync_tau": -28.1734,
    "bpe_parity": {
     "equal": 195,
     "total": 197
    },
    "seconds": {
-    "free": 133,
-    "forced": 224,
+    "free": 100,
+    "forced": 177,
     "forced_resync": 2
    },
    "long_rows_skipped": 1,
    "errors": 0,
    "auc_p1": {
-    "marked_vs_clean": 0.7253,
+    "marked_vs_clean": 0.7259,
     "n_pos": 51,
     "n_neg": 655,
-    "within_substituted": 0.5894,
-    "n_sub_true": 17,
+    "within_substituted": 0.6205,
+    "n_sub_true": 16,
     "n_sub_false": 98
    },
    "auc_p2": {
-    "marked_vs_clean": 0.7254,
+    "marked_vs_clean": 0.726,
     "n_pos": 51,
     "n_neg": 655,
-    "within_substituted": 0.5894,
-    "n_sub_true": 17,
+    "within_substituted": 0.6205,
+    "n_sub_true": 16,
     "n_sub_false": 98
    },
    "thresholds_full_sample": {
     "confirm": {
-     "confirm_full": -9.671,
-     "rescue_full": -28.2912
+     "confirm_full": -9.6881,
+     "rescue_full": -28.1734
     },
     "rescue": {
-     "confirm_full": -9.671,
-     "rescue_full": -28.2912
+     "confirm_full": -9.6881,
+     "rescue_full": -28.1734
     },
     "confirm+resync": {
-     "confirm_full": -9.611,
-     "rescue_full": -28.2912
+     "confirm_full": -9.6082,
+     "rescue_full": -28.1734
     },
     "rescue+resync": {
-     "confirm_full": -9.611,
-     "rescue_full": -28.2912
+     "confirm_full": -9.6082,
+     "rescue_full": -28.1734
     }
    },
    "arms": {
     "baseline": {
-     "fa": 125,
+     "fa": 126,
      "clean_words": 666,
-     "fa_pct": 18.77,
+     "fa_pct": 18.92,
      "fa_wilson95": [
-      15.99,
-      21.91
+      16.13,
+      22.07
      ],
      "fa_cluster95": [
-      12.81,
-      24.55
+      13.36,
+      24.41
      ],
-     "det": 19,
+     "det": 18,
      "marked_words": 51,
-     "det_pct": 37.3,
+     "det_pct": 35.3,
      "det_wilson95": [
-      25.32,
-      50.98
+      23.63,
+      49.01
      ],
      "det_cluster95": [
-      23.21,
-      55.56
+      21.74,
+      52.27
      ],
-     "clean_recordings_accused": 73,
+     "clean_recordings_accused": 74,
      "clean_recordings": 154,
      "by_riwaya": {
       "hafs": {
-       "fa": 79,
+       "fa": 80,
        "clean": 439,
-       "fa_pct": 18.0,
-       "det": 15,
+       "fa_pct": 18.22,
+       "det": 14,
        "marked": 40,
-       "det_pct": 37.5
+       "det_pct": 35.0
       },
       "qalun": {
        "fa": 46,
@@ -1233,16 +1405,16 @@
      }
     },
     "confirm": {
-     "fa": 47,
+     "fa": 46,
      "clean_words": 666,
-     "fa_pct": 7.06,
+     "fa_pct": 6.91,
      "fa_wilson95": [
-      5.35,
-      9.26
+      5.22,
+      9.09
      ],
      "fa_cluster95": [
       3.59,
-      10.55
+      10.28
      ],
      "det": 8,
      "marked_words": 51,
@@ -1259,9 +1431,9 @@
      "clean_recordings": 154,
      "by_riwaya": {
       "hafs": {
-       "fa": 22,
+       "fa": 21,
        "clean": 439,
-       "fa_pct": 5.01,
+       "fa_pct": 4.78,
        "det": 6,
        "marked": 40,
        "det_pct": 15.0
@@ -1277,38 +1449,38 @@
      }
     },
     "rescue": {
-     "fa": 126,
+     "fa": 127,
      "clean_words": 666,
-     "fa_pct": 18.92,
+     "fa_pct": 19.07,
      "fa_wilson95": [
-      16.13,
-      22.07
+      16.27,
+      22.23
      ],
      "fa_cluster95": [
-      12.86,
-      24.91
+      13.36,
+      24.62
      ],
-     "det": 19,
+     "det": 18,
      "marked_words": 51,
-     "det_pct": 37.3,
+     "det_pct": 35.3,
      "det_wilson95": [
-      25.32,
-      50.98
+      23.63,
+      49.01
      ],
      "det_cluster95": [
-      23.21,
-      55.56
+      21.74,
+      52.27
      ],
-     "clean_recordings_accused": 74,
+     "clean_recordings_accused": 75,
      "clean_recordings": 154,
      "by_riwaya": {
       "hafs": {
-       "fa": 80,
+       "fa": 81,
        "clean": 439,
-       "fa_pct": 18.22,
-       "det": 15,
+       "fa_pct": 18.45,
+       "det": 14,
        "marked": 40,
-       "det_pct": 37.5
+       "det_pct": 35.0
       },
       "qalun": {
        "fa": 46,
@@ -1321,60 +1493,16 @@
      }
     },
     "confirm+rescue": {
-     "fa": 48,
+     "fa": 47,
      "clean_words": 666,
-     "fa_pct": 7.21,
+     "fa_pct": 7.06,
      "fa_wilson95": [
-      5.48,
-      9.43
+      5.35,
+      9.26
      ],
      "fa_cluster95": [
       3.61,
-      10.74
-     ],
-     "det": 8,
-     "marked_words": 51,
-     "det_pct": 15.7,
-     "det_wilson95": [
-      8.17,
-      28.01
-     ],
-     "det_cluster95": [
-      8.33,
-      26.32
-     ],
-     "clean_recordings_accused": 40,
-     "clean_recordings": 154,
-     "by_riwaya": {
-      "hafs": {
-       "fa": 23,
-       "clean": 439,
-       "fa_pct": 5.24,
-       "det": 6,
-       "marked": 40,
-       "det_pct": 15.0
-      },
-      "qalun": {
-       "fa": 25,
-       "clean": 227,
-       "fa_pct": 11.01,
-       "det": 2,
-       "marked": 11,
-       "det_pct": 18.2
-      }
-     }
-    },
-    "confirm+resync": {
-     "fa": 48,
-     "clean_words": 666,
-     "fa_pct": 7.21,
-     "fa_wilson95": [
-      5.48,
-      9.43
-     ],
-     "fa_cluster95": [
-      3.79,
-      10.6
+      10.53
      ],
      "det": 8,
      "marked_words": 51,
@@ -1399,70 +1527,26 @@
        "det_pct": 15.0
       },
       "qalun": {
-       "fa": 26,
+       "fa": 25,
        "clean": 227,
-       "fa_pct": 11.45,
+       "fa_pct": 11.01,
        "det": 2,
        "marked": 11,
        "det_pct": 18.2
       }
      }
     },
-    "rescue+resync": {
-     "fa": 126,
+    "confirm+resync": {
+     "fa": 46,
      "clean_words": 666,
-     "fa_pct": 18.92,
+     "fa_pct": 6.91,
      "fa_wilson95": [
-      16.13,
-      22.07
+      5.22,
+      9.09
      ],
      "fa_cluster95": [
-      12.86,
-      24.91
-     ],
-     "det": 19,
-     "marked_words": 51,
-     "det_pct": 37.3,
-     "det_wilson95": [
-      25.32,
-      50.98
-     ],
-     "det_cluster95": [
-      23.21,
-      55.56
-     ],
-     "clean_recordings_accused": 74,
-     "clean_recordings": 154,
-     "by_riwaya": {
-      "hafs": {
-       "fa": 80,
-       "clean": 439,
-       "fa_pct": 18.22,
-       "det": 15,
-       "marked": 40,
-       "det_pct": 37.5
-      },
-      "qalun": {
-       "fa": 46,
-       "clean": 227,
-       "fa_pct": 20.26,
-       "det": 4,
-       "marked": 11,
-       "det_pct": 36.4
-      }
-     }
-    },
-    "confirm+rescue+resync": {
-     "fa": 49,
-     "clean_words": 666,
-     "fa_pct": 7.36,
-     "fa_wilson95": [
-      5.61,
-      9.59
-     ],
-     "fa_cluster95": [
-      3.79,
-      10.85
+      3.59,
+      10.28
      ],
      "det": 8,
      "marked_words": 51,
@@ -1475,21 +1559,109 @@
       8.33,
       26.32
      ],
-     "clean_recordings_accused": 41,
+     "clean_recordings_accused": 39,
      "clean_recordings": 154,
      "by_riwaya": {
       "hafs": {
-       "fa": 23,
+       "fa": 21,
        "clean": 439,
-       "fa_pct": 5.24,
+       "fa_pct": 4.78,
        "det": 6,
        "marked": 40,
        "det_pct": 15.0
       },
       "qalun": {
-       "fa": 26,
+       "fa": 25,
        "clean": 227,
-       "fa_pct": 11.45,
+       "fa_pct": 11.01,
+       "det": 2,
+       "marked": 11,
+       "det_pct": 18.2
+      }
+     }
+    },
+    "rescue+resync": {
+     "fa": 127,
+     "clean_words": 666,
+     "fa_pct": 19.07,
+     "fa_wilson95": [
+      16.27,
+      22.23
+     ],
+     "fa_cluster95": [
+      13.36,
+      24.62
+     ],
+     "det": 18,
+     "marked_words": 51,
+     "det_pct": 35.3,
+     "det_wilson95": [
+      23.63,
+      49.01
+     ],
+     "det_cluster95": [
+      21.74,
+      52.27
+     ],
+     "clean_recordings_accused": 75,
+     "clean_recordings": 154,
+     "by_riwaya": {
+      "hafs": {
+       "fa": 81,
+       "clean": 439,
+       "fa_pct": 18.45,
+       "det": 14,
+       "marked": 40,
+       "det_pct": 35.0
+      },
+      "qalun": {
+       "fa": 46,
+       "clean": 227,
+       "fa_pct": 20.26,
+       "det": 4,
+       "marked": 11,
+       "det_pct": 36.4
+      }
+     }
+    },
+    "confirm+rescue+resync": {
+     "fa": 47,
+     "clean_words": 666,
+     "fa_pct": 7.06,
+     "fa_wilson95": [
+      5.35,
+      9.26
+     ],
+     "fa_cluster95": [
+      3.61,
+      10.53
+     ],
+     "det": 8,
+     "marked_words": 51,
+     "det_pct": 15.7,
+     "det_wilson95": [
+      8.17,
+      28.01
+     ],
+     "det_cluster95": [
+      8.33,
+      26.32
+     ],
+     "clean_recordings_accused": 40,
+     "clean_recordings": 154,
+     "by_riwaya": {
+      "hafs": {
+       "fa": 22,
+       "clean": 439,
+       "fa_pct": 5.01,
+       "det": 6,
+       "marked": 40,
+       "det_pct": 15.0
+      },
+      "qalun": {
+       "fa": 25,
+       "clean": 227,
+       "fa_pct": 11.01,
        "det": 2,
        "marked": 11,
        "det_pct": 18.2
@@ -1499,26 +1671,26 @@
    },
    "vs_baseline": {
     "confirm": {
-     "fa_delta_pts": -11.71,
+     "fa_delta_pts": -12.01,
      "fa_delta_cluster95": [
-      -15.76,
-      -8.2
+      -15.93,
+      -8.63
      ],
      "fa_mcnemar": {
-      "a_only": 78,
+      "a_only": 80,
       "b_only": 0,
-      "p": 6.62e-24
+      "p": 1.65e-24
      },
-     "det_delta_words": -11,
-     "det_delta_pts": -21.6,
+     "det_delta_words": -10,
+     "det_delta_pts": -19.6,
      "det_delta_cluster95": [
-      -36.54,
-      -9.09
+      -32.56,
+      -7.81
      ],
      "det_mcnemar": {
-      "a_only": 11,
+      "a_only": 10,
       "b_only": 0,
-      "p": 0.000977
+      "p": 0.00195
      },
      "non_inferior": false
     },
@@ -1547,50 +1719,50 @@
      "non_inferior": true
     },
     "confirm+rescue": {
-     "fa_delta_pts": -11.56,
+     "fa_delta_pts": -11.86,
      "fa_delta_cluster95": [
-      -15.5,
-      -8.12
+      -15.73,
+      -8.6
      ],
      "fa_mcnemar": {
-      "a_only": 78,
+      "a_only": 80,
       "b_only": 1,
-      "p": 2.65e-22
+      "p": 6.78e-23
      },
-     "det_delta_words": -11,
-     "det_delta_pts": -21.6,
+     "det_delta_words": -10,
+     "det_delta_pts": -19.6,
      "det_delta_cluster95": [
-      -36.54,
-      -9.09
+      -32.56,
+      -7.81
      ],
      "det_mcnemar": {
-      "a_only": 11,
+      "a_only": 10,
       "b_only": 0,
-      "p": 0.000977
+      "p": 0.00195
      },
      "non_inferior": false
     },
     "confirm+resync": {
-     "fa_delta_pts": -11.56,
+     "fa_delta_pts": -12.01,
      "fa_delta_cluster95": [
-      -15.71,
-      -8.02
+      -15.93,
+      -8.63
      ],
      "fa_mcnemar": {
-      "a_only": 77,
+      "a_only": 80,
       "b_only": 0,
-      "p": 1.32e-23
+      "p": 1.65e-24
      },
-     "det_delta_words": -11,
-     "det_delta_pts": -21.6,
+     "det_delta_words": -10,
+     "det_delta_pts": -19.6,
      "det_delta_cluster95": [
-      -36.54,
-      -9.09
+      -32.56,
+      -7.81
      ],
      "det_mcnemar": {
-      "a_only": 11,
+      "a_only": 10,
       "b_only": 0,
-      "p": 0.000977
+      "p": 0.00195
      },
      "non_inferior": false
     },
@@ -1619,26 +1791,26 @@
      "non_inferior": true
     },
     "confirm+rescue+resync": {
-     "fa_delta_pts": -11.41,
+     "fa_delta_pts": -11.86,
      "fa_delta_cluster95": [
-      -15.42,
-      -7.93
+      -15.73,
+      -8.6
      ],
      "fa_mcnemar": {
-      "a_only": 77,
+      "a_only": 80,
       "b_only": 1,
-      "p": 5.23e-22
+      "p": 6.78e-23
      },
-     "det_delta_words": -11,
-     "det_delta_pts": -21.6,
+     "det_delta_words": -10,
+     "det_delta_pts": -19.6,
      "det_delta_cluster95": [
-      -36.54,
-      -9.09
+      -32.56,
+      -7.81
      ],
      "det_mcnemar": {
-      "a_only": 11,
+      "a_only": 10,
       "b_only": 0,
-      "p": 0.000977
+      "p": 0.00195
      },
      "non_inferior": false
     }
@@ -1665,9 +1837,9 @@
      "pct": 9.24
     },
     "confirm+resync": {
-     "acc": 11,
+     "acc": 12,
      "words": 119,
-     "pct": 9.24
+     "pct": 10.08
     },
     "rescue+resync": {
      "acc": 21,
@@ -1675,9 +1847,83 @@
      "pct": 17.65
     },
     "confirm+rescue+resync": {
-     "acc": 11,
+     "acc": 12,
      "words": 119,
-     "pct": 9.24
+     "pct": 10.08
+    }
+   },
+   "det_by_error_tag": {
+    "Tajweed": {
+     "baseline": [
+      9,
+      17
+     ],
+     "confirm": [
+      3,
+      17
+     ],
+     "rescue": [
+      9,
+      17
+     ]
+    },
+    "Wording": {
+     "baseline": [
+      0,
+      4
+     ],
+     "confirm": [
+      0,
+      4
+     ],
+     "rescue": [
+      0,
+      4
+     ]
+    },
+    "Tashkeel": {
+     "baseline": [
+      0,
+      4
+     ],
+     "confirm": [
+      0,
+      4
+     ],
+     "rescue": [
+      0,
+      4
+     ]
+    },
+    "Letters": {
+     "baseline": [
+      12,
+      37
+     ],
+     "confirm": [
+      6,
+      37
+     ],
+     "rescue": [
+      12,
+      37
+     ]
+    }
+   },
+   "score_quantiles_p1": {
+    "clean": {
+     "0.005": -28.173,
+     "0.05": -13.043,
+     "0.1": -9.688,
+     "0.25": -4.945,
+     "0.5": -1.153
+    },
+    "marked": {
+     "0.005": -19.275,
+     "0.05": -17.648,
+     "0.1": -13.576,
+     "0.25": -10.264,
+     "0.5": -5.39
     }
    },
    "ship_criterion": {
@@ -1740,5 +1986,5 @@
    }
   }
  },
- "md": "### ⚖️ الحكمُ القسريّ على المتعلّمين · 198 صفّاً · 45 تسجيلاً (مسطرة learner_gate)\nالعتباتُ المسجّلةُ سلفاً: التأكيد p10 · الإنقاذ p0.5 (استكشافيّ) · المزامنة p0.5 · تحقّقٌ متقاطعٌ 5 طيّاتٍ بالتسجيل\n\n- المخزَّن tiny (D-735): اتّهام 11.56٪ [9.35, 14.21] · كشف 25.5٪ (13/51)\n\n#### base_q5_1 · حرٌّ `ar` · قسريّ `ar` · BPE 197/197 · τ_resync=-29.65 · AUC (موسوم/سليم) 0.7007 · داخل SUBSTITUTED 0.6173 (7 صادق/28 كاذب)\n| الذراع | الاتّهام الكاذب | عنقودي 95٪ | الكشف | Δاتّهام [95٪] | Δكشف | McNemar اتّهام | بعيد (موجب) |\n|---|---|---|---|---|---|---|---|\n| baseline | 42/666 = 6.31٪ | [3.55, 9.08] | 8/51 = 15.7٪ | — | — | — | 10.08٪ |\n| confirm | 19/666 = 2.85٪ | [1.04, 4.81] | 2/51 = 3.9٪ | -3.45 [-5.19, -1.83] | -6 | 23↔0 p=2.38e-07 | 8.4٪ |\n| rescue | 44/666 = 6.61٪ | [3.85, 9.29] | 8/51 = 15.7٪ | +0.3 [0.0, 0.78] | +0 | 0↔2 p=0.5 | 10.08٪ |\n| confirm+rescue | 21/666 = 3.15٪ | [1.38, 5.08] | 2/51 = 3.9٪ | -3.15 [-4.95, -1.47] | -6 | 23↔2 p=1.94e-05 | 8.4٪ |\n| confirm+resync | 19/666 = 2.85٪ | [1.04, 4.81] | 2/51 = 3.9٪ | -3.45 [-5.19, -1.83] | -6 | 23↔0 p=2.38e-07 | 8.4٪ |\n| rescue+resync | 44/666 = 6.61٪ | [3.85, 9.29] | 8/51 = 15.7٪ | +0.3 [0.0, 0.78] | +0 | 0↔2 p=0.5 | 10.08٪ |\n| confirm+rescue+resync | 21/666 = 3.15٪ | [1.38, 5.08] | 2/51 = 3.9٪ | -3.15 [-4.95, -1.47] | -6 | 23↔2 p=1.94e-05 | 8.4٪ |\n- معيارُ شحن التأكيد: confirm ❌ · confirm+resync ❌\n\n#### tiny · حرٌّ `en` · قسريّ `ar` · BPE 197/197 · τ_resync=-33.05 · AUC (موسوم/سليم) 0.6547 · داخل SUBSTITUTED 0.7555 (12 صادق/76 كاذب)\n| الذراع | الاتّهام الكاذب | عنقودي 95٪ | الكشف | Δاتّهام [95٪] | Δكشف | McNemar اتّهام | بعيد (موجب) |\n|---|---|---|---|---|---|---|---|\n| baseline | 94/666 = 14.11٪ | [9.49, 18.28] | 13/51 = 25.5٪ | — | — | — | 13.45٪ |\n| confirm | 24/666 = 3.6٪ | [2.21, 5.08] | 3/51 = 5.9٪ | -10.51 [-13.83, -6.82] | -10 | 70↔0 p=1.69e-21 | 6.72٪ |\n| rescue | 95/666 = 14.26٪ | [9.75, 18.33] | 13/51 = 25.5٪ | +0.15 [0.0, 0.53] | +0 | 0↔1 p=1.0 | 13.45٪ |\n| confirm+rescue | 25/666 = 3.75٪ | [2.37, 5.15] | 3/51 = 5.9٪ | -10.36 [-13.77, -6.55] | -10 | 70↔1 p=6.1e-20 | 6.72٪ |\n| confirm+resync | 24/666 = 3.6٪ | [2.21, 5.08] | 3/51 = 5.9٪ | -10.51 [-13.83, -6.82] | -10 | 70↔0 p=1.69e-21 | 6.72٪ |\n| rescue+resync | 95/666 = 14.26٪ | [9.75, 18.33] | 13/51 = 25.5٪ | +0.15 [0.0, 0.53] | +0 | 0↔1 p=1.0 | 13.45٪ |\n| confirm+rescue+resync | 25/666 = 3.75٪ | [2.37, 5.15] | 3/51 = 5.9٪ | -10.36 [-13.77, -6.55] | -10 | 70↔1 p=6.1e-20 | 6.72٪ |\n- معيارُ شحن التأكيد: confirm ❌ · confirm+resync ❌\n\n#### tiny_v2 · حرٌّ `en` · قسريّ `ar` · BPE 195/197 · τ_resync=-28.29 · AUC (موسوم/سليم) 0.7253 · داخل SUBSTITUTED 0.5894 (17 صادق/98 كاذب)\n| الذراع | الاتّهام الكاذب | عنقودي 95٪ | الكشف | Δاتّهام [95٪] | Δكشف | McNemar اتّهام | بعيد (موجب) |\n|---|---|---|---|---|---|---|---|\n| baseline | 125/666 = 18.77٪ | [12.81, 24.55] | 19/51 = 37.3٪ | — | — | — | 17.65٪ |\n| confirm | 47/666 = 7.06٪ | [3.59, 10.55] | 8/51 = 15.7٪ | -11.71 [-15.76, -8.2] | -11 | 78↔0 p=6.62e-24 | 9.24٪ |\n| rescue | 126/666 = 18.92٪ | [12.86, 24.91] | 19/51 = 37.3٪ | +0.15 [0.0, 0.45] | +0 | 0↔1 p=1.0 | 17.65٪ |\n| confirm+rescue | 48/666 = 7.21٪ | [3.61, 10.74] | 8/51 = 15.7٪ | -11.56 [-15.5, -8.12] | -11 | 78↔1 p=2.65e-22 | 9.24٪ |\n| confirm+resync | 48/666 = 7.21٪ | [3.79, 10.6] | 8/51 = 15.7٪ | -11.56 [-15.71, -8.02] | -11 | 77↔0 p=1.32e-23 | 9.24٪ |\n| rescue+resync | 126/666 = 18.92٪ | [12.86, 24.91] | 19/51 = 37.3٪ | +0.15 [0.0, 0.45] | +0 | 0↔1 p=1.0 | 17.65٪ |\n| confirm+rescue+resync | 49/666 = 7.36٪ | [3.79, 10.85] | 8/51 = 15.7٪ | -11.41 [-15.42, -7.93] | -11 | 77↔1 p=5.23e-22 | 9.24٪ |\n- معيارُ شحن التأكيد: confirm ❌ · confirm+resync ❌\n\n⛔ قياسٌ لا شحن: «الإنقاذ» استكشافيّ ويبقى مطفأً ما لم يجتز ≤0.5٪ لكلّ رواية على g3r/g4n والحقن."
+ "md": "### ⚖️ الحكمُ القسريّ على المتعلّمين · 198 صفّاً · 45 تسجيلاً (مسطرة learner_gate)\nالعتباتُ المسجّلةُ سلفاً: التأكيد p10 · الإنقاذ p0.5 (استكشافيّ) · المزامنة p0.5 · تحقّقٌ متقاطعٌ 5 طيّاتٍ بالتسجيل\n\n- المخزَّن tiny (D-735): اتّهام 11.56٪ [9.35, 14.21] · كشف 25.5٪ (13/51)\n\n#### base_q5_1 · حرٌّ `ar` · قسريّ `ar` · BPE 196/197 · τ_resync=-29.95 · AUC (موسوم/سليم) 0.7009 · داخل SUBSTITUTED 0.6049 (6 صادق/27 كاذب)\n| الذراع | الاتّهام الكاذب | عنقودي 95٪ | الكشف | Δاتّهام [95٪] | Δكشف | McNemar اتّهام | بعيد (موجب) |\n|---|---|---|---|---|---|---|---|\n| baseline | 41/666 = 6.16٪ | [3.43, 8.93] | 7/51 = 13.7٪ | — | — | — | 10.08٪ |\n| confirm | 19/666 = 2.85٪ | [1.04, 4.81] | 2/51 = 3.9٪ | -3.3 [-5.18, -1.63] | -5 | 22↔0 p=4.77e-07 | 8.4٪ |\n| rescue | 43/666 = 6.46٪ | [3.68, 9.17] | 7/51 = 13.7٪ | +0.3 [0.0, 0.78] | +0 | 0↔2 p=0.5 | 10.08٪ |\n| confirm+rescue | 21/666 = 3.15٪ | [1.38, 5.08] | 2/51 = 3.9٪ | -3.0 [-4.88, -1.28] | -5 | 22↔2 p=3.59e-05 | 8.4٪ |\n| confirm+resync | 19/666 = 2.85٪ | [1.04, 4.81] | 2/51 = 3.9٪ | -3.3 [-5.18, -1.63] | -5 | 22↔0 p=4.77e-07 | 8.4٪ |\n| rescue+resync | 43/666 = 6.46٪ | [3.68, 9.17] | 7/51 = 13.7٪ | +0.3 [0.0, 0.78] | +0 | 0↔2 p=0.5 | 10.08٪ |\n| confirm+rescue+resync | 21/666 = 3.15٪ | [1.38, 5.08] | 2/51 = 3.9٪ | -3.0 [-4.88, -1.28] | -5 | 22↔2 p=3.59e-05 | 8.4٪ |\n- الكشفُ بحسب وسم الخطأ (أساس/تأكيد): Letters 5/37→2 · Tajweed 2/17→0 · Tashkeel 0/4→0 · Wording 0/4→0\n- مئيناتُ الدرجة القسريّة: سليم {'0.005': -29.953, '0.05': -20.571, '0.1': -16.517, '0.25': -0.622, '0.5': -0.002} · موسوم {'0.005': -29.05, '0.05': -22.092, '0.1': -15.992, '0.25': -8.393, '0.5': -2.771}\n- معيارُ شحن التأكيد: confirm ❌ · confirm+resync ❌\n\n#### tiny · حرٌّ `en` · قسريّ `ar` · BPE 197/197 · τ_resync=-32.91 · AUC (موسوم/سليم) 0.655 · داخل SUBSTITUTED 0.7587 (12 صادق/77 كاذب)\n| الذراع | الاتّهام الكاذب | عنقودي 95٪ | الكشف | Δاتّهام [95٪] | Δكشف | McNemar اتّهام | بعيد (موجب) |\n|---|---|---|---|---|---|---|---|\n| baseline | 94/666 = 14.11٪ | [9.8, 17.94] | 13/51 = 25.5٪ | — | — | — | 12.61٪ |\n| confirm | 24/666 = 3.6٪ | [2.21, 5.08] | 3/51 = 5.9٪ | -10.51 [-13.61, -7.23] | -10 | 70↔0 p=1.69e-21 | 6.72٪ |\n| rescue | 95/666 = 14.26٪ | [10.06, 18.08] | 13/51 = 25.5٪ | +0.15 [0.0, 0.53] | +0 | 0↔1 p=1.0 | 12.61٪ |\n| confirm+rescue | 25/666 = 3.75٪ | [2.37, 5.15] | 3/51 = 5.9٪ | -10.36 [-13.57, -6.95] | -10 | 70↔1 p=6.1e-20 | 6.72٪ |\n| confirm+resync | 24/666 = 3.6٪ | [2.21, 5.08] | 3/51 = 5.9٪ | -10.51 [-13.61, -7.23] | -10 | 70↔0 p=1.69e-21 | 6.72٪ |\n| rescue+resync | 95/666 = 14.26٪ | [10.06, 18.08] | 13/51 = 25.5٪ | +0.15 [0.0, 0.53] | +0 | 0↔1 p=1.0 | 12.61٪ |\n| confirm+rescue+resync | 25/666 = 3.75٪ | [2.37, 5.15] | 3/51 = 5.9٪ | -10.36 [-13.57, -6.95] | -10 | 70↔1 p=6.1e-20 | 6.72٪ |\n- الكشفُ بحسب وسم الخطأ (أساس/تأكيد): Letters 8/37→3 · Tajweed 6/17→0 · Tashkeel 0/4→0 · Wording 0/4→0\n- مئيناتُ الدرجة القسريّة: سليم {'0.005': -32.908, '0.05': -19.125, '0.1': -14.104, '0.25': -3.049, '0.5': -0.198} · موسوم {'0.005': -36.104, '0.05': -29.698, '0.1': -14.88, '0.25': -9.226, '0.5': -3.855}\n- whisper-cli q8 مقابل المخزَّن D-735 (HF): Δاتّهام +2.55 [0.65, 5.04] (McNemar 8↔25 p=0.00455) · Δكشف +0\n- معيارُ شحن التأكيد: confirm ❌ · confirm+resync ❌\n\n#### tiny_v2 · حرٌّ `en` · قسريّ `ar` · BPE 195/197 · τ_resync=-28.17 · AUC (موسوم/سليم) 0.7259 · داخل SUBSTITUTED 0.6205 (16 صادق/98 كاذب)\n| الذراع | الاتّهام الكاذب | عنقودي 95٪ | الكشف | Δاتّهام [95٪] | Δكشف | McNemar اتّهام | بعيد (موجب) |\n|---|---|---|---|---|---|---|---|\n| baseline | 126/666 = 18.92٪ | [13.36, 24.41] | 18/51 = 35.3٪ | — | — | — | 17.65٪ |\n| confirm | 46/666 = 6.91٪ | [3.59, 10.28] | 8/51 = 15.7٪ | -12.01 [-15.93, -8.63] | -10 | 80↔0 p=1.65e-24 | 9.24٪ |\n| rescue | 127/666 = 19.07٪ | [13.36, 24.62] | 18/51 = 35.3٪ | +0.15 [0.0, 0.45] | +0 | 0↔1 p=1.0 | 17.65٪ |\n| confirm+rescue | 47/666 = 7.06٪ | [3.61, 10.53] | 8/51 = 15.7٪ | -11.86 [-15.73, -8.6] | -10 | 80↔1 p=6.78e-23 | 9.24٪ |\n| confirm+resync | 46/666 = 6.91٪ | [3.59, 10.28] | 8/51 = 15.7٪ | -12.01 [-15.93, -8.63] | -10 | 80↔0 p=1.65e-24 | 10.08٪ |\n| rescue+resync | 127/666 = 19.07٪ | [13.36, 24.62] | 18/51 = 35.3٪ | +0.15 [0.0, 0.45] | +0 | 0↔1 p=1.0 | 17.65٪ |\n| confirm+rescue+resync | 47/666 = 7.06٪ | [3.61, 10.53] | 8/51 = 15.7٪ | -11.86 [-15.73, -8.6] | -10 | 80↔1 p=6.78e-23 | 10.08٪ |\n- الكشفُ بحسب وسم الخطأ (أساس/تأكيد): Letters 12/37→6 · Tajweed 9/17→3 · Tashkeel 0/4→0 · Wording 0/4→0\n- مئيناتُ الدرجة القسريّة: سليم {'0.005': -28.173, '0.05': -13.043, '0.1': -9.688, '0.25': -4.945, '0.5': -1.153} · موسوم {'0.005': -19.275, '0.05': -17.648, '0.1': -13.576, '0.25': -10.264, '0.5': -5.39}\n- معيارُ شحن التأكيد: confirm ❌ · confirm+resync ❌\n\n⛔ قياسٌ لا شحن: «الإنقاذ» استكشافيّ ويبقى مطفأً ما لم يجتز ≤0.5٪ لكلّ رواية على g3r/g4n والحقن."
 }
