@@ -166,8 +166,11 @@ jobs:
           git config user.email "ci@users.noreply.github.com"
           git add "$JOB_OUT" results/LATEST_job.md
           git commit -q -m "results(agent-job): الشوط ${{ github.run_id }}" || { echo "لا تغيير"; exit 0; }
+          # ⛔ النتيجةُ تعود إلى **الفرع الذي اشتعل عليه الشوط** لا إلى main: كان الشوطُ على فرعٍ يدمج main فيه
+          #    ثمّ يدفع HEAD:main ⇒ ينقل الفرعَ كلَّه إلى main بلا مراجعة. (‏وعلى main يبقى السلوكُ كما هو.)
+          B="${GITHUB_REF_NAME:-main}"
           for i in 1 2 3; do
-            git fetch -q origin main && git merge -q --no-edit origin/main && git push -q origin HEAD:main && { echo "✅ أُودع $JOB_OUT"; exit 0; }
+            git fetch -q origin "$B" && git merge -q --no-edit "origin/$B" && git push -q origin "HEAD:$B" && { echo "✅ أُودع $JOB_OUT في $B"; exit 0; }
             echo "↻ محاولةٌ $i"; sleep 5
           done
           echo "⛔ تعذّر الدفع"
