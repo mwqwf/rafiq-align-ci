@@ -1,0 +1,51 @@
+{
+ "candidates": {
+  "tiny-q50": {
+   "complete": true,
+   "vs_shipped": {
+    "better": [],
+    "worse": [
+     "g3r:noisy اتّهام +1.86"
+    ]
+   },
+   "vs_base": {
+    "worse": [
+     "g3r:noisy اتّهام +1.86"
+    ]
+   },
+   "pass": false,
+   "timing": {
+    "mb": 29.9,
+    "lang": "en",
+    "audio_sec": 408.2,
+    "rtf_t4": 0.049,
+    "peak_rss_mb_t4": 201.2,
+    "rtf_t2": 0.054,
+    "peak_rss_mb_t2": 199.6
+   }
+  },
+  "tiny-q51": {
+   "complete": true,
+   "vs_shipped": {
+    "better": [],
+    "worse": []
+   },
+   "vs_base": {
+    "worse": []
+   },
+   "pass": false,
+   "timing": {
+    "mb": 32.2,
+    "lang": "en",
+    "audio_sec": 408.2,
+    "rtf_t4": 0.047,
+    "peak_rss_mb_t4": 202.5,
+    "rtf_t2": 0.052,
+    "peak_rss_mb_t2": 203.5
+   }
+  }
+ },
+ "pick": null,
+ "baseline_mb": null,
+ "shipped_mb": 43.5
+}
