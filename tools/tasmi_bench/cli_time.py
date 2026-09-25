@@ -78,6 +78,11 @@ ARMS = {
     #    **ثلاثةَ مقاطعَ** — وهو عددُ مقاطع `chunk10q` نفسُه ⇒ **يُعزَل موضعُ القطع عن
     #    عددِ المقاطع عزلاً تامّاً**، وهو المُربِكُ الذي أعلنتُه في D-534 ولم يُعزَل.
     "chunk74": ["-bs", "1", "-et", "2.40"],
+    # ⚡ **ذراعُ تقليص سياق الصوت** (‏2026-09-25 · أمرُ المالك: «ما يغني عن تطوير النماذج»):
+    #    `chunk10q` حرفاً — رايات المشحون والقطعُ عند أهدأ نقطة — **والفرقُ الوحيدُ** `-ac`
+    #    لكلّ مقطعٍ بقدر طوله ([audio_ctx_for]) بدلَ 1500 (‏ثلاثون ثانية) ⇒ المشفِّرُ يعمل على
+    #    ما في المقطع لا على حشوٍ صامت. ⇒ `chunk10q` مقابل `chunk10qac` يقيس **السرعةَ والاتّهامَ معاً**.
+    "chunk10qac": ["-bs", "1", "-et", "2.40"],
 }
 
 # 🧩 **أذرعٌ تُفكُّ الملفَّ قِطَعاً لا دفعةً** (‏أُضيفت 2026-09-15 · D-530): القيمةُ **ثوانيَ
@@ -89,10 +94,25 @@ ARMS = {
 #    ⚠️ **وحدُّها يُقال:** القطعُ هنا **عند حدودٍ ثابتةٍ** لا عند أهدأ نقطةٍ كما يفعل التطبيق
 #    (`quietestCut`) ⇒ **ما تعطيه هذه الذراعُ أرضيّةٌ لا سقفٌ**: التطبيقُ يقطع أرحمَ منها.
 ARM_CHUNK = {"chunk10": 10, "chunk6": 6, "chunk10g": 10, "chunk6g": 6, "chunk10q": 10,
-             "chunk74": 7.4}
+             "chunk74": 7.4, "chunk10qac": 10}
 
 # 🔇 **وأذرعٌ تقطع عند أهدأ نقطةٍ** (‏مرآةُ `capLongGroups`) — تحتاج قراءةَ الصوت.
-ARM_QUIETCUT = {"chunk10q"}
+ARM_QUIETCUT = {"chunk10q", "chunk10qac"}
+
+# ⚡ **وأذرعٌ تُقلّص سياقَ المشفِّر لكلّ مقطع** — `-ac` بقدر المقطع لا ثلاثين ثانية.
+ARM_AUDIOCTX = {"chunk10qac"}
+# المشفِّرُ 1500 موضعاً لثلاثين ثانية ⇒ خمسون موضعاً للثانية (‏20م.ث للموضع).
+AC_FULL = 1500
+AC_MS = 20
+# ⛔ **هامشٌ لا حدٌّ مطابق**: موضعٌ ناقصٌ واحدٌ يقطع آخرَ الكلمة. 64 موضعاً = 1.28ث.
+AC_MARGIN = 64
+
+
+def audio_ctx_for(len_ms):
+    """مواضعُ المشفِّر لمقطعٍ طولُه [len_ms] — بهامشٍ، ومضاعفٌ لـ64، ولا يتجاوز الكامل."""
+    need = -(-int(len_ms) // AC_MS) + AC_MARGIN
+    need = -(-need // 64) * 64
+    return min(AC_FULL, need)
 
 # 🛡️ **وأذرعٌ تُطبّق حارسَ الذيل بعد كلّ مقطع** — مرآةُ `tailGuard` بسماحه المشحون.
 ARM_TAILGUARD = {"chunk10g", "chunk6g"}
@@ -110,6 +130,7 @@ ARM_LABEL = {
     "chunk6g": "🧩🛡️ قِطَعُ 6ث + حارسُ الذيل",
     "chunk10q": "🧩🔇 قِطَعُ 10ث عند أهدأ نقطة",
     "chunk74": "🧩🎯 قِطَعُ 7.4ث (عددُ المقاطع نفسُه)",
+    "chunk10qac": "🧩🔇⚡ قِطَعُ 10ث عند أهدأ نقطة + سياقٌ بقدر المقطع",
 }
 _NUM = re.compile(r"([0-9]+\.[0-9]+)")
 
@@ -552,9 +573,10 @@ def run_one(cli, model, wav, arm, threads, lang, dur_sec=None):
         else:
             spans = chunk_spans(dur_sec, chunk)
         for off_ms, len_ms in spans:
-            s1, n1, t1, sg = _run_cli(cli, model, wav,
-                                      ARMS[arm] + ["-ot", str(off_ms), "-d", str(len_ms)],
-                                      threads, lang)
+            fl = ARMS[arm] + ["-ot", str(off_ms), "-d", str(len_ms)]
+            if arm in ARM_AUDIOCTX:
+                fl += ["-ac", str(audio_ctx_for(len_ms))]
+            s1, n1, t1, sg = _run_cli(cli, model, wav, fl, threads, lang)
             sec += s1
             info["segs"] += len(sg)
             info["stamped"] += sum(1 for st, _ in sg if st is not None)
@@ -1061,6 +1083,17 @@ def _selftest():
     for _n in ARM_QUIETCUT:
         ok(_n in ARM_CHUNK and _n in ARMS and _n in ARM_LABEL, f"⛔ ذراعٌ ناقصةُ التسجيل: {_n}")
         ok(ARMS[_n] == ARMS["greedy"], f"⛔ {_n} رايات المشحون حرفاً")
+
+    # ⚡ ذراعُ السياق: رايات المشحون حرفاً، والفرقُ `-ac` وحدَه
+    for _n in ARM_AUDIOCTX:
+        ok(_n in ARM_QUIETCUT and _n in ARM_CHUNK and _n in ARM_LABEL, f"⛔ ذراعٌ ناقصةُ التسجيل: {_n}")
+        ok(ARMS[_n] == ARMS["chunk10q"] and ARM_CHUNK[_n] == ARM_CHUNK["chunk10q"],
+           f"⛔ {_n} هي chunk10q حرفاً إلا `-ac`")
+    ok(audio_ctx_for(10000) == 576, "⚡ عشرُ ثوانٍ = 500 موضعٍ + هامش ⇒ 576")
+    ok(audio_ctx_for(10000) * AC_MS >= 10000 + AC_MARGIN * AC_MS,
+       "⛔ الهامشُ لا يُؤكل: السياقُ يغطّي المقطعَ ومعه 1.28ث")
+    ok(audio_ctx_for(30000) == AC_FULL and audio_ctx_for(60000) == AC_FULL, "⚡ لا يتجاوز الكامل")
+    ok(audio_ctx_for(1) == 128, "⚡ أقصرُ مقطعٍ يبقى بهامشه")
 
     # ───────── 🚪 أبوابُ الاتّهام (D-537) — والضابطُ أنّ المفتاحَ **يوجد** ─────────
     ok(DOORS[0][1] == {}, "⛔ البابُ الأوّلُ خطُّ الأساس: لا معلَمَ فيه البتّة")
