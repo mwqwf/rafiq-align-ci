@@ -1,0 +1,203 @@
+# 🎚️ **ثقةُ الرموز من التفريغ الحرّ (RafiqConf) على المتعلّمين وg3r — قياسٌ فقط، لا يُشحن ولا يكتب على R2.**
+#
+# الزناد: دفعُ `ops/conf/request.json` إلى الفرع (الجلسةُ لا تملك workflow_dispatch). وحذفُه بعد الشوط لا يُعيده
+# (‏خطوةُ `req` تخرج بـgo=false حين يغيب الملفّ).
+# الخطوات: بناءُ whisper-cli @ c4ac001 (محمولٌ AVX2) + مادّةُ g3r من المصادر العامّة ⇐ لكلّ (مجموعة × نموذج): تفريغٌ بمرآة
+# المحرك (`local_whisper` · greedy · -bo 1 -bs 1) مع `-ojf` لاستخراج p لكلّ رمز ⇐ `conf_probe.py analyze` بمسطرة
+# learner_gate وقاعدة v2_gate ⇐ إيداعُ results/conf_probe.{md,json} والفرضيّاتِ مضغوطةً على الفرع نفسِه.
+# 💰 المستودعُ عامّ · ubuntu-latest القياسيّ · timeout لكلّ مهمّة · لا R2 · لا كاشَ جديد (استعادةٌ فقط) · Artifacts ليومٍ واحد.
+name: conf-probe
+on:
+  push:
+    branches: ["claude/project-thread-kwr0kl"]
+    paths: ["ops/conf/request.json"]
+
+concurrency:
+  group: conf-probe
+  cancel-in-progress: false
+
+permissions:
+  contents: write
+
+env:
+  PYTHONIOENCODING: utf-8
+  WCPP_SHA: c4ac0012a8f5a2082dfca6aad4ddfd8b2c02b337
+
+jobs:
+  prep:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    outputs:
+      go: ${{ steps.req.outputs.go }}
+    steps:
+      - uses: actions/checkout@v4
+      - id: req
+        run: |
+          if [ -f ops/conf/request.json ]; then echo "go=true" >> "$GITHUB_OUTPUT"; cat ops/conf/request.json; else echo "go=false" >> "$GITHUB_OUTPUT"; echo "لا طلب ⇒ لا شيء"; fi
+      - uses: actions/setup-python@v5
+        if: steps.req.outputs.go == 'true'
+        with:
+          python-version: "3.11"
+      - name: deps
+        if: steps.req.outputs.go == 'true'
+        run: |
+          sudo apt-get update -qq && sudo apt-get install -y -qq ffmpeg cmake build-essential > /dev/null
+          pip install -q numpy soundfile scipy regex
+      - name: 🧪 اختبارُ الأداة الذاتيّ
+        if: steps.req.outputs.go == 'true'
+        run: cd tools/tasmi_bench && python conf_probe.py selftest
+      - name: whisper.cpp @ c4ac001 (محمولٌ AVX2)
+        if: steps.req.outputs.go == 'true'
+        run: |
+          set -eo pipefail
+          mkdir -p /tmp/wcpp && git -C /tmp/wcpp init -q
+          git -C /tmp/wcpp fetch -q --depth 1 https://github.com/ggml-org/whisper.cpp "$WCPP_SHA"
+          git -C /tmp/wcpp checkout -q FETCH_HEAD
+          cmake -S /tmp/wcpp -B /tmp/wcpp/build -DCMAKE_BUILD_TYPE=Release -DBUILD_SHARED_LIBS=OFF -DWHISPER_BUILD_TESTS=OFF \
+            -DGGML_NATIVE=OFF -DGGML_AVX=ON -DGGML_AVX2=ON -DGGML_FMA=ON -DGGML_F16C=ON > /dev/null
+          cmake --build /tmp/wcpp/build --config Release -j"$(nproc)" --target whisper-cli > /dev/null
+          mkdir -p bin && cp /tmp/wcpp/build/bin/whisper-cli bin/ && bin/whisper-cli --help 2>&1 | grep -E "output-json-full|-ojf" | head -2
+      - uses: actions/upload-artifact@v4
+        if: steps.req.outputs.go == 'true'
+        with:
+          name: cp-bin
+          path: bin/
+          retention-days: 1
+      - name: مادّةُ g3r (استعادةُ كاش arm-time إن وُجد — لا حفظ)
+        id: inj
+        if: steps.req.outputs.go == 'true'
+        uses: actions/cache/restore@v4
+        with:
+          path: tools/tasmi_bench/work/inj.tar
+          key: tasmi-inj-v1-${{ hashFiles('tools/tasmi_bench/inject_plan_riwaya.json', 'tools/tasmi_bench/inject_riwaya_local.py') }}
+      - name: بناءُ g3r من المصادر العامّة إن غاب الكاش
+        if: steps.req.outputs.go == 'true' && steps.inj.outputs.cache-hit != 'true'
+        run: |
+          set -eo pipefail
+          cd tools/tasmi_bench
+          python inject_riwaya_local.py
+          tar -cf work/inj.tar -C work g3r
+      - run: |
+          set -eo pipefail
+          cd tools/tasmi_bench/work && mkdir -p chk && tar -xf inj.tar -C chk
+          echo "نظيف $(ls chk/g3r/clean | wc -l) · مضجَّج $(ls chk/g3r/noisy | wc -l)"
+          [ "$(ls chk/g3r/noisy | wc -l)" -ge 100 ] || { echo "⛔ مادّةُ الحقن ناقصة"; exit 1; }
+        if: steps.req.outputs.go == 'true'
+      - uses: actions/upload-artifact@v4
+        if: steps.req.outputs.go == 'true'
+        with:
+          name: cp-g3r
+          path: tools/tasmi_bench/work/inj.tar
+          retention-days: 1
+
+  probe:
+    needs: prep
+    if: needs.prep.outputs.go == 'true'
+    runs-on: ubuntu-latest
+    timeout-minutes: 100
+    strategy:
+      fail-fast: false
+      matrix:
+        set: ["learners", "g3r:clean", "g3r:noisy"]
+        model: ["tiny", "base_q5_1"]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: deps
+        run: |
+          sudo apt-get update -qq && sudo apt-get install -y -qq ffmpeg > /dev/null
+          pip install -q numpy soundfile scipy regex
+      - uses: actions/download-artifact@v4
+        with:
+          name: cp-bin
+          path: bin
+      - name: learner audio (استعادةُ كاش forced-judge)
+        id: ac
+        if: matrix.set == 'learners'
+        uses: actions/cache/restore@v4
+        with:
+          path: work/learner_audio
+          key: learner-audio-sobolev-v1-${{ hashFiles('tools/tasmi_bench/learner_gold_v1.jsonl') }}
+      - name: ⬇️ جلبُ صوت المتعلّمين إن غاب الكاش
+        if: matrix.set == 'learners' && steps.ac.outputs.cache-hit != 'true'
+        run: python tools/tasmi_bench/forced_judge.py fetch --out work/learner_audio
+      - uses: actions/download-artifact@v4
+        if: matrix.set != 'learners'
+        with:
+          name: cp-g3r
+          path: tools/tasmi_bench/work
+      - name: ⬇️ النموذج (بالبصمة)
+        run: |
+          set -eo pipefail
+          chmod +x bin/*
+          [ "${{ matrix.set }}" = "learners" ] || (cd tools/tasmi_bench/work && tar -xf inj.tar)
+          python3 - <<'PY'
+          import hashlib, sys, urllib.request
+          sys.path.insert(0, "tools/tasmi_bench")
+          import forced_judge as fj
+          s = fj.MODELS["${{ matrix.model }}"]
+          b = urllib.request.urlopen(urllib.request.Request(s["url"], headers={"User-Agent": "Mozilla/5.0"}), timeout=300).read()
+          h = hashlib.sha256(b).hexdigest()
+          if h != s["sha256"]:
+              sys.exit(f"⛔ بصمةٌ مختلفة {h}")
+          open("model.bin", "wb").write(b); print("✅", len(b), h[:12])
+          PY
+      - name: 🎚️ تفريغٌ بمرآة المحرك + p لكلّ رمز
+        run: |
+          set -eo pipefail
+          mkdir -p work/raw
+          T=$(echo "${{ matrix.set }}" | tr ':' '-')
+          python tools/tasmi_bench/conf_probe.py run --set "${{ matrix.set }}" --model ${{ matrix.model }} \
+            --model-path "$PWD/model.bin" --cli "$PWD/bin/whisper-cli" --audio "$PWD/work/learner_audio" \
+            --threads "$(nproc)" --out "work/raw/cp_${T}_${{ matrix.model }}.json" 2>&1 | tail -30
+      - uses: actions/upload-artifact@v4
+        with:
+          name: cp-raw-${{ strategy.job-index }}
+          path: work/raw/*.json
+          retention-days: 1
+
+  report:
+    needs: [prep, probe]
+    if: always() && needs.prep.outputs.go == 'true'
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - run: pip install -q numpy soundfile regex
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: cp-raw-*
+          path: work/raw
+          merge-multiple: true
+        continue-on-error: true
+      - name: 📊 التحليل
+        run: |
+          set -o pipefail
+          mkdir -p results/conf_raw
+          ls -l work/raw || true
+          if ls work/raw/cp_*.json > /dev/null 2>&1; then
+            python tools/tasmi_bench/conf_probe.py analyze --raw work/raw/cp_*.json --out results/conf_probe.json \
+              --md results/conf_probe.md 2>&1 | tail -80 || echo "⛔ فشل التحليل" >> results/conf_probe.md
+            for f in work/raw/cp_*.json; do gzip -9 -c "$f" > "results/conf_raw/$(basename "$f").gz"; done
+          else
+            echo "⛔ لا مخرجات — probe=${{ needs.probe.result }}" > results/conf_probe.md
+          fi
+          echo "- التشغيل: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }} · probe=${{ needs.probe.result }} · الإيداع ${GITHUB_SHA::8}" >> results/conf_probe.md
+          cat results/conf_probe.md >> "$GITHUB_STEP_SUMMARY"
+      - name: إيداعُ النتيجة على الفرع نفسِه
+        run: |
+          git config user.name "conf-probe-bot"
+          git config user.email "actions@users.noreply.github.com"
+          git add results/conf_probe.md results/conf_raw
+          [ -f results/conf_probe.json ] && git add results/conf_probe.json
+          git commit -q -m "نتائج ثقة الرموز RafiqConf (تشغيل ${{ github.run_id }})" -- results/ || exit 0
+          for i in 1 2 3 4; do
+            git pull -q --no-rebase --no-edit origin "${GITHUB_REF_NAME}" && git push -q origin "HEAD:${GITHUB_REF_NAME}" && exit 0
+            sleep $((2 ** i))
+          done
+          exit 1
