@@ -86,5 +86,41 @@ class PromoteBudgetTests(unittest.TestCase):
         run.assert_not_called()
 
 
+
+class ExplainTests(unittest.TestCase):
+    def test_reports_older_than_live_and_gain(self):
+        import datetime as dt
+        import io
+        from contextlib import redirect_stdout
+
+        class Pag:
+            def paginate(self, **_kw):
+                return [{"Contents": [
+                    {"Key": "timings-staging/hafs/x.old.jz", "LastModified": dt.datetime(2026, 9, 25, 1)},
+                    {"Key": "timings-staging/hafs/x.new.jz", "LastModified": dt.datetime(2026, 9, 25, 3)}]}]
+
+        class Cl:
+            def head_object(self, **_kw):
+                return {"LastModified": dt.datetime(2026, 9, 25, 2)}
+
+            def get_paginator(self, _n):
+                return Pag()
+
+        sizes = {"timings/hafs/x.jz": 10, "timings-staging/hafs/x.old.jz": 12,
+                 "timings-staging/hafs/x.new.jz": 10}
+        buf = io.StringIO()
+        with mock.patch.object(loop, "s3", return_value=(Cl(), "b")), \
+             mock.patch.object(loop, "fetch_index",
+                               side_effect=lambda k: ({"entries": [0] * sizes[k]}, None)), \
+             mock.patch.object(loop, "_salt_count", return_value=4), redirect_stdout(buf):
+            loop.cmd_explain(types.SimpleNamespace(who="hafs/x"))
+        out = buf.getvalue().splitlines()
+        old = next(l for l in out if "x.old" in l)
+        new = next(l for l in out if "x.new" in l)
+        self.assertIn("أقدمُ من المنشور", old)
+        self.assertIn("زيادة 2", old)
+        self.assertIn("لا زيادة", new)
+
+
 if __name__ == "__main__":
     unittest.main()

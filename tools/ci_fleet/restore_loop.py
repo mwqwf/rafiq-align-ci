@@ -759,13 +759,56 @@ def cmd_promote(a):
             maybe_diagnose(r["key"], done.stdout, fired)
 
 
+def cmd_explain(a):
+    """لماذا لا يظهر قارئٌ في مرشّحي الترقية؟ قراءةٌ فقط — لا يكتب ولا يُطلق.
+
+    ⭐ (2026-09-25) مرّ إحصاءُ a_alhazmi بعد إصلاح نافذة D ثمّ غاب عن جولة
+    الترقية كلّها بلا سطرٍ واحد، ومثلُه khan وsoufi_sousi وh_saleh. والمصفاةُ
+    في `_staged_improvements` صامتةٌ عمّا تُسقطه، فهذا يطبع لكلّ بصمةٍ مسرحيّة
+    زمنَها وزمنَ المنشور والزيادةَ، وعلّةَ الإسقاط إن سقطت."""
+    cl, b = s3()
+    live_key = f"timings/{a.who}.jz"
+    try:
+        live_mt = cl.head_object(Bucket=b, Key=live_key)["LastModified"]
+    except Exception as ex:                                    # noqa: BLE001
+        print(f"⛔ لا منشورَ في {live_key}: {ex}"); return
+    o, _ = fetch_index(live_key)
+    print(f"المنشور {live_key} · {live_mt:%Y-%m-%dT%H:%MZ} · مداخل {len(o['entries'])}")
+    riw, rid = a.who.split("/")
+    for pg in cl.get_paginator("list_objects_v2").paginate(
+            Bucket=b, Prefix=f"timings-staging/{riw}/{rid}."):
+        for ob in pg.get("Contents", []):
+            k = ob["Key"]
+            if not k.endswith(".jz"):
+                continue
+            why = []
+            if is_partial(k):
+                why.append("جزئيّ")
+            if ob["LastModified"] <= live_mt:
+                why.append("أقدمُ من المنشور")
+            try:
+                n, _ = fetch_index(k)
+                g = len(n["entries"]) - len(o["entries"])
+            except Exception as ex:                            # noqa: BLE001
+                g = None; why.append(f"تعذّرت قراءتُه: {ex}")
+            if g is not None and g <= 0:
+                why.append("لا زيادة")
+            print(f"  {k} · {ob['LastModified']:%Y-%m-%dT%H:%MZ} · زيادة {g} · "
+                  f"ملوح {_salt_count(k)} · {'يُسقَط: ' + '، '.join(why) if why else 'مرشَّح'}")
+
+
 def main():
     ap = argparse.ArgumentParser(description=__doc__)
     sub = ap.add_subparsers(dest="cmd", required=True)
     p1 = sub.add_parser("scan");    p1.add_argument("--limit", type=int, default=3)
     p2 = sub.add_parser("gate");    p2.add_argument("--limit", type=int, default=6)
     sub.add_parser("promote")
+    p4 = sub.add_parser("explain"); p4.add_argument("who", nargs="+", help="riwaya/reciter")
     a = ap.parse_args()
+    if a.cmd == "explain":
+        for w in a.who:
+            cmd_explain(argparse.Namespace(who=w))
+        return
     {"scan": cmd_scan, "gate": cmd_gate, "promote": cmd_promote}[a.cmd](a)
 
 
