@@ -298,3 +298,32 @@ class WindowPastEndOfFileTest(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class RangeConstantBitrateTest(unittest.TestCase):
+    """مسارُ النطاقات لا يُقبل على VBR بلا ترويسة Xing (‏إزاحةٌ خاطئةٌ تُبرّئ بصمت)."""
+
+    @staticmethod
+    def _frames(bitrate_indexes):
+        out = b""
+        for bi in bitrate_indexes:
+            hdr = bytes([0xFF, 0xFB, (bi << 4), 0x00])      # MPEG-1 L3 · 44.1ك.هز · بلا حشو
+            size = 144000 * R._BITRATES[bi] // 44100
+            out += hdr + b"\x00" * (size - 4)
+        return out
+
+    def test_constant_frames_are_accepted(self):
+        head = self._frames([9] * 20)
+        self.assertTrue(R._frames_constant(head, 0, 9, 0))
+
+    def test_headerless_vbr_is_rejected(self):
+        head = self._frames([9] * 5 + [10] + [9] * 14)
+        self.assertFalse(R._frames_constant(head, 0, 9, 0))
+
+    def test_lost_sync_is_rejected(self):
+        head = self._frames([9] * 5) + b"\x00" * 600 + self._frames([9] * 14)
+        self.assertFalse(R._frames_constant(head, 0, 9, 0))
+
+    def test_too_few_frames_is_not_proof(self):
+        head = self._frames([9] * 3)
+        self.assertFalse(R._frames_constant(head, 0, 9, 0))

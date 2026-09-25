@@ -693,13 +693,38 @@ def _mp3_cbr(url):
                     frame = head[off:off + 900]
                     if b"Xing" in frame or b"Info" in frame or b"VBRI" in frame:
                         break                # VBR ⇒ الزمن لا يُشتقّ من الإزاحة
-                    out = (off, _BITRATES[bi] * 1000)
+                    # ⛔ غيابُ ترويسة Xing/VBRI لا يثبت الثبات: قد يُرمَّز VBR بلا
+                    #    ترويسة (أُكّد VBR عند بعض قرّاء ورش وقالون 2026-09-25).
+                    #    ⇒ تُمشى الإطاراتُ التالية في الـ64ك.ب، ولا يُقبل النطاق
+                    #    إلا إن حملت كلُّها معدّلَ الإطار الأوّل وتردّدَه.
+                    if _frames_constant(head, off, bi, ri):
+                        out = (off, _BITRATES[bi] * 1000)
                 break
             off += 1
     except Exception:
         out = None
     _CBR_INFO[url] = out
     return out
+
+def _frames_constant(head, off, bi, ri, need=8):
+    """أتحمل الإطاراتُ المتتالية من `off` معدّلَ البتّ `bi` والتردّدَ `ri` نفسَيهما؟
+
+    MPEG-1 Layer III: طولُ الإطار = 144000×المعدّل÷التردّد + الحشو. يُمشى ما
+    تتّسع له البايتات؛ فإطارٌ واحدٌ بمعدّلٍ آخر أو تزامنٌ مفقود ⇒ ليس ثابتاً.
+    وأقلُّ من `need` إطاراتٍ مقروءة ⇒ لا حكمَ بالثبات (الرجوع إلى الكامل).
+    """
+    seen = 0
+    while off + 4 <= len(head):
+        h = head[off:off + 4]
+        if h[0] != 0xFF or (h[1] & 0xE0) != 0xE0:
+            return False
+        if ((h[1] >> 3) & 3) != 3 or ((h[1] >> 1) & 3) != 1:
+            return False
+        if ((h[2] >> 4) & 0xF) != bi or ((h[2] >> 2) & 3) != ri:
+            return False
+        seen += 1
+        off += 144000 * _BITRATES[bi] // _RATES[ri] + ((h[2] >> 1) & 1)
+    return seen >= need
 
 def _range_pcm(url, start_ms, end_ms):
     """يُرجع (موجة أحادية 16ك.هز, معدّل) من نطاقِ بايتاتٍ، أو None للرجوع للكامل."""
@@ -762,11 +787,17 @@ def _ffmpeg_window_pcm(mp3, start_ms, end_ms, ayah_end_ms=None, file_dur_ms=None
     expected = int(round(dur * rate / 1000))
     # ≤80م.ث، و≤10% من طول الطلب كي لا يبتلع السماحُ نافذةً قصيرة.
     tolerance = min(int(rate * 0.080), max(1, expected // 10))
+    # ⛔ `-ss` **بعد** `-i` (قصٌّ بعد الفكّ من أوّل الملفّ): القفزُ قبل `-i` في
+    #    MP3 متغيّر المعدّل (VBR) يقدّر الموضعَ من جدول Xing أو من متوسّط
+    #    المعدّل، فتُسمَع نافذةٌ غير المطلوبة بصمت. الفكُّ من الأوّل أبطأ لكنه
+    #    دقيقٌ بالعيّنة في CBR وVBR معاً، وهذا احتياطٌ نادر لا المسارُ الأوّل.
     cmd = ["ffmpeg", "-nostdin", "-v", "error",
-           "-ss", f"{start / 1000:.3f}", "-t", f"{dur / 1000:.3f}",
-           "-i", str(mp3), "-f", "f32le", "-ac", "1", "-ar", str(rate), "pipe:1"]
+           "-i", str(mp3), "-ss", f"{start / 1000:.3f}", "-t", f"{dur / 1000:.3f}",
+           "-f", "f32le", "-ac", "1", "-ar", str(rate), "pipe:1"]
     p = subprocess.run(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE,
-                       timeout=max(30, int(dur / 1000) + 20), check=False)
+                       timeout=max(30, int(dur / 1000) + 20,
+                                   int((start + dur) / 1000 / 50) + 30),
+                       check=False)
     why = p.stderr.decode("utf-8", errors="replace").strip()[-240:]
     if p.returncode != 0:
         raise RuntimeError(f"ffmpeg فشل ({p.returncode}): {why or 'بلا رسالة'}")
