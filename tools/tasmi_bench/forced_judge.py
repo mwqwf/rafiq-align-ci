@@ -569,6 +569,26 @@ def analyze(a) -> int:
                         f += x
             far[k] = {"acc": f, "words": n, "pct": round(100 * f / n, 2) if n else None}
         mm["far_accusation_positive_rows"] = far
+        # 🔎 تشخيص (لا يغيّر حكماً ولا عتبة): الكشفُ بحسب وسم الخطأ في الصفّ، ومئيناتُ الدرجات
+        tags = {}
+        for k in ("baseline", "confirm", "rescue"):
+            for r, ac in zip(rows, arms[k]):
+                if r["kind"] != "موجب":
+                    continue
+                for j, l in enumerate(r["labels"]):
+                    if l == "1":
+                        for t in (r.get("error_tags") or ["?"]):
+                            e = tags.setdefault(t, {}).setdefault(k, [0, 0])
+                            e[0] += ac[j]
+                            e[1] += 1
+        mm["det_by_error_tag"] = tags
+        negs = [s for r, ss in zip(rows, S["p1"]) if r["kind"] == "سالب" for s in ss if s is not None]
+        poss = [s for r, ss in zip(rows, S["p1"]) if r["kind"] == "موجب" for j, s in enumerate(ss)
+                if s is not None and r["labels"][j] == "1"]
+        mm["score_quantiles_p1"] = {nm: {str(q): round(_q(v, q), 3) for q in (0.005, 0.05, 0.1, 0.25, 0.5)} for nm, v
+                                    in (("clean", negs), ("marked", poss)) if v}
+        if m == "tiny":
+            mm["cli_vs_stored_D735"] = lg.paired(rows, lg.arm_accusations({"t": stored}, ["t"], None), base_acc, boot)
         # معيارُ الشحن للتأكيد (على المتعلّمين): أعلى مجال Δاتّهام ≤ 0 · الكشفُ لا يهبط أكثر من كلمتين · لا روايةَ تسوء
         for k in ("confirm", "confirm+resync"):
             v = mm["vs_baseline"][k]
@@ -588,6 +608,14 @@ def analyze(a) -> int:
                   f"{v['fa_mcnemar']['a_only']}↔{v['fa_mcnemar']['b_only']} p={v['fa_mcnemar']['p']}") if v else "— | — | —"
             md.append(f"| {k} | {s['fa']}/{s['clean_words']} = {s['fa_pct']}٪ | {s['fa_cluster95']} | {s['det']}/{s['marked_words']} = {s['det_pct']}٪ "
                       f"| {dl} | {far[k]['pct']}٪ |")
+        md.append("- الكشفُ بحسب وسم الخطأ (أساس/تأكيد): " + " · ".join(
+            f"{t} {v['baseline'][0]}/{v['baseline'][1]}→{v['confirm'][0]}" for t, v in sorted(tags.items())))
+        if "score_quantiles_p1" in mm:
+            md.append(f"- مئيناتُ الدرجة القسريّة: سليم {mm['score_quantiles_p1'].get('clean')} · موسوم {mm['score_quantiles_p1'].get('marked')}")
+        if "cli_vs_stored_D735" in mm:
+            c = mm["cli_vs_stored_D735"]
+            md.append(f"- whisper-cli q8 مقابل المخزَّن D-735 (HF): Δاتّهام {c['fa_delta_pts']:+} {c['fa_delta_cluster95']} "
+                      f"(McNemar {c['fa_mcnemar']['a_only']}↔{c['fa_mcnemar']['b_only']} p={c['fa_mcnemar']['p']}) · Δكشف {c['det_delta_words']:+}")
         md.append("- معيارُ شحن التأكيد: " + " · ".join(f"{k} {'✅' if v['pass'] else '❌'}" for k, v in mm["ship_criterion"].items()))
         md.append("")
     md.append("⛔ قياسٌ لا شحن: «الإنقاذ» استكشافيّ ويبقى مطفأً ما لم يجتز ≤0.5٪ لكلّ رواية على g3r/g4n والحقن.")
