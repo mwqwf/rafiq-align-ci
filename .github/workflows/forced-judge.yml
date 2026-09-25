@@ -1,0 +1,180 @@
+# ⚖️ **الحكمُ القسريّ على المتعلّمين — البند (3-أ) من خطّة الحَكَم · قياسٌ فقط، لا يُشحن ولا يكتب على R2.**
+#
+# الزناد: دفعُ `ops/forced/request.json` إلى الفرع المعيّن (الجلسةُ لا تملك workflow_dispatch: 403).
+#   {"reason": "…", "models": ["tiny", "tiny_v2", "base_q5_1"]}
+# الخطوات: اختبارُ تماثل مولّد الصور ⇐ جلبُ صوت المتعلّمين (sobolev210/quran-recitation-errors · MIT) من HF
+# على المشغّل مع actions/cache (≈65 م.ب، لا يُعاد نشرُه) ⇐ بناءُ whisper.cpp عند c4ac0012 + forced_judge.cpp ⇐
+# لكلّ نموذج: تفريغٌ حرٌّ بمرآة المحرك + تمريرتان قسريّتان (عاديّة · بإعادة المزامنة) ⇐ التحليلُ بمسطرة
+# learner_gate ⇐ إيداعُ results/forced_judge_learners.{json,md} الصغيرين على الفرع نفسِه.
+# 💰 المستودعُ عامّ · ubuntu-latest القياسيّ · timeout لكلّ مهمّة · لا R2 · Artifacts صغيرةٌ ليومٍ واحد.
+name: forced-judge
+on:
+  push:
+    branches: ["claude/project-thread-kwr0kl"]
+    paths: ["ops/forced/request.json"]
+
+concurrency:
+  group: forced-judge
+  cancel-in-progress: false
+
+permissions:
+  contents: write
+
+env:
+  PYTHONIOENCODING: utf-8
+  WCPP_SHA: c4ac0012a8f5a2082dfca6aad4ddfd8b2c02b337
+
+jobs:
+  prep:
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    outputs:
+      models: ${{ steps.req.outputs.models }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - run: pip install -q numpy soundfile regex
+      - id: req
+        run: |
+          python3 - <<'PY' >> "$GITHUB_OUTPUT"
+          import json, sys
+          r = json.load(open("ops/forced/request.json", encoding="utf-8"))
+          ok = {"tiny", "tiny_v2", "base_q5_1"}
+          m = r.get("models") or sorted(ok)
+          if not r.get("reason") or not set(m) <= ok or len(m) != len(set(m)):
+              sys.stderr.write("⛔ طلبٌ غير صالح: reason مطلوب والنماذج من %s بلا تكرار\n" % sorted(ok)); sys.exit(1)
+          print("models=" + json.dumps(m))
+          PY
+      - name: 🧪 تماثلُ مولّد الصور (كلُّ صورةٍ يحكم لها المسجّلُ CORRECT · المصحفُ كلّه)
+        run: |
+          mkdir -p work
+          python tools/tasmi_bench/forced_judge.py selftest --riwayat hafs qalun warsh --out work/selftest.json
+      - uses: actions/upload-artifact@v4
+        with:
+          name: fj-selftest
+          path: work/selftest.json
+          retention-days: 1
+      - name: learner audio cache
+        id: ac
+        uses: actions/cache@v4
+        with:
+          path: work/learner_audio
+          key: learner-audio-sobolev-v1-${{ hashFiles('tools/tasmi_bench/learner_gold_v1.jsonl') }}
+      - name: ⬇️ جلبُ صوت المتعلّمين (audio_offset==0 وحدها)
+        if: steps.ac.outputs.cache-hit != 'true'
+        run: python tools/tasmi_bench/forced_judge.py fetch --out work/learner_audio
+      - run: python3 -c "import json; m=json.load(open('work/learner_audio/manifest.json')); print(len(m['items']), 'مقطعاً · مفقود', len(m['missing']))"
+
+  judge:
+    needs: prep
+    runs-on: ubuntu-latest
+    timeout-minutes: 140
+    strategy:
+      fail-fast: false
+      matrix:
+        model: ${{ fromJSON(needs.prep.outputs.models) }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: deps
+        run: |
+          sudo apt-get update -qq && sudo apt-get install -y -qq ffmpeg cmake build-essential > /dev/null
+          pip install -q numpy soundfile regex
+      - uses: actions/cache/restore@v4
+        with:
+          path: work/learner_audio
+          key: learner-audio-sobolev-v1-${{ hashFiles('tools/tasmi_bench/learner_gold_v1.jsonl') }}
+          fail-on-cache-miss: true
+      - name: whisper.cpp @ c4ac0012 + forced_judge
+        run: |
+          set -eo pipefail
+          mkdir -p /tmp/wcpp && git -C /tmp/wcpp init -q
+          git -C /tmp/wcpp fetch -q --depth 1 https://github.com/ggml-org/whisper.cpp "$WCPP_SHA"
+          git -C /tmp/wcpp checkout -q FETCH_HEAD
+          cmake -S /tmp/wcpp -B /tmp/wcpp/build -DCMAKE_BUILD_TYPE=Release -DBUILD_SHARED_LIBS=OFF -DWHISPER_BUILD_TESTS=OFF > /dev/null
+          cmake --build /tmp/wcpp/build --config Release -j"$(nproc)" --target whisper-cli > /dev/null
+          mkdir -p bin && cp /tmp/wcpp/build/bin/whisper-cli bin/
+          W=/tmp/wcpp/build
+          g++ -O2 -std=c++17 tools/tasmi_bench/forced_judge.cpp -I/tmp/wcpp/include -I/tmp/wcpp/ggml/include \
+            $W/src/libwhisper.a $W/ggml/src/libggml.a $W/ggml/src/libggml-cpu.a $W/ggml/src/libggml-base.a \
+            -lpthread -fopenmp -o bin/forced_judge
+          ls -l bin
+      - name: ⬇️ النموذج (بالبصمة)
+        run: |
+          set -eo pipefail
+          python3 - <<'PY'
+          import hashlib, sys, urllib.request
+          sys.path.insert(0, "tools/tasmi_bench")
+          import forced_judge as fj
+          s = fj.MODELS["${{ matrix.model }}"]
+          req = urllib.request.Request(s["url"], headers={"User-Agent": "Mozilla/5.0"})
+          b = urllib.request.urlopen(req, timeout=300).read()
+          h = hashlib.sha256(b).hexdigest()
+          if h != s["sha256"]:
+              sys.exit(f"⛔ بصمةٌ مختلفة {h}")
+          open("model.bin", "wb").write(b); print("✅", len(b), h[:12])
+          PY
+      - name: ⚖️ حرٌّ + قسريّ + مزامنة
+        run: |
+          set -eo pipefail
+          mkdir -p work/raw
+          python tools/tasmi_bench/forced_judge.py run --model ${{ matrix.model }} --model-path model.bin \
+            --bin bin/forced_judge --cli bin/whisper-cli --audio work/learner_audio --threads "$(nproc)" \
+            --out work/raw/fj_raw_${{ matrix.model }}.json 2>&1 | tail -40
+      - uses: actions/upload-artifact@v4
+        with:
+          name: fj-raw-${{ matrix.model }}
+          path: work/raw/fj_raw_${{ matrix.model }}.json
+          retention-days: 1
+
+  report:
+    needs: [prep, judge]
+    if: always()
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - run: pip install -q numpy soundfile regex
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: fj-*
+          path: work/art
+          merge-multiple: true
+        continue-on-error: true
+      - name: 📊 التحليل بمسطرة learner_gate
+        run: |
+          set -o pipefail
+          mkdir -p results
+          ls -l work/art || true
+          RAWS=$(ls work/art/fj_raw_*.json 2>/dev/null || true)
+          if [ -n "$RAWS" ]; then
+            python tools/tasmi_bench/forced_judge.py analyze --raw $RAWS --out results/forced_judge_learners.json \
+              --md results/forced_judge_learners.md 2>&1 | tail -60 || echo "⛔ فشل التحليل" >> results/forced_judge_learners.md
+          else
+            echo "⛔ لا مخرجاتِ نموذج — prep=${{ needs.prep.result }} judge=${{ needs.judge.result }}" > results/forced_judge_learners.md
+          fi
+          {
+            echo ""
+            echo "- التشغيل: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }} · prep=${{ needs.prep.result }} · judge=${{ needs.judge.result }} · الإيداع ${GITHUB_SHA::8}"
+            [ -f work/art/selftest.json ] && echo "- تماثلُ المولّد: $(python3 -c "import json;d=json.load(open('work/art/selftest.json'));print(('✅' if d['ok'] else '❌'), d['words'], 'كلمةً فريدة ·', d['forms'], 'صورة · غيرُ CORRECT', d['not_correct'])")"
+          } >> results/forced_judge_learners.md
+          cat results/forced_judge_learners.md >> "$GITHUB_STEP_SUMMARY"
+      - name: إيداعُ النتيجة على الفرع نفسِه
+        run: |
+          git config user.name "forced-judge-bot"
+          git config user.email "actions@users.noreply.github.com"
+          git add results/forced_judge_learners.md
+          [ -f results/forced_judge_learners.json ] && git add results/forced_judge_learners.json
+          git commit -q -m "نتائج الحكم القسري على المتعلّمين (تشغيل ${{ github.run_id }})" -- results/ || exit 0
+          for i in 1 2 3 4; do
+            git pull -q --no-rebase --no-edit origin "${GITHUB_REF_NAME}" && git push -q origin "HEAD:${GITHUB_REF_NAME}" && exit 0
+            sleep $((2 ** i))
+          done
+          exit 1
