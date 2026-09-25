@@ -533,7 +533,21 @@ def is_partial(key: str) -> bool:
 
 
 def _staged_improvements():
-    """بصماتُ مسرحٍ لقارئٍ **منشور** مداخلُها أكثرُ من المنشور.
+    """بصماتُ مسرحٍ لقارئٍ **منشور** مداخلُها أكثرُ من المنشور — **كلُّها** لا أكبرُها.
+
+    تُرجع لكلّ قارئٍ كلَّ مرشّحيه المحسَّنين مرتّبين بالزيادة تنازلياً (‏والأحدثُ
+    عند التساوي)، والقرّاءُ مرتّبون بأكبر زيادة. واختيارُ واحدٍ للقارئ في الجولة
+    شأنُ `gate_picks` و`promote_groups` لا شأنُ هذه الدالّة.
+
+    ⛔ **العطبُ الذي غيّرها — مقيسٌ 2026-09-25** (‏`ops/out/0835b_gate.txt`
+    و`0835c_promote.txt`): كانت تُبقي للقارئ **أكبرَ مرشّحٍ وحده**. فمرشّحٌ قديمٌ
+    زيادتُه أكبر لأنّه يضمّ سوراً مبتورةً في المصدر (‏`akri_qalun.8b9fea7c`)
+    استوفى ملوحَه، ويردّه `promote.py` بحارس البتر في كلّ جولة، **ويُظلّل** مرشّحاً
+    أحدثَ سليماً أصغرَ زيادةً (‏`akri_qalun.655f19d5` +33): فلا تُبوّبه `gate`
+    (‏لأنّ المختارَ مستوفي الملوح) ولا تُرقّيه `promote` (‏لأنّها لا تراه). وقع
+    لخمسة قرّاء: akri_qalun · nufais · mohna · nasser_almajed · mukhtar_haj.
+    ⚖️ لا يمسّ حارساً: كلُّ مرشّحٍ يمرّ بالبوّابة والملوح الأربعة و`promote.py`
+    كما كان، وحارسُ الانكماش فيه يمنع الأصغرَ من النزول فوق أكبرَ منشور.
 
     ⛔ والجزئيُّ (`partialNNN`) يُستبعد هنا: يُنفق البوّابةَ ويُظلّل الكامل."""
     cl, b = s3()
@@ -571,20 +585,51 @@ def _staged_improvements():
             o, _ = fetch_index(live[who])
         except Exception:                                      # noqa: BLE001
             continue
-        best = None
+        mine = []
         for k in sorted(ks, key=lambda x: mt[x], reverse=True):
             try:
                 n, _ = fetch_index(k)
             except Exception:                                  # noqa: BLE001
                 continue
             g = len(n["entries"]) - len(o["entries"])
-            if g > 0 and (best is None or g > best["gain"]):
-                best = {"key": k, "live": live[who], "gain": g,
-                        "riwaya": who[0], "reciter": who[1]}
-        if best:
-            out.append(best)
-    out.sort(key=lambda x: -x["gain"])
-    return out
+            if g > 0:
+                mine.append({"key": k, "live": live[who], "gain": g,
+                             "riwaya": who[0], "reciter": who[1]})
+        # الترتيبُ مستقرّ: الأحدثُ أوّلاً عند تساوي الزيادة كما كان.
+        mine.sort(key=lambda x: -x["gain"])
+        out.extend(mine)
+    return _grouped_by_best(out)
+
+
+def _who(r) -> tuple:
+    """هويّةُ القارئ من سطر مرشّح (‏الرواية والقارئ؛ ويُشتقّان من المفتاح إن غابا)."""
+    p = r["key"].split("/")
+    return (r.get("riwaya") or (p[1] if len(p) > 2 else ""),
+            r.get("reciter") or p[-1].split(".")[0])
+
+
+def _grouped_by_best(rows) -> list:
+    """يرتّب المرشّحين: القرّاءُ بأكبر زيادةٍ لكلٍّ منهم، ومرشّحو القارئ متجاورون
+    بالزيادة تنازلياً. الترتيبُ مستقرّ فلا يتبدّل ما تساوى."""
+    top = {}
+    for r in rows:
+        w = _who(r)
+        top[w] = max(top.get(w, r["gain"]), r["gain"])
+    first = {}
+    for i, r in enumerate(rows):
+        first.setdefault(_who(r), i)
+    return sorted(rows, key=lambda r: (-top[_who(r)], first[_who(r)], -r["gain"]))
+
+
+def promote_groups(imp, salt_count) -> list[list[dict]]:
+    """مرشّحو الترقية مجموعين بالقارئ: كلُّ مجموعةٍ ما استوفى ملوحَه الأربعة
+    مرتّباً بالزيادة تنازلياً، والمجموعاتُ بأكبر زيادة. يُجرَّب الأوّلُ فإن ردّه
+    الحارسُ جُرّب التالي، ولا يُرقّى للقارئ أكثرُ من واحد في الجولة."""
+    groups: dict = {}
+    for r in _grouped_by_best(imp):
+        if salt_count(r["key"]) >= 4:
+            groups.setdefault(_who(r), []).append(r)
+    return list(groups.values())
 
 
 _AUDIO_KEYS: list | None = None
@@ -682,19 +727,35 @@ def census_keys(improvements, batch, busy, salt_count, due) -> list[str]:
     return out
 
 
+def gate_picks(imp, salts, busy_s, struct_fatal):
+    """مَن يُبوَّب في هذه الجولة: **واحدٌ لكلّ قارئ** على الأكثر، هو أكبرُ مرشّحيه
+    زيادةً ممّن نقصت ملوحُه عن أربعة ولا يُحاذى الآن ونجا من الفحص البنيويّ.
+    ⛔ لا يُفحص بنيويّاً ولا يُبوَّب ما استوفى ملوحَه، ولا يُطلق للقارئ بوّابتان.
+    تُرجع (‏المختارين بترتيب الزيادة · المردودين بنيويّاً مع علّتهم)."""
+    picks, bad_rows, done = [], [], set()
+    for r in _grouped_by_best(imp):
+        w = _who(r)
+        if w in done or salts.get(r["key"], 0) >= 4 or r["key"] in busy_s:
+            continue
+        bad = struct_fatal(r["key"])
+        if bad:
+            bad_rows.append((r, bad))
+            continue
+        picks.append(r)
+        done.add(w)
+    picks.sort(key=lambda x: -x["gain"])
+    return picks, bad_rows
+
+
 def cmd_gate(a):
     repo = os.environ.get("GITHUB_REPOSITORY", "mwqwf/rafiq-align-ci")
     busy = inflight_reciters()
     imp = _staged_improvements()
     salts = {r["key"]: _salt_count(r["key"]) for r in imp}
-    todo = [r for r in imp
-            if salts[r["key"]] < 4 and r["key"] not in "".join(busy)]
-    struct_bad = []
-    kept = []
-    for r in todo:
-        bad = _struct_fatal(r["key"])
-        (struct_bad if bad else kept).append((r, bad) if bad else r)
-    todo = kept
+    busy_s = "".join(busy)
+    # ⭐ **بوّابةٌ واحدةٌ للقارئ**: أكبرُ مرشّحيه لم تكتمل ملوحُه ونجا بنيويّاً —
+    #    ولو ظلّله مرشّحٌ أكبرُ مُحكَم (‏يُردّ بحارس البتر مثلاً). انظر `gate_picks`.
+    todo, struct_bad = gate_picks(imp, salts, busy_s, _struct_fatal)
     for r, bad in struct_bad:
         print(f"   ⛔ {r['reciter']}: رُدّ بنيوياً قبل إنفاق ملحٍ — {bad}")
     print(f"محسَّنون بلا حكمٍ كافٍ: {len(todo)}")
@@ -759,60 +820,81 @@ def cmd_promote(a):
     #    ليُفحصوا في الجولة التالية. ⚖️ لا يُمسّ حارس: المرشّحُ الذي بدأ يُكمل
     #    فحصَه وترقيتَه وسدَّه كما كان، والمؤجَّلُ لا يُرقّى ولا يُرفض.
     t0 = time.monotonic()
-    cands = [r for r in _staged_improvements() if _salt_count(r["key"]) >= 4]
-    for i, r in enumerate(cands):
-        if time.monotonic() - t0 > PROMOTE_BUDGET_S:
-            rest = [x["reciter"] for x in cands[i:]]
-            print(f"   ⏳ نفدت مهلةُ الجولة ({PROMOTE_BUDGET_S}ث) — أُجّل {len(rest)} "
-                  f"إلى الجولة التالية: {', '.join(rest)}")
-            break
-        dry = subprocess.run([sys.executable, prom, "--only", r["key"]],
-                             capture_output=True, text=True, encoding="utf-8",
-                             errors="replace", cwd=str(ROOT))
-        tail = "\n".join(l for l in dry.stdout.splitlines() if "🔇" not in l)[-400:]
-        # ⛔ **عطبٌ مقيسٌ 2026-09-13**: هذا الفحصُ الأوّل لا يُمرِّر `--unfreeze`
-        #    أبداً، فهدفٌ مجمَّدٌ يردّه `gate()` بـ«الهدف مجمَّد» **قبل** أن
-        #    يصل إلى طباعة «✅ جاهز» مهما صحّ حكمُه الصوتيُّ والبنيويُّ تماماً —
-        #    فلا يُرفع التجميدُ عن أيّ مرشَّحٍ أبداً ولو استوفى كلَّ شرط. وقع
-        #    فعلاً على `yahya`/`twfeeq`/`h_aldaghriri`/`kyat`/`darweez` بعد أن
-        #    مرّت أحكامُها كلُّها: الحكمُ الصوتيُّ · البنيويُّ · فحصُ المطالع.
-        #    والتجميدُ **آخرُ ما يفحصه `gate()`**، فبلوغُه دليلٌ أنّ كلَّ ما
-        #    قبله صحّ — ⇒ يُحاوَل الرفعُ في هذه الحال أيضاً، **وحارسُ `--yes`
-        #    نفسُه** (‏لا هذا الملفّ) هو مَن يحكم نهائيّاً بعد الرفع الفعليّ.
-        ready = "✅ جاهز" in dry.stdout
-        frozen_only = "الهدف مجمَّد" in dry.stdout
-        if not ready and not frozen_only:
-            print(f"   ⏸️ {r['reciter']}: لم يمرّ بعدُ — {tail.splitlines()[-1] if tail else ''}")
-            maybe_diagnose(r["key"], dry.stdout, fired)
-            continue
-        # ⛔ التجميدُ يُرفع **للحظةِ ترقيةٍ متحقَّقة** لا قبلها
-        why = (f"استرجاعُ آياتٍ مفقودة: المرشَّحُ {r['key'].split('/')[-1]} يزيد "
-               f"**{r['gain']} مدخلاً** على المنشور، وقد مرّ بحكمه الصوتيّ بأربعة ملوحٍ فأكثر.")
-        subprocess.run([sys.executable, prom, "--unfreeze", r["live"], "--reason", why],
+    # ⭐ **مرشّحو القارئ كلُّهم بالترتيب** (‏مقيسٌ 2026-09-25، انظر `_staged_improvements`):
+    #    يُجرَّب الأكبرُ زيادةً، فإن ردّه الحارسُ جُرّب التالي المستوفي ملوحَه، وتقف
+    #    المجموعةُ عند أوّل ترقيةٍ ناجحة ⇒ لا يُرقّى للقارئ أكثرُ من مرشّحٍ في الجولة.
+    #    ⚖️ كلُّ محاولةٍ تمرّ بـ`promote.py` كاملاً، وحارسُ الانكماش فيه يمنع
+    #    الأصغرَ من النزول فوق أكبرَ منشور.
+    groups = promote_groups(_staged_improvements(), _salt_count)
+    for gi, grp in enumerate(groups):
+        for ci, r in enumerate(grp):
+            if time.monotonic() - t0 > PROMOTE_BUDGET_S:
+                rest = [x[0]["reciter"] for x in groups[gi:]]
+                print(f"   ⏳ نفدت مهلةُ الجولة ({PROMOTE_BUDGET_S}ث) — أُجّل {len(rest)} "
+                      f"إلى الجولة التالية: {', '.join(rest)}")
+                return
+            ok, out = _try_promote(r, prom, fired)
+            if ok:
+                break
+            # ⏳ «تشخيص الكتالوج يصف فهرساً آخر» علّةٌ عابرةٌ يُصلحها تشخيصٌ أُطلق
+            #    للتوّ: لا يُنزل إلى الأصغر فيُسبَق به الأكبرُ السليمُ المنتظِر.
+            if DIAG_STALE in (out or ""):
+                break
+            if ci + 1 < len(grp):
+                print(f"      ↓ يُجرَّب مرشّحُه التالي: {grp[ci + 1]['key'].split('/')[-1]}"
+                      f" (+{grp[ci + 1]['gain']})")
+
+
+def _try_promote(r, prom, fired) -> tuple[bool, str]:
+    """محاولةُ ترقيةِ مرشّحٍ واحد بحرّاس `promote.py` كاملة. تُرجع (‏رُقّي؟ · المخرج)."""
+    dry = subprocess.run([sys.executable, prom, "--only", r["key"]],
+                         capture_output=True, text=True, encoding="utf-8",
+                         errors="replace", cwd=str(ROOT))
+    tail = "\n".join(l for l in dry.stdout.splitlines() if "🔇" not in l)[-400:]
+    # ⛔ **عطبٌ مقيسٌ 2026-09-13**: هذا الفحصُ الأوّل لا يُمرِّر `--unfreeze`
+    #    أبداً، فهدفٌ مجمَّدٌ يردّه `gate()` بـ«الهدف مجمَّد» **قبل** أن
+    #    يصل إلى طباعة «✅ جاهز» مهما صحّ حكمُه الصوتيُّ والبنيويُّ تماماً —
+    #    فلا يُرفع التجميدُ عن أيّ مرشَّحٍ أبداً ولو استوفى كلَّ شرط. وقع
+    #    فعلاً على `yahya`/`twfeeq`/`h_aldaghriri`/`kyat`/`darweez` بعد أن
+    #    مرّت أحكامُها كلُّها: الحكمُ الصوتيُّ · البنيويُّ · فحصُ المطالع.
+    #    والتجميدُ **آخرُ ما يفحصه `gate()`**، فبلوغُه دليلٌ أنّ كلَّ ما
+    #    قبله صحّ — ⇒ يُحاوَل الرفعُ في هذه الحال أيضاً، **وحارسُ `--yes`
+    #    نفسُه** (‏لا هذا الملفّ) هو مَن يحكم نهائيّاً بعد الرفع الفعليّ.
+    ready = "✅ جاهز" in dry.stdout
+    frozen_only = "الهدف مجمَّد" in dry.stdout
+    if not ready and not frozen_only:
+        print(f"   ⏸️ {r['reciter']}: لم يمرّ بعدُ — {tail.splitlines()[-1] if tail else ''}")
+        maybe_diagnose(r["key"], dry.stdout, fired)
+        return False, dry.stdout
+    # ⛔ التجميدُ يُرفع **للحظةِ ترقيةٍ متحقَّقة** لا قبلها
+    why = (f"استرجاعُ آياتٍ مفقودة: المرشَّحُ {r['key'].split('/')[-1]} يزيد "
+           f"**{r['gain']} مدخلاً** على المنشور، وقد مرّ بحكمه الصوتيّ بأربعة ملوحٍ فأكثر.")
+    subprocess.run([sys.executable, prom, "--unfreeze", r["live"], "--reason", why],
+                   cwd=str(ROOT), text=True)
+    done = subprocess.run([sys.executable, prom, "--only", r["key"], "--yes"],
+                          capture_output=True, text=True, encoding="utf-8",
+                          errors="replace", cwd=str(ROOT))
+    ok = "→ ✅" in done.stdout
+    # ⛔⛔ **يُسدّ ما رُفع إن رُدّت الترقية** (عطبٌ مقيسٌ 2026-09-23): رفعٌ بلا
+    #    ترقيةٍ ناجحة ترك الهدفَ مفتوحاً، فرقّى `keepalive` فوقه نسخةً أقدم
+    #    (رجع fateh_douri 6235⇒6209 وtrabulsi 6236⇒6214). ⇒ يُعاد التجميدُ على
+    #    المنشور الحاليّ فوراً — تشديدٌ لا إرخاء، ولا يكتب في timings/.
+    if not ok:
+        subprocess.run([sys.executable, str(ROOT / "tools" / "ci_fleet" / "refreeze.py"),
+                        r["live"], "", "سدٌّ بعد ترقيةٍ مردودة — يُغلق الرفعَ السابق"],
                        cwd=str(ROOT), text=True)
-        done = subprocess.run([sys.executable, prom, "--only", r["key"], "--yes"],
-                              capture_output=True, text=True, encoding="utf-8",
-                              errors="replace", cwd=str(ROOT))
-        ok = "→ ✅" in done.stdout
-        # ⛔⛔ **يُسدّ ما رُفع إن رُدّت الترقية** (عطبٌ مقيسٌ 2026-09-23): رفعٌ بلا
-        #    ترقيةٍ ناجحة ترك الهدفَ مفتوحاً، فرقّى `keepalive` فوقه نسخةً أقدم
-        #    (رجع fateh_douri 6235⇒6209 وtrabulsi 6236⇒6214). ⇒ يُعاد التجميدُ على
-        #    المنشور الحاليّ فوراً — تشديدٌ لا إرخاء، ولا يكتب في timings/.
-        if not ok:
-            subprocess.run([sys.executable, str(ROOT / "tools" / "ci_fleet" / "refreeze.py"),
-                            r["live"], "", "سدٌّ بعد ترقيةٍ مردودة — يُغلق الرفعَ السابق"],
-                           cwd=str(ROOT), text=True)
-        print(f"   {'✅ رُقّي' if ok else '⛔ لم يُرقَّ'} {r['reciter']} (+{r['gain']})")
-        for l in done.stdout.splitlines():
-            if any(m in l for m in ("🧊", "⛔", "⏳", "🔴")):
-                print("      " + l.strip()[:160])
-        # ⭐ **تشخيصُ الكتالوج القديم يُجدَّد آليّاً** (‏قِيس 2026-09-24 أربعَ مرّات:
-        #    darweez · a_alhazmi · mrifai · bader، ثمّ deban · husary_qalun): الترقيةُ
-        #    تُردّ بـ«تشخيص الكتالوج يصف فهرساً آخر» فيبقى المرشّحُ ساعةً أو أكثر
-        #    حتى يُطلق أحدٌ `diagnosis.yml` بيده. فيُطلق هنا، والحارسُ نفسُه لا يُمسّ:
-        #    الترقيةُ تنتظر التشخيصَ الجديد في الجولة التالية كما كانت.
-        if not ok:
-            maybe_diagnose(r["key"], done.stdout, fired)
+    print(f"   {'✅ رُقّي' if ok else '⛔ لم يُرقَّ'} {r['reciter']} (+{r['gain']})")
+    for l in done.stdout.splitlines():
+        if any(m in l for m in ("🧊", "⛔", "⏳", "🔴")):
+            print("      " + l.strip()[:160])
+    # ⭐ **تشخيصُ الكتالوج القديم يُجدَّد آليّاً** (‏قِيس 2026-09-24 أربعَ مرّات:
+    #    darweez · a_alhazmi · mrifai · bader، ثمّ deban · husary_qalun): الترقيةُ
+    #    تُردّ بـ«تشخيص الكتالوج يصف فهرساً آخر» فيبقى المرشّحُ ساعةً أو أكثر
+    #    حتى يُطلق أحدٌ `diagnosis.yml` بيده. فيُطلق هنا، والحارسُ نفسُه لا يُمسّ:
+    #    الترقيةُ تنتظر التشخيصَ الجديد في الجولة التالية كما كانت.
+    if not ok:
+        maybe_diagnose(r["key"], done.stdout, fired)
+    return ok, done.stdout
 
 
 def cmd_explain(a):
