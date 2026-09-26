@@ -233,8 +233,49 @@ def search_mode(args) -> int:
     return 0
 
 
+def compare_mode(args) -> int:
+    """`--compare <رواية/قارئ> <عنصر archive.org> [<عنصر>…]` — أهو **التسجيلُ نفسُه** الذي
+    فُهرس منه القارئ؟ لكلّ سورةٍ منشورةٍ في الفهرس وموجودةٍ مرقّمةً في العنصر: نسبةُ مدّة الملفّ
+    (‏length) إلى نهاية آخر آيةٍ في الفهرس. وسيطٌ قريبٌ من 1 بانتشارٍ ضيّق ⇒ التسجيلُ ذاته؛
+    ويُطبع شذوذُ كلّ سورةٍ خارج [0.97، 1.10] للمراجعة. قراءةٌ محضة بلا تنزيل صوت."""
+    key = args[0]
+    riw, _, rid = key.partition("/")
+    idx, _ = rl.fetch_index(f"timings/{riw}/{rid}.jz")
+    d = rl.surah_ends(idx)
+    for ident in args[1:]:
+        try:
+            meta = get_json(f"https://archive.org/metadata/{ident}")
+        except Exception as e:                                # noqa: BLE001
+            print(f"== {ident}: ⚠️ {e}")
+            continue
+        md = meta.get("metadata", {})
+        table = {}
+        for f in meta.get("files", []):
+            n = f.get("name", "")
+            m = re.match(r"(?:.*/)?0*(\d{1,3})\b", n)
+            if n.lower().endswith(".mp3") and m and 1 <= int(m.group(1)) <= 114:
+                ln = ia_len(f.get("length"))
+                if ln and int(m.group(1)) not in table:
+                    table[int(m.group(1))] = (n, ln, f.get("size"))
+        rs = {s: table[s][1] * 1000 / d[s] for s in table if d.get(s)}
+        vals = sorted(rs.values())
+        med = vals[len(vals) // 2] if vals else None
+        print(f"\n== {key} ⇄ {ident} · «{md.get('title')}» · ملفّاتٌ مرقّمة {len(table)} · "
+              f"مشتركة {len(vals)} · وسيطُ مدّة/فهرس {med and round(med, 3)} · "
+              f"الربيعان {vals and round(vals[len(vals) // 4], 3)}…{vals and round(vals[3 * len(vals) // 4], 3)}")
+        odd = {s: round(r, 2) for s, r in sorted(rs.items()) if not 0.97 <= r <= 1.10}
+        print(f"   شاذّ: {odd if odd else 'لا شيء'}")
+        miss = [s for s in range(1, 115) if s not in d]
+        for s in miss:
+            if s in table:
+                print(f"   غائبٌ في الفهرس وموجودٌ هنا: س{s} · {table[s][0]} · {round(table[s][1])} ث · {table[s][2]} بايت")
+    return 0
+
+
 def main() -> int:
     args = sys.argv[1:]
+    if args[:1] == ["--compare"] and len(args) >= 3:
+        return compare_mode(args[1:])
     if args[:1] == ["--search"] and len(args) >= 3:
         return search_mode(args[1:])
     if args[:1] == ["--files"]:
