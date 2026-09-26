@@ -550,18 +550,14 @@
    }
   },
   "hafs/nufais": {
-   "entries": 6155,
-   "missingSurahs": [
-    46,
-    47
-   ],
-   "reasonCode": "DECLARED_BY_TRANSFORM",
-   "transformOp": "drop_surah:46,47",
+   "entries": 6228,
+   "missingSurahs": [],
+   "reasonCode": null,
+   "transformOp": "ctc_surah_splice:46,47",
    "declaredReasons": {
-    "no-align": 8,
-    "source_truncated": 73
+    "no-align": 8
    },
-   "declaredCount": 81,
+   "declaredCount": 8,
    "undeclaredCount": 0,
    "engine": "align-0.2",
    "gapSurahs": {
@@ -569,8 +565,6 @@
     "23": 1,
     "40": 1,
     "44": 1,
-    "46": 35,
-    "47": 38,
     "55": 3,
     "102": 1
    }
@@ -927,24 +921,6 @@
    "engine": "align-0.2",
    "gapSurahs": {
     "12": 1
-   }
-  },
-  "warsh/iraoui_warsh": {
-   "entries": 6182,
-   "missingSurahs": [
-    41
-   ],
-   "reasonCode": "SOURCE_CORRUPT",
-   "transformOp": "drop_surah:41",
-   "declaredReasons": {
-    "unknown": 0,
-    "source_truncated": 54
-   },
-   "declaredCount": 54,
-   "undeclaredCount": 0,
-   "engine": "align-0.2",
-   "gapSurahs": {
-    "41": 54
    }
   },
   "warsh/kentaoui_warsh": {
