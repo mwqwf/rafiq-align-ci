@@ -100,14 +100,31 @@ jobs:
           #    نفسَه مرجعاً لكلّ آية — فيُوقَف ولا يُخمَّن.
           if "{s:03d}" not in got:
               sys.exit("⛔ مضيفُ مجلَّدٍ بلا {s:03d} — غيرُ مدعومٍ في هذا المسار")
+          # ⭐ (2026-09-26، بإذن المالك النصّيّ) أو بديلٌ مسجَّلٌ في `source_overrides.json`
+          #    لسورٍ مسمّاةٍ صراحةً كلُّها مسجَّلةٌ لهذا القارئ بهذا المصدر نفسِه، لا غير.
+          #    فسورةٌ لا يحاذيها Whisper لغياب السكتات (الرحمن عند الركباوي وبلعالية)
+          #    تُحاذى بـCTC من مصحف القارئ نفسِه. وسائرُ الحُرّاس (البصمة والإحصاء
+          #    والملوح وحارس البتر) تبقى كما هي.
+          alt = False
           if got != want_t:
-              sys.exit(f"⛔ القالبُ يخالف الكتالوج — يُوقَف قبل تنزيل بايت\n   المعطى {got}\n   الكتالوج {want_t}")
+              ov = json.load(open("tools/ci_fleet/source_overrides.json", encoding="utf-8"))
+              ov = ov if isinstance(ov, list) else ov.get("overrides", [])
+              asked0 = [int(x) for x in re.findall(r"\d+", os.environ.get("WANT", ""))]
+              reg = {int(o["surah"]) for o in ov
+                     if o.get("riwaya") == riw and o.get("reciter") == rid
+                     and (o["base"] if o["base"].endswith("/") else o["base"] + "/") + "{s:03d}.mp3" == got}
+              if not asked0 or not set(asked0) <= reg:
+                  sys.exit(f"⛔ القالبُ يخالف الكتالوج ولا بديلَ مسجَّلاً لكلّ السور المسمّاة — يُوقَف قبل تنزيل بايت\n   المعطى {got}\n   الكتالوج {want_t}\n   المسجَّل {sorted(reg)} · المطلوب {asked0}")
+              alt = True
+              print(f"⭐ بديلٌ مسجَّلٌ لـ{asked0}: {got}")
           body = s3.get_object(Bucket=c["bucket"], Key=parent)["Body"].read()
           open("parent.jz", "wb").write(body)
           idx = json.loads(gzip.decompress(body).decode("utf-8"))
           if idx.get("reciterId") != rid or idx.get("riwaya") != riw:
               sys.exit("⛔ الأصلُ يصف قارئاً آخر")
-          if idx.get("engineVersion") == "ctc-seg-1":
+          # ⛔ المحرّكُ حتميّ: على ملفّ الكتالوج نفسِه يعيد النقصَ نفسَه؛ ومن بديلٍ
+          #    مسجَّلٍ فالمدخلُ غيرُه فيُسمح.
+          if idx.get("engineVersion") == "ctc-seg-1" and not alt:
               sys.exit("⛔ الأصلُ منشورٌ بـCTC نفسِه — المحرّكُ حتميّ فإعادتُه تعيد النقصَ نفسَه")
           have = {}
           for e in idx["entries"]:
