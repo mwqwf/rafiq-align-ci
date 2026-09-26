@@ -550,10 +550,10 @@
    }
   },
   "hafs/nufais": {
-   "entries": 6228,
+   "entries": 6231,
    "missingSurahs": [],
    "reasonCode": null,
-   "transformOp": "ctc_surah_splice:46,47",
+   "transformOp": "realign_surah:55",
    "declaredReasons": {
     "no-align": 8
    },
@@ -565,7 +565,6 @@
     "23": 1,
     "40": 1,
     "44": 1,
-    "55": 3,
     "102": 1
    }
   },
@@ -585,10 +584,10 @@
    }
   },
   "hafs/ra3ad": {
-   "entries": 6207,
+   "entries": 6219,
    "missingSurahs": [],
    "reasonCode": "SOURCE_TRUNCATED",
-   "transformOp": "declare_gap:72",
+   "transformOp": "ctc_surah_splice:71,72",
    "declaredReasons": {
     "no-align": 29,
     "source_truncated": 0
@@ -604,8 +603,6 @@
     "36": 3,
     "54": 2,
     "55": 2,
-    "71": 5,
-    "72": 7,
     "80": 1,
     "102": 3
    }
