@@ -584,10 +584,10 @@
    }
   },
   "hafs/ra3ad": {
-   "entries": 6219,
+   "entries": 6225,
    "missingSurahs": [],
    "reasonCode": "SOURCE_TRUNCATED",
-   "transformOp": "ctc_surah_splice:71,72",
+   "transformOp": "realign_surah:9",
    "declaredReasons": {
     "no-align": 29,
     "source_truncated": 0
@@ -597,14 +597,12 @@
    "engine": "align-0.2",
    "gapSurahs": {
     "3": 1,
-    "9": 3,
     "16": 1,
     "23": 1,
     "36": 3,
     "54": 2,
     "55": 2,
-    "80": 1,
-    "102": 3
+    "80": 1
    }
   },
   "hafs/saber": {
