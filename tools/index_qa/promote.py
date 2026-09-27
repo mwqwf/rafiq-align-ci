@@ -416,16 +416,28 @@ def unfreeze(target, reason):
     if not reason:
         raise SystemExit("⛔ لا يُرفع تجميدٌ بلا سبب مكتوب")
     cl, bucket = s3()
-    _keys, text, etag = load_frozen(cl, bucket)
-    lines = text.splitlines()
-    hit = False
-    for i, raw in enumerate(lines):
-        if raw.split("#")[0].strip().split()[:1] == [target]:
-            lines[i] = "# رُفع " + time.strftime("%Y-%m-%d %H:%M") + " · " + reason + chr(10) + "# " + raw
-            hit = True
-    if not hit:
-        raise SystemExit(f"⛔ {target} ليس في قائمة التجميد")
-    put_frozen(cl, bucket, chr(10).join(lines) + chr(10), etag)
+    # ردُّ 412 يعني أنّ غيرنا كتب القائمة بين قراءتنا وكتابتنا (وقع 2026-09-27 21:35Z)
+    # ⇒ نعيد القراءة ونعيد الشطب على النسخة الجديدة كما يفعل `freeze`، لا نسقط.
+    for _try in range(5):
+        _keys, text, etag = load_frozen(cl, bucket)
+        lines = text.splitlines()
+        hit = False
+        for i, raw in enumerate(lines):
+            if raw.split("#")[0].strip().split()[:1] == [target]:
+                lines[i] = "# رُفع " + time.strftime("%Y-%m-%d %H:%M") + " · " + reason + chr(10) + "# " + raw
+                hit = True
+        if not hit:
+            raise SystemExit(f"⛔ {target} ليس في قائمة التجميد")
+        try:
+            put_frozen(cl, bucket, chr(10).join(lines) + chr(10), etag)
+            break
+        except Exception as ex:                       # noqa: BLE001
+            if "PreconditionFailed" in str(ex) or "412" in str(ex):
+                time.sleep(0.4)
+                continue
+            raise
+    else:
+        raise SystemExit("⛔ تعذّر تحديث قائمة التجميد على الدلو")
     LOG.parent.mkdir(parents=True, exist_ok=True)
     with LOG.open("a", encoding="utf-8") as f:
         f.write(chr(10) + "**رفعُ تجميد** " + time.strftime("%Y-%m-%d %H:%M")
