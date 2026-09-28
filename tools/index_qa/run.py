@@ -592,30 +592,52 @@ def _mirror_url(url):
                                          ExpiresIn=3600), key, size
     return None
 
+_DL_LOCKS = {}
+_DL_LOCKS_GUARD = threading.Lock()
+
+
+def _url_lock(url):
+    """قفلٌ لكلّ رابط: مَن طلب ملفّاً يُنزَّل الآن ينتظر اكتمالَه ولا يقرأ نصفَه."""
+    with _DL_LOCKS_GUARD:
+        return _DL_LOCKS.setdefault(url, threading.Lock())
+
+
 def _local_audio(url):
     LOCAL_CACHE.mkdir(parents=True, exist_ok=True)
-    # ⛔ **قرار المرآة يُتّخذ مرّةً لكل ملف، لا لكل نافذة.** كان يُستدعى مع كل
-    # قصّة (‏600 مرة للعيّنة الواحدة) وكلٌّ منها طلبا HEAD — فصار الفحصُ أبطأ
-    # من التنزيل الذي جاء ليُسرّعه، وعلّق التشغيل بلا تقدّم. والأدهى أنه كان
-    # يفحص حتى ما هو **مخبّأٌ أصلاً** فلا حاجة إلى مصدره البتة.
     p0 = LOCAL_CACHE / (hashlib.sha256(url.encode()).hexdigest()[:16] + ".mp3")
-    if p0.exists() and p0.stat().st_size >= 10_000:
-        return str(p0)                       # مخبّأ — لا مرآة ولا شبكة
-    if url not in _MIRROR_DECIDED:
-        _MIRROR_DECIDED[url] = _mirror_url(url)
-    mir = _MIRROR_DECIDED[url]
-    if mir:
-        url, mkey, msize = mir
-        MIRROR["used"][mkey] = msize
-    # ⛔ **المخبأُ يُفهرَس برابط المصدر دائماً، لا بالرابط الذي نُزّل منه.**
-    # كان يُحفظ باسمٍ مشتقٍّ من الرابط **بعد** استبداله بالمرآة — ورابطُ
-    # المرآة **موقَّعٌ بمهلة**، فيختلف في كل تشغيل. ⇒ الملفّ يُخزَّن باسمٍ
-    # جديد كل مرّة، ولا يجده الفحصُ الأول أبداً، **فيُعاد تنزيل كل ملفٍّ
-    # مرآويٍّ في كل تشغيلة** والمخبأ ينتفخ بنسخٍ من الشيء نفسه (بلغ 4.3 ج.ب).
-    # وهو عطبٌ صامتٌ تماماً: لا خطأ ولا تحذير، أثرُه الوحيد بطءٌ يُنسب إلى
-    # الشبكة. كُشف بمصادفةِ تفتيشٍ في العمليات، لا ببلاغ.
-    p = p0
-    if not p.exists() or p.stat().st_size < 10_000:
+    # ⛔⛔ **القفلُ والتسميةُ الذرّيّة معاً** (‏عطبٌ مقيسٌ 2026-09-28، فخفاخ/قالون · يونس):
+    #    كان `_prefetch` (‏أربعةُ خيوط) والحلقةُ الرئيسة يُنزّلان الرابطَ نفسَه **إلى
+    #    المسار النهائيّ نفسِه** بلا قفل، وفحصُ المخبأ «موجودٌ و≥10ك.ب» يقبل ملفّاً
+    #    **ما زال يُكتب**. وarchive.org يردّ 500 مراراً فيطول التنزيل ⇒ فُكّ نصفُ ملفٍّ:
+    #    أوّلاً «invalid new backstep -1» (‏إطارٌ مقطوعٌ عند حدّ الكتابة)، ثمّ فكٌّ
+    #    «سليم» لـ376.6ث وافقه عدُّ الإطارات على الملفّ الناقص نفسِه فخُبّئ، فسقطت
+    #    نوافذُ 10:17..109 كلُّها. والملفُّ عند الناشر **2346.3ث** بـmd5 الناشر نفسِه
+    #    (‏`895d4782…`)، فالعطبُ في أداتنا لا في المادّة.
+    #    ⇒ لا يظهر `p0` إلا **كاملاً متحقَّقاً** (‏تنزيلٌ إلى `.part` فريدٍ ثمّ
+    #    `os.replace`)، ولا يُنزّل الرابطَ خيطان معاً، ولا يبقى في المخبأ نصفُ ملفٍّ
+    #    بعد استثناءٍ في منتصف النقل.
+    with _url_lock(url):
+        # ⛔ **قرار المرآة يُتّخذ مرّةً لكل ملف، لا لكل نافذة.** كان يُستدعى مع كل
+        # قصّة (‏600 مرة للعيّنة الواحدة) وكلٌّ منها طلبا HEAD — فصار الفحصُ أبطأ
+        # من التنزيل الذي جاء ليُسرّعه، وعلّق التشغيل بلا تقدّم. والأدهى أنه كان
+        # يفحص حتى ما هو **مخبّأٌ أصلاً** فلا حاجة إلى مصدره البتة.
+        if p0.exists() and p0.stat().st_size >= 10_000:
+            return str(p0)                   # مخبّأ — لا مرآة ولا شبكة
+        if url not in _MIRROR_DECIDED:
+            _MIRROR_DECIDED[url] = _mirror_url(url)
+        mir = _MIRROR_DECIDED[url]
+        src = url
+        if mir:
+            src, mkey, msize = mir
+            MIRROR["used"][mkey] = msize
+        # ⛔ **المخبأُ يُفهرَس برابط المصدر دائماً، لا بالرابط الذي نُزّل منه.**
+        # كان يُحفظ باسمٍ مشتقٍّ من الرابط **بعد** استبداله بالمرآة — ورابطُ
+        # المرآة **موقَّعٌ بمهلة**، فيختلف في كل تشغيل. ⇒ الملفّ يُخزَّن باسمٍ
+        # جديد كل مرّة، ولا يجده الفحصُ الأول أبداً، **فيُعاد تنزيل كل ملفٍّ
+        # مرآويٍّ في كل تشغيلة** والمخبأ ينتفخ بنسخٍ من الشيء نفسه (بلغ 4.3 ج.ب).
+        # وهو عطبٌ صامتٌ تماماً: لا خطأ ولا تحذير، أثرُه الوحيد بطءٌ يُنسب إلى
+        # الشبكة. كُشف بمصادفةِ تفتيشٍ في العمليات، لا ببلاغ.
+        p = p0
         # ⛔ **مهلةٌ صريحة وإعادةُ محاولة.** ‏`urlretrieve` بلا مهلةٍ افتراضية،
         # فاتصالٌ يتوقّف يعلّق العملية **إلى الأبد**: علّق قياس 400 حدّ 54
         # دقيقة عند نافذةٍ واحدة بلا تقدّمٍ ولا خطأ — والمخبأ لا ينمو والسجل
@@ -629,27 +651,31 @@ def _local_audio(url):
         # م.ب والمصدرُ 8.7. وأثرُه أن مداخل آخر السورة تقع **خارج الصوت
         # المتاح** فتُخفق النافذة، فتنكمش العيّنة من حيث لا يُرى.
         import urllib.request, shutil
+        tmp = p.with_name(f"{p.name}.{os.getpid()}.{threading.get_ident()}.part")
         last = None
-        for attempt in (1, 2, 3):
-            try:
-                rq0 = urllib.request.Request(url, headers=UA)
-                with urllib.request.urlopen(rq0, timeout=90) as r, open(p, "wb") as f:
-                    want = int(r.headers.get("Content-Length") or 0)
-                    shutil.copyfileobj(r, f)
-                got = p.stat().st_size
-                if want and got != want:
-                    p.unlink(missing_ok=True)   # لا يُترك مبتورٌ في المخبأ
-                    last = RuntimeError(f"مبتور: {got} من {want} بايت")
+        try:
+            for attempt in (1, 2, 3):
+                try:
+                    rq0 = urllib.request.Request(src, headers=UA)
+                    with urllib.request.urlopen(rq0, timeout=90) as r, open(tmp, "wb") as f:
+                        want = int(r.headers.get("Content-Length") or 0)
+                        shutil.copyfileobj(r, f)
+                    got = tmp.stat().st_size
+                    if want and got != want:
+                        last = RuntimeError(f"مبتور: {got} من {want} بايت")
+                        time.sleep(2 * attempt)
+                        continue
+                    if got >= 10_000:
+                        os.replace(tmp, p)   # ذرّيّ: لا يرى أحدٌ `p` إلا كاملاً
+                        break
+                    last = RuntimeError(f"ملفٌ مبتور ({got} بايت)")
+                except Exception as ex:
+                    last = ex
                     time.sleep(2 * attempt)
-                    continue
-                if got >= 10_000:
-                    break
-                last = RuntimeError(f"ملفٌ مبتور ({got} بايت)")
-            except Exception as ex:
-                last = ex
-                time.sleep(2 * attempt)
-        else:
-            raise RuntimeError(f"تعذّر تنزيل {url}: {last}")
+            else:
+                raise RuntimeError(f"تعذّر تنزيل {src}: {last}")
+        finally:
+            tmp.unlink(missing_ok=True)      # لا يُترك نصفُ ملفٍّ في المخبأ أبداً
     return str(p)
 
 # ───────── جلبُ نافذةِ البايتات وحدها (بدل الملفّ الكامل) ─────────
@@ -876,6 +902,9 @@ def _full_decode_pcm(mp3):
         out = Path(key + ".16k.f32")
         part = Path(key + ".16k.f32.part")
         part.unlink(missing_ok=True)
+        # ⛔ الملفُّ يجب ألّا يتغيّر تحت الفكّ: فكٌّ وعدُّ إطاراتٍ على ملفٍّ يُكتب
+        #    يتّفقان على نصفه (‏وقع 2026-09-28: 376.6ث من 2346.3ث) ⇒ البصمةُ قبل وبعد.
+        st0 = os.stat(key)
         with open(part, "wb") as fo:
             p = subprocess.run(["ffmpeg", "-nostdin", "-v", "error", "-i", key,
                                 "-f", "f32le", "-ac", "1", "-ar", "16000", "pipe:1"],
@@ -894,6 +923,10 @@ def _full_decode_pcm(mp3):
                 raise RuntimeError("الفكُّ الكامل أخرج عينات NaN/Inf")
             got_ms = len(x) * 1000.0 / 16000
             want_ms = _file_duration_ms(key)            # عدُّ الإطارات لا الترويسة
+            st1 = os.stat(key)
+            if (st0.st_size, st0.st_mtime_ns) != (st1.st_size, st1.st_mtime_ns):
+                raise RuntimeError(f"الملفّ تغيّر أثناء الفكّ ({st0.st_size}⇒{st1.st_size} بايت)"
+                                   " — لا يُقصّ من ملفٍّ لم يكتمل")
             if abs(got_ms - want_ms) > _FULL_TOL_MS:
                 raise RuntimeError(f"الفكُّ الكامل {got_ms:.0f}م.ث والإطاراتُ "
                                    f"{want_ms:.0f}م.ث — لا يُقصّ من فكٍّ لا يطابق الملفّ")
