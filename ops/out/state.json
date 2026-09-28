@@ -715,10 +715,10 @@
    }
   },
   "qalun/fakhfakh_qalun": {
-   "entries": 6226,
+   "entries": 6230,
    "missingSurahs": [],
    "reasonCode": null,
-   "transformOp": null,
+   "transformOp": "ctc_surah_splice:3,10,29,37",
    "declaredReasons": {
     "no-align": 3,
     "invalid": 7
@@ -727,12 +727,8 @@
    "undeclaredCount": 0,
    "engine": "align-0.2",
    "gapSurahs": {
-    "3": 1,
     "7": 2,
-    "10": 1,
     "16": 2,
-    "29": 1,
-    "37": 1,
     "42": 1,
     "69": 1
    }
