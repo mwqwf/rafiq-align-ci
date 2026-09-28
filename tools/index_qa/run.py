@@ -681,30 +681,35 @@ def _mp3_cbr(url):
                 _CBR_INFO[url] = None
                 return None
             head = r.read(65536)
-        off = 0
-        if head[:3] == b"ID3":               # تخطّي وسم ID3v2 بحجمه المُرمَّز
-            off = 10 + int.from_bytes(bytes(b & 0x7F for b in head[6:10]), "big")
-        while off < len(head) - 4:           # أوّل تزامنٍ صالح
-            if head[off] == 0xFF and (head[off + 1] & 0xE0) == 0xE0:
-                h = head[off:off + 4]
-                ver, layer = (h[1] >> 3) & 3, (h[1] >> 1) & 3
-                bi, ri = (h[2] >> 4) & 0xF, (h[2] >> 2) & 3
-                if ver == 3 and layer == 1 and _BITRATES[bi] and ri in _RATES:
-                    frame = head[off:off + 900]
-                    if b"Xing" in frame or b"Info" in frame or b"VBRI" in frame:
-                        break                # VBR ⇒ الزمن لا يُشتقّ من الإزاحة
-                    # ⛔ غيابُ ترويسة Xing/VBRI لا يثبت الثبات: قد يُرمَّز VBR بلا
-                    #    ترويسة (أُكّد VBR عند بعض قرّاء ورش وقالون 2026-09-25).
-                    #    ⇒ تُمشى الإطاراتُ التالية في الـ64ك.ب، ولا يُقبل النطاق
-                    #    إلا إن حملت كلُّها معدّلَ الإطار الأوّل وتردّدَه.
-                    if _frames_constant(head, off, bi, ri):
-                        out = (off, _BITRATES[bi] * 1000)
-                break
-            off += 1
+        out = _cbr_head(head)
     except Exception:
         out = None
     _CBR_INFO[url] = out
     return out
+
+def _cbr_head(head):
+    """(بدايةُ الصوت, معدّل البتّ بت/ث) إن أثبتت البايتاتُ الأولى ثباتَ المعدّل، وإلا None."""
+    off = 0
+    if head[:3] == b"ID3":                   # تخطّي وسم ID3v2 بحجمه المُرمَّز
+        off = 10 + int.from_bytes(bytes(b & 0x7F for b in head[6:10]), "big")
+    while off < len(head) - 4:               # أوّل تزامنٍ صالح
+        if head[off] == 0xFF and (head[off + 1] & 0xE0) == 0xE0:
+            h = head[off:off + 4]
+            ver, layer = (h[1] >> 3) & 3, (h[1] >> 1) & 3
+            bi, ri = (h[2] >> 4) & 0xF, (h[2] >> 2) & 3
+            if ver == 3 and layer == 1 and _BITRATES[bi] and ri in _RATES:
+                frame = head[off:off + 900]
+                if b"Xing" in frame or b"Info" in frame or b"VBRI" in frame:
+                    return None              # VBR ⇒ الزمن لا يُشتقّ من الإزاحة
+                # ⛔ غيابُ ترويسة Xing/VBRI لا يثبت الثبات: قد يُرمَّز VBR بلا
+                #    ترويسة (أُكّد VBR عند بعض قرّاء ورش وقالون 2026-09-25).
+                #    ⇒ تُمشى الإطاراتُ التالية في الـ64ك.ب، ولا يُقبل الثبات
+                #    إلا إن حملت كلُّها معدّلَ الإطار الأوّل وتردّدَه.
+                if _frames_constant(head, off, bi, ri):
+                    return (off, _BITRATES[bi] * 1000)
+            return None
+        off += 1
+    return None
 
 def _frames_constant(head, off, bi, ri, need=8):
     """أتحمل الإطاراتُ المتتالية من `off` معدّلَ البتّ `bi` والتردّدَ `ri` نفسَيهما؟
@@ -831,6 +836,108 @@ def _ffmpeg_window_pcm(mp3, start_ms, end_ms, ayah_end_ms=None, file_dur_ms=None
     return x[:expected], rate
 
 
+# ───────── الفكُّ الكامل الدقيق لغير الثابت (‏بدل قفز libsndfile) ─────────
+# ⛔ **وقع 2026-09-26 على إحصاء `nasser_almajed@05b18814`** (‏س6 من بديلٍ على
+#    archive.org): 71 آيةً «تعذّر سماعُها» و213 نافذةً بـ`array of sample points
+#    is empty`، ومع كلّ نافذةٍ سطرُ mpg123: «Xing stream size off by more than 1%,
+#    fuzzy seeking may be even more fuzzy than by design!». ‏libsndfile يأخذ طولَ
+#    الملفّ وخريطةَ القفز **من ترويسة Xing**؛ فإن كذبت الترويسة (‏تُعلن إطاراتٍ
+#    وبايتاتٍ أقلّ من الموجود) انتهى الملفُّ عنده قبل نهايته: ما بعد الحدّ المُعلَن
+#    يُقرأ **صفرَ عيّنة** (‏6:95→6:165)، وما قبله يُقفز إليه بالتقدير فتُسمَع آيةٌ
+#    غيرُ المطلوبة (‏6:48→6:94 «لا يطابق التفريغ نصّ الآية»). والفهرسُ نفسه قِيس
+#    بفكٍّ كاملٍ فهو بريء؛ العطبُ في أداة السماع وحدها.
+# ⇒ لا يُوثَق بقفز libsndfile إلا على ملفٍّ **أُثبت ثباتُ معدّله** (‏`_cbr_head`
+#    على بايتاته الأولى، المعيارُ نفسُه لمسار النطاقات). وما سواه يُفكّ **كاملاً
+#    من أوّله** بـffmpeg مرّةً واحدةً للملفّ، ويُقصّ بالعيّنة. والفكُّ الكامل
+#    يُقابَل بمدّة الملفّ بعدّ إطاراته (‏`mp3dur`) لا بالترويسة، ويُرفض ما نقص.
+_DECODED = {}                 # مسارُ mp3 ⇒ memmap للفكّ الكامل (16ك.هز أحادي f32)
+_DECODED_KEEP = 6             # أقصى ما يبقى على القرص من ملفّات الفكّ الكامل
+_DECODE_LOCK = threading.Lock()
+_FULL_TOL_MS = 200            # فرقُ الفكّ الكامل عن عدّ الإطارات: تأخيرُ المرمِّز وحشوُه
+
+
+def _local_is_cbr(mp3):
+    """أمُثبَتٌ ثباتُ معدّل الملفّ المحليّ؟ (‏الشكّ ⇒ لا)."""
+    try:
+        with open(mp3, "rb") as f:
+            return _cbr_head(f.read(65536)) is not None
+    except Exception:
+        return False
+
+
+def _full_decode_pcm(mp3):
+    """فكٌّ كاملٌ من أوّل الملفّ إلى آخره (‏16ك.هز أحادي f32) — مخبّأٌ للملفّ، صارمٌ في الرفض."""
+    import numpy as np
+    key = str(mp3)
+    with _DECODE_LOCK:
+        if key in _DECODED:
+            _DECODED[key] = _DECODED.pop(key)          # الأحدثُ استعمالاً آخراً
+            return _DECODED[key]
+        out = Path(key + ".16k.f32")
+        part = Path(key + ".16k.f32.part")
+        part.unlink(missing_ok=True)
+        with open(part, "wb") as fo:
+            p = subprocess.run(["ffmpeg", "-nostdin", "-v", "error", "-i", key,
+                                "-f", "f32le", "-ac", "1", "-ar", "16000", "pipe:1"],
+                               stdout=fo, stderr=subprocess.PIPE, timeout=1800, check=False)
+        why = p.stderr.decode("utf-8", errors="replace").strip()[-240:]
+        try:
+            if p.returncode != 0:
+                raise RuntimeError(f"ffmpeg فشل في الفكّ الكامل ({p.returncode}): {why or 'بلا رسالة'}")
+            if why:
+                raise RuntimeError(f"ffmpeg أبلغ خطأ فكٍّ كامل مع rc=0: {why}")
+            n = part.stat().st_size
+            if n % 4 or n == 0:
+                raise RuntimeError(f"فكٌّ كاملٌ غير صالح ({n} بايت)")
+            x = np.memmap(part, dtype="<f4", mode="r")
+            if not np.isfinite(x).all():
+                raise RuntimeError("الفكُّ الكامل أخرج عينات NaN/Inf")
+            got_ms = len(x) * 1000.0 / 16000
+            want_ms = _file_duration_ms(key)            # عدُّ الإطارات لا الترويسة
+            if abs(got_ms - want_ms) > _FULL_TOL_MS:
+                raise RuntimeError(f"الفكُّ الكامل {got_ms:.0f}م.ث والإطاراتُ "
+                                   f"{want_ms:.0f}م.ث — لا يُقصّ من فكٍّ لا يطابق الملفّ")
+            del x
+        except Exception:
+            part.unlink(missing_ok=True)
+            raise
+        os.replace(part, out)
+        x = np.memmap(out, dtype="<f4", mode="r")
+        _DECODED[key] = x
+        while len(_DECODED) > _DECODED_KEEP:            # القرصُ لا ينتفخ بنسخ الفكّ
+            old = next(iter(_DECODED))
+            _DECODED.pop(old)
+            Path(old + ".16k.f32").unlink(missing_ok=True)
+        return x
+
+
+def _exact_window_pcm(mp3, start_ms, end_ms, ayah_end_ms=None):
+    """نافذةٌ مقصوصةٌ بالعيّنة من الفكّ الكامل، بقواعد رفض `_ffmpeg_window_pcm` نفسِها."""
+    import numpy as np
+    rate = 16000
+    start = max(0, int(start_ms))
+    dur = max(0, int(end_ms) - start)
+    if dur <= 0:
+        raise RuntimeError(f"نافذةٌ غير صالحة: {start_ms}..{end_ms}م.ث")
+    expected = int(round(dur * rate / 1000))
+    tolerance = min(int(rate * 0.080), max(1, expected // 10))
+    whole = _full_decode_pcm(mp3)
+    a = int(round(start * rate / 1000))
+    x = np.array(whole[a:a + expected], dtype="float32")
+    fd = len(whole) * 1000.0 / rate                     # نهايةُ الملفّ بالعيّنة
+    if len(x) < expected - tolerance and ayah_end_ms is not None:
+        tol_ms = tolerance * 1000.0 / rate
+        got_end = start + len(x) * 1000.0 / rate
+        # الاستثناءُ الوحيد نفسُه: النقصُ كلُّه بعد نهاية الملفّ والآيةُ داخله.
+        if (start < fd and start + dur > fd and got_end >= fd - tol_ms
+                and int(ayah_end_ms) <= fd):
+            x = np.concatenate([x, np.zeros(expected - len(x), dtype=x.dtype)])
+    if len(x) < expected - tolerance:
+        raise RuntimeError(f"الفكُّ الكامل لا يبلغ النافذة: {len(x)}/{expected} عيّنة "
+                           f"(الملفّ {fd:.0f}م.ث · السماح {tolerance})")
+    return x[:expected], rate
+
+
 _MIRROR_LOCK = threading.Lock()
 
 
@@ -879,27 +986,33 @@ def local_run(jobs, _host=None, _threads=None):
     m = _local_model()
     _prefetch(jobs)
     res, errs = {}, {}
-    for j in jobs:
+    # ‏مرتّبةً بالملفّ: الفكُّ الكامل مخبّأٌ لبضعة ملفّاتٍ فلا يُعاد بتناوبها (‏النتائجُ بالمعرّف)
+    for j in sorted(jobs, key=lambda j: j["url"]):
         try:
             got = None if _NO_RANGE else _range_pcm(j["url"], max(0, j["startMs"]), j["endMs"])
             if got is not None:
                 x, r = got
             else:
                 mp3 = _local_audio(j["url"])
-                try:
-                    r = sf.info(mp3).samplerate
-                    a = int(max(0, j["startMs"]) / 1000 * r)
-                    b = int(j["endMs"] / 1000 * r)
-                    x, _ = sf.read(mp3, start=a, stop=b, dtype="float32", always_2d=True)
-                    x = x.mean(axis=1)
-                except Exception:
-                    # بعضُ أصول MP3 تُسمِع mpg123 أخطاء resync ثم يعجز
-                    # libsndfile عن النافذة. ffmpeg المثبّت أصلاً في audio_qa
-                    # أكثرُ تحمّلاً؛ فإن عجز هو أيضاً يسجّل الحدّ «غير حاسم»
-                    # عبر غلاف الاستثناء أدناه، ولا يغيّر أيّ عتبة أو حكم.
-                    # ‏`ayahEndMs` لا يحمله إلا آخرُ مدخلٍ في ملفّه (‏انظر بناءَ المهامّ).
-                    kw = {"ayah_end_ms": j["ayahEndMs"]} if j.get("ayahEndMs") is not None else {}
-                    x, r = _ffmpeg_window_pcm(mp3, j["startMs"], j["endMs"], **kw)
+                # ‏`ayahEndMs` لا يحمله إلا آخرُ مدخلٍ في ملفّه (‏انظر بناءَ المهامّ).
+                kw = {"ayah_end_ms": j["ayahEndMs"]} if j.get("ayahEndMs") is not None else {}
+                if not _local_is_cbr(mp3):
+                    # ⛔ غيرُ الثابت (‏VBR بترويسةٍ أو بلا ترويسة): لا قفزَ بالتقدير —
+                    #    فكٌّ كاملٌ وقصٌّ بالعيّنة، وإخفاقُه خطأٌ يبقى «غير حاسم».
+                    x, r = _exact_window_pcm(mp3, j["startMs"], j["endMs"], **kw)
+                else:
+                    try:
+                        r = sf.info(mp3).samplerate
+                        a = int(max(0, j["startMs"]) / 1000 * r)
+                        b = int(j["endMs"] / 1000 * r)
+                        x, _ = sf.read(mp3, start=a, stop=b, dtype="float32", always_2d=True)
+                        x = x.mean(axis=1)
+                    except Exception:
+                        # بعضُ أصول MP3 تُسمِع mpg123 أخطاء resync ثم يعجز
+                        # libsndfile عن النافذة. ffmpeg المثبّت أصلاً في audio_qa
+                        # أكثرُ تحمّلاً؛ فإن عجز هو أيضاً يسجّل الحدّ «غير حاسم»
+                        # عبر غلاف الاستثناء أدناه، ولا يغيّر أيّ عتبة أو حكم.
+                        x, r = _ffmpeg_window_pcm(mp3, j["startMs"], j["endMs"], **kw)
             n = int(len(x) * 16000 / r)
             y = np.interp(np.linspace(0, len(x) - 1, n), np.arange(len(x)), x).astype("float32")
             res[j["id"]] = {"text": " ".join(sg.text for sg in m.transcribe(y)).strip(), "ms": 0}

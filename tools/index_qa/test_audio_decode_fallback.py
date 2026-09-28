@@ -214,6 +214,7 @@ class AudioDecodeFallbackTest(unittest.TestCase):
               mock.patch.object(R, "_local_model", return_value=model),
               mock.patch.object(R, "_prefetch"),
               mock.patch.object(R, "_range_pcm", return_value=None),
+              mock.patch.object(R, "_local_is_cbr", return_value=True),
               mock.patch.object(R, "_local_audio", return_value="broken.mp3"),
               mock.patch.object(R, "_ffmpeg_window_pcm", return_value=(pcm, 16000)) as fallback):
             result, errors = R.local_run([job])
@@ -230,6 +231,7 @@ class AudioDecodeFallbackTest(unittest.TestCase):
               mock.patch.object(R, "_local_model", return_value=model),
               mock.patch.object(R, "_prefetch"),
               mock.patch.object(R, "_range_pcm", return_value=None),
+              mock.patch.object(R, "_local_is_cbr", return_value=True),
               mock.patch.object(R, "_local_audio", return_value="broken.mp3"),
               mock.patch.object(R, "_ffmpeg_window_pcm", side_effect=RuntimeError("ffmpeg"))):
             result, errors = R.local_run([job])
@@ -290,6 +292,7 @@ class WindowPastEndOfFileTest(unittest.TestCase):
               mock.patch.object(R, "_local_model", return_value=model),
               mock.patch.object(R, "_prefetch"),
               mock.patch.object(R, "_range_pcm", return_value=None),
+              mock.patch.object(R, "_local_is_cbr", return_value=True),
               mock.patch.object(R, "_local_audio", return_value="tail.mp3"),
               mock.patch.object(R, "_ffmpeg_window_pcm", return_value=(pcm, 16000)) as fallback):
             R.local_run([job])

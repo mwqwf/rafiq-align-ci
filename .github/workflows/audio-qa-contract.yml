@@ -4,6 +4,7 @@ on:
     paths:
       - tools/index_qa/run.py
       - tools/index_qa/test_audio_decode_fallback.py
+      - tools/index_qa/test_vbr_exact_window.py
       - .github/workflows/audio-qa-contract.yml
   workflow_dispatch:
 permissions:
@@ -23,4 +24,4 @@ jobs:
           sudo apt-get update -qq
           sudo apt-get install -y -qq ffmpeg
       - run: python -m pip install --quiet numpy soundfile
-      - run: python -m unittest tools.index_qa.test_audio_decode_fallback -v
+      - run: python -m unittest tools.index_qa.test_audio_decode_fallback tools.index_qa.test_vbr_exact_window -v
