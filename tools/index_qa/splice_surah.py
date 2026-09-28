@@ -67,6 +67,30 @@ def dump(d: dict, p: Path) -> str:
     return hashlib.sha256(p.read_bytes()).hexdigest()
 
 
+def parent_refs(entries, surahs) -> dict:
+    """رابطُ ملفّ كلّ سورةٍ من مدخلاتها في الفهرس الأب نفسِه (‏مضيفُ المجلَّد).
+
+    ⭐ (2026-09-28) مضيفٌ لا يرقّم أسماءه (‏`ar_036_Mustapha_Gharbi_Warsh.mp3`)
+    لا يجمعه قالبُ `{s:03d}`؛ لكنّ السورةَ الناقصةَ حاضرةٌ جزئيّاً في الأب،
+    فرابطُها معلومٌ وهو الذي يسمعه التطبيق. فيُؤخذ منه حرفاً ولا يُخمَّن.
+    ⛔ سورةٌ بلا مدخلٍ في الأب، أو مدخلاتُها بأكثرَ من رابط، أو رابطٌ فارغ
+    ⇒ **ردٌّ صريح** — لا رابطَ يُصطنع ولا يُرجَّح بين رابطين.
+    """
+    refs = {}
+    for s in surahs:
+        got = {e.get("fileRef") for e in entries
+               if int(e["ayahId"].split(":")[0]) == s}
+        if not got:
+            sys.exit(f"⛔ س{s}: لا مدخلَ لها في الأب — رابطُ ملفّها مجهولٌ فلا يُخمَّن")
+        if len(got) != 1:
+            sys.exit(f"⛔ س{s}: مدخلاتُها في الأب بروابطَ مختلفة {sorted(map(str, got))} — لا يُرجَّح")
+        ref = next(iter(got))
+        if not isinstance(ref, str) or not ref.startswith(("https://", "http://")):
+            sys.exit(f"⛔ س{s}: رابطُها في الأب غيرُ صالح ({ref!r})")
+        refs[s] = ref
+    return refs
+
+
 def main() -> None:
     ap = argparse.ArgumentParser()
     ap.add_argument("--index", required=True)
@@ -86,6 +110,10 @@ def main() -> None:
                     help="صوتُ السور المأخوذة من مصدرٍ بديلٍ مسجَّل (‏غيرِ ملفّ الكتالوج) — "
                          "يُكتب قالبُ `--url` في `sourceBySurah` لكلّ سورةٍ أُخذت، "
                          "فيطلب حارسُ الترقية إحصاءً صوتيّاً شاملاً لها")
+    ap.add_argument("--refs-from-parent", action="store_true",
+                    help="مضيفُ مجلَّدٍ بلا {s:03d}: `fileRef` كلِّ سورةٍ يُؤخذ حرفاً من "
+                         "مدخلاتها في الفهرس الأب، و`--url` هو المجلَّد الذي يجب أن "
+                         "يبدأ به كلُّ رابط")
     args = ap.parse_args()
 
     surahs = [int(x) for x in args.surah.replace(",", " ").split()]
@@ -94,6 +122,21 @@ def main() -> None:
 
     idx = load(Path(args.index))
     entries = idx.get("entries") or []
+    # ⛔ قالبٌ بلا `{s:03d}` كان يكتب المجلَّدَ نفسَه `fileRef` لكلّ آية بصمت
+    #    (‏`str.format` بلا حقلٍ يرجع النصَّ كما هو) — فيُردّ ما لم يُطلب
+    #    الأخذُ من الأب صراحةً، ولا يجتمع الأخذُ من الأب مع مصدرٍ بديل.
+    refs = None
+    if args.refs_from_parent:
+        if "{s" in args.url:
+            sys.exit("⛔ --refs-from-parent لمضيف المجلَّد وحده — والقالبُ هنا مرقَّم")
+        if args.alt_source:
+            sys.exit("⛔ لا يجتمع --refs-from-parent و--alt-source: الأبُ يصف مصدرَ الكتالوج")
+        refs = parent_refs(entries, surahs)
+        for s, r in refs.items():
+            if not r.startswith(args.url):
+                sys.exit(f"⛔ س{s}: رابطُها في الأب {r} خارجَ المجلَّد {args.url}")
+    elif "{s:03d}" not in args.url:
+        sys.exit("⛔ القالبُ بلا {s:03d} — استعمل --refs-from-parent لمضيف المجلَّد، ولا يُخمَّن")
     before_out = [e for e in entries if int(e["ayahId"].split(":")[0]) not in surahs]
 
     new_rows, skipped, taken = [], [], []
@@ -130,7 +173,7 @@ def main() -> None:
             prev_end = en
             conf = float(r.get("conf") or 0.0)
             band = "HIGH" if conf >= 0.8 else ("MED" if conf >= 0.5 else "LOW")
-            row = {"ayahId": f"{s}:{i + 1}", "fileRef": args.url.format(s=s),
+            row = {"ayahId": f"{s}:{i + 1}", "fileRef": refs[s] if refs else args.url.format(s=s),
                    "startMs": int(st), "endMs": int(en),
                    "conf": round(conf, 3), "confBand": band}
             if r.get("snapped") is False:
@@ -215,6 +258,8 @@ def main() -> None:
     shas = list(out.get("audioSha256") or [])
     orig_surahs = sorted({int(e["ayahId"].split(":")[0]) for e in entries})
     added = [s for s in surahs if s not in orig_surahs]
+    if added and refs is not None:                         # لا يقع: parent_refs يردّها
+        sys.exit(f"⛔ سورٌ بلا مدخلٍ في الأب مع --refs-from-parent: {added}")
     if added and len(shas) == len(orig_surahs) and len(shas) < 114:
         import urllib.request as _u
         for s in sorted(added):

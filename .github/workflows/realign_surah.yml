@@ -324,8 +324,12 @@ jobs:
           # ⛔ **الردُّ بالسورة لا بالدفعة**: آيةٌ واحدةٌ لم تُحلّ كانت تردّ
           #    ثمانيَ سورٍ سليمةً معها — عقوبةٌ على التجميع لا على العطب.
           #    والسورةُ التي لم تُحلّ تُترك كما هي وتُسمَّى، والباقياتُ تمضي.
+          # ⛔ (2026-09-28) أساسُ المجلَّد بلا {s:03d} كان يُكتب `fileRef` لكلّ آيةٍ بصمت
+          #    (‏`format` بلا حقلٍ يرجع المجلَّد)؛ فصار `splice_surah` يردّه، ويُؤخذ الرابطُ
+          #    من مدخلات السورة في الأب حرفاً — وسورةٌ بلا مدخلٍ فيه تُردّ ولا تُخمَّن.
+          REFS=""; case "$URLT" in *"{s"*) ;; *) REFS="--refs-from-parent" ;; esac
           python tools/index_qa/splice_surah.py --index work/parent.jz --surah "$SURAHS" \
-                 --aligned $FILES --url "$URLT" --skip-unresolved --out work/patched.jz
+                 --aligned $FILES --url "$URLT" --skip-unresolved $REFS --out work/patched.jz
 
       - name: ملءُ بصمةِ الصوت للسور المُعاد محاذاتُها
         env:

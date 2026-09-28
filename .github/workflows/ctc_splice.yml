@@ -23,7 +23,7 @@ on:
   workflow_dispatch:
     inputs:
       parent: {description: "الأصل المنشور: timings/<riw>/<id>.jz", required: true}
-      url_template: {description: "قالبُ الصوت من الكتالوج، فيه {s:03d}", required: true}
+      url_template: {description: "قالبُ الصوت من الكتالوج فيه {s:03d}، أو أساسُ المجلَّد نفسُه (‏الروابطُ من الأب)", required: true}
       riwaya: {description: "الرواية", default: "hafs"}
       surahs: {description: "فارغ = كلُّ سورةٍ ناقصةٍ في الأصل (مقيسةً منه)", default: ""}
       reason: {description: "سببُ التحويل", required: true}
@@ -85,28 +85,38 @@ jobs:
           if riw != os.environ["RIW"]:
               sys.exit(f"⛔ الرواية {os.environ['RIW']} والأصلُ {riw}")
           cat = json.loads(s3.get_object(Bucket=c["bucket"], Key="catalog/reciters.json")["Body"].read())
-          base = None
+          base, files = None, None
           for r in cat.get("riwayat", []):
               if r["id"] == riw:
                   for x in r.get("reciters", []):
                       if x.get("id") == rid:
                           base = x.get("base") or ""
+                          files = x.get("files")
           if base is None:
               sys.exit(f"⛔ {riw}/{rid} ليس في الكتالوج — لا محاذاةَ لمجهول")
           got = os.environ["URLT"]
           want_t = (base if base.endswith("/") else base + "/") + "{s:03d}.mp3"
-          # ⛔ مضيفُ المجلَّد (‏أسماءٌ من جدول files) لا يُدمج هنا بعد: قالبُ
-          #    الدمج يبني `fileRef` بالتنسيق، ومجلَّدٌ بلا `{s:03d}` يكتب المجلَّدَ
-          #    نفسَه مرجعاً لكلّ آية — فيُوقَف ولا يُخمَّن.
+          # ⭐ (2026-09-28) مضيفُ المجلَّد (‏أسماءٌ من جدول files) يُقبل **بأساس
+          #    الكتالوج نفسِه حرفاً** وجدولٍ من 114 اسماً؛ و`fileRef` كلِّ سورةٍ
+          #    يُؤخذ من مدخلاتها في الأب (‏`splice_surah --refs-from-parent`)
+          #    ويجب أن يساوي أساسَ الكتالوج + اسمَها في الجدول — وإلا يُوقَف.
+          #    ⛔ والبديلُ المسجَّل لا يجتمع معه: البديلُ قالبٌ مرقَّمٌ وحده.
+          folder = False
+          urlt = got
           if "{s:03d}" not in got:
-              sys.exit("⛔ مضيفُ مجلَّدٍ بلا {s:03d} — غيرُ مدعومٍ في هذا المسار")
+              if "{" in got or not base or "{" in base or got.rstrip("/") != base.rstrip("/"):
+                  sys.exit(f"⛔ أساسُ مجلَّدٍ يخالف الكتالوج — يُوقَف قبل تنزيل بايت\n   المعطى {got}\n   الكتالوج {base!r}")
+              if not isinstance(files, list) or len(files) != 114 or not all(isinstance(n, str) and n for n in files):
+                  sys.exit(f"⛔ مضيفُ مجلَّدٍ بلا جدول files من 114 اسماً لـ{rid} — لا يُخمَّن اسمُ ملفّ")
+              folder = True
+              urlt = base.rstrip("/") + "/"
           # ⭐ (2026-09-26، بإذن المالك النصّيّ) أو بديلٌ مسجَّلٌ في `source_overrides.json`
           #    لسورٍ مسمّاةٍ صراحةً كلُّها مسجَّلةٌ لهذا القارئ بهذا المصدر نفسِه، لا غير.
           #    فسورةٌ لا يحاذيها Whisper لغياب السكتات (الرحمن عند الركباوي وبلعالية)
           #    تُحاذى بـCTC من مصحف القارئ نفسِه. وسائرُ الحُرّاس (البصمة والإحصاء
           #    والملوح وحارس البتر) تبقى كما هي.
           alt = False
-          if got != want_t:
+          if not folder and got != want_t:
               ov = json.load(open("tools/ci_fleet/source_overrides.json", encoding="utf-8"))
               ov = ov if isinstance(ov, list) else ov.get("overrides", [])
               asked0 = [int(x) for x in re.findall(r"\d+", os.environ.get("WANT", ""))]
@@ -137,17 +147,29 @@ jobs:
               sys.exit(f"⛔ سورٌ تامّةٌ في الأصل لا تُمسّ: {extra}")
           if not todo:
               sys.exit("⛔ لا نقصَ في الأصل — لا شيء يُحاذى")
+          if folder:
+              # ⛔ الرابطُ من الأب حرفاً، ويُطابَق بما سيُنزَّل فعلاً (‏batch_run
+              #    يبني أساسَ الكتالوج + اسمَ الجدول) — سورةٌ بلا مدخلٍ في الأب
+              #    أو بروابطَ مختلفة أو برابطٍ غيرِ هذا تُردّ هنا قبل تنزيل بايت.
+              from splice_surah import parent_refs
+              refs = parent_refs(idx["entries"], todo)
+              bad = {s: r for s, r in refs.items() if r != urlt + files[s - 1]}
+              if bad:
+                  sys.exit("⛔ روابطُ الأب تخالف أساسَ الكتالوج + جدولَ files: "
+                           + " · ".join(f"س{s}: {r} ≠ {urlt + files[s - 1]}" for s, r in bad.items()))
+              print("📇 مضيفُ مجلَّد — الروابطُ من الأب:", {s: refs[s] for s in todo})
           sha = hashlib.sha256(body).hexdigest()
           print(f"الأصل {parent} ({sha[:12]}) · محرّكه {idx.get('engineVersion')} · "
                 f"سورُ النقص {len(gaps)} · المطلوبة {todo}")
           with open(os.environ["GITHUB_OUTPUT"], "a") as f:
               f.write(f"rid={rid}\nsha={sha}\nsurahs={','.join(map(str, todo))}\n"
-                      f"alt={'1' if alt else ''}\n")
+                      f"alt={'1' if alt else ''}\nfolder={'1' if folder else ''}\n"
+                      f"urlt={urlt}\n")
           PY
 
       - name: المحاذاة بـCTC لسور النقص وحدها (⛔ بلا رفع)
         env:
-          URLT: ${{ github.event.inputs.url_template }}
+          URLT: ${{ steps.plan.outputs.urlt }}
           RIW: ${{ github.event.inputs.riwaya }}
           RID: ${{ steps.plan.outputs.rid }}
           SURAHS: ${{ steps.plan.outputs.surahs }}
@@ -155,13 +177,15 @@ jobs:
           set -o pipefail
           sudo chmod 755 /root
           # ‏batch_run يكتب ملفَّ سورةٍ لكلّ ما نجح؛ وفهرسُه الجزئيُّ في آخره لا يُستعمل.
+          # ‏وأساسُ المجلَّد (‏بلا {s:03d}) يمرّ كما هو فيقرأ batch_run جدولَ files.
           BASE="$(printf '%s' "$URLT" | sed 's/{s:03d}/{surah:03d}/')"
           python tools/alignment/batch_run.py --reciter "$RID" --riwaya "$RIW" \
             --base "$BASE" --surahs "$SURAHS" 2>&1 | tee ctc.log
 
       - name: الدمجُ بحُرّاسه وبصماتُ الصوت
         env:
-          URLT: ${{ github.event.inputs.url_template }}
+          URLT: ${{ steps.plan.outputs.urlt }}
+          FOLDER: ${{ steps.plan.outputs.folder }}
           RID: ${{ steps.plan.outputs.rid }}
           SURAHS: ${{ steps.plan.outputs.surahs }}
           ALT: ${{ steps.plan.outputs.alt }}
@@ -170,6 +194,8 @@ jobs:
           d="tools/alignment/work/batch_$RID"
           # ⛔ (2026-09-28) المصدرُ البديلُ يُعلَن في `sourceBySurah` فيُحصى كلُّ آيةٍ منه.
           ALTF=""; [ -n "$ALT" ] && ALTF="--alt-source"
+          # ⭐ مضيفُ المجلَّد: `fileRef` من الأب حرفاً (‏والتحقّقُ بعده يطابقه بالمنزَّل).
+          [ -n "$FOLDER" ] && ALTF="$ALTF --refs-from-parent"
           S=""; F=""
           for s in $(echo "$SURAHS" | tr ',' ' '); do
             j=$(printf "%s/s%03d.json" "$d" "$s")
