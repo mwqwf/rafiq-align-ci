@@ -525,10 +525,10 @@
    }
   },
   "hafs/nasser_almajed": {
-   "entries": 6202,
+   "entries": 6218,
    "missingSurahs": [],
    "reasonCode": "SOURCE_TRUNCATED",
-   "transformOp": "declare_gap:6",
+   "transformOp": "ctc_surah_splice:6",
    "declaredReasons": {
     "no-align": 34,
     "source_truncated": 0
@@ -537,7 +537,6 @@
    "undeclaredCount": 0,
    "engine": "align-0.2",
    "gapSurahs": {
-    "6": 16,
     "20": 2,
     "25": 1,
     "37": 1,
