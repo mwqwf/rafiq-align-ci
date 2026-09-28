@@ -263,7 +263,14 @@ def held():
     #    حجزاً **لا يُطابق شيئاً أبداً** — ويبقى ساكتاً: لا خطأ، ولا حماية.
     #    وثمنُه أنّ مَن قرأ الملفّ حسِب الفهرس محجوزاً وهو سائبٌ إلى الإنتاج.
     #    ⇒ يُنبَّه ولا يُحذف: الحذفُ يُخفي ما كُتب، والتنبيهُ يُصلحه صاحبُه.
-    bad = [k for k in out if not re.fullmatch(r"timings/[^/]+/[^/.]+\.jz", k)]
+    #    ⭐ **وصيغةٌ ثانيةٌ مقصودة (2026-09-28):** مفتاحُ المرشّح بعينه
+    #    `timings-staging/<الرواية>/<المعرّف>.<بصمة8>.jz` يحجز **تلك البصمة
+    #    وحدها** ويترك الهدفَ مفتوحاً لغيرها — لإعادة المنشور إلى نسخةٍ سابقة
+    #    مع بقاء المرشّح الأحدث محجوزاً (‏أمر المالك في ناصر المجد). والحجزُ
+    #    بهذه الصيغة يزيد ما يُحجب ولا يُنقصه: الهدفُ المحجوز يبقى محجوزاً.
+    bad = [k for k in out
+           if not (re.fullmatch(r"timings/[^/]+/[^/.]+\.jz", k)
+                   or re.fullmatch(r"timings-staging/[^/]+/[^/.]+\.[0-9a-f]{8}\.jz", k))]
     if bad:
         print("⚠️ مفاتيحُ حجزٍ لا تُطابق شكلَ الهدف فلا تحجب شيئاً: "
               + " · ".join(bad), file=sys.stderr)
@@ -1106,7 +1113,7 @@ def sampling_skip_reason(key, reports, holds=(), frozen=()):
         return "مفتاحُ تجربة"
     if ".partial" in key:
         return "لقطةٌ جزئية — لا تُرقّى فلا تُقاس"
-    if target in set(holds):
+    if target in set(holds) or key in set(holds):
         return "محجوز"
     if target in set(frozen):
         return "الهدفُ مجمَّد"
@@ -1261,7 +1268,7 @@ def gate(rep, frozen, prefix, holds=None, override=None, ci_reports=None,
          openers_reports=None, pooled_map=None):
     """(الهدف، سبب الرفض) — والرفض نصٌّ يُطبع، فالصمت ليس قبولاً."""
     target = f"{prefix}timings/{rep.get('riwaya')}/{rep.get('reciterId')}.jz"
-    hold = (holds or {}).get(target)
+    hold = (holds or {}).get(target) or (holds or {}).get(rep.get("key"))
     if hold:
         return target, f"محجوز: {hold}"
     verdict = rep.get("verdict")
