@@ -82,6 +82,10 @@ def main() -> None:
                     help="محرّكُ المحاذاة المدموجة إن خالف محرّكَ الفهرس (‏مثل "
                          "ctc-seg-1) — يُكتب في `engineBySurah` لكلّ سورةٍ أُخذت، "
                          "فيطلب حارسُ الترقية إحصاءً صوتيّاً شاملاً لها")
+    ap.add_argument("--alt-source", action="store_true",
+                    help="صوتُ السور المأخوذة من مصدرٍ بديلٍ مسجَّل (‏غيرِ ملفّ الكتالوج) — "
+                         "يُكتب قالبُ `--url` في `sourceBySurah` لكلّ سورةٍ أُخذت، "
+                         "فيطلب حارسُ الترقية إحصاءً صوتيّاً شاملاً لها")
     args = ap.parse_args()
 
     surahs = [int(x) for x in args.surah.replace(",", " ").split()]
@@ -162,6 +166,19 @@ def main() -> None:
         out["engineBySurah"] = dict(sorted(ebs.items(), key=lambda kv: int(kv[0])))
     else:
         out.pop("engineBySurah", None)
+    # ⛔ **والمصدرُ البديلُ يُعلَن كذلك** (‏2026-09-28): سورةٌ جاء صوتُها من
+    #    تسجيلٍ غيرِ ملفّ الكتالوج تُسجَّل بقالبها في `sourceBySurah` ولو كان
+    #    المحرّكُ محرّكَ الفهرس نفسَه — فقد تغيّر الصوتُ لا المحرّك. وما أُعيد
+    #    من مصدر الكتالوج يُمحى منه، فيبقى السجلُّ وصفاً صادقاً لكلّ سورة.
+    sbs = {k: v for k, v in dict(idx.get("sourceBySurah") or {}).items()
+           if int(k) not in surahs}
+    if args.alt_source:
+        for s in surahs:
+            sbs[str(s)] = args.url
+    if sbs:
+        out["sourceBySurah"] = dict(sorted(sbs.items(), key=lambda kv: int(kv[0])))
+    else:
+        out.pop("sourceBySurah", None)
     miss = dict(out.get("missing") or {})
     ids = [e["ayahId"] for e in merged]
     have = set(ids)

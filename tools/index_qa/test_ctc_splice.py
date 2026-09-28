@@ -388,5 +388,132 @@ class WhisperStageGuard(StageGuard):
         self.assertIn("لا يُرفع ناقص", self._w(d))
 
 
+# ═══ المصدرُ البديلُ على أصلٍ منشورٍ بـCTC (‏2026-09-28، asim/38) ═══
+#    المحرّكُ نفسُه والصوتُ غيرُه: لا `engineBySurah`، فالإعلانُ في `sourceBySurah`،
+#    ولا يمرّ دمجٌ على أصل CTC بلا هذا الإعلان، ويوجب الإعلانُ الإحصاءَ الشامل.
+ALT = "https://alt.example/asim/{s:03d}.mp3"
+A_OP = "ctc_surah_splice:112,113"
+
+
+def _aspliced(src=ALT):
+    d = _ctc_parent()
+    ents = _entries({})
+    for e in ents:
+        if int(e["ayahId"].split(":")[0]) in (112, 113):
+            e["fileRef"] = src.format(s=int(e["ayahId"].split(":")[0]))
+    d["entries"] = ents
+    d["missing"] = {"count": 0, "ids": [], "byReason": {}}
+    d["sourceBySurah"] = {"112": ALT, "113": ALT}
+    d["transform"] = {"op": A_OP}
+    return d
+
+
+class AltSourceSplice(unittest.TestCase):
+    def _splice(self, tmp, parent, extra):
+        _write(tmp / "p.jz", parent)
+        f = tmp / "s112.json"
+        f.write_text(json.dumps(_aligned(112)), encoding="utf-8")
+        r = subprocess.run([sys.executable, str(HERE / "splice_surah.py"), "--index",
+                            str(tmp / "p.jz"), "--surah", "112", "--aligned", str(f),
+                            "--url", ALT, "--engine-tag", "ctc-seg-1", *extra,
+                            "--out", str(tmp / "o.jz")],
+                           capture_output=True, text=True, encoding="utf-8")
+        self.assertEqual(r.returncode, 0, r.stdout + r.stderr)
+        return _load(tmp / "o.jz")
+
+    def test_alt_source_is_declared_on_same_engine(self):
+        with tempfile.TemporaryDirectory() as t:
+            out = self._splice(Path(t), _ctc_parent(), ["--alt-source"])
+        self.assertNotIn("engineBySurah", out)          # المحرّكُ لم يتغيّر
+        self.assertEqual(out["sourceBySurah"], {"112": ALT})
+
+    def test_catalog_retake_clears_alt_declaration(self):
+        with tempfile.TemporaryDirectory() as t:
+            p = _ctc_parent()
+            p["sourceBySurah"] = {"112": ALT, "5": ALT}
+            out = self._splice(Path(t), p, [])
+        self.assertEqual(out["sourceBySurah"], {"5": ALT})
+
+
+class AltSourceStageGuard(StageGuard):
+    def _a(self, child, op=A_OP):
+        return self._stage(child, op, parent=_ctc_parent())
+
+    def test_declared_alt_source_accepted(self):
+        self.assertIsNone(self._a(_aspliced()))
+
+    def test_ctc_on_ctc_without_source_refused(self):
+        d = _aspliced()
+        d.pop("sourceBySurah")
+        self.assertIn("بلا إعلانٍ", self._a(d))
+
+    def test_partial_source_declaration_refused(self):
+        d = _aspliced()
+        d["sourceBySurah"] = {"112": ALT}
+        self.assertIn("بلا إعلانٍ", self._a(d))
+
+    def test_extra_source_surah_refused(self):
+        d = _aspliced()
+        d["sourceBySurah"]["5"] = ALT
+        self.assertIn("لم يمسّها", self._a(d))
+
+    def test_source_growth_under_plain_realign_refused(self):
+        self.assertIn("لم يمسّها", self._a(_aspliced(), "realign_surah:112,113"))
+
+    def test_declaration_not_matching_entries_refused(self):
+        d = _aspliced()
+        d["sourceBySurah"]["113"] = "https://other.example/{s:03d}.mp3"
+        self.assertIn("يخالف الفهرس", self._a(d))
+
+    def test_declared_source_equal_to_parent_audio_refused(self):
+        # ‏«مصدرٌ بديل» هو صوتُ الأصل نفسُه ⇒ لا تغيّرَ صوتٍ يُعلَن فيبقى الرفضُ الأصليّ.
+        d = _aspliced(src=URL)
+        d["sourceBySurah"] = {"112": URL, "113": URL}
+        self.assertIn("صوتُ الأصل", self._a(d))
+
+    def test_source_declaration_cannot_replace_foreign_engine(self):
+        # ‏على أصل Whisper لا يُغني الإعلانُ بالمصدر عن إعلان المحرّك.
+        d = _aspliced()
+        d["engineVersion"] = "align-0.2"
+        self.assertIn("بلا إعلانٍ", self._stage(d, A_OP))
+
+    def test_inherited_declaration_cannot_be_erased(self):
+        par = _aspliced()
+        par.pop("transform")
+        pbody_parent = par
+        d = json.loads(json.dumps(par))
+        d.pop("sourceBySurah")
+        for e in d["entries"]:
+            if e["ayahId"] == "1:1":
+                e["startMs"] += 10
+        self.assertIn("مُحي", self._stage(d, "basmala_fix", parent=pbody_parent))
+
+
+class AltSourceCensusGate(unittest.TestCase):
+    SRC = CensusGate.SRC
+    KEY = CensusGate.KEY
+
+    def gate(self, rep, idx):
+        objs = {} if rep is None else {self.KEY: json.dumps(rep).encode()}
+        return promote.census_gate(_S3(objs), "b", self.SRC, "S", idx)
+
+    def test_census_surahs_union(self):
+        d = _aspliced()
+        d["engineBySurah"] = {"7": "align-0.2", "9": "ctc-seg-1"}
+        self.assertEqual(promote.census_surahs(d), {"7", "112", "113"})
+
+    def test_alt_source_requires_census(self):
+        self.assertIn("بلا إحصاء", self.gate(None, _aspliced()))
+
+    def test_alt_source_census_must_cover_it(self):
+        self.assertIn("غطّى", self.gate(_census("S", surahs=(112,)), _aspliced()))
+
+    def test_alt_source_full_census_passes(self):
+        self.assertIsNone(self.gate(_census("S"), _aspliced()))
+
+    def test_alt_source_severe_over_five_percent_refused(self):
+        self.assertIn("عطبٌ جسيم", self.gate(_census("S", severe=1), _aspliced()))
+
+
 if __name__ == "__main__":
     unittest.main()

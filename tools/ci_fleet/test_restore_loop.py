@@ -115,7 +115,10 @@ class RestoreLoopTests(unittest.TestCase):
 
     def test_candidates_skips_non_kufi_index_without_stopping_fleet(self):
         bad = {"entries": [{"ayahId": "1:1"}], "ayahCounting": "qalun"}
-        good = {"entries": [{"ayahId": "1:1"}], "refineVersion": "test"}
+        # ‏الفهرسُ السليمُ تامٌّ إلا س2 الغائبةَ (‏أربعُ آيات) — كان فيه 1:1 وحدَه فصارت
+        #    السورُ 3..114 الغائبةُ كلُّها مرشّحةً بحقّ، والمقصودُ اختبارُ التخطّي وحده.
+        good = {"entries": [{"ayahId": f"{s}:1"} for s in range(1, 115) if s != 2],
+                "refineVersion": "test"}
         expected = [1] * 114
         expected[1] = 4
         with mock.patch.object(loop, "effective_indexes", return_value=[
@@ -215,6 +218,16 @@ class CensusDispatchTests(unittest.TestCase):
         d = _spliced_idx()
         d["engineBySurah"] = {"45": "align-0.2"}
         self.assertFalse(loop.needs_census(d, "S", None))
+
+    def test_alt_source_on_same_engine_needs_census(self):
+        # ⭐ (2026-09-28) سورةٌ من مصدرٍ بديلٍ بالمحرّك نفسِه: لا `engineBySurah`
+        #    يخالف، لكنّ الصوتَ تغيّر ⇒ `sourceBySurah` وحده يوجب الإحصاء.
+        d = _spliced_idx("ctc_surah_splice:38")
+        d["engineVersion"] = "ctc-seg-1"
+        d.pop("engineBySurah", None)
+        d["sourceBySurah"] = {"38": "https://alt.example/{s:03d}.mp3"}
+        self.assertTrue(loop.needs_census(d, "S", None))
+        self.assertFalse(loop.needs_census(d, "S", {"sha256": "S"}))
 
     def test_fully_salted_candidate_gets_census(self):
         # ⭐ حالةُ a_alhazmi: أربعةُ ملوحٍ مكتملة فلا يدخل الدفعة، وإحصاؤه غائب

@@ -119,6 +119,21 @@ def splice_op_name(op: str) -> str | None:
     return head if head in SPLICE_OPS and ":" in str(op) else None
 
 
+def census_surahs(idx: dict) -> set[str]:
+    """السورُ التي يلزمها إحصاءٌ صوتيٌّ شامل: ما أُعلن بمحرّكٍ غيرِ محرّك الفهرس
+    (‏`engineBySurah`) **∪** ما جاء صوتُه من مصدرٍ بديلٍ مسجَّل (‏`sourceBySurah`).
+
+    ⛔ (‏2026-09-28) دمجُ سورةٍ من تسجيلٍ آخر للقارئ في فهرسٍ بالمحرّك نفسِه لا
+    يُكتب في `engineBySurah` (‏المحرّكُ لم يتغيّر)، فكان يخرج من الإحصاء وقد تغيّر
+    **الصوتُ نفسُه**. فالمصدرُ البديلُ يُحصى كالمحرّك الآخر — يزيد السماعَ ولا
+    يُنقصه. ومصدرٌ واحدٌ يقرؤه `census_gate` و`ci_run --census`
+    و`splice_census.yml` و`restore_loop.needs_census` فلا يتفرّق الشرط."""
+    out = {str(k) for k, v in (idx.get("engineBySurah") or {}).items()
+           if v and v != idx.get("engineVersion")}
+    out |= {str(k) for k, v in (idx.get("sourceBySurah") or {}).items() if v}
+    return out
+
+
 def census_gate(cl, bucket, src, live_sha, idx):
     """سببُ ردِّ فهرسٍ مدموجِ المحرّكين، أو None. **الغيابُ ردٌّ لا تساهل.**
 
@@ -134,8 +149,8 @@ def census_gate(cl, bucket, src, live_sha, idx):
     """
     tr = idx.get("transform")
     op = str((tr or {}).get("op") or "") if isinstance(tr, dict) else str(tr or "")
-    ebs = {k for k, v in (idx.get("engineBySurah") or {}).items()
-           if v and v != idx.get("engineVersion")}
+    # ‏السورُ المطلوبُ إحصاؤها: محرّكٌ آخر ∪ مصدرٌ بديل (‏`census_surahs`).
+    ebs = census_surahs(idx)
     if not ebs:
         if splice_op_name(op):
             return "تحويلُ دمجٍ بلا سجلّ محرّكاتٍ في الترويسة — إعلانٌ ناقص"
@@ -144,7 +159,8 @@ def census_gate(cl, bucket, src, live_sha, idx):
     try:
         rep = json.loads(cl.get_object(Bucket=bucket, Key=key)["Body"].read())
     except Exception:                                  # noqa: BLE001
-        return f"سورٌ بمحرّكٍ آخر ({','.join(sorted(ebs, key=int))}) بلا إحصاءٍ شامل في {key}"
+        return (f"سورٌ بمحرّكٍ آخر أو مصدرٍ بديل ({','.join(sorted(ebs, key=int))})"
+                f" بلا إحصاءٍ شامل في {key}")
     if rep.get("sha256") != live_sha:
         return "الإحصاءُ الشامل على بصمةٍ أخرى — يُعاد على هذه"
     got = {str(s) for s in (rep.get("census") or {}).get("surahs") or []}

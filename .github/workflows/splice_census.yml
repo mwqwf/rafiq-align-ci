@@ -55,10 +55,11 @@ jobs:
               op = str((tr or {}).get("op") or "") if isinstance(tr, dict) else str(tr or "")
               # ‏الاسمان من مصدرٍ واحد (`promote.SPLICE_OPS`): دمجُ CTC في Whisper وعكسُه.
               # ‏ومرآةُ `census_gate`: سورٌ بمحرّكٍ آخر ولو كان آخرُ تحويلٍ إعلانَ غياب (2026-09-25).
-              ebs = [s for s, v in (d.get("engineBySurah") or {}).items()
-                     if v and v != d.get("engineVersion")]
+              # ‏ومعها سورُ المصدر البديل (`sourceBySurah`) — `promote.census_surahs` (2026-09-28).
+              from promote import census_surahs
+              ebs = sorted(census_surahs(d), key=int)
               if not ebs:
-                  print(f"⏭ {k} — لا دمجَ محرّكين", file=sys.stderr); continue
+                  print(f"⏭ {k} — لا دمجَ محرّكين ولا مصدرَ بديل", file=sys.stderr); continue
               sha = hashlib.sha256(b).hexdigest()
               try:
                   old = json.loads(s3.get_object(

@@ -683,9 +683,10 @@ def needs_census(idx: dict, sha: str, census_rep: dict | None) -> bool:
     #    عن اسم التحويل وحده فلا يُطلق إحصاءً أبداً ⇒ حبسٌ دائم (akri_qalun.e7f2fc9f).
     #    ⇒ الشرطُ الآن مرآةُ `census_gate` حرفاً: كلُّ سورةٍ بمحرّكٍ غيرِ محرّك الفهرس.
     #    وهذا يزيد الإحصاءَ ولا يُنقصه، فلا يُضعف حارساً.
-    ebs = {k for k, v in (idx.get("engineBySurah") or {}).items()
-           if v and v != idx.get("engineVersion")}
-    if not ebs:
+    #    ⭐ (2026-09-28) ومعها سورُ المصدر البديل (`sourceBySurah`) — مصدرٌ واحدٌ
+    #    هو `promote.census_surahs`، فلا يفترق هذا الشرطُ عن الحَكَم.
+    from promote import census_surahs                          # noqa: PLC0415
+    if not census_surahs(idx):
         return False
     return not (isinstance(census_rep, dict) and census_rep.get("sha256") == sha)
 

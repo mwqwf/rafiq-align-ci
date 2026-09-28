@@ -128,10 +128,11 @@ def main():
         tr0 = idx0.get("transform")
         op0 = str((tr0 or {}).get("op") or "") if isinstance(tr0, dict) else str(tr0 or "")
         # ‏مرآةُ `census_gate`: سورٌ بمحرّكٍ آخر ولو كان آخرُ تحويلٍ إعلانَ غياب (2026-09-25).
-        ebs = {k: v for k, v in (idx0.get("engineBySurah") or {}).items()
-               if v and v != idx0.get("engineVersion")}
+        # ‏والمصدرُ البديلُ (`sourceBySurah`) يُحصى كالمحرّك الآخر — `promote.census_surahs`.
+        from promote import census_surahs
+        ebs = census_surahs(idx0)
         if not ebs:
-            raise SystemExit(f"⛔ لا دمجَ محرّكين في هذا الفهرس (op={op0!r}) — لا إحصاء")
+            raise SystemExit(f"⛔ لا دمجَ محرّكين ولا مصدرَ بديلاً في هذا الفهرس (op={op0!r}) — لا إحصاء")
         os.environ["QA_CENSUS_SURAHS"] = ",".join(sorted(ebs, key=int))
         a.kind, a.out_prefix, a.seed_salt, a.out_suffix = (
             "splice-census", "state-census", "census", "")

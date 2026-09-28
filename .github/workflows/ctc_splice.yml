@@ -141,7 +141,8 @@ jobs:
           print(f"الأصل {parent} ({sha[:12]}) · محرّكه {idx.get('engineVersion')} · "
                 f"سورُ النقص {len(gaps)} · المطلوبة {todo}")
           with open(os.environ["GITHUB_OUTPUT"], "a") as f:
-              f.write(f"rid={rid}\nsha={sha}\nsurahs={','.join(map(str, todo))}\n")
+              f.write(f"rid={rid}\nsha={sha}\nsurahs={','.join(map(str, todo))}\n"
+                      f"alt={'1' if alt else ''}\n")
           PY
 
       - name: المحاذاة بـCTC لسور النقص وحدها (⛔ بلا رفع)
@@ -163,9 +164,12 @@ jobs:
           URLT: ${{ github.event.inputs.url_template }}
           RID: ${{ steps.plan.outputs.rid }}
           SURAHS: ${{ steps.plan.outputs.surahs }}
+          ALT: ${{ steps.plan.outputs.alt }}
         run: |
           set -e
           d="tools/alignment/work/batch_$RID"
+          # ⛔ (2026-09-28) المصدرُ البديلُ يُعلَن في `sourceBySurah` فيُحصى كلُّ آيةٍ منه.
+          ALTF=""; [ -n "$ALT" ] && ALTF="--alt-source"
           S=""; F=""
           for s in $(echo "$SURAHS" | tr ',' ' '); do
             j=$(printf "%s/s%03d.json" "$d" "$s")
@@ -174,7 +178,7 @@ jobs:
           S="${S#,}"
           [ -n "$S" ] || { echo "⛔ لا سورةَ حوذيت"; exit 1; }
           python tools/index_qa/splice_surah.py --index parent.jz --surah "$S" \
-                 --aligned $F --url "$URLT" --skip-unresolved --engine-tag ctc-seg-1 \
+                 --aligned $F --url "$URLT" --skip-unresolved --engine-tag ctc-seg-1 $ALTF \
                  --out patched.jz
           python - <<'PY'
           import gzip, json, os
@@ -202,7 +206,8 @@ jobs:
                     f"والسورُ {len(present)} — تُترك كما هي")
           with open("patched.jz", "wb") as f:
               f.write(gzip.compress(json.dumps(idx, ensure_ascii=False).encode("utf-8")))
-          print("المأخوذ:", taken, "· engineBySurah:", idx.get("engineBySurah"))
+          print("المأخوذ:", taken, "· engineBySurah:", idx.get("engineBySurah"),
+                "· sourceBySurah:", idx.get("sourceBySurah"))
           PY
 
       - name: رفعٌ إلى الاختبار بحُرّاس stage_transform

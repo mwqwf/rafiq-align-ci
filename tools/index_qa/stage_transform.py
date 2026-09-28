@@ -145,15 +145,31 @@ def main():
     #    كذبٌ في سجلّ النسب يُردّ، ولا يكفي أنّه «غيرُ محرّك الفهرس».
     ebs = idx.get("engineBySurah") or {}
     p_ebs = pidx.get("engineBySurah") or {}
+    # ⛔ **والمصدرُ البديلُ يُعلَن سورةً سورة** (‏2026-09-28): دمجُ سورةٍ من تسجيلٍ
+    #    آخر للقارئ نفسِه (‏`source_overrides.json`) في فهرسٍ بالمحرّك نفسِه لا يُكتب
+    #    في `engineBySurah` — فلا يمرّ إلا مُعلَناً في `sourceBySurah` بقالبه، وكلُّ
+    #    مدخلٍ في السورة يُشير إلى ذلك القالب بعينه، والصوتُ غيرُ صوت الأصل فعلاً.
+    #    وهذا بابٌ **أضيق** لا أوسع: يُضاف إلى إعلان المحرّك ولا يُعفي منه، والسورةُ
+    #    المعلَنةُ مصدراً تدخل الإحصاءَ الشامل (‏`promote.census_surahs`).
+    sbs = idx.get("sourceBySurah") or {}
+    p_sbs = pidx.get("sourceBySurah") or {}
+    if not isinstance(sbs, dict) or not all(isinstance(v, str) and v for v in sbs.values()):
+        raise SystemExit("⛔ `sourceBySurah` غيرُ سويّ — يجب قاموساً من سورةٍ إلى قالبِ رابط")
     _splice = promote.splice_op_name(a.op)
     if _splice:
         named = {str(s) for s in realigned}
-        tagged = {k for k, v in ebs.items() if v and v != idx.get("engineVersion")}
-        if not named or not named <= tagged:
-            raise SystemExit(f"⛔ دمجُ محرّكين بلا إعلانٍ لكلّ سورة: المسمّاة "
-                             f"{sorted(named, key=int)} والمعلَنة {sorted(tagged, key=int)}")
         want_eng = promote.SPLICE_OPS[_splice]
-        wrong = sorted((k for k in named if ebs.get(k) != want_eng), key=int)
+        tagged = {k for k, v in ebs.items() if v and v != idx.get("engineVersion")}
+        # ‏الإعلانُ بالمصدر لا يقوم مقامَ المحرّك إلا حين يكون محرّكُ التحويل هو
+        #    محرّكَ الفهرس نفسَه (‏فلا يُكتب في `engineBySurah` أصلاً) ولم يتغيّر.
+        same_eng = (idx.get("engineVersion") == want_eng
+                    and pidx.get("engineVersion") == want_eng)
+        by_src = (named & set(sbs)) if same_eng else set()
+        if not named or not named <= (tagged | by_src):
+            raise SystemExit(f"⛔ دمجُ محرّكين بلا إعلانٍ لكلّ سورة: المسمّاة "
+                             f"{sorted(named, key=int)} والمعلَنة {sorted(tagged, key=int)}"
+                             f" والمعلَنةُ مصدراً بديلاً {sorted(by_src, key=int)}")
+        wrong = sorted((k for k in named & tagged if ebs.get(k) != want_eng), key=int)
         if wrong:
             raise SystemExit(f"⛔ {_splice} يُعلن سورَه بـ{want_eng}، والسور "
                              f"{wrong} معلَنةٌ بغيره: "
@@ -164,6 +180,40 @@ def main():
                              f"ورثها الأصل: {sorted(extra, key=int)}")
     elif set(ebs) - set(p_ebs):
         raise SystemExit("⛔ سجلُّ المحرّكات زاد سوراً في تحويلٍ لا يدمج محرّكين — يُردّ")
+    named_src = {str(s) for s in realigned} if _splice else set()
+    extra_src = set(sbs) - named_src - set(p_sbs)
+    if extra_src:
+        raise SystemExit(f"⛔ سورٌ معلَنةٌ بمصدرٍ بديلٍ لم يمسّها التحويل ولا ورثها "
+                         f"الأصل: {sorted(extra_src, key=int)}")
+    moved_src = sorted((k for k in set(sbs) - named_src if sbs[k] != p_sbs.get(k)), key=int)
+    if moved_src:
+        raise SystemExit(f"⛔ مصدرُ سورٍ لم يمسّها التحويل تبدّل في الترويسة: {moved_src}")
+    # ‏ولا يُمحى إعلانٌ موروثٌ ما دامت مداخلُ سورته تُشير إلى المصدر البديل نفسِه —
+    #    وإلا خرجت من الإحصاء بمحوِ سطرٍ في الترويسة.
+    for k in sorted(set(p_sbs) - set(sbs), key=int):
+        try:
+            pref = str(p_sbs[k]).format(s=int(k))
+        except Exception:                                      # noqa: BLE001
+            pref = None
+        if pref and any(e.get("fileRef") == pref for e in (idx.get("entries") or [])
+                        if int(e["ayahId"].split(":")[0]) == int(k)):
+            raise SystemExit(f"⛔ إعلانُ المصدر البديل لـس{k} مُحي ومداخلُها ما زالت "
+                             f"تُشير إليه ({pref}) — يُردّ")
+    for k in sorted(set(sbs) & named_src, key=int):
+        try:
+            ref = sbs[k].format(s=int(k))
+        except Exception as e:                                 # noqa: BLE001
+            raise SystemExit(f"⛔ قالبُ المصدر البديل لـس{k} لا يُنسَّق: {e}")
+        refs = {e.get("fileRef") for e in (idx.get("entries") or [])
+                if int(e["ayahId"].split(":")[0]) == int(k)}
+        if refs != {ref}:
+            raise SystemExit(f"⛔ س{k} معلَنةٌ من {ref} ومداخلُها تُشير إلى "
+                             f"{sorted(map(str, refs))[:3]} — الإعلانُ يخالف الفهرس")
+        old_refs = {e.get("fileRef") for e in (pidx.get("entries") or [])
+                    if int(e["ayahId"].split(":")[0]) == int(k)}
+        if ref in old_refs and p_sbs.get(k) != sbs[k]:
+            raise SystemExit(f"⛔ س{k} معلَنةٌ مصدراً بديلاً وصوتُها هو صوتُ الأصل "
+                             f"({ref}) — لا تغيّرَ يُعلَن")
     if realigned:
         have_old = {e["ayahId"] for e in (pidx.get("entries") or [])}
         have_new = {e["ayahId"] for e in (idx.get("entries") or [])}
