@@ -654,7 +654,11 @@ def _local_audio(url):
         tmp = p.with_name(f"{p.name}.{os.getpid()}.{threading.get_ident()}.part")
         last = None
         try:
-            for attempt in (1, 2, 3):
+            # ⛔ **وخادمُ archive.org يردّ 500 متقطّعاً** (‏فخفاخ/الصافّات 2026-09-28:
+            # نجح تنزيلٌ واحدٌ من سبع) ⇒ ثلاثُ محاولاتٍ بثوانٍ لا تكفي فيسقط الإحصاء
+            # بآياتٍ «لم تُسمع». ثماني محاولاتٍ بتراجعٍ أُسّيٍّ سقفُه دقيقة. ولا يُقبل
+            # بهذا إلا ملفٌّ كاملٌ بطوله المعلَن — الصبرُ لا يُرخي حارساً.
+            for attempt in range(1, 9):
                 try:
                     rq0 = urllib.request.Request(src, headers=UA)
                     with urllib.request.urlopen(rq0, timeout=90) as r, open(tmp, "wb") as f:
@@ -663,7 +667,7 @@ def _local_audio(url):
                     got = tmp.stat().st_size
                     if want and got != want:
                         last = RuntimeError(f"مبتور: {got} من {want} بايت")
-                        time.sleep(2 * attempt)
+                        time.sleep(min(60, 2 ** attempt))
                         continue
                     if got >= 10_000:
                         os.replace(tmp, p)   # ذرّيّ: لا يرى أحدٌ `p` إلا كاملاً
@@ -671,7 +675,7 @@ def _local_audio(url):
                     last = RuntimeError(f"ملفٌ مبتور ({got} بايت)")
                 except Exception as ex:
                     last = ex
-                    time.sleep(2 * attempt)
+                    time.sleep(min(60, 2 ** attempt))
             else:
                 raise RuntimeError(f"تعذّر تنزيل {src}: {last}")
         finally:
