@@ -18,6 +18,10 @@ on:
         description: "true = يُعاد الإحصاءُ ولو أُحصي على البصمة نفسها (‏نافذةٌ تعذّرت فردّ الحارسُ)"
         required: false
         default: "false"
+      no_range:
+        description: "true = فكٌّ كاملٌ للملفّ بلا قراءة نطاقات (‏QA_NO_RANGE) — للفصل بين عطب الأداة وعطب المحاذاة"
+        required: false
+        default: "false"
 
 jobs:
   prepare:
@@ -103,6 +107,7 @@ jobs:
           KEY: ${{ matrix.key }}
           QA_MODEL: ${{ github.workspace }}/assets-archive/ggml/ggml-tiny-ar-quran-q8_0.bin
           QA_CACHE: ${{ github.workspace }}/qa_audio
+          QA_NO_RANGE: ${{ github.event.inputs.no_range == 'true' && '1' || '' }}
           R2_CREDENTIALS_JSON: ${{ secrets.R2_CREDENTIALS_JSON }}
         run: |
           mkdir -p secure

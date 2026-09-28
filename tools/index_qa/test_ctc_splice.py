@@ -204,6 +204,19 @@ class CensusGate(unittest.TestCase):
         # س112+س113 = 4+5 = 9 آيات ⇒ آيةٌ جسيمةٌ واحدة 11% > 5%
         self.assertIn("عطبٌ جسيم", self.gate(_census("S", severe=1)))
 
+    def test_mostly_inconclusive_census_refused(self):
+        # 9 آيات، 5 «غير حاسم» بلا تعذّر ⇒ الأغلبيةُ لم تُحسم فيُردّ
+        rep = _census("S")
+        for r in rep["sample"]["rows"][:5]:
+            r["verdict"], r["kind"] = "غير حاسم", "غير حاسم"
+        self.assertIn("لم يحكم", self.gate(rep))
+
+    def test_minority_inconclusive_still_passes(self):
+        rep = _census("S")
+        for r in rep["sample"]["rows"][:4]:
+            r["verdict"], r["kind"] = "غير حاسم", "غير حاسم"
+        self.assertIsNone(self.gate(rep))
+
     def test_header_mixing_without_splice_op_still_needs_census(self):
         d = _spliced()
         d["transform"] = {"op": "realign_surah:5"}
