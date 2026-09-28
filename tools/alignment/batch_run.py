@@ -25,6 +25,9 @@ if ENGINE == "ctc":
     from ctc_seg import ENGINE as _CTC_ENGINE, run_surah  # noqa: F811
 from validate import make_timing_index, sha256_file
 
+PUBLIC_CATALOG = ("https://pub-2c2e1dcd92e84a2898820dd38d3e09e6.r2.dev"
+                  "/catalog/reciters.json")
+
 
 def catalog_files(reciter):
     """جدولُ أسماء الملفات من الكتالوج لمضيفٍ **لا يرقّم** أسماءه.
@@ -40,15 +43,23 @@ def catalog_files(reciter):
     يرجع `{رقم السورة: اسمُ الملفّ}` بـ114 مدخلاً بالضبط، أو `None` إن لم
     يكن للقارئ جدولٌ. ولا يُخمَّن شيء: عددٌ غيرُ 114 يُرفع خطأً صريحاً.
     """
-    import boto3  # noqa: PLC0415 — لا يُستورد إلا عند الحاجة
-    c = json.load(open(os.path.join(ROOT, "secure", "r2_credentials.json"),
-                       encoding="utf-8"))
-    s3 = boto3.client("s3", endpoint_url=c["endpoint"],
-                      aws_access_key_id=c["accessKeyId"],
-                      aws_secret_access_key=c["secretAccessKey"],
-                      region_name="auto")
-    body = s3.get_object(Bucket=c["bucket"],
-                         Key="catalog/reciters.json")["Body"].read()
+    creds = os.path.join(ROOT, "secure", "r2_credentials.json")
+    if os.path.exists(creds):
+        import boto3  # noqa: PLC0415 — لا يُستورد إلا عند الحاجة
+        c = json.load(open(creds, encoding="utf-8"))
+        s3 = boto3.client("s3", endpoint_url=c["endpoint"],
+                          aws_access_key_id=c["accessKeyId"],
+                          aws_secret_access_key=c["secretAccessKey"],
+                          region_name="auto")
+        body = s3.get_object(Bucket=c["bucket"],
+                             Key="catalog/reciters.json")["Body"].read()
+    else:
+        # ⭐ الكتالوج منشورٌ للعامّة (‏يقرؤه التطبيق)، فوظيفةُ المحاذاة بلا رفع لا
+        #    تحتاج سرّاً لتقرأ جدولَ الأسماء. سقط سبرُ ctc_align على غربي ورش
+        #    (36417685022) لأنّ هذه الدالّة كانت تشترط الاعتماد وboto3 معاً.
+        import urllib.request  # noqa: PLC0415
+        with urllib.request.urlopen(PUBLIC_CATALOG, timeout=60) as r:
+            body = r.read()
     cat = json.loads(body.decode("utf-8"))
     for group in cat.get("riwayat", []):
         for r in group.get("reciters", []):
