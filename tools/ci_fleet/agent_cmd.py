@@ -102,6 +102,8 @@ ALLOWED_TOOLS = {"ci_fleet/refreeze.py", "tasmi_bench/cloud_stream_probe.py",  #
                  "index_qa/low_coverage_scan.py", "index_qa/dup_sha_sweep.py",
                  "index_qa/duration_profile.py", "index_qa/reciter_evidence.py",
                  "index_qa/dump_state.py", "index_qa/material_probe.py",
+                 # ⚖️ أُضيف 2026-09-28: مسبارُ صوتِ سورةٍ قارئٌ محض (‏مادّةٌ أم أداة؟) — لا دلوَ ولا سرّ.
+                 "index_qa/surah_audio_probe.py",
                  "index_qa/_debug_state_for.py", "index_qa/_debug_openers_for.py",
                  "ci_fleet/restore_loop.py", "ci_fleet/status_page.py",
                  # ⛔ **أُضيف 2026-09-20:** قراءةُ مخرَجِ تشغيلةٍ نصّاً.
