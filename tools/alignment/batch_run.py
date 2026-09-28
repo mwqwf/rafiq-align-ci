@@ -58,7 +58,10 @@ def catalog_files(reciter):
         #    تحتاج سرّاً لتقرأ جدولَ الأسماء. سقط سبرُ ctc_align على غربي ورش
         #    (36417685022) لأنّ هذه الدالّة كانت تشترط الاعتماد وboto3 معاً.
         import urllib.request  # noqa: PLC0415
-        with urllib.request.urlopen(PUBLIC_CATALOG, timeout=60) as r:
+        # ⚠️ r2.dev يردّ 403 على وكيل بايثون الافتراضي (درس 2026-09-06، وعاد 36418043292).
+        req = urllib.request.Request(
+            PUBLIC_CATALOG, headers={"User-Agent": "Mozilla/5.0 (QuranRafiq tools)"})
+        with urllib.request.urlopen(req, timeout=60) as r:
             body = r.read()
     cat = json.loads(body.decode("utf-8"))
     for group in cat.get("riwayat", []):
