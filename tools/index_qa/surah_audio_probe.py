@@ -63,12 +63,27 @@ def ia_meta(url):
     return f"⛔ الاسم غير موجود في بيانات المجلّد ({len(files)} ملفّاً)"
 
 
-def download(url, dst):
-    with http(url, timeout=300) as r, open(dst, "wb") as f:
-        want = int(r.headers.get("Content-Length") or 0)
-        shutil.copyfileobj(r, f)
-    got = os.path.getsize(dst)
-    return want, got, hashlib.sha256(open(dst, "rb").read()).hexdigest()
+def download(url, dst, tries=6):
+    """تنزيلٌ بإعاداتٍ يطبع لكلّ محاولةٍ ترويساتِها وما وصل — ولا يُخفي انقطاعاً."""
+    import time
+    last = None
+    for k in range(1, tries + 1):
+        try:
+            with http(url, timeout=300) as r, open(dst, "wb") as f:
+                hdr = {h: r.headers.get(h) for h in ("Content-Length", "Transfer-Encoding",
+                                                       "Content-Type", "Accept-Ranges")}
+                want = int(r.headers.get("Content-Length") or 0)
+                shutil.copyfileobj(r, f)
+            got = os.path.getsize(dst)
+            raw = open(dst, "rb").read()
+            print(f"     محاولة {k}: {r.status} · {hdr} · وصل {got}")
+            return want, got, hashlib.sha256(raw).hexdigest(), hashlib.md5(raw).hexdigest()
+        except Exception as e:                            # noqa: BLE001
+            got = os.path.getsize(dst) if os.path.exists(dst) else 0
+            print(f"     محاولة {k} ⛔ {type(e).__name__}: {e} · وصل {got}")
+            last = e
+            time.sleep(5 * k)
+    raise last
 
 
 def frame_walk(path):
@@ -141,16 +156,19 @@ def probe(url, work, label):
                   f" · النهائيّ={r.url}")
     except Exception as e:                                # noqa: BLE001
         print(f"     HEAD ⛔ {type(e).__name__}: {e}")
-    print(f"     archive.org يُعلن: {ia_meta(url)}")
+    meta = ia_meta(url)
+    print(f"     archive.org يُعلن: {meta}")
     f1, f2 = os.path.join(work, "a.mp3"), os.path.join(work, "b.mp3")
     try:
-        w1, g1, h1 = download(url, f1)
-        w2, g2, h2 = download(url, f2)
+        w1, g1, h1, m1 = download(url, f1)
+        w2, g2, h2, m2 = download(url, f2)
     except Exception as e:                                # noqa: BLE001
         print(f"     تنزيل ⛔ {type(e).__name__}: {e}")
         return
-    print(f"     تنزيل1: معلَن {w1} · منزَّل {g1} · {h1[:16]}")
-    print(f"     تنزيل2: معلَن {w2} · منزَّل {g2} · {h2[:16]} · {'متطابقان' if h1 == h2 else '⛔ مختلفان'}")
+    print(f"     تنزيل1: معلَن {w1} · منزَّل {g1} · sha {h1[:16]} · md5 {m1}")
+    print(f"     تنزيل2: معلَن {w2} · منزَّل {g2} · md5 {m2} · {'متطابقان' if h1 == h2 else '⛔ مختلفان'}")
+    if isinstance(meta, dict) and meta.get("md5"):
+        print(f"     md5 المنزَّل {'يطابق' if m1 == meta['md5'] else '⛔ لا يطابق'} md5 الناشر")
     sec, fr, info, nb = mp3dur.dur(f1)
     print(f"     mp3dur: {sec:.3f}ث · {fr} إطاراً · info={info} · {nb} بايت")
     if info:
