@@ -1,0 +1,36 @@
+# rc=0
+▶ timings/hafs/harthi.jz · 4b60f77488743854 · 6236 مدخلاً
+
+══ السورة 89
+  المنشور: 30 مدخلاً · fileRef=https://server8.mp3quran.net/harthi/089.mp3
+     أوّلُ startMs=0 · آخرُ endMs=159080 · آخرُ آية 89:30 (153860..159080)
+
+  ── السورة 89: https://server8.mp3quran.net/harthi/089.mp3
+     HEAD: 200 · Content-Length=2562761 · النهائيّ=https://server8.mp3quran.net/harthi/089.mp3
+     archive.org يُعلن: None
+     محاولة 1: 200 · {'Content-Length': '2562761', 'Transfer-Encoding': None, 'Content-Type': 'audio/mpeg', 'Accept-Ranges': 'bytes'} · وصل 2562761
+     محاولة 1: 200 · {'Content-Length': '2562761', 'Transfer-Encoding': None, 'Content-Type': 'audio/mpeg', 'Accept-Ranges': 'bytes'} · وصل 2562761
+     تنزيل1: معلَن 2562761 · منزَّل 2562761 · sha 80d56f198ff409e5 · md5 22df65c2799d2ab526a5658580de3006
+     تنزيل2: معلَن 2562761 · منزَّل 2562761 · md5 22df65c2799d2ab526a5658580de3006 · متطابقان
+     mp3dur: 159.451ث · 6104 إطاراً · info=(3, 3, 128, 44100) · 2562761 بايت
+     المدّةُ من الحجم بمعدّل 128ك.ب/ث: 160.2ث
+     مشيُ الإطارات: {"sec": 159.451, "frames": 6104, "bytes": 2562761, "bitrates": {"128": 6104}, "gaps": 0, "gap_bytes": 0, "first_gaps": [], "last_gaps": [], "id3_mid": [], "tail_unframed": 128}
+     ffprobe: {     "programs": [      ],     "streams": [         {             "codec_name": "mp3",             "sample_rate": "44100",             "channels": 2,             "duration": "159.459438"         },         {             "codec_name": "png",             "duration": "159.459433"         }     ],     "format": {         "duration": "159.459438",         "bit_rate": "128572"     } } 
+     ffmpeg version 6.1.1-3ubuntu5 Copyright (c) 2000-2023 the FFmpeg developers
+     فكٌّ كامل: rc=0 · 159.451ث · stderr(0 سطراً)=''
+     فكٌّ متسامح (قياسٌ فقط): rc=0 · 159.451ث · stderr=''
+     أوّلُ 5ث وحدها: stderr='[mp3 @ 0x55c5b8787ec0] Estimating duration from bitrate, this may be inaccurate'
+     من الثانية 10 إلى الآخر: stderr='[mp3 @ 0x55b80f44be80] Estimating duration from bitrate, this may be inaccurate\n[vost#0:0/wrapped_avframe @ 0x55b80f4796c0] No filtered frames for output stream, trying to initialize anyway.'
+     طاقةُ كلّ 30ث (RMS): [0.218, 0.2117, 0.2383, 0.2352, 0.2538, 0.2386]
+
+[stderr]
+
+Running kernel seems to be up-to-date.
+
+No services need to be restarted.
+
+No containers need to be restarted.
+
+No user sessions are running outdated binaries.
+
+No VM guests are running outdated hypervisor (qemu) binaries on this host.
