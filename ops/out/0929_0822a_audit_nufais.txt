@@ -1,0 +1,15 @@
+# rc=1
+
+[stderr]
+Warning: Identity file /home/runner/.ssh/rafiq_worker not accessible: No such file or directory.
+scp: Connection closed
+Traceback (most recent call last):
+  File "/home/runner/work/rafiq-align-ci/rafiq-align-ci/tools/index_qa/run.py", line 1637, in <module>
+    main()
+  File "/home/runner/work/rafiq-align-ci/rafiq-align-ci/tools/index_qa/run.py", line 1546, in main
+    push_worker(a.host)
+  File "/home/runner/work/rafiq-align-ci/rafiq-align-ci/tools/index_qa/run.py", line 1061, in push_worker
+    subprocess.run(["scp", "-q", "-i", str(SSH_KEY), "-o", "StrictHostKeyChecking=no",
+  File "/opt/hostedtoolcache/Python/3.11.16/x64/lib/python3.11/subprocess.py", line 571, in run
+    raise CalledProcessError(retcode, process.args,
+subprocess.CalledProcessError: Command '['scp', '-q', '-i', '/home/runner/.ssh/rafiq_worker', '-o', 'StrictHostKeyChecking=no', '/home/runner/work/rafiq-align-ci/rafiq-align-ci/tools/index_qa/remote_worker.py', 'root@2.28.47.206:/root/qa_worker.py']' returned non-zero exit status 255.
