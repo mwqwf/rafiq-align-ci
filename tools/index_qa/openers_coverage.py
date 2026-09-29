@@ -90,14 +90,25 @@ def main() -> int:
         if not hit:
             uncovered.append(k)
             continue
-        fat = hit[2].get("fatal") or []
-        if fat:
-            flagged.append((k, fat))
+        # بالحقول التي يقرؤها الحارس نفسُه (‏`promote.gate`): المؤكَّدُ `swallowed`
+        # و`openers.defects`؛ و`tail` و`suspect` تُعرض عدداً فقط كما يعرضها.
+        r = hit[2]
+        blob = r.get("openers") if isinstance(r.get("openers"), dict) else {}
+        hard = list(blob.get("defects") or []) + list(r.get("swallowed") or [])
+        soft = sorted(set(r.get("tail") or []) | set(r.get("suspect") or []))
+        if hard or soft:
+            flagged.append((k, hard, soft))
 
     print(f"\n✅ مغطّاةٌ بشاهدٍ موثوقٍ على بصمتها: {len(pub) - len(uncovered) - len(unread)}")
-    print(f"⛔ بشاهدٍ فيه فواتل: {len(flagged)}")
-    for k, fat in flagged:
-        print(f"   {k}: " + " · ".join(str(f)[:110] for f in fat[:4]))
+    print(f"⛔ بشاهدٍ فيه مطلعٌ مبتلعٌ مؤكَّد: {sum(1 for f in flagged if f[1])}")
+    for k, hard, soft in flagged:
+        if hard:
+            print(f"   {k}: مبتلعٌ {hard}" + (f" · مشكوك {soft}" if soft else ""))
+    print(f"⚠️ بشاهدٍ فيه مشكوكٌ وحده (tail/suspect — لا يمنع): "
+          f"{sum(1 for f in flagged if not f[1])}")
+    for k, hard, soft in flagged:
+        if not hard:
+            print(f"   {k}: {soft}")
     print(f"⚠️ بلا شاهدٍ موثوقٍ على بصمتها الحاليّة: {len(uncovered)}")
     if unread:
         print(f"⚠️ تعذّرت قراءتُها (لا يُحكم عليها): {len(unread)} — {', '.join(unread)}")
