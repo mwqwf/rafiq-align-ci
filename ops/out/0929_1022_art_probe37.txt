@@ -1,0 +1,40 @@
+# rc=0
+📦 ctc-nufais-p0 · 4565 بايت
+── tools/alignment/work/batch_nufais/s037.json (21080 بايت)
+{"fileRef": "https://server16.mp3quran.net/nufais/Rewayat-Hafs-A-n-Assem/037.mp3", "sha256": "1d9233cbe51b2580a5c602b48cfabc5844d1c31cd6d393e84bfc944e08fa2209", "vadRel": 0.15, "vadVersion": "adaptive-2", "entries": [{"ayahIdx": 0, "startMs": 4913, "endMs": 12560, "conf": 0.44, "snapped": false, "matched": 0, "total": 2}, {"ayahIdx": 1, "startMs": 12560, "endMs": 15810, "conf": 0.632, "snapped": true, "matched": 0, "total": 2}, {"ayahIdx": 2, "startMs": 15810, "endMs": 18880, "conf": 0.698, "snapped": true, "matched": 0, "total": 2}, {"ayahIdx": 3, "startMs": 18880, "endMs": 22395, "conf": 0.532, "snapped": true, "matched": 0, "total": 3}, {"ayahIdx": 4, "startMs": 22395, "endMs": 30550, "conf": 0.632, "snapped": false, "matched": 0, "total": 7}, {"ayahIdx": 5, "startMs": 30550, "endMs": 39520, "conf": 0.724, "snapped": true, "matched": 0, "total": 6}, {"ayahIdx": 6, "startMs": 39520, "endMs": 46031, "conf": 0.76, "snapped": true, "matched": 0, "total": 5}, {"ayahIdx": 7, "startMs": 46031, "endMs": 55958, "conf": 0.722, "snapped": false, "matched": 0, "total": 9}, {"ayahIdx": 8, "startMs": 55958, "endMs": 62270, "conf": 0.74, "snapped": false, "matched": 0, "total": 4}, {"ayahIdx": 9, "startMs": 62270, "endMs": 69927, "conf": 0.659, "snapped": true, "matched": 0, "total": 7}, {"ayahIdx": 10, "startMs": 69927, "endMs": 83957, "conf": 0.666, "snapped": false, "matched": 0, "total": 12}, {"ayahIdx": 11, "startMs": 83957, "endMs": 88209, "conf": 0.733, "snapped": false, "matched": 0, "total": 3}, {"ayahIdx": 12, "startMs": 88209, "endMs": 93293, "conf": 0.691, "snapped": false, "matched": 0, "total": 4}, {"ayahIdx": 13, "startMs": 93293, "endMs": 98777, "conf": 0.599, "snapped": false, "matched": 0, "total": 4}, {"ayahIdx": 14, "startMs": 98777, "endMs": 105391, "conf": 0.631, "snapped": false, "matched": 0, "total": 6}, {"ayahIdx": 15, "startMs": 105391, "endMs": 115028, "conf": 0.532, "snapped": false, "matched": 0, "total": 7}, {"ayahIdx": 16, "startMs": 115028, "endMs": 120202, "conf": 0.591, "snapped": false, "matched": 0, "total": 2}, {"ayahIdx": 17, "startMs": 120202, "endMs": 125745, "conf": 0.74, "snapped": false, "matched": 0, "total": 4}, {"ayahIdx": 18, "startMs": 125745, "endMs": 135732, "conf": 0.615, "snapped": false, "matched": 0, "total": 7}, {"ayahIdx": 19, "startMs": 135732, "endMs": 141516, "conf": 0.697, "snapped": false, "matched": 0, "total": 5}, {"ayahIdx": 20, "startMs": 141516, "endMs": 150962, "conf": 0.73, "snapped": false, "matched": 0, "total": 7}, {"ayahIdx": 21, "startMs": 150962, "endMs": 162500, "conf": 0.388, "snapped": true, "matched": 0, "total": 7}, {"ayahIdx": 22, "startMs": 162500, "endMs": 172440, "conf": 0.499, "snapped": false, "matched": 0, "total": 7}, {"ayahIdx": 23, "startMs": 172440, "endMs": 186810, "conf": 0.44, "snapped": true, "matched": 0, "total": 3}, {"ayahIdx": 24, "startMs": 186810, "endMs": 190609, "conf": 0.776, "snapped": true, "matched": 0, "total": 4}, {"ayahIdx": 25, "startMs": 190609, "e
+── logs/part0.log (2169 بايت)
+Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+
+Loading weights:   0%|          | 0/424 [00:00<?, ?it/s]
+Loading weights: 100%|██████████| 424/424 [00:00<00:00, 47640.84it/s]
+/opt/hostedtoolcache/Python/3.11.16/x64/lib/python3.11/site-packages/torch/ao/nn/quantized/modules/utils.py:72: UserWarning: torch.quantize_per_tensor, torch.quantize_per_channel and other quantized tensor creation functions that produce tensors with dtype torch.quint8, torch.qint8, and torch.qint32 are deprecated and will be removed in a future PyTorch release. Please see https://github.com/pytorch/pytorch/issues/184982 for more information. (Triggered internally at /__w/pytorch/pytorch/aten/src/ATen/quantized/Quantizer.cpp:111.)
+  qweight = torch.quantize_per_tensor(
+سورة  37: {'LOW': 112, 'MED': 67, 'HIGH': 3} ⚠️ 8 مخالفة (122ث)
+⏱️ أطوارُ nufais: ffmpeg=0ث · vad=0ث · whisper=0ث · refine=0ث
+
+=== TimingIndex: /home/runner/work/rafiq-align-ci/rafiq-align-ci/tools/alignment/work/timings_hafs_nufais.jz (17ك.ب) ===
+آيات مفهرسة: 182 · نطاقات: {'LOW': 112, 'MED': 67, 'HIGH': 3} · مخالفات: 8 · فشل سور: []
+	Command being timed: "python tools/alignment/batch_run.py --reciter nufais --riwaya hafs --base https://server16.mp3quran.net/nufais/Rewayat-Hafs-A-n-Assem/{surah:03d}.mp3 --surahs 37"
+	User time (seconds): 407.68
+	System time (seconds): 17.27
+	Percent of CPU this job got: 343%
+	Elapsed (wall clock) time (h:mm:ss or m:ss): 2:03.83
+	Average shared text size (kbytes): 0
+	Average unshared data size (kbytes): 0
+	Average stack size (kbytes): 0
+	Average total size (kbytes): 0
+	Maximum resident set size (kbytes): 4745800
+	Average resident set size (kbytes): 0
+	Major (requiring I/O) page faults: 23
+	Minor (reclaiming a frame) page faults: 671633
+	Voluntary context switches: 323316
+	Involuntary context switches: 74196
+	Swaps: 0
+	File system inputs: 10592
+	File system outputs: 5048776
+	Socket messages sent: 0
+	Socket messages received: 0
+	Signals delivered: 0
+	Page size (bytes): 4096
+	Exit status: 0
+
