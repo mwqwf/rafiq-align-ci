@@ -1,0 +1,40 @@
+# rc=0
+📦 ctc-mhsny-p0 · 1945 بايت
+── tools/alignment/work/batch_mhsny/s065.json (1579 بايت)
+{"fileRef": "https://server11.mp3quran.net/mhsny/065.mp3", "sha256": "703059eb518e1a51441580bc856fc4617c7d56dc1cd18cc7b778f43a2bab5b1a", "vadRel": 0.25, "vadVersion": "adaptive-2", "entries": [{"ayahIdx": 0, "startMs": 2960, "endMs": 24715, "conf": 0.585, "snapped": true, "matched": 0, "total": 41}, {"ayahIdx": 1, "startMs": 24715, "endMs": 41044, "conf": 0.704, "snapped": false, "matched": 0, "total": 30}, {"ayahIdx": 2, "startMs": 41044, "endMs": 50690, "conf": 0.74, "snapped": false, "matched": 0, "total": 21}, {"ayahIdx": 3, "startMs": 50690, "endMs": 65960, "conf": 0.586, "snapped": false, "matched": 0, "total": 28}, {"ayahIdx": 4, "startMs": 65960, "endMs": 73994, "conf": 0.577, "snapped": false, "matched": 0, "total": 14}, {"ayahIdx": 5, "startMs": 73994, "endMs": 101491, "conf": 0.591, "snapped": false, "matched": 0, "total": 32}, {"ayahIdx": 6, "startMs": 101491, "endMs": 114629, "conf": 0.681, "snapped": false, "matched": 0, "total": 25}, {"ayahIdx": 7, "startMs": 114629, "endMs": 125896, "conf": 0.625, "snapped": false, "matched": 0, "total": 14}, {"ayahIdx": 8, "startMs": 125896, "endMs": 129958, "conf": 0.683, "snapped": false, "matched": 0, "total": 7}, {"ayahIdx": 9, "startMs": 129958, "endMs": 140054, "conf": 0.658, "snapped": false, "matched": 0, "total": 16}, {"ayahIdx": 10, "startMs": 140054, "endMs": 159946, "conf": 0.529, "snapped": false, "matched": 0, "total": 34}, {"ayahIdx": 11, "startMs": 159946, "endMs": 173835, "conf": 0.588, "snapped": false, "matched": 0, "total": 25}], "issues": [], "bands": {"MED": 12}, "totalMs": 176326}
+── logs/part0.log (2072 بايت)
+Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+
+Loading weights:   0%|          | 0/424 [00:00<?, ?it/s]
+Loading weights: 100%|██████████| 424/424 [00:00<00:00, 19714.71it/s]
+/opt/hostedtoolcache/Python/3.11.16/x64/lib/python3.11/site-packages/torch/ao/nn/quantized/modules/utils.py:72: UserWarning: torch.quantize_per_tensor, torch.quantize_per_channel and other quantized tensor creation functions that produce tensors with dtype torch.quint8, torch.qint8, and torch.qint32 are deprecated and will be removed in a future PyTorch release. Please see https://github.com/pytorch/pytorch/issues/184982 for more information. (Triggered internally at /__w/pytorch/pytorch/aten/src/ATen/quantized/Quantizer.cpp:111.)
+  qweight = torch.quantize_per_tensor(
+سورة  65: {'MED': 12} ✅ (48ث)
+⏱️ أطوارُ mhsny: ffmpeg=0ث · vad=0ث · whisper=0ث · refine=0ث
+
+=== TimingIndex: /home/runner/work/rafiq-align-ci/rafiq-align-ci/tools/alignment/work/timings_hafs_mhsny.jz (15ك.ب) ===
+آيات مفهرسة: 12 · نطاقات: {'MED': 12} · مخالفات: 0 · فشل سور: []
+	Command being timed: "python tools/alignment/batch_run.py --reciter mhsny --riwaya hafs --base https://server11.mp3quran.net/mhsny/{surah:03d}.mp3 --surahs 65"
+	User time (seconds): 158.99
+	System time (seconds): 4.76
+	Percent of CPU this job got: 331%
+	Elapsed (wall clock) time (h:mm:ss or m:ss): 0:49.47
+	Average shared text size (kbytes): 0
+	Average unshared data size (kbytes): 0
+	Average stack size (kbytes): 0
+	Average total size (kbytes): 0
+	Maximum resident set size (kbytes): 3981672
+	Average resident set size (kbytes): 0
+	Major (requiring I/O) page faults: 59
+	Minor (reclaiming a frame) page faults: 612531
+	Voluntary context switches: 29292
+	Involuntary context switches: 23183
+	Swaps: 0
+	File system inputs: 18760
+	File system outputs: 21256
+	Socket messages sent: 0
+	Socket messages received: 0
+	Signals delivered: 0
+	Page size (bytes): 4096
+	Exit status: 0
+
