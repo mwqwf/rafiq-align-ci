@@ -658,12 +658,25 @@ def _local_audio(url):
             # نجح تنزيلٌ واحدٌ من سبع) ⇒ ثلاثُ محاولاتٍ بثوانٍ لا تكفي فيسقط الإحصاء
             # بآياتٍ «لم تُسمع». ثماني محاولاتٍ بتراجعٍ أُسّيٍّ سقفُه دقيقة. ولا يُقبل
             # بهذا إلا ملفٌّ كاملٌ بطوله المعلَن — الصبرُ لا يُرخي حارساً.
+            # ⛔ **ومهلةُ الـ90ث تسري على كلّ قراءةٍ لا على التنزيل كلّه** (مقيسٌ
+            # 2026-09-29: ملوحُ فخفاخ rs2/rs4 علقت ساعتين عند الصافّات فأُلغيت، ثمّ
+            # نجحت في الإعادة) ⇒ بثٌّ بطيءٌ لا ينقطع أبداً. فللمحاولة الواحدة سقفٌ
+            # زمنيٌّ كلّيّ، وما تجاوزه يُعاد كأيّ عطبٍ شبكيّ. والقبولُ بالطول المعلَن باقٍ.
+            deadline_s = int(os.environ.get("QA_DL_DEADLINE_S", "900"))
             for attempt in range(1, 9):
                 try:
                     rq0 = urllib.request.Request(src, headers=UA)
                     with urllib.request.urlopen(rq0, timeout=90) as r, open(tmp, "wb") as f:
                         want = int(r.headers.get("Content-Length") or 0)
-                        shutil.copyfileobj(r, f)
+                        t_end = time.monotonic() + deadline_s
+                        while True:
+                            chunk = r.read(1 << 16)
+                            if not chunk:
+                                break
+                            f.write(chunk)
+                            if time.monotonic() > t_end:
+                                raise TimeoutError(
+                                    f"تجاوز التنزيلُ {deadline_s}ث ({f.tell()} من {want} بايت)")
                     got = tmp.stat().st_size
                     if want and got != want:
                         last = RuntimeError(f"مبتور: {got} من {want} بايت")
