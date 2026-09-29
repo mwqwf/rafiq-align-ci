@@ -33,6 +33,7 @@ import os
 import subprocess
 import sys
 import time
+import re
 from urllib.parse import quote
 import urllib.request
 
@@ -256,8 +257,13 @@ def main():
         raise SystemExit(self_test())
     if not a.key:
         ap.error("--key مطلوب (أو --self-test)")
-    if not a.key.startswith("timings-staging/"):
-        sys.exit("⛔ هذا الفحص لمفاتيح `timings-staging/` وحدها")
+    # ⭐ **والمنشورُ يُفحص أيضاً** (‏مقيسٌ 2026-09-29): `hafs/nufais` المنشور كان فيه
+    #    بسملةٌ مبتلعةٌ في 37:1 لم تكشفها إلا ملوحُ مرشّحٍ لاحق. والفحصُ قارئٌ لا يكتب
+    #    في الفهرس، وشاهدُه يُربط بـ`sha256` لا بالمسار (‏`promote.openers_map`)،
+    #    والمنشورُ نسخةٌ بايتيّةٌ من مرشّحه ⇒ الشاهدُ نفسُه يصلح للاثنين.
+    if not (a.key.startswith("timings-staging/")
+            or re.fullmatch(r"timings/[^/]+/[^/]+\.jz", a.key)):
+        sys.exit("⛔ هذا الفحص لمفاتيح `timings-staging/` أو فهرسٍ منشورٍ `timings/<رواية>/<id>.jz`")
     os.makedirs(WORK, exist_ok=True)
     os.makedirs(STATE, exist_ok=True)
     out_path = os.path.join(STATE, a.key.replace("/", "_") + ".openers.json")
