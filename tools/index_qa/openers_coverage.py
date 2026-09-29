@@ -125,6 +125,14 @@ def main() -> int:
     print(f"\n🔎 «سليمٌ» عند درجة ≥{LATE_MS}م.ث (مرشّحو بسملةٍ مبتلعةٍ فاتت الفاحص): {len(late)}")
     for k, s, st, rung, heard in late:
         print(f"   {k} · س{s} · بدء {st}م.ث · درجة {rung} · سُمع «{heard}»")
+    # ‏`--rows <riwaya>/<id>`: بدءُ الآية الأولى لكلّ سورةٍ كما في شاهد المنشور — للمقابلة بسبر CTC.
+    if "--rows" in sys.argv:
+        want = f"timings/{sys.argv[sys.argv.index('--rows') + 1]}.jz"
+        raw = pub_raw.get(want)
+        hit = by_sha.get(hashlib.sha256(raw).hexdigest()) if raw else None
+        for row in (hit[2].get("rows") if hit else []) or []:
+            print(f"ROW\t{want}\t{row.get('surah')}\t{row.get('startMs')}\t"
+                  f"{row.get('verdict')}\t{row.get('rung')}")
     print("UNCOVERED=" + ",".join(uncovered))
     return 0
 
