@@ -695,10 +695,10 @@
    }
   },
   "qalun/fakhfakh_qalun": {
-   "entries": 6230,
+   "entries": 6232,
    "missingSurahs": [],
    "reasonCode": null,
-   "transformOp": "ctc_surah_splice:3,10,29,37",
+   "transformOp": "ctc_surah_splice:42,69",
    "declaredReasons": {
     "no-align": 3,
     "invalid": 7
@@ -708,9 +708,7 @@
    "engine": "align-0.2",
    "gapSurahs": {
     "7": 2,
-    "16": 2,
-    "42": 1,
-    "69": 1
+    "16": 2
    }
   },
   "qalun/janaini_qalun": {
@@ -843,7 +841,7 @@
    "entries": 6234,
    "missingSurahs": [],
    "reasonCode": null,
-   "transformOp": "realign_surah:28",
+   "transformOp": "realign_surah:33",
    "declaredReasons": {
     "no-align": 2,
     "surah-absent": 88
@@ -875,7 +873,7 @@
    "entries": 6235,
    "missingSurahs": [],
    "reasonCode": null,
-   "transformOp": "ctc_surah_splice:19,36,37",
+   "transformOp": "realign_surah:55",
    "declaredReasons": {
     "no-align": 4
    },
