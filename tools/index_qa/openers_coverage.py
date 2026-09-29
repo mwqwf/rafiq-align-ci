@@ -19,6 +19,7 @@ import gzip
 import hashlib
 import io
 import json
+import os
 import sys
 from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
@@ -26,6 +27,8 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 from run import s3  # noqa: E402
 from promote import openers_tool_ok  # noqa: E402
+
+LATE_MS = int(os.environ.get("OPENERS_LATE_MS", "4000"))
 
 for _s in (sys.stdout, sys.stderr):
     try:
@@ -79,7 +82,7 @@ def main() -> int:
             if cur is None or t > cur[0]:
                 by_sha[r["sha256"]] = (t, k, r)
 
-    uncovered, flagged, unread = [], [], []
+    uncovered, flagged, unread, late = [], [], [], []
     for k in sorted(pub):
         raw = pub_raw.get(k)
         if raw is None:
@@ -98,6 +101,13 @@ def main() -> int:
         soft = sorted(set(r.get("tail") or []) | set(r.get("suspect") or []))
         if hard or soft:
             flagged.append((k, hard, soft))
+        # ⛔ **«سليمٌ» عند درجةٍ متأخّرة ليس سلامة** (‏النفيس 37:1 · 2026-09-29): الدرجاتُ
+        #    1–4ث لم تُفرَّغ فيها البسملةُ فخرجت فارغة، ثمّ سُمع أوّلُ الآية عند 6ث فحُكم
+        #    «سليماً» — والمدخلُ يبدأ قبل الآية بثلاث ثوانٍ. يُسرد هنا مرشّحاً لا حكماً.
+        for row in r.get("rows") or []:
+            if row.get("verdict") == "clean" and (row.get("rung") or 0) >= LATE_MS:
+                late.append((k, row.get("surah"), row.get("startMs"), row.get("rung"),
+                             row.get("heard")))
 
     print(f"\n✅ مغطّاةٌ بشاهدٍ موثوقٍ على بصمتها: {len(pub) - len(uncovered) - len(unread)}")
     print(f"⛔ بشاهدٍ فيه مطلعٌ مبتلعٌ مؤكَّد: {sum(1 for f in flagged if f[1])}")
@@ -112,6 +122,9 @@ def main() -> int:
     print(f"⚠️ بلا شاهدٍ موثوقٍ على بصمتها الحاليّة: {len(uncovered)}")
     if unread:
         print(f"⚠️ تعذّرت قراءتُها (لا يُحكم عليها): {len(unread)} — {', '.join(unread)}")
+    print(f"\n🔎 «سليمٌ» عند درجة ≥{LATE_MS}م.ث (مرشّحو بسملةٍ مبتلعةٍ فاتت الفاحص): {len(late)}")
+    for k, s, st, rung, heard in late:
+        print(f"   {k} · س{s} · بدء {st}م.ث · درجة {rung} · سُمع «{heard}»")
     print("UNCOVERED=" + ",".join(uncovered))
     return 0
 
