@@ -1,0 +1,56 @@
+# rc=0
+{
+ "late": [
+  4,
+  5,
+  33,
+  55,
+  60,
+  69
+ ],
+ "lateConfirmed": [],
+ "lateCtc": {
+  "4": {
+   "indexStartMs": 5380,
+   "ctcStartMs": 14999,
+   "conf": 0.0,
+   "diffMs": 9619,
+   "confirmed": false
+  },
+  "5": {
+   "indexStartMs": 4240,
+   "ctcStartMs": 3783,
+   "conf": 0.509,
+   "diffMs": -457,
+   "confirmed": false
+  },
+  "33": {
+   "indexStartMs": 4160,
+   "ctcStartMs": 3701,
+   "conf": 0.518,
+   "diffMs": -459,
+   "confirmed": false
+  },
+  "55": {
+   "indexStartMs": 0,
+   "ctcStartMs": 2594,
+   "conf": 0.438,
+   "diffMs": 2594,
+   "confirmed": false
+  },
+  "60": {
+   "indexStartMs": 4080,
+   "ctcStartMs": 3622,
+   "conf": 0.365,
+   "diffMs": -458,
+   "confirmed": false
+  },
+  "69": {
+   "indexStartMs": 5040,
+   "ctcStartMs": 4566,
+   "conf": 0.843,
+   "diffMs": -474,
+   "confirmed": false
+  }
+ }
+}
