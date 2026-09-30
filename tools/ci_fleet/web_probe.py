@@ -15,6 +15,7 @@ import hashlib
 import html
 import os
 import re
+import shutil
 import subprocess
 import sys
 import tempfile
@@ -50,8 +51,11 @@ def probe_audio(url):
         f.write(data)
         p = f.name
     try:
-        dur = subprocess.run(["ffprobe", "-v", "error", "-show_entries", "format=duration",
-                              "-of", "default=nw=1:nk=1", p], capture_output=True, text=True).stdout.strip()
+        dur = "—"
+        if shutil.which("ffprobe"):              # عدّاءُ الأوامر بلا ffprobe — والبصمةُ تكفي للمطابقة
+            dur = subprocess.run(["ffprobe", "-v", "error", "-show_entries", "format=duration",
+                                  "-of", "default=nw=1:nk=1", p],
+                                 capture_output=True, text=True).stdout.strip()
     finally:
         os.unlink(p)
     print(f"🎧 {url}\n   {len(data):,} بايت · {ct} · مدّة {dur}ث · sha256 {hashlib.sha256(data).hexdigest()[:16]}")

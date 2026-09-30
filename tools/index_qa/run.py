@@ -665,7 +665,11 @@ def _local_audio(url):
             deadline_s = int(os.environ.get("QA_DL_DEADLINE_S", "900"))
             for attempt in range(1, 9):
                 try:
-                    rq0 = urllib.request.Request(src, headers=UA)
+                    # ⭐ (2026-09-30 · فخفاخ 029/069): archive.org ردّ 500 على GET مرّاتٍ متتالية ونجح
+                    #    الطلبُ نفسُه بترويسة `Range: bytes=0-` (‏طريقٌ آخر في خوادمه) ⇒ المحاولاتُ الزوجيّة
+                    #    بها. ‏206 بـbytes=0- يُعلن الطولَ الكامل، فحارسُ «الطولِ المعلَن» يبقى كما هو.
+                    hdr = UA if attempt % 2 else {**UA, "Range": "bytes=0-"}
+                    rq0 = urllib.request.Request(src, headers=hdr)
                     with urllib.request.urlopen(rq0, timeout=90) as r, open(tmp, "wb") as f:
                         want = int(r.headers.get("Content-Length") or 0)
                         t_end = time.monotonic() + deadline_s
