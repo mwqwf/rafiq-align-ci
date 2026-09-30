@@ -82,7 +82,7 @@
    "entries": 6232,
    "missingSurahs": [],
    "reasonCode": null,
-   "transformOp": "ctc_gapsplit:40,41",
+   "transformOp": "file_end_clamp",
    "declaredReasons": {
     "no-align": 11
    },
@@ -584,23 +584,6 @@
    "gapSurahs": {
     "24": 64,
     "107": 7
-   }
-  },
-  "qalun/fakhfakh_qalun": {
-   "entries": 6232,
-   "missingSurahs": [],
-   "reasonCode": null,
-   "transformOp": "ctc_surah_splice:42,69",
-   "declaredReasons": {
-    "no-align": 3,
-    "invalid": 7
-   },
-   "declaredCount": 10,
-   "undeclaredCount": 0,
-   "engine": "align-0.2",
-   "gapSurahs": {
-    "7": 2,
-    "16": 2
    }
   },
   "qalun/janaini_qalun": {
