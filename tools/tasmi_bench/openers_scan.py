@@ -396,7 +396,9 @@ def main():
                                                      VERIFY_MS, clip)).split()
                             row["lateProbe"][str(sk)] = " ".join(aft[:6])
                             if late_confirmed(aft, ref):
-                                row.update(verdict="late", lateByMs=sk)
+                                # ‏url و endMs للشاهد الثاني (‏ctc_opener_probe) — لا حكمَ مانعاً بلا تأكيده.
+                                row.update(verdict="late", lateByMs=sk, url=_url,
+                                           endMs=e.get("endMs"))
                                 break
                     break
                 if d == LADDER[0]:

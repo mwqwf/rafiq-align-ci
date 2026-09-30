@@ -1318,6 +1318,10 @@ def gate(rep, frozen, prefix, holds=None, override=None, ci_reports=None,
         # — تُقرآن معاً ولا يُفترض شكلٌ واحد.
         blob = op.get("openers") if isinstance(op.get("openers"), dict) else {}
         hard = list(blob.get("defects") or []) + list(op.get("swallowed") or [])
+        # ⛔ **`late` بشاهدَين = مانع** (‏2026-09-30): «سليمٌ» متأخّرٌ عند Whisper **و** CTC يضع
+        #    الآيةَ بعد المدخل بـ≥1.5ث (‏ctc_opener_probe). و`late` وحده تنبيهٌ لا يمنع — فالنموذجُ
+        #    يُكمل الآيةَ من بعضها. وبه سُدّت ثغرةُ تبرئة بسملات النفيس المبتلعة.
+        hard += list(op.get("lateConfirmed") or [])
         # ⛔ **`suspect` كشفٌ بلا تحقّق** — نصّ github-8e: قد يكون هلوسة نموذج
         # (والبسملة أكثرُ عبارةٍ في بيانات التدريب فهي هلوسته المفضّلة، وقد
         # أثبته بتفريغ 15 ثانية كاملة في `deban_qalun` س37). فلا يُبنى عليه

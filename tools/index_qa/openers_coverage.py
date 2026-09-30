@@ -97,7 +97,8 @@ def main() -> int:
         # و`openers.defects`؛ و`tail` و`suspect` تُعرض عدداً فقط كما يعرضها.
         r = hit[2]
         blob = r.get("openers") if isinstance(r.get("openers"), dict) else {}
-        hard = list(blob.get("defects") or []) + list(r.get("swallowed") or [])
+        hard = (list(blob.get("defects") or []) + list(r.get("swallowed") or [])
+                + list(r.get("lateConfirmed") or []))
         soft = sorted(set(r.get("tail") or []) | set(r.get("suspect") or []))
         if hard or soft:
             flagged.append((k, hard, soft))

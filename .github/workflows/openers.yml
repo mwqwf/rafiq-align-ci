@@ -158,6 +158,38 @@ jobs:
             --model "$GITHUB_WORKSPACE/assets-archive/ggml/ggml-tiny-ar-quran-q8_0.bin"
           echo "ELAPSED=$(( $(date +%s) - t0 ))" >> "$GITHUB_ENV"
 
+      # ⛔ **الشاهدُ الثاني لحكم late** (‏2026-09-30): لا يُنصَّب CTC إلا إن وُجد صفُّ late —
+      #    فالمسحُ السليمُ لا يدفع كلفته. والمؤكَّدُ يُكتب `lateConfirmed` فيمنع في promote.
+      - name: عدُّ صفوف late
+        id: late
+        env:
+          KEY: ${{ matrix.key }}
+        run: |
+          W="tools/index_qa/state/$(echo "$KEY" | tr '/' '_').openers.json"
+          N=0
+          [ -f "$W" ] && N=$(python -c "import json,sys;print(sum(1 for r in json.load(open(sys.argv[1]))['rows'] if r.get('verdict')=='late'))" "$W")
+          echo "صفوفُ late: $N"
+          echo "n=$N" >> "$GITHUB_OUTPUT"
+          echo "w=$W" >> "$GITHUB_OUTPUT"
+      - name: كاش نموذج CTC (‏عند وجود late وحده)
+        if: steps.late.outputs.n != '0'
+        uses: actions/cache@v4
+        with:
+          path: .hf
+          key: ctc-model-jonatasgrosman-xlsr53-ar-v1
+      # ⛔ **الشاهدُ الثاني لحكم late** (‏2026-09-30): المؤكَّدُ يُكتب `lateConfirmed` فيمنع في promote.
+      - name: تأكيدُ late بـCTC (‏شاهدٌ ثانٍ)
+        if: steps.late.outputs.n != '0'
+        env:
+          KEY: ${{ matrix.key }}
+          HF_HOME: ${{ github.workspace }}/.hf
+        run: |
+          set -o pipefail
+          python -m pip install --quiet --index-url https://download.pytorch.org/whl/cpu torch
+          python -m pip install --quiet "numpy<2" transformers ctc-segmentation
+          RIW=$(echo "$KEY" | cut -d/ -f2)
+          python tools/alignment_v3/ctc_opener_probe.py --witness "${{ steps.late.outputs.w }}" --riwaya "$RIW"
+
       - name: رفع الشاهد إلى state/ بالنسب
         if: always()
         env:
