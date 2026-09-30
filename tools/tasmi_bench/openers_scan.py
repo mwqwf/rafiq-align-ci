@@ -185,6 +185,32 @@ def starts_ayah(w, ref):
     return ok(w[0], ref[0]) or (len(w) > 1 and ok(w[0] + w[1], ref[0]))
 
 
+# ⛔⛔ **«سليمٌ» عند درجةٍ متأخّرةٍ بعد درجاتٍ صامتة ليس سلامة** (‏مقيسٌ 2026-09-29):
+#    فهرسُ النفيس المنشور كان يسبق التلاوةَ بـ≈2.8ث في 24 مطلعاً، والفاحصُ برّأها
+#    كلَّها: النموذجُ لا يُفرّغ بسملةَ بعض القرّاء، فتخرج الدرجاتُ 1–4ث **فارغةً تماماً**،
+#    ثمّ يُسمع أوّلُ الآية عند 6ث فيُحكم «سليم» — والمدخلُ يبدأ قبل الآية بثوانٍ.
+#    ⇒ حكمٌ جديد `late`: **كلُّ** الدرجات قبل درجة السماع فارغة، ودرجةُ السماع ≥ LATE_RUNG،
+#    والسورةُ لا تُفتتح بحروفٍ مقطّعة (‏تلك تُمدّ فيتأخّر تعرّفُها بريئاً: الرعد عند النفيس
+#    سُمعت «الر» من أوّل المدخل والـCTC وحده أخطأ). لا يحكم بابتلاع البسملة بعينها، بل بأنّ
+#    المدخلَ يبدأ بما لا يُسمع آيةً ثوانيَ — وهو عطبُ توقيتٍ أيّاً كان ما قبل الآية.
+LATE_RUNG = 3000
+MUQATTAAT = {2, 3, 7, 10, 11, 12, 13, 14, 15, 19, 20, 26, 27, 28, 29, 30, 31, 32, 36,
+             38, 40, 41, 42, 43, 44, 45, 46, 50, 68}
+
+
+def late_clean(ladder, surah):
+    """(درجةُ السماع، آخرُ درجةٍ صامتة) إن كان «السليمُ» متأخّراً بعد صمتٍ تامّ، وإلا None.
+    `ladder`: [(الدرجة، الكلمات المسموعة)] بالترتيب حتى درجة السماع شاملةً."""
+    if surah in MUQATTAAT or len(ladder) < 2:
+        return None
+    d, words = ladder[-1]
+    if not words or d < LATE_RUNG:
+        return None
+    if any(w for _, w in ladder[:-1]):
+        return None
+    return d, ladder[-2][0]
+
+
 def self_test():
     """⛔ **حارسٌ بلا اختبارٍ ليس حارساً** — والحالةُ الأولى مقيسةٌ من الدلو
     لا مفترَضة: صفُّ 28 في `hawashi.96b65571` كان
@@ -212,6 +238,25 @@ def self_test():
         got = starts_ayah(w, ref)
         bad += got != want
         print(f"  {'✅' if got == want else '❌'} {name}: {got} (المتوقَّع {want})")
+
+    # ⛔ حالاتُ `late_clean` — مقيسةٌ 2026-09-29 لا مفترَضة.
+    E = []
+    late_cases = [
+        ("النفيس 37: 1–4ث صامتة ثمّ الآية عند 6ث", 37,
+         [(1000, E), (1500, E), (2000, E), (3000, E), (4000, E), (6000, ["والصاب"])], (6000, 4000)),
+        ("النفيس 80: 1–3ث صامتة ثمّ «عبس» عند 4ث", 80,
+         [(1000, E), (1500, E), (2000, E), (3000, E), (4000, ["عبس"])], (4000, 3000)),
+        ("الرعد 13 (حروفٌ مقطّعة): لا حكم", 13,
+         [(1000, E), (1500, E), (2000, E), (3000, E), (4000, E), (6000, ["الر"])], None),
+        ("سليمٌ من الدرجة الأولى", 89, [(1000, ["والفجر"])], None),
+        ("سُمع شيءٌ قبل درجة السماع: لا حكم", 76,
+         [(1000, E), (1500, ["هل"]), (2000, E), (3000, E), (4000, ["هل", "اتي"])], None),
+        ("درجةُ السماع 2ث بعد صمت: دون العتبة", 95, [(1000, E), (1500, E), (2000, ["والتين"])], None),
+    ]
+    for name, surah, ladder, want in late_cases:
+        got = late_clean(ladder, surah)
+        bad += got != want
+        print(f"  {'✅' if got == want else '❌'} late_clean · {name}: {got} (المتوقَّع {want})")
 
     # ⛔⛔ وفحوصٌ على **الحارس نفسِه** (‏D-613) — فالعطبان اللذان كُشفا اليوم لا
     #     تكشفهما حالةٌ واحدةٌ من الحالات أعلاه، وكلاهما يُبقي الأخضرَ أخضر.
@@ -329,8 +374,10 @@ def main():
             fetch_head(_url, mp3,
                        need_ms=e["startMs"] + LADDER[-1] + VERIFY_MS)
             end = None
+            ladder = []
             for d in LADDER:
                 w = text_of(model, cut(mp3, e["startMs"], d, clip)).split()
+                ladder.append((d, w))
                 if not w:
                     continue
                 j = fuzzy_seq(w)
@@ -341,6 +388,10 @@ def main():
                 # درجة، فلا تُدفع كلفةُ ستّ درجاتٍ على السليم.
                 if starts_ayah(w, ref):
                     row.update(verdict="clean", heard=" ".join(w[:6]), rung=d)
+                    lt = late_clean(ladder, s)
+                    if lt:
+                        row.update(verdict="late", silentUntilMs=lt[1],
+                                   ladder=[[r, " ".join(x[:6])] for r, x in ladder])
                     break
                 if d == LADDER[0]:
                     t = basmala_tail(w)
@@ -375,6 +426,8 @@ def main():
            "swallowed": sorted(r["surah"] for r in rows if r["verdict"] == "swallowed"),
            "tail": sorted(r["surah"] for r in rows if r["verdict"] == "tail"),
            "suspect": sorted(r["surah"] for r in rows if r["verdict"] == "suspect"),
+           # ‏`late`: «سليمٌ» متأخّرٌ بعد درجاتٍ صامتةٍ تامّة (‏late_clean · 2026-09-29).
+           "late": sorted(r["surah"] for r in rows if r["verdict"] == "late"),
            "errors": sorted(r["surah"] for r in rows if r["verdict"] == "error"),
            # ⛔ «العطب» يُعرَّف هنا صراحةً كي لا يُعرِّفه القارئ: `unknown` ليس
            # عطباً في المطلع بل **تعذّر حكم** — أكثره فواتح مقطّعة يخطئ فيها
