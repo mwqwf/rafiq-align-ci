@@ -48,6 +48,9 @@ def main() -> int:
     cl, bucket = s3()
     pub = [k for k in _list(cl, bucket, "timings/")
            if k.endswith(".jz") and k.count("/") == 2]
+    if "--list-published" in sys.argv:
+        print("PUBLISHED=" + ",".join(sorted(pub)))
+        return 0
     ops = [k for k in _list(cl, bucket, "state/") if k.endswith(".openers.json")]
     print(f"فهارسُ منشورة: {len(pub)} · شواهدُ مطالع في state/: {len(ops)}")
 
