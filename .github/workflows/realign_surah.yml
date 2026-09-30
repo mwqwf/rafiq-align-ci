@@ -309,8 +309,10 @@ jobs:
             ls -l "$GITHUB_WORKSPACE/work/full_$S.mp3"
             SRC="file://$GITHUB_WORKSPACE/work/full_$S.mp3"
             if [ "${SKIP_MS:-0}" != "0" ]; then
+              # ⛔ `-map 0:a` (‏2026-09-30 · tblawi/034): ملفٌّ بصورة غلافٍ مدمجة (‏GIF) يجعل `-c copy`
+              #    ينسخ الصورةَ مسارَ فيديو فيفشل الترويس «dimensions not set». والصوتُ يُنسخ كما هو.
               SEC=$(python -c "print(int('${SKIP_MS}')/1000)")
-              ffmpeg -y -v error -ss "$SEC" -i "$GITHUB_WORKSPACE/work/full_$S.mp3" -c copy "$GITHUB_WORKSPACE/work/cut_$S.mp3"
+              ffmpeg -y -v error -ss "$SEC" -i "$GITHUB_WORKSPACE/work/full_$S.mp3" -map 0:a -c copy "$GITHUB_WORKSPACE/work/cut_$S.mp3"
               SRC="file://$GITHUB_WORKSPACE/work/cut_$S.mp3"
               echo "  تُخطّيت ${SKIP_MS} م.ث من رأس الملفّ (بسملةٌ مقيسة)"
             fi
