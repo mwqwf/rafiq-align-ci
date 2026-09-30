@@ -1323,6 +1323,16 @@ def gate(rep, frozen, prefix, holds=None, override=None, ci_reports=None,
             return target, (
                 "فحصُ المطالع صدر عن أداةٍ سابقةٍ لإصلاح التبرئة الكاذبة "
                 f"(‏commit={str(op.get('commit'))[:12]} · D-175) — يُعاد المسح")
+        # ⛔ **وحكمُ فاحصٍ لم يسأل عن التأخّر لا يشهد بالسلامة** (‏2026-09-30): قبل حارس
+        #    `late` برّأ الفاحصُ 24 بسملةً مبتلعةً عند النفيس. وغيابُ `lateConfirmed` كان
+        #    يُقرأ «لا مؤكَّد» فتمرّ الثغرةُ نفسُها بشاهدٍ قديم. ⇒ الحقلُ `late` شرط، و`late`
+        #    غيرُ فارغٍ بلا `lateCtcRule` (‏الشاهدُ الثاني لم يجرِ) شرطٌ لم يُستوفَ.
+        if "late" not in op:
+            return target, ("فحصُ المطالع صدر قبل حارس التأخّر (‏لا حقلَ `late`) — "
+                            "لا يشهد ببراءة البسملة المبتلعة، يُعاد المسح")
+        if op.get("late") and not op.get("lateCtcRule"):
+            return target, (f"فحصُ المطالع وسم {len(op['late'])} مطلعاً متأخّراً ولم يجرِ "
+                            "شاهدُ CTC الثاني (‏لا `lateCtcRule`) — يُعاد المسح")
         # **صيغتان لملفّ المطالع** (‏github-7e يقترح `openers.defects`،
         # و`openers_scan.py` عند github-8e يكتب `swallowed`/`tail`/`suspect`)
         # — تُقرآن معاً ولا يُفترض شكلٌ واحد.
