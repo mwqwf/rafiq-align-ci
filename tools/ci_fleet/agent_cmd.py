@@ -101,7 +101,7 @@ ALLOWED_TOOLS = {"ci_fleet/refreeze.py", "tasmi_bench/cloud_stream_probe.py",  #
                  "index_qa/bucket_watch.py", "index_qa/drop_surah.py",
                  "index_qa/low_coverage_scan.py", "index_qa/dup_sha_sweep.py",
                  "index_qa/duration_profile.py", "index_qa/reciter_evidence.py",
-                 "index_qa/dump_state.py", "index_qa/material_probe.py",
+                 "index_qa/dump_state.py", "index_qa/show_entries.py", "index_qa/material_probe.py",
                  # ⚖️ أُضيف 2026-09-28: مسبارُ صوتِ سورةٍ قارئٌ محض (‏مادّةٌ أم أداة؟) — لا دلوَ ولا سرّ.
                  "index_qa/surah_audio_probe.py",
                  # ⚖️ أُضيف 2026-09-28: مسبارُ عنصرٍ منفردٍ في archive.org (‏بياناتٌ ومدّةٌ ونوعُ معدّل) — قارئٌ محض.
