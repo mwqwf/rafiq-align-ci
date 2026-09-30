@@ -124,6 +124,22 @@ def main() -> int:
         if not hard:
             print(f"   {k}: {soft}")
     print(f"⚠️ بلا شاهدٍ موثوقٍ على بصمتها الحاليّة: {len(uncovered)}")
+    # ⛔ **شاهدٌ لم يسأل عن التأخّر لا يشهد ببراءة البسملة المبتلعة** (‏2026-09-30 · حارسُ promote نفسُه).
+    no_late = [k for k in sorted(pub) if k not in uncovered and k not in unread
+               and "late" not in by_sha[hashlib.sha256(pub_raw[k]).hexdigest()][2]]
+    print(f"⚠️ بشاهدٍ سابقٍ لحارس التأخّر (‏لا حقلَ late — يُعاد مسحُه): {len(no_late)}")
+    for k in no_late:
+        print(f"   NOLATE\t{k}")
+    # للإصلاح: بدءُ CTC لكلّ مطلعٍ مؤكَّد ⇒ تخطّي realign_surah = ctcStartMs − 300
+    for k in sorted(pub):
+        if k in uncovered or k in unread:
+            continue
+        r = by_sha[hashlib.sha256(pub_raw[k]).hexdigest()][2]
+        for s in r.get("lateConfirmed") or []:
+            d = (r.get("lateCtc") or {}).get(str(s)) or {}
+            url = next((x.get("url") for x in r.get("rows") or [] if x.get("surah") == s), "")
+            print(f"   FIX\t{k}\t{s}\tindex={d.get('indexStartMs')}\tctc={d.get('ctcStartMs')}"
+                  f"\tconf={d.get('conf')}\t{url}")
     if unread:
         print(f"⚠️ تعذّرت قراءتُها (لا يُحكم عليها): {len(unread)} — {', '.join(unread)}")
     print(f"\n🔎 «سليمٌ» عند درجة ≥{LATE_MS}م.ث (مرشّحو بسملةٍ مبتلعةٍ فاتت الفاحص): {len(late)}")
