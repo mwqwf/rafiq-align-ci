@@ -320,6 +320,37 @@ class WhisperSpliceNames(unittest.TestCase):
         self.assertEqual(out["engineBySurah"], {"112": "align-0.2"})
 
 
+class InheritedGapCensus(unittest.TestCase):
+    """الإحصاءُ يسمع **كلَّ مدخلٍ حاضر** لا عددَ الرواية (‏ctc_gapsplit · 2026-09-30)."""
+    SRC = CensusGate.SRC
+    KEY = CensusGate.KEY
+
+    def gate(self, rep, idx):
+        objs = {self.KEY: json.dumps(rep).encode()}
+        return promote.census_gate(_S3(objs), "b", self.SRC, "S", idx)
+
+    def _idx_with_gap(self, gap="112:3"):
+        d = _spliced()
+        d["entries"] = [e for e in d["entries"] if e["ayahId"] != gap]
+        return d
+
+    def test_inherited_gap_all_present_heard_passes(self):
+        rep = _census("S")
+        rep["sample"]["rows"] = [r for r in rep["sample"]["rows"] if r["aid"] != "112:3"]
+        self.assertIsNone(self.gate(rep, self._idx_with_gap()))
+
+    def test_duplicate_in_place_of_present_refused(self):
+        rep = _census("S")
+        rows = [r for r in rep["sample"]["rows"] if r["aid"] not in ("112:3", "112:4")]
+        rows.append(dict(rows[0]))                   # مسموعٌ مكرّرٌ يسدّ مكانَ 112:4 الحاضرة
+        rep["sample"]["rows"] = rows
+        self.assertIn("لا يُقبل ناقص", self.gate(rep, self._idx_with_gap()))
+
+    def test_full_index_still_needs_full_count(self):
+        rep = _census("S", drop=1)
+        self.assertIn("لا يُقبل ناقص", self.gate(rep, _spliced()))
+
+
 class WhisperCensusGate(CensusGate):
     """كلُّ اختبارات `CensusGate` تُعاد على المسار المعاكس بالوراثة، وفوقها ما يخصّه."""
 

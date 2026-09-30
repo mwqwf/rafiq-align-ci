@@ -166,9 +166,16 @@ def census_gate(cl, bucket, src, live_sha, idx):
     got = {str(s) for s in (rep.get("census") or {}).get("surahs") or []}
     if got != ebs:
         return f"الإحصاءُ غطّى {sorted(got, key=int)} والمدموجُ {sorted(ebs, key=int)}"
-    want = sum(_AYAH_COUNTS[int(s) - 1] for s in ebs)
+    # ⛔ **المطلوبُ سماعُه = كلُّ مدخلٍ حاضرٍ في السور المدموجة، آيةً آية** (‏2026-09-30):
+    #    كان العدُّ بعدد الرواية، فمرشّحُ قسمة المبتلع (‏ctc_gapsplit) الذي أبقى غياباً موروثاً
+    #    من الأب يُردّ لأنّ الغائبَ لا مدخلَ له يُسمع. والشرطُ الصحيح أن **يُسمع كلُّ حاضر** —
+    #    ويُقارَن بمجموعة المعرّفات لا بالعدد وحده، فلا يسدّ مسموعٌ مكرّرٌ مكانَ غائب.
     rows = (rep.get("sample") or {}).get("rows") or []
-    if len(rows) != want or len({r.get("aid") for r in rows}) != want:
+    present = {e["ayahId"] for e in (idx.get("entries") or [])
+               if e["ayahId"].split(":")[0] in ebs and e.get("startMs") is not None}
+    want = len(present) if present else sum(_AYAH_COUNTS[int(s) - 1] for s in ebs)
+    heard = {r.get("aid") for r in rows}
+    if len(rows) != want or len(heard) != want or (present and heard != present):
         return f"الإحصاءُ سمع {len(rows)} آيةً والمدموجُ {want} — لا يُقبل ناقص"
     if rep.get("fatal"):
         return "الإحصاءُ وجد خللاً: " + str(rep["fatal"][0])[:80]
