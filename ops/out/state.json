@@ -181,22 +181,6 @@
     "38": 88
    }
   },
-  "hafs/bader": {
-   "entries": 6234,
-   "missingSurahs": [],
-   "reasonCode": null,
-   "transformOp": null,
-   "declaredReasons": {
-    "no-align": 2
-   },
-   "declaredCount": 2,
-   "undeclaredCount": 0,
-   "engine": "ctc-seg-1",
-   "gapSurahs": {
-    "89": 1,
-    "103": 1
-   }
-  },
   "hafs/darweez": {
    "entries": 6234,
    "missingSurahs": [],
@@ -246,10 +230,10 @@
    }
   },
   "hafs/f_khamery": {
-   "entries": 6233,
+   "entries": 6234,
    "missingSurahs": [],
    "reasonCode": null,
-   "transformOp": null,
+   "transformOp": "ctc_gapsplit:52",
    "declaredReasons": {
     "no-align": 3
    },
@@ -258,8 +242,7 @@
    "engine": "ctc-seg-1",
    "gapSurahs": {
     "20": 1,
-    "26": 1,
-    "52": 1
+    "26": 1
    }
   },
   "hafs/h_abudalal": {
@@ -412,39 +395,6 @@
    "gapSurahs": {
     "37": 2,
     "44": 1
-   }
-  },
-  "hafs/mhsny": {
-   "entries": 6235,
-   "missingSurahs": [],
-   "reasonCode": null,
-   "transformOp": null,
-   "declaredReasons": {
-    "no-align": 1
-   },
-   "declaredCount": 1,
-   "undeclaredCount": 0,
-   "engine": "ctc-seg-1",
-   "gapSurahs": {
-    "52": 1
-   }
-  },
-  "hafs/mohna": {
-   "entries": 6233,
-   "missingSurahs": [],
-   "reasonCode": null,
-   "transformOp": "ctc_surah_splice:42",
-   "declaredReasons": {
-    "invalid": 3,
-    "no-align": 1
-   },
-   "declaredCount": 4,
-   "undeclaredCount": 0,
-   "engine": "align-0.2",
-   "gapSurahs": {
-    "3": 1,
-    "5": 1,
-    "7": 1
    }
   },
   "hafs/mohsin_harthi": {
@@ -622,7 +572,7 @@
    "entries": 6235,
    "missingSurahs": [],
    "reasonCode": null,
-   "transformOp": "ctc_surah_splice:1,18,43,55,101,102",
+   "transformOp": "realign_surah:75",
    "declaredReasons": {
     "no-align": 109
    },
@@ -688,10 +638,10 @@
    }
   },
   "qalun/noah_qalun": {
-   "entries": 6233,
+   "entries": 6234,
    "missingSurahs": [],
    "reasonCode": null,
-   "transformOp": null,
+   "transformOp": "ctc_gapsplit:7",
    "declaredReasons": {
     "no-align": 3
    },
@@ -699,7 +649,6 @@
    "undeclaredCount": 0,
    "engine": "ctc-seg-1",
    "gapSurahs": {
-    "7": 1,
     "20": 1,
     "55": 1
    }
