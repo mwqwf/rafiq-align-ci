@@ -40,7 +40,7 @@ import numpy as np
 HERE = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, HERE)
 sys.path.insert(0, os.path.join(os.path.dirname(HERE), "alignment"))
-from ctc_seg import SR, _conf, _emissions, _segment  # noqa: E402
+from ctc_seg import BASMALA, SR, _conf, _emissions, _segment  # noqa: E402
 from common import load_index, load_text, norm, to_wav16k  # noqa: E402
 from vad import read_wav, silences, snap_to_silence  # noqa: E402
 
@@ -73,7 +73,10 @@ def fetch(url: str, dst: str) -> None:
 
 
 def plan_splits(ents: dict, n: int, text_of, rate: float):
-    """الغياباتُ المبتلعة في سورة: (b0, b1, prev, next) لكلّ مدىً غائبٍ بين جارتين فجوتُهما صفر."""
+    """مواضعُ القسمة في سورة: (الصنف، b0، b1).
+    ‏gap: مدىً غائبٌ بين جارتين فجوتُهما صفر (‏الصوتُ في الجارة) ·
+    ‏opener: غيابٌ من الآية الأولى وله لاحقة (‏النافذةُ من بدء الملفّ) ·
+    ‏tail: غيابٌ حتى آخر السورة وله سابقة (‏النافذةُ حتى نهاية الملفّ)."""
     out, a = [], 1
     while a <= n:
         if a in ents:
@@ -85,14 +88,16 @@ def plan_splits(ents: dict, n: int, text_of, rate: float):
         b1 = a - 1
         p, q = ents.get(b0 - 1), ents.get(b1 + 1)
         if p and q and q["startMs"] - p["endMs"] < ABSORBED_MS:
-            out.append((b0, b1))
+            out.append(("gap", b0, b1))
+        elif b0 == 1 and q:
+            out.append(("opener", b0, b1))
+        elif b1 == n and p:
+            out.append(("tail", b0, b1))
     return out
 
 
-def split_window(x: np.ndarray, p: dict, q: dict, texts: list[str]):
-    """يحاذي النصوص (السابقة · الغائبات · اللاحقة) على [بدء السابقة، نهاية اللاحقة].
-    يُرجع حدودَ البدء المطلقة وثقاتِها، أو يرمي إن تعذّر."""
-    ws, we = int(p["startMs"]), int(q["endMs"])
+def split_window(x: np.ndarray, ws: int, we: int, texts: list[str]):
+    """يحاذي النصوصَ بالترتيب على [ws، we] م.ث ⇒ [(بدءٌ مطلق، نهايةٌ مطلقة، ثقة)]."""
     clip = x[ws * SR // 1000: we * SR // 1000]
     segs = _segment(_emissions(clip), len(clip), texts)
     return [(ws + int(st * 1000), ws + int(en * 1000), _conf(sc)) for st, en, sc in segs]
@@ -138,20 +143,36 @@ def main() -> int:
         x = read_wav(wav).astype(np.float32)
         sil = silences(wav)
         added = []
-        for b0, b1 in splits:
-            p, q = ents[b0 - 1], ents[b1 + 1]
-            ks = [b0 - 1] + list(range(b0, b1 + 1)) + [b1 + 1]
+        total_ms = int(len(x) * 1000 / SR)
+        for kind, b0, b1 in splits:
+            miss = list(range(b0, b1 + 1))
+            lead = []
+            if kind == "gap":
+                p, q = ents[b0 - 1], ents[b1 + 1]
+                ks, ws, we, fixed = [b0 - 1] + miss + [b1 + 1], p["startMs"], q["endMs"], (0, -1)
+            elif kind == "opener":
+                q = ents[b1 + 1]
+                lead = [] if s in (1, 9) else [norm(BASMALA)]
+                ks, ws, we, fixed = miss + [b1 + 1], 0, q["endMs"], (-1,)
+            else:
+                p = ents[b0 - 1]
+                ks, ws, we, fixed = [b0 - 1] + miss, p["startMs"], total_ms, (0,)
             try:
-                segs = split_window(x, p, q, [norm(t_of(k)) for k in ks])
+                segs = split_window(x, int(ws), int(we), lead + [norm(t_of(k)) for k in ks])[len(lead):]
             except Exception as ex:                    # noqa: BLE001
-                report.append(f"س{s}:{b0}-{b1}: تعذّرت المحاذاة — {str(ex)[:80]}")
+                report.append(f"س{s}:{b0}-{b1} ({kind}): تعذّرت المحاذاة — {str(ex)[:80]}")
                 continue
-            starts = [p["startMs"]] + [sg[0] for sg in segs[1:]]
-            ends = starts[1:] + [q["endMs"]]
+            starts = [sg[0] for sg in segs]
+            if kind in ("gap", "tail"):
+                starts[0] = int(ents[b0 - 1]["startMs"])       # بدءُ السابقة ثابتٌ من الأب
+            ends = starts[1:] + [int(we) if kind != "tail" else min(int(segs[-1][1]), total_ms)]
+            if kind in ("gap", "opener"):
+                ends[-1] = int(ents[b1 + 1]["endMs"])            # نهايةُ اللاحقة ثابتةٌ من الأب
+            fixed_idx = {i % len(ks) for i in fixed}
             why = None
             for i, k in enumerate(ks):
                 dur, exp = ends[i] - starts[i], chars(t_of(k)) * rate
-                if i in (0, len(ks) - 1):
+                if i in fixed_idx:
                     if dur < NEIGH_LO * exp:
                         why = f"الجارة {s}:{k} تنكمش إلى {dur}م.ث والمتوقَّع {exp:.0f}"
                 else:
@@ -162,17 +183,18 @@ def main() -> int:
                 if why:
                     break
             if why:
-                report.append(f"س{s}:{b0}-{b1}: ⛔ رُدّت — {why}")
+                report.append(f"س{s}:{b0}-{b1} ({kind}): ⛔ رُدّت — {why}")
                 continue
-            p["endMs"] = starts[1]
-            q["startMs"] = starts[-1]
-            for i, k in enumerate(ks[1:-1], start=1):
-                t, on_sil = snap_to_silence(starts[i], sil, tolerance_ms=300)
+            for i, k in enumerate(ks):
+                if i in fixed_idx:
+                    ents[k]["startMs"], ents[k]["endMs"] = int(starts[i]), int(ends[i])
+                    continue
+                _t, on_sil = snap_to_silence(starts[i], sil, tolerance_ms=300)
                 conf = segs[i][2] if on_sil else min(segs[i][2], 0.74)
                 ents[k] = {"startMs": int(starts[i]), "endMs": int(ends[i]), "conf": conf,
                            "snapped": bool(on_sil)}
             added.append(f"{b0}" if b0 == b1 else f"{b0}-{b1}")
-            report.append(f"س{s}:{b0}-{b1}: ✅ قُسمت · " + " · ".join(
+            report.append(f"س{s}:{b0}-{b1} ({kind}): ✅ قُسمت · " + " · ".join(
                 f"{s}:{k} {starts[i]}–{ends[i]}" for i, k in enumerate(ks)))
         if not added:
             continue

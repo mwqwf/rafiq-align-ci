@@ -205,7 +205,8 @@ jobs:
           # ⛔ (2026-09-28) المصدرُ البديلُ يُعلَن في `sourceBySurah` فيُحصى كلُّ آيةٍ منه.
           ALTF=""; [ -n "$ALT" ] && ALTF="--alt-source"
           # ⭐ وضعُ النافذة: الغيابُ الموروثُ من الأب يبقى غائباً ولا يُعدّ نقضاً (‏test_splice_keep_parent_gaps).
-          if [ "$MODE" = "window" ]; then ALTF="$ALTF --keep-parent-gaps"; fi
+          ETAG="ctc-seg-1"
+          if [ "$MODE" = "window" ]; then ALTF="$ALTF --keep-parent-gaps"; ETAG="ctc-gapsplit-1"; fi
           # ⭐ مضيفُ المجلَّد: `fileRef` من الأب حرفاً (‏والتحقّقُ بعده يطابقه بالمنزَّل).
           [ -n "$FOLDER" ] && ALTF="$ALTF --refs-from-parent"
           S=""; F=""
@@ -216,7 +217,7 @@ jobs:
           S="${S#,}"
           [ -n "$S" ] || { echo "⛔ لا سورةَ حوذيت"; exit 1; }
           python tools/index_qa/splice_surah.py --index parent.jz --surah "$S" \
-                 --aligned $F --url "$URLT" --skip-unresolved --engine-tag ctc-seg-1 $ALTF \
+                 --aligned $F --url "$URLT" --skip-unresolved --engine-tag "$ETAG" $ALTF \
                  --out patched.jz
           python - <<'PY'
           import gzip, json, os
@@ -256,10 +257,11 @@ jobs:
         run: |
           TAKEN="$(cat patched.jz.taken)"
           # ⭐ وضعُ النافذة وحده: الغيابُ الموروثُ يُقبل بلا غائبٍ جديد وبزيادةٍ فعليّة (test_stage_inherited_gaps).
-          INH=""; [ "${{ github.event.inputs.mode }}" = "window" ] && INH="--allow-inherited-gaps"
+          INH=""; OPN="ctc_surah_splice"
+          if [ "${{ github.event.inputs.mode }}" = "window" ]; then INH="--allow-inherited-gaps"; OPN="ctc_gapsplit"; fi
           python tools/index_qa/stage_transform.py --file patched.jz \
                  --parent "$PARENT" --parent-sha "$SHA" \
-                 --op "ctc_surah_splice:$TAKEN" --reason "$REASON" \
+                 --op "$OPN:$TAKEN" --reason "$REASON" \
                  --by "github-ctc-splice" $INH --yes
 
       - uses: actions/upload-artifact@v4

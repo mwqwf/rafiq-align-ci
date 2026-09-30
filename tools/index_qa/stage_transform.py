@@ -158,7 +158,7 @@ def main():
     #    جيلُ الفهرس، فاسمٌ كاذبٌ فيها أسوأ من غيابه (‏درسُ «مجهولِ الجيل»).
     realigned = []
     _m = re.match(r"^(?:realign_surah|source_timing_splice|ctc_surah_splice"
-                  r"|whisper_surah_splice):([\d,\s]+)$", a.op.strip())
+                  r"|whisper_surah_splice|ctc_gapsplit):([\d,\s]+)$", a.op.strip())
     if _m:
         realigned = sorted({int(x) for x in re.findall(r"\d+", _m.group(1))})
     # ⛔ **دمجُ محرّكين لا يُرفع إلا معلَناً سورةً سورة** (‏إذن المالك 2026-09-24):
