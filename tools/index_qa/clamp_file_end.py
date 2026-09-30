@@ -69,6 +69,13 @@ def main() -> int:
     idx = json.loads(gzip.decompress(body).decode("utf-8"))
     surahs = {int(s) for s in a.surahs.split(",")}
     cache = {}
+    # عدّاءُ الأوامر خفيفٌ (‏boto3 وحده) — فيُنصَّب ما يلزم الفكَّ هنا عند الحاجة لا في كلّ أمر.
+    try:
+        import numpy  # noqa: F401
+    except ImportError:
+        subprocess.run([sys.executable, "-m", "pip", "install", "--quiet", "numpy<2", "soundfile"], check=True)
+    if subprocess.run(["which", "ffmpeg"], capture_output=True).returncode:
+        subprocess.run("sudo apt-get update -qq && sudo apt-get install -y -qq ffmpeg", shell=True, check=True)
 
     def dur_of(u):
         if u not in cache:
