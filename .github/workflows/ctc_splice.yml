@@ -255,10 +255,12 @@ jobs:
           REASON: ${{ github.event.inputs.reason }}
         run: |
           TAKEN="$(cat patched.jz.taken)"
+          # ⭐ وضعُ النافذة وحده: الغيابُ الموروثُ يُقبل بلا غائبٍ جديد وبزيادةٍ فعليّة (test_stage_inherited_gaps).
+          INH=""; [ "${{ github.event.inputs.mode }}" = "window" ] && INH="--allow-inherited-gaps"
           python tools/index_qa/stage_transform.py --file patched.jz \
                  --parent "$PARENT" --parent-sha "$SHA" \
                  --op "ctc_surah_splice:$TAKEN" --reason "$REASON" \
-                 --by "github-ctc-splice" --yes
+                 --by "github-ctc-splice" $INH --yes
 
       - uses: actions/upload-artifact@v4
         if: always()

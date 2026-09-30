@@ -70,6 +70,30 @@ def ascii_meta(v: str) -> str:
     return s or "unknown"
 
 
+
+def realigned_coverage_error(have_old, have_new, realigned, allow_inherited=False):
+    """نصُّ الردّ أو None — تغطيةُ السور المُعادة.
+
+    الأصلُ (‏بلا الخيار، كما كان حرفاً): كلُّ سورةٍ مُعادةٍ كاملةٌ بعدد الرواية.
+    ⭐ ومع `allow_inherited` (‏ctc_gapsplit · 2026-09-30): قسمةُ المبتلع قد تسترجع بعضَ
+    الغائب وتُبقي بعضَه، فيُقبل الناقصُ **بشرطين مجتمعين**: ① لا غائبَ جديد (‏كلُّ مدخلٍ
+    في الأب حاضرٌ في المخرَج) ② زيادةٌ فعليّةٌ في مداخل السور المُعادة. فلا يُرفع ما يُنقص
+    شيئاً ولا ما لا يزيد شيئاً."""
+    old_in = {i for i in have_old if int(i.split(":")[0]) in realigned}
+    new_in = {i for i in have_new if int(i.split(":")[0]) in realigned}
+    want = sum(AYAH_COUNTS[s - 1] for s in realigned)
+    if len(new_in) == want:
+        return None
+    if not allow_inherited:
+        return (f"⛔ السورُ المُعادة {realigned}: مداخلُها {len(new_in)} "
+                f"والرواية {want} — لا يُرفع ناقص")
+    lost = sorted(old_in - new_in, key=lambda x: tuple(map(int, x.split(":"))))
+    if lost:
+        return f"⛔ غابت آياتٌ كانت في الأب: {lost[:6]} — لا يُرفع ما يُنقص"
+    if len(new_in) <= len(old_in):
+        return f"⛔ السورُ المُعادة {realigned} لم تزد مداخلُها ({len(old_in)} ⇐ {len(new_in)}) — لا شيءَ يُرفع"
+    return None
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--file", required=True, help="ملفّ المنتَج المحلّي (.jz)")
@@ -83,6 +107,9 @@ def main():
     ap.add_argument("--metadata-only", metavar="سبب",
                     help="تصحيحُ حقولِ الترويسة وحدها والمداخلُ متطابقةٌ بايتاً "
                          "— يجب أن يذكر السببُ الحقلَ والقياسَ الذي بُني عليه")
+    ap.add_argument("--allow-inherited-gaps", action="store_true",
+                    help="(ctc_gapsplit وحده) سورةٌ مُعادةٌ ناقصةٌ تُقبل إن كان كلُّ غائبٍ فيها غائباً في الأب "
+                         "ولا غائبَ جديد، وزادت مداخلُها زيادةً فعليّة")
     ap.add_argument("--yes", action="store_true")
     a = ap.parse_args()
 
@@ -221,11 +248,10 @@ def main():
         outside_new = {i for i in have_new if int(i.split(":")[0]) not in realigned}
         if outside_old != outside_new:
             raise SystemExit("⛔ التحويل مسّ مداخلَ خارج السور المسمّاة — يُردّ")
-        want = sum(AYAH_COUNTS[s - 1] for s in realigned)
-        got = len({i for i in have_new if int(i.split(":")[0]) in realigned})
-        if got != want:
-            raise SystemExit(f"⛔ السورُ المُعادة {realigned}: مداخلُها {got} "
-                             f"والرواية {want} — لا يُرفع ناقص")
+        bad = realigned_coverage_error(have_old, have_new, realigned,
+                                       allow_inherited=a.allow_inherited_gaps)
+        if bad:
+            raise SystemExit(bad)
         print(f"  ✔ إعادةُ محاذاة {realigned}: {n_old} ⇐ {n_new} مدخلاً "
               f"(‏+{n_new - n_old})، وما خارجها لم يُمسّ")
     elif n_new != n_old:
