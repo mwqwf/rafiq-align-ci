@@ -28,6 +28,12 @@ class Confirm(unittest.TestCase):
     def test_fixed_97_dropped(self):             # بعد الإصلاح: 3012 · CTC 3443
         self.assertFalse(confirm(3012, 3443, 0.74))
 
+    def test_rabbani_55_confirmed_at_calibrated_conf(self):   # الفهرس 0 · فرق 2594 ثقة 0.438
+        self.assertTrue(confirm(0, 2594, 0.438))
+
+    def test_negative_diff_never_confirmed(self):   # ryan 99: −552 بثقة 0.707
+        self.assertFalse(confirm(3000, 2448, 0.707))
+
     def test_low_conf_not_confirmed(self):       # zaml 111: ثقة 0.0
         self.assertFalse(confirm(0, 3151, 0.0))
 
