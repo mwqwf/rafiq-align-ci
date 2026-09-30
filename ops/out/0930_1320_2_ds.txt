@@ -1,0 +1,11 @@
+# rc=0
+{
+ "sample.errorWindows": {
+  "L|89:29": "RuntimeError: الفكُّ الكامل لا يبلغ النافذة: 110642/128000 عيّنة (الملفّ 126955م.ث · السماح 1280)",
+  "L|93:10": "RuntimeError: الفكُّ الكامل لا يبلغ النافذة: 123919/128000 عيّنة (الملفّ 38165م.ث · السماح 1280)",
+  "O|4": "RuntimeError: ffmpeg أبلغ خطأ فكٍّ كامل مع rc=0: [png @ 0x5583dda1a0c0] chunk too big",
+  "P|4": "RuntimeError: ffmpeg أبلغ خطأ فكٍّ كامل مع rc=0: [png @ 0x55daabcf30c0] chunk too big"
+ },
+ "sample.errors": 4,
+ "sha256": "74bebbdd5fc1c381409afb17c3059c5e7db59511c394a03ba6321f0f217c491a"
+}
