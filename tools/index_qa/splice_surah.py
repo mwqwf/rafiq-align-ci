@@ -106,6 +106,8 @@ def main() -> None:
                     help="محرّكُ المحاذاة المدموجة إن خالف محرّكَ الفهرس (‏مثل "
                          "ctc-seg-1) — يُكتب في `engineBySurah` لكلّ سورةٍ أُخذت، "
                          "فيطلب حارسُ الترقية إحصاءً صوتيّاً شاملاً لها")
+    ap.add_argument("--keep-parent-gaps", action="store_true",
+                    help="آيةٌ بلا حدودٍ تُقبل **إن كانت غائبةً في الأب أصلاً** فتبقى غائبة (ctc_gapsplit)")
     ap.add_argument("--alt-source", action="store_true",
                     help="صوتُ السور المأخوذة من مصدرٍ بديلٍ مسجَّل (‏غيرِ ملفّ الكتالوج) — "
                          "يُكتب قالبُ `--url` في `sourceBySurah` لكلّ سورةٍ أُخذت، "
@@ -150,12 +152,25 @@ def main() -> None:
         #    الأصل وتُسمَّى**، والباقياتُ تمضي. والمبدأ محفوظ: لا يُكتب ناقصٌ
         #    في موضعٍ ولا يُمسّ ما لم يُحَلّ.
         bad = None
+        # ⛔ **الغيابُ الموروث لا يُعدّ حلّاً ولا نقضاً** (‏ctc_gapsplit · 2026-09-29):
+        #    مع `--keep-parent-gaps` تُقبل الآيةُ بلا حدودٍ **إن كانت غائبةً في الأب**
+        #    فتبقى غائبةً كما كانت؛ وما كان حاضراً في الأب ثم غاب يُردّ كما قبل.
+        parent_has = {int(e["ayahId"].split(":")[1]) for e in entries
+                      if int(e["ayahId"].split(":")[0]) == s
+                      and e.get("startMs") is not None and e.get("endMs") is not None}
+        keep_gap = set()
+        if args.keep_parent_gaps:
+            keep_gap = {i + 1 for i, r in enumerate(rows)
+                        if (r.get("startMs") is None or r.get("endMs") is None)
+                        and (i + 1) not in parent_has}
         if len(rows) != want:
             bad = f"رجعت {len(rows)} آية والرواية {want}"
         else:
             prev = -1
             for i, r in enumerate(rows):
                 st, en = r.get("startMs"), r.get("endMs")
+                if (i + 1) in keep_gap:
+                    continue
                 if st is None or en is None:
                     bad = f"{i + 1} بلا حدود"; break
                 if not (0 <= st < en) or st < prev:
@@ -169,6 +184,8 @@ def main() -> None:
         taken.append(s)
         prev_end = -1
         for i, r in enumerate(rows):
+            if (i + 1) in keep_gap:
+                continue
             st, en = r.get("startMs"), r.get("endMs")
             prev_end = en
             conf = float(r.get("conf") or 0.0)

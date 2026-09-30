@@ -27,6 +27,7 @@ on:
       riwaya: {description: "الرواية", default: "hafs"}
       surahs: {description: "فارغ = كلُّ سورةٍ ناقصةٍ في الأصل (مقيسةً منه)", default: ""}
       reason: {description: "سببُ التحويل", required: true}
+      mode: {description: "full = CTC للسورة كاملة · window = قسمةُ المدخل الذي ابتلع جارتَه بنافذته وحدها (ctc_gapsplit)", default: "full"}
 
 concurrency:
   group: rafiq-ctc-splice-${{ inputs.parent }}
@@ -67,6 +68,7 @@ jobs:
           URLT: ${{ github.event.inputs.url_template }}
           RIW: ${{ github.event.inputs.riwaya }}
           WANT: ${{ github.event.inputs.surahs }}
+          MODE: ${{ github.event.inputs.mode }}
         run: |
           python - <<'PY'
           import gzip, hashlib, json, os, re, sys, boto3
@@ -134,7 +136,7 @@ jobs:
               sys.exit("⛔ الأصلُ يصف قارئاً آخر")
           # ⛔ المحرّكُ حتميّ: على ملفّ الكتالوج نفسِه يعيد النقصَ نفسَه؛ ومن بديلٍ
           #    مسجَّلٍ فالمدخلُ غيرُه فيُسمح.
-          if idx.get("engineVersion") == "ctc-seg-1" and not alt:
+          if idx.get("engineVersion") == "ctc-seg-1" and not alt and os.environ.get("MODE", "full") != "window":
               sys.exit("⛔ الأصلُ منشورٌ بـCTC نفسِه — المحرّكُ حتميّ فإعادتُه تعيد النقصَ نفسَه")
           have = {}
           for e in idx["entries"]:
@@ -173,8 +175,15 @@ jobs:
           RIW: ${{ github.event.inputs.riwaya }}
           RID: ${{ steps.plan.outputs.rid }}
           SURAHS: ${{ steps.plan.outputs.surahs }}
+          MODE: ${{ github.event.inputs.mode }}
         run: |
           set -o pipefail
+          if [ "$MODE" = "window" ]; then
+            # ⭐ قسمةُ المبتلع بنافذة الجارتين وحدها — مداخلُ الأب كما هي إلا الجارتين.
+            python tools/alignment_v3/ctc_gapsplit.py --index parent.jz --surahs "$SURAHS" \
+              --riwaya "$RIW" --out-dir "tools/alignment/work/batch_$RID" 2>&1 | tee ctc.log
+            exit 0
+          fi
           sudo chmod 755 /root
           # ‏batch_run يكتب ملفَّ سورةٍ لكلّ ما نجح؛ وفهرسُه الجزئيُّ في آخره لا يُستعمل.
           # ‏وأساسُ المجلَّد (‏بلا {s:03d}) يمرّ كما هو فيقرأ batch_run جدولَ files.
@@ -189,11 +198,14 @@ jobs:
           RID: ${{ steps.plan.outputs.rid }}
           SURAHS: ${{ steps.plan.outputs.surahs }}
           ALT: ${{ steps.plan.outputs.alt }}
+          MODE: ${{ github.event.inputs.mode }}
         run: |
           set -e
           d="tools/alignment/work/batch_$RID"
           # ⛔ (2026-09-28) المصدرُ البديلُ يُعلَن في `sourceBySurah` فيُحصى كلُّ آيةٍ منه.
           ALTF=""; [ -n "$ALT" ] && ALTF="--alt-source"
+          # ⭐ وضعُ النافذة: الغيابُ الموروثُ من الأب يبقى غائباً ولا يُعدّ نقضاً (‏test_splice_keep_parent_gaps).
+          if [ "$MODE" = "window" ]; then ALTF="$ALTF --keep-parent-gaps"; fi
           # ⭐ مضيفُ المجلَّد: `fileRef` من الأب حرفاً (‏والتحقّقُ بعده يطابقه بالمنزَّل).
           [ -n "$FOLDER" ] && ALTF="$ALTF --refs-from-parent"
           S=""; F=""
