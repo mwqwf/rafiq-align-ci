@@ -63,8 +63,11 @@ class EofPad(unittest.TestCase):
     def test_last_entry_inside_file_padded(self):              # الشرطُ القديمُ نفسُه
         self.assertTrue(self.ok(49050, 8000, 53869, 53869, 53800, 53800))
 
-    def test_last_entry_within_frame_tolerance(self):          # a_alhazmi 93:11: +47م.ث
-        self.assertTrue(self.ok(49050, 5000, 53869, 53869, 53916, 53916))
+    def test_last_entry_past_frame_count_refused(self):        # a_alhazmi 93:11: +47م.ث — لا سماح
+        self.assertFalse(self.ok(49050, 5000, 53869, 53869, 53916, 53916))
+
+    def test_non_last_refused_when_last_entry_overruns_by_little(self):
+        self.assertFalse(self.ok(33000, 8000, 38165, 38165, 34000, 38200))
 
     def test_non_last_ayah_of_intact_file_padded(self):        # kyat 93:10
         self.assertTrue(self.ok(33000, 8000, 38165, 38165, 34000, 38100))
