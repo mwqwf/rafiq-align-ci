@@ -21,7 +21,8 @@ import tempfile
 import urllib.request
 
 UA = {"User-Agent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 Chrome/120 Safari/537.36"}
-AUDIO = re.compile(r"""https?://[^\s"'<>]+?\.(?:mp3|m4a)(?:\?[^\s"'<>]*)?""", re.I)
+# ⛔ الامتدادُ في **آخر** الرابط لا في وسطه: «www.mp3quran» نفسُه يحوي «.mp3».
+AUDIO = re.compile(r"""https?://[^\s"'<>]+\.(?:mp3|m4a)(?=["'<>\s?]|$)(?:\?[^\s"'<>]*)?""", re.I)
 
 
 def get(url, timeout=120):
