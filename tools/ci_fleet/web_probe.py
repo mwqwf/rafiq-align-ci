@@ -31,7 +31,21 @@ def get(url, timeout=120):
 
 
 def probe_audio(url):
-    data, ct = get(url, timeout=300)
+    # ⭐ (2026-09-30 · الفخفاخ 029/069): archive.org ردّ 500 على GET ونجح HEAD — فتُعاد المحاولةُ بترويسة
+    #    Range (‏طريقٌ آخر في خوادمه) ثلاثاً قبل الحكم، ويُطبع أيُّ الطريقين نجح.
+    last = None
+    for hdr in ({}, {"Range": "bytes=0-"}, {"Range": "bytes=0-"}, {"Range": "bytes=0-"}):
+        try:
+            req = urllib.request.Request(url, headers={**UA, **hdr})
+            with urllib.request.urlopen(req, timeout=300) as r:
+                data, ct = r.read(), r.headers.get("Content-Type", "")
+            if hdr:
+                print(f"   (‏نجح بترويسة Range بعد إخفاق GET)")
+            break
+        except Exception as ex:                        # noqa: BLE001
+            last = ex
+    else:
+        raise last
     with tempfile.NamedTemporaryFile(suffix=".mp3", delete=False) as f:
         f.write(data)
         p = f.name
