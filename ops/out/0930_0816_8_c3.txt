@@ -1,0 +1,74 @@
+# rc=0
+{
+ "late": [
+  4,
+  5,
+  22,
+  49,
+  65,
+  83,
+  97,
+  108
+ ],
+ "lateConfirmed": [
+  83
+ ],
+ "lateCtc": {
+  "4": {
+   "indexStartMs": 8000,
+   "ctcStartMs": 7545,
+   "conf": 0.621,
+   "diffMs": -455,
+   "confirmed": false
+  },
+  "5": {
+   "indexStartMs": 6000,
+   "ctcStartMs": 5544,
+   "conf": 0.612,
+   "diffMs": -456,
+   "confirmed": false
+  },
+  "22": {
+   "indexStartMs": 400,
+   "ctcStartMs": 3231,
+   "conf": 0.475,
+   "diffMs": 2831,
+   "confirmed": false
+  },
+  "49": {
+   "indexStartMs": 3920,
+   "ctcStartMs": 3503,
+   "conf": 0.671,
+   "diffMs": -417,
+   "confirmed": false
+  },
+  "65": {
+   "indexStartMs": 14720,
+   "ctcStartMs": 14272,
+   "conf": 0.525,
+   "diffMs": -448,
+   "confirmed": false
+  },
+  "83": {
+   "indexStartMs": 440,
+   "ctcStartMs": 3213,
+   "conf": 0.644,
+   "diffMs": 2773,
+   "confirmed": true
+  },
+  "97": {
+   "indexStartMs": 3012,
+   "ctcStartMs": 3444,
+   "conf": 0.595,
+   "diffMs": 432,
+   "confirmed": false
+  },
+  "108": {
+   "indexStartMs": 2672,
+   "ctcStartMs": 3136,
+   "conf": 0.418,
+   "diffMs": 464,
+   "confirmed": false
+  }
+ }
+}
