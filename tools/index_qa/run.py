@@ -812,7 +812,58 @@ def _file_duration_ms(mp3):
     return mp3dur.dur(str(mp3))[0] * 1000.0
 
 
-def _ffmpeg_window_pcm(mp3, start_ms, end_ms, ayah_end_ms=None, file_dur_ms=None):
+def _strip_id3v2(b):
+    """يُسقط وسمَ ID3v2 من رأس الملفّ (‏بياناتٌ وصفيّةٌ لا صوت) — دالّةٌ صِرفةٌ مختبَرة."""
+    if len(b) >= 10 and b[:3] == b"ID3" and all(x < 0x80 for x in b[6:10]):
+        n = (b[6] << 21) | (b[7] << 14) | (b[8] << 7) | b[9]
+        return b[10 + n + (10 if b[5] & 0x10 else 0):]
+    return b
+
+
+def _audio_input(mp3):
+    """مدخلُ ffmpeg بلا وسم ID3v2 (‏2026-09-30 · kyat/004 · tblawi/034).
+
+    ⛔ **سببُه مقيس:** صورةُ غلافٍ تالفةٌ في إطار APIC تجعل ffmpeg يطبع «[png] chunk too big»
+       عند **فحص** الملفّ — ولو مع `-map 0:a` أو `-vn` (‏جُرّب على ملفٍّ مصنوع: الصوتُ فُكّ كاملاً
+       والسطرُ طُبع) — فيعدّه حارسُ «كلُّ سطرٍ خطأ» عطبَ فكٍّ ويردّ نوافذَ سليمة.
+    ✅ **ولا يُرخي حارساً:** يُنزع الوسمُ الوصفيُّ وحده، فيبقى كلُّ خطأٍ في **فكّ الصوت** مرفوضاً
+       كما كان، ويبقى عدُّ الإطارات (‏`_file_duration_ms`) على الملفّ الأصليّ كاشفَ البتر."""
+    key = str(mp3)
+    try:
+        with open(key, "rb") as f:
+            head = f.read(10)
+    except OSError:
+        return key                     # لا يُفتح ⇒ يردّه ffmpeg بخطئه كما كان
+    if head[:3] != b"ID3":
+        return key
+    out = key + ".noid3.mp3"
+    st = os.stat(key)
+    if not (os.path.exists(out) and os.stat(out).st_mtime_ns >= st.st_mtime_ns):
+        with open(key, "rb") as f:
+            body = _strip_id3v2(f.read())
+        with open(out + ".part", "wb") as f:
+            f.write(body)
+        os.replace(out + ".part", out)
+    return out
+
+
+def _eof_pad_ok(start, dur, got_end, fd, tol_ms, ayah_end_ms, file_end_ms):
+    """أيُحشى نقصُ النافذة بصمت؟ — شروطٌ مجتمعة، ودالّةٌ صِرفةٌ مختبَرة (‏2026-09-30).
+
+    ‏(١) الطلبُ يتجاوز نهايةَ الملفّ، والمفكوكُ بلغها (‏فالنقصُ كلُّه بعدها) · (٢) الآيةُ داخل
+    الملفّ · (٣) **وآخرُ مدخلٍ في الملفّ داخله** — فالفهرسُ لا يدّعي صوتاً بعد نهايته.
+    وكان الشرطُ لآخر مدخلٍ وحده (‏ونهايتُه = ‹file_end_ms›)، فبقي على حاله له، واتّسع لما قبله
+    **بشرطٍ زائد** (٣): نافذةُ L بثماني ثوانٍ لآيةٍ قبل الأخيرة (‏kyat 89:29 · 93:10) تمتدّ
+    بعد نهاية ملفٍّ سليم. والسماحُ في (٢) و(٣) سماحُ الإطار نفسُه (≤80م.ث): نهايةُ a_alhazmi
+    93:11 تزيد 47م.ث على عدّ الإطارات — دون دقّة الإطار، والملفُّ المبتورُ يزيد بثوانٍ."""
+    if ayah_end_ms is None or file_end_ms is None or fd <= 0:
+        return False
+    return (start < fd < start + dur and got_end >= fd - tol_ms
+            and int(ayah_end_ms) <= fd + tol_ms and int(file_end_ms) <= fd + tol_ms)
+
+
+def _ffmpeg_window_pcm(mp3, start_ms, end_ms, ayah_end_ms=None, file_dur_ms=None,
+                       file_end_ms=None):
     """يفكّ نافذةً بـffmpeg ويرفض الخرج الجزئي أو المتلف صراحةً.
 
     السماح الزمني أقصاه 80م.ث (نحو ثلاثة إطارات MPEG-1 Layer III عند 44.1ك.هز)،
@@ -840,7 +891,7 @@ def _ffmpeg_window_pcm(mp3, start_ms, end_ms, ayah_end_ms=None, file_dur_ms=None
     #    المعدّل، فتُسمَع نافذةٌ غير المطلوبة بصمت. الفكُّ من الأوّل أبطأ لكنه
     #    دقيقٌ بالعيّنة في CBR وVBR معاً، وهذا احتياطٌ نادر لا المسارُ الأوّل.
     cmd = ["ffmpeg", "-nostdin", "-v", "error",
-           "-i", str(mp3), "-ss", f"{start / 1000:.3f}", "-t", f"{dur / 1000:.3f}",
+           "-i", _audio_input(mp3), "-ss", f"{start / 1000:.3f}", "-t", f"{dur / 1000:.3f}",
            "-f", "f32le", "-ac", "1", "-ar", str(rate), "pipe:1"]
     p = subprocess.run(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE,
                        timeout=max(30, int(dur / 1000) + 20,
@@ -863,9 +914,8 @@ def _ffmpeg_window_pcm(mp3, start_ms, end_ms, ayah_end_ms=None, file_dur_ms=None
         fd = _file_duration_ms(mp3) if file_dur_ms is None else float(file_dur_ms)
         tol_ms = tolerance * 1000.0 / rate
         got_end = start + len(x) * 1000.0 / rate
-        if (fd > 0 and start < fd and start + dur > fd
-                and got_end >= fd - tol_ms          # المفكوكُ بلغ نهايةَ الملفّ
-                and int(ayah_end_ms) <= fd):        # والآيةُ كلُّها داخله
+        if _eof_pad_ok(start, dur, got_end, fd, tol_ms, ayah_end_ms,
+                       ayah_end_ms if file_end_ms is None else file_end_ms):
             x = np.concatenate([x, np.zeros(expected - len(x), dtype=x.dtype)])
     if len(x) < expected - tolerance:
         raise RuntimeError(
@@ -923,7 +973,7 @@ def _full_decode_pcm(mp3):
         #    يتّفقان على نصفه (‏وقع 2026-09-28: 376.6ث من 2346.3ث) ⇒ البصمةُ قبل وبعد.
         st0 = os.stat(key)
         with open(part, "wb") as fo:
-            p = subprocess.run(["ffmpeg", "-nostdin", "-v", "error", "-i", key,
+            p = subprocess.run(["ffmpeg", "-nostdin", "-v", "error", "-i", _audio_input(key),
                                 "-f", "f32le", "-ac", "1", "-ar", "16000", "pipe:1"],
                                stdout=fo, stderr=subprocess.PIPE, timeout=1800, check=False)
         why = p.stderr.decode("utf-8", errors="replace").strip()[-240:]
@@ -961,7 +1011,7 @@ def _full_decode_pcm(mp3):
         return x
 
 
-def _exact_window_pcm(mp3, start_ms, end_ms, ayah_end_ms=None):
+def _exact_window_pcm(mp3, start_ms, end_ms, ayah_end_ms=None, file_end_ms=None):
     """نافذةٌ مقصوصةٌ بالعيّنة من الفكّ الكامل، بقواعد رفض `_ffmpeg_window_pcm` نفسِها."""
     import numpy as np
     rate = 16000
@@ -978,9 +1028,9 @@ def _exact_window_pcm(mp3, start_ms, end_ms, ayah_end_ms=None):
     if len(x) < expected - tolerance and ayah_end_ms is not None:
         tol_ms = tolerance * 1000.0 / rate
         got_end = start + len(x) * 1000.0 / rate
-        # الاستثناءُ الوحيد نفسُه: النقصُ كلُّه بعد نهاية الملفّ والآيةُ داخله.
-        if (start < fd and start + dur > fd and got_end >= fd - tol_ms
-                and int(ayah_end_ms) <= fd):
+        # الاستثناءُ نفسُه بشروطه المجتمعة (‏`_eof_pad_ok`).
+        if _eof_pad_ok(start, dur, got_end, fd, tol_ms, ayah_end_ms,
+                       ayah_end_ms if file_end_ms is None else file_end_ms):
             x = np.concatenate([x, np.zeros(expected - len(x), dtype=x.dtype)])
     if len(x) < expected - tolerance:
         raise RuntimeError(f"الفكُّ الكامل لا يبلغ النافذة: {len(x)}/{expected} عيّنة "
@@ -1044,8 +1094,9 @@ def local_run(jobs, _host=None, _threads=None):
                 x, r = got
             else:
                 mp3 = _local_audio(j["url"])
-                # ‏`ayahEndMs` لا يحمله إلا آخرُ مدخلٍ في ملفّه (‏انظر بناءَ المهامّ).
-                kw = {"ayah_end_ms": j["ayahEndMs"]} if j.get("ayahEndMs") is not None else {}
+                # ‏`ayahEndMs` ومعه `fileEndMs` (‏نهايةُ آخر مدخلٍ في الملفّ) — انظر بناءَ المهامّ.
+                kw = ({"ayah_end_ms": j["ayahEndMs"], "file_end_ms": j.get("fileEndMs")}
+                      if j.get("ayahEndMs") is not None else {})
                 if not _local_is_cbr(mp3):
                     # ⛔ غيرُ الثابت (‏VBR بترويسةٍ أو بلا ترويسة): لا قفزَ بالتقدير —
                     #    فكٌّ كاملٌ وقصٌّ بالعيّنة، وإخفاقُه خطأٌ يبقى «غير حاسم».
@@ -1370,11 +1421,12 @@ def audit(key, args):
 
     # ⭐ آخرُ مدخلٍ في كلّ ملفّ صوت: وحده يجوز أن تمتدّ نافذتُه بعد نهاية الملفّ
     #    فتُحشى بصمت (‏`_ffmpeg_window_pcm`)؛ وغيرُه نقصُه عطبٌ لا حشو.
-    _last = {}
+    _last, _fend = {}, {}
     for _e in idx["entries"]:
         _f, _st = _e.get("fileRef"), _e.get("startMs")
         if _f and _st is not None and (_f not in _last or _st > _last[_f]):
             _last[_f] = _st
+            _fend[_f] = _e.get("endMs")
     jobs, meta = [], {}
     for s, e in sample:
         aid = e["ayahId"]
@@ -1384,8 +1436,10 @@ def audit(key, args):
         meta[aid] = {"s": s, "ref": txt[flat(s, a)], "prev": prev, "noPre": dw is None,
                      "band": e.get("confBand"), "startApprox": e.get("startApprox", False)}
         u = e["fileRef"]
-        tail = ({"ayahEndMs": e["endMs"]}
-                if _last.get(u) == st and e.get("endMs") is not None else {})
+        # ‏(٢٠٢٦-٠٩-٣٠) لكلّ مدخلٍ نهايتُه ونهايةُ آخر مدخلٍ في ملفّه — والحشوُ لا يقع إلا إن كانت
+        #    كلتاهما داخل الملفّ (‏`_eof_pad_ok`)؛ فلآخر مدخلٍ الشرطُ القديمُ نفسُه.
+        tail = ({"ayahEndMs": e["endMs"], "fileEndMs": _fend.get(u)}
+                if e.get("endMs") is not None and _fend.get(u) is not None else {})
         jobs += [{"id": f"F|{aid}", "url": u, "startMs": st, "endMs": st + FWD_MS, **tail},
                  {"id": f"L|{aid}", "url": u, "startMs": st, "endMs": st + LONG_MS, **tail}]
         if dw is not None:   # ‏لا نافذةَ حاسمةً حيث لا صوتَ قبل الحدّ — والحكمُ يعلم بغيابها

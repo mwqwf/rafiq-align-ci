@@ -139,7 +139,10 @@ class WorkflowContract(unittest.TestCase):
         self.assertNotIn("غيرُ مدعومٍ في هذا المسار", y)
         # حارسُ مطابقة المنزَّل بالمدموج والإحصاءُ باقيان
         self.assertIn("fileRef المدموج", y)
-        self.assertIn("--engine-tag ctc-seg-1", y)
+        # ‏(2026-09-30) الوسمُ متغيّرٌ: ctc-seg-1 للوضع الكامل، وctc-gapsplit-1 لوضع النافذة وحده.
+        self.assertIn('ETAG="ctc-seg-1"', y)
+        self.assertIn('--engine-tag "$ETAG"', y)
+        self.assertIn('if [ "$MODE" = "window" ]; then ALTF="$ALTF --keep-parent-gaps"; ETAG="ctc-gapsplit-1"; fi', y)
         self.assertIn("steps.plan.outputs.urlt", y)
 
     def test_realign_surah_folder_uses_parent_refs(self):

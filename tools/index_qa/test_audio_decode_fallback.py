@@ -286,7 +286,7 @@ class WindowPastEndOfFileTest(unittest.TestCase):
         pcm = np.ones(8000, dtype="float32")
         model = SimpleNamespace(transcribe=lambda _: [SimpleNamespace(text="ok")])
         job = {"id": "L|102:8", "url": "https://example/102.mp3",
-               "startMs": 1000, "endMs": 1500, "ayahEndMs": 1400}
+               "startMs": 1000, "endMs": 1500, "ayahEndMs": 1400, "fileEndMs": 1450}
         fake_sf = SimpleNamespace(info=mock.Mock(side_effect=RuntimeError("libsndfile")))
         with (mock.patch.dict(sys.modules, {"soundfile": fake_sf}),
               mock.patch.object(R, "_local_model", return_value=model),
@@ -296,7 +296,8 @@ class WindowPastEndOfFileTest(unittest.TestCase):
               mock.patch.object(R, "_local_audio", return_value="tail.mp3"),
               mock.patch.object(R, "_ffmpeg_window_pcm", return_value=(pcm, 16000)) as fallback):
             R.local_run([job])
-        fallback.assert_called_once_with("tail.mp3", 1000, 1500, ayah_end_ms=1400)
+        # ‏(2026-09-30) ومعه نهايةُ آخر مدخلٍ في الملفّ — شرطٌ زائدٌ في `_eof_pad_ok`.
+        fallback.assert_called_once_with("tail.mp3", 1000, 1500, ayah_end_ms=1400, file_end_ms=1450)
 
 
 if __name__ == "__main__":
