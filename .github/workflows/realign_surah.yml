@@ -25,7 +25,7 @@ on:
         description: "سورةٌ أو أكثر بفواصل، مثل 22 أو 25,30"
         required: true
       skip_ms:
-        description: "بدءُ المحاذاة بعد n م.ث من رأس الملفّ (لتخطّي بسملةٍ مقيسة)"
+        description: "بدءُ المحاذاة بعد n م.ث من رأس الملفّ (لتخطّي بسملةٍ مقيسة) — أو خريطةٌ لكلّ سورة 95:8030,97:6903"
         default: "0"
       url_template:
         description: "قالبُ الصوت، مثل https://server16.mp3quran.net/deban/Rewayat-Hafs-A-n-Assem/{s:03d}.mp3"
@@ -277,6 +277,8 @@ jobs:
             echo "   وإن قُصد الجمعُ عمداً ومع علمٍ بالكلفة: allow_batch=true."
             exit 1
           fi
+          # ⛔ خريطةُ التخطّي تُفحص لكلّ سورةٍ **قبل تنزيل بايت** (‏سورةٌ بلا قيمةٍ مقيسة تُردّ هنا).
+          for S in $(echo "$SURAHS" | tr ',' ' '); do python tools/ci_fleet/skip_for.py "${SKIP_MS:-0}" "$S" >/dev/null; done
           mkdir -p work
           python - <<'PY'
           import json, os, boto3
@@ -308,18 +310,20 @@ jobs:
                  -o "$GITHUB_WORKSPACE/work/full_$S.mp3" "$URL"
             ls -l "$GITHUB_WORKSPACE/work/full_$S.mp3"
             SRC="file://$GITHUB_WORKSPACE/work/full_$S.mp3"
-            if [ "${SKIP_MS:-0}" != "0" ]; then
+            # ⭐ (2026-09-30) تخطّي هذه السورة من عددٍ واحدٍ أو خريطةٍ لكلّ سورة (‏skip_for.py مختبَر).
+            SK=$(python tools/ci_fleet/skip_for.py "${SKIP_MS:-0}" "$S")
+            if [ "$SK" != "0" ]; then
               # ⛔ `-map 0:a` (‏2026-09-30 · tblawi/034): ملفٌّ بصورة غلافٍ مدمجة (‏GIF) يجعل `-c copy`
               #    ينسخ الصورةَ مسارَ فيديو فيفشل الترويس «dimensions not set». والصوتُ يُنسخ كما هو.
-              SEC=$(python -c "print(int('${SKIP_MS}')/1000)")
+              SEC=$(python -c "print(int('${SK}')/1000)")
               ffmpeg -y -v error -ss "$SEC" -i "$GITHUB_WORKSPACE/work/full_$S.mp3" -map 0:a -c copy "$GITHUB_WORKSPACE/work/cut_$S.mp3"
               SRC="file://$GITHUB_WORKSPACE/work/cut_$S.mp3"
-              echo "  تُخطّيت ${SKIP_MS} م.ث من رأس الملفّ (بسملةٌ مقيسة)"
+              echo "  تُخطّيت ${SK} م.ث من رأس الملفّ (بسملةٌ مقيسة)"
             fi
             ( cd tools/alignment && python pipeline.py --url "$SRC" --surah "$S" \
                 --riwaya "$RIWAYA" --json "$GITHUB_WORKSPACE/work/s$S.json" )
-            if [ "${SKIP_MS:-0}" != "0" ]; then
-              python tools/index_qa/shift_entries.py "$GITHUB_WORKSPACE/work/s$S.json" "${SKIP_MS}"
+            if [ "$SK" != "0" ]; then
+              python tools/index_qa/shift_entries.py "$GITHUB_WORKSPACE/work/s$S.json" "${SK}"
             fi
             FILES="$FILES $GITHUB_WORKSPACE/work/s$S.json"
           done
