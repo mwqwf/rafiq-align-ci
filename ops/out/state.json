@@ -79,10 +79,10 @@
    }
   },
   "hafs/a_alhazmi": {
-   "entries": 6230,
+   "entries": 6232,
    "missingSurahs": [],
    "reasonCode": null,
-   "transformOp": "whisper_surah_splice:45,46,50,87,93",
+   "transformOp": "ctc_gapsplit:40,41",
    "declaredReasons": {
     "no-align": 11
    },
@@ -90,8 +90,6 @@
    "undeclaredCount": 0,
    "engine": "ctc-seg-1",
    "gapSurahs": {
-    "40": 1,
-    "41": 1,
     "52": 1,
     "55": 1,
     "78": 1,
@@ -364,21 +362,6 @@
    "engine": "align-0.2",
    "gapSurahs": {
     "16": 1
-   }
-  },
-  "hafs/kyat": {
-   "entries": 6235,
-   "missingSurahs": [],
-   "reasonCode": null,
-   "transformOp": "whisper_surah_splice:20,52,89,93",
-   "declaredReasons": {
-    "no-align": 5
-   },
-   "declaredCount": 5,
-   "undeclaredCount": 0,
-   "engine": "ctc-seg-1",
-   "gapSurahs": {
-    "78": 1
    }
   },
   "hafs/lhdan": {
