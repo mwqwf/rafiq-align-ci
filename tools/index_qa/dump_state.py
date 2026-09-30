@@ -25,10 +25,11 @@ def main() -> None:
     doc = json.loads(cl.get_object(Bucket=b, Key=key)["Body"].read())
     out = {}
     for f in fields:
-        if f == "sample.seedSalt":
-            out[f] = (doc.get("sample") or {}).get("seedSalt")
-        else:
-            out[f] = doc.get(f)
+        # حقلٌ متداخلٌ بنقطة (‏sample.errorWindows · sample.seedSalt …)
+        v = doc
+        for part in f.split("."):
+            v = v.get(part) if isinstance(v, dict) else None
+        out[f] = v
     print(json.dumps(out, ensure_ascii=False, indent=1))
 
 
