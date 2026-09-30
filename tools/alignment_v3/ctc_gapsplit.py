@@ -109,7 +109,20 @@ def main() -> int:
     ap.add_argument("--surahs", required=True)
     ap.add_argument("--riwaya", required=True)
     ap.add_argument("--out-dir", required=True)
+    # ⭐ (2026-09-30 · f_hajry الرحمن): **إعادةُ نافذةٍ** لمدىً حاضرٍ حدودُه معطوبة — «55:41-75» ⇒ تُحاذى
+    #    نصوصُ 41..75 بـCTC بين جارتين ثابتتين من الأب (‏40 بدءاً · 76 نهايةً) على نافذتهما وحدها. سببُه مقيس:
+    #    الإحصاءُ الشامل 7.7% جسيماً في 41–75 على CTC السورة كاملةً، وWhisper عجز عنها (‏اللازمةُ المتكرّرة
+    #    تُضلّ التفريغ) — والمحاذاةُ القسريّةُ لنصٍّ معلومٍ في نافذةٍ ضيّقة لا تُضلّها اللازمة.
+    #    ⛔ بالحُرّاس نفسِها (‏ثقة · مدّة · جارة) والإحصاءُ الشاملُ هو الحَكَم.
+    ap.add_argument("--rewindow", default="", help="مدى آياتٍ حاضرةٍ يُعاد بنافذته: 55:41-75[,…]")
     a = ap.parse_args()
+    rewin = {}
+    for spec in [x for x in a.rewindow.split(",") if x.strip()]:
+        s_, rng = spec.split(":")
+        r0, r1 = (int(v) for v in rng.split("-"))
+        if r0 < 2 or r1 < r0:
+            raise SystemExit(f"⛔ مدى إعادة النافذة غيرُ صالح: {spec} (‏يلزم جارٌ قبله وبعده)")
+        rewin.setdefault(int(s_), []).append((r0, r1))
     os.makedirs(a.out_dir, exist_ok=True)
     idx = json.loads(gzip.decompress(open(a.index, "rb").read()).decode("utf-8"))
     qidx = load_index()
@@ -128,6 +141,11 @@ def main() -> int:
         rates = [(ents[k]["endMs"] - ents[k]["startMs"]) / max(1, chars(t_of(k))) for k in ents]
         rate = statistics.median(rates)
         splits = plan_splits(ents, n, t_of, rate)
+        for r0, r1 in rewin.get(s, []):
+            if r1 >= n or any(k not in ents for k in range(r0 - 1, r1 + 2)):
+                report.append(f"س{s}:{r0}-{r1} (rewin): ⛔ المدى وجارتاه يجب أن يكونوا حاضرين في الأب")
+                continue
+            splits.append(("rewin", r0, r1))
         if not splits:
             report.append(f"س{s}: لا غيابَ مبتلعاً بين جارتين")
             continue
@@ -147,7 +165,7 @@ def main() -> int:
         for kind, b0, b1 in splits:
             miss = list(range(b0, b1 + 1))
             lead = []
-            if kind == "gap":
+            if kind in ("gap", "rewin"):
                 p, q = ents[b0 - 1], ents[b1 + 1]
                 ks, ws, we, fixed = [b0 - 1] + miss + [b1 + 1], p["startMs"], q["endMs"], (0, -1)
             elif kind == "opener":
@@ -163,10 +181,10 @@ def main() -> int:
                 report.append(f"س{s}:{b0}-{b1} ({kind}): تعذّرت المحاذاة — {str(ex)[:80]}")
                 continue
             starts = [sg[0] for sg in segs]
-            if kind in ("gap", "tail"):
+            if kind in ("gap", "tail", "rewin"):
                 starts[0] = int(ents[b0 - 1]["startMs"])       # بدءُ السابقة ثابتٌ من الأب
             ends = starts[1:] + [int(we) if kind != "tail" else min(int(segs[-1][1]), total_ms)]
-            if kind in ("gap", "opener"):
+            if kind in ("gap", "opener", "rewin"):
                 ends[-1] = int(ents[b1 + 1]["endMs"])            # نهايةُ اللاحقة ثابتةٌ من الأب
             fixed_idx = {i % len(ks) for i in fixed}
             why = None

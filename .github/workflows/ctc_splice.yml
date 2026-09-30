@@ -28,6 +28,7 @@ on:
       surahs: {description: "فارغ = كلُّ سورةٍ ناقصةٍ في الأصل (مقيسةً منه)", default: ""}
       reason: {description: "سببُ التحويل", required: true}
       mode: {description: "full = CTC للسورة كاملة · window = قسمةُ المدخل الذي ابتلع جارتَه بنافذته وحدها (ctc_gapsplit)", default: "full"}
+      rewindow: {description: "وضعُ window وحده: مدى آياتٍ حاضرةٍ حدودُها معطوبةٌ يُعاد بنافذته بين جارتين ثابتتين، مثل 55:41-75", default: ""}
 
 concurrency:
   group: rafiq-ctc-splice-${{ inputs.parent }}
@@ -176,12 +177,13 @@ jobs:
           RID: ${{ steps.plan.outputs.rid }}
           SURAHS: ${{ steps.plan.outputs.surahs }}
           MODE: ${{ github.event.inputs.mode }}
+          REWIN: ${{ github.event.inputs.rewindow }}
         run: |
           set -o pipefail
           if [ "$MODE" = "window" ]; then
             # ⭐ قسمةُ المبتلع بنافذة الجارتين وحدها — مداخلُ الأب كما هي إلا الجارتين.
             python tools/alignment_v3/ctc_gapsplit.py --index parent.jz --surahs "$SURAHS" \
-              --riwaya "$RIW" --out-dir "tools/alignment/work/batch_$RID" 2>&1 | tee ctc.log
+              --riwaya "$RIW" --out-dir "tools/alignment/work/batch_$RID" --rewindow "$REWIN" 2>&1 | tee ctc.log
             exit 0
           fi
           sudo chmod 755 /root
