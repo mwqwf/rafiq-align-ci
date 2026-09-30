@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-"""قصُّ نهايةِ آخر مدخلٍ في ملفّه إلى نهاية الملفّ **المقيسة بعدّ الإطارات** (2026-09-30).
+"""قصُّ نهايةِ آخر مدخلٍ في ملفّه إلى نهاية الملفّ **المقيسة بطول الفكّ** (2026-09-30).
 
     python tools/index_qa/clamp_file_end.py --key timings/hafs/a_alhazmi.jz --sha 5cc926a1 --surahs 93 [--yes]
 
@@ -9,7 +9,7 @@
    لا في الحارس** (‏رُدّ سماحُ الحارس لأنّه أرخى شرطاً قديماً).
 ⛔ **حُرّاس:** يُقصّ **آخرُ مدخلٍ في ملفّه وحده**، و**التجاوزُ ≤ MAX_OVER_MS** — فما زاد تجاوزُه فعلامةُ بترٍ
    (‏الفهرسُ يدّعي صوتاً ليس في الملفّ) **يُردّ ولا يُقصّ**؛ والقصُّ لا يجعل النهايةَ قبل البداية. والمدّةُ تُقاس
-   بتنزيل الملفّ وعدّ إطاراته (‏`mp3dur`) لا من ترويسة. ثمّ يُرفع عبر `stage_transform` بحُرّاسه كلّها (‏op: file_end_clamp).
+   بتنزيل الملفّ وفكّه كاملاً (‏`run._full_decode_pcm` — مقياسُ الحارس نفسُه) لا من ترويسة. ثمّ يُرفع عبر `stage_transform` بحُرّاسه كلّها (‏op: file_end_clamp).
 """
 from __future__ import annotations
 
@@ -25,7 +25,6 @@ from pathlib import Path
 
 HERE = Path(__file__).resolve().parent
 sys.path.insert(0, str(HERE))
-import mp3dur  # noqa: E402
 
 MAX_OVER_MS = 500
 UA = {"User-Agent": "Mozilla/5.0 (QuranRafiq tools)"}
@@ -76,7 +75,11 @@ def main() -> int:
             with tempfile.NamedTemporaryFile(suffix=".mp3", delete=False) as f, \
                     urllib.request.urlopen(urllib.request.Request(u, headers=UA), timeout=180) as r:
                 f.write(r.read())
-            cache[u] = mp3dur.dur(f.name)[0] * 1000.0
+            # ⛔ **بمقياس الحارس نفسِه** (‏`run._full_decode_pcm`: طولُ الصوت بعد الفكّ) لا بعدّ الإطارات:
+            #    الإطاراتُ تحمل حشوَ المُرمِّز فتطول (‏a_alhazmi/093: الإطارات ≥53916 والفكُّ 53869)،
+            #    والحارسُ يحكم بالفكّ — فمقياسان مختلفان يجعلان القصَّ «لا شيء» والحارسَ «يردّ».
+            import run
+            cache[u] = len(run._full_decode_pcm(f.name)) * 1000.0 / 16000
         return cache[u]
 
     cuts, refused = plan(idx["entries"], surahs, dur_of)
@@ -97,7 +100,7 @@ def main() -> int:
     out.write_bytes(gzip.compress(json.dumps(idx, ensure_ascii=False).encode("utf-8")))
     cmd = [sys.executable, str(HERE / "stage_transform.py"), "--file", str(out), "--parent", a.key,
            "--parent-sha", live[:16], "--op", "file_end_clamp",
-           "--reason", "قصُّ نهاية آخر مدخلٍ إلى نهاية ملفّه المقيسة بعدّ الإطارات: "
+           "--reason", "قصُّ نهاية آخر مدخلٍ إلى نهاية ملفّه المقيسة بطول الفكّ: "
            + " · ".join(f"{aid} −{old - int(fd)}م.ث" for aid, old, fd in cuts),
            "--by", "github-clamp"] + (["--yes"] if a.yes else [])
     return subprocess.run(cmd, check=False).returncode
