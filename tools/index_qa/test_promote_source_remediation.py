@@ -59,6 +59,17 @@ class RegisteredSourceRemediationTest(unittest.TestCase):
         http_only = [dict(self.override[0], base="http://audio.example.test/hafs/")]
         self.assertFalse(self.check(overrides=http_only)[0])
 
+    def test_explicit_filename_requires_exact_registered_audio_hash(self):
+        override = [dict(self.override[0], url=self.base + "008.mp3", audio_sha256="a" * 64)]
+        entries = [dict(row, fileRef=self.base + "008.mp3") for row in self.entries]
+        idx = {"entries": entries, "audioSha256": ["a" * 64] * 114}
+        self.assertTrue(registered_source_remediation(idx, "hafs", "reader", 9, override)[0])
+        idx["audioSha256"][8] = "b" * 64
+        self.assertFalse(registered_source_remediation(idx, "hafs", "reader", 9, override)[0])
+        idx["audioSha256"] = ["a" * 64] * 114
+        idx["entries"][1]["fileRef"] = self.base + "009.mp3"
+        self.assertFalse(registered_source_remediation(idx, "hafs", "reader", 9, override)[0])
+
 
 if __name__ == "__main__":
     unittest.main()

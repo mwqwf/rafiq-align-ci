@@ -35,6 +35,7 @@ import sys
 import time
 import re
 from urllib.parse import quote
+from urllib.parse import urlsplit
 import urllib.request
 
 HERE = os.path.dirname(os.path.abspath(__file__))
@@ -44,6 +45,21 @@ sys.path.insert(0, HERE)
 from basmala_local import (BAS, _edit, _eq, _eq_first, basmala_tail, cut,  # noqa: E402
                            fuzzy_seq, text_of)
 from common import load_index, load_text, norm, read_jz  # noqa: E402
+
+
+def opener_audio_url(entry, surah, template=None, names=None, base=""):
+    """مصدر المقطع الذي يسمعه التطبيق؛ لا يُعاد ترقيم رابط صريح."""
+    ref = entry.get("fileRef")
+    if isinstance(ref, str) and ref.startswith(("https://", "http://")):
+        parts = urlsplit(ref)
+        if not parts.netloc or parts.username or parts.password or re.search(r"[\s{}]", ref):
+            raise ValueError("رابط صوت المدخل غير صالح")
+        return ref
+    if names:
+        return base.rstrip("/") + "/" + quote(names[surah])
+    if template:
+        return template.format(surah=surah)
+    raise ValueError("لا رابط صوت للمدخل ولا اسم مقيس في الكتالوج")
 
 # ⛔ إيداعُ `QuranRafiq` الذي نُسخ منه هذا الملف — يُحدَّث مع كل مزامنة.
 # ⛔⛔ **ومن غيّره فليُعِد توليد `tools/index_qa/openers_trusted.txt`**:
@@ -372,8 +388,8 @@ def main():
         row = {"surah": s, "startMs": e["startMs"]}
         w = []
         try:
-            _url = (base.rstrip("/") + "/" + quote(names[s])
-                    if names else tmpl.format(surah=s))
+            _url = opener_audio_url(e, s, tmpl, names, base if names else "")
+            row.update(url=_url, endMs=e["endMs"])
             fetch_head(_url, mp3,
                        need_ms=e["startMs"] + LADDER[-1] + VERIFY_MS)
             end = None

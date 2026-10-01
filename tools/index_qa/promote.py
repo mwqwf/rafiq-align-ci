@@ -359,11 +359,12 @@ def registered_source_remediation(idx, riwaya, reciter, surah, overrides=None):
     ]
     if len(matches) != 1:
         return False, f"لا يوجد بديل مسجّل وحيد ({len(matches)})"
-    row = matches[0]
-    base = str(row.get("base") or "").rstrip("/")
-    evidence = str(row.get("evidence") or "").strip()
-    if not re.fullmatch(r"https://[^\s]+", base) or not evidence:
-        return False, "سجل البديل بلا رابط HTTPS أو بلا دليل قياس"
+    sys.path.insert(0, str(HERE.parent / "ci_fleet"))
+    from source_registry import registered_source
+    try:
+        row = registered_source(riwaya, reciter, surah, overrides)
+    except (ValueError, TypeError) as ex:
+        return False, str(ex)
 
     entries = [e for e in (idx.get("entries") or [])
                if str(e.get("ayahId") or "").split(":", 1)[0] == str(surah)]
@@ -372,10 +373,14 @@ def registered_source_remediation(idx, riwaya, reciter, surah, overrides=None):
     if len(entries) != len(expected_ids) or got_ids != expected_ids:
         return False, (f"تغطية البديل غير كاملة: {len(entries)}/"
                        f"{len(expected_ids)} بمدخلات فريدة صحيحة")
-    expected_ref = f"{base}/{surah:03d}.mp3"
+    expected_ref = row["url"]
     wrong = [e.get("fileRef") for e in entries if e.get("fileRef") != expected_ref]
     if wrong:
         return False, f"{len(wrong)} مدخلاً لا يشير إلى ملف البديل المسجّل"
+    if row.get("audio_sha256"):
+        shas = idx.get("audioSha256") or []
+        if len(shas) != 114 or shas[surah - 1] != row["audio_sha256"]:
+            return False, "بصمة صوت السورة لا تطابق المصدر المسجّل"
     return True, f"{surah}:1–{surah}:{len(expected_ids)} على {expected_ref}"
 
 

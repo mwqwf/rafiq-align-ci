@@ -116,6 +116,8 @@ def main() -> None:
                     help="مضيفُ مجلَّدٍ بلا {s:03d}: `fileRef` كلِّ سورةٍ يُؤخذ حرفاً من "
                          "مدخلاتها في الفهرس الأب، و`--url` هو المجلَّد الذي يجب أن "
                          "يبدأ به كلُّ رابط")
+    ap.add_argument("--registered-sources", action="store_true",
+                    help="روابط صريحة وبصمات مقيسة من سجل المصادر لهذا القارئ والرواية")
     args = ap.parse_args()
 
     surahs = [int(x) for x in args.surah.replace(",", " ").split()]
@@ -128,7 +130,20 @@ def main() -> None:
     #    (‏`str.format` بلا حقلٍ يرجع النصَّ كما هو) — فيُردّ ما لم يُطلب
     #    الأخذُ من الأب صراحةً، ولا يجتمع الأخذُ من الأب مع مصدرٍ بديل.
     refs = None
-    if args.refs_from_parent:
+    if args.registered_sources:
+        if args.refs_from_parent or not args.alt_source:
+            sys.exit("⛔ المصدر المسجّل يحتاج --alt-source ولا يجتمع مع --refs-from-parent")
+        sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "ci_fleet"))
+        from source_registry import registered_source
+        refs = {}
+        registered = {}
+        for s in surahs:
+            try:
+                registered[s] = registered_source(idx["riwaya"], idx["reciterId"], s)
+            except (ValueError, KeyError) as ex:
+                sys.exit(f"⛔ س{s}: {ex}")
+            refs[s] = registered[s]["url"]
+    elif args.refs_from_parent:
         if "{s" in args.url:
             sys.exit("⛔ --refs-from-parent لمضيف المجلَّد وحده — والقالبُ هنا مرقَّم")
         if args.alt_source:
@@ -144,6 +159,11 @@ def main() -> None:
     new_rows, skipped, taken = [], [], []
     for s, af in zip(surahs, args.aligned):
         res = json.load(open(af, encoding="utf-8"))
+        if args.registered_sources:
+            if (res.get("sourceUrl") != refs[s]
+                    or not registered[s].get("audio_sha256")
+                    or res.get("audioSha256") != registered[s]["audio_sha256"]):
+                sys.exit(f"⛔ س{s}: رابط أو بصمة المحاذاة لا يطابقان المصدر المسجّل")
         rows = res.get("entries") or []
         want = COUNTS[s - 1]
         # ⛔ **الردُّ بالسورة لا بالدفعة** (‏تصحيحُ 2026-09-05): كان خللٌ في
@@ -234,7 +254,7 @@ def main() -> None:
            if int(k) not in surahs}
     if args.alt_source:
         for s in surahs:
-            sbs[str(s)] = args.url
+            sbs[str(s)] = refs[s] if args.registered_sources else args.url
     if sbs:
         out["sourceBySurah"] = dict(sorted(sbs.items(), key=lambda kv: int(kv[0])))
     else:
@@ -256,6 +276,18 @@ def main() -> None:
     miss["byReason"] = by
     out["missing"] = miss
 
+    if args.registered_sources:
+        # stage_transform يغيّر op؛ يبقى إعلان الغياب الموروث للسور التي
+        # ما زالت غائبة، ويُزال عن السور المسترجعة فعلاً.
+        prior = dict(out.get("transform") or {})
+        import re
+        declared = set(prior.get("dropSurah") or [])
+        for group in re.findall(r"drop_surah:([\d,\s]+)", str(prior.get("op") or "")):
+            declared.update(int(s) for s in re.findall(r"\d+", group))
+        present = {int(e["ayahId"].split(":")[0]) for e in merged}
+        prior["dropSurah"] = sorted(declared - present)
+        out["transform"] = prior
+
     # ⛔ **التحويلُ يُسمّي ما استُبدل فعلاً لا ما طُلب** (‏2026-09-07): مع
     #    `--skip-unresolved` قد تُترك سورةٌ كما هي، ثم يُسمّيها `--op` فيطالب
     #    حارسُ `stage_transform` بعدّها كاملاً فيسقط الإصلاحُ كلُّه. فتُكتب
@@ -275,7 +307,13 @@ def main() -> None:
     shas = list(out.get("audioSha256") or [])
     orig_surahs = sorted({int(e["ayahId"].split(":")[0]) for e in entries})
     added = [s for s in surahs if s not in orig_surahs]
-    if added and refs is not None:                         # لا يقع: parent_refs يردّها
+    if args.registered_sources:
+        if len(shas) != 114:
+            sys.exit("⛔ المصدر المسجّل يتطلب قائمة بصمات أصلية من 114 سورة")
+        for s in surahs:
+            shas[s - 1] = registered[s]["audio_sha256"]
+        out["audioSha256"] = shas
+    if added and refs is not None and not args.registered_sources:
         sys.exit(f"⛔ سورٌ بلا مدخلٍ في الأب مع --refs-from-parent: {added}")
     if added and len(shas) == len(orig_surahs) and len(shas) < 114:
         import urllib.request as _u

@@ -1,0 +1,111 @@
+name: فحص تصحيح المصادر المسجلة بلا كتابة إلى الدلو
+on:
+  push:
+    branches: [main]
+    paths: [ops/source-repair/requests/*.json]
+permissions:
+  contents: write
+concurrency:
+  group: registered-source-quality
+  cancel-in-progress: false
+jobs:
+  plan:
+    runs-on: ubuntu-latest
+    outputs:
+      request: ${{ steps.plan.outputs.request }}
+      candidate: ${{ steps.plan.outputs.candidate }}
+    steps:
+      - uses: actions/checkout@v4
+      - id: plan
+        run: |
+          python - <<'PY'
+          import hashlib, json, os, pathlib
+          pending = sorted(pathlib.Path('ops/source-repair/requests').glob('*.json'))
+          if len(pending) != 1:
+              raise SystemExit('يلزم طلب فحص واحد صريح')
+          request = pending[0]
+          data = json.loads(request.read_text())
+          candidate = pathlib.Path(data['candidate'])
+          if not candidate.is_file() or candidate.parent != pathlib.Path('ops/source-repair/candidates'):
+              raise SystemExit('مسار المرشح خارج موضعه المسموح')
+          if hashlib.sha256(candidate.read_bytes()).hexdigest() != data['sha256']:
+              raise SystemExit('بصمة المرشح لا تطابق طلب الفحص')
+          with open(os.environ['GITHUB_OUTPUT'], 'a') as f:
+              f.write(f'request={request.stem}\ncandidate={candidate}\n')
+          PY
+  quality:
+    needs: plan
+    runs-on: ubuntu-latest
+    timeout-minutes: 350
+    strategy:
+      fail-fast: false
+      matrix:
+        check: [openers, census, rs1, rs2, rs3, rs4]
+    env:
+      QA_MODEL: ${{ github.workspace }}/assets-archive/ggml/ggml-tiny-ar-quran-q8_0.bin
+      HF_HOME: ${{ github.workspace }}/.hf
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: {python-version: '3.11'}
+      - run: |
+          python -m pip install --quiet 'numpy<2' pywhispercpp soundfile boto3
+          command -v ffmpeg
+      # استرجاع فقط: لا نضيف كاشاً ولا Artifacts مدفوعة.
+      - uses: actions/cache/restore@v4
+        with:
+          path: assets-archive/ggml
+          key: qa-model-q8-v1
+      - name: النموذج المعتمد والفحص البنيوي قبل الصوت
+        env:
+          CANDIDATE: ${{ needs.plan.outputs.candidate }}
+        run: |
+          python - <<'PY'
+          import hashlib, os, pathlib, urllib.request
+          p = pathlib.Path(os.environ['QA_MODEL'])
+          if not p.exists():
+              p.parent.mkdir(parents=True, exist_ok=True)
+              req = urllib.request.Request('https://pub-2c2e1dcd92e84a2898820dd38d3e09e6.r2.dev/models/whisper-tiny-ar-quran/ggml-q8_0.bin', headers={'User-Agent': 'Mozilla/5.0 (QuranRafiq tools)'})
+              with urllib.request.urlopen(req, timeout=120) as r, p.open('wb') as f:
+                  while chunk := r.read(1048576): f.write(chunk)
+          if hashlib.sha256(p.read_bytes()).hexdigest() != 'ef01ab441b004f9e6f1ea98d397b43452b3a45efab7c3928ab37af655dde8b52':
+              raise SystemExit('نموذج المحكم لا يطابق البصمة المعتمدة')
+          PY
+          python tools/index_qa/local_candidate.py --index "$CANDIDATE" --model "$QA_MODEL" --cache qa_audio --mode struct --out work/struct.json
+      - uses: actions/cache/restore@v4
+        if: matrix.check == 'openers'
+        with:
+          path: .hf
+          key: ctc-model-jonatasgrosman-xlsr53-ar-v1
+      - name: شاهد CTC للمطالع
+        if: matrix.check == 'openers'
+        run: |
+          python -m pip install --quiet --index-url https://download.pytorch.org/whl/cpu torch
+          python -m pip install --quiet 'transformers<5' ctc-segmentation
+      - name: فحص فعلي بالمحكم القائم
+        env:
+          CHECK: ${{ matrix.check }}
+          CANDIDATE: ${{ needs.plan.outputs.candidate }}
+          REQUEST: ${{ needs.plan.outputs.request }}
+        run: |
+          MODE=audio
+          case "$CHECK" in openers|census) MODE="$CHECK" ;; esac
+          python tools/index_qa/local_candidate.py --index "$CANDIDATE" --model "$QA_MODEL" --cache qa_audio --mode "$MODE" --seed-salt "$CHECK" --out "ops/source-repair/results/$REQUEST/$CHECK.json"
+      - name: حفظ الدليل في المستودع دون Artifacts أو أسرار
+        if: always()
+        env:
+          REQUEST: ${{ needs.plan.outputs.request }}
+          CHECK: ${{ matrix.check }}
+        run: |
+          FILE="ops/source-repair/results/$REQUEST/$CHECK.json"
+          [ -f "$FILE" ] || exit 0
+          git config user.name rafiq-source-quality
+          git config user.email actions@github.com
+          git add "$FILE"
+          git commit -m "فحص المصادر: شاهد $REQUEST/$CHECK [skip ci]" -- "$FILE"
+          for attempt in 1 2 3 4; do
+            if git push origin HEAD:main; then exit 0; fi
+            git fetch origin main --quiet
+            git merge --no-edit origin/main
+          done
+          exit 1

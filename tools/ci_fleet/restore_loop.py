@@ -114,6 +114,9 @@ SOURCE_OVERRIDES = {
     for row in json.loads(
         (ROOT / "tools" / "ci_fleet" / "source_overrides.json").read_text(
             encoding="utf-8"))
+    # الرابط الصريح لا يُحوّل إلى قالب رقمي؛ يُنفّذ repair_registered_sources
+    # خريطة التصحيح كاملة حتى لا يعيد المسار القديم اختيار الاسم المعطوب.
+    if not row.get("url")
 }
 
 # محاولاتُ realign التي انتهت بلا مرشّحٍ على **المصدر والمحرّك نفسيهما**.
