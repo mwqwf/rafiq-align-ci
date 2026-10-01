@@ -1,0 +1,16 @@
+# rc=1
+أحكامٌ مقروءة: 4 · مرشّحون: 4 · مرفوضون: 0
+  ⏳ timings-staging/hafs/qasm.44317113.jz: تشخيص الكتالوج يصف فهرساً آخر (بصمةٌ مخالفة) — يُنتظر ولا يُرقّى
+  ⏳ timings-staging/hafs/qasm.44317113.jz: تشخيص الكتالوج يصف فهرساً آخر (بصمةٌ مخالفة) — يُنتظر ولا يُرقّى
+  ⏳ timings-staging/hafs/qasm.44317113.jz: تشخيص الكتالوج يصف فهرساً آخر (بصمةٌ مخالفة) — يُنتظر ولا يُرقّى
+  ⏳ timings-staging/hafs/qasm.44317113.jz: تشخيص الكتالوج يصف فهرساً آخر (بصمةٌ مخالفة) — يُنتظر ولا يُرقّى
+
+[stderr]
+Traceback (most recent call last):
+  File "/home/runner/work/rafiq-align-ci/rafiq-align-ci/tools/index_qa/promote_verified_transform.py", line 117, in <module>
+    main()
+  File "/home/runner/work/rafiq-align-ci/rafiq-align-ci/tools/index_qa/promote_verified_transform.py", line 113, in main
+    adopt(a.key, a.sha, a.parent_sha, a.reason)
+  File "/home/runner/work/rafiq-align-ci/rafiq-align-ci/tools/index_qa/promote_verified_transform.py", line 78, in adopt
+    raise ValueError("ردت الحراس المعاينة؛ بقي تجميد الأصل دون كتابة")
+ValueError: ردت الحراس المعاينة؛ بقي تجميد الأصل دون كتابة
