@@ -108,6 +108,8 @@ def main() -> None:
                          "فيطلب حارسُ الترقية إحصاءً صوتيّاً شاملاً لها")
     ap.add_argument("--keep-parent-gaps", action="store_true",
                     help="آيةٌ بلا حدودٍ تُقبل **إن كانت غائبةً في الأب أصلاً** فتبقى غائبة (ctc_gapsplit)")
+    ap.add_argument("--preserve-inherited-entries", action="store_true",
+                    help="يحفظ المدخل الموروث ووسوم تقريب حدوده حرفياً؛ لا يقبل علامة inherited إذا اختلف الزمن أو الثقة أو المصدر")
     ap.add_argument("--alt-source", action="store_true",
                     help="صوتُ السور المأخوذة من مصدرٍ بديلٍ مسجَّل (‏غيرِ ملفّ الكتالوج) — "
                          "يُكتب قالبُ `--url` في `sourceBySurah` لكلّ سورةٍ أُخذت، "
@@ -209,6 +211,16 @@ def main() -> None:
             st, en = r.get("startMs"), r.get("endMs")
             prev_end = en
             conf = float(r.get("conf") or 0.0)
+            if args.preserve_inherited_entries and r.get("inherited"):
+                old = next((e for e in entries if e["ayahId"] == f"{s}:{i + 1}"), None)
+                source_ref = refs[s] if refs else args.url.format(s=s)
+                if (not old or old["fileRef"] != source_ref
+                        or old["startMs"] != st or old["endMs"] != en
+                        or abs(float(old.get("conf") or 0) - conf) > .000001
+                        or bool(r.get("snapped")) == bool(old.get("startApprox", False))):
+                    sys.exit(f"⛔ مدخل {s}:{i + 1} معلن موروثاً وقياسه تغيّر — لا يُنسخ")
+                new_rows.append(dict(old))
+                continue
             band = "HIGH" if conf >= 0.8 else ("MED" if conf >= 0.5 else "LOW")
             row = {"ayahId": f"{s}:{i + 1}", "fileRef": refs[s] if refs else args.url.format(s=s),
                    "startMs": int(st), "endMs": int(en),

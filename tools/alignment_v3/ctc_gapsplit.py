@@ -27,6 +27,7 @@
 from __future__ import annotations
 
 import argparse
+import copy
 import gzip
 import hashlib
 import json
@@ -138,6 +139,7 @@ def main() -> int:
         rows = [e for e in idx["entries"] if int(e["ayahId"].split(":")[0]) == s]
         ents = {int(e["ayahId"].split(":")[1]): dict(e) for e in rows
                 if e.get("startMs") is not None and e.get("endMs") is not None}
+        parent_ents = copy.deepcopy(ents)
         if not ents:
             report.append(f"س{s}: لا مداخلَ في الأب — ليست من هذا الباب")
             continue
@@ -211,6 +213,8 @@ def main() -> int:
                 if i in fixed_idx:
                     if dur < NEIGH_LO * exp:
                         why = f"الجارة {s}:{k} تنكمش إلى {dur}م.ث والمتوقَّع {exp:.0f}"
+                    elif starts[i] != ents[k]["startMs"] and segs[i][2] < MIN_CONF:
+                        why = f"مرساة {s}:{k} تغير بدءها وثقة الحد الجديد {segs[i][2]} < {MIN_CONF}"
                 else:
                     if segs[i][2] < MIN_CONF:
                         why = f"{s}:{k} ثقةُ CTC {segs[i][2]} < {MIN_CONF}"
@@ -223,6 +227,10 @@ def main() -> int:
                 continue
             for i, k in enumerate(ks):
                 if i in fixed_idx:
+                    if starts[i] != ents[k]["startMs"]:
+                        _, on_sil = snap_to_silence(starts[i], sil, tolerance_ms=300)
+                        ents[k]["conf"] = segs[i][2] if on_sil else min(segs[i][2], 0.74)
+                        ents[k]["snapped"] = bool(on_sil)
                     ents[k]["startMs"], ents[k]["endMs"] = int(starts[i]), int(ends[i])
                     continue
                 _t, on_sil = snap_to_silence(starts[i], sil, tolerance_ms=300)
@@ -246,6 +254,7 @@ def main() -> int:
             out_rows.append({"ayahIdx": k - 1, "startMs": int(e["startMs"]), "endMs": int(e["endMs"]),
                              "conf": float(conf), "snapped": not e.get("startApprox", False)
                              if "snapped" not in e else bool(e["snapped"]),
+                             "inherited": e == parent_ents.get(k),
                              "matched": 0, "total": len(norm(t_of(k)).split())})
         with open(os.path.join(a.out_dir, f"s{s:03d}.json"), "w", encoding="utf-8") as f:
             json.dump({"fileRef": url, "sha256": sha, "surah": s, "engine": "ctc-gapsplit-1",
