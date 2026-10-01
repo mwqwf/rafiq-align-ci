@@ -119,6 +119,11 @@ def frame_walk(path):
     return {"sec": round(t, 3), "frames": frames, "bytes": len(d), "bitrates": brs,
             "gaps": len(gaps), "gap_bytes": sum(b - a for a, b, _ in gaps),
             "first_gaps": gaps[:8], "last_gaps": gaps[-4:], "id3_mid": id3_mid[:4],
+            "gap_bytes_context": [{"offset": a, "next": b, "seconds": t,
+                "first64Hex": d[a:a+64].hex(), "before16Hex": d[max(0,a-16):a].hex(),
+                "next32Hex": d[b:b+32].hex(),
+                "tagAtOffset": d[a:a+3].decode("ascii", "replace")}
+                for a,b,t in gaps[:8]],
             "tail_unframed": len(d) - last_end}
 
 
