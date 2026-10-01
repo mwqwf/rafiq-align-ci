@@ -181,6 +181,17 @@ class CensusGate(unittest.TestCase):
         self.assertIsNone(self.gate(_census("S"), d))
         self.assertIsNotNone(self.gate(_census("OTHER"), d))
 
+    def test_official_timing_same_engine_still_needs_full_census(self):
+        d = _spliced()
+        d["engineVersion"] = "mp3quran-timing-v1"
+        d["engineBySurah"] = {}
+        d["sourceTimingBySurah"] = {"112": {"readId": 1}, "113": {"readId": 1}}
+        self.assertEqual(promote.census_surahs(d), {"112", "113"})
+        self.assertIsNotNone(self.gate(None, d))
+        self.assertIsNotNone(self.gate(_census("OTHER"), d))
+        self.assertIsNotNone(self.gate(_census("S", drop=1), d))
+        self.assertIsNone(self.gate(_census("S"), d))
+
     def test_no_mixing_needs_no_census(self):
         d = _parent()
         self.assertIsNone(self.gate(None, d))
