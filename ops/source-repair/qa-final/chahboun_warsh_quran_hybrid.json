@@ -1,0 +1,104 @@
+{
+  "reciter": "chahboun_warsh_quran_hybrid",
+  "key": "timings-staging/warsh/chahboun_warsh.e273966c.jz",
+  "sha": "e273966c0595b41d151aad97313a0e761aa4dd47bdf77a3d7cb8204ca6e295db",
+  "rs1": {
+    "severe": [
+      1,
+      200
+    ],
+    "fatal": []
+  },
+  "rs2": {
+    "severe": [
+      2,
+      200
+    ],
+    "fatal": []
+  },
+  "rs3": {
+    "severe": [
+      1,
+      200
+    ],
+    "fatal": []
+  },
+  "rs4": {
+    "severe": [
+      2,
+      200
+    ],
+    "fatal": []
+  },
+  "openers": {
+    "counts": {
+      "unknown": 53,
+      "clean": 57,
+      "late": 2
+    },
+    "swallowed": [],
+    "lateConfirmed": [],
+    "errors": [],
+    "scope": "full"
+  },
+  "census": {
+    "gate": null,
+    "population": 30,
+    "counts": {
+      "بريء": 27,
+      "غير حاسم": 3
+    },
+    "fatal": []
+  },
+  "addedRows": [
+    {
+      "aid": "89:29",
+      "cluster": 89,
+      "verdict": "غير حاسم",
+      "kind": "غير حاسم",
+      "why": "لا يطابق التفريغ نصّ الآية ولا سابقتها · سُمع: «فَدَخُلِي فِي عِبَادِي وَدَخُلِي جَنًّا»",
+      "band": "MED",
+      "startApprox": true,
+      "heard": {
+        "fwd": "فَدَخُلِي فِي عِبَادِي وَدَخُلِي جَنًّا",
+        "dec": "فِي إِلَى رَبِّكِ رَابِيَةً مَرْضِيَّةً",
+        "long": "فَدَخُلِي فِي عِبَادِي وَدَخُلِي جَنَّتِي"
+      }
+    }
+  ],
+  "pooled": [
+    {
+      "m": 6,
+      "n": 800,
+      "rate": 0.0075,
+      "hi": 0.014748983101119512,
+      "parts": [
+        [
+          1,
+          200
+        ],
+        [
+          2,
+          200
+        ],
+        [
+          1,
+          200
+        ],
+        [
+          2,
+          200
+        ]
+      ],
+      "salts": [
+        "rs1",
+        "rs2",
+        "rs3",
+        "rs4"
+      ],
+      "seeds": 4,
+      "engine": "pywhispercpp/ggml-q8 (tiny-ar-quran)",
+      "rule": "D-098"
+    }
+  ]
+}

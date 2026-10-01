@@ -1,0 +1,105 @@
+{
+  "reciter": "a_alhazmi_quran_hybrid",
+  "key": "timings-staging/hafs/a_alhazmi.7b29028a.jz",
+  "sha": "7b29028ab82d6d95d94ebc22bfb30d0200fd178165545411f1ad8b38c7813f47",
+  "rs1": {
+    "severe": [
+      4,
+      200
+    ],
+    "fatal": []
+  },
+  "rs2": {
+    "severe": [
+      2,
+      200
+    ],
+    "fatal": []
+  },
+  "rs3": {
+    "severe": [
+      2,
+      200
+    ],
+    "fatal": []
+  },
+  "rs4": {
+    "severe": [
+      5,
+      200
+    ],
+    "fatal": []
+  },
+  "openers": {
+    "counts": {
+      "unknown": 101,
+      "clean": 10,
+      "late": 1
+    },
+    "swallowed": [],
+    "lateConfirmed": [],
+    "errors": [],
+    "scope": "full"
+  },
+  "census": {
+    "gate": null,
+    "population": 379,
+    "counts": {
+      "غير حاسم": 33,
+      "بريء": 339,
+      "جسيم": 7
+    },
+    "fatal": []
+  },
+  "addedRows": [
+    {
+      "aid": "112:2",
+      "cluster": 112,
+      "verdict": "غير حاسم",
+      "kind": "غير حاسم",
+      "why": "لا يطابق التفريغ نصّ الآية ولا سابقتها · سُمع: «اللَّهُ الصَّمَدُ لَمْ يَلِدْ وَلَمِ يُولَدْ»",
+      "band": "MED",
+      "startApprox": true,
+      "heard": {
+        "fwd": "اللَّهُ الصَّمَدُ لَمْ يَلِدْ وَلَمِ يُولَدْ",
+        "dec": "قُلْ هُوَ اللَّهُ أَحَدٌ",
+        "long": "اللَّهُ الصَّمَدُ لَمْ يَلِدْ وَلَمْ يُولَدْ وَلَمْ يَكُنْ لَهُ كُفُوًا"
+      }
+    }
+  ],
+  "pooled": [
+    {
+      "m": 13,
+      "n": 800,
+      "rate": 0.01625,
+      "hi": 0.025711818947610026,
+      "parts": [
+        [
+          4,
+          200
+        ],
+        [
+          2,
+          200
+        ],
+        [
+          2,
+          200
+        ],
+        [
+          5,
+          200
+        ]
+      ],
+      "salts": [
+        "rs1",
+        "rs2",
+        "rs3",
+        "rs4"
+      ],
+      "seeds": 4,
+      "engine": "pywhispercpp/ggml-q8 (tiny-ar-quran)",
+      "rule": "D-098"
+    }
+  ]
+}

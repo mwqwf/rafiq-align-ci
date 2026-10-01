@@ -1,0 +1,118 @@
+{
+  "reciter": "yousef_quran_hybrid",
+  "key": "timings-staging/hafs/yousef.6f3d459f.jz",
+  "sha": "6f3d459f54f66e47bc12a800ec09c95ba72fd15799c50a9f25b9c32e5c4f2aa1",
+  "rs1": {
+    "severe": [
+      6,
+      200
+    ],
+    "fatal": []
+  },
+  "rs2": {
+    "severe": [
+      4,
+      200
+    ],
+    "fatal": []
+  },
+  "rs3": {
+    "severe": [
+      2,
+      200
+    ],
+    "fatal": []
+  },
+  "rs4": {
+    "severe": [
+      2,
+      200
+    ],
+    "fatal": []
+  },
+  "openers": {
+    "counts": {
+      "unknown": 19,
+      "clean": 92,
+      "late": 1
+    },
+    "swallowed": [],
+    "lateConfirmed": [],
+    "errors": [],
+    "scope": "full"
+  },
+  "census": {
+    "gate": null,
+    "population": 659,
+    "counts": {
+      "غير حاسم": 7,
+      "بريء": 652
+    },
+    "fatal": []
+  },
+  "addedRows": [
+    {
+      "aid": "55:63",
+      "cluster": 55,
+      "verdict": "بريء",
+      "kind": "بريء",
+      "why": "المطلع مطابق: «فَبِأَيِّ آلَاءِ رَبِّكُمَا»",
+      "band": "MED",
+      "startApprox": false,
+      "heard": {
+        "fwd": "فَبِأَيِّ آلَاءِ رَبِّكُمَا",
+        "dec": "يُدُونِهِمَا جَنَّتَانِ",
+        "long": "فَبِأَيِّ آلَاءِ رَبِّكُمَا تُكَذِّبَانِ"
+      }
+    },
+    {
+      "aid": "55:64",
+      "cluster": 55,
+      "verdict": "بريء",
+      "kind": "بريء",
+      "why": "المطلع مطابق: «مُدْهَامَّتَى»",
+      "band": "MED",
+      "startApprox": true,
+      "heard": {
+        "fwd": "مُدْهَامَّتَى",
+        "dec": "وَمَا إِرَبِّكُمَا تُكَذِّبَانِ",
+        "long": "مُدْهَامَّتَانَ فَبِأَيِّ آلَانِ"
+      }
+    }
+  ],
+  "pooled": [
+    {
+      "m": 14,
+      "n": 800,
+      "rate": 0.0175,
+      "hi": 0.027223158377380516,
+      "parts": [
+        [
+          6,
+          200
+        ],
+        [
+          4,
+          200
+        ],
+        [
+          2,
+          200
+        ],
+        [
+          2,
+          200
+        ]
+      ],
+      "salts": [
+        "rs1",
+        "rs2",
+        "rs3",
+        "rs4"
+      ],
+      "seeds": 4,
+      "engine": "pywhispercpp/ggml-q8 (tiny-ar-quran)",
+      "rule": "D-098"
+    }
+  ]
+}

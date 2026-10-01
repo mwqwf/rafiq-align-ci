@@ -1,0 +1,105 @@
+{
+  "reciter": "twfeeq_quran_hybrid",
+  "key": "timings-staging/hafs/twfeeq.7bc2dd24.jz",
+  "sha": "7bc2dd247f1c5ca451ed5dda1b38d3fa04aa1aadbf5f7a3a516adf16175bcc9a",
+  "rs1": {
+    "severe": [
+      1,
+      200
+    ],
+    "fatal": []
+  },
+  "rs2": {
+    "severe": [
+      1,
+      200
+    ],
+    "fatal": []
+  },
+  "rs3": {
+    "severe": [
+      1,
+      200
+    ],
+    "fatal": []
+  },
+  "rs4": {
+    "severe": [
+      1,
+      200
+    ],
+    "fatal": []
+  },
+  "openers": {
+    "counts": {
+      "clean": 98,
+      "late": 7,
+      "unknown": 6,
+      "tail": 1
+    },
+    "swallowed": [],
+    "lateConfirmed": [],
+    "errors": [],
+    "scope": "full"
+  },
+  "census": {
+    "gate": null,
+    "population": 56,
+    "counts": {
+      "بريء": 54,
+      "غير حاسم": 2
+    },
+    "fatal": []
+  },
+  "addedRows": [
+    {
+      "aid": "74:54",
+      "cluster": 74,
+      "verdict": "بريء",
+      "kind": "بريء",
+      "why": "المطلع مطابق: «كَلَّا إِنَّهُ تَذْكِرَةٌ»",
+      "band": "MED",
+      "startApprox": true,
+      "heard": {
+        "fwd": "كَلَّا إِنَّهُ تَذْكِرَةٌ",
+        "dec": "وَمَا بَلْ لَا يَقَافُونَ الْآخِرَةَ",
+        "long": "كَلَّا إِنَّهُ تَذْكِرَةٌ فَمَنْ شَاءُ"
+      }
+    }
+  ],
+  "pooled": [
+    {
+      "m": 4,
+      "n": 800,
+      "rate": 0.005,
+      "hi": 0.011405083966271396,
+      "parts": [
+        [
+          1,
+          200
+        ],
+        [
+          1,
+          200
+        ],
+        [
+          1,
+          200
+        ],
+        [
+          1,
+          200
+        ]
+      ],
+      "salts": [
+        "rs1",
+        "rs2",
+        "rs3",
+        "rs4"
+      ],
+      "seeds": 4,
+      "engine": "pywhispercpp/ggml-q8 (tiny-ar-quran)",
+      "rule": "D-098"
+    }
+  ]
+}
