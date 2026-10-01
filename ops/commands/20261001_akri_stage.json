@@ -1,0 +1,19 @@
+{
+  "action": "tool",
+  "tool": "index_qa/stage_transform.py",
+  "args": [
+    "--file",
+    "ops/source-repair/candidates/akri_qalun.692ff5c5.jz",
+    "--parent",
+    "timings/qalun/akri_qalun.jz",
+    "--parent-sha",
+    "e7f2fc9fcfca3962af1a4a5bd1db276ec33edef73f566de3dbaf2998f2d045a1",
+    "--op",
+    "ctc_surah_splice:106,107,108",
+    "--by",
+    "Codex",
+    "--reason",
+    "تصحيح تبديل محتوى ملفات قريش والماعون والكوثر بمصادر مثبتة كاملة وإعادة محاذاة قالون؛ حفظ بقية المداخل وإعلان غياب النور الموروث؛ جميع بوابات الاعتماد على بصمة المسرح قبل النشر",
+    "--yes"
+  ]
+}
