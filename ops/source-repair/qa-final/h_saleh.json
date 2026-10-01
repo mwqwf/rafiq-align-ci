@@ -1,0 +1,117 @@
+{
+  "reciter": "h_saleh",
+  "key": "timings-staging/hafs/h_saleh.f1c34fe8.jz",
+  "sha": "f1c34fe8cefaed50661710c87a6e319697514b75b532e30793178ecea08e9d5d",
+  "rs1": {
+    "severe": [
+      1,
+      200
+    ],
+    "fatal": []
+  },
+  "rs2": {
+    "severe": [
+      1,
+      200
+    ],
+    "fatal": []
+  },
+  "rs3": {
+    "severe": [
+      0,
+      200
+    ],
+    "fatal": []
+  },
+  "rs4": {
+    "severe": [
+      0,
+      200
+    ],
+    "fatal": []
+  },
+  "openers": {
+    "counts": {
+      "clean": 81,
+      "unknown": 30,
+      "late": 1
+    },
+    "swallowed": [],
+    "lateConfirmed": [],
+    "errors": [],
+    "scope": "full"
+  },
+  "census": {
+    "gate": null,
+    "population": 79,
+    "counts": {
+      "غير حاسم": 38,
+      "جسيم": 1,
+      "بريء": 40
+    },
+    "fatal": []
+  },
+  "addedRows": [
+    {
+      "aid": "45:1",
+      "cluster": 45,
+      "verdict": "غير حاسم",
+      "kind": "غير حاسم",
+      "why": "لا يطابق التفريغ نصّ الآية ولا سابقتها · سُمع: «فِيهِ»",
+      "band": "HIGH",
+      "startApprox": false,
+      "heard": {
+        "fwd": "فِيهِ",
+        "dec": "فِيهِ",
+        "long": "فِيهِ"
+      }
+    }
+  ],
+  "pooled": [
+    {
+      "m": 2,
+      "n": 800,
+      "rate": 0.0025,
+      "hi": 0.007848639419821894,
+      "parts": [
+        [
+          1,
+          200
+        ],
+        [
+          1,
+          200
+        ],
+        [
+          0,
+          200
+        ],
+        [
+          0,
+          200
+        ]
+      ],
+      "salts": [
+        "rs1",
+        "rs2",
+        "rs3",
+        "rs4"
+      ],
+      "seeds": 4,
+      "engine": "pywhispercpp/ggml-q8 (tiny-ar-quran)",
+      "rule": "D-098"
+    }
+  ],
+  "newOpenerRows": [
+    {
+      "surah": 45,
+      "startMs": 97863,
+      "url": "https://server16.mp3quran.net/h_saleh/Rewayat-Hafs-A-n-Assem/045.mp3",
+      "endMs": 98404,
+      "verdict": "unknown",
+      "heard": "فيه"
+    }
+  ],
+  "reportRoot": "https://pub-2c2e1dcd92e84a2898820dd38d3e09e6.r2.dev/",
+  "actualStagedSHA": true
+}

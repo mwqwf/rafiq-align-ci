@@ -1,0 +1,108 @@
+{
+  "reciter": "nasser_almajed",
+  "key": "timings-staging/hafs/nasser_almajed.024f4669.jz",
+  "sha": "024f4669daac0842e796736e6001ae9fb4ce4475b7af916f16ff0caf86391951",
+  "rs1": {
+    "severe": [
+      3,
+      200
+    ],
+    "fatal": []
+  },
+  "rs2": {
+    "severe": [
+      5,
+      200
+    ],
+    "fatal": []
+  },
+  "rs3": {
+    "severe": [
+      4,
+      200
+    ],
+    "fatal": []
+  },
+  "rs4": {
+    "severe": [
+      7,
+      200
+    ],
+    "fatal": []
+  },
+  "openers": {
+    "counts": {
+      "clean": 106,
+      "unknown": 6
+    },
+    "swallowed": [],
+    "lateConfirmed": null,
+    "errors": [],
+    "scope": "full"
+  },
+  "census": {
+    "gate": null,
+    "population": 625,
+    "counts": {
+      "بريء": 523,
+      "غير حاسم": 98,
+      "جسيم": 3,
+      "طفيف": 1
+    },
+    "fatal": []
+  },
+  "addedRows": [
+    {
+      "aid": "54:38",
+      "cluster": 54,
+      "verdict": "بريء",
+      "kind": "بريء",
+      "why": "المطلع مطابق: «وَلَقَدْ صَبَّحَهُمْ بُكْرَةً عَذَابٌ مُسْتَق»",
+      "band": "MED",
+      "startApprox": true,
+      "heard": {
+        "fwd": "وَلَقَدْ صَبَّحَهُمْ بُكْرَةً عَذَابٌ مُسْتَقِيمٌ",
+        "dec": "يُنَهُمْ فَادْخُوا عَذَابِي وَنُذُرِ",
+        "long": "وَلَقَدْ صَبَّحَهُمْ بُكْرَةً عَذَابٌ مُسْتَقِرٌّ فَادْوُاقُوا عَذَابِي"
+      }
+    }
+  ],
+  "pooled": [
+    {
+      "m": 19,
+      "n": 800,
+      "rate": 0.02375,
+      "hi": 0.034655300151757384,
+      "parts": [
+        [
+          3,
+          200
+        ],
+        [
+          5,
+          200
+        ],
+        [
+          4,
+          200
+        ],
+        [
+          7,
+          200
+        ]
+      ],
+      "salts": [
+        "rs1",
+        "rs2",
+        "rs3",
+        "rs4"
+      ],
+      "seeds": 4,
+      "engine": "pywhispercpp/ggml-q8 (tiny-ar-quran)",
+      "rule": "D-098"
+    }
+  ],
+  "newOpenerRows": [],
+  "reportRoot": "https://pub-2c2e1dcd92e84a2898820dd38d3e09e6.r2.dev/",
+  "actualStagedSHA": true
+}

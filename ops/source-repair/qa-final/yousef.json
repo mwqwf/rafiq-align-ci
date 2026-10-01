@@ -1,0 +1,121 @@
+{
+  "reciter": "yousef",
+  "key": "timings-staging/hafs/yousef.ab095cb2.jz",
+  "sha": "ab095cb22e970d0e0fbe4868710f8f3deec7d5325822f5f8a03ad2dc71993a1d",
+  "rs1": {
+    "severe": [
+      7,
+      200
+    ],
+    "fatal": []
+  },
+  "rs2": {
+    "severe": [
+      5,
+      200
+    ],
+    "fatal": []
+  },
+  "rs3": {
+    "severe": [
+      2,
+      200
+    ],
+    "fatal": []
+  },
+  "rs4": {
+    "severe": [
+      3,
+      200
+    ],
+    "fatal": []
+  },
+  "openers": {
+    "counts": {
+      "unknown": 24,
+      "clean": 88
+    },
+    "swallowed": [],
+    "lateConfirmed": null,
+    "errors": [],
+    "scope": "full"
+  },
+  "census": {
+    "gate": null,
+    "population": 657,
+    "counts": {
+      "غير حاسم": 8,
+      "بريء": 643,
+      "جسيم": 6
+    },
+    "fatal": []
+  },
+  "addedRows": [
+    {
+      "aid": "55:21",
+      "cluster": 55,
+      "verdict": "بريء",
+      "kind": "بريء",
+      "why": "المطلع مطابق: «فَبِأَيِّ آلَاءِ رَبِّكُمَا»",
+      "band": "MED",
+      "startApprox": true,
+      "heard": {
+        "fwd": "فَبِأَيِّ آلَاءِ رَبِّكُمَا",
+        "dec": "بَيْنَهُمَا بَرْزَخٌ لَا يَبْغِيَانِ",
+        "long": "فَبِأَيِّ آلَاءِ رَبِّكُمَا تُكَذِّبَانِ"
+      }
+    },
+    {
+      "aid": "55:22",
+      "cluster": 55,
+      "verdict": "بريء",
+      "kind": "بريء",
+      "why": "المطلع مطابق: «يَخْرُجُ مِنْهُمَا اللُّؤْلُؤُ وَالْمَرْجَانُ»",
+      "band": "MED",
+      "startApprox": true,
+      "heard": {
+        "fwd": "يَخْرُجُ مِنْهُمَا اللُّؤْلُؤُ وَالْمَرْجَانُ",
+        "dec": "وَمَا إِرَبِّكُمَا تُكَذِّبَانِ",
+        "long": "يَخْرُجُ مِنْهُمَا اللُّؤْلُؤُ وَالْمَرْجَانُ فَبِأَيِّ آلَاءِ"
+      }
+    }
+  ],
+  "pooled": [
+    {
+      "m": 17,
+      "n": 800,
+      "rate": 0.02125,
+      "hi": 0.03170448794422647,
+      "parts": [
+        [
+          7,
+          200
+        ],
+        [
+          5,
+          200
+        ],
+        [
+          2,
+          200
+        ],
+        [
+          3,
+          200
+        ]
+      ],
+      "salts": [
+        "rs1",
+        "rs2",
+        "rs3",
+        "rs4"
+      ],
+      "seeds": 4,
+      "engine": "pywhispercpp/ggml-q8 (tiny-ar-quran)",
+      "rule": "D-098"
+    }
+  ],
+  "newOpenerRows": [],
+  "reportRoot": "https://pub-2c2e1dcd92e84a2898820dd38d3e09e6.r2.dev/",
+  "actualStagedSHA": true
+}

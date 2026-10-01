@@ -1,0 +1,122 @@
+{
+  "reciter": "ra3ad",
+  "key": "timings-staging/hafs/ra3ad.c25f2665.jz",
+  "sha": "c25f2665dfcb4c4d739f4f7cab86d0ad1444d72640e670d03178a9c0cd401a92",
+  "rs1": {
+    "severe": [
+      7,
+      200
+    ],
+    "fatal": []
+  },
+  "rs2": {
+    "severe": [
+      3,
+      200
+    ],
+    "fatal": []
+  },
+  "rs3": {
+    "severe": [
+      6,
+      200
+    ],
+    "fatal": []
+  },
+  "rs4": {
+    "severe": [
+      3,
+      200
+    ],
+    "fatal": []
+  },
+  "openers": {
+    "counts": {
+      "clean": 94,
+      "late": 7,
+      "unknown": 11
+    },
+    "swallowed": [],
+    "lateConfirmed": [],
+    "errors": [],
+    "scope": "full"
+  },
+  "census": {
+    "gate": null,
+    "population": 568,
+    "counts": {
+      "بريء": 545,
+      "غير حاسم": 17,
+      "جسيم": 6
+    },
+    "fatal": []
+  },
+  "addedRows": [
+    {
+      "aid": "54:19",
+      "cluster": 54,
+      "verdict": "بريء",
+      "kind": "بريء",
+      "why": "المطلع مطابق: «إِنَّا أَرْسَلْنَا عَلَيْهِمْ رِيحٌ»",
+      "band": "MED",
+      "startApprox": true,
+      "heard": {
+        "fwd": "إِنَّا أَرْسَلْنَا عَلَيْهِمْ رِيحٌ",
+        "dec": "وَعَادٌ فَكَيْفَ كَانَ عَذَابِي وَنُذُرِ",
+        "long": "إِنَّا أَرْسَلْنَا عَلَيْهِمْ رِيحًا صَرْصَرًا فِي يَوْمِ"
+      }
+    },
+    {
+      "aid": "54:20",
+      "cluster": 54,
+      "verdict": "بريء",
+      "kind": "بريء",
+      "why": "المطلع مطابق: «تَنْزِعُ النَّاشَ كَأَنَّهُمْ أَعْجَازُ نَخْر»",
+      "band": "MED",
+      "startApprox": true,
+      "heard": {
+        "fwd": "تَنْزِعُ النَّاشَ كَأَنَّهُمْ أَعْجَازُ نَخْرٍ",
+        "dec": "وَرَنْ فِي يَوْمِ نَحْسٍ مُسْتَمِرٍّ",
+        "long": "تَنْزِعُ النَّاشَ كَأَنَّهُمْ أَعْجَازُ نَخْلٍ مُنْقَعِرٍ"
+      }
+    }
+  ],
+  "pooled": [
+    {
+      "m": 19,
+      "n": 800,
+      "rate": 0.02375,
+      "hi": 0.034655300151757384,
+      "parts": [
+        [
+          7,
+          200
+        ],
+        [
+          3,
+          200
+        ],
+        [
+          6,
+          200
+        ],
+        [
+          3,
+          200
+        ]
+      ],
+      "salts": [
+        "rs1",
+        "rs2",
+        "rs3",
+        "rs4"
+      ],
+      "seeds": 4,
+      "engine": "pywhispercpp/ggml-q8 (tiny-ar-quran)",
+      "rule": "D-098"
+    }
+  ],
+  "newOpenerRows": [],
+  "reportRoot": "https://pub-2c2e1dcd92e84a2898820dd38d3e09e6.r2.dev/",
+  "actualStagedSHA": true
+}

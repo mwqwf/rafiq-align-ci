@@ -1,0 +1,109 @@
+{
+  "reciter": "zahrani",
+  "key": "timings-staging/hafs/zahrani.2dab3926.jz",
+  "sha": "2dab3926ed56161808fe6057087899bb07373b22c792381c114653b9e24d910c",
+  "rs1": {
+    "severe": [
+      4,
+      200
+    ],
+    "fatal": []
+  },
+  "rs2": {
+    "severe": [
+      6,
+      200
+    ],
+    "fatal": []
+  },
+  "rs3": {
+    "severe": [
+      8,
+      200
+    ],
+    "fatal": []
+  },
+  "rs4": {
+    "severe": [
+      2,
+      200
+    ],
+    "fatal": []
+  },
+  "openers": {
+    "counts": {
+      "clean": 84,
+      "late": 9,
+      "unknown": 18,
+      "suspect": 1
+    },
+    "swallowed": [],
+    "lateConfirmed": [],
+    "errors": [],
+    "scope": "full"
+  },
+  "census": {
+    "gate": null,
+    "population": 365,
+    "counts": {
+      "غير حاسم": 48,
+      "بريء": 312,
+      "جسيم": 5
+    },
+    "fatal": []
+  },
+  "addedRows": [
+    {
+      "aid": "53:48",
+      "cluster": 53,
+      "verdict": "بريء",
+      "kind": "بريء",
+      "why": "المطلع مطابق: «وَأَنَّهُ هُوَ أَغْنَى وَأَقْنَى»",
+      "band": "MED",
+      "startApprox": true,
+      "heard": {
+        "fwd": "وَأَنَّهُ هُوَ أَغْنَى وَأَقْنَى",
+        "dec": "وَأَنَّ عَلَيْهِ النَّشْأَةَ الْأُخْرَى",
+        "long": "وَأَنَّهُ هُوَ أَغْنَى وَأَقْنَى وَأَنَّهُ هُوَ رَبُّ الشِّعْرَى"
+      }
+    }
+  ],
+  "pooled": [
+    {
+      "m": 20,
+      "n": 800,
+      "rate": 0.025,
+      "hi": 0.0361213500672888,
+      "parts": [
+        [
+          4,
+          200
+        ],
+        [
+          6,
+          200
+        ],
+        [
+          8,
+          200
+        ],
+        [
+          2,
+          200
+        ]
+      ],
+      "salts": [
+        "rs1",
+        "rs2",
+        "rs3",
+        "rs4"
+      ],
+      "seeds": 4,
+      "engine": "pywhispercpp/ggml-q8 (tiny-ar-quran)",
+      "rule": "D-098"
+    }
+  ],
+  "newOpenerRows": [],
+  "reportRoot": "https://pub-2c2e1dcd92e84a2898820dd38d3e09e6.r2.dev/",
+  "actualStagedSHA": true
+}

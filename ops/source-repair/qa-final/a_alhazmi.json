@@ -1,0 +1,117 @@
+{
+  "reciter": "a_alhazmi",
+  "key": "timings-staging/hafs/a_alhazmi.5a96e9cc.jz",
+  "sha": "5a96e9cc9e86939f920d62ca03c2c17a39888cd85df64cca394ad028504541a8",
+  "rs1": {
+    "severe": [
+      4,
+      200
+    ],
+    "fatal": []
+  },
+  "rs2": {
+    "severe": [
+      1,
+      200
+    ],
+    "fatal": []
+  },
+  "rs3": {
+    "severe": [
+      3,
+      200
+    ],
+    "fatal": []
+  },
+  "rs4": {
+    "severe": [
+      5,
+      200
+    ],
+    "fatal": []
+  },
+  "openers": {
+    "counts": {
+      "unknown": 104,
+      "late": 1,
+      "clean": 6
+    },
+    "swallowed": [],
+    "lateConfirmed": [],
+    "errors": [],
+    "scope": "full"
+  },
+  "census": {
+    "gate": null,
+    "population": 326,
+    "counts": {
+      "غير حاسم": 32,
+      "بريء": 287,
+      "جسيم": 7
+    },
+    "fatal": []
+  },
+  "addedRows": [
+    {
+      "aid": "78:1",
+      "cluster": 78,
+      "verdict": "غير حاسم",
+      "kind": "غير حاسم",
+      "why": "لا يطابق التفريغ نصّ الآية ولا سابقتها · سُمع: «يَا أَلُونَ أَنِ النَّبَإِ الْعَظِيمِ»",
+      "band": "MED",
+      "startApprox": true,
+      "heard": {
+        "fwd": "يَا أَلُونَ أَنِ النَّبَإِ الْعَظِيمِ",
+        "dec": "عَمَّ يَتَسَاءُ",
+        "long": "يَا أَلُونَ أَنِ النَّبَإِ الْعَظِيمِ الَّذِي هُمْ فِيهِ"
+      }
+    }
+  ],
+  "pooled": [
+    {
+      "m": 13,
+      "n": 800,
+      "rate": 0.01625,
+      "hi": 0.025711818947610026,
+      "parts": [
+        [
+          4,
+          200
+        ],
+        [
+          1,
+          200
+        ],
+        [
+          3,
+          200
+        ],
+        [
+          5,
+          200
+        ]
+      ],
+      "salts": [
+        "rs1",
+        "rs2",
+        "rs3",
+        "rs4"
+      ],
+      "seeds": 4,
+      "engine": "pywhispercpp/ggml-q8 (tiny-ar-quran)",
+      "rule": "D-098"
+    }
+  ],
+  "newOpenerRows": [
+    {
+      "surah": 78,
+      "startMs": 3272,
+      "url": "https://server16.mp3quran.net/a_alhazmi/Rewayat-Hafs-A-n-Assem/078.mp3",
+      "endMs": 5583,
+      "verdict": "unknown",
+      "heard": "يا الون ان النبا العظيم"
+    }
+  ],
+  "reportRoot": "https://pub-2c2e1dcd92e84a2898820dd38d3e09e6.r2.dev/",
+  "actualStagedSHA": true
+}

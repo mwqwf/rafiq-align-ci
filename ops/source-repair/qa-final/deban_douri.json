@@ -1,0 +1,117 @@
+{
+  "reciter": "deban_douri",
+  "key": "timings-staging/douri/deban_douri.1317afd8.jz",
+  "sha": "1317afd827c39681f00a522575a75aa660675b089da4bba3ee662c727ac0da40",
+  "rs1": {
+    "severe": [
+      2,
+      200
+    ],
+    "fatal": []
+  },
+  "rs2": {
+    "severe": [
+      1,
+      200
+    ],
+    "fatal": []
+  },
+  "rs3": {
+    "severe": [
+      0,
+      200
+    ],
+    "fatal": []
+  },
+  "rs4": {
+    "severe": [
+      0,
+      200
+    ],
+    "fatal": []
+  },
+  "openers": {
+    "counts": {
+      "clean": 100,
+      "unknown": 11,
+      "late": 1
+    },
+    "swallowed": [],
+    "lateConfirmed": [],
+    "errors": [],
+    "scope": "full"
+  },
+  "census": {
+    "gate": null,
+    "population": 175,
+    "counts": {
+      "غير حاسم": 39,
+      "بريء": 135,
+      "جسيم": 1
+    },
+    "fatal": []
+  },
+  "addedRows": [
+    {
+      "aid": "20:1",
+      "cluster": 20,
+      "verdict": "غير حاسم",
+      "kind": "غير حاسم",
+      "why": "لا يطابق التفريغ نصّ الآية ولا سابقتها · سُمع: «وَقَاهِيمَا أَنْزَلْنَا عَلَيْكَ الْقُرْآنُ»",
+      "band": "MED",
+      "startApprox": false,
+      "heard": {
+        "fwd": "وَقَاهِيمَا أَنْزَلْنَا عَلَيْكَ الْقُرْآنُ",
+        "dec": "بِسْمِ اللَّهِ الرَّحْمَنِ الرَّحِيمِ",
+        "long": "وَقَاهِيمَا أَنْزَلْنَا عَلَيْكَ الْقُرْآنَ لِتَشْقَى"
+      }
+    }
+  ],
+  "pooled": [
+    {
+      "m": 3,
+      "n": 800,
+      "rate": 0.00375,
+      "hi": 0.009663308956908829,
+      "parts": [
+        [
+          2,
+          200
+        ],
+        [
+          1,
+          200
+        ],
+        [
+          0,
+          200
+        ],
+        [
+          0,
+          200
+        ]
+      ],
+      "salts": [
+        "rs1",
+        "rs2",
+        "rs3",
+        "rs4"
+      ],
+      "seeds": 4,
+      "engine": "pywhispercpp/ggml-q8 (tiny-ar-quran)",
+      "rule": "D-098"
+    }
+  ],
+  "newOpenerRows": [
+    {
+      "surah": 20,
+      "startMs": 4030,
+      "url": "https://server16.mp3quran.net/deban/Rewayat-Aldori-A-n-Abi-Amr/020.mp3",
+      "endMs": 4933,
+      "verdict": "unknown",
+      "heard": "قاهيما انزلنا عليك القران لترسل"
+    }
+  ],
+  "reportRoot": "https://pub-2c2e1dcd92e84a2898820dd38d3e09e6.r2.dev/",
+  "actualStagedSHA": true
+}
