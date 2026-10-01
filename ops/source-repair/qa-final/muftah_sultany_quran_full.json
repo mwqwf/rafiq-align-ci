@@ -1,0 +1,104 @@
+{
+  "reciter": "muftah_sultany_quran_full",
+  "key": "timings-staging/hafs/muftah_sultany.60984c42.jz",
+  "sha": "60984c42bb159b78e59d70a809d722625d7d1874ad6cdb579ec87585d7dae349",
+  "rs1": {
+    "severe": [
+      1,
+      200
+    ],
+    "fatal": []
+  },
+  "rs2": {
+    "severe": [
+      0,
+      200
+    ],
+    "fatal": []
+  },
+  "rs3": {
+    "severe": [
+      3,
+      200
+    ],
+    "fatal": []
+  },
+  "rs4": {
+    "severe": [
+      0,
+      200
+    ],
+    "fatal": []
+  },
+  "openers": {
+    "counts": {
+      "clean": 106,
+      "unknown": 5,
+      "late": 1
+    },
+    "swallowed": [],
+    "lateConfirmed": [],
+    "errors": [],
+    "scope": "full"
+  },
+  "census": {
+    "gate": null,
+    "population": 56,
+    "counts": {
+      "بريء": 55,
+      "غير حاسم": 1
+    },
+    "fatal": []
+  },
+  "addedRows": [
+    {
+      "aid": "74:55",
+      "cluster": 74,
+      "verdict": "بريء",
+      "kind": "بريء",
+      "why": "المطلع مطابق: «فَمَنْ شَاءَ ذَكَرَهُ وَمَا يَزْغُ»",
+      "band": "MED",
+      "startApprox": true,
+      "heard": {
+        "fwd": "فَمَنْ شَاءَ ذَكَرَهُ وَمَا يَزْغُ",
+        "dec": "وَالْآخِرَةِ كَلَّا إِنَّهُ تَذْكِرَةٌ",
+        "long": "فَمَنْ شَاءَ ذَكَرَهُ وَمَا يَذْكُرُونَ إِلَّا أَنْ يَشَاءُ"
+      }
+    }
+  ],
+  "pooled": [
+    {
+      "m": 4,
+      "n": 800,
+      "rate": 0.005,
+      "hi": 0.011405083966271396,
+      "parts": [
+        [
+          1,
+          200
+        ],
+        [
+          0,
+          200
+        ],
+        [
+          3,
+          200
+        ],
+        [
+          0,
+          200
+        ]
+      ],
+      "salts": [
+        "rs1",
+        "rs2",
+        "rs3",
+        "rs4"
+      ],
+      "seeds": 4,
+      "engine": "pywhispercpp/ggml-q8 (tiny-ar-quran)",
+      "rule": "D-098"
+    }
+  ]
+}

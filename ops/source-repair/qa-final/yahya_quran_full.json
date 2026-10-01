@@ -1,0 +1,103 @@
+{
+  "reciter": "yahya_quran_full",
+  "key": "timings-staging/hafs/yahya.dc1202fe.jz",
+  "sha": "dc1202fe7531066bc1f4dc708daf92e9e6079b27b97c9993311c2b051ea20e7c",
+  "rs1": {
+    "severe": [
+      1,
+      200
+    ],
+    "fatal": []
+  },
+  "rs2": {
+    "severe": [
+      1,
+      200
+    ],
+    "fatal": []
+  },
+  "rs3": {
+    "severe": [
+      2,
+      200
+    ],
+    "fatal": []
+  },
+  "rs4": {
+    "severe": [
+      0,
+      200
+    ],
+    "fatal": []
+  },
+  "openers": {
+    "counts": {
+      "clean": 99,
+      "late": 5,
+      "unknown": 8
+    },
+    "swallowed": [],
+    "lateConfirmed": [],
+    "errors": [],
+    "scope": "full"
+  },
+  "census": {
+    "gate": null,
+    "population": 40,
+    "counts": {
+      "بريء": 40
+    },
+    "fatal": []
+  },
+  "addedRows": [
+    {
+      "aid": "75:37",
+      "cluster": 75,
+      "verdict": "بريء",
+      "kind": "بريء",
+      "why": "المطلع مطابق: «أَلَمْ يَكُ نُطْفَةً مِنْ مَنِيٍّ»",
+      "band": "HIGH",
+      "startApprox": false,
+      "heard": {
+        "fwd": "أَلَمْ يَكُ نُطْفَةً مِنْ مَنِيٍّ",
+        "dec": "يَنْسَانُ أَنْ يُتْرَكَ سُدًى",
+        "long": "أَلَمْ يَكُ نُطْفَةً مِنْ مَنِيٍّ يُمْنَى ثُمَّ"
+      }
+    }
+  ],
+  "pooled": [
+    {
+      "m": 4,
+      "n": 800,
+      "rate": 0.005,
+      "hi": 0.011405083966271396,
+      "parts": [
+        [
+          1,
+          200
+        ],
+        [
+          1,
+          200
+        ],
+        [
+          2,
+          200
+        ],
+        [
+          0,
+          200
+        ]
+      ],
+      "salts": [
+        "rs1",
+        "rs2",
+        "rs3",
+        "rs4"
+      ],
+      "seeds": 4,
+      "engine": "pywhispercpp/ggml-q8 (tiny-ar-quran)",
+      "rule": "D-098"
+    }
+  ]
+}

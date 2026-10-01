@@ -1,0 +1,102 @@
+{
+  "reciter": "saber_quran_full",
+  "key": "timings-staging/hafs/saber.238a960c.jz",
+  "sha": "238a960cb784225cef94ff95d85eef430519bb1fefa4dab259046202ef8d0f35",
+  "rs1": {
+    "severe": [
+      2,
+      200
+    ],
+    "fatal": []
+  },
+  "rs2": {
+    "severe": [
+      0,
+      200
+    ],
+    "fatal": []
+  },
+  "rs3": {
+    "severe": [
+      1,
+      200
+    ],
+    "fatal": []
+  },
+  "rs4": {
+    "severe": [
+      1,
+      200
+    ],
+    "fatal": []
+  },
+  "openers": {
+    "counts": {
+      "clean": 99,
+      "unknown": 13
+    },
+    "swallowed": [],
+    "lateConfirmed": null,
+    "errors": [],
+    "scope": "full"
+  },
+  "census": {
+    "gate": null,
+    "population": 30,
+    "counts": {
+      "بريء": 30
+    },
+    "fatal": []
+  },
+  "addedRows": [
+    {
+      "aid": "89:29",
+      "cluster": 89,
+      "verdict": "بريء",
+      "kind": "بريء",
+      "why": "المطلع مطابق: «فَادْخُلِي فِي عِبَادِي وَادْخُلِي»",
+      "band": "MED",
+      "startApprox": false,
+      "heard": {
+        "fwd": "فَادْخُلِي فِي عِبَادِي وَادْخُلِي",
+        "dec": "وَإِرَاضِيَةً مَرْضِيَّةً",
+        "long": "فَادْخُلِي فِي عِبَادِي وَادْخُلِي جَنَّتِي"
+      }
+    }
+  ],
+  "pooled": [
+    {
+      "m": 4,
+      "n": 800,
+      "rate": 0.005,
+      "hi": 0.011405083966271396,
+      "parts": [
+        [
+          2,
+          200
+        ],
+        [
+          0,
+          200
+        ],
+        [
+          1,
+          200
+        ],
+        [
+          1,
+          200
+        ]
+      ],
+      "salts": [
+        "rs1",
+        "rs2",
+        "rs3",
+        "rs4"
+      ],
+      "seeds": 4,
+      "engine": "pywhispercpp/ggml-q8 (tiny-ar-quran)",
+      "rule": "D-098"
+    }
+  ]
+}
