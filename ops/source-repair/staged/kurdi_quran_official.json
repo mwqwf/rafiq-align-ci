@@ -1,0 +1,44 @@
+{
+  "reciterId": "kurdi",
+  "riwaya": "hafs",
+  "surahs": [
+    16
+  ],
+  "parent": "timings/hafs/kurdi.jz",
+  "parentSha": "bab6b797c090e81bc8f28ff6ad875d6fa00b15fa2be896c05c072d447d6d32df",
+  "candidateFile": "ops/source-repair/candidates/kurdi.774d14fb.jz",
+  "candidateSha": "774d14fb7a7b436a9461ff5eb6e2cb3f3e0665870c8b065d3829fbd3518c80b4",
+  "added": [
+    "16:82"
+  ],
+  "entries": 6236,
+  "sourceTimingBySurah": {
+    "16": {
+      "api": "https://mp3quran.net/api/v3/ayat_timing?surah=16&read=221",
+      "readId": 221,
+      "reciterApiId": 221,
+      "riwaya": "hafs",
+      "exactSourceUrl": "https://server6.mp3quran.net/kurdi/016.mp3",
+      "sourceSha256": "185935fe61b370176c417ab580dd9db86b45651d1b12656c81ec520233bb87a7",
+      "responseSha256": "c599e6ac31140a6c1fa14f0e9b6ff04a7ab89b4fb0a7df7a6d17f606e68076ab",
+      "sourceAyahCount": 128,
+      "mappedAyahCount": 128,
+      "countMapSha256": null,
+      "fetchedAt": 1790873202,
+      "durationMs": 2834494,
+      "lastSourceEndMs": 2813680,
+      "durationWarnings": null,
+      "inheritedAyahIds": [],
+      "confidence": {
+        "value": 0.7,
+        "meaning": "external source timing MED as existing ingest tool; not CTC probability"
+      },
+      "canonicalTextChanged": false
+    }
+  },
+  "productionChanged": false,
+  "failedSurahs": [],
+  "key": "timings-staging/hafs/kurdi.e7f53af3.jz",
+  "sha256": "e7f53af3fe655404b0735b67da381355d74d334e8eddafcc4ac9c3678cb9d627",
+  "bytes": 90282
+}
