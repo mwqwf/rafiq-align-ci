@@ -1,0 +1,19 @@
+{
+  "action": "tool",
+  "tool": "index_qa/stage_transform.py",
+  "args": [
+    "--file",
+    "ops/source-repair/candidates/f_hajry.f608ef88.jz",
+    "--parent",
+    "timings/hafs/f_hajry.jz",
+    "--parent-sha",
+    "465ea9c88534c1417b21821c9d59021fa94ec4c955141ba5bf91bf292bed316c",
+    "--op",
+    "ctc_quran_surah_splice:55",
+    "--by",
+    "Codex",
+    "--reason",
+    "تصحيح الرحمن كاملة وإضافة55:2 بمحرك قرآني مثبت البصمة؛ إثبات ثلاثة تكرارات أصلية مسموعة55:26 بمحاذاة كل نطق بثقة≥.45 واحتساب مدة الصوت المتكرر صراحة دون تغيير النص أو الصوت؛ كل الحراس والعينات والإحصاء الشامل على المسرح قبل الاعتماد",
+    "--yes"
+  ]
+}
