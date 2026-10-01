@@ -1,0 +1,44 @@
+{
+  "reciterId": "wdod",
+  "riwaya": "hafs",
+  "surahs": [
+    26
+  ],
+  "parent": "timings/hafs/wdod.jz",
+  "parentSha": "56ace934d4d5f40a556387c8fa892e5880535ee0fd78aeae9d27dc9b0cf086f3",
+  "candidateFile": "ops/source-repair/candidates/wdod.26238ec4.jz",
+  "candidateSha": "26238ec4b4ba97b5a43e2b08bba28c90e477897a07dbda20aeb32d8504135531",
+  "added": [
+    "26:91"
+  ],
+  "entries": 6236,
+  "sourceTimingBySurah": {
+    "26": {
+      "api": "https://mp3quran.net/api/v3/ayat_timing?surah=26&read=71",
+      "readId": 71,
+      "reciterApiId": 71,
+      "riwaya": "hafs",
+      "exactSourceUrl": "https://server8.mp3quran.net/wdod/026.mp3",
+      "sourceSha256": "b280fbfdfc37ff948aaf8ceb2c5593b9bccaf6847e35b1f7a87c45e717574519",
+      "responseSha256": "26b9d368f43b5270f042c0c7722a63f139694b041398126a552c787ff7ee494f",
+      "sourceAyahCount": 227,
+      "mappedAyahCount": 227,
+      "countMapSha256": null,
+      "fetchedAt": 1790873200,
+      "durationMs": 1111745,
+      "lastSourceEndMs": 1110880,
+      "durationWarnings": null,
+      "inheritedAyahIds": [],
+      "confidence": {
+        "value": 0.7,
+        "meaning": "external source timing MED as existing ingest tool; not CTC probability"
+      },
+      "canonicalTextChanged": false
+    }
+  },
+  "productionChanged": false,
+  "failedSurahs": [],
+  "key": "timings-staging/hafs/wdod.3ba807bb.jz",
+  "sha256": "3ba807bb784cc514cb7b0635919ee91afd1866962ae760589a6ae867f0b63443",
+  "bytes": 93781
+}

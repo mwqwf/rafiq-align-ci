@@ -1,0 +1,37 @@
+{
+  "reciterId": "janaini_qalun",
+  "riwaya": "qalun",
+  "surahs": [
+    56
+  ],
+  "parent": "timings/qalun/janaini_qalun.jz",
+  "parentSha": "a85232611f74369d0e033f3d18a0bc0bb4fe7641c3f59ec4884c9a590cc4d590",
+  "candidateFile": "ops/source-repair/candidates/janaini_qalun.083eda58.jz",
+  "candidateSha": "083eda587b17c3bec9c6a042829fb49ed8f7a7bb5c66bc06ddef88114bebb7a3",
+  "added": [
+    "56:94"
+  ],
+  "entries": 6234,
+  "inheritedAlignmentEntriesBySurah": {
+    "56": {
+      "ayahIds": [],
+      "reason": "Existing entries retained byte-for-byte where new CTC <0.45; no confidence raised",
+      "originalModelIssues": [],
+      "postMergeIssues": [],
+      "originalModelBands": {
+        "HIGH": 25,
+        "MED": 71
+      }
+    }
+  },
+  "failedSurahs": [
+    {
+      "surah": 33,
+      "reason": "Weak inherited block reaches missing ayah"
+    }
+  ],
+  "productionChanged": false,
+  "key": "timings-staging/qalun/janaini_qalun.4aed9308.jz",
+  "sha256": "4aed930831f74ce10f1e294a61a37bc445443d5c75ac5b0665552052f9bfbc8e",
+  "bytes": 94214
+}

@@ -1,0 +1,44 @@
+{
+  "reciterId": "mohsin_harthi",
+  "riwaya": "hafs",
+  "surahs": [
+    55
+  ],
+  "parent": "timings/hafs/mohsin_harthi.jz",
+  "parentSha": "d9a3ccfbfdbaf5734a0a4e24b95f45db720fda3afe74bc844d3aac359f35b9ed",
+  "candidateFile": "ops/source-repair/candidates/mohsin_harthi.2314fd1a.jz",
+  "candidateSha": "2314fd1a783fbd6c0ba2ef12959a38584767cf69e327425d3fd6a3bface88dc1",
+  "added": [
+    "55:58"
+  ],
+  "entries": 6236,
+  "sourceTimingBySurah": {
+    "55": {
+      "api": "https://mp3quran.net/api/v3/ayat_timing?surah=55&read=66",
+      "readId": 66,
+      "reciterApiId": 66,
+      "riwaya": "hafs",
+      "exactSourceUrl": "https://server6.mp3quran.net/mohsin_harthi/055.mp3",
+      "sourceSha256": "371f98339abf33d5876b7b09ee428e126c4950b6008ba35fa5801b909a14354c",
+      "responseSha256": "faaf9ea02dec5c8fd4ea27c6283f24facbf5491984ad5dfd1d43374a7ca8ac1c",
+      "sourceAyahCount": 78,
+      "mappedAyahCount": 78,
+      "countMapSha256": null,
+      "fetchedAt": 1790873199,
+      "durationMs": 541701,
+      "lastSourceEndMs": 540120,
+      "durationWarnings": null,
+      "inheritedAyahIds": [],
+      "confidence": {
+        "value": 0.7,
+        "meaning": "external source timing MED as existing ingest tool; not CTC probability"
+      },
+      "canonicalTextChanged": false
+    }
+  },
+  "productionChanged": false,
+  "failedSurahs": [],
+  "key": "timings-staging/hafs/mohsin_harthi.638a95ee.jz",
+  "sha256": "638a95ee0bc54388db15a13959c2ea16eff846e4bfc049c9fd5bb227697288c2",
+  "bytes": 94212
+}

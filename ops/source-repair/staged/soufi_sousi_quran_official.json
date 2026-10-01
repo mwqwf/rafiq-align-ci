@@ -1,0 +1,83 @@
+{
+  "reciterId": "soufi_sousi",
+  "riwaya": "sousi",
+  "surahs": [
+    19,
+    53
+  ],
+  "parent": "timings/sousi/soufi_sousi.jz",
+  "parentSha": "90d4825d45232c920b702d22a68c5b916faf29cf7506d3a8e80f61bbd102c532",
+  "candidateFile": "ops/source-repair/candidates/soufi_sousi.ac0c49b0.jz",
+  "candidateSha": "ac0c49b0238b4c6aa74710b98d2c012efdbc8a7d796d90089090e9d9070f8899",
+  "added": [
+    "19:91",
+    "53:61"
+  ],
+  "entries": 6236,
+  "sourceTimingBySurah": {
+    "19": {
+      "api": "https://mp3quran.net/api/v3/ayat_timing?surah=19&read=65",
+      "readId": 65,
+      "reciterApiId": 64,
+      "riwaya": "sousi",
+      "exactSourceUrl": "https://server16.mp3quran.net/soufi/Rewayat-Assosi-A-n-Abi-Amr/019.mp3",
+      "sourceSha256": "c063b5c4dfa13cd431c56a907df09c7c092eb23dda44fa09d0a14a1f93a5a333",
+      "responseSha256": "dbe14da35c18f3e11f5bac9239ba35c7618bd86014ee24be10eec59bf76794ea",
+      "sourceAyahCount": 98,
+      "mappedAyahCount": 98,
+      "countMapSha256": "9e8016ce101ec324b2857aa3eeb1fa08fe132007fe25a072b39eaa4e56a951b9",
+      "fetchedAt": 1790873202,
+      "durationMs": 985077,
+      "lastSourceEndMs": 983940,
+      "durationWarnings": null,
+      "inheritedAyahIds": [
+        "19:1",
+        "19:2",
+        "19:3",
+        "19:4",
+        "19:5",
+        "19:6",
+        "19:7",
+        "19:8"
+      ],
+      "confidence": {
+        "value": 0.7,
+        "meaning": "external source timing MED as existing ingest tool; not CTC probability"
+      },
+      "canonicalTextChanged": false
+    },
+    "53": {
+      "api": "https://mp3quran.net/api/v3/ayat_timing?surah=53&read=65",
+      "readId": 65,
+      "reciterApiId": 64,
+      "riwaya": "sousi",
+      "exactSourceUrl": "https://server16.mp3quran.net/soufi/Rewayat-Assosi-A-n-Abi-Amr/053.mp3",
+      "sourceSha256": "0cf7d43cab2f4fd6d3e75dbfffa032ec6a743bffa41121167133a23ac1361815",
+      "responseSha256": "c0c2dd003b0395d3ccd7b533dd75955467201667058aa281499c266820d8e69e",
+      "sourceAyahCount": 61,
+      "mappedAyahCount": 62,
+      "countMapSha256": "9e8016ce101ec324b2857aa3eeb1fa08fe132007fe25a072b39eaa4e56a951b9",
+      "fetchedAt": 1790873203,
+      "durationMs": 400065,
+      "lastSourceEndMs": 397720,
+      "durationWarnings": null,
+      "inheritedAyahIds": [
+        "53:28",
+        "53:29",
+        "53:30",
+        "53:31",
+        "53:32"
+      ],
+      "confidence": {
+        "value": 0.7,
+        "meaning": "external source timing MED as existing ingest tool; not CTC probability"
+      },
+      "canonicalTextChanged": false
+    }
+  },
+  "productionChanged": false,
+  "failedSurahs": [],
+  "key": "timings-staging/sousi/soufi_sousi.42191c3a.jz",
+  "sha256": "42191c3aba20b96a62e0d3bf07a8fb81e0b7eed5dec0ca9573e42d4d4e616868",
+  "bytes": 94695
+}

@@ -1,0 +1,44 @@
+{
+  "reciterId": "kh_mohammadi",
+  "riwaya": "hafs",
+  "surahs": [
+    53
+  ],
+  "parent": "timings/hafs/kh_mohammadi.jz",
+  "parentSha": "b3a2782dfaf09bbd7a31c5b26714de6292b4ce0529eef23d0712b365a789facc",
+  "candidateFile": "ops/source-repair/candidates/kh_mohammadi.8a98bb5b.jz",
+  "candidateSha": "8a98bb5b72efd498341b8a2a19db09844f3af26c4b79d8f405951a54bbf3b202",
+  "added": [
+    "53:57"
+  ],
+  "entries": 6236,
+  "sourceTimingBySurah": {
+    "53": {
+      "api": "https://mp3quran.net/api/v3/ayat_timing?surah=53&read=295",
+      "readId": 295,
+      "reciterApiId": 283,
+      "riwaya": "hafs",
+      "exactSourceUrl": "https://server16.mp3quran.net/kh_mohammadi/Rewayat-Hafs-A-n-Assem/053.mp3",
+      "sourceSha256": "3fd96412c2df9a178c7798312ad8a86b6b971c68c23e0b33c61a508cd1385abf",
+      "responseSha256": "c376c2b14f4ba6e20af118bec28eeea22fbbd4fa46ed90a78eaac968a6bf72c6",
+      "sourceAyahCount": 62,
+      "mappedAyahCount": 62,
+      "countMapSha256": null,
+      "fetchedAt": 1790873201,
+      "durationMs": 450984,
+      "lastSourceEndMs": 450420,
+      "durationWarnings": null,
+      "inheritedAyahIds": [],
+      "confidence": {
+        "value": 0.7,
+        "meaning": "external source timing MED as existing ingest tool; not CTC probability"
+      },
+      "canonicalTextChanged": false
+    }
+  },
+  "productionChanged": false,
+  "failedSurahs": [],
+  "key": "timings-staging/hafs/kh_mohammadi.d9409bdb.jz",
+  "sha256": "d9409bdb12c49ca493239a26426c6e19aaee8cb3be25c75a085df0a6de94e551",
+  "bytes": 94895
+}

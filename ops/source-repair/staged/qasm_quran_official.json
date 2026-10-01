@@ -1,0 +1,44 @@
+{
+  "reciterId": "qasm",
+  "riwaya": "hafs",
+  "surahs": [
+    44
+  ],
+  "parent": "timings/hafs/qasm.jz",
+  "parentSha": "0abe159294d54f5e63ec163dd1cd282d1433c61fd28f0b272f2add81d569dc1b",
+  "candidateFile": "ops/source-repair/candidates/qasm.d5763c4d.jz",
+  "candidateSha": "d5763c4dbb973f03243a2030e81fb0631c0fbd2059c9c36287fdb942ca87ef2e",
+  "added": [
+    "44:54"
+  ],
+  "entries": 6236,
+  "sourceTimingBySurah": {
+    "44": {
+      "api": "https://mp3quran.net/api/v3/ayat_timing?surah=44&read=67",
+      "readId": 67,
+      "reciterApiId": 67,
+      "riwaya": "hafs",
+      "exactSourceUrl": "https://server8.mp3quran.net/qasm/044.mp3",
+      "sourceSha256": "ac3478923a77ccbece96a5a7a5f0f771b1d675e7a9d5f8e7164e28d80d4d5072",
+      "responseSha256": "13e15b1e560424f97b54688469b701381e13ed13a2a058684689964b39366144",
+      "sourceAyahCount": 59,
+      "mappedAyahCount": 59,
+      "countMapSha256": null,
+      "fetchedAt": 1790873200,
+      "durationMs": 347675,
+      "lastSourceEndMs": 347402,
+      "durationWarnings": null,
+      "inheritedAyahIds": [],
+      "confidence": {
+        "value": 0.7,
+        "meaning": "external source timing MED as existing ingest tool; not CTC probability"
+      },
+      "canonicalTextChanged": false
+    }
+  },
+  "productionChanged": false,
+  "failedSurahs": [],
+  "key": "timings-staging/hafs/qasm.271249ff.jz",
+  "sha256": "271249ff16407f7e010e8d9e8d8f121d45e50a5e8f377a60d994f95a2e3368e8",
+  "bytes": 93553
+}
