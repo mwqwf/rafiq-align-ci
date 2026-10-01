@@ -1,0 +1,25 @@
+{
+  "action": "tool",
+  "tool": "index_qa/repair_review.py",
+  "args": [
+    "--names",
+    "kurdi_quran_official",
+    "i_sanankoua_quran_official",
+    "husary_warsh_quran_official",
+    "mohsin_harthi_quran_official",
+    "qasm_quran_official",
+    "wdod_quran_official",
+    "kh_mohammadi_quran_official",
+    "soufi_sousi_quran_official",
+    "lhdan_quran_hybrid",
+    "noah_warsh_quran_hybrid",
+    "janaini_qalun_quran_hybrid",
+    "qazabri_quran_gap",
+    "deban_quran_hybrid",
+    "ra3ad_quran_hybrid",
+    "a_alhazmi_quran_nobasmala",
+    "a_alqrafi_quran_nobasmala",
+    "--out",
+    "ops/out/repair-review-v3-20261001.json"
+  ]
+}
