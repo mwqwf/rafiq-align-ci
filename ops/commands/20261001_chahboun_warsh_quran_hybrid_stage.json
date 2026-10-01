@@ -1,0 +1,19 @@
+{
+  "action": "tool",
+  "tool": "index_qa/stage_transform.py",
+  "args": [
+    "--file",
+    "ops/source-repair/candidates/chahboun_warsh.65c33c16.jz",
+    "--parent",
+    "timings/warsh/chahboun_warsh.jz",
+    "--parent-sha",
+    "0f313b0d42ad6b5c687b2ee904741b96be0a432a476563f0f03bf02cd51c4a08",
+    "--op",
+    "ctc_quran_surah_splice:89",
+    "--by",
+    "Codex",
+    "--reason",
+    "محاذاة كاملة بمصدر ونص أصليين ومحرك قرآني مثبت؛ مداخل ضعيفة المحاذاة الجديدة تحفظ من الأب حرفياً بمعلومة نسب صريحة دون رفع ثقة؛ لا فقد ولا تغيير خارج السورة، كل حراس البنية والمطالع والأربعة والإحصاء الشامل لازمة على SHA المسرح",
+    "--yes"
+  ]
+}
