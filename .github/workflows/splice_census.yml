@@ -98,7 +98,7 @@ jobs:
           sudo apt-get install -y -qq ffmpeg
           python -m pip install --quiet pywhispercpp soundfile numpy boto3
       - name: كاش النموذج
-        uses: actions/cache@v4
+        uses: actions/cache/restore@v4
         with:
           path: assets-archive/ggml
           key: qa-model-q8-v1
