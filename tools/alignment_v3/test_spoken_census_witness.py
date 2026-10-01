@@ -31,6 +31,36 @@ class SpokenWitnessTest(unittest.TestCase):
     def test_two_independent_pinned_measurements_match_target_and_anchor(self):
         self.assertIsNone(S.witness_error(self.proof, self.idx))
 
+    def test_complete_four_ayah_context_requires_measured_prefix_and_every_anchor(self):
+        from common import load_index, load_text, surah_slice
+        from spoken_letters import alignment_text
+        begin, _, _ = surah_slice(load_index(), 20)
+        fourth = alignment_text(20, 4, load_text('hafs')[begin + 3])
+        self.idx['entries'].append({'ayahId': '20:4', 'endMs': 20000})
+        self.idx['alignmentWindowEvidenceBySurah'] = {'20': {'range': [1, 4], 'windowMs': [0, 20000]}}
+        self.proof.update(range=[1, 4], windowMs=[0, 20000])
+        for model in self.proof['models'].values():
+            model['alignmentInput'].append(fourth)
+            model['entries'].append({'ayahIdx': 3, 'startMs': 15000, 'endMs': 20000, 'conf': .6})
+        self.assertIsNone(S.witness_error(self.proof, self.idx))
+        self.proof['models']['generic']['entries'][3]['conf'] = .44
+        self.assertIsNotNone(S.witness_error(self.proof, self.idx))
+        self.proof['models']['generic']['entries'][3]['conf'] = .6
+        self.idx['alignmentWindowEvidenceBySurah']['20']['range'] = [1, 3]
+        self.assertIsNotNone(S.witness_error(self.proof, self.idx))
+
+    def test_sealed_actual_ci_version_keeps_provenance_but_unknown_hash_is_rejected(self):
+        self.proof['provenance'] = {
+            'kind': 'audio', 'source': 'ci', 'run_id': '36927909295',
+            'tool': 'tools/index_qa/ci_spoken_census.py',
+            'tool_sha': next(iter(S.SEALED_CI_TOOL_SHAS))}
+        row = {'aid': '20:1', 'kind': 'بريء', 'independentSpokenCtc': self.proof,
+               'originalTinyRow': {'aid': '20:1', 'kind': 'غير حاسم'}}
+        report = {'sample': {'rows': [row]}}
+        self.assertIsNone(S.report_error(report, self.idx))
+        self.proof['provenance']['tool_sha'] = 'f' * 64
+        self.assertIsNotNone(S.report_error(report, self.idx))
+
     def test_cannot_clear_arbitrary_unknown_rows_or_weak_disagreeing_evidence(self):
         mutations = [lambda p: p.update(context='arbitrary-window'),
                      lambda p: p.update(runtime={'precision':'int8','threads':2}),

@@ -9,6 +9,11 @@ on:
       targeted:
         description: Explicit subset using fixed 1s preroll and joined original spoken letter names
         default: ''
+      context_ayahs:
+        description: Complete measured canonical prefix (3, 4 or 5)
+        type: choice
+        options: ['3', '4', '5']
+        default: '3'
 permissions:
   contents: read
 jobs:
@@ -42,10 +47,11 @@ jobs:
           R2_CREDENTIALS_JSON: ${{ secrets.R2_CREDENTIALS_JSON }}
           KEYS: ${{ inputs.only }}
           TARGETED: ${{ inputs.targeted }}
+          CONTEXT_AYAHS: ${{ inputs.context_ayahs }}
         run: |
           mkdir -p secure
           printf '%s' "$R2_CREDENTIALS_JSON" > secure/r2_credentials.json
-          python tools/index_qa/ci_spoken_census.py --keys "$KEYS" --targeted-keys "$TARGETED"
+          python tools/index_qa/ci_spoken_census.py --keys "$KEYS" --targeted-keys "$TARGETED" --context-ayahs "$CONTEXT_AYAHS"
       - uses: actions/upload-artifact@v4
         if: always()
         with:

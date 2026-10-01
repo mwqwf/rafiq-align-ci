@@ -47,6 +47,8 @@ def main():
     parser.add_argument('--keys', required=True)
     parser.add_argument('--targeted-keys', default='',
                         help='Explicit subset: fixed 1s preroll and joined spoken letter names')
+    parser.add_argument('--context-ayahs', type=int, choices=(3, 4, 5), default=3,
+                        help='Complete canonical prefix, bounded by the measured candidate window')
     parser.add_argument('--out', default='ops/out/spoken-census-witness.json')
     args = parser.parse_args()
     keys = [k for k in args.keys.replace(',', ' ').split() if k]
@@ -80,6 +82,8 @@ def main():
         ev = idx['alignmentWindowEvidenceBySurah']['20']
         if ev['range'][0] != 1 or not 3 <= ev['range'][1] <= 5 or ev['windowMs'][0] != 0:
             raise ValueError('Known prefix window only')
+        if args.context_ayahs > ev['range'][1]:
+            raise ValueError('Context exceeds candidate measured prefix')
         source = next(e['fileRef'] for e in idx['entries'] if e['ayahId'] == '20:1')
         path = ROOT / 'scratch' / 'spoken-census' / (sha + '.mp3')
         path.parent.mkdir(parents=True, exist_ok=True)
@@ -90,21 +94,22 @@ def main():
             raise ValueError('Original audio differs from indexed source SHA')
         path.write_bytes(raw)
         wav = to_wav16k(str(path))
-        # A fixed complete three-ayah prefix supplies two canonical neighbours.
+        # A complete bounded prefix supplies canonical neighbours.
         # Its end is measured in the candidate, never chosen from model scores.
-        prefix_end = next(e['endMs'] for e in idx['entries'] if e['ayahId'] == '20:3')
+        prefix_end = next(e['endMs'] for e in idx['entries']
+                          if e['ayahId'] == f'20:{args.context_ayahs}')
         target_start = next(e['startMs'] for e in idx['entries'] if e['ayahId'] == '20:1')
         prefix_start = max(0, target_start - 1000) if key in targeted else 0
         pcm = read_wav(wav)[prefix_start * 16:prefix_end * 16]
         start, end, _ = surah_slice(load_index(), 20)
         refs = load_text(idx['riwaya'])[start:end]
         inputs = ['بسم الله الرحمن الرحيم'] + [alignment_text(20, i, refs[i - 1])
-                   for i in range(1, 4)]
+                   for i in range(1, args.context_ayahs + 1)]
         if key in targeted:
             inputs = inputs[1:]
             inputs[0] = inputs[0].replace(' ', '')
         proof = {'target': '20:1', 'sourceSha256': idx['audioSha256'][19],
-                 'canonicalTextChanged': False, 'models': {}, 'range': [1, 3],
+                 'canonicalTextChanged': False, 'models': {}, 'range': [1, args.context_ayahs],
                  'windowMs': [prefix_start, prefix_end],
                  'context': 'targeted-joined' if key in targeted else 'full-prefix',
                  'runtime': {'precision': 'float32', 'threads': int(os.environ['CTC_THREADS'])}}
