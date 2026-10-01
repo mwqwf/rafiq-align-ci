@@ -1,0 +1,19 @@
+{
+  "action": "tool",
+  "tool": "index_qa/stage_transform.py",
+  "args": [
+    "--file",
+    "ops/source-repair/candidates/a_alqrafi.0f1fe840.jz",
+    "--parent",
+    "timings/hafs/a_alqrafi.jz",
+    "--parent-sha",
+    "61637c40f52a1bd3247d962763a44c19f31e57c45bc3bce0eff26060f73d42ea",
+    "--op",
+    "ctc_quran_surah_splice:52",
+    "--by",
+    "Codex",
+    "--reason",
+    "محاذاة كاملة بمصدر ونص أصليين ومحرك قرآني مثبت؛ مداخل ضعيفة المحاذاة الجديدة تحفظ من الأب حرفياً بمعلومة نسب صريحة دون رفع ثقة؛ لا فقد ولا تغيير خارج السورة، كل حراس البنية والمطالع والأربعة والإحصاء الشامل لازمة على SHA المسرح",
+    "--yes"
+  ]
+}
