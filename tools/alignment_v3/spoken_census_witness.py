@@ -25,7 +25,16 @@ def witness_error(proof, idx):
         canonical_input = ['بسم الله الرحمن الرحيم'] + [
             alignment_text(20, i, refs[i - 1]) for i in range(1, 4)]
         prefix_end = next(e['endMs'] for e in idx['entries'] if e['ayahId'] == '20:3')
-        if proof['range'] != [1, 3] or proof['windowMs'] != [0, prefix_end]:
+        context = proof['context']
+        prefix_start = 0
+        if context == 'targeted-joined':
+            prefix_start = max(0, row['startMs'] - 1000)
+            canonical_input = canonical_input[1:]
+            canonical_input[0] = canonical_input[0].replace(' ', '')
+        elif context != 'full-prefix':
+            raise ValueError('unknown physical context')
+        if (proof['range'] != [1, 3] or proof['windowMs'] != [prefix_start, prefix_end]
+                or proof['runtime'] != {'precision': 'float32', 'threads': 2}):
             raise ValueError('wrong fixed canonical context window')
         expected = [('generic', GENERIC_ID, GENERIC_REVISION, GENERIC_WEIGHTS),
                     ('quran', MODEL_ID, REVISION, WEIGHTS_SHA256)]
@@ -44,7 +53,7 @@ def witness_error(proof, idx):
                     or any(not math.isfinite(e['conf']) or e['conf'] < .45 or e['conf'] > 1
                            for e in entries)):
                 raise ValueError('insufficient independent target or anchor confidence')
-            previous = 0
+            previous = prefix_start
             for e in entries:
                 if not previous <= e['startMs'] < e['endMs'] <= prefix_end:
                     raise ValueError('invalid independent context interval')

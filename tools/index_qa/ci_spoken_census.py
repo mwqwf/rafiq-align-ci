@@ -45,11 +45,16 @@ def configure_generic():
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument('--keys', required=True)
+    parser.add_argument('--targeted-keys', default='',
+                        help='Explicit subset: fixed 1s preroll and joined spoken letter names')
     parser.add_argument('--out', default='ops/out/spoken-census-witness.json')
     args = parser.parse_args()
     keys = [k for k in args.keys.replace(',', ' ').split() if k]
+    targeted = set(args.targeted_keys.replace(',', ' ').split())
     if not 1 <= len(keys) <= 3 or len(set(keys)) != len(keys):
         raise ValueError('One to three unique explicitly selected candidate keys required')
+    if not targeted <= set(keys) or os.environ.get('CTC_INT8') != '0':
+        raise ValueError('Explicit selected targets and original float32 model inference required')
     cl, bucket = P.s3()
     jobs = []
     receipts = []
@@ -88,14 +93,21 @@ def main():
         # A fixed complete three-ayah prefix supplies two canonical neighbours.
         # Its end is measured in the candidate, never chosen from model scores.
         prefix_end = next(e['endMs'] for e in idx['entries'] if e['ayahId'] == '20:3')
-        pcm = read_wav(wav)[:prefix_end * 16]
+        target_start = next(e['startMs'] for e in idx['entries'] if e['ayahId'] == '20:1')
+        prefix_start = max(0, target_start - 1000) if key in targeted else 0
+        pcm = read_wav(wav)[prefix_start * 16:prefix_end * 16]
         start, end, _ = surah_slice(load_index(), 20)
         refs = load_text(idx['riwaya'])[start:end]
         inputs = ['بسم الله الرحمن الرحيم'] + [alignment_text(20, i, refs[i - 1])
                    for i in range(1, 4)]
+        if key in targeted:
+            inputs = inputs[1:]
+            inputs[0] = inputs[0].replace(' ', '')
         proof = {'target': '20:1', 'sourceSha256': idx['audioSha256'][19],
                  'canonicalTextChanged': False, 'models': {}, 'range': [1, 3],
-                 'windowMs': [0, prefix_end]}
+                 'windowMs': [prefix_start, prefix_end],
+                 'context': 'targeted-joined' if key in targeted else 'full-prefix',
+                 'runtime': {'precision': 'float32', 'threads': int(os.environ['CTC_THREADS'])}}
         jobs.append({'key': key, 'idx': idx, 'censusKey': census_key, 'etag': response['ETag'],
                      'report': report, 'original': original, 'row': row,
                      'pcm': pcm, 'inputs': inputs, 'proof': proof})
@@ -103,8 +115,11 @@ def main():
         model = configure_generic() if name == 'generic' else Q.configure()
         for job in jobs:
             inputs = job['inputs'] if name == 'generic' else [Q.reference_text(t) for t in job['inputs']]
-            raw = C._segment(C._emissions(job['pcm']), len(job['pcm']), inputs)[1:]
-            entries = [{'ayahIdx': i, 'startMs': int(st * 1000), 'endMs': int(en * 1000),
+            raw = C._segment(C._emissions(job['pcm']), len(job['pcm']), inputs)
+            if job['proof']['context'] == 'full-prefix':
+                raw = raw[1:]
+            offset = job['proof']['windowMs'][0]
+            entries = [{'ayahIdx': i, 'startMs': offset + int(st * 1000), 'endMs': offset + int(en * 1000),
                         'conf': C._conf(score)} for i, (st, en, score) in enumerate(raw)]
             for i in range(len(entries) - 1):
                 entries[i]['endMs'] = entries[i + 1]['startMs']

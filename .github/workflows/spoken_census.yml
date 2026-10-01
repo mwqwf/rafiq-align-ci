@@ -6,6 +6,9 @@ on:
       only:
         description: Three explicit staging keys; only inconclusive canonical 20:1
         required: true
+      targeted:
+        description: Explicit subset using fixed 1s preroll and joined original spoken letter names
+        default: ''
 permissions:
   contents: read
 jobs:
@@ -15,6 +18,7 @@ jobs:
     env:
       HF_HOME: ${{ github.workspace }}/.hf
       CTC_THREADS: '2'
+      CTC_INT8: '0'
       HF_HUB_DISABLE_XET: '1'
     steps:
       - uses: actions/checkout@v4
@@ -37,10 +41,11 @@ jobs:
         env:
           R2_CREDENTIALS_JSON: ${{ secrets.R2_CREDENTIALS_JSON }}
           KEYS: ${{ inputs.only }}
+          TARGETED: ${{ inputs.targeted }}
         run: |
           mkdir -p secure
           printf '%s' "$R2_CREDENTIALS_JSON" > secure/r2_credentials.json
-          python tools/index_qa/ci_spoken_census.py --keys "$KEYS"
+          python tools/index_qa/ci_spoken_census.py --keys "$KEYS" --targeted-keys "$TARGETED"
       - uses: actions/upload-artifact@v4
         if: always()
         with:

@@ -16,7 +16,7 @@ class SpokenWitnessTest(unittest.TestCase):
                     'engineBySurah': {'20': 'ctc-spoken-1'},
                     'entries': [{'ayahId': '20:1', 'startMs': 4000, 'endMs': 5500}, {'ayahId': '20:3', 'endMs': 15000}]}
         self.proof = {'target': '20:1', 'sourceSha256': 'a' * 64,
-                      'canonicalTextChanged': False, 'models': {}, 'range': [1, 3], 'windowMs': [0, 15000]}
+                      'canonicalTextChanged': False, 'models': {}, 'range': [1, 3], 'windowMs': [0, 15000], 'context': 'full-prefix', 'runtime': {'precision': 'float32', 'threads': 2}}
         for name, ident, revision, weights in [
                 ('generic', D.GENERIC_ID, D.GENERIC_REVISION, D.GENERIC_WEIGHTS),
                 ('quran', Q.MODEL_ID, Q.REVISION, Q.WEIGHTS_SHA256)]:
@@ -32,7 +32,9 @@ class SpokenWitnessTest(unittest.TestCase):
         self.assertIsNone(S.witness_error(self.proof, self.idx))
 
     def test_cannot_clear_arbitrary_unknown_rows_or_weak_disagreeing_evidence(self):
-        mutations = [lambda p: p.update(range=[1, 4]),
+        mutations = [lambda p: p.update(context='arbitrary-window'),
+                     lambda p: p.update(runtime={'precision':'int8','threads':2}),
+                     lambda p: p.update(range=[1, 4]),
                      lambda p: p.update(windowMs=[0, 15001]),
                      lambda p: p['models']['quran']['alignmentInput'].__setitem__(2, 'invented text'),
                      lambda p: p['models']['quran']['entries'][2].update(startMs=10000),
@@ -57,6 +59,16 @@ class SpokenWitnessTest(unittest.TestCase):
         broken = copy.deepcopy(self.idx)
         broken['engineBySurah']['20'] = 'unreviewed-engine'
         self.assertIsNotNone(S.witness_error(self.proof, broken))
+
+    def test_targeted_joined_names_require_exact_preroll_and_original_neighbours(self):
+        proof=copy.deepcopy(self.proof)
+        proof.update(context='targeted-joined',windowMs=[3000,15000])
+        for m in proof['models'].values():
+            m['alignmentInput']=m['alignmentInput'][1:]
+            m['alignmentInput'][0]='طاها'
+        self.assertIsNone(S.witness_error(proof,self.idx))
+        proof['windowMs'][0]=3100
+        self.assertIsNotNone(S.witness_error(proof,self.idx))
 
     def test_census_cannot_claim_confirmation_without_original_row_or_ci_tool_provenance(self):
         row = {'aid': '20:1', 'kind': 'بريء', 'independentSpokenCtc': self.proof}
