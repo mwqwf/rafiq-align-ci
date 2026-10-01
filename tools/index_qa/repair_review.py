@@ -73,6 +73,10 @@ def review(name, cl, bucket):
                            "surahs": census.get("census", {}).get("surahs"),
                            "errors": census["sample"].get("errors"), "fatal": census.get("fatal")}
         result["addedRows"] = [r for r in census["sample"]["rows"] if r["aid"] in proof.get("added", [])]
+        added = [tuple(map(int, aid.split(":"))) for aid in proof.get("added", [])]
+        result["restoredNeighborhoodRows"] = [r for r in census["sample"]["rows"]
+            if any(int(r["aid"].split(":")[0]) == s and abs(int(r["aid"].split(":")[1])-a) <= 3
+                   for s, a in added)]
         if why:
             raise ValueError(why)
         if (len(result["addedRows"]) != len(proof.get("added", []))
