@@ -81,9 +81,27 @@ def evidence_error(evidence, source_sha, rows):
                     or measured[0]['conf'] < .5 or measured[-1]['conf'] < .5):
                 raise ValueError('weak neighbour or incomplete window')
             covered.update(range(lo - 1, hi))
-            expected = [alignment_text(surah, i, refs[i - 1]) for i in range(lo, hi + 1)]
+            context_lo, context_hi = window.get('contextRange', window['range'])
+            if not 1 <= context_lo <= lo <= hi <= context_hi <= len(rows):
+                raise ValueError('invalid canonical context range')
+            if 'contextRange' in window:
+                context = window['contextEntries']
+                if (len(context) != context_hi - context_lo + 1
+                        or [e['ayahIdx'] for e in context] != list(range(context_lo - 1, context_hi))
+                        or window['entries'] != context[lo - context_lo:hi - context_lo + 1]):
+                    raise ValueError('selected rows differ from full raw context')
+                start, end = window['windowMs']
+                if not 0 <= start < end <= evidence['totalMs']:
+                    raise ValueError('invalid original context window')
+                previous = start
+                for e in context:
+                    if (not previous <= e['startMs'] < e['endMs'] <= end
+                            or not math.isfinite(e['conf']) or not 0 <= e['conf'] <= 1):
+                        raise ValueError('invalid raw context measurement')
+                    previous = e['endMs']
+            expected = [alignment_text(surah, i, refs[i - 1]) for i in range(context_lo, context_hi + 1)]
             actual_input = window['alignmentInput']
-            if lo == 1 and actual_input[:1] == ['بسم الله الرحمن الرحيم']:
+            if context_lo == 1 and actual_input[:1] == ['بسم الله الرحمن الرحيم']:
                 actual_input = actual_input[1:]
             if actual_input != expected:
                 raise ValueError('window input differs from canonical reference')

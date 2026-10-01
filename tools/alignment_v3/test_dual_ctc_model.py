@@ -79,6 +79,28 @@ class DualEvidenceTest(unittest.TestCase):
             e['endMs'] = e['startMs'] + (e['endMs'] - e['startMs']) // 10
         self.assertIsNotNone(self.check(bad))
 
+    def test_context_is_preserved_without_accepting_weak_unselected_measurements(self):
+        proof = copy.deepcopy(self.proof)
+        begin, end, _ = surah_slice(load_index(), 112)
+        refs = load_text('hafs')[begin:end]
+        window = proof['windows'][0]
+        context = copy.deepcopy(self.rows)
+        context[0]['conf'] = context[-1]['conf'] = .1
+        window.update(contextRange=[1, 4], contextEntries=context,
+                      windowMs=[1000, self.proof['totalMs']],
+                      alignmentInput=[alignment_text(112, i, refs[i - 1]) for i in range(1, 5)])
+        self.assertIsNone(self.check(proof))
+        for change in [lambda w: w.update(contextRange=[3, 4]),
+                       lambda w: w['contextEntries'][1].update(conf=.9),
+                       lambda w: w['contextEntries'][0].update(startMs=0),
+                       lambda w: w['contextEntries'][0].update(conf=float('nan')),
+                       lambda w: w['alignmentInput'].__setitem__(0, 'invented context'),
+                       lambda w: w['contextEntries'].pop(),
+                       lambda w: w.update(range=[1, 3])]:
+            bad = copy.deepcopy(proof)
+            change(bad['windows'][0])
+            self.assertIsNotNone(self.check(bad))
+
     def test_existing_shared_stage_and_promote_validator_rejects_missing_dual_proof(self):
         self.assertIsNotNone(Q.records_error({'engineBySurah': {'112': D.ENGINE}}))
 
