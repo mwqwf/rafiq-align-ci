@@ -1,0 +1,1205 @@
+{
+  "results": [
+    {
+      "name": "kurdi_quran_official",
+      "key": "timings-staging/hafs/kurdi.e7f53af3.jz",
+      "sha256": "e7f53af3fe655404b0735b67da381355d74d334e8eddafcc4ac9c3678cb9d627",
+      "parentSha": "bab6b797c090e81bc8f28ff6ad875d6fa00b15fa2be896c05c072d447d6d32df",
+      "parent": "timings/hafs/kurdi.jz",
+      "added": [
+        "16:82"
+      ],
+      "ready": true,
+      "rs1": {
+        "severe": [
+          8,
+          200
+        ],
+        "errors": 0,
+        "fatal": [],
+        "provenance": {
+          "kind": "audio",
+          "source": "ci",
+          "run_id": "36898444324",
+          "tool": "tools/index_qa/ci_run.py",
+          "tool_sha": "1382e67c1669fb761b23b4f122236b464d30bacd96e019c9978c6fd61d71c8a0",
+          "run_sha": "de0b3c2482538089f30435479e0506894a74c8f510c75344c1667839d588328d"
+        }
+      },
+      "rs2": {
+        "severe": [
+          4,
+          200
+        ],
+        "errors": 0,
+        "fatal": [],
+        "provenance": {
+          "kind": "audio",
+          "source": "ci",
+          "run_id": "36898453791",
+          "tool": "tools/index_qa/ci_run.py",
+          "tool_sha": "1382e67c1669fb761b23b4f122236b464d30bacd96e019c9978c6fd61d71c8a0",
+          "run_sha": "de0b3c2482538089f30435479e0506894a74c8f510c75344c1667839d588328d"
+        }
+      },
+      "rs3": {
+        "severe": [
+          7,
+          200
+        ],
+        "errors": 0,
+        "fatal": [],
+        "provenance": {
+          "kind": "audio",
+          "source": "ci",
+          "run_id": "36898464078",
+          "tool": "tools/index_qa/ci_run.py",
+          "tool_sha": "1382e67c1669fb761b23b4f122236b464d30bacd96e019c9978c6fd61d71c8a0",
+          "run_sha": "de0b3c2482538089f30435479e0506894a74c8f510c75344c1667839d588328d"
+        }
+      },
+      "rs4": {
+        "severe": [
+          5,
+          200
+        ],
+        "errors": 0,
+        "fatal": [],
+        "provenance": {
+          "kind": "audio",
+          "source": "ci",
+          "run_id": "36898474255",
+          "tool": "tools/index_qa/ci_run.py",
+          "tool_sha": "1382e67c1669fb761b23b4f122236b464d30bacd96e019c9978c6fd61d71c8a0",
+          "run_sha": "de0b3c2482538089f30435479e0506894a74c8f510c75344c1667839d588328d"
+        }
+      },
+      "pooled": {
+        "m": 24,
+        "n": 800,
+        "rate": 0.03,
+        "hi": 0.04193257406458023,
+        "parts": [
+          [
+            8,
+            200
+          ],
+          [
+            4,
+            200
+          ],
+          [
+            7,
+            200
+          ],
+          [
+            5,
+            200
+          ]
+        ],
+        "salts": [
+          "rs1",
+          "rs2",
+          "rs3",
+          "rs4"
+        ],
+        "seeds": 4,
+        "engine": "pywhispercpp/ggml-q8 (tiny-ar-quran)",
+        "rule": "D-098"
+      },
+      "openers": {
+        "counts": {
+          "clean": 92,
+          "unknown": 17,
+          "late": 2,
+          "tail": 1
+        },
+        "scope": "full",
+        "errors": [],
+        "swallowed": [],
+        "lateConfirmed": [],
+        "commit": "8c0d5e00935bc6c31ae29d07de90fa20e2c5e759"
+      },
+      "census": {
+        "gate": null,
+        "population": 895,
+        "counts": {
+          "غير حاسم": 202,
+          "بريء": 685,
+          "جسيم": 7,
+          "طفيف": 1
+        },
+        "surahs": [
+          1,
+          3,
+          7,
+          16,
+          33,
+          37,
+          42,
+          46,
+          93
+        ],
+        "errors": 0,
+        "fatal": []
+      },
+      "addedRows": [
+        {
+          "aid": "16:82",
+          "cluster": 16,
+          "verdict": "غير حاسم",
+          "kind": "غير حاسم",
+          "why": "لا يطابق التفريغ نصّ الآية ولا سابقتها · سُمع: «وَيَوْمَ نَبْعَثُ مِنْ»",
+          "band": "MED",
+          "startApprox": true,
+          "heard": {
+            "fwd": "وَيَوْمَ نَبْعَثُ مِنْ",
+            "dec": "وَعَلَيْكُمْ لَعَلَّكُمْ تُسُلْكَهَا",
+            "long": "وَيَوْمَ نَبْعَثُ مِنْ قُلْ لِأُمَّةٍ"
+          }
+        }
+      ]
+    },
+    {
+      "name": "i_sanankoua_quran_official",
+      "key": "timings-staging/hafs/i_sanankoua.0740ba16.jz",
+      "sha256": "0740ba167c9e7ff592e3d18d920a442c354ef05f059d9c8371b72ddeaa445953",
+      "parentSha": "a66c166cd835cd67096648228b92223617487cb4c88d04b32e4fa8b478a7ef5b",
+      "parent": "timings/hafs/i_sanankoua.jz",
+      "added": [
+        "38:84",
+        "89:29"
+      ],
+      "ready": true,
+      "rs1": {
+        "severe": [
+          1,
+          200
+        ],
+        "errors": 0,
+        "fatal": [],
+        "provenance": {
+          "kind": "audio",
+          "source": "ci",
+          "run_id": "36898661477",
+          "tool": "tools/index_qa/ci_run.py",
+          "tool_sha": "1382e67c1669fb761b23b4f122236b464d30bacd96e019c9978c6fd61d71c8a0",
+          "run_sha": "de0b3c2482538089f30435479e0506894a74c8f510c75344c1667839d588328d"
+        }
+      },
+      "rs2": {
+        "severe": [
+          1,
+          200
+        ],
+        "errors": 0,
+        "fatal": [],
+        "provenance": {
+          "kind": "audio",
+          "source": "ci",
+          "run_id": "36898669122",
+          "tool": "tools/index_qa/ci_run.py",
+          "tool_sha": "1382e67c1669fb761b23b4f122236b464d30bacd96e019c9978c6fd61d71c8a0",
+          "run_sha": "de0b3c2482538089f30435479e0506894a74c8f510c75344c1667839d588328d"
+        }
+      },
+      "rs3": {
+        "severe": [
+          1,
+          200
+        ],
+        "errors": 0,
+        "fatal": [],
+        "provenance": {
+          "kind": "audio",
+          "source": "ci",
+          "run_id": "36898677215",
+          "tool": "tools/index_qa/ci_run.py",
+          "tool_sha": "1382e67c1669fb761b23b4f122236b464d30bacd96e019c9978c6fd61d71c8a0",
+          "run_sha": "de0b3c2482538089f30435479e0506894a74c8f510c75344c1667839d588328d"
+        }
+      },
+      "rs4": {
+        "severe": [
+          1,
+          200
+        ],
+        "errors": 0,
+        "fatal": [],
+        "provenance": {
+          "kind": "audio",
+          "source": "ci",
+          "run_id": "36898685084",
+          "tool": "tools/index_qa/ci_run.py",
+          "tool_sha": "1382e67c1669fb761b23b4f122236b464d30bacd96e019c9978c6fd61d71c8a0",
+          "run_sha": "de0b3c2482538089f30435479e0506894a74c8f510c75344c1667839d588328d"
+        }
+      },
+      "pooled": {
+        "m": 4,
+        "n": 800,
+        "rate": 0.005,
+        "hi": 0.011405083966271396,
+        "parts": [
+          [
+            1,
+            200
+          ],
+          [
+            1,
+            200
+          ],
+          [
+            1,
+            200
+          ],
+          [
+            1,
+            200
+          ]
+        ],
+        "salts": [
+          "rs1",
+          "rs2",
+          "rs3",
+          "rs4"
+        ],
+        "seeds": 4,
+        "engine": "pywhispercpp/ggml-q8 (tiny-ar-quran)",
+        "rule": "D-098"
+      },
+      "openers": {
+        "counts": {
+          "clean": 96,
+          "late": 6,
+          "unknown": 9,
+          "tail": 1
+        },
+        "scope": "full",
+        "errors": [],
+        "swallowed": [],
+        "lateConfirmed": [],
+        "commit": "8c0d5e00935bc6c31ae29d07de90fa20e2c5e759"
+      },
+      "census": {
+        "gate": null,
+        "population": 118,
+        "counts": {
+          "غير حاسم": 1,
+          "بريء": 117
+        },
+        "surahs": [
+          38,
+          89
+        ],
+        "errors": 0,
+        "fatal": []
+      },
+      "addedRows": [
+        {
+          "aid": "38:84",
+          "cluster": 38,
+          "verdict": "بريء",
+          "kind": "بريء",
+          "why": "المطلع مطابق: «قَالَ فَالْحَقُّ وَالْحَقَّ أَقُولُ»",
+          "band": "MED",
+          "startApprox": true,
+          "heard": {
+            "fwd": "قَالَ فَالْحَقُّ وَالْحَقَّ أَقُولُ",
+            "dec": "وَمَا عِبَادَكَ مِنْهُمُ الْمُخْلَصِينَ",
+            "long": "قَالَ فَالْحَقُّ وَالْحَقَّ أَقُولُ لَأَمْلَأَنَّ جَهَنٌ"
+          }
+        },
+        {
+          "aid": "89:29",
+          "cluster": 89,
+          "verdict": "بريء",
+          "kind": "بريء",
+          "why": "المطلع مطابق: «فَادْخُلِي فِي عِبَادِي وَادْخُلِي»",
+          "band": "MED",
+          "startApprox": true,
+          "heard": {
+            "fwd": "فَادْخُلِي فِي عِبَادِي وَادْخُلِي",
+            "dec": "يَا رَبِّكِ رَاضِيَةً مَرْضِيَّةً",
+            "long": "فَادْخُلِي فِي عِبَادِي وَادْخُلِي جَنَّتِي"
+          }
+        }
+      ]
+    },
+    {
+      "name": "husary_warsh_quran_official",
+      "key": "timings-staging/warsh/husary_warsh.a22f531b.jz",
+      "sha256": "a22f531bb394e77e0929ca981ba2865ab91048878f6c896ff69c239fc3640ec4",
+      "parentSha": "717b7a5a23a7bc36cc89f6909f5b1610437b5f1470f2a85425a6eb3c02517341",
+      "parent": "timings/warsh/husary_warsh.jz",
+      "added": [
+        "12:71"
+      ],
+      "ready": false,
+      "rs1": {
+        "severe": [
+          0,
+          200
+        ],
+        "errors": 0,
+        "fatal": [],
+        "provenance": {
+          "kind": "audio",
+          "source": "ci",
+          "run_id": "36898606447",
+          "tool": "tools/index_qa/ci_run.py",
+          "tool_sha": "1382e67c1669fb761b23b4f122236b464d30bacd96e019c9978c6fd61d71c8a0",
+          "run_sha": "de0b3c2482538089f30435479e0506894a74c8f510c75344c1667839d588328d"
+        }
+      },
+      "rs2": {
+        "severe": [
+          0,
+          200
+        ],
+        "errors": 0,
+        "fatal": [],
+        "provenance": {
+          "kind": "audio",
+          "source": "ci",
+          "run_id": "36898615837",
+          "tool": "tools/index_qa/ci_run.py",
+          "tool_sha": "1382e67c1669fb761b23b4f122236b464d30bacd96e019c9978c6fd61d71c8a0",
+          "run_sha": "de0b3c2482538089f30435479e0506894a74c8f510c75344c1667839d588328d"
+        }
+      },
+      "rs3": {
+        "severe": [
+          0,
+          200
+        ],
+        "errors": 0,
+        "fatal": [],
+        "provenance": {
+          "kind": "audio",
+          "source": "ci",
+          "run_id": "36898627561",
+          "tool": "tools/index_qa/ci_run.py",
+          "tool_sha": "1382e67c1669fb761b23b4f122236b464d30bacd96e019c9978c6fd61d71c8a0",
+          "run_sha": "de0b3c2482538089f30435479e0506894a74c8f510c75344c1667839d588328d"
+        }
+      },
+      "rs4": {
+        "severe": [
+          0,
+          200
+        ],
+        "errors": 0,
+        "fatal": [],
+        "provenance": {
+          "kind": "audio",
+          "source": "ci",
+          "run_id": "36898635914",
+          "tool": "tools/index_qa/ci_run.py",
+          "tool_sha": "1382e67c1669fb761b23b4f122236b464d30bacd96e019c9978c6fd61d71c8a0",
+          "run_sha": "de0b3c2482538089f30435479e0506894a74c8f510c75344c1667839d588328d"
+        }
+      },
+      "pooled": {
+        "m": 0,
+        "n": 800,
+        "rate": 0.0,
+        "hi": 0.003737662826100608,
+        "parts": [
+          [
+            0,
+            200
+          ],
+          [
+            0,
+            200
+          ],
+          [
+            0,
+            200
+          ],
+          [
+            0,
+            200
+          ]
+        ],
+        "salts": [
+          "rs1",
+          "rs2",
+          "rs3",
+          "rs4"
+        ],
+        "seeds": 4,
+        "engine": "pywhispercpp/ggml-q8 (tiny-ar-quran)",
+        "rule": "D-098"
+      },
+      "pendingOrRejected": "An error occurred (NoSuchKey) when calling the GetObject operation: The specified key does not exist."
+    },
+    {
+      "name": "mohsin_harthi_quran_official",
+      "key": "timings-staging/hafs/mohsin_harthi.638a95ee.jz",
+      "sha256": "638a95ee0bc54388db15a13959c2ea16eff846e4bfc049c9fd5bb227697288c2",
+      "parentSha": "d9a3ccfbfdbaf5734a0a4e24b95f45db720fda3afe74bc844d3aac359f35b9ed",
+      "parent": "timings/hafs/mohsin_harthi.jz",
+      "added": [
+        "55:58"
+      ],
+      "ready": false,
+      "rs1": {
+        "severe": [
+          2,
+          200
+        ],
+        "errors": 0,
+        "fatal": [],
+        "provenance": {
+          "kind": "audio",
+          "source": "ci",
+          "run_id": "36898880937",
+          "tool": "tools/index_qa/ci_run.py",
+          "tool_sha": "1382e67c1669fb761b23b4f122236b464d30bacd96e019c9978c6fd61d71c8a0",
+          "run_sha": "de0b3c2482538089f30435479e0506894a74c8f510c75344c1667839d588328d"
+        }
+      },
+      "pendingOrRejected": "An error occurred (NoSuchKey) when calling the GetObject operation: The specified key does not exist."
+    },
+    {
+      "name": "qasm_quran_official",
+      "key": "timings-staging/hafs/qasm.271249ff.jz",
+      "sha256": "271249ff16407f7e010e8d9e8d8f121d45e50a5e8f377a60d994f95a2e3368e8",
+      "parentSha": "0abe159294d54f5e63ec163dd1cd282d1433c61fd28f0b272f2add81d569dc1b",
+      "parent": "timings/hafs/qasm.jz",
+      "added": [
+        "44:54"
+      ],
+      "ready": false,
+      "pendingOrRejected": "fatal or failed audio windows: state/timings-staging_hafs_qasm.271249ff.jz.audio-rs1.json"
+    },
+    {
+      "name": "wdod_quran_official",
+      "key": "timings-staging/hafs/wdod.3ba807bb.jz",
+      "sha256": "3ba807bb784cc514cb7b0635919ee91afd1866962ae760589a6ae867f0b63443",
+      "parentSha": "56ace934d4d5f40a556387c8fa892e5880535ee0fd78aeae9d27dc9b0cf086f3",
+      "parent": "timings/hafs/wdod.jz",
+      "added": [
+        "26:91"
+      ],
+      "ready": false,
+      "pendingOrRejected": "An error occurred (NoSuchKey) when calling the GetObject operation: The specified key does not exist."
+    },
+    {
+      "name": "kh_mohammadi_quran_official",
+      "key": "timings-staging/hafs/kh_mohammadi.d9409bdb.jz",
+      "sha256": "d9409bdb12c49ca493239a26426c6e19aaee8cb3be25c75a085df0a6de94e551",
+      "parentSha": "b3a2782dfaf09bbd7a31c5b26714de6292b4ce0529eef23d0712b365a789facc",
+      "parent": "timings/hafs/kh_mohammadi.jz",
+      "added": [
+        "53:57"
+      ],
+      "ready": true,
+      "rs1": {
+        "severe": [
+          0,
+          200
+        ],
+        "errors": 0,
+        "fatal": [],
+        "provenance": {
+          "kind": "audio",
+          "source": "ci",
+          "run_id": "36898768681",
+          "tool": "tools/index_qa/ci_run.py",
+          "tool_sha": "1382e67c1669fb761b23b4f122236b464d30bacd96e019c9978c6fd61d71c8a0",
+          "run_sha": "de0b3c2482538089f30435479e0506894a74c8f510c75344c1667839d588328d"
+        }
+      },
+      "rs2": {
+        "severe": [
+          1,
+          200
+        ],
+        "errors": 0,
+        "fatal": [],
+        "provenance": {
+          "kind": "audio",
+          "source": "ci",
+          "run_id": "36898777179",
+          "tool": "tools/index_qa/ci_run.py",
+          "tool_sha": "1382e67c1669fb761b23b4f122236b464d30bacd96e019c9978c6fd61d71c8a0",
+          "run_sha": "de0b3c2482538089f30435479e0506894a74c8f510c75344c1667839d588328d"
+        }
+      },
+      "rs3": {
+        "severe": [
+          0,
+          200
+        ],
+        "errors": 0,
+        "fatal": [],
+        "provenance": {
+          "kind": "audio",
+          "source": "ci",
+          "run_id": "36898786359",
+          "tool": "tools/index_qa/ci_run.py",
+          "tool_sha": "1382e67c1669fb761b23b4f122236b464d30bacd96e019c9978c6fd61d71c8a0",
+          "run_sha": "de0b3c2482538089f30435479e0506894a74c8f510c75344c1667839d588328d"
+        }
+      },
+      "rs4": {
+        "severe": [
+          1,
+          200
+        ],
+        "errors": 0,
+        "fatal": [],
+        "provenance": {
+          "kind": "audio",
+          "source": "ci",
+          "run_id": "36898795322",
+          "tool": "tools/index_qa/ci_run.py",
+          "tool_sha": "1382e67c1669fb761b23b4f122236b464d30bacd96e019c9978c6fd61d71c8a0",
+          "run_sha": "de0b3c2482538089f30435479e0506894a74c8f510c75344c1667839d588328d"
+        }
+      },
+      "pooled": {
+        "m": 2,
+        "n": 800,
+        "rate": 0.0025,
+        "hi": 0.007848639419821894,
+        "parts": [
+          [
+            0,
+            200
+          ],
+          [
+            1,
+            200
+          ],
+          [
+            0,
+            200
+          ],
+          [
+            1,
+            200
+          ]
+        ],
+        "salts": [
+          "rs1",
+          "rs2",
+          "rs3",
+          "rs4"
+        ],
+        "seeds": 4,
+        "engine": "pywhispercpp/ggml-q8 (tiny-ar-quran)",
+        "rule": "D-098"
+      },
+      "openers": {
+        "counts": {
+          "clean": 98,
+          "late": 10,
+          "unknown": 4
+        },
+        "scope": "full",
+        "errors": [],
+        "swallowed": [],
+        "lateConfirmed": [],
+        "commit": "8c0d5e00935bc6c31ae29d07de90fa20e2c5e759"
+      },
+      "census": {
+        "gate": null,
+        "population": 62,
+        "counts": {
+          "بريء": 61,
+          "غير حاسم": 1
+        },
+        "surahs": [
+          53
+        ],
+        "errors": 0,
+        "fatal": []
+      },
+      "addedRows": [
+        {
+          "aid": "53:57",
+          "cluster": 53,
+          "verdict": "بريء",
+          "kind": "بريء",
+          "why": "المطلع مطابق: «أَزِفَتِ الْآزِفَةُ لَيْسَ لَهَا مِنْ»",
+          "band": "MED",
+          "startApprox": true,
+          "heard": {
+            "fwd": "أَزِفَتِ الْآزِفَةُ لَيْسَ لَهَا مِنْ",
+            "dec": "وَنَذِيرٌ مِنَ النُّذُرِ الْأُولَى",
+            "long": "أَزِفَتِ الْآزِفَةَ لَيْسَ لَهَا مِنْ دُونِ اللَّهِ كَاشِفَةً"
+          }
+        }
+      ]
+    },
+    {
+      "name": "soufi_sousi_quran_official",
+      "key": "timings-staging/sousi/soufi_sousi.42191c3a.jz",
+      "sha256": "42191c3aba20b96a62e0d3bf07a8fb81e0b7eed5dec0ca9573e42d4d4e616868",
+      "parentSha": "90d4825d45232c920b702d22a68c5b916faf29cf7506d3a8e80f61bbd102c532",
+      "parent": "timings/sousi/soufi_sousi.jz",
+      "added": [
+        "19:91",
+        "53:61"
+      ],
+      "ready": false,
+      "pendingOrRejected": "An error occurred (NoSuchKey) when calling the GetObject operation: The specified key does not exist."
+    },
+    {
+      "name": "lhdan_quran_hybrid",
+      "key": "timings-staging/hafs/lhdan.b7fae551.jz",
+      "sha256": "b7fae551672c0b2f0fbf206fa4980ea4d5db10e3f991c1651f14b9195a773e01",
+      "parentSha": "04f3d6be9f087f92e40cc312ef7725b4b4c035c76fd99a128a31c922476db72a",
+      "parent": "timings/hafs/lhdan.jz",
+      "added": [
+        "37:155",
+        "37:161",
+        "44:52"
+      ],
+      "ready": true,
+      "rs1": {
+        "severe": [
+          1,
+          200
+        ],
+        "errors": 0,
+        "fatal": [],
+        "provenance": {
+          "kind": "audio",
+          "source": "ci",
+          "run_id": "36898827684",
+          "tool": "tools/index_qa/ci_run.py",
+          "tool_sha": "1382e67c1669fb761b23b4f122236b464d30bacd96e019c9978c6fd61d71c8a0",
+          "run_sha": "de0b3c2482538089f30435479e0506894a74c8f510c75344c1667839d588328d"
+        }
+      },
+      "rs2": {
+        "severe": [
+          1,
+          200
+        ],
+        "errors": 0,
+        "fatal": [],
+        "provenance": {
+          "kind": "audio",
+          "source": "ci",
+          "run_id": "36898837338",
+          "tool": "tools/index_qa/ci_run.py",
+          "tool_sha": "1382e67c1669fb761b23b4f122236b464d30bacd96e019c9978c6fd61d71c8a0",
+          "run_sha": "de0b3c2482538089f30435479e0506894a74c8f510c75344c1667839d588328d"
+        }
+      },
+      "rs3": {
+        "severe": [
+          1,
+          200
+        ],
+        "errors": 0,
+        "fatal": [],
+        "provenance": {
+          "kind": "audio",
+          "source": "ci",
+          "run_id": "36898846281",
+          "tool": "tools/index_qa/ci_run.py",
+          "tool_sha": "1382e67c1669fb761b23b4f122236b464d30bacd96e019c9978c6fd61d71c8a0",
+          "run_sha": "de0b3c2482538089f30435479e0506894a74c8f510c75344c1667839d588328d"
+        }
+      },
+      "rs4": {
+        "severe": [
+          0,
+          200
+        ],
+        "errors": 0,
+        "fatal": [],
+        "provenance": {
+          "kind": "audio",
+          "source": "ci",
+          "run_id": "36898855246",
+          "tool": "tools/index_qa/ci_run.py",
+          "tool_sha": "1382e67c1669fb761b23b4f122236b464d30bacd96e019c9978c6fd61d71c8a0",
+          "run_sha": "de0b3c2482538089f30435479e0506894a74c8f510c75344c1667839d588328d"
+        }
+      },
+      "pooled": {
+        "m": 3,
+        "n": 800,
+        "rate": 0.00375,
+        "hi": 0.009663308956908829,
+        "parts": [
+          [
+            1,
+            200
+          ],
+          [
+            1,
+            200
+          ],
+          [
+            1,
+            200
+          ],
+          [
+            0,
+            200
+          ]
+        ],
+        "salts": [
+          "rs1",
+          "rs2",
+          "rs3",
+          "rs4"
+        ],
+        "seeds": 4,
+        "engine": "pywhispercpp/ggml-q8 (tiny-ar-quran)",
+        "rule": "D-098"
+      },
+      "openers": {
+        "counts": {
+          "unknown": 7,
+          "clean": 95,
+          "late": 9,
+          "tail": 1
+        },
+        "scope": "full",
+        "errors": [],
+        "swallowed": [],
+        "lateConfirmed": [],
+        "commit": "8c0d5e00935bc6c31ae29d07de90fa20e2c5e759"
+      },
+      "census": {
+        "gate": null,
+        "population": 750,
+        "counts": {
+          "غير حاسم": 36,
+          "بريء": 701,
+          "جسيم": 9,
+          "طفيف": 4
+        },
+        "surahs": [
+          20,
+          26,
+          37,
+          44,
+          54,
+          77,
+          80
+        ],
+        "errors": 0,
+        "fatal": []
+      },
+      "addedRows": [
+        {
+          "aid": "37:155",
+          "cluster": 37,
+          "verdict": "بريء",
+          "kind": "بريء",
+          "why": "المطلع مطابق: «أَثَلَاتَ ذَكَّرُونَ أَمْ لَكُمْ سُلْطًا»",
+          "band": "MED",
+          "startApprox": true,
+          "heard": {
+            "fwd": "أَثَلَاتَ ذَكَّرُونَ أَمْ لَكُمْ سُلْطًا",
+            "dec": "إِنَّا لَكُمْ كَيْفَ تَحْكُمُونَ",
+            "long": "أَثَلَاتَ ذَكَّرُونَ أَمْ لَكُمْ سُلْطَانٌ مُبِينٌ"
+          }
+        },
+        {
+          "aid": "37:161",
+          "cluster": 37,
+          "verdict": "بريء",
+          "kind": "بريء",
+          "why": "المطلع مطابق: «فَإِنَّكُمْ وَمَا تَعْبُدُونَ مَا»",
+          "band": "MED",
+          "startApprox": true,
+          "heard": {
+            "fwd": "فَإِنَّكُمْ وَمَا تَعْبُدُونَ مَا",
+            "dec": "إِلَّا عِبَادَ اللَّهِ الْمُخْلَصِينَ",
+            "long": "فَإِنَّكُمْ وَمَا تَعْبُدُونَ مَا أَنْتُمْ عَلَيْهِ بِفَاءٍ"
+          }
+        },
+        {
+          "aid": "44:52",
+          "cluster": 44,
+          "verdict": "بريء",
+          "kind": "بريء",
+          "why": "المطلع مطابق: «فِي جَنَّاتٍ وَعُيُونٍ»",
+          "band": "HIGH",
+          "startApprox": false,
+          "heard": {
+            "fwd": "فِي جَنَّاتٍ وَعُيُونٍ",
+            "dec": "إِذْ نَلْمُتَّقِينَ فِي مَقَامٍ أَمِينٍ",
+            "long": "فِي جَنَّاتٍ وَعُيُونٍ يَلْبَسُونَ مِنْ سُنْدُسٍ"
+          }
+        }
+      ]
+    },
+    {
+      "name": "noah_warsh_quran_hybrid",
+      "key": "timings-staging/warsh/noah_warsh.d98eac50.jz",
+      "sha256": "d98eac503533ad7d4230ac55e60704374a30ef9ccd81e7035afa2a8b38f5c297",
+      "parentSha": "e657b30983f04dc5c6768c3ed7bd9177319e64de3d0a9b1235d87f68991d7ab3",
+      "parent": "timings/warsh/noah_warsh.jz",
+      "added": [
+        "44:52"
+      ],
+      "ready": false,
+      "rs1": {
+        "severe": [
+          2,
+          200
+        ],
+        "errors": 0,
+        "fatal": [],
+        "provenance": {
+          "kind": "audio",
+          "source": "ci",
+          "run_id": "36898931979",
+          "tool": "tools/index_qa/ci_run.py",
+          "tool_sha": "1382e67c1669fb761b23b4f122236b464d30bacd96e019c9978c6fd61d71c8a0",
+          "run_sha": "de0b3c2482538089f30435479e0506894a74c8f510c75344c1667839d588328d"
+        }
+      },
+      "rs2": {
+        "severe": [
+          5,
+          200
+        ],
+        "errors": 0,
+        "fatal": [],
+        "provenance": {
+          "kind": "audio",
+          "source": "ci",
+          "run_id": "36898940959",
+          "tool": "tools/index_qa/ci_run.py",
+          "tool_sha": "1382e67c1669fb761b23b4f122236b464d30bacd96e019c9978c6fd61d71c8a0",
+          "run_sha": "de0b3c2482538089f30435479e0506894a74c8f510c75344c1667839d588328d"
+        }
+      },
+      "rs3": {
+        "severe": [
+          0,
+          200
+        ],
+        "errors": 0,
+        "fatal": [],
+        "provenance": {
+          "kind": "audio",
+          "source": "ci",
+          "run_id": "36898950441",
+          "tool": "tools/index_qa/ci_run.py",
+          "tool_sha": "1382e67c1669fb761b23b4f122236b464d30bacd96e019c9978c6fd61d71c8a0",
+          "run_sha": "de0b3c2482538089f30435479e0506894a74c8f510c75344c1667839d588328d"
+        }
+      },
+      "rs4": {
+        "severe": [
+          2,
+          200
+        ],
+        "errors": 0,
+        "fatal": [],
+        "provenance": {
+          "kind": "audio",
+          "source": "ci",
+          "run_id": "36898958642",
+          "tool": "tools/index_qa/ci_run.py",
+          "tool_sha": "1382e67c1669fb761b23b4f122236b464d30bacd96e019c9978c6fd61d71c8a0",
+          "run_sha": "de0b3c2482538089f30435479e0506894a74c8f510c75344c1667839d588328d"
+        }
+      },
+      "pooled": {
+        "m": 9,
+        "n": 800,
+        "rate": 0.01125,
+        "hi": 0.019549270444987974,
+        "parts": [
+          [
+            2,
+            200
+          ],
+          [
+            5,
+            200
+          ],
+          [
+            0,
+            200
+          ],
+          [
+            2,
+            200
+          ]
+        ],
+        "salts": [
+          "rs1",
+          "rs2",
+          "rs3",
+          "rs4"
+        ],
+        "seeds": 4,
+        "engine": "pywhispercpp/ggml-q8 (tiny-ar-quran)",
+        "rule": "D-098"
+      },
+      "openers": {
+        "counts": {
+          "clean": 87,
+          "unknown": 17,
+          "late": 8
+        },
+        "scope": "full",
+        "errors": [],
+        "swallowed": [],
+        "lateConfirmed": [],
+        "commit": "8c0d5e00935bc6c31ae29d07de90fa20e2c5e759"
+      },
+      "pendingOrRejected": "An error occurred (NoSuchKey) when calling the GetObject operation: The specified key does not exist."
+    },
+    {
+      "name": "janaini_qalun_quran_hybrid",
+      "key": "timings-staging/qalun/janaini_qalun.4aed9308.jz",
+      "sha256": "4aed930831f74ce10f1e294a61a37bc445443d5c75ac5b0665552052f9bfbc8e",
+      "parentSha": "a85232611f74369d0e033f3d18a0bc0bb4fe7641c3f59ec4884c9a590cc4d590",
+      "parent": "timings/qalun/janaini_qalun.jz",
+      "added": [
+        "56:94"
+      ],
+      "ready": true,
+      "rs1": {
+        "severe": [
+          0,
+          200
+        ],
+        "errors": 0,
+        "fatal": [],
+        "provenance": {
+          "kind": "audio",
+          "source": "ci",
+          "run_id": "36898710271",
+          "tool": "tools/index_qa/ci_run.py",
+          "tool_sha": "1382e67c1669fb761b23b4f122236b464d30bacd96e019c9978c6fd61d71c8a0",
+          "run_sha": "de0b3c2482538089f30435479e0506894a74c8f510c75344c1667839d588328d"
+        }
+      },
+      "rs2": {
+        "severe": [
+          0,
+          200
+        ],
+        "errors": 0,
+        "fatal": [],
+        "provenance": {
+          "kind": "audio",
+          "source": "ci",
+          "run_id": "36898720416",
+          "tool": "tools/index_qa/ci_run.py",
+          "tool_sha": "1382e67c1669fb761b23b4f122236b464d30bacd96e019c9978c6fd61d71c8a0",
+          "run_sha": "de0b3c2482538089f30435479e0506894a74c8f510c75344c1667839d588328d"
+        }
+      },
+      "rs3": {
+        "severe": [
+          2,
+          200
+        ],
+        "errors": 0,
+        "fatal": [],
+        "provenance": {
+          "kind": "audio",
+          "source": "ci",
+          "run_id": "36898730270",
+          "tool": "tools/index_qa/ci_run.py",
+          "tool_sha": "1382e67c1669fb761b23b4f122236b464d30bacd96e019c9978c6fd61d71c8a0",
+          "run_sha": "de0b3c2482538089f30435479e0506894a74c8f510c75344c1667839d588328d"
+        }
+      },
+      "rs4": {
+        "severe": [
+          0,
+          200
+        ],
+        "errors": 0,
+        "fatal": [],
+        "provenance": {
+          "kind": "audio",
+          "source": "ci",
+          "run_id": "36898740014",
+          "tool": "tools/index_qa/ci_run.py",
+          "tool_sha": "1382e67c1669fb761b23b4f122236b464d30bacd96e019c9978c6fd61d71c8a0",
+          "run_sha": "de0b3c2482538089f30435479e0506894a74c8f510c75344c1667839d588328d"
+        }
+      },
+      "pooled": {
+        "m": 2,
+        "n": 800,
+        "rate": 0.0025,
+        "hi": 0.007848639419821894,
+        "parts": [
+          [
+            0,
+            200
+          ],
+          [
+            0,
+            200
+          ],
+          [
+            2,
+            200
+          ],
+          [
+            0,
+            200
+          ]
+        ],
+        "salts": [
+          "rs1",
+          "rs2",
+          "rs3",
+          "rs4"
+        ],
+        "seeds": 4,
+        "engine": "pywhispercpp/ggml-q8 (tiny-ar-quran)",
+        "rule": "D-098"
+      },
+      "openers": {
+        "counts": {
+          "clean": 105,
+          "unknown": 7
+        },
+        "scope": "full",
+        "errors": [],
+        "swallowed": [],
+        "lateConfirmed": null,
+        "commit": "8c0d5e00935bc6c31ae29d07de90fa20e2c5e759"
+      },
+      "census": {
+        "gate": null,
+        "population": 151,
+        "counts": {
+          "بريء": 149,
+          "جسيم": 1,
+          "غير حاسم": 1
+        },
+        "surahs": [
+          54,
+          56
+        ],
+        "errors": 0,
+        "fatal": []
+      },
+      "addedRows": [
+        {
+          "aid": "56:94",
+          "cluster": 56,
+          "verdict": "بريء",
+          "kind": "بريء",
+          "why": "المطلع مطابق: «وَتَصْلِيَةُ جَحِيمٍ إِنَّ هَذَا لَهُ»",
+          "band": "HIGH",
+          "startApprox": false,
+          "heard": {
+            "fwd": "وَتَصْلِيَةُ جَحِيمٍ إِنَّ هَذَا لَهُ",
+            "dec": "فَنُزُلٌ مِنْ حَمِيمٍ",
+            "long": "وَتَصْلِيَةُ جَحِيمٍ إِنَّ هَذَا لَهْوَ حَقُّ الْيَقِينِ"
+          }
+        }
+      ]
+    },
+    {
+      "name": "qazabri_quran_gap",
+      "key": "timings-staging/warsh/qazabri.a74f0d9c.jz",
+      "sha256": "a74f0d9c2a2dea4efe0b42a3fda1dcfac11f8d6421fda3a4713658ddce51cc39",
+      "parentSha": "19bf81834f51360618c7bb98923b2a0c59a18382570582e6de7d9e341d46d40f",
+      "parent": "timings/warsh/qazabri.jz",
+      "added": [
+        "26:2",
+        "26:3"
+      ],
+      "ready": false,
+      "rs1": {
+        "severe": [
+          6,
+          200
+        ],
+        "errors": 0,
+        "fatal": [],
+        "provenance": {
+          "kind": "audio",
+          "source": "ci",
+          "run_id": "36899039173",
+          "tool": "tools/index_qa/ci_run.py",
+          "tool_sha": "1382e67c1669fb761b23b4f122236b464d30bacd96e019c9978c6fd61d71c8a0",
+          "run_sha": "de0b3c2482538089f30435479e0506894a74c8f510c75344c1667839d588328d"
+        }
+      },
+      "pendingOrRejected": "An error occurred (NoSuchKey) when calling the GetObject operation: The specified key does not exist."
+    },
+    {
+      "name": "deban_quran_hybrid",
+      "key": "timings-staging/hafs/deban.3fdb27f5.jz",
+      "sha256": "3fdb27f5ae3cb3bebe86785ded433f6228f7be57c7024c9234382765f55d0fca",
+      "parentSha": "e07f296be6c7d35c508c5039e87bd485283a85a5f434e919e3ce357f6eb7000d",
+      "parent": "timings/hafs/deban.jz",
+      "added": [
+        "18:89"
+      ],
+      "ready": false,
+      "pendingOrRejected": "An error occurred (NoSuchKey) when calling the GetObject operation: The specified key does not exist."
+    },
+    {
+      "name": "ra3ad_quran_hybrid",
+      "key": "timings-staging/hafs/ra3ad.74757aec.jz",
+      "sha256": "74757aec7397081fc5d06b8fe77c8f4b0b31137daa8f637c82fa51d9aff86ecb",
+      "parentSha": "c25f2665dfcb4c4d739f4f7cab86d0ad1444d72640e670d03178a9c0cd401a92",
+      "parent": "timings/hafs/ra3ad.jz",
+      "added": [
+        "3:43"
+      ],
+      "ready": false,
+      "rs1": {
+        "severe": [
+          8,
+          200
+        ],
+        "errors": 0,
+        "fatal": [],
+        "provenance": {
+          "kind": "audio",
+          "source": "ci",
+          "run_id": "36900230021",
+          "tool": "tools/index_qa/ci_run.py",
+          "tool_sha": "1382e67c1669fb761b23b4f122236b464d30bacd96e019c9978c6fd61d71c8a0",
+          "run_sha": "de0b3c2482538089f30435479e0506894a74c8f510c75344c1667839d588328d"
+        }
+      },
+      "pendingOrRejected": "An error occurred (NoSuchKey) when calling the GetObject operation: The specified key does not exist."
+    },
+    {
+      "name": "a_alhazmi_quran_nobasmala",
+      "key": "timings-staging/hafs/a_alhazmi.51dc8452.jz",
+      "sha256": "51dc8452dc82f8a9d835371766bf8dd233d0d59ea2f94437b481c8ddaeafe54d",
+      "parentSha": "7b29028ab82d6d95d94ebc22bfb30d0200fd178165545411f1ad8b38c7813f47",
+      "parent": "timings/hafs/a_alhazmi.jz",
+      "added": [
+        "55:64"
+      ],
+      "ready": false,
+      "pendingOrRejected": "An error occurred (NoSuchKey) when calling the GetObject operation: The specified key does not exist."
+    },
+    {
+      "name": "a_alqrafi_quran_nobasmala",
+      "key": "timings-staging/hafs/a_alqrafi.8d22b30c.jz",
+      "sha256": "8d22b30c798cfb748f5c0f4cac236edab802867d72abe46f02d97445af33cf6b",
+      "parentSha": "61637c40f52a1bd3247d962763a44c19f31e57c45bc3bce0eff26060f73d42ea",
+      "parent": "timings/hafs/a_alqrafi.jz",
+      "added": [
+        "52:2"
+      ],
+      "ready": false,
+      "pendingOrRejected": "An error occurred (NoSuchKey) when calling the GetObject operation: The specified key does not exist."
+    }
+  ]
+}
