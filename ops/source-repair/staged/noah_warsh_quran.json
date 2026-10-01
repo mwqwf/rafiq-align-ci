@@ -1,0 +1,41 @@
+{
+  "reciterId": "noah_warsh",
+  "riwaya": "warsh",
+  "surahs": [
+    7
+  ],
+  "parent": "timings/warsh/noah_warsh.jz",
+  "parentSha": "80f27f11765ae9b8ed7d77a0d44dc661467e77db28161e6fa1cc8fdb53b2ae90",
+  "candidateFile": "ops/source-repair/candidates/noah_warsh.148ff285.jz",
+  "candidateSha": "148ff2852c19763a7f5740236fa176f0ac88f2d243dd8a7ccdcec66a378faf27",
+  "added": [
+    "7:206"
+  ],
+  "entries": 6235,
+  "missing": {
+    "count": 1,
+    "byReason": {
+      "no-align": 1
+    },
+    "medianLen": 16,
+    "medianLenAll": 10,
+    "biasedShort": false,
+    "ids": [
+      "44:52"
+    ]
+  },
+  "alignmentModelBySurah": {
+    "7": {
+      "id": "rabah2026/wav2vec2-large-xlsr-53-arabic-quran-v_final",
+      "revision": "b03a268c6ba1a693752307325ab376c86c3b12da",
+      "weightsSha256": "bf65674a26eb4ef7042cedade96c3c8f8cbd04f3a7d1a68eadceec8ed0f99ecb",
+      "license": "Apache-2.0",
+      "canonicalTextChanged": false
+    }
+  },
+  "productionChanged": false,
+  "publicationHold": false,
+  "key": "timings-staging/warsh/noah_warsh.e657b309.jz",
+  "sha256": "e657b30983f04dc5c6768c3ed7bd9177319e64de3d0a9b1235d87f68991d7ab3",
+  "bytes": 91926
+}

@@ -91,8 +91,9 @@ def fuzzy_seq(words, target=BAS, start_within=3):
 
 
 def cut(src, start_ms, dur_ms, dst):
-    run_decode([FFMPEG, "-y", "-v", "error", "-ss", f"{start_ms/1000:.3f}",
-                "-i", src, "-vn", "-t", f"{dur_ms/1000:.3f}", "-ar", "16000",
+    from channel_mix import mono_filter
+    run_decode([FFMPEG, "-y", "-v", "error", "-i", src, "-ss", f"{start_ms/1000:.3f}",
+                "-vn", *mono_filter(src, FFMPEG), "-t", f"{dur_ms/1000:.3f}", "-ar", "16000",
                 "-ac", "1", dst], src, dst)
     return dst
 
