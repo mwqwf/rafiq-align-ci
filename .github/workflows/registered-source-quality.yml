@@ -49,6 +49,8 @@ jobs:
       - uses: actions/setup-python@v5
         with: {python-version: '3.11'}
       - run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq ffmpeg
           python -m pip install --quiet 'numpy<2' pywhispercpp soundfile boto3
           command -v ffmpeg
       # استرجاع فقط: لا نضيف كاشاً ولا Artifacts مدفوعة.
