@@ -1,0 +1,19 @@
+{
+  "action": "tool",
+  "tool": "index_qa/stage_transform.py",
+  "args": [
+    "--file",
+    "ops/source-repair/candidates/a_klb.ed8768e0.jz",
+    "--parent",
+    "timings/hafs/a_klb.jz",
+    "--parent-sha",
+    "aebe5475f65b1ed3771cbd38852f11984a7ebc3b48aa2e958397f38cfb7dfd2b",
+    "--op",
+    "ctc_dual_surah_splice:6,44,56",
+    "--by",
+    "Codex",
+    "--reason",
+    "إكمال التسجيل الأصلي المنشور دون تغيير بايتاته؛ محاذاة كاملة وقياسات فعلية للنموذجين مع السياق الكامل؛ بلا توريث من مصدر مختلف أو خفض للعتبات؛ لا اعتماد قبل شهادات صوتية كاملة للبصمة الفعلية وكل إضافة وتصحيح مطلوب بريء",
+    "--yes"
+  ]
+}
