@@ -1,0 +1,19 @@
+{
+  "action": "tool",
+  "tool": "index_qa/stage_transform.py",
+  "args": [
+    "--file",
+    "ops/source-repair/candidates/a_alhazmi.fa488322.jz",
+    "--parent",
+    "timings/hafs/a_alhazmi.jz",
+    "--parent-sha",
+    "4d240a70cde006cb833e2b31cf487e94bef60ea16273a4fa15c6cae6231269b1",
+    "--op",
+    "ctc_gapsplit:78",
+    "--by",
+    "Codex",
+    "--reason",
+    "استرجاع 78:1 بنافذة المطلع والسياق الأوسع مع الثقة والمدة الأصليتين؛ أسماء الحروف لمدخل المحاذاة فقط؛ صوت كامل مطابق لبصمة الأب والمداخل الموروثة محفوظة حرفياً",
+    "--yes"
+  ]
+}
