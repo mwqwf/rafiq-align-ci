@@ -1,0 +1,546 @@
+{
+  "name": "laghdaf_published_vorbis_complete",
+  "key": "timings-staging/warsh/laghdaf_shinqiti.fb41e53f.jz",
+  "sha256": "fb41e53f7a502c24370f410ed6106b1ff99a0f25d78d7de35c2fae6caf1fd51b",
+  "parentSha": "5f74b87deb5d47cf218445ffd5bf23059b332fdd4f991009e7a12c6e630f4236",
+  "parent": "timings/warsh/laghdaf_shinqiti.jz",
+  "added": [
+    "85:19"
+  ],
+  "ready": true,
+  "rs1": {
+    "severe": [
+      0,
+      200
+    ],
+    "errors": 0,
+    "fatal": [],
+    "provenance": {
+      "kind": "audio",
+      "source": "ci",
+      "run_id": "36937246488",
+      "tool": "tools/index_qa/ci_run.py",
+      "tool_sha": "1382e67c1669fb761b23b4f122236b464d30bacd96e019c9978c6fd61d71c8a0",
+      "run_sha": "51df9c5d4f2caf8c8402e2e73fddda9b8f5be31944bc140e6a5f8ab65f6885f4"
+    }
+  },
+  "rs2": {
+    "severe": [
+      1,
+      200
+    ],
+    "errors": 0,
+    "fatal": [],
+    "provenance": {
+      "kind": "audio",
+      "source": "ci",
+      "run_id": "36937252081",
+      "tool": "tools/index_qa/ci_run.py",
+      "tool_sha": "1382e67c1669fb761b23b4f122236b464d30bacd96e019c9978c6fd61d71c8a0",
+      "run_sha": "51df9c5d4f2caf8c8402e2e73fddda9b8f5be31944bc140e6a5f8ab65f6885f4"
+    }
+  },
+  "rs3": {
+    "severe": [
+      3,
+      200
+    ],
+    "errors": 0,
+    "fatal": [],
+    "provenance": {
+      "kind": "audio",
+      "source": "ci",
+      "run_id": "36937257856",
+      "tool": "tools/index_qa/ci_run.py",
+      "tool_sha": "1382e67c1669fb761b23b4f122236b464d30bacd96e019c9978c6fd61d71c8a0",
+      "run_sha": "51df9c5d4f2caf8c8402e2e73fddda9b8f5be31944bc140e6a5f8ab65f6885f4"
+    }
+  },
+  "rs4": {
+    "severe": [
+      1,
+      200
+    ],
+    "errors": 0,
+    "fatal": [],
+    "provenance": {
+      "kind": "audio",
+      "source": "ci",
+      "run_id": "36937263201",
+      "tool": "tools/index_qa/ci_run.py",
+      "tool_sha": "1382e67c1669fb761b23b4f122236b464d30bacd96e019c9978c6fd61d71c8a0",
+      "run_sha": "51df9c5d4f2caf8c8402e2e73fddda9b8f5be31944bc140e6a5f8ab65f6885f4"
+    }
+  },
+  "pooled": {
+    "m": 5,
+    "n": 800,
+    "rate": 0.00625,
+    "hi": 0.013096055089993884,
+    "parts": [
+      [
+        0,
+        200
+      ],
+      [
+        1,
+        200
+      ],
+      [
+        3,
+        200
+      ],
+      [
+        1,
+        200
+      ]
+    ],
+    "salts": [
+      "rs1",
+      "rs2",
+      "rs3",
+      "rs4"
+    ],
+    "seeds": 4,
+    "engine": "pywhispercpp/ggml-q8 (tiny-ar-quran)",
+    "rule": "D-098"
+  },
+  "openers": {
+    "counts": {
+      "clean": 81,
+      "unknown": 22,
+      "late": 9
+    },
+    "scope": "full",
+    "errors": [],
+    "swallowed": [],
+    "lateConfirmed": [],
+    "commit": "8c0d5e00935bc6c31ae29d07de90fa20e2c5e759"
+  },
+  "census": {
+    "gate": null,
+    "population": 284,
+    "counts": {
+      "بريء": 225,
+      "غير حاسم": 52,
+      "جسيم": 7
+    },
+    "surahs": [
+      54,
+      55,
+      77,
+      79,
+      85,
+      89,
+      103
+    ],
+    "errors": 0,
+    "fatal": []
+  },
+  "addedRows": [
+    {
+      "aid": "85:19",
+      "cluster": 85,
+      "verdict": "بريء",
+      "kind": "بريء",
+      "why": "المطلع مطابق: «بَلِ الَّذِينَ كَفَرُوا فِي تَكْذِيبٍ وَاللَّ»",
+      "band": "MED",
+      "startApprox": true,
+      "heard": {
+        "fwd": "بَلِ الَّذِينَ كَفَرُوا فِي تَكْذِيبٍ وَاللَّذِينَ",
+        "dec": "لِيُنُودِهِ رَوْلَ أُزَمُودَ",
+        "long": "بَلِ الَّذِينَ كَفَرُوا فِي تَكْذِيبٍ وَاللَّهُ مِنْ وَرَاءٍ"
+      }
+    }
+  ],
+  "restoredNeighborhoodRows": [
+    {
+      "aid": "85:16",
+      "cluster": 85,
+      "verdict": "بريء",
+      "kind": "بريء",
+      "why": "المطلع مطابق: «فَحَالٌ لِمَا إِرِيدٌ»",
+      "band": "MED",
+      "startApprox": true,
+      "heard": {
+        "fwd": "فَحَالٌ لِمَا إِرِيدٌ",
+        "dec": "يُنْذُو لَعَرَشٍ فَالْمَيِّيدُ",
+        "long": "يُفَعَّالٌ لِمَا إِرِيدٌ هَلَتَاكَ حَدِيزُ الْجُنُودِ"
+      }
+    },
+    {
+      "aid": "85:17",
+      "cluster": 85,
+      "verdict": "بريء",
+      "kind": "بريء",
+      "why": "اشتباه تأخّر لم تؤكّده النافذة الحاسمة (قبل الحدّ سُمع: «فَحَّالٍ لِمَا يُرِيدُ») — إنذارٌ أول كاذب",
+      "band": "MED",
+      "startApprox": true,
+      "heard": {
+        "fwd": "هَلَتْ وَاكَ حَدِيزُ الْجُنُودِ ذِرْعَوْنَ أْوَزَمُونَ",
+        "dec": "فَحَّالٍ لِمَا يُرِيدُ",
+        "long": "هَلَتْ وَاكَ حَدِيزُ الْجُنُودِ ذِرْعَوْنَ أْوَزَمُودَ بَلِ الَّذِينَ"
+      }
+    },
+    {
+      "aid": "85:18",
+      "cluster": 85,
+      "verdict": "بريء",
+      "kind": "بريء",
+      "why": "المطلع مطابق: «فِي فِرْعَوْنَا وَثَمُودَ بَلِ الَّذِينَ»",
+      "band": "MED",
+      "startApprox": true,
+      "heard": {
+        "fwd": "فِي فِرْعَوْنَا وَثَمُودَ بَلِ الَّذِينَ",
+        "dec": "هَلَتْ وَكَ حَدِيزُ الْجُنُودِ",
+        "long": "فَإِذِ رَعَوْنَا وَثَمُودَ بَلِ الَّذِينَ كَفَرُوا فِي تَكْذِيبِينَ"
+      }
+    },
+    {
+      "aid": "85:19",
+      "cluster": 85,
+      "verdict": "بريء",
+      "kind": "بريء",
+      "why": "المطلع مطابق: «بَلِ الَّذِينَ كَفَرُوا فِي تَكْذِيبٍ وَاللَّ»",
+      "band": "MED",
+      "startApprox": true,
+      "heard": {
+        "fwd": "بَلِ الَّذِينَ كَفَرُوا فِي تَكْذِيبٍ وَاللَّذِينَ",
+        "dec": "لِيُنُودِهِ رَوْلَ أُزَمُودَ",
+        "long": "بَلِ الَّذِينَ كَفَرُوا فِي تَكْذِيبٍ وَاللَّهُ مِنْ وَرَاءٍ"
+      }
+    },
+    {
+      "aid": "85:20",
+      "cluster": 85,
+      "verdict": "بريء",
+      "kind": "بريء",
+      "why": "المطلع مطابق: «وَاللَّهُ إِنْ وَرَائِهِمْ»",
+      "band": "MED",
+      "startApprox": true,
+      "heard": {
+        "fwd": "وَاللَّهُ إِنْ وَرَائِهِمْ",
+        "dec": "بَلِ الَّذِينَ كَفَرُوا فِي تَكْذِيبِينَ",
+        "long": "وَاللَّهُ مِنْ وَرَائِهِمْ مُحِيطٌ"
+      }
+    },
+    {
+      "aid": "85:21",
+      "cluster": 85,
+      "verdict": "بريء",
+      "kind": "بريء",
+      "why": "المطلع مطابق: «بَلْ هُوَ قَرَانٌ مَجِيدٌ زِيلٌ»",
+      "band": "MED",
+      "startApprox": true,
+      "heard": {
+        "fwd": "بَلْ هُوَ قَرَانٌ مَجِيدٌ زِيلٌ",
+        "dec": "مُحِيطٌ",
+        "long": "بَلْ هُوَ قَرَانٌ مَجِيدٌ زِيلَوْحٍ مَحْفُوظٍ"
+      }
+    },
+    {
+      "aid": "85:22",
+      "cluster": 85,
+      "verdict": "بريء",
+      "kind": "بريء",
+      "why": "شاهدان صوتيان مستقلان فعليان على النص الأصلي85:22 وجارته وبسملة السورة التالية؛ المصدر والحدود والثقة والمدد مطابقة، ونتيجة Tiny غير الحاسمة محفوظة كاملة",
+      "band": "MED",
+      "startApprox": true,
+      "heard": {
+        "fwd": "إِنْ زِيلَوْا حِنْمَحْهُ وَهُدٌ",
+        "dec": "بَلْ هُوَ قَرْآنٌ مَجِيدٌ",
+        "long": "إِنْ زِيلَوْا حِنْ مَحْفُوظٍ بِسُلَّاهِ الرَّحْمَنِ"
+      },
+      "originalTinyRow": {
+        "aid": "85:22",
+        "cluster": 85,
+        "verdict": "غير حاسم",
+        "kind": "غير حاسم",
+        "why": "لا يطابق التفريغ نصّ الآية ولا سابقتها · سُمع: «إِنْ زِيلَوْا حِنْمَحْهُ وَهُدٌ»",
+        "band": "MED",
+        "startApprox": true,
+        "heard": {
+          "fwd": "إِنْ زِيلَوْا حِنْمَحْهُ وَهُدٌ",
+          "dec": "بَلْ هُوَ قَرْآنٌ مَجِيدٌ",
+          "long": "إِنْ زِيلَوْا حِنْ مَحْفُوظٍ بِسُلَّاهِ الرَّحْمَنِ"
+        }
+      },
+      "independentCanonicalTailCtc": {
+        "target": "85:22",
+        "sourceSha256": "3379207275de071c5a1c32fd04e30e23498bf4eeebc2034f20235c41f7d01ddc",
+        "canonicalTextChanged": false,
+        "contextAyahIds": [
+          "85:21",
+          "85:22",
+          "86:basmala"
+        ],
+        "windowMs": [
+          263416,
+          278702
+        ],
+        "models": {
+          "generic": {
+            "alignmentModel": {
+              "id": "jonatasgrosman/wav2vec2-large-xlsr-53-arabic",
+              "revision": "af46c2d8531b8dcbb5e23b952f739b372c2e5d2d",
+              "weightsSha256": "a0b26f6d9d3edfde1784aef863c192a8cc1e438a23b45910ab648531ebe1857b",
+              "license": "Apache-2.0"
+            },
+            "alignmentInput": [
+              "بل هو قران مجيد",
+              "في لوح محفوظ",
+              "بسم الله الرحمن الرحيم"
+            ],
+            "entries": [
+              {
+                "ayahId": "85:21",
+                "startMs": 263616,
+                "endMs": 267297,
+                "conf": 0.653
+              },
+              {
+                "ayahId": "85:22",
+                "startMs": 267297,
+                "endMs": 272699,
+                "conf": 0.85
+              },
+              {
+                "ayahId": "86:basmala",
+                "startMs": 272699,
+                "endMs": 276891,
+                "conf": 0.697
+              }
+            ]
+          },
+          "quran": {
+            "alignmentModel": {
+              "id": "rabah2026/wav2vec2-large-xlsr-53-arabic-quran-v_final",
+              "revision": "b03a268c6ba1a693752307325ab376c86c3b12da",
+              "weightsSha256": "bf65674a26eb4ef7042cedade96c3c8f8cbd04f3a7d1a68eadceec8ed0f99ecb",
+              "license": "Apache-2.0",
+              "canonicalTextChanged": false
+            },
+            "alignmentInput": [
+              "بل هو قران مجيد",
+              "في لوح محفوظ",
+              "بسم الله الرحمن الرحيم"
+            ],
+            "entries": [
+              {
+                "ayahId": "85:21",
+                "startMs": 263646,
+                "endMs": 267337,
+                "conf": 0.661
+              },
+              {
+                "ayahId": "85:22",
+                "startMs": 267337,
+                "endMs": 272699,
+                "conf": 0.817
+              },
+              {
+                "ayahId": "86:basmala",
+                "startMs": 272699,
+                "endMs": 276871,
+                "conf": 0.678
+              }
+            ]
+          }
+        },
+        "runtime": {
+          "precision": "float32",
+          "threads": 2
+        },
+        "provenance": {
+          "kind": "audio",
+          "source": "ci",
+          "run_id": "36940635689",
+          "run_sha": "4ee7463a210e5ba596132ea7b28a5e1e6b11be8d",
+          "tool": "tools/index_qa/ci_tail_census.py",
+          "tool_sha": "a3c0e04354c4e22ece9c98f542fa1411f28d88feb4c43b6931498e3ee2a75b36"
+        }
+      }
+    }
+  ],
+  "requiredCleanRows": [
+    {
+      "aid": "85:17",
+      "cluster": 85,
+      "verdict": "بريء",
+      "kind": "بريء",
+      "why": "اشتباه تأخّر لم تؤكّده النافذة الحاسمة (قبل الحدّ سُمع: «فَحَّالٍ لِمَا يُرِيدُ») — إنذارٌ أول كاذب",
+      "band": "MED",
+      "startApprox": true,
+      "heard": {
+        "fwd": "هَلَتْ وَاكَ حَدِيزُ الْجُنُودِ ذِرْعَوْنَ أْوَزَمُونَ",
+        "dec": "فَحَّالٍ لِمَا يُرِيدُ",
+        "long": "هَلَتْ وَاكَ حَدِيزُ الْجُنُودِ ذِرْعَوْنَ أْوَزَمُودَ بَلِ الَّذِينَ"
+      }
+    },
+    {
+      "aid": "85:18",
+      "cluster": 85,
+      "verdict": "بريء",
+      "kind": "بريء",
+      "why": "المطلع مطابق: «فِي فِرْعَوْنَا وَثَمُودَ بَلِ الَّذِينَ»",
+      "band": "MED",
+      "startApprox": true,
+      "heard": {
+        "fwd": "فِي فِرْعَوْنَا وَثَمُودَ بَلِ الَّذِينَ",
+        "dec": "هَلَتْ وَكَ حَدِيزُ الْجُنُودِ",
+        "long": "فَإِذِ رَعَوْنَا وَثَمُودَ بَلِ الَّذِينَ كَفَرُوا فِي تَكْذِيبِينَ"
+      }
+    },
+    {
+      "aid": "85:20",
+      "cluster": 85,
+      "verdict": "بريء",
+      "kind": "بريء",
+      "why": "المطلع مطابق: «وَاللَّهُ إِنْ وَرَائِهِمْ»",
+      "band": "MED",
+      "startApprox": true,
+      "heard": {
+        "fwd": "وَاللَّهُ إِنْ وَرَائِهِمْ",
+        "dec": "بَلِ الَّذِينَ كَفَرُوا فِي تَكْذِيبِينَ",
+        "long": "وَاللَّهُ مِنْ وَرَائِهِمْ مُحِيطٌ"
+      }
+    },
+    {
+      "aid": "85:21",
+      "cluster": 85,
+      "verdict": "بريء",
+      "kind": "بريء",
+      "why": "المطلع مطابق: «بَلْ هُوَ قَرَانٌ مَجِيدٌ زِيلٌ»",
+      "band": "MED",
+      "startApprox": true,
+      "heard": {
+        "fwd": "بَلْ هُوَ قَرَانٌ مَجِيدٌ زِيلٌ",
+        "dec": "مُحِيطٌ",
+        "long": "بَلْ هُوَ قَرَانٌ مَجِيدٌ زِيلَوْحٍ مَحْفُوظٍ"
+      }
+    },
+    {
+      "aid": "85:22",
+      "cluster": 85,
+      "verdict": "بريء",
+      "kind": "بريء",
+      "why": "شاهدان صوتيان مستقلان فعليان على النص الأصلي85:22 وجارته وبسملة السورة التالية؛ المصدر والحدود والثقة والمدد مطابقة، ونتيجة Tiny غير الحاسمة محفوظة كاملة",
+      "band": "MED",
+      "startApprox": true,
+      "heard": {
+        "fwd": "إِنْ زِيلَوْا حِنْمَحْهُ وَهُدٌ",
+        "dec": "بَلْ هُوَ قَرْآنٌ مَجِيدٌ",
+        "long": "إِنْ زِيلَوْا حِنْ مَحْفُوظٍ بِسُلَّاهِ الرَّحْمَنِ"
+      },
+      "originalTinyRow": {
+        "aid": "85:22",
+        "cluster": 85,
+        "verdict": "غير حاسم",
+        "kind": "غير حاسم",
+        "why": "لا يطابق التفريغ نصّ الآية ولا سابقتها · سُمع: «إِنْ زِيلَوْا حِنْمَحْهُ وَهُدٌ»",
+        "band": "MED",
+        "startApprox": true,
+        "heard": {
+          "fwd": "إِنْ زِيلَوْا حِنْمَحْهُ وَهُدٌ",
+          "dec": "بَلْ هُوَ قَرْآنٌ مَجِيدٌ",
+          "long": "إِنْ زِيلَوْا حِنْ مَحْفُوظٍ بِسُلَّاهِ الرَّحْمَنِ"
+        }
+      },
+      "independentCanonicalTailCtc": {
+        "target": "85:22",
+        "sourceSha256": "3379207275de071c5a1c32fd04e30e23498bf4eeebc2034f20235c41f7d01ddc",
+        "canonicalTextChanged": false,
+        "contextAyahIds": [
+          "85:21",
+          "85:22",
+          "86:basmala"
+        ],
+        "windowMs": [
+          263416,
+          278702
+        ],
+        "models": {
+          "generic": {
+            "alignmentModel": {
+              "id": "jonatasgrosman/wav2vec2-large-xlsr-53-arabic",
+              "revision": "af46c2d8531b8dcbb5e23b952f739b372c2e5d2d",
+              "weightsSha256": "a0b26f6d9d3edfde1784aef863c192a8cc1e438a23b45910ab648531ebe1857b",
+              "license": "Apache-2.0"
+            },
+            "alignmentInput": [
+              "بل هو قران مجيد",
+              "في لوح محفوظ",
+              "بسم الله الرحمن الرحيم"
+            ],
+            "entries": [
+              {
+                "ayahId": "85:21",
+                "startMs": 263616,
+                "endMs": 267297,
+                "conf": 0.653
+              },
+              {
+                "ayahId": "85:22",
+                "startMs": 267297,
+                "endMs": 272699,
+                "conf": 0.85
+              },
+              {
+                "ayahId": "86:basmala",
+                "startMs": 272699,
+                "endMs": 276891,
+                "conf": 0.697
+              }
+            ]
+          },
+          "quran": {
+            "alignmentModel": {
+              "id": "rabah2026/wav2vec2-large-xlsr-53-arabic-quran-v_final",
+              "revision": "b03a268c6ba1a693752307325ab376c86c3b12da",
+              "weightsSha256": "bf65674a26eb4ef7042cedade96c3c8f8cbd04f3a7d1a68eadceec8ed0f99ecb",
+              "license": "Apache-2.0",
+              "canonicalTextChanged": false
+            },
+            "alignmentInput": [
+              "بل هو قران مجيد",
+              "في لوح محفوظ",
+              "بسم الله الرحمن الرحيم"
+            ],
+            "entries": [
+              {
+                "ayahId": "85:21",
+                "startMs": 263646,
+                "endMs": 267337,
+                "conf": 0.661
+              },
+              {
+                "ayahId": "85:22",
+                "startMs": 267337,
+                "endMs": 272699,
+                "conf": 0.817
+              },
+              {
+                "ayahId": "86:basmala",
+                "startMs": 272699,
+                "endMs": 276871,
+                "conf": 0.678
+              }
+            ]
+          }
+        },
+        "runtime": {
+          "precision": "float32",
+          "threads": 2
+        },
+        "provenance": {
+          "kind": "audio",
+          "source": "ci",
+          "run_id": "36940635689",
+          "run_sha": "4ee7463a210e5ba596132ea7b28a5e1e6b11be8d",
+          "tool": "tools/index_qa/ci_tail_census.py",
+          "tool_sha": "a3c0e04354c4e22ece9c98f542fa1411f28d88feb4c43b6931498e3ee2a75b36"
+        }
+      }
+    }
+  ]
+}
