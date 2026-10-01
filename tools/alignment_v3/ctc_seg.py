@@ -31,6 +31,7 @@ from common import (ffprobe_duration_ms, load_index, load_text, norm,  # noqa: E
                     surah_slice, to_wav16k)
 from validate import band, check_surah  # noqa: E402
 from vad import read_wav, silences, snap_to_silence  # noqa: E402
+from spoken_letters import alignment_text  # noqa: E402
 
 ENGINE = "ctc-seg-1"
 MODEL_ID = os.environ.get("CTC_MODEL", "jonatasgrosman/wav2vec2-large-xlsr-53-arabic")
@@ -101,10 +102,12 @@ def _conf(score):
     return round(max(0.0, min(1.0, 1.0 + 0.25 * float(score))), 3)
 
 
-def run_surah(audio_path, surah_no, riwaya, log=print):
+def run_surah(audio_path, surah_no, riwaya, log=print, spoken_openers=False):
     index = load_index()
     a, b, s = surah_slice(index, surah_no)
-    ref = [norm(t) for t in load_text(riwaya)[a:b]]
+    canonical = load_text(riwaya)[a:b]
+    ref = [alignment_text(surah_no, i + 1, t) if spoken_openers else norm(t)
+           for i, t in enumerate(canonical)]
     wav = to_wav16k(audio_path)
     total_ms = ffprobe_duration_ms(audio_path)
     x = read_wav(wav).astype(np.float32)
@@ -127,7 +130,7 @@ def run_surah(audio_path, surah_no, riwaya, log=print):
             e.update(startMs=None, endMs=None, conf=0.0)
         elif not e["snapped"]:
             e["conf"] = min(e["conf"], 0.74)   # ⛔ D-025: لا HIGH بلا صمت
-    issues = check_surah(entries, [len(t.replace(" ", "")) for t in ref], total_ms)
+    issues = check_surah(entries, [len(norm(t).replace(" ", "")) for t in canonical], total_ms)
     bands = {}
     for e in entries:
         k = band(e["conf"]) if e["startMs"] is not None else "MISSING"
@@ -144,6 +147,7 @@ if __name__ == "__main__":
     ap.add_argument("--audio", required=True)
     ap.add_argument("--surah", type=int, required=True)
     ap.add_argument("--riwaya", default="hafs")
+    ap.add_argument("--spoken-openers", action="store_true", help="تهجئة الحروف للمحاذاة فقط؛ تجربة صريحة لا تغيّر الوصفة الافتراضية")
     a = ap.parse_args()
-    r = run_surah(a.audio, a.surah, a.riwaya)
+    r = run_surah(a.audio, a.surah, a.riwaya, spoken_openers=a.spoken_openers)
     print(json.dumps([(e["ayahIdx"] + 1, e["startMs"], e["endMs"], e["conf"]) for e in r["entries"]]))

@@ -43,6 +43,7 @@ sys.path.insert(0, os.path.join(os.path.dirname(HERE), "alignment"))
 from ctc_seg import BASMALA, SR, _conf, _emissions, _segment  # noqa: E402
 from common import load_index, load_text, norm, to_wav16k  # noqa: E402
 from vad import read_wav, silences, snap_to_silence  # noqa: E402
+from spoken_letters import alignment_text  # noqa: E402
 
 MIN_CONF = 0.45
 DUR_LO, DUR_HI = 0.5, 2.0
@@ -109,6 +110,9 @@ def main() -> int:
     ap.add_argument("--surahs", required=True)
     ap.add_argument("--riwaya", required=True)
     ap.add_argument("--out-dir", required=True)
+    ap.add_argument("--context-ayahs", type=int, choices=(1, 2, 3), default=1,
+                    help="عدد الجارات الحاضرة للمراسي؛ 1 يحفظ المسار القائم، و2/3 يعيدان نافذة أوسع بحراس الثقة والمدة أنفسهم")
+    ap.add_argument("--spoken-openers", action="store_true", help="أسماء الحروف المنطوقة لمدخل المحاذاة وحده، دون تغيير حراس المدة")
     # ⭐ (2026-09-30 · f_hajry الرحمن): **إعادةُ نافذةٍ** لمدىً حاضرٍ حدودُه معطوبة — «55:41-75» ⇒ تُحاذى
     #    نصوصُ 41..75 بـCTC بين جارتين ثابتتين من الأب (‏40 بدءاً · 76 نهايةً) على نافذتهما وحدها. سببُه مقيس:
     #    الإحصاءُ الشامل 7.7% جسيماً في 41–75 على CTC السورة كاملةً، وWhisper عجز عنها (‏اللازمةُ المتكرّرة
@@ -166,26 +170,40 @@ def main() -> int:
             miss = list(range(b0, b1 + 1))
             lead = []
             if kind in ("gap", "rewin"):
-                p, q = ents[b0 - 1], ents[b1 + 1]
-                ks, ws, we, fixed = [b0 - 1] + miss + [b1 + 1], p["startMs"], q["endMs"], (0, -1)
+                left, right = max(1, b0 - a.context_ayahs), min(n, b1 + a.context_ayahs)
+                ks = list(range(left, right + 1))
+                if any(k not in ents and k not in miss for k in ks):
+                    report.append(f"س{s}:{b0}-{b1}: ⛔ مرساة السياق الأوسع غائبة — لا تخمين")
+                    continue
+                p, q = ents[left], ents[right]
+                ws, we, fixed = p["startMs"], q["endMs"], (0, -1)
             elif kind == "opener":
-                q = ents[b1 + 1]
+                right = min(n, b1 + a.context_ayahs)
+                if any(k not in ents for k in range(b1 + 1, right + 1)):
+                    report.append(f"س{s}:{b0}-{b1}: ⛔ مرساة المطلع الأوسع غائبة — لا تخمين")
+                    continue
+                q = ents[right]
                 lead = [] if s in (1, 9) else [norm(BASMALA)]
-                ks, ws, we, fixed = miss + [b1 + 1], 0, q["endMs"], (-1,)
+                ks, ws, we, fixed = list(range(1, right + 1)), 0, q["endMs"], (-1,)
             else:
-                p = ents[b0 - 1]
-                ks, ws, we, fixed = [b0 - 1] + miss, p["startMs"], total_ms, (0,)
+                left = max(1, b0 - a.context_ayahs)
+                if any(k not in ents for k in range(left, b0)):
+                    report.append(f"س{s}:{b0}-{b1}: ⛔ مرساة الخاتمة الأوسع غائبة — لا تخمين")
+                    continue
+                p = ents[left]
+                ks, ws, we, fixed = list(range(left, n + 1)), p["startMs"], total_ms, (0,)
             try:
-                segs = split_window(x, int(ws), int(we), lead + [norm(t_of(k)) for k in ks])[len(lead):]
+                references = [alignment_text(s, k, t_of(k)) if a.spoken_openers else norm(t_of(k)) for k in ks]
+                segs = split_window(x, int(ws), int(we), lead + references)[len(lead):]
             except Exception as ex:                    # noqa: BLE001
                 report.append(f"س{s}:{b0}-{b1} ({kind}): تعذّرت المحاذاة — {str(ex)[:80]}")
                 continue
             starts = [sg[0] for sg in segs]
             if kind in ("gap", "tail", "rewin"):
-                starts[0] = int(ents[b0 - 1]["startMs"])       # بدءُ السابقة ثابتٌ من الأب
+                starts[0] = int(p["startMs"])       # بدءُ أول مرساة ثابتٌ من الأب
             ends = starts[1:] + [int(we) if kind != "tail" else min(int(segs[-1][1]), total_ms)]
             if kind in ("gap", "opener", "rewin"):
-                ends[-1] = int(ents[b1 + 1]["endMs"])            # نهايةُ اللاحقة ثابتةٌ من الأب
+                ends[-1] = int(q["endMs"])            # نهايةُ آخر مرساة ثابتةٌ من الأب
             fixed_idx = {i % len(ks) for i in fixed}
             why = None
             for i, k in enumerate(ks):

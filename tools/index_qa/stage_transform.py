@@ -70,6 +70,17 @@ def ascii_meta(v: str) -> str:
     return s or "unknown"
 
 
+def entry_change_counts(parent, candidate):
+    """المقارنة بالمعرف؛ إضافة آية لا تعني أن كل ما بعدها تحرك."""
+    old = {e["ayahId"]: e for e in parent}
+    new = {e["ayahId"]: e for e in candidate}
+    if len(old) != len(parent) or len(new) != len(candidate):
+        raise ValueError("معرف آية مكرر في عداد التغيير")
+    moved = sum(1 for aid in old.keys() & new.keys()
+                if (old[aid].get("startMs"), old[aid].get("endMs"))
+                != (new[aid].get("startMs"), new[aid].get("endMs")))
+    return moved, len(new.keys() - old.keys()), len(old.keys() - new.keys())
+
 
 def realigned_coverage_error(have_old, have_new, realigned, allow_inherited=False):
     """نصُّ الردّ أو None — تغطيةُ السور المُعادة.
@@ -284,9 +295,7 @@ def main():
         if check:
             raise SystemExit(f"⛔ حارس {name}: {check}")
 
-    moved = sum(1 for x, y in zip(idx["entries"], pidx["entries"])
-                if x.get("startMs") != y.get("startMs")
-                or x.get("endMs") != y.get("endMs"))
+    moved, added, removed = entry_change_counts(pidx["entries"], idx["entries"])
     out = dict(idx)
     # ‏**`transform` قد يصل نصّاً** (كتبه github-8e سلسلةً) — يُحفظ نصُّه في
     # `opAsGiven` ولا يُطمس، ويُبنى القاموس فوقه.
@@ -296,7 +305,8 @@ def main():
     out["transform"] = dict(base, **{
         "op": a.op, "fromSha256": psha, "fromKey": a.parent,
         "entriesSha256": e_new, "parentEntriesSha256": e_old,
-        "movedEntries": moved, "reason": a.reason, "by": a.by,
+        "movedEntries": moved, "addedEntries": added, "removedEntries": removed,
+        "reason": a.reason, "by": a.by,
         "at": int(time.time() * 1000),
         "note": ("‏عددُ المداخل مطابقٌ للأصل والحدودُ وحدها أُزيحت؛ ولا يُرقّى "
                  "بحكم الأصل: يدخل الطابور بفحص مطالعَ وعيّنةٍ على بصمته."),
@@ -308,7 +318,7 @@ def main():
               f"{idx.get('reciterId')}.{new[:8]}.jz")
     print(f"الأصل {a.parent} ({psha[:12]}) · المنتَج {Path(a.file).name} "
           f"({sha[:12]})")
-    print(f"المداخل {n_new} = {n_old} ✅ · بصمةُ المداخل {e_old[:10]} ⇒ "
+    print(f"المداخل {n_old} ⇒ {n_new} ✅ · بصمةُ المداخل {e_old[:10]} ⇒ "
           f"{e_new[:10]} (مختلفة ✅) · حدودٌ أُزيحت {moved}")
     print(f"إلى {target} ({len(packed)} بايت · بصمة {new[:12]})")
     if not a.yes:
