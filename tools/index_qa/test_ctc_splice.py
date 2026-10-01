@@ -171,6 +171,16 @@ class CensusGate(unittest.TestCase):
     def test_full_clean_census_passes(self):
         self.assertIsNone(self.gate(_census("S")))
 
+    def test_spoken_input_does_not_inherit_standard_ctc_census_exemption(self):
+        d = _spliced()
+        d["engineVersion"] = "ctc-seg-1"
+        d["engineBySurah"] = {"112": "ctc-spoken-1", "113": "ctc-spoken-1"}
+        d["transform"]["op"] = "ctc_spoken_surah_splice:112,113"
+        self.assertEqual(promote.SPLICE_OPS["ctc_spoken_surah_splice"], "ctc-spoken-1")
+        self.assertIsNotNone(self.gate(None, d))
+        self.assertIsNone(self.gate(_census("S"), d))
+        self.assertIsNotNone(self.gate(_census("OTHER"), d))
+
     def test_no_mixing_needs_no_census(self):
         d = _parent()
         self.assertIsNone(self.gate(None, d))

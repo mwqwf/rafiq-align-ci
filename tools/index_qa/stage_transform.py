@@ -168,8 +168,9 @@ def main():
     #    ⛔ ولا يُسمَّى «إعادةَ محاذاة» تجوّزاً: الترويسةُ سجلُّ نسبٍ يُقرأ منه
     #    جيلُ الفهرس، فاسمٌ كاذبٌ فيها أسوأ من غيابه (‏درسُ «مجهولِ الجيل»).
     realigned = []
-    _m = re.match(r"^(?:realign_surah|source_timing_splice|ctc_surah_splice"
-                  r"|whisper_surah_splice|ctc_gapsplit):([\d,\s]+)$", a.op.strip())
+    # أسماء الدمج من سجل الحارس نفسه؛ لا اسم جديد في موضع يغيب عن الآخر.
+    splice_names = "|".join(re.escape(n) for n in sorted(promote.SPLICE_OPS))
+    _m = re.match(rf"^(?:realign_surah|source_timing_splice|{splice_names}):([\d,\s]+)$", a.op.strip())
     if _m:
         realigned = sorted({int(x) for x in re.findall(r"\d+", _m.group(1))})
     # ⛔ **دمجُ محرّكين لا يُرفع إلا معلَناً سورةً سورة** (‏إذن المالك 2026-09-24):

@@ -1,0 +1,19 @@
+{
+  "action": "tool",
+  "tool": "index_qa/stage_transform.py",
+  "args": [
+    "--file",
+    "ops/source-repair/candidates/deban_douri.b4f8dd23.jz",
+    "--parent",
+    "timings/douri/deban_douri.jz",
+    "--parent-sha",
+    "84169bf8b267b9b039e981ccaea71401f2609ca4fbb3de2d74a6ecbeefd2b9a3",
+    "--op",
+    "ctc_spoken_surah_splice:20",
+    "--by",
+    "Codex",
+    "--reason",
+    "استرجاع20:1 بمحاذاة طه كاملة بنطق الحروف لمدخل المحاذاة فقط ونص الدوري الأصلي؛ نسخة المحرك ctc-spoken-1 تلزم إحصاء كل آية20 و75 مع كل الحراس الأصلية؛ التحذيرات الأربع لا تعد نجاحاً قبل الحكم الصوتي",
+    "--yes"
+  ]
+}

@@ -113,7 +113,9 @@ SPLICE_OPS = {"ctc_surah_splice": "ctc-seg-1",
               "whisper_surah_splice": "align-0.2",
               # ⭐ قسمةُ المبتلع بنافذة الجارتين (‏ctc_gapsplit · 2026-09-30): محرّكٌ مستقلٌّ باسمه
               #    فيُعلَن في `engineBySurah` حتى فوق فهرس CTC، ويلزمه الإحصاءُ الشامل كغيره.
-              "ctc_gapsplit": "ctc-gapsplit-1"}
+              "ctc_gapsplit": "ctc-gapsplit-1",
+              # نطق الحروف مدخل محاذاة مختلف، فلا يرث شهادة CTC المعتادة.
+              "ctc_spoken_surah_splice": "ctc-spoken-1"}
 
 
 def splice_op_name(op: str) -> str | None:
