@@ -180,6 +180,10 @@ def census_gate(cl, bucket, src, live_sha, idx):
                 f" بلا إحصاءٍ شامل في {key}")
     if rep.get("sha256") != live_sha:
         return "الإحصاءُ الشامل على بصمةٍ أخرى — يُعاد على هذه"
+    from spoken_census_witness import report_error as spoken_report_error
+    spoken_error = spoken_report_error(rep, idx)
+    if spoken_error:
+        return spoken_error
     got = {str(s) for s in (rep.get("census") or {}).get("surahs") or []}
     if got != ebs:
         return f"الإحصاءُ غطّى {sorted(got, key=int)} والمدموجُ {sorted(ebs, key=int)}"

@@ -1,0 +1,50 @@
+name: rafiq-independent-spoken-census
+run-name: independent-spoken-census ${{ inputs.only }}
+on:
+  workflow_dispatch:
+    inputs:
+      only:
+        description: Three explicit staging keys; only inconclusive canonical 20:1
+        required: true
+permissions:
+  contents: read
+jobs:
+  witness:
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    env:
+      HF_HOME: ${{ github.workspace }}/.hf
+      CTC_THREADS: '3'
+      HF_HUB_DISABLE_XET: '1'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install bounded binary dependencies
+        timeout-minutes: 10
+        run: |
+          python tools/ci_fleet/install_qa_ffmpeg.py
+          python -m pip install --only-binary=:all: --timeout 60 --retries 2 --index-url https://download.pytorch.org/whl/cpu torch
+          python -m pip install --only-binary=:all: --timeout 60 --retries 2 'numpy<2' 'transformers<5' boto3 soundfile
+          python -m pip install --timeout 60 --retries 2 ctc-segmentation
+      - name: Restore existing model cache only
+        uses: actions/cache/restore@v4
+        with:
+          path: .hf
+          key: ctc-model-jonatasgrosman-xlsr53-ar-v1
+      - name: Check original PCM with two independent immutable models
+        env:
+          R2_CREDENTIALS_JSON: ${{ secrets.R2_CREDENTIALS_JSON }}
+          KEYS: ${{ inputs.only }}
+        run: |
+          mkdir -p secure
+          printf '%s' "$R2_CREDENTIALS_JSON" > secure/r2_credentials.json
+          python tools/index_qa/ci_spoken_census.py --keys "$KEYS"
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: independent-spoken-census
+          path: ops/out/spoken-census-witness.json
+          retention-days: 7
+          if-no-files-found: ignore
