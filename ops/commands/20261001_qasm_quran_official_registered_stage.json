@@ -1,0 +1,19 @@
+{
+  "action": "tool",
+  "tool": "index_qa/stage_transform.py",
+  "args": [
+    "--file",
+    "ops/source-repair/candidates/qasm.d5763c4d.jz",
+    "--parent",
+    "timings/hafs/qasm.jz",
+    "--parent-sha",
+    "0abe159294d54f5e63ec163dd1cd282d1433c61fd28f0b272f2add81d569dc1b",
+    "--op",
+    "official_timing_splice:44",
+    "--by",
+    "Codex",
+    "--reason",
+    "توقيت رسمي موثق للنسخة والرواية نفسهما؛ المصدر مطابق SHA وURL ومدة؛ عد مطابق عبر خريطة العد المحفوظة؛ محرك مستقل وإحصاء كامل وأربعة ملوح ومطالع دون تخفيف الحراس",
+    "--yes"
+  ]
+}

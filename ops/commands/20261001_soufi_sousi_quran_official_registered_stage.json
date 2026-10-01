@@ -1,0 +1,19 @@
+{
+  "action": "tool",
+  "tool": "index_qa/stage_transform.py",
+  "args": [
+    "--file",
+    "ops/source-repair/candidates/soufi_sousi.ac0c49b0.jz",
+    "--parent",
+    "timings/sousi/soufi_sousi.jz",
+    "--parent-sha",
+    "90d4825d45232c920b702d22a68c5b916faf29cf7506d3a8e80f61bbd102c532",
+    "--op",
+    "official_timing_splice:19,53",
+    "--by",
+    "Codex",
+    "--reason",
+    "توقيت رسمي موثق للنسخة والرواية نفسهما؛ المصدر مطابق SHA وURL ومدة؛ عد مطابق عبر خريطة العد المحفوظة؛ محرك مستقل وإحصاء كامل وأربعة ملوح ومطالع دون تخفيف الحراس",
+    "--yes"
+  ]
+}

@@ -1,0 +1,19 @@
+{
+  "action": "tool",
+  "tool": "index_qa/stage_transform.py",
+  "args": [
+    "--file",
+    "ops/source-repair/candidates/wdod.26238ec4.jz",
+    "--parent",
+    "timings/hafs/wdod.jz",
+    "--parent-sha",
+    "56ace934d4d5f40a556387c8fa892e5880535ee0fd78aeae9d27dc9b0cf086f3",
+    "--op",
+    "official_timing_splice:26",
+    "--by",
+    "Codex",
+    "--reason",
+    "توقيت رسمي موثق للنسخة والرواية نفسهما؛ المصدر مطابق SHA وURL ومدة؛ عد مطابق عبر خريطة العد المحفوظة؛ محرك مستقل وإحصاء كامل وأربعة ملوح ومطالع دون تخفيف الحراس",
+    "--yes"
+  ]
+}

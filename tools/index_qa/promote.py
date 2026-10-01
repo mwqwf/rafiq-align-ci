@@ -116,6 +116,8 @@ SPLICE_OPS = {"ctc_surah_splice": "ctc-seg-1",
               "ctc_gapsplit": "ctc-gapsplit-1",
               "ctc_quran_window": "ctc-quran-window-1",
               "ctc_quran_surah_splice": "ctc-quran-surah-1",
+              # توقيت المصدر الرسمي: محرك مستقل، يلزمه إعلان السور والإحصاء الكامل.
+              "official_timing_splice": "mp3quran-timing-v1",
               # نطق الحروف مدخل محاذاة مختلف، فلا يرث شهادة CTC المعتادة.
               "ctc_spoken_surah_splice": "ctc-spoken-1"}
 

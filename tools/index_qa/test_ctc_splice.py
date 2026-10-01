@@ -268,6 +268,23 @@ class StageGuard(unittest.TestCase):
     def test_declared_splice_accepted(self):
         self.assertIsNone(self._stage(_spliced(), "ctc_surah_splice:112,113"))
 
+    def test_official_timing_registered_with_exact_engine(self):
+        d = _spliced()
+        d["engineBySurah"] = {"112": "mp3quran-timing-v1", "113": "mp3quran-timing-v1"}
+        self.assertIsNone(self._stage(d, "official_timing_splice:112,113"))
+        d["engineBySurah"]["113"] = "ctc-seg-1"
+        self.assertIn("معلَنةٌ بغيره", self._stage(d, "official_timing_splice:112,113"))
+
+    def test_official_timing_census_cannot_be_absent_partial_or_other_sha(self):
+        d = _spliced()
+        d["engineBySurah"] = {"112": "mp3quran-timing-v1", "113": "mp3quran-timing-v1"}
+        d["transform"]["op"] = "official_timing_splice:112,113"
+        gate = CensusGate().gate
+        self.assertIsNotNone(gate(None, d))
+        self.assertIsNotNone(gate(_census("OTHER"), d))
+        self.assertIsNotNone(gate(_census("S", drop=1), d))
+        self.assertIsNone(gate(_census("S"), d))
+
     def test_undeclared_surah_refused(self):
         d = _spliced()
         d["engineBySurah"] = {"112": "ctc-seg-1"}

@@ -1,0 +1,19 @@
+{
+  "action": "tool",
+  "tool": "index_qa/stage_transform.py",
+  "args": [
+    "--file",
+    "ops/source-repair/candidates/mohsin_harthi.2314fd1a.jz",
+    "--parent",
+    "timings/hafs/mohsin_harthi.jz",
+    "--parent-sha",
+    "d9a3ccfbfdbaf5734a0a4e24b95f45db720fda3afe74bc844d3aac359f35b9ed",
+    "--op",
+    "official_timing_splice:55",
+    "--by",
+    "Codex",
+    "--reason",
+    "توقيت رسمي موثق للنسخة والرواية نفسهما؛ المصدر مطابق SHA وURL ومدة؛ عد مطابق عبر خريطة العد المحفوظة؛ محرك مستقل وإحصاء كامل وأربعة ملوح ومطالع دون تخفيف الحراس",
+    "--yes"
+  ]
+}
