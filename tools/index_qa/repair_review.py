@@ -75,6 +75,9 @@ def review(name, cl, bucket):
         result["addedRows"] = [r for r in census["sample"]["rows"] if r["aid"] in proof.get("added", [])]
         if why:
             raise ValueError(why)
+        if (len(result["addedRows"]) != len(proof.get("added", []))
+                or any(row.get("kind") != "بريء" for row in result["addedRows"])):
+            raise ValueError("newly restored ayahs lack matching clean audio witnesses")
         result["ready"] = True
     except Exception as ex:
         result["pendingOrRejected"] = str(ex)
