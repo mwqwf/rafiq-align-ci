@@ -12,7 +12,8 @@ import subprocess
 import sys
 import zlib
 
-sys.stdout.reconfigure(encoding="utf-8", errors="replace")
+if callable(getattr(sys.stdout, 'reconfigure', None)):
+    sys.stdout.reconfigure(encoding="utf-8", errors="replace")
 # مهلة شبكية عامة: دفعة 08-31 علقت 48 دقيقة على urlretrieve بلا مهلة
 socket.setdefaulttimeout(60)
 

@@ -45,7 +45,7 @@ class DualEvidenceTest(unittest.TestCase):
         self.assertIsNone(self.check(self.proof))
 
     def test_validator_imports_reference_in_fresh_tool_process(self):
-        code = "import sys,json;sys.path.insert(0,sys.argv[1]);import dual_ctc_model as d;p=json.load(sys.stdin);assert d.evidence_error(p,'a'*64,p['measurements']) is None"
+        code = "import sys,json,contextlib,io;sys.path.insert(0,sys.argv[1]);import dual_ctc_model as d;p=json.load(sys.stdin)\nwith contextlib.redirect_stdout(io.StringIO()):\n assert d.evidence_error(p,'a'*64,p['measurements']) is None"
         result = subprocess.run([sys.executable, '-c', code, str(pathlib.Path(__file__).parent)],
                                 input=json.dumps(self.proof), capture_output=True, text=True)
         self.assertEqual(result.returncode, 0, result.stderr)
