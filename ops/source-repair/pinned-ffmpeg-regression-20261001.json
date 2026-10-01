@@ -1,0 +1,49 @@
+{
+  "archiveSha256": "3c2c4d6066432b2eab54be830d3ce1f5b68a3f34ecaa6d9f2d0230a49e778560",
+  "binaryVersions": {
+    "existing": "ffmpeg version 7.1.5-0+deb13u1 Copyright (c) 2000-2026 the FFmpeg developers",
+    "pinned": "ffmpeg version n8.1.3-14-g330caae0c1-20261001 Copyright (c) 2000-2026 the FFmpeg developers"
+  },
+  "checks": [
+    {
+      "source": "/workspace/scratch/quran-ctc-research/janaini-alternative-033.mp3",
+      "sourceSha256": "e8665da5bf33482c1bd1fc1d4fc8770a7444d810f8b3153ffcd44a352d28d9af",
+      "fullPcmByteExact": true,
+      "durationMetadataDifferenceMs": -26.123,
+      "pcmSha256": "45b85de4c2363edbb6af161ed525b634a76d99152ba64fb0598aeb584b0a5329",
+      "oldDuration": 1584.509388,
+      "newDuration": 1584.483265
+    },
+    {
+      "source": "/workspace/scratch/quran-ctc-research/janaini-alternative-055.mp3",
+      "sourceSha256": "da02b3e49f4e3c732df34c8d5142ac4108927a00a3438b454450245695478bbf",
+      "fullPcmByteExact": true,
+      "durationMetadataDifferenceMs": -46.44,
+      "pcmSha256": "db31d80324586054860c11ebb276d58e31615e8aa5c082ea5af6efefb6a9922b",
+      "oldDuration": 474.592653,
+      "newDuration": 474.546213
+    },
+    {
+      "source": "/workspace/scratch/quran-ctc-research/qalun_noah_qalun/ctx1/g055.mp3",
+      "sourceSha256": "486cf1f687750e851ee56be7309add9be248f0ee1b221f06ec97c458fbd981cd",
+      "fullPcmByteExact": true,
+      "durationMetadataDifferenceMs": 0.0,
+      "pcmSha256": "77ee5ec3215466e89d513d5342a03ef9d620701402ffb4ad876895ba7aecef3c",
+      "oldDuration": 418.668,
+      "newDuration": 418.668
+    },
+    {
+      "source": "/workspace/scratch/quran-ctc-research/qasm-alt-shiekh-abdulmohsin-al-qasim-2023-059.mp3",
+      "sourceSha256": "94c775a27ab20dcd3d61a2e5151daa79cb3d432ff3c7d423b45c1ab5318c1a65",
+      "fullPcmByteExact": true,
+      "durationMetadataDifferenceMs": 0.0,
+      "pcmSha256": "486b355ba7d63acf36e4bf9e7693ef0a09d2ae61383ecd8e63519efdd8b2aa8a",
+      "oldDuration": 471.688333,
+      "newDuration": 471.688333
+    },
+    {
+      "corruptOriginalStillRejected": true,
+      "decoderErrors": "[mp3float @ 0x558193c5a0c0] Header missing\n[aist#0:0/mp3 @ 0x558193c67b40] [dec:mp3float @ 0x558193c59880] Error submitting packet to decoder: Invalid data found when processing input\n[mp3float @ 0x558193c5a0c0] Header missing\n[aist#0:0/mp3 @ 0x558193c67b40] [dec:mp3float @ 0x558193c59880] Error submitting packet to decoder: Invalid data found when processing input\n[mp3float @ 0x558193c5a0c0] Header missing\n[aist#0:0/mp3 @ 0x558193c67b40] [dec:mp3float @ 0x558193c59880] Error submitting packet to decoder: Invalid data found when processing input\n"
+    }
+  ]
+}
