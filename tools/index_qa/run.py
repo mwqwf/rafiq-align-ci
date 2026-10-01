@@ -812,7 +812,12 @@ def _range_pcm(url, start_ms, end_ms):
 
 
 def _file_duration_ms(mp3):
-    """مدّةُ الملفّ بعدّ إطاراته (‏`mp3dur.dur`) — بلا ffprobe ولا تقدير."""
+    """Exact original MP3 frames, or verified complete Vorbis page granules."""
+    with open(mp3, 'rb') as stream:
+        magic = stream.read(4)
+    if magic == b'OggS':
+        from oggdur import duration_ms
+        return duration_ms(mp3)
     sys.path.insert(0, str(Path(__file__).parent))
     import mp3dur
     return mp3dur.dur(str(mp3))[0] * 1000.0
