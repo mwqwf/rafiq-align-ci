@@ -1,0 +1,20 @@
+# rc=1
+  ⚠️ timings-staging/hafs/nabil.c0ce5bf6.jz: فحصُ المطالع مرّ، وفيه 1 كشفاً بلا تحقّق (‏suspect/tail) — لا يمنع ولا يُبنى عليه
+  ⚠️ timings-staging/hafs/nabil.c0ce5bf6.jz: فحصُ المطالع مرّ، وفيه 1 كشفاً بلا تحقّق (‏suspect/tail) — لا يمنع ولا يُبنى عليه
+  ⚠️ timings-staging/hafs/nabil.c0ce5bf6.jz: فحصُ المطالع مرّ، وفيه 1 كشفاً بلا تحقّق (‏suspect/tail) — لا يمنع ولا يُبنى عليه
+  ⚠️ timings-staging/hafs/nabil.c0ce5bf6.jz: فحصُ المطالع مرّ، وفيه 1 كشفاً بلا تحقّق (‏suspect/tail) — لا يمنع ولا يُبنى عليه
+أحكامٌ مقروءة: 4 · مرشّحون: 4 · مرفوضون: 0
+  ⏳ timings-staging/hafs/nabil.c0ce5bf6.jz: تشخيص الكتالوج يصف فهرساً آخر (بصمةٌ مخالفة) — يُنتظر ولا يُرقّى
+  ⏳ timings-staging/hafs/nabil.c0ce5bf6.jz: تشخيص الكتالوج يصف فهرساً آخر (بصمةٌ مخالفة) — يُنتظر ولا يُرقّى
+  ⏳ timings-staging/hafs/nabil.c0ce5bf6.jz: تشخيص الكتالوج يصف فهرساً آخر (بصمةٌ مخالفة) — يُنتظر ولا يُرقّى
+  ⏳ timings-staging/hafs/nabil.c0ce5bf6.jz: تشخيص الكتالوج يصف فهرساً آخر (بصمةٌ مخالفة) — يُنتظر ولا يُرقّى
+
+[stderr]
+Traceback (most recent call last):
+  File "/home/runner/work/rafiq-align-ci/rafiq-align-ci/tools/index_qa/promote_verified_transform.py", line 114, in <module>
+    main()
+  File "/home/runner/work/rafiq-align-ci/rafiq-align-ci/tools/index_qa/promote_verified_transform.py", line 110, in main
+    adopt(a.key, a.sha, a.parent_sha, a.reason)
+  File "/home/runner/work/rafiq-align-ci/rafiq-align-ci/tools/index_qa/promote_verified_transform.py", line 75, in adopt
+    raise ValueError("ردت الحراس المعاينة؛ بقي تجميد الأصل دون كتابة")
+ValueError: ردت الحراس المعاينة؛ بقي تجميد الأصل دون كتابة
