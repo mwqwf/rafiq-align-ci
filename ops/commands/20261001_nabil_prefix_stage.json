@@ -1,0 +1,19 @@
+{
+  "action": "tool",
+  "tool": "index_qa/stage_transform.py",
+  "args": [
+    "--file",
+    "ops/source-repair/candidates/nabil.9b01fced.jz",
+    "--parent",
+    "timings/hafs/nabil.jz",
+    "--parent-sha",
+    "559bc6b55abd8fa10edd1247999065c3b42e83bdc56852357aec2e4c435df130",
+    "--op",
+    "ctc_gapsplit:3",
+    "--by",
+    "Codex",
+    "--reason",
+    "استرجاع مطلع الحروف المقطعة بمحاذاة نافذة الصوت الكامل المقيس ونص الرواية؛ أسماء الحروف لمدخل المحاذاة فقط، الآية الثانية مرساة ثابتة، وكل المداخل الموجودة محفوظة حرفياً",
+    "--yes"
+  ]
+}

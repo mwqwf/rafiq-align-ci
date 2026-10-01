@@ -1,0 +1,19 @@
+{
+  "action": "tool",
+  "tool": "index_qa/stage_transform.py",
+  "args": [
+    "--file",
+    "ops/source-repair/candidates/f_hajry.3f78841e.jz",
+    "--parent",
+    "timings/hafs/f_hajry.jz",
+    "--parent-sha",
+    "bd84fd6d6c61eed841934ee43831d2f6d26a306523fbac459325a6e1c5881c8c",
+    "--op",
+    "ctc_gapsplit:3,29",
+    "--by",
+    "Codex",
+    "--reason",
+    "استرجاع مطلع الحروف المقطعة بمحاذاة نافذة الصوت الكامل المقيس ونص الرواية؛ أسماء الحروف لمدخل المحاذاة فقط، الآية الثانية مرساة ثابتة، وكل المداخل الموجودة محفوظة حرفياً",
+    "--yes"
+  ]
+}
