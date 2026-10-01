@@ -1,0 +1,19 @@
+{
+  "action": "tool",
+  "tool": "index_qa/stage_transform.py",
+  "args": [
+    "--file",
+    "ops/source-repair/candidates/kafi.758ca6cf.jz",
+    "--parent",
+    "timings/hafs/kafi.jz",
+    "--parent-sha",
+    "6e696a3b7c06b0a76e38971a853c2ab56e29b44f9626e170606d38092996e4ad",
+    "--op",
+    "ctc_quran_surah_splice:89",
+    "--by",
+    "Codex",
+    "--reason",
+    "إعادة محاذاة سورة كاملة من المصدر الأصلي بالمحرك القرآني مثبت البصمة؛ لا آية بلا حدود ولا LOW ولا مخالفة، ما خارجها محفوظ حرفياً؛ لا اعتماد قبل البنية والمطالع والملوح الأربعة والإحصاء الكامل على SHA المسرح",
+    "--yes"
+  ]
+}

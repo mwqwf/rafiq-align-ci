@@ -1,0 +1,19 @@
+{
+  "action": "tool",
+  "tool": "index_qa/stage_transform.py",
+  "args": [
+    "--file",
+    "ops/source-repair/candidates/yahya.b155bf93.jz",
+    "--parent",
+    "timings/hafs/yahya.jz",
+    "--parent-sha",
+    "72edbfa840a667ce9a0cbc017b0f21a8573fa40d72dc7eeb55d5fd3c5d5e8727",
+    "--op",
+    "ctc_quran_surah_splice:75",
+    "--by",
+    "Codex",
+    "--reason",
+    "إعادة محاذاة سورة كاملة من المصدر الأصلي بالمحرك القرآني مثبت البصمة؛ لا آية بلا حدود ولا LOW ولا مخالفة، ما خارجها محفوظ حرفياً؛ لا اعتماد قبل البنية والمطالع والملوح الأربعة والإحصاء الكامل على SHA المسرح",
+    "--yes"
+  ]
+}

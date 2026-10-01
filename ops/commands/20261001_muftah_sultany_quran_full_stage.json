@@ -1,0 +1,19 @@
+{
+  "action": "tool",
+  "tool": "index_qa/stage_transform.py",
+  "args": [
+    "--file",
+    "ops/source-repair/candidates/muftah_sultany.c64ab253.jz",
+    "--parent",
+    "timings/hafs/muftah_sultany.jz",
+    "--parent-sha",
+    "d8c2487add9961287798b3ee563534e190bbf2293bab8590bc3254ab49442112",
+    "--op",
+    "ctc_quran_surah_splice:74",
+    "--by",
+    "Codex",
+    "--reason",
+    "إعادة محاذاة سورة كاملة من المصدر الأصلي بالمحرك القرآني مثبت البصمة؛ لا آية بلا حدود ولا LOW ولا مخالفة، ما خارجها محفوظ حرفياً؛ لا اعتماد قبل البنية والمطالع والملوح الأربعة والإحصاء الكامل على SHA المسرح",
+    "--yes"
+  ]
+}

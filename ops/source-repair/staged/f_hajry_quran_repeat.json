@@ -1,0 +1,117 @@
+{
+  "reciterId": "f_hajry",
+  "riwaya": "hafs",
+  "surahs": [
+    55
+  ],
+  "parent": "timings/hafs/f_hajry.jz",
+  "parentSha": "465ea9c88534c1417b21821c9d59021fa94ec4c955141ba5bf91bf292bed316c",
+  "candidateFile": "ops/source-repair/candidates/f_hajry.f608ef88.jz",
+  "candidateSha": "f608ef88ca0421940b7422afd9f0a772f113af3fad0b493f3ecbd760e1506c54",
+  "added": [
+    "55:2"
+  ],
+  "entries": 6236,
+  "sourceSha256": "eeb39afb73ba9c78156b61cc5a08cecca2224df7b3d9acb3e200b9b3250efbed",
+  "alignmentModelBySurah": {
+    "55": {
+      "id": "rabah2026/wav2vec2-large-xlsr-53-arabic-quran-v_final",
+      "revision": "b03a268c6ba1a693752307325ab376c86c3b12da",
+      "weightsSha256": "bf65674a26eb4ef7042cedade96c3c8f8cbd04f3a7d1a68eadceec8ed0f99ecb",
+      "license": "Apache-2.0",
+      "canonicalTextChanged": false
+    }
+  },
+  "audibleRepeatsBySurah": {
+    "55": {
+      "ayah": "55:26",
+      "count": 3,
+      "nativeApprovedTinyEvidence": "f_hajry-third-repeat.json",
+      "windows": [
+        {
+          "startMs": 158000,
+          "endMs": 166000
+        },
+        {
+          "startMs": 166000,
+          "endMs": 174000
+        },
+        {
+          "startMs": 174000,
+          "endMs": 179000
+        }
+      ],
+      "utteranceMeasurements": [
+        {
+          "ayah": 24,
+          "startMs": 142880,
+          "endMs": 150615,
+          "conf": 0.681
+        },
+        {
+          "ayah": 25,
+          "startMs": 150615,
+          "endMs": 158400,
+          "conf": 0.569
+        },
+        {
+          "ayah": 26,
+          "startMs": 158400,
+          "endMs": 165986,
+          "conf": 0.898
+        },
+        {
+          "ayah": 26,
+          "startMs": 166116,
+          "endMs": 174492,
+          "conf": 0.854
+        },
+        {
+          "ayah": 26,
+          "startMs": 174502,
+          "endMs": 178374,
+          "conf": 0.945
+        },
+        {
+          "ayah": 27,
+          "startMs": 178605,
+          "endMs": 185579,
+          "conf": 0.789
+        }
+      ],
+      "canonicalTextChanged": false,
+      "uniqueAyahIdsPreserved": true,
+      "sourceChanged": false,
+      "canonicalDurationIssues": [
+        "مدة شاذة لآية 26: 19945م.ث لـ12 حرفاً"
+      ],
+      "sourceSha256": "eeb39afb73ba9c78156b61cc5a08cecca2224df7b3d9acb3e200b9b3250efbed",
+      "nativeApprovedTinyEvidenceData": [
+        {
+          "startMs": 158000,
+          "endMs": 166000,
+          "heard": "كُلُّ مَنْ عَلَيْهَا فَانْ"
+        },
+        {
+          "startMs": 166000,
+          "endMs": 174000,
+          "heard": "كُلُّوا مَنْ عَلَيْهَا فَانٍ"
+        },
+        {
+          "startMs": 174000,
+          "endMs": 179000,
+          "heard": "كُلُّ مَنْ عَلَيْهَا فَانِيُونَ"
+        }
+      ]
+    }
+  },
+  "newAlignmentBands": {
+    "MED": 63,
+    "HIGH": 15
+  },
+  "newIssues": [],
+  "productionChanged": false,
+  "key": "timings-staging/hafs/f_hajry.2fff14f4.jz",
+  "sha256": "2fff14f486188a11e96679ad68611b0b867776d0cc17376204dabf0d2d908370",
+  "bytes": 93740
+}

@@ -1,0 +1,19 @@
+{
+  "action": "tool",
+  "tool": "index_qa/stage_transform.py",
+  "args": [
+    "--file",
+    "ops/source-repair/candidates/saber.8d5b3c85.jz",
+    "--parent",
+    "timings/hafs/saber.jz",
+    "--parent-sha",
+    "c6fa140e4fe8e685db1b54cf00c0e92b6129d81b755c8124ce1eea9683f94725",
+    "--op",
+    "ctc_quran_surah_splice:89",
+    "--by",
+    "Codex",
+    "--reason",
+    "إعادة محاذاة سورة كاملة من المصدر الأصلي بالمحرك القرآني مثبت البصمة؛ لا آية بلا حدود ولا LOW ولا مخالفة، ما خارجها محفوظ حرفياً؛ لا اعتماد قبل البنية والمطالع والملوح الأربعة والإحصاء الكامل على SHA المسرح",
+    "--yes"
+  ]
+}
