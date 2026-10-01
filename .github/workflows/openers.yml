@@ -113,7 +113,7 @@ jobs:
           PY
 
       - name: كاش النموذج
-        uses: actions/cache@v4
+        uses: actions/cache/restore@v4
         with:
           path: assets-archive/ggml
           key: qa-model-q8-v1        # المفتاح نفسه في كل أنابيبنا: نموذجٌ واحد
@@ -173,7 +173,7 @@ jobs:
           echo "w=$W" >> "$GITHUB_OUTPUT"
       - name: كاش نموذج CTC (‏عند وجود late وحده)
         if: steps.late.outputs.n != '0'
-        uses: actions/cache@v4
+        uses: actions/cache/restore@v4
         with:
           path: .hf
           key: ctc-model-jonatasgrosman-xlsr53-ar-v1

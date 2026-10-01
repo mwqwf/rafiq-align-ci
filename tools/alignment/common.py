@@ -179,7 +179,10 @@ def to_wav16k(src, dst=None):
     ⇒ `-vn` يطرح كلَّ تيّارِ صورة، فلا يبقى إلا ما نريد.
     """
     dst = dst or src + ".16k.wav"
-    if not os.path.exists(dst):
+    # قد يعاد تنزيل المصدر أو تكبير نطاقه تحت الاسم نفسه؛ WAV أقدم منه
+    # لا يصفه، وإلا حوكم ملف كامل على فكّ نسخة مبتورة مخبأة.
+    if (not os.path.exists(dst)
+            or os.stat(dst).st_mtime_ns < os.stat(src).st_mtime_ns):
         base = [FFMPEG, "-y", "-v", "error"]
         tail = ["-vn", "-ar", "16000", "-ac", "1", dst]
         try:

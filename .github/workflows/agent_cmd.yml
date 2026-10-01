@@ -66,7 +66,7 @@ jobs:
       #    وهذه ≈65 م.ب تُكتب مرّةً وتُقرأ مراراً ⇒ **توفيرُ دقائقِ حوسبةٍ
       #    بذاكرةٍ صغيرة**، لا إنفاقٌ جديد.
       - name: ذاكرةُ أحكامِ الصوت (تُوفّر تنزيلَ 65 م.ب في كلّ شوط)
-        uses: actions/cache@v4
+        uses: actions/cache/restore@v4
         with:
           path: tools/index_qa/work/verdict_cache
           key: verdict-cache-${{ github.run_id }}

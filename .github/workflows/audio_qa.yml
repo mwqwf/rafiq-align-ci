@@ -166,7 +166,7 @@ jobs:
       # ⛔ النموذج يُخبَّأ: 41م.ب × 20 وظيفة في كل دفعة تنزيلٌ بلا طائل.
       - name: كاش النموذج
         id: modelcache
-        uses: actions/cache@v4
+        uses: actions/cache/restore@v4
         with:
           path: assets-archive/ggml
           key: qa-model-q8-v1
@@ -177,7 +177,7 @@ jobs:
       #    2–3 ج.ب فيها البقرة وحدها ~196م.ب. والمفتاح **بالقارئ** لأن فهارس
       #    القارئ الواحد تتشارك ملفاته، ولا يُشارك قارئٌ آخر شيئاً.
       - name: كاش صوت القارئ
-        uses: actions/cache@v4
+        uses: actions/cache/restore@v4
         with:
           path: qa_audio
           # المفتاح مشتقٌّ من المفتاح كاملاً، والاسترجاع الجزئي بالبادئة
