@@ -1,0 +1,11 @@
+# rc=1
+
+[stderr]
+Traceback (most recent call last):
+  File "/home/runner/work/rafiq-align-ci/rafiq-align-ci/tools/index_qa/promote_verified_transform.py", line 117, in <module>
+    main()
+  File "/home/runner/work/rafiq-align-ci/rafiq-align-ci/tools/index_qa/promote_verified_transform.py", line 113, in main
+    adopt(a.key, a.sha, a.parent_sha, a.reason)
+  File "/home/runner/work/rafiq-align-ci/rafiq-align-ci/tools/index_qa/promote_verified_transform.py", line 53, in adopt
+    raise ValueError("يلزم أصل مجمد على كامل بصمته المطلوبة")
+ValueError: يلزم أصل مجمد على كامل بصمته المطلوبة
