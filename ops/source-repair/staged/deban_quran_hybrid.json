@@ -1,0 +1,41 @@
+{
+  "reciterId": "deban",
+  "riwaya": "hafs",
+  "surahs": [
+    18
+  ],
+  "parent": "timings/hafs/deban.jz",
+  "parentSha": "e07f296be6c7d35c508c5039e87bd485283a85a5f434e919e3ce357f6eb7000d",
+  "candidateFile": "ops/source-repair/candidates/deban.2a4f05ee.jz",
+  "candidateSha": "2a4f05ee7f645fc8e16c62a7e23dc9550a8edd7cc7c7b73e11a5dc49f8210364",
+  "added": [
+    "18:89"
+  ],
+  "entries": 6236,
+  "inheritedAlignmentEntriesBySurah": {
+    "18": {
+      "ayahIds": [
+        "18:15",
+        "18:19",
+        "18:55",
+        "18:56",
+        "18:57"
+      ],
+      "reason": "Existing entries retained byte-for-byte where new CTC <0.45; no confidence raised",
+      "originalModelIssues": [],
+      "postMergeIssues": [
+        "فجوة 41.8ث بعد آية 57"
+      ],
+      "originalModelBands": {
+        "MED": 82,
+        "HIGH": 25,
+        "LOW": 3
+      }
+    }
+  },
+  "failedSurahs": [],
+  "productionChanged": false,
+  "key": "timings-staging/hafs/deban.3fdb27f5.jz",
+  "sha256": "3fdb27f5ae3cb3bebe86785ded433f6228f7be57c7024c9234382765f55d0fca",
+  "bytes": 93744
+}
