@@ -3,6 +3,7 @@ run-name: source-probe Janaini Qalun · ctc=${{ inputs.ctc }}
 on:
   workflow_dispatch:
     inputs:
+      kurdi_neighborhood: {description: "Read Kurdi original ayahs81..85 instead of Janaini alternatives", default: "false"}
       ctc: {description: "Run pinned Quran CTC after native source inspection", default: "false"}
       omit_basmala: {description: "Native-proven surah numbers without basmala", default: ""}
       output: {description: "Read-only result filename in ops/out", default: "janaini-source-native-20261001.json"}
@@ -40,6 +41,7 @@ jobs:
       - name: Read-only source probe
         env:
           R2_CREDENTIALS_JSON: ${{ secrets.R2_CREDENTIALS_JSON }}
+          KURDI_NEIGHBORHOOD: ${{ inputs.kurdi_neighborhood }}
           DO_CTC: ${{ inputs.ctc }}
           OMIT_BASMALA: ${{ inputs.omit_basmala }}
           RESULT_NAME: ${{ inputs.output }}
@@ -57,6 +59,8 @@ jobs:
           if pathlib.Path(filename).name != filename or not filename.endswith(".json"):
               raise ValueError("invalid result name")
           cmd=["python","tools/index_qa/source_quran_probe.py","--out","ops/out/"+filename,"--model",str(model)]
+          if os.environ["KURDI_NEIGHBORHOOD"]=="true":
+              cmd+=["--kurdi-neighborhood"]
           if os.environ["DO_CTC"]=="true":
               cmd+=["--ctc"]
           omitted=os.environ["OMIT_BASMALA"].replace(","," ").split()
