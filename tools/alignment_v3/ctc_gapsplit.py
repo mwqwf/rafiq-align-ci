@@ -114,6 +114,8 @@ def main() -> int:
     ap.add_argument("--context-ayahs", type=int, choices=(1, 2, 3), default=1,
                     help="عدد الجارات الحاضرة للمراسي؛ 1 يحفظ المسار القائم، و2/3 يعيدان نافذة أوسع بحراس الثقة والمدة أنفسهم")
     ap.add_argument("--spoken-openers", action="store_true", help="أسماء الحروف المنطوقة لمدخل المحاذاة وحده، دون تغيير حراس المدة")
+    ap.add_argument("--starts-with-first-ayah", action="store_true",
+                    help="تسجيل مثبت صوتياً يبدأ بالآية الأولى دون بسملة؛ مرساة بدء الملف صفر، لسورة واحدة فقط")
     # ⭐ (2026-09-30 · f_hajry الرحمن): **إعادةُ نافذةٍ** لمدىً حاضرٍ حدودُه معطوبة — «55:41-75» ⇒ تُحاذى
     #    نصوصُ 41..75 بـCTC بين جارتين ثابتتين من الأب (‏40 بدءاً · 76 نهايةً) على نافذتهما وحدها. سببُه مقيس:
     #    الإحصاءُ الشامل 7.7% جسيماً في 41–75 على CTC السورة كاملةً، وWhisper عجز عنها (‏اللازمةُ المتكرّرة
@@ -121,6 +123,9 @@ def main() -> int:
     #    ⛔ بالحُرّاس نفسِها (‏ثقة · مدّة · جارة) والإحصاءُ الشاملُ هو الحَكَم.
     ap.add_argument("--rewindow", default="", help="مدى آياتٍ حاضرةٍ يُعاد بنافذته: 55:41-75[,…]")
     a = ap.parse_args()
+    requested_surahs = [int(v) for v in a.surahs.split(",") if v.strip()]
+    if a.starts_with_first_ayah and len(requested_surahs) != 1:
+        ap.error("شاهد بدء الملف يخص سورة واحدة صريحة")
     rewin = {}
     for spec in [x for x in a.rewindow.split(",") if x.strip()]:
         s_, rng = spec.split(":")
@@ -133,13 +138,15 @@ def main() -> int:
     qidx = load_index()
     text = load_text(a.riwaya)
     report = []
-    for s in [int(v) for v in a.surahs.split(",") if v.strip()]:
+    for s in requested_surahs:
         meta = next(m for m in qidx["surahs"] if m["n"] == s)
         st0, n = meta["start"], meta["ayahs"]
         rows = [e for e in idx["entries"] if int(e["ayahId"].split(":")[0]) == s]
         ents = {int(e["ayahId"].split(":")[1]): dict(e) for e in rows
                 if e.get("startMs") is not None and e.get("endMs") is not None}
         parent_ents = copy.deepcopy(ents)
+        if a.starts_with_first_ayah and (1 in ents or 2 not in ents):
+            ap.error("مرساة بدء الملف لاسترجاع الآية الأولى وحدها مع حضور الثانية")
         if not ents:
             report.append(f"س{s}: لا مداخلَ في الأب — ليست من هذا الباب")
             continue
@@ -185,7 +192,7 @@ def main() -> int:
                     report.append(f"س{s}:{b0}-{b1}: ⛔ مرساة المطلع الأوسع غائبة — لا تخمين")
                     continue
                 q = ents[right]
-                lead = [] if s in (1, 9) else [norm(BASMALA)]
+                lead = [] if s in (1, 9) or a.starts_with_first_ayah else [norm(BASMALA)]
                 ks, ws, we, fixed = list(range(1, right + 1)), 0, q["endMs"], (-1,)
             else:
                 left = max(1, b0 - a.context_ayahs)
@@ -201,6 +208,8 @@ def main() -> int:
                 report.append(f"س{s}:{b0}-{b1} ({kind}): تعذّرت المحاذاة — {str(ex)[:80]}")
                 continue
             starts = [sg[0] for sg in segs]
+            if kind == "opener" and a.starts_with_first_ayah:
+                starts[0] = 0  # مرساة الملف المثبتة؛ حراسا الثقة والمدة أدناه باقيان.
             if kind in ("gap", "tail", "rewin"):
                 starts[0] = int(p["startMs"])       # بدءُ أول مرساة ثابتٌ من الأب
             ends = starts[1:] + [int(we) if kind != "tail" else min(int(segs[-1][1]), total_ms)]
@@ -258,7 +267,8 @@ def main() -> int:
                              "matched": 0, "total": len(norm(t_of(k)).split())})
         with open(os.path.join(a.out_dir, f"s{s:03d}.json"), "w", encoding="utf-8") as f:
             json.dump({"fileRef": url, "sha256": sha, "surah": s, "engine": "ctc-gapsplit-1",
-                       "gapsplit": added, "entries": out_rows}, f, ensure_ascii=False)
+                       "gapsplit": added, "entries": out_rows,
+                       **({"startsWithFirstAyah": True} if a.starts_with_first_ayah else {})}, f, ensure_ascii=False)
     print("\n".join(report))
     return 0
 
