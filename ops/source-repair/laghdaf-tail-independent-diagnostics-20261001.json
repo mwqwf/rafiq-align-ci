@@ -1,0 +1,977 @@
+{
+  "earlierRejectedFullContexts": [
+    {
+      "model": "generic",
+      "alignmentModel": {
+        "id": "jonatasgrosman/wav2vec2-large-xlsr-53-arabic",
+        "revision": "af46c2d8531b8dcbb5e23b952f739b372c2e5d2d",
+        "weightsSha256": "a0b26f6d9d3edfde1784aef863c192a8cc1e438a23b45910ab648531ebe1857b",
+        "license": "Apache-2.0"
+      },
+      "context": "canonical-tail",
+      "contextAyahIds": [
+        "85:20",
+        "85:21",
+        "85:22"
+      ],
+      "alignmentInput": [
+        "والله من ورايهم محيط",
+        "بل هو قران مجيد",
+        "في لوح محفوظ"
+      ],
+      "entries": [
+        {
+          "ayahId": "85:20",
+          "startMs": 255120,
+          "endMs": 263396,
+          "conf": 0.767
+        },
+        {
+          "ayahId": "85:21",
+          "startMs": 263396,
+          "endMs": 267318,
+          "conf": 0.631
+        },
+        {
+          "ayahId": "85:22",
+          "startMs": 267318,
+          "endMs": 271110,
+          "conf": 0.774
+        }
+      ],
+      "windowMs": [
+        254890,
+        272702
+      ],
+      "sourceSha256": "3379207275de071c5a1c32fd04e30e23498bf4eeebc2034f20235c41f7d01ddc",
+      "canonicalTextChanged": false,
+      "runtime": {
+        "precision": "float32",
+        "threads": 2
+      }
+    },
+    {
+      "model": "generic",
+      "alignmentModel": {
+        "id": "jonatasgrosman/wav2vec2-large-xlsr-53-arabic",
+        "revision": "af46c2d8531b8dcbb5e23b952f739b372c2e5d2d",
+        "weightsSha256": "a0b26f6d9d3edfde1784aef863c192a8cc1e438a23b45910ab648531ebe1857b",
+        "license": "Apache-2.0"
+      },
+      "context": "full-following-context",
+      "contextAyahIds": [
+        "85:20",
+        "85:21",
+        "85:22",
+        "86:basmala",
+        "86:1",
+        "86:2"
+      ],
+      "alignmentInput": [
+        "والله من ورايهم محيط",
+        "بل هو قران مجيد",
+        "في لوح محفوظ",
+        "بسم الله الرحمن الرحيم",
+        "والسما والطارق",
+        "وما ادريك ما الطارق"
+      ],
+      "entries": [
+        {
+          "ayahId": "85:20",
+          "startMs": 255120,
+          "endMs": 263398,
+          "conf": 0.743
+        },
+        {
+          "ayahId": "85:21",
+          "startMs": 263398,
+          "endMs": 267322,
+          "conf": 0.64
+        },
+        {
+          "ayahId": "85:22",
+          "startMs": 267322,
+          "endMs": 272728,
+          "conf": 0.747
+        },
+        {
+          "ayahId": "86:basmala",
+          "startMs": 272728,
+          "endMs": 277993,
+          "conf": 0.42
+        },
+        {
+          "ayahId": "86:1",
+          "startMs": 277993,
+          "endMs": 282007,
+          "conf": 0.494
+        },
+        {
+          "ayahId": "86:2",
+          "startMs": 282007,
+          "endMs": 285930,
+          "conf": 0.437
+        }
+      ],
+      "windowMs": [
+        254890,
+        286021
+      ],
+      "sourceSha256": "3379207275de071c5a1c32fd04e30e23498bf4eeebc2034f20235c41f7d01ddc",
+      "canonicalTextChanged": false,
+      "runtime": {
+        "precision": "float32",
+        "threads": 2
+      }
+    },
+    {
+      "model": "quran",
+      "alignmentModel": {
+        "id": "rabah2026/wav2vec2-large-xlsr-53-arabic-quran-v_final",
+        "revision": "b03a268c6ba1a693752307325ab376c86c3b12da",
+        "weightsSha256": "bf65674a26eb4ef7042cedade96c3c8f8cbd04f3a7d1a68eadceec8ed0f99ecb",
+        "license": "Apache-2.0",
+        "canonicalTextChanged": false
+      },
+      "context": "canonical-tail",
+      "contextAyahIds": [
+        "85:20",
+        "85:21",
+        "85:22"
+      ],
+      "alignmentInput": [
+        "والله من ورايهم محيط",
+        "بل هو قران مجيد",
+        "في لوح محفوظ"
+      ],
+      "entries": [
+        {
+          "ayahId": "85:20",
+          "startMs": 255130,
+          "endMs": 263396,
+          "conf": 0.749
+        },
+        {
+          "ayahId": "85:21",
+          "startMs": 263396,
+          "endMs": 267338,
+          "conf": 0.608
+        },
+        {
+          "ayahId": "85:22",
+          "startMs": 267338,
+          "endMs": 271090,
+          "conf": 0.765
+        }
+      ],
+      "windowMs": [
+        254890,
+        272702
+      ],
+      "sourceSha256": "3379207275de071c5a1c32fd04e30e23498bf4eeebc2034f20235c41f7d01ddc",
+      "canonicalTextChanged": false,
+      "runtime": {
+        "precision": "float32",
+        "threads": 2
+      }
+    },
+    {
+      "model": "quran",
+      "alignmentModel": {
+        "id": "rabah2026/wav2vec2-large-xlsr-53-arabic-quran-v_final",
+        "revision": "b03a268c6ba1a693752307325ab376c86c3b12da",
+        "weightsSha256": "bf65674a26eb4ef7042cedade96c3c8f8cbd04f3a7d1a68eadceec8ed0f99ecb",
+        "license": "Apache-2.0",
+        "canonicalTextChanged": false
+      },
+      "context": "full-following-context",
+      "contextAyahIds": [
+        "85:20",
+        "85:21",
+        "85:22",
+        "86:basmala",
+        "86:1",
+        "86:2"
+      ],
+      "alignmentInput": [
+        "والله من ورايهم محيط",
+        "بل هو قران مجيد",
+        "في لوح محفوظ",
+        "بسم الله الرحمن الرحيم",
+        "والسما والطارق",
+        "وما ادريك ما الطارق"
+      ],
+      "entries": [
+        {
+          "ayahId": "85:20",
+          "startMs": 255130,
+          "endMs": 263398,
+          "conf": 0.818
+        },
+        {
+          "ayahId": "85:21",
+          "startMs": 263398,
+          "endMs": 267342,
+          "conf": 0.75
+        },
+        {
+          "ayahId": "85:22",
+          "startMs": 267342,
+          "endMs": 272728,
+          "conf": 0.891
+        },
+        {
+          "ayahId": "86:basmala",
+          "startMs": 272728,
+          "endMs": 277993,
+          "conf": 0.876
+        },
+        {
+          "ayahId": "86:1",
+          "startMs": 277993,
+          "endMs": 282027,
+          "conf": 0.829
+        },
+        {
+          "ayahId": "86:2",
+          "startMs": 282027,
+          "endMs": 285930,
+          "conf": 0.576
+        }
+      ],
+      "windowMs": [
+        254890,
+        286021
+      ],
+      "sourceSha256": "3379207275de071c5a1c32fd04e30e23498bf4eeebc2034f20235c41f7d01ddc",
+      "canonicalTextChanged": false,
+      "runtime": {
+        "precision": "float32",
+        "threads": 2
+      }
+    },
+    {
+      "model": "generic",
+      "alignmentModel": {
+        "id": "jonatasgrosman/wav2vec2-large-xlsr-53-arabic",
+        "revision": "af46c2d8531b8dcbb5e23b952f739b372c2e5d2d",
+        "weightsSha256": "a0b26f6d9d3edfde1784aef863c192a8cc1e438a23b45910ab648531ebe1857b",
+        "license": "Apache-2.0"
+      },
+      "context": "17-through-next3",
+      "contextAyahIds": [
+        "85:17",
+        "85:18",
+        "85:19",
+        "85:20",
+        "85:21",
+        "85:22",
+        "86:basmala",
+        "86:1",
+        "86:2",
+        "86:3"
+      ],
+      "alignmentInput": [
+        "هل اتيك حديث الجنود",
+        "فرعون وثمود",
+        "بل الذين كفروا في تكذيب",
+        "والله من ورايهم محيط",
+        "بل هو قران مجيد",
+        "في لوح محفوظ",
+        "بسم الله الرحمن الرحيم",
+        "والسما والطارق",
+        "وما ادريك ما الطارق",
+        "النجم الثاقب"
+      ],
+      "entries": [
+        {
+          "ayahId": "85:17",
+          "startMs": 244243,
+          "endMs": 247195,
+          "conf": 0.479
+        },
+        {
+          "ayahId": "85:18",
+          "startMs": 247195,
+          "endMs": 250689,
+          "conf": 0.357
+        },
+        {
+          "ayahId": "85:19",
+          "startMs": 250689,
+          "endMs": 254873,
+          "conf": 0.634
+        },
+        {
+          "ayahId": "85:20",
+          "startMs": 254873,
+          "endMs": 263420,
+          "conf": 0.819
+        },
+        {
+          "ayahId": "85:21",
+          "startMs": 263420,
+          "endMs": 267324,
+          "conf": 0.584
+        },
+        {
+          "ayahId": "85:22",
+          "startMs": 267324,
+          "endMs": 272728,
+          "conf": 0.736
+        },
+        {
+          "ayahId": "86:basmala",
+          "startMs": 272728,
+          "endMs": 277973,
+          "conf": 0.533
+        },
+        {
+          "ayahId": "86:1",
+          "startMs": 277973,
+          "endMs": 282006,
+          "conf": 0.567
+        },
+        {
+          "ayahId": "86:2",
+          "startMs": 282006,
+          "endMs": 285950,
+          "conf": 0.426
+        },
+        {
+          "ayahId": "86:3",
+          "startMs": 285950,
+          "endMs": 287931,
+          "conf": 0.511
+        }
+      ],
+      "windowMs": [
+        244003,
+        288162
+      ],
+      "sourceSha256": "3379207275de071c5a1c32fd04e30e23498bf4eeebc2034f20235c41f7d01ddc",
+      "canonicalTextChanged": false,
+      "runtime": {
+        "precision": "float32",
+        "threads": 2
+      }
+    },
+    {
+      "model": "generic",
+      "alignmentModel": {
+        "id": "jonatasgrosman/wav2vec2-large-xlsr-53-arabic",
+        "revision": "af46c2d8531b8dcbb5e23b952f739b372c2e5d2d",
+        "weightsSha256": "a0b26f6d9d3edfde1784aef863c192a8cc1e438a23b45910ab648531ebe1857b",
+        "license": "Apache-2.0"
+      },
+      "context": "19-through-next3",
+      "contextAyahIds": [
+        "85:19",
+        "85:20",
+        "85:21",
+        "85:22",
+        "86:basmala",
+        "86:1",
+        "86:2",
+        "86:3"
+      ],
+      "alignmentInput": [
+        "بل الذين كفروا في تكذيب",
+        "والله من ورايهم محيط",
+        "بل هو قران مجيد",
+        "في لوح محفوظ",
+        "بسم الله الرحمن الرحيم",
+        "والسما والطارق",
+        "وما ادريك ما الطارق",
+        "النجم الثاقب"
+      ],
+      "entries": [
+        {
+          "ayahId": "85:19",
+          "startMs": 250937,
+          "endMs": 254891,
+          "conf": 0.573
+        },
+        {
+          "ayahId": "85:20",
+          "startMs": 254891,
+          "endMs": 263399,
+          "conf": 0.745
+        },
+        {
+          "ayahId": "85:21",
+          "startMs": 263399,
+          "endMs": 267322,
+          "conf": 0.596
+        },
+        {
+          "ayahId": "85:22",
+          "startMs": 267322,
+          "endMs": 272728,
+          "conf": 0.626
+        },
+        {
+          "ayahId": "86:basmala",
+          "startMs": 272728,
+          "endMs": 277992,
+          "conf": 0.375
+        },
+        {
+          "ayahId": "86:1",
+          "startMs": 277992,
+          "endMs": 282116,
+          "conf": 0.379
+        },
+        {
+          "ayahId": "86:2",
+          "startMs": 282116,
+          "endMs": 285949,
+          "conf": 0.313
+        },
+        {
+          "ayahId": "86:3",
+          "startMs": 285949,
+          "endMs": 288071,
+          "conf": 0.398
+        }
+      ],
+      "windowMs": [
+        250707,
+        288162
+      ],
+      "sourceSha256": "3379207275de071c5a1c32fd04e30e23498bf4eeebc2034f20235c41f7d01ddc",
+      "canonicalTextChanged": false,
+      "runtime": {
+        "precision": "float32",
+        "threads": 2
+      }
+    },
+    {
+      "model": "quran",
+      "alignmentModel": {
+        "id": "rabah2026/wav2vec2-large-xlsr-53-arabic-quran-v_final",
+        "revision": "b03a268c6ba1a693752307325ab376c86c3b12da",
+        "weightsSha256": "bf65674a26eb4ef7042cedade96c3c8f8cbd04f3a7d1a68eadceec8ed0f99ecb",
+        "license": "Apache-2.0",
+        "canonicalTextChanged": false
+      },
+      "context": "17-through-next3",
+      "contextAyahIds": [
+        "85:17",
+        "85:18",
+        "85:19",
+        "85:20",
+        "85:21",
+        "85:22",
+        "86:basmala",
+        "86:1",
+        "86:2",
+        "86:3"
+      ],
+      "alignmentInput": [
+        "هل اتيك حديث الجنود",
+        "فرعون وثمود",
+        "بل الذين كفروا في تكذيب",
+        "والله من ورايهم محيط",
+        "بل هو قران مجيد",
+        "في لوح محفوظ",
+        "بسم الله الرحمن الرحيم",
+        "والسما والطارق",
+        "وما ادريك ما الطارق",
+        "النجم الثاقب"
+      ],
+      "entries": [
+        {
+          "ayahId": "85:17",
+          "startMs": 244243,
+          "endMs": 247215,
+          "conf": 0.772
+        },
+        {
+          "ayahId": "85:18",
+          "startMs": 247215,
+          "endMs": 250689,
+          "conf": 0.788
+        },
+        {
+          "ayahId": "85:19",
+          "startMs": 250689,
+          "endMs": 254893,
+          "conf": 0.703
+        },
+        {
+          "ayahId": "85:20",
+          "startMs": 254893,
+          "endMs": 263420,
+          "conf": 0.789
+        },
+        {
+          "ayahId": "85:21",
+          "startMs": 263420,
+          "endMs": 267344,
+          "conf": 0.681
+        },
+        {
+          "ayahId": "85:22",
+          "startMs": 267344,
+          "endMs": 272728,
+          "conf": 0.83
+        },
+        {
+          "ayahId": "86:basmala",
+          "startMs": 272728,
+          "endMs": 277973,
+          "conf": 0.842
+        },
+        {
+          "ayahId": "86:1",
+          "startMs": 277973,
+          "endMs": 282026,
+          "conf": 0.92
+        },
+        {
+          "ayahId": "86:2",
+          "startMs": 282026,
+          "endMs": 285970,
+          "conf": 0.795
+        },
+        {
+          "ayahId": "86:3",
+          "startMs": 285970,
+          "endMs": 288071,
+          "conf": 0.747
+        }
+      ],
+      "windowMs": [
+        244003,
+        288162
+      ],
+      "sourceSha256": "3379207275de071c5a1c32fd04e30e23498bf4eeebc2034f20235c41f7d01ddc",
+      "canonicalTextChanged": false,
+      "runtime": {
+        "precision": "float32",
+        "threads": 2
+      }
+    },
+    {
+      "model": "quran",
+      "alignmentModel": {
+        "id": "rabah2026/wav2vec2-large-xlsr-53-arabic-quran-v_final",
+        "revision": "b03a268c6ba1a693752307325ab376c86c3b12da",
+        "weightsSha256": "bf65674a26eb4ef7042cedade96c3c8f8cbd04f3a7d1a68eadceec8ed0f99ecb",
+        "license": "Apache-2.0",
+        "canonicalTextChanged": false
+      },
+      "context": "19-through-next3",
+      "contextAyahIds": [
+        "85:19",
+        "85:20",
+        "85:21",
+        "85:22",
+        "86:basmala",
+        "86:1",
+        "86:2",
+        "86:3"
+      ],
+      "alignmentInput": [
+        "بل الذين كفروا في تكذيب",
+        "والله من ورايهم محيط",
+        "بل هو قران مجيد",
+        "في لوح محفوظ",
+        "بسم الله الرحمن الرحيم",
+        "والسما والطارق",
+        "وما ادريك ما الطارق",
+        "النجم الثاقب"
+      ],
+      "entries": [
+        {
+          "ayahId": "85:19",
+          "startMs": 250937,
+          "endMs": 254891,
+          "conf": 0.773
+        },
+        {
+          "ayahId": "85:20",
+          "startMs": 254891,
+          "endMs": 263399,
+          "conf": 0.836
+        },
+        {
+          "ayahId": "85:21",
+          "startMs": 263399,
+          "endMs": 267343,
+          "conf": 0.767
+        },
+        {
+          "ayahId": "85:22",
+          "startMs": 267343,
+          "endMs": 272728,
+          "conf": 0.867
+        },
+        {
+          "ayahId": "86:basmala",
+          "startMs": 272728,
+          "endMs": 277992,
+          "conf": 0.914
+        },
+        {
+          "ayahId": "86:1",
+          "startMs": 277992,
+          "endMs": 282026,
+          "conf": 0.722
+        },
+        {
+          "ayahId": "86:2",
+          "startMs": 282026,
+          "endMs": 285969,
+          "conf": 0.643
+        },
+        {
+          "ayahId": "86:3",
+          "startMs": 285969,
+          "endMs": 288071,
+          "conf": 0.671
+        }
+      ],
+      "windowMs": [
+        250707,
+        288162
+      ],
+      "sourceSha256": "3379207275de071c5a1c32fd04e30e23498bf4eeebc2034f20235c41f7d01ddc",
+      "canonicalTextChanged": false,
+      "runtime": {
+        "precision": "float32",
+        "threads": 2
+      }
+    },
+    {
+      "model": "generic",
+      "alignmentModel": {
+        "id": "jonatasgrosman/wav2vec2-large-xlsr-53-arabic",
+        "revision": "af46c2d8531b8dcbb5e23b952f739b372c2e5d2d",
+        "weightsSha256": "a0b26f6d9d3edfde1784aef863c192a8cc1e438a23b45910ab648531ebe1857b",
+        "license": "Apache-2.0"
+      },
+      "context": "whole-neighbour",
+      "contextAyahIds": [
+        "85:21",
+        "85:22",
+        "86:basmala",
+        "86:1"
+      ],
+      "alignmentInput": [
+        "بل هو قران مجيد",
+        "في لوح محفوظ",
+        "بسم الله الرحمن الرحيم",
+        "والسما والطارق"
+      ],
+      "entries": [
+        {
+          "ayahId": "85:21",
+          "startMs": 263426,
+          "endMs": 267321,
+          "conf": 0.611
+        },
+        {
+          "ayahId": "85:22",
+          "startMs": 267321,
+          "endMs": 272707,
+          "conf": 0.778
+        },
+        {
+          "ayahId": "86:basmala",
+          "startMs": 272707,
+          "endMs": 277973,
+          "conf": 0.462
+        },
+        {
+          "ayahId": "86:1",
+          "startMs": 277973,
+          "endMs": 281847,
+          "conf": 0.442
+        }
+      ],
+      "windowMs": [
+        263416,
+        282058
+      ],
+      "sourceSha256": "3379207275de071c5a1c32fd04e30e23498bf4eeebc2034f20235c41f7d01ddc",
+      "canonicalTextChanged": false,
+      "runtime": {
+        "precision": "float32",
+        "threads": 2
+      }
+    },
+    {
+      "model": "generic",
+      "alignmentModel": {
+        "id": "jonatasgrosman/wav2vec2-large-xlsr-53-arabic",
+        "revision": "af46c2d8531b8dcbb5e23b952f739b372c2e5d2d",
+        "weightsSha256": "a0b26f6d9d3edfde1784aef863c192a8cc1e438a23b45910ab648531ebe1857b",
+        "license": "Apache-2.0"
+      },
+      "context": "fixed-following-10s",
+      "contextAyahIds": [
+        "85:21",
+        "85:22",
+        "86:basmala",
+        "86:1"
+      ],
+      "alignmentInput": [
+        "بل هو قران مجيد",
+        "في لوح محفوظ",
+        "بسم الله الرحمن الرحيم",
+        "والسما والطارق"
+      ],
+      "entries": [
+        {
+          "ayahId": "85:21",
+          "startMs": 263426,
+          "endMs": 267317,
+          "conf": 0.611
+        },
+        {
+          "ayahId": "85:22",
+          "startMs": 267317,
+          "endMs": 272699,
+          "conf": 0.737
+        },
+        {
+          "ayahId": "86:basmala",
+          "startMs": 272699,
+          "endMs": 277960,
+          "conf": 0.386
+        },
+        {
+          "ayahId": "86:1",
+          "startMs": 277960,
+          "endMs": 281991,
+          "conf": 0.402
+        }
+      ],
+      "windowMs": [
+        263416,
+        282702
+      ],
+      "sourceSha256": "3379207275de071c5a1c32fd04e30e23498bf4eeebc2034f20235c41f7d01ddc",
+      "canonicalTextChanged": false,
+      "runtime": {
+        "precision": "float32",
+        "threads": 2
+      }
+    },
+    {
+      "model": "quran",
+      "alignmentModel": {
+        "id": "rabah2026/wav2vec2-large-xlsr-53-arabic-quran-v_final",
+        "revision": "b03a268c6ba1a693752307325ab376c86c3b12da",
+        "weightsSha256": "bf65674a26eb4ef7042cedade96c3c8f8cbd04f3a7d1a68eadceec8ed0f99ecb",
+        "license": "Apache-2.0",
+        "canonicalTextChanged": false
+      },
+      "context": "whole-neighbour",
+      "contextAyahIds": [
+        "85:21",
+        "85:22",
+        "86:basmala",
+        "86:1"
+      ],
+      "alignmentInput": [
+        "بل هو قران مجيد",
+        "في لوح محفوظ",
+        "بسم الله الرحمن الرحيم",
+        "والسما والطارق"
+      ],
+      "entries": [
+        {
+          "ayahId": "85:21",
+          "startMs": 263646,
+          "endMs": 267341,
+          "conf": 0.746
+        },
+        {
+          "ayahId": "85:22",
+          "startMs": 267341,
+          "endMs": 272707,
+          "conf": 0.89
+        },
+        {
+          "ayahId": "86:basmala",
+          "startMs": 272707,
+          "endMs": 277973,
+          "conf": 0.884
+        },
+        {
+          "ayahId": "86:1",
+          "startMs": 277973,
+          "endMs": 281987,
+          "conf": 0.718
+        }
+      ],
+      "windowMs": [
+        263416,
+        282058
+      ],
+      "sourceSha256": "3379207275de071c5a1c32fd04e30e23498bf4eeebc2034f20235c41f7d01ddc",
+      "canonicalTextChanged": false,
+      "runtime": {
+        "precision": "float32",
+        "threads": 2
+      }
+    },
+    {
+      "model": "quran",
+      "alignmentModel": {
+        "id": "rabah2026/wav2vec2-large-xlsr-53-arabic-quran-v_final",
+        "revision": "b03a268c6ba1a693752307325ab376c86c3b12da",
+        "weightsSha256": "bf65674a26eb4ef7042cedade96c3c8f8cbd04f3a7d1a68eadceec8ed0f99ecb",
+        "license": "Apache-2.0",
+        "canonicalTextChanged": false
+      },
+      "context": "fixed-following-10s",
+      "contextAyahIds": [
+        "85:21",
+        "85:22",
+        "86:basmala",
+        "86:1"
+      ],
+      "alignmentInput": [
+        "بل هو قران مجيد",
+        "في لوح محفوظ",
+        "بسم الله الرحمن الرحيم",
+        "والسما والطارق"
+      ],
+      "entries": [
+        {
+          "ayahId": "85:21",
+          "startMs": 263646,
+          "endMs": 267337,
+          "conf": 0.766
+        },
+        {
+          "ayahId": "85:22",
+          "startMs": 267337,
+          "endMs": 272699,
+          "conf": 0.91
+        },
+        {
+          "ayahId": "86:basmala",
+          "startMs": 272699,
+          "endMs": 277960,
+          "conf": 0.909
+        },
+        {
+          "ayahId": "86:1",
+          "startMs": 277960,
+          "endMs": 282011,
+          "conf": 0.806
+        }
+      ],
+      "windowMs": [
+        263416,
+        282702
+      ],
+      "sourceSha256": "3379207275de071c5a1c32fd04e30e23498bf4eeebc2034f20235c41f7d01ddc",
+      "canonicalTextChanged": false,
+      "runtime": {
+        "precision": "float32",
+        "threads": 2
+      }
+    }
+  ],
+  "acceptedCanonicalContext": {
+    "proof": {
+      "target": "85:22",
+      "sourceSha256": "3379207275de071c5a1c32fd04e30e23498bf4eeebc2034f20235c41f7d01ddc",
+      "canonicalTextChanged": false,
+      "contextAyahIds": [
+        "85:21",
+        "85:22",
+        "86:basmala"
+      ],
+      "windowMs": [
+        263416,
+        278702
+      ],
+      "runtime": {
+        "precision": "float32",
+        "threads": 2
+      },
+      "models": {
+        "generic": {
+          "alignmentModel": {
+            "id": "jonatasgrosman/wav2vec2-large-xlsr-53-arabic",
+            "revision": "af46c2d8531b8dcbb5e23b952f739b372c2e5d2d",
+            "weightsSha256": "a0b26f6d9d3edfde1784aef863c192a8cc1e438a23b45910ab648531ebe1857b",
+            "license": "Apache-2.0"
+          },
+          "alignmentInput": [
+            "بل هو قران مجيد",
+            "في لوح محفوظ",
+            "بسم الله الرحمن الرحيم"
+          ],
+          "entries": [
+            {
+              "ayahId": "85:21",
+              "startMs": 263616,
+              "endMs": 267297,
+              "conf": 0.652
+            },
+            {
+              "ayahId": "85:22",
+              "startMs": 267297,
+              "endMs": 272699,
+              "conf": 0.85
+            },
+            {
+              "ayahId": "86:basmala",
+              "startMs": 272699,
+              "endMs": 276891,
+              "conf": 0.696
+            }
+          ]
+        },
+        "quran": {
+          "alignmentModel": {
+            "id": "rabah2026/wav2vec2-large-xlsr-53-arabic-quran-v_final",
+            "revision": "b03a268c6ba1a693752307325ab376c86c3b12da",
+            "weightsSha256": "bf65674a26eb4ef7042cedade96c3c8f8cbd04f3a7d1a68eadceec8ed0f99ecb",
+            "license": "Apache-2.0",
+            "canonicalTextChanged": false
+          },
+          "alignmentInput": [
+            "بل هو قران مجيد",
+            "في لوح محفوظ",
+            "بسم الله الرحمن الرحيم"
+          ],
+          "entries": [
+            {
+              "ayahId": "85:21",
+              "startMs": 263646,
+              "endMs": 267337,
+              "conf": 0.662
+            },
+            {
+              "ayahId": "85:22",
+              "startMs": 267337,
+              "endMs": 272699,
+              "conf": 0.818
+            },
+            {
+              "ayahId": "86:basmala",
+              "startMs": 272699,
+              "endMs": 276871,
+              "conf": 0.679
+            }
+          ]
+        }
+      }
+    },
+    "validationError": null,
+    "actualSourceSha": "3379207275de071c5a1c32fd04e30e23498bf4eeebc2034f20235c41f7d01ddc",
+    "diagnosticOnly": true,
+    "productionChanged": false
+  },
+  "productionChanged": false,
+  "censusUnchangedByLocalDiagnostics": true
+}

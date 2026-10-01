@@ -184,6 +184,10 @@ def census_gate(cl, bucket, src, live_sha, idx):
     spoken_error = spoken_report_error(rep, idx)
     if spoken_error:
         return spoken_error
+    from tail_census_witness import report_error as tail_report_error
+    tail_error = tail_report_error(rep, idx)
+    if tail_error:
+        return tail_error
     got = {str(s) for s in (rep.get("census") or {}).get("surahs") or []}
     if got != ebs:
         return f"الإحصاءُ غطّى {sorted(got, key=int)} والمدموجُ {sorted(ebs, key=int)}"
