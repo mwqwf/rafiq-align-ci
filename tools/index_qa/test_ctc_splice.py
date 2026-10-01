@@ -185,6 +185,19 @@ class CensusGate(unittest.TestCase):
         d = _parent()
         self.assertIsNone(self.gate(None, d))
 
+    def test_quran_model_requires_full_census_and_pinned_model_records(self):
+        import quran_ctc_model as Q
+        d=_spliced();d['engineVersion']='ctc-seg-1'
+        d['engineBySurah']={'112':Q.ENGINE,'113':Q.ENGINE}
+        d['transform']['op']='ctc_quran_window:112,113'
+        self.assertIn('نسب نموذج',self.gate(_census('S'),d))
+        ev={'id':Q.MODEL_ID,'revision':Q.REVISION,'weightsSha256':Q.WEIGHTS_SHA256,
+            'license':'Apache-2.0','canonicalTextChanged':False}
+        d['alignmentModelBySurah']={'112':ev,'113':ev}
+        self.assertIsNotNone(self.gate(None,d))
+        self.assertIsNone(self.gate(_census('S'),d))
+        self.assertIsNotNone(self.gate(_census('OTHER'),d))
+
     def test_splice_op_without_header_refused(self):
         d = _spliced()
         d.pop("engineBySurah")

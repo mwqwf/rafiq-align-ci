@@ -114,6 +114,8 @@ SPLICE_OPS = {"ctc_surah_splice": "ctc-seg-1",
               # ⭐ قسمةُ المبتلع بنافذة الجارتين (‏ctc_gapsplit · 2026-09-30): محرّكٌ مستقلٌّ باسمه
               #    فيُعلَن في `engineBySurah` حتى فوق فهرس CTC، ويلزمه الإحصاءُ الشامل كغيره.
               "ctc_gapsplit": "ctc-gapsplit-1",
+              "ctc_quran_window": "ctc-quran-window-1",
+              "ctc_quran_surah_splice": "ctc-quran-surah-1",
               # نطق الحروف مدخل محاذاة مختلف، فلا يرث شهادة CTC المعتادة.
               "ctc_spoken_surah_splice": "ctc-spoken-1"}
 
@@ -153,6 +155,11 @@ def census_gate(cl, bucket, src, live_sha, idx):
     نفسِه حرفاً، لأنّ السجلَّ يُقرأ بما خالف `engineVersion` أيّاً كان.
     """
     tr = idx.get("transform")
+    sys.path.insert(0, str(ROOT / 'tools' / 'alignment_v3'))
+    from quran_ctc_model import records_error
+    model_error = records_error(idx)
+    if model_error:
+        return model_error
     op = str((tr or {}).get("op") or "") if isinstance(tr, dict) else str(tr or "")
     # ‏السورُ المطلوبُ إحصاؤها: محرّكٌ آخر ∪ مصدرٌ بديل (‏`census_surahs`).
     ebs = census_surahs(idx)

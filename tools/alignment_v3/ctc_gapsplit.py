@@ -114,6 +114,7 @@ def main() -> int:
     ap.add_argument("--context-ayahs", type=int, choices=(1, 2, 3), default=1,
                     help="عدد الجارات الحاضرة للمراسي؛ 1 يحفظ المسار القائم، و2/3 يعيدان نافذة أوسع بحراس الثقة والمدة أنفسهم")
     ap.add_argument("--spoken-openers", action="store_true", help="أسماء الحروف المنطوقة لمدخل المحاذاة وحده، دون تغيير حراس المدة")
+    ap.add_argument("--quran-model", action="store_true", help="نموذج تلاوة مرخص مثبت البصمة؛ مدخل الرسم الأصلي ومحرك مستقل وإحصاء كامل")
     ap.add_argument("--starts-with-first-ayah", action="store_true",
                     help="تسجيل مثبت صوتياً يبدأ بالآية الأولى دون بسملة؛ مرساة بدء الملف صفر، لسورة واحدة فقط")
     # ⭐ (2026-09-30 · f_hajry الرحمن): **إعادةُ نافذةٍ** لمدىً حاضرٍ حدودُه معطوبة — «55:41-75» ⇒ تُحاذى
@@ -123,6 +124,15 @@ def main() -> int:
     #    ⛔ بالحُرّاس نفسِها (‏ثقة · مدّة · جارة) والإحصاءُ الشاملُ هو الحَكَم.
     ap.add_argument("--rewindow", default="", help="مدى آياتٍ حاضرةٍ يُعاد بنافذته: 55:41-75[,…]")
     a = ap.parse_args()
+    import ctc_seg as C
+    if C._M.get('alignmentModelId') and not a.quran_model:
+        ap.error('النموذج المتخصص المحمل يحتاج علم محركه الصريح')
+    model_evidence = None
+    if a.quran_model:
+        if a.spoken_openers:
+            ap.error('مدخل الرسم للنموذج المتخصص لا يجتمع مع تهجئة الحروف')
+        import quran_ctc_model as Q
+        model_evidence = Q.configure()
     requested_surahs = [int(v) for v in a.surahs.split(",") if v.strip()]
     if a.starts_with_first_ayah and len(requested_surahs) != 1:
         ap.error("شاهد بدء الملف يخص سورة واحدة صريحة")
@@ -202,7 +212,10 @@ def main() -> int:
                 p = ents[left]
                 ks, ws, we, fixed = list(range(left, n + 1)), p["startMs"], total_ms, (0,)
             try:
-                references = [alignment_text(s, k, t_of(k)) if a.spoken_openers else norm(t_of(k)) for k in ks]
+                references = [Q.reference_text(t_of(k)) if a.quran_model else
+                              alignment_text(s, k, t_of(k)) if a.spoken_openers else norm(t_of(k)) for k in ks]
+                if a.quran_model and lead:
+                    lead = [Q.reference_text('بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ')]
                 segs = split_window(x, int(ws), int(we), lead + references)[len(lead):]
             except Exception as ex:                    # noqa: BLE001
                 report.append(f"س{s}:{b0}-{b1} ({kind}): تعذّرت المحاذاة — {str(ex)[:80]}")
@@ -266,7 +279,8 @@ def main() -> int:
                              "inherited": e == parent_ents.get(k),
                              "matched": 0, "total": len(norm(t_of(k)).split())})
         with open(os.path.join(a.out_dir, f"s{s:03d}.json"), "w", encoding="utf-8") as f:
-            json.dump({"fileRef": url, "sha256": sha, "surah": s, "engine": "ctc-gapsplit-1",
+            json.dump({"fileRef": url, "sha256": sha, "surah": s, "engine": Q.ENGINE if a.quran_model else "ctc-gapsplit-1",
+                       **({'alignmentModel': model_evidence} if model_evidence else {}),
                        "gapsplit": added, "entries": out_rows,
                        **({"startsWithFirstAyah": True} if a.starts_with_first_ayah else {})}, f, ensure_ascii=False)
     print("\n".join(report))

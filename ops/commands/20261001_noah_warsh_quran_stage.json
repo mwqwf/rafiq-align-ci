@@ -1,0 +1,19 @@
+{
+  "action": "tool",
+  "tool": "index_qa/stage_transform.py",
+  "args": [
+    "--file",
+    "ops/source-repair/candidates/noah_warsh.148ff285.jz",
+    "--parent",
+    "timings/warsh/noah_warsh.jz",
+    "--parent-sha",
+    "80f27f11765ae9b8ed7d77a0d44dc661467e77db28161e6fa1cc8fdb53b2ae90",
+    "--op",
+    "ctc_quran_window:7",
+    "--by",
+    "Codex",
+    "--reason",
+    "استعادة بمحاذاة نموذج تلاوة Apache-2.0 مثبت SHA وأوزانه ونص الرواية نفسه، نفس حراس الثقة0.45 والمدة والجارات، المداخل الموروثة حرفياً؛ محرك مستقل يتطلب الإحصاء الشامل والبنية والمطالع والملوح الأربعة قبل الاعتماد",
+    "--yes"
+  ]
+}

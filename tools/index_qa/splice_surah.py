@@ -159,8 +159,18 @@ def main() -> None:
     before_out = [e for e in entries if int(e["ayahId"].split(":")[0]) not in surahs]
 
     new_rows, skipped, taken = [], [], []
+    model_records = {}
     for s, af in zip(surahs, args.aligned):
         res = json.load(open(af, encoding="utf-8"))
+        if args.engine_tag in ('ctc-quran-window-1', 'ctc-quran-surah-1'):
+            sys.path.insert(0, str(Path(__file__).resolve().parents[1] / 'alignment_v3'))
+            from quran_ctc_model import MODEL_ID, REVISION, WEIGHTS_SHA256
+            ev = res.get('alignmentModel') or {}
+            if (res.get('engine') != args.engine_tag or ev.get('id') != MODEL_ID
+                    or ev.get('revision') != REVISION or ev.get('weightsSha256') != WEIGHTS_SHA256
+                    or ev.get('license') != 'Apache-2.0' or ev.get('canonicalTextChanged') is not False):
+                sys.exit(f'⛔ س{s}: محرك التلاوة بلا نسب نموذج ثابت صحيح')
+            model_records[str(s)] = ev
         if args.registered_sources:
             if (res.get("sourceUrl") != refs[s]
                     or not registered[s].get("audio_sha256")
@@ -258,6 +268,13 @@ def main() -> None:
         out["engineBySurah"] = dict(sorted(ebs.items(), key=lambda kv: int(kv[0])))
     else:
         out.pop("engineBySurah", None)
+    models = {k:v for k,v in (idx.get('alignmentModelBySurah') or {}).items()
+              if int(k) not in surahs}
+    models.update({str(s):model_records[str(s)] for s in surahs if str(s) in model_records})
+    if models:
+        out['alignmentModelBySurah'] = models
+    else:
+        out.pop('alignmentModelBySurah', None)
     # ⛔ **والمصدرُ البديلُ يُعلَن كذلك** (‏2026-09-28): سورةٌ جاء صوتُها من
     #    تسجيلٍ غيرِ ملفّ الكتالوج تُسجَّل بقالبها في `sourceBySurah` ولو كان
     #    المحرّكُ محرّكَ الفهرس نفسَه — فقد تغيّر الصوتُ لا المحرّك. وما أُعيد

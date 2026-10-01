@@ -183,6 +183,11 @@ def main():
     #    بعينه** (‏`promote.SPLICE_OPS`) — فدمجُ Whisper معلَناً بـCTC أو العكسُ
     #    كذبٌ في سجلّ النسب يُردّ، ولا يكفي أنّه «غيرُ محرّك الفهرس».
     ebs = idx.get("engineBySurah") or {}
+    sys.path.insert(0, str(HERE.parent / 'alignment_v3'))
+    from quran_ctc_model import records_error
+    model_error = records_error(idx)
+    if model_error:
+        raise SystemExit('⛔ ' + model_error)
     p_ebs = pidx.get("engineBySurah") or {}
     # ⛔ **والمصدرُ البديلُ يُعلَن سورةً سورة** (‏2026-09-28): دمجُ سورةٍ من تسجيلٍ
     #    آخر للقارئ نفسِه (‏`source_overrides.json`) في فهرسٍ بالمحرّك نفسِه لا يُكتب

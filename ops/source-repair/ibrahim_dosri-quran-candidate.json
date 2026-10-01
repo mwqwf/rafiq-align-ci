@@ -1,0 +1,35 @@
+{
+  "reciterId": "ibrahim_dosri",
+  "riwaya": "hafs",
+  "surahs": [
+    74
+  ],
+  "parent": "timings/hafs/ibrahim_dosri.jz",
+  "parentSha": "f4a744a0f735601f687468469d30b18e417d3039bf30100d3ff7aa206e1b9087",
+  "candidateFile": "ops/source-repair/candidates/ibrahim_dosri.d16ee43d.jz",
+  "candidateSha": "d16ee43d6c7ee46bcc48d42021b967b073a26d26b02aaaf80b0cf17e09acab02",
+  "added": [
+    "74:21",
+    "74:22"
+  ],
+  "entries": 6236,
+  "missing": {
+    "count": 0,
+    "byReason": {},
+    "medianLen": 4,
+    "medianLenAll": 11,
+    "biasedShort": false,
+    "ids": []
+  },
+  "alignmentModelBySurah": {
+    "74": {
+      "id": "rabah2026/wav2vec2-large-xlsr-53-arabic-quran-v_final",
+      "revision": "b03a268c6ba1a693752307325ab376c86c3b12da",
+      "weightsSha256": "bf65674a26eb4ef7042cedade96c3c8f8cbd04f3a7d1a68eadceec8ed0f99ecb",
+      "license": "Apache-2.0",
+      "canonicalTextChanged": false
+    }
+  },
+  "productionChanged": false,
+  "publicationHold": false
+}

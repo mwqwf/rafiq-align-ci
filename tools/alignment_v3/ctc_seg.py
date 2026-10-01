@@ -102,16 +102,28 @@ def _conf(score):
     return round(max(0.0, min(1.0, 1.0 + 0.25 * float(score))), 3)
 
 
-def run_surah(audio_path, surah_no, riwaya, log=print, spoken_openers=False, omit_basmala=False):
+def run_surah(audio_path, surah_no, riwaya, log=print, spoken_openers=False, omit_basmala=False,
+              quran_model=False):
+    if _M.get('alignmentModelId') and not quran_model:
+        raise ValueError('Loaded Quran model requires its explicit engine flag')
     index = load_index()
     a, b, s = surah_slice(index, surah_no)
     canonical = load_text(riwaya)[a:b]
-    ref = [alignment_text(surah_no, i + 1, t) if spoken_openers else norm(t)
+    model_evidence = None
+    if quran_model:
+        if spoken_openers:
+            raise ValueError('Quran script and spelled-letter inputs are separate engines')
+        import quran_ctc_model as Q
+        model_evidence = Q.configure()
+    ref = [Q.reference_text(t) if quran_model else
+           alignment_text(surah_no, i + 1, t) if spoken_openers else norm(t)
            for i, t in enumerate(canonical)]
     wav = to_wav16k(audio_path)
     total_ms = ffprobe_duration_ms(audio_path)
     x = read_wav(wav).astype(np.float32)
     lead = [] if surah_no in (1, 9) or omit_basmala else [BASMALA]
+    if quran_model and lead:
+        lead = [Q.reference_text('بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ')]
     segs = _segment(_emissions(x), len(x), lead + ref)[len(lead):]
     sil = silences(wav)
     entries = []
@@ -138,6 +150,7 @@ def run_surah(audio_path, surah_no, riwaya, log=print, spoken_openers=False, omi
     log(f"سورة {surah_no}: {bands} · {len(issues)} مخالفة")
     return {"surah": surah_no, "riwaya": riwaya, "totalMs": total_ms,
             "entries": entries, "issues": issues, "bands": bands,
+            **({'engine': 'ctc-quran-surah-1', 'alignmentModel': model_evidence} if quran_model else {}),
             **({"basmalaOmitted": True} if omit_basmala else {})}
 
 
@@ -149,7 +162,9 @@ if __name__ == "__main__":
     ap.add_argument("--surah", type=int, required=True)
     ap.add_argument("--riwaya", default="hafs")
     ap.add_argument("--spoken-openers", action="store_true", help="تهجئة الحروف للمحاذاة فقط؛ تجربة صريحة لا تغيّر الوصفة الافتراضية")
+    ap.add_argument("--quran-model", action="store_true")
     ap.add_argument("--omit-basmala", action="store_true", help="تسجيل مثبت صوتياً بلا بسملة؛ حذفها من مدخل المحاذاة فقط")
     a = ap.parse_args()
-    r = run_surah(a.audio, a.surah, a.riwaya, spoken_openers=a.spoken_openers, omit_basmala=a.omit_basmala)
+    r = run_surah(a.audio, a.surah, a.riwaya, spoken_openers=a.spoken_openers, omit_basmala=a.omit_basmala,
+                  quran_model=a.quran_model)
     print(json.dumps([(e["ayahIdx"] + 1, e["startMs"], e["endMs"], e["conf"]) for e in r["entries"]]))
