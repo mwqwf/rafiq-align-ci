@@ -1,0 +1,71 @@
+{
+  "reciterId": "i_sanankoua",
+  "riwaya": "hafs",
+  "surahs": [
+    38,
+    89
+  ],
+  "parent": "timings/hafs/i_sanankoua.jz",
+  "parentSha": "a66c166cd835cd67096648228b92223617487cb4c88d04b32e4fa8b478a7ef5b",
+  "candidateFile": "ops/source-repair/candidates/i_sanankoua.2a14ced6.jz",
+  "candidateSha": "2a14ced61554be2254589805546d7c982ed3b371e9a8196657fe3f5a4135c849",
+  "added": [
+    "38:84",
+    "89:29"
+  ],
+  "entries": 6236,
+  "sourceTimingBySurah": {
+    "38": {
+      "api": "https://mp3quran.net/api/v3/ayat_timing?surah=38&read=303",
+      "readId": 303,
+      "reciterApiId": 288,
+      "riwaya": "hafs",
+      "exactSourceUrl": "https://server16.mp3quran.net/i_sanankoua/Rewayat-Hafs-A-n-Assem/038.mp3",
+      "sourceSha256": "89b5c53ba36b4a0521d3a80e17694665d104cbc12b9317a2dfb2f7b538413e65",
+      "responseSha256": "d548640c3406dae1dd68c23e0ba0d703dd3bc8c3a891525166831365e7ea9214",
+      "sourceAyahCount": 88,
+      "mappedAyahCount": 88,
+      "countMapSha256": null,
+      "fetchedAt": 1790873197,
+      "durationMs": 950909,
+      "lastSourceEndMs": 933860,
+      "durationWarnings": null,
+      "inheritedAyahIds": [],
+      "confidence": {
+        "value": 0.7,
+        "meaning": "external source timing MED as existing ingest tool; not CTC probability"
+      },
+      "canonicalTextChanged": false
+    },
+    "89": {
+      "api": "https://mp3quran.net/api/v3/ayat_timing?surah=89&read=303",
+      "readId": 303,
+      "reciterApiId": 288,
+      "riwaya": "hafs",
+      "exactSourceUrl": "https://server16.mp3quran.net/i_sanankoua/Rewayat-Hafs-A-n-Assem/089.mp3",
+      "sourceSha256": "6da0e78d71b4e83a5149513cbb6b65e46339e3f59c42aa29f545b857b1a40deb",
+      "responseSha256": "c735bbbebc39f3cbd7ce0550dd299786f0f5af6c48644cc389630f2def886001",
+      "sourceAyahCount": 30,
+      "mappedAyahCount": 30,
+      "countMapSha256": null,
+      "fetchedAt": 1790873197,
+      "durationMs": 185364,
+      "lastSourceEndMs": 179520,
+      "durationWarnings": {
+        "surah": 89,
+        "lastEndMs": 179520,
+        "refEndMs": 185364,
+        "ratio": 0.968,
+        "note": "نهايةٌ تخالف مرجعنا — تعبر، والعيّنةُ الصوتية تحكم"
+      },
+      "inheritedAyahIds": [],
+      "confidence": {
+        "value": 0.7,
+        "meaning": "external source timing MED as existing ingest tool; not CTC probability"
+      },
+      "canonicalTextChanged": false
+    }
+  },
+  "productionChanged": false,
+  "failedSurahs": []
+}

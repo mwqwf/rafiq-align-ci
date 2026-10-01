@@ -1,0 +1,41 @@
+{
+  "reciterId": "husary_warsh",
+  "riwaya": "warsh",
+  "surahs": [
+    12
+  ],
+  "parent": "timings/warsh/husary_warsh.jz",
+  "parentSha": "717b7a5a23a7bc36cc89f6909f5b1610437b5f1470f2a85425a6eb3c02517341",
+  "candidateFile": "ops/source-repair/candidates/husary_warsh.6cda0ce1.jz",
+  "candidateSha": "6cda0ce1ca2733dbecc5d583b0dc5da2faffc90c7737a925bfe8e43bbf81fda8",
+  "added": [
+    "12:71"
+  ],
+  "entries": 6236,
+  "sourceTimingBySurah": {
+    "12": {
+      "api": "https://mp3quran.net/api/v3/ayat_timing?surah=12&read=120",
+      "readId": 120,
+      "reciterApiId": 118,
+      "riwaya": "warsh",
+      "exactSourceUrl": "https://server13.mp3quran.net/husr/Rewayat-Warsh-A-n-Nafi/012.mp3",
+      "sourceSha256": "31cafbb43bbf9442da234247ef1f5df042b1c2be3b2277a961978408e54e774a",
+      "responseSha256": "19f03ba592a55828e2de156caa2811aa7109dee19c9383fd03e365eefda949e2",
+      "sourceAyahCount": 111,
+      "mappedAyahCount": 111,
+      "countMapSha256": "fcd9712b3041328d721101b66eae31c344b3d4e316a2b6b45bc27915e00ccb73",
+      "fetchedAt": 1790873198,
+      "durationMs": 3664613,
+      "lastSourceEndMs": 3661360,
+      "durationWarnings": null,
+      "inheritedAyahIds": [],
+      "confidence": {
+        "value": 0.7,
+        "meaning": "external source timing MED as existing ingest tool; not CTC probability"
+      },
+      "canonicalTextChanged": false
+    }
+  },
+  "productionChanged": false,
+  "failedSurahs": []
+}

@@ -1,0 +1,19 @@
+{
+  "action": "tool",
+  "tool": "index_qa/stage_transform.py",
+  "args": [
+    "--file",
+    "ops/source-repair/candidates/kurdi.774d14fb.jz",
+    "--parent",
+    "timings/hafs/kurdi.jz",
+    "--parent-sha",
+    "bab6b797c090e81bc8f28ff6ad875d6fa00b15fa2be896c05c072d447d6d32df",
+    "--op",
+    "source_timing_splice:16",
+    "--by",
+    "Codex",
+    "--reason",
+    "استرجاع من توقيتات MP3Quran الرسمية على رابط التسجيل نفسه وبصمته المقيسة؛ read هو معرف المصحف والرواية الصحيح، عد المصدر يخرط لخانات الرواية بالخريطة القائمة؛ المواضع المدموجة تحفظ من الأب ولا تقسم تخميناً، confidence MED للمصدر لا ثقة CTC؛ لا اعتماد قبل جميع الحراس والإحصاء لكل السور المختلطة على SHA المسرح",
+    "--yes"
+  ]
+}

@@ -1,0 +1,19 @@
+{
+  "action": "tool",
+  "tool": "index_qa/stage_transform.py",
+  "args": [
+    "--file",
+    "ops/source-repair/candidates/kh_mohammadi.8a98bb5b.jz",
+    "--parent",
+    "timings/hafs/kh_mohammadi.jz",
+    "--parent-sha",
+    "b3a2782dfaf09bbd7a31c5b26714de6292b4ce0529eef23d0712b365a789facc",
+    "--op",
+    "source_timing_splice:53",
+    "--by",
+    "Codex",
+    "--reason",
+    "استرجاع من توقيتات MP3Quran الرسمية على رابط التسجيل نفسه وبصمته المقيسة؛ read هو معرف المصحف والرواية الصحيح، عد المصدر يخرط لخانات الرواية بالخريطة القائمة؛ المواضع المدموجة تحفظ من الأب ولا تقسم تخميناً، confidence MED للمصدر لا ثقة CTC؛ لا اعتماد قبل جميع الحراس والإحصاء لكل السور المختلطة على SHA المسرح",
+    "--yes"
+  ]
+}

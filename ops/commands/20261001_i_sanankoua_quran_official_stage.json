@@ -1,0 +1,19 @@
+{
+  "action": "tool",
+  "tool": "index_qa/stage_transform.py",
+  "args": [
+    "--file",
+    "ops/source-repair/candidates/i_sanankoua.2a14ced6.jz",
+    "--parent",
+    "timings/hafs/i_sanankoua.jz",
+    "--parent-sha",
+    "a66c166cd835cd67096648228b92223617487cb4c88d04b32e4fa8b478a7ef5b",
+    "--op",
+    "source_timing_splice:38,89",
+    "--by",
+    "Codex",
+    "--reason",
+    "استرجاع من توقيتات MP3Quran الرسمية على رابط التسجيل نفسه وبصمته المقيسة؛ read هو معرف المصحف والرواية الصحيح، عد المصدر يخرط لخانات الرواية بالخريطة القائمة؛ المواضع المدموجة تحفظ من الأب ولا تقسم تخميناً، confidence MED للمصدر لا ثقة CTC؛ لا اعتماد قبل جميع الحراس والإحصاء لكل السور المختلطة على SHA المسرح",
+    "--yes"
+  ]
+}
