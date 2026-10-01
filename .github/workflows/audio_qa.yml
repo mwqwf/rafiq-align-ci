@@ -155,15 +155,9 @@ jobs:
         with: { python-version: "3.11" }
 
       - name: أدوات النظام
-        run: |
-          sudo apt-get update -qq
-          sudo apt-get install -y -qq ffmpeg
-          # ⛔ لا بناء whisper: `pywhispercpp` عجلةٌ مبنيّة تحمّل ملف ggml نفسه،
-          #    وقد طابق 7e مخرجاتها بمخرجات الخادم حرفاً بحرف. وفّر 10–20 دقيقة
-          #    **في كل وظيفة من العشرين**، وأبقى الأرقام قابلةً للمقارنة بأرقام الليلة.
-          python -m pip install --quiet pywhispercpp soundfile numpy boto3
+        timeout-minutes: 10
+        run: bash tools/ci_fleet/install_qa_deps.sh
 
-      # ⛔ النموذج يُخبَّأ: 41م.ب × 20 وظيفة في كل دفعة تنزيلٌ بلا طائل.
       - name: كاش النموذج
         id: modelcache
         uses: actions/cache/restore@v4

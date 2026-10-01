@@ -93,10 +93,9 @@ jobs:
       - uses: actions/setup-python@v5
         with: { python-version: "3.11" }
       - name: أدوات النظام
-        run: |
-          sudo apt-get update -qq
-          sudo apt-get install -y -qq ffmpeg
-          python -m pip install --quiet pywhispercpp soundfile numpy boto3
+        timeout-minutes: 10
+        run: bash tools/ci_fleet/install_qa_deps.sh
+
       - name: كاش النموذج
         uses: actions/cache/restore@v4
         with:
