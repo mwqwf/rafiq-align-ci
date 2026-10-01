@@ -140,6 +140,8 @@ def census_surahs(idx: dict) -> set[str]:
     out = {str(k) for k, v in (idx.get("engineBySurah") or {}).items()
            if v and v != idx.get("engineVersion")}
     out |= {str(k) for k, v in (idx.get("sourceBySurah") or {}).items() if v}
+    # Official timing replacements need a full census even on the same timing engine.
+    out |= {str(k) for k, v in (idx.get("sourceTimingBySurah") or {}).items() if v}
     return out
 
 
