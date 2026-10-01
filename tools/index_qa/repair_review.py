@@ -139,7 +139,7 @@ def main():
     cl, bucket = p.s3()
     if a.production_audit:
         result = production_audit(cl, bucket)
-        dest.write_text(json.dumps(result, ensure_ascii=False, indent=2) + "\\n")
+        dest.write_text(json.dumps(result, ensure_ascii=False, indent=2) + "\n")
         print(json.dumps({k: v for k, v in result.items() if k != "rows"}, ensure_ascii=False))
         return
     with concurrent.futures.ThreadPoolExecutor(max_workers=4) as pool:
