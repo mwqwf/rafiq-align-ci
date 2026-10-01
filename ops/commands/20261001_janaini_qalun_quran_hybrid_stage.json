@@ -1,0 +1,19 @@
+{
+  "action": "tool",
+  "tool": "index_qa/stage_transform.py",
+  "args": [
+    "--file",
+    "ops/source-repair/candidates/janaini_qalun.083eda58.jz",
+    "--parent",
+    "timings/qalun/janaini_qalun.jz",
+    "--parent-sha",
+    "a85232611f74369d0e033f3d18a0bc0bb4fe7641c3f59ec4884c9a590cc4d590",
+    "--op",
+    "ctc_quran_surah_splice:56",
+    "--by",
+    "Codex",
+    "--reason",
+    "نص وصوت أصليان ونموذج قرآني مثبت؛ حفظ المداخل الموروثة الضعيفة حرفياً دون رفع ثقة؛ كل حراس البنية والمطالع والأربعة والإحصاء الكامل لازمة على SHA المسرح؛ لا تغيير خارج السور",
+    "--yes"
+  ]
+}

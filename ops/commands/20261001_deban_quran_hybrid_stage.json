@@ -1,0 +1,19 @@
+{
+  "action": "tool",
+  "tool": "index_qa/stage_transform.py",
+  "args": [
+    "--file",
+    "ops/source-repair/candidates/deban.2a4f05ee.jz",
+    "--parent",
+    "timings/hafs/deban.jz",
+    "--parent-sha",
+    "e07f296be6c7d35c508c5039e87bd485283a85a5f434e919e3ce357f6eb7000d",
+    "--op",
+    "ctc_quran_surah_splice:18",
+    "--by",
+    "Codex",
+    "--reason",
+    "نص وصوت أصليان ونموذج قرآني مثبت؛ حفظ المداخل الموروثة الضعيفة حرفياً دون رفع ثقة؛ كل حراس البنية والمطالع والأربعة والإحصاء الكامل لازمة على SHA المسرح؛ لا تغيير خارج السور",
+    "--yes"
+  ]
+}

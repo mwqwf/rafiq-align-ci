@@ -1,0 +1,91 @@
+{
+  "reciterId": "lhdan",
+  "riwaya": "hafs",
+  "surahs": [
+    37,
+    44
+  ],
+  "parent": "timings/hafs/lhdan.jz",
+  "parentSha": "04f3d6be9f087f92e40cc312ef7725b4b4c035c76fd99a128a31c922476db72a",
+  "candidateFile": "ops/source-repair/candidates/lhdan.48287879.jz",
+  "candidateSha": "48287879ebc1cb32b301a64182b391ffcbe151ddb2a3bac244ce6f818c17ea71",
+  "added": [
+    "37:155",
+    "37:161",
+    "44:52"
+  ],
+  "entries": 6236,
+  "inheritedAlignmentEntriesBySurah": {
+    "37": {
+      "ayahIds": [
+        "37:1",
+        "37:75",
+        "37:76",
+        "37:77",
+        "37:78",
+        "37:102",
+        "37:103",
+        "37:104",
+        "37:105",
+        "37:106",
+        "37:107",
+        "37:108",
+        "37:109",
+        "37:110",
+        "37:111",
+        "37:112",
+        "37:113",
+        "37:114",
+        "37:115",
+        "37:116",
+        "37:117",
+        "37:118",
+        "37:119",
+        "37:120",
+        "37:121",
+        "37:122",
+        "37:123",
+        "37:124",
+        "37:125",
+        "37:126",
+        "37:127",
+        "37:128",
+        "37:129"
+      ],
+      "reason": "Existing entries retained byte-for-byte where new CTC <0.45; no confidence raised",
+      "originalModelIssues": [],
+      "postMergeIssues": [
+        "فجوة 97.5ث بعد آية 129",
+        "مدة شاذة لآية 110: 941م.ث لـ16 حرفاً",
+        "مدة شاذة لآية 111: 580م.ث لـ19 حرفاً",
+        "مدة شاذة لآية 114: 1481م.ث لـ20 حرفاً",
+        "مدة شاذة لآية 116: 1470م.ث لـ22 حرفاً",
+        "مدة شاذة لآية 123: 610م.ث لـ19 حرفاً",
+        "مدة شاذة لآية 125: 2622م.ث لـ27 حرفاً",
+        "مدة شاذة لآية 127: 1481م.ث لـ18 حرفاً"
+      ],
+      "originalModelBands": {
+        "LOW": 4,
+        "MED": 98,
+        "HIGH": 80
+      }
+    },
+    "44": {
+      "ayahIds": [
+        "44:32",
+        "44:33",
+        "44:34"
+      ],
+      "reason": "Existing entries retained byte-for-byte where new CTC <0.45; no confidence raised",
+      "originalModelIssues": [],
+      "postMergeIssues": [],
+      "originalModelBands": {
+        "HIGH": 20,
+        "MED": 38,
+        "LOW": 1
+      }
+    }
+  },
+  "failedSurahs": [],
+  "productionChanged": false
+}

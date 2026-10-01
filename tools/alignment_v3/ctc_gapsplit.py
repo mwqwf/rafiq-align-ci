@@ -105,6 +105,17 @@ def split_window(x: np.ndarray, ws: int, we: int, texts: list[str]):
     return [(ws + int(st * 1000), ws + int(en * 1000), _conf(sc)) for st, en, sc in segs]
 
 
+def explicit_gap(ents: dict, n: int, b0: int, b1: int):
+    """فجوة مسماة صراحة، ولو فصل الجارتين صمت؛ حراس المحاذاة لا تتغير."""
+    if b0 < 2 or b1 < b0 or b1 >= n:
+        raise ValueError("مدى الغياب يلزمه جار حاضر قبله وبعده داخل السورة")
+    if b0 - 1 not in ents or b1 + 1 not in ents:
+        raise ValueError("مرساة الغياب غائبة؛ لا تخمين")
+    if any(k in ents for k in range(b0, b1 + 1)):
+        raise ValueError("مدى الغياب الصريح يجب أن يكون غائباً كله في الأب")
+    return ("gap", b0, b1)
+
+
 def main() -> int:
     ap = argparse.ArgumentParser()
     ap.add_argument("--index", required=True)
@@ -123,6 +134,7 @@ def main() -> int:
     #    تُضلّ التفريغ) — والمحاذاةُ القسريّةُ لنصٍّ معلومٍ في نافذةٍ ضيّقة لا تُضلّها اللازمة.
     #    ⛔ بالحُرّاس نفسِها (‏ثقة · مدّة · جارة) والإحصاءُ الشاملُ هو الحَكَم.
     ap.add_argument("--rewindow", default="", help="مدى آياتٍ حاضرةٍ يُعاد بنافذته: 55:41-75[,…]")
+    ap.add_argument("--explicit-gap", default="", help="غياب مسمى بين جارتين حاضرتين ولو فصلتهما فجوة: 26:2-3؛ حراس الثقة والمدة نفسها")
     a = ap.parse_args()
     import ctc_seg as C
     if C._M.get('alignmentModelId') and not a.quran_model:
@@ -137,6 +149,13 @@ def main() -> int:
     if a.starts_with_first_ayah and len(requested_surahs) != 1:
         ap.error("شاهد بدء الملف يخص سورة واحدة صريحة")
     rewin = {}
+    gaps = {}
+    for spec in [x for x in a.explicit_gap.split(",") if x.strip()]:
+        s_, rng = spec.split(":")
+        r0, r1 = (int(v) for v in rng.split("-"))
+        if int(s_) not in requested_surahs:
+            ap.error("سورة الغياب الصريح يجب أن تكون ضمن السور المطلوبة")
+        gaps.setdefault(int(s_), []).append((r0, r1))
     for spec in [x for x in a.rewindow.split(",") if x.strip()]:
         s_, rng = spec.split(":")
         r0, r1 = (int(v) for v in rng.split("-"))
@@ -164,6 +183,13 @@ def main() -> int:
         rates = [(ents[k]["endMs"] - ents[k]["startMs"]) / max(1, chars(t_of(k))) for k in ents]
         rate = statistics.median(rates)
         splits = plan_splits(ents, n, t_of, rate)
+        for r0, r1 in gaps.get(s, []):
+            try:
+                proposed = explicit_gap(ents, n, r0, r1)
+            except ValueError as ex:
+                ap.error(f"س{s}:{r0}-{r1}: {ex}")
+            if proposed not in splits:
+                splits.append(proposed)
         for r0, r1 in rewin.get(s, []):
             if r1 >= n or any(k not in ents for k in range(r0 - 1, r1 + 2)):
                 report.append(f"س{s}:{r0}-{r1} (rewin): ⛔ المدى وجارتاه يجب أن يكونوا حاضرين في الأب")

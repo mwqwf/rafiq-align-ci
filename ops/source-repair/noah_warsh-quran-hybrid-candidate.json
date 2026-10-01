@@ -1,0 +1,32 @@
+{
+  "reciterId": "noah_warsh",
+  "riwaya": "warsh",
+  "surahs": [
+    44
+  ],
+  "parent": "timings/warsh/noah_warsh.jz",
+  "parentSha": "e657b30983f04dc5c6768c3ed7bd9177319e64de3d0a9b1235d87f68991d7ab3",
+  "candidateFile": "ops/source-repair/candidates/noah_warsh.8b0947d8.jz",
+  "candidateSha": "8b0947d82140d15533a5947b3b8894e11a4e33dbca7c1e2b29d5f1247ee86f56",
+  "added": [
+    "44:52"
+  ],
+  "entries": 6236,
+  "inheritedAlignmentEntriesBySurah": {
+    "44": {
+      "ayahIds": [
+        "44:15"
+      ],
+      "reason": "Existing entries retained byte-for-byte where new CTC <0.45; no confidence raised",
+      "originalModelIssues": [],
+      "postMergeIssues": [],
+      "originalModelBands": {
+        "HIGH": 28,
+        "MED": 30,
+        "LOW": 1
+      }
+    }
+  },
+  "failedSurahs": [],
+  "productionChanged": false
+}

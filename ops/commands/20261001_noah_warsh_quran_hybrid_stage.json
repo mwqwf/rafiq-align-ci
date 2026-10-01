@@ -1,0 +1,19 @@
+{
+  "action": "tool",
+  "tool": "index_qa/stage_transform.py",
+  "args": [
+    "--file",
+    "ops/source-repair/candidates/noah_warsh.8b0947d8.jz",
+    "--parent",
+    "timings/warsh/noah_warsh.jz",
+    "--parent-sha",
+    "e657b30983f04dc5c6768c3ed7bd9177319e64de3d0a9b1235d87f68991d7ab3",
+    "--op",
+    "ctc_quran_surah_splice:44",
+    "--by",
+    "Codex",
+    "--reason",
+    "نص وصوت أصليان ونموذج قرآني مثبت؛ حفظ المداخل الموروثة الضعيفة حرفياً دون رفع ثقة؛ كل حراس البنية والمطالع والأربعة والإحصاء الكامل لازمة على SHA المسرح؛ لا تغيير خارج السور",
+    "--yes"
+  ]
+}

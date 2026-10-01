@@ -1,0 +1,19 @@
+{
+  "action": "tool",
+  "tool": "index_qa/stage_transform.py",
+  "args": [
+    "--file",
+    "ops/source-repair/candidates/lhdan.48287879.jz",
+    "--parent",
+    "timings/hafs/lhdan.jz",
+    "--parent-sha",
+    "04f3d6be9f087f92e40cc312ef7725b4b4c035c76fd99a128a31c922476db72a",
+    "--op",
+    "ctc_quran_surah_splice:37,44",
+    "--by",
+    "Codex",
+    "--reason",
+    "نص وصوت أصليان ونموذج قرآني مثبت؛ حفظ المداخل الموروثة الضعيفة حرفياً دون رفع ثقة؛ كل حراس البنية والمطالع والأربعة والإحصاء الكامل لازمة على SHA المسرح؛ لا تغيير خارج السور",
+    "--yes"
+  ]
+}
