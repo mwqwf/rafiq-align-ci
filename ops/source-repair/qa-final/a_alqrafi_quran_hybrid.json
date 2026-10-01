@@ -1,0 +1,104 @@
+{
+  "reciter": "a_alqrafi_quran_hybrid",
+  "key": "timings-staging/hafs/a_alqrafi.61637c40.jz",
+  "sha": "61637c40f52a1bd3247d962763a44c19f31e57c45bc3bce0eff26060f73d42ea",
+  "rs1": {
+    "severe": [
+      3,
+      200
+    ],
+    "fatal": []
+  },
+  "rs2": {
+    "severe": [
+      2,
+      200
+    ],
+    "fatal": []
+  },
+  "rs3": {
+    "severe": [
+      1,
+      200
+    ],
+    "fatal": []
+  },
+  "rs4": {
+    "severe": [
+      0,
+      200
+    ],
+    "fatal": []
+  },
+  "openers": {
+    "counts": {
+      "clean": 27,
+      "unknown": 84,
+      "late": 1
+    },
+    "swallowed": [],
+    "lateConfirmed": [],
+    "errors": [],
+    "scope": "full"
+  },
+  "census": {
+    "gate": null,
+    "population": 6,
+    "counts": {
+      "بريء": 4,
+      "غير حاسم": 2
+    },
+    "fatal": []
+  },
+  "addedRows": [
+    {
+      "aid": "114:3",
+      "cluster": 114,
+      "verdict": "غير حاسم",
+      "kind": "غير حاسم",
+      "why": "لا يطابق التفريغ نصّ الآية ولا سابقتها · سُمع: «إِلَهِ النَّاسِ مِنْ شَرٍّ»",
+      "band": "MED",
+      "startApprox": false,
+      "heard": {
+        "fwd": "إِلَهِ النَّاسِ مِنْ شَرٍّ",
+        "dec": "خسفَاسَ بَلِكِ النَّاسِ",
+        "long": "إِلَهِ النَّاسِ مِنْ شَرِّ الْوَسْوَاسِ الْخَنَّى"
+      }
+    }
+  ],
+  "pooled": [
+    {
+      "m": 6,
+      "n": 800,
+      "rate": 0.0075,
+      "hi": 0.014748983101119512,
+      "parts": [
+        [
+          3,
+          200
+        ],
+        [
+          2,
+          200
+        ],
+        [
+          1,
+          200
+        ],
+        [
+          0,
+          200
+        ]
+      ],
+      "salts": [
+        "rs1",
+        "rs2",
+        "rs3",
+        "rs4"
+      ],
+      "seeds": 4,
+      "engine": "pywhispercpp/ggml-q8 (tiny-ar-quran)",
+      "rule": "D-098"
+    }
+  ]
+}
