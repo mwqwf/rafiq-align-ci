@@ -29,6 +29,22 @@ def read_report(cl, bucket, key, sha):
         raise ValueError("fatal or failed audio windows: " + key)
     return report
 
+def clean_targets_error(rows, targets):
+    """A correction may require clean evidence even when its ayah already exists."""
+    if len(set(targets)) != len(targets):
+        return 'duplicate required clean targets'
+    for aid in targets:
+        try:
+            s, a = map(int, aid.split(':'))
+            if not 1 <= s <= 114 or not 1 <= a <= p._AYAH_COUNTS[s - 1]:
+                raise ValueError()
+        except (ValueError, TypeError, AttributeError):
+            return 'invalid required clean target'
+        matches = [r for r in rows if r.get('aid') == aid]
+        if len(matches) != 1 or matches[0].get('kind') != 'بريء':
+            return 'required corrected ayah lacks matching clean audio witness: ' + aid
+    return None
+
 def review(name, cl, bucket):
     if not re.fullmatch(r"[a-z0-9_]+", name):
         raise ValueError("invalid proof name")
@@ -82,6 +98,11 @@ def review(name, cl, bucket):
         if (len(result["addedRows"]) != len(proof.get("added", []))
                 or any(row.get("kind") != "بريء" for row in result["addedRows"])):
             raise ValueError("newly restored ayahs lack matching clean audio witnesses")
+        required = proof.get('requiredCleanAyahs') or []
+        result['requiredCleanRows'] = [r for r in census['sample']['rows'] if r['aid'] in required]
+        why = clean_targets_error(census['sample']['rows'], required)
+        if why:
+            raise ValueError(why)
         result["ready"] = True
     except Exception as ex:
         result["pendingOrRejected"] = str(ex)
