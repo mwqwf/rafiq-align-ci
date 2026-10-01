@@ -1,8 +1,8 @@
 {
   "indexes": 180,
-  "entries": 1122264,
-  "missingAyahs": 216,
-  "incompleteIndexes": 41,
+  "entries": 1122271,
+  "missingAyahs": 209,
+  "incompleteIndexes": 38,
   "manifestMismatches": 0,
   "rows": [
     {
@@ -1241,20 +1241,6 @@
       "publicVerified": true
     },
     {
-      "reciterId": "darweez",
-      "riwaya": "hafs",
-      "key": "timings/hafs/darweez.jz",
-      "sha256": "44fa65171bd30f95b1a31b0dc3cf61904eba03b0af106c5442e7b0d5b751cc5f",
-      "entries": 6234,
-      "missing": [
-        "89:1",
-        "96:1"
-      ],
-      "headerCount": 2,
-      "manifestVerified": true,
-      "publicVerified": true
-    },
-    {
       "reciterId": "bl3_warsh",
       "riwaya": "warsh",
       "key": "timings/warsh/bl3_warsh.jz",
@@ -1330,19 +1316,6 @@
       "entries": 6235,
       "missing": [
         "20:1"
-      ],
-      "headerCount": 1,
-      "manifestVerified": true,
-      "publicVerified": true
-    },
-    {
-      "reciterId": "arkani",
-      "riwaya": "hafs",
-      "key": "timings/hafs/arkani.jz",
-      "sha256": "8404ff69418a51621892321714bb2a2afa81e0dbcd34eacf1d821b2bbe2f3f78",
-      "entries": 6235,
-      "missing": [
-        "74:1"
       ],
       "headerCount": 1,
       "manifestVerified": true,
@@ -1588,19 +1561,6 @@
       "entries": 6236,
       "missing": [],
       "headerCount": 0,
-      "manifestVerified": true,
-      "publicVerified": true
-    },
-    {
-      "reciterId": "a_alshahhat",
-      "riwaya": "hafs",
-      "key": "timings/hafs/a_alshahhat.jz",
-      "sha256": "0b255f9c45d5d43ed64c7fb144360f4e1e17088ef0f772461c3802a47c19f136",
-      "entries": 6235,
-      "missing": [
-        "20:1"
-      ],
-      "headerCount": 1,
       "manifestVerified": true,
       "publicVerified": true
     },
@@ -1924,20 +1884,6 @@
       "publicVerified": true
     },
     {
-      "reciterId": "f_khamery",
-      "riwaya": "hafs",
-      "key": "timings/hafs/f_khamery.jz",
-      "sha256": "51bab580c770cae80828ee594931ea7d149d4b07486f9ef5aabbe11f45a5ea05",
-      "entries": 6234,
-      "missing": [
-        "20:1",
-        "26:196"
-      ],
-      "headerCount": 2,
-      "manifestVerified": true,
-      "publicVerified": true
-    },
-    {
       "reciterId": "mhsny",
       "riwaya": "hafs",
       "key": "timings/hafs/mhsny.jz",
@@ -2047,22 +1993,6 @@
       "entries": 6236,
       "missing": [],
       "headerCount": 0,
-      "manifestVerified": true,
-      "publicVerified": true
-    },
-    {
-      "reciterId": "a_alhazmi",
-      "riwaya": "hafs",
-      "key": "timings/hafs/a_alhazmi.jz",
-      "sha256": "4d240a70cde006cb833e2b31cf487e94bef60ea16273a4fa15c6cae6231269b1",
-      "entries": 6232,
-      "missing": [
-        "52:1",
-        "55:64",
-        "78:1",
-        "112:2"
-      ],
-      "headerCount": 4,
       "manifestVerified": true,
       "publicVerified": true
     },
@@ -2239,6 +2169,66 @@
         "3:43"
       ],
       "headerCount": 1,
+      "manifestVerified": true,
+      "publicVerified": true
+    },
+    {
+      "reciterId": "f_khamery",
+      "riwaya": "hafs",
+      "key": "timings/hafs/f_khamery.jz",
+      "sha256": "c9824043abf2af9d955a5020c2f62df8ded9ecba38a84540f421b676d4a9989b",
+      "entries": 6235,
+      "missing": [
+        "26:196"
+      ],
+      "headerCount": 1,
+      "manifestVerified": true,
+      "publicVerified": true
+    },
+    {
+      "reciterId": "arkani",
+      "riwaya": "hafs",
+      "key": "timings/hafs/arkani.jz",
+      "sha256": "4cbae72a9c75141bcdc5683e82f59e068cc96010a0441e2ea5da1099d229fdf0",
+      "entries": 6236,
+      "missing": [],
+      "headerCount": 0,
+      "manifestVerified": true,
+      "publicVerified": true
+    },
+    {
+      "reciterId": "a_alhazmi",
+      "riwaya": "hafs",
+      "key": "timings/hafs/a_alhazmi.jz",
+      "sha256": "d192d3d8a4208fe7bfee6238c92c32d76232eaf92ed872ee27a585a7477f0820",
+      "entries": 6234,
+      "missing": [
+        "55:64",
+        "112:2"
+      ],
+      "headerCount": 2,
+      "manifestVerified": true,
+      "publicVerified": true
+    },
+    {
+      "reciterId": "a_alshahhat",
+      "riwaya": "hafs",
+      "key": "timings/hafs/a_alshahhat.jz",
+      "sha256": "41dd30a405ddd90f64c91683b99cbf1374fc54b5eb50183b5c65d4eab68545ca",
+      "entries": 6236,
+      "missing": [],
+      "headerCount": 0,
+      "manifestVerified": true,
+      "publicVerified": true
+    },
+    {
+      "reciterId": "darweez",
+      "riwaya": "hafs",
+      "key": "timings/hafs/darweez.jz",
+      "sha256": "41b8aac53e3e93e9f9d009121afe2e2bc6e70ce35caa0b3c8dc03e2480276421",
+      "entries": 6236,
+      "missing": [],
+      "headerCount": 0,
       "manifestVerified": true,
       "publicVerified": true
     }

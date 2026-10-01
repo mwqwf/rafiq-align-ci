@@ -1,0 +1,122 @@
+{
+  "reciter": "arkani_firstayah",
+  "key": "timings-staging/hafs/arkani.4cbae72a.jz",
+  "sha": "4cbae72a9c75141bcdc5683e82f59e068cc96010a0441e2ea5da1099d229fdf0",
+  "rs1": {
+    "severe": [
+      1,
+      200
+    ],
+    "fatal": []
+  },
+  "rs2": {
+    "severe": [
+      3,
+      200
+    ],
+    "fatal": []
+  },
+  "rs3": {
+    "severe": [
+      1,
+      200
+    ],
+    "fatal": []
+  },
+  "rs4": {
+    "severe": [
+      4,
+      200
+    ],
+    "fatal": []
+  },
+  "openers": {
+    "counts": {
+      "unknown": 23,
+      "clean": 89
+    },
+    "swallowed": [],
+    "lateConfirmed": null,
+    "errors": [],
+    "scope": "full"
+  },
+  "census": {
+    "gate": null,
+    "population": 98,
+    "counts": {
+      "بريء": 94,
+      "غير حاسم": 4
+    },
+    "fatal": []
+  },
+  "addedRows": [
+    {
+      "aid": "74:1",
+      "cluster": 74,
+      "verdict": "بريء",
+      "kind": "بريء",
+      "why": "المطلع مطابق: «يَا أَيُّهَا الْمُدَّثِّرُكُمْ فَأَنِّي»",
+      "band": "LOW",
+      "startApprox": false,
+      "noPreAudio": true,
+      "heard": {
+        "fwd": "يَا أَيُّهَا الْمُدَّثِّرُكُمْ فَأَنِّي",
+        "dec": "",
+        "long": "يَا أَيُّهَا الْمُدَّثِّرُكُمْ فَأَنْذِرْ وَرَبَّكَ فَكَبِّرْ وَثِيرٍ"
+      }
+    }
+  ],
+  "pooled": [
+    {
+      "m": 9,
+      "n": 800,
+      "rate": 0.01125,
+      "hi": 0.019549270444987974,
+      "parts": [
+        [
+          1,
+          200
+        ],
+        [
+          3,
+          200
+        ],
+        [
+          1,
+          200
+        ],
+        [
+          4,
+          200
+        ]
+      ],
+      "salts": [
+        "rs1",
+        "rs2",
+        "rs3",
+        "rs4"
+      ],
+      "seeds": 4,
+      "engine": "pywhispercpp/ggml-q8 (tiny-ar-quran)",
+      "rule": "D-098"
+    }
+  ],
+  "newOpenerRows": [
+    {
+      "surah": 74,
+      "startMs": 0,
+      "url": "https://server6.mp3quran.net/arkani/074.mp3",
+      "endMs": 2614,
+      "verdict": "clean",
+      "heard": "يا ايها",
+      "rung": 1500
+    }
+  ],
+  "sampleErrors": {
+    "rs1": 0,
+    "rs2": 0,
+    "rs3": 0,
+    "rs4": 0
+  },
+  "actualStagedSHA": true
+}
