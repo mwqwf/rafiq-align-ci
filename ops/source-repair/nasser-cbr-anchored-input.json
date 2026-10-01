@@ -1,0 +1,53 @@
+{
+  "reciterId": "nasser_almajed",
+  "riwaya": "hafs",
+  "surahs": [
+    20,
+    25,
+    45
+  ],
+  "parent": "timings/hafs/nasser_almajed.jz",
+  "parentSha": "024f4669daac0842e796736e6001ae9fb4ce4475b7af916f16ff0caf86391951",
+  "candidateFile": "ops/source-repair/candidates/nasser_almajed.3b2c408f.jz",
+  "candidateSha": "3b2c408f825ff4af7b9508b239ff755b5ecc9a578cc190c9c3e3bc235b094755",
+  "added": [
+    "20:67",
+    "20:68",
+    "25:23",
+    "45:18"
+  ],
+  "entries": 6236,
+  "missing": {
+    "count": 0,
+    "byReason": {},
+    "medianLen": 8,
+    "medianLenAll": 11,
+    "biasedShort": false,
+    "ids": []
+  },
+  "alignmentModelBySurah": {
+    "20": {
+      "id": "rabah2026/wav2vec2-large-xlsr-53-arabic-quran-v_final",
+      "revision": "b03a268c6ba1a693752307325ab376c86c3b12da",
+      "weightsSha256": "bf65674a26eb4ef7042cedade96c3c8f8cbd04f3a7d1a68eadceec8ed0f99ecb",
+      "license": "Apache-2.0",
+      "canonicalTextChanged": false
+    },
+    "25": {
+      "id": "rabah2026/wav2vec2-large-xlsr-53-arabic-quran-v_final",
+      "revision": "b03a268c6ba1a693752307325ab376c86c3b12da",
+      "weightsSha256": "bf65674a26eb4ef7042cedade96c3c8f8cbd04f3a7d1a68eadceec8ed0f99ecb",
+      "license": "Apache-2.0",
+      "canonicalTextChanged": false
+    },
+    "45": {
+      "id": "rabah2026/wav2vec2-large-xlsr-53-arabic-quran-v_final",
+      "revision": "b03a268c6ba1a693752307325ab376c86c3b12da",
+      "weightsSha256": "bf65674a26eb4ef7042cedade96c3c8f8cbd04f3a7d1a68eadceec8ed0f99ecb",
+      "license": "Apache-2.0",
+      "canonicalTextChanged": false
+    }
+  },
+  "productionChanged": false,
+  "publicationHold": true
+}

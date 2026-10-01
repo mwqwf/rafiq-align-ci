@@ -1,0 +1,19 @@
+{
+  "action": "tool",
+  "tool": "index_qa/stage_transform.py",
+  "args": [
+    "--file",
+    "ops/source-repair/candidates/nasser_almajed.3b2c408f.jz",
+    "--parent",
+    "timings/hafs/nasser_almajed.jz",
+    "--parent-sha",
+    "024f4669daac0842e796736e6001ae9fb4ce4475b7af916f16ff0caf86391951",
+    "--op",
+    "ctc_quran_window:20,25,45",
+    "--by",
+    "Codex",
+    "--reason",
+    "إكمال أربع آيات في مصادر طه والفرقان والجاثية الأصلية CBR320 سليمة فكّا ومطابقة SHA؛ الأنعام وكل السور الأخرى محفوظة حرفيا بلا تغيير المصدر أو التوقيت، والحجز الخاص05b18814 يبقى؛ كل شهادات البصمة الجديدة والشاهد البريء لكل إضافة لازمة، دون تعديل النص أو الحراس",
+    "--yes"
+  ]
+}

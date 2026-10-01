@@ -1,0 +1,2676 @@
+{
+  "candidate": {
+    "reciterId": "nasser_almajed",
+    "riwaya": "hafs",
+    "surahs": [
+      20,
+      25,
+      45
+    ],
+    "parent": "timings/hafs/nasser_almajed.jz",
+    "parentSha": "024f4669daac0842e796736e6001ae9fb4ce4475b7af916f16ff0caf86391951",
+    "candidateFile": "ops/source-repair/candidates/nasser_almajed.3b2c408f.jz",
+    "candidateSha": "3b2c408f825ff4af7b9508b239ff755b5ecc9a578cc190c9c3e3bc235b094755",
+    "added": [
+      "20:67",
+      "20:68",
+      "25:23",
+      "45:18"
+    ],
+    "entries": 6236,
+    "missing": {
+      "count": 0,
+      "byReason": {},
+      "medianLen": 8,
+      "medianLenAll": 11,
+      "biasedShort": false,
+      "ids": []
+    },
+    "alignmentModelBySurah": {
+      "20": {
+        "id": "rabah2026/wav2vec2-large-xlsr-53-arabic-quran-v_final",
+        "revision": "b03a268c6ba1a693752307325ab376c86c3b12da",
+        "weightsSha256": "bf65674a26eb4ef7042cedade96c3c8f8cbd04f3a7d1a68eadceec8ed0f99ecb",
+        "license": "Apache-2.0",
+        "canonicalTextChanged": false
+      },
+      "25": {
+        "id": "rabah2026/wav2vec2-large-xlsr-53-arabic-quran-v_final",
+        "revision": "b03a268c6ba1a693752307325ab376c86c3b12da",
+        "weightsSha256": "bf65674a26eb4ef7042cedade96c3c8f8cbd04f3a7d1a68eadceec8ed0f99ecb",
+        "license": "Apache-2.0",
+        "canonicalTextChanged": false
+      },
+      "45": {
+        "id": "rabah2026/wav2vec2-large-xlsr-53-arabic-quran-v_final",
+        "revision": "b03a268c6ba1a693752307325ab376c86c3b12da",
+        "weightsSha256": "bf65674a26eb4ef7042cedade96c3c8f8cbd04f3a7d1a68eadceec8ed0f99ecb",
+        "license": "Apache-2.0",
+        "canonicalTextChanged": false
+      }
+    },
+    "productionChanged": false,
+    "publicationHold": false,
+    "scopeReason": "Hold applies to the specific 05b18814 Al-Anam alternative. This candidate changes only original unmodified CBR 20/25/45 and preserves every existing entry outside them including Al-Anam byte-for-byte. The existing specific source hold remains unchanged. All current-SHA audio gates and new clean witnesses still required."
+  },
+  "surahs": [
+    {
+      "surah": 20,
+      "originalSourceSha": "82cc7fe81b3ab9f5d913a25a1a3f6053a160dff0a8f66a9a963d4fe37ce328b1",
+      "source": "https://server14.mp3quran.net/nasser_almajed/020.mp3",
+      "decoderErrors": "",
+      "decodeRc": 0,
+      "audioPacketSizeDurationPairs": [
+        [
+          "1044",
+          "0.026122"
+        ],
+        [
+          "1045",
+          "0.026122"
+        ]
+      ],
+      "nativeDurationMs": 1354318,
+      "alignment": {
+        "fileRef": "https://server14.mp3quran.net/nasser_almajed/020.mp3",
+        "sha256": "82cc7fe81b3ab9f5d913a25a1a3f6053a160dff0a8f66a9a963d4fe37ce328b1",
+        "surah": 20,
+        "engine": "ctc-quran-window-1",
+        "gapsplit": [
+          "67-68"
+        ],
+        "entries": [
+          {
+            "ayahIdx": 0,
+            "startMs": 4140,
+            "endMs": 5350,
+            "conf": 0.6,
+            "snapped": true,
+            "inherited": true,
+            "matched": 0,
+            "total": 1
+          },
+          {
+            "ayahIdx": 1,
+            "startMs": 5350,
+            "endMs": 11540,
+            "conf": 0.552,
+            "snapped": false,
+            "inherited": true,
+            "matched": 0,
+            "total": 5
+          },
+          {
+            "ayahIdx": 2,
+            "startMs": 11540,
+            "endMs": 15570,
+            "conf": 1.0,
+            "snapped": true,
+            "inherited": true,
+            "matched": 0,
+            "total": 4
+          },
+          {
+            "ayahIdx": 3,
+            "startMs": 15570,
+            "endMs": 21950,
+            "conf": 0.933,
+            "snapped": true,
+            "inherited": true,
+            "matched": 0,
+            "total": 6
+          },
+          {
+            "ayahIdx": 4,
+            "startMs": 21950,
+            "endMs": 25500,
+            "conf": 1.0,
+            "snapped": true,
+            "inherited": true,
+            "matched": 0,
+            "total": 4
+          },
+          {
+            "ayahIdx": 5,
+            "startMs": 25500,
+            "endMs": 34290,
+            "conf": 0.964,
+            "snapped": true,
+            "inherited": true,
+            "matched": 0,
+            "total": 12
+          },
+          {
+            "ayahIdx": 6,
+            "startMs": 34290,
+            "endMs": 40990,
+            "conf": 1.0,
+            "snapped": true,
+            "inherited": true,
+            "matched": 0,
+            "total": 7
+          },
+          {
+            "ayahIdx": 7,
+            "startMs": 40990,
+            "endMs": 49095,
+            "conf": 1.0,
+            "snapped": true,
+            "inherited": true,
+            "matched": 0,
+            "total": 8
+          },
+          {
+            "ayahIdx": 8,
+            "startMs": 49095,
+            "endMs": 52600,
+            "conf": 0.92,
+            "snapped": true,
+            "inherited": true,
+            "matched": 0,
+            "total": 4
+          },
+          {
+            "ayahIdx": 9,
+            "startMs": 52600,
+            "endMs": 67370,
+            "conf": 0.622,
+            "snapped": true,
+            "inherited": true,
+            "matched": 0,
+            "total": 18
+          },
+          {
+            "ayahIdx": 10,
+            "startMs": 67370,
+            "endMs": 73425,
+            "conf": 0.911,
+            "snapped": true,
+            "inherited": true,
+            "matched": 0,
+            "total": 4
+          },
+          {
+            "ayahIdx": 11,
+            "startMs": 73425,
+            "endMs": 79720,
+            "conf": 0.52,
+            "snapped": false,
+            "inherited": true,
+            "matched": 0,
+            "total": 9
+          },
+          {
+            "ayahIdx": 12,
+            "startMs": 79720,
+            "endMs": 83770,
+            "conf": 0.9,
+            "snapped": true,
+            "inherited": true,
+            "matched": 0,
+            "total": 5
+          },
+          {
+            "ayahIdx": 13,
+            "startMs": 83770,
+            "endMs": 96390,
+            "conf": 0.74,
+            "snapped": true,
+            "inherited": true,
+            "matched": 0,
+            "total": 11
+          },
+          {
+            "ayahIdx": 14,
+            "startMs": 96390,
+            "endMs": 108620,
+            "conf": 0.9,
+            "snapped": true,
+            "inherited": true,
+            "matched": 0,
+            "total": 10
+          },
+          {
+            "ayahIdx": 15,
+            "startMs": 108620,
+            "endMs": 116220,
+            "conf": 1.0,
+            "snapped": true,
+            "inherited": true,
+            "matched": 0,
+            "total": 10
+          },
+          {
+            "ayahIdx": 16,
+            "startMs": 116220,
+            "endMs": 120410,
+            "conf": 0.74,
+            "snapped": true,
+            "inherited": true,
+            "matched": 0,
+            "total": 4
+          },
+          {
+            "ayahIdx": 17,
+            "startMs": 120410,
+            "endMs": 129630,
+            "conf": 0.74,
+            "snapped": true,
+            "inherited": true,
+            "matched": 0,
+            "total": 13
+          },
+          {
+            "ayahIdx": 18,
+            "startMs": 129630,
+            "endMs": 135095,
+            "conf": 0.74,
+            "snapped": true,
+            "inherited": true,
+            "matched": 0,
+            "total": 3
+          },
+          {
+            "ayahIdx": 19,
+            "startMs": 135095,
+            "endMs": 137070,
+            "conf": 0.552,
+            "snapped": false,
+            "inherited": true,
+            "matched": 0,
+            "total": 5
+          },
+          {
+            "ayahIdx": 20,
+            "startMs": 137070,
+            "endMs": 143280,
+            "conf": 0.911,
+            "snapped": true,
+            "inherited": true,
+            "matched": 0,
+            "total": 7
+          },
+          {
+            "ayahIdx": 21,
+            "startMs": 143280,
+            "endMs": 153640,
+            "conf": 0.74,
+            "snapped": true,
+            "inherited": true,
+            "matched": 0,
+            "total": 11
+          },
+          {
+            "ayahIdx": 22,
+            "startMs": 153640,
+            "endMs": 157620,
+            "conf": 0.911,
+            "snapped": true,
+            "inherited": true,
+            "matched": 0,
+            "total": 4
+          },
+          {
+            "ayahIdx": 23,
+            "startMs": 157620,
+            "endMs": 162940,
+            "conf": 0.74,
+            "snapped": true,
+            "inherited": true,
+            "matched": 0,
+            "total": 5
+          },
+          {
+            "ayahIdx": 24,
+            "startMs": 162940,
+            "endMs": 165641,
+            "conf": 0.92,
+            "snapped": true,
+            "inherited": true,
+            "matched": 0,
+            "total": 5
+          },
+          {
+            "ayahIdx": 25,
+            "startMs": 165641,
+            "endMs": 168186,
+            "conf": 0.6,
+            "snapped": false,
+            "inherited": true,
+            "matched": 0,
+            "total": 3
+          },
+          {
+            "ayahIdx": 26,
+            "startMs": 168186,
+            "endMs": 171580,
+            "conf": 0.48,
+            "snapped": false,
+            "inherited": true,
+            "matched": 0,
+            "total": 4
+          },
+          {
+            "ayahIdx": 27,
+            "startMs": 171580,
+            "endMs": 173740,
+            "conf": 0.48,
+            "snapped": false,
+            "inherited": true,
+            "matched": 0,
+            "total": 2
+          },
+          {
+            "ayahIdx": 28,
+            "startMs": 173740,
+            "endMs": 177520,
+            "conf": 0.943,
+            "snapped": true,
+            "inherited": true,
+            "matched": 0,
+            "total": 5
+          },
+          {
+            "ayahIdx": 29,
+            "startMs": 177520,
+            "endMs": 178593,
+            "conf": 0.3,
+            "snapped": true,
+            "inherited": true,
+            "matched": 0,
+            "total": 2
+          },
+          {
+            "ayahIdx": 30,
+            "startMs": 178593,
+            "endMs": 181813,
+            "conf": 0.52,
+            "snapped": false,
+            "inherited": true,
+            "matched": 0,
+            "total": 3
+          },
+          {
+            "ayahIdx": 31,
+            "startMs": 181813,
+            "endMs": 182890,
+            "conf": 0.6,
+            "snapped": false,
+            "inherited": true,
+            "matched": 0,
+            "total": 3
+          },
+          {
+            "ayahIdx": 32,
+            "startMs": 182890,
+            "endMs": 188710,
+            "conf": 0.933,
+            "snapped": true,
+            "inherited": true,
+            "matched": 0,
+            "total": 3
+          },
+          {
+            "ayahIdx": 33,
+            "startMs": 188710,
+            "endMs": 190400,
+            "conf": 0.56,
+            "snapped": true,
+            "inherited": true,
+            "matched": 0,
+            "total": 2
+          },
+          {
+            "ayahIdx": 34,
+            "startMs": 190400,
+            "endMs": 193820,
+            "conf": 0.54,
+            "snapped": false,
+            "inherited": true,
+            "matched": 0,
+            "total": 4
+          },
+          {
+            "ayahIdx": 35,
+            "startMs": 193820,
+            "endMs": 200290,
+            "conf": 0.74,
+            "snapped": true,
+            "inherited": true,
+            "matched": 0,
+            "total": 5
+          },
+          {
+            "ayahIdx": 36,
+            "startMs": 200290,
+            "endMs": 205150,
+            "conf": 1.0,
+            "snapped": true,
+            "inherited": true,
+            "matched": 0,
+            "total": 5
+          },
+          {
+            "ayahIdx": 37,
+            "startMs": 205150,
+            "endMs": 209640,
+            "conf": 0.82,
+            "snapped": true,
+            "inherited": true,
+            "matched": 0,
+            "total": 6
+          },
+          {
+            "ayahIdx": 38,
+            "startMs": 209640,
+            "endMs": 230110,
+            "conf": 0.927,
+            "snapped": true,
+            "inherited": true,
+            "matched": 0,
+            "total": 22
+          },
+          {
+            "ayahIdx": 39,
+            "startMs": 230110,
+            "endMs": 258220,
+            "conf": 0.809,
+            "snapped": true,
+            "inherited": true,
+            "matched": 0,
+            "total": 34
+          },
+          {
+            "ayahIdx": 40,
+            "startMs": 258220,
+            "endMs": 262630,
+            "conf": 1.0,
+            "snapped": true,
+            "inherited": true,
+            "matched": 0,
+            "total": 2
+          },
+          {
+            "ayahIdx": 41,
+            "startMs": 262630,
+            "endMs": 271210,
+            "conf": 0.74,
+            "snapped": true,
+            "inherited": true,
+            "matched": 0,
+            "total": 8
+          },
+          {
+            "ayahIdx": 42,
+            "startMs": 271210,
+            "endMs": 276670,
+            "conf": 1.0,
+            "snapped": true,
+            "inherited": true,
+            "matched": 0,
+            "total": 5
+          },
+          {
+            "ayahIdx": 43,
+            "startMs": 276670,
+            "endMs": 283760,
+            "conf": 0.927,
+            "snapped": true,
+            "inherited": true,
+            "matched": 0,
+            "total": 8
+          },
+          {
+            "ayahIdx": 44,
+            "startMs": 283760,
+            "endMs": 293480,
+            "conf": 0.74,
+            "snapped": true,
+            "inherited": true,
+            "matched": 0,
+            "total": 10
+          },
+          {
+            "ayahIdx": 45,
+            "startMs": 293480,
+            "endMs": 301070,
+            "conf": 0.92,
+            "snapped": true,
+            "inherited": true,
+            "matched": 0,
+            "total": 7
+          },
+          {
+            "ayahIdx": 46,
+            "startMs": 301070,
+            "endMs": 323390,
+            "conf": 0.74,
+            "snapped": true,
+            "inherited": true,
+            "matched": 0,
+            "total": 21
+          },
+          {
+            "ayahIdx": 47,
+            "startMs": 323390,
+            "endMs": 334590,
+            "conf": 0.956,
+            "snapped": true,
+            "inherited": true,
+            "matched": 0,
+            "total": 10
+          },
+          {
+            "ayahIdx": 48,
+            "startMs": 334590,
+            "endMs": 338920,
+            "conf": 0.96,
+            "snapped": true,
+            "inherited": true,
+            "matched": 0,
+            "total": 4
+          },
+          {
+            "ayahIdx": 49,
+            "startMs": 338920,
+            "endMs": 345770,
+            "conf": 0.95,
+            "snapped": true,
+            "inherited": true,
+            "matched": 0,
+            "total": 9
+          },
+          {
+            "ayahIdx": 50,
+            "startMs": 345770,
+            "endMs": 349850,
+            "conf": 0.938,
+            "snapped": true,
+            "inherited": true,
+            "matched": 0,
+            "total": 5
+          },
+          {
+            "ayahIdx": 51,
+            "startMs": 349850,
+            "endMs": 357930,
+            "conf": 1.0,
+            "snapped": true,
+            "inherited": true,
+            "matched": 0,
+            "total": 11
+          },
+          {
+            "ayahIdx": 52,
+            "startMs": 357930,
+            "endMs": 379490,
+            "conf": 0.911,
+            "snapped": true,
+            "inherited": true,
+            "matched": 0,
+            "total": 19
+          },
+          {
+            "ayahIdx": 53,
+            "startMs": 379490,
+            "endMs": 389200,
+            "conf": 0.74,
+            "snapped": true,
+            "inherited": true,
+            "matched": 0,
+            "total": 9
+          },
+          {
+            "ayahIdx": 54,
+            "startMs": 389200,
+            "endMs": 402250,
+            "conf": 0.74,
+            "snapped": true,
+            "inherited": true,
+            "matched": 0,
+            "total": 8
+          },
+          {
+            "ayahIdx": 55,
+            "startMs": 402250,
+            "endMs": 408530,
+            "conf": 0.8,
+            "snapped": true,
+            "inherited": true,
+            "matched": 0,
+            "total": 6
+          },
+          {
+            "ayahIdx": 56,
+            "startMs": 408530,
+            "endMs": 415400,
+            "conf": 0.74,
+            "snapped": true,
+            "inherited": true,
+            "matched": 0,
+            "total": 7
+          },
+          {
+            "ayahIdx": 57,
+            "startMs": 415400,
+            "endMs": 431960,
+            "conf": 0.74,
+            "snapped": true,
+            "inherited": true,
+            "matched": 0,
+            "total": 14
+          },
+          {
+            "ayahIdx": 58,
+            "startMs": 431960,
+            "endMs": 438630,
+            "conf": 0.911,
+            "snapped": true,
+            "inherited": true,
+            "matched": 0,
+            "total": 8
+          },
+          {
+            "ayahIdx": 59,
+            "startMs": 438630,
+            "endMs": 443890,
+            "conf": 0.967,
+            "snapped": true,
+            "inherited": true,
+            "matched": 0,
+            "total": 6
+          },
+          {
+            "ayahIdx": 60,
+            "startMs": 443890,
+            "endMs": 459020,
+            "conf": 0.96,
+            "snapped": true,
+            "inherited": true,
+            "matched": 0,
+            "total": 15
+          },
+          {
+            "ayahIdx": 61,
+            "startMs": 459020,
+            "endMs": 465310,
+            "conf": 0.956,
+            "snapped": true,
+            "inherited": true,
+            "matched": 0,
+            "total": 5
+          },
+          {
+            "ayahIdx": 62,
+            "startMs": 465310,
+            "endMs": 481710,
+            "conf": 0.74,
+            "snapped": true,
+            "inherited": true,
+            "matched": 0,
+            "total": 13
+          },
+          {
+            "ayahIdx": 63,
+            "startMs": 481710,
+            "endMs": 488494,
+            "conf": 0.911,
+            "snapped": true,
+            "inherited": false,
+            "matched": 0,
+            "total": 10
+          },
+          {
+            "ayahIdx": 64,
+            "startMs": 488494,
+            "endMs": 497699,
+            "conf": 0.74,
+            "snapped": false,
+            "inherited": false,
+            "matched": 0,
+            "total": 11
+          },
+          {
+            "ayahIdx": 65,
+            "startMs": 497699,
+            "endMs": 509145,
+            "conf": 0.74,
+            "snapped": false,
+            "inherited": false,
+            "matched": 0,
+            "total": 12
+          },
+          {
+            "ayahIdx": 66,
+            "startMs": 509145,
+            "endMs": 514088,
+            "conf": 0.662,
+            "snapped": false,
+            "inherited": false,
+            "matched": 0,
+            "total": 5
+          },
+          {
+            "ayahIdx": 67,
+            "startMs": 514088,
+            "endMs": 520011,
+            "conf": 0.74,
+            "snapped": false,
+            "inherited": false,
+            "matched": 0,
+            "total": 6
+          },
+          {
+            "ayahIdx": 68,
+            "startMs": 520011,
+            "endMs": 535700,
+            "conf": 0.74,
+            "snapped": false,
+            "inherited": false,
+            "matched": 0,
+            "total": 16
+          },
+          {
+            "ayahIdx": 69,
+            "startMs": 535700,
+            "endMs": 543724,
+            "conf": 0.533,
+            "snapped": true,
+            "inherited": false,
+            "matched": 0,
+            "total": 8
+          },
+          {
+            "ayahIdx": 70,
+            "startMs": 543724,
+            "endMs": 571080,
+            "conf": 0.685,
+            "snapped": false,
+            "inherited": false,
+            "matched": 0,
+            "total": 26
+          },
+          {
+            "ayahIdx": 71,
+            "startMs": 571080,
+            "endMs": 590970,
+            "conf": 0.92,
+            "snapped": true,
+            "inherited": true,
+            "matched": 0,
+            "total": 19
+          },
+          {
+            "ayahIdx": 72,
+            "startMs": 590970,
+            "endMs": 613210,
+            "conf": 0.971,
+            "snapped": true,
+            "inherited": true,
+            "matched": 0,
+            "total": 14
+          },
+          {
+            "ayahIdx": 73,
+            "startMs": 613210,
+            "endMs": 625380,
+            "conf": 1.0,
+            "snapped": true,
+            "inherited": true,
+            "matched": 0,
+            "total": 13
+          },
+          {
+            "ayahIdx": 74,
+            "startMs": 625380,
+            "endMs": 635310,
+            "conf": 0.927,
+            "snapped": true,
+            "inherited": true,
+            "matched": 0,
+            "total": 10
+          },
+          {
+            "ayahIdx": 75,
+            "startMs": 635310,
+            "endMs": 650140,
+            "conf": 0.74,
+            "snapped": true,
+            "inherited": true,
+            "matched": 0,
+            "total": 12
+          },
+          {
+            "ayahIdx": 76,
+            "startMs": 650140,
+            "endMs": 663890,
+            "conf": 0.956,
+            "snapped": true,
+            "inherited": true,
+            "matched": 0,
+            "total": 18
+          },
+          {
+            "ayahIdx": 77,
+            "startMs": 663890,
+            "endMs": 671160,
+            "conf": 0.95,
+            "snapped": true,
+            "inherited": true,
+            "matched": 0,
+            "total": 8
+          },
+          {
+            "ayahIdx": 78,
+            "startMs": 671160,
+            "endMs": 676470,
+            "conf": 1.0,
+            "snapped": true,
+            "inherited": true,
+            "matched": 0,
+            "total": 5
+          },
+          {
+            "ayahIdx": 79,
+            "startMs": 676470,
+            "endMs": 693380,
+            "conf": 0.531,
+            "snapped": false,
+            "inherited": true,
+            "matched": 0,
+            "total": 14
+          },
+          {
+            "ayahIdx": 80,
+            "startMs": 693380,
+            "endMs": 708010,
+            "conf": 0.74,
+            "snapped": true,
+            "inherited": true,
+            "matched": 0,
+            "total": 17
+          },
+          {
+            "ayahIdx": 81,
+            "startMs": 708010,
+            "endMs": 718390,
+            "conf": 0.74,
+            "snapped": true,
+            "inherited": true,
+            "matched": 0,
+            "total": 9
+          },
+          {
+            "ayahIdx": 82,
+            "startMs": 718390,
+            "endMs": 722730,
+            "conf": 0.927,
+            "snapped": true,
+            "inherited": true,
+            "matched": 0,
+            "total": 5
+          },
+          {
+            "ayahIdx": 83,
+            "startMs": 722730,
+            "endMs": 729320,
+            "conf": 0.927,
+            "snapped": true,
+            "inherited": true,
+            "matched": 0,
+            "total": 9
+          },
+          {
+            "ayahIdx": 84,
+            "startMs": 729320,
+            "endMs": 738390,
+            "conf": 0.92,
+            "snapped": true,
+            "inherited": true,
+            "matched": 0,
+            "total": 9
+          },
+          {
+            "ayahIdx": 85,
+            "startMs": 738390,
+            "endMs": 759750,
+            "conf": 0.938,
+            "snapped": true,
+            "inherited": true,
+            "matched": 0,
+            "total": 26
+          },
+          {
+            "ayahIdx": 86,
+            "startMs": 759750,
+            "endMs": 778560,
+            "conf": 0.947,
+            "snapped": true,
+            "inherited": true,
+            "matched": 0,
+            "total": 15
+          },
+          {
+            "ayahIdx": 87,
+            "startMs": 778560,
+            "endMs": 789750,
+            "conf": 0.9,
+            "snapped": true,
+            "inherited": true,
+            "matched": 0,
+            "total": 12
+          },
+          {
+            "ayahIdx": 88,
+            "startMs": 789750,
+            "endMs": 798970,
+            "conf": 0.92,
+            "snapped": true,
+            "inherited": true,
+            "matched": 0,
+            "total": 12
+          },
+          {
+            "ayahIdx": 89,
+            "startMs": 798970,
+            "endMs": 817700,
+            "conf": 0.74,
+            "snapped": true,
+            "inherited": true,
+            "matched": 0,
+            "total": 16
+          },
+          {
+            "ayahIdx": 90,
+            "startMs": 817700,
+            "endMs": 826100,
+            "conf": 0.74,
+            "snapped": true,
+            "inherited": true,
+            "matched": 0,
+            "total": 9
+          },
+          {
+            "ayahIdx": 91,
+            "startMs": 826100,
+            "endMs": 832485,
+            "conf": 0.74,
+            "snapped": true,
+            "inherited": true,
+            "matched": 0,
+            "total": 7
+          },
+          {
+            "ayahIdx": 92,
+            "startMs": 832485,
+            "endMs": 835280,
+            "conf": 0.6,
+            "snapped": false,
+            "inherited": true,
+            "matched": 0,
+            "total": 4
+          },
+          {
+            "ayahIdx": 93,
+            "startMs": 835280,
+            "endMs": 862030,
+            "conf": 0.74,
+            "snapped": true,
+            "inherited": true,
+            "matched": 0,
+            "total": 18
+          },
+          {
+            "ayahIdx": 94,
+            "startMs": 862030,
+            "endMs": 866380,
+            "conf": 0.9,
+            "snapped": true,
+            "inherited": true,
+            "matched": 0,
+            "total": 4
+          },
+          {
+            "ayahIdx": 95,
+            "startMs": 866380,
+            "endMs": 880060,
+            "conf": 0.975,
+            "snapped": true,
+            "inherited": true,
+            "matched": 0,
+            "total": 16
+          },
+          {
+            "ayahIdx": 96,
+            "startMs": 880060,
+            "endMs": 908220,
+            "conf": 0.971,
+            "snapped": true,
+            "inherited": true,
+            "matched": 0,
+            "total": 28
+          },
+          {
+            "ayahIdx": 97,
+            "startMs": 908220,
+            "endMs": 921820,
+            "conf": 1.0,
+            "snapped": true,
+            "inherited": true,
+            "matched": 0,
+            "total": 12
+          },
+          {
+            "ayahIdx": 98,
+            "startMs": 921820,
+            "endMs": 933010,
+            "conf": 1.0,
+            "snapped": true,
+            "inherited": true,
+            "matched": 0,
+            "total": 13
+          },
+          {
+            "ayahIdx": 99,
+            "startMs": 933010,
+            "endMs": 939880,
+            "conf": 0.927,
+            "snapped": true,
+            "inherited": true,
+            "matched": 0,
+            "total": 8
+          },
+          {
+            "ayahIdx": 100,
+            "startMs": 939880,
+            "endMs": 947710,
+            "conf": 0.74,
+            "snapped": true,
+            "inherited": true,
+            "matched": 0,
+            "total": 7
+          },
+          {
+            "ayahIdx": 101,
+            "startMs": 947710,
+            "endMs": 956530,
+            "conf": 0.74,
+            "snapped": true,
+            "inherited": true,
+            "matched": 0,
+            "total": 8
+          },
+          {
+            "ayahIdx": 102,
+            "startMs": 956530,
+            "endMs": 962680,
+            "conf": 0.95,
+            "snapped": true,
+            "inherited": true,
+            "matched": 0,
+            "total": 6
+          },
+          {
+            "ayahIdx": 103,
+            "startMs": 962680,
+            "endMs": 972160,
+            "conf": 0.956,
+            "snapped": true,
+            "inherited": true,
+            "matched": 0,
+            "total": 12
+          },
+          {
+            "ayahIdx": 104,
+            "startMs": 972160,
+            "endMs": 983368,
+            "conf": 0.943,
+            "snapped": true,
+            "inherited": true,
+            "matched": 0,
+            "total": 7
+          },
+          {
+            "ayahIdx": 105,
+            "startMs": 983368,
+            "endMs": 988035,
+            "conf": 0.6,
+            "snapped": false,
+            "inherited": true,
+            "matched": 0,
+            "total": 3
+          },
+          {
+            "ayahIdx": 106,
+            "startMs": 988035,
+            "endMs": 997230,
+            "conf": 0.6,
+            "snapped": false,
+            "inherited": true,
+            "matched": 0,
+            "total": 6
+          },
+          {
+            "ayahIdx": 107,
+            "startMs": 997230,
+            "endMs": 1018040,
+            "conf": 0.943,
+            "snapped": true,
+            "inherited": true,
+            "matched": 0,
+            "total": 13
+          },
+          {
+            "ayahIdx": 108,
+            "startMs": 1018040,
+            "endMs": 1028670,
+            "conf": 0.74,
+            "snapped": true,
+            "inherited": true,
+            "matched": 0,
+            "total": 12
+          },
+          {
+            "ayahIdx": 109,
+            "startMs": 1028670,
+            "endMs": 1037330,
+            "conf": 1.0,
+            "snapped": true,
+            "inherited": true,
+            "matched": 0,
+            "total": 10
+          },
+          {
+            "ayahIdx": 110,
+            "startMs": 1037330,
+            "endMs": 1052800,
+            "conf": 0.943,
+            "snapped": true,
+            "inherited": true,
+            "matched": 0,
+            "total": 9
+          },
+          {
+            "ayahIdx": 111,
+            "startMs": 1052800,
+            "endMs": 1062890,
+            "conf": 0.74,
+            "snapped": true,
+            "inherited": true,
+            "matched": 0,
+            "total": 11
+          },
+          {
+            "ayahIdx": 112,
+            "startMs": 1062890,
+            "endMs": 1082020,
+            "conf": 0.971,
+            "snapped": true,
+            "inherited": true,
+            "matched": 0,
+            "total": 14
+          },
+          {
+            "ayahIdx": 113,
+            "startMs": 1082020,
+            "endMs": 1099410,
+            "conf": 0.953,
+            "snapped": true,
+            "inherited": true,
+            "matched": 0,
+            "total": 17
+          },
+          {
+            "ayahIdx": 114,
+            "startMs": 1099410,
+            "endMs": 1108590,
+            "conf": 1.0,
+            "snapped": true,
+            "inherited": true,
+            "matched": 0,
+            "total": 11
+          },
+          {
+            "ayahIdx": 115,
+            "startMs": 1108590,
+            "endMs": 1116900,
+            "conf": 0.74,
+            "snapped": true,
+            "inherited": true,
+            "matched": 0,
+            "total": 9
+          },
+          {
+            "ayahIdx": 116,
+            "startMs": 1116900,
+            "endMs": 1127780,
+            "conf": 0.877,
+            "snapped": true,
+            "inherited": true,
+            "matched": 0,
+            "total": 12
+          },
+          {
+            "ayahIdx": 117,
+            "startMs": 1127780,
+            "endMs": 1134538,
+            "conf": 0.943,
+            "snapped": true,
+            "inherited": true,
+            "matched": 0,
+            "total": 7
+          },
+          {
+            "ayahIdx": 118,
+            "startMs": 1134538,
+            "endMs": 1140040,
+            "conf": 0.444,
+            "snapped": false,
+            "inherited": true,
+            "matched": 0,
+            "total": 6
+          },
+          {
+            "ayahIdx": 119,
+            "startMs": 1140040,
+            "endMs": 1151200,
+            "conf": 0.73,
+            "snapped": true,
+            "inherited": true,
+            "matched": 0,
+            "total": 13
+          },
+          {
+            "ayahIdx": 120,
+            "startMs": 1151200,
+            "endMs": 1167700,
+            "conf": 0.74,
+            "snapped": true,
+            "inherited": true,
+            "matched": 0,
+            "total": 15
+          },
+          {
+            "ayahIdx": 121,
+            "startMs": 1167700,
+            "endMs": 1173600,
+            "conf": 0.933,
+            "snapped": true,
+            "inherited": true,
+            "matched": 0,
+            "total": 6
+          },
+          {
+            "ayahIdx": 122,
+            "startMs": 1173600,
+            "endMs": 1195880,
+            "conf": 1.0,
+            "snapped": true,
+            "inherited": true,
+            "matched": 0,
+            "total": 18
+          },
+          {
+            "ayahIdx": 123,
+            "startMs": 1195880,
+            "endMs": 1208650,
+            "conf": 0.9,
+            "snapped": true,
+            "inherited": true,
+            "matched": 0,
+            "total": 12
+          },
+          {
+            "ayahIdx": 124,
+            "startMs": 1208650,
+            "endMs": 1215380,
+            "conf": 0.964,
+            "snapped": true,
+            "inherited": true,
+            "matched": 0,
+            "total": 8
+          },
+          {
+            "ayahIdx": 125,
+            "startMs": 1215380,
+            "endMs": 1223880,
+            "conf": 0.74,
+            "snapped": true,
+            "inherited": true,
+            "matched": 0,
+            "total": 8
+          },
+          {
+            "ayahIdx": 126,
+            "startMs": 1223880,
+            "endMs": 1236690,
+            "conf": 0.933,
+            "snapped": true,
+            "inherited": true,
+            "matched": 0,
+            "total": 12
+          },
+          {
+            "ayahIdx": 127,
+            "startMs": 1236690,
+            "endMs": 1250540,
+            "conf": 0.74,
+            "snapped": true,
+            "inherited": true,
+            "matched": 0,
+            "total": 17
+          },
+          {
+            "ayahIdx": 128,
+            "startMs": 1250540,
+            "endMs": 1260060,
+            "conf": 0.74,
+            "snapped": true,
+            "inherited": true,
+            "matched": 0,
+            "total": 9
+          },
+          {
+            "ayahIdx": 129,
+            "startMs": 1260060,
+            "endMs": 1279820,
+            "conf": 0.943,
+            "snapped": true,
+            "inherited": true,
+            "matched": 0,
+            "total": 20
+          },
+          {
+            "ayahIdx": 130,
+            "startMs": 1279820,
+            "endMs": 1297299,
+            "conf": 0.933,
+            "snapped": true,
+            "inherited": true,
+            "matched": 0,
+            "total": 18
+          },
+          {
+            "ayahIdx": 131,
+            "startMs": 1297299,
+            "endMs": 1307920,
+            "conf": 0.505,
+            "snapped": false,
+            "inherited": true,
+            "matched": 0,
+            "total": 12
+          },
+          {
+            "ayahIdx": 132,
+            "startMs": 1307920,
+            "endMs": 1318870,
+            "conf": 0.969,
+            "snapped": true,
+            "inherited": true,
+            "matched": 0,
+            "total": 13
+          },
+          {
+            "ayahIdx": 133,
+            "startMs": 1318870,
+            "endMs": 1341430,
+            "conf": 0.857,
+            "snapped": true,
+            "inherited": true,
+            "matched": 0,
+            "total": 19
+          },
+          {
+            "ayahIdx": 134,
+            "startMs": 1341430,
+            "endMs": 1353860,
+            "conf": 0.818,
+            "snapped": true,
+            "inherited": true,
+            "matched": 0,
+            "total": 11
+          }
+        ],
+        "alignmentModel": {
+          "id": "rabah2026/wav2vec2-large-xlsr-53-arabic-quran-v_final",
+          "revision": "b03a268c6ba1a693752307325ab376c86c3b12da",
+          "weightsSha256": "bf65674a26eb4ef7042cedade96c3c8f8cbd04f3a7d1a68eadceec8ed0f99ecb",
+          "license": "Apache-2.0",
+          "canonicalTextChanged": false
+        },
+        "originalTrial": {
+          "reciter": "nasser_almajed",
+          "riwaya": "hafs",
+          "context": 3,
+          "rc": 0,
+          "model": "rabah2026/wav2vec2-large-xlsr-53-arabic-quran-v_final",
+          "revision": "b03a268c6ba1a693752307325ab376c86c3b12da",
+          "parentSha": "024f4669daac0842e796736e6001ae9fb4ce4475b7af916f16ff0caf86391951",
+          "diagnosticOnly": true,
+          "productionChanged": false,
+          "log": "س20:67-68 (gap): ✅ قُسمت · 20:64 481710–488494 · 20:65 488494–497699 · 20:66 497699–509145 · 20:67 509145–514088 · 20:68 514088–520011 · 20:69 520011–535700 · 20:70 535700–543724 · 20:71 543724–571080\nس25:23-23 (gap): ✅ قُسمت · 25:20 264570–285367 · 25:21 285367–304584 · 25:22 304584–317595 · 25:23 317595–328324 · 25:24 328324–337631 · 25:25 337631–348521 · 25:26 348521–359590\nس45:18-18 (gap): ✅ قُسمت · 45:15 158020–169669 · 45:16 169669–184970 · 45:17 184970–207397 · 45:18 207397–220827 · 45:19 220827–237319 · 45:20 237319–245405 · 45:21 245405–265700\n",
+          "files": [
+            "s045.json",
+            "s025.json",
+            "s020.json"
+          ]
+        }
+      }
+    },
+    {
+      "surah": 25,
+      "originalSourceSha": "cd95a9ab9f23d3f2a04489dc6ac3c2a66b7ff84f82a42ad975b33e97fe1fbc4a",
+      "source": "https://server14.mp3quran.net/nasser_almajed/025.mp3",
+      "decoderErrors": "",
+      "decodeRc": 0,
+      "audioPacketSizeDurationPairs": [
+        [
+          "1044",
+          "0.026122"
+        ],
+        [
+          "1045",
+          "0.026122"
+        ]
+      ],
+      "nativeDurationMs": 974106,
+      "alignment": {
+        "fileRef": "https://server14.mp3quran.net/nasser_almajed/025.mp3",
+        "sha256": "cd95a9ab9f23d3f2a04489dc6ac3c2a66b7ff84f82a42ad975b33e97fe1fbc4a",
+        "surah": 25,
+        "engine": "ctc-quran-window-1",
+        "alignmentModel": {
+          "id": "rabah2026/wav2vec2-large-xlsr-53-arabic-quran-v_final",
+          "revision": "b03a268c6ba1a693752307325ab376c86c3b12da",
+          "weightsSha256": "bf65674a26eb4ef7042cedade96c3c8f8cbd04f3a7d1a68eadceec8ed0f99ecb",
+          "license": "Apache-2.0",
+          "canonicalTextChanged": false
+        },
+        "gapsplit": [
+          "23"
+        ],
+        "entries": [
+          {
+            "ayahIdx": 0,
+            "startMs": 3920,
+            "endMs": 11670,
+            "conf": 0.867,
+            "snapped": true,
+            "inherited": true,
+            "matched": 0,
+            "total": 9
+          },
+          {
+            "ayahIdx": 1,
+            "startMs": 11670,
+            "endMs": 28080,
+            "conf": 0.979,
+            "snapped": true,
+            "inherited": true,
+            "matched": 0,
+            "total": 19
+          },
+          {
+            "ayahIdx": 2,
+            "startMs": 28080,
+            "endMs": 49440,
+            "conf": 0.964,
+            "snapped": true,
+            "inherited": true,
+            "matched": 0,
+            "total": 22
+          },
+          {
+            "ayahIdx": 3,
+            "startMs": 49440,
+            "endMs": 65950,
+            "conf": 0.927,
+            "snapped": true,
+            "inherited": true,
+            "matched": 0,
+            "total": 16
+          },
+          {
+            "ayahIdx": 4,
+            "startMs": 65950,
+            "endMs": 75870,
+            "conf": 0.571,
+            "snapped": true,
+            "inherited": true,
+            "matched": 0,
+            "total": 9
+          },
+          {
+            "ayahIdx": 5,
+            "startMs": 75870,
+            "endMs": 86760,
+            "conf": 0.967,
+            "snapped": true,
+            "inherited": true,
+            "matched": 0,
+            "total": 12
+          },
+          {
+            "ayahIdx": 6,
+            "startMs": 86760,
+            "endMs": 100920,
+            "conf": 0.74,
+            "snapped": true,
+            "inherited": true,
+            "matched": 0,
+            "total": 16
+          },
+          {
+            "ayahIdx": 7,
+            "startMs": 100920,
+            "endMs": 119560,
+            "conf": 0.927,
+            "snapped": true,
+            "inherited": true,
+            "matched": 0,
+            "total": 17
+          },
+          {
+            "ayahIdx": 8,
+            "startMs": 119560,
+            "endMs": 129250,
+            "conf": 0.956,
+            "snapped": true,
+            "inherited": true,
+            "matched": 0,
+            "total": 9
+          },
+          {
+            "ayahIdx": 9,
+            "startMs": 129250,
+            "endMs": 146940,
+            "conf": 0.906,
+            "snapped": true,
+            "inherited": true,
+            "matched": 0,
+            "total": 17
+          },
+          {
+            "ayahIdx": 10,
+            "startMs": 146940,
+            "endMs": 156360,
+            "conf": 0.74,
+            "snapped": true,
+            "inherited": true,
+            "matched": 0,
+            "total": 8
+          },
+          {
+            "ayahIdx": 11,
+            "startMs": 156360,
+            "endMs": 167050,
+            "conf": 0.95,
+            "snapped": true,
+            "inherited": true,
+            "matched": 0,
+            "total": 9
+          },
+          {
+            "ayahIdx": 12,
+            "startMs": 167050,
+            "endMs": 178210,
+            "conf": 0.752,
+            "snapped": true,
+            "inherited": true,
+            "matched": 0,
+            "total": 9
+          },
+          {
+            "ayahIdx": 13,
+            "startMs": 178210,
+            "endMs": 186540,
+            "conf": 0.77,
+            "snapped": true,
+            "inherited": true,
+            "matched": 0,
+            "total": 8
+          },
+          {
+            "ayahIdx": 14,
+            "startMs": 186540,
+            "endMs": 200090,
+            "conf": 0.74,
+            "snapped": true,
+            "inherited": true,
+            "matched": 0,
+            "total": 13
+          },
+          {
+            "ayahIdx": 15,
+            "startMs": 200090,
+            "endMs": 212200,
+            "conf": 0.95,
+            "snapped": true,
+            "inherited": true,
+            "matched": 0,
+            "total": 10
+          },
+          {
+            "ayahIdx": 16,
+            "startMs": 212200,
+            "endMs": 228060,
+            "conf": 0.975,
+            "snapped": true,
+            "inherited": true,
+            "matched": 0,
+            "total": 16
+          },
+          {
+            "ayahIdx": 17,
+            "startMs": 228060,
+            "endMs": 248680,
+            "conf": 0.981,
+            "snapped": true,
+            "inherited": true,
+            "matched": 0,
+            "total": 21
+          },
+          {
+            "ayahIdx": 18,
+            "startMs": 248680,
+            "endMs": 264570,
+            "conf": 0.956,
+            "snapped": true,
+            "inherited": true,
+            "matched": 0,
+            "total": 15
+          },
+          {
+            "ayahIdx": 19,
+            "startMs": 264570,
+            "endMs": 285060,
+            "conf": 0.927,
+            "snapped": true,
+            "inherited": true,
+            "matched": 0,
+            "total": 20
+          },
+          {
+            "ayahIdx": 20,
+            "startMs": 285060,
+            "endMs": 304595,
+            "conf": 0.958,
+            "snapped": true,
+            "inherited": false,
+            "matched": 0,
+            "total": 19
+          },
+          {
+            "ayahIdx": 21,
+            "startMs": 304595,
+            "endMs": 317585,
+            "conf": 0.5,
+            "snapped": false,
+            "inherited": false,
+            "matched": 0,
+            "total": 10
+          },
+          {
+            "ayahIdx": 22,
+            "startMs": 317585,
+            "endMs": 328314,
+            "conf": 0.74,
+            "snapped": false,
+            "inherited": false,
+            "matched": 0,
+            "total": 9
+          },
+          {
+            "ayahIdx": 23,
+            "startMs": 328314,
+            "endMs": 337621,
+            "conf": 0.74,
+            "snapped": false,
+            "inherited": false,
+            "matched": 0,
+            "total": 7
+          },
+          {
+            "ayahIdx": 24,
+            "startMs": 337621,
+            "endMs": 348970,
+            "conf": 0.605,
+            "snapped": false,
+            "inherited": false,
+            "matched": 0,
+            "total": 7
+          },
+          {
+            "ayahIdx": 25,
+            "startMs": 348970,
+            "endMs": 359590,
+            "conf": 0.911,
+            "snapped": true,
+            "inherited": true,
+            "matched": 0,
+            "total": 9
+          },
+          {
+            "ayahIdx": 26,
+            "startMs": 359590,
+            "endMs": 369280,
+            "conf": 0.9,
+            "snapped": true,
+            "inherited": true,
+            "matched": 0,
+            "total": 11
+          },
+          {
+            "ayahIdx": 27,
+            "startMs": 369280,
+            "endMs": 375700,
+            "conf": 0.74,
+            "snapped": true,
+            "inherited": true,
+            "matched": 0,
+            "total": 6
+          },
+          {
+            "ayahIdx": 28,
+            "startMs": 375700,
+            "endMs": 387240,
+            "conf": 0.95,
+            "snapped": true,
+            "inherited": true,
+            "matched": 0,
+            "total": 11
+          },
+          {
+            "ayahIdx": 29,
+            "startMs": 387240,
+            "endMs": 396720,
+            "conf": 0.6,
+            "snapped": true,
+            "inherited": true,
+            "matched": 0,
+            "total": 9
+          },
+          {
+            "ayahIdx": 30,
+            "startMs": 396720,
+            "endMs": 410770,
+            "conf": 0.92,
+            "snapped": true,
+            "inherited": true,
+            "matched": 0,
+            "total": 11
+          },
+          {
+            "ayahIdx": 31,
+            "startMs": 410770,
+            "endMs": 426490,
+            "conf": 0.947,
+            "snapped": true,
+            "inherited": true,
+            "matched": 0,
+            "total": 15
+          },
+          {
+            "ayahIdx": 32,
+            "startMs": 426490,
+            "endMs": 434250,
+            "conf": 0.911,
+            "snapped": true,
+            "inherited": true,
+            "matched": 0,
+            "total": 8
+          },
+          {
+            "ayahIdx": 33,
+            "startMs": 434250,
+            "endMs": 449880,
+            "conf": 0.956,
+            "snapped": true,
+            "inherited": true,
+            "matched": 0,
+            "total": 11
+          },
+          {
+            "ayahIdx": 34,
+            "startMs": 449880,
+            "endMs": 458690,
+            "conf": 0.74,
+            "snapped": true,
+            "inherited": true,
+            "matched": 0,
+            "total": 9
+          },
+          {
+            "ayahIdx": 35,
+            "startMs": 458690,
+            "endMs": 467720,
+            "conf": 0.9,
+            "snapped": true,
+            "inherited": true,
+            "matched": 0,
+            "total": 9
+          },
+          {
+            "ayahIdx": 36,
+            "startMs": 467720,
+            "endMs": 481330,
+            "conf": 0.74,
+            "snapped": true,
+            "inherited": true,
+            "matched": 0,
+            "total": 13
+          },
+          {
+            "ayahIdx": 37,
+            "startMs": 481330,
+            "endMs": 489900,
+            "conf": 0.9,
+            "snapped": true,
+            "inherited": true,
+            "matched": 0,
+            "total": 8
+          },
+          {
+            "ayahIdx": 38,
+            "startMs": 489900,
+            "endMs": 497980,
+            "conf": 0.927,
+            "snapped": true,
+            "inherited": true,
+            "matched": 0,
+            "total": 7
+          },
+          {
+            "ayahIdx": 39,
+            "startMs": 497980,
+            "endMs": 509680,
+            "conf": 0.883,
+            "snapped": true,
+            "inherited": true,
+            "matched": 0,
+            "total": 16
+          },
+          {
+            "ayahIdx": 40,
+            "startMs": 509680,
+            "endMs": 520010,
+            "conf": 1.0,
+            "snapped": true,
+            "inherited": true,
+            "matched": 0,
+            "total": 11
+          },
+          {
+            "ayahIdx": 41,
+            "startMs": 520010,
+            "endMs": 535980,
+            "conf": 0.976,
+            "snapped": true,
+            "inherited": true,
+            "matched": 0,
+            "total": 17
+          },
+          {
+            "ayahIdx": 42,
+            "startMs": 535980,
+            "endMs": 544600,
+            "conf": 0.74,
+            "snapped": true,
+            "inherited": true,
+            "matched": 0,
+            "total": 9
+          },
+          {
+            "ayahIdx": 43,
+            "startMs": 544600,
+            "endMs": 556860,
+            "conf": 0.927,
+            "snapped": true,
+            "inherited": true,
+            "matched": 0,
+            "total": 15
+          },
+          {
+            "ayahIdx": 44,
+            "startMs": 556860,
+            "endMs": 569700,
+            "conf": 0.947,
+            "snapped": true,
+            "inherited": true,
+            "matched": 0,
+            "total": 16
+          },
+          {
+            "ayahIdx": 45,
+            "startMs": 569700,
+            "endMs": 576100,
+            "conf": 0.74,
+            "snapped": true,
+            "inherited": true,
+            "matched": 0,
+            "total": 5
+          },
+          {
+            "ayahIdx": 46,
+            "startMs": 576100,
+            "endMs": 586410,
+            "conf": 0.964,
+            "snapped": true,
+            "inherited": true,
+            "matched": 0,
+            "total": 11
+          },
+          {
+            "ayahIdx": 47,
+            "startMs": 586410,
+            "endMs": 600170,
+            "conf": 0.969,
+            "snapped": true,
+            "inherited": true,
+            "matched": 0,
+            "total": 13
+          },
+          {
+            "ayahIdx": 48,
+            "startMs": 600170,
+            "endMs": 615260,
+            "conf": 0.617,
+            "snapped": true,
+            "inherited": true,
+            "matched": 0,
+            "total": 10
+          },
+          {
+            "ayahIdx": 49,
+            "startMs": 615260,
+            "endMs": 625940,
+            "conf": 0.956,
+            "snapped": true,
+            "inherited": true,
+            "matched": 0,
+            "total": 9
+          },
+          {
+            "ayahIdx": 50,
+            "startMs": 625940,
+            "endMs": 631810,
+            "conf": 0.74,
+            "snapped": true,
+            "inherited": true,
+            "matched": 0,
+            "total": 7
+          },
+          {
+            "ayahIdx": 51,
+            "startMs": 631810,
+            "endMs": 639920,
+            "conf": 0.74,
+            "snapped": true,
+            "inherited": true,
+            "matched": 0,
+            "total": 7
+          },
+          {
+            "ayahIdx": 52,
+            "startMs": 639920,
+            "endMs": 654820,
+            "conf": 0.88,
+            "snapped": true,
+            "inherited": true,
+            "matched": 0,
+            "total": 15
+          },
+          {
+            "ayahIdx": 53,
+            "startMs": 654820,
+            "endMs": 666310,
+            "conf": 1.0,
+            "snapped": true,
+            "inherited": true,
+            "matched": 0,
+            "total": 12
+          },
+          {
+            "ayahIdx": 54,
+            "startMs": 666310,
+            "endMs": 678320,
+            "conf": 0.74,
+            "snapped": true,
+            "inherited": true,
+            "matched": 0,
+            "total": 14
+          },
+          {
+            "ayahIdx": 55,
+            "startMs": 678320,
+            "endMs": 684140,
+            "conf": 0.933,
+            "snapped": true,
+            "inherited": true,
+            "matched": 0,
+            "total": 5
+          },
+          {
+            "ayahIdx": 56,
+            "startMs": 684140,
+            "endMs": 695110,
+            "conf": 0.927,
+            "snapped": true,
+            "inherited": true,
+            "matched": 0,
+            "total": 14
+          },
+          {
+            "ayahIdx": 57,
+            "startMs": 695110,
+            "endMs": 709350,
+            "conf": 0.74,
+            "snapped": true,
+            "inherited": true,
+            "matched": 0,
+            "total": 13
+          },
+          {
+            "ayahIdx": 58,
+            "startMs": 709350,
+            "endMs": 725790,
+            "conf": 0.953,
+            "snapped": true,
+            "inherited": true,
+            "matched": 0,
+            "total": 17
+          },
+          {
+            "ayahIdx": 59,
+            "startMs": 725790,
+            "endMs": 743770,
+            "conf": 0.956,
+            "snapped": true,
+            "inherited": true,
+            "matched": 0,
+            "total": 13
+          },
+          {
+            "ayahIdx": 60,
+            "startMs": 743770,
+            "endMs": 754860,
+            "conf": 0.964,
+            "snapped": true,
+            "inherited": true,
+            "matched": 0,
+            "total": 11
+          },
+          {
+            "ayahIdx": 61,
+            "startMs": 754860,
+            "endMs": 769670,
+            "conf": 0.927,
+            "snapped": true,
+            "inherited": true,
+            "matched": 0,
+            "total": 13
+          },
+          {
+            "ayahIdx": 62,
+            "startMs": 769670,
+            "endMs": 783270,
+            "conf": 1.0,
+            "snapped": true,
+            "inherited": true,
+            "matched": 0,
+            "total": 12
+          },
+          {
+            "ayahIdx": 63,
+            "startMs": 783270,
+            "endMs": 788960,
+            "conf": 0.92,
+            "snapped": true,
+            "inherited": true,
+            "matched": 0,
+            "total": 5
+          },
+          {
+            "ayahIdx": 64,
+            "startMs": 788960,
+            "endMs": 806380,
+            "conf": 0.92,
+            "snapped": true,
+            "inherited": true,
+            "matched": 0,
+            "total": 11
+          },
+          {
+            "ayahIdx": 65,
+            "startMs": 806380,
+            "endMs": 815340,
+            "conf": 0.74,
+            "snapped": true,
+            "inherited": true,
+            "matched": 0,
+            "total": 4
+          },
+          {
+            "ayahIdx": 66,
+            "startMs": 815340,
+            "endMs": 827070,
+            "conf": 1.0,
+            "snapped": true,
+            "inherited": true,
+            "matched": 0,
+            "total": 11
+          },
+          {
+            "ayahIdx": 67,
+            "startMs": 827070,
+            "endMs": 850270,
+            "conf": 0.96,
+            "snapped": true,
+            "inherited": true,
+            "matched": 0,
+            "total": 22
+          },
+          {
+            "ayahIdx": 68,
+            "startMs": 850270,
+            "endMs": 865120,
+            "conf": 0.9,
+            "snapped": true,
+            "inherited": true,
+            "matched": 0,
+            "total": 8
+          },
+          {
+            "ayahIdx": 69,
+            "startMs": 865120,
+            "endMs": 885870,
+            "conf": 0.96,
+            "snapped": true,
+            "inherited": true,
+            "matched": 0,
+            "total": 16
+          },
+          {
+            "ayahIdx": 70,
+            "startMs": 885870,
+            "endMs": 900190,
+            "conf": 0.911,
+            "snapped": true,
+            "inherited": true,
+            "matched": 0,
+            "total": 9
+          },
+          {
+            "ayahIdx": 71,
+            "startMs": 900190,
+            "endMs": 909930,
+            "conf": 0.911,
+            "snapped": true,
+            "inherited": true,
+            "matched": 0,
+            "total": 9
+          },
+          {
+            "ayahIdx": 72,
+            "startMs": 909930,
+            "endMs": 920480,
+            "conf": 0.956,
+            "snapped": true,
+            "inherited": true,
+            "matched": 0,
+            "total": 10
+          },
+          {
+            "ayahIdx": 73,
+            "startMs": 920480,
+            "endMs": 942270,
+            "conf": 0.74,
+            "snapped": true,
+            "inherited": true,
+            "matched": 0,
+            "total": 13
+          },
+          {
+            "ayahIdx": 74,
+            "startMs": 942270,
+            "endMs": 953080,
+            "conf": 0.956,
+            "snapped": true,
+            "inherited": true,
+            "matched": 0,
+            "total": 9
+          },
+          {
+            "ayahIdx": 75,
+            "startMs": 953080,
+            "endMs": 960360,
+            "conf": 0.74,
+            "snapped": true,
+            "inherited": true,
+            "matched": 0,
+            "total": 5
+          },
+          {
+            "ayahIdx": 76,
+            "startMs": 960360,
+            "endMs": 973400,
+            "conf": 0.933,
+            "snapped": true,
+            "inherited": true,
+            "matched": 0,
+            "total": 12
+          }
+        ]
+      }
+    },
+    {
+      "surah": 45,
+      "originalSourceSha": "0ccc1a9ea17cd1317aeacf487f2b8f3b9e21452c3b00b8f9362ed56e61b1153d",
+      "source": "https://server14.mp3quran.net/nasser_almajed/045.mp3",
+      "decoderErrors": "",
+      "decodeRc": 0,
+      "audioPacketSizeDurationPairs": [
+        [
+          "1044",
+          "0.026122"
+        ],
+        [
+          "1045",
+          "0.026122"
+        ]
+      ],
+      "nativeDurationMs": 496718,
+      "alignment": {
+        "fileRef": "https://server14.mp3quran.net/nasser_almajed/045.mp3",
+        "sha256": "0ccc1a9ea17cd1317aeacf487f2b8f3b9e21452c3b00b8f9362ed56e61b1153d",
+        "surah": 45,
+        "engine": "ctc-quran-window-1",
+        "alignmentModel": {
+          "id": "rabah2026/wav2vec2-large-xlsr-53-arabic-quran-v_final",
+          "revision": "b03a268c6ba1a693752307325ab376c86c3b12da",
+          "weightsSha256": "bf65674a26eb4ef7042cedade96c3c8f8cbd04f3a7d1a68eadceec8ed0f99ecb",
+          "license": "Apache-2.0",
+          "canonicalTextChanged": false
+        },
+        "gapsplit": [
+          "18"
+        ],
+        "entries": [
+          {
+            "ayahIdx": 0,
+            "startMs": 4320,
+            "endMs": 5440,
+            "conf": 0.6,
+            "snapped": true,
+            "inherited": true,
+            "matched": 0,
+            "total": 1
+          },
+          {
+            "ayahIdx": 1,
+            "startMs": 5440,
+            "endMs": 14710,
+            "conf": 0.56,
+            "snapped": false,
+            "inherited": true,
+            "matched": 0,
+            "total": 6
+          },
+          {
+            "ayahIdx": 2,
+            "startMs": 14710,
+            "endMs": 20480,
+            "conf": 0.911,
+            "snapped": true,
+            "inherited": true,
+            "matched": 0,
+            "total": 6
+          },
+          {
+            "ayahIdx": 3,
+            "startMs": 20480,
+            "endMs": 30080,
+            "conf": 0.74,
+            "snapped": true,
+            "inherited": true,
+            "matched": 0,
+            "total": 9
+          },
+          {
+            "ayahIdx": 4,
+            "startMs": 30080,
+            "endMs": 49810,
+            "conf": 0.6,
+            "snapped": true,
+            "inherited": true,
+            "matched": 0,
+            "total": 20
+          },
+          {
+            "ayahIdx": 5,
+            "startMs": 49810,
+            "endMs": 61790,
+            "conf": 0.74,
+            "snapped": true,
+            "inherited": true,
+            "matched": 0,
+            "total": 12
+          },
+          {
+            "ayahIdx": 6,
+            "startMs": 61790,
+            "endMs": 66150,
+            "conf": 0.911,
+            "snapped": true,
+            "inherited": true,
+            "matched": 0,
+            "total": 4
+          },
+          {
+            "ayahIdx": 7,
+            "startMs": 66150,
+            "endMs": 82410,
+            "conf": 0.971,
+            "snapped": true,
+            "inherited": true,
+            "matched": 0,
+            "total": 14
+          },
+          {
+            "ayahIdx": 8,
+            "startMs": 82410,
+            "endMs": 94580,
+            "conf": 0.92,
+            "snapped": true,
+            "inherited": true,
+            "matched": 0,
+            "total": 11
+          },
+          {
+            "ayahIdx": 9,
+            "startMs": 94580,
+            "endMs": 109740,
+            "conf": 0.924,
+            "snapped": true,
+            "inherited": true,
+            "matched": 0,
+            "total": 19
+          },
+          {
+            "ayahIdx": 10,
+            "startMs": 109740,
+            "endMs": 119186,
+            "conf": 0.911,
+            "snapped": true,
+            "inherited": true,
+            "matched": 0,
+            "total": 11
+          },
+          {
+            "ayahIdx": 11,
+            "startMs": 119186,
+            "endMs": 133540,
+            "conf": 0.583,
+            "snapped": false,
+            "inherited": true,
+            "matched": 0,
+            "total": 14
+          },
+          {
+            "ayahIdx": 12,
+            "startMs": 133540,
+            "endMs": 146330,
+            "conf": 0.927,
+            "snapped": true,
+            "inherited": true,
+            "matched": 0,
+            "total": 16
+          },
+          {
+            "ayahIdx": 13,
+            "startMs": 146330,
+            "endMs": 158020,
+            "conf": 0.732,
+            "snapped": true,
+            "inherited": true,
+            "matched": 0,
+            "total": 14
+          },
+          {
+            "ayahIdx": 14,
+            "startMs": 158020,
+            "endMs": 170090,
+            "conf": 0.92,
+            "snapped": true,
+            "inherited": true,
+            "matched": 0,
+            "total": 11
+          },
+          {
+            "ayahIdx": 15,
+            "startMs": 170090,
+            "endMs": 184969,
+            "conf": 0.911,
+            "snapped": true,
+            "inherited": false,
+            "matched": 0,
+            "total": 13
+          },
+          {
+            "ayahIdx": 16,
+            "startMs": 184969,
+            "endMs": 207394,
+            "conf": 0.602,
+            "snapped": false,
+            "inherited": false,
+            "matched": 0,
+            "total": 24
+          },
+          {
+            "ayahIdx": 17,
+            "startMs": 207394,
+            "endMs": 220823,
+            "conf": 0.665,
+            "snapped": false,
+            "inherited": false,
+            "matched": 0,
+            "total": 13
+          },
+          {
+            "ayahIdx": 18,
+            "startMs": 220823,
+            "endMs": 237294,
+            "conf": 0.666,
+            "snapped": false,
+            "inherited": false,
+            "matched": 0,
+            "total": 15
+          },
+          {
+            "ayahIdx": 19,
+            "startMs": 237294,
+            "endMs": 245780,
+            "conf": 0.684,
+            "snapped": true,
+            "inherited": false,
+            "matched": 0,
+            "total": 7
+          },
+          {
+            "ayahIdx": 20,
+            "startMs": 245780,
+            "endMs": 265700,
+            "conf": 0.927,
+            "snapped": true,
+            "inherited": true,
+            "matched": 0,
+            "total": 17
+          },
+          {
+            "ayahIdx": 21,
+            "startMs": 265700,
+            "endMs": 281400,
+            "conf": 0.908,
+            "snapped": true,
+            "inherited": true,
+            "matched": 0,
+            "total": 13
+          },
+          {
+            "ayahIdx": 22,
+            "startMs": 281400,
+            "endMs": 303880,
+            "conf": 0.933,
+            "snapped": true,
+            "inherited": true,
+            "matched": 0,
+            "total": 24
+          },
+          {
+            "ayahIdx": 23,
+            "startMs": 303880,
+            "endMs": 320800,
+            "conf": 1.0,
+            "snapped": true,
+            "inherited": true,
+            "matched": 0,
+            "total": 21
+          },
+          {
+            "ayahIdx": 24,
+            "startMs": 320800,
+            "endMs": 339300,
+            "conf": 0.925,
+            "snapped": true,
+            "inherited": true,
+            "matched": 0,
+            "total": 16
+          },
+          {
+            "ayahIdx": 25,
+            "startMs": 339300,
+            "endMs": 355750,
+            "conf": 0.956,
+            "snapped": true,
+            "inherited": true,
+            "matched": 0,
+            "total": 18
+          },
+          {
+            "ayahIdx": 26,
+            "startMs": 355750,
+            "endMs": 365560,
+            "conf": 0.74,
+            "snapped": true,
+            "inherited": true,
+            "matched": 0,
+            "total": 10
+          },
+          {
+            "ayahIdx": 27,
+            "startMs": 365560,
+            "endMs": 379240,
+            "conf": 0.74,
+            "snapped": true,
+            "inherited": true,
+            "matched": 0,
+            "total": 14
+          },
+          {
+            "ayahIdx": 28,
+            "startMs": 379240,
+            "endMs": 390590,
+            "conf": 0.96,
+            "snapped": true,
+            "inherited": true,
+            "matched": 0,
+            "total": 11
+          },
+          {
+            "ayahIdx": 29,
+            "startMs": 390590,
+            "endMs": 401800,
+            "conf": 0.74,
+            "snapped": true,
+            "inherited": true,
+            "matched": 0,
+            "total": 13
+          },
+          {
+            "ayahIdx": 30,
+            "startMs": 401800,
+            "endMs": 416250,
+            "conf": 0.967,
+            "snapped": true,
+            "inherited": true,
+            "matched": 0,
+            "total": 12
+          },
+          {
+            "ayahIdx": 31,
+            "startMs": 416250,
+            "endMs": 434530,
+            "conf": 0.973,
+            "snapped": true,
+            "inherited": true,
+            "matched": 0,
+            "total": 22
+          },
+          {
+            "ayahIdx": 32,
+            "startMs": 434530,
+            "endMs": 442745,
+            "conf": 0.74,
+            "snapped": true,
+            "inherited": true,
+            "matched": 0,
+            "total": 11
+          },
+          {
+            "ayahIdx": 33,
+            "startMs": 442745,
+            "endMs": 456800,
+            "conf": 0.74,
+            "snapped": true,
+            "inherited": true,
+            "matched": 0,
+            "total": 14
+          },
+          {
+            "ayahIdx": 34,
+            "startMs": 456800,
+            "endMs": 476120,
+            "conf": 0.36,
+            "snapped": false,
+            "inherited": true,
+            "matched": 0,
+            "total": 16
+          },
+          {
+            "ayahIdx": 35,
+            "startMs": 476120,
+            "endMs": 485800,
+            "conf": 1.0,
+            "snapped": true,
+            "inherited": true,
+            "matched": 0,
+            "total": 8
+          },
+          {
+            "ayahIdx": 36,
+            "startMs": 485800,
+            "endMs": 495980,
+            "conf": 0.85,
+            "snapped": true,
+            "inherited": true,
+            "matched": 0,
+            "total": 8
+          }
+        ]
+      }
+    }
+  ],
+  "canonicalTextChanged": false,
+  "alAnamByteIdentical": true,
+  "existingHoldUnchanged": true
+}

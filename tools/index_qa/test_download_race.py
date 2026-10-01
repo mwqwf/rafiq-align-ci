@@ -133,6 +133,10 @@ class DecodeWhileWritingTest(unittest.TestCase):
         self.tmp = tempfile.TemporaryDirectory()
         self.mp3 = Path(self.tmp.name) / "growing.mp3"
         self.mp3.write_bytes(b"\0" * 4096)
+        # Keep the subprocess mock scoped to the decode/write race.
+        channel = mock.patch("channel_mix.mono_filter", return_value=["-ac", "1"])
+        channel.start()
+        self.addCleanup(channel.stop)
 
     def tearDown(self):
         R._DECODED.pop(str(self.mp3), None)

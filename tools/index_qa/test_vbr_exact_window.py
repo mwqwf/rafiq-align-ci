@@ -152,6 +152,10 @@ class FullDecodeRejectsTest(unittest.TestCase):
         self.td = tempfile.TemporaryDirectory()
         self.mp3 = Path(self.td.name) / "x.mp3"
         self.mp3.write_bytes(b"\0" * 100)
+        # Synthetic bytes model decoder failures, not channel detection.
+        channel = mock.patch("channel_mix.mono_filter", return_value=["-ac", "1"])
+        channel.start()
+        self.addCleanup(channel.stop)
 
     def tearDown(self):
         R._DECODED.clear()
