@@ -1,0 +1,19 @@
+{
+  "action": "tool",
+  "tool": "index_qa/stage_transform.py",
+  "args": [
+    "--file",
+    "ops/source-repair/candidates/f_khamery.e637b095.jz",
+    "--parent",
+    "timings/hafs/f_khamery.jz",
+    "--parent-sha",
+    "c9824043abf2af9d955a5020c2f62df8ded9ecba38a84540f421b676d4a9989b",
+    "--op",
+    "ctc_dual_surah_splice:26",
+    "--by",
+    "Codex",
+    "--reason",
+    "مصدر سليم أصلي بلا قص أو إعادة ترميز؛ محاذاة قرآنية عامة مع نوافذ مكملة بنموذج عام ثابت، نسب صريح لكل مدخل والمصدر والأوزان والنص الأصلي، حراس الثقة والجيران والمدد وHIGH والحصر الشامل ثابتة؛ لا اعتماد إلا بعد كل الشواهد",
+    "--yes"
+  ]
+}
