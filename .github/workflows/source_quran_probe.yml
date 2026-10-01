@@ -1,0 +1,75 @@
+name: rafiq-source-quran-probe
+run-name: source-probe Janaini Qalun · ctc=${{ inputs.ctc }}
+on:
+  workflow_dispatch:
+    inputs:
+      ctc: {description: "Run pinned Quran CTC after native source inspection", default: "false"}
+      omit_basmala: {description: "Native-proven surah numbers without basmala", default: ""}
+      output: {description: "Read-only result filename in ops/out", default: "janaini-source-native-20261001.json"}
+permissions:
+  contents: read
+jobs:
+  probe:
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    env:
+      HF_HOME: ${{ github.workspace }}/.hf
+      CTC_THREADS: "2"
+      CTC_INT8: "1"
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: {python-version: "3.11"}
+      - name: Check syntax before installing anything
+        run: python -m py_compile tools/index_qa/source_quran_probe.py
+      - name: Native decoder
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq ffmpeg
+          python -m pip install --quiet numpy soundfile boto3 pywhispercpp
+      - name: Restore tiny model without writing cache
+        uses: actions/cache/restore@v4
+        with:
+          path: assets-archive/ggml
+          key: qa-model-q8-v1
+      - name: Pinned CTC dependencies
+        if: ${{ inputs.ctc == 'true' }}
+        run: |
+          python -m pip install --quiet --index-url https://download.pytorch.org/whl/cpu torch
+          python -m pip install --quiet "numpy<2" transformers ctc-segmentation
+      - name: Read-only source probe
+        env:
+          R2_CREDENTIALS_JSON: ${{ secrets.R2_CREDENTIALS_JSON }}
+          DO_CTC: ${{ inputs.ctc }}
+          OMIT_BASMALA: ${{ inputs.omit_basmala }}
+          RESULT_NAME: ${{ inputs.output }}
+        run: |
+          python - <<'PY'
+          import json, os, pathlib, subprocess, boto3
+          model = pathlib.Path("assets-archive/ggml/ggml-tiny-ar-quran-q8_0.bin")
+          if not model.exists():
+              c=json.loads(os.environ["R2_CREDENTIALS_JSON"])
+              cl=boto3.client("s3",endpoint_url=c["endpoint"],aws_access_key_id=c["accessKeyId"],
+                              aws_secret_access_key=c["secretAccessKey"],region_name="auto")
+              model.parent.mkdir(parents=True,exist_ok=True)
+              cl.download_file(c["bucket"],"models/whisper-tiny-ar-quran/ggml-q8_0.bin",str(model))
+          filename=os.environ["RESULT_NAME"]
+          if pathlib.Path(filename).name != filename or not filename.endswith(".json"):
+              raise ValueError("invalid result name")
+          cmd=["python","tools/index_qa/source_quran_probe.py","--out","ops/out/"+filename,"--model",str(model)]
+          if os.environ["DO_CTC"]=="true":
+              cmd+=["--ctc"]
+          omitted=os.environ["OMIT_BASMALA"].replace(","," ").split()
+          if omitted:
+              if any(x not in ("33","55") for x in omitted):
+                  raise ValueError("unexpected surah")
+              cmd+=["--omit-basmala",*omitted]
+          subprocess.run(cmd,check=True)
+          PY
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: janaini-source-proof
+          path: ops/out/${{ inputs.output }}
+          if-no-files-found: warn
+          retention-days: 7
