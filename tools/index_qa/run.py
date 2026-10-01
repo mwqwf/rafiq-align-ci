@@ -840,11 +840,15 @@ def _audio_input(mp3):
         return key                     # لا يُفتح ⇒ يردّه ffmpeg بخطئه كما كان
     if head[:3] != b"ID3":
         return key
-    out = key + ".noid3.mp3"
+    out = key + ".noid3-frame-v1.mp3"
     st = os.stat(key)
     if not (os.path.exists(out) and os.stat(out).st_mtime_ns >= st.st_mtime_ns):
         with open(key, "rb") as f:
             body = _strip_id3v2(f.read())
+        # ID3 المكرر بين إطارات كاملة بيانات وصفية أيضاً. لا يُنزع إذا
+        # بقي أي إطار مبتور أو حشو مجهول؛ وكل بايت صوت يبقى كما كان.
+        from mp3_metadata import strip_internal_id3
+        body = strip_internal_id3(body)
         with open(out + ".part", "wb") as f:
             f.write(body)
         os.replace(out + ".part", out)

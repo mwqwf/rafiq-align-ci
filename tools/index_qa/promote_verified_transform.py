@@ -60,6 +60,9 @@ def adopt(key, sha, parent_sha, reason):
         flat = key.replace("/", "_")
         p.STATE_PREFIXES = tuple(prefix + flat for prefix in saved_prefixes)
         p.REPORTS_CACHE = p.bucket_reports(cl, bucket)
+        for report_key, report in p.REPORTS_CACHE:
+            if report.get("sha256") == sha and (report.get("sample") or {}).get("errors"):
+                raise ValueError("شاهد بنوافذ تعذرت؛ لا رفع تجميد قبل إعادة الفحص: " + report_key)
         def preview_frozen(client, bucket_name):
             keys, text, etag = saved_load(client, bucket_name)
             return {k: v for k, v in keys.items() if k != target}, text, etag

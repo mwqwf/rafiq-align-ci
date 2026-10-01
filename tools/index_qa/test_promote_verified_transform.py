@@ -80,6 +80,15 @@ class VerifiedPromotionTest(unittest.TestCase):
             self.adopt()
         self.unfreeze.assert_not_called()
 
+    def test_failed_windows_refuse_before_preview_and_unfreeze(self):
+        reports = [("state/reader.audio-rs1.json", {"sha256": self.new, "sample": {"errors": 30}})]
+        with patch.object(m.p, "bucket_reports", return_value=reports), patch.object(m, "invoke") as invoke:
+            with self.assertRaisesRegex(ValueError, "نوافذ تعذرت"):
+                self.adopt()
+        invoke.assert_not_called()
+        self.unfreeze.assert_not_called()
+        self.freeze.assert_not_called()
+
     def test_short_sha_and_bad_lineage_refuse_before_unfreeze(self):
         with self.assertRaises(ValueError):
             m.adopt(self.key, self.new[:8], self.old, "إصلاح")

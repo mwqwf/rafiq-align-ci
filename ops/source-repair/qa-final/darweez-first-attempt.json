@@ -1,0 +1,130 @@
+{
+  "reciter": "darweez_firstayah",
+  "key": "timings-staging/hafs/darweez.41b8aac5.jz",
+  "sha": "41b8aac53e3e93e9f9d009121afe2e2bc6e70ce35caa0b3c8dc03e2480276421",
+  "rs1": {
+    "severe": [
+      2,
+      180
+    ],
+    "fatal": []
+  },
+  "rs2": {
+    "severe": [
+      2,
+      190
+    ],
+    "fatal": []
+  },
+  "rs3": {
+    "severe": [
+      1,
+      190
+    ],
+    "fatal": []
+  },
+  "rs4": {
+    "severe": [
+      2,
+      170
+    ],
+    "fatal": []
+  },
+  "openers": {
+    "counts": {
+      "clean": 83,
+      "unknown": 27,
+      "tail": 1,
+      "late": 1
+    },
+    "swallowed": [],
+    "lateConfirmed": [],
+    "errors": [],
+    "scope": "full"
+  },
+  "census": {
+    "gate": null,
+    "population": 127,
+    "counts": {
+      "بريء": 119,
+      "غير حاسم": 5,
+      "جسيم": 3
+    },
+    "fatal": []
+  },
+  "addedRows": [
+    {
+      "aid": "89:1",
+      "cluster": 89,
+      "verdict": "بريء",
+      "kind": "بريء",
+      "why": "المطلع مطابق: «وَالْفَجْرِ وَلَيَالٍ عَسْرٍ»",
+      "band": "MED",
+      "startApprox": false,
+      "noPreAudio": true,
+      "heard": {
+        "fwd": "وَالْفَجْرِ وَلَيَالٍ عَسْرٍ",
+        "dec": "",
+        "long": "وَالْفَجْرِ وَلَيَالٍ عَسْرٍ وَالشَّفْعِ وَالْوَتْرِ"
+      }
+    },
+    {
+      "aid": "96:1",
+      "cluster": 96,
+      "verdict": "بريء",
+      "kind": "بريء",
+      "why": "المطلع مطابق: «اقْرَأْ بِاسْمِ رَبِّكَ الَّذِي خَلَقَ»",
+      "band": "MED",
+      "startApprox": true,
+      "noPreAudio": true,
+      "heard": {
+        "fwd": "اقْرَأْ بِاسْمِ رَبِّكَ الَّذِي خَلَقَ",
+        "dec": "",
+        "long": "اقْرَأْ بِاسْمِ رَبِّكَ الَّذِي خَلَقَ الْإِنْسَانَ مِنْ عَلَقٍ"
+      }
+    }
+  ],
+  "pooled": [
+    {
+      "m": 7,
+      "n": 730,
+      "rate": 0.009589041095890411,
+      "hi": 0.01793531977714126,
+      "parts": [
+        [
+          2,
+          180
+        ],
+        [
+          2,
+          190
+        ],
+        [
+          1,
+          190
+        ],
+        [
+          2,
+          170
+        ]
+      ],
+      "salts": [
+        "rs1",
+        "rs2",
+        "rs3",
+        "rs4"
+      ],
+      "seeds": 4,
+      "engine": "pywhispercpp/ggml-q8 (tiny-ar-quran)",
+      "rule": "D-098"
+    }
+  ],
+  "sampleErrors": {
+    "rs1": 60,
+    "rs2": 30,
+    "rs3": 30,
+    "rs4": 90
+  },
+  "adopted": false,
+  "reason": "نوافذ تعذرت بسبب ID3 داخلي؛ لا اعتماد على التقرير الناقص"
+}
