@@ -1,0 +1,19 @@
+{
+  "action": "tool",
+  "tool": "index_qa/stage_transform.py",
+  "args": [
+    "--file",
+    "ops/source-repair/candidates/deban_douri.3ea905a3.jz",
+    "--parent",
+    "timings/douri/deban_douri.jz",
+    "--parent-sha",
+    "84169bf8b267b9b039e981ccaea71401f2609ca4fbb3de2d74a6ecbeefd2b9a3",
+    "--op",
+    "ctc_spoken_surah_splice:20",
+    "--by",
+    "Codex",
+    "--reason",
+    "طه تهجئة أصلية ثابتة في مدخل المحاذاة فقط؛ النموذج العام ورجعه وأوزانه مثبتة، كل حدود المقطع ودرجاته مقيسة مباشرة، لا HIGH بلا شاهد صمت، خارج المطلع محفوظ حرفياً؛ لا اعتماد قبل الأربعة والمطالع والإحصاء الكامل لكل مصادر ومحركات الدمج والشاهد البريء لكل المضاف",
+    "--yes"
+  ]
+}
