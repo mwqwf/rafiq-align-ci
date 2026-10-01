@@ -96,12 +96,9 @@ jobs:
         with: { python-version: "3.11" }
 
       - name: أدوات النظام
-        run: |
-          sudo apt-get update -qq && sudo apt-get install -y -qq ffmpeg
-          python -m pip install --quiet pywhispercpp numpy boto3
+        timeout-minutes: 10
+        run: bash tools/ci_fleet/install_qa_deps.sh
 
-      # ⛔ برهان الاستيراد قبل أي تنزيل — أربع مرات اليوم سقط أنبوبٌ لأن ملفاً
-      #    نُسخ بلا حزمته. الفحص ثانيتان، والثمن كان دقائق في كل مرة.
       - name: برهان أداة المطالع (⛔ قبل أي تنزيل)
         run: |
           python - <<'PY'
