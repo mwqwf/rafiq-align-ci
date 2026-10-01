@@ -1,0 +1,19 @@
+{
+  "action": "tool",
+  "tool": "index_qa/stage_transform.py",
+  "args": [
+    "--file",
+    "ops/source-repair/candidates/qasm.735cfc65.jz",
+    "--parent",
+    "timings/hafs/qasm.jz",
+    "--parent-sha",
+    "0abe159294d54f5e63ec163dd1cd282d1433c61fd28f0b272f2add81d569dc1b",
+    "--op",
+    "ctc_dual_surah_splice:57,59,70",
+    "--by",
+    "Codex",
+    "--reason",
+    "مصدر سليم أصلي بلا قص أو إعادة ترميز؛ محاذاة قرآنية عامة مع نوافذ مكملة بنموذج عام ثابت، نسب صريح لكل مدخل والمصدر والأوزان والنص الأصلي، حراس الثقة والجيران والمدد وHIGH والحصر الشامل ثابتة؛ لا اعتماد إلا بعد كل الشواهد",
+    "--yes"
+  ]
+}

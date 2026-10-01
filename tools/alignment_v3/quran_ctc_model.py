@@ -60,4 +60,5 @@ def records_error(idx):
                 or ev.get('weightsSha256') != WEIGHTS_SHA256
                 or ev.get('license') != 'Apache-2.0' or ev.get('canonicalTextChanged') is not False):
             return f'س{surah}: محرك التلاوة بلا نسب نموذج ثابت صحيح'
-    return None
+    from dual_ctc_model import records_error as dual_records_error
+    return dual_records_error(idx)

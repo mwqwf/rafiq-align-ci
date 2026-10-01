@@ -1,0 +1,19 @@
+{
+  "action": "tool",
+  "tool": "index_qa/stage_transform.py",
+  "args": [
+    "--file",
+    "ops/source-repair/candidates/deban_shuba.01fc95b2.jz",
+    "--parent",
+    "timings/shuba/deban_shuba.jz",
+    "--parent-sha",
+    "c2812914afa607eb53e2020a8f571d23af585a20452ce8edce08415d839859a3",
+    "--op",
+    "ctc_dual_surah_splice:37",
+    "--by",
+    "Codex",
+    "--reason",
+    "مصدر سليم أصلي بلا قص أو إعادة ترميز؛ محاذاة قرآنية عامة مع نوافذ مكملة بنموذج عام ثابت، نسب صريح لكل مدخل والمصدر والأوزان والنص الأصلي، حراس الثقة والجيران والمدد وHIGH والحصر الشامل ثابتة؛ لا اعتماد إلا بعد كل الشواهد",
+    "--yes"
+  ]
+}

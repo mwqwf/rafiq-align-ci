@@ -119,7 +119,8 @@ SPLICE_OPS = {"ctc_surah_splice": "ctc-seg-1",
               # توقيت المصدر الرسمي: محرك مستقل، يلزمه إعلان السور والإحصاء الكامل.
               "official_timing_splice": "mp3quran-timing-v1",
               # نطق الحروف مدخل محاذاة مختلف، فلا يرث شهادة CTC المعتادة.
-              "ctc_spoken_surah_splice": "ctc-spoken-1"}
+              "ctc_spoken_surah_splice": "ctc-spoken-1",
+              "ctc_dual_surah_splice": "ctc-dual-window-1"}
 
 
 def splice_op_name(op: str) -> str | None:

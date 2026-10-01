@@ -1,0 +1,3724 @@
+{
+  "candidate": {
+    "reciterId": "qasm",
+    "riwaya": "hafs",
+    "surahs": [
+      57,
+      59,
+      70
+    ],
+    "parent": "timings/hafs/qasm.jz",
+    "parentSha": "0abe159294d54f5e63ec163dd1cd282d1433c61fd28f0b272f2add81d569dc1b",
+    "candidateFile": "ops/source-repair/candidates/qasm.735cfc65.jz",
+    "candidateSha": "735cfc65fa3d6ef08e949c18efa15cec38efbaf62c2dc11e4d214b0ee391a66c",
+    "added": [],
+    "entries": 6235,
+    "productionChanged": false
+  },
+  "surahs": [
+    {
+      "surah": 57,
+      "alignment": {
+        "surah": 57,
+        "riwaya": "hafs",
+        "totalMs": 555676,
+        "entries": [
+          {
+            "ayahIdx": 0,
+            "startMs": 4290,
+            "endMs": 10957,
+            "conf": 0.6,
+            "snapped": true,
+            "matched": 0,
+            "total": 9
+          },
+          {
+            "ayahIdx": 1,
+            "startMs": 10957,
+            "endMs": 19342,
+            "conf": 0.596,
+            "snapped": false,
+            "matched": 0,
+            "total": 11
+          },
+          {
+            "ayahIdx": 2,
+            "startMs": 19342,
+            "endMs": 27448,
+            "conf": 0.534,
+            "snapped": false,
+            "matched": 0,
+            "total": 9
+          },
+          {
+            "ayahIdx": 3,
+            "startMs": 27448,
+            "endMs": 53645,
+            "conf": 0.615,
+            "snapped": false,
+            "matched": 0,
+            "total": 36
+          },
+          {
+            "ayahIdx": 4,
+            "startMs": 53645,
+            "endMs": 60570,
+            "conf": 0.653,
+            "snapped": false,
+            "matched": 0,
+            "total": 8
+          },
+          {
+            "ayahIdx": 5,
+            "startMs": 60570,
+            "endMs": 69670,
+            "conf": 0.654,
+            "snapped": true,
+            "matched": 0,
+            "total": 12
+          },
+          {
+            "ayahIdx": 6,
+            "startMs": 69830,
+            "endMs": 84952,
+            "conf": 0.672,
+            "snapped": false
+          },
+          {
+            "ayahIdx": 7,
+            "startMs": 84952,
+            "endMs": 99655,
+            "conf": 0.589,
+            "snapped": false
+          },
+          {
+            "ayahIdx": 8,
+            "startMs": 99655,
+            "endMs": 115489,
+            "conf": 0.74,
+            "snapped": false
+          },
+          {
+            "ayahIdx": 9,
+            "startMs": 115489,
+            "endMs": 150528,
+            "conf": 0.619,
+            "snapped": false
+          },
+          {
+            "ayahIdx": 10,
+            "startMs": 150528,
+            "endMs": 160736,
+            "conf": 0.694,
+            "snapped": false
+          },
+          {
+            "ayahIdx": 11,
+            "startMs": 160847,
+            "endMs": 185064,
+            "conf": 0.74,
+            "snapped": false,
+            "matched": 0,
+            "total": 22
+          },
+          {
+            "ayahIdx": 12,
+            "startMs": 185064,
+            "endMs": 212830,
+            "conf": 0.659,
+            "snapped": false,
+            "matched": 0,
+            "total": 27
+          },
+          {
+            "ayahIdx": 13,
+            "startMs": 212830,
+            "endMs": 234566,
+            "conf": 0.748,
+            "snapped": true,
+            "matched": 0,
+            "total": 20
+          },
+          {
+            "ayahIdx": 14,
+            "startMs": 234566,
+            "endMs": 246915,
+            "conf": 0.725,
+            "snapped": false,
+            "matched": 0,
+            "total": 15
+          },
+          {
+            "ayahIdx": 15,
+            "startMs": 246915,
+            "endMs": 269880,
+            "conf": 0.652,
+            "snapped": false,
+            "matched": 0,
+            "total": 28
+          },
+          {
+            "ayahIdx": 16,
+            "startMs": 269880,
+            "endMs": 281274,
+            "conf": 0.453,
+            "snapped": true,
+            "matched": 0,
+            "total": 13
+          },
+          {
+            "ayahIdx": 17,
+            "startMs": 281894,
+            "endMs": 294002,
+            "conf": 0.622,
+            "snapped": false
+          },
+          {
+            "ayahIdx": 18,
+            "startMs": 294002,
+            "endMs": 318657,
+            "conf": 0.531,
+            "snapped": false
+          },
+          {
+            "ayahIdx": 19,
+            "startMs": 318657,
+            "endMs": 361163,
+            "conf": 0.62,
+            "snapped": false
+          },
+          {
+            "ayahIdx": 20,
+            "startMs": 361163,
+            "endMs": 384468,
+            "conf": 0.646,
+            "snapped": false
+          },
+          {
+            "ayahIdx": 21,
+            "startMs": 384468,
+            "endMs": 400497,
+            "conf": 0.535,
+            "snapped": false
+          },
+          {
+            "ayahIdx": 22,
+            "startMs": 400588,
+            "endMs": 412307,
+            "conf": 0.527,
+            "snapped": false,
+            "matched": 0,
+            "total": 15
+          },
+          {
+            "ayahIdx": 23,
+            "startMs": 412307,
+            "endMs": 423800,
+            "conf": 0.693,
+            "snapped": false,
+            "matched": 0,
+            "total": 12
+          },
+          {
+            "ayahIdx": 24,
+            "startMs": 423800,
+            "endMs": 455210,
+            "conf": 0.636,
+            "snapped": true,
+            "matched": 0,
+            "total": 28
+          },
+          {
+            "ayahIdx": 25,
+            "startMs": 455210,
+            "endMs": 470710,
+            "conf": 0.661,
+            "snapped": true,
+            "matched": 0,
+            "total": 14
+          },
+          {
+            "ayahIdx": 26,
+            "startMs": 470710,
+            "endMs": 511139,
+            "conf": 0.477,
+            "snapped": false,
+            "matched": 0,
+            "total": 39
+          },
+          {
+            "ayahIdx": 27,
+            "startMs": 511139,
+            "endMs": 530683,
+            "conf": 0.624,
+            "snapped": false,
+            "matched": 0,
+            "total": 21
+          },
+          {
+            "ayahIdx": 28,
+            "startMs": 530683,
+            "endMs": 551298,
+            "conf": 0.597,
+            "snapped": false,
+            "matched": 0,
+            "total": 22
+          }
+        ],
+        "issues": [],
+        "bands": {
+          "MED": 19,
+          "LOW": 10
+        },
+        "engine": "ctc-dual-window-1",
+        "alignmentModel": {
+          "id": "rabah2026/wav2vec2-large-xlsr-53-arabic-quran-v_final",
+          "revision": "b03a268c6ba1a693752307325ab376c86c3b12da",
+          "weightsSha256": "bf65674a26eb4ef7042cedade96c3c8f8cbd04f3a7d1a68eadceec8ed0f99ecb",
+          "license": "Apache-2.0",
+          "canonicalTextChanged": false
+        },
+        "sha256": "fc1ec1f75d37aedf1e694f433b3f8f5a793d0021525ef26cdca94bc30662de1e",
+        "fileRef": "https://archive.org/download/shiekh-abdulmohsin-al-qasim-2023/057%20-%20%D8%A7%D9%84%D8%AD%D8%AF%D9%8A%D8%AF.mp3",
+        "remainingWeakAyahs": [
+          9,
+          20
+        ],
+        "previousWindowRepairs": null,
+        "localWindowRepairs": {
+          "model": {
+            "id": "rabah2026/wav2vec2-large-xlsr-53-arabic-quran-v_final",
+            "revision": "b03a268c6ba1a693752307325ab376c86c3b12da",
+            "weightsSha256": "bf65674a26eb4ef7042cedade96c3c8f8cbd04f3a7d1a68eadceec8ed0f99ecb",
+            "license": "Apache-2.0",
+            "canonicalTextChanged": false
+          },
+          "sourceSha256": "fc1ec1f75d37aedf1e694f433b3f8f5a793d0021525ef26cdca94bc30662de1e",
+          "trials": [
+            {
+              "range": [
+                19,
+                29
+              ],
+              "windowMs": [
+                293996,
+                555676
+              ],
+              "confidence": [
+                0.539,
+                0.412,
+                0.618,
+                0.689,
+                0.458,
+                0.665,
+                0.589,
+                0.699,
+                0.441,
+                0.622,
+                0.597
+              ],
+              "durationBad": [],
+              "accepted": false,
+              "issues": []
+            },
+            {
+              "range": [
+                18,
+                29
+              ],
+              "windowMs": [
+                281278,
+                555676
+              ],
+              "confidence": [
+                0.76,
+                0.547,
+                0.409,
+                0.485,
+                0.687,
+                0.438,
+                0.667,
+                0.568,
+                0.704,
+                0.509,
+                0.628,
+                0.677
+              ],
+              "durationBad": [],
+              "accepted": false,
+              "issues": []
+            },
+            {
+              "range": [
+                16,
+                29
+              ],
+              "windowMs": [
+                246915,
+                555676
+              ],
+              "confidence": [
+                0.652,
+                0.447,
+                0.766,
+                0.539,
+                0.415,
+                0.585,
+                0.589,
+                0.432,
+                0.641,
+                0.618,
+                0.7,
+                0.523,
+                0.642,
+                0.599
+              ],
+              "durationBad": [],
+              "accepted": false,
+              "issues": []
+            },
+            {
+              "range": [
+                14,
+                29
+              ],
+              "windowMs": [
+                212830,
+                555676
+              ],
+              "confidence": [
+                0.722,
+                0.716,
+                0.595,
+                0.464,
+                0.805,
+                0.548,
+                0.418,
+                0.578,
+                0.677,
+                0.517,
+                0.56,
+                0.64,
+                0.69,
+                0.505,
+                0.632,
+                0.659
+              ],
+              "durationBad": [],
+              "accepted": false,
+              "issues": []
+            },
+            {
+              "range": [
+                8,
+                10
+              ],
+              "windowMs": [
+                85006,
+                150550
+              ],
+              "confidence": [
+                0.775,
+                0.217,
+                0.502
+              ],
+              "durationBad": [],
+              "accepted": false,
+              "issues": []
+            },
+            {
+              "range": [
+                7,
+                11
+              ],
+              "windowMs": [
+                69670,
+                160847
+              ],
+              "confidence": [
+                0.683,
+                0.756,
+                0.222,
+                0.636,
+                0.607
+              ],
+              "durationBad": [],
+              "accepted": false,
+              "issues": []
+            },
+            {
+              "range": [
+                5,
+                13
+              ],
+              "windowMs": [
+                53645,
+                212830
+              ],
+              "confidence": [
+                0.661,
+                0.68,
+                0.67,
+                0.775,
+                0.244,
+                0.683,
+                0.594,
+                0.803,
+                0.671
+              ],
+              "durationBad": [],
+              "accepted": false,
+              "issues": []
+            },
+            {
+              "range": [
+                3,
+                15
+              ],
+              "windowMs": [
+                19342,
+                246915
+              ],
+              "confidence": [
+                0.507,
+                0.662,
+                0.604,
+                0.675,
+                0.666,
+                0.809,
+                0.271,
+                0.679,
+                0.581,
+                0.636,
+                0.56,
+                0.731,
+                0.71
+              ],
+              "durationBad": [],
+              "accepted": false,
+              "issues": []
+            },
+            {
+              "range": [
+                16,
+                18
+              ],
+              "windowMs": [
+                246915,
+                293996
+              ],
+              "confidence": [
+                0.652,
+                0.453,
+                0.754
+              ],
+              "durationBad": [],
+              "accepted": true,
+              "issues": []
+            },
+            {
+              "range": [
+                19,
+                21
+              ],
+              "windowMs": [
+                293996,
+                384507
+              ],
+              "confidence": [
+                0.539,
+                0.412,
+                0.482
+              ],
+              "durationBad": [],
+              "accepted": false,
+              "issues": []
+            },
+            {
+              "range": [
+                18,
+                22
+              ],
+              "windowMs": [
+                281274,
+                400577
+              ],
+              "confidence": [
+                0.788,
+                0.568,
+                0.431,
+                0.464,
+                0.693
+              ],
+              "durationBad": [],
+              "accepted": false,
+              "issues": []
+            },
+            {
+              "range": [
+                18,
+                29
+              ],
+              "windowMs": [
+                281274,
+                555676
+              ],
+              "confidence": [
+                0.788,
+                0.568,
+                0.431,
+                0.471,
+                0.693,
+                0.538,
+                0.692,
+                0.594,
+                0.692,
+                0.489,
+                0.635,
+                0.688
+              ],
+              "durationBad": [],
+              "accepted": false,
+              "issues": []
+            },
+            {
+              "range": [
+                21,
+                29
+              ],
+              "windowMs": [
+                361480,
+                555676
+              ],
+              "confidence": [
+                0.618,
+                0.69,
+                0.392,
+                0.672,
+                0.615,
+                0.698,
+                0.429,
+                0.646,
+                0.0
+              ],
+              "durationBad": [],
+              "accepted": false,
+              "issues": []
+            },
+            {
+              "range": [
+                19,
+                29
+              ],
+              "windowMs": [
+                293996,
+                555676
+              ],
+              "confidence": [
+                0.539,
+                0.412,
+                0.618,
+                0.689,
+                0.458,
+                0.665,
+                0.589,
+                0.699,
+                0.441,
+                0.622,
+                0.597
+              ],
+              "durationBad": [],
+              "accepted": false,
+              "issues": []
+            },
+            {
+              "range": [
+                22,
+                29
+              ],
+              "windowMs": [
+                384507,
+                555676
+              ],
+              "confidence": [
+                0.676,
+                0.527,
+                0.693,
+                0.636,
+                0.661,
+                0.477,
+                0.624,
+                0.597
+              ],
+              "durationBad": [],
+              "accepted": true,
+              "issues": []
+            }
+          ],
+          "canonicalTextChanged": false
+        },
+        "dualAlignmentEvidence": {
+          "surah": 57,
+          "riwaya": "hafs",
+          "sourceSha256": "fc1ec1f75d37aedf1e694f433b3f8f5a793d0021525ef26cdca94bc30662de1e",
+          "canonicalTextChanged": false,
+          "totalMs": 555676,
+          "models": {
+            "quran": {
+              "id": "rabah2026/wav2vec2-large-xlsr-53-arabic-quran-v_final",
+              "revision": "b03a268c6ba1a693752307325ab376c86c3b12da",
+              "weightsSha256": "bf65674a26eb4ef7042cedade96c3c8f8cbd04f3a7d1a68eadceec8ed0f99ecb",
+              "license": "Apache-2.0",
+              "canonicalTextChanged": false
+            },
+            "generic": {
+              "id": "jonatasgrosman/wav2vec2-large-xlsr-53-arabic",
+              "revision": "af46c2d8531b8dcbb5e23b952f739b372c2e5d2d",
+              "weightsSha256": "a0b26f6d9d3edfde1784aef863c192a8cc1e438a23b45910ab648531ebe1857b",
+              "license": "Apache-2.0"
+            }
+          },
+          "baseMeasurements": [
+            {
+              "ayahIdx": 0,
+              "startMs": 4290,
+              "endMs": 10957,
+              "conf": 0.6,
+              "snapped": true,
+              "matched": 0,
+              "total": 9
+            },
+            {
+              "ayahIdx": 1,
+              "startMs": 10957,
+              "endMs": 19342,
+              "conf": 0.596,
+              "snapped": false,
+              "matched": 0,
+              "total": 11
+            },
+            {
+              "ayahIdx": 2,
+              "startMs": 19342,
+              "endMs": 27448,
+              "conf": 0.534,
+              "snapped": false,
+              "matched": 0,
+              "total": 9
+            },
+            {
+              "ayahIdx": 3,
+              "startMs": 27448,
+              "endMs": 53645,
+              "conf": 0.615,
+              "snapped": false,
+              "matched": 0,
+              "total": 36
+            },
+            {
+              "ayahIdx": 4,
+              "startMs": 53645,
+              "endMs": 60570,
+              "conf": 0.653,
+              "snapped": false,
+              "matched": 0,
+              "total": 8
+            },
+            {
+              "ayahIdx": 5,
+              "startMs": 60570,
+              "endMs": 69670,
+              "conf": 0.654,
+              "snapped": true,
+              "matched": 0,
+              "total": 12
+            },
+            {
+              "ayahIdx": 6,
+              "startMs": 69670,
+              "endMs": 85006,
+              "conf": 0.669,
+              "snapped": true,
+              "matched": 0,
+              "total": 15
+            },
+            {
+              "ayahIdx": 7,
+              "startMs": 85006,
+              "endMs": 99646,
+              "conf": 0.74,
+              "snapped": false,
+              "matched": 0,
+              "total": 15
+            },
+            {
+              "ayahIdx": 8,
+              "startMs": 99646,
+              "endMs": 115487,
+              "conf": 0.24,
+              "snapped": false,
+              "matched": 0,
+              "total": 17
+            },
+            {
+              "ayahIdx": 9,
+              "startMs": 115487,
+              "endMs": 150550,
+              "conf": 0.679,
+              "snapped": false,
+              "matched": 0,
+              "total": 37
+            },
+            {
+              "ayahIdx": 10,
+              "startMs": 150550,
+              "endMs": 160847,
+              "conf": 0.597,
+              "snapped": false,
+              "matched": 0,
+              "total": 12
+            },
+            {
+              "ayahIdx": 11,
+              "startMs": 160847,
+              "endMs": 185064,
+              "conf": 0.74,
+              "snapped": false,
+              "matched": 0,
+              "total": 22
+            },
+            {
+              "ayahIdx": 12,
+              "startMs": 185064,
+              "endMs": 212830,
+              "conf": 0.659,
+              "snapped": false,
+              "matched": 0,
+              "total": 27
+            },
+            {
+              "ayahIdx": 13,
+              "startMs": 212830,
+              "endMs": 234566,
+              "conf": 0.748,
+              "snapped": true,
+              "matched": 0,
+              "total": 20
+            },
+            {
+              "ayahIdx": 14,
+              "startMs": 234566,
+              "endMs": 246915,
+              "conf": 0.725,
+              "snapped": false,
+              "matched": 0,
+              "total": 15
+            },
+            {
+              "ayahIdx": 15,
+              "startMs": 246915,
+              "endMs": 269880,
+              "conf": 0.652,
+              "snapped": false,
+              "matched": 0,
+              "total": 28
+            },
+            {
+              "ayahIdx": 16,
+              "startMs": 269880,
+              "endMs": 281274,
+              "conf": 0.453,
+              "snapped": true,
+              "matched": 0,
+              "total": 13
+            },
+            {
+              "ayahIdx": 17,
+              "startMs": 281274,
+              "endMs": 293996,
+              "conf": 0.74,
+              "snapped": false,
+              "matched": 0,
+              "total": 12
+            },
+            {
+              "ayahIdx": 18,
+              "startMs": 293996,
+              "endMs": 318673,
+              "conf": 0.541,
+              "snapped": false,
+              "matched": 0,
+              "total": 20
+            },
+            {
+              "ayahIdx": 19,
+              "startMs": 318673,
+              "endMs": 361480,
+              "conf": 0.405,
+              "snapped": false,
+              "matched": 0,
+              "total": 39
+            },
+            {
+              "ayahIdx": 20,
+              "startMs": 361480,
+              "endMs": 384507,
+              "conf": 0.62,
+              "snapped": true,
+              "matched": 0,
+              "total": 25
+            },
+            {
+              "ayahIdx": 21,
+              "startMs": 384507,
+              "endMs": 400588,
+              "conf": 0.676,
+              "snapped": false,
+              "matched": 0,
+              "total": 21
+            },
+            {
+              "ayahIdx": 22,
+              "startMs": 400588,
+              "endMs": 412307,
+              "conf": 0.527,
+              "snapped": false,
+              "matched": 0,
+              "total": 15
+            },
+            {
+              "ayahIdx": 23,
+              "startMs": 412307,
+              "endMs": 423800,
+              "conf": 0.693,
+              "snapped": false,
+              "matched": 0,
+              "total": 12
+            },
+            {
+              "ayahIdx": 24,
+              "startMs": 423800,
+              "endMs": 455210,
+              "conf": 0.636,
+              "snapped": true,
+              "matched": 0,
+              "total": 28
+            },
+            {
+              "ayahIdx": 25,
+              "startMs": 455210,
+              "endMs": 470710,
+              "conf": 0.661,
+              "snapped": true,
+              "matched": 0,
+              "total": 14
+            },
+            {
+              "ayahIdx": 26,
+              "startMs": 470710,
+              "endMs": 511139,
+              "conf": 0.477,
+              "snapped": false,
+              "matched": 0,
+              "total": 39
+            },
+            {
+              "ayahIdx": 27,
+              "startMs": 511139,
+              "endMs": 530683,
+              "conf": 0.624,
+              "snapped": false,
+              "matched": 0,
+              "total": 21
+            },
+            {
+              "ayahIdx": 28,
+              "startMs": 530683,
+              "endMs": 551298,
+              "conf": 0.597,
+              "snapped": false,
+              "matched": 0,
+              "total": 22
+            }
+          ],
+          "measurements": [
+            {
+              "ayahIdx": 0,
+              "startMs": 4290,
+              "endMs": 10957,
+              "conf": 0.6,
+              "snapped": true,
+              "matched": 0,
+              "total": 9,
+              "model": "quran"
+            },
+            {
+              "ayahIdx": 1,
+              "startMs": 10957,
+              "endMs": 19342,
+              "conf": 0.596,
+              "snapped": false,
+              "matched": 0,
+              "total": 11,
+              "model": "quran"
+            },
+            {
+              "ayahIdx": 2,
+              "startMs": 19342,
+              "endMs": 27448,
+              "conf": 0.534,
+              "snapped": false,
+              "matched": 0,
+              "total": 9,
+              "model": "quran"
+            },
+            {
+              "ayahIdx": 3,
+              "startMs": 27448,
+              "endMs": 53645,
+              "conf": 0.615,
+              "snapped": false,
+              "matched": 0,
+              "total": 36,
+              "model": "quran"
+            },
+            {
+              "ayahIdx": 4,
+              "startMs": 53645,
+              "endMs": 60570,
+              "conf": 0.653,
+              "snapped": false,
+              "matched": 0,
+              "total": 8,
+              "model": "quran"
+            },
+            {
+              "ayahIdx": 5,
+              "startMs": 60570,
+              "endMs": 69670,
+              "conf": 0.654,
+              "snapped": true,
+              "matched": 0,
+              "total": 12,
+              "model": "quran"
+            },
+            {
+              "ayahIdx": 6,
+              "startMs": 69830,
+              "endMs": 84952,
+              "conf": 0.672,
+              "snapped": false,
+              "model": "generic"
+            },
+            {
+              "ayahIdx": 7,
+              "startMs": 84952,
+              "endMs": 99655,
+              "conf": 0.589,
+              "snapped": false,
+              "model": "generic"
+            },
+            {
+              "ayahIdx": 8,
+              "startMs": 99655,
+              "endMs": 115489,
+              "conf": 0.74,
+              "snapped": false,
+              "model": "generic"
+            },
+            {
+              "ayahIdx": 9,
+              "startMs": 115489,
+              "endMs": 150528,
+              "conf": 0.619,
+              "snapped": false,
+              "model": "generic"
+            },
+            {
+              "ayahIdx": 10,
+              "startMs": 150528,
+              "endMs": 160736,
+              "conf": 0.694,
+              "snapped": false,
+              "model": "generic"
+            },
+            {
+              "ayahIdx": 11,
+              "startMs": 160847,
+              "endMs": 185064,
+              "conf": 0.74,
+              "snapped": false,
+              "matched": 0,
+              "total": 22,
+              "model": "quran"
+            },
+            {
+              "ayahIdx": 12,
+              "startMs": 185064,
+              "endMs": 212830,
+              "conf": 0.659,
+              "snapped": false,
+              "matched": 0,
+              "total": 27,
+              "model": "quran"
+            },
+            {
+              "ayahIdx": 13,
+              "startMs": 212830,
+              "endMs": 234566,
+              "conf": 0.748,
+              "snapped": true,
+              "matched": 0,
+              "total": 20,
+              "model": "quran"
+            },
+            {
+              "ayahIdx": 14,
+              "startMs": 234566,
+              "endMs": 246915,
+              "conf": 0.725,
+              "snapped": false,
+              "matched": 0,
+              "total": 15,
+              "model": "quran"
+            },
+            {
+              "ayahIdx": 15,
+              "startMs": 246915,
+              "endMs": 269880,
+              "conf": 0.652,
+              "snapped": false,
+              "matched": 0,
+              "total": 28,
+              "model": "quran"
+            },
+            {
+              "ayahIdx": 16,
+              "startMs": 269880,
+              "endMs": 281274,
+              "conf": 0.453,
+              "snapped": true,
+              "matched": 0,
+              "total": 13,
+              "model": "quran"
+            },
+            {
+              "ayahIdx": 17,
+              "startMs": 281894,
+              "endMs": 294002,
+              "conf": 0.622,
+              "snapped": false,
+              "model": "generic"
+            },
+            {
+              "ayahIdx": 18,
+              "startMs": 294002,
+              "endMs": 318657,
+              "conf": 0.531,
+              "snapped": false,
+              "model": "generic"
+            },
+            {
+              "ayahIdx": 19,
+              "startMs": 318657,
+              "endMs": 361163,
+              "conf": 0.62,
+              "snapped": false,
+              "model": "generic"
+            },
+            {
+              "ayahIdx": 20,
+              "startMs": 361163,
+              "endMs": 384468,
+              "conf": 0.646,
+              "snapped": false,
+              "model": "generic"
+            },
+            {
+              "ayahIdx": 21,
+              "startMs": 384468,
+              "endMs": 400497,
+              "conf": 0.535,
+              "snapped": false,
+              "model": "generic"
+            },
+            {
+              "ayahIdx": 22,
+              "startMs": 400588,
+              "endMs": 412307,
+              "conf": 0.527,
+              "snapped": false,
+              "matched": 0,
+              "total": 15,
+              "model": "quran"
+            },
+            {
+              "ayahIdx": 23,
+              "startMs": 412307,
+              "endMs": 423800,
+              "conf": 0.693,
+              "snapped": false,
+              "matched": 0,
+              "total": 12,
+              "model": "quran"
+            },
+            {
+              "ayahIdx": 24,
+              "startMs": 423800,
+              "endMs": 455210,
+              "conf": 0.636,
+              "snapped": true,
+              "matched": 0,
+              "total": 28,
+              "model": "quran"
+            },
+            {
+              "ayahIdx": 25,
+              "startMs": 455210,
+              "endMs": 470710,
+              "conf": 0.661,
+              "snapped": true,
+              "matched": 0,
+              "total": 14,
+              "model": "quran"
+            },
+            {
+              "ayahIdx": 26,
+              "startMs": 470710,
+              "endMs": 511139,
+              "conf": 0.477,
+              "snapped": false,
+              "matched": 0,
+              "total": 39,
+              "model": "quran"
+            },
+            {
+              "ayahIdx": 27,
+              "startMs": 511139,
+              "endMs": 530683,
+              "conf": 0.624,
+              "snapped": false,
+              "matched": 0,
+              "total": 21,
+              "model": "quran"
+            },
+            {
+              "ayahIdx": 28,
+              "startMs": 530683,
+              "endMs": 551298,
+              "conf": 0.597,
+              "snapped": false,
+              "matched": 0,
+              "total": 22,
+              "model": "quran"
+            }
+          ],
+          "windows": [
+            {
+              "reciterId": "qasm_clean",
+              "riwaya": "hafs",
+              "surah": 57,
+              "range": [
+                7,
+                11
+              ],
+              "windowMs": [
+                69670,
+                160847
+              ],
+              "sourceSha256": "fc1ec1f75d37aedf1e694f433b3f8f5a793d0021525ef26cdca94bc30662de1e",
+              "alignmentModel": {
+                "id": "jonatasgrosman/wav2vec2-large-xlsr-53-arabic",
+                "revision": "af46c2d8531b8dcbb5e23b952f739b372c2e5d2d",
+                "weightsSha256": "a0b26f6d9d3edfde1784aef863c192a8cc1e438a23b45910ab648531ebe1857b",
+                "license": "Apache-2.0"
+              },
+              "alignmentInput": [
+                "امنوا بالله ورسوله وانفقوا مما جعلكم مستخلفين فيه فالذين امنوا منكم وانفقوا لهم اجر كبير",
+                "وما لكم لا تومنون بالله والرسول يدعوكم لتومنوا بربكم وقد اخذ ميثقكم ان كنتم مومنين",
+                "هو الذي ينزل علي عبده ايت بينت ليخرجكم من الظلمت الي النور وان الله بكم لروف رحيم",
+                "وما لكم الا تنفقوا في سبيل الله ولله ميرث السموت والارض لا يستوي منكم من انفق من قبل الفتح وقتل اوليك اعظم درجه من الذين انفقوا من بعد وقتلوا وكلا وعد الله الحسني والله بما تعملون خبير",
+                "من ذا الذي يقرض الله قرضا حسنا فيضعفه له وله اجر كريم"
+              ],
+              "canonicalTextChanged": false,
+              "entries": [
+                {
+                  "ayahIdx": 6,
+                  "startMs": 69830,
+                  "endMs": 84952,
+                  "conf": 0.672
+                },
+                {
+                  "ayahIdx": 7,
+                  "startMs": 84952,
+                  "endMs": 99655,
+                  "conf": 0.589
+                },
+                {
+                  "ayahIdx": 8,
+                  "startMs": 99655,
+                  "endMs": 115489,
+                  "conf": 0.806
+                },
+                {
+                  "ayahIdx": 9,
+                  "startMs": 115489,
+                  "endMs": 150528,
+                  "conf": 0.619
+                },
+                {
+                  "ayahIdx": 10,
+                  "startMs": 150528,
+                  "endMs": 160736,
+                  "conf": 0.694
+                }
+              ],
+              "diagnosticOnly": true,
+              "accepted": true,
+              "durationBad": [],
+              "issues": []
+            },
+            {
+              "reciterId": "qasm_clean",
+              "riwaya": "hafs",
+              "surah": 57,
+              "range": [
+                18,
+                22
+              ],
+              "windowMs": [
+                281274,
+                400588
+              ],
+              "sourceSha256": "fc1ec1f75d37aedf1e694f433b3f8f5a793d0021525ef26cdca94bc30662de1e",
+              "alignmentModel": {
+                "id": "jonatasgrosman/wav2vec2-large-xlsr-53-arabic",
+                "revision": "af46c2d8531b8dcbb5e23b952f739b372c2e5d2d",
+                "weightsSha256": "a0b26f6d9d3edfde1784aef863c192a8cc1e438a23b45910ab648531ebe1857b",
+                "license": "Apache-2.0"
+              },
+              "alignmentInput": [
+                "ان المصدقين والمصدقت واقرضوا الله قرضا حسنا يضعف لهم ولهم اجر كريم",
+                "والذين امنوا بالله ورسله اوليك هم الصديقون والشهدا عند ربهم لهم اجرهم ونورهم والذين كفروا وكذبوا بايتنا اوليك اصحب الجحيم",
+                "اعلموا انما الحيوه الدنيا لعب ولهو وزينه وتفاخر بينكم وتكاثر في الامول والاولد كمثل غيث اعجب الكفار نباته ثم يهيج فتريه مصفرا ثم يكون حطما وفي الاخره عذاب شديد ومغفره من الله ورضون وما الحيوه الدنيا الا متع الغرور",
+                "سابقوا الي مغفره من ربكم وجنه عرضها كعرض السما والارض اعدت للذين امنوا بالله ورسله ذلك فضل الله يوتيه من يشا والله ذو الفضل العظيم",
+                "ما اصاب من مصيبه في الارض ولا في انفسكم الا في كتب من قبل ان نبراها ان ذلك علي الله يسير"
+              ],
+              "canonicalTextChanged": false,
+              "entries": [
+                {
+                  "ayahIdx": 17,
+                  "startMs": 281894,
+                  "endMs": 294002,
+                  "conf": 0.622
+                },
+                {
+                  "ayahIdx": 18,
+                  "startMs": 294002,
+                  "endMs": 318657,
+                  "conf": 0.531
+                },
+                {
+                  "ayahIdx": 19,
+                  "startMs": 318657,
+                  "endMs": 361163,
+                  "conf": 0.62
+                },
+                {
+                  "ayahIdx": 20,
+                  "startMs": 361163,
+                  "endMs": 384468,
+                  "conf": 0.646
+                },
+                {
+                  "ayahIdx": 21,
+                  "startMs": 384468,
+                  "endMs": 400497,
+                  "conf": 0.535
+                }
+              ],
+              "diagnosticOnly": true,
+              "accepted": true,
+              "durationBad": [],
+              "issues": []
+            }
+          ]
+        },
+        "sourceUrl": "https://archive.org/download/shiekh-abdulmohsin-al-qasim-2023/057%20-%20%D8%A7%D9%84%D8%AD%D8%AF%D9%8A%D8%AF.mp3",
+        "audioSha256": "fc1ec1f75d37aedf1e694f433b3f8f5a793d0021525ef26cdca94bc30662de1e"
+      },
+      "inheritedAyahIds": []
+    },
+    {
+      "surah": 59,
+      "alignment": {
+        "surah": 59,
+        "riwaya": "hafs",
+        "totalMs": 471688,
+        "entries": [
+          {
+            "ayahIdx": 0,
+            "startMs": 6540,
+            "endMs": 14620,
+            "conf": 0.574,
+            "snapped": true,
+            "matched": 0,
+            "total": 11
+          },
+          {
+            "ayahIdx": 1,
+            "startMs": 14750,
+            "endMs": 54471,
+            "conf": 0.575,
+            "snapped": false
+          },
+          {
+            "ayahIdx": 2,
+            "startMs": 54471,
+            "endMs": 67722,
+            "conf": 0.569,
+            "snapped": false
+          },
+          {
+            "ayahIdx": 3,
+            "startMs": 67722,
+            "endMs": 84685,
+            "conf": 0.639,
+            "snapped": false
+          },
+          {
+            "ayahIdx": 4,
+            "startMs": 85716,
+            "endMs": 99805,
+            "conf": 0.568,
+            "snapped": true,
+            "matched": 0,
+            "total": 13
+          },
+          {
+            "ayahIdx": 5,
+            "startMs": 99805,
+            "endMs": 124810,
+            "conf": 0.588,
+            "snapped": false,
+            "matched": 0,
+            "total": 25
+          },
+          {
+            "ayahIdx": 6,
+            "startMs": 124810,
+            "endMs": 163050,
+            "conf": 0.501,
+            "snapped": true,
+            "matched": 0,
+            "total": 37
+          },
+          {
+            "ayahIdx": 7,
+            "startMs": 163050,
+            "endMs": 185230,
+            "conf": 0.481,
+            "snapped": true,
+            "matched": 0,
+            "total": 18
+          },
+          {
+            "ayahIdx": 8,
+            "startMs": 185230,
+            "endMs": 216140,
+            "conf": 0.702,
+            "snapped": false,
+            "matched": 0,
+            "total": 31
+          },
+          {
+            "ayahIdx": 9,
+            "startMs": 216140,
+            "endMs": 243398,
+            "conf": 0.718,
+            "snapped": true,
+            "matched": 0,
+            "total": 23
+          },
+          {
+            "ayahIdx": 10,
+            "startMs": 243398,
+            "endMs": 270400,
+            "conf": 0.641,
+            "snapped": true,
+            "matched": 0,
+            "total": 28
+          },
+          {
+            "ayahIdx": 11,
+            "startMs": 270400,
+            "endMs": 286400,
+            "conf": 0.808,
+            "snapped": true,
+            "matched": 0,
+            "total": 16
+          },
+          {
+            "ayahIdx": 12,
+            "startMs": 286400,
+            "endMs": 297150,
+            "conf": 0.66,
+            "snapped": true,
+            "matched": 0,
+            "total": 12
+          },
+          {
+            "ayahIdx": 13,
+            "startMs": 297150,
+            "endMs": 321350,
+            "conf": 0.697,
+            "snapped": true,
+            "matched": 0,
+            "total": 23
+          },
+          {
+            "ayahIdx": 14,
+            "startMs": 321350,
+            "endMs": 331330,
+            "conf": 0.817,
+            "snapped": true,
+            "matched": 0,
+            "total": 11
+          },
+          {
+            "ayahIdx": 15,
+            "startMs": 331330,
+            "endMs": 348890,
+            "conf": 0.672,
+            "snapped": true,
+            "matched": 0,
+            "total": 17
+          },
+          {
+            "ayahIdx": 16,
+            "startMs": 348890,
+            "endMs": 361994,
+            "conf": 0.457,
+            "snapped": true,
+            "matched": 0,
+            "total": 10
+          },
+          {
+            "ayahIdx": 17,
+            "startMs": 361994,
+            "endMs": 378066,
+            "conf": 0.614,
+            "snapped": true,
+            "matched": 0,
+            "total": 17
+          },
+          {
+            "ayahIdx": 18,
+            "startMs": 378066,
+            "endMs": 389743,
+            "conf": 0.684,
+            "snapped": false,
+            "matched": 0,
+            "total": 10
+          },
+          {
+            "ayahIdx": 19,
+            "startMs": 389743,
+            "endMs": 402050,
+            "conf": 0.559,
+            "snapped": false,
+            "matched": 0,
+            "total": 10
+          },
+          {
+            "ayahIdx": 20,
+            "startMs": 402050,
+            "endMs": 420963,
+            "conf": 0.69,
+            "snapped": true,
+            "matched": 0,
+            "total": 18
+          },
+          {
+            "ayahIdx": 21,
+            "startMs": 420963,
+            "endMs": 432051,
+            "conf": 0.694,
+            "snapped": false,
+            "matched": 0,
+            "total": 13
+          },
+          {
+            "ayahIdx": 22,
+            "startMs": 432051,
+            "endMs": 450883,
+            "conf": 0.676,
+            "snapped": false,
+            "matched": 0,
+            "total": 19
+          },
+          {
+            "ayahIdx": 23,
+            "startMs": 450883,
+            "endMs": 468454,
+            "conf": 0.574,
+            "snapped": false,
+            "matched": 0,
+            "total": 17
+          }
+        ],
+        "issues": [],
+        "bands": {
+          "MED": 20,
+          "LOW": 2,
+          "HIGH": 2
+        },
+        "engine": "ctc-dual-window-1",
+        "alignmentModel": {
+          "id": "rabah2026/wav2vec2-large-xlsr-53-arabic-quran-v_final",
+          "revision": "b03a268c6ba1a693752307325ab376c86c3b12da",
+          "weightsSha256": "bf65674a26eb4ef7042cedade96c3c8f8cbd04f3a7d1a68eadceec8ed0f99ecb",
+          "license": "Apache-2.0",
+          "canonicalTextChanged": false
+        },
+        "sha256": "94c775a27ab20dcd3d61a2e5151daa79cb3d432ff3c7d423b45c1ab5318c1a65",
+        "fileRef": "https://archive.org/download/shiekh-abdulmohsin-al-qasim-2023/059%20-%20%D8%A7%D9%84%D8%AD%D8%B4%D8%B1.mp3",
+        "remainingWeakAyahs": [
+          3
+        ],
+        "previousWindowRepairs": null,
+        "localWindowRepairs": {
+          "model": {
+            "id": "rabah2026/wav2vec2-large-xlsr-53-arabic-quran-v_final",
+            "revision": "b03a268c6ba1a693752307325ab376c86c3b12da",
+            "weightsSha256": "bf65674a26eb4ef7042cedade96c3c8f8cbd04f3a7d1a68eadceec8ed0f99ecb",
+            "license": "Apache-2.0",
+            "canonicalTextChanged": false
+          },
+          "sourceSha256": "94c775a27ab20dcd3d61a2e5151daa79cb3d432ff3c7d423b45c1ab5318c1a65",
+          "trials": [
+            {
+              "range": [
+                2,
+                4
+              ],
+              "windowMs": [
+                14620,
+                85716
+              ],
+              "confidence": [
+                0.516,
+                0.39,
+                0.705
+              ],
+              "durationBad": [],
+              "accepted": false,
+              "issues": []
+            },
+            {
+              "range": [
+                1,
+                5
+              ],
+              "windowMs": [
+                6540,
+                99805
+              ],
+              "confidence": [
+                0.563,
+                0.527,
+                0.377,
+                0.721,
+                0.54
+              ],
+              "durationBad": [],
+              "accepted": false,
+              "issues": []
+            },
+            {
+              "range": [
+                1,
+                7
+              ],
+              "windowMs": [
+                6540,
+                163050
+              ],
+              "confidence": [
+                0.563,
+                0.527,
+                0.377,
+                0.721,
+                0.57,
+                0.553,
+                0.544
+              ],
+              "durationBad": [],
+              "accepted": false,
+              "issues": []
+            },
+            {
+              "range": [
+                1,
+                9
+              ],
+              "windowMs": [
+                6540,
+                216140
+              ],
+              "confidence": [
+                0.563,
+                0.527,
+                0.377,
+                0.721,
+                0.57,
+                0.553,
+                0.544,
+                0.463,
+                0.0
+              ],
+              "durationBad": [],
+              "accepted": false,
+              "issues": []
+            },
+            {
+              "range": [
+                16,
+                18
+              ],
+              "windowMs": [
+                331330,
+                378066
+              ],
+              "confidence": [
+                0.672,
+                0.457,
+                0.614
+              ],
+              "durationBad": [],
+              "accepted": true,
+              "issues": []
+            }
+          ],
+          "canonicalTextChanged": false
+        },
+        "dualAlignmentEvidence": {
+          "surah": 59,
+          "riwaya": "hafs",
+          "sourceSha256": "94c775a27ab20dcd3d61a2e5151daa79cb3d432ff3c7d423b45c1ab5318c1a65",
+          "canonicalTextChanged": false,
+          "totalMs": 471688,
+          "models": {
+            "quran": {
+              "id": "rabah2026/wav2vec2-large-xlsr-53-arabic-quran-v_final",
+              "revision": "b03a268c6ba1a693752307325ab376c86c3b12da",
+              "weightsSha256": "bf65674a26eb4ef7042cedade96c3c8f8cbd04f3a7d1a68eadceec8ed0f99ecb",
+              "license": "Apache-2.0",
+              "canonicalTextChanged": false
+            },
+            "generic": {
+              "id": "jonatasgrosman/wav2vec2-large-xlsr-53-arabic",
+              "revision": "af46c2d8531b8dcbb5e23b952f739b372c2e5d2d",
+              "weightsSha256": "a0b26f6d9d3edfde1784aef863c192a8cc1e438a23b45910ab648531ebe1857b",
+              "license": "Apache-2.0"
+            }
+          },
+          "baseMeasurements": [
+            {
+              "ayahIdx": 0,
+              "startMs": 6540,
+              "endMs": 14620,
+              "conf": 0.574,
+              "snapped": true,
+              "matched": 0,
+              "total": 11
+            },
+            {
+              "ayahIdx": 1,
+              "startMs": 14620,
+              "endMs": 54780,
+              "conf": 0.516,
+              "snapped": true,
+              "matched": 0,
+              "total": 40
+            },
+            {
+              "ayahIdx": 2,
+              "startMs": 54780,
+              "endMs": 67734,
+              "conf": 0.363,
+              "snapped": true,
+              "matched": 0,
+              "total": 14
+            },
+            {
+              "ayahIdx": 3,
+              "startMs": 67734,
+              "endMs": 85716,
+              "conf": 0.74,
+              "snapped": false,
+              "matched": 0,
+              "total": 12
+            },
+            {
+              "ayahIdx": 4,
+              "startMs": 85716,
+              "endMs": 99805,
+              "conf": 0.568,
+              "snapped": true,
+              "matched": 0,
+              "total": 13
+            },
+            {
+              "ayahIdx": 5,
+              "startMs": 99805,
+              "endMs": 124810,
+              "conf": 0.588,
+              "snapped": false,
+              "matched": 0,
+              "total": 25
+            },
+            {
+              "ayahIdx": 6,
+              "startMs": 124810,
+              "endMs": 163050,
+              "conf": 0.501,
+              "snapped": true,
+              "matched": 0,
+              "total": 37
+            },
+            {
+              "ayahIdx": 7,
+              "startMs": 163050,
+              "endMs": 185230,
+              "conf": 0.481,
+              "snapped": true,
+              "matched": 0,
+              "total": 18
+            },
+            {
+              "ayahIdx": 8,
+              "startMs": 185230,
+              "endMs": 216140,
+              "conf": 0.702,
+              "snapped": false,
+              "matched": 0,
+              "total": 31
+            },
+            {
+              "ayahIdx": 9,
+              "startMs": 216140,
+              "endMs": 243398,
+              "conf": 0.718,
+              "snapped": true,
+              "matched": 0,
+              "total": 23
+            },
+            {
+              "ayahIdx": 10,
+              "startMs": 243398,
+              "endMs": 270400,
+              "conf": 0.641,
+              "snapped": true,
+              "matched": 0,
+              "total": 28
+            },
+            {
+              "ayahIdx": 11,
+              "startMs": 270400,
+              "endMs": 286400,
+              "conf": 0.808,
+              "snapped": true,
+              "matched": 0,
+              "total": 16
+            },
+            {
+              "ayahIdx": 12,
+              "startMs": 286400,
+              "endMs": 297150,
+              "conf": 0.66,
+              "snapped": true,
+              "matched": 0,
+              "total": 12
+            },
+            {
+              "ayahIdx": 13,
+              "startMs": 297150,
+              "endMs": 321350,
+              "conf": 0.697,
+              "snapped": true,
+              "matched": 0,
+              "total": 23
+            },
+            {
+              "ayahIdx": 14,
+              "startMs": 321350,
+              "endMs": 331330,
+              "conf": 0.817,
+              "snapped": true,
+              "matched": 0,
+              "total": 11
+            },
+            {
+              "ayahIdx": 15,
+              "startMs": 331330,
+              "endMs": 348890,
+              "conf": 0.672,
+              "snapped": true,
+              "matched": 0,
+              "total": 17
+            },
+            {
+              "ayahIdx": 16,
+              "startMs": 348890,
+              "endMs": 361994,
+              "conf": 0.457,
+              "snapped": true,
+              "matched": 0,
+              "total": 10
+            },
+            {
+              "ayahIdx": 17,
+              "startMs": 361994,
+              "endMs": 378066,
+              "conf": 0.614,
+              "snapped": true,
+              "matched": 0,
+              "total": 17
+            },
+            {
+              "ayahIdx": 18,
+              "startMs": 378066,
+              "endMs": 389743,
+              "conf": 0.684,
+              "snapped": false,
+              "matched": 0,
+              "total": 10
+            },
+            {
+              "ayahIdx": 19,
+              "startMs": 389743,
+              "endMs": 402050,
+              "conf": 0.559,
+              "snapped": false,
+              "matched": 0,
+              "total": 10
+            },
+            {
+              "ayahIdx": 20,
+              "startMs": 402050,
+              "endMs": 420963,
+              "conf": 0.69,
+              "snapped": true,
+              "matched": 0,
+              "total": 18
+            },
+            {
+              "ayahIdx": 21,
+              "startMs": 420963,
+              "endMs": 432051,
+              "conf": 0.694,
+              "snapped": false,
+              "matched": 0,
+              "total": 13
+            },
+            {
+              "ayahIdx": 22,
+              "startMs": 432051,
+              "endMs": 450883,
+              "conf": 0.676,
+              "snapped": false,
+              "matched": 0,
+              "total": 19
+            },
+            {
+              "ayahIdx": 23,
+              "startMs": 450883,
+              "endMs": 468454,
+              "conf": 0.574,
+              "snapped": false,
+              "matched": 0,
+              "total": 17
+            }
+          ],
+          "measurements": [
+            {
+              "ayahIdx": 0,
+              "startMs": 6540,
+              "endMs": 14620,
+              "conf": 0.574,
+              "snapped": true,
+              "matched": 0,
+              "total": 11,
+              "model": "quran"
+            },
+            {
+              "ayahIdx": 1,
+              "startMs": 14750,
+              "endMs": 54471,
+              "conf": 0.575,
+              "snapped": false,
+              "model": "generic"
+            },
+            {
+              "ayahIdx": 2,
+              "startMs": 54471,
+              "endMs": 67722,
+              "conf": 0.569,
+              "snapped": false,
+              "model": "generic"
+            },
+            {
+              "ayahIdx": 3,
+              "startMs": 67722,
+              "endMs": 84685,
+              "conf": 0.639,
+              "snapped": false,
+              "model": "generic"
+            },
+            {
+              "ayahIdx": 4,
+              "startMs": 85716,
+              "endMs": 99805,
+              "conf": 0.568,
+              "snapped": true,
+              "matched": 0,
+              "total": 13,
+              "model": "quran"
+            },
+            {
+              "ayahIdx": 5,
+              "startMs": 99805,
+              "endMs": 124810,
+              "conf": 0.588,
+              "snapped": false,
+              "matched": 0,
+              "total": 25,
+              "model": "quran"
+            },
+            {
+              "ayahIdx": 6,
+              "startMs": 124810,
+              "endMs": 163050,
+              "conf": 0.501,
+              "snapped": true,
+              "matched": 0,
+              "total": 37,
+              "model": "quran"
+            },
+            {
+              "ayahIdx": 7,
+              "startMs": 163050,
+              "endMs": 185230,
+              "conf": 0.481,
+              "snapped": true,
+              "matched": 0,
+              "total": 18,
+              "model": "quran"
+            },
+            {
+              "ayahIdx": 8,
+              "startMs": 185230,
+              "endMs": 216140,
+              "conf": 0.702,
+              "snapped": false,
+              "matched": 0,
+              "total": 31,
+              "model": "quran"
+            },
+            {
+              "ayahIdx": 9,
+              "startMs": 216140,
+              "endMs": 243398,
+              "conf": 0.718,
+              "snapped": true,
+              "matched": 0,
+              "total": 23,
+              "model": "quran"
+            },
+            {
+              "ayahIdx": 10,
+              "startMs": 243398,
+              "endMs": 270400,
+              "conf": 0.641,
+              "snapped": true,
+              "matched": 0,
+              "total": 28,
+              "model": "quran"
+            },
+            {
+              "ayahIdx": 11,
+              "startMs": 270400,
+              "endMs": 286400,
+              "conf": 0.808,
+              "snapped": true,
+              "matched": 0,
+              "total": 16,
+              "model": "quran"
+            },
+            {
+              "ayahIdx": 12,
+              "startMs": 286400,
+              "endMs": 297150,
+              "conf": 0.66,
+              "snapped": true,
+              "matched": 0,
+              "total": 12,
+              "model": "quran"
+            },
+            {
+              "ayahIdx": 13,
+              "startMs": 297150,
+              "endMs": 321350,
+              "conf": 0.697,
+              "snapped": true,
+              "matched": 0,
+              "total": 23,
+              "model": "quran"
+            },
+            {
+              "ayahIdx": 14,
+              "startMs": 321350,
+              "endMs": 331330,
+              "conf": 0.817,
+              "snapped": true,
+              "matched": 0,
+              "total": 11,
+              "model": "quran"
+            },
+            {
+              "ayahIdx": 15,
+              "startMs": 331330,
+              "endMs": 348890,
+              "conf": 0.672,
+              "snapped": true,
+              "matched": 0,
+              "total": 17,
+              "model": "quran"
+            },
+            {
+              "ayahIdx": 16,
+              "startMs": 348890,
+              "endMs": 361994,
+              "conf": 0.457,
+              "snapped": true,
+              "matched": 0,
+              "total": 10,
+              "model": "quran"
+            },
+            {
+              "ayahIdx": 17,
+              "startMs": 361994,
+              "endMs": 378066,
+              "conf": 0.614,
+              "snapped": true,
+              "matched": 0,
+              "total": 17,
+              "model": "quran"
+            },
+            {
+              "ayahIdx": 18,
+              "startMs": 378066,
+              "endMs": 389743,
+              "conf": 0.684,
+              "snapped": false,
+              "matched": 0,
+              "total": 10,
+              "model": "quran"
+            },
+            {
+              "ayahIdx": 19,
+              "startMs": 389743,
+              "endMs": 402050,
+              "conf": 0.559,
+              "snapped": false,
+              "matched": 0,
+              "total": 10,
+              "model": "quran"
+            },
+            {
+              "ayahIdx": 20,
+              "startMs": 402050,
+              "endMs": 420963,
+              "conf": 0.69,
+              "snapped": true,
+              "matched": 0,
+              "total": 18,
+              "model": "quran"
+            },
+            {
+              "ayahIdx": 21,
+              "startMs": 420963,
+              "endMs": 432051,
+              "conf": 0.694,
+              "snapped": false,
+              "matched": 0,
+              "total": 13,
+              "model": "quran"
+            },
+            {
+              "ayahIdx": 22,
+              "startMs": 432051,
+              "endMs": 450883,
+              "conf": 0.676,
+              "snapped": false,
+              "matched": 0,
+              "total": 19,
+              "model": "quran"
+            },
+            {
+              "ayahIdx": 23,
+              "startMs": 450883,
+              "endMs": 468454,
+              "conf": 0.574,
+              "snapped": false,
+              "matched": 0,
+              "total": 17,
+              "model": "quran"
+            }
+          ],
+          "windows": [
+            {
+              "reciterId": "qasm_clean",
+              "riwaya": "hafs",
+              "surah": 59,
+              "range": [
+                2,
+                4
+              ],
+              "windowMs": [
+                14620,
+                85716
+              ],
+              "sourceSha256": "94c775a27ab20dcd3d61a2e5151daa79cb3d432ff3c7d423b45c1ab5318c1a65",
+              "alignmentModel": {
+                "id": "jonatasgrosman/wav2vec2-large-xlsr-53-arabic",
+                "revision": "af46c2d8531b8dcbb5e23b952f739b372c2e5d2d",
+                "weightsSha256": "a0b26f6d9d3edfde1784aef863c192a8cc1e438a23b45910ab648531ebe1857b",
+                "license": "Apache-2.0"
+              },
+              "alignmentInput": [
+                "هو الذي اخرج الذين كفروا من اهل الكتب من ديرهم لاول الحشر ما ظننتم ان يخرجوا وظنوا انهم مانعتهم حصونهم من الله فاتيهم الله من حيث لم يحتسبوا وقذف في قلوبهم الرعب يخربون بيوتهم بايديهم وايدي المومنين فاعتبروا ياولي الابصر",
+                "ولولا ان كتب الله عليهم الجلا لعذبهم في الدنيا ولهم في الاخره عذاب النار",
+                "ذلك بانهم شاقوا الله ورسوله ومن يشاق الله فان الله شديد العقاب"
+              ],
+              "canonicalTextChanged": false,
+              "entries": [
+                {
+                  "ayahIdx": 1,
+                  "startMs": 14750,
+                  "endMs": 54471,
+                  "conf": 0.575
+                },
+                {
+                  "ayahIdx": 2,
+                  "startMs": 54471,
+                  "endMs": 67722,
+                  "conf": 0.569
+                },
+                {
+                  "ayahIdx": 3,
+                  "startMs": 67722,
+                  "endMs": 84685,
+                  "conf": 0.639
+                }
+              ],
+              "diagnosticOnly": true,
+              "accepted": true,
+              "durationBad": [],
+              "issues": []
+            }
+          ]
+        },
+        "sourceUrl": "https://archive.org/download/shiekh-abdulmohsin-al-qasim-2023/059%20-%20%D8%A7%D9%84%D8%AD%D8%B4%D8%B1.mp3",
+        "audioSha256": "94c775a27ab20dcd3d61a2e5151daa79cb3d432ff3c7d423b45c1ab5318c1a65"
+      },
+      "inheritedAyahIds": []
+    },
+    {
+      "surah": 70,
+      "alignment": {
+        "surah": 70,
+        "riwaya": "hafs",
+        "totalMs": 228083,
+        "entries": [
+          {
+            "ayahIdx": 0,
+            "startMs": 2882,
+            "endMs": 9080,
+            "conf": 0.787,
+            "snapped": true,
+            "matched": 0,
+            "total": 4
+          },
+          {
+            "ayahIdx": 1,
+            "startMs": 9080,
+            "endMs": 12820,
+            "conf": 0.716,
+            "snapped": true,
+            "matched": 0,
+            "total": 4
+          },
+          {
+            "ayahIdx": 2,
+            "startMs": 12820,
+            "endMs": 15650,
+            "conf": 0.645,
+            "snapped": true,
+            "matched": 0,
+            "total": 4
+          },
+          {
+            "ayahIdx": 3,
+            "startMs": 15650,
+            "endMs": 25260,
+            "conf": 0.513,
+            "snapped": true,
+            "matched": 0,
+            "total": 11
+          },
+          {
+            "ayahIdx": 4,
+            "startMs": 25260,
+            "endMs": 28590,
+            "conf": 0.713,
+            "snapped": true,
+            "matched": 0,
+            "total": 3
+          },
+          {
+            "ayahIdx": 5,
+            "startMs": 28590,
+            "endMs": 31882,
+            "conf": 0.804,
+            "snapped": true,
+            "matched": 0,
+            "total": 3
+          },
+          {
+            "ayahIdx": 6,
+            "startMs": 31882,
+            "endMs": 34720,
+            "conf": 0.715,
+            "snapped": false,
+            "matched": 0,
+            "total": 2
+          },
+          {
+            "ayahIdx": 7,
+            "startMs": 34720,
+            "endMs": 38896,
+            "conf": 0.603,
+            "snapped": true,
+            "matched": 0,
+            "total": 4
+          },
+          {
+            "ayahIdx": 8,
+            "startMs": 38896,
+            "endMs": 41838,
+            "conf": 0.74,
+            "snapped": false,
+            "matched": 0,
+            "total": 3
+          },
+          {
+            "ayahIdx": 9,
+            "startMs": 41838,
+            "endMs": 45070,
+            "conf": 0.74,
+            "snapped": false,
+            "matched": 0,
+            "total": 4
+          },
+          {
+            "ayahIdx": 10,
+            "startMs": 45070,
+            "endMs": 54306,
+            "conf": 0.74,
+            "snapped": false,
+            "matched": 0,
+            "total": 9
+          },
+          {
+            "ayahIdx": 11,
+            "startMs": 54306,
+            "endMs": 57370,
+            "conf": 0.74,
+            "snapped": false,
+            "matched": 0,
+            "total": 2
+          },
+          {
+            "ayahIdx": 12,
+            "startMs": 57370,
+            "endMs": 60931,
+            "conf": 0.723,
+            "snapped": true,
+            "matched": 0,
+            "total": 3
+          },
+          {
+            "ayahIdx": 13,
+            "startMs": 60931,
+            "endMs": 66895,
+            "conf": 0.635,
+            "snapped": false,
+            "matched": 0,
+            "total": 6
+          },
+          {
+            "ayahIdx": 14,
+            "startMs": 66895,
+            "endMs": 69977,
+            "conf": 0.74,
+            "snapped": false,
+            "matched": 0,
+            "total": 3
+          },
+          {
+            "ayahIdx": 15,
+            "startMs": 69977,
+            "endMs": 72349,
+            "conf": 0.74,
+            "snapped": false,
+            "matched": 0,
+            "total": 2
+          },
+          {
+            "ayahIdx": 16,
+            "startMs": 72349,
+            "endMs": 75611,
+            "conf": 0.74,
+            "snapped": false,
+            "matched": 0,
+            "total": 4
+          },
+          {
+            "ayahIdx": 17,
+            "startMs": 75611,
+            "endMs": 78220,
+            "conf": 0.74,
+            "snapped": false,
+            "matched": 0,
+            "total": 2
+          },
+          {
+            "ayahIdx": 18,
+            "startMs": 78220,
+            "endMs": 82676,
+            "conf": 0.798,
+            "snapped": true,
+            "matched": 0,
+            "total": 4
+          },
+          {
+            "ayahIdx": 19,
+            "startMs": 82676,
+            "endMs": 85708,
+            "conf": 0.74,
+            "snapped": false,
+            "matched": 0,
+            "total": 4
+          },
+          {
+            "ayahIdx": 20,
+            "startMs": 85708,
+            "endMs": 88910,
+            "conf": 0.74,
+            "snapped": false,
+            "matched": 0,
+            "total": 4
+          },
+          {
+            "ayahIdx": 21,
+            "startMs": 88910,
+            "endMs": 90931,
+            "conf": 0.718,
+            "snapped": false,
+            "matched": 0,
+            "total": 2
+          },
+          {
+            "ayahIdx": 22,
+            "startMs": 90931,
+            "endMs": 96626,
+            "conf": 0.737,
+            "snapped": false,
+            "matched": 0,
+            "total": 5
+          },
+          {
+            "ayahIdx": 23,
+            "startMs": 96626,
+            "endMs": 101819,
+            "conf": 0.71,
+            "snapped": false,
+            "matched": 0,
+            "total": 5
+          },
+          {
+            "ayahIdx": 24,
+            "startMs": 101819,
+            "endMs": 105441,
+            "conf": 0.74,
+            "snapped": false,
+            "matched": 0,
+            "total": 2
+          },
+          {
+            "ayahIdx": 25,
+            "startMs": 105441,
+            "endMs": 109724,
+            "conf": 0.678,
+            "snapped": false,
+            "matched": 0,
+            "total": 4
+          },
+          {
+            "ayahIdx": 26,
+            "startMs": 109724,
+            "endMs": 114708,
+            "conf": 0.734,
+            "snapped": false,
+            "matched": 0,
+            "total": 6
+          },
+          {
+            "ayahIdx": 27,
+            "startMs": 114708,
+            "endMs": 119081,
+            "conf": 0.74,
+            "snapped": false,
+            "matched": 0,
+            "total": 5
+          },
+          {
+            "ayahIdx": 28,
+            "startMs": 119081,
+            "endMs": 123433,
+            "conf": 0.681,
+            "snapped": false,
+            "matched": 0,
+            "total": 4
+          },
+          {
+            "ayahIdx": 29,
+            "startMs": 123433,
+            "endMs": 131499,
+            "conf": 0.74,
+            "snapped": false,
+            "matched": 0,
+            "total": 10
+          },
+          {
+            "ayahIdx": 30,
+            "startMs": 131499,
+            "endMs": 139650,
+            "conf": 0.74,
+            "snapped": false,
+            "matched": 0,
+            "total": 7
+          },
+          {
+            "ayahIdx": 31,
+            "startMs": 139650,
+            "endMs": 145018,
+            "conf": 0.786,
+            "snapped": true,
+            "matched": 0,
+            "total": 5
+          },
+          {
+            "ayahIdx": 32,
+            "startMs": 145018,
+            "endMs": 150432,
+            "conf": 0.74,
+            "snapped": false,
+            "matched": 0,
+            "total": 4
+          },
+          {
+            "ayahIdx": 33,
+            "startMs": 150432,
+            "endMs": 155175,
+            "conf": 0.74,
+            "snapped": false,
+            "matched": 0,
+            "total": 5
+          },
+          {
+            "ayahIdx": 34,
+            "startMs": 155175,
+            "endMs": 163270,
+            "conf": 0.74,
+            "snapped": false,
+            "matched": 0,
+            "total": 4
+          },
+          {
+            "ayahIdx": 35,
+            "startMs": 163270,
+            "endMs": 167684,
+            "conf": 0.807,
+            "snapped": true,
+            "matched": 0,
+            "total": 5
+          },
+          {
+            "ayahIdx": 36,
+            "startMs": 167684,
+            "endMs": 171266,
+            "conf": 0.773,
+            "snapped": true,
+            "matched": 0,
+            "total": 5
+          },
+          {
+            "ayahIdx": 37,
+            "startMs": 171266,
+            "endMs": 178640,
+            "conf": 0.74,
+            "snapped": false,
+            "matched": 0,
+            "total": 8
+          },
+          {
+            "ayahIdx": 38,
+            "startMs": 178640,
+            "endMs": 184650,
+            "conf": 0.756,
+            "snapped": true,
+            "matched": 0,
+            "total": 5
+          },
+          {
+            "ayahIdx": 39,
+            "startMs": 184650,
+            "endMs": 192000,
+            "conf": 0.689,
+            "snapped": true,
+            "matched": 0,
+            "total": 7
+          },
+          {
+            "ayahIdx": 40,
+            "startMs": 192000,
+            "endMs": 198484,
+            "conf": 0.74,
+            "snapped": false,
+            "matched": 0,
+            "total": 8
+          },
+          {
+            "ayahIdx": 41,
+            "startMs": 198704,
+            "endMs": 206639,
+            "conf": 0.624,
+            "snapped": false
+          },
+          {
+            "ayahIdx": 42,
+            "startMs": 206639,
+            "endMs": 215705,
+            "conf": 0.567,
+            "snapped": false
+          },
+          {
+            "ayahIdx": 43,
+            "startMs": 215705,
+            "endMs": 227153,
+            "conf": 0.594,
+            "snapped": false
+          }
+        ],
+        "issues": [],
+        "bands": {
+          "HIGH": 7,
+          "MED": 35,
+          "LOW": 2
+        },
+        "engine": "ctc-dual-window-1",
+        "alignmentModel": {
+          "id": "rabah2026/wav2vec2-large-xlsr-53-arabic-quran-v_final",
+          "revision": "b03a268c6ba1a693752307325ab376c86c3b12da",
+          "weightsSha256": "bf65674a26eb4ef7042cedade96c3c8f8cbd04f3a7d1a68eadceec8ed0f99ecb",
+          "license": "Apache-2.0",
+          "canonicalTextChanged": false
+        },
+        "sha256": "72b915563e14fa37e4c646c04ee3ba8b054e3281d0a25cd3f18978d5834118c0",
+        "fileRef": "https://archive.org/download/shiekh-abdulmohsin-al-qasim-2023/070%20-%20%D8%A7%D9%84%D9%85%D8%B9%D8%A7%D8%B1%D8%AC.mp3",
+        "remainingWeakAyahs": [],
+        "previousWindowRepairs": null,
+        "localWindowRepairs": {
+          "model": {
+            "id": "rabah2026/wav2vec2-large-xlsr-53-arabic-quran-v_final",
+            "revision": "b03a268c6ba1a693752307325ab376c86c3b12da",
+            "weightsSha256": "bf65674a26eb4ef7042cedade96c3c8f8cbd04f3a7d1a68eadceec8ed0f99ecb",
+            "license": "Apache-2.0",
+            "canonicalTextChanged": false
+          },
+          "sourceSha256": "72b915563e14fa37e4c646c04ee3ba8b054e3281d0a25cd3f18978d5834118c0",
+          "trials": [
+            {
+              "range": [
+                42,
+                44
+              ],
+              "windowMs": [
+                198484,
+                228083
+              ],
+              "confidence": [
+                0.712,
+                0.786,
+                0.691
+              ],
+              "durationBad": [],
+              "accepted": true,
+              "issues": []
+            }
+          ],
+          "canonicalTextChanged": false
+        },
+        "dualAlignmentEvidence": {
+          "surah": 70,
+          "riwaya": "hafs",
+          "sourceSha256": "72b915563e14fa37e4c646c04ee3ba8b054e3281d0a25cd3f18978d5834118c0",
+          "canonicalTextChanged": false,
+          "totalMs": 228083,
+          "models": {
+            "quran": {
+              "id": "rabah2026/wav2vec2-large-xlsr-53-arabic-quran-v_final",
+              "revision": "b03a268c6ba1a693752307325ab376c86c3b12da",
+              "weightsSha256": "bf65674a26eb4ef7042cedade96c3c8f8cbd04f3a7d1a68eadceec8ed0f99ecb",
+              "license": "Apache-2.0",
+              "canonicalTextChanged": false
+            },
+            "generic": {
+              "id": "jonatasgrosman/wav2vec2-large-xlsr-53-arabic",
+              "revision": "af46c2d8531b8dcbb5e23b952f739b372c2e5d2d",
+              "weightsSha256": "a0b26f6d9d3edfde1784aef863c192a8cc1e438a23b45910ab648531ebe1857b",
+              "license": "Apache-2.0"
+            }
+          },
+          "baseMeasurements": [
+            {
+              "ayahIdx": 0,
+              "startMs": 2882,
+              "endMs": 9080,
+              "conf": 0.787,
+              "snapped": true,
+              "matched": 0,
+              "total": 4
+            },
+            {
+              "ayahIdx": 1,
+              "startMs": 9080,
+              "endMs": 12820,
+              "conf": 0.716,
+              "snapped": true,
+              "matched": 0,
+              "total": 4
+            },
+            {
+              "ayahIdx": 2,
+              "startMs": 12820,
+              "endMs": 15650,
+              "conf": 0.645,
+              "snapped": true,
+              "matched": 0,
+              "total": 4
+            },
+            {
+              "ayahIdx": 3,
+              "startMs": 15650,
+              "endMs": 25260,
+              "conf": 0.513,
+              "snapped": true,
+              "matched": 0,
+              "total": 11
+            },
+            {
+              "ayahIdx": 4,
+              "startMs": 25260,
+              "endMs": 28590,
+              "conf": 0.713,
+              "snapped": true,
+              "matched": 0,
+              "total": 3
+            },
+            {
+              "ayahIdx": 5,
+              "startMs": 28590,
+              "endMs": 31882,
+              "conf": 0.804,
+              "snapped": true,
+              "matched": 0,
+              "total": 3
+            },
+            {
+              "ayahIdx": 6,
+              "startMs": 31882,
+              "endMs": 34720,
+              "conf": 0.715,
+              "snapped": false,
+              "matched": 0,
+              "total": 2
+            },
+            {
+              "ayahIdx": 7,
+              "startMs": 34720,
+              "endMs": 38896,
+              "conf": 0.603,
+              "snapped": true,
+              "matched": 0,
+              "total": 4
+            },
+            {
+              "ayahIdx": 8,
+              "startMs": 38896,
+              "endMs": 41838,
+              "conf": 0.74,
+              "snapped": false,
+              "matched": 0,
+              "total": 3
+            },
+            {
+              "ayahIdx": 9,
+              "startMs": 41838,
+              "endMs": 45070,
+              "conf": 0.74,
+              "snapped": false,
+              "matched": 0,
+              "total": 4
+            },
+            {
+              "ayahIdx": 10,
+              "startMs": 45070,
+              "endMs": 54306,
+              "conf": 0.74,
+              "snapped": false,
+              "matched": 0,
+              "total": 9
+            },
+            {
+              "ayahIdx": 11,
+              "startMs": 54306,
+              "endMs": 57370,
+              "conf": 0.74,
+              "snapped": false,
+              "matched": 0,
+              "total": 2
+            },
+            {
+              "ayahIdx": 12,
+              "startMs": 57370,
+              "endMs": 60931,
+              "conf": 0.723,
+              "snapped": true,
+              "matched": 0,
+              "total": 3
+            },
+            {
+              "ayahIdx": 13,
+              "startMs": 60931,
+              "endMs": 66895,
+              "conf": 0.635,
+              "snapped": false,
+              "matched": 0,
+              "total": 6
+            },
+            {
+              "ayahIdx": 14,
+              "startMs": 66895,
+              "endMs": 69977,
+              "conf": 0.74,
+              "snapped": false,
+              "matched": 0,
+              "total": 3
+            },
+            {
+              "ayahIdx": 15,
+              "startMs": 69977,
+              "endMs": 72349,
+              "conf": 0.74,
+              "snapped": false,
+              "matched": 0,
+              "total": 2
+            },
+            {
+              "ayahIdx": 16,
+              "startMs": 72349,
+              "endMs": 75611,
+              "conf": 0.74,
+              "snapped": false,
+              "matched": 0,
+              "total": 4
+            },
+            {
+              "ayahIdx": 17,
+              "startMs": 75611,
+              "endMs": 78220,
+              "conf": 0.74,
+              "snapped": false,
+              "matched": 0,
+              "total": 2
+            },
+            {
+              "ayahIdx": 18,
+              "startMs": 78220,
+              "endMs": 82676,
+              "conf": 0.798,
+              "snapped": true,
+              "matched": 0,
+              "total": 4
+            },
+            {
+              "ayahIdx": 19,
+              "startMs": 82676,
+              "endMs": 85708,
+              "conf": 0.74,
+              "snapped": false,
+              "matched": 0,
+              "total": 4
+            },
+            {
+              "ayahIdx": 20,
+              "startMs": 85708,
+              "endMs": 88910,
+              "conf": 0.74,
+              "snapped": false,
+              "matched": 0,
+              "total": 4
+            },
+            {
+              "ayahIdx": 21,
+              "startMs": 88910,
+              "endMs": 90931,
+              "conf": 0.718,
+              "snapped": false,
+              "matched": 0,
+              "total": 2
+            },
+            {
+              "ayahIdx": 22,
+              "startMs": 90931,
+              "endMs": 96626,
+              "conf": 0.737,
+              "snapped": false,
+              "matched": 0,
+              "total": 5
+            },
+            {
+              "ayahIdx": 23,
+              "startMs": 96626,
+              "endMs": 101819,
+              "conf": 0.71,
+              "snapped": false,
+              "matched": 0,
+              "total": 5
+            },
+            {
+              "ayahIdx": 24,
+              "startMs": 101819,
+              "endMs": 105441,
+              "conf": 0.74,
+              "snapped": false,
+              "matched": 0,
+              "total": 2
+            },
+            {
+              "ayahIdx": 25,
+              "startMs": 105441,
+              "endMs": 109724,
+              "conf": 0.678,
+              "snapped": false,
+              "matched": 0,
+              "total": 4
+            },
+            {
+              "ayahIdx": 26,
+              "startMs": 109724,
+              "endMs": 114708,
+              "conf": 0.734,
+              "snapped": false,
+              "matched": 0,
+              "total": 6
+            },
+            {
+              "ayahIdx": 27,
+              "startMs": 114708,
+              "endMs": 119081,
+              "conf": 0.74,
+              "snapped": false,
+              "matched": 0,
+              "total": 5
+            },
+            {
+              "ayahIdx": 28,
+              "startMs": 119081,
+              "endMs": 123433,
+              "conf": 0.681,
+              "snapped": false,
+              "matched": 0,
+              "total": 4
+            },
+            {
+              "ayahIdx": 29,
+              "startMs": 123433,
+              "endMs": 131499,
+              "conf": 0.74,
+              "snapped": false,
+              "matched": 0,
+              "total": 10
+            },
+            {
+              "ayahIdx": 30,
+              "startMs": 131499,
+              "endMs": 139650,
+              "conf": 0.74,
+              "snapped": false,
+              "matched": 0,
+              "total": 7
+            },
+            {
+              "ayahIdx": 31,
+              "startMs": 139650,
+              "endMs": 145018,
+              "conf": 0.786,
+              "snapped": true,
+              "matched": 0,
+              "total": 5
+            },
+            {
+              "ayahIdx": 32,
+              "startMs": 145018,
+              "endMs": 150432,
+              "conf": 0.74,
+              "snapped": false,
+              "matched": 0,
+              "total": 4
+            },
+            {
+              "ayahIdx": 33,
+              "startMs": 150432,
+              "endMs": 155175,
+              "conf": 0.74,
+              "snapped": false,
+              "matched": 0,
+              "total": 5
+            },
+            {
+              "ayahIdx": 34,
+              "startMs": 155175,
+              "endMs": 163270,
+              "conf": 0.74,
+              "snapped": false,
+              "matched": 0,
+              "total": 4
+            },
+            {
+              "ayahIdx": 35,
+              "startMs": 163270,
+              "endMs": 167684,
+              "conf": 0.807,
+              "snapped": true,
+              "matched": 0,
+              "total": 5
+            },
+            {
+              "ayahIdx": 36,
+              "startMs": 167684,
+              "endMs": 171266,
+              "conf": 0.773,
+              "snapped": true,
+              "matched": 0,
+              "total": 5
+            },
+            {
+              "ayahIdx": 37,
+              "startMs": 171266,
+              "endMs": 178640,
+              "conf": 0.74,
+              "snapped": false,
+              "matched": 0,
+              "total": 8
+            },
+            {
+              "ayahIdx": 38,
+              "startMs": 178640,
+              "endMs": 184650,
+              "conf": 0.756,
+              "snapped": true,
+              "matched": 0,
+              "total": 5
+            },
+            {
+              "ayahIdx": 39,
+              "startMs": 184650,
+              "endMs": 192000,
+              "conf": 0.689,
+              "snapped": true,
+              "matched": 0,
+              "total": 7
+            },
+            {
+              "ayahIdx": 40,
+              "startMs": 192000,
+              "endMs": 198484,
+              "conf": 0.74,
+              "snapped": false,
+              "matched": 0,
+              "total": 8
+            },
+            {
+              "ayahIdx": 41,
+              "startMs": 198484,
+              "endMs": 206677,
+              "conf": 0.712,
+              "snapped": false,
+              "matched": 0,
+              "total": 8
+            },
+            {
+              "ayahIdx": 42,
+              "startMs": 206677,
+              "endMs": 215760,
+              "conf": 0.74,
+              "snapped": false,
+              "matched": 0,
+              "total": 9
+            },
+            {
+              "ayahIdx": 43,
+              "startMs": 215760,
+              "endMs": 227244,
+              "conf": 0.691,
+              "snapped": false,
+              "matched": 0,
+              "total": 9
+            }
+          ],
+          "measurements": [
+            {
+              "ayahIdx": 0,
+              "startMs": 2882,
+              "endMs": 9080,
+              "conf": 0.787,
+              "snapped": true,
+              "matched": 0,
+              "total": 4,
+              "model": "quran"
+            },
+            {
+              "ayahIdx": 1,
+              "startMs": 9080,
+              "endMs": 12820,
+              "conf": 0.716,
+              "snapped": true,
+              "matched": 0,
+              "total": 4,
+              "model": "quran"
+            },
+            {
+              "ayahIdx": 2,
+              "startMs": 12820,
+              "endMs": 15650,
+              "conf": 0.645,
+              "snapped": true,
+              "matched": 0,
+              "total": 4,
+              "model": "quran"
+            },
+            {
+              "ayahIdx": 3,
+              "startMs": 15650,
+              "endMs": 25260,
+              "conf": 0.513,
+              "snapped": true,
+              "matched": 0,
+              "total": 11,
+              "model": "quran"
+            },
+            {
+              "ayahIdx": 4,
+              "startMs": 25260,
+              "endMs": 28590,
+              "conf": 0.713,
+              "snapped": true,
+              "matched": 0,
+              "total": 3,
+              "model": "quran"
+            },
+            {
+              "ayahIdx": 5,
+              "startMs": 28590,
+              "endMs": 31882,
+              "conf": 0.804,
+              "snapped": true,
+              "matched": 0,
+              "total": 3,
+              "model": "quran"
+            },
+            {
+              "ayahIdx": 6,
+              "startMs": 31882,
+              "endMs": 34720,
+              "conf": 0.715,
+              "snapped": false,
+              "matched": 0,
+              "total": 2,
+              "model": "quran"
+            },
+            {
+              "ayahIdx": 7,
+              "startMs": 34720,
+              "endMs": 38896,
+              "conf": 0.603,
+              "snapped": true,
+              "matched": 0,
+              "total": 4,
+              "model": "quran"
+            },
+            {
+              "ayahIdx": 8,
+              "startMs": 38896,
+              "endMs": 41838,
+              "conf": 0.74,
+              "snapped": false,
+              "matched": 0,
+              "total": 3,
+              "model": "quran"
+            },
+            {
+              "ayahIdx": 9,
+              "startMs": 41838,
+              "endMs": 45070,
+              "conf": 0.74,
+              "snapped": false,
+              "matched": 0,
+              "total": 4,
+              "model": "quran"
+            },
+            {
+              "ayahIdx": 10,
+              "startMs": 45070,
+              "endMs": 54306,
+              "conf": 0.74,
+              "snapped": false,
+              "matched": 0,
+              "total": 9,
+              "model": "quran"
+            },
+            {
+              "ayahIdx": 11,
+              "startMs": 54306,
+              "endMs": 57370,
+              "conf": 0.74,
+              "snapped": false,
+              "matched": 0,
+              "total": 2,
+              "model": "quran"
+            },
+            {
+              "ayahIdx": 12,
+              "startMs": 57370,
+              "endMs": 60931,
+              "conf": 0.723,
+              "snapped": true,
+              "matched": 0,
+              "total": 3,
+              "model": "quran"
+            },
+            {
+              "ayahIdx": 13,
+              "startMs": 60931,
+              "endMs": 66895,
+              "conf": 0.635,
+              "snapped": false,
+              "matched": 0,
+              "total": 6,
+              "model": "quran"
+            },
+            {
+              "ayahIdx": 14,
+              "startMs": 66895,
+              "endMs": 69977,
+              "conf": 0.74,
+              "snapped": false,
+              "matched": 0,
+              "total": 3,
+              "model": "quran"
+            },
+            {
+              "ayahIdx": 15,
+              "startMs": 69977,
+              "endMs": 72349,
+              "conf": 0.74,
+              "snapped": false,
+              "matched": 0,
+              "total": 2,
+              "model": "quran"
+            },
+            {
+              "ayahIdx": 16,
+              "startMs": 72349,
+              "endMs": 75611,
+              "conf": 0.74,
+              "snapped": false,
+              "matched": 0,
+              "total": 4,
+              "model": "quran"
+            },
+            {
+              "ayahIdx": 17,
+              "startMs": 75611,
+              "endMs": 78220,
+              "conf": 0.74,
+              "snapped": false,
+              "matched": 0,
+              "total": 2,
+              "model": "quran"
+            },
+            {
+              "ayahIdx": 18,
+              "startMs": 78220,
+              "endMs": 82676,
+              "conf": 0.798,
+              "snapped": true,
+              "matched": 0,
+              "total": 4,
+              "model": "quran"
+            },
+            {
+              "ayahIdx": 19,
+              "startMs": 82676,
+              "endMs": 85708,
+              "conf": 0.74,
+              "snapped": false,
+              "matched": 0,
+              "total": 4,
+              "model": "quran"
+            },
+            {
+              "ayahIdx": 20,
+              "startMs": 85708,
+              "endMs": 88910,
+              "conf": 0.74,
+              "snapped": false,
+              "matched": 0,
+              "total": 4,
+              "model": "quran"
+            },
+            {
+              "ayahIdx": 21,
+              "startMs": 88910,
+              "endMs": 90931,
+              "conf": 0.718,
+              "snapped": false,
+              "matched": 0,
+              "total": 2,
+              "model": "quran"
+            },
+            {
+              "ayahIdx": 22,
+              "startMs": 90931,
+              "endMs": 96626,
+              "conf": 0.737,
+              "snapped": false,
+              "matched": 0,
+              "total": 5,
+              "model": "quran"
+            },
+            {
+              "ayahIdx": 23,
+              "startMs": 96626,
+              "endMs": 101819,
+              "conf": 0.71,
+              "snapped": false,
+              "matched": 0,
+              "total": 5,
+              "model": "quran"
+            },
+            {
+              "ayahIdx": 24,
+              "startMs": 101819,
+              "endMs": 105441,
+              "conf": 0.74,
+              "snapped": false,
+              "matched": 0,
+              "total": 2,
+              "model": "quran"
+            },
+            {
+              "ayahIdx": 25,
+              "startMs": 105441,
+              "endMs": 109724,
+              "conf": 0.678,
+              "snapped": false,
+              "matched": 0,
+              "total": 4,
+              "model": "quran"
+            },
+            {
+              "ayahIdx": 26,
+              "startMs": 109724,
+              "endMs": 114708,
+              "conf": 0.734,
+              "snapped": false,
+              "matched": 0,
+              "total": 6,
+              "model": "quran"
+            },
+            {
+              "ayahIdx": 27,
+              "startMs": 114708,
+              "endMs": 119081,
+              "conf": 0.74,
+              "snapped": false,
+              "matched": 0,
+              "total": 5,
+              "model": "quran"
+            },
+            {
+              "ayahIdx": 28,
+              "startMs": 119081,
+              "endMs": 123433,
+              "conf": 0.681,
+              "snapped": false,
+              "matched": 0,
+              "total": 4,
+              "model": "quran"
+            },
+            {
+              "ayahIdx": 29,
+              "startMs": 123433,
+              "endMs": 131499,
+              "conf": 0.74,
+              "snapped": false,
+              "matched": 0,
+              "total": 10,
+              "model": "quran"
+            },
+            {
+              "ayahIdx": 30,
+              "startMs": 131499,
+              "endMs": 139650,
+              "conf": 0.74,
+              "snapped": false,
+              "matched": 0,
+              "total": 7,
+              "model": "quran"
+            },
+            {
+              "ayahIdx": 31,
+              "startMs": 139650,
+              "endMs": 145018,
+              "conf": 0.786,
+              "snapped": true,
+              "matched": 0,
+              "total": 5,
+              "model": "quran"
+            },
+            {
+              "ayahIdx": 32,
+              "startMs": 145018,
+              "endMs": 150432,
+              "conf": 0.74,
+              "snapped": false,
+              "matched": 0,
+              "total": 4,
+              "model": "quran"
+            },
+            {
+              "ayahIdx": 33,
+              "startMs": 150432,
+              "endMs": 155175,
+              "conf": 0.74,
+              "snapped": false,
+              "matched": 0,
+              "total": 5,
+              "model": "quran"
+            },
+            {
+              "ayahIdx": 34,
+              "startMs": 155175,
+              "endMs": 163270,
+              "conf": 0.74,
+              "snapped": false,
+              "matched": 0,
+              "total": 4,
+              "model": "quran"
+            },
+            {
+              "ayahIdx": 35,
+              "startMs": 163270,
+              "endMs": 167684,
+              "conf": 0.807,
+              "snapped": true,
+              "matched": 0,
+              "total": 5,
+              "model": "quran"
+            },
+            {
+              "ayahIdx": 36,
+              "startMs": 167684,
+              "endMs": 171266,
+              "conf": 0.773,
+              "snapped": true,
+              "matched": 0,
+              "total": 5,
+              "model": "quran"
+            },
+            {
+              "ayahIdx": 37,
+              "startMs": 171266,
+              "endMs": 178640,
+              "conf": 0.74,
+              "snapped": false,
+              "matched": 0,
+              "total": 8,
+              "model": "quran"
+            },
+            {
+              "ayahIdx": 38,
+              "startMs": 178640,
+              "endMs": 184650,
+              "conf": 0.756,
+              "snapped": true,
+              "matched": 0,
+              "total": 5,
+              "model": "quran"
+            },
+            {
+              "ayahIdx": 39,
+              "startMs": 184650,
+              "endMs": 192000,
+              "conf": 0.689,
+              "snapped": true,
+              "matched": 0,
+              "total": 7,
+              "model": "quran"
+            },
+            {
+              "ayahIdx": 40,
+              "startMs": 192000,
+              "endMs": 198484,
+              "conf": 0.74,
+              "snapped": false,
+              "matched": 0,
+              "total": 8,
+              "model": "quran"
+            },
+            {
+              "ayahIdx": 41,
+              "startMs": 198704,
+              "endMs": 206639,
+              "conf": 0.624,
+              "snapped": false,
+              "model": "generic"
+            },
+            {
+              "ayahIdx": 42,
+              "startMs": 206639,
+              "endMs": 215705,
+              "conf": 0.567,
+              "snapped": false,
+              "model": "generic"
+            },
+            {
+              "ayahIdx": 43,
+              "startMs": 215705,
+              "endMs": 227153,
+              "conf": 0.594,
+              "snapped": false,
+              "model": "generic"
+            }
+          ],
+          "windows": [
+            {
+              "reciterId": "qasm_clean",
+              "riwaya": "hafs",
+              "surah": 70,
+              "range": [
+                42,
+                44
+              ],
+              "windowMs": [
+                198484,
+                227244
+              ],
+              "sourceSha256": "72b915563e14fa37e4c646c04ee3ba8b054e3281d0a25cd3f18978d5834118c0",
+              "alignmentModel": {
+                "id": "jonatasgrosman/wav2vec2-large-xlsr-53-arabic",
+                "revision": "af46c2d8531b8dcbb5e23b952f739b372c2e5d2d",
+                "weightsSha256": "a0b26f6d9d3edfde1784aef863c192a8cc1e438a23b45910ab648531ebe1857b",
+                "license": "Apache-2.0"
+              },
+              "alignmentInput": [
+                "فذرهم يخوضوا ويلعبوا حتي يلقوا يومهم الذي يوعدون",
+                "يوم يخرجون من الاجداث سراعا كانهم الي نصب يوفضون",
+                "خشعه ابصرهم ترهقهم ذله ذلك اليوم الذي كانوا يوعدون"
+              ],
+              "canonicalTextChanged": false,
+              "entries": [
+                {
+                  "ayahIdx": 41,
+                  "startMs": 198704,
+                  "endMs": 206639,
+                  "conf": 0.624
+                },
+                {
+                  "ayahIdx": 42,
+                  "startMs": 206639,
+                  "endMs": 215705,
+                  "conf": 0.567
+                },
+                {
+                  "ayahIdx": 43,
+                  "startMs": 215705,
+                  "endMs": 227153,
+                  "conf": 0.594
+                }
+              ],
+              "diagnosticOnly": true,
+              "accepted": true,
+              "durationBad": [],
+              "issues": []
+            }
+          ]
+        },
+        "sourceUrl": "https://archive.org/download/shiekh-abdulmohsin-al-qasim-2023/070%20-%20%D8%A7%D9%84%D9%85%D8%B9%D8%A7%D8%B1%D8%AC.mp3",
+        "audioSha256": "72b915563e14fa37e4c646c04ee3ba8b054e3281d0a25cd3f18978d5834118c0"
+      },
+      "inheritedAyahIds": []
+    }
+  ],
+  "canonicalTextChanged": false,
+  "sourceEvidence": [
+    {
+      "item": "shiekh-abdulmohsin-al-qasim-2023",
+      "s": 57,
+      "title": "Abdulmohsin Al-Qasim 2023",
+      "sha256": "fc1ec1f75d37aedf1e694f433b3f8f5a793d0021525ef26cdca94bc30662de1e",
+      "md5": "63b2c7315c547b61657c152b937fe386",
+      "bytes": 4519098,
+      "frames": {
+        "sec": 555.7,
+        "frames": 21273,
+        "sr": 44100,
+        "bitrates": {
+          "64": 21273
+        },
+        "vbr_header": "Info",
+        "kind": "CBR"
+      },
+      "decoderErrors": "",
+      "rc": 0,
+      "path": "/workspace/scratch/quran-ctc-research/qasm-alt-shiekh-abdulmohsin-al-qasim-2023-057.mp3",
+      "url": "https://archive.org/download/shiekh-abdulmohsin-al-qasim-2023/057%20-%20%D8%A7%D9%84%D8%AD%D8%AF%D9%8A%D8%AF.mp3"
+    },
+    {
+      "item": "shiekh-abdulmohsin-al-qasim-2023",
+      "s": 59,
+      "title": "Abdulmohsin Al-Qasim 2023",
+      "sha256": "94c775a27ab20dcd3d61a2e5151daa79cb3d432ff3c7d423b45c1ab5318c1a65",
+      "md5": "7c348f255c1a25a286510691ad3c2309",
+      "bytes": 2831154,
+      "frames": {
+        "sec": 471.67,
+        "frames": 18056,
+        "sr": 44100,
+        "bitrates": {
+          "48": 18056
+        },
+        "vbr_header": null,
+        "kind": "CBR"
+      },
+      "decoderErrors": "",
+      "rc": 0,
+      "path": "/workspace/scratch/quran-ctc-research/qasm-alt-shiekh-abdulmohsin-al-qasim-2023-059.mp3",
+      "url": "https://archive.org/download/shiekh-abdulmohsin-al-qasim-2023/059%20-%20%D8%A7%D9%84%D8%AD%D8%B4%D8%B1.mp3"
+    },
+    {
+      "item": "shiekh-abdulmohsin-al-qasim-2023",
+      "s": 70,
+      "title": "Abdulmohsin Al-Qasim 2023",
+      "sha256": "72b915563e14fa37e4c646c04ee3ba8b054e3281d0a25cd3f18978d5834118c0",
+      "md5": "bdf203736d55f65d5b294a25c43650a2",
+      "bytes": 3670833,
+      "frames": {
+        "sec": 228.08,
+        "frames": 8731,
+        "sr": 44100,
+        "bitrates": {
+          "128": 8731
+        },
+        "vbr_header": null,
+        "kind": "CBR"
+      },
+      "decoderErrors": "",
+      "rc": 0,
+      "path": "/workspace/scratch/quran-ctc-research/qasm-alt-shiekh-abdulmohsin-al-qasim-2023-070.mp3",
+      "url": "https://archive.org/download/shiekh-abdulmohsin-al-qasim-2023/070%20-%20%D8%A7%D9%84%D9%85%D8%B9%D8%A7%D8%B1%D8%AC.mp3"
+    }
+  ],
+  "nativeHeadTail": [
+    {
+      "reciterId": "qasm_clean",
+      "riwaya": "hafs",
+      "surah": 57,
+      "sourceSha256": "fc1ec1f75d37aedf1e694f433b3f8f5a793d0021525ef26cdca94bc30662de1e",
+      "startMs": 0,
+      "endMs": 16000,
+      "heard": "سَبَّحَ لِلَّهِ مَا فِي السَّمَاوَاتِ وَالْأَرْضِ وَهُوَ الْعَزِيزُ الْحَكِيمُ لَهُ مُلْكُ السَّمَاوَاتِ وَالْأَرْضِ يُحْيِي وَيُمِيتُ"
+    },
+    {
+      "reciterId": "qasm_clean",
+      "riwaya": "hafs",
+      "surah": 57,
+      "sourceSha256": "fc1ec1f75d37aedf1e694f433b3f8f5a793d0021525ef26cdca94bc30662de1e",
+      "startMs": 537651,
+      "endMs": 555651,
+      "heard": "أَمْ مِنْ فَضْلِ اللَّهِ وَأَنَّ الْفَضْلَ بِيَدِ اللَّهِ يُؤْتِيهِ مَنْ يَشَاءُ وَاللَّهُ ذُو الْفَضْلِ الْعَظِيمِ"
+    },
+    {
+      "reciterId": "qasm_clean",
+      "riwaya": "hafs",
+      "surah": 59,
+      "sourceSha256": "94c775a27ab20dcd3d61a2e5151daa79cb3d432ff3c7d423b45c1ab5318c1a65",
+      "startMs": 0,
+      "endMs": 16000,
+      "heard": "سَبَّحَ لِلَّهِ مَا فِي السَّمَاوَاتِ وَمَا فِي الْأَرْضِ وَهُوَ الْعَزِيزُ الْحَكِيمُ"
+    },
+    {
+      "reciterId": "qasm_clean",
+      "riwaya": "hafs",
+      "surah": 59,
+      "sourceSha256": "94c775a27ab20dcd3d61a2e5151daa79cb3d432ff3c7d423b45c1ab5318c1a65",
+      "startMs": 453666,
+      "endMs": 471666,
+      "heard": "وَمَا رِئُ الْمُصَوِّرُ لَهُ الْأَسْمَاءُ الْحُسْنَى يُسَبِّحُ لَهُ مَا فِي السَّمَاوَاتِ وَالْأَرْضِ وَهُوَ الْعَزِيزُ الْحَكِيمُ"
+    },
+    {
+      "reciterId": "qasm_clean",
+      "riwaya": "hafs",
+      "surah": 70,
+      "sourceSha256": "72b915563e14fa37e4c646c04ee3ba8b054e3281d0a25cd3f18978d5834118c0",
+      "startMs": 0,
+      "endMs": 16000,
+      "heard": "سَأَلَ سَائِلٌ بِعَذَابٍ وَاقِعٍ لِلْكَافِرِينَ لَيْسَ لَهُ دَافِعٌ مِنَ اللَّهِ ذِي الْمَعَارِجِ"
+    },
+    {
+      "reciterId": "qasm_clean",
+      "riwaya": "hafs",
+      "surah": 70,
+      "sourceSha256": "72b915563e14fa37e4c646c04ee3ba8b054e3281d0a25cd3f18978d5834118c0",
+      "startMs": 210075,
+      "endMs": 228075,
+      "heard": "وَلِيسِرَا عَنْكَ أَنَّهُمْ إِلَى نُصُبٍ يُوفِضُوا خَاشِعَةً أَبْصَارُهُمْ تَرْهَقُهُمْ ذِلَّةٌ ذَلِكَ الْيَوْمُ الَّذِي كَانُوا يُوعَدُونَ"
+    }
+  ]
+}

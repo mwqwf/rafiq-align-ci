@@ -162,6 +162,15 @@ def main() -> None:
     model_records = {}
     for s, af in zip(surahs, args.aligned):
         res = json.load(open(af, encoding="utf-8"))
+        if args.engine_tag == 'ctc-dual-window-1':
+            sys.path.insert(0, str(Path(__file__).resolve().parents[1] / 'alignment_v3'))
+            from dual_ctc_model import evidence_error
+            if res.get('engine') != args.engine_tag:
+                sys.exit(f'⛔ س{s}: complementary model engine is not declared')
+            error = evidence_error(res.get('dualAlignmentEvidence') or {},
+                                   res.get('sha256'), res.get('entries') or [])
+            if error:
+                sys.exit(f'⛔ س{s}: {error}')
         if args.engine_tag in ('ctc-quran-window-1', 'ctc-quran-surah-1'):
             sys.path.insert(0, str(Path(__file__).resolve().parents[1] / 'alignment_v3'))
             from quran_ctc_model import MODEL_ID, REVISION, WEIGHTS_SHA256
@@ -275,6 +284,15 @@ def main() -> None:
         out['alignmentModelBySurah'] = models
     else:
         out.pop('alignmentModelBySurah', None)
+    dual = {k: v for k, v in (idx.get('dualAlignmentEvidenceBySurah') or {}).items()
+            if int(k) not in surahs}
+    if args.engine_tag == 'ctc-dual-window-1':
+        for s, af in zip(surahs, args.aligned):
+            dual[str(s)] = json.load(open(af, encoding='utf-8'))['dualAlignmentEvidence']
+    if dual:
+        out['dualAlignmentEvidenceBySurah'] = dual
+    else:
+        out.pop('dualAlignmentEvidenceBySurah', None)
     # ⛔ **والمصدرُ البديلُ يُعلَن كذلك** (‏2026-09-28): سورةٌ جاء صوتُها من
     #    تسجيلٍ غيرِ ملفّ الكتالوج تُسجَّل بقالبها في `sourceBySurah` ولو كان
     #    المحرّكُ محرّكَ الفهرس نفسَه — فقد تغيّر الصوتُ لا المحرّك. وما أُعيد
