@@ -1525,9 +1525,46 @@ def catalog_gate(idx, cat):
     شيءٌ ممّا نفحص: بنيتُه سليمة وتغطيتُه تامّة وحكمُه الصوتي سيكون ممتازاً
     — **لأن الصوت صحيحٌ والاسم خطأ**.
     """
-    refs = [e.get("fileRef") for e in (idx.get("entries") or [])[:300]]
-    refs = sorted({r for r in refs if isinstance(r, str) and r.startswith("http")})
-    return catalog_gate_core(idx.get("riwaya"), idx.get("reciterId"), refs, cat)
+    return catalog_gate_sources(idx.get('riwaya'), idx.get('reciterId'),
+                                catalog_source_refs(idx), idx.get('sourceBySurah') or {},
+                                idx.get('audioSha256') or [], cat)
+
+
+def catalog_source_refs(idx):
+    grouped = {}
+    for e in (idx.get('entries') or [])[:300]:
+        ref = e.get('fileRef')
+        if isinstance(ref, str) and ref.startswith('http'):
+            s = e['ayahId'].split(':')[0]
+            grouped.setdefault(s, set()).add(ref)
+    return {s: sorted(refs) for s, refs in grouped.items()}
+
+
+def catalog_gate_sources(riwaya, rid, grouped, declared, shas, cat):
+    """External sources require explicit per-surah registry URL and full audio SHA.
+
+    The catalog still owns the reader identity. A declaration alone cannot
+    make an arbitrary URL or another reader's source pass the identity gate.
+    """
+    base = ((cat.get(riwaya) or {}).get(rid) or {}).get('base')
+    refs = set()
+    for s, values in grouped.items():
+        for ref in values:
+            verified = False
+            if base and not ref.startswith(base) and s in declared:
+                try:
+                    sys.path.insert(0, str(HERE.parent / 'ci_fleet'))
+                    from source_registry import registered_source
+                    source = registered_source(riwaya, rid, int(s))
+                    verified = (declared[s].format(s=int(s)) == ref == source['url']
+                                and len(shas) >= int(s)
+                                and shas[int(s) - 1] == source.get('audio_sha256')
+                                and re.fullmatch(r'[0-9a-f]{64}', str(shas[int(s) - 1])) is not None)
+                except (ValueError, KeyError, TypeError, IndexError, AttributeError):
+                    verified = False
+            if not verified:
+                refs.add(ref)
+    return catalog_gate_core(riwaya, rid, sorted(refs), cat)
 
 
 def catalog_gate_core(riwaya, rid, refs, cat):
@@ -1578,6 +1615,9 @@ def facts_of(idx):
         "refs": sorted({e.get("fileRef") for e in (idx.get("entries") or [])[:300]
                         if isinstance(e.get("fileRef"), str)
                         and e["fileRef"].startswith("http")}),
+        'catalogSourceRefsBySurah': catalog_source_refs(idx),
+        'catalogSourceBySurah': idx.get('sourceBySurah') or {},
+        'catalogAudioSha256': idx.get('audioSha256') or [],
         "lowCount": idx.get("lowCount"),
     }
 
@@ -1597,6 +1637,10 @@ def gate_facts(f, cat=None):
     why = index_gate(fake)
     if why or cat is None:
         return why
+    if 'catalogSourceRefsBySurah' in f:
+        return catalog_gate_sources(f.get('riwaya'), f.get('reciterId'),
+                                    f['catalogSourceRefsBySurah'], f.get('catalogSourceBySurah') or {},
+                                    f.get('catalogAudioSha256') or [], cat)
     return catalog_gate_core(f.get("riwaya"), f.get("reciterId"),
                              f.get("refs") or [], cat)
 
