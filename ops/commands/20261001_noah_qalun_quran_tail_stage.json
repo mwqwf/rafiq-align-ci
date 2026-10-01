@@ -1,0 +1,19 @@
+{
+  "action": "tool",
+  "tool": "index_qa/stage_transform.py",
+  "args": [
+    "--file",
+    "ops/source-repair/candidates/noah_qalun.bdd55084.jz",
+    "--parent",
+    "timings/qalun/noah_qalun.jz",
+    "--parent-sha",
+    "e4371170ade179a03bcd3a1164395ae2109e46f06730b50f3f72e4f3db22326e",
+    "--op",
+    "ctc_quran_surah_splice:55",
+    "--by",
+    "Codex",
+    "--reason",
+    "مصدر مطابق لهوية القارئ والرواية وبصمة الصوت الفعلية والنص الأصلي؛ محاذاة قرآنية كاملة مع إصلاحات محلية صارمة دون توريث حدود خاطئة أو رفع الثقة؛ الأربعة والمطالع والإحصاء الشامل لازمة على البصمة الجديدة",
+    "--yes"
+  ]
+}

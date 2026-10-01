@@ -1,0 +1,19 @@
+{
+  "action": "tool",
+  "tool": "index_qa/stage_transform.py",
+  "args": [
+    "--file",
+    "ops/source-repair/candidates/janaini_qalun.93f8c5b8.jz",
+    "--parent",
+    "timings/qalun/janaini_qalun.jz",
+    "--parent-sha",
+    "a85232611f74369d0e033f3d18a0bc0bb4fe7641c3f59ec4884c9a590cc4d590",
+    "--op",
+    "ctc_quran_surah_splice:33,55,56",
+    "--by",
+    "Codex",
+    "--reason",
+    "مصدر مطابق لهوية القارئ والرواية وبصمة الصوت الفعلية والنص الأصلي؛ محاذاة قرآنية كاملة مع إصلاحات محلية صارمة دون توريث حدود خاطئة أو رفع الثقة؛ الأربعة والمطالع والإحصاء الشامل لازمة على البصمة الجديدة",
+    "--yes"
+  ]
+}
