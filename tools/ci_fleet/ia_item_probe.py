@@ -107,7 +107,7 @@ def probe(key: str, s: int, ident: str, idx, refs, numbered_only=False) -> None:
     selected_name = None
     if numbered_only:
         from find_sources import archive_numbered
-        selected_name = archive_numbered(ident).get(s)
+        selected_name = (archive_numbered(ident) or {}).get(s)
         if not selected_name:
             print("   ⛔ لا ملف مرقّم لهذه السورة — لا تنزيل للختمة كاملة")
             return
