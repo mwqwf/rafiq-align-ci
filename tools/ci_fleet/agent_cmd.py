@@ -17,7 +17,7 @@
             "url_template": "https://…/{s:03d}.mp3", "reciter_id": "x",
             "riwaya": "hafs", "reason": "…"}}
 
-{"action": "tool", "tool": "index_qa/run.py", "args": ["--struct-only", "timings-staging/…jz"]}
+{"action": "tool", "tool": "index_qa/run.py", "index_qa/repair_review.py", "args": ["--struct-only", "timings-staging/…jz"]}
 {"action": "tool", "tool": "ci_fleet/restore_loop.py", "args": ["scan", "--limit", "3"]}
 {"action": "state"}                      ← جردٌ كاملٌ من الدلو إلى ops/out/state.json
 ```
