@@ -1,0 +1,19 @@
+{
+  "action": "tool",
+  "tool": "index_qa/stage_transform.py",
+  "args": [
+    "--file",
+    "ops/source-repair/candidates/a_klb.d56080be.jz",
+    "--parent",
+    "timings/hafs/a_klb.jz",
+    "--parent-sha",
+    "aebe5475f65b1ed3771cbd38852f11984a7ebc3b48aa2e958397f38cfb7dfd2b",
+    "--op",
+    "ctc_quran_surah_splice:44,56",
+    "--by",
+    "Codex",
+    "--reason",
+    "استعادة آيتين بالمصدر والنص الأصليين ومحاذاة قرآنية مثبتة وإصلاحات محلية للذيول؛ فقط المواضع الضعيفة الموجودة مسبقاً تحفظ من الأصل حرفياً بنسب صريح ولا تمنح ثقة جديدة؛ كل آية مسترجعة محاذاة فعلية ≥.45، ولا اعتماد قبل الأربعة والمطالع والإحصاء الكامل وكل الحراس",
+    "--yes"
+  ]
+}

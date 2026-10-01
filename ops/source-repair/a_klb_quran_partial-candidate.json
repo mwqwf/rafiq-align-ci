@@ -1,0 +1,35 @@
+{
+  "reciterId": "a_klb",
+  "riwaya": "hafs",
+  "surahs": [
+    44,
+    56
+  ],
+  "parent": "timings/hafs/a_klb.jz",
+  "parentSha": "aebe5475f65b1ed3771cbd38852f11984a7ebc3b48aa2e958397f38cfb7dfd2b",
+  "candidateFile": "ops/source-repair/candidates/a_klb.d56080be.jz",
+  "candidateSha": "d56080bea1b33367706fbf27f144ac0cc0dbf4e1daa7d5e88b068866936debf6",
+  "added": [
+    "44:57",
+    "56:89"
+  ],
+  "entries": 6235,
+  "inheritedAlignmentEntriesBySurah": {
+    "44": {
+      "ayahIds": [
+        "44:33",
+        "44:34"
+      ],
+      "reason": "Existing weak entries retained byte-for-byte; no new ayah inherited and no confidence raised",
+      "originalModelIssues": [],
+      "postMergeIssues": []
+    },
+    "56": {
+      "ayahIds": [],
+      "reason": "Existing weak entries retained byte-for-byte; no new ayah inherited and no confidence raised",
+      "originalModelIssues": [],
+      "postMergeIssues": []
+    }
+  },
+  "productionChanged": false
+}
