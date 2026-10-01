@@ -1,0 +1,11 @@
+{
+  "action": "tool",
+  "tool": "ci_fleet/show_artifact.py",
+  "args": [
+    "36904818336",
+    "--name-contains",
+    "source-proof",
+    "--max-bytes",
+    "80000"
+  ]
+}
