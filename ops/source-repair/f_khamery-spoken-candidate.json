@@ -1,0 +1,33 @@
+{
+  "reciterId": "f_khamery",
+  "riwaya": "hafs",
+  "surah": 20,
+  "parent": "timings/hafs/f_khamery.jz",
+  "parentSha": "51bab580c770cae80828ee594931ea7d149d4b07486f9ef5aabbe11f45a5ea05",
+  "candidateFile": "ops/source-repair/candidates/f_khamery.9880f943.jz",
+  "candidateSha": "9880f943cc5a6f004bdf004c93f8d44469a42b485d3ee3a45ce8c56b1590d48d",
+  "sourceSha": "09ee800591954806f33158b1640a50a4a4dfc9fc9e7deab53153281ff5867a2c",
+  "sourceUrl": "https://server16.mp3quran.net/f_khamery/Rewayat-Hafs-A-n-Assem/020.mp3",
+  "entries": 6235,
+  "missing": {
+    "count": 1,
+    "byReason": {
+      "no-align": 1
+    },
+    "medianLen": 1,
+    "medianLenAll": 11,
+    "biasedShort": false,
+    "ids": [
+      "26:196"
+    ]
+  },
+  "diagnosticWarnings": [
+    "مدة شاذة لآية 105: 1261م.ث لـ31 حرفاً",
+    "مدة شاذة لآية 117: 2121م.ث لـ48 حرفاً"
+  ],
+  "added": [
+    "20:1"
+  ],
+  "canonicalTextChanged": false,
+  "alignmentInput": "phonetic letters only"
+}
