@@ -2,6 +2,8 @@
 """Read-only review of published repair proofs and their exact-SHA audio gates."""
 import argparse
 import collections
+import datetime
+import urllib.request
 import concurrent.futures
 import gzip
 import hashlib
@@ -78,9 +80,50 @@ def review(name, cl, bucket):
         result["pendingOrRejected"] = str(ex)
     return result
 
+def production_audit(cl, bucket):
+    """Independently verify all published indexes, manifest hashes and frozen rows."""
+    manifest = get(cl, bucket, "timings/manifest.json")
+    rows = manifest["indexes"]
+    identities = [(x["riwaya"], x["reciterId"]) for x in rows]
+    if len(rows) != 180 or len(set(identities)) != len(rows):
+        raise ValueError("manifest does not contain exactly 180 unique indexed readers")
+    frozen, _, _ = p.load_frozen(cl, bucket)
+    wanted = {f"{s}:{a}" for s, count in enumerate(p._AYAH_COUNTS, 1)
+              for a in range(1, count + 1)}
+    def check(row):
+        key = "timings/" + row["riwaya"] + "/" + row["reciterId"] + ".jz"
+        sha, size, body = p.object_sha(cl, bucket, key)
+        idx = json.loads(gzip.decompress(body))
+        entries = idx["entries"]
+        ids = [x["ayahId"] for x in entries]
+        if len(set(ids)) != len(ids) or set(ids) - wanted:
+            raise ValueError("invalid or duplicated ayah identifiers: " + key)
+        req = urllib.request.Request(p.PUBLIC.rstrip("/") + "/" + key,
+                                     headers={"User-Agent": "rafiq-independent-audit"})
+        with urllib.request.urlopen(req, timeout=120) as response:
+            public_sha = hashlib.sha256(response.read()).hexdigest()
+        return {"reciterId": row["reciterId"], "riwaya": row["riwaya"],
+                "key": key, "sha256": sha, "entries": len(ids), "bytes": size,
+                "missing": sorted(wanted - set(ids), key=lambda x: tuple(map(int, x.split(":")))),
+                "manifestVerified": row.get("sha256") == sha and row.get("entries") == len(ids),
+                "publicVerified": public_sha == sha, "frozenSha": frozen.get(key),
+                "frozenVerified": frozen.get(key) == sha}
+    with concurrent.futures.ThreadPoolExecutor(max_workers=4) as pool:
+        checked = list(pool.map(check, rows))
+    return {"timestampUtc": datetime.datetime.now(datetime.timezone.utc).isoformat(),
+            "indexes": len(checked), "entries": sum(r["entries"] for r in checked),
+            "missingAyahs": sum(len(r["missing"]) for r in checked),
+            "incompleteIndexes": sum(bool(r["missing"]) for r in checked),
+            "manifestMismatches": sum(not r["manifestVerified"] for r in checked),
+            "publicMismatches": sum(not r["publicVerified"] for r in checked),
+            "unfrozenOrMismatched": [r["key"] for r in checked if not r["frozenVerified"]],
+            "rows": checked}
+
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--self-test", action="store_true")
+    ap.add_argument("--production-audit", action="store_true")
     ap.add_argument("--names", nargs="+")
     ap.add_argument("--out", default="ops/out/repair-review-20261001.json")
     a = ap.parse_args()
@@ -88,12 +131,17 @@ def main():
         subprocess.run([sys.executable, "-m", "unittest", "tools/index_qa/test_ctc_splice.py"],
                        cwd=ROOT, check=True)
         return
-    if not a.names:
-        ap.error("--names required")
+    if not a.names and not a.production_audit:
+        ap.error("--names or --production-audit required")
     dest = ROOT / a.out
     if dest.parent != ROOT / "ops/out" or dest.suffix != ".json":
         ap.error("output must be a JSON file directly in ops/out")
     cl, bucket = p.s3()
+    if a.production_audit:
+        result = production_audit(cl, bucket)
+        dest.write_text(json.dumps(result, ensure_ascii=False, indent=2) + "\\n")
+        print(json.dumps({k: v for k, v in result.items() if k != "rows"}, ensure_ascii=False))
+        return
     with concurrent.futures.ThreadPoolExecutor(max_workers=4) as pool:
         results = list(pool.map(lambda n: review(n, cl, bucket), a.names))
     dest.write_text(json.dumps({"results": results}, ensure_ascii=False, indent=2) + "\n")
