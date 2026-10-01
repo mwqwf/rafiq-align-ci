@@ -1,0 +1,19 @@
+{
+  "action": "tool",
+  "tool": "index_qa/stage_transform.py",
+  "args": [
+    "--file",
+    "ops/source-repair/candidates/noah_qalun.fa764e08.jz",
+    "--parent",
+    "timings/qalun/noah_qalun.jz",
+    "--parent-sha",
+    "320531fe51bd478c12297285fa27e0dad06fb4f168d14075977284aade5962fd",
+    "--op",
+    "ctc_spoken_surah_splice:20",
+    "--by",
+    "Codex",
+    "--reason",
+    "طه تهجئة أصلية ثابتة في مدخل المحاذاة فقط؛ النموذج العام ورجعه وأوزانه مثبتة، كل حدود المقطع ودرجاته مقيسة مباشرة، لا HIGH بلا شاهد صمت، خارج المطلع محفوظ حرفياً؛ لا اعتماد قبل الأربعة والمطالع والإحصاء الكامل لكل مصادر ومحركات الدمج والشاهد البريء لكل المضاف",
+    "--yes"
+  ]
+}
