@@ -1,0 +1,19 @@
+{
+  "action": "tool",
+  "tool": "index_qa/stage_transform.py",
+  "args": [
+    "--file",
+    "ops/source-repair/candidates/khan.29266331.jz",
+    "--parent",
+    "timings/hafs/khan.jz",
+    "--parent-sha",
+    "2b014ffb58fb823de0859d5bc6b09cd6b885dd631f1e119b3d46ceccadd49cd3",
+    "--op",
+    "ctc_quran_window:55",
+    "--by",
+    "Codex",
+    "--reason",
+    "نافذة مستقلة للذيل من نهاية آية64 الأصلية القوية إلى آخر المصدر الأصلي؛ شروط الثقة والجيران والمدد ثابتة ولا إعفاء جديد، كل ما قبل65 موروث حرفيا؛ كل المستعاد قياس فعلي؛ لا اعتماد قبل البصمة والأربعة والمطالع والإحصاء الكامل وكل المضاف بريء",
+    "--yes"
+  ]
+}
