@@ -58,6 +58,7 @@ def main():
     ap.add_argument("--surahs", required=True)
     ap.add_argument("--audio-dir", required=True, help="الصوت الكامل: <reciter>_<surah:03d>.mp3")
     ap.add_argument("--out", required=True)
+    ap.add_argument("--omit-basmala", action="store_true", help="شاهد صوتي يثبت أن التسجيل يبدأ بالحروف دون بسملة؛ لا تغيير حراس المرساة")
     a = ap.parse_args()
     import numpy as np
     import ctc_seg as C
@@ -85,15 +86,18 @@ def main():
         if len(x) * 1000 // C.SR < anchor["endMs"]:
             raise ValueError("الصوت لا يبلغ نهاية المرساة")
         spoken = alignment_text(s, 1, raw_first)
-        segments = C._segment(C._emissions(x), len(x), [C.BASMALA, spoken, norm(canonical[offset + 1])])
-        st, en, sc = segments[1]
-        second_st, _, second_sc = segments[2]
+        lead = [] if a.omit_basmala else [C.BASMALA]
+        segments = C._segment(C._emissions(x), len(x), lead + [spoken, norm(canonical[offset + 1])])[len(lead):]
+        st, en, sc = segments[0]
+        second_st, _, second_sc = segments[1]
         snap, on_sil = snap_to_silence(int(st * 1000), silences(wav), tolerance_ms=700)
         measured = {"firstStartMs": snap, "firstConf": C._conf(sc),
                     "firstAlignedEndMs": int(en * 1000), "anchorStartMs": int(second_st * 1000),
                     "anchorConf": C._conf(second_sc), "snapped": bool(on_sil),
                     "audioSha256": sha, "fileRef": anchor["fileRef"],
                     "phoneticAlignmentInput": spoken, "canonicalTextChanged": False}
+        if a.omit_basmala:
+            measured["basmalaOmitted"] = True
         rows.append(insert_first(idx, s, sha, measured))
         evidence[str(s)] = measured
     out = copy.deepcopy(idx)

@@ -1,0 +1,55 @@
+{
+  "reciterId": "a_alshahhat",
+  "riwaya": "hafs",
+  "surah": 20,
+  "parent": "timings/hafs/a_alshahhat.jz",
+  "parentSha": "0b255f9c45d5d43ed64c7fb144360f4e1e17088ef0f772461c3802a47c19f136",
+  "candidateFile": "ops/source-repair/candidates/a_alshahhat.693f44d7.jz",
+  "candidateSha": "693f44d76a823489687cedc7909db38accb5de0e93ec8f3df9e0a8db4bba9de5",
+  "added": [
+    "20:1"
+  ],
+  "entries": 6236,
+  "missing": {
+    "count": 0,
+    "byReason": {},
+    "medianLen": 4,
+    "medianLenAll": 11,
+    "biasedShort": false,
+    "ids": []
+  },
+  "existingEntriesChanged": 0,
+  "evidence": {
+    "20": {
+      "firstStartMs": 1001,
+      "firstConf": 0.821,
+      "firstAlignedEndMs": 2292,
+      "anchorStartMs": 2703,
+      "anchorConf": 0.786,
+      "snapped": true,
+      "audioSha256": "c4fc8d97d1a7582f7e50f7f7250ecd7493d109d153ab3e611f91fe5bbbc5d68c",
+      "fileRef": "https://server16.mp3quran.net/a_alshahhat/Rewayat-Hafs-A-n-Assem/020.mp3",
+      "phoneticAlignmentInput": "طا ها",
+      "canonicalTextChanged": false,
+      "basmalaOmitted": true
+    }
+  },
+  "approvedTinyNativeHead": [
+    {
+      "startMs": 0,
+      "endMs": 5000,
+      "heard": "طَاهَا مَا أَنْزَلْنَا"
+    },
+    {
+      "startMs": 0,
+      "endMs": 15000,
+      "heard": "قَاهَا مَا أَنْزَلْنَا عَلَيْكَ الْقُرْآنَ لِتَشْقَى إِلَّا تَذْكِرَةً لِمَنْ يَخْشَى تَنْزِيلًا"
+    },
+    {
+      "startMs": 1500,
+      "endMs": 2500,
+      "heard": "طه"
+    }
+  ],
+  "productionChanged": false
+}

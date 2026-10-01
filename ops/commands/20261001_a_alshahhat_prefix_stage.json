@@ -1,0 +1,19 @@
+{
+  "action": "tool",
+  "tool": "index_qa/stage_transform.py",
+  "args": [
+    "--file",
+    "ops/source-repair/candidates/a_alshahhat.693f44d7.jz",
+    "--parent",
+    "timings/hafs/a_alshahhat.jz",
+    "--parent-sha",
+    "0b255f9c45d5d43ed64c7fb144360f4e1e17088ef0f772461c3802a47c19f136",
+    "--op",
+    "ctc_gapsplit:20",
+    "--by",
+    "Codex",
+    "--reason",
+    "استرجاع طه بمطلع حرفي دون بسملة ثابت صوتياً: Tiny المعتمد سمع طه على PCM1.5–2.5 ثانية، محاذاة بنطق الحروف فقط بثقة0.821 ومرساة الثانية ثابتة؛ جميع6235 المداخل القديمة محفوظة حرفياً؛ لا اعتماد قبل كل أحكام SHA الفعلية",
+    "--yes"
+  ]
+}
