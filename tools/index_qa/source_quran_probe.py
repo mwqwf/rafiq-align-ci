@@ -2,7 +2,7 @@
 """Read-only investigation of two independently archived Janaini Qalun surahs.
 Never stages, uploads audio, alters source registration or promotes an index.
 """
-import argparse, hashlib, json, subprocess, sys, tempfile, urllib.parse, urllib.request
+import argparse, gzip, hashlib, json, subprocess, sys, tempfile, urllib.parse, urllib.request
 from pathlib import Path
 ROOT = Path(__file__).resolve().parents[2]
 sys.path[:0] = [str(ROOT/"tools/alignment"), str(ROOT/"tools/alignment_v3"),
@@ -22,6 +22,7 @@ def download(url, dst):
 def main():
     ap=argparse.ArgumentParser()
     ap.add_argument("--ctc", action="store_true")
+    ap.add_argument("--kurdi-neighborhood", action="store_true")
     ap.add_argument("--omit-basmala", nargs="*", type=int, default=[])
     ap.add_argument("--out", required=True)
     ap.add_argument("--model", required=True)
@@ -35,6 +36,32 @@ def main():
             "tinyModelSha256":hashlib.sha256(Path(a.model).read_bytes()).hexdigest(),"surahs":[]}
     with tempfile.TemporaryDirectory() as temp:
         work=Path(temp)
+        if a.kurdi_neighborhood:
+            url="https://server6.mp3quran.net/kurdi/016.mp3"
+            src=work/"kurdi016.mp3"
+            raw=download(url,src)
+            sha=hashlib.sha256(raw).hexdigest()
+            if sha!="185935fe61b370176c417ab580dd9db86b45651d1b12656c81ec520233bb87a7":
+                raise ValueError("Kurdi source changed")
+            index_raw=download("https://pub-2c2e1dcd92e84a2898820dd38d3e09e6.r2.dev/timings-staging/hafs/kurdi.e7f53af3.jz",work/"index.jz")
+            if hashlib.sha256(index_raw).hexdigest()!="e7f53af3fe655404b0735b67da381355d74d334e8eddafcc4ac9c3678cb9d627":
+                raise ValueError("Kurdi staged index changed")
+            idx=json.loads(gzip.decompress(index_raw))
+            neighborhood=[e for e in idx["entries"] if e["ayahId"] in [f"16:{i}" for i in range(81,86)]]
+            row={"surah":16,"url":url,"sourceSha256":sha,"native":[],"timings":neighborhood}
+            result["surahs"].append(row)
+            left=next(e for e in neighborhood if e["ayahId"]=="16:81")
+            right=next(e for e in neighborhood if e["ayahId"]=="16:85")
+            windows=[(left["startMs"],right["endMs"]-left["startMs"]),
+                     (max(left["startMs"],left["endMs"]-15000),45000)]
+            for st,dt in windows:
+                wav=str(work/"native.wav")
+                cut(str(src),st,dt,wav)
+                heard=" ".join(seg.text for seg in model.transcribe(wav))
+                row["native"].append({"startMs":st,"durationMs":dt,"heard":heard})
+                print(json.dumps(row["native"][-1],ensure_ascii=False),flush=True)
+            out.write_text(json.dumps(result,ensure_ascii=False,indent=2)+"\n")
+            return
         for s,(ident,name,expected_md5) in FILES.items():
             metadata=json.loads(download("https://archive.org/metadata/"+ident,work/"meta.json"))
             src=work/(str(s)+".mp3")
