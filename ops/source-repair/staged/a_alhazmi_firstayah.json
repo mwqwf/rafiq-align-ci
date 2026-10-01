@@ -1,44 +1,51 @@
 {
   "reciterId": "a_alhazmi",
-  "surah": 78,
   "riwaya": "hafs",
+  "surahs": [
+    52,
+    78
+  ],
   "parent": "timings/hafs/a_alhazmi.jz",
   "parentSha": "4d240a70cde006cb833e2b31cf487e94bef60ea16273a4fa15c6cae6231269b1",
-  "candidateFile": "ops/source-repair/candidates/a_alhazmi.197ea999.jz",
-  "candidateSha": "197ea9992e1a024826144c44b725bc179e7925199daf2ab8f2d2e608a190044e",
-  "sourceSha": "dc3ab521681a57d6fff658d91371833d5b702dc7a15165e88a31cd71a89f5c4d",
-  "sourceUrl": "https://server16.mp3quran.net/a_alhazmi/Rewayat-Hafs-A-n-Assem/078.mp3",
+  "candidateFile": "ops/source-repair/candidates/a_alhazmi.bb6b0dca.jz",
+  "candidateSha": "bb6b0dcaa821ca9b2d3f134b88471aa74ade3f67f476f24ffa6e43fb86a232f6",
   "added": [
+    "52:1",
     "78:1"
   ],
-  "entries": 6233,
+  "entries": 6234,
   "missing": {
-    "count": 3,
+    "count": 2,
     "byReason": {
-      "no-align": 3
+      "no-align": 2
     },
     "medianLen": 1,
     "medianLenAll": 11,
     "biasedShort": false,
     "ids": [
-      "52:1",
       "55:64",
       "112:2"
     ]
   },
-  "firstAyahEvidence": {
-    "surah": 78,
-    "sourceSha256": "dc3ab521681a57d6fff658d91371833d5b702dc7a15165e88a31cd71a89f5c4d",
-    "fileStartsWithAyah": true,
-    "windowStartMs": 0,
-    "windowEndMs": 5583,
-    "heard": "عَمَّ يَتَسَاءَلُونَ",
-    "modelSha256": "ef01ab441b004f9e6f1ea98d397b43452b3a45efab7c3928ab37af655dde8b52",
-    "diagnosticOnly": true,
-    "published": false
-  },
-  "productionChanged": false,
-  "key": "timings-staging/hafs/a_alhazmi.4e8cffdb.jz",
-  "sha256": "4e8cffdb97ae0ffa444e41ebd485b70f38e1eba9c5d69633122f7a030ed8b5bd",
-  "bytes": 93951
+  "firstAyahEvidence": [
+    {
+      "surah": 52,
+      "sourceSha256": "bb240f0e4b91235e716c2243094df17411aafc370e90af1df4bfa1c43ce812d2",
+      "fileStartsWithAyah": true,
+      "approvedTinyHeard": "وَالطُّورِ وَكِتَابٍ مَسْطُورٍ فِي رَبٍّ مَنْ شُورٍ وَالْبَيْتِ الْمَعْمُورِ وَالسَّقْفِ الْمَرْفُوعِ وَالْبَحْرِ الْمَسْجُوعِ",
+      "independentBaseHeard": " وقور وكتاب مستور في رقب ماشور والبيت المعمور",
+      "diagnosticOnly": true,
+      "productionChanged": false
+    },
+    {
+      "surah": 78,
+      "sourceSha256": "dc3ab521681a57d6fff658d91371833d5b702dc7a15165e88a31cd71a89f5c4d",
+      "fileStartsWithAyah": true,
+      "approvedTinyHeard": "عَمَّ يَتَسَاءَلُونَ",
+      "independentBaseHeard": " عم ما يتساءلون عن النبع العظيم الذيهم فيهم اختلفون كلا سيعلمون ثم كلا",
+      "diagnosticOnly": true,
+      "productionChanged": false
+    }
+  ],
+  "productionChanged": false
 }
