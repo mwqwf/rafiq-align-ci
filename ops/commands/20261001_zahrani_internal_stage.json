@@ -1,0 +1,19 @@
+{
+  "action": "tool",
+  "tool": "index_qa/stage_transform.py",
+  "args": [
+    "--file",
+    "ops/source-repair/candidates/zahrani.1b25e81f.jz",
+    "--parent",
+    "timings/hafs/zahrani.jz",
+    "--parent-sha",
+    "a68fe8e853c84026db6178490053b71f40b13d1a25a03908b0faaf8de1447aba",
+    "--op",
+    "ctc_gapsplit:53",
+    "--by",
+    "Codex",
+    "--reason",
+    "استرجاع 53:48 بنافذة سياق أوسع وحراس الثقة والمدة الأصلية؛ بصمة الصوت مطابقة للأب وحفظ المداخل الموروثة حرفياً؛ تحديث عداد سبب الغياب من المعرفات الفعلية",
+    "--yes"
+  ]
+}

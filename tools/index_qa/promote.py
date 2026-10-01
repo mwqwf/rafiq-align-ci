@@ -1596,7 +1596,43 @@ def _fake_entries(f):
     return rows + [{"ayahId": f"{filler}:2"}] * pad
 
 
-def index_gate(idx):
+def inherited_drops(idx, parent, parent_sha):
+    """إعلان غياب موروث فقط؛ لا يقبل إسقاطاً جديداً بحقل dropSurah.
+
+    يلزم الأصل المنشور على كامل بصمته، وغياب السورة فيه مسبقاً، ونفس البيان
+    الظاهر للمستخدم، وبقاء جميع مداخله. تغيير op بعد دمج سورة لا يلغي الإعلان.
+    """
+    tr = idx.get("transform") or {}
+    values = tr.get("dropSurah") if isinstance(tr, dict) else None
+    if not values:
+        return set(), None
+    if (not isinstance(values, list) or any(type(s) is not int or not 1 <= s <= 114 for s in values)
+            or len(values) != len(set(values))):
+        return set(), "إعلان الغياب الموروث غير سوي"
+    target = f"timings/{idx.get('riwaya')}/{idx.get('reciterId')}.jz"
+    if (not parent or not re.fullmatch(r"[0-9a-f]{64}", parent_sha or "")
+            or tr.get("fromSha256") != parent_sha or tr.get("fromKey") != target
+            or (parent.get("riwaya"), parent.get("reciterId")) != (idx.get("riwaya"), idx.get("reciterId"))):
+        return set(), "إعلان الغياب الموروث بلا أصل منشور مطابق كامل البصمة"
+    pt = parent.get("transform") or {}
+    if not isinstance(pt, dict):
+        return set(), "إعلان الغياب في الأصل بلا سبب ظاهر للمستخدم"
+    old_declared = set(re.findall(r"\d+", str(pt.get("op") or ""))) if str(pt.get("op") or "").startswith("drop_surah:") else set()
+    old_declared |= {str(s) for s in pt.get("dropSurah", [])}
+    claimed = {str(s) for s in values}
+    old_present = {e["ayahId"].split(":")[0] for e in parent.get("entries", [])}
+    present = {e["ayahId"].split(":")[0] for e in idx.get("entries", [])}
+    if not claimed <= old_declared or claimed & (old_present | present):
+        return set(), "إعلان الغياب الموروث يحاول إسقاط سورة جديدة أو حاضرة"
+    if (pt.get("reasonCode") != "SOURCE_TRUNCATED" or not pt.get("reasonUser")
+            or any(tr.get(k) != pt.get(k) for k in ("reasonCode", "reasonUser"))):
+        return set(), "بيان سبب الغياب الموروث مفقود أو تبدل"
+    if not {e["ayahId"] for e in parent.get("entries", [])} <= {e["ayahId"] for e in idx.get("entries", [])}:
+        return set(), "إعلان الغياب الموروث مع فقد مداخل منشورة"
+    return claimed, None
+
+
+def index_gate(idx, *, parent=None, parent_sha=None):
     """سبب رفض الفهرس نفسه، أو None. **الغياب رفضٌ لا تساهل.**"""
     if not idx.get("refineVersion"):
         return "الفهرس بلا أثر صقلٍ في ترويسته — مجهول الجيل فلا يُرقّى"
@@ -1627,6 +1663,11 @@ def index_gate(idx):
     op_txt = tr if isinstance(tr, str) else str((tr or {}).get("op") or "")
     dropped = (set(re.findall(r"\d+", op_txt))
                if op_txt.startswith("drop_surah") else set())
+    if not op_txt.startswith("drop_surah") and isinstance(tr, dict) and tr.get("dropSurah"):
+        inherited, why = inherited_drops(idx, parent, parent_sha)
+        if why:
+            return why
+        dropped |= inherited
     gone = sorted({str(n) for n in range(1, 115)} - present - dropped,
                   key=int)
     if gone and len(idx.get("entries", [])) > 4000:
@@ -2291,7 +2332,18 @@ def main():
                       "لا إسقاط لما زاد على 20 آية إلا بإذنٍ نصّيّ")
                 continue
         # شرطا الفهرس نفسه (لا الحكم): أثرُ الصقل ووسمُ الاكتمال.
-        bad = index_gate(idx) or catalog_gate(idx, catalog(cl, bucket))
+        drop_parent, drop_parent_sha = None, None
+        if (isinstance(idx.get("transform"), dict)
+                and idx["transform"].get("dropSurah")
+                and not str(idx["transform"].get("op") or "").startswith("drop_surah")):
+            # الأصل من الإنتاج وحده، لا من مفتاح حر يختاره صانع المرشح.
+            try:
+                drop_parent_sha, _, drop_body = object_sha(cl, bucket, published)
+                drop_parent = json.loads(gzip.decompress(drop_body))
+            except Exception as ex:
+                print(f"  ⛔ {src}: تعذر إثبات أصل إعلان الغياب: {ex}")
+                continue
+        bad = index_gate(idx, parent=drop_parent, parent_sha=drop_parent_sha) or catalog_gate(idx, catalog(cl, bucket))
         if bad:
             print(f"  ⛔ {src}: {bad}")
             continue

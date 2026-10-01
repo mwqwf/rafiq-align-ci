@@ -1,0 +1,20 @@
+{
+  "action": "tool",
+  "tool": "index_qa/stage_transform.py",
+  "args": [
+    "--file",
+    "ops/source-repair/candidates/yousef.1120cd80.jz",
+    "--parent",
+    "timings/hafs/yousef.jz",
+    "--parent-sha",
+    "5c516fef17af178e789ad72b06542e968a3af655f16dae7c090ac2c440c49ffa",
+    "--op",
+    "ctc_gapsplit:55",
+    "--by",
+    "Codex",
+    "--reason",
+    "استرجاع 55:21,55:22 بنافذة سياق أوسع وحراس الثقة والمدة الأصلية؛ بصمة الصوت مطابقة للأب وحفظ المداخل الموروثة حرفياً؛ تحديث عداد سبب الغياب من المعرفات الفعلية",
+    "--yes",
+    "--allow-inherited-gaps"
+  ]
+}
