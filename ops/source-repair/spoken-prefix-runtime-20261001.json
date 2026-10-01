@@ -1,0 +1,266 @@
+{
+  "productionChanged": false,
+  "canonicalTextChanged": false,
+  "fixedPrefix": [
+    1,
+    3
+  ],
+  "measurements": [
+    {
+      "name": "deban_douri_taha_spoken",
+      "hi": 3,
+      "proof": {
+        "target": "20:1",
+        "sourceSha256": "3f3981fb30517608a574232dbe43b49167a3dca740df924ced5bcfcaf9225bed",
+        "canonicalTextChanged": false,
+        "models": {
+          "generic": {
+            "alignmentModel": {
+              "id": "jonatasgrosman/wav2vec2-large-xlsr-53-arabic",
+              "revision": "af46c2d8531b8dcbb5e23b952f739b372c2e5d2d",
+              "weightsSha256": "a0b26f6d9d3edfde1784aef863c192a8cc1e438a23b45910ab648531ebe1857b",
+              "license": "Apache-2.0"
+            },
+            "alignmentInput": [
+              "بسم الله الرحمن الرحيم",
+              "طا ها",
+              "ما انزلنا عليك القران لتشقي",
+              "الا تذكره لمن يخشي"
+            ],
+            "entries": [
+              {
+                "ayahIdx": 0,
+                "startMs": 3701,
+                "endMs": 5272,
+                "conf": 0.708
+              },
+              {
+                "ayahIdx": 1,
+                "startMs": 5272,
+                "endMs": 10564,
+                "conf": 0.795
+              },
+              {
+                "ayahIdx": 2,
+                "startMs": 10564,
+                "endMs": 14815,
+                "conf": 0.56
+              }
+            ]
+          },
+          "quran": {
+            "alignmentModel": {
+              "id": "rabah2026/wav2vec2-large-xlsr-53-arabic-quran-v_final",
+              "revision": "b03a268c6ba1a693752307325ab376c86c3b12da",
+              "weightsSha256": "bf65674a26eb4ef7042cedade96c3c8f8cbd04f3a7d1a68eadceec8ed0f99ecb",
+              "license": "Apache-2.0",
+              "canonicalTextChanged": false
+            },
+            "alignmentInput": [
+              "بسم الله الرحمن الرحيم",
+              "طا ها",
+              "ما انزلنا عليك القران لتشقي",
+              "الا تذكره لمن يخشي"
+            ],
+            "entries": [
+              {
+                "ayahIdx": 0,
+                "startMs": 3701,
+                "endMs": 4851,
+                "conf": 0.879
+              },
+              {
+                "ayahIdx": 1,
+                "startMs": 4851,
+                "endMs": 10254,
+                "conf": 0.673
+              },
+              {
+                "ayahIdx": 2,
+                "startMs": 10254,
+                "endMs": 14635,
+                "conf": 0.557
+              }
+            ]
+          }
+        },
+        "windowMs": [
+          0,
+          15066
+        ]
+      },
+      "error": null
+    },
+    {
+      "name": "h_abudalal_taha_spoken",
+      "hi": 3,
+      "proof": {
+        "target": "20:1",
+        "sourceSha256": "6978ec9792b9c39b7b37d2962556de66ae34ce25e40b0e82078e5c01e5cadb22",
+        "canonicalTextChanged": false,
+        "models": {
+          "generic": {
+            "alignmentModel": {
+              "id": "jonatasgrosman/wav2vec2-large-xlsr-53-arabic",
+              "revision": "af46c2d8531b8dcbb5e23b952f739b372c2e5d2d",
+              "weightsSha256": "a0b26f6d9d3edfde1784aef863c192a8cc1e438a23b45910ab648531ebe1857b",
+              "license": "Apache-2.0"
+            },
+            "alignmentInput": [
+              "بسم الله الرحمن الرحيم",
+              "طا ها",
+              "ما انزلنا عليك القران لتشقي",
+              "الا تذكره لمن يخشي"
+            ],
+            "entries": [
+              {
+                "ayahIdx": 0,
+                "startMs": 6704,
+                "endMs": 7885,
+                "conf": 0.732
+              },
+              {
+                "ayahIdx": 1,
+                "startMs": 7885,
+                "endMs": 14359,
+                "conf": 0.643
+              },
+              {
+                "ayahIdx": 2,
+                "startMs": 14359,
+                "endMs": 18121,
+                "conf": 0.535
+              }
+            ]
+          },
+          "quran": {
+            "alignmentModel": {
+              "id": "rabah2026/wav2vec2-large-xlsr-53-arabic-quran-v_final",
+              "revision": "b03a268c6ba1a693752307325ab376c86c3b12da",
+              "weightsSha256": "bf65674a26eb4ef7042cedade96c3c8f8cbd04f3a7d1a68eadceec8ed0f99ecb",
+              "license": "Apache-2.0",
+              "canonicalTextChanged": false
+            },
+            "alignmentInput": [
+              "بسم الله الرحمن الرحيم",
+              "طا ها",
+              "ما انزلنا عليك القران لتشقي",
+              "الا تذكره لمن يخشي"
+            ],
+            "entries": [
+              {
+                "ayahIdx": 0,
+                "startMs": 6704,
+                "endMs": 7865,
+                "conf": 0.827
+              },
+              {
+                "ayahIdx": 1,
+                "startMs": 7865,
+                "endMs": 13929,
+                "conf": 0.698
+              },
+              {
+                "ayahIdx": 2,
+                "startMs": 13929,
+                "endMs": 18061,
+                "conf": 0.609
+              }
+            ]
+          }
+        },
+        "windowMs": [
+          0,
+          18372
+        ]
+      },
+      "error": null
+    },
+    {
+      "name": "noah_qalun_taha_measured",
+      "hi": 3,
+      "proof": {
+        "target": "20:1",
+        "sourceSha256": "f69453ba1a21303d77d8a1dd2dbd384b0cc3c63baa759527a9c7c23a24522419",
+        "canonicalTextChanged": false,
+        "models": {
+          "generic": {
+            "alignmentModel": {
+              "id": "jonatasgrosman/wav2vec2-large-xlsr-53-arabic",
+              "revision": "af46c2d8531b8dcbb5e23b952f739b372c2e5d2d",
+              "weightsSha256": "a0b26f6d9d3edfde1784aef863c192a8cc1e438a23b45910ab648531ebe1857b",
+              "license": "Apache-2.0"
+            },
+            "alignmentInput": [
+              "بسم الله الرحمن الرحيم",
+              "طا ها",
+              "ما انزلنا عليك القران لتشقي",
+              "الا تذكره لمن يخشي"
+            ],
+            "entries": [
+              {
+                "ayahIdx": 0,
+                "startMs": 3842,
+                "endMs": 4973,
+                "conf": 0.827
+              },
+              {
+                "ayahIdx": 1,
+                "startMs": 4973,
+                "endMs": 12048,
+                "conf": 0.694
+              },
+              {
+                "ayahIdx": 2,
+                "startMs": 12048,
+                "endMs": 16180,
+                "conf": 0.466
+              }
+            ]
+          },
+          "quran": {
+            "alignmentModel": {
+              "id": "rabah2026/wav2vec2-large-xlsr-53-arabic-quran-v_final",
+              "revision": "b03a268c6ba1a693752307325ab376c86c3b12da",
+              "weightsSha256": "bf65674a26eb4ef7042cedade96c3c8f8cbd04f3a7d1a68eadceec8ed0f99ecb",
+              "license": "Apache-2.0",
+              "canonicalTextChanged": false
+            },
+            "alignmentInput": [
+              "بسم الله الرحمن الرحيم",
+              "طا ها",
+              "ما انزلنا عليك القران لتشقي",
+              "الا تذكره لمن يخشي"
+            ],
+            "entries": [
+              {
+                "ayahIdx": 0,
+                "startMs": 3842,
+                "endMs": 4933,
+                "conf": 0.854
+              },
+              {
+                "ayahIdx": 1,
+                "startMs": 4933,
+                "endMs": 12128,
+                "conf": 0.653
+              },
+              {
+                "ayahIdx": 2,
+                "startMs": 12128,
+                "endMs": 16000,
+                "conf": 0.542
+              }
+            ]
+          }
+        },
+        "windowMs": [
+          0,
+          16671
+        ]
+      },
+      "error": null
+    }
+  ],
+  "note": "Local diagnostic only. Independent actual CI measurements required before a composite census witness."
+}

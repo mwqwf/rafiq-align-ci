@@ -14,7 +14,7 @@ jobs:
     timeout-minutes: 40
     env:
       HF_HOME: ${{ github.workspace }}/.hf
-      CTC_THREADS: '3'
+      CTC_THREADS: '2'
       HF_HUB_DISABLE_XET: '1'
     steps:
       - uses: actions/checkout@v4

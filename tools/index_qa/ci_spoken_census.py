@@ -85,13 +85,17 @@ def main():
             raise ValueError('Original audio differs from indexed source SHA')
         path.write_bytes(raw)
         wav = to_wav16k(str(path))
-        pcm = read_wav(wav)[:ev['windowMs'][1] * 16]
+        # A fixed complete three-ayah prefix supplies two canonical neighbours.
+        # Its end is measured in the candidate, never chosen from model scores.
+        prefix_end = next(e['endMs'] for e in idx['entries'] if e['ayahId'] == '20:3')
+        pcm = read_wav(wav)[:prefix_end * 16]
         start, end, _ = surah_slice(load_index(), 20)
         refs = load_text(idx['riwaya'])[start:end]
         inputs = ['بسم الله الرحمن الرحيم'] + [alignment_text(20, i, refs[i - 1])
-                   for i in range(1, ev['range'][1] + 1)]
+                   for i in range(1, 4)]
         proof = {'target': '20:1', 'sourceSha256': idx['audioSha256'][19],
-                 'canonicalTextChanged': False, 'models': {}, 'windowMs': ev['windowMs']}
+                 'canonicalTextChanged': False, 'models': {}, 'range': [1, 3],
+                 'windowMs': [0, prefix_end]}
         jobs.append({'key': key, 'idx': idx, 'censusKey': census_key, 'etag': response['ETag'],
                      'report': report, 'original': original, 'row': row,
                      'pcm': pcm, 'inputs': inputs, 'proof': proof})
@@ -111,11 +115,19 @@ def main():
     provenance = {'kind': 'audio', 'source': 'ci', 'run_id': os.environ['GITHUB_RUN_ID'],
                   'run_sha': os.environ['GITHUB_SHA'], 'tool': 'tools/index_qa/ci_spoken_census.py',
                   'tool_sha': hashlib.sha256(pathlib.Path(__file__).read_bytes()).hexdigest()}
+    output = ROOT / args.out
+    output.parent.mkdir(parents=True, exist_ok=True)
+    diagnostics = []
     for job in jobs:
         error = witness_error(job['proof'], job['idx'])
-        if error:
-            raise ValueError(error)
         job['proof']['provenance'] = provenance
+        diagnostics.append({'key': job['key'], 'proof': job['proof'],
+                            'validationError': error, 'productionChanged': False})
+    # Preserve actual raw measurements even when any witness is rejected.
+    output.write_text(json.dumps(diagnostics, ensure_ascii=False, indent=2) + '\n')
+    print(json.dumps(diagnostics, ensure_ascii=False), flush=True)
+    if any(d['validationError'] for d in diagnostics):
+        raise ValueError('Independent witness rejected; diagnostics saved, census unchanged')
     for job in jobs:
         original_sha = hashlib.sha256(job['original']).hexdigest()
         archive = 'state-census-original/' + job['key'].replace('/', '_') + '/' + original_sha + '.json'
@@ -140,8 +152,6 @@ def main():
         receipts.append({'key': job['key'], 'sha256': job['report']['sha256'],
                          'target': '20:1', 'verdict': 'بريء', 'proof': job['proof'],
                          'originalReport': archive, 'productionChanged': False})
-    output = ROOT / args.out
-    output.parent.mkdir(parents=True, exist_ok=True)
     output.write_text(json.dumps(receipts, ensure_ascii=False, indent=2) + '\n')
     print(json.dumps(receipts, ensure_ascii=False))
 

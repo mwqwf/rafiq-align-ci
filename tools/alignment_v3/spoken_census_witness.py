@@ -18,6 +18,15 @@ def witness_error(proof, idx):
                 or proof['sourceSha256'] != idx['audioSha256'][19]):
             raise ValueError('wrong target, engine, source or canonical text')
         row = next(e for e in idx['entries'] if e['ayahId'] == '20:1')
+        from common import load_index, load_text, surah_slice
+        from spoken_letters import alignment_text
+        begin, _, _ = surah_slice(load_index(), 20)
+        refs = load_text(idx['riwaya'])[begin:begin + 3]
+        canonical_input = ['بسم الله الرحمن الرحيم'] + [
+            alignment_text(20, i, refs[i - 1]) for i in range(1, 4)]
+        prefix_end = next(e['endMs'] for e in idx['entries'] if e['ayahId'] == '20:3')
+        if proof['range'] != [1, 3] or proof['windowMs'] != [0, prefix_end]:
+            raise ValueError('wrong fixed canonical context window')
         expected = [('generic', GENERIC_ID, GENERIC_REVISION, GENERIC_WEIGHTS),
                     ('quran', MODEL_ID, REVISION, WEIGHTS_SHA256)]
         measured = []
@@ -27,14 +36,19 @@ def witness_error(proof, idx):
             if (model['id'], model['revision'], model['weightsSha256'], model['license']) != (
                     ident, revision, weights, 'Apache-2.0'):
                 raise ValueError('unpinned independent model')
-            if result['alignmentInput'][:2] != ['بسم الله الرحمن الرحيم', 'طا ها']:
+            if result['alignmentInput'] != canonical_input:
                 raise ValueError('wrong spoken reference')
             entries = result['entries']
-            if (len(entries) < 3 or entries[0]['ayahIdx'] != 0 or entries[1]['ayahIdx'] != 1
+            if (len(entries) != 3 or [e['ayahIdx'] for e in entries] != [0, 1, 2]
                     or entries[0]['conf'] < .7 or entries[1]['conf'] < .5
                     or any(not math.isfinite(e['conf']) or e['conf'] < .45 or e['conf'] > 1
                            for e in entries)):
                 raise ValueError('insufficient independent target or anchor confidence')
+            previous = 0
+            for e in entries:
+                if not previous <= e['startMs'] < e['endMs'] <= prefix_end:
+                    raise ValueError('invalid independent context interval')
+                previous = e['endMs']
             first = entries[0]
             if not (0 <= first['startMs'] < first['endMs'] <= entries[1]['startMs']):
                 raise ValueError('invalid target interval')

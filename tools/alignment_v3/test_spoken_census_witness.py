@@ -12,18 +12,18 @@ import quran_ctc_model as Q
 
 class SpokenWitnessTest(unittest.TestCase):
     def setUp(self):
-        self.idx = {'audioSha256': ['a' * 64] * 114,
+        self.idx = {'riwaya': 'hafs', 'audioSha256': ['a' * 64] * 114,
                     'engineBySurah': {'20': 'ctc-spoken-1'},
-                    'entries': [{'ayahId': '20:1', 'startMs': 4000, 'endMs': 5500}]}
+                    'entries': [{'ayahId': '20:1', 'startMs': 4000, 'endMs': 5500}, {'ayahId': '20:3', 'endMs': 15000}]}
         self.proof = {'target': '20:1', 'sourceSha256': 'a' * 64,
-                      'canonicalTextChanged': False, 'models': {}}
+                      'canonicalTextChanged': False, 'models': {}, 'range': [1, 3], 'windowMs': [0, 15000]}
         for name, ident, revision, weights in [
                 ('generic', D.GENERIC_ID, D.GENERIC_REVISION, D.GENERIC_WEIGHTS),
                 ('quran', Q.MODEL_ID, Q.REVISION, Q.WEIGHTS_SHA256)]:
             self.proof['models'][name] = {
                 'alignmentModel': {'id': ident, 'revision': revision,
                                    'weightsSha256': weights, 'license': 'Apache-2.0'},
-                'alignmentInput': ['بسم الله الرحمن الرحيم', 'طا ها'],
+                'alignmentInput': ['بسم الله الرحمن الرحيم', 'طا ها', 'ما انزلنا عليك القران لتشقي', 'الا تذكره لمن يخشي'],
                 'entries': [{'ayahIdx': 0, 'startMs': 4000, 'endMs': 5500, 'conf': .8},
                             {'ayahIdx': 1, 'startMs': 5500, 'endMs': 11000, 'conf': .7},
                             {'ayahIdx': 2, 'startMs': 11000, 'endMs': 15000, 'conf': .6}]}
@@ -32,7 +32,11 @@ class SpokenWitnessTest(unittest.TestCase):
         self.assertIsNone(S.witness_error(self.proof, self.idx))
 
     def test_cannot_clear_arbitrary_unknown_rows_or_weak_disagreeing_evidence(self):
-        mutations = [lambda p: p.update(target='20:2'),
+        mutations = [lambda p: p.update(range=[1, 4]),
+                     lambda p: p.update(windowMs=[0, 15001]),
+                     lambda p: p['models']['quran']['alignmentInput'].__setitem__(2, 'invented text'),
+                     lambda p: p['models']['quran']['entries'][2].update(startMs=10000),
+                     lambda p: p.update(target='20:2'),
                      lambda p: p.update(sourceSha256='b' * 64),
                      lambda p: p.update(canonicalTextChanged=True),
                      lambda p: p['models'].pop('quran'),
