@@ -78,7 +78,7 @@ def frames(d: bytes) -> dict:
             "vbr_header": tag, "kind": kind}
 
 
-def probe(key: str, s: int, ident: str, idx, refs) -> None:
+def probe(key: str, s: int, ident: str, idx, refs, numbered_only=False) -> None:
     d = rl.surah_ends(idx)
     allx, exp = expected_ms(idx, refs, s)
     print(f"\n== س{s} ‹{SURAH_AR[s-1].replace('_', ' ')}› ⇄ {ident}")
@@ -104,8 +104,17 @@ def probe(key: str, s: int, ident: str, idx, refs) -> None:
     for f in files:
         print(f"     - {f.get('name')} · {f.get('format')} · {f.get('size')} ب · "
               f"length={f.get('length')} · bitrate={f.get('bitrate')} · source={f.get('source')}")
+    selected_name = None
+    if numbered_only:
+        from find_sources import archive_numbered
+        selected_name = archive_numbered(ident).get(s)
+        if not selected_name:
+            print("   ⛔ لا ملف مرقّم لهذه السورة — لا تنزيل للختمة كاملة")
+            return
     for f in files:
         name = f.get("name", "")
+        if numbered_only and name != selected_name:
+            continue
         if not name.lower().endswith(".mp3"):
             continue
         url = f"https://archive.org/download/{ident}/{urllib.parse.quote(name)}"
@@ -149,6 +158,8 @@ def find(s: int, names) -> list:
 
 def main() -> int:
     a = sys.argv[1:]
+    numbered_only = "--only-numbered" in a
+    a = [x for x in a if x != "--only-numbered"]
     if not a:
         print(__doc__)
         return 0
@@ -178,7 +189,7 @@ def main() -> int:
             if (s, ident) not in pairs:
                 pairs.append((s, ident))
     for s, ident in pairs:
-        probe(key, s, ident, idx, refs)
+        probe(key, s, ident, idx, refs, numbered_only=numbered_only)
     return 0
 
 
