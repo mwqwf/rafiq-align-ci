@@ -1,0 +1,1060 @@
+{
+ "kind": "openers",
+ "key": "timings-staging/qalun/akri_qalun.692ff5c5.jz",
+ "sha256": "692ff5c58fd5b4a963a0996f8977791a805f74709827f1186bddb53a7cc1d84a",
+ "reciterId": "akri_qalun",
+ "riwaya": "qalun",
+ "scope": "full",
+ "checked": 111,
+ "counts": {
+  "clean": 102,
+  "unknown": 9
+ },
+ "swallowed": [],
+ "tail": [],
+ "suspect": [],
+ "late": [],
+ "errors": [],
+ "defects": 0,
+ "unknown": [
+  7,
+  13,
+  27,
+  30,
+  31,
+  42,
+  57,
+  94,
+  103
+ ],
+ "tool": "openers_scan.py",
+ "commit": "df86e33049205e769b2d82f5f9f09a8a14a93682",
+ "ciCommit": "31662bf",
+ "threads": 4,
+ "model": "ggml-tiny-ar-quran-q8_0.bin",
+ "elapsedSec": 142,
+ "at": 1790845741,
+ "note": "‏`swallowed` متحقَّقٌ صوتياً بعد الحدّ المقدَّر؛ و`suspect` كشفٌ بلا تحقّق ⇒ يُحتمل أن يكون هلوسة نموذج، فلا يُبنى عليه حكم. ولا حكم ترقيةٍ في هذا الملف.",
+ "rows": [
+  {
+   "surah": 2,
+   "startMs": 4100,
+   "url": "https://server16.mp3quran.net/m_akri/Rewayat-Qalon-A-n-Nafi/002.mp3",
+   "endMs": 5850,
+   "verdict": "clean",
+   "heard": "الم",
+   "rung": 4000
+  },
+  {
+   "surah": 3,
+   "startMs": 7220,
+   "url": "https://server16.mp3quran.net/m_akri/Rewayat-Qalon-A-n-Nafi/003.mp3",
+   "endMs": 17340,
+   "verdict": "clean",
+   "heard": "الم",
+   "rung": 6000
+  },
+  {
+   "surah": 4,
+   "startMs": 7560,
+   "url": "https://server16.mp3quran.net/m_akri/Rewayat-Qalon-A-n-Nafi/004.mp3",
+   "endMs": 49110,
+   "verdict": "clean",
+   "heard": "يا ايه",
+   "rung": 1000
+  },
+  {
+   "surah": 5,
+   "startMs": 12920,
+   "url": "https://server16.mp3quran.net/m_akri/Rewayat-Qalon-A-n-Nafi/005.mp3",
+   "endMs": 41560,
+   "verdict": "clean",
+   "heard": "يا ايها",
+   "rung": 1500
+  },
+  {
+   "surah": 6,
+   "startMs": 8520,
+   "url": "https://server16.mp3quran.net/m_akri/Rewayat-Qalon-A-n-Nafi/006.mp3",
+   "endMs": 27430,
+   "verdict": "clean",
+   "heard": "الحمد",
+   "rung": 1000
+  },
+  {
+   "surah": 7,
+   "startMs": 16740,
+   "url": "https://server16.mp3quran.net/m_akri/Rewayat-Qalon-A-n-Nafi/007.mp3",
+   "endMs": 30410,
+   "verdict": "unknown",
+   "heard": "الم"
+  },
+  {
+   "surah": 8,
+   "startMs": 6860,
+   "url": "https://server16.mp3quran.net/m_akri/Rewayat-Qalon-A-n-Nafi/008.mp3",
+   "endMs": 37690,
+   "verdict": "clean",
+   "heard": "يسالون",
+   "rung": 1000
+  },
+  {
+   "surah": 10,
+   "startMs": 6870,
+   "url": "https://server16.mp3quran.net/m_akri/Rewayat-Qalon-A-n-Nafi/010.mp3",
+   "endMs": 18912,
+   "verdict": "clean",
+   "heard": "الر تريق",
+   "rung": 1500
+  },
+  {
+   "surah": 11,
+   "startMs": 16740,
+   "url": "https://server16.mp3quran.net/m_akri/Rewayat-Qalon-A-n-Nafi/011.mp3",
+   "endMs": 33910,
+   "verdict": "clean",
+   "heard": "الر تنف لا",
+   "rung": 1500
+  },
+  {
+   "surah": 12,
+   "startMs": 13380,
+   "url": "https://server16.mp3quran.net/m_akri/Rewayat-Qalon-A-n-Nafi/012.mp3",
+   "endMs": 24250,
+   "verdict": "clean",
+   "heard": "الر",
+   "rung": 4000
+  },
+  {
+   "surah": 13,
+   "startMs": 11460,
+   "url": "https://server16.mp3quran.net/m_akri/Rewayat-Qalon-A-n-Nafi/013.mp3",
+   "endMs": 40420,
+   "verdict": "unknown",
+   "heard": "الم"
+  },
+  {
+   "surah": 14,
+   "startMs": 7100,
+   "url": "https://server16.mp3quran.net/m_akri/Rewayat-Qalon-A-n-Nafi/014.mp3",
+   "endMs": 30600,
+   "verdict": "clean",
+   "heard": "الر تريد",
+   "rung": 1000
+  },
+  {
+   "surah": 15,
+   "startMs": 12260,
+   "url": "https://server16.mp3quran.net/m_akri/Rewayat-Qalon-A-n-Nafi/015.mp3",
+   "endMs": 25320,
+   "verdict": "clean",
+   "heard": "الر تريد",
+   "rung": 1500
+  },
+  {
+   "surah": 16,
+   "startMs": 7340,
+   "url": "https://server16.mp3quran.net/m_akri/Rewayat-Qalon-A-n-Nafi/016.mp3",
+   "endMs": 21170,
+   "verdict": "clean",
+   "heard": "اتي امر",
+   "rung": 1000
+  },
+  {
+   "surah": 17,
+   "startMs": 11802,
+   "url": "https://server16.mp3quran.net/m_akri/Rewayat-Qalon-A-n-Nafi/017.mp3",
+   "endMs": 38030,
+   "verdict": "clean",
+   "heard": "سبحان",
+   "rung": 2000
+  },
+  {
+   "surah": 18,
+   "startMs": 12460,
+   "url": "https://server16.mp3quran.net/m_akri/Rewayat-Qalon-A-n-Nafi/018.mp3",
+   "endMs": 23840,
+   "verdict": "clean",
+   "heard": "الحمد",
+   "rung": 1000
+  },
+  {
+   "surah": 19,
+   "startMs": 13849,
+   "url": "https://server16.mp3quran.net/m_akri/Rewayat-Qalon-A-n-Nafi/019.mp3",
+   "endMs": 26340,
+   "verdict": "clean",
+   "heard": "كهيعيد",
+   "rung": 1500
+  },
+  {
+   "surah": 20,
+   "startMs": 12320,
+   "url": "https://server16.mp3quran.net/m_akri/Rewayat-Qalon-A-n-Nafi/020.mp3",
+   "endMs": 14429,
+   "verdict": "clean",
+   "heard": "طه",
+   "rung": 1000
+  },
+  {
+   "surah": 21,
+   "startMs": 13340,
+   "url": "https://server16.mp3quran.net/m_akri/Rewayat-Qalon-A-n-Nafi/021.mp3",
+   "endMs": 23590,
+   "verdict": "clean",
+   "heard": "اقترب",
+   "rung": 1000
+  },
+  {
+   "surah": 22,
+   "startMs": 10012,
+   "url": "https://server16.mp3quran.net/m_akri/Rewayat-Qalon-A-n-Nafi/022.mp3",
+   "endMs": 20940,
+   "verdict": "clean",
+   "heard": "ايها",
+   "rung": 1000
+  },
+  {
+   "surah": 23,
+   "startMs": 9660,
+   "url": "https://server16.mp3quran.net/m_akri/Rewayat-Qalon-A-n-Nafi/023.mp3",
+   "endMs": 14000,
+   "verdict": "clean",
+   "heard": "قد افلح",
+   "rung": 1000
+  },
+  {
+   "surah": 25,
+   "startMs": 8020,
+   "url": "https://server16.mp3quran.net/m_akri/Rewayat-Qalon-A-n-Nafi/025.mp3",
+   "endMs": 19330,
+   "verdict": "clean",
+   "heard": "كبارك",
+   "rung": 1000
+  },
+  {
+   "surah": 26,
+   "startMs": 8486,
+   "url": "https://server16.mp3quran.net/m_akri/Rewayat-Qalon-A-n-Nafi/026.mp3",
+   "endMs": 18772,
+   "verdict": "clean",
+   "heard": "طسم",
+   "rung": 1000
+  },
+  {
+   "surah": 27,
+   "startMs": 7620,
+   "url": "https://server16.mp3quran.net/m_akri/Rewayat-Qalon-A-n-Nafi/027.mp3",
+   "endMs": 19220,
+   "verdict": "unknown",
+   "heard": "طسم"
+  },
+  {
+   "surah": 28,
+   "startMs": 6584,
+   "url": "https://server16.mp3quran.net/m_akri/Rewayat-Qalon-A-n-Nafi/028.mp3",
+   "endMs": 16151,
+   "verdict": "clean",
+   "heard": "طسم",
+   "rung": 1000
+  },
+  {
+   "surah": 29,
+   "startMs": 7980,
+   "url": "https://server16.mp3quran.net/m_akri/Rewayat-Qalon-A-n-Nafi/029.mp3",
+   "endMs": 17190,
+   "verdict": "clean",
+   "heard": "الم",
+   "rung": 1000
+  },
+  {
+   "surah": 30,
+   "startMs": 11583,
+   "url": "https://server16.mp3quran.net/m_akri/Rewayat-Qalon-A-n-Nafi/030.mp3",
+   "endMs": 12870,
+   "verdict": "unknown",
+   "heard": "حم"
+  },
+  {
+   "surah": 31,
+   "startMs": 9100,
+   "url": "https://server16.mp3quran.net/m_akri/Rewayat-Qalon-A-n-Nafi/031.mp3",
+   "endMs": 11828,
+   "verdict": "unknown",
+   "heard": "الس"
+  },
+  {
+   "surah": 32,
+   "startMs": 6750,
+   "url": "https://server16.mp3quran.net/m_akri/Rewayat-Qalon-A-n-Nafi/032.mp3",
+   "endMs": 8806,
+   "verdict": "clean",
+   "heard": "الم",
+   "rung": 1000
+  },
+  {
+   "surah": 33,
+   "startMs": 7980,
+   "url": "https://server16.mp3quran.net/m_akri/Rewayat-Qalon-A-n-Nafi/033.mp3",
+   "endMs": 27830,
+   "verdict": "clean",
+   "heard": "يا ايه",
+   "rung": 1000
+  },
+  {
+   "surah": 34,
+   "startMs": 8370,
+   "url": "https://server16.mp3quran.net/m_akri/Rewayat-Qalon-A-n-Nafi/034.mp3",
+   "endMs": 23740,
+   "verdict": "clean",
+   "heard": "الحمد",
+   "rung": 1000
+  },
+  {
+   "surah": 35,
+   "startMs": 8080,
+   "url": "https://server16.mp3quran.net/m_akri/Rewayat-Qalon-A-n-Nafi/035.mp3",
+   "endMs": 37860,
+   "verdict": "clean",
+   "heard": "الحمد",
+   "rung": 1000
+  },
+  {
+   "surah": 36,
+   "startMs": 7065,
+   "url": "https://server16.mp3quran.net/m_akri/Rewayat-Qalon-A-n-Nafi/036.mp3",
+   "endMs": 11448,
+   "verdict": "clean",
+   "heard": "يس",
+   "rung": 1000
+  },
+  {
+   "surah": 37,
+   "startMs": 6900,
+   "url": "https://server16.mp3quran.net/m_akri/Rewayat-Qalon-A-n-Nafi/037.mp3",
+   "endMs": 12468,
+   "verdict": "clean",
+   "heard": "والصور",
+   "rung": 1000
+  },
+  {
+   "surah": 38,
+   "startMs": 8120,
+   "url": "https://server16.mp3quran.net/m_akri/Rewayat-Qalon-A-n-Nafi/038.mp3",
+   "endMs": 16460,
+   "verdict": "clean",
+   "heard": "ص",
+   "rung": 1000
+  },
+  {
+   "surah": 39,
+   "startMs": 7400,
+   "url": "https://server16.mp3quran.net/m_akri/Rewayat-Qalon-A-n-Nafi/039.mp3",
+   "endMs": 16150,
+   "verdict": "clean",
+   "heard": "تنسيل الكتاب",
+   "rung": 3000,
+   "lateProbe": {
+    "2000": "لنلكتاب من الله العزيز الحكيم",
+    "3000": "فبمن الله العزيز الحكيم"
+   }
+  },
+  {
+   "surah": 40,
+   "startMs": 7460,
+   "url": "https://server16.mp3quran.net/m_akri/Rewayat-Qalon-A-n-Nafi/040.mp3",
+   "endMs": 12150,
+   "verdict": "clean",
+   "heard": "حم",
+   "rung": 1000
+  },
+  {
+   "surah": 41,
+   "startMs": 7120,
+   "url": "https://server16.mp3quran.net/m_akri/Rewayat-Qalon-A-n-Nafi/041.mp3",
+   "endMs": 12800,
+   "verdict": "clean",
+   "heard": "حم",
+   "rung": 1000
+  },
+  {
+   "surah": 42,
+   "startMs": 15293,
+   "url": "https://server16.mp3quran.net/m_akri/Rewayat-Qalon-A-n-Nafi/042.mp3",
+   "endMs": 17160,
+   "verdict": "unknown",
+   "heard": "ان ينقي"
+  },
+  {
+   "surah": 43,
+   "startMs": 6920,
+   "url": "https://server16.mp3quran.net/m_akri/Rewayat-Qalon-A-n-Nafi/043.mp3",
+   "endMs": 11488,
+   "verdict": "clean",
+   "heard": "حم",
+   "rung": 1000
+  },
+  {
+   "surah": 44,
+   "startMs": 7105,
+   "url": "https://server16.mp3quran.net/m_akri/Rewayat-Qalon-A-n-Nafi/044.mp3",
+   "endMs": 11648,
+   "verdict": "clean",
+   "heard": "حم",
+   "rung": 1500
+  },
+  {
+   "surah": 45,
+   "startMs": 7965,
+   "url": "https://server16.mp3quran.net/m_akri/Rewayat-Qalon-A-n-Nafi/045.mp3",
+   "endMs": 13149,
+   "verdict": "clean",
+   "heard": "حم",
+   "rung": 1500
+  },
+  {
+   "surah": 46,
+   "startMs": 6640,
+   "url": "https://server16.mp3quran.net/m_akri/Rewayat-Qalon-A-n-Nafi/046.mp3",
+   "endMs": 8117,
+   "verdict": "clean",
+   "heard": "حم",
+   "rung": 1000
+  },
+  {
+   "surah": 47,
+   "startMs": 8260,
+   "url": "https://server16.mp3quran.net/m_akri/Rewayat-Qalon-A-n-Nafi/047.mp3",
+   "endMs": 18720,
+   "verdict": "clean",
+   "heard": "الذين",
+   "rung": 1000
+  },
+  {
+   "surah": 48,
+   "startMs": 6980,
+   "url": "https://server16.mp3quran.net/m_akri/Rewayat-Qalon-A-n-Nafi/048.mp3",
+   "endMs": 14420,
+   "verdict": "clean",
+   "heard": "انا فتحي",
+   "rung": 3000,
+   "lateProbe": {
+    "2000": "ولا فتحنا لك فتحا مبلم",
+    "3000": "لا لك فتحا مبينا"
+   }
+  },
+  {
+   "surah": 49,
+   "startMs": 7088,
+   "url": "https://server16.mp3quran.net/m_akri/Rewayat-Qalon-A-n-Nafi/049.mp3",
+   "endMs": 27120,
+   "verdict": "clean",
+   "heard": "يا ايه",
+   "rung": 1000
+  },
+  {
+   "surah": 50,
+   "startMs": 7580,
+   "url": "https://server16.mp3quran.net/m_akri/Rewayat-Qalon-A-n-Nafi/050.mp3",
+   "endMs": 17120,
+   "verdict": "clean",
+   "heard": "ق",
+   "rung": 1000
+  },
+  {
+   "surah": 51,
+   "startMs": 8240,
+   "url": "https://server16.mp3quran.net/m_akri/Rewayat-Qalon-A-n-Nafi/051.mp3",
+   "endMs": 11860,
+   "verdict": "clean",
+   "heard": "والذاريات",
+   "rung": 1500
+  },
+  {
+   "surah": 52,
+   "startMs": 7560,
+   "url": "https://server16.mp3quran.net/m_akri/Rewayat-Qalon-A-n-Nafi/052.mp3",
+   "endMs": 9386,
+   "verdict": "clean",
+   "heard": "والطور",
+   "rung": 1000
+  },
+  {
+   "surah": 53,
+   "startMs": 7560,
+   "url": "https://server16.mp3quran.net/m_akri/Rewayat-Qalon-A-n-Nafi/053.mp3",
+   "endMs": 10852,
+   "verdict": "clean",
+   "heard": "والن",
+   "rung": 1000
+  },
+  {
+   "surah": 54,
+   "startMs": 7160,
+   "url": "https://server16.mp3quran.net/m_akri/Rewayat-Qalon-A-n-Nafi/054.mp3",
+   "endMs": 13520,
+   "verdict": "clean",
+   "heard": "اقترب",
+   "rung": 1000
+  },
+  {
+   "surah": 55,
+   "startMs": 6824,
+   "url": "https://server16.mp3quran.net/m_akri/Rewayat-Qalon-A-n-Nafi/055.mp3",
+   "endMs": 11628,
+   "verdict": "clean",
+   "heard": "الرحم",
+   "rung": 1500
+  },
+  {
+   "surah": 56,
+   "startMs": 6804,
+   "url": "https://server16.mp3quran.net/m_akri/Rewayat-Qalon-A-n-Nafi/056.mp3",
+   "endMs": 10987,
+   "verdict": "clean",
+   "heard": "اذا",
+   "rung": 1000
+  },
+  {
+   "surah": 57,
+   "startMs": 7839,
+   "url": "https://server16.mp3quran.net/m_akri/Rewayat-Qalon-A-n-Nafi/057.mp3",
+   "endMs": 16800,
+   "verdict": "unknown",
+   "heard": "حل الله ما في السماوات والارض"
+  },
+  {
+   "surah": 58,
+   "startMs": 8440,
+   "url": "https://server16.mp3quran.net/m_akri/Rewayat-Qalon-A-n-Nafi/058.mp3",
+   "endMs": 26890,
+   "verdict": "clean",
+   "heard": "قد سمع",
+   "rung": 1000
+  },
+  {
+   "surah": 59,
+   "startMs": 7520,
+   "url": "https://server16.mp3quran.net/m_akri/Rewayat-Qalon-A-n-Nafi/059.mp3",
+   "endMs": 18050,
+   "verdict": "clean",
+   "heard": "سبح للمرس",
+   "rung": 1000
+  },
+  {
+   "surah": 60,
+   "startMs": 7320,
+   "url": "https://server16.mp3quran.net/m_akri/Rewayat-Qalon-A-n-Nafi/060.mp3",
+   "endMs": 75120,
+   "verdict": "clean",
+   "heard": "يا ايه",
+   "rung": 1000
+  },
+  {
+   "surah": 61,
+   "startMs": 7260,
+   "url": "https://server16.mp3quran.net/m_akri/Rewayat-Qalon-A-n-Nafi/061.mp3",
+   "endMs": 17010,
+   "verdict": "clean",
+   "heard": "سبح للمرسلين",
+   "rung": 1000
+  },
+  {
+   "surah": 62,
+   "startMs": 7420,
+   "url": "https://server16.mp3quran.net/m_akri/Rewayat-Qalon-A-n-Nafi/062.mp3",
+   "endMs": 18540,
+   "verdict": "clean",
+   "heard": "يسبح لي",
+   "rung": 1000
+  },
+  {
+   "surah": 63,
+   "startMs": 7760,
+   "url": "https://server16.mp3quran.net/m_akri/Rewayat-Qalon-A-n-Nafi/063.mp3",
+   "endMs": 30300,
+   "verdict": "clean",
+   "heard": "اذا جا",
+   "rung": 1000
+  },
+  {
+   "surah": 64,
+   "startMs": 7740,
+   "url": "https://server16.mp3quran.net/m_akri/Rewayat-Qalon-A-n-Nafi/064.mp3",
+   "endMs": 23570,
+   "verdict": "clean",
+   "heard": "يسبحون",
+   "rung": 1000
+  },
+  {
+   "surah": 65,
+   "startMs": 7760,
+   "url": "https://server16.mp3quran.net/m_akri/Rewayat-Qalon-A-n-Nafi/065.mp3",
+   "endMs": 61020,
+   "verdict": "clean",
+   "heard": "يا ايه",
+   "rung": 1000
+  },
+  {
+   "surah": 66,
+   "startMs": 7403,
+   "url": "https://server16.mp3quran.net/m_akri/Rewayat-Qalon-A-n-Nafi/066.mp3",
+   "endMs": 25320,
+   "verdict": "clean",
+   "heard": "وايها",
+   "rung": 1000
+  },
+  {
+   "surah": 67,
+   "startMs": 7420,
+   "url": "https://server16.mp3quran.net/m_akri/Rewayat-Qalon-A-n-Nafi/067.mp3",
+   "endMs": 16220,
+   "verdict": "clean",
+   "heard": "تبارك المركر",
+   "rung": 1000
+  },
+  {
+   "surah": 68,
+   "startMs": 7920,
+   "url": "https://server16.mp3quran.net/m_akri/Rewayat-Qalon-A-n-Nafi/068.mp3",
+   "endMs": 13635,
+   "verdict": "clean",
+   "heard": "ن",
+   "rung": 2000
+  },
+  {
+   "surah": 69,
+   "startMs": 7460,
+   "url": "https://server16.mp3quran.net/m_akri/Rewayat-Qalon-A-n-Nafi/069.mp3",
+   "endMs": 12310,
+   "verdict": "clean",
+   "heard": "الحام",
+   "rung": 1000
+  },
+  {
+   "surah": 70,
+   "startMs": 7940,
+   "url": "https://server16.mp3quran.net/m_akri/Rewayat-Qalon-A-n-Nafi/070.mp3",
+   "endMs": 14460,
+   "verdict": "clean",
+   "heard": "سال ساديين",
+   "rung": 1000
+  },
+  {
+   "surah": 71,
+   "startMs": 7500,
+   "url": "https://server16.mp3quran.net/m_akri/Rewayat-Qalon-A-n-Nafi/071.mp3",
+   "endMs": 20110,
+   "verdict": "clean",
+   "heard": "انا",
+   "rung": 1000
+  },
+  {
+   "surah": 72,
+   "startMs": 7520,
+   "url": "https://server16.mp3quran.net/m_akri/Rewayat-Qalon-A-n-Nafi/072.mp3",
+   "endMs": 20043,
+   "verdict": "clean",
+   "heard": "قل اوحين",
+   "rung": 1000
+  },
+  {
+   "surah": 73,
+   "startMs": 7460,
+   "url": "https://server16.mp3quran.net/m_akri/Rewayat-Qalon-A-n-Nafi/073.mp3",
+   "endMs": 10650,
+   "verdict": "clean",
+   "heard": "يا ايه",
+   "rung": 1000
+  },
+  {
+   "surah": 74,
+   "startMs": 7385,
+   "url": "https://server16.mp3quran.net/m_akri/Rewayat-Qalon-A-n-Nafi/074.mp3",
+   "endMs": 10728,
+   "verdict": "clean",
+   "heard": "يا ايه",
+   "rung": 1500
+  },
+  {
+   "surah": 75,
+   "startMs": 6684,
+   "url": "https://server16.mp3quran.net/m_akri/Rewayat-Qalon-A-n-Nafi/075.mp3",
+   "endMs": 11087,
+   "verdict": "clean",
+   "heard": "لا",
+   "rung": 1000
+  },
+  {
+   "surah": 76,
+   "startMs": 7340,
+   "url": "https://server16.mp3quran.net/m_akri/Rewayat-Qalon-A-n-Nafi/076.mp3",
+   "endMs": 17510,
+   "verdict": "clean",
+   "heard": "هل اتاعي",
+   "rung": 1000
+  },
+  {
+   "surah": 77,
+   "startMs": 9620,
+   "url": "https://server16.mp3quran.net/m_akri/Rewayat-Qalon-A-n-Nafi/077.mp3",
+   "endMs": 12577,
+   "verdict": "clean",
+   "heard": "والمرسل",
+   "rung": 1000
+  },
+  {
+   "surah": 78,
+   "startMs": 7420,
+   "url": "https://server16.mp3quran.net/m_akri/Rewayat-Qalon-A-n-Nafi/078.mp3",
+   "endMs": 11660,
+   "verdict": "clean",
+   "heard": "عم يسر",
+   "rung": 1000
+  },
+  {
+   "surah": 79,
+   "startMs": 5083,
+   "url": "https://server16.mp3quran.net/m_akri/Rewayat-Qalon-A-n-Nafi/079.mp3",
+   "endMs": 8685,
+   "verdict": "clean",
+   "heard": "والنازعات",
+   "rung": 3000,
+   "lateProbe": {
+    "2000": "عاك غرقا والناشط",
+    "3000": "والناشطات نشر"
+   }
+  },
+  {
+   "surah": 80,
+   "startMs": 7740,
+   "url": "https://server16.mp3quran.net/m_akri/Rewayat-Qalon-A-n-Nafi/080.mp3",
+   "endMs": 10292,
+   "verdict": "clean",
+   "heard": "عبس وتر",
+   "rung": 1000
+  },
+  {
+   "surah": 81,
+   "startMs": 8647,
+   "url": "https://server16.mp3quran.net/m_akri/Rewayat-Qalon-A-n-Nafi/081.mp3",
+   "endMs": 11869,
+   "verdict": "clean",
+   "heard": "اذا الشمر",
+   "rung": 1000
+  },
+  {
+   "surah": 82,
+   "startMs": 6920,
+   "url": "https://server16.mp3quran.net/m_akri/Rewayat-Qalon-A-n-Nafi/082.mp3",
+   "endMs": 10894,
+   "verdict": "clean",
+   "heard": "اذا السما",
+   "rung": 1000
+  },
+  {
+   "surah": 83,
+   "startMs": 7020,
+   "url": "https://server16.mp3quran.net/m_akri/Rewayat-Qalon-A-n-Nafi/083.mp3",
+   "endMs": 10940,
+   "verdict": "clean",
+   "heard": "ويل",
+   "rung": 1000
+  },
+  {
+   "surah": 84,
+   "startMs": 8060,
+   "url": "https://server16.mp3quran.net/m_akri/Rewayat-Qalon-A-n-Nafi/084.mp3",
+   "endMs": 12590,
+   "verdict": "clean",
+   "heard": "اذا السمي",
+   "rung": 1000
+  },
+  {
+   "surah": 85,
+   "startMs": 7220,
+   "url": "https://server16.mp3quran.net/m_akri/Rewayat-Qalon-A-n-Nafi/085.mp3",
+   "endMs": 12140,
+   "verdict": "clean",
+   "heard": "والسما",
+   "rung": 1000
+  },
+  {
+   "surah": 86,
+   "startMs": 6880,
+   "url": "https://server16.mp3quran.net/m_akri/Rewayat-Qalon-A-n-Nafi/086.mp3",
+   "endMs": 9475,
+   "verdict": "clean",
+   "heard": "والسما",
+   "rung": 1000
+  },
+  {
+   "surah": 87,
+   "startMs": 7060,
+   "url": "https://server16.mp3quran.net/m_akri/Rewayat-Qalon-A-n-Nafi/087.mp3",
+   "endMs": 12150,
+   "verdict": "clean",
+   "heard": "سبح است",
+   "rung": 1000
+  },
+  {
+   "surah": 88,
+   "startMs": 6840,
+   "url": "https://server16.mp3quran.net/m_akri/Rewayat-Qalon-A-n-Nafi/088.mp3",
+   "endMs": 13062,
+   "verdict": "clean",
+   "heard": "هل اتي",
+   "rung": 1000
+  },
+  {
+   "surah": 89,
+   "startMs": 8360,
+   "url": "https://server16.mp3quran.net/m_akri/Rewayat-Qalon-A-n-Nafi/089.mp3",
+   "endMs": 9672,
+   "verdict": "clean",
+   "heard": "والفجر",
+   "rung": 1000
+  },
+  {
+   "surah": 90,
+   "startMs": 7800,
+   "url": "https://server16.mp3quran.net/m_akri/Rewayat-Qalon-A-n-Nafi/090.mp3",
+   "endMs": 12466,
+   "verdict": "clean",
+   "heard": "لا اقسر",
+   "rung": 1000
+  },
+  {
+   "surah": 91,
+   "startMs": 6780,
+   "url": "https://server16.mp3quran.net/m_akri/Rewayat-Qalon-A-n-Nafi/091.mp3",
+   "endMs": 9889,
+   "verdict": "clean",
+   "heard": "والشمس",
+   "rung": 1000
+  },
+  {
+   "surah": 92,
+   "startMs": 7340,
+   "url": "https://server16.mp3quran.net/m_akri/Rewayat-Qalon-A-n-Nafi/092.mp3",
+   "endMs": 11627,
+   "verdict": "clean",
+   "heard": "والليل",
+   "rung": 1000
+  },
+  {
+   "surah": 93,
+   "startMs": 7160,
+   "url": "https://server16.mp3quran.net/m_akri/Rewayat-Qalon-A-n-Nafi/093.mp3",
+   "endMs": 8410,
+   "verdict": "clean",
+   "heard": "والضحي",
+   "rung": 1000
+  },
+  {
+   "surah": 94,
+   "startMs": 7538,
+   "url": "https://server16.mp3quran.net/m_akri/Rewayat-Qalon-A-n-Nafi/094.mp3",
+   "endMs": 11846,
+   "verdict": "unknown",
+   "heard": "وودع ناعا كوزرك"
+  },
+  {
+   "surah": 95,
+   "startMs": 6906,
+   "url": "https://server16.mp3quran.net/m_akri/Rewayat-Qalon-A-n-Nafi/095.mp3",
+   "endMs": 9988,
+   "verdict": "clean",
+   "heard": "والتين",
+   "rung": 1500
+  },
+  {
+   "surah": 96,
+   "startMs": 7120,
+   "url": "https://server16.mp3quran.net/m_akri/Rewayat-Qalon-A-n-Nafi/096.mp3",
+   "endMs": 12640,
+   "verdict": "clean",
+   "heard": "اقرا مسمين",
+   "rung": 1500
+  },
+  {
+   "surah": 97,
+   "startMs": 7140,
+   "url": "https://server16.mp3quran.net/m_akri/Rewayat-Qalon-A-n-Nafi/097.mp3",
+   "endMs": 13380,
+   "verdict": "clean",
+   "heard": "انا انا",
+   "rung": 1500
+  },
+  {
+   "surah": 98,
+   "startMs": 7700,
+   "url": "https://server16.mp3quran.net/m_akri/Rewayat-Qalon-A-n-Nafi/098.mp3",
+   "endMs": 20880,
+   "verdict": "clean",
+   "heard": "لم يكني",
+   "rung": 1000
+  },
+  {
+   "surah": 99,
+   "startMs": 7540,
+   "url": "https://server16.mp3quran.net/m_akri/Rewayat-Qalon-A-n-Nafi/099.mp3",
+   "endMs": 13140,
+   "verdict": "clean",
+   "heard": "اذا زل",
+   "rung": 1000
+  },
+  {
+   "surah": 100,
+   "startMs": 7480,
+   "url": "https://server16.mp3quran.net/m_akri/Rewayat-Qalon-A-n-Nafi/100.mp3",
+   "endMs": 10427,
+   "verdict": "clean",
+   "heard": "والعاديات",
+   "rung": 1500
+  },
+  {
+   "surah": 101,
+   "startMs": 6763,
+   "url": "https://server16.mp3quran.net/m_akri/Rewayat-Qalon-A-n-Nafi/101.mp3",
+   "endMs": 8394,
+   "verdict": "clean",
+   "heard": "القارعه",
+   "rung": 1500
+  },
+  {
+   "surah": 102,
+   "startMs": 7770,
+   "url": "https://server16.mp3quran.net/m_akri/Rewayat-Qalon-A-n-Nafi/102.mp3",
+   "endMs": 10806,
+   "verdict": "clean",
+   "heard": "الهاكم",
+   "rung": 1500
+  },
+  {
+   "surah": 103,
+   "startMs": 7826,
+   "url": "https://server16.mp3quran.net/m_akri/Rewayat-Qalon-A-n-Nafi/103.mp3",
+   "endMs": 8916,
+   "verdict": "unknown",
+   "heard": "ولان الانسان لفي خسر الا الذين"
+  },
+  {
+   "surah": 104,
+   "startMs": 7400,
+   "url": "https://server16.mp3quran.net/m_akri/Rewayat-Qalon-A-n-Nafi/104.mp3",
+   "endMs": 11710,
+   "verdict": "clean",
+   "heard": "ويل للكل",
+   "rung": 1000
+  },
+  {
+   "surah": 105,
+   "startMs": 6866,
+   "url": "https://server16.mp3quran.net/m_akri/Rewayat-Qalon-A-n-Nafi/105.mp3",
+   "endMs": 14232,
+   "verdict": "clean",
+   "heard": "الم",
+   "rung": 1000
+  },
+  {
+   "surah": 106,
+   "startMs": 6645,
+   "url": "https://server16.mp3quran.net/m_akri/Rewayat-Qalon-A-n-Nafi/108.mp3",
+   "endMs": 10988,
+   "verdict": "clean",
+   "heard": "لايل",
+   "rung": 1500
+  },
+  {
+   "surah": 107,
+   "startMs": 7125,
+   "url": "https://server16.mp3quran.net/m_akri/Rewayat-Qalon-A-n-Nafi/106.mp3",
+   "endMs": 12969,
+   "verdict": "clean",
+   "heard": "ارايت الذي يكذ",
+   "rung": 3000,
+   "lateProbe": {
+    "2000": "في يكذب بالدين",
+    "3000": "ليبيين فتاني"
+   }
+  },
+  {
+   "surah": 108,
+   "startMs": 7401,
+   "url": "https://server16.mp3quran.net/m_akri/Rewayat-Qalon-A-n-Nafi/107.mp3",
+   "endMs": 13123,
+   "verdict": "clean",
+   "heard": "انا اعقي",
+   "rung": 3000,
+   "lateProbe": {
+    "2000": "وما اعطيناك الكوثر",
+    "3000": "ويناك الكوثر فصلن"
+   }
+  },
+  {
+   "surah": 109,
+   "startMs": 8040,
+   "url": "https://server16.mp3quran.net/m_akri/Rewayat-Qalon-A-n-Nafi/109.mp3",
+   "endMs": 12750,
+   "verdict": "clean",
+   "heard": "قل يا",
+   "rung": 1000
+  },
+  {
+   "surah": 110,
+   "startMs": 7420,
+   "url": "https://server16.mp3quran.net/m_akri/Rewayat-Qalon-A-n-Nafi/110.mp3",
+   "endMs": 13710,
+   "verdict": "clean",
+   "heard": "اذا جا",
+   "rung": 1000
+  },
+  {
+   "surah": 111,
+   "startMs": 8300,
+   "url": "https://server16.mp3quran.net/m_akri/Rewayat-Qalon-A-n-Nafi/111.mp3",
+   "endMs": 14386,
+   "verdict": "clean",
+   "heard": "تبت",
+   "rung": 1000
+  },
+  {
+   "surah": 112,
+   "startMs": 8200,
+   "url": "https://server16.mp3quran.net/m_akri/Rewayat-Qalon-A-n-Nafi/112.mp3",
+   "endMs": 11996,
+   "verdict": "clean",
+   "heard": "قل هو الموتي",
+   "rung": 1000
+  },
+  {
+   "surah": 113,
+   "startMs": 8060,
+   "url": "https://server16.mp3quran.net/m_akri/Rewayat-Qalon-A-n-Nafi/113.mp3",
+   "endMs": 12477,
+   "verdict": "clean",
+   "heard": "قل اعوك",
+   "rung": 1000
+  },
+  {
+   "surah": 114,
+   "startMs": 7220,
+   "url": "https://server16.mp3quran.net/m_akri/Rewayat-Qalon-A-n-Nafi/114.mp3",
+   "endMs": 14220,
+   "verdict": "clean",
+   "heard": "قل اعون",
+   "rung": 1500
+  }
+ ],
+ "openersVerdict": "clean",
+ "verdictText": "لا بسملة مبتلعة متحقَّقة في أي مطلع · تعذّر الحكم (أكثره فواتح مقطّعة): 9",
+ "verdictScope": "openers-only — ليس حكم ترقية",
+ "unpublishedLocalCandidate": true,
+ "provenance": {
+  "tool": "tools/index_qa/local_candidate.py",
+  "tool_sha": "75a440829dc4c7961a7bd1cd7b1ac863abcbd8a0e1afe503645fde2214bf61f7",
+  "run_sha": "eac4e0395ca4188b0a88a3fa0d5e115ddf61c5da05ca4d021bc09ebfdb2cc5bc",
+  "run_id": "36840355066"
+ }
+}
