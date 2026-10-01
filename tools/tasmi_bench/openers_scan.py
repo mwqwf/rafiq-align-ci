@@ -66,7 +66,7 @@ def opener_audio_url(entry, surah, template=None, names=None, base=""):
 #     `git -C <QuranRafiq> log --format=%h 9ffb957..HEAD > .../openers_trusted.txt`
 #     فذلك الملفُّ هو سندُ D-175 في السحابة (تاريخُ `QuranRafiq` غيرُ موجودٍ هنا)،
 #     وبصمةٌ خارجَه تُردّ بـ«أداةٌ سابقةٌ للإصلاح» **فيجمد النشرُ كلُّه صامتاً**.
-SOURCE_COMMIT = "df86e33049205e769b2d82f5f9f09a8a14a93682"
+SOURCE_COMMIT = "8c0d5e00935bc6c31ae29d07de90fa20e2c5e759"
 
 SKIP = {1, 9}
 LADDER = (1000, 1500, 2000, 3000, 4000, 6000)
