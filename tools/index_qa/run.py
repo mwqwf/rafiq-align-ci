@@ -35,6 +35,7 @@ for _s in (sys.stdout, sys.stderr):
         pass
 
 ROOT    = Path(__file__).resolve().parents[2]
+sys.path.insert(0, str(ROOT / 'tools' / 'alignment'))
 CREDS   = ROOT / "secure" / "r2_credentials.json"
 ASSETS  = ROOT / "core" / "quran" / "src" / "main" / "assets" / "quran"
 STATE   = Path(__file__).with_name("state")
@@ -798,7 +799,8 @@ def _range_pcm(url, start_ms, end_ms):
         x, sr = sf.read(io.BytesIO(buf), dtype="float32", always_2d=True)
         if not len(x):
             return None
-        x = x.mean(axis=1)
+        from channel_mix import mono_pcm
+        x = mono_pcm(x)
         # زمنُ أوّل بايتٍ جُلب — ومنه تُقتطع النافذة المطلوبة بالضبط.
         t0 = (b0 - audio0) / byps
         a = int(max(0.0, start_ms / 1000 - t0) * sr)
@@ -900,8 +902,11 @@ def _ffmpeg_window_pcm(mp3, start_ms, end_ms, ayah_end_ms=None, file_dur_ms=None
     #    MP3 متغيّر المعدّل (VBR) يقدّر الموضعَ من جدول Xing أو من متوسّط
     #    المعدّل، فتُسمَع نافذةٌ غير المطلوبة بصمت. الفكُّ من الأوّل أبطأ لكنه
     #    دقيقٌ بالعيّنة في CBR وVBR معاً، وهذا احتياطٌ نادر لا المسارُ الأوّل.
+    from channel_mix import mono_filter
+    audio_input = _audio_input(mp3)
     cmd = ["ffmpeg", "-nostdin", "-v", "error",
-           "-i", _audio_input(mp3), "-ss", f"{start / 1000:.3f}", "-t", f"{dur / 1000:.3f}",
+           "-i", audio_input, "-ss", f"{start / 1000:.3f}", "-t", f"{dur / 1000:.3f}",
+           *mono_filter(audio_input),
            "-f", "f32le", "-ac", "1", "-ar", str(rate), "pipe:1"]
     p = subprocess.run(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE,
                        timeout=max(30, int(dur / 1000) + 20,
@@ -983,7 +988,10 @@ def _full_decode_pcm(mp3):
         #    يتّفقان على نصفه (‏وقع 2026-09-28: 376.6ث من 2346.3ث) ⇒ البصمةُ قبل وبعد.
         st0 = os.stat(key)
         with open(part, "wb") as fo:
-            p = subprocess.run(["ffmpeg", "-nostdin", "-v", "error", "-i", _audio_input(key),
+            from channel_mix import mono_filter
+            audio_input = _audio_input(key)
+            p = subprocess.run(["ffmpeg", "-nostdin", "-v", "error", "-i", audio_input,
+                                *mono_filter(audio_input),
                                 "-f", "f32le", "-ac", "1", "-ar", "16000", "pipe:1"],
                                stdout=fo, stderr=subprocess.PIPE, timeout=1800, check=False)
         why = p.stderr.decode("utf-8", errors="replace").strip()[-240:]
@@ -1117,7 +1125,8 @@ def local_run(jobs, _host=None, _threads=None):
                         a = int(max(0, j["startMs"]) / 1000 * r)
                         b = int(j["endMs"] / 1000 * r)
                         x, _ = sf.read(mp3, start=a, stop=b, dtype="float32", always_2d=True)
-                        x = x.mean(axis=1)
+                        from channel_mix import mono_pcm
+                        x = mono_pcm(x)
                     except Exception:
                         # بعضُ أصول MP3 تُسمِع mpg123 أخطاء resync ثم يعجز
                         # libsndfile عن النافذة. ffmpeg المثبّت أصلاً في audio_qa

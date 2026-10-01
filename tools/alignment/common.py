@@ -179,12 +179,16 @@ def to_wav16k(src, dst=None):
     ⇒ `-vn` يطرح كلَّ تيّارِ صورة، فلا يبقى إلا ما نريد.
     """
     dst = dst or src + ".16k.wav"
+    from channel_mix import mono_filter
+    channel_args = mono_filter(src, FFMPEG)
+    channel_stamp = dst + '.channel-v1'
     # قد يعاد تنزيل المصدر أو تكبير نطاقه تحت الاسم نفسه؛ WAV أقدم منه
     # لا يصفه، وإلا حوكم ملف كامل على فكّ نسخة مبتورة مخبأة.
     if (not os.path.exists(dst)
-            or os.stat(dst).st_mtime_ns < os.stat(src).st_mtime_ns):
+            or os.stat(dst).st_mtime_ns < os.stat(src).st_mtime_ns
+            or (channel_args and not os.path.exists(channel_stamp))):
         base = [FFMPEG, "-y", "-v", "error"]
-        tail = ["-vn", "-ar", "16000", "-ac", "1", dst]
+        tail = ["-vn", *channel_args, "-ar", "16000", "-ac", "1", dst]
         try:
             subprocess.run(base + ["-i", src] + tail, check=True)
         except subprocess.CalledProcessError:
@@ -201,4 +205,7 @@ def to_wav16k(src, dst=None):
             if os.path.exists(dst):
                 os.remove(dst)
             subprocess.run(base + ["-f", "mp3", "-i", src] + tail, check=True)
+        if channel_args:
+            with open(channel_stamp, 'w', encoding='utf-8') as stamp:
+                stamp.write('original channel 0; opposing stereo cancellation\n')
     return dst
