@@ -1,0 +1,362 @@
+{
+ "schema": 1,
+ "tool": "full_audit-1.0",
+ "date": "20261002",
+ "timestampUtc": "2026-10-02T23:00:24Z",
+ "elapsedSec": 28.7,
+ "phase": "all",
+ "manifestIndexes": 180,
+ "frozenBucket": 220,
+ "reportsRead": 8963,
+ "rows": [
+  {
+   "key": "timings-staging/qalun/kherkhashi_qalun.4ea67105.jz",
+   "sha256": "4ea67105354aaaa65f1f1f07cbe740259de8399eda67cbaa54a95b4c7f71a186",
+   "riwaya": "qalun",
+   "reciterId": "kherkhashi_qalun",
+   "bytes": 88614,
+   "engine": "align-0.2",
+   "transformOp": "ctc_gapsplit:85",
+   "staging": true,
+   "identity": {
+    "sha256": "4ea67105354aaaa65f1f1f07cbe740259de8399eda67cbaa54a95b4c7f71a186",
+    "staging": true,
+    "errors": [],
+    "ok": true
+   },
+   "structure": {
+    "entries": 6236,
+    "errors": [],
+    "examples": {},
+    "fileNoUnparsed": 0,
+    "structuralFatal": [],
+    "structuralWarn": [
+     "مداخل مدتها > 120ث: 1 · مثال: 2:282 مدتها 156ث"
+    ],
+    "decision": [],
+    "engine": "align-0.2",
+    "audioSha": 114,
+    "bands": {
+     "HIGH": 3983,
+     "MED": 2048,
+     "LOW": 205
+    },
+    "ok": true
+   },
+   "gaps": {
+    "missingTotal": 0,
+    "internalGaps": [],
+    "headMissing": [],
+    "tailMissing": [],
+    "wholeMissing": [],
+    "declared": {
+     "transformOp": "ctc_gapsplit:85",
+     "transformReason": "الفحص الشامل 2026-10-02: آياتٌ بلا تلاوة 85:5 (مدّتها ≤0.1× المتوقَّع — صوتُها داخل جارتها) ⇒ إعادةُ نافذة المدى بين جارَين ثابتَين بحرّاس الثقة والمدّة والجارة",
+     "reasonCode": null,
+     "dropSurahs": [],
+     "byReason": {
+      "no-align": 10
+     },
+     "declaredCount": 10,
+     "tagCount": 0,
+     "declaredIds": [],
+     "truncatedTail": null
+    },
+    "undeclaredEdge": [],
+    "errors": [],
+    "ok": true
+   },
+   "durations": {
+    "durationOutliers": 8,
+    "durationExamples": [
+     {
+      "aid": "12:78",
+      "ms": 1230,
+      "expMs": 17238,
+      "ratio": 0.07,
+      "chars": 62
+     },
+     {
+      "aid": "12:79",
+      "ms": 2800,
+      "expMs": 13346,
+      "ratio": 0.21,
+      "chars": 48
+     },
+     {
+      "aid": "3:168",
+      "ms": 4463,
+      "expMs": 18472,
+      "ratio": 0.24,
+      "chars": 71
+     },
+     {
+      "aid": "85:2",
+      "ms": 986,
+      "expMs": 4098,
+      "ratio": 0.24,
+      "chars": 13
+     },
+     {
+      "aid": "3:150",
+      "ms": 1621,
+      "expMs": 6504,
+      "ratio": 0.25,
+      "chars": 25
+     },
+     {
+      "aid": "3:184",
+      "ms": 3722,
+      "expMs": 13269,
+      "ratio": 0.28,
+      "chars": 51
+     },
+     {
+      "aid": "27:2",
+      "ms": 1315,
+      "expMs": 4740,
+      "ratio": 0.28,
+      "chars": 16
+     },
+     {
+      "aid": "109:4",
+      "ms": 1334,
+      "expMs": 4497,
+      "ratio": 0.3,
+      "chars": 17
+     }
+    ],
+    "impossibleShort": [
+     {
+      "aid": "12:78",
+      "ms": 1230,
+      "expMs": 17238,
+      "ratio": 0.07,
+      "chars": 62
+     }
+    ],
+    "veryShort": [
+     {
+      "aid": "85:2",
+      "ms": 986,
+      "expMs": 4098,
+      "ratio": 0.24,
+      "chars": 13
+     }
+    ],
+    "extremeLong": [],
+    "longOutliers": 0,
+    "shortOutliers": 7,
+    "silenceGaps": 0,
+    "silenceExamples": [],
+    "surahsWithRate": 113
+   },
+   "audio": {
+    "audioReportsOnSha": 0,
+    "openersOnSha": false,
+    "errors": [
+     "لا حكمَ صوتيٍّ بعيّنةٍ على البصمة المنشورة",
+     "لا شاهدَ مطالعَ على البصمة المنشورة"
+    ],
+    "notes": [],
+    "samples": [],
+    "pooled": null,
+    "severeHi": null,
+    "otherShasWithSamples": [
+     "3071e99e",
+     "33b4e8ac",
+     "93069c54"
+    ],
+    "ok": false
+   }
+  },
+  {
+   "key": "timings-staging/qalun/kherkhashi_qalun.4ea67105.jz",
+   "sha256": "4ea67105354aaaa65f1f1f07cbe740259de8399eda67cbaa54a95b4c7f71a186",
+   "riwaya": "qalun",
+   "reciterId": "kherkhashi_qalun",
+   "bytes": 88614,
+   "engine": "align-0.2",
+   "transformOp": "ctc_gapsplit:85",
+   "staging": true,
+   "identity": {
+    "sha256": "4ea67105354aaaa65f1f1f07cbe740259de8399eda67cbaa54a95b4c7f71a186",
+    "staging": true,
+    "errors": [],
+    "ok": true
+   },
+   "structure": {
+    "entries": 6236,
+    "errors": [],
+    "examples": {},
+    "fileNoUnparsed": 0,
+    "structuralFatal": [],
+    "structuralWarn": [
+     "مداخل مدتها > 120ث: 1 · مثال: 2:282 مدتها 156ث"
+    ],
+    "decision": [],
+    "engine": "align-0.2",
+    "audioSha": 114,
+    "bands": {
+     "HIGH": 3983,
+     "MED": 2048,
+     "LOW": 205
+    },
+    "ok": true
+   },
+   "gaps": {
+    "missingTotal": 0,
+    "internalGaps": [],
+    "headMissing": [],
+    "tailMissing": [],
+    "wholeMissing": [],
+    "declared": {
+     "transformOp": "ctc_gapsplit:85",
+     "transformReason": "الفحص الشامل 2026-10-02: آياتٌ بلا تلاوة 85:5 (مدّتها ≤0.1× المتوقَّع — صوتُها داخل جارتها) ⇒ إعادةُ نافذة المدى بين جارَين ثابتَين بحرّاس الثقة والمدّة والجارة",
+     "reasonCode": null,
+     "dropSurahs": [],
+     "byReason": {
+      "no-align": 10
+     },
+     "declaredCount": 10,
+     "tagCount": 0,
+     "declaredIds": [],
+     "truncatedTail": null
+    },
+    "undeclaredEdge": [],
+    "errors": [],
+    "ok": true
+   },
+   "durations": {
+    "durationOutliers": 8,
+    "durationExamples": [
+     {
+      "aid": "12:78",
+      "ms": 1230,
+      "expMs": 17238,
+      "ratio": 0.07,
+      "chars": 62
+     },
+     {
+      "aid": "12:79",
+      "ms": 2800,
+      "expMs": 13346,
+      "ratio": 0.21,
+      "chars": 48
+     },
+     {
+      "aid": "3:168",
+      "ms": 4463,
+      "expMs": 18472,
+      "ratio": 0.24,
+      "chars": 71
+     },
+     {
+      "aid": "85:2",
+      "ms": 986,
+      "expMs": 4098,
+      "ratio": 0.24,
+      "chars": 13
+     },
+     {
+      "aid": "3:150",
+      "ms": 1621,
+      "expMs": 6504,
+      "ratio": 0.25,
+      "chars": 25
+     },
+     {
+      "aid": "3:184",
+      "ms": 3722,
+      "expMs": 13269,
+      "ratio": 0.28,
+      "chars": 51
+     },
+     {
+      "aid": "27:2",
+      "ms": 1315,
+      "expMs": 4740,
+      "ratio": 0.28,
+      "chars": 16
+     },
+     {
+      "aid": "109:4",
+      "ms": 1334,
+      "expMs": 4497,
+      "ratio": 0.3,
+      "chars": 17
+     }
+    ],
+    "impossibleShort": [
+     {
+      "aid": "12:78",
+      "ms": 1230,
+      "expMs": 17238,
+      "ratio": 0.07,
+      "chars": 62
+     }
+    ],
+    "veryShort": [
+     {
+      "aid": "85:2",
+      "ms": 986,
+      "expMs": 4098,
+      "ratio": 0.24,
+      "chars": 13
+     }
+    ],
+    "extremeLong": [],
+    "longOutliers": 0,
+    "shortOutliers": 7,
+    "silenceGaps": 0,
+    "silenceExamples": [],
+    "surahsWithRate": 113
+   },
+   "audio": {
+    "audioReportsOnSha": 0,
+    "openersOnSha": false,
+    "errors": [
+     "لا حكمَ صوتيٍّ بعيّنةٍ على البصمة المنشورة",
+     "لا شاهدَ مطالعَ على البصمة المنشورة"
+    ],
+    "notes": [],
+    "samples": [],
+    "pooled": null,
+    "severeHi": null,
+    "otherShasWithSamples": [
+     "3071e99e",
+     "33b4e8ac",
+     "93069c54"
+    ],
+    "ok": false
+   }
+  }
+ ],
+ "summary": {
+  "indexes": 2,
+  "phase": "all",
+  "identityOk": 2,
+  "identityBad": [],
+  "structureOk": 2,
+  "structureBad": [],
+  "gapsOk": 2,
+  "gapsBad": [],
+  "audioOk": 0,
+  "audioBad": [
+   "timings-staging/qalun/kherkhashi_qalun.4ea67105.jz",
+   "timings-staging/qalun/kherkhashi_qalun.4ea67105.jz"
+  ],
+  "durationOutliersTotal": 16,
+  "impossibleShortTotal": 2,
+  "indexesWithImpossibleShort": 2,
+  "veryShortTotal": 2,
+  "extremeLongTotal": 0,
+  "indexesWithExtremeLong": 0,
+  "mirrorStale": 0,
+  "silenceGapsTotal": 0,
+  "indexesWithDurationOutliers": 2,
+  "indexesWithSilenceGaps": 0,
+  "entriesTotal": 12472,
+  "missingTotal": 0
+ }
+}
