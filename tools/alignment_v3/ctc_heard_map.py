@@ -263,7 +263,7 @@ def _char_list():
 
 def run(audio, surah, riwaya, log=print, probe=False):
     import numpy as np
-    from ctc_seg import SR, _conf, _emissions, _segment
+    from ctc_seg import BASMALA, SR, _conf, _emissions, _segment
     from common import ffprobe_duration_ms, load_index, load_text, norm, surah_slice, to_wav16k
     from vad import read_wav, silences, snap_to_silence
     from validate import band, check_surah
@@ -289,7 +289,12 @@ def run(audio, surah, riwaya, log=print, probe=False):
     chosen = choose_chain(occ)
     chosen_ms = [(times[c[0]], times[min(c[1], len(times)) - 1] + int(frame_ms)) if c else None
                  for c in chosen]
-    anchors = global_anchors(heard_sk, times, sks, frame_ms)
+    # البسملةُ نصٌّ قائدٌ في المحاذاة العامّة (‏كما في ctc_seg) فلا تُنسب إلى الآية الأولى — وإلا
+    # ابتلعها مدخلُها فردّه حارسُ المطالع (lateConfirmed).
+    bas_sk = norm(BASMALA).replace(" ", "") if surah not in (1, 9) else ""
+    anchors = global_anchors(heard_sk, times, ([bas_sk] if bas_sk else []) + sks, frame_ms)
+    bas_anchor = anchors[0] if bas_sk else None
+    anchors = anchors[1:] if bas_sk else anchors
     # المِرساةُ المعتمَدة للنوافذ: المحاذاةُ العامّةُ الرتيبة (‏جودةٌ ≥ ANCHOR_Q)؛ والأداءاتُ المنفردةُ
     # شاهدٌ على التكرار والزيادة فقط.
     anchor_ms = [(a[0], a[1]) if a and a[2] >= ANCHOR_Q else None for a in anchors]
@@ -348,15 +353,19 @@ def run(audio, surah, riwaya, log=print, probe=False):
         trail = j + 1 if j + 1 < n and anchor_ms[j + 1] else None
         ws = anchor_ms[lead][0] if lead is not None else max(0, anchor_ms[first][0] - PAD_MS)
         we = anchor_ms[trail][1] if trail is not None else min(total_ms, anchor_ms[last][1] + PAD_MS)
-        ws, we = int(max(0, ws)), int(min(total_ms, we))
         texts = ([refs[lead]] if lead is not None else []) + refs[i:j + 1] + ([refs[trail]] if trail is not None else [])
+        if i == 0 and bas_sk:                       # البسملةُ قائدةً في نافذة المطلع
+            texts = [norm(BASMALA)] + texts
+            if bas_anchor:
+                ws = min(ws, max(0, bas_anchor[0] - PAD_MS))
+        ws, we = int(max(0, ws)), int(min(total_ms, we))
         clip = x[ws * SR // 1000: we * SR // 1000]
         try:
             segs = _segment(_emissions(clip), len(clip), texts)
         except Exception as ex:                                 # noqa: BLE001
             result["issues"].append(f"نافذة {i + 1}–{j + 1}: تعذّرت المحاذاة — {str(ex)[:80]}")
             continue
-        off = 1 if lead is not None else 0
+        off = (1 if lead is not None else 0) + (1 if i == 0 and bas_sk else 0)
         for k in range(i, j + 1):
             st, _en, sc = segs[off + (k - i)]
             starts[k], scores[k] = ws + int(st * 1000), sc
@@ -386,6 +395,12 @@ def run(audio, surah, riwaya, log=print, probe=False):
             starts[k], scores[k], source[k] = a[0], -2.4, "anchor"      # _conf(-2.4) = 0.4 ⇒ LOW
         result["issues"].append(f"الآية {k + 1}: حدُّ النافذة {abs(starts[k] - a[0]) / 1000:.1f}ث عن مِرساتها"
                                 f" ⇒ {source[k]}")
+    # حدٌّ مصحَّحٌ يزاحم التاليةَ (‏الصافات 106: 200م.ث) يُردّ إلى مِرساته إن وسعت.
+    for k in range(n - 1):
+        a = anchor_ms[k]
+        if (source[k] != "window" and a and starts[k] is not None and starts[k + 1] is not None
+                and starts[k] + 500 > starts[k + 1] and a[0] < starts[k + 1] - 500):
+            starts[k], scores[k], source[k] = a[0], -2.4, "anchor"
     for k in range(1, n):                     # رتابةٌ بعد التصحيح
         if starts[k] is not None and starts[k - 1] is not None and starts[k] < starts[k - 1] + 200:
             starts[k] = starts[k - 1] + 200
