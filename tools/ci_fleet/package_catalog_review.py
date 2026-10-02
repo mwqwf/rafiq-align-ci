@@ -20,7 +20,7 @@ def public(key):
 def sha(raw):
     return hashlib.sha256(raw).hexdigest()
 
-def review(run_id):
+def review(run_id, verify_live=False):
     run = json.loads(gh(f"repos/{REPO}/actions/runs/{run_id}"))
     if run["status"] != "completed" or run["conclusion"] != "success":
         raise ValueError("Candidate run has not passed")
@@ -49,7 +49,10 @@ def review(run_id):
         errors.append("Candidate identifiers differ from current production manifest")
     if sha(reciters_raw) != snapshot["catalogSha256"]:
         errors.append("Reciter catalog changed since certificate snapshot")
-    if sha(live_packages_raw) != sha(before_raw):
+    if verify_live:
+        if sha(live_packages_raw) != sha(candidate_raw):
+            errors.append("Published catalog differs from the reviewed immutable artifact")
+    elif sha(live_packages_raw) != sha(before_raw):
         errors.append("Live package catalog changed since build")
     if id_diff.get("removed"):
         errors.append("Candidate removes previously certified identifiers")
@@ -78,7 +81,7 @@ def review(run_id):
         checked = list(pool.map(check, by.items()))
     errors += [x["id"] + ": " + "; ".join(x["errors"]) for x in checked if x["errors"]]
     return {
-        "ready":not errors,"errors":errors,"runId":run_id,"artifactId":art["id"],
+        "ready":not errors,"errors":errors,"verifyLive":verify_live,"runId":run_id,"artifactId":art["id"],
         "artifactBytes":art["size_in_bytes"],"artifactExpiresAt":art["expires_at"],
         "candidateSha256":sha(candidate_raw),"expectedRecitersSha256":sha(reciters_raw),
         "expectedPackagesSha256":sha(live_packages_raw),"timingPackages":len(rows),
@@ -92,8 +95,9 @@ def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--run", type=int, required=True)
     ap.add_argument("--out", required=True)
+    ap.add_argument("--verify-live", action="store_true")
     a = ap.parse_args()
-    report = review(a.run)
+    report = review(a.run, a.verify_live)
     Path(a.out).write_text(json.dumps(report, ensure_ascii=False, indent=2)+"\n", encoding="utf-8")
     print(json.dumps({k:v for k,v in report.items() if k != "checked"}, ensure_ascii=False))
     return 0 if report["ready"] else 1
