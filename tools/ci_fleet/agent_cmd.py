@@ -157,6 +157,11 @@ ALLOWED_TOOLS = {"ci_fleet/package_catalog_review.py", "ci_fleet/akri_soundcloud
                  "ci_fleet/test_source_ratio_refs.py",
                  "ci_fleet/test_needs_restore.py",
                  "index_qa/verdict_probe.py",
+                 # 🔎 **أُضيف 2026-10-02 (أمرُ المالك: فحصٌ شاملٌ للفهرسة):** مسحٌ واحدٌ لكلّ المنشور
+                 #    بالبنود الخمسة (هويّة · بنية · قاعدةُ البتر · أحكامُ الصوت على البصمة · مؤشّراتُ المدد).
+                 # ⚖️ قارئٌ محض: يقرأ الدلوَ وstate/ والعنوانَ العامّ ويكتب تقريرَه في ops/out/ وحدَه؛
+                 #    لا يمسّ فهرساً ولا حارساً ولا عتبة. واختبارُه بلا شبكة في test_full_audit.py.
+                 "index_qa/full_audit.py", "index_qa/test_full_audit.py",
                  "index_qa/test_declared_sha_fatal.py",
                  "ci_fleet/repo_parity.py"}
 MAX_OUT = 200_000            # حرفاً — جوابٌ أطولُ يُقصّ ويُعلَن قصُّه
