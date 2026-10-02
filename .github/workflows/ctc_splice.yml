@@ -29,7 +29,7 @@ on:
       reason: {description: "سببُ التحويل", required: true}
       mode: {description: "full = CTC للسورة كاملة · window = قسمةُ المدخل الذي ابتلع جارتَه بنافذته وحدها (ctc_gapsplit) · heard = خريطةُ السماع ثمّ نوافذُ على مراسٍ مسموعة لتسجيلٍ فيه زيادةٌ أو تكرار (ctc_heard_map) · dualfix = تصحيحُ حدود مرشّح heardmap (base_key) بما اتّفق عليه النموذجان المثبَّتان (ctc_dualfix)", default: "full"}
       base_key: {description: "وضعُ dualfix وحده: مفتاحُ مرشّح heardmap في timings-staging تُصحَّح حدودُه بما اتّفق عليه النموذجان المثبَّتان (ctc_dualfix)", default: ""}
-      rewindow: {description: "وضعُ window وحده: مدى آياتٍ حاضرةٍ حدودُها معطوبةٌ يُعاد بنافذته بين جارتين ثابتتين، مثل 55:41-75", default: ""}
+      rewindow: {description: "وضعا window وdualfix (بالنموذج القرآنيّ بين جارَين ثابتَين، مثل 38:44-51,38:80-88): مدى آياتٍ حاضرةٍ حدودُها معطوبةٌ يُعاد بنافذته بين جارتين ثابتتين، مثل 55:41-75", default: ""}
       truncated_tail: {description: "وضعُ full وحده (أمر المالك 2026-10-02): سورةٌ واحدةٌ مصدرُها مبتورُ الذيل تُحاذى بادئتُها 1..N بالنموذج القرآني المثبَّت ويُعلَن ذيلُها source_truncated — «24:30»؛ وsurahs = السورةُ نفسُها", default: ""}
 
 concurrency:
@@ -203,7 +203,7 @@ jobs:
             for s in $(echo "$SURAHS" | tr ',' ' '); do
               U="$(python -c "import sys; print(sys.argv[1].format(s=int(sys.argv[2])))" "$URLT" "$s")"
               CTC_INT8=0 CTC_THREADS=2 python tools/alignment_v3/ctc_dualfix.py --base-key "$BASEKEY" --url "$U" \
-                --surah "$s" --riwaya "$RIW" --out-dir "tools/alignment/work/batch_$RID" 2>&1 | tee -a ctc.log
+                --surah "$s" --riwaya "$RIW" --out-dir "tools/alignment/work/batch_$RID" --rewindow "$REWIN" 2>&1 | tee -a ctc.log
             done
             exit 0
           fi

@@ -117,6 +117,62 @@ def fuse(base, measurements, chars, rate, tol_start=X.START_TOL, tol_end=X.END_T
     return bounds, src, detail
 
 
+def parse_ranges(spec, surah):
+    """«38:44-51,38:80-88» ⇒ [(44, 51), (80, 88)] للسورة المعنيّة وحدها؛ ما يخالفها يرفع ValueError."""
+    out = []
+    for part in [x.strip() for x in (spec or "").replace(";", ",").split(",") if x.strip()]:
+        s, _, rng = part.partition(":")
+        a, _, b = rng.partition("-")
+        if int(s) != surah or not a or not b or int(a) > int(b) or int(a) < 1:
+            raise ValueError(f"bad rewindow range {part!r}")
+        out.append((int(a), int(b)))
+    for (a, b), (c, d) in zip(out, out[1:]):
+        if c <= b:
+            raise ValueError("rewindow ranges must be disjoint and ascending")
+    return out
+
+
+def anchors_for(base, a, b, total_ms):
+    """نافذةُ المدى a..b بين جارَين ثابتَين من المرشّح: نهايةُ (a−1) وبدايةُ (b+1)، أو حدَّي الملفّ."""
+    n = len(base)
+    start = base[a - 2][1] if a > 1 else 0
+    end = base[b][0] if b < n else total_ms
+    if not 0 <= start < end <= total_ms:
+        raise ValueError(f"rewindow {a}-{b}: anchors outside the file")
+    return start, end
+
+
+def rewindow_regions(pcm_all, base, ranges, texts, total_ms, log=print):
+    """يُعيد محاذاةَ مدياتٍ بعينها بالنموذج القرآنيّ المثبَّت داخل نافذة جارَيها الثابتَين
+    (‏أمرُ المنسّق 2026-10-02: منطقتا التكرار 44–50 و80–84 لا تُصلحهما قسمةُ الحدود).
+    يُرجع (‏base معدَّلاً، دليل) — والحدودُ الجديدةُ مقيسةٌ لا مختلَقة، ويحكم عليها الشاهدُ بعدُ."""
+    import ci_spoken_census as W
+    model = W.Q.configure()
+    model = {k: model[k] for k in ("id", "revision", "weightsSha256", "license")}
+    new_base = [list(x) for x in base]
+    evidence = []
+    for a, b in ranges:
+        start, end = anchors_for(base, a, b, total_ms)
+        actual = [W.Q.reference_text(texts[k - 1]) for k in range(a, b + 1)]
+        pcm = pcm_all[start * 16:end * 16]
+        raw = W.C._segment(W.C._emissions(pcm), len(pcm), actual)
+        ents = [[start + int(st * 1000), start + int(en * 1000), round(W.C._conf(sc), 4)] for (st, en, sc) in raw]
+        for i in range(len(ents) - 1):
+            ents[i][1] = ents[i + 1][0]
+        ents[0][0] = start                      # متّصلٌ بالجار الثابت قبله
+        ents[-1][1] = end                       # وبالجار الثابت بعده (‏أو نهايةِ الملفّ)
+        for i, k in enumerate(range(a, b + 1)):
+            if ents[i][1] <= ents[i][0]:
+                raise ValueError(f"rewindow {a}-{b}: ayah {k} collapsed")
+            new_base[k - 1] = [ents[i][0], ents[i][1]]
+            log(f"rewindow quran 38:{k} {ents[i][0]} {ents[i][1]} {ents[i][2]:.3f}")
+        evidence.append({"range": [a, b], "windowMs": [start, end], "model": model,
+                         "entries": [{"ayah": k, "startMs": e[0], "endMs": e[1], "conf": e[2]}
+                                     for k, e in zip(range(a, b + 1), ents)]})
+    W.C._M.clear(); gc.collect()
+    return new_base, evidence
+
+
 def measure_all(pcm_all, idx, surah, total_ms, log=print):
     """قياسُ كلّ آيةٍ في نافذتها بالنموذجين (‏النموذجُ خارجَ الحلقة كما في الشاهد)."""
     import ci_spoken_census as W
@@ -157,6 +213,7 @@ def main() -> int:
     ap.add_argument("--surah", type=int, required=True)
     ap.add_argument("--riwaya", default="hafs")
     ap.add_argument("--out-dir", required=True)
+    ap.add_argument("--rewindow", default="", help="مدياتٌ تُعاد محاذاتُها بالنموذج القرآنيّ بين جارَين ثابتَين، مثل 38:44-51,38:80-88")
     a = ap.parse_args()
     if os.environ.get("CTC_INT8") != "0" or os.environ.get("CTC_THREADS") != "2":
         raise ValueError("float32 and two threads are required (CTC_INT8=0 CTC_THREADS=2)")
@@ -189,12 +246,24 @@ def main() -> int:
         raise ValueError("downloaded audio differs from the base candidate's audioSha256")
     pcm_all = R._full_decode_pcm(audio)
     total_ms = len(pcm_all) // 16
-    meas, models, plans = measure_all(pcm_all, idx, s, total_ms)
     refs = load_text(a.riwaya)[begin:stop]
     chars = [len(norm(t).replace(" ", "")) for t in refs]
     rate, _ = X._rate(idx, s)
     base = [[e["startMs"], e["endMs"]] for e in rows]
+    rewindow_evidence = []
+    if a.rewindow:
+        from spoken_letters import alignment_text
+        texts = [alignment_text(s, k, refs[k - 1]) for k in range(1, n + 1)]
+        base, rewindow_evidence = rewindow_regions(pcm_all, base, parse_ranges(a.rewindow, s), texts, total_ms)
+        # ⛔ القياسُ المزدوجُ ونوافذُه تُبنى على الحدود المعادة لا على المرشّح القديم
+        for e, (st, en) in zip(rows, base):
+            e["startMs"], e["endMs"] = st, en
+    meas, models, plans = measure_all(pcm_all, idx, s, total_ms)
+    original_base = [[e["startMs"], e["endMs"]] for e in
+                     [x for x in json.loads(gzip.decompress(body))["entries"] if x["ayahId"].startswith(f"{s}:") and x.get("startMs") is not None]]
     bounds, src, detail = fuse(base, [meas.get(f"{s}:{k}") for k in range(1, n + 1)], chars, rate)
+    for k, d in enumerate(detail):
+        d["candidateBase"] = original_base[k]
     entries = []
     for k, (st, en) in enumerate(bounds):
         e = rows[k]; d = detail[k]
@@ -208,13 +277,13 @@ def main() -> int:
     bands = {}
     for e in entries:
         bands[band(e["conf"])] = bands.get(band(e["conf"]), 0) + 1
-    changed = sum(1 for k in range(n) if bounds[k] != base[k])
+    changed = sum(1 for k in range(n) if bounds[k] != original_base[k])
     evidence = {"engine": ENGINE, "baseKey": a.base_key, "baseSha256": base_sha, "baseEngine": idx["engineBySurah"][str(s)],
                 "sourceSha256": sha, "totalMs": total_ms, "models": models,
                 "runtime": dict(X.RUNTIME), "canonicalTextChanged": False,
                 "thresholds": {"startTol": X.START_TOL, "endTol": X.END_TOL, "minConf": X.TARGET_CONF,
                                "durLo": X.DUR_LO, "durHi": X.DUR_HI, "rateMsPerChar": rate},
-                "windows": plans, "measurements": meas, "perAyah": detail,
+                "windows": plans, "measurements": meas, "perAyah": detail, "rewindow": rewindow_evidence,
                 "changedAyat": changed, "boundarySources": src}
     res = {"surah": s, "riwaya": a.riwaya, "engine": ENGINE, "totalMs": total_ms, "fileRef": a.url,
            "sha256": sha, "vadRel": None, "vadVersion": None, "entries": entries, "issues": issues,

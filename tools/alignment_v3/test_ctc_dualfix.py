@@ -86,6 +86,16 @@ class FuseTest(unittest.TestCase):
         b, src, d = F.fuse(wrong, m, CHARS, RATE)
         self.assertEqual(b[1], true[1]); self.assertEqual(b[2], true[2])
 
+    def test_rewindow_ranges_and_anchors(self):
+        self.assertEqual(F.parse_ranges("38:44-51, 38:80-88", 38), [(44, 51), (80, 88)])
+        for bad in ("37:1-3", "38:5-4", "38:3-6,38:5-9", "38:0-2"):
+            with self.assertRaises(ValueError):
+                F.parse_ranges(bad, 38)
+        base = self.base
+        self.assertEqual(F.anchors_for(base, 2, 3, 99999), (base[0][1], base[3][0]))
+        self.assertEqual(F.anchors_for(base, 1, 2, 99999), (0, base[2][0]))
+        self.assertEqual(F.anchors_for(base, 4, 5, 99999), (base[2][1], 99999))
+
     def test_wiring(self):
         root = pathlib.Path(F.__file__).parents[2]
         promote = (root / "tools" / "index_qa" / "promote.py").read_text(encoding="utf-8")
@@ -96,6 +106,7 @@ class FuseTest(unittest.TestCase):
         self.assertIn('if [ "$MODE" = "dualfix" ]; then ETAG="ctc-dualfix-1"; fi', wf)
         self.assertIn('OPN="ctc_dualfix_splice"', wf)
         self.assertIn("CTC_INT8=0 CTC_THREADS=2 python tools/alignment_v3/ctc_dualfix.py", wf)
+        self.assertIn('--rewindow "$REWIN"', wf)
         self.assertEqual(F.ENGINE, "ctc-dualfix-1")
 
 
