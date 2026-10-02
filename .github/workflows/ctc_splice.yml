@@ -136,8 +136,9 @@ jobs:
           if idx.get("reciterId") != rid or idx.get("riwaya") != riw:
               sys.exit("⛔ الأصلُ يصف قارئاً آخر")
           # ⛔ المحرّكُ حتميّ: على ملفّ الكتالوج نفسِه يعيد النقصَ نفسَه؛ ومن بديلٍ
-          #    مسجَّلٍ فالمدخلُ غيرُه فيُسمح.
-          if idx.get("engineVersion") == "ctc-seg-1" and not alt and os.environ.get("MODE", "full") != "window":
+          #    مسجَّلٍ فالمدخلُ غيرُه فيُسمح. ووضعا window وheard مُدخَلُهما غيرُ المحاذاة الرتيبة
+          #    (‏نافذةُ الجارتين · نوافذُ على مراسٍ مسموعة) فيُسمح بهما على الملفّ نفسِه.
+          if idx.get("engineVersion") == "ctc-seg-1" and not alt and os.environ.get("MODE", "full") not in ("window", "heard"):
               sys.exit("⛔ الأصلُ منشورٌ بـCTC نفسِه — المحرّكُ حتميّ فإعادتُه تعيد النقصَ نفسَه")
           have = {}
           for e in idx["entries"]:
