@@ -440,5 +440,14 @@
     "url": "https://archive.org/download/Adel_Al-Kalbani_128MP3_Quran/077.ogg",
     "audio_sha256": "458aaf7fee50d7888d4501d5218189025e93596b5c3bf1ee43d50da86a7324b0",
     "evidence": "Whole original publisher Vorbis, verified MD5/size/SHA, strict Ogg CRC/sequence/packets/EOS and complete native decode zero errors. Publisher original MP3 MD5 equals indexed official original: known same recording and reader. Source evidence ops/source-repair/kalbani-clean-vorbis-source-evidence-20261001.json. Fresh complete-surah Quran and actual complementary Generic measurements; source/model pins and every raw context preserved. No inherited timing. New confidence .45, selected anchors .5, local duration .5..2, complete-surah .35..3 and strict non-overlap unchanged. No production acceptance before all exact-SHA audio gates."
+  },
+  {
+    "riwaya": "hafs",
+    "reciter": "kurdi",
+    "surah": 16,
+    "base": "https://raw.githubusercontent.com/mwqwf/rafiq-align-ci/23d461f1c582699aa74927ce456fa6b09916667f/ops/source-repair/audio-fixtures/",
+    "url": "https://raw.githubusercontent.com/mwqwf/rafiq-align-ci/23d461f1c582699aa74927ce456fa6b09916667f/ops/source-repair/audio-fixtures/kurdi-nahl-c82dee87.mp3",
+    "audio_sha256": "c82dee8759a803dbe1364e9745880856ca5a5eb98b8473a70f689b4905e27e3a",
+    "evidence": "Verified public SoundCloud named Ramadan1441/2020 Raad Mohammad Al Kurdi Hafs Nahl alternative, copied byte-exact to immutable GitHub commit23d461f. Whole45MB size/SHA/MPEG/native decoded2785349.6875ms, CI36961081363. Actual82 heard with81/83 and independent pinned float Generic82=.834. All128 timings measured freshly: full Quran plus shorter canonical suffix context84..128 to resolve full-context alignment failure, target-only known normalization109 and qualified complementary Generic89/90. All raw failed contexts preserved. No timing inherited from different recording. Native physical source proof ops/source-repair/kurdi-soundcloud-original-source-evidence-20261002.json; no weakening confidence/duration/anchor/gap/source gates; acceptance requires exact-SHA independent audio QA and census."
   }
 ]

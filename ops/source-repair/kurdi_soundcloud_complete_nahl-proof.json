@@ -1,0 +1,43 @@
+{
+  "candidate": {
+    "reciterId": "kurdi",
+    "riwaya": "hafs",
+    "surahs": [
+      16
+    ],
+    "parent": "timings/hafs/kurdi.jz",
+    "parentSha": "bab6b797c090e81bc8f28ff6ad875d6fa00b15fa2be896c05c072d447d6d32df",
+    "candidateFile": "ops/source-repair/candidates/kurdi.502e8179.jz",
+    "candidateSha": "502e81798efc5f57d4a1b3403504cef18df30ceacfaf5cdbe9079286c5675d5b",
+    "added": [
+      "16:82"
+    ],
+    "requiredCleanAyahs": [
+      "16:1",
+      "16:82",
+      "16:90",
+      "16:109",
+      "16:128"
+    ],
+    "entries": 6236,
+    "productionChanged": false,
+    "expectedCensusSurahs": [
+      1,
+      3,
+      7,
+      16,
+      33,
+      37,
+      42,
+      46,
+      93
+    ],
+    "expectedCensusPopulation": 895
+  },
+  "kind": "lossless-original-measurements-archive",
+  "expandedSha256": "8ed19fb4a432218ca40cddf57ef02da1eb70d25f5b7abbf172a1df05cbc14f2b",
+  "expandedBytes": 299706,
+  "gzipSha256": "02dd5221fbaadc0903d20f622f7d2ecc5617b052e43a5e67d6caf264559a74f5",
+  "gzipBytes": 24172,
+  "artifact": "ops/source-repair/kurdi_soundcloud_complete_nahl-proof.json.gz"
+}
