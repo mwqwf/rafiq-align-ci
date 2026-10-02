@@ -1,0 +1,1892 @@
+{
+  "ready": true,
+  "errors": [],
+  "runId": 36966655500,
+  "artifactId": 11210271332,
+  "artifactBytes": 48784,
+  "artifactExpiresAt": "2026-10-05T04:56:41Z",
+  "candidateSha256": "4a88165cd1745cef6d5943ed083bf8227a857287b8bba24f273f56628ff42132",
+  "expectedRecitersSha256": "ea8610fa9ceb2de37f86f2f7acf8f29a52ec66d4e508652f5a9a41664a5f9b2a",
+  "expectedPackagesSha256": "3c0fe8dbe16c69ca75fb1227fc15aca2f7442b37210d90f456dba8faf65786f1",
+  "timingPackages": 180,
+  "productionIndexes": 180,
+  "gateSummary": {
+    "added": 20,
+    "beforeCertified": 160,
+    "nonTimingKept": 1,
+    "removed": 0,
+    "timingCertified": 180,
+    "timingDroppedUncertified": 0
+  },
+  "idDiff": {
+    "beforeCertified": [
+      "douri/deban_douri",
+      "douri/fateh_douri",
+      "douri/husary_douri",
+      "douri/nourin_douri",
+      "douri/sultani_douri",
+      "hafs/3siri",
+      "hafs/a_abdl",
+      "hafs/a_ahmed",
+      "hafs/a_albadr",
+      "hafs/a_alemadi",
+      "hafs/a_alhazmi",
+      "hafs/a_alqrafi",
+      "hafs/a_alshahhat",
+      "hafs/a_ghailan",
+      "hafs/a_maasaraawi",
+      "hafs/a_majed",
+      "hafs/a_turki",
+      "hafs/aamer",
+      "hafs/abdullahk",
+      "hafs/abkar",
+      "hafs/afs",
+      "hafs/akdr",
+      "hafs/alijon",
+      "hafs/aloosi",
+      "hafs/alosfor",
+      "hafs/alzain",
+      "hafs/arkani",
+      "hafs/bader",
+      "hafs/balilah",
+      "hafs/bari",
+      "hafs/buajan",
+      "hafs/bukheet",
+      "hafs/darweez",
+      "hafs/deban",
+      "hafs/gulan",
+      "hafs/h_aldaghriri",
+      "hafs/h_dukhain",
+      "hafs/habdan",
+      "hafs/hafz",
+      "hafs/hamza",
+      "hafs/harthi",
+      "hafs/hawashi",
+      "hafs/hkm",
+      "hafs/i_sanankoua",
+      "hafs/ibrahim_dosri",
+      "hafs/j_abdullah",
+      "hafs/jaleel",
+      "hafs/jamal",
+      "hafs/jaman",
+      "hafs/jormy",
+      "hafs/k_alzadi",
+      "hafs/kafi",
+      "hafs/kamel",
+      "hafs/kanakeri",
+      "hafs/kh_mohammadi",
+      "hafs/khalf",
+      "hafs/khan",
+      "hafs/kurdi",
+      "hafs/kyat",
+      "hafs/lahoni",
+      "hafs/lhdan",
+      "hafs/m_abdelhakam",
+      "hafs/m_alfaqih",
+      "hafs/m_alzubaidi",
+      "hafs/m_burhaji",
+      "hafs/m_harfoush",
+      "hafs/m_qari",
+      "hafs/mal_allah_jaber",
+      "hafs/mansor",
+      "hafs/mohna",
+      "hafs/mohsin_harthi",
+      "hafs/mousa",
+      "hafs/mrifai",
+      "hafs/muftah_sultany",
+      "hafs/mukhtar_haj",
+      "hafs/mustafa",
+      "hafs/nabil",
+      "hafs/namh",
+      "hafs/nasser_almajed",
+      "hafs/nathier",
+      "hafs/noah",
+      "hafs/nufais",
+      "hafs/obk",
+      "hafs/peshawa",
+      "hafs/qurashi",
+      "hafs/ra3ad",
+      "hafs/rami",
+      "hafs/rashad",
+      "hafs/ryan",
+      "hafs/s_alquraishi",
+      "hafs/s_hashemi",
+      "hafs/s_sadeiq",
+      "hafs/saber",
+      "hafs/sahood",
+      "hafs/salah_hashim_m",
+      "hafs/sayed",
+      "hafs/shah",
+      "hafs/shaheen",
+      "hafs/shamrani",
+      "hafs/shatri2",
+      "hafs/soufi",
+      "hafs/swlim",
+      "hafs/taher",
+      "hafs/tblawi",
+      "hafs/thubti",
+      "hafs/trabulsi",
+      "hafs/twfeeq",
+      "hafs/wdee3",
+      "hafs/wdod",
+      "hafs/yahya",
+      "hafs/yousef",
+      "hafs/zahrani",
+      "hafs/zaki",
+      "hafs/zaml",
+      "qalun/akri_qalun",
+      "qalun/andari_qalun",
+      "qalun/deban_qalun",
+      "qalun/dokali",
+      "qalun/fakhfakh_qalun",
+      "qalun/gardeli_qalun",
+      "qalun/husary_qalun",
+      "qalun/huthaify_qalun",
+      "qalun/jelmam_qalun",
+      "qalun/kherkhashi_qalun",
+      "qalun/kshidan_qalun",
+      "qalun/magdi_qalun",
+      "qalun/qeniwa_qalun",
+      "qalun/qeryo_qalun",
+      "qalun/rajab_qalun",
+      "qalun/rakbawi_qalun",
+      "qalun/saber_qalun",
+      "qalun/shaykhna_qalun",
+      "qalun/sneineh_qalun",
+      "qalun/suhaim_qalun",
+      "qalun/tareq_qalun",
+      "qalun/trablsi",
+      "qalun/waleed_qalun",
+      "shuba/deban_shuba",
+      "shuba/huthaify_shuba",
+      "sousi/soufi_sousi",
+      "warsh/asali_warsh",
+      "warsh/basit_warsh",
+      "warsh/benkirane_warsh",
+      "warsh/bl3_warsh",
+      "warsh/deban_warsh",
+      "warsh/derini_warsh",
+      "warsh/gharbi_warsh",
+      "warsh/husary_warsh",
+      "warsh/iraoui_warsh",
+      "warsh/kentaoui_warsh",
+      "warsh/koshi_warsh",
+      "warsh/laghdaf_shinqiti",
+      "warsh/m_abdulkareem_warsh",
+      "warsh/m_sayed_warsh",
+      "warsh/masarawy_warsh",
+      "warsh/qari_warsh",
+      "warsh/qazabri",
+      "warsh/rabbani_warsh",
+      "warsh/sultani_warsh",
+      "warsh/wahrani_warsh"
+    ],
+    "afterCertified": [
+      "douri/deban_douri",
+      "douri/fateh_douri",
+      "douri/husary_douri",
+      "douri/nourin_douri",
+      "douri/sultani_douri",
+      "hafs/3siri",
+      "hafs/a_abdl",
+      "hafs/a_ahmed",
+      "hafs/a_albadr",
+      "hafs/a_alemadi",
+      "hafs/a_alhazmi",
+      "hafs/a_alqrafi",
+      "hafs/a_alshahhat",
+      "hafs/a_binaoun",
+      "hafs/a_ghailan",
+      "hafs/a_klb",
+      "hafs/a_maasaraawi",
+      "hafs/a_majed",
+      "hafs/a_turki",
+      "hafs/aamer",
+      "hafs/abdullahk",
+      "hafs/abkar",
+      "hafs/afs",
+      "hafs/akdr",
+      "hafs/alijon",
+      "hafs/aloosi",
+      "hafs/alosfor",
+      "hafs/alzain",
+      "hafs/arkani",
+      "hafs/asim",
+      "hafs/bader",
+      "hafs/balilah",
+      "hafs/bari",
+      "hafs/bilal",
+      "hafs/buajan",
+      "hafs/bukheet",
+      "hafs/darweez",
+      "hafs/deban",
+      "hafs/f_hajry",
+      "hafs/f_khamery",
+      "hafs/gulan",
+      "hafs/h_abudalal",
+      "hafs/h_aldaghriri",
+      "hafs/h_dukhain",
+      "hafs/h_saleh",
+      "hafs/habdan",
+      "hafs/hafz",
+      "hafs/hamza",
+      "hafs/harthi",
+      "hafs/hatem",
+      "hafs/hawashi",
+      "hafs/hkm",
+      "hafs/i_sanankoua",
+      "hafs/ibrahim_dosri",
+      "hafs/j_abdullah",
+      "hafs/jaleel",
+      "hafs/jamal",
+      "hafs/jaman",
+      "hafs/jormy",
+      "hafs/k_alzadi",
+      "hafs/kafi",
+      "hafs/kamel",
+      "hafs/kanakeri",
+      "hafs/kh_mohammadi",
+      "hafs/khalf",
+      "hafs/khan",
+      "hafs/kurdi",
+      "hafs/kyat",
+      "hafs/lahoni",
+      "hafs/lhdan",
+      "hafs/m_abdelhakam",
+      "hafs/m_alfaqih",
+      "hafs/m_alzubaidi",
+      "hafs/m_burhaji",
+      "hafs/m_harfoush",
+      "hafs/m_qari",
+      "hafs/mal_allah_jaber",
+      "hafs/mansor",
+      "hafs/mhsny",
+      "hafs/mohna",
+      "hafs/mohsin_harthi",
+      "hafs/mousa",
+      "hafs/mrifai",
+      "hafs/muftah_sultany",
+      "hafs/mukhtar_haj",
+      "hafs/mustafa",
+      "hafs/nabil",
+      "hafs/namh",
+      "hafs/nasser_almajed",
+      "hafs/nathier",
+      "hafs/noah",
+      "hafs/nufais",
+      "hafs/obk",
+      "hafs/peshawa",
+      "hafs/qasm",
+      "hafs/qurashi",
+      "hafs/ra3ad",
+      "hafs/rami",
+      "hafs/rashad",
+      "hafs/ryan",
+      "hafs/s_alquraishi",
+      "hafs/s_hashemi",
+      "hafs/s_sadeiq",
+      "hafs/saad",
+      "hafs/saber",
+      "hafs/sahood",
+      "hafs/salah_hashim_m",
+      "hafs/sayed",
+      "hafs/shah",
+      "hafs/shaheen",
+      "hafs/shaksh",
+      "hafs/shamrani",
+      "hafs/shatri2",
+      "hafs/soufi",
+      "hafs/swlim",
+      "hafs/taher",
+      "hafs/tblawi",
+      "hafs/thubti",
+      "hafs/trabulsi",
+      "hafs/twfeeq",
+      "hafs/wdee3",
+      "hafs/wdod",
+      "hafs/yahya",
+      "hafs/yousef",
+      "hafs/zahrani",
+      "hafs/zaki",
+      "hafs/zaml",
+      "qalun/akri_qalun",
+      "qalun/andari_qalun",
+      "qalun/deban_qalun",
+      "qalun/dokali",
+      "qalun/fakhfakh_qalun",
+      "qalun/gardeli_qalun",
+      "qalun/husary_qalun",
+      "qalun/huthaify_qalun",
+      "qalun/janaini_qalun",
+      "qalun/jelmam_qalun",
+      "qalun/kherkhashi_qalun",
+      "qalun/kshidan_qalun",
+      "qalun/magdi_qalun",
+      "qalun/maroush_qalun",
+      "qalun/noah_qalun",
+      "qalun/qeniwa_qalun",
+      "qalun/qeryo_qalun",
+      "qalun/rajab_qalun",
+      "qalun/rakbawi_qalun",
+      "qalun/saber_qalun",
+      "qalun/shaykhna_qalun",
+      "qalun/sneineh_qalun",
+      "qalun/suhaim_qalun",
+      "qalun/tareq_qalun",
+      "qalun/trablsi",
+      "qalun/waleed_qalun",
+      "shuba/deban_shuba",
+      "shuba/huthaify_shuba",
+      "sousi/soufi_sousi",
+      "warsh/asali_warsh",
+      "warsh/basit_warsh",
+      "warsh/benkirane_warsh",
+      "warsh/bl3_warsh",
+      "warsh/chahboun_warsh",
+      "warsh/deban_warsh",
+      "warsh/derini_warsh",
+      "warsh/gharbi_warsh",
+      "warsh/harraz_warsh",
+      "warsh/husary_warsh",
+      "warsh/iraoui_warsh",
+      "warsh/kentaoui_warsh",
+      "warsh/kholti_warsh",
+      "warsh/koshi_warsh",
+      "warsh/laghdaf_shinqiti",
+      "warsh/m_abdulkareem_warsh",
+      "warsh/m_sayed_warsh",
+      "warsh/masarawy_warsh",
+      "warsh/noah_warsh",
+      "warsh/qari_warsh",
+      "warsh/qazabri",
+      "warsh/rabbani_warsh",
+      "warsh/sultani_warsh",
+      "warsh/wahrani_warsh"
+    ],
+    "added": [
+      "hafs/a_binaoun",
+      "hafs/a_klb",
+      "hafs/asim",
+      "hafs/bilal",
+      "hafs/f_hajry",
+      "hafs/f_khamery",
+      "hafs/h_abudalal",
+      "hafs/h_saleh",
+      "hafs/hatem",
+      "hafs/mhsny",
+      "hafs/qasm",
+      "hafs/saad",
+      "hafs/shaksh",
+      "qalun/janaini_qalun",
+      "qalun/maroush_qalun",
+      "qalun/noah_qalun",
+      "warsh/chahboun_warsh",
+      "warsh/harraz_warsh",
+      "warsh/kholti_warsh",
+      "warsh/noah_warsh"
+    ],
+    "removed": []
+  },
+  "targets": [
+    {
+      "id": "timings.hafs.asim",
+      "key": "timings/hafs/asim.jz",
+      "sha256": "76502d69638d1454bf74accf9284f1d11d8b932be792a917845f604426b69621",
+      "bytes": 90738,
+      "entries": 6146,
+      "errors": []
+    },
+    {
+      "id": "timings.qalun.akri_qalun",
+      "key": "timings/qalun/akri_qalun.jz",
+      "sha256": "3cec14aa0564b213325f6f843cef71c344b58d73f44e7f68a53e2ebe39b9b207",
+      "bytes": 90022,
+      "entries": 6172,
+      "errors": []
+    },
+    {
+      "id": "timings.hafs.a_klb",
+      "key": "timings/hafs/a_klb.jz",
+      "sha256": "50647a5876cbe1277779ef3905dfe03f9ccc6dc73901d10cfa50c9350d902fed",
+      "bytes": 164776,
+      "entries": 6236,
+      "errors": []
+    },
+    {
+      "id": "timings.hafs.kurdi",
+      "key": "timings/hafs/kurdi.jz",
+      "sha256": "60dd5ae3fc5c6e7fd3a2e78a2c553180fcfcc8e3344a7156ff65302f3c64e2c2",
+      "bytes": 97306,
+      "entries": 6236,
+      "errors": []
+    }
+  ],
+  "checked": [
+    {
+      "id": "timings.hafs.shaheen",
+      "key": "timings/hafs/shaheen.jz",
+      "sha256": "cba54dae07d516066380b326f3ccc9a7f815e01f915c337cf9d198a8e3e7363d",
+      "bytes": 83909,
+      "entries": 6236,
+      "errors": []
+    },
+    {
+      "id": "timings.shuba.huthaify_shuba",
+      "key": "timings/shuba/huthaify_shuba.jz",
+      "sha256": "fc740556c92125773e40939cfd28a04117f5100fe58d5e62a9a1d76081c30a93",
+      "bytes": 71375,
+      "entries": 6236,
+      "errors": []
+    },
+    {
+      "id": "timings.warsh.basit_warsh",
+      "key": "timings/warsh/basit_warsh.jz",
+      "sha256": "0ea2c88c6874b121e667310c22596c7df705dad1580c98589915832b5728543a",
+      "bytes": 85539,
+      "entries": 6236,
+      "errors": []
+    },
+    {
+      "id": "timings.qalun.tareq_qalun",
+      "key": "timings/qalun/tareq_qalun.jz",
+      "sha256": "b3de2afa72e175e00dbe7efb66459919d2fd6a4e08871820fd767a5f60471bf6",
+      "bytes": 87058,
+      "entries": 6236,
+      "errors": []
+    },
+    {
+      "id": "timings.hafs.a_ahmed",
+      "key": "timings/hafs/a_ahmed.jz",
+      "sha256": "e0a9df28701df71a2e097ba007c5f9ebc549e8814b7e819b2160527f3a57c80f",
+      "bytes": 71169,
+      "entries": 6236,
+      "errors": []
+    },
+    {
+      "id": "timings.hafs.habdan",
+      "key": "timings/hafs/habdan.jz",
+      "sha256": "6de4aba519f0898aecac69e7d9233eafc46e01c31ed765afa344a726cddbb49f",
+      "bytes": 71942,
+      "entries": 6236,
+      "errors": []
+    },
+    {
+      "id": "timings.hafs.peshawa",
+      "key": "timings/hafs/peshawa.jz",
+      "sha256": "82151d142744117e85bc93cba33907f61e47dba9707af68b87c3bff4273a11e6",
+      "bytes": 71132,
+      "entries": 6236,
+      "errors": []
+    },
+    {
+      "id": "timings.hafs.alzain",
+      "key": "timings/hafs/alzain.jz",
+      "sha256": "a7200c5e2279400f879f35a4b9e966ef272e1a8a7c464943a81f994cec2f9250",
+      "bytes": 71427,
+      "entries": 6236,
+      "errors": []
+    },
+    {
+      "id": "timings.hafs.hkm",
+      "key": "timings/hafs/hkm.jz",
+      "sha256": "4176c93787558bea14c9def3e76c5f17e220c1ad68981a4ec22546c88f5456db",
+      "bytes": 71362,
+      "entries": 6236,
+      "errors": []
+    },
+    {
+      "id": "timings.hafs.kanakeri",
+      "key": "timings/hafs/kanakeri.jz",
+      "sha256": "c675d8e5148c6f2a54a2f00f81281e2055ee112748318786f61935140e983e29",
+      "bytes": 71431,
+      "entries": 6236,
+      "errors": []
+    },
+    {
+      "id": "timings.hafs.m_burhaji",
+      "key": "timings/hafs/m_burhaji.jz",
+      "sha256": "23b0c50a007dcda21eedce6e0028fe1368f3b473de2c15e3275061e4a8d86b41",
+      "bytes": 70891,
+      "entries": 6236,
+      "errors": []
+    },
+    {
+      "id": "timings.hafs.namh",
+      "key": "timings/hafs/namh.jz",
+      "sha256": "14ee957a8befde325d25e4b997a091f98c285187d329cf318872b86fbe70a700",
+      "bytes": 72038,
+      "entries": 6236,
+      "errors": []
+    },
+    {
+      "id": "timings.hafs.ryan",
+      "key": "timings/hafs/ryan.jz",
+      "sha256": "5918089cfa8f25645234207b892ac9b844e0cd6463a6e33da55cc2ee623ee33e",
+      "bytes": 71434,
+      "entries": 6236,
+      "errors": []
+    },
+    {
+      "id": "timings.hafs.shah",
+      "key": "timings/hafs/shah.jz",
+      "sha256": "bf1e87d4a6ff06de1ccac0e56719e1147cbdd0003c26ad5a5ba86cb34327d6ad",
+      "bytes": 71033,
+      "entries": 6236,
+      "errors": []
+    },
+    {
+      "id": "timings.hafs.shamrani",
+      "key": "timings/hafs/shamrani.jz",
+      "sha256": "9ff06a9dc899e0bec6e310c699f5ea502abf901dd69c5d4d1c6931fa520bce85",
+      "bytes": 70960,
+      "entries": 6236,
+      "errors": []
+    },
+    {
+      "id": "timings.hafs.thubti",
+      "key": "timings/hafs/thubti.jz",
+      "sha256": "310e9044012c2d5ad96541871cd5b1c7c1c97e6c9fc167d0c25d64c2f2dd60b4",
+      "bytes": 70908,
+      "entries": 6236,
+      "errors": []
+    },
+    {
+      "id": "timings.hafs.a_alemadi",
+      "key": "timings/hafs/a_alemadi.jz",
+      "sha256": "14e79dc65c3a61cbb27d5889bd42843d26b0a54ddb534fbf862257c7897569f7",
+      "bytes": 71127,
+      "entries": 6236,
+      "errors": []
+    },
+    {
+      "id": "timings.hafs.a_majed",
+      "key": "timings/hafs/a_majed.jz",
+      "sha256": "4b58d22269d736de765af5d72a9ceac04ef37692cea9ef0f270acfcbedf4a070",
+      "bytes": 71576,
+      "entries": 6236,
+      "errors": []
+    },
+    {
+      "id": "timings.hafs.a_turki",
+      "key": "timings/hafs/a_turki.jz",
+      "sha256": "15ed621df6eda94a6b4ccb2c4f68d881254d0c7d8b446eed6ba81108352775d4",
+      "bytes": 71940,
+      "entries": 6236,
+      "errors": []
+    },
+    {
+      "id": "timings.hafs.a_maasaraawi",
+      "key": "timings/hafs/a_maasaraawi.jz",
+      "sha256": "4811c7222bb01870c4933a68f700ffee7adbefcf7758897f6aee8cdfe6a3b338",
+      "bytes": 71195,
+      "entries": 6236,
+      "errors": []
+    },
+    {
+      "id": "timings.hafs.noah",
+      "key": "timings/hafs/noah.jz",
+      "sha256": "abbe9b77395da5d506a819a55bf4a924f303db4b272753df108bcade8c2c8ecc",
+      "bytes": 72397,
+      "entries": 6236,
+      "errors": []
+    },
+    {
+      "id": "timings.hafs.abkar",
+      "key": "timings/hafs/abkar.jz",
+      "sha256": "60066ea62967b0ed95f4f7310d1f3b134786bb6bf7cbd1b4b4fc1f1772ed34b8",
+      "bytes": 71577,
+      "entries": 6236,
+      "errors": []
+    },
+    {
+      "id": "timings.hafs.buajan",
+      "key": "timings/hafs/buajan.jz",
+      "sha256": "f3570de5e712c4348042012dedf28a6670613ce9458e8d95d247af84b259e45d",
+      "bytes": 71203,
+      "entries": 6236,
+      "errors": []
+    },
+    {
+      "id": "timings.hafs.jaleel",
+      "key": "timings/hafs/jaleel.jz",
+      "sha256": "3ab7c393075414f4870fa5d84d054574c8e89842a614e10bba7d4c106f7d81e5",
+      "bytes": 72947,
+      "entries": 6236,
+      "errors": []
+    },
+    {
+      "id": "timings.hafs.jaman",
+      "key": "timings/hafs/jaman.jz",
+      "sha256": "ba0f771dd5b036424e655cea9ba13ec0d417c945a3795413cb8417eb734399c5",
+      "bytes": 72853,
+      "entries": 6236,
+      "errors": []
+    },
+    {
+      "id": "timings.hafs.taher",
+      "key": "timings/hafs/taher.jz",
+      "sha256": "c33fa1be1ea9ec001bade52cc744ccc188a5a68225aed6fe2c75e8e856c37a8c",
+      "bytes": 71320,
+      "entries": 6236,
+      "errors": []
+    },
+    {
+      "id": "timings.hafs.hawashi",
+      "key": "timings/hafs/hawashi.jz",
+      "sha256": "3725b90e7d56233584626176a0ea19190c8e954174a6331970a2d9e0b5751a03",
+      "bytes": 71928,
+      "entries": 6236,
+      "errors": []
+    },
+    {
+      "id": "timings.hafs.obk",
+      "key": "timings/hafs/obk.jz",
+      "sha256": "3a5804507f4f2a2cb66d0f873e38fc27b3506b8e7547a10fce5dc721f583e2a4",
+      "bytes": 70876,
+      "entries": 6236,
+      "errors": []
+    },
+    {
+      "id": "timings.warsh.asali_warsh",
+      "key": "timings/warsh/asali_warsh.jz",
+      "sha256": "e4ac38120afc008c54f54bd3371c938a59ae05023d68cfe70b6947b785cd1da0",
+      "bytes": 85418,
+      "entries": 6236,
+      "errors": []
+    },
+    {
+      "id": "timings.hafs.3siri",
+      "key": "timings/hafs/3siri.jz",
+      "sha256": "1ff2d6ebba960cffdd82e7fe878eceb9aead474cedbf6c6ffa6b4c61951a81c6",
+      "bytes": 73631,
+      "entries": 6236,
+      "errors": []
+    },
+    {
+      "id": "timings.hafs.hatem",
+      "key": "timings/hafs/hatem.jz",
+      "sha256": "f57dc165a7cd7abedd362a9584169a30d75cca235fcfb3e08aa6e732ca36bff4",
+      "bytes": 90470,
+      "entries": 6236,
+      "errors": []
+    },
+    {
+      "id": "timings.hafs.saad",
+      "key": "timings/hafs/saad.jz",
+      "sha256": "7aa5d6d777d5e1814bb18c6494b04948e3c130a3792e5467996fe789590094aa",
+      "bytes": 90175,
+      "entries": 6236,
+      "errors": []
+    },
+    {
+      "id": "timings.warsh.harraz_warsh",
+      "key": "timings/warsh/harraz_warsh.jz",
+      "sha256": "6ed863e2d80567cbc37f523b333542b156af93194047dd39350b0ab6dcade481",
+      "bytes": 90381,
+      "entries": 6236,
+      "errors": []
+    },
+    {
+      "id": "timings.hafs.asim",
+      "key": "timings/hafs/asim.jz",
+      "sha256": "76502d69638d1454bf74accf9284f1d11d8b932be792a917845f604426b69621",
+      "bytes": 90738,
+      "entries": 6146,
+      "errors": []
+    },
+    {
+      "id": "timings.warsh.kholti_warsh",
+      "key": "timings/warsh/kholti_warsh.jz",
+      "sha256": "89e2b3d202c570724e343c68527910da6747d8edcb8c691d1c88ace9a6601678",
+      "bytes": 93888,
+      "entries": 6236,
+      "errors": []
+    },
+    {
+      "id": "timings.hafs.a_binaoun",
+      "key": "timings/hafs/a_binaoun.jz",
+      "sha256": "c1a1be5e3b85d7d2a4a20e845263d927345a57de59fb2efc8bd558161ab736bf",
+      "bytes": 90894,
+      "entries": 6236,
+      "errors": []
+    },
+    {
+      "id": "timings.hafs.sayed",
+      "key": "timings/hafs/sayed.jz",
+      "sha256": "5c10cca09d964d85199ace2ef030a395fbb1aacbed9153f1e712744854103fd0",
+      "bytes": 91661,
+      "entries": 6236,
+      "errors": []
+    },
+    {
+      "id": "timings.hafs.h_dukhain",
+      "key": "timings/hafs/h_dukhain.jz",
+      "sha256": "35d768560f9f3c247c2a09cd072fb4648f91986e0a4e0dea355f880765888d5e",
+      "bytes": 92886,
+      "entries": 6236,
+      "errors": []
+    },
+    {
+      "id": "timings.warsh.wahrani_warsh",
+      "key": "timings/warsh/wahrani_warsh.jz",
+      "sha256": "d6376daf2466cc9a5824d1cd185813c1adcf5c3e88c7f7b23afe3eeea0782e1a",
+      "bytes": 92137,
+      "entries": 6236,
+      "errors": []
+    },
+    {
+      "id": "timings.hafs.m_alfaqih",
+      "key": "timings/hafs/m_alfaqih.jz",
+      "sha256": "f28c97663045d22c5b50868ba803a2c543a75c940426946a1dbf98e046db350e",
+      "bytes": 93109,
+      "entries": 6236,
+      "errors": []
+    },
+    {
+      "id": "timings.hafs.m_qari",
+      "key": "timings/hafs/m_qari.jz",
+      "sha256": "b0f5a614bd117a4bfe28b3a70fc5877b5fdd68260d4426267683b6d32a4f945f",
+      "bytes": 92205,
+      "entries": 6236,
+      "errors": []
+    },
+    {
+      "id": "timings.hafs.abdullahk",
+      "key": "timings/hafs/abdullahk.jz",
+      "sha256": "63b49b6fe4a7d260f02e4ed21362e5b7030c1fa71d2c10349e5b90371d0d1411",
+      "bytes": 93758,
+      "entries": 6236,
+      "errors": []
+    },
+    {
+      "id": "timings.hafs.hamza",
+      "key": "timings/hafs/hamza.jz",
+      "sha256": "d028b0d96dc3d4613176a95dcee140bc6ea14a562e6c342e4c2db69fa0659c84",
+      "bytes": 92589,
+      "entries": 6236,
+      "errors": []
+    },
+    {
+      "id": "timings.hafs.trabulsi",
+      "key": "timings/hafs/trabulsi.jz",
+      "sha256": "8f657aeb5ccfa9045cefd1022b5ac054d9238ebe051432b42d78c4a088607966",
+      "bytes": 93598,
+      "entries": 6236,
+      "errors": []
+    },
+    {
+      "id": "timings.qalun.gardeli_qalun",
+      "key": "timings/qalun/gardeli_qalun.jz",
+      "sha256": "2b74e8e79ec0631f4957da182addcce3da7cb968b5756a33228886f40b09ed6b",
+      "bytes": 93139,
+      "entries": 6236,
+      "errors": []
+    },
+    {
+      "id": "timings.qalun.suhaim_qalun",
+      "key": "timings/qalun/suhaim_qalun.jz",
+      "sha256": "2403259296dfbab4d81d3cbdc7a3bb8e4b8c137e6c36f95865f1652da079fe41",
+      "bytes": 92026,
+      "entries": 6236,
+      "errors": []
+    },
+    {
+      "id": "timings.hafs.afs",
+      "key": "timings/hafs/afs.jz",
+      "sha256": "425463b25cfcc323b8d77850b5f7bc074af411ee274f5a974765fe5e8ac666fe",
+      "bytes": 93205,
+      "entries": 6236,
+      "errors": []
+    },
+    {
+      "id": "timings.qalun.jelmam_qalun",
+      "key": "timings/qalun/jelmam_qalun.jz",
+      "sha256": "7e9e736700c2b4e0b68580a9a5fcc049a94e3445b3c8855b3a21b5251693b1cf",
+      "bytes": 94018,
+      "entries": 6236,
+      "errors": []
+    },
+    {
+      "id": "timings.hafs.shatri2",
+      "key": "timings/hafs/shatri2.jz",
+      "sha256": "37fa52981648abd6420cca17b6fbb2a4082e31892d41b7931988fe6286fadca8",
+      "bytes": 93240,
+      "entries": 6236,
+      "errors": []
+    },
+    {
+      "id": "timings.hafs.alijon",
+      "key": "timings/hafs/alijon.jz",
+      "sha256": "dc4d227327f9bd8ba15fa8dc9194b5ac219f96ff70e3d2609e38efb2f151849f",
+      "bytes": 92825,
+      "entries": 6236,
+      "errors": []
+    },
+    {
+      "id": "timings.hafs.rashad",
+      "key": "timings/hafs/rashad.jz",
+      "sha256": "33cbe25547eaf5d3e25e4f68b751baea7283938ddf458e8ef77e98d0d3562126",
+      "bytes": 93278,
+      "entries": 6236,
+      "errors": []
+    },
+    {
+      "id": "timings.hafs.m_harfoush",
+      "key": "timings/hafs/m_harfoush.jz",
+      "sha256": "d207e7e948cdfa0233f10023247e627a829ad65a19e8e5e2abaa07273012180a",
+      "bytes": 93670,
+      "entries": 6236,
+      "errors": []
+    },
+    {
+      "id": "timings.hafs.jormy",
+      "key": "timings/hafs/jormy.jz",
+      "sha256": "6b784c25d75dbacaf7e6f6bf6ae24c4006f4ee48476ea23d39ee33314f47e0c3",
+      "bytes": 93923,
+      "entries": 6236,
+      "errors": []
+    },
+    {
+      "id": "timings.hafs.k_alzadi",
+      "key": "timings/hafs/k_alzadi.jz",
+      "sha256": "f7f7de13436c05e86250bfacbc530fda7addea393a3ede8cc0205eee5111df0d",
+      "bytes": 94362,
+      "entries": 6236,
+      "errors": []
+    },
+    {
+      "id": "timings.qalun.qeniwa_qalun",
+      "key": "timings/qalun/qeniwa_qalun.jz",
+      "sha256": "145e51f3032c53cafc3258373719dcf7ba0d0e3fa5141d18301741bbd2374767",
+      "bytes": 94156,
+      "entries": 6236,
+      "errors": []
+    },
+    {
+      "id": "timings.hafs.hafz",
+      "key": "timings/hafs/hafz.jz",
+      "sha256": "f1843337e0af0af016e930b8a836cb78921b04f093b450b434bc3eeedc227c0f",
+      "bytes": 83867,
+      "entries": 6236,
+      "errors": []
+    },
+    {
+      "id": "timings.hafs.rami",
+      "key": "timings/hafs/rami.jz",
+      "sha256": "cc7c965d7ccf41d866765e683b8e692049549e029a8528250f72d391862ac9f2",
+      "bytes": 84981,
+      "entries": 6236,
+      "errors": []
+    },
+    {
+      "id": "timings.hafs.aamer",
+      "key": "timings/hafs/aamer.jz",
+      "sha256": "4bdebc82a86f73c47d41f00ff64fe2d5e059e3191fe5f17b6945ed0bbccfbd55",
+      "bytes": 85187,
+      "entries": 6236,
+      "errors": []
+    },
+    {
+      "id": "timings.douri.husary_douri",
+      "key": "timings/douri/husary_douri.jz",
+      "sha256": "8153510b6ec7f4f10f84ade70d66c9a896093e32ca7fe23f533894d3d4086135",
+      "bytes": 87755,
+      "entries": 6236,
+      "errors": []
+    },
+    {
+      "id": "timings.qalun.huthaify_qalun",
+      "key": "timings/qalun/huthaify_qalun.jz",
+      "sha256": "d8285730b8338cae1e9d201277b3a42e7ca9e66d88a212d4a4c4053201cacc61",
+      "bytes": 84017,
+      "entries": 6236,
+      "errors": []
+    },
+    {
+      "id": "timings.qalun.saber_qalun",
+      "key": "timings/qalun/saber_qalun.jz",
+      "sha256": "b6f57d5721f1195677c335263684f856b1ae0ba6bdecab8b7bce82f59cd61d34",
+      "bytes": 84989,
+      "entries": 6236,
+      "errors": []
+    },
+    {
+      "id": "timings.qalun.trablsi",
+      "key": "timings/qalun/trablsi.jz",
+      "sha256": "5c4ca0a252bed79a301c72986bc7d0eec40e2da0ff282936497f5bbe6e767260",
+      "bytes": 88617,
+      "entries": 6236,
+      "errors": []
+    },
+    {
+      "id": "timings.qalun.rajab_qalun",
+      "key": "timings/qalun/rajab_qalun.jz",
+      "sha256": "76ef58c46250db07c64f82c602265869411708f48bba0b0b868bdbb01f86d560",
+      "bytes": 84465,
+      "entries": 6236,
+      "errors": []
+    },
+    {
+      "id": "timings.qalun.kherkhashi_qalun",
+      "key": "timings/qalun/kherkhashi_qalun.jz",
+      "sha256": "3071e99e287f309165dc71cd5737ea70992a498344dcf15cfe2a3dced4ec3488",
+      "bytes": 88494,
+      "entries": 6236,
+      "errors": []
+    },
+    {
+      "id": "timings.hafs.a_ghailan",
+      "key": "timings/hafs/a_ghailan.jz",
+      "sha256": "6e38ea0b0b2d92cbd42e79225859d845ddde913fbe39b62f44008b5bdeb0014f",
+      "bytes": 88381,
+      "entries": 6236,
+      "errors": []
+    },
+    {
+      "id": "timings.hafs.bukheet",
+      "key": "timings/hafs/bukheet.jz",
+      "sha256": "0747c36359623c69412eae7fb56451a211f686123ad3811501bdd0b6cdc34994",
+      "bytes": 85875,
+      "entries": 6236,
+      "errors": []
+    },
+    {
+      "id": "timings.hafs.a_abdl",
+      "key": "timings/hafs/a_abdl.jz",
+      "sha256": "274e62eab739b2dad23483b909781a4105024ef484cdc5888ec6486da3223ff6",
+      "bytes": 89710,
+      "entries": 6236,
+      "errors": []
+    },
+    {
+      "id": "timings.qalun.husary_qalun",
+      "key": "timings/qalun/husary_qalun.jz",
+      "sha256": "6414f830e1afe9e4267a8ca83ed205fe31d50b99e740b48efd08899e017f4c10",
+      "bytes": 87163,
+      "entries": 6236,
+      "errors": []
+    },
+    {
+      "id": "timings.warsh.koshi_warsh",
+      "key": "timings/warsh/koshi_warsh.jz",
+      "sha256": "3dda31c7816150cff79bce516bf8a8a1ba58478a14ca2e2451bf4fdfd2da540e",
+      "bytes": 89754,
+      "entries": 6236,
+      "errors": []
+    },
+    {
+      "id": "timings.hafs.s_alquraishi",
+      "key": "timings/hafs/s_alquraishi.jz",
+      "sha256": "66af60186b50b8b12166860a79c910e56b47520c330977ad7a11b4af62d62f90",
+      "bytes": 88483,
+      "entries": 6236,
+      "errors": []
+    },
+    {
+      "id": "timings.hafs.gulan",
+      "key": "timings/hafs/gulan.jz",
+      "sha256": "cb1230f82e8a38033e63026fe92f53481c75d23122d6dec87550574b28e611ba",
+      "bytes": 88427,
+      "entries": 6236,
+      "errors": []
+    },
+    {
+      "id": "timings.warsh.derini_warsh",
+      "key": "timings/warsh/derini_warsh.jz",
+      "sha256": "0f3ee5198673f960ff710942249301aae6a8b1ee6ee0cc0bc7316ad0387076bd",
+      "bytes": 89773,
+      "entries": 6236,
+      "errors": []
+    },
+    {
+      "id": "timings.hafs.sahood",
+      "key": "timings/hafs/sahood.jz",
+      "sha256": "87c62b57d0accce182e89890dbd72f267e2d187ad4e57c235a5a5c9d71086611",
+      "bytes": 88591,
+      "entries": 6236,
+      "errors": []
+    },
+    {
+      "id": "timings.warsh.m_abdulkareem_warsh",
+      "key": "timings/warsh/m_abdulkareem_warsh.jz",
+      "sha256": "746e762fc2722d0c6cc108d239aa0ad5ba1947e13189013201f4b3964201fee5",
+      "bytes": 90754,
+      "entries": 6236,
+      "errors": []
+    },
+    {
+      "id": "timings.warsh.qari_warsh",
+      "key": "timings/warsh/qari_warsh.jz",
+      "sha256": "72e7bbd90cbdd06950c523f7483798dc04c5eb55d617ed0fb9c046e5264a25ae",
+      "bytes": 88942,
+      "entries": 6236,
+      "errors": []
+    },
+    {
+      "id": "timings.hafs.salah_hashim_m",
+      "key": "timings/hafs/salah_hashim_m.jz",
+      "sha256": "bce90017a6b530b44813f1ca8261dd0053cdc50fa0d0ddd9dedfd9b582eccd59",
+      "bytes": 87688,
+      "entries": 6236,
+      "errors": []
+    },
+    {
+      "id": "timings.qalun.magdi_qalun",
+      "key": "timings/qalun/magdi_qalun.jz",
+      "sha256": "ff29bf0d86b30b769973c2d8c770d25584e479d7b2429413bb0077ebdebacd15",
+      "bytes": 88705,
+      "entries": 6236,
+      "errors": []
+    },
+    {
+      "id": "timings.hafs.zaml",
+      "key": "timings/hafs/zaml.jz",
+      "sha256": "219b0c1210bed796bd71ef0f27bdc1f948c03efb0bb982fb2da21e7329fb851f",
+      "bytes": 88346,
+      "entries": 6236,
+      "errors": []
+    },
+    {
+      "id": "timings.warsh.masarawy_warsh",
+      "key": "timings/warsh/masarawy_warsh.jz",
+      "sha256": "a9eca314102f5612befd73f78bfcd97c11cc322a267aa886fa6d659594d86e5b",
+      "bytes": 87331,
+      "entries": 6236,
+      "errors": []
+    },
+    {
+      "id": "timings.hafs.m_abdelhakam",
+      "key": "timings/hafs/m_abdelhakam.jz",
+      "sha256": "8bafbfc05e706f406832f98caf685982244ba294098a2d35de18ae114f57af02",
+      "bytes": 85644,
+      "entries": 6236,
+      "errors": []
+    },
+    {
+      "id": "timings.hafs.zaki",
+      "key": "timings/hafs/zaki.jz",
+      "sha256": "296c48d6cd87106b36096e58009fcf2ba26ecce2d4fd3ddd955f87edc3bf6af6",
+      "bytes": 89432,
+      "entries": 6236,
+      "errors": []
+    },
+    {
+      "id": "timings.qalun.dokali",
+      "key": "timings/qalun/dokali.jz",
+      "sha256": "dd2b2429af53cbd01f0d98d02dc8745ce38a221d7813a135960220577850af6a",
+      "bytes": 87679,
+      "entries": 6236,
+      "errors": []
+    },
+    {
+      "id": "timings.hafs.nathier",
+      "key": "timings/hafs/nathier.jz",
+      "sha256": "3ce1cb7be23b68cf1bf34705d02d0418ec76d0f36205b85149c5c21a61d3a082",
+      "bytes": 89544,
+      "entries": 6236,
+      "errors": []
+    },
+    {
+      "id": "timings.qalun.sneineh_qalun",
+      "key": "timings/qalun/sneineh_qalun.jz",
+      "sha256": "98564c88b1f3b39afa0465ab400186f0ae4d981fcb2079a7ed5210b3dd94dba9",
+      "bytes": 88019,
+      "entries": 6236,
+      "errors": []
+    },
+    {
+      "id": "timings.hafs.bilal",
+      "key": "timings/hafs/bilal.jz",
+      "sha256": "1ba9a68e99abbe2fd013d7dac1a3f957cf96dd0e77b18048bcba64b00286ba00",
+      "bytes": 93531,
+      "entries": 6236,
+      "errors": []
+    },
+    {
+      "id": "timings.qalun.deban_qalun",
+      "key": "timings/qalun/deban_qalun.jz",
+      "sha256": "fb2abaf3781301698235f31e4535121a147954cfdc5f465e86ff83f439c5d709",
+      "bytes": 92620,
+      "entries": 6236,
+      "errors": []
+    },
+    {
+      "id": "timings.hafs.swlim",
+      "key": "timings/hafs/swlim.jz",
+      "sha256": "28c3f690eb5255d9cd40d4f1903eca66ff390a8f3ce175479f156a06f4ed263d",
+      "bytes": 94419,
+      "entries": 6236,
+      "errors": []
+    },
+    {
+      "id": "timings.hafs.wdee3",
+      "key": "timings/hafs/wdee3.jz",
+      "sha256": "200508b10d18c7ccc6d6216a36086648c6c33e631ed933223c817857995664dd",
+      "bytes": 94035,
+      "entries": 6236,
+      "errors": []
+    },
+    {
+      "id": "timings.hafs.kamel",
+      "key": "timings/hafs/kamel.jz",
+      "sha256": "6af32954232ed555d31bb3f11a3bb9e3deb0b0a4d814dec744d7d332c4d1838d",
+      "bytes": 92483,
+      "entries": 6236,
+      "errors": []
+    },
+    {
+      "id": "timings.hafs.mal_allah_jaber",
+      "key": "timings/hafs/mal_allah_jaber.jz",
+      "sha256": "33cae6c23bc380f126160cff8e12fecbb32427d97199e257624139bcb0899ecb",
+      "bytes": 92559,
+      "entries": 6236,
+      "errors": []
+    },
+    {
+      "id": "timings.hafs.alosfor",
+      "key": "timings/hafs/alosfor.jz",
+      "sha256": "6e1dd819768256eed6838eaaf9bd1f5321222b36fdfbce1ccb3e1130d1b532bc",
+      "bytes": 94027,
+      "entries": 6236,
+      "errors": []
+    },
+    {
+      "id": "timings.hafs.h_aldaghriri",
+      "key": "timings/hafs/h_aldaghriri.jz",
+      "sha256": "5fa927f43dba567b502cb3c42d4c74e2f044ebd26f19f9290b0f8125302efe92",
+      "bytes": 94346,
+      "entries": 6236,
+      "errors": []
+    },
+    {
+      "id": "timings.hafs.m_alzubaidi",
+      "key": "timings/hafs/m_alzubaidi.jz",
+      "sha256": "27ee30bff40a90fe2c5d43308cc4db3f02fcfcce5f5d58ed4b53440ad0ba5d2b",
+      "bytes": 94461,
+      "entries": 6236,
+      "errors": []
+    },
+    {
+      "id": "timings.hafs.qurashi",
+      "key": "timings/hafs/qurashi.jz",
+      "sha256": "3e5edafb87e83ae77fba00f0ac9096a53537eb9a3644d0e608ccd998aeefc2ba",
+      "bytes": 94278,
+      "entries": 6236,
+      "errors": []
+    },
+    {
+      "id": "timings.hafs.s_hashemi",
+      "key": "timings/hafs/s_hashemi.jz",
+      "sha256": "52365f710fb969f535a8a1162f4b6f8628534e0a91ef0300d0e6e349b9f3b21e",
+      "bytes": 94090,
+      "entries": 6236,
+      "errors": []
+    },
+    {
+      "id": "timings.hafs.soufi",
+      "key": "timings/hafs/soufi.jz",
+      "sha256": "929fc4328c259eab10ec162120d114894a1db4327105f17bb2003728939366ec",
+      "bytes": 93731,
+      "entries": 6236,
+      "errors": []
+    },
+    {
+      "id": "timings.qalun.kshidan_qalun",
+      "key": "timings/qalun/kshidan_qalun.jz",
+      "sha256": "2af9e7233eaf715b617f5ffc2050e2b381d4eb3a9b836dba3137e5dd63c1046c",
+      "bytes": 93666,
+      "entries": 6236,
+      "errors": []
+    },
+    {
+      "id": "timings.warsh.benkirane_warsh",
+      "key": "timings/warsh/benkirane_warsh.jz",
+      "sha256": "4732df8e061fe31209661c2f2a7abd2beb9beb1268ac98078de64ff7be6b724e",
+      "bytes": 94307,
+      "entries": 6236,
+      "errors": []
+    },
+    {
+      "id": "timings.warsh.deban_warsh",
+      "key": "timings/warsh/deban_warsh.jz",
+      "sha256": "5e45551b4ee40a4d6fb445abe9e76f5a338a74ae4f3d2aa0bba4b21226f0edc1",
+      "bytes": 94665,
+      "entries": 6236,
+      "errors": []
+    },
+    {
+      "id": "timings.douri.fateh_douri",
+      "key": "timings/douri/fateh_douri.jz",
+      "sha256": "8fd2bb9b0ef0af7bd077b6382f69ef5abb0e09db284c2134ca85b51d892f3d48",
+      "bytes": 94872,
+      "entries": 6236,
+      "errors": []
+    },
+    {
+      "id": "timings.douri.nourin_douri",
+      "key": "timings/douri/nourin_douri.jz",
+      "sha256": "46e30d69e6d74824633d11f9ea7c0876649eec1013227cef1245565d9f5ebf5a",
+      "bytes": 94490,
+      "entries": 6236,
+      "errors": []
+    },
+    {
+      "id": "timings.hafs.a_albadr",
+      "key": "timings/hafs/a_albadr.jz",
+      "sha256": "3e3e52db467d065b9ecf3202863e002b0aef03341c7ac0a5e05baa139cf61451",
+      "bytes": 93445,
+      "entries": 6236,
+      "errors": []
+    },
+    {
+      "id": "timings.hafs.lahoni",
+      "key": "timings/hafs/lahoni.jz",
+      "sha256": "d35414b352fcfa94c947a79a14d78cf4f3f73b7858f4abf28d358d319c502787",
+      "bytes": 93457,
+      "entries": 6236,
+      "errors": []
+    },
+    {
+      "id": "timings.hafs.mrifai",
+      "key": "timings/hafs/mrifai.jz",
+      "sha256": "bbf8b4a5f0a849f2336fde815f50c678ceb4ebe432dfc30736f868f9799282f4",
+      "bytes": 94119,
+      "entries": 6236,
+      "errors": []
+    },
+    {
+      "id": "timings.douri.sultani_douri",
+      "key": "timings/douri/sultani_douri.jz",
+      "sha256": "b71350727e8bf575847d8f7ac817f8974fee9d353f2aaad7156568ff25ef8b87",
+      "bytes": 95900,
+      "entries": 6236,
+      "errors": []
+    },
+    {
+      "id": "timings.hafs.khalf",
+      "key": "timings/hafs/khalf.jz",
+      "sha256": "51eced70b2862eb02bb318ebd7aa2659f77e55b57de0e1b72f6cdea7f8af9c73",
+      "bytes": 93710,
+      "entries": 6236,
+      "errors": []
+    },
+    {
+      "id": "timings.warsh.sultani_warsh",
+      "key": "timings/warsh/sultani_warsh.jz",
+      "sha256": "13434fe535ceafad7965dc17e1bfbd2d4fe80f76e5c7d513c55d3ba1859648bc",
+      "bytes": 95791,
+      "entries": 6236,
+      "errors": []
+    },
+    {
+      "id": "timings.hafs.mustafa",
+      "key": "timings/hafs/mustafa.jz",
+      "sha256": "48e0b1d615da60afc893f9827ce3a785fb2409aa3724a6b4df5787dd6314af52",
+      "bytes": 86525,
+      "entries": 6236,
+      "errors": []
+    },
+    {
+      "id": "timings.hafs.jamal",
+      "key": "timings/hafs/jamal.jz",
+      "sha256": "e59759370165d4399f48ddd000ff98b8437e21e22c7c0ab5bfadd4a822f73836",
+      "bytes": 88081,
+      "entries": 6236,
+      "errors": []
+    },
+    {
+      "id": "timings.hafs.s_sadeiq",
+      "key": "timings/hafs/s_sadeiq.jz",
+      "sha256": "dfd05cf64483a39d8ab08e6425dff1cb56793b3bd99ec90bb0a53f3c6c48f5a8",
+      "bytes": 93155,
+      "entries": 6236,
+      "errors": []
+    },
+    {
+      "id": "timings.hafs.shaksh",
+      "key": "timings/hafs/shaksh.jz",
+      "sha256": "5f2cf6b3cce7b5660a9a6ec1a3b74e035a2a0be49b4daa4194a41724fd230cd4",
+      "bytes": 94043,
+      "entries": 6236,
+      "errors": []
+    },
+    {
+      "id": "timings.qalun.maroush_qalun",
+      "key": "timings/qalun/maroush_qalun.jz",
+      "sha256": "6368c87b65b1ac4e6b64fe69110c920a62060e2aaee71923f3063fdf746904de",
+      "bytes": 84329,
+      "entries": 6236,
+      "errors": []
+    },
+    {
+      "id": "timings.qalun.waleed_qalun",
+      "key": "timings/qalun/waleed_qalun.jz",
+      "sha256": "b8b42e1d590e26747ce52015f3010c42e9f7644d929e4624b642387afb969b86",
+      "bytes": 94279,
+      "entries": 6236,
+      "errors": []
+    },
+    {
+      "id": "timings.warsh.m_sayed_warsh",
+      "key": "timings/warsh/m_sayed_warsh.jz",
+      "sha256": "5d2f3bdc49404a4443e1e0f41d75839e208d1e06e952cb1a09055ed19c482e8f",
+      "bytes": 94537,
+      "entries": 6236,
+      "errors": []
+    },
+    {
+      "id": "timings.hafs.mukhtar_haj",
+      "key": "timings/hafs/mukhtar_haj.jz",
+      "sha256": "a01f926802dc95b0ae76ea74ac5f9b5521b1b94d5a7977e3c0fdb6f7bd5d25d1",
+      "bytes": 90337,
+      "entries": 6236,
+      "errors": []
+    },
+    {
+      "id": "timings.warsh.iraoui_warsh",
+      "key": "timings/warsh/iraoui_warsh.jz",
+      "sha256": "ef6caf2385d0093213ef7c8b24d24fdfd1fa8c6da6ce6ed4d9464280133f1cdd",
+      "bytes": 89755,
+      "entries": 6236,
+      "errors": []
+    },
+    {
+      "id": "timings.qalun.andari_qalun",
+      "key": "timings/qalun/andari_qalun.jz",
+      "sha256": "edfe3346f7add7e2872d7270100a5d3a71cd0f35ff22a7819ca5e0b8dc6696cf",
+      "bytes": 86645,
+      "entries": 6236,
+      "errors": []
+    },
+    {
+      "id": "timings.warsh.gharbi_warsh",
+      "key": "timings/warsh/gharbi_warsh.jz",
+      "sha256": "257464b397cd716ee623cc2bdc85bff79094b2a0f527159ef001047b6ef3637a",
+      "bytes": 91677,
+      "entries": 6236,
+      "errors": []
+    },
+    {
+      "id": "timings.qalun.rakbawi_qalun",
+      "key": "timings/qalun/rakbawi_qalun.jz",
+      "sha256": "a099bbd7f018b31eec0b64aab94a304685c3fce802a9420a85b43db43a8128d0",
+      "bytes": 88876,
+      "entries": 6236,
+      "errors": []
+    },
+    {
+      "id": "timings.qalun.shaykhna_qalun",
+      "key": "timings/qalun/shaykhna_qalun.jz",
+      "sha256": "03a7e3738662899022e03c09338db0331235b1289858d6fe9bd30007938d95f4",
+      "bytes": 88273,
+      "entries": 6236,
+      "errors": []
+    },
+    {
+      "id": "timings.warsh.kentaoui_warsh",
+      "key": "timings/warsh/kentaoui_warsh.jz",
+      "sha256": "2c9166ac231ba6a603f24bd20337c28e795a16b990f91ca37da54f76047f8000",
+      "bytes": 90021,
+      "entries": 6236,
+      "errors": []
+    },
+    {
+      "id": "timings.hafs.harthi",
+      "key": "timings/hafs/harthi.jz",
+      "sha256": "d6939f4c47bd8fb74548dffd473d6717b204d2a1b9bc448a124adcf62cb0a9bb",
+      "bytes": 87772,
+      "entries": 6236,
+      "errors": []
+    },
+    {
+      "id": "timings.hafs.mousa",
+      "key": "timings/hafs/mousa.jz",
+      "sha256": "c060d519b29a7dc139ec3e851a4bb8a280ef75756683a81ed5d1183b5097b051",
+      "bytes": 72326,
+      "entries": 6236,
+      "errors": []
+    },
+    {
+      "id": "timings.hafs.balilah",
+      "key": "timings/hafs/balilah.jz",
+      "sha256": "bd5a5c983405d6877e55c80eca998fa6b941897c7be3a4aec64e1c0251479201",
+      "bytes": 90736,
+      "entries": 6236,
+      "errors": []
+    },
+    {
+      "id": "timings.hafs.mansor",
+      "key": "timings/hafs/mansor.jz",
+      "sha256": "be348cd9aef92e58c0fe3a3de68d3bc5d18a424ee84bf096a058e1198bb6eeee",
+      "bytes": 87828,
+      "entries": 6236,
+      "errors": []
+    },
+    {
+      "id": "timings.warsh.rabbani_warsh",
+      "key": "timings/warsh/rabbani_warsh.jz",
+      "sha256": "d9534de9ed7aed07154a5784f2cefc5b7fef16981061bf9e4c3f9bc22a44b2aa",
+      "bytes": 89534,
+      "entries": 6236,
+      "errors": []
+    },
+    {
+      "id": "timings.hafs.bader",
+      "key": "timings/hafs/bader.jz",
+      "sha256": "195873a14e0171943d424ed88641a9cc91f5ee759f91f84ecef66aa7a9f806e6",
+      "bytes": 94604,
+      "entries": 6236,
+      "errors": []
+    },
+    {
+      "id": "timings.hafs.mhsny",
+      "key": "timings/hafs/mhsny.jz",
+      "sha256": "daf00d49a7cb20c8fa0cc1bbd933c80873f7c9265831b71adedda47b3f027121",
+      "bytes": 90759,
+      "entries": 6236,
+      "errors": []
+    },
+    {
+      "id": "timings.hafs.mohna",
+      "key": "timings/hafs/mohna.jz",
+      "sha256": "1b59ec1ac58bfea8653a1d5bbfbfedbe2b112f959cd05ad679d397a2ae2d336e",
+      "bytes": 83883,
+      "entries": 6236,
+      "errors": []
+    },
+    {
+      "id": "timings.hafs.nufais",
+      "key": "timings/hafs/nufais.jz",
+      "sha256": "e3d40dc931f9fc48c4e0f2daf9a8c3a939b80a606a205b1a2486cdebad8fa550",
+      "bytes": 88579,
+      "entries": 6236,
+      "errors": []
+    },
+    {
+      "id": "timings.hafs.akdr",
+      "key": "timings/hafs/akdr.jz",
+      "sha256": "4b8255246930d8f8f138d74122a5296b834a72c5f49e75e0b0a02db9b31124e4",
+      "bytes": 83784,
+      "entries": 6236,
+      "errors": []
+    },
+    {
+      "id": "timings.hafs.aloosi",
+      "key": "timings/hafs/aloosi.jz",
+      "sha256": "57812ac605b3d1bf601259b559d45bb456f792b2ae284841314c87097147f272",
+      "bytes": 73059,
+      "entries": 6236,
+      "errors": []
+    },
+    {
+      "id": "timings.hafs.bari",
+      "key": "timings/hafs/bari.jz",
+      "sha256": "eaf5a45720bdfc502e4f1148f55a7db3bf94efa0df4dca1e73a98498a65840a7",
+      "bytes": 85881,
+      "entries": 6236,
+      "errors": []
+    },
+    {
+      "id": "timings.hafs.j_abdullah",
+      "key": "timings/hafs/j_abdullah.jz",
+      "sha256": "59c7a3e7a15a7cac90695ae6fd7341453fc212731db14b106318ce015ea9f9b1",
+      "bytes": 89143,
+      "entries": 6236,
+      "errors": []
+    },
+    {
+      "id": "timings.hafs.kyat",
+      "key": "timings/hafs/kyat.jz",
+      "sha256": "74bebbdd5fc1c381409afb17c3059c5e7db59511c394a03ba6321f0f217c491a",
+      "bytes": 95187,
+      "entries": 6236,
+      "errors": []
+    },
+    {
+      "id": "timings.hafs.tblawi",
+      "key": "timings/hafs/tblawi.jz",
+      "sha256": "0699ec5907e217b12eba3396e8a6d7b10050725c793fa1152ca32c9f4055c0f3",
+      "bytes": 87911,
+      "entries": 6236,
+      "errors": []
+    },
+    {
+      "id": "timings.qalun.fakhfakh_qalun",
+      "key": "timings/qalun/fakhfakh_qalun.jz",
+      "sha256": "95664b41f20e036a2c12d9dbe1b2793460e90cfb427fd3eb4e879639c6ef328a",
+      "bytes": 89389,
+      "entries": 6236,
+      "errors": []
+    },
+    {
+      "id": "timings.qalun.qeryo_qalun",
+      "key": "timings/qalun/qeryo_qalun.jz",
+      "sha256": "6d436f13673a41f4656bd0dd06d394992adf463f602be2e27245706108b43cf7",
+      "bytes": 90706,
+      "entries": 6236,
+      "errors": []
+    },
+    {
+      "id": "timings.qalun.akri_qalun",
+      "key": "timings/qalun/akri_qalun.jz",
+      "sha256": "3cec14aa0564b213325f6f843cef71c344b58d73f44e7f68a53e2ebe39b9b207",
+      "bytes": 90022,
+      "entries": 6172,
+      "errors": []
+    },
+    {
+      "id": "timings.hafs.nabil",
+      "key": "timings/hafs/nabil.jz",
+      "sha256": "c0ce5bf672aa45ddd29d8ec68a801d36b6e7f14bb5ad77b6027b56f9f2f92d5d",
+      "bytes": 93093,
+      "entries": 6236,
+      "errors": []
+    },
+    {
+      "id": "timings.hafs.zahrani",
+      "key": "timings/hafs/zahrani.jz",
+      "sha256": "2dab3926ed56161808fe6057087899bb07373b22c792381c114653b9e24d910c",
+      "bytes": 89455,
+      "entries": 6236,
+      "errors": []
+    },
+    {
+      "id": "timings.hafs.arkani",
+      "key": "timings/hafs/arkani.jz",
+      "sha256": "4cbae72a9c75141bcdc5683e82f59e068cc96010a0441e2ea5da1099d229fdf0",
+      "bytes": 93525,
+      "entries": 6236,
+      "errors": []
+    },
+    {
+      "id": "timings.hafs.a_alshahhat",
+      "key": "timings/hafs/a_alshahhat.jz",
+      "sha256": "41dd30a405ddd90f64c91683b99cbf1374fc54b5eb50183b5c65d4eab68545ca",
+      "bytes": 93792,
+      "entries": 6236,
+      "errors": []
+    },
+    {
+      "id": "timings.hafs.darweez",
+      "key": "timings/hafs/darweez.jz",
+      "sha256": "41b8aac53e3e93e9f9d009121afe2e2bc6e70ce35caa0b3c8dc03e2480276421",
+      "bytes": 92713,
+      "entries": 6236,
+      "errors": []
+    },
+    {
+      "id": "timings.hafs.h_saleh",
+      "key": "timings/hafs/h_saleh.jz",
+      "sha256": "40c092669f81d1f75378271980d2aec915ea60eba05d16f0c21adb4cae47dd85",
+      "bytes": 95086,
+      "entries": 6236,
+      "errors": []
+    },
+    {
+      "id": "timings.hafs.ibrahim_dosri",
+      "key": "timings/hafs/ibrahim_dosri.jz",
+      "sha256": "39be1e5a134eac9074a5da190c5fd28ee1f678bb38d2e8ab07d410c6fa020836",
+      "bytes": 86788,
+      "entries": 6236,
+      "errors": []
+    },
+    {
+      "id": "timings.hafs.f_hajry",
+      "key": "timings/hafs/f_hajry.jz",
+      "sha256": "2fff14f486188a11e96679ad68611b0b867776d0cc17376204dabf0d2d908370",
+      "bytes": 93740,
+      "entries": 6236,
+      "errors": []
+    },
+    {
+      "id": "timings.hafs.kafi",
+      "key": "timings/hafs/kafi.jz",
+      "sha256": "c13b3ebf7cdd8e40aba0fbd7a69bf2a68536fe086ade6612941980fbc83bf74a",
+      "bytes": 94589,
+      "entries": 6236,
+      "errors": []
+    },
+    {
+      "id": "timings.hafs.muftah_sultany",
+      "key": "timings/hafs/muftah_sultany.jz",
+      "sha256": "60984c42bb159b78e59d70a809d722625d7d1874ad6cdb579ec87585d7dae349",
+      "bytes": 95484,
+      "entries": 6236,
+      "errors": []
+    },
+    {
+      "id": "timings.hafs.saber",
+      "key": "timings/hafs/saber.jz",
+      "sha256": "238a960cb784225cef94ff95d85eef430519bb1fefa4dab259046202ef8d0f35",
+      "bytes": 93756,
+      "entries": 6236,
+      "errors": []
+    },
+    {
+      "id": "timings.warsh.chahboun_warsh",
+      "key": "timings/warsh/chahboun_warsh.jz",
+      "sha256": "e273966c0595b41d151aad97313a0e761aa4dd47bdf77a3d7cb8204ca6e295db",
+      "bytes": 96270,
+      "entries": 6236,
+      "errors": []
+    },
+    {
+      "id": "timings.hafs.twfeeq",
+      "key": "timings/hafs/twfeeq.jz",
+      "sha256": "7bc2dd247f1c5ca451ed5dda1b38d3fa04aa1aadbf5f7a3a516adf16175bcc9a",
+      "bytes": 94691,
+      "entries": 6236,
+      "errors": []
+    },
+    {
+      "id": "timings.hafs.yousef",
+      "key": "timings/hafs/yousef.jz",
+      "sha256": "6f3d459f54f66e47bc12a800ec09c95ba72fd15799c50a9f25b9c32e5c4f2aa1",
+      "bytes": 89699,
+      "entries": 6236,
+      "errors": []
+    },
+    {
+      "id": "timings.hafs.kh_mohammadi",
+      "key": "timings/hafs/kh_mohammadi.jz",
+      "sha256": "d9409bdb12c49ca493239a26426c6e19aaee8cb3be25c75a085df0a6de94e551",
+      "bytes": 94895,
+      "entries": 6236,
+      "errors": []
+    },
+    {
+      "id": "timings.hafs.i_sanankoua",
+      "key": "timings/hafs/i_sanankoua.jz",
+      "sha256": "0740ba167c9e7ff592e3d18d920a442c354ef05f059d9c8371b72ddeaa445953",
+      "bytes": 95236,
+      "entries": 6236,
+      "errors": []
+    },
+    {
+      "id": "timings.hafs.lhdan",
+      "key": "timings/hafs/lhdan.jz",
+      "sha256": "b7fae551672c0b2f0fbf206fa4980ea4d5db10e3f991c1651f14b9195a773e01",
+      "bytes": 94409,
+      "entries": 6236,
+      "errors": []
+    },
+    {
+      "id": "timings.hafs.yahya",
+      "key": "timings/hafs/yahya.jz",
+      "sha256": "dc1202fe7531066bc1f4dc708daf92e9e6079b27b97c9993311c2b051ea20e7c",
+      "bytes": 94640,
+      "entries": 6236,
+      "errors": []
+    },
+    {
+      "id": "timings.warsh.husary_warsh",
+      "key": "timings/warsh/husary_warsh.jz",
+      "sha256": "a22f531bb394e77e0929ca981ba2865ab91048878f6c896ff69c239fc3640ec4",
+      "bytes": 90962,
+      "entries": 6236,
+      "errors": []
+    },
+    {
+      "id": "timings.warsh.noah_warsh",
+      "key": "timings/warsh/noah_warsh.jz",
+      "sha256": "d98eac503533ad7d4230ac55e60704374a30ef9ccd81e7035afa2a8b38f5c297",
+      "bytes": 92110,
+      "entries": 6236,
+      "errors": []
+    },
+    {
+      "id": "timings.hafs.wdod",
+      "key": "timings/hafs/wdod.jz",
+      "sha256": "3ba807bb784cc514cb7b0635919ee91afd1866962ae760589a6ae867f0b63443",
+      "bytes": 93781,
+      "entries": 6236,
+      "errors": []
+    },
+    {
+      "id": "timings.hafs.a_alhazmi",
+      "key": "timings/hafs/a_alhazmi.jz",
+      "sha256": "51dc8452dc82f8a9d835371766bf8dd233d0d59ea2f94437b481c8ddaeafe54d",
+      "bytes": 94448,
+      "entries": 6236,
+      "errors": []
+    },
+    {
+      "id": "timings.hafs.a_alqrafi",
+      "key": "timings/hafs/a_alqrafi.jz",
+      "sha256": "8d22b30c798cfb748f5c0f4cac236edab802867d72abe46f02d97445af33cf6b",
+      "bytes": 94592,
+      "entries": 6236,
+      "errors": []
+    },
+    {
+      "id": "timings.hafs.ra3ad",
+      "key": "timings/hafs/ra3ad.jz",
+      "sha256": "74757aec7397081fc5d06b8fe77c8f4b0b31137daa8f637c82fa51d9aff86ecb",
+      "bytes": 89461,
+      "entries": 6236,
+      "errors": []
+    },
+    {
+      "id": "timings.sousi.soufi_sousi",
+      "key": "timings/sousi/soufi_sousi.jz",
+      "sha256": "42191c3aba20b96a62e0d3bf07a8fb81e0b7eed5dec0ca9573e42d4d4e616868",
+      "bytes": 94695,
+      "entries": 6236,
+      "errors": []
+    },
+    {
+      "id": "timings.warsh.qazabri",
+      "key": "timings/warsh/qazabri.jz",
+      "sha256": "a74f0d9c2a2dea4efe0b42a3fda1dcfac11f8d6421fda3a4713658ddce51cc39",
+      "bytes": 91542,
+      "entries": 6236,
+      "errors": []
+    },
+    {
+      "id": "timings.hafs.mohsin_harthi",
+      "key": "timings/hafs/mohsin_harthi.jz",
+      "sha256": "638a95ee0bc54388db15a13959c2ea16eff846e4bfc049c9fd5bb227697288c2",
+      "bytes": 94212,
+      "entries": 6236,
+      "errors": []
+    },
+    {
+      "id": "timings.hafs.deban",
+      "key": "timings/hafs/deban.jz",
+      "sha256": "3fdb27f5ae3cb3bebe86785ded433f6228f7be57c7024c9234382765f55d0fca",
+      "bytes": 93744,
+      "entries": 6236,
+      "errors": []
+    },
+    {
+      "id": "timings.qalun.janaini_qalun",
+      "key": "timings/qalun/janaini_qalun.jz",
+      "sha256": "952ac225a081dfba09ab0b9ca7b2ecef1fc9ad5b45c96c9f6f76d0c321a15a16",
+      "bytes": 95885,
+      "entries": 6236,
+      "errors": []
+    },
+    {
+      "id": "timings.douri.deban_douri",
+      "key": "timings/douri/deban_douri.jz",
+      "sha256": "68fc01a86b8fcae6f025c92cac671926e2501b48a0d2f3412232675bd49d21a7",
+      "bytes": 94235,
+      "entries": 6236,
+      "errors": []
+    },
+    {
+      "id": "timings.hafs.h_abudalal",
+      "key": "timings/hafs/h_abudalal.jz",
+      "sha256": "5e6e7f27e31f4784ba4f5376a04809cd3425a9c5d1869b8062c77665b78ec213",
+      "bytes": 94813,
+      "entries": 6236,
+      "errors": []
+    },
+    {
+      "id": "timings.shuba.deban_shuba",
+      "key": "timings/shuba/deban_shuba.jz",
+      "sha256": "62fbeecb2dce19077b5900b38d4b7528ec64b12c9b377501ea47adc18f013177",
+      "bytes": 98709,
+      "entries": 6236,
+      "errors": []
+    },
+    {
+      "id": "timings.warsh.bl3_warsh",
+      "key": "timings/warsh/bl3_warsh.jz",
+      "sha256": "336a70193223246a63c95abe5c1d0d09c8989ba5a7aa4c04951b4eebe7d19400",
+      "bytes": 96674,
+      "entries": 6236,
+      "errors": []
+    },
+    {
+      "id": "timings.hafs.khan",
+      "key": "timings/hafs/khan.jz",
+      "sha256": "1f5139122eae92482fc1193157ea0b8eee9f207e94221749759607b2e9e1acd4",
+      "bytes": 96232,
+      "entries": 6236,
+      "errors": []
+    },
+    {
+      "id": "timings.hafs.f_khamery",
+      "key": "timings/hafs/f_khamery.jz",
+      "sha256": "4b52d876b3650001bc46423b72a9e9124c1c3a8feedd9a5c1312d09395e78230",
+      "bytes": 101268,
+      "entries": 6236,
+      "errors": []
+    },
+    {
+      "id": "timings.qalun.noah_qalun",
+      "key": "timings/qalun/noah_qalun.jz",
+      "sha256": "33d340ae02c6871d46f7c53d9981b67e0c7bf73273dfbb706cb5687dc55db044",
+      "bytes": 94623,
+      "entries": 6236,
+      "errors": []
+    },
+    {
+      "id": "timings.hafs.nasser_almajed",
+      "key": "timings/hafs/nasser_almajed.jz",
+      "sha256": "8826aaf699ae4a1019a9c5c53ada708db1176d15f29befb3b27f70529900e5df",
+      "bytes": 86899,
+      "entries": 6236,
+      "errors": []
+    },
+    {
+      "id": "timings.hafs.qasm",
+      "key": "timings/hafs/qasm.jz",
+      "sha256": "44317113432d08b2d930038caf79c107d3f20a488bec019530de6abc5669eeaf",
+      "bytes": 132496,
+      "entries": 6236,
+      "errors": []
+    },
+    {
+      "id": "timings.warsh.laghdaf_shinqiti",
+      "key": "timings/warsh/laghdaf_shinqiti.jz",
+      "sha256": "fb41e53f7a502c24370f410ed6106b1ff99a0f25d78d7de35c2fae6caf1fd51b",
+      "bytes": 96141,
+      "entries": 6236,
+      "errors": []
+    },
+    {
+      "id": "timings.hafs.a_klb",
+      "key": "timings/hafs/a_klb.jz",
+      "sha256": "50647a5876cbe1277779ef3905dfe03f9ccc6dc73901d10cfa50c9350d902fed",
+      "bytes": 164776,
+      "entries": 6236,
+      "errors": []
+    },
+    {
+      "id": "timings.hafs.kurdi",
+      "key": "timings/hafs/kurdi.jz",
+      "sha256": "60dd5ae3fc5c6e7fd3a2e78a2c553180fcfcc8e3344a7156ff65302f3c64e2c2",
+      "bytes": 97306,
+      "entries": 6236,
+      "errors": []
+    }
+  ],
+  "reciterTargets": [
+    {
+      "id": "kurdi",
+      "name": "رعد محمد الكردي",
+      "base": "https://server6.mp3quran.net/kurdi/",
+      "mode": "surah",
+      "ayahCoverage": 1.0,
+      "ayahCertified": true
+    },
+    {
+      "id": "asim",
+      "name": "عاصم اللحیدان",
+      "base": "https://server7.mp3quran.net/asim/Rewayat-Hafs-A-n-Assem/",
+      "mode": "surah",
+      "ayahCoverage": 0.9856,
+      "ayahCertified": true
+    },
+    {
+      "id": "akri_qalun",
+      "name": "محمد العكري",
+      "base": "https://server16.mp3quran.net/m_akri/Rewayat-Qalon-A-n-Nafi/",
+      "mode": "surah",
+      "ayahCoverage": 0.9897,
+      "ayahCertified": true
+    }
+  ]
+}
