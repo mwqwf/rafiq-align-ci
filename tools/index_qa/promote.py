@@ -191,6 +191,13 @@ def census_gate(cl, bucket, src, live_sha, idx):
     tail_error = tail_report_error(rep, idx)
     if tail_error:
         return tail_error
+    # ⭐ 2026-10-02 (‏عاصم س38 · asim.48b0baaa): شاهدُ النوافذ غير الحاسمة — صفٌّ يحمله
+    #    يجب أن يكون أصلُه «غير حاسم» وشاهدُه صحيحاً بنسب CI، وإلا رُدّ الإحصاءُ كلُّه.
+    #    لا يمسّ حارسَ «>50% غير حاسم» أدناه ولا عتبةَ 5%.
+    from window_census_witness import report_error as window_report_error
+    window_error = window_report_error(rep, idx)
+    if window_error:
+        return window_error
     got = {str(s) for s in (rep.get("census") or {}).get("surahs") or []}
     if got != ebs:
         return f"الإحصاءُ غطّى {sorted(got, key=int)} والمدموجُ {sorted(ebs, key=int)}"
