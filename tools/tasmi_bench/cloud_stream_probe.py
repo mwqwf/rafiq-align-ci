@@ -29,7 +29,11 @@ def call(method, path, data=None, headers=None, timeout=20, ua=UA):
 
 def wav_clip(ayah, seconds=5.5):
     mp3 = f"/tmp/{ayah}.mp3"
-    urllib.request.urlretrieve(f"https://everyayah.com/data/Alafasy_128kbps/{ayah}.mp3", mp3)
+    req = urllib.request.Request(
+        f"https://everyayah.com/data/Alafasy_128kbps/{ayah}.mp3",
+        headers={"User-Agent": UA})
+    with urllib.request.urlopen(req, timeout=60) as response, open(mp3, "wb") as output:
+        output.write(response.read())
     pcm = subprocess.run(["ffmpeg", "-v", "error", "-i", mp3, "-t", str(seconds), "-ac", "1", "-ar", "16000",
                           "-f", "s16le", "-"], capture_output=True, check=True).stdout
     b = io.BytesIO()
