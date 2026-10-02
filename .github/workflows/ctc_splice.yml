@@ -94,10 +94,13 @@ jobs:
                             aws_access_key_id=c["accessKeyId"],
                             aws_secret_access_key=c["secretAccessKey"], region_name="auto")
           parent = os.environ["PARENT"]
-          if not parent.startswith("timings/") or parent.count("/") != 2:
-              sys.exit(f"⛔ الأصلُ يجب أن يكون منشوراً timings/<riw>/<id>.jz: {parent}")
+          # ⭐ (2026-10-02 · fixF) أو مرشّحٌ في المسرح `timings-staging/<riw>/<id>.<sha8>.jz` — كما يقبله
+          #    `realign_surah` — ليُجمع أكثرُ من إصلاحٍ في مرشّحٍ واحدٍ للفهرس (‏الغربي: إعادةُ محاذاة
+          #    30/32/68 ثمّ نافذتا 55:2 و20:28) بدل ترقيتين. وسائرُ الحرّاس (الكتالوج · الهويّة · الحتميّة) كما هي.
+          if not parent.startswith(("timings/", "timings-staging/")) or parent.count("/") != 2 or not parent.endswith(".jz"):
+              sys.exit(f"⛔ الأصلُ يجب أن يكون منشوراً timings/<riw>/<id>.jz أو مرشّحاً timings-staging/<riw>/<id>.<sha8>.jz: {parent}")
           _, riw, fn = parent.split("/")
-          rid = fn[:-3]
+          rid = fn[:-3].split(".")[0]
           if riw != os.environ["RIW"]:
               sys.exit(f"⛔ الرواية {os.environ['RIW']} والأصلُ {riw}")
           cat = json.loads(s3.get_object(Bucket=c["bucket"], Key="catalog/reciters.json")["Body"].read())
