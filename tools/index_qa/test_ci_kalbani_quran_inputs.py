@@ -19,4 +19,14 @@ class TargetInputTests(unittest.TestCase):
   for s in plan['surahs']:
    req,src=T.G.validated_plan(plan,sources,s['surah']);begin,end,_=T.G.surah_slice(T.G.load_index(),s['surah']);refs=T.G.load_text('hafs')[begin:end]
    for win in req['windows']:T.target_inputs(refs,*win['range'],win['target'],'common.norm')
+ def test_full_original_plan_binds_publisher_bytes_and_population(self):
+  plan=json.loads((T.ROOT/'ops/source-repair/kalbani-float-quran-input-plan-20261002-originals.json').read_text());evidence=json.loads((T.ROOT/'ops/source-repair/kalbani-1435-remaining-source-evidence-20261002.json').read_text())
+  for row in plan['surahs']:T.validated_full_plan(plan,evidence,row['surah'])
+  for field,value in [('sourceSha256','f'*64),('sourceUrl','https://other.example')]:
+   d=copy.deepcopy(plan);d['surahs'][0][field]=value
+   with self.assertRaises(ValueError):T.validated_full_plan(d,evidence,d['surahs'][0]['surah'])
+  for field,value in [('locallyTranscoded',True),('decoderErrors','bad'),('item','other'),('accepted',False)]:
+   d=copy.deepcopy(evidence);next(x for x in d['sources'] if x['surah']==10)[field]=value
+   with self.assertRaises(ValueError):T.validated_full_plan(plan,d,10)
+  with self.assertRaises(ValueError):T.validated_full_plan(plan,evidence,2)
 if __name__=='__main__':unittest.main()
