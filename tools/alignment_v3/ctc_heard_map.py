@@ -52,6 +52,7 @@ MAX_WIN_AYAT = 12       # أقصى آياتٍ في نافذة محاذاة
 PAD_MS = 1500           # هامشُ النافذة حول المسموع
 REPEAT_GAP_MS = 6000    # فجوةٌ بعد آيةٍ تُفحص عن تكرارٍ قبل أن تُضمّ إلى مدخلها
 TAIL_MS = 800           # ذيلُ آخر آية بعد آخر حرفٍ مسموع
+DEV_TOL_MS = 3000       # أقصى بُعدٍ مقبولٍ لحدّ النافذة عن مِرساته العامّة
 ANCHOR_Q = 0.3          # أدنى جودةٍ (نسبةُ حروفٍ مطابقة) تُعدّ بها المِرساةُ العامّةُ صالحةً للنافذة
 _SUB1 = {"ٱ": "ا", "أ": "ا", "إ": "ا", "آ": "ا", "ؤ": "و", "ئ": "ي", "ى": "ي", "ة": "ه",
          "ے": "ي", "ء": ""}
@@ -359,6 +360,35 @@ def run(audio, surah, riwaya, log=print, probe=False):
         for k in range(i, j + 1):
             st, _en, sc = segs[off + (k - i)]
             starts[k], scores[k] = ws + int(st * 1000), sc
+    # ⛔ حارسُ الاتّساق مع المِرساة (‏مقيسٌ 2026-10-02): داخل نافذةٍ من 12 آيةً على صوتٍ رديءٍ
+    #    يكبس ctc_segmentation الآياتِ مبكّراً ويترك فراغاً (‏ص 44–48: الآية 48 صارت 117ث؛
+    #    والصافات 97–108). فحدٌّ يبعد عن مِرساته العامّة أكثرَ من max(3ث، نصفَ مدّتها المرسوّة)
+    #    يُعاد بنافذةٍ ضيّقةٍ على الآية وحدها حول مِرساتها؛ فإن أبى اعتُمدت المِرساةُ نفسُها
+    #    (‏موضعُ أوّل حرفٍ مسموعٍ من الآية — مقيسٌ لا مختلَق) بثقةٍ LOW ووُسم `boundary=anchor`.
+    source = ["window"] * n
+    for k in range(n):
+        a = anchor_ms[k]
+        if a is None or starts[k] is None:
+            continue
+        tol = max(DEV_TOL_MS, (a[1] - a[0]) // 2)
+        if abs(starts[k] - a[0]) <= tol:
+            continue
+        ws, we = int(max(0, a[0] - PAD_MS)), int(min(total_ms, a[1] + PAD_MS))
+        clip = x[ws * SR // 1000: we * SR // 1000]
+        try:
+            st, _en, sc = _segment(_emissions(clip), len(clip), [refs[k]])[0]
+            cand = ws + int(st * 1000)
+        except Exception:                                       # noqa: BLE001
+            cand, sc = None, 0.0
+        if cand is not None and abs(cand - a[0]) <= tol:
+            starts[k], scores[k], source[k] = cand, sc, "narrow"
+        else:
+            starts[k], scores[k], source[k] = a[0], -2.4, "anchor"      # _conf(-2.4) = 0.4 ⇒ LOW
+        result["issues"].append(f"الآية {k + 1}: حدُّ النافذة {abs(starts[k] - a[0]) / 1000:.1f}ث عن مِرساتها"
+                                f" ⇒ {source[k]}")
+    for k in range(1, n):                     # رتابةٌ بعد التصحيح
+        if starts[k] is not None and starts[k - 1] is not None and starts[k] < starts[k - 1] + 200:
+            starts[k] = starts[k - 1] + 200
     entries = []
     for k in range(n):
         if starts[k] is None:
@@ -368,7 +398,7 @@ def run(audio, surah, riwaya, log=print, probe=False):
         t, on_sil = snap_to_silence(int(starts[k]), sil, tolerance_ms=700)
         entries.append({"ayahIdx": k, "startMs": int(t), "endMs": None, "conf": _conf(scores[k]),
                         "snapped": bool(on_sil), "matched": 0, "total": len(refs[k].split()),
-                        "heard": anchor_ms[k] is not None})
+                        "heard": anchor_ms[k] is not None, "boundary": source[k]})
     # النهايات: نهايةُ الآية = بدايةُ التالية، إلا حيث يفصلهما مقطعٌ مكرَّرٌ **بشاهدٍ قويّ** (‏أداءٌ
     # آخر لآيةٍ سابقة بتشابهٍ ≥ STRONG) فتُحدّ بآخر حرفٍ مرسوٍ لها + ذيل، ويبقى المكرَّرُ خارجَ المداخل.
     # ⛔ ولا يُنتج القطعُ مدخلاً فارغاً: إن لم يبقَ للآية مدى بعد القطع تُترك متّصلةً بالتالية.
