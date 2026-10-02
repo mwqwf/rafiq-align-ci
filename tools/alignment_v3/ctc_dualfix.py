@@ -36,7 +36,7 @@ sys.path.insert(0, os.path.join(os.path.dirname(HERE), "index_qa"))
 import window_census_witness as X   # noqa: E402
 
 ENGINE = "ctc-dualfix-1"
-BASE_ENGINES = ("ctc-heardmap-1",)
+BASE_ENGINES = ("ctc-heardmap-1", ENGINE)   # تمريرةٌ ثانيةٌ من مرشّح dualfix نفسِه جائزة
 MAX_PASSES = 200
 
 
@@ -171,7 +171,7 @@ def main() -> int:
     idx = json.loads(gzip.decompress(body)); base_sha = hashlib.sha256(body).hexdigest()
     s = a.surah
     if idx.get("riwaya") != a.riwaya or (idx.get("engineBySurah") or {}).get(str(s)) not in BASE_ENGINES:
-        raise ValueError("base candidate must carry the surah by a heard-map engine in this riwaya")
+        raise ValueError("base candidate must carry the surah by a heard-map or dualfix engine in this riwaya")
     rows = [e for e in idx["entries"] if e["ayahId"].startswith(f"{s}:") and e.get("startMs") is not None]
     begin, stop, _ = surah_slice(load_index(), s)
     n = stop - begin
@@ -209,7 +209,7 @@ def main() -> int:
     for e in entries:
         bands[band(e["conf"])] = bands.get(band(e["conf"]), 0) + 1
     changed = sum(1 for k in range(n) if bounds[k] != base[k])
-    evidence = {"engine": ENGINE, "baseKey": a.base_key, "baseSha256": base_sha, "baseEngine": "ctc-heardmap-1",
+    evidence = {"engine": ENGINE, "baseKey": a.base_key, "baseSha256": base_sha, "baseEngine": idx["engineBySurah"][str(s)],
                 "sourceSha256": sha, "totalMs": total_ms, "models": models,
                 "runtime": dict(X.RUNTIME), "canonicalTextChanged": False,
                 "thresholds": {"startTol": X.START_TOL, "endTol": X.END_TOL, "minConf": X.TARGET_CONF,
