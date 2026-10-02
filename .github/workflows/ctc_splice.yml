@@ -73,6 +73,7 @@ jobs:
           WANT: ${{ github.event.inputs.surahs }}
           MODE: ${{ github.event.inputs.mode }}
           TRUNC: ${{ github.event.inputs.truncated_tail }}
+          REWIN: ${{ github.event.inputs.rewindow }}
         run: |
           python - <<'PY'
           import gzip, hashlib, json, os, re, sys, boto3
@@ -161,6 +162,13 @@ jobs:
           extra = [s for s in todo if s not in gaps]
           # ⭐ وضعُ dualfix يصحّح حدودَ سورةٍ **تامّةٍ** في الأصل بطبيعته (‏2026-10-02: الصافاتُ نُشرت
           #    ثمّ تُصحَّح 37:88/99/109) — فالتمامُ شرطُه لا مانعُه، والدمجُ يحرس ما خارجَها حرفاً.
+          # ⭐ (2026-10-02 · fixF · الغربي 55:2 و20:28) وضعُ window بـ`rewindow` بابُه **آياتٌ حاضرةٌ
+          #    حدودُها معطوبة** (‏آيةٌ بلا تلاوة 300م.ث بين جارتين) — فسورةٌ تامّةٌ تُقبل فيه إن كانت
+          #    **كلُّ** سورةٍ تامّةٍ مسمّاةً في rewindow؛ وما خارج المدى يحرسه الدمجُ حرفاً.
+          rewin_surahs = {int(x.split(":")[0]) for x in os.environ.get("REWIN", "").split(",") if ":" in x}
+          if extra and os.environ.get("MODE", "full") == "window" and set(extra) <= rewin_surahs:
+              print(f"⭐ سورٌ تامّةٌ تُعاد نافذةُ مدىً منها (rewindow): {extra}")
+              extra = []
           if extra and os.environ.get("MODE", "full") != "dualfix":
               sys.exit(f"⛔ سورٌ تامّةٌ في الأصل لا تُمسّ: {extra}")
           if not todo:
