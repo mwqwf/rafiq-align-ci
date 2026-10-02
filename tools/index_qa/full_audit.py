@@ -66,10 +66,21 @@ def _sa(aid: str):
     return int(s), int(a)
 
 
+def _file_nos(url: str):
+    """أرقامٌ من 1–3 خانات في **اسم الملفّ** بعد فكّ الترميز (‏`001 - البقرة.mp3` ⇒ {1}).
+    ⛔ الأرقامُ الأطول (سنواتٌ كـ1435) لا تُحسب، ورموزُ `%D8%A9` تُفكّ أوّلاً فلا يُلتقط `9` منها."""
+    from urllib.parse import unquote
+    name = unquote(str(url or "")).split("?")[0].rstrip("/").split("/")[-1]
+    if not re.search(r"\.(?:mp3|ogg|opus|m4a|wav)$", name, flags=re.I):
+        return set()                   # لا اسمَ ملفٍّ صوتيّ (مرجعٌ مبتورٌ إلى مجلّد) — يُكشف في «ملفٌّ لسورتين»
+    stem = re.sub(r"\.(?:mp3|ogg|opus|m4a|wav)$", "", name, flags=re.I)
+    return {int(x) for x in re.findall(r"(?<!\d)(\d{1,3})(?!\d)", stem)}
+
+
 def _file_no(url: str):
-    """رقمُ السورة من اسم الملفّ (‏`.../001.mp3` ⇒ 1) أو None إن لم يُعرف."""
-    m = re.search(r"(\d{1,3})\.(?:mp3|ogg|opus|m4a|wav)(?:\?.*)?$", str(url or ""), re.I)
-    return int(m.group(1)) if m else None
+    """رقمُ السورة من اسم الملفّ، أو None إن لم يُعرف (‏تُستعمل في المقابلة مع رقم السورة)."""
+    nos = _file_nos(url)
+    return min(nos) if len(nos) == 1 else None
 
 
 # ───────────────────────── البند 2: البنية ─────────────────────────
@@ -119,13 +130,13 @@ def check_structure(idx: dict, key: str, text=None) -> dict:
     mism = {}
     for s, fs in files_of.items():
         for f in fs:
-            n = _file_no(f)
-            if n is not None and n != s:
+            nos = _file_nos(f)
+            if nos and s not in nos:
                 mism[s] = f
     if mism:
         out["errors"].append(f"رقمُ الملفّ لا يطابق السورة: {len(mism)}")
         out["examples"]["fileNoMismatch"] = {str(s): mism[s] for s in sorted(mism)[:MAX_EXAMPLES]}
-    unnum = sorted({s for s, fs in files_of.items() if any(f and _file_no(f) is None for f in fs)})
+    unnum = sorted({s for s, fs in files_of.items() if any(f and not _file_nos(f) for f in fs)})
     out["fileNoUnparsed"] = len(unnum)
     # الرتابةُ داخل السورة والتداخلُ داخل الملفّ
     mono, overlap = [], []
