@@ -25,7 +25,7 @@ jobs:
           git config user.email actions@github.com
           git fetch origin main --quiet
           git merge --ff-only origin/main
-          git add ops/source-repair/audio-fixtures/kurdi-nahl-c82dee87.mp3 ops/source-repair/kurdi-soundcloud-original-source-evidence-20261002.json
+          git add -f ops/source-repair/audio-fixtures/kurdi-nahl-c82dee87.mp3 ops/source-repair/kurdi-soundcloud-original-source-evidence-20261002.json
           git commit -m "source: exact original Kurdi Nahl fixture c82dee87 [skip ci]"
           source_commit=$(git rev-parse HEAD)
           git push origin HEAD:main || {
