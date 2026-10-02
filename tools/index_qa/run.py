@@ -1431,6 +1431,10 @@ def audit(key, args):
         return rep
 
     if getattr(args, "local", False):
+        from original_audio_fixture import prime
+        fixture = prime(idx, sys.modules[__name__])
+        if fixture:
+            rep["originalFixtureEvidence"] = fixture
         MIRROR.update({"riwaya": idx.get("riwaya"), "reciter": idx.get("reciterId"), "used": {}})
     seed, sample = sample_boundaries(idx, args.clusters, args.per_cluster,
                                      getattr(args, "band", None), getattr(args, "long_seg", False),

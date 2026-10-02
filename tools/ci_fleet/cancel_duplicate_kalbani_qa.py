@@ -21,7 +21,7 @@ def eligible(run):
             and run.get('repository', {}).get('full_name') == 'mwqwf/rafiq-align-ci'
             and run.get('repository', {}).get('private') is False)
 
-def main():
+def cancel_duplicates():
     cl, bucket = P.s3()
     if P.object_sha(cl, bucket, KEY)[0] != SHA: raise ValueError('تغير المرشح')
     flat = KEY.replace('/', '_')
@@ -49,5 +49,42 @@ def main():
             print('أُلغي الفحص المكرر فقط:', ident, flush=True)
         elif run.get('status') != 'completed':
             raise ValueError('هوية النسخة المكررة تغيرت؛ لا إلغاء')
+
+REJECTED_RUNS = {36953910660: ('.github/workflows/splice_census.yml', f'census {KEY}'),
+                 36953326331: ('.github/workflows/audio_qa.yml', f'qa {KEY} · salt=rs2 · n=1')}
+
+def rejection_valid(report):
+    rows = [r for r in (report.get('sample') or {}).get('rows', []) if r.get('aid') == '5:34']
+    return (report.get('sha256') == SHA and report.get('source') == 'ci'
+            and str(report.get('runId')) == '36953910660' and len(rows) == 1
+            and rows[0].get('kind') == 'جسيم' and rows[0].get('verdict') == 'LATE_START'
+            and all((rows[0].get('heard') or {}).get(k) for k in ('fwd','dec','long')))
+
+def rejected_run_eligible(run):
+    identity = REJECTED_RUNS.get(run.get('id'))
+    return bool(identity and (run.get('path'), run.get('display_title')) == identity
+                and run.get('event') == 'workflow_dispatch'
+                and run.get('status') in ('queued','in_progress','pending')
+                and run.get('repository',{}).get('full_name') == 'mwqwf/rafiq-align-ci'
+                and run.get('repository',{}).get('private') is False)
+
+def cancel_rejected():
+    cl,bucket = P.s3()
+    if P.object_sha(cl,bucket,KEY)[0] != SHA: raise ValueError('تغير المرشح المرفوض')
+    proof = json.loads(cl.get_object(Bucket=bucket,Key=f'state-census-parts/{SHA}/36953910660/005.json')['Body'].read())
+    if not rejection_valid(proof): raise ValueError('لا شاهد فعلي على رفض الآية المطلوبة')
+    metadata=json.loads((pathlib.Path(__file__).resolve().parents[2]/'ops/source-repair/staged/kalbani_complete_published_vorbis.json').read_text())
+    if metadata.get('sha256') != SHA or '5:34' not in metadata.get('requiredCleanAyahs',[]):raise ValueError('الآية ليست من المطلوب بريئا')
+    for ident in REJECTED_RUNS:
+        run=gh(f'actions/runs/{ident}')
+        ok=rejected_run_eligible(run)
+        print(json.dumps({'run':ident,'rejectedCandidateEligible':ok,'status':run.get('status'),'requiredFailed':'5:34'},ensure_ascii=False),flush=True)
+        if ok: gh(f'actions/runs/{ident}/cancel',{});print('أُلغي فحص المرشح المرفوض مع حفظ الشواهد:',ident,flush=True)
+        elif run.get('status') != 'completed':raise ValueError('تغيرت هوية الفحص؛ لا إلغاء')
+
+def main():
+    import argparse
+    ap=argparse.ArgumentParser();ap.add_argument('--rejected-candidate',action='store_true');a=ap.parse_args()
+    cancel_rejected() if a.rejected_candidate else cancel_duplicates()
 
 if __name__ == '__main__': main()

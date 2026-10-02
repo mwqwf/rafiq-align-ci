@@ -390,8 +390,17 @@ def main():
         try:
             _url = opener_audio_url(e, s, tmpl, names, base if names else "")
             row.update(url=_url, endMs=e["endMs"])
-            fetch_head(_url, mp3,
-                       need_ms=e["startMs"] + LADDER[-1] + VERIFY_MS)
+            fixture = None
+            if s == 12:
+                sys.path.insert(0, os.path.join(ROOT, "tools", "index_qa"))
+                import original_audio_fixture as original_fixture
+                if original_fixture.eligible(ti):
+                    import run as fixture_runner
+                    fixture = original_fixture.prime(ti, fixture_runner, mp3)
+                    row["originalFixtureEvidence"] = fixture
+            if fixture is None:
+                fetch_head(_url, mp3,
+                           need_ms=e["startMs"] + LADDER[-1] + VERIFY_MS)
             end = None
             for d in LADDER:
                 w = text_of(model, cut(mp3, e["startMs"], d, clip)).split()

@@ -1,0 +1,62 @@
+{
+  "kind": "lossless-original-measurements-archive",
+  "candidate": {
+    "reciterId": "a_klb",
+    "riwaya": "hafs",
+    "surahs": [
+      2,
+      3,
+      4,
+      5,
+      6,
+      7,
+      8,
+      9,
+      10,
+      11,
+      12,
+      18,
+      29,
+      44,
+      56,
+      76,
+      77
+    ],
+    "parent": "timings/hafs/a_klb.jz",
+    "parentSha": "aebe5475f65b1ed3771cbd38852f11984a7ebc3b48aa2e958397f38cfb7dfd2b",
+    "candidateFile": "ops/source-repair/candidates/a_klb.616e9291.jz",
+    "candidateSha": "616e9291a363629d3cc3967f235e184760b8977a98dbf2c0e6b647cb9dfee0ff",
+    "added": [
+      "6:87",
+      "44:57",
+      "56:89"
+    ],
+    "requiredCleanAyahs": [
+      "2:130",
+      "2:177",
+      "2:200",
+      "3:41",
+      "3:56",
+      "4:37",
+      "4:75",
+      "5:5",
+      "5:34",
+      "5:80",
+      "6:109",
+      "8:20",
+      "8:37",
+      "8:54",
+      "9:38",
+      "11:16",
+      "29:27"
+    ],
+    "entries": 6236,
+    "productionChanged": false
+  },
+  "expandedSha256": "5d6f529790d706ebc0735ede9da793ef89a07da6b2b8db720e56fabb5197c919",
+  "expandedBytes": 6906541,
+  "gzipSha256": "046f191b586389a769f5c0873028b3978a9f25c5f828bf6ca77fe909613d1bdb",
+  "gzipBytes": 542714,
+  "artifact": "ops/source-repair/kalbani_complete_census_corrected-proof.json.gz",
+  "reason": "Lossless full raw measurements, all failed contexts and original candidate rejection plus corrected native diagnostic preserved. No confidence edits or weakened guards."
+}
