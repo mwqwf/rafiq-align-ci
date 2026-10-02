@@ -57,13 +57,13 @@ promoted = 0
 latest = {}
 for o in ls("timings-staging/"):
     k = o["Key"]
+    if not k.endswith(".jz") or o["LastModified"].isoformat() < SINCE:
+        continue
+    rid = k.split("/")[-1].split(".")[0]
     target = 'timings/' + k.split('/')[1] + '/' + rid + '.jz'
     if k in holds or target in holds:
         print(f"⏸️ {k}: حجز صريح؛ لا تكرار للفحص أو الترقية")
         continue
-    if not k.endswith(".jz") or o["LastModified"].isoformat() < SINCE:
-        continue
-    rid = k.split("/")[-1].split(".")[0]
     if rid not in latest or o["LastModified"] > latest[rid]["LastModified"]:
         latest[rid] = o
 runs = json.loads(subprocess.run(
