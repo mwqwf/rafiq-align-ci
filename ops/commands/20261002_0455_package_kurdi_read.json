@@ -1,0 +1,8 @@
+{
+  "action": "tool",
+  "tool": "index_qa/catalog_audit.py",
+  "args": [
+    "--key=packages/catalog.json",
+    "--show=timings.hafs.kurdi,timings.hafs.a_klb"
+  ]
+}
