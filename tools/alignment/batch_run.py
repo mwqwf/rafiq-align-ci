@@ -110,6 +110,10 @@ def main():
     #    `run_shard.sh` ولا صفوفُ TSV القائمة، ويكفي أن يحمل الصفُّ المجلَّدَ.
     files_map = None
     if "{surah" not in args.base:
+        # ⛔ (2026-10-02 · fixF) الاسمُ يُلصق بالأساس حرفاً، وأساسٌ بلا `/` ختاميّةٍ أعطى
+        #    404 على كلّ سورةٍ في سبرَين (‏37073253509 · 37073247256) — فتُضمن الشرطةُ هنا.
+        if not args.base.endswith("/"):
+            args.base += "/"
         files_map = catalog_files(args.reciter)
         if not files_map:
             raise SystemExit(
