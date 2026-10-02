@@ -129,21 +129,45 @@ def occurrences(ayah_sk, heard_sk, min_score=MIN_OCC, max_hits=6):
 
 
 def choose_chain(occ, min_score=MIN_OCC, slack=6):
-    """أداءٌ واحدٌ لكلّ آية، رتيبٌ: يُمشى من الآخِر إلى الأوّل فيُختار **آخرُ** أداءٍ ينتهي قبل
-    بدءِ ما اختير للآية التالية (‏«الأداءُ الأخيرُ المتّصلُ بما بعده»)، ما لم يكن أضعفَ من
-    أفضل أداءٍ بأكثر من 0.15 فيُقدَّم الأفضل. يُرجع قائمةً بالطول نفسِه: (a، b، تشابه) أو None."""
+    """أداءٌ واحدٌ لكلّ آية، رتيبٌ، **بأكبر مجموعِ تشابهٍ** (‏برمجةٌ ديناميّة على سلسلةٍ صاعدة
+    تسمح بتخطّي آياتٍ لم تُسمع) — لا مشياً جشعاً: فمطابقةٌ زائفةٌ واحدةٌ مبكّرةٌ كانت تجرّ كلَّ
+    ما قبلها إلى «لم تُسمع» (‏قِيس 2026-10-02 على الصافات: 3–174 ضاعت لمطابقةٍ واحدة).
+    ثمّ عند التكرار يُعتمد **الأداءُ الأخيرُ المتّصلُ بما بعده**: لكلّ آيةٍ أحدثُ أداءٍ يقع بين
+    جارتيها المختارتين وتشابهُه ≥ المختار − 0.15. يُرجع قائمةً بالطول نفسِه: (a، b، تشابه) أو None."""
     n = len(occ)
+    cand = [[o for o in occ[k] if o[2] >= min_score] for k in range(n)]
+    best, back = [], []          # best[k][i] = أفضلُ مجموعٍ لسلسلةٍ تنتهي بالأداء i للآية k
+    for k in range(n):
+        bk, pk = [], []
+        for o in cand[k]:
+            top, prev = o[2], None
+            for k2 in range(k - 1, -1, -1):
+                for i2, o2 in enumerate(cand[k2]):
+                    if o2[1] <= o[0] + slack and best[k2][i2] + o[2] > top:
+                        top, prev = best[k2][i2] + o[2], (k2, i2)
+            bk.append(top)
+            pk.append(prev)
+        best.append(bk)
+        back.append(pk)
     chosen = [None] * n
-    bound = None
-    for k in range(n - 1, -1, -1):
-        cands = [o for o in occ[k] if o[2] >= min_score and (bound is None or o[1] <= bound + slack)]
-        if not cands:
+    ends = [(best[k][i], k, i) for k in range(n) for i in range(len(cand[k]))]
+    if not ends:
+        return chosen
+    _, k, i = max(ends)
+    while True:
+        chosen[k] = cand[k][i]
+        if back[k][i] is None:
+            break
+        k, i = back[k][i]
+    for k in range(n - 1, -1, -1):          # الأداءُ الأخيرُ المتّصلُ بما بعده — من الآخِر ليتّصل كلٌّ بما بعده
+        if chosen[k] is None:
             continue
-        best = max(c[2] for c in cands)
-        good = [c for c in cands if c[2] >= best - 0.15]
-        c = max(good, key=lambda o: o[0])
-        chosen[k] = c
-        bound = c[0]
+        lo = next((chosen[m][1] for m in range(k - 1, -1, -1) if chosen[m]), -slack)
+        hi = next((chosen[m][0] for m in range(k + 1, n) if chosen[m]), None)
+        fits = [o for o in cand[k] if o[0] >= lo - slack and (hi is None or o[1] <= hi + slack)
+                and o[2] >= chosen[k][2] - 0.15]
+        if fits:
+            chosen[k] = max(fits, key=lambda o: o[0])
     return chosen
 
 

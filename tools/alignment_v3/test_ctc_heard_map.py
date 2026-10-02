@@ -66,6 +66,15 @@ class Pure(unittest.TestCase):
         # ورتابةٌ تامّة
         self.assertTrue(all(chosen[k][1] <= chosen[k + 1][0] + 6 for k in range(3)))
 
+    def test_choose_chain_survives_spurious_early_match(self):
+        # مطابقةٌ زائفةٌ مبكّرةٌ للرابعة لا تجرّ الأُوَل إلى «لم تُسمع»
+        occ = [[(0, 10, 0.9)], [(12, 22, 0.9)], [(24, 34, 0.9)], [(3, 8, 0.6), (36, 46, 0.9)]]
+        chosen = H.choose_chain(occ)
+        self.assertEqual([c[0] for c in chosen], [0, 12, 24, 36])
+        # وتُتخطّى آيةٌ بلا أداءٍ دون كسر السلسلة
+        occ[1] = []
+        self.assertEqual([c[0] if c else None for c in H.choose_chain(occ)], [0, None, 24, 36])
+
     def test_choose_chain_leaves_unheard_none(self):
         heard, _ = _heard([A1, "ههههههههههههههههههههه", A3])
         chosen = H.choose_chain([H.occurrences(a, heard) for a in (A1, A2, A3)])
