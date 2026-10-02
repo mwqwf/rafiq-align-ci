@@ -41,13 +41,27 @@ jobs:
           set -o pipefail
           [ "$(uname -m)" = "aarch64" ] || { echo "⛔ ليس arm64"; exit 1; }
           grep -m1 -i "^Features" /proc/cpuinfo || true
+      - name: مفاتيحُ القراءة من R2 (‏تُقرأ بها بنودُ العيّنة غيرُ العامّة · لا كتابة)
+        env:
+          R2_CREDENTIALS_JSON: ${{ secrets.R2_CREDENTIALS_JSON }}
+        run: |
+          mkdir -p secure && printf '%s' "$R2_CREDENTIALS_JSON" > secure/r2_credentials.json
+          python3 - <<'PY2'
+          import json, os
+          c = json.load(open("secure/r2_credentials.json"))
+          keys = {"R2_ENDPOINT": c["endpoint"], "R2_ACCESS_KEY_ID": c["accessKeyId"], "R2_SECRET_ACCESS_KEY": c["secretAccessKey"], "R2_BUCKET": c["bucket"]}
+          env = open(os.environ["GITHUB_ENV"], "a")
+          for k, v in keys.items():
+              print("::add-mask::" + v); env.write(k + "=" + v + chr(10))
+          env.close()
+          PY2
       - uses: actions/setup-python@v5
         with:
           python-version: "3.11"
       - name: العدّة
         run: |
           sudo apt-get update -qq && sudo apt-get install -y -qq cmake ninja-build ffmpeg > /dev/null
-          pip install -q numpy soundfile scipy
+          pip install -q numpy soundfile scipy boto3
       - name: بناءُ ثلاث أدواتٍ من المصدر المثبّت (النواةُ وحدها تختلف)
         run: |
           set -o pipefail
