@@ -588,6 +588,9 @@ def main() -> int:
     if a.only:
         want = {x.strip() for x in a.only.split(",") if x.strip()}
         keys = [k for k in keys if k[len("timings/"):-3] in want or k in want]
+        # ⭐ (2026-10-02 · fixS2) مرشّحٌ في المسرح يُسمّى بمفتاحه الكامل فيُفحص بالبنود 2 و3 و5 نفسِها
+        #    قبل ترقيته (لا هويّةَ له في manifest بعدُ فتُتخطّى بإعلان) — ويُكتب بـ--out مستقلّ لا فوق تقرير اليوم.
+        keys += sorted(k for k in want if k.startswith("timings-staging/") and k.endswith(".jz") and k not in keys)
         # ⭐ 2026-10-02: مرشّحٌ في المسرح يُسمّى بمفتاحه الكامل `timings-staging/<riw>/<id>.<sha8>.jz`
         #    فتُفحص بنيتُه ومددُه وأحكامُه قبل الترقية (‏الهويّةُ لا تُقاس له: ليس في manifest ولا التجميد).
         keys += sorted(x for x in want if x.startswith("timings-staging/") and x.endswith(".jz") and x.count("/") == 2)

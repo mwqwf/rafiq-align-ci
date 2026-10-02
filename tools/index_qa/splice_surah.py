@@ -31,6 +31,7 @@ import bisect
 import gzip
 import hashlib
 import json
+import re
 import sys
 import time
 from pathlib import Path
@@ -40,6 +41,12 @@ for _s in (sys.stdout, sys.stderr):
         _s.reconfigure(encoding="utf-8")
     except Exception:                                     # noqa: BLE001
         pass
+
+# ⛔ **مرجعُ الآية ملفٌّ صوتيٌّ لا مجلّد** (‏عطبٌ مقيسٌ 2026-10-02): `realign_surah` بقالبٍ مجلّديٍّ
+#    كتب المجلّدَ نفسَه `fileRef` لس63/109 عند الركباوي وس30/32/68 عند الغربي **ونُشرت**؛ والتطبيقُ
+#    يطلب `fileRef` حرفاً فيستلم HTML — سورةٌ حاضرةٌ في العدّ لا تُشغَّل. ومصدرٌ واحدٌ لهذا الحكم
+#    يقرؤه `run.structural` و`full_audit` وهذه الأداة، فلا يتفرّق.
+AUDIO_EXT_RE = re.compile(r"\.(?:mp3|ogg|opus|m4a|wav)(?:\?.*)?$", re.I)
 
 # عدُّ آي حفص — يُستعمل للتحقّق من اكتمال السورة المُعادة وحدها.
 COUNTS = [7, 286, 200, 176, 120, 165, 206, 75, 129, 109, 123, 111, 43, 52, 99,
@@ -87,8 +94,35 @@ def parent_refs(entries, surahs) -> dict:
         ref = next(iter(got))
         if not isinstance(ref, str) or not ref.startswith(("https://", "http://")):
             sys.exit(f"⛔ س{s}: رابطُها في الأب غيرُ صالح ({ref!r})")
+        # ⛔ (2026-10-02) الأبُ نفسُه قد يحمل المجلّدَ مرجعاً (‏وقع ونُشر) — فلا يُورَّث
+        #    العطب: رابطٌ بلا اسم ملفٍّ صوتيّ يُردّ هنا ويُؤخذ الاسمُ من الكتالوج (`--refs-map`).
+        if not AUDIO_EXT_RE.search(ref):
+            sys.exit(f"⛔ س{s}: رابطُها في الأب مجلّدٌ لا ملفٌّ صوتيّ ({ref}) — "
+                     "لا يُورَّث؛ مرّر الاسمَ المحلولَ من جدول الكتالوج بـ--refs-map")
         refs[s] = ref
     return refs
+
+
+def parse_refs_map(spec: str, surahs: list[int], folder: str) -> dict:
+    """`--refs-map 63=https://…/063_.mp3,109=…`: روابطُ السور **محلولةً من جدول الكتالوج**
+    (‏`resolve_url.py`) لمضيف المجلّد. ⛔ لا يُقبل رابطٌ خارجَ المجلّد ولا بلا اسم ملفٍّ صوتيّ،
+    ولا سورةٌ مطلوبةٌ بلا رابط — فلا يُخمَّن شيء ولا يُكتب مجلّدٌ مرجعاً.
+    """
+    refs = {}
+    for item in [x for x in spec.split(",") if x.strip()]:
+        s_, _, url = item.partition("=")
+        if not s_.strip().isdigit() or not url:
+            sys.exit(f"⛔ --refs-map بصيغة سورة=رابط لا {item!r}")
+        s = int(s_)
+        if not url.startswith(folder.rstrip("/") + "/"):
+            sys.exit(f"⛔ س{s}: رابطُها {url} خارجَ المجلَّد {folder}")
+        if not AUDIO_EXT_RE.search(url):
+            sys.exit(f"⛔ س{s}: رابطُها {url} مجلّدٌ لا ملفٌّ صوتيّ — لا يُكتب مرجعاً")
+        refs[s] = url
+    missing = [s for s in surahs if s not in refs]
+    if missing:
+        sys.exit(f"⛔ --refs-map بلا رابطٍ للسور {missing} — لا يُخمَّن")
+    return {s: refs[s] for s in surahs}
 
 
 def main() -> None:
@@ -120,6 +154,10 @@ def main() -> None:
                          "يبدأ به كلُّ رابط")
     ap.add_argument("--registered-sources", action="store_true",
                     help="روابط صريحة وبصمات مقيسة من سجل المصادر لهذا القارئ والرواية")
+    ap.add_argument("--refs-map", default="",
+                    help="مضيفُ مجلَّدٍ بلا {s:03d}: روابطُ السور محلولةً من جدول الكتالوج "
+                         "(‏resolve_url.py) «63=https://…/063_.mp3,109=…» — كلُّ رابطٍ داخل "
+                         "المجلّد `--url` وينتهي باسم ملفٍّ صوتيّ؛ لا يجتمع مع --refs-from-parent")
     # ⭐ **ذيلٌ مبتورٌ بأمر المالك 2026-10-02** («إن كان البترُ في أوّل السورة أو آخرها
     #    فلا بأس يُعلَن ذلك، لكن إن كان في الوسط تُلغى السورةُ بأكملها»): سورةٌ مصدرُها
     #    الوحيدُ ينقطع عند آية (النورُ عند العكري قالون) تُدمج **بادئتُها المتّصلة 1..N
@@ -168,6 +206,12 @@ def main() -> None:
             except (ValueError, KeyError) as ex:
                 sys.exit(f"⛔ س{s}: {ex}")
             refs[s] = registered[s]["url"]
+    elif args.refs_map:
+        if args.refs_from_parent or args.alt_source:
+            sys.exit("⛔ --refs-map لا يجتمع مع --refs-from-parent ولا --alt-source")
+        if "{s" in args.url:
+            sys.exit("⛔ --refs-map لمضيف المجلَّد وحده — والقالبُ هنا مرقَّم")
+        refs = parse_refs_map(args.refs_map, surahs, args.url)
     elif args.refs_from_parent:
         if "{s" in args.url:
             sys.exit("⛔ --refs-from-parent لمضيف المجلَّد وحده — والقالبُ هنا مرقَّم")
@@ -298,6 +342,11 @@ def main() -> None:
         if not surahs:
             why = " · ".join(skipped) if skipped else "لا سببَ مسجَّل"
             sys.exit(f"⛔ لم تُحلّ سورةٌ واحدة — لا شيءَ يُستبدل ({why})")
+    # ⛔ الحارسُ الأخير (2026-10-02): لا يُكتب صفٌّ مرجعُه بلا اسم ملفٍّ صوتيّ أيّاً كان مصدرُه.
+    _bad = sorted({r["ayahId"].split(":")[0] for r in new_rows
+                   if not AUDIO_EXT_RE.search(str(r.get("fileRef") or ""))}, key=int)
+    if _bad:
+        sys.exit(f"⛔ fileRef بلا اسم ملفٍّ صوتيّ (مجلّدٌ لا ملفّ) في السور {_bad} — لا يُكتب")
     merged = before_out + new_rows
     merged.sort(key=lambda e: (int(e["ayahId"].split(":")[0]),
                                int(e["ayahId"].split(":")[1])))
@@ -451,12 +500,12 @@ def main() -> None:
         for s in surahs:
             shas[s - 1] = registered[s]["audio_sha256"]
         out["audioSha256"] = shas
-    if added and refs is not None and not args.registered_sources:
+    if added and refs is not None and not args.registered_sources and not args.refs_map:
         sys.exit(f"⛔ سورٌ بلا مدخلٍ في الأب مع --refs-from-parent: {added}")
     if added and len(shas) == len(orig_surahs) and len(shas) < 114:
         import urllib.request as _u
         for s in sorted(added):
-            url = args.url.format(s=s)
+            url = refs[s] if refs else args.url.format(s=s)
             blob, last = None, None
             for attempt in range(5):                       # شبكةٌ ضعيفةٌ متقطّعة
                 try:

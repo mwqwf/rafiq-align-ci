@@ -45,6 +45,12 @@ REMOTE  = "/root/qa_worker.py"
 WORKER  = Path(__file__).with_name("remote_worker.py")
 
 # عدّ الآي الكوفي (6236) — الفهارس كلها كوفية بعقد المحرك
+# ⛔ **مرجعُ الآية ملفٌّ صوتيٌّ لا مجلّد** (‏عطبٌ مقيسٌ 2026-10-02: `rakbawi_qalun` س63/109
+#    و`gharbi_warsh` س30/32/68 نُشرت و`fileRef` فيها مجلّدُ archive.org بلا اسم ملفّ، فالتطبيقُ
+#    يطلبه حرفاً `remoteUrl = e.fileRef` ويستلم HTML لا صوتاً — **سورةٌ لا تُشغَّل** وهي حاضرةٌ
+#    في العدّ). مصدرٌ واحدٌ يقرؤه `structural` و`full_audit` و`splice_surah` فلا يتفرّق الحكم.
+AUDIO_EXT_RE = re.compile(r"\.(?:mp3|ogg|opus|m4a|wav)(?:\?.*)?$", re.I)
+
 COUNTS = [7,286,200,176,120,165,206,75,129,109,123,111,43,52,99,128,111,110,98,135,112,78,118,64,77,
 227,93,88,69,60,34,30,73,54,45,83,182,88,75,85,54,53,89,59,37,35,38,29,18,45,60,49,62,55,78,96,29,22,
 24,13,14,11,11,18,12,12,30,52,52,44,28,28,20,56,40,31,50,40,46,42,29,19,36,25,22,17,19,26,30,20,15,21,
@@ -222,6 +228,14 @@ def structural(idx, key, allow_unmarked=False, txt_ref=None):
     for e in E:
         per.setdefault(int(e["ayahId"].split(":")[0]), []).append(e)
     info["surahs"] = len(per)
+    # ٣-٠) ⛔ مرجعٌ بلا اسم ملفٍّ صوتيّ (‏مجلّدٌ لا ملفّ) — حارسٌ قاتل: سورةٌ تُعدّ حاضرةً ولا
+    #      يُسمع منها شيء. (‏السببُ المقيس عند `AUDIO_EXT_RE` أعلاه.) ولا استثناءَ لمعلَن.
+    _noname = sorted(s for s, lst in per.items()
+                     if any(e.get("fileRef") and not AUDIO_EXT_RE.search(str(e.get("fileRef")))
+                            for e in lst))
+    if _noname:
+        info["folderFileRef"] = _noname
+        fatal.append(f"fileRef بلا اسم ملفٍّ صوتيّ (مجلّدٌ لا ملفّ) في {len(_noname)} سورة: {_noname[:10]}")
     miss_s = [s for s in range(1, 115) if s not in per]
     if miss_s:
         # ⛔ الإسقاطُ المعلَن يُسمّى ولا يُعفى. فالمستخدم الذي يطلب آيةً من

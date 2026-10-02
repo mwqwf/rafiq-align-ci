@@ -57,7 +57,7 @@ def _aligned(s, url):
     return {"fileRef": _ref(s, url), "sha256": "b" * 64, "entries": rows}
 
 
-def _run(tmp: Path, parent: dict, url: str, refs: bool, surahs=(28, 36)):
+def _run(tmp: Path, parent: dict, url: str, refs: bool, surahs=(28, 36), refs_map: str = ""):
     with gzip.open(tmp / "p.jz", "wt", encoding="utf-8") as f:
         json.dump(parent, f, ensure_ascii=False)
     files = []
@@ -70,6 +70,8 @@ def _run(tmp: Path, parent: dict, url: str, refs: bool, surahs=(28, 36)):
            "--skip-unresolved", "--engine-tag", "ctc-seg-1", "--out", str(tmp / "o.jz")]
     if refs:
         cmd.append("--refs-from-parent")
+    if refs_map:
+        cmd += ["--refs-map", refs_map]
     r = subprocess.run(cmd, capture_output=True, text=True, encoding="utf-8")
     out = None
     if r.returncode == 0:
@@ -130,6 +132,76 @@ class FolderRefs(unittest.TestCase):
         self.assertEqual(len(out["entries"]), 6236)
 
 
+class FolderRefGuard(unittest.TestCase):
+    """⛔ (2026-10-02) الأبُ الذي يحمل المجلّدَ مرجعاً (‏وقع ونُشر عند الركباوي والغربي) لا يُورَّث؛
+    والبديلُ `--refs-map` بروابطَ محلولةٍ من جدول الكتالوج، بحرّاسٍ: داخل المجلّد وباسم ملفٍّ صوتيّ."""
+
+    def _folder_parent(self):
+        p = _parent(FOLDER)
+        for e in p["entries"]:
+            if e["ayahId"].split(":")[0] in ("28", "36"):
+                e["fileRef"] = FOLDER.rstrip("/")             # المجلّدُ نفسُه بلا اسم ملفّ
+        return p
+
+    def test_parent_folder_ref_refused(self):
+        with tempfile.TemporaryDirectory() as t:
+            r, _ = _run(Path(t), self._folder_parent(), FOLDER, refs=True)
+            self.assertFalse((Path(t) / "o.jz").exists())
+        self.assertNotEqual(r.returncode, 0)
+        self.assertIn("مجلّدٌ لا ملفٌّ صوتيّ", r.stdout + r.stderr)
+
+    def test_refs_map_writes_resolved_names(self):
+        m = ",".join(f"{s}={FOLDER + NAME.format(s=s)}" for s in (28, 36))
+        with tempfile.TemporaryDirectory() as t:
+            r, out = _run(Path(t), self._folder_parent(), FOLDER, refs=False, refs_map=m)
+        self.assertEqual(r.returncode, 0, r.stdout + r.stderr)
+        for s in (28, 36):
+            got = {e["fileRef"] for e in out["entries"] if e["ayahId"].startswith(f"{s}:")}
+            self.assertEqual(got, {FOLDER + NAME.format(s=s)})
+        self.assertEqual(len(out["entries"]), 6236)
+
+    def test_refs_map_folder_value_refused(self):
+        m = f"28={FOLDER}sub/,36={FOLDER + NAME.format(s=36)}"
+        with tempfile.TemporaryDirectory() as t:
+            r, _ = _run(Path(t), self._folder_parent(), FOLDER, refs=False, refs_map=m)
+        self.assertNotEqual(r.returncode, 0)
+        self.assertIn("مجلّدٌ لا ملفٌّ صوتيّ", r.stdout + r.stderr)
+
+    def test_refs_map_outside_folder_refused(self):
+        m = f"28=https://evil.example/028.mp3,36={FOLDER + NAME.format(s=36)}"
+        with tempfile.TemporaryDirectory() as t:
+            r, _ = _run(Path(t), self._folder_parent(), FOLDER, refs=False, refs_map=m)
+        self.assertNotEqual(r.returncode, 0)
+        self.assertIn("خارجَ المجلَّد", r.stdout + r.stderr)
+
+    def test_refs_map_missing_surah_refused(self):
+        m = f"28={FOLDER + NAME.format(s=28)}"
+        with tempfile.TemporaryDirectory() as t:
+            r, _ = _run(Path(t), self._folder_parent(), FOLDER, refs=False, refs_map=m)
+        self.assertNotEqual(r.returncode, 0)
+        self.assertIn("بلا رابطٍ للسور [36]", r.stdout + r.stderr)
+
+    def test_refs_map_with_numbered_template_refused(self):
+        m = f"28={TPL.format(s=28)},36={TPL.format(s=36)}"
+        with tempfile.TemporaryDirectory() as t:
+            r, _ = _run(Path(t), _parent(TPL), TPL, refs=False, refs_map=m)
+        self.assertNotEqual(r.returncode, 0)
+
+    def test_structural_guard_flags_folder_ref(self):
+        import run as _run_mod
+        idx = self._folder_parent()
+        idx.update({"ayahCounting": "KUFI", "ayahCount": 6236, "audioSha256": ["a" * 64] * 114,
+                    "refineVersion": "x", "refinedCount": 0})
+        fatal, _w, info = _run_mod.structural(idx, "timings/warsh/gharbi_warsh.jz", allow_unmarked=True)
+        self.assertTrue(any("مجلّدٌ لا ملفّ" in f for f in fatal), fatal)
+        self.assertEqual(info.get("folderFileRef"), [28, 36])
+        for e in idx["entries"]:
+            if e["ayahId"].split(":")[0] in ("28", "36"):
+                e["fileRef"] = FOLDER + NAME.format(s=int(e["ayahId"].split(":")[0]))
+        fatal, _w, info = _run_mod.structural(idx, "timings/warsh/gharbi_warsh.jz", allow_unmarked=True)
+        self.assertFalse(any("مجلّدٌ لا ملفّ" in f for f in fatal), fatal)
+
+
 class WorkflowContract(unittest.TestCase):
     def test_ctc_splice_folder_path(self):
         y = (ROOT / ".github/workflows/ctc_splice.yml").read_text(encoding="utf-8")
@@ -145,9 +217,12 @@ class WorkflowContract(unittest.TestCase):
         self.assertIn('if [ "$MODE" = "window" ]; then ALTF="$ALTF --keep-parent-gaps"; ETAG="ctc-gapsplit-1"; fi', y)
         self.assertIn("steps.plan.outputs.urlt", y)
 
-    def test_realign_surah_folder_uses_parent_refs(self):
+    def test_realign_surah_folder_uses_resolved_refs_map(self):
+        # ⛔ (2026-10-02) لا يُؤخذ الرابطُ من الأب (‏يورّث المجلّدَ المنشور) بل من الجدول المحلول.
         y = (ROOT / ".github/workflows/realign_surah.yml").read_text(encoding="utf-8")
-        self.assertIn('REFS="--refs-from-parent"', y)
+        self.assertNotIn('REFS="--refs-from-parent"', y)
+        self.assertIn('REFS="--refs-map ${REFMAP#,}"', y)
+        self.assertIn('REFMAP="$REFMAP,$S=$URL"', y)
 
 
 if __name__ == "__main__":
