@@ -10,6 +10,7 @@
 ⛔ لا يُطلق محاذاةً ولا يكتب في timings/ إلا عبر promote.py.
 """
 import gzip
+import hashlib
 import json
 import os
 import subprocess
@@ -47,11 +48,19 @@ def sh(*a):
 
 state = {o["Key"] for o in ls("state/timings-staging_")}
 frozen = get("timings/frozen.txt").decode("utf-8")
+sys.path.insert(0, str(ROOT / 'tools' / 'index_qa'))
+from promote import held
+from qa_dispatch_guard import has_current_manual_sample
+holds = held()
 promoted = 0
 # الأحدثُ لكلّ قارئ وحدَه: بصمةٌ قديمةٌ ناقصةٌ لا تُبوَّب ولا تُرقّى فوق خليفتها.
 latest = {}
 for o in ls("timings-staging/"):
     k = o["Key"]
+    target = 'timings/' + k.split('/')[1] + '/' + rid + '.jz'
+    if k in holds or target in holds:
+        print(f"⏸️ {k}: حجز صريح؛ لا تكرار للفحص أو الترقية")
+        continue
     if not k.endswith(".jz") or o["LastModified"].isoformat() < SINCE:
         continue
     rid = k.split("/")[-1].split(".")[0]
@@ -70,13 +79,19 @@ for rid, o in latest.items():
     if sha8 in frozen:                          # رُقّي سلفاً
         continue
     try:
-        hdr = json.loads(gzip.decompress(get(k)))
+        body = get(k)
+        hdr = json.loads(gzip.decompress(body))
+        actual_sha = hashlib.sha256(body).hexdigest()
     except Exception as e:                      # noqa: BLE001
         print(f"⚠️ {k}: {e}")
         continue
     if hdr.get("engineVersion") != "ctc-seg-1":
         continue
     flat = "state/" + k.replace("/", "_")
+    manual = [f'{flat}.audio-{salt}.json' for salt in ('rs1', 'rs2', 'rs3', 'rs4')]
+    if any(x in state and has_current_manual_sample(json.loads(get(x)), actual_sha) for x in manual):
+        print(f"⏳ {k}: فحص rs فعلي على البصمة نفسها؛ لا تطلق نسخ k مكررة")
+        continue
     salts = [f"{flat}.audio-{s}.json" for s in SALTS]
     if all(x in state for x in salts):
         verdicts = [json.loads(get(x)).get("verdict") for x in salts]
