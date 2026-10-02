@@ -2,12 +2,12 @@
  "schema": 1,
  "tool": "full_audit-1.0",
  "date": "20261002",
- "timestampUtc": "2026-10-02T22:11:47Z",
- "elapsedSec": 63.8,
- "phase": "all",
+ "timestampUtc": "2026-10-02T22:17:18Z",
+ "elapsedSec": 31.1,
+ "phase": "struct",
  "manifestIndexes": 180,
  "frozenBucket": 220,
- "reportsRead": 8963,
+ "reportsRead": 0,
  "rows": [
   {
    "key": "timings/douri/deban_douri.jz",
@@ -4499,19 +4499,9 @@
    },
    "structure": {
     "entries": 6236,
-    "errors": [
-     "رقمُ الملفّ لا يطابق السورة: 5"
-    ],
-    "examples": {
-     "fileNoMismatch": {
-      "5": "https://archive.org/download/14352014_201801GGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGY/%D8%B3%D9%88%D8%B1%D8%A9%20%D8%A7%D9%84%D9%85%D8%A7%D8%A6%D8%AF%D8%A9%20-%20%D8%A7%D9%84%D8%B4%D9%8A%D8%AE%20%D8%B9%D8%A7%D8%AF%D9%84%20%D8%A7%D9%84%D9%83%D9%84%D8%A8%D8%A7%D9%86%D9%8A%20%D9%85%D9%86%20%D8%AA%D8%B1%D8%A7%D9%88%D9%8A%D8%AD%201435%20%202014.mp3",
-      "6": "https://archive.org/download/14352014_2018666666666666666666BV/%D8%B3%D9%88%D8%B1%D8%A9%20%D8%A7%D9%84%D8%A3%D9%86%D8%B9%D8%A7%D9%85%20-%20%D8%A7%D9%84%D8%B4%D9%8A%D8%AE%20%D8%B9%D8%A7%D8%AF%D9%84%20%D8%A7%D9%84%D9%83%D9%84%D8%A8%D8%A7%D9%86%D9%8A%20%D9%85%D9%86%20%D8%AA%D8%B1%D8%A7%D9%88%D9%8A%D8%AD%201435%20%202014.mp3",
-      "9": "https://archive.org/download/14352014_201801GGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGY/%D8%B3%D9%88%D8%B1%D8%A9%20%D8%A7%D9%84%D8%AA%D9%88%D8%A8%D8%A9%20-%20%D8%A7%D9%84%D8%B4%D9%8A%D8%AE%20%D8%B9%D8%A7%D8%AF%D9%84%20%D8%A7%D9%84%D9%83%D9%84%D8%A8%D8%A7%D9%86%D9%8A%20%D9%85%D9%86%20%D8%AA%D8%B1%D8%A7%D9%88%D9%8A%D8%AD%201435%20%202014.mp3",
-      "10": "https://archive.org/download/14352014_201801GGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGY/%D8%B3%D9%88%D8%B1%D8%A9%20%D9%8A%D9%88%D9%86%D8%B3%20-%20%D8%A7%D9%84%D8%B4%D9%8A%D8%AE%20%D8%B9%D8%A7%D8%AF%D9%84%20%D8%A7%D9%84%D9%83%D9%84%D8%A8%D8%A7%D9%86%D9%8A%20%D9%85%D9%86%20%D8%AA%D8%B1%D8%A7%D9%88%D9%8A%D8%AD%201435%20%202014.mp3",
-      "11": "https://archive.org/download/14352014_201801GGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGY/%D8%B3%D9%88%D8%B1%D8%A9%20%D9%87%D9%88%D8%AF%20-%20%D8%A7%D9%84%D8%B4%D9%8A%D8%AE%20%D8%B9%D8%A7%D8%AF%D9%84%20%D8%A7%D9%84%D9%83%D9%84%D8%A8%D8%A7%D9%86%D9%8A%20%D9%85%D9%86%20%D8%AA%D8%B1%D8%A7%D9%88%D9%8A%D8%AD%201435%20%202014.mp3"
-     }
-    },
-    "fileNoUnparsed": 0,
+    "errors": [],
+    "examples": {},
+    "fileNoUnparsed": 5,
     "structuralFatal": [],
     "structuralWarn": [
      "مداخل مدتها > 120ث: 1 · مثال: 2:282 مدتها 127ث",
@@ -4525,7 +4515,7 @@
      "HIGH": 491,
      "LOW": 1103
     },
-    "ok": false
+    "ok": true
    },
    "gaps": {
     "missingTotal": 0,
@@ -27068,26 +27058,9 @@
    },
    "structure": {
     "entries": 6236,
-    "errors": [
-     "رقمُ الملفّ لا يطابق السورة: 13"
-    ],
-    "examples": {
-     "fileNoMismatch": {
-      "2": "https://archive.org/download/shiekh-abdulmohsin-al-qasim-2023/002%20-%20%D8%A7%D9%84%D8%A8%D9%82%D8%B1%D8%A9.mp3",
-      "5": "https://archive.org/download/shiekh-abdulmohsin-al-qasim-2023/005%20-%20%D8%A7%D9%84%D9%85%D8%A7%D8%A6%D8%AF%D8%A9.mp3",
-      "44": "https://archive.org/download/shiekh-abdulmohsin-al-qasim-2023/044%20-%20%D8%A7%D9%84%D8%AF%D8%AE%D8%A7%D9%86.mp3",
-      "50": "https://archive.org/download/shiekh-abdulmohsin-al-qasim-2023/050%20-%20%D9%82.mp3",
-      "52": "https://archive.org/download/shiekh-abdulmohsin-al-qasim-2023/052%20-%20%D8%A7%D9%84%D8%B7%D9%88%D8%B1.mp3",
-      "53": "https://archive.org/download/shiekh-abdulmohsin-al-qasim-2023/053%20-%20%D8%A7%D9%84%D9%86%D8%AC%D9%85.mp3",
-      "54": "https://archive.org/download/shiekh-abdulmohsin-al-qasim-2023/054%20-%20%D8%A7%D9%84%D9%82%D9%85%D8%B1.mp3",
-      "56": "https://archive.org/download/shiekh-abdulmohsin-al-qasim-2023/056%20-%20%D8%A7%D9%84%D9%88%D8%A7%D9%82%D8%B9%D8%A9.mp3",
-      "58": "https://archive.org/download/shiekh-abdulmohsin-al-qasim-2023/058%20-%20%D8%A7%D9%84%D9%85%D8%AC%D8%A7%D8%AF%D9%84%D8%A9.mp3",
-      "59": "https://archive.org/download/shiekh-abdulmohsin-al-qasim-2023/059%20-%20%D8%A7%D9%84%D8%AD%D8%B4%D8%B1.mp3",
-      "60": "https://archive.org/download/shiekh-abdulmohsin-al-qasim-2023/060%20-%20%D8%A7%D9%84%D9%85%D9%85%D8%AA%D8%AD%D9%86%D8%A9.mp3",
-      "63": "https://archive.org/download/shiekh-abdulmohsin-al-qasim-2023/063%20-%20%D8%A7%D9%84%D9%85%D9%86%D8%A7%D9%81%D9%82%D9%88%D9%86.mp3"
-     }
-    },
-    "fileNoUnparsed": 5,
+    "errors": [],
+    "examples": {},
+    "fileNoUnparsed": 0,
     "structuralFatal": [],
     "structuralWarn": [
      "مداخل مدتها > 120ث: 1 · مثال: 2:282 مدتها 139ث",
@@ -27101,7 +27074,7 @@
      "HIGH": 613,
      "LOW": 724
     },
-    "ok": false
+    "ok": true
    },
    "gaps": {
     "missingTotal": 0,
@@ -37524,7 +37497,7 @@
     "entries": 6236,
     "errors": [],
     "examples": {},
-    "fileNoUnparsed": 114,
+    "fileNoUnparsed": 0,
     "structuralFatal": [],
     "structuralWarn": [
      "مداخل مدتها > 120ث: 2 · مثال: 2:282 مدتها 198ث"
@@ -38397,15 +38370,8 @@
    },
    "structure": {
     "entries": 6236,
-    "errors": [
-     "رقمُ الملفّ لا يطابق السورة: 2"
-    ],
-    "examples": {
-     "fileNoMismatch": {
-      "33": "https://archive.org/download/033-mp-3_20240313/%D9%85%D8%AD%D9%85%D8%AF%20%D8%B9%D9%85%D8%B1%20%D8%A7%D9%84%D8%AC%D9%86%D8%A7%D9%8A%D9%86%D9%8A%20%D8%B1%D9%88%D8%A7%D9%8A%D8%A9%20%D9%82%D8%A7%D9%84%D9%88%D9%86%20%D8%B3%D9%88%D8%B1%D8%A9%20033%20%20%D8%A7%D9%84%D8%A3%D8%AD%D8%B2%D8%A7%D8%A8%20%20mp3.mp3",
-      "55": "https://archive.org/download/055-mp-3_20240313/%D9%85%D8%AD%D9%85%D8%AF%20%D8%B9%D9%85%D8%B1%20%D8%A7%D9%84%D8%AC%D9%86%D8%A7%D9%8A%D9%86%D9%8A%20%D8%B1%D9%88%D8%A7%D9%8A%D8%A9%20%D9%82%D8%A7%D9%84%D9%88%D9%86%20%D8%B3%D9%88%D8%B1%D8%A9%20055%20%20%D8%A7%D9%84%D8%B1%D8%AD%D9%85%D9%86%20%20mp3.mp3"
-     }
-    },
+    "errors": [],
+    "examples": {},
     "fileNoUnparsed": 0,
     "structuralFatal": [],
     "structuralWarn": [
@@ -38420,7 +38386,7 @@
      "HIGH": 459,
      "LOW": 1233
     },
-    "ok": false
+    "ok": true
    },
    "gaps": {
     "missingTotal": 0,
@@ -41233,6 +41199,7 @@
     "entries": 6236,
     "errors": [
      "ملفٌّ واحدٌ لسورتين فأكثر: 1",
+     "fileRef بلا اسم ملفٍّ صوتيّ (مجلّدٌ لا ملفّ) في 2 سورة",
      "تداخلٌ بين مدخلين في الملفّ نفسه: 3"
     ],
     "examples": {
@@ -41242,13 +41209,17 @@
        109
       ]
      },
+     "folderFileRef": {
+      "63": "https://archive.org/download/128-kb---mo7ammad---ayyoob--alrakbawy---by--qaloon----mp3--full--mushaf--quran",
+      "109": "https://archive.org/download/128-kb---mo7ammad---ayyoob--alrakbawy---by--qaloon----mp3--full--mushaf--quran"
+     },
      "overlap": [
       "63:1→109:1 تداخل 17861م.ث",
       "109:5→63:2 تداخل 1493م.ث",
       "63:2→109:6 تداخل 11787م.ث"
      ]
     },
-    "fileNoUnparsed": 114,
+    "fileNoUnparsed": 2,
     "structuralFatal": [],
     "structuralWarn": [
      "مطالع سور تبدأ دون 3ث — مرشّحون للمسبار الصوتي لا حكمٌ عليهم: 49:1=2980م.ث"
@@ -41625,26 +41596,9 @@
    },
    "structure": {
     "entries": 6236,
-    "errors": [
-     "رقمُ الملفّ لا يطابق السورة: 93"
-    ],
-    "examples": {
-     "fileNoMismatch": {
-      "1": "https://archive.org/download/4666666666666666666666666694696496433_gmail_002/001%20%D8%A7%D9%84%D9%81%D8%A7%D8%AA%D8%AD%D8%A9.mp3",
-      "2": "https://archive.org/download/4666666666666666666666666694696496433_gmail_002/002%20%D8%A7%D9%84%D8%A8%D9%82%D8%B1%D8%A9.mp3",
-      "3": "https://archive.org/download/4666666666666666666666666694696496433_gmail_002/003%20%D8%A2%D9%84%20%D8%B9%D9%85%D8%B1%D8%A7%D9%86.mp3",
-      "4": "https://archive.org/download/4666666666666666666666666694696496433_gmail_002/004%20%D8%A7%D9%84%D9%86%D8%B3%D8%A7%D8%A1.mp3",
-      "5": "https://archive.org/download/4666666666666666666666666694696496433_gmail_002/005%20%D8%A7%D9%84%D9%85%D8%A7%D8%A6%D8%AF%D8%A9.mp3",
-      "6": "https://archive.org/download/4666666666666666666666666694696496433_gmail_002/006%20%D8%A7%D9%84%D8%A3%D9%86%D8%B9%D8%A7%D9%85.mp3",
-      "7": "https://archive.org/download/4666666666666666666666666694696496433_gmail_002/007%20%D8%A7%D9%84%D8%A3%D8%B9%D8%B1%D8%A7%D9%81.mp3",
-      "8": "https://archive.org/download/4666666666666666666666666694696496433_gmail_002/008%20%D8%A7%D9%84%D8%A3%D9%86%D9%81%D8%A7%D9%84.mp3",
-      "10": "https://archive.org/download/4666666666666666666666666694696496433_gmail_002/010%20%D9%8A%D9%88%D9%86%D8%B3.mp3",
-      "12": "https://archive.org/download/4666666666666666666666666694696496433_gmail_002/012%20%D9%8A%D9%88%D8%B3%D9%81.mp3",
-      "14": "https://archive.org/download/4666666666666666666666666694696496433_gmail_002/014%20%D8%A7%D8%A8%D8%B1%D8%A7%D9%87%D9%8A%D9%85.mp3",
-      "15": "https://archive.org/download/4666666666666666666666666694696496433_gmail_002/015%20%D8%A7%D9%84%D8%AD%D8%AC%D8%B1.mp3"
-     }
-    },
-    "fileNoUnparsed": 20,
+    "errors": [],
+    "examples": {},
+    "fileNoUnparsed": 0,
     "structuralFatal": [],
     "structuralWarn": [
      "مداخل مدتها > 120ث: 1 · مثال: 2:282 مدتها 131ث",
@@ -41659,7 +41613,7 @@
      "MED": 490,
      "LOW": 193
     },
-    "ok": false
+    "ok": true
    },
    "gaps": {
     "missingTotal": 0,
@@ -45151,7 +45105,7 @@
     "entries": 6236,
     "errors": [],
     "examples": {},
-    "fileNoUnparsed": 114,
+    "fileNoUnparsed": 0,
     "structuralFatal": [],
     "structuralWarn": [
      "مداخل مدتها > 120ث: 1 · مثال: 2:282 مدتها 125ث"
@@ -46065,6 +46019,7 @@
     "entries": 6236,
     "errors": [
      "ملفٌّ واحدٌ لسورتين فأكثر: 1",
+     "fileRef بلا اسم ملفٍّ صوتيّ (مجلّدٌ لا ملفّ) في 3 سورة",
      "تداخلٌ بين مدخلين في الملفّ نفسه: 84"
     ],
     "examples": {
@@ -46074,6 +46029,11 @@
        32,
        68
       ]
+     },
+     "folderFileRef": {
+      "30": "https://archive.org/download/128----kb-mustufa--gharby---by--warsh-mp3--full--mushaf--quran--114--sora---fr",
+      "32": "https://archive.org/download/128----kb-mustufa--gharby---by--warsh-mp3--full--mushaf--quran--114--sora---fr",
+      "68": "https://archive.org/download/128----kb-mustufa--gharby---by--warsh-mp3--full--mushaf--quran--114--sora---fr"
      },
      "overlap": [
       "68:1→32:1 تداخل 6517م.ث",
@@ -46090,7 +46050,7 @@
       "68:8→30:6 تداخل 2904م.ث"
      ]
     },
-    "fileNoUnparsed": 114,
+    "fileNoUnparsed": 3,
     "structuralFatal": [],
     "structuralWarn": [
      "مداخل مدتها > 120ث: 1 · مثال: 2:282 مدتها 172ث",
@@ -47291,7 +47251,7 @@
     "entries": 6236,
     "errors": [],
     "examples": {},
-    "fileNoUnparsed": 114,
+    "fileNoUnparsed": 0,
     "structuralFatal": [],
     "structuralWarn": [
      "مداخل مدتها > 120ث: 1 · مثال: 2:282 مدتها 166ث",
@@ -51109,15 +51069,11 @@
    "timings/warsh/sultani_warsh.jz",
    "timings/warsh/wahrani_warsh.jz"
   ],
-  "structureOk": 171,
+  "structureOk": 175,
   "structureBad": [
-   "timings/hafs/a_klb.jz",
    "timings/hafs/kurdi.jz",
-   "timings/hafs/qasm.jz",
    "timings/qalun/akri_qalun.jz",
-   "timings/qalun/janaini_qalun.jz",
    "timings/qalun/rakbawi_qalun.jz",
-   "timings/qalun/shaykhna_qalun.jz",
    "timings/warsh/gharbi_warsh.jz",
    "timings/warsh/laghdaf_shinqiti.jz"
   ],
