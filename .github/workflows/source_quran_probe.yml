@@ -3,6 +3,7 @@ run-name: source-probe Janaini Qalun · ctc=${{ inputs.ctc }}
 on:
   workflow_dispatch:
     inputs:
+      quran_input_plan: {description: "Read-only known-source Quran target normalization contexts", default: ""}
       kalbani_plan: {description: "Explicit read-only verified Kalbani float32 context plan", default: ""}
       kurdi_neighborhood: {description: "Read Kurdi original ayahs81..85 instead of Janaini alternatives", default: "false"}
       ctc: {description: "Run pinned Quran CTC after native source inspection", default: "false"}
@@ -12,7 +13,7 @@ permissions:
   contents: read
 jobs:
   probe:
-    if: ${{ inputs.kalbani_plan == '' }}
+    if: ${{ inputs.kalbani_plan == '' && inputs.quran_input_plan == '' }}
     runs-on: ubuntu-latest
     timeout-minutes: 120
     env:
@@ -137,3 +138,57 @@ jobs:
           PLAN: ${{ inputs.kalbani_plan }}
           SURAH: ${{ matrix.surah }}
         run: python tools/index_qa/ci_kalbani_generic.py --plan "$PLAN" --surah "$SURAH"
+
+  kalbani-quran-prepare:
+    if: ${{ inputs.quran_input_plan != '' && inputs.kalbani_plan == '' }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 3
+    outputs:
+      surahs: ${{ steps.plan.outputs.surahs }}
+    steps:
+      - uses: actions/checkout@v4
+      - id: plan
+        env:
+          PLAN: ${{ inputs.quran_input_plan }}
+        run: |
+          python - <<'PYTHON' >> "$GITHUB_OUTPUT"
+          import json, os, pathlib
+          p = pathlib.Path(os.environ["PLAN"])
+          if p.parent != pathlib.Path("ops/source-repair") or not p.name.startswith("kalbani-float-quran-input-plan-") or p.suffix != ".json":
+              raise ValueError("Invalid known-source plan")
+          d = json.loads(p.read_text())
+          ss = [x["surah"] for x in d["surahs"]]
+          if len(ss) != len(set(ss)) or not 1 <= len(ss) <= 14:
+              raise ValueError("Invalid bounded surah population")
+          print("surahs=" + json.dumps(ss))
+          PYTHON
+  kalbani-quran-inputs:
+    name: known original Kalbani Quran inputs surah ${{ matrix.surah }}
+    needs: kalbani-quran-prepare
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    strategy:
+      fail-fast: false
+      max-parallel: 10
+      matrix:
+        surah: ${{ fromJSON(needs.kalbani-quran-prepare.outputs.surahs) }}
+    env:
+      HF_HOME: ${{ github.workspace }}/.hf
+      CTC_THREADS: '2'
+      CTC_INT8: '0'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: {python-version: '3.11'}
+      - name: Bounded binary dependencies
+        timeout-minutes: 10
+        run: |
+          python tools/ci_fleet/install_qa_ffmpeg.py
+          python -m pip install --only-binary=:all: --timeout 60 --retries 2 --index-url https://download.pytorch.org/whl/cpu torch
+          python -m pip install --only-binary=:all: --timeout 60 --retries 2 'numpy<2' 'transformers<5' boto3 soundfile
+          python -m pip install --timeout 60 --retries 2 ctc-segmentation
+      - name: Actual immutable source and pinned Quran measurements only
+        env:
+          PLAN: ${{ inputs.quran_input_plan }}
+          SURAH: ${{ matrix.surah }}
+        run: python tools/index_qa/ci_kalbani_quran_inputs.py --plan "$PLAN" --surah "$SURAH"
