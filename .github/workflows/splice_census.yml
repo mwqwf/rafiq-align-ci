@@ -57,7 +57,7 @@ jobs:
           s3 = boto3.client("s3", endpoint_url=c["endpoint"],
                             aws_access_key_id=c["accessKeyId"],
                             aws_secret_access_key=c["secretAccessKey"], region_name="auto")
-          out, parts, collect = [], [], []
+          out, parts, collect, candidates = [], [], [], []
           for k in [x for x in os.environ["ONLY"].replace(",", " ").split() if x]:
               if not k.startswith("timings-staging/") or not k.endswith(".jz"):
                   print(f"⏭ {k} — ليس مرشّحاً في الاختبار", file=sys.stderr); continue
@@ -82,10 +82,15 @@ jobs:
               except Exception:
                   pass
               if os.environ.get("PARALLEL") == "true":
-                  parts.extend({"key": k, "sha": sha, "surah": int(s)} for s in ebs)
-                  collect.append({"key": k, "sha": sha})
+                  candidate = len(candidates)
+                  candidates.append({"key": k, "sha": sha, "surahs": list(map(int, ebs))})
+                  parts.extend([candidate, int(s)] for s in ebs)
+                  collect.append(candidate)
               else:
                   out.append(k)
+          if os.environ.get("PARALLEL") == "true":
+              from ci_census_plan import write_plan
+              write_plan(s3, c["bucket"], candidates, os.environ["GITHUB_RUN_ID"], os.environ["GITHUB_SHA"])
           print(f"matrix={json.dumps(out)}")
           print(f"parts={json.dumps(parts)}")
           print(f"collect={json.dumps(collect)}")
@@ -148,16 +153,16 @@ jobs:
                  --source ci --run-id "${{ github.run_id }}"
 
   parts:
-    name: census ${{ matrix.key }} surah ${{ matrix.surah }}
+    name: census candidate ${{ matrix.part[0] }} surah ${{ matrix.part[1] }}
     needs: prepare
-    if: ${{ needs.prepare.outputs.parts != '[]' }}
+    if: ${{ needs.prepare.outputs.parts != '' && needs.prepare.outputs.parts != '[]' }}
     runs-on: ubuntu-latest
     timeout-minutes: 120
     strategy:
       fail-fast: false
       max-parallel: 10
       matrix:
-        include: ${{ fromJSON(needs.prepare.outputs.parts) }}
+        part: ${{ fromJSON(needs.prepare.outputs.parts) }}
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
@@ -172,9 +177,8 @@ jobs:
           key: qa-model-q8-v1
       - name: الإحصاء الفعلي للجزء
         env:
-          KEY: ${{ matrix.key }}
-          EXPECT_SHA: ${{ matrix.sha }}
-          SURAH: ${{ matrix.surah }}
+          CANDIDATE: ${{ matrix.part[0] }}
+          SURAH: ${{ matrix.part[1] }}
           QA_MODEL: ${{ github.workspace }}/assets-archive/ggml/ggml-tiny-ar-quran-q8_0.bin
           QA_CACHE: ${{ github.workspace }}/qa_audio
           QA_NO_RANGE: ${{ github.event.inputs.no_range == 'true' && '1' || '' }}
@@ -190,18 +194,18 @@ jobs:
               print(f"export {k}={shlex.quote(c[field])}")
           PY
           )"
-          python tools/index_qa/ci_census_parts.py --key "$KEY" --expect-sha "$EXPECT_SHA" --surah "$SURAH"
+          python tools/index_qa/ci_census_plan.py --candidate "$CANDIDATE" --surah "$SURAH"
 
   collect:
-    name: complete census union ${{ matrix.key }}
+    name: complete census union candidate ${{ matrix.candidate }}
     needs: [prepare, parts]
-    if: ${{ always() && needs.prepare.result == 'success' && needs.prepare.outputs.collect != '[]' && needs.parts.result == 'success' }}
+    if: ${{ always() && needs.prepare.result == 'success' && needs.prepare.outputs.collect != '' && needs.prepare.outputs.collect != '[]' && needs.parts.result == 'success' }}
     runs-on: ubuntu-latest
     timeout-minutes: 15
     strategy:
       fail-fast: false
       matrix:
-        include: ${{ fromJSON(needs.prepare.outputs.collect) }}
+        candidate: ${{ fromJSON(needs.prepare.outputs.collect) }}
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
@@ -209,8 +213,7 @@ jobs:
       - run: python -m pip install --quiet boto3
       - name: اتحاد الآيات الكامل وبوابة الإحصاء الأصلية
         env:
-          KEY: ${{ matrix.key }}
-          EXPECT_SHA: ${{ matrix.sha }}
+          CANDIDATE: ${{ matrix.candidate }}
           R2_CREDENTIALS_JSON: ${{ secrets.R2_CREDENTIALS_JSON }}
         run: |
           mkdir -p secure
@@ -223,4 +226,4 @@ jobs:
               print(f"export {k}={shlex.quote(c[field])}")
           PY
           )"
-          python tools/index_qa/ci_census_parts.py --key "$KEY" --expect-sha "$EXPECT_SHA" --collect
+          python tools/index_qa/ci_census_plan.py --candidate "$CANDIDATE" --collect
