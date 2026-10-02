@@ -336,6 +336,19 @@ def main() -> None:
         out['dualAlignmentEvidenceBySurah'] = dual
     else:
         out.pop('dualAlignmentEvidenceBySurah', None)
+    # ⭐ 2026-10-02: دليلُ تصحيح الحدود بالنموذجين (‏ctc-dualfix-1) يُنقل كاملاً ولا يُخفى.
+    fix = {k: v for k, v in (idx.get('dualFixEvidenceBySurah') or {}).items()
+           if int(k) not in surahs}
+    if args.engine_tag == 'ctc-dualfix-1':
+        for s, af in zip(surahs, args.aligned):
+            ev = json.load(open(af, encoding='utf-8')).get('dualFixEvidence') or {}
+            if ev.get('engine') != 'ctc-dualfix-1' or not ev.get('perAyah') or not ev.get('models'):
+                sys.exit(f'⛔ س{s}: dualfix evidence is missing or incomplete')
+            fix[str(s)] = ev
+    if fix:
+        out['dualFixEvidenceBySurah'] = fix
+    else:
+        out.pop('dualFixEvidenceBySurah', None)
     # ⛔ **والمصدرُ البديلُ يُعلَن كذلك** (‏2026-09-28): سورةٌ جاء صوتُها من
     #    تسجيلٍ غيرِ ملفّ الكتالوج تُسجَّل بقالبها في `sourceBySurah` ولو كان
     #    المحرّكُ محرّكَ الفهرس نفسَه — فقد تغيّر الصوتُ لا المحرّك. وما أُعيد
