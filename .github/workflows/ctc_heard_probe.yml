@@ -14,6 +14,7 @@ on:
       surah: {description: "رقمُ السورة", required: true}
       riwaya: {description: "الرواية", default: "hafs"}
       build: {description: "true = مع المداخل (‏محاذاةُ النوافذ) بلا رفع · false = الخريطةُ وحدها", default: "false"}
+      int8: {description: "1 = نموذجٌ مكمَّم int8 (‏كالأسطول) · 0 = float32 (‏أدقُّ وأبطأ، كشاهد spoken_census)", default: "1"}
       reason: {description: "سببُ الإطلاق", default: ""}
 
 permissions:
@@ -53,6 +54,7 @@ jobs:
           SURAH: ${{ inputs.surah }}
           RIW: ${{ inputs.riwaya }}
           BUILD: ${{ inputs.build }}
+          CTC_INT8: ${{ inputs.int8 }}
         run: |
           set -o pipefail
           mkdir -p out logs

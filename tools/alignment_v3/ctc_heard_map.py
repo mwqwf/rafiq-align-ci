@@ -240,9 +240,13 @@ def run(audio, surah, riwaya, log=print, probe=False):
         report.append(f"{surah}:{k + 1}\t{h['heardMs'][0] / 1000:.1f}\t{h['heardMs'][1] / 1000:.1f}\t{h['score']}\t"
                       f"{' · '.join(f'{o[0] / 1000:.0f}–{o[1] / 1000:.0f}s({o[2]})' for o in others)}"
                       if h["heardMs"] else f"{surah}:{k + 1}\t—\t—\t—\tلم تُسمع ≥{MIN_OCC}")
-    report.append("# قطعُ الملفّ (15ث): أقربُ آيةٍ وتشابهُها — ما لا يقارب شيئاً مادّةٌ زائدة")
+    report.append("# قطعُ الملفّ (15ث): أقربُ آيةٍ وتشابهُها — ما لا يقارب شيئاً مادّةٌ زائدة · ثمّ المسموعُ نفسُه")
+    words = "".join(c for c, _ in chars)
+    wtimes = [t for _, t in chars]
     for t0, t1, k, sc, nch in chunks:
-        report.append(f"{t0 / 1000:.0f}–{t1 / 1000:.0f}s\t{(str(surah) + ':' + str(k + 1)) if k is not None else '—'}\t{sc}\t{nch}حرفاً")
+        lo = next((i for i, t in enumerate(wtimes) if t >= t0), len(wtimes))
+        hi = next((i for i, t in enumerate(wtimes) if t >= t1), len(wtimes))
+        report.append(f"{t0 / 1000:.0f}–{t1 / 1000:.0f}s\t{(str(surah) + ':' + str(k + 1)) if k is not None else '—'}\t{sc}\t{nch}حرفاً\t«{words[lo:hi].strip()}»")
     unheard = [k + 1 for k in range(n) if chosen[k] is None]
     log(f"مسموعةٌ: {n - len(unheard)}/{n}" + (f" · لم تُسمع: {unheard}" if unheard else ""))
     result = {"surah": surah, "riwaya": riwaya, "engine": ENGINE, "totalMs": total_ms,
