@@ -20,14 +20,14 @@ def direct(url):
  try:
   status,s=get(url);out["status"]=status
   out["title"]=html.unescape((re.search(r"<title>(.*?)</title>",s,re.S)or re.match(r"(.*)",""))[1])
-  out["lengthSeconds"]=re.findall(r'"lengthSeconds"\\s*:\\s*"([0-9]+)"',s)[:4]
+  out["lengthSeconds"]=re.findall(r'"lengthSeconds"\s*:\s*"([0-9]+)"',s)[:4]
   out["tracks"]=sorted(set(re.findall(r'https://soundcloud.com/[a-zA-Z0-9_/-]+',s)))[:50]
   if "youtube.com" in url:
    try:
     _,o=get("https://www.youtube.com/oembed?format=json&url="+urllib.parse.quote(url))
     out["publisherMetadata"]=json.loads(o)
    except Exception as e:out["publisherMetadataError"]=str(e)
-  plain=re.sub(r"<(script|style)\\b.*?</\\1>","",s,flags=re.S|re.I)
+  plain=re.sub(r"<(script|style)\b.*?</\1>","",s,flags=re.S|re.I)
   out["textExcerpt"]=html.unescape(re.sub(r"<[^>]+>"," ",plain))[:2500]
  except Exception as e:out["error"]=str(e)
  return out
