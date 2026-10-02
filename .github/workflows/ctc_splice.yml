@@ -159,7 +159,9 @@ jobs:
           asked = [int(x) for x in re.findall(r"\d+", os.environ.get("WANT", ""))]
           todo = asked or gaps
           extra = [s for s in todo if s not in gaps]
-          if extra:
+          # ⭐ وضعُ dualfix يصحّح حدودَ سورةٍ **تامّةٍ** في الأصل بطبيعته (‏2026-10-02: الصافاتُ نُشرت
+          #    ثمّ تُصحَّح 37:88/99/109) — فالتمامُ شرطُه لا مانعُه، والدمجُ يحرس ما خارجَها حرفاً.
+          if extra and os.environ.get("MODE", "full") != "dualfix":
               sys.exit(f"⛔ سورٌ تامّةٌ في الأصل لا تُمسّ: {extra}")
           if not todo:
               sys.exit("⛔ لا نقصَ في الأصل — لا شيء يُحاذى")

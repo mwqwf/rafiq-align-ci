@@ -107,6 +107,7 @@ class FuseTest(unittest.TestCase):
         self.assertIn('OPN="ctc_dualfix_splice"', wf)
         self.assertIn("CTC_INT8=0 CTC_THREADS=2 python tools/alignment_v3/ctc_dualfix.py", wf)
         self.assertIn('--rewindow "$REWIN"', wf)
+        self.assertIn('if extra and os.environ.get("MODE", "full") != "dualfix":', wf)   # السورةُ التامّة تُصحَّح
         self.assertEqual(F.ENGINE, "ctc-dualfix-1")
 
 
