@@ -1,0 +1,104 @@
+# ⚡ **سرعةُ المحرّك المحلّيّ لـ«سمّع معي» على arm64** (‏2026-10-02 · خيط تطوير التسميع).
+#
+# يقيس على عدّاء `ubuntu-24.04-arm` المجّانيّ (المستودعُ عامّ، العدّادُ القياسيّ، بلا كتابةٍ في الدلو):
+#  1. نواةُ `ggml-cpu` كما تُشحن اليوم (`armv8-a` — راية `-march` في التطبيق لا تصلها) مقابل `+dotprod`
+#     ومقابل `+dotprod+i8mm` — الزمنُ وتطابقُ النصّ.
+#  2. `audio_ctx` تناسبيّاً مع طول المقطع — الزمنُ والدقّة (WER على البنود واتّفاقُ نافذة 3.6ث).
+# ⛔ لا رفعَ إلى R2 ولا كاشَ جديداً: يستعيد كاشَ المجموعات القائم (`tasmi-sets-v5`) قراءةً فقط إن وُجد.
+name: tasmi-speed
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - "tools/tasmi_bench/requests/speed.json"
+permissions:
+  contents: read
+concurrency:
+  group: tasmi-speed
+  cancel-in-progress: false
+env:
+  PUB: https://pub-2c2e1dcd92e84a2898820dd38d3e09e6.r2.dev
+  UA: "Mozilla/5.0 (QuranRafiq tasmi speed)"
+  WC: c4ac0012a8f5a2082dfca6aad4ddfd8b2c02b337
+jobs:
+  speed:
+    runs-on: ubuntu-24.04-arm
+    timeout-minutes: 150
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - model: tiny
+            lang: en
+            url: https://pub-2c2e1dcd92e84a2898820dd38d3e09e6.r2.dev/models/whisper-tiny-ar-quran/ggml-q8_0.bin
+          - model: base
+            lang: ar
+            url: https://github.com/mwqwf/rafiq-align-ci/releases/download/model-whisper-base-ar-quran-q51/ggml-q5_1.bin
+    steps:
+      - uses: actions/checkout@v4
+      - name: المعمارية
+        run: |
+          set -o pipefail
+          [ "$(uname -m)" = "aarch64" ] || { echo "⛔ ليس arm64"; exit 1; }
+          grep -m1 -i "^Features" /proc/cpuinfo || true
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: العدّة
+        run: |
+          sudo apt-get update -qq && sudo apt-get install -y -qq cmake ninja-build ffmpeg > /dev/null
+          pip install -q numpy soundfile scipy
+      - name: بناءُ ثلاث أدواتٍ من المصدر المثبّت (النواةُ وحدها تختلف)
+        run: |
+          set -o pipefail
+          git clone -q --filter=blob:none --no-checkout https://github.com/ggml-org/whisper.cpp wc
+          git -C wc fetch -q --depth 1 origin "$WC" && git -C wc checkout -q --detach FETCH_HEAD
+          for v in base:armv8-a dp:armv8.2-a+dotprod i8:armv8.6-a+dotprod+i8mm; do
+            n=${v%%:*}; arch=${v#*:}
+            cmake -S wc -B "b_$n" -G Ninja -DCMAKE_BUILD_TYPE=Release -DBUILD_SHARED_LIBS=OFF \
+              -DWHISPER_BUILD_TESTS=OFF -DWHISPER_BUILD_SERVER=OFF -DWHISPER_BUILD_EXAMPLES=ON \
+              -DGGML_NATIVE=OFF -DGGML_CPU_ARM_ARCH="$arch" > /dev/null
+            cmake --build "b_$n" --target whisper-cli -j"$(nproc)" > /dev/null
+            echo "$n ($arch): sdot=$(objdump -d b_$n/bin/whisper-cli | grep -c '\bsdot\b') smmla=$(objdump -d b_$n/bin/whisper-cli | grep -c '\bsmmla\b')"
+          done
+      - name: النموذج
+        run: |
+          curl -sSL -f --retry 4 --retry-delay 5 --retry-all-errors -A "$UA" -o tools/tasmi_bench/work_model.bin "${{ matrix.url }}"
+          sha256sum tools/tasmi_bench/work_model.bin
+      - name: المجموعات (كاشٌ قائمٌ للقراءة)
+        id: sets
+        uses: actions/cache/restore@v4
+        with:
+          path: tools/tasmi_bench/work/sets.tar
+          key: tasmi-sets-v5-${{ hashFiles('tools/tasmi_bench/sample.json', 'tools/tasmi_bench/inject_plan_riwaya.json', 'tools/tasmi_bench/augment.py', 'tools/tasmi_bench/augment_learner.py', 'tools/tasmi_bench/inject_riwaya_local.py', 'tools/tasmi_bench/build_long.py') }}
+      - name: بناءُ الآيات المفردة إن غاب الكاش
+        if: steps.sets.outputs.cache-hit != 'true'
+        run: |
+          set -o pipefail
+          cd tools/tasmi_bench
+          python fetch_audio.py
+          python augment.py --src-dir work/wav --dest-dir work/wavn --only noise-fan-5
+      - name: فكُّ المجموعات
+        if: steps.sets.outputs.cache-hit == 'true'
+        run: cd tools/tasmi_bench/work && tar -xf sets.tar && ls -d wav wavn
+      - name: القياس — نظيف ومضجَّج
+        env:
+          PYTHONIOENCODING: utf-8
+        run: |
+          set -o pipefail
+          cd tools/tasmi_bench
+          L=$(python -c "import json;print(json.load(open('requests/speed.json')).get('limit',0))")
+          T=$(python -c "import json;print(json.load(open('requests/speed.json')).get('threads',2))")
+          for s in wav wavn; do
+            python speed_ab.py --clis "base=../../b_base/bin/whisper-cli,dp=../../b_dp/bin/whisper-cli,i8=../../b_i8/bin/whisper-cli" \
+              --model work_model.bin --lang "${{ matrix.lang }}" --src "work/$s" --threads "$T" --limit "$L" \
+              --md "work/speed_${{ matrix.model }}_$s.md" --json "work/speed_${{ matrix.model }}_$s.json" | tail -20
+            tee -a "$GITHUB_STEP_SUMMARY" < "work/speed_${{ matrix.model }}_$s.md"
+          done
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: tasmi-speed-${{ matrix.model }}
+          path: tools/tasmi_bench/work/speed_*.*
+          retention-days: 7
+          if-no-files-found: ignore
