@@ -135,7 +135,7 @@ def check_structure(idx: dict, key: str, text=None) -> dict:
     # ⛔ مرجعٌ إلى مجلّدٍ بلا اسمِ ملفٍّ صوتيّ: التطبيقُ يطلب `fileRef` حرفاً (‏`remoteUrl = e.fileRef`
     #    في QuranViewModel/SurahPlayer) فلا يجد صوتاً — عطبُ تشغيلٍ لا نقصُ توقيت.
     noname = sorted(s for s, fs in files_of.items()
-                    if any(f and not re.search(r"\.(?:mp3|ogg|opus|m4a|wav)(?:\?.*)?$", str(f), re.I) for f in fs))
+                    if any(f and not _run.AUDIO_EXT_RE.search(str(f)) for f in fs))
     if noname:
         out["errors"].append(f"fileRef بلا اسم ملفٍّ صوتيّ (مجلّدٌ لا ملفّ) في {len(noname)} سورة")
         out["examples"]["folderFileRef"] = {str(s): sorted(map(str, files_of[s]))[0] for s in noname[:MAX_EXAMPLES]}
@@ -588,6 +588,9 @@ def main() -> int:
     if a.only:
         want = {x.strip() for x in a.only.split(",") if x.strip()}
         keys = [k for k in keys if k[len("timings/"):-3] in want or k in want]
+        # ⭐ 2026-10-02: مرشّحٌ في المسرح يُسمّى بمفتاحه الكامل `timings-staging/<riw>/<id>.<sha8>.jz`
+        #    فتُفحص بنيتُه ومددُه وأحكامُه قبل الترقية (‏الهويّةُ لا تُقاس له: ليس في manifest ولا التجميد).
+        keys += sorted(x for x in want if x.startswith("timings-staging/") and x.endswith(".jz") and x.count("/") == 2)
     print(f"فهارسُ منشورة: {len(keys)} · المرحلة {a.phase}")
     manifest = {}
     try:
@@ -613,7 +616,8 @@ def main() -> int:
         fetched = dict((k, (raw, err)) for k, raw, err in pool.map(_fetch, keys))
         pub = {}
         if not a.no_public and a.phase != "audio":
-            pub = dict(zip(keys, pool.map(_public_sha, keys)))
+            pub_keys = [k for k in keys if not k.startswith("timings-staging/")]
+            pub = dict(zip(pub_keys, pool.map(_public_sha, pub_keys)))
     reports = []
     if a.phase in ("all", "audio"):
         reports = _p.bucket_reports(cl, bucket)
@@ -628,11 +632,17 @@ def main() -> int:
         idx = json.loads(gzip.decompress(raw).decode("utf-8"))
         riw = k.split("/")[1]
         stem = k.split("/")[2][:-3]
+        staging = k.startswith("timings-staging/")
+        if staging:
+            stem = stem.rsplit(".", 1)[0]
         row = {"key": k, "sha256": sha, "riwaya": riw, "reciterId": stem, "bytes": len(raw),
                "engine": idx.get("engineVersion"), "transformOp": (idx.get("transform") or {}).get("op")}
+        if staging:
+            row["staging"] = True
         if a.phase in ("all", "struct"):
-            row["identity"] = check_identity(k, sha, len(idx.get("entries") or []), manifest,
-                                             frozen_bucket, frozen_repo, pub.get(k), check_public=bool(pub))
+            row["identity"] = ({"sha256": sha, "staging": True, "errors": [], "ok": True} if staging else
+                               check_identity(k, sha, len(idx.get("entries") or []), manifest,
+                                              frozen_bucket, frozen_repo, pub.get(k), check_public=bool(pub)))
             row["structure"] = check_structure(idx, k, texts.get(riw))
             row["gaps"] = check_gaps(idx)
             row["durations"] = check_durations(idx, texts.get(riw))
