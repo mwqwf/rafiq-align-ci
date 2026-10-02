@@ -1,0 +1,13 @@
+# rc=1
+
+[stderr]
+Traceback (most recent call last):
+  File "/home/runner/work/rafiq-align-ci/rafiq-align-ci/tools/ci_fleet/package_catalog_review.py", line 106, in <module>
+    raise SystemExit(main())
+                     ^^^^^^
+  File "/home/runner/work/rafiq-align-ci/rafiq-align-ci/tools/ci_fleet/package_catalog_review.py", line 100, in main
+    report = review(a.run, a.verify_live)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/rafiq-align-ci/rafiq-align-ci/tools/ci_fleet/package_catalog_review.py", line 26, in review
+    raise ValueError("Candidate run has not passed")
+ValueError: Candidate run has not passed
