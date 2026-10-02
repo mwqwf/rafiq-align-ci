@@ -1,0 +1,36 @@
+name: verified-original-kurdi-source
+run-name: byte-exact original Kurdi Nahl c82dee87
+on:
+  workflow_dispatch:
+permissions:
+  contents: write
+jobs:
+  original:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with: {fetch-depth: 0}
+      - uses: actions/setup-python@v5
+        with: {python-version: '3.11'}
+      - name: Native original source dependencies
+        run: |
+          python tools/ci_fleet/install_qa_ffmpeg.py
+          python -m pip install --only-binary=:all: --timeout 60 --retries 2 numpy yt-dlp
+      - name: Verify immutable public source and complete native decode
+        run: python tools/index_qa/ci_copy_kurdi_original.py
+      - name: Publish only verified original audio fixture and source proof
+        run: |
+          git config user.name rafiq-source-fixture
+          git config user.email actions@github.com
+          git fetch origin main --quiet
+          git merge --ff-only origin/main
+          git add ops/source-repair/audio-fixtures/kurdi-nahl-c82dee87.mp3 ops/source-repair/kurdi-soundcloud-original-source-evidence-20261002.json
+          git commit -m "source: exact original Kurdi Nahl fixture c82dee87 [skip ci]"
+          source_commit=$(git rev-parse HEAD)
+          git push origin HEAD:main || {
+            git fetch origin main --quiet
+            git merge --no-edit origin/main
+            git push origin HEAD:main
+          }
+          echo "KURDI_ORIGINAL_FIXTURE_COMMIT=$source_commit"
