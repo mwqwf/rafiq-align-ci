@@ -45,6 +45,9 @@ def crop_mid(src, dst, seconds, at="mid"):
     if sr != SR:
         raise SystemExit("⛔ معدّلُ العيّنة %d لا %d" % (sr, SR))
     n = int(seconds * SR)
+    if seconds <= 0:                      # 0 = البندُ كاملاً (‏قياسُ الحكم النهائيّ لا النافذة)
+        sf.write(dst, a, SR, subtype="PCM_16")
+        return len(a) / SR, 0.0
     if at == "start" or len(a) <= n:
         s = 0
     else:
@@ -78,7 +81,18 @@ def build_arms(a):
         if t != a.threads:
             arms.append(("t%d" % t, (lambda t: lambda d: ["-t", str(t)])(t)))
     for name, flags in a.extra_arms:
-        arms.append((name, (lambda f: lambda d: base_t + f)(flags)))
+        # 🎛️ رموزٌ في الأعلام: `{ac:P}` ⇒ `-ac` تناسبيّاً بهامش P ث · `env:K=V` ⇒ متغيّرُ بيئةٍ للعمليّة.
+        def mk(f):
+            def fn(d):
+                out = []
+                for tok in f:
+                    if tok.startswith("{ac:") and tok.endswith("}"):
+                        out += ["-ac", str(audio_ctx_for(d, float(tok[4:-1])))]
+                    else:
+                        out.append(tok)
+                return base_t + out
+            return fn
+        arms.append((name, mk(flags)))
     return arms
 
 
@@ -92,7 +106,8 @@ def main():
     ap.add_argument("--sample", default="sample.json")
     ap.add_argument("--limit", type=int, default=0)
     ap.add_argument("--threads", type=int, default=2)
-    ap.add_argument("--window", type=float, default=3.6)
+    ap.add_argument("--window", type=float, default=3.6, help="0 = البندُ كاملاً")
+    ap.add_argument("--max-dur", type=float, default=0, help="يُقصي البنودَ الأطولَ من هذا (‏ثوانٍ) — مثل سقف الحكم النهائيّ 10ث")
     ap.add_argument("--at", default="mid", choices=["mid", "start"])
     ap.add_argument("--pads", type=float, nargs="*", default=[1.0, 2.0, 3.0, 5.0])
     ap.add_argument("--mins", type=int, nargs="*", default=[512, 768, 1024])
@@ -110,6 +125,9 @@ def main():
 
     items = {it["id"]: it for it in json.load(open(a.sample, encoding="utf-8"))["items"]}
     wavs = sorted(f for f in os.listdir(a.src) if f.endswith(".wav") and f[:-4] in items)
+    if a.max_dur > 0:
+        import soundfile as _sf
+        wavs = [f for f in wavs if _sf.info(os.path.join(a.src, f)).duration <= a.max_dur]
     if a.limit:
         wavs = wavs[: a.limit]
     if not wavs:
@@ -137,10 +155,12 @@ def main():
             flags = fl(cdur)
             # run_cli يضيف -t بنفسه؛ نُزيل تكرارَه بتمرير الخيوط من الأعلام.
             t = a.threads
-            if "-t" in flags:
+            while "-t" in flags:            # آخرُ `-t` يغلب (‏كما يفعل مفسّرُ whisper-cli)
                 i = flags.index("-t"); t = int(flags[i + 1]); flags = flags[:i] + flags[i + 2:]
-            sec, text = run_cli(a.cli, a.model, cw, t, a.lang, flags)
-            row[name] = {"sec": sec, "text": text, "flags": " ".join(["-t", str(t)] + flags)}
+            env = {k: v for k, v in (x[4:].split("=", 1) for x in flags if x.startswith("env:"))}
+            flags = [x for x in flags if not x.startswith("env:")]
+            sec, text = run_cli(a.cli, a.model, cw, t, a.lang, flags, env=env or None)
+            row[name] = {"sec": sec, "text": text, "flags": " ".join(["-t", str(t)] + flags + ["%s=%s" % kv for kv in env.items()])}
         rows.append(row)
         if (k + 1) % 10 == 0 or k + 1 == len(wavs):
             print("%3d/%d %s (%.0fث مضت)" % (k + 1, len(wavs), iid, time.time() - t_start), flush=True)
@@ -148,8 +168,8 @@ def main():
     summary = {}
     lines = ["## 🎯 مسحُ الفكّ على نافذة %.1fث (%s) — %s · %d نافذةً · %d خيوط" % (
         a.window, "وسطُ البند" if a.at == "mid" else "أوّلُ البند", os.path.basename(a.src.rstrip("/")), len(rows), a.threads), "",
-        "| الذراع | الأعلام | وسيطُ الزمن | p95 | أقصى | ×أسرع | agree مع ref | " + ("agree مع النظيف | " if a.clean_src else "") + "oov | words/ref | فارغة |",
-        "|---|---|---:|---:|---:|---:|---:|" + ("---:|" if a.clean_src else "") + "---:|---:|---:|"]
+        "| الذراع | الأعلام | وسيطُ الزمن | p95 | أقصى | ×أسرع | agree مع ref | تطابقٌ تامّ | WER | " + ("agree مع النظيف | " if a.clean_src else "") + "oov | words/ref | فارغة |",
+        "|---|---|---:|---:|---:|---:|---:|---:|---:|" + ("---:|" if a.clean_src else "") + "---:|---:|---:|"]
     ref_med = st.median(r["ref"]["sec"] for r in rows)
     for n in names:
         secs = [r[n]["sec"] for r in rows]
@@ -158,9 +178,12 @@ def main():
         oov = tot = 0
         nref = 0
         empty = 0
+        wer_e = wer_n = same = 0
         for r in rows:
             h = norm_words(r[n]["text"])
             rw = norm_words(r["ref"]["text"])
+            ay = norm_words(r["refText"])
+            wer_e += edits(h, ay); wer_n += max(1, len(ay)); same += (h == rw)
             agree_e += edits(h, rw); agree_n += max(1, len(rw))
             if a.clean_src:
                 cw_ = norm_words(r["clean"]["text"])
@@ -172,12 +195,12 @@ def main():
         s = {"flags": rows[0][n]["flags"], "med_s": st.median(secs), "p95_s": pct(secs, 0.95), "max_s": max(secs),
              "speedup": ref_med / st.median(secs) if st.median(secs) else None,
              "agree": 1 - agree_e / agree_n, "oov": oov / max(1, tot), "words_ratio": tot / max(1, nref),
-             "empty": empty, "n": len(rows)}
+             "empty": empty, "n": len(rows), "wer": wer_e / wer_n, "same_text": same}
         if a.clean_src:
             s["agree_clean"] = 1 - ce / cn
         summary[n] = s
-        lines.append("| %s | `%s` | %.3fث | %.3fث | %.3fث | ×%.2f | %.1f%% | " % (
-            n, s["flags"], s["med_s"], s["p95_s"], s["max_s"], s["speedup"] or 0, 100 * s["agree"])
+        lines.append("| %s | `%s` | %.3fث | %.3fث | %.3fث | ×%.2f | %.1f%% | %d/%d | %.1f%% | " % (
+            n, s["flags"], s["med_s"], s["p95_s"], s["max_s"], s["speedup"] or 0, 100 * s["agree"], s["same_text"], s["n"], 100 * s["wer"])
             + ("%.1f%% | " % (100 * s["agree_clean"]) if a.clean_src else "")
             + "%.1f%% | %.2f | %d |" % (100 * s["oov"], s["words_ratio"], s["empty"]))
     lines += ["", "- `ref` = السياقُ الكامل بالأعلام المشحونة (‏greedy · best_of 5 · تراجعٌ حراريٌّ افتراضيّ). "

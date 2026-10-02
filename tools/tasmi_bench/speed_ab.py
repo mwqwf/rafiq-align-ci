@@ -49,9 +49,11 @@ def edits(a, b):
     return prev[-1]
 
 
-def run_cli(cli, model, wav, threads, lang, extra):
+def run_cli(cli, model, wav, threads, lang, extra, env=None):
+    """[env]: متغيّراتُ بيئةٍ إضافيّةٌ للعمليّة (‏مثل `KMP_BLOCKTIME=0` لذراع قياس) — لا شيءَ افتراضاً."""
     cmd = [cli, "-m", model, "-t", str(threads), "-l", lang, "-bs", "1", "-et", "2.40", "-nt"] + extra + [wav]
-    p = subprocess.run(cmd, capture_output=True, text=True, encoding="utf-8", errors="replace")
+    p = subprocess.run(cmd, capture_output=True, text=True, encoding="utf-8", errors="replace",
+                       env=(dict(os.environ, **env) if env else None))
     out = (p.stdout or "") + "\n" + (p.stderr or "")
     load = tot = None
     for ln in out.splitlines():
