@@ -84,21 +84,18 @@
    }
   },
   "qalun/akri_qalun": {
-   "entries": 6172,
-   "missingSurahs": [
-    24
-   ],
+   "entries": 6202,
+   "missingSurahs": [],
    "reasonCode": "SOURCE_TRUNCATED",
-   "transformOp": "ctc_surah_splice:106,107,108",
+   "transformOp": "declare_gap:24",
    "declaredReasons": {
-    "no-align": 47,
-    "source_truncated": 0
+    "source_truncated": 34
    },
-   "declaredCount": 47,
-   "undeclaredCount": 17,
+   "declaredCount": 34,
+   "undeclaredCount": 0,
    "engine": "align-0.2",
    "gapSurahs": {
-    "24": 64
+    "24": 34
    }
   }
  }
