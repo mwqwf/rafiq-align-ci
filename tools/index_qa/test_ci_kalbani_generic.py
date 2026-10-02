@@ -32,4 +32,20 @@ class SourcePlanTests(unittest.TestCase):
    pcm=C.native_pcm(audio,1200)
    self.assertEqual(str(pcm.dtype),'float32');self.assertLessEqual(abs(len(pcm)-19200),32)
    with self.assertRaises(ValueError):C.native_pcm(audio,1000)
+ def test_actual_original_source_plan_validates(self):
+  plan=json.loads((C.ROOT/'ops/source-repair/kalbani-float-generic-plan-20261002-originals.json').read_text());sources=json.loads((C.ROOT/'ops/source-repair/kalbani-1435-remaining-source-evidence-20261002.json').read_text())['sources']
+  for row in plan['surahs']:C.validated_plan(plan,sources,row['surah'])
+ @unittest.skipUnless(shutil.which('ffmpeg'),'Native integration requires ffmpeg')
+ def test_original_mp3_uses_existing_strict_native_decoder(self):
+  with tempfile.TemporaryDirectory() as td:
+   audio=pathlib.Path(td)/'physical.mp3'
+   subprocess.run(['ffmpeg','-nostdin','-v','error','-f','lavfi','-i','sine=frequency=440:sample_rate=16000','-t','1.2','-c:a','libmp3lame',str(audio)],check=True)
+   duration=C.R._file_duration_ms(audio);pcm=C.original_pcm(audio,duration)
+   self.assertEqual(str(pcm.dtype),'float32');self.assertLessEqual(abs(len(pcm)-19200),32)
+   with self.assertRaises(ValueError):C.original_pcm(audio,duration+1000)
+ @unittest.skipUnless(shutil.which('ffmpeg'),'Native integration requires ffmpeg')
+ def test_mp3_mode_cannot_weaken_vorbis_native_duration_guard(self):
+  with tempfile.TemporaryDirectory() as td:
+   audio=pathlib.Path(td)/'physical.ogg';subprocess.run(['ffmpeg','-nostdin','-v','error','-f','lavfi','-i','sine=frequency=440:sample_rate=16000','-t','1.2','-c:a','libvorbis',str(audio)],check=True)
+   with self.assertRaises(ValueError):C.original_pcm(audio,1200)
 if __name__=='__main__':unittest.main()

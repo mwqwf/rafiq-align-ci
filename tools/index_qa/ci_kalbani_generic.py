@@ -52,6 +52,15 @@ def native_pcm(path, expected_duration_ms):
     return pcm
 
 
+def original_pcm(path, expected_frame_duration_ms):
+    """Use the existing strict MP3 decoder and unchanged encoder-padding guard."""
+    with open(path,'rb') as f:
+        if f.read(4)==b'OggS':raise ValueError('Original MP3 mode cannot relax the Vorbis guard')
+    duration=R._file_duration_ms(path)
+    if abs(duration-expected_frame_duration_ms)>2:raise ValueError('Original MPEG frame duration changed')
+    return R._full_decode_pcm(path)
+
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument('--plan', required=True)
@@ -65,8 +74,12 @@ def main():
             or not os.environ.get('GITHUB_RUN_ID') or not os.environ.get('GITHUB_SHA')):
         raise ValueError('Explicit immutable CI float32 plan required')
     plan_bytes = path.read_bytes()
-    evidence = json.loads((ROOT / 'ops/source-repair/kalbani-clean-vorbis-source-evidence-20261001.json').read_text())
-    request, source = validated_plan(json.loads(plan_bytes), evidence['sources'], a.surah)
+    plan=json.loads(plan_bytes);original=plan.get('original1435') is True
+    proof='kalbani-1435-remaining-source-evidence-20261002.json' if original else 'kalbani-clean-vorbis-source-evidence-20261001.json'
+    evidence = json.loads((ROOT / 'ops/source-repair' / proof).read_text())
+    request, source = validated_plan(plan, evidence['sources'], a.surah)
+    if original and (source['item']!='14352014_201801GGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGY' or source['metadataFile']['source']!='original' or a.surah not in (5,9,10,11)):
+        raise ValueError('Only the explicit verified publisher original population is eligible')
     # This standalone probe never uses a mirror, credentials or product storage.
     R.LOCAL_CACHE = ROOT / 'scratch' / 'kalbani-generic-native'
     R.MIRROR.update(riwaya=None, reciter=None)
@@ -74,7 +87,10 @@ def main():
     native = Path(R._local_audio(source['url']))
     if hashlib.sha256(native.read_bytes()).hexdigest() != source['sha256']:
         raise ValueError('Whole original publisher SHA changed')
-    pcm = native_pcm(native, source['nativeDurationMs'])
+    if original:
+        data=native.read_bytes()
+        if len(data)!=int(source['metadataFile']['size']) or hashlib.md5(data).hexdigest()!=source['metadataFile']['md5']:raise ValueError('Publisher original MD5/size changed')
+    pcm = original_pcm(native, source['nativeDurationMs']) if original else native_pcm(native, source['nativeDurationMs'])
     model = W.configure_generic()
     start, end, _ = surah_slice(load_index(), a.surah)
     refs = load_text('hafs')[start:end]
@@ -102,7 +118,7 @@ def main():
                     'provenance': provenance, 'accepted': False, 'durationBad': [], 'issues': []}
         print('KALBANI_GENERIC_WINDOW=' + json.dumps(measured, ensure_ascii=False), flush=True)
     print('KALBANI_GENERIC_COMPLETE=' + json.dumps({'surah': a.surah, 'windows': len(request['windows']),
-          'sourceSha256': source['sha256'], 'nativeDurationMs': len(pcm) // 16,
+          'sourceSha256': source['sha256'], 'nativeDurationMs': len(pcm) // 16, 'nativeFrameDurationMs':R._file_duration_ms(native),
           'provenance': provenance}), flush=True)
 
 
