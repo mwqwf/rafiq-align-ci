@@ -1,0 +1,44 @@
+# rc=0
+📦 ctc-rakbawi_qalun-p0 · 2736 بايت
+── tools/alignment/work/batch_rakbawi_qalun/s063.json (1538 بايت)
+{"fileRef": "https://archive.org/download/128-kb---mo7ammad---ayyoob--alrakbawy---by--qaloon----mp3--full--mushaf--quran/063_.mp3", "sha256": "35eef5c7c2e29c445122cc950dfcd17def27e615755a909c8389b5bec422ce6a", "vadRel": 0.15, "vadVersion": "adaptive-2", "entries": [{"ayahIdx": 0, "startMs": 3232, "endMs": 21680, "conf": 0.538, "snapped": false, "matched": 0, "total": 17}, {"ayahIdx": 1, "startMs": 21680, "endMs": 34960, "conf": 0.588, "snapped": true, "matched": 0, "total": 12}, {"ayahIdx": 2, "startMs": 34960, "endMs": 44870, "conf": 0.613, "snapped": true, "matched": 0, "total": 11}, {"ayahIdx": 3, "startMs": 44870, "endMs": 70125, "conf": 0.571, "snapped": true, "matched": 0, "total": 22}, {"ayahIdx": 4, "startMs": 70125, "endMs": 85335, "conf": 0.586, "snapped": true, "matched": 0, "total": 14}, {"ayahIdx": 5, "startMs": 85335, "endMs": 102767, "conf": 0.58, "snapped": true, "matched": 0, "total": 18}, {"ayahIdx": 6, "startMs": 102767, "endMs": 124780, "conf": 0.564, "snapped": true, "matched": 0, "total": 20}, {"ayahIdx": 7, "startMs": 124780, "endMs": 147320, "conf": 0.632, "snapped": true, "matched": 0, "total": 17}, {"ayahIdx": 8, "startMs": 147320, "endMs": 164047, "conf": 0.652, "snapped": true, "matched": 0, "total": 17}, {"ayahIdx": 9, "startMs": 164047, "endMs": 183449, "conf": 0.18, "snapped": true, "matched": 0, "total": 21}, {"ayahIdx": 10, "startMs": 183449, "endMs": 189173, "conf": 0.0, "snapped": false, "matched": 0, "total": 11}], "issues": [], "bands": {"MED": 9, "LOW": 2}, "totalMs": 205121}
+── tools/alignment/work/batch_rakbawi_qalun/s109.json (965 بايت)
+{"fileRef": "https://archive.org/download/128-kb---mo7ammad---ayyoob--alrakbawy---by--qaloon----mp3--full--mushaf--quran/109_.mp3", "sha256": "374072abebe8377e9a69cbe39e2068725136de8a31e490f36c939504b205cfeb", "vadRel": 0.04, "vadVersion": "adaptive-2", "entries": [{"ayahIdx": 0, "startMs": 3432, "endMs": 6874, "conf": 0.74, "snapped": false, "matched": 0, "total": 3}, {"ayahIdx": 1, "startMs": 6874, "endMs": 10016, "conf": 0.74, "snapped": false, "matched": 0, "total": 4}, {"ayahIdx": 2, "startMs": 10016, "endMs": 14048, "conf": 0.74, "snapped": false, "matched": 0, "total": 5}, {"ayahIdx": 3, "startMs": 14048, "endMs": 18571, "conf": 0.674, "snapped": false, "matched": 0, "total": 5}, {"ayahIdx": 4, "startMs": 18571, "endMs": 22774, "conf": 0.74, "snapped": false, "matched": 0, "total": 5}, {"ayahIdx": 5, "startMs": 22774, "endMs": 26446, "conf": 0.74, "snapped": false, "matched": 0, "total": 4}], "issues": [], "bands": {"MED": 6}, "totalMs": 28925}
+── logs/part0.log (2324 بايت)
+📇 أسماءُ الملفات من جدول files في الكتالوج — 114 مدخلاً (س1=001_.mp3)
+Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+
+Loading weights:   0%|          | 0/424 [00:00<?, ?it/s]
+Loading weights: 100%|██████████| 424/424 [00:00<00:00, 23198.64it/s]
+/opt/hostedtoolcache/Python/3.11.16/x64/lib/python3.11/site-packages/torch/ao/nn/quantized/modules/utils.py:72: UserWarning: torch.quantize_per_tensor, torch.quantize_per_channel and other quantized tensor creation functions that produce tensors with dtype torch.quint8, torch.qint8, and torch.qint32 are deprecated and will be removed in a future PyTorch release. Please see https://github.com/pytorch/pytorch/issues/184982 for more information. (Triggered internally at /__w/pytorch/pytorch/aten/src/ATen/quantized/Quantizer.cpp:111.)
+  qweight = torch.quantize_per_tensor(
+سورة  63: {'MED': 9, 'LOW': 2} ✅ (52ث)
+سورة 109: {'MED': 6} ✅ (6ث)
+⏱️ أطوارُ rakbawi_qalun: ffmpeg=0ث · vad=0ث · whisper=0ث · refine=0ث
+
+=== TimingIndex: /home/runner/work/rafiq-align-ci/rafiq-align-ci/tools/alignment/work/timings_qalun_rakbawi_qalun.jz (15ك.ب) ===
+آيات مفهرسة: 17 · نطاقات: {'MED': 15, 'LOW': 2} · مخالفات: 0 · فشل سور: []
+	Command being timed: "python tools/alignment/batch_run.py --reciter rakbawi_qalun --riwaya qalun --base https://archive.org/download/128-kb---mo7ammad---ayyoob--alrakbawy---by--qaloon----mp3--full--mushaf--quran/ --surahs 63,109"
+	User time (seconds): 205.89
+	System time (seconds): 6.08
+	Percent of CPU this job got: 336%
+	Elapsed (wall clock) time (h:mm:ss or m:ss): 1:02.98
+	Average shared text size (kbytes): 0
+	Average unshared data size (kbytes): 0
+	Average stack size (kbytes): 0
+	Average total size (kbytes): 0
+	Maximum resident set size (kbytes): 3965436
+	Average resident set size (kbytes): 0
+	Major (requiring I/O) page faults: 58
+	Minor (reclaiming a frame) page faults: 857066
+	Voluntary context switches: 42653
+	Involuntary context switches: 28533
+	Swaps: 0
+	File system inputs: 18712
+	File system outputs: 24272
+	Socket messages sent: 0
+	Socket messages received: 0
+	Signals delivered: 0
+	Page size (bytes): 4096
+	Exit status: 0
+
