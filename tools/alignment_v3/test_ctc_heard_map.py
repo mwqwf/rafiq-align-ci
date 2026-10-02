@@ -80,6 +80,22 @@ class Pure(unittest.TestCase):
         chosen = H.choose_chain([H.occurrences(a, heard) for a in (A1, A2, A3)])
         self.assertIsNotNone(chosen[0]); self.assertIsNone(chosen[1]); self.assertIsNotNone(chosen[2])
 
+    def test_global_anchors_monotone_with_noise_extra_and_repeat(self):
+        # دعاءٌ زائد · الآيات بأخطاءٍ متناثرة · إعادةُ الثانية · ذيلٌ زائد
+        noisy2 = A2[:5] + "ق" + A2[6:15] + A2[16:]
+        heard, times = _heard(["هههههههههههههههههه", A1, noisy2, A2, A3[:12] + "ك" + A3[13:], A4, "هههههه"])
+        anc = H.global_anchors(heard, times, [A1, A2, A3, A4], frame_ms=80)
+        self.assertTrue(all(anc))
+        self.assertTrue(all(anc[k][1] <= anc[k + 1][0] + 80 for k in range(3)))
+        self.assertGreaterEqual(anc[0][0], 18 * 80)                 # لا تُنسب الزيادةُ إلى الأولى
+        self.assertTrue(all(a[2] >= 0.8 for a in anc), anc)
+        self.assertLess(anc[1][0], times[len("هههههههههههههههههه") + len(A1) + len(noisy2)])
+
+    def test_global_anchors_low_quality_when_unrelated(self):
+        heard, times = _heard(["ههقكمصهههقكمصهههقكمصهههقكمصهههقكمصههه"])
+        anc = H.global_anchors(heard, times, [A1, A2], frame_ms=80)
+        self.assertTrue(all(a is None or a[2] < 0.5 for a in anc))
+
     def test_plan_windows_caps_and_splits_on_gap(self):
         ms = [(k * 1000, k * 1000 + 900) for k in range(30)]
         self.assertEqual(H.plan_windows(ms, 30, max_ayat=12), [(0, 11), (12, 23), (24, 29)])

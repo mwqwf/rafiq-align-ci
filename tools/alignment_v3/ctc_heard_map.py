@@ -52,6 +52,7 @@ MAX_WIN_AYAT = 12       # أقصى آياتٍ في نافذة محاذاة
 PAD_MS = 1500           # هامشُ النافذة حول المسموع
 REPEAT_GAP_MS = 6000    # فجوةٌ بعد آيةٍ تُفحص عن تكرارٍ قبل أن تُضمّ إلى مدخلها
 TAIL_MS = 800           # ذيلُ آخر آية بعد آخر حرفٍ مسموع
+ANCHOR_Q = 0.3          # أدنى جودةٍ (نسبةُ حروفٍ مطابقة) تُعدّ بها المِرساةُ العامّةُ صالحةً للنافذة
 _SUB1 = {"ٱ": "ا", "أ": "ا", "إ": "ا", "آ": "ا", "ؤ": "و", "ئ": "ي", "ى": "ي", "ة": "ه",
          "ے": "ي", "ء": ""}
 
@@ -171,6 +172,47 @@ def choose_chain(occ, min_score=MIN_OCC, slack=6):
     return chosen
 
 
+def _opcodes(a, b):
+    try:
+        from rapidfuzz.distance import Levenshtein
+        return Levenshtein.opcodes(a, b).as_list()
+    except ImportError:
+        return difflib.SequenceMatcher(None, a, b, autojunk=False).get_opcodes()
+
+
+def global_anchors(heard_sk, times, ayah_sks, frame_ms=20):
+    """محاذاةٌ **عامّةٌ رتيبة** (‏مسافةٌ تحريريّة) للمسموع كلِّه إلى نصّ السورة كلِّه ⇒ لكلّ آيةٍ
+    (بدءٌ م.ث، نهايةٌ م.ث، جودةٌ = نسبةُ حروفها المطابقة). الزيادةُ في المسموع (‏دعاءٌ · سجدة ·
+    إعادةٌ) تصير حذفاً فلا تُنسب إلى آية، والخطأُ المتناثرُ في الفكّ لا يكسر الرتابة —
+    بخلاف البحث عن كلّ آيةٍ وحدَها الذي تُضلّه مطابقاتٌ زائفةٌ في الضجيج."""
+    text = "".join(ayah_sks)
+    if not heard_sk or not text:
+        return [None] * len(ayah_sks)
+    pos = [None] * len(text)
+    eq = [False] * len(text)
+    for tag, i1, i2, j1, j2 in _opcodes(heard_sk, text):
+        if tag == "equal":
+            for d in range(j2 - j1):
+                pos[j1 + d], eq[j1 + d] = i1 + d, True
+        elif tag == "replace":
+            for d in range(j2 - j1):
+                pos[j1 + d] = min(i2 - 1, i1 + int(d * (i2 - i1) / max(1, j2 - j1)))
+        elif tag == "insert":
+            for d in range(j2 - j1):
+                pos[j1 + d] = min(len(heard_sk) - 1, i1)
+    out, c = [], 0
+    for sk in ayah_sks:
+        span = range(c, c + len(sk))
+        c += len(sk)
+        ps = [pos[j] for j in span if pos[j] is not None]
+        if not ps:
+            out.append(None)
+            continue
+        q = sum(1 for j in span if eq[j]) / max(1, len(sk))
+        out.append((times[ps[0]], times[ps[-1]] + int(frame_ms), round(q, 3)))
+    return out
+
+
 def plan_windows(chosen_ms, n, max_ayat=MAX_WIN_AYAT, split_gap_ms=25000):
     """يقسم الآيات 0..n-1 إلى نوافذَ [i، j] متتالية: تُقطع النافذةُ عند بلوغ `max_ayat` أو عند
     فجوةٍ مسموعةٍ > `split_gap_ms` بين أداءين متتاليين. `chosen_ms[k]` = (بدءٌ، نهايةٌ) أو None."""
@@ -246,24 +288,32 @@ def run(audio, surah, riwaya, log=print, probe=False):
     chosen = choose_chain(occ)
     chosen_ms = [(times[c[0]], times[min(c[1], len(times)) - 1] + int(frame_ms)) if c else None
                  for c in chosen]
+    anchors = global_anchors(heard_sk, times, sks, frame_ms)
+    # المِرساةُ المعتمَدة للنوافذ: المحاذاةُ العامّةُ الرتيبة (‏جودةٌ ≥ ANCHOR_Q)؛ والأداءاتُ المنفردةُ
+    # شاهدٌ على التكرار والزيادة فقط.
+    anchor_ms = [(a[0], a[1]) if a and a[2] >= ANCHOR_Q else None for a in anchors]
     heard_map = {}
     for k in range(n):
         c = chosen[k]
         heard_map[str(k + 1)] = {
-            "heard": c is not None,
+            "anchorMs": list(anchors[k][:2]) if anchors[k] else None,
+            "anchorQuality": anchors[k][2] if anchors[k] else None,
+            "heard": anchor_ms[k] is not None,
             "heardMs": list(chosen_ms[k]) if c else None,
             "score": c[2] if c else None,
             "occurrences": [[times[o[0]], times[min(o[1], len(times)) - 1] + int(frame_ms), o[2]]
                             for o in occ[k]]}
     chunks = chunk_map(heard_sk, times, sks)
     report = [f"# خريطةُ السماع س{surah} · {total_ms}م.ث · {len(heard_sk)} حرفاً مسموعاً",
-              "# آية\tبدء\tنهاية\tتشابه\tأداءاتٌ أخرى"]
+              "# آية\tمِرساةٌ عامّة بدء\tنهاية\tجودة\tأداءٌ منفرد بدء\tنهاية\tتشابه\tأداءاتٌ أخرى"]
     for k in range(n):
         h = heard_map[str(k + 1)]
+        a = h["anchorMs"]
         others = [o for o in h["occurrences"] if not h["heardMs"] or o[0] != h["heardMs"][0]]
-        report.append(f"{surah}:{k + 1}\t{h['heardMs'][0] / 1000:.1f}\t{h['heardMs'][1] / 1000:.1f}\t{h['score']}\t"
-                      f"{' · '.join(f'{o[0] / 1000:.0f}–{o[1] / 1000:.0f}s({o[2]})' for o in others)}"
-                      if h["heardMs"] else f"{surah}:{k + 1}\t—\t—\t—\tلم تُسمع ≥{MIN_OCC}")
+        row = (f"{surah}:{k + 1}\t" + (f"{a[0] / 1000:.1f}\t{a[1] / 1000:.1f}\t{h['anchorQuality']}" if a else "—\t—\t—") + "\t"
+               + (f"{h['heardMs'][0] / 1000:.1f}\t{h['heardMs'][1] / 1000:.1f}\t{h['score']}" if h["heardMs"] else "—\t—\t—")
+               + "\t" + " · ".join(f"{o[0] / 1000:.0f}–{o[1] / 1000:.0f}s({o[2]})" for o in others))
+        report.append(row)
     report.append("# قطعُ الملفّ (15ث): أقربُ آيةٍ وتشابهُها — ما لا يقارب شيئاً مادّةٌ زائدة · ثمّ المسموعُ نفسُه")
     words = "".join(c for c, _ in chars)
     wtimes = [t for _, t in chars]
@@ -271,28 +321,32 @@ def run(audio, surah, riwaya, log=print, probe=False):
         lo = next((i for i, t in enumerate(wtimes) if t >= t0), len(wtimes))
         hi = next((i for i, t in enumerate(wtimes) if t >= t1), len(wtimes))
         report.append(f"{t0 / 1000:.0f}–{t1 / 1000:.0f}s\t{(str(surah) + ':' + str(k + 1)) if k is not None else '—'}\t{sc}\t{nch}حرفاً\t«{words[lo:hi].strip()}»")
-    unheard = [k + 1 for k in range(n) if chosen[k] is None]
-    log(f"مسموعةٌ: {n - len(unheard)}/{n}" + (f" · لم تُسمع: {unheard}" if unheard else ""))
+    unheard = [k + 1 for k in range(n) if anchor_ms[k] is None]
+    qs = sorted(a[2] for a in anchors if a)
+    med_q = qs[len(qs) // 2] if qs else 0.0
+    log(f"مراسٍ عامّة ≥{ANCHOR_Q}: {n - len(unheard)}/{n} · وسيطُ الجودة {med_q}"
+        + (f" · بلا مِرساة: {unheard}" if unheard else ""))
     result = {"surah": surah, "riwaya": riwaya, "engine": ENGINE, "totalMs": total_ms,
               "heardMap": heard_map, "chunkMap": [list(c) for c in chunks],
-              "heardChars": len(heard_sk), "entries": [], "issues": [], "bands": {}}
+              "heardChars": len(heard_sk), "anchorQualityMedian": med_q,
+              "entries": [], "issues": [], "bands": {}}
     if probe:
         return result, "\n".join(report)
 
-    # ── المحاذاةُ القسريّة على نوافذَ مرساتُها مسموعة ──
+    # ── المحاذاةُ القسريّة على نوافذَ مرساتُها من المحاذاة العامّة ──
     sil = silences(wav)
-    wins = plan_windows(chosen_ms, n)
+    wins = plan_windows(anchor_ms, n)
     starts, scores = [None] * n, [0.0] * n
     for i, j in wins:
-        first = next((k for k in range(i, j + 1) if chosen_ms[k]), None)
-        last = next((k for k in range(j, i - 1, -1) if chosen_ms[k]), None)
+        first = next((k for k in range(i, j + 1) if anchor_ms[k]), None)
+        last = next((k for k in range(j, i - 1, -1) if anchor_ms[k]), None)
         if first is None or last is None:
-            result["issues"].append(f"نافذة {i + 1}–{j + 1}: لا مِرساةَ مسموعةً فيها — تُترك بلا حدود")
+            result["issues"].append(f"نافذة {i + 1}–{j + 1}: لا مِرساةَ فيها — تُترك بلا حدود")
             continue
-        lead = i - 1 if i > 0 and chosen_ms[i - 1] else None
-        trail = j + 1 if j + 1 < n and chosen_ms[j + 1] else None
-        ws = chosen_ms[lead][0] if lead is not None else max(0, chosen_ms[first][0] - PAD_MS)
-        we = chosen_ms[trail][1] if trail is not None else min(total_ms, chosen_ms[last][1] + PAD_MS)
+        lead = i - 1 if i > 0 and anchor_ms[i - 1] else None
+        trail = j + 1 if j + 1 < n and anchor_ms[j + 1] else None
+        ws = anchor_ms[lead][0] if lead is not None else max(0, anchor_ms[first][0] - PAD_MS)
+        we = anchor_ms[trail][1] if trail is not None else min(total_ms, anchor_ms[last][1] + PAD_MS)
         ws, we = int(max(0, ws)), int(min(total_ms, we))
         texts = ([refs[lead]] if lead is not None else []) + refs[i:j + 1] + ([refs[trail]] if trail is not None else [])
         clip = x[ws * SR // 1000: we * SR // 1000]
@@ -314,24 +368,26 @@ def run(audio, surah, riwaya, log=print, probe=False):
         t, on_sil = snap_to_silence(int(starts[k]), sil, tolerance_ms=700)
         entries.append({"ayahIdx": k, "startMs": int(t), "endMs": None, "conf": _conf(scores[k]),
                         "snapped": bool(on_sil), "matched": 0, "total": len(refs[k].split()),
-                        "heard": chosen[k] is not None})
-    # النهايات: نهايةُ الآية = بدايةُ التالية، إلا حيث يفصلهما مقطعٌ مكرَّرٌ (‏أداءٌ آخر لآيةٍ
-    # سابقة) فتُحدّ بآخر حرفٍ مسموعٍ لها + ذيل، ويبقى المكرَّرُ خارجَ المداخل.
+                        "heard": anchor_ms[k] is not None})
+    # النهايات: نهايةُ الآية = بدايةُ التالية، إلا حيث يفصلهما مقطعٌ مكرَّرٌ **بشاهدٍ قويّ** (‏أداءٌ
+    # آخر لآيةٍ سابقة بتشابهٍ ≥ STRONG) فتُحدّ بآخر حرفٍ مرسوٍ لها + ذيل، ويبقى المكرَّرُ خارجَ المداخل.
+    # ⛔ ولا يُنتج القطعُ مدخلاً فارغاً: إن لم يبقَ للآية مدى بعد القطع تُترك متّصلةً بالتالية.
     for k in range(n):
         e = entries[k]
         if e["startMs"] is None:
             continue
         nxt = next((entries[m]["startMs"] for m in range(k + 1, n) if entries[m]["startMs"] is not None), None)
-        e["endMs"] = nxt if nxt is not None else min(total_ms, (chosen_ms[k][1] if chosen_ms[k] else e["startMs"]) + TAIL_MS)
-        if nxt is not None and chosen_ms[k] and nxt - chosen_ms[k][1] > REPEAT_GAP_MS:
-            lo, hi = chosen_ms[k][1], nxt
-            repeated = [m + 1 for m in range(0, k + 1) for o in heard_map[str(m + 1)]["occurrences"]
-                        if lo - 500 <= o[0] and o[1] <= hi + 500]
-            if repeated:
-                e["endMs"] = min(nxt, chosen_ms[k][1] + TAIL_MS)
-                e["repeatExcluded"] = sorted(set(repeated))
+        e["endMs"] = nxt if nxt is not None else min(total_ms, (anchor_ms[k][1] if anchor_ms[k] else e["startMs"]) + TAIL_MS)
+        if nxt is not None and anchor_ms[k] and nxt - anchor_ms[k][1] > REPEAT_GAP_MS:
+            lo, hi = anchor_ms[k][1], nxt
+            repeated = sorted({m + 1 for m in range(0, k + 1) for o in heard_map[str(m + 1)]["occurrences"]
+                               if o[2] >= STRONG and lo - 500 <= o[0] and o[1] <= hi + 500})
+            cut = min(nxt, anchor_ms[k][1] + TAIL_MS)
+            if repeated and cut > e["startMs"]:
+                e["endMs"] = cut
+                e["repeatExcluded"] = repeated
                 result["issues"].append(f"مقطعٌ مكرَّرٌ بعد الآية {k + 1} ({lo / 1000:.0f}–{hi / 1000:.0f}ث · "
-                                        f"آياتُه {sorted(set(repeated))}) أُبقي خارجَ المداخل")
+                                        f"آياتُه {repeated}) أُبقي خارجَ المداخل")
     for e in entries:
         if e["startMs"] is not None and e["endMs"] <= e["startMs"]:
             e.update(startMs=None, endMs=None, conf=0.0)
