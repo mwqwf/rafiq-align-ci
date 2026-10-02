@@ -117,6 +117,8 @@ SPLICE_OPS = {"ctc_surah_splice": "ctc-seg-1",
               # ⭐ خريطةُ السماع ثمّ نوافذُ على مراسٍ مسموعة (‏ctc_heard_map · 2026-10-02): لتسجيلٍ
               #    فيه مادّةٌ زائدةٌ أو تكرار (‏عاصم س38 تراويح 1.58×). محرّكٌ باسمه ويلزمه الإحصاءُ الشامل.
               "ctc_heardmap_splice": "ctc-heardmap-1",
+              # ⭐ 2026-10-02: تصحيحُ حدود مرشّح heardmap بما اتّفق عليه النموذجان المثبَّتان (ctc_dualfix).
+              "ctc_dualfix_splice": "ctc-dualfix-1",
               "ctc_quran_window": "ctc-quran-window-1",
               "ctc_quran_surah_splice": "ctc-quran-surah-1",
               # توقيت المصدر الرسمي: محرك مستقل، يلزمه إعلان السور والإحصاء الكامل.
