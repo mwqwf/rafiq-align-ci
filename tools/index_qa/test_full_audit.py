@@ -129,8 +129,12 @@ class DurationTest(unittest.TestCase):
         nxt = next(x for x in idx["entries"] if x["ayahId"] == "2:51")
         nxt["startMs"] = e["endMs"] + 20000                                    # فجوة 20ث
         nxt["endMs"] = nxt["startMs"] + 4000
+        tiny = next(x for x in idx["entries"] if x["ayahId"] == "3:200")
+        tiny["endMs"] = tiny["startMs"] + 67                                   # 67م.ث — لا تلاوة
         d = fa.check_durations(idx, text)
-        self.assertEqual(d["durationOutliers"], 1)
+        self.assertEqual(d["durationOutliers"], 2)
+        self.assertEqual([o["aid"] for o in d["impossibleShort"]], ["3:200"])
+        self.assertEqual([o["aid"] for o in d["extremeLong"]], ["2:50"])
         self.assertEqual(d["durationExamples"][0]["aid"], "2:50")
         self.assertEqual(d["silenceGaps"], 1)
         self.assertEqual(d["silenceExamples"][0]["from"], "2:50")
@@ -188,7 +192,8 @@ class IdentityTest(unittest.TestCase):
         r = fa.check_identity(k, sha, 6236, man, {k: sha}, {k: sha}, sha)
         self.assertTrue(r["ok"])
         r2 = fa.check_identity(k, sha, 6236, man, {k: "d" * 64}, {}, "e" * 64)
-        self.assertEqual(len(r2["errors"]), 3)
+        self.assertEqual(len(r2["errors"]), 2)
+        self.assertTrue(r2["mirrorStale"])
         r3 = fa.check_identity(k, sha, 6236, man, {k: sha}, {k: sha}, None, check_public=False)
         self.assertTrue(r3["ok"])
 

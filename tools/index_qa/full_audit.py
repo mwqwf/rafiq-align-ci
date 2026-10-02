@@ -56,6 +56,9 @@ COUNTS = _run.COUNTS
 DUR_LO, DUR_HI = 0.3, 3.0          # نطاقُ المدّة المقبولة نسبةً إلى المتوقَّع
 MIN_CHARS = 8                      # دون هذا لا يُقاس الشذوذ (الحروفُ المقطّعة والآياتُ القصار تُمدّ بطبعها)
 GAP_MS = 15_000                    # فجوةُ صمتٍ تُسجَّل
+IMPOSSIBLE_MS = 1000               # آيةٌ من ≥8 أحرفٍ دون ثانية: لا تلاوةَ فيها
+EXTREME_RATIO = 5.0                # ≥5× المتوقَّع
+LONG_MS = 120_000                  # سقفُ run.structural للمدخل الطويل
 OVERLAP_TOL_MS = 50                # سماحُ التداخل نفسُه الذي في `run.structural`
 MAX_EXAMPLES = 12
 SEVERE_CEILING = _p.SEVERE_CEILING
@@ -305,7 +308,12 @@ def check_durations(idx: dict, text) -> dict:
                 gaps.append({"from": f"{s}:{a1}", "to": f"{s}:{a2}", "gapMs": g})
     outliers.sort(key=lambda o: -abs(o["ratio"] - 1))
     gaps.sort(key=lambda g: -g["gapMs"])
+    # ⛔ **مستحيلٌ بالبيانات وحدها** (لا يحتاج سمعاً): آيةٌ ≥ MIN_CHARS حرفاً مدّتُها دون ثانية — لا تلاوةَ فيها.
+    impossible = [o for o in outliers if o["ms"] < IMPOSSIBLE_MS]
+    # ⚠️ مفرطُ الطول: ≥5× المتوقَّع أو >120ث — يُسرد كاملاً للمراجعة (قد يكون ذيلَ ملفٍّ أو ابتلاعَ جاراتٍ أو مادّةً زائدة).
+    extreme = [o for o in outliers if o["ratio"] >= EXTREME_RATIO or o["ms"] > LONG_MS]
     return {"durationOutliers": len(outliers), "durationExamples": outliers[:MAX_EXAMPLES],
+            "impossibleShort": impossible, "extremeLong": extreme,
             "longOutliers": sum(1 for o in outliers if o["ratio"] > DUR_HI),
             "shortOutliers": sum(1 for o in outliers if o["ratio"] < DUR_LO),
             "silenceGaps": len(gaps), "silenceExamples": gaps[:MAX_EXAMPLES],
@@ -424,8 +432,8 @@ def check_identity(key: str, sha: str, n_entries: int, manifest: dict, frozen_bu
         out["errors"].append("بصمةُ العنوان العامّ ≠ الدلو")
     if frozen_bucket.get(key) != sha:
         out["errors"].append("غيرُ مجمَّدٍ على بصمته في الدلو" if key not in frozen_bucket else "تجميدُ الدلو على بصمةٍ أخرى")
-    if frozen_repo.get(key) != sha:
-        out["errors"].append("مرآةُ frozen.txt في المستودع لا تطابق" if key in frozen_repo else "غائبٌ من مرآة frozen.txt")
+    # ⚖️ قائمةُ الدلو هي الحقيقة (D-075)؛ ومرآةُ المستودع تُقاس وتُذكر تحذيراً لا خطأً في الفهرس.
+    out["mirrorStale"] = frozen_repo.get(key) != sha
     out["ok"] = not out["errors"]
     return out
 
@@ -452,6 +460,11 @@ def summarize(rows: list, phase: str) -> dict:
         s[item + "Ok"] = sum(1 for r in rows if (r.get(item) or {}).get("ok"))
         s[item + "Bad"] = [r["key"] for r in rows if r.get(item) and not r[item].get("ok")]
     s["durationOutliersTotal"] = sum((r.get("durations") or {}).get("durationOutliers", 0) for r in rows)
+    s["impossibleShortTotal"] = sum(len((r.get("durations") or {}).get("impossibleShort") or []) for r in rows)
+    s["indexesWithImpossibleShort"] = sum(1 for r in rows if (r.get("durations") or {}).get("impossibleShort"))
+    s["extremeLongTotal"] = sum(len((r.get("durations") or {}).get("extremeLong") or []) for r in rows)
+    s["indexesWithExtremeLong"] = sum(1 for r in rows if (r.get("durations") or {}).get("extremeLong"))
+    s["mirrorStale"] = sum(1 for r in rows if (r.get("identity") or {}).get("mirrorStale"))
     s["silenceGapsTotal"] = sum((r.get("durations") or {}).get("silenceGaps", 0) for r in rows)
     s["indexesWithDurationOutliers"] = sum(1 for r in rows if (r.get("durations") or {}).get("durationOutliers"))
     s["indexesWithSilenceGaps"] = sum(1 for r in rows if (r.get("durations") or {}).get("silenceGaps"))
@@ -474,7 +487,25 @@ def to_markdown(report: dict) -> str:
     L += [f"| 5 مؤشّرات المدد (لا حكم) | فهارس بشذوذ مدّة: {s['indexesWithDurationOutliers']} "
           f"(آيات {s['durationOutliersTotal']}) | فهارس بفجوة صمت >15ث: {s['indexesWithSilenceGaps']} "
           f"(مواضع {s['silenceGapsTotal']}) |", ""]
-    L += ["## الأخطاء المؤكَّدة (بند 1–4)", ""]
+    L += [f"- مرآةُ `tools/index_qa/frozen.txt` في المستودع متقادمةٌ عن قائمة الدلو في {s.get('mirrorStale', 0)} فهرساً "
+          "(قائمةُ الدلو هي الحقيقة — D-075؛ تحذيرٌ لا خطأُ فهرس).", ""]
+    L += ["## آياتٌ مستحيلةُ المدّة (≥8 أحرف ودون ثانية) — خطأٌ بالبيانات وحدها", ""]
+    n_imp = 0
+    for r in report["rows"]:
+        imp = (r.get("durations") or {}).get("impossibleShort") or []
+        if imp:
+            n_imp += len(imp)
+            L.append(f"- {r['key']}: " + "، ".join(f"{o['aid']} ({o['ms']}م.ث من ~{o['expMs'] / 1000:.0f}ث)" for o in imp))
+    if not n_imp:
+        L.append("- لا شيء.")
+    L += ["", "## مداخلُ مفرطةُ الطول (≥5× المتوقَّع أو >120ث) — للمراجعة الصوتيّة", ""]
+    for r in report["rows"]:
+        ex = (r.get("durations") or {}).get("extremeLong") or []
+        ex = [o for o in ex if o["ratio"] >= 2.5]
+        if ex:
+            L.append(f"- {r['key']}: " + "، ".join(f"{o['aid']} {o['ms'] / 1000:.0f}ث (×{o['ratio']})" for o in ex[:15])
+                     + (f" … و{len(ex) - 15} غيرها" if len(ex) > 15 else ""))
+    L += ["", "## الأخطاء المؤكَّدة (بند 1–4)", ""]
     any_err = False
     for r in report["rows"]:
         errs = []
