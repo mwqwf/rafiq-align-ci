@@ -593,7 +593,8 @@ def main() -> int:
         keys += sorted(k for k in want if k.startswith("timings-staging/") and k.endswith(".jz") and k not in keys)
         # ⭐ 2026-10-02: مرشّحٌ في المسرح يُسمّى بمفتاحه الكامل `timings-staging/<riw>/<id>.<sha8>.jz`
         #    فتُفحص بنيتُه ومددُه وأحكامُه قبل الترقية (‏الهويّةُ لا تُقاس له: ليس في manifest ولا التجميد).
-        keys += sorted(x for x in want if x.startswith("timings-staging/") and x.endswith(".jz") and x.count("/") == 2)
+        keys += sorted(x for x in want if x.startswith("timings-staging/") and x.endswith(".jz") and x.count("/") == 2
+                       and x not in keys)   # قد تكون في القائمة أصلاً (بادئةُ timings/ تشمل timings-staging/)
     print(f"فهارسُ منشورة: {len(keys)} · المرحلة {a.phase}")
     manifest = {}
     try:
