@@ -127,6 +127,13 @@ def check_structure(idx: dict, key: str, text=None) -> dict:
     if nofile:
         out["errors"].append(f"مداخل بلا fileRef في {len(nofile)} سورة")
         out["examples"]["noFileRef"] = nofile[:MAX_EXAMPLES]
+    # ⛔ مرجعٌ إلى مجلّدٍ بلا اسمِ ملفٍّ صوتيّ: التطبيقُ يطلب `fileRef` حرفاً (‏`remoteUrl = e.fileRef`
+    #    في QuranViewModel/SurahPlayer) فلا يجد صوتاً — عطبُ تشغيلٍ لا نقصُ توقيت.
+    noname = sorted(s for s, fs in files_of.items()
+                    if any(f and not re.search(r"\.(?:mp3|ogg|opus|m4a|wav)(?:\?.*)?$", str(f), re.I) for f in fs))
+    if noname:
+        out["errors"].append(f"fileRef بلا اسم ملفٍّ صوتيّ (مجلّدٌ لا ملفّ) في {len(noname)} سورة")
+        out["examples"]["folderFileRef"] = {str(s): sorted(map(str, files_of[s]))[0] for s in noname[:MAX_EXAMPLES]}
     mism = {}
     for s, fs in files_of.items():
         for f in fs:

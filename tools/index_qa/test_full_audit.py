@@ -69,6 +69,15 @@ class StructureTest(unittest.TestCase):
         self.assertIn("لسورتين", txt)
         self.assertIn("لا يطابق السورة", txt)
 
+    def test_folder_fileref_is_error(self):
+        idx = make_index()
+        for e in idx["entries"]:
+            if e["ayahId"].startswith("63:"):
+                e["fileRef"] = "https://archive.org/download/some-item"                 # مجلّدٌ لا ملفّ
+        r = fa.check_structure(idx, "timings/hafs/x.jz")
+        self.assertIn("بلا اسم ملفٍّ صوتيّ", " ".join(r["errors"]))
+        self.assertEqual(list(r["examples"]["folderFileRef"]), ["63"])
+
     def test_duplicate_audio_sha(self):
         idx = make_index()
         idx["audioSha256"][5] = idx["audioSha256"][4]
