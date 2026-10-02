@@ -1,0 +1,11 @@
+{
+  "action": "tool",
+  "tool": "ci_fleet/package_catalog_review.py",
+  "args": [
+    "--run",
+    "36966655500",
+    "--verify-live",
+    "--out",
+    "ops/out/package-catalog-live-verification-20261002.json"
+  ]
+}
