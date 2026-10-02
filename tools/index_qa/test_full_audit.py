@@ -134,6 +134,11 @@ class DurationTest(unittest.TestCase):
         d = fa.check_durations(idx, text)
         self.assertEqual(d["durationOutliers"], 2)
         self.assertEqual([o["aid"] for o in d["impossibleShort"]], ["3:200"])
+        mid = next(x for x in idx["entries"] if x["ayahId"] == "3:100")
+        mid["endMs"] = mid["startMs"] + 700                                    # 0.7ث من 4ث ⇒ قصيرةٌ جدّاً لا مستحيلة
+        d2 = fa.check_durations(idx, text)
+        self.assertEqual([o["aid"] for o in d2["veryShort"]], ["3:100"])
+        self.assertEqual([o["aid"] for o in d2["impossibleShort"]], ["3:200"])
         self.assertEqual([o["aid"] for o in d["extremeLong"]], ["2:50"])
         self.assertEqual(d["durationExamples"][0]["aid"], "2:50")
         self.assertEqual(d["silenceGaps"], 1)

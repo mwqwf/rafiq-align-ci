@@ -1,6 +1,6 @@
 {
  "schema": 1,
- "tool": "full_audit-1.0",
+ "tool": "full_audit-1.1",
  "date": "20261002",
  "timestampUtc": "2026-10-02T22:20:35Z",
  "elapsedSec": 43.2,
@@ -163,7 +163,15 @@
       "expMs": 5776,
       "ratio": 0.09,
       "chars": 17
-     },
+     }
+    ],
+    "extremeLong": [],
+    "longOutliers": 3,
+    "shortOutliers": 48,
+    "silenceGaps": 0,
+    "silenceExamples": [],
+    "surahsWithRate": 113,
+    "veryShort": [
      {
       "aid": "38:81",
       "ms": 621,
@@ -227,13 +235,7 @@
       "ratio": 0.27,
       "chars": 13
      }
-    ],
-    "extremeLong": [],
-    "longOutliers": 3,
-    "shortOutliers": 48,
-    "silenceGaps": 0,
-    "silenceExamples": [],
-    "surahsWithRate": 113
+    ]
    },
    "audio": {
     "audioReportsOnSha": 4,
@@ -497,7 +499,14 @@
       "chars": 37
      }
     ],
-    "impossibleShort": [
+    "impossibleShort": [],
+    "extremeLong": [],
+    "longOutliers": 1,
+    "shortOutliers": 43,
+    "silenceGaps": 0,
+    "silenceExamples": [],
+    "surahsWithRate": 113,
+    "veryShort": [
      {
       "aid": "56:90",
       "ms": 761,
@@ -582,13 +591,7 @@
       "ratio": 0.27,
       "chars": 14
      }
-    ],
-    "extremeLong": [],
-    "longOutliers": 1,
-    "shortOutliers": 43,
-    "silenceGaps": 0,
-    "silenceExamples": [],
-    "surahsWithRate": 113
+    ]
    },
    "audio": {
     "audioReportsOnSha": 8,
@@ -845,7 +848,8 @@
     "shortOutliers": 4,
     "silenceGaps": 0,
     "silenceExamples": [],
-    "surahsWithRate": 113
+    "surahsWithRate": 113,
+    "veryShort": []
    },
    "audio": {
     "audioReportsOnSha": 4,
@@ -1111,7 +1115,15 @@
       "expMs": 2939,
       "ratio": 0.1,
       "chars": 10
-     },
+     }
+    ],
+    "extremeLong": [],
+    "longOutliers": 1,
+    "shortOutliers": 61,
+    "silenceGaps": 0,
+    "silenceExamples": [],
+    "surahsWithRate": 113,
+    "veryShort": [
      {
       "aid": "26:217",
       "ms": 741,
@@ -1161,13 +1173,7 @@
       "ratio": 0.27,
       "chars": 15
      }
-    ],
-    "extremeLong": [],
-    "longOutliers": 1,
-    "shortOutliers": 61,
-    "silenceGaps": 0,
-    "silenceExamples": [],
-    "surahsWithRate": 113
+    ]
    },
    "audio": {
     "audioReportsOnSha": 8,
@@ -1487,7 +1493,15 @@
       "expMs": 5709,
       "ratio": 0.09,
       "chars": 21
-     },
+     }
+    ],
+    "extremeLong": [],
+    "longOutliers": 0,
+    "shortOutliers": 31,
+    "silenceGaps": 0,
+    "silenceExamples": [],
+    "surahsWithRate": 113,
+    "veryShort": [
      {
       "aid": "53:46",
       "ms": 520,
@@ -1530,13 +1544,7 @@
       "ratio": 0.21,
       "chars": 10
      }
-    ],
-    "extremeLong": [],
-    "longOutliers": 0,
-    "shortOutliers": 31,
-    "silenceGaps": 0,
-    "silenceExamples": [],
-    "surahsWithRate": 113
+    ]
    },
    "audio": {
     "audioReportsOnSha": 8,
@@ -1924,7 +1932,8 @@
     "shortOutliers": 34,
     "silenceGaps": 0,
     "silenceExamples": [],
-    "surahsWithRate": 113
+    "surahsWithRate": 113,
+    "veryShort": []
    },
    "audio": {
     "audioReportsOnSha": 4,
@@ -2213,7 +2222,20 @@
       "chars": 25
      }
     ],
-    "impossibleShort": [
+    "impossibleShort": [],
+    "extremeLong": [],
+    "longOutliers": 2,
+    "shortOutliers": 19,
+    "silenceGaps": 1,
+    "silenceExamples": [
+     {
+      "from": "5:117",
+      "to": "5:118",
+      "gapMs": 19940
+     }
+    ],
+    "surahsWithRate": 113,
+    "veryShort": [
      {
       "aid": "37:181",
       "ms": 591,
@@ -2242,19 +2264,7 @@
       "ratio": 0.21,
       "chars": 14
      }
-    ],
-    "extremeLong": [],
-    "longOutliers": 2,
-    "shortOutliers": 19,
-    "silenceGaps": 1,
-    "silenceExamples": [
-     {
-      "from": "5:117",
-      "to": "5:118",
-      "gapMs": 19940
-     }
-    ],
-    "surahsWithRate": 113
+    ]
    },
    "audio": {
     "audioReportsOnSha": 4,
@@ -2597,7 +2607,8 @@
     "shortOutliers": 0,
     "silenceGaps": 0,
     "silenceExamples": [],
-    "surahsWithRate": 113
+    "surahsWithRate": 113,
+    "veryShort": []
    },
    "audio": {
     "audioReportsOnSha": 17,
@@ -3037,7 +3048,15 @@
       "expMs": 3252,
       "ratio": 0.1,
       "chars": 13
-     },
+     }
+    ],
+    "extremeLong": [],
+    "longOutliers": 2,
+    "shortOutliers": 54,
+    "silenceGaps": 0,
+    "silenceExamples": [],
+    "surahsWithRate": 113,
+    "veryShort": [
      {
       "aid": "56:96",
       "ms": 661,
@@ -3115,13 +3134,7 @@
       "ratio": 0.3,
       "chars": 9
      }
-    ],
-    "extremeLong": [],
-    "longOutliers": 2,
-    "shortOutliers": 54,
-    "silenceGaps": 0,
-    "silenceExamples": [],
-    "surahsWithRate": 113
+    ]
    },
    "audio": {
     "audioReportsOnSha": 8,
@@ -3349,7 +3362,8 @@
     "shortOutliers": 0,
     "silenceGaps": 0,
     "silenceExamples": [],
-    "surahsWithRate": 113
+    "surahsWithRate": 113,
+    "veryShort": []
    },
    "audio": {
     "audioReportsOnSha": 11,
@@ -3719,7 +3733,15 @@
       "expMs": 2630,
       "ratio": 0.14,
       "chars": 11
-     },
+     }
+    ],
+    "extremeLong": [],
+    "longOutliers": 4,
+    "shortOutliers": 54,
+    "silenceGaps": 0,
+    "silenceExamples": [],
+    "surahsWithRate": 113,
+    "veryShort": [
      {
       "aid": "53:42",
       "ms": 620,
@@ -3783,13 +3805,7 @@
       "ratio": 0.3,
       "chars": 11
      }
-    ],
-    "extremeLong": [],
-    "longOutliers": 4,
-    "shortOutliers": 54,
-    "silenceGaps": 0,
-    "silenceExamples": [],
-    "surahsWithRate": 113
+    ]
    },
    "audio": {
     "audioReportsOnSha": 4,
@@ -4171,7 +4187,15 @@
       "expMs": 3408,
       "ratio": 0.11,
       "chars": 10
-     },
+     }
+    ],
+    "extremeLong": [],
+    "longOutliers": 13,
+    "shortOutliers": 49,
+    "silenceGaps": 0,
+    "silenceExamples": [],
+    "surahsWithRate": 113,
+    "veryShort": [
      {
       "aid": "74:48",
       "ms": 963,
@@ -4228,13 +4252,7 @@
       "ratio": 0.27,
       "chars": 10
      }
-    ],
-    "extremeLong": [],
-    "longOutliers": 13,
-    "shortOutliers": 49,
-    "silenceGaps": 0,
-    "silenceExamples": [],
-    "surahsWithRate": 113
+    ]
    },
    "audio": {
     "audioReportsOnSha": 4,
@@ -4580,7 +4598,15 @@
       "expMs": 2004,
       "ratio": 0.11,
       "chars": 9
-     },
+     }
+    ],
+    "extremeLong": [],
+    "longOutliers": 7,
+    "shortOutliers": 41,
+    "silenceGaps": 0,
+    "silenceExamples": [],
+    "surahsWithRate": 113,
+    "veryShort": [
      {
       "aid": "19:84",
       "ms": 961,
@@ -4644,13 +4670,7 @@
       "ratio": 0.24,
       "chars": 17
      }
-    ],
-    "extremeLong": [],
-    "longOutliers": 7,
-    "shortOutliers": 41,
-    "silenceGaps": 0,
-    "silenceExamples": [],
-    "surahsWithRate": 113
+    ]
    },
    "audio": {
     "audioReportsOnSha": 4,
@@ -4937,7 +4957,30 @@
       "expMs": 5025,
       "ratio": 0.1,
       "chars": 19
+     }
+    ],
+    "extremeLong": [
+     {
+      "aid": "75:27",
+      "ms": 18314,
+      "expMs": 2564,
+      "ratio": 7.14,
+      "chars": 9
      },
+     {
+      "aid": "70:15",
+      "ms": 17633,
+      "expMs": 2847,
+      "ratio": 6.19,
+      "chars": 10
+     }
+    ],
+    "longOutliers": 11,
+    "shortOutliers": 50,
+    "silenceGaps": 0,
+    "silenceExamples": [],
+    "surahsWithRate": 113,
+    "veryShort": [
      {
       "aid": "44:14",
       "ms": 921,
@@ -4966,28 +5009,7 @@
       "ratio": 0.28,
       "chars": 10
      }
-    ],
-    "extremeLong": [
-     {
-      "aid": "75:27",
-      "ms": 18314,
-      "expMs": 2564,
-      "ratio": 7.14,
-      "chars": 9
-     },
-     {
-      "aid": "70:15",
-      "ms": 17633,
-      "expMs": 2847,
-      "ratio": 6.19,
-      "chars": 10
-     }
-    ],
-    "longOutliers": 11,
-    "shortOutliers": 50,
-    "silenceGaps": 0,
-    "silenceExamples": [],
-    "surahsWithRate": 113
+    ]
    },
    "audio": {
     "audioReportsOnSha": 4,
@@ -5205,7 +5227,14 @@
       "chars": 37
      }
     ],
-    "impossibleShort": [
+    "impossibleShort": [],
+    "extremeLong": [],
+    "longOutliers": 1,
+    "shortOutliers": 5,
+    "silenceGaps": 0,
+    "silenceExamples": [],
+    "surahsWithRate": 113,
+    "veryShort": [
      {
       "aid": "44:54",
       "ms": 880,
@@ -5213,13 +5242,7 @@
       "ratio": 0.15,
       "chars": 18
      }
-    ],
-    "extremeLong": [],
-    "longOutliers": 1,
-    "shortOutliers": 5,
-    "silenceGaps": 0,
-    "silenceExamples": [],
-    "surahsWithRate": 113
+    ]
    },
    "audio": {
     "audioReportsOnSha": 4,
@@ -5496,13 +5519,6 @@
     ],
     "impossibleShort": [
      {
-      "aid": "20:122",
-      "ms": 641,
-      "expMs": 4427,
-      "ratio": 0.14,
-      "chars": 22
-     },
-     {
       "aid": "53:57",
       "ms": 260,
       "expMs": 1768,
@@ -5515,6 +5531,21 @@
       "expMs": 1768,
       "ratio": 0.15,
       "chars": 10
+     }
+    ],
+    "extremeLong": [],
+    "longOutliers": 2,
+    "shortOutliers": 34,
+    "silenceGaps": 0,
+    "silenceExamples": [],
+    "surahsWithRate": 113,
+    "veryShort": [
+     {
+      "aid": "20:122",
+      "ms": 641,
+      "expMs": 4427,
+      "ratio": 0.14,
+      "chars": 22
      },
      {
       "aid": "55:72",
@@ -5579,13 +5610,7 @@
       "ratio": 0.26,
       "chars": 11
      }
-    ],
-    "extremeLong": [],
-    "longOutliers": 2,
-    "shortOutliers": 34,
-    "silenceGaps": 0,
-    "silenceExamples": [],
-    "surahsWithRate": 113
+    ]
    },
    "audio": {
     "audioReportsOnSha": 4,
@@ -5776,7 +5801,8 @@
     "shortOutliers": 0,
     "silenceGaps": 0,
     "silenceExamples": [],
-    "surahsWithRate": 113
+    "surahsWithRate": 113,
+    "veryShort": []
    },
    "audio": {
     "audioReportsOnSha": 11,
@@ -6057,7 +6083,8 @@
     "shortOutliers": 0,
     "silenceGaps": 0,
     "silenceExamples": [],
-    "surahsWithRate": 113
+    "surahsWithRate": 113,
+    "veryShort": []
    },
    "audio": {
     "audioReportsOnSha": 11,
@@ -6370,7 +6397,8 @@
     "shortOutliers": 0,
     "silenceGaps": 0,
     "silenceExamples": [],
-    "surahsWithRate": 113
+    "surahsWithRate": 113,
+    "veryShort": []
    },
    "audio": {
     "audioReportsOnSha": 11,
@@ -6666,7 +6694,14 @@
       "chars": 17
      }
     ],
-    "impossibleShort": [
+    "impossibleShort": [],
+    "extremeLong": [],
+    "longOutliers": 0,
+    "shortOutliers": 3,
+    "silenceGaps": 0,
+    "silenceExamples": [],
+    "surahsWithRate": 113,
+    "veryShort": [
      {
       "aid": "91:4",
       "ms": 500,
@@ -6681,13 +6716,7 @@
       "ratio": 0.15,
       "chars": 11
      }
-    ],
-    "extremeLong": [],
-    "longOutliers": 0,
-    "shortOutliers": 3,
-    "silenceGaps": 0,
-    "silenceExamples": [],
-    "surahsWithRate": 113
+    ]
    },
    "audio": {
     "audioReportsOnSha": 4,
@@ -6973,7 +7002,15 @@
       "expMs": 4871,
       "ratio": 0.09,
       "chars": 17
-     },
+     }
+    ],
+    "extremeLong": [],
+    "longOutliers": 0,
+    "shortOutliers": 71,
+    "silenceGaps": 0,
+    "silenceExamples": [],
+    "surahsWithRate": 113,
+    "veryShort": [
      {
       "aid": "55:72",
       "ms": 660,
@@ -7051,13 +7088,7 @@
       "ratio": 0.28,
       "chars": 13
      }
-    ],
-    "extremeLong": [],
-    "longOutliers": 0,
-    "shortOutliers": 71,
-    "silenceGaps": 0,
-    "silenceExamples": [],
-    "surahsWithRate": 113
+    ]
    },
    "audio": {
     "audioReportsOnSha": 4,
@@ -7367,7 +7398,8 @@
     "shortOutliers": 1,
     "silenceGaps": 0,
     "silenceExamples": [],
-    "surahsWithRate": 113
+    "surahsWithRate": 113,
+    "veryShort": []
    },
    "audio": {
     "audioReportsOnSha": 13,
@@ -7760,6 +7792,28 @@
       "chars": 8
      },
      {
+      "aid": "53:61",
+      "ms": 360,
+      "expMs": 2605,
+      "ratio": 0.14,
+      "chars": 10
+     },
+     {
+      "aid": "37:155",
+      "ms": 320,
+      "expMs": 2153,
+      "ratio": 0.15,
+      "chars": 10
+     }
+    ],
+    "extremeLong": [],
+    "longOutliers": 4,
+    "shortOutliers": 91,
+    "silenceGaps": 0,
+    "silenceExamples": [],
+    "surahsWithRate": 113,
+    "veryShort": [
+     {
       "aid": "37:108",
       "ms": 480,
       "expMs": 4092,
@@ -7786,20 +7840,6 @@
       "expMs": 6321,
       "ratio": 0.14,
       "chars": 18
-     },
-     {
-      "aid": "53:61",
-      "ms": 360,
-      "expMs": 2605,
-      "ratio": 0.14,
-      "chars": 10
-     },
-     {
-      "aid": "37:155",
-      "ms": 320,
-      "expMs": 2153,
-      "ratio": 0.15,
-      "chars": 10
      },
      {
       "aid": "53:62",
@@ -7913,13 +7953,7 @@
       "ratio": 0.28,
       "chars": 10
      }
-    ],
-    "extremeLong": [],
-    "longOutliers": 4,
-    "shortOutliers": 91,
-    "silenceGaps": 0,
-    "silenceExamples": [],
-    "surahsWithRate": 113
+    ]
    },
    "audio": {
     "audioReportsOnSha": 4,
@@ -8108,7 +8142,8 @@
     "shortOutliers": 0,
     "silenceGaps": 0,
     "silenceExamples": [],
-    "surahsWithRate": 113
+    "surahsWithRate": 113,
+    "veryShort": []
    },
    "audio": {
     "audioReportsOnSha": 4,
@@ -8365,7 +8400,14 @@
       "chars": 25
      }
     ],
-    "impossibleShort": [
+    "impossibleShort": [],
+    "extremeLong": [],
+    "longOutliers": 4,
+    "shortOutliers": 69,
+    "silenceGaps": 0,
+    "silenceExamples": [],
+    "surahsWithRate": 113,
+    "veryShort": [
      {
       "aid": "44:43",
       "ms": 540,
@@ -8408,13 +8450,7 @@
       "ratio": 0.25,
       "chars": 10
      }
-    ],
-    "extremeLong": [],
-    "longOutliers": 4,
-    "shortOutliers": 69,
-    "silenceGaps": 0,
-    "silenceExamples": [],
-    "surahsWithRate": 113
+    ]
    },
    "audio": {
     "audioReportsOnSha": 4,
@@ -8586,7 +8622,8 @@
     "shortOutliers": 0,
     "silenceGaps": 0,
     "silenceExamples": [],
-    "surahsWithRate": 113
+    "surahsWithRate": 113,
+    "veryShort": []
    },
    "audio": {
     "audioReportsOnSha": 4,
@@ -8869,7 +8906,15 @@
       "expMs": 2242,
       "ratio": 0.12,
       "chars": 10
-     },
+     }
+    ],
+    "extremeLong": [],
+    "longOutliers": 3,
+    "shortOutliers": 42,
+    "silenceGaps": 0,
+    "silenceExamples": [],
+    "surahsWithRate": 113,
+    "veryShort": [
      {
       "aid": "56:95",
       "ms": 841,
@@ -8905,13 +8950,7 @@
       "ratio": 0.27,
       "chars": 17
      }
-    ],
-    "extremeLong": [],
-    "longOutliers": 3,
-    "shortOutliers": 42,
-    "silenceGaps": 0,
-    "silenceExamples": [],
-    "surahsWithRate": 113
+    ]
    },
    "audio": {
     "audioReportsOnSha": 4,
@@ -9091,7 +9130,8 @@
     "shortOutliers": 0,
     "silenceGaps": 0,
     "silenceExamples": [],
-    "surahsWithRate": 113
+    "surahsWithRate": 113,
+    "veryShort": []
    },
    "audio": {
     "audioReportsOnSha": 13,
@@ -9488,18 +9528,26 @@
       "chars": 16
      },
      {
-      "aid": "15:93",
-      "ms": 460,
-      "expMs": 3530,
-      "ratio": 0.13,
-      "chars": 14
-     },
-     {
       "aid": "73:1",
       "ms": 340,
       "expMs": 2604,
       "ratio": 0.13,
       "chars": 11
+     }
+    ],
+    "extremeLong": [],
+    "longOutliers": 9,
+    "shortOutliers": 40,
+    "silenceGaps": 0,
+    "silenceExamples": [],
+    "surahsWithRate": 113,
+    "veryShort": [
+     {
+      "aid": "15:93",
+      "ms": 460,
+      "expMs": 3530,
+      "ratio": 0.13,
+      "chars": 14
      },
      {
       "aid": "26:172",
@@ -9536,13 +9584,7 @@
       "ratio": 0.28,
       "chars": 13
      }
-    ],
-    "extremeLong": [],
-    "longOutliers": 9,
-    "shortOutliers": 40,
-    "silenceGaps": 0,
-    "silenceExamples": [],
-    "surahsWithRate": 113
+    ]
    },
    "audio": {
     "audioReportsOnSha": 4,
@@ -9820,18 +9862,83 @@
     ],
     "impossibleShort": [
      {
-      "aid": "56:80",
-      "ms": 501,
-      "expMs": 4450,
-      "ratio": 0.11,
-      "chars": 16
-     },
-     {
       "aid": "80:41",
       "ms": 360,
       "expMs": 2835,
       "ratio": 0.13,
       "chars": 10
+     },
+     {
+      "aid": "77:26",
+      "ms": 300,
+      "expMs": 1890,
+      "ratio": 0.16,
+      "chars": 10
+     }
+    ],
+    "extremeLong": [
+     {
+      "aid": "20:26",
+      "ms": 17672,
+      "expMs": 1444,
+      "ratio": 12.24,
+      "chars": 10
+     },
+     {
+      "aid": "37:101",
+      "ms": 25354,
+      "expMs": 3365,
+      "ratio": 7.53,
+      "chars": 14
+     },
+     {
+      "aid": "26:48",
+      "ms": 9666,
+      "expMs": 1541,
+      "ratio": 6.27,
+      "chars": 11
+     },
+     {
+      "aid": "6:69",
+      "ms": 43329,
+      "expMs": 7955,
+      "ratio": 5.45,
+      "chars": 46
+     },
+     {
+      "aid": "38:44",
+      "ms": 80012,
+      "expMs": 14852,
+      "ratio": 5.39,
+      "chars": 53
+     },
+     {
+      "aid": "23:15",
+      "ms": 11477,
+      "expMs": 2132,
+      "ratio": 5.38,
+      "chars": 18
+     },
+     {
+      "aid": "20:25",
+      "ms": 11578,
+      "expMs": 2166,
+      "ratio": 5.34,
+      "chars": 15
+     }
+    ],
+    "longOutliers": 84,
+    "shortOutliers": 73,
+    "silenceGaps": 0,
+    "silenceExamples": [],
+    "surahsWithRate": 113,
+    "veryShort": [
+     {
+      "aid": "56:80",
+      "ms": 501,
+      "expMs": 4450,
+      "ratio": 0.11,
+      "chars": 16
      },
      {
       "aid": "56:78",
@@ -9846,13 +9953,6 @@
       "expMs": 5722,
       "ratio": 0.16,
       "chars": 23
-     },
-     {
-      "aid": "77:26",
-      "ms": 300,
-      "expMs": 1890,
-      "ratio": 0.16,
-      "chars": 10
      },
      {
       "aid": "44:51",
@@ -10015,63 +10115,7 @@
       "ratio": 0.3,
       "chars": 10
      }
-    ],
-    "extremeLong": [
-     {
-      "aid": "20:26",
-      "ms": 17672,
-      "expMs": 1444,
-      "ratio": 12.24,
-      "chars": 10
-     },
-     {
-      "aid": "37:101",
-      "ms": 25354,
-      "expMs": 3365,
-      "ratio": 7.53,
-      "chars": 14
-     },
-     {
-      "aid": "26:48",
-      "ms": 9666,
-      "expMs": 1541,
-      "ratio": 6.27,
-      "chars": 11
-     },
-     {
-      "aid": "6:69",
-      "ms": 43329,
-      "expMs": 7955,
-      "ratio": 5.45,
-      "chars": 46
-     },
-     {
-      "aid": "38:44",
-      "ms": 80012,
-      "expMs": 14852,
-      "ratio": 5.39,
-      "chars": 53
-     },
-     {
-      "aid": "23:15",
-      "ms": 11477,
-      "expMs": 2132,
-      "ratio": 5.38,
-      "chars": 18
-     },
-     {
-      "aid": "20:25",
-      "ms": 11578,
-      "expMs": 2166,
-      "ratio": 5.34,
-      "chars": 15
-     }
-    ],
-    "longOutliers": 84,
-    "shortOutliers": 73,
-    "silenceGaps": 0,
-    "silenceExamples": [],
-    "surahsWithRate": 113
+    ]
    },
    "audio": {
     "audioReportsOnSha": 8,
@@ -10394,7 +10438,14 @@
       "chars": 33
      }
     ],
-    "impossibleShort": [
+    "impossibleShort": [],
+    "extremeLong": [],
+    "longOutliers": 5,
+    "shortOutliers": 43,
+    "silenceGaps": 0,
+    "silenceExamples": [],
+    "surahsWithRate": 113,
+    "veryShort": [
      {
       "aid": "21:107",
       "ms": 841,
@@ -10451,13 +10502,7 @@
       "ratio": 0.3,
       "chars": 10
      }
-    ],
-    "extremeLong": [],
-    "longOutliers": 5,
-    "shortOutliers": 43,
-    "silenceGaps": 0,
-    "silenceExamples": [],
-    "surahsWithRate": 113
+    ]
    },
    "audio": {
     "audioReportsOnSha": 8,
@@ -10788,7 +10833,15 @@
       "expMs": 3778,
       "ratio": 0.1,
       "chars": 13
-     },
+     }
+    ],
+    "extremeLong": [],
+    "longOutliers": 0,
+    "shortOutliers": 19,
+    "silenceGaps": 0,
+    "silenceExamples": [],
+    "surahsWithRate": 113,
+    "veryShort": [
      {
       "aid": "69:48",
       "ms": 700,
@@ -10810,13 +10863,7 @@
       "ratio": 0.23,
       "chars": 17
      }
-    ],
-    "extremeLong": [],
-    "longOutliers": 0,
-    "shortOutliers": 19,
-    "silenceGaps": 0,
-    "silenceExamples": [],
-    "surahsWithRate": 113
+    ]
    },
    "audio": {
     "audioReportsOnSha": 4,
@@ -11012,7 +11059,8 @@
     "shortOutliers": 0,
     "silenceGaps": 0,
     "silenceExamples": [],
-    "surahsWithRate": 113
+    "surahsWithRate": 113,
+    "veryShort": []
    },
    "audio": {
     "audioReportsOnSha": 4,
@@ -11276,7 +11324,15 @@
       "expMs": 2510,
       "ratio": 0.13,
       "chars": 10
-     },
+     }
+    ],
+    "extremeLong": [],
+    "longOutliers": 3,
+    "shortOutliers": 22,
+    "silenceGaps": 0,
+    "silenceExamples": [],
+    "surahsWithRate": 113,
+    "veryShort": [
      {
       "aid": "15:80",
       "ms": 700,
@@ -11305,13 +11361,7 @@
       "ratio": 0.27,
       "chars": 11
      }
-    ],
-    "extremeLong": [],
-    "longOutliers": 3,
-    "shortOutliers": 22,
-    "silenceGaps": 0,
-    "silenceExamples": [],
-    "surahsWithRate": 113
+    ]
    },
    "audio": {
     "audioReportsOnSha": 4,
@@ -11500,7 +11550,8 @@
     "shortOutliers": 3,
     "silenceGaps": 0,
     "silenceExamples": [],
-    "surahsWithRate": 113
+    "surahsWithRate": 113,
+    "veryShort": []
    },
    "audio": {
     "audioReportsOnSha": 13,
@@ -11872,7 +11923,14 @@
       "chars": 27
      }
     ],
-    "impossibleShort": [
+    "impossibleShort": [],
+    "extremeLong": [],
+    "longOutliers": 0,
+    "shortOutliers": 9,
+    "silenceGaps": 0,
+    "silenceExamples": [],
+    "surahsWithRate": 113,
+    "veryShort": [
      {
       "aid": "37:2",
       "ms": 470,
@@ -11894,13 +11952,7 @@
       "ratio": 0.26,
       "chars": 10
      }
-    ],
-    "extremeLong": [],
-    "longOutliers": 0,
-    "shortOutliers": 9,
-    "silenceGaps": 0,
-    "silenceExamples": [],
-    "surahsWithRate": 113
+    ]
    },
    "audio": {
     "audioReportsOnSha": 4,
@@ -12154,6 +12206,21 @@
     ],
     "impossibleShort": [
      {
+      "aid": "53:57",
+      "ms": 360,
+      "expMs": 2155,
+      "ratio": 0.17,
+      "chars": 10
+     }
+    ],
+    "extremeLong": [],
+    "longOutliers": 14,
+    "shortOutliers": 84,
+    "silenceGaps": 0,
+    "silenceExamples": [],
+    "surahsWithRate": 113,
+    "veryShort": [
+     {
       "aid": "15:91",
       "ms": 961,
       "expMs": 5549,
@@ -12173,13 +12240,6 @@
       "expMs": 4311,
       "ratio": 0.17,
       "chars": 20
-     },
-     {
-      "aid": "53:57",
-      "ms": 360,
-      "expMs": 2155,
-      "ratio": 0.17,
-      "chars": 10
      },
      {
       "aid": "19:91",
@@ -12244,13 +12304,7 @@
       "ratio": 0.26,
       "chars": 10
      }
-    ],
-    "extremeLong": [],
-    "longOutliers": 14,
-    "shortOutliers": 84,
-    "silenceGaps": 0,
-    "silenceExamples": [],
-    "surahsWithRate": 113
+    ]
    },
    "audio": {
     "audioReportsOnSha": 4,
@@ -12535,7 +12589,21 @@
       "expMs": 7638,
       "ratio": 0.1,
       "chars": 26
-     },
+     }
+    ],
+    "extremeLong": [],
+    "longOutliers": 1,
+    "shortOutliers": 40,
+    "silenceGaps": 1,
+    "silenceExamples": [
+     {
+      "from": "18:57",
+      "to": "18:58",
+      "gapMs": 41838
+     }
+    ],
+    "surahsWithRate": 113,
+    "veryShort": [
      {
       "aid": "80:42",
       "ms": 961,
@@ -12585,19 +12653,7 @@
       "ratio": 0.28,
       "chars": 10
      }
-    ],
-    "extremeLong": [],
-    "longOutliers": 1,
-    "shortOutliers": 40,
-    "silenceGaps": 1,
-    "silenceExamples": [
-     {
-      "from": "18:57",
-      "to": "18:58",
-      "gapMs": 41838
-     }
-    ],
-    "surahsWithRate": 113
+    ]
    },
    "audio": {
     "audioReportsOnSha": 8,
@@ -12918,7 +12974,30 @@
       "expMs": 4829,
       "ratio": 0.1,
       "chars": 11
+     }
+    ],
+    "extremeLong": [
+     {
+      "aid": "39:30",
+      "ms": 25017,
+      "expMs": 4058,
+      "ratio": 6.17,
+      "chars": 16
      },
+     {
+      "aid": "17:14",
+      "ms": 28291,
+      "expMs": 5078,
+      "ratio": 5.57,
+      "chars": 30
+     }
+    ],
+    "longOutliers": 57,
+    "shortOutliers": 84,
+    "silenceGaps": 0,
+    "silenceExamples": [],
+    "surahsWithRate": 113,
+    "veryShort": [
      {
       "aid": "38:84",
       "ms": 500,
@@ -13108,28 +13187,7 @@
       "ratio": 0.29,
       "chars": 15
      }
-    ],
-    "extremeLong": [
-     {
-      "aid": "39:30",
-      "ms": 25017,
-      "expMs": 4058,
-      "ratio": 6.17,
-      "chars": 16
-     },
-     {
-      "aid": "17:14",
-      "ms": 28291,
-      "expMs": 5078,
-      "ratio": 5.57,
-      "chars": 30
-     }
-    ],
-    "longOutliers": 57,
-    "shortOutliers": 84,
-    "silenceGaps": 0,
-    "silenceExamples": [],
-    "surahsWithRate": 113
+    ]
    },
    "audio": {
     "audioReportsOnSha": 4,
@@ -13409,7 +13467,14 @@
       "chars": 36
      }
     ],
-    "impossibleShort": [
+    "impossibleShort": [],
+    "extremeLong": [],
+    "longOutliers": 1,
+    "shortOutliers": 27,
+    "silenceGaps": 0,
+    "silenceExamples": [],
+    "surahsWithRate": 113,
+    "veryShort": [
      {
       "aid": "74:53",
       "ms": 641,
@@ -13480,13 +13545,7 @@
       "ratio": 0.29,
       "chars": 14
      }
-    ],
-    "extremeLong": [],
-    "longOutliers": 1,
-    "shortOutliers": 27,
-    "silenceGaps": 0,
-    "silenceExamples": [],
-    "surahsWithRate": 113
+    ]
    },
    "audio": {
     "audioReportsOnSha": 4,
@@ -13707,7 +13766,8 @@
       "gapMs": 19720
      }
     ],
-    "surahsWithRate": 113
+    "surahsWithRate": 113,
+    "veryShort": []
    },
    "audio": {
     "audioReportsOnSha": 4,
@@ -14001,7 +14061,14 @@
       "chars": 32
      }
     ],
-    "impossibleShort": [
+    "impossibleShort": [],
+    "extremeLong": [],
+    "longOutliers": 1,
+    "shortOutliers": 36,
+    "silenceGaps": 0,
+    "silenceExamples": [],
+    "surahsWithRate": 113,
+    "veryShort": [
      {
       "aid": "69:50",
       "ms": 880,
@@ -14051,13 +14118,7 @@
       "ratio": 0.27,
       "chars": 10
      }
-    ],
-    "extremeLong": [],
-    "longOutliers": 1,
-    "shortOutliers": 36,
-    "silenceGaps": 0,
-    "silenceExamples": [],
-    "surahsWithRate": 113
+    ]
    },
    "audio": {
     "audioReportsOnSha": 4,
@@ -14327,7 +14388,14 @@
       "chars": 19
      }
     ],
-    "impossibleShort": [
+    "impossibleShort": [],
+    "extremeLong": [],
+    "longOutliers": 0,
+    "shortOutliers": 38,
+    "silenceGaps": 0,
+    "silenceExamples": [],
+    "surahsWithRate": 113,
+    "veryShort": [
      {
       "aid": "55:72",
       "ms": 580,
@@ -14377,13 +14445,7 @@
       "ratio": 0.29,
       "chars": 10
      }
-    ],
-    "extremeLong": [],
-    "longOutliers": 0,
-    "shortOutliers": 38,
-    "silenceGaps": 0,
-    "silenceExamples": [],
-    "surahsWithRate": 113
+    ]
    },
    "audio": {
     "audioReportsOnSha": 4,
@@ -14666,7 +14728,15 @@
       "expMs": 2602,
       "ratio": 0.11,
       "chars": 10
-     },
+     }
+    ],
+    "extremeLong": [],
+    "longOutliers": 8,
+    "shortOutliers": 79,
+    "silenceGaps": 0,
+    "silenceExamples": [],
+    "surahsWithRate": 113,
+    "veryShort": [
      {
       "aid": "53:53",
       "ms": 501,
@@ -14730,13 +14800,7 @@
       "ratio": 0.3,
       "chars": 10
      }
-    ],
-    "extremeLong": [],
-    "longOutliers": 8,
-    "shortOutliers": 79,
-    "silenceGaps": 0,
-    "silenceExamples": [],
-    "surahsWithRate": 113
+    ]
    },
    "audio": {
     "audioReportsOnSha": 4,
@@ -14988,7 +15052,22 @@
       "chars": 148
      }
     ],
-    "impossibleShort": [
+    "impossibleShort": [],
+    "extremeLong": [
+     {
+      "aid": "44:2",
+      "ms": 19513,
+      "expMs": 2651,
+      "ratio": 7.36,
+      "chars": 12
+     }
+    ],
+    "longOutliers": 12,
+    "shortOutliers": 27,
+    "silenceGaps": 0,
+    "silenceExamples": [],
+    "surahsWithRate": 113,
+    "veryShort": [
      {
       "aid": "56:5",
       "ms": 500,
@@ -15024,21 +15103,7 @@
       "ratio": 0.28,
       "chars": 10
      }
-    ],
-    "extremeLong": [
-     {
-      "aid": "44:2",
-      "ms": 19513,
-      "expMs": 2651,
-      "ratio": 7.36,
-      "chars": 12
-     }
-    ],
-    "longOutliers": 12,
-    "shortOutliers": 27,
-    "silenceGaps": 0,
-    "silenceExamples": [],
-    "surahsWithRate": 113
+    ]
    },
    "audio": {
     "audioReportsOnSha": 8,
@@ -15470,7 +15535,8 @@
     "shortOutliers": 0,
     "silenceGaps": 0,
     "silenceExamples": [],
-    "surahsWithRate": 113
+    "surahsWithRate": 113,
+    "veryShort": []
    },
    "audio": {
     "audioReportsOnSha": 13,
@@ -15775,7 +15841,8 @@
     "shortOutliers": 0,
     "silenceGaps": 0,
     "silenceExamples": [],
-    "surahsWithRate": 113
+    "surahsWithRate": 113,
+    "veryShort": []
    },
    "audio": {
     "audioReportsOnSha": 4,
@@ -16020,7 +16087,14 @@
       "chars": 18
      }
     ],
-    "impossibleShort": [
+    "impossibleShort": [],
+    "extremeLong": [],
+    "longOutliers": 4,
+    "shortOutliers": 52,
+    "silenceGaps": 0,
+    "silenceExamples": [],
+    "surahsWithRate": 113,
+    "veryShort": [
      {
       "aid": "77:46",
       "ms": 801,
@@ -16126,13 +16200,7 @@
       "ratio": 0.26,
       "chars": 9
      }
-    ],
-    "extremeLong": [],
-    "longOutliers": 4,
-    "shortOutliers": 52,
-    "silenceGaps": 0,
-    "silenceExamples": [],
-    "surahsWithRate": 113
+    ]
    },
    "audio": {
     "audioReportsOnSha": 8,
@@ -16416,7 +16484,14 @@
       "chars": 18
      }
     ],
-    "impossibleShort": [
+    "impossibleShort": [],
+    "extremeLong": [],
+    "longOutliers": 4,
+    "shortOutliers": 3,
+    "silenceGaps": 0,
+    "silenceExamples": [],
+    "surahsWithRate": 113,
+    "veryShort": [
      {
       "aid": "67:25",
       "ms": 918,
@@ -16438,13 +16513,7 @@
       "ratio": 0.26,
       "chars": 18
      }
-    ],
-    "extremeLong": [],
-    "longOutliers": 4,
-    "shortOutliers": 3,
-    "silenceGaps": 0,
-    "silenceExamples": [],
-    "surahsWithRate": 113
+    ]
    },
    "audio": {
     "audioReportsOnSha": 4,
@@ -16724,6 +16793,21 @@
       "chars": 19
      },
      {
+      "aid": "112:2",
+      "ms": 341,
+      "expMs": 1368,
+      "ratio": 0.25,
+      "chars": 9
+     }
+    ],
+    "extremeLong": [],
+    "longOutliers": 3,
+    "shortOutliers": 37,
+    "silenceGaps": 0,
+    "silenceExamples": [],
+    "surahsWithRate": 113,
+    "veryShort": [
+     {
       "aid": "80:41",
       "ms": 420,
       "expMs": 3336,
@@ -16759,13 +16843,6 @@
       "chars": 8
      },
      {
-      "aid": "112:2",
-      "ms": 341,
-      "expMs": 1368,
-      "ratio": 0.25,
-      "chars": 9
-     },
-     {
       "aid": "74:54",
       "ms": 741,
       "expMs": 2859,
@@ -16779,13 +16856,7 @@
       "ratio": 0.29,
       "chars": 12
      }
-    ],
-    "extremeLong": [],
-    "longOutliers": 3,
-    "shortOutliers": 37,
-    "silenceGaps": 0,
-    "silenceExamples": [],
-    "surahsWithRate": 113
+    ]
    },
    "audio": {
     "audioReportsOnSha": 4,
@@ -17067,7 +17138,8 @@
     "shortOutliers": 0,
     "silenceGaps": 0,
     "silenceExamples": [],
-    "surahsWithRate": 113
+    "surahsWithRate": 113,
+    "veryShort": []
    },
    "audio": {
     "audioReportsOnSha": 11,
@@ -17367,7 +17439,8 @@
     "shortOutliers": 0,
     "silenceGaps": 0,
     "silenceExamples": [],
-    "surahsWithRate": 113
+    "surahsWithRate": 113,
+    "veryShort": []
    },
    "audio": {
     "audioReportsOnSha": 17,
@@ -17823,7 +17896,15 @@
       "expMs": 5678,
       "ratio": 0.1,
       "chars": 21
-     },
+     }
+    ],
+    "extremeLong": [],
+    "longOutliers": 11,
+    "shortOutliers": 66,
+    "silenceGaps": 0,
+    "silenceExamples": [],
+    "surahsWithRate": 113,
+    "veryShort": [
      {
       "aid": "23:95",
       "ms": 801,
@@ -17978,13 +18059,7 @@
       "ratio": 0.29,
       "chars": 15
      }
-    ],
-    "extremeLong": [],
-    "longOutliers": 11,
-    "shortOutliers": 66,
-    "silenceGaps": 0,
-    "silenceExamples": [],
-    "surahsWithRate": 113
+    ]
    },
    "audio": {
     "audioReportsOnSha": 4,
@@ -18255,27 +18330,6 @@
       "expMs": 4892,
       "ratio": 0.1,
       "chars": 15
-     },
-     {
-      "aid": "55:70",
-      "ms": 540,
-      "expMs": 4584,
-      "ratio": 0.12,
-      "chars": 12
-     },
-     {
-      "aid": "79:4",
-      "ms": 560,
-      "expMs": 3647,
-      "ratio": 0.15,
-      "chars": 11
-     },
-     {
-      "aid": "53:57",
-      "ms": 611,
-      "expMs": 2684,
-      "ratio": 0.23,
-      "chars": 10
      }
     ],
     "extremeLong": [
@@ -18298,7 +18352,30 @@
     "shortOutliers": 9,
     "silenceGaps": 0,
     "silenceExamples": [],
-    "surahsWithRate": 113
+    "surahsWithRate": 113,
+    "veryShort": [
+     {
+      "aid": "55:70",
+      "ms": 540,
+      "expMs": 4584,
+      "ratio": 0.12,
+      "chars": 12
+     },
+     {
+      "aid": "79:4",
+      "ms": 560,
+      "expMs": 3647,
+      "ratio": 0.15,
+      "chars": 11
+     },
+     {
+      "aid": "53:57",
+      "ms": 611,
+      "expMs": 2684,
+      "ratio": 0.23,
+      "chars": 10
+     }
+    ]
    },
    "audio": {
     "audioReportsOnSha": 4,
@@ -18529,7 +18606,8 @@
       "gapMs": 18017
      }
     ],
-    "surahsWithRate": 113
+    "surahsWithRate": 113,
+    "veryShort": []
    },
    "audio": {
     "audioReportsOnSha": 4,
@@ -18831,7 +18909,8 @@
     "shortOutliers": 0,
     "silenceGaps": 0,
     "silenceExamples": [],
-    "surahsWithRate": 113
+    "surahsWithRate": 113,
+    "veryShort": []
    },
    "audio": {
     "audioReportsOnSha": 7,
@@ -19078,7 +19157,14 @@
       "chars": 12
      }
     ],
-    "impossibleShort": [
+    "impossibleShort": [],
+    "extremeLong": [],
+    "longOutliers": 0,
+    "shortOutliers": 3,
+    "silenceGaps": 0,
+    "silenceExamples": [],
+    "surahsWithRate": 113,
+    "veryShort": [
      {
       "aid": "94:4",
       "ms": 719,
@@ -19086,13 +19172,7 @@
       "ratio": 0.22,
       "chars": 12
      }
-    ],
-    "extremeLong": [],
-    "longOutliers": 0,
-    "shortOutliers": 3,
-    "silenceGaps": 0,
-    "silenceExamples": [],
-    "surahsWithRate": 113
+    ]
    },
    "audio": {
     "audioReportsOnSha": 4,
@@ -19397,7 +19477,8 @@
     "shortOutliers": 0,
     "silenceGaps": 0,
     "silenceExamples": [],
-    "surahsWithRate": 113
+    "surahsWithRate": 113,
+    "veryShort": []
    },
    "audio": {
     "audioReportsOnSha": 8,
@@ -19724,18 +19805,26 @@
     ],
     "impossibleShort": [
      {
-      "aid": "37:181",
-      "ms": 541,
-      "expMs": 4535,
-      "ratio": 0.12,
-      "chars": 15
-     },
-     {
       "aid": "89:30",
       "ms": 360,
       "expMs": 2956,
       "ratio": 0.12,
       "chars": 10
+     }
+    ],
+    "extremeLong": [],
+    "longOutliers": 0,
+    "shortOutliers": 51,
+    "silenceGaps": 0,
+    "silenceExamples": [],
+    "surahsWithRate": 113,
+    "veryShort": [
+     {
+      "aid": "37:181",
+      "ms": 541,
+      "expMs": 4535,
+      "ratio": 0.12,
+      "chars": 15
      },
      {
       "aid": "15:69",
@@ -19821,13 +19910,7 @@
       "ratio": 0.27,
       "chars": 10
      }
-    ],
-    "extremeLong": [],
-    "longOutliers": 0,
-    "shortOutliers": 51,
-    "silenceGaps": 0,
-    "silenceExamples": [],
-    "surahsWithRate": 113
+    ]
    },
    "audio": {
     "audioReportsOnSha": 4,
@@ -20085,7 +20168,14 @@
       "chars": 26
      }
     ],
-    "impossibleShort": [
+    "impossibleShort": [],
+    "extremeLong": [],
+    "longOutliers": 0,
+    "shortOutliers": 86,
+    "silenceGaps": 0,
+    "silenceExamples": [],
+    "surahsWithRate": 113,
+    "veryShort": [
      {
       "aid": "26:165",
       "ms": 880,
@@ -20149,13 +20239,7 @@
       "ratio": 0.28,
       "chars": 10
      }
-    ],
-    "extremeLong": [],
-    "longOutliers": 0,
-    "shortOutliers": 86,
-    "silenceGaps": 0,
-    "silenceExamples": [],
-    "surahsWithRate": 113
+    ]
    },
    "audio": {
     "audioReportsOnSha": 4,
@@ -20476,6 +20560,21 @@
     ],
     "impossibleShort": [
      {
+      "aid": "18:85",
+      "ms": 380,
+      "expMs": 1457,
+      "ratio": 0.26,
+      "chars": 9
+     }
+    ],
+    "extremeLong": [],
+    "longOutliers": 1,
+    "shortOutliers": 38,
+    "silenceGaps": 0,
+    "silenceExamples": [],
+    "surahsWithRate": 113,
+    "veryShort": [
+     {
       "aid": "19:89",
       "ms": 438,
       "expMs": 2995,
@@ -20553,13 +20652,6 @@
       "chars": 18
      },
      {
-      "aid": "18:85",
-      "ms": 380,
-      "expMs": 1457,
-      "ratio": 0.26,
-      "chars": 9
-     },
-     {
       "aid": "53:57",
       "ms": 520,
       "expMs": 1981,
@@ -20580,13 +20672,7 @@
       "ratio": 0.3,
       "chars": 11
      }
-    ],
-    "extremeLong": [],
-    "longOutliers": 1,
-    "shortOutliers": 38,
-    "silenceGaps": 0,
-    "silenceExamples": [],
-    "surahsWithRate": 113
+    ]
    },
    "audio": {
     "audioReportsOnSha": 4,
@@ -20851,7 +20937,37 @@
       "expMs": 4564,
       "ratio": 0.1,
       "chars": 14
+     }
+    ],
+    "extremeLong": [
+     {
+      "aid": "56:43",
+      "ms": 18670,
+      "expMs": 2755,
+      "ratio": 6.78,
+      "chars": 10
      },
+     {
+      "aid": "37:43",
+      "ms": 13249,
+      "expMs": 2185,
+      "ratio": 6.06,
+      "chars": 11
+     },
+     {
+      "aid": "56:11",
+      "ms": 19333,
+      "expMs": 3581,
+      "ratio": 5.4,
+      "chars": 13
+     }
+    ],
+    "longOutliers": 44,
+    "shortOutliers": 98,
+    "silenceGaps": 0,
+    "silenceExamples": [],
+    "surahsWithRate": 113,
+    "veryShort": [
      {
       "aid": "56:53",
       "ms": 541,
@@ -21076,35 +21192,7 @@
       "ratio": 0.3,
       "chars": 10
      }
-    ],
-    "extremeLong": [
-     {
-      "aid": "56:43",
-      "ms": 18670,
-      "expMs": 2755,
-      "ratio": 6.78,
-      "chars": 10
-     },
-     {
-      "aid": "37:43",
-      "ms": 13249,
-      "expMs": 2185,
-      "ratio": 6.06,
-      "chars": 11
-     },
-     {
-      "aid": "56:11",
-      "ms": 19333,
-      "expMs": 3581,
-      "ratio": 5.4,
-      "chars": 13
-     }
-    ],
-    "longOutliers": 44,
-    "shortOutliers": 98,
-    "silenceGaps": 0,
-    "silenceExamples": [],
-    "surahsWithRate": 113
+    ]
    },
    "audio": {
     "audioReportsOnSha": 4,
@@ -21283,7 +21371,8 @@
     "shortOutliers": 0,
     "silenceGaps": 0,
     "silenceExamples": [],
-    "surahsWithRate": 113
+    "surahsWithRate": 113,
+    "veryShort": []
    },
    "audio": {
     "audioReportsOnSha": 17,
@@ -21752,7 +21841,15 @@
       "expMs": 7255,
       "ratio": 0.1,
       "chars": 26
-     },
+     }
+    ],
+    "extremeLong": [],
+    "longOutliers": 0,
+    "shortOutliers": 76,
+    "silenceGaps": 0,
+    "silenceExamples": [],
+    "surahsWithRate": 113,
+    "veryShort": [
      {
       "aid": "75:38",
       "ms": 600,
@@ -21837,13 +21934,7 @@
       "ratio": 0.26,
       "chars": 10
      }
-    ],
-    "extremeLong": [],
-    "longOutliers": 0,
-    "shortOutliers": 76,
-    "silenceGaps": 0,
-    "silenceExamples": [],
-    "surahsWithRate": 113
+    ]
    },
    "audio": {
     "audioReportsOnSha": 4,
@@ -22117,7 +22208,23 @@
       "expMs": 6074,
       "ratio": 0.09,
       "chars": 28
-     },
+     }
+    ],
+    "extremeLong": [
+     {
+      "aid": "55:25",
+      "ms": 32840,
+      "expMs": 6446,
+      "ratio": 5.09,
+      "chars": 18
+     }
+    ],
+    "longOutliers": 2,
+    "shortOutliers": 22,
+    "silenceGaps": 0,
+    "silenceExamples": [],
+    "surahsWithRate": 113,
+    "veryShort": [
      {
       "aid": "79:44",
       "ms": 520,
@@ -22188,21 +22295,7 @@
       "ratio": 0.29,
       "chars": 10
      }
-    ],
-    "extremeLong": [
-     {
-      "aid": "55:25",
-      "ms": 32840,
-      "expMs": 6446,
-      "ratio": 5.09,
-      "chars": 18
-     }
-    ],
-    "longOutliers": 2,
-    "shortOutliers": 22,
-    "silenceGaps": 0,
-    "silenceExamples": [],
-    "surahsWithRate": 113
+    ]
    },
    "audio": {
     "audioReportsOnSha": 8,
@@ -22508,7 +22601,14 @@
       "chars": 26
      }
     ],
-    "impossibleShort": [
+    "impossibleShort": [],
+    "extremeLong": [],
+    "longOutliers": 0,
+    "shortOutliers": 28,
+    "silenceGaps": 0,
+    "silenceExamples": [],
+    "surahsWithRate": 113,
+    "veryShort": [
      {
       "aid": "37:106",
       "ms": 894,
@@ -22551,13 +22651,7 @@
       "ratio": 0.29,
       "chars": 10
      }
-    ],
-    "extremeLong": [],
-    "longOutliers": 0,
-    "shortOutliers": 28,
-    "silenceGaps": 0,
-    "silenceExamples": [],
-    "surahsWithRate": 113
+    ]
    },
    "audio": {
     "audioReportsOnSha": 4,
@@ -22824,22 +22918,7 @@
       "chars": 15
      }
     ],
-    "impossibleShort": [
-     {
-      "aid": "7:122",
-      "ms": 541,
-      "expMs": 2376,
-      "ratio": 0.23,
-      "chars": 11
-     },
-     {
-      "aid": "7:112",
-      "ms": 881,
-      "expMs": 3240,
-      "ratio": 0.27,
-      "chars": 15
-     }
-    ],
+    "impossibleShort": [],
     "extremeLong": [],
     "longOutliers": 3,
     "shortOutliers": 10,
@@ -22906,7 +22985,23 @@
       "gapMs": 15500
      }
     ],
-    "surahsWithRate": 113
+    "surahsWithRate": 113,
+    "veryShort": [
+     {
+      "aid": "7:122",
+      "ms": 541,
+      "expMs": 2376,
+      "ratio": 0.23,
+      "chars": 11
+     },
+     {
+      "aid": "7:112",
+      "ms": 881,
+      "expMs": 3240,
+      "ratio": 0.27,
+      "chars": 15
+     }
+    ]
    },
    "audio": {
     "audioReportsOnSha": 4,
@@ -23182,6 +23277,21 @@
     ],
     "impossibleShort": [
      {
+      "aid": "92:21",
+      "ms": 381,
+      "expMs": 1848,
+      "ratio": 0.21,
+      "chars": 9
+     }
+    ],
+    "extremeLong": [],
+    "longOutliers": 5,
+    "shortOutliers": 51,
+    "silenceGaps": 0,
+    "silenceExamples": [],
+    "surahsWithRate": 113,
+    "veryShort": [
+     {
       "aid": "14:50",
       "ms": 861,
       "expMs": 6149,
@@ -23208,13 +23318,6 @@
       "expMs": 3589,
       "ratio": 0.21,
       "chars": 19
-     },
-     {
-      "aid": "92:21",
-      "ms": 381,
-      "expMs": 1848,
-      "ratio": 0.21,
-      "chars": 9
      },
      {
       "aid": "53:50",
@@ -23328,13 +23431,7 @@
       "ratio": 0.3,
       "chars": 10
      }
-    ],
-    "extremeLong": [],
-    "longOutliers": 5,
-    "shortOutliers": 51,
-    "silenceGaps": 0,
-    "silenceExamples": [],
-    "surahsWithRate": 113
+    ]
    },
    "audio": {
     "audioReportsOnSha": 8,
@@ -23673,7 +23770,23 @@
       "expMs": 16050,
       "ratio": 0.0,
       "chars": 56
-     },
+     }
+    ],
+    "extremeLong": [
+     {
+      "aid": "26:60",
+      "ms": 22905,
+      "expMs": 3939,
+      "ratio": 5.82,
+      "chars": 14
+     }
+    ],
+    "longOutliers": 5,
+    "shortOutliers": 57,
+    "silenceGaps": 0,
+    "silenceExamples": [],
+    "surahsWithRate": 113,
+    "veryShort": [
      {
       "aid": "53:47",
       "ms": 641,
@@ -23758,21 +23871,7 @@
       "ratio": 0.27,
       "chars": 10
      }
-    ],
-    "extremeLong": [
-     {
-      "aid": "26:60",
-      "ms": 22905,
-      "expMs": 3939,
-      "ratio": 5.82,
-      "chars": 14
-     }
-    ],
-    "longOutliers": 5,
-    "shortOutliers": 57,
-    "silenceGaps": 0,
-    "silenceExamples": [],
-    "surahsWithRate": 113
+    ]
    },
    "audio": {
     "audioReportsOnSha": 8,
@@ -24128,7 +24227,20 @@
       "chars": 45
      }
     ],
-    "impossibleShort": [
+    "impossibleShort": [],
+    "extremeLong": [],
+    "longOutliers": 0,
+    "shortOutliers": 63,
+    "silenceGaps": 1,
+    "silenceExamples": [
+     {
+      "from": "37:129",
+      "to": "37:130",
+      "gapMs": 97462
+     }
+    ],
+    "surahsWithRate": 113,
+    "veryShort": [
      {
       "aid": "37:111",
       "ms": 580,
@@ -24178,19 +24290,7 @@
       "ratio": 0.25,
       "chars": 16
      }
-    ],
-    "extremeLong": [],
-    "longOutliers": 0,
-    "shortOutliers": 63,
-    "silenceGaps": 1,
-    "silenceExamples": [
-     {
-      "from": "37:129",
-      "to": "37:130",
-      "gapMs": 97462
-     }
-    ],
-    "surahsWithRate": 113
+    ]
    },
    "audio": {
     "audioReportsOnSha": 4,
@@ -24383,7 +24483,8 @@
     "shortOutliers": 0,
     "silenceGaps": 0,
     "silenceExamples": [],
-    "surahsWithRate": 113
+    "surahsWithRate": 113,
+    "veryShort": []
    },
    "audio": {
     "audioReportsOnSha": 4,
@@ -24642,6 +24743,21 @@
       "chars": 10
      },
      {
+      "aid": "18:92",
+      "ms": 380,
+      "expMs": 2218,
+      "ratio": 0.17,
+      "chars": 10
+     }
+    ],
+    "extremeLong": [],
+    "longOutliers": 4,
+    "shortOutliers": 70,
+    "silenceGaps": 0,
+    "silenceExamples": [],
+    "surahsWithRate": 113,
+    "veryShort": [
+     {
       "aid": "38:82",
       "ms": 760,
       "expMs": 6147,
@@ -24668,13 +24784,6 @@
       "expMs": 5017,
       "ratio": 0.17,
       "chars": 22
-     },
-     {
-      "aid": "18:92",
-      "ms": 380,
-      "expMs": 2218,
-      "ratio": 0.17,
-      "chars": 10
      },
      {
       "aid": "83:35",
@@ -24781,13 +24890,7 @@
       "ratio": 0.29,
       "chars": 14
      }
-    ],
-    "extremeLong": [],
-    "longOutliers": 4,
-    "shortOutliers": 70,
-    "silenceGaps": 0,
-    "silenceExamples": [],
-    "surahsWithRate": 113
+    ]
    },
    "audio": {
     "audioReportsOnSha": 8,
@@ -25100,6 +25203,21 @@
     ],
     "impossibleShort": [
      {
+      "aid": "74:51",
+      "ms": 360,
+      "expMs": 2669,
+      "ratio": 0.13,
+      "chars": 10
+     }
+    ],
+    "extremeLong": [],
+    "longOutliers": 0,
+    "shortOutliers": 39,
+    "silenceGaps": 0,
+    "silenceExamples": [],
+    "surahsWithRate": 113,
+    "veryShort": [
+     {
       "aid": "26:206",
       "ms": 600,
       "expMs": 5542,
@@ -25128,13 +25246,6 @@
       "chars": 19
      },
      {
-      "aid": "74:51",
-      "ms": 360,
-      "expMs": 2669,
-      "ratio": 0.13,
-      "chars": 10
-     },
-     {
       "aid": "79:44",
       "ms": 661,
       "expMs": 3514,
@@ -25155,13 +25266,7 @@
       "ratio": 0.27,
       "chars": 10
      }
-    ],
-    "extremeLong": [],
-    "longOutliers": 0,
-    "shortOutliers": 39,
-    "silenceGaps": 0,
-    "silenceExamples": [],
-    "surahsWithRate": 113
+    ]
    },
    "audio": {
     "audioReportsOnSha": 4,
@@ -25339,7 +25444,8 @@
     "shortOutliers": 0,
     "silenceGaps": 0,
     "silenceExamples": [],
-    "surahsWithRate": 113
+    "surahsWithRate": 113,
+    "veryShort": []
    },
    "audio": {
     "audioReportsOnSha": 17,
@@ -25779,7 +25885,15 @@
       "expMs": 5714,
       "ratio": 0.09,
       "chars": 19
-     },
+     }
+    ],
+    "extremeLong": [],
+    "longOutliers": 2,
+    "shortOutliers": 82,
+    "silenceGaps": 0,
+    "silenceExamples": [],
+    "surahsWithRate": 113,
+    "veryShort": [
      {
       "aid": "53:50",
       "ms": 541,
@@ -25920,13 +26034,7 @@
       "ratio": 0.28,
       "chars": 10
      }
-    ],
-    "extremeLong": [],
-    "longOutliers": 2,
-    "shortOutliers": 82,
-    "silenceGaps": 0,
-    "silenceExamples": [],
-    "surahsWithRate": 113
+    ]
    },
    "audio": {
     "audioReportsOnSha": 8,
@@ -26248,7 +26356,15 @@
       "expMs": 5307,
       "ratio": 0.1,
       "chars": 13
-     },
+     }
+    ],
+    "extremeLong": [],
+    "longOutliers": 10,
+    "shortOutliers": 64,
+    "silenceGaps": 0,
+    "silenceExamples": [],
+    "surahsWithRate": 113,
+    "veryShort": [
      {
       "aid": "77:44",
       "ms": 681,
@@ -26396,13 +26512,7 @@
       "ratio": 0.28,
       "chars": 11
      }
-    ],
-    "extremeLong": [],
-    "longOutliers": 10,
-    "shortOutliers": 64,
-    "silenceGaps": 0,
-    "silenceExamples": [],
-    "surahsWithRate": 113
+    ]
    },
    "audio": {
     "audioReportsOnSha": 8,
@@ -26737,7 +26847,15 @@
       "expMs": 5133,
       "ratio": 0.1,
       "chars": 17
-     },
+     }
+    ],
+    "extremeLong": [],
+    "longOutliers": 2,
+    "shortOutliers": 79,
+    "silenceGaps": 0,
+    "silenceExamples": [],
+    "surahsWithRate": 113,
+    "veryShort": [
      {
       "aid": "53:62",
       "ms": 601,
@@ -26822,13 +26940,7 @@
       "ratio": 0.28,
       "chars": 15
      }
-    ],
-    "extremeLong": [],
-    "longOutliers": 2,
-    "shortOutliers": 79,
-    "silenceGaps": 0,
-    "silenceExamples": [],
-    "surahsWithRate": 113
+    ]
    },
    "audio": {
     "audioReportsOnSha": 4,
@@ -27053,13 +27165,6 @@
       "expMs": 3055,
       "ratio": 0.1,
       "chars": 8
-     },
-     {
-      "aid": "19:89",
-      "ms": 770,
-      "expMs": 3432,
-      "ratio": 0.22,
-      "chars": 13
      }
     ],
     "extremeLong": [],
@@ -27067,7 +27172,16 @@
     "shortOutliers": 6,
     "silenceGaps": 0,
     "silenceExamples": [],
-    "surahsWithRate": 113
+    "surahsWithRate": 113,
+    "veryShort": [
+     {
+      "aid": "19:89",
+      "ms": 770,
+      "expMs": 3432,
+      "ratio": 0.22,
+      "chars": 13
+     }
+    ]
    },
    "audio": {
     "audioReportsOnSha": 4,
@@ -27342,48 +27456,6 @@
       "expMs": 2872,
       "ratio": 0.12,
       "chars": 12
-     },
-     {
-      "aid": "37:173",
-      "ms": 600,
-      "expMs": 2556,
-      "ratio": 0.23,
-      "chars": 18
-     },
-     {
-      "aid": "53:42",
-      "ms": 641,
-      "expMs": 2804,
-      "ratio": 0.23,
-      "chars": 16
-     },
-     {
-      "aid": "74:54",
-      "ms": 541,
-      "expMs": 2171,
-      "ratio": 0.25,
-      "chars": 11
-     },
-     {
-      "aid": "37:137",
-      "ms": 821,
-      "expMs": 3124,
-      "ratio": 0.26,
-      "chars": 22
-     },
-     {
-      "aid": "56:66",
-      "ms": 540,
-      "expMs": 1921,
-      "ratio": 0.28,
-      "chars": 10
-     },
-     {
-      "aid": "53:51",
-      "ms": 660,
-      "expMs": 2278,
-      "ratio": 0.29,
-      "chars": 13
      }
     ],
     "extremeLong": [
@@ -27427,7 +27499,51 @@
     "shortOutliers": 15,
     "silenceGaps": 0,
     "silenceExamples": [],
-    "surahsWithRate": 113
+    "surahsWithRate": 113,
+    "veryShort": [
+     {
+      "aid": "37:173",
+      "ms": 600,
+      "expMs": 2556,
+      "ratio": 0.23,
+      "chars": 18
+     },
+     {
+      "aid": "53:42",
+      "ms": 641,
+      "expMs": 2804,
+      "ratio": 0.23,
+      "chars": 16
+     },
+     {
+      "aid": "74:54",
+      "ms": 541,
+      "expMs": 2171,
+      "ratio": 0.25,
+      "chars": 11
+     },
+     {
+      "aid": "37:137",
+      "ms": 821,
+      "expMs": 3124,
+      "ratio": 0.26,
+      "chars": 22
+     },
+     {
+      "aid": "56:66",
+      "ms": 540,
+      "expMs": 1921,
+      "ratio": 0.28,
+      "chars": 10
+     },
+     {
+      "aid": "53:51",
+      "ms": 660,
+      "expMs": 2278,
+      "ratio": 0.29,
+      "chars": 13
+     }
+    ]
    },
    "audio": {
     "audioReportsOnSha": 8,
@@ -27709,7 +27825,8 @@
     "shortOutliers": 3,
     "silenceGaps": 0,
     "silenceExamples": [],
-    "surahsWithRate": 113
+    "surahsWithRate": 113,
+    "veryShort": []
    },
    "audio": {
     "audioReportsOnSha": 4,
@@ -27968,7 +28085,15 @@
       "expMs": 1879,
       "ratio": 0.07,
       "chars": 9
-     },
+     }
+    ],
+    "extremeLong": [],
+    "longOutliers": 0,
+    "shortOutliers": 49,
+    "silenceGaps": 0,
+    "silenceExamples": [],
+    "surahsWithRate": 113,
+    "veryShort": [
      {
       "aid": "36:59",
       "ms": 601,
@@ -28053,13 +28178,7 @@
       "ratio": 0.3,
       "chars": 10
      }
-    ],
-    "extremeLong": [],
-    "longOutliers": 0,
-    "shortOutliers": 49,
-    "silenceGaps": 0,
-    "silenceExamples": [],
-    "surahsWithRate": 113
+    ]
    },
    "audio": {
     "audioReportsOnSha": 8,
@@ -28391,7 +28510,8 @@
       "gapMs": 26980
      }
     ],
-    "surahsWithRate": 113
+    "surahsWithRate": 113,
+    "veryShort": []
    },
    "audio": {
     "audioReportsOnSha": 4,
@@ -28663,7 +28783,14 @@
       "chars": 13
      }
     ],
-    "impossibleShort": [
+    "impossibleShort": [],
+    "extremeLong": [],
+    "longOutliers": 1,
+    "shortOutliers": 47,
+    "silenceGaps": 0,
+    "silenceExamples": [],
+    "surahsWithRate": 113,
+    "veryShort": [
      {
       "aid": "84:3",
       "ms": 521,
@@ -28713,13 +28840,7 @@
       "ratio": 0.23,
       "chars": 14
      }
-    ],
-    "extremeLong": [],
-    "longOutliers": 1,
-    "shortOutliers": 47,
-    "silenceGaps": 0,
-    "silenceExamples": [],
-    "surahsWithRate": 113
+    ]
    },
    "audio": {
     "audioReportsOnSha": 8,
@@ -29048,7 +29169,15 @@
       "expMs": 2242,
       "ratio": 0.12,
       "chars": 10
-     },
+     }
+    ],
+    "extremeLong": [],
+    "longOutliers": 0,
+    "shortOutliers": 27,
+    "silenceGaps": 0,
+    "silenceExamples": [],
+    "surahsWithRate": 113,
+    "veryShort": [
      {
       "aid": "53:50",
       "ms": 481,
@@ -29154,13 +29283,7 @@
       "ratio": 0.3,
       "chars": 15
      }
-    ],
-    "extremeLong": [],
-    "longOutliers": 0,
-    "shortOutliers": 27,
-    "silenceGaps": 0,
-    "silenceExamples": [],
-    "surahsWithRate": 113
+    ]
    },
    "audio": {
     "audioReportsOnSha": 4,
@@ -29414,7 +29537,25 @@
       "chars": 19
      }
     ],
-    "impossibleShort": [
+    "impossibleShort": [],
+    "extremeLong": [],
+    "longOutliers": 0,
+    "shortOutliers": 10,
+    "silenceGaps": 2,
+    "silenceExamples": [
+     {
+      "from": "39:52",
+      "to": "39:53",
+      "gapMs": 32800
+     },
+     {
+      "from": "27:58",
+      "to": "27:59",
+      "gapMs": 15060
+     }
+    ],
+    "surahsWithRate": 113,
+    "veryShort": [
      {
       "aid": "56:86",
       "ms": 660,
@@ -29450,24 +29591,7 @@
       "ratio": 0.3,
       "chars": 9
      }
-    ],
-    "extremeLong": [],
-    "longOutliers": 0,
-    "shortOutliers": 10,
-    "silenceGaps": 2,
-    "silenceExamples": [
-     {
-      "from": "39:52",
-      "to": "39:53",
-      "gapMs": 32800
-     },
-     {
-      "from": "27:58",
-      "to": "27:59",
-      "gapMs": 15060
-     }
-    ],
-    "surahsWithRate": 113
+    ]
    },
    "audio": {
     "audioReportsOnSha": 4,
@@ -29744,7 +29868,8 @@
     "shortOutliers": 10,
     "silenceGaps": 0,
     "silenceExamples": [],
-    "surahsWithRate": 113
+    "surahsWithRate": 113,
+    "veryShort": []
    },
    "audio": {
     "audioReportsOnSha": 4,
@@ -30009,7 +30134,14 @@
       "chars": 17
      }
     ],
-    "impossibleShort": [
+    "impossibleShort": [],
+    "extremeLong": [],
+    "longOutliers": 0,
+    "shortOutliers": 39,
+    "silenceGaps": 0,
+    "silenceExamples": [],
+    "surahsWithRate": 113,
+    "veryShort": [
      {
       "aid": "69:43",
       "ms": 701,
@@ -30052,13 +30184,7 @@
       "ratio": 0.3,
       "chars": 12
      }
-    ],
-    "extremeLong": [],
-    "longOutliers": 0,
-    "shortOutliers": 39,
-    "silenceGaps": 0,
-    "silenceExamples": [],
-    "surahsWithRate": 113
+    ]
    },
    "audio": {
     "audioReportsOnSha": 4,
@@ -30235,7 +30361,8 @@
     "shortOutliers": 0,
     "silenceGaps": 0,
     "silenceExamples": [],
-    "surahsWithRate": 113
+    "surahsWithRate": 113,
+    "veryShort": []
    },
    "audio": {
     "audioReportsOnSha": 17,
@@ -30681,18 +30808,32 @@
     ],
     "impossibleShort": [
      {
-      "aid": "26:177",
-      "ms": 540,
-      "expMs": 4869,
-      "ratio": 0.11,
-      "chars": 20
-     },
-     {
       "aid": "26:138",
       "ms": 380,
       "expMs": 3165,
       "ratio": 0.12,
       "chars": 13
+     }
+    ],
+    "extremeLong": [],
+    "longOutliers": 2,
+    "shortOutliers": 9,
+    "silenceGaps": 1,
+    "silenceExamples": [
+     {
+      "from": "9:18",
+      "to": "9:19",
+      "gapMs": 16080
+     }
+    ],
+    "surahsWithRate": 113,
+    "veryShort": [
+     {
+      "aid": "26:177",
+      "ms": 540,
+      "expMs": 4869,
+      "ratio": 0.11,
+      "chars": 20
      },
      {
       "aid": "91:3",
@@ -30736,19 +30877,7 @@
       "ratio": 0.29,
       "chars": 10
      }
-    ],
-    "extremeLong": [],
-    "longOutliers": 2,
-    "shortOutliers": 9,
-    "silenceGaps": 1,
-    "silenceExamples": [
-     {
-      "from": "9:18",
-      "to": "9:19",
-      "gapMs": 16080
-     }
-    ],
-    "surahsWithRate": 113
+    ]
    },
    "audio": {
     "audioReportsOnSha": 4,
@@ -30933,7 +31062,8 @@
       "gapMs": 19000
      }
     ],
-    "surahsWithRate": 113
+    "surahsWithRate": 113,
+    "veryShort": []
    },
    "audio": {
     "audioReportsOnSha": 4,
@@ -31239,7 +31369,8 @@
       "gapMs": 19590
      }
     ],
-    "surahsWithRate": 113
+    "surahsWithRate": 113,
+    "veryShort": []
    },
    "audio": {
     "audioReportsOnSha": 7,
@@ -31527,15 +31658,7 @@
       "chars": 38
      }
     ],
-    "impossibleShort": [
-     {
-      "aid": "26:60",
-      "ms": 640,
-      "expMs": 4809,
-      "ratio": 0.13,
-      "chars": 14
-     }
-    ],
+    "impossibleShort": [],
     "extremeLong": [
      {
       "aid": "21:50",
@@ -31610,7 +31733,16 @@
       "gapMs": 19440
      }
     ],
-    "surahsWithRate": 113
+    "surahsWithRate": 113,
+    "veryShort": [
+     {
+      "aid": "26:60",
+      "ms": 640,
+      "expMs": 4809,
+      "ratio": 0.13,
+      "chars": 14
+     }
+    ]
    },
    "audio": {
     "audioReportsOnSha": 4,
@@ -31880,15 +32012,7 @@
       "chars": 19
      }
     ],
-    "impossibleShort": [
-     {
-      "aid": "1:1",
-      "ms": 620,
-      "expMs": 4516,
-      "ratio": 0.14,
-      "chars": 19
-     }
-    ],
+    "impossibleShort": [],
     "extremeLong": [
      {
       "aid": "77:28",
@@ -31916,7 +32040,16 @@
     "shortOutliers": 1,
     "silenceGaps": 0,
     "silenceExamples": [],
-    "surahsWithRate": 113
+    "surahsWithRate": 113,
+    "veryShort": [
+     {
+      "aid": "1:1",
+      "ms": 620,
+      "expMs": 4516,
+      "ratio": 0.14,
+      "chars": 19
+     }
+    ]
    },
    "audio": {
     "audioReportsOnSha": 7,
@@ -32249,7 +32382,8 @@
     "shortOutliers": 2,
     "silenceGaps": 0,
     "silenceExamples": [],
-    "surahsWithRate": 113
+    "surahsWithRate": 113,
+    "veryShort": []
    },
    "audio": {
     "audioReportsOnSha": 17,
@@ -32694,7 +32828,15 @@
       "expMs": 1878,
       "ratio": 0.19,
       "chars": 9
-     },
+     }
+    ],
+    "extremeLong": [],
+    "longOutliers": 0,
+    "shortOutliers": 26,
+    "silenceGaps": 0,
+    "silenceExamples": [],
+    "surahsWithRate": 113,
+    "veryShort": [
      {
       "aid": "38:87",
       "ms": 860,
@@ -32709,13 +32851,7 @@
       "ratio": 0.25,
       "chars": 10
      }
-    ],
-    "extremeLong": [],
-    "longOutliers": 0,
-    "shortOutliers": 26,
-    "silenceGaps": 0,
-    "silenceExamples": [],
-    "surahsWithRate": 113
+    ]
    },
    "audio": {
     "audioReportsOnSha": 4,
@@ -32982,7 +33118,15 @@
       "expMs": 3218,
       "ratio": 0.09,
       "chars": 11
-     },
+     }
+    ],
+    "extremeLong": [],
+    "longOutliers": 0,
+    "shortOutliers": 61,
+    "silenceGaps": 0,
+    "silenceExamples": [],
+    "surahsWithRate": 113,
+    "veryShort": [
      {
       "aid": "37:168",
       "ms": 840,
@@ -33060,13 +33204,7 @@
       "ratio": 0.29,
       "chars": 10
      }
-    ],
-    "extremeLong": [],
-    "longOutliers": 0,
-    "shortOutliers": 61,
-    "silenceGaps": 0,
-    "silenceExamples": [],
-    "surahsWithRate": 113
+    ]
    },
    "audio": {
     "audioReportsOnSha": 8,
@@ -33312,7 +33450,8 @@
     "shortOutliers": 0,
     "silenceGaps": 0,
     "silenceExamples": [],
-    "surahsWithRate": 113
+    "surahsWithRate": 113,
+    "veryShort": []
    },
    "audio": {
     "audioReportsOnSha": 4,
@@ -33543,7 +33682,14 @@
       "chars": 13
      }
     ],
-    "impossibleShort": [
+    "impossibleShort": [],
+    "extremeLong": [],
+    "longOutliers": 0,
+    "shortOutliers": 6,
+    "silenceGaps": 0,
+    "silenceExamples": [],
+    "surahsWithRate": 113,
+    "veryShort": [
      {
       "aid": "80:5",
       "ms": 410,
@@ -33579,13 +33725,7 @@
       "ratio": 0.28,
       "chars": 13
      }
-    ],
-    "extremeLong": [],
-    "longOutliers": 0,
-    "shortOutliers": 6,
-    "silenceGaps": 0,
-    "silenceExamples": [],
-    "surahsWithRate": 113
+    ]
    },
    "audio": {
     "audioReportsOnSha": 4,
@@ -33867,7 +34007,23 @@
       "expMs": 5161,
       "ratio": 0.1,
       "chars": 17
-     },
+     }
+    ],
+    "extremeLong": [
+     {
+      "aid": "19:3",
+      "ms": 13159,
+      "expMs": 2573,
+      "ratio": 5.11,
+      "chars": 16
+     }
+    ],
+    "longOutliers": 8,
+    "shortOutliers": 117,
+    "silenceGaps": 0,
+    "silenceExamples": [],
+    "surahsWithRate": 113,
+    "veryShort": [
      {
       "aid": "89:27",
       "ms": 861,
@@ -33945,21 +34101,7 @@
       "ratio": 0.27,
       "chars": 10
      }
-    ],
-    "extremeLong": [
-     {
-      "aid": "19:3",
-      "ms": 13159,
-      "expMs": 2573,
-      "ratio": 5.11,
-      "chars": 16
-     }
-    ],
-    "longOutliers": 8,
-    "shortOutliers": 117,
-    "silenceGaps": 0,
-    "silenceExamples": [],
-    "surahsWithRate": 113
+    ]
    },
    "audio": {
     "audioReportsOnSha": 4,
@@ -34261,7 +34403,8 @@
     "shortOutliers": 0,
     "silenceGaps": 0,
     "silenceExamples": [],
-    "surahsWithRate": 113
+    "surahsWithRate": 113,
+    "veryShort": []
    },
    "audio": {
     "audioReportsOnSha": 13,
@@ -34658,7 +34801,14 @@
       "chars": 18
      }
     ],
-    "impossibleShort": [
+    "impossibleShort": [],
+    "extremeLong": [],
+    "longOutliers": 0,
+    "shortOutliers": 13,
+    "silenceGaps": 0,
+    "silenceExamples": [],
+    "surahsWithRate": 113,
+    "veryShort": [
      {
       "aid": "44:44",
       "ms": 641,
@@ -34673,13 +34823,7 @@
       "ratio": 0.19,
       "chars": 10
      }
-    ],
-    "extremeLong": [],
-    "longOutliers": 0,
-    "shortOutliers": 13,
-    "silenceGaps": 0,
-    "silenceExamples": [],
-    "surahsWithRate": 113
+    ]
    },
    "audio": {
     "audioReportsOnSha": 4,
@@ -34976,7 +35120,15 @@
       "expMs": 4697,
       "ratio": 0.1,
       "chars": 15
-     },
+     }
+    ],
+    "extremeLong": [],
+    "longOutliers": 11,
+    "shortOutliers": 72,
+    "silenceGaps": 0,
+    "silenceExamples": [],
+    "surahsWithRate": 113,
+    "veryShort": [
      {
       "aid": "37:136",
       "ms": 481,
@@ -35033,13 +35185,7 @@
       "ratio": 0.29,
       "chars": 10
      }
-    ],
-    "extremeLong": [],
-    "longOutliers": 11,
-    "shortOutliers": 72,
-    "silenceGaps": 0,
-    "silenceExamples": [],
-    "surahsWithRate": 113
+    ]
    },
    "audio": {
     "audioReportsOnSha": 8,
@@ -35348,7 +35494,15 @@
       "expMs": 5501,
       "ratio": 0.07,
       "chars": 16
-     },
+     }
+    ],
+    "extremeLong": [],
+    "longOutliers": 4,
+    "shortOutliers": 56,
+    "silenceGaps": 0,
+    "silenceExamples": [],
+    "surahsWithRate": 113,
+    "veryShort": [
      {
       "aid": "53:61",
       "ms": 441,
@@ -35419,13 +35573,7 @@
       "ratio": 0.28,
       "chars": 10
      }
-    ],
-    "extremeLong": [],
-    "longOutliers": 4,
-    "shortOutliers": 56,
-    "silenceGaps": 0,
-    "silenceExamples": [],
-    "surahsWithRate": 113
+    ]
    },
    "audio": {
     "audioReportsOnSha": 8,
@@ -35735,7 +35883,14 @@
       "chars": 23
      }
     ],
-    "impossibleShort": [
+    "impossibleShort": [],
+    "extremeLong": [],
+    "longOutliers": 6,
+    "shortOutliers": 20,
+    "silenceGaps": 0,
+    "silenceExamples": [],
+    "surahsWithRate": 113,
+    "veryShort": [
      {
       "aid": "26:203",
       "ms": 561,
@@ -35813,13 +35968,7 @@
       "ratio": 0.3,
       "chars": 17
      }
-    ],
-    "extremeLong": [],
-    "longOutliers": 6,
-    "shortOutliers": 20,
-    "silenceGaps": 0,
-    "silenceExamples": [],
-    "surahsWithRate": 113
+    ]
    },
    "audio": {
     "audioReportsOnSha": 4,
@@ -36120,7 +36269,15 @@
       "expMs": 4248,
       "ratio": 0.1,
       "chars": 17
-     },
+     }
+    ],
+    "extremeLong": [],
+    "longOutliers": 5,
+    "shortOutliers": 35,
+    "silenceGaps": 0,
+    "silenceExamples": [],
+    "surahsWithRate": 113,
+    "veryShort": [
      {
       "aid": "15:90",
       "ms": 721,
@@ -36191,13 +36348,7 @@
       "ratio": 0.25,
       "chars": 14
      }
-    ],
-    "extremeLong": [],
-    "longOutliers": 5,
-    "shortOutliers": 35,
-    "silenceGaps": 0,
-    "silenceExamples": [],
-    "surahsWithRate": 113
+    ]
    },
    "audio": {
     "audioReportsOnSha": 4,
@@ -36447,7 +36598,14 @@
       "chars": 34
      }
     ],
-    "impossibleShort": [
+    "impossibleShort": [],
+    "extremeLong": [],
+    "longOutliers": 0,
+    "shortOutliers": 10,
+    "silenceGaps": 0,
+    "silenceExamples": [],
+    "surahsWithRate": 113,
+    "veryShort": [
      {
       "aid": "56:6",
       "ms": 777,
@@ -36462,13 +36620,7 @@
       "ratio": 0.21,
       "chars": 16
      }
-    ],
-    "extremeLong": [],
-    "longOutliers": 0,
-    "shortOutliers": 10,
-    "silenceGaps": 0,
-    "silenceExamples": [],
-    "surahsWithRate": 113
+    ]
    },
    "audio": {
     "audioReportsOnSha": 4,
@@ -36662,7 +36814,8 @@
     "shortOutliers": 0,
     "silenceGaps": 0,
     "silenceExamples": [],
-    "surahsWithRate": 113
+    "surahsWithRate": 113,
+    "veryShort": []
    },
    "audio": {
     "audioReportsOnSha": 4,
@@ -36930,7 +37083,15 @@
       "expMs": 5151,
       "ratio": 0.04,
       "chars": 21
-     },
+     }
+    ],
+    "extremeLong": [],
+    "longOutliers": 2,
+    "shortOutliers": 41,
+    "silenceGaps": 0,
+    "silenceExamples": [],
+    "surahsWithRate": 113,
+    "veryShort": [
      {
       "aid": "37:139",
       "ms": 600,
@@ -37029,13 +37190,7 @@
       "ratio": 0.28,
       "chars": 12
      }
-    ],
-    "extremeLong": [],
-    "longOutliers": 2,
-    "shortOutliers": 41,
-    "silenceGaps": 0,
-    "silenceExamples": [],
-    "surahsWithRate": 113
+    ]
    },
    "audio": {
     "audioReportsOnSha": 8,
@@ -37259,7 +37414,8 @@
     "shortOutliers": 0,
     "silenceGaps": 0,
     "silenceExamples": [],
-    "surahsWithRate": 113
+    "surahsWithRate": 113,
+    "veryShort": []
    },
    "audio": {
     "audioReportsOnSha": 13,
@@ -37576,7 +37732,8 @@
     "shortOutliers": 0,
     "silenceGaps": 0,
     "silenceExamples": [],
-    "surahsWithRate": 113
+    "surahsWithRate": 113,
+    "veryShort": []
    },
    "audio": {
     "audioReportsOnSha": 12,
@@ -37930,18 +38087,26 @@
     ],
     "impossibleShort": [
      {
-      "aid": "54:53",
-      "ms": 521,
-      "expMs": 3967,
-      "ratio": 0.13,
-      "chars": 17
-     },
-     {
       "aid": "38:67",
       "ms": 360,
       "expMs": 2656,
       "ratio": 0.14,
       "chars": 12
+     }
+    ],
+    "extremeLong": [],
+    "longOutliers": 1,
+    "shortOutliers": 50,
+    "silenceGaps": 0,
+    "silenceExamples": [],
+    "surahsWithRate": 113,
+    "veryShort": [
+     {
+      "aid": "54:53",
+      "ms": 521,
+      "expMs": 3967,
+      "ratio": 0.13,
+      "chars": 17
      },
      {
       "aid": "53:53",
@@ -38013,13 +38178,7 @@
       "ratio": 0.28,
       "chars": 13
      }
-    ],
-    "extremeLong": [],
-    "longOutliers": 1,
-    "shortOutliers": 50,
-    "silenceGaps": 0,
-    "silenceExamples": [],
-    "surahsWithRate": 113
+    ]
    },
    "audio": {
     "audioReportsOnSha": 4,
@@ -38300,13 +38459,6 @@
       "expMs": 4073,
       "ratio": 0.1,
       "chars": 16
-     },
-     {
-      "aid": "79:17",
-      "ms": 540,
-      "expMs": 4583,
-      "ratio": 0.12,
-      "chars": 18
      }
     ],
     "extremeLong": [],
@@ -38314,7 +38466,16 @@
     "shortOutliers": 8,
     "silenceGaps": 0,
     "silenceExamples": [],
-    "surahsWithRate": 113
+    "surahsWithRate": 113,
+    "veryShort": [
+     {
+      "aid": "79:17",
+      "ms": 540,
+      "expMs": 4583,
+      "ratio": 0.12,
+      "chars": 18
+     }
+    ]
    },
    "audio": {
     "audioReportsOnSha": 17,
@@ -38745,7 +38906,14 @@
       "chars": 19
      }
     ],
-    "impossibleShort": [
+    "impossibleShort": [],
+    "extremeLong": [],
+    "longOutliers": 7,
+    "shortOutliers": 56,
+    "silenceGaps": 0,
+    "silenceExamples": [],
+    "surahsWithRate": 113,
+    "veryShort": [
      {
       "aid": "26:173",
       "ms": 860,
@@ -38837,13 +39005,7 @@
       "ratio": 0.25,
       "chars": 10
      }
-    ],
-    "extremeLong": [],
-    "longOutliers": 7,
-    "shortOutliers": 56,
-    "silenceGaps": 0,
-    "silenceExamples": [],
-    "surahsWithRate": 113
+    ]
    },
    "audio": {
     "audioReportsOnSha": 8,
@@ -39156,7 +39318,14 @@
       "chars": 98
      }
     ],
-    "impossibleShort": [
+    "impossibleShort": [],
+    "extremeLong": [],
+    "longOutliers": 0,
+    "shortOutliers": 48,
+    "silenceGaps": 0,
+    "silenceExamples": [],
+    "surahsWithRate": 113,
+    "veryShort": [
      {
       "aid": "26:217",
       "ms": 821,
@@ -39199,13 +39368,7 @@
       "ratio": 0.26,
       "chars": 15
      }
-    ],
-    "extremeLong": [],
-    "longOutliers": 0,
-    "shortOutliers": 48,
-    "silenceGaps": 0,
-    "silenceExamples": [],
-    "surahsWithRate": 113
+    ]
    },
    "audio": {
     "audioReportsOnSha": 8,
@@ -39528,7 +39691,14 @@
       "chars": 27
      }
     ],
-    "impossibleShort": [
+    "impossibleShort": [],
+    "extremeLong": [],
+    "longOutliers": 5,
+    "shortOutliers": 33,
+    "silenceGaps": 0,
+    "silenceExamples": [],
+    "surahsWithRate": 113,
+    "veryShort": [
      {
       "aid": "15:86",
       "ms": 920,
@@ -39536,13 +39706,7 @@
       "ratio": 0.23,
       "chars": 18
      }
-    ],
-    "extremeLong": [],
-    "longOutliers": 5,
-    "shortOutliers": 33,
-    "silenceGaps": 0,
-    "silenceExamples": [],
-    "surahsWithRate": 113
+    ]
    },
    "audio": {
     "audioReportsOnSha": 4,
@@ -39720,7 +39884,8 @@
     "shortOutliers": 0,
     "silenceGaps": 0,
     "silenceExamples": [],
-    "surahsWithRate": 113
+    "surahsWithRate": 113,
+    "veryShort": []
    },
    "audio": {
     "audioReportsOnSha": 10,
@@ -40063,15 +40228,7 @@
       "chars": 18
      }
     ],
-    "impossibleShort": [
-     {
-      "aid": "56:37",
-      "ms": 537,
-      "expMs": 3396,
-      "ratio": 0.16,
-      "chars": 10
-     }
-    ],
+    "impossibleShort": [],
     "extremeLong": [],
     "longOutliers": 1,
     "shortOutliers": 9,
@@ -40083,7 +40240,16 @@
       "gapMs": 16640
      }
     ],
-    "surahsWithRate": 113
+    "surahsWithRate": 113,
+    "veryShort": [
+     {
+      "aid": "56:37",
+      "ms": 537,
+      "expMs": 3396,
+      "ratio": 0.16,
+      "chars": 10
+     }
+    ]
    },
    "audio": {
     "audioReportsOnSha": 4,
@@ -40277,7 +40443,8 @@
     "shortOutliers": 0,
     "silenceGaps": 0,
     "silenceExamples": [],
-    "surahsWithRate": 113
+    "surahsWithRate": 113,
+    "veryShort": []
    },
    "audio": {
     "audioReportsOnSha": 13,
@@ -40662,7 +40829,14 @@
       "chars": 28
      }
     ],
-    "impossibleShort": [
+    "impossibleShort": [],
+    "extremeLong": [],
+    "longOutliers": 0,
+    "shortOutliers": 41,
+    "silenceGaps": 0,
+    "silenceExamples": [],
+    "surahsWithRate": 113,
+    "veryShort": [
      {
       "aid": "53:50",
       "ms": 681,
@@ -40698,13 +40872,7 @@
       "ratio": 0.23,
       "chars": 9
      }
-    ],
-    "extremeLong": [],
-    "longOutliers": 0,
-    "shortOutliers": 41,
-    "silenceGaps": 0,
-    "silenceExamples": [],
-    "surahsWithRate": 113
+    ]
    },
    "audio": {
     "audioReportsOnSha": 4,
@@ -40964,7 +41132,14 @@
       "chars": 19
      }
     ],
-    "impossibleShort": [
+    "impossibleShort": [],
+    "extremeLong": [],
+    "longOutliers": 1,
+    "shortOutliers": 53,
+    "silenceGaps": 0,
+    "silenceExamples": [],
+    "surahsWithRate": 113,
+    "veryShort": [
      {
       "aid": "37:169",
       "ms": 701,
@@ -41070,13 +41245,7 @@
       "ratio": 0.27,
       "chars": 17
      }
-    ],
-    "extremeLong": [],
-    "longOutliers": 1,
-    "shortOutliers": 53,
-    "silenceGaps": 0,
-    "silenceExamples": [],
-    "surahsWithRate": 113
+    ]
    },
    "audio": {
     "audioReportsOnSha": 4,
@@ -41360,7 +41529,15 @@
       "expMs": 2536,
       "ratio": 0.11,
       "chars": 10
-     },
+     }
+    ],
+    "extremeLong": [],
+    "longOutliers": 2,
+    "shortOutliers": 69,
+    "silenceGaps": 0,
+    "silenceExamples": [],
+    "surahsWithRate": 113,
+    "veryShort": [
      {
       "aid": "55:70",
       "ms": 580,
@@ -41452,13 +41629,7 @@
       "ratio": 0.29,
       "chars": 13
      }
-    ],
-    "extremeLong": [],
-    "longOutliers": 2,
-    "shortOutliers": 69,
-    "silenceGaps": 0,
-    "silenceExamples": [],
-    "surahsWithRate": 113
+    ]
    },
    "audio": {
     "audioReportsOnSha": 4,
@@ -41724,7 +41895,14 @@
       "chars": 18
      }
     ],
-    "impossibleShort": [
+    "impossibleShort": [],
+    "extremeLong": [],
+    "longOutliers": 2,
+    "shortOutliers": 22,
+    "silenceGaps": 0,
+    "silenceExamples": [],
+    "surahsWithRate": 113,
+    "veryShort": [
      {
       "aid": "55:60",
       "ms": 620,
@@ -41795,13 +41973,7 @@
       "ratio": 0.29,
       "chars": 11
      }
-    ],
-    "extremeLong": [],
-    "longOutliers": 2,
-    "shortOutliers": 22,
-    "silenceGaps": 0,
-    "silenceExamples": [],
-    "surahsWithRate": 113
+    ]
    },
    "audio": {
     "audioReportsOnSha": 4,
@@ -42075,18 +42247,26 @@
       "chars": 8
      },
      {
-      "aid": "20:2",
-      "ms": 641,
-      "expMs": 5074,
-      "ratio": 0.13,
-      "chars": 23
-     },
-     {
       "aid": "53:61",
       "ms": 320,
       "expMs": 2517,
       "ratio": 0.13,
       "chars": 10
+     }
+    ],
+    "extremeLong": [],
+    "longOutliers": 1,
+    "shortOutliers": 60,
+    "silenceGaps": 0,
+    "silenceExamples": [],
+    "surahsWithRate": 113,
+    "veryShort": [
+     {
+      "aid": "20:2",
+      "ms": 641,
+      "expMs": 5074,
+      "ratio": 0.13,
+      "chars": 23
      },
      {
       "aid": "38:52",
@@ -42172,13 +42352,7 @@
       "ratio": 0.26,
       "chars": 14
      }
-    ],
-    "extremeLong": [],
-    "longOutliers": 1,
-    "shortOutliers": 60,
-    "silenceGaps": 0,
-    "silenceExamples": [],
-    "surahsWithRate": 113
+    ]
    },
    "audio": {
     "audioReportsOnSha": 4,
@@ -42389,13 +42563,6 @@
       "expMs": 10240,
       "ratio": 0.09,
       "chars": 32
-     },
-     {
-      "aid": "107:1",
-      "ms": 850,
-      "expMs": 5929,
-      "ratio": 0.14,
-      "chars": 18
      }
     ],
     "extremeLong": [],
@@ -42403,7 +42570,16 @@
     "shortOutliers": 4,
     "silenceGaps": 0,
     "silenceExamples": [],
-    "surahsWithRate": 113
+    "surahsWithRate": 113,
+    "veryShort": [
+     {
+      "aid": "107:1",
+      "ms": 850,
+      "expMs": 5929,
+      "ratio": 0.14,
+      "chars": 18
+     }
+    ]
    },
    "audio": {
     "audioReportsOnSha": 4,
@@ -42674,15 +42850,7 @@
       "chars": 56
      }
     ],
-    "impossibleShort": [
-     {
-      "aid": "79:23",
-      "ms": 673,
-      "expMs": 2962,
-      "ratio": 0.23,
-      "chars": 9
-     }
-    ],
+    "impossibleShort": [],
     "extremeLong": [
      {
       "aid": "69:21",
@@ -42785,7 +42953,16 @@
       "gapMs": 31800
      }
     ],
-    "surahsWithRate": 113
+    "surahsWithRate": 113,
+    "veryShort": [
+     {
+      "aid": "79:23",
+      "ms": 673,
+      "expMs": 2962,
+      "ratio": 0.23,
+      "chars": 9
+     }
+    ]
    },
    "audio": {
     "audioReportsOnSha": 4,
@@ -43030,7 +43207,8 @@
       "gapMs": 15620
      }
     ],
-    "surahsWithRate": 113
+    "surahsWithRate": 113,
+    "veryShort": []
    },
    "audio": {
     "audioReportsOnSha": 4,
@@ -43300,50 +43478,7 @@
       "chars": 43
      }
     ],
-    "impossibleShort": [
-     {
-      "aid": "37:156",
-      "ms": 461,
-      "expMs": 3208,
-      "ratio": 0.14,
-      "chars": 13
-     },
-     {
-      "aid": "37:117",
-      "ms": 781,
-      "expMs": 5182,
-      "ratio": 0.15,
-      "chars": 21
-     },
-     {
-      "aid": "37:172",
-      "ms": 830,
-      "expMs": 3948,
-      "ratio": 0.21,
-      "chars": 16
-     },
-     {
-      "aid": "37:109",
-      "ms": 710,
-      "expMs": 2961,
-      "ratio": 0.24,
-      "chars": 12
-     },
-     {
-      "aid": "37:179",
-      "ms": 920,
-      "expMs": 3702,
-      "ratio": 0.25,
-      "chars": 15
-     },
-     {
-      "aid": "37:174",
-      "ms": 941,
-      "expMs": 3455,
-      "ratio": 0.27,
-      "chars": 14
-     }
-    ],
+    "impossibleShort": [],
     "extremeLong": [
      {
       "aid": "25:28",
@@ -43431,7 +43566,51 @@
       "gapMs": 15960
      }
     ],
-    "surahsWithRate": 113
+    "surahsWithRate": 113,
+    "veryShort": [
+     {
+      "aid": "37:156",
+      "ms": 461,
+      "expMs": 3208,
+      "ratio": 0.14,
+      "chars": 13
+     },
+     {
+      "aid": "37:117",
+      "ms": 781,
+      "expMs": 5182,
+      "ratio": 0.15,
+      "chars": 21
+     },
+     {
+      "aid": "37:172",
+      "ms": 830,
+      "expMs": 3948,
+      "ratio": 0.21,
+      "chars": 16
+     },
+     {
+      "aid": "37:109",
+      "ms": 710,
+      "expMs": 2961,
+      "ratio": 0.24,
+      "chars": 12
+     },
+     {
+      "aid": "37:179",
+      "ms": 920,
+      "expMs": 3702,
+      "ratio": 0.25,
+      "chars": 15
+     },
+     {
+      "aid": "37:174",
+      "ms": 941,
+      "expMs": 3455,
+      "ratio": 0.27,
+      "chars": 14
+     }
+    ]
    },
    "audio": {
     "audioReportsOnSha": 4,
@@ -43766,41 +43945,6 @@
       "expMs": 7326,
       "ratio": 0.08,
       "chars": 22
-     },
-     {
-      "aid": "56:77",
-      "ms": 880,
-      "expMs": 4572,
-      "ratio": 0.19,
-      "chars": 12
-     },
-     {
-      "aid": "44:52",
-      "ms": 721,
-      "expMs": 3330,
-      "ratio": 0.22,
-      "chars": 10
-     },
-     {
-      "aid": "79:43",
-      "ms": 961,
-      "expMs": 4315,
-      "ratio": 0.22,
-      "chars": 14
-     },
-     {
-      "aid": "44:44",
-      "ms": 761,
-      "expMs": 3330,
-      "ratio": 0.23,
-      "chars": 10
-     },
-     {
-      "aid": "37:155",
-      "ms": 840,
-      "expMs": 3419,
-      "ratio": 0.25,
-      "chars": 10
      }
     ],
     "extremeLong": [],
@@ -43844,7 +43988,44 @@
       "gapMs": 16120
      }
     ],
-    "surahsWithRate": 113
+    "surahsWithRate": 113,
+    "veryShort": [
+     {
+      "aid": "56:77",
+      "ms": 880,
+      "expMs": 4572,
+      "ratio": 0.19,
+      "chars": 12
+     },
+     {
+      "aid": "44:52",
+      "ms": 721,
+      "expMs": 3330,
+      "ratio": 0.22,
+      "chars": 10
+     },
+     {
+      "aid": "79:43",
+      "ms": 961,
+      "expMs": 4315,
+      "ratio": 0.22,
+      "chars": 14
+     },
+     {
+      "aid": "44:44",
+      "ms": 761,
+      "expMs": 3330,
+      "ratio": 0.23,
+      "chars": 10
+     },
+     {
+      "aid": "37:155",
+      "ms": 840,
+      "expMs": 3419,
+      "ratio": 0.25,
+      "chars": 10
+     }
+    ]
    },
    "audio": {
     "audioReportsOnSha": 4,
@@ -44049,7 +44230,8 @@
     "shortOutliers": 3,
     "silenceGaps": 0,
     "silenceExamples": [],
-    "surahsWithRate": 113
+    "surahsWithRate": 113,
+    "veryShort": []
    },
    "audio": {
     "audioReportsOnSha": 4,
@@ -44304,7 +44486,14 @@
       "chars": 72
      }
     ],
-    "impossibleShort": [
+    "impossibleShort": [],
+    "extremeLong": [],
+    "longOutliers": 0,
+    "shortOutliers": 42,
+    "silenceGaps": 0,
+    "silenceExamples": [],
+    "surahsWithRate": 113,
+    "veryShort": [
      {
       "aid": "56:94",
       "ms": 821,
@@ -44319,13 +44508,7 @@
       "ratio": 0.28,
       "chars": 11
      }
-    ],
-    "extremeLong": [],
-    "longOutliers": 0,
-    "shortOutliers": 42,
-    "silenceGaps": 0,
-    "silenceExamples": [],
-    "surahsWithRate": 113
+    ]
    },
    "audio": {
     "audioReportsOnSha": 4,
@@ -44520,7 +44703,14 @@
       "chars": 15
      }
     ],
-    "impossibleShort": [
+    "impossibleShort": [],
+    "extremeLong": [],
+    "longOutliers": 1,
+    "shortOutliers": 1,
+    "silenceGaps": 0,
+    "silenceExamples": [],
+    "surahsWithRate": 113,
+    "veryShort": [
      {
       "aid": "89:26",
       "ms": 580,
@@ -44528,13 +44718,7 @@
       "ratio": 0.21,
       "chars": 15
      }
-    ],
-    "extremeLong": [],
-    "longOutliers": 1,
-    "shortOutliers": 1,
-    "silenceGaps": 0,
-    "silenceExamples": [],
-    "surahsWithRate": 113
+    ]
    },
    "audio": {
     "audioReportsOnSha": 4,
@@ -44789,7 +44973,14 @@
       "chars": 20
      }
     ],
-    "impossibleShort": [
+    "impossibleShort": [],
+    "extremeLong": [],
+    "longOutliers": 0,
+    "shortOutliers": 21,
+    "silenceGaps": 0,
+    "silenceExamples": [],
+    "surahsWithRate": 113,
+    "veryShort": [
      {
       "aid": "38:88",
       "ms": 974,
@@ -44804,13 +44995,7 @@
       "ratio": 0.23,
       "chars": 13
      }
-    ],
-    "extremeLong": [],
-    "longOutliers": 0,
-    "shortOutliers": 21,
-    "silenceGaps": 0,
-    "silenceExamples": [],
-    "surahsWithRate": 113
+    ]
    },
    "audio": {
     "audioReportsOnSha": 2,
@@ -45027,7 +45212,14 @@
       "chars": 14
      }
     ],
-    "impossibleShort": [
+    "impossibleShort": [],
+    "extremeLong": [],
+    "longOutliers": 1,
+    "shortOutliers": 37,
+    "silenceGaps": 0,
+    "silenceExamples": [],
+    "surahsWithRate": 113,
+    "veryShort": [
      {
       "aid": "54:54",
       "ms": 581,
@@ -45063,13 +45255,7 @@
       "ratio": 0.21,
       "chars": 14
      }
-    ],
-    "extremeLong": [],
-    "longOutliers": 1,
-    "shortOutliers": 37,
-    "silenceGaps": 0,
-    "silenceExamples": [],
-    "surahsWithRate": 113
+    ]
    },
    "audio": {
     "audioReportsOnSha": 4,
@@ -45276,7 +45462,8 @@
     "shortOutliers": 5,
     "silenceGaps": 0,
     "silenceExamples": [],
-    "surahsWithRate": 113
+    "surahsWithRate": 113,
+    "veryShort": []
    },
    "audio": {
     "audioReportsOnSha": 4,
@@ -45465,7 +45652,14 @@
       "chars": 12
      }
     ],
-    "impossibleShort": [
+    "impossibleShort": [],
+    "extremeLong": [],
+    "longOutliers": 1,
+    "shortOutliers": 2,
+    "silenceGaps": 0,
+    "silenceExamples": [],
+    "surahsWithRate": 113,
+    "veryShort": [
      {
       "aid": "44:2",
       "ms": 858,
@@ -45473,13 +45667,7 @@
       "ratio": 0.21,
       "chars": 12
      }
-    ],
-    "extremeLong": [],
-    "longOutliers": 1,
-    "shortOutliers": 2,
-    "silenceGaps": 0,
-    "silenceExamples": [],
-    "surahsWithRate": 113
+    ]
    },
    "audio": {
     "audioReportsOnSha": 4,
@@ -45739,7 +45927,15 @@
       "expMs": 3489,
       "ratio": 0.09,
       "chars": 13
-     },
+     }
+    ],
+    "extremeLong": [],
+    "longOutliers": 2,
+    "shortOutliers": 44,
+    "silenceGaps": 0,
+    "silenceExamples": [],
+    "surahsWithRate": 113,
+    "veryShort": [
      {
       "aid": "26:224",
       "ms": 560,
@@ -45810,13 +46006,7 @@
       "ratio": 0.27,
       "chars": 19
      }
-    ],
-    "extremeLong": [],
-    "longOutliers": 2,
-    "shortOutliers": 44,
-    "silenceGaps": 0,
-    "silenceExamples": [],
-    "surahsWithRate": 113
+    ]
    },
    "audio": {
     "audioReportsOnSha": 8,
@@ -46122,7 +46312,14 @@
       "chars": 20
      }
     ],
-    "impossibleShort": [
+    "impossibleShort": [],
+    "extremeLong": [],
+    "longOutliers": 1,
+    "shortOutliers": 61,
+    "silenceGaps": 0,
+    "silenceExamples": [],
+    "surahsWithRate": 113,
+    "veryShort": [
      {
       "aid": "75:38",
       "ms": 640,
@@ -46193,13 +46390,7 @@
       "ratio": 0.3,
       "chars": 10
      }
-    ],
-    "extremeLong": [],
-    "longOutliers": 1,
-    "shortOutliers": 61,
-    "silenceGaps": 0,
-    "silenceExamples": [],
-    "surahsWithRate": 113
+    ]
    },
    "audio": {
     "audioReportsOnSha": 8,
@@ -46497,13 +46688,6 @@
       "expMs": 4066,
       "ratio": 0.08,
       "chars": 14
-     },
-     {
-      "aid": "85:2",
-      "ms": 986,
-      "expMs": 3775,
-      "ratio": 0.26,
-      "chars": 13
      }
     ],
     "extremeLong": [],
@@ -46511,7 +46695,16 @@
     "shortOutliers": 8,
     "silenceGaps": 0,
     "silenceExamples": [],
-    "surahsWithRate": 113
+    "surahsWithRate": 113,
+    "veryShort": [
+     {
+      "aid": "85:2",
+      "ms": 986,
+      "expMs": 3775,
+      "ratio": 0.26,
+      "chars": 13
+     }
+    ]
    },
    "audio": {
     "audioReportsOnSha": 4,
@@ -46808,7 +47001,15 @@
       "expMs": 3752,
       "ratio": 0.1,
       "chars": 15
-     },
+     }
+    ],
+    "extremeLong": [],
+    "longOutliers": 0,
+    "shortOutliers": 50,
+    "silenceGaps": 0,
+    "silenceExamples": [],
+    "surahsWithRate": 113,
+    "veryShort": [
      {
       "aid": "55:74",
       "ms": 700,
@@ -46872,13 +47073,7 @@
       "ratio": 0.28,
       "chars": 10
      }
-    ],
-    "extremeLong": [],
-    "longOutliers": 0,
-    "shortOutliers": 50,
-    "silenceGaps": 0,
-    "silenceExamples": [],
-    "surahsWithRate": 113
+    ]
    },
    "audio": {
     "audioReportsOnSha": 8,
@@ -47147,7 +47342,8 @@
     "shortOutliers": 3,
     "silenceGaps": 0,
     "silenceExamples": [],
-    "surahsWithRate": 113
+    "surahsWithRate": 113,
+    "veryShort": []
    },
    "audio": {
     "audioReportsOnSha": 4,
@@ -47421,48 +47617,6 @@
       "chars": 11
      },
      {
-      "aid": "89:27",
-      "ms": 800,
-      "expMs": 4461,
-      "ratio": 0.18,
-      "chars": 19
-     },
-     {
-      "aid": "80:38",
-      "ms": 921,
-      "expMs": 4316,
-      "ratio": 0.21,
-      "chars": 14
-     },
-     {
-      "aid": "26:46",
-      "ms": 520,
-      "expMs": 2329,
-      "ratio": 0.22,
-      "chars": 16
-     },
-     {
-      "aid": "74:51",
-      "ms": 460,
-      "expMs": 2121,
-      "ratio": 0.22,
-      "chars": 10
-     },
-     {
-      "aid": "88:25",
-      "ms": 781,
-      "expMs": 3242,
-      "ratio": 0.24,
-      "chars": 13
-     },
-     {
-      "aid": "44:46",
-      "ms": 441,
-      "expMs": 1788,
-      "ratio": 0.25,
-      "chars": 10
-     },
-     {
       "aid": "18:89",
       "ms": 280,
       "expMs": 1043,
@@ -47475,20 +47629,6 @@
       "expMs": 1277,
       "ratio": 0.28,
       "chars": 11
-     },
-     {
-      "aid": "74:39",
-      "ms": 781,
-      "expMs": 2757,
-      "ratio": 0.28,
-      "chars": 13
-     },
-     {
-      "aid": "74:40",
-      "ms": 741,
-      "expMs": 2545,
-      "ratio": 0.29,
-      "chars": 12
      },
      {
       "aid": "18:85",
@@ -47555,7 +47695,65 @@
       "gapMs": 21340
      }
     ],
-    "surahsWithRate": 113
+    "surahsWithRate": 113,
+    "veryShort": [
+     {
+      "aid": "89:27",
+      "ms": 800,
+      "expMs": 4461,
+      "ratio": 0.18,
+      "chars": 19
+     },
+     {
+      "aid": "80:38",
+      "ms": 921,
+      "expMs": 4316,
+      "ratio": 0.21,
+      "chars": 14
+     },
+     {
+      "aid": "26:46",
+      "ms": 520,
+      "expMs": 2329,
+      "ratio": 0.22,
+      "chars": 16
+     },
+     {
+      "aid": "74:51",
+      "ms": 460,
+      "expMs": 2121,
+      "ratio": 0.22,
+      "chars": 10
+     },
+     {
+      "aid": "88:25",
+      "ms": 781,
+      "expMs": 3242,
+      "ratio": 0.24,
+      "chars": 13
+     },
+     {
+      "aid": "44:46",
+      "ms": 441,
+      "expMs": 1788,
+      "ratio": 0.25,
+      "chars": 10
+     },
+     {
+      "aid": "74:39",
+      "ms": 781,
+      "expMs": 2757,
+      "ratio": 0.28,
+      "chars": 13
+     },
+     {
+      "aid": "74:40",
+      "ms": 741,
+      "expMs": 2545,
+      "ratio": 0.29,
+      "chars": 12
+     }
+    ]
    },
    "audio": {
     "audioReportsOnSha": 4,
@@ -47845,7 +48043,14 @@
       "chars": 16
      }
     ],
-    "impossibleShort": [
+    "impossibleShort": [],
+    "extremeLong": [],
+    "longOutliers": 1,
+    "shortOutliers": 40,
+    "silenceGaps": 0,
+    "silenceExamples": [],
+    "surahsWithRate": 113,
+    "veryShort": [
      {
       "aid": "26:222",
       "ms": 540,
@@ -47993,13 +48198,7 @@
       "ratio": 0.29,
       "chars": 10
      }
-    ],
-    "extremeLong": [],
-    "longOutliers": 1,
-    "shortOutliers": 40,
-    "silenceGaps": 0,
-    "silenceExamples": [],
-    "surahsWithRate": 113
+    ]
    },
    "audio": {
     "audioReportsOnSha": 4,
@@ -48282,6 +48481,28 @@
       "chars": 12
      },
      {
+      "aid": "100:2",
+      "ms": 300,
+      "expMs": 1555,
+      "ratio": 0.19,
+      "chars": 12
+     },
+     {
+      "aid": "18:92",
+      "ms": 360,
+      "expMs": 1711,
+      "ratio": 0.21,
+      "chars": 10
+     }
+    ],
+    "extremeLong": [],
+    "longOutliers": 5,
+    "shortOutliers": 119,
+    "silenceGaps": 0,
+    "silenceExamples": [],
+    "surahsWithRate": 113,
+    "veryShort": [
+     {
       "aid": "37:162",
       "ms": 500,
       "expMs": 4717,
@@ -48366,13 +48587,6 @@
       "chars": 21
      },
      {
-      "aid": "100:2",
-      "ms": 300,
-      "expMs": 1555,
-      "ratio": 0.19,
-      "chars": 12
-     },
-     {
       "aid": "37:176",
       "ms": 981,
       "expMs": 5012,
@@ -48392,13 +48606,6 @@
       "expMs": 4169,
       "ratio": 0.2,
       "chars": 18
-     },
-     {
-      "aid": "18:92",
-      "ms": 360,
-      "expMs": 1711,
-      "ratio": 0.21,
-      "chars": 10
      },
      {
       "aid": "37:156",
@@ -48505,13 +48712,7 @@
       "ratio": 0.29,
       "chars": 17
      }
-    ],
-    "extremeLong": [],
-    "longOutliers": 5,
-    "shortOutliers": 119,
-    "silenceGaps": 0,
-    "silenceExamples": [],
-    "surahsWithRate": 113
+    ]
    },
    "audio": {
     "audioReportsOnSha": 4,
@@ -48822,22 +49023,7 @@
       "chars": 64
      }
     ],
-    "impossibleShort": [
-     {
-      "aid": "23:4",
-      "ms": 700,
-      "expMs": 5740,
-      "ratio": 0.12,
-      "chars": 19
-     },
-     {
-      "aid": "3:196",
-      "ms": 861,
-      "expMs": 4545,
-      "ratio": 0.19,
-      "chars": 28
-     }
-    ],
+    "impossibleShort": [],
     "extremeLong": [
      {
       "aid": "85:22",
@@ -48876,7 +49062,23 @@
       "gapMs": 17993
      }
     ],
-    "surahsWithRate": 113
+    "surahsWithRate": 113,
+    "veryShort": [
+     {
+      "aid": "23:4",
+      "ms": 700,
+      "expMs": 5740,
+      "ratio": 0.12,
+      "chars": 19
+     },
+     {
+      "aid": "3:196",
+      "ms": 861,
+      "expMs": 4545,
+      "ratio": 0.19,
+      "chars": 28
+     }
+    ]
    },
    "audio": {
     "audioReportsOnSha": 4,
@@ -49129,7 +49331,8 @@
     "shortOutliers": 1,
     "silenceGaps": 0,
     "silenceExamples": [],
-    "surahsWithRate": 113
+    "surahsWithRate": 113,
+    "veryShort": []
    },
    "audio": {
     "audioReportsOnSha": 4,
@@ -49322,7 +49525,14 @@
       "chars": 14
      }
     ],
-    "impossibleShort": [
+    "impossibleShort": [],
+    "extremeLong": [],
+    "longOutliers": 0,
+    "shortOutliers": 0,
+    "silenceGaps": 0,
+    "silenceExamples": [],
+    "surahsWithRate": 113,
+    "veryShort": [
      {
       "aid": "94:5",
       "ms": 990,
@@ -49330,13 +49540,7 @@
       "ratio": 0.3,
       "chars": 14
      }
-    ],
-    "extremeLong": [],
-    "longOutliers": 0,
-    "shortOutliers": 0,
-    "silenceGaps": 0,
-    "silenceExamples": [],
-    "surahsWithRate": 113
+    ]
    },
    "audio": {
     "audioReportsOnSha": 4,
@@ -49538,7 +49742,8 @@
     "shortOutliers": 0,
     "silenceGaps": 0,
     "silenceExamples": [],
-    "surahsWithRate": 113
+    "surahsWithRate": 113,
+    "veryShort": []
    },
    "audio": {
     "audioReportsOnSha": 4,
@@ -49741,7 +49946,20 @@
       "chars": 38
      }
     ],
-    "impossibleShort": [
+    "impossibleShort": [],
+    "extremeLong": [],
+    "longOutliers": 1,
+    "shortOutliers": 4,
+    "silenceGaps": 1,
+    "silenceExamples": [
+     {
+      "from": "24:3",
+      "to": "24:4",
+      "gapMs": 21700
+     }
+    ],
+    "surahsWithRate": 113,
+    "veryShort": [
      {
       "aid": "27:27",
       "ms": 838,
@@ -49763,19 +49981,7 @@
       "ratio": 0.18,
       "chars": 17
      }
-    ],
-    "extremeLong": [],
-    "longOutliers": 1,
-    "shortOutliers": 4,
-    "silenceGaps": 1,
-    "silenceExamples": [
-     {
-      "from": "24:3",
-      "to": "24:4",
-      "gapMs": 21700
-     }
-    ],
-    "surahsWithRate": 113
+    ]
    },
    "audio": {
     "audioReportsOnSha": 4,
@@ -49979,15 +50185,7 @@
       "chars": 18
      }
     ],
-    "impossibleShort": [
-     {
-      "aid": "74:17",
-      "ms": 650,
-      "expMs": 2883,
-      "ratio": 0.23,
-      "chars": 11
-     }
-    ],
+    "impossibleShort": [],
     "extremeLong": [],
     "longOutliers": 4,
     "shortOutliers": 2,
@@ -49999,7 +50197,16 @@
       "gapMs": 18820
      }
     ],
-    "surahsWithRate": 113
+    "surahsWithRate": 113,
+    "veryShort": [
+     {
+      "aid": "74:17",
+      "ms": 650,
+      "expMs": 2883,
+      "ratio": 0.23,
+      "chars": 11
+     }
+    ]
    },
    "audio": {
     "audioReportsOnSha": 4,
@@ -50268,6 +50475,21 @@
       "chars": 10
      },
      {
+      "aid": "38:68",
+      "ms": 320,
+      "expMs": 2075,
+      "ratio": 0.15,
+      "chars": 13
+     }
+    ],
+    "extremeLong": [],
+    "longOutliers": 8,
+    "shortOutliers": 49,
+    "silenceGaps": 0,
+    "silenceExamples": [],
+    "surahsWithRate": 113,
+    "veryShort": [
+     {
       "aid": "55:69",
       "ms": 721,
       "expMs": 6064,
@@ -50280,13 +50502,6 @@
       "expMs": 6315,
       "ratio": 0.13,
       "chars": 26
-     },
-     {
-      "aid": "38:68",
-      "ms": 320,
-      "expMs": 2075,
-      "ratio": 0.15,
-      "chars": 13
      },
      {
       "aid": "26:150",
@@ -50344,13 +50559,7 @@
       "ratio": 0.29,
       "chars": 10
      }
-    ],
-    "extremeLong": [],
-    "longOutliers": 8,
-    "shortOutliers": 49,
-    "silenceGaps": 0,
-    "silenceExamples": [],
-    "surahsWithRate": 113
+    ]
    },
    "audio": {
     "audioReportsOnSha": 4,
@@ -50609,7 +50818,20 @@
       "chars": 14
      }
     ],
-    "impossibleShort": [
+    "impossibleShort": [],
+    "extremeLong": [],
+    "longOutliers": 5,
+    "shortOutliers": 4,
+    "silenceGaps": 1,
+    "silenceExamples": [
+     {
+      "from": "83:31",
+      "to": "83:32",
+      "gapMs": 18714
+     }
+    ],
+    "surahsWithRate": 113,
+    "veryShort": [
      {
       "aid": "38:67",
       "ms": 400,
@@ -50624,19 +50846,7 @@
       "ratio": 0.25,
       "chars": 9
      }
-    ],
-    "extremeLong": [],
-    "longOutliers": 5,
-    "shortOutliers": 4,
-    "silenceGaps": 1,
-    "silenceExamples": [
-     {
-      "from": "83:31",
-      "to": "83:32",
-      "gapMs": 18714
-     }
-    ],
-    "surahsWithRate": 113
+    ]
    },
    "audio": {
     "audioReportsOnSha": 9,
@@ -50969,7 +51179,14 @@
       "chars": 16
      }
     ],
-    "impossibleShort": [
+    "impossibleShort": [],
+    "extremeLong": [],
+    "longOutliers": 2,
+    "shortOutliers": 16,
+    "silenceGaps": 0,
+    "silenceExamples": [],
+    "surahsWithRate": 113,
+    "veryShort": [
      {
       "aid": "20:17",
       "ms": 690,
@@ -51012,13 +51229,7 @@
       "ratio": 0.23,
       "chars": 9
      }
-    ],
-    "extremeLong": [],
-    "longOutliers": 2,
-    "shortOutliers": 16,
-    "silenceGaps": 0,
-    "silenceExamples": [],
-    "surahsWithRate": 113
+    ]
    },
    "audio": {
     "audioReportsOnSha": 4,
@@ -51277,7 +51488,14 @@
       "chars": 30
      }
     ],
-    "impossibleShort": [
+    "impossibleShort": [],
+    "extremeLong": [],
+    "longOutliers": 5,
+    "shortOutliers": 33,
+    "silenceGaps": 0,
+    "silenceExamples": [],
+    "surahsWithRate": 113,
+    "veryShort": [
      {
       "aid": "55:58",
       "ms": 601,
@@ -51369,13 +51587,7 @@
       "ratio": 0.26,
       "chars": 10
      }
-    ],
-    "extremeLong": [],
-    "longOutliers": 5,
-    "shortOutliers": 33,
-    "silenceGaps": 0,
-    "silenceExamples": [],
-    "surahsWithRate": 113
+    ]
    },
    "audio": {
     "audioReportsOnSha": 8,
@@ -51688,7 +51900,15 @@
       "expMs": 3252,
       "ratio": 0.11,
       "chars": 13
-     },
+     }
+    ],
+    "extremeLong": [],
+    "longOutliers": 0,
+    "shortOutliers": 38,
+    "silenceGaps": 0,
+    "silenceExamples": [],
+    "surahsWithRate": 113,
+    "veryShort": [
      {
       "aid": "21:107",
       "ms": 880,
@@ -51731,13 +51951,7 @@
       "ratio": 0.25,
       "chars": 10
      }
-    ],
-    "extremeLong": [],
-    "longOutliers": 0,
-    "shortOutliers": 38,
-    "silenceGaps": 0,
-    "silenceExamples": [],
-    "surahsWithRate": 113
+    ]
    },
    "audio": {
     "audioReportsOnSha": 4,
@@ -51914,7 +52128,8 @@
     "shortOutliers": 0,
     "silenceGaps": 0,
     "silenceExamples": [],
-    "surahsWithRate": 113
+    "surahsWithRate": 113,
+    "veryShort": []
    },
    "audio": {
     "audioReportsOnSha": 8,
@@ -52247,7 +52462,15 @@
       "expMs": 7765,
       "ratio": 0.1,
       "chars": 25
-     },
+     }
+    ],
+    "extremeLong": [],
+    "longOutliers": 0,
+    "shortOutliers": 48,
+    "silenceGaps": 0,
+    "silenceExamples": [],
+    "surahsWithRate": 113,
+    "veryShort": [
      {
       "aid": "80:41",
       "ms": 400,
@@ -52297,13 +52520,7 @@
       "ratio": 0.24,
       "chars": 9
      }
-    ],
-    "extremeLong": [],
-    "longOutliers": 0,
-    "shortOutliers": 48,
-    "silenceGaps": 0,
-    "silenceExamples": [],
-    "surahsWithRate": 113
+    ]
    },
    "audio": {
     "audioReportsOnSha": 4,
@@ -52491,7 +52708,8 @@
     "shortOutliers": 0,
     "silenceGaps": 0,
     "silenceExamples": [],
-    "surahsWithRate": 113
+    "surahsWithRate": 113,
+    "veryShort": []
    },
    "audio": {
     "audioReportsOnSha": 6,
@@ -52706,7 +52924,8 @@
     "shortOutliers": 0,
     "silenceGaps": 0,
     "silenceExamples": [],
-    "surahsWithRate": 113
+    "surahsWithRate": 113,
+    "veryShort": []
    },
    "audio": {
     "audioReportsOnSha": 8,
@@ -53026,7 +53245,14 @@
       "chars": 39
      }
     ],
-    "impossibleShort": [
+    "impossibleShort": [],
+    "extremeLong": [],
+    "longOutliers": 2,
+    "shortOutliers": 68,
+    "silenceGaps": 0,
+    "silenceExamples": [],
+    "surahsWithRate": 113,
+    "veryShort": [
      {
       "aid": "37:2",
       "ms": 400,
@@ -53174,13 +53400,7 @@
       "ratio": 0.3,
       "chars": 12
      }
-    ],
-    "extremeLong": [],
-    "longOutliers": 2,
-    "shortOutliers": 68,
-    "silenceGaps": 0,
-    "silenceExamples": [],
-    "surahsWithRate": 113
+    ]
    },
    "audio": {
     "audioReportsOnSha": 8,
@@ -53535,7 +53755,29 @@
       "chars": 21
      }
     ],
-    "impossibleShort": [
+    "impossibleShort": [],
+    "extremeLong": [
+     {
+      "aid": "94:7",
+      "ms": 1050853,
+      "expMs": 3363,
+      "ratio": 312.52,
+      "chars": 13
+     },
+     {
+      "aid": "94:8",
+      "ms": 52820,
+      "expMs": 3104,
+      "ratio": 17.02,
+      "chars": 12
+     }
+    ],
+    "longOutliers": 4,
+    "shortOutliers": 57,
+    "silenceGaps": 0,
+    "silenceExamples": [],
+    "surahsWithRate": 113,
+    "veryShort": [
      {
       "aid": "26:205",
       "ms": 520,
@@ -53613,28 +53855,7 @@
       "ratio": 0.29,
       "chars": 10
      }
-    ],
-    "extremeLong": [
-     {
-      "aid": "94:7",
-      "ms": 1050853,
-      "expMs": 3363,
-      "ratio": 312.52,
-      "chars": 13
-     },
-     {
-      "aid": "94:8",
-      "ms": 52820,
-      "expMs": 3104,
-      "ratio": 17.02,
-      "chars": 12
-     }
-    ],
-    "longOutliers": 4,
-    "shortOutliers": 57,
-    "silenceGaps": 0,
-    "silenceExamples": [],
-    "surahsWithRate": 113
+    ]
    },
    "audio": {
     "audioReportsOnSha": 4,
@@ -53941,7 +54162,15 @@
       "expMs": 2403,
       "ratio": 0.12,
       "chars": 11
-     },
+     }
+    ],
+    "extremeLong": [],
+    "longOutliers": 3,
+    "shortOutliers": 27,
+    "silenceGaps": 0,
+    "silenceExamples": [],
+    "surahsWithRate": 113,
+    "veryShort": [
      {
       "aid": "38:88",
       "ms": 660,
@@ -54012,13 +54241,7 @@
       "ratio": 0.28,
       "chars": 15
      }
-    ],
-    "extremeLong": [],
-    "longOutliers": 3,
-    "shortOutliers": 27,
-    "silenceGaps": 0,
-    "silenceExamples": [],
-    "surahsWithRate": 113
+    ]
    },
    "audio": {
     "audioReportsOnSha": 4,
@@ -54343,7 +54566,15 @@
       "expMs": 12305,
       "ratio": 0.08,
       "chars": 37
-     },
+     }
+    ],
+    "extremeLong": [],
+    "longOutliers": 2,
+    "shortOutliers": 65,
+    "silenceGaps": 0,
+    "silenceExamples": [],
+    "surahsWithRate": 113,
+    "veryShort": [
      {
       "aid": "74:46",
       "ms": 921,
@@ -54365,13 +54596,7 @@
       "ratio": 0.25,
       "chars": 9
      }
-    ],
-    "extremeLong": [],
-    "longOutliers": 2,
-    "shortOutliers": 65,
-    "silenceGaps": 0,
-    "silenceExamples": [],
-    "surahsWithRate": 113
+    ]
    },
    "audio": {
     "audioReportsOnSha": 8,
@@ -54699,7 +54924,15 @@
       "expMs": 11144,
       "ratio": 0.08,
       "chars": 34
-     },
+     }
+    ],
+    "extremeLong": [],
+    "longOutliers": 0,
+    "shortOutliers": 21,
+    "silenceGaps": 0,
+    "silenceExamples": [],
+    "surahsWithRate": 113,
+    "veryShort": [
      {
       "aid": "44:43",
       "ms": 460,
@@ -54728,13 +54961,7 @@
       "ratio": 0.22,
       "chars": 10
      }
-    ],
-    "extremeLong": [],
-    "longOutliers": 0,
-    "shortOutliers": 21,
-    "silenceGaps": 0,
-    "silenceExamples": [],
-    "surahsWithRate": 113
+    ]
    },
    "audio": {
     "audioReportsOnSha": 4,
@@ -55056,7 +55283,15 @@
       "expMs": 2627,
       "ratio": 0.12,
       "chars": 10
-     },
+     }
+    ],
+    "extremeLong": [],
+    "longOutliers": 2,
+    "shortOutliers": 16,
+    "silenceGaps": 0,
+    "silenceExamples": [],
+    "surahsWithRate": 113,
+    "veryShort": [
      {
       "aid": "113:4",
       "ms": 610,
@@ -55099,13 +55334,7 @@
       "ratio": 0.27,
       "chars": 8
      }
-    ],
-    "extremeLong": [],
-    "longOutliers": 2,
-    "shortOutliers": 16,
-    "silenceGaps": 0,
-    "silenceExamples": [],
-    "surahsWithRate": 113
+    ]
    },
    "audio": {
     "audioReportsOnSha": 4,
@@ -55397,7 +55626,15 @@
       "expMs": 2621,
       "ratio": 0.11,
       "chars": 10
-     },
+     }
+    ],
+    "extremeLong": [],
+    "longOutliers": 8,
+    "shortOutliers": 36,
+    "silenceGaps": 0,
+    "silenceExamples": [],
+    "surahsWithRate": 113,
+    "veryShort": [
      {
       "aid": "68:50",
       "ms": 841,
@@ -55475,13 +55712,7 @@
       "ratio": 0.29,
       "chars": 16
      }
-    ],
-    "extremeLong": [],
-    "longOutliers": 8,
-    "shortOutliers": 36,
-    "silenceGaps": 0,
-    "silenceExamples": [],
-    "surahsWithRate": 113
+    ]
    },
    "audio": {
     "audioReportsOnSha": 4,
@@ -55790,41 +56021,6 @@
       "expMs": 8640,
       "ratio": 0.06,
       "chars": 19
-     },
-     {
-      "aid": "35:19",
-      "ms": 501,
-      "expMs": 2962,
-      "ratio": 0.17,
-      "chars": 21
-     },
-     {
-      "aid": "35:16",
-      "ms": 581,
-      "expMs": 3244,
-      "ratio": 0.18,
-      "chars": 23
-     },
-     {
-      "aid": "35:20",
-      "ms": 420,
-      "expMs": 2398,
-      "ratio": 0.18,
-      "chars": 17
-     },
-     {
-      "aid": "35:21",
-      "ms": 400,
-      "expMs": 2256,
-      "ratio": 0.18,
-      "chars": 16
-     },
-     {
-      "aid": "35:17",
-      "ms": 480,
-      "expMs": 2539,
-      "ratio": 0.19,
-      "chars": 18
      }
     ],
     "extremeLong": [
@@ -55901,7 +56097,44 @@
       "gapMs": 46020
      }
     ],
-    "surahsWithRate": 113
+    "surahsWithRate": 113,
+    "veryShort": [
+     {
+      "aid": "35:19",
+      "ms": 501,
+      "expMs": 2962,
+      "ratio": 0.17,
+      "chars": 21
+     },
+     {
+      "aid": "35:16",
+      "ms": 581,
+      "expMs": 3244,
+      "ratio": 0.18,
+      "chars": 23
+     },
+     {
+      "aid": "35:20",
+      "ms": 420,
+      "expMs": 2398,
+      "ratio": 0.18,
+      "chars": 17
+     },
+     {
+      "aid": "35:21",
+      "ms": 400,
+      "expMs": 2256,
+      "ratio": 0.18,
+      "chars": 16
+     },
+     {
+      "aid": "35:17",
+      "ms": 480,
+      "expMs": 2539,
+      "ratio": 0.19,
+      "chars": 18
+     }
+    ]
    },
    "audio": {
     "audioReportsOnSha": 4,
@@ -56102,7 +56335,8 @@
     "shortOutliers": 0,
     "silenceGaps": 0,
     "silenceExamples": [],
-    "surahsWithRate": 113
+    "surahsWithRate": 113,
+    "veryShort": []
    },
    "audio": {
     "audioReportsOnSha": 4,
@@ -56370,7 +56604,14 @@
       "chars": 14
      }
     ],
-    "impossibleShort": [
+    "impossibleShort": [],
+    "extremeLong": [],
+    "longOutliers": 0,
+    "shortOutliers": 2,
+    "silenceGaps": 0,
+    "silenceExamples": [],
+    "surahsWithRate": 113,
+    "veryShort": [
      {
       "aid": "75:18",
       "ms": 965,
@@ -56385,13 +56626,7 @@
       "ratio": 0.25,
       "chars": 14
      }
-    ],
-    "extremeLong": [],
-    "longOutliers": 0,
-    "shortOutliers": 2,
-    "silenceGaps": 0,
-    "silenceExamples": [],
-    "surahsWithRate": 113
+    ]
    },
    "audio": {
     "audioReportsOnSha": 4,
@@ -56745,7 +56980,15 @@
       "expMs": 2732,
       "ratio": 0.12,
       "chars": 10
-     },
+     }
+    ],
+    "extremeLong": [],
+    "longOutliers": 0,
+    "shortOutliers": 49,
+    "silenceGaps": 0,
+    "silenceExamples": [],
+    "surahsWithRate": 113,
+    "veryShort": [
      {
       "aid": "53:56",
       "ms": 641,
@@ -56816,13 +57059,7 @@
       "ratio": 0.28,
       "chars": 9
      }
-    ],
-    "extremeLong": [],
-    "longOutliers": 0,
-    "shortOutliers": 49,
-    "silenceGaps": 0,
-    "silenceExamples": [],
-    "surahsWithRate": 113
+    ]
    },
    "audio": {
     "audioReportsOnSha": 4,
@@ -57093,7 +57330,25 @@
       "chars": 12
      }
     ],
-    "impossibleShort": [
+    "impossibleShort": [],
+    "extremeLong": [],
+    "longOutliers": 2,
+    "shortOutliers": 14,
+    "silenceGaps": 2,
+    "silenceExamples": [
+     {
+      "from": "6:93",
+      "to": "6:94",
+      "gapMs": 33080
+     },
+     {
+      "from": "53:22",
+      "to": "53:23",
+      "gapMs": 18060
+     }
+    ],
+    "surahsWithRate": 113,
+    "veryShort": [
      {
       "aid": "113:4",
       "ms": 927,
@@ -57122,24 +57377,7 @@
       "ratio": 0.25,
       "chars": 12
      }
-    ],
-    "extremeLong": [],
-    "longOutliers": 2,
-    "shortOutliers": 14,
-    "silenceGaps": 2,
-    "silenceExamples": [
-     {
-      "from": "6:93",
-      "to": "6:94",
-      "gapMs": 33080
-     },
-     {
-      "from": "53:22",
-      "to": "53:23",
-      "gapMs": 18060
-     }
-    ],
-    "surahsWithRate": 113
+    ]
    },
    "audio": {
     "audioReportsOnSha": 4,
@@ -57433,7 +57671,15 @@
       "expMs": 3818,
       "ratio": 0.09,
       "chars": 12
-     },
+     }
+    ],
+    "extremeLong": [],
+    "longOutliers": 8,
+    "shortOutliers": 148,
+    "silenceGaps": 0,
+    "silenceExamples": [],
+    "surahsWithRate": 113,
+    "veryShort": [
      {
       "aid": "67:25",
       "ms": 941,
@@ -57560,13 +57806,7 @@
       "ratio": 0.23,
       "chars": 11
      }
-    ],
-    "extremeLong": [],
-    "longOutliers": 8,
-    "shortOutliers": 148,
-    "silenceGaps": 0,
-    "silenceExamples": [],
-    "surahsWithRate": 113
+    ]
    },
    "audio": {
     "audioReportsOnSha": 8,
@@ -57898,7 +58138,14 @@
       "chars": 13
      }
     ],
-    "impossibleShort": [
+    "impossibleShort": [],
+    "extremeLong": [],
+    "longOutliers": 1,
+    "shortOutliers": 17,
+    "silenceGaps": 0,
+    "silenceExamples": [],
+    "surahsWithRate": 113,
+    "veryShort": [
      {
       "aid": "74:35",
       "ms": 417,
@@ -57962,13 +58209,7 @@
       "ratio": 0.25,
       "chars": 12
      }
-    ],
-    "extremeLong": [],
-    "longOutliers": 1,
-    "shortOutliers": 17,
-    "silenceGaps": 0,
-    "silenceExamples": [],
-    "surahsWithRate": 113
+    ]
    },
    "audio": {
     "audioReportsOnSha": 4,
@@ -58240,7 +58481,15 @@
       "expMs": 4088,
       "ratio": 0.09,
       "chars": 17
-     },
+     }
+    ],
+    "extremeLong": [],
+    "longOutliers": 1,
+    "shortOutliers": 46,
+    "silenceGaps": 0,
+    "silenceExamples": [],
+    "surahsWithRate": 113,
+    "veryShort": [
      {
       "aid": "21:106",
       "ms": 640,
@@ -58311,13 +58560,7 @@
       "ratio": 0.29,
       "chars": 14
      }
-    ],
-    "extremeLong": [],
-    "longOutliers": 1,
-    "shortOutliers": 46,
-    "silenceGaps": 0,
-    "silenceExamples": [],
-    "surahsWithRate": 113
+    ]
    },
    "audio": {
     "audioReportsOnSha": 8,
@@ -58566,7 +58809,14 @@
       "chars": 12
      }
     ],
-    "impossibleShort": [
+    "impossibleShort": [],
+    "extremeLong": [],
+    "longOutliers": 0,
+    "shortOutliers": 1,
+    "silenceGaps": 0,
+    "silenceExamples": [],
+    "surahsWithRate": 113,
+    "veryShort": [
      {
       "aid": "89:29",
       "ms": 998,
@@ -58574,13 +58824,7 @@
       "ratio": 0.3,
       "chars": 12
      }
-    ],
-    "extremeLong": [],
-    "longOutliers": 0,
-    "shortOutliers": 1,
-    "silenceGaps": 0,
-    "silenceExamples": [],
-    "surahsWithRate": 113
+    ]
    },
    "audio": {
     "audioReportsOnSha": 4,
@@ -58853,7 +59097,15 @@
       "expMs": 6075,
       "ratio": 0.1,
       "chars": 25
-     },
+     }
+    ],
+    "extremeLong": [],
+    "longOutliers": 5,
+    "shortOutliers": 54,
+    "silenceGaps": 0,
+    "silenceExamples": [],
+    "surahsWithRate": 113,
+    "veryShort": [
      {
       "aid": "37:147",
       "ms": 780,
@@ -58952,13 +59204,7 @@
       "ratio": 0.3,
       "chars": 15
      }
-    ],
-    "extremeLong": [],
-    "longOutliers": 5,
-    "shortOutliers": 54,
-    "silenceGaps": 0,
-    "silenceExamples": [],
-    "surahsWithRate": 113
+    ]
    },
    "audio": {
     "audioReportsOnSha": 4,
@@ -59246,7 +59492,21 @@
       "expMs": 5129,
       "ratio": 0.06,
       "chars": 19
-     },
+     }
+    ],
+    "extremeLong": [],
+    "longOutliers": 6,
+    "shortOutliers": 15,
+    "silenceGaps": 1,
+    "silenceExamples": [
+     {
+      "from": "19:24",
+      "to": "19:25",
+      "gapMs": 17940
+     }
+    ],
+    "surahsWithRate": 113,
+    "veryShort": [
      {
       "aid": "70:9",
       "ms": 520,
@@ -59282,19 +59542,7 @@
       "ratio": 0.3,
       "chars": 12
      }
-    ],
-    "extremeLong": [],
-    "longOutliers": 6,
-    "shortOutliers": 15,
-    "silenceGaps": 1,
-    "silenceExamples": [
-     {
-      "from": "19:24",
-      "to": "19:25",
-      "gapMs": 17940
-     }
-    ],
-    "surahsWithRate": 113
+    ]
    },
    "audio": {
     "audioReportsOnSha": 4,
@@ -59587,7 +59835,8 @@
       "gapMs": 25550
      }
     ],
-    "surahsWithRate": 113
+    "surahsWithRate": 113,
+    "veryShort": []
    },
    "audio": {
     "audioReportsOnSha": 4,
@@ -59872,29 +60121,7 @@
       "chars": 64
      }
     ],
-    "impossibleShort": [
-     {
-      "aid": "56:1",
-      "ms": 762,
-      "expMs": 4719,
-      "ratio": 0.16,
-      "chars": 14
-     },
-     {
-      "aid": "102:1",
-      "ms": 848,
-      "expMs": 3372,
-      "ratio": 0.25,
-      "chars": 13
-     },
-     {
-      "aid": "53:57",
-      "ms": 802,
-      "expMs": 3101,
-      "ratio": 0.26,
-      "chars": 10
-     }
-    ],
+    "impossibleShort": [],
     "extremeLong": [
      {
       "aid": "7:121",
@@ -59942,7 +60169,30 @@
       "gapMs": 18100
      }
     ],
-    "surahsWithRate": 113
+    "surahsWithRate": 113,
+    "veryShort": [
+     {
+      "aid": "56:1",
+      "ms": 762,
+      "expMs": 4719,
+      "ratio": 0.16,
+      "chars": 14
+     },
+     {
+      "aid": "102:1",
+      "ms": 848,
+      "expMs": 3372,
+      "ratio": 0.25,
+      "chars": 13
+     },
+     {
+      "aid": "53:57",
+      "ms": 802,
+      "expMs": 3101,
+      "ratio": 0.26,
+      "chars": 10
+     }
+    ]
    },
    "audio": {
     "audioReportsOnSha": 4,
@@ -60227,7 +60477,15 @@
       "expMs": 4416,
       "ratio": 0.09,
       "chars": 15
-     },
+     }
+    ],
+    "extremeLong": [],
+    "longOutliers": 0,
+    "shortOutliers": 39,
+    "silenceGaps": 0,
+    "silenceExamples": [],
+    "surahsWithRate": 113,
+    "veryShort": [
      {
       "aid": "53:46",
       "ms": 640,
@@ -60242,13 +60500,7 @@
       "ratio": 0.2,
       "chars": 10
      }
-    ],
-    "extremeLong": [],
-    "longOutliers": 0,
-    "shortOutliers": 39,
-    "silenceGaps": 0,
-    "silenceExamples": [],
-    "surahsWithRate": 113
+    ]
    },
    "audio": {
     "audioReportsOnSha": 8,
@@ -60547,7 +60799,14 @@
       "chars": 19
      }
     ],
-    "impossibleShort": [
+    "impossibleShort": [],
+    "extremeLong": [],
+    "longOutliers": 0,
+    "shortOutliers": 34,
+    "silenceGaps": 0,
+    "silenceExamples": [],
+    "surahsWithRate": 113,
+    "veryShort": [
      {
       "aid": "37:135",
       "ms": 481,
@@ -60639,13 +60898,7 @@
       "ratio": 0.28,
       "chars": 9
      }
-    ],
-    "extremeLong": [],
-    "longOutliers": 0,
-    "shortOutliers": 34,
-    "silenceGaps": 0,
-    "silenceExamples": [],
-    "surahsWithRate": 113
+    ]
    },
    "audio": {
     "audioReportsOnSha": 4,
@@ -60771,8 +61024,9 @@
   "audioOk": 180,
   "audioBad": [],
   "durationOutliersTotal": 6626,
-  "impossibleShortTotal": 1243,
-  "indexesWithImpossibleShort": 138,
+  "impossibleShortTotal": 146,
+  "indexesWithImpossibleShort": 80,
+  "veryShortTotal": 1097,
   "extremeLongTotal": 104,
   "indexesWithExtremeLong": 30,
   "mirrorStale": 149,
@@ -60781,5 +61035,6 @@
   "indexesWithSilenceGaps": 27,
   "entriesTotal": 1122446,
   "missingTotal": 34
- }
+ },
+ "auditorNote": "أُعيد تدريجُ قوائم المدد محلّياً من بيانات التشغيلة نفسِها (37071776028 · 2026-10-02T22:20:35Z) بلا قراءةٍ جديدة من الدلو."
 }
