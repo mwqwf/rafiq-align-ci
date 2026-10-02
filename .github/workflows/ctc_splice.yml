@@ -27,7 +27,7 @@ on:
       riwaya: {description: "الرواية", default: "hafs"}
       surahs: {description: "فارغ = كلُّ سورةٍ ناقصةٍ في الأصل (مقيسةً منه)", default: ""}
       reason: {description: "سببُ التحويل", required: true}
-      mode: {description: "full = CTC للسورة كاملة · window = قسمةُ المدخل الذي ابتلع جارتَه بنافذته وحدها (ctc_gapsplit)", default: "full"}
+      mode: {description: "full = CTC للسورة كاملة · window = قسمةُ المدخل الذي ابتلع جارتَه بنافذته وحدها (ctc_gapsplit) · heard = خريطةُ السماع ثمّ نوافذُ على مراسٍ مسموعة لتسجيلٍ فيه زيادةٌ أو تكرار (ctc_heard_map)", default: "full"}
       rewindow: {description: "وضعُ window وحده: مدى آياتٍ حاضرةٍ حدودُها معطوبةٌ يُعاد بنافذته بين جارتين ثابتتين، مثل 55:41-75", default: ""}
 
 concurrency:
@@ -52,7 +52,7 @@ jobs:
         run: |
           sudo apt-get update -qq && sudo apt-get install -y -qq ffmpeg
           python -m pip install --quiet --index-url https://download.pytorch.org/whl/cpu torch
-          python -m pip install --quiet "numpy<2" transformers ctc-segmentation boto3
+          python -m pip install --quiet "numpy<2" transformers ctc-segmentation boto3 rapidfuzz
       - name: كاش النموذج
         uses: actions/cache@v4
         with:
@@ -186,6 +186,17 @@ jobs:
               --riwaya "$RIW" --out-dir "tools/alignment/work/batch_$RID" --rewindow "$REWIN" 2>&1 | tee ctc.log
             exit 0
           fi
+          if [ "$MODE" = "heard" ]; then
+            # ⭐ خريطةُ السماع ثمّ نوافذُ على مراسٍ مسموعة (‏2026-10-02 · عاصم س38): لتسجيلٍ طويلٍ
+            #    فيه زيادةٌ أو تكرار. الأداةُ تُختبر أوّلاً، والمخرَجُ بصيغة batch_run نفسِها.
+            python -m unittest tools/alignment_v3/test_ctc_heard_map.py
+            for s in $(echo "$SURAHS" | tr ',' ' '); do
+              U="$(python -c "import sys; print(sys.argv[1].format(s=int(sys.argv[2])))" "$URLT" "$s")"
+              python tools/alignment_v3/ctc_heard_map.py --url "$U" --surah "$s" --riwaya "$RIW" \
+                --out-dir "tools/alignment/work/batch_$RID" 2>&1 | tee -a ctc.log
+            done
+            exit 0
+          fi
           sudo chmod 755 /root
           # ‏batch_run يكتب ملفَّ سورةٍ لكلّ ما نجح؛ وفهرسُه الجزئيُّ في آخره لا يُستعمل.
           # ‏وأساسُ المجلَّد (‏بلا {s:03d}) يمرّ كما هو فيقرأ batch_run جدولَ files.
@@ -209,6 +220,8 @@ jobs:
           # ⭐ وضعُ النافذة: الغيابُ الموروثُ من الأب يبقى غائباً ولا يُعدّ نقضاً (‏test_splice_keep_parent_gaps).
           ETAG="ctc-seg-1"
           if [ "$MODE" = "window" ]; then ALTF="$ALTF --keep-parent-gaps"; ETAG="ctc-gapsplit-1"; fi
+          # ⭐ وضعُ السماع: محرّكٌ باسمه (‏promote.SPLICE_OPS) فيُعلَن ويلزمه الإحصاءُ الشامل.
+          if [ "$MODE" = "heard" ]; then ETAG="ctc-heardmap-1"; fi
           # ⭐ مضيفُ المجلَّد: `fileRef` من الأب حرفاً (‏والتحقّقُ بعده يطابقه بالمنزَّل).
           [ -n "$FOLDER" ] && ALTF="$ALTF --refs-from-parent"
           S=""; F=""
@@ -261,6 +274,7 @@ jobs:
           # ⭐ وضعُ النافذة وحده: الغيابُ الموروثُ يُقبل بلا غائبٍ جديد وبزيادةٍ فعليّة (test_stage_inherited_gaps).
           INH=""; OPN="ctc_surah_splice"
           if [ "${{ github.event.inputs.mode }}" = "window" ]; then INH="--allow-inherited-gaps"; OPN="ctc_gapsplit"; fi
+          if [ "${{ github.event.inputs.mode }}" = "heard" ]; then OPN="ctc_heardmap_splice"; fi
           python tools/index_qa/stage_transform.py --file patched.jz \
                  --parent "$PARENT" --parent-sha "$SHA" \
                  --op "$OPN:$TAKEN" --reason "$REASON" \

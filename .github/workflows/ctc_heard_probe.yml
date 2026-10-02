@@ -1,0 +1,70 @@
+name: rafiq-ctc-heard-probe
+
+run-name: "heard-probe س${{ inputs.surah }} · ${{ inputs.reason }}"
+
+# 🔎 **سبرُ خريطة السماع بلا رفع** (‏`tools/alignment_v3/ctc_heard_map.py --probe`):
+#    أيُّ آيةٍ تُسمع أين في ملفٍّ واحد — لتسجيلٍ فيه مادّةٌ زائدةٌ أو مقاطعُ مكرّرة
+#    (‏عاصم اللحيدان · س38 · تراويح 946ث = 1.58× المتوقَّع). يقيس قبل أن يُبنى شيء.
+# ⚖️ قارئٌ محض: لا سرَّ ولا دلوَ ولا كتابة (‏`contents: read`)، والأثرُ مخرَجُ تشغيلةٍ يُقرأ
+#    بـ`ci_fleet/show_artifact.py`. 💰 مستودعٌ عامّ + عدّاد ubuntu-latest القياسيّ.
+on:
+  workflow_dispatch:
+    inputs:
+      url: {description: "رابطُ صوت السورة الواحد (‏لا قالب)", required: true}
+      surah: {description: "رقمُ السورة", required: true}
+      riwaya: {description: "الرواية", default: "hafs"}
+      build: {description: "true = مع المداخل (‏محاذاةُ النوافذ) بلا رفع · false = الخريطةُ وحدها", default: "false"}
+      reason: {description: "سببُ الإطلاق", default: ""}
+
+permissions:
+  contents: read
+
+concurrency:
+  group: rafiq-heard-probe-${{ inputs.surah }}-${{ inputs.riwaya }}
+  cancel-in-progress: false
+
+env:
+  PY: "3.11"
+  HF_HOME: ${{ github.workspace }}/.hf
+
+jobs:
+  probe:
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: {python-version: "${{ env.PY }}"}
+      - name: الأدوات
+        run: |
+          sudo apt-get update -qq && sudo apt-get install -y -qq ffmpeg
+          python -m pip install --quiet --index-url https://download.pytorch.org/whl/cpu torch
+          python -m pip install --quiet "numpy<2" transformers ctc-segmentation rapidfuzz
+      - name: اختباراتُ الأداة أوّلاً
+        run: python -m unittest tools/alignment_v3/test_ctc_heard_map.py
+      - name: كاش النموذج
+        uses: actions/cache@v4
+        with:
+          path: .hf
+          key: ctc-model-jonatasgrosman-xlsr53-ar-v1
+      - name: خريطةُ السماع (⛔ بلا رفع)
+        env:
+          URL: ${{ inputs.url }}
+          SURAH: ${{ inputs.surah }}
+          RIW: ${{ inputs.riwaya }}
+          BUILD: ${{ inputs.build }}
+        run: |
+          set -o pipefail
+          mkdir -p out logs
+          P="--probe"; [ "$BUILD" = "true" ] && P=""
+          /usr/bin/time -v python tools/alignment_v3/ctc_heard_map.py --url "$URL" --surah "$SURAH" \
+            --riwaya "$RIW" --out-dir out $P --report out/report.txt 2>&1 | tee logs/probe.log
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: heard-probe-s${{ inputs.surah }}-${{ github.run_id }}
+          path: |
+            out/*.json
+            out/report.txt
+            logs/**
+          retention-days: 7
