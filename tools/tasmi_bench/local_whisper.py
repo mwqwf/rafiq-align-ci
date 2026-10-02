@@ -145,8 +145,11 @@ class Transcriber:
     """
 
     def __init__(self, model_path, device="cpu", frontend="old", threads=4, gate=False,
-                 group_cap=WINDOW_SECONDS * SR, backend="hf", cli=None, lang="en", floor_rule="v2"):
+                 group_cap=WINDOW_SECONDS * SR, backend="hf", cli=None, lang="en", floor_rule="v2", cli_extra=None):
         self.backend, self.cli, self.model_path, self.threads, self.lang = backend, cli, model_path, threads, lang
+        # 🎛️ أعلامُ فكٍّ إضافيّةٌ لذراع قياسٍ (‏`--cli-extra "-nf"` · `"-bs 5 -et 1.8"` · `"-nth 1.01"`): تُلحق بأمر
+        #    whisper-cli كما هي، فتُقاس معاملاتُ الفكّ المطفأةُ بالحاكم الزوجيّ نفسِه (‏v2_gate) بلا تدريبٍ ولا APK.
+        self.cli_extra = list(cli_extra or [])
         self.device = device
         self.frontend = frontend
         self.gate = gate
@@ -231,7 +234,7 @@ class Transcriber:
             # القرار يتأثّر بكل شيء) · greedy · هبوطُ الحرارة الافتراضيّ · no_context لا أثرَ له في نافذةٍ واحدة ≤ 30ث.
             # 🔤 D-298: رمزُ اللغة صار **معاملَ تجربةٍ لا ثابتاً** — المحركُ يفكّ بـ`en` والتدريبُ يُلصق `<|ar|>`.
             cmd = [self.cli, "-m", self.model_path, "-f", tmp, "-l", self.lang, "-t", str(self.threads),
-                   "-bo", "1", "-bs", "1", "-nt", "-np"] + list(getattr(self, "cli_flags", []))
+                   "-bo", "1", "-bs", "1", "-nt", "-np"] + list(getattr(self, "cli_flags", [])) + list(getattr(self, "cli_extra", []))
             r = subprocess.run(cmd, capture_output=True, text=True, encoding="utf-8", errors="replace")
             os.remove(tmp)
             if r.returncode:
@@ -409,6 +412,7 @@ def main():
                     help="hf = transformers fp32 (المرآة) · cli = whisper-cli بالنموذج q8 نفسِه (مرآةُ المحرك على CI)")
     ap.add_argument("--cli", default=os.environ.get("WHISPER_CLI", ""), help="مسارُ whisper-cli مع --backend cli")
     ap.add_argument("--lang", default="en", help="رمزُ لغة الفكّ مع --backend cli (en = ما يفعله المحرك اليوم · ar = ما دُرِّب عليه النموذج)")
+    ap.add_argument("--cli-extra", default="", help="أعلامُ whisper-cli إضافيّةٌ لذراع القياس (‏تُلحق آخرَ الأمر فتغلب ما قبلها، مثل \"-bs 5 -et 1.8\")")
     ap.add_argument("--parity", help="مخرَجُ whisperBatch من المحاكي للمقارنة الحرفية")
     ap.add_argument("--hyps", help="مع --parity: ملفُّ الفرضيات المحلي")
     args = ap.parse_args()
@@ -466,7 +470,7 @@ def main():
     t0 = time.time()
     tr = Transcriber(model_path, frontend=args.frontend, threads=args.threads, gate=args.gate,
                      group_cap=int(args.group_cap * SR), backend=args.backend, cli=args.cli, lang=args.lang,
-                     floor_rule=args.floor_rule)
+                     floor_rule=args.floor_rule, cli_extra=args.cli_extra.split())
     if args.cuts_json:
         tr.cuts = json.load(open(args.cuts_json, encoding="utf-8"))
         print(f"🎯 حدودٌ مثاليّةٌ لـ{len(tr.cuts)} بنداً من {args.cuts_json}", flush=True)
@@ -476,7 +480,7 @@ def main():
             "lang": args.lang,
             "engine": (f"whisper.cpp/whisper-cli q8 · -l {args.lang} · -nc (مرآةُ المحرك على CI)" if args.backend == "cli"
                        else "transformers-cpu (مرآة LongAudioTranscriber)"), "loadMs": load_ms,
-            "flags": "num_beams=1, do_sample=False (greedy — مرآة -bo 1 -bs 1)"}
+            "flags": "num_beams=1, do_sample=False (greedy — مرآة -bo 1 -bs 1)" + (f" + {args.cli_extra}" if args.cli_extra else "")}
     print(f"✅ حُمّل في {load_ms/1000:.1f}ث — {len(ids)} بنداً ({len(done)} منجزٌ سابقاً)", flush=True)
 
     todo = [i for i in ids if i not in done]

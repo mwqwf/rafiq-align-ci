@@ -76,9 +76,26 @@ def smooth2d(m, t=3, f=3):
     return m
 
 
+def estimate_profile(x, noise_pct=15.0, max_frames=400):
+    """🎙️ مرآةُ `NoiseGate.estimateNoise`: طيفُ الضجيج من أهدأ [noise_pct]٪ من إطارات [x] (‏بصمةُ جلسةٍ تُعطى
+    لـ[denoise] عبر `profile=` — كما يفعل `LiveProfile` في «سمّع معي» بالمفتاح `liveSessionProfile`).
+    ⚠️ الإطاراتُ الهادئةُ تُعيَّن حتى [max_frames] إطاراً (‏خطوةٌ ثابتة) كما في الكوتلن."""
+    if len(x) < N_FFT * 2:
+        return None
+    spec, _, _ = stft(x)
+    mag = np.abs(spec)
+    energy = (mag ** 2).sum(axis=1)
+    k = max(3, int(len(energy) * noise_pct / 100))
+    quiet = np.argsort(energy)[:k]
+    step = max(1, len(quiet) // max_frames)
+    quiet = quiet[::step][:max_frames]
+    return np.median(mag[quiet], axis=0)
+
+
 def denoise(x, noise_pct=15.0, over=1.6, floor_db=-14.0, smooth_t=3, smooth_f=3,
-            report=False):
-    """يكتم الضجيج الثابت في [x] ويعيد الصوت (‏و`report=True` معه قياسُ ما فُعل)."""
+            report=False, profile=None):
+    """يكتم الضجيج الثابت في [x] ويعيد الصوت (‏و`report=True` معه قياسُ ما فُعل).
+    [profile] بصمةٌ خارجيّةٌ (‏من [estimate_profile]) تغلب تقديرَ المقطع نفسِه — مرآةُ `NoiseGate.process(profile=)`."""
     if len(x) < N_FFT * 2:
         return (x, {}) if report else x
     spec, win, pad = stft(x)
@@ -88,7 +105,7 @@ def denoise(x, noise_pct=15.0, over=1.6, floor_db=-14.0, smooth_t=3, smooth_f=3,
     # أهدأُ الإطارات = تقديرُ الضجيج (لا نفترض صمتاً في البداية)
     k = max(3, int(len(energy) * noise_pct / 100))
     quiet = np.argsort(energy)[:k]
-    noise_mag = np.median(mag[quiet], axis=0)
+    noise_mag = np.median(mag[quiet], axis=0) if profile is None else np.asarray(profile, dtype=np.float64)
     thr = noise_mag * over
     floor = 10 ** (floor_db / 20.0)
     mask = np.where(mag > thr, 1.0, floor)
