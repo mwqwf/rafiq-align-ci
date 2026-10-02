@@ -1,0 +1,13 @@
+# rc=1
+
+[stderr]
+Traceback (most recent call last):
+  File "/home/runner/work/rafiq-align-ci/rafiq-align-ci/tools/index_qa/show_entries.py", line 58, in <module>
+    main()
+  File "/home/runner/work/rafiq-align-ci/rafiq-align-ci/tools/index_qa/show_entries.py", line 33, in main
+    surahs = {int(s) for s in sys.argv[2].split(",") if s.strip()}
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/rafiq-align-ci/rafiq-align-ci/tools/index_qa/show_entries.py", line 33, in <setcomp>
+    surahs = {int(s) for s in sys.argv[2].split(",") if s.strip()}
+              ^^^^^^
+ValueError: invalid literal for int() with base 10: '--surahs'
