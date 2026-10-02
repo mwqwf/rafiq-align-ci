@@ -1,4 +1,4 @@
-import copy,json,pathlib,sys,unittest
+import copy,json,pathlib,sys,unittest,shutil,subprocess,tempfile
 sys.path.insert(0,str(pathlib.Path(__file__).parent))
 import ci_kalbani_generic as C
 class SourcePlanTests(unittest.TestCase):
@@ -24,4 +24,12 @@ class SourcePlanTests(unittest.TestCase):
   for win in [{'range':[1,1000],'windowMs':[0,10000]},{'range':[1,5],'windowMs':[-1,10000]},{'range':[1,5],'windowMs':[0,99999999]},{'range':[1,5],'windowMs':[0,1200001]}]:
    d=copy.deepcopy(self.plan);d['surahs'][0]['windows']=[win]
    with self.assertRaises(ValueError):C.validated_plan(d,self.sources,self.s)
+ @unittest.skipUnless(shutil.which('ffmpeg'),'Native integration requires ffmpeg')
+ def test_real_vorbis_decoder_api_and_millisecond_units(self):
+  with tempfile.TemporaryDirectory() as td:
+   audio=pathlib.Path(td)/'physical.ogg'
+   subprocess.run(['ffmpeg','-nostdin','-v','error','-f','lavfi','-i','sine=frequency=440:sample_rate=16000','-t','1.2','-c:a','libvorbis',str(audio)],check=True)
+   pcm=C.native_pcm(audio,1200)
+   self.assertEqual(str(pcm.dtype),'float32');self.assertLessEqual(abs(len(pcm)-19200),32)
+   with self.assertRaises(ValueError):C.native_pcm(audio,1000)
 if __name__=='__main__':unittest.main()

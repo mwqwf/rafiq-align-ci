@@ -44,6 +44,14 @@ def validated_plan(plan, sources, surah):
     return request, source
 
 
+def native_pcm(path, expected_duration_ms):
+    duration = R._file_duration_ms(path)
+    pcm = R._full_decode_pcm(path)
+    if abs(duration - expected_duration_ms) > 2 or abs(len(pcm) / 16 - duration) > 2:
+        raise ValueError('Container/native physical duration differs')
+    return pcm
+
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument('--plan', required=True)
@@ -66,10 +74,7 @@ def main():
     native = Path(R._local_audio(source['url']))
     if hashlib.sha256(native.read_bytes()).hexdigest() != source['sha256']:
         raise ValueError('Whole original publisher SHA changed')
-    duration = R._file_duration(native)
-    pcm = R._full_decode_pcm(native)
-    if abs(duration - source['nativeDurationMs']) > 2 or abs(len(pcm) / 16 - duration) > 2:
-        raise ValueError('Container/native physical duration differs')
+    pcm = native_pcm(native, source['nativeDurationMs'])
     model = W.configure_generic()
     start, end, _ = surah_slice(load_index(), a.surah)
     refs = load_text('hafs')[start:end]
