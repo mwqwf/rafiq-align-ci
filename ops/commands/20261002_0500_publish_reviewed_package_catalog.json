@@ -1,0 +1,12 @@
+{
+  "action": "dispatch",
+  "workflow": "package-catalog-cloud.yml",
+  "inputs": {
+    "publish": "true",
+    "expected_reciters_sha256": "ea8610fa9ceb2de37f86f2f7acf8f29a52ec66d4e508652f5a9a41664a5f9b2a",
+    "expected_packages_sha256": "3c0fe8dbe16c69ca75fb1227fc15aca2f7442b37210d90f456dba8faf65786f1",
+    "approved_candidate_sha256": "4a88165cd1745cef6d5943ed083bf8227a857287b8bba24f273f56628ff42132",
+    "approved_artifact_id": "11210271332",
+    "reason": "مراجعة مستقلة ops/out/package-catalog-review-20261002.json جاهزة بلا أخطاء؛180 حزمة تطابق180 ملفا عاما والبيان وكاملSHA وشهادات حيّة،+20 مع0 حذف وحفظ الأصل غيرالفهرسي؛تصحيح كتالوج قديم160 فهرسا،الكردي6236 والكلباني6236. نشر بيانات الفهارس فقط بالحراس الحالية وبنسخة رجوع،لاAPK/متجر."
+  }
+}
