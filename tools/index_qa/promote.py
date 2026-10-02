@@ -354,6 +354,51 @@ def truncation(cl, bucket, riwaya, reciter, index_etag=None):
     return bad, "match"
 
 
+def declared_truncated_tail(idx, surah):
+    """هل تُعالج السورةُ الموسومةُ بالبتر بنشرِ **بادئتها المعلَنةِ الذيل** لا بتوقيتٍ تامّ الظاهر؟
+
+    ⭐ أمرُ المالك 2026-10-02: «إن كان البترُ في أوّل السورة أو آخرها فلا بأس يُعلَن ذلك،
+    لكن إن كان في الوسط تُلغى السورةُ بأكملها». وحارسُ البتر وُضع يمنع **توقيتاً تامَّ
+    الظاهر على صوتٍ ناقص** (الحافظُ يسمع موضعاً ويقرأ غيره). والبادئةُ 1..N التي يُعلَن
+    ذيلُها غائباً ليست ذلك: كلُّ مدخلٍ منشورٍ له صوتُه، وما لا صوتَ له **لا مدخلَ له**
+    ويراه المستخدمُ غياباً بسببه. فلا يُعفى إلا بشروطٍ مجتمعة، وإلا بقي حارسُ البتر مغلقاً:
+      ① `transform.truncatedTail[س]` يسمّي N (1 ≤ N < عدد الرواية) بسبب `source_truncated`
+      ② مداخلُ السورة **هي** 1..N متّصلةً — لا فجوةَ ولا مدخلَ بعد N
+      ③ `missing.ids` يعدّ N+1..آخرها كلَّها غائبةً
+      ④ `transform.op` يحمل `declare_gap:س` ومعه `reasonCode = SOURCE_TRUNCATED` و`reasonUser`
+         — فالتطبيقُ لا يعرض سببَ النقص إلا بهما (`TimingIndexRepository.kt`).
+    """
+    try:
+        surah = int(surah)
+    except (TypeError, ValueError):
+        return False, "رقم السورة غير صالح"
+    if not 1 <= surah <= len(_AYAH_COUNTS):
+        return False, "رقم السورة خارج المصحف"
+    tr = idx.get("transform") if isinstance(idx.get("transform"), dict) else {}
+    rec = ((tr or {}).get("truncatedTail") or {}).get(str(surah))
+    count = _AYAH_COUNTS[surah - 1]
+    if not isinstance(rec, dict):
+        return False, "لا إعلانَ ذيلٍ مبتور في الترويسة"
+    n = rec.get("published")
+    if (type(n) is not int or not 1 <= n < count or rec.get("reason") != "source_truncated"
+            or rec.get("absentFrom") != n + 1 or rec.get("absentTo") != count):
+        return False, f"إعلانُ الذيل المبتور غيرُ سويّ: {rec}"
+    have = sorted(int(str(e.get("ayahId")).split(":")[1]) for e in (idx.get("entries") or [])
+                  if str(e.get("ayahId") or "").split(":", 1)[0] == str(surah))
+    if have != list(range(1, n + 1)):
+        return False, f"مداخلُ السورة ليست البادئةَ 1..{n} متّصلة ({len(have)} مدخلاً)"
+    ids = set((idx.get("missing") or {}).get("ids") or [])
+    tail = {f"{surah}:{k}" for k in range(n + 1, count + 1)}
+    if not tail <= ids:
+        return False, "وسمُ الاكتمال لا يعدّ الذيلَ كلَّه غائباً"
+    declared = set()
+    for m in re.findall(r"declare_gap:([\d,\s]+)", str(tr.get("op") or "")):
+        declared |= {int(x) for x in re.findall(r"\d+", m)}
+    if surah not in declared or tr.get("reasonCode") != "SOURCE_TRUNCATED" or not tr.get("reasonUser"):
+        return False, "النقصُ غيرُ معلَنٍ للمستخدم (declare_gap + SOURCE_TRUNCATED + reasonUser)"
+    return True, f"بادئةٌ متّصلة 1..{n} والذيل {n + 1}..{count} معلَنٌ غائباً بسبب source_truncated"
+
+
 def registered_source_remediation(idx, riwaya, reciter, surah, overrides=None):
     """تحقّق أن السورة المبتورة أُعيد بناؤها على بديلٍ مسجّل كاملٍ بعينه.
 
@@ -2303,9 +2348,18 @@ def main():
         for cut_row in cut:
             fixed, evidence = registered_source_remediation(
                 idx_peek, rep["riwaya"], rep["reciterId"], cut_row.get("surah"))
+            # ⭐ أو بادئةٌ معلَنةُ الذيل (أمر المالك 2026-10-02) — لا توقيتٌ على صوتٍ ناقص.
+            tail_ok = False
+            if not fixed:
+                tail_ok, tail_ev = declared_truncated_tail(idx_peek, cut_row.get("surah"))
+                if tail_ok:
+                    fixed, evidence = True, tail_ev
+                else:
+                    evidence += f" · ولا بادئةَ معلَنةَ الذيل: {tail_ev}"
             if fixed:
-                print(f"  ✅ {src}: عولج بترُ س{cut_row.get('surah')} ببديلٍ "
-                      f"مسجّل كامل — {evidence}")
+                print(f"  ✅ {src}: عولج بترُ س{cut_row.get('surah')} "
+                      + ("ببادئةٍ معلَنةِ الذيل" if tail_ok else "ببديلٍ مسجّل كامل")
+                      + f" — {evidence}")
             else:
                 unresolved_cut.append(cut_row)
                 print(f"     ↳ س{cut_row.get('surah')}: البديل لا يعفي من "

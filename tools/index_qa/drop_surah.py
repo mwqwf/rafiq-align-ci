@@ -221,8 +221,26 @@ def main():
     out["entries"] = kept
     out["missing"] = miss
     out["lowCount"] = sum(1 for e in kept if e.get("confBand") == "LOW")
+    # ⭐ **إعلانُ الذيل المبتور يُورَّث لا يُمحى** (أمر المالك 2026-10-02): مرشّحُ
+    #    `--truncated-tail` يحمل في `transform.truncatedTail` أيَّ سورةٍ نُشرت بادئتُها
+    #    1..N وذيلُها غائبٌ ببتر المصدر — وحارسُ البتر في الترقية يقرؤه ليفرّق بين
+    #    «توقيتٍ تامّ الظاهر على صوتٍ ناقص» (ممنوع) و«بادئةٍ معلَنةِ الذيل» (مقبولة).
+    #    وتصنيفُ النقص هنا يستبدل الترويسةَ كلَّها، فيُحمل الحقلُ معه بشرط أن تكون
+    #    سورتُه من السور المعلَنة الآن ومداخلُها هي البادئةُ المسمّاة لا غير.
+    _tt = {}
+    if a.declare_gap and isinstance(idx.get("transform"), dict):
+        for _s, _v in (idx["transform"].get("truncatedTail") or {}).items():
+            if int(_s) not in surahs or not isinstance(_v, dict):
+                continue
+            _have = sorted(int(e["ayahId"].split(":")[1]) for e in kept
+                           if e["ayahId"].startswith(f"{_s}:"))
+            if _have != list(range(1, int(_v.get("published") or 0) + 1)):
+                raise SystemExit(f"⛔ س{_s}: إعلانُ الذيل المبتور يقول بادئةً حتى "
+                                 f"{_v.get('published')} ومداخلُها {len(_have)} — لا يُورَّث كذب")
+            _tt[_s] = _v
     # **أثرُ التحويل في الترويسة نفسها** — لا في رسالةٍ ولا في سجلٍّ منفصل.
     out["transform"] = {
+        **({"truncatedTail": _tt} if _tt else {}),
         "op": ("declare_gap:" if a.declare_gap else "drop_surah:")
               + ",".join(str(n) for n in surahs),
         "fromSha256": live,

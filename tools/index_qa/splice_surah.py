@@ -120,11 +120,34 @@ def main() -> None:
                          "يبدأ به كلُّ رابط")
     ap.add_argument("--registered-sources", action="store_true",
                     help="روابط صريحة وبصمات مقيسة من سجل المصادر لهذا القارئ والرواية")
+    # ⭐ **ذيلٌ مبتورٌ بأمر المالك 2026-10-02** («إن كان البترُ في أوّل السورة أو آخرها
+    #    فلا بأس يُعلَن ذلك، لكن إن كان في الوسط تُلغى السورةُ بأكملها»): سورةٌ مصدرُها
+    #    الوحيدُ ينقطع عند آية (النورُ عند العكري قالون) تُدمج **بادئتُها المتّصلة 1..N
+    #    فقط**، وN يسمّيها المُطلِق صراحةً ويجب أن يطابقها إعلانُ المحاذي نفسِه
+    #    (`truncatedTail.keep` في مخرَج `ctc_prefix_align.py`). والذيلُ N+1..آخرها يبقى
+    #    غائباً ويُسجَّل `source_truncated` في الترويسة. ⛔ صفٌّ بعد N له حدود يُردّ
+    #    (فلا يُنشر ما بعد البتر خلسةً)، وصفٌّ قبل N بلا حدود يُردّ (فلا فجوةَ وسطيّة).
+    ap.add_argument("--truncated-tail", default="",
+                    help="سورةٌ مبتورةُ الذيل تُدمج بادئتُها 1..N وحدها: «24:30» (وتجوز عدّة "
+                         "بفواصل) — يلزمها --engine-tag، ولا تجتمع مع --keep-parent-gaps")
     args = ap.parse_args()
+    trunc = {}
+    for spec in [x for x in args.truncated_tail.replace(",", " ").split() if x]:
+        try:
+            s_, k_ = (int(v) for v in spec.split(":"))
+        except ValueError:
+            sys.exit(f"⛔ --truncated-tail بصيغة سورة:N مثل 24:30 لا {spec!r}")
+        if not 1 <= s_ <= 114 or not 1 <= k_ < COUNTS[s_ - 1]:
+            sys.exit(f"⛔ --truncated-tail {spec}: N يجب أن يكون بين 1 و{COUNTS[s_ - 1] - 1}")
+        trunc[s_] = k_
+    if trunc and (not args.engine_tag or args.keep_parent_gaps):
+        sys.exit("⛔ --truncated-tail يلزمه --engine-tag ولا يجتمع مع --keep-parent-gaps")
 
     surahs = [int(x) for x in args.surah.replace(",", " ").split()]
     if len(surahs) != len(args.aligned):
         sys.exit("⛔ عددُ السور لا يطابق عددَ ملفّات المحاذاة")
+    if not set(trunc) <= set(surahs):
+        sys.exit(f"⛔ --truncated-tail يسمّي سوراً ليست في --surah: {sorted(set(trunc) - set(surahs))}")
 
     idx = load(Path(args.index))
     entries = idx.get("entries") or []
@@ -157,6 +180,7 @@ def main() -> None:
     elif "{s:03d}" not in args.url:
         sys.exit("⛔ القالبُ بلا {s:03d} — استعمل --refs-from-parent لمضيف المجلَّد، ولا يُخمَّن")
     before_out = [e for e in entries if int(e["ayahId"].split(":")[0]) not in surahs]
+    aligned_of = dict(zip(surahs, args.aligned))        # قبل أن تُستبدل القائمةُ بالمأخوذ
 
     new_rows, skipped, taken = [], [], []
     model_records = {}
@@ -204,6 +228,19 @@ def main() -> None:
             keep_gap = {i + 1 for i, r in enumerate(rows)
                         if (r.get("startMs") is None or r.get("endMs") is None)
                         and (i + 1) not in parent_has}
+        # ⭐ الذيلُ المبتور (أمر المالك 2026-10-02): يُقبل من الصفوف 1..N فقط، وN المسمّاةُ
+        #    من المُطلِق يجب أن تساوي ما أعلنه المحاذي في مخرَجه — فلا تتفرّق N بين يدين.
+        #    وما قبل N بلا حدودٍ ردٌّ (فجوةٌ وسطيّة)، وما بعد N بحدودٍ ردٌّ (نشرٌ بعد البتر).
+        tail_keep = trunc.get(s)
+        if tail_keep is not None:
+            declared = (res.get("truncatedTail") or {}).get("keep")
+            if declared != tail_keep:
+                sys.exit(f"⛔ س{s}: المحاذي يُعلن بادئةً حتى {declared!r} والمُطلِق يسمّي "
+                         f"{tail_keep} — لا يُدمج ما لم تتّفق اليدان")
+            if not parent_has <= set(range(1, tail_keep + 1)):
+                sys.exit(f"⛔ س{s}: الأبُ فيه مداخلُ بعد {tail_keep} "
+                         f"({sorted(parent_has - set(range(1, tail_keep + 1)))[:5]}) — "
+                         f"بادئةٌ مبتورةٌ لا تُنقص ما كان منشوراً")
         if len(rows) != want:
             bad = f"رجعت {len(rows)} آية والرواية {want}"
         else:
@@ -211,6 +248,10 @@ def main() -> None:
             for i, r in enumerate(rows):
                 st, en = r.get("startMs"), r.get("endMs")
                 if (i + 1) in keep_gap:
+                    continue
+                if tail_keep is not None and i >= tail_keep:
+                    if st is not None or en is not None:
+                        bad = f"{i + 1} لها حدودٌ بعد البتر المعلَن عند {tail_keep}"; break
                     continue
                 if st is None or en is None:
                     bad = f"{i + 1} بلا حدود"; break
@@ -227,6 +268,8 @@ def main() -> None:
         for i, r in enumerate(rows):
             if (i + 1) in keep_gap:
                 continue
+            if tail_keep is not None and i >= tail_keep:
+                continue                               # الذيلُ المبتور يبقى غائباً معلَناً
             st, en = r.get("startMs"), r.get("endMs")
             prev_end = en
             conf = float(r.get("conf") or 0.0)
@@ -320,8 +363,43 @@ def main() -> None:
         by["source_truncated"] = max(0, int(by["source_truncated"]) - back)
         if not by["source_truncated"]:
             by.pop("source_truncated")
+    # ⭐ الذيلُ المبتور يُسجَّل بسببه (أمر المالك 2026-10-02): آياتُ N+1..آخرها تُعدّ
+    #    `source_truncated`، ولا تُترك الدلاءُ العامّةُ (unknown/no-align) تدّعي أكثرَ ممّا
+    #    بقي غائباً خارج السورة المبتورة — فتُستنزف إلى ما يصفه الغيابُ فعلاً.
+    trunc_taken = {s: k for s, k in trunc.items() if s in surahs}
+    if trunc_taken:
+        other = [i for i in gone if int(i.split(":")[0]) not in trunc_taken]
+        tail_total = sum(COUNTS[s - 1] - k for s, k in trunc_taken.items())
+        generic = {k: int(v) for k, v in by.items() if k != "source_truncated"}
+        excess = sum(generic.values()) - len(other)
+        for g in ("unknown", "no-align", "no_align", "unaligned"):
+            if excess <= 0:
+                break
+            take = min(excess, generic.get(g, 0))
+            if take:
+                generic[g] -= take
+                excess -= take
+                if not generic[g]:
+                    generic.pop(g)
+        by = dict(generic, source_truncated=int(by.get("source_truncated", 0)) + tail_total)
     miss["byReason"] = by
     out["missing"] = miss
+    if trunc_taken:
+        prior = dict(out.get("transform") or {}) if isinstance(out.get("transform"), dict) else {}
+        tt = dict(prior.get("truncatedTail") or {})
+        for s, k in trunc_taken.items():
+            res = json.load(open(aligned_of[s], encoding="utf-8"))
+            tt[str(s)] = {"published": k, "absentFrom": k + 1, "absentTo": COUNTS[s - 1],
+                          "reason": "source_truncated", "sourceSha256": res.get("sha256"),
+                          "totalMs": res.get("totalMs")}
+        prior["truncatedTail"] = tt
+        # السورةُ صارت حاضرةً (بادئةً) فلا تبقى في إعلان الغياب الكلّيّ الموروث.
+        ds = [x for x in (prior.get("dropSurah") or []) if int(x) not in trunc_taken]
+        if ds:
+            prior["dropSurah"] = ds
+        else:
+            prior.pop("dropSurah", None)
+        out["transform"] = prior
 
     if args.registered_sources:
         # stage_transform يغيّر op؛ يبقى إعلان الغياب الموروث للسور التي

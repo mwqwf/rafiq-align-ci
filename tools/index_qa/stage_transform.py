@@ -105,6 +105,80 @@ def realigned_coverage_error(have_old, have_new, realigned, allow_inherited=Fals
         return f"⛔ السورُ المُعادة {realigned} لم تزد مداخلُها ({len(old_in)} ⇐ {len(new_in)}) — لا شيءَ يُرفع"
     return None
 
+def parse_tails(spec: str) -> dict:
+    """«24:30[,s:N…]» ⇒ {24: 30} — ويُردّ ما ليس بين 1 وعدد الرواية−1."""
+    out = {}
+    for item in [x for x in (spec or "").replace(",", " ").split() if x]:
+        try:
+            s, n = (int(v) for v in item.split(":"))
+        except ValueError:
+            raise SystemExit(f"⛔ --owner-truncated-tail بصيغة سورة:N مثل 24:30 لا {item!r}")
+        if not 1 <= s <= 114 or not 1 <= n < AYAH_COUNTS[s - 1]:
+            raise SystemExit(f"⛔ --owner-truncated-tail {item}: N بين 1 و{AYAH_COUNTS[s - 1] - 1}")
+        out[s] = n
+    return out
+
+
+def truncated_tail_error(have_old, have_new, realigned, tails):
+    """نصُّ الردّ أو None — تغطيةُ السور المُعادة **مع ذيلٍ مبتورٍ مسمّى**.
+
+    ⭐ أمرُ المالك 2026-10-02: «إن كان البترُ في أوّل السورة أو آخرها فلا بأس يُعلَن ذلك،
+    لكن إن كان في الوسط تُلغى السورةُ بأكملها». فالسورةُ المسمّاةُ في `tails` تُقبل
+    **فقط** إن كانت مداخلُها بادئةً متّصلةً 1..N بلا فجوة، وN هي المسمّاةُ صراحةً لا
+    غيرها (أكثرُ منها نشرٌ بعد البتر، وأقلُّ منها إعلانُ غيابٍ لما له صوت)، ولم تفقد
+    مدخلاً كان في الأب، وزادت عليه فعلاً. وما سواها من السور المُعادة يبقى على الحارس
+    الأصل: كاملٌ بعدد الرواية. ⛔ والحارسُ الأصل (`realigned_coverage_error`) لم يُمسّ:
+    هذا بابٌ ثانٍ لا يُفتح إلا بالخيار الصريح."""
+    for s in sorted(tails):
+        if s not in realigned:
+            return f"⛔ الذيلُ المبتور يسمّي س{s} وهي ليست من السور المُعادة {realigned}"
+    for s in realigned:
+        new_s = sorted(int(i.split(":")[1]) for i in have_new if int(i.split(":")[0]) == s)
+        old_s = sorted(int(i.split(":")[1]) for i in have_old if int(i.split(":")[0]) == s)
+        if s not in tails:
+            if len(new_s) != AYAH_COUNTS[s - 1]:
+                return (f"⛔ السورةُ المُعادة {s}: مداخلُها {len(new_s)} والرواية "
+                        f"{AYAH_COUNTS[s - 1]} — لا يُرفع ناقص")
+            continue
+        n = tails[s]
+        if new_s != list(range(1, n + 1)):
+            gaps = sorted(set(range(1, n + 1)) - set(new_s))
+            beyond = [k for k in new_s if k > n]
+            if gaps:
+                return f"⛔ س{s}: فجوةٌ وسطيّة {gaps[:6]} — البترُ في الوسط يُلغي السورةَ كلَّها"
+            if beyond:
+                return f"⛔ س{s}: مداخلُ بعد N={n}: {beyond[:6]} — لا يُنشر ما بعد البتر المعلَن"
+            return f"⛔ س{s}: المداخلُ {len(new_s)} والبادئةُ المسمّاة 1..{n} لا تتطابق"
+        if not set(old_s) <= set(new_s):
+            return f"⛔ س{s}: غابت آياتٌ كانت في الأب: {sorted(set(old_s) - set(new_s))[:6]}"
+        if len(new_s) <= len(old_s):
+            return f"⛔ س{s}: لم تزد مداخلُها ({len(old_s)} ⇐ {len(new_s)}) — لا شيءَ يُرفع"
+    return None
+
+
+def truncated_header_error(idx, tails):
+    """الترويسةُ تقول ما تقوله المداخل: `transform.truncatedTail` و`missing` متّسقان."""
+    tr = idx.get("transform") if isinstance(idx.get("transform"), dict) else {}
+    tt = (tr or {}).get("truncatedTail") or {}
+    miss = idx.get("missing") or {}
+    ids = set(miss.get("ids") or [])
+    excused = int((miss.get("byReason") or {}).get("source_truncated", 0))
+    need = 0
+    for s, n in tails.items():
+        rec = tt.get(str(s))
+        if not isinstance(rec, dict) or rec.get("published") != n \
+                or rec.get("absentFrom") != n + 1 or rec.get("absentTo") != AYAH_COUNTS[s - 1] \
+                or rec.get("reason") != "source_truncated":
+            return f"⛔ س{s}: الترويسة لا تُعلن الذيلَ المبتور {n + 1}..{AYAH_COUNTS[s - 1]} بسبب source_truncated"
+        tail = {f"{s}:{k}" for k in range(n + 1, AYAH_COUNTS[s - 1] + 1)}
+        if not tail <= ids:
+            return f"⛔ س{s}: وسمُ الاكتمال لا يعدّ الذيلَ المبتور كلَّه غائباً"
+        need += len(tail)
+    if excused < need:
+        return f"⛔ byReason.source_truncated = {excused} والذيلُ المبتور {need}"
+    return None
+
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--file", required=True, help="ملفّ المنتَج المحلّي (.jz)")
@@ -121,8 +195,19 @@ def main():
     ap.add_argument("--allow-inherited-gaps", action="store_true",
                     help="(ctc_gapsplit وحده) سورةٌ مُعادةٌ ناقصةٌ تُقبل إن كان كلُّ غائبٍ فيها غائباً في الأب "
                          "ولا غائبَ جديد، وزادت مداخلُها زيادةً فعليّة")
+    # ⭐ **أمرُ المالك 2026-10-02** («إن كان البترُ في أوّل السورة أو آخرها فلا بأس يُعلَن
+    #    ذلك، لكن إن كان في الوسط تُلغى السورةُ بأكملها»): بابٌ ضيّقٌ ثانٍ لسورةٍ مُعادةٍ
+    #    ناقصةٍ — يُقبل **فقط** إن كانت مداخلُها بادئةً متّصلةً 1..N، وN مسمّاةٌ هنا صراحةً،
+    #    والباقي مسجَّلٌ `source_truncated` في الترويسة (`transform.truncatedTail` + `missing`).
+    #    والحارسُ الأصل يبقى كما هو بلا هذا الخيار.
+    ap.add_argument("--owner-truncated-tail", default="",
+                    help="سورةٌ مبتورةُ الذيل تُقبل بادئتُها 1..N وحدها: «24:30» — بادئةٌ "
+                         "متّصلةٌ بلا فجوة، وN المسمّاةُ هي الحدّ، والذيلُ معلَنٌ source_truncated")
     ap.add_argument("--yes", action="store_true")
     a = ap.parse_args()
+    tails = parse_tails(a.owner_truncated_tail)
+    if tails and a.allow_inherited_gaps:
+        raise SystemExit("⛔ --owner-truncated-tail لا يجتمع مع --allow-inherited-gaps")
 
     cl, bucket = promote.s3()
     blob = Path(a.file).read_bytes()
@@ -265,12 +350,24 @@ def main():
         outside_new = {i for i in have_new if int(i.split(":")[0]) not in realigned}
         if outside_old != outside_new:
             raise SystemExit("⛔ التحويل مسّ مداخلَ خارج السور المسمّاة — يُردّ")
-        bad = realigned_coverage_error(have_old, have_new, realigned,
-                                       allow_inherited=a.allow_inherited_gaps)
+        if tails:
+            if not _splice:
+                raise SystemExit("⛔ --owner-truncated-tail لتحويل دمجٍ مسمّىً (promote.SPLICE_OPS) وحده")
+            bad = (truncated_tail_error(have_old, have_new, realigned, tails)
+                   or truncated_header_error(idx, tails))
+        else:
+            bad = realigned_coverage_error(have_old, have_new, realigned,
+                                           allow_inherited=a.allow_inherited_gaps)
         if bad:
             raise SystemExit(bad)
+        if tails:
+            print("  ✔ ذيلٌ مبتورٌ معلَن (أمر المالك 2026-10-02): " + " · ".join(
+                f"س{s} بادئة 1..{n} والغائب {n + 1}..{AYAH_COUNTS[s - 1]} source_truncated"
+                for s, n in sorted(tails.items())))
         print(f"  ✔ إعادةُ محاذاة {realigned}: {n_old} ⇐ {n_new} مدخلاً "
               f"(‏+{n_new - n_old})، وما خارجها لم يُمسّ")
+    elif tails:
+        raise SystemExit("⛔ --owner-truncated-tail بلا سورٍ مُعادةٍ في --op — لا معنى له")
     elif n_new != n_old:
         raise SystemExit(f"⛔ المداخل {n_new} ≠ الأصل {n_old} — التحويل يزيح "
                          "حدوداً ولا يحذف آيات")
