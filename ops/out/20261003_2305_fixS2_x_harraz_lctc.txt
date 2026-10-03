@@ -1,0 +1,77 @@
+# rc=0
+{
+ "lateCtc": {
+  "5": {
+   "indexStartMs": 2991,
+   "ctcStartMs": 2993,
+   "conf": 0.677,
+   "diffMs": 2,
+   "confirmed": false
+  },
+  "22": {
+   "indexStartMs": 2931,
+   "ctcStartMs": 2931,
+   "conf": 0.68,
+   "diffMs": 0,
+   "confirmed": false
+  },
+  "33": {
+   "indexStartMs": 3052,
+   "ctcStartMs": 3051,
+   "conf": 0.719,
+   "diffMs": -1,
+   "confirmed": false
+  },
+  "37": {
+   "indexStartMs": 2791,
+   "ctcStartMs": 2791,
+   "conf": 0.346,
+   "diffMs": 0,
+   "confirmed": false
+  },
+  "49": {
+   "indexStartMs": 2952,
+   "ctcStartMs": 2931,
+   "conf": 0.753,
+   "diffMs": -21,
+   "confirmed": false
+  },
+  "60": {
+   "indexStartMs": 2691,
+   "ctcStartMs": 2692,
+   "conf": 0.608,
+   "diffMs": 1,
+   "confirmed": false
+  },
+  "65": {
+   "indexStartMs": 2771,
+   "ctcStartMs": 2791,
+   "conf": 0.587,
+   "diffMs": 20,
+   "confirmed": false
+  },
+  "66": {
+   "indexStartMs": 2942,
+   "ctcStartMs": 2951,
+   "conf": 0.653,
+   "diffMs": 9,
+   "confirmed": false
+  },
+  "73": {
+   "indexStartMs": 2711,
+   "ctcStartMs": 7963,
+   "conf": 0.362,
+   "diffMs": 5252,
+   "confirmed": true
+  },
+  "74": {
+   "indexStartMs": 2751,
+   "ctcStartMs": 2714,
+   "conf": 0.0,
+   "diffMs": -37,
+   "confirmed": false
+  }
+ },
+ "lateCtcRule": "CTC ≥1500م.ث بعد بدء المدخل بثقة ≥0.3",
+ "source": null
+}
