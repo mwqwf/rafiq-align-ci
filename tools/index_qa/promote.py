@@ -241,6 +241,23 @@ def census_gate(cl, bucket, src, live_sha, idx):
     return None
 
 
+def heard_gate_check(cl, bucket, src, live_sha, idx, published):
+    """سببُ ردّ المرشّح ببوّابة السماع أو None (‏`heard_gate.py`). **الغيابُ ردّ** متى خالف
+    المرشّحُ المنشورَ في سورةٍ واحدة؛ ومرشّحٌ لا يغيّر توقيتَ سورةٍ (‏إسقاطٌ محض) لا يلزمه."""
+    import heard_gate as HG
+    try:
+        pub = json.loads(gzip.decompress(cl.get_object(Bucket=bucket, Key=published)["Body"].read()))
+    except Exception:                                  # noqa: BLE001
+        pub = None                                     # قارئٌ جديد ⇒ كلُّ سوره «معدّلة»
+    if pub is not None and not HG.modified_surahs(idx.get("entries"), pub.get("entries")):
+        return None
+    try:
+        rep = json.loads(cl.get_object(Bucket=bucket, Key=HG.state_key(src))["Body"].read())
+    except Exception:                                  # noqa: BLE001
+        rep = None
+    return HG.gate_error(idx, pub, live_sha, rep)
+
+
 def s3():
     import boto3
     from botocore.config import Config
@@ -2453,6 +2470,14 @@ def main():
         _cg = census_gate(cl, bucket, src, live_sha, idx)
         if _cg:
             print(f"  ⛔ {src}: {_cg}")
+            continue
+        # ⛔ **بوّابةُ السماع** (‏fixT · 2026-10-03 · تدقيقُ الجولة الثانية البند 3): كبسُ الذيل
+        #    عبر 5155 سورةً مرّ من كلّ حارسٍ أعلاه (‏husary_warsh 0/800 وفيه 41 آيةً منحرفة).
+        #    فكلُّ مرشّحٍ يخالف المنشورَ في سورةٍ يلزمه حكمُ سماعٍ على بصمته بعينها، يُعاد حسابُه
+        #    هنا من الخرائط ومداخل المرشّح (‏`heard_gate.gate_error`) ولا يُقرأ حكمٌ مكتوب.
+        _hg = heard_gate_check(cl, bucket, src, live_sha, idx, published)
+        if _hg:
+            print(f"  ⛔ {src}: {_hg}")
             continue
         _op = (idx.get("transform") or {}).get("op") or ""
         if _op.startswith("drop_surah:") and not a.allow_truncated:
