@@ -1,0 +1,307 @@
+# 🎛️ **الجولةُ الرابعة من مسح الفكّ — المكلّفُ بالقياس** · 2026-10-03
+# ما بقي غيرَ محسومٍ في `docs/ops/TASMI_DECODE_VERDICT_2026-10-02.md`:
+#  - `judge`   (‏ubuntu-24.04-arm · base q5_1 · ar): `finalAudioCtx` بالحاكم الزوجيّ `v2_gate.py` على المجموعات الخمس —
+#               الحرسُ النهائيّ (‏`-bs 5 -et 1.8 -bo 1`) مقابل نفسِه مع `-ac` تناسبيٍّ بهامش 2ث (‏والهامشُ المشحونُ في
+#               `audioCtxFrames` 1ث ذراعاً ثالثة) للمقاطع ≤10ث وحدَها (‏`local_whisper.py --cli-extra "… {ac:P}"`).
+#  - `cloud`   (‏ubuntu-latest): نصُّ نوافذ 3.6ث مقابل 6ث من `/v1/tasmi/stream` على g3r نظيفاً ومضجَّجاً ثمّ `v2_gate.py`
+#               (‏`cloud_gate_windows.py`) — الاتّهامُ الكاذبُ والكشف.
+#  - `profile` (‏ubuntu-24.04-arm · tiny q8 · en كما يفكّ المحرك): بصمةُ الجلسة `liveSessionProfile` على 200 نافذة.
+# الزنادُ: دفعُ `tools/tasmi_bench/requests/decode4.json`. المستودعُ عامّ والعدّادُ قياسيّ؛ لا كتابةَ في R2 ولا كاش.
+# ⛔ الصوتُ المرسَلُ إلى السحابة تلاواتُ قرّاءٍ منشورةٌ من العيّنة لا صوتُ مستخدم؛ والأجهزةُ المؤقّتةُ تُمحى.
+name: tasmi-decode4
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - "tools/tasmi_bench/requests/decode4.json"
+permissions:
+  contents: read
+concurrency:
+  group: tasmi-decode4
+  cancel-in-progress: false
+env:
+  UA: "Mozilla/5.0 (QuranRafiq tasmi decode4)"
+  WC: c4ac0012a8f5a2082dfca6aad4ddfd8b2c02b337
+jobs:
+  judge:
+    runs-on: ubuntu-24.04-arm
+    timeout-minutes: 300
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - arm: guard
+            extra: "-bs 5 -et 1.8 -bo 1"
+          - arm: guard_ac2
+            extra: "-bs 5 -et 1.8 -bo 1 {ac:2}"
+          - arm: guard_ac1
+            extra: "-bs 5 -et 1.8 -bo 1 {ac:1}"
+    steps:
+      - uses: actions/checkout@v4
+      - name: المعمارية
+        run: |
+          [ "$(uname -m)" = "aarch64" ] || { echo "⛔ ليس arm64"; exit 1; }
+          echo "nproc=$(nproc)"
+      - name: مفاتيحُ القراءة من R2 (‏بنودُ العيّنة غيرُ العامّة · لا كتابة)
+        env:
+          R2_CREDENTIALS_JSON: ${{ secrets.R2_CREDENTIALS_JSON }}
+        run: |
+          mkdir -p secure && printf '%s' "$R2_CREDENTIALS_JSON" > secure/r2_credentials.json
+          python3 - <<'PY2'
+          import json, os
+          c = json.load(open("secure/r2_credentials.json"))
+          keys = {"R2_ENDPOINT": c["endpoint"], "R2_ACCESS_KEY_ID": c["accessKeyId"], "R2_SECRET_ACCESS_KEY": c["secretAccessKey"], "R2_BUCKET": c["bucket"]}
+          env = open(os.environ["GITHUB_ENV"], "a")
+          for k, v in keys.items():
+              print("::add-mask::" + v); env.write(k + "=" + v + chr(10))
+          env.close()
+          PY2
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: العدّة
+        run: |
+          sudo apt-get update -qq && sudo apt-get install -y -qq cmake ninja-build ffmpeg > /dev/null
+          pip install -q numpy soundfile scipy boto3
+      - name: بناءُ whisper-cli (‏المصدرُ المثبّت · +dotprod+i8mm)
+        run: |
+          set -o pipefail
+          git clone -q --filter=blob:none --no-checkout https://github.com/ggml-org/whisper.cpp wc
+          git -C wc fetch -q --depth 1 origin "$WC" && git -C wc checkout -q --detach FETCH_HEAD
+          cmake -S wc -B b_i8 -G Ninja -DCMAKE_BUILD_TYPE=Release -DBUILD_SHARED_LIBS=OFF \
+            -DWHISPER_BUILD_TESTS=OFF -DWHISPER_BUILD_SERVER=OFF -DWHISPER_BUILD_EXAMPLES=ON \
+            -DGGML_NATIVE=OFF -DGGML_CPU_ARM_ARCH="armv8.6-a+dotprod+i8mm" > /dev/null
+          cmake --build b_i8 --target whisper-cli -j"$(nproc)" > /dev/null
+      - name: النموذج (‏base q5_1)
+        run: |
+          curl -sSL -f --retry 4 --retry-delay 5 --retry-all-errors -A "$UA" -o models.bin \
+            https://github.com/mwqwf/rafiq-align-ci/releases/download/model-whisper-base-ar-quran-q51/ggml-q5_1.bin
+          sha256sum models.bin
+      - name: المجموعاتُ الخمس (‏كما تبنيها tasmi-gate — بلا كاش)
+        run: |
+          set -o pipefail
+          cd tools/tasmi_bench
+          python fetch_audio.py
+          python augment.py --only noise-fan-5
+          python augment_learner.py --only learner-combo
+          python inject_riwaya_local.py
+          for d in work/wav work/g2/noise-fan-5 work/g2/learner-combo work/g3r/clean work/g3r/noisy; do echo "$d: $(ls $d | wc -l)"; done
+      - name: التفريغ (‏البوّابة + سقف 10ث · base · ar · الذراع ${{ matrix.arm }})
+        env:
+          PYTHONIOENCODING: utf-8
+        run: |
+          set -o pipefail
+          cd tools/tasmi_bench
+          JL=$(python -c "import json;print(json.load(open('requests/decode4.json')).get('judge_limit',0))")
+          for S in g3r:noisy g3r:clean g1 g2:noise-fan-5 g2:learner-combo; do
+            T=$(echo "$S" | sed 's/:/-/')
+            echo "▶ $T · ${{ matrix.arm }} (${{ matrix.extra }})"
+            python local_whisper.py --backend cli --cli "$GITHUB_WORKSPACE/b_i8/bin/whisper-cli" --model "$GITHUB_WORKSPACE/models.bin" \
+              --set "$S" --gate --group-cap 10 --threads 4 --lang ar --limit "$JL" --cli-extra "${{ matrix.extra }}" \
+              --out "work/hyps_b4-${{ matrix.arm }}_${T}_gate_cap10.json" | tail -1
+          done
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: tasmi-decode4-hyps-${{ matrix.arm }}
+          path: tools/tasmi_bench/work/hyps_b4-*.json
+          retention-days: 14
+          if-no-files-found: ignore
+
+  verdict:
+    needs: [judge, cloud]
+    if: always()
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - name: مفاتيحُ القراءة من R2 (‏بنودُ العيّنة غيرُ العامّة · لا كتابة)
+        env:
+          R2_CREDENTIALS_JSON: ${{ secrets.R2_CREDENTIALS_JSON }}
+        run: |
+          mkdir -p secure && printf '%s' "$R2_CREDENTIALS_JSON" > secure/r2_credentials.json
+          python3 - <<'PY2'
+          import json, os
+          c = json.load(open("secure/r2_credentials.json"))
+          keys = {"R2_ENDPOINT": c["endpoint"], "R2_ACCESS_KEY_ID": c["accessKeyId"], "R2_SECRET_ACCESS_KEY": c["secretAccessKey"], "R2_BUCKET": c["bucket"]}
+          env = open(os.environ["GITHUB_ENV"], "a")
+          for k, v in keys.items():
+              print("::add-mask::" + v); env.write(k + "=" + v + chr(10))
+          env.close()
+          PY2
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - run: pip install -q numpy soundfile scipy boto3
+      - name: المجموعاتُ الخمس (‏مرجعُ الحاكم — بلا كاش)
+        run: |
+          sudo apt-get update -qq && sudo apt-get install -y -qq ffmpeg > /dev/null
+          set -o pipefail
+          cd tools/tasmi_bench
+          python fetch_audio.py
+          python augment.py --only noise-fan-5
+          python augment_learner.py --only learner-combo
+          python inject_riwaya_local.py
+          for d in work/wav work/g2/noise-fan-5 work/g2/learner-combo work/g3r/clean work/g3r/noisy; do echo "$d: $(ls $d | wc -l)"; done
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: tasmi-decode4-*
+          merge-multiple: true
+          path: tools/tasmi_bench/work
+      - name: الحكمُ الزوجيّ + الزمن
+        env:
+          PYTHONIOENCODING: utf-8
+        run: |
+          set -o pipefail
+          cd tools/tasmi_bench
+          ls work/hyps_*.json || true
+          M="work/decode4_verdict.md"; : > "$M"
+          pair() {  # $1 الأساس · $2 المرشّح · $3 العنوان
+            echo "### $3 (‏\`$1\` ⇐ \`$2\`)" >> "$M"
+            python v2_gate.py --score-only --pattern "work/hyps_{arm}_{tag}_gate_cap10.json" --arms "$1" "$2" --md work/_p.md && cat work/_p.md >> "$M" || echo "⚠️ تعذّر الزوج $1/$2" >> "$M"
+          }
+          pair b4-guard b4-guard_ac2 "finalAudioCtx بهامش 2ث (‏base q5_1 · ar · ≤10ث)"
+          pair b4-guard b4-guard_ac1 "finalAudioCtx بهامش 1ث (‏audioCtxFrames المشحون)"
+          pair cloud-w3.6 cloud-w6 "نصُّ نوافذ السحابة 3.6ث ⇐ 6ث (‏g3r)"
+          python - <<'PY' >> "$M"
+          import glob, json, os, statistics as st
+          print("\n### ⏱️ وسيطُ زمن البند (م.ث) وأقصاه\n")
+          sets = ["g3r-noisy", "g3r-clean", "g1", "g2-noise-fan-5", "g2-learner-combo"]
+          print("| الذراع | " + " | ".join(sets) + " |"); print("|---|" + "---:|" * len(sets))
+          for a in ["b4-guard", "b4-guard_ac2", "b4-guard_ac1", "cloud-w3.6", "cloud-w6"]:
+              cells = []
+              for s in sets:
+                  p = f"work/hyps_{a}_{s}_gate_cap10.json"
+                  if not os.path.exists(p): cells.append("—"); continue
+                  ms = [v["ms"] for v in json.load(open(p, encoding="utf-8"))["hyps"].values() if "ms" in v]
+                  cells.append(f"{st.median(ms):.0f} / {max(ms)}" if ms else "—")
+              print(f"| {a} | " + " | ".join(cells) + " |")
+          PY
+          cat "$M" >> "$GITHUB_STEP_SUMMARY"
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: tasmi-decode4-verdict
+          path: tools/tasmi_bench/work/decode4_verdict.md
+          retention-days: 14
+
+  cloud:
+    runs-on: ubuntu-latest
+    timeout-minutes: 240
+    steps:
+      - uses: actions/checkout@v4
+      - name: مفاتيحُ القراءة من R2 (‏بنودُ العيّنة غيرُ العامّة · لا كتابة)
+        env:
+          R2_CREDENTIALS_JSON: ${{ secrets.R2_CREDENTIALS_JSON }}
+        run: |
+          mkdir -p secure && printf '%s' "$R2_CREDENTIALS_JSON" > secure/r2_credentials.json
+          python3 - <<'PY2'
+          import json, os
+          c = json.load(open("secure/r2_credentials.json"))
+          keys = {"R2_ENDPOINT": c["endpoint"], "R2_ACCESS_KEY_ID": c["accessKeyId"], "R2_SECRET_ACCESS_KEY": c["secretAccessKey"], "R2_BUCKET": c["bucket"]}
+          env = open(os.environ["GITHUB_ENV"], "a")
+          for k, v in keys.items():
+              print("::add-mask::" + v); env.write(k + "=" + v + chr(10))
+          env.close()
+          PY2
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: العدّة
+        run: |
+          sudo apt-get update -qq && sudo apt-get install -y -qq ffmpeg > /dev/null
+          pip install -q numpy soundfile scipy boto3
+      - name: مجموعتا g3r (‏كما تبنيها tasmi-gate — بلا كاش)
+        run: |
+          set -o pipefail
+          cd tools/tasmi_bench
+          python fetch_audio.py
+          python inject_riwaya_local.py
+          for d in work/wav work/g2/noise-fan-5 work/g2/learner-combo work/g3r/clean work/g3r/noisy; do echo "$d: $(ls $d | wc -l)"; done
+      - name: نصُّ نوافذ السحابة 3.6ث و6ث على g3r
+        env:
+          PYTHONIOENCODING: utf-8
+        run: |
+          set -o pipefail
+          cd tools/tasmi_bench
+          CL=$(python -c "import json;print(json.load(open('requests/decode4.json')).get('cloud_limit',0))")
+          WS=$(python -c "import json;print(' '.join(str(x) for x in json.load(open('requests/decode4.json')).get('cloud_windows',[3.6,6.0])))")
+          python cloud_gate_windows.py --set g3r:noisy --set g3r:clean --limit "$CL" --windows $WS
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: tasmi-decode4-cloud
+          path: tools/tasmi_bench/work/hyps_cloud-*.json
+          retention-days: 14
+          if-no-files-found: ignore
+
+  profile:
+    runs-on: ubuntu-24.04-arm
+    timeout-minutes: 180
+    steps:
+      - uses: actions/checkout@v4
+      - name: المعمارية
+        run: |
+          [ "$(uname -m)" = "aarch64" ] || { echo "⛔ ليس arm64"; exit 1; }
+      - name: مفاتيحُ القراءة من R2 (‏بنودُ العيّنة غيرُ العامّة · لا كتابة)
+        env:
+          R2_CREDENTIALS_JSON: ${{ secrets.R2_CREDENTIALS_JSON }}
+        run: |
+          mkdir -p secure && printf '%s' "$R2_CREDENTIALS_JSON" > secure/r2_credentials.json
+          python3 - <<'PY2'
+          import json, os
+          c = json.load(open("secure/r2_credentials.json"))
+          keys = {"R2_ENDPOINT": c["endpoint"], "R2_ACCESS_KEY_ID": c["accessKeyId"], "R2_SECRET_ACCESS_KEY": c["secretAccessKey"], "R2_BUCKET": c["bucket"]}
+          env = open(os.environ["GITHUB_ENV"], "a")
+          for k, v in keys.items():
+              print("::add-mask::" + v); env.write(k + "=" + v + chr(10))
+          env.close()
+          PY2
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: العدّة
+        run: |
+          sudo apt-get update -qq && sudo apt-get install -y -qq cmake ninja-build ffmpeg > /dev/null
+          pip install -q numpy soundfile scipy boto3
+      - name: بناءُ whisper-cli (‏المصدرُ المثبّت · +dotprod+i8mm)
+        run: |
+          set -o pipefail
+          git clone -q --filter=blob:none --no-checkout https://github.com/ggml-org/whisper.cpp wc
+          git -C wc fetch -q --depth 1 origin "$WC" && git -C wc checkout -q --detach FETCH_HEAD
+          cmake -S wc -B b_i8 -G Ninja -DCMAKE_BUILD_TYPE=Release -DBUILD_SHARED_LIBS=OFF \
+            -DWHISPER_BUILD_TESTS=OFF -DWHISPER_BUILD_SERVER=OFF -DWHISPER_BUILD_EXAMPLES=ON \
+            -DGGML_NATIVE=OFF -DGGML_CPU_ARM_ARCH="armv8.6-a+dotprod+i8mm" > /dev/null
+          cmake --build b_i8 --target whisper-cli -j"$(nproc)" > /dev/null
+      - name: النموذج (‏tiny q8 المشحون)
+        run: |
+          curl -sSL -f --retry 4 --retry-delay 5 --retry-all-errors -A "$UA" -o tools/tasmi_bench/work_model.bin \
+            https://pub-2c2e1dcd92e84a2898820dd38d3e09e6.r2.dev/models/whisper-tiny-ar-quran/ggml-q8_0.bin
+          sha256sum tools/tasmi_bench/work_model.bin
+      - name: المجموعات (نظيفٌ ومضجَّج)
+        run: |
+          set -o pipefail
+          cd tools/tasmi_bench
+          python fetch_audio.py
+          python augment.py --src-dir work/wav --dest-dir work/wavn --only noise-fan-5
+          echo "wav=$(ls work/wav | wc -l) wavn=$(ls work/wavn | wc -l)"
+      - name: بصمةُ الجلسة مقابل بصمة النافذة — tiny · 200 نافذة
+        env:
+          PYTHONIOENCODING: utf-8
+        run: |
+          set -o pipefail
+          cd tools/tasmi_bench
+          R=requests/decode4.json
+          MW=$(python -c "import json;print(json.load(open('$R')).get('profile_windows',200))")
+          POS=$(python -c "import json;print(' '.join(str(x) for x in json.load(open('$R')).get('profile_positions',[0.5,0.8,0.3])))")
+          python noise_profile_ab.py --cli ../../b_i8/bin/whisper-cli --model work_model.bin --lang en \
+            --noisy-src work/wavn --clean-src work/wav --threads 2 --positions $POS --max-windows "$MW" \
+            --md work/noise4_tiny.md --json work/noise4_tiny.json | tail -14
+          cat work/noise4_tiny.md >> "$GITHUB_STEP_SUMMARY"
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: tasmi-decode4-profile
+          path: tools/tasmi_bench/work/noise4_*.*
+          retention-days: 14
+          if-no-files-found: ignore

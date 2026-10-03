@@ -187,6 +187,21 @@ class Transcriber:
         #    الثقة. فالنموذجُ مضبوطٌ على العربية ورمزُ اللغة لا يغيّر مساره.
         self.gen_kwargs = {}
 
+    def _extra_for(self, n_samples):
+        """أعلامُ الذراع لهذا المقطع. الرمزُ `{ac:P}` ⇒ `-ac` تناسبيٌّ بهامش P ث **للمقطع ≤ 10ث وحدَه** (‏مرآةُ
+        `WhisperDecode.audioCtxFor` تحت [FinalGuard]: `FINAL_AUDIO_CTX_MAX_SECONDS = 10`، والأطولُ بالسياق الكامل)،
+        بصيغة `audioCtxFrames`: ⌈(المدّة + P) × 50⌉ مقرَّباً إلى 32 وبسقف 1500."""
+        out = []
+        for tok in getattr(self, "cli_extra", []):
+            if tok.startswith("{ac:") and tok.endswith("}"):
+                if 0 < n_samples <= 10 * SR:
+                    import math
+                    n = int(math.ceil((n_samples / SR + float(tok[4:-1])) * 50))
+                    out += ["-ac", str(min(1500, (n + 31) // 32 * 32))]
+            else:
+                out.append(tok)
+        return out
+
     def nbest(self, audio, k=5):
         """يعيد [(نصّ، لوغاريتمُ الاحتمال المطبَّع)] لأفضل [k] مرشّحين ببحث الشعاع."""
         if len(audio) < SR // 20:
@@ -234,7 +249,7 @@ class Transcriber:
             # القرار يتأثّر بكل شيء) · greedy · هبوطُ الحرارة الافتراضيّ · no_context لا أثرَ له في نافذةٍ واحدة ≤ 30ث.
             # 🔤 D-298: رمزُ اللغة صار **معاملَ تجربةٍ لا ثابتاً** — المحركُ يفكّ بـ`en` والتدريبُ يُلصق `<|ar|>`.
             cmd = [self.cli, "-m", self.model_path, "-f", tmp, "-l", self.lang, "-t", str(self.threads),
-                   "-bo", "1", "-bs", "1", "-nt", "-np"] + list(getattr(self, "cli_flags", [])) + list(getattr(self, "cli_extra", []))
+                   "-bo", "1", "-bs", "1", "-nt", "-np"] + list(getattr(self, "cli_flags", [])) + self._extra_for(len(audio))
             r = subprocess.run(cmd, capture_output=True, text=True, encoding="utf-8", errors="replace")
             os.remove(tmp)
             if r.returncode:
