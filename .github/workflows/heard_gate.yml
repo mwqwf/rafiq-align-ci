@@ -1,0 +1,185 @@
+name: rafiq-heard-gate
+
+run-name: heard-gate ${{ inputs.only }}
+
+# ⛔ **بوّابةُ السماع** (‏fixT · 2026-10-03 · `tools/index_qa/heard_gate.py`): بدءُ كلّ آيةٍ في
+#    **كلّ سورةٍ معدّلةٍ عن المنشور** وفي **عيّنةٍ حتميّةٍ من غيرها** (‏بذرتُها بصمةُ المرشّح)
+#    يُقارن بموضعها المسموع في خريطة السماع (‏`ctc_heard_map --probe` · float32، غيرُ إعداد
+#    البناء int8 فلا يشهد المحرّكُ لنفسه بالإعداد نفسِه)؛ انحرافٌ > 1.5ث يردّ المرشّح.
+#    ويُكتب في `state-heard/<المفتاح مسطّحاً>.json` الخرائطُ المختصرةُ وبصمةُ ما سُمع — و
+#    `promote.heard_gate` **يعيد الحكمَ منها** ولا يقرأ حكماً مكتوباً.
+# 💰 مستودعٌ عامّ + عدّاد ubuntu-latest القياسيّ ⇒ دقائقُ مجّانيّة.
+on:
+  workflow_dispatch:
+    inputs:
+      only: {description: "مرشّحٌ أو أكثر بفواصل: timings-staging/<riw>/<id>.<sha8>.jz", required: true}
+      shards: {description: "عددُ الشرائح المتوازية لكلّ مرشّح (1–6)", default: "3"}
+
+permissions:
+  contents: read
+  actions: read
+
+concurrency:
+  group: rafiq-heard-gate-${{ inputs.only }}
+  cancel-in-progress: false
+
+env:
+  PY: "3.11"
+  HF_HOME: ${{ github.workspace }}/.hf
+
+jobs:
+  plan:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    outputs:
+      matrix: ${{ steps.plan.outputs.matrix }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: {python-version: "${{ env.PY }}"}
+      - run: python -m pip install --quiet boto3
+      - name: الاختبارات أوّلاً
+        run: python -m unittest tools/index_qa/test_heard_gate.py
+      - name: اعتماد R2
+        env: {R2_CREDENTIALS_JSON: "${{ secrets.R2_CREDENTIALS_JSON }}"}
+        run: mkdir -p secure && printf '%s' "$R2_CREDENTIALS_JSON" > secure/r2_credentials.json
+      - name: السورُ المطلوبة (المعدّلُ ∪ العيّنة) وروابطُها من المرشّح
+        id: plan
+        env: {ONLY: "${{ inputs.only }}", SHARDS: "${{ inputs.shards }}"}
+        run: |
+          python - <<'PY'
+          import gzip, hashlib, json, os, sys, boto3
+          sys.stdout.reconfigure(encoding="utf-8")
+          sys.path.insert(0, "tools/index_qa")
+          import heard_gate as H
+          from splice_surah import COUNTS
+          c = json.load(open("secure/r2_credentials.json"))
+          s3 = boto3.client("s3", endpoint_url=c["endpoint"], aws_access_key_id=c["accessKeyId"],
+                            aws_secret_access_key=c["secretAccessKey"], region_name="auto")
+          inc = []
+          for src in [x.strip() for x in os.environ["ONLY"].split(",") if x.strip()]:
+              if not src.startswith("timings-staging/") or src.count("/") != 2:
+                  sys.exit(f"⛔ مرشّحٌ في timings-staging/ وحده: {src}")
+              body = s3.get_object(Bucket=c["bucket"], Key=src)["Body"].read()
+              sha = hashlib.sha256(body).hexdigest()
+              idx = json.loads(gzip.decompress(body))
+              riw, fn = src.split("/")[1], src.split("/")[2]
+              pub = json.loads(gzip.decompress(s3.get_object(
+                  Bucket=c["bucket"], Key=f"timings/{riw}/{fn.split('.')[0]}.jz")["Body"].read()))
+              j = H.judge(idx, pub, sha, {})
+              cs = H.by_surah(idx["entries"])
+              print(f"■ {src} ({sha[:8]}) · معدّلة {j['modified']} · عيّنة {j['sample']}")
+              n = max(1, min(6, int(os.environ.get("SHARDS") or 3), len(j["required"])))
+              bins = [[] for _ in range(n)]; load = [0] * n
+              for s in sorted(j["required"], key=lambda s: -COUNTS[s - 1]):
+                  refs = {v[2] for v in cs[s].values()}
+                  if len(refs) != 1:
+                      sys.exit(f"⛔ {src} س{s}: أكثرُ من ملفٍّ للسورة {sorted(refs)[:2]}")
+                  i = load.index(min(load)); bins[i].append([s, refs.pop()]); load[i] += COUNTS[s - 1] + 20
+              for b in bins:
+                  if b:
+                      inc.append({"src": src, "sha": sha, "items": json.dumps(b)})
+          print(json.dumps(inc, ensure_ascii=False)[:3000])
+          with open(os.environ["GITHUB_OUTPUT"], "a") as f:
+              f.write("matrix=" + json.dumps({"include": inc}) + "\n")
+          PY
+
+  probe:
+    needs: plan
+    runs-on: ubuntu-latest
+    timeout-minutes: 340
+    strategy:
+      fail-fast: false
+      matrix: ${{ fromJson(needs.plan.outputs.matrix) }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: {python-version: "${{ env.PY }}"}
+      - name: الأدوات
+        run: |
+          sudo apt-get update -qq && sudo apt-get install -y -qq ffmpeg
+          python -m pip install --quiet --index-url https://download.pytorch.org/whl/cpu torch
+          python -m pip install --quiet "numpy<2" transformers ctc-segmentation rapidfuzz
+      - name: كاش النموذج
+        uses: actions/cache@v4
+        with:
+          path: .hf
+          key: ctc-model-jonatasgrosman-xlsr53-ar-v1
+      - name: خرائطُ السماع (float32 · بلا رفع)
+        env: {ITEMS: "${{ matrix.items }}", SRC: "${{ matrix.src }}"}
+        run: |
+          python -m unittest tools/alignment_v3/test_ctc_heard_map.py
+          d="hg/$(echo "$SRC" | tr '/' '_')"; mkdir -p "$d"; RIW="$(echo "$SRC" | cut -d/ -f2)"
+          python -c "import json,os; [print(s, u) for s, u in json.loads(os.environ['ITEMS'])]" | while read s u; do
+            CTC_INT8=0 python tools/alignment_v3/ctc_heard_map.py --url "$u" --surah "$s" --riwaya "$RIW" \
+              --out-dir "$d" --probe --report "$d/heard_s$(printf %03d $s).txt" < /dev/null > /dev/null 2> "$d/err_$s.txt" \
+              && echo "✓ س$s" || { echo "⚠️ س$s أخفق"; tail -5 "$d/err_$s.txt"; }
+            rm -f "$d"/*.mp3 "$d"/*.wav
+          done
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: heard-gate-${{ github.run_id }}-${{ strategy.job-index }}
+          path: hg/
+          retention-days: 7
+
+  judge:
+    needs: [plan, probe]
+    if: always() && needs.plan.result == 'success'
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: {python-version: "${{ env.PY }}"}
+      - run: python -m pip install --quiet boto3
+      - name: اعتماد R2
+        env: {R2_CREDENTIALS_JSON: "${{ secrets.R2_CREDENTIALS_JSON }}"}
+        run: mkdir -p secure && printf '%s' "$R2_CREDENTIALS_JSON" > secure/r2_credentials.json
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: heard-gate-${{ github.run_id }}-*
+          path: shards
+          merge-multiple: true
+      - name: الحكمُ والكتابةُ في state-heard/
+        env: {ONLY: "${{ inputs.only }}", RUN: "${{ github.run_id }}"}
+        run: |
+          python -m unittest tools/index_qa/test_heard_gate.py
+          python - <<'PY'
+          import glob, gzip, hashlib, json, os, sys, time, boto3
+          sys.stdout.reconfigure(encoding="utf-8")
+          sys.path.insert(0, "tools/index_qa")
+          import heard_gate as H
+          c = json.load(open("secure/r2_credentials.json"))
+          s3 = boto3.client("s3", endpoint_url=c["endpoint"], aws_access_key_id=c["accessKeyId"],
+                            aws_secret_access_key=c["secretAccessKey"], region_name="auto")
+          for src in [x.strip() for x in os.environ["ONLY"].split(",") if x.strip()]:
+              body = s3.get_object(Bucket=c["bucket"], Key=src)["Body"].read()
+              sha = hashlib.sha256(body).hexdigest()
+              idx = json.loads(gzip.decompress(body))
+              riw, fn = src.split("/")[1], src.split("/")[2]
+              pub = json.loads(gzip.decompress(s3.get_object(
+                  Bucket=c["bucket"], Key=f"timings/{riw}/{fn.split('.')[0]}.jz")["Body"].read()))
+              maps = {}
+              for p in glob.glob(f"shards/{src.replace('/', '_')}/heard_s*.json"):
+                  m = H.compact_map(json.load(open(p, encoding="utf-8")))
+                  maps[int(m["surah"])] = m
+              j = H.judge(idx, pub, sha, maps)
+              rep = {"sha256": sha, "src": src, "version": H.VERSION, "run": os.environ["RUN"],
+                     "ts": int(time.time()), "ok": j["ok"], "reason": j["reason"],
+                     "modified": j["modified"], "sample": j["sample"],
+                     "maps": {str(k): v for k, v in maps.items()},
+                     "surahs": {k: {"reason": v["reason"],
+                                    "dev": [[r["ayah"], r["devMs"]] for r in v["rows"] if r["status"] == "dev"]}
+                                for k, v in j["surahs"].items()}}
+              s3.put_object(Bucket=c["bucket"], Key=H.state_key(src),
+                            Body=json.dumps(rep, ensure_ascii=False).encode("utf-8"),
+                            ContentType="application/json")
+              # ⛔ يُقرأ ما كُتب ويُعاد حكمُه كما تحكم الترقية
+              back = json.loads(s3.get_object(Bucket=c["bucket"], Key=H.state_key(src))["Body"].read())
+              why = H.gate_error(idx, pub, sha, back)
+              print(f"■ {src} ({sha[:8]}) · معدّلة {j['modified']} · عيّنة {j['sample']}")
+              for k, v in sorted(j["surahs"].items(), key=lambda x: int(x[0])):
+                  print(f"   س{k}: {'✅' if not v['reason'] else '⛔ ' + v['reason']}")
+              print(f"   ⇒ {'✅ بوّابةُ السماع تمرّ' if why is None else '⛔ ' + why}")
+          PY

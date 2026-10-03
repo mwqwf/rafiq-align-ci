@@ -50,6 +50,8 @@ ALLOWED_WF = {"verified_kurdi_source.yml", "spoken_census.yml", "window_census.y
               # ⭐ 2026-09-24 (‏إذن المالك بالتسريع): محاذاةُ سور النقص وحدها بـCTC
               #    ودمجُها، وإحصاؤها الصوتيُّ الشامل الذي تطلبه الترقية.
               "ctc_splice.yml", "splice_census.yml",
+              # ⭐ (fixT · 2026-10-03) الإصلاحُ الدفعيّ لكبس الذيل (‏مرشّحٌ واحدٌ لكلّ فهرس) وبوّابةُ السماع التي تطلبها الترقية.
+              "heard_batch.yml", "heard_gate.yml",
               #    وعكسُه: سورُ النقص في فهرسٍ منشورٍ بـCTC تُحاذى بـWhisper وتُدمج.
               "whisper_splice.yml",
               "basmala.yml", "restore.yml", "keepalive.yml", "mirror_reciter.yml",
@@ -101,7 +103,7 @@ ALLOWED_WF = {"verified_kurdi_source.yml", "spoken_census.yml", "window_census.y
 ALLOWED_TOOLS = {"ci_fleet/package_catalog_review.py", "ci_fleet/akri_soundcloud_native_compare.py", "ci_fleet/akri_publisher_metadata.py", "ci_fleet/akri_rss_direct_source_search.py", "ci_fleet/akri_independent_source_search.py", "ci_fleet/cancel_duplicate_kalbani_qa.py", "ci_fleet/qa_recover_stalled.py", "index_qa/repair_review.py", "ci_fleet/refreeze.py", "tasmi_bench/cloud_stream_probe.py",  # 🩺 صحّةُ التفريغ السحابيّ (2026-09-25)  # يسدّ تجميداً رُفع بلا ترقية (2026-09-23)
                  "index_qa/run.py", "index_qa/stage_transform.py", "index_qa/promote_verified_transform.py", "ci_fleet/alt_source.py", "ci_fleet/find_sources.py",  # 🔁 تسجيلٌ بديلٌ للقارئ نفسه (2026-09-25)
                  "index_qa/triage.py", "index_qa/promote.py", "index_qa/openers_coverage.py", "index_qa/gap_probe.py", "ci_fleet/web_probe.py",  # 🕋 شواهدُ المطالع على المنشور (2026-09-29)
-                 "index_qa/certify_catalog.py",
+                 "index_qa/certify_catalog.py", "index_qa/heard_gate.py",  # ⚖️ قارئٌ محض: حكمُ بوّابة السماع كما تحكم الترقية (fixT)
                  "index_qa/bucket_watch.py", "index_qa/drop_surah.py", "index_qa/census_gate_check.py",
                  "index_qa/low_coverage_scan.py", "index_qa/dup_sha_sweep.py",
                  "index_qa/duration_profile.py", "index_qa/reciter_evidence.py",

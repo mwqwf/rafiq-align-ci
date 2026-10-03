@@ -710,6 +710,29 @@ def _census_due(key: str) -> bool:
     return needs_census(idx, sha, rep)
 
 
+def _heard_due(key: str) -> bool:
+    """أيلزم المرشّحَ حكمُ سماعٍ لم يُكتب على بصمته؟ (‏مرآةُ `promote.heard_gate_check`)."""
+    import gzip as _gz                                          # noqa: PLC0415
+    import heard_gate as HG                                     # noqa: PLC0415
+    try:
+        idx, sha = fetch_index(key)
+    except Exception:                                          # noqa: BLE001
+        return False
+    cl, b = s3()
+    riw, fn = key.split("/")[1], key.split("/")[2]
+    try:
+        pub = json.loads(_gz.decompress(cl.get_object(Bucket=b, Key=f"timings/{riw}/{fn.split('.')[0]}.jz")["Body"].read()))
+        if not HG.modified_surahs(idx.get("entries"), pub.get("entries")):
+            return False
+    except Exception:                                          # noqa: BLE001
+        pass
+    try:
+        rep = json.loads(cl.get_object(Bucket=b, Key=HG.state_key(key))["Body"].read())
+    except Exception:                                          # noqa: BLE001
+        rep = None
+    return not (isinstance(rep, dict) and rep.get("sha256") == sha)
+
+
 def census_keys(improvements, batch, busy, salt_count, due) -> list[str]:
     """مفاتيحُ يُطلق لها `splice_census.yml` في هذه الجولة.
 
@@ -772,6 +795,12 @@ def cmd_gate(a):
         gh("workflow", "run", "splice_census.yml", "--repo", repo, "-f",
            f"only={','.join(cen)}")
         print(f"⇒ أُطلق الإحصاءُ الشامل لـ{len(cen)}: {', '.join(cen)}")
+    # ⭐ (fixT · 2026-10-03) وبوّابةُ السماع التي تطلبها الترقية (‏`promote.heard_gate_check`)
+    #    تُطلق بالشرط نفسِه — وإلا حُبس كلُّ مرشّحٍ آليٍّ بغياب حكم السماع إلى الأبد.
+    hg = census_keys(imp, batch, busy, lambda k: salts.get(k, 0), _heard_due)
+    if hg:
+        gh("workflow", "run", "heard_gate.yml", "--repo", repo, "-f", f"only={','.join(hg)}")
+        print(f"⇒ أُطلقت بوّابةُ السماع لـ{len(hg)}: {', '.join(hg)}")
     if not batch:
         print("لا شيء يُبوَّب."); return
     keys = ",".join(batch)
