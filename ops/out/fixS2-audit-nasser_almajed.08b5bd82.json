@@ -1,0 +1,258 @@
+{
+ "schema": 1,
+ "tool": "full_audit-1.0",
+ "date": "20261003",
+ "timestampUtc": "2026-10-03T06:51:53Z",
+ "elapsedSec": 27.7,
+ "phase": "all",
+ "manifestIndexes": 180,
+ "frozenBucket": 220,
+ "reportsRead": 9005,
+ "rows": [
+  {
+   "key": "timings-staging/hafs/nasser_almajed.08b5bd82.jz",
+   "sha256": "08b5bd82daae4652dd78ec1b99514fb94c04222c973b04667e553e8bad10b3eb",
+   "riwaya": "hafs",
+   "reciterId": "nasser_almajed",
+   "bytes": 86935,
+   "engine": "align-0.2",
+   "transformOp": "ctc_gapsplit:26",
+   "staging": true,
+   "identity": {
+    "sha256": "08b5bd82daae4652dd78ec1b99514fb94c04222c973b04667e553e8bad10b3eb",
+    "staging": true,
+    "errors": [],
+    "ok": true
+   },
+   "structure": {
+    "entries": 6236,
+    "errors": [],
+    "examples": {},
+    "fileNoUnparsed": 0,
+    "structuralFatal": [],
+    "structuralWarn": [
+     "فجوات > 15ث بين آيتين متتاليتين: 1 · مثال: 9:18→9:19 فجوة 16ث"
+    ],
+    "decision": [],
+    "engine": "align-0.2",
+    "audioSha": 114,
+    "bands": {
+     "MED": 1950,
+     "HIGH": 4101,
+     "LOW": 185
+    },
+    "ok": true
+   },
+   "gaps": {
+    "missingTotal": 0,
+    "internalGaps": [],
+    "headMissing": [],
+    "tailMissing": [],
+    "wholeMissing": [],
+    "declared": {
+     "transformOp": "ctc_gapsplit:26",
+     "transformReason": "fixS2 (الفحص الشامل 2026-10-02 · المنشور 8826aaf6): آياتٌ بلا تلاوة 26:138-138 مدخلُها دون 0.4ث أو ≤0.1× المتوقَّع وصوتُها داخل جارتها ⇒ إعادةُ نافذة الآية بين جارتيها الثابتتين بـCTC بحُرّاس الثقة والمدّة والجارة، ثمّ البوابات كاملةً وعتبة 5% كما هي (إذن المالك 22:44Z).",
+     "reasonCode": "SOURCE_TRUNCATED",
+     "dropSurahs": [],
+     "byReason": {},
+     "declaredCount": 0,
+     "tagCount": 0,
+     "declaredIds": [],
+     "truncatedTail": null
+    },
+    "undeclaredEdge": [],
+    "errors": [],
+    "ok": true
+   },
+   "durations": {
+    "durationOutliers": 10,
+    "durationExamples": [
+     {
+      "aid": "74:51",
+      "ms": 8120,
+      "expMs": 2662,
+      "ratio": 3.05,
+      "chars": 10
+     },
+     {
+      "aid": "90:14",
+      "ms": 12300,
+      "expMs": 4084,
+      "ratio": 3.01,
+      "chars": 18
+     },
+     {
+      "aid": "21:49",
+      "ms": 1000,
+      "expMs": 9259,
+      "ratio": 0.11,
+      "chars": 37
+     },
+     {
+      "aid": "26:177",
+      "ms": 540,
+      "expMs": 4859,
+      "ratio": 0.11,
+      "chars": 20
+     },
+     {
+      "aid": "91:3",
+      "ms": 733,
+      "expMs": 4173,
+      "ratio": 0.18,
+      "chars": 15
+     },
+     {
+      "aid": "74:45",
+      "ms": 964,
+      "expMs": 4792,
+      "ratio": 0.2,
+      "chars": 18
+     },
+     {
+      "aid": "78:7",
+      "ms": 816,
+      "expMs": 3698,
+      "ratio": 0.22,
+      "chars": 13
+     },
+     {
+      "aid": "91:5",
+      "ms": 913,
+      "expMs": 3895,
+      "ratio": 0.23,
+      "chars": 14
+     },
+     {
+      "aid": "87:11",
+      "ms": 980,
+      "expMs": 3565,
+      "ratio": 0.27,
+      "chars": 14
+     },
+     {
+      "aid": "74:13",
+      "ms": 764,
+      "expMs": 2662,
+      "ratio": 0.29,
+      "chars": 10
+     }
+    ],
+    "impossibleShort": [],
+    "veryShort": [
+     {
+      "aid": "26:177",
+      "ms": 540,
+      "expMs": 4859,
+      "ratio": 0.11,
+      "chars": 20
+     },
+     {
+      "aid": "91:3",
+      "ms": 733,
+      "expMs": 4173,
+      "ratio": 0.18,
+      "chars": 15
+     },
+     {
+      "aid": "74:45",
+      "ms": 964,
+      "expMs": 4792,
+      "ratio": 0.2,
+      "chars": 18
+     },
+     {
+      "aid": "78:7",
+      "ms": 816,
+      "expMs": 3698,
+      "ratio": 0.22,
+      "chars": 13
+     },
+     {
+      "aid": "91:5",
+      "ms": 913,
+      "expMs": 3895,
+      "ratio": 0.23,
+      "chars": 14
+     },
+     {
+      "aid": "87:11",
+      "ms": 980,
+      "expMs": 3565,
+      "ratio": 0.27,
+      "chars": 14
+     },
+     {
+      "aid": "74:13",
+      "ms": 764,
+      "expMs": 2662,
+      "ratio": 0.29,
+      "chars": 10
+     }
+    ],
+    "extremeLong": [],
+    "longOutliers": 2,
+    "shortOutliers": 8,
+    "silenceGaps": 1,
+    "silenceExamples": [
+     {
+      "from": "9:18",
+      "to": "9:19",
+      "gapMs": 16080
+     }
+    ],
+    "surahsWithRate": 113
+   },
+   "audio": {
+    "audioReportsOnSha": 0,
+    "openersOnSha": false,
+    "errors": [
+     "لا حكمَ صوتيٍّ بعيّنةٍ على البصمة المنشورة",
+     "لا شاهدَ مطالعَ على البصمة المنشورة"
+    ],
+    "notes": [],
+    "samples": [],
+    "pooled": null,
+    "severeHi": null,
+    "otherShasWithSamples": [
+     "024f4669",
+     "05b18814",
+     "1e1b3eed",
+     "692eba79",
+     "6973df46",
+     "80fd18a7",
+     "8826aaf6",
+     "b74a803d",
+     "e976ce30"
+    ],
+    "ok": false
+   }
+  }
+ ],
+ "summary": {
+  "indexes": 1,
+  "phase": "all",
+  "identityOk": 1,
+  "identityBad": [],
+  "structureOk": 1,
+  "structureBad": [],
+  "gapsOk": 1,
+  "gapsBad": [],
+  "audioOk": 0,
+  "audioBad": [
+   "timings-staging/hafs/nasser_almajed.08b5bd82.jz"
+  ],
+  "durationOutliersTotal": 10,
+  "impossibleShortTotal": 0,
+  "indexesWithImpossibleShort": 0,
+  "veryShortTotal": 7,
+  "extremeLongTotal": 0,
+  "indexesWithExtremeLong": 0,
+  "mirrorStale": 0,
+  "silenceGapsTotal": 1,
+  "indexesWithDurationOutliers": 1,
+  "indexesWithSilenceGaps": 1,
+  "entriesTotal": 6236,
+  "missingTotal": 0
+ }
+}
