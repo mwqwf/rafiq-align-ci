@@ -27,6 +27,13 @@ on:
       skip_ms:
         description: "بدءُ المحاذاة بعد n م.ث من رأس الملفّ (لتخطّي بسملةٍ مقيسة) — أو خريطةٌ لكلّ سورة 95:8030,97:6903"
         default: "0"
+      until_ms:
+        # ⭐ (2026-10-03 · fixG · bl3_warsh/094): ملفٌّ يحوي السورةَ ثمّ سوراً أخرى بعدها (‏الشرحُ في 0–27.5ث
+        #    ثمّ 95–114 و86–93 حتى 1134ث) يجعل whisper يمدّ آخرَ آيتين فوق السور الأخرى (‏94:7 حتى 1059ث).
+        #    ⇒ قصُّ الصوت عند نهايةٍ **مقيسة** (‏خريطةُ السماع) قبل المحاذاة. 0 = بلا قصّ (‏السلوكُ القديم).
+        #    عددٌ أو خريطةٌ لكلّ سورة كـskip_ms، ويُردّ ما لم يكن أكبرَ من التخطّي.
+        description: "نهايةُ المحاذاة عند n م.ث من رأس الملفّ (لملفٍّ تتبع السورةَ فيه سورٌ أخرى، بنهايةٍ مقيسة) — 0 = بلا قصّ"
+        default: "0"
       url_template:
         description: "قالبُ الصوت، مثل https://server16.mp3quran.net/deban/Rewayat-Hafs-A-n-Assem/{s:03d}.mp3"
         required: true
@@ -259,6 +266,7 @@ jobs:
           RID: ${{ github.event.inputs.reciter_id }}
           RIWAYA: ${{ github.event.inputs.riwaya }}
           SKIP_MS: ${{ github.event.inputs.skip_ms }}
+          UNTIL_MS: ${{ github.event.inputs.until_ms }}
           ALLOW_BATCH: ${{ github.event.inputs.allow_batch }}
         run: |
           set -e
@@ -279,6 +287,7 @@ jobs:
           fi
           # ⛔ خريطةُ التخطّي تُفحص لكلّ سورةٍ **قبل تنزيل بايت** (‏سورةٌ بلا قيمةٍ مقيسة تُردّ هنا).
           for S in $(echo "$SURAHS" | tr ',' ' '); do python tools/ci_fleet/skip_for.py "${SKIP_MS:-0}" "$S" >/dev/null; done
+          for S in $(echo "$SURAHS" | tr ',' ' '); do python tools/ci_fleet/skip_for.py "${UNTIL_MS:-0}" "$S" >/dev/null; done
           mkdir -p work
           python - <<'PY'
           import json, os, boto3
@@ -314,7 +323,16 @@ jobs:
             SRC="file://$GITHUB_WORKSPACE/work/full_$S.mp3"
             # ⭐ (2026-09-30) تخطّي هذه السورة من عددٍ واحدٍ أو خريطةٍ لكلّ سورة (‏skip_for.py مختبَر).
             SK=$(python tools/ci_fleet/skip_for.py "${SKIP_MS:-0}" "$S")
-            if [ "$SK" != "0" ]; then
+            UT=$(python tools/ci_fleet/skip_for.py "${UNTIL_MS:-0}" "$S")
+            if [ "$UT" != "0" ]; then
+              # ⭐ (2026-10-03) قصُّ الذيل عند نهايةٍ مقيسة؛ والمداخلُ تُزاح بالتخطّي وحده كما كانت.
+              if [ "$UT" -le "$SK" ]; then echo "⛔ until_ms=$UT لا يتجاوز skip_ms=$SK للسورة $S"; exit 1; fi
+              SEC=$(python -c "print(int('${SK}')/1000)")
+              DUR=$(python -c "print((int('${UT}')-int('${SK}'))/1000)")
+              ffmpeg -y -v error -ss "$SEC" -i "$GITHUB_WORKSPACE/work/full_$S.mp3" -t "$DUR" -map 0:a -c copy "$GITHUB_WORKSPACE/work/cut_$S.mp3"
+              SRC="file://$GITHUB_WORKSPACE/work/cut_$S.mp3"
+              echo "  قُصّ الصوت إلى [${SK}، ${UT}] م.ث من رأس الملفّ (نهايةٌ مقيسة)"
+            elif [ "$SK" != "0" ]; then
               # ⛔ `-map 0:a` (‏2026-09-30 · tblawi/034): ملفٌّ بصورة غلافٍ مدمجة (‏GIF) يجعل `-c copy`
               #    ينسخ الصورةَ مسارَ فيديو فيفشل الترويس «dimensions not set». والصوتُ يُنسخ كما هو.
               SEC=$(python -c "print(int('${SK}')/1000)")
