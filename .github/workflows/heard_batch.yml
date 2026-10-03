@@ -27,7 +27,7 @@ on:
       shards: {description: "عددُ الشرائح المتوازية (1–6)", default: "3"}
 
 permissions:
-  contents: read
+  contents: write   # ⚖️ لكتابة تقرير الدفعة نصّاً في ops/out/heard-batch/ وحده (‏لا شيءَ سواه يُدفع)
   actions: read
 
 concurrency:
@@ -293,6 +293,19 @@ jobs:
                  --parent "$PARENT" --parent-sha "$SHA" \
                  --op "ctc_heardmap_splice:$TAKEN" --reason "$REASON" \
                  --by "github-heard-batch" --yes 2>&1 | tee stage.log
+      - name: التقريرُ نصّاً في المستودع (ops/out/heard-batch/)
+        if: always()
+        env: {RID: "${{ needs.plan.outputs.rid }}", RUN: "${{ github.run_id }}", PARENT: "${{ inputs.parent }}"}
+        run: |
+          f="ops/out/heard-batch/${RID}_${RUN}.txt"; mkdir -p ops/out/heard-batch
+          { echo "# heard_batch $RUN · $PARENT"; cat select.log stage.log 2>/dev/null; } > "$f"
+          git config user.name "rafiq-heard-batch"; git config user.email "actions@github.com"
+          git add "$f" && git commit -q -m "ops: تقريرُ الدفعة السماعيّة $RID ($RUN)" -- "$f"
+          for i in 1 2 3 4 5 6 7 8 9 10; do
+            git pull -q --no-rebase --no-edit origin main && git push -q origin HEAD:main && exit 0
+            sleep $((RANDOM % 10 + 3))
+          done
+          echo "⚠️ تعذّر دفعُ التقرير — المخرَجُ باقٍ"
       - uses: actions/upload-artifact@v4
         if: always()
         with:

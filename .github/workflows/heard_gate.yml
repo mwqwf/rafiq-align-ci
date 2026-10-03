@@ -16,7 +16,7 @@ on:
       shards: {description: "عددُ الشرائح المتوازية لكلّ مرشّح (1–6)", default: "3"}
 
 permissions:
-  contents: read
+  contents: write   # ⚖️ لكتابة الحكم نصّاً في ops/out/heard-gate/ وحده
   actions: read
 
 concurrency:
@@ -158,7 +158,8 @@ jobs:
         env: {ONLY: "${{ inputs.only }}", RUN: "${{ github.run_id }}"}
         run: |
           python -m unittest tools/index_qa/test_heard_gate.py
-          python - <<'PY'
+          set -o pipefail
+          python - <<'PY' | tee judge.log
           import glob, gzip, hashlib, json, os, sys, time, boto3
           sys.stdout.reconfigure(encoding="utf-8")
           sys.path.insert(0, "tools/index_qa")
@@ -198,3 +199,16 @@ jobs:
                   print(f"   ℹ️ عيّنةٌ للتقرير (لا تردّ · تُضاف لطابور الإصلاح): {x}")
               print(f"   ⇒ {'✅ بوّابةُ السماع تمرّ' if why is None else '⛔ ' + why}")
           PY
+      - name: الحكمُ نصّاً في المستودع (ops/out/heard-gate/)
+        if: always()
+        env: {RUN: "${{ github.run_id }}"}
+        run: |
+          mkdir -p ops/out/heard-gate; f="ops/out/heard-gate/$RUN.txt"
+          { echo "# heard_gate $RUN · ${{ inputs.only }}"; cat judge.log 2>/dev/null; } > "$f"
+          git config user.name "rafiq-heard-gate"; git config user.email "actions@github.com"
+          git add "$f" && git commit -q -m "ops: حكمُ بوّابة السماع ($RUN)" -- "$f" || exit 0
+          for i in 1 2 3 4 5 6 7 8 9 10; do
+            git pull -q --no-rebase --no-edit origin main && git push -q origin HEAD:main && exit 0
+            sleep $((RANDOM % 10 + 3))
+          done
+          echo "⚠️ تعذّر دفعُ الحكم — الحكمُ في state-heard/ والسجلّ"
