@@ -4,7 +4,7 @@ run-name: heard-gate ${{ inputs.only }}
 
 # ⛔ **بوّابةُ السماع** (‏fixT · 2026-10-03 · `tools/index_qa/heard_gate.py`): بدءُ كلّ آيةٍ في
 #    **كلّ سورةٍ معدّلةٍ عن المنشور** وفي **عيّنةٍ حتميّةٍ من غيرها** (‏بذرتُها بصمةُ المرشّح)
-#    يُقارن بموضعها المسموع في خريطة السماع (‏`ctc_heard_map --probe` · float32، غيرُ إعداد
+#    (‏العيّنةُ للتقرير وحده — قرارُ المنسّق 2026-10-03) يُقارن بموضعها المسموع في خريطة السماع (‏`ctc_heard_map --probe` · float32، غيرُ إعداد
 #    البناء int8 فلا يشهد المحرّكُ لنفسه بالإعداد نفسِه)؛ انحرافٌ > 1.5ث يردّ المرشّح.
 #    ويُكتب في `state-heard/<المفتاح مسطّحاً>.json` الخرائطُ المختصرةُ وبصمةُ ما سُمع — و
 #    `promote.heard_gate` **يعيد الحكمَ منها** ولا يقرأ حكماً مكتوباً.
@@ -180,7 +180,7 @@ jobs:
               j = H.judge(idx, pub, sha, maps)
               rep = {"sha256": sha, "src": src, "version": H.VERSION, "run": os.environ["RUN"],
                      "ts": int(time.time()), "ok": j["ok"], "reason": j["reason"],
-                     "modified": j["modified"], "sample": j["sample"],
+                     "modified": j["modified"], "sample": j["sample"], "sampleFindings": j["sampleFindings"],
                      "maps": {str(k): v for k, v in maps.items()},
                      "surahs": {k: {"reason": v["reason"],
                                     "dev": [[r["ayah"], r["devMs"]] for r in v["rows"] if r["status"] == "dev"]}
@@ -194,5 +194,7 @@ jobs:
               print(f"■ {src} ({sha[:8]}) · معدّلة {j['modified']} · عيّنة {j['sample']}")
               for k, v in sorted(j["surahs"].items(), key=lambda x: int(x[0])):
                   print(f"   س{k}: {'✅' if not v['reason'] else '⛔ ' + v['reason']}")
+              for x in j["sampleFindings"]:
+                  print(f"   ℹ️ عيّنةٌ للتقرير (لا تردّ · تُضاف لطابور الإصلاح): {x}")
               print(f"   ⇒ {'✅ بوّابةُ السماع تمرّ' if why is None else '⛔ ' + why}")
           PY

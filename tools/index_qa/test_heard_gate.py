@@ -93,7 +93,7 @@ class Judge(unittest.TestCase):
         self.assertEqual(len(H.sample_surahs("ab" * 32, pool)), H.SAMPLE_K)
 
     def test_missing_map_rejects(self):
-        j = H.judge(self.cand, self.pub, "x" * 64, {1: self.good[1]})
+        j = H.judge(self.cand, self.pub, "x" * 64, {2: self.good[2]})
         self.assertFalse(j["ok"])
         self.assertIn("لا خريطةَ سماع", j["reason"])
 
@@ -109,12 +109,23 @@ class Judge(unittest.TestCase):
         bad[1] = dict(self.good[1], fileRef="https://other/001.mp3")
         self.assertFalse(H.judge(self.cand, self.pub, "x" * 64, bad)["ok"])
 
-    def test_sampled_unmodified_deviation_rejects(self):
+    def test_sample_is_report_only(self):
+        # قرارُ المنسّق: العيّنةُ مطابقةٌ للمنشور حرفاً ⇒ انحرافُها يُسجَّل ولا يردّ
         bad = dict(self.good)
         bad[2] = cmap({1: (0, .9), 2: (30000, .9)}, sha="bb", ref="https://h/002.mp3")
         j = H.judge(self.cand, self.pub, "x" * 64, bad)
+        self.assertTrue(j["ok"], j["reason"])
+        self.assertTrue(any("(عيّنة)" in f for f in j["sampleFindings"]))
+        j = H.judge(self.cand, self.pub, "x" * 64, {1: self.good[1]})     # عيّنةٌ بلا خريطة ⇒ تُسجَّل
+        self.assertTrue(j["ok"])
+        self.assertIn("لا خريطةَ سماع", j["sampleFindings"][0])
+
+    def test_modified_deviation_rejects(self):
+        bad = dict(self.good)
+        bad[1] = cmap({1: (0, .9), 2: (30000, .9)})
+        j = H.judge(self.cand, self.pub, "x" * 64, bad)
         self.assertFalse(j["ok"])
-        self.assertIn("(عيّنة)", j["reason"])
+        self.assertIn("س1", j["reason"])
 
     def test_gate_error_recomputes_not_trusts(self):
         sha = "x" * 64
