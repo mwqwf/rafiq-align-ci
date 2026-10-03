@@ -105,6 +105,45 @@ def split_window(x: np.ndarray, ws: int, we: int, texts: list[str]):
     return [(ws + int(st * 1000), ws + int(en * 1000), _conf(sc)) for st, en, sc in segs]
 
 
+NB_FIRST_MAX_MS = 2500   # ‏«لا بسملة» مقيسٌ بخريطة السماع: الآيةُ الأولى تُسمع قبل هذا وإلا رُدّت
+
+
+def parse_rewindow_spec(spec: str):
+    """«س:أ-ب» أو «س:1-ب/nb» ⇒ (س، أ، ب، لا_بسملة). المطلعُ (أ=1) والخاتمةُ (ب=آخرُ السورة)
+    جائزان منذ 2026-10-03 (‏fixS1): آيةٌ حاضرةٌ في طرف السورة حدُّها معطوبٌ بلا جارٍ ثابتٍ من جهته
+    ⇒ حدُّ تلك الجهة بدءُ الملفّ أو نهايتُه. ‏/nb لا تجوز إلا مع أ=1: الملفُّ يبدأ بالآية الأولى
+    بلا بسملة بشاهد خريطة السماع، ويحرسها `NB_FIRST_MAX_MS`."""
+    spec = spec.strip()
+    nb = spec.endswith("/nb")
+    if nb:
+        spec = spec[:-3]
+    s_, rng = spec.split(":")
+    r0, r1 = (int(v) for v in rng.split("-"))
+    if r0 < 1 or r1 < r0:
+        raise ValueError("المدى مقلوب أو يبدأ قبل الآية الأولى")
+    if nb and r0 != 1:
+        raise ValueError("‏/nb للمطلع وحده (أ=1)")
+    return int(s_), r0, r1, nb
+
+
+def rewindow_kind(r0: int, r1: int, n: int, ents: dict):
+    """(الصنف، سببُ الردّ أو None): rewin بين جارتين · rewhead من بدء الملفّ · rewtail حتى نهايته.
+    ⛔ السورةُ كلُّها (1..n) ليست إعادةَ نافذة — بابُها المحاذاةُ الكاملة."""
+    if r1 > n:
+        return "rewin", "المدى يتجاوز آخر السورة"
+    if r0 == 1 and r1 == n:
+        return "rewin", "المدى السورةُ كلُّها — ليس إعادةَ نافذة"
+    if r0 == 1:
+        kind, need = "rewhead", range(1, r1 + 2)
+    elif r1 == n:
+        kind, need = "rewtail", range(r0 - 1, n + 1)
+    else:
+        kind, need = "rewin", range(r0 - 1, r1 + 2)
+    if any(k not in ents for k in need):
+        return kind, "المدى وجاره الثابت يجب أن يكونوا حاضرين في الأب"
+    return kind, None
+
+
 def explicit_gap(ents: dict, n: int, b0: int, b1: int):
     """فجوة مسماة صراحة، ولو فصل الجارتين صمت؛ حراس المحاذاة لا تتغير."""
     if b0 < 2 or b1 < b0 or b1 >= n:
@@ -156,12 +195,15 @@ def main() -> int:
         if int(s_) not in requested_surahs:
             ap.error("سورة الغياب الصريح يجب أن تكون ضمن السور المطلوبة")
         gaps.setdefault(int(s_), []).append((r0, r1))
+    nobasmala = set()
     for spec in [x for x in a.rewindow.split(",") if x.strip()]:
-        s_, rng = spec.split(":")
-        r0, r1 = (int(v) for v in rng.split("-"))
-        if r0 < 2 or r1 < r0:
-            raise SystemExit(f"⛔ مدى إعادة النافذة غيرُ صالح: {spec} (‏يلزم جارٌ قبله وبعده)")
-        rewin.setdefault(int(s_), []).append((r0, r1))
+        try:
+            s_, r0, r1, nb = parse_rewindow_spec(spec)
+        except ValueError as ex:
+            raise SystemExit(f"⛔ مدى إعادة النافذة غيرُ صالح: {spec} ({ex})")
+        rewin.setdefault(s_, []).append((r0, r1))
+        if nb:
+            nobasmala.add(s_)
     os.makedirs(a.out_dir, exist_ok=True)
     idx = json.loads(gzip.decompress(open(a.index, "rb").read()).decode("utf-8"))
     qidx = load_index()
@@ -191,10 +233,11 @@ def main() -> int:
             if proposed not in splits:
                 splits.append(proposed)
         for r0, r1 in rewin.get(s, []):
-            if r1 >= n or any(k not in ents for k in range(r0 - 1, r1 + 2)):
-                report.append(f"س{s}:{r0}-{r1} (rewin): ⛔ المدى وجارتاه يجب أن يكونوا حاضرين في الأب")
+            kind, why = rewindow_kind(r0, r1, n, ents)
+            if why:
+                report.append(f"س{s}:{r0}-{r1} ({kind}): ⛔ {why}")
                 continue
-            splits.append(("rewin", r0, r1))
+            splits.append((kind, r0, r1))
         if not splits:
             report.append(f"س{s}: لا غيابَ مبتلعاً بين جارتين")
             continue
@@ -222,6 +265,23 @@ def main() -> int:
                     continue
                 p, q = ents[left], ents[right]
                 ws, we, fixed = p["startMs"], q["endMs"], (0, -1)
+            elif kind == "rewhead":
+                # ⭐ مطلعٌ حاضرٌ حدُّه معطوب: النافذةُ من بدء الملفّ حتى نهاية الجارة اللاحقة الثابتة.
+                right = min(n, b1 + a.context_ayahs)
+                if any(k not in ents for k in range(1, right + 1)):
+                    report.append(f"س{s}:{b0}-{b1}: ⛔ مرساة المطلع غائبة — لا تخمين")
+                    continue
+                q = ents[right]
+                lead = [] if s in (1, 9) or s in nobasmala else [norm(BASMALA)]
+                ks, ws, we, fixed = list(range(1, right + 1)), 0, q["endMs"], (-1,)
+            elif kind == "rewtail":
+                # ⭐ خاتمةٌ حاضرةٌ حدُّها معطوب: النافذةُ من بدء الجارة السابقة الثابتة حتى نهاية الملفّ.
+                left = max(1, b0 - a.context_ayahs)
+                if any(k not in ents for k in range(left, n + 1)):
+                    report.append(f"س{s}:{b0}-{b1}: ⛔ مرساة الخاتمة غائبة — لا تخمين")
+                    continue
+                p = ents[left]
+                ks, ws, we, fixed = list(range(left, n + 1)), p["startMs"], total_ms, (0,)
             elif kind == "opener":
                 right = min(n, b1 + a.context_ayahs)
                 if any(k not in ents for k in range(b1 + 1, right + 1)):
@@ -249,11 +309,15 @@ def main() -> int:
             starts = [sg[0] for sg in segs]
             if kind == "opener" and a.starts_with_first_ayah:
                 starts[0] = 0  # مرساة الملف المثبتة؛ حراسا الثقة والمدة أدناه باقيان.
-            if kind in ("gap", "tail", "rewin"):
+            if kind in ("gap", "tail", "rewin", "rewtail"):
                 starts[0] = int(p["startMs"])       # بدءُ أول مرساة ثابتٌ من الأب
-            ends = starts[1:] + [int(we) if kind != "tail" else min(int(segs[-1][1]), total_ms)]
-            if kind in ("gap", "opener", "rewin"):
+            ends = starts[1:] + [int(we) if kind not in ("tail", "rewtail") else min(int(segs[-1][1]), total_ms)]
+            if kind in ("gap", "opener", "rewin", "rewhead"):
                 ends[-1] = int(q["endMs"])            # نهايةُ آخر مرساة ثابتةٌ من الأب
+            if kind == "rewhead" and s in nobasmala and starts[0] > NB_FIRST_MAX_MS:
+                report.append(f"س{s}:{b0}-{b1} ({kind}): ⛔ رُدّت — شاهدُ «لا بسملة» يخالفه بدءُ {s}:1 عند "
+                              f"{starts[0]}م.ث > {NB_FIRST_MAX_MS} (‏بسملةٌ محتملة)")
+                continue
             fixed_idx = {i % len(ks) for i in fixed}
             why = None
             for i, k in enumerate(ks):
