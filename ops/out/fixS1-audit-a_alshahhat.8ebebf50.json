@@ -1,0 +1,371 @@
+{
+ "schema": 1,
+ "tool": "full_audit-1.0",
+ "date": "20261003",
+ "timestampUtc": "2026-10-03T08:45:26Z",
+ "elapsedSec": 18.7,
+ "phase": "all",
+ "manifestIndexes": 180,
+ "frozenBucket": 220,
+ "reportsRead": 9162,
+ "rows": [
+  {
+   "key": "timings-staging/hafs/a_alshahhat.8ebebf50.jz",
+   "sha256": "8ebebf509abef31853e22f632eab042cc7c103c15fe052b3a20829c4d882028e",
+   "riwaya": "hafs",
+   "reciterId": "a_alshahhat",
+   "bytes": 93838,
+   "engine": "ctc-seg-1",
+   "transformOp": "ctc_heardmap_splice:18",
+   "staging": true,
+   "identity": {
+    "sha256": "8ebebf509abef31853e22f632eab042cc7c103c15fe052b3a20829c4d882028e",
+    "staging": true,
+    "errors": [],
+    "ok": true
+   },
+   "structure": {
+    "entries": 6236,
+    "errors": [],
+    "examples": {},
+    "fileNoUnparsed": 0,
+    "structuralFatal": [],
+    "structuralWarn": [
+     "مداخل مدتها > 120ث: 1 · مثال: 2:282 مدتها 142ث",
+     "مطالع سور تبدأ دون 3ث — مرشّحون للمسبار الصوتي لا حكمٌ عليهم: 20:1=1001م.ث · 43:1=2831م.ث"
+    ],
+    "decision": [],
+    "engine": "ctc-seg-1",
+    "audioSha": 114,
+    "bands": {
+     "HIGH": 576,
+     "MED": 4288,
+     "LOW": 1372
+    },
+    "ok": true
+   },
+   "gaps": {
+    "missingTotal": 0,
+    "internalGaps": [],
+    "headMissing": [],
+    "tailMissing": [],
+    "wholeMissing": [],
+    "declared": {
+     "transformOp": "ctc_heardmap_splice:18",
+     "transformReason": "fixS1 الموجة 4 — خريطةُ السماع ثمّ نوافذُ على مراسٍ مسموعة لسورٍ كبس المنشورُ مداها (18:69-110) بعد ردّ نوافذ الجارتين ثلاثَ مرّاتٍ بحرّاسها (ضيّقة · أوسع · على مراسٍ مسموعة)؛ الإحصاءُ الشامل والملوحُ حَكَم",
+     "reasonCode": null,
+     "dropSurahs": [],
+     "byReason": {},
+     "declaredCount": 0,
+     "tagCount": 0,
+     "declaredIds": [],
+     "truncatedTail": null
+    },
+    "undeclaredEdge": [],
+    "errors": [],
+    "ok": true
+   },
+   "durations": {
+    "durationOutliers": 48,
+    "durationExamples": [
+     {
+      "aid": "5:53",
+      "ms": 66052,
+      "expMs": 14674,
+      "ratio": 4.5,
+      "chars": 76
+     },
+     {
+      "aid": "7:7",
+      "ms": 10027,
+      "expMs": 2980,
+      "ratio": 3.36,
+      "chars": 27
+     },
+     {
+      "aid": "10:36",
+      "ms": 34660,
+      "expMs": 10307,
+      "ratio": 3.36,
+      "chars": 59
+     },
+     {
+      "aid": "7:19",
+      "ms": 24877,
+      "expMs": 7506,
+      "ratio": 3.31,
+      "chars": 68
+     },
+     {
+      "aid": "14:9",
+      "ms": 62950,
+      "expMs": 19729,
+      "ratio": 3.19,
+      "chars": 155
+     },
+     {
+      "aid": "36:31",
+      "ms": 27606,
+      "expMs": 9090,
+      "ratio": 3.04,
+      "chars": 45
+     },
+     {
+      "aid": "36:40",
+      "ms": 34987,
+      "expMs": 11514,
+      "ratio": 3.04,
+      "chars": 57
+     },
+     {
+      "aid": "78:39",
+      "ms": 1121,
+      "expMs": 8771,
+      "ratio": 0.13,
+      "chars": 31
+     },
+     {
+      "aid": "19:84",
+      "ms": 961,
+      "expMs": 6413,
+      "ratio": 0.15,
+      "chars": 25
+     },
+     {
+      "aid": "26:203",
+      "ms": 560,
+      "expMs": 3737,
+      "ratio": 0.15,
+      "chars": 18
+     },
+     {
+      "aid": "26:205",
+      "ms": 560,
+      "expMs": 3529,
+      "ratio": 0.16,
+      "chars": 17
+     },
+     {
+      "aid": "33:42",
+      "ms": 480,
+      "expMs": 2692,
+      "ratio": 0.18,
+      "chars": 16
+     }
+    ],
+    "impossibleShort": [],
+    "veryShort": [
+     {
+      "aid": "19:84",
+      "ms": 961,
+      "expMs": 6413,
+      "ratio": 0.15,
+      "chars": 25
+     },
+     {
+      "aid": "26:203",
+      "ms": 560,
+      "expMs": 3737,
+      "ratio": 0.15,
+      "chars": 18
+     },
+     {
+      "aid": "26:205",
+      "ms": 560,
+      "expMs": 3529,
+      "ratio": 0.16,
+      "chars": 17
+     },
+     {
+      "aid": "33:42",
+      "ms": 480,
+      "expMs": 2692,
+      "ratio": 0.18,
+      "chars": 16
+     },
+     {
+      "aid": "19:94",
+      "ms": 881,
+      "expMs": 4361,
+      "ratio": 0.2,
+      "chars": 17
+     },
+     {
+      "aid": "26:218",
+      "ms": 641,
+      "expMs": 3114,
+      "ratio": 0.21,
+      "chars": 15
+     },
+     {
+      "aid": "77:45",
+      "ms": 975,
+      "expMs": 4348,
+      "ratio": 0.22,
+      "chars": 16
+     },
+     {
+      "aid": "56:94",
+      "ms": 660,
+      "expMs": 2840,
+      "ratio": 0.23,
+      "chars": 10
+     },
+     {
+      "aid": "26:204",
+      "ms": 841,
+      "expMs": 3529,
+      "ratio": 0.24,
+      "chars": 17
+     }
+    ],
+    "extremeLong": [],
+    "longOutliers": 7,
+    "shortOutliers": 37,
+    "silenceGaps": 0,
+    "silenceExamples": [],
+    "surahsWithRate": 113
+   },
+   "audio": {
+    "audioReportsOnSha": 4,
+    "openersOnSha": true,
+    "errors": [],
+    "notes": [],
+    "samples": [
+     {
+      "salt": "fixS18ebe3",
+      "source": "ci",
+      "engine": "pywhispercpp/ggml-q8 (tiny-ar-quran)",
+      "verdict": "مقبول",
+      "m": 1,
+      "n": 200,
+      "rate": 0.005,
+      "hi": 0.014800000000000004,
+      "fatal": 0,
+      "ts": 1791014770.8891728
+     },
+     {
+      "salt": "fixS18ebe1",
+      "source": "ci",
+      "engine": "pywhispercpp/ggml-q8 (tiny-ar-quran)",
+      "verdict": "مقبول",
+      "m": 2,
+      "n": 200,
+      "rate": 0.01,
+      "hi": 0.029600000000000008,
+      "fatal": 0,
+      "ts": 1791014774.6701424
+     },
+     {
+      "salt": "fixS18ebe2",
+      "source": "ci",
+      "engine": "pywhispercpp/ggml-q8 (tiny-ar-quran)",
+      "verdict": "مقبول",
+      "m": 2,
+      "n": 200,
+      "rate": 0.01,
+      "hi": 0.0296,
+      "fatal": 0,
+      "ts": 1791014782.746328
+     },
+     {
+      "salt": "fixS18ebe4",
+      "source": "ci",
+      "engine": "pywhispercpp/ggml-q8 (tiny-ar-quran)",
+      "verdict": "مقبول",
+      "m": 2,
+      "n": 200,
+      "rate": 0.01,
+      "hi": 0.02348964515158903,
+      "fatal": 0,
+      "ts": 1791014789.6864426
+     }
+    ],
+    "pooled": {
+     "m": 7,
+     "n": 800,
+     "rate": 0.00875,
+     "hi": 0.01637202740470296,
+     "salts": [
+      "fixS18ebe1",
+      "fixS18ebe2",
+      "fixS18ebe3",
+      "fixS18ebe4"
+     ],
+     "seeds": 4,
+     "engine": "pywhispercpp/ggml-q8 (tiny-ar-quran)",
+     "rule": "D-098"
+    },
+    "severeHi": 0.01637202740470296,
+    "openers": {
+     "commit": "8c0d5e00935bc6c31ae29d07de90fa20e2c5e759",
+     "toolOk": true,
+     "scope": "full",
+     "checked": 112,
+     "hasLate": true,
+     "late": [],
+     "lateCtcRule": null,
+     "lateConfirmed": [],
+     "swallowed": [],
+     "suspect": [],
+     "tail": [
+      69
+     ],
+     "unknown": [
+      5,
+      6,
+      7,
+      13,
+      14,
+      16,
+      17,
+      24,
+      25,
+      31,
+      36,
+      37,
+      38,
+      39,
+      87,
+      92
+     ],
+     "verdict": "clean"
+    },
+    "otherShasWithSamples": [
+     "0b255f9c",
+     "41dd30a4",
+     "4d4f2f02",
+     "59279422",
+     "6f35c129",
+     "b3a0f2f8",
+     "c9feade5"
+    ],
+    "ok": true
+   }
+  }
+ ],
+ "summary": {
+  "indexes": 1,
+  "phase": "all",
+  "identityOk": 1,
+  "identityBad": [],
+  "structureOk": 1,
+  "structureBad": [],
+  "gapsOk": 1,
+  "gapsBad": [],
+  "audioOk": 1,
+  "audioBad": [],
+  "durationOutliersTotal": 48,
+  "impossibleShortTotal": 0,
+  "indexesWithImpossibleShort": 0,
+  "veryShortTotal": 9,
+  "extremeLongTotal": 0,
+  "indexesWithExtremeLong": 0,
+  "mirrorStale": 0,
+  "silenceGapsTotal": 0,
+  "indexesWithDurationOutliers": 1,
+  "indexesWithSilenceGaps": 0,
+  "entriesTotal": 6236,
+  "missingTotal": 0
+ }
+}
