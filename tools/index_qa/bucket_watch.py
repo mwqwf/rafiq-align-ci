@@ -58,6 +58,7 @@ def main():
     ap.add_argument("--until", type=int, default=0, help="دقائق ثم يتوقف")
     ap.add_argument("--all-prefixes", action="store_true",
                     help="ارصد كل البادئات لا بادئات الأسطول وحدها")
+    ap.add_argument("--max", type=int, default=12, help="أقصى ما يُطبع من الكتابات (‏fixS1: موجةٌ من 30 نافذةً تتجاوز 12)")
     a = ap.parse_args()
     since = dt.datetime.fromisoformat(a.since.replace("Z", "+00:00"))
     global PREFIXES
@@ -71,7 +72,7 @@ def main():
         stamp = dt.datetime.now(dt.timezone.utc).strftime("%H:%M:%SZ")
         if fresh:
             print(f"[{stamp}] **كتابةٌ جديدة بعد {a.since}: {len(fresh)}**", flush=True)
-            for when, key, size in fresh[:12]:
+            for when, key, size in fresh[:a.max]:
                 print(f"    {when:%H:%M:%SZ}  {key}  ({size} بايت)", flush=True)
             return 0
         print(f"[{stamp}] لا كتابة بعد {a.since} — صمتٌ تامّ على "
