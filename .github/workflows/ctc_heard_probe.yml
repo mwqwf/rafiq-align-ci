@@ -21,7 +21,8 @@ permissions:
   contents: read
 
 concurrency:
-  group: rafiq-heard-probe-${{ inputs.surah }}-${{ inputs.riwaya }}
+  # ‏(fixS1 · 2026-10-03) الرابطُ في المجموعة: مسابرُ قرّاءٍ مختلفين للسورة نفسِها كانت تُلغي بعضَها (خمسةٌ لس18).
+  group: rafiq-heard-probe-${{ inputs.surah }}-${{ inputs.riwaya }}-${{ inputs.url }}
   cancel-in-progress: false
 
 env:
