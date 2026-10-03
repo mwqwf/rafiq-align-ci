@@ -17,8 +17,12 @@
 - **السورةُ تُردّ** إن: (١) فيها انحرافٌ واحد؛ أو (٢) المقيسُ أقلُّ من نصف الحاضر
   (‏«ما لم يُحسم لم يُسمع» — كحارس الإحصاء)؛ أو (٣) **ذيلُها غيرُ مقيس**: آخرُ ثلاث آياتٍ
   حاضرةٍ فأكثر بلا مِرساةٍ مقيسة (‏آياتٌ منشورةٌ بلا صوتٍ يقابلها — noah 3:154–200).
-- والمرشّحُ يُردّ إن رُدّت سورةٌ واحدةٌ من: **كلِّ سورةٍ معدّلةٍ عن المنشور** ∪ **عيّنةٍ
-  حتميّةٍ** من غيرها (‏4 سور، بذرتُها بصمةُ المرشّح فلا يختارها صانعُه).
+- والمرشّحُ يُردّ إن رُدّت **سورةٌ واحدةٌ معدّلةٌ عن المنشور** (‏كلُّ معدّلةٍ تُفحص، بلا انحرافٍ
+  فوق 1.5ث ⇒ لا آيةَ فيها أسوأَ من المنشور).
+- ⚖️ **والعيّنةُ للتقرير وحده** (‏قرارُ المنسّق 2026-10-03): 4 سورٍ غيرُ معدّلة، بذرتُها بصمةُ
+  المرشّح، تُقاس وتُسجَّل انحرافاتُها في `sampleFindings` ولا تردّ المرشّح — فهي مطابقةٌ للمنشور
+  حرفاً ولا تُدخل خطأً جديداً، وردُّ المرشّح بها كان يحجب تحسيناً حقيقيّاً. والتالفُ الذي تكشفه
+  يُضاف إلى طابور الإصلاح التالي.
 
 ## الإثبات
 `heard_gate.yml` يكتب `state-heard/<المفتاح مسطّحاً>.json` فيه لكلّ سورةٍ خريطتَها المختصرة
@@ -138,27 +142,29 @@ def judge(cand_idx: dict, pub_idx: dict | None, cand_sha: str, maps: dict) -> di
     present = sorted(cs)
     shas = cand_idx.get("audioSha256")
     out = {"ok": False, "reason": None, "required": required, "modified": modified,
-           "sample": sample, "surahs": {}, "version": VERSION}
+           "sample": sample, "surahs": {}, "sampleFindings": [], "version": VERSION}
     bad = []
     for s in required:
+        # ⚖️ العيّنةُ (غيرُ المعدّلة) للتقرير وحده: ما يُوجد فيها يُسجَّل ولا يردّ.
+        sink = bad if s in modified else out["sampleFindings"]
         m = maps.get(s) or maps.get(str(s))
         if not m:
-            bad.append(f"س{s}: لا خريطةَ سماع")
+            sink.append(f"س{s}: لا خريطةَ سماع")
             continue
         if isinstance(shas, list) and len(shas) == len(present):
             want = shas[present.index(s)]
             if want and m.get("sha256") != want:
-                bad.append(f"س{s}: الصوتُ المسموع ({str(m.get('sha256'))[:8]}) غيرُ صوت المرشّح ({str(want)[:8]})")
+                sink.append(f"س{s}: الصوتُ المسموع ({str(m.get('sha256'))[:8]}) غيرُ صوت المرشّح ({str(want)[:8]})")
                 continue
         refs = {v[2] for v in cs[s].values()}
         if m.get("fileRef") and refs and m["fileRef"] not in refs:
-            bad.append(f"س{s}: سُمع {m['fileRef']} والمرشّحُ يشير إلى {sorted(refs)[0]}")
+            sink.append(f"س{s}: سُمع {m['fileRef']} والمرشّحُ يشير إلى {sorted(refs)[0]}")
             continue
         rows = surah_rows({a: v[0] for a, v in cs[s].items()}, m)
         why = surah_verdict(rows)
         out["surahs"][str(s)] = {"reason": why, "rows": rows}
         if why:
-            bad.append(f"س{s}{'' if s in modified else ' (عيّنة)'}: {why}")
+            sink.append(f"س{s}{'' if s in modified else ' (عيّنة)'}: {why}")
     out["ok"] = not bad
     out["reason"] = " · ".join(bad)[:2000] if bad else None
     return out
