@@ -1,0 +1,291 @@
+name: rafiq-heard-batch
+
+run-name: >-
+  heard-batch ${{ inputs.parent }} · ${{ inputs.surahs }}
+
+# ⭐ **الإصلاحُ الدفعيّ لكبس الذيل** (‏fixT · 2026-10-03 · تدقيقُ الجولة الثانية البند 3):
+#    في 5155 سورةً على 152 فهرساً يُنشر توقيتُ أواخر السورة قبل موضعه المسموع. والعلاجُ
+#    الذي نجح سورةً سورة هو `ctc_splice.yml` بوضع heard (‏محرّك ctc-heardmap-1). وهنا
+#    **فهرسٌ كاملٌ وقائمةُ سوره المشتبهة ⇒ مرشّحٌ واحدٌ في `timings-staging/`**:
+#      ١. تخطيطٌ بحرّاس ctc_splice نفسِها (‏القالبُ من الكتالوج قبل تنزيل بايت · هويّةُ الأصل).
+#      ٢. شرائحُ متوازية: لكلّ سورةٍ خريطةُ السماع ثمّ إعادةُ البناء على مراسٍ مسموعة.
+#      ٣. انتقاءٌ مقيس (‏`heard_batch_select.py` بحكم `heard_gate`): تؤخذ السورةُ إن كان
+#         المنشورُ منحرفاً عن المسموع > 1.5ث **و**المبنيُّ يطابقه — وإلا تُترك كما هي بسببٍ مكتوب.
+#      ٤. الدمجُ (‏`splice_surah --skip-unresolved`، وما خارج المأخوذ يُقارَن حرفاً) ثمّ الرفعُ
+#         بحرّاس `stage_transform` (‏`ctc_heardmap_splice` ⇒ إعلانُ engineBySurah والإحصاءُ الشامل).
+# ⛔ لا حارسَ أُضعف ولا عتبة: المرشّحُ يمرّ بعدُ بالمطالع والملوح الأربعة والإحصاء والتشخيص
+#    و**بوّابة السماع** (‏`heard_gate.yml`) قبل أيّ ترقية؛ وهذا السيرُ لا يرقّي شيئاً.
+# 💰 مستودعٌ عامّ + عدّاد ubuntu-latest القياسيّ ⇒ دقائقُ مجّانيّة.
+on:
+  workflow_dispatch:
+    inputs:
+      parent: {description: "الأصل: timings/<riw>/<id>.jz أو مرشّحٌ timings-staging/<riw>/<id>.<sha8>.jz", required: true}
+      url_template: {description: "قالبُ الصوت من الكتالوج فيه {s:03d}، أو أساسُ المجلَّد نفسُه", required: true}
+      riwaya: {description: "الرواية", default: "hafs"}
+      surahs: {description: "السورُ المشتبهة بفواصل (‏من قائمة التدقيق) — كلٌّ يُقاس قبل أن يُمسّ", required: true}
+      reason: {description: "سببُ التحويل", required: true}
+      shards: {description: "عددُ الشرائح المتوازية (1–6)", default: "3"}
+
+permissions:
+  contents: read
+  actions: read
+
+concurrency:
+  group: rafiq-heard-batch-${{ inputs.parent }}
+  cancel-in-progress: false
+
+env:
+  PY: "3.11"
+  ALIGN_ENGINE: ctc
+  HF_HOME: ${{ github.workspace }}/.hf
+
+jobs:
+  plan:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    outputs:
+      rid: ${{ steps.plan.outputs.rid }}
+      sha: ${{ steps.plan.outputs.sha }}
+      surahs: ${{ steps.plan.outputs.surahs }}
+      urlt: ${{ steps.plan.outputs.urlt }}
+      folder: ${{ steps.plan.outputs.folder }}
+      matrix: ${{ steps.plan.outputs.matrix }}
+      urls: ${{ steps.plan.outputs.urls }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: {python-version: "${{ env.PY }}"}
+      - run: python -m pip install --quiet boto3
+      - name: الاختبارات أوّلاً
+        run: python -m unittest tools/index_qa/test_heard_gate.py tools/index_qa/test_heard_batch_select.py
+      - name: اعتماد R2
+        env: {R2_CREDENTIALS_JSON: "${{ secrets.R2_CREDENTIALS_JSON }}"}
+        run: mkdir -p secure && printf '%s' "$R2_CREDENTIALS_JSON" > secure/r2_credentials.json
+      - name: ⛔ حارسُ الرابط والهويّة والشرائح
+        id: plan
+        env:
+          PARENT: ${{ inputs.parent }}
+          URLT: ${{ inputs.url_template }}
+          RIW: ${{ inputs.riwaya }}
+          WANT: ${{ inputs.surahs }}
+          SHARDS: ${{ inputs.shards }}
+        run: |
+          python - <<'PY'
+          import gzip, hashlib, json, os, re, sys, boto3
+          sys.stdout.reconfigure(encoding="utf-8")
+          sys.path.insert(0, "tools/index_qa")
+          from splice_surah import COUNTS
+          c = json.load(open("secure/r2_credentials.json"))
+          s3 = boto3.client("s3", endpoint_url=c["endpoint"], aws_access_key_id=c["accessKeyId"],
+                            aws_secret_access_key=c["secretAccessKey"], region_name="auto")
+          parent = os.environ["PARENT"]
+          if not parent.startswith(("timings/", "timings-staging/")) or parent.count("/") != 2 or not parent.endswith(".jz"):
+              sys.exit(f"⛔ الأصلُ يجب أن يكون timings/<riw>/<id>.jz أو timings-staging/<riw>/<id>.<sha8>.jz: {parent}")
+          _, riw, fn = parent.split("/")
+          rid = fn[:-3].split(".")[0]
+          if riw != os.environ["RIW"]:
+              sys.exit(f"⛔ الرواية {os.environ['RIW']} والأصلُ {riw}")
+          cat = json.loads(s3.get_object(Bucket=c["bucket"], Key="catalog/reciters.json")["Body"].read())
+          base, files = None, None
+          for r in cat.get("riwayat", []):
+              if r["id"] == riw:
+                  for x in r.get("reciters", []):
+                      if x.get("id") == rid:
+                          base, files = x.get("base") or "", x.get("files")
+          if base is None:
+              sys.exit(f"⛔ {riw}/{rid} ليس في الكتالوج — لا محاذاةَ لمجهول")
+          got = os.environ["URLT"]
+          want_t = (base if base.endswith("/") else base + "/") + "{s:03d}.mp3"
+          folder, urlt = False, got
+          if "{s:03d}" not in got:
+              if "{" in got or not base or "{" in base or got.rstrip("/") != base.rstrip("/"):
+                  sys.exit(f"⛔ أساسُ مجلَّدٍ يخالف الكتالوج\n   المعطى {got}\n   الكتالوج {base!r}")
+              if not isinstance(files, list) or len(files) != 114 or not all(isinstance(n, str) and n for n in files):
+                  sys.exit(f"⛔ مضيفُ مجلَّدٍ بلا جدول files من 114 اسماً لـ{rid}")
+              folder, urlt = True, base.rstrip("/") + "/"
+          elif got != want_t:
+              # ⛔ لا بديلَ مسجَّلاً في الدفعة: السورُ ذاتُ المصدر البديل تُعالَج في ctc_splice بسورها المسمّاة.
+              sys.exit(f"⛔ القالبُ يخالف الكتالوج — يُوقَف قبل تنزيل بايت\n   المعطى {got}\n   الكتالوج {want_t}")
+          body = s3.get_object(Bucket=c["bucket"], Key=parent)["Body"].read()
+          idx = json.loads(gzip.decompress(body).decode("utf-8"))
+          if idx.get("reciterId") != rid or idx.get("riwaya") != riw:
+              sys.exit("⛔ الأصلُ يصف قارئاً آخر")
+          have = {}
+          refs = {}
+          for e in idx["entries"]:
+              s = int(e["ayahId"].split(":")[0]); have[s] = have.get(s, 0) + 1
+              refs.setdefault(s, set()).add(e.get("fileRef"))
+          asked = sorted({int(x) for x in re.findall(r"\d+", os.environ["WANT"])})
+          if not asked or any(not 1 <= s <= 114 for s in asked):
+              sys.exit(f"⛔ قائمةُ السور فارغةٌ أو خارج 1–114: {os.environ['WANT']}")
+          todo, skip, urls = [], [], {}
+          for s in asked:
+              u = urlt + files[s - 1] if folder else urlt.format(s=s)
+              if s not in have:
+                  skip.append(f"س{s}: غائبةٌ في الأصل")
+              elif refs[s] != {u}:
+                  skip.append(f"س{s}: مداخلُها تشير إلى {sorted(map(str, refs[s]))[:2]} لا إلى {u}")
+              else:
+                  todo.append(s); urls[str(s)] = u
+          for x in skip:
+              print("⚠️ تُترك:", x)
+          if not todo:
+              sys.exit("⛔ لا سورةَ يصحّ قياسُها من القائمة")
+          n = max(1, min(6, int(os.environ.get("SHARDS") or 3), len(todo)))
+          bins = [[] for _ in range(n)]; load = [0] * n
+          for s in sorted(todo, key=lambda s: -COUNTS[s - 1]):     # أطولُ أوّلاً، إلى أخفّ شريحة
+              i = load.index(min(load)); bins[i].append(s); load[i] += COUNTS[s - 1] + 20
+          matrix = {"shard": [",".join(map(str, sorted(b))) for b in bins if b]}
+          sha = hashlib.sha256(body).hexdigest()
+          print(f"الأصل {parent} ({sha[:12]}) · محرّكه {idx.get('engineVersion')} · يُقاس {len(todo)}: {todo} · شرائح {matrix}")
+          with open(os.environ["GITHUB_OUTPUT"], "a") as f:
+              f.write(f"rid={rid}\nsha={sha}\nsurahs={','.join(map(str, todo))}\nurlt={urlt}\n"
+                      f"folder={'1' if folder else ''}\nmatrix={json.dumps(matrix)}\nurls={json.dumps(urls)}\n")
+          PY
+
+  align:
+    needs: plan
+    runs-on: ubuntu-latest
+    timeout-minutes: 340
+    strategy:
+      fail-fast: false
+      matrix: ${{ fromJson(needs.plan.outputs.matrix) }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: {python-version: "${{ env.PY }}"}
+      - name: الأدوات
+        run: |
+          sudo apt-get update -qq && sudo apt-get install -y -qq ffmpeg
+          python -m pip install --quiet --index-url https://download.pytorch.org/whl/cpu torch
+          python -m pip install --quiet "numpy<2" transformers ctc-segmentation rapidfuzz
+      - name: كاش النموذج
+        uses: actions/cache@v4
+        with:
+          path: .hf
+          key: ctc-model-jonatasgrosman-xlsr53-ar-v1
+      - name: خريطةُ السماع وإعادةُ البناء لكلّ سورة (⛔ بلا رفع · بميزانيّة وقت)
+        env:
+          URLS: ${{ needs.plan.outputs.urls }}
+          RIW: ${{ inputs.riwaya }}
+          RID: ${{ needs.plan.outputs.rid }}
+          SHARD: ${{ matrix.shard }}
+        run: |
+          set -o pipefail
+          python -m unittest tools/alignment_v3/test_ctc_heard_map.py
+          T0=$(date +%s); BUDGET=$((300*60))
+          d="tools/alignment/work/batch_$RID"; mkdir -p "$d"
+          for s in $(echo "$SHARD" | tr ',' ' '); do
+            if [ $(( $(date +%s) - T0 )) -gt $BUDGET ]; then echo "⏳ س$s: لم يُبلغ في ميزانيّة الوقت — للدفعة التالية"; continue; fi
+            U="$(python -c "import json,sys; print(json.loads(sys.argv[1])[sys.argv[2]])" "$URLS" "$s")"
+            python tools/alignment_v3/ctc_heard_map.py --url "$U" --surah "$s" --riwaya "$RIW" \
+              --out-dir "$d" 2>&1 | grep -v "^[0-9]*:[0-9]*\s" | tail -25 | tee -a "ctc_$s.log" || echo "⚠️ س$s: أخفقت المحاذاة"
+            rm -f "$d"/*.mp3 "$d"/*.wav
+          done
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: heard-batch-${{ github.run_id }}-${{ strategy.job-index }}
+          path: |
+            tools/alignment/work/batch_*/s*.json
+            tools/alignment/work/batch_*/heard_s*.txt
+            ctc_*.log
+          retention-days: 7
+
+  collect:
+    needs: [plan, align]
+    if: always() && needs.plan.result == 'success'
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: {python-version: "${{ env.PY }}"}
+      - run: python -m pip install --quiet boto3
+      - name: اعتماد R2
+        env: {R2_CREDENTIALS_JSON: "${{ secrets.R2_CREDENTIALS_JSON }}"}
+        run: mkdir -p secure && printf '%s' "$R2_CREDENTIALS_JSON" > secure/r2_credentials.json
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: heard-batch-${{ github.run_id }}-*
+          path: shards
+      - name: الأصلُ نفسُه بالبصمة
+        env: {PARENT: "${{ inputs.parent }}", SHA: "${{ needs.plan.outputs.sha }}"}
+        run: |
+          python - <<'PY'
+          import hashlib, json, os, boto3
+          c = json.load(open("secure/r2_credentials.json"))
+          s3 = boto3.client("s3", endpoint_url=c["endpoint"], aws_access_key_id=c["accessKeyId"],
+                            aws_secret_access_key=c["secretAccessKey"], region_name="auto")
+          body = s3.get_object(Bucket=c["bucket"], Key=os.environ["PARENT"])["Body"].read()
+          if hashlib.sha256(body).hexdigest() != os.environ["SHA"]:
+              raise SystemExit("⛔ الأصلُ تبدّل منذ التخطيط — لا يُدمج على غيره")
+          open("parent.jz", "wb").write(body)
+          PY
+      - name: الانتقاءُ ببوّابة السماع (تقريرٌ لكلّ سورة)
+        env: {RID: "${{ needs.plan.outputs.rid }}", SURAHS: "${{ needs.plan.outputs.surahs }}"}
+        run: |
+          python -m unittest tools/index_qa/test_heard_gate.py tools/index_qa/test_heard_batch_select.py
+          d="tools/alignment/work/batch_$RID"; mkdir -p "$d"
+          find shards -name 's[0-9][0-9][0-9].json' -exec cp {} "$d/" \;
+          python tools/index_qa/heard_batch_select.py --parent parent.jz --dir "$d" \
+            --surahs "$SURAHS" --report heard_batch_report.json | tee select.log
+      - name: الدمجُ بحُرّاسه وبصماتُ الصوت
+        id: splice
+        env:
+          URLT: ${{ needs.plan.outputs.urlt }}
+          FOLDER: ${{ needs.plan.outputs.folder }}
+          RID: ${{ needs.plan.outputs.rid }}
+        run: |
+          set -e
+          d="tools/alignment/work/batch_$RID"
+          S="$(python -c "import json; print(','.join(map(str, json.load(open('heard_batch_report.json'))['taken'])))")"
+          if [ -z "$S" ]; then echo "لا سورةَ أُخذت — لا مرشّح"; echo "none=1" >> "$GITHUB_OUTPUT"; exit 0; fi
+          F=""; for s in $(echo "$S" | tr ',' ' '); do F="$F $(printf '%s/s%03d.json' "$d" "$s")"; done
+          RF=""; [ -n "$FOLDER" ] && RF="--refs-from-parent"
+          python tools/index_qa/splice_surah.py --index parent.jz --surah "$S" --aligned $F --url "$URLT" \
+                 --skip-unresolved --engine-tag ctc-heardmap-1 $RF --out patched.jz
+          python - <<'PY'
+          import gzip, json, os
+          d = f"tools/alignment/work/batch_{os.environ['RID']}"
+          idx = json.loads(gzip.decompress(open("patched.jz", "rb").read()).decode())
+          taken = [int(x) for x in open("patched.jz.taken").read().split(",") if x]
+          present = sorted({int(e["ayahId"].split(":")[0]) for e in idx["entries"]})
+          sha = idx.get("audioSha256")
+          if isinstance(sha, list) and len(sha) == len(present):
+              pos = {s: i for i, s in enumerate(present)}
+              for s in taken:
+                  rec = json.load(open(f"{d}/s{s:03d}.json", encoding="utf-8"))
+                  for e in idx["entries"]:
+                      if int(e["ayahId"].split(":")[0]) == s and e["fileRef"] != rec["fileRef"]:
+                          raise SystemExit(f"⛔ س{s}: fileRef المدموج {e['fileRef']} ≠ المحاذى {rec['fileRef']}")
+                  if rec.get("sha256"):
+                      if sha[pos[s]] and sha[pos[s]] != rec["sha256"]:
+                          raise SystemExit(f"⛔ س{s}: بصمةُ الصوت تبدّلت — لا يُدمج")
+                      sha[pos[s]] = rec["sha256"]
+              idx["audioSha256"] = sha
+          with open("patched.jz", "wb") as f:
+              f.write(gzip.compress(json.dumps(idx, ensure_ascii=False).encode("utf-8")))
+          print("المأخوذ:", taken, "· engineBySurah:", idx.get("engineBySurah"))
+          PY
+      - name: رفعٌ إلى الاختبار بحُرّاس stage_transform
+        if: steps.splice.outputs.none != '1'
+        env:
+          PARENT: ${{ inputs.parent }}
+          SHA: ${{ needs.plan.outputs.sha }}
+          REASON: ${{ inputs.reason }}
+        run: |
+          TAKEN="$(cat patched.jz.taken)"
+          python tools/index_qa/stage_transform.py --file patched.jz \
+                 --parent "$PARENT" --parent-sha "$SHA" \
+                 --op "ctc_heardmap_splice:$TAKEN" --reason "$REASON" \
+                 --by "github-heard-batch" --yes 2>&1 | tee stage.log
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: heard-batch-report-${{ github.run_id }}
+          path: |
+            heard_batch_report.json
+            select.log
+            stage.log
+          retention-days: 30
