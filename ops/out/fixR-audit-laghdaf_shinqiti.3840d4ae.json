@@ -1,0 +1,347 @@
+{
+ "schema": 1,
+ "tool": "full_audit-1.0",
+ "date": "20261003",
+ "timestampUtc": "2026-10-03T15:37:17Z",
+ "elapsedSec": 17.9,
+ "phase": "all",
+ "manifestIndexes": 180,
+ "frozenBucket": 220,
+ "reportsRead": 9656,
+ "rows": [
+  {
+   "key": "timings-staging/warsh/laghdaf_shinqiti.3840d4ae.jz",
+   "sha256": "3840d4aebfa883cd246b2cb7a66d4da6b5cf50c6cca906372ee32afbfdeed218",
+   "riwaya": "warsh",
+   "reciterId": "laghdaf_shinqiti",
+   "bytes": 96202,
+   "engine": "ctc-seg-1",
+   "transformOp": "ctc_heardmap_splice:45",
+   "staging": true,
+   "identity": {
+    "sha256": "3840d4aebfa883cd246b2cb7a66d4da6b5cf50c6cca906372ee32afbfdeed218",
+    "staging": true,
+    "errors": [],
+    "ok": true
+   },
+   "structure": {
+    "entries": 6236,
+    "errors": [
+     "رقمُ الملفّ لا يطابق السورة: 1"
+    ],
+    "examples": {
+     "fileNoMismatch": {
+      "85": "https://archive.org/download/chinguit_01/60.ogg"
+     }
+    },
+    "fileNoUnparsed": 0,
+    "structuralFatal": [],
+    "structuralWarn": [],
+    "decision": [],
+    "engine": "ctc-seg-1",
+    "audioSha": 114,
+    "bands": {
+     "MED": 3247,
+     "LOW": 2668,
+     "HIGH": 321
+    },
+    "ok": false
+   },
+   "gaps": {
+    "missingTotal": 0,
+    "internalGaps": [],
+    "headMissing": [],
+    "tailMissing": [],
+    "wholeMissing": [],
+    "declared": {
+     "transformOp": "ctc_heardmap_splice:45",
+     "transformReason": "fixR (تدقيق الجولة الثانية · مؤكَّدٌ بالسماع 37128814813): laghdaf_shinqiti — ذيلُ 45:26–37 (12 آية) قبل موضعه حتى 124ث ⇒ وضع heard يبني السورةَ من مراسٍ مسموعة بالمدى المقيس 45:26-37، ثمّ البوّاباتُ كاملةً مع الإحصاء ومسبرِ السماع",
+     "reasonCode": null,
+     "dropSurahs": [],
+     "byReason": {},
+     "declaredCount": 0,
+     "tagCount": 0,
+     "declaredIds": [],
+     "truncatedTail": null
+    },
+    "undeclaredEdge": [],
+    "errors": [],
+    "ok": true
+   },
+   "durations": {
+    "durationOutliers": 165,
+    "durationExamples": [
+     {
+      "aid": "26:83",
+      "ms": 19084,
+      "expMs": 5602,
+      "ratio": 3.41,
+      "chars": 25
+     },
+     {
+      "aid": "41:6",
+      "ms": 42269,
+      "expMs": 12427,
+      "ratio": 3.4,
+      "chars": 73
+     },
+     {
+      "aid": "14:16",
+      "ms": 13208,
+      "expMs": 3986,
+      "ratio": 3.31,
+      "chars": 24
+     },
+     {
+      "aid": "2:13",
+      "ms": 32442,
+      "expMs": 10235,
+      "ratio": 3.17,
+      "chars": 75
+     },
+     {
+      "aid": "2:29",
+      "ms": 28519,
+      "expMs": 9007,
+      "ratio": 3.17,
+      "chars": 66
+     },
+     {
+      "aid": "2:22",
+      "ms": 39927,
+      "expMs": 12692,
+      "ratio": 3.15,
+      "chars": 93
+     },
+     {
+      "aid": "2:27",
+      "ms": 34275,
+      "expMs": 10918,
+      "ratio": 3.14,
+      "chars": 80
+     },
+     {
+      "aid": "41:10",
+      "ms": 32502,
+      "expMs": 10725,
+      "ratio": 3.03,
+      "chars": 63
+     },
+     {
+      "aid": "67:25",
+      "ms": 941,
+      "expMs": 8184,
+      "ratio": 0.11,
+      "chars": 29
+     },
+     {
+      "aid": "37:135",
+      "ms": 680,
+      "expMs": 5442,
+      "ratio": 0.12,
+      "chars": 17
+     },
+     {
+      "aid": "36:66",
+      "ms": 1561,
+      "expMs": 12156,
+      "ratio": 0.13,
+      "chars": 44
+     },
+     {
+      "aid": "37:167",
+      "ms": 620,
+      "expMs": 4802,
+      "ratio": 0.13,
+      "chars": 15
+     }
+    ],
+    "impossibleShort": [],
+    "veryShort": [
+     {
+      "aid": "67:25",
+      "ms": 941,
+      "expMs": 8184,
+      "ratio": 0.11,
+      "chars": 29
+     },
+     {
+      "aid": "37:135",
+      "ms": 680,
+      "expMs": 5442,
+      "ratio": 0.12,
+      "chars": 17
+     },
+     {
+      "aid": "37:167",
+      "ms": 620,
+      "expMs": 4802,
+      "ratio": 0.13,
+      "chars": 15
+     },
+     {
+      "aid": "10:63",
+      "ms": 660,
+      "expMs": 4706,
+      "ratio": 0.14,
+      "chars": 21
+     },
+     {
+      "aid": "37:166",
+      "ms": 781,
+      "expMs": 5122,
+      "ratio": 0.15,
+      "chars": 16
+     },
+     {
+      "aid": "19:91",
+      "ms": 680,
+      "expMs": 4367,
+      "ratio": 0.16,
+      "chars": 16
+     },
+     {
+      "aid": "69:52",
+      "ms": 741,
+      "expMs": 4569,
+      "ratio": 0.16,
+      "chars": 17
+     },
+     {
+      "aid": "80:41",
+      "ms": 500,
+      "expMs": 3042,
+      "ratio": 0.16,
+      "chars": 10
+     },
+     {
+      "aid": "56:89",
+      "ms": 980,
+      "expMs": 5764,
+      "ratio": 0.17,
+      "chars": 18
+     },
+     {
+      "aid": "69:43",
+      "ms": 720,
+      "expMs": 4301,
+      "ratio": 0.17,
+      "chars": 16
+     },
+     {
+      "aid": "23:56",
+      "ms": 881,
+      "expMs": 4706,
+      "ratio": 0.19,
+      "chars": 26
+     },
+     {
+      "aid": "37:163",
+      "ms": 980,
+      "expMs": 5122,
+      "ratio": 0.19,
+      "chars": 16
+     },
+     {
+      "aid": "20:106",
+      "ms": 801,
+      "expMs": 3752,
+      "ratio": 0.21,
+      "chars": 15
+     },
+     {
+      "aid": "37:136",
+      "ms": 921,
+      "expMs": 4482,
+      "ratio": 0.21,
+      "chars": 14
+     },
+     {
+      "aid": "53:49",
+      "ms": 720,
+      "expMs": 3440,
+      "ratio": 0.21,
+      "chars": 14
+     },
+     {
+      "aid": "56:94",
+      "ms": 700,
+      "expMs": 3202,
+      "ratio": 0.22,
+      "chars": 10
+     },
+     {
+      "aid": "26:212",
+      "ms": 981,
+      "expMs": 4258,
+      "ratio": 0.23,
+      "chars": 19
+     },
+     {
+      "aid": "75:34",
+      "ms": 680,
+      "expMs": 2935,
+      "ratio": 0.23,
+      "chars": 11
+     }
+    ],
+    "extremeLong": [],
+    "longOutliers": 8,
+    "shortOutliers": 145,
+    "silenceGaps": 0,
+    "silenceExamples": [],
+    "surahsWithRate": 113
+   },
+   "audio": {
+    "audioReportsOnSha": 0,
+    "openersOnSha": false,
+    "errors": [
+     "لا حكمَ صوتيٍّ بعيّنةٍ على البصمة المنشورة",
+     "لا شاهدَ مطالعَ على البصمة المنشورة"
+    ],
+    "notes": [],
+    "samples": [],
+    "pooled": null,
+    "severeHi": null,
+    "otherShasWithSamples": [
+     "40a11a58",
+     "5f74b87d",
+     "79c8619e",
+     "916f94da",
+     "cb2c1bfb",
+     "f9451766",
+     "fb41e53f"
+    ],
+    "ok": false
+   }
+  }
+ ],
+ "summary": {
+  "indexes": 1,
+  "phase": "all",
+  "identityOk": 1,
+  "identityBad": [],
+  "structureOk": 0,
+  "structureBad": [
+   "timings-staging/warsh/laghdaf_shinqiti.3840d4ae.jz"
+  ],
+  "gapsOk": 1,
+  "gapsBad": [],
+  "audioOk": 0,
+  "audioBad": [
+   "timings-staging/warsh/laghdaf_shinqiti.3840d4ae.jz"
+  ],
+  "durationOutliersTotal": 165,
+  "impossibleShortTotal": 0,
+  "indexesWithImpossibleShort": 0,
+  "veryShortTotal": 18,
+  "extremeLongTotal": 0,
+  "indexesWithExtremeLong": 0,
+  "mirrorStale": 0,
+  "silenceGapsTotal": 0,
+  "indexesWithDurationOutliers": 1,
+  "indexesWithSilenceGaps": 0,
+  "entriesTotal": 6236,
+  "missingTotal": 0
+ }
+}
