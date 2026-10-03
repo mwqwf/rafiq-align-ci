@@ -1,0 +1,13 @@
+# rc=0
+📦 ctc-splice-37104636649 · 3013 بايت
+── ctc.log (1917 بايت)
+Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+
+Loading weights:   0%|          | 0/424 [00:00<?, ?it/s]
+Loading weights: 100%|██████████| 424/424 [00:00<00:00, 38584.21it/s]
+/opt/hostedtoolcache/Python/3.11.16/x64/lib/python3.11/site-packages/torch/ao/nn/quantized/modules/utils.py:72: UserWarning: torch.quantize_per_tensor, torch.quantize_per_channel and other quantized tensor creation functions that produce tensors with dtype torch.quint8, torch.qint8, and torch.qint32 are deprecated and will be removed in a future PyTorch release. Please see https://github.com/pytorch/pytorch/issues/184982 for more information. (Triggered internally at /__w/pytorch/pytorch/aten/src/ATen/quantized/Quantizer.cpp:111.)
+  qweight = torch.quantize_per_tensor(
+WARNING:ctc_segmentation:IndexError: Backtracking was not successful, the window size might be too small.
+WARNING:ctc_segmentation:Increasing the window size to: 16000
+س15:67-99 (rewtail): ✅ قُسمت · 15:66 550571–562539 · 15:67 562539–567462 · 15:68 567462–575007 · 15:69 575007–579210 · 15:70 579210–584253 · 15:71 584253–593079 · 15:72 593079–599444 · 15:73 599444–603667 · 15:74 603667–614434 · 15:75 614434–620798 · 15:76 620798–626262 · 15:77 626262–631966 · 15:78 631966–637950 · 15:79 637950–647296 · 15:80 647296–652720 · 15:81 652720–659844 · 15:82 659844–666469 · 15:83 666469–670752 · 15:84 670752–677096 · 15:85 677096–692646 · 15:86 692646–698690 · 15:87 698690–707036 · 15:88 707036–723307 · 15:89 723307–728591 · 15:90 728591–733454 · 15:91 733454–738057 · 15:92 738057–744021 · 15:93 744021–748444 · 15:94 748444–754928 · 15:95 754928–759692 · 15:96 759692–768277 · 15:97 768277–776023 · 15:98 776023–782267 · 15:99 782267–787540
+
