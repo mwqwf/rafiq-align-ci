@@ -29,7 +29,7 @@ on:
       reason: {description: "سببُ التحويل", required: true}
       mode: {description: "full = CTC للسورة كاملة · window = قسمةُ المدخل الذي ابتلع جارتَه بنافذته وحدها (ctc_gapsplit) · heard = خريطةُ السماع ثمّ نوافذُ على مراسٍ مسموعة لتسجيلٍ فيه زيادةٌ أو تكرار (ctc_heard_map) · dualfix = تصحيحُ حدود مرشّح heardmap (base_key) بما اتّفق عليه النموذجان المثبَّتان (ctc_dualfix)", default: "full"}
       base_key: {description: "وضعُ dualfix وحده: مفتاحُ مرشّح heardmap في timings-staging تُصحَّح حدودُه بما اتّفق عليه النموذجان المثبَّتان (ctc_dualfix)", default: ""}
-      rewindow: {description: "وضعا window وdualfix (بالنموذج القرآنيّ بين جارَين ثابتَين، مثل 38:44-51,38:80-88): مدى آياتٍ حاضرةٍ حدودُها معطوبةٌ يُعاد بنافذته بين جارتين ثابتتين، مثل 55:41-75", default: ""}
+      rewindow: {description: "وضعا window وdualfix (بالنموذج القرآنيّ بين جارَين ثابتَين، مثل 38:44-51,38:80-88): مدى آياتٍ حاضرةٍ حدودُها معطوبةٌ يُعاد بنافذته بين جارتين ثابتتين، مثل 55:41-75؛ والطرفان: 89:1-2/nb (من بدء الملفّ، /nb = بلا بسملة بشاهد السماع) و92:20-21 (حتى نهاية الملفّ)", default: ""}
       truncated_tail: {description: "وضعُ full وحده (أمر المالك 2026-10-02): سورةٌ واحدةٌ مصدرُها مبتورُ الذيل تُحاذى بادئتُها 1..N بالنموذج القرآني المثبَّت ويُعلَن ذيلُها source_truncated — «24:30»؛ وsurahs = السورةُ نفسُها", default: ""}
 
 concurrency:
@@ -232,6 +232,8 @@ jobs:
           fi
           if [ "$MODE" = "window" ]; then
             # ⭐ قسمةُ المبتلع بنافذة الجارتين وحدها — مداخلُ الأب كما هي إلا الجارتين.
+            #    (‏fixS1 · 2026-10-03) والطرفان: «س:1-ب[/nb]» من بدء الملفّ و«س:أ-آخرُها» حتى نهايته — تُختبر أوّلاً.
+            python -m unittest tools/alignment_v3/test_ctc_gapsplit_edges.py
             python tools/alignment_v3/ctc_gapsplit.py --index parent.jz --surahs "$SURAHS" \
               --riwaya "$RIW" --out-dir "tools/alignment/work/batch_$RID" --rewindow "$REWIN" 2>&1 | tee ctc.log
             exit 0
