@@ -71,11 +71,15 @@ jobs:
               print(f"■ {src} ({sha[:8]}) · معدّلة {j['modified']} · عيّنة {j['sample']}")
               n = max(1, min(6, int(os.environ.get("SHARDS") or 3), len(j["required"])))
               bins = [[] for _ in range(n)]; load = [0] * n
-              for s in sorted(j["required"], key=lambda s: -COUNTS[s - 1]):
+              sys.path.insert(0, "tools/alignment")
+              from common import load_index, load_text, surah_slice
+              _t, _ix = load_text(riw), load_index()
+              W = {s: sum(len(x) for x in _t[surah_slice(_ix, s)[0]:surah_slice(_ix, s)[1]]) + 400 for s in j["required"]}
+              for s in sorted(j["required"], key=lambda s: -W[s]):
                   refs = {v[2] for v in cs[s].values()}
                   if len(refs) != 1:
                       sys.exit(f"⛔ {src} س{s}: أكثرُ من ملفٍّ للسورة {sorted(refs)[:2]}")
-                  i = load.index(min(load)); bins[i].append([s, refs.pop()]); load[i] += COUNTS[s - 1] + 20
+                  i = load.index(min(load)); bins[i].append([s, refs.pop()]); load[i] += W[s]
               for b in bins:
                   if b:
                       inc.append({"src": src, "sha": sha, "items": json.dumps(b)})
