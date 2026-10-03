@@ -29,7 +29,7 @@ on:
       reason: {description: "سببُ التحويل", required: true}
       mode: {description: "full = CTC للسورة كاملة · window = قسمةُ المدخل الذي ابتلع جارتَه بنافذته وحدها (ctc_gapsplit) · heard = خريطةُ السماع ثمّ نوافذُ على مراسٍ مسموعة لتسجيلٍ فيه زيادةٌ أو تكرار (ctc_heard_map) · dualfix = تصحيحُ حدود مرشّح heardmap (base_key) بما اتّفق عليه النموذجان المثبَّتان (ctc_dualfix)", default: "full"}
       base_key: {description: "وضعُ dualfix وحده: مفتاحُ مرشّح heardmap في timings-staging تُصحَّح حدودُه بما اتّفق عليه النموذجان المثبَّتان (ctc_dualfix)", default: ""}
-      rewindow: {description: "وضعا window وdualfix (بالنموذج القرآنيّ بين جارَين ثابتَين، مثل 38:44-51,38:80-88): مدى آياتٍ حاضرةٍ حدودُها معطوبةٌ يُعاد بنافذته بين جارتين ثابتتين، مثل 55:41-75؛ والطرفان: 89:1-2/nb (من بدء الملفّ، /nb = بلا بسملة بشاهد السماع) و92:20-21 (حتى نهاية الملفّ)", default: ""}
+      rewindow: {description: "أوضاعُ window وdualfix وheard (‏heard: تسميةُ المدى المعطوب المقيس شرطٌ لسورةٍ تامّة)؛ وضعا window وdualfix (بالنموذج القرآنيّ بين جارَين ثابتَين، مثل 38:44-51,38:80-88): مدى آياتٍ حاضرةٍ حدودُها معطوبةٌ يُعاد بنافذته بين جارتين ثابتتين، مثل 55:41-75؛ والطرفان: 89:1-2/nb (من بدء الملفّ، /nb = بلا بسملة بشاهد السماع) و92:20-21 (حتى نهاية الملفّ)", default: ""}
       truncated_tail: {description: "وضعُ full وحده (أمر المالك 2026-10-02): سورةٌ واحدةٌ مصدرُها مبتورُ الذيل تُحاذى بادئتُها 1..N بالنموذج القرآني المثبَّت ويُعلَن ذيلُها source_truncated — «24:30»؛ وsurahs = السورةُ نفسُها", default: ""}
 
 concurrency:
@@ -171,6 +171,14 @@ jobs:
           rewin_surahs = {int(x.split(":")[0]) for x in os.environ.get("REWIN", "").split(",") if ":" in x}
           if extra and os.environ.get("MODE", "full") == "window" and set(extra) <= rewin_surahs:
               print(f"⭐ سورٌ تامّةٌ تُعاد نافذةُ مدىً منها (rewindow): {extra}")
+              extra = []
+          # ⭐ (2026-10-03 · fixS1) ووضعُ heard بالشرط نفسِه: سورةٌ تامّةٌ في الأصل **كبس** المنشورُ ذيلَها
+          #    (‏خريطةُ السماع: 18:85 عند الشحات منشورةٌ قبل موضعها بـ112ث، والنساء عند mustafa بـ1492ث)
+          #    وردّت نوافذُ الجارتين مداها بحرّاسها ⇒ تُبنى السورةُ من مراسٍ مسموعة، **بشرط** أن يُسمّى
+          #    المدى المعطوبُ المقيسُ في rewindow لكلّ سورةٍ تامّة (‏فلا تُعاد سورةٌ سليمةٌ بلا قياس)،
+          #    والإحصاءُ الشاملُ للسورة كلِّها والملوحُ الأربعةُ حَكَمٌ كما هي.
+          if extra and os.environ.get("MODE", "full") == "heard" and set(extra) <= rewin_surahs:
+              print(f"⭐ سورٌ تامّةٌ معطوبةُ المدى بقياس السماع تُبنى من مراسٍ مسموعة: {extra}")
               extra = []
           if extra and os.environ.get("MODE", "full") != "dualfix":
               sys.exit(f"⛔ سورٌ تامّةٌ في الأصل لا تُمسّ: {extra}")
