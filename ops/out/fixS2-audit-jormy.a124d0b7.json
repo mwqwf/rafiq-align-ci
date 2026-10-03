@@ -1,0 +1,304 @@
+{
+ "schema": 1,
+ "tool": "full_audit-1.0",
+ "date": "20261003",
+ "timestampUtc": "2026-10-03T07:07:20Z",
+ "elapsedSec": 18.3,
+ "phase": "all",
+ "manifestIndexes": 180,
+ "frozenBucket": 220,
+ "reportsRead": 9010,
+ "rows": [
+  {
+   "key": "timings-staging/hafs/jormy.a124d0b7.jz",
+   "sha256": "a124d0b7c508e58a154d80cce1cf951a1c3a80be6822f53055bb73dca08740c6",
+   "riwaya": "hafs",
+   "reciterId": "jormy",
+   "bytes": 94920,
+   "engine": "ctc-seg-1",
+   "transformOp": "ctc_gapsplit:89",
+   "staging": true,
+   "identity": {
+    "sha256": "a124d0b7c508e58a154d80cce1cf951a1c3a80be6822f53055bb73dca08740c6",
+    "staging": true,
+    "errors": [],
+    "ok": true
+   },
+   "structure": {
+    "entries": 6236,
+    "errors": [],
+    "examples": {},
+    "fileNoUnparsed": 0,
+    "structuralFatal": [],
+    "structuralWarn": [
+     "مداخل مدتها > 120ث: 1 · مثال: 2:282 مدتها 162ث"
+    ],
+    "decision": [],
+    "engine": "ctc-seg-1",
+    "audioSha": 114,
+    "bands": {
+     "MED": 4528,
+     "HIGH": 629,
+     "LOW": 1079
+    },
+    "ok": true
+   },
+   "gaps": {
+    "missingTotal": 0,
+    "internalGaps": [],
+    "headMissing": [],
+    "tailMissing": [],
+    "wholeMissing": [],
+    "declared": {
+     "transformOp": "ctc_gapsplit:89",
+     "transformReason": "fixS2 موجة2 (الفحص الشامل 2026-10-02 · المنشور 6b784c25): آياتٌ بلا تلاوة رُدّت نافذتُها الضيّقة (الجارة تنكمش/ثقة<0.45) أو طرفيّة ⇒ نافذةٌ أوسع تشمل الجارة المنكمشة أو الطرف (89:29-30) بحُرّاس الثقة والمدّة والجارة كما هي وعتبة 5% كما هي (إذن المالك 22:44Z).",
+     "reasonCode": null,
+     "dropSurahs": [],
+     "byReason": {},
+     "declaredCount": 0,
+     "tagCount": 0,
+     "declaredIds": [],
+     "truncatedTail": null
+    },
+    "undeclaredEdge": [],
+    "errors": [],
+    "ok": true
+   },
+   "durations": {
+    "durationOutliers": 55,
+    "durationExamples": [
+     {
+      "aid": "37:181",
+      "ms": 541,
+      "expMs": 4535,
+      "ratio": 0.12,
+      "chars": 15
+     },
+     {
+      "aid": "15:69",
+      "ms": 660,
+      "expMs": 4986,
+      "ratio": 0.13,
+      "chars": 18
+     },
+     {
+      "aid": "11:96",
+      "ms": 1441,
+      "expMs": 9082,
+      "ratio": 0.16,
+      "chars": 29
+     },
+     {
+      "aid": "19:91",
+      "ms": 820,
+      "expMs": 5075,
+      "ratio": 0.16,
+      "chars": 16
+     },
+     {
+      "aid": "43:79",
+      "ms": 981,
+      "expMs": 5997,
+      "ratio": 0.16,
+      "chars": 22
+     },
+     {
+      "aid": "53:59",
+      "ms": 1021,
+      "expMs": 5709,
+      "ratio": 0.18,
+      "chars": 19
+     },
+     {
+      "aid": "75:38",
+      "ms": 901,
+      "expMs": 5095,
+      "ratio": 0.18,
+      "chars": 17
+     },
+     {
+      "aid": "15:89",
+      "ms": 1081,
+      "expMs": 5816,
+      "ratio": 0.19,
+      "chars": 21
+     },
+     {
+      "aid": "56:88",
+      "ms": 981,
+      "expMs": 5177,
+      "ratio": 0.19,
+      "chars": 19
+     },
+     {
+      "aid": "11:95",
+      "ms": 2361,
+      "expMs": 11588,
+      "ratio": 0.2,
+      "chars": 37
+     },
+     {
+      "aid": "33:70",
+      "ms": 2182,
+      "expMs": 10984,
+      "ratio": 0.2,
+      "chars": 39
+     },
+     {
+      "aid": "53:60",
+      "ms": 900,
+      "expMs": 4507,
+      "ratio": 0.2,
+      "chars": 15
+     }
+    ],
+    "impossibleShort": [],
+    "veryShort": [
+     {
+      "aid": "37:181",
+      "ms": 541,
+      "expMs": 4535,
+      "ratio": 0.12,
+      "chars": 15
+     },
+     {
+      "aid": "15:69",
+      "ms": 660,
+      "expMs": 4986,
+      "ratio": 0.13,
+      "chars": 18
+     },
+     {
+      "aid": "19:91",
+      "ms": 820,
+      "expMs": 5075,
+      "ratio": 0.16,
+      "chars": 16
+     },
+     {
+      "aid": "43:79",
+      "ms": 981,
+      "expMs": 5997,
+      "ratio": 0.16,
+      "chars": 22
+     },
+     {
+      "aid": "75:38",
+      "ms": 901,
+      "expMs": 5095,
+      "ratio": 0.18,
+      "chars": 17
+     },
+     {
+      "aid": "56:88",
+      "ms": 981,
+      "expMs": 5177,
+      "ratio": 0.19,
+      "chars": 19
+     },
+     {
+      "aid": "53:60",
+      "ms": 900,
+      "expMs": 4507,
+      "ratio": 0.2,
+      "chars": 15
+     },
+     {
+      "aid": "79:44",
+      "ms": 821,
+      "expMs": 3868,
+      "ratio": 0.21,
+      "chars": 13
+     },
+     {
+      "aid": "53:57",
+      "ms": 660,
+      "expMs": 3005,
+      "ratio": 0.22,
+      "chars": 10
+     },
+     {
+      "aid": "74:54",
+      "ms": 701,
+      "expMs": 3235,
+      "ratio": 0.22,
+      "chars": 11
+     },
+     {
+      "aid": "80:41",
+      "ms": 741,
+      "expMs": 3362,
+      "ratio": 0.22,
+      "chars": 10
+     },
+     {
+      "aid": "53:54",
+      "ms": 900,
+      "expMs": 3305,
+      "ratio": 0.27,
+      "chars": 11
+     },
+     {
+      "aid": "53:61",
+      "ms": 801,
+      "expMs": 3005,
+      "ratio": 0.27,
+      "chars": 10
+     }
+    ],
+    "extremeLong": [],
+    "longOutliers": 0,
+    "shortOutliers": 50,
+    "silenceGaps": 0,
+    "silenceExamples": [],
+    "surahsWithRate": 113
+   },
+   "audio": {
+    "audioReportsOnSha": 0,
+    "openersOnSha": false,
+    "errors": [
+     "لا حكمَ صوتيٍّ بعيّنةٍ على البصمة المنشورة",
+     "لا شاهدَ مطالعَ على البصمة المنشورة"
+    ],
+    "notes": [],
+    "samples": [],
+    "pooled": null,
+    "severeHi": null,
+    "otherShasWithSamples": [
+     "5d6630a9",
+     "60af2397",
+     "6b784c25",
+     "aa77623f",
+     "e46694f5"
+    ],
+    "ok": false
+   }
+  }
+ ],
+ "summary": {
+  "indexes": 1,
+  "phase": "all",
+  "identityOk": 1,
+  "identityBad": [],
+  "structureOk": 1,
+  "structureBad": [],
+  "gapsOk": 1,
+  "gapsBad": [],
+  "audioOk": 0,
+  "audioBad": [
+   "timings-staging/hafs/jormy.a124d0b7.jz"
+  ],
+  "durationOutliersTotal": 55,
+  "impossibleShortTotal": 0,
+  "indexesWithImpossibleShort": 0,
+  "veryShortTotal": 13,
+  "extremeLongTotal": 0,
+  "indexesWithExtremeLong": 0,
+  "mirrorStale": 0,
+  "silenceGapsTotal": 0,
+  "indexesWithDurationOutliers": 1,
+  "indexesWithSilenceGaps": 0,
+  "entriesTotal": 6236,
+  "missingTotal": 0
+ }
+}
