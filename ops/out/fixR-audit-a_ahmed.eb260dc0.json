@@ -1,0 +1,286 @@
+{
+ "schema": 1,
+ "tool": "full_audit-1.0",
+ "date": "20261003",
+ "timestampUtc": "2026-10-03T15:31:44Z",
+ "elapsedSec": 37.1,
+ "phase": "all",
+ "manifestIndexes": 180,
+ "frozenBucket": 220,
+ "reportsRead": 9656,
+ "rows": [
+  {
+   "key": "timings-staging/hafs/a_ahmed.eb260dc0.jz",
+   "sha256": "eb260dc076bdfd9354df949edfa747187dba7293b57fc1b99b9ba27d8a8e4edf",
+   "riwaya": "hafs",
+   "reciterId": "a_ahmed",
+   "bytes": 72347,
+   "engine": "mp3quran-timing-v1",
+   "transformOp": "ctc_heardmap_splice:14",
+   "staging": true,
+   "identity": {
+    "sha256": "eb260dc076bdfd9354df949edfa747187dba7293b57fc1b99b9ba27d8a8e4edf",
+    "staging": true,
+    "errors": [],
+    "ok": true
+   },
+   "structure": {
+    "entries": 6236,
+    "errors": [],
+    "examples": {},
+    "fileNoUnparsed": 0,
+    "structuralFatal": [],
+    "structuralWarn": [
+     "مداخل مدتها > 120ث: 1 · مثال: 43:67 مدتها 128ث",
+     "مطالع سور تبدأ دون 3ث — مرشّحون للمسبار الصوتي لا حكمٌ عليهم: 2:1=2580م.ث · 5:1=2480م.ث · 6:1=2560م.ث · 8:1=2260م.ث · 10:1=2900م.ث · 11:1=2800م.ث · 14:1=1761م.ث · 15:1=2920م.ث · 17:1=2480م.ث · 18:1=2620م.ث … و72 غيرها"
+    ],
+    "decision": [],
+    "engine": "mp3quran-timing-v1",
+    "audioSha": 114,
+    "bands": {
+     "MED": 6225,
+     "LOW": 11
+    },
+    "ok": true
+   },
+   "gaps": {
+    "missingTotal": 0,
+    "internalGaps": [],
+    "headMissing": [],
+    "tailMissing": [],
+    "wholeMissing": [],
+    "declared": {
+     "transformOp": "ctc_heardmap_splice:14",
+     "transformReason": "fixR (تدقيق الجولة الثانية · مؤكَّدٌ بالسماع 37128744174): a_ahmed — ذيلُ 14:51–52 منشورٌ قبل موضعه حتى 59ث ⇒ وضع heard يبني السورةَ من مراسٍ مسموعة بالمدى المقيس 14:51-52، ثمّ البوّاباتُ كاملةً مع الإحصاء ومسبرِ السماع",
+     "reasonCode": null,
+     "dropSurahs": [],
+     "byReason": {},
+     "declaredCount": 0,
+     "tagCount": 0,
+     "declaredIds": [],
+     "truncatedTail": null
+    },
+    "undeclaredEdge": [],
+    "errors": [],
+    "ok": true
+   },
+   "durations": {
+    "durationOutliers": 58,
+    "durationExamples": [
+     {
+      "aid": "43:67",
+      "ms": 127800,
+      "expMs": 7261,
+      "ratio": 17.6,
+      "chars": 33
+     },
+     {
+      "aid": "69:37",
+      "ms": 63240,
+      "expMs": 4383,
+      "ratio": 14.43,
+      "chars": 16
+     },
+     {
+      "aid": "75:30",
+      "ms": 29240,
+      "expMs": 3934,
+      "ratio": 7.43,
+      "chars": 17
+     },
+     {
+      "aid": "19:95",
+      "ms": 32600,
+      "expMs": 4400,
+      "ratio": 7.41,
+      "chars": 22
+     },
+     {
+      "aid": "23:102",
+      "ms": 42920,
+      "expMs": 6060,
+      "ratio": 7.08,
+      "chars": 29
+     },
+     {
+      "aid": "36:55",
+      "ms": 40240,
+      "expMs": 5928,
+      "ratio": 6.79,
+      "chars": 26
+     },
+     {
+      "aid": "33:66",
+      "ms": 72900,
+      "expMs": 10992,
+      "ratio": 6.63,
+      "chars": 54
+     },
+     {
+      "aid": "26:90",
+      "ms": 23481,
+      "expMs": 3918,
+      "ratio": 5.99,
+      "chars": 18
+     },
+     {
+      "aid": "25:14",
+      "ms": 42580,
+      "expMs": 7657,
+      "ratio": 5.56,
+      "chars": 37
+     },
+     {
+      "aid": "19:86",
+      "ms": 26160,
+      "expMs": 4800,
+      "ratio": 5.45,
+      "chars": 24
+     },
+     {
+      "aid": "56:88",
+      "ms": 23560,
+      "expMs": 4424,
+      "ratio": 5.33,
+      "chars": 19
+     },
+     {
+      "aid": "50:43",
+      "ms": 30360,
+      "expMs": 6240,
+      "ratio": 4.87,
+      "chars": 26
+     }
+    ],
+    "impossibleShort": [],
+    "veryShort": [],
+    "extremeLong": [
+     {
+      "aid": "43:67",
+      "ms": 127800,
+      "expMs": 7261,
+      "ratio": 17.6,
+      "chars": 33
+     },
+     {
+      "aid": "69:37",
+      "ms": 63240,
+      "expMs": 4383,
+      "ratio": 14.43,
+      "chars": 16
+     },
+     {
+      "aid": "75:30",
+      "ms": 29240,
+      "expMs": 3934,
+      "ratio": 7.43,
+      "chars": 17
+     },
+     {
+      "aid": "19:95",
+      "ms": 32600,
+      "expMs": 4400,
+      "ratio": 7.41,
+      "chars": 22
+     },
+     {
+      "aid": "23:102",
+      "ms": 42920,
+      "expMs": 6060,
+      "ratio": 7.08,
+      "chars": 29
+     },
+     {
+      "aid": "36:55",
+      "ms": 40240,
+      "expMs": 5928,
+      "ratio": 6.79,
+      "chars": 26
+     },
+     {
+      "aid": "33:66",
+      "ms": 72900,
+      "expMs": 10992,
+      "ratio": 6.63,
+      "chars": 54
+     },
+     {
+      "aid": "26:90",
+      "ms": 23481,
+      "expMs": 3918,
+      "ratio": 5.99,
+      "chars": 18
+     },
+     {
+      "aid": "25:14",
+      "ms": 42580,
+      "expMs": 7657,
+      "ratio": 5.56,
+      "chars": 37
+     },
+     {
+      "aid": "19:86",
+      "ms": 26160,
+      "expMs": 4800,
+      "ratio": 5.45,
+      "chars": 24
+     },
+     {
+      "aid": "56:88",
+      "ms": 23560,
+      "expMs": 4424,
+      "ratio": 5.33,
+      "chars": 19
+     }
+    ],
+    "longOutliers": 58,
+    "shortOutliers": 0,
+    "silenceGaps": 0,
+    "silenceExamples": [],
+    "surahsWithRate": 113
+   },
+   "audio": {
+    "audioReportsOnSha": 0,
+    "openersOnSha": false,
+    "errors": [
+     "لا حكمَ صوتيٍّ بعيّنةٍ على البصمة المنشورة",
+     "لا شاهدَ مطالعَ على البصمة المنشورة"
+    ],
+    "notes": [],
+    "samples": [],
+    "pooled": null,
+    "severeHi": null,
+    "otherShasWithSamples": [
+     "e0a9df28"
+    ],
+    "ok": false
+   }
+  }
+ ],
+ "summary": {
+  "indexes": 1,
+  "phase": "all",
+  "identityOk": 1,
+  "identityBad": [],
+  "structureOk": 1,
+  "structureBad": [],
+  "gapsOk": 1,
+  "gapsBad": [],
+  "audioOk": 0,
+  "audioBad": [
+   "timings-staging/hafs/a_ahmed.eb260dc0.jz"
+  ],
+  "durationOutliersTotal": 58,
+  "impossibleShortTotal": 0,
+  "indexesWithImpossibleShort": 0,
+  "veryShortTotal": 0,
+  "extremeLongTotal": 11,
+  "indexesWithExtremeLong": 1,
+  "mirrorStale": 0,
+  "silenceGapsTotal": 0,
+  "indexesWithDurationOutliers": 1,
+  "indexesWithSilenceGaps": 0,
+  "entriesTotal": 6236,
+  "missingTotal": 0
+ }
+}
