@@ -42,6 +42,10 @@ def main():
     ap.add_argument("--threads", type=int, default=2)
     ap.add_argument("--window", type=float, default=3.6)
     ap.add_argument("--session", type=float, default=30.0)
+    # 📈 عيّنةٌ أكبر من بنودٍ محدودة (‏2026-10-03): نوافذُ عدّةٌ في البند الواحد عند كسورٍ من طوله (‏0.5 = الوسط كما كان)،
+    # والمجالُ حينئذٍ bootstrap **بعنقود البند** لا بالنافذة (‏نوافذُ البند الواحد غيرُ مستقلّة).
+    ap.add_argument("--positions", type=float, nargs="+", default=[0.5])
+    ap.add_argument("--max-windows", type=int, default=0, help="سقفُ النوافذ بعد التوسيع (‏0 = بلا سقف)")
     ap.add_argument("--md", required=True)
     ap.add_argument("--json", required=True)
     a = ap.parse_args()
@@ -57,23 +61,29 @@ def main():
     wavs = sel[: a.limit] if a.limit else sel
     if not wavs:
         raise SystemExit("⛔ لا بنود")
+    # الترتيب: الموضعُ الأوّلُ لكلّ البنود ثمّ الثاني … فالسقفُ يأخذ أوسعَ تنوّعٍ من البنود قبل التكرار فيها.
+    jobs = [(f, p) for p in a.positions for f in wavs]
+    if a.max_windows:
+        jobs = jobs[: a.max_windows]
     tmp = os.path.join(os.path.dirname(a.json) or ".", "crops_noise")
     os.makedirs(tmp, exist_ok=True)
     n = int(a.window * SR)
     arms = ["nogate", "gate_win", "gate_sess"]
     rows = []
-    for k, f in enumerate(wavs):
+    for k, (f, pos) in enumerate(jobs):
         iid = f[:-4]
         x, sr = sf.read(os.path.join(a.noisy_src, f), dtype="float32")
         c, _ = sf.read(os.path.join(a.clean_src, f), dtype="float32")
-        s = max(0, len(x) // 2 - n // 2); e = s + n
+        s = min(max(0, int(len(x) * pos) - n // 2), max(0, len(x) - n)); e = s + n
         win = x[s:e]
         sess = x[max(0, e - int(a.session * SR)): e]
         prof = dn.estimate_profile(sess)
         y_win, rep_w = dn.denoise(win, report=True)
         y_sess, rep_s = dn.denoise(win, report=True, profile=prof)
-        row = {"id": iid, "win_at": s / SR, "ref": items[iid]["refText"],
+        row = {"id": iid, "pos": pos, "win_at": s / SR, "ref": items[iid]["refText"],
                "mask_open": {"gate_win": rep_w.get("maskOpen"), "gate_sess": rep_s.get("maskOpen")}}
+        tag = "%s_p%02d" % (iid, int(round(pos * 100)))
+        f = tag + ".wav"
         cw = os.path.join(tmp, "clean_" + f); sf.write(cw, c[s:e], SR, subtype="PCM_16")
         _, row["clean"] = run_cli(a.cli, a.model, cw, a.threads, a.lang, [])
         for name, y in (("nogate", win), ("gate_win", y_win), ("gate_sess", y_sess)):
@@ -82,7 +92,7 @@ def main():
             sec, text = run_cli(a.cli, a.model, p, a.threads, a.lang, [])
             row[name] = {"sec": sec, "text": text}
         rows.append(row)
-        if (k + 1) % 10 == 0 or k + 1 == len(wavs):
+        if (k + 1) % 10 == 0 or k + 1 == len(jobs):
             print("%3d/%d %s" % (k + 1, len(wavs), iid), flush=True)
 
     summary = {}
@@ -108,17 +118,27 @@ def main():
     # 🔁 فرقٌ مزدوجٌ بالنافذة (‏gate_sess − gate_win) على الاتّفاق مع النظيف — bootstrap.
     import random
     diffs = []
+    clusters = {}
     for r in rows:
         cw_ = norm_words(r["clean"]); d = max(1, len(cw_))
-        diffs.append((edits(norm_words(r["gate_win"]["text"]), cw_) - edits(norm_words(r["gate_sess"]["text"]), cw_)) / d)
+        v = (edits(norm_words(r["gate_win"]["text"]), cw_) - edits(norm_words(r["gate_sess"]["text"]), cw_)) / d
+        diffs.append(v); clusters.setdefault(r["id"], []).append(v)
+    # bootstrap بعنقود البند (‏يساوي bootstrap النافذة حين تكون نافذةً واحدةً لكلّ بند).
+    groups = list(clusters.values())
     rng = random.Random(7); ms = []
     for _ in range(2000):
-        pick = [diffs[rng.randrange(len(diffs))] for _ in range(len(diffs))]
-        ms.append(sum(pick) / len(pick))
+        pick = [groups[rng.randrange(len(groups))] for _ in range(len(groups))]
+        flat = [v for g in pick for v in g]
+        ms.append(sum(flat) / len(flat))
     ms.sort(); lo, hi = ms[50], ms[1949]
+    pos_lines = []
+    for p in a.positions:
+        dp = [diffs[i] for i, r in enumerate(rows) if r["pos"] == p]
+        if dp and len(a.positions) > 1:
+            pos_lines.append("  - الموضع %.2f: %+.2f نقطة على %d نافذةً." % (p, 100 * sum(dp) / len(dp), len(dp)))
     summary["sess_minus_win_agree"] = {"mean": sum(diffs) / len(diffs), "ci": (lo, hi)}
-    lines += ["", "- فرقُ الاتّفاق المزدوج (‏`gate_sess` − `gate_win`): **%+.2f نقطة** [%+.2f .. %+.2f] (‏95٪ bootstrap على النوافذ)." % (
-        100 * sum(diffs) / len(diffs), 100 * lo, 100 * hi)]
+    lines += ["", "- فرقُ الاتّفاق المزدوج (‏`gate_sess` − `gate_win`): **%+.2f نقطة** [%+.2f .. %+.2f] (‏95٪ bootstrap بعنقود البند · %d نافذةً من %d بنداً)." % (
+        100 * sum(diffs) / len(diffs), 100 * lo, 100 * hi, len(rows), len(groups))] + pos_lines
     md = "\n".join(lines) + "\n"
     open(a.md, "w", encoding="utf-8").write(md)
     json.dump({"summary": summary, "rows": rows}, open(a.json, "w", encoding="utf-8"), ensure_ascii=False, indent=1)

@@ -1,0 +1,173 @@
+# 🎛️ **الجولةُ الثالثة من مسح الفكّ — المستشار** · 2026-10-03
+# ما بقي غيرَ محسومٍ في `docs/ops/TASMI_DECODE_VERDICT_2026-10-02.md`:
+#  - `cloud`   (‏ubuntu-latest): (أ) طولُ النافذة السحابيّة 3.6/4.8/6ث على البنود ≥6ث — الهلوسةُ (‏عبارةٌ غيرُ قرآنيّة) وWER المحلّي
+#               والزمن (‏`cloud_window_ab.py`)؛ (ب) `x-tasmi-vad` بـ150 نظيف + 150 مضجَّج (‏`cloud_vad_ab.py`)؛ ثمّ `cloud_report.py`.
+#  - `profile` (‏ubuntu-24.04-arm · base): بصمةُ الجلسة `liveSessionProfile` على 200 نافذة (‏مواضع 0.5/0.8/0.3 من البند،
+#               مجالٌ بعنقود البند) — `noise_profile_ab.py`.
+# الزنادُ: دفعُ `tools/tasmi_bench/requests/decode3.json`. المستودعُ عامّ والعدّادُ قياسيّ؛ لا كتابةَ في R2 ولا كاش.
+# ⛔ الصوتُ المرسَلُ إلى `/v1/tasmi/stream` تلاواتُ قرّاءٍ منشورةٌ من العيّنة لا صوتُ مستخدم؛ والجهازُ المؤقّتُ يُمحى في النهاية.
+name: tasmi-decode3
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - "tools/tasmi_bench/requests/decode3.json"
+permissions:
+  contents: read
+concurrency:
+  group: tasmi-decode3
+  cancel-in-progress: false
+env:
+  UA: "Mozilla/5.0 (QuranRafiq tasmi decode3)"
+  WC: c4ac0012a8f5a2082dfca6aad4ddfd8b2c02b337
+jobs:
+  cloud:
+    runs-on: ubuntu-latest
+    timeout-minutes: 180
+    steps:
+      - uses: actions/checkout@v4
+      - name: مفاتيحُ القراءة من R2 (‏بنودُ العيّنة غيرُ العامّة · لا كتابة)
+        env:
+          R2_CREDENTIALS_JSON: ${{ secrets.R2_CREDENTIALS_JSON }}
+        run: |
+          mkdir -p secure && printf '%s' "$R2_CREDENTIALS_JSON" > secure/r2_credentials.json
+          python3 - <<'PY2'
+          import json, os
+          c = json.load(open("secure/r2_credentials.json"))
+          keys = {"R2_ENDPOINT": c["endpoint"], "R2_ACCESS_KEY_ID": c["accessKeyId"], "R2_SECRET_ACCESS_KEY": c["secretAccessKey"], "R2_BUCKET": c["bucket"]}
+          env = open(os.environ["GITHUB_ENV"], "a")
+          for k, v in keys.items():
+              print("::add-mask::" + v); env.write(k + "=" + v + chr(10))
+          env.close()
+          PY2
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: العدّة
+        run: |
+          sudo apt-get update -qq && sudo apt-get install -y -qq ffmpeg > /dev/null
+          pip install -q numpy soundfile scipy boto3
+      - name: المجموعات (نظيفٌ ومضجَّج — من مصادرها، بلا كاش)
+        run: |
+          set -o pipefail
+          cd tools/tasmi_bench
+          python fetch_audio.py
+          python augment.py --src-dir work/wav --dest-dir work/wavn --only noise-fan-5
+          echo "wav=$(ls work/wav | wc -l) wavn=$(ls work/wavn | wc -l)"
+      - name: (أ) طولُ النافذة السحابيّة 3.6 / 4.8 / 6ث
+        env:
+          PYTHONIOENCODING: utf-8
+        run: |
+          set -o pipefail
+          cd tools/tasmi_bench
+          WL=$(python -c "import json;print(json.load(open('requests/decode3.json')).get('window_limit',0))")
+          WS=$(python -c "import json;print(' '.join(str(x) for x in json.load(open('requests/decode3.json')).get('windows',[3.6,4.8,6.0])))")
+          if [ "$WL" -gt 0 ]; then
+            python cloud_window_ab.py --src work/wav --src work/wavn --limit "$WL" --windows $WS --json work/cloud_win.json | tail -6
+          else
+            echo "window_limit=0 ⇒ لا نداء"
+          fi
+      - name: (ب) VAD السحابيّ — 150 نظيف + 150 مضجَّج
+        if: always()
+        env:
+          PYTHONIOENCODING: utf-8
+        run: |
+          set -o pipefail
+          cd tools/tasmi_bench
+          VL=$(python -c "import json;print(json.load(open('requests/decode3.json')).get('vad_limit',0))")
+          if [ "$VL" -gt 0 ]; then
+            python cloud_vad_ab.py --src work/wav --src work/wavn --limit "$VL" --md work/cloud_vad.md --json work/cloud_vad.json | tail -12
+          else
+            echo "vad_limit=0 ⇒ لا نداء"
+          fi
+      - name: التقرير
+        if: always()
+        env:
+          PYTHONIOENCODING: utf-8
+        run: |
+          set -o pipefail
+          cd tools/tasmi_bench
+          python cloud_report.py --win work/cloud_win.json --vad work/cloud_vad.json --md work/cloud_report.md --json work/cloud_report.json | tail -40
+          cat work/cloud_report.md >> "$GITHUB_STEP_SUMMARY"
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: tasmi-decode3-cloud
+          path: |
+            tools/tasmi_bench/work/cloud_win.json
+            tools/tasmi_bench/work/cloud_vad.*
+            tools/tasmi_bench/work/cloud_report.*
+          retention-days: 14
+          if-no-files-found: ignore
+
+  profile:
+    runs-on: ubuntu-24.04-arm
+    timeout-minutes: 300
+    steps:
+      - uses: actions/checkout@v4
+      - name: المعمارية
+        run: |
+          [ "$(uname -m)" = "aarch64" ] || { echo "⛔ ليس arm64"; exit 1; }
+          echo "nproc=$(nproc)"
+      - name: مفاتيحُ القراءة من R2 (‏لا كتابة)
+        env:
+          R2_CREDENTIALS_JSON: ${{ secrets.R2_CREDENTIALS_JSON }}
+        run: |
+          mkdir -p secure && printf '%s' "$R2_CREDENTIALS_JSON" > secure/r2_credentials.json
+          python3 - <<'PY2'
+          import json, os
+          c = json.load(open("secure/r2_credentials.json"))
+          keys = {"R2_ENDPOINT": c["endpoint"], "R2_ACCESS_KEY_ID": c["accessKeyId"], "R2_SECRET_ACCESS_KEY": c["secretAccessKey"], "R2_BUCKET": c["bucket"]}
+          env = open(os.environ["GITHUB_ENV"], "a")
+          for k, v in keys.items():
+              print("::add-mask::" + v); env.write(k + "=" + v + chr(10))
+          env.close()
+          PY2
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: العدّة
+        run: |
+          sudo apt-get update -qq && sudo apt-get install -y -qq cmake ninja-build ffmpeg > /dev/null
+          pip install -q numpy soundfile scipy boto3
+      - name: بناءُ whisper-cli (‏المصدرُ المثبّت · +dotprod+i8mm)
+        run: |
+          set -o pipefail
+          git clone -q --filter=blob:none --no-checkout https://github.com/ggml-org/whisper.cpp wc
+          git -C wc fetch -q --depth 1 origin "$WC" && git -C wc checkout -q --detach FETCH_HEAD
+          cmake -S wc -B b_i8 -G Ninja -DCMAKE_BUILD_TYPE=Release -DBUILD_SHARED_LIBS=OFF \
+            -DWHISPER_BUILD_TESTS=OFF -DWHISPER_BUILD_SERVER=OFF -DWHISPER_BUILD_EXAMPLES=ON \
+            -DGGML_NATIVE=OFF -DGGML_CPU_ARM_ARCH="armv8.6-a+dotprod+i8mm" > /dev/null
+          cmake --build b_i8 --target whisper-cli -j"$(nproc)" > /dev/null
+      - name: النموذج (‏base q5_1)
+        run: |
+          curl -sSL -f --retry 4 --retry-delay 5 --retry-all-errors -A "$UA" -o tools/tasmi_bench/work_model.bin \
+            https://github.com/mwqwf/rafiq-align-ci/releases/download/model-whisper-base-ar-quran-q51/ggml-q5_1.bin
+          sha256sum tools/tasmi_bench/work_model.bin
+      - name: المجموعات (نظيفٌ ومضجَّج)
+        run: |
+          set -o pipefail
+          cd tools/tasmi_bench
+          python fetch_audio.py
+          python augment.py --src-dir work/wav --dest-dir work/wavn --only noise-fan-5
+          echo "wav=$(ls work/wav | wc -l) wavn=$(ls work/wavn | wc -l)"
+      - name: بصمةُ الجلسة مقابل بصمة النافذة — base · 200 نافذة
+        env:
+          PYTHONIOENCODING: utf-8
+        run: |
+          set -o pipefail
+          cd tools/tasmi_bench
+          R=requests/decode3.json
+          MW=$(python -c "import json;print(json.load(open('$R')).get('profile_windows',200))")
+          POS=$(python -c "import json;print(' '.join(str(x) for x in json.load(open('$R')).get('profile_positions',[0.5,0.8,0.3])))")
+          python noise_profile_ab.py --cli ../../b_i8/bin/whisper-cli --model work_model.bin --lang ar \
+            --noisy-src work/wavn --clean-src work/wav --threads 4 --positions $POS --max-windows "$MW" \
+            --md work/noise3_base.md --json work/noise3_base.json | tail -14
+          cat work/noise3_base.md >> "$GITHUB_STEP_SUMMARY"
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: tasmi-decode3-profile
+          path: tools/tasmi_bench/work/noise3_*.*
+          retention-days: 14
+          if-no-files-found: ignore
