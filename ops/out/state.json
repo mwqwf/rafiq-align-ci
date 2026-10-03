@@ -63,6 +63,60 @@
   "warsh": 24
  },
  "indexesWithGaps": {
+  "hafs/3siri": {
+   "entries": 6030,
+   "missingSurahs": [
+    7
+   ],
+   "reasonCode": "SOURCE_CORRUPT",
+   "transformOp": "drop_surah:7",
+   "declaredReasons": {
+    "unknown": 0,
+    "source_truncated": 206
+   },
+   "declaredCount": 206,
+   "undeclaredCount": 0,
+   "engine": "mp3quran-timing-v1",
+   "gapSurahs": {
+    "7": 206
+   }
+  },
+  "hafs/noah": {
+   "entries": 6060,
+   "missingSurahs": [
+    4
+   ],
+   "reasonCode": "SOURCE_TRUNCATED",
+   "transformOp": "drop_surah:4",
+   "declaredReasons": {
+    "timing_truncated": 6,
+    "source_truncated": 176
+   },
+   "declaredCount": 182,
+   "undeclaredCount": 0,
+   "engine": "mp3quran-timing-v1",
+   "gapSurahs": {
+    "4": 176
+   }
+  },
+  "hafs/shamrani": {
+   "entries": 6190,
+   "missingSurahs": [
+    79
+   ],
+   "reasonCode": "SOURCE_CORRUPT",
+   "transformOp": "drop_surah:79",
+   "declaredReasons": {
+    "unknown": 0,
+    "source_truncated": 46
+   },
+   "declaredCount": 46,
+   "undeclaredCount": 0,
+   "engine": "mp3quran-timing-v1",
+   "gapSurahs": {
+    "79": 46
+   }
+  },
   "qalun/akri_qalun": {
    "entries": 6202,
    "missingSurahs": [],
