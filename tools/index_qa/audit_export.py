@@ -241,15 +241,61 @@ def part_durations(cl, b, shard):
     print(f"{p.relative_to(ROOT)} · {dict(Counter(r['how'] for r in res.values()))} · {time.time() - t0:.0f}ث")
 
 
+def part_livesha(cl, b, shard):
+    """بصمةُ الصوت الحيّ الآن عند الناشر لعيّنةٍ (‏بذرةٌ 20261003 · ثلاثُ سورٍ من 78–114 لكلّ فهرس) مقابلَ
+    `audioSha256` في الفهرس — يكشف استبدالَ الناشر للملفّ بعد الفهرسة (‏التوقيتُ مقيسٌ على تسجيلٍ بعينه)."""
+    import random
+    k, n = (int(x) for x in shard.split("/"))
+    data = json.loads(gzip.decompress((OUT / "index.json.gz").read_bytes()))
+    rng = random.Random(20261003)
+    jobs = []
+    for key in sorted(data["indexes"]):
+        v = data["indexes"][key]
+        per = {}
+        for s, a, st, en, fi in v["rows"]:
+            per.setdefault(s, v["files"][fi])
+        ash = v["header"].get("audioSha256") or []
+        cands = sorted(s for s in per if s >= 78 and len(ash) >= s and ash[s - 1])
+        for s in rng.sample(cands, min(3, len(cands))):
+            jobs.append((key, s, per[s], ash[s - 1]))
+    mine = [j for i, j in enumerate(jobs) if i % n == k]
+    print(f"عيّنة {len(jobs)} · هذه الشريحة {len(mine)}")
+
+    def one(j):
+        key, s, u, want = j
+        for i in range(3):
+            try:
+                req = urllib.request.Request(u, headers={"User-Agent": "Mozilla/5.0 rafiq-audit"})
+                with urllib.request.urlopen(req, timeout=180) as r:
+                    body = r.read()
+                return {"key": key, "surah": s, "url": u, "want": want,
+                        "got": hashlib.sha256(body).hexdigest(), "bytes": len(body)}
+            except Exception as ex:                                   # noqa: BLE001
+                err = str(ex)[:160]
+                time.sleep(2 + 2 * i)
+        return {"key": key, "surah": s, "url": u, "want": want, "got": None, "err": err}
+
+    with ThreadPoolExecutor(max_workers=16) as pool:
+        res = list(pool.map(one, mine))
+    p = OUT / f"livesha-{k}of{n}.json"
+    p.write_text(json.dumps(res, ensure_ascii=False, indent=0), encoding="utf-8")
+    bad = [r for r in res if r.get("got") and r["got"] != r["want"]]
+    print(f"{p.relative_to(ROOT)} · مطابق {sum(1 for r in res if r.get('got') == r['want'])} · "
+          f"مختلف {len(bad)} · متعذّر {sum(1 for r in res if not r.get('got'))}")
+    for r in bad:
+        print("  ≠", r["key"], r["surah"], r["url"])
+
+
 def main():
     ap = argparse.ArgumentParser()
-    ap.add_argument("--part", choices=["index", "state", "durations"], required=True)
+    ap.add_argument("--part", choices=["index", "state", "durations", "livesha"], required=True)
     ap.add_argument("--shard", default="0/1")
     a = ap.parse_args()
     from run import s3
     cl, b = s3()
     {"index": lambda: part_index(cl, b), "state": lambda: part_state(cl, b),
-     "durations": lambda: part_durations(cl, b, a.shard)}[a.part]()
+     "durations": lambda: part_durations(cl, b, a.shard),
+     "livesha": lambda: part_livesha(cl, b, a.shard)}[a.part]()
 
 
 if __name__ == "__main__":
