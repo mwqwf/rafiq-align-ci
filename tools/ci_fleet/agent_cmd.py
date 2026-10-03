@@ -163,7 +163,10 @@ ALLOWED_TOOLS = {"ci_fleet/package_catalog_review.py", "ci_fleet/akri_soundcloud
                  #    لا يمسّ فهرساً ولا حارساً ولا عتبة. واختبارُه بلا شبكة في test_full_audit.py.
                  "index_qa/full_audit.py", "index_qa/test_full_audit.py",
                  "index_qa/test_declared_sha_fatal.py",
-                 "ci_fleet/repo_parity.py"}
+                 "ci_fleet/repo_parity.py",
+                 # 🔎 أُضيف 2026-10-03 (تدقيقُ الجولة الثانية · أمرُ المالك): تصديرُ المنشور خاماً للتحليل المستقلّ.
+                 # ⚖️ قارئٌ محض: يقرأ الدلوَ وstate/ وترويساتِ الصوت بطلبِ مدى، ويكتب في ops/out/audit-r2/ وحدَه.
+                 "index_qa/audit_export.py"}
 MAX_OUT = 200_000            # حرفاً — جوابٌ أطولُ يُقصّ ويُعلَن قصُّه
 
 
