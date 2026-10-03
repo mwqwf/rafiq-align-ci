@@ -1,0 +1,225 @@
+{
+ "schema": 1,
+ "tool": "full_audit-1.0",
+ "date": "20261003",
+ "timestampUtc": "2026-10-03T19:35:48Z",
+ "elapsedSec": 34.9,
+ "phase": "all",
+ "manifestIndexes": 180,
+ "frozenBucket": 215,
+ "reportsRead": 9930,
+ "rows": [
+  {
+   "key": "timings-staging/hafs/m_harfoush.b91d3491.jz",
+   "sha256": "b91d3491a7e7785834c013a8be7ebc0f06ae681f50fa326e78a4406c78b8b791",
+   "riwaya": "hafs",
+   "reciterId": "m_harfoush",
+   "bytes": 95352,
+   "engine": "ctc-seg-1",
+   "transformOp": "ctc_heardmap_splice:15,20,23,25,26,31,33,36,37,38,43,47,48,52,53,54,55,56,59,60,63,68,69,70,71,72,76,77,78,79,83",
+   "staging": true,
+   "identity": {
+    "sha256": "b91d3491a7e7785834c013a8be7ebc0f06ae681f50fa326e78a4406c78b8b791",
+    "staging": true,
+    "errors": [],
+    "ok": true
+   },
+   "structure": {
+    "entries": 6236,
+    "errors": [],
+    "examples": {},
+    "fileNoUnparsed": 0,
+    "structuralFatal": [],
+    "structuralWarn": [
+     "مداخل مدتها > 120ث: 1 · مثال: 24:31 مدتها 129ث"
+    ],
+    "decision": [],
+    "engine": "ctc-seg-1",
+    "audioSha": 114,
+    "bands": {
+     "LOW": 1188,
+     "MED": 4887,
+     "HIGH": 161
+    },
+    "ok": true
+   },
+   "gaps": {
+    "missingTotal": 0,
+    "internalGaps": [],
+    "headMissing": [],
+    "tailMissing": [],
+    "wholeMissing": [],
+    "declared": {
+     "transformOp": "ctc_heardmap_splice:15,20,23,25,26,31,33,36,37,38,43,47,48,52,53,54,55,56,59,60,63,68,69,70,71,72,76,77,78,79,83",
+     "transformReason": "fixT: إصلاحٌ دفعيٌّ لكبس الذيل — 62 سورةً مشتبهةً (فائضٌ ≥15ث بعد آخر مدخل · تدقيق الجولة الثانية 2026-10-03)، كلٌّ يُقاس بالسماع قبل أن يُمسّ",
+     "reasonCode": null,
+     "dropSurahs": [],
+     "byReason": {},
+     "declaredCount": 0,
+     "tagCount": 0,
+     "declaredIds": [],
+     "truncatedTail": null
+    },
+    "undeclaredEdge": [],
+    "errors": [],
+    "ok": true
+   },
+   "durations": {
+    "durationOutliers": 27,
+    "durationExamples": [
+     {
+      "aid": "3:87",
+      "ms": 26764,
+      "expMs": 8310,
+      "ratio": 3.22,
+      "chars": 46
+     },
+     {
+      "aid": "22:21",
+      "ms": 6964,
+      "expMs": 2175,
+      "ratio": 3.2,
+      "chars": 14
+     },
+     {
+      "aid": "12:95",
+      "ms": 1170,
+      "expMs": 7960,
+      "ratio": 0.15,
+      "chars": 26
+     },
+     {
+      "aid": "39:62",
+      "ms": 1141,
+      "expMs": 7220,
+      "ratio": 0.16,
+      "chars": 25
+     },
+     {
+      "aid": "50:41",
+      "ms": 1846,
+      "expMs": 10033,
+      "ratio": 0.18,
+      "chars": 29
+     },
+     {
+      "aid": "10:84",
+      "ms": 2902,
+      "expMs": 13591,
+      "ratio": 0.21,
+      "chars": 51
+     },
+     {
+      "aid": "89:29",
+      "ms": 701,
+      "expMs": 3409,
+      "ratio": 0.21,
+      "chars": 12
+     },
+     {
+      "aid": "19:93",
+      "ms": 1961,
+      "expMs": 9060,
+      "ratio": 0.22,
+      "chars": 36
+     },
+     {
+      "aid": "44:54",
+      "ms": 1421,
+      "expMs": 5952,
+      "ratio": 0.24,
+      "chars": 18
+     },
+     {
+      "aid": "45:37",
+      "ms": 2592,
+      "expMs": 10796,
+      "ratio": 0.24,
+      "chars": 39
+     },
+     {
+      "aid": "80:41",
+      "ms": 781,
+      "expMs": 3322,
+      "ratio": 0.24,
+      "chars": 10
+     },
+     {
+      "aid": "30:59",
+      "ms": 2288,
+      "expMs": 9164,
+      "ratio": 0.25,
+      "chars": 32
+     }
+    ],
+    "impossibleShort": [],
+    "veryShort": [
+     {
+      "aid": "89:29",
+      "ms": 701,
+      "expMs": 3409,
+      "ratio": 0.21,
+      "chars": 12
+     },
+     {
+      "aid": "80:41",
+      "ms": 781,
+      "expMs": 3322,
+      "ratio": 0.24,
+      "chars": 10
+     }
+    ],
+    "extremeLong": [],
+    "longOutliers": 2,
+    "shortOutliers": 22,
+    "silenceGaps": 0,
+    "silenceExamples": [],
+    "surahsWithRate": 113
+   },
+   "audio": {
+    "audioReportsOnSha": 0,
+    "openersOnSha": false,
+    "errors": [
+     "لا حكمَ صوتيٍّ بعيّنةٍ على البصمة المنشورة",
+     "لا شاهدَ مطالعَ على البصمة المنشورة"
+    ],
+    "notes": [],
+    "samples": [],
+    "pooled": null,
+    "severeHi": null,
+    "otherShasWithSamples": [
+     "aeccbafd",
+     "c9eaa61a",
+     "d207e7e9"
+    ],
+    "ok": false
+   }
+  }
+ ],
+ "summary": {
+  "indexes": 1,
+  "phase": "all",
+  "identityOk": 1,
+  "identityBad": [],
+  "structureOk": 1,
+  "structureBad": [],
+  "gapsOk": 1,
+  "gapsBad": [],
+  "audioOk": 0,
+  "audioBad": [
+   "timings-staging/hafs/m_harfoush.b91d3491.jz"
+  ],
+  "durationOutliersTotal": 27,
+  "impossibleShortTotal": 0,
+  "indexesWithImpossibleShort": 0,
+  "veryShortTotal": 2,
+  "extremeLongTotal": 0,
+  "indexesWithExtremeLong": 0,
+  "mirrorStale": 0,
+  "silenceGapsTotal": 0,
+  "indexesWithDurationOutliers": 1,
+  "indexesWithSilenceGaps": 0,
+  "entriesTotal": 6236,
+  "missingTotal": 0
+ }
+}
