@@ -32,7 +32,7 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 15
     outputs:
-      matrix: ${{ steps.plan.outputs.matrix }}
+      idx: ${{ steps.plan.outputs.idx }}
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
@@ -81,8 +81,12 @@ jobs:
                       inc.append({"src": src, "sha": sha, "items": json.dumps(b)})
           print(json.dumps(inc, ensure_ascii=False)[:3000])
           with open(os.environ["GITHUB_OUTPUT"], "a") as f:
-              f.write("matrix=" + json.dumps({"include": inc}) + "\n")
+              f.write("idx=" + json.dumps(list(range(len(inc)))) + "\n")
+          # ⛔ مخرَجاتُ الوظيفة تُحجب إن حوت قوسَي { } (‏سطرُ سرِّ R2 المقنَّع) ⇒ الخطّةُ مخرَجٌ ملفّيّ.
+          json.dump(inc, open("plan.json", "w"))
           PY
+      - uses: actions/upload-artifact@v4
+        with: {name: "heard-gate-plan-${{ github.run_id }}", path: plan.json, retention-days: 7}
 
   probe:
     needs: plan
@@ -90,7 +94,8 @@ jobs:
     timeout-minutes: 340
     strategy:
       fail-fast: false
-      matrix: ${{ fromJson(needs.plan.outputs.matrix) }}
+      matrix:
+        k: ${{ fromJson(needs.plan.outputs.idx) }}
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
@@ -105,9 +110,13 @@ jobs:
         with:
           path: .hf
           key: ctc-model-jonatasgrosman-xlsr53-ar-v1
+      - uses: actions/download-artifact@v4
+        with: {name: "heard-gate-plan-${{ github.run_id }}"}
       - name: خرائطُ السماع (float32 · بلا رفع)
-        env: {ITEMS: "${{ matrix.items }}", SRC: "${{ matrix.src }}"}
+        env: {K: "${{ matrix.k }}"}
         run: |
+          SRC="$(python -c "import json,sys; print(json.load(open('plan.json'))[int(sys.argv[1])]['src'])" "$K")"
+          export ITEMS="$(python -c "import json,sys; print(json.load(open('plan.json'))[int(sys.argv[1])]['items'])" "$K")"
           python -m unittest tools/alignment_v3/test_ctc_heard_map.py
           d="hg/$(echo "$SRC" | tr '/' '_')"; mkdir -p "$d"; RIW="$(echo "$SRC" | cut -d/ -f2)"
           python -c "import json,os; [print(s, u) for s, u in json.loads(os.environ['ITEMS'])]" | while read s u; do
@@ -138,7 +147,7 @@ jobs:
         run: mkdir -p secure && printf '%s' "$R2_CREDENTIALS_JSON" > secure/r2_credentials.json
       - uses: actions/download-artifact@v4
         with:
-          pattern: heard-gate-${{ github.run_id }}-*
+          pattern: heard-gate-${{ github.run_id }}-[0-9]*
           path: shards
           merge-multiple: true
       - name: الحكمُ والكتابةُ في state-heard/
