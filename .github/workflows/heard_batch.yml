@@ -189,7 +189,7 @@ jobs:
           for s in $(echo "$SHARD" | tr ',' ' '); do
             if [ $(( $(date +%s) - T0 )) -gt $BUDGET ]; then echo "⏳ س$s: لم يُبلغ في ميزانيّة الوقت — للدفعة التالية"; continue; fi
             U="$(python -c "import json,sys; print(json.load(open('plan.json'))['urls'][sys.argv[1]])" "$s")"
-            python tools/alignment_v3/ctc_heard_map.py --url "$U" --surah "$s" --riwaya "$RIW" --strict-tol-ms 1500 \
+            CTC_INT8=0 python tools/alignment_v3/ctc_heard_map.py --url "$U" --surah "$s" --riwaya "$RIW" --strict-tol-ms 1500 \
               --out-dir "$d" 2>&1 | grep -v "^[0-9]*:[0-9]*\s" | tail -25 | tee -a "ctc_$s.log" || echo "⚠️ س$s: أخفقت المحاذاة"
             rm -f "$d"/*.mp3 "$d"/*.wav
           done
