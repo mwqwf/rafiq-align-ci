@@ -27,6 +27,7 @@ HERE = Path(__file__).resolve().parent
 ROOT = HERE.parent.parent
 sys.path.insert(0, str(HERE))
 OUT = ROOT / "ops" / "out" / "audit-r2"
+ONLY = ""
 
 for _s in (sys.stdout, sys.stderr):
     try:
@@ -218,6 +219,8 @@ def part_durations(cl, b, shard):
     data = json.loads(raw)
     urls = sorted({f for v in data["indexes"].values() for f in v["files"] if f})
     mine = [u for u in urls if int(hashlib.md5(u.encode()).hexdigest(), 16) % n == k]
+    if ONLY:
+        mine = [u for u in urls if ONLY in u]
     print(f"روابطُ فريدة {len(urls)} · هذه الشريحة {len(mine)}")
     t0 = time.time()
 
@@ -235,7 +238,7 @@ def part_durations(cl, b, shard):
         for u, r in pool.map(one, mine):
             res[u] = r
     OUT.mkdir(parents=True, exist_ok=True)
-    p = OUT / f"durations-{k}of{n}.json.gz"
+    p = OUT / (f"durations-{k}of{n}.json.gz" if not ONLY else f"recheck-{hashlib.md5(ONLY.encode()).hexdigest()[:8]}-{time.strftime('%H%M', time.gmtime())}.json.gz")
     p.write_bytes(gzip.compress(json.dumps(res, ensure_ascii=False, separators=(",", ":")).encode("utf-8"), 9))
     from collections import Counter
     print(f"{p.relative_to(ROOT)} · {dict(Counter(r['how'] for r in res.values()))} · {time.time() - t0:.0f}ث")
@@ -290,7 +293,10 @@ def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--part", choices=["index", "state", "durations", "livesha"], required=True)
     ap.add_argument("--shard", default="0/1")
+    ap.add_argument("--only", default="", help="durations: روابطُ تحوي هذا النصّ وحدها (‏إعادةُ فحصٍ للوصول)")
     a = ap.parse_args()
+    global ONLY
+    ONLY = a.only
     from run import s3
     cl, b = s3()
     {"index": lambda: part_index(cl, b), "state": lambda: part_state(cl, b),
