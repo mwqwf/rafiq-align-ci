@@ -1,0 +1,15 @@
+# rc=0
+📦 ctc-splice-37136288191 · 693 بايت
+── ctc.log (1100 بايت)
+
+Fetching 7 files:   0%|          | 0/7 [00:00<?, ?it/s]Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+
+Fetching 7 files:  29%|██▊       | 2/7 [00:00<00:00, 18.21it/s]
+Fetching 7 files: 100%|██████████| 7/7 [00:07<00:00,  1.20s/it]
+Fetching 7 files: 100%|██████████| 7/7 [00:07<00:00,  1.10s/it]
+
+Loading weights:   0%|          | 0/424 [00:00<?, ?it/s]
+Loading weights: 100%|██████████| 424/424 [00:00<00:00, 5249.63it/s]
+⛔ س3 بادئة 1..152: رُدّت — ثقةُ CTC دون 0.45 في [21, 26, 44, 74, 77, 85, 91, 114, 118, 130, 134, 146]
+{"surah": 3, "sha256": "4b627f06b3ac0561b110ed9bc3396de7a24c878d4008a6f3e5e921dceb27a7f9", "refused": "ثقةُ CTC دون 0.45 في [21, 26, 44, 74, 77, 85, 91, 114, 118, 130, 134, 146]", "truncatedTail": {"keep": 152, "sinkAyah": 153, "absentFrom": 153, "absentTo": 200, "sinkStartMs": 2504628, "sinkAlignedEndMs": 2519427, "sinkConf": 0.0, "totalMs": 2519458, "reason": "source_truncated"}}
+
