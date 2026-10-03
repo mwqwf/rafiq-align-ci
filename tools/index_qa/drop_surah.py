@@ -48,6 +48,20 @@ sys.path.insert(0, str(HERE))
 import promote                                                       # noqa: E402
 
 AYAHS = 6236
+# خرائطُ «سورة ⇒ سجلّ» في الترويسة: تُحذف منها السورةُ المُسقطة (‏انظر main).
+_SURAH_MAPS = ("engineBySurah", "sourceBySurah", "sourceTimingBySurah",
+               "alignmentModelBySurah", "dualFixEvidenceBySurah")
+
+
+def pruned_surah_maps(idx, surahs):
+    """خرائطُ السور في الترويسة بعد حذف السور المُسقطة — ما تغيّر منها فقط."""
+    gone = {str(n) for n in surahs}
+    out = {}
+    for field in _SURAH_MAPS:
+        m = idx.get(field)
+        if isinstance(m, dict) and gone & {str(k) for k in m}:
+            out[field] = {k: v for k, v in m.items() if str(k) not in gone}
+    return out
 
 
 def main():
@@ -220,6 +234,14 @@ def main():
     out = dict(idx)
     out["entries"] = kept
     out["missing"] = miss
+    # ⛔ **سجلُّ السورة يُسقط معها** (‏2026-10-03 · ‏iraoui_warsh.9de826e5 س41): كان
+    #    الإسقاطُ يحذف المداخلَ ويُبقي `engineBySurah["41"]` بمحرّكٍ آخر، فيطلب
+    #    `census_gate` إحصاءً شاملاً لسورةٍ لا مدخلَ لها ويُعيد الإحصاءُ «لا سور كافية»
+    #    فلا تُرقّى أبداً. فالترويسةُ تصف سورةً لا تُشحن، وذاك كذبٌ على كلّ حارسٍ يقرؤها.
+    #    ⇒ تُحذف السورُ المُسقطةُ كلُّها من خرائط السور. ولا يمسّ هذا سورةً حاضرة:
+    #    كلُّ سورةٍ باقيةٍ بمحرّكٍ آخر يبقى سجلُّها ويلزمها الإحصاءُ كما كان.
+    if not a.declare_gap:
+        out.update(pruned_surah_maps(idx, surahs))
     out["lowCount"] = sum(1 for e in kept if e.get("confBand") == "LOW")
     # ⭐ **إعلانُ الذيل المبتور يُورَّث لا يُمحى** (أمر المالك 2026-10-02): مرشّحُ
     #    `--truncated-tail` يحمل في `transform.truncatedTail` أيَّ سورةٍ نُشرت بادئتُها
