@@ -47,10 +47,7 @@ jobs:
       rid: ${{ steps.plan.outputs.rid }}
       sha: ${{ steps.plan.outputs.sha }}
       surahs: ${{ steps.plan.outputs.surahs }}
-      urlt: ${{ steps.plan.outputs.urlt }}
-      folder: ${{ steps.plan.outputs.folder }}
-      matrix: ${{ steps.plan.outputs.matrix }}
-      urls: ${{ steps.plan.outputs.urls }}
+      idx: ${{ steps.plan.outputs.idx }}
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
@@ -135,13 +132,18 @@ jobs:
           bins = [[] for _ in range(n)]; load = [0] * n
           for s in sorted(todo, key=lambda s: -COUNTS[s - 1]):     # أطولُ أوّلاً، إلى أخفّ شريحة
               i = load.index(min(load)); bins[i].append(s); load[i] += COUNTS[s - 1] + 20
-          matrix = {"shard": [",".join(map(str, sorted(b))) for b in bins if b]}
+          # ⛔ مخرَجاتُ الوظيفة تُحجب إن حوت قوسَي { } (‏سطرُ سرِّ R2 المقنَّع) ⇒ الخطّةُ مخرَجٌ ملفّيّ.
+          shards = [",".join(map(str, sorted(b))) for b in bins if b]
+          matrix = {"shard": shards}
+          json.dump({"urlt": urlt, "folder": folder, "urls": urls, "shards": shards}, open("plan.json", "w"))
           sha = hashlib.sha256(body).hexdigest()
           print(f"الأصل {parent} ({sha[:12]}) · محرّكه {idx.get('engineVersion')} · يُقاس {len(todo)}: {todo} · شرائح {matrix}")
           with open(os.environ["GITHUB_OUTPUT"], "a") as f:
-              f.write(f"rid={rid}\nsha={sha}\nsurahs={','.join(map(str, todo))}\nurlt={urlt}\n"
-                      f"folder={'1' if folder else ''}\nmatrix={json.dumps(matrix)}\nurls={json.dumps(urls)}\n")
+              f.write(f"rid={rid}\nsha={sha}\nsurahs={','.join(map(str, todo))}\n"
+                      f"idx={json.dumps(list(range(len(shards))))}\n")
           PY
+      - uses: actions/upload-artifact@v4
+        with: {name: "heard-plan-${{ github.run_id }}", path: plan.json, retention-days: 7}
 
   align:
     needs: plan
@@ -149,7 +151,8 @@ jobs:
     timeout-minutes: 340
     strategy:
       fail-fast: false
-      matrix: ${{ fromJson(needs.plan.outputs.matrix) }}
+      matrix:
+        shard: ${{ fromJson(needs.plan.outputs.idx) }}
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
@@ -164,20 +167,23 @@ jobs:
         with:
           path: .hf
           key: ctc-model-jonatasgrosman-xlsr53-ar-v1
+      - uses: actions/download-artifact@v4
+        with: {name: "heard-plan-${{ github.run_id }}"}
       - name: خريطةُ السماع وإعادةُ البناء لكلّ سورة (⛔ بلا رفع · بميزانيّة وقت)
         env:
-          URLS: ${{ needs.plan.outputs.urls }}
           RIW: ${{ inputs.riwaya }}
           RID: ${{ needs.plan.outputs.rid }}
-          SHARD: ${{ matrix.shard }}
+          K: ${{ matrix.shard }}
         run: |
+          SHARD="$(python -c "import json,sys; print(json.load(open('plan.json'))['shards'][int(sys.argv[1])])" "$K")"
+          echo "الشريحة $K: $SHARD"
           set -o pipefail
           python -m unittest tools/alignment_v3/test_ctc_heard_map.py
           T0=$(date +%s); BUDGET=$((300*60))
           d="tools/alignment/work/batch_$RID"; mkdir -p "$d"
           for s in $(echo "$SHARD" | tr ',' ' '); do
             if [ $(( $(date +%s) - T0 )) -gt $BUDGET ]; then echo "⏳ س$s: لم يُبلغ في ميزانيّة الوقت — للدفعة التالية"; continue; fi
-            U="$(python -c "import json,sys; print(json.loads(sys.argv[1])[sys.argv[2]])" "$URLS" "$s")"
+            U="$(python -c "import json,sys; print(json.load(open('plan.json'))['urls'][sys.argv[1]])" "$s")"
             python tools/alignment_v3/ctc_heard_map.py --url "$U" --surah "$s" --riwaya "$RIW" \
               --out-dir "$d" 2>&1 | grep -v "^[0-9]*:[0-9]*\s" | tail -25 | tee -a "ctc_$s.log" || echo "⚠️ س$s: أخفقت المحاذاة"
             rm -f "$d"/*.mp3 "$d"/*.wav
@@ -209,6 +215,8 @@ jobs:
         with:
           pattern: heard-batch-${{ github.run_id }}-*
           path: shards
+      - uses: actions/download-artifact@v4
+        with: {name: "heard-plan-${{ github.run_id }}"}
       - name: الأصلُ نفسُه بالبصمة
         env: {PARENT: "${{ inputs.parent }}", SHA: "${{ needs.plan.outputs.sha }}"}
         run: |
@@ -233,11 +241,11 @@ jobs:
       - name: الدمجُ بحُرّاسه وبصماتُ الصوت
         id: splice
         env:
-          URLT: ${{ needs.plan.outputs.urlt }}
-          FOLDER: ${{ needs.plan.outputs.folder }}
           RID: ${{ needs.plan.outputs.rid }}
         run: |
           set -e
+          URLT="$(python -c "import json; print(json.load(open('plan.json'))['urlt'])")"
+          FOLDER="$(python -c "import json; print('1' if json.load(open('plan.json'))['folder'] else '')")"
           d="tools/alignment/work/batch_$RID"
           S="$(python -c "import json; print(','.join(map(str, json.load(open('heard_batch_report.json'))['taken'])))")"
           if [ -z "$S" ]; then echo "لا سورةَ أُخذت — لا مرشّح"; echo "none=1" >> "$GITHUB_OUTPUT"; exit 0; fi
