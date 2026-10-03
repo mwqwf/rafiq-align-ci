@@ -2,12 +2,12 @@
  "schema": 1,
  "tool": "full_audit-1.0",
  "date": "20261003",
- "timestampUtc": "2026-10-03T18:06:54Z",
- "elapsedSec": 37.1,
+ "timestampUtc": "2026-10-03T20:46:03Z",
+ "elapsedSec": 23.4,
  "phase": "all",
  "manifestIndexes": 180,
  "frozenBucket": 220,
- "reportsRead": 9764,
+ "reportsRead": 10010,
  "rows": [
   {
    "key": "timings-staging/qalun/jelmam_qalun.5a724c1a.jz",
@@ -168,21 +168,157 @@
     "surahsWithRate": 113
    },
    "audio": {
-    "audioReportsOnSha": 0,
-    "openersOnSha": false,
-    "errors": [
-     "لا حكمَ صوتيٍّ بعيّنةٍ على البصمة المنشورة",
-     "لا شاهدَ مطالعَ على البصمة المنشورة"
-    ],
+    "audioReportsOnSha": 8,
+    "openersOnSha": true,
+    "errors": [],
     "notes": [],
-    "samples": [],
-    "pooled": null,
-    "severeHi": null,
+    "samples": [
+     {
+      "salt": "fixT5a721",
+      "source": "ci",
+      "engine": "pywhispercpp/ggml-q8 (tiny-ar-quran)",
+      "verdict": "مقبول",
+      "m": 1,
+      "n": 200,
+      "rate": 0.005,
+      "hi": 0.0148,
+      "fatal": 0,
+      "ts": 1791053721.7414856
+     },
+     {
+      "salt": "fixT5a723",
+      "source": "ci",
+      "engine": "pywhispercpp/ggml-q8 (tiny-ar-quran)",
+      "verdict": "مقبول",
+      "m": 0,
+      "n": 200,
+      "rate": 0.0,
+      "hi": 0.014867039231272083,
+      "fatal": 0,
+      "ts": 1791053731.4133508
+     },
+     {
+      "salt": "fixT5a722",
+      "source": "ci",
+      "engine": "pywhispercpp/ggml-q8 (tiny-ar-quran)",
+      "verdict": "مقبول",
+      "m": 0,
+      "n": 200,
+      "rate": 0.0,
+      "hi": 0.014867039231272083,
+      "fatal": 0,
+      "ts": 1791053732.561128
+     },
+     {
+      "salt": "fixT5a724",
+      "source": "ci",
+      "engine": "pywhispercpp/ggml-q8 (tiny-ar-quran)",
+      "verdict": "مقبول",
+      "m": 1,
+      "n": 200,
+      "rate": 0.005,
+      "hi": 0.014800000000000004,
+      "fatal": 0,
+      "ts": 1791053739.9594417
+     },
+     {
+      "salt": "k1",
+      "source": "ci",
+      "engine": "pywhispercpp/ggml-q8 (tiny-ar-quran)",
+      "verdict": "مقبول",
+      "m": 0,
+      "n": 200,
+      "rate": 0.0,
+      "hi": 0.014867039231272083,
+      "fatal": 0,
+      "ts": 1791056966.0098345
+     },
+     {
+      "salt": "k2",
+      "source": "ci",
+      "engine": "pywhispercpp/ggml-q8 (tiny-ar-quran)",
+      "verdict": "مقبول",
+      "m": 0,
+      "n": 200,
+      "rate": 0.0,
+      "hi": 0.014867039231272083,
+      "fatal": 0,
+      "ts": 1791057019.3242717
+     },
+     {
+      "salt": "k3",
+      "source": "ci",
+      "engine": "pywhispercpp/ggml-q8 (tiny-ar-quran)",
+      "verdict": "مقبول",
+      "m": 0,
+      "n": 200,
+      "rate": 0.0,
+      "hi": 0.014867039231272083,
+      "fatal": 0,
+      "ts": 1791057174.9912732
+     },
+     {
+      "salt": "k4",
+      "source": "ci",
+      "engine": "pywhispercpp/ggml-q8 (tiny-ar-quran)",
+      "verdict": "مقبول",
+      "m": 2,
+      "n": 200,
+      "rate": 0.01,
+      "hi": 0.023489645151589033,
+      "fatal": 0,
+      "ts": 1791057267.6392834
+     }
+    ],
+    "pooled": {
+     "m": 4,
+     "n": 1600,
+     "rate": 0.0025,
+     "hi": 0.005711740821673195,
+     "salts": [
+      "fixT5a721",
+      "fixT5a722",
+      "fixT5a723",
+      "fixT5a724",
+      "k1",
+      "k2",
+      "k3",
+      "k4"
+     ],
+     "seeds": 8,
+     "engine": "pywhispercpp/ggml-q8 (tiny-ar-quran)",
+     "rule": "D-098"
+    },
+    "severeHi": 0.005711740821673195,
+    "openers": {
+     "commit": "8c0d5e00935bc6c31ae29d07de90fa20e2c5e759",
+     "toolOk": true,
+     "scope": "full",
+     "checked": 112,
+     "hasLate": true,
+     "late": [],
+     "lateCtcRule": null,
+     "lateConfirmed": [],
+     "swallowed": [],
+     "suspect": [],
+     "tail": [
+      11,
+      69
+     ],
+     "unknown": [
+      7,
+      12,
+      13,
+      70,
+      79
+     ],
+     "verdict": "clean"
+    },
     "otherShasWithSamples": [
      "7e9e7367",
      "a2237994"
     ],
-    "ok": false
+    "ok": true
    }
   }
  ],
@@ -195,10 +331,8 @@
   "structureBad": [],
   "gapsOk": 1,
   "gapsBad": [],
-  "audioOk": 0,
-  "audioBad": [
-   "timings-staging/qalun/jelmam_qalun.5a724c1a.jz"
-  ],
+  "audioOk": 1,
+  "audioBad": [],
   "durationOutliersTotal": 16,
   "impossibleShortTotal": 0,
   "indexesWithImpossibleShort": 0,
