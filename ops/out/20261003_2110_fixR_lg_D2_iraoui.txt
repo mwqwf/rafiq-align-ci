@@ -1,0 +1,17 @@
+# rc=0
+📦 ctc-splice-37136284238 · 791 بايت
+── ctc.log (1266 بايت)
+
+Fetching 7 files:   0%|          | 0/7 [00:00<?, ?it/s]Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+
+Fetching 7 files: 100%|██████████| 7/7 [00:07<00:00,  1.07s/it]
+Fetching 7 files: 100%|██████████| 7/7 [00:07<00:00,  1.07s/it]
+
+Loading weights:   0%|          | 0/424 [00:00<?, ?it/s]
+Loading weights:  93%|█████████▎| 394/424 [00:00<00:00, 3938.62it/s]
+Loading weights: 100%|██████████| 424/424 [00:00<00:00, 3952.92it/s]
+WARNING:ctc_segmentation:IndexError: Backtracking was not successful, the window size might be too small.
+WARNING:ctc_segmentation:Increasing the window size to: 16000
+⛔ س41 بادئة 1..14: رُدّت — 1: مدّتُها 4193م.ث والمتوقَّع 782 (خارج 0.5–2.0×)
+{"surah": 41, "sha256": "292231f872106bbf4ea3d5429be73c1ad0abf4be7c9073afe4ac662d0555393e", "refused": "1: مدّتُها 4193م.ث والمتوقَّع 782 (خارج 0.5–2.0×)", "truncatedTail": {"keep": 14, "sinkAyah": 15, "absentFrom": 15, "absentTo": 54, "sinkStartMs": 306450, "sinkAlignedEndMs": 316807, "sinkConf": 0.0, "totalMs": 1258488, "reason": "source_truncated"}}
+
