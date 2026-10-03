@@ -1,0 +1,184 @@
+{
+ "schema": 1,
+ "tool": "full_audit-1.0",
+ "date": "20261003",
+ "timestampUtc": "2026-10-03T22:55:31Z",
+ "elapsedSec": 35.3,
+ "phase": "all",
+ "manifestIndexes": 180,
+ "frozenBucket": 219,
+ "reportsRead": 10095,
+ "rows": [
+  {
+   "key": "timings-staging/warsh/noah_warsh.17191c80.jz",
+   "sha256": "17191c80f66c87db6f31f8bea091ab8f2e526083e8e4bc6a318aefe42b44a029",
+   "riwaya": "warsh",
+   "reciterId": "noah_warsh",
+   "bytes": 94098,
+   "engine": "ctc-seg-1",
+   "transformOp": "ctc_heardmap_splice:2,6,8,12,13,14,15,17,18,19,21,23,24,27,29,30,31,34,35,36,37,39,40,41,42,43,45,46,47,48,49,50,52,53,54,56,57,59,60,63,64,65,66,67,70,71,72,74,76",
+   "staging": true,
+   "identity": {
+    "sha256": "17191c80f66c87db6f31f8bea091ab8f2e526083e8e4bc6a318aefe42b44a029",
+    "staging": true,
+    "errors": [],
+    "ok": true
+   },
+   "structure": {
+    "entries": 6236,
+    "errors": [],
+    "examples": {},
+    "fileNoUnparsed": 0,
+    "structuralFatal": [],
+    "structuralWarn": [
+     "مداخل مدتها > 120ث: 1 · مثال: 2:282 مدتها 143ث",
+     "مطالع سور تبدأ دون 3ث — مرشّحون للمسبار الصوتي لا حكمٌ عليهم: 5:1=2982م.ث · 14:1=2771م.ث · 18:1=2862م.ث · 21:1=2962م.ث · 23:1=2951م.ث · 24:1=2731م.ث · 25:1=2591م.ث · 27:1=2732م.ث · 29:1=2906م.ث · 30:1=2752م.ث … و66 غيرها"
+    ],
+    "decision": [],
+    "engine": "ctc-seg-1",
+    "audioSha": 114,
+    "bands": {
+     "MED": 5376,
+     "HIGH": 50,
+     "LOW": 810
+    },
+    "ok": true
+   },
+   "gaps": {
+    "missingTotal": 0,
+    "internalGaps": [],
+    "headMissing": [],
+    "tailMissing": [],
+    "wholeMissing": [],
+    "declared": {
+     "transformOp": "ctc_heardmap_splice:2,6,8,12,13,14,15,17,18,19,21,23,24,27,29,30,31,34,35,36,37,39,40,41,42,43,45,46,47,48,49,50,52,53,54,56,57,59,60,63,64,65,66,67,70,71,72,74,76",
+     "transformReason": "fixT: إصلاحٌ دفعيٌّ لكبس الذيل — 52 سورةً مشتبهةً (فائضٌ ≥15ث بعد آخر مدخل · تدقيق الجولة الثانية 2026-10-03)، كلٌّ يُقاس بالسماع قبل أن يُمسّ",
+     "reasonCode": null,
+     "dropSurahs": [],
+     "byReason": {},
+     "declaredCount": 0,
+     "tagCount": 0,
+     "declaredIds": [],
+     "truncatedTail": null
+    },
+    "undeclaredEdge": [],
+    "errors": [],
+    "ok": true
+   },
+   "durations": {
+    "durationOutliers": 6,
+    "durationExamples": [
+     {
+      "aid": "30:2",
+      "ms": 8437,
+      "expMs": 1989,
+      "ratio": 4.24,
+      "chars": 9
+     },
+     {
+      "aid": "20:103",
+      "ms": 18973,
+      "expMs": 6119,
+      "ratio": 3.1,
+      "chars": 26
+     },
+     {
+      "aid": "54:17",
+      "ms": 200,
+      "expMs": 6845,
+      "ratio": 0.03,
+      "chars": 29
+     },
+     {
+      "aid": "5:120",
+      "ms": 1718,
+      "expMs": 10059,
+      "ratio": 0.17,
+      "chars": 39
+     },
+     {
+      "aid": "3:96",
+      "ms": 2001,
+      "expMs": 7036,
+      "ratio": 0.28,
+      "chars": 40
+     },
+     {
+      "aid": "16:128",
+      "ms": 2206,
+      "expMs": 7561,
+      "ratio": 0.29,
+      "chars": 32
+     }
+    ],
+    "impossibleShort": [
+     {
+      "aid": "54:17",
+      "ms": 200,
+      "expMs": 6845,
+      "ratio": 0.03,
+      "chars": 29
+     }
+    ],
+    "veryShort": [],
+    "extremeLong": [],
+    "longOutliers": 2,
+    "shortOutliers": 4,
+    "silenceGaps": 0,
+    "silenceExamples": [],
+    "surahsWithRate": 113
+   },
+   "audio": {
+    "audioReportsOnSha": 0,
+    "openersOnSha": false,
+    "errors": [
+     "لا حكمَ صوتيٍّ بعيّنةٍ على البصمة المنشورة",
+     "لا شاهدَ مطالعَ على البصمة المنشورة"
+    ],
+    "notes": [],
+    "samples": [],
+    "pooled": null,
+    "severeHi": null,
+    "otherShasWithSamples": [
+     "00c2fdd6",
+     "01281c88",
+     "10e65f75",
+     "1668f5e8",
+     "17bdc5b1",
+     "1973473a",
+     "20cdba17",
+     "229a5969",
+     "249291fc",
+     "2bef5f8f"
+    ],
+    "ok": false
+   }
+  }
+ ],
+ "summary": {
+  "indexes": 1,
+  "phase": "all",
+  "identityOk": 1,
+  "identityBad": [],
+  "structureOk": 1,
+  "structureBad": [],
+  "gapsOk": 1,
+  "gapsBad": [],
+  "audioOk": 0,
+  "audioBad": [
+   "timings-staging/warsh/noah_warsh.17191c80.jz"
+  ],
+  "durationOutliersTotal": 6,
+  "impossibleShortTotal": 1,
+  "indexesWithImpossibleShort": 1,
+  "veryShortTotal": 0,
+  "extremeLongTotal": 0,
+  "indexesWithExtremeLong": 0,
+  "mirrorStale": 0,
+  "silenceGapsTotal": 0,
+  "indexesWithDurationOutliers": 1,
+  "indexesWithSilenceGaps": 0,
+  "entriesTotal": 6236,
+  "missingTotal": 0
+ }
+}
