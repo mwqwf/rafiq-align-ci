@@ -34,6 +34,7 @@ def main() -> int:
     ap.add_argument("run_id")
     ap.add_argument("--name-contains", default="")
     ap.add_argument("--max-bytes", type=int, default=20000)
+    ap.add_argument("--tail", action="store_true", help="اطبع آخرَ max-bytes من كلّ ملفّ لا أوّلَها (‏الحكمُ في ذيل السجلّ)")
     ap.add_argument("--file-contains", default="", help="اطبع ملفّاتِ المخرَج التي يحوي اسمُها هذا وحدها (‏fixS1 · 2026-10-03: تقريرُ السماع كان يُقصّ خلف JSON الكبير)")
     a = ap.parse_args()
 
@@ -59,7 +60,7 @@ def main() -> int:
             body = zf.read(nm)
             print(f"── {nm} ({len(body)} بايت)")
             try:
-                print(body[:a.max_bytes].decode("utf-8", "replace"))
+                print((body[-a.max_bytes:] if a.tail else body[:a.max_bytes]).decode("utf-8", "replace"))
             except Exception:                                    # noqa: BLE001
                 print("   (ثنائيّ — لا يُطبع)")
     return 0
