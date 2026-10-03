@@ -1,0 +1,335 @@
+{
+ "schema": 1,
+ "tool": "full_audit-1.0",
+ "date": "20261003",
+ "timestampUtc": "2026-10-03T19:41:09Z",
+ "elapsedSec": 20.4,
+ "phase": "all",
+ "manifestIndexes": 180,
+ "frozenBucket": 220,
+ "reportsRead": 9948,
+ "rows": [
+  {
+   "key": "timings-staging/hafs/alijon.5e9fd934.jz",
+   "sha256": "5e9fd934732d6ad50325098a0cc20330ef06a13f5732e5d528eedd6ba5c3e154",
+   "riwaya": "hafs",
+   "reciterId": "alijon",
+   "bytes": 114609,
+   "engine": "ctc-seg-1",
+   "transformOp": "ctc_dualfix_splice:4",
+   "staging": true,
+   "identity": {
+    "sha256": "5e9fd934732d6ad50325098a0cc20330ef06a13f5732e5d528eedd6ba5c3e154",
+    "staging": true,
+    "errors": [],
+    "ok": true
+   },
+   "structure": {
+    "entries": 6236,
+    "errors": [],
+    "examples": {},
+    "fileNoUnparsed": 0,
+    "structuralFatal": [],
+    "structuralWarn": [
+     "مداخل مدتها > 120ث: 1 · مثال: 2:282 مدتها 198ث"
+    ],
+    "decision": [],
+    "engine": "ctc-seg-1",
+    "audioSha": 114,
+    "bands": {
+     "MED": 3363,
+     "HIGH": 977,
+     "LOW": 1896
+    },
+    "ok": true
+   },
+   "gaps": {
+    "missingTotal": 0,
+    "internalGaps": [],
+    "headMissing": [],
+    "tailMissing": [],
+    "wholeMissing": [],
+    "declared": {
+     "transformOp": "ctc_dualfix_splice:4",
+     "transformReason": "fixR: فوق مرشّح 326daa07 لـalijon بقيت آياتٌ منحرفةٌ عن المسموع فوق 1.5ث (4:22-24,4:31-33,4:35-37,4:57-60,4:94-98,4:128-130,4:144-146,4:175-176) ⇒ dualfix يعيد محاذاة هذه المديات بين جارَين ثابتَين ويأخذ الحدود حيث اتّفق النموذجان",
+     "reasonCode": null,
+     "dropSurahs": [],
+     "byReason": {},
+     "declaredCount": 0,
+     "tagCount": 0,
+     "declaredIds": [],
+     "truncatedTail": null
+    },
+    "undeclaredEdge": [],
+    "errors": [],
+    "ok": true
+   },
+   "durations": {
+    "durationOutliers": 77,
+    "durationExamples": [
+     {
+      "aid": "17:13",
+      "ms": 26043,
+      "expMs": 7100,
+      "ratio": 3.67,
+      "chars": 54
+     },
+     {
+      "aid": "17:4",
+      "ms": 25160,
+      "expMs": 7495,
+      "ratio": 3.36,
+      "chars": 57
+     },
+     {
+      "aid": "17:16",
+      "ms": 27518,
+      "expMs": 8810,
+      "ratio": 3.12,
+      "chars": 67
+     },
+     {
+      "aid": "44:43",
+      "ms": 540,
+      "expMs": 3788,
+      "ratio": 0.14,
+      "chars": 12
+     },
+     {
+      "aid": "89:29",
+      "ms": 600,
+      "expMs": 4038,
+      "ratio": 0.15,
+      "chars": 12
+     },
+     {
+      "aid": "19:66",
+      "ms": 1161,
+      "expMs": 7077,
+      "ratio": 0.16,
+      "chars": 29
+     },
+     {
+      "aid": "40:83",
+      "ms": 2982,
+      "expMs": 18176,
+      "ratio": 0.16,
+      "chars": 64
+     },
+     {
+      "aid": "38:70",
+      "ms": 1301,
+      "expMs": 7531,
+      "ratio": 0.17,
+      "chars": 27
+     },
+     {
+      "aid": "55:52",
+      "ms": 1161,
+      "expMs": 6759,
+      "ratio": 0.17,
+      "chars": 18
+     },
+     {
+      "aid": "25:77",
+      "ms": 2282,
+      "expMs": 12421,
+      "ratio": 0.18,
+      "chars": 46
+     },
+     {
+      "aid": "43:74",
+      "ms": 1341,
+      "expMs": 7145,
+      "ratio": 0.19,
+      "chars": 25
+     },
+     {
+      "aid": "44:44",
+      "ms": 600,
+      "expMs": 3157,
+      "ratio": 0.19,
+      "chars": 10
+     }
+    ],
+    "impossibleShort": [],
+    "veryShort": [
+     {
+      "aid": "44:43",
+      "ms": 540,
+      "expMs": 3788,
+      "ratio": 0.14,
+      "chars": 12
+     },
+     {
+      "aid": "89:29",
+      "ms": 600,
+      "expMs": 4038,
+      "ratio": 0.15,
+      "chars": 12
+     },
+     {
+      "aid": "44:44",
+      "ms": 600,
+      "expMs": 3157,
+      "ratio": 0.19,
+      "chars": 10
+     },
+     {
+      "aid": "38:68",
+      "ms": 841,
+      "expMs": 3626,
+      "ratio": 0.23,
+      "chars": 13
+     },
+     {
+      "aid": "89:30",
+      "ms": 761,
+      "expMs": 3365,
+      "ratio": 0.23,
+      "chars": 10
+     },
+     {
+      "aid": "53:57",
+      "ms": 821,
+      "expMs": 3326,
+      "ratio": 0.25,
+      "chars": 10
+     }
+    ],
+    "extremeLong": [],
+    "longOutliers": 3,
+    "shortOutliers": 68,
+    "silenceGaps": 0,
+    "silenceExamples": [],
+    "surahsWithRate": 113
+   },
+   "audio": {
+    "audioReportsOnSha": 4,
+    "openersOnSha": true,
+    "errors": [],
+    "notes": [],
+    "samples": [
+     {
+      "salt": "k1",
+      "source": "ci",
+      "engine": "pywhispercpp/ggml-q8 (tiny-ar-quran)",
+      "verdict": "مقبول",
+      "m": 1,
+      "n": 200,
+      "rate": 0.005,
+      "hi": 0.0148,
+      "fatal": 0,
+      "ts": 1791053940.7997708
+     },
+     {
+      "salt": "k4",
+      "source": "ci",
+      "engine": "pywhispercpp/ggml-q8 (tiny-ar-quran)",
+      "verdict": "مقبول",
+      "m": 4,
+      "n": 200,
+      "rate": 0.02,
+      "hi": 0.04292798795313159,
+      "fatal": 0,
+      "ts": 1791053959.49296
+     },
+     {
+      "salt": "k3",
+      "source": "ci",
+      "engine": "pywhispercpp/ggml-q8 (tiny-ar-quran)",
+      "verdict": "مقبول",
+      "m": 1,
+      "n": 200,
+      "rate": 0.005,
+      "hi": 0.0148,
+      "fatal": 0,
+      "ts": 1791053975.7251618
+     },
+     {
+      "salt": "k2",
+      "source": "ci",
+      "engine": "pywhispercpp/ggml-q8 (tiny-ar-quran)",
+      "verdict": "مقبول",
+      "m": 2,
+      "n": 200,
+      "rate": 0.01,
+      "hi": 0.02348964515158903,
+      "fatal": 0,
+      "ts": 1791053987.8110433
+     }
+    ],
+    "pooled": {
+     "m": 8,
+     "n": 800,
+     "rate": 0.01,
+     "hi": 0.01797077970028547,
+     "salts": [
+      "k1",
+      "k2",
+      "k3",
+      "k4"
+     ],
+     "seeds": 4,
+     "engine": "pywhispercpp/ggml-q8 (tiny-ar-quran)",
+     "rule": "D-098"
+    },
+    "severeHi": 0.01797077970028547,
+    "openers": {
+     "commit": "8c0d5e00935bc6c31ae29d07de90fa20e2c5e759",
+     "toolOk": true,
+     "scope": "full",
+     "checked": 112,
+     "hasLate": true,
+     "late": [
+      4,
+      22,
+      73
+     ],
+     "lateCtcRule": "CTC ≥1500م.ث بعد بدء المدخل بثقة ≥0.3",
+     "lateConfirmed": [],
+     "swallowed": [],
+     "suspect": [],
+     "tail": [
+      69
+     ],
+     "unknown": [
+      7,
+      13,
+      51
+     ],
+     "verdict": "clean"
+    },
+    "otherShasWithSamples": [
+     "27638af1",
+     "dc4d2273"
+    ],
+    "ok": true
+   }
+  }
+ ],
+ "summary": {
+  "indexes": 1,
+  "phase": "all",
+  "identityOk": 1,
+  "identityBad": [],
+  "structureOk": 1,
+  "structureBad": [],
+  "gapsOk": 1,
+  "gapsBad": [],
+  "audioOk": 1,
+  "audioBad": [],
+  "durationOutliersTotal": 77,
+  "impossibleShortTotal": 0,
+  "indexesWithImpossibleShort": 0,
+  "veryShortTotal": 6,
+  "extremeLongTotal": 0,
+  "indexesWithExtremeLong": 0,
+  "mirrorStale": 0,
+  "silenceGapsTotal": 0,
+  "indexesWithDurationOutliers": 1,
+  "indexesWithSilenceGaps": 0,
+  "entriesTotal": 6236,
+  "missingTotal": 0
+ }
+}
