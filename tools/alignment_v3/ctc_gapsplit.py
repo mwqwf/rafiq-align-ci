@@ -49,9 +49,38 @@ from spoken_letters import alignment_text  # noqa: E402
 MIN_CONF = 0.45
 DUR_LO, DUR_HI = 0.5, 2.0
 NEIGH_LO = 0.5
+# ⭐ شاهدُ السماع لحدّ المدّة الأعلى وحده (fixS2 · 2026-10-03 — مسوّدةٌ لا تُدفع قبل إذن المالك):
+#    آيةٌ تُسمع فعلاً أطولَ من ضعف المتوقَّع بالحروف (‏55:64 «مدهامّتان» عند العفاسي ~7ث والمتوقَّع 3.1ث)
+#    يردّها حدُّ 2× وهي صحيحة. تُقبل فوقه **فقط** إن وافق حدّاها خريطةَ السماع المستقلّة
+#    (‏ctc_heard_map: فكٌّ جشعٌ بزمن الحرف) بفرقٍ صغيرٍ مقيس، بمِرساةٍ قويّةٍ وأداءٍ منفردٍ لا مكرّر.
+#    المعايرة (156 حدّاً قُبلت بالحرّاس كما هي في الموجة الرابعة · fixS2): فرقُ البدء p90=521م.ث،
+#    والنهاية p90=928م.ث ⇒ السماحُ 700/1000م.ث. ولا يمسّ: حدَّ 0.5× الأدنى، ولا الثقة 0.45،
+#    ولا حارسَ الجارة، ولا عتبة 5%. وسقفٌ مطلقٌ 4× فلا تُقبل مدّةٌ بلا حدّ.
+HW_START_TOL, HW_END_TOL = 700, 1000
+HW_MIN_Q = 0.85
+HW_REPEAT_Q = 0.7
+HW_ABS_HI = 4.0
 ABSORBED_MS = 400
 UA = {"User-Agent": "Mozilla/5.0 (QuranRafiq tools)"}
 BAND_CONF = {"HIGH": 0.85, "MED": 0.6, "LOW": 0.4}
+
+
+def heard_witness_ok(heard: dict | None, k: int, start: int, end: int, exp: float):
+    """(مقبول؟، السبب) لآيةٍ مدّتُها فوق DUR_HI× — بشاهد خريطة السماع وحده، وأيُّ نقصٍ فيه ردّ."""
+    if not heard:
+        return False, "لا شاهدَ سماع"
+    x = (heard.get("heardMap") or {}).get(str(k)) or {}
+    a = x.get("anchorMs")
+    if not x.get("heard") or not a or (x.get("anchorQuality") or 0) < HW_MIN_Q:
+        return False, "مِرساةُ السماع ضعيفةٌ أو غائبة"
+    strong = [o for o in x.get("occurrences") or [] if o[2] >= HW_REPEAT_Q]
+    if len(strong) > 1:
+        return False, "أداءٌ مكرّرٌ في الخريطة — لا يُرجَّح أحدُهما"
+    if abs(start - a[0]) > HW_START_TOL or abs(end - a[1]) > HW_END_TOL:
+        return False, f"الحدّان يخالفان السماع ({start - a[0]:+d}/{end - a[1]:+d}م.ث)"
+    if end - start > HW_ABS_HI * exp:
+        return False, f"فوق السقف المطلق {HW_ABS_HI}×"
+    return True, f"شاهدُ السماع {a[0]}–{a[1]} (جودة {x['anchorQuality']})"
 
 
 def chars(t: str) -> int:
@@ -173,6 +202,8 @@ def main() -> int:
     #    تُضلّ التفريغ) — والمحاذاةُ القسريّةُ لنصٍّ معلومٍ في نافذةٍ ضيّقة لا تُضلّها اللازمة.
     #    ⛔ بالحُرّاس نفسِها (‏ثقة · مدّة · جارة) والإحصاءُ الشاملُ هو الحَكَم.
     ap.add_argument("--rewindow", default="", help="مدى آياتٍ حاضرةٍ يُعاد بنافذته: 55:41-75[,…]")
+    ap.add_argument("--heard-witness-dir", default="",
+                    help="مجلّدُ heard_sNNN.json من ctc_heard_map: يُقبل به حدُّ المدّة الأعلى وحده بشروطه (fixS2)")
     ap.add_argument("--explicit-gap", default="", help="غياب مسمى بين جارتين حاضرتين ولو فصلتهما فجوة: 26:2-3؛ حراس الثقة والمدة نفسها")
     a = ap.parse_args()
     import ctc_seg as C
@@ -209,6 +240,14 @@ def main() -> int:
     qidx = load_index()
     text = load_text(a.riwaya)
     report = []
+    _heard_cache = {}
+
+    def heard_of(s):
+        if s not in _heard_cache:
+            fp = os.path.join(a.heard_witness_dir, f"heard_s{s:03d}.json")
+            _heard_cache[s] = json.load(open(fp, encoding="utf-8")) if os.path.exists(fp) else None
+        return _heard_cache[s]
+    witness_log = {}
     for s in requested_surahs:
         meta = next(m for m in qidx["surahs"] if m["n"] == s)
         st0, n = meta["start"], meta["ayahs"]
@@ -319,6 +358,7 @@ def main() -> int:
                               f"{starts[0]}م.ث > {NB_FIRST_MAX_MS} (‏بسملةٌ محتملة)")
                 continue
             fixed_idx = {i % len(ks) for i in fixed}
+            witnessed = []
             why = None
             for i, k in enumerate(ks):
                 dur, exp = ends[i] - starts[i], chars(t_of(k)) * rate
@@ -330,6 +370,12 @@ def main() -> int:
                 else:
                     if segs[i][2] < MIN_CONF:
                         why = f"{s}:{k} ثقةُ CTC {segs[i][2]} < {MIN_CONF}"
+                    elif dur > DUR_HI * exp and a.heard_witness_dir:
+                        hw_ok, hw_why = heard_witness_ok(heard_of(s), k, starts[i], ends[i], exp)
+                        if hw_ok:
+                            witnessed.append(f"{s}:{k} {dur}م.ث > {DUR_HI}×{exp:.0f} · {hw_why}")
+                        else:
+                            why = f"{s}:{k} مدّتُها {dur}م.ث والمتوقَّع {exp:.0f} (فوق {DUR_HI}×؛ {hw_why})"
                     elif not (DUR_LO * exp <= dur <= DUR_HI * exp):
                         why = f"{s}:{k} مدّتُها {dur}م.ث والمتوقَّع {exp:.0f} (خارج {DUR_LO}–{DUR_HI}×)"
                 if why:
@@ -350,6 +396,9 @@ def main() -> int:
                 ents[k] = {"startMs": int(starts[i]), "endMs": int(ends[i]), "conf": conf,
                            "snapped": bool(on_sil)}
             added.append(f"{b0}" if b0 == b1 else f"{b0}-{b1}")
+            if witnessed:
+                witness_log.setdefault(s, []).extend(witnessed)
+                report.append(f"س{s}:{b0}-{b1}: ⭐ مدّةٌ فوق {DUR_HI}× قُبلت بشاهد السماع: " + " · ".join(witnessed))
             report.append(f"س{s}:{b0}-{b1} ({kind}): ✅ قُسمت · " + " · ".join(
                 f"{s}:{k} {starts[i]}–{ends[i]}" for i, k in enumerate(ks)))
         if not added:
@@ -372,6 +421,7 @@ def main() -> int:
             json.dump({"fileRef": url, "sha256": sha, "surah": s, "engine": Q.ENGINE if a.quran_model else "ctc-gapsplit-1",
                        **({'alignmentModel': model_evidence} if model_evidence else {}),
                        "gapsplit": added, "entries": out_rows,
+                       **({"heardWitness": witness_log[s]} if witness_log.get(s) else {}),
                        **({"startsWithFirstAyah": True} if a.starts_with_first_ayah else {})}, f, ensure_ascii=False)
     print("\n".join(report))
     return 0

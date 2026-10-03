@@ -30,6 +30,7 @@ on:
       mode: {description: "full = CTC للسورة كاملة · window = قسمةُ المدخل الذي ابتلع جارتَه بنافذته وحدها (ctc_gapsplit) · heard = خريطةُ السماع ثمّ نوافذُ على مراسٍ مسموعة لتسجيلٍ فيه زيادةٌ أو تكرار (ctc_heard_map) · dualfix = تصحيحُ حدود مرشّح heardmap (base_key) بما اتّفق عليه النموذجان المثبَّتان (ctc_dualfix)", default: "full"}
       base_key: {description: "وضعُ dualfix وحده: مفتاحُ مرشّح heardmap في timings-staging تُصحَّح حدودُه بما اتّفق عليه النموذجان المثبَّتان (ctc_dualfix)", default: ""}
       rewindow: {description: "أوضاعُ window وdualfix وheard (‏heard: تسميةُ المدى المعطوب المقيس شرطٌ لسورةٍ تامّة)؛ وضعا window وdualfix (بالنموذج القرآنيّ بين جارَين ثابتَين، مثل 38:44-51,38:80-88): مدى آياتٍ حاضرةٍ حدودُها معطوبةٌ يُعاد بنافذته بين جارتين ثابتتين، مثل 55:41-75؛ والطرفان: 89:1-2/nb (من بدء الملفّ، /nb = بلا بسملة بشاهد السماع) و92:20-21 (حتى نهاية الملفّ)", default: ""}
+      heard_witness: {description: "وضعُ window وحده (fixS2 · بإذن المالك): يُقبل حدُّ المدّة الأعلى (2×) فقط لآيةٍ يوافق حدّاها خريطةَ السماع (ctc_heard_map) بفرقٍ مقيس ≤700/1000م.ث ومِرساةٍ ≥0.85 منفردة", default: "false"}
       truncated_tail: {description: "وضعُ full وحده (أمر المالك 2026-10-02): سورةٌ واحدةٌ مصدرُها مبتورُ الذيل تُحاذى بادئتُها 1..N بالنموذج القرآني المثبَّت ويُعلَن ذيلُها source_truncated — «24:30»؛ وsurahs = السورةُ نفسُها", default: ""}
 
 concurrency:
@@ -214,8 +215,10 @@ jobs:
           REWIN: ${{ github.event.inputs.rewindow }}
           BASEKEY: ${{ github.event.inputs.base_key }}
           TRUNC: ${{ github.event.inputs.truncated_tail }}
+          HW: ${{ github.event.inputs.heard_witness }}
         run: |
           set -o pipefail
+          if [ "$HW" = "true" ] && [ "$MODE" != "window" ]; then echo "⛔ heard_witness لوضع window وحده"; exit 1; fi
           if [ "$MODE" = "dualfix" ]; then
             # ⭐ تصحيحُ حدود مرشّح heardmap بما اتّفق عليه النموذجان المثبَّتان (‏2026-10-02 · عاصم س38):
             #    لا حدَّ مختلَقاً — مقيسٌ باتّفاقٍ أو موروثٌ من المرشّح. float32 وخيطان كما في الشاهد.
@@ -242,8 +245,20 @@ jobs:
             # ⭐ قسمةُ المبتلع بنافذة الجارتين وحدها — مداخلُ الأب كما هي إلا الجارتين.
             #    (‏fixS1 · 2026-10-03) والطرفان: «س:1-ب[/nb]» من بدء الملفّ و«س:أ-آخرُها» حتى نهايته — تُختبر أوّلاً.
             python -m unittest tools/alignment_v3/test_ctc_gapsplit_edges.py
+            HWD=""
+            if [ "$HW" = "true" ]; then
+              # ⭐ شاهدُ السماع لحدّ المدّة الأعلى وحده — يُختبر أوّلاً، والخريطةُ بلا رفع لكلّ سورة.
+              python -m unittest tools/alignment_v3/test_ctc_gapsplit_heard_witness.py
+              HWD="tools/alignment/work/heard_$RID"; mkdir -p "$HWD"
+              for s in $(echo "$SURAHS" | tr ',' ' '); do
+                U="$(python -c "import sys; print(sys.argv[1].format(s=int(sys.argv[2])))" "$URLT" "$s")"
+                python tools/alignment_v3/ctc_heard_map.py --url "$U" --surah "$s" --riwaya "$RIW" \
+                  --out-dir "$HWD" --probe --report "$HWD/report_s$s.txt" 2>&1 | tail -3
+              done
+            fi
             python tools/alignment_v3/ctc_gapsplit.py --index parent.jz --surahs "$SURAHS" \
-              --riwaya "$RIW" --out-dir "tools/alignment/work/batch_$RID" --rewindow "$REWIN" 2>&1 | tee ctc.log
+              --riwaya "$RIW" --out-dir "tools/alignment/work/batch_$RID" --rewindow "$REWIN" \
+              ${HWD:+--heard-witness-dir "$HWD"} 2>&1 | tee ctc.log
             exit 0
           fi
           if [ "$MODE" = "heard" ]; then
