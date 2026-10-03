@@ -1,0 +1,348 @@
+{
+ "schema": 1,
+ "tool": "full_audit-1.0",
+ "date": "20261003",
+ "timestampUtc": "2026-10-03T08:25:49Z",
+ "elapsedSec": 27.2,
+ "phase": "all",
+ "manifestIndexes": 180,
+ "frozenBucket": 220,
+ "reportsRead": 9118,
+ "rows": [
+  {
+   "key": "timings-staging/qalun/akri_qalun.4a48d8c3.jz",
+   "sha256": "4a48d8c31e5d5f15ec8a08e24bc7ce37c3b76ae6f89b424b4a98ca382ea68a32",
+   "riwaya": "qalun",
+   "reciterId": "akri_qalun",
+   "bytes": 90940,
+   "engine": "align-0.2",
+   "transformOp": "ctc_gapsplit:44",
+   "staging": true,
+   "identity": {
+    "sha256": "4a48d8c31e5d5f15ec8a08e24bc7ce37c3b76ae6f89b424b4a98ca382ea68a32",
+    "staging": true,
+    "errors": [],
+    "ok": true
+   },
+   "structure": {
+    "entries": 6202,
+    "errors": [
+     "رقمُ الملفّ لا يطابق السورة: 3"
+    ],
+    "examples": {
+     "fileNoMismatch": {
+      "106": "https://server16.mp3quran.net/m_akri/Rewayat-Qalon-A-n-Nafi/108.mp3",
+      "107": "https://server16.mp3quran.net/m_akri/Rewayat-Qalon-A-n-Nafi/106.mp3",
+      "108": "https://server16.mp3quran.net/m_akri/Rewayat-Qalon-A-n-Nafi/107.mp3"
+     }
+    },
+    "fileNoUnparsed": 0,
+    "structuralFatal": [],
+    "structuralWarn": [
+     "مداخل ناقصة: 34 من 6236 (0.5%) — الحدّ 2% على غير المبرَّر",
+     "آيات بلا مدخل: 34 · وسيط طولها 20 كلمة (المصحف 10) — غيابٌ غير منحاز",
+     "مداخل مدتها > 120ث: 1 · مثال: 2:282 مدتها 176ث",
+     "فجوات > 15ث بين آيتين متتاليتين: 7 · مثال: 6:147→6:148 فجوة 17ث"
+    ],
+    "decision": [],
+    "engine": "align-0.2",
+    "audioSha": 114,
+    "bands": {
+     "HIGH": 3156,
+     "LOW": 423,
+     "MED": 2623
+    },
+    "ok": false
+   },
+   "gaps": {
+    "missingTotal": 34,
+    "internalGaps": [],
+    "headMissing": [],
+    "tailMissing": [
+     {
+      "surah": 24,
+      "range": [
+       31,
+       64
+      ]
+     }
+    ],
+    "wholeMissing": [],
+    "declared": {
+     "transformOp": "ctc_gapsplit:44",
+     "transformReason": "fixS2 موجة4 (مدخلٌ ثالث بخريطة السماع): مسابرُ ctc_heard_probe أثبتت أنّ الآيات بلا تلاوة طرفُ كبسٍ ممتدّ (المنشور يسبق المسموع بعشرات الثواني) ⇒ نافذةٌ واحدةٌ تغطّي مدى الانحراف كلَّه بين مراسٍ يطابق فيها المنشورُ المسموع (44:40-59) بحُرّاس الثقة والمدّة والجارة كما هي وعتبة 5% كما هي (إذن المالك 22:44Z).",
+     "reasonCode": "SOURCE_TRUNCATED",
+     "dropSurahs": [],
+     "byReason": {},
+     "declaredCount": 0,
+     "tagCount": 34,
+     "declaredIds": [
+      "24:31",
+      "24:32",
+      "24:33",
+      "24:34",
+      "24:35",
+      "24:36",
+      "24:37",
+      "24:38",
+      "24:39",
+      "24:40",
+      "24:41",
+      "24:42",
+      "24:43",
+      "24:44",
+      "24:45",
+      "24:46",
+      "24:47",
+      "24:48",
+      "24:49",
+      "24:50",
+      "24:51",
+      "24:52",
+      "24:53",
+      "24:54",
+      "24:55",
+      "24:56",
+      "24:57",
+      "24:58",
+      "24:59",
+      "24:60",
+      "24:61",
+      "24:62",
+      "24:63",
+      "24:64"
+     ],
+     "truncatedTail": {
+      "24": {
+       "published": 30,
+       "absentFrom": 31,
+       "absentTo": 64,
+       "reason": "source_truncated",
+       "sourceSha256": "7be95a73720fb50b95dbeaced9cccc4e1ec341fc91480594ff1e9adda0bedd24",
+       "totalMs": 765759
+      }
+     }
+    },
+    "undeclaredEdge": [],
+    "errors": [],
+    "ok": true
+   },
+   "durations": {
+    "durationOutliers": 23,
+    "durationExamples": [
+     {
+      "aid": "4:140",
+      "ms": 1699,
+      "expMs": 39734,
+      "ratio": 0.04,
+      "chars": 133
+     },
+     {
+      "aid": "55:78",
+      "ms": 1701,
+      "expMs": 11905,
+      "ratio": 0.14,
+      "chars": 25
+     },
+     {
+      "aid": "43:74",
+      "ms": 1501,
+      "expMs": 8515,
+      "ratio": 0.18,
+      "chars": 25
+     },
+     {
+      "aid": "56:77",
+      "ms": 880,
+      "expMs": 4572,
+      "ratio": 0.19,
+      "chars": 12
+     },
+     {
+      "aid": "37:160",
+      "ms": 1321,
+      "expMs": 6496,
+      "ratio": 0.2,
+      "chars": 19
+     },
+     {
+      "aid": "26:131",
+      "ms": 1201,
+      "expMs": 5710,
+      "ratio": 0.21,
+      "chars": 17
+     },
+     {
+      "aid": "55:77",
+      "ms": 1801,
+      "expMs": 8572,
+      "ratio": 0.21,
+      "chars": 18
+     },
+     {
+      "aid": "79:43",
+      "ms": 961,
+      "expMs": 4315,
+      "ratio": 0.22,
+      "chars": 14
+     },
+     {
+      "aid": "36:79",
+      "ms": 2931,
+      "expMs": 12866,
+      "ratio": 0.23,
+      "chars": 37
+     },
+     {
+      "aid": "43:77",
+      "ms": 2642,
+      "expMs": 11581,
+      "ratio": 0.23,
+      "chars": 34
+     },
+     {
+      "aid": "26:139",
+      "ms": 3535,
+      "expMs": 14443,
+      "ratio": 0.24,
+      "chars": 43
+     },
+     {
+      "aid": "10:63",
+      "ms": 1141,
+      "expMs": 4497,
+      "ratio": 0.25,
+      "chars": 21
+     }
+    ],
+    "impossibleShort": [
+     {
+      "aid": "4:140",
+      "ms": 1699,
+      "expMs": 39734,
+      "ratio": 0.04,
+      "chars": 133
+     }
+    ],
+    "veryShort": [
+     {
+      "aid": "56:77",
+      "ms": 880,
+      "expMs": 4572,
+      "ratio": 0.19,
+      "chars": 12
+     },
+     {
+      "aid": "79:43",
+      "ms": 961,
+      "expMs": 4315,
+      "ratio": 0.22,
+      "chars": 14
+     },
+     {
+      "aid": "37:155",
+      "ms": 840,
+      "expMs": 3419,
+      "ratio": 0.25,
+      "chars": 10
+     }
+    ],
+    "extremeLong": [],
+    "longOutliers": 0,
+    "shortOutliers": 22,
+    "silenceGaps": 7,
+    "silenceExamples": [
+     {
+      "from": "31:26",
+      "to": "31:27",
+      "gapMs": 22500
+     },
+     {
+      "from": "11:62",
+      "to": "11:63",
+      "gapMs": 22460
+     },
+     {
+      "from": "9:76",
+      "to": "9:77",
+      "gapMs": 18250
+     },
+     {
+      "from": "29:24",
+      "to": "29:25",
+      "gapMs": 17440
+     },
+     {
+      "from": "6:147",
+      "to": "6:148",
+      "gapMs": 17400
+     },
+     {
+      "from": "11:90",
+      "to": "11:91",
+      "gapMs": 16500
+     },
+     {
+      "from": "40:7",
+      "to": "40:8",
+      "gapMs": 16120
+     }
+    ],
+    "surahsWithRate": 113
+   },
+   "audio": {
+    "audioReportsOnSha": 0,
+    "openersOnSha": false,
+    "errors": [
+     "لا حكمَ صوتيٍّ بعيّنةٍ على البصمة المنشورة",
+     "لا شاهدَ مطالعَ على البصمة المنشورة"
+    ],
+    "notes": [],
+    "samples": [],
+    "pooled": null,
+    "severeHi": null,
+    "otherShasWithSamples": [
+     "086ff987",
+     "09da7519",
+     "0cfa027e",
+     "0fd65f60",
+     "2513ee74",
+     "2e5e1f02",
+     "312ebc4a",
+     "3766599a",
+     "3cec14aa",
+     "45e0c177"
+    ],
+    "ok": false
+   }
+  }
+ ],
+ "summary": {
+  "indexes": 1,
+  "phase": "all",
+  "identityOk": 1,
+  "identityBad": [],
+  "structureOk": 0,
+  "structureBad": [
+   "timings-staging/qalun/akri_qalun.4a48d8c3.jz"
+  ],
+  "gapsOk": 1,
+  "gapsBad": [],
+  "audioOk": 0,
+  "audioBad": [
+   "timings-staging/qalun/akri_qalun.4a48d8c3.jz"
+  ],
+  "durationOutliersTotal": 23,
+  "impossibleShortTotal": 1,
+  "indexesWithImpossibleShort": 1,
+  "veryShortTotal": 3,
+  "extremeLongTotal": 0,
+  "indexesWithExtremeLong": 0,
+  "mirrorStale": 0,
+  "silenceGapsTotal": 7,
+  "indexesWithDurationOutliers": 1,
+  "indexesWithSilenceGaps": 1,
+  "entriesTotal": 6202,
+  "missingTotal": 34
+ }
+}
