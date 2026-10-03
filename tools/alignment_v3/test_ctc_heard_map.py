@@ -23,6 +23,12 @@ def _heard(parts):
 
 
 class Pure(unittest.TestCase):
+    def test_anchor_tol_default_and_strict(self):
+        # الافتراضُ كما كان: max(3ث، نصفُ مدّة المِرساة)؛ والصارمُ ثابتٌ يُعطى (الدفعةُ السماعيّة 1500)
+        self.assertEqual(H.anchor_tol((0, 2000)), 3000)
+        self.assertEqual(H.anchor_tol((0, 20000)), 10000)
+        self.assertEqual(H.anchor_tol((0, 20000), 1500), 1500)
+
     def test_skeleton_maps_like_norm(self):
         chars = [("ب", 0), ("س", 10), ("م", 20), (" ", 30), ("ٱ", 40), ("ل", 50), ("ل", 60), ("ه", 70),
                  ("ء", 80), ("ة", 90), ("1", 100)]

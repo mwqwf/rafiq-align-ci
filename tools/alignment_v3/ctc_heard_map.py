@@ -250,6 +250,15 @@ def chunk_map(heard_sk, times, ayah_sks, chunk_ms=15000):
     return out
 
 
+def anchor_tol(a, strict_ms=0):
+    """أقصى بُعدٍ مقبولٍ لحدّ النافذة عن مِرساته: max(3ث، نصفَ مدّة المِرساة) — أو `strict_ms`
+    ثابتاً إن أُعطي (‏fixT · 2026-10-03: الدفعةُ السماعيّة تطلب ما تطلبه بوّابةُ السماع، 1.5ث،
+    فحدٌّ أبعدُ يُعاد بنافذةٍ ضيّقةٍ ثمّ بالمِرساة المسموعة نفسِها — تشديدٌ لا تليين)."""
+    if strict_ms:
+        return int(strict_ms)
+    return max(DEV_TOL_MS, (a[1] - a[0]) // 2)
+
+
 # ───────────────────────── التنفيذ (‏يحتاج النموذج) ─────────────────────────
 def _char_list():
     from ctc_seg import _model
@@ -261,7 +270,7 @@ def _char_list():
     return cl, tok.pad_token_id, (tok.word_delimiter_token if hasattr(tok, "word_delimiter_token") else "|")
 
 
-def run(audio, surah, riwaya, log=print, probe=False):
+def run(audio, surah, riwaya, log=print, probe=False, strict_tol_ms=0):
     import numpy as np
     from ctc_seg import BASMALA, SR, _conf, _emissions, _segment
     from common import ffprobe_duration_ms, load_index, load_text, norm, surah_slice, to_wav16k
@@ -379,7 +388,7 @@ def run(audio, surah, riwaya, log=print, probe=False):
         a = anchor_ms[k]
         if a is None or starts[k] is None:
             continue
-        tol = max(DEV_TOL_MS, (a[1] - a[0]) // 2)
+        tol = anchor_tol(a, strict_tol_ms)
         if abs(starts[k] - a[0]) <= tol:
             continue
         ws, we = int(max(0, a[0] - PAD_MS)), int(min(total_ms, a[1] + PAD_MS))
@@ -462,6 +471,8 @@ def main() -> int:
     ap.add_argument("--riwaya", default="hafs")
     ap.add_argument("--out-dir", required=True)
     ap.add_argument("--probe", action="store_true", help="خريطةُ السماع وحدها بلا محاذاة ولا مداخل")
+    ap.add_argument("--strict-tol-ms", type=int, default=0,
+                    help="حدٌّ أقصى ثابتٌ لبُعد الحدّ عن مِرساته (‏مثل 1500 للدفعة السماعيّة) بدلَ max(3ث، نصفِ المدّة)")
     ap.add_argument("--report", default="", help="ملفُّ تقريرٍ نصّيّ (‏افتراضه <out-dir>/heard_s<س>.txt)")
     a = ap.parse_args()
     if not a.url and not a.audio:
@@ -472,7 +483,7 @@ def main() -> int:
         from ctc_gapsplit import fetch
         fetch(a.url, audio)
     sha = hashlib.sha256(open(audio, "rb").read()).hexdigest()
-    res, report = run(audio, a.surah, a.riwaya, probe=a.probe)
+    res, report = run(audio, a.surah, a.riwaya, probe=a.probe, strict_tol_ms=a.strict_tol_ms)
     import vad as _vad
     res.update(fileRef=a.url or audio, sha256=sha, vadRel=getattr(_vad, "LAST_REL", None),
                vadVersion=getattr(_vad, "VAD_VERSION", None))
