@@ -34,6 +34,7 @@ def main() -> int:
     ap.add_argument("run_id")
     ap.add_argument("--name-contains", default="")
     ap.add_argument("--max-bytes", type=int, default=20000)
+    ap.add_argument("--file-contains", default="", help="اطبع ملفّاتِ المخرَج التي يحوي اسمُها هذا وحدها (‏fixS1 · 2026-10-03: تقريرُ السماع كان يُقصّ خلف JSON الكبير)")
     a = ap.parse_args()
 
     arts = gh_json(f"repos/{REPO}/actions/runs/{a.run_id}/artifacts").get("artifacts", [])
@@ -53,6 +54,8 @@ def main() -> int:
         except Exception as e:                                   # noqa: BLE001
             print(f"   ⛔ ليس zip: {e}"); continue
         for nm in zf.namelist():
+            if a.file_contains and a.file_contains not in nm:
+                continue
             body = zf.read(nm)
             print(f"── {nm} ({len(body)} بايت)")
             try:
