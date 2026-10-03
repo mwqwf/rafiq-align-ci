@@ -1,0 +1,203 @@
+{
+ "schema": 1,
+ "tool": "full_audit-1.0",
+ "date": "20261003",
+ "timestampUtc": "2026-10-03T17:48:50Z",
+ "elapsedSec": 32.4,
+ "phase": "all",
+ "manifestIndexes": 180,
+ "frozenBucket": 220,
+ "reportsRead": 9746,
+ "rows": [
+  {
+   "key": "timings-staging/warsh/iraoui_warsh.9de826e5.jz",
+   "sha256": "9de826e5f3a739becef4fc6768335df12bf73226253d06f105f0cf8527006c38",
+   "riwaya": "warsh",
+   "reciterId": "iraoui_warsh",
+   "bytes": 89396,
+   "engine": "align-0.2",
+   "transformOp": "drop_surah:41",
+   "staging": true,
+   "identity": {
+    "sha256": "9de826e5f3a739becef4fc6768335df12bf73226253d06f105f0cf8527006c38",
+    "staging": true,
+    "errors": [],
+    "ok": true
+   },
+   "structure": {
+    "entries": 6182,
+    "errors": [],
+    "examples": {},
+    "fileNoUnparsed": 0,
+    "structuralFatal": [],
+    "structuralWarn": [
+     "مداخل ناقصة: 54 من 6236 (0.9%) — منها 54 بعذرٍ معلَن (بترٌ مصدري) ⇒ **غير المبرَّر 0 (0.0%)** — الحدّ 2% على غير المبرَّر",
+     "آيات بلا مدخل: 54 · وسيط طولها 14 كلمة (المصحف 10) — غيابٌ غير منحاز",
+     "مداخل مدتها > 120ث: 3 · مثال: 2:282 مدتها 183ث"
+    ],
+    "decision": [
+     "سورٌ محذوفةٌ **بإعلانٍ وسبب**: [41] (السبب: تسجيل فصّلت للإيراوي (ورش) في المصدر المنشور alfirdwsiy1433…/041.mp3 (1258ث) لا كلامَ مسموعاً فيه بعد نحو 330ث، والصوتُ ينقطع وسط 41:15. قيس بثلاثة مسابر سماع على ثلاث نسخ (المنشور int8 37128904310 وfloat32 37132707517، وmohammadal-airawyQuran float32 37132698074، وIraoui_2013 float32 37132702632): مسموعٌ 41:1–14 وبعضُ 15 فقط. وملفّ الكتالوج 041.mp3 (1785ث) بصمتُه مكرّرةٌ لسورةٍ أخرى. فالآيات 41:13–54 المنشورة الآن بين 241 و317ث بلا صوتٍ يقابلها. خطوةٌ أولى: تُسقط مداخل السورة، ثمّ تُنشر 41:1–14 بالبادئة المبتورة ويُعلن 15–54.) — قرارُ منتَجٍ يُعرض على المشرف، لا حكمُ جودة"
+    ],
+    "engine": "align-0.2",
+    "audioSha": 114,
+    "bands": {
+     "HIGH": 4980,
+     "MED": 1098,
+     "LOW": 104
+    },
+    "ok": true
+   },
+   "gaps": {
+    "missingTotal": 54,
+    "internalGaps": [],
+    "headMissing": [],
+    "tailMissing": [],
+    "wholeMissing": [
+     41
+    ],
+    "declared": {
+     "transformOp": "drop_surah:41",
+     "transformReason": "تسجيل فصّلت للإيراوي (ورش) في المصدر المنشور alfirdwsiy1433…/041.mp3 (1258ث) لا كلامَ مسموعاً فيه بعد نحو 330ث، والصوتُ ينقطع وسط 41:15. قيس بثلاثة مسابر سماع على ثلاث نسخ (المنشور int8 37128904310 وfloat32 37132707517، وmohammadal-airawyQuran float32 37132698074، وIraoui_2013 float32 37132702632): مسموعٌ 41:1–14 وبعضُ 15 فقط. وملفّ الكتالوج 041.mp3 (1785ث) بصمتُه مكرّرةٌ لسورةٍ أخرى. فالآيات 41:13–54 المنشورة الآن بين 241 و317ث بلا صوتٍ يقابلها. خطوةٌ أولى: تُسقط مداخل السورة، ثمّ تُنشر 41:1–14 بالبادئة المبتورة ويُعلن 15–54.",
+     "reasonCode": "SOURCE_TRUNCATED",
+     "dropSurahs": [
+      41
+     ],
+     "byReason": {
+      "unknown": 0,
+      "source_truncated": 54
+     },
+     "declaredCount": 54,
+     "tagCount": 54,
+     "declaredIds": [
+      "41:1",
+      "41:2",
+      "41:3",
+      "41:4",
+      "41:5",
+      "41:6",
+      "41:7",
+      "41:8",
+      "41:9",
+      "41:10",
+      "41:11",
+      "41:12",
+      "41:13",
+      "41:14",
+      "41:15",
+      "41:16",
+      "41:17",
+      "41:18",
+      "41:19",
+      "41:20",
+      "41:21",
+      "41:22",
+      "41:23",
+      "41:24",
+      "41:25",
+      "41:26",
+      "41:27",
+      "41:28",
+      "41:29",
+      "41:30",
+      "41:31",
+      "41:32",
+      "41:33",
+      "41:34",
+      "41:35",
+      "41:36",
+      "41:37",
+      "41:38",
+      "41:39",
+      "41:40",
+      "41:41",
+      "41:42",
+      "41:43",
+      "41:44",
+      "41:45",
+      "41:46",
+      "41:47",
+      "41:48",
+      "41:49",
+      "41:50",
+      "41:51",
+      "41:52",
+      "41:53",
+      "41:54"
+     ],
+     "truncatedTail": null
+    },
+    "undeclaredEdge": [],
+    "errors": [],
+    "ok": true
+   },
+   "durations": {
+    "durationOutliers": 1,
+    "durationExamples": [
+     {
+      "aid": "56:35",
+      "ms": 16430,
+      "expMs": 5186,
+      "ratio": 3.17,
+      "chars": 14
+     }
+    ],
+    "impossibleShort": [],
+    "veryShort": [],
+    "extremeLong": [],
+    "longOutliers": 1,
+    "shortOutliers": 0,
+    "silenceGaps": 0,
+    "silenceExamples": [],
+    "surahsWithRate": 112
+   },
+   "audio": {
+    "audioReportsOnSha": 0,
+    "openersOnSha": false,
+    "errors": [
+     "لا حكمَ صوتيٍّ بعيّنةٍ على البصمة المنشورة",
+     "لا شاهدَ مطالعَ على البصمة المنشورة"
+    ],
+    "notes": [],
+    "samples": [],
+    "pooled": null,
+    "severeHi": null,
+    "otherShasWithSamples": [
+     "049c4ac7",
+     "39f4ace4",
+     "8afa797f",
+     "957412b9",
+     "e24a93b2",
+     "e96ff361",
+     "ef6caf23"
+    ],
+    "ok": false
+   }
+  }
+ ],
+ "summary": {
+  "indexes": 1,
+  "phase": "all",
+  "identityOk": 1,
+  "identityBad": [],
+  "structureOk": 1,
+  "structureBad": [],
+  "gapsOk": 1,
+  "gapsBad": [],
+  "audioOk": 0,
+  "audioBad": [
+   "timings-staging/warsh/iraoui_warsh.9de826e5.jz"
+  ],
+  "durationOutliersTotal": 1,
+  "impossibleShortTotal": 0,
+  "indexesWithImpossibleShort": 0,
+  "veryShortTotal": 0,
+  "extremeLongTotal": 0,
+  "indexesWithExtremeLong": 0,
+  "mirrorStale": 0,
+  "silenceGapsTotal": 0,
+  "indexesWithDurationOutliers": 1,
+  "indexesWithSilenceGaps": 0,
+  "entriesTotal": 6182,
+  "missingTotal": 54
+ }
+}
