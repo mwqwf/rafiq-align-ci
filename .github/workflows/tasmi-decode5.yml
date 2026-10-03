@@ -1,0 +1,99 @@
+# 🎛️ **الجولةُ الخامسة من مسح الفكّ — مفاتيحُ الفكّ السحابيّ بنافذة 6ث** (‏المكلّفُ بالقياس · 2026-10-03)
+# بعد دمج D-847/D-848 يقبل `/v1/tasmi/stream` الرأس `x-tasmi-decode` (‏`nocond,hst` · `prompt`). نقيس على g3r (‏240 نظيف + 240 مضجَّج):
+#  - `TASMI_CLOUD_DECODE_GUARD`   ⇐ ذراع `w6-guard`  (‏`x-tasmi-decode: nocond,hst`)
+#  - `TASMI_CLOUD_NEUTRAL_PROMPT` ⇐ ذراع `w6-prompt` (‏`x-tasmi-decode: prompt`)
+#  - `RECITE_CLOUD_EDGE_FRAGMENTS` ⇐ `stripEdges` على نصّ `w6` نفسِه لكلّ نافذة (‏بلا نداءٍ إضافيّ · `cloud_decode5.py`)
+# كلُّ نافذةٍ تُرسَل إلى الأذرع الثلاث متتاليةً (‏زوجٌ في الدقيقة نفسِها)، والحكمُ بـ`v2_gate.score_g3r`.
+# الزنادُ: دفعُ `tools/tasmi_bench/requests/decode5.json`. المستودعُ عامّ والعدّادُ قياسيّ؛ **لا R2 ولا كاش** (‏g3r يُبنى من
+# تلاوات mp3quran العلنيّة وضجيجٍ مولَّد). ⛔ الصوتُ تلاواتُ قرّاءٍ منشورةٌ لا صوتُ مستخدم؛ والأجهزةُ المؤقّتةُ تُمحى.
+name: tasmi-decode5
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - "tools/tasmi_bench/requests/decode5.json"
+permissions:
+  contents: read
+concurrency:
+  group: tasmi-decode5
+  cancel-in-progress: false
+jobs:
+  cloud:
+    runs-on: ubuntu-latest
+    timeout-minutes: 200
+    strategy:
+      fail-fast: false
+      matrix:
+        set: [noisy, clean]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: العدّة
+        run: |
+          sudo apt-get update -qq && sudo apt-get install -y -qq ffmpeg > /dev/null
+          pip install -q numpy soundfile scipy
+      - name: مجموعةُ g3r (‏تلاواتٌ علنيّة · بلا R2)
+        run: |
+          set -o pipefail
+          cd tools/tasmi_bench
+          python inject_riwaya_local.py
+          echo "g3r/${{ matrix.set }}: $(ls work/g3r/${{ matrix.set }} | wc -l)"
+          python cloud_decode5.py --selftest
+      - name: نوافذُ 6ث × ثلاثةُ أذرع (‏الافتراض · nocond,hst · prompt)
+        env:
+          PYTHONIOENCODING: utf-8
+        run: |
+          set -o pipefail
+          cd tools/tasmi_bench
+          CL=$(python -c "import json;print(json.load(open('requests/decode5.json')).get('cloud_limit',0))")
+          python cloud_gate_windows.py --set g3r:${{ matrix.set }} --limit "$CL" \
+            --arm w6=6 --arm w6-guard=6:nocond,hst --arm w6-prompt=6:prompt
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: tasmi-decode5-${{ matrix.set }}
+          path: tools/tasmi_bench/work/hyps_cloud-*.json
+          retention-days: 14
+          if-no-files-found: ignore
+
+  verdict:
+    needs: [cloud]
+    if: always()
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - run: pip install -q numpy soundfile scipy
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: tasmi-decode5-*
+          merge-multiple: true
+          path: tools/tasmi_bench/work
+      - name: الحكم
+        env:
+          PYTHONIOENCODING: utf-8
+        run: |
+          set -o pipefail
+          cd tools/tasmi_bench
+          ls work/hyps_*.json
+          python cloud_decode5.py --md work/decode5_verdict.md --json work/decode5_verdict.json
+          for B in cloud-w6-guard cloud-w6-prompt cloud-w6-edge; do
+            echo "### v2_gate: cloud-w6 ⇐ $B" >> work/decode5_verdict.md
+            python v2_gate.py --score-only --sets g3r:noisy g3r:clean --pattern "work/hyps_{arm}_{tag}_gate_cap10.json" \
+              --arms cloud-w6 "$B" --md work/_p.md > /dev/null && cat work/_p.md >> work/decode5_verdict.md
+          done
+          cat work/decode5_verdict.md >> "$GITHUB_STEP_SUMMARY"
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: tasmi-decode5-verdict
+          path: |
+            tools/tasmi_bench/work/decode5_verdict.*
+            tools/tasmi_bench/work/hyps_cloud-w6-edge_*.json
+          retention-days: 14
+          if-no-files-found: ignore

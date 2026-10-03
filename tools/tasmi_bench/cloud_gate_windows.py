@@ -19,6 +19,13 @@
 
     python cloud_gate_windows.py --set g3r:noisy --set g3r:clean --windows 3.6 6.0
     python v2_gate.py --score-only --pattern "work/hyps_{arm}_{tag}_gate_cap10.json" --arms cloud-w3.6 cloud-w6
+
+🎛️ **الجولةُ الخامسة (‏2026-10-03): أذرعُ رأس الفكّ** — `--arm NAME=W[:DECODE]` (‏يُكرَّر) يرسل **كلَّ نافذةٍ إلى الأذرع كلِّها
+متتاليةً** (‏النافذةُ نفسُها والدقيقةُ نفسُها ⇒ زوجٌ حقيقيّ) مع رأس `x-tasmi-decode: DECODE` إن وُجد، ورأسِ `x-tasmi-segments: 1`
+(‏لا يغيّر النصّ؛ يحفظ ثقةَ المقاطع). ونصُّ كلِّ نافذةٍ يُحفظ في `parts` كي تُطبَّق مرشّحاتُ الجهاز (‏`stripEdges`) لكلّ نافذةٍ
+كما يفعل `ReciteWithMeViewModel` — بلا نداءٍ إضافيّ (‏`cloud_decode5.py`).
+
+    python cloud_gate_windows.py --set g3r:noisy --arm w6=6 --arm w6-guard=6:nocond,hst --arm w6-prompt=6:prompt
 """
 import argparse
 import json
@@ -78,13 +85,16 @@ class Device:
             print("DELETE /v1/device →", s, flush=True)
             self.tok = None
 
-    def stream(self, clip, sleep):
+    def stream(self, clip, sleep, extra=None):
         for attempt in range(6):
-            s, body, dt = call("POST", "/v1/tasmi/stream", wav_bytes(clip),
-                               {"authorization": "Bearer " + self.tok, "content-type": "audio/wav"})
+            h = {"authorization": "Bearer " + self.tok, "content-type": "audio/wav"}
+            h.update(extra or {})
+            s, body, dt = call("POST", "/v1/tasmi/stream", wav_bytes(clip), h)
             time.sleep(sleep)
             if s == 200:
-                return json.loads(body).get("text", "") or "", dt, s
+                j = json.loads(body)
+                self.last_segs = j.get("segments")
+                return j.get("text", "") or "", dt, s
             err = ""
             try:
                 err = json.loads(body).get("error", "")
@@ -101,9 +111,19 @@ def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--set", action="append", required=True, help="g3r:noisy · g3r:clean (يُكرَّر)")
     ap.add_argument("--windows", type=float, nargs="+", default=[3.6, 6.0])
+    ap.add_argument("--arm", action="append", default=[],
+                    help="NAME=W[:DECODE] — ذراعٌ باسمٍ ونافذةٍ ورأسِ فكٍّ اختياريّ (‏يُكرَّر · يُبطل --windows)")
     ap.add_argument("--limit", type=int, default=0, help="بنودٌ من كلّ مجموعة (0 = كلّها)")
     ap.add_argument("--sleep", type=float, default=0.7, help="فاصلٌ بين النداءات (‏حدُّ الدقيقة 90)")
     a = ap.parse_args()
+    # الأذرع: (الاسم، النافذة، رأسُ الفكّ). بلا --arm ⇒ أذرعُ الجولة الرابعة كما هي (‏cloud-w3.6 · cloud-w6 بلا رؤوس).
+    arms = []
+    for spec in a.arm:
+        name, rest = spec.split("=", 1)
+        w, _, dec = rest.partition(":")
+        arms.append((name, float(w), dec.strip()))
+    if not arms:
+        arms = [(f"w{w:g}", w, "") for w in a.windows]
     dev = Device("ci-window-gate")
     sent_ms, calls, bad = 0, 0, 0
     try:
@@ -112,7 +132,7 @@ def main():
             ids = sorted(f[:-4] for f in os.listdir(d) if f.endswith(".wav"))
             if a.limit:
                 ids = ids[: a.limit]
-            outs = {w: {} for w in a.windows}
+            outs = {name: {} for name, _, _ in arms}
             for k, i in enumerate(ids):
                 x, sr = sf.read(os.path.join(d, i + ".wav"), dtype="float32")
                 if sr != SR:
@@ -121,28 +141,45 @@ def main():
                     x = x.mean(axis=1)
                 x = al_normalize(np.asarray(x, dtype=np.float32))
                 AUDIO[0] = x
-                for w in a.windows:
-                    parts, ms, n_bad = [], 0, 0
-                    spans = tiles(len(x), int(w * SR))
+                acc = {name: {"parts": [], "segs": [], "ms": 0, "bad": 0, "n": 0} for name, _, _ in arms}
+                span_by_w = {w: tiles(len(x), int(w * SR)) for w in {w for _, w, _ in arms}}
+                # النافذةُ الواحدةُ تُرسَل إلى كلّ الأذرع ذاتِ الطول نفسِه متتاليةً (‏زوجٌ في الدقيقة نفسِها)
+                for w, spans in span_by_w.items():
                     for (s0, s1) in spans:
-                        txt, dt, st = dev.stream(x[s0:s1], a.sleep)
-                        calls += 1
-                        sent_ms += (s1 - s0) * 1000 // SR
-                        ms += int(dt * 1000)
-                        if txt is None:
-                            n_bad += 1
-                            bad += 1
-                        elif txt.strip():
-                            parts.append(" ".join(txt.split()))
-                    h = {"text": " ".join(parts), "ms": ms, "audioMs": len(x) * 1000 // SR, "windows": len(spans)}
-                    if n_bad:
-                        h["error"] = f"{n_bad} نداءٌ فشل"
-                    outs[w][i] = h
+                        for name, aw, dec in arms:
+                            if aw != w:
+                                continue
+                            extra = {"x-tasmi-segments": "1"} if a.arm else {}
+                            if dec:
+                                extra["x-tasmi-decode"] = dec
+                            dev.last_segs = None
+                            txt, dt, st = dev.stream(x[s0:s1], a.sleep, extra)
+                            calls += 1
+                            sent_ms += (s1 - s0) * 1000 // SR
+                            c = acc[name]
+                            c["ms"] += int(dt * 1000); c["n"] += 1
+                            if txt is None:
+                                c["bad"] += 1
+                                bad += 1
+                                c["parts"].append(None)
+                            else:
+                                c["parts"].append(" ".join(txt.split()))
+                            c["segs"].append(dev.last_segs)
+                for name, aw, dec in arms:
+                    c = acc[name]
+                    h = {"text": " ".join(p for p in c["parts"] if p), "ms": c["ms"], "audioMs": len(x) * 1000 // SR,
+                         "windows": c["n"]}
+                    if a.arm:
+                        h["parts"], h["segs"] = c["parts"], c["segs"]
+                    if c["bad"]:
+                        h["error"] = f"{c['bad']} نداءٌ فشل"
+                    outs[name][i] = h
                 if (k + 1) % 20 == 0:
                     print(f"  {set_name}: {k+1}/{len(ids)} · نداءات {calls} · صوت {sent_ms/60000:.1f} د · إخفاق {bad}", flush=True)
-            for w, hyps in outs.items():
-                p = os.path.join(HERE, "work", f"hyps_cloud-w{w:g}_{E.tag_of(set_name)}_gate_cap10.json")
-                json.dump({"model": "cloud:/v1/tasmi/stream (large-v3-turbo)", "window_s": w,
+            for name, aw, dec in arms:
+                hyps = outs[name]
+                p = os.path.join(HERE, "work", f"hyps_cloud-{name}_{E.tag_of(set_name)}_gate_cap10.json")
+                json.dump({"model": "cloud:/v1/tasmi/stream (large-v3-turbo)", "window_s": aw, "decode": dec,
                            "note": "نوافذُ متجاورةٌ ≤ W بقطعٍ عند أهدأ نقطة · AudioLevel.normalize · بلا VAD",
                            "hyps": hyps}, open(p, "w", encoding="utf-8"), ensure_ascii=False, indent=1)
                 print(f"💾 {os.path.basename(p)}: {len(hyps)} بنداً", flush=True)
