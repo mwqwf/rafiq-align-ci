@@ -1,0 +1,167 @@
+{
+ "schema": 1,
+ "tool": "full_audit-1.0",
+ "date": "20261004",
+ "timestampUtc": "2026-10-04T13:58:33Z",
+ "elapsedSec": 35.6,
+ "phase": "all",
+ "manifestIndexes": 180,
+ "frozenBucket": 219,
+ "reportsRead": 10542,
+ "rows": [
+  {
+   "key": "timings-staging/warsh/bl3_warsh.58c0a63c.jz",
+   "sha256": "58c0a63c4741ce4a2f57ff9214cfab16273e069164f3606ed4b2a6da9a979a5e",
+   "riwaya": "warsh",
+   "reciterId": "bl3_warsh",
+   "bytes": 97988,
+   "engine": "ctc-seg-1",
+   "transformOp": "file_end_clamp",
+   "staging": true,
+   "identity": {
+    "sha256": "58c0a63c4741ce4a2f57ff9214cfab16273e069164f3606ed4b2a6da9a979a5e",
+    "staging": true,
+    "errors": [],
+    "ok": true
+   },
+   "structure": {
+    "entries": 6236,
+    "errors": [],
+    "examples": {},
+    "fileNoUnparsed": 0,
+    "structuralFatal": [],
+    "structuralWarn": [
+     "مداخل مدتها > 120ث: 1 · مثال: 2:282 مدتها 145ث"
+    ],
+    "decision": [],
+    "engine": "ctc-seg-1",
+    "audioSha": 114,
+    "bands": {
+     "MED": 5031,
+     "HIGH": 174,
+     "LOW": 1031
+    },
+    "ok": true
+   },
+   "gaps": {
+    "missingTotal": 0,
+    "internalGaps": [],
+    "headMissing": [],
+    "tailMissing": [],
+    "wholeMissing": [],
+    "declared": {
+     "transformOp": "file_end_clamp",
+     "transformReason": "قصُّ نهاية آخر مدخلٍ إلى نهاية ملفّه المقيسة بطول الفكّ: 77:50 −76م.ث",
+     "reasonCode": null,
+     "dropSurahs": [],
+     "byReason": {},
+     "declaredCount": 0,
+     "tagCount": 0,
+     "declaredIds": [],
+     "truncatedTail": null
+    },
+    "undeclaredEdge": [],
+    "errors": [],
+    "ok": true
+   },
+   "durations": {
+    "durationOutliers": 4,
+    "durationExamples": [
+     {
+      "aid": "83:35",
+      "ms": 661,
+      "expMs": 4181,
+      "ratio": 0.16,
+      "chars": 16
+     },
+     {
+      "aid": "80:42",
+      "ms": 1200,
+      "expMs": 6003,
+      "ratio": 0.2,
+      "chars": 19
+     },
+     {
+      "aid": "68:52",
+      "ms": 1200,
+      "expMs": 4719,
+      "ratio": 0.25,
+      "chars": 18
+     },
+     {
+      "aid": "52:49",
+      "ms": 1601,
+      "expMs": 6127,
+      "ratio": 0.26,
+      "chars": 23
+     }
+    ],
+    "impossibleShort": [],
+    "veryShort": [
+     {
+      "aid": "83:35",
+      "ms": 661,
+      "expMs": 4181,
+      "ratio": 0.16,
+      "chars": 16
+     }
+    ],
+    "extremeLong": [],
+    "longOutliers": 0,
+    "shortOutliers": 4,
+    "silenceGaps": 0,
+    "silenceExamples": [],
+    "surahsWithRate": 113
+   },
+   "audio": {
+    "audioReportsOnSha": 0,
+    "openersOnSha": false,
+    "errors": [
+     "لا حكمَ صوتيٍّ بعيّنةٍ على البصمة المنشورة",
+     "لا شاهدَ مطالعَ على البصمة المنشورة"
+    ],
+    "notes": [],
+    "samples": [],
+    "pooled": null,
+    "severeHi": null,
+    "otherShasWithSamples": [
+     "06904df7",
+     "1b4fc1b6",
+     "336a7019",
+     "50eea2e4",
+     "660255e8",
+     "70985410",
+     "871d0d20",
+     "c0f385a0"
+    ],
+    "ok": false
+   }
+  }
+ ],
+ "summary": {
+  "indexes": 1,
+  "phase": "all",
+  "identityOk": 1,
+  "identityBad": [],
+  "structureOk": 1,
+  "structureBad": [],
+  "gapsOk": 1,
+  "gapsBad": [],
+  "audioOk": 0,
+  "audioBad": [
+   "timings-staging/warsh/bl3_warsh.58c0a63c.jz"
+  ],
+  "durationOutliersTotal": 4,
+  "impossibleShortTotal": 0,
+  "indexesWithImpossibleShort": 0,
+  "veryShortTotal": 1,
+  "extremeLongTotal": 0,
+  "indexesWithExtremeLong": 0,
+  "mirrorStale": 0,
+  "silenceGapsTotal": 0,
+  "indexesWithDurationOutliers": 1,
+  "indexesWithSilenceGaps": 0,
+  "entriesTotal": 6236,
+  "missingTotal": 0
+ }
+}
