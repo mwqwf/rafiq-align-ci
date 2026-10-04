@@ -1,0 +1,262 @@
+{
+ "schema": 1,
+ "tool": "full_audit-1.0",
+ "date": "20261004",
+ "timestampUtc": "2026-10-04T06:18:41Z",
+ "elapsedSec": 33.8,
+ "phase": "all",
+ "manifestIndexes": 180,
+ "frozenBucket": 220,
+ "reportsRead": 10408,
+ "rows": [
+  {
+   "key": "timings-staging/qalun/qeryo_qalun.dfffaafb.jz",
+   "sha256": "dfffaafb9e585d3e979f5806cbfa8c48a2756a0ec6538641b9bbf5ff261c6518",
+   "riwaya": "qalun",
+   "reciterId": "qeryo_qalun",
+   "bytes": 91169,
+   "engine": "align-0.2",
+   "transformOp": "ctc_heardmap_splice:3",
+   "staging": true,
+   "identity": {
+    "sha256": "dfffaafb9e585d3e979f5806cbfa8c48a2756a0ec6538641b9bbf5ff261c6518",
+    "staging": true,
+    "errors": [],
+    "ok": true
+   },
+   "structure": {
+    "entries": 6236,
+    "errors": [],
+    "examples": {},
+    "fileNoUnparsed": 0,
+    "structuralFatal": [],
+    "structuralWarn": [
+     "مداخل مدتها > 120ث: 12 · مثال: 2:249 مدتها 133ث",
+     "مطالع سور تبدأ دون 3ث — مرشّحون للمسبار الصوتي لا حكمٌ عليهم: 14:1=0م.ث",
+     "فجوات > 15ث بين آيتين متتاليتين: 2 · مثال: 4:155→4:156 فجوة 31ث"
+    ],
+    "decision": [],
+    "engine": "align-0.2",
+    "audioSha": 114,
+    "bands": {
+     "MED": 2221,
+     "HIGH": 3493,
+     "LOW": 522
+    },
+    "ok": true
+   },
+   "gaps": {
+    "missingTotal": 0,
+    "internalGaps": [],
+    "headMissing": [],
+    "tailMissing": [],
+    "wholeMissing": [],
+    "declared": {
+     "transformOp": "ctc_heardmap_splice:3",
+     "transformReason": "fixU: المحاولة الثانية — الدفعة السماعيّة ردّت المبنيّ بـ3:164 وحدها (−1.5ث، فوق التسامح بقليل) لأنّ الالتقاطَ بالصمت دفع حدّاً مقبولاً خارج 1500م.ث؛ أُصلح (keep_snap_within_tol بتشديدٍ مختبَر) ويُعاد",
+     "reasonCode": null,
+     "dropSurahs": [],
+     "byReason": {
+      "no-align": 33
+     },
+     "declaredCount": 33,
+     "tagCount": 0,
+     "declaredIds": [],
+     "truncatedTail": null
+    },
+    "undeclaredEdge": [],
+    "errors": [],
+    "ok": true
+   },
+   "durations": {
+    "durationOutliers": 68,
+    "durationExamples": [
+     {
+      "aid": "85:22",
+      "ms": 111550,
+      "expMs": 3764,
+      "ratio": 29.64,
+      "chars": 10
+     },
+     {
+      "aid": "4:69",
+      "ms": 230416,
+      "expMs": 28914,
+      "ratio": 7.97,
+      "chars": 89
+     },
+     {
+      "aid": "4:66",
+      "ms": 175892,
+      "expMs": 34436,
+      "ratio": 5.11,
+      "chars": 106
+     },
+     {
+      "aid": "4:71",
+      "ms": 77000,
+      "expMs": 15594,
+      "ratio": 4.94,
+      "chars": 48
+     },
+     {
+      "aid": "23:42",
+      "ms": 37150,
+      "expMs": 7553,
+      "ratio": 4.92,
+      "chars": 25
+     },
+     {
+      "aid": "4:68",
+      "ms": 28966,
+      "expMs": 6173,
+      "ratio": 4.69,
+      "chars": 19
+     },
+     {
+      "aid": "56:34",
+      "ms": 16471,
+      "expMs": 3540,
+      "ratio": 4.65,
+      "chars": 10
+     },
+     {
+      "aid": "56:31",
+      "ms": 12748,
+      "expMs": 2832,
+      "ratio": 4.5,
+      "chars": 8
+     },
+     {
+      "aid": "4:87",
+      "ms": 86500,
+      "expMs": 19492,
+      "ratio": 4.44,
+      "chars": 60
+     },
+     {
+      "aid": "23:22",
+      "ms": 28000,
+      "expMs": 6344,
+      "ratio": 4.41,
+      "chars": 21
+     },
+     {
+      "aid": "4:160",
+      "ms": 81809,
+      "expMs": 19167,
+      "ratio": 4.27,
+      "chars": 59
+     },
+     {
+      "aid": "4:124",
+      "ms": 87494,
+      "expMs": 20792,
+      "ratio": 4.21,
+      "chars": 64
+     }
+    ],
+    "impossibleShort": [],
+    "veryShort": [
+     {
+      "aid": "23:4",
+      "ms": 700,
+      "expMs": 5740,
+      "ratio": 0.12,
+      "chars": 19
+     }
+    ],
+    "extremeLong": [
+     {
+      "aid": "85:22",
+      "ms": 111550,
+      "expMs": 3764,
+      "ratio": 29.64,
+      "chars": 10
+     },
+     {
+      "aid": "4:69",
+      "ms": 230416,
+      "expMs": 28914,
+      "ratio": 7.97,
+      "chars": 89
+     },
+     {
+      "aid": "4:66",
+      "ms": 175892,
+      "expMs": 34436,
+      "ratio": 5.11,
+      "chars": 106
+     }
+    ],
+    "longOutliers": 30,
+    "shortOutliers": 37,
+    "silenceGaps": 2,
+    "silenceExamples": [
+     {
+      "from": "4:155",
+      "to": "4:156",
+      "gapMs": 30807
+     },
+     {
+      "from": "23:71",
+      "to": "23:72",
+      "gapMs": 17993
+     }
+    ],
+    "surahsWithRate": 113
+   },
+   "audio": {
+    "audioReportsOnSha": 0,
+    "openersOnSha": false,
+    "errors": [
+     "لا حكمَ صوتيٍّ بعيّنةٍ على البصمة المنشورة",
+     "لا شاهدَ مطالعَ على البصمة المنشورة"
+    ],
+    "notes": [],
+    "samples": [],
+    "pooled": null,
+    "severeHi": null,
+    "otherShasWithSamples": [
+     "2c7133c6",
+     "34161439",
+     "36475b4b",
+     "45fca15f",
+     "50f62334",
+     "6004d106",
+     "6223571a",
+     "6d436f13",
+     "6da8cd0c",
+     "710211f2"
+    ],
+    "ok": false
+   }
+  }
+ ],
+ "summary": {
+  "indexes": 1,
+  "phase": "all",
+  "identityOk": 1,
+  "identityBad": [],
+  "structureOk": 1,
+  "structureBad": [],
+  "gapsOk": 1,
+  "gapsBad": [],
+  "audioOk": 0,
+  "audioBad": [
+   "timings-staging/qalun/qeryo_qalun.dfffaafb.jz"
+  ],
+  "durationOutliersTotal": 68,
+  "impossibleShortTotal": 0,
+  "indexesWithImpossibleShort": 0,
+  "veryShortTotal": 1,
+  "extremeLongTotal": 3,
+  "indexesWithExtremeLong": 1,
+  "mirrorStale": 0,
+  "silenceGapsTotal": 2,
+  "indexesWithDurationOutliers": 1,
+  "indexesWithSilenceGaps": 1,
+  "entriesTotal": 6236,
+  "missingTotal": 0
+ }
+}
