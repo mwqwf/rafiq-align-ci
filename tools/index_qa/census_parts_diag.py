@@ -47,6 +47,16 @@ def main():
                   f"تعذّر={bad[:6]} نوافذ={json.dumps(ew, ensure_ascii=False)[:400]}")
     if missing or not parts:
         return
+    seen_op = {}
+    for p in parts:
+        ps = (p.get("partProvenance") or {}).get("surah")
+        for o in p.get("openers") or []:
+            prev = seen_op.get(o.get("surah"))
+            if prev is not None and prev[1] != o:
+                diff = {k: (prev[1].get(k), o.get(k)) for k in set(prev[1]) | set(o) if prev[1].get(k) != o.get(k)}
+                print(f"  ⛔ مطلعُ س{o.get('surah')} قيس في جزأي س{prev[0]} وس{ps} بخلاف: "
+                      f"{json.dumps(diff, ensure_ascii=False)[:600]}")
+            seen_op.setdefault(o.get("surah"), (ps, o))
     pv = parts[0].get("partProvenance") or {}
     canonical = R.ASSETS / f"text_{idx['riwaya']}.jz"
     if not canonical.exists():
