@@ -1,0 +1,184 @@
+{
+ "schema": 1,
+ "tool": "full_audit-1.0",
+ "date": "20261004",
+ "timestampUtc": "2026-10-04T13:46:05Z",
+ "elapsedSec": 40.5,
+ "phase": "all",
+ "manifestIndexes": 180,
+ "frozenBucket": 220,
+ "reportsRead": 10525,
+ "rows": [
+  {
+   "key": "timings-staging/hafs/m_alfaqih.e5763886.jz",
+   "sha256": "e576388683b8520b5752ba048923d5ec650ba4cf35adf942d51e0e515d079b3c",
+   "riwaya": "hafs",
+   "reciterId": "m_alfaqih",
+   "bytes": 96284,
+   "engine": "ctc-seg-1",
+   "transformOp": "ctc_heardmap_splice:4,6,8,11,12,13,14,15,16,19,20,23,24,27,29,30,31,32,34,35,36,37,38,40,42,43,44,45,47,48,51,52,53,54,55,58,59,67,69,72,76,77,78",
+   "staging": true,
+   "identity": {
+    "sha256": "e576388683b8520b5752ba048923d5ec650ba4cf35adf942d51e0e515d079b3c",
+    "staging": true,
+    "errors": [],
+    "ok": true
+   },
+   "structure": {
+    "entries": 6236,
+    "errors": [],
+    "examples": {},
+    "fileNoUnparsed": 0,
+    "structuralFatal": [],
+    "structuralWarn": [
+     "مداخل مدتها > 120ث: 1 · مثال: 2:282 مدتها 128ث"
+    ],
+    "decision": [],
+    "engine": "ctc-seg-1",
+    "audioSha": 114,
+    "bands": {
+     "MED": 4414,
+     "HIGH": 207,
+     "LOW": 1615
+    },
+    "ok": true
+   },
+   "gaps": {
+    "missingTotal": 0,
+    "internalGaps": [],
+    "headMissing": [],
+    "tailMissing": [],
+    "wholeMissing": [],
+    "declared": {
+     "transformOp": "ctc_heardmap_splice:4,6,8,11,12,13,14,15,16,19,20,23,24,27,29,30,31,32,34,35,36,37,38,40,42,43,44,45,47,48,51,52,53,54,55,58,59,67,69,72,76,77,78",
+     "transformReason": "fixT: إصلاحٌ دفعيٌّ لكبس الذيل — 45 سورةً مشتبهةً (فائضٌ ≥15ث بعد آخر مدخل · تدقيق الجولة الثانية 2026-10-03)، كلٌّ يُقاس بالسماع قبل أن يُمسّ",
+     "reasonCode": null,
+     "dropSurahs": [],
+     "byReason": {},
+     "declaredCount": 0,
+     "tagCount": 0,
+     "declaredIds": [],
+     "truncatedTail": null
+    },
+    "undeclaredEdge": [],
+    "errors": [],
+    "ok": true
+   },
+   "durations": {
+    "durationOutliers": 5,
+    "durationExamples": [
+     {
+      "aid": "83:35",
+      "ms": 800,
+      "expMs": 4675,
+      "ratio": 0.17,
+      "chars": 16
+     },
+     {
+      "aid": "54:39",
+      "ms": 650,
+      "expMs": 3497,
+      "ratio": 0.19,
+      "chars": 15
+     },
+     {
+      "aid": "83:34",
+      "ms": 2096,
+      "expMs": 8765,
+      "ratio": 0.24,
+      "chars": 30
+     },
+     {
+      "aid": "75:40",
+      "ms": 1721,
+      "expMs": 6441,
+      "ratio": 0.27,
+      "chars": 25
+     },
+     {
+      "aid": "89:30",
+      "ms": 701,
+      "expMs": 2590,
+      "ratio": 0.27,
+      "chars": 10
+     }
+    ],
+    "impossibleShort": [],
+    "veryShort": [
+     {
+      "aid": "83:35",
+      "ms": 800,
+      "expMs": 4675,
+      "ratio": 0.17,
+      "chars": 16
+     },
+     {
+      "aid": "54:39",
+      "ms": 650,
+      "expMs": 3497,
+      "ratio": 0.19,
+      "chars": 15
+     },
+     {
+      "aid": "89:30",
+      "ms": 701,
+      "expMs": 2590,
+      "ratio": 0.27,
+      "chars": 10
+     }
+    ],
+    "extremeLong": [],
+    "longOutliers": 0,
+    "shortOutliers": 5,
+    "silenceGaps": 0,
+    "silenceExamples": [],
+    "surahsWithRate": 113
+   },
+   "audio": {
+    "audioReportsOnSha": 0,
+    "openersOnSha": false,
+    "errors": [
+     "لا حكمَ صوتيٍّ بعيّنةٍ على البصمة المنشورة",
+     "لا شاهدَ مطالعَ على البصمة المنشورة"
+    ],
+    "notes": [],
+    "samples": [],
+    "pooled": null,
+    "severeHi": null,
+    "otherShasWithSamples": [
+     "4817540a",
+     "68e4b299",
+     "db994bba",
+     "f28c9766"
+    ],
+    "ok": false
+   }
+  }
+ ],
+ "summary": {
+  "indexes": 1,
+  "phase": "all",
+  "identityOk": 1,
+  "identityBad": [],
+  "structureOk": 1,
+  "structureBad": [],
+  "gapsOk": 1,
+  "gapsBad": [],
+  "audioOk": 0,
+  "audioBad": [
+   "timings-staging/hafs/m_alfaqih.e5763886.jz"
+  ],
+  "durationOutliersTotal": 5,
+  "impossibleShortTotal": 0,
+  "indexesWithImpossibleShort": 0,
+  "veryShortTotal": 3,
+  "extremeLongTotal": 0,
+  "indexesWithExtremeLong": 0,
+  "mirrorStale": 0,
+  "silenceGapsTotal": 0,
+  "indexesWithDurationOutliers": 1,
+  "indexesWithSilenceGaps": 0,
+  "entriesTotal": 6236,
+  "missingTotal": 0
+ }
+}
