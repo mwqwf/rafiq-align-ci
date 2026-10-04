@@ -2,12 +2,12 @@
  "schema": 1,
  "tool": "full_audit-1.0",
  "date": "20261004",
- "timestampUtc": "2026-10-04T03:17:29Z",
- "elapsedSec": 38.0,
+ "timestampUtc": "2026-10-04T03:22:39Z",
+ "elapsedSec": 32.5,
  "phase": "all",
  "manifestIndexes": 180,
  "frozenBucket": 220,
- "reportsRead": 10368,
+ "reportsRead": 10369,
  "rows": [
   {
    "key": "timings-staging/warsh/deban_warsh.15b8d527.jz",
@@ -88,15 +88,52 @@
    },
    "audio": {
     "audioReportsOnSha": 0,
-    "openersOnSha": false,
+    "openersOnSha": true,
     "errors": [
-     "لا حكمَ صوتيٍّ بعيّنةٍ على البصمة المنشورة",
-     "لا شاهدَ مطالعَ على البصمة المنشورة"
+     "لا حكمَ صوتيٍّ بعيّنةٍ على البصمة المنشورة"
     ],
     "notes": [],
     "samples": [],
     "pooled": null,
     "severeHi": null,
+    "openers": {
+     "commit": "8c0d5e00935bc6c31ae29d07de90fa20e2c5e759",
+     "toolOk": true,
+     "scope": "full",
+     "checked": 112,
+     "hasLate": true,
+     "late": [
+      5,
+      49,
+      60,
+      73
+     ],
+     "lateCtcRule": "CTC ≥1500م.ث بعد بدء المدخل بثقة ≥0.3",
+     "lateConfirmed": [],
+     "swallowed": [],
+     "suspect": [],
+     "tail": [],
+     "unknown": [
+      3,
+      4,
+      7,
+      13,
+      16,
+      19,
+      22,
+      23,
+      25,
+      33,
+      66,
+      72,
+      74,
+      76,
+      88,
+      90,
+      106
+     ],
+     "verdict": "clean"
+    },
     "otherShasWithSamples": [
      "3fffabba",
      "5e45551b",
