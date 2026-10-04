@@ -1144,6 +1144,12 @@ def local_run(jobs, _host=None, _threads=None):
                         a = int(max(0, j["startMs"]) / 1000 * r)
                         b = int(j["endMs"] / 1000 * r)
                         x, _ = sf.read(mp3, start=a, stop=b, dtype="float32", always_2d=True)
+                        # ⛔ (fixU · 2026-10-04 · mhsny/006): libsndfile يقف عند إطارٍ تالفٍ وسط الملفّ
+                        #    **بلا استثناء** ويُرجع نافذةً فارغةً أو ناقصة ⇒ كانت تسقط بـ«array of sample
+                        #    points is empty» (152 نافذةً من 6:14 إلى آخر السورة). النافذةُ الناقصةُ خطأٌ
+                        #    صريحٌ يحيلها إلى ffmpeg بقواعد رفضه نفسِها (‏ناقصة · زائدة · خطأُ فكّ) — تشديدٌ لا تليين.
+                        if len(x) < (b - a) - int(0.05 * r):
+                            raise RuntimeError(f"libsndfile أعاد نافذةً ناقصة {len(x)}/{b - a}")
                         from channel_mix import mono_pcm
                         x = mono_pcm(x)
                     except Exception:
