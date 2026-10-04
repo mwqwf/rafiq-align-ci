@@ -1,0 +1,205 @@
+{
+ "schema": 1,
+ "tool": "full_audit-1.0",
+ "date": "20261004",
+ "timestampUtc": "2026-10-04T18:43:29Z",
+ "elapsedSec": 40.6,
+ "phase": "all",
+ "manifestIndexes": 180,
+ "frozenBucket": 219,
+ "reportsRead": 10635,
+ "rows": [
+  {
+   "key": "timings-staging/qalun/qeniwa_qalun.bbd2a482.jz",
+   "sha256": "bbd2a48275460c0966d586b083dad2dc7ea00cc6417688af8168cd87d701445c",
+   "riwaya": "qalun",
+   "reciterId": "qeniwa_qalun",
+   "bytes": 96808,
+   "engine": "ctc-seg-1",
+   "transformOp": "file_end_clamp",
+   "staging": true,
+   "identity": {
+    "sha256": "bbd2a48275460c0966d586b083dad2dc7ea00cc6417688af8168cd87d701445c",
+    "staging": true,
+    "errors": [],
+    "ok": true
+   },
+   "structure": {
+    "entries": 6236,
+    "errors": [],
+    "examples": {},
+    "fileNoUnparsed": 0,
+    "structuralFatal": [],
+    "structuralWarn": [
+     "مداخل مدتها > 120ث: 1 · مثال: 2:282 مدتها 186ث",
+     "مطالع سور تبدأ دون 3ث — مرشّحون للمسبار الصوتي لا حكمٌ عليهم: 11:1=2961م.ث · 12:1=2791م.ث · 15:1=2971م.ث · 16:1=2811م.ث · 18:1=2622م.ث · 20:1=2671م.ث · 23:1=2692م.ث · 25:1=2951م.ث · 31:1=2971م.ث · 33:1=2581م.ث … و48 غيرها"
+    ],
+    "decision": [],
+    "engine": "ctc-seg-1",
+    "audioSha": 114,
+    "bands": {
+     "MED": 4555,
+     "LOW": 1548,
+     "HIGH": 133
+    },
+    "ok": true
+   },
+   "gaps": {
+    "missingTotal": 0,
+    "internalGaps": [],
+    "headMissing": [],
+    "tailMissing": [],
+    "wholeMissing": [],
+    "declared": {
+     "transformOp": "file_end_clamp",
+     "transformReason": "قصُّ نهاية آخر مدخلٍ إلى نهاية ملفّه المقيسة بطول الفكّ: 22:78 −8م.ث · 5:120 −8م.ث",
+     "reasonCode": null,
+     "dropSurahs": [],
+     "byReason": {},
+     "declaredCount": 0,
+     "tagCount": 0,
+     "declaredIds": [],
+     "truncatedTail": null
+    },
+    "undeclaredEdge": [],
+    "errors": [],
+    "ok": true
+   },
+   "durations": {
+    "durationOutliers": 8,
+    "durationExamples": [
+     {
+      "aid": "80:29",
+      "ms": 17517,
+      "expMs": 4467,
+      "ratio": 3.92,
+      "chars": 12
+     },
+     {
+      "aid": "56:6",
+      "ms": 14210,
+      "expMs": 4328,
+      "ratio": 3.28,
+      "chars": 13
+     },
+     {
+      "aid": "91:4",
+      "ms": 11159,
+      "expMs": 3531,
+      "ratio": 3.16,
+      "chars": 14
+     },
+     {
+      "aid": "85:6",
+      "ms": 13359,
+      "expMs": 4291,
+      "ratio": 3.11,
+      "chars": 13
+     },
+     {
+      "aid": "18:3",
+      "ms": 11548,
+      "expMs": 3739,
+      "ratio": 3.09,
+      "chars": 12
+     },
+     {
+      "aid": "3:200",
+      "ms": 2407,
+      "expMs": 18141,
+      "ratio": 0.13,
+      "chars": 56
+     },
+     {
+      "aid": "94:8",
+      "ms": 881,
+      "expMs": 3117,
+      "ratio": 0.28,
+      "chars": 12
+     },
+     {
+      "aid": "114:2",
+      "ms": 804,
+      "expMs": 2691,
+      "ratio": 0.3,
+      "chars": 8
+     }
+    ],
+    "impossibleShort": [],
+    "veryShort": [
+     {
+      "aid": "94:8",
+      "ms": 881,
+      "expMs": 3117,
+      "ratio": 0.28,
+      "chars": 12
+     },
+     {
+      "aid": "114:2",
+      "ms": 804,
+      "expMs": 2691,
+      "ratio": 0.3,
+      "chars": 8
+     }
+    ],
+    "extremeLong": [],
+    "longOutliers": 5,
+    "shortOutliers": 2,
+    "silenceGaps": 0,
+    "silenceExamples": [],
+    "surahsWithRate": 113
+   },
+   "audio": {
+    "audioReportsOnSha": 0,
+    "openersOnSha": false,
+    "errors": [
+     "لا حكمَ صوتيٍّ بعيّنةٍ على البصمة المنشورة",
+     "لا شاهدَ مطالعَ على البصمة المنشورة"
+    ],
+    "notes": [],
+    "samples": [],
+    "pooled": null,
+    "severeHi": null,
+    "otherShasWithSamples": [
+     "145e51f3",
+     "1ceacd77",
+     "246c7487",
+     "369cfe7a",
+     "5611ce84",
+     "5a757fac",
+     "7a4d1eb8",
+     "8b6d0b98",
+     "9cf5a9e3",
+     "a511a375"
+    ],
+    "ok": false
+   }
+  }
+ ],
+ "summary": {
+  "indexes": 1,
+  "phase": "all",
+  "identityOk": 1,
+  "identityBad": [],
+  "structureOk": 1,
+  "structureBad": [],
+  "gapsOk": 1,
+  "gapsBad": [],
+  "audioOk": 0,
+  "audioBad": [
+   "timings-staging/qalun/qeniwa_qalun.bbd2a482.jz"
+  ],
+  "durationOutliersTotal": 8,
+  "impossibleShortTotal": 0,
+  "indexesWithImpossibleShort": 0,
+  "veryShortTotal": 2,
+  "extremeLongTotal": 0,
+  "indexesWithExtremeLong": 0,
+  "mirrorStale": 0,
+  "silenceGapsTotal": 0,
+  "indexesWithDurationOutliers": 1,
+  "indexesWithSilenceGaps": 0,
+  "entriesTotal": 6236,
+  "missingTotal": 0
+ }
+}
