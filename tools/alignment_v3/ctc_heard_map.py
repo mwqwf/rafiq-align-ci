@@ -259,6 +259,17 @@ def anchor_tol(a, strict_ms=0):
     return max(DEV_TOL_MS, (a[1] - a[0]) // 2)
 
 
+def keep_snap_within_tol(raw, snapped, on_sil, anchor_start, strict_ms=0):
+    """(بدءٌ، على صمت؟) بعد الالتقاط بالصمت. ⛔ (fixU · 2026-10-04 · qeryo_qalun 3:164): في الدفعة
+    السماعيّة (‏`strict_ms`) قُبل الحدُّ على بُعد ≤ strict_ms من مِرساته ثمّ دفعه الالتقاطُ (‏حتى 700م.ث)
+    خارجَه فردّته بوّابةُ السماع (‏−1.5ث). فالالتقاطُ الذي يُخرج حدّاً مقبولاً عن التسامح يُلغى ويبقى
+    الحدُّ المقيس بلا برهان صمت (‏فتُسقَف ثقتُه 0.74 — D-025). تشديدٌ لا تليين؛ وبلا strict_ms كما كان."""
+    if (strict_ms and anchor_start is not None and abs(raw - anchor_start) <= strict_ms
+            and abs(snapped - anchor_start) > strict_ms):
+        return raw, False
+    return snapped, on_sil
+
+
 # ───────────────────────── التنفيذ (‏يحتاج النموذج) ─────────────────────────
 def _char_list():
     from ctc_seg import _model
@@ -420,6 +431,8 @@ def run(audio, surah, riwaya, log=print, probe=False, strict_tol_ms=0):
                             "snapped": False, "matched": 0, "total": len(refs[k].split())})
             continue
         t, on_sil = snap_to_silence(int(starts[k]), sil, tolerance_ms=700)
+        t, on_sil = keep_snap_within_tol(int(starts[k]), int(t), on_sil,
+                                         anchor_ms[k][0] if anchor_ms[k] else None, strict_tol_ms)
         entries.append({"ayahIdx": k, "startMs": int(t), "endMs": None, "conf": _conf(scores[k]),
                         "snapped": bool(on_sil), "matched": 0, "total": len(refs[k].split()),
                         "heard": anchor_ms[k] is not None, "boundary": source[k]})
