@@ -23,6 +23,16 @@ def _heard(parts):
 
 
 class Pure(unittest.TestCase):
+    def test_snap_cannot_push_accepted_boundary_beyond_strict_tol(self):
+        # qeryo_qalun 3:164: مقبولٌ عند −1.4ث ثمّ دفعه الالتقاطُ إلى −1.9ث فردّته البوّابة.
+        self.assertEqual(H.keep_snap_within_tol(4798300, 4797800, True, 4799700, 1500), (4798300, False))
+        # التقاطٌ يبقى داخل التسامح يُقبل كما هو
+        self.assertEqual(H.keep_snap_within_tol(4798300, 4798800, True, 4799700, 1500), (4798800, True))
+        # بلا strict_ms (‏وضع heard في ctc_splice) لا يتغيّر شيء
+        self.assertEqual(H.keep_snap_within_tol(4798300, 4797800, True, 4799700, 0), (4797800, True))
+        # بلا مِرساة لا يتغيّر شيء
+        self.assertEqual(H.keep_snap_within_tol(100, 700, True, None, 1500), (700, True))
+
     def test_anchor_tol_default_and_strict(self):
         # الافتراضُ كما كان: max(3ث، نصفُ مدّة المِرساة)؛ والصارمُ ثابتٌ يُعطى (الدفعةُ السماعيّة 1500)
         self.assertEqual(H.anchor_tol((0, 2000)), 3000)
