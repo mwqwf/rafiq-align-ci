@@ -50,7 +50,7 @@ state = {o["Key"] for o in ls("state/timings-staging_")}
 frozen = get("timings/frozen.txt").decode("utf-8")
 sys.path.insert(0, str(ROOT / 'tools' / 'index_qa'))
 from promote import held
-from qa_dispatch_guard import has_current_manual_sample
+from qa_dispatch_guard import has_current_manual_sample, manual_qa_reason
 holds = held()
 promoted = 0
 # الأحدثُ لكلّ قارئ وحدَه: بصمةٌ قديمةٌ ناقصةٌ لا تُبوَّب ولا تُرقّى فوق خليفتها.
@@ -84,6 +84,10 @@ for rid, o in latest.items():
         actual_sha = hashlib.sha256(body).hexdigest()
     except Exception as e:                      # noqa: BLE001
         print(f"⚠️ {k}: {e}")
+        continue
+    manual_reason = manual_qa_reason(hdr, k)
+    if manual_reason:
+        print(f"⏸️ {k}: {manual_reason}")
         continue
     if hdr.get("engineVersion") != "ctc-seg-1":
         continue

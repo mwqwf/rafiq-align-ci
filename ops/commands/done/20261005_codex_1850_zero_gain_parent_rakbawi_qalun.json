@@ -1,0 +1,12 @@
+{
+  "action": "tool",
+  "tool": "index_qa/export_index_bytes.py",
+  "args": [
+    "--key",
+    "timings/qalun/rakbawi_qalun.jz",
+    "--expect-sha",
+    "85886e2b1f665642a50ed6fb062f7ec06480849f6a6727fb95527ad1a613585b",
+    "--out",
+    "ops/out/codex-zero-gain-parent-rakbawi_qalun-20261005.json"
+  ]
+}

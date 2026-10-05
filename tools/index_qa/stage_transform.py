@@ -15,8 +15,8 @@
 
 1. **الأصلُ منشورٌ فعلاً** في `timings/`، وبصمتُه هي المذكورة — فلا يُبنى
    مشتقٌّ على فهرسٍ لا نعرف عينه.
-2. **عددُ المداخل مطابقٌ للأصل حرفاً** — فالتحويلُ **يزيح حدوداً ولا يحذف
-   آيات**؛ واختلافُ العدد يعني أنّ شيئاً آخر جرى.
+2. **المداخل تتبع حارس العملية المسمّاة** — إصلاح الحدود يحفظ العدد، وإعادة
+   المحاذاة قد تسترجع آيات غائبة وفق حارس تغطية السور؛ لا يكفي ادّعاء الزيادة.
 3. **‏`entriesSha256` مختلفةٌ عن الأصل** — وإلا فالملفّ **لم يتغيّر** وادّعاءُ
    الإصلاح باطل. (‏عكسُ شرط `rename_reciter` تماماً: هناك تُشترط المطابقة
    لأن التسمية لا تمسّ المحتوى، وهنا يُشترط الاختلاف لأن القصّ يمسّه.)
@@ -80,6 +80,18 @@ def entry_change_counts(parent, candidate):
                 if (old[aid].get("startMs"), old[aid].get("endMs"))
                 != (new[aid].get("startMs"), new[aid].get("endMs")))
     return moved, len(new.keys() - old.keys()), len(old.keys() - new.keys())
+
+
+def staged_transform_metadata(prior, moved, added, removed):
+    """أثر الرفع يصف الفرق المقيس، ولا يبقي علم الملف المحلي كحالة حالية."""
+    base = dict(prior) if isinstance(prior, dict) else (
+        {"opAsGiven": prior} if prior else {})
+    base.pop("unpublishedLocalCandidate", None)
+    base["note"] = (
+        f"مقارنة بالأصل: حدود متغيرة في {moved} مدخلاً، ومداخل مضافة {added}، "
+        f"ومداخل محذوفة {removed}. الرفع إلى الاختبار ليس حكم جودة؛ "
+        "يلزم اجتياز حراس الجودة والسماع القائمة على بصمة المرشح نفسه.")
+    return base
 
 
 def realigned_coverage_error(have_old, have_new, realigned, allow_inherited=False):
@@ -179,6 +191,15 @@ def truncated_header_error(idx, tails):
     return None
 
 
+def apply_dispatch_policy(index, enabled, parent_key, parent_sha):
+    """سياسة جدولة للتحويل الحالي فقط؛ لا تغير مدخلاً أو حارس جودة."""
+    index["transform"].pop("qaDispatch", None)
+    if enabled:
+        sys.path.insert(0, str(HERE.parent / "ci_fleet"))
+        from qa_dispatch_guard import manual_qa_policy
+        index["transform"]["qaDispatch"] = manual_qa_policy(index, parent_key, parent_sha)
+
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--file", required=True, help="ملفّ المنتَج المحلّي (.jz)")
@@ -204,6 +225,8 @@ def main():
                     help="سورةٌ مبتورةُ الذيل تُقبل بادئتُها 1..N وحدها: «24:30» — بادئةٌ "
                          "متّصلةٌ بلا فجوة، وN المسمّاةُ هي الحدّ، والذيلُ معلَنٌ source_truncated")
     ap.add_argument("--yes", action="store_true")
+    ap.add_argument("--manual-qa-only", action="store_true",
+                    help="حصر هذا المرشح في فحوص يدوية مجانية؛ لا يعفيه من أي حارس")
     a = ap.parse_args()
     tails = parse_tails(a.owner_truncated_tail)
     if tails and a.allow_inherited_gaps:
@@ -403,17 +426,16 @@ def main():
     # ‏**`transform` قد يصل نصّاً** (كتبه github-8e سلسلةً) — يُحفظ نصُّه في
     # `opAsGiven` ولا يُطمس، ويُبنى القاموس فوقه.
     prior = idx.get("transform")
-    base = dict(prior) if isinstance(prior, dict) else (
-        {"opAsGiven": prior} if prior else {})
+    base = staged_transform_metadata(prior, moved, added, removed)
     out["transform"] = dict(base, **{
         "op": a.op, "fromSha256": psha, "fromKey": a.parent,
         "entriesSha256": e_new, "parentEntriesSha256": e_old,
         "movedEntries": moved, "addedEntries": added, "removedEntries": removed,
         "reason": a.reason, "by": a.by,
         "at": int(time.time() * 1000),
-        "note": ("‏عددُ المداخل مطابقٌ للأصل والحدودُ وحدها أُزيحت؛ ولا يُرقّى "
-                 "بحكم الأصل: يدخل الطابور بفحص مطالعَ وعيّنةٍ على بصمته."),
     })
+    # سياسة الجدولة تخص التحويل الحالي، ولا تورث حجزاً إلى تحويل لاحق تلقائياً.
+    apply_dispatch_policy(out, a.manual_qa_only, a.parent, psha)
     packed = gzip.compress(json.dumps(out, ensure_ascii=False,
                                       separators=(",", ":")).encode("utf-8"), 9)
     new = hashlib.sha256(packed).hexdigest()
