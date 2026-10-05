@@ -3,7 +3,7 @@
   "date": "2026-10-05",
   "preparedBy": "codex/source_recovery",
   "scope": "مرشحون للبحث والتحقق فقط؛ لا اعتماد أو نشر أو تبديل تسجيلات.",
-  "status": "كل المرشحين غير مقيسين صوتياً في هذا التقرير. اختلاف الرابط أو البصمة لا يثبت اكتمال التلاوة أو اختلاف الأداء.",
+  "status": "قيس سبعة مرشحين وسبعة أصول محلياً: بديلان لنوح مختلفان عن الأصل وأطول منه، وأربعة روابط Way2Quran تطابق الأصل بايتاً فلا تعاد محاذاتها، وبديل سلمان مختلف البصمة وذو إشارة بينما الأصل صامت رقمياً. لا يثبت ذلك وحده اكتمال البدائل أو هوية الأداء.",
   "constraints": {
     "sameReciterRequired": true,
     "sameRiwayaRequired": true,
@@ -30,41 +30,48 @@
           "surah": 3,
           "url": "https://yna-quran.com/download/7afs/7afs_003%20Al-Emran.mp3",
           "urlEvidence": "رابط زر حفظ في صفحة القارئ الرسمية، ضمن مصحف حفص.",
-          "status": "مقيس حجماً وبادئة بصمة لدى العامل الرئيسي؛ المدة والاكتمال غير مقيسين.",
+          "status": "مقيس محلياً كاملاً؛ مختلف عن الأصل وأطول منه، لكن اكتمال التلاوة وهوية الأداء غير مثبتين.",
           "reportedProbe": {
             "bytes": 30232102,
-            "sha256Prefix": "938e3440fdaeac0b",
-            "provenance": "تقرير العامل الرئيسي في هذه الجلسة عن web_probe؛ لم أنفذ القياس بنفسي."
+            "sha256": "938e3440fdaeac0baec36f15cebdb2e901e650629825217f9549ef6fd417870b",
+            "durationMs": 3778968,
+            "bitRate": 64000,
+            "tail300sMeanDb": -12.3,
+            "provenance": "تنزيل محلي كامل، sha256sum وffprobe وffmpeg volumedetect."
           },
           "baseline": {
             "url": "https://server8.mp3quran.net/noah/003.mp3",
             "sha256": "4b627f06b3ac0561b110ed9bc3396de7a24c878d4008a6f3e5e921dceb27a7f9",
             "durationMs": 2519458,
-            "bytes": null,
+            "bytes": 30242702,
             "shaEvidence": "https://github.com/mwqwf/rafiq-align-ci/blob/main/ops/out/20261003_r2x_tgt36_sha_37128886808.txt",
             "durationEvidence": "https://github.com/mwqwf/rafiq-align-ci/blob/main/ops/out/20261003_2110_fixR_lg_D2_noah.txt"
           },
-          "comparison": "بصمة البديل تختلف عن الأصل، لكن ذلك لا يثبت اختلاف المحتوى الصوتي.",
-          "nextCheck": "قياس مدة البديل وتحقق وجود نهاية 3:153 والآيات 3:154–200."
+          "comparison": "البديل أطول 1259510م.ث وبصمته مختلفة؛ ارتباط غلاف RMS لأول 600ث بلغ 0.0468 فقط، فلا يجوز وراثة توقيت الأصل أو افتراض أنه إعادة ترميز للتسجيل نفسه.",
+          "nextCheck": "تحقق سمعي مستقل من هوية القارئ والرواية ومن وجود نهاية 3:153 والآيات 3:154–200، ثم محاذاة كاملة إن ثبتت."
         },
         {
           "surah": 4,
           "url": "https://yna-quran.com/download/7afs/7afs_004%20An-Nisa.mp3",
           "urlEvidence": "رابط زر حفظ في صفحة القارئ الرسمية، ضمن مصحف حفص.",
-          "status": "مقيس حجماً وبادئة بصمة لدى العامل الرئيسي؛ المدة والاكتمال غير مقيسين.",
+          "status": "مقيس محلياً كاملاً؛ مختلف عن الأصل وأطول منه، لكن اكتمال التلاوة وهوية الأداء غير مثبتين.",
           "reportedProbe": {
             "bytes": 30975024,
-            "sha256Prefix": "3f947b48f5bd7750",
-            "provenance": "تقرير العامل الرئيسي في هذه الجلسة عن web_probe؛ لم أنفذ القياس بنفسي."
+            "sha256": "3f947b48f5bd77501760c0e33d245e9fe89f536e68838b7af88e79d2b4188780",
+            "durationMs": 3871833,
+            "bitRate": 64000,
+            "tail300sMeanDb": -12.0,
+            "provenance": "تنزيل محلي كامل، sha256sum وffprobe وffmpeg volumedetect."
           },
           "baseline": {
             "url": "https://server8.mp3quran.net/noah/004.mp3",
-            "sha256": null,
-            "bytes": null,
+            "sha256": "2004eb198d4c5fd4ca7d0ea10456667667fcadb597ea56ebb0d6683d96533284",
+            "bytes": 33882705,
             "durationMs": 2822791,
             "durationEvidence": "https://github.com/mwqwf/rafiq-align-ci/blob/main/ops/out/20261003_0850_fixS1_rp_noah_s4.txt"
           },
-          "nextCheck": "قياس المدة ومقارنة البصمة وتحقق تمام 4:136 والآيات 4:137–176."
+          "comparison": "البديل أطول 1049041م.ث وبصمته مختلفة؛ ارتباط غلاف RMS لأول 600ث بلغ 0.0479 فقط، فلا يجوز وراثة توقيت الأصل أو افتراض أنه إعادة ترميز للتسجيل نفسه.",
+          "nextCheck": "تحقق سمعي مستقل من هوية القارئ والرواية ومن تمام 4:136 والآيات 4:137–176، ثم محاذاة كاملة إن ثبتت."
         }
       ]
     },
@@ -84,8 +91,33 @@
           "surah": 42,
           "url": "https://media.way2quran.com/salman-al-siddiq/hafs-an-asim/042.mp3",
           "urlEvidence": "رابط تحميل الصفحة؛ تعرفت أداة الويب عليه بصيغة audio/mpeg.",
-          "status": "غير مقيس",
-          "nextCheck": "مقارنة البصمة بالأصل وفحص وجود الإشارة؛ الأصل موثق صامتاً في 1052 ثانية."
+          "status": "مرشح استبدال حقيقي غير معتمد: مختلف عن الأصل بايتاً، ويفك إلى إشارة فعلية بينما الأصل المنشور صامت رقمياً.",
+          "probe": {
+            "sha256": "330587a1c6d77981a4251ad83d7e0200444d898484ba089ffa138bcd6470dabd",
+            "bytes": 29919510,
+            "durationMs": 1052473
+          },
+          "baseline": {
+            "url": "https://server16.mp3quran.net/s_sadeiq/Rewayat-Hafs-A-n-Assem/042.mp3",
+            "sha256": "0c39cf3ff65ae5529e43a8926bf7670ca182450e188b4a45bc09327dea7513ea",
+            "bytes": 16857174,
+            "durationMs": 1051925
+          },
+          "comparison": "الملفان ليسا متطابقين بايتاً. فك الأصل الكامل أعاد خطأ ترويسة و92775262 عينة كلها صفر (mean/max=-91dB)، بينما البديل أعاد92825792 عينة بإشارة (mean=-18.1dB وmax=-1.3dB). لا يمكن مقارنة الأداء بأصل صامت.",
+          "heardProbe": {
+            "runId": 37355775598,
+            "jobId": 111917693977,
+            "url": "https://github.com/mwqwf/rafiq-align-ci/actions/runs/37355775598",
+            "sourceSha256": "330587a1c6d77981a4251ad83d7e0200444d898484ba089ffa138bcd6470dabd",
+            "heardAyahs": 53,
+            "expectedAyahs": 53,
+            "anchorQualityMedian": 0.916,
+            "lastAyahHeardMs": [1040938, 1050765],
+            "lastAyahScore": 0.925,
+            "issues": [],
+            "limitation": "شاهد آلي لتغطية المصدر، وليس محاذاة إنتاجية أو شهادة هوية أو اكتمال للفهرس."
+          },
+          "nextCheck": "ثبّت هوية القارئ والرواية من الناشر، ثم نفذ محاذاة كاملة وبوابات المصدر والمنشور قبل أي ترقية."
         }
       ],
       "additionalIdentityPages": [
@@ -112,22 +144,28 @@
           "surah": 22,
           "url": "https://media.way2quran.com/saad-almqren/hafs-an-asim/22.mp3",
           "urlEvidence": "رابط Download الفعلي؛ اسم الملف بدون صفر بادئ؛ تعرفت أداة الويب عليه بصيغة audio/mpeg.",
-          "status": "غير مقيس",
-          "nextCheck": "مقارنة المدة والبصمة والأداء بالأصل؛ لا دليل حتى الآن على أن المصدر مختلف أو أن المصدر الحالي ناقص."
+          "status": "مرفوض كمصدر بديل: مطابق للأصل بايتاً.",
+          "probe": {"sha256": "2198db4e1e4e3d0c18a84441b92e4e11315cb49bd23e0be87e5b04e44c96c0c5", "bytes": 16744055, "durationMs": 1044515},
+          "baselineUrl": "https://server16.mp3quran.net/saad/Rewayat-Hafs-A-n-Assem/022.mp3",
+          "nextCheck": "لا تعد تجربة هذا الرابط دون تغير في مادته أو دليل جديد."
         },
         {
           "surah": 28,
           "url": "https://media.way2quran.com/saad-almqren/hafs-an-asim/28.mp3",
           "urlEvidence": "رابط Download الفعلي؛ اسم الملف بدون صفر بادئ؛ تعرفت أداة الويب عليه بصيغة audio/mpeg.",
-          "status": "غير مقيس",
-          "nextCheck": "مقارنة المدة والبصمة والأداء بالأصل؛ لا دليل حتى الآن على أن المصدر مختلف أو أن المصدر الحالي ناقص."
+          "status": "مرفوض كمصدر بديل: مطابق للأصل بايتاً.",
+          "probe": {"sha256": "85f46007634846518394522eac40893dc2b2da62c27067f124ccc99499ad3f4b", "bytes": 21120980, "durationMs": 1318015},
+          "baselineUrl": "https://server16.mp3quran.net/saad/Rewayat-Hafs-A-n-Assem/028.mp3",
+          "nextCheck": "لا تعد تجربة هذا الرابط دون تغير في مادته أو دليل جديد."
         },
         {
           "surah": 45,
           "url": "https://media.way2quran.com/saad-almqren/hafs-an-asim/45.mp3",
           "urlEvidence": "رابط Download الفعلي؛ اسم الملف بدون صفر بادئ؛ تعرفت أداة الويب عليه بصيغة audio/mpeg.",
-          "status": "غير مقيس",
-          "nextCheck": "مقارنة المدة والبصمة والأداء بالأصل؛ لا دليل حتى الآن على أن المصدر مختلف أو أن المصدر الحالي ناقص."
+          "status": "مرفوض كمصدر بديل: مطابق للأصل بايتاً.",
+          "probe": {"sha256": "b9963b5982ac331567c162a1481c135e8ffb456a8d62626adda668248801f76f", "bytes": 6117972, "durationMs": 380182},
+          "baselineUrl": "https://server16.mp3quran.net/saad/Rewayat-Hafs-A-n-Assem/045.mp3",
+          "nextCheck": "لا تعد تجربة هذا الرابط دون تغير في مادته أو دليل جديد."
         }
       ],
       "additionalIdentityPages": [
@@ -157,8 +195,10 @@
           "surah": 6,
           "url": "https://media.way2quran.com/nasser-almajed/hafs-an-asim/006.mp3",
           "urlEvidence": "رابط تحميل الصفحة؛ تعرفت أداة الويب عليه بصيغة audio/mpeg.",
-          "status": "غير مقيس",
-          "nextCheck": "مقارنة المدة والبصمة ثم إثبات وجود 6:74–94، التي غابت عن نسخة الأرشيف الطويلة السابقة."
+          "status": "مرفوض كمصدر بديل: مطابق لمصدر mp3quran الأصلي بايتاً، ومدته القصيرة لا تحل النقص.",
+          "probe": {"sha256": "cf38bd6037d6279e017e268c03c56fb32ae5dd7b8fb92635c0dbf31290ad55c5", "bytes": 52551679, "durationMs": 1313620},
+          "baselineUrl": "https://server14.mp3quran.net/nasser_almajed/006.mp3",
+          "nextCheck": "لا تعد تجربة هذا الرابط دون تغير في مادته أو دليل جديد."
         }
       ],
       "notes": [
