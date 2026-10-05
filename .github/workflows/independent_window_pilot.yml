@@ -1,0 +1,58 @@
+name: rafiq-independent-window-pilot
+run-name: independent-window-pilot Peshawa 63
+
+# يدوي فقط، مرشح Git ثابت، لا أسرار/دلو/ترقية/cache-save/artifacts.
+# غياب أي نموذج من cache المستعاد فشل صريح قبل تنزيل الصوت.
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: rafiq-independent-window-pilot-peshawa-63
+  cancel-in-progress: false
+
+jobs:
+  pilot:
+    if: ${{ github.repository == 'mwqwf/rafiq-align-ci' && github.event.repository.private == false }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    env:
+      HF_HOME: ${{ github.workspace }}/.hf
+      HF_HUB_OFFLINE: '1'
+      TRANSFORMERS_OFFLINE: '1'
+      HF_HUB_DISABLE_XET: '1'
+      CTC_THREADS: '2'
+      CTC_INT8: '0'
+      PIP_NO_CACHE_DIR: '1'
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: استعادة المفتاح الموجود فقط
+        id: models
+        uses: actions/cache/restore@v4
+        with:
+          path: .hf
+          key: ctc-model-jonatasgrosman-xlsr53-ar-v1
+          fail-on-cache-miss: true
+      - name: تثبيت الأدوات على قرص العداء المؤقت
+        run: |
+          python tools/ci_fleet/install_qa_ffmpeg.py
+          python -m pip install --only-binary=:all: --timeout 60 --retries 2 --index-url https://download.pytorch.org/whl/cpu torch
+          python -m pip install --only-binary=:all: --timeout 60 --retries 2 'numpy<2' 'transformers<5' boto3 soundfile rapidfuzz
+          python -m pip install --timeout 60 --retries 2 ctc-segmentation
+      - name: اختبارات بلا نماذج أو شبكة
+        run: python -m unittest tools.index_qa.test_independent_window_pilot -v
+      - name: قياس جميع الآيات الإحدى عشرة وإخراج الدليل الكامل في السجل
+        env:
+          PILOT_CACHE_EXACT_HIT: ${{ steps.models.outputs.cache-hit }}
+        run: |
+          python tools/index_qa/independent_window_pilot.py \
+            --candidate ops/source-repair/candidates/codex-peshawa-s63-20261005-v2.jz \
+            --candidate-sha256 00fbc75a874d45f80600ccf8f1f7bfe774aae5bffaba89cad3f37eb381997aee \
+            --source-sha256 bbfc9570680b5172ad15e417ce0ef5b8aaf8d15e16ec6f12fe46ea1752243301

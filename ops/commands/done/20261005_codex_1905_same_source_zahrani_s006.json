@@ -1,0 +1,14 @@
+{
+  "action": "dispatch",
+  "workflow": "ctc_heard_probe.yml",
+  "inputs": {
+    "url": "https://server9.mp3quran.net/zahrani/006.mp3",
+    "surah": "6",
+    "riwaya": "hafs",
+    "build": "true",
+    "int8": "0",
+    "evidence": "build-logs",
+    "source_sha256": "e3229a66a357835a511dc2eb6e628a646179de1e41dc9c1bf6d14fe68ed15509",
+    "reason": "بناء توقيت كامل للسورة 6 من صوت القارئ المنشور نفسه؛ الشاهد السابق وثق انحرافات ولم يبن مداخل النوافذ، مع بقاء حراس الجودة والمطالع والنهايات"
+  }
+}

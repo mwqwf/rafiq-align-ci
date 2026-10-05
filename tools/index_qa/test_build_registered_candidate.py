@@ -75,7 +75,40 @@ class CandidateTests(unittest.TestCase):
                 mock.patch.object(B.stage_transform.promote, "s3", side_effect=AssertionError("لا دلو")), \
                 redirect_stdout(io.StringIO()):
             return B.build(self.parent_path, kwargs.pop("parent_sha", self.parent_sha),
-                           self.aligned_path, kwargs.pop("surah", 63), kwargs.pop("out", self.out), **kwargs)
+                           kwargs.pop("aligned_path", self.aligned_path), kwargs.pop("surah", 63),
+                           kwargs.pop("out", self.out), **kwargs)
+
+    def dropped_surahs(self, surahs, reason="SOURCE_TRUNCATED", stale_reasons=None):
+        """أصل مصغر يشبه حالة نوح أو سلمان، مع ملفات قياس كاملة لكل سورة."""
+        missing = [e["ayahId"] for e in self.parent["entries"]
+                   if int(e["ayahId"].split(":")[0]) in surahs]
+        self.parent["entries"] = [e for e in self.parent["entries"] if e["ayahId"] not in missing]
+        self.parent["missing"] = {"count": len(missing), "ids": missing,
+                                  "byReason": dict(stale_reasons or {}, source_truncated=len(missing))}
+        self.parent["transform"] = {"op": "drop_surah:" + ",".join(str(s) for s in surahs),
+                                    "reasonCode": reason, "reasonUser": "ملفات مصدرية معطوبة أو ناقصة.",
+                                    "droppedEntries": len(missing)}
+        self.registry = []
+        paths = []
+        for s in surahs:
+            n = B.splice_surah.COUNTS[s - 1]
+            row = {"riwaya": "hafs", "reciter": "example", "surah": s,
+                   "url": f"https://example.org/registered/{s:03d}.mp3",
+                   "audio_sha256": f"{s:064x}", "evidence": f"قياس مستقل للسورة {s}"}
+            self.registry.append(row)
+            aligned = {"surah": s, "riwaya": "hafs", "engine": B.ENGINE,
+                       "fileRef": row["url"], "sha256": row["audio_sha256"], "totalMs": (n + 1) * 1000,
+                       "heardMap": {str(a): {"anchorMs": [(a - 1) * 1000 + 100, a * 1000],
+                                             "anchorQuality": .9, "heard": True} for a in range(1, n + 1)},
+                       "entries": [{"ayahIdx": a, "startMs": a * 1000 + 100,
+                                    "endMs": (a + 1) * 1000, "conf": .9, "snapped": True}
+                                   for a in range(n)]}
+            path = self.root / f"aligned-{s}.json"
+            path.write_text(json.dumps(aligned), encoding="utf-8")
+            paths.append(path)
+        self.registry_path.write_text(json.dumps(self.registry), encoding="utf-8")
+        self.save_inputs()
+        return paths
 
     def test_actual_splice_preserves_other_surahs_and_marks_pending_quality(self):
         with mock.patch.object(B.time, "time", return_value=1234):
@@ -255,6 +288,7 @@ class CandidateTests(unittest.TestCase):
         self.assertEqual(transform["provenance"], {
             "kind": "historical-parent-transform", "parentSha256": self.parent_sha,
             "parentKey": "timings/hafs/example.jz", "parentTransform": self.parent["transform"],
+            "parentMissing": self.parent["missing"],
         })
         self.assertEqual(self.parent_path.read_bytes(), self.parent_blob)
 
@@ -309,6 +343,117 @@ class CandidateTests(unittest.TestCase):
         result = json.loads(gzip.decompress(self.out.read_bytes()))
         self.assertEqual(result["lowCount"], 2)
         self.assertEqual(result["entries"][0], self.parent["entries"][0])
+
+    def test_corrupt_source_reason_and_stale_no_align_move_to_history_after_full_recovery(self):
+        paths = self.dropped_surahs([42], reason="SOURCE_CORRUPT", stale_reasons={"no-align": 3})
+        self.build(surah=42, aligned_path=paths[0])
+        result = json.loads(gzip.decompress(self.out.read_bytes()))
+        self.assertEqual(result["missing"]["count"], 0)
+        self.assertEqual(result["missing"]["byReason"], {})
+        transform = result["transform"]
+        self.assertNotIn("reasonCode", transform)
+        self.assertNotIn("reasonUser", transform)
+        self.assertEqual(transform["dropSurah"], [])
+        self.assertEqual(transform["provenance"]["parentTransform"], self.parent["transform"])
+        self.assertEqual(transform["provenance"]["parentMissing"], self.parent["missing"])
+
+    def test_corrupt_source_reason_for_other_surah_is_preserved(self):
+        self.parent["transform"].update(reasonCode="SOURCE_CORRUPT", reasonUser="مصدر سورة أخرى صامت",
+                                         dropSurah=[42, 63])
+        candidate = copy.deepcopy(self.parent)
+        transform = B.repaired_transform(self.parent, candidate, 63, self.parent_sha,
+                                         "timings/hafs/example.jz")
+        self.assertEqual(transform["dropSurah"], [42])
+        self.assertEqual(transform["reasonCode"], "SOURCE_CORRUPT")
+        self.assertEqual(transform["reasonUser"], self.parent["transform"]["reasonUser"])
+
+    def test_one_recovered_surah_keeps_other_drop_and_unattributed_missing_reasons(self):
+        paths = self.dropped_surahs([3, 4], stale_reasons={"timing_truncated": 6})
+        self.build(surah=3, aligned_path=paths[0])
+        result = json.loads(gzip.decompress(self.out.read_bytes()))
+        self.assertEqual(result["missing"]["count"], 176)
+        self.assertEqual(result["missing"]["byReason"], {"source_truncated": 176, "timing_truncated": 6})
+        self.assertEqual(result["transform"]["dropSurah"], [4])
+        for field in ("reasonCode", "reasonUser"):
+            self.assertEqual(result["transform"][field], self.parent["transform"][field])
+        self.assertEqual(result["transform"]["provenance"]["parentTransform"], self.parent["transform"])
+        self.assertEqual(result["audioSha256"][3], self.parent["audioSha256"][3])
+
+    def test_multi_surah_uses_one_original_parent_and_preserves_every_other_surah(self):
+        paths = self.dropped_surahs([3, 4], stale_reasons={"timing_truncated": 6})
+        parent_before = self.parent_path.read_bytes()
+        original_splice = B.splice_surah.main
+        with mock.patch.object(B.splice_surah, "main", wraps=original_splice) as splice:
+            report = self.build(surah=[3, 4], aligned_path=paths)
+        splice.assert_called_once()
+        result = json.loads(gzip.decompress(self.out.read_bytes()))
+        self.assertEqual(self.parent_path.read_bytes(), parent_before)
+        self.assertEqual(report["surahs"], [3, 4])
+        self.assertEqual(report["parentSha256"], self.parent_sha)
+        self.assertEqual(result["missing"], {"count": 0, "ids": [], "byReason": {}})
+        self.assertEqual([e for e in result["entries"] if int(e["ayahId"].split(":")[0]) not in (3, 4)],
+                         self.parent["entries"])
+        transform = result["transform"]
+        self.assertEqual(transform["op"], "ctc_heardmap_splice:3,4")
+        self.assertEqual(transform["fromSha256"], self.parent_sha)
+        self.assertEqual(transform["fromKey"], "timings/hafs/example.jz")
+        self.assertEqual(transform["parentEntriesSha256"], B.stage_transform.entries_sha(self.parent["entries"]))
+        self.assertEqual(transform["addedEntries"], 376)
+        self.assertEqual(transform["removedEntries"], 0)
+        self.assertEqual(transform["dropSurah"], [])
+        self.assertNotIn("reasonCode", transform)
+        self.assertNotIn("reasonUser", transform)
+        self.assertEqual(transform["provenance"]["parentTransform"], self.parent["transform"])
+        self.assertEqual(transform["provenance"]["parentMissing"], self.parent["missing"])
+        for s, path, source in zip((3, 4), paths, self.registry):
+            self.assertEqual(result["audioSha256"][s - 1], source["audio_sha256"])
+            self.assertEqual(result["sourceBySurah"][str(s)], source["url"])
+            self.assertEqual(result["engineBySurah"][str(s)], B.ENGINE)
+            self.assertEqual(transform["sourceRepair"]["bySurah"][str(s)]["alignedSha256"], B.sha256(path.read_bytes()))
+        sources = {r["surah"]: r for r in self.registry}
+        B.check_preserved(self.parent, result, [3, 4], sources)
+        mutations = [lambda c: c["entries"][0].update(startMs=999999),
+                     lambda c: c["audioSha256"].__setitem__(62, "e" * 64),
+                     lambda c: c["engineBySurah"].pop("2")]
+        for mutate in mutations:
+            changed = copy.deepcopy(result)
+            mutate(changed)
+            with self.assertRaisesRegex(ValueError, "خارج"):
+                B.check_preserved(self.parent, changed, [3, 4], sources)
+
+    def test_multi_surah_rejects_bad_second_source_before_any_splice(self):
+        paths = self.dropped_surahs([3, 4])
+        second = json.loads(paths[1].read_text())
+        second["sha256"] = "f" * 64
+        paths[1].write_text(json.dumps(second))
+        with mock.patch.object(B.splice_surah, "main") as splice:
+            with self.assertRaisesRegex(ValueError, "بصمة"):
+                self.build(surah=[3, 4], aligned_path=paths)
+            splice.assert_not_called()
+        self.assertFalse(self.out.exists())
+
+    def test_multi_surah_rejects_duplicates_missing_files_and_partial_second_alignment(self):
+        paths = self.dropped_surahs([3, 4])
+        for surahs, files in (([3, 3], paths), ([3, 4], paths[:1]), ([], [])):
+            with self.assertRaises(ValueError):
+                self.build(surah=surahs, aligned_path=files)
+        second = json.loads(paths[1].read_text())
+        second["entries"].pop()
+        paths[1].write_text(json.dumps(second))
+        with self.assertRaisesRegex(ValueError, "كاملة"):
+            self.build(surah=[3, 4], aligned_path=paths)
+        self.assertFalse(self.out.exists())
+
+    def test_multi_surah_rejects_second_input_mutation_during_splice(self):
+        paths = self.dropped_surahs([3, 4])
+        original_splice = B.splice_surah.main
+        def mutate():
+            original_splice()
+            paths[1].write_text("{}")
+        with mock.patch.object(B.splice_surah, "main", side_effect=mutate):
+            with self.assertRaisesRegex(ValueError, "تغيرت مدخلات"):
+                self.build(surah=[3, 4], aligned_path=paths)
+        self.assertFalse(self.out.exists())
 
 
 if __name__ == "__main__":
