@@ -22,6 +22,13 @@ def digest(body):
     return hashlib.sha256(body).hexdigest()
 
 
+def prior_has_errors(prior):
+    """True only for a report with untranscribed windows (sample.errors > 0)."""
+    sample = prior.get('sample') if isinstance(prior, dict) else None
+    n = (sample or {}).get('errors')
+    return isinstance(n, int) and not isinstance(n, bool) and n > 0
+
+
 def part_key(sha, run_id, surah):
     if (len(sha) != 64 or any(c not in '0123456789abcdef' for c in sha)
             or not str(run_id).isdigit() or not 1 <= int(surah) <= 114):
@@ -171,7 +178,9 @@ def main():
             condition = {'IfNoneMatch': '*'}
         else:
             prior = json.loads(previous['Body'].read())
-            if prior.get('sha256') == sha:
+            # A same-SHA report that could not transcribe some window is not a successful
+            # report (promote refuses it); only that one may be replaced, by a complete union.
+            if prior.get('sha256') == sha and not prior_has_errors(prior):
                 raise ValueError('Exact-SHA complete census already exists; preserve it')
             condition = {'IfMatch': previous['ETag']}
     else:
