@@ -1,0 +1,12 @@
+{
+  "tool": "index_qa/export_index_bytes.py",
+  "args": [
+    "--key",
+    "timings/hafs/peshawa.jz",
+    "--expect-sha",
+    "435095f6f5a9e737854f5fdea9b434d17034b7e58ef15aa9a56b3f948f21f124",
+    "--out",
+    "ops/out/codex-peshawa-parent-20261005.json"
+  ],
+  "action": "tool"
+}
