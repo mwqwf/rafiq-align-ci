@@ -9,6 +9,8 @@ import hashlib
 import io
 import json
 import types
+import tempfile
+import contextlib
 from unittest.mock import patch
 
 PATH = pathlib.Path(__file__).with_name("completion_audit.py")
@@ -293,6 +295,216 @@ class CompletionAuditTest(unittest.TestCase):
                                  for s, first, last in group["ayahRanges"] for a in range(first, last + 1))
         self.assertEqual(result["unresolvedCount"], len(original))
         self.assertEqual(recovered, original)
+
+
+class ExistingWindowWitnessIntegrationTest(unittest.TestCase):
+    """الحارسان الحقيقيان بلا نموذج: مرجع اصطناعي مستقل وخطة/ثقة/حدود فعلية."""
+
+    def setUp(self):
+        self.X = C.load_window_witness()
+        self.record, self.manifest, self.frozen, self.reports = fixture()
+        self.idx = self.record["index"]
+        for entry in self.idx["entries"]:
+            if entry["ayahId"].startswith("1:"):
+                entry["endMs"] = entry["startMs"] + 5000
+        refs = [f"synthetic text {n}" for n in range(7)]
+        common = types.SimpleNamespace(load_index=lambda: {}, load_text=lambda riwaya: refs,
+                                       surah_slice=lambda index, surah: (0, 7, None), norm=lambda text: text)
+        spoken = types.SimpleNamespace(alignment_text=lambda surah, ayah, text: text)
+        self.modules = patch.dict("sys.modules", {"common": common, "spoken_letters": spoken})
+        self.modules.start()
+        self.addCleanup(self.modules.stop)
+        aid = "1:3"
+        ids, window, texts = self.X.plan(self.idx, aid, 50000)
+        tool = pathlib.Path(self.X.__file__).parents[1] / "index_qa/ci_window_census.py"
+        self.proof = {"target": aid, "sourceSha256": AUDIO_SHA, "canonicalTextChanged": False,
+                      "contextAyahIds": ids, "windowMs": window, "totalMs": 50000,
+                      "runtime": dict(self.X.RUNTIME), "models": {},
+                      "provenance": {"kind": "audio", "source": "ci", "run_id": "12345",
+                                     "tool": "tools/index_qa/ci_window_census.py",
+                                     "tool_sha": hashlib.sha256(tool.read_bytes()).hexdigest()}}
+        for name, ident, revision, weights in self.X.MODELS:
+            entries = []
+            for cid in ids:
+                e = next(e for e in self.idx["entries"] if e["ayahId"] == cid)
+                entries.append({"ayahId": cid, "startMs": e["startMs"], "endMs": e["endMs"], "conf": .8})
+            self.proof["models"][name] = {"alignmentModel": {"id": ident, "revision": revision,
+                                                                 "weightsSha256": weights, "license": "Apache-2.0"},
+                                                  "alignmentInput": list(texts), "entries": entries}
+        self.census = {"key": KEY, "kind": "splice-census", "sha256": INDEX_SHA,
+                       "census": {"surahs": [1]}, "sample": {"errors": 0, "rows": [
+                           {"aid": aid, "kind": "بريء", "verdict": "بريء",
+                            "originalTinyRow": {"aid": aid, "kind": "غير حاسم"},
+                            "independentWindowCtc": self.proof}]}}
+        self.reports.append(("state-census/current.json", self.census))
+
+    def run_audit(self):
+        return C.audit_index(KEY, self.record, self.manifest, self.frozen, self.reports)
+
+    def assert_unverified(self):
+        result = self.run_audit()
+        self.assertEqual(result["verifiedEndEvidence"], 0)
+        self.assertEqual(result["unknownEndEvidence"], 6236)
+        self.assertFalse(result["ready"])
+        return result
+
+    def test_existing_real_guards_accept_end_at_next_start_including_pause(self):
+        result = self.run_audit()
+        self.assertEqual(result["verifiedEndEvidence"], 1)
+        self.assertEqual(result["unknownEndEvidence"], 6235)
+        self.assertEqual(result["surahs"][0]["verifiedEndAyahs"], ["1:3"])
+        self.assertFalse(result["endEvidence"]["rejected"])
+        packed = C.compact_report({"indexes": [result]})["indexes"][0]
+        self.assertEqual(packed["surahs"][0]["verifiedEndAyahsRanges"], [[1, 3, 3]])
+
+    def test_wrong_index_sha_is_not_inherited(self):
+        self.census["sha256"] = "d" * 64
+        self.assert_unverified()
+
+    def test_changed_current_audio_or_wrong_proof_source_is_rejected(self):
+        for which in ("current", "proof"):
+            with self.subTest(which=which):
+                original = self.idx["audioSha256"][0], self.proof["sourceSha256"]
+                if which == "current":
+                    self.idx["audioSha256"][0] = "d" * 64
+                else:
+                    self.proof["sourceSha256"] = "d" * 64
+                self.assertTrue(self.assert_unverified()["endEvidence"]["rejected"])
+                self.idx["audioSha256"][0], self.proof["sourceSha256"] = original
+
+    def test_changed_current_end_is_compared_again(self):
+        next(e for e in self.idx["entries"] if e["ayahId"] == "1:3")["endMs"] -= 1200
+        self.assertTrue(self.assert_unverified()["endEvidence"]["rejected"])
+
+    def test_missing_model_is_unknown_not_success(self):
+        del self.proof["models"]["quran"]
+        self.assert_unverified()
+
+    def test_changed_canonical_input_and_flag_are_rejected(self):
+        original = self.proof["models"]["generic"]["alignmentInput"][1]
+        self.proof["models"]["generic"]["alignmentInput"][1] = "different reference"
+        self.assert_unverified()
+        self.proof["models"]["generic"]["alignmentInput"][1] = original
+        self.proof["canonicalTextChanged"] = True
+        self.assert_unverified()
+
+    def test_weak_target_or_context_confidence_is_rejected(self):
+        for position, confidence in ((1, .599), (0, .449), (1, math.nan)):
+            entry = self.proof["models"]["generic"]["entries"][position]
+            entry["conf"] = confidence
+            self.assert_unverified()
+            entry["conf"] = .8
+
+    def test_models_with_conflicting_ends_are_rejected(self):
+        generic = self.proof["models"]["generic"]["entries"]
+        quran = self.proof["models"]["quran"]["entries"]
+        generic[1]["endMs"] -= 700
+        quran[1]["endMs"] += 700
+        quran[2]["startMs"] += 700
+        self.assertTrue(self.assert_unverified()["endEvidence"]["rejected"])
+
+    def test_untrusted_producer_and_wrong_census_kind_are_rejected(self):
+        original = self.proof["provenance"]["tool_sha"]
+        self.proof["provenance"]["tool_sha"] = "f" * 64
+        self.assert_unverified()
+        self.proof["provenance"]["tool_sha"] = original
+        self.census["kind"] = "audio"
+        self.assert_unverified()
+
+    def test_cannot_cherry_pick_good_proof_over_conflicting_current_report(self):
+        conflicting = copy.deepcopy(self.census)
+        conflicting["sample"]["rows"][0]["independentWindowCtc"]["models"]["generic"]["entries"][1]["conf"] = .1
+        self.reports.append(("state-census/conflicting.json", conflicting))
+        self.assert_unverified()
+
+    def test_missing_validator_preserves_unknown_status(self):
+        with patch.object(C, "load_window_witness", side_effect=ImportError("missing")):
+            result = self.assert_unverified()
+        self.assertEqual(result["endEvidence"]["unavailableReason"], "validatorUnavailable:ImportError")
+
+
+class SavedReportInterfaceTest(unittest.TestCase):
+    def setUp(self):
+        self.temp = tempfile.TemporaryDirectory()
+        self.addCleanup(self.temp.cleanup)
+        self.root = pathlib.Path(self.temp.name)
+        (self.root / "ops/out").mkdir(parents=True)
+        self.root_patch = patch.object(C, "ROOT", self.root)
+        self.root_patch.start()
+        self.addCleanup(self.root_patch.stop)
+        self.saved = {"version": "completion-audit-2", "ready": False, "summary": {"indexes": 180},
+                      "errors": ["readError:example"], "limits": ["unknown is not a confirmed defect"],
+                      "indexes": [{"key": KEY, "sha256": INDEX_SHA, "entries": 6236, "ready": False,
+                                   "unmeasuredStarts": 7, "unknownEndEvidence": 6235, "verifiedEndEvidence": 1,
+                                   "errors": [], "surahs": [{"surah": 1, "unmeasuredRanges": [[1, 1, 7]]}]}]}
+        self.source = self.root / "ops/out/existing.json"
+        self.source.write_text(json.dumps(self.saved), encoding="utf-8")
+
+    def command(self, *args):
+        with patch.object(C.sys, "argv", ["completion_audit.py", *args]), contextlib.redirect_stdout(io.StringIO()), \
+                contextlib.redirect_stderr(io.StringIO()):
+            return C.main()
+
+    def assert_cli_error(self, *args):
+        with self.assertRaises(SystemExit) as error:
+            self.command(*args)
+        self.assertEqual(error.exception.code, 2)
+
+    def test_summary_preserves_counts_errors_and_excludes_surah_details(self):
+        before = copy.deepcopy(self.saved)
+        summary = C.summary_document(self.saved)
+        self.assertEqual(summary["summary"], self.saved["summary"])
+        self.assertEqual(summary["errors"], self.saved["errors"])
+        self.assertEqual(summary["limits"], self.saved["limits"])
+        self.assertEqual(summary["indexes"][0]["unknownEndEvidence"], 6235)
+        self.assertNotIn("surahs", summary["indexes"][0])
+        self.assertEqual(self.saved, before)
+
+    def test_inspect_retains_all_selected_details_without_network_or_overwrite(self):
+        original = self.source.read_bytes()
+        with patch.object(C, "collect_live", side_effect=AssertionError("must stay offline")):
+            self.assertEqual(self.command("--inspect-report", "ops/out/existing.json", "--index-key", KEY), 0)
+        outputs = list((self.root / "ops/out").glob("existing-inspect-*.json"))
+        self.assertEqual(len(outputs), 1)
+        inspected = C.read_json(outputs[0])
+        self.assertEqual(inspected["index"], self.saved["indexes"][0])
+        self.assertEqual(inspected["sourceErrors"], self.saved["errors"])
+        self.assertEqual(self.source.read_bytes(), original)
+
+    def test_missing_report_missing_key_and_required_key_fail_cleanly(self):
+        self.assert_cli_error("--inspect-report", "ops/out/missing.json", "--index-key", KEY)
+        self.assert_cli_error("--inspect-report", "ops/out/existing.json", "--index-key", "timings/hafs/absent.jz")
+        self.assert_cli_error("--inspect-report", "ops/out/existing.json")
+        self.assertEqual(list((self.root / "ops/out").glob("*-inspect-*.json")), [])
+
+    def test_inspection_rejects_path_escape_symlinks_and_overwriting_original(self):
+        outside = self.root / "outside.json"
+        outside.write_bytes(self.source.read_bytes())
+        (self.root / "ops/out/link.json").symlink_to(outside)
+        for source in ("outside.json", "ops/out/../../outside.json", "ops/out/link.json"):
+            self.assert_cli_error("--inspect-report", source, "--index-key", KEY)
+        for out in ("outside.json", "ops/out/../../outside.json", "ops/out/link.json", "ops/out/existing.json"):
+            self.assert_cli_error("--inspect-report", "ops/out/existing.json", "--index-key", KEY, "--out", out)
+        self.assertEqual(C.read_json(self.source), self.saved)
+
+    def test_normal_audit_writes_summary_without_truncating_full_report(self):
+        snapshot = self.root / "ops/out/snapshot.json"
+        snapshot.write_text(json.dumps({"indexes": {}, "side": {}, "errors": []}), encoding="utf-8")
+        self.assertEqual(self.command("--snapshot", "ops/out/snapshot.json", "--out", "ops/out/result.json"), 2)
+        full, small = C.read_json(self.root / "ops/out/result.json"), C.read_json(self.root / "ops/out/result-summary.json")
+        self.assertEqual(full["summary"], small["summary"])
+        self.assertEqual(full["errors"], small["errors"])
+        self.assertIn("measurementPolicy", full)
+        self.assertNotIn("measurementPolicy", small)
+        self.assertTrue((self.root / "ops/out/result.md").is_file())
+
+    def test_automatic_summary_cannot_follow_symlink_outside_or_replace_input(self):
+        outside = self.root / "outside.json"
+        outside.write_text("preserve", encoding="utf-8")
+        (self.root / "ops/out/result-summary.json").symlink_to(outside)
+        self.assert_cli_error("--snapshot", "ops/out/existing.json", "--out", "ops/out/result.json")
+        self.assertEqual(outside.read_text(), "preserve")
+        self.assert_cli_error("--snapshot", "ops/out/existing.json", "--out", "ops/out/existing.json")
 
 
 if __name__ == "__main__":
