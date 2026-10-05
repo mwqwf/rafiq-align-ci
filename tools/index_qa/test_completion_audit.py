@@ -214,14 +214,16 @@ class CompletionAuditTest(unittest.TestCase):
                 return {"Body": io.BytesIO(objects[Key]), "ETag": hashlib.sha256(objects[Key]).hexdigest()}
 
             def head_object(self, Bucket, Key):
-                return {"ETag": "changed" if self.changed and Key == KEY else hashlib.sha256(objects[Key]).hexdigest()}
+                raise AssertionError("HEAD must be replaced by final LIST")
 
             def get_paginator(self, kind):
                 assert kind == "list_objects_v2"
                 return self
 
             def paginate(self, Bucket, Prefix):
-                return [{"Contents": [{"Key": k} for k in objects if k.startswith(Prefix)]}]
+                return [{"Contents": [{"Key": k, "ETag": "changed" if self.changed and k == KEY
+                                       else hashlib.sha256(objects[k]).hexdigest()}
+                                      for k in objects if k.startswith(Prefix)]}]
 
         client = Client()
         provider = types.SimpleNamespace(s3=lambda: (client, "test-bucket"), PUBLIC="https://public.test",
@@ -259,6 +261,73 @@ class CompletionAuditTest(unittest.TestCase):
             changed, _ = C.collect_live()
             self.assertFalse(changed["stableRead"])
             self.assertIn(f"changedDuringAudit:{KEY}", changed["errors"])
+
+    def test_final_list_keeps_stable_reads_and_detects_change_delete_new_and_failure(self):
+        record, _, _, reports = fixture()
+        body = gzip.compress(json.dumps(record["index"]).encode())
+        sha = hashlib.sha256(body).hexdigest()
+        objects = {KEY: body, "timings/manifest.json": json.dumps({"indexes": []}).encode(),
+                   "timings/frozen.txt": f"{KEY}\t{sha}\n".encode(),
+                   reports[0][0]: json.dumps(reports[0][1]).encode()}
+
+        class Client:
+            def __init__(self, mode):
+                self.mode, self.calls = mode, {}
+
+            def get_object(self, Bucket, Key):
+                return {"Body": io.BytesIO(objects[Key]), "ETag": hashlib.sha256(objects[Key]).hexdigest()}
+
+            def head_object(self, **kwargs):
+                raise AssertionError("HEAD is forbidden in this read path")
+
+            def get_paginator(self, kind):
+                return self
+
+            def paginate(self, Bucket, Prefix):
+                self.calls[Prefix] = self.calls.get(Prefix, 0) + 1
+                final = self.calls[Prefix] == 2
+                rows = [{"Key": key, "ETag": hashlib.sha256(value).hexdigest()}
+                        for key, value in objects.items() if key.startswith(Prefix)]
+                if final and Prefix == "timings/":
+                    if self.mode == "change":
+                        next(row for row in rows if row["Key"] == KEY)["ETag"] = "changed"
+                    elif self.mode == "delete":
+                        rows = [row for row in rows if row["Key"] != KEY]
+                    elif self.mode == "new":
+                        rows.append({"Key": "timings/hafs/new.jz", "ETag": "new"})
+                    elif self.mode == "no-etag":
+                        del next(row for row in rows if row["Key"] == KEY)["ETag"]
+                if final and Prefix == "state-heard/" and self.mode == "new-evidence":
+                    rows.append({"Key": "state-heard/new.json", "ETag": "new"})
+                if final and Prefix == "state-census/" and self.mode == "failure":
+                    raise RuntimeError("LIST unavailable")
+                # صفحتان للاختبار؛ لا يفترض الفاحص أن القائمة صفحة واحدة.
+                return [{"Contents": rows[:1]}, {"Contents": rows[1:]}]
+
+        for mode, expected in (("stable", None), ("change", f"changedDuringAudit:{KEY}"),
+                               ("delete", f"deletedDuringAudit:{KEY}"),
+                               ("new", "newObjectDuringAudit:timings/hafs/new.jz"),
+                               ("new-evidence", "newObjectDuringAudit:state-heard/new.json"),
+                               ("no-etag", f"changedDuringAudit:{KEY}"),
+                               ("failure", "stabilityListError:state-census/:RuntimeError")):
+            with self.subTest(mode=mode):
+                client = Client(mode)
+                provider = types.SimpleNamespace(s3=lambda: (client, "test"), PUBLIC="https://public.test",
+                                                 STATE_PREFIXES=("state/", "qa-state/"))
+                with patch.dict("sys.modules", {"promote": provider}), patch.object(
+                        C.urllib.request, "urlopen", side_effect=lambda *a, **kw: io.BytesIO(body)):
+                    snapshot, evidence = C.collect_live()
+                self.assertIn(KEY, snapshot["indexes"])
+                self.assertEqual(len(evidence), 1)
+                self.assertFalse(snapshot["stability"]["atomicSnapshot"])
+                self.assertEqual(snapshot["stability"]["method"], "get-etag-versus-final-list")
+                self.assertTrue(all(count == 2 for count in client.calls.values()))
+                if expected:
+                    self.assertFalse(snapshot["stableRead"])
+                    self.assertIn(expected, snapshot["errors"])
+                else:
+                    self.assertTrue(snapshot["stableRead"])
+                    self.assertEqual(snapshot["errors"], [])
 
     def test_range_encoding_round_trip_preserves_gaps_duplicates_and_order(self):
         ids = ["1:1", "1:2", "1:2", "1:4", "2:1", "2:2", "1:7"]
