@@ -707,6 +707,21 @@ def _local_audio(url):
                     last = RuntimeError(f"ملفٌ مبتور ({got} بايت)")
                 except Exception as ex:
                     last = ex
+                    # ⭐ (‏fixV 2026-10-05 · فخفاخ 003/007/033/037): طبقةُ `archive.org/download`
+                    #    تردّ 500 متقطّعاً حتى تُستنفد المحاولاتُ، والبايتاتُ نفسُها تُجلب من
+                    #    **عقدة التخزين** ببيانات البند — وتُقبل **بمطابقة الحجم وmd5 الناشر**
+                    #    وحدَها (‏أضيقُ من قبول الطريق الأصليّ). والفشلُ يُترك كما كان.
+                    if attempt >= 2 and not p.exists():
+                        try:
+                            import archive_node
+                            ok = archive_node.fetch_verified(url, str(p),
+                                                             deadline_s=deadline_s)
+                        except Exception:              # noqa: BLE001
+                            ok = None
+                        if ok:
+                            print(f"  ⚠️ نُزّل من عقدة التخزين بتحقّق md5: {ok[0]} ({ok[1]} بايت)",
+                                  flush=True)
+                            break
                     time.sleep(min(60, 2 ** attempt))
             else:
                 raise RuntimeError(f"تعذّر تنزيل {src}: {last}")
