@@ -92,7 +92,9 @@ ALLOWED_WF = {"verified_kurdi_source.yml", "spoken_census.yml", "window_census.y
               # 🔎 **أُضيف 2026-10-02 (‏عاصم س38):** سبرُ «أيُّ آيةٍ تُسمع أين» لملفٍّ واحدٍ
               #    بـ`ctc_heard_map.py --probe` — قارئٌ محضٌ بلا سرٍّ ولا دلو (‏`contents: read`)،
               #    يقيس الزيادةَ والتكرارَ في تسجيلٍ طويلٍ قبل أن يُبنى عليه مرشّح.
-              "ctc_heard_probe.yml"}
+              "ctc_heard_probe.yml",
+              # قارئ بيانات مصدر واحد/دفعة محدودة: بلا نموذج أو دلو أو cache أو artifacts.
+              "source_metadata_probe.yml"}
 # ⛔ والأدواتُ المسموحةُ كلُّها **قارئةٌ أو محكومةٌ بحُرّاسها** — لا صدفةَ فيها.
 # ⛔ و`certify_catalog.py` منها (‏أُضيف 2026-09-13 ‏19:0xZ بقياس): الكتالوجُ
 #    `catalog/reciters.json` هو ما **يقرؤه التطبيق**، وحقلاه `ayahCoverage`
@@ -101,7 +103,8 @@ ALLOWED_WF = {"verified_kurdi_source.yml", "spoken_census.yml", "window_census.y
 #    استرجاع الـ310 آية لم تصل إلى المستخدم أصلاً، **لأنّ لا بابَ سحابيّاً
 #    كان يفتحه**. وهو محكومٌ بحُرّاسه (يُسقط التوليد كلَّه إن شُهد لمن لا حكمَ
 #    لبصمته، ولا يمسّ غير الحقلين)، فإدخالُه لا يُضعف حارساً.
-ALLOWED_TOOLS = {"index_qa/resync_probe.py",  # 🩺 سبرُ عطب إطارات ملفّ صوت (fixV 2026-10-05)
+ALLOWED_TOOLS = {"index_qa/export_index_bytes.py",  # SHA-pinned raw read only
+                 "index_qa/resync_probe.py",  # 🩺 سبرُ عطب إطارات ملفّ صوت (fixV 2026-10-05)
                  "ci_fleet/package_catalog_review.py", "ci_fleet/akri_soundcloud_native_compare.py", "ci_fleet/akri_publisher_metadata.py", "ci_fleet/akri_rss_direct_source_search.py", "ci_fleet/akri_independent_source_search.py", "ci_fleet/cancel_duplicate_kalbani_qa.py", "ci_fleet/qa_recover_stalled.py", "index_qa/repair_review.py", "ci_fleet/refreeze.py", "tasmi_bench/cloud_stream_probe.py",  # 🩺 صحّةُ التفريغ السحابيّ (2026-09-25)  # يسدّ تجميداً رُفع بلا ترقية (2026-09-23)
                  "index_qa/run.py", "index_qa/stage_transform.py", "index_qa/promote_verified_transform.py", "ci_fleet/alt_source.py", "ci_fleet/find_sources.py",  # 🔁 تسجيلٌ بديلٌ للقارئ نفسه (2026-09-25)
                  "index_qa/triage.py", "index_qa/promote.py", "index_qa/openers_coverage.py", "index_qa/gap_probe.py", "ci_fleet/web_probe.py",  # 🕋 شواهدُ المطالع على المنشور (2026-09-29)
@@ -170,6 +173,8 @@ ALLOWED_TOOLS = {"index_qa/resync_probe.py",  # 🩺 سبرُ عطب إطارا�
                  # ⚖️ قارئٌ محض: يقرأ الدلوَ وstate/ والعنوانَ العامّ ويكتب تقريرَه في ops/out/ وحدَه؛
                  #    لا يمسّ فهرساً ولا حارساً ولا عتبة. واختبارُه بلا شبكة في test_full_audit.py.
                  "index_qa/full_audit.py", "index_qa/test_full_audit.py",
+                 # تدقيق شامل قارئ وقياس تخزين Actions؛ لا رفع ولا تشغيل صوتي ولا تعديل للحراس.
+                 "index_qa/completion_audit.py", "ci_fleet/free_compute_audit.py",
                  "index_qa/test_declared_sha_fatal.py",
                  "ci_fleet/repo_parity.py",
                  # 🔎 أُضيف 2026-10-03 (تدقيقُ الجولة الثانية · أمرُ المالك): تصديرُ المنشور خاماً للتحليل المستقلّ.
@@ -482,4 +487,3 @@ def _push_answer(name: str) -> None:
 
 if __name__ == "__main__":
     main()
-

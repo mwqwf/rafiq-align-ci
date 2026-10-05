@@ -1,0 +1,127 @@
+{
+ "schema": 1,
+ "tool": "full_audit-1.0",
+ "date": "20261005",
+ "timestampUtc": "2026-10-05T18:31:11Z",
+ "elapsedSec": 60.8,
+ "phase": "all",
+ "manifestIndexes": 180,
+ "frozenBucket": 220,
+ "reportsRead": 11213,
+ "rows": [
+  {
+   "key": "timings-staging/qalun/saber_qalun.f3468430.jz",
+   "sha256": "f34684301ac6edb3e8e7f330611ac068c847b24222859705cde250772716b2f7",
+   "riwaya": "qalun",
+   "reciterId": "saber_qalun",
+   "bytes": 85089,
+   "engine": "align-0.2",
+   "transformOp": "ctc_heardmap_splice:42,46",
+   "staging": true,
+   "identity": {
+    "sha256": "f34684301ac6edb3e8e7f330611ac068c847b24222859705cde250772716b2f7",
+    "staging": true,
+    "errors": [],
+    "ok": true
+   },
+   "structure": {
+    "entries": 6236,
+    "errors": [],
+    "examples": {},
+    "registeredFileNoMappings": {},
+    "fileNoUnparsed": 0,
+    "structuralFatal": [],
+    "structuralWarn": [
+     "مداخل مدتها > 120ث: 1 · مثال: 2:282 مدتها 166ث"
+    ],
+    "decision": [],
+    "engine": "align-0.2",
+    "audioSha": 114,
+    "bands": {
+     "HIGH": 6031,
+     "MED": 183,
+     "LOW": 22
+    },
+    "ok": true
+   },
+   "gaps": {
+    "missingTotal": 0,
+    "internalGaps": [],
+    "headMissing": [],
+    "tailMissing": [],
+    "wholeMissing": [],
+    "declared": {
+     "transformOp": "ctc_heardmap_splice:42,46",
+     "transformReason": "fixT: إصلاحٌ دفعيٌّ لكبس الذيل — 2 سورةً مشتبهةً (فائضٌ ≥15ث بعد آخر مدخل · تدقيق الجولة الثانية 2026-10-03)، كلٌّ يُقاس بالسماع قبل أن يُمسّ",
+     "reasonCode": null,
+     "dropSurahs": [],
+     "byReason": {
+      "no-align": 2
+     },
+     "declaredCount": 2,
+     "tagCount": 0,
+     "declaredIds": [],
+     "truncatedTail": null
+    },
+    "undeclaredEdge": [],
+    "errors": [],
+    "ok": true
+   },
+   "durations": {
+    "durationOutliers": 0,
+    "durationExamples": [],
+    "impossibleShort": [],
+    "veryShort": [],
+    "extremeLong": [],
+    "longOutliers": 0,
+    "shortOutliers": 0,
+    "silenceGaps": 0,
+    "silenceExamples": [],
+    "surahsWithRate": 113
+   },
+   "audio": {
+    "audioReportsOnSha": 0,
+    "openersOnSha": false,
+    "errors": [
+     "لا حكمَ صوتيٍّ بعيّنةٍ على البصمة المنشورة",
+     "لا شاهدَ مطالعَ على البصمة المنشورة"
+    ],
+    "notes": [],
+    "samples": [],
+    "pooled": null,
+    "severeHi": null,
+    "otherShasWithSamples": [
+     "b6f57d57",
+     "da759272"
+    ],
+    "ok": false
+   }
+  }
+ ],
+ "summary": {
+  "indexes": 1,
+  "phase": "all",
+  "identityOk": 1,
+  "identityBad": [],
+  "structureOk": 1,
+  "structureBad": [],
+  "gapsOk": 1,
+  "gapsBad": [],
+  "audioOk": 0,
+  "audioBad": [
+   "timings-staging/qalun/saber_qalun.f3468430.jz"
+  ],
+  "durationOutliersTotal": 0,
+  "impossibleShortTotal": 0,
+  "indexesWithImpossibleShort": 0,
+  "veryShortTotal": 0,
+  "extremeLongTotal": 0,
+  "indexesWithExtremeLong": 0,
+  "mirrorStale": 0,
+  "silenceGapsTotal": 0,
+  "indexesWithDurationOutliers": 0,
+  "indexesWithSilenceGaps": 0,
+  "entriesTotal": 6236,
+  "missingTotal": 0
+ }
+}
