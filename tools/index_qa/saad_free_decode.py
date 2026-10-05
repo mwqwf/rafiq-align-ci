@@ -254,6 +254,8 @@ class BoundedModelOpener:
             headers = response.headers
             def geturl(self):
                 return response.geturl()
+            def getcode(self):
+                return response.status
             def read(self, size):
                 # لا انتظار لملء MiB مع استجابة تنقط؛ والمهلة الصلبة تحيط بالسياق كله.
                 return response.read1(size)
