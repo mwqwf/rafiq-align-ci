@@ -92,7 +92,9 @@ ALLOWED_WF = {"verified_kurdi_source.yml", "spoken_census.yml", "window_census.y
               # 🔎 **أُضيف 2026-10-02 (‏عاصم س38):** سبرُ «أيُّ آيةٍ تُسمع أين» لملفٍّ واحدٍ
               #    بـ`ctc_heard_map.py --probe` — قارئٌ محضٌ بلا سرٍّ ولا دلو (‏`contents: read`)،
               #    يقيس الزيادةَ والتكرارَ في تسجيلٍ طويلٍ قبل أن يُبنى عليه مرشّح.
-              "ctc_heard_probe.yml"}
+              "ctc_heard_probe.yml",
+              # قارئ بيانات مصدر واحد/دفعة محدودة: بلا نموذج أو دلو أو cache أو artifacts.
+              "source_metadata_probe.yml"}
 # ⛔ والأدواتُ المسموحةُ كلُّها **قارئةٌ أو محكومةٌ بحُرّاسها** — لا صدفةَ فيها.
 # ⛔ و`certify_catalog.py` منها (‏أُضيف 2026-09-13 ‏19:0xZ بقياس): الكتالوجُ
 #    `catalog/reciters.json` هو ما **يقرؤه التطبيق**، وحقلاه `ayahCoverage`
