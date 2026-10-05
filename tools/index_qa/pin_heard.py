@@ -93,8 +93,12 @@ def measured_bounds(hmap, ayahs):
     return out
 
 
-def pin(idx, surah, hmap, pins, trims=None):
-    """يُعيد (فهرساً جديداً، تقريراً) أو يرفع SystemExit بالسبب."""
+def pin(idx, surah, hmap, pins, trims=None, last_end=None):
+    """يُعيد (فهرساً جديداً، تقريراً) أو يرفع SystemExit بالسبب.
+
+    `last_end`: نهايةٌ مقيسةٌ لآخر آيةٍ في السورة (‏الفخفاخ 33:73 · 2026-10-05: قُصّت عند مدّةٍ قدّرها ffprobe
+    من ترويسة VBR بـ1792.6ث والفكُّ الكامل أطول، فسُمع منها 2.6ث). شرطُها: الآيةُ آخرُ السورة ومثبَّتة،
+    والقيمةُ نهايةُ **الأداء نفسِه** الذي ثُبّت عليه بدؤها (‏±150م.ث) — والخريطةُ لا تُقيس إلا صوتاً مفكوكاً."""
     trims = trims or {}
     tr = idx.get("transform") if isinstance(idx.get("transform"), dict) else {}
     if "drop_surah" in str((tr or {}).get("op") or "") or (tr or {}).get("dropSurah"):
@@ -149,6 +153,17 @@ def pin(idx, surah, hmap, pins, trims=None):
             new[a]["endMs"] = new[nxt]["startMs"]            # كان متّصلاً بتاليه فيبقى متّصلاً
         else:
             new[a]["endMs"] = min(int(mine[a]["endMs"] or 0) or new[nxt]["startMs"], new[nxt]["startMs"])
+    if last_end is not None:
+        last = order[-1]
+        if last != heard_gate_n_ayahs(surah) or last not in pins:
+            raise SystemExit(f"⛔ --last-end لآخر آيةٍ في السورة مثبَّتةً وحدها (‏آخرُ الحاضر {surah}:{last})")
+        perf = [m for m in measured_starts(hmap, last) if m[0] == pins[last]]
+        hit = [m[1] for m in perf if abs(m[1] - last_end) <= SNAP_MS]
+        if not hit:
+            raise SystemExit(f"⛔ --last-end {last_end} ليس نهايةَ الأداء المثبَّت لـ{surah}:{last} "
+                             f"(‏{[(m[0], m[1]) for m in perf]})")
+        new[last]["endMs"] = hit[0]
+        report.append(f"{surah}:{last} نهايتُها ⇐ {hit[0]} (نهايةُ أدائها المقيس)")
     prev_end = -1
     for a in order:
         e = new[a]
@@ -170,6 +185,11 @@ def pin(idx, surah, hmap, pins, trims=None):
     out["lowCount"] = sum(1 for e in out["entries"] if e.get("confBand") == "LOW")
     changed = [a for a in order if new[a] != mine[a]]
     return out, report, changed
+
+
+def heard_gate_n_ayahs(surah):
+    from drop_surah import SURAH_AYAHS
+    return SURAH_AYAHS[surah - 1]
 
 
 def load_map(run_id, surah):
@@ -195,6 +215,8 @@ def main():
     ap.add_argument("--run", required=True, help="تشغيلةُ ctc_heard_probe (‏build=false) على صوت السورة نفسِه")
     ap.add_argument("--pin", required=True, help="آية:بدءٌ بالم.ث، مفصولةً بفواصل")
     ap.add_argument("--trim", default="", help="آية:نهايةٌ مقيسة لما قبل أوّل تثبيت")
+    ap.add_argument("--last-end", type=int, default=None,
+                    help="نهايةٌ مقيسةٌ لآخر آيةٍ في السورة (‏نهايةُ أدائها المثبَّت)")
     ap.add_argument("--reason", required=True)
     ap.add_argument("--yes", action="store_true")
     a = ap.parse_args()
@@ -206,7 +228,8 @@ def main():
         raise SystemExit(f"⛔ البصمة لا تطابق: الحيّة {live[:16]} والمطلوبة {a.sha}")
     idx = json.loads(gzip.decompress(body).decode("utf-8"))
     hmap = load_map(a.run, a.surah)
-    out, report, changed = pin(idx, a.surah, hmap, parse_pairs(a.pin), parse_pairs(a.trim))
+    out, report, changed = pin(idx, a.surah, hmap, parse_pairs(a.pin), parse_pairs(a.trim),
+                               a.last_end)
     out["transform"] = {
         **({"truncatedTail": idx["transform"]["truncatedTail"]}
            if isinstance(idx.get("transform"), dict) and idx["transform"].get("truncatedTail") else {}),
