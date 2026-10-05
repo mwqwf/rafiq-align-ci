@@ -1,0 +1,177 @@
+{
+ "schema": 1,
+ "tool": "full_audit-1.0",
+ "date": "20261005",
+ "timestampUtc": "2026-10-05T15:30:15Z",
+ "elapsedSec": 67.1,
+ "phase": "all",
+ "manifestIndexes": 180,
+ "frozenBucket": 219,
+ "reportsRead": 11110,
+ "rows": [
+  {
+   "key": "timings-staging/hafs/a_klb.ee539a22.jz",
+   "sha256": "ee539a22659e8dad6cca6ea04af76d9fe5a64016ba4b1df31ddff128621bea57",
+   "riwaya": "hafs",
+   "reciterId": "a_klb",
+   "bytes": 165351,
+   "engine": "ctc-seg-1",
+   "transformOp": "file_end_clamp",
+   "staging": true,
+   "identity": {
+    "sha256": "ee539a22659e8dad6cca6ea04af76d9fe5a64016ba4b1df31ddff128621bea57",
+    "staging": true,
+    "errors": [],
+    "ok": true
+   },
+   "structure": {
+    "entries": 6236,
+    "errors": [],
+    "examples": {},
+    "fileNoUnparsed": 5,
+    "structuralFatal": [],
+    "structuralWarn": [
+     "مداخل مدتها > 120ث: 1 · مثال: 2:282 مدتها 127ث",
+     "مطالع سور تبدأ دون 3ث — مرشّحون للمسبار الصوتي لا حكمٌ عليهم: 12:1=1230م.ث · 16:1=1350م.ث · 31:1=2131م.ث · 32:1=2362م.ث · 33:1=2480م.ث · 34:1=2430م.ث · 35:1=2330م.ث · 37:1=1450م.ث · 40:1=2500م.ث · 42:1=2610م.ث … و30 غيرها"
+    ],
+    "decision": [],
+    "engine": "ctc-seg-1",
+    "audioSha": 114,
+    "bands": {
+     "MED": 4916,
+     "HIGH": 440,
+     "LOW": 880
+    },
+    "ok": true
+   },
+   "gaps": {
+    "missingTotal": 0,
+    "internalGaps": [],
+    "headMissing": [],
+    "tailMissing": [],
+    "wholeMissing": [],
+    "declared": {
+     "transformOp": "file_end_clamp",
+     "transformReason": "قصُّ نهاية آخر مدخلٍ إلى نهاية ملفّه المقيسة بطول الفكّ: 15:99 −8م.ث · 43:89 −8م.ث · 55:78 −8م.ث · 68:52 −8م.ث",
+     "reasonCode": null,
+     "dropSurahs": [],
+     "byReason": {},
+     "declaredCount": 0,
+     "tagCount": 0,
+     "declaredIds": [],
+     "truncatedTail": null
+    },
+    "undeclaredEdge": [],
+    "errors": [],
+    "ok": true
+   },
+   "durations": {
+    "durationOutliers": 5,
+    "durationExamples": [
+     {
+      "aid": "53:41",
+      "ms": 21168,
+      "expMs": 3937,
+      "ratio": 5.38,
+      "chars": 18
+     },
+     {
+      "aid": "53:25",
+      "ms": 12273,
+      "expMs": 3718,
+      "ratio": 3.3,
+      "chars": 17
+     },
+     {
+      "aid": "49:18",
+      "ms": 2241,
+      "expMs": 9521,
+      "ratio": 0.24,
+      "chars": 43
+     },
+     {
+      "aid": "83:36",
+      "ms": 1582,
+      "expMs": 5925,
+      "ratio": 0.27,
+      "chars": 24
+     },
+     {
+      "aid": "83:34",
+      "ms": 2141,
+      "expMs": 7406,
+      "ratio": 0.29,
+      "chars": 30
+     }
+    ],
+    "impossibleShort": [],
+    "veryShort": [],
+    "extremeLong": [
+     {
+      "aid": "53:41",
+      "ms": 21168,
+      "expMs": 3937,
+      "ratio": 5.38,
+      "chars": 18
+     }
+    ],
+    "longOutliers": 2,
+    "shortOutliers": 3,
+    "silenceGaps": 0,
+    "silenceExamples": [],
+    "surahsWithRate": 113
+   },
+   "audio": {
+    "audioReportsOnSha": 0,
+    "openersOnSha": false,
+    "errors": [
+     "لا حكمَ صوتيٍّ بعيّنةٍ على البصمة المنشورة",
+     "لا شاهدَ مطالعَ على البصمة المنشورة"
+    ],
+    "notes": [],
+    "samples": [],
+    "pooled": null,
+    "severeHi": null,
+    "otherShasWithSamples": [
+     "030c9bdc",
+     "07eb7b29",
+     "170fe6f3",
+     "21c34993",
+     "3780aa4d",
+     "50647a58",
+     "aebe5475",
+     "b2a35a00",
+     "b6c2ca40",
+     "c22fa24f"
+    ],
+    "ok": false
+   }
+  }
+ ],
+ "summary": {
+  "indexes": 1,
+  "phase": "all",
+  "identityOk": 1,
+  "identityBad": [],
+  "structureOk": 1,
+  "structureBad": [],
+  "gapsOk": 1,
+  "gapsBad": [],
+  "audioOk": 0,
+  "audioBad": [
+   "timings-staging/hafs/a_klb.ee539a22.jz"
+  ],
+  "durationOutliersTotal": 5,
+  "impossibleShortTotal": 0,
+  "indexesWithImpossibleShort": 0,
+  "veryShortTotal": 0,
+  "extremeLongTotal": 1,
+  "indexesWithExtremeLong": 1,
+  "mirrorStale": 0,
+  "silenceGapsTotal": 0,
+  "indexesWithDurationOutliers": 1,
+  "indexesWithSilenceGaps": 0,
+  "entriesTotal": 6236,
+  "missingTotal": 0
+ }
+}
