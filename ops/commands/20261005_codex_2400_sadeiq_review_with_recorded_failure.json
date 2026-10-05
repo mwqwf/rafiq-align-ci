@@ -1,0 +1,16 @@
+{
+  "action": "tool",
+  "tool": "ci_fleet/rerun_stale_review.py",
+  "args": [
+    "--run",
+    "37384824323",
+    "--commit",
+    "26f812878bd35079c9a05c1dfea8b86e87e5a542",
+    "--key",
+    "timings-staging/hafs/s_sadeiq.927e8bbe.jz",
+    "--failure-witness",
+    "ops/out/codex-sadeiq-stale-review-witness-20261005.json",
+    "--witness-sha",
+    "8ca6864b5409f439a8bf25ab6023689301fe93decbd584d6e2f8e6c8c7c48513"
+  ]
+}

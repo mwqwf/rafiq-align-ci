@@ -1,5 +1,5 @@
-name: rafiq-tail-clipping-followup
-run-name: Diagnose five clipped tails through decoded EOF
+name: rafiq-known-source-quran-recovery-probe
+run-name: Quran model recovery of measured source gaps
 
 # يدوي فقط، لا R2 أو أسرار أو artifacts أو cache-save؛ عداء قياسي ومستودع عام محدد.
 # القرآن غير موجود في cache المقيس: التنزيل المؤقت المثبت خيار صريح، بلا fallback.
@@ -19,12 +19,17 @@ permissions:
   contents: read
 
 concurrency:
-  group: rafiq-tail-clipping-followup-20261005
+  group: rafiq-known-source-quran-recovery-probe
   cancel-in-progress: false
 
 jobs:
   diagnose:
-    name: tail clipping followup
+    name: recover ${{ matrix.source }}
+    strategy:
+      fail-fast: false
+      max-parallel: 3
+      matrix:
+        source: [shamrani79, saad28, saad45]
     if: ${{ github.repository == 'mwqwf/rafiq-align-ci' && github.event.repository.private == false }}
     runs-on: ubuntu-24.04
     timeout-minutes: 45
@@ -61,9 +66,10 @@ jobs:
           python -m pip install --only-binary=:all: --timeout 60 --retries 2 boto3 soundfile rapidfuzz
           python -m pip install --timeout 60 --retries 2 ctc-segmentation
       - name: اختبارات اصطناعية بلا نماذج أو شبكة
-        run: python -m unittest tools.index_qa.test_final_verse_free_batch tools.index_qa.test_peshawa_tail_dual_probe tools.index_qa.test_saad_free_decode -v
+        run: python -m unittest tools.index_qa.test_final_verse_free_batch tools.index_qa.test_saad_free_decode -v
       - name: تفريغ L/R الحر بكلا النموذجين وطباعته كاملاً في السجل
         env:
           SAAD_CACHE_EXACT_HIT: ${{ steps.models.outputs.cache-hit }}
           SAAD_MODEL_POLICY: ${{ inputs.model_policy }}
-        run: python tools/index_qa/tail_clipping_followup.py --model-policy "$SAAD_MODEL_POLICY"
+          RECOVERY_SOURCE: ${{ matrix.source }}
+        run: python tools/index_qa/quran_source_recovery.py --source "$RECOVERY_SOURCE" --model-policy "$SAAD_MODEL_POLICY"
