@@ -1,0 +1,219 @@
+{
+  "schema": 1,
+  "researchedOnUtc": "2026-10-05",
+  "author": "codex-source-recovery",
+  "scope": "مرشحو مصادر علنية إضافية فقط؛ لم يجر تنزيل صوت أو قياس أو محاذاة أو نشر في هذه الجولة.",
+  "publicationStatus": "evidence-only-no-source-approved",
+  "globalLimits": [
+    "كل المرشحين غير معتمدين للإنتاج.",
+    "لا تثبت صفحات 114 سورة اكتمال المادة أو صحة الآيات.",
+    "يلزم إثبات القارئ والرواية ثم بصمة الملف والفك الكامل وتغطية الآيات قبل أي قبول.",
+    "لا تستخدم روابط مداد الموقعة المخزنة ولا تتجاوز رفض 403."
+  ],
+  "candidates": [
+    {
+      "id": "shamrani_079_way2quran",
+      "reciterCatalogId": "hafs/shamrani",
+      "surahs": [
+        79
+      ],
+      "declaredReader": "صالح الشمراني",
+      "declaredRiwaya": "حفص عن عاصم",
+      "publisherPage": "https://way2quran.com/en/reciters/saleh-alshamrani",
+      "audioUrls": [
+        "https://media.way2quran.com/saleh-alshamrani/hafs-an-asim/079.mp3"
+      ],
+      "urlEvidence": "الرابط من زر تنزيل النازعات في صفحة الناشر؛ قرأته أداة الويب بوصفه audio/mpeg، دون حفظ الملف محلياً.",
+      "identityLimits": "الصفحة تختصر الاسم ولا تذكر «بن سعيد»؛ يلزم مقارنة الهوية والأداء بالمصدر الأصلي.",
+      "motivation": "رابط ثابت بلا query بديل عن صفحة مداد ذات رابط مؤقت.",
+      "targetChecks": [
+        "الآيات 79:15 و79:17 و79:18",
+        "مطالع السورة وخاتمتها وتغطية الآيات الست والأربعين"
+      ],
+      "status": "unmeasured-candidate",
+      "measurements": null,
+      "acceptedCompleteSource": false
+    },
+    {
+      "id": "iraoui_warsh_fussilat_archive_480",
+      "reciterCatalogId": "warsh/iraoui_warsh",
+      "surahs": [
+        41
+      ],
+      "declaredReader": "محمد الإيراوي",
+      "declaredRiwaya": "ورش عن نافع",
+      "publisherPage": "https://archive.org/details/80kb---quran--480---part--athman--by--mohammad--alerawy----by--warsh---full---",
+      "fileListingUrl": "https://archive.org/download/80kb---quran--480---part--athman--by--mohammad--alerawy----by--warsh---full---/",
+      "provenance": "وصف النسخة المنشورة سنة 2014 يثبت القارئ والرواية ويربطها بالنسخة السابقة ذات 464 ثمنًا، مع استكمال 16 ثمنًا.",
+      "candidateSegmentFilenames": [
+        "H_481.mp3",
+        "H_482.mp3",
+        "H_483.mp3",
+        "H_484.mp3",
+        "H_485.mp3",
+        "H_486.mp3",
+        "H_487.mp3",
+        "H_488.mp3",
+        "H_491.mp3",
+        "H_492.mp3",
+        "H_493.mp3",
+        "H_494.mp3",
+        "H_495.mp3",
+        "H_496.mp3",
+        "H_497.mp3",
+        "H_498.mp3"
+      ],
+      "audioUrls": [
+        "https://archive.org/download/80kb---quran--480---part--athman--by--mohammad--alerawy----by--warsh---full---/H_485.mp3",
+        "https://archive.org/download/80kb---quran--480---part--athman--by--mohammad--alerawy----by--warsh---full---/H_491.mp3"
+      ],
+      "urlEvidence": "أسماء ملفات الحزبين 48 و49 مثبتة في فهرس التنزيل؛ الروابط مبنية من مسار الفهرس والأسماء المثبتة.",
+      "limitations": [
+        "لا توجد حدود آيات مقيسة لكل ثمن.",
+        "لم يثبت أن الملف مستقل عن التسجيلات المرفوضة سابقاً.",
+        "لم تثبت تغطية فصلت كاملة أو سلامة فك الملفات.",
+        "نسخة 480 ثمنًا لا تعني أن جميع الأثمان سليمة سمعيًا."
+      ],
+      "targetChecks": [
+        "تحديد الملفات التي تغطي سورة فصلت بحسب محتواها الفعلي",
+        "فصلت 41:1–54 دون انقطاع أو تكرار غافر"
+      ],
+      "status": "unmeasured-candidate",
+      "measurements": null,
+      "acceptedCompleteSource": false
+    },
+    {
+      "id": "akri_qalun_way2_second_record",
+      "reciterCatalogId": "qalun/akri_qalun",
+      "surahs": [
+        4,
+        24
+      ],
+      "declaredReader": "مروان الأكري",
+      "declaredRiwaya": "قالون عن نافع",
+      "publisherPage": "https://way2quran.com/en/reciters/marwan-alakri",
+      "identityReferences": [
+        "https://way2quran.com/ar/reciters/marwan-alakri/qalun-an-nafi",
+        "https://stg-way.way2quran.com/en/reciters/mrwan-al-akry"
+      ],
+      "audioUrls": [],
+      "urlEvidence": "الصفحة الإنجليزية تسرد النساء والنور بروابط تنزيل على media.way2quran.com؛ لم يُستخرج href الفعلي للسجل الثاني في هذه الجولة.",
+      "limitations": [
+        "وجود اسمَي سجل لا يثبت اختلاف ملفات الصوت أو استقلال التسجيل.",
+        "يلزم استخراج رابط النساء والنور ثم مقارنته بالمسار المعروف المرفوض قبل أي تنزيل."
+      ],
+      "rejectedRelatedCandidate": {
+        "url": "https://media.way2quran.com/mrwan-al-akry/qalun-an-nafi/024.mp3",
+        "bytes": 3171195,
+        "sha256": "297c7cf610cafc9cdc764762fcca8f8377c5526a89eaf6403b8c92f56bdd0372",
+        "decodedDurationSeconds": 766.98,
+        "acceptedCompleteSource": false,
+        "evidence": "https://github.com/mwqwf/rafiq-align-ci/blob/main/ops/source-repair/akri-way2-noor-original-diagnostic-20261002.json",
+        "reason": "مطابقة PCM للمصدر المعروف بنقص ذيل النور؛ اختلاف الاسم أو padding ليس دليلاً على استعادة الآيات."
+      },
+      "status": "publisher-record-only-needs-link-comparison",
+      "measurements": null,
+      "acceptedCompleteSource": false
+    },
+    {
+      "id": "3siri_007_midad_partial_73330",
+      "reciterCatalogId": "hafs/3siri",
+      "surahs": [
+        7
+      ],
+      "declaredReader": "إبراهيم بن علي العسيري",
+      "declaredRiwaya": "حفص عن عاصم",
+      "publisherPage": "https://midad.com/recitation/73330",
+      "collectionPage": "https://midad.com/collection/457020",
+      "title": "سورة الأعراف",
+      "collectionTitle": "ما تيسر من مصحف إبراهيم العسيري - مرتل",
+      "audioUrls": [],
+      "provenance": "صفحة مجموعة جزئية مختلفة عن ملف مداد 163992 الذي رُفض لفشل الفك؛ تمت قراءة الهوية والرواية وتاريخ 24 مايو 2015 في الويب.",
+      "limitations": [
+        "المجموعة جزئية؛ عنوان السورة وحده لا يثبت اكتمالها.",
+        "ملف الصوت ومدته وتغطية 7:123–159 غير مقيسة.",
+        "إعادة فتح الصفحة لاحقاً لم تنجح عبر أداة الويب."
+      ],
+      "targetChecks": [
+        "هل يحتوي التسجيل على الأعراف 7:123–159؟"
+      ],
+      "status": "unmeasured-partial-selection",
+      "measurements": null,
+      "acceptedCompleteSource": false
+    },
+    {
+      "id": "3siri_007_midad_partial_73348",
+      "reciterCatalogId": "hafs/3siri",
+      "surahs": [
+        7
+      ],
+      "declaredReader": "إبراهيم بن علي العسيري",
+      "declaredRiwaya": "حفص عن عاصم",
+      "publisherPage": "https://midad.com/recitation/73348",
+      "collectionPage": "https://midad.com/collection/457020",
+      "title": "ما تيسر من سورة الأعراف",
+      "audioUrls": [],
+      "provenance": "الهوية والرواية من صفحة الناشر؛ مصدر جزئي منفصل عن صفحة المصحف الكامل المرفوضة 163992.",
+      "limitations": [
+        "قد يكرر المقطع المعروف 7:44–51؛ لم يحدد المحتوى الفعلي.",
+        "لا دليل على تغطية 7:123–159.",
+        "إعادة فتح الصفحة لاحقاً لم تنجح عبر أداة الويب."
+      ],
+      "status": "unmeasured-partial-selection",
+      "measurements": null,
+      "acceptedCompleteSource": false
+    },
+    {
+      "id": "3siri_007_album_annaba_1425",
+      "reciterCatalogId": "hafs/3siri",
+      "surahs": [
+        7
+      ],
+      "declaredReader": "إبراهيم بن علي العسيري",
+      "declaredRiwaya": null,
+      "publisherPage": "https://mazameer.com/vb/threads/212320/",
+      "corroboratingAlbumIndex": "https://soundssmp3.blogspot.com/2013/07/blog-post_7793.html",
+      "title": "النبأ العظيم - تراويح 1425",
+      "audioUrls": [
+        "https://i.top4top.io/m_2350xthbh1.mp3"
+      ],
+      "urlEvidence": "رابط MP3 الفعلي من صف القارئ في موضوع مزامير؛ أداة الويب تعرفت على audio/mpeg.",
+      "provenance": "الموضوع ينسب الإصدار إلى همم للإنتاج الإعلامي ويذكر اسم القارئ الكامل؛ فهرس ألبومات منفصل يذكر ألبوم النبأ العظيم للقارئ.",
+      "declaredContent": "ما تيسر من الأعراف ويونس والإسراء والكهف ومريم",
+      "limitations": [
+        "الرواية لهذا الألبوم غير مصرح بها نصيًا في المرجع.",
+        "لا آيات أو مدة محددة؛ مرشح جزئي لا سورة كاملة.",
+        "قد لا يتضمن الفجوة 7:123–159؛ لا وعد باستعادتها."
+      ],
+      "targetChecks": [
+        "إثبات الرواية والأداء قبل الاستخدام",
+        "تحديد آيات الأعراف المسموعة"
+      ],
+      "status": "unmeasured-partial-selection-with-unconfirmed-riwaya",
+      "measurements": null,
+      "acceptedCompleteSource": false
+    }
+  ],
+  "salmanOriginalHandoff": {
+    "reciterCatalogId": "hafs/s_sadeiq",
+    "surah": 42,
+    "originalUrl": "https://server16.mp3quran.net/s_sadeiq/Rewayat-Hafs-A-n-Assem/042.mp3",
+    "redirectedUrl": "https://cdn.mp3quran.net/audio/salman-siddiq/r1/042.mp3",
+    "bytes": 16857174,
+    "sha256": "0c39cf3ff65ae5529e43a8926bf7670ca182450e188b4a45bc09327dea7513ea",
+    "md5": "cd9ac4e2df1628e543c8f9c431739ee6",
+    "historicalMonoDurationSeconds": 1051.874,
+    "historicalMonoRmsReported": 0,
+    "originalChannels": null,
+    "evidencePaths": [
+      "ops/out/20261003_1545_fixR_s_sadeiq_audio.txt",
+      "ops/out/20261003_r2x_tgt35_sha_37128882347.txt"
+    ],
+    "limitations": [
+      "القياس القديم mono فقط؛ RMS مقرب إلى أربع منازل.",
+      "ورد Header missing في الفك القديم؛ لا شهادة لفك كامل خال من الخطأ.",
+      "لا دليل بعد على إلغاء طور القناتين؛ يجب قياس كل قناة إن ثبت وجود قناتين أصليتين."
+    ],
+    "handedTo": "/root/source_metadata"
+  }
+}
