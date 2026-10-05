@@ -1,0 +1,570 @@
+{
+  "schema": 1,
+  "repository": "mwqwf/rafiq-align-ci",
+  "generatedAt": "2026-10-05T17:48:29+00:00",
+  "repositoryMetadata": {
+    "readComplete": true,
+    "full_name": "mwqwf/rafiq-align-ci",
+    "private": false,
+    "visibility": "public"
+  },
+  "cacheUsage": {
+    "readComplete": true,
+    "active_caches_count": 18,
+    "active_caches_size_in_bytes": 10033325306
+  },
+  "costDecision": {
+    "freeExecutionVerified": false,
+    "accountArtifactQuotaKnown": false,
+    "accountSharedStorageUsageKnown": false,
+    "cacheBillingLimitKnown": false,
+    "r2QuotaKnown": false,
+    "reason": "حجم مستودع واحد لا يثبت الحصة المجانية المتبقية للتخزين المشترك على الحساب. لا تقيس هذه الأداة حصة R2 أو فوترة الحساب، ولا تجيز إطلاق محاذاة جديدة."
+  },
+  "summarizedAt": "2026-10-05T18:04:56+00:00",
+  "artifacts": {
+    "readComplete": true,
+    "pagesRead": 48,
+    "reportedTotal": 4745,
+    "errors": [],
+    "observedActiveBytes": 140067941,
+    "observedActiveCount": 4745,
+    "observedExpiredCount": 0,
+    "invalidCount": 0
+  },
+  "selfHostedRunners": {
+    "pagesRead": 0,
+    "reportedTotal": null,
+    "readComplete": false,
+    "errors": [
+      "رُفضت قراءة GitHub (HTTP 403)"
+    ],
+    "countObserved": 0,
+    "note": "هذه الواجهة لا تعدّ عدّائي GitHub المستضافين؛ شواهدهم ضمن jobs."
+  },
+  "workflows": [
+    {
+      "path": ".github/workflows/agent_cmd.yml",
+      "metadata": {
+        "readComplete": true,
+        "id": 356949501,
+        "state": "active",
+        "path": ".github/workflows/agent_cmd.yml"
+      },
+      "configuration": {
+        "readComplete": true,
+        "sha": "79228822b81311e9e9477edc8ea65a4fda1c2173",
+        "resources": [
+          {
+            "line": 46,
+            "text": "runs-on: ubuntu-latest"
+          },
+          {
+            "line": 69,
+            "text": "uses: actions/cache/restore@v4"
+          }
+        ]
+      },
+      "latestRun": {
+        "id": 37351154918,
+        "head_sha": "d2eac6c48ffbf64cc2ad74c616845513fb5bf54d",
+        "created_at": "2026-10-05T17:48:14Z",
+        "status": "pending",
+        "conclusion": null,
+        "html_url": "https://github.com/mwqwf/rafiq-align-ci/actions/runs/37351154918"
+      },
+      "jobs": {
+        "pagesRead": 1,
+        "reportedTotal": 0,
+        "readComplete": true,
+        "errors": [],
+        "observedCount": 0,
+        "runnerGroups": []
+      }
+    },
+    {
+      "path": ".github/workflows/restore.yml",
+      "metadata": {
+        "readComplete": true,
+        "id": 356935119,
+        "state": "active",
+        "path": ".github/workflows/restore.yml"
+      },
+      "configuration": {
+        "readComplete": true,
+        "sha": "49a854c544c2de6bcb7f079b07f1191e2ad99c8d",
+        "resources": [
+          {
+            "line": 54,
+            "text": "runs-on: ubuntu-latest"
+          }
+        ]
+      },
+      "latestRun": {
+        "id": 37340333719,
+        "head_sha": "2190ab4c469b688ad77d51d77cabd641e4fba4a6",
+        "created_at": "2026-10-05T16:22:30Z",
+        "status": "completed",
+        "conclusion": "success",
+        "html_url": "https://github.com/mwqwf/rafiq-align-ci/actions/runs/37340333719"
+      },
+      "jobs": {
+        "pagesRead": 1,
+        "reportedTotal": 1,
+        "readComplete": true,
+        "errors": [],
+        "observedCount": 1,
+        "runnerGroups": [
+          {
+            "runner_group_name": "GitHub Actions",
+            "labels": [
+              "ubuntu-latest"
+            ],
+            "jobsObserved": 1
+          }
+        ]
+      }
+    },
+    {
+      "path": ".github/workflows/heard_batch.yml",
+      "metadata": {
+        "readComplete": true,
+        "id": 373987548,
+        "state": "active",
+        "path": ".github/workflows/heard_batch.yml"
+      },
+      "configuration": {
+        "readComplete": true,
+        "sha": "32766edd14cde23ea2ff4d022d014443953d5529",
+        "resources": [
+          {
+            "line": 44,
+            "text": "runs-on: ubuntu-latest"
+          },
+          {
+            "line": 150,
+            "text": "- uses: actions/upload-artifact@v4"
+          },
+          {
+            "line": 155,
+            "text": "runs-on: ubuntu-latest"
+          },
+          {
+            "line": 171,
+            "text": "uses: actions/cache@v4"
+          },
+          {
+            "line": 175,
+            "text": "- uses: actions/download-artifact@v4"
+          },
+          {
+            "line": 196,
+            "text": "- uses: actions/upload-artifact@v4"
+          },
+          {
+            "line": 209,
+            "text": "runs-on: ubuntu-latest"
+          },
+          {
+            "line": 219,
+            "text": "- uses: actions/download-artifact@v4"
+          },
+          {
+            "line": 223,
+            "text": "- uses: actions/download-artifact@v4"
+          },
+          {
+            "line": 309,
+            "text": "- uses: actions/upload-artifact@v4"
+          }
+        ]
+      },
+      "latestRun": {
+        "id": 37349756835,
+        "head_sha": "5018fd20687a9b8489a78798b0c737df0e6273dc",
+        "created_at": "2026-10-05T17:37:00Z",
+        "status": "in_progress",
+        "conclusion": null,
+        "html_url": "https://github.com/mwqwf/rafiq-align-ci/actions/runs/37349756835"
+      },
+      "jobs": {
+        "pagesRead": 1,
+        "reportedTotal": 3,
+        "readComplete": true,
+        "errors": [],
+        "observedCount": 3,
+        "runnerGroups": [
+          {
+            "runner_group_name": "GitHub Actions",
+            "labels": [
+              "ubuntu-latest"
+            ],
+            "jobsObserved": 3
+          }
+        ]
+      }
+    },
+    {
+      "path": ".github/workflows/audio_qa.yml",
+      "metadata": {
+        "readComplete": true,
+        "id": 348204162,
+        "state": "active",
+        "path": ".github/workflows/audio_qa.yml"
+      },
+      "configuration": {
+        "readComplete": true,
+        "sha": "aa2bcedba36b5be932129e0c293c94f23259a8b1",
+        "resources": [
+          {
+            "line": 54,
+            "text": "runs-on: ubuntu-latest"
+          },
+          {
+            "line": 142,
+            "text": "runs-on: ubuntu-latest"
+          },
+          {
+            "line": 170,
+            "text": "uses: actions/cache/restore@v4"
+          },
+          {
+            "line": 181,
+            "text": "uses: actions/cache/restore@v4"
+          },
+          {
+            "line": 351,
+            "text": "uses: actions/upload-artifact@v4"
+          }
+        ]
+      },
+      "latestRun": {
+        "id": 37350383749,
+        "head_sha": "373830f196b9a4bd1bbcb9e66b74fd78d4ace625",
+        "created_at": "2026-10-05T17:42:06Z",
+        "status": "in_progress",
+        "conclusion": null,
+        "html_url": "https://github.com/mwqwf/rafiq-align-ci/actions/runs/37350383749"
+      },
+      "jobs": {
+        "pagesRead": 1,
+        "reportedTotal": 2,
+        "readComplete": true,
+        "errors": [],
+        "observedCount": 2,
+        "runnerGroups": [
+          {
+            "runner_group_name": "GitHub Actions",
+            "labels": [
+              "ubuntu-latest"
+            ],
+            "jobsObserved": 2
+          }
+        ]
+      }
+    },
+    {
+      "path": ".github/workflows/openers.yml",
+      "metadata": {
+        "readComplete": true,
+        "id": 348707652,
+        "state": "active",
+        "path": ".github/workflows/openers.yml"
+      },
+      "configuration": {
+        "readComplete": true,
+        "sha": "044b8c2c9bbb3e95f0a22d0c842fc79ee1d39c87",
+        "resources": [
+          {
+            "line": 30,
+            "text": "runs-on: ubuntu-latest"
+          },
+          {
+            "line": 86,
+            "text": "runs-on: ubuntu-latest"
+          },
+          {
+            "line": 113,
+            "text": "uses: actions/cache/restore@v4"
+          },
+          {
+            "line": 173,
+            "text": "uses: actions/cache/restore@v4"
+          },
+          {
+            "line": 234,
+            "text": "uses: actions/upload-artifact@v4"
+          }
+        ]
+      },
+      "latestRun": {
+        "id": 37350341492,
+        "head_sha": "51f9a14cd89d19d5bf2526cd9956b2f74b6cd428",
+        "created_at": "2026-10-05T17:41:45Z",
+        "status": "in_progress",
+        "conclusion": null,
+        "html_url": "https://github.com/mwqwf/rafiq-align-ci/actions/runs/37350341492"
+      },
+      "jobs": {
+        "pagesRead": 1,
+        "reportedTotal": 2,
+        "readComplete": true,
+        "errors": [],
+        "observedCount": 2,
+        "runnerGroups": [
+          {
+            "runner_group_name": "GitHub Actions",
+            "labels": [
+              "ubuntu-latest"
+            ],
+            "jobsObserved": 2
+          }
+        ]
+      }
+    },
+    {
+      "path": ".github/workflows/splice_census.yml",
+      "metadata": {
+        "readComplete": true,
+        "id": 365979350,
+        "state": "active",
+        "path": ".github/workflows/splice_census.yml"
+      },
+      "configuration": {
+        "readComplete": true,
+        "sha": "3eea433fa8329dfd4b7f20ec5168a499415b0482",
+        "resources": [
+          {
+            "line": 33,
+            "text": "runs-on: ubuntu-latest"
+          },
+          {
+            "line": 103,
+            "text": "runs-on: ubuntu-latest"
+          },
+          {
+            "line": 119,
+            "text": "uses: actions/cache/restore@v4"
+          },
+          {
+            "line": 159,
+            "text": "runs-on: ubuntu-latest"
+          },
+          {
+            "line": 174,
+            "text": "uses: actions/cache/restore@v4"
+          },
+          {
+            "line": 203,
+            "text": "runs-on: ubuntu-latest"
+          }
+        ]
+      },
+      "latestRun": {
+        "id": 37350311324,
+        "head_sha": "2d6b63135385fc564008f515f3af3ad84055ba70",
+        "created_at": "2026-10-05T17:41:30Z",
+        "status": "in_progress",
+        "conclusion": null,
+        "html_url": "https://github.com/mwqwf/rafiq-align-ci/actions/runs/37350311324"
+      },
+      "jobs": {
+        "pagesRead": 1,
+        "reportedTotal": 4,
+        "readComplete": true,
+        "errors": [],
+        "observedCount": 4,
+        "runnerGroups": [
+          {
+            "runner_group_name": "GitHub Actions",
+            "labels": [
+              "ubuntu-latest"
+            ],
+            "jobsObserved": 2
+          },
+          {
+            "runner_group_name": null,
+            "labels": [
+              "ubuntu-latest"
+            ],
+            "jobsObserved": 2
+          }
+        ]
+      }
+    },
+    {
+      "path": ".github/workflows/heard_gate.yml",
+      "metadata": {
+        "readComplete": true,
+        "id": 373987549,
+        "state": "active",
+        "path": ".github/workflows/heard_gate.yml"
+      },
+      "configuration": {
+        "readComplete": true,
+        "sha": "7f39e640685893a3e76ebe2d2d8c6a5891dda472",
+        "resources": [
+          {
+            "line": 32,
+            "text": "runs-on: ubuntu-latest"
+          },
+          {
+            "line": 92,
+            "text": "- uses: actions/upload-artifact@v4"
+          },
+          {
+            "line": 97,
+            "text": "runs-on: ubuntu-latest"
+          },
+          {
+            "line": 113,
+            "text": "uses: actions/cache@v4"
+          },
+          {
+            "line": 117,
+            "text": "- uses: actions/download-artifact@v4"
+          },
+          {
+            "line": 132,
+            "text": "- uses: actions/upload-artifact@v4"
+          },
+          {
+            "line": 142,
+            "text": "runs-on: ubuntu-latest"
+          },
+          {
+            "line": 152,
+            "text": "- uses: actions/download-artifact@v4"
+          }
+        ]
+      },
+      "latestRun": {
+        "id": 37350331365,
+        "head_sha": "48955fd88519e04354f2e6cd13de1a03924163e4",
+        "created_at": "2026-10-05T17:41:40Z",
+        "status": "in_progress",
+        "conclusion": null,
+        "html_url": "https://github.com/mwqwf/rafiq-align-ci/actions/runs/37350331365"
+      },
+      "jobs": {
+        "pagesRead": 1,
+        "reportedTotal": 5,
+        "readComplete": true,
+        "errors": [],
+        "observedCount": 5,
+        "runnerGroups": [
+          {
+            "runner_group_name": "GitHub Actions",
+            "labels": [
+              "ubuntu-latest"
+            ],
+            "jobsObserved": 5
+          }
+        ]
+      }
+    },
+    {
+      "path": ".github/workflows/ctc_splice.yml",
+      "metadata": {
+        "readComplete": true,
+        "id": 365979349,
+        "state": "active",
+        "path": ".github/workflows/ctc_splice.yml"
+      },
+      "configuration": {
+        "readComplete": true,
+        "sha": "ccbf92fd79e6205fc206ae8a1edeee90239a95bf",
+        "resources": [
+          {
+            "line": 48,
+            "text": "runs-on: ubuntu-latest"
+          },
+          {
+            "line": 60,
+            "text": "uses: actions/cache@v4"
+          },
+          {
+            "line": 366,
+            "text": "- uses: actions/upload-artifact@v4"
+          }
+        ]
+      },
+      "latestRun": {
+        "id": 37295964401,
+        "head_sha": "518cb185d43d7c61dd9fe87be37e6336580e28b0",
+        "created_at": "2026-10-05T10:20:33Z",
+        "status": "completed",
+        "conclusion": "failure",
+        "html_url": "https://github.com/mwqwf/rafiq-align-ci/actions/runs/37295964401"
+      },
+      "jobs": {
+        "pagesRead": 1,
+        "reportedTotal": 1,
+        "readComplete": true,
+        "errors": [],
+        "observedCount": 1,
+        "runnerGroups": [
+          {
+            "runner_group_name": "GitHub Actions",
+            "labels": [
+              "ubuntu-latest"
+            ],
+            "jobsObserved": 1
+          }
+        ]
+      }
+    },
+    {
+      "path": ".github/workflows/realign_surah.yml",
+      "metadata": {
+        "readComplete": true,
+        "id": 350675375,
+        "state": "active",
+        "path": ".github/workflows/realign_surah.yml"
+      },
+      "configuration": {
+        "readComplete": true,
+        "sha": "4db5758347176acad57a7d6a47eb725364843589",
+        "resources": [
+          {
+            "line": 90,
+            "text": "runs-on: ubuntu-latest"
+          },
+          {
+            "line": 109,
+            "text": "uses: actions/cache@v4"
+          },
+          {
+            "line": 440,
+            "text": "uses: actions/upload-artifact@v4"
+          }
+        ]
+      },
+      "latestRun": {
+        "id": 37340869160,
+        "head_sha": "2190ab4c469b688ad77d51d77cabd641e4fba4a6",
+        "created_at": "2026-10-05T16:26:36Z",
+        "status": "completed",
+        "conclusion": "failure",
+        "html_url": "https://github.com/mwqwf/rafiq-align-ci/actions/runs/37340869160"
+      },
+      "jobs": {
+        "pagesRead": 1,
+        "reportedTotal": 1,
+        "readComplete": true,
+        "errors": [],
+        "observedCount": 1,
+        "runnerGroups": [
+          {
+            "runner_group_name": "GitHub Actions",
+            "labels": [
+              "ubuntu-latest"
+            ],
+            "jobsObserved": 1
+          }
+        ]
+      }
+    }
+  ],
+  "sourceReport": "ops/out/free-compute-audit.json"
+}
