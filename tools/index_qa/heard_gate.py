@@ -141,6 +141,13 @@ def judge(cand_idx: dict, pub_idx: dict | None, cand_sha: str, maps: dict) -> di
     required = sorted(set(modified) | set(sample))
     present = sorted(cs)
     shas = cand_idx.get("audioSha256")
+    audio_by_surah = {}
+    if isinstance(shas, list):
+        # القائمة الثابتة تبقي موضع السورة المحذوفة؛ المضغوطة تتبع السور الحاضرة مرتبةً.
+        if len(shas) == 114:
+            audio_by_surah = {s: shas[s - 1] for s in present if 1 <= s <= 114}
+        elif len(shas) == len(present):
+            audio_by_surah = dict(zip(present, shas))
     out = {"ok": False, "reason": None, "required": required, "modified": modified,
            "sample": sample, "surahs": {}, "sampleFindings": [], "version": VERSION}
     bad = []
@@ -151,11 +158,13 @@ def judge(cand_idx: dict, pub_idx: dict | None, cand_sha: str, maps: dict) -> di
         if not m:
             sink.append(f"س{s}: لا خريطةَ سماع")
             continue
-        if isinstance(shas, list) and len(shas) == len(present):
-            want = shas[present.index(s)]
-            if want and m.get("sha256") != want:
-                sink.append(f"س{s}: الصوتُ المسموع ({str(m.get('sha256'))[:8]}) غيرُ صوت المرشّح ({str(want)[:8]})")
-                continue
+        want = audio_by_surah.get(s)
+        if not isinstance(want, str) or not want.strip():
+            sink.append(f"س{s}: لا بصمةَ صوتٍ صالحة في audioSha256 للمرشّح")
+            continue
+        if m.get("sha256") != want:
+            sink.append(f"س{s}: الصوتُ المسموع ({str(m.get('sha256'))[:8]}) غيرُ صوت المرشّح ({str(want)[:8]})")
+            continue
         refs = {v[2] for v in cs[s].values()}
         if m.get("fileRef") and refs and m["fileRef"] not in refs:
             sink.append(f"س{s}: سُمع {m['fileRef']} والمرشّحُ يشير إلى {sorted(refs)[0]}")

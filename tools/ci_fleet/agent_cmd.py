@@ -92,7 +92,9 @@ ALLOWED_WF = {"verified_kurdi_source.yml", "spoken_census.yml", "window_census.y
               # 🔎 **أُضيف 2026-10-02 (‏عاصم س38):** سبرُ «أيُّ آيةٍ تُسمع أين» لملفٍّ واحدٍ
               #    بـ`ctc_heard_map.py --probe` — قارئٌ محضٌ بلا سرٍّ ولا دلو (‏`contents: read`)،
               #    يقيس الزيادةَ والتكرارَ في تسجيلٍ طويلٍ قبل أن يُبنى عليه مرشّح.
-              "ctc_heard_probe.yml"}
+              "ctc_heard_probe.yml",
+              # قارئ بيانات مصدر واحد/دفعة محدودة: بلا نموذج أو دلو أو cache أو artifacts.
+              "source_metadata_probe.yml"}
 # ⛔ والأدواتُ المسموحةُ كلُّها **قارئةٌ أو محكومةٌ بحُرّاسها** — لا صدفةَ فيها.
 # ⛔ و`certify_catalog.py` منها (‏أُضيف 2026-09-13 ‏19:0xZ بقياس): الكتالوجُ
 #    `catalog/reciters.json` هو ما **يقرؤه التطبيق**، وحقلاه `ayahCoverage`
@@ -170,6 +172,8 @@ ALLOWED_TOOLS = {"index_qa/resync_probe.py",  # 🩺 سبرُ عطب إطارا�
                  # ⚖️ قارئٌ محض: يقرأ الدلوَ وstate/ والعنوانَ العامّ ويكتب تقريرَه في ops/out/ وحدَه؛
                  #    لا يمسّ فهرساً ولا حارساً ولا عتبة. واختبارُه بلا شبكة في test_full_audit.py.
                  "index_qa/full_audit.py", "index_qa/test_full_audit.py",
+                 # تدقيق شامل قارئ وقياس تخزين Actions؛ لا رفع ولا تشغيل صوتي ولا تعديل للحراس.
+                 "index_qa/completion_audit.py", "ci_fleet/free_compute_audit.py",
                  "index_qa/test_declared_sha_fatal.py",
                  "ci_fleet/repo_parity.py",
                  # 🔎 أُضيف 2026-10-03 (تدقيقُ الجولة الثانية · أمرُ المالك): تصديرُ المنشور خاماً للتحليل المستقلّ.
@@ -482,4 +486,3 @@ def _push_answer(name: str) -> None:
 
 if __name__ == "__main__":
     main()
-
