@@ -1,0 +1,20 @@
+{
+  "action": "tool",
+  "tool": "index_qa/stage_transform.py",
+  "args": [
+    "--file",
+    "ops/source-repair/candidates/codex-peshawa-s63-20261005-v3.jz",
+    "--parent",
+    "timings/hafs/peshawa.jz",
+    "--parent-sha",
+    "435095f6f5a9e737854f5fdea9b434d17034b7e58ef15aa9a56b3f948f21f124",
+    "--op",
+    "ctc_heardmap_splice:63",
+    "--reason",
+    "إصلاح اقتراح حدود ذيل المنافقون63:10/11 بعد تشخيص حر37386012711: بداية11 المقترحة264706 ونهايتها282300 بدلاً من266091/279139، مع حفظ الثقةLOW والشاهد الأصلي المرفوض؛ المصدر نفسهSHA bbfc9570680b5172ad15e417ce0ef5b8aaf8d15e16ec6f12fe46ea1752243301 ومدته284724ms. مرشح غير معتمد؛ يلزمه QA جديد وإثباتالأواخر، بلا تغيير للنص أو الصوت.",
+    "--by",
+    "codex",
+    "--manual-qa-only",
+    "--yes"
+  ]
+}
