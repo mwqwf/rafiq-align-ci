@@ -36,9 +36,19 @@ class KeepaliveContract(unittest.TestCase):
             self.assertNotIn('sleep 900', step.get('run', ''))
 
     def test_missing_queue_or_exclusion_fails_closed(self):
-        handlers = [n for n in ast.walk(self.scan()) if isinstance(n, ast.ExceptHandler)]
+        handlers = [h for n in self.scan().body if isinstance(n, ast.Try) for h in n.handlers]
         self.assertEqual(len(handlers), 2)
         self.assertTrue(all(any(isinstance(n, ast.Raise) for n in h.body) for h in handlers))
+
+    def test_unreadable_candidate_is_excluded_from_automatic_dispatch(self):
+        loop = next(n for n in ast.walk(self.scan()) if isinstance(n, ast.For)
+                    and isinstance(n.target, ast.Name) and n.target.id == 'key'
+                    and isinstance(n.iter, ast.Name) and n.iter.id == 'batch')
+        handlers = [h for n in loop.body if isinstance(n, ast.Try) for h in n.handlers]
+        self.assertEqual(len(handlers), 1)
+        self.assertIsInstance(handlers[0].body[-1], ast.Continue)
+        self.assertFalse(any(isinstance(n, ast.Call) and isinstance(n.func, ast.Attribute)
+                             and n.func.attr == 'append' for n in ast.walk(handlers[0])))
 
     def test_output_lines_are_not_concatenated(self):
         for node in ast.walk(self.scan()):
