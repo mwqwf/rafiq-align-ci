@@ -59,4 +59,18 @@ class ParallelCensusTests(unittest.TestCase):
         for args in [('invalid','123',2),(self.sha,'../',2),(self.sha,'123',115)]:
             with self.assertRaises(ValueError):C.part_key(*args)
 
+
+class PriorReplace(unittest.TestCase):
+    """fixV 2026-10-05: only a same-SHA report with untranscribed windows may be replaced."""
+    def test_errors_report_replaceable(self):
+        from ci_census_parts import prior_has_errors
+        self.assertTrue(prior_has_errors({'sample': {'errors': 1}}))
+
+    def test_complete_report_preserved(self):
+        from ci_census_parts import prior_has_errors
+        for prior in ({'sample': {'errors': 0}}, {'sample': {}}, {}, {'sample': {'errors': True}},
+                      {'sample': {'errors': '3'}}, None):
+            self.assertFalse(prior_has_errors(prior))
+
+
 if __name__=='__main__':unittest.main()
