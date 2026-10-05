@@ -16,10 +16,11 @@ on:
       build: {description: "true = مع المداخل (‏محاذاةُ النوافذ) بلا رفع · false = الخريطةُ وحدها", default: "false"}
       int8: {description: "1 = نموذجٌ مكمَّم int8 (‏كالأسطول) · 0 = float32 (‏أدقُّ وأبطأ، كشاهد spoken_census)", default: "1"}
       evidence:
-        description: "artifacts = النمط السابق · logs = سبر فقط، بلا حفظ cache أو artifacts"
+        description: "artifacts = النمط السابق · logs = سبر فقط · build-logs = بناء float32 ببصمة مصدر لازمة؛ السجل بلا حفظ cache أو artifacts"
         type: choice
-        options: [artifacts, logs]
+        options: [artifacts, logs, build-logs]
         default: artifacts
+      source_sha256: {description: "بصمة مصدر كاملة مقيسة؛ لازمة مع build-logs", default: ""}
       reason: {description: "سببُ الإطلاق", default: ""}
 
 permissions:
@@ -50,13 +51,13 @@ jobs:
       - name: اختباراتُ الأداة أوّلاً
         run: python -m unittest tools/alignment_v3/test_ctc_heard_map.py
       - name: كاش النموذج
-        if: ${{ inputs.evidence != 'logs' }}
+        if: ${{ inputs.evidence == 'artifacts' }}
         uses: actions/cache@v4
         with:
           path: .hf
           key: ctc-model-jonatasgrosman-xlsr53-ar-v1
       - name: استعادة النموذج فقط لسبر السجل
-        if: ${{ inputs.evidence == 'logs' }}
+        if: ${{ inputs.evidence == 'logs' || inputs.evidence == 'build-logs' }}
         uses: actions/cache/restore@v4
         with:
           path: .hf
@@ -68,25 +69,43 @@ jobs:
           SURAH: ${{ inputs.surah }}
           RIW: ${{ inputs.riwaya }}
           BUILD: ${{ inputs.build }}
-          CTC_INT8: ${{ inputs.int8 }}
+          CTC_INT8: ${{ inputs.evidence == 'build-logs' && '0' || inputs.int8 }}
           EVIDENCE: ${{ inputs.evidence }}
-          HF_HUB_OFFLINE: ${{ inputs.evidence == 'logs' && '1' || '0' }}
-          TRANSFORMERS_OFFLINE: ${{ inputs.evidence == 'logs' && '1' || '0' }}
+          SOURCE_SHA256: ${{ inputs.source_sha256 }}
+          HF_HUB_OFFLINE: ${{ inputs.evidence != 'artifacts' && '1' || '0' }}
+          TRANSFORMERS_OFFLINE: ${{ inputs.evidence != 'artifacts' && '1' || '0' }}
         run: |
           set -o pipefail
           mkdir -p out logs
           P="--probe"
-          if [ "$EVIDENCE" != "logs" ] && [ "$BUILD" = "true" ]; then P=""; fi
+          STRICT=()
+          if [ "$EVIDENCE" = "artifacts" ] && [ "$BUILD" = "true" ]; then P=""; fi
+          if [ "$EVIDENCE" = "build-logs" ]; then
+            [[ "$SOURCE_SHA256" =~ ^[0-9a-f]{64}$ ]] || { echo "بناء السجل يتطلب بصمة مصدر كاملة مقيسة"; exit 1; }
+            export CTC_THREADS=2
+            P=""
+            STRICT=(--strict-tol-ms 1500)
+          fi
           /usr/bin/time -v python tools/alignment_v3/ctc_heard_map.py --url "$URL" --surah "$SURAH" \
-            --riwaya "$RIW" --out-dir out $P --report out/report.txt 2>&1 | tee logs/probe.log
+            --riwaya "$RIW" --out-dir out $P "${STRICT[@]}" --report out/report.txt 2>&1 | tee logs/probe.log
       - name: خريطة كاملة قابلة للاستخراج من السجل
         if: ${{ inputs.evidence == 'logs' }}
         env:
           SURAH: ${{ inputs.surah }}
           RIW: ${{ inputs.riwaya }}
         run: python tools/ci_fleet/emit_probe_map.py --surah "$SURAH" --riwaya "$RIW"
+      - name: مخرجات البناء كاملة ببصمة المصدر المقيسة
+        if: ${{ inputs.evidence == 'build-logs' }}
+        env:
+          URL: ${{ inputs.url }}
+          SURAH: ${{ inputs.surah }}
+          RIW: ${{ inputs.riwaya }}
+          SOURCE_SHA256: ${{ inputs.source_sha256 }}
+        run: >-
+          python tools/ci_fleet/emit_probe_map.py --surah "$SURAH" --riwaya "$RIW"
+          --alignment --url "$URL" --source-sha256 "$SOURCE_SHA256"
       - uses: actions/upload-artifact@v4
-        if: ${{ always() && inputs.evidence != 'logs' }}
+        if: ${{ always() && inputs.evidence == 'artifacts' }}
         with:
           name: heard-probe-s${{ inputs.surah }}-${{ github.run_id }}
           path: |
