@@ -772,6 +772,21 @@ OPENERS_FIX_COMMIT = "9ffb957"
 OPENERS_TRUSTED = set()                # يُملأ من openers_trusted.txt عند أوّل سؤال
 
 
+LATE_CTC_MIN_TAIL_MS = 6000
+
+
+def late_ctc_trusted(op):
+    """أصدر شاهدَ CTC للمتأخّر مسبارٌ حتميٌّ (‏float32) بذيلٍ ≥6ث؟ — دالّةٌ صِرفةٌ مختبَرة.
+
+    ⛔ الحقلُ يُقرأ كما يكتبه `ctc_opener_probe` (‏«float32-1thread-avx2 · tail 6000»)؛
+    وغيابُه أو أيُّ صيغةٍ أخرى ⇒ غيرُ موثوق، فالتبرئةُ الكاذبةُ أغلى من إعادة المسح.
+    """
+    import re as _re
+    s = str((op or {}).get("lateCtcPrecision") or "")
+    m = _re.match(r"^float32-1thread-avx2 · tail (\d+)$", s)
+    return bool(m) and int(m.group(1)) >= LATE_CTC_MIN_TAIL_MS
+
+
 def openers_tool_ok(op):
     """أصدر هذا الحكمَ فاحصٌ **بعد** إصلاح التبرئة الكاذبة؟
 
@@ -1434,6 +1449,15 @@ def gate(rep, frozen, prefix, holds=None, override=None, ci_reports=None,
         if op.get("late") and not op.get("lateCtcRule"):
             return target, (f"فحصُ المطالع وسم {len(op['late'])} مطلعاً متأخّراً ولم يجرِ "
                             "شاهدُ CTC الثاني (‏لا `lateCtcRule`) — يُعاد المسح")
+        # ⛔ **وشاهدُ CTC غيرُ الحتميّ لا يُبرّئ** (‏fixV 2026-10-05 · مقيس): المسبارُ المكمَّمُ int8
+        #    أعطى للمدخل نفسِه 8023/0.194 ثمّ 7963/0.362 (‏الحرّاز 73)، وذيلُ 1.5ث بتر آخرَ الآية
+        #    فأفلت الحارثيّ 89 الصادقَ بثقة 0.0. ⇒ متأخّرٌ لم يؤكَّد لا يشهد بالبراءة إلا من
+        #    مسبار float32 بذيلٍ ≥6ث (‏`lateCtcPrecision`)؛ وما سواه يُعاد مسحُه.
+        _acq = set(op.get("late") or []) - set(op.get("lateConfirmed") or [])
+        if _acq and not late_ctc_trusted(op):
+            return target, (f"فحصُ المطالع برّأ {len(_acq)} مطلعاً متأخّراً وشاهدُ CTC الثاني "
+                            f"غيرُ حتميّ أو ذيلُه قصير (‏{op.get('lateCtcPrecision') or 'int8 · ذيل 1.5ث'}) "
+                            "— يُعاد المسح")
         # **صيغتان لملفّ المطالع** (‏github-7e يقترح `openers.defects`،
         # و`openers_scan.py` عند github-8e يكتب `swallowed`/`tail`/`suspect`)
         # — تُقرآن معاً ولا يُفترض شكلٌ واحد.
