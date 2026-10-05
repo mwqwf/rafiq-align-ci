@@ -1,0 +1,249 @@
+{
+  "schema": 1,
+  "date": "2026-10-05",
+  "preparedBy": "codex/source_recovery",
+  "scope": "مرشحون للبحث والتحقق فقط؛ لا اعتماد أو نشر أو تبديل تسجيلات.",
+  "status": "كل المرشحين غير مقيسين صوتياً في هذا التقرير. اختلاف الرابط أو البصمة لا يثبت اكتمال التلاوة أو اختلاف الأداء.",
+  "constraints": {
+    "sameReciterRequired": true,
+    "sameRiwayaRequired": true,
+    "noActionsLaunched": true,
+    "noProductionChanged": true
+  },
+  "candidates": [
+    {
+      "reciterId": "noah",
+      "reciterName": "يوسف بن نوح أحمد",
+      "riwaya": "hafs",
+      "surahs": [
+        3,
+        4
+      ],
+      "priority": 1,
+      "identityRefs": [
+        "https://yna-quran.com/catplay.php?catsmktba=35",
+        "https://yna-quran.com/play.php?catsmktba=119",
+        "https://yna-quran.com/play.php?catsmktba=120"
+      ],
+      "sources": [
+        {
+          "surah": 3,
+          "url": "https://yna-quran.com/download/7afs/7afs_003%20Al-Emran.mp3",
+          "urlEvidence": "رابط زر حفظ في صفحة القارئ الرسمية، ضمن مصحف حفص.",
+          "status": "مقيس حجماً وبادئة بصمة لدى العامل الرئيسي؛ المدة والاكتمال غير مقيسين.",
+          "reportedProbe": {
+            "bytes": 30232102,
+            "sha256Prefix": "938e3440fdaeac0b",
+            "provenance": "تقرير العامل الرئيسي في هذه الجلسة عن web_probe؛ لم أنفذ القياس بنفسي."
+          },
+          "baseline": {
+            "url": "https://server8.mp3quran.net/noah/003.mp3",
+            "sha256": "4b627f06b3ac0561b110ed9bc3396de7a24c878d4008a6f3e5e921dceb27a7f9",
+            "durationMs": 2519458,
+            "bytes": null,
+            "shaEvidence": "https://github.com/mwqwf/rafiq-align-ci/blob/main/ops/out/20261003_r2x_tgt36_sha_37128886808.txt",
+            "durationEvidence": "https://github.com/mwqwf/rafiq-align-ci/blob/main/ops/out/20261003_2110_fixR_lg_D2_noah.txt"
+          },
+          "comparison": "بصمة البديل تختلف عن الأصل، لكن ذلك لا يثبت اختلاف المحتوى الصوتي.",
+          "nextCheck": "قياس مدة البديل وتحقق وجود نهاية 3:153 والآيات 3:154–200."
+        },
+        {
+          "surah": 4,
+          "url": "https://yna-quran.com/download/7afs/7afs_004%20An-Nisa.mp3",
+          "urlEvidence": "رابط زر حفظ في صفحة القارئ الرسمية، ضمن مصحف حفص.",
+          "status": "مقيس حجماً وبادئة بصمة لدى العامل الرئيسي؛ المدة والاكتمال غير مقيسين.",
+          "reportedProbe": {
+            "bytes": 30975024,
+            "sha256Prefix": "3f947b48f5bd7750",
+            "provenance": "تقرير العامل الرئيسي في هذه الجلسة عن web_probe؛ لم أنفذ القياس بنفسي."
+          },
+          "baseline": {
+            "url": "https://server8.mp3quran.net/noah/004.mp3",
+            "sha256": null,
+            "bytes": null,
+            "durationMs": 2822791,
+            "durationEvidence": "https://github.com/mwqwf/rafiq-align-ci/blob/main/ops/out/20261003_0850_fixS1_rp_noah_s4.txt"
+          },
+          "nextCheck": "قياس المدة ومقارنة البصمة وتحقق تمام 4:136 والآيات 4:137–176."
+        }
+      ]
+    },
+    {
+      "reciterId": "s_sadeiq",
+      "reciterName": "سلمان الصديق",
+      "riwaya": "hafs",
+      "surahs": [
+        42
+      ],
+      "priority": 2,
+      "identityRefs": [
+        "https://way2quran.com/ar/reciters/salman-al-siddiq?recitationSlug=hafs-an-asim"
+      ],
+      "sources": [
+        {
+          "surah": 42,
+          "url": "https://media.way2quran.com/salman-al-siddiq/hafs-an-asim/042.mp3",
+          "urlEvidence": "رابط تحميل الصفحة؛ تعرفت أداة الويب عليه بصيغة audio/mpeg.",
+          "status": "غير مقيس",
+          "nextCheck": "مقارنة البصمة بالأصل وفحص وجود الإشارة؛ الأصل موثق صامتاً في 1052 ثانية."
+        }
+      ],
+      "additionalIdentityPages": [
+        "https://audio.islamweb.net/audio/index.php?audioid=661848&page=audioinfo&rid=1&tab=rewaya",
+        "https://midad.com/recitation/221692"
+      ],
+      "additionalPagesStatus": "هوية ورواية مثبتتان نصياً؛ لم يستخرج رابط الصوت الخام."
+    },
+    {
+      "reciterId": "saad",
+      "reciterName": "سعد بن حمد المقرن",
+      "riwaya": "hafs",
+      "surahs": [
+        22,
+        28,
+        45
+      ],
+      "priority": 3,
+      "identityRefs": [
+        "https://way2quran.com/en/reciters/saad-almqren"
+      ],
+      "sources": [
+        {
+          "surah": 22,
+          "url": "https://media.way2quran.com/saad-almqren/hafs-an-asim/22.mp3",
+          "urlEvidence": "رابط Download الفعلي؛ اسم الملف بدون صفر بادئ؛ تعرفت أداة الويب عليه بصيغة audio/mpeg.",
+          "status": "غير مقيس",
+          "nextCheck": "مقارنة المدة والبصمة والأداء بالأصل؛ لا دليل حتى الآن على أن المصدر مختلف أو أن المصدر الحالي ناقص."
+        },
+        {
+          "surah": 28,
+          "url": "https://media.way2quran.com/saad-almqren/hafs-an-asim/28.mp3",
+          "urlEvidence": "رابط Download الفعلي؛ اسم الملف بدون صفر بادئ؛ تعرفت أداة الويب عليه بصيغة audio/mpeg.",
+          "status": "غير مقيس",
+          "nextCheck": "مقارنة المدة والبصمة والأداء بالأصل؛ لا دليل حتى الآن على أن المصدر مختلف أو أن المصدر الحالي ناقص."
+        },
+        {
+          "surah": 45,
+          "url": "https://media.way2quran.com/saad-almqren/hafs-an-asim/45.mp3",
+          "urlEvidence": "رابط Download الفعلي؛ اسم الملف بدون صفر بادئ؛ تعرفت أداة الويب عليه بصيغة audio/mpeg.",
+          "status": "غير مقيس",
+          "nextCheck": "مقارنة المدة والبصمة والأداء بالأصل؛ لا دليل حتى الآن على أن المصدر مختلف أو أن المصدر الحالي ناقص."
+        }
+      ],
+      "additionalIdentityPages": [
+        "https://midad.com/recitation/52482",
+        "https://midad.com/recitation/52494",
+        "https://midad.com/recitation/52528"
+      ],
+      "notes": [
+        "القارئ هو سعد المقرن، وليس سعد الغامدي.",
+        "إعلان 320 kbps في صفحة المصدر ليس قياساً فعلياً للملفات.",
+        "روابط Dropbox القديمة للحج والقصص تعيد 404؛ لا تعاد تجربتها دون دليل جديد."
+      ]
+    },
+    {
+      "reciterId": "nasser_almajed",
+      "reciterName": "ناصر بن محمد الماجد",
+      "riwaya": "hafs",
+      "surahs": [
+        6
+      ],
+      "priority": 4,
+      "identityRefs": [
+        "https://way2quran.com/ar/reciters/nasser-almajed?recitationSlug=hafs-an-asim"
+      ],
+      "sources": [
+        {
+          "surah": 6,
+          "url": "https://media.way2quran.com/nasser-almajed/hafs-an-asim/006.mp3",
+          "urlEvidence": "رابط تحميل الصفحة؛ تعرفت أداة الويب عليه بصيغة audio/mpeg.",
+          "status": "غير مقيس",
+          "nextCheck": "مقارنة المدة والبصمة ثم إثبات وجود 6:74–94، التي غابت عن نسخة الأرشيف الطويلة السابقة."
+        }
+      ],
+      "notes": [
+        "مداد يعرض تسجيل الأنعام في قطعتين بعنوان ما تيسر؛ ذلك لا يثبت تمام السورة."
+      ]
+    },
+    {
+      "reciterId": "iraoui_warsh",
+      "reciterName": "محمد الإيراوي",
+      "riwaya": "warsh",
+      "surahs": [
+        41
+      ],
+      "priority": 5,
+      "identityRefs": [
+        "https://forum.ashefaa.com/showthread.php?t=292807",
+        "https://mazameer.com/vb/threads/143205/"
+      ],
+      "sources": [
+        {
+          "url": "https://archive.org/details/480-thomn-part-athmaan-mohammad-aleirawi----quran-warsh",
+          "sourceKind": "archive_item",
+          "status": "غير مقيس؛ لم يستخرج رابط ملف مباشر",
+          "evidence": "قائمة 464 ثمناً، منشورة 19 ديسمبر 2012، والنقص المعلن الحزب 13 و15. ملفات H_48 وH_49 ظاهرة في القائمة.",
+          "nextCheck": "استخراج metadata وأسماء ملفات الحزبين 48 و49، ثم التحقق من مواضع سورة فصلت."
+        },
+        {
+          "url": "https://archive.org/details/irawi_coran_warch",
+          "sourceKind": "archive_item",
+          "status": "غير مقيس؛ لم يستخرج رابط ملف مباشر",
+          "evidence": "صاحب التسجيل أبو وئام يذكر تسجيل ختمة إذاعة محمد السادس سنة 2011 وإعادة تسجيل ضعيف الجودة؛ النقص المعلن الحزب 13 فقط.",
+          "nextCheck": "استخراج metadata لملفات الحزبين 48 و49 ثم فحص الهوية والتغطية."
+        }
+      ],
+      "notes": [
+        "اختلاف التقسيم أو المنشأ المحتمل لا يثبت اختلاف التسجيل.",
+        "Assabile يعرض فصلت 29:45 الموافقة لمدة الأصل المكرر؛ Zekr يعرض 20:58 الموافقة للبديل المرفوض؛ لا قرينة جديدة فيهما."
+      ]
+    },
+    {
+      "reciterId": "3siri",
+      "reciterName": "إبراهيم بن علي العسيري",
+      "riwaya": "hafs",
+      "surahs": [
+        7
+      ],
+      "priority": 6,
+      "identityRefs": [
+        "https://midad.com/collection/35603"
+      ],
+      "sources": [
+        {
+          "url": "https://midad.com/recitation/163992",
+          "sourceKind": "identity_page",
+          "status": "غير مقيس؛ رابط الصوت الخام غير مستخرج",
+          "nextCheck": "استخراج رابط الصوت الذي تقدمه صفحة الناشر، ثم مقارنة بصمته والتحقق من 7:123–159."
+        }
+      ],
+      "notes": [
+        "لا تعاد نسخة Way2Quran السابقة؛ صمت 2805–3915 ثانية موثق فيها.",
+        "عبد العزيز العسيري قارئ مختلف؛ لا يستخدم بديلاً."
+      ]
+    },
+    {
+      "reciterId": "akri_qalun",
+      "reciterName": "مروان العكري",
+      "riwaya": "qalun",
+      "surahs": [
+        4,
+        24
+      ],
+      "priority": null,
+      "identityRefs": [
+        "https://zekr.online/ar/author/8982/mroan-alaakry/quran",
+        "https://music.amazon.com.br/albums/B0B4J2MB39"
+      ],
+      "sources": [],
+      "status": "لم يظهر مرشح جديد بدليل اختلاف",
+      "notes": [
+        "مدة النور في المرايا 12:46 أو 12:47، والنساء في Zekr 1:20:33؛ لا إثبات لاستعادة النقص."
+      ]
+    }
+  ],
+  "excludedFromThisFollowup": [
+    "peshawa",
+    "shamrani"
+  ]
+}
