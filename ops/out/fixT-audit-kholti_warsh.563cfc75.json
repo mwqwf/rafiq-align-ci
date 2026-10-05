@@ -1,0 +1,160 @@
+{
+ "schema": 1,
+ "tool": "full_audit-1.0",
+ "date": "20261005",
+ "timestampUtc": "2026-10-05T01:27:14Z",
+ "elapsedSec": 39.4,
+ "phase": "all",
+ "manifestIndexes": 180,
+ "frozenBucket": 220,
+ "reportsRead": 10787,
+ "rows": [
+  {
+   "key": "timings-staging/warsh/kholti_warsh.563cfc75.jz",
+   "sha256": "563cfc75bbc42ebf67fc9d089d602822eb6d2b226e44d1d714c18cfb445ac7ff",
+   "riwaya": "warsh",
+   "reciterId": "kholti_warsh",
+   "bytes": 94969,
+   "engine": "ctc-seg-1",
+   "transformOp": "ctc_heardmap_splice:5,8,13,15,18,19,20,21,22,23,24,25,26,29,30,31,33,35,37,39,40,41,42,43,45,47,49,50,51,52,54,56,57,58,59,60,62,63,65,66,69,71,72,74,77,79,80,83,100",
+   "staging": true,
+   "identity": {
+    "sha256": "563cfc75bbc42ebf67fc9d089d602822eb6d2b226e44d1d714c18cfb445ac7ff",
+    "staging": true,
+    "errors": [],
+    "ok": true
+   },
+   "structure": {
+    "entries": 6236,
+    "errors": [],
+    "examples": {},
+    "fileNoUnparsed": 0,
+    "structuralFatal": [],
+    "structuralWarn": [
+     "مداخل مدتها > 120ث: 1 · مثال: 2:282 مدتها 191ث"
+    ],
+    "decision": [],
+    "engine": "ctc-seg-1",
+    "audioSha": 114,
+    "bands": {
+     "MED": 5040,
+     "HIGH": 568,
+     "LOW": 628
+    },
+    "ok": true
+   },
+   "gaps": {
+    "missingTotal": 0,
+    "internalGaps": [],
+    "headMissing": [],
+    "tailMissing": [],
+    "wholeMissing": [],
+    "declared": {
+     "transformOp": "ctc_heardmap_splice:5,8,13,15,18,19,20,21,22,23,24,25,26,29,30,31,33,35,37,39,40,41,42,43,45,47,49,50,51,52,54,56,57,58,59,60,62,63,65,66,69,71,72,74,77,79,80,83,100",
+     "transformReason": "fixT: إصلاحٌ دفعيٌّ لكبس الذيل — 51 سورةً مشتبهةً (فائضٌ ≥15ث بعد آخر مدخل · تدقيق الجولة الثانية 2026-10-03)، كلٌّ يُقاس بالسماع قبل أن يُمسّ",
+     "reasonCode": null,
+     "dropSurahs": [],
+     "byReason": {
+      "surah-absent": 395
+     },
+     "declaredCount": 395,
+     "tagCount": 0,
+     "declaredIds": [],
+     "truncatedTail": null
+    },
+    "undeclaredEdge": [],
+    "errors": [],
+    "ok": true
+   },
+   "durations": {
+    "durationOutliers": 3,
+    "durationExamples": [
+     {
+      "aid": "100:6",
+      "ms": 13990,
+      "expMs": 4004,
+      "ratio": 3.49,
+      "chars": 17
+     },
+     {
+      "aid": "46:35",
+      "ms": 7424,
+      "expMs": 30318,
+      "ratio": 0.24,
+      "chars": 106
+     },
+     {
+      "aid": "91:15",
+      "ms": 721,
+      "expMs": 2682,
+      "ratio": 0.27,
+      "chars": 12
+     }
+    ],
+    "impossibleShort": [],
+    "veryShort": [
+     {
+      "aid": "91:15",
+      "ms": 721,
+      "expMs": 2682,
+      "ratio": 0.27,
+      "chars": 12
+     }
+    ],
+    "extremeLong": [],
+    "longOutliers": 1,
+    "shortOutliers": 2,
+    "silenceGaps": 0,
+    "silenceExamples": [],
+    "surahsWithRate": 113
+   },
+   "audio": {
+    "audioReportsOnSha": 0,
+    "openersOnSha": false,
+    "errors": [
+     "لا حكمَ صوتيٍّ بعيّنةٍ على البصمة المنشورة",
+     "لا شاهدَ مطالعَ على البصمة المنشورة"
+    ],
+    "notes": [],
+    "samples": [],
+    "pooled": null,
+    "severeHi": null,
+    "otherShasWithSamples": [
+     "89e2b3d2",
+     "92659298",
+     "a156bbf0",
+     "e1d2cced",
+     "ef8e1818",
+     "f91d7f3f"
+    ],
+    "ok": false
+   }
+  }
+ ],
+ "summary": {
+  "indexes": 1,
+  "phase": "all",
+  "identityOk": 1,
+  "identityBad": [],
+  "structureOk": 1,
+  "structureBad": [],
+  "gapsOk": 1,
+  "gapsBad": [],
+  "audioOk": 0,
+  "audioBad": [
+   "timings-staging/warsh/kholti_warsh.563cfc75.jz"
+  ],
+  "durationOutliersTotal": 3,
+  "impossibleShortTotal": 0,
+  "indexesWithImpossibleShort": 0,
+  "veryShortTotal": 1,
+  "extremeLongTotal": 0,
+  "indexesWithExtremeLong": 0,
+  "mirrorStale": 0,
+  "silenceGapsTotal": 0,
+  "indexesWithDurationOutliers": 1,
+  "indexesWithSilenceGaps": 0,
+  "entriesTotal": 6236,
+  "missingTotal": 0
+ }
+}
