@@ -130,22 +130,25 @@ def pin(idx, surah, hmap, pins, trims=None):
     for a in sorted(pins):
         new[a]["startMs"] = pins[a]
     order = sorted(new)
+    for a in trims:
+        if a not in new or (a + 1) not in new or ((a + 1) not in pins and a not in pins):
+            raise SystemExit(f"⛔ --trim {a}: يُقصّ آخرُ آيةٍ قبل تثبيتٍ أو آيةٌ مثبَّتة وحدهما")
+        bounds = measured_bounds(hmap, [a, a + 1])
+        hit = [b for b in bounds if abs(trims[a] - b) <= SNAP_MS]
+        if not hit:
+            raise SystemExit(f"⛔ قصُّ {surah}:{a} إلى {trims[a]} ليس حدّاً مقيساً")
+        trims[a] = min(hit, key=lambda b: abs(trims[a] - b))
     for i, a in enumerate(order):
         nxt = order[i + 1] if i + 1 < len(order) else None
-        if a in pins and nxt is not None:
-            new[a]["endMs"] = new[nxt]["startMs"]
-        if nxt is not None and nxt in pins and a not in pins:
-            if a in trims:
-                t = trims[a]
-                if t not in measured_bounds(hmap, [a, nxt]) and not any(
-                        abs(t - b) <= SNAP_MS for b in measured_bounds(hmap, [a, nxt])):
-                    raise SystemExit(f"⛔ قصُّ {surah}:{a} إلى {t} ليس حدّاً مقيساً")
-                new[a]["endMs"] = t
-            if new[a]["endMs"] is None or int(new[a]["endMs"]) > pins[nxt]:
-                new[a]["endMs"] = pins[nxt]
-    for a in trims:
-        if a in pins or (a + 1) not in pins:
-            raise SystemExit(f"⛔ --trim {a}: يُقصّ ما قبل أوّل آيةٍ مثبَّتةٍ وحده")
+        if nxt is None or (a not in pins and nxt not in pins):
+            continue
+        if a in trims:
+            new[a]["endMs"] = trims[a]
+            report.append(f"{surah}:{a} نهايتُها ⇐ {trims[a]} (حدٌّ مقيس؛ ما بعده تكرارٌ بلا مدخل)")
+        elif mine[a].get("endMs") is not None and int(mine[a]["endMs"]) == int(mine[nxt]["startMs"]):
+            new[a]["endMs"] = new[nxt]["startMs"]            # كان متّصلاً بتاليه فيبقى متّصلاً
+        else:
+            new[a]["endMs"] = min(int(mine[a]["endMs"] or 0) or new[nxt]["startMs"], new[nxt]["startMs"])
     prev_end = -1
     for a in order:
         e = new[a]
