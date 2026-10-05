@@ -61,7 +61,17 @@ CONFIRM_MS = 1500
 #    0.34–0.48 (‏النفيس 99·100·105·107·108 · الحج 22 · الرباني 55). وخفضُه **يشدّ** الحارسَ لا يُرخيه:
 #    يمنع أكثر، وثمنُ خطئه تأخيرُ ترقيةٍ تُفحص لا نشرُ عطب. ودون 0.3 (‏0.0–0.27) لا يُعتدّ بالقياس.
 MIN_CONF = 0.3
-TAIL_MS = 1500
+# ⛔⛔ **الذيلُ يغطّي الإزاحةَ المختبَرة** (‏fixV 2026-10-05 · معايرة float32 الحتميّة 37290612944/37290621746):
+#    المطلعُ المعطوبُ مُزاحٌ ≈2.8–3.9ث، فنهايةُ الآية الحقيقيّة **بعد** نهاية المدخل بمقدار الإزاحة نفسِها؛
+#    ومقطعٌ ينتهي عند «نهاية المدخل + 1.5ث» يبتر آخرَ الآية فيُفرض نصُّها كاملاً على صوتٍ ناقص ⇒ ثقةٌ
+#    منهارة (‏الحارثي 89 الصادق: الموضع 3908 بفرق +3.9ث **وثقة 0.0** ⇒ أُفلت؛ والنفيس 0.42–0.46).
+#    ⇒ الذيلُ ≥ أكبرُ إزاحةٍ صادقةٍ مقيسة (3.9ث) + هامشٌ ⇒ 6ث. فيُسمع المطلعُ المعطوب كاملاً ويُحكم عليه.
+TAIL_MS = 6000
+
+
+def clip_end_ms(end_ms):
+    """نهايةُ مقطع السبر — دالّةٌ صِرفةٌ مختبَرة."""
+    return int(end_ms) + TAIL_MS
 UA = {"User-Agent": "Mozilla/5.0 (QuranRafiq tools)"}
 
 
@@ -99,7 +109,7 @@ def probe(url, surah, end_ms, text1):
         mp3 = os.path.join(t, "a.mp3")
         open(mp3, "wb").write(data)
         x = read_wav(to_wav16k(mp3)).astype(np.float32)
-    clip = x[: int((end_ms + TAIL_MS) * SR / 1000)]
+    clip = x[: int(clip_end_ms(end_ms) * SR / 1000)]
     lead = [] if surah in (1, 9) else [BASMALA]
     segs = _segment(_emissions(clip), len(clip), lead + [text1])
     st, _en, sc = segs[len(lead)]
@@ -134,7 +144,7 @@ def main() -> int:
     doc["lateConfirmed"] = sorted(confirmed)
     doc["lateCtc"] = detail
     doc["lateCtcRule"] = f"CTC ≥{CONFIRM_MS}م.ث بعد بدء المدخل بثقة ≥{MIN_CONF} · float32 حتميّ"
-    doc["lateCtcPrecision"] = "float32-1thread-avx2"
+    doc["lateCtcPrecision"] = f"float32-1thread-avx2 · tail {TAIL_MS}"
     json.dump(doc, open(a.witness, "w", encoding="utf-8"), ensure_ascii=False, indent=1)
     print(f"⇒ lateConfirmed={doc['lateConfirmed']}")
     return 0
