@@ -32,18 +32,29 @@ def pcm(seconds, *, signal=False):
     return values.tobytes()
 
 
-def save_wav(path, samples):
+def stereo_pcm(left_bytes, right_bytes):
+    left = array.array("h", left_bytes)
+    right = array.array("h", right_bytes)
+    values = array.array("h", (value for pair in zip(left, right) for value in pair))
+    return values.tobytes()
+
+
+def save_wav(path, samples, *, channels=1):
     with wave.open(str(path), "wb") as output:
-        output.setnchannels(1)
+        output.setnchannels(channels)
         output.setsampwidth(2)
         output.setframerate(probe.SAMPLE_RATE)
         output.writeframes(samples)
 
 
 class Response(io.BytesIO):
-    def __init__(self, data, *, length=None, url="https://audio.example/test.wav?signature=PRIVATE"):
+    def __init__(self, data, *, length=None, status=200, content_range=None,
+                 url="https://audio.example/test.wav?signature=PRIVATE"):
         super().__init__(data)
         self.headers = {"Content-Length": str(length)} if length is not None else {}
+        if content_range is not None:
+            self.headers["Content-Range"] = content_range
+        self.status = status
         self.url = url
 
     def geturl(self):
@@ -51,6 +62,129 @@ class Response(io.BytesIO):
 
 
 class MetadataTests(unittest.TestCase):
+    def test_real_stereo_antiphase_has_channel_signal_despite_silent_mono(self):
+        left = pcm(2, signal=True)
+        values = array.array("h", left)
+        if sys.byteorder != "little":
+            values.byteswap()
+        right_values = array.array("h", (-value for value in values))
+        if sys.byteorder != "little":
+            right_values.byteswap()
+        right = right_values.tobytes()
+        interleaved = stereo_pcm(left, right)
+        with tempfile.TemporaryDirectory() as folder:
+            path = Path(folder) / "antiphase.wav"
+            save_wav(path, interleaved, channels=2)
+            original_sha = hashlib.sha256(path.read_bytes()).hexdigest()
+            mono = probe.decode_audio(path)
+            stereo = probe.decode_stereo(path)
+            self.assertEqual(hashlib.sha256(path.read_bytes()).hexdigest(), original_sha)
+        self.assertEqual(mono["rms"], 0)
+        self.assertEqual(stereo["frames"], 32000)
+        self.assertEqual(stereo["durationSeconds"], 2)
+        self.assertEqual(stereo["sha256"], hashlib.sha256(interleaved).hexdigest())
+        self.assertEqual(stereo["left"]["sha256"], hashlib.sha256(left).hexdigest())
+        self.assertEqual(stereo["right"]["sha256"], hashlib.sha256(right).hexdigest())
+        self.assertTrue(stereo["left"]["hasSignalAboveThreshold"])
+        self.assertTrue(stereo["right"]["hasSignalAboveThreshold"])
+        self.assertEqual(stereo["correlationLR"], -1)
+        self.assertTrue(stereo["arithmeticMeanExactlyZeroWithChannelEnergy"])
+        self.assertEqual(stereo["arithmeticMeanToChannelRmsRatio"], 0)
+        self.assertTrue(stereo["phaseCancellationSuspected"])
+        self.assertTrue(stereo["decodedWithoutErrors"])
+        self.assertFalse(stereo["signalIdentityCertified"])
+
+    def test_stereo_in_phase_and_one_silent_channel_do_not_claim_cancellation(self):
+        left = pcm(0.5, signal=True)
+        for right, expected in ((left, 1), (pcm(0.5), None)):
+            with self.subTest(expected=expected):
+                stats = probe.StereoPCMStats()
+                raw = stereo_pcm(left, right)
+                for offset in range(0, len(raw), 777):
+                    stats.feed(raw[offset:offset + 777])
+                result = stats.finish()
+                self.assertEqual(result["sha256"], hashlib.sha256(raw).hexdigest())
+                self.assertEqual(result["correlationLR"], expected)
+                self.assertFalse(result["phaseCancellationSuspected"])
+                self.assertEqual(result["frames"], 8000)
+                if expected == 1:
+                    self.assertEqual(result["arithmeticMeanAttenuationDb"], 0)
+                    self.assertEqual(result["arithmeticMeanToChannelRmsRatio"], 1)
+
+    def test_silent_stereo_or_constant_dc_has_no_defined_correlation(self):
+        for raw in (bytes(6400), (1000).to_bytes(2, "little", signed=True) * 3200):
+            stats = probe.StereoPCMStats()
+            stats.feed(raw)
+            result = stats.finish()
+            self.assertIsNone(result["correlationLR"])
+            self.assertFalse(result["phaseCancellationSuspected"])
+
+    def test_native_mono_is_not_upmixed_for_channel_diagnosis(self):
+        with tempfile.TemporaryDirectory() as folder:
+            path = Path(folder) / "mono.wav"
+            save_wav(path, pcm(1, signal=True))
+            with patch.object(probe, "_decode_pcm", side_effect=AssertionError("لا تُنشأ قناتان")):
+                result = probe.decode_stereo(path)
+        self.assertFalse(result["evaluated"])
+        self.assertEqual(result["nativeChannels"], 1)
+
+    def test_stereo_short_frame_and_duration_limit_are_rejected(self):
+        for raw in (b"", b"x", b"xx", b"xxx"):
+            stats = probe.StereoPCMStats()
+            stats.feed(raw)
+            with self.assertRaises(probe.ProbeError):
+                stats.finish()
+        with patch.object(probe, "MAX_PCM_SECONDS", 0.1):
+            with self.assertRaises(probe.ProbeError):
+                probe.StereoPCMStats().feed(bytes(4 * round(0.11 * probe.SAMPLE_RATE)))
+
+    def test_real_truncated_stereo_keeps_strict_decoder_rejection(self):
+        with tempfile.TemporaryDirectory() as folder:
+            path = Path(folder) / "truncated-stereo.wav"
+            tone = pcm(2, signal=True)
+            save_wav(path, stereo_pcm(tone, tone), channels=2)
+            path.write_bytes(path.read_bytes()[:-probe.SAMPLE_RATE * 4])
+            with self.assertRaises(probe.ProbeError):
+                probe.decode_stereo(path)
+
+    def test_probe_preserves_channel_failure_and_shares_decode_deadline(self):
+        source = {"id": "synthetic", "riwaya": "hafs", "surah": 42, "url": "https://audio.example/file"}
+        metadata = {"durationSeconds": 2, "audioStreams": [{"channels": 2}]}
+        mono = {"samples": 32000, "durationSeconds": 2, "rms": 0}
+        with patch.object(probe, "fetch", return_value={"sha256": "a" * 64}), \
+                patch.object(probe, "container_metadata", return_value=metadata), \
+                patch.object(probe, "decode_audio", return_value=mono) as mono_call, \
+                patch.object(probe, "decode_stereo", side_effect=probe.ProbeError("فشل فك القناتين")) as stereo_call:
+            result = probe.probe_source(source, deadline=time.monotonic() + 500)
+        self.assertFalse(result["ok"])
+        self.assertEqual(result["decodeErrors"], ["stereo"])
+        self.assertFalse(result["stereo"]["decodedWithoutErrors"])
+        self.assertEqual(result["pcm"], mono)
+        self.assertEqual(mono_call.call_args.kwargs["deadline"], stereo_call.call_args.kwargs["deadline"])
+
+    def test_container_probe_cannot_run_past_batch_deadline(self):
+        with tempfile.TemporaryDirectory() as folder:
+            shim = Path(folder) / "ffprobe"
+            shim.write_text(f"#!{sys.executable}\nimport time\ntime.sleep(2)\n")
+            shim.chmod(0o700)
+            started = time.monotonic()
+            with patch.dict(os.environ, {"PATH": folder + os.pathsep + os.environ.get("PATH", "")}):
+                with self.assertRaises(probe.ProbeError):
+                    probe.container_metadata(Path(folder) / "file", deadline=started + 0.05)
+            self.assertLess(time.monotonic() - started, 1)
+
+    def test_mono_failure_does_not_prevent_independent_channel_measurement(self):
+        source = {"id": "synthetic", "riwaya": "hafs", "surah": 42, "url": "https://audio.example/file"}
+        stereo = {"evaluated": True, "frames": 32000, "decodedWithoutErrors": True}
+        with patch.object(probe, "fetch", return_value={"sha256": "a" * 64}), \
+                patch.object(probe, "container_metadata", return_value={"audioStreams": [{"channels": 2}]}), \
+                patch.object(probe, "decode_audio", side_effect=probe.ProbeError("فشل mono")), \
+                patch.object(probe, "decode_stereo", return_value=stereo):
+            result = probe.probe_source(source, deadline=time.monotonic() + 500)
+        self.assertFalse(result["ok"])
+        self.assertEqual(result["decodeErrors"], ["pcm"])
+        self.assertEqual(result["stereo"], stereo)
+
     def test_generated_wav_proves_actual_duration_pcm_hash_and_long_silence(self):
         self.assertIsNotNone(shutil.which("ffmpeg"), "الاختبار يتطلب ffmpeg")
         self.assertIsNotNone(shutil.which("ffprobe"), "الاختبار يتطلب ffprobe")
@@ -132,9 +266,12 @@ class MetadataTests(unittest.TestCase):
                             "os.write(2, b'decode error https://audio.example/?token=PRIVATE')\n")
             shim.chmod(0o700)
             with patch.dict(os.environ, {"PATH": folder + os.pathsep + os.environ.get("PATH", "")}):
-                with self.assertRaisesRegex(probe.ProbeError, "PCM الجزئي") as caught:
-                    probe.decode_audio(Path(folder) / "source.wav")
-            self.assertNotIn("PRIVATE", str(caught.exception))
+                for decoder, kwargs in ((probe.decode_audio, {}), (probe.decode_stereo,
+                        {"metadata": {"audioStreams": [{"channels": 2}]}})):
+                    with self.subTest(decoder=decoder.__name__):
+                        with self.assertRaisesRegex(probe.ProbeError, "PCM الجزئي") as caught:
+                            decoder(Path(folder) / "source.wav", **kwargs)
+                        self.assertNotIn("PRIVATE", str(caught.exception))
 
     def test_real_truncated_wav_is_rejected_instead_of_accepting_shortened_pcm(self):
         with tempfile.TemporaryDirectory() as folder:
@@ -164,6 +301,17 @@ class MetadataTests(unittest.TestCase):
         for data, length in ((b"", None), (b"short", 10)):
             with self.subTest(data=data), self.assertRaises(probe.ProbeError):
                 self.fetch(data, length=length)
+
+    def test_partial_http_response_is_rejected_even_with_matching_content_length(self):
+        for status, content_range in ((206, "bytes 0-3/8"), (206, None), (200, "bytes 0-3/8")):
+            opener = Mock()
+            opener.open.return_value = Response(b"data", length=4, status=status, content_range=content_range)
+            with self.subTest(status=status, content_range=content_range):
+                with tempfile.TemporaryDirectory() as folder, patch.object(probe, "validate_url", side_effect=lambda value, **_: value):
+                    target = Path(folder) / "audio"
+                    with self.assertRaisesRegex(probe.ProbeError, "الجزئية"):
+                        probe.fetch("https://audio.example/file", target, opener=opener)
+                    self.assertFalse(target.exists())
 
     def test_403_is_reported_without_retry_or_signed_query(self):
         url = "https://audio.example/source.mp3?token=PRIVATE"
