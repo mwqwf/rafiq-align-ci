@@ -1,0 +1,12 @@
+{
+  "action": "tool",
+  "tool": "index_qa/export_index_bytes.py",
+  "args": [
+    "--key",
+    "timings/hafs/balilah.jz",
+    "--expect-sha",
+    "f1b40abe72f4f85bd41cc87166f2cf8785960c1e267f09816b99532851812207",
+    "--out",
+    "ops/out/codex-parent-balilah-f1b40abe-20261005.json"
+  ]
+}

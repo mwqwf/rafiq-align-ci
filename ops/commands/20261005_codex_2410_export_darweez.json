@@ -1,0 +1,12 @@
+{
+  "action": "tool",
+  "tool": "index_qa/export_index_bytes.py",
+  "args": [
+    "--key",
+    "timings/hafs/darweez.jz",
+    "--expect-sha",
+    "d14fedebbae69f2e29b83d5c081e72214d532fa4a6efb4d094252a9e98a57342",
+    "--out",
+    "ops/out/codex-parent-darweez-d14fedeb-20261005.json"
+  ]
+}

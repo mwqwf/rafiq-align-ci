@@ -1,0 +1,12 @@
+{
+  "action": "tool",
+  "tool": "index_qa/export_index_bytes.py",
+  "args": [
+    "--key",
+    "timings/warsh/noah_warsh.jz",
+    "--expect-sha",
+    "17191c80f66c87db6f31f8bea091ab8f2e526083e8e4bc6a318aefe42b44a029",
+    "--out",
+    "ops/out/codex-parent-noah_warsh-17191c80-20261005.json"
+  ]
+}

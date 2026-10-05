@@ -1,0 +1,12 @@
+{
+  "action": "tool",
+  "tool": "index_qa/export_index_bytes.py",
+  "args": [
+    "--key",
+    "timings/warsh/koshi_warsh.jz",
+    "--expect-sha",
+    "3dda31c7816150cff79bce516bf8a8a1ba58478a14ca2e2451bf4fdfd2da540e",
+    "--out",
+    "ops/out/codex-parent-koshi_warsh-3dda31c7-20261005.json"
+  ]
+}

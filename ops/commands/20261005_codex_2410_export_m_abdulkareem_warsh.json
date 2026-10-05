@@ -1,0 +1,12 @@
+{
+  "action": "tool",
+  "tool": "index_qa/export_index_bytes.py",
+  "args": [
+    "--key",
+    "timings/warsh/m_abdulkareem_warsh.jz",
+    "--expect-sha",
+    "746e762fc2722d0c6cc108d239aa0ad5ba1947e13189013201f4b3964201fee5",
+    "--out",
+    "ops/out/codex-parent-m_abdulkareem_warsh-746e762f-20261005.json"
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "action": "tool",
+  "tool": "index_qa/export_index_bytes.py",
+  "args": [
+    "--key",
+    "timings/hafs/saad.jz",
+    "--expect-sha",
+    "8e9f8131711748d617a6339a1d1ab5a511959bf4eb396700d9d4fdf724a747c0",
+    "--out",
+    "ops/out/codex-parent-saad-8e9f8131-20261005.json"
+  ]
+}

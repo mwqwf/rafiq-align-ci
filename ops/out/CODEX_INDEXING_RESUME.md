@@ -112,3 +112,15 @@ keepalive-contract اللاحق اجتاز11contract ثم فشلimport qa_dispat
 - استخراج روابط العيراوي نجح: codex-iraoui-publisher-links-20261005.json. أمر2370_iraoui_metadata يقيس Way2 explicit Azraq /041.mp3 وMidad resources/ar/recitations/47272/457952/041.mp3. Zekr السابق 316.8375ث فقط، لا تعدّه كاملاً.
 - أصلح import restore_loop؛ keepalive-contract37385643866 و37385900425 نجحا. أداة rerun_peshawa_review.py المحلية غير المنشورة خاصة بالنسخة القديمة: لا تستخدمها.
 - المهمة غير مكتملة؛ 100% غير مثبتة. لم تُرقَّ أي نسخة من هذه المجموعة بعد.
+
+## تحديث 23:42 UTC — اعتماد فعلي ثم تدقيق
+- **اعتمد بيشةوا v3 فعلياً** عبر promote_verified_transform، وأعيد التجميد على ca0edef5fdef1f4a6bcf404c805d1be10e295cb36c76db87d959670a82b9675e. العام والدلو وmanifest والتجميد متطابقة؛ 6236 مدخلاً. أمر2380_adopt_peshawa_v3 rc=0. تحفظ الثقة LOW واختلاف النموذج العام؛ لا شهادة جودة100%.
+- الجرد بعد الاعتماد: ops/out/full-audit-codex-after-peshawa-20261005.{json,md} عند23:36:13. 180/180 هوية وبنية،1121167 مدخلاً،1313 غائبة. **6 آيات مستحيلة المدة تحتاج إصلاحاً**: balilah69:50،darweez53:57،tblawi7:24،koshi_warsh11:118،m_abdulkareem_warsh21:48،noah_warsh54:17. أوامر2410 تصدر أصولها وsaad/shamrani ببصمات الجرد دون تغيير.
+- دفعة النهايات37388055996 نجحت قياساً:16مصدرًا،60صف نموذج/قناة،105envelope،errors[]. محفوظة بالكامل في codex-final-verse-free-asr-37388055996-complete.json.gz SHA ed849b75af2fb1a5d0b0231096439a9cb08c6ec585a3fcfedd6fdba4e551d9b3؛ الملخص codex-final-verse-free-asr-summary-20261005.json.
+- **لا تعتمد النسخ الحالية من derini_warsh / f_khamery / zahrani**: إطارات الحرف الأخير بعد نهاية المقترح فيderini11/23/83 وkhamery6؛ Zahrani6 يكرر العبارة الأخيرة بعد5033038ms. يلزم تصحيح الحدود ثم QA جديد على SHA الجديد.
+- تشخيص النهايات الخمس الأول37389442910 أكمل فك المصادر وتفريغ الزهراني إلى EOF، ثم فشل لغيابctc_segmentation قبل أي محاذاة؛0قياس قسري. الدليل المحلي codex-tail-clipping-partial-37389442910.json،لا تعده نجاحاً شاملاً. أصلحت dependencies وأمر2400_tail_clipping_dependencies_fixed يطلق قياساً جديداً؛ لا ازدواج بعد هذا الإصلاح.
+- فحوص سلمان37384824323 كاملة ناجحة لكنreview رفض تشخيصاً قديماً. تحديثdiagnosis37388689142 نجح. محاولةreview-only2390 فشلت تنزيلlogs عبرgh قبل أيrerun. أصلحت الأداة لتستعمل شاهداً مثبت SHA قرأناه منGitHubconnector، مع مراجعة الحالة الحالية والـcommit والـjob والـdiagnosis؛ أمر2400_sadeiq_review_with_recorded_failure معلق/جارٍ.
+- أمر2400_source_quran_recovery يطلق3تشخيصات منفصلة علىShamrani79/Saad28/Saad45 بالنموذج القرآني المثبت float32؛ يتضمن تفريغاً حرّاً لـShamrani28..70ث. لا نشر من محاذاة قسرية وحدها؛ نماذج العام السابقة ضعيفة ولا تثبت غياب الآيات.
+- Iraoui مصادر جديدة:37388681174،Way2 explicitAzraq PCM316.908ث (SHA dd438f762595d6e072b9f87d2f68ed0238e423b9d6f3e15978c5c4c12b4217e9) ناقص أيضاً؛ Midad403. لا تتجاوز403 ولا تكرر نفس المصدر المبتور. التقرير codex-iraoui-source-metadata-37388681174.json.
+- بناءAkri4 37386801366/job112021946483 ما زال جارياً، بدأ القياس23:10:47؛ انتظره دون تكرار.
+- QA Noah/Nufais/Rakbawi جارٍ وبعض قياساتheard طويلة؛ IDs في التحديث السابق. فجوة الثقة الشاملة باقية؛ لا تقل اكتمل100%.

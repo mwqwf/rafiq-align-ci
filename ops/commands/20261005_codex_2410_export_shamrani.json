@@ -1,0 +1,12 @@
+{
+  "action": "tool",
+  "tool": "index_qa/export_index_bytes.py",
+  "args": [
+    "--key",
+    "timings/hafs/shamrani.jz",
+    "--expect-sha",
+    "8676b1a7a684b2c900248b9ac476b40d433c5f8383f63938a37559d8c25bbcea",
+    "--out",
+    "ops/out/codex-parent-shamrani-8676b1a7-20261005.json"
+  ]
+}

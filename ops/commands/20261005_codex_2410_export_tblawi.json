@@ -1,0 +1,12 @@
+{
+  "action": "tool",
+  "tool": "index_qa/export_index_bytes.py",
+  "args": [
+    "--key",
+    "timings/hafs/tblawi.jz",
+    "--expect-sha",
+    "3d4c52f080212f44ed7eb4861e15194843dd13997c9b253aa04db6bcd87871a2",
+    "--out",
+    "ops/out/codex-parent-tblawi-3d4c52f0-20261005.json"
+  ]
+}
