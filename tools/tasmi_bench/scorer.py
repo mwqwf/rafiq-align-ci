@@ -497,6 +497,7 @@ def score(ref_words, hyp_text, cfg=DEFAULT):
                 relax(i + 2, j + 1, 1 if _matches(joined, hyp[j], cfg) else INF, 4)
 
     words = [None] * R
+    hyp_idx = [None] * R   # 🔬 فهرسُ الكلمة المسموعة المسنَدة لكلّ مرجعية (‏المصفّاة بـ`norm`) — إضافةٌ للقراءة فقط (‏token_conf_auc.py)
     additions = []
     located = []   # 📍 (نصُّ الزائدة، موضعُها من كلمات المرجع) — مرآةُ `Score.locatedAdditions`
     i, j = R, H
@@ -507,6 +508,7 @@ def score(ref_words, hyp_text, cfg=DEFAULT):
         pi, pj, op = b
         if op == 0:
             words[pi] = (pi, CORRECT if _matches(ref[pi], hyp[pj], cfg) else (UNCERTAIN if _uncertain(ref[pi], hyp[pj], cfg) else SUBSTITUTED), hyp[pj])
+            hyp_idx[pi] = pj
         elif op == 1:
             words[pi] = (pi, MISSED, None)
         elif op == 2:
@@ -516,9 +518,11 @@ def score(ref_words, hyp_text, cfg=DEFAULT):
             located.insert(0, (hyp[pj], pi))
         elif op == 3:
             words[pi] = (pi, CORRECT, hyp[pj] + " " + hyp[pj + 1])
+            hyp_idx[pi] = pj
         elif op == 4:
             words[pi] = (pi, CORRECT, hyp[pj])
             words[pi + 1] = (pi + 1, CORRECT, hyp[pj])
+            hyp_idx[pi] = hyp_idx[pi + 1] = pj
         i, j = pi, pj
     for k in range(R):
         if words[k] is None:
@@ -540,5 +544,5 @@ def score(ref_words, hyp_text, cfg=DEFAULT):
     # 💠 وبابُ D-443 بعدهما: غفرانُ زوجٍ بعينه يجعل الكلمةَ **صحيحةً** (لا «غيرَ متبيَّنة»)
     #    فهو **رخصةٌ** لا امتناع — والفرقُ بينهما في الجدول: الرخصةُ تُسقط الكشفَ حيث وافقت.
     words = _pair_forgive_guard(words, ref, cfg)
-    return {"words": words, "additions": additions, "located": located, "collapsed": _collapsed,
+    return {"words": words, "additions": additions, "located": located, "collapsed": _collapsed, "hyp_idx": hyp_idx,
             "correct": sum(1 for w in words if w[1] == CORRECT), "total": R}

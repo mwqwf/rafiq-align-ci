@@ -1,0 +1,133 @@
+{
+ "schema": 1,
+ "tool": "full_audit-1.0",
+ "date": "20261005",
+ "timestampUtc": "2026-10-05T13:48:04Z",
+ "elapsedSec": 69.7,
+ "phase": "all",
+ "manifestIndexes": 180,
+ "frozenBucket": 220,
+ "reportsRead": 11073,
+ "rows": [
+  {
+   "key": "timings-staging/hafs/s_alquraishi.2e775f2a.jz",
+   "sha256": "2e775f2ae93e93939e5d45ed3d26bcd4cf152267be2ea6c4927f176c815b4f5b",
+   "riwaya": "hafs",
+   "reciterId": "s_alquraishi",
+   "bytes": 89672,
+   "engine": "align-0.2",
+   "transformOp": "ctc_heardmap_splice:7,8,18,19,21,34,37,39,44,49,55,66,83",
+   "staging": true,
+   "identity": {
+    "sha256": "2e775f2ae93e93939e5d45ed3d26bcd4cf152267be2ea6c4927f176c815b4f5b",
+    "staging": true,
+    "errors": [],
+    "ok": true
+   },
+   "structure": {
+    "entries": 6236,
+    "errors": [],
+    "examples": {},
+    "fileNoUnparsed": 0,
+    "structuralFatal": [],
+    "structuralWarn": [
+     "مداخل مدتها > 120ث: 4 · مثال: 2:282 مدتها 192ث"
+    ],
+    "decision": [],
+    "engine": "align-0.2",
+    "audioSha": 114,
+    "bands": {
+     "HIGH": 3628,
+     "MED": 2421,
+     "LOW": 187
+    },
+    "ok": true
+   },
+   "gaps": {
+    "missingTotal": 0,
+    "internalGaps": [],
+    "headMissing": [],
+    "tailMissing": [],
+    "wholeMissing": [],
+    "declared": {
+     "transformOp": "ctc_heardmap_splice:7,8,18,19,21,34,37,39,44,49,55,66,83",
+     "transformReason": "fixT: إصلاحٌ دفعيٌّ لكبس الذيل — 15 سورةً مشتبهةً (فائضٌ ≥15ث بعد آخر مدخل · تدقيق الجولة الثانية 2026-10-03)، كلٌّ يُقاس بالسماع قبل أن يُمسّ",
+     "reasonCode": null,
+     "dropSurahs": [],
+     "byReason": {
+      "no-align": 12
+     },
+     "declaredCount": 12,
+     "tagCount": 0,
+     "declaredIds": [],
+     "truncatedTail": null
+    },
+    "undeclaredEdge": [],
+    "errors": [],
+    "ok": true
+   },
+   "durations": {
+    "durationOutliers": 0,
+    "durationExamples": [],
+    "impossibleShort": [],
+    "veryShort": [],
+    "extremeLong": [],
+    "longOutliers": 0,
+    "shortOutliers": 0,
+    "silenceGaps": 0,
+    "silenceExamples": [],
+    "surahsWithRate": 113
+   },
+   "audio": {
+    "audioReportsOnSha": 0,
+    "openersOnSha": false,
+    "errors": [
+     "لا حكمَ صوتيٍّ بعيّنةٍ على البصمة المنشورة",
+     "لا شاهدَ مطالعَ على البصمة المنشورة"
+    ],
+    "notes": [],
+    "samples": [],
+    "pooled": null,
+    "severeHi": null,
+    "otherShasWithSamples": [
+     "0de23a19",
+     "3d104c19",
+     "5f422872",
+     "5f4a217e",
+     "63d6b16c",
+     "66af6018",
+     "922903ca",
+     "acbb549c",
+     "d576e4e1"
+    ],
+    "ok": false
+   }
+  }
+ ],
+ "summary": {
+  "indexes": 1,
+  "phase": "all",
+  "identityOk": 1,
+  "identityBad": [],
+  "structureOk": 1,
+  "structureBad": [],
+  "gapsOk": 1,
+  "gapsBad": [],
+  "audioOk": 0,
+  "audioBad": [
+   "timings-staging/hafs/s_alquraishi.2e775f2a.jz"
+  ],
+  "durationOutliersTotal": 0,
+  "impossibleShortTotal": 0,
+  "indexesWithImpossibleShort": 0,
+  "veryShortTotal": 0,
+  "extremeLongTotal": 0,
+  "indexesWithExtremeLong": 0,
+  "mirrorStale": 0,
+  "silenceGapsTotal": 0,
+  "indexesWithDurationOutliers": 0,
+  "indexesWithSilenceGaps": 0,
+  "entriesTotal": 6236,
+  "missingTotal": 0
+ }
+}
