@@ -1,0 +1,14 @@
+{
+  "action": "tool",
+  "tool": "index_qa/promote_verified_transform.py",
+  "args": [
+    "--key",
+    "timings-staging/qalun/rakbawi_qalun.3d8dc7c9.jz",
+    "--sha",
+    "3d8dc7c9e31f3579939f7607efbc38ae142aec17900025b49fa3320ec71c09fc",
+    "--parent-sha",
+    "85886e2b1f665642a50ed6fb062f7ec06480849f6a6727fb95527ad1a613585b",
+    "--reason",
+    "Owner-directed indexing completion: rakbawi_qalun candidate passed seven exact-SHA post-stage measurements and original guarded review (37384814483); source-pinned free ASR 37388055996 includes terminal consonants within proposed tails. Existing confidence and original 5% gate preserved; no global accuracy certification."
+  ]
+}
