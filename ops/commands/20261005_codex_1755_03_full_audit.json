@@ -1,0 +1,14 @@
+{
+  "action": "tool",
+  "tool": "index_qa/full_audit.py",
+  "args": [
+    "--phase",
+    "all",
+    "--out",
+    "ops/out/full-audit-codex-20261005.json",
+    "--md",
+    "ops/out/full-audit-codex-20261005.md",
+    "--budget-sec",
+    "900"
+  ]
+}
