@@ -72,20 +72,35 @@ def _sa(aid: str):
 
 
 def _file_nos(url: str):
-    """أرقامٌ من 1–3 خانات في **اسم الملفّ** بعد فكّ الترميز (‏`001 - البقرة.mp3` ⇒ {1}).
-    ⛔ الأرقامُ الأطول (سنواتٌ كـ1435) لا تُحسب، ورموزُ `%D8%A9` تُفكّ أوّلاً فلا يُلتقط `9` منها."""
-    from urllib.parse import unquote
-    name = unquote(str(url or "")).split("?")[0].rstrip("/").split("/")[-1]
+    """رقمٌ صريح في أول الاسم أو بعد «سورة»؛ أرقامُ البصمات والتواريخ ليست أرقامَ سور."""
+    from urllib.parse import unquote, urlsplit
+    name = unquote(urlsplit(str(url or "")).path.rsplit("/", 1)[-1])
     if not re.search(r"\.(?:mp3|ogg|opus|m4a|wav)$", name, flags=re.I):
         return set()                   # لا اسمَ ملفٍّ صوتيّ (مرجعٌ مبتورٌ إلى مجلّد) — يُكشف في «ملفٌّ لسورتين»
     stem = re.sub(r"\.(?:mp3|ogg|opus|m4a|wav)$", "", name, flags=re.I)
-    return {int(x) for x in re.findall(r"(?<!\d)(\d{1,3})(?!\d)", stem)}
+    match = re.match(r"^(?:(?:surah|sura|سورة)[\s_.-]*)?(\d{1,3})(?=$|[\s_.-])",
+                     stem, flags=re.I)
+    return {int(match.group(1))} if match else set()
 
 
 def _file_no(url: str):
     """رقمُ السورة من اسم الملفّ، أو None إن لم يُعرف (‏تُستعمل في المقابلة مع رقم السورة)."""
     nos = _file_nos(url)
     return min(nos) if len(nos) == 1 else None
+
+
+def _registered_file_number(idx: dict, key: str, surah: int) -> bool:
+    """يُفسَّر اختلافُ الاسم بالسجل المقيس فقط، وبحارس المصدر القائم دون استثناء قارئ."""
+    match = re.fullmatch(r"(timings|timings-staging)/([^/]+)/([^/]+)\.jz", key)
+    if not match:
+        return False
+    prefix, riwaya, reciter = match.groups()
+    if prefix == "timings-staging":
+        reciter = reciter.rsplit(".", 1)[0]
+    if idx.get("riwaya") != riwaya or idx.get("reciterId") != reciter:
+        return False
+    valid, _evidence = _p.registered_source_remediation(idx, riwaya, reciter, surah)
+    return valid
 
 
 # ───────────────────────── البند 2: البنية ─────────────────────────
@@ -139,15 +154,19 @@ def check_structure(idx: dict, key: str, text=None) -> dict:
     if noname:
         out["errors"].append(f"fileRef بلا اسم ملفٍّ صوتيّ (مجلّدٌ لا ملفّ) في {len(noname)} سورة")
         out["examples"]["folderFileRef"] = {str(s): sorted(map(str, files_of[s]))[0] for s in noname[:MAX_EXAMPLES]}
-    mism = {}
+    mism, registered = {}, {}
     for s, fs in files_of.items():
         for f in fs:
             nos = _file_nos(f)
             if nos and s not in nos:
-                mism[s] = f
+                if _registered_file_number(idx, key, s):
+                    registered[str(s)] = f
+                else:
+                    mism[s] = f
     if mism:
         out["errors"].append(f"رقمُ الملفّ لا يطابق السورة: {len(mism)}")
         out["examples"]["fileNoMismatch"] = {str(s): mism[s] for s in sorted(mism)[:MAX_EXAMPLES]}
+    out["registeredFileNoMappings"] = registered
     unnum = sorted({s for s, fs in files_of.items() if any(f and not _file_nos(f) for f in fs)})
     out["fileNoUnparsed"] = len(unnum)
     # الرتابةُ داخل السورة والتداخلُ داخل الملفّ

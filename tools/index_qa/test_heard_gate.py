@@ -147,6 +147,87 @@ class Judge(unittest.TestCase):
         self.assertIsNone(m["anchors"]["2"][0])
 
 
+class AudioShaAfterDrop(unittest.TestCase):
+    def _index(self, compact=False):
+        # حذف السابعة يزيح ترتيب الحاضر دون أن يغيّر موضع الثامنة في القائمة الثابتة.
+        present = [s for s in range(1, 115) if s != 7]
+        shas = [f"{s:064x}" if s != 7 else "" for s in range(1, 115)]
+        idx = {"entries": [ent(s, 1, 1000, ref=f"https://h/{s:03d}.mp3") for s in present],
+               "audioSha256": [shas[s - 1] for s in present] if compact else shas}
+        maps = {s: cmap({1: (1000, .9)}, sha=shas[s - 1], ref=f"https://h/{s:03d}.mp3")
+                for s in present}
+        return idx, maps
+
+    def test_fixed_and_compact_lists_match_after_drop(self):
+        for compact in (False, True):
+            with self.subTest(compact=compact):
+                idx, maps = self._index(compact)
+                verdict = H.judge(idx, None, "x" * 64, maps)
+                self.assertTrue(verdict["ok"], verdict["reason"])
+                self.assertIn("8", verdict["surahs"])
+                self.assertNotIn(7, verdict["required"])
+
+    def test_wrong_heard_sha_rejects_after_drop(self):
+        for compact in (False, True):
+            with self.subTest(compact=compact):
+                idx, maps = self._index(compact)
+                maps[8]["sha256"] = "f" * 64
+                verdict = H.judge(idx, None, "x" * 64, maps)
+                self.assertFalse(verdict["ok"])
+                self.assertIn("س8: الصوتُ المسموع", verdict["reason"])
+                self.assertIn("غيرُ صوت المرشّح", verdict["reason"])
+                self.assertNotIn("8", verdict["surahs"])
+
+    def test_missing_or_invalid_candidate_sha_rejects_after_drop(self):
+        for compact in (False, True):
+            for missing in (None, "", "   ", 0, []):
+                with self.subTest(compact=compact, missing=missing):
+                    idx, maps = self._index(compact)
+                    idx["audioSha256"][6 if compact else 7] = missing
+                    verdict = H.judge(idx, None, "x" * 64, maps)
+                    self.assertFalse(verdict["ok"])
+                    self.assertIn("س8: لا بصمةَ صوتٍ صالحة", verdict["reason"])
+
+    def test_absent_or_invalid_sha_list_rejects(self):
+        for malformed in (None, "a" * 64, {}, [], ["a" * 64] * 112, ["a" * 64] * 115):
+            with self.subTest(malformed=malformed):
+                idx, maps = self._index()
+                if malformed is None:
+                    del idx["audioSha256"]
+                else:
+                    idx["audioSha256"] = malformed
+                verdict = H.judge(idx, None, "x" * 64, maps)
+                self.assertFalse(verdict["ok"])
+                self.assertIn("لا بصمةَ صوتٍ صالحة", verdict["reason"])
+
+    def test_missing_heard_sha_rejects_after_drop(self):
+        for compact in (False, True):
+            for missing in (None, ""):
+                with self.subTest(compact=compact, missing=missing):
+                    idx, maps = self._index(compact)
+                    if missing is None:
+                        del maps[8]["sha256"]
+                    else:
+                        maps[8]["sha256"] = missing
+                    verdict = H.judge(idx, None, "x" * 64, maps)
+                    self.assertFalse(verdict["ok"])
+                    self.assertIn("س8: الصوتُ المسموع", verdict["reason"])
+
+    def test_gate_recomputes_wrong_sha_after_drop(self):
+        idx, maps = self._index()
+        pub = {"entries": [dict(e) for e in idx["entries"]]}
+        pub["entries"][6]["startMs"] = 0
+        maps[8]["sha256"] = "f" * 64
+        forged = {"sha256": "x" * 64, "ok": True, "maps": maps}
+        self.assertIn("غيرُ صوت المرشّح", H.gate_error(idx, pub, "x" * 64, forged))
+        # العيّنة غير المعدّلة تظل للتقرير وحده، لكن بصمتها الخاطئة تُسجّل.
+        verdict = H.judge(idx, {"entries": idx["entries"]}, "x" * 64,
+                          {s: dict(m, sha256="f" * 64) for s, m in maps.items()})
+        self.assertTrue(verdict["ok"], verdict["reason"])
+        self.assertEqual(len(verdict["sampleFindings"]), H.SAMPLE_K)
+        self.assertTrue(all("غيرُ صوت المرشّح" in finding for finding in verdict["sampleFindings"]))
+
+
 class PromoteHook(unittest.TestCase):
     """promote.heard_gate_check: الغيابُ ردٌّ متى خالف المرشّحُ المنشور، ولا شيءَ يلزم الإسقاطَ المحض."""
     def _cl(self, objs):
