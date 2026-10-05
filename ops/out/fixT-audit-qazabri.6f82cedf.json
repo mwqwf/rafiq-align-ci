@@ -1,0 +1,189 @@
+{
+ "schema": 1,
+ "tool": "full_audit-1.0",
+ "date": "20261005",
+ "timestampUtc": "2026-10-05T15:09:30Z",
+ "elapsedSec": 25.1,
+ "phase": "all",
+ "manifestIndexes": 180,
+ "frozenBucket": 220,
+ "reportsRead": 11103,
+ "rows": [
+  {
+   "key": "timings-staging/warsh/qazabri.6f82cedf.jz",
+   "sha256": "6f82cedfbf4911edd79434f96a59602dd1b9aafd714bf5b05822ea1b7e733d56",
+   "riwaya": "warsh",
+   "reciterId": "qazabri",
+   "bytes": 91588,
+   "engine": "align-0.2",
+   "transformOp": "ctc_heardmap_splice:36,41,45,46,55",
+   "staging": true,
+   "identity": {
+    "sha256": "6f82cedfbf4911edd79434f96a59602dd1b9aafd714bf5b05822ea1b7e733d56",
+    "staging": true,
+    "errors": [],
+    "ok": true
+   },
+   "structure": {
+    "entries": 6236,
+    "errors": [],
+    "examples": {},
+    "fileNoUnparsed": 0,
+    "structuralFatal": [],
+    "structuralWarn": [
+     "مداخل مدتها > 120ث: 3 · مثال: 2:282 مدتها 185ث",
+     "مطالع سور تبدأ دون 3ث — مرشّحون للمسبار الصوتي لا حكمٌ عليهم: 68:1=0م.ث",
+     "فجوات > 15ث بين آيتين متتاليتين: 1 · مثال: 79:33→79:34 فجوة 26ث"
+    ],
+    "decision": [],
+    "engine": "align-0.2",
+    "audioSha": 114,
+    "bands": {
+     "MED": 1969,
+     "HIGH": 4017,
+     "LOW": 250
+    },
+    "ok": true
+   },
+   "gaps": {
+    "missingTotal": 0,
+    "internalGaps": [],
+    "headMissing": [],
+    "tailMissing": [],
+    "wholeMissing": [],
+    "declared": {
+     "transformOp": "ctc_heardmap_splice:36,41,45,46,55",
+     "transformReason": "fixT: إصلاحٌ دفعيٌّ لكبس الذيل — 5 سورةً مشتبهةً (فائضٌ ≥15ث بعد آخر مدخل · تدقيق الجولة الثانية 2026-10-03)، كلٌّ يُقاس بالسماع قبل أن يُمسّ",
+     "reasonCode": null,
+     "dropSurahs": [],
+     "byReason": {
+      "no-align": 16
+     },
+     "declaredCount": 16,
+     "tagCount": 0,
+     "declaredIds": [],
+     "truncatedTail": null
+    },
+    "undeclaredEdge": [],
+    "errors": [],
+    "ok": true
+   },
+   "durations": {
+    "durationOutliers": 7,
+    "durationExamples": [
+     {
+      "aid": "79:43",
+      "ms": 11779,
+      "expMs": 2622,
+      "ratio": 4.49,
+      "chars": 14
+     },
+     {
+      "aid": "79:15",
+      "ms": 9015,
+      "expMs": 2622,
+      "ratio": 3.44,
+      "chars": 14
+     },
+     {
+      "aid": "79:14",
+      "ms": 8865,
+      "expMs": 2622,
+      "ratio": 3.38,
+      "chars": 14
+     },
+     {
+      "aid": "79:42",
+      "ms": 14232,
+      "expMs": 4495,
+      "ratio": 3.17,
+      "chars": 24
+     },
+     {
+      "aid": "1:7",
+      "ms": 3540,
+      "expMs": 15896,
+      "ratio": 0.22,
+      "chars": 43
+     },
+     {
+      "aid": "38:21",
+      "ms": 2787,
+      "expMs": 9866,
+      "ratio": 0.28,
+      "chars": 31
+     },
+     {
+      "aid": "38:73",
+      "ms": 1898,
+      "expMs": 6684,
+      "ratio": 0.28,
+      "chars": 21
+     }
+    ],
+    "impossibleShort": [],
+    "veryShort": [],
+    "extremeLong": [],
+    "longOutliers": 4,
+    "shortOutliers": 3,
+    "silenceGaps": 1,
+    "silenceExamples": [
+     {
+      "from": "79:33",
+      "to": "79:34",
+      "gapMs": 25550
+     }
+    ],
+    "surahsWithRate": 113
+   },
+   "audio": {
+    "audioReportsOnSha": 0,
+    "openersOnSha": false,
+    "errors": [
+     "لا حكمَ صوتيٍّ بعيّنةٍ على البصمة المنشورة",
+     "لا شاهدَ مطالعَ على البصمة المنشورة"
+    ],
+    "notes": [],
+    "samples": [],
+    "pooled": null,
+    "severeHi": null,
+    "otherShasWithSamples": [
+     "02670b67",
+     "19bf8183",
+     "503e8ab1",
+     "8d2085f5",
+     "a74f0d9c",
+     "afbaafb8",
+     "d09d61fa"
+    ],
+    "ok": false
+   }
+  }
+ ],
+ "summary": {
+  "indexes": 1,
+  "phase": "all",
+  "identityOk": 1,
+  "identityBad": [],
+  "structureOk": 1,
+  "structureBad": [],
+  "gapsOk": 1,
+  "gapsBad": [],
+  "audioOk": 0,
+  "audioBad": [
+   "timings-staging/warsh/qazabri.6f82cedf.jz"
+  ],
+  "durationOutliersTotal": 7,
+  "impossibleShortTotal": 0,
+  "indexesWithImpossibleShort": 0,
+  "veryShortTotal": 0,
+  "extremeLongTotal": 0,
+  "indexesWithExtremeLong": 0,
+  "mirrorStale": 0,
+  "silenceGapsTotal": 1,
+  "indexesWithDurationOutliers": 1,
+  "indexesWithSilenceGaps": 1,
+  "entriesTotal": 6236,
+  "missingTotal": 0
+ }
+}
