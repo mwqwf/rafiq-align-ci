@@ -183,6 +183,18 @@ class CompletionAuditTest(unittest.TestCase):
         self.assertEqual(result["openers"]["unresolved"], [{"field": "unknown", "surahs": [1]}])
         self.assertEqual(result["census"]["unresolved"][0]["ayahId"], "1:1")
 
+    def test_full_opener_scope_checks_112_basmala_not_114_surahs(self):
+        record, manifest, frozen, reports = fixture()
+        op = {"sha256": INDEX_SHA, "kind": "openers", "checked": 112, "scope": "full",
+              "late": [], "unknown": [], "_completionToolTrusted": True}
+        reports.append(("state/openers.json", op))
+        result = C.audit_index(KEY, record, manifest, frozen, reports)
+        self.assertTrue(result["openers"]["ready"])
+        self.assertEqual(result["openers"]["checked"], 112)
+        self.assertFalse(result["ready"])  # شهادة المطالع لا تستبدل شاهد النهاية.
+        op["scope"] = "partial"
+        self.assertFalse(C.audit_index(KEY, record, manifest, frozen, reports)["openers"]["ready"])
+
     def test_live_collection_is_read_only_and_detects_races(self):
         record, manifest, frozen, reports = fixture()
         body = gzip.compress(json.dumps(record["index"]).encode())
