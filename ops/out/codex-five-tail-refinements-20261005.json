@@ -1,0 +1,2138 @@
+[
+  {
+    "reciterId": "derini_warsh",
+    "riwaya": "warsh",
+    "path": "ops/source-repair/candidates/codex-derini_warsh-tail-refined-20261005-v2.jz",
+    "sha256": "b222672f3f7b4f6082b05edbac0d97d7fefd1a62aa0a51d33061829f263a8941",
+    "parentKey": "timings/warsh/derini_warsh.jz",
+    "parentSha256": "ffa7ef763237bf0f7d34d492d9a74ef595fd2528f6be0a7d1f1581a312384825",
+    "changedFinalEnds": 3,
+    "structuralFatal": [],
+    "structuralWarnings": [
+      "مداخل مدتها > 120ث: 3 · مثال: 2:282 مدتها 195ث"
+    ],
+    "proof": {
+      "kind": "source-measured-final-end-refinement",
+      "qualityClaim": false,
+      "baseCandidateSha256": "0d2de0b9d99a7243f3e9ee542bfd91a1b05d602fead644aea422ce4afd888479",
+      "diagnosticReportSha256": "fb06b3e2173a9472017f30608d36268dc13b36b97c012ad8520f4d44ff0d1ae8",
+      "rawBundleSha256": "29e67d2840d61adfb565b13a21aefb8728ca7de966bb495a003b30815a6345ff",
+      "initialFreeBundleSha256": "ed849b75af2fb1a5d0b0231096439a9cb08c6ec585a3fcfedd6fdba4e551d9b3",
+      "endRule": "ceil(max(Quran target endpoints, free terminal token center)/100ms)*100ms + 200ms",
+      "changes": [
+        {
+          "id": "derini_warsh-s11",
+          "before": {
+            "ayahId": "11:123",
+            "fileRef": "https://archive.org/download/amrou-el-derini_Warsh/011.mp3",
+            "startMs": 3033930,
+            "endMs": 3055138,
+            "conf": 0.667,
+            "confBand": "MED"
+          },
+          "after": {
+            "ayahId": "11:123",
+            "fileRef": "https://archive.org/download/amrou-el-derini_Warsh/011.mp3",
+            "startMs": 3033930,
+            "endMs": 3058000,
+            "conf": 0.667,
+            "confBand": "MED"
+          },
+          "sourceSha256": "89551773d888cce00bc020bce5cc3b10f03a09ffb77d1f7d8bb4ef9f6a6fddcd",
+          "terminalFrames": [
+            {
+              "channel": "native-1",
+              "rawPartSha256": "03ad1eea54477d1a0b9bcdc96984326ed764878b143b2e75f28e928811404a53",
+              "terminalConsonant": "ن",
+              "consonantCenterMs": 3057592.46875,
+              "lastTokenCenterMs": 3057732.46875,
+              "posteriorIsCalibratedConfidence": false
+            },
+            {
+              "channel": "native-2",
+              "rawPartSha256": "faecc258512512a4db9d97e0a1dc8fc72bef99aa97822f57861b9948662fea61",
+              "terminalConsonant": "ن",
+              "consonantCenterMs": 3057572.46875,
+              "lastTokenCenterMs": 3057672.46875,
+              "posteriorIsCalibratedConfidence": false
+            }
+          ],
+          "modelMeasurements": [
+            {
+              "id": "derini_warsh-s11",
+              "sourceSha256": "89551773d888cce00bc020bce5cc3b10f03a09ffb77d1f7d8bb4ef9f6a6fddcd",
+              "model": "generic",
+              "channel": "native-1",
+              "alignmentModel": {
+                "id": "jonatasgrosman/wav2vec2-large-xlsr-53-arabic",
+                "revision": "af46c2d8531b8dcbb5e23b952f739b372c2e5d2d",
+                "weightsSha256": "a0b26f6d9d3edfde1784aef863c192a8cc1e438a23b45910ab648531ebe1857b",
+                "license": "Apache-2.0"
+              },
+              "alignmentInput": [
+                "وَلِلهِ غَيْبُ اُ۬لسَّمَٰوَٰتِ وَالَارْضِۖ وَإِلَيْهِ يُرْجَعُ اُ۬لَامْرُ كُلُّهُۥۖ فَاعْبُدْهُ وَتَوَكَّلْ عَلَيْهِۖ وَمَا رَبُّكَ بِغَٰفِلٍ عَمَّا تَعْمَلُونَۖ"
+              ],
+              "windowMs": [
+                3031000,
+                3060062.0625
+              ],
+              "inputPcmSha256": "a367330c0465d550fd0f173a4962aa8bf0b54b8916400c655d58ec3fb74a5591",
+              "rawSegments": [
+                [
+                  2.582339962121212,
+                  26.670246750172176,
+                  -2.1846532267157612
+                ]
+              ],
+              "rawEntries": [
+                {
+                  "ayahId": "11:123",
+                  "startMs": 3033582,
+                  "endMs": 3057670,
+                  "conf": 0.454
+                }
+              ],
+              "entries": [
+                {
+                  "ayahId": "11:123",
+                  "startMs": 3033582,
+                  "endMs": 3057670,
+                  "conf": 0.454
+                }
+              ],
+              "startDeltaMs": -348,
+              "endDeltaMs": 2532,
+              "withinExistingTargetThresholds": false
+            },
+            {
+              "id": "derini_warsh-s11",
+              "sourceSha256": "89551773d888cce00bc020bce5cc3b10f03a09ffb77d1f7d8bb4ef9f6a6fddcd",
+              "model": "generic",
+              "channel": "native-2",
+              "alignmentModel": {
+                "id": "jonatasgrosman/wav2vec2-large-xlsr-53-arabic",
+                "revision": "af46c2d8531b8dcbb5e23b952f739b372c2e5d2d",
+                "weightsSha256": "a0b26f6d9d3edfde1784aef863c192a8cc1e438a23b45910ab648531ebe1857b",
+                "license": "Apache-2.0"
+              },
+              "alignmentInput": [
+                "وَلِلهِ غَيْبُ اُ۬لسَّمَٰوَٰتِ وَالَارْضِۖ وَإِلَيْهِ يُرْجَعُ اُ۬لَامْرُ كُلُّهُۥۖ فَاعْبُدْهُ وَتَوَكَّلْ عَلَيْهِۖ وَمَا رَبُّكَ بِغَٰفِلٍ عَمَّا تَعْمَلُونَۖ"
+              ],
+              "windowMs": [
+                3031000,
+                3060062.0625
+              ],
+              "inputPcmSha256": "77812b342cb18b6e0ac3e8e5258bbae36c026ae1dc904792d2c833c263104c06",
+              "rawSegments": [
+                [
+                  2.582339962121212,
+                  26.670246750172176,
+                  -2.243687528603766
+                ]
+              ],
+              "rawEntries": [
+                {
+                  "ayahId": "11:123",
+                  "startMs": 3033582,
+                  "endMs": 3057670,
+                  "conf": 0.439
+                }
+              ],
+              "entries": [
+                {
+                  "ayahId": "11:123",
+                  "startMs": 3033582,
+                  "endMs": 3057670,
+                  "conf": 0.439
+                }
+              ],
+              "startDeltaMs": -348,
+              "endDeltaMs": 2532,
+              "withinExistingTargetThresholds": false
+            },
+            {
+              "id": "derini_warsh-s11",
+              "sourceSha256": "89551773d888cce00bc020bce5cc3b10f03a09ffb77d1f7d8bb4ef9f6a6fddcd",
+              "model": "generic",
+              "channel": "native-1",
+              "alignmentModel": {
+                "id": "jonatasgrosman/wav2vec2-large-xlsr-53-arabic",
+                "revision": "af46c2d8531b8dcbb5e23b952f739b372c2e5d2d",
+                "weightsSha256": "a0b26f6d9d3edfde1784aef863c192a8cc1e438a23b45910ab648531ebe1857b",
+                "license": "Apache-2.0"
+              },
+              "alignmentInput": [
+                "وَلِلهِ غَيْبُ اُ۬لسَّمَٰوَٰتِ وَالَارْضِۖ وَإِلَيْهِ يُرْجَعُ اُ۬لَامْرُ كُلُّهُۥۖ فَاعْبُدْهُ وَتَوَكَّلْ عَلَيْهِۖ وَمَا رَبُّكَ بِغَٰفِلٍ عَمَّا تَعْمَلُونَۖ"
+              ],
+              "windowMs": [
+                3031500,
+                3060062.0625
+              ],
+              "inputPcmSha256": "5c7ff6e311e5689dfab7208a0afeced3d005946f44f2d51acaa9df61fa20f208",
+              "rawSegments": [
+                [
+                  2.0819944376313946,
+                  26.170214939558512,
+                  -2.2560351182516305
+                ]
+              ],
+              "rawEntries": [
+                {
+                  "ayahId": "11:123",
+                  "startMs": 3033581,
+                  "endMs": 3057670,
+                  "conf": 0.436
+                }
+              ],
+              "entries": [
+                {
+                  "ayahId": "11:123",
+                  "startMs": 3033581,
+                  "endMs": 3057670,
+                  "conf": 0.436
+                }
+              ],
+              "startDeltaMs": -349,
+              "endDeltaMs": 2532,
+              "withinExistingTargetThresholds": false
+            },
+            {
+              "id": "derini_warsh-s11",
+              "sourceSha256": "89551773d888cce00bc020bce5cc3b10f03a09ffb77d1f7d8bb4ef9f6a6fddcd",
+              "model": "generic",
+              "channel": "native-2",
+              "alignmentModel": {
+                "id": "jonatasgrosman/wav2vec2-large-xlsr-53-arabic",
+                "revision": "af46c2d8531b8dcbb5e23b952f739b372c2e5d2d",
+                "weightsSha256": "a0b26f6d9d3edfde1784aef863c192a8cc1e438a23b45910ab648531ebe1857b",
+                "license": "Apache-2.0"
+              },
+              "alignmentInput": [
+                "وَلِلهِ غَيْبُ اُ۬لسَّمَٰوَٰتِ وَالَارْضِۖ وَإِلَيْهِ يُرْجَعُ اُ۬لَامْرُ كُلُّهُۥۖ فَاعْبُدْهُ وَتَوَكَّلْ عَلَيْهِۖ وَمَا رَبُّكَ بِغَٰفِلٍ عَمَّا تَعْمَلُونَۖ"
+              ],
+              "windowMs": [
+                3031500,
+                3060062.0625
+              ],
+              "inputPcmSha256": "82876ac5092bf319bec9e33009760073d4993c3229dac98e32e56734f472cf57",
+              "rawSegments": [
+                [
+                  2.0819944376313946,
+                  26.170214939558512,
+                  -2.2720416847188365
+                ]
+              ],
+              "rawEntries": [
+                {
+                  "ayahId": "11:123",
+                  "startMs": 3033581,
+                  "endMs": 3057670,
+                  "conf": 0.432
+                }
+              ],
+              "entries": [
+                {
+                  "ayahId": "11:123",
+                  "startMs": 3033581,
+                  "endMs": 3057670,
+                  "conf": 0.432
+                }
+              ],
+              "startDeltaMs": -349,
+              "endDeltaMs": 2532,
+              "withinExistingTargetThresholds": false
+            },
+            {
+              "id": "derini_warsh-s11",
+              "sourceSha256": "89551773d888cce00bc020bce5cc3b10f03a09ffb77d1f7d8bb4ef9f6a6fddcd",
+              "model": "quran",
+              "channel": "native-1",
+              "alignmentModel": {
+                "id": "rabah2026/wav2vec2-large-xlsr-53-arabic-quran-v_final",
+                "revision": "b03a268c6ba1a693752307325ab376c86c3b12da",
+                "weightsSha256": "bf65674a26eb4ef7042cedade96c3c8f8cbd04f3a7d1a68eadceec8ed0f99ecb",
+                "license": "Apache-2.0"
+              },
+              "alignmentInput": [
+                "وَلِلهِ غَيْبُ اُلسَّمَٰوَٰتِ وَالَارْضِ وَإِلَيْهِ يُرْجَعُ اُلَامْرُ كُلُّهُۥ فَاعْبُدْهُ وَتَوَكَّلْ عَلَيْهِ وَمَا رَبُّكَ بِغَٰفِلٍ عَمَّا تَعْمَلُونَ"
+              ],
+              "windowMs": [
+                3031000,
+                3060062.0625
+              ],
+              "inputPcmSha256": "a367330c0465d550fd0f173a4962aa8bf0b54b8916400c655d58ec3fb74a5591",
+              "rawSegments": [
+                [
+                  2.582339962121212,
+                  26.73029233384986,
+                  -0.9593516413950359
+                ]
+              ],
+              "rawEntries": [
+                {
+                  "ayahId": "11:123",
+                  "startMs": 3033582,
+                  "endMs": 3057730,
+                  "conf": 0.76
+                }
+              ],
+              "entries": [
+                {
+                  "ayahId": "11:123",
+                  "startMs": 3033582,
+                  "endMs": 3057730,
+                  "conf": 0.76
+                }
+              ],
+              "startDeltaMs": -348,
+              "endDeltaMs": 2592,
+              "withinExistingTargetThresholds": false
+            },
+            {
+              "id": "derini_warsh-s11",
+              "sourceSha256": "89551773d888cce00bc020bce5cc3b10f03a09ffb77d1f7d8bb4ef9f6a6fddcd",
+              "model": "quran",
+              "channel": "native-2",
+              "alignmentModel": {
+                "id": "rabah2026/wav2vec2-large-xlsr-53-arabic-quran-v_final",
+                "revision": "b03a268c6ba1a693752307325ab376c86c3b12da",
+                "weightsSha256": "bf65674a26eb4ef7042cedade96c3c8f8cbd04f3a7d1a68eadceec8ed0f99ecb",
+                "license": "Apache-2.0"
+              },
+              "alignmentInput": [
+                "وَلِلهِ غَيْبُ اُلسَّمَٰوَٰتِ وَالَارْضِ وَإِلَيْهِ يُرْجَعُ اُلَامْرُ كُلُّهُۥ فَاعْبُدْهُ وَتَوَكَّلْ عَلَيْهِ وَمَا رَبُّكَ بِغَٰفِلٍ عَمَّا تَعْمَلُونَ"
+              ],
+              "windowMs": [
+                3031000,
+                3060062.0625
+              ],
+              "inputPcmSha256": "77812b342cb18b6e0ac3e8e5258bbae36c026ae1dc904792d2c833c263104c06",
+              "rawSegments": [
+                [
+                  2.582339962121212,
+                  26.690261944731404,
+                  -1.0418018221654544
+                ]
+              ],
+              "rawEntries": [
+                {
+                  "ayahId": "11:123",
+                  "startMs": 3033582,
+                  "endMs": 3057690,
+                  "conf": 0.74
+                }
+              ],
+              "entries": [
+                {
+                  "ayahId": "11:123",
+                  "startMs": 3033582,
+                  "endMs": 3057690,
+                  "conf": 0.74
+                }
+              ],
+              "startDeltaMs": -348,
+              "endDeltaMs": 2552,
+              "withinExistingTargetThresholds": false
+            },
+            {
+              "id": "derini_warsh-s11",
+              "sourceSha256": "89551773d888cce00bc020bce5cc3b10f03a09ffb77d1f7d8bb4ef9f6a6fddcd",
+              "model": "quran",
+              "channel": "native-1",
+              "alignmentModel": {
+                "id": "rabah2026/wav2vec2-large-xlsr-53-arabic-quran-v_final",
+                "revision": "b03a268c6ba1a693752307325ab376c86c3b12da",
+                "weightsSha256": "bf65674a26eb4ef7042cedade96c3c8f8cbd04f3a7d1a68eadceec8ed0f99ecb",
+                "license": "Apache-2.0"
+              },
+              "alignmentInput": [
+                "وَلِلهِ غَيْبُ اُلسَّمَٰوَٰتِ وَالَارْضِ وَإِلَيْهِ يُرْجَعُ اُلَامْرُ كُلُّهُۥ فَاعْبُدْهُ وَتَوَكَّلْ عَلَيْهِ وَمَا رَبُّكَ بِغَٰفِلٍ عَمَّا تَعْمَلُونَ"
+              ],
+              "windowMs": [
+                3031500,
+                3060062.0625
+              ],
+              "inputPcmSha256": "5c7ff6e311e5689dfab7208a0afeced3d005946f44f2d51acaa9df61fa20f208",
+              "rawSegments": [
+                [
+                  2.0819944376313946,
+                  26.230261321829012,
+                  -1.0351654592022972
+                ]
+              ],
+              "rawEntries": [
+                {
+                  "ayahId": "11:123",
+                  "startMs": 3033581,
+                  "endMs": 3057730,
+                  "conf": 0.741
+                }
+              ],
+              "entries": [
+                {
+                  "ayahId": "11:123",
+                  "startMs": 3033581,
+                  "endMs": 3057730,
+                  "conf": 0.741
+                }
+              ],
+              "startDeltaMs": -349,
+              "endDeltaMs": 2592,
+              "withinExistingTargetThresholds": false
+            },
+            {
+              "id": "derini_warsh-s11",
+              "sourceSha256": "89551773d888cce00bc020bce5cc3b10f03a09ffb77d1f7d8bb4ef9f6a6fddcd",
+              "model": "quran",
+              "channel": "native-2",
+              "alignmentModel": {
+                "id": "rabah2026/wav2vec2-large-xlsr-53-arabic-quran-v_final",
+                "revision": "b03a268c6ba1a693752307325ab376c86c3b12da",
+                "weightsSha256": "bf65674a26eb4ef7042cedade96c3c8f8cbd04f3a7d1a68eadceec8ed0f99ecb",
+                "license": "Apache-2.0"
+              },
+              "alignmentInput": [
+                "وَلِلهِ غَيْبُ اُلسَّمَٰوَٰتِ وَالَارْضِ وَإِلَيْهِ يُرْجَعُ اُلَامْرُ كُلُّهُۥ فَاعْبُدْهُ وَتَوَكَّلْ عَلَيْهِ وَمَا رَبُّكَ بِغَٰفِلٍ عَمَّا تَعْمَلُونَ"
+              ],
+              "windowMs": [
+                3031500,
+                3060062.0625
+              ],
+              "inputPcmSha256": "82876ac5092bf319bec9e33009760073d4993c3229dac98e32e56734f472cf57",
+              "rawSegments": [
+                [
+                  2.0819944376313946,
+                  26.190230400315347,
+                  -1.063132830676697
+                ]
+              ],
+              "rawEntries": [
+                {
+                  "ayahId": "11:123",
+                  "startMs": 3033581,
+                  "endMs": 3057690,
+                  "conf": 0.734
+                }
+              ],
+              "entries": [
+                {
+                  "ayahId": "11:123",
+                  "startMs": 3033581,
+                  "endMs": 3057690,
+                  "conf": 0.734
+                }
+              ],
+              "startDeltaMs": -349,
+              "endDeltaMs": 2552,
+              "withinExistingTargetThresholds": false
+            }
+          ],
+          "qualityClaim": false
+        },
+        {
+          "id": "derini_warsh-s23",
+          "before": {
+            "ayahId": "23:118",
+            "fileRef": "https://archive.org/download/amrou-el-derini_Warsh/023.mp3",
+            "startMs": 1678364,
+            "endMs": 1686350,
+            "conf": 0.0,
+            "confBand": "LOW",
+            "startApprox": true
+          },
+          "after": {
+            "ayahId": "23:118",
+            "fileRef": "https://archive.org/download/amrou-el-derini_Warsh/023.mp3",
+            "startMs": 1678364,
+            "endMs": 1688400,
+            "conf": 0.0,
+            "confBand": "LOW",
+            "startApprox": true
+          },
+          "sourceSha256": "04a390a6f37087e21fd364a8e4c9009894a3f6d2d8568bce42a54380909fdb35",
+          "terminalFrames": [
+            {
+              "channel": "native-1",
+              "rawPartSha256": "f71e2844c4def9042d2d5d3e061b3dfa1c4581420ea69feca11465c039bb50a0",
+              "terminalConsonant": "ن",
+              "consonantCenterMs": 1688032.46875,
+              "lastTokenCenterMs": 1688132.46875,
+              "posteriorIsCalibratedConfidence": false
+            },
+            {
+              "channel": "native-2",
+              "rawPartSha256": "d09ef1ef461ae72f8c68a7e9b6b1130593a44f203a10a0535d288961a3006a5e",
+              "terminalConsonant": "ن",
+              "consonantCenterMs": 1688032.46875,
+              "lastTokenCenterMs": 1688132.46875,
+              "posteriorIsCalibratedConfidence": false
+            }
+          ],
+          "modelMeasurements": [
+            {
+              "id": "derini_warsh-s23",
+              "sourceSha256": "04a390a6f37087e21fd364a8e4c9009894a3f6d2d8568bce42a54380909fdb35",
+              "model": "generic",
+              "channel": "native-1",
+              "alignmentModel": {
+                "id": "jonatasgrosman/wav2vec2-large-xlsr-53-arabic",
+                "revision": "af46c2d8531b8dcbb5e23b952f739b372c2e5d2d",
+                "weightsSha256": "a0b26f6d9d3edfde1784aef863c192a8cc1e438a23b45910ab648531ebe1857b",
+                "license": "Apache-2.0"
+              },
+              "alignmentInput": [
+                "وَقُل رَّبِّ اِ۪غْفِرْ وَارْحَمْ وَأَنتَ خَيْرُ اُ۬لرَّٰحِمِينَۖ"
+              ],
+              "windowMs": [
+                1676000,
+                1694275.9375
+              ],
+              "inputPcmSha256": "d4fe2738cdd0d59734761b080a3bc584bda330a062e247cb9e5f016892f673f8",
+              "rawSegments": [
+                [
+                  2.362496234939759,
+                  12.120569722070098,
+                  -1.2228920917597783
+                ]
+              ],
+              "rawEntries": [
+                {
+                  "ayahId": "23:118",
+                  "startMs": 1678362,
+                  "endMs": 1688120,
+                  "conf": 0.694
+                }
+              ],
+              "entries": [
+                {
+                  "ayahId": "23:118",
+                  "startMs": 1678362,
+                  "endMs": 1688120,
+                  "conf": 0.694
+                }
+              ],
+              "startDeltaMs": -2,
+              "endDeltaMs": 1770,
+              "withinExistingTargetThresholds": false
+            },
+            {
+              "id": "derini_warsh-s23",
+              "sourceSha256": "04a390a6f37087e21fd364a8e4c9009894a3f6d2d8568bce42a54380909fdb35",
+              "model": "generic",
+              "channel": "native-2",
+              "alignmentModel": {
+                "id": "jonatasgrosman/wav2vec2-large-xlsr-53-arabic",
+                "revision": "af46c2d8531b8dcbb5e23b952f739b372c2e5d2d",
+                "weightsSha256": "a0b26f6d9d3edfde1784aef863c192a8cc1e438a23b45910ab648531ebe1857b",
+                "license": "Apache-2.0"
+              },
+              "alignmentInput": [
+                "وَقُل رَّبِّ اِ۪غْفِرْ وَارْحَمْ وَأَنتَ خَيْرُ اُ۬لرَّٰحِمِينَۖ"
+              ],
+              "windowMs": [
+                1676000,
+                1694275.9375
+              ],
+              "inputPcmSha256": "a5c63a58f5cb663c198a2cbadc6cbb1ea8665c509c44550ccd10d5f7144773bf",
+              "rawSegments": [
+                [
+                  2.362496234939759,
+                  12.180622090635268,
+                  -1.7050160456531576
+                ]
+              ],
+              "rawEntries": [
+                {
+                  "ayahId": "23:118",
+                  "startMs": 1678362,
+                  "endMs": 1688180,
+                  "conf": 0.574
+                }
+              ],
+              "entries": [
+                {
+                  "ayahId": "23:118",
+                  "startMs": 1678362,
+                  "endMs": 1688180,
+                  "conf": 0.574
+                }
+              ],
+              "startDeltaMs": -2,
+              "endDeltaMs": 1830,
+              "withinExistingTargetThresholds": false
+            },
+            {
+              "id": "derini_warsh-s23",
+              "sourceSha256": "04a390a6f37087e21fd364a8e4c9009894a3f6d2d8568bce42a54380909fdb35",
+              "model": "generic",
+              "channel": "native-1",
+              "alignmentModel": {
+                "id": "jonatasgrosman/wav2vec2-large-xlsr-53-arabic",
+                "revision": "af46c2d8531b8dcbb5e23b952f739b372c2e5d2d",
+                "weightsSha256": "a0b26f6d9d3edfde1784aef863c192a8cc1e438a23b45910ab648531ebe1857b",
+                "license": "Apache-2.0"
+              },
+              "alignmentInput": [
+                "وَقُل رَّبِّ اِ۪غْفِرْ وَارْحَمْ وَأَنتَ خَيْرُ اُ۬لرَّٰحِمِينَۖ"
+              ],
+              "windowMs": [
+                1676500,
+                1694275.9375
+              ],
+              "inputPcmSha256": "0178239ed384e6a14e7e5b319f37431b4065adf207001a01a6280ee7c829e130",
+              "rawSegments": [
+                [
+                  1.862117820945946,
+                  11.620418602195947,
+                  -1.203737106104329
+                ]
+              ],
+              "rawEntries": [
+                {
+                  "ayahId": "23:118",
+                  "startMs": 1678362,
+                  "endMs": 1688120,
+                  "conf": 0.699
+                }
+              ],
+              "entries": [
+                {
+                  "ayahId": "23:118",
+                  "startMs": 1678362,
+                  "endMs": 1688120,
+                  "conf": 0.699
+                }
+              ],
+              "startDeltaMs": -2,
+              "endDeltaMs": 1770,
+              "withinExistingTargetThresholds": false
+            },
+            {
+              "id": "derini_warsh-s23",
+              "sourceSha256": "04a390a6f37087e21fd364a8e4c9009894a3f6d2d8568bce42a54380909fdb35",
+              "model": "generic",
+              "channel": "native-2",
+              "alignmentModel": {
+                "id": "jonatasgrosman/wav2vec2-large-xlsr-53-arabic",
+                "revision": "af46c2d8531b8dcbb5e23b952f739b372c2e5d2d",
+                "weightsSha256": "a0b26f6d9d3edfde1784aef863c192a8cc1e438a23b45910ab648531ebe1857b",
+                "license": "Apache-2.0"
+              },
+              "alignmentInput": [
+                "وَقُل رَّبِّ اِ۪غْفِرْ وَارْحَمْ وَأَنتَ خَيْرُ اُ۬لرَّٰحِمِينَۖ"
+              ],
+              "windowMs": [
+                1676500,
+                1694275.9375
+              ],
+              "inputPcmSha256": "1dfe52f8041857807e03aae1a68d273f046d8edfc7d694bd5435e94540f3c513",
+              "rawSegments": [
+                [
+                  1.862117820945946,
+                  11.680472445101351,
+                  -1.6914960076504408
+                ]
+              ],
+              "rawEntries": [
+                {
+                  "ayahId": "23:118",
+                  "startMs": 1678362,
+                  "endMs": 1688180,
+                  "conf": 0.577
+                }
+              ],
+              "entries": [
+                {
+                  "ayahId": "23:118",
+                  "startMs": 1678362,
+                  "endMs": 1688180,
+                  "conf": 0.577
+                }
+              ],
+              "startDeltaMs": -2,
+              "endDeltaMs": 1830,
+              "withinExistingTargetThresholds": false
+            },
+            {
+              "id": "derini_warsh-s23",
+              "sourceSha256": "04a390a6f37087e21fd364a8e4c9009894a3f6d2d8568bce42a54380909fdb35",
+              "model": "quran",
+              "channel": "native-1",
+              "alignmentModel": {
+                "id": "rabah2026/wav2vec2-large-xlsr-53-arabic-quran-v_final",
+                "revision": "b03a268c6ba1a693752307325ab376c86c3b12da",
+                "weightsSha256": "bf65674a26eb4ef7042cedade96c3c8f8cbd04f3a7d1a68eadceec8ed0f99ecb",
+                "license": "Apache-2.0"
+              },
+              "alignmentInput": [
+                "وَقُل رَّبِّ اِغْفِرْ وَارْحَمْ وَأَنتَ خَيْرُ اُلرَّٰحِمِينَ"
+              ],
+              "windowMs": [
+                1676000,
+                1694275.9375
+              ],
+              "inputPcmSha256": "d4fe2738cdd0d59734761b080a3bc584bda330a062e247cb9e5f016892f673f8",
+              "rawSegments": [
+                [
+                  2.362496234939759,
+                  12.140587178258487,
+                  -1.045531112538356
+                ]
+              ],
+              "rawEntries": [
+                {
+                  "ayahId": "23:118",
+                  "startMs": 1678362,
+                  "endMs": 1688140,
+                  "conf": 0.739
+                }
+              ],
+              "entries": [
+                {
+                  "ayahId": "23:118",
+                  "startMs": 1678362,
+                  "endMs": 1688140,
+                  "conf": 0.739
+                }
+              ],
+              "startDeltaMs": -2,
+              "endDeltaMs": 1790,
+              "withinExistingTargetThresholds": false
+            },
+            {
+              "id": "derini_warsh-s23",
+              "sourceSha256": "04a390a6f37087e21fd364a8e4c9009894a3f6d2d8568bce42a54380909fdb35",
+              "model": "quran",
+              "channel": "native-2",
+              "alignmentModel": {
+                "id": "rabah2026/wav2vec2-large-xlsr-53-arabic-quran-v_final",
+                "revision": "b03a268c6ba1a693752307325ab376c86c3b12da",
+                "weightsSha256": "bf65674a26eb4ef7042cedade96c3c8f8cbd04f3a7d1a68eadceec8ed0f99ecb",
+                "license": "Apache-2.0"
+              },
+              "alignmentInput": [
+                "وَقُل رَّبِّ اِغْفِرْ وَارْحَمْ وَأَنتَ خَيْرُ اُلرَّٰحِمِينَ"
+              ],
+              "windowMs": [
+                1676000,
+                1694275.9375
+              ],
+              "inputPcmSha256": "a5c63a58f5cb663c198a2cbadc6cbb1ea8665c509c44550ccd10d5f7144773bf",
+              "rawSegments": [
+                [
+                  2.362496234939759,
+                  12.140587178258487,
+                  -0.9886060688659352
+                ]
+              ],
+              "rawEntries": [
+                {
+                  "ayahId": "23:118",
+                  "startMs": 1678362,
+                  "endMs": 1688140,
+                  "conf": 0.753
+                }
+              ],
+              "entries": [
+                {
+                  "ayahId": "23:118",
+                  "startMs": 1678362,
+                  "endMs": 1688140,
+                  "conf": 0.753
+                }
+              ],
+              "startDeltaMs": -2,
+              "endDeltaMs": 1790,
+              "withinExistingTargetThresholds": false
+            },
+            {
+              "id": "derini_warsh-s23",
+              "sourceSha256": "04a390a6f37087e21fd364a8e4c9009894a3f6d2d8568bce42a54380909fdb35",
+              "model": "quran",
+              "channel": "native-1",
+              "alignmentModel": {
+                "id": "rabah2026/wav2vec2-large-xlsr-53-arabic-quran-v_final",
+                "revision": "b03a268c6ba1a693752307325ab376c86c3b12da",
+                "weightsSha256": "bf65674a26eb4ef7042cedade96c3c8f8cbd04f3a7d1a68eadceec8ed0f99ecb",
+                "license": "Apache-2.0"
+              },
+              "alignmentInput": [
+                "وَقُل رَّبِّ اِغْفِرْ وَارْحَمْ وَأَنتَ خَيْرُ اُلرَّٰحِمِينَ"
+              ],
+              "windowMs": [
+                1676500,
+                1694275.9375
+              ],
+              "inputPcmSha256": "0178239ed384e6a14e7e5b319f37431b4065adf207001a01a6280ee7c829e130",
+              "rawSegments": [
+                [
+                  1.862117820945946,
+                  11.640436549831083,
+                  -1.047638311090562
+                ]
+              ],
+              "rawEntries": [
+                {
+                  "ayahId": "23:118",
+                  "startMs": 1678362,
+                  "endMs": 1688140,
+                  "conf": 0.738
+                }
+              ],
+              "entries": [
+                {
+                  "ayahId": "23:118",
+                  "startMs": 1678362,
+                  "endMs": 1688140,
+                  "conf": 0.738
+                }
+              ],
+              "startDeltaMs": -2,
+              "endDeltaMs": 1790,
+              "withinExistingTargetThresholds": false
+            },
+            {
+              "id": "derini_warsh-s23",
+              "sourceSha256": "04a390a6f37087e21fd364a8e4c9009894a3f6d2d8568bce42a54380909fdb35",
+              "model": "quran",
+              "channel": "native-2",
+              "alignmentModel": {
+                "id": "rabah2026/wav2vec2-large-xlsr-53-arabic-quran-v_final",
+                "revision": "b03a268c6ba1a693752307325ab376c86c3b12da",
+                "weightsSha256": "bf65674a26eb4ef7042cedade96c3c8f8cbd04f3a7d1a68eadceec8ed0f99ecb",
+                "license": "Apache-2.0"
+              },
+              "alignmentInput": [
+                "وَقُل رَّبِّ اِغْفِرْ وَارْحَمْ وَأَنتَ خَيْرُ اُلرَّٰحِمِينَ"
+              ],
+              "windowMs": [
+                1676500,
+                1694275.9375
+              ],
+              "inputPcmSha256": "1dfe52f8041857807e03aae1a68d273f046d8edfc7d694bd5435e94540f3c513",
+              "rawSegments": [
+                [
+                  1.862117820945946,
+                  11.640436549831083,
+                  -0.9929297330033933
+                ]
+              ],
+              "rawEntries": [
+                {
+                  "ayahId": "23:118",
+                  "startMs": 1678362,
+                  "endMs": 1688140,
+                  "conf": 0.752
+                }
+              ],
+              "entries": [
+                {
+                  "ayahId": "23:118",
+                  "startMs": 1678362,
+                  "endMs": 1688140,
+                  "conf": 0.752
+                }
+              ],
+              "startDeltaMs": -2,
+              "endDeltaMs": 1790,
+              "withinExistingTargetThresholds": false
+            }
+          ],
+          "qualityClaim": false
+        },
+        {
+          "id": "derini_warsh-s83",
+          "before": {
+            "ayahId": "83:36",
+            "fileRef": "https://archive.org/download/amrou-el-derini_Warsh/083.mp3",
+            "startMs": 302940,
+            "endMs": 308661,
+            "conf": 0.755,
+            "confBand": "MED"
+          },
+          "after": {
+            "ayahId": "83:36",
+            "fileRef": "https://archive.org/download/amrou-el-derini_Warsh/083.mp3",
+            "startMs": 302940,
+            "endMs": 311500,
+            "conf": 0.755,
+            "confBand": "MED"
+          },
+          "sourceSha256": "2625a0b8698a65a6f6b5051541e74693aff1142b7210ab8401d770dbb092054a",
+          "terminalFrames": [
+            {
+              "channel": "native-1",
+              "rawPartSha256": "1f53de753004fbae7f44cbf939dbc99d55bccf3b3c77d1ae69f4ddb82e673a3a",
+              "terminalConsonant": "ن",
+              "consonantCenterMs": 311072.46875,
+              "lastTokenCenterMs": 311212.46875,
+              "posteriorIsCalibratedConfidence": false
+            },
+            {
+              "channel": "native-2",
+              "rawPartSha256": "ceb9ca89c28241bfc0c21c040253bfd50a5e1f638fed54d7cf5dbd1754814f9b",
+              "terminalConsonant": "ن",
+              "consonantCenterMs": 311012.46875,
+              "lastTokenCenterMs": 311192.46875,
+              "posteriorIsCalibratedConfidence": false
+            }
+          ],
+          "modelMeasurements": [
+            {
+              "id": "derini_warsh-s83",
+              "sourceSha256": "2625a0b8698a65a6f6b5051541e74693aff1142b7210ab8401d770dbb092054a",
+              "model": "generic",
+              "channel": "native-1",
+              "alignmentModel": {
+                "id": "jonatasgrosman/wav2vec2-large-xlsr-53-arabic",
+                "revision": "af46c2d8531b8dcbb5e23b952f739b372c2e5d2d",
+                "weightsSha256": "a0b26f6d9d3edfde1784aef863c192a8cc1e438a23b45910ab648531ebe1857b",
+                "license": "Apache-2.0"
+              },
+              "alignmentInput": [
+                "هَلْ ثُوِّبَ اَ۬لْكُفَّارُ مَا كَانُواْ يَفْعَلُونَۖ"
+              ],
+              "windowMs": [
+                300000,
+                316447.375
+              ],
+              "inputPcmSha256": "e6274042c6a0c46aad36c965fce6a159365a9033085c5241b05823ed8f18da51",
+              "rawSegments": [
+                [
+                  2.581381690997567,
+                  11.034948068734794,
+                  -1.5149749229467793
+                ]
+              ],
+              "rawEntries": [
+                {
+                  "ayahId": "83:36",
+                  "startMs": 302581,
+                  "endMs": 311034,
+                  "conf": 0.621
+                }
+              ],
+              "entries": [
+                {
+                  "ayahId": "83:36",
+                  "startMs": 302581,
+                  "endMs": 311034,
+                  "conf": 0.621
+                }
+              ],
+              "startDeltaMs": -359,
+              "endDeltaMs": 2373,
+              "withinExistingTargetThresholds": false
+            },
+            {
+              "id": "derini_warsh-s83",
+              "sourceSha256": "2625a0b8698a65a6f6b5051541e74693aff1142b7210ab8401d770dbb092054a",
+              "model": "generic",
+              "channel": "native-2",
+              "alignmentModel": {
+                "id": "jonatasgrosman/wav2vec2-large-xlsr-53-arabic",
+                "revision": "af46c2d8531b8dcbb5e23b952f739b372c2e5d2d",
+                "weightsSha256": "a0b26f6d9d3edfde1784aef863c192a8cc1e438a23b45910ab648531ebe1857b",
+                "license": "Apache-2.0"
+              },
+              "alignmentInput": [
+                "هَلْ ثُوِّبَ اَ۬لْكُفَّارُ مَا كَانُواْ يَفْعَلُونَۖ"
+              ],
+              "windowMs": [
+                300000,
+                316447.375
+              ],
+              "inputPcmSha256": "9adee136812acbf4965ade463d3e92a987659559a9547a560894ff708d2c8dcd",
+              "rawSegments": [
+                [
+                  2.581381690997567,
+                  13.115881158759125,
+                  -0.9521520398343511
+                ]
+              ],
+              "rawEntries": [
+                {
+                  "ayahId": "83:36",
+                  "startMs": 302581,
+                  "endMs": 313115,
+                  "conf": 0.762
+                }
+              ],
+              "entries": [
+                {
+                  "ayahId": "83:36",
+                  "startMs": 302581,
+                  "endMs": 313115,
+                  "conf": 0.762
+                }
+              ],
+              "startDeltaMs": -359,
+              "endDeltaMs": 4454,
+              "withinExistingTargetThresholds": false
+            },
+            {
+              "id": "derini_warsh-s83",
+              "sourceSha256": "2625a0b8698a65a6f6b5051541e74693aff1142b7210ab8401d770dbb092054a",
+              "model": "generic",
+              "channel": "native-1",
+              "alignmentModel": {
+                "id": "jonatasgrosman/wav2vec2-large-xlsr-53-arabic",
+                "revision": "af46c2d8531b8dcbb5e23b952f739b372c2e5d2d",
+                "weightsSha256": "a0b26f6d9d3edfde1784aef863c192a8cc1e438a23b45910ab648531ebe1857b",
+                "license": "Apache-2.0"
+              },
+              "alignmentInput": [
+                "هَلْ ثُوِّبَ اَ۬لْكُفَّارُ مَا كَانُواْ يَفْعَلُونَۖ"
+              ],
+              "windowMs": [
+                300500,
+                316447.375
+              ],
+              "inputPcmSha256": "5b9edd623e4d7fa6a85bee22e988bc3b45da3390e9d1aec6bf557b368043fbde",
+              "rawSegments": [
+                [
+                  2.08119369510665,
+                  12.355714005646172,
+                  -1.7693178055451806
+                ]
+              ],
+              "rawEntries": [
+                {
+                  "ayahId": "83:36",
+                  "startMs": 302581,
+                  "endMs": 312855,
+                  "conf": 0.558
+                }
+              ],
+              "entries": [
+                {
+                  "ayahId": "83:36",
+                  "startMs": 302581,
+                  "endMs": 312855,
+                  "conf": 0.558
+                }
+              ],
+              "startDeltaMs": -359,
+              "endDeltaMs": 4194,
+              "withinExistingTargetThresholds": false
+            },
+            {
+              "id": "derini_warsh-s83",
+              "sourceSha256": "2625a0b8698a65a6f6b5051541e74693aff1142b7210ab8401d770dbb092054a",
+              "model": "generic",
+              "channel": "native-2",
+              "alignmentModel": {
+                "id": "jonatasgrosman/wav2vec2-large-xlsr-53-arabic",
+                "revision": "af46c2d8531b8dcbb5e23b952f739b372c2e5d2d",
+                "weightsSha256": "a0b26f6d9d3edfde1784aef863c192a8cc1e438a23b45910ab648531ebe1857b",
+                "license": "Apache-2.0"
+              },
+              "alignmentInput": [
+                "هَلْ ثُوِّبَ اَ۬لْكُفَّارُ مَا كَانُواْ يَفْعَلُونَۖ"
+              ],
+              "windowMs": [
+                300500,
+                316447.375
+              ],
+              "inputPcmSha256": "7eeee26801465354ececb16a364b83cad806ab72a83a8844798247784d0c73ff",
+              "rawSegments": [
+                [
+                  2.08119369510665,
+                  12.61583430050188,
+                  -1.08924218627335
+                ]
+              ],
+              "rawEntries": [
+                {
+                  "ayahId": "83:36",
+                  "startMs": 302581,
+                  "endMs": 313115,
+                  "conf": 0.728
+                }
+              ],
+              "entries": [
+                {
+                  "ayahId": "83:36",
+                  "startMs": 302581,
+                  "endMs": 313115,
+                  "conf": 0.728
+                }
+              ],
+              "startDeltaMs": -359,
+              "endDeltaMs": 4454,
+              "withinExistingTargetThresholds": false
+            },
+            {
+              "id": "derini_warsh-s83",
+              "sourceSha256": "2625a0b8698a65a6f6b5051541e74693aff1142b7210ab8401d770dbb092054a",
+              "model": "quran",
+              "channel": "native-1",
+              "alignmentModel": {
+                "id": "rabah2026/wav2vec2-large-xlsr-53-arabic-quran-v_final",
+                "revision": "b03a268c6ba1a693752307325ab376c86c3b12da",
+                "weightsSha256": "bf65674a26eb4ef7042cedade96c3c8f8cbd04f3a7d1a68eadceec8ed0f99ecb",
+                "license": "Apache-2.0"
+              },
+              "alignmentInput": [
+                "هَلْ ثُوِّبَ اَلْكُفَّارُ مَا كَانُواْ يَفْعَلُونَ"
+              ],
+              "windowMs": [
+                300000,
+                316447.375
+              ],
+              "inputPcmSha256": "e6274042c6a0c46aad36c965fce6a159365a9033085c5241b05823ed8f18da51",
+              "rawSegments": [
+                [
+                  2.581381690997567,
+                  11.215028816909976,
+                  -0.4818627141521574
+                ]
+              ],
+              "rawEntries": [
+                {
+                  "ayahId": "83:36",
+                  "startMs": 302581,
+                  "endMs": 311215,
+                  "conf": 0.88
+                }
+              ],
+              "entries": [
+                {
+                  "ayahId": "83:36",
+                  "startMs": 302581,
+                  "endMs": 311215,
+                  "conf": 0.88
+                }
+              ],
+              "startDeltaMs": -359,
+              "endDeltaMs": 2554,
+              "withinExistingTargetThresholds": false
+            },
+            {
+              "id": "derini_warsh-s83",
+              "sourceSha256": "2625a0b8698a65a6f6b5051541e74693aff1142b7210ab8401d770dbb092054a",
+              "model": "quran",
+              "channel": "native-2",
+              "alignmentModel": {
+                "id": "rabah2026/wav2vec2-large-xlsr-53-arabic-quran-v_final",
+                "revision": "b03a268c6ba1a693752307325ab376c86c3b12da",
+                "weightsSha256": "bf65674a26eb4ef7042cedade96c3c8f8cbd04f3a7d1a68eadceec8ed0f99ecb",
+                "license": "Apache-2.0"
+              },
+              "alignmentInput": [
+                "هَلْ ثُوِّبَ اَلْكُفَّارُ مَا كَانُواْ يَفْعَلُونَ"
+              ],
+              "windowMs": [
+                300000,
+                316447.375
+              ],
+              "inputPcmSha256": "9adee136812acbf4965ade463d3e92a987659559a9547a560894ff708d2c8dcd",
+              "rawSegments": [
+                [
+                  2.581381690997567,
+                  11.195019844890512,
+                  -0.4490748601828273
+                ]
+              ],
+              "rawEntries": [
+                {
+                  "ayahId": "83:36",
+                  "startMs": 302581,
+                  "endMs": 311195,
+                  "conf": 0.888
+                }
+              ],
+              "entries": [
+                {
+                  "ayahId": "83:36",
+                  "startMs": 302581,
+                  "endMs": 311195,
+                  "conf": 0.888
+                }
+              ],
+              "startDeltaMs": -359,
+              "endDeltaMs": 2534,
+              "withinExistingTargetThresholds": false
+            },
+            {
+              "id": "derini_warsh-s83",
+              "sourceSha256": "2625a0b8698a65a6f6b5051541e74693aff1142b7210ab8401d770dbb092054a",
+              "model": "quran",
+              "channel": "native-1",
+              "alignmentModel": {
+                "id": "rabah2026/wav2vec2-large-xlsr-53-arabic-quran-v_final",
+                "revision": "b03a268c6ba1a693752307325ab376c86c3b12da",
+                "weightsSha256": "bf65674a26eb4ef7042cedade96c3c8f8cbd04f3a7d1a68eadceec8ed0f99ecb",
+                "license": "Apache-2.0"
+              },
+              "alignmentInput": [
+                "هَلْ ثُوِّبَ اَلْكُفَّارُ مَا كَانُواْ يَفْعَلُونَ"
+              ],
+              "windowMs": [
+                300500,
+                316447.375
+              ],
+              "inputPcmSha256": "5b9edd623e4d7fa6a85bee22e988bc3b45da3390e9d1aec6bf557b368043fbde",
+              "rawSegments": [
+                [
+                  2.08119369510665,
+                  10.714955222710163,
+                  -0.4694236858293758
+                ]
+              ],
+              "rawEntries": [
+                {
+                  "ayahId": "83:36",
+                  "startMs": 302581,
+                  "endMs": 311214,
+                  "conf": 0.883
+                }
+              ],
+              "entries": [
+                {
+                  "ayahId": "83:36",
+                  "startMs": 302581,
+                  "endMs": 311214,
+                  "conf": 0.883
+                }
+              ],
+              "startDeltaMs": -359,
+              "endDeltaMs": 2553,
+              "withinExistingTargetThresholds": false
+            },
+            {
+              "id": "derini_warsh-s83",
+              "sourceSha256": "2625a0b8698a65a6f6b5051541e74693aff1142b7210ab8401d770dbb092054a",
+              "model": "quran",
+              "channel": "native-2",
+              "alignmentModel": {
+                "id": "rabah2026/wav2vec2-large-xlsr-53-arabic-quran-v_final",
+                "revision": "b03a268c6ba1a693752307325ab376c86c3b12da",
+                "weightsSha256": "bf65674a26eb4ef7042cedade96c3c8f8cbd04f3a7d1a68eadceec8ed0f99ecb",
+                "license": "Apache-2.0"
+              },
+              "alignmentInput": [
+                "هَلْ ثُوِّبَ اَلْكُفَّارُ مَا كَانُواْ يَفْعَلُونَ"
+              ],
+              "windowMs": [
+                300500,
+                316447.375
+              ],
+              "inputPcmSha256": "7eeee26801465354ececb16a364b83cad806ab72a83a8844798247784d0c73ff",
+              "rawSegments": [
+                [
+                  2.08119369510665,
+                  10.694945969259724,
+                  -0.4559897087161668
+                ]
+              ],
+              "rawEntries": [
+                {
+                  "ayahId": "83:36",
+                  "startMs": 302581,
+                  "endMs": 311194,
+                  "conf": 0.886
+                }
+              ],
+              "entries": [
+                {
+                  "ayahId": "83:36",
+                  "startMs": 302581,
+                  "endMs": 311194,
+                  "conf": 0.886
+                }
+              ],
+              "startDeltaMs": -359,
+              "endDeltaMs": 2533,
+              "withinExistingTargetThresholds": false
+            }
+          ],
+          "qualityClaim": false
+        }
+      ],
+      "limits": [
+        "Disagreements and low diagnostic confidence preserved; not a passing two-model certificate.",
+        "Original confidence is unchanged; all final-SHA post-stage QA must run again."
+      ]
+    }
+  },
+  {
+    "reciterId": "zahrani",
+    "riwaya": "hafs",
+    "path": "ops/source-repair/candidates/codex-zahrani-tail-refined-20261005-v2.jz",
+    "sha256": "cd4b68cfe3c55b7fb1bfde1df6ca09389e7fbea5d0f772e6aa9d7af1eb508cbc",
+    "parentKey": "timings/hafs/zahrani.jz",
+    "parentSha256": "2dab3926ed56161808fe6057087899bb07373b22c792381c114653b9e24d910c",
+    "changedFinalEnds": 1,
+    "structuralFatal": [],
+    "structuralWarnings": [
+      "مداخل مدتها > 120ث: 2 · مثال: 2:282 مدتها 147ث",
+      "مطالع سور تبدأ دون 3ث — مرشّحون للمسبار الصوتي لا حكمٌ عليهم: 68:1=200م.ث · 79:1=2940م.ث · 81:1=2980م.ث · 82:1=2940م.ث · 83:1=2980م.ث · 85:1=2980م.ث · 86:1=2960م.ث · 88:1=2940م.ث · 89:1=2980م.ث · 91:1=2980م.ث … و22 غيرها",
+      "فجوات > 15ث بين آيتين متتاليتين: 46 · مثال: 3:24→3:25 فجوة 23ث"
+    ],
+    "proof": {
+      "kind": "source-measured-final-end-refinement",
+      "qualityClaim": false,
+      "baseCandidateSha256": "36e79f102ee1480c01eb0eb0824a91560f406d73926bbdc1855cd03eeb54c7d1",
+      "diagnosticReportSha256": "fb06b3e2173a9472017f30608d36268dc13b36b97c012ad8520f4d44ff0d1ae8",
+      "rawBundleSha256": "29e67d2840d61adfb565b13a21aefb8728ca7de966bb495a003b30815a6345ff",
+      "initialFreeBundleSha256": "ed849b75af2fb1a5d0b0231096439a9cb08c6ec585a3fcfedd6fdba4e551d9b3",
+      "endRule": "ceil(max(Quran target endpoints, free terminal token center)/100ms)*100ms + 200ms",
+      "changes": [
+        {
+          "id": "zahrani-s6",
+          "before": {
+            "ayahId": "6:165",
+            "fileRef": "https://server9.mp3quran.net/zahrani/006.mp3",
+            "startMs": 4993220,
+            "endMs": 5033038,
+            "conf": 0.164,
+            "confBand": "LOW"
+          },
+          "after": {
+            "ayahId": "6:165",
+            "fileRef": "https://server9.mp3quran.net/zahrani/006.mp3",
+            "startMs": 4993220,
+            "endMs": 5044600,
+            "conf": 0.164,
+            "confBand": "LOW"
+          },
+          "sourceSha256": "e3229a66a357835a511dc2eb6e628a646179de1e41dc9c1bf6d14fe68ed15509",
+          "terminalFrames": [
+            {
+              "channel": "native-1",
+              "rawPartSha256": "d6e44a9f468cbed79a7577acaa402587b9da8b473a3cb98567a5e017f484080e",
+              "terminalConsonant": "م",
+              "consonantCenterMs": 5044312.46875,
+              "lastTokenCenterMs": 5044392.46875,
+              "posteriorIsCalibratedConfidence": false
+            },
+            {
+              "channel": "native-2",
+              "rawPartSha256": "1d416c92974f6b2fb3adce5d56a0999717f9524fa3016db19102eee451ace5f3",
+              "terminalConsonant": "م",
+              "consonantCenterMs": 5044312.46875,
+              "lastTokenCenterMs": 5044392.46875,
+              "posteriorIsCalibratedConfidence": false
+            }
+          ],
+          "modelMeasurements": [
+            {
+              "id": "zahrani-s6",
+              "sourceSha256": "e3229a66a357835a511dc2eb6e628a646179de1e41dc9c1bf6d14fe68ed15509",
+              "model": "generic",
+              "channel": "native-1",
+              "alignmentModel": {
+                "id": "jonatasgrosman/wav2vec2-large-xlsr-53-arabic",
+                "revision": "af46c2d8531b8dcbb5e23b952f739b372c2e5d2d",
+                "weightsSha256": "a0b26f6d9d3edfde1784aef863c192a8cc1e438a23b45910ab648531ebe1857b",
+                "license": "Apache-2.0"
+              },
+              "alignmentInput": [
+                "وَهُوَ ٱلَّذِى جَعَلَكُمْ خَلَٰٓئِفَ ٱلْأَرْضِ وَرَفَعَ بَعْضَكُمْ فَوْقَ بَعْضٍۢ دَرَجَٰتٍۢ لِّيَبْلُوَكُمْ فِى مَآ ءَاتَىٰكُمْ ۗ إِنَّ رَبَّكَ سَرِيعُ ٱلْعِقَابِ وَإِنَّهُۥ لَغَفُورٌۭ رَّحِيمٌۢ"
+              ],
+              "windowMs": [
+                4991000,
+                5046047.375
+              ],
+              "inputPcmSha256": "ac6e6d6ad9d2058742bdc08ed7a3fdaeb40cfadccadae890029618482c29e449",
+              "rawSegments": [
+                [
+                  1.9011941112322792,
+                  32.46614537895311,
+                  -3.4632460464188624
+                ]
+              ],
+              "rawEntries": [
+                {
+                  "ayahId": "6:165",
+                  "startMs": 4992901,
+                  "endMs": 5023466,
+                  "conf": 0.134
+                }
+              ],
+              "entries": [
+                {
+                  "ayahId": "6:165",
+                  "startMs": 4992901,
+                  "endMs": 5023466,
+                  "conf": 0.134
+                }
+              ],
+              "startDeltaMs": -319,
+              "endDeltaMs": -9572,
+              "withinExistingTargetThresholds": false
+            },
+            {
+              "id": "zahrani-s6",
+              "sourceSha256": "e3229a66a357835a511dc2eb6e628a646179de1e41dc9c1bf6d14fe68ed15509",
+              "model": "generic",
+              "channel": "native-2",
+              "alignmentModel": {
+                "id": "jonatasgrosman/wav2vec2-large-xlsr-53-arabic",
+                "revision": "af46c2d8531b8dcbb5e23b952f739b372c2e5d2d",
+                "weightsSha256": "a0b26f6d9d3edfde1784aef863c192a8cc1e438a23b45910ab648531ebe1857b",
+                "license": "Apache-2.0"
+              },
+              "alignmentInput": [
+                "وَهُوَ ٱلَّذِى جَعَلَكُمْ خَلَٰٓئِفَ ٱلْأَرْضِ وَرَفَعَ بَعْضَكُمْ فَوْقَ بَعْضٍۢ دَرَجَٰتٍۢ لِّيَبْلُوَكُمْ فِى مَآ ءَاتَىٰكُمْ ۗ إِنَّ رَبَّكَ سَرِيعُ ٱلْعِقَابِ وَإِنَّهُۥ لَغَفُورٌۭ رَّحِيمٌۢ"
+              ],
+              "windowMs": [
+                4991000,
+                5046047.375
+              ],
+              "inputPcmSha256": "bed08effb310d8d47516778d86f581e8edb2d6c8fbf0675d0944c5691c3183af",
+              "rawSegments": [
+                [
+                  1.9011941112322792,
+                  40.1499665348964,
+                  -1.14257480066611
+                ]
+              ],
+              "rawEntries": [
+                {
+                  "ayahId": "6:165",
+                  "startMs": 4992901,
+                  "endMs": 5031149,
+                  "conf": 0.714
+                }
+              ],
+              "entries": [
+                {
+                  "ayahId": "6:165",
+                  "startMs": 4992901,
+                  "endMs": 5031149,
+                  "conf": 0.714
+                }
+              ],
+              "startDeltaMs": -319,
+              "endDeltaMs": -1889,
+              "withinExistingTargetThresholds": false
+            },
+            {
+              "id": "zahrani-s6",
+              "sourceSha256": "e3229a66a357835a511dc2eb6e628a646179de1e41dc9c1bf6d14fe68ed15509",
+              "model": "generic",
+              "channel": "native-1",
+              "alignmentModel": {
+                "id": "jonatasgrosman/wav2vec2-large-xlsr-53-arabic",
+                "revision": "af46c2d8531b8dcbb5e23b952f739b372c2e5d2d",
+                "weightsSha256": "a0b26f6d9d3edfde1784aef863c192a8cc1e438a23b45910ab648531ebe1857b",
+                "license": "Apache-2.0"
+              },
+              "alignmentInput": [
+                "وَهُوَ ٱلَّذِى جَعَلَكُمْ خَلَٰٓئِفَ ٱلْأَرْضِ وَرَفَعَ بَعْضَكُمْ فَوْقَ بَعْضٍۢ دَرَجَٰتٍۢ لِّيَبْلُوَكُمْ فِى مَآ ءَاتَىٰكُمْ ۗ إِنَّ رَبَّكَ سَرِيعُ ٱلْعِقَابِ وَإِنَّهُۥ لَغَفُورٌۭ رَّحِيمٌۢ"
+              ],
+              "windowMs": [
+                4991500,
+                5046047.375
+              ],
+              "inputPcmSha256": "321d00696264bc98a85529102b004662af66f4023fe4ef7c6c0438cd181044f0",
+              "rawSegments": [
+                [
+                  1.4009540077035951,
+                  39.62988855007337,
+                  -1.2614465614960257
+                ]
+              ],
+              "rawEntries": [
+                {
+                  "ayahId": "6:165",
+                  "startMs": 4992900,
+                  "endMs": 5031129,
+                  "conf": 0.685
+                }
+              ],
+              "entries": [
+                {
+                  "ayahId": "6:165",
+                  "startMs": 4992900,
+                  "endMs": 5031129,
+                  "conf": 0.685
+                }
+              ],
+              "startDeltaMs": -320,
+              "endDeltaMs": -1909,
+              "withinExistingTargetThresholds": false
+            },
+            {
+              "id": "zahrani-s6",
+              "sourceSha256": "e3229a66a357835a511dc2eb6e628a646179de1e41dc9c1bf6d14fe68ed15509",
+              "model": "generic",
+              "channel": "native-2",
+              "alignmentModel": {
+                "id": "jonatasgrosman/wav2vec2-large-xlsr-53-arabic",
+                "revision": "af46c2d8531b8dcbb5e23b952f739b372c2e5d2d",
+                "weightsSha256": "a0b26f6d9d3edfde1784aef863c192a8cc1e438a23b45910ab648531ebe1857b",
+                "license": "Apache-2.0"
+              },
+              "alignmentInput": [
+                "وَهُوَ ٱلَّذِى جَعَلَكُمْ خَلَٰٓئِفَ ٱلْأَرْضِ وَرَفَعَ بَعْضَكُمْ فَوْقَ بَعْضٍۢ دَرَجَٰتٍۢ لِّيَبْلُوَكُمْ فِى مَآ ءَاتَىٰكُمْ ۗ إِنَّ رَبَّكَ سَرِيعُ ٱلْعِقَابِ وَإِنَّهُۥ لَغَفُورٌۭ رَّحِيمٌۢ"
+              ],
+              "windowMs": [
+                4991500,
+                5046047.375
+              ],
+              "inputPcmSha256": "4c21f21f2316faab2aeb5a80a335f9e59d896af342cc4e6426d93e507d68b7a4",
+              "rawSegments": [
+                [
+                  1.4009540077035951,
+                  39.649898592259724,
+                  -1.1720475046335195
+                ]
+              ],
+              "rawEntries": [
+                {
+                  "ayahId": "6:165",
+                  "startMs": 4992900,
+                  "endMs": 5031149,
+                  "conf": 0.707
+                }
+              ],
+              "entries": [
+                {
+                  "ayahId": "6:165",
+                  "startMs": 4992900,
+                  "endMs": 5031149,
+                  "conf": 0.707
+                }
+              ],
+              "startDeltaMs": -320,
+              "endDeltaMs": -1889,
+              "withinExistingTargetThresholds": false
+            },
+            {
+              "id": "zahrani-s6",
+              "sourceSha256": "e3229a66a357835a511dc2eb6e628a646179de1e41dc9c1bf6d14fe68ed15509",
+              "model": "quran",
+              "channel": "native-1",
+              "alignmentModel": {
+                "id": "rabah2026/wav2vec2-large-xlsr-53-arabic-quran-v_final",
+                "revision": "b03a268c6ba1a693752307325ab376c86c3b12da",
+                "weightsSha256": "bf65674a26eb4ef7042cedade96c3c8f8cbd04f3a7d1a68eadceec8ed0f99ecb",
+                "license": "Apache-2.0"
+              },
+              "alignmentInput": [
+                "وَهُوَ ٱلَّذِى جَعَلَكُمْ خَلَٰٓئِفَ ٱلْأَرْضِ وَرَفَعَ بَعْضَكُمْ فَوْقَ بَعْضٍ دَرَجَٰتٍ لِّيَبْلُوَكُمْ فِى مَآ ءَاتَىٰكُمْ  إِنَّ رَبَّكَ سَرِيعُ ٱلْعِقَابِ وَإِنَّهُۥ لَغَفُورٌ رَّحِيمٌ"
+              ],
+              "windowMs": [
+                4991000,
+                5046047.375
+              ],
+              "inputPcmSha256": "ac6e6d6ad9d2058742bdc08ed7a3fdaeb40cfadccadae890029618482c29e449",
+              "rawSegments": [
+                [
+                  1.9212040621592146,
+                  53.396554048527804,
+                  -1.9309393148389062
+                ]
+              ],
+              "rawEntries": [
+                {
+                  "ayahId": "6:165",
+                  "startMs": 4992921,
+                  "endMs": 5044396,
+                  "conf": 0.517
+                }
+              ],
+              "entries": [
+                {
+                  "ayahId": "6:165",
+                  "startMs": 4992921,
+                  "endMs": 5044396,
+                  "conf": 0.517
+                }
+              ],
+              "startDeltaMs": -299,
+              "endDeltaMs": 11358,
+              "withinExistingTargetThresholds": false
+            },
+            {
+              "id": "zahrani-s6",
+              "sourceSha256": "e3229a66a357835a511dc2eb6e628a646179de1e41dc9c1bf6d14fe68ed15509",
+              "model": "quran",
+              "channel": "native-2",
+              "alignmentModel": {
+                "id": "rabah2026/wav2vec2-large-xlsr-53-arabic-quran-v_final",
+                "revision": "b03a268c6ba1a693752307325ab376c86c3b12da",
+                "weightsSha256": "bf65674a26eb4ef7042cedade96c3c8f8cbd04f3a7d1a68eadceec8ed0f99ecb",
+                "license": "Apache-2.0"
+              },
+              "alignmentInput": [
+                "وَهُوَ ٱلَّذِى جَعَلَكُمْ خَلَٰٓئِفَ ٱلْأَرْضِ وَرَفَعَ بَعْضَكُمْ فَوْقَ بَعْضٍ دَرَجَٰتٍ لِّيَبْلُوَكُمْ فِى مَآ ءَاتَىٰكُمْ  إِنَّ رَبَّكَ سَرِيعُ ٱلْعِقَابِ وَإِنَّهُۥ لَغَفُورٌ رَّحِيمٌ"
+              ],
+              "windowMs": [
+                4991000,
+                5046047.375
+              ],
+              "inputPcmSha256": "bed08effb310d8d47516778d86f581e8edb2d6c8fbf0675d0944c5691c3183af",
+              "rawSegments": [
+                [
+                  1.9212040621592146,
+                  53.37654409760087,
+                  -1.3850467873572294
+                ]
+              ],
+              "rawEntries": [
+                {
+                  "ayahId": "6:165",
+                  "startMs": 4992921,
+                  "endMs": 5044376,
+                  "conf": 0.654
+                }
+              ],
+              "entries": [
+                {
+                  "ayahId": "6:165",
+                  "startMs": 4992921,
+                  "endMs": 5044376,
+                  "conf": 0.654
+                }
+              ],
+              "startDeltaMs": -299,
+              "endDeltaMs": 11338,
+              "withinExistingTargetThresholds": false
+            },
+            {
+              "id": "zahrani-s6",
+              "sourceSha256": "e3229a66a357835a511dc2eb6e628a646179de1e41dc9c1bf6d14fe68ed15509",
+              "model": "quran",
+              "channel": "native-1",
+              "alignmentModel": {
+                "id": "rabah2026/wav2vec2-large-xlsr-53-arabic-quran-v_final",
+                "revision": "b03a268c6ba1a693752307325ab376c86c3b12da",
+                "weightsSha256": "bf65674a26eb4ef7042cedade96c3c8f8cbd04f3a7d1a68eadceec8ed0f99ecb",
+                "license": "Apache-2.0"
+              },
+              "alignmentInput": [
+                "وَهُوَ ٱلَّذِى جَعَلَكُمْ خَلَٰٓئِفَ ٱلْأَرْضِ وَرَفَعَ بَعْضَكُمْ فَوْقَ بَعْضٍ دَرَجَٰتٍ لِّيَبْلُوَكُمْ فِى مَآ ءَاتَىٰكُمْ  إِنَّ رَبَّكَ سَرِيعُ ٱلْعِقَابِ وَإِنَّهُۥ لَغَفُورٌ رَّحِيمٌ"
+              ],
+              "windowMs": [
+                4991500,
+                5046047.375
+              ],
+              "inputPcmSha256": "321d00696264bc98a85529102b004662af66f4023fe4ef7c6c0438cd181044f0",
+              "rawSegments": [
+                [
+                  1.4209640498899487,
+                  52.89654651962583,
+                  -2.1394445316835573
+                ]
+              ],
+              "rawEntries": [
+                {
+                  "ayahId": "6:165",
+                  "startMs": 4992920,
+                  "endMs": 5044396,
+                  "conf": 0.465
+                }
+              ],
+              "entries": [
+                {
+                  "ayahId": "6:165",
+                  "startMs": 4992920,
+                  "endMs": 5044396,
+                  "conf": 0.465
+                }
+              ],
+              "startDeltaMs": -300,
+              "endDeltaMs": 11358,
+              "withinExistingTargetThresholds": false
+            },
+            {
+              "id": "zahrani-s6",
+              "sourceSha256": "e3229a66a357835a511dc2eb6e628a646179de1e41dc9c1bf6d14fe68ed15509",
+              "model": "quran",
+              "channel": "native-2",
+              "alignmentModel": {
+                "id": "rabah2026/wav2vec2-large-xlsr-53-arabic-quran-v_final",
+                "revision": "b03a268c6ba1a693752307325ab376c86c3b12da",
+                "weightsSha256": "bf65674a26eb4ef7042cedade96c3c8f8cbd04f3a7d1a68eadceec8ed0f99ecb",
+                "license": "Apache-2.0"
+              },
+              "alignmentInput": [
+                "وَهُوَ ٱلَّذِى جَعَلَكُمْ خَلَٰٓئِفَ ٱلْأَرْضِ وَرَفَعَ بَعْضَكُمْ فَوْقَ بَعْضٍ دَرَجَٰتٍ لِّيَبْلُوَكُمْ فِى مَآ ءَاتَىٰكُمْ  إِنَّ رَبَّكَ سَرِيعُ ٱلْعِقَابِ وَإِنَّهُۥ لَغَفُورٌ رَّحِيمٌ"
+              ],
+              "windowMs": [
+                4991500,
+                5046047.375
+              ],
+              "inputPcmSha256": "4c21f21f2316faab2aeb5a80a335f9e59d896af342cc4e6426d93e507d68b7a4",
+              "rawSegments": [
+                [
+                  1.4209640498899487,
+                  52.87653647743947,
+                  -1.3336358130777322
+                ]
+              ],
+              "rawEntries": [
+                {
+                  "ayahId": "6:165",
+                  "startMs": 4992920,
+                  "endMs": 5044376,
+                  "conf": 0.667
+                }
+              ],
+              "entries": [
+                {
+                  "ayahId": "6:165",
+                  "startMs": 4992920,
+                  "endMs": 5044376,
+                  "conf": 0.667
+                }
+              ],
+              "startDeltaMs": -300,
+              "endDeltaMs": 11338,
+              "withinExistingTargetThresholds": false
+            }
+          ],
+          "qualityClaim": false
+        }
+      ],
+      "limits": [
+        "Disagreements and low diagnostic confidence preserved; not a passing two-model certificate.",
+        "Original confidence is unchanged; all final-SHA post-stage QA must run again."
+      ]
+    }
+  },
+  {
+    "reciterId": "f_khamery",
+    "riwaya": "hafs",
+    "path": "ops/source-repair/candidates/codex-f_khamery-tail-refined-20261005-v2.jz",
+    "sha256": "d44576b0de1331661c4d298b0db202923a849d4c7001c3b8d3046dfa81a9dc61",
+    "parentKey": "timings/hafs/f_khamery.jz",
+    "parentSha256": "a8e970e2a6850336ec6db6dc2c9f0f8c4890a19be561dbd52c80aa95fc1fb9a2",
+    "changedFinalEnds": 1,
+    "structuralFatal": [],
+    "structuralWarnings": [
+      "مداخل مدتها > 120ث: 1 · مثال: 2:282 مدتها 121ث",
+      "مطالع سور تبدأ دون 3ث — مرشّحون للمسبار الصوتي لا حكمٌ عليهم: 2:1=2682م.ث · 3:1=2882م.ث · 8:1=2682م.ث · 10:1=2540م.ث · 11:1=2930م.ث · 12:1=2562م.ث · 13:1=2870م.ث · 14:1=2960م.ث · 15:1=2902م.ث · 16:1=2460م.ث … و80 غيرها"
+    ],
+    "proof": {
+      "kind": "source-measured-final-end-refinement",
+      "qualityClaim": false,
+      "baseCandidateSha256": "6701b3c668606a1c63caa905993757971ba9928edbf01cb751410a2f17dcaf58",
+      "diagnosticReportSha256": "fb06b3e2173a9472017f30608d36268dc13b36b97c012ad8520f4d44ff0d1ae8",
+      "rawBundleSha256": "29e67d2840d61adfb565b13a21aefb8728ca7de966bb495a003b30815a6345ff",
+      "initialFreeBundleSha256": "ed849b75af2fb1a5d0b0231096439a9cb08c6ec585a3fcfedd6fdba4e551d9b3",
+      "endRule": "ceil(max(Quran target endpoints, free terminal token center)/100ms)*100ms + 200ms",
+      "changes": [
+        {
+          "id": "f_khamery-s6",
+          "before": {
+            "ayahId": "6:165",
+            "fileRef": "https://server16.mp3quran.net/f_khamery/Rewayat-Hafs-A-n-Assem/006.mp3",
+            "startMs": 2643932,
+            "endMs": 2664448,
+            "conf": 0.517,
+            "confBand": "MED",
+            "startApprox": true
+          },
+          "after": {
+            "ayahId": "6:165",
+            "fileRef": "https://server16.mp3quran.net/f_khamery/Rewayat-Hafs-A-n-Assem/006.mp3",
+            "startMs": 2643932,
+            "endMs": 2665900,
+            "conf": 0.517,
+            "confBand": "MED",
+            "startApprox": true
+          },
+          "sourceSha256": "b9fbf6c590e821c2f670d9bfb379ca8b7eb617f28fd520886ca9987a31ab962f",
+          "terminalFrames": [
+            {
+              "channel": "native-1",
+              "rawPartSha256": "7025565f05c0b02488b855286139018b63dfe15fa76d6d910afd86b8d2cc2ce4",
+              "terminalConsonant": "م",
+              "consonantCenterMs": 2665572.46875,
+              "lastTokenCenterMs": 2665652.46875,
+              "posteriorIsCalibratedConfidence": false
+            },
+            {
+              "channel": "native-2",
+              "rawPartSha256": "4ca5f949024c141ebab116178017712b1060944bf04516b87ee85aa4667d0212",
+              "terminalConsonant": "م",
+              "consonantCenterMs": 2665572.46875,
+              "lastTokenCenterMs": 2665632.46875,
+              "posteriorIsCalibratedConfidence": false
+            }
+          ],
+          "modelMeasurements": [
+            {
+              "id": "f_khamery-s6",
+              "sourceSha256": "b9fbf6c590e821c2f670d9bfb379ca8b7eb617f28fd520886ca9987a31ab962f",
+              "model": "generic",
+              "channel": "native-1",
+              "alignmentModel": {
+                "id": "jonatasgrosman/wav2vec2-large-xlsr-53-arabic",
+                "revision": "af46c2d8531b8dcbb5e23b952f739b372c2e5d2d",
+                "weightsSha256": "a0b26f6d9d3edfde1784aef863c192a8cc1e438a23b45910ab648531ebe1857b",
+                "license": "Apache-2.0"
+              },
+              "alignmentInput": [
+                "وَهُوَ ٱلَّذِى جَعَلَكُمْ خَلَٰٓئِفَ ٱلْأَرْضِ وَرَفَعَ بَعْضَكُمْ فَوْقَ بَعْضٍۢ دَرَجَٰتٍۢ لِّيَبْلُوَكُمْ فِى مَآ ءَاتَىٰكُمْ ۗ إِنَّ رَبَّكَ سَرِيعُ ٱلْعِقَابِ وَإِنَّهُۥ لَغَفُورٌۭ رَّحِيمٌۢ"
+              ],
+              "windowMs": [
+                2641000,
+                2666350.5625
+              ],
+              "inputPcmSha256": "2c66179c6ee49c8d730554d8aa9f6185a3d1f8b158e75f2605057a4c5e0f9797",
+              "rawSegments": [
+                [
+                  2.9214255623520127,
+                  24.660274886543014,
+                  -0.8668020102505882
+                ]
+              ],
+              "rawEntries": [
+                {
+                  "ayahId": "6:165",
+                  "startMs": 2643921,
+                  "endMs": 2665660,
+                  "conf": 0.783
+                }
+              ],
+              "entries": [
+                {
+                  "ayahId": "6:165",
+                  "startMs": 2643921,
+                  "endMs": 2665660,
+                  "conf": 0.783
+                }
+              ],
+              "startDeltaMs": -11,
+              "endDeltaMs": 1212,
+              "withinExistingTargetThresholds": false
+            },
+            {
+              "id": "f_khamery-s6",
+              "sourceSha256": "b9fbf6c590e821c2f670d9bfb379ca8b7eb617f28fd520886ca9987a31ab962f",
+              "model": "generic",
+              "channel": "native-2",
+              "alignmentModel": {
+                "id": "jonatasgrosman/wav2vec2-large-xlsr-53-arabic",
+                "revision": "af46c2d8531b8dcbb5e23b952f739b372c2e5d2d",
+                "weightsSha256": "a0b26f6d9d3edfde1784aef863c192a8cc1e438a23b45910ab648531ebe1857b",
+                "license": "Apache-2.0"
+              },
+              "alignmentInput": [
+                "وَهُوَ ٱلَّذِى جَعَلَكُمْ خَلَٰٓئِفَ ٱلْأَرْضِ وَرَفَعَ بَعْضَكُمْ فَوْقَ بَعْضٍۢ دَرَجَٰتٍۢ لِّيَبْلُوَكُمْ فِى مَآ ءَاتَىٰكُمْ ۗ إِنَّ رَبَّكَ سَرِيعُ ٱلْعِقَابِ وَإِنَّهُۥ لَغَفُورٌۭ رَّحِيمٌۢ"
+              ],
+              "windowMs": [
+                2641000,
+                2666350.5625
+              ],
+              "inputPcmSha256": "25b3edabc3b24573c2ac9bc8fddb26661664162b9dc255f4117b042ac62a7fa4",
+              "rawSegments": [
+                [
+                  2.9214255623520127,
+                  24.660274886543014,
+                  -0.8782284880755469
+                ]
+              ],
+              "rawEntries": [
+                {
+                  "ayahId": "6:165",
+                  "startMs": 2643921,
+                  "endMs": 2665660,
+                  "conf": 0.78
+                }
+              ],
+              "entries": [
+                {
+                  "ayahId": "6:165",
+                  "startMs": 2643921,
+                  "endMs": 2665660,
+                  "conf": 0.78
+                }
+              ],
+              "startDeltaMs": -11,
+              "endDeltaMs": 1212,
+              "withinExistingTargetThresholds": false
+            },
+            {
+              "id": "f_khamery-s6",
+              "sourceSha256": "b9fbf6c590e821c2f670d9bfb379ca8b7eb617f28fd520886ca9987a31ab962f",
+              "model": "generic",
+              "channel": "native-1",
+              "alignmentModel": {
+                "id": "jonatasgrosman/wav2vec2-large-xlsr-53-arabic",
+                "revision": "af46c2d8531b8dcbb5e23b952f739b372c2e5d2d",
+                "weightsSha256": "a0b26f6d9d3edfde1784aef863c192a8cc1e438a23b45910ab648531ebe1857b",
+                "license": "Apache-2.0"
+              },
+              "alignmentInput": [
+                "وَهُوَ ٱلَّذِى جَعَلَكُمْ خَلَٰٓئِفَ ٱلْأَرْضِ وَرَفَعَ بَعْضَكُمْ فَوْقَ بَعْضٍۢ دَرَجَٰتٍۢ لِّيَبْلُوَكُمْ فِى مَآ ءَاتَىٰكُمْ ۗ إِنَّ رَبَّكَ سَرِيعُ ٱلْعِقَابِ وَإِنَّهُۥ لَغَفُورٌۭ رَّحِيمٌۢ"
+              ],
+              "windowMs": [
+                2641500,
+                2666350.5625
+              ],
+              "inputPcmSha256": "72f74304e9e327ffb504b2e31fcde01143c42a043e9f5a6bad90df71ccb78bdf",
+              "rawSegments": [
+                [
+                  2.4212416465378426,
+                  24.160269097222226,
+                  -0.8694761768914759
+                ]
+              ],
+              "rawEntries": [
+                {
+                  "ayahId": "6:165",
+                  "startMs": 2643921,
+                  "endMs": 2665660,
+                  "conf": 0.783
+                }
+              ],
+              "entries": [
+                {
+                  "ayahId": "6:165",
+                  "startMs": 2643921,
+                  "endMs": 2665660,
+                  "conf": 0.783
+                }
+              ],
+              "startDeltaMs": -11,
+              "endDeltaMs": 1212,
+              "withinExistingTargetThresholds": false
+            },
+            {
+              "id": "f_khamery-s6",
+              "sourceSha256": "b9fbf6c590e821c2f670d9bfb379ca8b7eb617f28fd520886ca9987a31ab962f",
+              "model": "generic",
+              "channel": "native-2",
+              "alignmentModel": {
+                "id": "jonatasgrosman/wav2vec2-large-xlsr-53-arabic",
+                "revision": "af46c2d8531b8dcbb5e23b952f739b372c2e5d2d",
+                "weightsSha256": "a0b26f6d9d3edfde1784aef863c192a8cc1e438a23b45910ab648531ebe1857b",
+                "license": "Apache-2.0"
+              },
+              "alignmentInput": [
+                "وَهُوَ ٱلَّذِى جَعَلَكُمْ خَلَٰٓئِفَ ٱلْأَرْضِ وَرَفَعَ بَعْضَكُمْ فَوْقَ بَعْضٍۢ دَرَجَٰتٍۢ لِّيَبْلُوَكُمْ فِى مَآ ءَاتَىٰكُمْ ۗ إِنَّ رَبَّكَ سَرِيعُ ٱلْعِقَابِ وَإِنَّهُۥ لَغَفُورٌۭ رَّحِيمٌۢ"
+              ],
+              "windowMs": [
+                2641500,
+                2666350.5625
+              ],
+              "inputPcmSha256": "e2ffee414001cab8613a8f4ce95f7495ce6376044dcb1b2288638ac831d536c0",
+              "rawSegments": [
+                [
+                  2.4212416465378426,
+                  24.180277601650566,
+                  -0.8242106163408607
+                ]
+              ],
+              "rawEntries": [
+                {
+                  "ayahId": "6:165",
+                  "startMs": 2643921,
+                  "endMs": 2665680,
+                  "conf": 0.794
+                }
+              ],
+              "entries": [
+                {
+                  "ayahId": "6:165",
+                  "startMs": 2643921,
+                  "endMs": 2665680,
+                  "conf": 0.794
+                }
+              ],
+              "startDeltaMs": -11,
+              "endDeltaMs": 1232,
+              "withinExistingTargetThresholds": false
+            },
+            {
+              "id": "f_khamery-s6",
+              "sourceSha256": "b9fbf6c590e821c2f670d9bfb379ca8b7eb617f28fd520886ca9987a31ab962f",
+              "model": "quran",
+              "channel": "native-1",
+              "alignmentModel": {
+                "id": "rabah2026/wav2vec2-large-xlsr-53-arabic-quran-v_final",
+                "revision": "b03a268c6ba1a693752307325ab376c86c3b12da",
+                "weightsSha256": "bf65674a26eb4ef7042cedade96c3c8f8cbd04f3a7d1a68eadceec8ed0f99ecb",
+                "license": "Apache-2.0"
+              },
+              "alignmentInput": [
+                "وَهُوَ ٱلَّذِى جَعَلَكُمْ خَلَٰٓئِفَ ٱلْأَرْضِ وَرَفَعَ بَعْضَكُمْ فَوْقَ بَعْضٍ دَرَجَٰتٍ لِّيَبْلُوَكُمْ فِى مَآ ءَاتَىٰكُمْ  إِنَّ رَبَّكَ سَرِيعُ ٱلْعِقَابِ وَإِنَّهُۥ لَغَفُورٌ رَّحِيمٌ"
+              ],
+              "windowMs": [
+                2641000,
+                2666350.5625
+              ],
+              "inputPcmSha256": "2c66179c6ee49c8d730554d8aa9f6185a3d1f8b158e75f2605057a4c5e0f9797",
+              "rawSegments": [
+                [
+                  2.9214255623520127,
+                  24.640266549921073,
+                  -3.0081665708330094
+                ]
+              ],
+              "rawEntries": [
+                {
+                  "ayahId": "6:165",
+                  "startMs": 2643921,
+                  "endMs": 2665640,
+                  "conf": 0.248
+                }
+              ],
+              "entries": [
+                {
+                  "ayahId": "6:165",
+                  "startMs": 2643921,
+                  "endMs": 2665640,
+                  "conf": 0.248
+                }
+              ],
+              "startDeltaMs": -11,
+              "endDeltaMs": 1192,
+              "withinExistingTargetThresholds": false
+            },
+            {
+              "id": "f_khamery-s6",
+              "sourceSha256": "b9fbf6c590e821c2f670d9bfb379ca8b7eb617f28fd520886ca9987a31ab962f",
+              "model": "quran",
+              "channel": "native-2",
+              "alignmentModel": {
+                "id": "rabah2026/wav2vec2-large-xlsr-53-arabic-quran-v_final",
+                "revision": "b03a268c6ba1a693752307325ab376c86c3b12da",
+                "weightsSha256": "bf65674a26eb4ef7042cedade96c3c8f8cbd04f3a7d1a68eadceec8ed0f99ecb",
+                "license": "Apache-2.0"
+              },
+              "alignmentInput": [
+                "وَهُوَ ٱلَّذِى جَعَلَكُمْ خَلَٰٓئِفَ ٱلْأَرْضِ وَرَفَعَ بَعْضَكُمْ فَوْقَ بَعْضٍ دَرَجَٰتٍ لِّيَبْلُوَكُمْ فِى مَآ ءَاتَىٰكُمْ  إِنَّ رَبَّكَ سَرِيعُ ٱلْعِقَابِ وَإِنَّهُۥ لَغَفُورٌ رَّحِيمٌ"
+              ],
+              "windowMs": [
+                2641000,
+                2666350.5625
+              ],
+              "inputPcmSha256": "25b3edabc3b24573c2ac9bc8fddb26661664162b9dc255f4117b042ac62a7fa4",
+              "rawSegments": [
+                [
+                  2.9214255623520127,
+                  24.640266549921073,
+                  -2.963980447434612
+                ]
+              ],
+              "rawEntries": [
+                {
+                  "ayahId": "6:165",
+                  "startMs": 2643921,
+                  "endMs": 2665640,
+                  "conf": 0.259
+                }
+              ],
+              "entries": [
+                {
+                  "ayahId": "6:165",
+                  "startMs": 2643921,
+                  "endMs": 2665640,
+                  "conf": 0.259
+                }
+              ],
+              "startDeltaMs": -11,
+              "endDeltaMs": 1192,
+              "withinExistingTargetThresholds": false
+            },
+            {
+              "id": "f_khamery-s6",
+              "sourceSha256": "b9fbf6c590e821c2f670d9bfb379ca8b7eb617f28fd520886ca9987a31ab962f",
+              "model": "quran",
+              "channel": "native-1",
+              "alignmentModel": {
+                "id": "rabah2026/wav2vec2-large-xlsr-53-arabic-quran-v_final",
+                "revision": "b03a268c6ba1a693752307325ab376c86c3b12da",
+                "weightsSha256": "bf65674a26eb4ef7042cedade96c3c8f8cbd04f3a7d1a68eadceec8ed0f99ecb",
+                "license": "Apache-2.0"
+              },
+              "alignmentInput": [
+                "وَهُوَ ٱلَّذِى جَعَلَكُمْ خَلَٰٓئِفَ ٱلْأَرْضِ وَرَفَعَ بَعْضَكُمْ فَوْقَ بَعْضٍ دَرَجَٰتٍ لِّيَبْلُوَكُمْ فِى مَآ ءَاتَىٰكُمْ  إِنَّ رَبَّكَ سَرِيعُ ٱلْعِقَابِ وَإِنَّهُۥ لَغَفُورٌ رَّحِيمٌ"
+              ],
+              "windowMs": [
+                2641500,
+                2666350.5625
+              ],
+              "inputPcmSha256": "72f74304e9e327ffb504b2e31fcde01143c42a043e9f5a6bad90df71ccb78bdf",
+              "rawSegments": [
+                [
+                  2.4212416465378426,
+                  24.140260592793883,
+                  -3.0004138261932365
+                ]
+              ],
+              "rawEntries": [
+                {
+                  "ayahId": "6:165",
+                  "startMs": 2643921,
+                  "endMs": 2665640,
+                  "conf": 0.25
+                }
+              ],
+              "entries": [
+                {
+                  "ayahId": "6:165",
+                  "startMs": 2643921,
+                  "endMs": 2665640,
+                  "conf": 0.25
+                }
+              ],
+              "startDeltaMs": -11,
+              "endDeltaMs": 1192,
+              "withinExistingTargetThresholds": false
+            },
+            {
+              "id": "f_khamery-s6",
+              "sourceSha256": "b9fbf6c590e821c2f670d9bfb379ca8b7eb617f28fd520886ca9987a31ab962f",
+              "model": "quran",
+              "channel": "native-2",
+              "alignmentModel": {
+                "id": "rabah2026/wav2vec2-large-xlsr-53-arabic-quran-v_final",
+                "revision": "b03a268c6ba1a693752307325ab376c86c3b12da",
+                "weightsSha256": "bf65674a26eb4ef7042cedade96c3c8f8cbd04f3a7d1a68eadceec8ed0f99ecb",
+                "license": "Apache-2.0"
+              },
+              "alignmentInput": [
+                "وَهُوَ ٱلَّذِى جَعَلَكُمْ خَلَٰٓئِفَ ٱلْأَرْضِ وَرَفَعَ بَعْضَكُمْ فَوْقَ بَعْضٍ دَرَجَٰتٍ لِّيَبْلُوَكُمْ فِى مَآ ءَاتَىٰكُمْ  إِنَّ رَبَّكَ سَرِيعُ ٱلْعِقَابِ وَإِنَّهُۥ لَغَفُورٌ رَّحِيمٌ"
+              ],
+              "windowMs": [
+                2641500,
+                2666350.5625
+              ],
+              "inputPcmSha256": "e2ffee414001cab8613a8f4ce95f7495ce6376044dcb1b2288638ac831d536c0",
+              "rawSegments": [
+                [
+                  2.4212416465378426,
+                  24.140260592793883,
+                  -2.9499148790562533
+                ]
+              ],
+              "rawEntries": [
+                {
+                  "ayahId": "6:165",
+                  "startMs": 2643921,
+                  "endMs": 2665640,
+                  "conf": 0.263
+                }
+              ],
+              "entries": [
+                {
+                  "ayahId": "6:165",
+                  "startMs": 2643921,
+                  "endMs": 2665640,
+                  "conf": 0.263
+                }
+              ],
+              "startDeltaMs": -11,
+              "endDeltaMs": 1192,
+              "withinExistingTargetThresholds": false
+            }
+          ],
+          "qualityClaim": false
+        }
+      ],
+      "limits": [
+        "Disagreements and low diagnostic confidence preserved; not a passing two-model certificate.",
+        "Original confidence is unchanged; all final-SHA post-stage QA must run again."
+      ]
+    }
+  }
+]

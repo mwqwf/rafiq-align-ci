@@ -1,0 +1,20 @@
+{
+  "action": "tool",
+  "tool": "index_qa/stage_transform.py",
+  "args": [
+    "--file",
+    "ops/source-repair/candidates/codex-derini_warsh-tail-refined-20261005-v2.jz",
+    "--parent",
+    "timings/warsh/derini_warsh.jz",
+    "--parent-sha",
+    "ffa7ef763237bf0f7d34d492d9a74ef595fd2528f6be0a7d1f1581a312384825",
+    "--op",
+    "ctc_heardmap_splice:11,14,23,83",
+    "--reason",
+    "تصحيح نهايات مقيسة بعد تحقق التفريغ الحر ومحاذاة النهاية حتى EOF؛ تغير endMs فقط في المواضع المحددة، والثقة والمصادر وجميع المداخل الأخرى محفوظة. يتطلب QA جديداً على البصمة النهائية.",
+    "--by",
+    "codex-measured-tail-refinement-20261005",
+    "--manual-qa-only",
+    "--yes"
+  ]
+}

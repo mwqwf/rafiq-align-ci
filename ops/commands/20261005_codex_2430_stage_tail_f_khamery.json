@@ -1,0 +1,20 @@
+{
+  "action": "tool",
+  "tool": "index_qa/stage_transform.py",
+  "args": [
+    "--file",
+    "ops/source-repair/candidates/codex-f_khamery-tail-refined-20261005-v2.jz",
+    "--parent",
+    "timings/hafs/f_khamery.jz",
+    "--parent-sha",
+    "a8e970e2a6850336ec6db6dc2c9f0f8c4890a19be561dbd52c80aa95fc1fb9a2",
+    "--op",
+    "ctc_heardmap_splice:2,6",
+    "--reason",
+    "تصحيح نهايات مقيسة بعد تحقق التفريغ الحر ومحاذاة النهاية حتى EOF؛ تغير endMs فقط في المواضع المحددة، والثقة والمصادر وجميع المداخل الأخرى محفوظة. يتطلب QA جديداً على البصمة النهائية.",
+    "--by",
+    "codex-measured-tail-refinement-20261005",
+    "--manual-qa-only",
+    "--yes"
+  ]
+}
