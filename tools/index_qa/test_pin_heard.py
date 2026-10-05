@@ -42,7 +42,7 @@ class PinHeard(unittest.TestCase):
         self.assertIsNotNone(heard_gate.surah_verdict(rows))
 
     def test_pin_second_performance(self):
-        out, rep, changed = pin(_idx(), 77, copy.deepcopy(HMAP), {2: 30000, 3: 40000, 4: 50000})
+        out, rep, changed = pin(_idx(), 77, copy.deepcopy(HMAP), {2: 30000, 3: 40000, 4: 50000}, {1: 10000})
         e = {x["ayahId"]: (x["startMs"], x["endMs"]) for x in out["entries"]}
         self.assertEqual(e["77:1"], (0, 10000))
         self.assertEqual(e["77:2"], (30000, 40000))
@@ -51,6 +51,8 @@ class PinHeard(unittest.TestCase):
         self.assertEqual(e["78:1"], (0, 5000))
         self.assertEqual(out["engineBySurah"]["77"], "heard-pin-1")
         self.assertEqual(changed, [2, 3, 4])
+        out2, _, _ = pin(_idx(), 77, copy.deepcopy(HMAP), {2: 30000, 3: 40000, 4: 50000})
+        self.assertEqual([x for x in out2["entries"] if x["ayahId"] == "77:1"][0]["endMs"], 30000)  # بلا قصّ يبقى متّصلاً
 
     def test_trim_must_be_measured(self):
         out, _, _ = pin(_idx(), 77, copy.deepcopy(HMAP), {2: 30000, 3: 40000, 4: 50000})
@@ -58,6 +60,20 @@ class PinHeard(unittest.TestCase):
             pin(_idx(), 77, copy.deepcopy(HMAP), {3: 40000, 4: 50000}, {2: 23456})
         out, _, _ = pin(_idx(), 77, copy.deepcopy(HMAP), {3: 40000, 4: 50000}, {2: 20000})
         self.assertEqual([x for x in out["entries"] if x["ayahId"] == "77:2"][0]["endMs"], 20000)
+        with self.assertRaises(SystemExit):                            # لا قصَّ لآيةٍ لا يليها تثبيت
+            pin(_idx(), 77, copy.deepcopy(HMAP), {2: 30000, 3: 40000}, {4: 60000})
+
+    def test_contiguous_neighbour_stays_contiguous(self):
+        out, _, _ = pin(_idx(), 77, copy.deepcopy(HMAP), {2: 10000, 3: 40000, 4: 50000})
+        e = {x["ayahId"]: (x["startMs"], x["endMs"]) for x in out["entries"]}
+        self.assertEqual(e["77:1"], (0, 10000))
+        self.assertEqual(e["77:2"], (10000, 40000))
+
+    def test_pinned_ayah_trimmed_to_its_measured_end(self):
+        out, _, _ = pin(_idx(), 77, copy.deepcopy(HMAP), {2: 10000, 3: 40000, 4: 50000}, {2: 20000})
+        e = {x["ayahId"]: (x["startMs"], x["endMs"]) for x in out["entries"]}
+        self.assertEqual(e["77:2"], (10000, 20000))                   # التكرارُ 20–40ث بلا مدخل
+        self.assertEqual(e["77:3"], (40000, 50000))
 
     def test_unmeasured_start_refused(self):
         with self.assertRaises(SystemExit):
