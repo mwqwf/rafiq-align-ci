@@ -1,0 +1,144 @@
+{
+  "schema": 1,
+  "kind": "five-tail-clipping-followup",
+  "sourceRunId": 37388055996,
+  "sources": [
+    {
+      "id": "derini_warsh-s11",
+      "reciterId": "derini_warsh",
+      "riwaya": "warsh",
+      "surah": 11,
+      "candidatePath": "ops/source-repair/candidates/codex-derini-s11-s14-s23-s83-20261005.jz",
+      "candidateSha256": "0d2de0b9d99a7243f3e9ee542bfd91a1b05d602fead644aea422ce4afd888479",
+      "stagedKey": "timings-staging/warsh/derini_warsh.fd3b23b0.jz",
+      "stagedSha256": "fd3b23b00bdecd7aad0fed4037c384f37dd37540ae005db1c83980f847ec0e74",
+      "parentSha256": "ffa7ef763237bf0f7d34d492d9a74ef595fd2528f6be0a7d1f1581a312384825",
+      "target": {
+        "ayahId": "11:123",
+        "fileRef": "https://archive.org/download/amrou-el-derini_Warsh/011.mp3",
+        "startMs": 3033930,
+        "endMs": 3055138,
+        "conf": 0.667,
+        "confBand": "MED"
+      },
+      "url": "https://archive.org/download/amrou-el-derini_Warsh/011.mp3",
+      "sha256": "89551773d888cce00bc020bce5cc3b10f03a09ffb77d1f7d8bb4ef9f6a6fddcd",
+      "requestedWindowSeconds": [
+        3031,
+        3061
+      ],
+      "decodedDurationSeconds": 3060.0620625,
+      "reason": "Final consonant emitted after proposed end"
+    },
+    {
+      "id": "derini_warsh-s23",
+      "reciterId": "derini_warsh",
+      "riwaya": "warsh",
+      "surah": 23,
+      "candidatePath": "ops/source-repair/candidates/codex-derini-s11-s14-s23-s83-20261005.jz",
+      "candidateSha256": "0d2de0b9d99a7243f3e9ee542bfd91a1b05d602fead644aea422ce4afd888479",
+      "stagedKey": "timings-staging/warsh/derini_warsh.fd3b23b0.jz",
+      "stagedSha256": "fd3b23b00bdecd7aad0fed4037c384f37dd37540ae005db1c83980f847ec0e74",
+      "parentSha256": "ffa7ef763237bf0f7d34d492d9a74ef595fd2528f6be0a7d1f1581a312384825",
+      "target": {
+        "ayahId": "23:118",
+        "fileRef": "https://archive.org/download/amrou-el-derini_Warsh/023.mp3",
+        "startMs": 1678364,
+        "endMs": 1686350,
+        "conf": 0.0,
+        "confBand": "LOW",
+        "startApprox": true
+      },
+      "url": "https://archive.org/download/amrou-el-derini_Warsh/023.mp3",
+      "sha256": "04a390a6f37087e21fd364a8e4c9009894a3f6d2d8568bce42a54380909fdb35",
+      "requestedWindowSeconds": [
+        1676,
+        1695
+      ],
+      "decodedDurationSeconds": 1694.2759375,
+      "reason": "Final consonant emitted after proposed end"
+    },
+    {
+      "id": "derini_warsh-s83",
+      "reciterId": "derini_warsh",
+      "riwaya": "warsh",
+      "surah": 83,
+      "candidatePath": "ops/source-repair/candidates/codex-derini-s11-s14-s23-s83-20261005.jz",
+      "candidateSha256": "0d2de0b9d99a7243f3e9ee542bfd91a1b05d602fead644aea422ce4afd888479",
+      "stagedKey": "timings-staging/warsh/derini_warsh.fd3b23b0.jz",
+      "stagedSha256": "fd3b23b00bdecd7aad0fed4037c384f37dd37540ae005db1c83980f847ec0e74",
+      "parentSha256": "ffa7ef763237bf0f7d34d492d9a74ef595fd2528f6be0a7d1f1581a312384825",
+      "target": {
+        "ayahId": "83:36",
+        "fileRef": "https://archive.org/download/amrou-el-derini_Warsh/083.mp3",
+        "startMs": 302940,
+        "endMs": 308661,
+        "conf": 0.755,
+        "confBand": "MED"
+      },
+      "url": "https://archive.org/download/amrou-el-derini_Warsh/083.mp3",
+      "sha256": "2625a0b8698a65a6f6b5051541e74693aff1142b7210ab8401d770dbb092054a",
+      "requestedWindowSeconds": [
+        300,
+        317
+      ],
+      "decodedDurationSeconds": 316.447375,
+      "reason": "Final consonant emitted after proposed end"
+    },
+    {
+      "id": "zahrani-s6",
+      "reciterId": "zahrani",
+      "riwaya": "hafs",
+      "surah": 6,
+      "candidatePath": "ops/source-repair/candidates/codex-zahrani-s6-20261005.jz",
+      "candidateSha256": "36e79f102ee1480c01eb0eb0824a91560f406d73926bbdc1855cd03eeb54c7d1",
+      "stagedKey": "timings-staging/hafs/zahrani.b962a19c.jz",
+      "stagedSha256": "b962a19c6bec4d6e9a824bf997c4f2ed7a3d2229bc2e9c2df7d0969eb3e19713",
+      "parentSha256": "2dab3926ed56161808fe6057087899bb07373b22c792381c114653b9e24d910c",
+      "target": {
+        "ayahId": "6:165",
+        "fileRef": "https://server9.mp3quran.net/zahrani/006.mp3",
+        "startMs": 4993220,
+        "endMs": 5033038,
+        "conf": 0.164,
+        "confBand": "LOW"
+      },
+      "url": "https://server9.mp3quran.net/zahrani/006.mp3",
+      "sha256": "e3229a66a357835a511dc2eb6e628a646179de1e41dc9c1bf6d14fe68ed15509",
+      "requestedWindowSeconds": [
+        4991,
+        5047
+      ],
+      "decodedDurationSeconds": 5046.047375,
+      "reason": "Actual repeat continues beyond initial diagnostic window"
+    },
+    {
+      "id": "f_khamery-s6",
+      "reciterId": "f_khamery",
+      "riwaya": "hafs",
+      "surah": 6,
+      "candidatePath": "ops/source-repair/candidates/codex-khamery-s2-s6-20261005.jz",
+      "candidateSha256": "6701b3c668606a1c63caa905993757971ba9928edbf01cb751410a2f17dcaf58",
+      "stagedKey": "timings-staging/hafs/f_khamery.d58b78bf.jz",
+      "stagedSha256": "d58b78bf4e636374cf0b207b53f60b9909c58aa9cbf5306eeaa5f10ba72efccb",
+      "parentSha256": "a8e970e2a6850336ec6db6dc2c9f0f8c4890a19be561dbd52c80aa95fc1fb9a2",
+      "target": {
+        "ayahId": "6:165",
+        "fileRef": "https://server16.mp3quran.net/f_khamery/Rewayat-Hafs-A-n-Assem/006.mp3",
+        "startMs": 2643932,
+        "endMs": 2664448,
+        "conf": 0.517,
+        "confBand": "MED",
+        "startApprox": true
+      },
+      "url": "https://server16.mp3quran.net/f_khamery/Rewayat-Hafs-A-n-Assem/006.mp3",
+      "sha256": "b9fbf6c590e821c2f670d9bfb379ca8b7eb617f28fd520886ca9987a31ab962f",
+      "requestedWindowSeconds": [
+        2641,
+        2667
+      ],
+      "decodedDurationSeconds": 2666.3505625,
+      "reason": "Final consonant emitted after proposed end"
+    }
+  ]
+}
