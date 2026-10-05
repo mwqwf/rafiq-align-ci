@@ -937,7 +937,13 @@ def _ffmpeg_window_pcm(mp3, start_ms, end_ms, ayah_end_ms=None, file_dur_ms=None
     # مع -v error لا يظهر في stderr إلا خطأ فكّ حقيقي. وقد يرجع ffmpeg صفراً
     # بعد إخفاء إطار/حزمة تالفة؛ قبول PCM حينها يحوّل تلف الأداة إلى حكم مؤكد.
     if why:
-        raise RuntimeError(f"ffmpeg أبلغ خطأ فك مع rc=0: {why}")
+        # ⭐ (‏fixV 2026-10-05 · mhsny/002): إطاراتٌ تالفةٌ قصيرة ⇒ القصُّ من الفكّ المرمَّم بزمنٍ لا ينزاح
+        #    (‏`mp3_resync` بشروطه: عطبٌ ≥ ثانية أو بلا فجوةٍ تفسّره يبقى مرفوضاً كما كان).
+        try:
+            return _exact_window_pcm(mp3, start_ms, end_ms, ayah_end_ms=ayah_end_ms,
+                                     file_end_ms=file_end_ms)
+        except Exception as ex2:                       # noqa: BLE001
+            raise RuntimeError(f"ffmpeg أبلغ خطأ فك مع rc=0: {why} · الترميم: {str(ex2)[:160]}")
     raw = p.stdout
     if len(raw) % 4:
         raise RuntimeError(f"ffmpeg أخرج float32 غير محاذى ({len(raw)} بايت)")
@@ -1048,6 +1054,39 @@ def _full_decode_pcm(mp3):
         return x
 
 
+_RESYNCED = {}                # مسارُ mp3 ⇒ الفكُّ المرمَّم (‏للملفّ المعطوب وحده)
+RESYNC_REPORTS = {}           # مسارُ mp3 ⇒ تقريرُ الترميم (‏العناقيد وما سقط عند كلٍّ منها)
+
+
+def _resync_full_decode_pcm(mp3):
+    """فكٌّ كاملٌ لملفٍّ فيه إطاراتٌ تالفةٌ قصيرة، **بزمنٍ لا ينزاح بعد العطب** (‏`mp3_resync`).
+
+    ⛔ لا يُستعمل إلا بعد أن يردّ `_full_decode_pcm` بخطأ فكّ؛ وكلُّ شرطٍ لم يُستوفَ (‏عنقودٌ يُسقط
+    ثانيةً فأكثر · خطأٌ بلا فجوةٍ في الإطارات · معدّلٌ غيرُ ثابت · طولٌ لا يطابق الخانات) يبقى خطأً
+    «غير حاسم» كما كان — فالحارسُ لا يلين، وإنّما يقيس ما في الملفّ كما يُسمَع في المشغّل."""
+    sys.path.insert(0, str(Path(__file__).parent))
+    import mp3_resync
+    key = str(mp3)
+    with _DECODE_LOCK:
+        if key in _RESYNCED:
+            return _RESYNCED[key]
+    from channel_mix import mono_filter
+    audio_input = _audio_input(key)
+    filt = tuple(mono_filter(audio_input))
+    try:
+        x, rep = mp3_resync.resync_decode(
+            audio_input, lambda b: mp3_resync.ffmpeg_decode_bytes(b, filt))
+    except mp3_resync.Unrecoverable as ex:
+        raise RuntimeError(f"ملفٌّ معطوبٌ لا يُرمَّم: {ex}") from None
+    print(f"  ⚠️ ترميمُ إطاراتٍ تالفة في {Path(key).name}: {rep['clusters']}", flush=True)
+    with _DECODE_LOCK:
+        _RESYNCED[key] = x
+        RESYNC_REPORTS[key] = rep
+        while len(_RESYNCED) > 2:
+            _RESYNCED.pop(next(iter(_RESYNCED)))
+    return x
+
+
 def _exact_window_pcm(mp3, start_ms, end_ms, ayah_end_ms=None, file_end_ms=None):
     """نافذةٌ مقصوصةٌ بالعيّنة من الفكّ الكامل، بقواعد رفض `_ffmpeg_window_pcm` نفسِها."""
     import numpy as np
@@ -1058,7 +1097,12 @@ def _exact_window_pcm(mp3, start_ms, end_ms, ayah_end_ms=None, file_end_ms=None)
         raise RuntimeError(f"نافذةٌ غير صالحة: {start_ms}..{end_ms}م.ث")
     expected = int(round(dur * rate / 1000))
     tolerance = min(int(rate * 0.080), max(1, expected // 10))
-    whole = _full_decode_pcm(mp3)
+    try:
+        whole = _full_decode_pcm(mp3)
+    except RuntimeError as ex:
+        if "أبلغ خطأ فكٍّ كامل" not in str(ex):
+            raise
+        whole = _resync_full_decode_pcm(mp3)
     a = int(round(start * rate / 1000))
     x = np.array(whole[a:a + expected], dtype="float32")
     fd = len(whole) * 1000.0 / rate                     # نهايةُ الملفّ بالعيّنة
