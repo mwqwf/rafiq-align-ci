@@ -1,5 +1,11 @@
 name: فحص تصحيح المصادر المسجلة بلا كتابة إلى الدلو
 on:
+  workflow_dispatch:
+    inputs:
+      request:
+        description: "اسم ملف طلب واحد داخل ops/source-repair/requests، شاملًا .json"
+        required: true
+        type: string
   push:
     branches: [main]
     paths: [ops/source-repair/requests/*.json]
@@ -17,17 +23,34 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - id: plan
+        env:
+          EVENT_NAME: ${{ github.event_name }}
+          REQUEST_NAME: ${{ inputs.request }}
         run: |
           python - <<'PY'
-          import hashlib, json, os, pathlib
-          pending = sorted(pathlib.Path('ops/source-repair/requests').glob('*.json'))
-          if len(pending) != 1:
-              raise SystemExit('يلزم طلب فحص واحد صريح')
-          request = pending[0]
+          import hashlib, json, os, pathlib, re
+          requests = pathlib.Path('ops/source-repair/requests')
+          if os.environ['EVENT_NAME'] == 'workflow_dispatch':
+              name = os.environ.get('REQUEST_NAME', '')
+              if not re.fullmatch(r'[A-Za-z0-9][A-Za-z0-9._-]*\.json', name):
+                  raise SystemExit('اسم الطلب يجب أن يكون basename واحدًا بامتداد .json')
+              request = requests / name
+          else:
+              pending = sorted(requests.glob('*.json'))
+              if len(pending) != 1:
+                  raise SystemExit('يلزم طلب فحص واحد صريح')
+              request = pending[0]
+          if (request.parent != requests or not request.is_file()
+                  or any(p.is_symlink() for p in (request, *request.parents))):
+              raise SystemExit('الطلب خارج موضعه أو غائب أو مساره رابط رمزي')
           data = json.loads(request.read_text())
           candidate = pathlib.Path(data['candidate'])
-          if not candidate.is_file() or candidate.parent != pathlib.Path('ops/source-repair/candidates'):
+          if (not candidate.is_file() or candidate.parent != pathlib.Path('ops/source-repair/candidates')
+                  or not re.fullmatch(r'[A-Za-z0-9][A-Za-z0-9._-]*\.jz', candidate.name)
+                  or any(p.is_symlink() for p in (candidate, *candidate.parents))):
               raise SystemExit('مسار المرشح خارج موضعه المسموح')
+          if not re.fullmatch(r'[0-9a-f]{64}', str(data.get('sha256') or '')):
+              raise SystemExit('بصمة المرشح يجب أن تكون SHA-256 كاملة')
           if hashlib.sha256(candidate.read_bytes()).hexdigest() != data['sha256']:
               raise SystemExit('بصمة المرشح لا تطابق طلب الفحص')
           with open(os.environ['GITHUB_OUTPUT'], 'a') as f:
