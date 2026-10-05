@@ -33,6 +33,7 @@ import argparse
 import gzip
 import hashlib
 import json
+import re
 import sys
 import time
 from pathlib import Path
@@ -62,6 +63,40 @@ def pruned_surah_maps(idx, surahs):
         if isinstance(m, dict) and gone & {str(k) for k in m}:
             out[field] = {k: v for k, v in m.items() if str(k) not in gone}
     return out
+
+
+def carried_declared_tails(idx, kept, surahs, reason_code, reason_user):
+    """إعلاناتُ «الذيل المبتور» في الأصل التي تبقى صحيحةً بعد **إسقاط** سورٍ أخرى (fixV · 2026-10-05).
+
+    ⛔ العطبُ المقيس (‏akri_qalun.4a48d8c3): إسقاطُ سورةٍ يكتب ترويسةً جديدة فيمحو
+    `transform.truncatedTail` و`declare_gap:س` لسورةٍ أخرى أُعلن ذيلُها بقاعدة المالك ⇒ يعود
+    حارسُ البتر في الترقية فيردّها، ولا طريقَ لإسقاط سورةٍ وإبقاء إعلان أخرى معاً.
+    ⇒ يُحمل الإعلانُ **كما هو** بشروطٍ مجتمعة، وإلا رُدّ الإسقاطُ كلُّه (‏لا يُمحى صامتاً):
+      ① الأصلُ أعلنه (`declare_gap:س` في `op`) وسورتُه ليست من المُسقَطة الآن.
+      ② مداخلُها الباقية هي البادئةُ 1..N المسمّاة لا غير.
+      ③ الإسقاطُ الجديد بـ`SOURCE_TRUNCATED` و`reasonUser` (‏شرطا التطبيق لعرض سبب النقص).
+    يُرجع ({س: سجلّ}, [س…]) — والسجلُّ لا يُعدَّل بحرف."""
+    tr = idx.get("transform") if isinstance(idx.get("transform"), dict) else {}
+    tails = (tr or {}).get("truncatedTail") or {}
+    declared = set()
+    for m in re.findall(r"declare_gap:([\d,\s]+)", str((tr or {}).get("op") or "")):
+        declared |= {int(x) for x in re.findall(r"\d+", m)}
+    out, names = {}, []
+    for s, rec in tails.items():
+        if int(s) in surahs:
+            continue
+        if int(s) not in declared or not isinstance(rec, dict):
+            continue
+        have = sorted(int(e["ayahId"].split(":")[1]) for e in kept
+                      if e["ayahId"].startswith(f"{s}:"))
+        if have != list(range(1, int(rec.get("published") or 0) + 1)):
+            raise SystemExit(f"⛔ س{s}: إعلانُ الذيل المبتور الموروث لا يطابق مداخلَها — لا يُحمل كذب")
+        if reason_code != "SOURCE_TRUNCATED" or not (reason_user or "").strip():
+            raise SystemExit(f"⛔ الأصلُ يُعلن ذيلَ س{s} مبتوراً، والإسقاطُ الجديد بلا SOURCE_TRUNCATED "
+                             f"و--reason-user ⇒ يمحو الإعلانَ عن المستخدم. اذكرهما.")
+        out[str(s)] = rec
+        names.append(int(s))
+    return out, sorted(names)
 
 
 def main():
@@ -260,11 +295,17 @@ def main():
                 raise SystemExit(f"⛔ س{_s}: إعلانُ الذيل المبتور يقول بادئةً حتى "
                                  f"{_v.get('published')} ومداخلُها {len(_have)} — لا يُورَّث كذب")
             _tt[_s] = _v
+    # ⭐ وفي وضع الإسقاط يُحمل إعلانُ ذيلٍ مبتورٍ لسورةٍ أخرى بشروطه (‏`carried_declared_tails`)،
+    #    ويُلحق `declare_gap:س` بالعمليّة بعد `drop_surah:` فيقرؤهما الحارسان كليهما.
+    _keep_decl = []
+    if not a.declare_gap:
+        _tt, _keep_decl = carried_declared_tails(idx, kept, surahs, a.reason_code, a.reason_user)
     # **أثرُ التحويل في الترويسة نفسها** — لا في رسالةٍ ولا في سجلٍّ منفصل.
     out["transform"] = {
         **({"truncatedTail": _tt} if _tt else {}),
         "op": ("declare_gap:" if a.declare_gap else "drop_surah:")
-              + ",".join(str(n) for n in surahs),
+              + ",".join(str(n) for n in surahs)
+              + ("|declare_gap:" + ",".join(str(n) for n in _keep_decl) if _keep_decl else ""),
         "fromSha256": live,
         "fromKey": a.key,
         "droppedEntries": len(dropped),

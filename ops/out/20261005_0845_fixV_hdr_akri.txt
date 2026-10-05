@@ -1,0 +1,303 @@
+# rc=0
+== timings-staging/qalun/akri_qalun.4a48d8c3.jz · 4a48d8c31e5d · مداخل 6202
+{
+ "schema": 1,
+ "riwaya": "qalun",
+ "reciterId": "akri_qalun",
+ "sourceKind": "SURAH_FILES",
+ "ayahCounting": "KUFI",
+ "ayahCount": 6236,
+ "method": "ASR_ALIGN",
+ "engineVersion": "align-0.2",
+ "refineVersion": "v2.1",
+ "refinedCount": 707,
+ "medTargeted": 2575,
+ "refineStats": {
+  "skip:no-words": 9,
+  "token-snap": 707,
+  "skip:no-anchor": 1214,
+  "skip:no-silence": 642,
+  "skip:overrun": 3
+ },
+ "lowCount": 441,
+ "vad": {
+  "versions": {
+   "adaptive-2": 114
+  },
+  "rel": {
+   "min": 0.06,
+   "median": 0.06,
+   "max": 0.06,
+   "surahs": 114
+  },
+  "writerVersion": "adaptive-2"
+ },
+ "noSilenceShare": 0.344,
+ "noSilenceToAnchor": 0.53,
+ "sparsePauses": false,
+ "missing": {
+  "count": 34,
+  "byReason": {},
+  "medianLen": 4,
+  "medianLenAll": 10,
+  "biasedShort": false,
+  "ids": [
+   "24:31",
+   "24:32",
+   "24:33",
+   "24:34",
+   "24:35",
+   "24:36",
+   "24:37",
+   "24:38",
+   "24:39",
+   "24:40",
+   "24:41",
+   "24:42",
+   "24:43",
+   "24:44",
+   "24:45",
+   "24:46",
+   "24:47",
+   "24:48",
+   "24:49",
+   "24:50",
+   "24:51",
+   "24:52",
+   "24:53",
+   "24:54",
+   "24:55",
+   "24:56",
+   "24:57",
+   "24:58",
+   "24:59",
+   "24:60",
+   "24:61",
+   "24:62",
+   "24:63",
+   "24:64"
+  ]
+ },
+ "exactEnds": true,
+ "generatedAt": 1788707110892,
+ "audioSha256": "[114 بصمة]",
+ "notes": "",
+ "transform": {
+  "truncatedTail": {
+   "24": {
+    "published": 30,
+    "absentFrom": 31,
+    "absentTo": 64,
+    "reason": "source_truncated",
+    "sourceSha256": "7be95a73720fb50b95dbeaced9cccc4e1ec341fc91480594ff1e9adda0bedd24",
+    "totalMs": 765759
+   }
+  },
+  "op": "ctc_gapsplit:44",
+  "fromSha256": "5614d0b22536f1f206bdc508ee9758eac9bbf39ad16c0754da652c87cce21cb3",
+  "fromKey": "timings/qalun/akri_qalun.jz",
+  "droppedEntries": 0,
+  "gapAyahs": 34,
+  "reason": "fixS2 موجة4 (مدخلٌ ثالث بخريطة السماع): مسابرُ ctc_heard_probe أثبتت أنّ الآيات بلا تلاوة طرفُ كبسٍ ممتدّ (المنشور يسبق المسموع بعشرات الثواني) ⇒ نافذةٌ واحدةٌ تغطّي مدى الانحراف كلَّه بين مراسٍ يطابق فيها المنشورُ المسموع (44:40-59) بحُرّاس الثقة والمدّة والجارة كما هي وعتبة 5% كما هي (إذن المالك 22:44Z).",
+  "reasonUser": "تسجيل هذه السورة عند الناشر ناقص: تتوفر الآيات 1–30 فقط بصوت هذا القارئ.",
+  "reasonCode": "SOURCE_TRUNCATED",
+  "at": 1791013609199,
+  "note": "‏عددُ المداخل مطابقٌ للأصل والحدودُ وحدها أُزيحت؛ ولا يُرقّى بحكم الأصل: يدخل الطابور بفحص مطالعَ وعيّنةٍ على بصمته.",
+  "entriesSha256": "0311bb561fca1f602279fe9a40f22a07b798c47e3dc8dc91628c34b83fd2f04e",
+  "parentEntriesSha256": "89691d9eff4d535dad79329a788ecf83ccaac7546a3c6a89caedda524dcdda28",
+  "movedEntries": 21,
+  "addedEntries": 0,
+  "removedEntries": 0,
+  "by": "github-ctc-splice"
+ },
+ "engineBySurah": {
+  "10": "ctc-seg-1",
+  "19": "ctc-seg-1",
+  "20": "ctc-seg-1",
+  "24": "ctc-quran-surah-1",
+  "26": "ctc-seg-1",
+  "28": "ctc-seg-1",
+  "34": "ctc-seg-1",
+  "36": "ctc-seg-1",
+  "37": "ctc-seg-1",
+  "43": "ctc-seg-1",
+  "44": "ctc-gapsplit-1",
+  "45": "ctc-seg-1",
+  "55": "ctc-seg-1",
+  "56": "ctc-seg-1",
+  "74": "ctc-seg-1",
+  "75": "ctc-seg-1",
+  "79": "ctc-seg-1",
+  "81": "ctc-seg-1",
+  "95": "ctc-seg-1",
+  "101": "ctc-seg-1",
+  "102": "ctc-seg-1",
+  "105": "ctc-seg-1",
+  "106": "ctc-seg-1",
+  "107": "ctc-seg-1",
+  "108": "ctc-seg-1"
+ },
+ "sourceBySurah": {
+  "106": "https://server16.mp3quran.net/m_akri/Rewayat-Qalon-A-n-Nafi/108.mp3",
+  "107": "https://server16.mp3quran.net/m_akri/Rewayat-Qalon-A-n-Nafi/106.mp3",
+  "108": "https://server16.mp3quran.net/m_akri/Rewayat-Qalon-A-n-Nafi/107.mp3"
+ },
+ "alignmentModelBySurah": {
+  "24": {
+   "id": "rabah2026/wav2vec2-large-xlsr-53-arabic-quran-v_final",
+   "revision": "b03a268c6ba1a693752307325ab376c86c3b12da",
+   "weightsSha256": "bf65674a26eb4ef7042cedade96c3c8f8cbd04f3a7d1a68eadceec8ed0f99ecb",
+   "license": "Apache-2.0",
+   "canonicalTextChanged": false
+  }
+ }
+}
+== timings/qalun/akri_qalun.jz · 5614d0b22536 · مداخل 6202
+{
+ "schema": 1,
+ "riwaya": "qalun",
+ "reciterId": "akri_qalun",
+ "sourceKind": "SURAH_FILES",
+ "ayahCounting": "KUFI",
+ "ayahCount": 6236,
+ "method": "ASR_ALIGN",
+ "engineVersion": "align-0.2",
+ "refineVersion": "v2.1",
+ "refinedCount": 707,
+ "medTargeted": 2575,
+ "refineStats": {
+  "skip:no-words": 9,
+  "token-snap": 707,
+  "skip:no-anchor": 1214,
+  "skip:no-silence": 642,
+  "skip:overrun": 3
+ },
+ "lowCount": 441,
+ "vad": {
+  "versions": {
+   "adaptive-2": 114
+  },
+  "rel": {
+   "min": 0.06,
+   "median": 0.06,
+   "max": 0.06,
+   "surahs": 114
+  },
+  "writerVersion": "adaptive-2"
+ },
+ "noSilenceShare": 0.344,
+ "noSilenceToAnchor": 0.53,
+ "sparsePauses": false,
+ "missing": {
+  "count": 34,
+  "byReason": {
+   "source_truncated": 34
+  },
+  "medianLen": 4,
+  "medianLenAll": 10,
+  "biasedShort": false,
+  "ids": [
+   "24:31",
+   "24:32",
+   "24:33",
+   "24:34",
+   "24:35",
+   "24:36",
+   "24:37",
+   "24:38",
+   "24:39",
+   "24:40",
+   "24:41",
+   "24:42",
+   "24:43",
+   "24:44",
+   "24:45",
+   "24:46",
+   "24:47",
+   "24:48",
+   "24:49",
+   "24:50",
+   "24:51",
+   "24:52",
+   "24:53",
+   "24:54",
+   "24:55",
+   "24:56",
+   "24:57",
+   "24:58",
+   "24:59",
+   "24:60",
+   "24:61",
+   "24:62",
+   "24:63",
+   "24:64"
+  ]
+ },
+ "exactEnds": true,
+ "generatedAt": 1788707110892,
+ "audioSha256": "[114 بصمة]",
+ "notes": "",
+ "transform": {
+  "truncatedTail": {
+   "24": {
+    "published": 30,
+    "absentFrom": 31,
+    "absentTo": 64,
+    "reason": "source_truncated",
+    "sourceSha256": "7be95a73720fb50b95dbeaced9cccc4e1ec341fc91480594ff1e9adda0bedd24",
+    "totalMs": 765759
+   }
+  },
+  "op": "declare_gap:24",
+  "fromSha256": "09da7519aeaa97fdcb89838719de1f41daac8e66df440c45a4f66b595c0532e9",
+  "fromKey": "timings-staging/qalun/akri_qalun.09da7519.jz",
+  "droppedEntries": 0,
+  "gapAyahs": 34,
+  "reason": "تسجيل سورة النور عند الناشر ينقطع وسط الآية 32 (مدته 766 ثانية من نحو 1780)، وكل النسخ المتاحة التسجيل نفسه. نُشرت الآيات 1–30 التي يوجد صوتها كاملاً، والآيات 31–64 لا صوت لها فلا تتوفر.",
+  "reasonUser": "تسجيل هذه السورة عند الناشر ناقص: تتوفر الآيات 1–30 فقط بصوت هذا القارئ.",
+  "reasonCode": "SOURCE_TRUNCATED",
+  "at": 1790946047336,
+  "note": "‏`refineStats` و`medTargeted` و`vad` تصف **البناء الأصلي** ولم تُعد حسابها؛ والمعاد حسابه: المداخل وعدّ LOW ووسم الاكتمال."
+ },
+ "engineBySurah": {
+  "10": "ctc-seg-1",
+  "19": "ctc-seg-1",
+  "20": "ctc-seg-1",
+  "24": "ctc-quran-surah-1",
+  "26": "ctc-seg-1",
+  "28": "ctc-seg-1",
+  "34": "ctc-seg-1",
+  "36": "ctc-seg-1",
+  "37": "ctc-seg-1",
+  "43": "ctc-seg-1",
+  "44": "ctc-seg-1",
+  "45": "ctc-seg-1",
+  "55": "ctc-seg-1",
+  "56": "ctc-seg-1",
+  "74": "ctc-seg-1",
+  "75": "ctc-seg-1",
+  "79": "ctc-seg-1",
+  "81": "ctc-seg-1",
+  "95": "ctc-seg-1",
+  "101": "ctc-seg-1",
+  "102": "ctc-seg-1",
+  "105": "ctc-seg-1",
+  "106": "ctc-seg-1",
+  "107": "ctc-seg-1",
+  "108": "ctc-seg-1"
+ },
+ "sourceBySurah": {
+  "106": "https://server16.mp3quran.net/m_akri/Rewayat-Qalon-A-n-Nafi/108.mp3",
+  "107": "https://server16.mp3quran.net/m_akri/Rewayat-Qalon-A-n-Nafi/106.mp3",
+  "108": "https://server16.mp3quran.net/m_akri/Rewayat-Qalon-A-n-Nafi/107.mp3"
+ },
+ "alignmentModelBySurah": {
+  "24": {
+   "id": "rabah2026/wav2vec2-large-xlsr-53-arabic-quran-v_final",
+   "revision": "b03a268c6ba1a693752307325ab376c86c3b12da",
+   "weightsSha256": "bf65674a26eb4ef7042cedade96c3c8f8cbd04f3a7d1a68eadceec8ed0f99ecb",
+   "license": "Apache-2.0",
+   "canonicalTextChanged": false
+  }
+ }
+}
