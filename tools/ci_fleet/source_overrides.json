@@ -449,5 +449,13 @@
     "url": "https://raw.githubusercontent.com/mwqwf/rafiq-align-ci/23d461f1c582699aa74927ce456fa6b09916667f/ops/source-repair/audio-fixtures/kurdi-nahl-c82dee87.mp3",
     "audio_sha256": "c82dee8759a803dbe1364e9745880856ca5a5eb98b8473a70f689b4905e27e3a",
     "evidence": "Verified public SoundCloud named Ramadan1441/2020 Raad Mohammad Al Kurdi Hafs Nahl alternative, copied byte-exact to immutable GitHub commit23d461f. Whole45MB size/SHA/MPEG/native decoded2785349.6875ms, CI36961081363. Actual82 heard with81/83 and independent pinned float Generic82=.834. All128 timings measured freshly: full Quran plus shorter canonical suffix context84..128 to resolve full-context alignment failure, target-only known normalization109 and qualified complementary Generic89/90. All raw failed contexts preserved. No timing inherited from different recording. Native physical source proof ops/source-repair/kurdi-soundcloud-original-source-evidence-20261002.json; no weakening confidence/duration/anchor/gap/source gates; acceptance requires exact-SHA independent audio QA and census."
+  },
+  {
+    "reciter": "peshawa",
+    "riwaya": "hafs",
+    "surah": 63,
+    "url": "https://download.quranicaudio.com/quran/peshawa_qadir_al-kurdi/mp3/063.mp3",
+    "audio_sha256": "bbfc9570680b5172ad15e417ce0ef5b8aaf8d15e16ec6f12fe46ea1752243301",
+    "evidence": "Identity: https://quranicaudio.com/quran/169 (Peshawa Qadir al-Kurdi, Hafs); full-source PCM 284.724s, decode errors 0: ops/out/codex-source-metadata-20261005-batch1.json. All 11 ayahs heard: ops/out/codex-peshawa-s63-heard-37353243110.json; source proof: ops/out/codex-peshawa-s63-source-proof-20261005.json. Registration permits a candidate only; full alignment and quality gates remain mandatory, especially the low-confidence final boundary."
   }
 ]
