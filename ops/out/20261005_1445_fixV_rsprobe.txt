@@ -1,0 +1,13 @@
+# rc=1
+
+[stderr]
+Traceback (most recent call last):
+  File "/home/runner/work/rafiq-align-ci/rafiq-align-ci/tools/index_qa/resync_probe.py", line 49, in <module>
+    sys.exit(main())
+             ^^^^^^
+  File "/home/runner/work/rafiq-align-ci/rafiq-align-ci/tools/index_qa/resync_probe.py", line 24, in main
+    path = R._local_audio(src) if src.startswith("http") else src
+           ^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/rafiq-align-ci/rafiq-align-ci/tools/index_qa/run.py", line 727, in _local_audio
+    raise RuntimeError(f"تعذّر تنزيل {src}: {last}")
+RuntimeError: تعذّر تنزيل https://server16.mp3quran.net/mhsny/Rewayat-Hafs-A-n-Assem/002.mp3: HTTP Error 404: Not Found
