@@ -5,6 +5,7 @@
     "تنزيل محلي كامل بلا GitHub Actions أو R2",
     "sha256sum للهوية البايتية",
     "ffprobe للمدة والحجم ومعدل البت",
+    "ffmpeg لفك سلمان س42 كاملاً وقياس الإشارة؛ الأصل أعاد خطأ ترويسة وصمتاً رقمياً كاملاً، والبديل أعاد إشارة فعلية",
     "ffmpeg volumedetect لآخر 300 ثانية من بديلَي نوح",
     "ارتباط غلاف RMS كل 100م.ث لأول 600 ثانية، مع بحث إزاحة ±60ث؛ هذا ينفي التطابق القريب فقط ولا يثبت هوية القارئ"
   ],
@@ -15,7 +16,7 @@
     {"reciterId":"nasser_almajed","surah":6,"sha256":"cf38bd6037d6279e017e268c03c56fb32ae5dd7b8fb92635c0dbf31290ad55c5","bytes":52551679,"durationMs":1313620,"alternative":"https://media.way2quran.com/nasser-almajed/hafs-an-asim/006.mp3","baseline":"https://server14.mp3quran.net/nasser_almajed/006.mp3"}
   ],
   "sameDurationNotDuplicate": [
-    {"reciterId":"s_sadeiq","surah":42,"alternative":{"sha256":"330587a1c6d77981a4251ad83d7e0200444d898484ba089ffa138bcd6470dabd","bytes":29919510,"durationMs":1052473},"baseline":{"sha256":"0c39cf3ff65ae5529e43a8926bf7670ca182450e188b4a45bc09327dea7513ea","bytes":16857174,"durationMs":1051925},"verdict":"غير محسوم؛ يلزم فحص الإشارة قبل أي محاذاة"}
+    {"reciterId":"s_sadeiq","surah":42,"alternative":{"sha256":"330587a1c6d77981a4251ad83d7e0200444d898484ba089ffa138bcd6470dabd","bytes":29919510,"durationMs":1052473,"decodedSamples":92825792,"meanVolumeDb":-18.1,"maxVolumeDb":-1.3},"baseline":{"sha256":"0c39cf3ff65ae5529e43a8926bf7670ca182450e188b4a45bc09327dea7513ea","bytes":16857174,"durationMs":1051925,"decodedSamples":92775262,"meanVolumeDb":-91.0,"maxVolumeDb":-91.0,"decoderHeaderError":true},"verdict":"الأصل صامت رقمياً والبديل ذو إشارة؛ مرشح استبدال حقيقي، لا اعتماد قبل تثبيت الهوية والرواية وسماع التغطية ثم المحاذاة الكاملة"}
   ],
   "promisingButUnverified": [
     {"reciterId":"noah","surah":3,"alternative":{"sha256":"938e3440fdaeac0baec36f15cebdb2e901e650629825217f9549ef6fd417870b","bytes":30232102,"durationMs":3778968,"bitRate":64000,"tail300sMeanDb":-12.3},"baseline":{"sha256":"4b627f06b3ac0561b110ed9bc3396de7a24c878d4008a6f3e5e921dceb27a7f9","bytes":30242702,"durationMs":2519458,"bitRate":96029},"first600sRmsBestCorrelation":0.0468,"verdict":"مختلف وأطول؛ لا شهادة اكتمال أو هوية أداء"},
