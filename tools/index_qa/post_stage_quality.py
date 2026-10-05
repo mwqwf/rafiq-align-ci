@@ -105,6 +105,21 @@ class ReadOnlyClient:
         require(operation == "list_objects_v2", "السرد المسموح للكائنات فقط")
         return self.client.get_paginator(operation)
 
+    def generate_presigned_url(self, ClientMethod, Params=None, ExpiresIn=3600, HttpMethod=None):
+        # يستعمل الفاحص مرآة الصوت للقراءة؛ التوقيع محلي ولا يمنح أي عملية كتابة.
+        require(ClientMethod == "get_object" and HttpMethod in (None, "GET"),
+                "توقيع رابط قراءة GET فقط")
+        require(isinstance(Params, dict) and set(Params) == {"Bucket", "Key"}
+                and all(isinstance(v, str) and v for v in Params.values()),
+                "معلمات رابط القراءة غير صالحة")
+        require(type(ExpiresIn) is int and 0 < ExpiresIn <= 3600,
+                "صلاحية رابط القراءة خارج الحد")
+        bucket = self.__dict__.get("bucket")
+        if bucket is not None:
+            require(Params["Bucket"] == bucket, "رابط القراءة لدلو مختلف")
+        return self.client.generate_presigned_url(ClientMethod, Params=Params,
+                                                  ExpiresIn=ExpiresIn, HttpMethod=HttpMethod)
+
 
 class Publisher(ReadOnlyClient):
     """كاتب شاهد واحد فقط؛ يعيد إثبات الأصل والمرشح قبل حفظ القياس."""
@@ -120,6 +135,8 @@ class Publisher(ReadOnlyClient):
                 "محاولة كتابة خارج اسم شاهد الجودة المحدد")
         rep = json.loads(Body)
         validate_report(rep, self.key, self.sha, self.idx, self.check)
+        require(not (rep.get("sample") or {}).get("errors"),
+                "القياس الناقص لا يُحفظ كشاهد رسمي")
         _client, bucket, current, _parent = self.loader(self.key, self.sha, self.parent_sha)
         require(bucket == self.bucket and current == self.idx, "تبدل المرشح أثناء القياس")
         modified = self.client.head_object(Bucket=Bucket, Key=self.key)["LastModified"].timestamp()

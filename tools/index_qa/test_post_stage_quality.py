@@ -126,6 +126,41 @@ class PublisherTests(unittest.TestCase):
         self.publish(rep)
         self.assertEqual(json.loads(self.client.writes[0]["Body"])["verdict"], "مرفوض")
 
+    def test_failed_audio_read_cannot_create_official_quality_report(self):
+        rep = audio_report()
+        rep['sample']['errors'] = 600
+        with self.assertRaisesRegex(ValueError, "القياس الناقص"):
+            self.publish(rep)
+        self.assertEqual(self.client.writes, [])
+
+    def test_audio_mirror_presigning_allows_get_but_never_write(self):
+        self.client.generate_presigned_url = mock.Mock(return_value='https://example.invalid/read')
+        params = {'Bucket': 'bucket', 'Key': 'audio/hafs/peshawa/063.mp3'}
+        self.assertEqual(self.pub.generate_presigned_url('get_object', Params=params, ExpiresIn=3600),
+                         'https://example.invalid/read')
+        for method, http in [('put_object', None), ('delete_object', 'DELETE'), ('get_object', 'PUT')]:
+            with self.assertRaises(ValueError):
+                self.pub.generate_presigned_url(method, Params=params, HttpMethod=http)
+        with self.assertRaises(ValueError):
+            self.pub.generate_presigned_url('get_object', Params={**params, 'Bucket': 'other'})
+        self.assertEqual(self.client.generate_presigned_url.call_count, 1)
+
+    def test_real_audio_mirror_can_obtain_read_url_through_wrapper(self):
+        import run as R
+        client = mock.Mock()
+        client.head_object.return_value = {'ContentLength': 123}
+        client.generate_presigned_url.return_value = 'https://example.invalid/read'
+        response = mock.MagicMock()
+        response.__enter__.return_value.headers = {'Content-Length': '123'}
+        with mock.patch.dict(R.MIRROR, {'riwaya': 'hafs', 'reciter': 'peshawa'}), \
+                mock.patch.object(R, 's3', return_value=(Q.ReadOnlyClient(client), 'bucket')), \
+                mock.patch('urllib.request.urlopen', return_value=response):
+            self.assertEqual(R._mirror_url('https://example.invalid/063.mp3'),
+                             ('https://example.invalid/read', 'audio/hafs/peshawa/063.mp3', 123))
+        client.generate_presigned_url.assert_called_once_with('get_object',
+            Params={'Bucket': 'bucket', 'Key': 'audio/hafs/peshawa/063.mp3'},
+            ExpiresIn=3600, HttpMethod=None)
+
 
 class OpenersTests(unittest.TestCase):
     def test_partial_untrusted_wrong_threads_or_error_is_not_a_complete_witness(self):
