@@ -183,7 +183,10 @@ def audit_index(key, record, manifest, frozen, reports):
         if defects:
             result["openers"]["unresolved"].append({"field": "defects", "surahs": defects})
         late_trusted = not op.get("late") or op.get("_completionLateTrusted") is True
-        result["openers"]["ready"] = (op.get("scope") == "full" and op.get("checked") == 114
+        # فحص البسملة يستثني الفاتحة والتوبة (112 في المصحف الكامل)، وقد
+        # تقل المطالع عند إسقاط سورة. promote يشترط scope=full لا عدداً ثابتاً.
+        result["openers"]["checked"] = op.get("checked")
+        result["openers"]["ready"] = (op.get("scope") == "full"
                                               and op.get("_completionToolTrusted") is True
                                               and "late" in op and late_trusted
                                               and not result["openers"]["unresolved"])
