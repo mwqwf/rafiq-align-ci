@@ -1,0 +1,9 @@
+{
+  "action": "tool",
+  "tool": "ci_fleet/free_compute_audit.py",
+  "args": [
+    "--out",
+    "ops/out/free-compute-audit.json",
+    "--summarize-existing"
+  ]
+}

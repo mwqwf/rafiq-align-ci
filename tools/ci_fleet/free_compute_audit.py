@@ -9,6 +9,7 @@ import json
 import os
 import re
 import subprocess
+import tempfile
 from datetime import datetime, timezone
 from pathlib import Path
 
@@ -187,17 +188,90 @@ def audit(get=gh_get, workflows=WORKFLOWS):
     return report
 
 
-def main():
+def report_path(value):
+    """المصدر والمخرج ملفا JSON مباشران داخل ops/out؛ لا روابط تتجاوز النطاق."""
+    root = ROOT.resolve()
+    path = root / value
+    if path.is_symlink() or path.resolve().parent != root / "ops" / "out" or path.suffix != ".json":
+        raise ValueError("المسار يجب أن يكون ملف JSON داخل ops/out فقط")
+    return path
+
+
+def summarize_existing(report):
+    """تلخيص القياس المحفوظ فقط؛ لا اتصالات ولا تغيير في إحصاءاته أو توقيته."""
+    if not isinstance(report, dict) or report.get("repository") != REPO or report.get("schema") != 1:
+        raise ValueError("الملف ليس تقرير الكلفة المتوقع لهذا المستودع")
+    summary = {key: report[key] for key in (
+        "schema", "repository", "generatedAt", "repositoryMetadata", "cacheUsage", "costDecision"
+    )}
+    summary["summarizedAt"] = datetime.now(timezone.utc).isoformat(timespec="seconds")
+    summary["artifacts"] = {key: report["artifacts"][key] for key in (
+        "readComplete", "pagesRead", "reportedTotal", "errors", "observedActiveBytes",
+        "observedActiveCount", "observedExpiredCount", "invalidCount"
+    )}
+    summary["selfHostedRunners"] = report.get("selfHostedRunners")
+    summary["workflows"] = []
+    for workflow in report.get("workflows", []):
+        row = {key: workflow[key] for key in (
+            "path", "metadata", "configuration", "latestRun", "runReadError"
+        ) if key in workflow}
+        if "jobs" in workflow:
+            jobs = workflow["jobs"]
+            row["jobs"] = {key: value for key, value in jobs.items() if key != "items"}
+            items = jobs.get("items", [])
+            row["jobs"]["observedCount"] = len(items)
+            groups = {}
+            for job in items:
+                labels = tuple(sorted(job.get("labels") or []))
+                group = job.get("runner_group_name")
+                groups[(group, labels)] = groups.get((group, labels), 0) + 1
+            row["jobs"]["runnerGroups"] = [
+                {"runner_group_name": group, "labels": list(labels), "jobsObserved": count}
+                for (group, labels), count in groups.items()
+            ]
+        summary["workflows"].append(row)
+    return summary
+
+
+def save_existing_summary(source):
+    """تكتب ملفاً مجاوراً ذرياً؛ يبقى التقرير الكامل دون تغيير حتى لو كان المخرج رابطاً صلباً."""
+    source = report_path(source)
+    report = json.loads(source.read_text(encoding="utf-8"))
+    summary = summarize_existing(report)
+    summary["sourceReport"] = str(source.relative_to(ROOT.resolve()))
+    target = report_path(source.with_name(source.stem + ".summary.json"))
+    serialized = json.dumps(summary, ensure_ascii=False, indent=2) + "\n"
+    with tempfile.NamedTemporaryFile(mode="w", encoding="utf-8", dir=target.parent,
+                                     prefix=".free-compute-summary-", delete=False) as temporary:
+        temporary.write(serialized)
+        temporary_path = Path(temporary.name)
+    try:
+        temporary_path.replace(target)
+    finally:
+        temporary_path.unlink(missing_ok=True)
+    return target, summary, serialized
+
+
+def main(argv=None):
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--out", default="ops/out/free-compute-audit.json", help="تقرير JSON داخل ops/out فقط")
     parser.add_argument("--workflow", action="append", choices=WORKFLOWS,
                         help="workflows المراد قياسها؛ الافتراض جميع سيور الفهرسة المدرجة")
-    args = parser.parse_args()
+    parser.add_argument("--summarize-existing", action="store_true",
+                        help="تلخيص تقرير --out الموجود بلا API؛ يحفظ الكامل ويكتب .summary.json")
+    args = parser.parse_args(argv)
     if os.environ.get("GITHUB_REPOSITORY", REPO) != REPO:
         parser.error("الأداة مقيدة بالمستودع mwqwf/rafiq-align-ci")
-    output = ROOT / args.out
-    if output.is_symlink() or output.resolve().parent != (ROOT / "ops/out").resolve() or output.suffix != ".json":
-        parser.error("المخرج يجب أن يكون ملف JSON داخل ops/out فقط")
+    try:
+        output = report_path(args.out)
+        if args.summarize_existing:
+            target, report, serialized = save_existing_summary(output)
+            print(serialized, end="")
+            print(f"كُتب ملخص القياس المحفوظ: {target.relative_to(ROOT.resolve())}؛ لم تُستدعَ أي API.")
+            return 0 if all(report[key]["readComplete"] for key in (
+                "repositoryMetadata", "cacheUsage", "artifacts")) else 1
+    except (ValueError, OSError, KeyError, TypeError) as ex:
+        parser.error(f"تعذّر تجهيز التقرير المحلي: {ex}")
     report = audit(workflows=args.workflow or WORKFLOWS)
     output.parent.mkdir(parents=True, exist_ok=True)
     output.write_text(json.dumps(report, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
