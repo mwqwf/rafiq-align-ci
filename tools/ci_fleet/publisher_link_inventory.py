@@ -1,5 +1,6 @@
 """Bounded public HTML link discovery only; no audio, credentials, or R2 writes."""
 import datetime
+import argparse
 import hashlib
 import html
 import json
@@ -15,6 +16,11 @@ PAGES = (
     'https://www.zekr.online/dev',
 )
 LIMIT = 2_500_000
+IRAOUI_PAGES = (
+    'https://way2quran.com/en/reciters/muhammad-al-ayrawy/warsh-an-nafi-min-traiq-al-azraq',
+    'https://way2quran.com/en/reciters/muhammad-al-ayrawy?recitationSlug=warsh-an-nafi',
+    'https://midad.com/recitation/123515',
+)
 
 
 def extract(body, url):
@@ -38,9 +44,12 @@ def extract(body, url):
             'title': html.unescape((re.search(r'<title>(.*?)</title>', text, re.S|re.I) or ['', ''])[1])[:300]}
 
 
-def main():
+def main(argv=None):
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument('--profile', choices=('original', 'iraoui'), default='original')
+    args = parser.parse_args(argv)
     rows = []
-    for url in PAGES:
+    for url in (PAGES if args.profile == 'original' else IRAOUI_PAGES):
         row = {'publisherUrl': url, 'candidateOnly': True}
         try:
             deadline = time.monotonic() + 45
@@ -66,7 +75,9 @@ def main():
     report = {'atUtc': datetime.datetime.now(datetime.timezone.utc).isoformat(),
               'audioDownloaded': False, 'productionChanged': False, 'coverageClaim': False,
               'pages': rows}
-    dest = Path('ops/out/codex-publisher-link-inventory-20261005.json')
+    name = ('codex-publisher-link-inventory-20261005.json' if args.profile == 'original'
+            else 'codex-iraoui-publisher-links-20261005.json')
+    dest = Path('ops/out') / name
     dest.write_text(json.dumps(report, ensure_ascii=False, indent=2)+'\n')
     print(json.dumps(report, ensure_ascii=False))
 
