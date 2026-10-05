@@ -2,9 +2,15 @@ name: rafiq-independent-window-pilot
 run-name: independent-window-pilot Peshawa 63
 
 # يدوي فقط، مرشح Git ثابت، لا أسرار/دلو/ترقية/cache-save/artifacts.
-# غياب أي نموذج من cache المستعاد فشل صريح قبل تنزيل الصوت.
+# generic من cache؛ تنزيل القرآن المؤقت مثبت ومطلوب صراحة عند اختياره.
 on:
   workflow_dispatch:
+    inputs:
+      model_policy:
+        type: choice
+        options: [cache-only, quran-pinned-ephemeral]
+        default: cache-only
+        required: true
 
 permissions:
   contents: read
@@ -51,8 +57,10 @@ jobs:
       - name: قياس جميع الآيات الإحدى عشرة وإخراج الدليل الكامل في السجل
         env:
           PILOT_CACHE_EXACT_HIT: ${{ steps.models.outputs.cache-hit }}
+          PILOT_MODEL_POLICY: ${{ inputs.model_policy }}
         run: |
           python tools/index_qa/independent_window_pilot.py \
             --candidate ops/source-repair/candidates/codex-peshawa-s63-20261005-v2.jz \
             --candidate-sha256 00fbc75a874d45f80600ccf8f1f7bfe774aae5bffaba89cad3f37eb381997aee \
-            --source-sha256 bbfc9570680b5172ad15e417ce0ef5b8aaf8d15e16ec6f12fe46ea1752243301
+            --source-sha256 bbfc9570680b5172ad15e417ce0ef5b8aaf8d15e16ec6f12fe46ea1752243301 \
+            --model-policy "$PILOT_MODEL_POLICY"

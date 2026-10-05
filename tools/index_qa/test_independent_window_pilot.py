@@ -242,6 +242,20 @@ class PilotTest(unittest.TestCase):
 
 
 class CacheOnlyTest(unittest.TestCase):
+    def test_explicit_snapshot_routes_only_pinned_identity_without_hub_download(self):
+        original = Mock(side_effect=AssertionError("unexpected hub request"))
+        hub = types.SimpleNamespace(snapshot_download=original)
+        specs = [{"id": "test/quran", "revision": "pinned"}]
+        with P.offline_model_loads(hub, specs, {("test/quran", "pinned"): "/tmp/verified-model"}):
+            self.assertEqual(hub.snapshot_download("test/quran", revision="pinned"), "/tmp/verified-model")
+            with self.assertRaises(ValueError):
+                hub.snapshot_download("test/quran", revision="main")
+        self.assertIs(hub.snapshot_download, original)
+        original.assert_not_called()
+        with self.assertRaises(ValueError):
+            with P.offline_model_loads(hub, specs, {("other/model", "main"): "/tmp/x"}):
+                self.fail("unapproved model")
+
     def setUp(self):
         self.tmp = tempfile.TemporaryDirectory()
         self.addCleanup(self.tmp.cleanup)

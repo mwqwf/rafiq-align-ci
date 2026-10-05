@@ -124,14 +124,20 @@ def require_cached_models(hub, specs, cache_root, inventory=None):
 
 
 @contextlib.contextmanager
-def offline_model_loads(hub, specs):
+def offline_model_loads(hub, specs, snapshots=None):
     """حتى configure القائم لا يستطيع طلب نموذج/نسخة أخرى أو الاتصال للتنزيل."""
     original = hub.snapshot_download
     allowed = {(s["id"], s["revision"]) for s in specs}
+    snapshots = snapshots or {}
+    if not set(snapshots).issubset(allowed):
+        raise ValueError("snapshot مؤقت لنموذج غير مثبت")
 
     def local_snapshot(repo_id, *args, **kwargs):
         if args or (repo_id, kwargs.get("revision")) not in allowed:
             raise ValueError("تحميل نموذج غير مثبت في عقد pilot")
+        identity = (repo_id, kwargs.get("revision"))
+        if identity in snapshots:
+            return str(snapshots[identity])
         kwargs["local_files_only"] = True
         return original(repo_id, **kwargs)
 
@@ -316,11 +322,14 @@ def main(argv=None):
     parser.add_argument("--candidate-sha256", default=DEFAULT_CANDIDATE_SHA)
     parser.add_argument("--source-sha256", default=SOURCE_SHA)
     parser.add_argument("--out", default="ops/out/independent-window-pilot-peshawa-s63.json")
+    parser.add_argument("--model-policy", choices=("cache-only", "quran-pinned-ephemeral"),
+                        default="cache-only")
     args = parser.parse_args(argv)
     out = confined(args.out, "ops/out", ".json")
     for key in ("HF_HUB_OFFLINE", "TRANSFORMERS_OFFLINE", "HF_HUB_DISABLE_XET"):
         os.environ[key] = "1"
     started = time.perf_counter()
+    resources = contextlib.ExitStack()
     report = {"schema": 1, "kind": "independent-window-pilot", "surah": SURAH,
               "expectedAyahs": EXPECTED_IDS, "readOnly": True, "productionChanged": False,
               "globalReady": False, "pilotBoundariesVerified": False, "errors": [], "limits": LIMITS,
@@ -341,7 +350,20 @@ def main(argv=None):
         cache_root = Path(os.environ.get("HF_HOME", str(ROOT / ".hf"))).resolve()
         t = time.perf_counter()
         report["cache"] = {"key": CACHE_KEY, "exactHit": True, "models": []}
-        require_cached_models(hub, specs, cache_root, report["cache"]["models"])
+        snapshots = {}
+        report["modelPolicy"] = args.model_policy
+        if args.model_policy == "cache-only":
+            require_cached_models(hub, specs, cache_root, report["cache"]["models"])
+        else:
+            require_cached_models(hub, [s for s in specs if s["name"] == "generic"],
+                                  cache_root, report["cache"]["models"])
+            from pinned_ephemeral_models import quran_ephemeral_download
+            evidence = resources.enter_context(quran_ephemeral_download(allow_download=True))
+            spec = next(s for s in specs if s["name"] == "quran")
+            if any(evidence[k] != spec[k] for k in ("id", "revision", "weightsSha256", "weightFile")):
+                raise ValueError("النموذج المؤقت لا يطابق عقد الشاهد")
+            snapshots[(spec["id"], spec["revision"])] = evidence["snapshot"]
+            report["ephemeralModel"] = evidence
         report["cacheCheckSeconds"] = time.perf_counter() - t
         assets = ROOT / "core/quran/src/main/assets/quran"
         report["referenceSha256"] = {name: sha_file(assets / name) for name in ("index.jz", "text_hafs.jz")}
@@ -356,7 +378,7 @@ def main(argv=None):
         if sha_file(audio) != SOURCE_SHA:
             raise ValueError("تغير الصوت أثناء الفك")
         witness = importlib.import_module("ci_spoken_census")
-        with offline_model_loads(hub, specs):
+        with offline_model_loads(hub, specs, snapshots):
             measure(idx, pcm, contract, Backend(witness), report, checkpoint=emit_window)
         if sha_file(ROOT / args.candidate) != args.candidate_sha256 or sha_file(audio) != SOURCE_SHA:
             raise ValueError("تغير المرشح أو الصوت أثناء القياس")
@@ -364,6 +386,7 @@ def main(argv=None):
         report["errors"].append(f"{type(exc).__name__}: {exc}")
         report["pilotBoundariesVerified"] = False
     finally:
+        resources.close()
         report["elapsedSeconds"] = time.perf_counter() - started
         usage = resource.getrusage(resource.RUSAGE_SELF)
         report["processUsage"] = {"userSeconds": usage.ru_utime, "systemSeconds": usage.ru_stime,

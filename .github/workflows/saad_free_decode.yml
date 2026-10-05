@@ -1,0 +1,66 @@
+name: rafiq-saad-free-decode
+run-name: Saad free ASR 45 0..25s + 28 620..690s
+
+# يدوي فقط، لا R2 أو أسرار أو artifacts أو cache-save؛ عداء قياسي ومستودع عام محدد.
+# القرآن غير موجود في cache المقيس: التنزيل المؤقت المثبت خيار صريح، بلا fallback.
+on:
+  workflow_dispatch:
+    inputs:
+      model_policy:
+        description: سياسة النموذج القرآني المثبت؛ generic من cache الموجود فقط
+        type: choice
+        options:
+          - cache-only
+          - quran-pinned-ephemeral
+        default: cache-only
+        required: true
+
+permissions:
+  contents: read
+
+concurrency:
+  group: rafiq-saad-free-decode-95s
+  cancel-in-progress: false
+
+jobs:
+  diagnose:
+    if: ${{ github.repository == 'mwqwf/rafiq-align-ci' && github.event.repository.private == false }}
+    runs-on: ubuntu-24.04
+    timeout-minutes: 45
+    env:
+      HF_HOME: ${{ github.workspace }}/.hf
+      HF_HUB_OFFLINE: '1'
+      TRANSFORMERS_OFFLINE: '1'
+      HF_HUB_DISABLE_XET: '1'
+      CTC_THREADS: '2'
+      CTC_INT8: '0'
+      OMP_NUM_THREADS: '2'
+      MKL_NUM_THREADS: '2'
+      PIP_NO_CACHE_DIR: '1'
+      TOKENIZERS_PARALLELISM: 'false'
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11.11'
+      - name: استعادة المفتاح الموجود فقط دون حفظ
+        id: models
+        uses: actions/cache/restore@v4
+        with:
+          path: .hf
+          key: ctc-model-jonatasgrosman-xlsr53-ar-v1
+          fail-on-cache-miss: true
+      - name: تثبيت نسخ الاستدلال المحددة على قرص العداء المؤقت
+        run: |
+          python tools/ci_fleet/install_qa_ffmpeg.py
+          python -m pip install --only-binary=:all: --timeout 60 --retries 2 --index-url https://download.pytorch.org/whl/cpu 'torch==2.6.0+cpu'
+          python -m pip install --only-binary=:all: --timeout 60 --retries 2 'numpy==1.26.4' 'transformers==4.49.0' 'huggingface-hub==0.29.3' 'safetensors==0.5.3' 'tokenizers==0.21.1'
+      - name: اختبارات اصطناعية بلا نماذج أو شبكة
+        run: python -m unittest tools.index_qa.test_saad_free_decode tools.ci_fleet.test_source_metadata_probe -v
+      - name: تفريغ L/R الحر بكلا النموذجين وطباعته كاملاً في السجل
+        env:
+          SAAD_CACHE_EXACT_HIT: ${{ steps.models.outputs.cache-hit }}
+          SAAD_MODEL_POLICY: ${{ inputs.model_policy }}
+        run: python tools/index_qa/saad_free_decode.py --model-policy "$SAAD_MODEL_POLICY"
