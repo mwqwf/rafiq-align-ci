@@ -4,8 +4,13 @@
 from __future__ import annotations
 
 import json
+import io
+import os
 import subprocess
+import tempfile
 import unittest
+from contextlib import redirect_stdout
+from pathlib import Path
 from types import SimpleNamespace
 from unittest.mock import Mock, patch
 
@@ -108,6 +113,94 @@ class FreeComputeAuditTest(unittest.TestCase):
         self.assertIn("403", str(caught.exception))
         self.assertNotIn("token-value", str(caught.exception))
         self.assertNotIn("private response", str(caught.exception))
+
+    def stored_report(self):
+        return {"schema": 1, "repository": audit.REPO, "generatedAt": "2026-10-05T17:00:00Z",
+                "repositoryMetadata": {"readComplete": True, "private": False, "visibility": "public"},
+                "cacheUsage": {"readComplete": True, "active_caches_count": 2,
+                               "active_caches_size_in_bytes": 2332228990},
+                "artifacts": {"readComplete": False, "pagesRead": 50, "reportedTotal": 5001,
+                    "errors": ["فشل آخر صفحة"], "observedActiveBytes": 500000,
+                    "observedActiveCount": 5000, "observedExpiredCount": 0, "invalidCount": 0,
+                    "activeArtifacts": [self.artifact(i, size=100) for i in range(5000)]},
+                "costDecision": {"freeExecutionVerified": False, "accountArtifactQuotaKnown": False},
+                "workflows": [{"path": ".github/workflows/heard_batch.yml",
+                    "configuration": {"readComplete": True, "resources": [{"line": 1, "text": "runs-on: ubuntu-latest"}]},
+                    "jobs": {"readComplete": True, "errors": [], "items": [
+                        {"id": i, "runner_group_name": "GitHub Actions", "labels": ["ubuntu-latest"]}
+                        for i in range(100)]}}]}
+
+    def test_local_summary_keeps_counts_errors_resources_and_original_timestamp(self):
+        report = self.stored_report()
+        original = json.dumps(report)
+        summary = audit.summarize_existing(report)
+        self.assertEqual(summary["generatedAt"], report["generatedAt"])
+        self.assertEqual(summary["cacheUsage"], report["cacheUsage"])
+        self.assertEqual(summary["costDecision"], report["costDecision"])
+        self.assertEqual(summary["artifacts"]["observedActiveBytes"], 500000)
+        self.assertEqual(summary["artifacts"]["observedActiveCount"], 5000)
+        self.assertFalse(summary["artifacts"]["readComplete"])
+        self.assertEqual(summary["artifacts"]["errors"], ["فشل آخر صفحة"])
+        self.assertNotIn("activeArtifacts", summary["artifacts"])
+        self.assertEqual(summary["workflows"][0]["configuration"], report["workflows"][0]["configuration"])
+        self.assertEqual(summary["workflows"][0]["jobs"]["runnerGroups"][0]["jobsObserved"], 100)
+        self.assertNotIn("items", summary["workflows"][0]["jobs"])
+        self.assertLess(len(json.dumps(summary)), 5000)
+        self.assertEqual(json.dumps(report), original)
+
+    def test_summarize_cli_never_calls_api_or_changes_full_report(self):
+        with tempfile.TemporaryDirectory() as temp, patch.object(audit, "ROOT", Path(temp)), \
+                patch.dict(os.environ, {"GITHUB_REPOSITORY": audit.REPO}), \
+                patch.object(audit, "audit", side_effect=AssertionError("ممنوع استدعاء API")), \
+                patch.object(subprocess, "run", side_effect=AssertionError("ممنوع تشغيل gh")):
+            source = Path(temp) / "ops/out/measured.json"
+            source.parent.mkdir(parents=True)
+            original = json.dumps(self.stored_report()).encode("utf-8")
+            source.write_bytes(original)
+            with redirect_stdout(io.StringIO()) as output:
+                rc = audit.main(["--out", "ops/out/measured.json", "--summarize-existing"])
+            self.assertEqual(rc, 1)  # فشل القراءة الأصلي يبقى معلناً في الملخص.
+            self.assertEqual(source.read_bytes(), original)
+            target = source.with_name("measured.summary.json")
+            summary = json.loads(target.read_text())
+            self.assertEqual(summary["sourceReport"], "ops/out/measured.json")
+            self.assertIn('"observedActiveBytes": 500000', output.getvalue())
+            self.assertNotIn("activeArtifacts", output.getvalue())
+
+    def test_report_paths_reject_escape_subdirectory_and_symbolic_links(self):
+        with tempfile.TemporaryDirectory() as temp, patch.object(audit, "ROOT", Path(temp)):
+            allowed = Path(temp) / "ops/out"
+            allowed.mkdir(parents=True)
+            outside = Path(temp) / "elsewhere.json"
+            outside.write_text("{}")
+            (allowed / "linked.json").symlink_to(outside)
+            for path in ("elsewhere.json", "ops/out/../escape.json", "ops/out/sub/child.json",
+                         "ops/out/not-json.txt", "ops/out/linked.json"):
+                with self.subTest(path=path), self.assertRaises(ValueError):
+                    audit.report_path(path)
+
+    def test_summary_output_link_is_rejected_and_hardlink_cannot_overwrite_source(self):
+        with tempfile.TemporaryDirectory() as temp, patch.object(audit, "ROOT", Path(temp)):
+            source = Path(temp) / "ops/out/measured.json"
+            source.parent.mkdir(parents=True)
+            original = json.dumps(self.stored_report()).encode("utf-8")
+            source.write_bytes(original)
+            target = source.with_name("measured.summary.json")
+            target.symlink_to(source)
+            with self.assertRaises(ValueError):
+                audit.save_existing_summary(source)
+            self.assertEqual(source.read_bytes(), original)
+            target.unlink()
+            target.hardlink_to(source)
+            audit.save_existing_summary(source)
+            self.assertEqual(source.read_bytes(), original)
+            self.assertNotIn("activeArtifacts", json.loads(target.read_text())["artifacts"])
+
+    def test_foreign_repository_report_is_rejected(self):
+        report = self.stored_report()
+        report["repository"] = "mwqwf/QuranRafiq"
+        with self.assertRaises(ValueError):
+            audit.summarize_existing(report)
 
 
 if __name__ == "__main__":
