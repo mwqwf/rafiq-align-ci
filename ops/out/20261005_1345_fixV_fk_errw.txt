@@ -1,0 +1,27 @@
+# rc=0
+{
+ "verdict": "مقبول",
+ "sample.errors": 5,
+ "sample.errorWindows": {
+  "F|33:1": "RuntimeError: تعذّر تنزيل https://archive.org/download/48--kb--alhady--bn--altaher--alfakhfakh--by---qaloon---mp3--full--mushaf--qura/033Al-ahzeb.mp3: HTTP Erro",
+  "F|37:1": "RuntimeError: تعذّر تنزيل https://archive.org/download/48--kb--alhady--bn--altaher--alfakhfakh--by---qaloon---mp3--full--mushaf--qura/037Assauffet.mp3: HTTP Err",
+  "F|3:1": "RuntimeError: تعذّر تنزيل https://archive.org/download/48--kb--alhady--bn--altaher--alfakhfakh--by---qaloon---mp3--full--mushaf--qura/003El-imran.mp3: HTTP Erro",
+  "F|7:1": "RuntimeError: تعذّر تنزيل https://archive.org/download/48--kb--alhady--bn--altaher--alfakhfakh--by---qaloon---mp3--full--mushaf--qura/007Al-aaraf.mp3: HTTP Erro",
+  "L|3:1": "RuntimeError: تعذّر تنزيل https://archive.org/download/48--kb--alhady--bn--altaher--alfakhfakh--by---qaloon---mp3--full--mushaf--qura/003El-imran.mp3: HTTP Erro"
+ },
+ "census": {
+  "surahs": [
+   3,
+   7,
+   10,
+   16,
+   29,
+   33,
+   37,
+   42,
+   69
+  ],
+  "population": 1072,
+  "note": "إحصاءٌ شاملٌ لكلّ آيةٍ في هذه السور — لا عيّنة"
+ }
+}
