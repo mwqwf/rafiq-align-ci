@@ -37,6 +37,7 @@ MAX_CLUSTERS = 8            # ⛔ ثابت: ملفٌّ معطوبٌ في موا�
 CLUSTER_FRAMES = 40         # فجواتٌ بينها أقلّ من 40 إطاراً (~1ث) عنقودٌ واحد
 SETTLE_FRAMES = 20          # إطاراتٌ سليمةٌ بعد العنقود يستقرّ فيها مخزونُ البِتّات
 FULL_TOL_MS = 200           # سماحُ الفكّ الكامل نفسُه في `run._full_decode_pcm`
+GAP_SLOT_MAX_MS = 300       # ⛔ ثابت: فجوةٌ أكبرُ من هذا لا يُقدَّر زمنُها من حجمها
 RATE = 16000
 
 
@@ -88,6 +89,17 @@ def scan(d):
     return frames, gaps
 
 
+def frames_ms(frames, upto_frame):
+    """زمنُ **الإطارات الصحيحة** وحدَها حتى `upto_frame` (‏غيرَ داخل) — معلومٌ بالضبط من ترويساتها.
+
+    ⭐ (‏fixV 2026-10-05 · `hafs/mhsny` ملفّ 002): البايتاتُ التالفةُ ليست إطاراتٍ ناقصةً بل
+    **حشوٌ لا صوتَ فيه** (‏في هذا الملفّ ترويساتٌ بمعدّلاتٍ وترددات غريبة: 320 ثمّ 64 ك.ب/ث
+    و32000 ثمّ 22050 هز وسط ملفٍّ 192ك.ب/44.1ك.هز) ⇒ **لا تُقدَّر زمناً من حجمها**، وقياسُ
+    الساقط يكون بزمن الإطارات الصحيحة مقابلَ المفكوك. وبه زال رفضٌ كاذبٌ («المعدّلُ غيرُ ثابت»)
+    بلا أيّ تخمين: مجموعُ الإطارات الصحيحة هو مقياسُ `mp3dur` نفسُه الذي يحكم به الحارس."""
+    return sum(f[2] / f[3] for f in frames[:upto_frame]) * 1000.0
+
+
 def slots_ms(frames, gaps, upto_frame):
     """زمنُ الخانات حتى الإطار `upto_frame` (‏غيرَ داخل): الإطاراتُ المعدودة وخاناتُ الفجوات قبله."""
     t = sum(f[2] / f[3] for f in frames[:upto_frame]) * 1000.0
@@ -110,10 +122,13 @@ def clusters(frames, gaps):
     return out
 
 
-def _cbr_around(frames, g):
+def gap_slot_ms(frames, g):
+    """زمنُ خانةِ فجوةٍ بتقديرها من حجمها بمعدّل الإطار السابق — دالّةٌ صِرفةٌ مختبَرة."""
     nxt = g[2]
-    a, b = frames[nxt - 1], frames[min(nxt, len(frames) - 1)]
-    return a[4] == b[4] and a[3] == b[3]
+    if nxt == 0:
+        return 0.0
+    prev = frames[nxt - 1]
+    return round(g[1] / prev[1]) * prev[2] / prev[3] * 1000.0
 
 
 def resync_decode(path, decode_bytes):
@@ -129,18 +144,28 @@ def resync_decode(path, decode_bytes):
     cl = clusters(frames, gaps)
     if len(cl) > MAX_CLUSTERS:
         raise Unrecoverable(f"{len(cl)} عنقودَ عطبٍ > {MAX_CLUSTERS} — ملفٌّ معطوبٌ لا يُرمَّم")
-    for c in cl:
-        for g in c:
-            if not _cbr_around(frames, g):
-                raise Unrecoverable(f"المعدّلُ حول الفجوة عند البايت {g[0]} غيرُ ثابت — لا تُقدَّر خاناتُها")
+    # ⛔ **بدلَ شرط «ثباتِ المعدّل حول الفجوة»** (‏كان يردّ صادقاً: ملفُّ `mhsny/002` فيه ثلاثُ
+    #    فجواتٍ حشوُها ترويساتٌ غريبةُ المعدّل 320/64ك.ب و32000/22050هز وسط ملفٍّ 192ك.ب/44.1ك.هز)
+    #    ⇒ **حدٌّ على التقدير نفسِه**: خانةُ أيّ فجوةٍ لا تتجاوز `GAP_SLOT_MAX_MS`، فيبقى خطأُ
+    #    التقدير أصغرَ من سماح الفكّ الكامل؛ ومعه شاهدُ الاتّساق: مجموعُ الخانات يطابق زمنَ
+    #    الإطارات الصحيحة (‏مقياسَ `mp3dur` الذي يحكم به الحارس) بالسماح نفسِه. وإلا رُدّ.
+    for g in gaps:
+        nxt = g[2]
+        if nxt == 0:
+            continue
+        est = gap_slot_ms(frames, g)
+        if est > GAP_SLOT_MAX_MS:
+            raise Unrecoverable(f"فجوةُ {g[1]} بايتاً عند {g[0]} تُقدَّر {est:.0f}م.ث > "
+                                f"{GAP_SLOT_MAX_MS} — لا يُقدَّر زمنٌ بهذا الحجم")
+    if abs(slots_ms(frames, gaps, len(frames)) - frames_ms(frames, len(frames))) > FULL_TOL_MS:
+        raise Unrecoverable("خاناتُ الفجوات تخالف زمنَ الإطارات الصحيحة بأكثر من السماح")
 
     def dec_ms(nframe):
         """فكُّ البادئة حتى نهاية الإطار nframe−1 (‏حدُّ إطار) ⇒ مدّتُها المفكوكة."""
         end = frames[nframe - 1][0] + frames[nframe - 1][1]
         return len(decode_bytes(d[:end])) * 1000.0 / RATE
 
-    base_f = cl[0][0][2]                     # أوّلُ إطارٍ سليمٍ بعد أوّل فجوة
-    base_f0 = base_f                         # البادئةُ تنتهي قبل الفجوة الأولى
+    base_f0 = cl[0][0][2]                    # أوّلُ إطارٍ سليمٍ بعد أوّل فجوة
     # البادئةُ المرجعيّة: الإطاراتُ قبل الفجوة الأولى
     s1 = dec_ms(base_f0)
     s1_slots = slots_ms(frames, gaps, base_f0)

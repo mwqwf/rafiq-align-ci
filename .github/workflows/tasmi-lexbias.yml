@@ -1,0 +1,224 @@
+# 📖 **أيُفيد الفكُّ الموجَّهُ بمعجم المصحف (GBNF) في whisper-cli؟ — حجمُ الأثر على `arm64` مجّاناً** (الخطوة 2-أ من خطة المستشار 2026-10-05).
+#
+# `tools/tasmi_bench/make_mushaf_gbnf.py` يبني من نصوص الروايات الموثّقة (‏`text_<r>.jz` بتطبيع `scorer.norm`) نحواً GBNF على شكل DAWG بالأحرف،
+# و`tools/tasmi_bench/lexbias_bench.py` يشغّل `whisper-cli` على g3r (‏مضجَّج ونظيف) وg2 بذراعَين: المرجع (‏بلا نحو) و`--grammar-penalty P`
+# لـP ∈ {2,4,8}، لنموذجَي tiny وbase، فيحسب Δاتّهام كاذب وΔكشف بـbootstrap عنقوديّ بالبند، ونسبةَ oov والزمنَ الوسيط.
+#
+# 🔑 **وزنادُه الإيداع** (‏الإدلاءُ يردّ 403): يُدفع `tools/tasmi_bench/requests/lexbias.json` أو هذا الملفّ.
+# ⚖️ **المعيارُ مكتوبٌ قبل القراءة:** لذراعٍ ما، على كلّ مجموعة: أعلى Δاتّهام ≤ 0 و(‏g3r) أدنى Δكشف ≥ 0 والزمن ≤ ×1.2 وoov ينخفض ≥ 20 نقطة.
+#    مرّ ذراعٌ ⇒ يُوصى بـJNI (‏2ب)؛ وإلا يُغلق البندُ بسطرٍ وأرقامه.
+# ⚠️ **وحدُّه يُقال معه:** لينكس/glibc لا أندرويد، و`whisper-cli` لا محرّكُ `jni.c`؛ ومع النحو يتحوّل whisper-cli إلى beam-search ببعد 1 (‏greedy بمكافأة).
+# 💰 المستودعُ عامٌّ وعدّادُه قياسيّ؛ لا كتابةَ في الدلو، والأثرُ يُنشر في `results/` وفي artifact صغير.
+name: tasmi-lexbias
+
+on:
+  workflow_dispatch:
+    inputs:
+      note:
+        description: "سببُ الشوط (يُطبع في الخلاصة)"
+        required: false
+        default: ""
+  push:
+    paths:
+      - "tools/tasmi_bench/requests/lexbias.json"
+      - ".github/workflows/tasmi-lexbias.yml"
+
+permissions:
+  contents: write
+
+concurrency:
+  group: tasmi-lexbias
+  cancel-in-progress: false
+
+env:
+  PUB: https://pub-2c2e1dcd92e84a2898820dd38d3e09e6.r2.dev
+  UA: "Mozilla/5.0 (QuranRafiq tasmi lexbias)"
+  WC: c4ac0012a8f5a2082dfca6aad4ddfd8b2c02b337   # الالتزامُ المثبَّت — نفسُ الذي في arm-time وthird_party
+
+jobs:
+  lexbias:
+    runs-on: ubuntu-24.04-arm
+    timeout-minutes: 340
+    steps:
+      - uses: actions/checkout@v4
+      - name: الطلب
+        id: req
+        run: |
+          set -o pipefail
+          python3 - <<'PY'
+          import json, os
+          r = json.load(open("tools/tasmi_bench/requests/lexbias.json", encoding="utf-8"))
+          env = open(os.environ["GITHUB_OUTPUT"], "a")
+          env.write("models=" + r.get("models", "tiny,base") + "\n")
+          env.write("penalties=" + r.get("penalties", "2,4,8") + "\n")
+          env.write("limit=" + str(r.get("limit", "0")) + "\n")
+          env.close()
+          print(r.get("note", ""))
+          PY
+      - name: r2 creds (من السرّ الواحد R2_CREDENTIALS_JSON — لبناء العيّنة فقط)
+        env:
+          R2_CREDENTIALS_JSON: ${{ secrets.R2_CREDENTIALS_JSON }}
+        run: |
+          mkdir -p secure && printf '%s' "$R2_CREDENTIALS_JSON" > secure/r2_credentials.json
+          python3 - <<'PY2'
+          import json, os
+          c = json.load(open("secure/r2_credentials.json"))
+          keys = {"R2_ENDPOINT": c["endpoint"], "R2_ACCESS_KEY_ID": c["accessKeyId"], "R2_SECRET_ACCESS_KEY": c["secretAccessKey"], "R2_BUCKET": c["bucket"]}
+          env = open(os.environ["GITHUB_ENV"], "a")
+          for k, v in keys.items():
+              print("::add-mask::" + v); env.write(k + "=" + v + chr(10))
+          env.close()
+          PY2
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      # 🛡️ لو لم يكن العدّاءُ arm64 فالشوطُ باطلٌ لا ناقص.
+      - name: المعمارية
+        run: |
+          uname -m
+          [ "$(uname -m)" = "aarch64" ] || { echo "⛔ العدّاءُ ليس arm64 ⇒ لا يُقاس عليه شيء"; exit 1; }
+          nproc
+      - name: العدّة
+        run: |
+          sudo apt-get update -qq && sudo apt-get install -y -qq cmake ninja-build ffmpeg > /dev/null
+          pip install -q numpy soundfile scipy boto3
+      - name: بناءُ whisper-cli برايات التطبيق نفسِها
+        run: |
+          git clone -q --depth 1 https://github.com/ggml-org/whisper.cpp wc && cd wc
+          git fetch -q --depth 1 origin "$WC" && git checkout -q FETCH_HEAD
+          cmake -S . -B b -G Ninja -DCMAKE_BUILD_TYPE=Release -DBUILD_SHARED_LIBS=OFF \
+            -DWHISPER_BUILD_TESTS=OFF -DWHISPER_BUILD_SERVER=OFF -DWHISPER_BUILD_EXAMPLES=ON \
+            -DGGML_NATIVE=OFF -DGGML_OPENMP=OFF \
+            -DCMAKE_C_FLAGS="-march=armv8.2-a+fp16 -O3" -DCMAKE_CXX_FLAGS="-march=armv8.2-a+fp16 -O3" > /dev/null
+          cmake --build b --target whisper-cli -j"$(nproc)" > /dev/null
+          ls -l b/bin/whisper-cli
+      - name: النماذجُ المشحونة (q8)
+        run: |
+          set -o pipefail
+          for m in tiny base; do
+            curl -sSL -f --retry 4 --retry-delay 5 --retry-all-errors -A "$UA" \
+              -o "tools/tasmi_bench/model_$m.bin" "$PUB/models/whisper-$m-ar-quran/ggml-q8_0.bin"
+            sha256sum "tools/tasmi_bench/model_$m.bin"; ls -l "tools/tasmi_bench/model_$m.bin"
+          done
+      # 🗂️ g1 (`wav`) وg2 (`wavn` = noise-fan-5) — **بمفتاحِ كاشٍ خاصٍّ** لا بمفتاح `tasmi-sets-v5` المشتركِ مع arm-time وemu-gate:
+      #    البناءُ هنا أصغر (‏لا g4) فلو حُفظ تحت المفتاح المشترك لنقصت حزمتُهم. «مَن غيّر مشتركاً فليحمل ثمنَه».
+      - name: كاشُ g1/g2
+        id: sets
+        uses: actions/cache@v4
+        with:
+          path: tools/tasmi_bench/work/conf_sets.tar
+          key: tasmi-conf-sets-v1-${{ hashFiles('tools/tasmi_bench/sample.json', 'tools/tasmi_bench/augment.py', 'tools/tasmi_bench/fetch_audio.py') }}
+      - name: بناءُ g1/g2 إن غاب الكاش
+        if: steps.sets.outputs.cache-hit != 'true'
+        run: |
+          set -o pipefail
+          cd tools/tasmi_bench
+          python fetch_audio.py
+          python augment.py --src-dir work/wav --dest-dir work/wavn --only noise-fan-5
+          tar -cf work/conf_sets.tar -C work wav wavn
+      - name: فكُّ g1/g2 (‏والحزمةُ تبقى كي يُحفظ الكاش)
+        run: |
+          set -o pipefail
+          cd tools/tasmi_bench/work
+          [ -d wavn ] || tar -xf conf_sets.tar
+          echo "g1 $(ls wav | wc -l) · g2 $(ls wavn | wc -l)"
+          [ "$(ls wavn | wc -l)" -ge 100 ] || { echo "⛔ عيّنةُ g2 ناقصة"; exit 1; }
+      # 🔪 مادّةُ g3r — **بمفتاح arm-time نفسِه ومحتواه** (‏`tasmi-inj-v1`): البناءُ واحدٌ حرفاً فلا يُلوَّث المشتركُ.
+      - name: كاشُ مادّة الحقن
+        id: inj
+        uses: actions/cache@v4
+        with:
+          path: tools/tasmi_bench/work/inj.tar
+          key: tasmi-inj-v1-${{ hashFiles('tools/tasmi_bench/inject_plan_riwaya.json', 'tools/tasmi_bench/inject_riwaya_local.py') }}
+      - name: بناءُ مادّة الحقن إن غاب الكاش
+        if: steps.inj.outputs.cache-hit != 'true'
+        run: |
+          set -o pipefail
+          cd tools/tasmi_bench
+          python inject_riwaya_local.py
+          tar -cf work/inj.tar -C work g3r
+      - name: فكُّ مادّة الحقن وتسطيحُ اسمَيها
+        run: |
+          set -o pipefail
+          cd tools/tasmi_bench/work
+          [ -d g3r ] || tar -xf inj.tar
+          ln -sfn g3r/noisy g3rn && ln -sfn g3r/clean g3rc
+          echo "🔪 مضجَّجٌ $(ls g3rn | wc -l) · نظيفٌ $(ls g3rc | wc -l)"
+          [ "$(ls g3rn | wc -l)" -ge 100 ] || { echo "⛔ مادّةُ الحقن ناقصة"; exit 1; }
+      - name: اختبارُ الأداتَين الذاتيّ
+        run: |
+          python tools/tasmi_bench/make_mushaf_gbnf.py --selftest
+          python tools/tasmi_bench/lexbias_bench.py --selftest
+      - name: توليدُ النحو من نصوص الروايات
+        run: |
+          set -o pipefail
+          cd tools/tasmi_bench
+          mkdir -p work/out
+          python make_mushaf_gbnf.py --out work/mushaf.gbnf --words work/lex_words.txt --strict-words work/lex_strict.txt --stats work/out/gbnf_stats.json
+          ls -l work/mushaf.gbnf; head -c 400 work/mushaf.gbnf; echo
+      # 🔥 دخانٌ قبل الشوط الطويل: بندان لكلّ مجموعة بكلّ ذراع — فإن فشل تحليلُ النحو أو لم يُنتج مخرجاً سقط هنا لا بعد ساعات.
+      - name: دخان (‏بندان لكلّ مجموعة)
+        env:
+          PYTHONIOENCODING: utf-8
+          MODELS: ${{ steps.req.outputs.models }}
+        run: |
+          set -o pipefail
+          cd tools/tasmi_bench
+          ARGS=""
+          for m in $(echo "$MODELS" | tr ',' ' '); do ARGS="$ARGS,$m=model_$m.bin"; done
+          ARGS="${ARGS#,}"
+          python lexbias_bench.py --cli ../../wc/b/bin/whisper-cli --models "$ARGS" --grammar work/mushaf.gbnf \
+            --words work/lex_words.txt --strict-words work/lex_strict.txt --penalties 4 --workers "$(nproc)" --limit 2 \
+            --workdir work/lexbias_smoke --md work/out/smoke.md > work/out/smoke.log 2>&1 || { tail -n 60 work/out/smoke.log; exit 1; }
+          cat work/out/smoke.md | head -n 40
+      - name: القياس
+        env:
+          PYTHONIOENCODING: utf-8
+          MODELS: ${{ steps.req.outputs.models }}
+          PENALTIES: ${{ steps.req.outputs.penalties }}
+          LIMIT: ${{ steps.req.outputs.limit }}
+        run: |
+          set -o pipefail
+          cd tools/tasmi_bench
+          ARGS=""
+          for m in $(echo "$MODELS" | tr ',' ' '); do ARGS="$ARGS,$m=model_$m.bin"; done
+          ARGS="${ARGS#,}"
+          python lexbias_bench.py --cli ../../wc/b/bin/whisper-cli --models "$ARGS" --grammar work/mushaf.gbnf \
+            --words work/lex_words.txt --strict-words work/lex_strict.txt --stats work/out/gbnf_stats.json \
+            --penalties "$PENALTIES" --workers "$(nproc)" --limit "$LIMIT" \
+            --md work/out/lexbias.md --json work/out/lexbias.json
+          cat work/out/lexbias.md >> "$GITHUB_STEP_SUMMARY"
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: tasmi-lexbias-${{ github.run_id }}
+          path: |
+            tools/tasmi_bench/work/out/
+            tools/tasmi_bench/work/mushaf.gbnf
+          retention-days: 14
+          if-no-files-found: ignore
+      - name: نشرُ الأثر في git — من شجرةٍ منفصلةٍ
+        if: always()
+        run: |
+          V="tools/tasmi_bench/work/out/lexbias.md"
+          J="tools/tasmi_bench/work/out/lexbias.json"
+          OUT="results/lexbias_${{ github.run_id }}.md"
+          {
+            echo "<!-- الشوط ${{ github.run_id }} · $(date -u +%FT%TZ) · الزناد ${{ github.event_name }} · العدّاء $(uname -m) nproc=$(nproc) -->"
+            if [ -s "$V" ]; then cat "$V"; else echo "⛔ **لا حكمَ**: سقط القياسُ قبل أن يُكتب — والسجلُّ في الشوط ${{ github.run_id }}."; [ -s tools/tasmi_bench/work/out/smoke.log ] && { echo; echo '```'; tail -n 40 tools/tasmi_bench/work/out/smoke.log; echo '```'; }; fi
+          } > /tmp/out.md
+          git config user.name "rafiq-ci"
+          git config user.email "ci@users.noreply.github.com"
+          for i in 1 2 3; do
+            rm -rf /tmp/pub && git fetch -q origin main && git worktree add -q --detach /tmp/pub origin/main || { echo "↻ شجرةٌ $i"; sleep 5; continue; }
+            mkdir -p /tmp/pub/results
+            cp /tmp/out.md "/tmp/pub/$OUT"
+            cp /tmp/out.md /tmp/pub/results/LATEST_lexbias.md
+            ADD="$OUT results/LATEST_lexbias.md"
+            if [ -s "$J" ]; then cp "$J" "/tmp/pub/results/lexbias_${{ github.run_id }}.json"; ADD="$ADD results/lexbias_${{ github.run_id }}.json"; fi
+            git -C /tmp/pub add $ADD
+            git -C /tmp/pub commit -q -m "results(tasmi-lexbias): أثرُ فكّ المعجم GBNF · الشوط ${{ github.run_id }}" || { echo "لا تغيير"; exit 0; }
+            git -C /tmp/pub push -q origin HEAD:main && { echo "✅ أُودع $OUT"; exit 0; }
+            echo "↻ دفعٌ $i"; git worktree remove --force /tmp/pub 2>/dev/null; sleep 5
+          done
+          echo "⛔ تعذّر الدفع"; exit 1
