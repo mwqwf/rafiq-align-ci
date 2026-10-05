@@ -106,7 +106,9 @@ ALLOWED_TOOLS = {"ci_fleet/package_catalog_review.py", "ci_fleet/akri_soundcloud
                  "index_qa/certify_catalog.py", "index_qa/heard_gate.py", "index_qa/census_parts_diag.py",  # ⚖️ قارئٌ محض: حكمُ بوّابة السماع كما تحكم الترقية (fixT)
                  "index_qa/bucket_watch.py", "index_qa/drop_surah.py",
                  # ⚖️ أُضيف 2026-10-05 (fixV): ذيلٌ غيرُ متلوٍّ في ملفّه يُحذف ويُعلَن (‏يكتب الاختبارَ وحده، بحُرّاس declared_truncated_tail).
-                 "index_qa/truncate_tail.py", "index_qa/index_header.py", "index_qa/census_gate_check.py",
+                 "index_qa/truncate_tail.py", "index_qa/index_header.py",
+                 # ⚖️ fixV 2026-10-05: تثبيتُ بدء آياتٍ على أداءٍ مسموعٍ مقيس في تسجيلٍ مكرَّر (يكتب الاختبارَ وحده؛ يلزمه الإحصاءُ الشامل).
+                 "index_qa/pin_heard.py", "index_qa/census_gate_check.py",
                  "index_qa/low_coverage_scan.py", "index_qa/dup_sha_sweep.py",
                  "index_qa/duration_profile.py", "index_qa/reciter_evidence.py",
                  "index_qa/dump_state.py", "index_qa/show_entries.py", "index_qa/clamp_file_end.py", "index_qa/material_probe.py",
