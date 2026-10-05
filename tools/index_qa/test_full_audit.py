@@ -1,9 +1,13 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """اختبارُ الفحص الشامل بلا شبكة — فهارسُ وهميّةٌ بعطبٍ معلومٍ يجب أن يُلتقط، وسليمةٌ يجب ألّا تُتَّهم."""
+import copy
+import json
 import sys
+import tempfile
 import unittest
 from pathlib import Path
+from unittest.mock import patch
 
 HERE = Path(__file__).resolve().parent
 sys.path.insert(0, str(HERE))
@@ -83,6 +87,104 @@ class StructureTest(unittest.TestCase):
         idx["audioSha256"][5] = idx["audioSha256"][4]
         r = fa.check_structure(idx, "timings/hafs/x.jz")
         self.assertIn("بصمةُ صوتٍ واحدةٌ", " ".join(r["errors"]))
+
+
+class FileNumberTest(unittest.TestCase):
+    def test_explicit_numbers_and_unparsed_names(self):
+        for name, expected in {
+            "001.mp3": {1}, "002 - البقرة.mp3": {2},
+            "016_النحل.ogg": {16}, "surah-114.opus": {114},
+            "سورة%20003.m4a": {3}, "115.mp3": {115},
+            "surah017.mp3": {17}, "سورة٠١٨.mp3": {18},
+            "kurdi-nahl-c82dee87.mp3": set(), "nahl-128kbps.mp3": set(),
+            "recording_2026_10_05.mp3": set(), "1435.mp3": set(),
+            "%D8%A9.mp3": set(), "016dead87.mp3": set(),
+            "item/": set(),
+        }.items():
+            with self.subTest(name=name):
+                self.assertEqual(fa._file_nos("https://h/" + name), expected)
+        self.assertEqual(fa._file_nos("https://h/016.mp3?name=099.mp3"), {16})
+        self.assertEqual(fa._file_nos("https://h/nahl.mp3?name=099.mp3"), set())
+
+    def test_hash_name_does_not_accuse_clean_index(self):
+        idx = make_index()
+        for e in idx["entries"]:
+            if e["ayahId"].startswith("16:"):
+                e["fileRef"] = "https://h/kurdi-nahl-c82dee87.mp3"
+        result = fa.check_structure(idx, "timings/hafs/x.jz")
+        self.assertTrue(result["ok"], result)
+        self.assertEqual(result["fileNoUnparsed"], 1)
+
+    def test_explicit_wrong_number_without_shared_file_still_fails(self):
+        idx = make_index()
+        for entry in idx["entries"]:
+            if entry["ayahId"].startswith("16:"):
+                entry["fileRef"] = "https://other.example/surah017.mp3"
+        result = fa.check_structure(idx, "timings/hafs/x.jz")
+        self.assertFalse(result["ok"])
+        self.assertIn("16", result["examples"].get("fileNoMismatch", {}))
+        self.assertNotIn("sharedFiles", result["examples"])
+        self.assertEqual(result["registeredFileNoMappings"], {})
+
+    def _registered_index(self):
+        # السجل الحقيقي المقيس، مع توقيت وهمي؛ الاختبار لا يحتاج صوتاً ولا شبكة.
+        rows = json.loads(fa._p.SOURCE_OVERRIDES.read_text(encoding="utf-8"))
+        rows = [r for r in rows if r.get("riwaya") == "qalun"
+                and r.get("reciter") == "akri_qalun" and r.get("surah") in (106, 107, 108)]
+        self.assertEqual(len(rows), 3)
+        idx = make_index(reciter="akri_qalun", riwaya="qalun")
+        for row in rows:
+            surah = row["surah"]
+            idx["audioSha256"][surah - 1] = row["audio_sha256"]
+            for entry in idx["entries"]:
+                if entry["ayahId"].startswith(f"{surah}:"):
+                    entry["fileRef"] = row["url"]
+        return idx, rows
+
+    def test_registered_mapping_requires_full_identity_and_bytes(self):
+        idx, _rows = self._registered_index()
+        for key in ("timings/qalun/akri_qalun.jz",
+                    "timings-staging/qalun/akri_qalun.12345678.jz"):
+            with self.subTest(key=key):
+                result = fa.check_structure(idx, key)
+                self.assertTrue(result["ok"], result)
+                self.assertEqual(set(result["registeredFileNoMappings"]), {"106", "107", "108"})
+        for kind in ("sha", "url", "missing", "key", "riwaya", "reciter"):
+            altered = copy.deepcopy(idx)
+            key = "timings/qalun/akri_qalun.jz"
+            if kind == "sha":
+                altered["audioSha256"][105] = "f" * 64
+            elif kind == "url":
+                for entry in altered["entries"]:
+                    if entry["ayahId"].startswith("106:"):
+                        entry["fileRef"] = "https://other.example/108.mp3"
+            elif kind == "missing":
+                altered["entries"] = [e for e in altered["entries"] if e["ayahId"] != "106:4"]
+            elif kind == "key":
+                key = "timings/qalun/someone_else.jz"
+            elif kind == "riwaya":
+                altered["riwaya"] = "hafs"
+            else:
+                altered["reciterId"] = "someone_else"
+            with self.subTest(kind=kind):
+                result = fa.check_structure(altered, key)
+                self.assertIn("106", result["examples"].get("fileNoMismatch", {}))
+
+    def test_missing_or_invalid_registry_keeps_mismatch(self):
+        idx, rows = self._registered_index()
+        key = "timings/qalun/akri_qalun.jz"
+        without_evidence = copy.deepcopy(rows)
+        without_evidence[0]["evidence"] = ""
+        with tempfile.TemporaryDirectory() as directory:
+            registry = Path(directory) / "sources.json"
+            with patch.object(fa._p, "SOURCE_OVERRIDES", registry):
+                for payload in (None, "{", json.dumps(rows + [rows[0]]),
+                                json.dumps(without_evidence)):
+                    if payload is not None:
+                        registry.write_text(payload, encoding="utf-8")
+                    with self.subTest(payload=payload):
+                        result = fa.check_structure(idx, key)
+                        self.assertIn("106", result["examples"].get("fileNoMismatch", {}))
 
 
 class GapsTest(unittest.TestCase):

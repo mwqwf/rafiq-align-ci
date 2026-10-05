@@ -34,6 +34,7 @@ import re
 import subprocess
 import sys
 import traceback
+from datetime import datetime, timezone
 from pathlib import Path
 
 sys.stdout.reconfigure(encoding="utf-8", errors="replace")
@@ -258,12 +259,17 @@ def do_state(c):
                  for r in cat["riwayat"] for rc in r.get("reciters", [])
                  if rc.get("mode") == "ayah"]
     total = catalog_total - len(ayah_mode)
-    gaps = {}
+    gaps, read_errors = {}, {}
+    fetched_count = 0
     for (riw, rid) in sorted(pub):
+        key = f"timings/{riw}/{rid}.jz"
         try:
-            idx, _ = fetch_index(f"timings/{riw}/{rid}.jz")
-        except Exception:                                             # noqa: BLE001
+            idx, _ = fetch_index(key)
+        except Exception as ex:                                      # noqa: BLE001
+            # ⛔ وجود الملف لا يثبت قراءة محتواه؛ لا يُخفى تعذّر القراءة من الجرد.
+            read_errors[key] = f"{type(ex).__name__}: {ex}"
             continue
+        fetched_count += 1
         srs = {int(e["ayahId"].split(":")[0]) for e in idx["entries"]}
         miss = [s for s in range(1, 115) if s not in srs]
         if miss or len(idx["entries"]) < 6236:
@@ -317,7 +323,11 @@ def do_state(c):
         if rc.get("mode") != "ayah"
         and ((r.get("id") or r.get("riwaya")), rc.get("id")) not in pub
     )
-    st = {"published": len(pub), "target": total,
+    read_complete = not read_errors and fetched_count == len(pub)
+    st = {"generatedAt": datetime.now(timezone.utc).isoformat(timespec="seconds").replace("+00:00", "Z"),
+          "readErrors": read_errors, "fetchedCount": fetched_count,
+          "readComplete": read_complete,
+          "published": len(pub), "target": total,
           "missingCount": len(missing), "missingIds": missing,
           "catalogTotal": catalog_total,
           "ayahModeExcluded": len(ayah_mode), "ayahModeIds": ayah_mode,
@@ -325,11 +335,15 @@ def do_state(c):
     (OUT_DIR / "state.json").write_text(
         json.dumps(st, ensure_ascii=False, indent=1), encoding="utf-8")
     _miss = ("\n⛔ **الباقي بالاسم** (" + str(len(missing)) + "): "
-             + ("، ".join(missing) if missing else "لا شيء — اكتمل الهدف"))
-    return 0, (f"المنشور {len(pub)}/{total}{_miss}\n"
+             + ("، ".join(missing) if missing else "لا شيء — ملفات القرّاء موجودة"))
+    _reads = (f"قُرئ {fetched_count}/{len(pub)} فهرساً · أخطاء القراءة: {len(read_errors)}"
+              + ("" if read_complete else " — ⛔ الجرد غير مكتمل؛ راجع readErrors"))
+    return (0 if read_complete else 1), (f"المنشور {len(pub)}/{total}{_miss}\n"
                f"(الكتالوج {catalog_total} قارئاً · "
                f"منهم {len(ayah_mode)} بوضع الآية لا فهرسَ لهم) · {per}\n"
-               f"فهارسُ فيها نقص: {len(gaps)} — التفصيلُ في ops/out/state.json")
+               f"{_reads}\n"
+               f"فهارسُ فيها نقص ضمن المقروء: {len(gaps)} — التفصيلُ في ops/out/state.json\n"
+               "هذا الجرد لا يشهد بصحة التوقيت أو جودة الفهرسة.")
 
 
 HANDLERS = {"dispatch": do_dispatch, "tool": do_tool, "state": do_state}
@@ -468,3 +482,4 @@ def _push_answer(name: str) -> None:
 
 if __name__ == "__main__":
     main()
+
