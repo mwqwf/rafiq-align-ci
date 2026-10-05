@@ -152,6 +152,8 @@ def _fetch(url: str, output: Path, *, limit: int, deadline: float, opener=None) 
     digest, size = hashlib.sha256(), 0
     try:
         with open_response(url, deadline=deadline, opener=opener or public_opener()) as response:
+            if response.status != 200 or response.headers.get("Content-Range") is not None:
+                raise ProbeError("رد المصدر ليس تنزيلاً كاملاً؛ تُرفض الاستجابة الجزئية")
             final_url = response.geturl()
             validate_url(final_url, resolve=True)
             announced = response.headers.get("Content-Length")
@@ -276,11 +278,79 @@ class PCMStats:
                 "omittedSilenceIntervals": self.silence_count - len(intervals)}
 
 
-def decode_audio(path: Path, *, deadline: float | None = None) -> dict:
+class StereoPCMStats:
+    """قياس قناتين أصليتين؛ المتوسط الحسابي تشخيص عددي ولا يُكتب كصوت."""
+    def __init__(self):
+        self.digest = hashlib.sha256()
+        self.pending = bytearray()
+        self.left = PCMStats()
+        self.right = PCMStats()
+        self.frames = self.left_sum = self.right_sum = self.cross_sum = 0
+
+    def feed(self, block: bytes):
+        if self.frames * 4 + len(self.pending) + len(block) > MAX_PCM_SECONDS * SAMPLE_RATE * 4:
+            raise ProbeError("الصوت الثنائي المفكوك تجاوز حد المدة")
+        self.digest.update(block)
+        self.pending.extend(block)
+        size = len(self.pending) // 4 * 4
+        if not size:
+            return
+        values = array.array("h", self.pending[:size])
+        del self.pending[:size]
+        if sys.byteorder != "little":
+            values.byteswap()
+        left, right = values[0::2], values[1::2]
+        self.frames += len(left)
+        self.left_sum += sum(left)
+        self.right_sum += sum(right)
+        self.cross_sum += sum(lvalue * rvalue for lvalue, rvalue in zip(left, right))
+        if sys.byteorder != "little":
+            left.byteswap()
+            right.byteswap()
+        self.left.feed(left.tobytes())
+        self.right.feed(right.tobytes())
+
+    def finish(self):
+        if self.pending:
+            raise ProbeError("خرج PCM الثنائي مبتور عند حد القناتين")
+        if not self.frames:
+            raise ProbeError("لم ينتج فك القناتين عينات صوت")
+        left, right = self.left.finish(), self.right.finish()
+        left_power, right_power = self.left.sum_squares, self.right.sum_squares
+        left_variance = self.frames * left_power - self.left_sum ** 2
+        right_variance = self.frames * right_power - self.right_sum ** 2
+        covariance = self.frames * self.cross_sum - self.left_sum * self.right_sum
+        correlation = (max(-1.0, min(1.0, covariance / math.sqrt(left_variance * right_variance)))
+                       if left_variance > 0 and right_variance > 0 else None)
+        mix_power = (left_power + right_power + 2 * self.cross_sum) / 4
+        channel_power = (left_power + right_power) / 2
+        mix_rms = math.sqrt(max(0, mix_power) / self.frames) / 32768
+        ratio = math.sqrt(max(0, mix_power) / channel_power) if channel_power else None
+        attenuation = 20 * math.log10(ratio) if ratio and ratio > 0 else None
+        # الصفر الدقيق يُعلن صراحة؛ null لا يعني سالباً لانهائياً ولا دليلاً على صمت المصدر.
+        exact_cancellation = channel_power > 0 and mix_power == 0
+        both_have_energy = all((part["rmsDbfs"] is not None and part["rmsDbfs"] > SILENCE_DBFS)
+                               for part in (left, right))
+        suspected = (both_have_energy and correlation is not None and correlation <= -0.95
+                     and (exact_cancellation or attenuation is not None and attenuation <= -20))
+        return {"evaluated": True, "format": "s16le", "sampleRateHz": SAMPLE_RATE,
+                "channels": 2, "frames": self.frames, "bytes": self.frames * 4,
+                "durationSeconds": self.frames / SAMPLE_RATE, "sha256": self.digest.hexdigest(),
+                "left": left, "right": right, "correlationLR": correlation,
+                "correlationMethod": "Pearson-full-recording-mean-centered",
+                "arithmeticMeanRms": mix_rms, "arithmeticMeanToChannelRmsRatio": ratio,
+                "arithmeticMeanAttenuationDb": attenuation,
+                "arithmeticMeanExactlyZeroWithChannelEnergy": exact_cancellation,
+                "phaseCancellationSuspected": suspected,
+                "phaseCancellationCriteria": {"maximumCorrelation": -0.95,
+                    "maximumMeanAttenuationDb": -20, "minimumEachChannelRmsDbfs": SILENCE_DBFS},
+                "signalIdentityCertified": False}
+
+
+def _decode_pcm(path: Path, stats, *, channel_arguments: list[str], deadline: float | None = None) -> dict:
     deadline = min(deadline or math.inf, time.monotonic() + 120)
-    stats = PCMStats()
     command = ["ffmpeg", "-nostdin", "-v", "error", "-xerror", "-protocol_whitelist", "file,pipe",
-               "-i", str(path), "-map", "0:a:0", "-vn", "-ac", "1", "-ar", str(SAMPLE_RATE),
+               "-i", str(path), "-map", "0:a:0", "-vn", *channel_arguments, "-ar", str(SAMPLE_RATE),
                "-f", "s16le", "pipe:1"]
     # stderr معزول: قد يضم عنواناً داخل ملف خبيث، ولا نطبع نصه حتى عند الفشل.
     with tempfile.TemporaryFile() as errors:
@@ -313,18 +383,40 @@ def decode_audio(path: Path, *, deadline: float | None = None) -> dict:
     return result
 
 
-def container_metadata(path: Path) -> dict:
+def decode_audio(path: Path, *, deadline: float | None = None) -> dict:
+    return _decode_pcm(path, PCMStats(), channel_arguments=["-ac", "1"], deadline=deadline)
+
+
+def decode_stereo(path: Path, *, metadata: dict | None = None, deadline: float | None = None) -> dict:
+    metadata = metadata if metadata is not None else container_metadata(path, deadline=deadline)
+    streams = metadata.get("audioStreams", [])
+    channels = streams[0].get("channels") if streams else None
+    if channels != 2:
+        return {"evaluated": False, "nativeChannels": channels,
+                "reason": "قياس L/R يتطلب قناتين أصليتين؛ لم تُنشأ قناتان اصطناعيتان"}
+    # لا -ac هنا: نبقي عدد القناتين الأصليتين وترتيبهما، بلا downmix أو upmix.
+    result = _decode_pcm(path, StereoPCMStats(), channel_arguments=[], deadline=deadline)
+    result["nativeChannels"] = channels
+    result["nativeChannelLayout"] = streams[0].get("channel_layout")
+    result["channelOrder"] = "first-and-second-native-channel"
+    return result
+
+
+def container_metadata(path: Path, *, deadline: float | None = None) -> dict:
+    remaining = min(20, (deadline if deadline is not None else math.inf) - time.monotonic())
+    if remaining <= 0:
+        raise ProbeError("انتهت مهلة قياس حاوية الصوت")
     try:
         run = subprocess.run(["ffprobe", "-v", "error", "-protocol_whitelist", "file,pipe",
-            "-show_entries", "format=duration:stream=codec_type,codec_name,sample_rate,channels,duration",
-            "-of", "json", str(path)], capture_output=True, timeout=20, check=False)
+            "-show_entries", "format=duration:stream=codec_type,codec_name,sample_rate,channels,channel_layout,duration",
+            "-of", "json", str(path)], capture_output=True, timeout=remaining, check=False)
         if run.returncode:
             raise ProbeError("فشل ffprobe")
         raw = json.loads(run.stdout)
         duration = float(raw.get("format", {}).get("duration", "nan"))
         audio = [stream for stream in raw.get("streams", []) if stream.get("codec_type") == "audio"]
         return {"durationSeconds": duration if math.isfinite(duration) and duration >= 0 else None,
-                "audioStreams": [{key: stream[key] for key in ("codec_name", "sample_rate", "channels")
+                "audioStreams": [{key: stream[key] for key in ("codec_name", "sample_rate", "channels", "channel_layout")
                                   if key in stream} for stream in audio]}
     except (subprocess.TimeoutExpired, OSError, ValueError, TypeError):
         raise ProbeError("تعذر قياس حاوية الصوت") from None
@@ -380,8 +472,22 @@ def probe_source(source: dict, *, deadline: float) -> dict:
                 url = midad_audio_url((temp / "page").read_bytes())
                 result["resolutionMethod"] = "publisher-contentUrl"
             result["file"] = fetch(url, temp / "source", deadline=deadline)
-            result["container"] = container_metadata(temp / "source")
-            result["pcm"] = decode_audio(temp / "source", deadline=deadline)
+            result["container"] = container_metadata(temp / "source", deadline=deadline)
+            audio_deadline = min(deadline, time.monotonic() + 120)
+            decode_errors = []
+            for field, decoder in (("pcm", decode_audio), ("stereo", decode_stereo)):
+                try:
+                    options = {"metadata": result["container"]} if field == "stereo" else {}
+                    result[field] = decoder(temp / "source", deadline=audio_deadline, **options)
+                except ProbeError as exc:
+                    # محاولة كل قياس مستقلة؛ نجاح أحدهما لا يخفي فشل الآخر.
+                    result[field] = {"decodedWithoutErrors": False, "error": str(exc)}
+                    decode_errors.append(field)
+            if decode_errors:
+                result["decodeErrors"] = decode_errors
+                raise ProbeError("تعذر اعتماد كل قياسات الصوت؛ بقيت أخطاء فك معلنة")
+            if result["stereo"].get("evaluated") and result["stereo"]["frames"] != result["pcm"]["samples"]:
+                raise ProbeError("اختلف عدد الإطارات بين قياس mono والقناتين؛ لا يُعتمد التشخيص")
             advertised = result["container"]["durationSeconds"]
             result["durationDifferenceSeconds"] = (result["pcm"]["durationSeconds"] - advertised
                                                     if advertised is not None else None)
@@ -398,7 +504,7 @@ def main(argv=None):
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--sources-file", type=Path, help="ملف JSON محلي؛ الافتراضي inputs.sources من حدث GitHub")
     args = parser.parse_args(argv)
-    report = {"schema": 1, "tool": "rafiq-source-metadata-1",
+    report = {"schema": 2, "tool": "rafiq-source-metadata-2",
               "generatedAt": datetime.now(timezone.utc).isoformat(), "readOnly": True,
               "identityAndVerseCoverageCertified": False, "decoderVersion": decoder_version(), "sources": []}
     try:
