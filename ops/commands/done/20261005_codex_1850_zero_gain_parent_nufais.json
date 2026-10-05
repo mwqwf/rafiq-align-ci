@@ -1,0 +1,12 @@
+{
+  "action": "tool",
+  "tool": "index_qa/export_index_bytes.py",
+  "args": [
+    "--key",
+    "timings/hafs/nufais.jz",
+    "--expect-sha",
+    "e3d40dc931f9fc48c4e0f2daf9a8c3a939b80a606a205b1a2486cdebad8fa550",
+    "--out",
+    "ops/out/codex-zero-gain-parent-nufais-20261005.json"
+  ]
+}

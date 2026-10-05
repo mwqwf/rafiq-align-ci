@@ -1,0 +1,12 @@
+{
+  "action": "tool",
+  "tool": "index_qa/export_index_bytes.py",
+  "args": [
+    "--key",
+    "timings/warsh/derini_warsh.jz",
+    "--expect-sha",
+    "ffa7ef763237bf0f7d34d492d9a74ef595fd2528f6be0a7d1f1581a312384825",
+    "--out",
+    "ops/out/codex-zero-gain-parent-derini_warsh-20261005.json"
+  ]
+}

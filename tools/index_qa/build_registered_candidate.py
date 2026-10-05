@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""يبني مرشح سورة مسجّلة محلياً؛ لا شبكة ولا أسرار ولا كتابة إلى الدلو.
+"""يبني مرشح سورة أو سور مسجّلة من أصل واحد؛ لا شبكة ولا أسرار ولا كتابة إلى الدلو.
 
 الملف الناتج غير منشور، ويحتاج فحوص الجودة والسماع القائمة على بصمته.
 لا يصنع هذا الأمر حدوداً أو نصاً؛ ينقل حدود ctc_heard_map المقيسة بعد التحقق
@@ -39,6 +39,15 @@ def sha256(blob):
 def require(condition, message):
     if not condition:
         raise ValueError(message)
+
+
+def selected_surahs(surah):
+    """قائمة صريحة بلا تكرار؛ يبقى رقم السورة المفرد مقبولاً."""
+    surahs = [surah] if type(surah) is int else list(surah)
+    require(surahs and all(type(s) is int and 1 <= s <= 114 for s in surahs),
+            "أرقام السور غير صالحة")
+    require(len(surahs) == len(set(surahs)), "لا يجوز تكرار سورة في البناء")
+    return surahs
 
 
 def checked_output(path):
@@ -111,35 +120,42 @@ def checked_alignment(parent, aligned, surah, source):
 
 def check_preserved(parent, candidate, surah, source):
     """لا تتبدل مداخل أو بصمات أو إعلانات السور الأخرى ولو مر الدمج."""
+    surahs = selected_surahs(surah)
+    sources = {surahs[0]: source} if type(surah) is int else source
+    named = {str(s) for s in surahs}
     def outside(entries):
-        return [e for e in entries if int(e["ayahId"].split(":")[0]) != surah]
+        return [e for e in entries if e["ayahId"].split(":")[0] not in named]
     old, new = parent.get("entries") or [], candidate.get("entries") or []
     require(outside(old) == outside(new), "تغير مدخل خارج السورة المطلوبة")
     old_shas, new_shas = parent.get("audioSha256"), candidate.get("audioSha256")
     require(isinstance(old_shas, list) and len(old_shas) == 114
             and isinstance(new_shas, list) and len(new_shas) == 114,
             "المصدر المسجّل يتطلب قائمة بصمات أصلية من 114 سورة")
-    require(new_shas == old_shas[:surah - 1] + [source["audio_sha256"]] + old_shas[surah:],
+    expected_shas = list(old_shas)
+    for s in surahs:
+        expected_shas[s - 1] = sources[s]["audio_sha256"]
+    require(new_shas == expected_shas,
             "تغيرت بصمة صوت خارج السورة المطلوبة")
     for field in sorted(set(parent) | set(candidate)):
         if not field.endswith("BySurah"):
             continue
         before, after = parent.get(field) or {}, candidate.get(field) or {}
         require(isinstance(before, dict) and isinstance(after, dict), f"حقل {field} ليس قاموساً")
-        require({k: v for k, v in before.items() if k != str(surah)}
-                == {k: v for k, v in after.items() if k != str(surah)},
+        require({k: v for k, v in before.items() if k not in named}
+                == {k: v for k, v in after.items() if k not in named},
                 f"تغير إعلان {field} خارج السورة المطلوبة")
     for field in ("riwaya", "reciterId", "engineVersion", "refineVersion", "ayahCount"):
         require(parent.get(field) == candidate.get(field), f"تغير حقل الأصل {field}")
-    require((candidate.get("sourceBySurah") or {}).get(str(surah)) == source["url"],
-            "المصدر البديل غير معلن كما قيس")
-    old_refs = {e.get("fileRef") for e in old if e["ayahId"].startswith(f"{surah}:")}
-    require(source["url"] not in old_refs
-            or (parent.get("sourceBySurah") or {}).get(str(surah)) == source["url"],
-            "المصدر لم يتغير ولا يحمل إعلانه السابق؛ لا يُسمى بديلاً بصمت")
-    if candidate.get("engineVersion") != ENGINE:
-        require((candidate.get("engineBySurah") or {}).get(str(surah)) == ENGINE,
-                "محرك السورة غير معلن")
+    for s in surahs:
+        require((candidate.get("sourceBySurah") or {}).get(str(s)) == sources[s]["url"],
+                "المصدر البديل غير معلن كما قيس")
+        old_refs = {e.get("fileRef") for e in old if e["ayahId"].startswith(f"{s}:")}
+        require(sources[s]["url"] not in old_refs
+                or (parent.get("sourceBySurah") or {}).get(str(s)) == sources[s]["url"],
+                "المصدر لم يتغير ولا يحمل إعلانه السابق؛ لا يُسمى بديلاً بصمت")
+        if candidate.get("engineVersion") != ENGINE:
+            require((candidate.get("engineBySurah") or {}).get(str(s)) == ENGINE,
+                    "محرك السورة غير معلن")
     old_ids, new_ids = {e["ayahId"] for e in old}, {e["ayahId"] for e in new}
     recovered = len(new_ids - old_ids)
     old_reasons = (parent.get("missing") or {}).get("byReason") or {}
@@ -148,17 +164,53 @@ def check_preserved(parent, candidate, surah, source):
         decrease = old_reasons.get(reason, 0) - new_reasons.get(reason, 0)
         require(0 <= decrease <= recovered,
                 "تغير تفسير غياب لا تبرره المداخل المسترجعة؛ يلزم قياس منفصل")
-    why = stage_transform.realigned_coverage_error(old_ids, new_ids, [surah])
+    why = stage_transform.realigned_coverage_error(old_ids, new_ids, surahs)
     require(not why, why)
-    require({e["ayahId"] for e in new if e["ayahId"].startswith(f"{surah}:")}
-            == {f"{surah}:{a}" for a in range(1, splice_surah.COUNTS[surah - 1] + 1)},
-            "معرفات السورة لا تطابق العدد الكامل")
+    for s in surahs:
+        require({e["ayahId"] for e in new if e["ayahId"].startswith(f"{s}:")}
+                == {f"{s}:{a}" for a in range(1, splice_surah.COUNTS[s - 1] + 1)},
+                "معرفات السورة لا تطابق العدد الكامل")
     require(stage_transform.entries_sha(old) != stage_transform.entries_sha(new),
             "المداخل لم تتغير؛ لا إصلاح هنا")
 
 
+def repaired_transform(parent, candidate, surah, parent_sha, parent_key):
+    """يحفظ أثر الأصل كتاريخ، ويزيل إعلانات السور المسترجعة وحدها."""
+    transform = copy.deepcopy(candidate.get("transform") or {})
+    surahs = selected_surahs(surah)
+    # الأثر السابق كامل ومحفوظ ببصمة ملفه، ولا يصف حالة المرشح الحالية.
+    transform["provenance"] = {
+        "kind": "historical-parent-transform",
+        "parentSha256": parent_sha,
+        "parentKey": parent_key,
+        "parentTransform": copy.deepcopy(parent.get("transform")),
+        "parentMissing": copy.deepcopy(parent.get("missing")),
+    }
+    if isinstance(transform.get("truncatedTail"), dict):
+        for s in surahs:
+            transform["truncatedTail"].pop(str(s), None)
+    if isinstance(transform.get("dropSurah"), list):
+        transform["dropSurah"] = [s for s in transform["dropSurah"] if s not in surahs]
+    # العدّادان يخصّان عملية إسقاط قديمة؛ أعداد التحويل الحالي تحسب من المداخل.
+    for field in ("droppedEntries", "gapAyahs"):
+        transform.pop(field, None)
+    # بيان الغياب المشترك مطلوب ما دام عطب مصدر سورة أخرى قائماً، ولا يرثه فهرس كامل.
+    missing_reasons = (candidate.get("missing") or {}).get("byReason") or {}
+    remaining_source_problem = (transform.get("truncatedTail") or transform.get("dropSurah")
+                                or missing_reasons.get("source_truncated", 0)
+                                or missing_reasons.get("source_corrupt", 0))
+    if transform.get("reasonCode") in ("SOURCE_TRUNCATED", "SOURCE_CORRUPT") and not remaining_source_problem:
+        transform.pop("reasonCode", None)
+        transform.pop("reasonUser", None)
+    return transform
+
+
 def build(parent_path, parent_sha, aligned_path, surah, out_path, *, parent_key=None):
     require(SHA_RE.fullmatch(str(parent_sha)), "بصمة الأصل يجب أن تكون كاملة")
+    surahs = selected_surahs(surah)
+    aligned_paths = list(aligned_path) if isinstance(aligned_path, (list, tuple)) else [aligned_path]
+    require(len(aligned_paths) == len(surahs), "عدد ملفات المحاذاة لا يطابق عدد السور")
+    selection = ",".join(str(s) for s in surahs)
     target = checked_output(out_path)
     parent_blob = Path(parent_path).read_bytes()
     require(sha256(parent_blob) == parent_sha, "بصمة ملف الأصل لا تطابق المطلوبة")
@@ -169,54 +221,68 @@ def build(parent_path, parent_sha, aligned_path, surah, out_path, *, parent_key=
             "الأصل لا يحمل قائمة بصمات من 114 سورة")
     require(parent.get("transform") is None or isinstance(parent["transform"], dict),
             "صيغة أثر التحويل القديمة تحتاج مراجعة قبل الدمج المسجّل")
-    aligned_blob = Path(aligned_path).read_bytes()
-    aligned = json.loads(aligned_blob)
-    source = source_registry.registered_source(parent["riwaya"], parent["reciterId"], surah)
-    adapted = checked_alignment(parent, aligned, surah, source)
+    aligned_blobs = {s: Path(path).read_bytes() for s, path in zip(surahs, aligned_paths)}
+    sources = {s: source_registry.registered_source(parent["riwaya"], parent["reciterId"], s)
+               for s in surahs}
+    adapted = {s: checked_alignment(parent, json.loads(aligned_blobs[s]), s, sources[s])
+               for s in surahs}
     require(stage_transform.promote.SPLICE_OPS.get(OP) == ENGINE,
             "محرك التحويل لا يطابق سجل حارس الترقية")
     # النسخ المؤقتة تثبت المدخلات خلال استدعاء الأداة القائمة، ولا تعيد تنزيل الصوت.
     with tempfile.TemporaryDirectory(prefix="registered-candidate-") as tmp:
         tmp = Path(tmp)
-        saved_parent, saved_aligned, merged = tmp / "parent.jz", tmp / "aligned.json", tmp / "merged.jz"
+        saved_parent, merged = tmp / "parent.jz", tmp / "merged.jz"
         saved_parent.write_bytes(parent_blob)
-        saved_aligned.write_text(json.dumps(adapted, ensure_ascii=False, allow_nan=False), encoding="utf-8")
+        saved_aligned = []
+        for s in surahs:
+            path = tmp / f"aligned-{s}.json"
+            path.write_text(json.dumps(adapted[s], ensure_ascii=False, allow_nan=False), encoding="utf-8")
+            saved_aligned.append(str(path))
         previous_args = sys.argv
-        sys.argv = [splice_surah.__file__, "--index", str(saved_parent), "--surah", str(surah),
-                    "--aligned", str(saved_aligned), "--url", source["url"], "--out", str(merged),
+        sys.argv = [splice_surah.__file__, "--index", str(saved_parent), "--surah", selection,
+                    "--aligned", *saved_aligned, "--url", sources[surahs[0]]["url"], "--out", str(merged),
                     "--registered-sources", "--alt-source", "--engine-tag", ENGINE]
         try:
             splice_surah.main()
         finally:
             sys.argv = previous_args
-        require(Path(str(merged) + ".taken").read_text(encoding="utf-8") == str(surah),
-                "الدمج لم يأخذ السورة المطلوبة وحدها")
+        require(Path(str(merged) + ".taken").read_text(encoding="utf-8") == selection,
+                "الدمج لم يأخذ السور المطلوبة وحدها")
         candidate = json.loads(gzip.decompress(merged.read_bytes()))
-    require(source_registry.registered_source(parent["riwaya"], parent["reciterId"], surah) == source,
+    require(all(source_registry.registered_source(parent["riwaya"], parent["reciterId"], s) == sources[s]
+                for s in surahs),
             "تغير سجل المصدر أثناء البناء")
     require(sha256(Path(parent_path).read_bytes()) == parent_sha
-            and sha256(Path(aligned_path).read_bytes()) == sha256(aligned_blob),
+            and all(Path(path).read_bytes() == aligned_blobs[s] for s, path in zip(surahs, aligned_paths)),
             "تغيرت مدخلات البناء أثناء العمل")
-    check_preserved(parent, candidate, surah, source)
+    # اكتمال المعرفات يزيل أسباب الغياب الحالية؛ نسخة الأصل باقية في النسب التاريخي.
+    expected_ids = {f"{s}:{a}" for s, n in enumerate(splice_surah.COUNTS, 1) for a in range(1, n + 1)}
+    if {e["ayahId"] for e in candidate["entries"]} == expected_ids:
+        require(candidate["missing"]["count"] == 0 and not candidate["missing"].get("ids"),
+                "وسم الغياب لا يطابق المعرفات الكاملة")
+        candidate["missing"]["byReason"] = {}
+    check_preserved(parent, candidate, surahs, sources)
     old_entries, new_entries = parent["entries"], candidate["entries"]
+    # هذا عدّاد مشتق لا حكم جديد على الثقة؛ تبقى الأشرطة والحدود كما قيسَت.
+    if "lowCount" in candidate:
+        candidate["lowCount"] = sum(e.get("confBand") == "LOW" for e in new_entries)
     moved, added, removed = stage_transform.entry_change_counts(old_entries, new_entries)
-    transform = dict(candidate.get("transform") or {})
-    # السورة المسترجعة كاملة لا ترث إعلان ذيلها القديم؛ غيرها يبقى كما كان.
-    if isinstance(transform.get("truncatedTail"), dict):
-        transform["truncatedTail"] = {k: v for k, v in transform["truncatedTail"].items()
-                                      if k != str(surah)}
-    transform.update(op=f"{OP}:{surah}", fromSha256=parent_sha, fromKey=key,
+    transform = repaired_transform(parent, candidate, surahs, parent_sha, key)
+    source_repairs = {str(s): {"surah": s, "sourceUrl": sources[s]["url"],
+                               "audioSha256": sources[s]["audio_sha256"],
+                               "alignedSha256": sha256(aligned_blobs[s]),
+                               "registryEvidence": sources[s]["evidence"]} for s in surahs}
+    source_repair = (source_repairs[str(surahs[0])] if len(surahs) == 1
+                     else {"surahs": surahs, "bySurah": source_repairs})
+    transform.update(op=f"{OP}:{selection}", fromSha256=parent_sha, fromKey=key,
                      entriesSha256=stage_transform.entries_sha(new_entries),
                      parentEntriesSha256=stage_transform.entries_sha(old_entries),
                      movedEntries=moved, addedEntries=added, removedEntries=removed,
-                     reason=f"إعادة قياس السورة {surah} كاملة من مصدر مسجّل مطابق لبصمة الصوت",
+                     reason=f"إعادة قياس السور {selection} كاملة من مصادر مسجّلة مطابقة لبصمات الصوت",
                      by="build_registered_candidate", at=int(time.time() * 1000),
                      note="مرشح محلي غير منشور؛ يلزمه حكم الجودة والسماع على بصمته.",
                      unpublishedLocalCandidate=True,
-                     sourceRepair={"surah": surah, "sourceUrl": source["url"],
-                                   "audioSha256": source["audio_sha256"],
-                                   "alignedSha256": sha256(aligned_blob),
-                                   "registryEvidence": source["evidence"]})
+                     sourceRepair=source_repair)
     candidate["transform"] = transform
     why = stage_transform.promote.index_gate(candidate, parent=parent, parent_sha=parent_sha)
     require(not why, f"حارس بنية الفهرس: {why}")
@@ -235,11 +301,14 @@ def build(parent_path, parent_sha, aligned_path, surah, out_path, *, parent_key=
         finally:
             temporary.unlink(missing_ok=True)
     digest = sha256(payload)
-    return {"path": str(target.relative_to(ROOT)), "sha256": digest,
-            "key": f"timings-staging/{parent['riwaya']}/{parent['reciterId']}.{digest[:8]}.jz",
-            "parentSha256": parent_sha, "alignedSha256": sha256(aligned_blob),
-            "surah": surah, "unpublishedLocalCandidate": True,
-            "qualityChecks": "pending", "heardGate": "pending"}
+    report = {"path": str(target.relative_to(ROOT)), "sha256": digest,
+              "key": f"timings-staging/{parent['riwaya']}/{parent['reciterId']}.{digest[:8]}.jz",
+              "parentSha256": parent_sha, "surahs": surahs,
+              "alignedSha256BySurah": {str(s): sha256(aligned_blobs[s]) for s in surahs},
+              "unpublishedLocalCandidate": True, "qualityChecks": "pending", "heardGate": "pending"}
+    if len(surahs) == 1:
+        report.update(surah=surahs[0], alignedSha256=sha256(aligned_blobs[surahs[0]]))
+    return report
 
 
 def main():
@@ -247,12 +316,13 @@ def main():
     ap.add_argument("--parent", required=True, help="ملف الأصل المحلي .jz")
     ap.add_argument("--parent-sha", required=True)
     ap.add_argument("--parent-key", help="مفتاح الأصل الموثق؛ الافتراضي timings/<رواية>/<قارئ>.jz")
-    ap.add_argument("--aligned", required=True)
-    ap.add_argument("--surah", required=True, type=int)
+    ap.add_argument("--aligned", required=True, nargs="+", help="ملفات المحاذاة بترتيب السور")
+    ap.add_argument("--surah", required=True, help="سورة واحدة أو أكثر بفواصل، مثل 3,4")
     ap.add_argument("--out", required=True)
     a = ap.parse_args()
     try:
-        report = build(a.parent, a.parent_sha, a.aligned, a.surah, a.out, parent_key=a.parent_key)
+        surahs = [int(s) for s in a.surah.split(",")]
+        report = build(a.parent, a.parent_sha, a.aligned, surahs, a.out, parent_key=a.parent_key)
     except (ValueError, OSError, KeyError, TypeError) as ex:
         raise SystemExit(f"⛔ {ex}") from ex
     print(json.dumps(report, ensure_ascii=False))
