@@ -42,5 +42,13 @@ class Determinism(unittest.TestCase):
         self.assertIn("_ensure_model()", src.split("def probe(")[1].split("\n")[1])
 
 
+    def test_clip_covers_measured_true_shift(self):
+        # الحارثي 89 الصادق: الآيةُ بعد المدخل بـ3908م.ث ⇒ آخرُها بعد نهاية المدخل بالمقدار نفسه تقريباً.
+        # مقطعٌ لا يغطّيه يبتر الآيةَ فتنهار الثقةُ إلى 0.0 ويُفلت العطب.
+        sys.path.insert(0, str(HERE))
+        P = importlib.import_module("ctc_opener_probe")
+        self.assertGreaterEqual(P.clip_end_ms(10000) - 10000, 3908 + 1500)
+
+
 if __name__ == "__main__":
     unittest.main()
