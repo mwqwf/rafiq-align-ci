@@ -188,7 +188,136 @@ def truncated_header_error(idx, tails):
     tr = idx.get("transform") if isinstance(idx.get("transform"), dict) else {}
     tt = (tr or {}).get("truncatedTail") or {}
     miss = idx.get("missing") or {}
-    ids = set(mis…5339 tokens truncated…sus_surahs`).
+    ids = set(miss.get("ids") or [])
+    excused = int((miss.get("byReason") or {}).get("source_truncated", 0))
+    need = 0
+    for s, n in tails.items():
+        rec = tt.get(str(s))
+        if not isinstance(rec, dict) or rec.get("published") != n \
+                or rec.get("absentFrom") != n + 1 or rec.get("absentTo") != AYAH_COUNTS[s - 1] \
+                or rec.get("reason") != "source_truncated":
+            return f"⛔ س{s}: الترويسة لا تُعلن الذيلَ المبتور {n + 1}..{AYAH_COUNTS[s - 1]} بسبب source_truncated"
+        tail = {f"{s}:{k}" for k in range(n + 1, AYAH_COUNTS[s - 1] + 1)}
+        if not tail <= ids:
+            return f"⛔ س{s}: وسمُ الاكتمال لا يعدّ الذيلَ المبتور كلَّه غائباً"
+        need += len(tail)
+    if excused < need:
+        return f"⛔ byReason.source_truncated = {excused} والذيلُ المبتور {need}"
+    return None
+
+
+def apply_dispatch_policy(index, enabled, parent_key, parent_sha):
+    """سياسة جدولة للتحويل الحالي فقط؛ لا تغير مدخلاً أو حارس جودة."""
+    index["transform"].pop("qaDispatch", None)
+    if enabled:
+        sys.path.insert(0, str(HERE.parent / "ci_fleet"))
+        from qa_dispatch_guard import manual_qa_policy
+        index["transform"]["qaDispatch"] = manual_qa_policy(index, parent_key, parent_sha)
+
+
+def main():
+    ap = argparse.ArgumentParser()
+    ap.add_argument("--file", required=True, help="ملفّ المنتَج المحلّي (.jz)")
+    ap.add_argument("--parent", required=True,
+                    help="مفتاحُ الأصل: منشورٌ في timings/ أو مرشَّحٌ في "
+                         "timings-staging/ لقارئه نفسِه")
+    ap.add_argument("--parent-sha", required=True)
+    ap.add_argument("--op", required=True, help="اسمُ التحويل، مثل basmala_fix")
+    ap.add_argument("--reason", required=True)
+    ap.add_argument("--by", default="github-8e", help="صانعُ التحويل")
+    ap.add_argument("--metadata-only", metavar="سبب",
+                    help="تصحيحُ حقولِ الترويسة وحدها والمداخلُ متطابقةٌ بايتاً "
+                         "— يجب أن يذكر السببُ الحقلَ والقياسَ الذي بُني عليه")
+    ap.add_argument("--allow-inherited-gaps", action="store_true",
+                    help="(ctc_gapsplit وحده) سورةٌ مُعادةٌ ناقصةٌ تُقبل إن كان كلُّ غائبٍ فيها غائباً في الأب "
+                         "ولا غائبَ جديد، وزادت مداخلُها زيادةً فعليّة")
+    # ⭐ **أمرُ المالك 2026-10-02** («إن كان البترُ في أوّل السورة أو آخرها فلا بأس يُعلَن
+    #    ذلك، لكن إن كان في الوسط تُلغى السورةُ بأكملها»): بابٌ ضيّقٌ ثانٍ لسورةٍ مُعادةٍ
+    #    ناقصةٍ — يُقبل **فقط** إن كانت مداخلُها بادئةً متّصلةً 1..N، وN مسمّاةٌ هنا صراحةً،
+    #    والباقي مسجَّلٌ `source_truncated` في الترويسة (`transform.truncatedTail` + `missing`).
+    #    والحارسُ الأصل يبقى كما هو بلا هذا الخيار.
+    ap.add_argument("--owner-truncated-tail", default="",
+                    help="سورةٌ مبتورةُ الذيل تُقبل بادئتُها 1..N وحدها: «24:30» — بادئةٌ "
+                         "متّصلةٌ بلا فجوة، وN المسمّاةُ هي الحدّ، والذيلُ معلَنٌ source_truncated")
+    ap.add_argument("--yes", action="store_true")
+    ap.add_argument("--manual-qa-only", action="store_true",
+                    help="حصر هذا المرشح في فحوص يدوية مجانية؛ لا يعفيه من أي حارس")
+    a = ap.parse_args()
+    tails = parse_tails(a.owner_truncated_tail)
+    if tails and a.allow_inherited_gaps:
+        raise SystemExit("⛔ --owner-truncated-tail لا يجتمع مع --allow-inherited-gaps")
+
+    cl, bucket = promote.s3()
+    blob = Path(a.file).read_bytes()
+    sha = hashlib.sha256(blob).hexdigest()
+    idx = json.loads(gzip.decompress(blob).decode("utf-8"))
+
+    # ⛔ **الأصلُ من الاختبار مقبولٌ لقارئه نفسِه** (‏حكم المشرف 2026-09-05،
+    #    كسرُ الحلقة المغلقة): كان الأصلُ يجب أن يكون منشوراً، فانحبس ثلاثةُ
+    #    فهارسَ أُعيد بناؤها (99.7–99.97%) خلف منشورٍ تغطيتُه 45–86%: تمريرةُ
+    #    البسملة لا تقصّ (‏امتناعٌ صواب)، و`realign_surah` على المنشور يُخرج
+    #    مختلطَ الجيل فيُردّ، والبصمةُ الجيّدة لا تُرقّى لبسملةٍ واحدة. فكلُّ
+    #    بابٍ مغلقٌ بحارسٍ محقّ. ⇒ يُفتح بابٌ **بالحُرّاس نفسِها كلِّها**، لا
+    #    بتجاوزٍ ولا بنشرِ عيبٍ ولو ساعات (‏الموثوقيةُ فوق العدد، أمر المالك).
+    if a.parent.startswith("timings-staging/"):
+        # والحارسُ هنا: الرواية والمعرّف يُستخرجان من المفتاح ويُطابَقان
+        # بترويسة المنتَج — فلا يُرقّع فهرسُ قارئٍ بمخرَجِ قارئٍ آخر.
+        parts = a.parent.split("/")
+        if len(parts) != 3:
+            raise SystemExit(f"⛔ مفتاحُ اختبارٍ غيرُ سويّ: {a.parent}")
+        p_riw, p_rid = parts[1], parts[2].split(".")[0]
+        if idx.get("riwaya") != p_riw or idx.get("reciterId") != p_rid:
+            raise SystemExit(f"⛔ المنتَج يصف {idx.get('riwaya')}/{idx.get('reciterId')} "
+                             f"والأصلُ {p_riw}/{p_rid} — لا يُرقّع قارئٌ بمخرَجِ آخر")
+    elif not a.parent.startswith("timings/"):
+        raise SystemExit(f"⛔ الأصلُ ليس منشوراً ولا في الاختبار: {a.parent}")
+    pbody = cl.get_object(Bucket=bucket, Key=a.parent)["Body"].read()
+    psha = hashlib.sha256(pbody).hexdigest()
+    if not psha.startswith(a.parent_sha.rstrip(".")):
+        raise SystemExit(f"⛔ الأصل بصمتُه {psha[:16]} لا {a.parent_sha}")
+    pidx = json.loads(gzip.decompress(pbody).decode("utf-8"))
+
+    n_new, n_old = len(idx.get("entries") or []), len(pidx.get("entries") or [])
+    # ⛔ **استثناءُ `realign_surah` وحدَه (‏قرار المشرف github-10، 2026-09-05):**
+    #    القاعدةُ «التحويلُ يزيح حدوداً ولا يحذف آيات» بُنيت لتحويلاتٍ تُعدّل
+    #    الحدود (‏`basmala_fix`)، و**إعادةُ محاذاة سورةٍ تُعيد مداخلَ غائبة** —
+    #    فاختلافُ العدد فيها **هو المقصود** لا علامةُ خللٍ خفيّ.
+    #    ⛔ ولا يُرفع الحارسُ بل **يُشدَّد**: بدل «تساوٍ» يُشترط أن يكون الفرقُ
+    #    **مطابقاً حسابياً** لعدد آي السور المسمّاة في `--op`، وألّا يمسّ
+    #    التحويلُ مدخلاً خارجها. فمن أعاد سورةً وحذف أخرى صامتاً يُردّ هنا.
+    #    و`source_timing_splice:<سور>` يدخل البابَ نفسَه **بالحُرّاس نفسِها
+    #    كلِّها**: هو أيضاً يُعيد اشتقاقَ حدود سورةٍ بعينها فيُعيد مداخلَ غائبة
+    #    (‏koshi_warsh/37: 181 ⇐ 182)، والفرقُ في **مصدر الحدود** لا في أثرها.
+    #    ⛔ ولا يُسمَّى «إعادةَ محاذاة» تجوّزاً: الترويسةُ سجلُّ نسبٍ يُقرأ منه
+    #    جيلُ الفهرس، فاسمٌ كاذبٌ فيها أسوأ من غيابه (‏درسُ «مجهولِ الجيل»).
+    realigned = []
+    # أسماء الدمج من سجل الحارس نفسه؛ لا اسم جديد في موضع يغيب عن الآخر.
+    splice_names = "|".join(re.escape(n) for n in sorted(promote.SPLICE_OPS))
+    _m = re.match(rf"^(?:realign_surah|source_timing_splice|{splice_names}):([\d,\s]+)$", a.op.strip())
+    if _m:
+        realigned = sorted({int(x) for x in re.findall(r"\d+", _m.group(1))})
+    # ⛔ **دمجُ محرّكين لا يُرفع إلا معلَناً سورةً سورة** (‏إذن المالك 2026-09-24):
+    #    ‏`ctc_surah_splice` يجب أن يحمل `engineBySurah` يسمّي **كلَّ** سورةٍ في
+    #    التحويل بمحرّكٍ غير محرّك الفهرس، **ولا سورةً سواها** إلا ما ورثه
+    #    الأصلُ نفسُه — فحارسُ الترقية يطلب إحصاءً شاملاً لما في هذا السجلّ،
+    #    وسجلٌّ ناقصٌ كان يُعفي سورةً من السماع.
+    #    و`whisper_surah_splice` (‏سورُ Whisper في فهرس CTC) بالحُرّاس نفسِها حرفاً،
+    #    ⛔ **ويُشدَّد الاثنان**: السورةُ المسمّاةُ يجب أن تُعلَن **بمحرّك تحويلها
+    #    بعينه** (‏`promote.SPLICE_OPS`) — فدمجُ Whisper معلَناً بـCTC أو العكسُ
+    #    كذبٌ في سجلّ النسب يُردّ، ولا يكفي أنّه «غيرُ محرّك الفهرس».
+    ebs = idx.get("engineBySurah") or {}
+    sys.path.insert(0, str(HERE.parent / 'alignment_v3'))
+    from quran_ctc_model import records_error
+    model_error = records_error(idx)
+    if model_error:
+        raise SystemExit('⛔ ' + model_error)
+    p_ebs = pidx.get("engineBySurah") or {}
+    # ⛔ **والمصدرُ البديلُ يُعلَن سورةً سورة** (‏2026-09-28): دمجُ سورةٍ من تسجيلٍ
+    #    آخر للقارئ نفسِه (‏`source_overrides.json`) في فهرسٍ بالمحرّك نفسِه لا يُكتب
+    #    في `engineBySurah` — فلا يمرّ إلا مُعلَناً في `sourceBySurah` بقالبه، وكلُّ
+    #    مدخلٍ في السورة يُشير إلى ذلك القالب بعينه، والصوتُ غيرُ صوت الأصل فعلاً.
+    #    وهذا بابٌ **أضيق** لا أوسع: يُضاف إلى إعلان المحرّك ولا يُعفي منه، والسورةُ
+    #    المعلَنةُ مصدراً تدخل الإحصاءَ الشامل (‏`promote.census_surahs`).
     sbs = idx.get("sourceBySurah") or {}
     p_sbs = pidx.get("sourceBySurah") or {}
     if not isinstance(sbs, dict) or not all(isinstance(v, str) and v for v in sbs.values()):
