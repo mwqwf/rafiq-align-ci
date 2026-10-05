@@ -1,0 +1,12 @@
+{
+  "action": "tool",
+  "tool": "index_qa/export_index_bytes.py",
+  "args": [
+    "--key",
+    "timings/hafs/noah.jz",
+    "--expect-sha",
+    "b14ed7f3eec4e69fb0e328efeb6eff72042f49a4588b3e09d71c8b15850a3d41",
+    "--out",
+    "ops/out/codex-noah-parent-20261005.json"
+  ]
+}
