@@ -376,6 +376,7 @@ def audit(snapshot, reports=()):
     return {"version": "completion-audit-2", "ready": not errors and bool(rows) and all(r["ready"] for r in rows),
             "timestampUtc": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
             "snapshotTimestampUtc": snapshot.get("ts"), "errors": errors, "summary": summary, "indexes": rows,
+            "stability": snapshot.get("stability"),
             "measurementPolicy": {"startToleranceMs": TOL_MS, "minimumAnchorQuality": MIN_Q,
                                   "repeatSimilarity": REPEAT_SIM, "repeatNearMs": REPEAT_NEAR_MS,
                                   "unmeasuredStartsAllowed": 0, "endEvidenceSupported": ["independentWindowCtc"]},
@@ -384,23 +385,38 @@ def audit(snapshot, reports=()):
                        "موضع البدء مقارن بتقدير CTC بهامش 1500م.ث؛ ليس شهادة دقة سمعية مطلقة",
                        "لا قياس جديد للصوت ولا إثبات صوت القارئ من CTC",
                        "لا يتجاوز هذا التقرير بوابات المطالع والملوح والإحصاء والترقية القائمة",
+                       "الجرد قراءات متتابعة ومقارنة ETag بسرد أخير؛ ليس لقطة ذرية للدلو",
                        "النتيجة تخص البصمات المقروءة؛ أي ترقية لاحقة تستلزم إعادة التدقيق"]}
 
 
 def collect_live():
-    """GET/LIST/HEAD فقط. فشل قراءة أو تغير أثناء الجمع يمنع جاهزية الجرد."""
+    """GET/LIST فقط؛ تقابل ETag القراءات بالسرد الأخير، دون ادعاء لقطة ذرية."""
     import promote as P  # الصلاحيات موجودة في بيئة agent_cmd، لا تُنقل أو تُطبع
     client, bucket = P.s3()
-    errors, etags = [], {}
+    errors, etags, initial_listings = [], {}, {}
 
     def get(key):
         response = client.get_object(Bucket=bucket, Key=key)
         etags[key] = response.get("ETag")
         return response["Body"].read()
 
+    def list_objects(prefix):
+        return {o["Key"]: o for pg in client.get_paginator("list_objects_v2").paginate(Bucket=bucket, Prefix=prefix)
+                for o in pg.get("Contents", [])}
+
     def list_keys(prefix):
-        return sorted(o["Key"] for pg in client.get_paginator("list_objects_v2").paginate(Bucket=bucket, Prefix=prefix)
-                      for o in pg.get("Contents", []))
+        objects = list_objects(prefix)
+        initial_listings.setdefault(prefix, objects)
+        return sorted(objects)
+
+    def relevant(key):
+        if key in ("timings/manifest.json", "timings/frozen.txt"):
+            return True
+        if key.startswith("timings/"):
+            return key.endswith(".jz") and key.count("/") == 2
+        if key.startswith(("state-heard/", "state-census/")):
+            return key.endswith(".json")
+        return any(key.startswith(prefix) for prefix in P.STATE_PREFIXES) and "openers" in key and key.endswith(".json")
 
     side = {}
     for key in ("timings/manifest.json", "timings/frozen.txt"):
@@ -479,20 +495,38 @@ def collect_live():
                     reports.append((key, rep))
     print(f"قُرئت {len(reports)} خريطة/حزمة سماع؛ تُراجع ثبات البصمات", flush=True)
 
-    def check_stable(item):
-        key, etag = item
+    def final_list(prefix):
         try:
-            current = client.head_object(Bucket=bucket, Key=key).get("ETag")
-            return None if etag and current == etag else f"changedDuringAudit:{key}"
+            return prefix, list_objects(prefix), None
         except Exception as ex:
-            return f"stabilityError:{key}:{type(ex).__name__}"
+            return prefix, {}, f"stabilityListError:{prefix}:{type(ex).__name__}"
 
+    # كل صفحة LIST تحمل ETag؛ المقارنة نفسها كانت تتطلب HEAD لكل كائن.
+    # نعيد السرد لكل بادئة كاملة، ونحتفظ بفشل أي بادئة وبالإضافة والحذف.
+    final_objects, failed_prefixes = {}, []
     with ThreadPoolExecutor(max_workers=8) as pool:
-        errors.extend(e for e in pool.map(check_stable, list(etags.items())) if e)
-    if keys != [k for k in list_keys("timings/") if k.endswith(".jz") and k.count("/") == 2]:
-        errors.append("indexKeySetChangedDuringAudit")
+        for prefix, objects, error in pool.map(final_list, sorted(initial_listings)):
+            if error:
+                errors.append(error)
+                failed_prefixes.append(prefix)
+            else:
+                final_objects.update(objects)
+    for key, etag in sorted(etags.items()):
+        if key not in final_objects:
+            if not any(key.startswith(prefix) for prefix in failed_prefixes):
+                errors.append(f"deletedDuringAudit:{key}")
+        elif not etag or final_objects[key].get("ETag") != etag:
+            errors.append(f"changedDuringAudit:{key}")
+    initial_keys = {key for objects in initial_listings.values() for key in objects if relevant(key)}
+    final_keys = {key for key in final_objects if relevant(key)}
+    errors.extend(f"newObjectDuringAudit:{key}" for key in sorted(final_keys - initial_keys))
+    if "timings/" not in failed_prefixes:
+        if keys != sorted(k for k in final_keys if k.startswith("timings/") and k.endswith(".jz")):
+            errors.append("indexKeySetChangedDuringAudit")
     return {"ts": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()), "indexes": indexes,
-            "side": side, "errors": errors, "stableRead": not errors}, reports
+            "side": side, "errors": errors, "stableRead": not errors,
+            "stability": {"method": "get-etag-versus-final-list", "atomicSnapshot": False,
+                          "prefixes": sorted(initial_listings), "readObjects": len(etags)}}, reports
 
 
 def ayah_ranges(ids):
@@ -585,6 +619,7 @@ def summary_document(report):
         indexes.append(small)
     return {"version": report.get("version"), "ready": report.get("ready", False),
             "timestampUtc": report.get("timestampUtc"), "snapshotTimestampUtc": report.get("snapshotTimestampUtc"),
+            "stability": report.get("stability"),
             "summary": report.get("summary") or {}, "errors": report.get("errors") or [],
             "limits": report.get("limits") or [], "indexes": indexes}
 
