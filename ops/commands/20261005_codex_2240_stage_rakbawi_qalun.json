@@ -1,0 +1,20 @@
+{
+  "action": "tool",
+  "tool": "index_qa/stage_transform.py",
+  "args": [
+    "--file",
+    "ops/source-repair/candidates/codex-rakbawi-s13-s26-20261005.jz",
+    "--parent",
+    "timings/qalun/rakbawi_qalun.jz",
+    "--parent-sha",
+    "85886e2b1f665642a50ed6fb062f7ec06480849f6a6727fb95527ad1a613585b",
+    "--op",
+    "ctc_heardmap_splice:13,26",
+    "--reason",
+    "مرشح من أصل واحد ومحاذاة كاملة مثبتة ببصمات الصوت؛ اختبار مستقل مطلوب قبل أي اعتماد.",
+    "--by",
+    "codex",
+    "--manual-qa-only",
+    "--yes"
+  ]
+}

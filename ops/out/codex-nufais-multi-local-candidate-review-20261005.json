@@ -1,0 +1,2104 @@
+{
+  "generatedAtUtc": "2026-10-05T19:36:28.438193+00:00",
+  "candidatePath": "ops/source-repair/candidates/codex-nufais-s25-s41-s42-s82-20261005.jz",
+  "candidateSha256": "e88537de86c81010278685ea809bfcbba93210b618732a8913af12ab00972704",
+  "proposedStagingKey": "timings-staging/hafs/nufais.e88537de.jz",
+  "unpublishedLocalCandidate": true,
+  "parentPath": "ops/source-repair/parents/codex-hafs-nufais-e3d40dc9.jz",
+  "parentSha256": "e3d40dc931f9fc48c4e0f2daf9a8c3a939b80a606a205b1a2486cdebad8fa550",
+  "surahs": [
+    25,
+    41,
+    42,
+    82
+  ],
+  "checks": {
+    "parentShaMatches": true,
+    "candidateShaMatches": true,
+    "same6236Entries": true,
+    "orderedAyahIdsUnchanged": true,
+    "allOutsideSelectedIdentical": true,
+    "audioSha256Unchanged": true,
+    "sourceBySurahUnchanged": true,
+    "missingUnchanged": true,
+    "lowCountRecountMatches": true,
+    "historicalTransformPreserved": true,
+    "historicalMissingPreserved": true,
+    "modifiedSurahsExact": true,
+    "singleOriginalParent": true,
+    "surah25FullValidBounds": true,
+    "surah25ExactParentAudioAndUrl": true,
+    "surah41FullValidBounds": true,
+    "surah41ExactParentAudioAndUrl": true,
+    "surah42FullValidBounds": true,
+    "surah42ExactParentAudioAndUrl": true,
+    "surah82FullValidBounds": true,
+    "surah82ExactParentAudioAndUrl": true
+  },
+  "changes": {
+    "moved": 182,
+    "added": 0,
+    "removed": 0
+  },
+  "outsideEntries": 6033,
+  "previousKnownDeviations": [
+    {
+      "ayahId": "25:10",
+      "oldStartMs": 225300,
+      "newStartMs": 185180,
+      "previousMeasuredAnchorMs": 185382,
+      "oldDeviationMs": 39918,
+      "newDeviationAgainstPreviousAnchorMs": -202,
+      "earlierRun": "37330351258"
+    },
+    {
+      "ayahId": "25:13",
+      "oldStartMs": 287190,
+      "newStartMs": 272861,
+      "previousMeasuredAnchorMs": 272861,
+      "oldDeviationMs": 14329,
+      "newDeviationAgainstPreviousAnchorMs": 0,
+      "earlierRun": "37330351258"
+    },
+    {
+      "ayahId": "25:31",
+      "oldStartMs": 657353,
+      "newStartMs": 654794,
+      "previousMeasuredAnchorMs": 655294,
+      "oldDeviationMs": 2059,
+      "newDeviationAgainstPreviousAnchorMs": -500,
+      "earlierRun": "37330351258"
+    },
+    {
+      "ayahId": "25:50",
+      "oldStartMs": 969564,
+      "newStartMs": 971304,
+      "previousMeasuredAnchorMs": 971784,
+      "oldDeviationMs": -2220,
+      "newDeviationAgainstPreviousAnchorMs": -480,
+      "earlierRun": "37330351258"
+    },
+    {
+      "ayahId": "41:12",
+      "oldStartMs": 143935,
+      "newStartMs": 145452,
+      "previousMeasuredAnchorMs": 145937,
+      "oldDeviationMs": -2002,
+      "newDeviationAgainstPreviousAnchorMs": -485,
+      "earlierRun": "37330351258"
+    },
+    {
+      "ayahId": "41:43",
+      "oldStartMs": 728891,
+      "newStartMs": 730727,
+      "previousMeasuredAnchorMs": 731227,
+      "oldDeviationMs": -2336,
+      "newDeviationAgainstPreviousAnchorMs": -500,
+      "earlierRun": "37330351258"
+    },
+    {
+      "ayahId": "42:5",
+      "oldStartMs": 58327,
+      "newStartMs": 55156,
+      "previousMeasuredAnchorMs": 55656,
+      "oldDeviationMs": 2671,
+      "newDeviationAgainstPreviousAnchorMs": -500,
+      "earlierRun": "37330351258"
+    },
+    {
+      "ayahId": "42:29",
+      "oldStartMs": 723713,
+      "newStartMs": 725226,
+      "previousMeasuredAnchorMs": 725718,
+      "oldDeviationMs": -2005,
+      "newDeviationAgainstPreviousAnchorMs": -492,
+      "earlierRun": "37330351258"
+    },
+    {
+      "ayahId": "42:40",
+      "oldStartMs": 898130,
+      "newStartMs": 900418,
+      "previousMeasuredAnchorMs": 900894,
+      "oldDeviationMs": -2764,
+      "newDeviationAgainstPreviousAnchorMs": -476,
+      "earlierRun": "37330351258"
+    },
+    {
+      "ayahId": "42:53",
+      "oldStartMs": 1229510,
+      "newStartMs": 1233652,
+      "previousMeasuredAnchorMs": 1234133,
+      "oldDeviationMs": -4623,
+      "newDeviationAgainstPreviousAnchorMs": -481,
+      "earlierRun": "37330351258"
+    },
+    {
+      "ayahId": "82:1",
+      "oldStartMs": 6148,
+      "newStartMs": 3071,
+      "previousMeasuredAnchorMs": 3362,
+      "oldDeviationMs": 2786,
+      "newDeviationAgainstPreviousAnchorMs": -291,
+      "earlierRun": "37330351258"
+    },
+    {
+      "ayahId": "82:13",
+      "oldStartMs": 75018,
+      "newStartMs": 76568,
+      "previousMeasuredAnchorMs": 77066,
+      "oldDeviationMs": -2048,
+      "newDeviationAgainstPreviousAnchorMs": -498,
+      "earlierRun": "37330351258"
+    },
+    {
+      "ayahId": "82:17",
+      "oldStartMs": 103868,
+      "newStartMs": 106374,
+      "previousMeasuredAnchorMs": 106885,
+      "oldDeviationMs": -3017,
+      "newDeviationAgainstPreviousAnchorMs": -511,
+      "earlierRun": "37330351258"
+    }
+  ],
+  "sameModelEvidence": {
+    "25": {
+      "run": "37361715460",
+      "alignmentPath": "ops/out/codex-nufais25-alignment-37361715460.json",
+      "alignmentSha256": "7e69d55db4022cfee68141f0cd936fda1297f63f965de1092c32fc9a2f24d0f4",
+      "sourceUrl": "https://server16.mp3quran.net/nufais/Rewayat-Hafs-A-n-Assem/025.mp3",
+      "audioSha256": "1f35501e0d4cd3b3489f997c779f5859bd0f2fc8e233df0718dc4318b6661eea",
+      "entryCount": 77,
+      "totalMs": 1431849,
+      "firstEntry": {
+        "ayahIdx": 0,
+        "startMs": 9226,
+        "endMs": 20613,
+        "conf": 0.757,
+        "snapped": true,
+        "matched": 0,
+        "total": 9,
+        "heard": true,
+        "boundary": "window"
+      },
+      "lastEntry": {
+        "ayahIdx": 76,
+        "startMs": 1412155,
+        "endMs": 1426825,
+        "conf": 0.661,
+        "snapped": true,
+        "matched": 0,
+        "total": 12,
+        "heard": true,
+        "boundary": "window"
+      },
+      "tailAfterLastEndMs": 5024,
+      "issues": [
+        "الآية 11: حدُّ النافذة 0.5ث عن مِرساتها ⇒ narrow",
+        "الآية 12: حدُّ النافذة 0.5ث عن مِرساتها ⇒ narrow",
+        "الآية 13: حدُّ النافذة 0.0ث عن مِرساتها ⇒ anchor",
+        "الآية 17: حدُّ النافذة 0.5ث عن مِرساتها ⇒ narrow",
+        "الآية 18: حدُّ النافذة 0.5ث عن مِرساتها ⇒ narrow",
+        "الآية 23: حدُّ النافذة 0.5ث عن مِرساتها ⇒ narrow",
+        "الآية 24: حدُّ النافذة 0.0ث عن مِرساتها ⇒ narrow",
+        "الآية 37: حدُّ النافذة 0.0ث عن مِرساتها ⇒ anchor",
+        "الآية 38: حدُّ النافذة 0.5ث عن مِرساتها ⇒ narrow",
+        "الآية 39: حدُّ النافذة 0.2ث عن مِرساتها ⇒ narrow",
+        "الآية 40: حدُّ النافذة 0.0ث عن مِرساتها ⇒ anchor",
+        "الآية 48: حدُّ النافذة 0.5ث عن مِرساتها ⇒ narrow",
+        "الآية 59: حدُّ النافذة 0.0ث عن مِرساتها ⇒ anchor",
+        "الآية 60: حدُّ النافذة 0.3ث عن مِرساتها ⇒ narrow",
+        "الآية 71: حدُّ النافذة 0.5ث عن مِرساتها ⇒ narrow",
+        "الآية 72: حدُّ النافذة 0.5ث عن مِرساتها ⇒ narrow",
+        "مدة شاذة لآية 10: 63030م.ث لـ59 حرفاً"
+      ],
+      "lowConfidenceAyahs": [
+        6,
+        10,
+        13,
+        20,
+        22,
+        24,
+        30,
+        37,
+        40,
+        47,
+        49,
+        59,
+        60
+      ],
+      "builderReportedBands": {
+        "HIGH": 4,
+        "MED": 63,
+        "LOW": 10
+      },
+      "sameModelConsistency": {
+        "independentQualityCertificate": false,
+        "rowStatuses": {
+          "ok": 77
+        },
+        "verdict": null,
+        "rows": [
+          {
+            "ayah": 1,
+            "startMs": 9226,
+            "anchorMs": 9726,
+            "q": 0.884,
+            "devMs": -500,
+            "status": "ok"
+          },
+          {
+            "ayah": 2,
+            "startMs": 20613,
+            "anchorMs": 21114,
+            "q": 0.943,
+            "devMs": -501,
+            "status": "ok"
+          },
+          {
+            "ayah": 3,
+            "startMs": 44209,
+            "anchorMs": 44709,
+            "q": 0.934,
+            "devMs": -500,
+            "status": "ok"
+          },
+          {
+            "ayah": 4,
+            "startMs": 77211,
+            "anchorMs": 77711,
+            "q": 0.922,
+            "devMs": -500,
+            "status": "ok"
+          },
+          {
+            "ayah": 5,
+            "startMs": 101760,
+            "anchorMs": 101927,
+            "q": 0.913,
+            "devMs": -167,
+            "status": "ok"
+          },
+          {
+            "ayah": 6,
+            "startMs": 114640,
+            "anchorMs": 114796,
+            "q": 0.898,
+            "devMs": -156,
+            "status": "ok"
+          },
+          {
+            "ayah": 7,
+            "startMs": 130870,
+            "anchorMs": 131106,
+            "q": 0.943,
+            "devMs": -236,
+            "status": "ok"
+          },
+          {
+            "ayah": 8,
+            "startMs": 149479,
+            "anchorMs": 149919,
+            "q": 0.906,
+            "devMs": -440,
+            "status": "ok"
+          },
+          {
+            "ayah": 9,
+            "startMs": 173220,
+            "anchorMs": 173334,
+            "q": 0.78,
+            "devMs": -114,
+            "status": "ok"
+          },
+          {
+            "ayah": 10,
+            "startMs": 185180,
+            "anchorMs": 185382,
+            "q": 0.949,
+            "devMs": -202,
+            "status": "ok"
+          },
+          {
+            "ayah": 11,
+            "startMs": 248210,
+            "anchorMs": 248384,
+            "q": 0.949,
+            "devMs": -174,
+            "status": "ok"
+          },
+          {
+            "ayah": 12,
+            "startMs": 259260,
+            "anchorMs": 259492,
+            "q": 0.865,
+            "devMs": -232,
+            "status": "ok"
+          },
+          {
+            "ayah": 13,
+            "startMs": 272861,
+            "anchorMs": 272861,
+            "q": 0.857,
+            "devMs": 0,
+            "status": "ok"
+          },
+          {
+            "ayah": 14,
+            "startMs": 300710,
+            "anchorMs": 300879,
+            "q": 0.838,
+            "devMs": -169,
+            "status": "ok"
+          },
+          {
+            "ayah": 15,
+            "startMs": 313307,
+            "anchorMs": 313808,
+            "q": 0.878,
+            "devMs": -501,
+            "status": "ok"
+          },
+          {
+            "ayah": 16,
+            "startMs": 334541,
+            "anchorMs": 335042,
+            "q": 0.973,
+            "devMs": -501,
+            "status": "ok"
+          },
+          {
+            "ayah": 17,
+            "startMs": 356217,
+            "anchorMs": 356736,
+            "q": 0.909,
+            "devMs": -519,
+            "status": "ok"
+          },
+          {
+            "ayah": 18,
+            "startMs": 391380,
+            "anchorMs": 391499,
+            "q": 0.893,
+            "devMs": -119,
+            "status": "ok"
+          },
+          {
+            "ayah": 19,
+            "startMs": 419480,
+            "anchorMs": 419998,
+            "q": 0.877,
+            "devMs": -518,
+            "status": "ok"
+          },
+          {
+            "ayah": 20,
+            "startMs": 439071,
+            "anchorMs": 439571,
+            "q": 0.917,
+            "devMs": -500,
+            "status": "ok"
+          },
+          {
+            "ayah": 21,
+            "startMs": 479217,
+            "anchorMs": 479738,
+            "q": 0.927,
+            "devMs": -521,
+            "status": "ok"
+          },
+          {
+            "ayah": 22,
+            "startMs": 506835,
+            "anchorMs": 507356,
+            "q": 0.9,
+            "devMs": -521,
+            "status": "ok"
+          },
+          {
+            "ayah": 23,
+            "startMs": 525649,
+            "anchorMs": 526149,
+            "q": 0.778,
+            "devMs": -500,
+            "status": "ok"
+          },
+          {
+            "ayah": 24,
+            "startMs": 541840,
+            "anchorMs": 541799,
+            "q": 0.879,
+            "devMs": 41,
+            "status": "ok"
+          },
+          {
+            "ayah": 25,
+            "startMs": 557129,
+            "anchorMs": 557629,
+            "q": 0.944,
+            "devMs": -500,
+            "status": "ok"
+          },
+          {
+            "ayah": 26,
+            "startMs": 572060,
+            "anchorMs": 572539,
+            "q": 0.86,
+            "devMs": -479,
+            "status": "ok"
+          },
+          {
+            "ayah": 27,
+            "startMs": 587020,
+            "anchorMs": 587189,
+            "q": 0.896,
+            "devMs": -169,
+            "status": "ok"
+          },
+          {
+            "ayah": 28,
+            "startMs": 603750,
+            "anchorMs": 603620,
+            "q": 0.778,
+            "devMs": 130,
+            "status": "ok"
+          },
+          {
+            "ayah": 29,
+            "startMs": 614647,
+            "anchorMs": 615148,
+            "q": 0.778,
+            "devMs": -501,
+            "status": "ok"
+          },
+          {
+            "ayah": 30,
+            "startMs": 631438,
+            "anchorMs": 631939,
+            "q": 0.975,
+            "devMs": -501,
+            "status": "ok"
+          },
+          {
+            "ayah": 31,
+            "startMs": 654794,
+            "anchorMs": 655294,
+            "q": 0.898,
+            "devMs": -500,
+            "status": "ok"
+          },
+          {
+            "ayah": 32,
+            "startMs": 675127,
+            "anchorMs": 675628,
+            "q": 0.91,
+            "devMs": -501,
+            "status": "ok"
+          },
+          {
+            "ayah": 33,
+            "startMs": 694060,
+            "anchorMs": 694160,
+            "q": 0.972,
+            "devMs": -100,
+            "status": "ok"
+          },
+          {
+            "ayah": 34,
+            "startMs": 702160,
+            "anchorMs": 702385,
+            "q": 0.896,
+            "devMs": -225,
+            "status": "ok"
+          },
+          {
+            "ayah": 35,
+            "startMs": 723710,
+            "anchorMs": 723880,
+            "q": 0.95,
+            "devMs": -170,
+            "status": "ok"
+          },
+          {
+            "ayah": 36,
+            "startMs": 734200,
+            "anchorMs": 734307,
+            "q": 0.915,
+            "devMs": -107,
+            "status": "ok"
+          },
+          {
+            "ayah": 37,
+            "startMs": 746300,
+            "anchorMs": 746635,
+            "q": 0.864,
+            "devMs": -335,
+            "status": "ok"
+          },
+          {
+            "ayah": 38,
+            "startMs": 766160,
+            "anchorMs": 766308,
+            "q": 0.784,
+            "devMs": -148,
+            "status": "ok"
+          },
+          {
+            "ayah": 39,
+            "startMs": 777130,
+            "anchorMs": 777315,
+            "q": 0.844,
+            "devMs": -185,
+            "status": "ok"
+          },
+          {
+            "ayah": 40,
+            "startMs": 789880,
+            "anchorMs": 790104,
+            "q": 0.956,
+            "devMs": -224,
+            "status": "ok"
+          },
+          {
+            "ayah": 41,
+            "startMs": 830310,
+            "anchorMs": 830811,
+            "q": 0.841,
+            "devMs": -501,
+            "status": "ok"
+          },
+          {
+            "ayah": 42,
+            "startMs": 842760,
+            "anchorMs": 843239,
+            "q": 0.941,
+            "devMs": -479,
+            "status": "ok"
+          },
+          {
+            "ayah": 43,
+            "startMs": 863472,
+            "anchorMs": 863973,
+            "q": 0.944,
+            "devMs": -501,
+            "status": "ok"
+          },
+          {
+            "ayah": 44,
+            "startMs": 877101,
+            "anchorMs": 877602,
+            "q": 0.926,
+            "devMs": -501,
+            "status": "ok"
+          },
+          {
+            "ayah": 45,
+            "startMs": 896294,
+            "anchorMs": 896814,
+            "q": 0.893,
+            "devMs": -520,
+            "status": "ok"
+          },
+          {
+            "ayah": 46,
+            "startMs": 911950,
+            "anchorMs": 912165,
+            "q": 0.905,
+            "devMs": -215,
+            "status": "ok"
+          },
+          {
+            "ayah": 47,
+            "startMs": 920080,
+            "anchorMs": 920310,
+            "q": 0.875,
+            "devMs": -230,
+            "status": "ok"
+          },
+          {
+            "ayah": 48,
+            "startMs": 933320,
+            "anchorMs": 933559,
+            "q": 0.942,
+            "devMs": -239,
+            "status": "ok"
+          },
+          {
+            "ayah": 49,
+            "startMs": 950980,
+            "anchorMs": 951291,
+            "q": 0.932,
+            "devMs": -311,
+            "status": "ok"
+          },
+          {
+            "ayah": 50,
+            "startMs": 971304,
+            "anchorMs": 971784,
+            "q": 0.881,
+            "devMs": -480,
+            "status": "ok"
+          },
+          {
+            "ayah": 51,
+            "startMs": 985190,
+            "anchorMs": 985373,
+            "q": 0.923,
+            "devMs": -183,
+            "status": "ok"
+          },
+          {
+            "ayah": 52,
+            "startMs": 992760,
+            "anchorMs": 992938,
+            "q": 0.871,
+            "devMs": -178,
+            "status": "ok"
+          },
+          {
+            "ayah": 53,
+            "startMs": 1004526,
+            "anchorMs": 1005026,
+            "q": 0.891,
+            "devMs": -500,
+            "status": "ok"
+          },
+          {
+            "ayah": 54,
+            "startMs": 1025119,
+            "anchorMs": 1025620,
+            "q": 0.848,
+            "devMs": -501,
+            "status": "ok"
+          },
+          {
+            "ayah": 55,
+            "startMs": 1040560,
+            "anchorMs": 1040710,
+            "q": 0.927,
+            "devMs": -150,
+            "status": "ok"
+          },
+          {
+            "ayah": 56,
+            "startMs": 1056000,
+            "anchorMs": 1056500,
+            "q": 0.913,
+            "devMs": -500,
+            "status": "ok"
+          },
+          {
+            "ayah": 57,
+            "startMs": 1065710,
+            "anchorMs": 1065806,
+            "q": 0.976,
+            "devMs": -96,
+            "status": "ok"
+          },
+          {
+            "ayah": 58,
+            "startMs": 1082360,
+            "anchorMs": 1082598,
+            "q": 0.942,
+            "devMs": -238,
+            "status": "ok"
+          },
+          {
+            "ayah": 59,
+            "startMs": 1116740,
+            "anchorMs": 1116780,
+            "q": 0.912,
+            "devMs": -40,
+            "status": "ok"
+          },
+          {
+            "ayah": 60,
+            "startMs": 1150440,
+            "anchorMs": 1150663,
+            "q": 0.967,
+            "devMs": -223,
+            "status": "ok"
+          },
+          {
+            "ayah": 61,
+            "startMs": 1172197,
+            "anchorMs": 1172677,
+            "q": 0.935,
+            "devMs": -480,
+            "status": "ok"
+          },
+          {
+            "ayah": 62,
+            "startMs": 1187067,
+            "anchorMs": 1187567,
+            "q": 0.918,
+            "devMs": -500,
+            "status": "ok"
+          },
+          {
+            "ayah": 63,
+            "startMs": 1199976,
+            "anchorMs": 1200476,
+            "q": 0.864,
+            "devMs": -500,
+            "status": "ok"
+          },
+          {
+            "ayah": 64,
+            "startMs": 1213980,
+            "anchorMs": 1214325,
+            "q": 0.962,
+            "devMs": -345,
+            "status": "ok"
+          },
+          {
+            "ayah": 65,
+            "startMs": 1221890,
+            "anchorMs": 1222150,
+            "q": 0.915,
+            "devMs": -260,
+            "status": "ok"
+          },
+          {
+            "ayah": 66,
+            "startMs": 1240142,
+            "anchorMs": 1239402,
+            "q": 0.947,
+            "devMs": 740,
+            "status": "ok"
+          },
+          {
+            "ayah": 67,
+            "startMs": 1248640,
+            "anchorMs": 1248848,
+            "q": 0.872,
+            "devMs": -208,
+            "status": "ok"
+          },
+          {
+            "ayah": 68,
+            "startMs": 1262977,
+            "anchorMs": 1263478,
+            "q": 0.918,
+            "devMs": -501,
+            "status": "ok"
+          },
+          {
+            "ayah": 69,
+            "startMs": 1290055,
+            "anchorMs": 1290556,
+            "q": 0.765,
+            "devMs": -501,
+            "status": "ok"
+          },
+          {
+            "ayah": 70,
+            "startMs": 1299100,
+            "anchorMs": 1299321,
+            "q": 0.955,
+            "devMs": -221,
+            "status": "ok"
+          },
+          {
+            "ayah": 71,
+            "startMs": 1339408,
+            "anchorMs": 1339928,
+            "q": 1.0,
+            "devMs": -520,
+            "status": "ok"
+          },
+          {
+            "ayah": 72,
+            "startMs": 1349520,
+            "anchorMs": 1349715,
+            "q": 0.905,
+            "devMs": -195,
+            "status": "ok"
+          },
+          {
+            "ayah": 73,
+            "startMs": 1358400,
+            "anchorMs": 1358901,
+            "q": 0.773,
+            "devMs": -501,
+            "status": "ok"
+          },
+          {
+            "ayah": 74,
+            "startMs": 1371830,
+            "anchorMs": 1372030,
+            "q": 0.887,
+            "devMs": -200,
+            "status": "ok"
+          },
+          {
+            "ayah": 75,
+            "startMs": 1389430,
+            "anchorMs": 1389621,
+            "q": 0.907,
+            "devMs": -191,
+            "status": "ok"
+          },
+          {
+            "ayah": 76,
+            "startMs": 1403350,
+            "anchorMs": 1403531,
+            "q": 0.92,
+            "devMs": -181,
+            "status": "ok"
+          },
+          {
+            "ayah": 77,
+            "startMs": 1412155,
+            "anchorMs": 1412657,
+            "q": 0.978,
+            "devMs": -502,
+            "status": "ok"
+          }
+        ]
+      }
+    },
+    "41": {
+      "run": "37361728728",
+      "alignmentPath": "ops/out/codex-nufais41-alignment-37361728728.json",
+      "alignmentSha256": "89f730e46c30bc6f4c17125afb23f206c68f397aa78c529e2e82f9969502eefe",
+      "sourceUrl": "https://server16.mp3quran.net/nufais/Rewayat-Hafs-A-n-Assem/041.mp3",
+      "audioSha256": "8b95b69da080ad343b141915aca95138923e45438b70a2c9a791b100d01d0b60",
+      "entryCount": 54,
+      "totalMs": 1013315,
+      "firstEntry": {
+        "ayahIdx": 0,
+        "startMs": 4010,
+        "endMs": 9500,
+        "conf": 0.717,
+        "snapped": true,
+        "matched": 0,
+        "total": 1,
+        "heard": true,
+        "boundary": "window"
+      },
+      "lastEntry": {
+        "ayahIdx": 53,
+        "startMs": 986480,
+        "endMs": 1003849,
+        "conf": 0.738,
+        "snapped": true,
+        "matched": 0,
+        "total": 12,
+        "heard": true,
+        "boundary": "window"
+      },
+      "tailAfterLastEndMs": 9466,
+      "issues": [
+        "الآية 24: حدُّ النافذة 0.5ث عن مِرساتها ⇒ narrow",
+        "الآية 32: حدُّ النافذة 0.0ث عن مِرساتها ⇒ anchor"
+      ],
+      "lowConfidenceAyahs": [
+        10,
+        11,
+        13,
+        14,
+        15,
+        16,
+        18,
+        19,
+        20,
+        21,
+        23,
+        27,
+        28,
+        29,
+        30,
+        31,
+        32,
+        38,
+        40,
+        51
+      ],
+      "builderReportedBands": {
+        "MED": 43,
+        "LOW": 10,
+        "HIGH": 1
+      },
+      "sameModelConsistency": {
+        "independentQualityCertificate": false,
+        "rowStatuses": {
+          "ok": 54
+        },
+        "verdict": null,
+        "rows": [
+          {
+            "ayah": 1,
+            "startMs": 4010,
+            "anchorMs": 4142,
+            "q": 1.0,
+            "devMs": -132,
+            "status": "ok"
+          },
+          {
+            "ayah": 2,
+            "startMs": 9500,
+            "anchorMs": 9726,
+            "q": 0.947,
+            "devMs": -226,
+            "status": "ok"
+          },
+          {
+            "ayah": 3,
+            "startMs": 14440,
+            "anchorMs": 14689,
+            "q": 0.903,
+            "devMs": -249,
+            "status": "ok"
+          },
+          {
+            "ayah": 4,
+            "startMs": 24230,
+            "anchorMs": 24376,
+            "q": 0.97,
+            "devMs": -146,
+            "status": "ok"
+          },
+          {
+            "ayah": 5,
+            "startMs": 32154,
+            "anchorMs": 32641,
+            "q": 0.932,
+            "devMs": -487,
+            "status": "ok"
+          },
+          {
+            "ayah": 6,
+            "startMs": 50899,
+            "anchorMs": 51394,
+            "q": 0.945,
+            "devMs": -495,
+            "status": "ok"
+          },
+          {
+            "ayah": 7,
+            "startMs": 71895,
+            "anchorMs": 72388,
+            "q": 0.943,
+            "devMs": -493,
+            "status": "ok"
+          },
+          {
+            "ayah": 8,
+            "startMs": 79261,
+            "anchorMs": 79753,
+            "q": 0.868,
+            "devMs": -492,
+            "status": "ok"
+          },
+          {
+            "ayah": 9,
+            "startMs": 88308,
+            "anchorMs": 88799,
+            "q": 0.984,
+            "devMs": -491,
+            "status": "ok"
+          },
+          {
+            "ayah": 10,
+            "startMs": 103490,
+            "anchorMs": 103729,
+            "q": 0.937,
+            "devMs": -239,
+            "status": "ok"
+          },
+          {
+            "ayah": 11,
+            "startMs": 125330,
+            "anchorMs": 125523,
+            "q": 0.939,
+            "devMs": -193,
+            "status": "ok"
+          },
+          {
+            "ayah": 12,
+            "startMs": 145452,
+            "anchorMs": 145937,
+            "q": 0.941,
+            "devMs": -485,
+            "status": "ok"
+          },
+          {
+            "ayah": 13,
+            "startMs": 169490,
+            "anchorMs": 169853,
+            "q": 0.974,
+            "devMs": -363,
+            "status": "ok"
+          },
+          {
+            "ayah": 14,
+            "startMs": 181501,
+            "anchorMs": 181981,
+            "q": 0.922,
+            "devMs": -480,
+            "status": "ok"
+          },
+          {
+            "ayah": 15,
+            "startMs": 209790,
+            "anchorMs": 210000,
+            "q": 0.96,
+            "devMs": -210,
+            "status": "ok"
+          },
+          {
+            "ayah": 16,
+            "startMs": 235797,
+            "anchorMs": 236297,
+            "q": 0.921,
+            "devMs": -500,
+            "status": "ok"
+          },
+          {
+            "ayah": 17,
+            "startMs": 257591,
+            "anchorMs": 258192,
+            "q": 0.903,
+            "devMs": -601,
+            "status": "ok"
+          },
+          {
+            "ayah": 18,
+            "startMs": 272281,
+            "anchorMs": 272781,
+            "q": 0.815,
+            "devMs": -500,
+            "status": "ok"
+          },
+          {
+            "ayah": 19,
+            "startMs": 281247,
+            "anchorMs": 281747,
+            "q": 0.97,
+            "devMs": -500,
+            "status": "ok"
+          },
+          {
+            "ayah": 20,
+            "startMs": 292260,
+            "anchorMs": 292735,
+            "q": 0.926,
+            "devMs": -475,
+            "status": "ok"
+          },
+          {
+            "ayah": 21,
+            "startMs": 314609,
+            "anchorMs": 315110,
+            "q": 0.935,
+            "devMs": -501,
+            "status": "ok"
+          },
+          {
+            "ayah": 22,
+            "startMs": 344529,
+            "anchorMs": 345010,
+            "q": 0.952,
+            "devMs": -481,
+            "status": "ok"
+          },
+          {
+            "ayah": 23,
+            "startMs": 367925,
+            "anchorMs": 368425,
+            "q": 0.867,
+            "devMs": -500,
+            "status": "ok"
+          },
+          {
+            "ayah": 24,
+            "startMs": 383440,
+            "anchorMs": 383675,
+            "q": 0.812,
+            "devMs": -235,
+            "status": "ok"
+          },
+          {
+            "ayah": 25,
+            "startMs": 397164,
+            "anchorMs": 397665,
+            "q": 0.918,
+            "devMs": -501,
+            "status": "ok"
+          },
+          {
+            "ayah": 26,
+            "startMs": 427804,
+            "anchorMs": 428305,
+            "q": 0.981,
+            "devMs": -501,
+            "status": "ok"
+          },
+          {
+            "ayah": 27,
+            "startMs": 436670,
+            "anchorMs": 436791,
+            "q": 0.964,
+            "devMs": -121,
+            "status": "ok"
+          },
+          {
+            "ayah": 28,
+            "startMs": 449039,
+            "anchorMs": 449559,
+            "q": 0.965,
+            "devMs": -520,
+            "status": "ok"
+          },
+          {
+            "ayah": 29,
+            "startMs": 471400,
+            "anchorMs": 471634,
+            "q": 0.962,
+            "devMs": -234,
+            "status": "ok"
+          },
+          {
+            "ayah": 30,
+            "startMs": 487480,
+            "anchorMs": 487965,
+            "q": 0.956,
+            "devMs": -485,
+            "status": "ok"
+          },
+          {
+            "ayah": 31,
+            "startMs": 520420,
+            "anchorMs": 521007,
+            "q": 0.929,
+            "devMs": -587,
+            "status": "ok"
+          },
+          {
+            "ayah": 32,
+            "startMs": 541981,
+            "anchorMs": 541981,
+            "q": 0.929,
+            "devMs": 0,
+            "status": "ok"
+          },
+          {
+            "ayah": 33,
+            "startMs": 551687,
+            "anchorMs": 552188,
+            "q": 0.88,
+            "devMs": -501,
+            "status": "ok"
+          },
+          {
+            "ayah": 34,
+            "startMs": 566497,
+            "anchorMs": 567098,
+            "q": 0.929,
+            "devMs": -601,
+            "status": "ok"
+          },
+          {
+            "ayah": 35,
+            "startMs": 584089,
+            "anchorMs": 584609,
+            "q": 0.881,
+            "devMs": -520,
+            "status": "ok"
+          },
+          {
+            "ayah": 36,
+            "startMs": 596010,
+            "anchorMs": 596377,
+            "q": 0.878,
+            "devMs": -367,
+            "status": "ok"
+          },
+          {
+            "ayah": 37,
+            "startMs": 612327,
+            "anchorMs": 612828,
+            "q": 0.919,
+            "devMs": -501,
+            "status": "ok"
+          },
+          {
+            "ayah": 38,
+            "startMs": 634442,
+            "anchorMs": 634943,
+            "q": 0.925,
+            "devMs": -501,
+            "status": "ok"
+          },
+          {
+            "ayah": 39,
+            "startMs": 653995,
+            "anchorMs": 654496,
+            "q": 0.907,
+            "devMs": -501,
+            "status": "ok"
+          },
+          {
+            "ayah": 40,
+            "startMs": 681434,
+            "anchorMs": 681934,
+            "q": 0.919,
+            "devMs": -500,
+            "status": "ok"
+          },
+          {
+            "ayah": 41,
+            "startMs": 705209,
+            "anchorMs": 705770,
+            "q": 1.0,
+            "devMs": -561,
+            "status": "ok"
+          },
+          {
+            "ayah": 42,
+            "startMs": 718470,
+            "anchorMs": 718759,
+            "q": 0.956,
+            "devMs": -289,
+            "status": "ok"
+          },
+          {
+            "ayah": 43,
+            "startMs": 730727,
+            "anchorMs": 731227,
+            "q": 0.981,
+            "devMs": -500,
+            "status": "ok"
+          },
+          {
+            "ayah": 44,
+            "startMs": 746420,
+            "anchorMs": 746658,
+            "q": 0.88,
+            "devMs": -238,
+            "status": "ok"
+          },
+          {
+            "ayah": 45,
+            "startMs": 785303,
+            "anchorMs": 785804,
+            "q": 0.901,
+            "devMs": -501,
+            "status": "ok"
+          },
+          {
+            "ayah": 46,
+            "startMs": 805316,
+            "anchorMs": 805817,
+            "q": 0.907,
+            "devMs": -501,
+            "status": "ok"
+          },
+          {
+            "ayah": 47,
+            "startMs": 821110,
+            "anchorMs": 821307,
+            "q": 0.942,
+            "devMs": -197,
+            "status": "ok"
+          },
+          {
+            "ayah": 48,
+            "startMs": 856110,
+            "anchorMs": 856611,
+            "q": 0.775,
+            "devMs": -501,
+            "status": "ok"
+          },
+          {
+            "ayah": 49,
+            "startMs": 869780,
+            "anchorMs": 870280,
+            "q": 0.872,
+            "devMs": -500,
+            "status": "ok"
+          },
+          {
+            "ayah": 50,
+            "startMs": 887350,
+            "anchorMs": 887652,
+            "q": 0.906,
+            "devMs": -302,
+            "status": "ok"
+          },
+          {
+            "ayah": 51,
+            "startMs": 928480,
+            "anchorMs": 928839,
+            "q": 0.906,
+            "devMs": -359,
+            "status": "ok"
+          },
+          {
+            "ayah": 52,
+            "startMs": 945159,
+            "anchorMs": 945230,
+            "q": 0.9,
+            "devMs": -71,
+            "status": "ok"
+          },
+          {
+            "ayah": 53,
+            "startMs": 961700,
+            "anchorMs": 962201,
+            "q": 0.915,
+            "devMs": -501,
+            "status": "ok"
+          },
+          {
+            "ayah": 54,
+            "startMs": 986480,
+            "anchorMs": 986978,
+            "q": 0.811,
+            "devMs": -498,
+            "status": "ok"
+          }
+        ]
+      }
+    },
+    "42": {
+      "run": "37358965542",
+      "alignmentPath": "ops/out/codex-nufais42-alignment-37358965542.json",
+      "alignmentSha256": "5b53a6aef220fe778eefc30b0c3450771605907132c8d83a646d366a4893a76f",
+      "sourceUrl": "https://server16.mp3quran.net/nufais/Rewayat-Hafs-A-n-Assem/042.mp3",
+      "audioSha256": "7212cffcca1df6a56dc2f2c305ef2a9f7de1167c5c1753dda683521072ec7a15",
+      "entryCount": 53,
+      "totalMs": 1259650,
+      "firstEntry": {
+        "ayahIdx": 0,
+        "startMs": 13729,
+        "endMs": 20133,
+        "conf": 0.966,
+        "snapped": true,
+        "matched": 0,
+        "total": 1,
+        "heard": true,
+        "boundary": "window"
+      },
+      "lastEntry": {
+        "ayahIdx": 52,
+        "startMs": 1233652,
+        "endMs": 1253666,
+        "conf": 0.74,
+        "snapped": false,
+        "matched": 0,
+        "total": 15,
+        "heard": true,
+        "boundary": "window"
+      },
+      "tailAfterLastEndMs": 5984,
+      "issues": [
+        "الآية 19: حدُّ النافذة 0.0ث عن مِرساتها ⇒ anchor",
+        "الآية 22: حدُّ النافذة 0.5ث عن مِرساتها ⇒ narrow",
+        "الآية 23: حدُّ النافذة 0.5ث عن مِرساتها ⇒ narrow",
+        "الآية 24: حدُّ النافذة 0.4ث عن مِرساتها ⇒ narrow",
+        "الآية 36: حدُّ النافذة 0.0ث عن مِرساتها ⇒ anchor",
+        "الآية 48: حدُّ النافذة 0.3ث عن مِرساتها ⇒ narrow"
+      ],
+      "lowConfidenceAyahs": [
+        6,
+        11,
+        12,
+        16,
+        19,
+        20,
+        21,
+        22,
+        35,
+        36,
+        47,
+        48,
+        51,
+        52
+      ],
+      "builderReportedBands": {
+        "HIGH": 6,
+        "MED": 36,
+        "LOW": 11
+      },
+      "sameModelConsistency": {
+        "independentQualityCertificate": false,
+        "rowStatuses": {
+          "ok": 53
+        },
+        "verdict": null,
+        "rows": [
+          {
+            "ayah": 1,
+            "startMs": 13729,
+            "anchorMs": 14229,
+            "q": 1.0,
+            "devMs": -500,
+            "status": "ok"
+          },
+          {
+            "ayah": 2,
+            "startMs": 20133,
+            "anchorMs": 20633,
+            "q": 1.0,
+            "devMs": -500,
+            "status": "ok"
+          },
+          {
+            "ayah": 3,
+            "startMs": 34022,
+            "anchorMs": 34522,
+            "q": 0.977,
+            "devMs": -500,
+            "status": "ok"
+          },
+          {
+            "ayah": 4,
+            "startMs": 45510,
+            "anchorMs": 45770,
+            "q": 0.944,
+            "devMs": -260,
+            "status": "ok"
+          },
+          {
+            "ayah": 5,
+            "startMs": 55156,
+            "anchorMs": 55656,
+            "q": 0.931,
+            "devMs": -500,
+            "status": "ok"
+          },
+          {
+            "ayah": 6,
+            "startMs": 84936,
+            "anchorMs": 85436,
+            "q": 0.923,
+            "devMs": -500,
+            "status": "ok"
+          },
+          {
+            "ayah": 7,
+            "startMs": 110312,
+            "anchorMs": 110813,
+            "q": 0.878,
+            "devMs": -501,
+            "status": "ok"
+          },
+          {
+            "ayah": 8,
+            "startMs": 138240,
+            "anchorMs": 138711,
+            "q": 0.925,
+            "devMs": -471,
+            "status": "ok"
+          },
+          {
+            "ayah": 9,
+            "startMs": 167590,
+            "anchorMs": 168090,
+            "q": 0.895,
+            "devMs": -500,
+            "status": "ok"
+          },
+          {
+            "ayah": 10,
+            "startMs": 190780,
+            "anchorMs": 191266,
+            "q": 0.931,
+            "devMs": -486,
+            "status": "ok"
+          },
+          {
+            "ayah": 11,
+            "startMs": 211559,
+            "anchorMs": 212059,
+            "q": 0.976,
+            "devMs": -500,
+            "status": "ok"
+          },
+          {
+            "ayah": 12,
+            "startMs": 244980,
+            "anchorMs": 245341,
+            "q": 0.923,
+            "devMs": -361,
+            "status": "ok"
+          },
+          {
+            "ayah": 13,
+            "startMs": 263534,
+            "anchorMs": 264034,
+            "q": 0.88,
+            "devMs": -500,
+            "status": "ok"
+          },
+          {
+            "ayah": 14,
+            "startMs": 316611,
+            "anchorMs": 317109,
+            "q": 0.83,
+            "devMs": -498,
+            "status": "ok"
+          },
+          {
+            "ayah": 15,
+            "startMs": 354198,
+            "anchorMs": 354693,
+            "q": 0.89,
+            "devMs": -495,
+            "status": "ok"
+          },
+          {
+            "ayah": 16,
+            "startMs": 405540,
+            "anchorMs": 406067,
+            "q": 0.901,
+            "devMs": -527,
+            "status": "ok"
+          },
+          {
+            "ayah": 17,
+            "startMs": 433894,
+            "anchorMs": 434386,
+            "q": 0.902,
+            "devMs": -492,
+            "status": "ok"
+          },
+          {
+            "ayah": 18,
+            "startMs": 450060,
+            "anchorMs": 450236,
+            "q": 0.968,
+            "devMs": -176,
+            "status": "ok"
+          },
+          {
+            "ayah": 19,
+            "startMs": 480520,
+            "anchorMs": 481337,
+            "q": 0.973,
+            "devMs": -817,
+            "status": "ok"
+          },
+          {
+            "ayah": 20,
+            "startMs": 503480,
+            "anchorMs": 503712,
+            "q": 0.827,
+            "devMs": -232,
+            "status": "ok"
+          },
+          {
+            "ayah": 21,
+            "startMs": 526340,
+            "anchorMs": 526827,
+            "q": 0.904,
+            "devMs": -487,
+            "status": "ok"
+          },
+          {
+            "ayah": 22,
+            "startMs": 553866,
+            "anchorMs": 554385,
+            "q": 0.942,
+            "devMs": -519,
+            "status": "ok"
+          },
+          {
+            "ayah": 23,
+            "startMs": 590430,
+            "anchorMs": 590949,
+            "q": 0.965,
+            "devMs": -519,
+            "status": "ok"
+          },
+          {
+            "ayah": 24,
+            "startMs": 625652,
+            "anchorMs": 626032,
+            "q": 0.966,
+            "devMs": -380,
+            "status": "ok"
+          },
+          {
+            "ayah": 25,
+            "startMs": 653172,
+            "anchorMs": 653671,
+            "q": 0.843,
+            "devMs": -499,
+            "status": "ok"
+          },
+          {
+            "ayah": 26,
+            "startMs": 665942,
+            "anchorMs": 666439,
+            "q": 0.951,
+            "devMs": -497,
+            "status": "ok"
+          },
+          {
+            "ayah": 27,
+            "startMs": 683540,
+            "anchorMs": 683710,
+            "q": 0.91,
+            "devMs": -170,
+            "status": "ok"
+          },
+          {
+            "ayah": 28,
+            "startMs": 707853,
+            "anchorMs": 708327,
+            "q": 0.865,
+            "devMs": -474,
+            "status": "ok"
+          },
+          {
+            "ayah": 29,
+            "startMs": 725226,
+            "anchorMs": 725718,
+            "q": 0.983,
+            "devMs": -492,
+            "status": "ok"
+          },
+          {
+            "ayah": 30,
+            "startMs": 747442,
+            "anchorMs": 747953,
+            "q": 0.902,
+            "devMs": -511,
+            "status": "ok"
+          },
+          {
+            "ayah": 31,
+            "startMs": 762934,
+            "anchorMs": 763423,
+            "q": 0.833,
+            "devMs": -489,
+            "status": "ok"
+          },
+          {
+            "ayah": 32,
+            "startMs": 784050,
+            "anchorMs": 784517,
+            "q": 0.963,
+            "devMs": -467,
+            "status": "ok"
+          },
+          {
+            "ayah": 33,
+            "startMs": 791495,
+            "anchorMs": 791962,
+            "q": 0.889,
+            "devMs": -467,
+            "status": "ok"
+          },
+          {
+            "ayah": 34,
+            "startMs": 809669,
+            "anchorMs": 810134,
+            "q": 0.885,
+            "devMs": -465,
+            "status": "ok"
+          },
+          {
+            "ayah": 35,
+            "startMs": 817695,
+            "anchorMs": 818179,
+            "q": 0.941,
+            "devMs": -484,
+            "status": "ok"
+          },
+          {
+            "ayah": 36,
+            "startMs": 829960,
+            "anchorMs": 829987,
+            "q": 0.833,
+            "devMs": -27,
+            "status": "ok"
+          },
+          {
+            "ayah": 37,
+            "startMs": 853624,
+            "anchorMs": 854123,
+            "q": 0.812,
+            "devMs": -499,
+            "status": "ok"
+          },
+          {
+            "ayah": 38,
+            "startMs": 865973,
+            "anchorMs": 866471,
+            "q": 0.857,
+            "devMs": -498,
+            "status": "ok"
+          },
+          {
+            "ayah": 39,
+            "startMs": 887709,
+            "anchorMs": 888205,
+            "q": 0.828,
+            "devMs": -496,
+            "status": "ok"
+          },
+          {
+            "ayah": 40,
+            "startMs": 900418,
+            "anchorMs": 900894,
+            "q": 0.911,
+            "devMs": -476,
+            "status": "ok"
+          },
+          {
+            "ayah": 41,
+            "startMs": 922474,
+            "anchorMs": 922968,
+            "q": 0.771,
+            "devMs": -494,
+            "status": "ok"
+          },
+          {
+            "ayah": 42,
+            "startMs": 934863,
+            "anchorMs": 935336,
+            "q": 0.864,
+            "devMs": -473,
+            "status": "ok"
+          },
+          {
+            "ayah": 43,
+            "startMs": 952420,
+            "anchorMs": 952668,
+            "q": 0.893,
+            "devMs": -248,
+            "status": "ok"
+          },
+          {
+            "ayah": 44,
+            "startMs": 961970,
+            "anchorMs": 962254,
+            "q": 0.873,
+            "devMs": -284,
+            "status": "ok"
+          },
+          {
+            "ayah": 45,
+            "startMs": 986080,
+            "anchorMs": 986590,
+            "q": 0.882,
+            "devMs": -510,
+            "status": "ok"
+          },
+          {
+            "ayah": 46,
+            "startMs": 1024528,
+            "anchorMs": 1024995,
+            "q": 0.818,
+            "devMs": -467,
+            "status": "ok"
+          },
+          {
+            "ayah": 47,
+            "startMs": 1052308,
+            "anchorMs": 1052774,
+            "q": 0.853,
+            "devMs": -466,
+            "status": "ok"
+          },
+          {
+            "ayah": 48,
+            "startMs": 1077651,
+            "anchorMs": 1077970,
+            "q": 0.946,
+            "devMs": -319,
+            "status": "ok"
+          },
+          {
+            "ayah": 49,
+            "startMs": 1114014,
+            "anchorMs": 1114514,
+            "q": 0.929,
+            "devMs": -500,
+            "status": "ok"
+          },
+          {
+            "ayah": 50,
+            "startMs": 1137680,
+            "anchorMs": 1138350,
+            "q": 0.867,
+            "devMs": -670,
+            "status": "ok"
+          },
+          {
+            "ayah": 51,
+            "startMs": 1157860,
+            "anchorMs": 1158083,
+            "q": 0.868,
+            "devMs": -223,
+            "status": "ok"
+          },
+          {
+            "ayah": 52,
+            "startMs": 1186561,
+            "anchorMs": 1187042,
+            "q": 0.837,
+            "devMs": -481,
+            "status": "ok"
+          },
+          {
+            "ayah": 53,
+            "startMs": 1233652,
+            "anchorMs": 1234133,
+            "q": 0.755,
+            "devMs": -481,
+            "status": "ok"
+          }
+        ]
+      }
+    },
+    "82": {
+      "run": "37361739372",
+      "alignmentPath": "ops/out/codex-nufais82-alignment-37361739372.json",
+      "alignmentSha256": "cfe870ddff3cff705ae8a5349d0743ddff016a6e8beef2a9091058c6f4cf8328",
+      "sourceUrl": "https://server16.mp3quran.net/nufais/Rewayat-Hafs-A-n-Assem/082.mp3",
+      "audioSha256": "5247ca17c2af0cb9fca808f2e8bbf65967396c254c4aaf31e41badbd7bdfe4d6",
+      "entryCount": 19,
+      "totalMs": 140225,
+      "firstEntry": {
+        "ayahIdx": 0,
+        "startMs": 3071,
+        "endMs": 10646,
+        "conf": 0.62,
+        "snapped": false,
+        "matched": 0,
+        "total": 3,
+        "heard": true,
+        "boundary": "window"
+      },
+      "lastEntry": {
+        "ayahIdx": 18,
+        "startMs": 121530,
+        "endMs": 138443,
+        "conf": 0.739,
+        "snapped": true,
+        "matched": 0,
+        "total": 9,
+        "heard": true,
+        "boundary": "window"
+      },
+      "tailAfterLastEndMs": 1782,
+      "issues": [],
+      "lowConfidenceAyahs": [
+        4
+      ],
+      "builderReportedBands": {
+        "MED": 18,
+        "HIGH": 1
+      },
+      "sameModelConsistency": {
+        "independentQualityCertificate": false,
+        "rowStatuses": {
+          "ok": 19
+        },
+        "verdict": null,
+        "rows": [
+          {
+            "ayah": 1,
+            "startMs": 3071,
+            "anchorMs": 3362,
+            "q": 0.929,
+            "devMs": -291,
+            "status": "ok"
+          },
+          {
+            "ayah": 2,
+            "startMs": 10646,
+            "anchorMs": 11146,
+            "q": 0.882,
+            "devMs": -500,
+            "status": "ok"
+          },
+          {
+            "ayah": 3,
+            "startMs": 15509,
+            "anchorMs": 16009,
+            "q": 0.929,
+            "devMs": -500,
+            "status": "ok"
+          },
+          {
+            "ayah": 4,
+            "startMs": 18901,
+            "anchorMs": 19091,
+            "q": 0.933,
+            "devMs": -190,
+            "status": "ok"
+          },
+          {
+            "ayah": 5,
+            "startMs": 22003,
+            "anchorMs": 22173,
+            "q": 1.0,
+            "devMs": -170,
+            "status": "ok"
+          },
+          {
+            "ayah": 6,
+            "startMs": 28637,
+            "anchorMs": 29137,
+            "q": 0.885,
+            "devMs": -500,
+            "status": "ok"
+          },
+          {
+            "ayah": 7,
+            "startMs": 39163,
+            "anchorMs": 39544,
+            "q": 0.944,
+            "devMs": -381,
+            "status": "ok"
+          },
+          {
+            "ayah": 8,
+            "startMs": 44106,
+            "anchorMs": 44607,
+            "q": 1.0,
+            "devMs": -501,
+            "status": "ok"
+          },
+          {
+            "ayah": 9,
+            "startMs": 53011,
+            "anchorMs": 53512,
+            "q": 1.0,
+            "devMs": -501,
+            "status": "ok"
+          },
+          {
+            "ayah": 10,
+            "startMs": 59080,
+            "anchorMs": 59216,
+            "q": 0.929,
+            "devMs": -136,
+            "status": "ok"
+          },
+          {
+            "ayah": 11,
+            "startMs": 64890,
+            "anchorMs": 65039,
+            "q": 1.0,
+            "devMs": -149,
+            "status": "ok"
+          },
+          {
+            "ayah": 12,
+            "startMs": 70372,
+            "anchorMs": 70863,
+            "q": 1.0,
+            "devMs": -491,
+            "status": "ok"
+          },
+          {
+            "ayah": 13,
+            "startMs": 76568,
+            "anchorMs": 77066,
+            "q": 1.0,
+            "devMs": -498,
+            "status": "ok"
+          },
+          {
+            "ayah": 14,
+            "startMs": 83694,
+            "anchorMs": 84171,
+            "q": 0.938,
+            "devMs": -477,
+            "status": "ok"
+          },
+          {
+            "ayah": 15,
+            "startMs": 91030,
+            "anchorMs": 91155,
+            "q": 1.0,
+            "devMs": -125,
+            "status": "ok"
+          },
+          {
+            "ayah": 16,
+            "startMs": 96305,
+            "anchorMs": 96798,
+            "q": 0.875,
+            "devMs": -493,
+            "status": "ok"
+          },
+          {
+            "ayah": 17,
+            "startMs": 106374,
+            "anchorMs": 106885,
+            "q": 0.778,
+            "devMs": -511,
+            "status": "ok"
+          },
+          {
+            "ayah": 18,
+            "startMs": 113120,
+            "anchorMs": 113268,
+            "q": 0.947,
+            "devMs": -148,
+            "status": "ok"
+          },
+          {
+            "ayah": 19,
+            "startMs": 121530,
+            "anchorMs": 121654,
+            "q": 1.0,
+            "devMs": -124,
+            "status": "ok"
+          }
+        ]
+      }
+    }
+  },
+  "requiredIndependentChecks": [
+    "قياس الجودة والسماع على بصمة المرشح بعد تثبيت الأصل الحي",
+    "فحص مستقل للآية 25:10 ذات النافذة 63030 مللي ثانية وسائر issues",
+    "التحقق المستقل من بدايات ونهايات السور المعدلة وآيات الثقة المنخفضة"
+  ],
+  "qaStatus": "pending",
+  "heardGateStatus": "pending",
+  "independentCompletionClaim": false,
+  "independentCodeReview": {
+    "reviewer": "prior_builds",
+    "localStructuralBlockers": [],
+    "all6236EntriesNonoverlapping": true,
+    "indexGateVerdict": null,
+    "lowCount": {
+      "parentStored": 42,
+      "parentActual": 185,
+      "candidateStoredAndActual": 232,
+      "inheritedOutsideSelected": 184,
+      "newSelected": 48
+    },
+    "endEvidenceLimitation": "نهايات السور المختارة تساوي نهاية مرساة النموذج+800 مللي ثانية؛ الصمت المتبقي لم يفحص مستقلاً",
+    "surah25Ayah10": {
+      "startMs": 185180,
+      "endMs": 248210,
+      "durationMs": 63030,
+      "conf": 0.285,
+      "anchorMs": [
+        185382,
+        247083
+      ],
+      "anchorQuality": 0.949,
+      "internalSimilarOccurrencesMs": [
+        [
+          197150,
+          216943
+        ],
+        [
+          233554,
+          247083
+        ]
+      ],
+      "verdict": "يحتاج فحصاً مستقلاً للتكرار والمادة المشمولة؛ ليس مانعاً بنيوياً مثبتاً"
+    }
+  }
+}

@@ -1,0 +1,20 @@
+{
+  "action": "tool",
+  "tool": "index_qa/stage_transform.py",
+  "args": [
+    "--file",
+    "ops/source-repair/candidates/codex-noah-s3-s4-20261005.jz",
+    "--parent",
+    "timings/hafs/noah.jz",
+    "--parent-sha",
+    "b14ed7f3eec4e69fb0e328efeb6eff72042f49a4588b3e09d71c8b15850a3d41",
+    "--op",
+    "ctc_heardmap_splice:3,4",
+    "--reason",
+    "مرشح من أصل واحد ومحاذاة كاملة مثبتة ببصمات الصوت؛ اختبار مستقل مطلوب قبل أي اعتماد.",
+    "--by",
+    "codex",
+    "--manual-qa-only",
+    "--yes"
+  ]
+}

@@ -1,0 +1,221 @@
+{
+  "generatedAtUtc": "2026-10-05T19:43:00.518791+00:00",
+  "candidatePath": "ops/source-repair/candidates/codex-rakbawi-s13-s26-20261005.jz",
+  "candidateSha256": "d5ec7b33e806a12b2eb0354ddcd6ed0522eb5d8401aafc571b3a3307e75389da",
+  "parentPath": "ops/source-repair/parents/codex-qalun-rakbawi_qalun-85886e2b.jz",
+  "parentSha256": "85886e2b1f665642a50ed6fb062f7ec06480849f6a6727fb95527ad1a613585b",
+  "parentKey": "timings/qalun/rakbawi_qalun.jz",
+  "unpublishedLocalCandidate": true,
+  "surahs": [
+    13,
+    26
+  ],
+  "checks": {
+    "candidateParentShaMatches": true,
+    "same6236UniqueOrderedEntries": true,
+    "allOutsideSelectedIdentical": true,
+    "audioSha256Unchanged": true,
+    "sourceBySurahUnchanged": true,
+    "missingUnchanged": true,
+    "historicalTransformPreserved": true,
+    "historicalMissingPreserved": true,
+    "lowCountRecountMatches": true,
+    "modifiedSurahsExact": true,
+    "unpublishedMarked": true,
+    "surah13SourceExact": true,
+    "surah13BoundsExactAndValid": true,
+    "surah26SourceExact": true,
+    "surah26BoundsExactAndValid": true,
+    "indexGatePassed": true
+  },
+  "outsideEntries": 5966,
+  "changes": {
+    "moved": 194,
+    "added": 0,
+    "removed": 0
+  },
+  "lowCount": {
+    "parentStored": 77,
+    "parentActual": 153,
+    "candidateActual": 167
+  },
+  "previousKnownDeviations": [
+    {
+      "ayahId": "13:7",
+      "oldStartMs": 148678,
+      "newStartMs": 150942,
+      "previousMeasuredAnchorMs": 151442,
+      "oldDeviationMs": -2764,
+      "newDeviationAgainstPreviousAnchorMs": -500,
+      "earlierRun": "37347436069"
+    },
+    {
+      "ayahId": "13:27",
+      "oldStartMs": 544110,
+      "newStartMs": 545689,
+      "previousMeasuredAnchorMs": 546190,
+      "oldDeviationMs": -2080,
+      "newDeviationAgainstPreviousAnchorMs": -501,
+      "earlierRun": "37347436069"
+    },
+    {
+      "ayahId": "13:29",
+      "oldStartMs": 578050,
+      "newStartMs": 581313,
+      "previousMeasuredAnchorMs": 582014,
+      "oldDeviationMs": -3964,
+      "newDeviationAgainstPreviousAnchorMs": -701,
+      "earlierRun": "37347436069"
+    },
+    {
+      "ayahId": "13:35",
+      "oldStartMs": 712335,
+      "newStartMs": 713543,
+      "previousMeasuredAnchorMs": 714044,
+      "oldDeviationMs": -1709,
+      "newDeviationAgainstPreviousAnchorMs": -501,
+      "earlierRun": "37347436069"
+    },
+    {
+      "ayahId": "26:46",
+      "oldStartMs": 298708,
+      "newStartMs": 295897,
+      "previousMeasuredAnchorMs": 296398,
+      "oldDeviationMs": 2310,
+      "newDeviationAgainstPreviousAnchorMs": -501,
+      "earlierRun": "37347436069"
+    },
+    {
+      "ayahId": "26:76",
+      "oldStartMs": 476941,
+      "newStartMs": 474346,
+      "previousMeasuredAnchorMs": 474537,
+      "oldDeviationMs": 2404,
+      "newDeviationAgainstPreviousAnchorMs": -191,
+      "earlierRun": "37347436069"
+    },
+    {
+      "ayahId": "26:92",
+      "oldStartMs": 559008,
+      "newStartMs": 561084,
+      "previousMeasuredAnchorMs": 561555,
+      "oldDeviationMs": -2547,
+      "newDeviationAgainstPreviousAnchorMs": -471,
+      "earlierRun": "37347436069"
+    }
+  ],
+  "sameModelEvidence": [
+    {
+      "surah": 13,
+      "alignmentPath": "ops/out/codex-rakbawi13-alignment-37361751505.json",
+      "alignmentSha256": "ea480f3c3bc70d907e2102983ac3b41793da4c13213a8a57280d85e20fdf6b4d",
+      "run": "37361751505",
+      "envelopeChecksPassed": true,
+      "audioSha256": "3aaf437e4705face334cdd9c851b8aecb29a05bfe4c97d362cdbbcbfa2945074",
+      "sourceUrl": "https://archive.org/download/128-kb---mo7ammad---ayyoob--alrakbawy---by--qaloon----mp3--full--mushaf--quran/013_.mp3",
+      "entryCount": 43,
+      "totalMs": 857529,
+      "firstEntry": {
+        "ayahIdx": 0,
+        "startMs": 3700,
+        "endMs": 23376,
+        "conf": 0.645,
+        "snapped": true,
+        "matched": 0,
+        "total": 15,
+        "heard": true,
+        "boundary": "window"
+      },
+      "lastEntry": {
+        "ayahIdx": 42,
+        "startMs": 840070,
+        "endMs": 855579,
+        "conf": 0.673,
+        "snapped": true,
+        "matched": 0,
+        "total": 15,
+        "heard": true,
+        "boundary": "window"
+      },
+      "tailAfterLastEndMs": 1950,
+      "lowConfidenceAyahs": [
+        4,
+        6,
+        17,
+        18,
+        23,
+        31,
+        33
+      ],
+      "issues": [],
+      "sameModelConsistency": {
+        "independentQualityCertificate": false,
+        "rowStatuses": {
+          "ok": 43
+        },
+        "verdict": null
+      }
+    },
+    {
+      "surah": 26,
+      "alignmentPath": "ops/out/codex-rakbawi26-alignment-37361763170.json",
+      "alignmentSha256": "cadab1737c8d1143e87fd0f7684c9411acf5de2354c5bf541fa36c3868a2b688",
+      "run": "37361763170",
+      "envelopeChecksPassed": true,
+      "audioSha256": "0676529c900e26c4c210fe8a64061ebb4e703a04feb012860446cdab99c4e4ba",
+      "sourceUrl": "https://archive.org/download/128-kb---mo7ammad---ayyoob--alrakbawy---by--qaloon----mp3--full--mushaf--quran/026_.mp3",
+      "entryCount": 227,
+      "totalMs": 1243279,
+      "firstEntry": {
+        "ayahIdx": 0,
+        "startMs": 3522,
+        "endMs": 10290,
+        "conf": 0.892,
+        "snapped": true,
+        "matched": 0,
+        "total": 1,
+        "heard": true,
+        "boundary": "window"
+      },
+      "lastEntry": {
+        "ayahIdx": 226,
+        "startMs": 1221457,
+        "endMs": 1243279,
+        "conf": 0.488,
+        "snapped": false,
+        "matched": 0,
+        "total": 19,
+        "heard": true,
+        "boundary": "window"
+      },
+      "tailAfterLastEndMs": 0,
+      "lowConfidenceAyahs": [
+        7,
+        52,
+        63,
+        102,
+        154,
+        170,
+        187,
+        188,
+        227
+      ],
+      "issues": [],
+      "sameModelConsistency": {
+        "independentQualityCertificate": false,
+        "rowStatuses": {
+          "ok": 227
+        },
+        "verdict": null
+      }
+    }
+  ],
+  "qualityChecks": "pending",
+  "heardGate": "pending",
+  "independentCompletionClaim": false,
+  "limitations": [
+    "اتفاق التوقيت مع مراسي النموذج نفسه لا يعد فحصاً صوتياً مستقلاً",
+    "يلزم تثبيت بصمة الأصل الحي قبل أي ترقية؛ الملفات هنا محلية فقط",
+    "تفحص النهايات ومواضع ضعف الثقة والنافذة كاملة مستقلاً"
+  ]
+}

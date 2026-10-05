@@ -1,0 +1,20 @@
+{
+  "action": "tool",
+  "tool": "index_qa/stage_transform.py",
+  "args": [
+    "--file",
+    "ops/source-repair/candidates/codex-derini-s11-s14-s23-s83-20261005.jz",
+    "--parent",
+    "timings/warsh/derini_warsh.jz",
+    "--parent-sha",
+    "ffa7ef763237bf0f7d34d492d9a74ef595fd2528f6be0a7d1f1581a312384825",
+    "--op",
+    "ctc_heardmap_splice:11,14,23,83",
+    "--reason",
+    "مرشح من أصل واحد ومحاذاة كاملة مثبتة ببصمات الصوت؛ اختبار مستقل مطلوب قبل أي اعتماد.",
+    "--by",
+    "codex",
+    "--manual-qa-only",
+    "--yes"
+  ]
+}

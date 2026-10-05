@@ -1,0 +1,20 @@
+{
+  "action": "tool",
+  "tool": "index_qa/stage_transform.py",
+  "args": [
+    "--file",
+    "ops/source-repair/candidates/codex-nufais-s25-s41-s42-s82-20261005.jz",
+    "--parent",
+    "timings/hafs/nufais.jz",
+    "--parent-sha",
+    "e3d40dc931f9fc48c4e0f2daf9a8c3a939b80a606a205b1a2486cdebad8fa550",
+    "--op",
+    "ctc_heardmap_splice:25,41,42,82",
+    "--reason",
+    "مرشح من أصل واحد ومحاذاة كاملة مثبتة ببصمات الصوت؛ اختبار مستقل مطلوب قبل أي اعتماد.",
+    "--by",
+    "codex",
+    "--manual-qa-only",
+    "--yes"
+  ]
+}

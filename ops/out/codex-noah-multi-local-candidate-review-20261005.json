@@ -1,0 +1,235 @@
+{
+  "generatedAtUtc": "2026-10-05T19:46:52.762406+00:00",
+  "candidatePath": "ops/source-repair/candidates/codex-noah-s3-s4-20261005.jz",
+  "candidateSha256": "8af5e73c53caedead4b4a0a2783dd2d039ce4d67af33dbef71c9a0455be3ab8f",
+  "proposedStagingKey": "timings-staging/hafs/noah.8af5e73c.jz",
+  "parentPath": "ops/source-repair/parents/codex-hafs-noah-b14ed7f3.jz",
+  "parentSha256": "b14ed7f3eec4e69fb0e328efeb6eff72042f49a4588b3e09d71c8b15850a3d41",
+  "parentKey": "timings/hafs/noah.jz",
+  "surahs": [
+    3,
+    4
+  ],
+  "unpublishedLocalCandidate": true,
+  "checks": {
+    "parentExact": true,
+    "candidateExact": true,
+    "all6236CanonicalIdsOrdered": true,
+    "all5860OutsideEntriesLiteral": true,
+    "onlySelectedSurahsModified": true,
+    "onlySelectedAudioChanged": true,
+    "outsideBySurahFieldsUnchanged": true,
+    "missingEmpty": true,
+    "historicalTransformPreserved": true,
+    "historicalMissingPreserved": true,
+    "currentFalseSourceReasonRemoved": true,
+    "lowCountCorrect": true,
+    "singleParent": true,
+    "changeCountsCorrect": true,
+    "indexGatePassed": true,
+    "unpublishedMarked": true,
+    "surah3SourceExact": true,
+    "surah3AllBoundsExact": true,
+    "surah4SourceExact": true,
+    "surah4AllBoundsExact": true
+  },
+  "changes": {
+    "beforeEntries": 5860,
+    "afterEntries": 6236,
+    "movedEntries": 0,
+    "addedEntries": 376,
+    "removedEntries": 0,
+    "outsidePreservedEntries": 5860
+  },
+  "sameModelEvidence": [
+    {
+      "surah": 3,
+      "run": "37359727105",
+      "alignmentPath": "ops/out/codex-noah3-alignment-37359727105.json",
+      "alignmentSha256": "26e40ccaf4aed2b00c894a01d2209a746e670750a58fbd4e7fec2f28e90a73a4",
+      "reviewPath": "ops/out/codex-noah3-alignment-37359727105.review.json",
+      "audioSha256": "938e3440fdaeac0baec36f15cebdb2e901e650629825217f9549ef6fd417870b",
+      "sourceUrl": "https://yna-quran.com/download/7afs/7afs_003%20Al-Emran.mp3",
+      "entryCount": 200,
+      "totalMs": 3778967,
+      "lastEntry": {
+        "ayahIdx": 199,
+        "startMs": 3759596,
+        "endMs": 3775769,
+        "conf": 0.222,
+        "snapped": true,
+        "matched": 0,
+        "total": 10,
+        "heard": true,
+        "boundary": "window"
+      },
+      "tailAfterLastEndMs": 3198,
+      "issues": [
+        "الآية 23: حدُّ النافذة 0.4ث عن مِرساتها ⇒ narrow",
+        "الآية 24: حدُّ النافذة 0.5ث عن مِرساتها ⇒ narrow",
+        "الآية 120: حدُّ النافذة 0.4ث عن مِرساتها ⇒ narrow",
+        "الآية 155: حدُّ النافذة 0.7ث عن مِرساتها ⇒ narrow",
+        "الآية 156: حدُّ النافذة 0.5ث عن مِرساتها ⇒ narrow",
+        "الآية 192: حدُّ النافذة 0.8ث عن مِرساتها ⇒ narrow"
+      ],
+      "lowConfidenceAyahs": [
+        3,
+        7,
+        18,
+        20,
+        21,
+        22,
+        26,
+        36,
+        39,
+        53,
+        61,
+        64,
+        72,
+        81,
+        83,
+        112,
+        119,
+        121,
+        146,
+        152,
+        153,
+        154,
+        156,
+        164,
+        168,
+        186,
+        187,
+        188,
+        191,
+        192,
+        195,
+        198,
+        199,
+        200
+      ],
+      "sameModelRowStatuses": {
+        "ok": 200
+      },
+      "independentQualityCertificate": false
+    },
+    {
+      "surah": 4,
+      "run": "37358757266",
+      "alignmentPath": "ops/out/codex-noah4-alignment-37358757266.json",
+      "alignmentSha256": "df03476b0b30c94e67374c86858d9256aef530fdec4e1271fce7278ba95dd5e4",
+      "reviewPath": "ops/out/codex-noah4-alignment-37358757266.review.json",
+      "audioSha256": "3f947b48f5bd77501760c0e33d245e9fe89f536e68838b7af88e79d2b4188780",
+      "sourceUrl": "https://yna-quran.com/download/7afs/7afs_004%20An-Nisa.mp3",
+      "entryCount": 176,
+      "totalMs": 3871833,
+      "lastEntry": {
+        "ayahIdx": 175,
+        "startMs": 3818900,
+        "endMs": 3871833,
+        "conf": 0.0,
+        "snapped": true,
+        "matched": 0,
+        "total": 50,
+        "heard": true,
+        "boundary": "window"
+      },
+      "tailAfterLastEndMs": 0,
+      "issues": [
+        "الآية 12: حدُّ النافذة 0.5ث عن مِرساتها ⇒ narrow",
+        "الآية 24: حدُّ النافذة 0.5ث عن مِرساتها ⇒ narrow",
+        "الآية 36: حدُّ النافذة 0.5ث عن مِرساتها ⇒ narrow",
+        "الآية 83: حدُّ النافذة 0.5ث عن مِرساتها ⇒ narrow",
+        "الآية 84: حدُّ النافذة 0.5ث عن مِرساتها ⇒ narrow",
+        "الآية 95: حدُّ النافذة 0.5ث عن مِرساتها ⇒ narrow",
+        "الآية 96: حدُّ النافذة 0.5ث عن مِرساتها ⇒ narrow",
+        "الآية 120: حدُّ النافذة 0.5ث عن مِرساتها ⇒ narrow",
+        "الآية 132: حدُّ النافذة 0.5ث عن مِرساتها ⇒ narrow",
+        "الآية 144: حدُّ النافذة 0.7ث عن مِرساتها ⇒ narrow"
+      ],
+      "lowConfidenceAyahs": [
+        1,
+        5,
+        9,
+        10,
+        11,
+        17,
+        20,
+        23,
+        34,
+        35,
+        36,
+        43,
+        46,
+        49,
+        58,
+        59,
+        60,
+        77,
+        82,
+        91,
+        93,
+        94,
+        109,
+        110,
+        119,
+        124,
+        127,
+        131,
+        140,
+        143,
+        153,
+        175,
+        176
+      ],
+      "sameModelRowStatuses": {
+        "ok": 176
+      },
+      "independentQualityCertificate": false
+    }
+  ],
+  "qualityChecks": "pending",
+  "heardGate": "pending",
+  "independentCompletionClaim": false,
+  "requiredIndependentChecks": [
+    "مصادقة الأصل الحي قبل الترقية",
+    "قياس مستقل للمطالع والنهايات وكل السور المعدلة على بصمة المرشح",
+    "فحص الآية3:200 بثقة0.222 والآية4:176 بثقة0.0 ونهاية4عندآخرالصوت",
+    "فحص67آية بثقة أقل من0.5؛ نجاح البناء لا يعادل نجاح الفهرسة100%"
+  ],
+  "independentCodeReview": {
+    "reviewer": "prior_builds",
+    "localStructuralBlockers": [],
+    "all6236EntriesNonoverlapping": true,
+    "indexGateVerdict": null,
+    "lowCount": {
+      "candidateStoredAndActual": 71,
+      "inheritedOutsideSelected": 4,
+      "newSelected": 67
+    },
+    "zeroConfidenceAyahs": 11,
+    "historicalReasonCode": "SOURCE_TRUNCATED",
+    "currentFalseSourceReasonRemoved": true,
+    "lastAyahConcerns": [
+      {
+        "ayahId": "3:199",
+        "conf": 0.488
+      },
+      {
+        "ayahId": "3:200",
+        "conf": 0.222,
+        "tailAfterEndMs": 3198
+      },
+      {
+        "ayahId": "4:175",
+        "conf": 0.339
+      },
+      {
+        "ayahId": "4:176",
+        "conf": 0.0,
+        "tailAfterEndMs": 0
+      }
+    ],
+    "qualityChecks": "pending"
+  }
+}

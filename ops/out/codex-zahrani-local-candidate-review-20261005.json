@@ -1,0 +1,460 @@
+{
+  "generatedAtUtc": "2026-10-05T19:54:34.939212+00:00",
+  "candidatePath": "ops/source-repair/candidates/codex-zahrani-s6-20261005.jz",
+  "candidateSha256": "36e79f102ee1480c01eb0eb0824a91560f406d73926bbdc1855cd03eeb54c7d1",
+  "parentPath": "ops/source-repair/parents/codex-hafs-zahrani-2dab3926.jz",
+  "parentSha256": "2dab3926ed56161808fe6057087899bb07373b22c792381c114653b9e24d910c",
+  "parentKey": "timings/hafs/zahrani.jz",
+  "unpublishedLocalCandidate": true,
+  "surahs": [
+    6
+  ],
+  "checks": {
+    "candidateParentShaMatches": true,
+    "same6236UniqueOrderedEntries": true,
+    "allOutsideSelectedIdentical": true,
+    "audioSha256Unchanged": true,
+    "sourceBySurahUnchanged": true,
+    "missingUnchanged": true,
+    "historicalTransformPreserved": true,
+    "historicalMissingPreserved": true,
+    "lowCountRecountMatches": true,
+    "modifiedSurahsExact": true,
+    "unpublishedMarked": true,
+    "surah6SourceExact": true,
+    "surah6BoundsExactAndValid": true,
+    "indexGatePassed": true
+  },
+  "outsideEntries": 6071,
+  "changes": {
+    "moved": 164,
+    "added": 0,
+    "removed": 0
+  },
+  "lowCount": {
+    "parentStored": 172,
+    "parentActual": 160,
+    "candidateActual": 191
+  },
+  "previousKnownDeviations": [
+    {
+      "ayahId": "6:10",
+      "oldStartMs": 216447,
+      "newStartMs": 218466,
+      "previousMeasuredAnchorMs": 218966,
+      "oldDeviationMs": -2519,
+      "newDeviationAgainstPreviousAnchorMs": -500,
+      "earlierRun": "37345497037"
+    },
+    {
+      "ayahId": "6:13",
+      "oldStartMs": 294615,
+      "newStartMs": 309086,
+      "previousMeasuredAnchorMs": 309086,
+      "oldDeviationMs": -14471,
+      "newDeviationAgainstPreviousAnchorMs": 0,
+      "earlierRun": "37345497037"
+    },
+    {
+      "ayahId": "6:14",
+      "oldStartMs": 316030,
+      "newStartMs": 330580,
+      "previousMeasuredAnchorMs": 331060,
+      "oldDeviationMs": -15030,
+      "newDeviationAgainstPreviousAnchorMs": -480,
+      "earlierRun": "37345497037"
+    },
+    {
+      "ayahId": "6:16",
+      "oldStartMs": 383080,
+      "newStartMs": 373080,
+      "previousMeasuredAnchorMs": 373389,
+      "oldDeviationMs": 9691,
+      "newDeviationAgainstPreviousAnchorMs": -309,
+      "earlierRun": "37345497037"
+    },
+    {
+      "ayahId": "6:18",
+      "oldStartMs": 448940,
+      "newStartMs": 440113,
+      "previousMeasuredAnchorMs": 440113,
+      "oldDeviationMs": 8827,
+      "newDeviationAgainstPreviousAnchorMs": 0,
+      "earlierRun": "37345497037"
+    },
+    {
+      "ayahId": "6:33",
+      "oldStartMs": 818217,
+      "newStartMs": 820227,
+      "previousMeasuredAnchorMs": 820727,
+      "oldDeviationMs": -2510,
+      "newDeviationAgainstPreviousAnchorMs": -500,
+      "earlierRun": "37345497037"
+    },
+    {
+      "ayahId": "6:34",
+      "oldStartMs": 839504,
+      "newStartMs": 841261,
+      "previousMeasuredAnchorMs": 841761,
+      "oldDeviationMs": -2257,
+      "newDeviationAgainstPreviousAnchorMs": -500,
+      "earlierRun": "37345497037"
+    },
+    {
+      "ayahId": "6:38",
+      "oldStartMs": 948561,
+      "newStartMs": 944749,
+      "previousMeasuredAnchorMs": 945270,
+      "oldDeviationMs": 3291,
+      "newDeviationAgainstPreviousAnchorMs": -521,
+      "earlierRun": "37345497037"
+    },
+    {
+      "ayahId": "6:45",
+      "oldStartMs": 1150804,
+      "newStartMs": 1153010,
+      "previousMeasuredAnchorMs": 1153109,
+      "oldDeviationMs": -2305,
+      "newDeviationAgainstPreviousAnchorMs": -99,
+      "earlierRun": "37345497037"
+    },
+    {
+      "ayahId": "6:49",
+      "oldStartMs": 1242707,
+      "newStartMs": 1239407,
+      "previousMeasuredAnchorMs": 1239907,
+      "oldDeviationMs": 2800,
+      "newDeviationAgainstPreviousAnchorMs": -500,
+      "earlierRun": "37345497037"
+    },
+    {
+      "ayahId": "6:53",
+      "oldStartMs": 1349570,
+      "newStartMs": 1344957,
+      "previousMeasuredAnchorMs": 1345457,
+      "oldDeviationMs": 4113,
+      "newDeviationAgainstPreviousAnchorMs": -500,
+      "earlierRun": "37345497037"
+    },
+    {
+      "ayahId": "6:55",
+      "oldStartMs": 1468506,
+      "newStartMs": 1469701,
+      "previousMeasuredAnchorMs": 1470201,
+      "oldDeviationMs": -1695,
+      "newDeviationAgainstPreviousAnchorMs": -500,
+      "earlierRun": "37345497037"
+    },
+    {
+      "ayahId": "6:56",
+      "oldStartMs": 1476506,
+      "newStartMs": 1479307,
+      "previousMeasuredAnchorMs": 1479807,
+      "oldDeviationMs": -3301,
+      "newDeviationAgainstPreviousAnchorMs": -500,
+      "earlierRun": "37345497037"
+    },
+    {
+      "ayahId": "6:60",
+      "oldStartMs": 1612040,
+      "newStartMs": 1638573,
+      "previousMeasuredAnchorMs": 1639093,
+      "oldDeviationMs": -27053,
+      "newDeviationAgainstPreviousAnchorMs": -520,
+      "earlierRun": "37345497037"
+    },
+    {
+      "ayahId": "6:61",
+      "oldStartMs": 1714660,
+      "newStartMs": 1680690,
+      "previousMeasuredAnchorMs": 1681382,
+      "oldDeviationMs": 33278,
+      "newDeviationAgainstPreviousAnchorMs": -692,
+      "earlierRun": "37345497037"
+    },
+    {
+      "ayahId": "6:63",
+      "oldStartMs": 1782060,
+      "newStartMs": 1771166,
+      "previousMeasuredAnchorMs": 1771662,
+      "oldDeviationMs": 10398,
+      "newDeviationAgainstPreviousAnchorMs": -496,
+      "earlierRun": "37345497037"
+    },
+    {
+      "ayahId": "6:66",
+      "oldStartMs": 1899473,
+      "newStartMs": 1901549,
+      "previousMeasuredAnchorMs": 1902229,
+      "oldDeviationMs": -2756,
+      "newDeviationAgainstPreviousAnchorMs": -680,
+      "earlierRun": "37345497037"
+    },
+    {
+      "ayahId": "6:71",
+      "oldStartMs": 2025580,
+      "newStartMs": 2027933,
+      "previousMeasuredAnchorMs": 2028453,
+      "oldDeviationMs": -2873,
+      "newDeviationAgainstPreviousAnchorMs": -520,
+      "earlierRun": "37345497037"
+    },
+    {
+      "ayahId": "6:80",
+      "oldStartMs": 2262153,
+      "newStartMs": 2259527,
+      "previousMeasuredAnchorMs": 2260028,
+      "oldDeviationMs": 2125,
+      "newDeviationAgainstPreviousAnchorMs": -501,
+      "earlierRun": "37345497037"
+    },
+    {
+      "ayahId": "6:88",
+      "oldStartMs": 2450400,
+      "newStartMs": 2453277,
+      "previousMeasuredAnchorMs": 2453777,
+      "oldDeviationMs": -3377,
+      "newDeviationAgainstPreviousAnchorMs": -500,
+      "earlierRun": "37345497037"
+    },
+    {
+      "ayahId": "6:90",
+      "oldStartMs": 2500300,
+      "newStartMs": 2504432,
+      "previousMeasuredAnchorMs": 2504591,
+      "oldDeviationMs": -4291,
+      "newDeviationAgainstPreviousAnchorMs": -159,
+      "earlierRun": "37345497037"
+    },
+    {
+      "ayahId": "6:102",
+      "oldStartMs": 2983440,
+      "newStartMs": 2956160,
+      "previousMeasuredAnchorMs": 2956472,
+      "oldDeviationMs": 26968,
+      "newDeviationAgainstPreviousAnchorMs": -312,
+      "earlierRun": "37345497037"
+    },
+    {
+      "ayahId": "6:103",
+      "oldStartMs": 3042600,
+      "newStartMs": 3014311,
+      "previousMeasuredAnchorMs": 3014311,
+      "oldDeviationMs": 28289,
+      "newDeviationAgainstPreviousAnchorMs": 0,
+      "earlierRun": "37345497037"
+    },
+    {
+      "ayahId": "6:104",
+      "oldStartMs": 3057960,
+      "newStartMs": 3074792,
+      "previousMeasuredAnchorMs": 3075292,
+      "oldDeviationMs": -17332,
+      "newDeviationAgainstPreviousAnchorMs": -500,
+      "earlierRun": "37345497037"
+    },
+    {
+      "ayahId": "6:135",
+      "oldStartMs": 3866680,
+      "newStartMs": 3870522,
+      "previousMeasuredAnchorMs": 3871123,
+      "oldDeviationMs": -4443,
+      "newDeviationAgainstPreviousAnchorMs": -601,
+      "earlierRun": "37345497037"
+    },
+    {
+      "ayahId": "6:138",
+      "oldStartMs": 3975284,
+      "newStartMs": 3976913,
+      "previousMeasuredAnchorMs": 3977614,
+      "oldDeviationMs": -2330,
+      "newDeviationAgainstPreviousAnchorMs": -701,
+      "earlierRun": "37345497037"
+    },
+    {
+      "ayahId": "6:163",
+      "oldStartMs": 4946520,
+      "newStartMs": 4922985,
+      "previousMeasuredAnchorMs": 4923485,
+      "oldDeviationMs": 23035,
+      "newDeviationAgainstPreviousAnchorMs": -500,
+      "earlierRun": "37345497037"
+    }
+  ],
+  "sameModelEvidence": [
+    {
+      "surah": 6,
+      "alignmentPath": "ops/out/codex-zahrani6-alignment-37361775840.json",
+      "alignmentSha256": "c3bd340c0947cbbeeedc5ac5e23a663c0f857ff5e6810fc683c07f1e87b98d13",
+      "run": "37361775840",
+      "envelopeChecksPassed": true,
+      "audioSha256": "e3229a66a357835a511dc2eb6e628a646179de1e41dc9c1bf6d14fe68ed15509",
+      "sourceUrl": "https://server9.mp3quran.net/zahrani/006.mp3",
+      "entryCount": 165,
+      "totalMs": 5046047,
+      "firstEntry": {
+        "ayahIdx": 0,
+        "startMs": 8846,
+        "endMs": 31860,
+        "conf": 0.849,
+        "snapped": true,
+        "matched": 0,
+        "total": 14,
+        "heard": true,
+        "boundary": "window"
+      },
+      "lastEntry": {
+        "ayahIdx": 164,
+        "startMs": 4993220,
+        "endMs": 5033038,
+        "conf": 0.164,
+        "snapped": true,
+        "matched": 0,
+        "total": 21,
+        "heard": true,
+        "boundary": "narrow"
+      },
+      "tailAfterLastEndMs": 13009,
+      "lowConfidenceAyahs": [
+        12,
+        13,
+        18,
+        19,
+        22,
+        34,
+        38,
+        40,
+        54,
+        59,
+        60,
+        61,
+        64,
+        67,
+        68,
+        69,
+        81,
+        90,
+        94,
+        97,
+        101,
+        102,
+        103,
+        105,
+        119,
+        126,
+        130,
+        133,
+        144,
+        154,
+        158,
+        159,
+        164,
+        165
+      ],
+      "issues": [
+        "الآية 13: حدُّ النافذة 0.0ث عن مِرساتها ⇒ anchor",
+        "الآية 18: حدُّ النافذة 0.0ث عن مِرساتها ⇒ anchor",
+        "الآية 19: حدُّ النافذة 0.0ث عن مِرساتها ⇒ narrow",
+        "الآية 20: حدُّ النافذة 0.5ث عن مِرساتها ⇒ narrow",
+        "الآية 21: حدُّ النافذة 0.7ث عن مِرساتها ⇒ narrow",
+        "الآية 22: حدُّ النافذة 0.0ث عن مِرساتها ⇒ anchor",
+        "الآية 23: حدُّ النافذة 0.5ث عن مِرساتها ⇒ narrow",
+        "الآية 24: حدُّ النافذة 0.5ث عن مِرساتها ⇒ narrow",
+        "الآية 35: حدُّ النافذة 0.5ث عن مِرساتها ⇒ narrow",
+        "الآية 36: حدُّ النافذة 0.5ث عن مِرساتها ⇒ narrow",
+        "الآية 40: حدُّ النافذة 0.5ث عن مِرساتها ⇒ narrow",
+        "الآية 55: حدُّ النافذة 0.5ث عن مِرساتها ⇒ narrow",
+        "الآية 56: حدُّ النافذة 0.5ث عن مِرساتها ⇒ narrow",
+        "الآية 57: حدُّ النافذة 0.5ث عن مِرساتها ⇒ narrow",
+        "الآية 58: حدُّ النافذة 0.5ث عن مِرساتها ⇒ narrow",
+        "الآية 59: حدُّ النافذة 0.0ث عن مِرساتها ⇒ anchor",
+        "الآية 60: حدُّ النافذة 0.5ث عن مِرساتها ⇒ narrow",
+        "الآية 61: حدُّ النافذة 0.0ث عن مِرساتها ⇒ anchor",
+        "الآية 65: حدُّ النافذة 0.5ث عن مِرساتها ⇒ narrow",
+        "الآية 66: حدُّ النافذة 0.7ث عن مِرساتها ⇒ narrow",
+        "الآية 67: حدُّ النافذة 0.0ث عن مِرساتها ⇒ anchor",
+        "الآية 68: حدُّ النافذة 0.6ث عن مِرساتها ⇒ narrow",
+        "الآية 69: حدُّ النافذة 0.5ث عن مِرساتها ⇒ narrow",
+        "الآية 70: حدُّ النافذة 0.5ث عن مِرساتها ⇒ narrow",
+        "الآية 71: حدُّ النافذة 0.5ث عن مِرساتها ⇒ narrow",
+        "الآية 72: حدُّ النافذة 0.5ث عن مِرساتها ⇒ narrow",
+        "الآية 82: حدُّ النافذة 0.4ث عن مِرساتها ⇒ narrow",
+        "الآية 83: حدُّ النافذة 0.5ث عن مِرساتها ⇒ narrow",
+        "الآية 84: حدُّ النافذة 0.5ث عن مِرساتها ⇒ narrow",
+        "الآية 90: حدُّ النافذة 0.2ث عن مِرساتها ⇒ narrow",
+        "الآية 95: حدُّ النافذة 0.6ث عن مِرساتها ⇒ narrow",
+        "الآية 96: حدُّ النافذة 0.5ث عن مِرساتها ⇒ narrow",
+        "الآية 97: حدُّ النافذة 0.5ث عن مِرساتها ⇒ narrow",
+        "الآية 101: حدُّ النافذة 0.0ث عن مِرساتها ⇒ anchor",
+        "الآية 102: حدُّ النافذة 0.0ث عن مِرساتها ⇒ anchor",
+        "الآية 103: حدُّ النافذة 0.0ث عن مِرساتها ⇒ anchor",
+        "الآية 104: حدُّ النافذة 0.5ث عن مِرساتها ⇒ narrow",
+        "الآية 105: حدُّ النافذة 0.9ث عن مِرساتها ⇒ narrow",
+        "الآية 106: حدُّ النافذة 0.4ث عن مِرساتها ⇒ narrow",
+        "الآية 107: حدُّ النافذة 0.5ث عن مِرساتها ⇒ narrow",
+        "الآية 108: حدُّ النافذة 0.5ث عن مِرساتها ⇒ narrow",
+        "الآية 120: حدُّ النافذة 0.5ث عن مِرساتها ⇒ narrow",
+        "الآية 126: حدُّ النافذة 0.0ث عن مِرساتها ⇒ anchor",
+        "الآية 127: حدُّ النافذة 0.5ث عن مِرساتها ⇒ narrow",
+        "الآية 128: حدُّ النافذة 0.5ث عن مِرساتها ⇒ narrow",
+        "الآية 129: حدُّ النافذة 0.5ث عن مِرساتها ⇒ narrow",
+        "الآية 130: حدُّ النافذة 0.0ث عن مِرساتها ⇒ anchor",
+        "الآية 131: حدُّ النافذة 0.5ث عن مِرساتها ⇒ narrow",
+        "الآية 132: حدُّ النافذة 0.5ث عن مِرساتها ⇒ narrow",
+        "الآية 133: حدُّ النافذة 0.0ث عن مِرساتها ⇒ anchor",
+        "الآية 155: حدُّ النافذة 0.5ث عن مِرساتها ⇒ narrow",
+        "الآية 156: حدُّ النافذة 0.9ث عن مِرساتها ⇒ narrow",
+        "الآية 159: حدُّ النافذة 0.0ث عن مِرساتها ⇒ anchor",
+        "الآية 160: حدُّ النافذة 1.1ث عن مِرساتها ⇒ narrow",
+        "الآية 161: حدُّ النافذة 0.5ث عن مِرساتها ⇒ narrow",
+        "الآية 162: حدُّ النافذة 0.5ث عن مِرساتها ⇒ narrow",
+        "الآية 163: حدُّ النافذة 0.5ث عن مِرساتها ⇒ narrow",
+        "الآية 164: حدُّ النافذة 0.0ث عن مِرساتها ⇒ anchor",
+        "الآية 165: حدُّ النافذة 0.5ث عن مِرساتها ⇒ narrow",
+        "مدة شاذة لآية 64: 52388م.ث لـ36 حرفاً",
+        "مدة شاذة لآية 102: 58151م.ث لـ50 حرفاً",
+        "مدة شاذة لآية 103: 60481م.ث لـ41 حرفاً"
+      ],
+      "sameModelConsistency": {
+        "independentQualityCertificate": false,
+        "rowStatuses": {
+          "ok": 165
+        },
+        "verdict": null
+      }
+    }
+  ],
+  "qualityChecks": "pending",
+  "heardGate": "pending",
+  "independentCompletionClaim": false,
+  "limitations": [
+    "اتفاق التوقيت مع مراسي النموذج نفسه لا يعد فحصاً صوتياً مستقلاً",
+    "يلزم تثبيت بصمة الأصل الحي قبل أي ترقية؛ الملفات هنا محلية فقط",
+    "تفحص النهايات ومواضع ضعف الثقة والنافذة كاملة مستقلاً"
+  ],
+  "independentCodeReview": {
+    "reviewer": "prior_builds",
+    "localStructuralBlockers": [],
+    "all6236EntriesNonoverlapping": true,
+    "selected165BoundsExact": true,
+    "indexGateVerdict": null,
+    "lowCount": {
+      "parentStored": 172,
+      "parentActual": 160,
+      "candidateStoredAndActual": 191,
+      "inheritedOutsideSelected": 157,
+      "newSelected": 34
+    },
+    "zeroConfidenceAyahs": [
+      "6:12",
+      "6:94",
+      "6:119",
+      "6:154"
+    ],
+    "specialChecks": [
+      "6:64/102/103لهاوقوعات متعددة متباعدة تحتاجتحققاًمنالتكراروالفواصل",
+      "6:164ثقتها0.4و6:165ثقتها0.164؛tail13009مللي ثانية"
+    ],
+    "qualityChecks": "pending"
+  }
+}

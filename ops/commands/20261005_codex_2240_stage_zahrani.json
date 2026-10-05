@@ -1,0 +1,20 @@
+{
+  "action": "tool",
+  "tool": "index_qa/stage_transform.py",
+  "args": [
+    "--file",
+    "ops/source-repair/candidates/codex-zahrani-s6-20261005.jz",
+    "--parent",
+    "timings/hafs/zahrani.jz",
+    "--parent-sha",
+    "2dab3926ed56161808fe6057087899bb07373b22c792381c114653b9e24d910c",
+    "--op",
+    "ctc_heardmap_splice:6",
+    "--reason",
+    "مرشح من أصل واحد ومحاذاة كاملة مثبتة ببصمات الصوت؛ اختبار مستقل مطلوب قبل أي اعتماد.",
+    "--by",
+    "codex",
+    "--manual-qa-only",
+    "--yes"
+  ]
+}

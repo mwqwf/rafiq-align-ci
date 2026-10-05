@@ -1,0 +1,20 @@
+{
+  "action": "tool",
+  "tool": "index_qa/stage_transform.py",
+  "args": [
+    "--file",
+    "ops/source-repair/candidates/codex-khamery-s2-s6-20261005.jz",
+    "--parent",
+    "timings/hafs/f_khamery.jz",
+    "--parent-sha",
+    "a8e970e2a6850336ec6db6dc2c9f0f8c4890a19be561dbd52c80aa95fc1fb9a2",
+    "--op",
+    "ctc_heardmap_splice:2,6",
+    "--reason",
+    "مرشح من أصل واحد ومحاذاة كاملة مثبتة ببصمات الصوت؛ اختبار مستقل مطلوب قبل أي اعتماد.",
+    "--by",
+    "codex",
+    "--manual-qa-only",
+    "--yes"
+  ]
+}
