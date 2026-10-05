@@ -457,5 +457,29 @@
     "url": "https://download.quranicaudio.com/quran/peshawa_qadir_al-kurdi/mp3/063.mp3",
     "audio_sha256": "bbfc9570680b5172ad15e417ce0ef5b8aaf8d15e16ec6f12fe46ea1752243301",
     "evidence": "Identity: https://quranicaudio.com/quran/169 (Peshawa Qadir al-Kurdi, Hafs); full-source PCM 284.724s, decode errors 0: ops/out/codex-source-metadata-20261005-batch1.json. All 11 ayahs heard: ops/out/codex-peshawa-s63-heard-37353243110.json; source proof: ops/out/codex-peshawa-s63-source-proof-20261005.json. Registration permits a candidate only; full alignment and quality gates remain mandatory, especially the low-confidence final boundary."
+  },
+  {
+    "reciter": "s_sadeiq",
+    "riwaya": "hafs",
+    "surah": 42,
+    "url": "https://media.way2quran.com/salman-al-siddiq/hafs-an-asim/042.mp3",
+    "audio_sha256": "330587a1c6d77981a4251ad83d7e0200444d898484ba089ffa138bcd6470dabd",
+    "evidence": "Identity and Hafs: https://way2quran.com/ar/reciters/salman-al-siddiq?recitationSlug=hafs-an-asim . Full decode and original-byte SHA: ops/out/codex-source-metadata-20261005-batch2.json (PCM 1052.446625 seconds, signal present, no decode errors). All 53 anchors measured in run37355775598: ops/out/codex-sadeiq-s42-heard-37355775598.json. Registration only permits an unapproved candidate; full alignment, opener and independent quality gates remain mandatory. Old mono silence does not certify original L/R silence."
+  },
+  {
+    "reciter": "noah",
+    "riwaya": "hafs",
+    "surah": 3,
+    "url": "https://yna-quran.com/download/7afs/7afs_003%20Al-Emran.mp3",
+    "audio_sha256": "938e3440fdaeac0baec36f15cebdb2e901e650629825217f9549ef6fd417870b",
+    "evidence": "Official reader/Hafs collection: https://yna-quran.com/catplay.php?catsmktba=35 . Full original-byte SHA and error-free decode: ops/out/codex-source-metadata-20261005-batch1.json (PCM 3778.951875 seconds). All 200 ayah anchors including the final ayah: ops/out/codex-noah3-heard-37355738144.json. Registration permits an unapproved candidate only; full alignment, independent opener/tail quality and unchanged-other-surah proof remain mandatory. Longer duration alone was not used as completeness evidence."
+  },
+  {
+    "reciter": "noah",
+    "riwaya": "hafs",
+    "surah": 4,
+    "url": "https://yna-quran.com/download/7afs/7afs_004%20An-Nisa.mp3",
+    "audio_sha256": "3f947b48f5bd77501760c0e33d245e9fe89f536e68838b7af88e79d2b4188780",
+    "evidence": "Official reader/Hafs collection: https://yna-quran.com/catplay.php?catsmktba=35 . Full original-byte SHA and error-free decode: ops/out/codex-source-metadata-20261005-batch1.json (PCM 3871.817125 seconds). All 176 ayah anchors including the final ayah: ops/out/codex-noah-s4-heard-37355750669.json. Registration permits an unapproved candidate only; full alignment, independent opener/tail quality and unchanged-other-surah proof remain mandatory. Longer duration alone was not used as completeness evidence."
   }
 ]

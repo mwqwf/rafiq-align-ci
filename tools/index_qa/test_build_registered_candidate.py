@@ -97,6 +97,7 @@ class CandidateTests(unittest.TestCase):
         self.assertEqual(transform["removedEntries"], 0)
         self.assertEqual(result["sourceBySurah"]["63"], URL)
         self.assertEqual(result["audioSha256"][62], SHA)
+        self.assertNotIn("lowCount", result)
         self.assertEqual(self.parent_path.read_bytes(), self.parent_blob)
         self.assertEqual(json.loads(self.aligned_path.read_text()), self.aligned)
         self.assertFalse(list(self.out.parent.glob(".candidate-*")))
@@ -226,6 +227,88 @@ class CandidateTests(unittest.TestCase):
         self.build()
         result = json.loads(gzip.decompress(self.out.read_bytes()))
         self.assertEqual(result["transform"]["truncatedTail"], {"70": {"absentFrom": 40}})
+
+    def test_restored_tail_has_no_current_gap_claim_and_keeps_exact_parent_history(self):
+        self.parent["entries"] = [e for e in self.parent["entries"]
+                                  if e["ayahId"] not in ("63:10", "63:11")]
+        self.parent["missing"] = {"count": 2, "ids": ["63:10", "63:11"],
+                                  "byReason": {"source_truncated": 2}}
+        self.parent["transform"] = {
+            "op": "declare_gap:63", "reasonCode": "SOURCE_TRUNCATED",
+            "reasonUser": "تسجيل هذه السورة ينتهي قبل آخر آيتين.",
+            "reason": "شاهد المصدر السابق", "note": "حدود المصدر السابق",
+            "droppedEntries": 2, "gapAyahs": 2, "at": 123,
+            "truncatedTail": {"63": {"published": 9, "absentFrom": 10, "absentTo": 11,
+                                      "reason": "source_truncated"}},
+            "provenance": {"olderSurahHistory": {"70": {"source": "earlier"}}},
+        }
+        self.save_inputs()
+        self.build()
+        result = json.loads(gzip.decompress(self.out.read_bytes()))
+        transform = result["transform"]
+        self.assertEqual(result["missing"], {"count": 0, "ids": [], "byReason": {}})
+        for field in ("reasonCode", "reasonUser", "droppedEntries", "gapAyahs"):
+            self.assertNotIn(field, transform)
+        self.assertEqual(transform["truncatedTail"], {})
+        self.assertEqual(transform["addedEntries"], 2)
+        self.assertEqual(transform["removedEntries"], 0)
+        self.assertEqual(transform["provenance"], {
+            "kind": "historical-parent-transform", "parentSha256": self.parent_sha,
+            "parentKey": "timings/hafs/example.jz", "parentTransform": self.parent["transform"],
+        })
+        self.assertEqual(self.parent_path.read_bytes(), self.parent_blob)
+
+    def test_other_surah_declarations_and_history_survive_metadata_repair(self):
+        self.parent["transform"] = {
+            "op": "declare_gap:63,70", "reasonCode": "SOURCE_TRUNCATED",
+            "reasonUser": "نقص معلن في التسجيلات السابقة.", "droppedEntries": 7, "gapAyahs": 7,
+            "truncatedTail": {"63": {"absentFrom": 10}, "70": {"absentFrom": 40}},
+            "dropSurah": [110], "customBySurah": {"80": {"evidence": "سجل قديم"}},
+        }
+        candidate = copy.deepcopy(self.parent)
+        before = copy.deepcopy(self.parent)
+        transform = B.repaired_transform(self.parent, candidate, 63, self.parent_sha,
+                                         "timings/hafs/example.jz")
+        self.assertEqual(transform["truncatedTail"], {"70": {"absentFrom": 40}})
+        for field in ("reasonCode", "reasonUser", "dropSurah", "customBySurah"):
+            self.assertEqual(transform[field], self.parent["transform"][field])
+        self.assertEqual(transform["provenance"]["parentTransform"], self.parent["transform"])
+        for field in ("droppedEntries", "gapAyahs"):
+            self.assertNotIn(field, transform)
+        transform["provenance"]["parentTransform"]["customBySurah"]["80"]["evidence"] = "تغيير الاختبار"
+        transform["truncatedTail"]["70"]["absentFrom"] = 42
+        self.assertEqual(self.parent, before)
+        self.assertEqual(candidate, before)
+
+    def test_unrelated_reason_is_not_removed_with_repaired_tail(self):
+        self.parent["transform"].update(reasonCode="OTHER_REASON", reasonUser="بيان آخر")
+        candidate = copy.deepcopy(self.parent)
+        transform = B.repaired_transform(self.parent, candidate, 63, self.parent_sha,
+                                         "timings/hafs/example.jz")
+        self.assertEqual(transform["reasonCode"], "OTHER_REASON")
+        self.assertEqual(transform["reasonUser"], "بيان آخر")
+
+    def test_low_count_recomputed_without_changing_low_confidence_or_approximate_starts(self):
+        self.parent["lowCount"] = 0
+        for row, conf in ((self.aligned["entries"][0], .3), (self.aligned["entries"][-1], .4)):
+            row.update(conf=conf, snapped=False)
+        self.save_inputs()
+        self.build()
+        result = json.loads(gzip.decompress(self.out.read_bytes()))
+        self.assertEqual(result["lowCount"], 2)
+        low = [e for e in result["entries"] if e["confBand"] == "LOW"]
+        self.assertEqual([(e["ayahId"], e["conf"], e["startApprox"]) for e in low],
+                         [("63:1", .3, True), ("63:11", .4, True)])
+
+    def test_low_count_keeps_other_surah_low_entries_unchanged(self):
+        self.parent["lowCount"] = 1
+        self.parent["entries"][0].update(conf=.4, confBand="LOW", startApprox=True)
+        self.aligned["entries"][0].update(conf=.3, snapped=False)
+        self.save_inputs()
+        self.build()
+        result = json.loads(gzip.decompress(self.out.read_bytes()))
+        self.assertEqual(result["lowCount"], 2)
+        self.assertEqual(result["entries"][0], self.parent["entries"][0])
 
 
 if __name__ == "__main__":

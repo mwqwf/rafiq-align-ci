@@ -1,0 +1,12 @@
+{
+  "action": "tool",
+  "tool": "index_qa/export_index_bytes.py",
+  "args": [
+    "--key",
+    "timings/hafs/s_sadeiq.jz",
+    "--expect-sha",
+    "860ca7ea5a375353181c8aa2a31e2eaff1c691f2663b409fcbd7c0cb9f5c53b3",
+    "--out",
+    "ops/out/codex-sadeiq-parent-20261005.json"
+  ]
+}

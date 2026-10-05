@@ -58,6 +58,7 @@ sys.path.insert(0, str(ROOT / "tools" / "index_qa"))
 
 from run import fetch_index, list_indexes, s3, audit as _run_audit  # noqa: E402
 from drop_surah import SURAH_AYAHS_OF                          # noqa: E402
+from qa_dispatch_guard import manual_qa_reason                 # noqa: E402
 
 # مراجعُ كاملةُ الصوت — أربعةٌ لا واحد (§2 أعلاه).
 # ⛔⛔ **وعطبٌ قِيس 2026-09-20 وأُصلح هنا: ثلاثةٌ من الأربعة كانت ناقصةَ
@@ -464,6 +465,10 @@ def cmd_scan(a):
         if (riw, rid, s) in SOURCE_OVERRIDES:
             print(f"   🔁 {rid} س{s}: مصدرٌ بديلٌ مقاس؛ المصدرُ المسجّل مبتور")
         idx, _ = fetch_index(r["key"])
+        manual_reason = manual_qa_reason(idx, r["key"])
+        if manual_reason:
+            print(f"   ⏸️ {r['key']}: {manual_reason}")
+            continue
         # ⛔⛔ **فهرسُ الجيل الأوّل لا يُصلحه ترقيعُ سورة** — قاعدةُ `CLAUDE.md` نصّاً،
         #    و`stage_transform` يردّه **حتماً** بـ«الفهرس بلا أثر صقلٍ في ترويسته —
         #    مجهول الجيل فلا يُرقّى». ⇒ فكلُّ تشغيلةٍ تُطلق عليه **ضائعةٌ يقيناً**.
@@ -585,13 +590,17 @@ def _staged_improvements():
     out = []
     for who, ks in cands.items():
         try:
-            o, _ = fetch_index(live[who])
+            o, live_sha = fetch_index(live[who])
         except Exception:                                      # noqa: BLE001
             continue
         mine = []
         for k in sorted(ks, key=lambda x: mt[x], reverse=True):
             try:
                 n, _ = fetch_index(k)
+                manual_reason = manual_qa_reason(n, k, live_sha)
+                if manual_reason:
+                    print(f"   ⏸️ {k}: {manual_reason}")
+                    continue
             except Exception:                                  # noqa: BLE001
                 continue
             g = len(n["entries"]) - len(o["entries"])
@@ -972,6 +981,9 @@ def cmd_explain(a):
                 why.append("أقدمُ من المنشور")
             try:
                 n, _ = fetch_index(k)
+                manual_reason = manual_qa_reason(n, k)
+                if manual_reason:
+                    why.append(manual_reason)
                 g = len(n["entries"]) - len(o["entries"])
             except Exception as ex:                            # noqa: BLE001
                 g = None; why.append(f"تعذّرت قراءتُه: {ex}")
