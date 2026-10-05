@@ -1,0 +1,189 @@
+name: فحص مجاني بعد رفع المرشح دون ترقية
+run-name: free-post-stage ${{ inputs.key }}
+
+# لا دفع أو جدول أو workflow_run؛ طلب صريح لبايتات المرشح المرفوع نفسه.
+on:
+  workflow_dispatch:
+    inputs:
+      key:
+        description: مفتاح المرشح الكامل في timings-staging
+        required: true
+        type: string
+      sha:
+        description: SHA256 كامل لبايتات المرشح المرفوع
+        required: true
+        type: string
+      parent_sha:
+        description: SHA256 كامل للأصل المنشور المجمد
+        required: true
+        type: string
+
+permissions:
+  contents: read
+concurrency:
+  group: free-post-stage-quality-${{ inputs.key }}
+  cancel-in-progress: false
+env:
+  KEY: ${{ inputs.key }}
+  SHA64: ${{ inputs.sha }}
+  PARENT_SHA64: ${{ inputs.parent_sha }}
+  QA_MODEL: ${{ github.workspace }}/assets-archive/ggml/ggml-tiny-ar-quran-q8_0.bin
+  QA_CACHE: ${{ github.workspace }}/qa_audio
+  HF_HOME: ${{ github.workspace }}/.hf
+  HF_HUB_OFFLINE: '1'
+  TRANSFORMERS_OFFLINE: '1'
+  TOKENIZERS_PARALLELISM: 'false'
+  CTC_INT8: '0'
+  CTC_THREADS: '2'
+
+jobs:
+  plan:
+    if: ${{ github.event.repository.private == false }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.sha }}
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with: {python-version: '3.11'}
+      - name: إثبات المستودع العام والمشغل القياسي
+        env:
+          PUBLIC_REPOSITORY: ${{ github.event.repository.private == false }}
+        run: |
+          python - <<'PY'
+          import os
+          assert os.environ['PUBLIC_REPOSITORY'] == 'true'
+          assert os.environ['GITHUB_REPOSITORY'] == 'mwqwf/rafiq-align-ci'
+          assert os.environ['RUNNER_ENVIRONMENT'] == 'github-hosted'
+          assert os.environ['RUNNER_OS'] == 'Linux' and os.environ['RUNNER_ARCH'] == 'X64'
+          PY
+      - run: python -m pip install --quiet boto3
+      - name: ربط المرشح بالأصل الرسمي وفحصه قبل الصوت
+        env:
+          R2_CREDENTIALS_JSON: ${{ secrets.R2_CREDENTIALS_JSON }}
+        run: |
+          umask 077
+          mkdir -p secure
+          printf '%s' "$R2_CREDENTIALS_JSON" > secure/r2_credentials.json
+          python tools/index_qa/post_stage_guard.py --key "$KEY" --sha "$SHA64" --parent-sha "$PARENT_SHA64"
+
+  quality:
+    needs: plan
+    runs-on: ubuntu-latest
+    timeout-minutes: 350
+    strategy:
+      fail-fast: false
+      max-parallel: 6
+      matrix:
+        check: [openers, census, rs1, rs2, rs3, rs4]
+    name: quality ${{ matrix.check }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.sha }}
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with: {python-version: '3.11'}
+      - name: أدوات القياس القائمة
+        timeout-minutes: 15
+        run: |
+          bash tools/ci_fleet/install_qa_deps.sh
+          python -m pip install --quiet 'numpy<2'
+      # استرجاع فقط؛ لا حفظ كاش ولا artifacts في أي مسار نجاح أو إخفاق.
+      - uses: actions/cache/restore@v4
+        with:
+          path: assets-archive/ggml
+          key: qa-model-q8-v1
+      - name: تثبيت نموذج المحكم ببصمته المعتمدة
+        run: |
+          python - <<'PY'
+          import os, pathlib, sys, urllib.request
+          sys.path.insert(0, 'tools/index_qa')
+          from post_stage_quality import verify_model
+          p = pathlib.Path(os.environ['QA_MODEL'])
+          if not p.exists():
+              p.parent.mkdir(parents=True, exist_ok=True)
+              url = 'https://pub-2c2e1dcd92e84a2898820dd38d3e09e6.r2.dev/models/whisper-tiny-ar-quran/ggml-q8_0.bin'
+              req = urllib.request.Request(url, headers={'User-Agent': 'QuranRafiq post-stage QA'})
+              with urllib.request.urlopen(req, timeout=120) as src, p.open('wb') as dst:
+                  while chunk := src.read(1048576):
+                      dst.write(chunk)
+          verify_model(p)
+          print('نموذج المحكم مطابق للبصمة المعتمدة')
+          PY
+      - uses: actions/cache/restore@v4
+        if: matrix.check == 'openers'
+        with:
+          path: .hf
+          key: ctc-model-jonatasgrosman-xlsr53-ar-v1
+          fail-on-cache-miss: true
+      - name: شاهد CTC الحتمي للمطالع
+        if: matrix.check == 'openers'
+        run: |
+          python -m pip install --quiet --index-url https://download.pytorch.org/whl/cpu torch
+          python -m pip install --quiet 'numpy<2' 'transformers<5' ctc-segmentation rapidfuzz
+      - name: قياس فعلي وحفظ الحكم الرسمي على البصمة نفسها
+        env:
+          CHECK: ${{ matrix.check }}
+          R2_CREDENTIALS_JSON: ${{ secrets.R2_CREDENTIALS_JSON }}
+        run: |
+          umask 077
+          mkdir -p secure
+          printf '%s' "$R2_CREDENTIALS_JSON" > secure/r2_credentials.json
+          python tools/index_qa/post_stage_quality.py --key "$KEY" --sha "$SHA64" --parent-sha "$PARENT_SHA64" --check "$CHECK" --model "$QA_MODEL"
+
+  heard:
+    needs: plan
+    runs-on: ubuntu-latest
+    timeout-minutes: 350
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.sha }}
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with: {python-version: '3.11'}
+      - uses: actions/cache/restore@v4
+        with:
+          path: .hf
+          key: ctc-model-jonatasgrosman-xlsr53-ar-v1
+          fail-on-cache-miss: true
+      - name: أدوات السماع القائمة
+        timeout-minutes: 20
+        run: |
+          python tools/ci_fleet/install_qa_ffmpeg.py
+          python -m pip install --quiet --index-url https://download.pytorch.org/whl/cpu torch
+          python -m pip install --quiet 'numpy<2' 'transformers<5' ctc-segmentation rapidfuzz soundfile boto3
+      - name: سماع السور المطلوبة بعينة بصمة المرشح النهائية
+        env:
+          R2_CREDENTIALS_JSON: ${{ secrets.R2_CREDENTIALS_JSON }}
+        run: |
+          umask 077
+          mkdir -p secure
+          printf '%s' "$R2_CREDENTIALS_JSON" > secure/r2_credentials.json
+          python tools/index_qa/post_stage_heard.py --key "$KEY" --sha "$SHA64" --parent-sha "$PARENT_SHA64" --out-dir post-stage/heard
+
+  review:
+    needs: [plan, quality, heard]
+    # يعرض الحراس حتى عند حكم صوتي رافض؛ القياس الناقص يفشل بلا اعتبار حكم أقدم.
+    if: ${{ always() && needs.plan.result == 'success' && !cancelled() }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.sha }}
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with: {python-version: '3.11'}
+      - run: python -m pip install --quiet boto3
+      - name: كل حراس الترقية الأصلية في عرض للقراءة فقط
+        env:
+          R2_CREDENTIALS_JSON: ${{ secrets.R2_CREDENTIALS_JSON }}
+        run: |
+          umask 077
+          mkdir -p secure
+          printf '%s' "$R2_CREDENTIALS_JSON" > secure/r2_credentials.json
+          python tools/index_qa/post_stage_quality.py --key "$KEY" --sha "$SHA64" --parent-sha "$PARENT_SHA64" --check review
