@@ -26,7 +26,7 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 from run import s3  # noqa: E402
-from promote import openers_tool_ok  # noqa: E402
+from promote import late_ctc_trusted, openers_tool_ok  # noqa: E402
 
 LATE_MS = int(os.environ.get("OPENERS_LATE_MS", "4000"))
 
@@ -153,7 +153,20 @@ def main() -> int:
         for row in (hit[2].get("rows") if hit else []) or []:
             print(f"ROW\t{want}\t{row.get('surah')}\t{row.get('startMs')}\t"
                   f"{row.get('verdict')}\t{row.get('rung')}")
+    # ⛔ **تبرئةُ متأخّرٍ بمسبارٍ غيرِ حتميّ لا تشهد** (‏fixV 2026-10-05 · `promote.late_ctc_trusted`):
+    #    int8 وذيلُ 1.5ث أبرأا الحارثيّ 89 الصادقَ ⇒ يُعاد مسحُ كلِّ منشورٍ برّأ متأخّراً بهما.
+    oldctc = []
+    for k in sorted(pub):
+        if k in uncovered or k in unread:
+            continue
+        r = by_sha[hashlib.sha256(pub_raw[k]).hexdigest()][2]
+        acq = sorted(set(r.get("late") or []) - set(r.get("lateConfirmed") or []))
+        if acq and not late_ctc_trusted(r):
+            oldctc.append(k)
+            print(f"   OLDCTC\t{k}\t{acq}\t{r.get('lateCtcPrecision') or 'int8 · tail 1500'}")
+    print(f"⚠️ برّأ متأخّراً بمسبارٍ غيرِ حتميّ (‏يُعاد مسحُه): {len(oldctc)}")
     print("UNCOVERED=" + ",".join(uncovered))
+    print("RESCAN=" + ",".join(sorted(set(uncovered) | set(no_late) | set(oldctc))))
     return 0
 
 
