@@ -1,0 +1,33 @@
+# rc=0
+{
+ "late": [
+  4,
+  5,
+  22
+ ],
+ "lateConfirmed": [],
+ "lateCtcPrecision": "float32-1thread-avx2 · tail 6000",
+ "lateCtc": {
+  "4": {
+   "indexStartMs": 3422,
+   "ctcStartMs": 3424,
+   "conf": 0.726,
+   "diffMs": 2,
+   "confirmed": false
+  },
+  "5": {
+   "indexStartMs": 3022,
+   "ctcStartMs": 3021,
+   "conf": 0.771,
+   "diffMs": -1,
+   "confirmed": false
+  },
+  "22": {
+   "indexStartMs": 3080,
+   "ctcStartMs": 3222,
+   "conf": 0.634,
+   "diffMs": 142,
+   "confirmed": false
+  }
+ }
+}
