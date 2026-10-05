@@ -1,0 +1,220 @@
+{
+ "schema": 1,
+ "tool": "full_audit-1.0",
+ "date": "20261005",
+ "timestampUtc": "2026-10-05T15:36:26Z",
+ "elapsedSec": 61.1,
+ "phase": "all",
+ "manifestIndexes": 180,
+ "frozenBucket": 220,
+ "reportsRead": 11113,
+ "rows": [
+  {
+   "key": "timings-staging/warsh/koshi_warsh.cfbe36cc.jz",
+   "sha256": "cfbe36cc9a75de6c5d2e662b2e39d9cca52a7f3f362a1081e714025b994e7481",
+   "riwaya": "warsh",
+   "reciterId": "koshi_warsh",
+   "bytes": 89986,
+   "engine": "align-0.2",
+   "transformOp": "ctc_heardmap_splice:15,42,43,45,51",
+   "staging": true,
+   "identity": {
+    "sha256": "cfbe36cc9a75de6c5d2e662b2e39d9cca52a7f3f362a1081e714025b994e7481",
+    "staging": true,
+    "errors": [],
+    "ok": true
+   },
+   "structure": {
+    "entries": 6236,
+    "errors": [],
+    "examples": {},
+    "fileNoUnparsed": 0,
+    "structuralFatal": [],
+    "structuralWarn": [
+     "مداخل مدتها > 120ث: 3 · مثال: 2:282 مدتها 165ث",
+     "مطالع سور تبدأ دون 3ث — مرشّحون للمسبار الصوتي لا حكمٌ عليهم: 34:1=756م.ث · 43:1=2910م.ث · 44:1=2902م.ث · 45:1=2842م.ث",
+     "فجوات > 15ث بين آيتين متتاليتين: 2 · مثال: 6:93→6:94 فجوة 33ث"
+    ],
+    "decision": [],
+    "engine": "align-0.2",
+    "audioSha": 114,
+    "bands": {
+     "HIGH": 4167,
+     "MED": 1861,
+     "LOW": 208
+    },
+    "ok": true
+   },
+   "gaps": {
+    "missingTotal": 0,
+    "internalGaps": [],
+    "headMissing": [],
+    "tailMissing": [],
+    "wholeMissing": [],
+    "declared": {
+     "transformOp": "ctc_heardmap_splice:15,42,43,45,51",
+     "transformReason": "fixT: إصلاحٌ دفعيٌّ لكبس الذيل — 5 سورةً مشتبهةً (فائضٌ ≥15ث بعد آخر مدخل · تدقيق الجولة الثانية 2026-10-03)، كلٌّ يُقاس بالسماع قبل أن يُمسّ",
+     "reasonCode": null,
+     "dropSurahs": [],
+     "byReason": {
+      "no-align": 14
+     },
+     "declaredCount": 14,
+     "tagCount": 0,
+     "declaredIds": [],
+     "truncatedTail": null
+    },
+    "undeclaredEdge": [],
+    "errors": [],
+    "ok": true
+   },
+   "durations": {
+    "durationOutliers": 6,
+    "durationExamples": [
+     {
+      "aid": "11:118",
+      "ms": 1166,
+      "expMs": 12267,
+      "ratio": 0.1,
+      "chars": 40
+     },
+     {
+      "aid": "113:4",
+      "ms": 927,
+      "expMs": 4769,
+      "ratio": 0.19,
+      "chars": 18
+     },
+     {
+      "aid": "67:11",
+      "ms": 1562,
+      "expMs": 7839,
+      "ratio": 0.2,
+      "chars": 30
+     },
+     {
+      "aid": "54:39",
+      "ms": 937,
+      "expMs": 4072,
+      "ratio": 0.23,
+      "chars": 15
+     },
+     {
+      "aid": "90:9",
+      "ms": 815,
+      "expMs": 3270,
+      "ratio": 0.25,
+      "chars": 12
+     },
+     {
+      "aid": "54:38",
+      "ms": 1556,
+      "expMs": 5973,
+      "ratio": 0.26,
+      "chars": 22
+     }
+    ],
+    "impossibleShort": [
+     {
+      "aid": "11:118",
+      "ms": 1166,
+      "expMs": 12267,
+      "ratio": 0.1,
+      "chars": 40
+     }
+    ],
+    "veryShort": [
+     {
+      "aid": "113:4",
+      "ms": 927,
+      "expMs": 4769,
+      "ratio": 0.19,
+      "chars": 18
+     },
+     {
+      "aid": "54:39",
+      "ms": 937,
+      "expMs": 4072,
+      "ratio": 0.23,
+      "chars": 15
+     },
+     {
+      "aid": "90:9",
+      "ms": 815,
+      "expMs": 3270,
+      "ratio": 0.25,
+      "chars": 12
+     }
+    ],
+    "extremeLong": [],
+    "longOutliers": 0,
+    "shortOutliers": 6,
+    "silenceGaps": 2,
+    "silenceExamples": [
+     {
+      "from": "6:93",
+      "to": "6:94",
+      "gapMs": 33080
+     },
+     {
+      "from": "53:22",
+      "to": "53:23",
+      "gapMs": 18060
+     }
+    ],
+    "surahsWithRate": 113
+   },
+   "audio": {
+    "audioReportsOnSha": 0,
+    "openersOnSha": false,
+    "errors": [
+     "لا حكمَ صوتيٍّ بعيّنةٍ على البصمة المنشورة",
+     "لا شاهدَ مطالعَ على البصمة المنشورة"
+    ],
+    "notes": [],
+    "samples": [],
+    "pooled": null,
+    "severeHi": null,
+    "otherShasWithSamples": [
+     "024aa437",
+     "06c5e49d",
+     "07a0f5e9",
+     "185486a2",
+     "23854af2",
+     "3834bf05",
+     "3a875e30",
+     "3dda31c7",
+     "42cb5733",
+     "4e34cf77"
+    ],
+    "ok": false
+   }
+  }
+ ],
+ "summary": {
+  "indexes": 1,
+  "phase": "all",
+  "identityOk": 1,
+  "identityBad": [],
+  "structureOk": 1,
+  "structureBad": [],
+  "gapsOk": 1,
+  "gapsBad": [],
+  "audioOk": 0,
+  "audioBad": [
+   "timings-staging/warsh/koshi_warsh.cfbe36cc.jz"
+  ],
+  "durationOutliersTotal": 6,
+  "impossibleShortTotal": 1,
+  "indexesWithImpossibleShort": 1,
+  "veryShortTotal": 3,
+  "extremeLongTotal": 0,
+  "indexesWithExtremeLong": 0,
+  "mirrorStale": 0,
+  "silenceGapsTotal": 2,
+  "indexesWithDurationOutliers": 1,
+  "indexesWithSilenceGaps": 1,
+  "entriesTotal": 6236,
+  "missingTotal": 0
+ }
+}

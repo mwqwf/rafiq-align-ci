@@ -121,9 +121,28 @@ class Resync(unittest.TestCase):
         with self.assertRaises(M.Unrecoverable):
             M.resync_decode(self.clean, M.ffmpeg_decode_bytes)
 
+    def test_oversized_gap_refused(self):
+        """فجوةٌ كبيرةٌ لا يُقدَّر زمنُها من حجمها ⇒ تُردّ (‏حدُّ GAP_SLOT_MAX_MS)."""
+        d = bytearray(open(self.clean, "rb").read())
+        frames, _ = M.scan(bytes(d))
+        mid = frames[len(frames) // 2][0]
+        d[mid:mid + 12000] = bytes(12000)
+        p = os.path.join(self.tmp, "big.mp3")
+        with open(p, "wb") as f:
+            f.write(bytes(d))
+        with self.assertRaises(M.Unrecoverable) as cm:
+            M.resync_decode(p, M.ffmpeg_decode_bytes)
+        self.assertIn("لا يُقدَّر زمنٌ بهذا الحجم", str(cm.exception))
+
+    def test_gap_slot_estimate(self):
+        frames, gaps = M.scan(open(self.dmg, "rb").read())
+        self.assertGreater(M.gap_slot_ms(frames, gaps[0]), 0)
+        self.assertLessEqual(M.gap_slot_ms(frames, gaps[0]), M.GAP_SLOT_MAX_MS)
+
     def test_constants_fixed(self):
         self.assertEqual(M.MAX_LOSS_MS, 1000)
         self.assertEqual(M.MAX_CLUSTERS, 8)
+        self.assertEqual(M.GAP_SLOT_MAX_MS, 300)
         src = Path(M.__file__).read_text(encoding="utf-8")
         self.assertNotIn("os.environ", src)
 
