@@ -58,7 +58,10 @@ sys.path.insert(0, str(ROOT / "tools" / "index_qa"))
 
 from run import fetch_index, list_indexes, s3, audit as _run_audit  # noqa: E402
 from drop_surah import SURAH_AYAHS_OF                          # noqa: E402
-from qa_dispatch_guard import manual_qa_reason                 # noqa: E402
+if __package__:
+    from .qa_dispatch_guard import manual_qa_reason             # noqa: E402
+else:
+    from qa_dispatch_guard import manual_qa_reason              # noqa: E402
 
 # مراجعُ كاملةُ الصوت — أربعةٌ لا واحد (§2 أعلاه).
 # ⛔⛔ **وعطبٌ قِيس 2026-09-20 وأُصلح هنا: ثلاثةٌ من الأربعة كانت ناقصةَ
