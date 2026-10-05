@@ -1,0 +1,20 @@
+{
+  "action": "tool",
+  "tool": "index_qa/stage_transform.py",
+  "args": [
+    "--file",
+    "ops/source-repair/candidates/codex-peshawa-s63-20261005-v2.jz",
+    "--parent",
+    "timings/hafs/peshawa.jz",
+    "--parent-sha",
+    "435095f6f5a9e737854f5fdea9b434d17034b7e58ef15aa9a56b3f948f21f124",
+    "--op",
+    "ctc_heardmap_splice:63",
+    "--reason",
+    "استرجاع 63:10 و63:11 وإعادة محاذاة السورة 63 كاملة من مصدر بيشةوا المقيس 284760 مللي ثانية، ببصمة صوت bbfc9570680b5172ad15e417ce0ef5b8aaf8d15e16ec6f12fe46ea1752243301؛ سبر 37353243110 وبناء float32 في 37355762861؛ لا شهادة جودة قبل اجتياز الحراس على بصمة المرشح النهائية.",
+    "--by",
+    "codex",
+    "--manual-qa-only",
+    "--yes"
+  ]
+}
