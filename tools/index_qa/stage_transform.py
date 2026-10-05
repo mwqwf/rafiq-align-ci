@@ -179,6 +179,15 @@ def truncated_header_error(idx, tails):
     return None
 
 
+def apply_dispatch_policy(index, enabled, parent_key, parent_sha):
+    """سياسة جدولة للتحويل الحالي فقط؛ لا تغير مدخلاً أو حارس جودة."""
+    index["transform"].pop("qaDispatch", None)
+    if enabled:
+        sys.path.insert(0, str(HERE.parent / "ci_fleet"))
+        from qa_dispatch_guard import manual_qa_policy
+        index["transform"]["qaDispatch"] = manual_qa_policy(index, parent_key, parent_sha)
+
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--file", required=True, help="ملفّ المنتَج المحلّي (.jz)")
@@ -204,6 +213,8 @@ def main():
                     help="سورةٌ مبتورةُ الذيل تُقبل بادئتُها 1..N وحدها: «24:30» — بادئةٌ "
                          "متّصلةٌ بلا فجوة، وN المسمّاةُ هي الحدّ، والذيلُ معلَنٌ source_truncated")
     ap.add_argument("--yes", action="store_true")
+    ap.add_argument("--manual-qa-only", action="store_true",
+                    help="حصر هذا المرشح في فحوص يدوية مجانية؛ لا يعفيه من أي حارس")
     a = ap.parse_args()
     tails = parse_tails(a.owner_truncated_tail)
     if tails and a.allow_inherited_gaps:
@@ -414,6 +425,8 @@ def main():
         "note": ("‏عددُ المداخل مطابقٌ للأصل والحدودُ وحدها أُزيحت؛ ولا يُرقّى "
                  "بحكم الأصل: يدخل الطابور بفحص مطالعَ وعيّنةٍ على بصمته."),
     })
+    # سياسة الجدولة تخص التحويل الحالي، ولا تورث حجزاً إلى تحويل لاحق تلقائياً.
+    apply_dispatch_policy(out, a.manual_qa_only, a.parent, psha)
     packed = gzip.compress(json.dumps(out, ensure_ascii=False,
                                       separators=(",", ":")).encode("utf-8"), 9)
     new = hashlib.sha256(packed).hexdigest()

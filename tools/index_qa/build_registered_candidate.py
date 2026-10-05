@@ -157,6 +157,31 @@ def check_preserved(parent, candidate, surah, source):
             "المداخل لم تتغير؛ لا إصلاح هنا")
 
 
+def repaired_transform(parent, candidate, surah, parent_sha, parent_key):
+    """يحفظ أثر الأصل كتاريخ، ويزيل إعلان السورة المسترجعة وحدها."""
+    transform = copy.deepcopy(candidate.get("transform") or {})
+    # الأثر السابق كامل ومحفوظ ببصمة ملفه، ولا يصف حالة المرشح الحالية.
+    transform["provenance"] = {
+        "kind": "historical-parent-transform",
+        "parentSha256": parent_sha,
+        "parentKey": parent_key,
+        "parentTransform": copy.deepcopy(parent.get("transform")),
+    }
+    if isinstance(transform.get("truncatedTail"), dict):
+        transform["truncatedTail"].pop(str(surah), None)
+    # العدّادان يخصّان عملية إسقاط قديمة؛ أعداد التحويل الحالي تحسب من المداخل.
+    for field in ("droppedEntries", "gapAyahs"):
+        transform.pop(field, None)
+    # بيان الغياب المشترك مطلوب ما دام بتر سورة أخرى قائماً، ولا يرثه فهرس كامل.
+    missing_reasons = (candidate.get("missing") or {}).get("byReason") or {}
+    remaining_truncation = (transform.get("truncatedTail") or transform.get("dropSurah")
+                            or missing_reasons.get("source_truncated", 0))
+    if transform.get("reasonCode") == "SOURCE_TRUNCATED" and not remaining_truncation:
+        transform.pop("reasonCode", None)
+        transform.pop("reasonUser", None)
+    return transform
+
+
 def build(parent_path, parent_sha, aligned_path, surah, out_path, *, parent_key=None):
     require(SHA_RE.fullmatch(str(parent_sha)), "بصمة الأصل يجب أن تكون كاملة")
     target = checked_output(out_path)
@@ -199,12 +224,11 @@ def build(parent_path, parent_sha, aligned_path, surah, out_path, *, parent_key=
             "تغيرت مدخلات البناء أثناء العمل")
     check_preserved(parent, candidate, surah, source)
     old_entries, new_entries = parent["entries"], candidate["entries"]
+    # هذا عدّاد مشتق لا حكم جديد على الثقة؛ تبقى الأشرطة والحدود كما قيسَت.
+    if "lowCount" in candidate:
+        candidate["lowCount"] = sum(e.get("confBand") == "LOW" for e in new_entries)
     moved, added, removed = stage_transform.entry_change_counts(old_entries, new_entries)
-    transform = dict(candidate.get("transform") or {})
-    # السورة المسترجعة كاملة لا ترث إعلان ذيلها القديم؛ غيرها يبقى كما كان.
-    if isinstance(transform.get("truncatedTail"), dict):
-        transform["truncatedTail"] = {k: v for k, v in transform["truncatedTail"].items()
-                                      if k != str(surah)}
+    transform = repaired_transform(parent, candidate, surah, parent_sha, key)
     transform.update(op=f"{OP}:{surah}", fromSha256=parent_sha, fromKey=key,
                      entriesSha256=stage_transform.entries_sha(new_entries),
                      parentEntriesSha256=stage_transform.entries_sha(old_entries),
