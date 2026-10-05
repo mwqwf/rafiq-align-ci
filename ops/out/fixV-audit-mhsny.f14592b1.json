@@ -1,0 +1,297 @@
+{
+ "schema": 1,
+ "tool": "full_audit-1.0",
+ "date": "20261005",
+ "timestampUtc": "2026-10-05T03:03:39Z",
+ "elapsedSec": 25.1,
+ "phase": "all",
+ "manifestIndexes": 180,
+ "frozenBucket": 220,
+ "reportsRead": 10879,
+ "rows": [
+  {
+   "key": "timings-staging/hafs/mhsny.f14592b1.jz",
+   "sha256": "f14592b1da37201ac6f13d7a378ef30b3e220b4c9e4a7bb51ed688f9beb48616",
+   "riwaya": "hafs",
+   "reciterId": "mhsny",
+   "bytes": 90160,
+   "engine": "ctc-seg-1",
+   "transformOp": "ctc_heardmap_splice:2",
+   "staging": true,
+   "identity": {
+    "sha256": "f14592b1da37201ac6f13d7a378ef30b3e220b4c9e4a7bb51ed688f9beb48616",
+    "staging": true,
+    "errors": [],
+    "ok": true
+   },
+   "structure": {
+    "entries": 6236,
+    "errors": [],
+    "examples": {},
+    "fileNoUnparsed": 0,
+    "structuralFatal": [],
+    "structuralWarn": [
+     "مطالع سور تبدأ دون 3ث — مرشّحون للمسبار الصوتي لا حكمٌ عليهم: 7:1=2441م.ث · 11:1=2502م.ث · 15:1=2221م.ث · 16:1=2822م.ث · 18:1=2982م.ث · 21:1=2990م.ث · 26:1=2922م.ث · 30:1=2151م.ث · 33:1=2860م.ث · 34:1=2481م.ث … و16 غيرها"
+    ],
+    "decision": [],
+    "engine": "ctc-seg-1",
+    "audioSha": 114,
+    "bands": {
+     "LOW": 622,
+     "MED": 5403,
+     "HIGH": 211
+    },
+    "ok": true
+   },
+   "gaps": {
+    "missingTotal": 0,
+    "internalGaps": [],
+    "headMissing": [],
+    "tailMissing": [],
+    "wholeMissing": [],
+    "declared": {
+     "transformOp": "ctc_heardmap_splice:2",
+     "transformReason": "fixV: البقرة عند المحيسني — الملفّ يُفكّ كاملاً 5723ث (3 فجواتِ تزامنٍ مجموعها 691 بايتاً، surah_audio_probe 1035) والمنشور 41051828 ينتهي عند 4137ث: قياسٌ بخريطة السماع وإصلاحٌ بالانتقاء ببوّابة السماع نفسها قبل أيّ مصدرٍ بديل",
+     "reasonCode": null,
+     "dropSurahs": [],
+     "byReason": {
+      "no-align": 1
+     },
+     "declaredCount": 1,
+     "tagCount": 0,
+     "declaredIds": [],
+     "truncatedTail": null
+    },
+    "undeclaredEdge": [],
+    "errors": [],
+    "ok": true
+   },
+   "durations": {
+    "durationOutliers": 71,
+    "durationExamples": [
+     {
+      "aid": "15:49",
+      "ms": 36441,
+      "expMs": 4841,
+      "ratio": 7.53,
+      "chars": 26
+     },
+     {
+      "aid": "3:113",
+      "ms": 83996,
+      "expMs": 11721,
+      "ratio": 7.17,
+      "chars": 54
+     },
+     {
+      "aid": "37:49",
+      "ms": 16625,
+      "expMs": 2353,
+      "ratio": 7.07,
+      "chars": 13
+     },
+     {
+      "aid": "15:42",
+      "ms": 50433,
+      "expMs": 7447,
+      "ratio": 6.77,
+      "chars": 40
+     },
+     {
+      "aid": "17:24",
+      "ms": 63056,
+      "expMs": 9943,
+      "ratio": 6.34,
+      "chars": 51
+     },
+     {
+      "aid": "25:66",
+      "ms": 29039,
+      "expMs": 4794,
+      "ratio": 6.06,
+      "chars": 19
+     },
+     {
+      "aid": "40:19",
+      "ms": 31232,
+      "expMs": 5514,
+      "ratio": 5.66,
+      "chars": 28
+     },
+     {
+      "aid": "20:107",
+      "ms": 21234,
+      "expMs": 3903,
+      "ratio": 5.44,
+      "chars": 20
+     },
+     {
+      "aid": "15:48",
+      "ms": 30160,
+      "expMs": 5585,
+      "ratio": 5.4,
+      "chars": 30
+     },
+     {
+      "aid": "20:83",
+      "ms": 19478,
+      "expMs": 3708,
+      "ratio": 5.25,
+      "chars": 19
+     },
+     {
+      "aid": "43:77",
+      "ms": 27788,
+      "expMs": 5499,
+      "ratio": 5.05,
+      "chars": 34
+     },
+     {
+      "aid": "70:17",
+      "ms": 17262,
+      "expMs": 3521,
+      "ratio": 4.9,
+      "chars": 16
+     }
+    ],
+    "impossibleShort": [],
+    "veryShort": [],
+    "extremeLong": [
+     {
+      "aid": "15:49",
+      "ms": 36441,
+      "expMs": 4841,
+      "ratio": 7.53,
+      "chars": 26
+     },
+     {
+      "aid": "3:113",
+      "ms": 83996,
+      "expMs": 11721,
+      "ratio": 7.17,
+      "chars": 54
+     },
+     {
+      "aid": "37:49",
+      "ms": 16625,
+      "expMs": 2353,
+      "ratio": 7.07,
+      "chars": 13
+     },
+     {
+      "aid": "15:42",
+      "ms": 50433,
+      "expMs": 7447,
+      "ratio": 6.77,
+      "chars": 40
+     },
+     {
+      "aid": "17:24",
+      "ms": 63056,
+      "expMs": 9943,
+      "ratio": 6.34,
+      "chars": 51
+     },
+     {
+      "aid": "25:66",
+      "ms": 29039,
+      "expMs": 4794,
+      "ratio": 6.06,
+      "chars": 19
+     },
+     {
+      "aid": "40:19",
+      "ms": 31232,
+      "expMs": 5514,
+      "ratio": 5.66,
+      "chars": 28
+     },
+     {
+      "aid": "20:107",
+      "ms": 21234,
+      "expMs": 3903,
+      "ratio": 5.44,
+      "chars": 20
+     },
+     {
+      "aid": "15:48",
+      "ms": 30160,
+      "expMs": 5585,
+      "ratio": 5.4,
+      "chars": 30
+     },
+     {
+      "aid": "20:83",
+      "ms": 19478,
+      "expMs": 3708,
+      "ratio": 5.25,
+      "chars": 19
+     },
+     {
+      "aid": "43:77",
+      "ms": 27788,
+      "expMs": 5499,
+      "ratio": 5.05,
+      "chars": 34
+     }
+    ],
+    "longOutliers": 70,
+    "shortOutliers": 0,
+    "silenceGaps": 0,
+    "silenceExamples": [],
+    "surahsWithRate": 113
+   },
+   "audio": {
+    "audioReportsOnSha": 0,
+    "openersOnSha": false,
+    "errors": [
+     "لا حكمَ صوتيٍّ بعيّنةٍ على البصمة المنشورة",
+     "لا شاهدَ مطالعَ على البصمة المنشورة"
+    ],
+    "notes": [],
+    "samples": [],
+    "pooled": null,
+    "severeHi": null,
+    "otherShasWithSamples": [
+     "3816ca6c",
+     "3860f1a0",
+     "41051828",
+     "4449ee9e",
+     "4ac1ca96",
+     "545bcc3a",
+     "abec0e9b",
+     "ac2e0d35",
+     "ce66490d",
+     "d043f737"
+    ],
+    "ok": false
+   }
+  }
+ ],
+ "summary": {
+  "indexes": 1,
+  "phase": "all",
+  "identityOk": 1,
+  "identityBad": [],
+  "structureOk": 1,
+  "structureBad": [],
+  "gapsOk": 1,
+  "gapsBad": [],
+  "audioOk": 0,
+  "audioBad": [
+   "timings-staging/hafs/mhsny.f14592b1.jz"
+  ],
+  "durationOutliersTotal": 71,
+  "impossibleShortTotal": 0,
+  "indexesWithImpossibleShort": 0,
+  "veryShortTotal": 0,
+  "extremeLongTotal": 11,
+  "indexesWithExtremeLong": 1,
+  "mirrorStale": 0,
+  "silenceGapsTotal": 0,
+  "indexesWithDurationOutliers": 1,
+  "indexesWithSilenceGaps": 0,
+  "entriesTotal": 6236,
+  "missingTotal": 0
+ }
+}
