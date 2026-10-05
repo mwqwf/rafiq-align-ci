@@ -103,7 +103,8 @@ ALLOWED_WF = {"verified_kurdi_source.yml", "spoken_census.yml", "window_census.y
 #    استرجاع الـ310 آية لم تصل إلى المستخدم أصلاً، **لأنّ لا بابَ سحابيّاً
 #    كان يفتحه**. وهو محكومٌ بحُرّاسه (يُسقط التوليد كلَّه إن شُهد لمن لا حكمَ
 #    لبصمته، ولا يمسّ غير الحقلين)، فإدخالُه لا يُضعف حارساً.
-ALLOWED_TOOLS = {"index_qa/resync_probe.py",  # 🩺 سبرُ عطب إطارات ملفّ صوت (fixV 2026-10-05)
+ALLOWED_TOOLS = {"index_qa/export_index_bytes.py",  # SHA-pinned raw read only
+                 "index_qa/resync_probe.py",  # 🩺 سبرُ عطب إطارات ملفّ صوت (fixV 2026-10-05)
                  "ci_fleet/package_catalog_review.py", "ci_fleet/akri_soundcloud_native_compare.py", "ci_fleet/akri_publisher_metadata.py", "ci_fleet/akri_rss_direct_source_search.py", "ci_fleet/akri_independent_source_search.py", "ci_fleet/cancel_duplicate_kalbani_qa.py", "ci_fleet/qa_recover_stalled.py", "index_qa/repair_review.py", "ci_fleet/refreeze.py", "tasmi_bench/cloud_stream_probe.py",  # 🩺 صحّةُ التفريغ السحابيّ (2026-09-25)  # يسدّ تجميداً رُفع بلا ترقية (2026-09-23)
                  "index_qa/run.py", "index_qa/stage_transform.py", "index_qa/promote_verified_transform.py", "ci_fleet/alt_source.py", "ci_fleet/find_sources.py",  # 🔁 تسجيلٌ بديلٌ للقارئ نفسه (2026-09-25)
                  "index_qa/triage.py", "index_qa/promote.py", "index_qa/openers_coverage.py", "index_qa/gap_probe.py", "ci_fleet/web_probe.py",  # 🕋 شواهدُ المطالع على المنشور (2026-09-29)

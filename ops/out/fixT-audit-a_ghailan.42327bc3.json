@@ -1,0 +1,159 @@
+{
+ "schema": 1,
+ "tool": "full_audit-1.0",
+ "date": "20261005",
+ "timestampUtc": "2026-10-05T18:27:04Z",
+ "elapsedSec": 59.4,
+ "phase": "all",
+ "manifestIndexes": 180,
+ "frozenBucket": 220,
+ "reportsRead": 11213,
+ "rows": [
+  {
+   "key": "timings-staging/hafs/a_ghailan.42327bc3.jz",
+   "sha256": "42327bc322b56a8ebc7b587b0af5ae774519f2b257d80383791993ff90c79095",
+   "riwaya": "hafs",
+   "reciterId": "a_ghailan",
+   "bytes": 88490,
+   "engine": "align-0.2",
+   "transformOp": "ctc_heardmap_splice:41,44",
+   "staging": true,
+   "identity": {
+    "sha256": "42327bc322b56a8ebc7b587b0af5ae774519f2b257d80383791993ff90c79095",
+    "staging": true,
+    "errors": [],
+    "ok": true
+   },
+   "structure": {
+    "entries": 6236,
+    "errors": [],
+    "examples": {},
+    "registeredFileNoMappings": {},
+    "fileNoUnparsed": 0,
+    "structuralFatal": [],
+    "structuralWarn": [
+     "مداخل مدتها > 120ث: 1 · مثال: 2:282 مدتها 134ث"
+    ],
+    "decision": [],
+    "engine": "align-0.2",
+    "audioSha": 114,
+    "bands": {
+     "HIGH": 3506,
+     "MED": 2431,
+     "LOW": 299
+    },
+    "ok": true
+   },
+   "gaps": {
+    "missingTotal": 0,
+    "internalGaps": [],
+    "headMissing": [],
+    "tailMissing": [],
+    "wholeMissing": [],
+    "declared": {
+     "transformOp": "ctc_heardmap_splice:41,44",
+     "transformReason": "fixT: إصلاحٌ دفعيٌّ لكبس الذيل — 2 سورةً مشتبهةً (فائضٌ ≥15ث بعد آخر مدخل · تدقيق الجولة الثانية 2026-10-03)، كلٌّ يُقاس بالسماع قبل أن يُمسّ",
+     "reasonCode": null,
+     "dropSurahs": [],
+     "byReason": {
+      "no-align": 54
+     },
+     "declaredCount": 54,
+     "tagCount": 0,
+     "declaredIds": [],
+     "truncatedTail": null
+    },
+    "undeclaredEdge": [],
+    "errors": [],
+    "ok": true
+   },
+   "durations": {
+    "durationOutliers": 4,
+    "durationExamples": [
+     {
+      "aid": "19:71",
+      "ms": 36615,
+      "expMs": 9605,
+      "ratio": 3.81,
+      "chars": 34
+     },
+     {
+      "aid": "19:69",
+      "ms": 1077,
+      "expMs": 10170,
+      "ratio": 0.11,
+      "chars": 36
+     },
+     {
+      "aid": "19:70",
+      "ms": 1077,
+      "expMs": 8192,
+      "ratio": 0.13,
+      "chars": 29
+     },
+     {
+      "aid": "19:68",
+      "ms": 2154,
+      "expMs": 11865,
+      "ratio": 0.18,
+      "chars": 42
+     }
+    ],
+    "impossibleShort": [],
+    "veryShort": [],
+    "extremeLong": [],
+    "longOutliers": 1,
+    "shortOutliers": 3,
+    "silenceGaps": 0,
+    "silenceExamples": [],
+    "surahsWithRate": 113
+   },
+   "audio": {
+    "audioReportsOnSha": 0,
+    "openersOnSha": false,
+    "errors": [
+     "لا حكمَ صوتيٍّ بعيّنةٍ على البصمة المنشورة",
+     "لا شاهدَ مطالعَ على البصمة المنشورة"
+    ],
+    "notes": [],
+    "samples": [],
+    "pooled": null,
+    "severeHi": null,
+    "otherShasWithSamples": [
+     "32a94987",
+     "6e38ea0b",
+     "8ceb9a29",
+     "91defc19",
+     "b97956b1"
+    ],
+    "ok": false
+   }
+  }
+ ],
+ "summary": {
+  "indexes": 1,
+  "phase": "all",
+  "identityOk": 1,
+  "identityBad": [],
+  "structureOk": 1,
+  "structureBad": [],
+  "gapsOk": 1,
+  "gapsBad": [],
+  "audioOk": 0,
+  "audioBad": [
+   "timings-staging/hafs/a_ghailan.42327bc3.jz"
+  ],
+  "durationOutliersTotal": 4,
+  "impossibleShortTotal": 0,
+  "indexesWithImpossibleShort": 0,
+  "veryShortTotal": 0,
+  "extremeLongTotal": 0,
+  "indexesWithExtremeLong": 0,
+  "mirrorStale": 0,
+  "silenceGapsTotal": 0,
+  "indexesWithDurationOutliers": 1,
+  "indexesWithSilenceGaps": 0,
+  "entriesTotal": 6236,
+  "missingTotal": 0
+ }
+}
