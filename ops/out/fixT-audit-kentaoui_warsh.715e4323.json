@@ -2,24 +2,24 @@
  "schema": 1,
  "tool": "full_audit-1.0",
  "date": "20261005",
- "timestampUtc": "2026-10-05T19:05:27Z",
- "elapsedSec": 61.1,
+ "timestampUtc": "2026-10-05T19:05:55Z",
+ "elapsedSec": 23.3,
  "phase": "all",
  "manifestIndexes": 180,
  "frozenBucket": 220,
  "reportsRead": 11267,
  "rows": [
   {
-   "key": "timings-staging/qalun/shaykhna_qalun.5fc8e712.jz",
-   "sha256": "5fc8e712c3fc8baa248937de6537981c38d7831508901a463925198bc199318d",
-   "riwaya": "qalun",
-   "reciterId": "shaykhna_qalun",
-   "bytes": 88305,
+   "key": "timings-staging/warsh/kentaoui_warsh.715e4323.jz",
+   "sha256": "715e43230bbb7a17f1c66815d5603dbbfc98eba98002007f60f7f4b5719aac7a",
+   "riwaya": "warsh",
+   "reciterId": "kentaoui_warsh",
+   "bytes": 90047,
    "engine": "align-0.2",
-   "transformOp": "ctc_heardmap_splice:32,54",
+   "transformOp": "ctc_heardmap_splice:55",
    "staging": true,
    "identity": {
-    "sha256": "5fc8e712c3fc8baa248937de6537981c38d7831508901a463925198bc199318d",
+    "sha256": "715e43230bbb7a17f1c66815d5603dbbfc98eba98002007f60f7f4b5719aac7a",
     "staging": true,
     "errors": [],
     "ok": true
@@ -29,20 +29,19 @@
     "errors": [],
     "examples": {},
     "registeredFileNoMappings": {},
-    "fileNoUnparsed": 0,
+    "fileNoUnparsed": 114,
     "structuralFatal": [],
     "structuralWarn": [
-     "مداخل مدتها > 120ث: 1 · مثال: 2:282 مدتها 131ث",
-     "مطالع سور تبدأ دون 3ث — مرشّحون للمسبار الصوتي لا حكمٌ عليهم: 34:1=1680م.ث · 54:1=2802م.ث · 94:1=2920م.ث",
-     "فجوات > 15ث بين آيتين متتاليتين: 1 · مثال: 24:3→24:4 فجوة 22ث"
+     "مداخل مدتها > 120ث: 1 · مثال: 2:282 مدتها 166ث",
+     "مطالع سور تبدأ دون 3ث — مرشّحون للمسبار الصوتي لا حكمٌ عليهم: 34:1=2805م.ث · 48:1=2993م.ث · 55:1=2831م.ث · 57:1=2956م.ث · 59:1=2453م.ث · 61:1=2560م.ث · 62:1=2775م.ث · 64:1=2535م.ث"
     ],
     "decision": [],
     "engine": "align-0.2",
     "audioSha": 114,
     "bands": {
-     "HIGH": 5554,
-     "MED": 505,
-     "LOW": 177
+     "HIGH": 4827,
+     "MED": 1308,
+     "LOW": 101
     },
     "ok": true
    },
@@ -53,8 +52,8 @@
     "tailMissing": [],
     "wholeMissing": [],
     "declared": {
-     "transformOp": "ctc_heardmap_splice:32,54",
-     "transformReason": "fixT: إصلاحٌ دفعيٌّ لكبس الذيل — 2 سورةً مشتبهةً (فائضٌ ≥15ث بعد آخر مدخل · تدقيق الجولة الثانية 2026-10-03)، كلٌّ يُقاس بالسماع قبل أن يُمسّ",
+     "transformOp": "ctc_heardmap_splice:55",
+     "transformReason": "fixT: إصلاحٌ دفعيٌّ لكبس الذيل — 1 سورةً مشتبهةً (فائضٌ ≥15ث بعد آخر مدخل · تدقيق الجولة الثانية 2026-10-03)، كلٌّ يُقاس بالسماع قبل أن يُمسّ",
      "reasonCode": null,
      "dropSurahs": [],
      "byReason": {
@@ -70,58 +69,45 @@
     "ok": true
    },
    "durations": {
-    "durationOutliers": 3,
+    "durationOutliers": 2,
     "durationExamples": [
      {
-      "aid": "27:27",
-      "ms": 838,
-      "expMs": 6690,
-      "ratio": 0.13,
-      "chars": 27
-     },
-     {
-      "aid": "27:1",
+      "aid": "75:18",
       "ms": 965,
-      "expMs": 5699,
-      "ratio": 0.17,
-      "chars": 23
+      "expMs": 4246,
+      "ratio": 0.23,
+      "chars": 19
      },
      {
-      "aid": "29:37",
-      "ms": 2612,
-      "expMs": 8954,
-      "ratio": 0.29,
-      "chars": 38
+      "aid": "56:2",
+      "ms": 930,
+      "expMs": 3670,
+      "ratio": 0.25,
+      "chars": 14
      }
     ],
     "impossibleShort": [],
     "veryShort": [
      {
-      "aid": "27:27",
-      "ms": 838,
-      "expMs": 6690,
-      "ratio": 0.13,
-      "chars": 27
+      "aid": "75:18",
+      "ms": 965,
+      "expMs": 4246,
+      "ratio": 0.23,
+      "chars": 19
      },
      {
-      "aid": "27:1",
-      "ms": 965,
-      "expMs": 5699,
-      "ratio": 0.17,
-      "chars": 23
+      "aid": "56:2",
+      "ms": 930,
+      "expMs": 3670,
+      "ratio": 0.25,
+      "chars": 14
      }
     ],
     "extremeLong": [],
     "longOutliers": 0,
-    "shortOutliers": 3,
-    "silenceGaps": 1,
-    "silenceExamples": [
-     {
-      "from": "24:3",
-      "to": "24:4",
-      "gapMs": 21700
-     }
-    ],
+    "shortOutliers": 2,
+    "silenceGaps": 0,
+    "silenceExamples": [],
     "surahsWithRate": 113
    },
    "audio": {
@@ -136,10 +122,9 @@
     "pooled": null,
     "severeHi": null,
     "otherShasWithSamples": [
-     "03a7e373",
-     "072c3d19",
-     "1614167e",
-     "cbe3f479"
+     "2c9166ac",
+     "36e67517",
+     "61fe573a"
     ],
     "ok": false
    }
@@ -156,18 +141,18 @@
   "gapsBad": [],
   "audioOk": 0,
   "audioBad": [
-   "timings-staging/qalun/shaykhna_qalun.5fc8e712.jz"
+   "timings-staging/warsh/kentaoui_warsh.715e4323.jz"
   ],
-  "durationOutliersTotal": 3,
+  "durationOutliersTotal": 2,
   "impossibleShortTotal": 0,
   "indexesWithImpossibleShort": 0,
   "veryShortTotal": 2,
   "extremeLongTotal": 0,
   "indexesWithExtremeLong": 0,
   "mirrorStale": 0,
-  "silenceGapsTotal": 1,
+  "silenceGapsTotal": 0,
   "indexesWithDurationOutliers": 1,
-  "indexesWithSilenceGaps": 1,
+  "indexesWithSilenceGaps": 0,
   "entriesTotal": 6236,
   "missingTotal": 0
  }
