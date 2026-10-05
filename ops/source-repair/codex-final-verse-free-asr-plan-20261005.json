@@ -1,0 +1,414 @@
+{
+  "schema": 1,
+  "kind": "bounded-final-verse-free-asr-plan",
+  "productionChanged": false,
+  "qualityClaim": false,
+  "maxPerGroup": 6,
+  "sources": [
+    {
+      "id": "noah-s3",
+      "reciterId": "noah",
+      "riwaya": "hafs",
+      "surah": 3,
+      "candidatePath": "ops/source-repair/candidates/codex-noah-s3-s4-20261005.jz",
+      "candidateSha256": "8af5e73c53caedead4b4a0a2783dd2d039ce4d67af33dbef71c9a0455be3ab8f",
+      "stagedKey": "timings-staging/hafs/noah.944dfdfa.jz",
+      "stagedSha256": "944dfdfa68b7af5bd7ecad949edb6abd38c4dfba94bbce8763761711cdddf4b4",
+      "parentSha256": "b14ed7f3eec4e69fb0e328efeb6eff72042f49a4588b3e09d71c8b15850a3d41",
+      "target": {
+        "ayahId": "3:200",
+        "fileRef": "https://yna-quran.com/download/7afs/7afs_003%20Al-Emran.mp3",
+        "startMs": 3759596,
+        "endMs": 3775769,
+        "conf": 0.222,
+        "confBand": "LOW"
+      },
+      "url": "https://yna-quran.com/download/7afs/7afs_003%20Al-Emran.mp3",
+      "sha256": "938e3440fdaeac0baec36f15cebdb2e901e650629825217f9549ef6fd417870b",
+      "requestedWindowSeconds": [
+        3755,
+        3780
+      ]
+    },
+    {
+      "id": "noah-s4",
+      "reciterId": "noah",
+      "riwaya": "hafs",
+      "surah": 4,
+      "candidatePath": "ops/source-repair/candidates/codex-noah-s3-s4-20261005.jz",
+      "candidateSha256": "8af5e73c53caedead4b4a0a2783dd2d039ce4d67af33dbef71c9a0455be3ab8f",
+      "stagedKey": "timings-staging/hafs/noah.944dfdfa.jz",
+      "stagedSha256": "944dfdfa68b7af5bd7ecad949edb6abd38c4dfba94bbce8763761711cdddf4b4",
+      "parentSha256": "b14ed7f3eec4e69fb0e328efeb6eff72042f49a4588b3e09d71c8b15850a3d41",
+      "target": {
+        "ayahId": "4:176",
+        "fileRef": "https://yna-quran.com/download/7afs/7afs_004%20An-Nisa.mp3",
+        "startMs": 3818900,
+        "endMs": 3871833,
+        "conf": 0.0,
+        "confBand": "LOW"
+      },
+      "url": "https://yna-quran.com/download/7afs/7afs_004%20An-Nisa.mp3",
+      "sha256": "3f947b48f5bd77501760c0e33d245e9fe89f536e68838b7af88e79d2b4188780",
+      "requestedWindowSeconds": [
+        3814,
+        3876
+      ]
+    },
+    {
+      "id": "s_sadeiq-s42",
+      "reciterId": "s_sadeiq",
+      "riwaya": "hafs",
+      "surah": 42,
+      "candidatePath": "ops/source-repair/candidates/codex-sadeiq-s42-20261005.jz",
+      "candidateSha256": "85101727829602a2258353f0c119b5137a322765860a717e41a6ef05829815b2",
+      "stagedKey": "timings-staging/hafs/s_sadeiq.927e8bbe.jz",
+      "stagedSha256": "927e8bbeb319abb25d47930f588410d9bc41c87dc68ee63486ea2ad11acfde34",
+      "parentSha256": "860ca7ea5a375353181c8aa2a31e2eaff1c691f2663b409fcbd7c0cb9f5c53b3",
+      "target": {
+        "ayahId": "42:53",
+        "fileRef": "https://media.way2quran.com/salman-al-siddiq/hafs-an-asim/042.mp3",
+        "startMs": 1036880,
+        "endMs": 1051565,
+        "conf": 0.585,
+        "confBand": "MED"
+      },
+      "url": "https://media.way2quran.com/salman-al-siddiq/hafs-an-asim/042.mp3",
+      "sha256": "330587a1c6d77981a4251ad83d7e0200444d898484ba089ffa138bcd6470dabd",
+      "requestedWindowSeconds": [
+        1032,
+        1056
+      ]
+    },
+    {
+      "id": "nufais-s25",
+      "reciterId": "nufais",
+      "riwaya": "hafs",
+      "surah": 25,
+      "candidatePath": "ops/source-repair/candidates/codex-nufais-s25-s41-s42-s82-20261005.jz",
+      "candidateSha256": "e88537de86c81010278685ea809bfcbba93210b618732a8913af12ab00972704",
+      "stagedKey": "timings-staging/hafs/nufais.31106cbe.jz",
+      "stagedSha256": "31106cbe8babd4d506b5e5ccf0c75980e7652ec60791f259fb30ae2c4078b43c",
+      "parentSha256": "e3d40dc931f9fc48c4e0f2daf9a8c3a939b80a606a205b1a2486cdebad8fa550",
+      "target": {
+        "ayahId": "25:77",
+        "fileRef": "https://server16.mp3quran.net/nufais/Rewayat-Hafs-A-n-Assem/025.mp3",
+        "startMs": 1412155,
+        "endMs": 1426825,
+        "conf": 0.661,
+        "confBand": "MED"
+      },
+      "url": "https://server16.mp3quran.net/nufais/Rewayat-Hafs-A-n-Assem/025.mp3",
+      "sha256": "1f35501e0d4cd3b3489f997c779f5859bd0f2fc8e233df0718dc4318b6661eea",
+      "requestedWindowSeconds": [
+        1408,
+        1431
+      ]
+    },
+    {
+      "id": "nufais-s41",
+      "reciterId": "nufais",
+      "riwaya": "hafs",
+      "surah": 41,
+      "candidatePath": "ops/source-repair/candidates/codex-nufais-s25-s41-s42-s82-20261005.jz",
+      "candidateSha256": "e88537de86c81010278685ea809bfcbba93210b618732a8913af12ab00972704",
+      "stagedKey": "timings-staging/hafs/nufais.31106cbe.jz",
+      "stagedSha256": "31106cbe8babd4d506b5e5ccf0c75980e7652ec60791f259fb30ae2c4078b43c",
+      "parentSha256": "e3d40dc931f9fc48c4e0f2daf9a8c3a939b80a606a205b1a2486cdebad8fa550",
+      "target": {
+        "ayahId": "41:54",
+        "fileRef": "https://server16.mp3quran.net/nufais/Rewayat-Hafs-A-n-Assem/041.mp3",
+        "startMs": 986480,
+        "endMs": 1003849,
+        "conf": 0.738,
+        "confBand": "MED"
+      },
+      "url": "https://server16.mp3quran.net/nufais/Rewayat-Hafs-A-n-Assem/041.mp3",
+      "sha256": "8b95b69da080ad343b141915aca95138923e45438b70a2c9a791b100d01d0b60",
+      "requestedWindowSeconds": [
+        982,
+        1008
+      ]
+    },
+    {
+      "id": "nufais-s42",
+      "reciterId": "nufais",
+      "riwaya": "hafs",
+      "surah": 42,
+      "candidatePath": "ops/source-repair/candidates/codex-nufais-s25-s41-s42-s82-20261005.jz",
+      "candidateSha256": "e88537de86c81010278685ea809bfcbba93210b618732a8913af12ab00972704",
+      "stagedKey": "timings-staging/hafs/nufais.31106cbe.jz",
+      "stagedSha256": "31106cbe8babd4d506b5e5ccf0c75980e7652ec60791f259fb30ae2c4078b43c",
+      "parentSha256": "e3d40dc931f9fc48c4e0f2daf9a8c3a939b80a606a205b1a2486cdebad8fa550",
+      "target": {
+        "ayahId": "42:53",
+        "fileRef": "https://server16.mp3quran.net/nufais/Rewayat-Hafs-A-n-Assem/042.mp3",
+        "startMs": 1233652,
+        "endMs": 1253666,
+        "conf": 0.74,
+        "confBand": "MED",
+        "startApprox": true
+      },
+      "url": "https://server16.mp3quran.net/nufais/Rewayat-Hafs-A-n-Assem/042.mp3",
+      "sha256": "7212cffcca1df6a56dc2f2c305ef2a9f7de1167c5c1753dda683521072ec7a15",
+      "requestedWindowSeconds": [
+        1229,
+        1258
+      ]
+    },
+    {
+      "id": "nufais-s82",
+      "reciterId": "nufais",
+      "riwaya": "hafs",
+      "surah": 82,
+      "candidatePath": "ops/source-repair/candidates/codex-nufais-s25-s41-s42-s82-20261005.jz",
+      "candidateSha256": "e88537de86c81010278685ea809bfcbba93210b618732a8913af12ab00972704",
+      "stagedKey": "timings-staging/hafs/nufais.31106cbe.jz",
+      "stagedSha256": "31106cbe8babd4d506b5e5ccf0c75980e7652ec60791f259fb30ae2c4078b43c",
+      "parentSha256": "e3d40dc931f9fc48c4e0f2daf9a8c3a939b80a606a205b1a2486cdebad8fa550",
+      "target": {
+        "ayahId": "82:19",
+        "fileRef": "https://server16.mp3quran.net/nufais/Rewayat-Hafs-A-n-Assem/082.mp3",
+        "startMs": 121530,
+        "endMs": 138443,
+        "conf": 0.739,
+        "confBand": "MED"
+      },
+      "url": "https://server16.mp3quran.net/nufais/Rewayat-Hafs-A-n-Assem/082.mp3",
+      "sha256": "5247ca17c2af0cb9fca808f2e8bbf65967396c254c4aaf31e41badbd7bdfe4d6",
+      "requestedWindowSeconds": [
+        117,
+        143
+      ]
+    },
+    {
+      "id": "rakbawi_qalun-s13",
+      "reciterId": "rakbawi_qalun",
+      "riwaya": "qalun",
+      "surah": 13,
+      "candidatePath": "ops/source-repair/candidates/codex-rakbawi-s13-s26-20261005.jz",
+      "candidateSha256": "d5ec7b33e806a12b2eb0354ddcd6ed0522eb5d8401aafc571b3a3307e75389da",
+      "stagedKey": "timings-staging/qalun/rakbawi_qalun.3d8dc7c9.jz",
+      "stagedSha256": "3d8dc7c9e31f3579939f7607efbc38ae142aec17900025b49fa3320ec71c09fc",
+      "parentSha256": "85886e2b1f665642a50ed6fb062f7ec06480849f6a6727fb95527ad1a613585b",
+      "target": {
+        "ayahId": "13:43",
+        "fileRef": "https://archive.org/download/128-kb---mo7ammad---ayyoob--alrakbawy---by--qaloon----mp3--full--mushaf--quran/013_.mp3",
+        "startMs": 840070,
+        "endMs": 855579,
+        "conf": 0.673,
+        "confBand": "MED"
+      },
+      "url": "https://archive.org/download/128-kb---mo7ammad---ayyoob--alrakbawy---by--qaloon----mp3--full--mushaf--quran/013_.mp3",
+      "sha256": "3aaf437e4705face334cdd9c851b8aecb29a05bfe4c97d362cdbbcbfa2945074",
+      "requestedWindowSeconds": [
+        836,
+        860
+      ]
+    },
+    {
+      "id": "rakbawi_qalun-s26",
+      "reciterId": "rakbawi_qalun",
+      "riwaya": "qalun",
+      "surah": 26,
+      "candidatePath": "ops/source-repair/candidates/codex-rakbawi-s13-s26-20261005.jz",
+      "candidateSha256": "d5ec7b33e806a12b2eb0354ddcd6ed0522eb5d8401aafc571b3a3307e75389da",
+      "stagedKey": "timings-staging/qalun/rakbawi_qalun.3d8dc7c9.jz",
+      "stagedSha256": "3d8dc7c9e31f3579939f7607efbc38ae142aec17900025b49fa3320ec71c09fc",
+      "parentSha256": "85886e2b1f665642a50ed6fb062f7ec06480849f6a6727fb95527ad1a613585b",
+      "target": {
+        "ayahId": "26:227",
+        "fileRef": "https://archive.org/download/128-kb---mo7ammad---ayyoob--alrakbawy---by--qaloon----mp3--full--mushaf--quran/026_.mp3",
+        "startMs": 1221457,
+        "endMs": 1243279,
+        "conf": 0.488,
+        "confBand": "LOW",
+        "startApprox": true
+      },
+      "url": "https://archive.org/download/128-kb---mo7ammad---ayyoob--alrakbawy---by--qaloon----mp3--full--mushaf--quran/026_.mp3",
+      "sha256": "0676529c900e26c4c210fe8a64061ebb4e703a04feb012860446cdab99c4e4ba",
+      "requestedWindowSeconds": [
+        1217,
+        1248
+      ]
+    },
+    {
+      "id": "derini_warsh-s11",
+      "reciterId": "derini_warsh",
+      "riwaya": "warsh",
+      "surah": 11,
+      "candidatePath": "ops/source-repair/candidates/codex-derini-s11-s14-s23-s83-20261005.jz",
+      "candidateSha256": "0d2de0b9d99a7243f3e9ee542bfd91a1b05d602fead644aea422ce4afd888479",
+      "stagedKey": "timings-staging/warsh/derini_warsh.fd3b23b0.jz",
+      "stagedSha256": "fd3b23b00bdecd7aad0fed4037c384f37dd37540ae005db1c83980f847ec0e74",
+      "parentSha256": "ffa7ef763237bf0f7d34d492d9a74ef595fd2528f6be0a7d1f1581a312384825",
+      "target": {
+        "ayahId": "11:123",
+        "fileRef": "https://archive.org/download/amrou-el-derini_Warsh/011.mp3",
+        "startMs": 3033930,
+        "endMs": 3055138,
+        "conf": 0.667,
+        "confBand": "MED"
+      },
+      "url": "https://archive.org/download/amrou-el-derini_Warsh/011.mp3",
+      "sha256": "89551773d888cce00bc020bce5cc3b10f03a09ffb77d1f7d8bb4ef9f6a6fddcd",
+      "requestedWindowSeconds": [
+        3029,
+        3060
+      ]
+    },
+    {
+      "id": "derini_warsh-s14",
+      "reciterId": "derini_warsh",
+      "riwaya": "warsh",
+      "surah": 14,
+      "candidatePath": "ops/source-repair/candidates/codex-derini-s11-s14-s23-s83-20261005.jz",
+      "candidateSha256": "0d2de0b9d99a7243f3e9ee542bfd91a1b05d602fead644aea422ce4afd888479",
+      "stagedKey": "timings-staging/warsh/derini_warsh.fd3b23b0.jz",
+      "stagedSha256": "fd3b23b00bdecd7aad0fed4037c384f37dd37540ae005db1c83980f847ec0e74",
+      "parentSha256": "ffa7ef763237bf0f7d34d492d9a74ef595fd2528f6be0a7d1f1581a312384825",
+      "target": {
+        "ayahId": "14:52",
+        "fileRef": "https://archive.org/download/amrou-el-derini_Warsh/014.mp3",
+        "startMs": 1351360,
+        "endMs": 1384831,
+        "conf": 0.391,
+        "confBand": "LOW"
+      },
+      "url": "https://archive.org/download/amrou-el-derini_Warsh/014.mp3",
+      "sha256": "a41c72e5753ab9af3d231dfc18129fdd7b5bd9f020e27b3f7dc9880a5e449a2d",
+      "requestedWindowSeconds": [
+        1347,
+        1389
+      ]
+    },
+    {
+      "id": "derini_warsh-s23",
+      "reciterId": "derini_warsh",
+      "riwaya": "warsh",
+      "surah": 23,
+      "candidatePath": "ops/source-repair/candidates/codex-derini-s11-s14-s23-s83-20261005.jz",
+      "candidateSha256": "0d2de0b9d99a7243f3e9ee542bfd91a1b05d602fead644aea422ce4afd888479",
+      "stagedKey": "timings-staging/warsh/derini_warsh.fd3b23b0.jz",
+      "stagedSha256": "fd3b23b00bdecd7aad0fed4037c384f37dd37540ae005db1c83980f847ec0e74",
+      "parentSha256": "ffa7ef763237bf0f7d34d492d9a74ef595fd2528f6be0a7d1f1581a312384825",
+      "target": {
+        "ayahId": "23:118",
+        "fileRef": "https://archive.org/download/amrou-el-derini_Warsh/023.mp3",
+        "startMs": 1678364,
+        "endMs": 1686350,
+        "conf": 0.0,
+        "confBand": "LOW",
+        "startApprox": true
+      },
+      "url": "https://archive.org/download/amrou-el-derini_Warsh/023.mp3",
+      "sha256": "04a390a6f37087e21fd364a8e4c9009894a3f6d2d8568bce42a54380909fdb35",
+      "requestedWindowSeconds": [
+        1674,
+        1691
+      ]
+    },
+    {
+      "id": "derini_warsh-s83",
+      "reciterId": "derini_warsh",
+      "riwaya": "warsh",
+      "surah": 83,
+      "candidatePath": "ops/source-repair/candidates/codex-derini-s11-s14-s23-s83-20261005.jz",
+      "candidateSha256": "0d2de0b9d99a7243f3e9ee542bfd91a1b05d602fead644aea422ce4afd888479",
+      "stagedKey": "timings-staging/warsh/derini_warsh.fd3b23b0.jz",
+      "stagedSha256": "fd3b23b00bdecd7aad0fed4037c384f37dd37540ae005db1c83980f847ec0e74",
+      "parentSha256": "ffa7ef763237bf0f7d34d492d9a74ef595fd2528f6be0a7d1f1581a312384825",
+      "target": {
+        "ayahId": "83:36",
+        "fileRef": "https://archive.org/download/amrou-el-derini_Warsh/083.mp3",
+        "startMs": 302940,
+        "endMs": 308661,
+        "conf": 0.755,
+        "confBand": "MED"
+      },
+      "url": "https://archive.org/download/amrou-el-derini_Warsh/083.mp3",
+      "sha256": "2625a0b8698a65a6f6b5051541e74693aff1142b7210ab8401d770dbb092054a",
+      "requestedWindowSeconds": [
+        298,
+        313
+      ]
+    },
+    {
+      "id": "zahrani-s6",
+      "reciterId": "zahrani",
+      "riwaya": "hafs",
+      "surah": 6,
+      "candidatePath": "ops/source-repair/candidates/codex-zahrani-s6-20261005.jz",
+      "candidateSha256": "36e79f102ee1480c01eb0eb0824a91560f406d73926bbdc1855cd03eeb54c7d1",
+      "stagedKey": "timings-staging/hafs/zahrani.b962a19c.jz",
+      "stagedSha256": "b962a19c6bec4d6e9a824bf997c4f2ed7a3d2229bc2e9c2df7d0969eb3e19713",
+      "parentSha256": "2dab3926ed56161808fe6057087899bb07373b22c792381c114653b9e24d910c",
+      "target": {
+        "ayahId": "6:165",
+        "fileRef": "https://server9.mp3quran.net/zahrani/006.mp3",
+        "startMs": 4993220,
+        "endMs": 5033038,
+        "conf": 0.164,
+        "confBand": "LOW"
+      },
+      "url": "https://server9.mp3quran.net/zahrani/006.mp3",
+      "sha256": "e3229a66a357835a511dc2eb6e628a646179de1e41dc9c1bf6d14fe68ed15509",
+      "requestedWindowSeconds": [
+        4989,
+        5038
+      ]
+    },
+    {
+      "id": "f_khamery-s2",
+      "reciterId": "f_khamery",
+      "riwaya": "hafs",
+      "surah": 2,
+      "candidatePath": "ops/source-repair/candidates/codex-khamery-s2-s6-20261005.jz",
+      "candidateSha256": "6701b3c668606a1c63caa905993757971ba9928edbf01cb751410a2f17dcaf58",
+      "stagedKey": "timings-staging/hafs/f_khamery.d58b78bf.jz",
+      "stagedSha256": "d58b78bf4e636374cf0b207b53f60b9909c58aa9cbf5306eeaa5f10ba72efccb",
+      "parentSha256": "a8e970e2a6850336ec6db6dc2c9f0f8c4890a19be561dbd52c80aa95fc1fb9a2",
+      "target": {
+        "ayahId": "2:286",
+        "fileRef": "https://server16.mp3quran.net/f_khamery/Rewayat-Hafs-A-n-Assem/002.mp3",
+        "startMs": 5347697,
+        "endMs": 5390805,
+        "conf": 0.587,
+        "confBand": "MED",
+        "startApprox": true
+      },
+      "url": "https://server16.mp3quran.net/f_khamery/Rewayat-Hafs-A-n-Assem/002.mp3",
+      "sha256": "5b0a292896fdb22f4da0e729558ff9840ea6ee5340d22ef8c3a022b4251a7771",
+      "requestedWindowSeconds": [
+        5343,
+        5395
+      ]
+    },
+    {
+      "id": "f_khamery-s6",
+      "reciterId": "f_khamery",
+      "riwaya": "hafs",
+      "surah": 6,
+      "candidatePath": "ops/source-repair/candidates/codex-khamery-s2-s6-20261005.jz",
+      "candidateSha256": "6701b3c668606a1c63caa905993757971ba9928edbf01cb751410a2f17dcaf58",
+      "stagedKey": "timings-staging/hafs/f_khamery.d58b78bf.jz",
+      "stagedSha256": "d58b78bf4e636374cf0b207b53f60b9909c58aa9cbf5306eeaa5f10ba72efccb",
+      "parentSha256": "a8e970e2a6850336ec6db6dc2c9f0f8c4890a19be561dbd52c80aa95fc1fb9a2",
+      "target": {
+        "ayahId": "6:165",
+        "fileRef": "https://server16.mp3quran.net/f_khamery/Rewayat-Hafs-A-n-Assem/006.mp3",
+        "startMs": 2643932,
+        "endMs": 2664448,
+        "conf": 0.517,
+        "confBand": "MED",
+        "startApprox": true
+      },
+      "url": "https://server16.mp3quran.net/f_khamery/Rewayat-Hafs-A-n-Assem/006.mp3",
+      "sha256": "b9fbf6c590e821c2f670d9bfb379ca8b7eb617f28fd520886ca9987a31ab962f",
+      "requestedWindowSeconds": [
+        2639,
+        2669
+      ]
+    }
+  ]
+}

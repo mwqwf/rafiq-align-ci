@@ -355,7 +355,11 @@ class FreeCTC:
 
 
 def measure_window(backend, raw, source, channel, model_name, checkpoint=None):
-    if len(raw) != int((source["windowSeconds"][1] - source["windowSeconds"][0]) * RATE * 2):
+    samples_exact = (source["windowSeconds"][1] - source["windowSeconds"][0]) * RATE
+    samples = round(samples_exact)
+    if (not math.isfinite(samples_exact) or samples <= 0
+            or not math.isclose(samples_exact, samples, rel_tol=0, abs_tol=1e-6)
+            or len(raw) != samples * 2):
         raise metadata.ProbeError("عدد عينات النافذة لا يطابق الخطة")
     result = {"surah": source["surah"], "sourceSha256": source["sha256"], "channel": channel,
               "model": model_name, "windowSeconds": source["windowSeconds"],
