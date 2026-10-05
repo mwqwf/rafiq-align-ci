@@ -65,5 +65,62 @@ class ProbeMapTest(unittest.TestCase):
                 list(emitter.map_lines(data, 63, "hafs"))
 
 
+class AlignmentResultTest(unittest.TestCase):
+    def data(self):
+        data = ProbeMapTest().data()
+        data["fileRef"] = "https://example.org/063.mp3"
+        data["entries"] = [{"ayahIdx": i, "startMs": 1000 * i,
+                            "endMs": 1000 * (i + 1), "conf": 0.7,
+                            "boundary": "window"} for i in range(11)]
+        data["issues"] = ["ملاحظة قياس محفوظة"]
+        return data
+
+    def lines(self, data, **kwargs):
+        return emitter.alignment_lines(data, kwargs.get("surah", 63), kwargs.get("riwaya", "hafs"),
+                                       kwargs.get("url", "https://example.org/063.mp3"),
+                                       kwargs.get("sha", "a" * 64))
+
+    def test_alignment_and_measurement_issues_survive_complete_roundtrip(self):
+        data = self.data()
+        # لا يجوز أن يوهم إخراج الدليل نجاح المحاذاة أو أن يحذف الحدود الغائبة.
+        data["entries"][4]["startMs"] = None
+        with patch.object(emitter, "CHUNK_CHARS", 96):
+            lines = list(self.lines(data))
+        header = re.fullmatch(r"CTC_ALIGNMENT_RESULT_BEGIN bytes=(\d+) sha256=([0-9a-f]{64}) chunks=(\d+)", lines[0])
+        self.assertIsNotNone(header)
+        parts = []
+        for i, line in enumerate(lines[1:-1], 1):
+            prefix = f"CTC_ALIGNMENT_RESULT_CHUNK {i}/{header[3]} "
+            self.assertTrue(line.startswith(prefix))
+            parts.append(line[len(prefix):])
+        raw = base64.b64decode("".join(parts), validate=True)
+        self.assertEqual(len(raw), int(header[1]))
+        self.assertEqual(hashlib.sha256(raw).hexdigest(), header[2])
+        self.assertEqual(lines[-1], f"CTC_ALIGNMENT_RESULT_END sha256={header[2]}")
+        self.assertEqual(json.loads(raw), data)
+
+    def test_changed_source_or_identity_has_no_begin_marker(self):
+        for kwargs in ({"sha": "b" * 64}, {"sha": "z" * 64}, {"sha": ""},
+                       {"url": "https://example.org/064.mp3"}, {"surah": 64}, {"riwaya": "warsh"}):
+            with self.subTest(kwargs=kwargs), self.assertRaises(ValueError):
+                next(self.lines(self.data(), **kwargs))
+
+    def test_probe_or_missing_ayah_cannot_be_presented_as_build(self):
+        probe = self.data(); probe["entries"] = []
+        short = self.data(); short["entries"].pop()
+        repeated = self.data(); repeated["entries"][5]["ayahIdx"] = 4
+        bad_map = self.data(); bad_map["heardMap"]["12"] = bad_map["heardMap"].pop("11")
+        for data in (probe, short, repeated, bad_map):
+            with self.subTest(data=data), self.assertRaises(ValueError):
+                next(self.lines(data))
+
+    def test_large_or_nonfinite_result_fails_before_first_marker(self):
+        with patch.object(emitter, "MAX_BYTES", 100), self.assertRaises(ValueError):
+            next(self.lines(self.data()))
+        data = self.data(); data["entries"][0]["conf"] = float("nan")
+        with self.assertRaises(ValueError):
+            next(self.lines(data))
+
+
 if __name__ == "__main__":
     unittest.main()
