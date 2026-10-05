@@ -99,5 +99,46 @@ class PinHeard(unittest.TestCase):
             pin(i, 77, copy.deepcopy(HMAP), {2: 30000, 3: 40000, 4: 50000})
 
 
+# آخرُ آيةٍ قُصّت عند مدّةٍ مقدَّرةٍ من الترويسة (‏الفخفاخ 33:73): الكوثر 108:3 تُسمع 20–32ث والمدخلُ ينتهي 22ث.
+U108 = "https://h.example/r/108.mp3"
+H108 = {"surah": 108, "fileRef": U108, "sha256": "c" * 64, "heardMap": {
+    "1": {"anchorMs": [0, 8000], "anchorQuality": 0.9, "occurrences": []},
+    "2": {"anchorMs": [8000, 20000], "anchorQuality": 0.9, "occurrences": []},
+    "3": {"anchorMs": [20500, 32000], "anchorQuality": 0.95, "occurrences": [[24000, 32000, 0.97]]}}}
+
+
+def _idx108():
+    ents = [{"ayahId": "108:1", "startMs": 0, "endMs": 8000, "fileRef": U108, "confBand": "MED"},
+            {"ayahId": "108:2", "startMs": 8000, "endMs": 20000, "fileRef": U108, "confBand": "MED"},
+            {"ayahId": "108:3", "startMs": 20000, "endMs": 22000, "fileRef": U108, "confBand": "LOW"}]
+    return {"entries": ents, "audioSha256": ["c" * 64], "engineVersion": "align-0.2"}
+
+
+class LastEnd(unittest.TestCase):
+    def test_last_ayah_extended_to_its_measured_end(self):
+        out, _r, ch = pin(_idx108(), 108, H108, {3: 20500}, last_end=32000)
+        e = {x["ayahId"]: x for x in out["entries"]}
+        self.assertEqual((e["108:3"]["startMs"], e["108:3"]["endMs"]), (20500, 32000))
+        self.assertEqual(e["108:2"]["endMs"], 20500)          # كانت متّصلةً بتاليتها فتبقى متّصلة
+        self.assertEqual(ch, [2, 3])
+
+    def test_without_last_end_the_cut_stays(self):
+        out, _r, _c = pin(_idx108(), 108, H108, {3: 20500})
+        self.assertEqual([x["endMs"] for x in out["entries"] if x["ayahId"] == "108:3"], [22000])
+
+    def test_last_end_must_be_end_of_the_pinned_performance(self):
+        for v in (40000, 31000):                               # غيرُ مقيس · بعيدٌ عن النهاية
+            with self.assertRaises(SystemExit):
+                pin(_idx108(), 108, H108, {3: 20500}, last_end=v)
+        with self.assertRaises(SystemExit):                    # نهايةُ أداءٍ آخر لم يُثبَّت عليه البدء
+            pin(_idx108(), 108, H108, {3: 20500}, last_end=33000)
+
+    def test_last_end_only_for_pinned_final_ayah(self):
+        with self.assertRaises(SystemExit):                    # الأخيرةُ غيرُ مثبَّتة
+            pin(_idx108(), 108, H108, {2: 8000}, last_end=32000)
+        with self.assertRaises(SystemExit):                    # ليست آخرَ السورة
+            pin(_idx(), 77, HMAP, {4: 50000}, last_end=60000)
+
+
 if __name__ == "__main__":
     unittest.main()
