@@ -3,13 +3,15 @@
 """تدقيق اكتمال مستقل، قارئ فقط، لا يرقّي ولا يغيّر حارساً.
 
     python tools/index_qa/completion_audit.py --live --out ops/out/completion-audit.json
-    python tools/index_qa/completion_audit.py --snapshot snapshot.json --out ops/out/completion-offline.json
+    python tools/index_qa/completion_audit.py --snapshot ops/out/snapshot.json --out ops/out/completion-offline.json
+    python tools/index_qa/completion_audit.py --inspect-report ops/out/completion-audit.json --index-key timings/hafs/test.jz
 
 يعيد حساب المطالع والوسط والذيل من الخرائط المسموعة لكل سورة، ولا يثق بـok
 أو sampleFindings. خريطة بصمة قديمة يعاد استعمالها فقط للصوت والسورة والقارئ
 والرواية أنفسهم، مع إعادة مقارنة مداخل البصمة المنشورة الحالية. الشهادة محدودة
 بمواضع البدء: نهاية anchor ليست شهادة endMs، وtotalMs القديم قد يكون ffprobe.
-لذلك missingEndEvidence مانع صريح، لا ادعاء اكتمال من أداة تقيس البدايات وحدها.
+شهادة النهاية الوحيدة المستوردة هي independentWindowCtc، بعد إعادة حراسيها
+report_error وwitness_error على الفهرس الحالي. غير المقيس unknown، لا عطب مؤكد.
 --live يستعمل صلاحيات القراءة القائمة في promote.s3 فقط. لا صوت، نموذج، رفع،
 أو cache جديد؛ المخرجات المحلية تحت ops/out وحده. 0=اكتمال مثبت، 2=عمل باق.
 """
@@ -117,11 +119,86 @@ def start_row(entry, cmap):
     return out
 
 
+def load_window_witness():
+    """حراس موجودون بلا تحميل نموذج أو قراءة شبكة؛ تعتمد على النص المحلي الأصلي."""
+    for directory in (ROOT / "tools/alignment", ROOT / "tools/alignment_v3"):
+        if str(directory) not in sys.path:
+            sys.path.insert(0, str(directory))
+    import window_census_witness
+    return window_census_witness
+
+
+def end_witnesses(idx, key, sha, reports, audio_map):
+    """شاهد مقاس لحد المقطع، يشمل الوقفة حتى التالية وفق عقد المنتج الحالي.
+
+    لا تؤخذ نهاية من خريطة heard. ولا يرث شاهد نهاية بصمة فهرس أخرى: خطة
+    النافذة والسياق والنص وبصمة المنتج يعاد التحقق منها بالحراس القائمة.
+    """
+    field = "independentWindowCtc"
+    result = {"method": field, "supported": True, "reports": [], "rejected": [],
+              "unavailableReason": None}
+    present = {e.get("ayahId") for e in idx.get("entries") or []}
+    candidates = [(name, rep) for name, rep in reports if rep.get("sha256") == sha
+                  and isinstance(rep.get("sample"), dict)
+                  and any(isinstance(r, dict) and field in r for r in rep["sample"].get("rows") or [])]
+    if not candidates:
+        return set(), result
+    try:
+        witness = load_window_witness()
+    except Exception as ex:
+        result["unavailableReason"] = f"validatorUnavailable:{type(ex).__name__}"
+        return set(), result
+    verified, blocked = set(), set()
+    for name, rep in candidates:
+        rows = [r for r in rep["sample"].get("rows") or [] if isinstance(r, dict) and field in r]
+        ids = {r.get("aid") for r in rows if isinstance(r.get("aid"), str)}
+        why = None
+        try:
+            if not report_matches(key, rep) or rep.get("kind") != "splice-census":
+                why = "wrongCensusSourceOrKind"
+            elif rep.get("fatal") or rep["sample"].get("errors"):
+                why = "censusFatalOrReadError"
+            elif len(ids) != len(rows) or not ids <= present:
+                why = "duplicateOrMissingWitnessTarget"
+            elif not isinstance(idx.get("audioSha256"), list) or len(idx["audioSha256"]) != 114:
+                why = "windowWitnessRequires114AudioSlots"
+            else:
+                # هذا الحارس يفحص نسب CI وبصمة المنتج والأصل غير الحاسم، ثم
+                # يعيد قياس صلاحية السياق والنص والثقة وحدود النموذجين.
+                why = witness.report_error(rep, idx)
+        except Exception as ex:
+            why = f"invalidWindowReport:{type(ex).__name__}"
+        if why:
+            result["rejected"].append({"key": name, "reason": why, "ayahIds": sorted(ids)})
+            blocked.update(ids & present)
+            continue
+        accepted = []
+        for row in rows:
+            aid, proof = row["aid"], row[field]
+            try:
+                s = int(aid.split(":")[0])
+                if proof.get("sourceSha256") != audio_map.get(s):
+                    why = "currentAudioShaMismatch"
+                else:
+                    why = witness.witness_error(proof, idx, aid)
+            except Exception as ex:
+                why = f"invalidWindowWitness:{type(ex).__name__}"
+            if why:
+                blocked.add(aid)
+                result["rejected"].append({"key": name, "reason": why, "ayahIds": [aid]})
+            else:
+                accepted.append(aid)
+                verified.add(aid)
+        result["reports"].append({"key": name, "indexSha": rep["sha256"], "ayahIds": accepted,
+                                   "source": "ci", "boundaryContract": "current-window-census"})
+    return verified - blocked, result
+
+
 def audit_index(key, record, manifest, frozen, reports):
     idx = _index(record)
     sha = record.get("sha256")
     result = {"key": key, "sha256": sha, "ready": False, "errors": [], "surahs": [],
-              "missingAyahs": [], "missingEndEvidence": 0, "endEvidenceSupported": False}
+              "missingAyahs": [], "missingEndEvidence": 0, "endEvidenceSupported": True}
     errors = result["errors"]
     if not isinstance(sha, str) or not SHA_RE.fullmatch(sha):
         errors.append("invalidIndexSha")
@@ -168,6 +245,7 @@ def audit_index(key, record, manifest, frozen, reports):
         audio_map = {}
     if not audio_map:
         errors.append("audioShaShapeMissingOrInvalid")
+    verified_ends, result["endEvidence"] = end_witnesses(idx, key, sha, reports, audio_map)
     candidates = [(name, rep) for name, rep in reports if report_matches(key, rep) and isinstance(rep.get("maps"), dict)]
     result["heardReportsForReciter"] = len(candidates)
     on_sha = [(name, rep) for name, rep in reports if rep.get("sha256") == sha]
@@ -204,10 +282,14 @@ def audit_index(key, record, manifest, frozen, reports):
         mine = per.get(s, {})
         missing = [f"{s}:{a}" for a in range(1, count + 1) if a not in mine]
         result["missingAyahs"].extend(missing)
+        certified = [f"{s}:{a}" for a in sorted(mine) if f"{s}:{a}" in verified_ends]
+        unknown_ends = [f"{s}:{a}" for a in sorted(mine) if f"{s}:{a}" not in verified_ends]
         sr = {"surah": s, "expected": count, "present": len(mine), "missing": missing,
-              "missingEndEvidence": len(mine), "unmeasured": [], "deviations": [],
+              "missingEndEvidence": len(unknown_ends), "unknownEndAyahs": unknown_ends,
+              "verifiedEndAyahs": certified, "verifiedEndEvidence": len(certified),
+              "unmeasured": [], "deviations": [],
               "conflictingEvidence": [], "evidence": [], "startsReady": False}
-        result["missingEndEvidence"] += len(mine)
+        result["missingEndEvidence"] += len(unknown_ends)
         sequence = [mine[a] for a in sorted(mine)]
         for left, right in zip(sequence, sequence[1:]):
             if left.get("fileRef") == right.get("fileRef") and right["startMs"] < left["endMs"] - 50:
@@ -252,9 +334,11 @@ def audit_index(key, record, manifest, frozen, reports):
     result["unmeasuredStarts"] = sum(len(s["unmeasured"]) for s in result["surahs"])
     result["deviations"] = sum(len(s["deviations"]) for s in result["surahs"])
     result["missingAyahCount"] = len(result["missingAyahs"])
-    # ⛔ الدليل الحالي للبدء وحده؛ لا تصبح شهادة البدء شهادة النهاية.
+    result["unknownEndEvidence"] = result["missingEndEvidence"]
+    result["verifiedEndEvidence"] = sum(s["verifiedEndEvidence"] for s in result["surahs"])
     result["ready"] = (result["startsReady"] and result["missingEndEvidence"] == 0 and not result["missingAyahs"]
-                       and result["openers"]["ready"] and not result["census"]["unresolved"])
+                       and result["openers"]["ready"] and not result["census"]["unresolved"]
+                       and not result["endEvidence"]["rejected"])
     return result
 
 
@@ -286,14 +370,17 @@ def audit(snapshot, reports=()):
                "missingAyahs": sum(r.get("missingAyahCount", 0) for r in rows),
                "unmeasuredStarts": sum(r.get("unmeasuredStarts", 0) for r in rows),
                "deviations": sum(r.get("deviations", 0) for r in rows),
-               "missingEndEvidence": sum(r.get("missingEndEvidence", 0) for r in rows)}
-    return {"version": "completion-audit-1", "ready": not errors and bool(rows) and all(r["ready"] for r in rows),
+               "missingEndEvidence": sum(r.get("missingEndEvidence", 0) for r in rows),
+               "verifiedEndEvidence": sum(r.get("verifiedEndEvidence", 0) for r in rows)}
+    summary["unknownEndEvidence"] = summary["missingEndEvidence"]
+    return {"version": "completion-audit-2", "ready": not errors and bool(rows) and all(r["ready"] for r in rows),
             "timestampUtc": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
             "snapshotTimestampUtc": snapshot.get("ts"), "errors": errors, "summary": summary, "indexes": rows,
             "measurementPolicy": {"startToleranceMs": TOL_MS, "minimumAnchorQuality": MIN_Q,
                                   "repeatSimilarity": REPEAT_SIM, "repeatNearMs": REPEAT_NEAR_MS,
-                                  "unmeasuredStartsAllowed": 0, "endEvidenceSupported": False},
-            "limits": ["تغطية البدء وحدها لا تثبت صحة endMs؛ لا شاهد نهاية مدعوم حالياً",
+                                  "unmeasuredStartsAllowed": 0, "endEvidenceSupported": ["independentWindowCtc"]},
+            "limits": ["unknownEndEvidence فجوة إثبات، لا عدد نهايات ثبت فسادها",
+                       "شهادة النهاية مستقلة عن heard وتخضع لعقد window_census الحالي؛ قد تشمل الوقفة حتى بدء التالية",
                        "موضع البدء مقارن بتقدير CTC بهامش 1500م.ث؛ ليس شهادة دقة سمعية مطلقة",
                        "لا قياس جديد للصوت ولا إثبات صوت القارئ من CTC",
                        "لا يتجاوز هذا التقرير بوابات المطالع والملوح والإحصاء والترقية القائمة",
@@ -427,7 +514,7 @@ def compact_report(report):
         if "missingAyahs" in index:
             index["missingAyahRanges"] = ayah_ranges(index.pop("missingAyahs"))
         for surah in index.get("surahs") or []:
-            for field in ("missing", "unmeasured"):
+            for field in ("missing", "unmeasured", "unknownEndAyahs", "verifiedEndAyahs"):
                 ids = surah.pop(field)
                 surah[field + "Count"] = len(ids)
                 surah[field + "Ranges"] = ayah_ranges(ids)
@@ -435,6 +522,14 @@ def compact_report(report):
                 ids = conflict.pop("ayahIds")
                 conflict["ayahCount"] = len(ids)
                 conflict["ayahRanges"] = ayah_ranges(ids)
+        end_evidence = index.get("endEvidence") or {}
+        for proof in (end_evidence.get("reports") or []) + (end_evidence.get("rejected") or []):
+            ids = proof.pop("ayahIds")
+            proof["ayahCount"] = len(ids)
+            valid = [aid for aid in ids if isinstance(aid, str) and re.fullmatch(r"\d+:\d+", aid)]
+            proof["ayahRanges"] = ayah_ranges(valid)
+            if len(valid) != len(ids):
+                proof["invalidAyahIds"] = [aid for aid in ids if aid not in valid]
         # حافظ على ترتيب أحكام الإحصاء، واجمع الصفوف المتجاورة المتساوية فقط.
         census = index.get("census") or {}
         if "unresolved" in census:
@@ -463,7 +558,8 @@ def markdown(report):
     lines = ["# تدقيق اكتمال الفهرسة", "", f"- الجاهزية: **{'مثبتة' if report['ready'] else 'غير مكتملة الإثبات'}**.",
              f"- الفهارس المقروءة: {s['indexes']}/180؛ جاهزية البدء: {s['startsReadyIndexes']}.",
              f"- الآيات الناقصة: {s['missingAyahs']}؛ البدء غير المقيس: {s['unmeasuredStarts']}؛ الانحراف: {s['deviations']}.",
-             f"- مداخل بلا شهادة نهاية: {s['missingEndEvidence']}؛ لا تُستنتج النهاية من شهادة البدء.", "",
+             f"- نهايات اجتازت شاهد النافذة: {s['verifiedEndEvidence']}؛ نهايات إثباتها غير محسوم: {s['unknownEndEvidence']}.",
+             "- غير المحسوم فجوة في الأدلة المفحوصة، وليس عدداً لأخطاء توقيت مؤكدة.", "",
              "| الفهرس | البصمة | نقص | بدء غير مقيس | انحراف | بلا شهادة نهاية |", "|---|---|---:|---:|---:|---:|"]
     for r in report["indexes"]:
         lines.append(f"| {r['key']} | {(r.get('sha256') or '')[:12]} | {r.get('missingAyahCount', '?')} | "
@@ -473,32 +569,110 @@ def markdown(report):
     return "\n".join(lines) + "\n"
 
 
+def summary_document(report):
+    """ملخص صغير للموصل؛ التقرير الكامل يحفظ جميع المواضع والأدلة."""
+    fields = ("key", "sha256", "entries", "ready", "startsReady", "missingAyahCount", "unmeasuredStarts",
+              "deviations", "missingEndEvidence", "unknownEndEvidence", "verifiedEndEvidence", "errors")
+    indexes = []
+    for row in report.get("indexes") or []:
+        small = {field: row[field] for field in fields if field in row}
+        op, census, end = row.get("openers") or {}, row.get("census") or {}, row.get("endEvidence") or {}
+        small.update(openersReady=op.get("ready", False), openersChecked=op.get("checked"),
+                     openersUnresolvedFields=[r.get("field") for r in op.get("unresolved") or []],
+                     censusUnresolvedCount=census.get("unresolvedCount", len(census.get("unresolved") or [])),
+                     endRejectedReportCount=len(end.get("rejected") or []),
+                     endValidatorUnavailable=end.get("unavailableReason"))
+        indexes.append(small)
+    return {"version": report.get("version"), "ready": report.get("ready", False),
+            "timestampUtc": report.get("timestampUtc"), "snapshotTimestampUtc": report.get("snapshotTimestampUtc"),
+            "summary": report.get("summary") or {}, "errors": report.get("errors") or [],
+            "limits": report.get("limits") or [], "indexes": indexes}
+
+
+def report_path(value, *, reading=False):
+    """كل المسارات في ops/out بعد حل الروابط الرمزية؛ لا قراءة خارجها."""
+    path = (ROOT / value).resolve()
+    if not path.is_relative_to((ROOT / "ops/out").resolve()):
+        raise ValueError("مسار القراءة والكتابة يجب أن يكون تحت ops/out")
+    if reading:
+        if not path.is_file():
+            raise ValueError("ملف التقرير غير موجود")
+        if path.suffix != ".json" and not path.name.endswith(".json.gz"):
+            raise ValueError("المدخل يجب أن يكون JSON أو JSON.gz")
+    elif path.suffix != ".json":
+        raise ValueError("المخرَج يجب أن يكون JSON")
+    return path
+
+
+def write_json(path, value):
+    path = report_path(str(path))
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(json.dumps(value, ensure_ascii=False, separators=(",", ":")) + "\n", encoding="utf-8")
+
+
 def main():
     parser = argparse.ArgumentParser(description="قارئ اكتمال مستقل؛ لا كتابة في الدلو أو تشغيل صوتي")
     mode = parser.add_mutually_exclusive_group(required=True)
     mode.add_argument("--live", action="store_true")
     mode.add_argument("--snapshot", help="تصدير audit_export أو حزمة جمع محفوظة")
+    mode.add_argument("--inspect-report", help="تقرير محفوظ تحت ops/out؛ بلا اتصال أو إعادة تدقيق")
+    parser.add_argument("--index-key", help="مفتاح الفهرس المطلوب، إلزامي مع --inspect-report")
     parser.add_argument("--evidence", action="append", default=[], help="ملف JSON/JSON.gz لحكم state-heard؛ قابل للتكرار")
-    parser.add_argument("--out", default="ops/out/completion-audit.json")
+    parser.add_argument("--out", default=None)
     args = parser.parse_args()
-    path = (ROOT / args.out).resolve()
-    if not path.is_relative_to((ROOT / "ops/out").resolve()) or path.suffix != ".json":
-        parser.error("المخرَج JSON تحت ops/out وحده")
+    if args.inspect_report:
+        if not args.index_key or args.evidence:
+            parser.error("--inspect-report يتطلب --index-key ولا يقبل --evidence")
+        try:
+            source = report_path(args.inspect_report, reading=True)
+            saved = read_json(source)
+            matches = [row for row in saved.get("indexes") or [] if row.get("key") == args.index_key]
+            if len(matches) != 1:
+                raise ValueError("مفتاح الفهرس غير موجود أو مكرر في التقرير")
+            slug = re.sub(r"[^A-Za-z0-9_-]+", "-", args.index_key).strip("-")
+            default = str(source.with_name(source.name.removesuffix(".gz").removesuffix(".json") + "-inspect-" + slug + ".json"))
+            path = report_path(args.out or default)
+            if path == source or (path.exists() and path.samefile(source)):
+                raise ValueError("لا يجوز الكتابة فوق التقرير الكامل عند الاستعراض")
+        except (OSError, ValueError, TypeError, AttributeError) as ex:
+            parser.error(str(ex))
+        inspection = {"version": "completion-inspection-1", "sourceReport": str(source.relative_to(ROOT)),
+                      "sourceReady": saved.get("ready", False), "sourceSummary": saved.get("summary") or {},
+                      "sourceErrors": saved.get("errors") or [], "limits": saved.get("limits") or [],
+                      "index": matches[0]}
+        write_json(path, inspection)
+        print(json.dumps(dict(inspection, out=str(path.relative_to(ROOT))), ensure_ascii=False, separators=(",", ":")), flush=True)
+        return 0  # نجاح قراءة فقط؛ لا شهادة اكتمال جديدة.
+    if args.index_key:
+        parser.error("--index-key يستعمل مع --inspect-report فقط")
+    try:
+        path = report_path(args.out or "ops/out/completion-audit.json")
+        summary_path = report_path(str(path.with_name(path.stem + "-summary.json")))
+        md_path = path.with_suffix(".md").resolve()
+        if not md_path.is_relative_to((ROOT / "ops/out").resolve()):
+            raise ValueError("ملف Markdown يجب أن يبقى تحت ops/out")
+        snapshot_path = report_path(args.snapshot, reading=True) if args.snapshot else None
+        evidence_paths = [report_path(evidence, reading=True) for evidence in args.evidence]
+        inputs = ([snapshot_path] if snapshot_path else []) + evidence_paths
+        if any(output == source for output in (path, summary_path, md_path) for source in inputs):
+            raise ValueError("المخرَج لا يستبدل أحد مدخلات التدقيق")
+    except ValueError as ex:
+        parser.error(str(ex))
     if args.live:
         try:
             snapshot, reports = collect_live()
         except Exception as ex:
             snapshot, reports = {"errors": [f"collectionFailed:{type(ex).__name__}"], "indexes": {}}, []
     else:
-        snapshot, reports = read_json(args.snapshot), []
-    for evidence in args.evidence:
+        snapshot, reports = read_json(snapshot_path), []
+    for evidence in evidence_paths:
         reports.append((str(evidence), read_json(evidence)))
     report = compact_report(audit(snapshot, reports))
-    path.parent.mkdir(parents=True, exist_ok=True)
-    path.write_text(json.dumps(report, ensure_ascii=False, separators=(",", ":")) + "\n", encoding="utf-8")
-    path.with_suffix(".md").write_text(markdown(report), encoding="utf-8")
+    write_json(path, report)
+    write_json(summary_path, summary_document(report))
+    md_path.write_text(markdown(report), encoding="utf-8")
     print(json.dumps({"ready": report["ready"], "summary": report["summary"], "errors": report["errors"],
-                      "out": str(path.relative_to(ROOT))}, ensure_ascii=False), flush=True)
+                      "out": str(path.relative_to(ROOT)), "summaryOut": str(summary_path.relative_to(ROOT))}, ensure_ascii=False), flush=True)
     return 0 if report["ready"] else 2
 
 
