@@ -1,0 +1,31 @@
+name: قياس بيانات المصدر الصوتي
+run-name: "قياس مصادر الصوت · ${{ github.run_number }}"
+
+on:
+  workflow_dispatch:
+    inputs:
+      sources:
+        description: 'قائمة JSON حتى 10 مصادر: id وsurah وriwaya وurl؛ identity وidentitySourceUrl اختياريان'
+        required: true
+        type: string
+
+permissions:
+  contents: read
+
+jobs:
+  metadata:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - name: تثبيت أداة فك الصوت فقط
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq ffmpeg
+      - name: اختبارات القياس بملفات موجية اصطناعية
+        run: python3 -m unittest tools.ci_fleet.test_source_metadata_probe
+      - name: قياس المصدر وإظهار الدليل في السجل
+        # يقرأ JSON من GITHUB_EVENT_PATH؛ لا نضع الروابط في أوامر shell أو env المعروض.
+        run: python3 tools/ci_fleet/source_metadata_probe.py
