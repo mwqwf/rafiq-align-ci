@@ -271,6 +271,21 @@ class FreeInferenceTests(unittest.TestCase):
 
 
 class ModelPolicyTests(unittest.TestCase):
+    def test_real_download_helper_accepts_bounded_response_interface(self):
+        from tools.alignment_v3 import pinned_ephemeral_models as E
+        url = "https://huggingface.co/model/resolve/pinned/config.json"
+        response = mock.Mock(status=200, headers={"Content-Length": "2"})
+        response.geturl.return_value = url
+        response.read1.side_effect = [b"{}", b""]
+        opener = S.BoundedModelOpener(S.time.monotonic() + 5, E.checked_public_url)
+        with tempfile.TemporaryDirectory() as directory, \
+                mock.patch.object(S.metadata, "open_response", return_value=response):
+            target = Path(directory) / "config.json"
+            result = E.download_file(opener, url, target, limit=100, started=S.time.monotonic())
+            self.assertEqual(target.read_bytes(), b"{}")
+            self.assertEqual(result["sha256"], hashlib.sha256(b"{}").hexdigest())
+        response.close.assert_called_once()
+
     def test_partial_model_response_is_closed_before_body_read(self):
         for status, headers in ((206, {}), (200, {"Content-Range": "bytes 0-3/10"})):
             response = mock.Mock(status=status, headers=headers)
