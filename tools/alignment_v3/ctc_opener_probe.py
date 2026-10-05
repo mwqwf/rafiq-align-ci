@@ -25,6 +25,29 @@ import urllib.request
 
 import numpy as np
 
+# ⛔⛔ **الحتميّةُ قبل أيّ استيراد** (‏fixV 2026-10-05 · عطبُ حارسٍ مقيس): الملفُّ نفسُه
+#    (‏harraz_warsh f233a9f0 · 73:1 · المدخلُ نفسُه والرابطُ نفسُه والنموذجُ نفسُه) أعطى في
+#    ثلاث تشغيلات 8023/0.194 ثمّ 7963/0.362 ثمّ 8023/0.194 ⇒ «مؤكَّد» مرّةً و«غيرُ مؤكَّد» مرّتين.
+#    السببُ: `ctc_seg._model` يكمّم الخطّيّاتِ int8 ديناميكيّاً افتراضاً (`CTC_INT8=1`)، ونواةُ
+#    التكميم ومسارُ GEMM يتبعان معالجَ العدّاء (AVX512/AVX2/VNNI) وعددَ خيوطه ⇒ حكمٌ يتقلّب
+#    بإعادة التشغيل وحدها، فيُبرّأ المعطوبُ بالإعادة. ⇒ **float32 بخيطٍ واحد ومسارٍ رياضيٍّ مثبَّت**
+#    (‏MKL_CBWR/oneDNN/ATen على AVX2 الذي يملكه كلُّ عدّاء) — **فرضاً لا افتراضاً**: لا يُرخيه
+#    متغيّرُ بيئةٍ من الخارج. والمقطعُ ثوانٍ، فكلفةُ الخيط الواحد ثوانٍ.
+DETERMINISTIC_ENV = {
+    "CTC_INT8": "0", "CTC_THREADS": "1", "OMP_NUM_THREADS": "1", "MKL_NUM_THREADS": "1",
+    "MKL_CBWR": "AVX2,STRICT", "ONEDNN_MAX_CPU_ISA": "AVX2", "ATEN_CPU_CAPABILITY": "avx2",
+}
+
+
+def pin_determinism(env=os.environ):
+    """يفرض بيئةَ الحتميّة (‏يُستدعى قبل تحميل torch) — دالّةٌ مختبَرة."""
+    for k, v in DETERMINISTIC_ENV.items():
+        env[k] = v
+    return env
+
+
+pin_determinism()
+
 HERE = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, HERE)
 sys.path.insert(0, os.path.join(os.path.dirname(HERE), "alignment"))
@@ -38,7 +61,17 @@ CONFIRM_MS = 1500
 #    0.34–0.48 (‏النفيس 99·100·105·107·108 · الحج 22 · الرباني 55). وخفضُه **يشدّ** الحارسَ لا يُرخيه:
 #    يمنع أكثر، وثمنُ خطئه تأخيرُ ترقيةٍ تُفحص لا نشرُ عطب. ودون 0.3 (‏0.0–0.27) لا يُعتدّ بالقياس.
 MIN_CONF = 0.3
-TAIL_MS = 1500
+# ⛔⛔ **الذيلُ يغطّي الإزاحةَ المختبَرة** (‏fixV 2026-10-05 · معايرة float32 الحتميّة 37290612944/37290621746):
+#    المطلعُ المعطوبُ مُزاحٌ ≈2.8–3.9ث، فنهايةُ الآية الحقيقيّة **بعد** نهاية المدخل بمقدار الإزاحة نفسِها؛
+#    ومقطعٌ ينتهي عند «نهاية المدخل + 1.5ث» يبتر آخرَ الآية فيُفرض نصُّها كاملاً على صوتٍ ناقص ⇒ ثقةٌ
+#    منهارة (‏الحارثي 89 الصادق: الموضع 3908 بفرق +3.9ث **وثقة 0.0** ⇒ أُفلت؛ والنفيس 0.42–0.46).
+#    ⇒ الذيلُ ≥ أكبرُ إزاحةٍ صادقةٍ مقيسة (3.9ث) + هامشٌ ⇒ 6ث. فيُسمع المطلعُ المعطوب كاملاً ويُحكم عليه.
+TAIL_MS = 6000
+
+
+def clip_end_ms(end_ms):
+    """نهايةُ مقطع السبر — دالّةٌ صِرفةٌ مختبَرة."""
+    return int(end_ms) + TAIL_MS
 UA = {"User-Agent": "Mozilla/5.0 (QuranRafiq tools)"}
 
 
@@ -49,14 +82,34 @@ def confirm(index_start_ms, ctc_start_ms, conf):
     return conf >= MIN_CONF and (ctc_start_ms - index_start_ms) >= CONFIRM_MS
 
 
+def assert_float32(mdl):
+    """يرفض نموذجاً فيه طبقةٌ مكمّمة — فلا يُحكم بشاهدٍ غير حتميّ ولو حُمّل النموذجُ قبلنا."""
+    bad = [n for n, m in mdl.named_modules() if "quantized" in type(m).__module__]
+    if bad:
+        raise RuntimeError(f"⛔ نموذجُ CTC مكمَّم ({len(bad)} طبقة، أوّلها {bad[0]}) — الشاهدُ لا يُقبل إلا float32")
+
+
+_READY = []
+
+
+def _ensure_model():
+    if not _READY:
+        from ctc_seg import _model
+        m = _model()
+        assert_float32(m["mdl"])
+        m["torch"].use_deterministic_algorithms(True)
+        _READY.append(True)
+
+
 def probe(url, surah, end_ms, text1):
+    _ensure_model()
     with urllib.request.urlopen(urllib.request.Request(url, headers=UA), timeout=120) as r:
         data = r.read()
     with tempfile.TemporaryDirectory() as t:
         mp3 = os.path.join(t, "a.mp3")
         open(mp3, "wb").write(data)
         x = read_wav(to_wav16k(mp3)).astype(np.float32)
-    clip = x[: int((end_ms + TAIL_MS) * SR / 1000)]
+    clip = x[: int(clip_end_ms(end_ms) * SR / 1000)]
     lead = [] if surah in (1, 9) else [BASMALA]
     segs = _segment(_emissions(clip), len(clip), lead + [text1])
     st, _en, sc = segs[len(lead)]
@@ -90,7 +143,8 @@ def main() -> int:
             confirmed.append(s)
     doc["lateConfirmed"] = sorted(confirmed)
     doc["lateCtc"] = detail
-    doc["lateCtcRule"] = f"CTC ≥{CONFIRM_MS}م.ث بعد بدء المدخل بثقة ≥{MIN_CONF}"
+    doc["lateCtcRule"] = f"CTC ≥{CONFIRM_MS}م.ث بعد بدء المدخل بثقة ≥{MIN_CONF} · float32 حتميّ"
+    doc["lateCtcPrecision"] = f"float32-1thread-avx2 · tail {TAIL_MS}"
     json.dump(doc, open(a.witness, "w", encoding="utf-8"), ensure_ascii=False, indent=1)
     print(f"⇒ lateConfirmed={doc['lateConfirmed']}")
     return 0
