@@ -272,7 +272,26 @@ jobs:
               print(f"⏸️ الطابور {nq} > 8 — لا دفعةَ تبويبٍ هذه النبضة", file=sys.stderr)
               batch = []
           else:
-              batch = sorted(need)[:14]
+              batch = sorted(need)
+          # هذا المرشح وحده يسلك فحوصاً يدوية مجانية؛ لا تُعطّل موجات الآخرين.
+          import gzip
+          sys.path.insert(0, 'tools/ci_fleet')
+          from qa_dispatch_guard import manual_qa_reason
+          automatic = []
+          for key in batch:
+              try:
+                  index = json.loads(gzip.decompress(s.get_object(Bucket=b, Key=key)['Body'].read()))
+                  manual_reason = manual_qa_reason(index, key)
+              except Exception:
+                  print(f'⏸️ {key}: تعذرت قراءة سياسة التشغيل؛ تؤجل هذه البصمة وحدها', file=sys.stderr)
+                  continue
+              if manual_reason:
+                  print(f'⏸️ {key}: {manual_reason}', file=sys.stderr)
+              else:
+                  automatic.append(key)
+                  if len(automatic) >= 14:
+                      break
+          batch = automatic
           print("need=" + ",".join(batch))
           print(f"count={len(batch)}")
           print(f"eligible_count={len(need)}")
