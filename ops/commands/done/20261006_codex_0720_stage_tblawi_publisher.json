@@ -1,0 +1,20 @@
+{
+  "action": "tool",
+  "tool": "index_qa/stage_transform.py",
+  "args": [
+    "--file",
+    "ops/source-repair/candidates/codex-tblawi7-publisher-20261006.jz",
+    "--parent",
+    "timings/hafs/tblawi.jz",
+    "--parent-sha",
+    "3d4c52f080212f44ed7eb4861e15194843dd13997c9b253aa04db6bcd87871a2",
+    "--op",
+    "ctc_quran_surah_splice:7",
+    "--reason",
+    "Full Araf alignment on healthy publisher source with native independent contexts and decoded EOF. Measured confidence and muqattaat warning retained; exact-SHA QA required.",
+    "--by",
+    "codex",
+    "--manual-qa-only",
+    "--yes"
+  ]
+}
