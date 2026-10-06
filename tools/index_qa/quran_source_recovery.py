@@ -33,6 +33,9 @@ SOURCES.update({
  'asiri7_archive_4917_targeted':{'surah': 7, 'riwaya': 'hafs',
   'url':'https://archive.org/download/002_20230924_202309/007%20-%20%D8%B3%D9%88%D8%B1%D8%A9%20%D8%A7%D9%84%D8%A3%D8%B9%D8%B1%D8%A7%D9%81.mp3',
   'sha256':'897ad7e2c99472111722247f362d135da0c25c449806260269a792a12f52d3f1','requestedWindowSeconds':[0,65]},
+ 'asiri7_archive_4917_48_expanded':{'surah': 7, 'riwaya': 'hafs',
+  'url':'https://archive.org/download/002_20230924_202309/007%20-%20%D8%B3%D9%88%D8%B1%D8%A9%20%D8%A7%D9%84%D8%A3%D8%B9%D8%B1%D8%A7%D9%81.mp3',
+  'sha256':'897ad7e2c99472111722247f362d135da0c25c449806260269a792a12f52d3f1','requestedWindowSeconds':[0,65]},
  'tblawi7_nquran':{'surah': 7, 'riwaya': 'hafs', 'url': 'https://www.nquran.com/audiof/quran/mohd_muh_tablawee/007.mp3', 'sha256': '76b0d10dbb33d90cdbb98e71786653a497dbe73f7af704bf2297848ce1fbc547', 'requestedWindowSeconds': [0, 65]},
  'benkirane77':{"surah":77,"riwaya":"warsh","url":"https://server16.mp3quran.net/A-Benkirane/Rewayat-Warsh-A-n-Nafi/077.mp3","sha256":"b6c7c2949373d2285eea057fa2b63e987a66793dff0e491064dabcfebcbd81b4","requestedWindowSeconds":[0,65]},
  'benkirane51':{"surah":51,"riwaya":"warsh","url":"https://server16.mp3quran.net/A-Benkirane/Rewayat-Warsh-A-n-Nafi/051.mp3","sha256":"7edb05c3b0f7ebe2f37d5af3c9949727cef50772cbc4857b5745c7a92fab7dbf","requestedWindowSeconds":[0,65]},
@@ -46,7 +49,8 @@ SOURCES.update({
  'saad28':{**S.SOURCES[1],'riwaya':'hafs','requestedWindowSeconds':[620,690]},
  'saad45':{**S.SOURCES[0],'riwaya':'hafs','requestedWindowSeconds':[0,25]},
 })
-ASIRI7_SOURCES=('asiri7_archive_4917','asiri7_archive_4917_audit','asiri7_archive_4917_targeted')
+ASIRI7_SOURCES=('asiri7_archive_4917','asiri7_archive_4917_audit',
+                'asiri7_archive_4917_targeted','asiri7_archive_4917_48_expanded')
 
 
 def main(argv=None):
@@ -93,6 +97,7 @@ def main(argv=None):
       'textGenerationDisabled':a.source in ASIRI7_SOURCES,
       'independentRemeasurement':a.source=='asiri7_archive_4917_audit',
       'targetedLowConfidenceRemeasurement':a.source=='asiri7_archive_4917_targeted',
+      'expandedAyah48Remeasurement':a.source=='asiri7_archive_4917_48_expanded',
       'limits':['Forced full alignment does not prove all verses present.','Original generic and free-ASR failures remain part of the evidence.','Candidate requires independent QA before registration or adoption.'],
       'provenance':{'runId':os.environ.get('GITHUB_RUN_ID',''),'runSha':os.environ.get('GITHUB_SHA',''),'toolSha256':S.sha_file(__file__)}}
     try:
@@ -134,22 +139,29 @@ def main(argv=None):
                 with P.offline_model_loads(hub,specs,bound):
                     C=importlib.import_module('ctc_seg')
                     numeric_windows=None
-                    if a.source=='asiri7_archive_4917_targeted':
+                    if a.source in ('asiri7_archive_4917_targeted','asiri7_archive_4917_48_expanded'):
                         primary_path=B.ROOT/'ops/out/codex-asiri7-left-context-alignment-success-37433349375.json'
                         primary_bytes=primary_path.read_bytes()
                         B.require(hashlib.sha256(primary_bytes).hexdigest()=='9426b3718b5b6a955ae6926263beeb66424a2dcad534c8b95172bbafdcdc8bac','primary Asiri report changed')
                         primary=json.loads(primary_bytes)['alignment']['entries']
                         numeric_windows=[]
-                        for ayah in (13,48,54,131,188):
-                            target=ayah-1;start=target-2;end=target+3
-                            numeric_windows.append({'id':f'ayah-{ayah}-neighbors','startAyahIdx':start,
-                              'endAyahIdxExclusive':end,'targetAyahIdxs':[target],
-                              'audioStartMs':max(0,primary[start]['startMs']-60000),
-                              'audioEndMs':min(primary[-1]['endMs']+2016,primary[end-1]['endMs']+60000)})
+                        if a.source=='asiri7_archive_4917_targeted':
+                            for ayah in (13,48,54,131,188):
+                                target=ayah-1;start=target-2;end=target+3
+                                numeric_windows.append({'id':f'ayah-{ayah}-neighbors','startAyahIdx':start,
+                                  'endAyahIdxExclusive':end,'targetAyahIdxs':[target],
+                                  'audioStartMs':max(0,primary[start]['startMs']-60000),
+                                  'audioEndMs':min(primary[-1]['endMs']+2016,primary[end-1]['endMs']+60000)})
+                        else:
+                            for label,start,end in (('a',42,58),('b',39,63)):
+                                numeric_windows.append({'id':f'ayah-48-expanded-{label}','startAyahIdx':start,
+                                  'endAyahIdxExclusive':end,'targetAyahIdxs':[47,48,49],
+                                  'audioStartMs':max(0,primary[start]['startMs']-120000),
+                                  'audioEndMs':min(primary[-1]['endMs']+2016,primary[end-1]['endMs']+120000)})
                     chunk_args=({'chunk_verses':29,'chunk_overlap':5}
                                 if a.source=='asiri7_archive_4917_audit' else
                                 {'chunk_verses':32,'chunk_overlap':4}
-                                if a.source in ('asiri7_archive_4917','asiri7_archive_4917_targeted') else {})
+                                if a.source in ('asiri7_archive_4917','asiri7_archive_4917_targeted','asiri7_archive_4917_48_expanded') else {})
                     report['alignment']=C.run_surah(str(path),source['surah'],source['riwaya'],
                                                     quran_model=True,numeric_windows=numeric_windows,**chunk_args)
                     C._M.clear();gc.collect()
@@ -178,6 +190,23 @@ def main(argv=None):
                 report['targetedLowConfidenceComparison']=deltas
                 B.require(max(max(d['startDeltaMs'],d['endDeltaMs']) for d in deltas)<=5000,
                           'targeted low-confidence boundary differs by more than five seconds')
+            if a.source=='asiri7_archive_4917_48_expanded':
+                windows=alignment.get('numericWindowAudit',[])
+                B.require(len(windows)==2,'expanded ayah-48 evidence missing')
+                comparisons=[]
+                for target in (47,48,49):
+                    locals=[next(e for e in w['entries'] if e['ayahIdx']==target) for w in windows]
+                    full=alignment['entries'][target]
+                    comparisons.append({'ayah':target+1,
+                      'crossWindowStartDisagreementMs':abs(locals[0]['startMs']-locals[1]['startMs']),
+                      'crossWindowEndDisagreementMs':abs(locals[0]['endMs']-locals[1]['endMs']),
+                      'fullStartDeltaMs':max(abs(e['startMs']-full['startMs']) for e in locals),
+                      'fullEndDeltaMs':max(abs(e['endMs']-full['endMs']) for e in locals),
+                      'windowConfidences':[e['conf'] for e in locals]})
+                report['expandedAyah48Comparison']=comparisons
+                B.require(max(max(d['crossWindowStartDisagreementMs'],d['crossWindowEndDisagreementMs'])
+                              for d in comparisons)<=5000,
+                          'expanded ayah-48 windows disagree by more than five seconds')
             report['lowOrMissing']=[e['ayahIdx']+1 for e in alignment['entries'] if e['startMs'] is None or e['conf']<.45]
             report['measurementComplete']=True
     except Exception as exc:
