@@ -67,14 +67,20 @@ def source_engine_blocked(source):
                  and row['engine']==ALIGNMENT_ENGINE),None)
 
 
+def require_source_engine_eligible(source):
+    """Fail closed for a recorded exact-source/engine failure."""
+    blocked=source_engine_blocked(source)
+    if blocked is not None:
+        B.require(False,
+                  f"exact source/engine already failed without a complete candidate: {blocked['run']}")
+
+
 def main(argv=None):
     ap=argparse.ArgumentParser(description=__doc__)
     ap.add_argument('--source',choices=tuple(SOURCES),required=True)
     ap.add_argument('--model-policy',choices=('cache-only','quran-pinned-ephemeral'),default='cache-only')
     a=ap.parse_args(argv);source=SOURCES[a.source]
-    blocked=source_engine_blocked(source)
-    B.require(not blocked,
-              f"exact source/engine already failed without a complete candidate: {blocked['run']}")
+    require_source_engine_eligible(source)
     if a.source=='a_abdl37':
         import source_context_diagnostics as contexts
         pinned,_=contexts.load_source('penultimate_hafs_a_abdl_37')

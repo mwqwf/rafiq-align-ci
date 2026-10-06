@@ -14,6 +14,18 @@ class BlockedSourceEngineTests(unittest.TestCase):
     def test_other_source_and_changed_engine_remain_eligible(self):
         self.assertIsNone(
             recovery.source_engine_blocked(recovery.SOURCES['iraoui86_surahs_s41']))
+        self.assertIsNone(
+            recovery.require_source_engine_eligible(
+                recovery.SOURCES['fakhfakh38_archive_2025']))
+
+    def test_recorded_exact_source_fails_with_its_run_not_a_none_subscript(self):
+        run = recovery.source_engine_blocked(
+            recovery.SOURCES['shamrani79'])['run']
+        with self.assertRaisesRegex(
+                recovery.S.metadata.ProbeError,
+                rf'exact source/engine already failed.*{run}'):
+            recovery.require_source_engine_eligible(
+                recovery.SOURCES['shamrani79'])
 
     def test_fakhfakh_archive_mirror_is_pinned_to_publisher_pcm(self):
         source = recovery.SOURCES['fakhfakh38_archive_2025']
