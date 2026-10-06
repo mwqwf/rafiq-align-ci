@@ -1,0 +1,20 @@
+{
+  "action": "tool",
+  "tool": "index_qa/stage_transform.py",
+  "args": [
+    "--file",
+    "ops/source-repair/candidates/codex-rabbani-openers-eof-20261006.jz",
+    "--parent",
+    "timings/warsh/rabbani_warsh.jz",
+    "--parent-sha",
+    "d9534de9ed7aed07154a5784f2cefc5b7fef16981061bf9e4c3f9bc22a44b2aa",
+    "--op",
+    "ctc_quran_window:56,77,96,102",
+    "--reason",
+    "Retain measured opener repairs and correct two proven 25ms decoded-EOF overhangs. Preserve original confidence and strict sample-window guard; require complete final-SHA QA.",
+    "--by",
+    "codex-decoded-eof-repair-20261006",
+    "--manual-qa-only",
+    "--yes"
+  ]
+}
