@@ -16,7 +16,8 @@ sys.path.insert(0,str(Path(__file__).resolve().parent))
 import final_verse_free_batch as B
 import independent_window_pilot as P
 S=B.S
-SOURCES={
+SOURCES={'iraoui86_surahs_s41': {'surah': 41, 'riwaya': 'warsh', 'url': 'https://archive.org/download/55555555555033alahzab_202004/041Fossilat.mp3', 'sha256': 'f655b81ea9926ddd8c134ef04c197b550ffd954896c43229a2f01c6be1d1986b', 'requestedWindowSeconds': [0, 65]}, 'shamrani_new_archive_s79': {'surah': 79, 'riwaya': 'hafs', 'url': 'https://archive.org/download/x00xxxx2_20220807xxx/079%20%20%D8%B3%D9%88%D8%B1%D8%A9%20%D8%A7%D9%84%D9%86%D8%A7%D8%B2%D8%B9%D8%A7%D8%AA.mp3', 'sha256': 'da9ec6ff96d0159736ffadcb008b062041d264f66bc6b17b952b7a5206f88d45', 'requestedWindowSeconds': [25, 70]}}
+SOURCES.update({
  'tblawi7_nquran':{'surah': 7, 'riwaya': 'hafs', 'url': 'https://www.nquran.com/audiof/quran/mohd_muh_tablawee/007.mp3', 'sha256': '76b0d10dbb33d90cdbb98e71786653a497dbe73f7af704bf2297848ce1fbc547', 'requestedWindowSeconds': [0, 65]},
  'benkirane77':{"surah":77,"riwaya":"warsh","url":"https://server16.mp3quran.net/A-Benkirane/Rewayat-Warsh-A-n-Nafi/077.mp3","sha256":"b6c7c2949373d2285eea057fa2b63e987a66793dff0e491064dabcfebcbd81b4","requestedWindowSeconds":[0,65]},
  'benkirane51':{"surah":51,"riwaya":"warsh","url":"https://server16.mp3quran.net/A-Benkirane/Rewayat-Warsh-A-n-Nafi/051.mp3","sha256":"7edb05c3b0f7ebe2f37d5af3c9949727cef50772cbc4857b5745c7a92fab7dbf","requestedWindowSeconds":[0,65]},
@@ -29,7 +30,7 @@ SOURCES={
   'sha256':'ef9cfec33cb9fe061f35283fd2bb6f329e43ac444386e890cac5c9ba0962e533','requestedWindowSeconds':[28,70]},
  'saad28':{**S.SOURCES[1],'riwaya':'hafs','requestedWindowSeconds':[620,690]},
  'saad45':{**S.SOURCES[0],'riwaya':'hafs','requestedWindowSeconds':[0,25]},
-}
+})
 
 
 def main(argv=None):
@@ -42,6 +43,12 @@ def main(argv=None):
         B.require(hashlib.sha256(metadata).hexdigest()=='222a0abcea6e4ac6444eac886a4bcf00ca24a590f9cd3e6d883e04ee86002ed2','publisher metadata changed')
         measured=json.loads(metadata)['sources'][0]
         B.require(measured['ok'] and measured['pcm']['decodedWithoutErrors'] and measured['file']['sha256']==source['sha256'] and measured['file']['finalUrl']==source['url'],'unhealthy/mismatched source')
+    if a.source in ('iraoui86_surahs_s41', 'shamrani_new_archive_s79'):
+        metadata=(B.ROOT/'ops/out/codex-new-archive-metadata-37413567942.json').read_bytes()
+        B.require(hashlib.sha256(metadata).hexdigest()=='94c95c7b5f327dc9ee11e06a04de195ca45b99049148135dbab38b0d5b6da830','new source metadata changed')
+        measured=next(m for m in json.loads(metadata)['sources'] if m['id']==a.source)
+        B.require(measured['ok'] and measured['pcm']['decodedWithoutErrors'] and measured['stereo']['decodedWithoutErrors'] and not measured['stereo']['phaseCancellationSuspected'],'unhealthy source')
+        B.require(source['sha256']==measured['file']['sha256'] and source['url']==measured['requestedUrl'] and source['surah']==measured['surah'] and source['riwaya']==measured['riwaya'],'metadata source mismatch')
     report={'schema':1,'kind':'known-source-quran-alignment-diagnostic','sourceId':a.source,
       'measurementComplete':False,'qualityClaim':False,'coverageCertified':False,'productionChanged':False,
       'source':source,'freeResults':[],'models':[],'errors':[],
@@ -59,11 +66,13 @@ def main(argv=None):
             B.require(proof['decoded']['durationSeconds']<(4400 if a.source=='tblawi7_nquran' else 1500),'unexpected source duration')
             if a.source=='tblawi7_nquran':
                 B.require(receipt['bytes']==35032209 and proof['decoded']['frames']==70049542,'new publisher source differs from measured metadata')
+            if a.source in ('iraoui86_surahs_s41', 'shamrani_new_archive_s79'):
+                B.require(receipt['bytes']==measured['file']['bytes'] and proof['decoded']['frames']==measured['pcm']['samples'],'source differs from exact measured frames')
             report['audio']={'download':receipt,**proof}
             contract=P.load_contract()
             with S.model_snapshots(a.model_policy) as (snapshots,inventory):
                 report['modelAcquisition']=inventory
-                if a.source in ('shamrani79','mrifai84','benkirane77','benkirane51','yousef107','tblawi7_nquran'):
+                if a.source in ('iraoui86_surahs_s41','shamrani_new_archive_s79','shamrani79','mrifai84','benkirane77','benkirane51','yousef107','tblawi7_nquran'):
                     window=dict(source,windowSeconds=[collector.start/S.RATE,min(collector.frames,collector.end)/S.RATE])
                     for spec in S.MODELS:
                         backend=S.FreeCTC(snapshots[spec['name']],spec)
@@ -82,7 +91,7 @@ def main(argv=None):
                     C._M.clear();gc.collect()
             B.require(S.sha_file(path)==source['sha256'],'source changed after inference')
             alignment=report['alignment']
-            expected={79:46,28:88,45:37,22:78,84:25,77:50,51:60,107:7,7:206}[source['surah']]
+            expected={41:54,79:46,28:88,45:37,22:78,84:25,77:50,51:60,107:7,7:206}[source['surah']]
             B.require(len(alignment['entries'])==expected,'incomplete result population')
             report['lowOrMissing']=[e['ayahIdx']+1 for e in alignment['entries'] if e['startMs'] is None or e['conf']<.45]
             report['measurementComplete']=True
