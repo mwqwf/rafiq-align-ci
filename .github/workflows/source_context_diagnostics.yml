@@ -29,7 +29,7 @@ jobs:
       fail-fast: false
       max-parallel: 3
       matrix:
-        reader: [saad28_context, saad45_tail, shamrani79_tail, tblawi_head, tblawi_tail]
+        reader: [saad28_context, saad45_tail, shamrani79_tail, tblawi_head, tblawi_tail, m_ab26_29, m_ab34_37, m_ab91_95]
     if: ${{ github.repository == 'mwqwf/rafiq-align-ci' && github.event.repository.private == false }}
     runs-on: ubuntu-24.04
     timeout-minutes: 45
