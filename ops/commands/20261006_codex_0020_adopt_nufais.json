@@ -1,0 +1,14 @@
+{
+  "action": "tool",
+  "tool": "index_qa/promote_verified_transform.py",
+  "args": [
+    "--key",
+    "timings-staging/hafs/nufais.31106cbe.jz",
+    "--sha",
+    "31106cbe8babd4d506b5e5ccf0c75980e7652ec60791f259fb30ae2c4078b43c",
+    "--parent-sha",
+    "e3d40dc931f9fc48c4e0f2daf9a8c3a939b80a606a205b1a2486cdebad8fa550",
+    "--reason",
+    "Owner-directed indexing completion: seven exact-SHA quality measurements and original guarded review passed in 37384796841. Source-pinned free ASR 37388055996 verifies final words; independent 37391351958 confirms 25:10 repetition contained by existing bounds. Preserve LOW confidence and original 5% gate; no global accuracy certification."
+  ]
+}
