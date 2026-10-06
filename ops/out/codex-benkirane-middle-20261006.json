@@ -1,0 +1,1141 @@
+[
+  {
+    "schema": 1,
+    "kind": "source-context-and-content-diagnostic",
+    "reader": "benkirane77_26_28",
+    "planSha256": "95d7f0c68ded91cfa03da3cbcbe2a772e5bd52341130b45a89d9b3f9a0a00830",
+    "measurementComplete": true,
+    "qualityClaim": false,
+    "productionChanged": false,
+    "freeResults": [
+      {
+        "surah": 77,
+        "sourceSha256": "b6c7c2949373d2285eea057fa2b63e987a66793dff0e491064dabcfebcbd81b4",
+        "channel": "native-1",
+        "model": "generic",
+        "windowSeconds": [
+          102.0,
+          150.0
+        ],
+        "pcmSha256": "b993094a1fc0419f0db11cf89f7f50cb86ba4c4ab754550ade7f2e043dee24b8",
+        "rawChunks": [
+          {
+            "chunk": 1,
+            "coreStartSample": 0,
+            "coreEndSampleExclusive": 400000,
+            "inputStartSample": 0,
+            "inputEndSampleExclusive": 432000,
+            "absoluteInputStartSeconds": 102.0,
+            "absoluteInputEndSeconds": 129.0,
+            "inputPcmSha256": "c9afd89a4880d760d1e2c5b4c400f31d78735ebb3a5367a41c884c28916cd2f5",
+            "inferenceSeconds": 8.323176133000004,
+            "frames": 1349,
+            "blankTokenId": 0,
+            "argmaxRunFields": [
+              "tokenId",
+              "startFrame",
+              "endFrameExclusive",
+              "meanPosterior",
+              "minPosterior"
+            ],
+            "posteriorIsCalibratedConfidence": false,
+            "text": "قاد وينو يومئذ ل لمكذبين ألم نجعل إلىعضتفاة أخياءا وأمواتًا وجعلنا فيها رواس يشا مخات وجعلنا فيها رواس يشام خات وأسقيناكم",
+            "textMethod": "CTC-greedy-collapse-without-reference-or-language-model",
+            "frameTiming": {
+              "method": "convolution-stride-and-receptive-field",
+              "kernel": [
+                10,
+                3,
+                3,
+                3,
+                3,
+                2,
+                2
+              ],
+              "stride": [
+                5,
+                2,
+                2,
+                2,
+                2,
+                2,
+                2
+              ],
+              "expectedFrames": 1349,
+              "strideSamples": 320,
+              "receptiveFieldSamples": 400,
+              "firstFrameCenterSample": 199.5,
+              "centerRule": "absoluteInputStartSeconds + (firstFrameCenterSample + frame * strideSamples) / sampleRateHz",
+              "notWordOrVerseBoundaries": true
+            },
+            "rawPartSha256": "ccd5e80a24ae88b4cba66fcb5d69d076476fa85dd525fe128953db28d1fa5d76",
+            "rawPartBytes": 13804
+          },
+          {
+            "chunk": 2,
+            "coreStartSample": 400000,
+            "coreEndSampleExclusive": 768000,
+            "inputStartSample": 368000,
+            "inputEndSampleExclusive": 768000,
+            "absoluteInputStartSeconds": 125.0,
+            "absoluteInputEndSeconds": 150.0,
+            "inputPcmSha256": "1c1d4d2148f150430ee97ac0b2cdc863e63d24fc2d61fade94bb28c6e8b41821",
+            "inferenceSeconds": 7.474240030000004,
+            "frames": 1249,
+            "blankTokenId": 0,
+            "argmaxRunFields": [
+              "tokenId",
+              "startFrame",
+              "endFrameExclusive",
+              "meanPosterior",
+              "minPosterior"
+            ],
+            "posteriorIsCalibratedConfidence": false,
+            "text": "مِخَاتِم وَأَسْقَيْنَاكُ مَاأَنْ فُرَاتَى وَيْنُِ يَوْمَئِذٍ لِلْمُكَذِّبِينَإِنْ طَلِقُو إِلَى مَا كُنْتُْ بِهِ تُكَذِّبُونَ نْ طَلِقُوا إِلَى غِلٍّ",
+            "textMethod": "CTC-greedy-collapse-without-reference-or-language-model",
+            "frameTiming": {
+              "method": "convolution-stride-and-receptive-field",
+              "kernel": [
+                10,
+                3,
+                3,
+                3,
+                3,
+                2,
+                2
+              ],
+              "stride": [
+                5,
+                2,
+                2,
+                2,
+                2,
+                2,
+                2
+              ],
+              "expectedFrames": 1249,
+              "strideSamples": 320,
+              "receptiveFieldSamples": 400,
+              "firstFrameCenterSample": 199.5,
+              "centerRule": "absoluteInputStartSeconds + (firstFrameCenterSample + frame * strideSamples) / sampleRateHz",
+              "notWordOrVerseBoundaries": true
+            },
+            "rawPartSha256": "6d794cdf54322d39718564d82a4a27868b62bd9701c75428666535136799da7b",
+            "rawPartBytes": 16191
+          }
+        ],
+        "canonicalTextInput": false,
+        "forcedAlignment": false,
+        "mergedTranscriptProduced": false,
+        "versePresenceDecision": null,
+        "rawEvidenceStorage": "complete-per-chunk-log-envelopes",
+        "windowSamplesCovered": 768000
+      },
+      {
+        "surah": 77,
+        "sourceSha256": "b6c7c2949373d2285eea057fa2b63e987a66793dff0e491064dabcfebcbd81b4",
+        "channel": "native-2",
+        "model": "generic",
+        "windowSeconds": [
+          102.0,
+          150.0
+        ],
+        "pcmSha256": "1f1db0c901f743a3ebf136920fe71119a99d61e3d4957fca9f0da12547139ec8",
+        "rawChunks": [
+          {
+            "chunk": 1,
+            "coreStartSample": 0,
+            "coreEndSampleExclusive": 400000,
+            "inputStartSample": 0,
+            "inputEndSampleExclusive": 432000,
+            "absoluteInputStartSeconds": 102.0,
+            "absoluteInputEndSeconds": 129.0,
+            "inputPcmSha256": "62816d171d65588f1c0bc3ea1b27e760712c65a22dd767aaa5cb812970fa0416",
+            "inferenceSeconds": 8.223031262000006,
+            "frames": 1349,
+            "blankTokenId": 0,
+            "argmaxRunFields": [
+              "tokenId",
+              "startFrame",
+              "endFrameExclusive",
+              "meanPosterior",
+              "minPosterior"
+            ],
+            "posteriorIsCalibratedConfidence": false,
+            "text": "قاد وينو يومئذ ل لمكذبين ألم نجعل إلىعضتفاة أخياءا وأمواتًا وجعلنا فيها رواس يشا مخات وجعلنا فيها رواس يشام خات وأسقيناكم",
+            "textMethod": "CTC-greedy-collapse-without-reference-or-language-model",
+            "frameTiming": {
+              "method": "convolution-stride-and-receptive-field",
+              "kernel": [
+                10,
+                3,
+                3,
+                3,
+                3,
+                2,
+                2
+              ],
+              "stride": [
+                5,
+                2,
+                2,
+                2,
+                2,
+                2,
+                2
+              ],
+              "expectedFrames": 1349,
+              "strideSamples": 320,
+              "receptiveFieldSamples": 400,
+              "firstFrameCenterSample": 199.5,
+              "centerRule": "absoluteInputStartSeconds + (firstFrameCenterSample + frame * strideSamples) / sampleRateHz",
+              "notWordOrVerseBoundaries": true
+            },
+            "rawPartSha256": "f2428006418399f14e03de9b3615deac3f2e6c768360db21511df81ab53379af",
+            "rawPartBytes": 13823
+          },
+          {
+            "chunk": 2,
+            "coreStartSample": 400000,
+            "coreEndSampleExclusive": 768000,
+            "inputStartSample": 368000,
+            "inputEndSampleExclusive": 768000,
+            "absoluteInputStartSeconds": 125.0,
+            "absoluteInputEndSeconds": 150.0,
+            "inputPcmSha256": "f52f24bb21fca7a2457f5117ba4fbd2275b4050fd7be0b95aa21a626dae106af",
+            "inferenceSeconds": 7.57459248699999,
+            "frames": 1249,
+            "blankTokenId": 0,
+            "argmaxRunFields": [
+              "tokenId",
+              "startFrame",
+              "endFrameExclusive",
+              "meanPosterior",
+              "minPosterior"
+            ],
+            "posteriorIsCalibratedConfidence": false,
+            "text": "مِخَاتِم وَأَسْقَيْنَاكُ مَاأَنْ فُرَاتَى وَيْنُِ يَوْمَئِذٍ لِلْمُكَذِّبِينَإِنْ طَلِقُو إِلَى مَا كُنْتُْ بِهِ تُكَذِّبُونَ نْ طَلِقُوا إِلَى غِلٍّ",
+            "textMethod": "CTC-greedy-collapse-without-reference-or-language-model",
+            "frameTiming": {
+              "method": "convolution-stride-and-receptive-field",
+              "kernel": [
+                10,
+                3,
+                3,
+                3,
+                3,
+                2,
+                2
+              ],
+              "stride": [
+                5,
+                2,
+                2,
+                2,
+                2,
+                2,
+                2
+              ],
+              "expectedFrames": 1249,
+              "strideSamples": 320,
+              "receptiveFieldSamples": 400,
+              "firstFrameCenterSample": 199.5,
+              "centerRule": "absoluteInputStartSeconds + (firstFrameCenterSample + frame * strideSamples) / sampleRateHz",
+              "notWordOrVerseBoundaries": true
+            },
+            "rawPartSha256": "722f70f9ff56cf47d133782003cd07e25a034e0b9b4915351c8f24078e7bb8ab",
+            "rawPartBytes": 16200
+          }
+        ],
+        "canonicalTextInput": false,
+        "forcedAlignment": false,
+        "mergedTranscriptProduced": false,
+        "versePresenceDecision": null,
+        "rawEvidenceStorage": "complete-per-chunk-log-envelopes",
+        "windowSamplesCovered": 768000
+      },
+      {
+        "surah": 77,
+        "sourceSha256": "b6c7c2949373d2285eea057fa2b63e987a66793dff0e491064dabcfebcbd81b4",
+        "channel": "native-1",
+        "model": "quran",
+        "windowSeconds": [
+          102.0,
+          150.0
+        ],
+        "pcmSha256": "b993094a1fc0419f0db11cf89f7f50cb86ba4c4ab754550ade7f2e043dee24b8",
+        "rawChunks": [
+          {
+            "chunk": 1,
+            "coreStartSample": 0,
+            "coreEndSampleExclusive": 400000,
+            "inputStartSample": 0,
+            "inputEndSampleExclusive": 432000,
+            "absoluteInputStartSeconds": 102.0,
+            "absoluteInputEndSeconds": 129.0,
+            "inputPcmSha256": "c9afd89a4880d760d1e2c5b4c400f31d78735ebb3a5367a41c884c28916cd2f5",
+            "inferenceSeconds": 8.35532452000001,
+            "frames": 1349,
+            "blankTokenId": 0,
+            "argmaxRunFields": [
+              "tokenId",
+              "startFrame",
+              "endFrameExclusive",
+              "meanPosterior",
+              "minPosterior"
+            ],
+            "posteriorIsCalibratedConfidence": false,
+            "text": "قَادِلُونَ وَيْلٌ يَوْمَئِذٍ لِلْمُكَذِّبِينَ أَلَمْ نَجْعَلِ لَرْضَ كِفَاتَ نَحْيَاءً وَأَمْوَاتًا وَجَعَلْنَا فِيهَا رَوَاسِيَ شَامِخَاتٍ وَأَسْقَيْنَاكُم",
+            "textMethod": "CTC-greedy-collapse-without-reference-or-language-model",
+            "frameTiming": {
+              "method": "convolution-stride-and-receptive-field",
+              "kernel": [
+                10,
+                3,
+                3,
+                3,
+                3,
+                2,
+                2
+              ],
+              "stride": [
+                5,
+                2,
+                2,
+                2,
+                2,
+                2,
+                2
+              ],
+              "expectedFrames": 1349,
+              "strideSamples": 320,
+              "receptiveFieldSamples": 400,
+              "firstFrameCenterSample": 199.5,
+              "centerRule": "absoluteInputStartSeconds + (firstFrameCenterSample + frame * strideSamples) / sampleRateHz",
+              "notWordOrVerseBoundaries": true
+            },
+            "rawPartSha256": "8f07ecac05c85c1f5621adfb7aa2aab84a8eaa9753d7b523dab6067560d18119",
+            "rawPartBytes": 17188
+          },
+          {
+            "chunk": 2,
+            "coreStartSample": 400000,
+            "coreEndSampleExclusive": 768000,
+            "inputStartSample": 368000,
+            "inputEndSampleExclusive": 768000,
+            "absoluteInputStartSeconds": 125.0,
+            "absoluteInputEndSeconds": 150.0,
+            "inputPcmSha256": "1c1d4d2148f150430ee97ac0b2cdc863e63d24fc2d61fade94bb28c6e8b41821",
+            "inferenceSeconds": 7.545852292999996,
+            "frames": 1249,
+            "blankTokenId": 0,
+            "argmaxRunFields": [
+              "tokenId",
+              "startFrame",
+              "endFrameExclusive",
+              "meanPosterior",
+              "minPosterior"
+            ],
+            "posteriorIsCalibratedConfidence": false,
+            "text": "مِخَاتٍ وَأَسْقَيْنَاكُمْ مَاءً فُرَاتًا وَيْلٌ يَوْمَئِذٍ لِلْمُكَذِّبِينَ اِنْ طَلِقُوا إِلَىٰ مَا كُنْتُمْ بِهِ تُكَذِّبُونَ انْطَلِقُوا إِلَىٰ ظِلٍّ",
+            "textMethod": "CTC-greedy-collapse-without-reference-or-language-model",
+            "frameTiming": {
+              "method": "convolution-stride-and-receptive-field",
+              "kernel": [
+                10,
+                3,
+                3,
+                3,
+                3,
+                2,
+                2
+              ],
+              "stride": [
+                5,
+                2,
+                2,
+                2,
+                2,
+                2,
+                2
+              ],
+              "expectedFrames": 1249,
+              "strideSamples": 320,
+              "receptiveFieldSamples": 400,
+              "firstFrameCenterSample": 199.5,
+              "centerRule": "absoluteInputStartSeconds + (firstFrameCenterSample + frame * strideSamples) / sampleRateHz",
+              "notWordOrVerseBoundaries": true
+            },
+            "rawPartSha256": "1a59981fddd94f55a73486b19b31df6cdabcb7092dab78790ed5b56c1c8a3853",
+            "rawPartBytes": 16259
+          }
+        ],
+        "canonicalTextInput": false,
+        "forcedAlignment": false,
+        "mergedTranscriptProduced": false,
+        "versePresenceDecision": null,
+        "rawEvidenceStorage": "complete-per-chunk-log-envelopes",
+        "windowSamplesCovered": 768000
+      },
+      {
+        "surah": 77,
+        "sourceSha256": "b6c7c2949373d2285eea057fa2b63e987a66793dff0e491064dabcfebcbd81b4",
+        "channel": "native-2",
+        "model": "quran",
+        "windowSeconds": [
+          102.0,
+          150.0
+        ],
+        "pcmSha256": "1f1db0c901f743a3ebf136920fe71119a99d61e3d4957fca9f0da12547139ec8",
+        "rawChunks": [
+          {
+            "chunk": 1,
+            "coreStartSample": 0,
+            "coreEndSampleExclusive": 400000,
+            "inputStartSample": 0,
+            "inputEndSampleExclusive": 432000,
+            "absoluteInputStartSeconds": 102.0,
+            "absoluteInputEndSeconds": 129.0,
+            "inputPcmSha256": "62816d171d65588f1c0bc3ea1b27e760712c65a22dd767aaa5cb812970fa0416",
+            "inferenceSeconds": 8.21938996099999,
+            "frames": 1349,
+            "blankTokenId": 0,
+            "argmaxRunFields": [
+              "tokenId",
+              "startFrame",
+              "endFrameExclusive",
+              "meanPosterior",
+              "minPosterior"
+            ],
+            "posteriorIsCalibratedConfidence": false,
+            "text": "قَادِلُونَ وَيْلٌ يَوْمَئِذٍ لِلْمُكَذِّبِينَ أَلَمْ نَجْعَلِ لَرْضَ كِفَاتَ نَحْيَاءً وَأَمْوَاتًا وَجَعَلْنَا فِيهَا رَوَاسِيَ شَامِخَاتٍ وَأَسْقَيْنَاكُم",
+            "textMethod": "CTC-greedy-collapse-without-reference-or-language-model",
+            "frameTiming": {
+              "method": "convolution-stride-and-receptive-field",
+              "kernel": [
+                10,
+                3,
+                3,
+                3,
+                3,
+                2,
+                2
+              ],
+              "stride": [
+                5,
+                2,
+                2,
+                2,
+                2,
+                2,
+                2
+              ],
+              "expectedFrames": 1349,
+              "strideSamples": 320,
+              "receptiveFieldSamples": 400,
+              "firstFrameCenterSample": 199.5,
+              "centerRule": "absoluteInputStartSeconds + (firstFrameCenterSample + frame * strideSamples) / sampleRateHz",
+              "notWordOrVerseBoundaries": true
+            },
+            "rawPartSha256": "1e3a485cddb0f754bf7188e6bba7999274a89a2db6416d0013f6d8e35e03bb8a",
+            "rawPartBytes": 17203
+          },
+          {
+            "chunk": 2,
+            "coreStartSample": 400000,
+            "coreEndSampleExclusive": 768000,
+            "inputStartSample": 368000,
+            "inputEndSampleExclusive": 768000,
+            "absoluteInputStartSeconds": 125.0,
+            "absoluteInputEndSeconds": 150.0,
+            "inputPcmSha256": "f52f24bb21fca7a2457f5117ba4fbd2275b4050fd7be0b95aa21a626dae106af",
+            "inferenceSeconds": 7.653699053000025,
+            "frames": 1249,
+            "blankTokenId": 0,
+            "argmaxRunFields": [
+              "tokenId",
+              "startFrame",
+              "endFrameExclusive",
+              "meanPosterior",
+              "minPosterior"
+            ],
+            "posteriorIsCalibratedConfidence": false,
+            "text": "مِخَاتٍ وَأَسْقَيْنَاكُمْ مَاءً فُرَاتًا وَيْلٌ يَوْمَئِذٍ لِلْمُكَذِّبِينَ اِنْ طَلِقُوا إِلَىٰ مَا كُنْتُمْ بِهِ تُكَذِّبُونَ انْطَلِقُوا إِلَىٰ ظِلٍّ",
+            "textMethod": "CTC-greedy-collapse-without-reference-or-language-model",
+            "frameTiming": {
+              "method": "convolution-stride-and-receptive-field",
+              "kernel": [
+                10,
+                3,
+                3,
+                3,
+                3,
+                2,
+                2
+              ],
+              "stride": [
+                5,
+                2,
+                2,
+                2,
+                2,
+                2,
+                2
+              ],
+              "expectedFrames": 1249,
+              "strideSamples": 320,
+              "receptiveFieldSamples": 400,
+              "firstFrameCenterSample": 199.5,
+              "centerRule": "absoluteInputStartSeconds + (firstFrameCenterSample + frame * strideSamples) / sampleRateHz",
+              "notWordOrVerseBoundaries": true
+            },
+            "rawPartSha256": "fbb6bd909e5dd640f5b5aaf8544950cc5b8a49a1a49e1da372cd70d32968152f",
+            "rawPartBytes": 16259
+          }
+        ],
+        "canonicalTextInput": false,
+        "forcedAlignment": false,
+        "mergedTranscriptProduced": false,
+        "versePresenceDecision": null,
+        "rawEvidenceStorage": "complete-per-chunk-log-envelopes",
+        "windowSamplesCovered": 768000
+      }
+    ],
+    "measurements": [
+      {
+        "model": "generic",
+        "channel": "native-1",
+        "alignmentModel": {
+          "id": "jonatasgrosman/wav2vec2-large-xlsr-53-arabic",
+          "revision": "af46c2d8531b8dcbb5e23b952f739b372c2e5d2d",
+          "weightsSha256": "a0b26f6d9d3edfde1784aef863c192a8cc1e438a23b45910ab648531ebe1857b",
+          "license": "Apache-2.0"
+        },
+        "alignmentInput": [
+          "اَحْيَآءٗ وَأَمْوَٰتاٗ",
+          "وَجَعَلْنَا فِيهَا رَوَٰسِيَ شَٰمِخَٰتٖ وَأَسْقَيْنَٰكُم مَّآءٗ فُرَاتاٗۖ",
+          "وَيْلٞ يَوْمَئِذٖ لِّلْمُكَذِّبِينَۖ"
+        ],
+        "windowSeconds": [
+          102.0,
+          150.0
+        ],
+        "inputPcmSha256": "5ec92e64609823726788af37c45ebbd3c094ce4e6d0b7277b15866c6e023e8fc",
+        "rawSegments": [
+          [
+            16.133861551292743,
+            19.24603836530442,
+            -3.2092949508056337
+          ],
+          [
+            19.59674728940784,
+            30.035029190992493,
+            -0.9492762650970993
+          ],
+          [
+            30.70600500417014,
+            35.559633027522935,
+            -0.7090137204592944
+          ]
+        ],
+        "rawEntries": [
+          {
+            "ayahId": "77:26",
+            "startMs": 118133,
+            "endMs": 121246,
+            "conf": 0.198
+          },
+          {
+            "ayahId": "77:27",
+            "startMs": 121596,
+            "endMs": 132035,
+            "conf": 0.763
+          },
+          {
+            "ayahId": "77:28",
+            "startMs": 132706,
+            "endMs": 137559,
+            "conf": 0.823
+          }
+        ],
+        "entries": [
+          {
+            "ayahId": "77:26",
+            "startMs": 118133,
+            "endMs": 121596,
+            "conf": 0.198
+          },
+          {
+            "ayahId": "77:27",
+            "startMs": 121596,
+            "endMs": 132706,
+            "conf": 0.763
+          },
+          {
+            "ayahId": "77:28",
+            "startMs": 132706,
+            "endMs": 137559,
+            "conf": 0.823
+          }
+        ]
+      },
+      {
+        "model": "generic",
+        "channel": "native-2",
+        "alignmentModel": {
+          "id": "jonatasgrosman/wav2vec2-large-xlsr-53-arabic",
+          "revision": "af46c2d8531b8dcbb5e23b952f739b372c2e5d2d",
+          "weightsSha256": "a0b26f6d9d3edfde1784aef863c192a8cc1e438a23b45910ab648531ebe1857b",
+          "license": "Apache-2.0"
+        },
+        "alignmentInput": [
+          "اَحْيَآءٗ وَأَمْوَٰتاٗ",
+          "وَجَعَلْنَا فِيهَا رَوَٰسِيَ شَٰمِخَٰتٖ وَأَسْقَيْنَٰكُم مَّآءٗ فُرَاتاٗۖ",
+          "وَيْلٞ يَوْمَئِذٖ لِّلْمُكَذِّبِينَۖ"
+        ],
+        "windowSeconds": [
+          102.0,
+          150.0
+        ],
+        "inputPcmSha256": "b7cca20385c500e5eca6e61b78e44e5be82351bf5565df06102bc4efb333cbff",
+        "rawSegments": [
+          [
+            16.133861551292743,
+            19.24603836530442,
+            -3.2095067672220465
+          ],
+          [
+            19.59674728940784,
+            30.035029190992493,
+            -0.9494297709567339
+          ],
+          [
+            30.70600500417014,
+            35.559633027522935,
+            -0.7090376411258906
+          ]
+        ],
+        "rawEntries": [
+          {
+            "ayahId": "77:26",
+            "startMs": 118133,
+            "endMs": 121246,
+            "conf": 0.198
+          },
+          {
+            "ayahId": "77:27",
+            "startMs": 121596,
+            "endMs": 132035,
+            "conf": 0.763
+          },
+          {
+            "ayahId": "77:28",
+            "startMs": 132706,
+            "endMs": 137559,
+            "conf": 0.823
+          }
+        ],
+        "entries": [
+          {
+            "ayahId": "77:26",
+            "startMs": 118133,
+            "endMs": 121596,
+            "conf": 0.198
+          },
+          {
+            "ayahId": "77:27",
+            "startMs": 121596,
+            "endMs": 132706,
+            "conf": 0.763
+          },
+          {
+            "ayahId": "77:28",
+            "startMs": 132706,
+            "endMs": 137559,
+            "conf": 0.823
+          }
+        ]
+      },
+      {
+        "model": "quran",
+        "channel": "native-1",
+        "alignmentModel": {
+          "id": "rabah2026/wav2vec2-large-xlsr-53-arabic-quran-v_final",
+          "revision": "b03a268c6ba1a693752307325ab376c86c3b12da",
+          "weightsSha256": "bf65674a26eb4ef7042cedade96c3c8f8cbd04f3a7d1a68eadceec8ed0f99ecb",
+          "license": "Apache-2.0"
+        },
+        "alignmentInput": [
+          "اَحْيَآء وَأَمْوَٰتا",
+          "وَجَعَلْنَا فِيهَا رَوَٰسِيَ شَٰمِخَٰت وَأَسْقَيْنَٰكُم مَّآء فُرَاتا",
+          "وَيْل يَوْمَئِذ لِّلْمُكَذِّبِينَ"
+        ],
+        "windowSeconds": [
+          102.0,
+          150.0
+        ],
+        "inputPcmSha256": "5ec92e64609823726788af37c45ebbd3c094ce4e6d0b7277b15866c6e023e8fc",
+        "rawSegments": [
+          [
+            9.80859049207673,
+            13.92160133444537,
+            -1.350643008184094
+          ],
+          [
+            14.072143452877397,
+            29.994995829858215,
+            -1.064684620854526
+          ],
+          [
+            30.70600500417014,
+            35.539616346955796,
+            -0.5689833740087882
+          ]
+        ],
+        "rawEntries": [
+          {
+            "ayahId": "77:26",
+            "startMs": 111808,
+            "endMs": 115921,
+            "conf": 0.662
+          },
+          {
+            "ayahId": "77:27",
+            "startMs": 116072,
+            "endMs": 131994,
+            "conf": 0.734
+          },
+          {
+            "ayahId": "77:28",
+            "startMs": 132706,
+            "endMs": 137539,
+            "conf": 0.858
+          }
+        ],
+        "entries": [
+          {
+            "ayahId": "77:26",
+            "startMs": 111808,
+            "endMs": 116072,
+            "conf": 0.662
+          },
+          {
+            "ayahId": "77:27",
+            "startMs": 116072,
+            "endMs": 132706,
+            "conf": 0.734
+          },
+          {
+            "ayahId": "77:28",
+            "startMs": 132706,
+            "endMs": 137539,
+            "conf": 0.858
+          }
+        ]
+      },
+      {
+        "model": "quran",
+        "channel": "native-2",
+        "alignmentModel": {
+          "id": "rabah2026/wav2vec2-large-xlsr-53-arabic-quran-v_final",
+          "revision": "b03a268c6ba1a693752307325ab376c86c3b12da",
+          "weightsSha256": "bf65674a26eb4ef7042cedade96c3c8f8cbd04f3a7d1a68eadceec8ed0f99ecb",
+          "license": "Apache-2.0"
+        },
+        "alignmentInput": [
+          "اَحْيَآء وَأَمْوَٰتا",
+          "وَجَعَلْنَا فِيهَا رَوَٰسِيَ شَٰمِخَٰت وَأَسْقَيْنَٰكُم مَّآء فُرَاتا",
+          "وَيْل يَوْمَئِذ لِّلْمُكَذِّبِينَ"
+        ],
+        "windowSeconds": [
+          102.0,
+          150.0
+        ],
+        "inputPcmSha256": "b7cca20385c500e5eca6e61b78e44e5be82351bf5565df06102bc4efb333cbff",
+        "rawSegments": [
+          [
+            9.80859049207673,
+            13.92160133444537,
+            -1.3506494188916198
+          ],
+          [
+            14.072143452877397,
+            29.994995829858215,
+            -1.064687080882959
+          ],
+          [
+            30.70600500417014,
+            35.539616346955796,
+            -0.5690046470539679
+          ]
+        ],
+        "rawEntries": [
+          {
+            "ayahId": "77:26",
+            "startMs": 111808,
+            "endMs": 115921,
+            "conf": 0.662
+          },
+          {
+            "ayahId": "77:27",
+            "startMs": 116072,
+            "endMs": 131994,
+            "conf": 0.734
+          },
+          {
+            "ayahId": "77:28",
+            "startMs": 132706,
+            "endMs": 137539,
+            "conf": 0.858
+          }
+        ],
+        "entries": [
+          {
+            "ayahId": "77:26",
+            "startMs": 111808,
+            "endMs": 116072,
+            "conf": 0.662
+          },
+          {
+            "ayahId": "77:27",
+            "startMs": 116072,
+            "endMs": 132706,
+            "conf": 0.734
+          },
+          {
+            "ayahId": "77:28",
+            "startMs": 132706,
+            "endMs": 137539,
+            "conf": 0.858
+          }
+        ]
+      }
+    ],
+    "models": [
+      {
+        "name": "generic",
+        "id": "jonatasgrosman/wav2vec2-large-xlsr-53-arabic",
+        "revision": "af46c2d8531b8dcbb5e23b952f739b372c2e5d2d",
+        "weightsSha256": "a0b26f6d9d3edfde1784aef863c192a8cc1e438a23b45910ab648531ebe1857b",
+        "weightFile": "pytorch_model.bin",
+        "vocabulary": {
+          "<pad>": 0,
+          "<s>": 1,
+          "</s>": 2,
+          "<unk>": 3,
+          "|": 4,
+          "-": 5,
+          "ء": 6,
+          "آ": 7,
+          "أ": 8,
+          "ؤ": 9,
+          "إ": 10,
+          "ئ": 11,
+          "ا": 12,
+          "ب": 13,
+          "ة": 14,
+          "ت": 15,
+          "ث": 16,
+          "ج": 17,
+          "ح": 18,
+          "خ": 19,
+          "د": 20,
+          "ذ": 21,
+          "ر": 22,
+          "ز": 23,
+          "س": 24,
+          "ش": 25,
+          "ص": 26,
+          "ض": 27,
+          "ط": 28,
+          "ظ": 29,
+          "ع": 30,
+          "غ": 31,
+          "ـ": 32,
+          "ف": 33,
+          "ق": 34,
+          "ك": 35,
+          "ل": 36,
+          "م": 37,
+          "ن": 38,
+          "ه": 39,
+          "و": 40,
+          "ى": 41,
+          "ي": 42,
+          "ً": 43,
+          "ٌ": 44,
+          "ٍ": 45,
+          "َ": 46,
+          "ُ": 47,
+          "ِ": 48,
+          "ّ": 49,
+          "ْ": 50
+        },
+        "files": {
+          "config.json": {
+            "bytes": 1565,
+            "sha256": "9283014cd08d1fbcb13f7965c4dda8ef54a988e40945ff2616e15afcd0f1fac7"
+          },
+          "preprocessor_config.json": {
+            "bytes": 158,
+            "sha256": "c403ce09975b90dff0dd8302c42d422e9de1f166cd7772df23490069893cb0cf"
+          },
+          "special_tokens_map.json": {
+            "bytes": 85,
+            "sha256": "bb7068de1150661a10b55f9e4b12a0e77af8bf91f5e45e1b58afaf1d0e17f675"
+          },
+          "vocab.json": {
+            "bytes": 507,
+            "sha256": "96a92ff9bd106f825c878f502fe341f9f0488ace92d3c76dc40a6b30296efedd"
+          }
+        }
+      },
+      {
+        "name": "quran",
+        "id": "rabah2026/wav2vec2-large-xlsr-53-arabic-quran-v_final",
+        "revision": "b03a268c6ba1a693752307325ab376c86c3b12da",
+        "weightsSha256": "bf65674a26eb4ef7042cedade96c3c8f8cbd04f3a7d1a68eadceec8ed0f99ecb",
+        "weightFile": "model.safetensors",
+        "vocabulary": {
+          "-": 5,
+          "</s>": 2,
+          "<pad>": 0,
+          "<s>": 1,
+          "<unk>": 3,
+          "|": 4,
+          "ء": 6,
+          "آ": 7,
+          "أ": 8,
+          "ؤ": 9,
+          "إ": 10,
+          "ئ": 11,
+          "ا": 12,
+          "ب": 13,
+          "ة": 14,
+          "ت": 15,
+          "ث": 16,
+          "ج": 17,
+          "ح": 18,
+          "خ": 19,
+          "د": 20,
+          "ذ": 21,
+          "ر": 22,
+          "ز": 23,
+          "س": 24,
+          "ش": 25,
+          "ص": 26,
+          "ض": 27,
+          "ط": 28,
+          "ظ": 29,
+          "ع": 30,
+          "غ": 31,
+          "ـ": 32,
+          "ف": 33,
+          "ق": 34,
+          "ك": 35,
+          "ل": 36,
+          "م": 37,
+          "ن": 38,
+          "ه": 39,
+          "و": 40,
+          "ى": 41,
+          "ي": 42,
+          "ً": 43,
+          "ٌ": 44,
+          "ٍ": 45,
+          "َ": 46,
+          "ُ": 47,
+          "ِ": 48,
+          "ّ": 49,
+          "ْ": 50,
+          "ٓ": 53,
+          "ٰ": 52,
+          "ٱ": 51,
+          "ۥ": 54,
+          "ۦ": 55
+        },
+        "files": {
+          "config.json": {
+            "bytes": 2244,
+            "sha256": "56868371643cb1a350fa336b246882505c3aa87d86b31990808b426bb8175230"
+          },
+          "preprocessor_config.json": {
+            "bytes": 256,
+            "sha256": "ffc72f475cd79680d5d659fbaefc691cdbcee5c9703a15faf708a5e91452a8d8"
+          },
+          "special_tokens_map.json": {
+            "bytes": 96,
+            "sha256": "9046da57c270c8e74d0f38832b4adce269c9d914ef21d2a0925e7772152dd793"
+          },
+          "tokenizer_config.json": {
+            "bytes": 1120,
+            "sha256": "84233fa817d20ba6e3470dc33df489b8fa89d5f53323fd9fe8ea08a5b315d709"
+          },
+          "vocab.json": {
+            "bytes": 672,
+            "sha256": "60b9e6174798b6e1a92c92fb5935e32522aebaca4cdd1f481fd220346471644c"
+          }
+        }
+      }
+    ],
+    "errors": [],
+    "limits": [
+      "Context alignment may force absent text; compare free ASR and both models.",
+      "Existing candidate window may omit displaced speech.",
+      "No quality report, timing, confidence or Quran text is rewritten."
+    ],
+    "provenance": {
+      "runId": "37405223677",
+      "runSha": "23df6361c5f82301f444ad9ca3028df2666b2696",
+      "toolSha256": "a75dd2fcfca0acb5f8ef058f7caa011b0b817fe99408305dcd2a960d0f6f2398"
+    },
+    "source": {
+      "id": "benkirane77_26_28",
+      "surah": 77,
+      "riwaya": "warsh",
+      "url": "https://server16.mp3quran.net/A-Benkirane/Rewayat-Warsh-A-n-Nafi/077.mp3",
+      "sha256": "b6c7c2949373d2285eea057fa2b63e987a66793dff0e491064dabcfebcbd81b4",
+      "requestedWindowSeconds": [
+        102,
+        150
+      ],
+      "contextAyahs": [
+        26,
+        27,
+        28
+      ],
+      "evidencePath": "ops/out/codex-benkirane77-recovery-20261006.json",
+      "evidenceSha256": "14641e363f9c09c2cb09535d24e82338b6aa1aaaa862d0def3852a31bf553c14",
+      "evidenceKind": "alignment",
+      "maxSourceSeconds": 7200
+    },
+    "versions": {
+      "torch": "2.6.0+cpu",
+      "transformers": "4.49.0",
+      "numpy": "1.26.4",
+      "huggingface-hub": "0.29.3",
+      "safetensors": "0.5.3",
+      "tokenizers": "0.21.1"
+    },
+    "canonicalContext": [
+      "اَحْيَآءٗ وَأَمْوَٰتاٗ",
+      "وَجَعَلْنَا فِيهَا رَوَٰسِيَ شَٰمِخَٰتٖ وَأَسْقَيْنَٰكُم مَّآءٗ فُرَاتاٗۖ",
+      "وَيْلٞ يَوْمَئِذٖ لِّلْمُكَذِّبِينَۖ"
+    ],
+    "referenceSha256": {
+      "index.jz": "bc5883e592a677180adb9d588c584dcc4bb70d686ac658b41b01f3509bb53026",
+      "text_warsh.jz": "6df092d4edccf852a9ef5f1b1b2a30caf5edd6b0f8e29395c7290016e685eb7c"
+    },
+    "audio": {
+      "download": {
+        "bytes": 10781699,
+        "sha256": "b6c7c2949373d2285eea057fa2b63e987a66793dff0e491064dabcfebcbd81b4",
+        "finalUrl": "https://cdn.mp3quran.net/audio/abdelmoujib-benkirane/r1/077.mp3"
+      },
+      "container": {
+        "programs": [],
+        "stream_groups": [],
+        "streams": [
+          {
+            "codec_type": "audio",
+            "sample_rate": "48000",
+            "channels": 2,
+            "channel_layout": "stereo"
+          },
+          {
+            "codec_type": "video"
+          }
+        ],
+        "format": {
+          "duration": "268.829042"
+        }
+      },
+      "decoded": {
+        "frames": 4301265,
+        "nativeChannels": 2,
+        "durationSeconds": 268.8290625,
+        "fullNativePcmSha256": "e833e11bc70549187bbbe0eff70fd12a3b0639ed7648fd1d479107e287d2a43f",
+        "windowStartSample": 1632000,
+        "windowEndSampleExclusive": 2400000,
+        "windowSamplesPerChannel": 768000,
+        "requestedEndClampedToDecodedEof": false,
+        "decodedWithoutErrors": true
+      },
+      "sourceUnchanged": true,
+      "nativeChannelsUnmixed": true,
+      "canonicalTextRead": false
+    },
+    "modelAcquisition": {
+      "policy": "quran-pinned-ephemeral",
+      "cacheKey": "ctc-model-jonatasgrosman-xlsr53-ar-v1",
+      "exactHit": true,
+      "models": [
+        {
+          "name": "generic",
+          "id": "jonatasgrosman/wav2vec2-large-xlsr-53-arabic",
+          "revision": "af46c2d8531b8dcbb5e23b952f739b372c2e5d2d",
+          "weightsSha256": "a0b26f6d9d3edfde1784aef863c192a8cc1e438a23b45910ab648531ebe1857b",
+          "weightFile": "pytorch_model.bin",
+          "snapshot": "hub/models--jonatasgrosman--wav2vec2-large-xlsr-53-arabic/snapshots/af46c2d8531b8dcbb5e23b952f739b372c2e5d2d",
+          "weightBytes": 1262142936,
+          "localOnly": true
+        }
+      ],
+      "quranEphemeral": {
+        "id": "rabah2026/wav2vec2-large-xlsr-53-arabic-quran-v_final",
+        "revision": "b03a268c6ba1a693752307325ab376c86c3b12da",
+        "weightsSha256": "bf65674a26eb4ef7042cedade96c3c8f8cbd04f3a7d1a68eadceec8ed0f99ecb",
+        "weightFile": "model.safetensors",
+        "sourceMode": "explicit-ephemeral-public-download",
+        "cacheWrite": false,
+        "artifactWrite": false,
+        "files": [
+          {
+            "filename": "config.json",
+            "bytes": 2244,
+            "sha256": "56868371643cb1a350fa336b246882505c3aa87d86b31990808b426bb8175230",
+            "url": "https://huggingface.co/rabah2026/wav2vec2-large-xlsr-53-arabic-quran-v_final/resolve/b03a268c6ba1a693752307325ab376c86c3b12da/config.json"
+          },
+          {
+            "filename": "vocab.json",
+            "bytes": 672,
+            "sha256": "60b9e6174798b6e1a92c92fb5935e32522aebaca4cdd1f481fd220346471644c",
+            "url": "https://huggingface.co/rabah2026/wav2vec2-large-xlsr-53-arabic-quran-v_final/resolve/b03a268c6ba1a693752307325ab376c86c3b12da/vocab.json"
+          },
+          {
+            "filename": "preprocessor_config.json",
+            "bytes": 256,
+            "sha256": "ffc72f475cd79680d5d659fbaefc691cdbcee5c9703a15faf708a5e91452a8d8",
+            "url": "https://huggingface.co/rabah2026/wav2vec2-large-xlsr-53-arabic-quran-v_final/resolve/b03a268c6ba1a693752307325ab376c86c3b12da/preprocessor_config.json"
+          },
+          {
+            "filename": "tokenizer_config.json",
+            "bytes": 1120,
+            "sha256": "84233fa817d20ba6e3470dc33df489b8fa89d5f53323fd9fe8ea08a5b315d709",
+            "url": "https://huggingface.co/rabah2026/wav2vec2-large-xlsr-53-arabic-quran-v_final/resolve/b03a268c6ba1a693752307325ab376c86c3b12da/tokenizer_config.json"
+          },
+          {
+            "filename": "special_tokens_map.json",
+            "bytes": 96,
+            "sha256": "9046da57c270c8e74d0f38832b4adce269c9d914ef21d2a0925e7772152dd793",
+            "url": "https://huggingface.co/rabah2026/wav2vec2-large-xlsr-53-arabic-quran-v_final/resolve/b03a268c6ba1a693752307325ab376c86c3b12da/special_tokens_map.json"
+          },
+          {
+            "filename": "tokenizer.json",
+            "optionalAbsent": true
+          },
+          {
+            "filename": "model.safetensors",
+            "bytes": 1262037080,
+            "sha256": "bf65674a26eb4ef7042cedade96c3c8f8cbd04f3a7d1a68eadceec8ed0f99ecb",
+            "url": "https://huggingface.co/rabah2026/wav2vec2-large-xlsr-53-arabic-quran-v_final/resolve/b03a268c6ba1a693752307325ab376c86c3b12da/model.safetensors"
+          }
+        ],
+        "byteLimit": 1506291456,
+        "deadlineSeconds": 600,
+        "totalBytes": 1262041468,
+        "downloadSeconds": 14.831563254999992
+      }
+    }
+  }
+]
