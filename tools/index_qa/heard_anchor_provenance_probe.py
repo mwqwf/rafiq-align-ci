@@ -24,7 +24,7 @@ def main():
    try:
     M.global_anchors=capture
     with P.offline_model_loads(hub,[generic],{(generic['id'],generic['revision']):snap}):
-     raw,report=M.run(path,69,'hafs',probe=True)
+     raw,report=M.run(str(path),69,'hafs',probe=True)
    finally:M.global_anchors=original
    B.require(len(captured)==1 and S.sha_file(path)==src['sha256'],'قياس غير كامل أو تغير المصدر')
    rep.update(measurementComplete=True,rawProbe=raw,anchorInputs=captured[0],textReport=report)
