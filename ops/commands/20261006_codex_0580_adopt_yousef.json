@@ -1,0 +1,14 @@
+{
+  "action": "tool",
+  "tool": "index_qa/promote_verified_transform.py",
+  "args": [
+    "--key",
+    "timings-staging/hafs/yousef.d3bfe80b.jz",
+    "--sha",
+    "d3bfe80bf476a85f6961bdcb4c3748aa63c8061cd0a222a55fd0efc52dfeb7a3",
+    "--parent-sha",
+    "a3d44fd95cdc47e6cb183a788d94ff287380f7de8306e0e0bc40267a09be3c72",
+    "--reason",
+    "Owner-directed repair. Measured Maun107 full-surah repair with strict decoded EOF and unchanged confidence; QA37402820508 all7 passed, diagnosis37404785026 refreshed, review112080421082 passed. Preserve source, all unrelated entries and original gates. No100% claim."
+  ]
+}
