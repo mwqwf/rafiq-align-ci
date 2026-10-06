@@ -256,6 +256,15 @@ This section supersedes older status above. Work is NOT complete.
 - MAbv3 QA37404955181 census+openers+rs1..4 passed, heard still running. Hatem QA37404237192 heard+openers+rs1..4 passed,census running. Hazmi QA37403895659 heard+openers+rs1..4 passed,census running. Refresh stale diagnosis only if original review needs it; do not treat finished individual jobs as a completed review.
 - Existing hourly automation6aaad3d05d108191b8f561114e898ced still enabled but next_run_time null and last_run_time2026-10-05T18:49:45 at03:06; scheduled03:00UTC run not verified. Do not promise unattended AI continuation. Existing actual GitHub QA runs continue independently.
 
+## 2026-10-06 03:12 UTC — شاهد البدء منفصل عن النهاية؛ الجاهزية 0/180
+
+- انتهى الأمر `0670_completion_after_fourteen` ونشر `completion-codex-after-fourteen-20261006.json` (SHA-256 `b583e175418cd62c4b53f902f3beb0b56829fde5d722b4a3cb6265336d4d0c90`). القراءة الحية مستقرة بلا أخطاء هوية: 180/180 بصمة منشور/manifest/تجميد متطابقة، لكن هذا لا يثبت الصوت.
+- النتيجة الصريحة: `readyIndexes=0` و`startsReadyIndexes=0`؛ 884 آية مفقودة، 859472 بدءاً بلا قياس، 7791 انحراف بدء، و0 نهاية بشاهد نافذة مقابل 1121596 نهاية `unknown`. الـ`unknown` فجوة إثبات لا فساد مثبت، لكنها عمل باق يمنع أي شهادة اكتمال. اللقطة غير ذرية وأي ترقية لاحقة توجب إعادة التدقيق.
+- الجرد الحي عند 03:12Z: 12 شوطاً جارياً و1 منتظر قديم و0 pending. تشمل النطاقات الحية Benkirane وRabbani وMukhtar وTblawi/استعادة المصدر وNoah وMAb وHatem وHazmi وSaad؛ لم يجر لمسها. `ops/commands` لا يحوي إلا README؛ لم يطلق هذا العمل أي CI أو artifact/cache write.
+- النطاق المستقل `3siri/7`: الإنتاج SHA `fbf468c05fa3598df3103ce4f1cf53e093e9eb0ac719ad9b051d14c1a0cb1392` وفيه 0/206 آية من الأعراف. Way2Quran SHA `7a3f2cee...` مقيس مسبقاً وفيه صمت 2805000–3915000م.ث وفقد مراسي 7:123–159؛ عنوان «114 سورة» لا يثبت سلامته. مصدر MP3Quran المسجل هو الأصل المعروف المتضرر، وSurahQuran يعيد إليه؛ QuranCentral لا يسرد س7 وTVQuran مقتطفات فقط.
+- مداد 163992 ما زال مرفوضاً بأخطاء فك. مداد 73330 و73348 يفكان سليماً (~1160ث لكل منهما) لكنهما من مجموعة «ما تيسر» وتغطية الفجوة/الهوية الأدائية غير مثبتة. مرشح ألبوم «النبأ العظيم» جزئي وروايته/آياته غير مصرح بها؛ فحص range محلي تعذر بمهلة Proxy CONNECT، فلم ينشأ قياس أو اعتماد.
+- لا مرشح مقبول ولا توقيت مختلق ولا تبديل قارئ/رواية. العائق المحدد: أصل كامل مطابق سليم، أو مقطع مستقل موثق يغطي 7:123–159 ثم قياس الحدود والجوارات واجتياز البوابات. الجرد الكامل: `ops/out/codex-indexing-state-20261006-0312.json`.
+- راجعت `20261005_codex_1730_state` والشوط 37348137059: نجاح `agent_cmd` صرف أوامر fixT وحالة 1730 بعد تعارضات دفع، وليس شهادة تدقيق صوتي؛ وعبارة «اكتمل الهدف» في حالة 1730 تناقض إقرارها بفجوات تسعة فهارس، فلا يعتمد إعلانها.
 
 ## 2026-10-06 03:21 UTC — independent source contexts preserved
 
