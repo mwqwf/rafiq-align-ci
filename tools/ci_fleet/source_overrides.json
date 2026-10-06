@@ -91,8 +91,19 @@
     "riwaya": "warsh",
     "reciter": "iraoui_warsh",
     "surah": 41,
-    "base": "https://archive.org/download/alfirdwsiy1433_gmail6444444444444444444444794679_201706/",
-    "evidence": "find_sources 2026-09-26 (ops/out/0926_0650c_search_iraoui2.txt, 0926_0650d_cmp_iraoui.txt, 0926_0710a_cmp_iraoui2.txt): عنصر «المصحف المرتل مصحف محمد الإيراوي برواية ورش عن نافع 114 سورة من موقع مداد» مرقّم 114؛ هو التسجيلُ نفسُه الذي فُهرس منه القارئ (وسيطُ مدّة/فهرس 1.011 على 113 سورة، الربيعان 1.004…1.048)، ومثلُه حرفاً «Mohammad Al-Airawy - محمد الأيراوي» (mohammadal-airawyQuran) و«Iraoui_2013»؛ 041.mp3 = 1258 ث · 3,318,842 بايت (≈21 ك.ب/ث) · نسبةُ المدّة 1.11 بوسيط ستّة مراجع (المتوقَّع ≈1129 ث)؛ بينما 041.mp3 في المصدر المسجَّل 1785 ث (1.58) ويردّه الحارسُ البنيويّ ببصمةٍ مكرّرة"
+    "evidence": "الناشر يصرح بمحمد إيراوي ورواية ورش في مجموعة86سورة؛ النص الكامل محفوظ في ops/out/20261006_codex_1030_verify_archive_identity_iraoui.txt. المصدر السابق تالف بعد316ث رغم مدة حاويته1258ث؛ المصدر الجديد فك نظيف20655125إطاراً/16ك=1290.9453125ث. قياس سورة كاملة مع8سياقات مستقلة خام من النموذجين والقناتين، بما فيها50كاملة و53/54حتىEOF. الأدلة ops/source-repair/codex-iraoui-full-native-spec.json. التسجيل ليس شهادة جودة؛ يلزم الفحص الأصلي الكامل للبصمة قبل الاعتماد.",
+    "supersededSourceEvidence": {
+      "riwaya": "warsh",
+      "reciter": "iraoui_warsh",
+      "surah": 41,
+      "base": "https://archive.org/download/alfirdwsiy1433_gmail6444444444444444444444794679_201706/",
+      "evidence": "find_sources 2026-09-26 (ops/out/0926_0650c_search_iraoui2.txt, 0926_0650d_cmp_iraoui.txt, 0926_0710a_cmp_iraoui2.txt): عنصر «المصحف المرتل مصحف محمد الإيراوي برواية ورش عن نافع 114 سورة من موقع مداد» مرقّم 114؛ هو التسجيلُ نفسُه الذي فُهرس منه القارئ (وسيطُ مدّة/فهرس 1.011 على 113 سورة، الربيعان 1.004…1.048)، ومثلُه حرفاً «Mohammad Al-Airawy - محمد الأيراوي» (mohammadal-airawyQuran) و«Iraoui_2013»؛ 041.mp3 = 1258 ث · 3,318,842 بايت (≈21 ك.ب/ث) · نسبةُ المدّة 1.11 بوسيط ستّة مراجع (المتوقَّع ≈1129 ث)؛ بينما 041.mp3 في المصدر المسجَّل 1785 ث (1.58) ويردّه الحارسُ البنيويّ ببصمةٍ مكرّرة"
+    },
+    "url": "https://archive.org/download/55555555555033alahzab_202004/041Fossilat.mp3",
+    "audio_sha256": "f655b81ea9926ddd8c134ef04c197b550ffd954896c43229a2f01c6be1d1986b",
+    "identitySourceUrl": "https://archive.org/details/55555555555033alahzab_202004",
+    "metadataEvidence": "ops/out/codex-new-archive-metadata-37413567942.json",
+    "metadataEvidenceSha256": "94c95c7b5f327dc9ee11e06a04de195ca45b99049148135dbab38b0d5b6da830"
   },
   {
     "riwaya": "hafs",
