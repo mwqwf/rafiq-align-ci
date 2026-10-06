@@ -66,6 +66,32 @@ class ChunkedAlignmentTests(unittest.TestCase):
                 C._segment_overlapping_groups(
                     np.zeros((2, 2)), 10, ["v0", "v1"], 0, 2, 1)
 
+    def test_numeric_windows_remeasure_only_bounded_context(self):
+        def fake_segment(lpz, n_samples, texts):
+            self.assertEqual(("v1", "v2", "v3", "v4", "v5"), tuple(texts))
+            self.assertEqual(140, lpz.shape[0])
+            self.assertEqual(2240000, n_samples)
+            return [(10 + i, 11 + i, -0.2) for i in range(5)]
+
+        spec={"id":"v3","startAyahIdx":1,"endAyahIdxExclusive":6,
+              "targetAyahIdxs":[3],"audioStartMs":20000,"audioEndMs":160000}
+        with mock.patch.object(C,"_segment",side_effect=fake_segment):
+            result=C._segment_numeric_windows(
+                np.zeros((1000,3)),16000000,[f"v{i}" for i in range(8)],[spec])
+        self.assertEqual(1,len(result))
+        self.assertEqual([3],result[0]["targetAyahIdxs"])
+        self.assertEqual((30.0,31.0,-0.2),result[0]["segments"][0])
+
+    def test_numeric_windows_reject_edge_target_and_incomplete_output(self):
+        base={"id":"bad","startAyahIdx":1,"endAyahIdxExclusive":4,
+              "targetAyahIdxs":[1],"audioStartMs":0,"audioEndMs":1000}
+        with self.assertRaisesRegex(ValueError,"preceding and following"):
+            C._segment_numeric_windows(np.zeros((10,2)),160000,["a"]*5,[base])
+        good={**base,"targetAyahIdxs":[2]}
+        with mock.patch.object(C,"_segment",return_value=[]):
+            with self.assertRaisesRegex(RuntimeError,"incomplete"):
+                C._segment_numeric_windows(np.zeros((10,2)),160000,["a"]*5,[good])
+
 
 if __name__ == "__main__":
     unittest.main()

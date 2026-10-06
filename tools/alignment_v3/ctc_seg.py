@@ -195,6 +195,46 @@ def _segment_overlapping_groups(lpz, n_samples, texts, leading_count, group_size
                     "maxEndDisagreementSeconds": round(max_end_delta, 6)}
 
 
+def _segment_numeric_windows(lpz, n_samples, texts, windows):
+    """Remeasure bounded canonical ranges without generating any text."""
+    if not isinstance(windows, (list, tuple)):
+        raise ValueError("numeric windows must be a list")
+    frame_seconds = n_samples / lpz.shape[0] / SR
+    results = []
+    for spec in windows:
+        start = spec.get("startAyahIdx")
+        end = spec.get("endAyahIdxExclusive")
+        targets = spec.get("targetAyahIdxs")
+        audio_start_ms = spec.get("audioStartMs")
+        audio_end_ms = spec.get("audioEndMs")
+        if (not isinstance(start, int) or not isinstance(end, int) or
+                start < 0 or end <= start or end > len(texts)):
+            raise ValueError("invalid numeric-window verse range")
+        if (not isinstance(targets, list) or not targets or
+                any(not isinstance(t, int) or t <= start or t >= end - 1 for t in targets)):
+            raise ValueError("numeric-window targets require a preceding and following verse")
+        if (not isinstance(audio_start_ms, int) or not isinstance(audio_end_ms, int) or
+                audio_start_ms < 0 or audio_end_ms <= audio_start_ms):
+            raise ValueError("invalid numeric-window audio range")
+        frame_start = max(0, int((audio_start_ms / 1000) / frame_seconds))
+        frame_end = min(len(lpz), int(np.ceil((audio_end_ms / 1000) / frame_seconds)))
+        if frame_end <= frame_start:
+            raise ValueError("empty numeric-window emission range")
+        window_lpz = lpz[frame_start:frame_end]
+        window_samples = int(round(n_samples * len(window_lpz) / len(lpz)))
+        relative = _segment(window_lpz, window_samples, texts[start:end])
+        if len(relative) != end - start:
+            raise RuntimeError("numeric-window alignment returned an incomplete verse population")
+        offset = frame_start * frame_seconds
+        measured = [(float(st) + offset, float(en) + offset, score)
+                    for st, en, score in relative]
+        results.append({"id": spec.get("id"), "startAyahIdx": start,
+                        "endAyahIdxExclusive": end, "targetAyahIdxs": targets,
+                        "audioStartMs": audio_start_ms, "audioEndMs": audio_end_ms,
+                        "segments": measured})
+    return results
+
+
 def _conf(score):
     """درجةُ ctc_segmentation لوغاريتمٌ ≤0 (أدنى متوسّطٍ في نافذة). ⇒ [0،1].
     ‏−1 ⇒ 0.75 (حدّ HIGH) · −2.2 ⇒ 0.45 (حدّ MED)."""
@@ -202,7 +242,7 @@ def _conf(score):
 
 
 def run_surah(audio_path, surah_no, riwaya, log=print, spoken_openers=False, omit_basmala=False,
-              quran_model=False, chunk_verses=None, chunk_overlap=4):
+              quran_model=False, chunk_verses=None, chunk_overlap=4, numeric_windows=None):
     if _M.get('alignmentModelId') and not quran_model:
         raise ValueError('Loaded Quran model requires its explicit engine flag')
     index = load_index()
@@ -231,6 +271,20 @@ def run_surah(audio_path, surah_no, riwaya, log=print, spoken_openers=False, omi
         segs, chunk_evidence = _segment_overlapping_groups(
             lpz, len(x), lead + ref, len(lead), chunk_verses, chunk_overlap)
     sil = silences(wav)
+    numeric_evidence = []
+    if numeric_windows:
+        for result in _segment_numeric_windows(lpz, len(x), ref, numeric_windows):
+            measured = []
+            for offset, (st, en, sc) in enumerate(result.pop("segments")):
+                global_idx = result["startAyahIdx"] + offset
+                snapped, on_sil = snap_to_silence(int(st * 1000), sil, tolerance_ms=700)
+                measured.append({"ayahIdx": global_idx, "startMs": int(snapped),
+                                 "endMs": int(en * 1000), "conf": _conf(sc),
+                                 "snapped": bool(on_sil)})
+            for k in range(len(measured) - 1):
+                measured[k]["endMs"] = measured[k + 1]["startMs"]
+            result["entries"] = measured
+            numeric_evidence.append(result)
     entries = []
     for ai, (st, en, sc) in enumerate(segs):
         t, on_sil = snap_to_silence(int(st * 1000), sil, tolerance_ms=700)
@@ -256,6 +310,7 @@ def run_surah(audio_path, surah_no, riwaya, log=print, spoken_openers=False, omi
     return {"surah": surah_no, "riwaya": riwaya, "totalMs": total_ms,
             "entries": entries, "issues": issues, "bands": bands,
             **({"chunkedAlignment": chunk_evidence} if chunk_evidence is not None else {}),
+            **({"numericWindowAudit": numeric_evidence} if numeric_evidence else {}),
             **({'engine': 'ctc-quran-surah-1', 'alignmentModel': model_evidence} if quran_model else {}),
             **({"basmalaOmitted": True} if omit_basmala else {})}
 

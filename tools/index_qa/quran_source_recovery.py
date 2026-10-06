@@ -30,6 +30,9 @@ SOURCES.update({
  'asiri7_archive_4917_audit':{'surah': 7, 'riwaya': 'hafs',
   'url':'https://archive.org/download/002_20230924_202309/007%20-%20%D8%B3%D9%88%D8%B1%D8%A9%20%D8%A7%D9%84%D8%A3%D8%B9%D8%B1%D8%A7%D9%81.mp3',
   'sha256':'897ad7e2c99472111722247f362d135da0c25c449806260269a792a12f52d3f1','requestedWindowSeconds':[0,65]},
+ 'asiri7_archive_4917_targeted':{'surah': 7, 'riwaya': 'hafs',
+  'url':'https://archive.org/download/002_20230924_202309/007%20-%20%D8%B3%D9%88%D8%B1%D8%A9%20%D8%A7%D9%84%D8%A3%D8%B9%D8%B1%D8%A7%D9%81.mp3',
+  'sha256':'897ad7e2c99472111722247f362d135da0c25c449806260269a792a12f52d3f1','requestedWindowSeconds':[0,65]},
  'tblawi7_nquran':{'surah': 7, 'riwaya': 'hafs', 'url': 'https://www.nquran.com/audiof/quran/mohd_muh_tablawee/007.mp3', 'sha256': '76b0d10dbb33d90cdbb98e71786653a497dbe73f7af704bf2297848ce1fbc547', 'requestedWindowSeconds': [0, 65]},
  'benkirane77':{"surah":77,"riwaya":"warsh","url":"https://server16.mp3quran.net/A-Benkirane/Rewayat-Warsh-A-n-Nafi/077.mp3","sha256":"b6c7c2949373d2285eea057fa2b63e987a66793dff0e491064dabcfebcbd81b4","requestedWindowSeconds":[0,65]},
  'benkirane51':{"surah":51,"riwaya":"warsh","url":"https://server16.mp3quran.net/A-Benkirane/Rewayat-Warsh-A-n-Nafi/051.mp3","sha256":"7edb05c3b0f7ebe2f37d5af3c9949727cef50772cbc4857b5745c7a92fab7dbf","requestedWindowSeconds":[0,65]},
@@ -43,7 +46,7 @@ SOURCES.update({
  'saad28':{**S.SOURCES[1],'riwaya':'hafs','requestedWindowSeconds':[620,690]},
  'saad45':{**S.SOURCES[0],'riwaya':'hafs','requestedWindowSeconds':[0,25]},
 })
-ASIRI7_SOURCES=('asiri7_archive_4917','asiri7_archive_4917_audit')
+ASIRI7_SOURCES=('asiri7_archive_4917','asiri7_archive_4917_audit','asiri7_archive_4917_targeted')
 
 
 def main(argv=None):
@@ -89,6 +92,7 @@ def main(argv=None):
       'source':source,'freeResults':[],'models':[],'errors':[],
       'textGenerationDisabled':a.source in ASIRI7_SOURCES,
       'independentRemeasurement':a.source=='asiri7_archive_4917_audit',
+      'targetedLowConfidenceRemeasurement':a.source=='asiri7_archive_4917_targeted',
       'limits':['Forced full alignment does not prove all verses present.','Original generic and free-ASR failures remain part of the evidence.','Candidate requires independent QA before registration or adoption.'],
       'provenance':{'runId':os.environ.get('GITHUB_RUN_ID',''),'runSha':os.environ.get('GITHUB_SHA',''),'toolSha256':S.sha_file(__file__)}}
     try:
@@ -129,12 +133,25 @@ def main(argv=None):
                 bound={(s['id'],s['revision']):snapshots[s['name']] for s in specs}
                 with P.offline_model_loads(hub,specs,bound):
                     C=importlib.import_module('ctc_seg')
+                    numeric_windows=None
+                    if a.source=='asiri7_archive_4917_targeted':
+                        primary_path=B.ROOT/'ops/out/codex-asiri7-left-context-alignment-success-37433349375.json'
+                        primary_bytes=primary_path.read_bytes()
+                        B.require(hashlib.sha256(primary_bytes).hexdigest()=='9426b3718b5b6a955ae6926263beeb66424a2dcad534c8b95172bbafdcdc8bac','primary Asiri report changed')
+                        primary=json.loads(primary_bytes)['alignment']['entries']
+                        numeric_windows=[]
+                        for ayah in (13,48,54,131,188):
+                            target=ayah-1;start=target-2;end=target+3
+                            numeric_windows.append({'id':f'ayah-{ayah}-neighbors','startAyahIdx':start,
+                              'endAyahIdxExclusive':end,'targetAyahIdxs':[target],
+                              'audioStartMs':max(0,primary[start]['startMs']-60000),
+                              'audioEndMs':min(primary[-1]['endMs']+2016,primary[end-1]['endMs']+60000)})
                     chunk_args=({'chunk_verses':29,'chunk_overlap':5}
                                 if a.source=='asiri7_archive_4917_audit' else
                                 {'chunk_verses':32,'chunk_overlap':4}
-                                if a.source=='asiri7_archive_4917' else {})
+                                if a.source in ('asiri7_archive_4917','asiri7_archive_4917_targeted') else {})
                     report['alignment']=C.run_surah(str(path),source['surah'],source['riwaya'],
-                                                    quran_model=True,**chunk_args)
+                                                    quran_model=True,numeric_windows=numeric_windows,**chunk_args)
                     C._M.clear();gc.collect()
             B.require(S.sha_file(path)==source['sha256'],'source changed after inference')
             alignment=report['alignment']
@@ -147,6 +164,20 @@ def main(argv=None):
                 B.require(overlap['maxStartDisagreementSeconds']<=5.0 and
                           overlap['maxEndDisagreementSeconds']<=5.0,
                           'overlapping alignment groups disagree by more than five seconds')
+            if a.source=='asiri7_archive_4917_targeted':
+                windows=alignment.get('numericWindowAudit',[])
+                B.require(len(windows)==5,'targeted numeric window evidence missing')
+                deltas=[]
+                for window in windows:
+                    target=window['targetAyahIdxs'][0]
+                    local=next(e for e in window['entries'] if e['ayahIdx']==target)
+                    full=alignment['entries'][target]
+                    B.require(local['startMs'] is not None and local['endMs'] is not None,'targeted measurement missing')
+                    deltas.append({'ayah':target+1,'startDeltaMs':abs(local['startMs']-full['startMs']),
+                                   'endDeltaMs':abs(local['endMs']-full['endMs']),'confidence':local['conf']})
+                report['targetedLowConfidenceComparison']=deltas
+                B.require(max(max(d['startDeltaMs'],d['endDeltaMs']) for d in deltas)<=5000,
+                          'targeted low-confidence boundary differs by more than five seconds')
             report['lowOrMissing']=[e['ayahIdx']+1 for e in alignment['entries'] if e['startMs'] is None or e['conf']<.45]
             report['measurementComplete']=True
     except Exception as exc:
