@@ -1,0 +1,175 @@
+{
+  "schema": 1,
+  "kind": "asiri7-independent-alignment-comparison",
+  "generatedAt": "2026-10-06T08:49:00Z",
+  "productionChanged": false,
+  "coverageCertified": false,
+  "qualityClaim": false,
+  "textGenerationDisabled": true,
+  "source": {
+    "sha256": "897ad7e2c99472111722247f362d135da0c25c449806260269a792a12f52d3f1",
+    "bytes": 21220333,
+    "durationSeconds": 4916.6866875,
+    "pcmSamples": 78666987,
+    "longSilenceCount": 0
+  },
+  "primary": {
+    "runId": 37433349375,
+    "report": "ops/out/codex-asiri7-left-context-alignment-success-37433349375.json",
+    "reportSha256": "9426b3718b5b6a955ae6926263beeb66424a2dcad534c8b95172bbafdcdc8bac",
+    "groupVerses": 32,
+    "overlapVerses": 4,
+    "overlapAyahs": 28,
+    "maxInternalStartDisagreementSeconds": 0.000017,
+    "maxInternalEndDisagreementSeconds": 0.000018
+  },
+  "independent": {
+    "runId": 37435925698,
+    "report": "ops/out/codex-asiri7-independent-29x5-success-37435925698.json",
+    "reportSha256": "1bb5ae038f42bc29ac27308946602809c844afece2badb36dde53ed150360853",
+    "groupVerses": 29,
+    "overlapVerses": 5,
+    "overlapAyahs": 40,
+    "maxInternalStartDisagreementSeconds": 0.000024,
+    "maxInternalEndDisagreementSeconds": 1.781172
+  },
+  "comparison": {
+    "entriesCompared": 206,
+    "exactStarts": 206,
+    "exactEnds": 206,
+    "exactConfidences": 206,
+    "maxStartDeltaMs": 0,
+    "maxEndDeltaMs": 0,
+    "maxConfidenceDelta": 0,
+    "startEvidenceSeparated": true,
+    "endEvidenceSeparated": true
+  },
+  "witnesses": [
+    {
+      "name": "opening",
+      "fromAyah": 1,
+      "toAyah": 10,
+      "entries": 10,
+      "maxStartDeltaMs": 0,
+      "maxEndDeltaMs": 0,
+      "maxConfidenceDelta": 0
+    },
+    {
+      "name": "middle-7:123-159",
+      "fromAyah": 123,
+      "toAyah": 159,
+      "entries": 37,
+      "maxStartDeltaMs": 0,
+      "maxEndDeltaMs": 0,
+      "maxConfidenceDelta": 0
+    },
+    {
+      "name": "ending",
+      "fromAyah": 199,
+      "toAyah": 206,
+      "entries": 8,
+      "maxStartDeltaMs": 0,
+      "maxEndDeltaMs": 0,
+      "maxConfidenceDelta": 0
+    },
+    {
+      "name": "low-confidence-neighborhood-13",
+      "fromAyah": 12,
+      "toAyah": 14,
+      "entries": 3,
+      "maxStartDeltaMs": 0,
+      "maxEndDeltaMs": 0,
+      "maxConfidenceDelta": 0
+    },
+    {
+      "name": "low-confidence-neighborhood-48",
+      "fromAyah": 47,
+      "toAyah": 49,
+      "entries": 3,
+      "maxStartDeltaMs": 0,
+      "maxEndDeltaMs": 0,
+      "maxConfidenceDelta": 0
+    },
+    {
+      "name": "low-confidence-neighborhood-54",
+      "fromAyah": 53,
+      "toAyah": 55,
+      "entries": 3,
+      "maxStartDeltaMs": 0,
+      "maxEndDeltaMs": 0,
+      "maxConfidenceDelta": 0
+    },
+    {
+      "name": "low-confidence-neighborhood-131",
+      "fromAyah": 130,
+      "toAyah": 132,
+      "entries": 3,
+      "maxStartDeltaMs": 0,
+      "maxEndDeltaMs": 0,
+      "maxConfidenceDelta": 0
+    },
+    {
+      "name": "low-confidence-neighborhood-188",
+      "fromAyah": 187,
+      "toAyah": 189,
+      "entries": 3,
+      "maxStartDeltaMs": 0,
+      "maxEndDeltaMs": 0,
+      "maxConfidenceDelta": 0
+    }
+  ],
+  "stableLowConfidenceAyahs": [
+    {
+      "ayah": 13,
+      "startMs": 217310,
+      "endMs": 266840,
+      "confidence": 0.44,
+      "previousAyah": 12,
+      "nextAyah": 14
+    },
+    {
+      "ayah": 48,
+      "startMs": 1224840,
+      "endMs": 1298122,
+      "confidence": 0.44,
+      "previousAyah": 47,
+      "nextAyah": 49
+    },
+    {
+      "ayah": 54,
+      "startMs": 1501767,
+      "endMs": 1535129,
+      "confidence": 0.368,
+      "previousAyah": 53,
+      "nextAyah": 55
+    },
+    {
+      "ayah": 131,
+      "startMs": 3053798,
+      "endMs": 3079686,
+      "confidence": 0.446,
+      "previousAyah": 130,
+      "nextAyah": 132
+    },
+    {
+      "ayah": 188,
+      "startMs": 4598215,
+      "endMs": 4624893,
+      "confidence": 0.348,
+      "previousAyah": 187,
+      "nextAyah": 189
+    }
+  ],
+  "endpoint": {
+    "firstAyahStartMs": 34623,
+    "lastAyahEndMs": 4914725,
+    "sourceDurationMs": 4916687,
+    "postRecitationTailMs": 1962
+  },
+  "limits": [
+    "Exact agreement between two grouping schemes is strong boundary-repeatability evidence, not an acoustic certification that every forced verse is present.",
+    "Five low-confidence ayahs require targeted independent numeric context measurement before a production candidate.",
+    "A candidate must still pass source identity, public object, manifest, frozen record, start evidence, end evidence, and a stable general completion audit."
+  ],
+  "next": "Measure ayahs 13, 48, 54, 131, and 188 with their neighbors in independent numeric-only contexts; do not adopt or claim completion before those measurements and full QA."
+}
