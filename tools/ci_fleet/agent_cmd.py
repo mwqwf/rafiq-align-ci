@@ -173,7 +173,8 @@ ALLOWED_TOOLS = {"ci_fleet/cancel_superseded_tail_qa.py", "ci_fleet/rerun_stale_
                  #    بالبنود الخمسة (هويّة · بنية · قاعدةُ البتر · أحكامُ الصوت على البصمة · مؤشّراتُ المدد).
                  # ⚖️ قارئٌ محض: يقرأ الدلوَ وstate/ والعنوانَ العامّ ويكتب تقريرَه في ops/out/ وحدَه؛
                  #    لا يمسّ فهرساً ولا حارساً ولا عتبة. واختبارُه بلا شبكة في test_full_audit.py.
-                 "index_qa/full_audit.py", "index_qa/test_full_audit.py",
+                 "index_qa/full_audit.py",
+                 "index_qa/catalog_source_audit.py",  # bounded complete source identity read only "index_qa/test_full_audit.py",
                  # تدقيق شامل قارئ وقياس تخزين Actions؛ لا رفع ولا تشغيل صوتي ولا تعديل للحراس.
                  "index_qa/completion_audit.py", "ci_fleet/free_compute_audit.py",
                  "index_qa/test_declared_sha_fatal.py",
