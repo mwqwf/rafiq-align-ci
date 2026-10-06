@@ -1,0 +1,12 @@
+{
+  "action": "tool",
+  "tool": "index_qa/export_index_bytes.py",
+  "args": [
+    "--key",
+    "timings/hafs/twfeeq.jz",
+    "--expect-sha",
+    "f362cd1982a3711562768789888ebf6d4a71387f76fb8bbd43b3dabb98129518",
+    "--out",
+    "ops/out/codex-penultimate-second-parent-hafs-twfeeq-20261006.json"
+  ]
+}

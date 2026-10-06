@@ -1,0 +1,12 @@
+{
+  "action": "tool",
+  "tool": "index_qa/export_index_bytes.py",
+  "args": [
+    "--key",
+    "timings/hafs/i_sanankoua.jz",
+    "--expect-sha",
+    "81d0359813d60711b1423883f022f0c23e363648e8a36136403d05aedbb9c0ed",
+    "--out",
+    "ops/out/codex-penultimate-second-parent-hafs-i_sanankoua-20261006.json"
+  ]
+}

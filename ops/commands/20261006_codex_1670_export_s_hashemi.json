@@ -1,0 +1,12 @@
+{
+  "action": "tool",
+  "tool": "index_qa/export_index_bytes.py",
+  "args": [
+    "--key",
+    "timings/hafs/s_hashemi.jz",
+    "--expect-sha",
+    "a3418221f9ecdf9f9aecd674a47b750efa2b83917449d7ef37a588ab3fdc74e3",
+    "--out",
+    "ops/out/codex-penultimate-second-parent-hafs-s_hashemi-20261006.json"
+  ]
+}

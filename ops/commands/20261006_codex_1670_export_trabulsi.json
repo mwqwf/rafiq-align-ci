@@ -1,0 +1,12 @@
+{
+  "action": "tool",
+  "tool": "index_qa/export_index_bytes.py",
+  "args": [
+    "--key",
+    "timings/hafs/trabulsi.jz",
+    "--expect-sha",
+    "01d5100674b85e6bd4348eb0fe13866787c30b2e44c5d784b403948a1ad6f291",
+    "--out",
+    "ops/out/codex-penultimate-second-parent-hafs-trabulsi-20261006.json"
+  ]
+}

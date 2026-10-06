@@ -1,0 +1,12 @@
+{
+  "action": "tool",
+  "tool": "index_qa/export_index_bytes.py",
+  "args": [
+    "--key",
+    "timings/qalun/trablsi.jz",
+    "--expect-sha",
+    "5c4ca0a252bed79a301c72986bc7d0eec40e2da0ff282936497f5bbe6e767260",
+    "--out",
+    "ops/out/codex-penultimate-second-parent-qalun-trablsi-20261006.json"
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "action": "tool",
+  "tool": "index_qa/export_index_bytes.py",
+  "args": [
+    "--key",
+    "timings/hafs/h_dukhain.jz",
+    "--expect-sha",
+    "bb09c815e9d850bb2ed7a048865497b8d54f8e8bdf96fd90641cd4cd3bd88825",
+    "--out",
+    "ops/out/codex-penultimate-second-parent-hafs-h_dukhain-20261006.json"
+  ]
+}

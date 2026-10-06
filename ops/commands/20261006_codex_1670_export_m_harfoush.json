@@ -1,0 +1,12 @@
+{
+  "action": "tool",
+  "tool": "index_qa/export_index_bytes.py",
+  "args": [
+    "--key",
+    "timings/hafs/m_harfoush.jz",
+    "--expect-sha",
+    "b91d3491a7e7785834c013a8be7ebc0f06ae681f50fa326e78a4406c78b8b791",
+    "--out",
+    "ops/out/codex-penultimate-second-parent-hafs-m_harfoush-20261006.json"
+  ]
+}

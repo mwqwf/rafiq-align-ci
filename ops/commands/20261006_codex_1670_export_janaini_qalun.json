@@ -1,0 +1,12 @@
+{
+  "action": "tool",
+  "tool": "index_qa/export_index_bytes.py",
+  "args": [
+    "--key",
+    "timings/qalun/janaini_qalun.jz",
+    "--expect-sha",
+    "471d9599610d66102ac666b9543a2cfb9b2436780ae8960b8ac5c57751978212",
+    "--out",
+    "ops/out/codex-penultimate-second-parent-qalun-janaini_qalun-20261006.json"
+  ]
+}

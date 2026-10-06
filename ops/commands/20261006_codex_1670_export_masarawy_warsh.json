@@ -1,0 +1,12 @@
+{
+  "action": "tool",
+  "tool": "index_qa/export_index_bytes.py",
+  "args": [
+    "--key",
+    "timings/warsh/masarawy_warsh.jz",
+    "--expect-sha",
+    "a9eca314102f5612befd73f78bfcd97c11cc322a267aa886fa6d659594d86e5b",
+    "--out",
+    "ops/out/codex-penultimate-second-parent-warsh-masarawy_warsh-20261006.json"
+  ]
+}

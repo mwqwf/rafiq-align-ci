@@ -1,0 +1,12 @@
+{
+  "action": "tool",
+  "tool": "index_qa/export_index_bytes.py",
+  "args": [
+    "--key",
+    "timings/warsh/bl3_warsh.jz",
+    "--expect-sha",
+    "58c0a63c4741ce4a2f57ff9214cfab16273e069164f3606ed4b2a6da9a979a5e",
+    "--out",
+    "ops/out/codex-penultimate-second-parent-warsh-bl3_warsh-20261006.json"
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "action": "tool",
+  "tool": "index_qa/export_index_bytes.py",
+  "args": [
+    "--key",
+    "timings/hafs/jormy.jz",
+    "--expect-sha",
+    "9fc642e3aefa16444b204bed40c572d948792983104253763e864e38dbe93dd8",
+    "--out",
+    "ops/out/codex-penultimate-second-parent-hafs-jormy-20261006.json"
+  ]
+}

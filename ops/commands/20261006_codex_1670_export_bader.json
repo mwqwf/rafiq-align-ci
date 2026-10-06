@@ -1,0 +1,12 @@
+{
+  "action": "tool",
+  "tool": "index_qa/export_index_bytes.py",
+  "args": [
+    "--key",
+    "timings/hafs/bader.jz",
+    "--expect-sha",
+    "214a5703dc2d2bbcd060c660801c7d6a4523f72064774d2389f04f5d928c94ab",
+    "--out",
+    "ops/out/codex-penultimate-second-parent-hafs-bader-20261006.json"
+  ]
+}
