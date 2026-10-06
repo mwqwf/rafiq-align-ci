@@ -15,6 +15,12 @@ PAGES = (
     'https://www.zekr.online/mushaf/6100/mhmd-alayraoy',
     'https://www.zekr.online/dev',
 )
+RECOVERY_PAGES = [
+  "https://way2quran.com/ar/reciters/muhammad-mahmoud-al-tablawi/hafs-an-asim",
+  "https://mazameer.com/vb/threads/160994/page-3",
+  "https://www.aitmaen.com/saad/",
+  "https://tilawa.org/القرآن-الكريم-ورش-يوسف-بن-نوح-أحمد/"
+]
 LIMIT = 2_500_000
 IRAOUI_PAGES = (
     'https://way2quran.com/en/reciters/muhammad-al-ayrawy/warsh-an-nafi-min-traiq-al-azraq',
@@ -41,15 +47,16 @@ def extract(body, url):
     return {'candidateLinks': sorted(set(relevant))[:250],
             'candidateLinkCount': len(set(relevant)),
             'publicScriptUrls': [M.safe_url(urllib.parse.urljoin(url, s)) for s in scripts][:40],
+            'contextLinks': [{'url': M.safe_url(urllib.parse.urljoin(url, href)), 'text': re.sub('<[^>]+>', '', label)[:240]} for href, label in re.findall(r'''<a\\b[^>]*href=["']([^"']+)["'][^>]*>(.*?)</a>''', text, re.I|re.S) if any(w in re.sub('<[^>]+>', '', label) for w in ('عسيري', 'العسيري', 'ابراهيم', 'إبراهيم', '054', 'القمر'))][:60],
             'title': html.unescape((re.search(r'<title>(.*?)</title>', text, re.S|re.I) or ['', ''])[1])[:300]}
 
 
 def main(argv=None):
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument('--profile', choices=('original', 'iraoui'), default='original')
+    parser.add_argument('--profile', choices=('original', 'iraoui', 'recovery-20261006'), default='original')
     args = parser.parse_args(argv)
     rows = []
-    for url in (PAGES if args.profile == 'original' else IRAOUI_PAGES):
+    for url in (PAGES if args.profile == 'original' else IRAOUI_PAGES if args.profile == 'iraoui' else RECOVERY_PAGES):
         row = {'publisherUrl': url, 'candidateOnly': True}
         try:
             deadline = time.monotonic() + 45
@@ -76,7 +83,8 @@ def main(argv=None):
               'audioDownloaded': False, 'productionChanged': False, 'coverageClaim': False,
               'pages': rows}
     name = ('codex-publisher-link-inventory-20261005.json' if args.profile == 'original'
-            else 'codex-iraoui-publisher-links-20261005.json')
+            else 'codex-iraoui-publisher-links-20261005.json' if args.profile == 'iraoui'
+            else 'codex-recovery-publisher-links-20261006.json')
     dest = Path('ops/out') / name
     dest.write_text(json.dumps(report, ensure_ascii=False, indent=2)+'\n')
     print(json.dumps(report, ensure_ascii=False))

@@ -1,0 +1,13 @@
+{
+  "action": "tool",
+  "tool": "index_qa/export_index_bytes.py",
+  "args": [
+    "--key",
+    "timings-staging/hafs/balilah.26fcdd88.jz",
+    "--expect-sha",
+    "26fcdd889052efeb863782dc31b8c9d41db19b33f9908da855e076226e759ca2",
+    "--out",
+    "ops/out/codex-old-balilah-26fcdd88-20261006.json",
+    "--allow-staging"
+  ]
+}

@@ -22,6 +22,7 @@ ROOT = Path(__file__).resolve().parents[2]
 MAX_BYTES = 512 * 1024
 MAX_UNCOMPRESSED = 8 * 1024 * 1024
 KEY_RE = re.compile(r"timings/([A-Za-z0-9_-]+)/([A-Za-z0-9_-]+)\.jz")
+STAGING_KEY_RE = re.compile(r"timings-staging/([A-Za-z0-9_-]+)/([A-Za-z0-9_-]+)\.([0-9a-f]{8})\.jz")
 
 
 def output_path(path):
@@ -35,15 +36,19 @@ def output_path(path):
     return target
 
 
-def identity(key, expected_sha):
+def identity(key, expected_sha, *, allow_staging=False):
     match = KEY_RE.fullmatch(key)
+    if not match and allow_staging:
+        match = STAGING_KEY_RE.fullmatch(key)
+        if match and not str(expected_sha).startswith(match[3]):
+            raise ValueError("بصمة مرشح staging لا تطابق لاحقة المفتاح")
     if not match or not re.fullmatch(r"[0-9a-f]{64}", expected_sha):
         raise ValueError("يلزم مفتاح منشور واحد وبصمة SHA-256 كاملة")
     return match[1], match[2]
 
 
-def export(cl, bucket, key, expected_sha, out):
-    riwaya, reciter = identity(key, expected_sha)
+def export(cl, bucket, key, expected_sha, out, *, allow_staging=False):
+    riwaya, reciter = identity(key, expected_sha, allow_staging=allow_staging)
     target = output_path(out)
     # طلب قراءة واحد فقط؛ الحجم محدود حتى لو أخطأت ترويسة ContentLength.
     response = cl.get_object(Bucket=bucket, Key=key)
@@ -88,13 +93,14 @@ def main():
     ap.add_argument("--key", required=True)
     ap.add_argument("--expect-sha", required=True)
     ap.add_argument("--out", required=True)
+    ap.add_argument("--allow-staging", action="store_true", help="قراءة مرشح سابق مثبت البصمة فقط؛ لا كتابة للدلو")
     args = ap.parse_args()
     try:
-        identity(args.key, args.expect_sha)
+        identity(args.key, args.expect_sha, allow_staging=args.allow_staging)
         output_path(args.out)
         from run import s3
         client, bucket = s3()
-        summary = export(client, bucket, args.key, args.expect_sha, args.out)
+        summary = export(client, bucket, args.key, args.expect_sha, args.out, allow_staging=args.allow_staging)
     except Exception as ex:
         # أخطاء SDK قد تحمل عنوان الدلو أو معلومات الطلب؛ لا تطبعها أو الأسرار.
         message = str(ex) if type(ex) is ValueError else type(ex).__name__
