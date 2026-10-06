@@ -76,11 +76,44 @@
     "sourceSearchRun": 37417063118,
     "alignmentRun": {
       "id": 37418523660,
-      "status": "in_progress",
+      "status": "completed",
+      "conclusion": "failure",
+      "jobId": 112122449649,
+      "completedAt": "2026-10-06T05:54:02Z",
+      "measurementComplete": false,
+      "coverageCertified": false,
       "textGenerationDisabled": true,
-      "observedAt": "2026-10-06T05:42:00Z"
+      "error": "ctc_segmentation backtracking exceeded the 64000-frame window"
     },
-    "next": "Wait for 206-boundary numeric alignment, then independent head/middle/tail and neighborhood measurement before any candidate or source declaration."
+    "next": "Read the 206-verse chunked result and overlap evidence; if it passes, independently measure head, 7:123-159, tail, and neighbors before any candidate or source adoption.",
+    "chunkedAlignmentFix": {
+      "commit": "6f798263c3d9c83889b13158fdb68cd7a775a3ac",
+      "groupVerses": 32,
+      "overlapVerses": 4,
+      "maxAllowedOverlapDisagreementSeconds": 5,
+      "localTests": {
+        "passed": 32,
+        "failed": 0
+      },
+      "defaultAlignmentPathChanged": false,
+      "thresholdLowered": false
+    },
+    "chunkedAlignmentRun": {
+      "id": 37422733256,
+      "jobId": 112135485424,
+      "status": "in_progress",
+      "observedAt": "2026-10-06T06:18:00Z",
+      "completedSteps": [
+        "setup",
+        "checkout",
+        "python",
+        "cache-restore-only",
+        "dependency-install",
+        "synthetic-tests"
+      ],
+      "currentStep": "numeric chunked full-recording alignment",
+      "textGenerationDisabled": true
+    }
   },
   "liveSnapshot": {
     "at": "2026-10-06T05:27:00Z",
@@ -292,7 +325,7 @@
     "939 missing ayahs are expected after adoption 26 but not yet independently re-audited",
     "856834 starts unmeasured in the latest complete audit",
     "1121596 ends unknown and 0 independently verified in the latest complete audit",
-    "3siri surah 7 candidate awaits full numeric alignment and independent coverage proof",
+    "3siri surah 7 chunked numeric alignment is running; coverage and head/middle/tail/end evidence remain unproved",
     "multiple non-overlapping tail QA runs remain active or queued"
   ],
   "laterObservation": {
@@ -307,6 +340,39 @@
       "status": "in_progress",
       "jobId": 112122449649,
       "step": "numeric full-surah alignment"
+    }
+  },
+  "updatedAt": "2026-10-06T06:18:00Z",
+  "latestSourceIdentityAudit": {
+    "label": "after-thirty-three-adoptions",
+    "timestampUtc": "2026-10-06T06:10:18.569453Z",
+    "indexes": 180,
+    "passed": 179,
+    "failed": 1,
+    "entriesScanned": 1121595,
+    "ready": false,
+    "failureKey": "timings/hafs/3siri.jz",
+    "failure": "source declaration mismatch; surah 7 absent"
+  },
+  "latestObservation": {
+    "at": "2026-10-06T06:18:00Z",
+    "counts": {
+      "inProgress": 18,
+      "queued": 1,
+      "pending": 0
+    },
+    "asiriChunkedAlignmentRun": {
+      "id": 37422733256,
+      "status": "in_progress",
+      "jobId": 112135485424,
+      "step": "numeric chunked full-recording alignment"
+    },
+    "costAndPrivacy": {
+      "publicRepository": true,
+      "runner": "ubuntu-24.04",
+      "artifactsWritten": false,
+      "cacheSaved": false,
+      "audioUploaded": false
     }
   }
 }
