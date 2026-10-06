@@ -1,0 +1,208 @@
+{
+  "path": "ops/source-repair/candidates/codex-expanded-tail-hafs-qurashi-20261006.jz",
+  "sha256": "8764159fdb4dd48165cdf660ed9075223dd6931e7284ab37a021413b8168a2f7",
+  "parentKey": "timings/hafs/qurashi.jz",
+  "parentSha256": "6a42a675870ed312366d67b2168ae3c56e911026ce94c846805a85ed201b13de",
+  "op": "ctc_quran_window:89",
+  "changedEntries": 8,
+  "warnings": [
+    "مداخل مدتها > 120ث: 1 · مثال: 2:282 مدتها 161ث"
+  ],
+  "proof": {
+    "qualityClaim": false,
+    "contexts": [
+      {
+        "reportPath": "ops/out/codex-qurashi89-full-tail-report-20261006.json",
+        "reportSha256": "dbe345a36fd493b772e839f1522756bb6aeb2f25e960ee26d4b05a6c54fb8a61",
+        "bundlePath": "ops/out/codex-qurashi89-full-tail-complete-20261006.json.gz",
+        "bundleSha256": "ecd08c96cbe42293fff9ab910515c3c92f6b8de27210a8364b7c90bef37cab1d",
+        "jobId": 112132555836,
+        "id": "qurashi89_tail_24_30",
+        "targetAyahs": [
+          24,
+          25,
+          26,
+          27,
+          28,
+          29,
+          30
+        ],
+        "sourceSha256": "3c4bcaad7c0d51af4ade7a333fc011b436ceca8a0fadf3b7e05eee0a7b8c38d7",
+        "provenance": {
+          "runId": "37421792599",
+          "runSha": "f4a5c7cacf18c92b4820f6f40c2677d8e001dc1e",
+          "toolSha256": "a2e2145f95b599b8e92ea289153414f64bd6995494ef0eff2e9cbf623be3d1bc"
+        }
+      }
+    ],
+    "changes": [
+      {
+        "before": {
+          "ayahId": "89:23",
+          "fileRef": "https://server9.mp3quran.net/qurashi/089.mp3",
+          "startMs": 146120,
+          "endMs": 164073,
+          "conf": 0.74,
+          "confBand": "MED",
+          "startApprox": true
+        },
+        "after": {
+          "ayahId": "89:23",
+          "fileRef": "https://server9.mp3quran.net/qurashi/089.mp3",
+          "startMs": 146120,
+          "endMs": 164083,
+          "conf": 0.74,
+          "confBand": "MED",
+          "startApprox": true
+        }
+      },
+      {
+        "before": {
+          "ayahId": "89:24",
+          "fileRef": "https://server9.mp3quran.net/qurashi/089.mp3",
+          "startMs": 164073,
+          "endMs": 169636,
+          "conf": 0.74,
+          "confBand": "MED",
+          "startApprox": true
+        },
+        "after": {
+          "ayahId": "89:24",
+          "fileRef": "https://server9.mp3quran.net/qurashi/089.mp3",
+          "startMs": 164083,
+          "endMs": 169628,
+          "conf": 0.74,
+          "confBand": "MED",
+          "startApprox": true
+        }
+      },
+      {
+        "before": {
+          "ayahId": "89:25",
+          "fileRef": "https://server9.mp3quran.net/qurashi/089.mp3",
+          "startMs": 169636,
+          "endMs": 177082,
+          "conf": 0.591,
+          "confBand": "MED",
+          "startApprox": true
+        },
+        "after": {
+          "ayahId": "89:25",
+          "fileRef": "https://server9.mp3quran.net/qurashi/089.mp3",
+          "startMs": 169628,
+          "endMs": 177055,
+          "conf": 0.591,
+          "confBand": "MED",
+          "startApprox": true
+        }
+      },
+      {
+        "before": {
+          "ayahId": "89:26",
+          "fileRef": "https://server9.mp3quran.net/qurashi/089.mp3",
+          "startMs": 177082,
+          "endMs": 179453,
+          "conf": 0.207,
+          "confBand": "LOW",
+          "startApprox": true
+        },
+        "after": {
+          "ayahId": "89:26",
+          "fileRef": "https://server9.mp3quran.net/qurashi/089.mp3",
+          "startMs": 177055,
+          "endMs": 183040,
+          "conf": 0.207,
+          "confBand": "LOW",
+          "startApprox": true
+        }
+      },
+      {
+        "before": {
+          "ayahId": "89:27",
+          "fileRef": "https://server9.mp3quran.net/qurashi/089.mp3",
+          "startMs": 179453,
+          "endMs": 182195,
+          "conf": 0.0,
+          "confBand": "LOW",
+          "startApprox": true
+        },
+        "after": {
+          "ayahId": "89:27",
+          "fileRef": "https://server9.mp3quran.net/qurashi/089.mp3",
+          "startMs": 183040,
+          "endMs": 190927,
+          "conf": 0.0,
+          "confBand": "LOW",
+          "startApprox": true
+        }
+      },
+      {
+        "before": {
+          "ayahId": "89:28",
+          "fileRef": "https://server9.mp3quran.net/qurashi/089.mp3",
+          "startMs": 182195,
+          "endMs": 184396,
+          "conf": 0.0,
+          "confBand": "LOW",
+          "startApprox": true
+        },
+        "after": {
+          "ayahId": "89:28",
+          "fileRef": "https://server9.mp3quran.net/qurashi/089.mp3",
+          "startMs": 190927,
+          "endMs": 200276,
+          "conf": 0.0,
+          "confBand": "LOW",
+          "startApprox": true
+        }
+      },
+      {
+        "before": {
+          "ayahId": "89:29",
+          "fileRef": "https://server9.mp3quran.net/qurashi/089.mp3",
+          "startMs": 184396,
+          "endMs": 186147,
+          "conf": 0.363,
+          "confBand": "LOW",
+          "startApprox": true
+        },
+        "after": {
+          "ayahId": "89:29",
+          "fileRef": "https://server9.mp3quran.net/qurashi/089.mp3",
+          "startMs": 200276,
+          "endMs": 203939,
+          "conf": 0.363,
+          "confBand": "LOW",
+          "startApprox": true
+        }
+      },
+      {
+        "before": {
+          "ayahId": "89:30",
+          "fileRef": "https://server9.mp3quran.net/qurashi/089.mp3",
+          "startMs": 186147,
+          "endMs": 187058,
+          "conf": 0.24,
+          "confBand": "LOW",
+          "startApprox": true
+        },
+        "after": {
+          "ayahId": "89:30",
+          "fileRef": "https://server9.mp3quran.net/qurashi/089.mp3",
+          "startMs": 203939,
+          "endMs": 208483,
+          "conf": 0.24,
+          "confBand": "LOW",
+          "startApprox": true
+        }
+      }
+    ],
+    "decodedEofMs": {
+      "89": 208483
+    },
+    "limits": [
+      "الحد الأصلي لثقة المحاذاة0.45؛ لا تغيير لأي حارس أو ثقة منشورة.",
+      "الخواتيم المقيسة فقط؛ يلزم الفحص الأصلي الكامل للبصمة المرفوعة."
+    ]
+  }
+}
