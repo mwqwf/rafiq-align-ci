@@ -1,0 +1,20 @@
+{
+  "action": "tool",
+  "tool": "index_qa/stage_transform.py",
+  "args": [
+    "--file",
+    "ops/source-repair/candidates/codex-mrifai-84-repair-20261006.jz",
+    "--parent",
+    "timings/hafs/mrifai.jz",
+    "--parent-sha",
+    "58adaf7636a7a58294889ccbf1e4318640a686020ab83b035066b2bc8c15059f",
+    "--op",
+    "ctc_quran_surah_splice:84",
+    "--reason",
+    "Same-source full-surah measured timing repair with native decoded EOF evidence; original confidence retained, independent exact-SHA QA required.",
+    "--by",
+    "codex-source-repair-20261006",
+    "--manual-qa-only",
+    "--yes"
+  ]
+}

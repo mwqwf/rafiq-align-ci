@@ -1,0 +1,646 @@
+[
+  {
+    "reciterId": "mrifai",
+    "riwaya": "hafs",
+    "path": "ops/source-repair/candidates/codex-mrifai-84-repair-20261006.jz",
+    "sha256": "3f8af2350f8880015cd21890a1a0f6c558c00396b100bd3c5d6bbec0181e203e",
+    "parentKey": "timings/hafs/mrifai.jz",
+    "parentSha256": "58adaf7636a7a58294889ccbf1e4318640a686020ab83b035066b2bc8c15059f",
+    "changedEntries": 23,
+    "op": "ctc_quran_surah_splice:84",
+    "proof": {
+      "qualityClaim": false,
+      "reportPath": "ops/out/codex-mrifai84-recovery-20261006.json",
+      "reportSha256": "44dff45cff4e31fbfe6e5909205e911386e647377519bb08d5e9548c35a7d319",
+      "tailReportSha256": "1bfb5fc6ddfb693beadd30e1da235c336c681fbc4690df7474354a2a8e2764dd",
+      "rawTailBundlePath": "ops/out/codex-mrifai-yousef-tail-complete-20261006.json.gz",
+      "decodedEofMs": 151066,
+      "changes": [
+        {
+          "before": {
+            "ayahId": "84:1",
+            "fileRef": "https://server11.mp3quran.net/mrifai/084.mp3",
+            "startMs": 30891,
+            "endMs": 31652,
+            "conf": 0.083,
+            "confBand": "LOW",
+            "startApprox": true
+          },
+          "after": {
+            "ayahId": "84:1",
+            "fileRef": "https://server11.mp3quran.net/mrifai/084.mp3",
+            "startMs": 5324,
+            "endMs": 11668,
+            "conf": 0.083,
+            "confBand": "LOW",
+            "startApprox": true
+          }
+        },
+        {
+          "before": {
+            "ayahId": "84:2",
+            "fileRef": "https://server11.mp3quran.net/mrifai/084.mp3",
+            "startMs": 31652,
+            "endMs": 32612,
+            "conf": 0.0,
+            "confBand": "LOW",
+            "startApprox": true
+          },
+          "after": {
+            "ayahId": "84:2",
+            "fileRef": "https://server11.mp3quran.net/mrifai/084.mp3",
+            "startMs": 11668,
+            "endMs": 15511,
+            "conf": 0.0,
+            "confBand": "LOW",
+            "startApprox": true
+          }
+        },
+        {
+          "before": {
+            "ayahId": "84:3",
+            "fileRef": "https://server11.mp3quran.net/mrifai/084.mp3",
+            "startMs": 32612,
+            "endMs": 33133,
+            "conf": 0.0,
+            "confBand": "LOW",
+            "startApprox": true
+          },
+          "after": {
+            "ayahId": "84:3",
+            "fileRef": "https://server11.mp3quran.net/mrifai/084.mp3",
+            "startMs": 15511,
+            "endMs": 18500,
+            "conf": 0.0,
+            "confBand": "LOW",
+            "startApprox": true
+          }
+        },
+        {
+          "before": {
+            "ayahId": "84:4",
+            "fileRef": "https://server11.mp3quran.net/mrifai/084.mp3",
+            "startMs": 33133,
+            "endMs": 37396,
+            "conf": 0.279,
+            "confBand": "LOW",
+            "startApprox": true
+          },
+          "after": {
+            "ayahId": "84:4",
+            "fileRef": "https://server11.mp3quran.net/mrifai/084.mp3",
+            "startMs": 18500,
+            "endMs": 22460,
+            "conf": 0.279,
+            "confBand": "LOW",
+            "startApprox": true
+          }
+        },
+        {
+          "before": {
+            "ayahId": "84:5",
+            "fileRef": "https://server11.mp3quran.net/mrifai/084.mp3",
+            "startMs": 37396,
+            "endMs": 39117,
+            "conf": 0.0,
+            "confBand": "LOW",
+            "startApprox": true
+          },
+          "after": {
+            "ayahId": "84:5",
+            "fileRef": "https://server11.mp3quran.net/mrifai/084.mp3",
+            "startMs": 22460,
+            "endMs": 26258,
+            "conf": 0.0,
+            "confBand": "LOW",
+            "startApprox": true
+          }
+        },
+        {
+          "before": {
+            "ayahId": "84:6",
+            "fileRef": "https://server11.mp3quran.net/mrifai/084.mp3",
+            "startMs": 39117,
+            "endMs": 47820,
+            "conf": 0.282,
+            "confBand": "LOW",
+            "startApprox": true
+          },
+          "after": {
+            "ayahId": "84:6",
+            "fileRef": "https://server11.mp3quran.net/mrifai/084.mp3",
+            "startMs": 26258,
+            "endMs": 47820,
+            "conf": 0.282,
+            "confBand": "LOW",
+            "startApprox": true
+          }
+        },
+        {
+          "before": {
+            "ayahId": "84:7",
+            "fileRef": "https://server11.mp3quran.net/mrifai/084.mp3",
+            "startMs": 47820,
+            "endMs": 54298,
+            "conf": 0.644,
+            "confBand": "MED"
+          },
+          "after": {
+            "ayahId": "84:7",
+            "fileRef": "https://server11.mp3quran.net/mrifai/084.mp3",
+            "startMs": 47820,
+            "endMs": 54748,
+            "conf": 0.644,
+            "confBand": "MED"
+          }
+        },
+        {
+          "before": {
+            "ayahId": "84:8",
+            "fileRef": "https://server11.mp3quran.net/mrifai/084.mp3",
+            "startMs": 54298,
+            "endMs": 60210,
+            "conf": 0.777,
+            "confBand": "HIGH"
+          },
+          "after": {
+            "ayahId": "84:8",
+            "fileRef": "https://server11.mp3quran.net/mrifai/084.mp3",
+            "startMs": 54748,
+            "endMs": 60210,
+            "conf": 0.777,
+            "confBand": "HIGH"
+          }
+        },
+        {
+          "before": {
+            "ayahId": "84:10",
+            "fileRef": "https://server11.mp3quran.net/mrifai/084.mp3",
+            "startMs": 66670,
+            "endMs": 73632,
+            "conf": 0.665,
+            "confBand": "MED"
+          },
+          "after": {
+            "ayahId": "84:10",
+            "fileRef": "https://server11.mp3quran.net/mrifai/084.mp3",
+            "startMs": 66670,
+            "endMs": 74082,
+            "conf": 0.665,
+            "confBand": "MED"
+          }
+        },
+        {
+          "before": {
+            "ayahId": "84:11",
+            "fileRef": "https://server11.mp3quran.net/mrifai/084.mp3",
+            "startMs": 73632,
+            "endMs": 77194,
+            "conf": 0.68,
+            "confBand": "MED",
+            "startApprox": true
+          },
+          "after": {
+            "ayahId": "84:11",
+            "fileRef": "https://server11.mp3quran.net/mrifai/084.mp3",
+            "startMs": 74082,
+            "endMs": 77194,
+            "conf": 0.68,
+            "confBand": "MED",
+            "startApprox": true
+          }
+        },
+        {
+          "before": {
+            "ayahId": "84:13",
+            "fileRef": "https://server11.mp3quran.net/mrifai/084.mp3",
+            "startMs": 80416,
+            "endMs": 86881,
+            "conf": 0.638,
+            "confBand": "MED",
+            "startApprox": true
+          },
+          "after": {
+            "ayahId": "84:13",
+            "fileRef": "https://server11.mp3quran.net/mrifai/084.mp3",
+            "startMs": 80416,
+            "endMs": 86861,
+            "conf": 0.638,
+            "confBand": "MED",
+            "startApprox": true
+          }
+        },
+        {
+          "before": {
+            "ayahId": "84:14",
+            "fileRef": "https://server11.mp3quran.net/mrifai/084.mp3",
+            "startMs": 86881,
+            "endMs": 92525,
+            "conf": 0.74,
+            "confBand": "MED",
+            "startApprox": true
+          },
+          "after": {
+            "ayahId": "84:14",
+            "fileRef": "https://server11.mp3quran.net/mrifai/084.mp3",
+            "startMs": 86861,
+            "endMs": 92535,
+            "conf": 0.74,
+            "confBand": "MED",
+            "startApprox": true
+          }
+        },
+        {
+          "before": {
+            "ayahId": "84:15",
+            "fileRef": "https://server11.mp3quran.net/mrifai/084.mp3",
+            "startMs": 92525,
+            "endMs": 98549,
+            "conf": 0.74,
+            "confBand": "MED",
+            "startApprox": true
+          },
+          "after": {
+            "ayahId": "84:15",
+            "fileRef": "https://server11.mp3quran.net/mrifai/084.mp3",
+            "startMs": 92535,
+            "endMs": 98549,
+            "conf": 0.74,
+            "confBand": "MED",
+            "startApprox": true
+          }
+        },
+        {
+          "before": {
+            "ayahId": "84:16",
+            "fileRef": "https://server11.mp3quran.net/mrifai/084.mp3",
+            "startMs": 98549,
+            "endMs": 102461,
+            "conf": 0.74,
+            "confBand": "MED",
+            "startApprox": true
+          },
+          "after": {
+            "ayahId": "84:16",
+            "fileRef": "https://server11.mp3quran.net/mrifai/084.mp3",
+            "startMs": 98549,
+            "endMs": 102522,
+            "conf": 0.74,
+            "confBand": "MED",
+            "startApprox": true
+          }
+        },
+        {
+          "before": {
+            "ayahId": "84:17",
+            "fileRef": "https://server11.mp3quran.net/mrifai/084.mp3",
+            "startMs": 102461,
+            "endMs": 105123,
+            "conf": 0.74,
+            "confBand": "MED",
+            "startApprox": true
+          },
+          "after": {
+            "ayahId": "84:17",
+            "fileRef": "https://server11.mp3quran.net/mrifai/084.mp3",
+            "startMs": 102522,
+            "endMs": 105183,
+            "conf": 0.74,
+            "confBand": "MED",
+            "startApprox": true
+          }
+        },
+        {
+          "before": {
+            "ayahId": "84:18",
+            "fileRef": "https://server11.mp3quran.net/mrifai/084.mp3",
+            "startMs": 105123,
+            "endMs": 107725,
+            "conf": 0.74,
+            "confBand": "MED",
+            "startApprox": true
+          },
+          "after": {
+            "ayahId": "84:18",
+            "fileRef": "https://server11.mp3quran.net/mrifai/084.mp3",
+            "startMs": 105183,
+            "endMs": 107785,
+            "conf": 0.74,
+            "confBand": "MED",
+            "startApprox": true
+          }
+        },
+        {
+          "before": {
+            "ayahId": "84:19",
+            "fileRef": "https://server11.mp3quran.net/mrifai/084.mp3",
+            "startMs": 107725,
+            "endMs": 112268,
+            "conf": 0.74,
+            "confBand": "MED",
+            "startApprox": true
+          },
+          "after": {
+            "ayahId": "84:19",
+            "fileRef": "https://server11.mp3quran.net/mrifai/084.mp3",
+            "startMs": 107785,
+            "endMs": 112308,
+            "conf": 0.74,
+            "confBand": "MED",
+            "startApprox": true
+          }
+        },
+        {
+          "before": {
+            "ayahId": "84:20",
+            "fileRef": "https://server11.mp3quran.net/mrifai/084.mp3",
+            "startMs": 112268,
+            "endMs": 117002,
+            "conf": 0.74,
+            "confBand": "MED",
+            "startApprox": true
+          },
+          "after": {
+            "ayahId": "84:20",
+            "fileRef": "https://server11.mp3quran.net/mrifai/084.mp3",
+            "startMs": 112308,
+            "endMs": 117052,
+            "conf": 0.74,
+            "confBand": "MED",
+            "startApprox": true
+          }
+        },
+        {
+          "before": {
+            "ayahId": "84:21",
+            "fileRef": "https://server11.mp3quran.net/mrifai/084.mp3",
+            "startMs": 117002,
+            "endMs": 126100,
+            "conf": 0.711,
+            "confBand": "MED",
+            "startApprox": true
+          },
+          "after": {
+            "ayahId": "84:21",
+            "fileRef": "https://server11.mp3quran.net/mrifai/084.mp3",
+            "startMs": 117052,
+            "endMs": 126160,
+            "conf": 0.711,
+            "confBand": "MED",
+            "startApprox": true
+          }
+        },
+        {
+          "before": {
+            "ayahId": "84:22",
+            "fileRef": "https://server11.mp3quran.net/mrifai/084.mp3",
+            "startMs": 126100,
+            "endMs": 129500,
+            "conf": 0.763,
+            "confBand": "HIGH"
+          },
+          "after": {
+            "ayahId": "84:22",
+            "fileRef": "https://server11.mp3quran.net/mrifai/084.mp3",
+            "startMs": 126160,
+            "endMs": 129601,
+            "conf": 0.763,
+            "confBand": "HIGH"
+          }
+        },
+        {
+          "before": {
+            "ayahId": "84:23",
+            "fileRef": "https://server11.mp3quran.net/mrifai/084.mp3",
+            "startMs": 129500,
+            "endMs": 133173,
+            "conf": 0.711,
+            "confBand": "MED",
+            "startApprox": true
+          },
+          "after": {
+            "ayahId": "84:23",
+            "fileRef": "https://server11.mp3quran.net/mrifai/084.mp3",
+            "startMs": 129601,
+            "endMs": 133243,
+            "conf": 0.711,
+            "confBand": "MED",
+            "startApprox": true
+          }
+        },
+        {
+          "before": {
+            "ayahId": "84:24",
+            "fileRef": "https://server11.mp3quran.net/mrifai/084.mp3",
+            "startMs": 133173,
+            "endMs": 138370,
+            "conf": 0.74,
+            "confBand": "MED",
+            "startApprox": true
+          },
+          "after": {
+            "ayahId": "84:24",
+            "fileRef": "https://server11.mp3quran.net/mrifai/084.mp3",
+            "startMs": 133243,
+            "endMs": 138370,
+            "conf": 0.74,
+            "confBand": "MED",
+            "startApprox": true
+          }
+        },
+        {
+          "before": {
+            "ayahId": "84:25",
+            "fileRef": "https://server11.mp3quran.net/mrifai/084.mp3",
+            "startMs": 138370,
+            "endMs": 145912,
+            "conf": 0.667,
+            "confBand": "MED"
+          },
+          "after": {
+            "ayahId": "84:25",
+            "fileRef": "https://server11.mp3quran.net/mrifai/084.mp3",
+            "startMs": 138370,
+            "endMs": 151066,
+            "conf": 0.667,
+            "confBand": "MED"
+          }
+        }
+      ],
+      "limits": [
+        "All original confidence and unrelated entries preserved.",
+        "Full exact-SHA QA and independent heard/census required.",
+        "Forced alignment alone is not source completeness proof."
+      ]
+    },
+    "warnings": [
+      "مداخل مدتها > 120ث: 1 · مثال: 2:282 مدتها 152ث"
+    ]
+  },
+  {
+    "reciterId": "yousef",
+    "riwaya": "hafs",
+    "path": "ops/source-repair/candidates/codex-yousef-107-repair-20261006.jz",
+    "sha256": "ac3d545ffec61ab5bedfc5c953e2feecef0e9f9ff2efe1135a3a8c53289cfdf6",
+    "parentKey": "timings/hafs/yousef.jz",
+    "parentSha256": "a3d44fd95cdc47e6cb183a788d94ff287380f7de8306e0e0bc40267a09be3c72",
+    "changedEntries": 7,
+    "op": "ctc_quran_surah_splice:107",
+    "proof": {
+      "qualityClaim": false,
+      "reportPath": "ops/out/codex-yousef107-recovery-20261006.json",
+      "reportSha256": "a1c4ce8c4f56e85042247197c611664b16761db4252e27cf0c3c9d99f59838b7",
+      "tailReportSha256": "eeedfe3eb4334c27cf621ae86c736c85a5a1983829cf15ab6a96a0504f7800c2",
+      "rawTailBundlePath": "ops/out/codex-mrifai-yousef-tail-complete-20261006.json.gz",
+      "decodedEofMs": 35683,
+      "changes": [
+        {
+          "before": {
+            "ayahId": "107:1",
+            "fileRef": "https://server9.mp3quran.net/yousef/107.mp3",
+            "startMs": 4750,
+            "endMs": 5600,
+            "conf": 0.9,
+            "confBand": "HIGH",
+            "basmalaTrimmed": true
+          },
+          "after": {
+            "ayahId": "107:1",
+            "fileRef": "https://server9.mp3quran.net/yousef/107.mp3",
+            "startMs": 5447,
+            "endMs": 10002,
+            "conf": 0.9,
+            "confBand": "HIGH",
+            "basmalaTrimmed": true
+          }
+        },
+        {
+          "before": {
+            "ayahId": "107:2",
+            "fileRef": "https://server9.mp3quran.net/yousef/107.mp3",
+            "startMs": 5600,
+            "endMs": 11200,
+            "conf": 0.6,
+            "confBand": "MED",
+            "startApprox": true
+          },
+          "after": {
+            "ayahId": "107:2",
+            "fileRef": "https://server9.mp3quran.net/yousef/107.mp3",
+            "startMs": 10002,
+            "endMs": 14227,
+            "conf": 0.6,
+            "confBand": "MED",
+            "startApprox": true
+          }
+        },
+        {
+          "before": {
+            "ayahId": "107:3",
+            "fileRef": "https://server9.mp3quran.net/yousef/107.mp3",
+            "startMs": 11200,
+            "endMs": 18200,
+            "conf": 0.6,
+            "confBand": "MED",
+            "startApprox": true
+          },
+          "after": {
+            "ayahId": "107:3",
+            "fileRef": "https://server9.mp3quran.net/yousef/107.mp3",
+            "startMs": 14227,
+            "endMs": 18812,
+            "conf": 0.6,
+            "confBand": "MED",
+            "startApprox": true
+          }
+        },
+        {
+          "before": {
+            "ayahId": "107:4",
+            "fileRef": "https://server9.mp3quran.net/yousef/107.mp3",
+            "startMs": 18200,
+            "endMs": 21000,
+            "conf": 0.6,
+            "confBand": "MED",
+            "startApprox": true
+          },
+          "after": {
+            "ayahId": "107:4",
+            "fileRef": "https://server9.mp3quran.net/yousef/107.mp3",
+            "startMs": 18812,
+            "endMs": 21996,
+            "conf": 0.6,
+            "confBand": "MED",
+            "startApprox": true
+          }
+        },
+        {
+          "before": {
+            "ayahId": "107:5",
+            "fileRef": "https://server9.mp3quran.net/yousef/107.mp3",
+            "startMs": 21000,
+            "endMs": 28000,
+            "conf": 0.6,
+            "confBand": "MED",
+            "startApprox": true
+          },
+          "after": {
+            "ayahId": "107:5",
+            "fileRef": "https://server9.mp3quran.net/yousef/107.mp3",
+            "startMs": 21996,
+            "endMs": 27013,
+            "conf": 0.6,
+            "confBand": "MED",
+            "startApprox": true
+          }
+        },
+        {
+          "before": {
+            "ayahId": "107:6",
+            "fileRef": "https://server9.mp3quran.net/yousef/107.mp3",
+            "startMs": 28000,
+            "endMs": 32428,
+            "conf": 0.733,
+            "confBand": "MED"
+          },
+          "after": {
+            "ayahId": "107:6",
+            "fileRef": "https://server9.mp3quran.net/yousef/107.mp3",
+            "startMs": 27013,
+            "endMs": 32168,
+            "conf": 0.733,
+            "confBand": "MED"
+          }
+        },
+        {
+          "before": {
+            "ayahId": "107:7",
+            "fileRef": "https://server9.mp3quran.net/yousef/107.mp3",
+            "startMs": 32428,
+            "endMs": 35380,
+            "conf": 0.6,
+            "confBand": "MED",
+            "startApprox": true
+          },
+          "after": {
+            "ayahId": "107:7",
+            "fileRef": "https://server9.mp3quran.net/yousef/107.mp3",
+            "startMs": 32168,
+            "endMs": 35683,
+            "conf": 0.6,
+            "confBand": "MED",
+            "startApprox": true
+          }
+        }
+      ],
+      "limits": [
+        "All original confidence and unrelated entries preserved.",
+        "Full exact-SHA QA and independent heard/census required.",
+        "Forced alignment alone is not source completeness proof."
+      ]
+    },
+    "warnings": [
+      "مداخل مدتها > 120ث: 1 · مثال: 2:282 مدتها 168ث"
+    ]
+  }
+]
