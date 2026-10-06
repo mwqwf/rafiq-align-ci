@@ -2,6 +2,18 @@
   {
     "riwaya": "hafs",
     "reciter": "3siri",
+    "surah": 7,
+    "base": "https://archive.org/download/002_20230924_202309/",
+    "evidence": "Archive item 002_20230924_202309 names the complete mushaf and reader Ibrahim Al-Asiri; exact audio SHA and decoded PCM were measured in codex-asiri7-archive-4917-metadata-20261006.json, with seven non-text waveform matches to the known performance. Full 206-ayah CTC measurements 37433349375 and 37435925698 agree exactly under independent 32/4 and 29/5 groupings; targeted short-window disagreement at 7:48 was rejected, and two wider windows in 37442850692 agree exactly with the full boundaries. This registry entry records source identity only; final-SHA QA and coverage certification remain mandatory.",
+    "url": "https://archive.org/download/002_20230924_202309/007%20-%20%D8%B3%D9%88%D8%B1%D8%A9%20%D8%A7%D9%84%D8%A3%D8%B9%D8%B1%D8%A7%D9%81.mp3",
+    "audio_sha256": "897ad7e2c99472111722247f362d135da0c25c449806260269a792a12f52d3f1",
+    "identitySourceUrl": "https://archive.org/details/002_20230924_202309",
+    "metadataEvidence": "ops/out/codex-asiri7-archive-4917-metadata-20261006.json",
+    "metadataEvidenceSha256": "3b8b08f02c7fa2575eb35791fc8fa750d94b1adff7b48eb9b49f9697e2bd0a6f"
+  },
+  {
+    "riwaya": "hafs",
+    "reciter": "3siri",
     "surah": 9,
     "base": "https://media.way2quran.com/ibrahim-al-asiri/hafs-an-asim/",
     "evidence": "35185281620: catalog source ratio 0.19 and 10,582,833 bytes; alternate same-reciter/same-riwaya file 57,088,047 bytes; 2026-10-06 full download SHA matches exact current production audioSha256; metadata is not timing/coverage certification.",

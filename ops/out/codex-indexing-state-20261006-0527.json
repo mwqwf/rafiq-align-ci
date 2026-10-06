@@ -82,7 +82,7 @@
       "textGenerationDisabled": true,
       "error": "ctc_segmentation backtracking exceeded the 64000-frame window"
     },
-    "next": "Wait for the targeted numeric-only measurements of ayahs 13, 48, 54, 131, and 188 plus neighbors. If they pass, build but do not adopt a pinned source/timing candidate; run full source identity, public/manifest/frozen, separate start/end evidence, and a stable general completion audit first.",
+    "next": "The evidence-locked local candidate is built but not staged or adopted. Verify that the existing R2 staging write is free within available quota before any storage write; then stage exact SHA 745366ed..., run structural/openers/four-salt heard QA plus diagnosis/census, and only after success verify public/manifest/frozen and run a stable general completion audit with separate start/end evidence.",
     "chunkedAlignmentFix": {
       "commit": "6f798263c3d9c83889b13158fdb68cd7a775a3ac",
       "groupVerses": 32,
@@ -271,43 +271,95 @@
         "failed": 0
       },
       "agentCommandRun": 37439109644,
-      "status": "queued",
-      "observedAt": "2026-10-06T08:53:00Z",
-      "textGenerationDisabled": true
+      "run": 37439371822,
+      "jobId": 112189018878,
+      "status": "completed",
+      "conclusion": "failure",
+      "measurementComplete": false,
+      "coverageCertified": false,
+      "productionChanged": false,
+      "textGenerationDisabled": true,
+      "result": "Ayahs 13, 54, 131, and 188 matched the full boundaries exactly. The short ayah-48 window agreed on its start but ended 53535 ms early, so the unchanged five-second guard rejected it.",
+      "report": {
+        "path": "ops/out/codex-asiri7-low-five-targeted-rejection-37439371822.json",
+        "bytes": 32894,
+        "sha256": "1d51139908b8e5b2a3fb3d13ca7862a30706cfa4bf64c5f8bb957b61d2b6dbb1"
+      }
+    },
+    "expandedAyah48Arbitration": {
+      "commit": "5119b07ee2f66efbbb0d388fb7a05b3829263a75",
+      "agentCommandRun": 37442744317,
+      "run": 37442850692,
+      "jobId": 112200524234,
+      "status": "completed",
+      "conclusion": "success",
+      "completedAt": "2026-10-06T09:55:21Z",
+      "windows": [
+        "7:43-58 with 120-second margins",
+        "7:40-63 with 120-second margins"
+      ],
+      "targets": [48, 49, 50],
+      "crossWindowStartDisagreementMs": 0,
+      "crossWindowEndDisagreementMs": 0,
+      "fullStartDeltaMs": 0,
+      "fullEndDeltaMs": 0,
+      "measurementComplete": true,
+      "coverageCertified": false,
+      "productionChanged": false,
+      "textGenerationDisabled": true,
+      "result": "Both wider windows matched each other and the full alignment exactly; the 53535 ms short-window drift was context-induced and remains preserved as rejected evidence.",
+      "report": {
+        "path": "ops/out/codex-asiri7-ayah48-expanded-success-37442850692.json",
+        "bytes": 33721,
+        "sha256": "6c91c2e891042c940aa19d56078558f6758dffb8210450993a1fc4e6cc5bde5a"
+      }
+    },
+    "localCandidate": {
+      "path": "ops/source-repair/candidates/codex-asiri7-archive-20261006.jz",
+      "sha256": "745366ed006869883b81952d354720a68fc876b0fa47b53bf30512809e4f5700",
+      "wouldStageAs": "timings-staging/hafs/3siri.745366ed.jz",
+      "entries": 6236,
+      "addedEntries": 206,
+      "changedEntriesOutsideSurah7": 0,
+      "missing": 0,
+      "localEvidenceTests": {
+        "passed": 6,
+        "failed": 0
+      },
+      "structuralGate": "passed",
+      "qualityChecks": "pending",
+      "heardGate": "pending",
+      "unpublishedLocalCandidate": true,
+      "productionChanged": false,
+      "storageWriteBlocked": "No repository evidence proves that the R2 staging write is free within the account's currently available quota; AGENTS.md forbids the write without that proof."
     }
   },
   "liveSnapshot": {
-    "at": "2026-10-06T08:53:00Z",
+    "at": "2026-10-06T10:02:32Z",
     "counts": {
-      "inProgress": 3,
-      "queued": 0,
+      "inProgress": 1,
+      "queued": 1,
       "pending": 0
     },
     "runs": {
       "in_progress": [
         {
-          "id": 37439109644,
-          "name": "أمرُ الوكيل السحابيّ — ops: قياس موضعي مستقل لآيات العسيري الخمس الضعيفة",
-          "path": ".github/workflows/agent_cmd.yml",
-          "createdAt": "2026-10-06T08:53:02Z",
-          "headSha": "51441dcade754a24a9c9f6ed539fc47ff330d849"
-        },
-        {
-          "id": 37435660071,
+          "id": 37443788151,
           "name": "نبّاضٌ سحابيّ — يُبقي الأسطولَ يعمل بلا جهاز المالك",
           "path": ".github/workflows/keepalive.yml",
-          "createdAt": "2026-10-06T08:22:22Z",
-          "headSha": "14b1d0c94423f8ee72f5019b7b000e3edc354d05"
-        },
-        {
-          "id": 37426314927,
-          "name": "free-post-stage timings-staging/hafs/i_sanankoua.b04306b8.jz",
-          "path": ".github/workflows/free-post-stage-quality.yml",
-          "createdAt": "2026-10-06T06:53:22Z",
-          "headSha": "35dd651f767d6b9c385c71c99deae5cae8c7ee13"
+          "createdAt": "2026-10-06T09:33:32Z",
+          "headSha": "8e5ce400b701bd9862c86ec8a22a624a0d356ed3"
         }
       ],
-      "queued": [],
+      "queued": [
+        {
+          "id": 34748440538,
+          "name": "rafiq-agent-cmd",
+          "path": ".github/workflows/agent_cmd.yml",
+          "createdAt": "2026-09-13T08:45:25Z",
+          "headSha": "b31cacd4135e04b03a0f8d49748b1a68c23bc6f0"
+        }
+      ],
       "pending": []
     }
   },
@@ -324,7 +376,8 @@
     "939 missing ayahs are expected after adoption 26 but not yet independently re-audited",
     "856834 starts unmeasured in the latest complete audit",
     "1121596 ends unknown and 0 independently verified in the latest complete audit",
-    "3siri surah 7 chunked numeric alignment is running; coverage and head/middle/tail/end evidence remain unproved",
+    "3siri surah 7 has exact repeated full boundaries plus targeted head/middle/tail and expanded ayah-48 evidence, but the local candidate has not been staged or passed final-SHA audio QA",
+    "R2 staging-write cost/quota is not proven free by repository evidence, so no storage write or QA dispatch was launched",
     "multiple non-overlapping tail QA runs remain active or queued"
   ],
   "laterObservation": {
@@ -341,7 +394,7 @@
       "step": "numeric full-surah alignment"
     }
   },
-  "updatedAt": "2026-10-06T06:18:00Z",
+  "updatedAt": "2026-10-06T10:02:32Z",
   "latestSourceIdentityAudit": {
     "label": "after-thirty-three-adoptions",
     "timestampUtc": "2026-10-06T06:10:18.569453Z",
