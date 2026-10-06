@@ -1,0 +1,68 @@
+{
+  "path": "ops/source-repair/candidates/codex-balilah-s69-recovered-20261006.jz",
+  "sha256": "f8f51b82ab0bb58a42c23c466fc5cd259b09c5e5b5876bf44b7856963a9574be",
+  "parentSha256": "f1b40abe72f4f85bd41cc87166f2cf8785960c1e267f09816b99532851812207",
+  "changedEntries": 52,
+  "structuralFatal": [],
+  "structuralWarnings": [
+    "مداخل مدتها > 120ث: 2 · مثال: 2:282 مدتها 132ث",
+    "مطالع سور تبدأ دون 3ث — مرشّحون للمسبار الصوتي لا حكمٌ عليهم: 3:1=2611م.ث · 17:1=2184م.ث · 18:1=2960م.ث · 26:1=2791م.ث · 37:1=2080م.ث · 51:1=2731م.ث · 55:1=2840م.ث · 90:1=2016م.ث · 104:1=2750م.ث · 108:1=2750م.ث … و5 غيرها"
+  ],
+  "proof": {
+    "kind": "historical-surah-recovery-with-measured-tail",
+    "qualityClaim": false,
+    "priorCandidateSha256": "26fcdd889052efeb863782dc31b8c9d41db19b33f9908da855e076226e759ca2",
+    "sourceSha256": "9fa2851995b76495854440c097a1e3f1834ea40d58b3bb09e982b13fa09ea6f5",
+    "boundaryReportSha256": "46d3efdb3e6d6b241f2bc8b24e37f5bbe19ad09dc6955e256b791c6a0cd1a9fe",
+    "tailReportSha256": "7fbc87cb7170153cfc0aa54c699c4e04ed168611faf3411b4f800e197410dc6d",
+    "tailRawBundleSha256": "85b1afe86ce00f4196112d69e8152f88e4d309e861caa3440722980563c812da",
+    "terminalBefore": {
+      "ayahId": "69:52",
+      "fileRef": "https://server6.mp3quran.net/balilah/069.mp3",
+      "startMs": 465227,
+      "endMs": 470164,
+      "conf": 0.723,
+      "confBand": "MED",
+      "startApprox": true
+    },
+    "terminalAfter": {
+      "ayahId": "69:52",
+      "fileRef": "https://server6.mp3quran.net/balilah/069.mp3",
+      "startMs": 465227,
+      "endMs": 472500,
+      "conf": 0.723,
+      "confBand": "MED",
+      "startApprox": true
+    },
+    "terminalFrames": [
+      {
+        "channel": "native-1",
+        "rawPartSha256": "a7234857cd1fb596be4680a70d3fb4ddc8b75a14bfe39561538d32c736f37e7f",
+        "finalConsonantMs": 472152.46875,
+        "finalTokenMs": 472272.46875000006
+      },
+      {
+        "channel": "native-2",
+        "rawPartSha256": "44a6090ad468a4188ffd9a1596f037e88e5eed0a024cebc269628ff54a4c408c",
+        "finalConsonantMs": 472152.46875,
+        "finalTokenMs": 472252.46875
+      }
+    ],
+    "verse26": {
+      "oldStartMs": 275598,
+      "fourDiagnosticStartsMs": [
+        275618,
+        275618,
+        275618,
+        275618
+      ],
+      "changed": false,
+      "oldHeardRejection": "69:26 +1.6s; preserved, never bypassed"
+    },
+    "limits": [
+      "Full final-SHA QA and float32 heard gate required.",
+      "No confidence increase.",
+      "Prior candidate cannot be promoted as-is; terminal word was clipped."
+    ]
+  }
+}

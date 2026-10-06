@@ -1,0 +1,20 @@
+{
+  "action": "tool",
+  "tool": "index_qa/stage_transform.py",
+  "args": [
+    "--file",
+    "ops/source-repair/candidates/codex-balilah-s69-recovered-20261006.jz",
+    "--parent",
+    "timings/hafs/balilah.jz",
+    "--parent-sha",
+    "f1b40abe72f4f85bd41cc87166f2cf8785960c1e267f09816b99532851812207",
+    "--op",
+    "ctc_heardmap_splice:69",
+    "--reason",
+    "Recover measured Haaqqah timings and extend clipped final word; retain verse26 based on four independent context paths. Mandatory fresh float32 heard and final-SHA QA.",
+    "--by",
+    "codex-measured-haqqah-recovery-20261006",
+    "--manual-qa-only",
+    "--yes"
+  ]
+}
