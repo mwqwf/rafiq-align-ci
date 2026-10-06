@@ -1,0 +1,297 @@
+{
+  "schema": 1,
+  "generatedAt": "2026-10-06T05:27:00Z",
+  "kind": "codex-indexing-continuation-state",
+  "repository": "mwqwf/rafiq-align-ci",
+  "repositoryPublic": true,
+  "completionClaim": false,
+  "productionBaseline": {
+    "verifiedAdoptions": 26,
+    "latestAdoption": {
+      "key": "timings/warsh/noah_warsh.jz",
+      "sha256": "b99262ae6b1b13592a29025d3cfc9760029a2e0c13769768808459e5f3f51437",
+      "entries": 6181,
+      "declaredMissing": 55
+    },
+    "note": "After-25 audits predate adoption 26 and all currently active tail candidates."
+  },
+  "latestCompleteAudit": {
+    "label": "after-twenty-five-adoptions",
+    "timestampUtc": "2026-10-06T04:57:11Z",
+    "structural": {
+      "indexes": 180,
+      "identityOk": 180,
+      "structureOk": 180,
+      "gapsOk": 180,
+      "entries": 1121596,
+      "missing": 884,
+      "impossibleShort": 3,
+      "veryShort": 423,
+      "durationOutliers": 3060,
+      "silenceIndicators": 140
+    },
+    "sourceIdentity": {
+      "passed": 179,
+      "failed": 1,
+      "failureKey": "timings/hafs/3siri.jz",
+      "failure": "old source declaration mismatch; surah 7 absent"
+    },
+    "completion": {
+      "readyIndexes": 0,
+      "startsReadyIndexes": 0,
+      "missingAyahs": 884,
+      "unmeasuredStarts": 856834,
+      "deviations": 7991,
+      "verifiedEndEvidence": 0,
+      "unknownEndEvidence": 1121596
+    },
+    "staleAfterAdoption26": true
+  },
+  "asiri7": {
+    "production": {
+      "sha256": "fbf468c05fa3598df3103ce4f1cf53e093e9eb0ac719ad9b051d14c1a0cb1392",
+      "entries": 6030,
+      "missingSurah7Ayahs": 206
+    },
+    "rejectedCandidate": {
+      "sha256": "eba546de36747d4ac3cc87db17415c0049d64d8a9fce030559d0fafc9e61bfd9",
+      "durationSeconds": 4888.424438,
+      "longSilenceSeconds": 1119.2,
+      "probeRun": 37416781237
+    },
+    "newCandidate": {
+      "sha256": "897ad7e2c99472111722247f362d135da0c25c449806260269a792a12f52d3f1",
+      "bytes": 21220333,
+      "durationSeconds": 4916.741224,
+      "pcmMono16kSha256": "21529f5e3d69ecf17aaf0d649da92c5acdbf0f0be762b1e5aa03bedf8ead06c9",
+      "pcmSamples": 78666987,
+      "longSilenceCount": 0,
+      "performanceCorrelationRange": [
+        0.8348,
+        0.9822
+      ],
+      "coverageCertified": false,
+      "accepted": false
+    },
+    "sourceSearchRun": 37417063118,
+    "alignmentRun": {
+      "id": 37418523660,
+      "status": "queued",
+      "textGenerationDisabled": true
+    },
+    "next": "Wait for 206-boundary numeric alignment, then independent head/middle/tail and neighborhood measurement before any candidate or source declaration."
+  },
+  "liveSnapshot": {
+    "at": "2026-10-06T05:27:00Z",
+    "counts": {
+      "inProgress": 13,
+      "queued": 13,
+      "pending": 0
+    },
+    "runs": {
+      "in_progress": [
+        {
+          "id": 37418339283,
+          "name": "rafiq-diagnosis",
+          "path": ".github/workflows/diagnosis.yml",
+          "createdAt": "2026-10-06T05:24:03Z",
+          "headSha": "739a549cf353378b9513ca2d3994d421c4f2dd8b"
+        },
+        {
+          "id": 37418067947,
+          "name": "free-post-stage timings-staging/hafs/m_qari.e0119bf4.jz",
+          "path": ".github/workflows/free-post-stage-quality.yml",
+          "createdAt": "2026-10-06T05:20:48Z",
+          "headSha": "44a90b3202ef9b19535819911c9f7fa57cdf5ba9"
+        },
+        {
+          "id": 37418060603,
+          "name": "free-post-stage timings-staging/hafs/h_abudalal.e8d9a539.jz",
+          "path": ".github/workflows/free-post-stage-quality.yml",
+          "createdAt": "2026-10-06T05:20:43Z",
+          "headSha": "c9696f20c5eadbcd85fec3aaff1a5455cf4806f4"
+        },
+        {
+          "id": 37417343698,
+          "name": "نبّاضٌ سحابيّ — يُبقي الأسطولَ يعمل بلا جهاز المالك",
+          "path": ".github/workflows/keepalive.yml",
+          "createdAt": "2026-10-06T05:11:58Z",
+          "headSha": "1b9267e37abdfd30012ee4337b4c3a71d91d632e"
+        },
+        {
+          "id": 37417288388,
+          "name": "free-post-stage timings-staging/hafs/yahya.48fb9a7a.jz",
+          "path": ".github/workflows/free-post-stage-quality.yml",
+          "createdAt": "2026-10-06T05:11:17Z",
+          "headSha": "6462ce1227d2831fb92d1fcba618b930350781e4"
+        },
+        {
+          "id": 37417282433,
+          "name": "free-post-stage timings-staging/hafs/wdee3.82d48dfc.jz",
+          "path": ".github/workflows/free-post-stage-quality.yml",
+          "createdAt": "2026-10-06T05:11:12Z",
+          "headSha": "5b619422fce349fedda1b0cbcd5e908d25966eb8"
+        },
+        {
+          "id": 37417276128,
+          "name": "free-post-stage timings-staging/qalun/noah_qalun.a1334c29.jz",
+          "path": ".github/workflows/free-post-stage-quality.yml",
+          "createdAt": "2026-10-06T05:11:08Z",
+          "headSha": "1714ffce843c9acd51b12e5aaa77252c172a823f"
+        },
+        {
+          "id": 37417269783,
+          "name": "free-post-stage timings-staging/warsh/laghdaf_shinqiti.889c9190.jz",
+          "path": ".github/workflows/free-post-stage-quality.yml",
+          "createdAt": "2026-10-06T05:11:03Z",
+          "headSha": "dc38906175425357e6b02e32a70e226afd466a09"
+        },
+        {
+          "id": 37417263634,
+          "name": "free-post-stage timings-staging/douri/deban_douri.d0433dfc.jz",
+          "path": ".github/workflows/free-post-stage-quality.yml",
+          "createdAt": "2026-10-06T05:10:59Z",
+          "headSha": "eb4eb29eb60f5de0a936b9a62e106c64fce4c475"
+        },
+        {
+          "id": 37417256566,
+          "name": "free-post-stage timings-staging/hafs/a_albadr.f56150ee.jz",
+          "path": ".github/workflows/free-post-stage-quality.yml",
+          "createdAt": "2026-10-06T05:10:54Z",
+          "headSha": "35d14ab4a40c1af7d96775ec4cee47dd7c7df7ff"
+        },
+        {
+          "id": 37415865453,
+          "name": "free-post-stage timings-staging/hafs/hamza.c1e4ed2f.jz",
+          "path": ".github/workflows/free-post-stage-quality.yml",
+          "createdAt": "2026-10-06T04:53:44Z",
+          "headSha": "69239244b62a7c6c3b6eb633a98ea655dcf49174"
+        },
+        {
+          "id": 37415094617,
+          "name": "free-post-stage timings-staging/shuba/deban_shuba.eca2b7c4.jz",
+          "path": ".github/workflows/free-post-stage-quality.yml",
+          "createdAt": "2026-10-06T04:44:00Z",
+          "headSha": "1f77b007a53920a98db6569555a2aa951c005804"
+        },
+        {
+          "id": 37408586349,
+          "name": "census timings-staging/hafs/saad.6d1523d8.jz",
+          "path": ".github/workflows/splice_census.yml",
+          "createdAt": "2026-10-06T03:21:24Z",
+          "headSha": "99a9be4575e2d71a26a47640afb475f8b82f3067"
+        }
+      ],
+      "queued": [
+        {
+          "id": 37418540699,
+          "name": "Diagnose source contexts and identify long Tblawi recording",
+          "path": ".github/workflows/source_context_diagnostics.yml",
+          "createdAt": "2026-10-06T05:26:29Z",
+          "headSha": "0894879cc214f8ce43c8bd61200b374ca4441d3b"
+        },
+        {
+          "id": 37418535185,
+          "name": "free-post-stage timings-staging/warsh/kholti_warsh.606412d0.jz",
+          "path": ".github/workflows/free-post-stage-quality.yml",
+          "createdAt": "2026-10-06T05:26:24Z",
+          "headSha": "a0ee6202dd23082c82ce67fcec5eb9fd0200067b"
+        },
+        {
+          "id": 37418529307,
+          "name": "free-post-stage timings-staging/hafs/deban.6293b974.jz",
+          "path": ".github/workflows/free-post-stage-quality.yml",
+          "createdAt": "2026-10-06T05:26:20Z",
+          "headSha": "4ad3375be6ef86ad6a3744adc22214588d85d698"
+        },
+        {
+          "id": 37418523660,
+          "name": "Quran model recovery of measured source gaps",
+          "path": ".github/workflows/quran_source_recovery.yml",
+          "createdAt": "2026-10-06T05:26:16Z",
+          "headSha": "689bd8cb0a5a66b90fb90ad69338133447f8e75a"
+        },
+        {
+          "id": 37418449118,
+          "name": "أمرُ الوكيل السحابيّ — فحص آخر الشمس مستقلاً بعد اختلاف المحاذاة بسبب تكرار التلاوة",
+          "path": ".github/workflows/agent_cmd.yml",
+          "createdAt": "2026-10-06T05:25:22Z",
+          "headSha": "88b53bab83af9856cacc30bcc610b6f7db7c0a04"
+        },
+        {
+          "id": 37418333201,
+          "name": "Diagnose source contexts and identify long Tblawi recording",
+          "path": ".github/workflows/source_context_diagnostics.yml",
+          "createdAt": "2026-10-06T05:23:59Z",
+          "headSha": "04f88c6268ace1c430a0163f45d3da58c906cd83"
+        },
+        {
+          "id": 37418099042,
+          "name": "free-post-stage timings-staging/hafs/mohsin_harthi.b41274ae.jz",
+          "path": ".github/workflows/free-post-stage-quality.yml",
+          "createdAt": "2026-10-06T05:21:10Z",
+          "headSha": "1533eda1fb7302241e1b83508d31bf003b0c0ab2"
+        },
+        {
+          "id": 37418091805,
+          "name": "free-post-stage timings-staging/hafs/m_alfaqih.45ef7bd4.jz",
+          "path": ".github/workflows/free-post-stage-quality.yml",
+          "createdAt": "2026-10-06T05:21:05Z",
+          "headSha": "53f4a625f1ed92c030ec15b6227bd070bb90112b"
+        },
+        {
+          "id": 37417833419,
+          "name": "Diagnose source contexts and identify long Tblawi recording",
+          "path": ".github/workflows/source_context_diagnostics.yml",
+          "createdAt": "2026-10-06T05:17:57Z",
+          "headSha": "6ead738562f61e18d96325d716207ada39508ab8"
+        },
+        {
+          "id": 37417827282,
+          "name": "Diagnose source contexts and identify long Tblawi recording",
+          "path": ".github/workflows/source_context_diagnostics.yml",
+          "createdAt": "2026-10-06T05:17:52Z",
+          "headSha": "bbc120787189708307d87bcbbe72404d87ffcba0"
+        },
+        {
+          "id": 37414259961,
+          "name": "Diagnose source contexts and identify long Tblawi recording",
+          "path": ".github/workflows/source_context_diagnostics.yml",
+          "createdAt": "2026-10-06T04:33:17Z",
+          "headSha": "36d99a6987101f3d979b283dcf0ed445d4304a95"
+        },
+        {
+          "id": 37413920156,
+          "name": "free-post-stage timings-staging/warsh/m_abdulkareem_warsh.693326d1.jz",
+          "path": ".github/workflows/free-post-stage-quality.yml",
+          "createdAt": "2026-10-06T04:29:05Z",
+          "headSha": "5cad039d0224f2437b0e9da0b54b29cb6aa4d027"
+        },
+        {
+          "id": 34748440538,
+          "name": "rafiq-agent-cmd",
+          "path": ".github/workflows/agent_cmd.yml",
+          "createdAt": "2026-09-13T08:45:25Z",
+          "headSha": "b31cacd4135e04b03a0f8d49748b1a68c23bc6f0"
+        }
+      ],
+      "pending": []
+    }
+  },
+  "costAndPrivacy": {
+    "publicRepository": true,
+    "standardHostedRunnerOnly": true,
+    "artifactsWritten": false,
+    "cacheSaved": false,
+    "audioUploaded": false,
+    "secretsExposed": false
+  },
+  "incompleteReasons": [
+    "latest full audit predates adoption 26",
+    "939 missing ayahs are expected after adoption 26 but not yet independently re-audited",
+    "856834 starts unmeasured in the latest complete audit",
+    "1121596 ends unknown and 0 independently verified in the latest complete audit",
+    "3siri surah 7 candidate awaits full numeric alignment and independent coverage proof",
+    "multiple non-overlapping tail QA runs remain active or queued"
+  ]
+}
