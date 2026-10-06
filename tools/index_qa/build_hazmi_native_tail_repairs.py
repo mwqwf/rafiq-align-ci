@@ -42,7 +42,9 @@ def main():
   C.require(strip(c['before'])==strip(c['after']),'confidence or metadata changed')
   C.require(int(c['after']['ayahId'].split(':')[0]) in (67,77),'unrelated surah changed')
  for s in (67,77):candidate.setdefault('engineBySurah',{})[str(s)]='ctc-quran-window-1'
- for rep in reports:candidate.setdefault('alignmentModelBySurah',{})[str(rep['source']['surah'])]=copy.deepcopy(next(m['alignmentModel'] for m in rep['measurements'] if m['model']=='quran'))
+ for rep in reports:
+  model=copy.deepcopy(next(m['alignmentModel'] for m in rep['measurements'] if m['model']=='quran'));model['canonicalTextChanged']=False
+  candidate.setdefault('alignmentModelBySurah',{})[str(rep['source']['surah'])]=model
  proof={'qualityClaim':False,'changes':changes,'decodedEofMs':eofs,'reports':[{k:r[k] for k in ('reader','source','provenance','measurements')} for r in reports],'originalOpenerProof':candidate['transform'].get('sameSourceRepair'),'rawBundleSha256':hashlib.sha256((ROOT/'ops/out/codex-hazmi-tail-contexts-complete-20261006.json.gz').read_bytes()).hexdigest(),'limits':['No fabricated timing from heard-only maps. Native contexts measured all changed tail starts.','Original confidence retained. Complete final-SHA independent QA required.']}
  tr=C.repaired_transform(parent,candidate,[67,77],PARENT,KEY);tr.pop('sourceRepair',None)
  moved,added,removed=T.entry_change_counts(parent['entries'],candidate['entries']);C.require(moved==len(changes) and added==removed==0,'population changed')
@@ -50,7 +52,7 @@ def main():
  candidate['transform']=tr
  why=T.promote.index_gate(candidate,parent=parent,parent_sha=PARENT);C.require(not why,str(why))
  fatal,warnings,_=R.structural(candidate,KEY,False);C.require(not fatal,str(fatal));C.require({'67','77'}<=T.promote.census_surahs(candidate),'missing census')
- path='ops/source-repair/candidates/codex-a_alhazmi-native-tails-20261006.jz';b=gzip.compress(json.dumps(candidate,ensure_ascii=False,separators=(',',':'),allow_nan=False).encode(),mtime=0);p=ROOT/path;C.require(not p.exists() or p.read_bytes()==b,'candidate exists with different bytes');p.write_bytes(b)
+ path='ops/source-repair/candidates/codex-a_alhazmi-native-tails-v2-20261006.jz';b=gzip.compress(json.dumps(candidate,ensure_ascii=False,separators=(',',':'),allow_nan=False).encode(),mtime=0);p=ROOT/path;C.require(not p.exists() or p.read_bytes()==b,'candidate exists with different bytes');p.write_bytes(b)
  report=dict(path=path,sha256=hashlib.sha256(b).hexdigest(),parentSha256=PARENT,changedEntries=moved,warnings=warnings,proof=proof)
- (ROOT/'ops/out/codex-hazmi-native-tail-repair-20261006.json').write_text(json.dumps(report,ensure_ascii=False,indent=2)+'\n');print(json.dumps({k:v for k,v in report.items() if k!='proof'},ensure_ascii=False))
+ (ROOT/'ops/out/codex-hazmi-native-tail-repair-v2-20261006.json').write_text(json.dumps(report,ensure_ascii=False,indent=2)+'\n');print(json.dumps({k:v for k,v in report.items() if k!='proof'},ensure_ascii=False))
 if __name__=='__main__':main()
