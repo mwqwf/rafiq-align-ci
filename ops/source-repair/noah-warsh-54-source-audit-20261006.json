@@ -1,0 +1,81 @@
+{
+  "schema": 1,
+  "kind": "same-reciter-same-riwaya-source-audit",
+  "timestampUtc": "2026-10-06T17:10:49Z",
+  "target": {
+    "riwaya": "warsh",
+    "reciterId": "noah_warsh",
+    "surah": 54,
+    "expectedEntries": 55
+  },
+  "production": {
+    "key": "timings/warsh/noah_warsh.jz",
+    "sha256": "b99262ae6b1b13592a29025d3cfc9760029a2e0c13769768808459e5f3f51437",
+    "entries": 6181,
+    "missingSurahEntries": 55
+  },
+  "canonicalArchiveSource": {
+    "url": "https://archive.org/download/Al-Quran_Warsh_tilawat_Youssef_Noah/054.mp3",
+    "item": "Al-Quran_Warsh_tilawat_Youssef_Noah",
+    "bytes": 2931598,
+    "durationSeconds": 358.088,
+    "md5": "86cbb4dc05e2f57ec27963600140921e",
+    "sha1": "ca67a6e468a9f9b561877141280b0258b2c79871",
+    "sha256": "1d5b8df34dee1fa57181b61c9fe081cff3279295fb68690f205970fb7ce1a977"
+  },
+  "alternateHostCandidate": {
+    "host": "Midad",
+    "collectionPage": "https://midad.com/collection/35376",
+    "surahPage": "https://midad.com/recitation/46162",
+    "declaredRiwaya": "ورش عن نافع",
+    "pageDate": "2014-04-28",
+    "objectPath": "media.midad.com/resources/ar/recitations/718/35376/64/054.mp3",
+    "ephemeralSignedQueryStored": false,
+    "bytes": 2901359,
+    "durationSeconds": 358.088,
+    "md5": "9a7402ca576019470dcc2e35bebb90a9",
+    "sha1": "55c1ee3044223eab618330f176b3145ee8366e00",
+    "sha256": "e694d9866a05c4b57680df25881aff9bc36666e37b83f995a8a9ae7537036e71"
+  },
+  "decodedAudioComparison": {
+    "format": "signed 16-bit little-endian PCM, mono, 16000 Hz",
+    "archiveBytes": 11512268,
+    "alternateBytes": 11512268,
+    "archiveSha256": "aed091a0c18b376db56b5beab9b93d6921b7bfe4e242bad1db5da31ae1c14c51",
+    "alternateSha256": "aed091a0c18b376db56b5beab9b93d6921b7bfe4e242bad1db5da31ae1c14c51",
+    "identical": true,
+    "conclusion": "Midad is a container-level repackaging of the same defective audio, not an independent complete recording."
+  },
+  "existingIndependentMeasurement": {
+    "run": 37392377734,
+    "models": 2,
+    "observedTransition": "54:15 to 54:18",
+    "forcedAffectedEntries": [
+      "54:16",
+      "54:17"
+    ],
+    "qualityClaim": false
+  },
+  "externalCorroboration": {
+    "page": "https://tilawa.org/القرآن-الكريم-ورش-يوسف-بن-نوح-أحمد/",
+    "pageArchiveTarget": "https://archive.org/download/Al-Quran_Warsh_tilawat_Youssef_Noah/054.mp3",
+    "originalPublisherNamedByPage": "yna-quran.com",
+    "readerReportDate": "2019-11-15",
+    "readerReport": "The Surah al-Qamar recording has an error and a verse was forgotten.",
+    "publisherReplyDate": "2019-11-16",
+    "publisherReply": "The publisher could not replace it without a corrected recording supplied by the reciter."
+  },
+  "disposition": {
+    "alternateAccepted": false,
+    "candidateBuilt": false,
+    "productionChanged": false,
+    "realignSameSourceEngineBlocked": true,
+    "remainingWork": "Find a demonstrably complete recording by the same reciter in Warsh; do not interpolate or force absent audio."
+  },
+  "costAndWrites": {
+    "workflowDispatched": false,
+    "r2Written": false,
+    "artifactWritten": false,
+    "cacheWritten": false
+  }
+}

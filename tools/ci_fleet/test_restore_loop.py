@@ -86,6 +86,10 @@ class RestoreLoopTests(unittest.TestCase):
         self.assertFalse(loop.blocked_realign(
             "hafs", "kurdi", 93, "https://verified-alternate.example/kurdi/"))
         self.assertFalse(loop.blocked_realign("hafs", "kurdi", 92, old))
+        noah = "https://archive.org/download/Al-Quran_Warsh_tilawat_Youssef_Noah/"
+        self.assertTrue(loop.blocked_realign("warsh", "noah_warsh", 54, noah))
+        self.assertFalse(loop.blocked_realign(
+            "warsh", "noah_warsh", 54, "https://verified-complete.example/noah/"))
 
     def test_realign_guard_reads_same_surah_scoped_override_file(self):
         body = (Path(__file__).resolve().parents[2] / ".github" / "workflows" /
