@@ -1,0 +1,90 @@
+{
+  "schema": 1,
+  "timestampUtc": "2026-10-06T21:09:51Z",
+  "scope": "indexing-only",
+  "repository": {
+    "name": "mwqwf/rafiq-align-ci",
+    "visibility": "public",
+    "remoteHeadAtStart": "16b5011fc9bf10b9f9417ba7ff44dbb524af89c5",
+    "commandsAtFinalCheck": ["README.md"]
+  },
+  "liveWork": {
+    "activeObserved": [
+      {
+        "runId": 37529019336,
+        "name": "keepalive",
+        "headSha": "16b5011fc9bf10b9f9417ba7ff44dbb524af89c5",
+        "status": "in_progress"
+      }
+    ],
+    "queuedObserved": [
+      {
+        "runId": 34748440538,
+        "name": "rafiq-agent-cmd",
+        "headSha": "b31cacd4135e04b03a0f8d49748b1a68c23bc6f0",
+        "status": "queued",
+        "createdAt": "2026-09-13T08:45:25Z"
+      }
+    ],
+    "pendingObserved": [],
+    "independentScope": "hafs/saad/22,28,45 alternate-source audit"
+  },
+  "sourceAudit": {
+    "report": "ops/source-repair/saad-22-28-45-dhikr-source-audit-20261006.json",
+    "alternateHost": "Internet Archive / Dhikr Al-Huda",
+    "declaredCollectionSize": 114,
+    "measuredWindows": 12,
+    "minimumNormalizedCorrelation": 0.999814577274,
+    "allMeasuredLagsSamples": 0,
+    "previouslyRejectedDeviationZonesMeasured": 5,
+    "tailWindowsMeasured": 3,
+    "completeMatchingSourceFound": false,
+    "candidateBuiltFromAlternate": false,
+    "productionChanged": false
+  },
+  "tests": {
+    "pcmDecodes": {"passed": 6, "failed": 0},
+    "pcmWindowHashes": {"passed": 24, "failed": 0},
+    "pcmCorrelations": {"passed": 12, "failed": 0},
+    "pcmBestLagSearch": {"passed": 12, "failed": 0, "rangeSamples": [-4000, 4000]},
+    "jsonParse": "pass",
+    "resumeAppendGuard": {
+      "status": "pass",
+      "baselineBytes": 168979,
+      "candidateBytes": 171232,
+      "baselineSections": 17,
+      "candidateSections": 18
+    },
+    "diffCheck": "pass"
+  },
+  "production": {
+    "changed": false,
+    "structuralAudit": "ops/out/full-audit-codex-after-thirty-nine-20261006.json",
+    "indexes": 180,
+    "entries": 1121595,
+    "missing": 885,
+    "impossibleShort": 1,
+    "saadMissing": 203,
+    "saadProductionSha256": "8e9f8131711748d617a6339a1d1ab5a511959bf4eb396700d9d4fdf724a747c0"
+  },
+  "completionEvidence": {
+    "latestStableReport": "ops/out/completion-codex-after-twenty-five-20261006-summary.json",
+    "reportPredatesLaterProductionChanges": true,
+    "verifiedEndEvidence": 0,
+    "completionProven": false
+  },
+  "costSafety": {
+    "workflowDispatchedByThisWork": false,
+    "r2Writes": false,
+    "artifactWrites": false,
+    "cacheWrites": false,
+    "localOnlyMeasurement": true
+  },
+  "remaining": [
+    "find demonstrably distinct complete Hafs recordings for saad/22, saad/28, and saad/45",
+    "align and independently measure repaired positions and their neighbors without weakening the 5 percent guard",
+    "complete separate start and end evidence for all indexes and all 114 surahs",
+    "rerun a stable completion audit after all production changes"
+  ],
+  "completionClaim": false
+}

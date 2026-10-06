@@ -1,0 +1,145 @@
+{
+  "schema": 1,
+  "kind": "same-reciter-same-riwaya-source-audit",
+  "timestampUtc": "2026-10-06T21:09:51Z",
+  "target": {
+    "riwaya": "hafs",
+    "reciterId": "saad",
+    "surahs": [22, 28, 45],
+    "expectedEntries": 203
+  },
+  "production": {
+    "key": "timings/hafs/saad.jz",
+    "sha256": "8e9f8131711748d617a6339a1d1ab5a511959bf4eb396700d9d4fdf724a747c0",
+    "entries": 6033,
+    "missingTotal": 203,
+    "wholeMissingSurahs": [22, 28, 45]
+  },
+  "rejectedCandidate": {
+    "path": "ops/source-repair/candidates/codex-saad-quran-22-28-45-20261006.jz",
+    "sha256": "deb8abcb0c8a97685a310a49eb323f04f15cfc83d4c19767c652e01fa4e248c6",
+    "entries": 6236,
+    "addedEntries": 203,
+    "qualityClaim": false,
+    "heardGate": {
+      "runId": 37398622156,
+      "report": "ops/out/codex-saad-heard-37398622156.json",
+      "reportSha256": "b208a7472e4ead42b9af8b0f1186c558acb332da18ca097da49e401773897c2b",
+      "accepted": false,
+      "surah22Deviations": [27, 52, 62],
+      "surah28Deviations": [21, 67],
+      "surah45MeasuredStarts": 15,
+      "surah45ExpectedStarts": 37
+    }
+  },
+  "catalogSource": {
+    "publisher": "Way2Quran / MP3Quran mirror",
+    "baseUrl": "https://media.way2quran.com/saad-almqren/hafs-an-asim/",
+    "files": {
+      "22": {
+        "url": "https://media.way2quran.com/saad-almqren/hafs-an-asim/22.mp3",
+        "bytes": 16744055,
+        "containerDurationSeconds": 1044.514813,
+        "decodedPcmBytes": 16750550,
+        "decodedPcmSha256": "24c9f99116f12cd3e6464c593974a762094d04551ac96a764d6bd2fe8c6723d3",
+        "containerSha256": "2198db4e1e4e3d0c18a84441b92e4e11315cb49bd23e0be87e5b04e44c96c0c5"
+      },
+      "28": {
+        "url": "https://media.way2quran.com/saad-almqren/hafs-an-asim/28.mp3",
+        "bytes": 21120980,
+        "containerDurationSeconds": 1318.014689,
+        "decodedPcmBytes": 21136614,
+        "decodedPcmSha256": "f9f2cb001de328bf1e163e1867a9d1545824b340d16700d4edd12b40d7b37814",
+        "containerSha256": "85f46007634846518394522eac40893dc2b2da62c27067f124ccc99499ad3f4b"
+      },
+      "45": {
+        "url": "https://media.way2quran.com/saad-almqren/hafs-an-asim/45.mp3",
+        "bytes": 6117972,
+        "containerDurationSeconds": 380.181689,
+        "decodedPcmBytes": 6096772,
+        "decodedPcmSha256": "63c531995a24f7352130d7081cb70a5cad2574cdc3338a403cfaaa035106db26",
+        "containerSha256": "b9963b5982ac331567c162a1481c135e8ffb456a8d62626adda668248801f76f"
+      }
+    }
+  },
+  "alternateHostCandidate": {
+    "publisher": "Dhikr Al-Huda on Internet Archive",
+    "identifier": "dhikr-alhuda-saad-almuqrin-hafs",
+    "itemPage": "https://archive.org/details/dhikr-alhuda-saad-almuqrin-hafs",
+    "publicDate": "2026-08-19T06:59:32Z",
+    "declaredReciter": "Saad Almuqrin",
+    "declaredRiwaya": "Hafs",
+    "declaredCollectionSize": 114,
+    "files": {
+      "22": {
+        "path": "murattal/128/022.m4a",
+        "url": "https://archive.org/download/dhikr-alhuda-saad-almuqrin-hafs/murattal%2F128%2F022.m4a",
+        "bytes": 16932782,
+        "containerDurationSeconds": 1046.909002,
+        "decodedPcmBytes": 16750690,
+        "decodedPcmSha256": "31e05498d0c904aa6386dcb74e534e50afb26079db7c31c8f2be48383930a2a2",
+        "containerSha256": "a60f0a36ceca5b029509479d5c40a9477fe29d337fde02af33c613d6f89dd239"
+      },
+      "28": {
+        "path": "murattal/128/028.m4a",
+        "url": "https://archive.org/download/dhikr-alhuda-saad-almuqrin-hafs/murattal%2F128%2F028.m4a",
+        "bytes": 21366185,
+        "containerDurationSeconds": 1321.038005,
+        "decodedPcmBytes": 21136846,
+        "decodedPcmSha256": "725921857807a4d9b40fa70d1c9072ec43020df6454f21b3b4cfa3aaaa597a72",
+        "containerSha256": "e610ad7d3914c9d72bf38b80bb71d203346bbcd0a096d9eb6dc97b44d7212a51"
+      },
+      "45": {
+        "path": "murattal/128/045.m4a",
+        "url": "https://archive.org/download/dhikr-alhuda-saad-almuqrin-hafs/murattal%2F128%2F045.m4a",
+        "bytes": 6164357,
+        "containerDurationSeconds": 381.048005,
+        "decodedPcmBytes": 6097004,
+        "decodedPcmSha256": "b4d2686a683278aff5e5d52ec806ca5284dc2ee76a3911f62dd75815d810cd50",
+        "containerSha256": "b73cdff3206b9f07cd2c4b3ae38548c4f3959e8a34a9efcd5e45b9d6032f056d"
+      }
+    }
+  },
+  "decodedAudioComparison": {
+    "format": "signed 16-bit little-endian PCM, mono, 8000 Hz",
+    "lagSearchRangeSamples": [-4000, 4000],
+    "windows": [
+      {"surah":22,"label":"opener","startSeconds":60,"endSeconds":84,"samples":192000,"catalogPcmSha256":"d0f4a4894293bd01a9e85233fdbc7bae11dd5330dca9f5425405306736942739","archivePcmSha256":"9eb1e9171cf49bee9e0b98d9889fab7c881a1862e8347216b97c0cad31a3de03","bestLagSamples":0,"normalizedCorrelation":0.999829216384},
+      {"surah":22,"label":"ayah27-zone","startSeconds":335,"endSeconds":370,"samples":280000,"catalogPcmSha256":"0ea83bfb4af95d311b28b382c7496de5c8546bc9997f76669aebe3205820f709","archivePcmSha256":"64994c9c823055f2f6d367fd1f441d274e7ffd029375cada1029cc3d3d9076f1","bestLagSamples":0,"normalizedCorrelation":0.999838149041},
+      {"surah":22,"label":"ayah52-zone","startSeconds":675,"endSeconds":708,"samples":264000,"catalogPcmSha256":"21fa3ad3228a7da42218cafc9dbbb5173c365627c57f95b66b4df4c589020b61","archivePcmSha256":"eada39e89626cea7464afda7ace16d6c3de2b8a8ebc4a811ed5add2c6adfc65e","bestLagSamples":0,"normalizedCorrelation":0.999830537424},
+      {"surah":22,"label":"ayah62-zone","startSeconds":805,"endSeconds":833,"samples":224000,"catalogPcmSha256":"0ec858032d2aeff199a530dab55fade75f944053a8156ca64f203e9d65f188c2","archivePcmSha256":"9311ba8f45b8db4e403501afd4fab7ef68cf49a2f7b9146b83b457ab1e831651","bestLagSamples":0,"normalizedCorrelation":0.99984218512},
+      {"surah":22,"label":"tail","startSeconds":1010,"endSeconds":1045,"samples":280000,"catalogPcmSha256":"f0a0c6021e32e4d0208d1bf3b27df2d15c9b9ec41451261af2ceda1ba245892c","archivePcmSha256":"aa3eec1598fef98aa913a16718bedbd77a2401928f6e9afddd91ba0181267116","bestLagSamples":0,"normalizedCorrelation":0.999814577274},
+      {"surah":28,"label":"opener","startSeconds":60,"endSeconds":84,"samples":192000,"catalogPcmSha256":"f360a9550184bccdeed6e4cdee3cef6425345c4716a5e3235ee1451b9964a97c","archivePcmSha256":"c00e36f08685231f449f516d92dd04024fcabebd29099107bbe11dbfb57a4d60","bestLagSamples":0,"normalizedCorrelation":0.999858863596},
+      {"surah":28,"label":"ayah21-zone","startSeconds":278,"endSeconds":315,"samples":296000,"catalogPcmSha256":"483b9b30c1a570c0cace887c9696e61cfe4aedb9f52026289640cf57e5df5df6","archivePcmSha256":"5bd00f1373517f7172b21a61e2af0736783ac96104d24f67eedf5d30feb3b3a4","bestLagSamples":0,"normalizedCorrelation":0.999856750459},
+      {"surah":28,"label":"ayah67-zone","startSeconds":940,"endSeconds":970,"samples":240000,"catalogPcmSha256":"58b8dda8131b259bbee53c80c01b28779890fbd63073eb54c10d5512a9462fc4","archivePcmSha256":"05fb7af343ea46e7d29a66c16d13f2798dd7ddf58281fe21a0e9e592ed1d4b82","bestLagSamples":0,"normalizedCorrelation":0.999884448921},
+      {"surah":28,"label":"tail","startSeconds":1280,"endSeconds":1320,"samples":320000,"catalogPcmSha256":"c3277f20a751808bc4f84fe1985a0873eacb68e25daa7531722d40d89e33f431","archivePcmSha256":"8fbece787e196757e1f0e4c2be3ac8f3578544bad096dfeec992312f7814feea","bestLagSamples":0,"normalizedCorrelation":0.999909175671},
+      {"surah":45,"label":"opener","startSeconds":40,"endSeconds":64,"samples":192000,"catalogPcmSha256":"f07641c69ae41ca1538bc19d85b6ab2c1df10690f2ad18dae798f3770802cf83","archivePcmSha256":"4f65776d4ea5ab44f8bbc16af5a97fe1647b2a86325fddf7180447883e2ba253","bestLagSamples":0,"normalizedCorrelation":0.999861448935},
+      {"surah":45,"label":"middle","startSeconds":180,"endSeconds":210,"samples":240000,"catalogPcmSha256":"38330b888ffdc7367b8988fb5e6d863c0cf319fd3bb3b7183c3584aa22a060f0","archivePcmSha256":"6a5399e652b012ac6d0a75e981530c719ca858104a6888b60cf0f0a7570be931","bestLagSamples":0,"normalizedCorrelation":0.999885402641},
+      {"surah":45,"label":"tail","startSeconds":340,"endSeconds":380,"samples":320000,"catalogPcmSha256":"5af78343785bcbbee9d7b4e41c432d56002166d3a91e03a204a4288a0acfa673","archivePcmSha256":"dfb8f59d30342b506421792b447600351fb7cc1fafe1b270e15b090761932ec3","bestLagSamples":0,"normalizedCorrelation":0.999873124615}
+    ],
+    "minimumNormalizedCorrelation": 0.999814577274,
+    "allBestLagSamples": 0,
+    "conclusion": "The Archive M4A files are near-identical recodes of the catalog recordings, including every previously rejected deviation zone and all sampled tails. They are not independent complete-source evidence."
+  },
+  "disposition": {
+    "completeMatchingSourceFound": false,
+    "alternateAccepted": false,
+    "candidateBuiltFromAlternate": false,
+    "productionChanged": false,
+    "timingInvented": false,
+    "remainingWork": "Find a demonstrably distinct complete recording by Saad Almuqrin in Hafs for surahs 22, 28, and 45, then align and independently verify repaired positions, neighbors, opener, middle, and ending."
+  },
+  "costAndWrites": {
+    "workflowDispatched": false,
+    "r2Written": false,
+    "artifactWritten": false,
+    "cacheWritten": false,
+    "comparisonExecutedLocally": true
+  },
+  "limits": [
+    "Archive labels establish the declared reader and riwaya but do not establish completeness.",
+    "High PCM correlation establishes a mirror/recode relation for the measured regions; it is not a Quran-completion certificate.",
+    "The rejected candidate and its heard-gate failures remain unchanged.",
+    "No audio or Quran text was generated, and no production timing was changed."
+  ]
+}
