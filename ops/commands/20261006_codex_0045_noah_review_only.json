@@ -1,0 +1,16 @@
+{
+  "action": "tool",
+  "tool": "ci_fleet/rerun_stale_review.py",
+  "args": [
+    "--run",
+    "37384787972",
+    "--commit",
+    "e1746caf0e33253eecab7be43376c74114f12e5c",
+    "--key",
+    "timings-staging/hafs/noah.944dfdfa.jz",
+    "--failure-witness",
+    "ops/out/codex-noah-stale-review-witness-20261006.json",
+    "--witness-sha",
+    "b266c4dbafb8e2627e9f6dc9e7287dd7ab5c1c3177290549d8aecc1233aa2882"
+  ]
+}
