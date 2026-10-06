@@ -1,0 +1,20 @@
+{
+  "action": "tool",
+  "tool": "index_qa/stage_transform.py",
+  "args": [
+    "--file",
+    "ops/source-repair/candidates/codex-arkani-opener-repair-20261006.jz",
+    "--parent",
+    "timings/hafs/arkani.jz",
+    "--parent-sha",
+    "db61739dc864ec243f104fd04461560856a27c0e5da18ef5f0b92e65bac7bea0",
+    "--op",
+    "ctc_quran_window:77",
+    "--reason",
+    "Restore measured displaced surah beginnings from pinned original audio; preserve confidence and require complete independent final-SHA QA.",
+    "--by",
+    "codex-short-opener-repair-20261006",
+    "--manual-qa-only",
+    "--yes"
+  ]
+}

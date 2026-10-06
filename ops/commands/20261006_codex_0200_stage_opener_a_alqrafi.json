@@ -1,0 +1,20 @@
+{
+  "action": "tool",
+  "tool": "index_qa/stage_transform.py",
+  "args": [
+    "--file",
+    "ops/source-repair/candidates/codex-a_alqrafi-opener-repair-20261006.jz",
+    "--parent",
+    "timings/hafs/a_alqrafi.jz",
+    "--parent-sha",
+    "49ccfc5e38ae71207f3d5e36d32193288126b69c497194964c17b192ae69fbcd",
+    "--op",
+    "ctc_quran_window:108,113",
+    "--reason",
+    "Restore measured displaced surah beginnings from pinned original audio; preserve confidence and require complete independent final-SHA QA.",
+    "--by",
+    "codex-short-opener-repair-20261006",
+    "--manual-qa-only",
+    "--yes"
+  ]
+}
