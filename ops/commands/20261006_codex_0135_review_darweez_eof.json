@@ -1,0 +1,16 @@
+{
+  "action": "tool",
+  "tool": "ci_fleet/rerun_stale_review.py",
+  "args": [
+    "--run",
+    "37396095612",
+    "--commit",
+    "caefc29915c3be794e7af3a481dab7cb89ab531c",
+    "--key",
+    "timings-staging/hafs/darweez.47ef82a5.jz",
+    "--failure-witness",
+    "ops/out/codex-darweez-eof-stale-review-witness-20261006.json",
+    "--witness-sha",
+    "aab3525d40c5181f34a93b815375b49adacedbeed4544da24af5680e305fc8f2"
+  ]
+}
