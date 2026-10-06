@@ -1,0 +1,97 @@
+{
+  "schema": 1,
+  "timestampUtc": "2026-10-06T20:16:39Z",
+  "scope": "indexing-only",
+  "repository": {
+    "name": "mwqwf/rafiq-align-ci",
+    "visibility": "public",
+    "remoteHeadAtStart": "7fc6fcf3f03554205ac30e700298340a76a91c10",
+    "commandsAtFinalCheck": ["README.md"]
+  },
+  "liveWork": {
+    "activeObserved": [
+      {
+        "runId": 37524195594,
+        "name": "keepalive",
+        "headSha": "7fc6fcf3f03554205ac30e700298340a76a91c10",
+        "status": "in_progress"
+      }
+    ],
+    "queuedObserved": [
+      {
+        "runId": 34748440538,
+        "name": "rafiq-agent-cmd",
+        "headSha": "b31cacd4135e04b03a0f8d49748b1a68c23bc6f0",
+        "status": "queued",
+        "createdAt": "2026-09-13T08:45:25Z"
+      }
+    ],
+    "pendingObserved": [
+      {
+        "runId": 37525566342,
+        "name": "keepalive",
+        "headSha": "7fc6fcf3f03554205ac30e700298340a76a91c10",
+        "status": "pending",
+        "createdAt": "2026-10-06T20:19:27Z"
+      }
+    ],
+    "independentScope": "qalun/akri_qalun/4,24"
+  },
+  "sourceAudit": {
+    "report": "ops/source-repair/akri-qalun-4-24-midad-source-audit-20261006.json",
+    "alternateHost": "Midad",
+    "declaredCollectionSize": 114,
+    "surah4Windows": 3,
+    "surah4ExactPcmWindows": 3,
+    "surah24Windows": 2,
+    "surah24MinimumCorrelation": 0.999109540417,
+    "allMeasuredLagsSamples": 0,
+    "completeMatchingSourceFound": false,
+    "candidateBuilt": false,
+    "productionChanged": false
+  },
+  "tests": {
+    "pcmWindowHashes": {"passed": 10, "failed": 0},
+    "pcmCorrelations": {"passed": 5, "failed": 0},
+    "pcmBestLagSearch": {"passed": 5, "failed": 0, "rangeSamples": [-12, 12]},
+    "jsonParse": "pass",
+    "resumeAppendGuard": {
+      "status": "pass",
+      "baselineBytes": 166639,
+      "candidateBytes": 168936,
+      "baselineSections": 16,
+      "candidateSections": 17
+    },
+    "diffCheck": "pass"
+  },
+  "production": {
+    "changed": false,
+    "structuralAudit": "ops/out/full-audit-codex-after-thirty-nine-20261006.json",
+    "indexes": 180,
+    "entries": 1121595,
+    "missing": 885,
+    "impossibleShort": 1,
+    "akriQalunMissing": 210,
+    "akriQalunProductionSha256": "b99e357370ad40c215a6d39e08ff26ce83f6883edf19dbbcef5607e705797bcd"
+  },
+  "completionEvidence": {
+    "latestStableReport": "ops/out/completion-codex-after-twenty-five-20261006-summary.json",
+    "reportPredatesLaterProductionChanges": true,
+    "verifiedEndEvidence": 0,
+    "completionProven": false
+  },
+  "costSafety": {
+    "workflowDispatchedByThisWork": false,
+    "r2Writes": false,
+    "artifactWrites": false,
+    "cacheWrites": false,
+    "localOnlyMeasurement": true
+  },
+  "remaining": [
+    "find complete matching Qalun recordings for akri_qalun/4 and akri_qalun/24",
+    "measure the repaired positions and their neighbors independently",
+    "complete separate start and end evidence for all indexes and all 114 surahs",
+    "rerun a stable completion audit after all production changes"
+  ],
+  "completionClaim": false
+}

@@ -1,0 +1,132 @@
+{
+  "schema": 1,
+  "kind": "same-reciter-same-riwaya-source-audit",
+  "timestampUtc": "2026-10-06T20:16:39Z",
+  "target": {
+    "riwaya": "qalun",
+    "reciterId": "akri_qalun",
+    "surahs": [4, 24],
+    "expectedEntries": 240
+  },
+  "production": {
+    "key": "timings/qalun/akri_qalun.jz",
+    "sha256": "b99e357370ad40c215a6d39e08ff26ce83f6883edf19dbbcef5607e705797bcd",
+    "entries": 6026,
+    "missingTotal": 210,
+    "wholeMissingSurahs": [4],
+    "tailMissing": ["24:31-64"],
+    "transformOp": "drop_surah:4|declare_gap:24"
+  },
+  "catalogSource": {
+    "publisher": "MP3Quran",
+    "baseUrl": "https://server16.mp3quran.net/m_akri/Rewayat-Qalon-A-n-Nafi/",
+    "surah4": {
+      "url": "https://server16.mp3quran.net/m_akri/Rewayat-Qalon-A-n-Nafi/004.mp3",
+      "durationSeconds": 4833.123265,
+      "knownDefect": "4:140 is absent between the measured 4:139 and 4:141 regions."
+    },
+    "surah24": {
+      "url": "https://server16.mp3quran.net/m_akri/Rewayat-Qalon-A-n-Nafi/024.mp3",
+      "durationSeconds": 766.92898,
+      "knownDefect": "The recording ends around the beginning of the surah; 24:31-64 remain unavailable."
+    }
+  },
+  "alternateHostCandidate": {
+    "publisher": "Midad",
+    "collectionPage": "https://midad.com/collection/465110",
+    "declaredReciter": "مروان العكري",
+    "declaredRiwaya": "قالون عن نافع",
+    "declaredCollectionSize": 114,
+    "pageDate": "2023-05-28",
+    "surah4": {
+      "page": "https://midad.com/recitation/235512",
+      "objectPath": "media.midad.com/resources/ar/recitations/53182/465110/004.mp3",
+      "bytes": 69062027,
+      "durationSeconds": 4833.123265
+    },
+    "surah24": {
+      "page": "https://midad.com/recitation/235532",
+      "objectPath": "media.midad.com/resources/ar/recitations/53182/465110/024.mp3",
+      "bytes": 8544620,
+      "durationSeconds": 766.92898
+    },
+    "ephemeralSignedQueriesStored": false
+  },
+  "decodedAudioComparison": {
+    "format": "signed 16-bit little-endian PCM, mono, 8000 Hz",
+    "lagSamples": 0,
+    "windows": [
+      {
+        "surah": 4,
+        "label": "opener",
+        "startSeconds": 60,
+        "durationSeconds": 24,
+        "samples": 192000,
+        "catalogSha256": "a05de90b7e479de45d66a8bfe9d0ce01d09181bda3ec2394889bc3f9fe8977fc",
+        "midadSha256": "a05de90b7e479de45d66a8bfe9d0ce01d09181bda3ec2394889bc3f9fe8977fc",
+        "normalizedCorrelation": 1.0
+      },
+      {
+        "surah": 4,
+        "label": "missing-4:140-region",
+        "startSeconds": 3890,
+        "durationSeconds": 80,
+        "samples": 640000,
+        "catalogSha256": "4ffb704789330616cca3a8404ffa9e51b579e869db86bdb92bcab5b2bbf15e94",
+        "midadSha256": "4ffb704789330616cca3a8404ffa9e51b579e869db86bdb92bcab5b2bbf15e94",
+        "normalizedCorrelation": 1.0
+      },
+      {
+        "surah": 4,
+        "label": "tail",
+        "startSeconds": 4770,
+        "durationSeconds": 45,
+        "samples": 360000,
+        "catalogSha256": "e7d4c4d4fb277b722fa74c23b25c5a38d6863a4fef7d844a411999e837ac9578",
+        "midadSha256": "e7d4c4d4fb277b722fa74c23b25c5a38d6863a4fef7d844a411999e837ac9578",
+        "normalizedCorrelation": 1.0
+      },
+      {
+        "surah": 24,
+        "label": "opener",
+        "startSeconds": 60,
+        "durationSeconds": 24,
+        "samples": 192000,
+        "catalogSha256": "39b9fd1633e771c020d0f1d12bbde0306393236fe3bdeef084fb48e83a6f0812",
+        "midadSha256": "b9442deb3f5789fd68f9e4d3b2d0f063c04eebb6206e3309d764c76bf33a8615",
+        "normalizedCorrelation": 0.999704519032
+      },
+      {
+        "surah": 24,
+        "label": "available-tail",
+        "startSeconds": 690,
+        "durationSeconds": 70,
+        "samples": 560000,
+        "catalogSha256": "4f7638ab007779de38bf05879d324f4423c74007d4e5dd476910d4a12ce96627",
+        "midadSha256": "e225bb243ce8c72194daba2def5d9433fc3c58ca48040682d7588a1d6cdb9f39",
+        "normalizedCorrelation": 0.999109540417
+      }
+    ],
+    "conclusion": "Midad exposes the same defective recordings: surah 4 is decoded identically at the opener, missing-ayah region, and tail; surah 24 is a near-identical recode at both sampled regions with the same duration and truncation."
+  },
+  "disposition": {
+    "completeMatchingSourceFound": false,
+    "alternateAccepted": false,
+    "candidateBuilt": false,
+    "productionChanged": false,
+    "timingInvented": false,
+    "remainingWork": "Find a demonstrably complete recording by Marwan Al-Akri in Qalun for both affected sources, then measure repaired positions, neighbors, opener, middle, and ending independently."
+  },
+  "costAndWrites": {
+    "workflowDispatched": false,
+    "r2Written": false,
+    "artifactWritten": false,
+    "cacheWritten": false,
+    "comparisonExecutedLocally": true
+  },
+  "limits": [
+    "The Midad labels support reader and riwaya identity, but do not establish completeness.",
+    "Window correlation establishes a mirror/recode relation only for the measured regions.",
+    "The result does not certify the index and does not change production timing."
+  ]
+}
