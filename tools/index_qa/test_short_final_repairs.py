@@ -23,6 +23,8 @@ class Rejections(unittest.TestCase):
         self.reject(lambda r:r['audio']['decoded'].update(windowEndSampleExclusive=2000000),'لم يقس الملف')
     def test_reject_missing_raw_free_evidence(self):
         self.reject(lambda r:r['freeResults'][0]['rawChunks'][0].update(rawPartSha256='0'*64),'الخام ناقص')
+    def test_reject_unknown_native_channels(self):
+        self.reject(lambda r:r['audio']['decoded'].update(nativeChannels=3),'عدد القنوات')
     def test_reject_changed_audio_source(self):
         self.reject(lambda r:r['source'].update(sha256='0'*64),'خطة القياس')
 if __name__=='__main__':unittest.main()

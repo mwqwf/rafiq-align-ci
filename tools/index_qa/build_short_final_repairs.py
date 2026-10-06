@@ -31,9 +31,11 @@ def build(spec):
     C.require(source['contextAyahs']==[last-2,last-1,last],'ليس سياق آخر ثلاث آيات')
     C.require(source['sha256']==parent['audioSha256'][s-1] and source['riwaya']==parent['riwaya'],'تغير المصدر')
     rows={e['ayahId']:e for e in candidate['entries']};ms=rep['measurements'];free=rep['freeResults']
-    matrix={(m,c) for m in ('generic','quran') for c in ('native-1','native-2')}
-    C.require(len(ms)==4 and {(m['model'],m['channel']) for m in ms}==matrix,'مصفوفة محاذاة ناقصة')
-    C.require(len(free)==4 and {(m['model'],m['channel']) for m in free}==matrix,'تفريغ حر ناقص')
+    native_channels=rep['audio']['decoded']['nativeChannels']
+    C.require(type(native_channels) is int and native_channels in (1,2),'عدد القنوات الأصلية غير مدعوم')
+    matrix={(m,f'native-{c}') for m in ('generic','quran') for c in range(1,native_channels+1)}
+    C.require(len(ms)==2*native_channels and {(m['model'],m['channel']) for m in ms}==matrix,'مصفوفة محاذاة ناقصة')
+    C.require(len(free)==2*native_channels and {(m['model'],m['channel']) for m in free}==matrix,'تفريغ حر ناقص')
     for f in free:
         C.require(not f['canonicalTextInput'] and not f['forcedAlignment'] and f['sourceSha256']==source['sha256'],'تفريغ غير مستقل')
         C.require(all(c['rawPartSha256'] in digests for c in f['rawChunks']),'التفريغ الخام ناقص')
