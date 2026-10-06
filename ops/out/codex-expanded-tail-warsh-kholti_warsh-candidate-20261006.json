@@ -1,0 +1,82 @@
+{
+  "path": "ops/source-repair/candidates/codex-expanded-tail-warsh-kholti_warsh-20261006.jz",
+  "sha256": "cf3cea8a436604eb18aa9270ba56aaf402a7f6448fcf8b8ff4706c266df0050b",
+  "parentKey": "timings/warsh/kholti_warsh.jz",
+  "parentSha256": "563cfc75bbc42ebf67fc9d089d602822eb6d2b226e44d1d714c18cfb445ac7ff",
+  "op": "ctc_quran_window:91",
+  "changedEntries": 2,
+  "warnings": [
+    "مداخل مدتها > 120ث: 1 · مثال: 2:282 مدتها 191ث"
+  ],
+  "proof": {
+    "qualityClaim": false,
+    "contexts": [
+      {
+        "reportPath": "ops/out/codex-short-final-kholti-warsh-91-report-20261006.json",
+        "reportSha256": "cad9b6cefa43a13348050384e9359c97b9836a5ed9c59af5e552aca1921f12c1",
+        "bundlePath": "ops/out/codex-short-final-kholti-warsh-91-complete-20261006.json.gz",
+        "bundleSha256": "b73a649793105b868b11d7a9a4aab788921761bb42d83034fb9048941c974246",
+        "jobId": 112109273300,
+        "id": "short_final_warsh_kholti_warsh_91",
+        "targetAyahs": [
+          15
+        ],
+        "sourceSha256": "962c2ba41c5c41e9281536963ae90e7f85035fed7bfc5d887730cd98bb55f8c1",
+        "provenance": {
+          "runId": "37414259961",
+          "runSha": "36d99a6987101f3d979b283dcf0ed445d4304a95",
+          "toolSha256": "10f7b31843eebabd132c28c5e9c9a216c47c66ecc4a143bbde98551c6c8705fe"
+        }
+      }
+    ],
+    "changes": [
+      {
+        "before": {
+          "ayahId": "91:14",
+          "fileRef": "https://archive.org/download/Tilawa.org_002/091.mp3",
+          "startMs": 57826,
+          "endMs": 63029,
+          "conf": 0.0,
+          "confBand": "LOW",
+          "startApprox": true
+        },
+        "after": {
+          "ayahId": "91:14",
+          "fileRef": "https://archive.org/download/Tilawa.org_002/091.mp3",
+          "startMs": 57826,
+          "endMs": 71725,
+          "conf": 0.0,
+          "confBand": "LOW",
+          "startApprox": true
+        }
+      },
+      {
+        "before": {
+          "ayahId": "91:15",
+          "fileRef": "https://archive.org/download/Tilawa.org_002/091.mp3",
+          "startMs": 63029,
+          "endMs": 63750,
+          "conf": 0.0,
+          "confBand": "LOW",
+          "startApprox": true
+        },
+        "after": {
+          "ayahId": "91:15",
+          "fileRef": "https://archive.org/download/Tilawa.org_002/091.mp3",
+          "startMs": 71725,
+          "endMs": 76408,
+          "conf": 0.0,
+          "confBand": "LOW",
+          "startApprox": true
+        }
+      }
+    ],
+    "decodedEofMs": {
+      "91": 76408
+    },
+    "limits": [
+      "الحد الأصلي لثقة المحاذاة0.45؛ لا تغيير لأي حارس أو ثقة منشورة.",
+      "الخواتيم المقيسة فقط؛ يلزم الفحص الأصلي الكامل للبصمة المرفوعة."
+    ]
+  }
+}
