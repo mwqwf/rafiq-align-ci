@@ -82,7 +82,7 @@
       "textGenerationDisabled": true,
       "error": "ctc_segmentation backtracking exceeded the 64000-frame window"
     },
-    "next": "The evidence-locked local candidate is built but not staged or adopted. Verify that the existing R2 staging write is free within available quota before any storage write; then stage exact SHA 745366ed..., run structural/openers/four-salt heard QA plus diagnosis/census, and only after success verify public/manifest/frozen and run a stable general completion audit with separate start/end evidence.",
+    "next": "Do not retry realign-surah-v1 on the catalog source; that exact source/engine tuple is now blocked after run 37452084938 left five ayahs unresolved and produced no R2 candidate. The evidence-locked archive candidate remains local. Verify that the R2 staging write is free within available quota before any storage write, then stage exact SHA 745366ed..., run final-SHA structural/openers/four-salt heard QA plus diagnosis/census, and only after success verify public/manifest/frozen and run a stable general completion audit with separate start/end evidence.",
     "chunkedAlignmentFix": {
       "commit": "6f798263c3d9c83889b13158fdb68cd7a775a3ac",
       "groupVerses": 32,
@@ -298,7 +298,11 @@
         "7:43-58 with 120-second margins",
         "7:40-63 with 120-second margins"
       ],
-      "targets": [48, 49, 50],
+      "targets": [
+        48,
+        49,
+        50
+      ],
       "crossWindowStartDisagreementMs": 0,
       "crossWindowEndDisagreementMs": 0,
       "fullStartDeltaMs": 0,
@@ -332,10 +336,105 @@
       "unpublishedLocalCandidate": true,
       "productionChanged": false,
       "storageWriteBlocked": "No repository evidence proves that the R2 staging write is free within the account's currently available quota; AGENTS.md forbids the write without that proof."
+    },
+    "catalogRealignFailure": {
+      "schema": 1,
+      "kind": "catalog-source-realign-rejection",
+      "observedAt": "2026-10-06T11:18:29Z",
+      "qualityClaim": false,
+      "coverageCertified": false,
+      "productionChanged": false,
+      "run": {
+        "id": 37452084938,
+        "jobId": 112230797849,
+        "url": "https://github.com/mwqwf/rafiq-align-ci/actions/runs/37452084938",
+        "headSha": "1acff97d4fa368878163b34a6e0cc04ab8e3e6db",
+        "trigger": "automatic scheduled restore",
+        "status": "completed",
+        "conclusion": "failure",
+        "startedAt": "2026-10-06T10:47:19Z",
+        "completedAt": "2026-10-06T11:16:29Z"
+      },
+      "source": {
+        "url": "https://server6.mp3quran.net/3siri/007.mp3",
+        "registryBase": "https://server6.mp3quran.net/3siri/",
+        "downloadedBytes": 78238338,
+        "skipMs": 4995,
+        "reportedTotalMs": 4883435,
+        "sha256": null,
+        "shaUnavailableReason": "The alignment failed before the audio-fingerprint step."
+      },
+      "result": {
+        "entries": 206,
+        "shiftedBoundaryCount": 402,
+        "bands": {
+          "HIGH": 55,
+          "MED": 44,
+          "LOW": 102,
+          "MISSING": 5
+        },
+        "missingAyahs": [
+          99,
+          104,
+          107,
+          116,
+          122
+        ],
+        "missingAyahIdx": [
+          98,
+          103,
+          106,
+          115,
+          121
+        ],
+        "fatalReason": "لم تُحلّ سورةٌ واحدة — لا شيءَ يُستبدل (س7: 99 بلا حدود)",
+        "anomalousAyah160DurationMs": 1169875,
+        "lastResolvedEndMs": 4884355,
+        "artifactJsonSha256": "c8bb8a3846acbd43e4add07028b2553e700c780fc42d4bd5c52cae4154ebf772"
+      },
+      "artifact": {
+        "id": 11409266811,
+        "name": "realign-37452084938",
+        "bytes": 4936,
+        "zipSha256": "95f0416fe6ba3718b4bffccb3e815b642111c70e448af39d8d724b7e34d672da",
+        "file": "s7.json",
+        "fileBytes": 36470,
+        "retainedAs": "rejection evidence only"
+      },
+      "writeEffects": {
+        "r2CandidateWritten": false,
+        "r2StageStep": "skipped",
+        "audioFingerprintStep": "skipped",
+        "cacheSaved": false,
+        "githubArtifactWritten": true,
+        "githubArtifactWriteInitiatedByThisCodexRun": false,
+        "secretsExposed": false
+      },
+      "comparison": {
+        "archiveCandidateSha256": "745366ed006869883b81952d354720a68fc876b0fa47b53bf30512809e4f5700",
+        "archiveAudioSha256": "897ad7e2c99472111722247f362d135da0c25c449806260269a792a12f52d3f1",
+        "archiveFullMeasurements": [
+          37433349375,
+          37435925698
+        ],
+        "archiveEntriesResolved": 206,
+        "exactComparisonPerformed": false,
+        "reason": "The catalog-source run left five verses unresolved, so it is rejected rather than merged or treated as an independent complete measurement."
+      },
+      "resolution": {
+        "blockedReattemptTuple": {
+          "riwaya": "hafs",
+          "reciter": "3siri",
+          "surah": 7,
+          "source": "https://server6.mp3quran.net/3siri/",
+          "engine": "realign-surah-v1"
+        },
+        "reason": "Prevent the scheduled restore loop from repeating the same failed source/engine combination. A different evidenced archive source and CTC path already produced the local candidate; its final-SHA QA remains blocked on proof that the R2 write is free within current quota."
+      }
     }
   },
   "liveSnapshot": {
-    "at": "2026-10-06T10:02:32Z",
+    "at": "2026-10-06T11:18:29Z",
     "counts": {
       "inProgress": 1,
       "queued": 1,
@@ -344,17 +443,17 @@
     "runs": {
       "in_progress": [
         {
-          "id": 37443788151,
+          "id": 37452874368,
           "name": "نبّاضٌ سحابيّ — يُبقي الأسطولَ يعمل بلا جهاز المالك",
           "path": ".github/workflows/keepalive.yml",
-          "createdAt": "2026-10-06T09:33:32Z",
-          "headSha": "8e5ce400b701bd9862c86ec8a22a624a0d356ed3"
+          "createdAt": "2026-10-06T10:54:27Z",
+          "headSha": "1acff97d4fa368878163b34a6e0cc04ab8e3e6db"
         }
       ],
       "queued": [
         {
           "id": 34748440538,
-          "name": "rafiq-agent-cmd",
+          "name": "Merge remote-tracking branch 'origin/main'",
           "path": ".github/workflows/agent_cmd.yml",
           "createdAt": "2026-09-13T08:45:25Z",
           "headSha": "b31cacd4135e04b03a0f8d49748b1a68c23bc6f0"
@@ -366,9 +465,11 @@
   "costAndPrivacy": {
     "publicRepository": true,
     "standardHostedRunnerOnly": true,
-    "artifactsWritten": false,
+    "artifactsWritten": true,
+    "artifactContext": "The automatically scheduled catalog-source realign wrote one 4,936-byte rejection artifact; this Codex run did not dispatch it.",
     "cacheSaved": false,
     "audioUploaded": false,
+    "r2CandidateWritten": false,
     "secretsExposed": false
   },
   "incompleteReasons": [
@@ -378,7 +479,8 @@
     "1121596 ends unknown and 0 independently verified in the latest complete audit",
     "3siri surah 7 has exact repeated full boundaries plus targeted head/middle/tail and expanded ayah-48 evidence, but the local candidate has not been staged or passed final-SHA audio QA",
     "R2 staging-write cost/quota is not proven free by repository evidence, so no storage write or QA dispatch was launched",
-    "multiple non-overlapping tail QA runs remain active or queued"
+    "multiple non-overlapping tail QA runs remain active or queued",
+    "catalog-source realign 37452084938 failed with five missing ayahs and no R2 candidate; its exact source/engine tuple is blocked from automatic retry"
   ],
   "laterObservation": {
     "at": "2026-10-06T05:42:00Z",
@@ -394,7 +496,7 @@
       "step": "numeric full-surah alignment"
     }
   },
-  "updatedAt": "2026-10-06T10:02:32Z",
+  "updatedAt": "2026-10-06T11:18:29Z",
   "latestSourceIdentityAudit": {
     "label": "after-thirty-three-adoptions",
     "timestampUtc": "2026-10-06T06:10:18.569453Z",
