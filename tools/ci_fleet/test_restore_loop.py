@@ -59,14 +59,26 @@ class RestoreLoopTests(unittest.TestCase):
             self.assertEqual(loop.head_len("https://audio/009.mp3"), 57_088_047)
 
     def test_source_override_is_scoped_to_exact_reciter_and_surah(self):
-        bases = {("hafs", "3siri"): "https://catalog/3siri/"}
-        self.assertEqual(
-            loop.source_base(bases, "hafs", "3siri", 9),
-            "https://media.way2quran.com/ibrahim-al-asiri/hafs-an-asim/",
-        )
-        self.assertEqual(loop.source_base(bases, "hafs", "3siri", 8),
-                         "https://catalog/3siri/")
-        self.assertIsNone(loop.source_base({}, "hafs", "missing", 9))
+        bases = {("hafs", "example"): "https://catalog/example/"}
+        overrides = {("hafs", "example", 9): "https://verified.example/audio/"}
+        with mock.patch.object(loop, "SOURCE_OVERRIDES", overrides):
+            self.assertEqual(loop.source_base(bases, "hafs", "example", 9),
+                             "https://verified.example/audio/")
+            self.assertEqual(loop.source_base(bases, "hafs", "example", 8),
+                             "https://catalog/example/")
+            self.assertIsNone(loop.source_base(bases, "warsh", "example", 9))
+            self.assertIsNone(loop.source_base({}, "hafs", "missing", 9))
+
+    def test_explicit_urls_are_not_converted_to_numeric_base_templates(self):
+        import json
+        rows = json.loads((loop.ROOT / "tools" / "ci_fleet" /
+                           "source_overrides.json").read_text(encoding="utf-8"))
+        explicit = [row for row in rows if row.get("url")]
+        self.assertTrue(explicit)
+        for row in explicit:
+            key = (row["riwaya"], row["reciter"], int(row["surah"]))
+            with self.subTest(key=key):
+                self.assertNotIn(key, loop.SOURCE_OVERRIDES)
 
     def test_failed_realign_is_blocked_only_for_same_source_and_engine(self):
         old = "https://server6.mp3quran.net/kurdi/"
