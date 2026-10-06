@@ -1,0 +1,2650 @@
+[
+  {
+    "schema": 1,
+    "kind": "source-context-and-content-diagnostic",
+    "reader": "rabbani56_tail",
+    "planSha256": "99929ece0cfdd6162964ffe8204849c75b2634b2f3f3cb3be2bb494de870cfc1",
+    "measurementComplete": true,
+    "qualityClaim": false,
+    "productionChanged": false,
+    "freeResults": [
+      {
+        "surah": 56,
+        "sourceSha256": "ee99879d03aeea2e404f9524a5b7369e79ecf0d48de04a02028dbd1c900d6c16",
+        "channel": "native-1",
+        "model": "generic",
+        "windowSeconds": [
+          538.0,
+          576.0010625
+        ],
+        "pcmSha256": "ecc0f5b8ef67f547f24c62ce83183a4b0ea60b599939c9b51b0ccdc17e26bf08",
+        "rawChunks": [
+          {
+            "chunk": 1,
+            "coreStartSample": 0,
+            "coreEndSampleExclusive": 400000,
+            "inputStartSample": 0,
+            "inputEndSampleExclusive": 432000,
+            "absoluteInputStartSeconds": 538.0,
+            "absoluteInputEndSeconds": 565.0,
+            "inputPcmSha256": "73da6fbadd9a0f0e615d7d9433690aa6a9409f279839090e0d0beb7e7abdf714",
+            "inferenceSeconds": 8.142233449999992,
+            "frames": 1349,
+            "blankTokenId": 0,
+            "argmaxRunFields": [
+              "tokenId",
+              "startFrame",
+              "endFrameExclusive",
+              "meanPosterior",
+              "minPosterior"
+            ],
+            "posteriorIsCalibratedConfidence": false,
+            "text": "مَْ كالَ لِلْ أَصْحَابِ الْيَنينِ سَسَلَامُ لَّكَ مِنْ أَصْحَابِ الْيَلِيموَأَمَاإْ كالَ إِلَى الْمُكَذِّبِ لَ الضَّاعلِّيلَ فَلُزُلٌ مِنْ حَمِيمٍ وَتَصْلِيَةُ جَحِي",
+            "textMethod": "CTC-greedy-collapse-without-reference-or-language-model",
+            "frameTiming": {
+              "method": "convolution-stride-and-receptive-field",
+              "kernel": [
+                10,
+                3,
+                3,
+                3,
+                3,
+                2,
+                2
+              ],
+              "stride": [
+                5,
+                2,
+                2,
+                2,
+                2,
+                2,
+                2
+              ],
+              "expectedFrames": 1349,
+              "strideSamples": 320,
+              "receptiveFieldSamples": 400,
+              "firstFrameCenterSample": 199.5,
+              "centerRule": "absoluteInputStartSeconds + (firstFrameCenterSample + frame * strideSamples) / sampleRateHz",
+              "notWordOrVerseBoundaries": true
+            },
+            "rawPartSha256": "04e49fefb0fe9f41b90f9ba8c6e4fd6f19b737a69efc9e735c53aa280597cacc",
+            "rawPartBytes": 17804
+          },
+          {
+            "chunk": 2,
+            "coreStartSample": 400000,
+            "coreEndSampleExclusive": 608017,
+            "inputStartSample": 368000,
+            "inputEndSampleExclusive": 608017,
+            "absoluteInputStartSeconds": 561.0,
+            "absoluteInputEndSeconds": 576.0010625,
+            "inputPcmSha256": "2a10b4f1adb5cff9b7914a8a76ede55ccb0dd2065d4ca63746205ee9b2198ada",
+            "inferenceSeconds": 4.000545794000004,
+            "frames": 749,
+            "blankTokenId": 0,
+            "argmaxRunFields": [
+              "tokenId",
+              "startFrame",
+              "endFrameExclusive",
+              "meanPosterior",
+              "minPosterior"
+            ],
+            "posteriorIsCalibratedConfidence": false,
+            "text": "ن حميموتصية جحيمإن ها لاله وحق اليقيم فسبح بسم ربك العظيم",
+            "textMethod": "CTC-greedy-collapse-without-reference-or-language-model",
+            "frameTiming": {
+              "method": "convolution-stride-and-receptive-field",
+              "kernel": [
+                10,
+                3,
+                3,
+                3,
+                3,
+                2,
+                2
+              ],
+              "stride": [
+                5,
+                2,
+                2,
+                2,
+                2,
+                2,
+                2
+              ],
+              "expectedFrames": 749,
+              "strideSamples": 320,
+              "receptiveFieldSamples": 400,
+              "firstFrameCenterSample": 199.5,
+              "centerRule": "absoluteInputStartSeconds + (firstFrameCenterSample + frame * strideSamples) / sampleRateHz",
+              "notWordOrVerseBoundaries": true
+            },
+            "rawPartSha256": "7798a2e1446e4a76454fd9f560ff3f9138b8f2d9e0560ea340be8c1c24f848f5",
+            "rawPartBytes": 7125
+          }
+        ],
+        "canonicalTextInput": false,
+        "forcedAlignment": false,
+        "mergedTranscriptProduced": false,
+        "versePresenceDecision": null,
+        "rawEvidenceStorage": "complete-per-chunk-log-envelopes",
+        "windowSamplesCovered": 608017
+      },
+      {
+        "surah": 56,
+        "sourceSha256": "ee99879d03aeea2e404f9524a5b7369e79ecf0d48de04a02028dbd1c900d6c16",
+        "channel": "native-2",
+        "model": "generic",
+        "windowSeconds": [
+          538.0,
+          576.0010625
+        ],
+        "pcmSha256": "31cab997fb98c37df8d32e5f300f919f5a9da9be6fa6089b0f49b136155011dd",
+        "rawChunks": [
+          {
+            "chunk": 1,
+            "coreStartSample": 0,
+            "coreEndSampleExclusive": 400000,
+            "inputStartSample": 0,
+            "inputEndSampleExclusive": 432000,
+            "absoluteInputStartSeconds": 538.0,
+            "absoluteInputEndSeconds": 565.0,
+            "inputPcmSha256": "8ede0e80a9dfa7217cdabf9aef20ad91f6a47e88e51bab908c88730087c647ee",
+            "inferenceSeconds": 8.149711969999998,
+            "frames": 1349,
+            "blankTokenId": 0,
+            "argmaxRunFields": [
+              "tokenId",
+              "startFrame",
+              "endFrameExclusive",
+              "meanPosterior",
+              "minPosterior"
+            ],
+            "posteriorIsCalibratedConfidence": false,
+            "text": "مَْ كالَ لِلْ أَصْحَابِ الْيَنينِ سَسَلَامُ لَّكَ مِنْ أَصْحَابِ الْيَلِيموَأَمَاإْ كَالَ إِنَى الْمُكَذِّبِ لَ الضَّالِّيلَ فَلُزُلٌ مِنْ حَمِيمٍ وَتَصْلِيَةُ جَحِي",
+            "textMethod": "CTC-greedy-collapse-without-reference-or-language-model",
+            "frameTiming": {
+              "method": "convolution-stride-and-receptive-field",
+              "kernel": [
+                10,
+                3,
+                3,
+                3,
+                3,
+                2,
+                2
+              ],
+              "stride": [
+                5,
+                2,
+                2,
+                2,
+                2,
+                2,
+                2
+              ],
+              "expectedFrames": 1349,
+              "strideSamples": 320,
+              "receptiveFieldSamples": 400,
+              "firstFrameCenterSample": 199.5,
+              "centerRule": "absoluteInputStartSeconds + (firstFrameCenterSample + frame * strideSamples) / sampleRateHz",
+              "notWordOrVerseBoundaries": true
+            },
+            "rawPartSha256": "61b3bbf0addf3fc121a65842863da33a5a318682fbd65626ac8a99334620cb56",
+            "rawPartBytes": 17742
+          },
+          {
+            "chunk": 2,
+            "coreStartSample": 400000,
+            "coreEndSampleExclusive": 608017,
+            "inputStartSample": 368000,
+            "inputEndSampleExclusive": 608017,
+            "absoluteInputStartSeconds": 561.0,
+            "absoluteInputEndSeconds": 576.0010625,
+            "inputPcmSha256": "284e33bbf47b2ec36013642a53dde1e8c3a5b24535dc9caf164b9bec8e4e2818",
+            "inferenceSeconds": 3.9859281980000105,
+            "frames": 749,
+            "blankTokenId": 0,
+            "argmaxRunFields": [
+              "tokenId",
+              "startFrame",
+              "endFrameExclusive",
+              "meanPosterior",
+              "minPosterior"
+            ],
+            "posteriorIsCalibratedConfidence": false,
+            "text": "ن حميموتصية جحيمإن هالاله وحق اليقيم فسبح بسم ربك العظيم",
+            "textMethod": "CTC-greedy-collapse-without-reference-or-language-model",
+            "frameTiming": {
+              "method": "convolution-stride-and-receptive-field",
+              "kernel": [
+                10,
+                3,
+                3,
+                3,
+                3,
+                2,
+                2
+              ],
+              "stride": [
+                5,
+                2,
+                2,
+                2,
+                2,
+                2,
+                2
+              ],
+              "expectedFrames": 749,
+              "strideSamples": 320,
+              "receptiveFieldSamples": 400,
+              "firstFrameCenterSample": 199.5,
+              "centerRule": "absoluteInputStartSeconds + (firstFrameCenterSample + frame * strideSamples) / sampleRateHz",
+              "notWordOrVerseBoundaries": true
+            },
+            "rawPartSha256": "760e6577a56712aa6ff343628afe9cf0821a994a8976a035c1a90cc7fde9dc01",
+            "rawPartBytes": 7024
+          }
+        ],
+        "canonicalTextInput": false,
+        "forcedAlignment": false,
+        "mergedTranscriptProduced": false,
+        "versePresenceDecision": null,
+        "rawEvidenceStorage": "complete-per-chunk-log-envelopes",
+        "windowSamplesCovered": 608017
+      },
+      {
+        "surah": 56,
+        "sourceSha256": "ee99879d03aeea2e404f9524a5b7369e79ecf0d48de04a02028dbd1c900d6c16",
+        "channel": "native-1",
+        "model": "quran",
+        "windowSeconds": [
+          538.0,
+          576.0010625
+        ],
+        "pcmSha256": "ecc0f5b8ef67f547f24c62ce83183a4b0ea60b599939c9b51b0ccdc17e26bf08",
+        "rawChunks": [
+          {
+            "chunk": 1,
+            "coreStartSample": 0,
+            "coreEndSampleExclusive": 400000,
+            "inputStartSample": 0,
+            "inputEndSampleExclusive": 432000,
+            "absoluteInputStartSeconds": 538.0,
+            "absoluteInputEndSeconds": 565.0,
+            "inputPcmSha256": "73da6fbadd9a0f0e615d7d9433690aa6a9409f279839090e0d0beb7e7abdf714",
+            "inferenceSeconds": 8.192333616000013,
+            "frames": 1349,
+            "blankTokenId": 0,
+            "argmaxRunFields": [
+              "tokenId",
+              "startFrame",
+              "endFrameExclusive",
+              "meanPosterior",
+              "minPosterior"
+            ],
+            "posteriorIsCalibratedConfidence": false,
+            "text": "مَّاإِكَانَ مِنَ صْحَابِ الْيَمِينِ فَسَلَامٌلا ْمَُذِّبِينَ الضَّالِّينَ فَنُزُلٌ مِنْ حَمِيمٍ وَتَصْلِيَةُ جَحِيمِ",
+            "textMethod": "CTC-greedy-collapse-without-reference-or-language-model",
+            "frameTiming": {
+              "method": "convolution-stride-and-receptive-field",
+              "kernel": [
+                10,
+                3,
+                3,
+                3,
+                3,
+                2,
+                2
+              ],
+              "stride": [
+                5,
+                2,
+                2,
+                2,
+                2,
+                2,
+                2
+              ],
+              "expectedFrames": 1349,
+              "strideSamples": 320,
+              "receptiveFieldSamples": 400,
+              "firstFrameCenterSample": 199.5,
+              "centerRule": "absoluteInputStartSeconds + (firstFrameCenterSample + frame * strideSamples) / sampleRateHz",
+              "notWordOrVerseBoundaries": true
+            },
+            "rawPartSha256": "e49a07b1adac99ba854262910e56eb2757e8eab9604c2e8cabfcb7e301f3724f",
+            "rawPartBytes": 13244
+          },
+          {
+            "chunk": 2,
+            "coreStartSample": 400000,
+            "coreEndSampleExclusive": 608017,
+            "inputStartSample": 368000,
+            "inputEndSampleExclusive": 608017,
+            "absoluteInputStartSeconds": 561.0,
+            "absoluteInputEndSeconds": 576.0010625,
+            "inputPcmSha256": "2a10b4f1adb5cff9b7914a8a76ede55ccb0dd2065d4ca63746205ee9b2198ada",
+            "inferenceSeconds": 4.018760001000004,
+            "frames": 749,
+            "blankTokenId": 0,
+            "argmaxRunFields": [
+              "tokenId",
+              "startFrame",
+              "endFrameExclusive",
+              "meanPosterior",
+              "minPosterior"
+            ],
+            "posteriorIsCalibratedConfidence": false,
+            "text": "ِنْ حَمِيمٍ وَتَصْلِيَةُ جَحِيمٍ إِنَّ هَـٰذَا لَهُوَ حَقُّ الْيَقِينِ فَسَبِّحْ بِاسْمِ رَبِّكَ الْعَظِيمِ",
+            "textMethod": "CTC-greedy-collapse-without-reference-or-language-model",
+            "frameTiming": {
+              "method": "convolution-stride-and-receptive-field",
+              "kernel": [
+                10,
+                3,
+                3,
+                3,
+                3,
+                2,
+                2
+              ],
+              "stride": [
+                5,
+                2,
+                2,
+                2,
+                2,
+                2,
+                2
+              ],
+              "expectedFrames": 749,
+              "strideSamples": 320,
+              "receptiveFieldSamples": 400,
+              "firstFrameCenterSample": 199.5,
+              "centerRule": "absoluteInputStartSeconds + (firstFrameCenterSample + frame * strideSamples) / sampleRateHz",
+              "notWordOrVerseBoundaries": true
+            },
+            "rawPartSha256": "7bcb793f9db41745a1158a56d3f8d848aac93e0aea3eb1ae35419ee073efb122",
+            "rawPartBytes": 11727
+          }
+        ],
+        "canonicalTextInput": false,
+        "forcedAlignment": false,
+        "mergedTranscriptProduced": false,
+        "versePresenceDecision": null,
+        "rawEvidenceStorage": "complete-per-chunk-log-envelopes",
+        "windowSamplesCovered": 608017
+      },
+      {
+        "surah": 56,
+        "sourceSha256": "ee99879d03aeea2e404f9524a5b7369e79ecf0d48de04a02028dbd1c900d6c16",
+        "channel": "native-2",
+        "model": "quran",
+        "windowSeconds": [
+          538.0,
+          576.0010625
+        ],
+        "pcmSha256": "31cab997fb98c37df8d32e5f300f919f5a9da9be6fa6089b0f49b136155011dd",
+        "rawChunks": [
+          {
+            "chunk": 1,
+            "coreStartSample": 0,
+            "coreEndSampleExclusive": 400000,
+            "inputStartSample": 0,
+            "inputEndSampleExclusive": 432000,
+            "absoluteInputStartSeconds": 538.0,
+            "absoluteInputEndSeconds": 565.0,
+            "inputPcmSha256": "8ede0e80a9dfa7217cdabf9aef20ad91f6a47e88e51bab908c88730087c647ee",
+            "inferenceSeconds": 8.102203160999977,
+            "frames": 1349,
+            "blankTokenId": 0,
+            "argmaxRunFields": [
+              "tokenId",
+              "startFrame",
+              "endFrameExclusive",
+              "meanPosterior",
+              "minPosterior"
+            ],
+            "posteriorIsCalibratedConfidence": false,
+            "text": "مَّاإِكَانَ مِنَ صْحَابِ الْيَمِينِ فَسَلَامٌ ْمذِّبِينَ الضَّالِّينَ فَنُزُلٌ مِنْ حَمِيمٍ وَتَصْلِيَةُ جَحِيمِ",
+            "textMethod": "CTC-greedy-collapse-without-reference-or-language-model",
+            "frameTiming": {
+              "method": "convolution-stride-and-receptive-field",
+              "kernel": [
+                10,
+                3,
+                3,
+                3,
+                3,
+                2,
+                2
+              ],
+              "stride": [
+                5,
+                2,
+                2,
+                2,
+                2,
+                2,
+                2
+              ],
+              "expectedFrames": 1349,
+              "strideSamples": 320,
+              "receptiveFieldSamples": 400,
+              "firstFrameCenterSample": 199.5,
+              "centerRule": "absoluteInputStartSeconds + (firstFrameCenterSample + frame * strideSamples) / sampleRateHz",
+              "notWordOrVerseBoundaries": true
+            },
+            "rawPartSha256": "d9d8cb3144fdad8186ead6880a5dc96a85a277662f1d706d96bec2e308a71ca9",
+            "rawPartBytes": 12819
+          },
+          {
+            "chunk": 2,
+            "coreStartSample": 400000,
+            "coreEndSampleExclusive": 608017,
+            "inputStartSample": 368000,
+            "inputEndSampleExclusive": 608017,
+            "absoluteInputStartSeconds": 561.0,
+            "absoluteInputEndSeconds": 576.0010625,
+            "inputPcmSha256": "284e33bbf47b2ec36013642a53dde1e8c3a5b24535dc9caf164b9bec8e4e2818",
+            "inferenceSeconds": 4.0173679929999935,
+            "frames": 749,
+            "blankTokenId": 0,
+            "argmaxRunFields": [
+              "tokenId",
+              "startFrame",
+              "endFrameExclusive",
+              "meanPosterior",
+              "minPosterior"
+            ],
+            "posteriorIsCalibratedConfidence": false,
+            "text": "ِنْ حَمِيمٍ وَتَصْلِيَةُ جَحِيمٍ إِنَّ هَـٰذَا لَهُوَ حَقُّ الْيَقِينِ فَسَبِّحْ بِاسْمِ رَبِّكَ الْعَظِيمِ",
+            "textMethod": "CTC-greedy-collapse-without-reference-or-language-model",
+            "frameTiming": {
+              "method": "convolution-stride-and-receptive-field",
+              "kernel": [
+                10,
+                3,
+                3,
+                3,
+                3,
+                2,
+                2
+              ],
+              "stride": [
+                5,
+                2,
+                2,
+                2,
+                2,
+                2,
+                2
+              ],
+              "expectedFrames": 749,
+              "strideSamples": 320,
+              "receptiveFieldSamples": 400,
+              "firstFrameCenterSample": 199.5,
+              "centerRule": "absoluteInputStartSeconds + (firstFrameCenterSample + frame * strideSamples) / sampleRateHz",
+              "notWordOrVerseBoundaries": true
+            },
+            "rawPartSha256": "cba75f14c1d4422ebe9017545b621906479a138f2a89566c2fc54111469af054",
+            "rawPartBytes": 11724
+          }
+        ],
+        "canonicalTextInput": false,
+        "forcedAlignment": false,
+        "mergedTranscriptProduced": false,
+        "versePresenceDecision": null,
+        "rawEvidenceStorage": "complete-per-chunk-log-envelopes",
+        "windowSamplesCovered": 608017
+      }
+    ],
+    "measurements": [
+      {
+        "model": "generic",
+        "channel": "native-1",
+        "alignmentModel": {
+          "id": "jonatasgrosman/wav2vec2-large-xlsr-53-arabic",
+          "revision": "af46c2d8531b8dcbb5e23b952f739b372c2e5d2d",
+          "weightsSha256": "a0b26f6d9d3edfde1784aef863c192a8cc1e438a23b45910ab648531ebe1857b",
+          "license": "Apache-2.0"
+        },
+        "alignmentInput": [
+          "وَأَمَّآ إِن كَانَ مِنَ اَ۬لْمُكَذِّبِينَ اَ۬لضَّآلِّينَ",
+          "فَنُزُلٞ مِّنْ حَمِيمٖ",
+          "وَتَصْلِيَةُ جَحِيمٍۖ",
+          "اِنَّ هَٰذَا لَهُوَ حَقُّ اُ۬لْيَقِينِۖ",
+          "فَسَبِّحْ بِاسْمِ رَبِّكَ اَ۬لْعَظِيمِۖ"
+        ],
+        "windowSeconds": [
+          538.0,
+          576.0010625
+        ],
+        "inputPcmSha256": "3de0902cef112cbd63ca182812e84b1d554d02a6f7f9adf3474b04e309b4c82c",
+        "rawSegments": [
+          [
+            10.431812500000001,
+            21.272986778846157,
+            -1.2110091142319106
+          ],
+          [
+            21.272986778846157,
+            23.96589663461539,
+            -0.30724567444388906
+          ],
+          [
+            24.106588942307695,
+            27.43965024038462,
+            -0.5303587659629821
+          ],
+          [
+            27.77054807692308,
+            33.26594591346154,
+            -1.073953347091728
+          ],
+          [
+            33.26594591346154,
+            37.57059735576924,
+            -0.9252905530889902
+          ]
+        ],
+        "rawEntries": [
+          {
+            "ayahId": "56:92",
+            "startMs": 548431,
+            "endMs": 559272,
+            "conf": 0.697
+          },
+          {
+            "ayahId": "56:93",
+            "startMs": 559272,
+            "endMs": 561965,
+            "conf": 0.923
+          },
+          {
+            "ayahId": "56:94",
+            "startMs": 562106,
+            "endMs": 565439,
+            "conf": 0.867
+          },
+          {
+            "ayahId": "56:95",
+            "startMs": 565770,
+            "endMs": 571265,
+            "conf": 0.732
+          },
+          {
+            "ayahId": "56:96",
+            "startMs": 571265,
+            "endMs": 575570,
+            "conf": 0.769
+          }
+        ],
+        "entries": [
+          {
+            "ayahId": "56:92",
+            "startMs": 548431,
+            "endMs": 559272,
+            "conf": 0.697
+          },
+          {
+            "ayahId": "56:93",
+            "startMs": 559272,
+            "endMs": 562106,
+            "conf": 0.923
+          },
+          {
+            "ayahId": "56:94",
+            "startMs": 562106,
+            "endMs": 565770,
+            "conf": 0.867
+          },
+          {
+            "ayahId": "56:95",
+            "startMs": 565770,
+            "endMs": 571265,
+            "conf": 0.732
+          },
+          {
+            "ayahId": "56:96",
+            "startMs": 571265,
+            "endMs": 575570,
+            "conf": 0.769
+          }
+        ]
+      },
+      {
+        "model": "generic",
+        "channel": "native-2",
+        "alignmentModel": {
+          "id": "jonatasgrosman/wav2vec2-large-xlsr-53-arabic",
+          "revision": "af46c2d8531b8dcbb5e23b952f739b372c2e5d2d",
+          "weightsSha256": "a0b26f6d9d3edfde1784aef863c192a8cc1e438a23b45910ab648531ebe1857b",
+          "license": "Apache-2.0"
+        },
+        "alignmentInput": [
+          "وَأَمَّآ إِن كَانَ مِنَ اَ۬لْمُكَذِّبِينَ اَ۬لضَّآلِّينَ",
+          "فَنُزُلٞ مِّنْ حَمِيمٖ",
+          "وَتَصْلِيَةُ جَحِيمٍۖ",
+          "اِنَّ هَٰذَا لَهُوَ حَقُّ اُ۬لْيَقِينِۖ",
+          "فَسَبِّحْ بِاسْمِ رَبِّكَ اَ۬لْعَظِيمِۖ"
+        ],
+        "windowSeconds": [
+          538.0,
+          576.0010625
+        ],
+        "inputPcmSha256": "bd88474004eccfd7266563493104acfe42639822d98681f266dc0078a1797fdf",
+        "rawSegments": [
+          [
+            10.431812500000001,
+            21.272986778846157,
+            -1.079597536129025
+          ],
+          [
+            21.272986778846157,
+            23.96589663461539,
+            -0.30902919713767196
+          ],
+          [
+            24.106588942307695,
+            27.43965024038462,
+            -0.5209084922911529
+          ],
+          [
+            27.77054807692308,
+            33.24592427884616,
+            -1.1009085863219668
+          ],
+          [
+            33.24592427884616,
+            37.57059735576924,
+            -0.9424722308470987
+          ]
+        ],
+        "rawEntries": [
+          {
+            "ayahId": "56:92",
+            "startMs": 548431,
+            "endMs": 559272,
+            "conf": 0.73
+          },
+          {
+            "ayahId": "56:93",
+            "startMs": 559272,
+            "endMs": 561965,
+            "conf": 0.923
+          },
+          {
+            "ayahId": "56:94",
+            "startMs": 562106,
+            "endMs": 565439,
+            "conf": 0.87
+          },
+          {
+            "ayahId": "56:95",
+            "startMs": 565770,
+            "endMs": 571245,
+            "conf": 0.725
+          },
+          {
+            "ayahId": "56:96",
+            "startMs": 571245,
+            "endMs": 575570,
+            "conf": 0.764
+          }
+        ],
+        "entries": [
+          {
+            "ayahId": "56:92",
+            "startMs": 548431,
+            "endMs": 559272,
+            "conf": 0.73
+          },
+          {
+            "ayahId": "56:93",
+            "startMs": 559272,
+            "endMs": 562106,
+            "conf": 0.923
+          },
+          {
+            "ayahId": "56:94",
+            "startMs": 562106,
+            "endMs": 565770,
+            "conf": 0.87
+          },
+          {
+            "ayahId": "56:95",
+            "startMs": 565770,
+            "endMs": 571245,
+            "conf": 0.725
+          },
+          {
+            "ayahId": "56:96",
+            "startMs": 571245,
+            "endMs": 575570,
+            "conf": 0.764
+          }
+        ]
+      },
+      {
+        "model": "quran",
+        "channel": "native-1",
+        "alignmentModel": {
+          "id": "rabah2026/wav2vec2-large-xlsr-53-arabic-quran-v_final",
+          "revision": "b03a268c6ba1a693752307325ab376c86c3b12da",
+          "weightsSha256": "bf65674a26eb4ef7042cedade96c3c8f8cbd04f3a7d1a68eadceec8ed0f99ecb",
+          "license": "Apache-2.0"
+        },
+        "alignmentInput": [
+          "وَأَمَّآ إِن كَانَ مِنَ اَلْمُكَذِّبِينَ اَلضَّآلِّينَ",
+          "فَنُزُل مِّنْ حَمِيم",
+          "وَتَصْلِيَةُ جَحِيمٍ",
+          "اِنَّ هَٰذَا لَهُوَ حَقُّ اُلْيَقِينِ",
+          "فَسَبِّحْ بِاسْمِ رَبِّكَ اَلْعَظِيمِ"
+        ],
+        "windowSeconds": [
+          538.0,
+          576.0010625
+        ],
+        "inputPcmSha256": "3de0902cef112cbd63ca182812e84b1d554d02a6f7f9adf3474b04e309b4c82c",
+        "rawSegments": [
+          [
+            10.431812500000001,
+            21.293008413461543,
+            -1.2008699577402997
+          ],
+          [
+            21.293008413461543,
+            23.955885817307696,
+            -0.3395347188418782
+          ],
+          [
+            24.12661057692308,
+            27.419628605769233,
+            -0.23818746491641227
+          ],
+          [
+            27.750526442307695,
+            32.86551322115385,
+            -0.49099251969285734
+          ],
+          [
+            32.86551322115385,
+            37.57059735576924,
+            -0.4898319347302201
+          ]
+        ],
+        "rawEntries": [
+          {
+            "ayahId": "56:92",
+            "startMs": 548431,
+            "endMs": 559293,
+            "conf": 0.7
+          },
+          {
+            "ayahId": "56:93",
+            "startMs": 559293,
+            "endMs": 561955,
+            "conf": 0.915
+          },
+          {
+            "ayahId": "56:94",
+            "startMs": 562126,
+            "endMs": 565419,
+            "conf": 0.94
+          },
+          {
+            "ayahId": "56:95",
+            "startMs": 565750,
+            "endMs": 570865,
+            "conf": 0.877
+          },
+          {
+            "ayahId": "56:96",
+            "startMs": 570865,
+            "endMs": 575570,
+            "conf": 0.878
+          }
+        ],
+        "entries": [
+          {
+            "ayahId": "56:92",
+            "startMs": 548431,
+            "endMs": 559293,
+            "conf": 0.7
+          },
+          {
+            "ayahId": "56:93",
+            "startMs": 559293,
+            "endMs": 562126,
+            "conf": 0.915
+          },
+          {
+            "ayahId": "56:94",
+            "startMs": 562126,
+            "endMs": 565750,
+            "conf": 0.94
+          },
+          {
+            "ayahId": "56:95",
+            "startMs": 565750,
+            "endMs": 570865,
+            "conf": 0.877
+          },
+          {
+            "ayahId": "56:96",
+            "startMs": 570865,
+            "endMs": 575570,
+            "conf": 0.878
+          }
+        ]
+      },
+      {
+        "model": "quran",
+        "channel": "native-2",
+        "alignmentModel": {
+          "id": "rabah2026/wav2vec2-large-xlsr-53-arabic-quran-v_final",
+          "revision": "b03a268c6ba1a693752307325ab376c86c3b12da",
+          "weightsSha256": "bf65674a26eb4ef7042cedade96c3c8f8cbd04f3a7d1a68eadceec8ed0f99ecb",
+          "license": "Apache-2.0"
+        },
+        "alignmentInput": [
+          "وَأَمَّآ إِن كَانَ مِنَ اَلْمُكَذِّبِينَ اَلضَّآلِّينَ",
+          "فَنُزُل مِّنْ حَمِيم",
+          "وَتَصْلِيَةُ جَحِيمٍ",
+          "اِنَّ هَٰذَا لَهُوَ حَقُّ اُلْيَقِينِ",
+          "فَسَبِّحْ بِاسْمِ رَبِّكَ اَلْعَظِيمِ"
+        ],
+        "windowSeconds": [
+          538.0,
+          576.0010625
+        ],
+        "inputPcmSha256": "bd88474004eccfd7266563493104acfe42639822d98681f266dc0078a1797fdf",
+        "rawSegments": [
+          [
+            10.431812500000001,
+            21.293008413461543,
+            -0.8690032298536001
+          ],
+          [
+            21.293008413461543,
+            23.955885817307696,
+            -0.3409265852912237
+          ],
+          [
+            24.12661057692308,
+            27.419628605769233,
+            -0.2422758613536492
+          ],
+          [
+            27.750526442307695,
+            32.86551322115385,
+            -0.48997587470501763
+          ],
+          [
+            32.86551322115385,
+            37.55057572115385,
+            -0.483102507790151
+          ]
+        ],
+        "rawEntries": [
+          {
+            "ayahId": "56:92",
+            "startMs": 548431,
+            "endMs": 559293,
+            "conf": 0.783
+          },
+          {
+            "ayahId": "56:93",
+            "startMs": 559293,
+            "endMs": 561955,
+            "conf": 0.915
+          },
+          {
+            "ayahId": "56:94",
+            "startMs": 562126,
+            "endMs": 565419,
+            "conf": 0.939
+          },
+          {
+            "ayahId": "56:95",
+            "startMs": 565750,
+            "endMs": 570865,
+            "conf": 0.878
+          },
+          {
+            "ayahId": "56:96",
+            "startMs": 570865,
+            "endMs": 575550,
+            "conf": 0.879
+          }
+        ],
+        "entries": [
+          {
+            "ayahId": "56:92",
+            "startMs": 548431,
+            "endMs": 559293,
+            "conf": 0.783
+          },
+          {
+            "ayahId": "56:93",
+            "startMs": 559293,
+            "endMs": 562126,
+            "conf": 0.915
+          },
+          {
+            "ayahId": "56:94",
+            "startMs": 562126,
+            "endMs": 565750,
+            "conf": 0.939
+          },
+          {
+            "ayahId": "56:95",
+            "startMs": 565750,
+            "endMs": 570865,
+            "conf": 0.878
+          },
+          {
+            "ayahId": "56:96",
+            "startMs": 570865,
+            "endMs": 575550,
+            "conf": 0.879
+          }
+        ]
+      }
+    ],
+    "models": [
+      {
+        "name": "generic",
+        "id": "jonatasgrosman/wav2vec2-large-xlsr-53-arabic",
+        "revision": "af46c2d8531b8dcbb5e23b952f739b372c2e5d2d",
+        "weightsSha256": "a0b26f6d9d3edfde1784aef863c192a8cc1e438a23b45910ab648531ebe1857b",
+        "weightFile": "pytorch_model.bin",
+        "vocabulary": {
+          "<pad>": 0,
+          "<s>": 1,
+          "</s>": 2,
+          "<unk>": 3,
+          "|": 4,
+          "-": 5,
+          "ء": 6,
+          "آ": 7,
+          "أ": 8,
+          "ؤ": 9,
+          "إ": 10,
+          "ئ": 11,
+          "ا": 12,
+          "ب": 13,
+          "ة": 14,
+          "ت": 15,
+          "ث": 16,
+          "ج": 17,
+          "ح": 18,
+          "خ": 19,
+          "د": 20,
+          "ذ": 21,
+          "ر": 22,
+          "ز": 23,
+          "س": 24,
+          "ش": 25,
+          "ص": 26,
+          "ض": 27,
+          "ط": 28,
+          "ظ": 29,
+          "ع": 30,
+          "غ": 31,
+          "ـ": 32,
+          "ف": 33,
+          "ق": 34,
+          "ك": 35,
+          "ل": 36,
+          "م": 37,
+          "ن": 38,
+          "ه": 39,
+          "و": 40,
+          "ى": 41,
+          "ي": 42,
+          "ً": 43,
+          "ٌ": 44,
+          "ٍ": 45,
+          "َ": 46,
+          "ُ": 47,
+          "ِ": 48,
+          "ّ": 49,
+          "ْ": 50
+        },
+        "files": {
+          "config.json": {
+            "bytes": 1565,
+            "sha256": "9283014cd08d1fbcb13f7965c4dda8ef54a988e40945ff2616e15afcd0f1fac7"
+          },
+          "preprocessor_config.json": {
+            "bytes": 158,
+            "sha256": "c403ce09975b90dff0dd8302c42d422e9de1f166cd7772df23490069893cb0cf"
+          },
+          "special_tokens_map.json": {
+            "bytes": 85,
+            "sha256": "bb7068de1150661a10b55f9e4b12a0e77af8bf91f5e45e1b58afaf1d0e17f675"
+          },
+          "vocab.json": {
+            "bytes": 507,
+            "sha256": "96a92ff9bd106f825c878f502fe341f9f0488ace92d3c76dc40a6b30296efedd"
+          }
+        }
+      },
+      {
+        "name": "quran",
+        "id": "rabah2026/wav2vec2-large-xlsr-53-arabic-quran-v_final",
+        "revision": "b03a268c6ba1a693752307325ab376c86c3b12da",
+        "weightsSha256": "bf65674a26eb4ef7042cedade96c3c8f8cbd04f3a7d1a68eadceec8ed0f99ecb",
+        "weightFile": "model.safetensors",
+        "vocabulary": {
+          "-": 5,
+          "</s>": 2,
+          "<pad>": 0,
+          "<s>": 1,
+          "<unk>": 3,
+          "|": 4,
+          "ء": 6,
+          "آ": 7,
+          "أ": 8,
+          "ؤ": 9,
+          "إ": 10,
+          "ئ": 11,
+          "ا": 12,
+          "ب": 13,
+          "ة": 14,
+          "ت": 15,
+          "ث": 16,
+          "ج": 17,
+          "ح": 18,
+          "خ": 19,
+          "د": 20,
+          "ذ": 21,
+          "ر": 22,
+          "ز": 23,
+          "س": 24,
+          "ش": 25,
+          "ص": 26,
+          "ض": 27,
+          "ط": 28,
+          "ظ": 29,
+          "ع": 30,
+          "غ": 31,
+          "ـ": 32,
+          "ف": 33,
+          "ق": 34,
+          "ك": 35,
+          "ل": 36,
+          "م": 37,
+          "ن": 38,
+          "ه": 39,
+          "و": 40,
+          "ى": 41,
+          "ي": 42,
+          "ً": 43,
+          "ٌ": 44,
+          "ٍ": 45,
+          "َ": 46,
+          "ُ": 47,
+          "ِ": 48,
+          "ّ": 49,
+          "ْ": 50,
+          "ٓ": 53,
+          "ٰ": 52,
+          "ٱ": 51,
+          "ۥ": 54,
+          "ۦ": 55
+        },
+        "files": {
+          "config.json": {
+            "bytes": 2244,
+            "sha256": "56868371643cb1a350fa336b246882505c3aa87d86b31990808b426bb8175230"
+          },
+          "preprocessor_config.json": {
+            "bytes": 256,
+            "sha256": "ffc72f475cd79680d5d659fbaefc691cdbcee5c9703a15faf708a5e91452a8d8"
+          },
+          "special_tokens_map.json": {
+            "bytes": 96,
+            "sha256": "9046da57c270c8e74d0f38832b4adce269c9d914ef21d2a0925e7772152dd793"
+          },
+          "tokenizer_config.json": {
+            "bytes": 1120,
+            "sha256": "84233fa817d20ba6e3470dc33df489b8fa89d5f53323fd9fe8ea08a5b315d709"
+          },
+          "vocab.json": {
+            "bytes": 672,
+            "sha256": "60b9e6174798b6e1a92c92fb5935e32522aebaca4cdd1f481fd220346471644c"
+          }
+        }
+      }
+    ],
+    "errors": [],
+    "limits": [
+      "Context alignment may force absent text; compare free ASR and both models.",
+      "Existing candidate window may omit displaced speech.",
+      "No quality report, timing, confidence or Quran text is rewritten."
+    ],
+    "provenance": {
+      "runId": "37406073805",
+      "runSha": "497c83c16bc001c518accb5f579288a0fc0099e9",
+      "toolSha256": "b8ea3597bca62543e45da4c44d22f8d74704a067e1fe6622b83cd091cdeb3a75"
+    },
+    "source": {
+      "id": "rabbani56_tail",
+      "surah": 56,
+      "riwaya": "warsh",
+      "url": "https://archive.org/download/alfirdwsiy1433_35686535653683658668356566586356gmail_002/056.mp3",
+      "sha256": "ee99879d03aeea2e404f9524a5b7369e79ecf0d48de04a02028dbd1c900d6c16",
+      "requestedWindowSeconds": [
+        538,
+        577
+      ],
+      "contextAyahs": [
+        92,
+        93,
+        94,
+        95,
+        96
+      ],
+      "evidencePath": "ops/out/codex-context-parent-rabbani56_tail-20261006.json",
+      "evidenceSha256": "7b2addf6896e4b48ed8c87fe61e3fa23ba8733ad4f14da94f70cfdd2651caa59",
+      "evidenceKind": "pinned-parent",
+      "maxSourceSeconds": 7200
+    },
+    "versions": {
+      "torch": "2.6.0+cpu",
+      "transformers": "4.49.0",
+      "numpy": "1.26.4",
+      "huggingface-hub": "0.29.3",
+      "safetensors": "0.5.3",
+      "tokenizers": "0.21.1"
+    },
+    "canonicalContext": [
+      "وَأَمَّآ إِن كَانَ مِنَ اَ۬لْمُكَذِّبِينَ اَ۬لضَّآلِّينَ",
+      "فَنُزُلٞ مِّنْ حَمِيمٖ",
+      "وَتَصْلِيَةُ جَحِيمٍۖ",
+      "اِنَّ هَٰذَا لَهُوَ حَقُّ اُ۬لْيَقِينِۖ",
+      "فَسَبِّحْ بِاسْمِ رَبِّكَ اَ۬لْعَظِيمِۖ"
+    ],
+    "referenceSha256": {
+      "index.jz": "bc5883e592a677180adb9d588c584dcc4bb70d686ac658b41b01f3509bb53026",
+      "text_warsh.jz": "6df092d4edccf852a9ef5f1b1b2a30caf5edd6b0f8e29395c7290016e685eb7c"
+    },
+    "audio": {
+      "download": {
+        "bytes": 4647610,
+        "sha256": "ee99879d03aeea2e404f9524a5b7369e79ecf0d48de04a02028dbd1c900d6c16",
+        "finalUrl": "https://dn710306.ca.archive.org/0/items/alfirdwsiy1433_35686535653683658668356566586356gmail_002/056.mp3"
+      },
+      "container": {
+        "programs": [],
+        "stream_groups": [],
+        "streams": [
+          {
+            "codec_type": "audio",
+            "sample_rate": "44100",
+            "channels": 2,
+            "channel_layout": "stereo"
+          },
+          {
+            "codec_type": "video"
+          }
+        ],
+        "format": {
+          "duration": "576.013061"
+        }
+      },
+      "decoded": {
+        "frames": 9216017,
+        "nativeChannels": 2,
+        "durationSeconds": 576.0010625,
+        "fullNativePcmSha256": "7b6a74ece95d26ebbcb25fcd81dd29b9b55606be7b0af78d11e1f2c3f5ef03d6",
+        "windowStartSample": 8608000,
+        "windowEndSampleExclusive": 9216017,
+        "windowSamplesPerChannel": 608017,
+        "requestedEndClampedToDecodedEof": true,
+        "decodedWithoutErrors": true
+      },
+      "sourceUnchanged": true,
+      "nativeChannelsUnmixed": true,
+      "canonicalTextRead": false
+    },
+    "modelAcquisition": {
+      "policy": "quran-pinned-ephemeral",
+      "cacheKey": "ctc-model-jonatasgrosman-xlsr53-ar-v1",
+      "exactHit": true,
+      "models": [
+        {
+          "name": "generic",
+          "id": "jonatasgrosman/wav2vec2-large-xlsr-53-arabic",
+          "revision": "af46c2d8531b8dcbb5e23b952f739b372c2e5d2d",
+          "weightsSha256": "a0b26f6d9d3edfde1784aef863c192a8cc1e438a23b45910ab648531ebe1857b",
+          "weightFile": "pytorch_model.bin",
+          "snapshot": "hub/models--jonatasgrosman--wav2vec2-large-xlsr-53-arabic/snapshots/af46c2d8531b8dcbb5e23b952f739b372c2e5d2d",
+          "weightBytes": 1262142936,
+          "localOnly": true
+        }
+      ],
+      "quranEphemeral": {
+        "id": "rabah2026/wav2vec2-large-xlsr-53-arabic-quran-v_final",
+        "revision": "b03a268c6ba1a693752307325ab376c86c3b12da",
+        "weightsSha256": "bf65674a26eb4ef7042cedade96c3c8f8cbd04f3a7d1a68eadceec8ed0f99ecb",
+        "weightFile": "model.safetensors",
+        "sourceMode": "explicit-ephemeral-public-download",
+        "cacheWrite": false,
+        "artifactWrite": false,
+        "files": [
+          {
+            "filename": "config.json",
+            "bytes": 2244,
+            "sha256": "56868371643cb1a350fa336b246882505c3aa87d86b31990808b426bb8175230",
+            "url": "https://huggingface.co/rabah2026/wav2vec2-large-xlsr-53-arabic-quran-v_final/resolve/b03a268c6ba1a693752307325ab376c86c3b12da/config.json"
+          },
+          {
+            "filename": "vocab.json",
+            "bytes": 672,
+            "sha256": "60b9e6174798b6e1a92c92fb5935e32522aebaca4cdd1f481fd220346471644c",
+            "url": "https://huggingface.co/rabah2026/wav2vec2-large-xlsr-53-arabic-quran-v_final/resolve/b03a268c6ba1a693752307325ab376c86c3b12da/vocab.json"
+          },
+          {
+            "filename": "preprocessor_config.json",
+            "bytes": 256,
+            "sha256": "ffc72f475cd79680d5d659fbaefc691cdbcee5c9703a15faf708a5e91452a8d8",
+            "url": "https://huggingface.co/rabah2026/wav2vec2-large-xlsr-53-arabic-quran-v_final/resolve/b03a268c6ba1a693752307325ab376c86c3b12da/preprocessor_config.json"
+          },
+          {
+            "filename": "tokenizer_config.json",
+            "bytes": 1120,
+            "sha256": "84233fa817d20ba6e3470dc33df489b8fa89d5f53323fd9fe8ea08a5b315d709",
+            "url": "https://huggingface.co/rabah2026/wav2vec2-large-xlsr-53-arabic-quran-v_final/resolve/b03a268c6ba1a693752307325ab376c86c3b12da/tokenizer_config.json"
+          },
+          {
+            "filename": "special_tokens_map.json",
+            "bytes": 96,
+            "sha256": "9046da57c270c8e74d0f38832b4adce269c9d914ef21d2a0925e7772152dd793",
+            "url": "https://huggingface.co/rabah2026/wav2vec2-large-xlsr-53-arabic-quran-v_final/resolve/b03a268c6ba1a693752307325ab376c86c3b12da/special_tokens_map.json"
+          },
+          {
+            "filename": "tokenizer.json",
+            "optionalAbsent": true
+          },
+          {
+            "filename": "model.safetensors",
+            "bytes": 1262037080,
+            "sha256": "bf65674a26eb4ef7042cedade96c3c8f8cbd04f3a7d1a68eadceec8ed0f99ecb",
+            "url": "https://huggingface.co/rabah2026/wav2vec2-large-xlsr-53-arabic-quran-v_final/resolve/b03a268c6ba1a693752307325ab376c86c3b12da/model.safetensors"
+          }
+        ],
+        "byteLimit": 1506291456,
+        "deadlineSeconds": 600,
+        "totalBytes": 1262041468,
+        "downloadSeconds": 14.383458252999986
+      }
+    }
+  },
+  {
+    "schema": 1,
+    "kind": "source-context-and-content-diagnostic",
+    "reader": "rabbani96_5_10",
+    "planSha256": "99929ece0cfdd6162964ffe8204849c75b2634b2f3f3cb3be2bb494de870cfc1",
+    "measurementComplete": true,
+    "qualityClaim": false,
+    "productionChanged": false,
+    "freeResults": [
+      {
+        "surah": 96,
+        "sourceSha256": "1dd1f1593829f35296b31767c1da16ab0f056181fd04389e1747422723041fcd",
+        "channel": "native-1",
+        "model": "generic",
+        "windowSeconds": [
+          10.0,
+          55.0
+        ],
+        "pcmSha256": "4182f4b43dbacb32829484813da236506403a4345c6911d3a5d73808449023f5",
+        "rawChunks": [
+          {
+            "chunk": 1,
+            "coreStartSample": 0,
+            "coreEndSampleExclusive": 400000,
+            "inputStartSample": 0,
+            "inputEndSampleExclusive": 432000,
+            "absoluteInputStartSeconds": 10.0,
+            "absoluteInputEndSeconds": 37.0,
+            "inputPcmSha256": "12ad078a4eff8efb1b2dc154eec45ac3472f9a1a963183d1bf3a970dd4390e95",
+            "inferenceSeconds": 8.435726688999978,
+            "frames": 1349,
+            "blankTokenId": 0,
+            "argmaxRunFields": [
+              "tokenId",
+              "startFrame",
+              "endFrameExclusive",
+              "meanPosterior",
+              "minPosterior"
+            ],
+            "posteriorIsCalibratedConfidence": false,
+            "text": "نسَالَ مِنعَلَقْر إِقْرأ وَرَبُّكَ الْأَكرَمُ الَّذِي عَلَّمَ بِلقلَلِي عَلَّمْلنْسَالَمَالَم يَعلَمْ كَلّا إِنَّ لإِسَلَ لا يَعطَعُ أءرّأهُ استَغلا إِنَّ إِلى رَبِّك رّ",
+            "textMethod": "CTC-greedy-collapse-without-reference-or-language-model",
+            "frameTiming": {
+              "method": "convolution-stride-and-receptive-field",
+              "kernel": [
+                10,
+                3,
+                3,
+                3,
+                3,
+                2,
+                2
+              ],
+              "stride": [
+                5,
+                2,
+                2,
+                2,
+                2,
+                2,
+                2
+              ],
+              "expectedFrames": 1349,
+              "strideSamples": 320,
+              "receptiveFieldSamples": 400,
+              "firstFrameCenterSample": 199.5,
+              "centerRule": "absoluteInputStartSeconds + (firstFrameCenterSample + frame * strideSamples) / sampleRateHz",
+              "notWordOrVerseBoundaries": true
+            },
+            "rawPartSha256": "0cf2c8321e55117daad48fa976b4df408ef4940937c5dd6bb3bb8850284d0a8e",
+            "rawPartBytes": 18176
+          },
+          {
+            "chunk": 2,
+            "coreStartSample": 400000,
+            "coreEndSampleExclusive": 720000,
+            "inputStartSample": 368000,
+            "inputEndSampleExclusive": 720000,
+            "absoluteInputStartSeconds": 33.0,
+            "absoluteInputEndSeconds": 55.0,
+            "inputPcmSha256": "b65df95b502dbb8b02a060427a13844b598fa2a029962d9b90decfd471e7ba99",
+            "inferenceSeconds": 6.546340312999973,
+            "frames": 1099,
+            "blankTokenId": 0,
+            "argmaxRunFields": [
+              "tokenId",
+              "startFrame",
+              "endFrameExclusive",
+              "meanPosterior",
+              "minPosterior"
+            ],
+            "posteriorIsCalibratedConfidence": false,
+            "text": "إِنَّ إِلَى رَبِّكَ الرُّجِْعًا أَرَايتَ لَّذِي يَنْها عَبِدً إِلا أَصَلّىأَرَايتَ إِنك عَلَى عَلَى الْهُدَى ءرَمَرادِتْ",
+            "textMethod": "CTC-greedy-collapse-without-reference-or-language-model",
+            "frameTiming": {
+              "method": "convolution-stride-and-receptive-field",
+              "kernel": [
+                10,
+                3,
+                3,
+                3,
+                3,
+                2,
+                2
+              ],
+              "stride": [
+                5,
+                2,
+                2,
+                2,
+                2,
+                2,
+                2
+              ],
+              "expectedFrames": 1099,
+              "strideSamples": 320,
+              "receptiveFieldSamples": 400,
+              "firstFrameCenterSample": 199.5,
+              "centerRule": "absoluteInputStartSeconds + (firstFrameCenterSample + frame * strideSamples) / sampleRateHz",
+              "notWordOrVerseBoundaries": true
+            },
+            "rawPartSha256": "6dc4b673d3e5e45a3a076c7ae587d4dd8bb671ca762a32f5d53400f21931cf54",
+            "rawPartBytes": 13497
+          }
+        ],
+        "canonicalTextInput": false,
+        "forcedAlignment": false,
+        "mergedTranscriptProduced": false,
+        "versePresenceDecision": null,
+        "rawEvidenceStorage": "complete-per-chunk-log-envelopes",
+        "windowSamplesCovered": 720000
+      },
+      {
+        "surah": 96,
+        "sourceSha256": "1dd1f1593829f35296b31767c1da16ab0f056181fd04389e1747422723041fcd",
+        "channel": "native-2",
+        "model": "generic",
+        "windowSeconds": [
+          10.0,
+          55.0
+        ],
+        "pcmSha256": "0d3ffd127a74e4d4cd9c01ddea4615536dfdfd6d75dec3b0bf8b67eb3a8f5e37",
+        "rawChunks": [
+          {
+            "chunk": 1,
+            "coreStartSample": 0,
+            "coreEndSampleExclusive": 400000,
+            "inputStartSample": 0,
+            "inputEndSampleExclusive": 432000,
+            "absoluteInputStartSeconds": 10.0,
+            "absoluteInputEndSeconds": 37.0,
+            "inputPcmSha256": "e172e4d13e4d2e685111159ed6e4189232a360b9c0ab82605b484b96598e3b2c",
+            "inferenceSeconds": 8.293916255,
+            "frames": 1349,
+            "blankTokenId": 0,
+            "argmaxRunFields": [
+              "tokenId",
+              "startFrame",
+              "endFrameExclusive",
+              "meanPosterior",
+              "minPosterior"
+            ],
+            "posteriorIsCalibratedConfidence": false,
+            "text": "نسَالَ مِنعَلَقْ إِقْرأ وَرَبُّكَ الْأَكرَمُ الَّذِي عَلَّمَ بِلقَلَلِ عَلَّمْلنْسَالَمَالَم يَعلَمْ كَلّا إِنَّ لإِسَلَ لا يَعطَعُ أءرّأهُ استَغلا إِنَّ إِلى رَبِّكرّ",
+            "textMethod": "CTC-greedy-collapse-without-reference-or-language-model",
+            "frameTiming": {
+              "method": "convolution-stride-and-receptive-field",
+              "kernel": [
+                10,
+                3,
+                3,
+                3,
+                3,
+                2,
+                2
+              ],
+              "stride": [
+                5,
+                2,
+                2,
+                2,
+                2,
+                2,
+                2
+              ],
+              "expectedFrames": 1349,
+              "strideSamples": 320,
+              "receptiveFieldSamples": 400,
+              "firstFrameCenterSample": 199.5,
+              "centerRule": "absoluteInputStartSeconds + (firstFrameCenterSample + frame * strideSamples) / sampleRateHz",
+              "notWordOrVerseBoundaries": true
+            },
+            "rawPartSha256": "e8f3ad352a92eafe27bb345c4deef99b7134cbc7d20e194fe31f01658ff10916",
+            "rawPartBytes": 17968
+          },
+          {
+            "chunk": 2,
+            "coreStartSample": 400000,
+            "coreEndSampleExclusive": 720000,
+            "inputStartSample": 368000,
+            "inputEndSampleExclusive": 720000,
+            "absoluteInputStartSeconds": 33.0,
+            "absoluteInputEndSeconds": 55.0,
+            "inputPcmSha256": "8cecbba1efbdafa3651aa7afcb5ea4c2b659f6c418970b7fe9d54909e1a86287",
+            "inferenceSeconds": 6.500373178000018,
+            "frames": 1099,
+            "blankTokenId": 0,
+            "argmaxRunFields": [
+              "tokenId",
+              "startFrame",
+              "endFrameExclusive",
+              "meanPosterior",
+              "minPosterior"
+            ],
+            "posteriorIsCalibratedConfidence": false,
+            "text": "إِنَّ إِلَى رَبِّكَ الرُّجِْعًا أَرَايتَ لَّذِي يَنْها عَبِدً إِلا أَصَلّىأَرَايتَ إِنك عَلَى عَلَى الْهُدَى ءرَمَرابِتْ",
+            "textMethod": "CTC-greedy-collapse-without-reference-or-language-model",
+            "frameTiming": {
+              "method": "convolution-stride-and-receptive-field",
+              "kernel": [
+                10,
+                3,
+                3,
+                3,
+                3,
+                2,
+                2
+              ],
+              "stride": [
+                5,
+                2,
+                2,
+                2,
+                2,
+                2,
+                2
+              ],
+              "expectedFrames": 1099,
+              "strideSamples": 320,
+              "receptiveFieldSamples": 400,
+              "firstFrameCenterSample": 199.5,
+              "centerRule": "absoluteInputStartSeconds + (firstFrameCenterSample + frame * strideSamples) / sampleRateHz",
+              "notWordOrVerseBoundaries": true
+            },
+            "rawPartSha256": "e171a2a32f99582c176f0351df8516b93bff5b6731bea94e917385c41043e5ca",
+            "rawPartBytes": 13490
+          }
+        ],
+        "canonicalTextInput": false,
+        "forcedAlignment": false,
+        "mergedTranscriptProduced": false,
+        "versePresenceDecision": null,
+        "rawEvidenceStorage": "complete-per-chunk-log-envelopes",
+        "windowSamplesCovered": 720000
+      },
+      {
+        "surah": 96,
+        "sourceSha256": "1dd1f1593829f35296b31767c1da16ab0f056181fd04389e1747422723041fcd",
+        "channel": "native-1",
+        "model": "quran",
+        "windowSeconds": [
+          10.0,
+          55.0
+        ],
+        "pcmSha256": "4182f4b43dbacb32829484813da236506403a4345c6911d3a5d73808449023f5",
+        "rawChunks": [
+          {
+            "chunk": 1,
+            "coreStartSample": 0,
+            "coreEndSampleExclusive": 400000,
+            "inputStartSample": 0,
+            "inputEndSampleExclusive": 432000,
+            "absoluteInputStartSeconds": 10.0,
+            "absoluteInputEndSeconds": 37.0,
+            "inputPcmSha256": "12ad078a4eff8efb1b2dc154eec45ac3472f9a1a963183d1bf3a970dd4390e95",
+            "inferenceSeconds": 8.497491147999995,
+            "frames": 1349,
+            "blankTokenId": 0,
+            "argmaxRunFields": [
+              "tokenId",
+              "startFrame",
+              "endFrameExclusive",
+              "meanPosterior",
+              "minPosterior"
+            ],
+            "posteriorIsCalibratedConfidence": false,
+            "text": "إِنْسَانَ مِنْ عَلَقٍ اقْرَأْ وَرَبُّكَ لَكْرَمُ الَّذِي عَلَّمَ بِالْقَلَمِ عَلَّمَ لإِنْسَالَ مَا لَمْ يَعْلَمْ كَلَّا إِنَّ الْإِنْسَالَ لَيَطْغَىٰءَرَأَهُ اسْتَغْنَىٰ إِنَّ إِلَىٰ رَبِّكَ",
+            "textMethod": "CTC-greedy-collapse-without-reference-or-language-model",
+            "frameTiming": {
+              "method": "convolution-stride-and-receptive-field",
+              "kernel": [
+                10,
+                3,
+                3,
+                3,
+                3,
+                2,
+                2
+              ],
+              "stride": [
+                5,
+                2,
+                2,
+                2,
+                2,
+                2,
+                2
+              ],
+              "expectedFrames": 1349,
+              "strideSamples": 320,
+              "receptiveFieldSamples": 400,
+              "firstFrameCenterSample": 199.5,
+              "centerRule": "absoluteInputStartSeconds + (firstFrameCenterSample + frame * strideSamples) / sampleRateHz",
+              "notWordOrVerseBoundaries": true
+            },
+            "rawPartSha256": "c952aca0850a4b6a931b0933dd9d722d0ee9eefee830afeca4cbbea1383f8e83",
+            "rawPartBytes": 20247
+          },
+          {
+            "chunk": 2,
+            "coreStartSample": 400000,
+            "coreEndSampleExclusive": 720000,
+            "inputStartSample": 368000,
+            "inputEndSampleExclusive": 720000,
+            "absoluteInputStartSeconds": 33.0,
+            "absoluteInputEndSeconds": 55.0,
+            "inputPcmSha256": "b65df95b502dbb8b02a060427a13844b598fa2a029962d9b90decfd471e7ba99",
+            "inferenceSeconds": 6.553624420000006,
+            "frames": 1099,
+            "blankTokenId": 0,
+            "argmaxRunFields": [
+              "tokenId",
+              "startFrame",
+              "endFrameExclusive",
+              "meanPosterior",
+              "minPosterior"
+            ],
+            "posteriorIsCalibratedConfidence": false,
+            "text": "إِنَّ إِلَىٰ رَبِّكَ الرُّجْعَىٰ أَرَايْتَ الَّذِي يَنْهَىٰ عَبْدَ لِهَا صَلَّىٰ أَرَأَيْتَ إِنْ كَانَ عَلَى الْهُدَاءَ غَمَرَبِكَ",
+            "textMethod": "CTC-greedy-collapse-without-reference-or-language-model",
+            "frameTiming": {
+              "method": "convolution-stride-and-receptive-field",
+              "kernel": [
+                10,
+                3,
+                3,
+                3,
+                3,
+                2,
+                2
+              ],
+              "stride": [
+                5,
+                2,
+                2,
+                2,
+                2,
+                2,
+                2
+              ],
+              "expectedFrames": 1099,
+              "strideSamples": 320,
+              "receptiveFieldSamples": 400,
+              "firstFrameCenterSample": 199.5,
+              "centerRule": "absoluteInputStartSeconds + (firstFrameCenterSample + frame * strideSamples) / sampleRateHz",
+              "notWordOrVerseBoundaries": true
+            },
+            "rawPartSha256": "99f78e8b95bdc11dd4807f751db5bc2ecb5c13c9e6f88a961811f5ce883dcba3",
+            "rawPartBytes": 14211
+          }
+        ],
+        "canonicalTextInput": false,
+        "forcedAlignment": false,
+        "mergedTranscriptProduced": false,
+        "versePresenceDecision": null,
+        "rawEvidenceStorage": "complete-per-chunk-log-envelopes",
+        "windowSamplesCovered": 720000
+      },
+      {
+        "surah": 96,
+        "sourceSha256": "1dd1f1593829f35296b31767c1da16ab0f056181fd04389e1747422723041fcd",
+        "channel": "native-2",
+        "model": "quran",
+        "windowSeconds": [
+          10.0,
+          55.0
+        ],
+        "pcmSha256": "0d3ffd127a74e4d4cd9c01ddea4615536dfdfd6d75dec3b0bf8b67eb3a8f5e37",
+        "rawChunks": [
+          {
+            "chunk": 1,
+            "coreStartSample": 0,
+            "coreEndSampleExclusive": 400000,
+            "inputStartSample": 0,
+            "inputEndSampleExclusive": 432000,
+            "absoluteInputStartSeconds": 10.0,
+            "absoluteInputEndSeconds": 37.0,
+            "inputPcmSha256": "e172e4d13e4d2e685111159ed6e4189232a360b9c0ab82605b484b96598e3b2c",
+            "inferenceSeconds": 8.33686104100002,
+            "frames": 1349,
+            "blankTokenId": 0,
+            "argmaxRunFields": [
+              "tokenId",
+              "startFrame",
+              "endFrameExclusive",
+              "meanPosterior",
+              "minPosterior"
+            ],
+            "posteriorIsCalibratedConfidence": false,
+            "text": "إِنْسَانَ مِنْ عَلَقٍ اقْرَأْ وَرَبُّكَ لَكْرَمُ الَّذِي عَلَّمَ بِالْقَلَمِ عََمَ لإِنْسَالَ مَا لَمْ يَعْلَمْ كَلَّا إِنَّ الْإِنْسَانَ لَيَطْغَىٰءَرَأَهُ اسْتَغْنَىٰ إِنَّ إِلَىٰ رَبِّكَ",
+            "textMethod": "CTC-greedy-collapse-without-reference-or-language-model",
+            "frameTiming": {
+              "method": "convolution-stride-and-receptive-field",
+              "kernel": [
+                10,
+                3,
+                3,
+                3,
+                3,
+                2,
+                2
+              ],
+              "stride": [
+                5,
+                2,
+                2,
+                2,
+                2,
+                2,
+                2
+              ],
+              "expectedFrames": 1349,
+              "strideSamples": 320,
+              "receptiveFieldSamples": 400,
+              "firstFrameCenterSample": 199.5,
+              "centerRule": "absoluteInputStartSeconds + (firstFrameCenterSample + frame * strideSamples) / sampleRateHz",
+              "notWordOrVerseBoundaries": true
+            },
+            "rawPartSha256": "006c33de1bd743c8aaedd497a1623019baab48ced7dd556982f6a2e31185470e",
+            "rawPartBytes": 20069
+          },
+          {
+            "chunk": 2,
+            "coreStartSample": 400000,
+            "coreEndSampleExclusive": 720000,
+            "inputStartSample": 368000,
+            "inputEndSampleExclusive": 720000,
+            "absoluteInputStartSeconds": 33.0,
+            "absoluteInputEndSeconds": 55.0,
+            "inputPcmSha256": "8cecbba1efbdafa3651aa7afcb5ea4c2b659f6c418970b7fe9d54909e1a86287",
+            "inferenceSeconds": 6.565967970000031,
+            "frames": 1099,
+            "blankTokenId": 0,
+            "argmaxRunFields": [
+              "tokenId",
+              "startFrame",
+              "endFrameExclusive",
+              "meanPosterior",
+              "minPosterior"
+            ],
+            "posteriorIsCalibratedConfidence": false,
+            "text": "إِنَّ إِلَىٰ رَبِّكَ الرُّجْعَىٰ أَرَايْتَ الَّذِي يَنْهَىٰ عَبْدَ لِهَا صَلَّىٰ أَرَأَيْتَ إِنْ كَانَ عَلَى الْهُدَاءِ غَمَرَبِكَ",
+            "textMethod": "CTC-greedy-collapse-without-reference-or-language-model",
+            "frameTiming": {
+              "method": "convolution-stride-and-receptive-field",
+              "kernel": [
+                10,
+                3,
+                3,
+                3,
+                3,
+                2,
+                2
+              ],
+              "stride": [
+                5,
+                2,
+                2,
+                2,
+                2,
+                2,
+                2
+              ],
+              "expectedFrames": 1099,
+              "strideSamples": 320,
+              "receptiveFieldSamples": 400,
+              "firstFrameCenterSample": 199.5,
+              "centerRule": "absoluteInputStartSeconds + (firstFrameCenterSample + frame * strideSamples) / sampleRateHz",
+              "notWordOrVerseBoundaries": true
+            },
+            "rawPartSha256": "d1ef025764f7a07e2f1a432c342acc9a469d0196b1d876585cd1cab5436221a8",
+            "rawPartBytes": 14211
+          }
+        ],
+        "canonicalTextInput": false,
+        "forcedAlignment": false,
+        "mergedTranscriptProduced": false,
+        "versePresenceDecision": null,
+        "rawEvidenceStorage": "complete-per-chunk-log-envelopes",
+        "windowSamplesCovered": 720000
+      }
+    ],
+    "measurements": [
+      {
+        "model": "generic",
+        "channel": "native-1",
+        "alignmentModel": {
+          "id": "jonatasgrosman/wav2vec2-large-xlsr-53-arabic",
+          "revision": "af46c2d8531b8dcbb5e23b952f739b372c2e5d2d",
+          "weightsSha256": "a0b26f6d9d3edfde1784aef863c192a8cc1e438a23b45910ab648531ebe1857b",
+          "license": "Apache-2.0"
+        },
+        "alignmentInput": [
+          "عَلَّمَ اَ۬لِانسَٰنَ مَا لَمْ يَعْلَمْۖ",
+          "كَلَّآ إِنَّ اَ۬لِانسَٰنَ لَيَطْغ۪ىٰٓ",
+          "أَن رّ۪ء۪اهُ اُ۪سْتَغْن۪ىٰٓۖ",
+          "إِنَّ إِلَىٰ رَبِّكَ اَ۬لرُّجْع۪ىٰٓۖ",
+          "أَرَٰٓيْتَ اَ۬لذِے يَنْه۪ىٰ",
+          "عَبْداً اِذَا صَلّ۪ىٰٓۖ"
+        ],
+        "windowSeconds": [
+          10.0,
+          55.0
+        ],
+        "inputPcmSha256": "3faa5dce82f5c4173faf558f3ee49fd9c76d08b31997e2283a1ade99bb3e3c7d",
+        "rawSegments": [
+          [
+            7.547153024911031,
+            11.880560498220639,
+            -1.2651542966068214
+          ],
+          [
+            12.271352313167258,
+            18.026023131672595,
+            -1.0355817092475565
+          ],
+          [
+            18.026023131672595,
+            22.990435943060497,
+            -0.7194143969674769
+          ],
+          [
+            23.701512455516013,
+            27.754670818505335,
+            -0.8058688533824561
+          ],
+          [
+            28.42571174377224,
+            32.659030249110316,
+            -1.2314442199639746
+          ],
+          [
+            32.659030249110316,
+            34.94105871886121,
+            -1.0893780029192992
+          ]
+        ],
+        "rawEntries": [
+          {
+            "ayahId": "96:5",
+            "startMs": 17547,
+            "endMs": 21880,
+            "conf": 0.684
+          },
+          {
+            "ayahId": "96:6",
+            "startMs": 22271,
+            "endMs": 28026,
+            "conf": 0.741
+          },
+          {
+            "ayahId": "96:7",
+            "startMs": 28026,
+            "endMs": 32990,
+            "conf": 0.82
+          },
+          {
+            "ayahId": "96:8",
+            "startMs": 33701,
+            "endMs": 37754,
+            "conf": 0.799
+          },
+          {
+            "ayahId": "96:9",
+            "startMs": 38425,
+            "endMs": 42659,
+            "conf": 0.692
+          },
+          {
+            "ayahId": "96:10",
+            "startMs": 42659,
+            "endMs": 44941,
+            "conf": 0.728
+          }
+        ],
+        "entries": [
+          {
+            "ayahId": "96:5",
+            "startMs": 17547,
+            "endMs": 22271,
+            "conf": 0.684
+          },
+          {
+            "ayahId": "96:6",
+            "startMs": 22271,
+            "endMs": 28026,
+            "conf": 0.741
+          },
+          {
+            "ayahId": "96:7",
+            "startMs": 28026,
+            "endMs": 33701,
+            "conf": 0.82
+          },
+          {
+            "ayahId": "96:8",
+            "startMs": 33701,
+            "endMs": 38425,
+            "conf": 0.799
+          },
+          {
+            "ayahId": "96:9",
+            "startMs": 38425,
+            "endMs": 42659,
+            "conf": 0.692
+          },
+          {
+            "ayahId": "96:10",
+            "startMs": 42659,
+            "endMs": 44941,
+            "conf": 0.728
+          }
+        ]
+      },
+      {
+        "model": "generic",
+        "channel": "native-2",
+        "alignmentModel": {
+          "id": "jonatasgrosman/wav2vec2-large-xlsr-53-arabic",
+          "revision": "af46c2d8531b8dcbb5e23b952f739b372c2e5d2d",
+          "weightsSha256": "a0b26f6d9d3edfde1784aef863c192a8cc1e438a23b45910ab648531ebe1857b",
+          "license": "Apache-2.0"
+        },
+        "alignmentInput": [
+          "عَلَّمَ اَ۬لِانسَٰنَ مَا لَمْ يَعْلَمْۖ",
+          "كَلَّآ إِنَّ اَ۬لِانسَٰنَ لَيَطْغ۪ىٰٓ",
+          "أَن رّ۪ء۪اهُ اُ۪سْتَغْن۪ىٰٓۖ",
+          "إِنَّ إِلَىٰ رَبِّكَ اَ۬لرُّجْع۪ىٰٓۖ",
+          "أَرَٰٓيْتَ اَ۬لذِے يَنْه۪ىٰ",
+          "عَبْداً اِذَا صَلّ۪ىٰٓۖ"
+        ],
+        "windowSeconds": [
+          10.0,
+          55.0
+        ],
+        "inputPcmSha256": "0d436d220d6c1a522cc1f540f5bd9cc113c11103d1cb97adcdf1d093ed151c96",
+        "rawSegments": [
+          [
+            7.547153024911031,
+            11.880560498220639,
+            -1.2741534295028336
+          ],
+          [
+            12.271352313167258,
+            18.10609430604982,
+            -1.066137566855347
+          ],
+          [
+            18.10609430604982,
+            22.990435943060497,
+            -0.780237074921206
+          ],
+          [
+            23.701512455516013,
+            27.754670818505335,
+            -0.7946529593222377
+          ],
+          [
+            28.42571174377224,
+            32.659030249110316,
+            -1.2960787633485047
+          ],
+          [
+            32.659030249110316,
+            34.9210409252669,
+            -1.0770819036825137
+          ]
+        ],
+        "rawEntries": [
+          {
+            "ayahId": "96:5",
+            "startMs": 17547,
+            "endMs": 21880,
+            "conf": 0.681
+          },
+          {
+            "ayahId": "96:6",
+            "startMs": 22271,
+            "endMs": 28106,
+            "conf": 0.733
+          },
+          {
+            "ayahId": "96:7",
+            "startMs": 28106,
+            "endMs": 32990,
+            "conf": 0.805
+          },
+          {
+            "ayahId": "96:8",
+            "startMs": 33701,
+            "endMs": 37754,
+            "conf": 0.801
+          },
+          {
+            "ayahId": "96:9",
+            "startMs": 38425,
+            "endMs": 42659,
+            "conf": 0.676
+          },
+          {
+            "ayahId": "96:10",
+            "startMs": 42659,
+            "endMs": 44921,
+            "conf": 0.731
+          }
+        ],
+        "entries": [
+          {
+            "ayahId": "96:5",
+            "startMs": 17547,
+            "endMs": 22271,
+            "conf": 0.681
+          },
+          {
+            "ayahId": "96:6",
+            "startMs": 22271,
+            "endMs": 28106,
+            "conf": 0.733
+          },
+          {
+            "ayahId": "96:7",
+            "startMs": 28106,
+            "endMs": 33701,
+            "conf": 0.805
+          },
+          {
+            "ayahId": "96:8",
+            "startMs": 33701,
+            "endMs": 38425,
+            "conf": 0.801
+          },
+          {
+            "ayahId": "96:9",
+            "startMs": 38425,
+            "endMs": 42659,
+            "conf": 0.676
+          },
+          {
+            "ayahId": "96:10",
+            "startMs": 42659,
+            "endMs": 44921,
+            "conf": 0.731
+          }
+        ]
+      },
+      {
+        "model": "quran",
+        "channel": "native-1",
+        "alignmentModel": {
+          "id": "rabah2026/wav2vec2-large-xlsr-53-arabic-quran-v_final",
+          "revision": "b03a268c6ba1a693752307325ab376c86c3b12da",
+          "weightsSha256": "bf65674a26eb4ef7042cedade96c3c8f8cbd04f3a7d1a68eadceec8ed0f99ecb",
+          "license": "Apache-2.0"
+        },
+        "alignmentInput": [
+          "عَلَّمَ اَلِانسَٰنَ مَا لَمْ يَعْلَمْ",
+          "كَلَّآ إِنَّ اَلِانسَٰنَ لَيَطْغىٰٓ",
+          "أَن رّءاهُ اُسْتَغْنىٰٓ",
+          "إِنَّ إِلَىٰ رَبِّكَ اَلرُّجْعىٰٓ",
+          "أَرَٰٓيْتَ اَلذِي يَنْهىٰ",
+          "عَبْداً اِذَا صَلّىٰٓ"
+        ],
+        "windowSeconds": [
+          10.0,
+          55.0
+        ],
+        "inputPcmSha256": "3faa5dce82f5c4173faf558f3ee49fd9c76d08b31997e2283a1ade99bb3e3c7d",
+        "rawSegments": [
+          [
+            7.547153024911031,
+            11.840524911032027,
+            -1.2177259519132348
+          ],
+          [
+            12.271352313167258,
+            18.126112099644125,
+            -1.033278018840186
+          ],
+          [
+            19.277580071174377,
+            24.07139679715302,
+            -0.6508872993144905
+          ],
+          [
+            24.07139679715302,
+            28.85564946619217,
+            -0.6836342435647415
+          ],
+          [
+            28.85564946619217,
+            32.659030249110316,
+            -0.9948342161701476
+          ],
+          [
+            32.659030249110316,
+            34.9210409252669,
+            -1.1524772692854033
+          ]
+        ],
+        "rawEntries": [
+          {
+            "ayahId": "96:5",
+            "startMs": 17547,
+            "endMs": 21840,
+            "conf": 0.696
+          },
+          {
+            "ayahId": "96:6",
+            "startMs": 22271,
+            "endMs": 28126,
+            "conf": 0.742
+          },
+          {
+            "ayahId": "96:7",
+            "startMs": 29277,
+            "endMs": 34071,
+            "conf": 0.837
+          },
+          {
+            "ayahId": "96:8",
+            "startMs": 34071,
+            "endMs": 38855,
+            "conf": 0.829
+          },
+          {
+            "ayahId": "96:9",
+            "startMs": 38855,
+            "endMs": 42659,
+            "conf": 0.751
+          },
+          {
+            "ayahId": "96:10",
+            "startMs": 42659,
+            "endMs": 44921,
+            "conf": 0.712
+          }
+        ],
+        "entries": [
+          {
+            "ayahId": "96:5",
+            "startMs": 17547,
+            "endMs": 22271,
+            "conf": 0.696
+          },
+          {
+            "ayahId": "96:6",
+            "startMs": 22271,
+            "endMs": 29277,
+            "conf": 0.742
+          },
+          {
+            "ayahId": "96:7",
+            "startMs": 29277,
+            "endMs": 34071,
+            "conf": 0.837
+          },
+          {
+            "ayahId": "96:8",
+            "startMs": 34071,
+            "endMs": 38855,
+            "conf": 0.829
+          },
+          {
+            "ayahId": "96:9",
+            "startMs": 38855,
+            "endMs": 42659,
+            "conf": 0.751
+          },
+          {
+            "ayahId": "96:10",
+            "startMs": 42659,
+            "endMs": 44921,
+            "conf": 0.712
+          }
+        ]
+      },
+      {
+        "model": "quran",
+        "channel": "native-2",
+        "alignmentModel": {
+          "id": "rabah2026/wav2vec2-large-xlsr-53-arabic-quran-v_final",
+          "revision": "b03a268c6ba1a693752307325ab376c86c3b12da",
+          "weightsSha256": "bf65674a26eb4ef7042cedade96c3c8f8cbd04f3a7d1a68eadceec8ed0f99ecb",
+          "license": "Apache-2.0"
+        },
+        "alignmentInput": [
+          "عَلَّمَ اَلِانسَٰنَ مَا لَمْ يَعْلَمْ",
+          "كَلَّآ إِنَّ اَلِانسَٰنَ لَيَطْغىٰٓ",
+          "أَن رّءاهُ اُسْتَغْنىٰٓ",
+          "إِنَّ إِلَىٰ رَبِّكَ اَلرُّجْعىٰٓ",
+          "أَرَٰٓيْتَ اَلذِي يَنْهىٰ",
+          "عَبْداً اِذَا صَلّىٰٓ"
+        ],
+        "windowSeconds": [
+          10.0,
+          55.0
+        ],
+        "inputPcmSha256": "0d436d220d6c1a522cc1f540f5bd9cc113c11103d1cb97adcdf1d093ed151c96",
+        "rawSegments": [
+          [
+            7.547153024911031,
+            11.840524911032027,
+            -1.20287512568907
+          ],
+          [
+            12.271352313167258,
+            18.126112099644125,
+            -1.0584604074349349
+          ],
+          [
+            19.277580071174377,
+            24.07139679715302,
+            -0.6717311390772617
+          ],
+          [
+            24.07139679715302,
+            28.85564946619217,
+            -0.6832098628976079
+          ],
+          [
+            28.85564946619217,
+            32.659030249110316,
+            -0.9866800255833975
+          ],
+          [
+            32.659030249110316,
+            34.9210409252669,
+            -1.1816580034474706
+          ]
+        ],
+        "rawEntries": [
+          {
+            "ayahId": "96:5",
+            "startMs": 17547,
+            "endMs": 21840,
+            "conf": 0.699
+          },
+          {
+            "ayahId": "96:6",
+            "startMs": 22271,
+            "endMs": 28126,
+            "conf": 0.735
+          },
+          {
+            "ayahId": "96:7",
+            "startMs": 29277,
+            "endMs": 34071,
+            "conf": 0.832
+          },
+          {
+            "ayahId": "96:8",
+            "startMs": 34071,
+            "endMs": 38855,
+            "conf": 0.829
+          },
+          {
+            "ayahId": "96:9",
+            "startMs": 38855,
+            "endMs": 42659,
+            "conf": 0.753
+          },
+          {
+            "ayahId": "96:10",
+            "startMs": 42659,
+            "endMs": 44921,
+            "conf": 0.705
+          }
+        ],
+        "entries": [
+          {
+            "ayahId": "96:5",
+            "startMs": 17547,
+            "endMs": 22271,
+            "conf": 0.699
+          },
+          {
+            "ayahId": "96:6",
+            "startMs": 22271,
+            "endMs": 29277,
+            "conf": 0.735
+          },
+          {
+            "ayahId": "96:7",
+            "startMs": 29277,
+            "endMs": 34071,
+            "conf": 0.832
+          },
+          {
+            "ayahId": "96:8",
+            "startMs": 34071,
+            "endMs": 38855,
+            "conf": 0.829
+          },
+          {
+            "ayahId": "96:9",
+            "startMs": 38855,
+            "endMs": 42659,
+            "conf": 0.753
+          },
+          {
+            "ayahId": "96:10",
+            "startMs": 42659,
+            "endMs": 44921,
+            "conf": 0.705
+          }
+        ]
+      }
+    ],
+    "models": [
+      {
+        "name": "generic",
+        "id": "jonatasgrosman/wav2vec2-large-xlsr-53-arabic",
+        "revision": "af46c2d8531b8dcbb5e23b952f739b372c2e5d2d",
+        "weightsSha256": "a0b26f6d9d3edfde1784aef863c192a8cc1e438a23b45910ab648531ebe1857b",
+        "weightFile": "pytorch_model.bin",
+        "vocabulary": {
+          "<pad>": 0,
+          "<s>": 1,
+          "</s>": 2,
+          "<unk>": 3,
+          "|": 4,
+          "-": 5,
+          "ء": 6,
+          "آ": 7,
+          "أ": 8,
+          "ؤ": 9,
+          "إ": 10,
+          "ئ": 11,
+          "ا": 12,
+          "ب": 13,
+          "ة": 14,
+          "ت": 15,
+          "ث": 16,
+          "ج": 17,
+          "ح": 18,
+          "خ": 19,
+          "د": 20,
+          "ذ": 21,
+          "ر": 22,
+          "ز": 23,
+          "س": 24,
+          "ش": 25,
+          "ص": 26,
+          "ض": 27,
+          "ط": 28,
+          "ظ": 29,
+          "ع": 30,
+          "غ": 31,
+          "ـ": 32,
+          "ف": 33,
+          "ق": 34,
+          "ك": 35,
+          "ل": 36,
+          "م": 37,
+          "ن": 38,
+          "ه": 39,
+          "و": 40,
+          "ى": 41,
+          "ي": 42,
+          "ً": 43,
+          "ٌ": 44,
+          "ٍ": 45,
+          "َ": 46,
+          "ُ": 47,
+          "ِ": 48,
+          "ّ": 49,
+          "ْ": 50
+        },
+        "files": {
+          "config.json": {
+            "bytes": 1565,
+            "sha256": "9283014cd08d1fbcb13f7965c4dda8ef54a988e40945ff2616e15afcd0f1fac7"
+          },
+          "preprocessor_config.json": {
+            "bytes": 158,
+            "sha256": "c403ce09975b90dff0dd8302c42d422e9de1f166cd7772df23490069893cb0cf"
+          },
+          "special_tokens_map.json": {
+            "bytes": 85,
+            "sha256": "bb7068de1150661a10b55f9e4b12a0e77af8bf91f5e45e1b58afaf1d0e17f675"
+          },
+          "vocab.json": {
+            "bytes": 507,
+            "sha256": "96a92ff9bd106f825c878f502fe341f9f0488ace92d3c76dc40a6b30296efedd"
+          }
+        }
+      },
+      {
+        "name": "quran",
+        "id": "rabah2026/wav2vec2-large-xlsr-53-arabic-quran-v_final",
+        "revision": "b03a268c6ba1a693752307325ab376c86c3b12da",
+        "weightsSha256": "bf65674a26eb4ef7042cedade96c3c8f8cbd04f3a7d1a68eadceec8ed0f99ecb",
+        "weightFile": "model.safetensors",
+        "vocabulary": {
+          "-": 5,
+          "</s>": 2,
+          "<pad>": 0,
+          "<s>": 1,
+          "<unk>": 3,
+          "|": 4,
+          "ء": 6,
+          "آ": 7,
+          "أ": 8,
+          "ؤ": 9,
+          "إ": 10,
+          "ئ": 11,
+          "ا": 12,
+          "ب": 13,
+          "ة": 14,
+          "ت": 15,
+          "ث": 16,
+          "ج": 17,
+          "ح": 18,
+          "خ": 19,
+          "د": 20,
+          "ذ": 21,
+          "ر": 22,
+          "ز": 23,
+          "س": 24,
+          "ش": 25,
+          "ص": 26,
+          "ض": 27,
+          "ط": 28,
+          "ظ": 29,
+          "ع": 30,
+          "غ": 31,
+          "ـ": 32,
+          "ف": 33,
+          "ق": 34,
+          "ك": 35,
+          "ل": 36,
+          "م": 37,
+          "ن": 38,
+          "ه": 39,
+          "و": 40,
+          "ى": 41,
+          "ي": 42,
+          "ً": 43,
+          "ٌ": 44,
+          "ٍ": 45,
+          "َ": 46,
+          "ُ": 47,
+          "ِ": 48,
+          "ّ": 49,
+          "ْ": 50,
+          "ٓ": 53,
+          "ٰ": 52,
+          "ٱ": 51,
+          "ۥ": 54,
+          "ۦ": 55
+        },
+        "files": {
+          "config.json": {
+            "bytes": 2244,
+            "sha256": "56868371643cb1a350fa336b246882505c3aa87d86b31990808b426bb8175230"
+          },
+          "preprocessor_config.json": {
+            "bytes": 256,
+            "sha256": "ffc72f475cd79680d5d659fbaefc691cdbcee5c9703a15faf708a5e91452a8d8"
+          },
+          "special_tokens_map.json": {
+            "bytes": 96,
+            "sha256": "9046da57c270c8e74d0f38832b4adce269c9d914ef21d2a0925e7772152dd793"
+          },
+          "tokenizer_config.json": {
+            "bytes": 1120,
+            "sha256": "84233fa817d20ba6e3470dc33df489b8fa89d5f53323fd9fe8ea08a5b315d709"
+          },
+          "vocab.json": {
+            "bytes": 672,
+            "sha256": "60b9e6174798b6e1a92c92fb5935e32522aebaca4cdd1f481fd220346471644c"
+          }
+        }
+      }
+    ],
+    "errors": [],
+    "limits": [
+      "Context alignment may force absent text; compare free ASR and both models.",
+      "Existing candidate window may omit displaced speech.",
+      "No quality report, timing, confidence or Quran text is rewritten."
+    ],
+    "provenance": {
+      "runId": "37406073805",
+      "runSha": "497c83c16bc001c518accb5f579288a0fc0099e9",
+      "toolSha256": "b8ea3597bca62543e45da4c44d22f8d74704a067e1fe6622b83cd091cdeb3a75"
+    },
+    "source": {
+      "id": "rabbani96_5_10",
+      "surah": 96,
+      "riwaya": "warsh",
+      "url": "https://archive.org/download/alfirdwsiy1433_35686535653683658668356566586356gmail_002/096.mp3",
+      "sha256": "1dd1f1593829f35296b31767c1da16ab0f056181fd04389e1747422723041fcd",
+      "requestedWindowSeconds": [
+        10,
+        55
+      ],
+      "contextAyahs": [
+        5,
+        6,
+        7,
+        8,
+        9,
+        10
+      ],
+      "evidencePath": "ops/out/codex-context-parent-rabbani96_5_10-20261006.json",
+      "evidenceSha256": "2be902778f217b7d597182efdb565dbc23f75aab3d3ea60c5886a85ee6728c9c",
+      "evidenceKind": "pinned-parent",
+      "maxSourceSeconds": 7200
+    },
+    "versions": {
+      "torch": "2.6.0+cpu",
+      "transformers": "4.49.0",
+      "numpy": "1.26.4",
+      "huggingface-hub": "0.29.3",
+      "safetensors": "0.5.3",
+      "tokenizers": "0.21.1"
+    },
+    "canonicalContext": [
+      "عَلَّمَ اَ۬لِانسَٰنَ مَا لَمْ يَعْلَمْۖ",
+      "كَلَّآ إِنَّ اَ۬لِانسَٰنَ لَيَطْغ۪ىٰٓ",
+      "أَن رّ۪ء۪اهُ اُ۪سْتَغْن۪ىٰٓۖ",
+      "إِنَّ إِلَىٰ رَبِّكَ اَ۬لرُّجْع۪ىٰٓۖ",
+      "أَرَٰٓيْتَ اَ۬لذِے يَنْه۪ىٰ",
+      "عَبْداً اِذَا صَلّ۪ىٰٓۖ"
+    ],
+    "referenceSha256": {
+      "index.jz": "bc5883e592a677180adb9d588c584dcc4bb70d686ac658b41b01f3509bb53026",
+      "text_warsh.jz": "6df092d4edccf852a9ef5f1b1b2a30caf5edd6b0f8e29395c7290016e685eb7c"
+    },
+    "audio": {
+      "download": {
+        "bytes": 764864,
+        "sha256": "1dd1f1593829f35296b31767c1da16ab0f056181fd04389e1747422723041fcd",
+        "finalUrl": "https://ia601501.us.archive.org/21/items/alfirdwsiy1433_35686535653683658668356566586356gmail_002/096.mp3"
+      },
+      "container": {
+        "programs": [],
+        "stream_groups": [],
+        "streams": [
+          {
+            "codec_type": "audio",
+            "sample_rate": "44100",
+            "channels": 2,
+            "channel_layout": "stereo"
+          },
+          {
+            "codec_type": "video"
+          }
+        ],
+        "format": {
+          "duration": "90.657959"
+        }
+      },
+      "decoded": {
+        "frames": 1450336,
+        "nativeChannels": 2,
+        "durationSeconds": 90.646,
+        "fullNativePcmSha256": "848e36a938b5e25e37082f4ae1446591c3cec18e7be94a5b0faad26a3f9e657a",
+        "windowStartSample": 160000,
+        "windowEndSampleExclusive": 880000,
+        "windowSamplesPerChannel": 720000,
+        "requestedEndClampedToDecodedEof": false,
+        "decodedWithoutErrors": true
+      },
+      "sourceUnchanged": true,
+      "nativeChannelsUnmixed": true,
+      "canonicalTextRead": false
+    },
+    "modelAcquisition": {
+      "policy": "quran-pinned-ephemeral",
+      "cacheKey": "ctc-model-jonatasgrosman-xlsr53-ar-v1",
+      "exactHit": true,
+      "models": [
+        {
+          "name": "generic",
+          "id": "jonatasgrosman/wav2vec2-large-xlsr-53-arabic",
+          "revision": "af46c2d8531b8dcbb5e23b952f739b372c2e5d2d",
+          "weightsSha256": "a0b26f6d9d3edfde1784aef863c192a8cc1e438a23b45910ab648531ebe1857b",
+          "weightFile": "pytorch_model.bin",
+          "snapshot": "hub/models--jonatasgrosman--wav2vec2-large-xlsr-53-arabic/snapshots/af46c2d8531b8dcbb5e23b952f739b372c2e5d2d",
+          "weightBytes": 1262142936,
+          "localOnly": true
+        }
+      ],
+      "quranEphemeral": {
+        "id": "rabah2026/wav2vec2-large-xlsr-53-arabic-quran-v_final",
+        "revision": "b03a268c6ba1a693752307325ab376c86c3b12da",
+        "weightsSha256": "bf65674a26eb4ef7042cedade96c3c8f8cbd04f3a7d1a68eadceec8ed0f99ecb",
+        "weightFile": "model.safetensors",
+        "sourceMode": "explicit-ephemeral-public-download",
+        "cacheWrite": false,
+        "artifactWrite": false,
+        "files": [
+          {
+            "filename": "config.json",
+            "bytes": 2244,
+            "sha256": "56868371643cb1a350fa336b246882505c3aa87d86b31990808b426bb8175230",
+            "url": "https://huggingface.co/rabah2026/wav2vec2-large-xlsr-53-arabic-quran-v_final/resolve/b03a268c6ba1a693752307325ab376c86c3b12da/config.json"
+          },
+          {
+            "filename": "vocab.json",
+            "bytes": 672,
+            "sha256": "60b9e6174798b6e1a92c92fb5935e32522aebaca4cdd1f481fd220346471644c",
+            "url": "https://huggingface.co/rabah2026/wav2vec2-large-xlsr-53-arabic-quran-v_final/resolve/b03a268c6ba1a693752307325ab376c86c3b12da/vocab.json"
+          },
+          {
+            "filename": "preprocessor_config.json",
+            "bytes": 256,
+            "sha256": "ffc72f475cd79680d5d659fbaefc691cdbcee5c9703a15faf708a5e91452a8d8",
+            "url": "https://huggingface.co/rabah2026/wav2vec2-large-xlsr-53-arabic-quran-v_final/resolve/b03a268c6ba1a693752307325ab376c86c3b12da/preprocessor_config.json"
+          },
+          {
+            "filename": "tokenizer_config.json",
+            "bytes": 1120,
+            "sha256": "84233fa817d20ba6e3470dc33df489b8fa89d5f53323fd9fe8ea08a5b315d709",
+            "url": "https://huggingface.co/rabah2026/wav2vec2-large-xlsr-53-arabic-quran-v_final/resolve/b03a268c6ba1a693752307325ab376c86c3b12da/tokenizer_config.json"
+          },
+          {
+            "filename": "special_tokens_map.json",
+            "bytes": 96,
+            "sha256": "9046da57c270c8e74d0f38832b4adce269c9d914ef21d2a0925e7772152dd793",
+            "url": "https://huggingface.co/rabah2026/wav2vec2-large-xlsr-53-arabic-quran-v_final/resolve/b03a268c6ba1a693752307325ab376c86c3b12da/special_tokens_map.json"
+          },
+          {
+            "filename": "tokenizer.json",
+            "optionalAbsent": true
+          },
+          {
+            "filename": "model.safetensors",
+            "bytes": 1262037080,
+            "sha256": "bf65674a26eb4ef7042cedade96c3c8f8cbd04f3a7d1a68eadceec8ed0f99ecb",
+            "url": "https://huggingface.co/rabah2026/wav2vec2-large-xlsr-53-arabic-quran-v_final/resolve/b03a268c6ba1a693752307325ab376c86c3b12da/model.safetensors"
+          }
+        ],
+        "byteLimit": 1506291456,
+        "deadlineSeconds": 600,
+        "totalBytes": 1262041468,
+        "downloadSeconds": 14.327774001000023
+      }
+    }
+  }
+]

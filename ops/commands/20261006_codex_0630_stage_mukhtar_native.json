@@ -1,0 +1,20 @@
+{
+  "action": "tool",
+  "tool": "index_qa/stage_transform.py",
+  "args": [
+    "--file",
+    "ops/source-repair/candidates/codex-mukhtar-native-final-v2-20261006.jz",
+    "--parent",
+    "timings/hafs/mukhtar_haj.jz",
+    "--parent-sha",
+    "a01f926802dc95b0ae76ea74ac5f9b5521b1b94d5a7977e3c0fdb6f7bd5d25d1",
+    "--op",
+    "ctc_quran_window:37",
+    "--reason",
+    "Measured native source contexts repair actual rejected boundaries; preserve all confidence and source identities. Fresh full final-SHA QA mandatory.",
+    "--by",
+    "codex",
+    "--manual-qa-only",
+    "--yes"
+  ]
+}
