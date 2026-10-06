@@ -223,9 +223,10 @@ def gate_start_anchors(heard_sk, times, ayah_sks, anchors,
 
     قد يبدأ حدُّ آيةٍ داخل opcode من نوع ``replace`` بدأ في الآية السابقة وانتهى في
     الحالية. عندئذٍ يعطي الاستيفاء داخل ``replace`` زمناً مبكراً غيرَ مطابقٍ لحرفٍ
-    مسموع بعينه. إن كان opcode التالي مباشرةً ``equal`` داخل الآية الحالية، وعلى
-    بُعدٍ لا يتجاوز ``max_equal_chars`` أحرف و``max_shift_ms``، يكون زمنُ أول حرفه
-    المطابق شاهدَ بدء البوابة. وإلا تبقى المِرساة كما هي.
+    مسموع بعينه. إن كان أول opcode يستهلك نصاً بعده ``equal`` داخل الآية الحالية
+    (مع السماح قبله بـ``delete`` قصير لا يستهلك أيَّ حرفٍ قرآني)، وعلى بُعدٍ لا
+    يتجاوز ``max_equal_chars`` أحرف و``max_shift_ms``، يكون زمنُ أول حرفه المطابق
+    شاهدَ بدء البوابة. وإلا تبقى المِرساة كما هي.
 
     النتيجة ``(anchors, evidence)``؛ ``anchors`` نسخةٌ لا تمسّ المُدخل، و``evidence``
     قائمةٌ موازية فيها أصلُ التنقية أو ``None``. لا جودةَ تُرفع، ولا ``unknown``
@@ -256,9 +257,14 @@ def gate_start_anchors(heard_sk, times, ayah_sks, anchors,
         mapped = min(i2 - 1, i1 + int((c - j1) * (i2 - i1) / max(1, j2 - j1)))
         if not (0 <= mapped < len(times)) or int(a[0]) != int(times[mapped]):
             continue
-        if oi + 1 >= len(ops):
+        ni, deleted_heard = oi + 1, 0
+        while ni < len(ops) and ops[ni][0] == "delete" and ops[ni][3] == ops[ni][4]:
+            deleted_heard += ops[ni][2] - ops[ni][1]
+            ni += 1
+        # حذفٌ طويلٌ بين replace والتطابق ليس «فاصلاً صفرياً» آمناً؛ لا ننقّح.
+        if deleted_heard > int(max_equal_chars) or ni >= len(ops):
             continue
-        nxt = ops[oi + 1]
+        nxt = ops[ni]
         if nxt[0] != "equal" or not (c <= nxt[3] < end):
             continue
         char_gap = nxt[3] - c
@@ -274,7 +280,8 @@ def gate_start_anchors(heard_sk, times, ayah_sks, anchors,
                        "shiftMs": shift, "canonicalCharGap": char_gap,
                        "opcode": [tag, i1, i2, j1, j2],
                        "mappedHeardIndex": mapped,
-                       "firstEqualHeardIndex": nxt[1]}
+                       "firstEqualHeardIndex": nxt[1],
+                       "skippedDeleteHeardChars": deleted_heard}
     return refined, evidence
 
 

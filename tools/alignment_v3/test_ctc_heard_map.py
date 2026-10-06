@@ -3,6 +3,7 @@
 import os
 import sys
 import unittest
+from unittest import mock
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, HERE)
@@ -114,30 +115,49 @@ class Pure(unittest.TestCase):
 
     def test_gate_start_refines_only_cross_ayah_replace_to_near_equal(self):
         # الحدُّ بين «ابجد» و«هوز» يقع داخل replace، وأول equal لاحق داخل الآية الثانية.
-        heard, times = _heard(["ابجكز"])
+        heard, times = _heard(["ابجكضوز"])
         ayahs = ["ابجد", "هوز"]
-        raw = H.global_anchors(heard, times, ayahs, frame_ms=80)
+        raw = [(0, 320, 0.75), (3 * 80, 6 * 80, 2 / 3)]
         self.assertEqual(raw[1][0], 3 * 80)
-        gate, ev = H.gate_start_anchors(heard, times, ayahs, raw)
-        self.assertEqual(gate[1][0], 4 * 80)
+        # ثبّت شكل المحاذاة المقصود: الاختبار للدالة المنقّحة، لا لاختلاف
+        # اختيار opcodes بين rapidfuzz وبديل difflib المحلي.
+        ops = [("equal", 0, 3, 0, 3), ("replace", 3, 4, 3, 5),
+               ("delete", 4, 5, 5, 5), ("equal", 5, 7, 5, 7)]
+        with mock.patch.object(H, "_opcodes", return_value=ops):
+            gate, ev = H.gate_start_anchors(heard, times, ayahs, raw)
+        self.assertEqual(gate[1][0], 5 * 80)
         self.assertEqual(gate[1][1:], raw[1][1:])       # لا نهايةً ولا جودةً تغيّرتا
         self.assertEqual(ev[1]["kind"], "cross-ayah-replace-first-equal")
         self.assertEqual(ev[1]["rawStartMs"], raw[1][0])
-        self.assertEqual(ev[1]["canonicalCharGap"], 2)
+        self.assertEqual(ev[1]["canonicalCharGap"], 1)
+        self.assertEqual(ev[1]["skippedDeleteHeardChars"], 1)
         self.assertIsNone(ev[0])
 
     def test_gate_start_rejects_distant_or_non_crossing_equal(self):
-        heard, times = _heard(["ابجكز"])
+        heard, times = _heard(["ابجكضوز"])
         ayahs = ["ابجد", "هوز"]
-        raw = H.global_anchors(heard, times, ayahs, frame_ms=80)
+        raw = [(0, 320, 0.75), (3 * 80, 6 * 80, 2 / 3)]
+        crossing = [("equal", 0, 3, 0, 3), ("replace", 3, 4, 3, 5),
+                    ("delete", 4, 5, 5, 5), ("equal", 5, 7, 5, 7)]
         # قفزةٌ زمنية بعيدة لا تُقبل ولو كان opcode صحيحاً.
-        far_times = list(times); far_times[4] = far_times[3] + H.GATE_EQUAL_SHIFT_MS + 1
-        gate, ev = H.gate_start_anchors(heard, far_times, ayahs, raw)
+        far_times = list(times); far_times[5] = far_times[3] + H.GATE_EQUAL_SHIFT_MS + 1
+        with mock.patch.object(H, "_opcodes", return_value=crossing):
+            gate, ev = H.gate_start_anchors(heard, far_times, ayahs, raw)
+        self.assertEqual(gate, raw); self.assertEqual(ev, [None, None])
+        # وحذفٌ مسموع طويل قبل equal ليس فاصلاً صفرياً آمناً.
+        heard_long, times_long = _heard(["ابجكضغثعوز"])
+        long_delete = [("equal", 0, 3, 0, 3), ("replace", 3, 4, 3, 5),
+                       ("delete", 4, 8, 5, 5), ("equal", 8, 10, 5, 7)]
+        with mock.patch.object(H, "_opcodes", return_value=long_delete):
+            gate, ev = H.gate_start_anchors(heard_long, times_long, ayahs, raw)
         self.assertEqual(gate, raw); self.assertEqual(ev, [None, None])
         # replace داخل الآية السابقة فقط لا يعبر الحد، فلا يغيّر شاهد التالية.
-        heard2, times2 = _heard(["ابجكهوز"])
-        raw2 = H.global_anchors(heard2, times2, ayahs, frame_ms=80)
-        gate2, ev2 = H.gate_start_anchors(heard2, times2, ayahs, raw2)
+        heard2, times2 = _heard(["ابكهوز"])
+        raw2 = [(0, 320, 0.75), (3 * 80, 6 * 80, 1.0)]
+        non_crossing = [("equal", 0, 2, 0, 2), ("replace", 2, 3, 2, 4),
+                        ("equal", 3, 6, 4, 7)]
+        with mock.patch.object(H, "_opcodes", return_value=non_crossing):
+            gate2, ev2 = H.gate_start_anchors(heard2, times2, ayahs, raw2)
         self.assertEqual(gate2, raw2); self.assertEqual(ev2, [None, None])
 
     def test_plan_windows_caps_and_splits_on_gap(self):
@@ -167,7 +187,8 @@ class Wiring(unittest.TestCase):
         self.assertEqual(promote.SPLICE_OPS["ctc_heardmap_splice"], H.ENGINE)
 
     def test_ctc_splice_workflow_heard_mode(self):
-        y = open(os.path.join(self.ROOT, ".github/workflows/ctc_splice.yml"), encoding="utf-8").read()
+        with open(os.path.join(self.ROOT, ".github/workflows/ctc_splice.yml"), encoding="utf-8") as f:
+            y = f.read()
         self.assertIn('if [ "$MODE" = "heard" ]; then ETAG="ctc-heardmap-1"; fi', y)
         self.assertIn('OPN="ctc_heardmap_splice"', y)
         self.assertIn("tools/alignment_v3/ctc_heard_map.py --url", y)

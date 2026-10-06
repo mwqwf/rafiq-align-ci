@@ -1,7 +1,7 @@
 {
   "schema": 1,
   "kind": "balilah-s69-cross-boundary-replace-refinement",
-  "generatedAt": "2026-10-06T13:31:00Z",
+  "generatedAt": "2026-10-06T14:25:00Z",
   "qualityClaim": false,
   "completionClaim": false,
   "productionChanged": false,
@@ -13,7 +13,8 @@
     "scope": "heard-gate evidence only; window/build anchors and generated timings remain unchanged",
     "conditions": [
       "canonical verse start lies strictly inside a replace opcode that began in the previous verse",
-      "the immediately following opcode is equal and begins inside the current verse",
+      "the first following opcode that consumes canonical text is equal and begins inside the current verse",
+      "only zero-canonical-width delete opcodes totaling at most 3 heard characters may occur between replace and equal",
       "the first equal canonical character is at most 3 characters after the verse start",
       "the first equal heard timestamp is later than the interpolated replace timestamp by at most 3000 ms"
     ],
@@ -48,8 +49,9 @@
       "opcode": ["replace", 686, 690, 648, 652],
       "canonicalStartOffset": 651,
       "mappedHeardIndex": 689,
-      "firstEqualCanonicalOffset": 652,
-      "firstEqualHeardIndex": 691,
+        "firstEqualCanonicalOffset": 652,
+        "firstEqualHeardIndex": 691,
+        "skippedDeleteHeardChars": 1,
       "rawGateDeviationMs": 1621,
       "refinedGateDeviationMs": -701,
       "independentNativeConsensusMs": 275626,
@@ -57,13 +59,15 @@
     }
   },
   "tests": {
-    "syntheticPositive": "cross-ayah replace refines to the immediately following near equal character without changing end or quality",
+    "syntheticPositive": "cross-ayah replace followed by one zero-canonical-width delete refines to the next near equal character without changing end or quality",
     "mutationsRejected": [
       "equal timestamp more than 3000 ms away",
-      "replace opcode that does not cross the verse boundary"
+      "replace opcode that does not cross the verse boundary",
+      "more than 3 deleted heard characters before the next canonical-consuming opcode"
     ],
-    "fullReplay": "5 evidence starts refined; all remain within the unchanged 1500 ms rule except ayah 29, which remains unmeasured because quality is 0.25",
-    "note": "No final-SHA workflow was launched; this is a local/replayed implementation result, not promotion evidence."
+    "fullReplay": "rapidfuzz 3.14.6 reproduced all 554 recorded opcodes and all 53 recorded anchors exactly; 5 evidence starts refined, with ayah 26 now actually exercised by the implementation; all remain within the unchanged 1500 ms rule except ayah 29, which remains unmeasured because quality is 0.25",
+    "unitSuite": "17/17 passed with the exact promote.py and ctc_splice.yml files from commit 0e607ad75198c7edbdcf3b68866c72956a10b1d0",
+    "note": "The first implementation incorrectly required the equal opcode to be immediately adjacent and therefore skipped ayah 26 because a one-character delete opcode intervened. This report records the corrected implementation and exact-runtime replay. No final-SHA workflow was launched; this is not promotion evidence."
   },
-  "next": "Run the existing unit suite in a complete checkout, then rerun final-SHA heard QA only after the free-write gate is satisfied; retain the original and refined anchor provenance in state."
+  "next": "Rerun final-SHA heard QA only after the free-write gate is satisfied; retain the original and refined anchor provenance in state, then verify public/manifest/frozen and the general completion audit before promotion."
 }

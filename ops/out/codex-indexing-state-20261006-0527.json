@@ -497,7 +497,7 @@
       "step": "numeric full-surah alignment"
     }
   },
-  "updatedAt": "2026-10-06T12:08:24Z",
+  "updatedAt": "2026-10-06T14:25:00Z",
   "latestSourceIdentityAudit": {
     "label": "after-thirty-three-adoptions",
     "timestampUtc": "2026-10-06T06:10:18.569453Z",
@@ -604,10 +604,14 @@
       "localTests": {
         "newTestsPassed": 2,
         "pyCompilePassed": true,
-        "fullCheckoutSuitePassed": false,
-        "reason": "Session checkout is partial; two wiring tests lack promote.py/ctc_splice.yml, and one pre-existing fallback assertion differs without rapidfuzz."
+        "fullCheckoutSuitePassed": true,
+        "unitTestsPassed": 17,
+        "rapidfuzzVersion": "3.14.6",
+        "recordedOpcodesReproduced": 554,
+        "recordedAnchorsReproduced": 53,
+        "reason": "The exact promote.py and ctc_splice.yml files from head 0e607ad were supplied to the session checkout. Exact-runtime replay exposed and then fixed a one-character delete opcode between the cross-verse replace and the next equal opcode at ayah 26."
       }
     },
-    "next": "Run the complete-checkout unit suite and final-SHA heard QA without changing the 1500 ms threshold; do not promote until all gates and public/manifest/frozen verification pass."
+    "next": "Run final-SHA heard QA without changing the 1500 ms threshold after free-write proof; do not promote until all gates and public/manifest/frozen verification pass."
   }
 }
