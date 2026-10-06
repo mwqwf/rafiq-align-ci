@@ -1634,7 +1634,7 @@ def catalog_gate(idx, cat):
 
 def catalog_source_refs(idx):
     grouped = {}
-    for e in (idx.get('entries') or [])[:300]:
+    for e in (idx.get('entries') or []):
         ref = e.get('fileRef')
         if isinstance(ref, str) and ref.startswith('http'):
             s = e['ayahId'].split(':')[0]
@@ -1714,10 +1714,12 @@ def facts_of(idx):
         "surahs": sorted({e["ayahId"].split(":")[0]
                           for e in (idx.get("entries") or [])}, key=int),
         "transformOp": tr if isinstance(tr, str) else str((tr or {}).get("op") or ""),
-        "refs": sorted({e.get("fileRef") for e in (idx.get("entries") or [])[:300]
+        "refs": sorted({e.get("fileRef") for e in (idx.get("entries") or [])
                         if isinstance(e.get("fileRef"), str)
                         and e["fileRef"].startswith("http")}),
         'catalogSourceRefsBySurah': catalog_source_refs(idx),
+        'catalogSourceScanVersion': 1,
+        'catalogSourceScanEntries': len(idx.get('entries') or []),
         'catalogSourceBySurah': idx.get('sourceBySurah') or {},
         'catalogAudioSha256': idx.get('audioSha256') or [],
         "lowCount": idx.get("lowCount"),
@@ -1739,6 +1741,9 @@ def gate_facts(f, cat=None):
     why = index_gate(fake)
     if why or cat is None:
         return why
+    if (f.get('catalogSourceScanVersion') != 1
+            or f.get('catalogSourceScanEntries') != f.get('entries')):
+        return 'حقائق هوية المصدر قديمة أو جزئية؛ أعد استخراجها من الفهرس كاملاً'
     if 'catalogSourceRefsBySurah' in f:
         return catalog_gate_sources(f.get('riwaya'), f.get('reciterId'),
                                     f['catalogSourceRefsBySurah'], f.get('catalogSourceBySurah') or {},

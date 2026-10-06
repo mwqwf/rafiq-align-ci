@@ -19,4 +19,22 @@ class RegisteredIdentityTest(unittest.TestCase):
   from unittest.mock import patch
   with patch.object(P,'index_gate',return_value=None):
    self.assertEqual(P.gate_facts(f,self.cat),P.catalog_gate(idx,self.cat));f['catalogAudioSha256'][1]='b'*64;self.assertIsNotNone(P.gate_facts(f,self.cat))
+ def test_external_source_after_first_300_entries_is_checked(self):
+  idx=copy.deepcopy(self.idx)
+  idx['entries']=[{'ayahId':f'1:{i+1}','fileRef':self.base+'001.mp3'} for i in range(300)]+[idx['entries'][1]]
+  self.assertIsNone(P.catalog_gate(idx,self.cat))
+  idx['entries'][-1]['fileRef']='https://unregistered.example/another-reader/002.mp3'
+  self.assertIsNotNone(P.catalog_gate(idx,self.cat))
+  f=P.facts_of(idx)
+  self.assertIn('https://unregistered.example/another-reader/002.mp3',f['refs'])
+  self.assertIn('2',f['catalogSourceRefsBySurah'])
+  from unittest.mock import patch
+  with patch.object(P,'index_gate',return_value=None):self.assertIsNotNone(P.gate_facts(f,self.cat))
+ def test_legacy_or_incomplete_cached_source_scan_requires_refresh(self):
+  from unittest.mock import patch
+  for field in ('catalogSourceScanVersion','catalogSourceScanEntries'):
+   f=P.facts_of(self.idx);f.pop(field)
+   with patch.object(P,'index_gate',return_value=None):self.assertIn('قديمة أو جزئية',P.gate_facts(f,self.cat))
+  f=P.facts_of(self.idx);f['catalogSourceScanEntries']=1
+  with patch.object(P,'index_gate',return_value=None):self.assertIn('قديمة أو جزئية',P.gate_facts(f,self.cat))
 if __name__=='__main__':unittest.main()

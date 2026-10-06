@@ -1,0 +1,20 @@
+{
+  "action": "tool",
+  "tool": "index_qa/stage_transform.py",
+  "args": [
+    "--file",
+    "ops/source-repair/candidates/codex-obk1-publisher-20261006.jz",
+    "--parent",
+    "timings/hafs/obk.jz",
+    "--parent-sha",
+    "3a5804507f4f2a2cb66d0f873e38fc27b3506b8e7547a10fce5dc721f583e2a4",
+    "--op",
+    "ctc_quran_window:1",
+    "--reason",
+    "Full Fatiha with measured basmala and final speech from healthy publisher source; two models on both native channels. Preserve measured confidence and unrelated surahs; exact-SHA QA required.",
+    "--by",
+    "codex",
+    "--manual-qa-only",
+    "--yes"
+  ]
+}
