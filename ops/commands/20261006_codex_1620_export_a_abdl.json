@@ -1,0 +1,12 @@
+{
+  "action": "tool",
+  "tool": "index_qa/export_index_bytes.py",
+  "args": [
+    "--key",
+    "timings/hafs/a_abdl.jz",
+    "--expect-sha",
+    "274e62eab739b2dad23483b909781a4105024ef484cdc5888ec6486da3223ff6",
+    "--out",
+    "ops/out/codex-penultimate-parent-hafs-a_abdl-20261006.json"
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "action": "tool",
+  "tool": "index_qa/export_index_bytes.py",
+  "args": [
+    "--key",
+    "timings/douri/sultani_douri.jz",
+    "--expect-sha",
+    "7764ba71b8af3854bcea5ccf9bd21839bcd3a65acb1a45566cbf97be3ea260e3",
+    "--out",
+    "ops/out/codex-penultimate-parent-douri-sultani_douri-20261006.json"
+  ]
+}

@@ -1,0 +1,189 @@
+{
+  "candidateOnly": true,
+  "qualityClaim": false,
+  "basedOnAudit": "full-audit-codex-after-thirty-three-adoptions-20261006.json",
+  "targets": [
+    {
+      "riwaya": "douri",
+      "reciter": "sultani_douri",
+      "surahs": [
+        80
+      ],
+      "key": "timings/douri/sultani_douri.jz",
+      "sha256": "7764ba71b8af3854bcea5ccf9bd21839bcd3a65acb1a45566cbf97be3ea260e3",
+      "exportPath": "ops/out/codex-penultimate-parent-douri-sultani_douri-20261006.json",
+      "suspicious": [
+        {
+          "aid": "80:41",
+          "ms": 500,
+          "expMs": 3382,
+          "ratio": 0.15,
+          "chars": 10
+        }
+      ]
+    },
+    {
+      "riwaya": "hafs",
+      "reciter": "a_abdl",
+      "surahs": [
+        37
+      ],
+      "key": "timings/hafs/a_abdl.jz",
+      "sha256": "274e62eab739b2dad23483b909781a4105024ef484cdc5888ec6486da3223ff6",
+      "exportPath": "ops/out/codex-penultimate-parent-hafs-a_abdl-20261006.json",
+      "suspicious": [
+        {
+          "aid": "37:181",
+          "ms": 591,
+          "expMs": 4308,
+          "ratio": 0.14,
+          "chars": 15
+        },
+        {
+          "aid": "37:178",
+          "ms": 861,
+          "expMs": 4021,
+          "ratio": 0.21,
+          "chars": 14
+        }
+      ]
+    },
+    {
+      "riwaya": "hafs",
+      "reciter": "a_binaoun",
+      "surahs": [
+        83
+      ],
+      "key": "timings/hafs/a_binaoun.jz",
+      "sha256": "aa7c8df8263210a7fc864dbd44ec171619a4dce6c2d7b1c23e97abb8be6c5602",
+      "exportPath": "ops/out/codex-penultimate-parent-hafs-a_binaoun-20261006.json",
+      "suspicious": [
+        {
+          "aid": "83:35",
+          "ms": 781,
+          "expMs": 5256,
+          "ratio": 0.15,
+          "chars": 16
+        }
+      ]
+    },
+    {
+      "riwaya": "hafs",
+      "reciter": "abdullahk",
+      "surahs": [
+        89
+      ],
+      "key": "timings/hafs/abdullahk.jz",
+      "sha256": "f6d6da29be83c2a490cb67a4fc76354fab9420f22161f28d8864a698a523a4b5",
+      "exportPath": "ops/out/codex-penultimate-parent-hafs-abdullahk-20261006.json",
+      "suspicious": [
+        {
+          "aid": "89:29",
+          "ms": 480,
+          "expMs": 3729,
+          "ratio": 0.13,
+          "chars": 12
+        }
+      ]
+    },
+    {
+      "riwaya": "hafs",
+      "reciter": "alosfor",
+      "surahs": [
+        88
+      ],
+      "key": "timings/hafs/alosfor.jz",
+      "sha256": "84c3ab871343c377a2c1a127a23560da43257dca8c7280881f16f5b562dc2319",
+      "exportPath": "ops/out/codex-penultimate-parent-hafs-alosfor-20261006.json",
+      "suspicious": [
+        {
+          "aid": "88:25",
+          "ms": 721,
+          "expMs": 3032,
+          "ratio": 0.24,
+          "chars": 13
+        }
+      ]
+    },
+    {
+      "riwaya": "hafs",
+      "reciter": "asim",
+      "surahs": [
+        54,
+        83
+      ],
+      "key": "timings/hafs/asim.jz",
+      "sha256": "40a6847fe8f9f2dd1ec7c3210030677eb79c297f8562e84d61fc1f5bfba31351",
+      "exportPath": "ops/out/codex-penultimate-parent-hafs-asim-20261006.json",
+      "suspicious": [
+        {
+          "aid": "54:55",
+          "ms": 860,
+          "expMs": 4551,
+          "ratio": 0.19,
+          "chars": 21
+        },
+        {
+          "aid": "54:54",
+          "ms": 781,
+          "expMs": 3901,
+          "ratio": 0.2,
+          "chars": 18
+        },
+        {
+          "aid": "83:35",
+          "ms": 981,
+          "expMs": 4465,
+          "ratio": 0.22,
+          "chars": 16
+        }
+      ]
+    },
+    {
+      "riwaya": "qalun",
+      "reciter": "gardeli_qalun",
+      "surahs": [
+        54,
+        75
+      ],
+      "key": "timings/qalun/gardeli_qalun.jz",
+      "sha256": "d3fe322314ae07a273d87ac8708f886eb8206e3d4c37f6f8f85ce9596a06694e",
+      "exportPath": "ops/out/codex-penultimate-parent-qalun-gardeli_qalun-20261006.json",
+      "suspicious": [
+        {
+          "aid": "54:54",
+          "ms": 581,
+          "expMs": 4683,
+          "ratio": 0.12,
+          "chars": 18
+        },
+        {
+          "aid": "75:39",
+          "ms": 961,
+          "expMs": 7154,
+          "ratio": 0.13,
+          "chars": 26
+        }
+      ]
+    },
+    {
+      "riwaya": "warsh",
+      "reciter": "gharbi_warsh",
+      "surahs": [
+        113
+      ],
+      "key": "timings/warsh/gharbi_warsh.jz",
+      "sha256": "6ace5d6bffdc8bc0d8b35eecb6391a35f77a4265ba43dddb8d2068f19f3fc397",
+      "exportPath": "ops/out/codex-penultimate-parent-warsh-gharbi_warsh-20261006.json",
+      "suspicious": [
+        {
+          "aid": "113:4",
+          "ms": 610,
+          "expMs": 5052,
+          "ratio": 0.12,
+          "chars": 18
+        }
+      ]
+    }
+  ]
+}

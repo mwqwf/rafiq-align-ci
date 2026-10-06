@@ -1,0 +1,12 @@
+{
+  "action": "tool",
+  "tool": "index_qa/export_index_bytes.py",
+  "args": [
+    "--key",
+    "timings/qalun/gardeli_qalun.jz",
+    "--expect-sha",
+    "d3fe322314ae07a273d87ac8708f886eb8206e3d4c37f6f8f85ce9596a06694e",
+    "--out",
+    "ops/out/codex-penultimate-parent-qalun-gardeli_qalun-20261006.json"
+  ]
+}

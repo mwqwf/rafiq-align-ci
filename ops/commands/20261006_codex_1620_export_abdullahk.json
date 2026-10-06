@@ -1,0 +1,12 @@
+{
+  "action": "tool",
+  "tool": "index_qa/export_index_bytes.py",
+  "args": [
+    "--key",
+    "timings/hafs/abdullahk.jz",
+    "--expect-sha",
+    "f6d6da29be83c2a490cb67a4fc76354fab9420f22161f28d8864a698a523a4b5",
+    "--out",
+    "ops/out/codex-penultimate-parent-hafs-abdullahk-20261006.json"
+  ]
+}

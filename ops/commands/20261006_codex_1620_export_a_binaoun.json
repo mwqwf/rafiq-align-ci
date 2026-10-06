@@ -1,0 +1,12 @@
+{
+  "action": "tool",
+  "tool": "index_qa/export_index_bytes.py",
+  "args": [
+    "--key",
+    "timings/hafs/a_binaoun.jz",
+    "--expect-sha",
+    "aa7c8df8263210a7fc864dbd44ec171619a4dce6c2d7b1c23e97abb8be6c5602",
+    "--out",
+    "ops/out/codex-penultimate-parent-hafs-a_binaoun-20261006.json"
+  ]
+}

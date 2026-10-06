@@ -1,0 +1,12 @@
+{
+  "action": "tool",
+  "tool": "index_qa/export_index_bytes.py",
+  "args": [
+    "--key",
+    "timings/warsh/gharbi_warsh.jz",
+    "--expect-sha",
+    "6ace5d6bffdc8bc0d8b35eecb6391a35f77a4265ba43dddb8d2068f19f3fc397",
+    "--out",
+    "ops/out/codex-penultimate-parent-warsh-gharbi_warsh-20261006.json"
+  ]
+}

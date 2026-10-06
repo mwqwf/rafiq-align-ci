@@ -1,0 +1,12 @@
+{
+  "action": "tool",
+  "tool": "index_qa/export_index_bytes.py",
+  "args": [
+    "--key",
+    "timings/hafs/alosfor.jz",
+    "--expect-sha",
+    "84c3ab871343c377a2c1a127a23560da43257dca8c7280881f16f5b562dc2319",
+    "--out",
+    "ops/out/codex-penultimate-parent-hafs-alosfor-20261006.json"
+  ]
+}
