@@ -1,4 +1,4 @@
-"""Cancel six root-owned QA runs whose exact candidates have measured clipping.
+"""Cancel explicitly pinned root-owned QA runs superseded by measured tail fixes.
 
 Evidence stays in GitHub/R2. No other reader, run, stage, or live index changes.
 """
@@ -6,6 +6,7 @@ import json
 from qa_recover_stalled import gh
 REPO='mwqwf/rafiq-align-ci'
 KEYS={
+ 37394065900:'timings-staging/hafs/darweez.249d793b.jz',
  37384770337:'timings-staging/warsh/derini_warsh.fd3b23b0.jz',
  37383854044:'timings-staging/warsh/derini_warsh.fd3b23b0.jz',
  37384779422:'timings-staging/hafs/f_khamery.d58b78bf.jz',
@@ -30,7 +31,7 @@ def main():
         run=gh(f'actions/runs/{ident}')
         ok=eligible(run,ident)
         print(json.dumps({'run':ident,'key':key,'status':run.get('status'),'cancelSuperseded':ok,
-          'reason':'Measured terminal clipping in 37388055996 and 37389928059; refined candidates require fresh final-SHA QA'}))
+          'reason':('Measured decoded EOF487131ms vs candidate487157ms; replacement47ef82a5 requires new full QA' if ident==37394065900 else 'Measured terminal clipping in 37388055996 and 37389928059; refined candidates require fresh final-SHA QA')}))
         if ok:gh(f'actions/runs/{ident}/cancel',{})
         elif run.get('status')!='completed':raise ValueError('Run identity changed; no cancellation')
 
