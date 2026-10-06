@@ -927,6 +927,47 @@
       "evidenceSha256": "4efb027099b837152d70550d231ed8839f5d6863f72281cfa8ff62f97b15a5b4",
       "evidenceKind": "qa-disagreement",
       "maxSourceSeconds": 7200
+    },
+    {
+      "id": "mrifai84_tail",
+      "surah": 84,
+      "riwaya": "hafs",
+      "url": "https://server11.mp3quran.net/mrifai/084.mp3",
+      "sha256": "9f5d858255f19262e9d3fb817b160f72c06ec6db86c6aa3c3519388dbc367e86",
+      "requestedWindowSeconds": [
+        122,
+        152
+      ],
+      "contextAyahs": [
+        22,
+        23,
+        24,
+        25
+      ],
+      "evidencePath": "ops/out/codex-mrifai84-recovery-20261006.json",
+      "evidenceSha256": "44dff45cff4e31fbfe6e5909205e911386e647377519bb08d5e9548c35a7d319",
+      "evidenceKind": "alignment",
+      "maxSourceSeconds": 7200
+    },
+    {
+      "id": "yousef107_tail",
+      "surah": 107,
+      "riwaya": "hafs",
+      "url": "https://server9.mp3quran.net/yousef/107.mp3",
+      "sha256": "cbbaf0650b648b3572b02c58e042a7599d88e09dca0b149f2cf07cce1ea481eb",
+      "requestedWindowSeconds": [
+        20,
+        36
+      ],
+      "contextAyahs": [
+        5,
+        6,
+        7
+      ],
+      "evidencePath": "ops/out/codex-yousef107-recovery-20261006.json",
+      "evidenceSha256": "a1c4ce8c4f56e85042247197c611664b16761db4252e27cf0c3c9d99f59838b7",
+      "evidenceKind": "alignment",
+      "maxSourceSeconds": 7200
     }
   ]
 }

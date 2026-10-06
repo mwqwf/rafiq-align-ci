@@ -15,14 +15,14 @@ import final_verse_free_batch as B
 import independent_window_pilot as P
 S=B.S
 PLAN='ops/source-repair/codex-source-context-plan-20261006.json'
-PLAN_SHA='c42e4264a60471f1af038a1b2a872d0bb8df5bdc0694a3a09d49c067ec2db1e2'
-IDS=('saad28_context','saad45_tail','shamrani79_tail','tblawi_head','tblawi_tail','m_ab26_29','m_ab34_37','m_ab91_95','koshi20_22','koshi94_96','saad28_tail','saad22_41_45','saad22_68_71','saad22_tail','shamrani79_middle','shamrani79_midad_middle','mab_rs1_16_9','mab_rs1_11_22','mab_rs1_18_90','mab_rs1_23_52','mab_rs1_23_79','mab_rs1_69_47','mab_rs1_90_11','mab_rs1_90_19','mab_rs1_90_5','mab_rs1_78_33')
+PLAN_SHA='de1e450938809d79c0388317883241b133ab19566ba85ad017508a37e852cb36'
+IDS=('saad28_context','saad45_tail','shamrani79_tail','tblawi_head','tblawi_tail','m_ab26_29','m_ab34_37','m_ab91_95','koshi20_22','koshi94_96','saad28_tail','saad22_41_45','saad22_68_71','saad22_tail','shamrani79_middle','shamrani79_midad_middle','mab_rs1_16_9','mab_rs1_11_22','mab_rs1_18_90','mab_rs1_23_52','mab_rs1_23_79','mab_rs1_69_47','mab_rs1_90_11','mab_rs1_90_19','mab_rs1_90_5','mab_rs1_78_33','mrifai84_tail','yousef107_tail')
 
 
 def load_source(ident):
     B.require(ident in IDS, 'unplanned diagnostic')
     raw=(B.ROOT/PLAN).read_bytes();B.require(hashlib.sha256(raw).hexdigest()==PLAN_SHA,'plan changed')
-    rows=json.loads(raw)['sources'];B.require(len(rows)==26 and {r['id'] for r in rows}==set(IDS),'population changed')
+    rows=json.loads(raw)['sources'];B.require(len(rows)==28 and {r['id'] for r in rows}==set(IDS),'population changed')
     source=next(r for r in rows if r['id']==ident)
     path=(B.ROOT/source['evidencePath']).resolve()
     B.require(path.parent==B.ROOT/'ops/out' and path.suffix=='.json','evidence path')
