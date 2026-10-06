@@ -1,0 +1,20 @@
+{
+  "action": "tool",
+  "tool": "index_qa/stage_transform.py",
+  "args": [
+    "--file",
+    "ops/source-repair/candidates/codex-m_abdulkareem_warsh-context-repair-v2-20261006.jz",
+    "--parent",
+    "timings/warsh/m_abdulkareem_warsh.jz",
+    "--parent-sha",
+    "746e762fc2722d0c6cc108d239aa0ad5ba1947e13189013201f4b3964201fee5",
+    "--op",
+    "ctc_quran_window:21",
+    "--reason",
+    "Repair additional source-measured starts after heard rejection using four native/model contexts and free transcripts. Preserve original confidence, all unrelated entries, and original quality gates. Full fresh exact-SHA QA mandatory.",
+    "--by",
+    "codex-measured-context-v2-20261006",
+    "--manual-qa-only",
+    "--yes"
+  ]
+}
