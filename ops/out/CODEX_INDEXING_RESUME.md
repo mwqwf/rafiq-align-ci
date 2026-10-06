@@ -389,3 +389,47 @@ This section supersedes older status above. Work is NOT complete.
 - أضيف مسار محاذاة رقمية `asiri7-archive` يحظر التفريغ النصي لهذا المصدر ولا يكتب artifact أو cache. اجتاز `py_compile` و29 اختباراً محلياً. الشوط العام المجاني 37418523660 في الطابور؛ لا مرشح ولا اعتماد قبل نتيجته ثم قياس مستقل للمطلع والوسط 7:123–159 والخاتمة والجوار.
 - اعتماد26 لنوح/ورش جاء بعد لقطة after25، لذا أرقام after25 قديمة الآن. الغياب المتوقع حسابياً 939 بعد إضافة 55، لكنه ليس نتيجة تدقيق جديد ولا يُعرض كشهادة. عند 05:27Z كانت الحالة 13 جارياً و13 queued و0 pending؛ لم تُكرر نطاقات الخواتيم الحية.
 - الأدلة: `codex-asiri7-cdn-metadata-20261006.json` و`codex-asiri7-archive-4917-metadata-20261006.json` و`codex-indexing-state-20261006-0527.json`. العمل غير مكتمل، ولا ادعاء 100%.
+
+
+## أحدث متابعة — 2026-10-06 05:35 UTC
+هذه الفقرة تتقدم على الحالات القديمة أدناه. المؤكد حتى قراءة آخر إيصال: **26 اعتماداً**. الاعتمادان التاليان أُرسلا ولم تُقرأ نتيجتاهما بعد:
+- عبدالكريم ورش v4: نجح QA37413920156 كاملاً ومراجعته112122274283. أمر1330_adopt_mab_v4 في commit f3a46f7405ab5ba5d5f1d910ce6c7fdf90ed367b؛ يلزم إيصال النشر. البصمة693326d1f6a3ccee48635313aeec9a0dedee7919d512c35279e15e36a12c5537، الأصل746e762fc2722d0c6cc108d239aa0ad5ba1947e13189013201f4b3964201fee5.
+- حاتم: اجتازت كل الفحوص الصوتية، فشلت المراجعة الأولى112119231577 بسبب تشخيص كتالوج قديم فقط؛ تحديث1270 شغّل37418339283 ونجح، ثم أعدنا review وحده فنجح112123077031. أوامر1340 (commit15050365) تشمل اعتماد hatem.3cdfac1a.jz ببصمة3cdfac1a56023efdb56350f5440f1c18b42e8dc08ae2f10984b9c011fd2609d0 وأصل5d7e73699ae633807bd57ecb60ea235f503318fdacf8c13bd3b81132eb10f85e. تحذير مطلع غير متحقق واحد محفوظ، وليس شهادة100%.
+
+### استعادة فصلت الجديدة جاهزة للفحص الكامل
+تم بناء54آية كاملة من تسجيل الناشر الجديد، مع8سياقات أصلية من النموذجين والقناتين؛ ليس تجميع صوت.
+- المصدر URL=https://archive.org/download/55555555555033alahzab_202004/041Fossilat.mp3،SHA f655b81ea9926ddd8c134ef04c197b550ffd954896c43229a2f01c6be1d1986b،20655125إطاراً=1290.9453125ث.
+- parent timings/warsh/iraoui_warsh.jz SHAe708c65694a2cea0bc1b0eace830fcb5988dfae50f07295b917cd4b200a50bf0؛6182مدخلاً.
+- local candidate5b9ba5c28e90e522d1eb746627d0d4023c815f8344022cecd5b634d5ff9343bb،6236مدخلاً(+54،الباقي مطابق حرفياً).
+- stage1310 نجح: timings-staging/warsh/iraoui_warsh.eb657493.jz SHAeb657493a47d5aa43758f64ba5e87b4f8ddb4b5e61462c4763c6bd326442551f،93607بايت.
+- أمر1340_qa_iraoui41_full_source أطلق الفحص الكامل؛ اقرأ الإيصال للحصول على runID. **لم يُعتمد بعد**.
+- الملف tools/index_qa/build_iraoui_publisher_repair.py،7اختبارات فعلية بالأدلة PASS في test_iraoui_publisher_repair.py (PYTHONPATH=tools/index_qa python -m unittest tools.index_qa.test_iraoui_publisher_repair -q). المصدر مسجل صراحة في tools/ci_fleet/source_overrides.json مع حفظ تسجيله السابق في supersededSourceEvidence.
+- spec=ops/source-repair/codex-iraoui-full-native-spec.json،8تقارير+8حزم gzip خام متحققة. parentملفcodex-warsh-iraoui_warsh-e708c656.jz منشور. fullQقريرbbe33… محفوظ.
+- السياق50الكامل job112121575541: يبدأ1128507،ينتهي1179941،Q.693/.699؛generic.351/.333 لكن البداية متفقة20ms والتفريغ الحر كاملاً في كليهما. المواضع47..54استبدلت بقياسات سياقية فعلية وثقتها الفعلية،لا تقوية تخمينية.15/44بقيتا بدرجتيهما الأصليتين الضعيفتين. أول4آيات job112121575730 موجودة،أقصىفرق عن fullQأقل500ms،لم نخترع توقيتاً.
+- تصريح الناشر في ops/out/20261006_codex_1030_verify_archive_identity_iraoui.txt SHA f61d09bec2ee6f651fd381f71eb24952b42f84305b5d7389428f46afe90303b1؛ يسمي محمد إيراوي ورش. لا ادعاء بيومتري. commitdf3078b3.
+
+### حملة النهايات31: الحالة العملية
+الأصل37414259961:29نجاحاً و2تعثر تشغيل. Fakhfakh38عادHTTP500مرةثانية job112122007684،ليس حكماً على الصوت؛ لا تكرر بلا سبب. تقريره المحلي codex-fakhfakh38-retry-download-failure-* موجود ولم يُنشر بعد. Qurashi89فشل استعادةcache بمهلة دون أي قياس؛ أُعيد عبر **current-attempt job112122009237** بعد رفضGitHubإعادةIDالقديم،ورقمrunنفسه attempt3. اقرأ نتيجته. كل السجلات محفوظة في /workspace/shared/job-ID.log وenvelopes-ID/manifest.json.
+- Shuba37415094617،Hamza37415865453،Lahoni37415944165 فحوص كاملة جارية.
+- Badr56 QA37417256566 stagef56150ee؛wdee3QA37417282433 stage82d48dfc؛DouriDebanQA37417263634 staged0433dfc؛NoahQalunQA37417276128 stagea1334c29؛YahyaQA37417288388 stage48fb9a7a؛LaghdafQA37417269783 stage889c9190.
+- h_abudalal89 stagee8d9a539288a575416a6eea399a4d3dad7d39729facf75c5add08b8073a57971،أصل13f195b2460b5333015c6ab9d54a4516ca2ef8ffc85fab4395dbea2853d51ed8. m_qari87+105 stagee0119bf496fe64753ad3e012a4551bff0c4c22fb69b2f58c79bf5a918d642793،أصل2a27b0f8a6cf6560343605eb38de13d1f41ea71ee08eba59ce45fdbae9e1f8f6. **أوامر1230 أطلقتQAلكليهما؛ اقرأ الإيصالات**. combined6صفوفm_qari،3صفوفh_abudalal.
+- Mohsin91:15فقط stageb41274aef4eabfca6e9d95b2327e4b1a9714612d42537dd0e21c4d73e82f2820،أصلac38edba785e2dbb519a9423f6153f2395cd70d381fdfbce8ef3bc26f1f3c0f5. 14بدايته القديمة50415متفقة مع القياس50414،generic14ضعيف بسبب التكرار فلم نعدله؛ النهاية15والحد السابق فقط وثقتهما القديمة0محفوظة.
+- m_alfaqih89 stage45ef7bd4bde228270a18250c2e8e8ca64cb7397c5727f1b44c4275c7df6cee9a،أصلa46c655a1ce4c4fb9176234b11b758ee59c455b262fa84635efa53099e186fe7. **QA لكليهما1250**.
+- DebanHafs80+89 stage6293b974625779b29f036ab06607b4a6f322a42dd588b3b60f44a2c61c9d26ae،أصلf374f5b6b3f0ca61d29b9468dc057dac5d6276c64159d88db8f0ff190e55c3f7،14صفاً. Kholti91:15 stage606412d0d5ef5eec33213d6e72367f8dfd5462eb0931b8011874fe8b7e3442f4،أصل563cfc75bbc42ebf67fc9d089d602822eb6d2b226e44d1d714c18cfb445ac7ff. **QA لكليهما1290**. تكرار14أضعفgenericلكن بدء14القديمصحيح فلم يتغير؛15متفقة.
+- Qeniwa94 stage218ed0147e095b22b9f1ea78a3bd8cbebed0cfde251703489cc2db69a236fe6e،أصلbbd2a48275460c0966d586b083dad2dc7ea00cc6417688af8168cd87d701445c. target7/8فقط،بداية6مختلفةبينالنماذجولمتتغير. **QA1330**.
+- Alijon89كاملtail24..30 job112121575716 صحيححتىEOF212330. stagea6a75025d7b7c1f5a53e1e7f244a272c1a6de3583775f092a1c852fe21104b7c،أصل5e9fd934732d6ad50325098a0cc20330ef06a13f5732e5d528eedd6ba5c3e154،8صفوف،**QA1340**.
+- Muftah77القياس112109272429 جيد48..50لكن48القديممتقدم3ث؛ انتظر53expanded ثم اجمعهما. Sayed91قياس112109273593 جيد14/15 بالحدالأصلي.45(min generic14.553)،انتظر53expanded ثم اجمعهما.
+- Suhaim91وNabil91: تكرار14أوقعgenericفيآخر15خطأً بينماQوالتفريغالحريثبتانالنهاية؛ لا تعتمد الاختلاف. سياق15منفردSuhaim[70,80] ضمندفعة1200المصححة،Nabil[64,71]أمر1300.
+- Harraz44/53 وAlqrafi89 وDarweez89 تنتظر سياقاتEOFالجديدة؛ النوافذ الأصلية قُطعت قبل آخر التلاوة. لا تستخدم forcedنتائجها الضعيفة.
+- Balilahtailonlyمرفوض14بدءاًقديماًداخل69. أطلقنا1260سياق25..27[250,290]لتحقيق خلاف26 بينfullQ275598وheard273977؛ لا تحرك البداية بلا دليل ولا تضعف الحارس.
+
+### تشغيل السياقات المصحح
+خطأ تشغيل اكتُشف: أوامر1170/1200الأولى أغفلت model_policy فعادت cache-only والقرآني غير موجود. لم تُنتجقياساً صالحاً،لا تعِدها كما هي. صححت إلى quran-pinned-ephemeral صراحة،بدونحفظcache/artifacts:
+-1170المصحح run37417827282،first3Iraoui50/head+Alijonنجحت؛Harraz4jobsلاحقة.
+-1200المصحح run37417833419: Sayed53[298,368]51..62،Muftah53[270,340]51..62،Alqrafi89[180,250]24..30،Darweez89[147,217]24..30،Suhaim15[70,80].
+-1260Balilah: إيصالبعدcommit4ff384c292f0201eba1e717c25ae37b7b6b06cc7؛سبقت3محاولاتnonforce422غيرمنشورة،لاتحسبهادفعاً.
+-1300Nabil: commit88b53bab83af9856cacc30bcc610b6f7db7c0a04.
+- الخطة الحالية132سياقاً SHA1d400952d4b3a5aeca067a53bfface7a639a568d21c4b76ec0bbac1dce2bedac. دوماًfresh-fetch3ملفات قبل التعديل،اضبطmodel_policyصراحة. اختباراتالقياس29PASS.
+
+### تدقيق الاكتمال بعد25 — قُرئ ملخصه الآن
+ops/out/20261006_codex_1120_completion_after_twenty_five.txt rc2(عدمجاهزيةلاخطأقراءة):180فهرساً،705خريطةشاهد،errors[]،readyIndexes0،startsReady0،884غياباً،856834بدايةغيرمقيسة،7991انحرافاً،verifiedEndEvidence0 وunknownEndEvidence1121596. **فجوة الدليل لا تعني أن كل توقيت خاطئ، لكنها تمنع ادعاء100%.** بعد26أُعلن55غياباًإضافياً؛ أعدالتدقيق بعداستقرارالاعتمادين27/28،ولاتسمِّالأرقامالقديمةحديثة.
