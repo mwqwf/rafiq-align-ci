@@ -25,6 +25,7 @@ DYNAMIC_PAGES = [
  'https://alkabbah.com/recitations/playlist/500375/mshf-mroan-alaakry-broay-kalon-114-sor-almshf-almrtl-kaml-bgod-aaaly-192-k-b-mroan-alaakry',
  'https://quranpedia.net/listen?recitation=356&surah=79'
 ]
+DETAIL_PAGES = ['https://quranpedia.net/listen?recitation=356&surah=79']
 LIMIT = 2_500_000
 IRAOUI_PAGES = (
     'https://way2quran.com/en/reciters/muhammad-al-ayrawy/warsh-an-nafi-min-traiq-al-azraq',
@@ -48,7 +49,11 @@ def extract(body, url):
         if any(word in parsed.path.lower() for word in ('.mp3', '.m4a', '/api', '6100', '.js', '/dev')):
             relevant.append(M.safe_url(link))
     scripts = re.findall(r'''<script\b[^>]*src=["']([^"']+)["']''', text, re.I)
-    return {'candidateLinks': sorted(set(relevant))[:250],
+    recitation_details = []
+    for match in re.finditer(r'"recitations":(\[\{"id":356\b)', text):
+        parsed, _ = json.JSONDecoder().raw_decode(text[match.start(1):])
+        recitation_details.extend(r for r in parsed if r.get('id') == 356)
+    return {'recitationDetails': recitation_details, 'candidateLinks': sorted(set(relevant))[:250],
             'candidateLinkCount': len(set(relevant)),
             'publicScriptUrls': [M.safe_url(urllib.parse.urljoin(url, s)) for s in scripts][:40],
             'contextLinks': [{'url': M.safe_url(urllib.parse.urljoin(url, href)), 'text': re.sub('<[^>]+>', '', label)[:240]} for href, label in re.findall(r'''<a\\b[^>]*href=["']([^"']+)["'][^>]*>(.*?)</a>''', text, re.I|re.S) if any(w in re.sub('<[^>]+>', '', label) for w in ('عسيري', 'العسيري', 'ابراهيم', 'إبراهيم', '054', 'القمر'))][:60],
@@ -59,10 +64,10 @@ def extract(body, url):
 
 def main(argv=None):
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument('--profile', choices=('original', 'iraoui', 'recovery-20261006', 'dynamic-recovery'), default='original')
+    parser.add_argument('--profile', choices=('original', 'iraoui', 'recovery-20261006', 'dynamic-recovery', 'quranpedia-details'), default='original')
     args = parser.parse_args(argv)
     rows = []
-    for url in (PAGES if args.profile == 'original' else IRAOUI_PAGES if args.profile == 'iraoui' else DYNAMIC_PAGES if args.profile == 'dynamic-recovery' else RECOVERY_PAGES):
+    for url in (PAGES if args.profile == 'original' else IRAOUI_PAGES if args.profile == 'iraoui' else DYNAMIC_PAGES if args.profile == 'dynamic-recovery' else DETAIL_PAGES if args.profile == 'quranpedia-details' else RECOVERY_PAGES):
         row = {'publisherUrl': url, 'candidateOnly': True}
         try:
             deadline = time.monotonic() + 45
@@ -91,6 +96,7 @@ def main(argv=None):
     name = ('codex-publisher-link-inventory-20261005.json' if args.profile == 'original'
             else 'codex-iraoui-publisher-links-20261005.json' if args.profile == 'iraoui'
             else 'codex-dynamic-publisher-links-20261006.json' if args.profile == 'dynamic-recovery'
+            else 'codex-quranpedia-source-details-20261006.json' if args.profile == 'quranpedia-details'
             else 'codex-recovery-publisher-links-20261006.json')
     dest = Path('ops/out') / name
     dest.write_text(json.dumps(report, ensure_ascii=False, indent=2)+'\n')
