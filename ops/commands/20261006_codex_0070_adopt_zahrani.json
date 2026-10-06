@@ -1,0 +1,14 @@
+{
+  "action": "tool",
+  "tool": "index_qa/promote_verified_transform.py",
+  "args": [
+    "--key",
+    "timings-staging/hafs/zahrani.6a5b3f68.jz",
+    "--sha",
+    "6a5b3f68e7d5e7c63598c0668e60c62e7cdba8bf95e7c5a464881bfc414b514f",
+    "--parent-sha",
+    "2dab3926ed56161808fe6057087899bb07373b22c792381c114653b9e24d910c",
+    "--reason",
+    "Owner-directed measured Anam ending repair: all seven exact-SHA checks and guarded review112048534459 passed in37391377124; upper bound3.47% (19/800). Final repeat included to5044600 with pinned free/forced EOF evidence37389928059. LOW and unverified opener metadata retained; no perfect-accuracy claim."
+  ]
+}
