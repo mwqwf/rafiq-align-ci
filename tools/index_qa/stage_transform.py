@@ -82,6 +82,38 @@ def entry_change_counts(parent, candidate):
     return moved, len(new.keys() - old.keys()), len(old.keys() - new.keys())
 
 
+def verified_metadata_source_additions(parent, candidate, metadata_reason):
+    """Recover missing declarations only for unchanged, registered source bytes.
+
+    This does not authorize replacing audio, entries, hashes, or existing
+    declarations. The candidate still needs all original exact-SHA QA gates.
+    """
+    old = parent.get('sourceBySurah') or {}
+    new = candidate.get('sourceBySurah') or {}
+    additions = set(new) - set(old)
+    if not metadata_reason or not additions:
+        return set()
+    if (parent.get('entries') != candidate.get('entries')
+            or parent.get('audioSha256') != candidate.get('audioSha256')
+            or any(new.get(k) != v for k, v in old.items())
+            or any(parent.get(k) != candidate.get(k) for k in ('riwaya', 'reciterId'))):
+        raise ValueError('metadata source repair changed inherited source data')
+    sys.path.insert(0, str(HERE.parent / 'ci_fleet'))
+    from source_registry import registered_source
+    for key in additions:
+        s = int(key)
+        source = registered_source(candidate['riwaya'], candidate['reciterId'], s)
+        sha = candidate['audioSha256'][s - 1]
+        refs = {e.get('fileRef') for e in candidate['entries']
+                if e['ayahId'].split(':')[0] == key}
+        if (not re.fullmatch(r'[0-9a-f]{64}', str(sha))
+                or source.get('audio_sha256') != sha
+                or refs != {source['url']}
+                or new[key].format(s=s) != source['url']):
+            raise ValueError('metadata source declaration lacks exact registered audio proof')
+    return additions
+
+
 def staged_transform_metadata(prior, moved, added, removed):
     """أثر الرفع يصف الفرق المقيس، ولا يبقي علم الملف المحلي كحالة حالية."""
     base = dict(prior) if isinstance(prior, dict) else (
@@ -348,11 +380,12 @@ def main():
     elif set(ebs) - set(p_ebs):
         raise SystemExit("⛔ سجلُّ المحرّكات زاد سوراً في تحويلٍ لا يدمج محرّكين — يُردّ")
     named_src = {str(s) for s in realigned} if _splice else set()
-    extra_src = set(sbs) - named_src - set(p_sbs)
+    metadata_sources = verified_metadata_source_additions(pidx, idx, a.metadata_only)
+    extra_src = set(sbs) - named_src - set(p_sbs) - metadata_sources
     if extra_src:
         raise SystemExit(f"⛔ سورٌ معلَنةٌ بمصدرٍ بديلٍ لم يمسّها التحويل ولا ورثها "
                          f"الأصل: {sorted(extra_src, key=int)}")
-    moved_src = sorted((k for k in set(sbs) - named_src if sbs[k] != p_sbs.get(k)), key=int)
+    moved_src = sorted((k for k in set(sbs) - named_src - metadata_sources if sbs[k] != p_sbs.get(k)), key=int)
     if moved_src:
         raise SystemExit(f"⛔ مصدرُ سورٍ لم يمسّها التحويل تبدّل في الترويسة: {moved_src}")
     # ‏ولا يُمحى إعلانٌ موروثٌ ما دامت مداخلُ سورته تُشير إلى المصدر البديل نفسِه —
