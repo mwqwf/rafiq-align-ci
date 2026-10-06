@@ -5,6 +5,8 @@ candidate measurement, never an assertion that forced verses were heard.
 """
 import argparse
 import gc
+import hashlib
+import json
 import importlib
 import os
 from pathlib import Path
@@ -15,6 +17,7 @@ import final_verse_free_batch as B
 import independent_window_pilot as P
 S=B.S
 SOURCES={
+ 'tblawi7_nquran':{'surah': 7, 'riwaya': 'hafs', 'url': 'https://www.nquran.com/audiof/quran/mohd_muh_tablawee/007.mp3', 'sha256': '76b0d10dbb33d90cdbb98e71786653a497dbe73f7af704bf2297848ce1fbc547', 'requestedWindowSeconds': [0, 65]},
  'benkirane77':{"surah":77,"riwaya":"warsh","url":"https://server16.mp3quran.net/A-Benkirane/Rewayat-Warsh-A-n-Nafi/077.mp3","sha256":"b6c7c2949373d2285eea057fa2b63e987a66793dff0e491064dabcfebcbd81b4","requestedWindowSeconds":[0,65]},
  'benkirane51':{"surah":51,"riwaya":"warsh","url":"https://server16.mp3quran.net/A-Benkirane/Rewayat-Warsh-A-n-Nafi/051.mp3","sha256":"7edb05c3b0f7ebe2f37d5af3c9949727cef50772cbc4857b5745c7a92fab7dbf","requestedWindowSeconds":[0,65]},
  'yousef107':{"surah":107,"riwaya":"hafs","url":"https://server9.mp3quran.net/yousef/107.mp3","sha256":"cbbaf0650b648b3572b02c58e042a7599d88e09dca0b149f2cf07cce1ea481eb","requestedWindowSeconds":[0,36]},
@@ -34,6 +37,11 @@ def main(argv=None):
     ap.add_argument('--source',choices=tuple(SOURCES),required=True)
     ap.add_argument('--model-policy',choices=('cache-only','quran-pinned-ephemeral'),default='cache-only')
     a=ap.parse_args(argv);source=SOURCES[a.source]
+    if a.source=='tblawi7_nquran':
+        metadata=(B.ROOT/'ops/out/codex-tblawi-nquran-metadata-37406467384.json').read_bytes()
+        B.require(hashlib.sha256(metadata).hexdigest()=='222a0abcea6e4ac6444eac886a4bcf00ca24a590f9cd3e6d883e04ee86002ed2','publisher metadata changed')
+        measured=json.loads(metadata)['sources'][0]
+        B.require(measured['ok'] and measured['pcm']['decodedWithoutErrors'] and measured['file']['sha256']==source['sha256'] and measured['file']['finalUrl']==source['url'],'unhealthy/mismatched source')
     report={'schema':1,'kind':'known-source-quran-alignment-diagnostic','sourceId':a.source,
       'measurementComplete':False,'qualityClaim':False,'coverageCertified':False,'productionChanged':False,
       'source':source,'freeResults':[],'models':[],'errors':[],
@@ -45,15 +53,17 @@ def main(argv=None):
         for name in ('HF_HUB_OFFLINE','TRANSFORMERS_OFFLINE','HF_HUB_DISABLE_XET'):os.environ[name]='1'
         with tempfile.TemporaryDirectory(prefix='rafiq-quran-recovery-',dir=os.environ.get('RUNNER_TEMP')) as tmp:
             path=Path(tmp)/(a.source+'.mp3')
-            receipt=S.metadata.fetch(source['url'],path,limit=32*1024*1024)
+            receipt=S.metadata.fetch(source['url'],path,limit=35032209 if a.source=='tblawi7_nquran' else 32*1024*1024)
             B.require(receipt['sha256']==source['sha256'],'source hash mismatch')
             collector,proof=B.decode(path,source)
-            B.require(proof['decoded']['durationSeconds']<1500,'unexpected source duration')
+            B.require(proof['decoded']['durationSeconds']<(4400 if a.source=='tblawi7_nquran' else 1500),'unexpected source duration')
+            if a.source=='tblawi7_nquran':
+                B.require(receipt['bytes']==35032209 and proof['decoded']['frames']==70049542,'new publisher source differs from measured metadata')
             report['audio']={'download':receipt,**proof}
             contract=P.load_contract()
             with S.model_snapshots(a.model_policy) as (snapshots,inventory):
                 report['modelAcquisition']=inventory
-                if a.source in ('shamrani79','mrifai84','benkirane77','benkirane51','yousef107'):
+                if a.source in ('shamrani79','mrifai84','benkirane77','benkirane51','yousef107','tblawi7_nquran'):
                     window=dict(source,windowSeconds=[collector.start/S.RATE,min(collector.frames,collector.end)/S.RATE])
                     for spec in S.MODELS:
                         backend=S.FreeCTC(snapshots[spec['name']],spec)
@@ -72,7 +82,7 @@ def main(argv=None):
                     C._M.clear();gc.collect()
             B.require(S.sha_file(path)==source['sha256'],'source changed after inference')
             alignment=report['alignment']
-            expected={79:46,28:88,45:37,22:78,84:25,77:50,51:60,107:7}[source['surah']]
+            expected={79:46,28:88,45:37,22:78,84:25,77:50,51:60,107:7,7:206}[source['surah']]
             B.require(len(alignment['entries'])==expected,'incomplete result population')
             report['lowOrMissing']=[e['ayahIdx']+1 for e in alignment['entries'] if e['startMs'] is None or e['conf']<.45]
             report['measurementComplete']=True
