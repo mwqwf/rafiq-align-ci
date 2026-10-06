@@ -1,0 +1,130 @@
+{
+  "schema": 1,
+  "observedAtUtc": "2026-10-06T03:12:18Z",
+  "scope": "جرد حي مستقل بعد أربع عشرة ترقية، وتدقيق فصل شاهد البدء عن شاهد النهاية، وبحث مصدر مستقل لسورة الأعراف للعسيري",
+  "completionClaim": false,
+  "repository": {
+    "fullName": "mwqwf/rafiq-align-ci",
+    "visibility": "public",
+    "headObserved": "97a86fb34",
+    "pendingCommandFiles": 0,
+    "commandsDirectoryOnlyReadme": true,
+    "writesOrDispatchesByThisCheck": 0,
+    "costDecision": "read-only and local session only; no workflow dispatch, artifact upload, cache write, paid/private runner, or paid service"
+  },
+  "liveWork": {
+    "inProgressCount": 12,
+    "queuedCount": 1,
+    "pendingCount": 0,
+    "queuedRunIsStale": true,
+    "queuedRunId": 34748440538,
+    "inProgress": [
+      {"runId": 37407527329, "scope": "benkirane_warsh.4f3ed339"},
+      {"runId": 37407050313, "scope": "rabbani_warsh.9769ff3e"},
+      {"runId": 37407043331, "scope": "mukhtar_haj.7fd5be19"},
+      {"runId": 37406959272, "scope": "Quran model recovery of measured source gaps"},
+      {"runId": 37405972254, "scope": "noah_warsh source-gap"},
+      {"runId": 37405244799, "scope": "keepalive fleet"},
+      {"runId": 37404955181, "scope": "m_abdulkareem_warsh.e73721c7"},
+      {"runId": 37404237192, "scope": "hatem.3cdfac1a"},
+      {"runId": 37403895659, "scope": "a_alhazmi.7498fa1e"},
+      {"runId": 37403886936, "scope": "benkirane_warsh.0036ef15"},
+      {"runId": 37401028851, "scope": "hatem.29a2011a"},
+      {"runId": 37398622156, "scope": "saad.b208a747"}
+    ],
+    "collisionDecision": "لم يجر لمس أي نطاق حي؛ اختير 3siri/7 لجرد المصادر فقط"
+  },
+  "completionAudit": {
+    "report": "ops/out/completion-codex-after-fourteen-20261006.json",
+    "reportSha256": "b583e175418cd62c4b53f902f3beb0b56829fde5d722b4a3cb6265336d4d0c90",
+    "snapshotTimestampUtc": "2026-10-06T03:06:37Z",
+    "reportTimestampUtc": "2026-10-06T03:06:42Z",
+    "stableRead": true,
+    "atomicSnapshot": false,
+    "globalErrors": [],
+    "indexesWithIdentityErrors": 0,
+    "indexes": 180,
+    "manifestIndexes": 180,
+    "publicManifestFrozenFingerprintMatches": 180,
+    "readyIndexes": 0,
+    "startsReadyIndexes": 0,
+    "missingAyahs": 884,
+    "unmeasuredStarts": 859472,
+    "startDeviations": 7791,
+    "verifiedEndEvidence": 0,
+    "unknownEndEvidence": 1121596,
+    "interpretation": "تطابق البصمة والبنية لا يثبت صحة الصوت. unknown شاهد نهاية مفقود لا نهاية فاسدة مثبتة، لكنه عمل باقٍ يمنع شهادة الاكتمال. التقرير قراءة مستقرة متتابعة لا لقطة ذرية، وأي ترقية لاحقة توجب إعادة القياس."
+  },
+  "reviewedPriorState": {
+    "run37348137059": "نجاح agent_cmd في تصريف أوامر fixT وحالة 1730 بعد تعارضات دفع؛ ليس تدقيق اكتمال صوتي ولا شهادة 100%",
+    "state20261005Codex1730": "عبارة اكتمال الهدف لا يعتمد عليها لأنها جاورت إقراراً بفجوات تسعة فهارس",
+    "auditR2": "يثبت كبس ذيول وانزياحات واسعة؛ نجاح البنية وعينة 5% لا يثبت الأواخر"
+  },
+  "independentScope": {
+    "index": "timings/hafs/3siri.jz",
+    "productionSha256": "fbf468c05fa3598df3103ce4f1cf53e093e9eb0ac719ad9b051d14c1a0cb1392",
+    "surah": 7,
+    "presentAyahs": 0,
+    "missingAyahs": 206,
+    "status": "blocked-on-verified-complete-matching-source",
+    "acceptedCandidate": null,
+    "sources": [
+      {
+        "id": "mp3quran-publisher",
+        "page": "https://www.mp3quran.net/ar/3siri",
+        "audio": "https://server6.mp3quran.net/3siri/007.mp3",
+        "result": "المصدر المسجل المعروف؛ فحص 2026-10-02 أظهر انضغاطاً شديداً في الوسط، فلا يعاد اعتماده كمصدر كامل"
+      },
+      {
+        "id": "way2quran-full-label",
+        "page": "https://way2quran.com/en/reciters/ibrahim-al-asiri",
+        "audio": "https://media.way2quran.com/ibrahim-al-asiri/hafs-an-asim/007.mp3",
+        "sha256": "7a3f2cee895b1fa4746ff75c1189846a7fe1da0c848a5a3dd4066389e4f17b99",
+        "decodedDurationMs": 4888406,
+        "result": "مقيس سابقاً؛ لا كلام من 2805000 إلى 3915000م.ث، وتغيب مراسي 7:123–159. وصف 114 سورة ليس إثبات سلامة الملف"
+      },
+      {
+        "id": "midad-163992",
+        "page": "https://midad.com/recitation/163992",
+        "sha256": "29da28627c691fb07d4a75abcd8d5b8c0b5e7e267f4f6760b26229312bbabe81",
+        "containerDurationSeconds": 4888.450612,
+        "result": "مرفوض: ffmpeg أبلغ أخطاء ولم يعتمد PCM الجزئي"
+      },
+      {
+        "id": "midad-73330",
+        "page": "https://midad.com/recitation/73330",
+        "sha256": "c3ed20bf1dfee6ae138a40e6458a1e859362eef5c5078d3cb513e3a7fb840b4b",
+        "decodedDurationSeconds": 1159.8628125,
+        "result": "فك سليم لكن مجموعة «ما تيسر» جزئية؛ الهوية والأداء وتغطية 7:123–159 غير مثبتة"
+      },
+      {
+        "id": "midad-73348",
+        "page": "https://midad.com/recitation/73348",
+        "sha256": "fc469766fc06ecfdae70742fa9988845fb09458653de60d8aa8830eff4a769fa",
+        "decodedDurationSeconds": 1160.124125,
+        "result": "فك سليم لكن «ما تيسر من سورة الأعراف» جزئي؛ تغطية موضع الفجوة غير مثبتة"
+      },
+      {
+        "id": "annaba-1425-album",
+        "page": "https://mazameer.com/vb/threads/212320/",
+        "audio": "https://i.top4top.io/m_2350xthbh1.mp3",
+        "result": "مرشح جزئي، الرواية والآيات غير مصرح بهما؛ فحص range المحلي تعذر بمهلة Proxy CONNECT، فلا قياس ولا اعتماد"
+      },
+      {
+        "id": "surahquran-mirror",
+        "page": "https://surahquran.com/English/Ibrahim-Al-Asiri/7.html",
+        "result": "رابط التنزيل يعيد إلى server6.mp3quran؛ ليس أصلاً مستقلاً"
+      },
+      {
+        "id": "qurancentral",
+        "page": "https://qurancentral.com/audio/ibrahim-al-asiri/",
+        "result": "الجرد العام يسرد 13 ملفاً فقط ولا يسرد سورة 7"
+      },
+      {
+        "id": "tvquran",
+        "result": "المتوفر مقتطفات من الأعراف لا سورة كاملة، فلا يصلح لاستعادة 206 آيات"
+      }
+    ],
+    "decision": "لا إنشاء توقيت ولا دمج مقاطع ولا تغيير قارئ أو رواية. يبقى النقص 206 حتى وجود أصل كامل مطابق أو إثبات مقطع مستقل يغطي الفجوة مع حدود مقيسة وبوابات كاملة."
+  }
+}
