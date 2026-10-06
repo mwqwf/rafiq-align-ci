@@ -1,0 +1,14 @@
+{
+  "action": "dispatch",
+  "workflow": "ctc_heard_probe.yml",
+  "inputs": {
+    "url": "https://server16.mp3quran.net/darweez/Rewayat-Hafs-A-n-Assem/053.mp3",
+    "surah": "53",
+    "riwaya": "hafs",
+    "build": "true",
+    "int8": "0",
+    "evidence": "build-logs",
+    "source_sha256": "60b8e8341a40671d93beda8dd5b1ce3d1485b1ff32f219d582871aaf1d7988c5",
+    "reason": "Measured published tail maps 53:56-58 onto freely decoded 53:35-37; rebuild whole source without publishing"
+  }
+}

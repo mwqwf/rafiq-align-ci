@@ -47,7 +47,7 @@ DONE_DIR = CMD_DIR / "done"
 MAX_TRIES = int(os.environ.get("AGENT_CMD_MAX_TRIES", "3"))
 
 # ⛔ سيرُ العملِ المسموحُ إطلاقُه — والثقيلُ كلُّه هنا فلا حاجةَ إلى غيره.
-ALLOWED_WF = {"duration_defect_diagnostic.yml", "quran_source_recovery.yml", "tail_clipping_followup.yml", "final_verse_free_batch.yml", "peshawa_tail_dual_probe.yml", "peshawa_tail_free_decode.yml", "saad_free_decode.yml", "free-post-stage-quality.yml", "independent_window_pilot.yml", "registered-source-quality.yml", "verified_kurdi_source.yml", "spoken_census.yml", "window_census.yml", "source_quran_probe.yml", "align.yml", "realign_surah.yml", "openers.yml", "audio_qa.yml",
+ALLOWED_WF = {"duration_context_followup.yml", "duration_defect_diagnostic.yml", "quran_source_recovery.yml", "tail_clipping_followup.yml", "final_verse_free_batch.yml", "peshawa_tail_dual_probe.yml", "peshawa_tail_free_decode.yml", "saad_free_decode.yml", "free-post-stage-quality.yml", "independent_window_pilot.yml", "registered-source-quality.yml", "verified_kurdi_source.yml", "spoken_census.yml", "window_census.yml", "source_quran_probe.yml", "align.yml", "realign_surah.yml", "openers.yml", "audio_qa.yml",
               # ⭐ 2026-09-24 (‏إذن المالك بالتسريع): محاذاةُ سور النقص وحدها بـCTC
               #    ودمجُها، وإحصاؤها الصوتيُّ الشامل الذي تطلبه الترقية.
               "ctc_splice.yml", "splice_census.yml",
