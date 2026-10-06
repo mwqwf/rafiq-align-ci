@@ -1,0 +1,1259 @@
+{
+  "path": "ops/source-repair/candidates/codex-expanded-tail-warsh-harraz_warsh-20261006.jz",
+  "sha256": "2a395b201a18512c5650dabb1e7b5cb2fb85e958fe059f41bb4a53f0df5874b7",
+  "parentKey": "timings/warsh/harraz_warsh.jz",
+  "parentSha256": "f233a9f03cc81a3bc450e048923a81b9ddd05481d5dcb06d5e1c669f47ed13c1",
+  "op": "ctc_quran_window:44,53",
+  "changedEntries": 53,
+  "warnings": [
+    "مداخل مدتها > 120ث: 1 · مثال: 2:282 مدتها 161ث",
+    "مطالع سور تبدأ دون 3ث — مرشّحون للمسبار الصوتي لا حكمٌ عليهم: 5:1=2991م.ث · 12:1=2951م.ث · 14:1=2731م.ث · 22:1=2931م.ث · 23:1=2851م.ث · 24:1=2711م.ث · 25:1=2971م.ث · 26:1=2851م.ث · 28:1=2511م.ث · 30:1=2931م.ث … و43 غيرها"
+  ],
+  "proof": {
+    "qualityClaim": false,
+    "contexts": [
+      {
+        "reportPath": "ops/out/codex-harraz44-40-50-report-20261006.json",
+        "reportSha256": "53d61d1525f685453fbd182c1a39ddf1b528301a19dc25000d66081657a32a5e",
+        "bundlePath": "ops/out/codex-harraz44-40-50-complete-20261006.json.gz",
+        "bundleSha256": "2d73349b1f1119ce1cb641a5c584d2394a2791755843ea00b44c21f9d57d7041",
+        "jobId": 112121575815,
+        "id": "harraz44_tail_40_50",
+        "targetAyahs": [
+          40,
+          41,
+          42,
+          43,
+          44,
+          45,
+          46,
+          47,
+          48,
+          49,
+          50
+        ],
+        "sourceSha256": "ec6032bcb4629fbd74b1e78af435654dee82e89b82452f856d2b3343a5b8d390",
+        "provenance": {
+          "runId": "37417827282",
+          "runSha": "bbc120787189708307d87bcbbe72404d87ffcba0",
+          "toolSha256": "443806492a44bb5cddcdd4002d4006b65eb88b9dfb2ed34eece7e9e502cd3cda"
+        }
+      },
+      {
+        "reportPath": "ops/out/codex-harraz44-49-57-report-20261006.json",
+        "reportSha256": "fa859e7697416de35ea5ab33f2c50ca7405537f9add44f3645e61b5c5f6737b7",
+        "bundlePath": "ops/out/codex-harraz44-49-57-complete-20261006.json.gz",
+        "bundleSha256": "0efe10424f631df2aaf3d847dab90f9125ae9a6e8e088b4dc7dc3f0da37bfeac",
+        "jobId": 112121575774,
+        "id": "harraz44_tail_49_57",
+        "targetAyahs": [
+          49,
+          50,
+          51,
+          52,
+          53,
+          54,
+          55
+        ],
+        "sourceSha256": "ec6032bcb4629fbd74b1e78af435654dee82e89b82452f856d2b3343a5b8d390",
+        "provenance": {
+          "runId": "37417827282",
+          "runSha": "bbc120787189708307d87bcbbe72404d87ffcba0",
+          "toolSha256": "443806492a44bb5cddcdd4002d4006b65eb88b9dfb2ed34eece7e9e502cd3cda"
+        }
+      },
+      {
+        "reportPath": "ops/out/codex-harraz44-52-59-report-20261006.json",
+        "reportSha256": "7c2ef7d6d59a7cd1664a6233dcdc334df8d2888f32fef0ca9c567707938e2ece",
+        "bundlePath": "ops/out/codex-harraz44-52-59-complete-20261006.json.gz",
+        "bundleSha256": "ff72c30e3bc5c1f781f6a254cad7860304b854a1c990efc908ef29c95441e286",
+        "jobId": 112121575764,
+        "id": "harraz44_tail_52_59",
+        "targetAyahs": [
+          54,
+          55,
+          56,
+          57,
+          58,
+          59
+        ],
+        "sourceSha256": "ec6032bcb4629fbd74b1e78af435654dee82e89b82452f856d2b3343a5b8d390",
+        "provenance": {
+          "runId": "37417827282",
+          "runSha": "bbc120787189708307d87bcbbe72404d87ffcba0",
+          "toolSha256": "443806492a44bb5cddcdd4002d4006b65eb88b9dfb2ed34eece7e9e502cd3cda"
+        }
+      },
+      {
+        "reportPath": "ops/out/codex-harraz53-32-35-report-20261006.json",
+        "reportSha256": "0cd6b354b1bb24cc7f41f02c84dbc2d1b75cfe02ccc0f146ba5c8a83a0bee991",
+        "bundlePath": "ops/out/codex-harraz53-32-35-complete-20261006.json.gz",
+        "bundleSha256": "79329bf77ed1cfa10a39249afe2f870f38c64d7e337da8af912b414198d05c01",
+        "jobId": 112133538404,
+        "id": "harraz53_start32_35",
+        "targetAyahs": [
+          32,
+          33,
+          34,
+          35
+        ],
+        "sourceSha256": "f23cab41c78482d9bca17f65761b77820c86582d9e085b8642ddf443dd79ed1c",
+        "provenance": {
+          "runId": "37422111494",
+          "runSha": "1353f35ce2049e27cc1eabfcd742b9a6256f34d7",
+          "toolSha256": "c6dd4908ddd99cb9306154809fdc149472ddadc23def64fdca5a4977b6893ef4"
+        }
+      },
+      {
+        "reportPath": "ops/out/codex-harraz53-33-43-report-20261006.json",
+        "reportSha256": "6f114fdafa405762f00adfedba4e07de94a2fd1f276bd150b17a22072af01cc5",
+        "bundlePath": "ops/out/codex-harraz53-33-43-complete-20261006.json.gz",
+        "bundleSha256": "52a0fa0e2f923434709021bc1a4151807a9296c3ef5030292d63f81b418ff836",
+        "jobId": 112130831776,
+        "id": "harraz53_33_43",
+        "targetAyahs": [
+          33,
+          34,
+          35,
+          36,
+          37,
+          38,
+          39,
+          40,
+          41,
+          42
+        ],
+        "sourceSha256": "f23cab41c78482d9bca17f65761b77820c86582d9e085b8642ddf443dd79ed1c",
+        "provenance": {
+          "runId": "37421234699",
+          "runSha": "195de0e3dfd7f91e03e72d4665d055947e3e51f7",
+          "toolSha256": "3efff3b776c64867ea594ee864b04a456cfd424f7dfb8b2e844ea922f9f0c404"
+        }
+      },
+      {
+        "reportPath": "ops/out/codex-harraz53-42-52-report-20261006.json",
+        "reportSha256": "da561a02053e2cdd5cfe12dd53ce5b414a598c6e9d9cdb2b4b561966fa75e56f",
+        "bundlePath": "ops/out/codex-harraz53-42-52-complete-20261006.json.gz",
+        "bundleSha256": "9a3321b7293eb4c3d80d83c024022dbb2c0590f8a43cea904ff20d5b4674883e",
+        "jobId": 112130831548,
+        "id": "harraz53_42_52",
+        "targetAyahs": [
+          42,
+          43,
+          44,
+          45,
+          46,
+          47,
+          48,
+          49,
+          50,
+          51
+        ],
+        "sourceSha256": "f23cab41c78482d9bca17f65761b77820c86582d9e085b8642ddf443dd79ed1c",
+        "provenance": {
+          "runId": "37421234699",
+          "runSha": "195de0e3dfd7f91e03e72d4665d055947e3e51f7",
+          "toolSha256": "3efff3b776c64867ea594ee864b04a456cfd424f7dfb8b2e844ea922f9f0c404"
+        }
+      },
+      {
+        "reportPath": "ops/out/codex-harraz53-51-62-report-20261006.json",
+        "reportSha256": "4cb24f84f469a5893fadfa9de8f6c03e6a6978770fb537664db8e0d7caab3f0e",
+        "bundlePath": "ops/out/codex-harraz53-51-62-complete-20261006.json.gz",
+        "bundleSha256": "fd683be863a60caea817d810bab9bb2544bfca4c26af067394440319ecbb4ea1",
+        "jobId": 112121575789,
+        "id": "harraz53_tail_51_62",
+        "targetAyahs": [
+          51,
+          52,
+          53,
+          54,
+          55,
+          56,
+          57,
+          58,
+          59,
+          60,
+          61,
+          62
+        ],
+        "sourceSha256": "f23cab41c78482d9bca17f65761b77820c86582d9e085b8642ddf443dd79ed1c",
+        "provenance": {
+          "runId": "37417827282",
+          "runSha": "bbc120787189708307d87bcbbe72404d87ffcba0",
+          "toolSha256": "443806492a44bb5cddcdd4002d4006b65eb88b9dfb2ed34eece7e9e502cd3cda"
+        }
+      }
+    ],
+    "changes": [
+      {
+        "before": {
+          "ayahId": "44:39",
+          "fileRef": "https://server16.mp3quran.net/H-Lharraz/Rewayat-Warsh-A-n-Nafi/044.mp3",
+          "startMs": 316271,
+          "endMs": 326689,
+          "conf": 0.649,
+          "confBand": "MED",
+          "startApprox": true
+        },
+        "after": {
+          "ayahId": "44:39",
+          "fileRef": "https://server16.mp3quran.net/H-Lharraz/Rewayat-Warsh-A-n-Nafi/044.mp3",
+          "startMs": 316271,
+          "endMs": 326646,
+          "conf": 0.649,
+          "confBand": "MED",
+          "startApprox": true
+        }
+      },
+      {
+        "before": {
+          "ayahId": "44:40",
+          "fileRef": "https://server16.mp3quran.net/H-Lharraz/Rewayat-Warsh-A-n-Nafi/044.mp3",
+          "startMs": 326689,
+          "endMs": 330021,
+          "conf": 0.372,
+          "confBand": "LOW",
+          "startApprox": true
+        },
+        "after": {
+          "ayahId": "44:40",
+          "fileRef": "https://server16.mp3quran.net/H-Lharraz/Rewayat-Warsh-A-n-Nafi/044.mp3",
+          "startMs": 326646,
+          "endMs": 334162,
+          "conf": 0.372,
+          "confBand": "LOW",
+          "startApprox": true
+        }
+      },
+      {
+        "before": {
+          "ayahId": "44:41",
+          "fileRef": "https://server16.mp3quran.net/H-Lharraz/Rewayat-Warsh-A-n-Nafi/044.mp3",
+          "startMs": 330021,
+          "endMs": 334684,
+          "conf": 0.061,
+          "confBand": "LOW",
+          "startApprox": true
+        },
+        "after": {
+          "ayahId": "44:41",
+          "fileRef": "https://server16.mp3quran.net/H-Lharraz/Rewayat-Warsh-A-n-Nafi/044.mp3",
+          "startMs": 334162,
+          "endMs": 345962,
+          "conf": 0.061,
+          "confBand": "LOW",
+          "startApprox": true
+        }
+      },
+      {
+        "before": {
+          "ayahId": "44:42",
+          "fileRef": "https://server16.mp3quran.net/H-Lharraz/Rewayat-Warsh-A-n-Nafi/044.mp3",
+          "startMs": 334684,
+          "endMs": 339247,
+          "conf": 0.181,
+          "confBand": "LOW",
+          "startApprox": true
+        },
+        "after": {
+          "ayahId": "44:42",
+          "fileRef": "https://server16.mp3quran.net/H-Lharraz/Rewayat-Warsh-A-n-Nafi/044.mp3",
+          "startMs": 345962,
+          "endMs": 355500,
+          "conf": 0.181,
+          "confBand": "LOW",
+          "startApprox": true
+        }
+      },
+      {
+        "before": {
+          "ayahId": "44:43",
+          "fileRef": "https://server16.mp3quran.net/H-Lharraz/Rewayat-Warsh-A-n-Nafi/044.mp3",
+          "startMs": 339247,
+          "endMs": 341909,
+          "conf": 0.585,
+          "confBand": "MED",
+          "startApprox": true
+        },
+        "after": {
+          "ayahId": "44:43",
+          "fileRef": "https://server16.mp3quran.net/H-Lharraz/Rewayat-Warsh-A-n-Nafi/044.mp3",
+          "startMs": 355500,
+          "endMs": 359043,
+          "conf": 0.585,
+          "confBand": "MED",
+          "startApprox": true
+        }
+      },
+      {
+        "before": {
+          "ayahId": "44:44",
+          "fileRef": "https://server16.mp3quran.net/H-Lharraz/Rewayat-Warsh-A-n-Nafi/044.mp3",
+          "startMs": 341909,
+          "endMs": 342930,
+          "conf": 0.58,
+          "confBand": "MED",
+          "startApprox": true
+        },
+        "after": {
+          "ayahId": "44:44",
+          "fileRef": "https://server16.mp3quran.net/H-Lharraz/Rewayat-Warsh-A-n-Nafi/044.mp3",
+          "startMs": 359043,
+          "endMs": 360865,
+          "conf": 0.58,
+          "confBand": "MED",
+          "startApprox": true
+        }
+      },
+      {
+        "before": {
+          "ayahId": "44:45",
+          "fileRef": "https://server16.mp3quran.net/H-Lharraz/Rewayat-Warsh-A-n-Nafi/044.mp3",
+          "startMs": 342930,
+          "endMs": 343650,
+          "conf": 0.0,
+          "confBand": "LOW",
+          "startApprox": true
+        },
+        "after": {
+          "ayahId": "44:45",
+          "fileRef": "https://server16.mp3quran.net/H-Lharraz/Rewayat-Warsh-A-n-Nafi/044.mp3",
+          "startMs": 360865,
+          "endMs": 363927,
+          "conf": 0.0,
+          "confBand": "LOW",
+          "startApprox": true
+        }
+      },
+      {
+        "before": {
+          "ayahId": "44:46",
+          "fileRef": "https://server16.mp3quran.net/H-Lharraz/Rewayat-Warsh-A-n-Nafi/044.mp3",
+          "startMs": 343650,
+          "endMs": 344091,
+          "conf": 0.042,
+          "confBand": "LOW",
+          "startApprox": true
+        },
+        "after": {
+          "ayahId": "44:46",
+          "fileRef": "https://server16.mp3quran.net/H-Lharraz/Rewayat-Warsh-A-n-Nafi/044.mp3",
+          "startMs": 363927,
+          "endMs": 366460,
+          "conf": 0.042,
+          "confBand": "LOW",
+          "startApprox": true
+        }
+      },
+      {
+        "before": {
+          "ayahId": "44:47",
+          "fileRef": "https://server16.mp3quran.net/H-Lharraz/Rewayat-Warsh-A-n-Nafi/044.mp3",
+          "startMs": 344091,
+          "endMs": 347973,
+          "conf": 0.295,
+          "confBand": "LOW",
+          "startApprox": true
+        },
+        "after": {
+          "ayahId": "44:47",
+          "fileRef": "https://server16.mp3quran.net/H-Lharraz/Rewayat-Warsh-A-n-Nafi/044.mp3",
+          "startMs": 366460,
+          "endMs": 372214,
+          "conf": 0.295,
+          "confBand": "LOW",
+          "startApprox": true
+        }
+      },
+      {
+        "before": {
+          "ayahId": "44:48",
+          "fileRef": "https://server16.mp3quran.net/H-Lharraz/Rewayat-Warsh-A-n-Nafi/044.mp3",
+          "startMs": 347973,
+          "endMs": 352717,
+          "conf": 0.175,
+          "confBand": "LOW",
+          "startApprox": true
+        },
+        "after": {
+          "ayahId": "44:48",
+          "fileRef": "https://server16.mp3quran.net/H-Lharraz/Rewayat-Warsh-A-n-Nafi/044.mp3",
+          "startMs": 372214,
+          "endMs": 378063,
+          "conf": 0.175,
+          "confBand": "LOW",
+          "startApprox": true
+        }
+      },
+      {
+        "before": {
+          "ayahId": "44:49",
+          "fileRef": "https://server16.mp3quran.net/H-Lharraz/Rewayat-Warsh-A-n-Nafi/044.mp3",
+          "startMs": 352717,
+          "endMs": 355459,
+          "conf": 0.262,
+          "confBand": "LOW",
+          "startApprox": true
+        },
+        "after": {
+          "ayahId": "44:49",
+          "fileRef": "https://server16.mp3quran.net/H-Lharraz/Rewayat-Warsh-A-n-Nafi/044.mp3",
+          "startMs": 378063,
+          "endMs": 384117,
+          "conf": 0.262,
+          "confBand": "LOW",
+          "startApprox": true
+        }
+      },
+      {
+        "before": {
+          "ayahId": "44:50",
+          "fileRef": "https://server16.mp3quran.net/H-Lharraz/Rewayat-Warsh-A-n-Nafi/044.mp3",
+          "startMs": 355459,
+          "endMs": 357700,
+          "conf": 0.118,
+          "confBand": "LOW",
+          "startApprox": true
+        },
+        "after": {
+          "ayahId": "44:50",
+          "fileRef": "https://server16.mp3quran.net/H-Lharraz/Rewayat-Warsh-A-n-Nafi/044.mp3",
+          "startMs": 384117,
+          "endMs": 390994,
+          "conf": 0.118,
+          "confBand": "LOW",
+          "startApprox": true
+        }
+      },
+      {
+        "before": {
+          "ayahId": "44:51",
+          "fileRef": "https://server16.mp3quran.net/H-Lharraz/Rewayat-Warsh-A-n-Nafi/044.mp3",
+          "startMs": 357700,
+          "endMs": 359001,
+          "conf": 0.015,
+          "confBand": "LOW",
+          "startApprox": true
+        },
+        "after": {
+          "ayahId": "44:51",
+          "fileRef": "https://server16.mp3quran.net/H-Lharraz/Rewayat-Warsh-A-n-Nafi/044.mp3",
+          "startMs": 390994,
+          "endMs": 395578,
+          "conf": 0.015,
+          "confBand": "LOW",
+          "startApprox": true
+        }
+      },
+      {
+        "before": {
+          "ayahId": "44:52",
+          "fileRef": "https://server16.mp3quran.net/H-Lharraz/Rewayat-Warsh-A-n-Nafi/044.mp3",
+          "startMs": 359001,
+          "endMs": 359581,
+          "conf": 0.35,
+          "confBand": "LOW",
+          "startApprox": true
+        },
+        "after": {
+          "ayahId": "44:52",
+          "fileRef": "https://server16.mp3quran.net/H-Lharraz/Rewayat-Warsh-A-n-Nafi/044.mp3",
+          "startMs": 395578,
+          "endMs": 399821,
+          "conf": 0.35,
+          "confBand": "LOW",
+          "startApprox": true
+        }
+      },
+      {
+        "before": {
+          "ayahId": "44:53",
+          "fileRef": "https://server16.mp3quran.net/H-Lharraz/Rewayat-Warsh-A-n-Nafi/044.mp3",
+          "startMs": 359581,
+          "endMs": 360962,
+          "conf": 0.0,
+          "confBand": "LOW",
+          "startApprox": true
+        },
+        "after": {
+          "ayahId": "44:53",
+          "fileRef": "https://server16.mp3quran.net/H-Lharraz/Rewayat-Warsh-A-n-Nafi/044.mp3",
+          "startMs": 399821,
+          "endMs": 407608,
+          "conf": 0.0,
+          "confBand": "LOW",
+          "startApprox": true
+        }
+      },
+      {
+        "before": {
+          "ayahId": "44:54",
+          "fileRef": "https://server16.mp3quran.net/H-Lharraz/Rewayat-Warsh-A-n-Nafi/044.mp3",
+          "startMs": 360962,
+          "endMs": 362624,
+          "conf": 0.306,
+          "confBand": "LOW",
+          "startApprox": true
+        },
+        "after": {
+          "ayahId": "44:54",
+          "fileRef": "https://server16.mp3quran.net/H-Lharraz/Rewayat-Warsh-A-n-Nafi/044.mp3",
+          "startMs": 407608,
+          "endMs": 413113,
+          "conf": 0.306,
+          "confBand": "LOW",
+          "startApprox": true
+        }
+      },
+      {
+        "before": {
+          "ayahId": "44:55",
+          "fileRef": "https://server16.mp3quran.net/H-Lharraz/Rewayat-Warsh-A-n-Nafi/044.mp3",
+          "startMs": 362624,
+          "endMs": 364865,
+          "conf": 0.239,
+          "confBand": "LOW",
+          "startApprox": true
+        },
+        "after": {
+          "ayahId": "44:55",
+          "fileRef": "https://server16.mp3quran.net/H-Lharraz/Rewayat-Warsh-A-n-Nafi/044.mp3",
+          "startMs": 413113,
+          "endMs": 419526,
+          "conf": 0.239,
+          "confBand": "LOW",
+          "startApprox": true
+        }
+      },
+      {
+        "before": {
+          "ayahId": "44:56",
+          "fileRef": "https://server16.mp3quran.net/H-Lharraz/Rewayat-Warsh-A-n-Nafi/044.mp3",
+          "startMs": 364865,
+          "endMs": 372150,
+          "conf": 0.197,
+          "confBand": "LOW",
+          "startApprox": true
+        },
+        "after": {
+          "ayahId": "44:56",
+          "fileRef": "https://server16.mp3quran.net/H-Lharraz/Rewayat-Warsh-A-n-Nafi/044.mp3",
+          "startMs": 419526,
+          "endMs": 436771,
+          "conf": 0.197,
+          "confBand": "LOW",
+          "startApprox": true
+        }
+      },
+      {
+        "before": {
+          "ayahId": "44:57",
+          "fileRef": "https://server16.mp3quran.net/H-Lharraz/Rewayat-Warsh-A-n-Nafi/044.mp3",
+          "startMs": 372150,
+          "endMs": 375453,
+          "conf": 0.223,
+          "confBand": "LOW",
+          "startApprox": true
+        },
+        "after": {
+          "ayahId": "44:57",
+          "fileRef": "https://server16.mp3quran.net/H-Lharraz/Rewayat-Warsh-A-n-Nafi/044.mp3",
+          "startMs": 436771,
+          "endMs": 442797,
+          "conf": 0.223,
+          "confBand": "LOW",
+          "startApprox": true
+        }
+      },
+      {
+        "before": {
+          "ayahId": "44:58",
+          "fileRef": "https://server16.mp3quran.net/H-Lharraz/Rewayat-Warsh-A-n-Nafi/044.mp3",
+          "startMs": 375453,
+          "endMs": 378695,
+          "conf": 0.378,
+          "confBand": "LOW",
+          "startApprox": true
+        },
+        "after": {
+          "ayahId": "44:58",
+          "fileRef": "https://server16.mp3quran.net/H-Lharraz/Rewayat-Warsh-A-n-Nafi/044.mp3",
+          "startMs": 442797,
+          "endMs": 449903,
+          "conf": 0.378,
+          "confBand": "LOW",
+          "startApprox": true
+        }
+      },
+      {
+        "before": {
+          "ayahId": "44:59",
+          "fileRef": "https://server16.mp3quran.net/H-Lharraz/Rewayat-Warsh-A-n-Nafi/044.mp3",
+          "startMs": 378695,
+          "endMs": 379535,
+          "conf": 0.0,
+          "confBand": "LOW",
+          "startApprox": true
+        },
+        "after": {
+          "ayahId": "44:59",
+          "fileRef": "https://server16.mp3quran.net/H-Lharraz/Rewayat-Warsh-A-n-Nafi/044.mp3",
+          "startMs": 449903,
+          "endMs": 459522,
+          "conf": 0.0,
+          "confBand": "LOW",
+          "startApprox": true
+        }
+      },
+      {
+        "before": {
+          "ayahId": "53:31",
+          "fileRef": "https://server16.mp3quran.net/H-Lharraz/Rewayat-Warsh-A-n-Nafi/053.mp3",
+          "startMs": 227606,
+          "endMs": 245888,
+          "conf": 0.716,
+          "confBand": "MED",
+          "startApprox": true
+        },
+        "after": {
+          "ayahId": "53:31",
+          "fileRef": "https://server16.mp3quran.net/H-Lharraz/Rewayat-Warsh-A-n-Nafi/053.mp3",
+          "startMs": 227606,
+          "endMs": 245485,
+          "conf": 0.716,
+          "confBand": "MED",
+          "startApprox": true
+        }
+      },
+      {
+        "before": {
+          "ayahId": "53:32",
+          "fileRef": "https://server16.mp3quran.net/H-Lharraz/Rewayat-Warsh-A-n-Nafi/053.mp3",
+          "startMs": 245888,
+          "endMs": 283812,
+          "conf": 0.218,
+          "confBand": "LOW",
+          "startApprox": true
+        },
+        "after": {
+          "ayahId": "53:32",
+          "fileRef": "https://server16.mp3quran.net/H-Lharraz/Rewayat-Warsh-A-n-Nafi/053.mp3",
+          "startMs": 245485,
+          "endMs": 287215,
+          "conf": 0.218,
+          "confBand": "LOW",
+          "startApprox": true
+        }
+      },
+      {
+        "before": {
+          "ayahId": "53:33",
+          "fileRef": "https://server16.mp3quran.net/H-Lharraz/Rewayat-Warsh-A-n-Nafi/053.mp3",
+          "startMs": 283812,
+          "endMs": 285913,
+          "conf": 0.501,
+          "confBand": "MED",
+          "startApprox": true
+        },
+        "after": {
+          "ayahId": "53:33",
+          "fileRef": "https://server16.mp3quran.net/H-Lharraz/Rewayat-Warsh-A-n-Nafi/053.mp3",
+          "startMs": 287215,
+          "endMs": 293640,
+          "conf": 0.501,
+          "confBand": "MED",
+          "startApprox": true
+        }
+      },
+      {
+        "before": {
+          "ayahId": "53:34",
+          "fileRef": "https://server16.mp3quran.net/H-Lharraz/Rewayat-Warsh-A-n-Nafi/053.mp3",
+          "startMs": 285913,
+          "endMs": 288215,
+          "conf": 0.313,
+          "confBand": "LOW",
+          "startApprox": true
+        },
+        "after": {
+          "ayahId": "53:34",
+          "fileRef": "https://server16.mp3quran.net/H-Lharraz/Rewayat-Warsh-A-n-Nafi/053.mp3",
+          "startMs": 293640,
+          "endMs": 299235,
+          "conf": 0.313,
+          "confBand": "LOW",
+          "startApprox": true
+        }
+      },
+      {
+        "before": {
+          "ayahId": "53:35",
+          "fileRef": "https://server16.mp3quran.net/H-Lharraz/Rewayat-Warsh-A-n-Nafi/053.mp3",
+          "startMs": 288215,
+          "endMs": 293498,
+          "conf": 0.472,
+          "confBand": "MED",
+          "startApprox": true
+        },
+        "after": {
+          "ayahId": "53:35",
+          "fileRef": "https://server16.mp3quran.net/H-Lharraz/Rewayat-Warsh-A-n-Nafi/053.mp3",
+          "startMs": 299235,
+          "endMs": 304099,
+          "conf": 0.472,
+          "confBand": "MED",
+          "startApprox": true
+        }
+      },
+      {
+        "before": {
+          "ayahId": "53:36",
+          "fileRef": "https://server16.mp3quran.net/H-Lharraz/Rewayat-Warsh-A-n-Nafi/053.mp3",
+          "startMs": 293498,
+          "endMs": 296240,
+          "conf": 0.4,
+          "confBand": "LOW",
+          "startApprox": true
+        },
+        "after": {
+          "ayahId": "53:36",
+          "fileRef": "https://server16.mp3quran.net/H-Lharraz/Rewayat-Warsh-A-n-Nafi/053.mp3",
+          "startMs": 304099,
+          "endMs": 307792,
+          "conf": 0.4,
+          "confBand": "LOW",
+          "startApprox": true
+        }
+      },
+      {
+        "before": {
+          "ayahId": "53:37",
+          "fileRef": "https://server16.mp3quran.net/H-Lharraz/Rewayat-Warsh-A-n-Nafi/053.mp3",
+          "startMs": 296240,
+          "endMs": 301243,
+          "conf": 0.676,
+          "confBand": "MED",
+          "startApprox": true
+        },
+        "after": {
+          "ayahId": "53:37",
+          "fileRef": "https://server16.mp3quran.net/H-Lharraz/Rewayat-Warsh-A-n-Nafi/053.mp3",
+          "startMs": 307792,
+          "endMs": 313607,
+          "conf": 0.676,
+          "confBand": "MED",
+          "startApprox": true
+        }
+      },
+      {
+        "before": {
+          "ayahId": "53:38",
+          "fileRef": "https://server16.mp3quran.net/H-Lharraz/Rewayat-Warsh-A-n-Nafi/053.mp3",
+          "startMs": 301243,
+          "endMs": 303385,
+          "conf": 0.248,
+          "confBand": "LOW",
+          "startApprox": true
+        },
+        "after": {
+          "ayahId": "53:38",
+          "fileRef": "https://server16.mp3quran.net/H-Lharraz/Rewayat-Warsh-A-n-Nafi/053.mp3",
+          "startMs": 313607,
+          "endMs": 317981,
+          "conf": 0.248,
+          "confBand": "LOW",
+          "startApprox": true
+        }
+      },
+      {
+        "before": {
+          "ayahId": "53:39",
+          "fileRef": "https://server16.mp3quran.net/H-Lharraz/Rewayat-Warsh-A-n-Nafi/053.mp3",
+          "startMs": 303385,
+          "endMs": 306406,
+          "conf": 0.468,
+          "confBand": "MED",
+          "startApprox": true
+        },
+        "after": {
+          "ayahId": "53:39",
+          "fileRef": "https://server16.mp3quran.net/H-Lharraz/Rewayat-Warsh-A-n-Nafi/053.mp3",
+          "startMs": 317981,
+          "endMs": 323045,
+          "conf": 0.468,
+          "confBand": "MED",
+          "startApprox": true
+        }
+      },
+      {
+        "before": {
+          "ayahId": "53:40",
+          "fileRef": "https://server16.mp3quran.net/H-Lharraz/Rewayat-Warsh-A-n-Nafi/053.mp3",
+          "startMs": 306406,
+          "endMs": 307147,
+          "conf": 0.261,
+          "confBand": "LOW",
+          "startApprox": true
+        },
+        "after": {
+          "ayahId": "53:40",
+          "fileRef": "https://server16.mp3quran.net/H-Lharraz/Rewayat-Warsh-A-n-Nafi/053.mp3",
+          "startMs": 323045,
+          "endMs": 326809,
+          "conf": 0.261,
+          "confBand": "LOW",
+          "startApprox": true
+        }
+      },
+      {
+        "before": {
+          "ayahId": "53:41",
+          "fileRef": "https://server16.mp3quran.net/H-Lharraz/Rewayat-Warsh-A-n-Nafi/053.mp3",
+          "startMs": 307147,
+          "endMs": 309148,
+          "conf": 0.411,
+          "confBand": "LOW",
+          "startApprox": true
+        },
+        "after": {
+          "ayahId": "53:41",
+          "fileRef": "https://server16.mp3quran.net/H-Lharraz/Rewayat-Warsh-A-n-Nafi/053.mp3",
+          "startMs": 326809,
+          "endMs": 333622,
+          "conf": 0.411,
+          "confBand": "LOW",
+          "startApprox": true
+        }
+      },
+      {
+        "before": {
+          "ayahId": "53:42",
+          "fileRef": "https://server16.mp3quran.net/H-Lharraz/Rewayat-Warsh-A-n-Nafi/053.mp3",
+          "startMs": 309148,
+          "endMs": 314632,
+          "conf": 0.671,
+          "confBand": "MED",
+          "startApprox": true
+        },
+        "after": {
+          "ayahId": "53:42",
+          "fileRef": "https://server16.mp3quran.net/H-Lharraz/Rewayat-Warsh-A-n-Nafi/053.mp3",
+          "startMs": 333622,
+          "endMs": 338105,
+          "conf": 0.671,
+          "confBand": "MED",
+          "startApprox": true
+        }
+      },
+      {
+        "before": {
+          "ayahId": "53:43",
+          "fileRef": "https://server16.mp3quran.net/H-Lharraz/Rewayat-Warsh-A-n-Nafi/053.mp3",
+          "startMs": 314632,
+          "endMs": 316853,
+          "conf": 0.519,
+          "confBand": "MED",
+          "startApprox": true
+        },
+        "after": {
+          "ayahId": "53:43",
+          "fileRef": "https://server16.mp3quran.net/H-Lharraz/Rewayat-Warsh-A-n-Nafi/053.mp3",
+          "startMs": 338105,
+          "endMs": 342468,
+          "conf": 0.519,
+          "confBand": "MED",
+          "startApprox": true
+        }
+      },
+      {
+        "before": {
+          "ayahId": "53:44",
+          "fileRef": "https://server16.mp3quran.net/H-Lharraz/Rewayat-Warsh-A-n-Nafi/053.mp3",
+          "startMs": 316853,
+          "endMs": 319015,
+          "conf": 0.4,
+          "confBand": "LOW",
+          "startApprox": true
+        },
+        "after": {
+          "ayahId": "53:44",
+          "fileRef": "https://server16.mp3quran.net/H-Lharraz/Rewayat-Warsh-A-n-Nafi/053.mp3",
+          "startMs": 342468,
+          "endMs": 347091,
+          "conf": 0.4,
+          "confBand": "LOW",
+          "startApprox": true
+        }
+      },
+      {
+        "before": {
+          "ayahId": "53:45",
+          "fileRef": "https://server16.mp3quran.net/H-Lharraz/Rewayat-Warsh-A-n-Nafi/053.mp3",
+          "startMs": 319015,
+          "endMs": 321956,
+          "conf": 0.272,
+          "confBand": "LOW",
+          "startApprox": true
+        },
+        "after": {
+          "ayahId": "53:45",
+          "fileRef": "https://server16.mp3quran.net/H-Lharraz/Rewayat-Warsh-A-n-Nafi/053.mp3",
+          "startMs": 347091,
+          "endMs": 352875,
+          "conf": 0.272,
+          "confBand": "LOW",
+          "startApprox": true
+        }
+      },
+      {
+        "before": {
+          "ayahId": "53:46",
+          "fileRef": "https://server16.mp3quran.net/H-Lharraz/Rewayat-Warsh-A-n-Nafi/053.mp3",
+          "startMs": 321956,
+          "endMs": 323477,
+          "conf": 0.372,
+          "confBand": "LOW",
+          "startApprox": true
+        },
+        "after": {
+          "ayahId": "53:46",
+          "fileRef": "https://server16.mp3quran.net/H-Lharraz/Rewayat-Warsh-A-n-Nafi/053.mp3",
+          "startMs": 352875,
+          "endMs": 356857,
+          "conf": 0.372,
+          "confBand": "LOW",
+          "startApprox": true
+        }
+      },
+      {
+        "before": {
+          "ayahId": "53:47",
+          "fileRef": "https://server16.mp3quran.net/H-Lharraz/Rewayat-Warsh-A-n-Nafi/053.mp3",
+          "startMs": 323477,
+          "endMs": 324918,
+          "conf": 0.068,
+          "confBand": "LOW",
+          "startApprox": true
+        },
+        "after": {
+          "ayahId": "53:47",
+          "fileRef": "https://server16.mp3quran.net/H-Lharraz/Rewayat-Warsh-A-n-Nafi/053.mp3",
+          "startMs": 356857,
+          "endMs": 360660,
+          "conf": 0.068,
+          "confBand": "LOW",
+          "startApprox": true
+        }
+      },
+      {
+        "before": {
+          "ayahId": "53:48",
+          "fileRef": "https://server16.mp3quran.net/H-Lharraz/Rewayat-Warsh-A-n-Nafi/053.mp3",
+          "startMs": 324918,
+          "endMs": 326279,
+          "conf": 0.398,
+          "confBand": "LOW",
+          "startApprox": true
+        },
+        "after": {
+          "ayahId": "53:48",
+          "fileRef": "https://server16.mp3quran.net/H-Lharraz/Rewayat-Warsh-A-n-Nafi/053.mp3",
+          "startMs": 360660,
+          "endMs": 364923,
+          "conf": 0.398,
+          "confBand": "LOW",
+          "startApprox": true
+        }
+      },
+      {
+        "before": {
+          "ayahId": "53:49",
+          "fileRef": "https://server16.mp3quran.net/H-Lharraz/Rewayat-Warsh-A-n-Nafi/053.mp3",
+          "startMs": 326279,
+          "endMs": 328581,
+          "conf": 0.352,
+          "confBand": "LOW",
+          "startApprox": true
+        },
+        "after": {
+          "ayahId": "53:49",
+          "fileRef": "https://server16.mp3quran.net/H-Lharraz/Rewayat-Warsh-A-n-Nafi/053.mp3",
+          "startMs": 364923,
+          "endMs": 369036,
+          "conf": 0.352,
+          "confBand": "LOW",
+          "startApprox": true
+        }
+      },
+      {
+        "before": {
+          "ayahId": "53:50",
+          "fileRef": "https://server16.mp3quran.net/H-Lharraz/Rewayat-Warsh-A-n-Nafi/053.mp3",
+          "startMs": 328581,
+          "endMs": 332863,
+          "conf": 0.38,
+          "confBand": "LOW",
+          "startApprox": true
+        },
+        "after": {
+          "ayahId": "53:50",
+          "fileRef": "https://server16.mp3quran.net/H-Lharraz/Rewayat-Warsh-A-n-Nafi/053.mp3",
+          "startMs": 369036,
+          "endMs": 377201,
+          "conf": 0.38,
+          "confBand": "LOW",
+          "startApprox": true
+        }
+      },
+      {
+        "before": {
+          "ayahId": "53:51",
+          "fileRef": "https://server16.mp3quran.net/H-Lharraz/Rewayat-Warsh-A-n-Nafi/053.mp3",
+          "startMs": 332863,
+          "endMs": 334084,
+          "conf": 0.369,
+          "confBand": "LOW",
+          "startApprox": true
+        },
+        "after": {
+          "ayahId": "53:51",
+          "fileRef": "https://server16.mp3quran.net/H-Lharraz/Rewayat-Warsh-A-n-Nafi/053.mp3",
+          "startMs": 377201,
+          "endMs": 383545,
+          "conf": 0.369,
+          "confBand": "LOW",
+          "startApprox": true
+        }
+      },
+      {
+        "before": {
+          "ayahId": "53:52",
+          "fileRef": "https://server16.mp3quran.net/H-Lharraz/Rewayat-Warsh-A-n-Nafi/053.mp3",
+          "startMs": 334084,
+          "endMs": 339748,
+          "conf": 0.151,
+          "confBand": "LOW",
+          "startApprox": true
+        },
+        "after": {
+          "ayahId": "53:52",
+          "fileRef": "https://server16.mp3quran.net/H-Lharraz/Rewayat-Warsh-A-n-Nafi/053.mp3",
+          "startMs": 383545,
+          "endMs": 394252,
+          "conf": 0.151,
+          "confBand": "LOW",
+          "startApprox": true
+        }
+      },
+      {
+        "before": {
+          "ayahId": "53:53",
+          "fileRef": "https://server16.mp3quran.net/H-Lharraz/Rewayat-Warsh-A-n-Nafi/053.mp3",
+          "startMs": 339748,
+          "endMs": 341649,
+          "conf": 0.591,
+          "confBand": "MED",
+          "startApprox": true
+        },
+        "after": {
+          "ayahId": "53:53",
+          "fileRef": "https://server16.mp3quran.net/H-Lharraz/Rewayat-Warsh-A-n-Nafi/053.mp3",
+          "startMs": 394252,
+          "endMs": 396834,
+          "conf": 0.591,
+          "confBand": "MED",
+          "startApprox": true
+        }
+      },
+      {
+        "before": {
+          "ayahId": "53:54",
+          "fileRef": "https://server16.mp3quran.net/H-Lharraz/Rewayat-Warsh-A-n-Nafi/053.mp3",
+          "startMs": 341649,
+          "endMs": 343401,
+          "conf": 0.523,
+          "confBand": "MED",
+          "startApprox": true
+        },
+        "after": {
+          "ayahId": "53:54",
+          "fileRef": "https://server16.mp3quran.net/H-Lharraz/Rewayat-Warsh-A-n-Nafi/053.mp3",
+          "startMs": 396834,
+          "endMs": 399656,
+          "conf": 0.523,
+          "confBand": "MED",
+          "startApprox": true
+        }
+      },
+      {
+        "before": {
+          "ayahId": "53:55",
+          "fileRef": "https://server16.mp3quran.net/H-Lharraz/Rewayat-Warsh-A-n-Nafi/053.mp3",
+          "startMs": 343401,
+          "endMs": 345812,
+          "conf": 0.324,
+          "confBand": "LOW",
+          "startApprox": true
+        },
+        "after": {
+          "ayahId": "53:55",
+          "fileRef": "https://server16.mp3quran.net/H-Lharraz/Rewayat-Warsh-A-n-Nafi/053.mp3",
+          "startMs": 399656,
+          "endMs": 407501,
+          "conf": 0.324,
+          "confBand": "LOW",
+          "startApprox": true
+        }
+      },
+      {
+        "before": {
+          "ayahId": "53:56",
+          "fileRef": "https://server16.mp3quran.net/H-Lharraz/Rewayat-Warsh-A-n-Nafi/053.mp3",
+          "startMs": 345812,
+          "endMs": 349414,
+          "conf": 0.544,
+          "confBand": "MED",
+          "startApprox": true
+        },
+        "after": {
+          "ayahId": "53:56",
+          "fileRef": "https://server16.mp3quran.net/H-Lharraz/Rewayat-Warsh-A-n-Nafi/053.mp3",
+          "startMs": 407501,
+          "endMs": 414255,
+          "conf": 0.544,
+          "confBand": "MED",
+          "startApprox": true
+        }
+      },
+      {
+        "before": {
+          "ayahId": "53:57",
+          "fileRef": "https://server16.mp3quran.net/H-Lharraz/Rewayat-Warsh-A-n-Nafi/053.mp3",
+          "startMs": 349414,
+          "endMs": 350255,
+          "conf": 0.37,
+          "confBand": "LOW",
+          "startApprox": true
+        },
+        "after": {
+          "ayahId": "53:57",
+          "fileRef": "https://server16.mp3quran.net/H-Lharraz/Rewayat-Warsh-A-n-Nafi/053.mp3",
+          "startMs": 414255,
+          "endMs": 417588,
+          "conf": 0.37,
+          "confBand": "LOW",
+          "startApprox": true
+        }
+      },
+      {
+        "before": {
+          "ayahId": "53:58",
+          "fileRef": "https://server16.mp3quran.net/H-Lharraz/Rewayat-Warsh-A-n-Nafi/053.mp3",
+          "startMs": 350255,
+          "endMs": 351716,
+          "conf": 0.081,
+          "confBand": "LOW",
+          "startApprox": true
+        },
+        "after": {
+          "ayahId": "53:58",
+          "fileRef": "https://server16.mp3quran.net/H-Lharraz/Rewayat-Warsh-A-n-Nafi/053.mp3",
+          "startMs": 417588,
+          "endMs": 423061,
+          "conf": 0.081,
+          "confBand": "LOW",
+          "startApprox": true
+        }
+      },
+      {
+        "before": {
+          "ayahId": "53:59",
+          "fileRef": "https://server16.mp3quran.net/H-Lharraz/Rewayat-Warsh-A-n-Nafi/053.mp3",
+          "startMs": 351716,
+          "endMs": 354377,
+          "conf": 0.431,
+          "confBand": "LOW",
+          "startApprox": true
+        },
+        "after": {
+          "ayahId": "53:59",
+          "fileRef": "https://server16.mp3quran.net/H-Lharraz/Rewayat-Warsh-A-n-Nafi/053.mp3",
+          "startMs": 423061,
+          "endMs": 428565,
+          "conf": 0.431,
+          "confBand": "LOW",
+          "startApprox": true
+        }
+      },
+      {
+        "before": {
+          "ayahId": "53:60",
+          "fileRef": "https://server16.mp3quran.net/H-Lharraz/Rewayat-Warsh-A-n-Nafi/053.mp3",
+          "startMs": 354377,
+          "endMs": 355998,
+          "conf": 0.399,
+          "confBand": "LOW",
+          "startApprox": true
+        },
+        "after": {
+          "ayahId": "53:60",
+          "fileRef": "https://server16.mp3quran.net/H-Lharraz/Rewayat-Warsh-A-n-Nafi/053.mp3",
+          "startMs": 428565,
+          "endMs": 433048,
+          "conf": 0.399,
+          "confBand": "LOW",
+          "startApprox": true
+        }
+      },
+      {
+        "before": {
+          "ayahId": "53:61",
+          "fileRef": "https://server16.mp3quran.net/H-Lharraz/Rewayat-Warsh-A-n-Nafi/053.mp3",
+          "startMs": 355998,
+          "endMs": 359371,
+          "conf": 0.681,
+          "confBand": "MED",
+          "startApprox": true
+        },
+        "after": {
+          "ayahId": "53:61",
+          "fileRef": "https://server16.mp3quran.net/H-Lharraz/Rewayat-Warsh-A-n-Nafi/053.mp3",
+          "startMs": 433048,
+          "endMs": 436961,
+          "conf": 0.681,
+          "confBand": "MED",
+          "startApprox": true
+        }
+      },
+      {
+        "before": {
+          "ayahId": "53:62",
+          "fileRef": "https://server16.mp3quran.net/H-Lharraz/Rewayat-Warsh-A-n-Nafi/053.mp3",
+          "startMs": 359371,
+          "endMs": 360101,
+          "conf": 0.118,
+          "confBand": "LOW",
+          "startApprox": true
+        },
+        "after": {
+          "ayahId": "53:62",
+          "fileRef": "https://server16.mp3quran.net/H-Lharraz/Rewayat-Warsh-A-n-Nafi/053.mp3",
+          "startMs": 436961,
+          "endMs": 444525,
+          "conf": 0.118,
+          "confBand": "LOW",
+          "startApprox": true
+        }
+      }
+    ],
+    "decodedEofMs": {
+      "44": 459522,
+      "53": 444525
+    },
+    "limits": [
+      "الحد الأصلي لثقة المحاذاة0.45؛ لا تغيير لأي حارس أو ثقة منشورة.",
+      "الخواتيم المقيسة فقط؛ يلزم الفحص الأصلي الكامل للبصمة المرفوعة."
+    ]
+  }
+}
