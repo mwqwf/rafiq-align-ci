@@ -9,6 +9,7 @@ import hashlib
 import json
 import importlib
 import os
+import numpy as np
 from pathlib import Path
 import sys
 import tempfile
@@ -34,6 +35,103 @@ SOURCES.update({
  'saad28':{**S.SOURCES[1],'riwaya':'hafs','requestedWindowSeconds':[620,690]},
  'saad45':{**S.SOURCES[0],'riwaya':'hafs','requestedWindowSeconds':[0,25]},
 })
+
+
+# The old same-reader file is silent through the disputed middle of s7, so a
+# whole-surah forced DP can both exceed the bounded runner memory and hide the
+# exact defect. These windows are deliberately broad diagnostics, not timing
+# estimates. Their placement is justified by the independently measured
+# same-performance waveform correspondences kept in the pinned source metadata:
+# candidate 2400s ~= reference 2375.408s (pre-gap) and candidate 4000s ~=
+# reference 3970.483s (post-gap). Overlap is required so boundary stability is
+# measured instead of assumed.
+ASIRI_BOUNDED_WINDOWS = (
+    {"id": "left-overlap", "seconds": (2200, 3100), "ayahs": (82, 136)},
+    {"id": "middle-bridge", "seconds": (2700, 4200), "ayahs": (112, 170)},
+    {"id": "right-overlap", "seconds": (3850, 4600), "ayahs": (154, 190)},
+)
+
+
+def _asiri_bounded_alignment(path, C):
+    """Numerical Quran-model alignment around the historical s7 corruption.
+
+    Canonical text is consumed internally and never emitted. The result is
+    diagnostic only: overlapping windows expose stability; they do not certify
+    complete-source coverage or alter production.
+    """
+    import quran_ctc_model as Q
+    model_evidence = Q.configure()
+    index = C.load_index()
+    a, b, _ = C.surah_slice(index, 7)
+    canonical = C.load_text("hafs")[a:b]
+    wav = C.to_wav16k(str(path))
+    x = C.read_wav(wav).astype(np.float32)
+    sil = C.silences(wav)
+    total_ms = C.ffprobe_duration_ms(str(path))
+    windows = []
+    for spec in ASIRI_BOUNDED_WINDOWS:
+        lo, hi = spec["seconds"]
+        first, last = spec["ayahs"]
+        B.require(0 <= lo < hi <= total_ms / 1000, "asiri bounded window outside source")
+        B.require(1 <= first <= last <= len(canonical), "asiri bounded ayah range invalid")
+        clip = x[lo * C.SR:hi * C.SR]
+        refs = [Q.reference_text(t) for t in canonical[first - 1:last]]
+        segs = C._segment(C._emissions(clip), len(clip), refs)
+        B.require(len(segs) == len(refs), "asiri bounded alignment population mismatch")
+        entries = []
+        for ayah, (st, en, score) in zip(range(first, last + 1), segs):
+            abs_start = lo * 1000 + int(st * 1000)
+            abs_end = lo * 1000 + int(en * 1000)
+            snapped_start, on_sil = C.snap_to_silence(abs_start, sil, tolerance_ms=700)
+            conf = C._conf(score)
+            if not on_sil:
+                conf = min(conf, 0.74)
+            entries.append({
+                "ayah": ayah,
+                "startMs": int(snapped_start),
+                "endMs": int(abs_end),
+                "conf": conf,
+                "snapped": bool(on_sil),
+            })
+        windows.append({
+            "id": spec["id"],
+            "windowSeconds": [lo, hi],
+            "ayahs": [first, last],
+            "entries": entries,
+        })
+    by_ayah = {}
+    for window in windows:
+        for row in window["entries"]:
+            by_ayah.setdefault(row["ayah"], []).append((window["id"], row))
+    overlap = []
+    for ayah, rows in sorted(by_ayah.items()):
+        if len(rows) < 2:
+            continue
+        starts = [r["startMs"] for _, r in rows]
+        ends = [r["endMs"] for _, r in rows]
+        overlap.append({
+            "ayah": ayah,
+            "windows": [name for name, _ in rows],
+            "startSpreadMs": max(starts) - min(starts),
+            "endSpreadMs": max(ends) - min(ends),
+        })
+    B.require(overlap, "asiri bounded windows have no overlap")
+    return {
+        "kind": "bounded-overlap-quran-alignment",
+        "sourceSurah": 7,
+        "textGenerationDisabled": True,
+        "alignmentModel": model_evidence,
+        "windows": windows,
+        "overlap": overlap,
+        "coverageCertified": False,
+        "qualityClaim": False,
+        "basis": {
+            "sourceMetadata": "ops/out/codex-asiri7-archive-4917-metadata-20261006.json",
+            "preGapWaveformPairSeconds": [2400, 2375.408],
+            "postGapWaveformPairSeconds": [4000, 3970.483],
+            "purpose": "broad measurement bounds only; no verse timing is inferred from these pairs",
+        },
+    }
 
 
 def main(argv=None):
@@ -100,14 +198,27 @@ def main(argv=None):
                 bound={(s['id'],s['revision']):snapshots[s['name']] for s in specs}
                 with P.offline_model_loads(hub,specs,bound):
                     C=importlib.import_module('ctc_seg')
-                    report['alignment']=C.run_surah(str(path),source['surah'],source['riwaya'],quran_model=True)
+                    if a.source=='asiri7_archive_4917':
+                        report['boundedAlignment']=_asiri_bounded_alignment(path,C)
+                    else:
+                        report['alignment']=C.run_surah(str(path),source['surah'],source['riwaya'],quran_model=True)
                     C._M.clear();gc.collect()
             B.require(S.sha_file(path)==source['sha256'],'source changed after inference')
-            alignment=report['alignment']
-            expected={41:54,79:46,28:88,45:37,22:78,84:25,77:50,51:60,107:7,7:206}[source['surah']]
-            B.require(len(alignment['entries'])==expected,'incomplete result population')
-            report['lowOrMissing']=[e['ayahIdx']+1 for e in alignment['entries'] if e['startMs'] is None or e['conf']<.45]
-            report['measurementComplete']=True
+            if a.source=='asiri7_archive_4917':
+                bounded=report['boundedAlignment']
+                B.require(len(bounded['windows'])==len(ASIRI_BOUNDED_WINDOWS),'incomplete bounded window population')
+                report['lowOrMissing']=[
+                    f"{row['ayah']}@{window['id']}"
+                    for window in bounded['windows'] for row in window['entries']
+                    if row['conf']<.45
+                ]
+                report['measurementComplete']=True
+            else:
+                alignment=report['alignment']
+                expected={41:54,79:46,28:88,45:37,22:78,84:25,77:50,51:60,107:7}[source['surah']]
+                B.require(len(alignment['entries'])==expected,'incomplete result population')
+                report['lowOrMissing']=[e['ayahIdx']+1 for e in alignment['entries'] if e['startMs'] is None or e['conf']<.45]
+                report['measurementComplete']=True
     except Exception as exc:
         report['errors'].append({'type':type(exc).__name__,'message':str(exc)[:240]})
     finally:
