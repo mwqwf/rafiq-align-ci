@@ -1,0 +1,19 @@
+{
+  "action": "tool",
+  "tool": "index_qa/drop_surah.py",
+  "args": [
+    "--key",
+    "timings/warsh/noah_warsh.jz",
+    "--sha",
+    "17191c80f66c87db6f31f8bea091ab8f2e526083e8e4bc6a318aefe42b44a029",
+    "--surah",
+    "54",
+    "--reason",
+    "التسجيل المتاح لسورة القمر يتجاوز الآيتين 16 و17 في وسط السورة؛ أوقفت فهرسة السورة حتى يتوفر تسجيل كامل.",
+    "--reason-user",
+    "تسجيل سورة القمر غير مكتمل؛ الفهرسة غير متاحة لهذه السورة مؤقتاً.",
+    "--reason-code",
+    "SOURCE_TRUNCATED",
+    "--yes"
+  ]
+}
