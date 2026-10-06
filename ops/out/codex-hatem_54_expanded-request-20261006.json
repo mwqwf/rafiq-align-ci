@@ -1,0 +1,59 @@
+{
+  "kind": "pinned-parent-diagnostic-request",
+  "qualityClaim": false,
+  "reciterId": "hatem",
+  "riwaya": "hafs",
+  "surah": 54,
+  "parentSha256": "5d7e73699ae633807bd57ecb60ea235f503318fdacf8c13bd3b81132eb10f85e",
+  "parentPath": "ops/source-repair/parents/codex-opener-hatem-5d7e7369.jz",
+  "sourceSha256": "395462aaccdb3fa2eee1d1fe009daea7778aa7dc1630786df9d464fcd20db4fa",
+  "url": "https://server11.mp3quran.net/hatem/054.mp3",
+  "entries": [
+    {
+      "ayahId": "54:51",
+      "fileRef": "https://server11.mp3quran.net/hatem/054.mp3",
+      "startMs": 367263,
+      "endMs": 373978,
+      "conf": 0.74,
+      "confBand": "MED",
+      "startApprox": true
+    },
+    {
+      "ayahId": "54:52",
+      "fileRef": "https://server11.mp3quran.net/hatem/054.mp3",
+      "startMs": 373978,
+      "endMs": 378831,
+      "conf": 0.74,
+      "confBand": "MED",
+      "startApprox": true
+    },
+    {
+      "ayahId": "54:53",
+      "fileRef": "https://server11.mp3quran.net/hatem/054.mp3",
+      "startMs": 378831,
+      "endMs": 380072,
+      "conf": 0.078,
+      "confBand": "LOW",
+      "startApprox": true
+    },
+    {
+      "ayahId": "54:54",
+      "fileRef": "https://server11.mp3quran.net/hatem/054.mp3",
+      "startMs": 380072,
+      "endMs": 382613,
+      "conf": 0.596,
+      "confBand": "MED",
+      "startApprox": true
+    },
+    {
+      "ayahId": "54:55",
+      "fileRef": "https://server11.mp3quran.net/hatem/054.mp3",
+      "startMs": 382613,
+      "endMs": 388137,
+      "conf": 0.582,
+      "confBand": "MED",
+      "startApprox": true
+    }
+  ],
+  "reason": "Expand measured rejected boundary context through original decoded EOF; diagnostic only."
+}
