@@ -1,0 +1,54 @@
+{
+  "schema": 1,
+  "generatedAt": "2026-10-06T22:14:56Z",
+  "baselineHead": "bd35e9163dc56a8249976b2e16834140d839be57",
+  "controlPlane": {
+    "repositoryVisibility": "public",
+    "topLevelPendingCommands": ["README.md"],
+    "inProgress": [],
+    "queued": [],
+    "pending": [],
+    "newWorkflowDispatched": false,
+    "r2Writes": false,
+    "artifactWrites": false,
+    "cacheWrites": false,
+    "workflowProfile": "manual workflow_dispatch on ubuntu-24.04; restore-only cache; no artifact upload or cache save"
+  },
+  "productionBaseline": {
+    "report": "ops/out/full-audit-codex-after-thirty-nine-20261006.json",
+    "indexes": 180,
+    "identityOk": 180,
+    "structureOk": 180,
+    "gapContractOk": 180,
+    "entries": 1121595,
+    "missing": 885,
+    "impossibleShort": 1,
+    "completenessCertified": false
+  },
+  "work": {
+    "scope": "qalun/fakhfakh_qalun surah 38 accessible source recovery",
+    "productionChanged": false,
+    "candidateBuilt": false,
+    "alignmentRun": false,
+    "newFinding": "Archive item al-hadi-al-fakhfakh/038.mp3 decodes to the exact publisher PCM previously measured from the now-403 Midad source. The production Archive file is a lossy recode of the same performance across opener, middle and tail; both decode to 973.344 seconds, leaving 6400 ms after the current final boundary.",
+    "audit": "ops/source-repair/fakhfakh-qalun-38-archive-mirror-audit-20261006.json",
+    "auditSha256": "c1652760ce7c54ef19211e3f2cbbb725412b77425e3f03b5ca620a7938a9e3dc",
+    "recoverySourceId": "fakhfakh38_archive_2025",
+    "publicSource": "https://archive.org/download/al-hadi-al-fakhfakh/038.mp3",
+    "publicSourceSha256": "fded733764386de895b63df4b067f44accee12186785396a3f61928a0fa3c212",
+    "publisherPcmSha256": "590f6a633c83e8da4f2e998dc6ed3e33b6a0fbda0bdc4c2e6b32bea8ab14ffeb"
+  },
+  "verification": {
+    "canonicalArchiveDownload": "2890296 bytes and pinned SHA-256 matched",
+    "archivePublisherMono16kPcmEquality": "31147008/31147008 bytes and SHA-256 matched",
+    "nativeStereoDecode": "15573504 frames and pinned SHA-256 matched",
+    "productionMirrorWindows": "5/5 opener, early, middle, late and tail windows matched with zero or one sample lag; correlations 0.964732387479-0.976833208301",
+    "quranSourceRecoveryTests": "3/3 passed",
+    "restoreLoopTests": "25/25 passed",
+    "pyCompile": "passed",
+    "jsonParse": "passed",
+    "gitDiffCheck": "passed"
+  },
+  "remainingBlocker": "No semantic alignment or independent boundary witnesses have yet assigned the 6400 ms decoded tail to verse 38:88; the current 38:88 confidence remains 0.44. PCM identity and complete decode are source evidence, not a 100% coverage certificate.",
+  "nextEligibleStep": "Run the new exact-source recovery profile without changing reader, riwaya or the 5-second guard, then independently remeasure opener, middle, 38:86-88 and their neighborhoods before any candidate or production change."
+}

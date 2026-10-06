@@ -1,0 +1,109 @@
+{
+  "schema": 1,
+  "generatedAt": "2026-10-06T22:10:11Z",
+  "kind": "same-performance-source-mirror-audit",
+  "readOnly": true,
+  "measurementRuntime": "local-session",
+  "scope": {
+    "riwaya": "qalun",
+    "reciterId": "fakhfakh_qalun",
+    "surah": 38
+  },
+  "productionParent": {
+    "timingSha256": "5bad920fd4994019caacc00b9edd6662941abae720ba0b3a2b41281016c23eef",
+    "sourceUrl": "https://archive.org/download/48--kb--alhady--bn--altaher--alfakhfakh--by---qaloon---mp3--full--mushaf--qura/038Saud.mp3",
+    "containerBytes": 6531030,
+    "containerSha256": "2fd492a872d3e0b6acc54f90ba4962639ee1a40bbe6134ed2533364f15c211f4",
+    "containerReportedDurationSeconds": 966.944133,
+    "decodedMono16k": {
+      "bytes": 31147008,
+      "samples": 15573504,
+      "durationSeconds": 973.344,
+      "sha256": "a098dfa95ca19db45c1ff25ed63d82e1f80eeb1d04d45062e303b2b27ecf6fcc"
+    },
+    "indexedTail": [
+      {"ayahId": "38:86", "startMs": 949670, "endMs": 959610, "confidence": 0.96},
+      {"ayahId": "38:87", "startMs": 959610, "endMs": 965970, "confidence": 0.92},
+      {"ayahId": "38:88", "startMs": 965970, "endMs": 966944, "confidence": 0.44}
+    ],
+    "decodedAudioAfterIndexedEndMs": 6400
+  },
+  "publisherSource": {
+    "publisherPage": "https://midad.com/recitation/114900",
+    "declaredReader": "الهادي بن الطاهر الفخفاخ",
+    "declaredRiwaya": "qalun",
+    "resolvedUrl": "https://fra1.digitaloceanspaces.com/media.midad.com/resources/ar/recitations/47022/457496/038.mp3",
+    "containerBytes": 3040157,
+    "containerSha256": "930f4e059219553bbcf0d7b7ec453e0aa0f72e9a555a9d61df4528220e2674ec",
+    "decodedMono16k": {
+      "bytes": 31147008,
+      "samples": 15573504,
+      "durationSeconds": 973.344,
+      "sha256": "590f6a633c83e8da4f2e998dc6ed3e33b6a0fbda0bdc4c2e6b32bea8ab14ffeb"
+    },
+    "metadataEvidence": "ops/out/codex-fakhfakh38-midad-metadata-20261006.json",
+    "laterRecoveryDisposition": "HTTP 403 before audio or model work in run 37424150518"
+  },
+  "archive2025Mirror": {
+    "itemIdentifier": "al-hadi-al-fakhfakh",
+    "itemTitle": "Al-Hadi Al-Fakhfakh - الهادي الفخفاخ",
+    "itemPublicDate": "2025-09-15 17:12:36",
+    "url": "https://archive.org/download/al-hadi-al-fakhfakh/038.mp3",
+    "httpProbe": {
+      "status": 200,
+      "contentType": "audio/mpeg",
+      "contentLength": 2890296,
+      "acceptRanges": "bytes"
+    },
+    "container": {
+      "bytes": 2890296,
+      "sha256": "fded733764386de895b63df4b067f44accee12186785396a3f61928a0fa3c212",
+      "md5FromArchiveMetadata": "a8522746f91c421c2f029dc257d9b2e1",
+      "sha1FromArchiveMetadata": "e95c594e1a1806ec9f684e7eb5d22b640fe99721",
+      "reportedDurationSeconds": 973.512,
+      "codec": "mp3",
+      "sampleRateHz": 8000,
+      "channels": 2
+    },
+    "decodedMono16k": {
+      "bytes": 31147008,
+      "samples": 15573504,
+      "durationSeconds": 973.344,
+      "sha256": "590f6a633c83e8da4f2e998dc6ed3e33b6a0fbda0bdc4c2e6b32bea8ab14ffeb",
+      "decodedWithoutErrors": true
+    },
+    "decodedNativeStereo16k": {
+      "bytes": 62294016,
+      "frames": 15573504,
+      "durationSeconds": 973.344,
+      "sha256": "7ad96d37c3f3e502bc8dedcd20c110919c99a12e89d8b1c2a757347eb701178a",
+      "decodedWithoutErrors": true
+    }
+  },
+  "comparisons": {
+    "archive2025EqualsPublisherDecodedMono16k": true,
+    "archive2025PublisherPcmBytesEqual": true,
+    "productionAndArchive2025DecodedDurationsEqual": true,
+    "productionVersusArchive2025Mono8kCrossCorrelation": {
+      "method": "normalized full-window cross-correlation after mono 8 kHz s16le decode",
+      "windows": [
+        {"label": "opener", "startSeconds": 60, "endSeconds": 84, "bestLagSamples": -1, "correlation": 0.969769151834},
+        {"label": "early", "startSeconds": 180, "endSeconds": 220, "bestLagSamples": 0, "correlation": 0.96994390005},
+        {"label": "middle", "startSeconds": 450, "endSeconds": 490, "bestLagSamples": -1, "correlation": 0.964732387479},
+        {"label": "late", "startSeconds": 800, "endSeconds": 840, "bestLagSamples": -1, "correlation": 0.973813569365},
+        {"label": "tail", "startSeconds": 930, "endSeconds": 973, "bestLagSamples": 0, "correlation": 0.976833208301}
+      ]
+    }
+  },
+  "finding": "The public Archive 2025 file is a byte-exact decoded-audio mirror of the measured Midad publisher source and is an accessible input for future recovery. The production source is a lossy recode of the same performance across opener, middle and tail windows. Its decoded audio continues 6400 ms beyond the indexed final boundary.",
+  "productionChanged": false,
+  "candidateBuilt": false,
+  "alignmentRun": false,
+  "coverageCertified": false,
+  "qualityClaim": false,
+  "limits": [
+    "PCM identity proves audio equivalence, not verse coverage or boundary correctness.",
+    "The 6400 ms unindexed decoded tail is not assigned to any verse without independent semantic evidence.",
+    "A future candidate still requires complete alignment, independent opener/middle/tail and neighborhood measurements, and all unchanged gates."
+  ]
+}

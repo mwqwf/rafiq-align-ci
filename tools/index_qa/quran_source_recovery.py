@@ -24,6 +24,9 @@ SOURCES.update({
  'fakhfakh38_midad':{'surah':38,'riwaya':'qalun',
   'url':'https://fra1.digitaloceanspaces.com/media.midad.com/resources/ar/recitations/47022/457496/038.mp3',
   'sha256':'930f4e059219553bbcf0d7b7ec453e0aa0f72e9a555a9d61df4528220e2674ec','requestedWindowSeconds':[0,65]},
+ 'fakhfakh38_archive_2025':{'surah':38,'riwaya':'qalun',
+  'url':'https://archive.org/download/al-hadi-al-fakhfakh/038.mp3',
+  'sha256':'fded733764386de895b63df4b067f44accee12186785396a3f61928a0fa3c212','requestedWindowSeconds':[0,65]},
  'asiri7_archive_4917':{'surah': 7, 'riwaya': 'hafs',
   'url':'https://archive.org/download/002_20230924_202309/007%20-%20%D8%B3%D9%88%D8%B1%D8%A9%20%D8%A7%D9%84%D8%A3%D8%B9%D8%B1%D8%A7%D9%81.mp3',
   'sha256':'897ad7e2c99472111722247f362d135da0c25c449806260269a792a12f52d3f1','requestedWindowSeconds':[0,65]},
@@ -88,6 +91,16 @@ def main(argv=None):
         B.require(measured['ok'] and measured['pcm']['decodedWithoutErrors'] and measured['stereo']['decodedWithoutErrors'] and not measured['stereo']['phaseCancellationSuspected'],'unhealthy publisher source')
         B.require(source['sha256']==measured['file']['sha256'] and source['url']==measured['file']['finalUrl'] and source['surah']==measured['surah'] and source['riwaya']==measured['riwaya'],'publisher metadata source mismatch')
         B.require(measured['requestedUrl']=='https://midad.com/recitation/114900' and measured['resolutionMethod']=='publisher-contentUrl','publisher resolution changed')
+    if a.source=='fakhfakh38_archive_2025':
+        metadata=(B.ROOT/'ops/source-repair/fakhfakh-qalun-38-archive-mirror-audit-20261006.json').read_bytes()
+        B.require(hashlib.sha256(metadata).hexdigest()=='c1652760ce7c54ef19211e3f2cbbb725412b77425e3f03b5ca620a7938a9e3dc','Archive mirror audit changed')
+        audit=json.loads(metadata)
+        measured=audit['archive2025Mirror']
+        publisher=audit['publisherSource']
+        B.require(audit['readOnly'] and not audit['productionChanged'] and not audit['candidateBuilt'] and not audit['coverageCertified'],'invalid mirror audit disposition')
+        B.require(audit['comparisons']['archive2025EqualsPublisherDecodedMono16k'] and audit['comparisons']['archive2025PublisherPcmBytesEqual'],'Archive mirror is not publisher PCM')
+        B.require(source['sha256']==measured['container']['sha256'] and source['url']==measured['url'] and source['surah']==audit['scope']['surah'] and source['riwaya']==audit['scope']['riwaya'],'Archive mirror audit mismatch')
+        B.require(measured['decodedMono16k']['sha256']==publisher['decodedMono16k']['sha256']=='590f6a633c83e8da4f2e998dc6ed3e33b6a0fbda0bdc4c2e6b32bea8ab14ffeb','Archive/Midad mono PCM changed')
     if a.source=='tblawi7_nquran':
         metadata=(B.ROOT/'ops/out/codex-tblawi-nquran-metadata-37406467384.json').read_bytes()
         B.require(hashlib.sha256(metadata).hexdigest()=='222a0abcea6e4ac6444eac886a4bcf00ca24a590f9cd3e6d883e04ee86002ed2','publisher metadata changed')
@@ -129,6 +142,8 @@ def main(argv=None):
                 B.require(receipt['bytes']==35032209 and proof['decoded']['frames']==70049542,'new publisher source differs from measured metadata')
             if a.source in ('iraoui86_surahs_s41', 'shamrani_new_archive_s79', 'fakhfakh38_midad'):
                 B.require(receipt['bytes']==measured['file']['bytes'] and proof['decoded']['frames']==measured['pcm']['samples'],'source differs from exact measured frames')
+            if a.source=='fakhfakh38_archive_2025':
+                B.require(receipt['bytes']==measured['container']['bytes'] and proof['decoded']['frames']==measured['decodedNativeStereo16k']['frames'] and proof['decoded']['fullNativePcmSha256']==measured['decodedNativeStereo16k']['sha256'],'Archive mirror differs from exact audited PCM')
             if a.source in ASIRI7_SOURCES:
                 B.require(receipt['bytes']==measured['file']['bytes'] and proof['decoded']['frames']==measured['decodedPcmMono16k']['samples'],'source differs from exact session measurement')
             if a.source=='a_abdl37':
@@ -137,7 +152,7 @@ def main(argv=None):
             contract=P.load_contract()
             with S.model_snapshots(a.model_policy) as (snapshots,inventory):
                 report['modelAcquisition']=inventory
-                if a.source in ('iraoui86_surahs_s41','shamrani_new_archive_s79','shamrani79','mrifai84','benkirane77','benkirane51','yousef107','tblawi7_nquran','fakhfakh38_midad','a_abdl37'):
+                if a.source in ('iraoui86_surahs_s41','shamrani_new_archive_s79','shamrani79','mrifai84','benkirane77','benkirane51','yousef107','tblawi7_nquran','fakhfakh38_midad','fakhfakh38_archive_2025','a_abdl37'):
                     window=dict(source,windowSeconds=[collector.start/S.RATE,min(collector.frames,collector.end)/S.RATE])
                     for spec in S.MODELS:
                         backend=S.FreeCTC(snapshots[spec['name']],spec)
