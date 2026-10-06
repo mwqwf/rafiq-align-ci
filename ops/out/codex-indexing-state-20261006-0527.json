@@ -497,7 +497,7 @@
       "step": "numeric full-surah alignment"
     }
   },
-  "updatedAt": "2026-10-06T14:25:00Z",
+  "updatedAt": "2026-10-06T15:00:34Z",
   "latestSourceIdentityAudit": {
     "label": "after-thirty-three-adoptions",
     "timestampUtc": "2026-10-06T06:10:18.569453Z",
@@ -580,6 +580,7 @@
     },
     "boundaryRefinement": {
       "report": "ops/out/codex-balilah-cross-boundary-refinement-20261006.json",
+      "currentHeadGateReplay": "ops/out/codex-balilah-final-head-gate-replay-20261006.json",
       "function": "gate_start_anchors",
       "scope": "heard-gate evidence only; generated timings and window anchors unchanged",
       "maxEqualCharacters": 3,
@@ -606,12 +607,30 @@
         "pyCompilePassed": true,
         "fullCheckoutSuitePassed": true,
         "unitTestsPassed": 17,
+        "heardGateUnitTestsPassed": 24,
+        "totalUnitTestsPassed": 41,
         "rapidfuzzVersion": "3.14.6",
         "recordedOpcodesReproduced": 554,
         "recordedAnchorsReproduced": 53,
         "reason": "The exact promote.py and ctc_splice.yml files from head 0e607ad were supplied to the session checkout. Exact-runtime replay exposed and then fixed a one-character delete opcode between the cross-verse replace and the next equal opcode at ayah 26."
+      },
+      "currentHeadGateResult": {
+        "head": "6f66aac9b396954a63dc0640ce84621c731fa320",
+        "candidateStartsEqualOriginalStagingReport": true,
+        "rows": 52,
+        "statusCounts": {
+          "ok": 48,
+          "unmeasured": 2,
+          "repeat": 2,
+          "dev": 0
+        },
+        "surahVerdict": null,
+        "gateError": null,
+        "freshAudioInference": false,
+        "workflowLaunched": false,
+        "storageWrites": false
       }
     },
-    "next": "Run final-SHA heard QA without changing the 1500 ms threshold after free-write proof; do not promote until all gates and public/manifest/frozen verification pass."
+    "next": "The current-head heard gate now passes by exact local replay. After free-write proof, run only the remaining final-SHA workflow gates; do not promote until all gates and public/manifest/frozen verification pass."
   }
 }

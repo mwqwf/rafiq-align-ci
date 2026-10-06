@@ -1,0 +1,61 @@
+{
+  "schema": 1,
+  "kind": "balilah-s69-current-head-heard-gate-replay",
+  "generatedAt": "2026-10-06T15:00:34Z",
+  "repositoryHead": "6f66aac9b396954a63dc0640ce84621c731fa320",
+  "qualityClaim": false,
+  "completionClaim": false,
+  "productionChanged": false,
+  "candidateChanged": false,
+  "thresholdChanged": false,
+  "unknownIntroduced": false,
+  "workflowLaunched": false,
+  "storageWrites": false,
+  "method": {
+    "judge": "tools/index_qa/heard_gate.py:gate_error",
+    "anchorImplementation": "tools/alignment_v3/ctc_heard_map.py:gate_start_anchors",
+    "candidateSource": "ops/source-repair/candidates/codex-balilah-s69-recovered-20261006.jz",
+    "candidateGitSha256": "f8f51b82ab0bb58a42c23c466fc5cd259b09c5e5b5876bf44b7856963a9574be",
+    "stagingSha256": "097eb5a00ffb591653ce67820e3af2c26316bcd4b90cbd2a88f4d5f67317034c",
+    "candidateStartsEqualOriginalStagingReport": true,
+    "anchorInput": "ops/out/codex-balilah-anchor-provenance-report-20261006.json",
+    "originalFullReport": "ops/out/codex-balilah-full-heard-report-37395140610.json",
+    "modifiedSurahHarness": [69],
+    "harnessReason": "The original SHA-bound report records modified=[69]. A deep copy of the candidate with only 69:1 changed by 1 ms was supplied as the parent solely so gate_error recomputed that same known modified set without R2 access."
+  },
+  "tests": {
+    "heardGateUnitTestsPassed": 24,
+    "ctcHeardMapUnitTestsPassed": 17,
+    "totalPassed": 41,
+    "rapidfuzzVersion": "3.14.6",
+    "recordedOpcodesReproduced": 554,
+    "recordedAnchorsReproduced": 53
+  },
+  "result": {
+    "rows": 52,
+    "statusCounts": {
+      "ok": 48,
+      "unmeasured": 2,
+      "repeat": 2,
+      "dev": 0
+    },
+    "surahVerdict": null,
+    "gateError": null,
+    "ayah26": {
+      "candidateStartMs": 275598,
+      "gateAnchorMs": 276299,
+      "deviationMs": -701,
+      "quality": 0.643,
+      "status": "ok",
+      "independentNativeConsensusMs": 275626,
+      "candidateVsNativeMs": -28,
+      "skippedDeleteHeardChars": 1
+    }
+  },
+  "limits": [
+    "This is an exact local replay of the real gate on the preserved full measurement inputs, not a fresh audio inference run.",
+    "The local Git candidate and the staged object have different gzip/container bytes, but all 52 candidate starts used by the gate equal the original staged SHA-bound report exactly.",
+    "Promotion still requires the remaining original QA gates and live public/manifest/frozen readbacks."
+  ],
+  "next": "Do not restage or remeasure unchanged inputs. When a free storage-write path is proven, run only the remaining final-SHA workflow gates, then verify public/manifest/frozen and rerun the general completion audit."
+}
