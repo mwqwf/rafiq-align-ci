@@ -1,0 +1,89 @@
+{
+  "schema": 1,
+  "kind": "read-only-candidate-overlay-reconciliation",
+  "timestampUtc": "2026-10-06T16:01:51Z",
+  "repositoryHead": "d4d6ec47e9ba4a1569d69e761b06108376e6bc6d",
+  "productionSnapshot": {
+    "path": "ops/out/full-audit-codex-after-thirty-nine-20261006.json",
+    "gitBlobSha": "386238e762cbc391a200f68cf398768063109461",
+    "timestampUtc": "2026-10-06T06:43:41Z",
+    "indexes": 180,
+    "identityOk": 180,
+    "structureOk": 180,
+    "gapsOk": 180,
+    "entries": 1121595,
+    "missing": 885,
+    "impossibleShort": 1,
+    "impossibleShortOnly": {
+      "key": "timings/hafs/balilah.jz",
+      "ayahId": "69:50",
+      "durationMs": 327,
+      "expectedApproxMs": 7210
+    }
+  },
+  "candidates": [
+    {
+      "path": "ops/source-repair/candidates/codex-asiri7-archive-20261006.jz",
+      "sha256": "745366ed006869883b81952d354720a68fc876b0fa47b53bf30512809e4f5700",
+      "target": "timings/hafs/3siri.jz",
+      "parentSha256": "fbf468c05fa3598df3103ce4f1cf53e093e9eb0ac719ad9b051d14c1a0cb1392",
+      "parentMatchesSnapshot": true,
+      "entries": 6236,
+      "invalidBoundaries": 0,
+      "duplicates": 0,
+      "addedExactAyahIds": "7:1-7:206",
+      "addedCount": 206,
+      "outsideTargetEntriesSha256": "2d3f95c5635aca9d6f3faecc957c6d70f81ce07c852d8a2fdbec2c21910e5f24",
+      "declaredParentEntriesSha256": "2d3f95c5635aca9d6f3faecc957c6d70f81ce07c852d8a2fdbec2c21910e5f24",
+      "outsideTargetPreserved": true,
+      "qualityCertified": false,
+      "productionChanged": false
+    },
+    {
+      "path": "ops/source-repair/candidates/codex-balilah-s69-recovered-20261006.jz",
+      "sha256": "f8f51b82ab0bb58a42c23c466fc5cd259b09c5e5b5876bf44b7856963a9574be",
+      "target": "timings/hafs/balilah.jz",
+      "parentSha256": "f1b40abe72f4f85bd41cc87166f2cf8785960c1e267f09816b99532851812207",
+      "parentMatchesSnapshot": true,
+      "entries": 6236,
+      "invalidBoundaries": 0,
+      "duplicates": 0,
+      "ayah69_50": {
+        "startMs": 451081,
+        "endMs": 458449,
+        "durationMs": 7368,
+        "conf": 0.737,
+        "confBand": "MED"
+      },
+      "removesSnapshotOnlyImpossibleDuration": true,
+      "qualityCertified": false,
+      "productionChanged": false
+    }
+  ],
+  "overlayProjection": {
+    "entries": 1121801,
+    "missing": 679,
+    "impossibleShort": 0,
+    "remainingMissing": [
+      {"key": "timings/hafs/nasser_almajed.jz", "count": 165, "wholeSurahs": [6]},
+      {"key": "timings/hafs/saad.jz", "count": 203, "wholeSurahs": [22, 28, 45]},
+      {"key": "timings/hafs/shamrani.jz", "count": 46, "wholeSurahs": [79]},
+      {"key": "timings/qalun/akri_qalun.jz", "count": 210, "wholeSurahs": [4], "tail": {"surah": 24, "range": [31, 64]}},
+      {"key": "timings/warsh/noah_warsh.jz", "count": 55, "wholeSurahs": [54]}
+    ]
+  },
+  "liveControlPlaneAtCheck": {
+    "repositoryVisibility": "public",
+    "inProgress": [{"id": 37487535373, "name": "keepalive", "headSha": "d4d6ec47e9ba4a1569d69e761b06108376e6bc6d"}],
+    "queued": [{"id": 34748440538, "name": "rafiq-agent-cmd", "createdAt": "2026-09-13T08:45:25Z"}],
+    "pending": [],
+    "commandFiles": ["README.md", "done"]
+  },
+  "limits": [
+    "This is a deterministic overlay on the after39 production snapshot, not a current R2 read and not a promotion.",
+    "It proves structural deltas only; it does not replace final-SHA opener, heard, middle, ending, census, public, manifest, or frozen gates.",
+    "The Asiri candidate explicitly retains coverageCertified=false and five measured LOW-confidence verses.",
+    "The Balilah result reuses preserved audio measurements; no new audio inference was run here.",
+    "No R2, workflow, artifact, cache, audio, or model write occurred."
+  ]
+}
