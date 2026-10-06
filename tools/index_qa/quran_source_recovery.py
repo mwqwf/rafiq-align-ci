@@ -79,6 +79,24 @@ def require_source_engine_eligible(source):
                   f"exact source/engine already failed without a complete candidate: {blocked['run']}")
 
 
+def fakhfakh_audit_windows(primary_alignment):
+    """Independent numeric witnesses; boundary verses remain full-alignment witnesses."""
+    primary=primary_alignment['entries']
+    return [
+      {'id':'opening-1-5','startAyahIdx':0,'endAyahIdxExclusive':5,
+       'targetAyahIdxs':[1,2,3],'audioStartMs':0,
+       'audioEndMs':min(primary_alignment['totalMs'],primary[4]['endMs']+45000)},
+      {'id':'middle-40-48','startAyahIdx':39,'endAyahIdxExclusive':48,
+       'targetAyahIdxs':[42,43,44],
+       'audioStartMs':max(0,primary[39]['startMs']-60000),
+       'audioEndMs':min(primary_alignment['totalMs'],primary[47]['endMs']+60000)},
+      {'id':'ending-81-88','startAyahIdx':80,'endAyahIdxExclusive':88,
+       'targetAyahIdxs':[83,84,85,86],
+       'audioStartMs':max(0,primary[80]['startMs']-60000),
+       'audioEndMs':primary_alignment['totalMs']},
+    ]
+
+
 def main(argv=None):
     ap=argparse.ArgumentParser(description=__doc__)
     ap.add_argument('--source',choices=tuple(SOURCES),required=True)
@@ -190,20 +208,7 @@ def main(argv=None):
                                   len(primary_report['alignment']['entries'])==88,
                                   'primary Fakhfakh measurement incomplete')
                         primary_fakhfakh=primary_report['alignment']
-                        primary=primary_fakhfakh['entries']
-                        numeric_windows=[
-                          {'id':'opening-1-3','startAyahIdx':0,'endAyahIdxExclusive':5,
-                           'targetAyahIdxs':[0,1,2],'audioStartMs':0,
-                           'audioEndMs':min(primary_fakhfakh['totalMs'],primary[4]['endMs']+45000)},
-                          {'id':'middle-43-45','startAyahIdx':39,'endAyahIdxExclusive':48,
-                           'targetAyahIdxs':[42,43,44],
-                           'audioStartMs':max(0,primary[39]['startMs']-60000),
-                           'audioEndMs':min(primary_fakhfakh['totalMs'],primary[47]['endMs']+60000)},
-                          {'id':'ending-84-88','startAyahIdx':80,'endAyahIdxExclusive':88,
-                           'targetAyahIdxs':[83,84,85,86,87],
-                           'audioStartMs':max(0,primary[80]['startMs']-60000),
-                           'audioEndMs':primary_fakhfakh['totalMs']},
-                        ]
+                        numeric_windows=fakhfakh_audit_windows(primary_fakhfakh)
                     if a.source in ('asiri7_archive_4917_targeted','asiri7_archive_4917_48_expanded'):
                         primary_path=B.ROOT/'ops/out/codex-asiri7-left-context-alignment-success-37433349375.json'
                         primary_bytes=primary_path.read_bytes()
@@ -245,7 +250,7 @@ def main(argv=None):
             if a.source=='fakhfakh38_archive_2025_audit':
                 windows=alignment.get('numericWindowAudit',[])
                 B.require([w['id'] for w in windows]==
-                          ['opening-1-3','middle-43-45','ending-84-88'],
+                          ['opening-1-5','middle-40-48','ending-81-88'],
                           'opening/middle/ending witnesses missing')
                 comparisons=[]
                 for window in windows:
@@ -266,12 +271,29 @@ def main(argv=None):
                           'auditConfidence':full['conf'],
                         })
                 report['openingMiddleEndingComparison']=comparisons
+                boundary_comparisons=[]
+                for label,target in (('opening-boundary',0),('ending-boundary',87)):
+                    full=alignment['entries'][target]
+                    primary=primary_fakhfakh['entries'][target]
+                    B.require(full['startMs'] is not None and full['endMs'] is not None,
+                              'independent boundary witness missing')
+                    boundary_comparisons.append({
+                      'witness':label,'ayah':target+1,
+                      'primaryVsAuditStartDeltaMs':abs(primary['startMs']-full['startMs']),
+                      'primaryVsAuditEndDeltaMs':abs(primary['endMs']-full['endMs']),
+                      'auditConfidence':full['conf'],
+                    })
+                report['boundaryComparisons']=boundary_comparisons
                 B.require(max(max(d['windowVsAuditStartDeltaMs'],
                                   d['windowVsAuditEndDeltaMs'],
                                   d['primaryVsAuditStartDeltaMs'],
                                   d['primaryVsAuditEndDeltaMs'])
                               for d in comparisons)<=5000,
                           'independent opening/middle/ending boundary differs by more than five seconds')
+                B.require(max(max(d['primaryVsAuditStartDeltaMs'],
+                                  d['primaryVsAuditEndDeltaMs'])
+                              for d in boundary_comparisons)<=5000,
+                          'independent first/last boundary differs by more than five seconds')
             if a.source=='asiri7_archive_4917_targeted':
                 windows=alignment.get('numericWindowAudit',[])
                 B.require(len(windows)==5,'targeted numeric window evidence missing')

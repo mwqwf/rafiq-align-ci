@@ -45,6 +45,21 @@ class BlockedSourceEngineTests(unittest.TestCase):
         self.assertEqual(source, audit_source)
         self.assertIsNone(recovery.source_engine_blocked(audit_source))
 
+    def test_fakhfakh_independent_windows_keep_context_around_every_target(self):
+        primary = json.loads((
+            recovery.B.ROOT /
+            'ops/out/codex-fakhfakh38-archive-recovery-37544489570.json'
+        ).read_text())['alignment']
+        windows = recovery.fakhfakh_audit_windows(primary)
+        self.assertEqual(
+            [w['id'] for w in windows],
+            ['opening-1-5', 'middle-40-48', 'ending-81-88'])
+        for window in windows:
+            self.assertTrue(all(
+                window['startAyahIdx'] < target <
+                window['endAyahIdxExclusive'] - 1
+                for target in window['targetAyahIdxs']))
+
 
 if __name__ == '__main__':
     unittest.main()
