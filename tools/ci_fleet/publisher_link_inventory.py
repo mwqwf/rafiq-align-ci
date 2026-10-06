@@ -21,6 +21,10 @@ RECOVERY_PAGES = [
   "https://www.aitmaen.com/saad/",
   "https://tilawa.org/القرآن-الكريم-ورش-يوسف-بن-نوح-أحمد/"
 ]
+DYNAMIC_PAGES = [
+ 'https://alkabbah.com/recitations/playlist/500375/mshf-mroan-alaakry-broay-kalon-114-sor-almshf-almrtl-kaml-bgod-aaaly-192-k-b-mroan-alaakry',
+ 'https://quranpedia.net/listen?recitation=356&surah=79'
+]
 LIMIT = 2_500_000
 IRAOUI_PAGES = (
     'https://way2quran.com/en/reciters/muhammad-al-ayrawy/warsh-an-nafi-min-traiq-al-azraq',
@@ -48,15 +52,17 @@ def extract(body, url):
             'candidateLinkCount': len(set(relevant)),
             'publicScriptUrls': [M.safe_url(urllib.parse.urljoin(url, s)) for s in scripts][:40],
             'contextLinks': [{'url': M.safe_url(urllib.parse.urljoin(url, href)), 'text': re.sub('<[^>]+>', '', label)[:240]} for href, label in re.findall(r'''<a\\b[^>]*href=["']([^"']+)["'][^>]*>(.*?)</a>''', text, re.I|re.S) if any(w in re.sub('<[^>]+>', '', label) for w in ('عسيري', 'العسيري', 'ابراهيم', 'إبراهيم', '054', 'القمر'))][:60],
+            'dynamicAttributes': re.findall(r'''data-(?:url|src|playlist|audio|endpoint)[\\w-]*=["']([^"']+)["']''', text)[:40],
+            'apiHints': [text[max(0,m.start()-80):m.end()+160] for m in re.finditer(r'''(?:500375|recitation.{0,12}356|/api/|playlist_id|audio_url)''', text)][:30],
             'title': html.unescape((re.search(r'<title>(.*?)</title>', text, re.S|re.I) or ['', ''])[1])[:300]}
 
 
 def main(argv=None):
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument('--profile', choices=('original', 'iraoui', 'recovery-20261006'), default='original')
+    parser.add_argument('--profile', choices=('original', 'iraoui', 'recovery-20261006', 'dynamic-recovery'), default='original')
     args = parser.parse_args(argv)
     rows = []
-    for url in (PAGES if args.profile == 'original' else IRAOUI_PAGES if args.profile == 'iraoui' else RECOVERY_PAGES):
+    for url in (PAGES if args.profile == 'original' else IRAOUI_PAGES if args.profile == 'iraoui' else DYNAMIC_PAGES if args.profile == 'dynamic-recovery' else RECOVERY_PAGES):
         row = {'publisherUrl': url, 'candidateOnly': True}
         try:
             deadline = time.monotonic() + 45
@@ -84,6 +90,7 @@ def main(argv=None):
               'pages': rows}
     name = ('codex-publisher-link-inventory-20261005.json' if args.profile == 'original'
             else 'codex-iraoui-publisher-links-20261005.json' if args.profile == 'iraoui'
+            else 'codex-dynamic-publisher-links-20261006.json' if args.profile == 'dynamic-recovery'
             else 'codex-recovery-publisher-links-20261006.json')
     dest = Path('ops/out') / name
     dest.write_text(json.dumps(report, ensure_ascii=False, indent=2)+'\n')
