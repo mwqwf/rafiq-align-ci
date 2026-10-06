@@ -1,0 +1,2270 @@
+{
+  "schema": 1,
+  "kind": "known-source-quran-alignment-diagnostic",
+  "sourceId": "asiri7_archive_4917",
+  "measurementComplete": false,
+  "qualityClaim": false,
+  "coverageCertified": false,
+  "productionChanged": false,
+  "source": {
+    "surah": 7,
+    "riwaya": "hafs",
+    "url": "https://archive.org/download/002_20230924_202309/007%20-%20%D8%B3%D9%88%D8%B1%D8%A9%20%D8%A7%D9%84%D8%A3%D8%B9%D8%B1%D8%A7%D9%81.mp3",
+    "sha256": "897ad7e2c99472111722247f362d135da0c25c449806260269a792a12f52d3f1",
+    "requestedWindowSeconds": [
+      0,
+      65
+    ]
+  },
+  "freeResults": [],
+  "models": [],
+  "errors": [
+    {
+      "type": "ProbeError",
+      "message": "overlapping alignment groups disagree by more than five seconds"
+    }
+  ],
+  "textGenerationDisabled": true,
+  "limits": [
+    "Forced full alignment does not prove all verses present.",
+    "Original generic and free-ASR failures remain part of the evidence.",
+    "Candidate requires independent QA before registration or adoption."
+  ],
+  "provenance": {
+    "runId": "37422733256",
+    "runSha": "33388d0882acbb8739159fbf87465217711e8523",
+    "toolSha256": "b1edfc37d748869c492d7f8bff72f9f1450a83609d09450da7c7acdf2223a2e8"
+  },
+  "versions": {
+    "torch": "2.6.0+cpu",
+    "transformers": "4.49.0",
+    "numpy": "1.26.4",
+    "huggingface-hub": "0.29.3",
+    "safetensors": "0.5.3",
+    "tokenizers": "0.21.1"
+  },
+  "audio": {
+    "download": {
+      "bytes": 21220333,
+      "sha256": "897ad7e2c99472111722247f362d135da0c25c449806260269a792a12f52d3f1",
+      "finalUrl": "https://dn710108.ca.archive.org/0/items/002_20230924_202309/007%20-%20%D8%B3%D9%88%D8%B1%D8%A9%20%D8%A7%D9%84%D8%A3%D8%B9%D8%B1%D8%A7%D9%81.mp3"
+    },
+    "container": {
+      "programs": [],
+      "stream_groups": [],
+      "streams": [
+        {
+          "codec_type": "audio",
+          "sample_rate": "22050",
+          "channels": 2,
+          "channel_layout": "stereo"
+        },
+        {
+          "codec_type": "video"
+        }
+      ],
+      "format": {
+        "duration": "4916.686667"
+      }
+    },
+    "decoded": {
+      "frames": 78666987,
+      "nativeChannels": 2,
+      "durationSeconds": 4916.6866875,
+      "fullNativePcmSha256": "f170ff29026d0929f3a53db19f03485a52eacc8c3bd14322c31e5b70ed5bd81b",
+      "windowStartSample": 0,
+      "windowEndSampleExclusive": 1040000,
+      "windowSamplesPerChannel": 1040000,
+      "requestedEndClampedToDecodedEof": false,
+      "decodedWithoutErrors": true
+    },
+    "sourceUnchanged": true,
+    "nativeChannelsUnmixed": true,
+    "canonicalTextRead": false
+  },
+  "modelAcquisition": {
+    "policy": "quran-pinned-ephemeral",
+    "cacheKey": "ctc-model-jonatasgrosman-xlsr53-ar-v1",
+    "exactHit": true,
+    "models": [
+      {
+        "name": "generic",
+        "id": "jonatasgrosman/wav2vec2-large-xlsr-53-arabic",
+        "revision": "af46c2d8531b8dcbb5e23b952f739b372c2e5d2d",
+        "weightsSha256": "a0b26f6d9d3edfde1784aef863c192a8cc1e438a23b45910ab648531ebe1857b",
+        "weightFile": "pytorch_model.bin",
+        "snapshot": "hub/models--jonatasgrosman--wav2vec2-large-xlsr-53-arabic/snapshots/af46c2d8531b8dcbb5e23b952f739b372c2e5d2d",
+        "weightBytes": 1262142936,
+        "localOnly": true
+      }
+    ],
+    "quranEphemeral": {
+      "id": "rabah2026/wav2vec2-large-xlsr-53-arabic-quran-v_final",
+      "revision": "b03a268c6ba1a693752307325ab376c86c3b12da",
+      "weightsSha256": "bf65674a26eb4ef7042cedade96c3c8f8cbd04f3a7d1a68eadceec8ed0f99ecb",
+      "weightFile": "model.safetensors",
+      "sourceMode": "explicit-ephemeral-public-download",
+      "cacheWrite": false,
+      "artifactWrite": false,
+      "files": [
+        {
+          "filename": "config.json",
+          "bytes": 2244,
+          "sha256": "56868371643cb1a350fa336b246882505c3aa87d86b31990808b426bb8175230",
+          "url": "https://huggingface.co/rabah2026/wav2vec2-large-xlsr-53-arabic-quran-v_final/resolve/b03a268c6ba1a693752307325ab376c86c3b12da/config.json"
+        },
+        {
+          "filename": "vocab.json",
+          "bytes": 672,
+          "sha256": "60b9e6174798b6e1a92c92fb5935e32522aebaca4cdd1f481fd220346471644c",
+          "url": "https://huggingface.co/rabah2026/wav2vec2-large-xlsr-53-arabic-quran-v_final/resolve/b03a268c6ba1a693752307325ab376c86c3b12da/vocab.json"
+        },
+        {
+          "filename": "preprocessor_config.json",
+          "bytes": 256,
+          "sha256": "ffc72f475cd79680d5d659fbaefc691cdbcee5c9703a15faf708a5e91452a8d8",
+          "url": "https://huggingface.co/rabah2026/wav2vec2-large-xlsr-53-arabic-quran-v_final/resolve/b03a268c6ba1a693752307325ab376c86c3b12da/preprocessor_config.json"
+        },
+        {
+          "filename": "tokenizer_config.json",
+          "bytes": 1120,
+          "sha256": "84233fa817d20ba6e3470dc33df489b8fa89d5f53323fd9fe8ea08a5b315d709",
+          "url": "https://huggingface.co/rabah2026/wav2vec2-large-xlsr-53-arabic-quran-v_final/resolve/b03a268c6ba1a693752307325ab376c86c3b12da/tokenizer_config.json"
+        },
+        {
+          "filename": "special_tokens_map.json",
+          "bytes": 96,
+          "sha256": "9046da57c270c8e74d0f38832b4adce269c9d914ef21d2a0925e7772152dd793",
+          "url": "https://huggingface.co/rabah2026/wav2vec2-large-xlsr-53-arabic-quran-v_final/resolve/b03a268c6ba1a693752307325ab376c86c3b12da/special_tokens_map.json"
+        },
+        {
+          "filename": "tokenizer.json",
+          "optionalAbsent": true
+        },
+        {
+          "filename": "model.safetensors",
+          "bytes": 1262037080,
+          "sha256": "bf65674a26eb4ef7042cedade96c3c8f8cbd04f3a7d1a68eadceec8ed0f99ecb",
+          "url": "https://huggingface.co/rabah2026/wav2vec2-large-xlsr-53-arabic-quran-v_final/resolve/b03a268c6ba1a693752307325ab376c86c3b12da/model.safetensors"
+        }
+      ],
+      "byteLimit": 1506291456,
+      "deadlineSeconds": 600,
+      "totalBytes": 1262041468,
+      "downloadSeconds": 12.609652481000012
+    }
+  },
+  "alignment": {
+    "surah": 7,
+    "riwaya": "hafs",
+    "totalMs": 4916686,
+    "entries": [
+      {
+        "ayahIdx": 0,
+        "startMs": 34623,
+        "endMs": 47261,
+        "conf": 0.805,
+        "snapped": true,
+        "matched": 0,
+        "total": 1
+      },
+      {
+        "ayahIdx": 1,
+        "startMs": 47261,
+        "endMs": 60580,
+        "conf": 0.809,
+        "snapped": true,
+        "matched": 0,
+        "total": 13
+      },
+      {
+        "ayahIdx": 2,
+        "startMs": 60580,
+        "endMs": 76791,
+        "conf": 0.611,
+        "snapped": true,
+        "matched": 0,
+        "total": 14
+      },
+      {
+        "ayahIdx": 3,
+        "startMs": 76791,
+        "endMs": 92581,
+        "conf": 0.803,
+        "snapped": true,
+        "matched": 0,
+        "total": 10
+      },
+      {
+        "ayahIdx": 4,
+        "startMs": 92581,
+        "endMs": 110994,
+        "conf": 0.74,
+        "snapped": false,
+        "matched": 0,
+        "total": 12
+      },
+      {
+        "ayahIdx": 5,
+        "startMs": 110994,
+        "endMs": 123622,
+        "conf": 0.739,
+        "snapped": false,
+        "matched": 0,
+        "total": 6
+      },
+      {
+        "ayahIdx": 6,
+        "startMs": 123622,
+        "endMs": 133769,
+        "conf": 0.795,
+        "snapped": true,
+        "matched": 0,
+        "total": 6
+      },
+      {
+        "ayahIdx": 7,
+        "startMs": 133769,
+        "endMs": 145577,
+        "conf": 0.74,
+        "snapped": false,
+        "matched": 0,
+        "total": 9
+      },
+      {
+        "ayahIdx": 8,
+        "startMs": 145577,
+        "endMs": 167031,
+        "conf": 0.634,
+        "snapped": false,
+        "matched": 0,
+        "total": 11
+      },
+      {
+        "ayahIdx": 9,
+        "startMs": 167031,
+        "endMs": 179539,
+        "conf": 0.693,
+        "snapped": false,
+        "matched": 0,
+        "total": 11
+      },
+      {
+        "ayahIdx": 10,
+        "startMs": 179539,
+        "endMs": 200763,
+        "conf": 0.668,
+        "snapped": false,
+        "matched": 0,
+        "total": 16
+      },
+      {
+        "ayahIdx": 11,
+        "startMs": 200763,
+        "endMs": 217310,
+        "conf": 0.74,
+        "snapped": false,
+        "matched": 0,
+        "total": 17
+      },
+      {
+        "ayahIdx": 12,
+        "startMs": 217310,
+        "endMs": 266840,
+        "conf": 0.44,
+        "snapped": true,
+        "matched": 0,
+        "total": 13
+      },
+      {
+        "ayahIdx": 13,
+        "startMs": 266840,
+        "endMs": 274642,
+        "conf": 0.835,
+        "snapped": true,
+        "matched": 0,
+        "total": 5
+      },
+      {
+        "ayahIdx": 14,
+        "startMs": 274642,
+        "endMs": 281867,
+        "conf": 0.74,
+        "snapped": false,
+        "matched": 0,
+        "total": 4
+      },
+      {
+        "ayahIdx": 15,
+        "startMs": 281867,
+        "endMs": 294335,
+        "conf": 0.74,
+        "snapped": false,
+        "matched": 0,
+        "total": 7
+      },
+      {
+        "ayahIdx": 16,
+        "startMs": 294335,
+        "endMs": 319250,
+        "conf": 0.729,
+        "snapped": false,
+        "matched": 0,
+        "total": 15
+      },
+      {
+        "ayahIdx": 17,
+        "startMs": 319250,
+        "endMs": 345409,
+        "conf": 0.818,
+        "snapped": true,
+        "matched": 0,
+        "total": 12
+      },
+      {
+        "ayahIdx": 18,
+        "startMs": 345409,
+        "endMs": 370890,
+        "conf": 0.666,
+        "snapped": false,
+        "matched": 0,
+        "total": 16
+      },
+      {
+        "ayahIdx": 19,
+        "startMs": 370890,
+        "endMs": 419038,
+        "conf": 0.693,
+        "snapped": true,
+        "matched": 0,
+        "total": 25
+      },
+      {
+        "ayahIdx": 20,
+        "startMs": 419038,
+        "endMs": 429925,
+        "conf": 0.74,
+        "snapped": false,
+        "matched": 0,
+        "total": 5
+      },
+      {
+        "ayahIdx": 21,
+        "startMs": 429925,
+        "endMs": 488384,
+        "conf": 0.74,
+        "snapped": false,
+        "matched": 0,
+        "total": 28
+      },
+      {
+        "ayahIdx": 22,
+        "startMs": 488384,
+        "endMs": 519725,
+        "conf": 0.703,
+        "snapped": false,
+        "matched": 0,
+        "total": 12
+      },
+      {
+        "ayahIdx": 23,
+        "startMs": 519725,
+        "endMs": 535676,
+        "conf": 0.694,
+        "snapped": false,
+        "matched": 0,
+        "total": 12
+      },
+      {
+        "ayahIdx": 24,
+        "startMs": 535676,
+        "endMs": 555330,
+        "conf": 0.74,
+        "snapped": false,
+        "matched": 0,
+        "total": 7
+      },
+      {
+        "ayahIdx": 25,
+        "startMs": 555330,
+        "endMs": 577100,
+        "conf": 0.54,
+        "snapped": true,
+        "matched": 0,
+        "total": 19
+      },
+      {
+        "ayahIdx": 26,
+        "startMs": 577100,
+        "endMs": 616730,
+        "conf": 0.551,
+        "snapped": true,
+        "matched": 0,
+        "total": 30
+      },
+      {
+        "ayahIdx": 27,
+        "startMs": 616730,
+        "endMs": 641706,
+        "conf": 0.486,
+        "snapped": true,
+        "matched": 0,
+        "total": 22
+      },
+      {
+        "ayahIdx": 28,
+        "startMs": 641706,
+        "endMs": 659218,
+        "conf": 0.672,
+        "snapped": false,
+        "matched": 0,
+        "total": 16
+      },
+      {
+        "ayahIdx": 29,
+        "startMs": null,
+        "endMs": null,
+        "conf": 0,
+        "snapped": false,
+        "matched": 0,
+        "total": 16
+      },
+      {
+        "ayahIdx": 30,
+        "startMs": 179369,
+        "endMs": 197721,
+        "conf": 0,
+        "snapped": false,
+        "matched": 0,
+        "total": 15
+      },
+      {
+        "ayahIdx": 31,
+        "startMs": 197721,
+        "endMs": 236657,
+        "conf": 0.103,
+        "snapped": false,
+        "matched": 0,
+        "total": 26
+      },
+      {
+        "ayahIdx": 32,
+        "startMs": 236657,
+        "endMs": 279455,
+        "conf": 0.087,
+        "snapped": false,
+        "matched": 0,
+        "total": 29
+      },
+      {
+        "ayahIdx": 33,
+        "startMs": 279455,
+        "endMs": 293905,
+        "conf": 0.238,
+        "snapped": false,
+        "matched": 0,
+        "total": 11
+      },
+      {
+        "ayahIdx": 34,
+        "startMs": 293905,
+        "endMs": 316460,
+        "conf": 0,
+        "snapped": false,
+        "matched": 0,
+        "total": 18
+      },
+      {
+        "ayahIdx": 35,
+        "startMs": 316460,
+        "endMs": 345409,
+        "conf": 0.112,
+        "snapped": false,
+        "matched": 0,
+        "total": 11
+      },
+      {
+        "ayahIdx": 36,
+        "startMs": 345409,
+        "endMs": 401216,
+        "conf": 0,
+        "snapped": false,
+        "matched": 0,
+        "total": 37
+      },
+      {
+        "ayahIdx": 37,
+        "startMs": 401216,
+        "endMs": 454431,
+        "conf": 0,
+        "snapped": false,
+        "matched": 0,
+        "total": 40
+      },
+      {
+        "ayahIdx": 38,
+        "startMs": 454431,
+        "endMs": 473224,
+        "conf": 0,
+        "snapped": false,
+        "matched": 0,
+        "total": 14
+      },
+      {
+        "ayahIdx": 39,
+        "startMs": 473224,
+        "endMs": 506446,
+        "conf": 0.134,
+        "snapped": false,
+        "matched": 0,
+        "total": 23
+      },
+      {
+        "ayahIdx": 40,
+        "startMs": 506446,
+        "endMs": 516413,
+        "conf": 0,
+        "snapped": false,
+        "matched": 0,
+        "total": 10
+      },
+      {
+        "ayahIdx": 41,
+        "startMs": 516413,
+        "endMs": 539268,
+        "conf": 0.007,
+        "snapped": false,
+        "matched": 0,
+        "total": 15
+      },
+      {
+        "ayahIdx": 42,
+        "startMs": 539268,
+        "endMs": 587420,
+        "conf": 0,
+        "snapped": false,
+        "matched": 0,
+        "total": 36
+      },
+      {
+        "ayahIdx": 43,
+        "startMs": 587420,
+        "endMs": 609735,
+        "conf": 0,
+        "snapped": false,
+        "matched": 0,
+        "total": 28
+      },
+      {
+        "ayahIdx": 44,
+        "startMs": 609735,
+        "endMs": 620702,
+        "conf": 0,
+        "snapped": false,
+        "matched": 0,
+        "total": 10
+      },
+      {
+        "ayahIdx": 45,
+        "startMs": 620702,
+        "endMs": 643097,
+        "conf": 0,
+        "snapped": false,
+        "matched": 0,
+        "total": 18
+      },
+      {
+        "ayahIdx": 46,
+        "startMs": 643097,
+        "endMs": 660348,
+        "conf": 0.052,
+        "snapped": false,
+        "matched": 0,
+        "total": 13
+      },
+      {
+        "ayahIdx": 47,
+        "startMs": 660348,
+        "endMs": 684464,
+        "conf": 0,
+        "snapped": false,
+        "matched": 0,
+        "total": 14
+      },
+      {
+        "ayahIdx": 48,
+        "startMs": 684464,
+        "endMs": 701590,
+        "conf": 0,
+        "snapped": false,
+        "matched": 0,
+        "total": 15
+      },
+      {
+        "ayahIdx": 49,
+        "startMs": 701590,
+        "endMs": 728040,
+        "conf": 0.137,
+        "snapped": true,
+        "matched": 0,
+        "total": 20
+      },
+      {
+        "ayahIdx": 50,
+        "startMs": 728040,
+        "endMs": 758053,
+        "conf": 0.001,
+        "snapped": true,
+        "matched": 0,
+        "total": 19
+      },
+      {
+        "ayahIdx": 51,
+        "startMs": 758053,
+        "endMs": 768340,
+        "conf": 0,
+        "snapped": false,
+        "matched": 0,
+        "total": 10
+      },
+      {
+        "ayahIdx": 52,
+        "startMs": 768340,
+        "endMs": 839607,
+        "conf": 0.367,
+        "snapped": false,
+        "matched": 0,
+        "total": 38
+      },
+      {
+        "ayahIdx": 53,
+        "startMs": 839607,
+        "endMs": 897226,
+        "conf": 0,
+        "snapped": false,
+        "matched": 0,
+        "total": 32
+      },
+      {
+        "ayahIdx": 54,
+        "startMs": 897226,
+        "endMs": 909414,
+        "conf": 0.122,
+        "snapped": false,
+        "matched": 0,
+        "total": 8
+      },
+      {
+        "ayahIdx": 55,
+        "startMs": 909414,
+        "endMs": 927250,
+        "conf": 0.2,
+        "snapped": false,
+        "matched": 0,
+        "total": 15
+      },
+      {
+        "ayahIdx": 56,
+        "startMs": 927250,
+        "endMs": 975898,
+        "conf": 0,
+        "snapped": true,
+        "matched": 0,
+        "total": 29
+      },
+      {
+        "ayahIdx": 57,
+        "startMs": null,
+        "endMs": null,
+        "conf": 0,
+        "snapped": false,
+        "matched": 0,
+        "total": 17
+      },
+      {
+        "ayahIdx": 58,
+        "startMs": 179749,
+        "endMs": 200763,
+        "conf": 0,
+        "snapped": false,
+        "matched": 0,
+        "total": 20
+      },
+      {
+        "ayahIdx": 59,
+        "startMs": 200763,
+        "endMs": 206387,
+        "conf": 0,
+        "snapped": false,
+        "matched": 0,
+        "total": 9
+      },
+      {
+        "ayahIdx": 60,
+        "startMs": 206387,
+        "endMs": 213852,
+        "conf": 0,
+        "snapped": false,
+        "matched": 0,
+        "total": 10
+      },
+      {
+        "ayahIdx": 61,
+        "startMs": 213852,
+        "endMs": 223338,
+        "conf": 0,
+        "snapped": false,
+        "matched": 0,
+        "total": 11
+      },
+      {
+        "ayahIdx": 62,
+        "startMs": 223338,
+        "endMs": 244672,
+        "conf": 0.154,
+        "snapped": false,
+        "matched": 0,
+        "total": 13
+      },
+      {
+        "ayahIdx": 63,
+        "startMs": 244672,
+        "endMs": 269989,
+        "conf": 0,
+        "snapped": false,
+        "matched": 0,
+        "total": 14
+      },
+      {
+        "ayahIdx": 64,
+        "startMs": 269989,
+        "endMs": 294335,
+        "conf": 0.088,
+        "snapped": false,
+        "matched": 0,
+        "total": 15
+      },
+      {
+        "ayahIdx": 65,
+        "startMs": 294335,
+        "endMs": 319250,
+        "conf": 0.445,
+        "snapped": false,
+        "matched": 0,
+        "total": 14
+      },
+      {
+        "ayahIdx": 66,
+        "startMs": 319250,
+        "endMs": 330029,
+        "conf": 0,
+        "snapped": true,
+        "matched": 0,
+        "total": 10
+      },
+      {
+        "ayahIdx": 67,
+        "startMs": 330029,
+        "endMs": 345409,
+        "conf": 0.127,
+        "snapped": false,
+        "matched": 0,
+        "total": 7
+      },
+      {
+        "ayahIdx": 68,
+        "startMs": 345409,
+        "endMs": 391850,
+        "conf": 0,
+        "snapped": false,
+        "matched": 0,
+        "total": 27
+      },
+      {
+        "ayahIdx": 69,
+        "startMs": 391850,
+        "endMs": 419499,
+        "conf": 0.285,
+        "snapped": true,
+        "matched": 0,
+        "total": 17
+      },
+      {
+        "ayahIdx": 70,
+        "startMs": 419499,
+        "endMs": 464458,
+        "conf": 0,
+        "snapped": false,
+        "matched": 0,
+        "total": 25
+      },
+      {
+        "ayahIdx": 71,
+        "startMs": 464458,
+        "endMs": 495429,
+        "conf": 0.072,
+        "snapped": false,
+        "matched": 0,
+        "total": 13
+      },
+      {
+        "ayahIdx": 72,
+        "startMs": 495429,
+        "endMs": 545582,
+        "conf": 0,
+        "snapped": false,
+        "matched": 0,
+        "total": 34
+      },
+      {
+        "ayahIdx": 73,
+        "startMs": 545582,
+        "endMs": 580175,
+        "conf": 0,
+        "snapped": false,
+        "matched": 0,
+        "total": 25
+      },
+      {
+        "ayahIdx": 74,
+        "startMs": 580175,
+        "endMs": 608494,
+        "conf": 0,
+        "snapped": false,
+        "matched": 0,
+        "total": 23
+      },
+      {
+        "ayahIdx": 75,
+        "startMs": 608494,
+        "endMs": 617600,
+        "conf": 0,
+        "snapped": false,
+        "matched": 0,
+        "total": 8
+      },
+      {
+        "ayahIdx": 76,
+        "startMs": 617600,
+        "endMs": 631649,
+        "conf": 0,
+        "snapped": false,
+        "matched": 0,
+        "total": 15
+      },
+      {
+        "ayahIdx": 77,
+        "startMs": 631649,
+        "endMs": 639394,
+        "conf": 0.072,
+        "snapped": false,
+        "matched": 0,
+        "total": 6
+      },
+      {
+        "ayahIdx": 78,
+        "startMs": 639394,
+        "endMs": 652763,
+        "conf": 0,
+        "snapped": false,
+        "matched": 0,
+        "total": 14
+      },
+      {
+        "ayahIdx": 79,
+        "startMs": 652763,
+        "endMs": 665932,
+        "conf": 0.126,
+        "snapped": false,
+        "matched": 0,
+        "total": 13
+      },
+      {
+        "ayahIdx": 80,
+        "startMs": 665932,
+        "endMs": 684544,
+        "conf": 0.284,
+        "snapped": false,
+        "matched": 0,
+        "total": 11
+      },
+      {
+        "ayahIdx": 81,
+        "startMs": 684544,
+        "endMs": 701590,
+        "conf": 0.252,
+        "snapped": false,
+        "matched": 0,
+        "total": 13
+      },
+      {
+        "ayahIdx": 82,
+        "startMs": 701590,
+        "endMs": 713070,
+        "conf": 0.195,
+        "snapped": true,
+        "matched": 0,
+        "total": 7
+      },
+      {
+        "ayahIdx": 83,
+        "startMs": 713070,
+        "endMs": 723650,
+        "conf": 0,
+        "snapped": true,
+        "matched": 0,
+        "total": 8
+      },
+      {
+        "ayahIdx": 84,
+        "startMs": 723650,
+        "endMs": 768220,
+        "conf": 0,
+        "snapped": false,
+        "matched": 0,
+        "total": 37
+      },
+      {
+        "ayahIdx": 85,
+        "startMs": null,
+        "endMs": null,
+        "conf": 0,
+        "snapped": false,
+        "matched": 0,
+        "total": 24
+      },
+      {
+        "ayahIdx": 86,
+        "startMs": 173985,
+        "endMs": 200763,
+        "conf": 0,
+        "snapped": false,
+        "matched": 0,
+        "total": 19
+      },
+      {
+        "ayahIdx": 87,
+        "startMs": 200763,
+        "endMs": 228601,
+        "conf": 0,
+        "snapped": false,
+        "matched": 0,
+        "total": 21
+      },
+      {
+        "ayahIdx": 88,
+        "startMs": 228601,
+        "endMs": 298308,
+        "conf": 0,
+        "snapped": false,
+        "matched": 0,
+        "total": 42
+      },
+      {
+        "ayahIdx": 89,
+        "startMs": 298308,
+        "endMs": 314779,
+        "conf": 0.032,
+        "snapped": false,
+        "matched": 0,
+        "total": 12
+      },
+      {
+        "ayahIdx": 90,
+        "startMs": 314779,
+        "endMs": 327037,
+        "conf": 0.312,
+        "snapped": false,
+        "matched": 0,
+        "total": 6
+      },
+      {
+        "ayahIdx": 91,
+        "startMs": 327037,
+        "endMs": 355706,
+        "conf": 0.335,
+        "snapped": false,
+        "matched": 0,
+        "total": 13
+      },
+      {
+        "ayahIdx": 92,
+        "startMs": 355706,
+        "endMs": 385526,
+        "conf": 0.252,
+        "snapped": false,
+        "matched": 0,
+        "total": 15
+      },
+      {
+        "ayahIdx": 93,
+        "startMs": 385526,
+        "endMs": 411983,
+        "conf": 0.069,
+        "snapped": false,
+        "matched": 0,
+        "total": 13
+      },
+      {
+        "ayahIdx": 94,
+        "startMs": 411983,
+        "endMs": 439201,
+        "conf": 0.035,
+        "snapped": false,
+        "matched": 0,
+        "total": 18
+      },
+      {
+        "ayahIdx": 95,
+        "startMs": 439201,
+        "endMs": 467240,
+        "conf": 0.005,
+        "snapped": false,
+        "matched": 0,
+        "total": 18
+      },
+      {
+        "ayahIdx": 96,
+        "startMs": 467240,
+        "endMs": 488384,
+        "conf": 0.304,
+        "snapped": false,
+        "matched": 0,
+        "total": 9
+      },
+      {
+        "ayahIdx": 97,
+        "startMs": 488384,
+        "endMs": 502814,
+        "conf": 0.346,
+        "snapped": false,
+        "matched": 0,
+        "total": 9
+      },
+      {
+        "ayahIdx": 98,
+        "startMs": 502814,
+        "endMs": 515302,
+        "conf": 0.13,
+        "snapped": false,
+        "matched": 0,
+        "total": 10
+      },
+      {
+        "ayahIdx": 99,
+        "startMs": 515302,
+        "endMs": 541079,
+        "conf": 0,
+        "snapped": false,
+        "matched": 0,
+        "total": 19
+      },
+      {
+        "ayahIdx": 100,
+        "startMs": 541079,
+        "endMs": 577300,
+        "conf": 0.058,
+        "snapped": false,
+        "matched": 0,
+        "total": 23
+      },
+      {
+        "ayahIdx": 101,
+        "startMs": 577300,
+        "endMs": 593644,
+        "conf": 0.254,
+        "snapped": true,
+        "matched": 0,
+        "total": 9
+      },
+      {
+        "ayahIdx": 102,
+        "startMs": 593644,
+        "endMs": 611416,
+        "conf": 0,
+        "snapped": false,
+        "matched": 0,
+        "total": 16
+      },
+      {
+        "ayahIdx": 103,
+        "startMs": 611416,
+        "endMs": 621112,
+        "conf": 0.19,
+        "snapped": false,
+        "matched": 0,
+        "total": 8
+      },
+      {
+        "ayahIdx": 104,
+        "startMs": 621112,
+        "endMs": 641706,
+        "conf": 0.114,
+        "snapped": false,
+        "matched": 0,
+        "total": 18
+      },
+      {
+        "ayahIdx": 105,
+        "startMs": 641706,
+        "endMs": 649261,
+        "conf": 0,
+        "snapped": false,
+        "matched": 0,
+        "total": 11
+      },
+      {
+        "ayahIdx": 106,
+        "startMs": 649261,
+        "endMs": 654835,
+        "conf": 0,
+        "snapped": false,
+        "matched": 0,
+        "total": 6
+      },
+      {
+        "ayahIdx": 107,
+        "startMs": 654835,
+        "endMs": 662029,
+        "conf": 0.19,
+        "snapped": false,
+        "matched": 0,
+        "total": 6
+      },
+      {
+        "ayahIdx": 108,
+        "startMs": 662029,
+        "endMs": 668554,
+        "conf": 0,
+        "snapped": false,
+        "matched": 0,
+        "total": 9
+      },
+      {
+        "ayahIdx": 109,
+        "startMs": 668554,
+        "endMs": 678480,
+        "conf": 0.11,
+        "snapped": false,
+        "matched": 0,
+        "total": 7
+      },
+      {
+        "ayahIdx": 110,
+        "startMs": 678480,
+        "endMs": 688387,
+        "conf": 0,
+        "snapped": false,
+        "matched": 0,
+        "total": 7
+      },
+      {
+        "ayahIdx": 111,
+        "startMs": 688387,
+        "endMs": 689948,
+        "conf": 0,
+        "snapped": false,
+        "matched": 0,
+        "total": 4
+      },
+      {
+        "ayahIdx": 112,
+        "startMs": 689948,
+        "endMs": 701590,
+        "conf": 0,
+        "snapped": false,
+        "matched": 0,
+        "total": 11
+      },
+      {
+        "ayahIdx": 113,
+        "startMs": null,
+        "endMs": null,
+        "conf": 0,
+        "snapped": true,
+        "matched": 0,
+        "total": 5
+      },
+      {
+        "ayahIdx": 114,
+        "startMs": 105440,
+        "endMs": 116958,
+        "conf": 0.239,
+        "snapped": false,
+        "matched": 0,
+        "total": 10
+      },
+      {
+        "ayahIdx": 115,
+        "startMs": 116958,
+        "endMs": 133709,
+        "conf": 0.038,
+        "snapped": false,
+        "matched": 0,
+        "total": 11
+      },
+      {
+        "ayahIdx": 116,
+        "startMs": 133709,
+        "endMs": 149729,
+        "conf": 0.216,
+        "snapped": false,
+        "matched": 0,
+        "total": 11
+      },
+      {
+        "ayahIdx": 117,
+        "startMs": 149729,
+        "endMs": 164159,
+        "conf": 0.432,
+        "snapped": false,
+        "matched": 0,
+        "total": 6
+      },
+      {
+        "ayahIdx": 118,
+        "startMs": 164159,
+        "endMs": 169822,
+        "conf": 0.032,
+        "snapped": false,
+        "matched": 0,
+        "total": 4
+      },
+      {
+        "ayahIdx": 119,
+        "startMs": 169822,
+        "endMs": 172504,
+        "conf": 0,
+        "snapped": false,
+        "matched": 0,
+        "total": 3
+      },
+      {
+        "ayahIdx": 120,
+        "startMs": 172504,
+        "endMs": 176427,
+        "conf": 0.041,
+        "snapped": false,
+        "matched": 0,
+        "total": 4
+      },
+      {
+        "ayahIdx": 121,
+        "startMs": 176427,
+        "endMs": 179539,
+        "conf": 0.202,
+        "snapped": false,
+        "matched": 0,
+        "total": 3
+      },
+      {
+        "ayahIdx": 122,
+        "startMs": 179539,
+        "endMs": 205666,
+        "conf": 0.051,
+        "snapped": false,
+        "matched": 0,
+        "total": 19
+      },
+      {
+        "ayahIdx": 123,
+        "startMs": 205666,
+        "endMs": 217310,
+        "conf": 0.21,
+        "snapped": false,
+        "matched": 0,
+        "total": 8
+      },
+      {
+        "ayahIdx": 124,
+        "startMs": 217310,
+        "endMs": 224138,
+        "conf": 0.486,
+        "snapped": true,
+        "matched": 0,
+        "total": 5
+      },
+      {
+        "ayahIdx": 125,
+        "startMs": 224138,
+        "endMs": 256660,
+        "conf": 0.456,
+        "snapped": false,
+        "matched": 0,
+        "total": 16
+      },
+      {
+        "ayahIdx": 126,
+        "startMs": 256660,
+        "endMs": 290783,
+        "conf": 0.154,
+        "snapped": false,
+        "matched": 0,
+        "total": 21
+      },
+      {
+        "ayahIdx": 127,
+        "startMs": 290783,
+        "endMs": 319250,
+        "conf": 0,
+        "snapped": false,
+        "matched": 0,
+        "total": 16
+      },
+      {
+        "ayahIdx": 128,
+        "startMs": 319250,
+        "endMs": 360099,
+        "conf": 0.11,
+        "snapped": true,
+        "matched": 0,
+        "total": 22
+      },
+      {
+        "ayahIdx": 129,
+        "startMs": 360099,
+        "endMs": 385626,
+        "conf": 0.458,
+        "snapped": false,
+        "matched": 0,
+        "total": 10
+      },
+      {
+        "ayahIdx": 130,
+        "startMs": 385626,
+        "endMs": 426343,
+        "conf": 0.016,
+        "snapped": false,
+        "matched": 0,
+        "total": 22
+      },
+      {
+        "ayahIdx": 131,
+        "startMs": 426343,
+        "endMs": 446146,
+        "conf": 0.298,
+        "snapped": false,
+        "matched": 0,
+        "total": 12
+      },
+      {
+        "ayahIdx": 132,
+        "startMs": 446146,
+        "endMs": 476186,
+        "conf": 0.045,
+        "snapped": false,
+        "matched": 0,
+        "total": 13
+      },
+      {
+        "ayahIdx": 133,
+        "startMs": 476186,
+        "endMs": 510909,
+        "conf": 0,
+        "snapped": false,
+        "matched": 0,
+        "total": 22
+      },
+      {
+        "ayahIdx": 134,
+        "startMs": 510909,
+        "endMs": 522096,
+        "conf": 0,
+        "snapped": false,
+        "matched": 0,
+        "total": 11
+      },
+      {
+        "ayahIdx": 135,
+        "startMs": 522096,
+        "endMs": 538888,
+        "conf": 0.364,
+        "snapped": false,
+        "matched": 0,
+        "total": 11
+      },
+      {
+        "ayahIdx": 136,
+        "startMs": 538888,
+        "endMs": 567667,
+        "conf": 0,
+        "snapped": false,
+        "matched": 0,
+        "total": 29
+      },
+      {
+        "ayahIdx": 137,
+        "startMs": 567667,
+        "endMs": 593984,
+        "conf": 0,
+        "snapped": false,
+        "matched": 0,
+        "total": 23
+      },
+      {
+        "ayahIdx": 138,
+        "startMs": 593984,
+        "endMs": 602350,
+        "conf": 0.316,
+        "snapped": false,
+        "matched": 0,
+        "total": 10
+      },
+      {
+        "ayahIdx": 139,
+        "startMs": 602350,
+        "endMs": 609094,
+        "conf": 0,
+        "snapped": false,
+        "matched": 0,
+        "total": 9
+      },
+      {
+        "ayahIdx": 140,
+        "startMs": 609094,
+        "endMs": 630568,
+        "conf": 0.062,
+        "snapped": false,
+        "matched": 0,
+        "total": 18
+      },
+      {
+        "ayahIdx": 141,
+        "startMs": null,
+        "endMs": null,
+        "conf": 0,
+        "snapped": false,
+        "matched": 0,
+        "total": 23
+      },
+      {
+        "ayahIdx": 142,
+        "startMs": 145577,
+        "endMs": 200763,
+        "conf": 0,
+        "snapped": false,
+        "matched": 0,
+        "total": 41
+      },
+      {
+        "ayahIdx": 143,
+        "startMs": 200763,
+        "endMs": 217310,
+        "conf": 0,
+        "snapped": false,
+        "matched": 0,
+        "total": 14
+      },
+      {
+        "ayahIdx": 144,
+        "startMs": 217310,
+        "endMs": 250300,
+        "conf": 0.029,
+        "snapped": true,
+        "matched": 0,
+        "total": 20
+      },
+      {
+        "ayahIdx": 145,
+        "startMs": 250300,
+        "endMs": 302330,
+        "conf": 0,
+        "snapped": true,
+        "matched": 0,
+        "total": 36
+      },
+      {
+        "ayahIdx": 146,
+        "startMs": 302330,
+        "endMs": 327137,
+        "conf": 0.163,
+        "snapped": false,
+        "matched": 0,
+        "total": 13
+      },
+      {
+        "ayahIdx": 147,
+        "startMs": 327137,
+        "endMs": 370786,
+        "conf": 0.195,
+        "snapped": false,
+        "matched": 0,
+        "total": 22
+      },
+      {
+        "ayahIdx": 148,
+        "startMs": 370786,
+        "endMs": 399095,
+        "conf": 0.068,
+        "snapped": true,
+        "matched": 0,
+        "total": 18
+      },
+      {
+        "ayahIdx": 149,
+        "startMs": 399095,
+        "endMs": 454862,
+        "conf": 0,
+        "snapped": false,
+        "matched": 0,
+        "total": 39
+      },
+      {
+        "ayahIdx": 150,
+        "startMs": 454862,
+        "endMs": 473184,
+        "conf": 0,
+        "snapped": false,
+        "matched": 0,
+        "total": 11
+      },
+      {
+        "ayahIdx": 151,
+        "startMs": 473184,
+        "endMs": 500802,
+        "conf": 0.106,
+        "snapped": false,
+        "matched": 0,
+        "total": 15
+      },
+      {
+        "ayahIdx": 152,
+        "startMs": 500802,
+        "endMs": 522797,
+        "conf": 0.269,
+        "snapped": false,
+        "matched": 0,
+        "total": 14
+      },
+      {
+        "ayahIdx": 153,
+        "startMs": 522797,
+        "endMs": 540779,
+        "conf": 0,
+        "snapped": false,
+        "matched": 0,
+        "total": 15
+      },
+      {
+        "ayahIdx": 154,
+        "startMs": 540779,
+        "endMs": 591963,
+        "conf": 0,
+        "snapped": false,
+        "matched": 0,
+        "total": 41
+      },
+      {
+        "ayahIdx": 155,
+        "startMs": 591963,
+        "endMs": 621703,
+        "conf": 0,
+        "snapped": false,
+        "matched": 0,
+        "total": 30
+      },
+      {
+        "ayahIdx": 156,
+        "startMs": 621703,
+        "endMs": 689988,
+        "conf": 0,
+        "snapped": false,
+        "matched": 0,
+        "total": 43
+      },
+      {
+        "ayahIdx": 157,
+        "startMs": 689988,
+        "endMs": 725692,
+        "conf": 0,
+        "snapped": false,
+        "matched": 0,
+        "total": 31
+      },
+      {
+        "ayahIdx": 158,
+        "startMs": 725692,
+        "endMs": 734397,
+        "conf": 0,
+        "snapped": false,
+        "matched": 0,
+        "total": 8
+      },
+      {
+        "ayahIdx": 159,
+        "startMs": 734397,
+        "endMs": 784730,
+        "conf": 0,
+        "snapped": false,
+        "matched": 0,
+        "total": 43
+      },
+      {
+        "ayahIdx": 160,
+        "startMs": 784730,
+        "endMs": 809908,
+        "conf": 0,
+        "snapped": true,
+        "matched": 0,
+        "total": 20
+      },
+      {
+        "ayahIdx": 161,
+        "startMs": 809908,
+        "endMs": 837356,
+        "conf": 0.291,
+        "snapped": false,
+        "matched": 0,
+        "total": 17
+      },
+      {
+        "ayahIdx": 162,
+        "startMs": 837356,
+        "endMs": 872409,
+        "conf": 0,
+        "snapped": false,
+        "matched": 0,
+        "total": 27
+      },
+      {
+        "ayahIdx": 163,
+        "startMs": 872409,
+        "endMs": 905161,
+        "conf": 0.076,
+        "snapped": false,
+        "matched": 0,
+        "total": 19
+      },
+      {
+        "ayahIdx": 164,
+        "startMs": 905161,
+        "endMs": 929907,
+        "conf": 0.249,
+        "snapped": false,
+        "matched": 0,
+        "total": 18
+      },
+      {
+        "ayahIdx": 165,
+        "startMs": 929907,
+        "endMs": 947449,
+        "conf": 0.4,
+        "snapped": false,
+        "matched": 0,
+        "total": 11
+      },
+      {
+        "ayahIdx": 166,
+        "startMs": 947449,
+        "endMs": 987285,
+        "conf": 0.168,
+        "snapped": false,
+        "matched": 0,
+        "total": 19
+      },
+      {
+        "ayahIdx": 167,
+        "startMs": 987285,
+        "endMs": 1022769,
+        "conf": 0,
+        "snapped": false,
+        "matched": 0,
+        "total": 14
+      },
+      {
+        "ayahIdx": 168,
+        "startMs": 1022769,
+        "endMs": 1085271,
+        "conf": 0,
+        "snapped": false,
+        "matched": 0,
+        "total": 40
+      },
+      {
+        "ayahIdx": 169,
+        "startMs": null,
+        "endMs": null,
+        "conf": 0,
+        "snapped": false,
+        "matched": 0,
+        "total": 10
+      },
+      {
+        "ayahIdx": 170,
+        "startMs": 166971,
+        "endMs": 191957,
+        "conf": 0,
+        "snapped": false,
+        "matched": 0,
+        "total": 19
+      },
+      {
+        "ayahIdx": 171,
+        "startMs": 191957,
+        "endMs": 219415,
+        "conf": 0.003,
+        "snapped": false,
+        "matched": 0,
+        "total": 26
+      },
+      {
+        "ayahIdx": 172,
+        "startMs": 219415,
+        "endMs": 247990,
+        "conf": 0,
+        "snapped": false,
+        "matched": 0,
+        "total": 15
+      },
+      {
+        "ayahIdx": 173,
+        "startMs": 247990,
+        "endMs": 256260,
+        "conf": 0.26,
+        "snapped": true,
+        "matched": 0,
+        "total": 5
+      },
+      {
+        "ayahIdx": 174,
+        "startMs": 256260,
+        "endMs": 281867,
+        "conf": 0,
+        "snapped": false,
+        "matched": 0,
+        "total": 13
+      },
+      {
+        "ayahIdx": 175,
+        "startMs": 281867,
+        "endMs": 329969,
+        "conf": 0,
+        "snapped": false,
+        "matched": 0,
+        "total": 30
+      },
+      {
+        "ayahIdx": 176,
+        "startMs": 329969,
+        "endMs": 350142,
+        "conf": 0.261,
+        "snapped": false,
+        "matched": 0,
+        "total": 9
+      },
+      {
+        "ayahIdx": 177,
+        "startMs": 350142,
+        "endMs": 360099,
+        "conf": 0,
+        "snapped": false,
+        "matched": 0,
+        "total": 10
+      },
+      {
+        "ayahIdx": 178,
+        "startMs": 360099,
+        "endMs": 415285,
+        "conf": 0.087,
+        "snapped": false,
+        "matched": 0,
+        "total": 30
+      },
+      {
+        "ayahIdx": 179,
+        "startMs": 415285,
+        "endMs": 440593,
+        "conf": 0,
+        "snapped": false,
+        "matched": 0,
+        "total": 14
+      },
+      {
+        "ayahIdx": 180,
+        "startMs": 440593,
+        "endMs": 451890,
+        "conf": 0.391,
+        "snapped": false,
+        "matched": 0,
+        "total": 7
+      },
+      {
+        "ayahIdx": 181,
+        "startMs": 451890,
+        "endMs": 469321,
+        "conf": 0.348,
+        "snapped": false,
+        "matched": 0,
+        "total": 8
+      },
+      {
+        "ayahIdx": 182,
+        "startMs": 469321,
+        "endMs": 476946,
+        "conf": 0.616,
+        "snapped": false,
+        "matched": 0,
+        "total": 5
+      },
+      {
+        "ayahIdx": 183,
+        "startMs": 476946,
+        "endMs": 488384,
+        "conf": 0,
+        "snapped": false,
+        "matched": 0,
+        "total": 11
+      },
+      {
+        "ayahIdx": 184,
+        "startMs": 488384,
+        "endMs": 515912,
+        "conf": 0,
+        "snapped": false,
+        "matched": 0,
+        "total": 22
+      },
+      {
+        "ayahIdx": 185,
+        "startMs": 515912,
+        "endMs": 525499,
+        "conf": 0,
+        "snapped": false,
+        "matched": 0,
+        "total": 10
+      },
+      {
+        "ayahIdx": 186,
+        "startMs": 525499,
+        "endMs": 574411,
+        "conf": 0,
+        "snapped": false,
+        "matched": 0,
+        "total": 37
+      },
+      {
+        "ayahIdx": 187,
+        "startMs": 574411,
+        "endMs": 598627,
+        "conf": 0,
+        "snapped": false,
+        "matched": 0,
+        "total": 28
+      },
+      {
+        "ayahIdx": 188,
+        "startMs": 598627,
+        "endMs": 629688,
+        "conf": 0,
+        "snapped": false,
+        "matched": 0,
+        "total": 29
+      },
+      {
+        "ayahIdx": 189,
+        "startMs": 629688,
+        "endMs": 641646,
+        "conf": 0,
+        "snapped": false,
+        "matched": 0,
+        "total": 12
+      },
+      {
+        "ayahIdx": 190,
+        "startMs": 641646,
+        "endMs": 649261,
+        "conf": 0.213,
+        "snapped": false,
+        "matched": 0,
+        "total": 7
+      },
+      {
+        "ayahIdx": 191,
+        "startMs": 649261,
+        "endMs": 659218,
+        "conf": 0.15,
+        "snapped": false,
+        "matched": 0,
+        "total": 7
+      },
+      {
+        "ayahIdx": 192,
+        "startMs": 659218,
+        "endMs": 668173,
+        "conf": 0,
+        "snapped": false,
+        "matched": 0,
+        "total": 12
+      },
+      {
+        "ayahIdx": 193,
+        "startMs": 668173,
+        "endMs": 688387,
+        "conf": 0.055,
+        "snapped": false,
+        "matched": 0,
+        "total": 14
+      },
+      {
+        "ayahIdx": 194,
+        "startMs": 688387,
+        "endMs": 719400,
+        "conf": 0,
+        "snapped": false,
+        "matched": 0,
+        "total": 26
+      },
+      {
+        "ayahIdx": 195,
+        "startMs": 719400,
+        "endMs": 733677,
+        "conf": 0.07,
+        "snapped": true,
+        "matched": 0,
+        "total": 9
+      },
+      {
+        "ayahIdx": 196,
+        "startMs": 733677,
+        "endMs": 747946,
+        "conf": 0.287,
+        "snapped": false,
+        "matched": 0,
+        "total": 10
+      },
+      {
+        "ayahIdx": 197,
+        "startMs": null,
+        "endMs": null,
+        "conf": 0,
+        "snapped": false,
+        "matched": 0,
+        "total": 12
+      },
+      {
+        "ayahIdx": 198,
+        "startMs": 165279,
+        "endMs": 173985,
+        "conf": 0.178,
+        "snapped": false,
+        "matched": 0,
+        "total": 7
+      },
+      {
+        "ayahIdx": 199,
+        "startMs": 173985,
+        "endMs": 189866,
+        "conf": 0.12,
+        "snapped": false,
+        "matched": 0,
+        "total": 10
+      },
+      {
+        "ayahIdx": 200,
+        "startMs": 189866,
+        "endMs": 204425,
+        "conf": 0.202,
+        "snapped": false,
+        "matched": 0,
+        "total": 12
+      },
+      {
+        "ayahIdx": 201,
+        "startMs": 204425,
+        "endMs": 210209,
+        "conf": 0,
+        "snapped": false,
+        "matched": 0,
+        "total": 7
+      },
+      {
+        "ayahIdx": 202,
+        "startMs": 210209,
+        "endMs": 244672,
+        "conf": 0,
+        "snapped": false,
+        "matched": 0,
+        "total": 23
+      },
+      {
+        "ayahIdx": 203,
+        "startMs": 244672,
+        "endMs": 257501,
+        "conf": 0.371,
+        "snapped": false,
+        "matched": 0,
+        "total": 8
+      },
+      {
+        "ayahIdx": 204,
+        "startMs": 257501,
+        "endMs": 280576,
+        "conf": 0,
+        "snapped": false,
+        "matched": 0,
+        "total": 16
+      },
+      {
+        "ayahIdx": 205,
+        "startMs": 280576,
+        "endMs": 300249,
+        "conf": 0.214,
+        "snapped": false,
+        "matched": 0,
+        "total": 11
+      }
+    ],
+    "issues": [
+      "Ø¢ÙØ§Øª Ø¨ÙØ§ Ø­Ø¯ÙØ¯: [30, 58, 86, 114, 142, 170, 198]",
+      "ÙØ³Ø± Ø§ÙØ±ØªØ§Ø¨Ø© Ø¹ÙØ¯ Ø¢ÙØ© 31",
+      "ØªØ¯Ø§Ø®Ù Ø¨ÙÙ 29 Ù31",
+      "ÙØ³Ø± Ø§ÙØ±ØªØ§Ø¨Ø© Ø¹ÙØ¯ Ø¢ÙØ© 59",
+      "ØªØ¯Ø§Ø®Ù Ø¨ÙÙ 57 Ù59",
+      "ÙØ³Ø± Ø§ÙØ±ØªØ§Ø¨Ø© Ø¹ÙØ¯ Ø¢ÙØ© 87",
+      "ØªØ¯Ø§Ø®Ù Ø¨ÙÙ 85 Ù87",
+      "ÙØ³Ø± Ø§ÙØ±ØªØ§Ø¨Ø© Ø¹ÙØ¯ Ø¢ÙØ© 115",
+      "ØªØ¯Ø§Ø®Ù Ø¨ÙÙ 113 Ù115",
+      "ÙØ³Ø± Ø§ÙØ±ØªØ§Ø¨Ø© Ø¹ÙØ¯ Ø¢ÙØ© 143",
+      "ØªØ¯Ø§Ø®Ù Ø¨ÙÙ 141 Ù143",
+      "ÙØ³Ø± Ø§ÙØ±ØªØ§Ø¨Ø© Ø¹ÙØ¯ Ø¢ÙØ© 171",
+      "ØªØ¯Ø§Ø®Ù Ø¨ÙÙ 169 Ù171",
+      "ÙØ³Ø± Ø§ÙØ±ØªØ§Ø¨Ø© Ø¹ÙØ¯ Ø¢ÙØ© 199",
+      "ØªØ¯Ø§Ø®Ù Ø¨ÙÙ 197 Ù199",
+      "ÙØ¯Ø© Ø´Ø§Ø°Ø© ÙØ¢ÙØ© 1: 12638Ù.Ø« ÙÙ4 Ø­Ø±ÙØ§Ù",
+      "ÙØ¯Ø© Ø´Ø§Ø°Ø© ÙØ¢ÙØ© 13: 49530Ù.Ø« ÙÙ49 Ø­Ø±ÙØ§Ù",
+      "ÙØ¯Ø© Ø´Ø§Ø°Ø© ÙØ¢ÙØ© 112: 1561Ù.Ø« ÙÙ15 Ø­Ø±ÙØ§Ù"
+    ],
+    "bands": {
+      "HIGH": 6,
+      "MED": 26,
+      "LOW": 167,
+      "MISSING": 7
+    },
+    "chunkedAlignment": {
+      "groupSize": 32,
+      "overlap": 4,
+      "groups": [
+        {
+          "startAyahIdx": 0,
+          "endAyahIdxExclusive": 32,
+          "verseCount": 32
+        },
+        {
+          "startAyahIdx": 28,
+          "endAyahIdxExclusive": 60,
+          "verseCount": 32
+        },
+        {
+          "startAyahIdx": 56,
+          "endAyahIdxExclusive": 88,
+          "verseCount": 32
+        },
+        {
+          "startAyahIdx": 84,
+          "endAyahIdxExclusive": 116,
+          "verseCount": 32
+        },
+        {
+          "startAyahIdx": 112,
+          "endAyahIdxExclusive": 144,
+          "verseCount": 32
+        },
+        {
+          "startAyahIdx": 140,
+          "endAyahIdxExclusive": 172,
+          "verseCount": 32
+        },
+        {
+          "startAyahIdx": 168,
+          "endAyahIdxExclusive": 200,
+          "verseCount": 32
+        },
+        {
+          "startAyahIdx": 196,
+          "endAyahIdxExclusive": 206,
+          "verseCount": 10
+        }
+      ],
+      "overlapAyahs": [
+        {
+          "ayahIdx": 28,
+          "claims": 2,
+          "startDisagreementSeconds": 524.248315,
+          "endDisagreementSeconds": 513.761347
+        },
+        {
+          "ayahIdx": 29,
+          "claims": 2,
+          "startDisagreementSeconds": 513.641268,
+          "endDisagreementSeconds": 505.175643
+        },
+        {
+          "ayahIdx": 30,
+          "claims": 2,
+          "startDisagreementSeconds": 505.175643,
+          "endDisagreementSeconds": 503.114273
+        },
+        {
+          "ayahIdx": 31,
+          "claims": 2,
+          "startDisagreementSeconds": 504.025211,
+          "endDisagreementSeconds": 513.421121
+        },
+        {
+          "ayahIdx": 56,
+          "claims": 2,
+          "startDisagreementSeconds": 816.151926,
+          "endDisagreementSeconds": 826.168913
+        },
+        {
+          "ayahIdx": 57,
+          "claims": 2,
+          "startDisagreementSeconds": 826.168913,
+          "endDisagreementSeconds": 839.337663
+        },
+        {
+          "ayahIdx": 58,
+          "claims": 2,
+          "startDisagreementSeconds": 839.337663,
+          "endDisagreementSeconds": 848.003421
+        },
+        {
+          "ayahIdx": 59,
+          "claims": 2,
+          "startDisagreementSeconds": 848.003421,
+          "endDisagreementSeconds": 853.88733
+        },
+        {
+          "ayahIdx": 84,
+          "claims": 2,
+          "startDisagreementSeconds": 639.094287,
+          "endDisagreementSeconds": 631.129328
+        },
+        {
+          "ayahIdx": 85,
+          "claims": 2,
+          "startDisagreementSeconds": 630.748743,
+          "endDisagreementSeconds": 629.738403
+        },
+        {
+          "ayahIdx": 86,
+          "claims": 2,
+          "startDisagreementSeconds": 629.738403,
+          "endDisagreementSeconds": 631.319454
+        },
+        {
+          "ayahIdx": 87,
+          "claims": 2,
+          "startDisagreementSeconds": 631.609979,
+          "endDisagreementSeconds": 632.940531
+        },
+        {
+          "ayahIdx": 112,
+          "claims": 2,
+          "startDisagreementSeconds": 613.157054,
+          "endDisagreementSeconds": 607.483617
+        },
+        {
+          "ayahIdx": 113,
+          "claims": 2,
+          "startDisagreementSeconds": 607.483617,
+          "endDisagreementSeconds": 598.777833
+        },
+        {
+          "ayahIdx": 114,
+          "claims": 2,
+          "startDisagreementSeconds": 598.777833,
+          "endDisagreementSeconds": 597.376902
+        },
+        {
+          "ayahIdx": 115,
+          "claims": 2,
+          "startDisagreementSeconds": 597.206457,
+          "endDisagreementSeconds": 595.015333
+        },
+        {
+          "ayahIdx": 140,
+          "claims": 2,
+          "startDisagreementSeconds": 529.841699,
+          "endDisagreementSeconds": 519.805363
+        },
+        {
+          "ayahIdx": 141,
+          "claims": 2,
+          "startDisagreementSeconds": 519.634918,
+          "endDisagreementSeconds": 509.398449
+        },
+        {
+          "ayahIdx": 142,
+          "claims": 2,
+          "startDisagreementSeconds": 509.258355,
+          "endDisagreementSeconds": 500.072252
+        },
+        {
+          "ayahIdx": 143,
+          "claims": 2,
+          "startDisagreementSeconds": 500.98319,
+          "endDisagreementSeconds": 505.375776
+        },
+        {
+          "ayahIdx": 168,
+          "claims": 2,
+          "startDisagreementSeconds": 931.008237,
+          "endDisagreementSeconds": 933.760398
+        },
+        {
+          "ayahIdx": 169,
+          "claims": 2,
+          "startDisagreementSeconds": 933.760398,
+          "endDisagreementSeconds": 935.081276
+        },
+        {
+          "ayahIdx": 170,
+          "claims": 2,
+          "startDisagreementSeconds": 935.541582,
+          "endDisagreementSeconds": 948.009866
+        },
+        {
+          "ayahIdx": 171,
+          "claims": 2,
+          "startDisagreementSeconds": 949.301056,
+          "endDisagreementSeconds": 952.312724
+        },
+        {
+          "ayahIdx": 196,
+          "claims": 2,
+          "startDisagreementSeconds": 603.730792,
+          "endDisagreementSeconds": 602.52032
+        },
+        {
+          "ayahIdx": 197,
+          "claims": 2,
+          "startDisagreementSeconds": 602.369887,
+          "endDisagreementSeconds": 596.496317
+        },
+        {
+          "ayahIdx": 198,
+          "claims": 2,
+          "startDisagreementSeconds": 596.496317,
+          "endDisagreementSeconds": 598.017328
+        },
+        {
+          "ayahIdx": 199,
+          "claims": 2,
+          "startDisagreementSeconds": 598.017328,
+          "endDisagreementSeconds": 597.196783
+        }
+      ],
+      "maxStartDisagreementSeconds": 949.301056,
+      "maxEndDisagreementSeconds": 952.312724
+    },
+    "engine": "ctc-quran-surah-1",
+    "alignmentModel": {
+      "id": "rabah2026/wav2vec2-large-xlsr-53-arabic-quran-v_final",
+      "revision": "b03a268c6ba1a693752307325ab376c86c3b12da",
+      "weightsSha256": "bf65674a26eb4ef7042cedade96c3c8f8cbd04f3a7d1a68eadceec8ed0f99ecb",
+      "license": "Apache-2.0",
+      "canonicalTextChanged": false
+    }
+  }
+}
