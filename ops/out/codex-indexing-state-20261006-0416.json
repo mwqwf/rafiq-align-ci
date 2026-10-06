@@ -1,0 +1,82 @@
+{
+  "generatedAt": "2026-10-06T04:16:08Z",
+  "repository": {
+    "name": "mwqwf/rafiq-align-ci",
+    "visibility": "public",
+    "runnerPolicy": "github-hosted standard public runners only",
+    "artifactOrCacheWritesLaunchedByThisCheckpoint": false
+  },
+  "production": {
+    "verifiedAdoptionsThisContinuation": 18,
+    "latest": {
+      "key": "timings/hafs/a_alhazmi.jz",
+      "sha256": "7498fa1e5a270e8263d93e19aaaadc963769879cd84f6eea0e2ea39add73fc96",
+      "entries": 6236,
+      "bucketPublicManifestFrozenVerified": true,
+      "qaRun": 37403895659,
+      "reviewJob": 112101038134,
+      "sampleDefects": 13,
+      "sampleTotal": 800,
+      "upperPercent": 2.57
+    },
+    "previous": {
+      "key": "timings/hafs/obk.jz",
+      "sha256": "b003a390154cd0002407832fdf28a98523ef1d81b353502676e83f8687a55851",
+      "entries": 6236,
+      "bucketPublicManifestFrozenVerified": true
+    }
+  },
+  "postChangeAudits": {
+    "dispatchCommit": "c1493fa921190f867a2ed927a14a41f0bf275a61",
+    "status": "pending-agent-command-lane",
+    "commands": [
+      "ops/commands/20261006_codex_0930_audit_after_eighteen.json",
+      "ops/commands/20261006_codex_0930_completion_after_eighteen.json"
+    ],
+    "expectedOutputs": [
+      "ops/out/full-audit-codex-after-eighteen-adoptions-20261006.json",
+      "ops/out/full-audit-codex-after-eighteen-adoptions-20261006.md",
+      "ops/out/completion-codex-after-eighteen-20261006.json"
+    ],
+    "resultsExistAtCheckpoint": false
+  },
+  "completionBaselineAfterFourteen": {
+    "readyIndexes": 0,
+    "startsReadyIndexes": 0,
+    "missingAyahs": 884,
+    "unmeasuredStarts": 859472,
+    "startDeviations": 7791,
+    "verifiedEnds": 0,
+    "unknownEnds": 1121596,
+    "note": "Baseline only; production changed after it. Unknown is remaining evidence work, not proof every end is corrupt."
+  },
+  "newVerifiedBlocks": [
+    {
+      "key": "timings-staging/hafs/3siri.60234f4a.jz",
+      "run": 37411714144,
+      "job": 112101387328,
+      "stage": "plan-before-audio",
+      "reason": "surah 7 wholly absent",
+      "action": "no guard bypass and no unchanged retry"
+    },
+    {
+      "key": "timings-staging/hafs/tblawi.1b4ba4ad.jz",
+      "run": 37408854468,
+      "audioChecksPassed": 7,
+      "reviewJob": 112102461845,
+      "reviewPassed": false,
+      "reason": "catalog diagnosis belongs to a different index SHA",
+      "action": "refresh exact-SHA diagnosis and rerun review only; do not repeat audio checks"
+    }
+  ],
+  "liveQueue": {
+    "snapshotAt": "2026-10-06T04:16:08Z",
+    "inProgressRuns": 12,
+    "pendingAgentRun": 37412749151,
+    "staleQueuedRun": 34748440538,
+    "pendingCommandFiles": 34,
+    "activeAgentRun": 37411790957,
+    "note": "The active command runner is processing earlier source searches. The post-change audits remain queued behind it; no duplicate audit was launched."
+  },
+  "completionClaim": false
+}
