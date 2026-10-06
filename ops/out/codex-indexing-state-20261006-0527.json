@@ -1,6 +1,6 @@
 {
   "schema": 1,
-  "generatedAt": "2026-10-06T08:03:00Z",
+  "generatedAt": "2026-10-06T08:53:00Z",
   "kind": "codex-indexing-continuation-state",
   "repository": "mwqwf/rafiq-align-ci",
   "repositoryPublic": true,
@@ -82,7 +82,7 @@
       "textGenerationDisabled": true,
       "error": "ctc_segmentation backtracking exceeded the 64000-frame window"
     },
-    "next": "Wait for the preceding-context run. If its 206 entries and unchanged overlap guard pass, run a different full numeric grouping as independent head/middle/tail-and-neighborhood remeasurement before any candidate, source declaration, adoption, or general audit.",
+    "next": "Wait for the targeted numeric-only measurements of ayahs 13, 48, 54, 131, and 188 plus neighbors. If they pass, build but do not adopt a pinned source/timing candidate; run full source identity, public/manifest/frozen, separate start/end evidence, and a stable general completion audit first.",
     "chunkedAlignmentFix": {
       "commit": "6f798263c3d9c83889b13158fdb68cd7a775a3ac",
       "groupVerses": 32,
@@ -166,35 +166,138 @@
     "retryRun": {
       "id": 37433349375,
       "jobId": 112169147032,
-      "status": "in_progress",
-      "observedAt": "2026-10-06T08:03:00Z",
-      "runner": "ubuntu-24.04",
-      "restoreOnly": true,
+      "status": "completed",
+      "conclusion": "success",
+      "completedAt": "2026-10-06T08:21:44Z",
+      "entries": 206,
+      "bands": {
+        "HIGH": 28,
+        "MED": 173,
+        "LOW": 5
+      },
+      "lowOrMissing": [
+        13,
+        48,
+        54,
+        131,
+        188
+      ],
+      "overlapAyahs": 28,
+      "maxStartDisagreementSeconds": 0.000017,
+      "maxEndDisagreementSeconds": 0.000018,
+      "measurementComplete": true,
+      "coverageCertified": false,
+      "qualityClaim": false,
+      "productionChanged": false,
+      "textGenerationDisabled": true,
+      "report": {
+        "path": "ops/out/codex-asiri7-left-context-alignment-success-37433349375.json",
+        "bytes": 29683,
+        "sha256": "9426b3718b5b6a955ae6926263beeb66424a2dcad534c8b95172bbafdcdc8bac"
+      }
+    },
+    "independentRemeasurement": {
+      "id": 37435925698,
+      "jobId": 112177595152,
+      "status": "completed",
+      "conclusion": "success",
+      "completedAt": "2026-10-06T08:47:37Z",
+      "groupVerses": 29,
+      "overlapVerses": 5,
+      "entries": 206,
+      "bands": {
+        "HIGH": 28,
+        "MED": 173,
+        "LOW": 5
+      },
+      "lowOrMissing": [
+        13,
+        48,
+        54,
+        131,
+        188
+      ],
+      "overlapAyahs": 40,
+      "maxStartDisagreementSeconds": 0.000024,
+      "maxEndDisagreementSeconds": 1.781172,
+      "measurementComplete": true,
+      "coverageCertified": false,
+      "productionChanged": false,
+      "textGenerationDisabled": true,
+      "report": {
+        "path": "ops/out/codex-asiri7-independent-29x5-success-37435925698.json",
+        "bytes": 30992,
+        "sha256": "1bb5ae038f42bc29ac27308946602809c844afece2badb36dde53ed150360853"
+      }
+    },
+    "fullComparison": {
+      "path": "ops/out/codex-asiri7-independent-comparison-20261006.json",
+      "entriesCompared": 206,
+      "exactStarts": 206,
+      "exactEnds": 206,
+      "exactConfidences": 206,
+      "maxStartDeltaMs": 0,
+      "maxEndDeltaMs": 0,
+      "openingWitness": [
+        1,
+        10
+      ],
+      "middleWitness": [
+        123,
+        159
+      ],
+      "endingWitness": [
+        199,
+        206
+      ],
+      "startEvidenceSeparated": true,
+      "endEvidenceSeparated": true,
+      "coverageCertified": false
+    },
+    "targetedLowConfidenceProbe": {
+      "commit": "4cbf2ec6af2fc997db18a149b03f9c31dc4b07ee",
+      "ayahs": [
+        13,
+        48,
+        54,
+        131,
+        188
+      ],
+      "neighborVersesEachSide": 2,
+      "audioMarginSecondsEachSide": 60,
+      "maxAllowedBoundaryDeltaSeconds": 5,
+      "localTests": {
+        "passed": 34,
+        "failed": 0
+      },
+      "agentCommandRun": 37439109644,
+      "status": "queued",
+      "observedAt": "2026-10-06T08:53:00Z",
       "textGenerationDisabled": true
     }
   },
   "liveSnapshot": {
-    "at": "2026-10-06T08:03:00Z",
+    "at": "2026-10-06T08:53:00Z",
     "counts": {
-      "inProgress": 6,
+      "inProgress": 3,
       "queued": 0,
       "pending": 0
     },
     "runs": {
       "in_progress": [
         {
-          "id": 37433349375,
-          "name": "Quran model recovery of measured source gaps",
-          "path": ".github/workflows/quran_source_recovery.yml",
-          "createdAt": "2026-10-06T08:01:19Z",
-          "headSha": "77d37ae4c0f7bbd1941c3249211344364f18bc84"
+          "id": 37439109644,
+          "name": "أمرُ الوكيل السحابيّ — ops: قياس موضعي مستقل لآيات العسيري الخمس الضعيفة",
+          "path": ".github/workflows/agent_cmd.yml",
+          "createdAt": "2026-10-06T08:53:02Z",
+          "headSha": "51441dcade754a24a9c9f6ed539fc47ff330d849"
         },
         {
-          "id": 37432010935,
+          "id": 37435660071,
           "name": "نبّاضٌ سحابيّ — يُبقي الأسطولَ يعمل بلا جهاز المالك",
           "path": ".github/workflows/keepalive.yml",
-          "createdAt": "2026-10-06T07:48:48Z",
-          "headSha": "c0e7c32e81185f1f1f470672feb6961eb361d685"
+          "createdAt": "2026-10-06T08:22:22Z",
+          "headSha": "14b1d0c94423f8ee72f5019b7b000e3edc354d05"
         },
         {
           "id": 37426314927,
@@ -202,27 +305,6 @@
           "path": ".github/workflows/free-post-stage-quality.yml",
           "createdAt": "2026-10-06T06:53:22Z",
           "headSha": "35dd651f767d6b9c385c71c99deae5cae8c7ee13"
-        },
-        {
-          "id": 37426306954,
-          "name": "free-post-stage timings-staging/hafs/bader.897c85d5.jz",
-          "path": ".github/workflows/free-post-stage-quality.yml",
-          "createdAt": "2026-10-06T06:53:17Z",
-          "headSha": "d8082aa23710cdbd9a21fdeaa75fce64716545c3"
-        },
-        {
-          "id": 37425317180,
-          "name": "free-post-stage timings-staging/douri/sultani_douri.7e2fbf44.jz",
-          "path": ".github/workflows/free-post-stage-quality.yml",
-          "createdAt": "2026-10-06T06:43:06Z",
-          "headSha": "601a9e278e9be383b974eb0327e05d626736d382"
-        },
-        {
-          "id": 37420892275,
-          "name": "free-post-stage timings-staging/qalun/suhaim_qalun.c472aa9d.jz",
-          "path": ".github/workflows/free-post-stage-quality.yml",
-          "createdAt": "2026-10-06T05:54:30Z",
-          "headSha": "d170e0d307392f8657f5a529a657df886dbbfc74"
         }
       ],
       "queued": [],
