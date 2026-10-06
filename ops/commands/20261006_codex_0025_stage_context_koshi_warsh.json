@@ -1,0 +1,20 @@
+{
+  "action": "tool",
+  "tool": "index_qa/stage_transform.py",
+  "args": [
+    "--file",
+    "ops/source-repair/candidates/codex-koshi_warsh-context-repair-20261006.jz",
+    "--parent",
+    "timings/warsh/koshi_warsh.jz",
+    "--parent-sha",
+    "3dda31c7816150cff79bce516bf8a8a1ba58478a14ca2e2451bf4fdfd2da540e",
+    "--op",
+    "ctc_quran_window:11",
+    "--reason",
+    "تصحيح حدود آية قصيرة بدليل السياق القرآني المثبت واتفاق النموذج العام والتفريغ الحر؛ الثقة والمصادر وسائر المداخل محفوظة. إحصاء السورة وفحوص البصمة النهائية مطلوبة.",
+    "--by",
+    "codex-measured-context-20261006",
+    "--manual-qa-only",
+    "--yes"
+  ]
+}
