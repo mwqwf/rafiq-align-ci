@@ -1,0 +1,69 @@
+{
+  "schema": 1,
+  "kind": "balilah-s69-cross-boundary-replace-refinement",
+  "generatedAt": "2026-10-06T13:31:00Z",
+  "qualityClaim": false,
+  "completionClaim": false,
+  "productionChanged": false,
+  "candidateChanged": false,
+  "thresholdChanged": false,
+  "unknownIntroduced": false,
+  "method": {
+    "function": "gate_start_anchors",
+    "scope": "heard-gate evidence only; window/build anchors and generated timings remain unchanged",
+    "conditions": [
+      "canonical verse start lies strictly inside a replace opcode that began in the previous verse",
+      "the immediately following opcode is equal and begins inside the current verse",
+      "the first equal canonical character is at most 3 characters after the verse start",
+      "the first equal heard timestamp is later than the interpolated replace timestamp by at most 3000 ms"
+    ],
+    "fallback": "retain the unaltered global anchor",
+    "heardThresholdMs": 1500
+  },
+  "balilah69Replay": {
+    "sourceReport": "ops/out/codex-balilah-anchor-provenance-report-20261006.json",
+    "candidateSha256": "097eb5a00ffb591653ce67820e3af2c26316bcd4b90cbd2a88f4d5f67317034c",
+    "rows": 52,
+    "originalStatusCounts": {
+      "ok": 47,
+      "unmeasured": 2,
+      "repeat": 2,
+      "dev": 1
+    },
+    "refinedStatusCounts": {
+      "ok": 48,
+      "unmeasured": 2,
+      "repeat": 2,
+      "dev": 0
+    },
+    "refinedStarts": [
+      {"ayah": 26, "rawStartMs": 273977, "gateStartMs": 276299, "shiftMs": 2322, "candidateStartMs": 275598, "candidateDeviationMs": -701},
+      {"ayah": 27, "rawStartMs": 280762, "gateStartMs": 282042, "shiftMs": 1280, "candidateStartMs": 280771, "candidateDeviationMs": -1271},
+      {"ayah": 29, "rawStartMs": 295251, "gateStartMs": 295391, "shiftMs": 140, "status": "unmeasured", "quality": 0.25},
+      {"ayah": 42, "rawStartMs": 391433, "gateStartMs": 391573, "shiftMs": 140, "candidateStartMs": 390833, "candidateDeviationMs": -740},
+      {"ayah": 47, "rawStartMs": 427797, "gateStartMs": 427917, "shiftMs": 120, "candidateStartMs": 427216, "candidateDeviationMs": -701}
+    ],
+    "onlyFormerReject": {
+      "ayah": 26,
+      "opcode": ["replace", 686, 690, 648, 652],
+      "canonicalStartOffset": 651,
+      "mappedHeardIndex": 689,
+      "firstEqualCanonicalOffset": 652,
+      "firstEqualHeardIndex": 691,
+      "rawGateDeviationMs": 1621,
+      "refinedGateDeviationMs": -701,
+      "independentNativeConsensusMs": 275626,
+      "candidateVsNativeMs": -28
+    }
+  },
+  "tests": {
+    "syntheticPositive": "cross-ayah replace refines to the immediately following near equal character without changing end or quality",
+    "mutationsRejected": [
+      "equal timestamp more than 3000 ms away",
+      "replace opcode that does not cross the verse boundary"
+    ],
+    "fullReplay": "5 evidence starts refined; all remain within the unchanged 1500 ms rule except ayah 29, which remains unmeasured because quality is 0.25",
+    "note": "No final-SHA workflow was launched; this is a local/replayed implementation result, not promotion evidence."
+  },
+  "next": "Run the existing unit suite in a complete checkout, then rerun final-SHA heard QA only after the free-write gate is satisfied; retain the original and refined anchor provenance in state."
+}

@@ -54,6 +54,8 @@ REPEAT_GAP_MS = 6000    # فجوةٌ بعد آيةٍ تُفحص عن تكرار�
 TAIL_MS = 800           # ذيلُ آخر آية بعد آخر حرفٍ مسموع
 DEV_TOL_MS = 3000       # أقصى بُعدٍ مقبولٍ لحدّ النافذة عن مِرساته العامّة
 ANCHOR_Q = 0.3          # أدنى جودةٍ (نسبةُ حروفٍ مطابقة) تُعدّ بها المِرساةُ العامّةُ صالحةً للنافذة
+GATE_EQUAL_CHARS = 3    # أقصى بُعدٍ نصّيّ لأول حرفٍ متطابق بعد replace يعبر حدَّ آيتين
+GATE_EQUAL_SHIFT_MS = 3000  # لا يُنقل شاهدُ البوابة إلى تطابقٍ بعيدٍ زمنياً
 _SUB1 = {"ٱ": "ا", "أ": "ا", "إ": "ا", "آ": "ا", "ؤ": "و", "ئ": "ي", "ى": "ي", "ة": "ه",
          "ے": "ي", "ء": ""}
 
@@ -214,6 +216,68 @@ def global_anchors(heard_sk, times, ayah_sks, frame_ms=20):
     return out
 
 
+def gate_start_anchors(heard_sk, times, ayah_sks, anchors,
+                       max_equal_chars=GATE_EQUAL_CHARS,
+                       max_shift_ms=GATE_EQUAL_SHIFT_MS):
+    """شاهدُ بدءٍ أدقّ للبوابة، بلا تغيير مِرساة البناء أو أي توقيتٍ منتَج.
+
+    قد يبدأ حدُّ آيةٍ داخل opcode من نوع ``replace`` بدأ في الآية السابقة وانتهى في
+    الحالية. عندئذٍ يعطي الاستيفاء داخل ``replace`` زمناً مبكراً غيرَ مطابقٍ لحرفٍ
+    مسموع بعينه. إن كان opcode التالي مباشرةً ``equal`` داخل الآية الحالية، وعلى
+    بُعدٍ لا يتجاوز ``max_equal_chars`` أحرف و``max_shift_ms``، يكون زمنُ أول حرفه
+    المطابق شاهدَ بدء البوابة. وإلا تبقى المِرساة كما هي.
+
+    النتيجة ``(anchors, evidence)``؛ ``anchors`` نسخةٌ لا تمسّ المُدخل، و``evidence``
+    قائمةٌ موازية فيها أصلُ التنقية أو ``None``. لا جودةَ تُرفع، ولا ``unknown``
+    يُنشأ، ولا تُستعمل النتيجة لتوليد الحدود.
+    """
+    refined = list(anchors)
+    evidence = [None] * len(ayah_sks)
+    if not heard_sk or not times or len(anchors) != len(ayah_sks):
+        return refined, evidence
+    text = "".join(ayah_sks)
+    ops = _opcodes(heard_sk, text)
+    starts, off = [], 0
+    for sk in ayah_sks:
+        starts.append(off)
+        off += len(sk)
+    for k in range(1, len(ayah_sks)):
+        a = anchors[k]
+        c = starts[k]
+        end = c + len(ayah_sks[k])
+        if a is None or not ayah_sks[k]:
+            continue
+        oi = next((i for i, op in enumerate(ops) if op[3] <= c < op[4]), None)
+        if oi is None:
+            continue
+        tag, i1, i2, j1, j2 = ops[oi]
+        if tag != "replace" or not (j1 < c < j2) or i2 <= i1:
+            continue
+        mapped = min(i2 - 1, i1 + int((c - j1) * (i2 - i1) / max(1, j2 - j1)))
+        if not (0 <= mapped < len(times)) or int(a[0]) != int(times[mapped]):
+            continue
+        if oi + 1 >= len(ops):
+            continue
+        nxt = ops[oi + 1]
+        if nxt[0] != "equal" or not (c <= nxt[3] < end):
+            continue
+        char_gap = nxt[3] - c
+        if char_gap > int(max_equal_chars) or not (0 <= nxt[1] < len(times)):
+            continue
+        raw, exact = int(a[0]), int(times[nxt[1]])
+        shift = exact - raw
+        if not (0 < shift <= int(max_shift_ms)):
+            continue
+        refined[k] = (exact, a[1], a[2])
+        evidence[k] = {"kind": "cross-ayah-replace-first-equal",
+                       "rawStartMs": raw, "gateStartMs": exact,
+                       "shiftMs": shift, "canonicalCharGap": char_gap,
+                       "opcode": [tag, i1, i2, j1, j2],
+                       "mappedHeardIndex": mapped,
+                       "firstEqualHeardIndex": nxt[1]}
+    return refined, evidence
+
+
 def plan_windows(chosen_ms, n, max_ayat=MAX_WIN_AYAT, split_gap_ms=25000):
     """يقسم الآيات 0..n-1 إلى نوافذَ [i، j] متتالية: تُقطع النافذةُ عند بلوغ `max_ayat` أو عند
     فجوةٍ مسموعةٍ > `split_gap_ms` بين أداءين متتاليين. `chosen_ms[k]` = (بدءٌ، نهايةٌ) أو None."""
@@ -312,9 +376,13 @@ def run(audio, surah, riwaya, log=print, probe=False, strict_tol_ms=0):
     # البسملةُ نصٌّ قائدٌ في المحاذاة العامّة (‏كما في ctc_seg) فلا تُنسب إلى الآية الأولى — وإلا
     # ابتلعها مدخلُها فردّه حارسُ المطالع (lateConfirmed).
     bas_sk = norm(BASMALA).replace(" ", "") if surah not in (1, 9) else ""
-    anchors = global_anchors(heard_sk, times, ([bas_sk] if bas_sk else []) + sks, frame_ms)
+    all_sks = ([bas_sk] if bas_sk else []) + sks
+    anchors = global_anchors(heard_sk, times, all_sks, frame_ms)
+    gate_anchors, gate_evidence = gate_start_anchors(heard_sk, times, all_sks, anchors)
     bas_anchor = anchors[0] if bas_sk else None
     anchors = anchors[1:] if bas_sk else anchors
+    gate_anchors = gate_anchors[1:] if bas_sk else gate_anchors
+    gate_evidence = gate_evidence[1:] if bas_sk else gate_evidence
     # المِرساةُ المعتمَدة للنوافذ: المحاذاةُ العامّةُ الرتيبة (‏جودةٌ ≥ ANCHOR_Q)؛ والأداءاتُ المنفردةُ
     # شاهدٌ على التكرار والزيادة فقط.
     anchor_ms = [(a[0], a[1]) if a and a[2] >= ANCHOR_Q else None for a in anchors]
@@ -322,7 +390,9 @@ def run(audio, surah, riwaya, log=print, probe=False, strict_tol_ms=0):
     for k in range(n):
         c = chosen[k]
         heard_map[str(k + 1)] = {
-            "anchorMs": list(anchors[k][:2]) if anchors[k] else None,
+            "anchorMs": list(gate_anchors[k][:2]) if gate_anchors[k] else None,
+            "windowAnchorMs": (list(anchors[k][:2]) if anchors[k] and gate_evidence[k] else None),
+            "anchorStartEvidence": gate_evidence[k],
             "anchorQuality": anchors[k][2] if anchors[k] else None,
             "heard": anchor_ms[k] is not None,
             "heardMs": list(chosen_ms[k]) if c else None,

@@ -112,6 +112,34 @@ class Pure(unittest.TestCase):
         anc = H.global_anchors(heard, times, [A1, A2], frame_ms=80)
         self.assertTrue(all(a is None or a[2] < 0.5 for a in anc))
 
+    def test_gate_start_refines_only_cross_ayah_replace_to_near_equal(self):
+        # الحدُّ بين «ابجد» و«هوز» يقع داخل replace، وأول equal لاحق داخل الآية الثانية.
+        heard, times = _heard(["ابجكز"])
+        ayahs = ["ابجد", "هوز"]
+        raw = H.global_anchors(heard, times, ayahs, frame_ms=80)
+        self.assertEqual(raw[1][0], 3 * 80)
+        gate, ev = H.gate_start_anchors(heard, times, ayahs, raw)
+        self.assertEqual(gate[1][0], 4 * 80)
+        self.assertEqual(gate[1][1:], raw[1][1:])       # لا نهايةً ولا جودةً تغيّرتا
+        self.assertEqual(ev[1]["kind"], "cross-ayah-replace-first-equal")
+        self.assertEqual(ev[1]["rawStartMs"], raw[1][0])
+        self.assertEqual(ev[1]["canonicalCharGap"], 2)
+        self.assertIsNone(ev[0])
+
+    def test_gate_start_rejects_distant_or_non_crossing_equal(self):
+        heard, times = _heard(["ابجكز"])
+        ayahs = ["ابجد", "هوز"]
+        raw = H.global_anchors(heard, times, ayahs, frame_ms=80)
+        # قفزةٌ زمنية بعيدة لا تُقبل ولو كان opcode صحيحاً.
+        far_times = list(times); far_times[4] = far_times[3] + H.GATE_EQUAL_SHIFT_MS + 1
+        gate, ev = H.gate_start_anchors(heard, far_times, ayahs, raw)
+        self.assertEqual(gate, raw); self.assertEqual(ev, [None, None])
+        # replace داخل الآية السابقة فقط لا يعبر الحد، فلا يغيّر شاهد التالية.
+        heard2, times2 = _heard(["ابجكهوز"])
+        raw2 = H.global_anchors(heard2, times2, ayahs, frame_ms=80)
+        gate2, ev2 = H.gate_start_anchors(heard2, times2, ayahs, raw2)
+        self.assertEqual(gate2, raw2); self.assertEqual(ev2, [None, None])
+
     def test_plan_windows_caps_and_splits_on_gap(self):
         ms = [(k * 1000, k * 1000 + 900) for k in range(30)]
         self.assertEqual(H.plan_windows(ms, 30, max_ayat=12), [(0, 11), (12, 23), (24, 29)])
