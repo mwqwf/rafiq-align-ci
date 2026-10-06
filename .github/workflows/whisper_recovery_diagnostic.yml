@@ -1,0 +1,41 @@
+name: rafiq-whisper-recovery-diagnostic
+run-name: Independent Whisper diagnosis of three unresolved passages
+on:
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: rafiq-whisper-recovery-diagnostic-20261006
+  cancel-in-progress: false
+jobs:
+  diagnose:
+    if: ${{ github.repository == 'mwqwf/rafiq-align-ci' && github.event.repository.private == false }}
+    runs-on: ubuntu-24.04
+    timeout-minutes: 45
+    env:
+      PIP_NO_CACHE_DIR: '1'
+      OMP_NUM_THREADS: '2'
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11.11'
+      - name: Source-pinned CPU executable on temporary runner disk
+        run: |
+          python tools/ci_fleet/install_qa_ffmpeg.py
+          git init -q wsrc
+          git -C wsrc remote add origin https://github.com/ggml-org/whisper.cpp.git
+          git -C wsrc fetch -q --depth 1 origin eacbd8234c6654cdbf2c377f72b2106875479bdc
+          git -C wsrc checkout -q FETCH_HEAD
+          test "$(git -C wsrc rev-parse HEAD)" = eacbd8234c6654cdbf2c377f72b2106875479bdc
+          cmake -S wsrc -B wsrc/build -DCMAKE_BUILD_TYPE=Release -DGGML_NATIVE=OFF -DGGML_CUDA=OFF -DWHISPER_BUILD_TESTS=OFF -DWHISPER_BUILD_EXAMPLES=ON
+          cmake --build wsrc/build --config Release --target whisper-cli -j2
+      - name: Verify source reports and synthetic decoder tests
+        run: |
+          python -m pip install --only-binary=:all: 'numpy==1.26.4'
+          python -m unittest tools.index_qa.test_final_verse_free_batch tools.index_qa.test_saad_free_decode -v
+          python -m py_compile tools/index_qa/whisper_recovery_diagnostic.py
+      - name: Free transcription without Quran prompt; complete evidence in logs
+        run: python tools/index_qa/whisper_recovery_diagnostic.py
