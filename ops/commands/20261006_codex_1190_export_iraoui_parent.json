@@ -1,0 +1,12 @@
+{
+  "action": "tool",
+  "tool": "index_qa/export_index_bytes.py",
+  "args": [
+    "--key",
+    "timings/warsh/iraoui_warsh.jz",
+    "--expect-sha",
+    "e708c65694a2cea0bc1b0eace830fcb5988dfae50f07295b917cd4b200a50bf0",
+    "--out",
+    "ops/out/codex-iraoui-full-recovery-parent-20261006.json"
+  ]
+}
