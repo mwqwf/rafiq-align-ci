@@ -1,0 +1,12 @@
+{
+  "action": "tool",
+  "tool": "index_qa/export_index_bytes.py",
+  "args": [
+    "--key",
+    "timings/hafs/a_alhazmi.jz",
+    "--expect-sha",
+    "64b9c22bf0f97ee087421a604620a755f3d2e0645285f630f3956af4d26d5c41",
+    "--out",
+    "ops/out/codex-opener-parent-a_alhazmi-20261006.json"
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "action": "tool",
+  "tool": "index_qa/export_index_bytes.py",
+  "args": [
+    "--key",
+    "timings/hafs/obk.jz",
+    "--expect-sha",
+    "3a5804507f4f2a2cb66d0f873e38fc27b3506b8e7547a10fce5dc721f583e2a4",
+    "--out",
+    "ops/out/codex-opener-parent-obk-20261006.json"
+  ]
+}

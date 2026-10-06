@@ -1,0 +1,12 @@
+{
+  "action": "tool",
+  "tool": "index_qa/export_index_bytes.py",
+  "args": [
+    "--key",
+    "timings/qalun/shaykhna_qalun.jz",
+    "--expect-sha",
+    "03a7e3738662899022e03c09338db0331235b1289858d6fe9bd30007938d95f4",
+    "--out",
+    "ops/out/codex-opener-parent-shaykhna_qalun-20261006.json"
+  ]
+}

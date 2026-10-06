@@ -1,0 +1,12 @@
+{
+  "action": "tool",
+  "tool": "index_qa/export_index_bytes.py",
+  "args": [
+    "--key",
+    "timings/hafs/mrifai.jz",
+    "--expect-sha",
+    "58adaf7636a7a58294889ccbf1e4318640a686020ab83b035066b2bc8c15059f",
+    "--out",
+    "ops/out/codex-opener-parent-mrifai-20261006.json"
+  ]
+}

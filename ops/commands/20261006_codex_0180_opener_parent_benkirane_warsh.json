@@ -1,0 +1,12 @@
+{
+  "action": "tool",
+  "tool": "index_qa/export_index_bytes.py",
+  "args": [
+    "--key",
+    "timings/warsh/benkirane_warsh.jz",
+    "--expect-sha",
+    "f98bc7b302a415e1755ac319cb900f546ac25d3229d8a77e6014b4fe46fae300",
+    "--out",
+    "ops/out/codex-opener-parent-benkirane_warsh-20261006.json"
+  ]
+}

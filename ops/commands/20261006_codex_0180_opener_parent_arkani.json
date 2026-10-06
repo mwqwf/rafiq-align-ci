@@ -1,0 +1,12 @@
+{
+  "action": "tool",
+  "tool": "index_qa/export_index_bytes.py",
+  "args": [
+    "--key",
+    "timings/hafs/arkani.jz",
+    "--expect-sha",
+    "db61739dc864ec243f104fd04461560856a27c0e5da18ef5f0b92e65bac7bea0",
+    "--out",
+    "ops/out/codex-opener-parent-arkani-20261006.json"
+  ]
+}

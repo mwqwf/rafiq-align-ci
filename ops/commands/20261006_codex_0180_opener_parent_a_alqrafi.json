@@ -1,0 +1,12 @@
+{
+  "action": "tool",
+  "tool": "index_qa/export_index_bytes.py",
+  "args": [
+    "--key",
+    "timings/hafs/a_alqrafi.jz",
+    "--expect-sha",
+    "49ccfc5e38ae71207f3d5e36d32193288126b69c497194964c17b192ae69fbcd",
+    "--out",
+    "ops/out/codex-opener-parent-a_alqrafi-20261006.json"
+  ]
+}
