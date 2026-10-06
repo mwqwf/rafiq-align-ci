@@ -1,0 +1,20 @@
+{
+  "action": "tool",
+  "tool": "index_qa/stage_transform.py",
+  "args": [
+    "--file",
+    "ops/source-repair/candidates/codex-hatem-opener-tail-20261006.jz",
+    "--parent",
+    "timings/hafs/hatem.jz",
+    "--parent-sha",
+    "5d7e73699ae633807bd57ecb60ea235f503318fdacf8c13bd3b81132eb10f85e",
+    "--op",
+    "ctc_quran_window:54",
+    "--reason",
+    "Repair independently measured Qamar final verses and preserve opener repair; source and confidence unchanged, full exact-SHA QA mandatory.",
+    "--by",
+    "codex-native-tail-repair-20261006",
+    "--manual-qa-only",
+    "--yes"
+  ]
+}
