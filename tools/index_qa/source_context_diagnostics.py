@@ -15,14 +15,14 @@ import final_verse_free_batch as B
 import independent_window_pilot as P
 S=B.S
 PLAN='ops/source-repair/codex-source-context-plan-20261006.json'
-PLAN_SHA='47b34b2fab7ea50df33a6774a3cc32539fdef4b5005f8788cf77e6e900cd18b5'
-IDS=('saad28_context','saad45_tail','shamrani79_tail','tblawi_head','tblawi_tail','m_ab26_29','m_ab34_37','m_ab91_95','koshi20_22','koshi94_96','saad28_tail')
+PLAN_SHA='0010b24e9d1245646e7d81f5d8ed8f0df6342ded80dcd72c367cccf217b4a76e'
+IDS=('saad28_context','saad45_tail','shamrani79_tail','tblawi_head','tblawi_tail','m_ab26_29','m_ab34_37','m_ab91_95','koshi20_22','koshi94_96','saad28_tail','saad22_41_45','saad22_68_71','saad22_tail','shamrani79_middle')
 
 
 def load_source(ident):
     B.require(ident in IDS, 'unplanned diagnostic')
     raw=(B.ROOT/PLAN).read_bytes();B.require(hashlib.sha256(raw).hexdigest()==PLAN_SHA,'plan changed')
-    rows=json.loads(raw)['sources'];B.require(len(rows)==11 and {r['id'] for r in rows}==set(IDS),'population changed')
+    rows=json.loads(raw)['sources'];B.require(len(rows)==15 and {r['id'] for r in rows}==set(IDS),'population changed')
     source=next(r for r in rows if r['id']==ident)
     path=(B.ROOT/source['evidencePath']).resolve()
     B.require(path.parent==B.ROOT/'ops/out' and path.suffix=='.json','evidence path')
