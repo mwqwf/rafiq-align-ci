@@ -1,0 +1,20 @@
+{
+  "action": "tool",
+  "tool": "index_qa/stage_transform.py",
+  "args": [
+    "--file",
+    "ops/source-repair/candidates/codex-saad-quran-22-28-45-20261006.jz",
+    "--parent",
+    "timings/hafs/saad.jz",
+    "--parent-sha",
+    "8e9f8131711748d617a6339a1d1ab5a511959bf4eb396700d9d4fdf724a747c0",
+    "--op",
+    "ctc_quran_surah_splice:22,28,45",
+    "--reason",
+    "Recover complete Saad22/28/45 from exact original source bytes via pinned Quran model plus independent native contexts. Restore203 rows; preserve all LOW including22:43/70 and45:36/37. Measured decoded EOF prevents clipped final syllables. Full fresh QA required; no quality claim from forced alignment.",
+    "--by",
+    "codex-source-quran-recovery-20261006",
+    "--manual-qa-only",
+    "--yes"
+  ]
+}
