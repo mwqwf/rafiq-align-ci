@@ -1,0 +1,124 @@
+{
+  "path": "ops/source-repair/candidates/codex-expanded-tail-hafs-jormy-20261006.jz",
+  "sha256": "66a678689101eebbd1ebdc3a73268f7339c754251b9033e41f57d335760fff8b",
+  "parentKey": "timings/hafs/jormy.jz",
+  "parentSha256": "9fc642e3aefa16444b204bed40c572d948792983104253763e864e38dbe93dd8",
+  "op": "ctc_quran_window:80",
+  "changedEntries": 4,
+  "warnings": [
+    "مداخل مدتها > 120ث: 1 · مثال: 2:282 مدتها 162ث"
+  ],
+  "proof": {
+    "qualityClaim": false,
+    "contexts": [
+      {
+        "reportPath": "ops/out/codex-jormy80-tail-report-20261006.json",
+        "reportSha256": "888fb0f82dbd86163948ce7ea48e3e33f5e2fe698940dcd6c2893fedbf305349",
+        "bundlePath": "ops/out/codex-jormy80-tail-complete-20261006.json.gz",
+        "bundleSha256": "045a61148bdaba381671e47416b1dd5a587b40d840b3228f32534aa250ceea6b",
+        "jobId": 112142399836,
+        "id": "penultimate_hafs_jormy_80",
+        "targetAyahs": [
+          40,
+          41,
+          42
+        ],
+        "sourceSha256": "2f42892fb13f1f074dd43a7d33f43db590d0ef12db0c1760c96e6a1af6b789b9",
+        "provenance": {
+          "runId": "37424947321",
+          "runSha": "e1e3d271914532c74b455aad810ceadd1ffd9682",
+          "toolSha256": "b1e7fb3f46643a405050e71bbb31f9e2502066b4033aefa601b375e9c4188982"
+        }
+      }
+    ],
+    "changes": [
+      {
+        "before": {
+          "ayahId": "80:39",
+          "fileRef": "https://server11.mp3quran.net/jormy/080.mp3",
+          "startMs": 175677,
+          "endMs": 178949,
+          "conf": 0.598,
+          "confBand": "MED",
+          "startApprox": true
+        },
+        "after": {
+          "ayahId": "80:39",
+          "fileRef": "https://server11.mp3quran.net/jormy/080.mp3",
+          "startMs": 175677,
+          "endMs": 179397,
+          "conf": 0.598,
+          "confBand": "MED",
+          "startApprox": true
+        }
+      },
+      {
+        "before": {
+          "ayahId": "80:40",
+          "fileRef": "https://server11.mp3quran.net/jormy/080.mp3",
+          "startMs": 178949,
+          "endMs": 180490,
+          "conf": 0.0,
+          "confBand": "LOW",
+          "startApprox": true
+        },
+        "after": {
+          "ayahId": "80:40",
+          "fileRef": "https://server11.mp3quran.net/jormy/080.mp3",
+          "startMs": 179397,
+          "endMs": 184882,
+          "conf": 0.0,
+          "confBand": "LOW",
+          "startApprox": true
+        }
+      },
+      {
+        "before": {
+          "ayahId": "80:41",
+          "fileRef": "https://server11.mp3quran.net/jormy/080.mp3",
+          "startMs": 180490,
+          "endMs": 181231,
+          "conf": 0.079,
+          "confBand": "LOW",
+          "startApprox": true
+        },
+        "after": {
+          "ayahId": "80:41",
+          "fileRef": "https://server11.mp3quran.net/jormy/080.mp3",
+          "startMs": 184882,
+          "endMs": 187644,
+          "conf": 0.079,
+          "confBand": "LOW",
+          "startApprox": true
+        }
+      },
+      {
+        "before": {
+          "ayahId": "80:42",
+          "fileRef": "https://server11.mp3quran.net/jormy/080.mp3",
+          "startMs": 181231,
+          "endMs": 183532,
+          "conf": 0.153,
+          "confBand": "LOW",
+          "startApprox": true
+        },
+        "after": {
+          "ayahId": "80:42",
+          "fileRef": "https://server11.mp3quran.net/jormy/080.mp3",
+          "startMs": 187644,
+          "endMs": 196571,
+          "conf": 0.153,
+          "confBand": "LOW",
+          "startApprox": true
+        }
+      }
+    ],
+    "decodedEofMs": {
+      "80": 196571
+    },
+    "limits": [
+      "الحد الأصلي لثقة المحاذاة0.45؛ لا تغيير لأي حارس أو ثقة منشورة.",
+      "الخواتيم المقيسة فقط؛ يلزم الفحص الأصلي الكامل للبصمة المرفوعة."
+    ]
+  }
+}

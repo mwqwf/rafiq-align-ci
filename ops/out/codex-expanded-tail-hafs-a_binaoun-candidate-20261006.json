@@ -1,0 +1,209 @@
+{
+  "path": "ops/source-repair/candidates/codex-expanded-tail-hafs-a_binaoun-20261006.jz",
+  "sha256": "9c89a5d0ea93c7f198f35a5ddc2de309ecd8e3ad257b0fb4d0a49fa2c266fed5",
+  "parentKey": "timings/hafs/a_binaoun.jz",
+  "parentSha256": "aa7c8df8263210a7fc864dbd44ec171619a4dce6c2d7b1c23e97abb8be6c5602",
+  "op": "ctc_quran_window:83",
+  "changedEntries": 8,
+  "warnings": [
+    "مداخل مدتها > 120ث: 1 · مثال: 2:282 مدتها 141ث",
+    "مطالع سور تبدأ دون 3ث — مرشّحون للمسبار الصوتي لا حكمٌ عليهم: 24:1=2980م.ث"
+  ],
+  "proof": {
+    "qualityClaim": false,
+    "contexts": [
+      {
+        "reportPath": "ops/out/codex-binaoun83-fulltail-report-20261006.json",
+        "reportSha256": "8f1d9a00a05b66db0f8233ae6b0b746115fb6362987a57fe914f5ad47adec592",
+        "bundlePath": "ops/out/codex-binaoun83-fulltail-complete-20261006.json.gz",
+        "bundleSha256": "272d2761e808e7d303ff8ea3e5de1ac6f6fafc358bfebe9e6fba15f03d7b9c1e",
+        "jobId": 112143058045,
+        "id": "binaoun83_fulltail30_36",
+        "targetAyahs": [
+          30,
+          31,
+          32,
+          33,
+          34,
+          35,
+          36
+        ],
+        "sourceSha256": "2e06441c119c5cced24b2b2b04807d3718252980230b29f66db60219c1225e98",
+        "provenance": {
+          "runId": "37425162197",
+          "runSha": "69beac0986dfedaa57f5fc7726c77c0d90ed04f6",
+          "toolSha256": "f97cc20a5324c4ca511766f12f73d1afc0b7d411713d8e30dab2760145f1eb37"
+        }
+      }
+    ],
+    "changes": [
+      {
+        "before": {
+          "ayahId": "83:29",
+          "fileRef": "https://server16.mp3quran.net/a_binaoun/Rewayat-Hafs-A-n-Assem/083.mp3",
+          "startMs": 189344,
+          "endMs": 197740,
+          "conf": 0.74,
+          "confBand": "MED",
+          "startApprox": true
+        },
+        "after": {
+          "ayahId": "83:29",
+          "fileRef": "https://server16.mp3quran.net/a_binaoun/Rewayat-Hafs-A-n-Assem/083.mp3",
+          "startMs": 189344,
+          "endMs": 197729,
+          "conf": 0.74,
+          "confBand": "MED",
+          "startApprox": true
+        }
+      },
+      {
+        "before": {
+          "ayahId": "83:30",
+          "fileRef": "https://server16.mp3quran.net/a_binaoun/Rewayat-Hafs-A-n-Assem/083.mp3",
+          "startMs": 197740,
+          "endMs": 201782,
+          "conf": 0.74,
+          "confBand": "MED",
+          "startApprox": true
+        },
+        "after": {
+          "ayahId": "83:30",
+          "fileRef": "https://server16.mp3quran.net/a_binaoun/Rewayat-Hafs-A-n-Assem/083.mp3",
+          "startMs": 197729,
+          "endMs": 203002,
+          "conf": 0.74,
+          "confBand": "MED",
+          "startApprox": true
+        }
+      },
+      {
+        "before": {
+          "ayahId": "83:31",
+          "fileRef": "https://server16.mp3quran.net/a_binaoun/Rewayat-Hafs-A-n-Assem/083.mp3",
+          "startMs": 201782,
+          "endMs": 203784,
+          "conf": 0.0,
+          "confBand": "LOW",
+          "startApprox": true
+        },
+        "after": {
+          "ayahId": "83:31",
+          "fileRef": "https://server16.mp3quran.net/a_binaoun/Rewayat-Hafs-A-n-Assem/083.mp3",
+          "startMs": 203002,
+          "endMs": 210498,
+          "conf": 0.0,
+          "confBand": "LOW",
+          "startApprox": true
+        }
+      },
+      {
+        "before": {
+          "ayahId": "83:32",
+          "fileRef": "https://server16.mp3quran.net/a_binaoun/Rewayat-Hafs-A-n-Assem/083.mp3",
+          "startMs": 203784,
+          "endMs": 206726,
+          "conf": 0.356,
+          "confBand": "LOW",
+          "startApprox": true
+        },
+        "after": {
+          "ayahId": "83:32",
+          "fileRef": "https://server16.mp3quran.net/a_binaoun/Rewayat-Hafs-A-n-Assem/083.mp3",
+          "startMs": 210498,
+          "endMs": 221375,
+          "conf": 0.356,
+          "confBand": "LOW",
+          "startApprox": true
+        }
+      },
+      {
+        "before": {
+          "ayahId": "83:33",
+          "fileRef": "https://server16.mp3quran.net/a_binaoun/Rewayat-Hafs-A-n-Assem/083.mp3",
+          "startMs": 206726,
+          "endMs": 209127,
+          "conf": 0.19,
+          "confBand": "LOW",
+          "startApprox": true
+        },
+        "after": {
+          "ayahId": "83:33",
+          "fileRef": "https://server16.mp3quran.net/a_binaoun/Rewayat-Hafs-A-n-Assem/083.mp3",
+          "startMs": 221375,
+          "endMs": 226578,
+          "conf": 0.19,
+          "confBand": "LOW",
+          "startApprox": true
+        }
+      },
+      {
+        "before": {
+          "ayahId": "83:34",
+          "fileRef": "https://server16.mp3quran.net/a_binaoun/Rewayat-Hafs-A-n-Assem/083.mp3",
+          "startMs": 209127,
+          "endMs": 214170,
+          "conf": 0.155,
+          "confBand": "LOW",
+          "startApprox": true
+        },
+        "after": {
+          "ayahId": "83:34",
+          "fileRef": "https://server16.mp3quran.net/a_binaoun/Rewayat-Hafs-A-n-Assem/083.mp3",
+          "startMs": 226578,
+          "endMs": 234454,
+          "conf": 0.155,
+          "confBand": "LOW",
+          "startApprox": true
+        }
+      },
+      {
+        "before": {
+          "ayahId": "83:35",
+          "fileRef": "https://server16.mp3quran.net/a_binaoun/Rewayat-Hafs-A-n-Assem/083.mp3",
+          "startMs": 214170,
+          "endMs": 214951,
+          "conf": 0.0,
+          "confBand": "LOW",
+          "startApprox": true
+        },
+        "after": {
+          "ayahId": "83:35",
+          "fileRef": "https://server16.mp3quran.net/a_binaoun/Rewayat-Hafs-A-n-Assem/083.mp3",
+          "startMs": 234454,
+          "endMs": 241198,
+          "conf": 0.0,
+          "confBand": "LOW",
+          "startApprox": true
+        }
+      },
+      {
+        "before": {
+          "ayahId": "83:36",
+          "fileRef": "https://server16.mp3quran.net/a_binaoun/Rewayat-Hafs-A-n-Assem/083.mp3",
+          "startMs": 214951,
+          "endMs": 221335,
+          "conf": 0.214,
+          "confBand": "LOW",
+          "startApprox": true
+        },
+        "after": {
+          "ayahId": "83:36",
+          "fileRef": "https://server16.mp3quran.net/a_binaoun/Rewayat-Hafs-A-n-Assem/083.mp3",
+          "startMs": 241198,
+          "endMs": 253126,
+          "conf": 0.214,
+          "confBand": "LOW",
+          "startApprox": true
+        }
+      }
+    ],
+    "decodedEofMs": {
+      "83": 253126
+    },
+    "limits": [
+      "الحد الأصلي لثقة المحاذاة0.45؛ لا تغيير لأي حارس أو ثقة منشورة.",
+      "الخواتيم المقيسة فقط؛ يلزم الفحص الأصلي الكامل للبصمة المرفوعة."
+    ]
+  }
+}
