@@ -15,14 +15,14 @@ import final_verse_free_batch as B
 import independent_window_pilot as P
 S=B.S
 PLAN='ops/source-repair/codex-source-context-plan-20261006.json'
-PLAN_SHA='0010b24e9d1245646e7d81f5d8ed8f0df6342ded80dcd72c367cccf217b4a76e'
-IDS=('saad28_context','saad45_tail','shamrani79_tail','tblawi_head','tblawi_tail','m_ab26_29','m_ab34_37','m_ab91_95','koshi20_22','koshi94_96','saad28_tail','saad22_41_45','saad22_68_71','saad22_tail','shamrani79_middle')
+PLAN_SHA='6dc456394ca73e4077cf43c4f884fea65e2ddc0ee0c8376e0d688661a6d3cd69'
+IDS=('saad28_context','saad45_tail','shamrani79_tail','tblawi_head','tblawi_tail','m_ab26_29','m_ab34_37','m_ab91_95','koshi20_22','koshi94_96','saad28_tail','saad22_41_45','saad22_68_71','saad22_tail','shamrani79_middle','shamrani79_midad_middle')
 
 
 def load_source(ident):
     B.require(ident in IDS, 'unplanned diagnostic')
     raw=(B.ROOT/PLAN).read_bytes();B.require(hashlib.sha256(raw).hexdigest()==PLAN_SHA,'plan changed')
-    rows=json.loads(raw)['sources'];B.require(len(rows)==15 and {r['id'] for r in rows}==set(IDS),'population changed')
+    rows=json.loads(raw)['sources'];B.require(len(rows)==16 and {r['id'] for r in rows}==set(IDS),'population changed')
     source=next(r for r in rows if r['id']==ident)
     path=(B.ROOT/source['evidencePath']).resolve()
     B.require(path.parent==B.ROOT/'ops/out' and path.suffix=='.json','evidence path')
@@ -34,6 +34,11 @@ def load_source(ident):
         B.require(all(source[k]==measured[k] for k in ('url','sha256','surah','riwaya')),'source mismatch')
         B.require(source['contextAyahs'] and all(type(a)is int and 1<=a<=len(evidence['alignment']['entries']) for a in source['contextAyahs']),'invalid context')
         B.require(source['maxSourceSeconds']==7200,'ordinary source limit changed')
+    elif source['evidenceKind']=='metadata-source':
+        measured=next(r for r in evidence['sources'] if r['id']=='shamrani_79_midad')
+        B.require(ident=='shamrani79_midad_middle' and measured['ok'] and measured['pcm']['decodedWithoutErrors'],'unhealthy alternate source')
+        B.require(source['sha256']==measured['file']['sha256'] and source['url']==measured['file']['finalUrl'] and source['surah']==measured['surah']==79 and source['riwaya']==measured['riwaya']=='hafs','alternate identity mismatch')
+        B.require(source['maxSourceSeconds']==7200 and source['contextAyahs']==list(range(8,22)),'alternate scope changed')
     elif source['evidenceKind']=='heard-rejection':
         B.require(evidence['measurementComplete'] and not evidence['measurementErrors'] and evidence['ok'] is False,'rejected complete witness required')
         B.require(evidence['sha256']=='e3279a0914c45bc72ef6c24ed02ff3196ce3e3664936c352bc85ce60bcd31323' and source['surah']==21 and source['riwaya']=='warsh','wrong rejection')
