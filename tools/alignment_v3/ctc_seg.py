@@ -101,9 +101,10 @@ def _segment_overlapping_groups(lpz, n_samples, texts, leading_count, group_size
     """Align bounded overlapping verse groups in a measured forward chain.
 
     The first group sees the full recording.  Each later group sees the suffix
-    beginning before the previous group's measured overlap.  Repeated overlap
-    verses are retained as agreement evidence.  No duration inferred from text
-    length is used as an audio bound, and timings are never averaged.
+    beginning before measured preceding verses and includes those verses as
+    alignment-only left context.  Repeated overlap verses are retained as
+    agreement evidence.  No duration inferred from text length is used as an
+    audio bound, and timings are never averaged.
     """
     if not isinstance(leading_count, int) or leading_count < 0 or leading_count > len(texts):
         raise ValueError("invalid leading utterance count")
@@ -123,18 +124,26 @@ def _segment_overlapping_groups(lpz, n_samples, texts, leading_count, group_size
     groups = []
     start = 0
     previous = None
+    previous_start = None
     frame_seconds = n_samples / lpz.shape[0] / SR
     while start < len(body):
         end = min(len(body), start + group_size)
-        group_lead = texts[:leading_count] if start == 0 else []
+        context_start = 0 if start == 0 else max(0, start - overlap)
+        group_lead = texts[:leading_count] if start == 0 else body[context_start:start]
         group_texts = group_lead + body[start:end]
         frame_start = 0
         if previous is not None:
-            anchor_seconds = min(float(segment[0]) for segment in previous[-overlap:])
+            context_idx = context_start - previous_start
+            if context_idx < 0 or context_idx >= len(previous):
+                raise RuntimeError("preceding verse context is unavailable")
+            anchor_seconds = float(previous[context_idx][0])
             frame_start = max(0, int((anchor_seconds - prior_context_seconds) / frame_seconds))
         group_lpz = lpz[frame_start:]
         group_samples = int(round(n_samples * len(group_lpz) / len(lpz)))
-        relative = _segment(group_lpz, group_samples, group_texts)[len(group_lead):]
+        relative_all = _segment(group_lpz, group_samples, group_texts)
+        if len(relative_all) != len(group_texts):
+            raise RuntimeError("group alignment returned an incomplete utterance population")
+        relative = relative_all[len(group_lead):]
         time_offset = frame_start * frame_seconds
         measured = [(float(st) + time_offset, float(en) + time_offset, score)
                     for st, en, score in relative]
@@ -142,6 +151,8 @@ def _segment_overlapping_groups(lpz, n_samples, texts, leading_count, group_size
             raise RuntimeError("group alignment returned an incomplete verse population")
         groups.append({"startAyahIdx": start, "endAyahIdxExclusive": end,
                        "verseCount": end - start,
+                       "contextStartAyahIdx": context_start,
+                       "contextVerseCount": start - context_start,
                        "audioStartSeconds": round(time_offset, 6)})
         for offset, segment in enumerate(measured):
             claims[start + offset].append({"groupStartAyahIdx": start,
@@ -150,6 +161,7 @@ def _segment_overlapping_groups(lpz, n_samples, texts, leading_count, group_size
         if end == len(body):
             break
         previous = measured
+        previous_start = start
         start = end - overlap
 
     merged = []

@@ -42,9 +42,14 @@ class ChunkedAlignmentTests(unittest.TestCase):
         # Verse 3 is closer to the centre of the first claim, so that measured
         # claim is selected verbatim rather than averaging 260.1 and 260.2.
         self.assertEqual((260.1, 265.1, -0.2), merged[3])
-        self.assertEqual([0, 140, 200], [frame_start for _, frame_start in calls])
+        self.assertEqual([0, 100, 160], [frame_start for _, frame_start in calls])
         self.assertEqual("lead", calls[0][0][0])
         self.assertTrue(all("lead" not in group for group, _ in calls[1:]))
+        self.assertEqual(("v1", "v2", "v3", "v4", "v5", "v6", "v7"), calls[1][0])
+        self.assertEqual(("v4", "v5", "v6", "v7", "v8", "v9"), calls[2][0])
+        self.assertEqual([(0, 0), (1, 2), (4, 2)], [
+            (g["contextStartAyahIdx"], g["contextVerseCount"])
+            for g in evidence["groups"]])
 
     def test_invalid_group_contract_is_rejected(self):
         args = (np.zeros((2, 2)), 10, ["v0", "v1"], 0)
@@ -57,7 +62,7 @@ class ChunkedAlignmentTests(unittest.TestCase):
 
     def test_incomplete_group_population_is_rejected(self):
         with mock.patch.object(C, "_segment", return_value=[]):
-            with self.assertRaisesRegex(RuntimeError, "incomplete"):
+            with self.assertRaisesRegex(RuntimeError, "incomplete utterance"):
                 C._segment_overlapping_groups(
                     np.zeros((2, 2)), 10, ["v0", "v1"], 0, 2, 1)
 
