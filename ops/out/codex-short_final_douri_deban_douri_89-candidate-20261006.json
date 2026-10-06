@@ -1,0 +1,93 @@
+{
+  "path": "ops/source-repair/candidates/codex-short_final_douri_deban_douri_89-20261006.jz",
+  "sha256": "eed88af5584bc1e3f3acf51dabe8474687edefd9a5e3d371e5c7c61f7396bbc3",
+  "parentKey": "timings/douri/deban_douri.jz",
+  "parentSha256": "e622142954c6f97b0290053ebc7d1c282a436ec28fb679ae9e48a1fc1f469580",
+  "op": "ctc_quran_window:89",
+  "changedEntries": 3,
+  "warnings": [
+    "مداخل مدتها > 120ث: 1 · مثال: 2:282 مدتها 138ث"
+  ],
+  "proof": {
+    "reportPath": "ops/out/codex-short-final-deban-douri-89-report-20261006.json",
+    "reportSha256": "1629531d260720927cf84ffac4326080eddc25e9cd1e96ee9a6046852958c39c",
+    "bundlePath": "ops/out/codex-short-final-deban-douri-89-complete-20261006.json.gz",
+    "bundleSha256": "7c47d927326973e27ea9b42adcc67b7bdd69f017c3c3bb34ce19e7602714c50a",
+    "jobId": 112109271516,
+    "id": "short_final_douri_deban_douri_89",
+    "qualityClaim": false,
+    "sourceSha256": "06f32aade0a52ec2bd9ad4368490e196ef0a5993aeaa9d73bdd129b33a708431",
+    "decodedEofMs": 184056,
+    "changes": [
+      {
+        "before": {
+          "ayahId": "89:28",
+          "fileRef": "https://server16.mp3quran.net/deban/Rewayat-Aldori-A-n-Abi-Amr/089.mp3",
+          "startMs": 165942,
+          "endMs": 172597,
+          "conf": 0.605,
+          "confBand": "MED",
+          "startApprox": true
+        },
+        "after": {
+          "ayahId": "89:28",
+          "fileRef": "https://server16.mp3quran.net/deban/Rewayat-Aldori-A-n-Abi-Amr/089.mp3",
+          "startMs": 165942,
+          "endMs": 172946,
+          "conf": 0.605,
+          "confBand": "MED",
+          "startApprox": true
+        }
+      },
+      {
+        "before": {
+          "ayahId": "89:29",
+          "fileRef": "https://server16.mp3quran.net/deban/Rewayat-Aldori-A-n-Abi-Amr/089.mp3",
+          "startMs": 172597,
+          "endMs": 173698,
+          "conf": 0.296,
+          "confBand": "LOW",
+          "startApprox": true
+        },
+        "after": {
+          "ayahId": "89:29",
+          "fileRef": "https://server16.mp3quran.net/deban/Rewayat-Aldori-A-n-Abi-Amr/089.mp3",
+          "startMs": 172946,
+          "endMs": 176358,
+          "conf": 0.296,
+          "confBand": "LOW",
+          "startApprox": true
+        }
+      },
+      {
+        "before": {
+          "ayahId": "89:30",
+          "fileRef": "https://server16.mp3quran.net/deban/Rewayat-Aldori-A-n-Abi-Amr/089.mp3",
+          "startMs": 173698,
+          "endMs": 174318,
+          "conf": 0.0,
+          "confBand": "LOW",
+          "startApprox": true
+        },
+        "after": {
+          "ayahId": "89:30",
+          "fileRef": "https://server16.mp3quran.net/deban/Rewayat-Aldori-A-n-Abi-Amr/089.mp3",
+          "startMs": 176358,
+          "endMs": 184056,
+          "conf": 0.0,
+          "confBand": "LOW",
+          "startApprox": true
+        }
+      }
+    ],
+    "provenance": {
+      "runId": "37414259961",
+      "runSha": "36d99a6987101f3d979b283dcf0ed445d4304a95",
+      "toolSha256": "10f7b31843eebabd132c28c5e9c9a216c47c66ecc4a143bbde98551c6c8705fe"
+    },
+    "limits": [
+      "توقيت آخر آيتين ونهاية السابقة فقط؛ الثقة الأصلية محفوظة.",
+      "التفريغ الحر روجع قبل البناء؛ يلزم فحص أصلي كامل على البصمة المرفوعة."
+    ]
+  }
+}

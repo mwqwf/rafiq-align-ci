@@ -1,0 +1,92 @@
+{
+  "path": "ops/source-repair/candidates/codex-short_final_hafs_wdee3_89-20261006.jz",
+  "sha256": "212470db52262d77516b42ea5ecb56125129cc55b4ff91c3696595a5fad6b449",
+  "parentKey": "timings/hafs/wdee3.jz",
+  "parentSha256": "79baebc0951b6a2f9683c0a5a2e5310133dd68b3aa1f0b96e070b890d9012f7f",
+  "op": "ctc_quran_window:89",
+  "changedEntries": 3,
+  "warnings": [
+    "مداخل مدتها > 120ث: 1 · مثال: 2:282 مدتها 184ث",
+    "مطالع سور تبدأ دون 3ث — مرشّحون للمسبار الصوتي لا حكمٌ عليهم: 2:1=2640م.ث · 3:1=2630م.ث · 4:1=2670م.ث · 5:1=2520م.ث · 7:1=2650م.ث · 8:1=2630م.ث · 31:1=2540م.ث · 32:1=2520م.ث · 33:1=2690م.ث · 34:1=2670م.ث … و7 غيرها"
+  ],
+  "proof": {
+    "reportPath": "ops/out/codex-short-final-wdee3-89-report-20261006.json",
+    "reportSha256": "9d4c86b183a0860be184402dc230887e8a808f61049aafa15409d46549c96aa8",
+    "bundlePath": "ops/out/codex-short-final-wdee3-89-complete-20261006.json.gz",
+    "bundleSha256": "4f26b6263bf98c2183b09360e1c669ac3fc0fdeb7b28ccf46f7817d1b2853772",
+    "jobId": 112109271464,
+    "id": "short_final_hafs_wdee3_89",
+    "qualityClaim": false,
+    "sourceSha256": "e8fdd517137ebae920f3d43652b988e8cfabe47fe1e1325ff6e498bdf2f28381",
+    "decodedEofMs": 192996,
+    "changes": [
+      {
+        "before": {
+          "ayahId": "89:28",
+          "fileRef": "https://server6.mp3quran.net/wdee3/089.mp3",
+          "startMs": 177440,
+          "endMs": 179446,
+          "conf": 0.085,
+          "confBand": "LOW"
+        },
+        "after": {
+          "ayahId": "89:28",
+          "fileRef": "https://server6.mp3quran.net/wdee3/089.mp3",
+          "startMs": 177440,
+          "endMs": 185058,
+          "conf": 0.085,
+          "confBand": "LOW"
+        }
+      },
+      {
+        "before": {
+          "ayahId": "89:29",
+          "fileRef": "https://server6.mp3quran.net/wdee3/089.mp3",
+          "startMs": 179446,
+          "endMs": 180917,
+          "conf": 0.191,
+          "confBand": "LOW",
+          "startApprox": true
+        },
+        "after": {
+          "ayahId": "89:29",
+          "fileRef": "https://server6.mp3quran.net/wdee3/089.mp3",
+          "startMs": 185058,
+          "endMs": 188001,
+          "conf": 0.191,
+          "confBand": "LOW",
+          "startApprox": true
+        }
+      },
+      {
+        "before": {
+          "ayahId": "89:30",
+          "fileRef": "https://server6.mp3quran.net/wdee3/089.mp3",
+          "startMs": 180917,
+          "endMs": 181577,
+          "conf": 0.264,
+          "confBand": "LOW",
+          "startApprox": true
+        },
+        "after": {
+          "ayahId": "89:30",
+          "fileRef": "https://server6.mp3quran.net/wdee3/089.mp3",
+          "startMs": 188001,
+          "endMs": 192996,
+          "conf": 0.264,
+          "confBand": "LOW",
+          "startApprox": true
+        }
+      }
+    ],
+    "provenance": {
+      "runId": "37414259961",
+      "runSha": "36d99a6987101f3d979b283dcf0ed445d4304a95",
+      "toolSha256": "10f7b31843eebabd132c28c5e9c9a216c47c66ecc4a143bbde98551c6c8705fe"
+    },
+    "limits": [
+      "توقيت آخر آيتين ونهاية السابقة فقط؛ الثقة الأصلية محفوظة.",
+      "التفريغ الحر روجع قبل البناء؛ يلزم فحص أصلي كامل على البصمة المرفوعة."
+    ]
+  }
+}
