@@ -16,22 +16,23 @@ class ChunkedAlignmentTests(unittest.TestCase):
         calls = []
 
         def fake_segment(lpz, n_samples, group):
-            self.assertEqual((20, 3), lpz.shape)
-            self.assertEqual(320000, n_samples)
-            calls.append(tuple(group))
+            frame_start = 1000 - lpz.shape[0]
+            self.assertEqual(lpz.shape[0] * 16000, n_samples)
+            calls.append((tuple(group), frame_start))
             call_shift = len(calls) / 10
             out = []
             for text in group:
                 if text == "lead":
-                    out.append((-1.0, -0.5, -0.1))
+                    out.append((199.0 - frame_start, 199.5 - frame_start, -0.1))
                 else:
                     verse = int(text[1:])
-                    out.append((verse * 10 + call_shift, verse * 10 + 5 + call_shift, -0.2))
+                    absolute = 200 + verse * 20 + call_shift
+                    out.append((absolute - frame_start, absolute + 5 - frame_start, -0.2))
             return out
 
         with mock.patch.object(C, "_segment", side_effect=fake_segment):
             merged, evidence = C._segment_overlapping_groups(
-                np.zeros((20, 3)), 320000, texts, 1, 5, 2)
+                np.zeros((1000, 3)), 16000000, texts, 1, 5, 2)
 
         self.assertEqual([(0, 5), (3, 8), (6, 10)], [
             (g["startAyahIdx"], g["endAyahIdxExclusive"]) for g in evidence["groups"]])
@@ -39,10 +40,11 @@ class ChunkedAlignmentTests(unittest.TestCase):
         self.assertEqual(4, len(evidence["overlapAyahs"]))
         self.assertAlmostEqual(0.1, evidence["maxStartDisagreementSeconds"])
         # Verse 3 is closer to the centre of the first claim, so that measured
-        # claim is selected verbatim rather than averaging 30.1 and 30.2.
-        self.assertEqual((30.1, 35.1, -0.2), merged[3])
-        self.assertEqual("lead", calls[0][0])
-        self.assertTrue(all("lead" not in group for group in calls[1:]))
+        # claim is selected verbatim rather than averaging 260.1 and 260.2.
+        self.assertEqual((260.1, 265.1, -0.2), merged[3])
+        self.assertEqual([0, 140, 200], [frame_start for _, frame_start in calls])
+        self.assertEqual("lead", calls[0][0][0])
+        self.assertTrue(all("lead" not in group for group, _ in calls[1:]))
 
     def test_invalid_group_contract_is_rejected(self):
         args = (np.zeros((2, 2)), 10, ["v0", "v1"], 0)
@@ -50,6 +52,8 @@ class ChunkedAlignmentTests(unittest.TestCase):
             with self.subTest(group_size=group_size, overlap=overlap):
                 with self.assertRaises(ValueError):
                     C._segment_overlapping_groups(*args, group_size, overlap)
+        with self.assertRaisesRegex(ValueError, "prior_context_seconds"):
+            C._segment_overlapping_groups(*args, 2, 1, 0)
 
     def test_incomplete_group_population_is_rejected(self):
         with mock.patch.object(C, "_segment", return_value=[]):
