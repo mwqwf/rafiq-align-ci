@@ -1,0 +1,14 @@
+{
+  "action": "tool",
+  "tool": "index_qa/promote_verified_transform.py",
+  "args": [
+    "--key",
+    "timings-staging/hafs/darweez.7fb18cfb.jz",
+    "--sha",
+    "7fb18cfb894c5fb76f1c0be64a10aca05eb220967b97efcf2d156c0b76889da5",
+    "--parent-sha",
+    "47ef82a5541a9e71e6e25fd83c8608020512f5c9f8ce7583ce9801bbc234140e",
+    "--reason",
+    "تصحيح الخاتمة بقياسات أصلية مستقلة وبعد نجاح QA37420885444 والمراجعة112138178240 عقب تحديث التشخيص؛ الحفاظ على بقية الآيات والثقة."
+  ]
+}
