@@ -1,0 +1,294 @@
+{
+  "schema": 1,
+  "qualityClaim": false,
+  "auditTimestampUtc": "2026-10-06T03:30:35Z",
+  "reason": "Final-ayah duration below one second and below 0.31 of text-rate expectation. Suspicion only: obtain exact current parents and measure native source context before any timing change.",
+  "excludedActiveReaders": [
+    "m_abdulkareem_warsh",
+    "mukhtar_haj",
+    "saad",
+    "asim",
+    "a_alhazmi"
+  ],
+  "targets": [
+    {
+      "key": "timings/shuba/deban_shuba.jz",
+      "sha": "b839ddd521e41de6d909f4143c807d9e596d2d2df2236a7518fad40fe39f5e5a",
+      "aid": "89:30",
+      "ms": 421,
+      "expMs": 2937,
+      "ratio": 0.14,
+      "chars": 10
+    },
+    {
+      "key": "timings/hafs/a_albadr.jz",
+      "sha": "121d167d0f2e0d8bb222fac7c5dfb5d42b2fe8cdf14c2c2fce4244c9cd7a4717",
+      "aid": "56:96",
+      "ms": 661,
+      "expMs": 4318,
+      "ratio": 0.15,
+      "chars": 17
+    },
+    {
+      "key": "timings/hafs/deban.jz",
+      "sha": "f374f5b6b3f0ca61d29b9468dc057dac5d6276c64159d88db8f0ff190e55c3f7",
+      "aid": "80:42",
+      "ms": 961,
+      "expMs": 6546,
+      "ratio": 0.15,
+      "chars": 19
+    },
+    {
+      "key": "timings/hafs/hamza.jz",
+      "sha": "f4493b228dd45f550b177474f68541e5d644144b43c19c57226d8ecb466c649f",
+      "aid": "52:49",
+      "ms": 941,
+      "expMs": 6063,
+      "ratio": 0.16,
+      "chars": 23
+    },
+    {
+      "key": "timings/warsh/laghdaf_shinqiti.jz",
+      "sha": "3840d4aebfa883cd246b2cb7a66d4da6b5cf50c6cca906372ee32afbfdeed218",
+      "aid": "69:52",
+      "ms": 741,
+      "expMs": 4569,
+      "ratio": 0.16,
+      "chars": 17
+    },
+    {
+      "key": "timings/hafs/yahya.jz",
+      "sha": "aa9ad2ef19ce132980788c38da835ed56c5954553a60774806b1895c1685c1ec",
+      "aid": "68:52",
+      "ms": 671,
+      "expMs": 3846,
+      "ratio": 0.17,
+      "chars": 18
+    },
+    {
+      "key": "timings/qalun/fakhfakh_qalun.jz",
+      "sha": "5bad920fd4994019caacc00b9edd6662941abae720ba0b3a2b41281016c23eef",
+      "aid": "38:88",
+      "ms": 974,
+      "expMs": 5582,
+      "ratio": 0.17,
+      "chars": 17
+    },
+    {
+      "key": "timings/hafs/lahoni.jz",
+      "sha": "6a7bfeb439ce991a2feefd25b30e829f106199ffde39680a0d82a7181358af2e",
+      "aid": "89:30",
+      "ms": 540,
+      "expMs": 2838,
+      "ratio": 0.19,
+      "chars": 10
+    },
+    {
+      "key": "timings/hafs/m_qari.jz",
+      "sha": "2a27b0f8a6cf6560343605eb38de13d1f41ea71ee08eba59ce45fdbae9e1f8f6",
+      "aid": "87:19",
+      "ms": 720,
+      "expMs": 3840,
+      "ratio": 0.19,
+      "chars": 14
+    },
+    {
+      "key": "timings/warsh/harraz_warsh.jz",
+      "sha": "f233a9f03cc81a3bc450e048923a81b9ddd05481d5dcb06d5e1c669f47ed13c1",
+      "aid": "44:59",
+      "ms": 840,
+      "expMs": 4386,
+      "ratio": 0.19,
+      "chars": 17
+    },
+    {
+      "key": "timings/warsh/harraz_warsh.jz",
+      "sha": "f233a9f03cc81a3bc450e048923a81b9ddd05481d5dcb06d5e1c669f47ed13c1",
+      "aid": "53:62",
+      "ms": 730,
+      "expMs": 3687,
+      "ratio": 0.2,
+      "chars": 17
+    },
+    {
+      "key": "timings/hafs/wdee3.jz",
+      "sha": "79baebc0951b6a2f9683c0a5a2e5310133dd68b3aa1f0b96e070b890d9012f7f",
+      "aid": "89:30",
+      "ms": 660,
+      "expMs": 3074,
+      "ratio": 0.21,
+      "chars": 10
+    },
+    {
+      "key": "timings/douri/deban_douri.jz",
+      "sha": "e622142954c6f97b0290053ebc7d1c282a436ec28fb679ae9e48a1fc1f469580",
+      "aid": "89:30",
+      "ms": 620,
+      "expMs": 2865,
+      "ratio": 0.22,
+      "chars": 10
+    },
+    {
+      "key": "timings/qalun/noah_qalun.jz",
+      "sha": "21ebad8421e4fdb407a920dd7564a73af0d1174d82012652c0e0f6bf77056c08",
+      "aid": "93:11",
+      "ms": 720,
+      "expMs": 3341,
+      "ratio": 0.22,
+      "chars": 16
+    },
+    {
+      "key": "timings/hafs/alijon.jz",
+      "sha": "5e9fd934732d6ad50325098a0cc20330ef06a13f5732e5d528eedd6ba5c3e154",
+      "aid": "89:30",
+      "ms": 761,
+      "expMs": 3365,
+      "ratio": 0.23,
+      "chars": 10
+    },
+    {
+      "key": "timings/hafs/muftah_sultany.jz",
+      "sha": "ebc247fd427ba1f9cbb62b09602076c00ebeb01c5a6180e2d412344ca4bff11d",
+      "aid": "77:50",
+      "ms": 980,
+      "expMs": 4257,
+      "ratio": 0.23,
+      "chars": 18
+    },
+    {
+      "key": "timings/hafs/sayed.jz",
+      "sha": "79118033c593c0bf7110be8fbc48e98bc32785aa7eb39858be8f768c371a5ba0",
+      "aid": "53:62",
+      "ms": 800,
+      "expMs": 3523,
+      "ratio": 0.23,
+      "chars": 17
+    },
+    {
+      "key": "timings/hafs/m_qari.jz",
+      "sha": "2a27b0f8a6cf6560343605eb38de13d1f41ea71ee08eba59ce45fdbae9e1f8f6",
+      "aid": "105:5",
+      "ms": 800,
+      "expMs": 3278,
+      "ratio": 0.24,
+      "chars": 15
+    },
+    {
+      "key": "timings/hafs/mohsin_harthi.jz",
+      "sha": "ac38edba785e2dbb519a9423f6153f2395cd70d381fdfbce8ef3bc26f1f3c0f5",
+      "aid": "91:15",
+      "ms": 660,
+      "expMs": 2642,
+      "ratio": 0.25,
+      "chars": 12
+    },
+    {
+      "key": "timings/hafs/a_alqrafi.jz",
+      "sha": "3e2c3d79aeeb28cf188f7a861c34cd074d6ae400df54580a13b215aea65d22cf",
+      "aid": "89:30",
+      "ms": 921,
+      "expMs": 3562,
+      "ratio": 0.26,
+      "chars": 10
+    },
+    {
+      "key": "timings/hafs/darweez.jz",
+      "sha": "47ef82a5541a9e71e6e25fd83c8608020512f5c9f8ce7583ce9801bbc234140e",
+      "aid": "89:30",
+      "ms": 801,
+      "expMs": 3065,
+      "ratio": 0.26,
+      "chars": 10
+    },
+    {
+      "key": "timings/hafs/h_abudalal.jz",
+      "sha": "13f195b2460b5333015c6ab9d54a4516ca2ef8ffc85fab4395dbea2853d51ed8",
+      "aid": "89:30",
+      "ms": 800,
+      "expMs": 3082,
+      "ratio": 0.26,
+      "chars": 10
+    },
+    {
+      "key": "timings/hafs/muftah_sultany.jz",
+      "sha": "ebc247fd427ba1f9cbb62b09602076c00ebeb01c5a6180e2d412344ca4bff11d",
+      "aid": "53:62",
+      "ms": 900,
+      "expMs": 3509,
+      "ratio": 0.26,
+      "chars": 17
+    },
+    {
+      "key": "timings/qalun/suhaim_qalun.jz",
+      "sha": "9323930457a179624befb399b7e46a4687ce2c8bd66f51ed3f8bfff12a155234",
+      "aid": "91:15",
+      "ms": 800,
+      "expMs": 3106,
+      "ratio": 0.26,
+      "chars": 12
+    },
+    {
+      "key": "timings/hafs/m_alfaqih.jz",
+      "sha": "a46c655a1ce4c4fb9176234b11b758ee59c455b262fa84635efa53099e186fe7",
+      "aid": "89:30",
+      "ms": 701,
+      "expMs": 2590,
+      "ratio": 0.27,
+      "chars": 10
+    },
+    {
+      "key": "timings/warsh/kholti_warsh.jz",
+      "sha": "563cfc75bbc42ebf67fc9d089d602822eb6d2b226e44d1d714c18cfb445ac7ff",
+      "aid": "91:15",
+      "ms": 721,
+      "expMs": 2682,
+      "ratio": 0.27,
+      "chars": 12
+    },
+    {
+      "key": "timings/hafs/deban.jz",
+      "sha": "f374f5b6b3f0ca61d29b9468dc057dac5d6276c64159d88db8f0ff190e55c3f7",
+      "aid": "89:30",
+      "ms": 841,
+      "expMs": 3045,
+      "ratio": 0.28,
+      "chars": 10
+    },
+    {
+      "key": "timings/hafs/sayed.jz",
+      "sha": "79118033c593c0bf7110be8fbc48e98bc32785aa7eb39858be8f768c371a5ba0",
+      "aid": "91:15",
+      "ms": 761,
+      "expMs": 2684,
+      "ratio": 0.28,
+      "chars": 12
+    },
+    {
+      "key": "timings/qalun/qeniwa_qalun.jz",
+      "sha": "bbd2a48275460c0966d586b083dad2dc7ea00cc6417688af8168cd87d701445c",
+      "aid": "94:8",
+      "ms": 881,
+      "expMs": 3117,
+      "ratio": 0.28,
+      "chars": 12
+    },
+    {
+      "key": "timings/hafs/qurashi.jz",
+      "sha": "6a42a675870ed312366d67b2168ae3c56e911026ce94c846805a85ed201b13de",
+      "aid": "89:30",
+      "ms": 911,
+      "expMs": 3117,
+      "ratio": 0.29,
+      "chars": 10
+    },
+    {
+      "key": "timings/hafs/nabil.jz",
+      "sha": "eda04a24fee769a98246eccc484ba7eb7c1450fa3446753ea19a0d4da8fe8bb3",
+      "aid": "91:15",
+      "ms": 817,
+      "expMs": 2746,
+      "ratio": 0.3,
+      "chars": 12
+    }
+  ]
+}
