@@ -15,14 +15,14 @@ import final_verse_free_batch as B
 import independent_window_pilot as P
 S=B.S
 PLAN='ops/source-repair/codex-source-context-plan-20261006.json'
-PLAN_SHA='39557b38c7bc8b79ada4f50cce4a47dabe01c0e1e27fa8b04567438facc11a29'
-IDS=('saad28_context','saad45_tail','shamrani79_tail','tblawi_head','tblawi_tail','m_ab26_29','m_ab34_37','m_ab91_95','koshi20_22','koshi94_96','saad28_tail','saad22_41_45','saad22_68_71','saad22_tail','shamrani79_middle','shamrani79_midad_middle','mab_rs1_16_9','mab_rs1_11_22','mab_rs1_18_90','mab_rs1_23_52','mab_rs1_23_79','mab_rs1_69_47','mab_rs1_90_11','mab_rs1_90_19','mab_rs1_90_5','mab_rs1_78_33','mrifai84_tail','yousef107_tail','saad_reject_22_27','saad_reject_22_52','saad_reject_22_62','saad_reject_28_21','saad_reject_28_67','hazmi67_23_26','hazmi67_tail','hazmi77_tail')
+PLAN_SHA='f519e846b5ffa129ee17118815001f82d732c42573f8e36ae570a916df143340'
+IDS=('saad28_context','saad45_tail','shamrani79_tail','tblawi_head','tblawi_tail','m_ab26_29','m_ab34_37','m_ab91_95','koshi20_22','koshi94_96','saad28_tail','saad22_41_45','saad22_68_71','saad22_tail','shamrani79_middle','shamrani79_midad_middle','mab_rs1_16_9','mab_rs1_11_22','mab_rs1_18_90','mab_rs1_23_52','mab_rs1_23_79','mab_rs1_69_47','mab_rs1_90_11','mab_rs1_90_19','mab_rs1_90_5','mab_rs1_78_33','mrifai84_tail','yousef107_tail','saad_reject_22_27','saad_reject_22_52','saad_reject_22_62','saad_reject_28_21','saad_reject_28_67','hazmi67_23_26','hazmi67_tail','hazmi77_tail','benkirane77_tail','benkirane51_middle','benkirane51_tail')
 
 
 def load_source(ident):
     B.require(ident in IDS, 'unplanned diagnostic')
     raw=(B.ROOT/PLAN).read_bytes();B.require(hashlib.sha256(raw).hexdigest()==PLAN_SHA,'plan changed')
-    rows=json.loads(raw)['sources'];B.require(len(rows)==36 and {r['id'] for r in rows}==set(IDS),'population changed')
+    rows=json.loads(raw)['sources'];B.require(len(rows)==39 and {r['id'] for r in rows}==set(IDS),'population changed')
     source=next(r for r in rows if r['id']==ident)
     path=(B.ROOT/source['evidencePath']).resolve()
     B.require(path.parent==B.ROOT/'ops/out' and path.suffix=='.json','evidence path')
@@ -38,7 +38,10 @@ def load_source(ident):
         B.require(ident in ('hazmi67_23_26','hazmi67_tail','hazmi77_tail'),'unexpected raw heard source')
         B.require(evidence['engine']=='ctc-heardmap-1' and evidence['surah']==source['surah'] and evidence['riwaya']==source['riwaya']=='hafs','wrong raw alignment')
         B.require(evidence['fileRef']==source['url'] and evidence['sha256']==source['sha256'] and not evidence['issues'],'wrong or incomplete heard source')
-        B.require(len(evidence['entries'])==len(evidence['heardMap'])==({67:30,77:50}[source['surah']]),'incomplete raw alignment')
+        # Heard-only reports intentionally have no timing entries. They authorize diagnostics, never a splice.
+        count={67:30,77:50}[source['surah']]
+        B.require(evidence['entries']==[] and set(evidence['heardMap'])=={str(i) for i in range(1,count+1)},'incomplete heard-only map')
+        B.require(all(isinstance(v,dict) and len(v.get('anchorMs',[]))==2 for v in evidence['heardMap'].values()),'invalid heard-only anchors')
         rb=(B.ROOT/'ops/out/codex-hazmi-heard-37400472678.json').read_bytes()
         B.require(hashlib.sha256(rb).hexdigest()=='4e76f3bd15e1a31954e2bb872e26ea5c08522911db4f0f97262c4ed634292b5a','rejection changed')
         rejection=json.loads(rb)
