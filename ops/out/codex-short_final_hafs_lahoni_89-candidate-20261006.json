@@ -1,0 +1,93 @@
+{
+  "path": "ops/source-repair/candidates/codex-short_final_hafs_lahoni_89-20261006.jz",
+  "sha256": "aa3fadab8dcef61b56cffcdede15ddc4754dbe68761d62493a993dae89e3d9f9",
+  "parentKey": "timings/hafs/lahoni.jz",
+  "parentSha256": "6a7bfeb439ce991a2feefd25b30e829f106199ffde39680a0d82a7181358af2e",
+  "op": "ctc_quran_window:89",
+  "changedEntries": 3,
+  "warnings": [
+    "مداخل مدتها > 120ث: 1 · مثال: 2:282 مدتها 156ث"
+  ],
+  "proof": {
+    "reportPath": "ops/out/codex-short-final-lahoni-89-report-20261006.json",
+    "reportSha256": "3300c9be87492f67e2e2dc8c697750b9064ae234f0e13c15ac4d7a0c11b10303",
+    "bundlePath": "ops/out/codex-short-final-lahoni-89-complete-20261006.json.gz",
+    "bundleSha256": "ccd25e5e463f18718a9599c6bb4a7af46c70d67380a1fac4f5d44f4ddb64c398",
+    "jobId": 112109271513,
+    "id": "short_final_hafs_lahoni_89",
+    "qualityClaim": false,
+    "sourceSha256": "af3bc3f29926ee719144e9b1badbca3ff2747158748641418e8b6860739090d2",
+    "decodedEofMs": 190693,
+    "changes": [
+      {
+        "before": {
+          "ayahId": "89:28",
+          "fileRef": "https://server6.mp3quran.net/lahoni/089.mp3",
+          "startMs": 170119,
+          "endMs": 178765,
+          "conf": 0.74,
+          "confBand": "MED",
+          "startApprox": true
+        },
+        "after": {
+          "ayahId": "89:28",
+          "fileRef": "https://server6.mp3quran.net/lahoni/089.mp3",
+          "startMs": 170119,
+          "endMs": 178783,
+          "conf": 0.74,
+          "confBand": "MED",
+          "startApprox": true
+        }
+      },
+      {
+        "before": {
+          "ayahId": "89:29",
+          "fileRef": "https://server6.mp3quran.net/lahoni/089.mp3",
+          "startMs": 178765,
+          "endMs": 179896,
+          "conf": 0.44,
+          "confBand": "LOW",
+          "startApprox": true
+        },
+        "after": {
+          "ayahId": "89:29",
+          "fileRef": "https://server6.mp3quran.net/lahoni/089.mp3",
+          "startMs": 178783,
+          "endMs": 183187,
+          "conf": 0.44,
+          "confBand": "LOW",
+          "startApprox": true
+        }
+      },
+      {
+        "before": {
+          "ayahId": "89:30",
+          "fileRef": "https://server6.mp3quran.net/lahoni/089.mp3",
+          "startMs": 179896,
+          "endMs": 180436,
+          "conf": 0.427,
+          "confBand": "LOW",
+          "startApprox": true
+        },
+        "after": {
+          "ayahId": "89:30",
+          "fileRef": "https://server6.mp3quran.net/lahoni/089.mp3",
+          "startMs": 183187,
+          "endMs": 190693,
+          "conf": 0.427,
+          "confBand": "LOW",
+          "startApprox": true
+        }
+      }
+    ],
+    "provenance": {
+      "runId": "37414259961",
+      "runSha": "36d99a6987101f3d979b283dcf0ed445d4304a95",
+      "toolSha256": "10f7b31843eebabd132c28c5e9c9a216c47c66ecc4a143bbde98551c6c8705fe"
+    },
+    "limits": [
+      "توقيت آخر آيتين ونهاية السابقة فقط؛ الثقة الأصلية محفوظة.",
+      "التفريغ الحر روجع قبل البناء؛ يلزم فحص أصلي كامل على البصمة المرفوعة."
+    ]
+  }
+}
