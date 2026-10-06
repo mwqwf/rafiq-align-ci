@@ -1,0 +1,20 @@
+{
+  "action": "tool",
+  "tool": "index_qa/stage_transform.py",
+  "args": [
+    "--file",
+    "ops/source-repair/candidates/codex-rabbani_warsh-opener-repair-20261006.jz",
+    "--parent",
+    "timings/warsh/rabbani_warsh.jz",
+    "--parent-sha",
+    "d9534de9ed7aed07154a5784f2cefc5b7fef16981061bf9e4c3f9bc22a44b2aa",
+    "--op",
+    "ctc_quran_window:56,102",
+    "--reason",
+    "Restore measured surah beginnings from pinned original audio; preserve confidence and require complete independent final-SHA QA.",
+    "--by",
+    "codex-short-opener-repair-20261006",
+    "--manual-qa-only",
+    "--yes"
+  ]
+}
