@@ -1,0 +1,20 @@
+{
+  "action": "tool",
+  "tool": "index_qa/stage_transform.py",
+  "args": [
+    "--file",
+    "ops/source-repair/candidates/codex-a_alhazmi-native-tails-20261006.jz",
+    "--parent",
+    "timings/hafs/a_alhazmi.jz",
+    "--parent-sha",
+    "64b9c22bf0f97ee087421a604620a755f3d2e0645285f630f3956af4d26d5c41",
+    "--op",
+    "ctc_quran_window:67,77",
+    "--reason",
+    "Repair measured compressed Mulk and Mursalat tails using both native channels and both models, retaining original confidence and measured opener; exact-SHA full QA required.",
+    "--by",
+    "codex-native-tail-repair-20261006",
+    "--manual-qa-only",
+    "--yes"
+  ]
+}
