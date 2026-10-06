@@ -1,0 +1,20 @@
+{
+  "action": "tool",
+  "tool": "index_qa/stage_transform.py",
+  "args": [
+    "--file",
+    "ops/source-repair/candidates/codex-benkirane-51-77-repair-20261006.jz",
+    "--parent",
+    "timings/warsh/benkirane_warsh.jz",
+    "--parent-sha",
+    "f98bc7b302a415e1755ac319cb900f546ac25d3229d8a77e6014b4fe46fae300",
+    "--op",
+    "ctc_quran_surah_splice:51,77",
+    "--reason",
+    "Same-source full-surah repair with native tail contexts and decoded EOF; preserve all original confidence, require full final-SHA QA.",
+    "--by",
+    "codex-native-tail-repair-20261006",
+    "--manual-qa-only",
+    "--yes"
+  ]
+}
