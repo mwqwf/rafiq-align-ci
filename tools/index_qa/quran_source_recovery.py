@@ -18,6 +18,9 @@ import independent_window_pilot as P
 S=B.S
 SOURCES={'iraoui86_surahs_s41': {'surah': 41, 'riwaya': 'warsh', 'url': 'https://archive.org/download/55555555555033alahzab_202004/041Fossilat.mp3', 'sha256': 'f655b81ea9926ddd8c134ef04c197b550ffd954896c43229a2f01c6be1d1986b', 'requestedWindowSeconds': [0, 65]}, 'shamrani_new_archive_s79': {'surah': 79, 'riwaya': 'hafs', 'url': 'https://archive.org/download/x00xxxx2_20220807xxx/079%20%20%D8%B3%D9%88%D8%B1%D8%A9%20%D8%A7%D9%84%D9%86%D8%A7%D8%B2%D8%B9%D8%A7%D8%AA.mp3', 'sha256': 'da9ec6ff96d0159736ffadcb008b062041d264f66bc6b17b952b7a5206f88d45', 'requestedWindowSeconds': [25, 70]}}
 SOURCES.update({
+ 'fakhfakh38_midad':{'surah':38,'riwaya':'qalun',
+  'url':'https://fra1.digitaloceanspaces.com/media.midad.com/resources/ar/recitations/47022/457496/038.mp3',
+  'sha256':'930f4e059219553bbcf0d7b7ec453e0aa0f72e9a555a9d61df4528220e2674ec','requestedWindowSeconds':[0,65]},
  'asiri7_archive_4917':{'surah': 7, 'riwaya': 'hafs',
   'url':'https://archive.org/download/002_20230924_202309/007%20-%20%D8%B3%D9%88%D8%B1%D8%A9%20%D8%A7%D9%84%D8%A3%D8%B9%D8%B1%D8%A7%D9%81.mp3',
   'sha256':'897ad7e2c99472111722247f362d135da0c25c449806260269a792a12f52d3f1','requestedWindowSeconds':[0,65]},
@@ -41,6 +44,13 @@ def main(argv=None):
     ap.add_argument('--source',choices=tuple(SOURCES),required=True)
     ap.add_argument('--model-policy',choices=('cache-only','quran-pinned-ephemeral'),default='cache-only')
     a=ap.parse_args(argv);source=SOURCES[a.source]
+    if a.source=='fakhfakh38_midad':
+        metadata=(B.ROOT/'ops/out/codex-fakhfakh38-midad-metadata-20261006.json').read_bytes()
+        B.require(hashlib.sha256(metadata).hexdigest()=='138cc16e368b13740237538606ee4ff9e21c9199501b0e58baf5ab66e6e773ae','publisher metadata changed')
+        measured=json.loads(metadata)['sources'][0]
+        B.require(measured['ok'] and measured['pcm']['decodedWithoutErrors'] and measured['stereo']['decodedWithoutErrors'] and not measured['stereo']['phaseCancellationSuspected'],'unhealthy publisher source')
+        B.require(source['sha256']==measured['file']['sha256'] and source['url']==measured['file']['finalUrl'] and source['surah']==measured['surah'] and source['riwaya']==measured['riwaya'],'publisher metadata source mismatch')
+        B.require(measured['requestedUrl']=='https://midad.com/recitation/114900' and measured['resolutionMethod']=='publisher-contentUrl','publisher resolution changed')
     if a.source=='tblawi7_nquran':
         metadata=(B.ROOT/'ops/out/codex-tblawi-nquran-metadata-37406467384.json').read_bytes()
         B.require(hashlib.sha256(metadata).hexdigest()=='222a0abcea6e4ac6444eac886a4bcf00ca24a590f9cd3e6d883e04ee86002ed2','publisher metadata changed')
@@ -77,7 +87,7 @@ def main(argv=None):
             B.require(proof['decoded']['durationSeconds']<duration_limit,'unexpected source duration')
             if a.source=='tblawi7_nquran':
                 B.require(receipt['bytes']==35032209 and proof['decoded']['frames']==70049542,'new publisher source differs from measured metadata')
-            if a.source in ('iraoui86_surahs_s41', 'shamrani_new_archive_s79'):
+            if a.source in ('iraoui86_surahs_s41', 'shamrani_new_archive_s79', 'fakhfakh38_midad'):
                 B.require(receipt['bytes']==measured['file']['bytes'] and proof['decoded']['frames']==measured['pcm']['samples'],'source differs from exact measured frames')
             if a.source=='asiri7_archive_4917':
                 B.require(receipt['bytes']==measured['file']['bytes'] and proof['decoded']['frames']==measured['decodedPcmMono16k']['samples'],'source differs from exact session measurement')
@@ -85,7 +95,7 @@ def main(argv=None):
             contract=P.load_contract()
             with S.model_snapshots(a.model_policy) as (snapshots,inventory):
                 report['modelAcquisition']=inventory
-                if a.source in ('iraoui86_surahs_s41','shamrani_new_archive_s79','shamrani79','mrifai84','benkirane77','benkirane51','yousef107','tblawi7_nquran'):
+                if a.source in ('iraoui86_surahs_s41','shamrani_new_archive_s79','shamrani79','mrifai84','benkirane77','benkirane51','yousef107','tblawi7_nquran','fakhfakh38_midad'):
                     window=dict(source,windowSeconds=[collector.start/S.RATE,min(collector.frames,collector.end)/S.RATE])
                     for spec in S.MODELS:
                         backend=S.FreeCTC(snapshots[spec['name']],spec)
@@ -107,7 +117,7 @@ def main(argv=None):
                     C._M.clear();gc.collect()
             B.require(S.sha_file(path)==source['sha256'],'source changed after inference')
             alignment=report['alignment']
-            expected={41:54,79:46,28:88,45:37,22:78,84:25,77:50,51:60,107:7,7:206}[source['surah']]
+            expected={38:88,41:54,79:46,28:88,45:37,22:78,84:25,77:50,51:60,107:7,7:206}[source['surah']]
             B.require(len(alignment['entries'])==expected,'incomplete result population')
             if a.source=='asiri7_archive_4917':
                 overlap=alignment.get('chunkedAlignment',{})
