@@ -1,0 +1,83 @@
+{
+  "path": "ops/source-repair/candidates/codex-expanded-tail-hafs-mohsin_harthi-20261006.jz",
+  "sha256": "6a88e72274c8ffcb71fdfbe273afc9de023802bc37d7bca7b3183fce1563102e",
+  "parentKey": "timings/hafs/mohsin_harthi.jz",
+  "parentSha256": "ac38edba785e2dbb519a9423f6153f2395cd70d381fdfbce8ef3bc26f1f3c0f5",
+  "op": "ctc_quran_window:91",
+  "changedEntries": 2,
+  "warnings": [
+    "مداخل مدتها > 120ث: 1 · مثال: 2:282 مدتها 149ث",
+    "مطالع سور تبدأ دون 3ث — مرشّحون للمسبار الصوتي لا حكمٌ عليهم: 10:1=2822م.ث · 15:1=2962م.ث · 16:1=2902م.ث · 22:1=2870م.ث · 24:1=2542م.ث · 25:1=2602م.ث · 26:1=2750م.ث · 34:1=2862م.ث · 36:1=2662م.ث · 37:1=2960م.ث … و39 غيرها"
+  ],
+  "proof": {
+    "qualityClaim": false,
+    "contexts": [
+      {
+        "reportPath": "ops/out/codex-short-final-mohsin-harthi-91-report-20261006.json",
+        "reportSha256": "23eed900013cd79170296d4b3e5d4de409fc4b43ea42792a15a8ff5dd26c072a",
+        "bundlePath": "ops/out/codex-short-final-mohsin-harthi-91-complete-20261006.json.gz",
+        "bundleSha256": "03021e3d950f1719809e1e62bdb0822d000bc81303cbc977b049ef43fc2e47ca",
+        "jobId": 112109272503,
+        "id": "short_final_hafs_mohsin_harthi_91",
+        "targetAyahs": [
+          15
+        ],
+        "sourceSha256": "ab2288a04ff73436f7a07d458e922b583f56cf8370a9383b2c470c25e818c042",
+        "provenance": {
+          "runId": "37414259961",
+          "runSha": "36d99a6987101f3d979b283dcf0ed445d4304a95",
+          "toolSha256": "10f7b31843eebabd132c28c5e9c9a216c47c66ecc4a143bbde98551c6c8705fe"
+        }
+      }
+    ],
+    "changes": [
+      {
+        "before": {
+          "ayahId": "91:14",
+          "fileRef": "https://server6.mp3quran.net/mohsin_harthi/091.mp3",
+          "startMs": 50415,
+          "endMs": 56229,
+          "conf": 0.0,
+          "confBand": "LOW",
+          "startApprox": true
+        },
+        "after": {
+          "ayahId": "91:14",
+          "fileRef": "https://server6.mp3quran.net/mohsin_harthi/091.mp3",
+          "startMs": 50415,
+          "endMs": 62823,
+          "conf": 0.0,
+          "confBand": "LOW",
+          "startApprox": true
+        }
+      },
+      {
+        "before": {
+          "ayahId": "91:15",
+          "fileRef": "https://server6.mp3quran.net/mohsin_harthi/091.mp3",
+          "startMs": 56229,
+          "endMs": 56889,
+          "conf": 0.0,
+          "confBand": "LOW",
+          "startApprox": true
+        },
+        "after": {
+          "ayahId": "91:15",
+          "fileRef": "https://server6.mp3quran.net/mohsin_harthi/091.mp3",
+          "startMs": 62823,
+          "endMs": 67186,
+          "conf": 0.0,
+          "confBand": "LOW",
+          "startApprox": true
+        }
+      }
+    ],
+    "decodedEofMs": {
+      "91": 67186
+    },
+    "limits": [
+      "الحد الأصلي لثقة المحاذاة0.45؛ لا تغيير لأي حارس أو ثقة منشورة.",
+      "الخواتيم المقيسة فقط؛ يلزم الفحص الأصلي الكامل للبصمة المرفوعة."
+    ]
+  }
+}
