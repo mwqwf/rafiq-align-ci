@@ -17,7 +17,7 @@ S=B.S
 SOURCES={
  'benkirane77':{"surah":77,"riwaya":"warsh","url":"https://server16.mp3quran.net/A-Benkirane/Rewayat-Warsh-A-n-Nafi/077.mp3","sha256":"b6c7c2949373d2285eea057fa2b63e987a66793dff0e491064dabcfebcbd81b4","requestedWindowSeconds":[0,65]},
  'benkirane51':{"surah":51,"riwaya":"warsh","url":"https://server16.mp3quran.net/A-Benkirane/Rewayat-Warsh-A-n-Nafi/051.mp3","sha256":"7edb05c3b0f7ebe2f37d5af3c9949727cef50772cbc4857b5745c7a92fab7dbf","requestedWindowSeconds":[0,65]},
- 'yousef107':{"surah":107,"riwaya":"hafs","url":"https://server9.mp3quran.net/yousef/107.mp3","sha256":"cbbaf0650b648b3572b02c58e042a7599d88e09dca0b149f2cf07cce1ea481eb","requestedWindowSeconds":[0,35.68325]},
+ 'yousef107':{"surah":107,"riwaya":"hafs","url":"https://server9.mp3quran.net/yousef/107.mp3","sha256":"cbbaf0650b648b3572b02c58e042a7599d88e09dca0b149f2cf07cce1ea481eb","requestedWindowSeconds":[0,36]},
  'mrifai84':{'surah':84,'riwaya':'hafs','url':'https://server11.mp3quran.net/mrifai/084.mp3',
   'sha256':'9f5d858255f19262e9d3fb817b160f72c06ec6db86c6aa3c3519388dbc367e86','requestedWindowSeconds':[0,65]},
  'saad22':{'surah':22,'riwaya':'hafs','url':'https://media.way2quran.com/saad-almqren/hafs-an-asim/22.mp3',
