@@ -1,0 +1,58 @@
+{
+  "kind": "pinned-parent-diagnostic-request",
+  "qualityClaim": false,
+  "reciterId": "m_abdulkareem_warsh",
+  "riwaya": "warsh",
+  "surah": 78,
+  "parentSha256": "746e762fc2722d0c6cc108d239aa0ad5ba1947e13189013201f4b3964201fee5",
+  "parentPath": "ops/source-repair/parents/codex-warsh-m_abdulkareem_warsh-746e762f.jz",
+  "sourceSha256": "bf029142bc2bca8ef920a8d3440c40b20568756ab49d3da805e8ca88d2f74ad3",
+  "url": "https://server12.mp3quran.net/m_krm/Rewayat-Warsh-A-n-Nafi-Men-Tariq-Abi-Baker-Alasbahani/078.mp3",
+  "entries": [
+    {
+      "ayahId": "78:32",
+      "fileRef": "https://server12.mp3quran.net/m_krm/Rewayat-Warsh-A-n-Nafi-Men-Tariq-Abi-Baker-Alasbahani/078.mp3",
+      "startMs": 148020,
+      "endMs": 150740,
+      "conf": 0.48,
+      "confBand": "MED",
+      "startApprox": true
+    },
+    {
+      "ayahId": "78:33",
+      "fileRef": "https://server12.mp3quran.net/m_krm/Rewayat-Warsh-A-n-Nafi-Men-Tariq-Abi-Baker-Alasbahani/078.mp3",
+      "startMs": 150740,
+      "endMs": 153460,
+      "conf": 0.6,
+      "confBand": "MED",
+      "startApprox": true
+    },
+    {
+      "ayahId": "78:34",
+      "fileRef": "https://server12.mp3quran.net/m_krm/Rewayat-Warsh-A-n-Nafi-Men-Tariq-Abi-Baker-Alasbahani/078.mp3",
+      "startMs": 153460,
+      "endMs": 156180,
+      "conf": 0.48,
+      "confBand": "MED",
+      "startApprox": true
+    },
+    {
+      "ayahId": "78:35",
+      "fileRef": "https://server12.mp3quran.net/m_krm/Rewayat-Warsh-A-n-Nafi-Men-Tariq-Abi-Baker-Alasbahani/078.mp3",
+      "startMs": 156180,
+      "endMs": 164450,
+      "conf": 0.56,
+      "confBand": "MED",
+      "startApprox": true
+    },
+    {
+      "ayahId": "78:36",
+      "fileRef": "https://server12.mp3quran.net/m_krm/Rewayat-Warsh-A-n-Nafi-Men-Tariq-Abi-Baker-Alasbahani/078.mp3",
+      "startMs": 164450,
+      "endMs": 172450,
+      "conf": 0.92,
+      "confBand": "HIGH"
+    }
+  ],
+  "reason": "Expand adjacent boundary context to avoid fixing one start while clipping the following verse."
+}

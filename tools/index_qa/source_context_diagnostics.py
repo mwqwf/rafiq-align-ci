@@ -15,15 +15,15 @@ import final_verse_free_batch as B
 import independent_window_pilot as P
 S=B.S
 PLAN='ops/source-repair/codex-source-context-plan-20261006.json'
-PLAN_SHA='44b63e771bf8b75009495a206df20ddb6c332f21dcd85f0b696f35f29abdb2be'
-IDS=('saad28_context', 'saad45_tail', 'shamrani79_tail', 'tblawi_head', 'tblawi_tail', 'm_ab26_29', 'm_ab34_37', 'm_ab91_95', 'koshi20_22', 'koshi94_96', 'saad28_tail', 'saad22_41_45', 'saad22_68_71', 'saad22_tail', 'shamrani79_middle', 'shamrani79_midad_middle', 'mab_rs1_16_9', 'mab_rs1_11_22', 'mab_rs1_18_90', 'mab_rs1_23_52', 'mab_rs1_23_79', 'mab_rs1_69_47', 'mab_rs1_90_11', 'mab_rs1_90_19', 'mab_rs1_90_5', 'mab_rs1_78_33', 'mrifai84_tail', 'yousef107_tail', 'saad_reject_22_27', 'saad_reject_22_52', 'saad_reject_22_62', 'saad_reject_28_21', 'saad_reject_28_67', 'hazmi67_23_26', 'hazmi67_tail', 'hazmi77_tail', 'benkirane77_tail', 'benkirane51_middle', 'benkirane51_tail', 'rabbani_warsh_77_expanded', 'rabbani_warsh_96_expanded', 'hatem_54_expanded', 'hatem_82_expanded', 'm_abdulkareem_warsh_69_expanded')
+PLAN_SHA='f6efa58821811318847d2d80f17a62ec18611d7beb62973ebca8f48bec135538'
+IDS=('saad28_context', 'saad45_tail', 'shamrani79_tail', 'tblawi_head', 'tblawi_tail', 'm_ab26_29', 'm_ab34_37', 'm_ab91_95', 'koshi20_22', 'koshi94_96', 'saad28_tail', 'saad22_41_45', 'saad22_68_71', 'saad22_tail', 'shamrani79_middle', 'shamrani79_midad_middle', 'mab_rs1_16_9', 'mab_rs1_11_22', 'mab_rs1_18_90', 'mab_rs1_23_52', 'mab_rs1_23_79', 'mab_rs1_69_47', 'mab_rs1_90_11', 'mab_rs1_90_19', 'mab_rs1_90_5', 'mab_rs1_78_33', 'mrifai84_tail', 'yousef107_tail', 'saad_reject_22_27', 'saad_reject_22_52', 'saad_reject_22_62', 'saad_reject_28_21', 'saad_reject_28_67', 'hazmi67_23_26', 'hazmi67_tail', 'hazmi77_tail', 'benkirane77_tail', 'benkirane51_middle', 'benkirane51_tail', 'rabbani_warsh_77_expanded', 'rabbani_warsh_96_expanded', 'hatem_54_expanded', 'hatem_82_expanded', 'm_abdulkareem_warsh_69_expanded', 'mab78_32_36', 'mab90_4_8', 'mab90_10_14')
 
-PINNED_PARENT_IDS={'rabbani_warsh_77_expanded': 'd9534de9ed7aed07154a5784f2cefc5b7fef16981061bf9e4c3f9bc22a44b2aa', 'rabbani_warsh_96_expanded': 'd9534de9ed7aed07154a5784f2cefc5b7fef16981061bf9e4c3f9bc22a44b2aa', 'hatem_54_expanded': '5d7e73699ae633807bd57ecb60ea235f503318fdacf8c13bd3b81132eb10f85e', 'hatem_82_expanded': '5d7e73699ae633807bd57ecb60ea235f503318fdacf8c13bd3b81132eb10f85e', 'm_abdulkareem_warsh_69_expanded': '746e762fc2722d0c6cc108d239aa0ad5ba1947e13189013201f4b3964201fee5'}
+PINNED_PARENT_IDS={'rabbani_warsh_77_expanded': 'd9534de9ed7aed07154a5784f2cefc5b7fef16981061bf9e4c3f9bc22a44b2aa', 'rabbani_warsh_96_expanded': 'd9534de9ed7aed07154a5784f2cefc5b7fef16981061bf9e4c3f9bc22a44b2aa', 'hatem_54_expanded': '5d7e73699ae633807bd57ecb60ea235f503318fdacf8c13bd3b81132eb10f85e', 'hatem_82_expanded': '5d7e73699ae633807bd57ecb60ea235f503318fdacf8c13bd3b81132eb10f85e', 'm_abdulkareem_warsh_69_expanded': '746e762fc2722d0c6cc108d239aa0ad5ba1947e13189013201f4b3964201fee5', 'mab78_32_36': '746e762fc2722d0c6cc108d239aa0ad5ba1947e13189013201f4b3964201fee5', 'mab90_4_8': '746e762fc2722d0c6cc108d239aa0ad5ba1947e13189013201f4b3964201fee5', 'mab90_10_14': '746e762fc2722d0c6cc108d239aa0ad5ba1947e13189013201f4b3964201fee5'}
 
 def load_source(ident):
     B.require(ident in IDS, 'unplanned diagnostic')
     raw=(B.ROOT/PLAN).read_bytes();B.require(hashlib.sha256(raw).hexdigest()==PLAN_SHA,'plan changed')
-    rows=json.loads(raw)['sources'];B.require(len(rows)==44 and {r['id'] for r in rows}==set(IDS),'population changed')
+    rows=json.loads(raw)['sources'];B.require(len(rows)==47 and {r['id'] for r in rows}==set(IDS),'population changed')
     source=next(r for r in rows if r['id']==ident)
     path=(B.ROOT/source['evidencePath']).resolve()
     B.require(path.parent==B.ROOT/'ops/out' and path.suffix=='.json','evidence path')

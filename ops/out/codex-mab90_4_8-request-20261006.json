@@ -1,0 +1,59 @@
+{
+  "kind": "pinned-parent-diagnostic-request",
+  "qualityClaim": false,
+  "reciterId": "m_abdulkareem_warsh",
+  "riwaya": "warsh",
+  "surah": 90,
+  "parentSha256": "746e762fc2722d0c6cc108d239aa0ad5ba1947e13189013201f4b3964201fee5",
+  "parentPath": "ops/source-repair/parents/codex-warsh-m_abdulkareem_warsh-746e762f.jz",
+  "sourceSha256": "fb04b5e32caa09888f0776adba06859026076d70e7a86566f1840afec9557ac4",
+  "url": "https://server12.mp3quran.net/m_krm/Rewayat-Warsh-A-n-Nafi-Men-Tariq-Abi-Baker-Alasbahani/090.mp3",
+  "entries": [
+    {
+      "ayahId": "90:4",
+      "fileRef": "https://server12.mp3quran.net/m_krm/Rewayat-Warsh-A-n-Nafi-Men-Tariq-Abi-Baker-Alasbahani/090.mp3",
+      "startMs": 15426,
+      "endMs": 20093,
+      "conf": 0.552,
+      "confBand": "MED",
+      "startApprox": true
+    },
+    {
+      "ayahId": "90:5",
+      "fileRef": "https://server12.mp3quran.net/m_krm/Rewayat-Warsh-A-n-Nafi-Men-Tariq-Abi-Baker-Alasbahani/090.mp3",
+      "startMs": 20093,
+      "endMs": 27450,
+      "conf": 0.6,
+      "confBand": "MED",
+      "startApprox": true
+    },
+    {
+      "ayahId": "90:6",
+      "fileRef": "https://server12.mp3quran.net/m_krm/Rewayat-Warsh-A-n-Nafi-Men-Tariq-Abi-Baker-Alasbahani/090.mp3",
+      "startMs": 27450,
+      "endMs": 29426,
+      "conf": 1.0,
+      "confBand": "HIGH",
+      "refined": true
+    },
+    {
+      "ayahId": "90:7",
+      "fileRef": "https://server12.mp3quran.net/m_krm/Rewayat-Warsh-A-n-Nafi-Men-Tariq-Abi-Baker-Alasbahani/090.mp3",
+      "startMs": 29426,
+      "endMs": 35900,
+      "conf": 0.552,
+      "confBand": "MED",
+      "startApprox": true
+    },
+    {
+      "ayahId": "90:8",
+      "fileRef": "https://server12.mp3quran.net/m_krm/Rewayat-Warsh-A-n-Nafi-Men-Tariq-Abi-Baker-Alasbahani/090.mp3",
+      "startMs": 35900,
+      "endMs": 40160,
+      "conf": 0.943,
+      "confBand": "HIGH",
+      "refined": true
+    }
+  ],
+  "reason": "Expand adjacent boundary context to avoid fixing one start while clipping the following verse."
+}
