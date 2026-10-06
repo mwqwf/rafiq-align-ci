@@ -1,0 +1,102 @@
+{
+  "schema": 1,
+  "timestampUtc": "2026-10-06T19:13:37Z",
+  "scope": "indexing-only",
+  "repository": {
+    "name": "mwqwf/rafiq-align-ci",
+    "visibility": "public",
+    "remoteHeadAtStart": "5893cdc43b5dbeb550197f4f5d4ef9bfdf3f22d7",
+    "commandsAtFinalCheck": ["README.md"]
+  },
+  "liveWork": {
+    "completedObserved": [
+      {
+        "runId": 37515913934,
+        "name": "rafiq-ctc-driver",
+        "headSha": "5893cdc43b5dbeb550197f4f5d4ef9bfdf3f22d7",
+        "conclusion": "success",
+        "productionChangeObserved": false
+      }
+    ],
+    "activeObserved": [
+      {
+        "runId": 37514364363,
+        "name": "keepalive",
+        "headSha": "5893cdc43b5dbeb550197f4f5d4ef9bfdf3f22d7",
+        "status": "in_progress"
+      }
+    ],
+    "independentScope": "hafs/nasser_almajed/6"
+  },
+  "resumeIntegrityRepair": {
+    "damagedRemoteCommit": "5893cdc43b5dbeb550197f4f5d4ef9bfdf3f22d7",
+    "damagedBlob": "3c0a549dc5c2bf8063457117710cf20871b536dd",
+    "damagedBytes": 150060,
+    "damagedSha256": "83408b27f72aca776e65d5f7347dec1040f5398896138ea38adc1b4412d1fe96",
+    "validUtf8": false,
+    "restoredFromCommit": "abc2b8c5",
+    "restoredBytesBeforeThisSection": 163826,
+    "restoredLinesBeforeThisSection": 631,
+    "restoredSha256BeforeThisSection": "68474e78d6317fbb6a9f28e189a9901fe3e54b54a5dc9507e752cbd773310efc",
+    "guard": "tools/index_qa/resume_guard.py",
+    "guardContract": "valid UTF-8 plus byte-exact append of the baseline",
+    "guardTestsPassed": 3
+  },
+  "sourceAudit": {
+    "report": "ops/source-repair/nasser-6-source-audit-20261006.json",
+    "catalogDurationMs": 1313596,
+    "way2QuranBytes": 52551679,
+    "way2QuranDurationMs": 1313620,
+    "way2QuranSha256": "cf38bd6037d6279e017e268c03c56fb32ae5dd7b8fb92635c0dbf31290ad55c5",
+    "way2QuranByteIdenticalToCatalog": true,
+    "catalogMeasuredEnd": "6:73",
+    "archiveMissingRange": "6:74-94",
+    "completeMatchingSourceFound": false,
+    "blockedExactTuple": [
+      "hafs",
+      "nasser_almajed",
+      6,
+      "https://server14.mp3quran.net/nasser_almajed/",
+      "realign-surah-v1"
+    ],
+    "differentSourceRemainsEligible": true
+  },
+  "tests": {
+    "resumeGuard": {"passed": 3, "failed": 0},
+    "restoreLoop": {"passed": 25, "failed": 0},
+    "evidenceHashes": {"passed": 3, "failed": 0},
+    "jsonParse": "pass",
+    "pyCompile": "pass",
+    "diffCheck": "pass"
+  },
+  "production": {
+    "changed": false,
+    "structuralAudit": "ops/out/full-audit-codex-after-thirty-nine-20261006.json",
+    "indexes": 180,
+    "entries": 1121595,
+    "missing": 885,
+    "impossibleShort": 1,
+    "nasserAlmajedSurah6Missing": 165
+  },
+  "completionEvidence": {
+    "latestStableReport": "ops/out/completion-codex-after-twenty-five-20261006-summary.json",
+    "reportPredatesLaterProductionChanges": true,
+    "verifiedEndEvidence": 0,
+    "unknownEndEvidence": 1121596,
+    "completionProven": false
+  },
+  "costSafety": {
+    "workflowDispatchedByThisWork": false,
+    "r2Writes": false,
+    "artifactWrites": false,
+    "cacheWrites": false,
+    "localOnlyTests": true
+  },
+  "remaining": [
+    "find a complete matching Hafs recording for nasser_almajed/6",
+    "measure starts, middle transitions including 6:73-95, and final 6:165 on that distinct source",
+    "complete independent start and end evidence for all 180 indexes and 114-surah coverage",
+    "rerun a stable completion audit after all production changes"
+  ],
+  "completionClaim": false
+}

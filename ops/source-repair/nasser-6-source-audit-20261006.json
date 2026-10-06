@@ -1,0 +1,102 @@
+{
+  "schema": 1,
+  "kind": "source-completeness-audit",
+  "timestampUtc": "2026-10-06T19:11:01Z",
+  "scope": {
+    "riwaya": "hafs",
+    "reciterId": "nasser_almajed",
+    "surah": 6,
+    "expectedAyahs": 165
+  },
+  "production": {
+    "audit": "ops/out/full-audit-codex-after-thirty-nine-20261006.json",
+    "auditSha256": "876b81c0e7f23db2f4c2649cbe80b8c328ca492495ee1b6247141e1d2f04bcb4",
+    "indexSha256": "35dd76b62e500652651128ff068c911809259ec0939590e6ba9fd1acde176c1f",
+    "entries": 6071,
+    "missing": 165,
+    "wholeMissingSurahs": [6],
+    "reasonCode": "SOURCE_CORRUPT",
+    "productionChangedByThisAudit": false
+  },
+  "catalogSource": {
+    "base": "https://server14.mp3quran.net/nasser_almajed/",
+    "url": "https://server14.mp3quran.net/nasser_almajed/006.mp3",
+    "probeRun": 37174754365,
+    "durationMs": 1313596,
+    "measuredContent": "6:1-73; no measured recitation completing 6:74-165",
+    "verdict": "truncated"
+  },
+  "byteIdenticalMirror": {
+    "url": "https://media.way2quran.com/nasser-almajed/hafs-an-asim/006.mp3",
+    "bytes": 52551679,
+    "durationMs": 1313620,
+    "sha256": "cf38bd6037d6279e017e268c03c56fb32ae5dd7b8fb92635c0dbf31290ad55c5",
+    "baseline": "https://server14.mp3quran.net/nasser_almajed/006.mp3",
+    "evidence": "ops/out/20261005_codex_1856_source_probe.json",
+    "evidenceSha256": "ad77bc4dc0d4c760cebd9cb358ff4cebf83995fe463443c3f1a916b065e79f28",
+    "verdict": "same truncated bytes; not a replacement source"
+  },
+  "independentMeasurement": {
+    "report": "ops/out/codex-nasser6-heard-37357778521.json",
+    "reportSha256": "31343b250f977e05e747bc98ba4c0e0d9d1d6c26d583968b58997b02161d3bb3",
+    "fileRef": "https://media.way2quran.com/nasser-almajed/hafs-an-asim/006.mp3",
+    "audioSha256": "cf38bd6037d6279e017e268c03c56fb32ae5dd7b8fb92635c0dbf31290ad55c5",
+    "totalMs": 1313619,
+    "heardAnchors": {
+      "first": 1,
+      "last": 68,
+      "count": 68
+    },
+    "ayahs74To165BelowQualityThreshold": 92,
+    "qualityThreshold": 0.5,
+    "verdict": "no timing may be synthesized after the measured recitation ends"
+  },
+  "archiveAlternative": {
+    "base": "https://archive.org/download/1111111111111wsiy1433_gmail_002_201812/",
+    "probeRun": 37129145011,
+    "durationMsApprox": 2728000,
+    "measuredContent": "6:1-73, two basmalahs, then 6:95-165",
+    "missingRange": "6:74-94",
+    "blockedEngine": "realign-surah-v1",
+    "verdict": "different but internally truncated"
+  },
+  "freshPublicSourceCheck": [
+    {
+      "page": "https://way2quran.com/ar/reciters/nasser-almajed",
+      "checkedUtc": "2026-10-06T19:05:00Z",
+      "claim": "114 surahs / complete collection",
+      "surah6Download": "https://media.way2quran.com/nasser-almajed/hafs-an-asim/006.mp3",
+      "result": "download target is the byte-identical truncated mirror above"
+    },
+    {
+      "page": "https://podbay.fm/p/-nasser-almajed-or/e/1288180009",
+      "checkedUtc": "2026-10-06T19:07:00Z",
+      "published": "2010-10-27",
+      "downloadHost": "server14.mp3quran.net",
+      "result": "points back to the catalog source; no distinct recording"
+    },
+    {
+      "page": "https://alkabbah.com/recitations/playlist/756023/tornt-mshf-nasr-almagd-114-sor-kaml-bgod-khyaly-320-k-b-anthr-llshrh-orabt-altornt-asfl-almshf-baad-aldght-aal-almzyd-nasr-almagd",
+      "checkedUtc": "2026-10-06T19:06:00Z",
+      "claim": "114-surah collection",
+      "indexedSurah6Duration": "21:54",
+      "result": "metadata duration matches the 1314-second truncated catalog recording; metadata alone is not completeness proof"
+    }
+  ],
+  "guard": {
+    "file": "tools/ci_fleet/blocked_realigns.json",
+    "exactTuple": [
+      "hafs",
+      "nasser_almajed",
+      6,
+      "https://server14.mp3quran.net/nasser_almajed/",
+      "realign-surah-v1"
+    ],
+    "scope": "exact source and engine only; a verified complete source remains eligible"
+  },
+  "conclusion": {
+    "completeMatchingSourceFound": false,
+    "remainingWork": "find a complete recording by the same reciter in Hafs, then measure 6:1, middle transitions including 6:73-95, and 6:165 before any candidate",
+    "completionClaim": false
+  }
+}
