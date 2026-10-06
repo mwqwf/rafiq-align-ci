@@ -1,0 +1,13 @@
+{
+  "action": "tool",
+  "tool": "index_qa/export_index_bytes.py",
+  "args": [
+    "--key",
+    "timings-staging/warsh/noah_warsh.b99262ae.jz",
+    "--expect-sha",
+    "b99262ae6b1b13592a29025d3cfc9760029a2e0c13769768808459e5f3f51437",
+    "--allow-staging",
+    "--out",
+    "ops/out/codex-noah-warsh54-drop-bytes-20261006.json"
+  ]
+}
