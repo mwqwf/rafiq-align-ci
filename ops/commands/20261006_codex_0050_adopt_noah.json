@@ -1,0 +1,14 @@
+{
+  "action": "tool",
+  "tool": "index_qa/promote_verified_transform.py",
+  "args": [
+    "--key",
+    "timings-staging/hafs/noah.944dfdfa.jz",
+    "--sha",
+    "944dfdfa68b7af5bd7ecad949edb6abd38c4dfba94bbce8763761711cdddf4b4",
+    "--parent-sha",
+    "b14ed7f3eec4e69fb0e328efeb6eff72042f49a4588b3e09d71c8b15850a3d41",
+    "--reason",
+    "Owner-directed recovery of 376 entries for Hafs Noah surahs 3/4: all seven exact-SHA QA measurements succeeded, diagnosis refresh 37392859370 succeeded, original guarded review 112043241535 succeeded with 0.38% upper bound. Source-pinned independent free tail ASR 37388055996 retained. No global accuracy certification; all LOW metadata preserved."
+  ]
+}
