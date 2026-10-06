@@ -1,0 +1,93 @@
+{
+  "path": "ops/source-repair/candidates/codex-short_final_shuba_deban_shuba_89-20261006.jz",
+  "sha256": "1b87f5b15286c6a0b8f8ddbbd8a6a887921129d2ae8d30cea286f49f280da2d1",
+  "parentKey": "timings/shuba/deban_shuba.jz",
+  "parentSha256": "b839ddd521e41de6d909f4143c807d9e596d2d2df2236a7518fad40fe39f5e5a",
+  "op": "ctc_quran_window:89",
+  "changedEntries": 3,
+  "warnings": [
+    "مداخل مدتها > 120ث: 1 · مثال: 2:282 مدتها 146ث"
+  ],
+  "proof": {
+    "reportPath": "ops/out/codex-short-final-shuba-deban-shuba-89-report-20261006.json",
+    "reportSha256": "13f80100a9247e4407544396b7eaa78cfb39295ef86d4f51adea937b018177cb",
+    "bundlePath": "ops/out/codex-short-final-shuba-deban-shuba-89-complete-20261006.json.gz",
+    "bundleSha256": "168564708fb6bbb9d03d8732fb87e7f3370d118b861f0af380898dc81d2b8b0a",
+    "jobId": 112109271417,
+    "id": "short_final_shuba_deban_shuba_89",
+    "qualityClaim": false,
+    "sourceSha256": "f9380c1df9bc80604cd45579f88cee1ef6ecb80e5cf6b8d708bd51a8309411b3",
+    "decodedEofMs": 195161,
+    "changes": [
+      {
+        "before": {
+          "ayahId": "89:28",
+          "fileRef": "https://server16.mp3quran.net/deban/Rewayat-Sho-bah-A-n-Asim/089.mp3",
+          "startMs": 176017,
+          "endMs": 180281,
+          "conf": 0.0,
+          "confBand": "LOW",
+          "startApprox": true
+        },
+        "after": {
+          "ayahId": "89:28",
+          "fileRef": "https://server16.mp3quran.net/deban/Rewayat-Sho-bah-A-n-Asim/089.mp3",
+          "startMs": 176017,
+          "endMs": 183871,
+          "conf": 0.0,
+          "confBand": "LOW",
+          "startApprox": true
+        }
+      },
+      {
+        "before": {
+          "ayahId": "89:29",
+          "fileRef": "https://server16.mp3quran.net/deban/Rewayat-Sho-bah-A-n-Asim/089.mp3",
+          "startMs": 180281,
+          "endMs": 181541,
+          "conf": 0.0,
+          "confBand": "LOW",
+          "startApprox": true
+        },
+        "after": {
+          "ayahId": "89:29",
+          "fileRef": "https://server16.mp3quran.net/deban/Rewayat-Sho-bah-A-n-Asim/089.mp3",
+          "startMs": 183871,
+          "endMs": 187074,
+          "conf": 0.0,
+          "confBand": "LOW",
+          "startApprox": true
+        }
+      },
+      {
+        "before": {
+          "ayahId": "89:30",
+          "fileRef": "https://server16.mp3quran.net/deban/Rewayat-Sho-bah-A-n-Asim/089.mp3",
+          "startMs": 181541,
+          "endMs": 181962,
+          "conf": 0.0,
+          "confBand": "LOW",
+          "startApprox": true
+        },
+        "after": {
+          "ayahId": "89:30",
+          "fileRef": "https://server16.mp3quran.net/deban/Rewayat-Sho-bah-A-n-Asim/089.mp3",
+          "startMs": 187074,
+          "endMs": 195161,
+          "conf": 0.0,
+          "confBand": "LOW",
+          "startApprox": true
+        }
+      }
+    ],
+    "provenance": {
+      "runId": "37414259961",
+      "runSha": "36d99a6987101f3d979b283dcf0ed445d4304a95",
+      "toolSha256": "10f7b31843eebabd132c28c5e9c9a216c47c66ecc4a143bbde98551c6c8705fe"
+    },
+    "limits": [
+      "توقيت آخر آيتين ونهاية السابقة فقط؛ الثقة الأصلية محفوظة.",
+      "التفريغ الحر روجع قبل البناء؛ يلزم فحص أصلي كامل على البصمة المرفوعة."
+    ]
+  }
+}
