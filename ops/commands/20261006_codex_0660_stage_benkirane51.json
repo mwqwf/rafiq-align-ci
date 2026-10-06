@@ -1,0 +1,20 @@
+{
+  "action": "tool",
+  "tool": "index_qa/stage_transform.py",
+  "args": [
+    "--file",
+    "ops/source-repair/candidates/codex-benkirane51-only-20261006.jz",
+    "--parent",
+    "timings/warsh/benkirane_warsh.jz",
+    "--parent-sha",
+    "f98bc7b302a415e1755ac319cb900f546ac25d3229d8a77e6014b4fe46fae300",
+    "--op",
+    "ctc_quran_surah_splice:51",
+    "--reason",
+    "Measured Dhariyat-only repair. Mursalat77 unchanged and explicitly unresolved; fresh complete final-SHA QA required. No gates weakened.",
+    "--by",
+    "codex",
+    "--manual-qa-only",
+    "--yes"
+  ]
+}
