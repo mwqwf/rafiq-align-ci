@@ -21,6 +21,9 @@ def main():
         bp='ops/out/codex-mab-v4-contexts-complete-20261006.json.gz';bh='df49990b5d68b2a4c1883b9d2714d40551f806d60ec338fb33810575f5f11149'
         reports=checked(rp,rh);C.require(len(reports)==7,'context population')
         targets={r['reader']:[int(e['ayahId'].split(':')[1]) for e in r['measurements'][0]['rawEntries']] for r in reports}
+        reports += checked('ops/out/codex-mab-v4-adjacent-contexts-20261006.json','0dcf6c18ba889d9c73a5644503bf1b3a695d303a708c073c5e81d8cb2013a6e9')
+        checked('ops/out/codex-mab-v4-adjacent-contexts-complete-20261006.json.gz','e2cbb308f9730509acdbd808739d527ff15d2145a0366115b9469649a47702e5',True)
+        targets.update(mab_v4_11_93=[93],mab_v4_23_107=[107,108])
         surahs={11,16,18,21,23,69,78,90};name='mab-context-v4'
     else:
         parent_sha='f1b40abe72f4f85bd41cc87166f2cf8785960c1e267f09816b99532851812207'
@@ -32,7 +35,7 @@ def main():
         reports += [next(r for r in old if r['reader']=='balilah')]
         targets={'balilah69_tail_transition':[43,44,45,46],'balilah':list(range(47,53))};surahs={69};name='balilah-tail-only'
     checked(bp,bh,True)
-    rows={e['ayahId']:e for e in candidate['entries']};selected=[];eofs={}
+    rows={e['ayahId']:e for e in candidate['entries']};selected=[];eofs={};end_checks=[]
     for rep in reports:
         src=rep['source'];s=src['surah'];ms=rep['measurements']
         C.require(rep['measurementComplete'] and not rep['errors'] and src['sha256']==parent['audioSha256'][s-1] and src['riwaya']==parent['riwaya'],'source or measurement mismatch')
@@ -46,15 +49,27 @@ def main():
             # the two agreeing Quran measurements and let original heard QA judge.
             bound=700 if a.reader=='balilah' else 500
             C.require(max(e['startMs'] for e in es)-min(e['startMs'] for e in es)<=bound and min(e['conf'] for e in qs)>=.45,'ambiguous target '+aid)
-            start=min(e['startMs'] for e in qs);rows[aid]['startMs']=start;rows[f'{s}:{ay-1}']['endMs']=start
+            start=min(e['startMs'] for e in qs)
+            if rep['reader']=='mab_v4_23_107' and ay==107:
+                gs=[next(e for e in m['rawEntries'] if e['ayahId']==aid) for m in ms if m['model']=='generic']
+                C.require({e['startMs'] for e in gs}=={1133803},'changed adjacent pause evidence')
+                # Both generic native channels place this boundary in the pause.
+                # Quran raw106 ends1133163; both free decoders emit next ra at
+                #1133952. Earlier Quran107 start1133453 also lies in that pause.
+                # Keep the measured generic boundary to preserve both models'
+                #106 raw extents. No threshold or confidence is changed.
+                start=1133803
+            rows[aid]['startMs']=start;rows[f'{s}:{ay-1}']['endMs']=start
         dec=rep['audio']['decoded'];last=f'{s}:{ayahs[-1]}'
         if ayahs[-1]==C.splice_surah.COUNTS[s-1] and dec['windowEndSampleExclusive']==dec['frames']:
             C.require(dec['decodedWithoutErrors'],'decode errors');eofs[s]=dec['frames']*1000//16000;rows[last]['endMs']=eofs[s]
         if a.reader=='mab':
-            C.require(rows[last]['endMs']>=max(next(e['endMs'] for e in m['rawEntries'] if e['ayahId']==last) for m in ms),'retained end clips speech '+last)
+            end_checks.append((last,max(next(e['endMs'] for e in m['rawEntries'] if e['ayahId']==last) for m in ms)))
         model=copy.deepcopy(next(m['alignmentModel'] for m in ms if m['model']=='quran'));model['canonicalTextChanged']=False
         candidate.setdefault('engineBySurah',{})[str(s)]='ctc-quran-window-1';candidate.setdefault('alignmentModelBySurah',{})[str(s)]=model
         selected.append(dict(reader=rep['reader'],ayahs=ayahs,sourceSha256=src['sha256'],provenance=rep['provenance']))
+    for aid,measured_end in end_checks:
+        C.require(rows[aid]['endMs']>=measured_end,'retained end clips speech '+aid)
     changes=[dict(before=x,after=y) for x,y in zip(parent['entries'],candidate['entries']) if x!=y]
     for c in changes:
         strip=lambda e:{k:v for k,v in e.items() if k not in ('startMs','endMs')}
@@ -62,6 +77,8 @@ def main():
         if a.reader=='balilah':C.require(42<=int(c['after']['ayahId'].split(':')[1])<=52,'outside measured tail')
     key=f"timings/{parent['riwaya']}/{parent['reciterId']}.jz"
     proof=dict(qualityClaim=False,reportPath=rp,reportSha256=rh,rawBundlePath=bp,rawBundleSha256=bh,selectedContexts=selected,decodedEofMs=eofs,changes=changes,inheritedProof=copy.deepcopy(candidate.get('transform',{}).get('sameSourceRepair')),limits=['Original confidence, riwaya, canonical text, source bytes unchanged.','Fresh complete exact-SHA original QA required.','Balilah69:26 remains unresolved; this repair only addresses42end and43..52.'] if a.reader=='balilah' else ['All original v3 rejection evidence retained. New native contexts measure actual boundary corrections; no unchanged resampling.','Original confidence unchanged; fresh exact-SHA original QA required.'])
+    if a.reader=='mab':
+        proof['adjacentContextEvidence']={'reportPath':'ops/out/codex-mab-v4-adjacent-contexts-20261006.json','reportSha256':'0dcf6c18ba889d9c73a5644503bf1b3a695d303a708c073c5e81d8cb2013a6e9','rawBundleSha256':'e2cbb308f9730509acdbd808739d527ff15d2145a0366115b9469649a47702e5','selectedStartModelByAyah':{'23:107':'generic-both-native-channels'},'limits':['11:94 is clipped in the diagnostic window and confidence0; its timing is not repaired from that context.','23:107 chosen measured boundary1133803 is inside the pause between Quran106 rawend1133163 and next ra greedy frame1133952; frame emissions are supporting evidence, not exact word boundaries.']}
     tr=C.repaired_transform(parent,candidate,sorted(surahs),parent_sha,key);moved,added,removed=T.entry_change_counts(parent['entries'],candidate['entries']);C.require(added==removed==0,'coverage changed')
     tr.update(op='ctc_quran_window:'+','.join(map(str,sorted(surahs))),fromSha256=parent_sha,fromKey=key,entriesSha256=T.entries_sha(candidate['entries']),parentEntriesSha256=T.entries_sha(parent['entries']),movedEntries=moved,addedEntries=0,removedEntries=0,by='build_measured_late_repairs',reason='Native source context repair of measured late boundaries',sameSourceRepair=proof,unpublishedLocalCandidate=True);candidate['transform']=tr
     why=T.promote.index_gate(candidate,parent=parent,parent_sha=parent_sha);C.require(not why,str(why));fatal,warnings,_=R.structural(candidate,key,False);C.require(not fatal,str(fatal));C.require(set(map(str,surahs))<=T.promote.census_surahs(candidate),'missing census')
