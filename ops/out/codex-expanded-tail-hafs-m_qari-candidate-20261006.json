@@ -1,0 +1,182 @@
+{
+  "path": "ops/source-repair/candidates/codex-expanded-tail-hafs-m_qari-20261006.jz",
+  "sha256": "08288f095c4d95041f91e78ba627647435a7c0064160f0eecd796d5c641225ff",
+  "parentKey": "timings/hafs/m_qari.jz",
+  "parentSha256": "2a27b0f8a6cf6560343605eb38de13d1f41ea71ee08eba59ce45fdbae9e1f8f6",
+  "op": "ctc_quran_window:87,105",
+  "changedEntries": 6,
+  "warnings": [
+    "مداخل مدتها > 120ث: 1 · مثال: 2:282 مدتها 161ث"
+  ],
+  "proof": {
+    "qualityClaim": false,
+    "contexts": [
+      {
+        "reportPath": "ops/out/codex-short-final-m-qari-87-report-20261006.json",
+        "reportSha256": "a0f2a3025b897583763a14de2f1563cdda0560d0ec7bc1ea21d430d856253ce0",
+        "bundlePath": "ops/out/codex-short-final-m-qari-87-complete-20261006.json.gz",
+        "bundleSha256": "21f8f97928d88b5e240ea9941ffb18afc8431a6dc5665e6b06a0ece036d652ad",
+        "jobId": 112109271446,
+        "id": "short_final_hafs_m_qari_87",
+        "targetAyahs": [
+          18,
+          19
+        ],
+        "sourceSha256": "d2f4c65bd54de413bd84def0294a7b81d68d8ca55805e1b89a5a5945de4edb97",
+        "provenance": {
+          "runId": "37414259961",
+          "runSha": "36d99a6987101f3d979b283dcf0ed445d4304a95",
+          "toolSha256": "10f7b31843eebabd132c28c5e9c9a216c47c66ecc4a143bbde98551c6c8705fe"
+        }
+      },
+      {
+        "reportPath": "ops/out/codex-short-final-m-qari-105-report-20261006.json",
+        "reportSha256": "c004829d096b753d4b8b5c76ae8b7d9e9a5399a62500c92db4e7e4ee4b674725",
+        "bundlePath": "ops/out/codex-short-final-m-qari-105-complete-20261006.json.gz",
+        "bundleSha256": "e7db8274ed95563bfc0c13ab95a979ddf666596a8b8b07b9d3fd2e9853f8fabf",
+        "jobId": 112109272528,
+        "id": "short_final_hafs_m_qari_105",
+        "targetAyahs": [
+          4,
+          5
+        ],
+        "sourceSha256": "25f9e94cd060bec62c20b2543b372c069bb5388bc16f2f5c5e1912a0a56bf86c",
+        "provenance": {
+          "runId": "37414259961",
+          "runSha": "36d99a6987101f3d979b283dcf0ed445d4304a95",
+          "toolSha256": "10f7b31843eebabd132c28c5e9c9a216c47c66ecc4a143bbde98551c6c8705fe"
+        }
+      }
+    ],
+    "changes": [
+      {
+        "before": {
+          "ayahId": "87:17",
+          "fileRef": "https://server8.mp3quran.net/m_qari/087.mp3",
+          "startMs": 81800,
+          "endMs": 88135,
+          "conf": 0.74,
+          "confBand": "MED",
+          "startApprox": true
+        },
+        "after": {
+          "ayahId": "87:17",
+          "fileRef": "https://server8.mp3quran.net/m_qari/087.mp3",
+          "startMs": 81800,
+          "endMs": 87385,
+          "conf": 0.74,
+          "confBand": "MED",
+          "startApprox": true
+        }
+      },
+      {
+        "before": {
+          "ayahId": "87:18",
+          "fileRef": "https://server8.mp3quran.net/m_qari/087.mp3",
+          "startMs": 88135,
+          "endMs": 90027,
+          "conf": 0.389,
+          "confBand": "LOW",
+          "startApprox": true
+        },
+        "after": {
+          "ayahId": "87:18",
+          "fileRef": "https://server8.mp3quran.net/m_qari/087.mp3",
+          "startMs": 87385,
+          "endMs": 91609,
+          "conf": 0.389,
+          "confBand": "LOW",
+          "startApprox": true
+        }
+      },
+      {
+        "before": {
+          "ayahId": "87:19",
+          "fileRef": "https://server8.mp3quran.net/m_qari/087.mp3",
+          "startMs": 90027,
+          "endMs": 90747,
+          "conf": 0.342,
+          "confBand": "LOW",
+          "startApprox": true
+        },
+        "after": {
+          "ayahId": "87:19",
+          "fileRef": "https://server8.mp3quran.net/m_qari/087.mp3",
+          "startMs": 91609,
+          "endMs": 98064,
+          "conf": 0.342,
+          "confBand": "LOW",
+          "startApprox": true
+        }
+      },
+      {
+        "before": {
+          "ayahId": "105:3",
+          "fileRef": "https://server8.mp3quran.net/m_qari/105.mp3",
+          "startMs": 15611,
+          "endMs": 20575,
+          "conf": 0.706,
+          "confBand": "MED",
+          "startApprox": true
+        },
+        "after": {
+          "ayahId": "105:3",
+          "fileRef": "https://server8.mp3quran.net/m_qari/105.mp3",
+          "startMs": 15611,
+          "endMs": 20596,
+          "conf": 0.706,
+          "confBand": "MED",
+          "startApprox": true
+        }
+      },
+      {
+        "before": {
+          "ayahId": "105:4",
+          "fileRef": "https://server8.mp3quran.net/m_qari/105.mp3",
+          "startMs": 20575,
+          "endMs": 26279,
+          "conf": 0.74,
+          "confBand": "MED",
+          "startApprox": true
+        },
+        "after": {
+          "ayahId": "105:4",
+          "fileRef": "https://server8.mp3quran.net/m_qari/105.mp3",
+          "startMs": 20596,
+          "endMs": 26261,
+          "conf": 0.74,
+          "confBand": "MED",
+          "startApprox": true
+        }
+      },
+      {
+        "before": {
+          "ayahId": "105:5",
+          "fileRef": "https://server8.mp3quran.net/m_qari/105.mp3",
+          "startMs": 26279,
+          "endMs": 27079,
+          "conf": 0.425,
+          "confBand": "LOW",
+          "startApprox": true
+        },
+        "after": {
+          "ayahId": "105:5",
+          "fileRef": "https://server8.mp3quran.net/m_qari/105.mp3",
+          "startMs": 26261,
+          "endMs": 35088,
+          "conf": 0.425,
+          "confBand": "LOW",
+          "startApprox": true
+        }
+      }
+    ],
+    "decodedEofMs": {
+      "87": 98064,
+      "105": 35088
+    },
+    "limits": [
+      "الحد الأصلي لثقة المحاذاة0.45؛ لا تغيير لأي حارس أو ثقة منشورة.",
+      "الخواتيم المقيسة فقط؛ يلزم الفحص الأصلي الكامل للبصمة المرفوعة."
+    ]
+  }
+}
