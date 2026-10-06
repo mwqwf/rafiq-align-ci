@@ -1,0 +1,14 @@
+{
+  "action": "tool",
+  "tool": "index_qa/promote_verified_transform.py",
+  "args": [
+    "--key",
+    "timings-staging/hafs/darweez.47ef82a5.jz",
+    "--sha",
+    "47ef82a5541a9e71e6e25fd83c8608020512f5c9f8ce7583ce9801bbc234140e",
+    "--parent-sha",
+    "d14fedebbae69f2e29b83d5c081e72214d532fa4a6efb4d094252a9e98a57342",
+    "--reason",
+    "Owner-directed full Najm53 correction from source-pinned heard mapping and measured decoded EOF487131ms. All seven final-SHA checks in37396095612 passed; review112060187883 succeeded after diagnosis37398121497. Four rs samples measured1.0/0.5/1.0/1.0%; retain LOW and one unverified opener. No perfect-accuracy claim. Old over-EOF candidate rejected and superseded, no guard changes."
+  ]
+}
