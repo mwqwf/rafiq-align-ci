@@ -434,7 +434,7 @@
     }
   },
   "liveSnapshot": {
-    "at": "2026-10-06T11:18:29Z",
+    "at": "2026-10-06T12:08:24Z",
     "counts": {
       "inProgress": 1,
       "queued": 1,
@@ -443,17 +443,17 @@
     "runs": {
       "in_progress": [
         {
-          "id": 37452874368,
+          "id": 37457049650,
           "name": "نبّاضٌ سحابيّ — يُبقي الأسطولَ يعمل بلا جهاز المالك",
           "path": ".github/workflows/keepalive.yml",
-          "createdAt": "2026-10-06T10:54:27Z",
-          "headSha": "1acff97d4fa368878163b34a6e0cc04ab8e3e6db"
+          "createdAt": "2026-10-06T11:32:09Z",
+          "headSha": "6ea24db1bf651791f47047c7c5a0236007cabb30"
         }
       ],
       "queued": [
         {
           "id": 34748440538,
-          "name": "Merge remote-tracking branch 'origin/main'",
+          "name": "rafiq-agent-cmd",
           "path": ".github/workflows/agent_cmd.yml",
           "createdAt": "2026-09-13T08:45:25Z",
           "headSha": "b31cacd4135e04b03a0f8d49748b1a68c23bc6f0"
@@ -480,7 +480,8 @@
     "3siri surah 7 has exact repeated full boundaries plus targeted head/middle/tail and expanded ayah-48 evidence, but the local candidate has not been staged or passed final-SHA audio QA",
     "R2 staging-write cost/quota is not proven free by repository evidence, so no storage write or QA dispatch was launched",
     "multiple non-overlapping tail QA runs remain active or queued",
-    "catalog-source realign 37452084938 failed with five missing ayahs and no R2 candidate; its exact source/engine tuple is blocked from automatic retry"
+    "catalog-source realign 37452084938 failed with five missing ayahs and no R2 candidate; its exact source/engine tuple is blocked from automatic retry",
+    "Balilah surah 69 full candidate has one unresolved measured boundary conflict at 69:26; unchanged restaging is forbidden."
   ],
   "laterObservation": {
     "at": "2026-10-06T05:42:00Z",
@@ -496,7 +497,7 @@
       "step": "numeric full-surah alignment"
     }
   },
-  "updatedAt": "2026-10-06T11:18:29Z",
+  "updatedAt": "2026-10-06T12:08:24Z",
   "latestSourceIdentityAudit": {
     "label": "after-thirty-three-adoptions",
     "timestampUtc": "2026-10-06T06:10:18.569453Z",
@@ -528,5 +529,55 @@
       "cacheSaved": false,
       "audioUploaded": false
     }
+  },
+  "balilah69": {
+    "status": "blocked-not-promotable",
+    "productionChanged": false,
+    "completionClaim": false,
+    "thresholdChanged": false,
+    "fullCandidate": {
+      "stagingKey": "timings-staging/hafs/balilah.097eb5a0.jz",
+      "sha256": "097eb5a00ffb591653ce67820e3af2c26316bcd4b90cbd2a88f4d5f67317034c",
+      "parentSha256": "f1b40abe72f4f85bd41cc87166f2cf8785960c1e267f09816b99532851812207",
+      "runId": 37395140610,
+      "heardJobId": 112049309200
+    },
+    "replay": {
+      "rows": 52,
+      "statusCounts": {
+        "ok": 47,
+        "unmeasured": 2,
+        "repeat": 2,
+        "dev": 1
+      },
+      "onlyRejectingAyah": 26,
+      "candidateStartMs": 275598,
+      "gateAnchorMs": 273977,
+      "gateDeviationMs": 1621,
+      "thresholdMs": 1500,
+      "overThresholdByMs": 121,
+      "nativeConsensusStartMs": 275626,
+      "nativePaths": 4,
+      "candidateVsNativeMs": -28
+    },
+    "anchorProvenance": {
+      "canonicalStartOffset": 651,
+      "crossingOpcode": [
+        "replace",
+        686,
+        690,
+        648,
+        652
+      ],
+      "mappedAnchorMs": 273977,
+      "firstEqualCharacterMs": 276299
+    },
+    "evidence": {
+      "fullReport": "ops/out/codex-balilah-full-heard-report-37395140610.json",
+      "replay": "ops/out/codex-balilah-full-gate-replay-20261006.json",
+      "anchorReport": "ops/out/codex-balilah-anchor-provenance-report-20261006.json",
+      "nativeReport": "ops/out/codex-balilah69-boundary26-native-report-20261006.json"
+    },
+    "next": "Do not restage unchanged. Design and validate a general audio-only refinement for global edit opcodes crossing canonical verse boundaries; preserve the 1500 ms gate and require end-to-end final-SHA QA."
   }
 }
