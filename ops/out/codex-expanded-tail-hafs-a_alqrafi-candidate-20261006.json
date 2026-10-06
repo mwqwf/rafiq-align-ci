@@ -1,0 +1,219 @@
+{
+  "path": "ops/source-repair/candidates/codex-expanded-tail-hafs-a_alqrafi-20261006.jz",
+  "sha256": "bb5d37bb890ea2c8938b2aa101d61da3a68335a7b7a936822db4e37efd8e91cd",
+  "parentKey": "timings/hafs/a_alqrafi.jz",
+  "parentSha256": "3e2c3d79aeeb28cf188f7a861c34cd074d6ae400df54580a13b215aea65d22cf",
+  "op": "ctc_quran_window:89",
+  "changedEntries": 8,
+  "warnings": [
+    "مداخل مدتها > 120ث: 1 · مثال: 2:282 مدتها 130ث",
+    "مطالع سور تبدأ دون 3ث — مرشّحون للمسبار الصوتي لا حكمٌ عليهم: 32:1=110م.ث · 34:1=1491م.ث · 51:1=1991م.ث · 52:1=170م.ث · 53:1=1851م.ث · 54:1=2591م.ث · 55:1=950م.ث · 56:1=2031م.ث · 58:1=490م.ث · 59:1=2311م.ث … و32 غيرها"
+  ],
+  "proof": {
+    "qualityClaim": false,
+    "contexts": [
+      {
+        "reportPath": "ops/out/codex-alqrafi89-24-30-report-20261006.json",
+        "reportSha256": "b2954875d1309eef4fb023fd0894771574e04b29850f897cb63dea3bb5672c49",
+        "bundlePath": "ops/out/codex-alqrafi89-24-30-complete-20261006.json.gz",
+        "bundleSha256": "8f69f9d74ee800bcd496ad8dfe1c723f0cfbc600458ab2095a83ed3c1456506f",
+        "jobId": 112121825212,
+        "id": "alqrafi89_tail_24_30",
+        "targetAyahs": [
+          24,
+          25,
+          26,
+          27,
+          29,
+          30
+        ],
+        "sourceSha256": "083d446caefb039d5b60d2ccad0abec6395fc95b0e97461d2d2498a0f560d307",
+        "provenance": {
+          "runId": "37417833419",
+          "runSha": "6ead738562f61e18d96325d716207ada39508ab8",
+          "toolSha256": "443806492a44bb5cddcdd4002d4006b65eb88b9dfb2ed34eece7e9e502cd3cda"
+        }
+      },
+      {
+        "reportPath": "ops/out/codex-alqrafi89-boundary28-report-20261006.json",
+        "reportSha256": "0570a7a80b7890499000b89b5bdda86556ca51d7686ec3c0408ec73d08184ea9",
+        "bundlePath": "ops/out/codex-alqrafi89-boundary28-complete-20261006.json.gz",
+        "bundleSha256": "1005df6e95c57243a31d0d7015406d9a76af1d5f1fdba7316037c4d0f2d83c3c",
+        "jobId": 112126482136,
+        "id": "alqrafi89_boundary28",
+        "targetAyahs": [
+          28
+        ],
+        "sourceSha256": "083d446caefb039d5b60d2ccad0abec6395fc95b0e97461d2d2498a0f560d307",
+        "provenance": {
+          "runId": "37419827277",
+          "runSha": "10e543f4a3abe0a9f37789098354cadc94716dbe",
+          "toolSha256": "9dfa4edf27b68644b8acde79474bdd22b592ab018b6238cf1a42db470a61ea57"
+        }
+      }
+    ],
+    "changes": [
+      {
+        "before": {
+          "ayahId": "89:23",
+          "fileRef": "https://server16.mp3quran.net/a_alqrafi/Rewayat-Hafs-A-n-Assem/089.mp3",
+          "startMs": 162760,
+          "endMs": 187236,
+          "conf": 0.74,
+          "confBand": "MED"
+        },
+        "after": {
+          "ayahId": "89:23",
+          "fileRef": "https://server16.mp3quran.net/a_alqrafi/Rewayat-Hafs-A-n-Assem/089.mp3",
+          "startMs": 162760,
+          "endMs": 187226,
+          "conf": 0.74,
+          "confBand": "MED"
+        }
+      },
+      {
+        "before": {
+          "ayahId": "89:24",
+          "fileRef": "https://server16.mp3quran.net/a_alqrafi/Rewayat-Hafs-A-n-Assem/089.mp3",
+          "startMs": 187236,
+          "endMs": 194360,
+          "conf": 0.74,
+          "confBand": "MED",
+          "startApprox": true
+        },
+        "after": {
+          "ayahId": "89:24",
+          "fileRef": "https://server16.mp3quran.net/a_alqrafi/Rewayat-Hafs-A-n-Assem/089.mp3",
+          "startMs": 187226,
+          "endMs": 194313,
+          "conf": 0.74,
+          "confBand": "MED",
+          "startApprox": true
+        }
+      },
+      {
+        "before": {
+          "ayahId": "89:25",
+          "fileRef": "https://server16.mp3quran.net/a_alqrafi/Rewayat-Hafs-A-n-Assem/089.mp3",
+          "startMs": 194360,
+          "endMs": 202507,
+          "conf": 0.754,
+          "confBand": "MED"
+        },
+        "after": {
+          "ayahId": "89:25",
+          "fileRef": "https://server16.mp3quran.net/a_alqrafi/Rewayat-Hafs-A-n-Assem/089.mp3",
+          "startMs": 194313,
+          "endMs": 202500,
+          "conf": 0.754,
+          "confBand": "MED"
+        }
+      },
+      {
+        "before": {
+          "ayahId": "89:26",
+          "fileRef": "https://server16.mp3quran.net/a_alqrafi/Rewayat-Hafs-A-n-Assem/089.mp3",
+          "startMs": 202507,
+          "endMs": 205799,
+          "conf": 0.74,
+          "confBand": "MED",
+          "startApprox": true
+        },
+        "after": {
+          "ayahId": "89:26",
+          "fileRef": "https://server16.mp3quran.net/a_alqrafi/Rewayat-Hafs-A-n-Assem/089.mp3",
+          "startMs": 202500,
+          "endMs": 211188,
+          "conf": 0.74,
+          "confBand": "MED",
+          "startApprox": true
+        }
+      },
+      {
+        "before": {
+          "ayahId": "89:27",
+          "fileRef": "https://server16.mp3quran.net/a_alqrafi/Rewayat-Hafs-A-n-Assem/089.mp3",
+          "startMs": 205799,
+          "endMs": 208281,
+          "conf": 0.013,
+          "confBand": "LOW",
+          "startApprox": true
+        },
+        "after": {
+          "ayahId": "89:27",
+          "fileRef": "https://server16.mp3quran.net/a_alqrafi/Rewayat-Hafs-A-n-Assem/089.mp3",
+          "startMs": 211188,
+          "endMs": 224364,
+          "conf": 0.013,
+          "confBand": "LOW",
+          "startApprox": true
+        }
+      },
+      {
+        "before": {
+          "ayahId": "89:28",
+          "fileRef": "https://server16.mp3quran.net/a_alqrafi/Rewayat-Hafs-A-n-Assem/089.mp3",
+          "startMs": 208281,
+          "endMs": 211410,
+          "conf": 0.069,
+          "confBand": "LOW",
+          "startApprox": true
+        },
+        "after": {
+          "ayahId": "89:28",
+          "fileRef": "https://server16.mp3quran.net/a_alqrafi/Rewayat-Hafs-A-n-Assem/089.mp3",
+          "startMs": 224364,
+          "endMs": 236450,
+          "conf": 0.069,
+          "confBand": "LOW",
+          "startApprox": true
+        }
+      },
+      {
+        "before": {
+          "ayahId": "89:29",
+          "fileRef": "https://server16.mp3quran.net/a_alqrafi/Rewayat-Hafs-A-n-Assem/089.mp3",
+          "startMs": 211410,
+          "endMs": 216707,
+          "conf": 0.58,
+          "confBand": "MED"
+        },
+        "after": {
+          "ayahId": "89:29",
+          "fileRef": "https://server16.mp3quran.net/a_alqrafi/Rewayat-Hafs-A-n-Assem/089.mp3",
+          "startMs": 236450,
+          "endMs": 241194,
+          "conf": 0.58,
+          "confBand": "MED"
+        }
+      },
+      {
+        "before": {
+          "ayahId": "89:30",
+          "fileRef": "https://server16.mp3quran.net/a_alqrafi/Rewayat-Hafs-A-n-Assem/089.mp3",
+          "startMs": 216707,
+          "endMs": 217628,
+          "conf": 0.28,
+          "confBand": "LOW",
+          "startApprox": true
+        },
+        "after": {
+          "ayahId": "89:30",
+          "fileRef": "https://server16.mp3quran.net/a_alqrafi/Rewayat-Hafs-A-n-Assem/089.mp3",
+          "startMs": 241194,
+          "endMs": 249821,
+          "conf": 0.28,
+          "confBand": "LOW",
+          "startApprox": true
+        }
+      }
+    ],
+    "decodedEofMs": {
+      "89": 249821
+    },
+    "limits": [
+      "الحد الأصلي لثقة المحاذاة0.45؛ لا تغيير لأي حارس أو ثقة منشورة.",
+      "الخواتيم المقيسة فقط؛ يلزم الفحص الأصلي الكامل للبصمة المرفوعة."
+    ]
+  }
+}

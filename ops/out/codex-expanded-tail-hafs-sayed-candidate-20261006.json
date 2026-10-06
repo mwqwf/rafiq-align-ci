@@ -1,0 +1,660 @@
+{
+  "path": "ops/source-repair/candidates/codex-expanded-tail-hafs-sayed-20261006.jz",
+  "sha256": "6c7366abbef11a29f4de20face787b87b9c4541dd0ff06c52692ab6a87873a75",
+  "parentKey": "timings/hafs/sayed.jz",
+  "parentSha256": "79118033c593c0bf7110be8fbc48e98bc32785aa7eb39858be8f768c371a5ba0",
+  "op": "ctc_quran_window:53,91",
+  "changedEntries": 28,
+  "warnings": [],
+  "proof": {
+    "qualityClaim": false,
+    "contexts": [
+      {
+        "reportPath": "ops/out/codex-sayed53-39-52-report-20261006.json",
+        "reportSha256": "3b3a9d2c292105ff5b26b2a46a3d90e6ea7a97219d3da6c636c27e72d356989b",
+        "bundlePath": "ops/out/codex-sayed53-39-52-complete-20261006.json.gz",
+        "bundleSha256": "e4e88b253a7357a96d4c92c6ae615fb7c8ee8b7e88a22c63dc2619060b89906d",
+        "jobId": 112126482187,
+        "id": "sayed53_tail_39_52",
+        "targetAyahs": [
+          39,
+          40,
+          41,
+          42,
+          43,
+          44,
+          45,
+          46,
+          47,
+          48,
+          49,
+          50,
+          51,
+          52
+        ],
+        "sourceSha256": "1e7c5f2ed1bd856c5e0122a4fb4dcf2f8fa7ec6c6187ed02a9397f465b65151a",
+        "provenance": {
+          "runId": "37419827277",
+          "runSha": "10e543f4a3abe0a9f37789098354cadc94716dbe",
+          "toolSha256": "9dfa4edf27b68644b8acde79474bdd22b592ab018b6238cf1a42db470a61ea57"
+        }
+      },
+      {
+        "reportPath": "ops/out/codex-sayed53-51-62-report-20261006.json",
+        "reportSha256": "49e30a80df75ce35c33a1caf6b39dc8f430eb5abd2c67e7207753e57c37c49ee",
+        "bundlePath": "ops/out/codex-sayed53-51-62-complete-20261006.json.gz",
+        "bundleSha256": "51f426ae450051958af5ddd737af6125134cecd59730655d37407d5a137c1064",
+        "jobId": 112121825175,
+        "id": "sayed53_tail_51_62",
+        "targetAyahs": [
+          51,
+          52,
+          53,
+          54,
+          55,
+          56,
+          57,
+          58,
+          59,
+          60,
+          61,
+          62
+        ],
+        "sourceSha256": "1e7c5f2ed1bd856c5e0122a4fb4dcf2f8fa7ec6c6187ed02a9397f465b65151a",
+        "provenance": {
+          "runId": "37417833419",
+          "runSha": "6ead738562f61e18d96325d716207ada39508ab8",
+          "toolSha256": "443806492a44bb5cddcdd4002d4006b65eb88b9dfb2ed34eece7e9e502cd3cda"
+        }
+      },
+      {
+        "reportPath": "ops/out/codex-sayed91-last2-report-20261006.json",
+        "reportSha256": "907ef60610742031a8eb6f8f95b1ee77fdca2933bf892cf8481b0ba330c254a1",
+        "bundlePath": "ops/out/codex-sayed91-last2-complete-20261006.json.gz",
+        "bundleSha256": "1c2a8bc782a71f3e3c32cc615a7e8058db58ed896c31f1ec7591d287af69deb8",
+        "jobId": 112109273593,
+        "id": "short_final_hafs_sayed_91",
+        "targetAyahs": [
+          14,
+          15
+        ],
+        "sourceSha256": "8e20c267d41f9806378abf6cfbfe480252af8cf00a5efc5369c53f09d1ca2969",
+        "provenance": {
+          "runId": "37414259961",
+          "runSha": "36d99a6987101f3d979b283dcf0ed445d4304a95",
+          "toolSha256": "10f7b31843eebabd132c28c5e9c9a216c47c66ecc4a143bbde98551c6c8705fe"
+        }
+      }
+    ],
+    "changes": [
+      {
+        "before": {
+          "ayahId": "53:38",
+          "fileRef": "https://server12.mp3quran.net/sayed/053.mp3",
+          "startMs": 257820,
+          "endMs": 262012,
+          "conf": 0.705,
+          "confBand": "MED",
+          "startApprox": true
+        },
+        "after": {
+          "ayahId": "53:38",
+          "fileRef": "https://server12.mp3quran.net/sayed/053.mp3",
+          "startMs": 257820,
+          "endMs": 262109,
+          "conf": 0.705,
+          "confBand": "MED",
+          "startApprox": true
+        }
+      },
+      {
+        "before": {
+          "ayahId": "53:39",
+          "fileRef": "https://server12.mp3quran.net/sayed/053.mp3",
+          "startMs": 262012,
+          "endMs": 263854,
+          "conf": 0.11,
+          "confBand": "LOW",
+          "startApprox": true
+        },
+        "after": {
+          "ayahId": "53:39",
+          "fileRef": "https://server12.mp3quran.net/sayed/053.mp3",
+          "startMs": 262109,
+          "endMs": 267073,
+          "conf": 0.11,
+          "confBand": "LOW",
+          "startApprox": true
+        }
+      },
+      {
+        "before": {
+          "ayahId": "53:40",
+          "fileRef": "https://server12.mp3quran.net/sayed/053.mp3",
+          "startMs": 263854,
+          "endMs": 265295,
+          "conf": 0.421,
+          "confBand": "LOW",
+          "startApprox": true
+        },
+        "after": {
+          "ayahId": "53:40",
+          "fileRef": "https://server12.mp3quran.net/sayed/053.mp3",
+          "startMs": 267073,
+          "endMs": 270516,
+          "conf": 0.421,
+          "confBand": "LOW",
+          "startApprox": true
+        }
+      },
+      {
+        "before": {
+          "ayahId": "53:41",
+          "fileRef": "https://server12.mp3quran.net/sayed/053.mp3",
+          "startMs": 265295,
+          "endMs": 265855,
+          "conf": 0.0,
+          "confBand": "LOW",
+          "startApprox": true
+        },
+        "after": {
+          "ayahId": "53:41",
+          "fileRef": "https://server12.mp3quran.net/sayed/053.mp3",
+          "startMs": 270516,
+          "endMs": 275220,
+          "conf": 0.0,
+          "confBand": "LOW",
+          "startApprox": true
+        }
+      },
+      {
+        "before": {
+          "ayahId": "53:42",
+          "fileRef": "https://server12.mp3quran.net/sayed/053.mp3",
+          "startMs": 265855,
+          "endMs": 266756,
+          "conf": 0.0,
+          "confBand": "LOW",
+          "startApprox": true
+        },
+        "after": {
+          "ayahId": "53:42",
+          "fileRef": "https://server12.mp3quran.net/sayed/053.mp3",
+          "startMs": 275220,
+          "endMs": 279564,
+          "conf": 0.0,
+          "confBand": "LOW",
+          "startApprox": true
+        }
+      },
+      {
+        "before": {
+          "ayahId": "53:43",
+          "fileRef": "https://server12.mp3quran.net/sayed/053.mp3",
+          "startMs": 266756,
+          "endMs": 268937,
+          "conf": 0.268,
+          "confBand": "LOW",
+          "startApprox": true
+        },
+        "after": {
+          "ayahId": "53:43",
+          "fileRef": "https://server12.mp3quran.net/sayed/053.mp3",
+          "startMs": 279564,
+          "endMs": 283447,
+          "conf": 0.268,
+          "confBand": "LOW",
+          "startApprox": true
+        }
+      },
+      {
+        "before": {
+          "ayahId": "53:44",
+          "fileRef": "https://server12.mp3quran.net/sayed/053.mp3",
+          "startMs": 268937,
+          "endMs": 269698,
+          "conf": 0.235,
+          "confBand": "LOW",
+          "startApprox": true
+        },
+        "after": {
+          "ayahId": "53:44",
+          "fileRef": "https://server12.mp3quran.net/sayed/053.mp3",
+          "startMs": 283447,
+          "endMs": 287290,
+          "conf": 0.235,
+          "confBand": "LOW",
+          "startApprox": true
+        }
+      },
+      {
+        "before": {
+          "ayahId": "53:45",
+          "fileRef": "https://server12.mp3quran.net/sayed/053.mp3",
+          "startMs": 269698,
+          "endMs": 271109,
+          "conf": 0.115,
+          "confBand": "LOW",
+          "startApprox": true
+        },
+        "after": {
+          "ayahId": "53:45",
+          "fileRef": "https://server12.mp3quran.net/sayed/053.mp3",
+          "startMs": 287290,
+          "endMs": 292995,
+          "conf": 0.115,
+          "confBand": "LOW",
+          "startApprox": true
+        }
+      },
+      {
+        "before": {
+          "ayahId": "53:46",
+          "fileRef": "https://server12.mp3quran.net/sayed/053.mp3",
+          "startMs": 271109,
+          "endMs": 272620,
+          "conf": 0.129,
+          "confBand": "LOW",
+          "startApprox": true
+        },
+        "after": {
+          "ayahId": "53:46",
+          "fileRef": "https://server12.mp3quran.net/sayed/053.mp3",
+          "startMs": 292995,
+          "endMs": 296137,
+          "conf": 0.129,
+          "confBand": "LOW",
+          "startApprox": true
+        }
+      },
+      {
+        "before": {
+          "ayahId": "53:47",
+          "fileRef": "https://server12.mp3quran.net/sayed/053.mp3",
+          "startMs": 272620,
+          "endMs": 274301,
+          "conf": 0.0,
+          "confBand": "LOW",
+          "startApprox": true
+        },
+        "after": {
+          "ayahId": "53:47",
+          "fileRef": "https://server12.mp3quran.net/sayed/053.mp3",
+          "startMs": 296137,
+          "endMs": 300281,
+          "conf": 0.0,
+          "confBand": "LOW",
+          "startApprox": true
+        }
+      },
+      {
+        "before": {
+          "ayahId": "53:48",
+          "fileRef": "https://server12.mp3quran.net/sayed/053.mp3",
+          "startMs": 274301,
+          "endMs": 276642,
+          "conf": 0.19,
+          "confBand": "LOW",
+          "startApprox": true
+        },
+        "after": {
+          "ayahId": "53:48",
+          "fileRef": "https://server12.mp3quran.net/sayed/053.mp3",
+          "startMs": 300281,
+          "endMs": 303984,
+          "conf": 0.19,
+          "confBand": "LOW",
+          "startApprox": true
+        }
+      },
+      {
+        "before": {
+          "ayahId": "53:49",
+          "fileRef": "https://server12.mp3quran.net/sayed/053.mp3",
+          "startMs": 276642,
+          "endMs": 278324,
+          "conf": 0.117,
+          "confBand": "LOW",
+          "startApprox": true
+        },
+        "after": {
+          "ayahId": "53:49",
+          "fileRef": "https://server12.mp3quran.net/sayed/053.mp3",
+          "startMs": 303984,
+          "endMs": 307528,
+          "conf": 0.117,
+          "confBand": "LOW",
+          "startApprox": true
+        }
+      },
+      {
+        "before": {
+          "ayahId": "53:50",
+          "fileRef": "https://server12.mp3quran.net/sayed/053.mp3",
+          "startMs": 278324,
+          "endMs": 280335,
+          "conf": 0.183,
+          "confBand": "LOW",
+          "startApprox": true
+        },
+        "after": {
+          "ayahId": "53:50",
+          "fileRef": "https://server12.mp3quran.net/sayed/053.mp3",
+          "startMs": 307528,
+          "endMs": 311491,
+          "conf": 0.183,
+          "confBand": "LOW",
+          "startApprox": true
+        }
+      },
+      {
+        "before": {
+          "ayahId": "53:51",
+          "fileRef": "https://server12.mp3quran.net/sayed/053.mp3",
+          "startMs": 280335,
+          "endMs": 281886,
+          "conf": 0.25,
+          "confBand": "LOW",
+          "startApprox": true
+        },
+        "after": {
+          "ayahId": "53:51",
+          "fileRef": "https://server12.mp3quran.net/sayed/053.mp3",
+          "startMs": 311491,
+          "endMs": 314093,
+          "conf": 0.25,
+          "confBand": "LOW",
+          "startApprox": true
+        }
+      },
+      {
+        "before": {
+          "ayahId": "53:52",
+          "fileRef": "https://server12.mp3quran.net/sayed/053.mp3",
+          "startMs": 281886,
+          "endMs": 287010,
+          "conf": 0.162,
+          "confBand": "LOW",
+          "startApprox": true
+        },
+        "after": {
+          "ayahId": "53:52",
+          "fileRef": "https://server12.mp3quran.net/sayed/053.mp3",
+          "startMs": 314093,
+          "endMs": 321659,
+          "conf": 0.162,
+          "confBand": "LOW",
+          "startApprox": true
+        }
+      },
+      {
+        "before": {
+          "ayahId": "53:53",
+          "fileRef": "https://server12.mp3quran.net/sayed/053.mp3",
+          "startMs": 287010,
+          "endMs": 288931,
+          "conf": 0.405,
+          "confBand": "LOW",
+          "startApprox": true
+        },
+        "after": {
+          "ayahId": "53:53",
+          "fileRef": "https://server12.mp3quran.net/sayed/053.mp3",
+          "startMs": 321659,
+          "endMs": 324091,
+          "conf": 0.405,
+          "confBand": "LOW",
+          "startApprox": true
+        }
+      },
+      {
+        "before": {
+          "ayahId": "53:54",
+          "fileRef": "https://server12.mp3quran.net/sayed/053.mp3",
+          "startMs": 288931,
+          "endMs": 289652,
+          "conf": 0.103,
+          "confBand": "LOW",
+          "startApprox": true
+        },
+        "after": {
+          "ayahId": "53:54",
+          "fileRef": "https://server12.mp3quran.net/sayed/053.mp3",
+          "startMs": 324091,
+          "endMs": 326743,
+          "conf": 0.103,
+          "confBand": "LOW",
+          "startApprox": true
+        }
+      },
+      {
+        "before": {
+          "ayahId": "53:55",
+          "fileRef": "https://server12.mp3quran.net/sayed/053.mp3",
+          "startMs": 289652,
+          "endMs": 290312,
+          "conf": 0.0,
+          "confBand": "LOW",
+          "startApprox": true
+        },
+        "after": {
+          "ayahId": "53:55",
+          "fileRef": "https://server12.mp3quran.net/sayed/053.mp3",
+          "startMs": 326743,
+          "endMs": 331827,
+          "conf": 0.0,
+          "confBand": "LOW",
+          "startApprox": true
+        }
+      },
+      {
+        "before": {
+          "ayahId": "53:56",
+          "fileRef": "https://server12.mp3quran.net/sayed/053.mp3",
+          "startMs": 290312,
+          "endMs": 291433,
+          "conf": 0.0,
+          "confBand": "LOW",
+          "startApprox": true
+        },
+        "after": {
+          "ayahId": "53:56",
+          "fileRef": "https://server12.mp3quran.net/sayed/053.mp3",
+          "startMs": 331827,
+          "endMs": 336821,
+          "conf": 0.0,
+          "confBand": "LOW",
+          "startApprox": true
+        }
+      },
+      {
+        "before": {
+          "ayahId": "53:57",
+          "fileRef": "https://server12.mp3quran.net/sayed/053.mp3",
+          "startMs": 291433,
+          "endMs": 291903,
+          "conf": 0.0,
+          "confBand": "LOW",
+          "startApprox": true
+        },
+        "after": {
+          "ayahId": "53:57",
+          "fileRef": "https://server12.mp3quran.net/sayed/053.mp3",
+          "startMs": 336821,
+          "endMs": 338683,
+          "conf": 0.0,
+          "confBand": "LOW",
+          "startApprox": true
+        }
+      },
+      {
+        "before": {
+          "ayahId": "53:58",
+          "fileRef": "https://server12.mp3quran.net/sayed/053.mp3",
+          "startMs": 291903,
+          "endMs": 294575,
+          "conf": 0.0,
+          "confBand": "LOW",
+          "startApprox": true
+        },
+        "after": {
+          "ayahId": "53:58",
+          "fileRef": "https://server12.mp3quran.net/sayed/053.mp3",
+          "startMs": 338683,
+          "endMs": 343117,
+          "conf": 0.0,
+          "confBand": "LOW",
+          "startApprox": true
+        }
+      },
+      {
+        "before": {
+          "ayahId": "53:59",
+          "fileRef": "https://server12.mp3quran.net/sayed/053.mp3",
+          "startMs": 294575,
+          "endMs": 297397,
+          "conf": 0.286,
+          "confBand": "LOW",
+          "startApprox": true
+        },
+        "after": {
+          "ayahId": "53:59",
+          "fileRef": "https://server12.mp3quran.net/sayed/053.mp3",
+          "startMs": 343117,
+          "endMs": 347490,
+          "conf": 0.286,
+          "confBand": "LOW",
+          "startApprox": true
+        }
+      },
+      {
+        "before": {
+          "ayahId": "53:60",
+          "fileRef": "https://server12.mp3quran.net/sayed/053.mp3",
+          "startMs": 297397,
+          "endMs": 298818,
+          "conf": 0.087,
+          "confBand": "LOW",
+          "startApprox": true
+        },
+        "after": {
+          "ayahId": "53:60",
+          "fileRef": "https://server12.mp3quran.net/sayed/053.mp3",
+          "startMs": 347490,
+          "endMs": 351173,
+          "conf": 0.087,
+          "confBand": "LOW",
+          "startApprox": true
+        }
+      },
+      {
+        "before": {
+          "ayahId": "53:61",
+          "fileRef": "https://server12.mp3quran.net/sayed/053.mp3",
+          "startMs": 298818,
+          "endMs": 299819,
+          "conf": 0.432,
+          "confBand": "LOW",
+          "startApprox": true
+        },
+        "after": {
+          "ayahId": "53:61",
+          "fileRef": "https://server12.mp3quran.net/sayed/053.mp3",
+          "startMs": 351173,
+          "endMs": 354876,
+          "conf": 0.432,
+          "confBand": "LOW",
+          "startApprox": true
+        }
+      },
+      {
+        "before": {
+          "ayahId": "53:62",
+          "fileRef": "https://server12.mp3quran.net/sayed/053.mp3",
+          "startMs": 299819,
+          "endMs": 300619,
+          "conf": 0.325,
+          "confBand": "LOW",
+          "startApprox": true
+        },
+        "after": {
+          "ayahId": "53:62",
+          "fileRef": "https://server12.mp3quran.net/sayed/053.mp3",
+          "startMs": 354876,
+          "endMs": 366915,
+          "conf": 0.325,
+          "confBand": "LOW",
+          "startApprox": true
+        }
+      },
+      {
+        "before": {
+          "ayahId": "91:13",
+          "fileRef": "https://server12.mp3quran.net/sayed/091.mp3",
+          "startMs": 47819,
+          "endMs": 54305,
+          "conf": 0.74,
+          "confBand": "MED",
+          "startApprox": true
+        },
+        "after": {
+          "ayahId": "91:13",
+          "fileRef": "https://server12.mp3quran.net/sayed/091.mp3",
+          "startMs": 47819,
+          "endMs": 54302,
+          "conf": 0.74,
+          "confBand": "MED",
+          "startApprox": true
+        }
+      },
+      {
+        "before": {
+          "ayahId": "91:14",
+          "fileRef": "https://server12.mp3quran.net/sayed/091.mp3",
+          "startMs": 54305,
+          "endMs": 61680,
+          "conf": 0.169,
+          "confBand": "LOW",
+          "startApprox": true
+        },
+        "after": {
+          "ayahId": "91:14",
+          "fileRef": "https://server12.mp3quran.net/sayed/091.mp3",
+          "startMs": 54302,
+          "endMs": 66553,
+          "conf": 0.169,
+          "confBand": "LOW",
+          "startApprox": true
+        }
+      },
+      {
+        "before": {
+          "ayahId": "91:15",
+          "fileRef": "https://server12.mp3quran.net/sayed/091.mp3",
+          "startMs": 61680,
+          "endMs": 62441,
+          "conf": 0.118,
+          "confBand": "LOW",
+          "startApprox": true
+        },
+        "after": {
+          "ayahId": "91:15",
+          "fileRef": "https://server12.mp3quran.net/sayed/091.mp3",
+          "startMs": 66553,
+          "endMs": 78184,
+          "conf": 0.118,
+          "confBand": "LOW",
+          "startApprox": true
+        }
+      }
+    ],
+    "decodedEofMs": {
+      "53": 366915,
+      "91": 78184
+    },
+    "limits": [
+      "الحد الأصلي لثقة المحاذاة0.45؛ لا تغيير لأي حارس أو ثقة منشورة.",
+      "الخواتيم المقيسة فقط؛ يلزم الفحص الأصلي الكامل للبصمة المرفوعة."
+    ]
+  }
+}
