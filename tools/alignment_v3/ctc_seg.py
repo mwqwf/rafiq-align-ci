@@ -96,6 +96,76 @@ def _segment(lpz, n_samples, texts):
     return cs.determine_utterance_segments(cfg, utt, char_probs, timings, texts)
 
 
+def _segment_overlapping_groups(lpz, n_samples, texts, leading_count, group_size, overlap):
+    """Align bounded overlapping verse groups against the same full recording.
+
+    This is a memory bound, not a timing shortcut: every group sees all emission
+    frames.  Repeated overlap verses are retained as independent agreement
+    evidence; no duration inferred from text length is used as an audio bound.
+    """
+    if not isinstance(leading_count, int) or leading_count < 0 or leading_count > len(texts):
+        raise ValueError("invalid leading utterance count")
+    if not isinstance(group_size, int) or group_size < 2:
+        raise ValueError("group_size must be an integer >= 2")
+    if not isinstance(overlap, int) or overlap < 1 or overlap >= group_size:
+        raise ValueError("overlap must be an integer in [1, group_size)")
+    body = texts[leading_count:]
+    if not body:
+        return [], {"groupSize": group_size, "overlap": overlap, "groups": [],
+                    "overlapAyahs": [], "maxStartDisagreementSeconds": 0.0,
+                    "maxEndDisagreementSeconds": 0.0}
+
+    claims = [[] for _ in body]
+    groups = []
+    start = 0
+    while start < len(body):
+        end = min(len(body), start + group_size)
+        group_lead = texts[:leading_count] if start == 0 else []
+        group_texts = group_lead + body[start:end]
+        measured = _segment(lpz, n_samples, group_texts)[len(group_lead):]
+        if len(measured) != end - start:
+            raise RuntimeError("group alignment returned an incomplete verse population")
+        groups.append({"startAyahIdx": start, "endAyahIdxExclusive": end,
+                       "verseCount": end - start})
+        for offset, segment in enumerate(measured):
+            claims[start + offset].append({"groupStartAyahIdx": start,
+                                           "groupEndAyahIdxExclusive": end,
+                                           "segment": segment})
+        if end == len(body):
+            break
+        start = end - overlap
+
+    merged = []
+    overlap_ayahs = []
+    max_start_delta = 0.0
+    max_end_delta = 0.0
+    for ayah_idx, alternatives in enumerate(claims):
+        if not alternatives:
+            raise RuntimeError(f"verse {ayah_idx + 1} has no group alignment")
+        # Prefer the claim with the most verse context on its thinner side.
+        # This selects one measured boundary; it never averages two timings.
+        chosen = max(alternatives, key=lambda item: min(
+            ayah_idx - item["groupStartAyahIdx"],
+            item["groupEndAyahIdxExclusive"] - 1 - ayah_idx,
+        ))
+        merged.append(chosen["segment"])
+        if len(alternatives) > 1:
+            starts = [float(item["segment"][0]) for item in alternatives]
+            ends = [float(item["segment"][1]) for item in alternatives]
+            start_delta = max(starts) - min(starts)
+            end_delta = max(ends) - min(ends)
+            max_start_delta = max(max_start_delta, start_delta)
+            max_end_delta = max(max_end_delta, end_delta)
+            overlap_ayahs.append({"ayahIdx": ayah_idx,
+                                  "claims": len(alternatives),
+                                  "startDisagreementSeconds": round(start_delta, 6),
+                                  "endDisagreementSeconds": round(end_delta, 6)})
+    return merged, {"groupSize": group_size, "overlap": overlap, "groups": groups,
+                    "overlapAyahs": overlap_ayahs,
+                    "maxStartDisagreementSeconds": round(max_start_delta, 6),
+                    "maxEndDisagreementSeconds": round(max_end_delta, 6)}
+
+
 def _conf(score):
     """درجةُ ctc_segmentation لوغاريتمٌ ≤0 (أدنى متوسّطٍ في نافذة). ⇒ [0،1].
     ‏−1 ⇒ 0.75 (حدّ HIGH) · −2.2 ⇒ 0.45 (حدّ MED)."""
@@ -103,7 +173,7 @@ def _conf(score):
 
 
 def run_surah(audio_path, surah_no, riwaya, log=print, spoken_openers=False, omit_basmala=False,
-              quran_model=False):
+              quran_model=False, chunk_verses=None, chunk_overlap=4):
     if _M.get('alignmentModelId') and not quran_model:
         raise ValueError('Loaded Quran model requires its explicit engine flag')
     index = load_index()
@@ -124,7 +194,13 @@ def run_surah(audio_path, surah_no, riwaya, log=print, spoken_openers=False, omi
     lead = [] if surah_no in (1, 9) or omit_basmala else [BASMALA]
     if quran_model and lead:
         lead = [Q.reference_text('بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ')]
-    segs = _segment(_emissions(x), len(x), lead + ref)[len(lead):]
+    lpz = _emissions(x)
+    chunk_evidence = None
+    if chunk_verses is None:
+        segs = _segment(lpz, len(x), lead + ref)[len(lead):]
+    else:
+        segs, chunk_evidence = _segment_overlapping_groups(
+            lpz, len(x), lead + ref, len(lead), chunk_verses, chunk_overlap)
     sil = silences(wav)
     entries = []
     for ai, (st, en, sc) in enumerate(segs):
@@ -150,6 +226,7 @@ def run_surah(audio_path, surah_no, riwaya, log=print, spoken_openers=False, omi
     log(f"سورة {surah_no}: {bands} · {len(issues)} مخالفة")
     return {"surah": surah_no, "riwaya": riwaya, "totalMs": total_ms,
             "entries": entries, "issues": issues, "bands": bands,
+            **({"chunkedAlignment": chunk_evidence} if chunk_evidence is not None else {}),
             **({'engine': 'ctc-quran-surah-1', 'alignmentModel': model_evidence} if quran_model else {}),
             **({"basmalaOmitted": True} if omit_basmala else {})}
 

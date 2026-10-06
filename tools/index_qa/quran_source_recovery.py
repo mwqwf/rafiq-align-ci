@@ -100,12 +100,22 @@ def main(argv=None):
                 bound={(s['id'],s['revision']):snapshots[s['name']] for s in specs}
                 with P.offline_model_loads(hub,specs,bound):
                     C=importlib.import_module('ctc_seg')
-                    report['alignment']=C.run_surah(str(path),source['surah'],source['riwaya'],quran_model=True)
+                    chunk_args=({'chunk_verses':32,'chunk_overlap':4}
+                                if a.source=='asiri7_archive_4917' else {})
+                    report['alignment']=C.run_surah(str(path),source['surah'],source['riwaya'],
+                                                    quran_model=True,**chunk_args)
                     C._M.clear();gc.collect()
             B.require(S.sha_file(path)==source['sha256'],'source changed after inference')
             alignment=report['alignment']
             expected={41:54,79:46,28:88,45:37,22:78,84:25,77:50,51:60,107:7,7:206}[source['surah']]
             B.require(len(alignment['entries'])==expected,'incomplete result population')
+            if a.source=='asiri7_archive_4917':
+                overlap=alignment.get('chunkedAlignment',{})
+                B.require(len(overlap.get('groups',[]))>1,'chunked alignment evidence missing')
+                B.require(overlap.get('overlapAyahs'),'independent overlap evidence missing')
+                B.require(overlap['maxStartDisagreementSeconds']<=5.0 and
+                          overlap['maxEndDisagreementSeconds']<=5.0,
+                          'overlapping alignment groups disagree by more than five seconds')
             report['lowOrMissing']=[e['ayahIdx']+1 for e in alignment['entries'] if e['startMs'] is None or e['conf']<.45]
             report['measurementComplete']=True
     except Exception as exc:

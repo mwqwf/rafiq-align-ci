@@ -1,0 +1,62 @@
+import os
+import sys
+import unittest
+from unittest import mock
+
+import numpy as np
+
+HERE = os.path.dirname(os.path.abspath(__file__))
+sys.path.insert(0, HERE)
+import ctc_seg as C
+
+
+class ChunkedAlignmentTests(unittest.TestCase):
+    def test_full_audio_groups_overlap_without_averaging_timings(self):
+        texts = ["lead"] + [f"v{i}" for i in range(10)]
+        calls = []
+
+        def fake_segment(lpz, n_samples, group):
+            self.assertEqual((20, 3), lpz.shape)
+            self.assertEqual(320000, n_samples)
+            calls.append(tuple(group))
+            call_shift = len(calls) / 10
+            out = []
+            for text in group:
+                if text == "lead":
+                    out.append((-1.0, -0.5, -0.1))
+                else:
+                    verse = int(text[1:])
+                    out.append((verse * 10 + call_shift, verse * 10 + 5 + call_shift, -0.2))
+            return out
+
+        with mock.patch.object(C, "_segment", side_effect=fake_segment):
+            merged, evidence = C._segment_overlapping_groups(
+                np.zeros((20, 3)), 320000, texts, 1, 5, 2)
+
+        self.assertEqual([(0, 5), (3, 8), (6, 10)], [
+            (g["startAyahIdx"], g["endAyahIdxExclusive"]) for g in evidence["groups"]])
+        self.assertEqual(10, len(merged))
+        self.assertEqual(4, len(evidence["overlapAyahs"]))
+        self.assertAlmostEqual(0.1, evidence["maxStartDisagreementSeconds"])
+        # Verse 3 is closer to the centre of the first claim, so that measured
+        # claim is selected verbatim rather than averaging 30.1 and 30.2.
+        self.assertEqual((30.1, 35.1, -0.2), merged[3])
+        self.assertEqual("lead", calls[0][0])
+        self.assertTrue(all("lead" not in group for group in calls[1:]))
+
+    def test_invalid_group_contract_is_rejected(self):
+        args = (np.zeros((2, 2)), 10, ["v0", "v1"], 0)
+        for group_size, overlap in ((1, 1), (2, 0), (2, 2)):
+            with self.subTest(group_size=group_size, overlap=overlap):
+                with self.assertRaises(ValueError):
+                    C._segment_overlapping_groups(*args, group_size, overlap)
+
+    def test_incomplete_group_population_is_rejected(self):
+        with mock.patch.object(C, "_segment", return_value=[]):
+            with self.assertRaisesRegex(RuntimeError, "incomplete"):
+                C._segment_overlapping_groups(
+                    np.zeros((2, 2)), 10, ["v0", "v1"], 0, 2, 1)
+
+
+if __name__ == "__main__":
+    unittest.main()
