@@ -1,0 +1,124 @@
+{
+  "schema": 1,
+  "qualityClaim": false,
+  "sources": [
+    {
+      "surah": 28,
+      "url": "https://media.way2quran.com/saad-almqren/hafs-an-asim/28.mp3",
+      "sha256": "85f46007634846518394522eac40893dc2b2da62c27067f124ccc99499ad3f4b",
+      "bytes": 21120980,
+      "windowSeconds": [
+        627,
+        688
+      ],
+      "riwaya": "hafs",
+      "requestedWindowSeconds": [
+        627,
+        688
+      ],
+      "id": "saad28_context",
+      "contextAyahs": [
+        43,
+        44,
+        45,
+        46
+      ],
+      "evidencePath": "ops/out/codex-source-quran-saad28-37389920485.json",
+      "evidenceSha256": "4f4fd390701f225c2e38346be154cba1f0bf97136abcb468572128afe308613d",
+      "evidenceKind": "alignment",
+      "maxSourceSeconds": 7200
+    },
+    {
+      "surah": 45,
+      "url": "https://media.way2quran.com/saad-almqren/hafs-an-asim/45.mp3",
+      "sha256": "b9963b5982ac331567c162a1481c135e8ffb456a8d62626adda668248801f76f",
+      "bytes": 6117972,
+      "windowSeconds": [
+        337,
+        382
+      ],
+      "riwaya": "hafs",
+      "requestedWindowSeconds": [
+        337,
+        382
+      ],
+      "id": "saad45_tail",
+      "contextAyahs": [
+        34,
+        35,
+        36,
+        37
+      ],
+      "evidencePath": "ops/out/codex-source-quran-saad45-37389920485.json",
+      "evidenceSha256": "ddf348363400297ca608363339554c6f01b2ded143a2c808b4e30899a45faf13",
+      "evidenceKind": "alignment",
+      "maxSourceSeconds": 7200
+    },
+    {
+      "surah": 79,
+      "riwaya": "hafs",
+      "url": "https://media.way2quran.com/saleh-alshamrani/hafs-an-asim/079.mp3",
+      "sha256": "ef9cfec33cb9fe061f35283fd2bb6f329e43ac444386e890cac5c9ba0962e533",
+      "requestedWindowSeconds": [
+        159,
+        190
+      ],
+      "id": "shamrani79_tail",
+      "windowSeconds": [
+        159,
+        190
+      ],
+      "contextAyahs": [
+        42,
+        43,
+        44,
+        45,
+        46
+      ],
+      "evidencePath": "ops/out/codex-source-quran-shamrani79-37389920485.json",
+      "evidenceSha256": "6e90bee9778e63a7b4c31518e23d8bf08db9a4b0b3a791a4992e5c5d6202d0a4",
+      "evidenceKind": "alignment",
+      "maxSourceSeconds": 7200
+    },
+    {
+      "id": "tblawi_head",
+      "surah": 7,
+      "riwaya": "hafs",
+      "url": "https://media.way2quran.com/muhammad-mahmoud-al-tablawi/hafs-an-asim/007.MP3",
+      "sha256": "ec1ccc7f0f052e500eb173757d0ead4503071db2fbe9ce501c20fb156b0ca361",
+      "requestedWindowSeconds": [
+        0,
+        60
+      ],
+      "windowSeconds": [
+        0,
+        60
+      ],
+      "contextAyahs": [],
+      "evidencePath": "ops/out/codex-tblawi-source-metadata-37393574696.json",
+      "evidenceSha256": "ed736cac10b5d5b815226b1e8949ee3cd12ae4293c22878ffcc7546c21504f93",
+      "evidenceKind": "metadata",
+      "maxSourceSeconds": 11000
+    },
+    {
+      "id": "tblawi_tail",
+      "surah": 7,
+      "riwaya": "hafs",
+      "url": "https://media.way2quran.com/muhammad-mahmoud-al-tablawi/hafs-an-asim/007.MP3",
+      "sha256": "ec1ccc7f0f052e500eb173757d0ead4503071db2fbe9ce501c20fb156b0ca361",
+      "requestedWindowSeconds": [
+        10780,
+        10843
+      ],
+      "windowSeconds": [
+        10780,
+        10843
+      ],
+      "contextAyahs": [],
+      "evidencePath": "ops/out/codex-tblawi-source-metadata-37393574696.json",
+      "evidenceSha256": "ed736cac10b5d5b815226b1e8949ee3cd12ae4293c22878ffcc7546c21504f93",
+      "evidenceKind": "metadata",
+      "maxSourceSeconds": 11000
+    }
+  ]
+}
