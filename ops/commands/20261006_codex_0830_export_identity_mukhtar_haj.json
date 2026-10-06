@@ -1,0 +1,12 @@
+{
+  "action": "tool",
+  "tool": "index_qa/export_index_bytes.py",
+  "args": [
+    "--key",
+    "timings/hafs/mukhtar_haj.jz",
+    "--expect-sha",
+    "7fd5be19ce4a65969e90d1111c342c99b62da4dbc8d147f4a0e7f3c49b132933",
+    "--out",
+    "ops/out/codex-source-identity-parent-mukhtar_haj-20261006.json"
+  ]
+}

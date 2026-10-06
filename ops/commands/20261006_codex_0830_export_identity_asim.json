@@ -1,0 +1,12 @@
+{
+  "action": "tool",
+  "tool": "index_qa/export_index_bytes.py",
+  "args": [
+    "--key",
+    "timings/hafs/asim.jz",
+    "--expect-sha",
+    "086929b64c230aa9774e5078772c8ea149e06774df3d7e2fd6977b792c9da14d",
+    "--out",
+    "ops/out/codex-source-identity-parent-asim-20261006.json"
+  ]
+}

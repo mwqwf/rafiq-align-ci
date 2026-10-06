@@ -1,0 +1,12 @@
+{
+  "action": "tool",
+  "tool": "index_qa/export_index_bytes.py",
+  "args": [
+    "--key",
+    "timings/warsh/rabbani_warsh.jz",
+    "--expect-sha",
+    "9769ff3e9af0b03fdc4b4064b14b47cf21003e8475b26a3abdd27559b2e20903",
+    "--out",
+    "ops/out/codex-source-identity-parent-rabbani_warsh-20261006.json"
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "action": "tool",
+  "tool": "index_qa/export_index_bytes.py",
+  "args": [
+    "--key",
+    "timings/hafs/3siri.jz",
+    "--expect-sha",
+    "fbf468c05fa3598df3103ce4f1cf53e093e9eb0ac719ad9b051d14c1a0cb1392",
+    "--out",
+    "ops/out/codex-source-identity-parent-3siri-20261006.json"
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "action": "tool",
+  "tool": "index_qa/export_index_bytes.py",
+  "args": [
+    "--key",
+    "timings/hafs/ra3ad.jz",
+    "--expect-sha",
+    "74757aec7397081fc5d06b8fe77c8f4b0b31137daa8f637c82fa51d9aff86ecb",
+    "--out",
+    "ops/out/codex-source-identity-parent-ra3ad-20261006.json"
+  ]
+}
