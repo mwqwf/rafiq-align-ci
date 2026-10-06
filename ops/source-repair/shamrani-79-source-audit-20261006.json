@@ -1,0 +1,117 @@
+{
+  "schema": 1,
+  "kind": "same-reciter-source-gap-audit",
+  "generatedAt": "2026-10-06T18:10:28Z",
+  "reciter": "shamrani",
+  "riwaya": "hafs",
+  "surah": 79,
+  "productionChanged": false,
+  "completeReplacementFound": false,
+  "canonicalPublisherSource": {
+    "url": "https://server16.mp3quran.net/shamrani/Rewayat-Hafs-A-n-Assem/079.mp3",
+    "container": {
+      "bytes": 2244766,
+      "sha256": "ef9cfec33cb9fe061f35283fd2bb6f329e43ac444386e890cac5c9ba0962e533"
+    },
+    "decodedMono16k": {
+      "bytes": 5967622,
+      "samples": 2983811,
+      "durationSeconds": 186.4881875,
+      "sha256": "0f8fe32d0befa40a723bfaeba04473902836ace5b148a47cfac877bc92ac9595"
+    },
+    "independentEvidence": {
+      "ctcHeardMapRun": 37105801297,
+      "missingAnchors": [11, 15, 17, 18],
+      "sourceQuranRun": 37389920485,
+      "zeroConfidenceAyahsBothModels": [10, 11, 15, 16, 17, 18, 19]
+    }
+  },
+  "examinedAlternatives": [
+    {
+      "publisher": "Midad",
+      "url": "https://fra1.digitaloceanspaces.com/media.midad.com/resources/ar/recitations/44848/079.mp3",
+      "container": {
+        "bytes": 2428711,
+        "sha256": "094d312866d81a13ae68a94b4111192d788e6e12f6ba3e12ddcf29edeeb459e2"
+      },
+      "decodedMono16k": {
+        "bytes": 6021584,
+        "samples": 3010792,
+        "durationSeconds": 188.1745,
+        "sha256": "45be0a3c243a34ffebe63c4e37a6361eec49a331af9ef15e980849892c475eb8"
+      },
+      "currentAccess": "HTTP 403 in run 37399245406",
+      "completeReplacement": false,
+      "reason": "Past complete decode is an exact PCM mirror of the independently measured Archive item."
+    },
+    {
+      "publisher": "Internet Archive",
+      "url": "https://archive.org/download/x00xxxx2_20220807xxx/079%20%20%D8%B3%D9%88%D8%B1%D8%A9%20%D8%A7%D9%84%D9%86%D8%A7%D8%B2%D8%B9%D8%A7%D8%AA.mp3",
+      "container": {
+        "bytes": 2428711,
+        "sha256": "da9ec6ff96d0159736ffadcb008b062041d264f66bc6b17b952b7a5206f88d45"
+      },
+      "decodedMono16k": {
+        "bytes": 6021584,
+        "samples": 3010792,
+        "durationSeconds": 188.1745,
+        "sha256": "45be0a3c243a34ffebe63c4e37a6361eec49a331af9ef15e980849892c475eb8"
+      },
+      "independentEvidence": {
+        "run": 37414253348,
+        "zeroConfidenceAyahsBothChannelsAndModels": [10, 11, 15, 16, 17, 18, 19, 45, 46],
+        "freeTranscriptConfirmsMiddleJump": true
+      },
+      "completeReplacement": false,
+      "reason": "The middle gap persists; container differences from Midad do not produce different decoded audio."
+    }
+  ],
+  "pcmMirrorFinding": {
+    "members": ["Midad", "Internet Archive"],
+    "identicalDecodedBytes": true,
+    "sameBytes": 6021584,
+    "sameSamples": 3010792,
+    "sameSha256": "45be0a3c243a34ffebe63c4e37a6361eec49a331af9ef15e980849892c475eb8"
+  },
+  "decision": {
+    "blockExactSourceEnginePairs": [
+      {
+        "source": "https://media.way2quran.com/saleh-alshamrani/hafs-an-asim/079.mp3",
+        "engine": "ctc-quran-surah-1"
+      },
+      {
+        "source": "https://archive.org/download/x00xxxx2_20220807xxx/079%20%20%D8%B3%D9%88%D8%B1%D8%A9%20%D8%A7%D9%84%D9%86%D8%A7%D8%B2%D8%B9%D8%A7%D8%AA.mp3",
+        "engine": "ctc-quran-surah-1"
+      }
+    ],
+    "eligibleNextStep": "Search for a distinct complete recording by the same reciter and riwaya, then measure it independently.",
+    "doNotSynthesizeOrInventTiming": true
+  },
+  "evidence": [
+    {
+      "path": "ops/out/20261003_0810_fixS2_pa_shamrani_s79.txt",
+      "sha256": "d8ccc21af22293d07f8411d49161b70c7182b859548c1a614896686a1bee762c"
+    },
+    {
+      "path": "ops/out/codex-source-quran-shamrani79-37389920485.json",
+      "sha256": "6e90bee9778e63a7b4c31518e23d8bf08db9a4b0b3a791a4992e5c5d6202d0a4"
+    },
+    {
+      "path": "ops/out/codex-source-metadata-20261005-batch1.json",
+      "sha256": "62a887f3961b3ae21aaf3fa353dea099326aa5b864876e1daad535edf6c728d3"
+    },
+    {
+      "path": "ops/out/codex-new-archive-metadata-37413567942.json",
+      "sha256": "94c95c7b5f327dc9ee11e06a04de195ca45b99049148135dbab38b0d5b6da830"
+    },
+    {
+      "path": "ops/out/codex-shamrani-new-archive-recovery-report-20261006.json",
+      "sha256": "860cf86fbf1cfa4982600633e02360ae394c946a06364140f91e6662bd901489"
+    }
+  ],
+  "limits": [
+    "Matching PCM proves a mirror relation, not reader identity by itself.",
+    "Forced alignment does not prove verse presence; the decision uses free transcription and two alignment models together.",
+    "The result does not certify completeness and does not change production timing."
+  ]
+}

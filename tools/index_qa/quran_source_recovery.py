@@ -51,6 +51,17 @@ SOURCES.update({
 })
 ASIRI7_SOURCES=('asiri7_archive_4917','asiri7_archive_4917_audit',
                 'asiri7_archive_4917_targeted','asiri7_archive_4917_48_expanded')
+ALIGNMENT_ENGINE='ctc-quran-surah-1'
+
+
+def source_engine_blocked(source):
+    """Return a recorded exact-source/engine failure; mirrors stay eligible."""
+    rows=json.loads((B.ROOT/'tools/ci_fleet/blocked_realigns.json').read_text())
+    return next((row for row in rows
+                 if row['riwaya']==source['riwaya']
+                 and int(row['surah'])==int(source['surah'])
+                 and row['source']==source['url']
+                 and row['engine']==ALIGNMENT_ENGINE),None)
 
 
 def main(argv=None):
@@ -58,6 +69,9 @@ def main(argv=None):
     ap.add_argument('--source',choices=tuple(SOURCES),required=True)
     ap.add_argument('--model-policy',choices=('cache-only','quran-pinned-ephemeral'),default='cache-only')
     a=ap.parse_args(argv);source=SOURCES[a.source]
+    blocked=source_engine_blocked(source)
+    B.require(not blocked,
+              f"exact source/engine already failed without a complete candidate: {blocked['run']}")
     if a.source=='a_abdl37':
         import source_context_diagnostics as contexts
         pinned,_=contexts.load_source('penultimate_hafs_a_abdl_37')
