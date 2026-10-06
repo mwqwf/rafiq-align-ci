@@ -8,7 +8,7 @@ on:
     inputs:
       profile:
         type: choice
-        options: [initial, koshi, saad-tail, recovery-middle, sham-midad]
+        options: [initial, koshi, saad-tail, recovery-middle, sham-midad, mab-rs1]
         default: initial
         required: true
       model_policy:
@@ -34,7 +34,7 @@ jobs:
       fail-fast: false
       max-parallel: 3
       matrix:
-        reader: ${{ fromJSON(inputs.profile == 'sham-midad' && '["shamrani79_midad_middle"]' || inputs.profile == 'recovery-middle' && '["saad22_41_45","saad22_68_71","saad22_tail","shamrani79_middle"]' || inputs.profile == 'saad-tail' && '["saad28_tail"]' || inputs.profile == 'koshi' && '["koshi20_22","koshi94_96"]' || '["saad28_context","saad45_tail","shamrani79_tail","tblawi_head","tblawi_tail","m_ab26_29","m_ab34_37","m_ab91_95"]') }}
+        reader: ${{ fromJSON(inputs.profile == 'mab-rs1' && '["mab_rs1_16_9","mab_rs1_11_22","mab_rs1_18_90","mab_rs1_23_52","mab_rs1_23_79","mab_rs1_69_47","mab_rs1_90_11","mab_rs1_90_19","mab_rs1_90_5","mab_rs1_78_33"]' || inputs.profile == 'sham-midad' && '["shamrani79_midad_middle"]' || inputs.profile == 'recovery-middle' && '["saad22_41_45","saad22_68_71","saad22_tail","shamrani79_middle"]' || inputs.profile == 'saad-tail' && '["saad28_tail"]' || inputs.profile == 'koshi' && '["koshi20_22","koshi94_96"]' || '["saad28_context","saad45_tail","shamrani79_tail","tblawi_head","tblawi_tail","m_ab26_29","m_ab34_37","m_ab91_95"]') }}
     if: ${{ github.repository == 'mwqwf/rafiq-align-ci' && github.event.repository.private == false }}
     runs-on: ubuntu-24.04
     timeout-minutes: 45

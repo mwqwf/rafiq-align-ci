@@ -15,14 +15,14 @@ import final_verse_free_batch as B
 import independent_window_pilot as P
 S=B.S
 PLAN='ops/source-repair/codex-source-context-plan-20261006.json'
-PLAN_SHA='6dc456394ca73e4077cf43c4f884fea65e2ddc0ee0c8376e0d688661a6d3cd69'
-IDS=('saad28_context','saad45_tail','shamrani79_tail','tblawi_head','tblawi_tail','m_ab26_29','m_ab34_37','m_ab91_95','koshi20_22','koshi94_96','saad28_tail','saad22_41_45','saad22_68_71','saad22_tail','shamrani79_middle','shamrani79_midad_middle')
+PLAN_SHA='c42e4264a60471f1af038a1b2a872d0bb8df5bdc0694a3a09d49c067ec2db1e2'
+IDS=('saad28_context','saad45_tail','shamrani79_tail','tblawi_head','tblawi_tail','m_ab26_29','m_ab34_37','m_ab91_95','koshi20_22','koshi94_96','saad28_tail','saad22_41_45','saad22_68_71','saad22_tail','shamrani79_middle','shamrani79_midad_middle','mab_rs1_16_9','mab_rs1_11_22','mab_rs1_18_90','mab_rs1_23_52','mab_rs1_23_79','mab_rs1_69_47','mab_rs1_90_11','mab_rs1_90_19','mab_rs1_90_5','mab_rs1_78_33')
 
 
 def load_source(ident):
     B.require(ident in IDS, 'unplanned diagnostic')
     raw=(B.ROOT/PLAN).read_bytes();B.require(hashlib.sha256(raw).hexdigest()==PLAN_SHA,'plan changed')
-    rows=json.loads(raw)['sources'];B.require(len(rows)==16 and {r['id'] for r in rows}==set(IDS),'population changed')
+    rows=json.loads(raw)['sources'];B.require(len(rows)==26 and {r['id'] for r in rows}==set(IDS),'population changed')
     source=next(r for r in rows if r['id']==ident)
     path=(B.ROOT/source['evidencePath']).resolve()
     B.require(path.parent==B.ROOT/'ops/out' and path.suffix=='.json','evidence path')
@@ -34,6 +34,19 @@ def load_source(ident):
         B.require(all(source[k]==measured[k] for k in ('url','sha256','surah','riwaya')),'source mismatch')
         B.require(source['contextAyahs'] and all(type(a)is int and 1<=a<=len(evidence['alignment']['entries']) for a in source['contextAyahs']),'invalid context')
         B.require(source['maxSourceSeconds']==7200,'ordinary source limit changed')
+    elif source['evidenceKind']=='qa-disagreement':
+        B.require(evidence['sha256']=='fbf2b7997b428c6b45e858f11aecf681337dfbd5f2e69f57a65c43e275bb939c' and not evidence['fatal'],'wrong QA report')
+        targets={r['aid'] for r in evidence['sample']['rows'] if r['kind']=='جسيم'}
+        B.require(len(targets)==10 and source['targetId'] in targets,'not a measured severe disagreement')
+        pb=(B.ROOT/source['parentPath']).read_bytes()
+        B.require(hashlib.sha256(pb).hexdigest()==source['parentSha256']=='746e762fc2722d0c6cc108d239aa0ad5ba1947e13189013201f4b3964201fee5','wrong parent')
+        parent=json.loads(gzip.decompress(pb));byid={e['ayahId']:e for e in parent['entries']}
+        B.require(parent['reciterId']=='m_abdulkareem_warsh' and parent['riwaya']==source['riwaya']=='warsh','wrong reader')
+        s,a=map(int,source['targetId'].split(':'))
+        B.require(source['surah']==s and source['contextAyahs']==list(range(a-1,a+2)),'wrong context')
+        es=[byid[f'{s}:{n}'] for n in source['contextAyahs']]
+        B.require(es==source['parentEntries'] and {e['fileRef'] for e in es}=={source['url']} and parent['audioSha256'][s-1]==source['sha256'],'wrong source or changed entries')
+        B.require(source['maxSourceSeconds']==7200,'source limit changed')
     elif source['evidenceKind']=='metadata-source':
         measured=next(r for r in evidence['sources'] if r['id']=='shamrani_79_midad')
         B.require(ident=='shamrani79_midad_middle' and measured['ok'] and measured['pcm']['decodedWithoutErrors'],'unhealthy alternate source')

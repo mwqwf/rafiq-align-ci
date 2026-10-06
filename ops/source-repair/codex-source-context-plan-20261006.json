@@ -412,6 +412,521 @@
       "evidenceKind": "metadata-source",
       "evidenceSha256": "62a887f3961b3ae21aaf3fa353dea099326aa5b864876e1daad535edf6c728d3",
       "maxSourceSeconds": 7200
+    },
+    {
+      "id": "mab_rs1_16_9",
+      "surah": 16,
+      "riwaya": "warsh",
+      "targetId": "16:9",
+      "url": "https://server12.mp3quran.net/m_krm/Rewayat-Warsh-A-n-Nafi-Men-Tariq-Abi-Baker-Alasbahani/016.mp3",
+      "sha256": "f9a840b5f0afe904fea99babd15a7b38c387d20f80e5774be0de7efcf6ff2856",
+      "requestedWindowSeconds": [
+        88,
+        150
+      ],
+      "contextAyahs": [
+        8,
+        9,
+        10
+      ],
+      "parentEntries": [
+        {
+          "ayahId": "16:8",
+          "fileRef": "https://server12.mp3quran.net/m_krm/Rewayat-Warsh-A-n-Nafi-Men-Tariq-Abi-Baker-Alasbahani/016.mp3",
+          "startMs": 98170,
+          "endMs": 110246,
+          "conf": 1.0,
+          "confBand": "HIGH"
+        },
+        {
+          "ayahId": "16:9",
+          "fileRef": "https://server12.mp3quran.net/m_krm/Rewayat-Warsh-A-n-Nafi-Men-Tariq-Abi-Baker-Alasbahani/016.mp3",
+          "startMs": 110246,
+          "endMs": 123640,
+          "conf": 0.576,
+          "confBand": "MED",
+          "startApprox": true
+        },
+        {
+          "ayahId": "16:10",
+          "fileRef": "https://server12.mp3quran.net/m_krm/Rewayat-Warsh-A-n-Nafi-Men-Tariq-Abi-Baker-Alasbahani/016.mp3",
+          "startMs": 123640,
+          "endMs": 139540,
+          "conf": 1.0,
+          "confBand": "HIGH"
+        }
+      ],
+      "parentPath": "ops/source-repair/parents/codex-warsh-m_abdulkareem_warsh-746e762f.jz",
+      "parentSha256": "746e762fc2722d0c6cc108d239aa0ad5ba1947e13189013201f4b3964201fee5",
+      "evidencePath": "ops/out/codex-mab-rs1-rejection-37398048723.json",
+      "evidenceSha256": "4efb027099b837152d70550d231ed8839f5d6863f72281cfa8ff62f97b15a5b4",
+      "evidenceKind": "qa-disagreement",
+      "maxSourceSeconds": 7200
+    },
+    {
+      "id": "mab_rs1_11_22",
+      "surah": 11,
+      "riwaya": "warsh",
+      "targetId": "11:22",
+      "url": "https://server12.mp3quran.net/m_krm/Rewayat-Warsh-A-n-Nafi-Men-Tariq-Abi-Baker-Alasbahani/011.mp3",
+      "sha256": "586ef5ca84a889c581b0b52e1981975ac2d529c602311731f2ce3d56f8bda0a0",
+      "requestedWindowSeconds": [
+        419,
+        474
+      ],
+      "contextAyahs": [
+        21,
+        22,
+        23
+      ],
+      "parentEntries": [
+        {
+          "ayahId": "11:21",
+          "fileRef": "https://server12.mp3quran.net/m_krm/Rewayat-Warsh-A-n-Nafi-Men-Tariq-Abi-Baker-Alasbahani/011.mp3",
+          "startMs": 429000,
+          "endMs": 442300,
+          "conf": 1.0,
+          "confBand": "HIGH",
+          "refined": true
+        },
+        {
+          "ayahId": "11:22",
+          "fileRef": "https://server12.mp3quran.net/m_krm/Rewayat-Warsh-A-n-Nafi-Men-Tariq-Abi-Baker-Alasbahani/011.mp3",
+          "startMs": 442300,
+          "endMs": 446500,
+          "conf": 0.326,
+          "confBand": "LOW",
+          "startApprox": true
+        },
+        {
+          "ayahId": "11:23",
+          "fileRef": "https://server12.mp3quran.net/m_krm/Rewayat-Warsh-A-n-Nafi-Men-Tariq-Abi-Baker-Alasbahani/011.mp3",
+          "startMs": 446500,
+          "endMs": 463900,
+          "conf": 0.625,
+          "confBand": "MED",
+          "refined": true
+        }
+      ],
+      "parentPath": "ops/source-repair/parents/codex-warsh-m_abdulkareem_warsh-746e762f.jz",
+      "parentSha256": "746e762fc2722d0c6cc108d239aa0ad5ba1947e13189013201f4b3964201fee5",
+      "evidencePath": "ops/out/codex-mab-rs1-rejection-37398048723.json",
+      "evidenceSha256": "4efb027099b837152d70550d231ed8839f5d6863f72281cfa8ff62f97b15a5b4",
+      "evidenceKind": "qa-disagreement",
+      "maxSourceSeconds": 7200
+    },
+    {
+      "id": "mab_rs1_18_90",
+      "surah": 18,
+      "riwaya": "warsh",
+      "targetId": "18:90",
+      "url": "https://server12.mp3quran.net/m_krm/Rewayat-Warsh-A-n-Nafi-Men-Tariq-Abi-Baker-Alasbahani/018.mp3",
+      "sha256": "e77cf89bed34bea0906456a1f6de0403d5dfc9e0e9f61154037b4ec3925ef9ec",
+      "requestedWindowSeconds": [
+        1491,
+        1534
+      ],
+      "contextAyahs": [
+        89,
+        90,
+        91
+      ],
+      "parentEntries": [
+        {
+          "ayahId": "18:89",
+          "fileRef": "https://server12.mp3quran.net/m_krm/Rewayat-Warsh-A-n-Nafi-Men-Tariq-Abi-Baker-Alasbahani/018.mp3",
+          "startMs": 1501560,
+          "endMs": 1501979,
+          "conf": 0.44,
+          "confBand": "LOW",
+          "refined": true
+        },
+        {
+          "ayahId": "18:90",
+          "fileRef": "https://server12.mp3quran.net/m_krm/Rewayat-Warsh-A-n-Nafi-Men-Tariq-Abi-Baker-Alasbahani/018.mp3",
+          "startMs": 1501979,
+          "endMs": 1517660,
+          "conf": 0.6,
+          "confBand": "MED",
+          "startApprox": true
+        },
+        {
+          "ayahId": "18:91",
+          "fileRef": "https://server12.mp3quran.net/m_krm/Rewayat-Warsh-A-n-Nafi-Men-Tariq-Abi-Baker-Alasbahani/018.mp3",
+          "startMs": 1517660,
+          "endMs": 1523594,
+          "conf": 0.867,
+          "confBand": "HIGH"
+        }
+      ],
+      "parentPath": "ops/source-repair/parents/codex-warsh-m_abdulkareem_warsh-746e762f.jz",
+      "parentSha256": "746e762fc2722d0c6cc108d239aa0ad5ba1947e13189013201f4b3964201fee5",
+      "evidencePath": "ops/out/codex-mab-rs1-rejection-37398048723.json",
+      "evidenceSha256": "4efb027099b837152d70550d231ed8839f5d6863f72281cfa8ff62f97b15a5b4",
+      "evidenceKind": "qa-disagreement",
+      "maxSourceSeconds": 7200
+    },
+    {
+      "id": "mab_rs1_23_52",
+      "surah": 23,
+      "riwaya": "warsh",
+      "targetId": "23:52",
+      "url": "https://server12.mp3quran.net/m_krm/Rewayat-Warsh-A-n-Nafi-Men-Tariq-Abi-Baker-Alasbahani/023.mp3",
+      "sha256": "6729a5d8814b16177b0aa033f076f853d594dc26ed2c03c5819cc299c9879036",
+      "requestedWindowSeconds": [
+        562,
+        622
+      ],
+      "contextAyahs": [
+        51,
+        52,
+        53
+      ],
+      "parentEntries": [
+        {
+          "ayahId": "23:51",
+          "fileRef": "https://server12.mp3quran.net/m_krm/Rewayat-Warsh-A-n-Nafi-Men-Tariq-Abi-Baker-Alasbahani/023.mp3",
+          "startMs": 572470,
+          "endMs": 589380,
+          "conf": 0.818,
+          "confBand": "HIGH"
+        },
+        {
+          "ayahId": "23:52",
+          "fileRef": "https://server12.mp3quran.net/m_krm/Rewayat-Warsh-A-n-Nafi-Men-Tariq-Abi-Baker-Alasbahani/023.mp3",
+          "startMs": 589380,
+          "endMs": 599180,
+          "conf": 0.486,
+          "confBand": "MED",
+          "startApprox": true
+        },
+        {
+          "ayahId": "23:53",
+          "fileRef": "https://server12.mp3quran.net/m_krm/Rewayat-Warsh-A-n-Nafi-Men-Tariq-Abi-Baker-Alasbahani/023.mp3",
+          "startMs": 599180,
+          "endMs": 611420,
+          "conf": 0.573,
+          "confBand": "MED",
+          "startApprox": true
+        }
+      ],
+      "parentPath": "ops/source-repair/parents/codex-warsh-m_abdulkareem_warsh-746e762f.jz",
+      "parentSha256": "746e762fc2722d0c6cc108d239aa0ad5ba1947e13189013201f4b3964201fee5",
+      "evidencePath": "ops/out/codex-mab-rs1-rejection-37398048723.json",
+      "evidenceSha256": "4efb027099b837152d70550d231ed8839f5d6863f72281cfa8ff62f97b15a5b4",
+      "evidenceKind": "qa-disagreement",
+      "maxSourceSeconds": 7200
+    },
+    {
+      "id": "mab_rs1_23_79",
+      "surah": 23,
+      "riwaya": "warsh",
+      "targetId": "23:79",
+      "url": "https://server12.mp3quran.net/m_krm/Rewayat-Warsh-A-n-Nafi-Men-Tariq-Abi-Baker-Alasbahani/023.mp3",
+      "sha256": "6729a5d8814b16177b0aa033f076f853d594dc26ed2c03c5819cc299c9879036",
+      "requestedWindowSeconds": [
+        834,
+        888
+      ],
+      "contextAyahs": [
+        78,
+        79,
+        80
+      ],
+      "parentEntries": [
+        {
+          "ayahId": "23:78",
+          "fileRef": "https://server12.mp3quran.net/m_krm/Rewayat-Warsh-A-n-Nafi-Men-Tariq-Abi-Baker-Alasbahani/023.mp3",
+          "startMs": 844600,
+          "endMs": 856266,
+          "conf": 0.92,
+          "confBand": "HIGH"
+        },
+        {
+          "ayahId": "23:79",
+          "fileRef": "https://server12.mp3quran.net/m_krm/Rewayat-Warsh-A-n-Nafi-Men-Tariq-Abi-Baker-Alasbahani/023.mp3",
+          "startMs": 856266,
+          "endMs": 867610,
+          "conf": 0.566,
+          "confBand": "MED",
+          "startApprox": true
+        },
+        {
+          "ayahId": "23:80",
+          "fileRef": "https://server12.mp3quran.net/m_krm/Rewayat-Warsh-A-n-Nafi-Men-Tariq-Abi-Baker-Alasbahani/023.mp3",
+          "startMs": 867610,
+          "endMs": 877266,
+          "conf": 0.9,
+          "confBand": "HIGH",
+          "refined": true
+        }
+      ],
+      "parentPath": "ops/source-repair/parents/codex-warsh-m_abdulkareem_warsh-746e762f.jz",
+      "parentSha256": "746e762fc2722d0c6cc108d239aa0ad5ba1947e13189013201f4b3964201fee5",
+      "evidencePath": "ops/out/codex-mab-rs1-rejection-37398048723.json",
+      "evidenceSha256": "4efb027099b837152d70550d231ed8839f5d6863f72281cfa8ff62f97b15a5b4",
+      "evidenceKind": "qa-disagreement",
+      "maxSourceSeconds": 7200
+    },
+    {
+      "id": "mab_rs1_69_47",
+      "surah": 69,
+      "riwaya": "warsh",
+      "targetId": "69:47",
+      "url": "https://server12.mp3quran.net/m_krm/Rewayat-Warsh-A-n-Nafi-Men-Tariq-Abi-Baker-Alasbahani/069.mp3",
+      "sha256": "7d5ab9fd0f0e1c171690ee07787b3099af75b45d60d13ea25b862400756a6d02",
+      "requestedWindowSeconds": [
+        277,
+        304
+      ],
+      "contextAyahs": [
+        46,
+        47,
+        48
+      ],
+      "parentEntries": [
+        {
+          "ayahId": "69:46",
+          "fileRef": "https://server12.mp3quran.net/m_krm/Rewayat-Warsh-A-n-Nafi-Men-Tariq-Abi-Baker-Alasbahani/069.mp3",
+          "startMs": 287166,
+          "endMs": 289548,
+          "conf": 0.221,
+          "confBand": "LOW",
+          "startApprox": true
+        },
+        {
+          "ayahId": "69:47",
+          "fileRef": "https://server12.mp3quran.net/m_krm/Rewayat-Warsh-A-n-Nafi-Men-Tariq-Abi-Baker-Alasbahani/069.mp3",
+          "startMs": 289548,
+          "endMs": 291849,
+          "conf": 0.0,
+          "confBand": "LOW",
+          "startApprox": true
+        },
+        {
+          "ayahId": "69:48",
+          "fileRef": "https://server12.mp3quran.net/m_krm/Rewayat-Warsh-A-n-Nafi-Men-Tariq-Abi-Baker-Alasbahani/069.mp3",
+          "startMs": 291849,
+          "endMs": 293710,
+          "conf": 0.0,
+          "confBand": "LOW",
+          "startApprox": true
+        }
+      ],
+      "parentPath": "ops/source-repair/parents/codex-warsh-m_abdulkareem_warsh-746e762f.jz",
+      "parentSha256": "746e762fc2722d0c6cc108d239aa0ad5ba1947e13189013201f4b3964201fee5",
+      "evidencePath": "ops/out/codex-mab-rs1-rejection-37398048723.json",
+      "evidenceSha256": "4efb027099b837152d70550d231ed8839f5d6863f72281cfa8ff62f97b15a5b4",
+      "evidenceKind": "qa-disagreement",
+      "maxSourceSeconds": 7200
+    },
+    {
+      "id": "mab_rs1_90_11",
+      "surah": 90,
+      "riwaya": "warsh",
+      "targetId": "90:11",
+      "url": "https://server12.mp3quran.net/m_krm/Rewayat-Warsh-A-n-Nafi-Men-Tariq-Abi-Baker-Alasbahani/090.mp3",
+      "sha256": "fb04b5e32caa09888f0776adba06859026076d70e7a86566f1840afec9557ac4",
+      "requestedWindowSeconds": [
+        32,
+        62
+      ],
+      "contextAyahs": [
+        10,
+        11,
+        12
+      ],
+      "parentEntries": [
+        {
+          "ayahId": "90:10",
+          "fileRef": "https://server12.mp3quran.net/m_krm/Rewayat-Warsh-A-n-Nafi-Men-Tariq-Abi-Baker-Alasbahani/090.mp3",
+          "startMs": 42493,
+          "endMs": 44826,
+          "conf": 0.48,
+          "confBand": "MED",
+          "startApprox": true
+        },
+        {
+          "ayahId": "90:11",
+          "fileRef": "https://server12.mp3quran.net/m_krm/Rewayat-Warsh-A-n-Nafi-Men-Tariq-Abi-Baker-Alasbahani/090.mp3",
+          "startMs": 44826,
+          "endMs": 47160,
+          "conf": 0.36,
+          "confBand": "LOW",
+          "startApprox": true
+        },
+        {
+          "ayahId": "90:12",
+          "fileRef": "https://server12.mp3quran.net/m_krm/Rewayat-Warsh-A-n-Nafi-Men-Tariq-Abi-Baker-Alasbahani/090.mp3",
+          "startMs": 47160,
+          "endMs": 51826,
+          "conf": 0.54,
+          "confBand": "MED",
+          "startApprox": true
+        }
+      ],
+      "parentPath": "ops/source-repair/parents/codex-warsh-m_abdulkareem_warsh-746e762f.jz",
+      "parentSha256": "746e762fc2722d0c6cc108d239aa0ad5ba1947e13189013201f4b3964201fee5",
+      "evidencePath": "ops/out/codex-mab-rs1-rejection-37398048723.json",
+      "evidenceSha256": "4efb027099b837152d70550d231ed8839f5d6863f72281cfa8ff62f97b15a5b4",
+      "evidenceKind": "qa-disagreement",
+      "maxSourceSeconds": 7200
+    },
+    {
+      "id": "mab_rs1_90_19",
+      "surah": 90,
+      "riwaya": "warsh",
+      "targetId": "90:19",
+      "url": "https://server12.mp3quran.net/m_krm/Rewayat-Warsh-A-n-Nafi-Men-Tariq-Abi-Baker-Alasbahani/090.mp3",
+      "sha256": "fb04b5e32caa09888f0776adba06859026076d70e7a86566f1840afec9557ac4",
+      "requestedWindowSeconds": [
+        68,
+        106
+      ],
+      "contextAyahs": [
+        18,
+        19,
+        20
+      ],
+      "parentEntries": [
+        {
+          "ayahId": "90:18",
+          "fileRef": "https://server12.mp3quran.net/m_krm/Rewayat-Warsh-A-n-Nafi-Men-Tariq-Abi-Baker-Alasbahani/090.mp3",
+          "startMs": 78170,
+          "endMs": 84290,
+          "conf": 0.608,
+          "confBand": "MED",
+          "refined": true
+        },
+        {
+          "ayahId": "90:19",
+          "fileRef": "https://server12.mp3quran.net/m_krm/Rewayat-Warsh-A-n-Nafi-Men-Tariq-Abi-Baker-Alasbahani/090.mp3",
+          "startMs": 84290,
+          "endMs": 91750,
+          "conf": 0.44,
+          "confBand": "LOW",
+          "startApprox": true
+        },
+        {
+          "ayahId": "90:20",
+          "fileRef": "https://server12.mp3quran.net/m_krm/Rewayat-Warsh-A-n-Nafi-Men-Tariq-Abi-Baker-Alasbahani/090.mp3",
+          "startMs": 91750,
+          "endMs": 95780,
+          "conf": 0.74,
+          "confBand": "MED",
+          "refined": true
+        }
+      ],
+      "parentPath": "ops/source-repair/parents/codex-warsh-m_abdulkareem_warsh-746e762f.jz",
+      "parentSha256": "746e762fc2722d0c6cc108d239aa0ad5ba1947e13189013201f4b3964201fee5",
+      "evidencePath": "ops/out/codex-mab-rs1-rejection-37398048723.json",
+      "evidenceSha256": "4efb027099b837152d70550d231ed8839f5d6863f72281cfa8ff62f97b15a5b4",
+      "evidenceKind": "qa-disagreement",
+      "maxSourceSeconds": 7200
+    },
+    {
+      "id": "mab_rs1_90_5",
+      "surah": 90,
+      "riwaya": "warsh",
+      "targetId": "90:5",
+      "url": "https://server12.mp3quran.net/m_krm/Rewayat-Warsh-A-n-Nafi-Men-Tariq-Abi-Baker-Alasbahani/090.mp3",
+      "sha256": "fb04b5e32caa09888f0776adba06859026076d70e7a86566f1840afec9557ac4",
+      "requestedWindowSeconds": [
+        5,
+        40
+      ],
+      "contextAyahs": [
+        4,
+        5,
+        6
+      ],
+      "parentEntries": [
+        {
+          "ayahId": "90:4",
+          "fileRef": "https://server12.mp3quran.net/m_krm/Rewayat-Warsh-A-n-Nafi-Men-Tariq-Abi-Baker-Alasbahani/090.mp3",
+          "startMs": 15426,
+          "endMs": 20093,
+          "conf": 0.552,
+          "confBand": "MED",
+          "startApprox": true
+        },
+        {
+          "ayahId": "90:5",
+          "fileRef": "https://server12.mp3quran.net/m_krm/Rewayat-Warsh-A-n-Nafi-Men-Tariq-Abi-Baker-Alasbahani/090.mp3",
+          "startMs": 20093,
+          "endMs": 27450,
+          "conf": 0.6,
+          "confBand": "MED",
+          "startApprox": true
+        },
+        {
+          "ayahId": "90:6",
+          "fileRef": "https://server12.mp3quran.net/m_krm/Rewayat-Warsh-A-n-Nafi-Men-Tariq-Abi-Baker-Alasbahani/090.mp3",
+          "startMs": 27450,
+          "endMs": 29426,
+          "conf": 1.0,
+          "confBand": "HIGH",
+          "refined": true
+        }
+      ],
+      "parentPath": "ops/source-repair/parents/codex-warsh-m_abdulkareem_warsh-746e762f.jz",
+      "parentSha256": "746e762fc2722d0c6cc108d239aa0ad5ba1947e13189013201f4b3964201fee5",
+      "evidencePath": "ops/out/codex-mab-rs1-rejection-37398048723.json",
+      "evidenceSha256": "4efb027099b837152d70550d231ed8839f5d6863f72281cfa8ff62f97b15a5b4",
+      "evidenceKind": "qa-disagreement",
+      "maxSourceSeconds": 7200
+    },
+    {
+      "id": "mab_rs1_78_33",
+      "surah": 78,
+      "riwaya": "warsh",
+      "targetId": "78:33",
+      "url": "https://server12.mp3quran.net/m_krm/Rewayat-Warsh-A-n-Nafi-Men-Tariq-Abi-Baker-Alasbahani/078.mp3",
+      "sha256": "bf029142bc2bca8ef920a8d3440c40b20568756ab49d3da805e8ca88d2f74ad3",
+      "requestedWindowSeconds": [
+        138,
+        167
+      ],
+      "contextAyahs": [
+        32,
+        33,
+        34
+      ],
+      "parentEntries": [
+        {
+          "ayahId": "78:32",
+          "fileRef": "https://server12.mp3quran.net/m_krm/Rewayat-Warsh-A-n-Nafi-Men-Tariq-Abi-Baker-Alasbahani/078.mp3",
+          "startMs": 148020,
+          "endMs": 150740,
+          "conf": 0.48,
+          "confBand": "MED",
+          "startApprox": true
+        },
+        {
+          "ayahId": "78:33",
+          "fileRef": "https://server12.mp3quran.net/m_krm/Rewayat-Warsh-A-n-Nafi-Men-Tariq-Abi-Baker-Alasbahani/078.mp3",
+          "startMs": 150740,
+          "endMs": 153460,
+          "conf": 0.6,
+          "confBand": "MED",
+          "startApprox": true
+        },
+        {
+          "ayahId": "78:34",
+          "fileRef": "https://server12.mp3quran.net/m_krm/Rewayat-Warsh-A-n-Nafi-Men-Tariq-Abi-Baker-Alasbahani/078.mp3",
+          "startMs": 153460,
+          "endMs": 156180,
+          "conf": 0.48,
+          "confBand": "MED",
+          "startApprox": true
+        }
+      ],
+      "parentPath": "ops/source-repair/parents/codex-warsh-m_abdulkareem_warsh-746e762f.jz",
+      "parentSha256": "746e762fc2722d0c6cc108d239aa0ad5ba1947e13189013201f4b3964201fee5",
+      "evidencePath": "ops/out/codex-mab-rs1-rejection-37398048723.json",
+      "evidenceSha256": "4efb027099b837152d70550d231ed8839f5d6863f72281cfa8ff62f97b15a5b4",
+      "evidenceKind": "qa-disagreement",
+      "maxSourceSeconds": 7200
     }
   ]
 }
