@@ -25,6 +25,7 @@ DYNAMIC_PAGES = [
  'https://alkabbah.com/recitations/playlist/500375/mshf-mroan-alaakry-broay-kalon-114-sor-almshf-almrtl-kaml-bgod-aaaly-192-k-b-mroan-alaakry',
  'https://quranpedia.net/listen?recitation=356&surah=79'
 ]
+QALUN_WARSH_PAGES = ['https://midad.com/recitation/149104', 'https://tilawa.org/' + urllib.parse.quote('القرآن-الكريم-ورش-يوسف-بن-نوح-أحمد', safe='') + '/']
 DETAIL_PAGES = ['https://quranpedia.net/listen?recitation=356&surah=79']
 LIMIT = 2_500_000
 IRAOUI_PAGES = (
@@ -64,10 +65,10 @@ def extract(body, url):
 
 def main(argv=None):
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument('--profile', choices=('original', 'iraoui', 'recovery-20261006', 'dynamic-recovery', 'quranpedia-details'), default='original')
+    parser.add_argument('--profile', choices=('original', 'iraoui', 'recovery-20261006', 'dynamic-recovery', 'quranpedia-details', 'qalun-warsh-missing'), default='original')
     args = parser.parse_args(argv)
     rows = []
-    for url in (PAGES if args.profile == 'original' else IRAOUI_PAGES if args.profile == 'iraoui' else DYNAMIC_PAGES if args.profile == 'dynamic-recovery' else DETAIL_PAGES if args.profile == 'quranpedia-details' else RECOVERY_PAGES):
+    for url in (PAGES if args.profile == 'original' else IRAOUI_PAGES if args.profile == 'iraoui' else DYNAMIC_PAGES if args.profile == 'dynamic-recovery' else DETAIL_PAGES if args.profile == 'quranpedia-details' else QALUN_WARSH_PAGES if args.profile == 'qalun-warsh-missing' else RECOVERY_PAGES):
         row = {'publisherUrl': url, 'candidateOnly': True}
         try:
             deadline = time.monotonic() + 45
@@ -97,6 +98,7 @@ def main(argv=None):
             else 'codex-iraoui-publisher-links-20261005.json' if args.profile == 'iraoui'
             else 'codex-dynamic-publisher-links-20261006.json' if args.profile == 'dynamic-recovery'
             else 'codex-quranpedia-source-details-20261006.json' if args.profile == 'quranpedia-details'
+            else 'codex-qalun-warsh-publisher-links-20261006.json' if args.profile == 'qalun-warsh-missing'
             else 'codex-recovery-publisher-links-20261006.json')
     dest = Path('ops/out') / name
     dest.write_text(json.dumps(report, ensure_ascii=False, indent=2)+'\n')
