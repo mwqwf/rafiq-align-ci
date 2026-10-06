@@ -15,6 +15,8 @@ import final_verse_free_batch as B
 import independent_window_pilot as P
 S=B.S
 SOURCES={
+ 'saad22':{'surah':22,'riwaya':'hafs','url':'https://media.way2quran.com/saad-almqren/hafs-an-asim/22.mp3',
+  'sha256':'2198db4e1e4e3d0c18a84441b92e4e11315cb49bd23e0be87e5b04e44c96c0c5','requestedWindowSeconds':[0,25]},
  'shamrani79':{'surah':79,'riwaya':'hafs','url':'https://media.way2quran.com/saleh-alshamrani/hafs-an-asim/079.mp3',
   'sha256':'ef9cfec33cb9fe061f35283fd2bb6f329e43ac444386e890cac5c9ba0962e533','requestedWindowSeconds':[28,70]},
  'saad28':{**S.SOURCES[1],'riwaya':'hafs','requestedWindowSeconds':[620,690]},
@@ -65,7 +67,7 @@ def main(argv=None):
                     C._M.clear();gc.collect()
             B.require(S.sha_file(path)==source['sha256'],'source changed after inference')
             alignment=report['alignment']
-            expected={79:46,28:88,45:37}[source['surah']]
+            expected={79:46,28:88,45:37,22:78}[source['surah']]
             B.require(len(alignment['entries'])==expected,'incomplete result population')
             report['lowOrMissing']=[e['ayahIdx']+1 for e in alignment['entries'] if e['startMs'] is None or e['conf']<.45]
             report['measurementComplete']=True

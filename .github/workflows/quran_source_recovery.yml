@@ -6,6 +6,11 @@ run-name: Quran model recovery of measured source gaps
 on:
   workflow_dispatch:
     inputs:
+      profile:
+        type: choice
+        options: [original, saad22]
+        default: original
+        required: true
       model_policy:
         description: سياسة النموذج القرآني المثبت؛ generic من cache الموجود فقط
         type: choice
@@ -19,7 +24,7 @@ permissions:
   contents: read
 
 concurrency:
-  group: rafiq-known-source-quran-recovery-probe
+  group: rafiq-known-source-quran-recovery-probe-${{ inputs.profile }}
   cancel-in-progress: false
 
 jobs:
@@ -29,7 +34,7 @@ jobs:
       fail-fast: false
       max-parallel: 3
       matrix:
-        source: [shamrani79, saad28, saad45]
+        source: ${{ fromJSON(inputs.profile == 'saad22' && '["saad22"]' || '["shamrani79","saad28","saad45"]') }}
     if: ${{ github.repository == 'mwqwf/rafiq-align-ci' && github.event.repository.private == false }}
     runs-on: ubuntu-24.04
     timeout-minutes: 45

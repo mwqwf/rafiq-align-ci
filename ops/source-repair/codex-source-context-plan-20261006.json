@@ -243,6 +243,31 @@
       "evidenceSha256": "0e6440323e997bf91c362217b973e279a800209fb547fe7989b5d44a56ac8453",
       "evidenceKind": "koshi-rejection",
       "maxSourceSeconds": 7200
+    },
+    {
+      "surah": 28,
+      "url": "https://media.way2quran.com/saad-almqren/hafs-an-asim/28.mp3",
+      "sha256": "85f46007634846518394522eac40893dc2b2da62c27067f124ccc99499ad3f4b",
+      "bytes": 21120980,
+      "windowSeconds": [
+        1262,
+        1322
+      ],
+      "riwaya": "hafs",
+      "requestedWindowSeconds": [
+        1262,
+        1322
+      ],
+      "id": "saad28_tail",
+      "contextAyahs": [
+        86,
+        87,
+        88
+      ],
+      "evidencePath": "ops/out/codex-source-quran-saad28-37389920485.json",
+      "evidenceSha256": "4f4fd390701f225c2e38346be154cba1f0bf97136abcb468572128afe308613d",
+      "evidenceKind": "alignment",
+      "maxSourceSeconds": 7200
     }
   ]
 }
