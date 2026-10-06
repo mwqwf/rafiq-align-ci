@@ -1,0 +1,125 @@
+{
+  "path": "ops/source-repair/candidates/codex-expanded-tail-hafs-i_sanankoua-20261006.jz",
+  "sha256": "9ce857c2af096a9c98cfca533bdf4dc97fb83cae08cc9d372fc6dc98ad58bd89",
+  "parentKey": "timings/hafs/i_sanankoua.jz",
+  "parentSha256": "81d0359813d60711b1423883f022f0c23e363648e8a36136403d05aedbb9c0ed",
+  "op": "ctc_quran_window:80",
+  "changedEntries": 4,
+  "warnings": [
+    "مداخل مدتها > 120ث: 1 · مثال: 2:282 مدتها 143ث",
+    "مطالع سور تبدأ دون 3ث — مرشّحون للمسبار الصوتي لا حكمٌ عليهم: 23:1=2952م.ث · 26:1=2153م.ث"
+  ],
+  "proof": {
+    "qualityClaim": false,
+    "contexts": [
+      {
+        "reportPath": "ops/out/codex-sanankoua80-tail-report-20261006.json",
+        "reportSha256": "3c63048f422693b4db862650969ed9a7265017e728fce41c7f2b4498be33e940",
+        "bundlePath": "ops/out/codex-sanankoua80-tail-complete-20261006.json.gz",
+        "bundleSha256": "7a1e1bb6f828955e0b41ca72a3c6c26f4336b6ef18585a4e14b2cb716a07b8f7",
+        "jobId": 112142399663,
+        "id": "penultimate_hafs_i_sanankoua_80",
+        "targetAyahs": [
+          40,
+          41,
+          42
+        ],
+        "sourceSha256": "4fc4879865df75e8d7bab31c7c8123c12bc660baadde4e5ba2fdec9cd1b8e4c3",
+        "provenance": {
+          "runId": "37424947321",
+          "runSha": "e1e3d271914532c74b455aad810ceadd1ffd9682",
+          "toolSha256": "b1e7fb3f46643a405050e71bbb31f9e2502066b4033aefa601b375e9c4188982"
+        }
+      }
+    ],
+    "changes": [
+      {
+        "before": {
+          "ayahId": "80:39",
+          "fileRef": "https://server16.mp3quran.net/i_sanankoua/Rewayat-Hafs-A-n-Assem/080.mp3",
+          "startMs": 171303,
+          "endMs": 175105,
+          "conf": 0.676,
+          "confBand": "MED",
+          "startApprox": true
+        },
+        "after": {
+          "ayahId": "80:39",
+          "fileRef": "https://server16.mp3quran.net/i_sanankoua/Rewayat-Hafs-A-n-Assem/080.mp3",
+          "startMs": 171303,
+          "endMs": 175101,
+          "conf": 0.676,
+          "confBand": "MED",
+          "startApprox": true
+        }
+      },
+      {
+        "before": {
+          "ayahId": "80:40",
+          "fileRef": "https://server16.mp3quran.net/i_sanankoua/Rewayat-Hafs-A-n-Assem/080.mp3",
+          "startMs": 175105,
+          "endMs": 177997,
+          "conf": 0.0,
+          "confBand": "LOW",
+          "startApprox": true
+        },
+        "after": {
+          "ayahId": "80:40",
+          "fileRef": "https://server16.mp3quran.net/i_sanankoua/Rewayat-Hafs-A-n-Assem/080.mp3",
+          "startMs": 175101,
+          "endMs": 180686,
+          "conf": 0.0,
+          "confBand": "LOW",
+          "startApprox": true
+        }
+      },
+      {
+        "before": {
+          "ayahId": "80:41",
+          "fileRef": "https://server16.mp3quran.net/i_sanankoua/Rewayat-Hafs-A-n-Assem/080.mp3",
+          "startMs": 177997,
+          "endMs": 178898,
+          "conf": 0.088,
+          "confBand": "LOW",
+          "startApprox": true
+        },
+        "after": {
+          "ayahId": "80:41",
+          "fileRef": "https://server16.mp3quran.net/i_sanankoua/Rewayat-Hafs-A-n-Assem/080.mp3",
+          "startMs": 180686,
+          "endMs": 183189,
+          "conf": 0.088,
+          "confBand": "LOW",
+          "startApprox": true
+        }
+      },
+      {
+        "before": {
+          "ayahId": "80:42",
+          "fileRef": "https://server16.mp3quran.net/i_sanankoua/Rewayat-Hafs-A-n-Assem/080.mp3",
+          "startMs": 178898,
+          "endMs": 180499,
+          "conf": 0.0,
+          "confBand": "LOW",
+          "startApprox": true
+        },
+        "after": {
+          "ayahId": "80:42",
+          "fileRef": "https://server16.mp3quran.net/i_sanankoua/Rewayat-Hafs-A-n-Assem/080.mp3",
+          "startMs": 183189,
+          "endMs": 194899,
+          "conf": 0.0,
+          "confBand": "LOW",
+          "startApprox": true
+        }
+      }
+    ],
+    "decodedEofMs": {
+      "80": 194899
+    },
+    "limits": [
+      "الحد الأصلي لثقة المحاذاة0.45؛ لا تغيير لأي حارس أو ثقة منشورة.",
+      "الخواتيم المقيسة فقط؛ يلزم الفحص الأصلي الكامل للبصمة المرفوعة."
+    ]
+  }
+}
