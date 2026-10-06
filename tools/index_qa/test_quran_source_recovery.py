@@ -29,6 +29,7 @@ class BlockedSourceEngineTests(unittest.TestCase):
 
     def test_fakhfakh_archive_mirror_is_pinned_to_publisher_pcm(self):
         source = recovery.SOURCES['fakhfakh38_archive_2025']
+        audit_source = recovery.SOURCES['fakhfakh38_archive_2025_audit']
         self.assertEqual(source['surah'], 38)
         self.assertEqual(source['riwaya'], 'qalun')
         self.assertEqual(
@@ -41,6 +42,8 @@ class BlockedSourceEngineTests(unittest.TestCase):
             audit['archive2025Mirror']['decodedMono16k']['sha256'],
             audit['publisherSource']['decodedMono16k']['sha256'])
         self.assertTrue(audit['comparisons']['archive2025PublisherPcmBytesEqual'])
+        self.assertEqual(source, audit_source)
+        self.assertIsNone(recovery.source_engine_blocked(audit_source))
 
 
 if __name__ == '__main__':

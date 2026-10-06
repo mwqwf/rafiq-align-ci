@@ -52,8 +52,12 @@ SOURCES.update({
  'saad28':{**S.SOURCES[1],'riwaya':'hafs','requestedWindowSeconds':[620,690]},
  'saad45':{**S.SOURCES[0],'riwaya':'hafs','requestedWindowSeconds':[0,25]},
 })
+SOURCES['fakhfakh38_archive_2025_audit']={
+    **SOURCES['fakhfakh38_archive_2025']}
 ASIRI7_SOURCES=('asiri7_archive_4917','asiri7_archive_4917_audit',
                 'asiri7_archive_4917_targeted','asiri7_archive_4917_48_expanded')
+FAKHFAKH38_SOURCES=('fakhfakh38_archive_2025',
+                    'fakhfakh38_archive_2025_audit')
 ALIGNMENT_ENGINE='ctc-quran-surah-1'
 
 
@@ -97,7 +101,7 @@ def main(argv=None):
         B.require(measured['ok'] and measured['pcm']['decodedWithoutErrors'] and measured['stereo']['decodedWithoutErrors'] and not measured['stereo']['phaseCancellationSuspected'],'unhealthy publisher source')
         B.require(source['sha256']==measured['file']['sha256'] and source['url']==measured['file']['finalUrl'] and source['surah']==measured['surah'] and source['riwaya']==measured['riwaya'],'publisher metadata source mismatch')
         B.require(measured['requestedUrl']=='https://midad.com/recitation/114900' and measured['resolutionMethod']=='publisher-contentUrl','publisher resolution changed')
-    if a.source=='fakhfakh38_archive_2025':
+    if a.source in FAKHFAKH38_SOURCES:
         metadata=(B.ROOT/'ops/source-repair/fakhfakh-qalun-38-archive-mirror-audit-20261006.json').read_bytes()
         B.require(hashlib.sha256(metadata).hexdigest()=='c1652760ce7c54ef19211e3f2cbbb725412b77425e3f03b5ca620a7938a9e3dc','Archive mirror audit changed')
         audit=json.loads(metadata)
@@ -128,7 +132,8 @@ def main(argv=None):
       'measurementComplete':False,'qualityClaim':False,'coverageCertified':False,'productionChanged':False,
       'source':source,'freeResults':[],'models':[],'errors':[],
       'textGenerationDisabled':a.source in ASIRI7_SOURCES,
-      'independentRemeasurement':a.source=='asiri7_archive_4917_audit',
+      'independentRemeasurement':a.source in ('asiri7_archive_4917_audit',
+                                              'fakhfakh38_archive_2025_audit'),
       'targetedLowConfidenceRemeasurement':a.source=='asiri7_archive_4917_targeted',
       'expandedAyah48Remeasurement':a.source=='asiri7_archive_4917_48_expanded',
       'limits':['Forced full alignment does not prove all verses present.','Original generic and free-ASR failures remain part of the evidence.','Candidate requires independent QA before registration or adoption.'],
@@ -148,7 +153,7 @@ def main(argv=None):
                 B.require(receipt['bytes']==35032209 and proof['decoded']['frames']==70049542,'new publisher source differs from measured metadata')
             if a.source in ('iraoui86_surahs_s41', 'shamrani_new_archive_s79', 'fakhfakh38_midad'):
                 B.require(receipt['bytes']==measured['file']['bytes'] and proof['decoded']['frames']==measured['pcm']['samples'],'source differs from exact measured frames')
-            if a.source=='fakhfakh38_archive_2025':
+            if a.source in FAKHFAKH38_SOURCES:
                 B.require(receipt['bytes']==measured['container']['bytes'] and proof['decoded']['frames']==measured['decodedNativeStereo16k']['frames'] and proof['decoded']['fullNativePcmSha256']==measured['decodedNativeStereo16k']['sha256'],'Archive mirror differs from exact audited PCM')
             if a.source in ASIRI7_SOURCES:
                 B.require(receipt['bytes']==measured['file']['bytes'] and proof['decoded']['frames']==measured['decodedPcmMono16k']['samples'],'source differs from exact session measurement')
@@ -174,6 +179,31 @@ def main(argv=None):
                 with P.offline_model_loads(hub,specs,bound):
                     C=importlib.import_module('ctc_seg')
                     numeric_windows=None
+                    primary_fakhfakh=None
+                    if a.source=='fakhfakh38_archive_2025_audit':
+                        primary_path=B.ROOT/'ops/out/codex-fakhfakh38-archive-recovery-37544489570.json'
+                        primary_bytes=primary_path.read_bytes()
+                        B.require(hashlib.sha256(primary_bytes).hexdigest()=='6fcad5cb6bd1354aae5d754274a3461b1ddf5ae4e6396f6464ce0776fb370c08','primary Fakhfakh report changed')
+                        primary_report=json.loads(primary_bytes)
+                        B.require(primary_report['measurementComplete'] and
+                                  not primary_report['errors'] and
+                                  len(primary_report['alignment']['entries'])==88,
+                                  'primary Fakhfakh measurement incomplete')
+                        primary_fakhfakh=primary_report['alignment']
+                        primary=primary_fakhfakh['entries']
+                        numeric_windows=[
+                          {'id':'opening-1-3','startAyahIdx':0,'endAyahIdxExclusive':5,
+                           'targetAyahIdxs':[0,1,2],'audioStartMs':0,
+                           'audioEndMs':min(primary_fakhfakh['totalMs'],primary[4]['endMs']+45000)},
+                          {'id':'middle-43-45','startAyahIdx':39,'endAyahIdxExclusive':48,
+                           'targetAyahIdxs':[42,43,44],
+                           'audioStartMs':max(0,primary[39]['startMs']-60000),
+                           'audioEndMs':min(primary_fakhfakh['totalMs'],primary[47]['endMs']+60000)},
+                          {'id':'ending-84-88','startAyahIdx':80,'endAyahIdxExclusive':88,
+                           'targetAyahIdxs':[83,84,85,86,87],
+                           'audioStartMs':max(0,primary[80]['startMs']-60000),
+                           'audioEndMs':primary_fakhfakh['totalMs']},
+                        ]
                     if a.source in ('asiri7_archive_4917_targeted','asiri7_archive_4917_48_expanded'):
                         primary_path=B.ROOT/'ops/out/codex-asiri7-left-context-alignment-success-37433349375.json'
                         primary_bytes=primary_path.read_bytes()
@@ -194,7 +224,8 @@ def main(argv=None):
                                   'audioStartMs':max(0,primary[start]['startMs']-120000),
                                   'audioEndMs':min(primary[-1]['endMs']+2016,primary[end-1]['endMs']+120000)})
                     chunk_args=({'chunk_verses':29,'chunk_overlap':5}
-                                if a.source=='asiri7_archive_4917_audit' else
+                                if a.source in ('asiri7_archive_4917_audit',
+                                                'fakhfakh38_archive_2025_audit') else
                                 {'chunk_verses':32,'chunk_overlap':4}
                                 if a.source in ('asiri7_archive_4917','asiri7_archive_4917_targeted','asiri7_archive_4917_48_expanded') else {})
                     report['alignment']=C.run_surah(str(path),source['surah'],source['riwaya'],
@@ -204,13 +235,43 @@ def main(argv=None):
             alignment=report['alignment']
             expected={37:182,38:88,41:54,79:46,28:88,45:37,22:78,84:25,77:50,51:60,107:7,7:206}[source['surah']]
             B.require(len(alignment['entries'])==expected,'incomplete result population')
-            if a.source in ASIRI7_SOURCES:
+            if a.source in ASIRI7_SOURCES or a.source=='fakhfakh38_archive_2025_audit':
                 overlap=alignment.get('chunkedAlignment',{})
                 B.require(len(overlap.get('groups',[]))>1,'chunked alignment evidence missing')
                 B.require(overlap.get('overlapAyahs'),'independent overlap evidence missing')
                 B.require(overlap['maxStartDisagreementSeconds']<=5.0 and
                           overlap['maxEndDisagreementSeconds']<=5.0,
                           'overlapping alignment groups disagree by more than five seconds')
+            if a.source=='fakhfakh38_archive_2025_audit':
+                windows=alignment.get('numericWindowAudit',[])
+                B.require([w['id'] for w in windows]==
+                          ['opening-1-3','middle-43-45','ending-84-88'],
+                          'opening/middle/ending witnesses missing')
+                comparisons=[]
+                for window in windows:
+                    for target in window['targetAyahIdxs']:
+                        local=next(e for e in window['entries'] if e['ayahIdx']==target)
+                        full=alignment['entries'][target]
+                        primary=primary_fakhfakh['entries'][target]
+                        B.require(local['startMs'] is not None and
+                                  local['endMs'] is not None,
+                                  'independent witness boundary missing')
+                        comparisons.append({
+                          'witness':window['id'],'ayah':target+1,
+                          'windowVsAuditStartDeltaMs':abs(local['startMs']-full['startMs']),
+                          'windowVsAuditEndDeltaMs':abs(local['endMs']-full['endMs']),
+                          'primaryVsAuditStartDeltaMs':abs(primary['startMs']-full['startMs']),
+                          'primaryVsAuditEndDeltaMs':abs(primary['endMs']-full['endMs']),
+                          'windowConfidence':local['conf'],
+                          'auditConfidence':full['conf'],
+                        })
+                report['openingMiddleEndingComparison']=comparisons
+                B.require(max(max(d['windowVsAuditStartDeltaMs'],
+                                  d['windowVsAuditEndDeltaMs'],
+                                  d['primaryVsAuditStartDeltaMs'],
+                                  d['primaryVsAuditEndDeltaMs'])
+                              for d in comparisons)<=5000,
+                          'independent opening/middle/ending boundary differs by more than five seconds')
             if a.source=='asiri7_archive_4917_targeted':
                 windows=alignment.get('numericWindowAudit',[])
                 B.require(len(windows)==5,'targeted numeric window evidence missing')
