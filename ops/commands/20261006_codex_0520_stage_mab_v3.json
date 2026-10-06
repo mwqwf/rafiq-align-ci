@@ -1,0 +1,20 @@
+{
+  "action": "tool",
+  "tool": "index_qa/stage_transform.py",
+  "args": [
+    "--file",
+    "ops/source-repair/candidates/codex-mab-context-v3-20261006.jz",
+    "--parent",
+    "timings/warsh/m_abdulkareem_warsh.jz",
+    "--parent-sha",
+    "746e762fc2722d0c6cc108d239aa0ad5ba1947e13189013201f4b3964201fee5",
+    "--op",
+    "ctc_quran_window:11,16,18,21,23,69,78,90",
+    "--reason",
+    "Repair measured rejected rs1 boundaries and Haaqqa tail using fourteen complete native-context diagnoses; retain21repair and all original confidence. Fresh full final-SHA QA required, no threshold changes.",
+    "--by",
+    "codex-rejected-boundary-repair-20261006",
+    "--manual-qa-only",
+    "--yes"
+  ]
+}
