@@ -6,6 +6,11 @@ run-name: Diagnose source contexts and identify long Tblawi recording
 on:
   workflow_dispatch:
     inputs:
+      profile:
+        type: choice
+        options: [initial, koshi]
+        default: initial
+        required: true
       model_policy:
         description: سياسة النموذج القرآني المثبت؛ generic من cache الموجود فقط
         type: choice
@@ -19,7 +24,7 @@ permissions:
   contents: read
 
 concurrency:
-  group: rafiq-source-context-diagnostics
+  group: rafiq-source-context-diagnostics-${{ inputs.profile }}
   cancel-in-progress: false
 
 jobs:
@@ -29,7 +34,7 @@ jobs:
       fail-fast: false
       max-parallel: 3
       matrix:
-        reader: [saad28_context, saad45_tail, shamrani79_tail, tblawi_head, tblawi_tail, m_ab26_29, m_ab34_37, m_ab91_95]
+        reader: ${{ fromJSON(inputs.profile == 'koshi' && '["koshi20_22","koshi94_96"]' || '["saad28_context","saad45_tail","shamrani79_tail","tblawi_head","tblawi_tail","m_ab26_29","m_ab34_37","m_ab91_95"]') }}
     if: ${{ github.repository == 'mwqwf/rafiq-align-ci' && github.event.repository.private == false }}
     runs-on: ubuntu-24.04
     timeout-minutes: 45

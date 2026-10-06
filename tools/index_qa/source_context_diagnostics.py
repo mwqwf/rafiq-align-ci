@@ -15,14 +15,14 @@ import final_verse_free_batch as B
 import independent_window_pilot as P
 S=B.S
 PLAN='ops/source-repair/codex-source-context-plan-20261006.json'
-PLAN_SHA='c645c28d8d224d051af40f69f876d42e2cfb8006229798272a674e6c5db624d9'
-IDS=('saad28_context','saad45_tail','shamrani79_tail','tblawi_head','tblawi_tail','m_ab26_29','m_ab34_37','m_ab91_95')
+PLAN_SHA='76ee802700f5e4e0a9de2b66bf5a1ee12f39642afecb44a057816b5c36f1d5eb'
+IDS=('saad28_context','saad45_tail','shamrani79_tail','tblawi_head','tblawi_tail','m_ab26_29','m_ab34_37','m_ab91_95','koshi20_22','koshi94_96')
 
 
 def load_source(ident):
     B.require(ident in IDS, 'unplanned diagnostic')
     raw=(B.ROOT/PLAN).read_bytes();B.require(hashlib.sha256(raw).hexdigest()==PLAN_SHA,'plan changed')
-    rows=json.loads(raw)['sources'];B.require(len(rows)==8 and {r['id'] for r in rows}==set(IDS),'population changed')
+    rows=json.loads(raw)['sources'];B.require(len(rows)==10 and {r['id'] for r in rows}==set(IDS),'population changed')
     source=next(r for r in rows if r['id']==ident)
     path=(B.ROOT/source['evidencePath']).resolve()
     B.require(path.parent==B.ROOT/'ops/out' and path.suffix=='.json','evidence path')
@@ -40,6 +40,12 @@ def load_source(ident):
         measured=evidence['maps']['21']
         B.require(source['sha256']==measured['sha256'] and source['url']==measured['fileRef'] and source['maxSourceSeconds']==7200,'rejected source mismatch')
         B.require(all(type(a)is int and 1<=a<=112 for a in source['contextAyahs']),'invalid rejected context')
+    elif source['evidenceKind']=='koshi-rejection':
+        B.require(evidence['measurementComplete'] and not evidence['measurementErrors'] and evidence['ok'] is False,'rejected complete witness required')
+        B.require(evidence['sha256']=='db629f87eb79a0aca87c547ebc5856f08174e263be41591a4a984e4a616fa9d1' and source['surah']==11 and source['riwaya']=='warsh','wrong rejection')
+        measured=evidence['maps']['11']
+        B.require(source['sha256']==measured['sha256'] and source['url']==measured['fileRef'] and source['maxSourceSeconds']==7200,'rejected source mismatch')
+        B.require(all(type(a)is int and 1<=a<=123 for a in source['contextAyahs']),'invalid rejected context')
     else:
         measured=evidence['sources'][0]
         B.require(ident in ('tblawi_head','tblawi_tail') and measured['ok'] and measured['pcm']['decodedWithoutErrors'],'invalid long-source exception')
