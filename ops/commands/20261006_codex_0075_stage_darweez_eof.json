@@ -1,0 +1,20 @@
+{
+  "action": "tool",
+  "tool": "index_qa/stage_transform.py",
+  "args": [
+    "--file",
+    "ops/source-repair/candidates/codex-darweez-s53-decoded-eof-20261006.jz",
+    "--parent",
+    "timings/hafs/darweez.jz",
+    "--parent-sha",
+    "d14fedebbae69f2e29b83d5c081e72214d532fa4a6efb4d094252a9e98a57342",
+    "--op",
+    "ctc_heardmap_splice:53",
+    "--reason",
+    "Bound53:62 to measured decoded EOF487131ms (7794103 samples/16k) instead of header487157ms. Both native free transcripts retain the final word; all4 forced ends≤486340. No gate change, fresh full final-SHA QA required.",
+    "--by",
+    "codex-source-measured-najm-20261006",
+    "--manual-qa-only",
+    "--yes"
+  ]
+}

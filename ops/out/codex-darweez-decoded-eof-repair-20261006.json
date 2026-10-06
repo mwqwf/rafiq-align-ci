@@ -1,0 +1,27 @@
+{
+  "path": "ops/source-repair/candidates/codex-darweez-s53-decoded-eof-20261006.jz",
+  "sha256": "f60c48f5be94cd93cf7247a60a2cf1c2ef0f77b4efce427498f5d442168dffab",
+  "parentSha256": "d14fedebbae69f2e29b83d5c081e72214d532fa4a6efb4d094252a9e98a57342",
+  "proof": {
+    "sourceSha256": "60b8e8341a40671d93beda8dd5b1ce3d1485b1ff32f219d582871aaf1d7988c5",
+    "reportSha256": "46d3efdb3e6d6b241f2bc8b24e37f5bbe19ad09dc6955e256b791c6a0cd1a9fe",
+    "decodedFrames": 7794103,
+    "sampleRateHz": 16000,
+    "previousEndMs": 487157,
+    "endMs": 487131,
+    "forcedTerminalEndsMs": [
+      486300,
+      486300,
+      486340,
+      486340
+    ],
+    "qualityClaim": false,
+    "reason": "Header duration exceeded actual samples; fix data, retain strict decoder gate."
+  },
+  "structuralFatal": [],
+  "structuralWarnings": [
+    "مداخل مدتها > 120ث: 1 · مثال: 24:31 مدتها 132ث",
+    "مطالع سور تبدأ دون 3ث — مرشّحون للمسبار الصوتي لا حكمٌ عليهم: 11:1=2980م.ث · 20:1=1871م.ث · 39:1=1791م.ث · 49:1=2191م.ث · 53:1=1990م.ث · 62:1=2982م.ث · 77:1=1390م.ث · 81:1=1270م.ث · 89:1=0م.ث · 93:1=1451م.ث … و5 غيرها"
+  ],
+  "qualityChecks": "pending"
+}
