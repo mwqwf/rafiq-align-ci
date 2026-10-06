@@ -1,0 +1,28 @@
+name: rafiq-balilah-native-pause
+on:
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: rafiq-balilah-native-pause
+  cancel-in-progress: false
+jobs:
+  measure:
+    if: ${{ github.repository == 'mwqwf/rafiq-align-ci' && github.event.repository.private == false }}
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    env:
+      PIP_NO_CACHE_DIR: '1'
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11.11'
+      - name: Install pinned PCM tools on temporary disk
+        run: |
+          python tools/ci_fleet/install_qa_ffmpeg.py
+          python -m pip install --only-binary=:all: --timeout 60 --retries 2 'numpy==1.26.4'
+      - name: Measure native quiet pause without changing timings
+        run: python tools/index_qa/balilah_pause_probe.py
