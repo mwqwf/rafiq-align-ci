@@ -8,7 +8,7 @@ on:
     inputs:
       profile:
         type: choice
-        options: [original, saad22]
+        options: [original, saad22, mrifai84]
         default: original
         required: true
       model_policy:
@@ -34,7 +34,7 @@ jobs:
       fail-fast: false
       max-parallel: 3
       matrix:
-        source: ${{ fromJSON(inputs.profile == 'saad22' && '["saad22"]' || '["shamrani79","saad28","saad45"]') }}
+        source: ${{ fromJSON(inputs.profile == 'mrifai84' && '["mrifai84"]' || inputs.profile == 'saad22' && '["saad22"]' || '["shamrani79","saad28","saad45"]') }}
     if: ${{ github.repository == 'mwqwf/rafiq-align-ci' && github.event.repository.private == false }}
     runs-on: ubuntu-24.04
     timeout-minutes: 45

@@ -15,6 +15,8 @@ import final_verse_free_batch as B
 import independent_window_pilot as P
 S=B.S
 SOURCES={
+ 'mrifai84':{'surah':84,'riwaya':'hafs','url':'https://server11.mp3quran.net/mrifai/084.mp3',
+  'sha256':'9f5d858255f19262e9d3fb817b160f72c06ec6db86c6aa3c3519388dbc367e86','requestedWindowSeconds':[0,151.066125]},
  'saad22':{'surah':22,'riwaya':'hafs','url':'https://media.way2quran.com/saad-almqren/hafs-an-asim/22.mp3',
   'sha256':'2198db4e1e4e3d0c18a84441b92e4e11315cb49bd23e0be87e5b04e44c96c0c5','requestedWindowSeconds':[0,25]},
  'shamrani79':{'surah':79,'riwaya':'hafs','url':'https://media.way2quran.com/saleh-alshamrani/hafs-an-asim/079.mp3',
@@ -48,7 +50,7 @@ def main(argv=None):
             contract=P.load_contract()
             with S.model_snapshots(a.model_policy) as (snapshots,inventory):
                 report['modelAcquisition']=inventory
-                if a.source=='shamrani79':
+                if a.source in ('shamrani79','mrifai84'):
                     window=dict(source,windowSeconds=[collector.start/S.RATE,min(collector.frames,collector.end)/S.RATE])
                     for spec in S.MODELS:
                         backend=S.FreeCTC(snapshots[spec['name']],spec)
@@ -67,7 +69,7 @@ def main(argv=None):
                     C._M.clear();gc.collect()
             B.require(S.sha_file(path)==source['sha256'],'source changed after inference')
             alignment=report['alignment']
-            expected={79:46,28:88,45:37,22:78}[source['surah']]
+            expected={79:46,28:88,45:37,22:78,84:25}[source['surah']]
             B.require(len(alignment['entries'])==expected,'incomplete result population')
             report['lowOrMissing']=[e['ayahIdx']+1 for e in alignment['entries'] if e['startMs'] is None or e['conf']<.45]
             report['measurementComplete']=True
