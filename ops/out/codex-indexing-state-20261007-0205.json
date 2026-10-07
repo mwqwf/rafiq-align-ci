@@ -17,17 +17,18 @@
   "qualityRun": {
     "runId": 37555905823,
     "runUrl": "https://github.com/mwqwf/rafiq-align-ci/actions/runs/37555905823",
-    "status": "in_progress",
+    "status": "completed-with-incomplete-measurements",
     "completed": {
       "plan": "success",
       "openers": "success",
+      "census": "action-success-report-incomplete",
       "rs1": "success",
       "rs2": "success",
       "rs3": "success",
       "rs4": "action-success-report-incomplete",
       "heard": "failure-incomplete-measurement"
     },
-    "inProgress": ["census"],
+    "inProgress": [],
     "artifacts": 0,
     "results": {
       "openers": {
@@ -80,6 +81,17 @@
         "errorReason": "full decode 973344 ms versus frame count 973584 ms",
         "promotionAccepted": false
       },
+      "census": {
+        "shaMatched": true,
+        "actionConclusion": "success",
+        "reportVerdict": "مقبول",
+        "severe": {"bad": 7, "measured": 1072, "upperPercent": 1.588},
+        "anyDefect": {"bad": 8, "measured": 1072},
+        "errors": 264,
+        "errorSurah": 38,
+        "errorReason": "full decode 973344 ms versus frame count 973584 ms",
+        "promotionAccepted": false
+      },
       "heard": {
         "candidateShaMatched": true,
         "parentShaMatched": true,
@@ -122,14 +134,32 @@
     "globalToleranceChanged": false,
     "focusedTests": {"passed": 4, "failed": 0},
     "broaderRegressionTests": {"passed": 60, "failed": 0},
-    "status": "source-bound exact witness tested locally; publish and rerun required"
+    "publishedCodeCommit": "992e2690e8fefb1d6d681d28f9b92d3a997e1949",
+    "publishedTestCommit": "048d827312bca4926ef023851d3de1707fa2aa80",
+    "status": "source-bound exact witness tested and published; rs4 and census reruns dispatched"
   },
   "heardRetry": {
     "runId": 37560771282,
     "runUrl": "https://github.com/mwqwf/rafiq-align-ci/actions/runs/37560771282",
     "checks": ["heard"],
-    "status": "queued-behind-existing-concurrency-group",
+    "status": "in-progress",
     "commandResult": "ops/out/20261007_codex_0210_fakhfakh38_heard_retry.txt",
+    "dispatchRc": 0
+  },
+  "rs4Retry": {
+    "runId": 37561650222,
+    "runUrl": "https://github.com/mwqwf/rafiq-align-ci/actions/runs/37561650222",
+    "checks": ["rs4"],
+    "status": "queued-behind-heard-concurrency-group",
+    "commandResult": "ops/out/20261007_codex_0221_fakhfakh38_rs4_retry.txt",
+    "dispatchRc": 0
+  },
+  "censusRetry": {
+    "runId": 37561783634,
+    "runUrl": "https://github.com/mwqwf/rafiq-align-ci/actions/runs/37561783634",
+    "checks": ["census"],
+    "status": "queued-behind-heard-and-rs4-concurrency-group",
+    "commandResult": "ops/out/20261007_codex_0225_fakhfakh38_census_retry.txt",
     "dispatchRc": 0
   },
   "costControl": {
@@ -148,5 +178,5 @@
     "unchangedByThisRun": true
   },
   "complete": false,
-  "next": "Publish and test the exact source-bound duration witness, then rerun only rs4 after the code change. Also wait for census, rs2, and the already-queued heard-only retry. Do not promote before every missing measurement is complete and accepted."
+  "next": "Read the heard retry now in progress, then the queued rs4 and census retries. Do not promote before all three have complete measurements and accepted reports."
 }
