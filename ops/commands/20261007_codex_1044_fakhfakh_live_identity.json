@@ -1,0 +1,16 @@
+{
+  "action": "tool",
+  "tool": "index_qa/full_audit.py",
+  "args": [
+    "--only",
+    "timings/qalun/fakhfakh_qalun.jz",
+    "--phase",
+    "struct",
+    "--out",
+    "ops/out/codex-fakhfakh-live-identity-20261007.json",
+    "--md",
+    "ops/out/codex-fakhfakh-live-identity-20261007.md",
+    "--budget-sec",
+    "300"
+  ]
+}
