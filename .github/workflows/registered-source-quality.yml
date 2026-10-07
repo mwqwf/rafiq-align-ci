@@ -20,6 +20,8 @@ jobs:
     outputs:
       request: ${{ steps.plan.outputs.request }}
       candidate: ${{ steps.plan.outputs.candidate }}
+      parent: ${{ steps.plan.outputs.parent }}
+      checks: ${{ steps.plan.outputs.checks }}
     steps:
       - uses: actions/checkout@v4
       - id: plan
@@ -53,8 +55,22 @@ jobs:
               raise SystemExit('بصمة المرشح يجب أن تكون SHA-256 كاملة')
           if hashlib.sha256(candidate.read_bytes()).hexdigest() != data['sha256']:
               raise SystemExit('بصمة المرشح لا تطابق طلب الفحص')
+          parent = data.get('parent') or ''
+          checks = ['openers', 'census', 'rs1', 'rs2', 'rs3', 'rs4']
+          if parent:
+              parent = pathlib.Path(parent)
+              if (not parent.is_file() or parent.parent != pathlib.Path('ops/source-repair/parents')
+                      or not re.fullmatch(r'[A-Za-z0-9][A-Za-z0-9._-]*\.jz', parent.name)
+                      or any(p.is_symlink() for p in (parent, *parent.parents))):
+                  raise SystemExit('مسار الأصل خارج موضعه المسموح')
+              if not re.fullmatch(r'[0-9a-f]{64}', str(data.get('parentSha256') or '')):
+                  raise SystemExit('بصمة الأصل يجب أن تكون SHA-256 كاملة')
+              if hashlib.sha256(parent.read_bytes()).hexdigest() != data['parentSha256']:
+                  raise SystemExit('بصمة الأصل لا تطابق طلب الفحص')
+              checks.append('heard')
           with open(os.environ['GITHUB_OUTPUT'], 'a') as f:
-              f.write(f'request={request.stem}\ncandidate={candidate}\n')
+              f.write(f'request={request.stem}\ncandidate={candidate}\nparent={parent}\n')
+              f.write('checks=' + json.dumps(checks, separators=(',', ':')) + '\n')
           PY
   quality:
     needs: plan
@@ -63,7 +79,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        check: [openers, census, rs1, rs2, rs3, rs4]
+        check: ${{ fromJson(needs.plan.outputs.checks) }}
     env:
       QA_MODEL: ${{ github.workspace }}/assets-archive/ggml/ggml-tiny-ar-quran-q8_0.bin
       HF_HOME: ${{ github.workspace }}/.hf
@@ -98,12 +114,12 @@ jobs:
           PY
           python tools/index_qa/local_candidate.py --index "$CANDIDATE" --model "$QA_MODEL" --cache qa_audio --mode struct --out work/struct.json
       - uses: actions/cache/restore@v4
-        if: matrix.check == 'openers'
+        if: matrix.check == 'openers' || matrix.check == 'heard'
         with:
           path: .hf
           key: ctc-model-jonatasgrosman-xlsr53-ar-v1
       - name: شاهد CTC للمطالع
-        if: matrix.check == 'openers'
+        if: matrix.check == 'openers' || matrix.check == 'heard'
         run: |
           python -m pip install --quiet --index-url https://download.pytorch.org/whl/cpu torch
           python -m pip install --quiet 'transformers<5' ctc-segmentation
@@ -111,11 +127,14 @@ jobs:
         env:
           CHECK: ${{ matrix.check }}
           CANDIDATE: ${{ needs.plan.outputs.candidate }}
+          PARENT: ${{ needs.plan.outputs.parent }}
           REQUEST: ${{ needs.plan.outputs.request }}
         run: |
           MODE=audio
-          case "$CHECK" in openers|census) MODE="$CHECK" ;; esac
-          python tools/index_qa/local_candidate.py --index "$CANDIDATE" --model "$QA_MODEL" --cache qa_audio --mode "$MODE" --seed-salt "$CHECK" --out "ops/source-repair/results/$REQUEST/$CHECK.json"
+          case "$CHECK" in openers|census|heard) MODE="$CHECK" ;; esac
+          EXTRA=()
+          if [ "$CHECK" = heard ]; then EXTRA=(--parent "$PARENT"); fi
+          python tools/index_qa/local_candidate.py --index "$CANDIDATE" --model "$QA_MODEL" --cache qa_audio --mode "$MODE" --seed-salt "$CHECK" "${EXTRA[@]}" --out "ops/source-repair/results/$REQUEST/$CHECK.json"
       - name: حفظ الدليل في المستودع دون Artifacts أو أسرار
         if: always()
         env:
