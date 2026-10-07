@@ -1,6 +1,6 @@
 {
   "schema": 1,
-  "generatedAt": "2026-10-07T13:30:02Z",
+  "generatedAt": "2026-10-07T14:02:02Z",
   "scope": "qalun/fakhfakh_qalun severe census follow-up",
   "candidate": {
     "path": "ops/source-repair/candidates/codex-fakhfakh-boundaries-11-20-20261007.jz",
@@ -28,6 +28,111 @@
     "sampleThresholdPercent": 5
   },
   "completed": {
+    "10:60": {
+      "runId": 37626674629,
+      "jobId": 112810114527,
+      "sourceSha256": "6d306e334b76f41a8a54869e1532c937b0e4c0c5969e12070785be7f83f18c93",
+      "resultSha256": "59e7917d882730e764585b86c6e9c93a713bd1234605281d4494973944077259",
+      "resultBytes": 44090,
+      "resultDigestVerified": true,
+      "artifacts": 0,
+      "candidateStartMs": 1356148,
+      "ctcStartMs": 1356183,
+      "ctcDeltaMs": 35,
+      "ctcConfidence": 0.694,
+      "ctcSnapped": true,
+      "heardAnchorStartMs": 1356648,
+      "heardAnchorQuality": 0.893,
+      "heardOccurrenceStartMs": 1356648,
+      "heardOccurrenceScore": 0.893,
+      "ctcToAnchorMs": 465,
+      "ctcToOccurrenceMs": 465,
+      "probeIssues": [
+        "الآية 109 بلا حدود",
+        "نهاية آخر آية تتجاوز مدة الملف"
+      ],
+      "decision": "census-severe-not-confirmed-current-boundary-retained",
+      "reason": "الحد الحالي يبعد 35ms فقط عن CTC و500ms عن شاهد السماع؛ لا عطب جسيم عند 10:60 ولا إصلاح."
+    },
+    "16:16": {
+      "runId": 37626687488,
+      "jobId": 112810158826,
+      "sourceSha256": "d221ca97dcd9eaca821fffcd4a82fc2b045a57f66b7b132b93aaaba7d42fa8e9",
+      "resultSha256": "56b37d1e1f88bb6d3a41bf137d91c7fe74609861432cbb5c3f8d11bbefed7877",
+      "resultBytes": 52477,
+      "resultDigestVerified": true,
+      "artifacts": 0,
+      "candidateStartMs": 251923,
+      "ctcStartMs": 250386,
+      "ctcDeltaMs": -1537,
+      "ctcConfidence": 0.637,
+      "ctcSnapped": false,
+      "heardAnchorStartMs": 250587,
+      "heardAnchorQuality": 0.85,
+      "heardOccurrenceStartMs": 250587,
+      "heardOccurrenceScore": 0.85,
+      "ctcToAnchorMs": 201,
+      "ctcToOccurrenceMs": 201,
+      "decision": "boundary-suspect-single-boundary-repair-rejected",
+      "rejectionReasons": [
+        "ctc confidence below 0.70",
+        "heard deviation from the current boundary is 1336ms and does not independently cross the unchanged 1500ms severe threshold",
+        "ctc-to-occurrence difference exceeds 150ms"
+      ]
+    },
+    "16:28": {
+      "runId": 37626687488,
+      "jobId": 112810158826,
+      "sourceSha256": "d221ca97dcd9eaca821fffcd4a82fc2b045a57f66b7b132b93aaaba7d42fa8e9",
+      "resultSha256": "56b37d1e1f88bb6d3a41bf137d91c7fe74609861432cbb5c3f8d11bbefed7877",
+      "resultBytes": 52477,
+      "resultDigestVerified": true,
+      "artifacts": 0,
+      "candidateStartMs": 439953,
+      "ctcStartMs": 437321,
+      "ctcDeltaMs": -2632,
+      "ctcConfidence": 0.61,
+      "ctcSnapped": false,
+      "heardAnchorStartMs": 437452,
+      "heardAnchorQuality": 0.963,
+      "heardOccurrenceStartMs": 437952,
+      "heardOccurrenceScore": 0.912,
+      "ctcToAnchorMs": 131,
+      "ctcToOccurrenceMs": 631,
+      "decision": "boundary-defect-confirmed-single-boundary-repair-rejected",
+      "rejectionReasons": [
+        "ctc confidence below 0.70",
+        "ctc-to-occurrence difference exceeds 150ms"
+      ]
+    },
+    "16:32": {
+      "runId": 37626687488,
+      "jobId": 112810158826,
+      "sourceSha256": "d221ca97dcd9eaca821fffcd4a82fc2b045a57f66b7b132b93aaaba7d42fa8e9",
+      "resultSha256": "56b37d1e1f88bb6d3a41bf137d91c7fe74609861432cbb5c3f8d11bbefed7877",
+      "resultBytes": 52477,
+      "resultDigestVerified": true,
+      "artifacts": 0,
+      "candidateStartMs": 529310,
+      "ctcStartMs": 527521,
+      "ctcDeltaMs": -1789,
+      "ctcConfidence": 0.555,
+      "ctcSnapped": false,
+      "heardAnchorStartMs": 527632,
+      "heardAnchorQuality": 0.79,
+      "heardOccurrenceStartMs": 527492,
+      "heardOccurrenceScore": 0.838,
+      "ctcToAnchorMs": 111,
+      "ctcToOccurrenceMs": 29,
+      "decision": "boundary-defect-confirmed-single-boundary-repair-rejected",
+      "rejectionReasons": [
+        "ctc confidence below 0.70"
+      ],
+      "probeIssues": [
+        "الآية 128 بلا حدود",
+        "نهاية آخر آية تتجاوز مدة الملف"
+      ]
+    },
     "37:137": {
       "runId": 37626700009,
       "jobId": 112810203978,
@@ -119,16 +224,6 @@
     }
   },
   "inProgress": {
-    "10:60": {
-      "runId": 37626674629,
-      "jobId": 112810114527,
-      "status": "ctc-heard-map-running"
-    },
-    "16:16,16:28,16:32": {
-      "runId": 37626687488,
-      "jobId": 112810158826,
-      "status": "ctc-heard-map-running"
-    },
     "openers": {
       "runId": 37619639313,
       "jobId": 112786483903,
@@ -136,7 +231,8 @@
     }
   },
   "remaining": [
-    "Read and verify the completed logs for surahs 10 and 16 without rerunning them.",
+    "Treat 10:60 as exonerated by the independent probe; do not repair it.",
+    "Obtain an additional bounded witness for 16:16 and safe higher-confidence boundary evidence for 16:28 and 16:32 before any patch.",
     "Use a bounded independent two-model range witness for 37, 42 and 69; do not turn these full-range shifts into invented single-boundary patches.",
     "Read the openers retry report and keep every error or unknown as unfinished work.",
     "After any guarded repair, remeasure the repaired ranges and neighbours on the new SHA, then rerun the general scan and separate opener from ending evidence."
