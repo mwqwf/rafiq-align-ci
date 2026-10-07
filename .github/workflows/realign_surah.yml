@@ -104,9 +104,11 @@ jobs:
 
       # ⚠️ GGML_NATIVE=OFF عمداً كما في align.yml: الكاش يُستهلك على عدّاءٍ قد
       #    يختلف طرازه، وثنائيٌّ بتعليمات معالجٍ آخر يسقط بـSIGILL.
-      - name: كاش ثنائي whisper
+      # ⛔ ماليّاً: استعادةٌ فقط. لا cache-save في مسار الاسترجاع؛ إن غاب الكاش
+      # يُبنى الثنائي لهذه التشغيلة ويُترك مؤقتاً من غير كتابة تخزين Actions.
+      - name: استعادة كاش ثنائي whisper فقط
         id: whisper-cache
-        uses: actions/cache@v4
+        uses: actions/cache/restore@v4
         with:
           path: whisper-bin
           key: whisper-cli-${{ runner.os }}-${{ env.WHISPER_REF }}-noNative-v1
@@ -435,10 +437,27 @@ jobs:
                  --op "realign_surah:$TAKEN" --reason "$REASON" \
                  --by "github-cd" --yes
 
-      - name: جدولُ قبل/بعد (‏أثرٌ يُقرأ لا يُصدَّق)
+      # ⛔ لا Artifact: التقرير التفصيلي يظهر في السجل نفسه، والتخزين المنفصل
+      # ليس جزءاً من برهان المجانية لهذا المسار.
+      - name: جدولُ قبل/بعد (السجل فقط؛ بلا Artifact)
         if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: realign-${{ github.run_id }}
-          path: work/s*.json
-          if-no-files-found: warn
+        shell: bash
+        run: |
+          shopt -s nullglob
+          files=(work/s*.json)
+          if [ ${#files[@]} -eq 0 ]; then
+            echo "لا ملفات محاذاة لعرضها."
+            exit 0
+          fi
+          python - <<'PY'
+          import glob, json
+          for p in sorted(glob.glob("work/s*.json")):
+              print(f"=== {p} ===")
+              try:
+                  x = json.load(open(p, encoding="utf-8"))
+              except Exception as e:
+                  print(f"تعذّر قراءة JSON: {e}")
+                  continue
+              rows = x if isinstance(x, list) else x.get("entries", x.get("ayahs", []))
+              print(f"عدد الصفوف: {len(rows) if isinstance(rows, list) else 'غير معروف'}")
+          PY
