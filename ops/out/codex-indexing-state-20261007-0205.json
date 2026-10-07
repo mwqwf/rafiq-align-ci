@@ -1,11 +1,11 @@
 {
   "schema": 1,
-  "generatedAt": "2026-10-07T08:08:00Z",
+  "generatedAt": "2026-10-07T09:20:10Z",
   "scope": "qalun/fakhfakh_qalun/38",
   "repository": {
     "fullName": "mwqwf/rafiq-align-ci",
     "visibility": "public",
-    "observedHead": "1463641b170cf553dde6061886928d2d735c4f18"
+    "observedHead": "ddb879027b4f5ee10edb6d3820fb66e7c22c4b63"
   },
   "candidate": {
     "path": "ops/source-repair/candidates/codex-fakhfakh38-archive-20261007.jz",
@@ -72,12 +72,31 @@
         "shaMatched": true,
         "actionConclusion": "success",
         "reportVerdict": "مقبول",
-        "severe": {"bad": 1, "measured": 190, "ratePercent": 0.526, "upperPercent": 1.558},
-        "anyDefect": {"bad": 1, "measured": 190},
+        "severe": {
+          "bad": 1,
+          "measured": 190,
+          "ratePercent": 0.526,
+          "upperPercent": 1.558
+        },
+        "anyDefect": {
+          "bad": 1,
+          "measured": 190
+        },
         "errors": 30,
         "errorWindowsPerAyah": 3,
         "errorSurah": 38,
-        "errorAyahs": [3, 7, 23, 28, 60, 63, 72, 74, 83, 88],
+        "errorAyahs": [
+          3,
+          7,
+          23,
+          28,
+          60,
+          63,
+          72,
+          74,
+          83,
+          88
+        ],
         "errorReason": "full decode 973344 ms versus frame count 973584 ms",
         "promotionAccepted": false
       },
@@ -85,8 +104,15 @@
         "shaMatched": true,
         "actionConclusion": "success",
         "reportVerdict": "مقبول",
-        "severe": {"bad": 7, "measured": 1072, "upperPercent": 1.588},
-        "anyDefect": {"bad": 8, "measured": 1072},
+        "severe": {
+          "bad": 7,
+          "measured": 1072,
+          "upperPercent": 1.588
+        },
+        "anyDefect": {
+          "bad": 8,
+          "measured": 1072
+        },
         "errors": 264,
         "errorSurah": 38,
         "errorReason": "full decode 973344 ms versus frame count 973584 ms",
@@ -102,8 +128,16 @@
           "11": "HTTP 500 from archive.org/download",
           "63": "HTTP 500 from archive.org/download"
         },
-        "modifiedSurahs": [38],
-        "requiredSurahs": [11, 38, 39, 63, 113],
+        "modifiedSurahs": [
+          38
+        ],
+        "requiredSurahs": [
+          11,
+          38,
+          39,
+          63,
+          113
+        ],
         "officialStateWritten": false
       }
     }
@@ -116,8 +150,13 @@
     "sourceUrlChanged": false,
     "thresholdChanged": false,
     "candidateChanged": false,
-    "retryScopeEnabled": ["heard"],
-    "tests": {"passed": 46, "failed": 0},
+    "retryScopeEnabled": [
+      "heard"
+    ],
+    "tests": {
+      "passed": 46,
+      "failed": 0
+    },
     "diffCheck": "passed"
   },
   "transportFix2": {
@@ -129,7 +168,10 @@
     "negativeCacheRemoved": true,
     "positiveCachePreserved": true,
     "fallbackAcceptance": "published size and md5 must both match",
-    "tests": {"passed": 17, "failed": 0},
+    "tests": {
+      "passed": 17,
+      "failed": 0
+    },
     "thresholdChanged": false,
     "candidateChanged": false
   },
@@ -141,12 +183,24 @@
     "independentContainerSha256": "930f4e059219553bbcf0d7b7ec453e0aa0f72e9a555a9d61df4528220e2674ec",
     "matchingDecodedPcmSha256": "590f6a633c83e8da4f2e998dc6ed3e33b6a0fbda0bdc4c2e6b32bea8ab14ffeb",
     "evidence": [
-      {"path": "ops/source-repair/fakhfakh-qalun-38-archive-mirror-audit-20261006.json", "sha256": "c1652760ce7c54ef19211e3f2cbbb725412b77425e3f03b5ca620a7938a9e3dc"},
-      {"path": "ops/out/codex-fakhfakh38-midad-metadata-20261006.json", "sha256": "138cc16e368b13740237538606ee4ff9e21c9199501b0e58baf5ab66e6e773ae"}
+      {
+        "path": "ops/source-repair/fakhfakh-qalun-38-archive-mirror-audit-20261006.json",
+        "sha256": "c1652760ce7c54ef19211e3f2cbbb725412b77425e3f03b5ca620a7938a9e3dc"
+      },
+      {
+        "path": "ops/out/codex-fakhfakh38-midad-metadata-20261006.json",
+        "sha256": "138cc16e368b13740237538606ee4ff9e21c9199501b0e58baf5ab66e6e773ae"
+      }
     ],
     "globalToleranceChanged": false,
-    "focusedTests": {"passed": 4, "failed": 0},
-    "broaderRegressionTests": {"passed": 60, "failed": 0},
+    "focusedTests": {
+      "passed": 4,
+      "failed": 0
+    },
+    "broaderRegressionTests": {
+      "passed": 60,
+      "failed": 0
+    },
     "publishedCodeCommit": "992e2690e8fefb1d6d681d28f9b92d3a997e1949",
     "publishedTestCommit": "048d827312bca4926ef023851d3de1707fa2aa80",
     "status": "source-bound exact witness tested and published; rs4 and census reruns dispatched"
@@ -154,14 +208,18 @@
   "heardRetry": {
     "runId": 37560771282,
     "runUrl": "https://github.com/mwqwf/rafiq-align-ci/actions/runs/37560771282",
-    "checks": ["heard"],
+    "checks": [
+      "heard"
+    ],
     "status": "completed-failure-incomplete-transport",
     "commandResult": "ops/out/20261007_codex_0210_fakhfakh38_heard_retry.txt",
     "dispatchRc": 0,
     "measurementComplete": false,
     "officialStateWritten": false,
     "reason": "incomplete required probe maps: 38,39,63,113",
-    "measuredSurahs": [11],
+    "measuredSurahs": [
+      11
+    ],
     "transportErrors": {
       "38": "urlopen timeout",
       "39": "HTTP 502 Bad Gateway",
@@ -172,7 +230,9 @@
   "rs4Retry": {
     "runId": 37561650222,
     "runUrl": "https://github.com/mwqwf/rafiq-align-ci/actions/runs/37561650222",
-    "checks": ["rs4"],
+    "checks": [
+      "rs4"
+    ],
     "status": "cancelled-before-any-job-when-newer-pending-census-replaced-it",
     "commandResult": "ops/out/20261007_codex_0221_fakhfakh38_rs4_retry.txt",
     "dispatchRc": 0
@@ -180,7 +240,9 @@
   "censusRetry": {
     "runId": 37561783634,
     "runUrl": "https://github.com/mwqwf/rafiq-align-ci/actions/runs/37561783634",
-    "checks": ["census"],
+    "checks": [
+      "census"
+    ],
     "status": "completed-success-but-measurement-has-errors",
     "commandResult": "ops/out/20261007_codex_0225_fakhfakh38_census_retry.txt",
     "dispatchRc": 0,
@@ -230,7 +292,9 @@
     "commandCommit": "bd7c705c456f20582988ce08d9bd6e69b6f0a6fa",
     "commandRunId": 37565240126,
     "commandRunUrl": "https://github.com/mwqwf/rafiq-align-ci/actions/runs/37565240126",
-    "checks": ["heard"],
+    "checks": [
+      "heard"
+    ],
     "status": "completed-success-complete-measurement",
     "qualityRunId": 37565326133,
     "qualityRunUrl": "https://github.com/mwqwf/rafiq-align-ci/actions/runs/37565326133",
@@ -296,7 +360,7 @@
       "bad": 1,
       "measured": 200,
       "rate": 0.005,
-      "ciLow": 0.0,
+      "ciLow": 0,
       "ciHigh": 0.014800000000000004
     },
     "errors": 0,
@@ -343,5 +407,39 @@
     "unchangedByThisRun": true
   },
   "complete": false,
-  "next": "Candidate-specific evidence for modified surah 38 now includes a complete heard witness and a zero-transport-error rs4 sample, with rs4's 38:23 inconclusive independently measured by heard. Do not promote yet: census still has 9 download-error windows and 111 inconclusive rows outside surah 38, while inherited 20:93 and 11:19 require separate repair scopes. Complete the missing general evidence, then read back public/manifest/frozen and run a fresh general audit before any promotion claim."
+  "next": "لا تكرر 20:93 أو11:19: شوطا CTC read-only جاريان على مصدرين مثبتين. بعد اكتمالهما اقرأ حدود الموضعين وجوارهما من سجل build-logs، أصلح فقط إن اتفقت الأدلة المستقلة، ثم أعد القياس على SHA الجديد؛ وبعد ذلك تبقى فجوات census العامة وpublic/manifest/frozen والمسح النهائي.",
+  "independentDiagnostics": {
+    "20:93": {
+      "scope": "qalun/fakhfakh_qalun/20",
+      "triggerFinding": "rs4 LATE_START؛ يسقط كلمة كاملة",
+      "sourceUrl": "https://archive.org/download/48--kb--alhady--bn--altaher--alfakhfakh--by---qaloon---mp3--full--mushaf--qura/020Taha.mp3",
+      "sourceSha256": "09b4306ed043ce8832506fc8b131cb7bd728bc8eb559e45ddb7bd47cb42d86a5",
+      "workflow": "ctc_heard_probe.yml",
+      "evidence": "build-logs",
+      "runId": 37599193396,
+      "runUrl": "https://github.com/mwqwf/rafiq-align-ci/actions/runs/37599193396",
+      "status": "in_progress",
+      "currentStep": "خريطةُ السماع",
+      "cacheWrite": false,
+      "artifactWrite": false,
+      "r2Write": false
+    },
+    "11:19": {
+      "scope": "qalun/fakhfakh_qalun/11",
+      "triggerFinding": "heard +2275ms؛ indexedStartMs=411610، heardAnchorMs=409335، quality=0.918",
+      "sourceUrl": "https://archive.org/download/48--kb--alhady--bn--altaher--alfakhfakh--by---qaloon---mp3--full--mushaf--qura/011Houd.mp3",
+      "sourceSha256": "ec1ba4434cd5483a6ad43d1e1d057f513338b30bbfe1021bb3730afb592d088c",
+      "commandCommit": "f036f5a53077618fb83b76285c143957556b50da",
+      "commandResultCommit": "ddb879027b4f5ee10edb6d3820fb66e7c22c4b63",
+      "workflow": "ctc_heard_probe.yml",
+      "evidence": "build-logs",
+      "runId": 37599896584,
+      "runUrl": "https://github.com/mwqwf/rafiq-align-ci/actions/runs/37599896584",
+      "status": "in_progress",
+      "currentStep": "checkout",
+      "cacheWrite": false,
+      "artifactWrite": false,
+      "r2Write": false
+    }
+  }
 }
