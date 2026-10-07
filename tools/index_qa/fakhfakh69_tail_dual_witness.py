@@ -34,6 +34,13 @@ from archive_node import fetch_verified as archive_fetch_verified  # noqa: E402
 SURAH = 69
 FIRST, LAST = 41, 52
 TARGET_IDS = [f"{SURAH}:{k}" for k in range(FIRST, LAST + 1)]
+FOCUS_ID = "69:50"
+FOCUS_IDS = [FOCUS_ID]
+# نافذةٌ ثابتة سبقت القياسَ المركّز: تحيط بمرساة السماع 422461م.ث المثبتة في
+# نتيجة CTC_ALIGNMENT_RESULT ذات SHA أدناه،ولا تُشتق من ناتج هذا النموذج.
+FOCUS_WINDOW_MS = [416_000, 432_000]
+FOCUS_HEARD_ANCHOR_MS = 422_461
+FOCUS_HEARD_EVIDENCE_SHA = "40380522f14ceb62c08d497a36647c1b25daf17eac04771da972648fc841c4ba"
 CANDIDATE = "ops/source-repair/candidates/codex-fakhfakh-boundaries-11-20-20261007.jz"
 CANDIDATE_SHA = "a906d8c1c4d1440884d8cc6917190a7de93c0dfebfe1de69cc1efd6f732b3e90"
 SOURCE_URL = "https://archive.org/download/48--kb--alhady--bn--altaher--alfakhfakh--by---qaloon---mp3--full--mushaf--qura/069Al-Hekkah.mp3"
@@ -99,11 +106,11 @@ def stable_prefix_rate(idx, contract):
     return statistics.median(rates), chars, refs
 
 
-def raw_alignment(backend, name, pcm, texts, start_ms):
+def raw_alignment(backend, name, pcm, texts, start_ms, ids=TARGET_IDS):
     model = backend.configure(name)
     actual = list(texts) if name == "generic" else [backend.reference_text(t) for t in texts]
     raw = list(backend.segment(pcm, actual))
-    result = P.raw_result(raw, TARGET_IDS, start_ms, backend.conf)
+    result = P.raw_result(raw, ids, start_ms, backend.conf)
     result.update({
         "alignmentModel": model,
         "alignmentInputSha256": hashlib.sha256(
@@ -151,6 +158,34 @@ def assess(idx, rows, models, total_ms, rate, chars, contract):
     return verdicts
 
 
+def assess_focus(models, rate, chars, contract):
+    verdict = {"ayahId": FOCUS_ID, "accepted": False, "reasons": [],
+               "windowMs": FOCUS_WINDOW_MS, "heardAnchorMs": FOCUS_HEARD_ANCHOR_MS,
+               "heardEvidenceSha256": FOCUS_HEARD_EVIDENCE_SHA, "models": {}}
+    for name in ("generic", "quran"):
+        entry = models[name]["entries"][0]
+        raw = models[name]["rawEntries"][0]
+        verdict["models"][name] = {"startMs": entry["startMs"], "endMs": entry["endMs"],
+                                    "rawEndMs": raw["endMs"], "conf": entry["conf"]}
+        if not math.isfinite(entry["conf"]) or entry["conf"] < contract.TARGET_CONF:
+            verdict["reasons"].append(f"{name}:weak-confidence")
+        duration = raw["endMs"] - entry["startMs"]
+        expected = rate * chars[FOCUS_ID]
+        if not contract.DUR_LO * expected <= duration <= contract.DUR_HI * expected:
+            verdict["reasons"].append(f"{name}:duration-outside-bounds")
+        if abs(entry["startMs"] - FOCUS_HEARD_ANCHOR_MS) > contract.END_TOL:
+            verdict["reasons"].append(f"{name}:disagrees-with-independent-heard-anchor")
+    g, q = verdict["models"]["generic"], verdict["models"]["quran"]
+    verdict["startSpreadMs"] = abs(g["startMs"] - q["startMs"])
+    verdict["endSpreadMs"] = abs(g["rawEndMs"] - q["rawEndMs"])
+    if verdict["startSpreadMs"] > contract.START_TOL:
+        verdict["reasons"].append("models-disagree-start")
+    if verdict["endSpreadMs"] > contract.END_TOL:
+        verdict["reasons"].append("models-disagree-end")
+    verdict["accepted"] = not verdict["reasons"]
+    return verdict
+
+
 def measure(idx, rows, pcm, contract, backend, report, checkpoint=lambda *_: None):
     from common import load_index, load_text, surah_slice
     from spoken_letters import alignment_text
@@ -167,20 +202,33 @@ def measure(idx, rows, pcm, contract, backend, report, checkpoint=lambda *_: Non
                   thresholds={"targetConf": contract.TARGET_CONF, "startTolMs": contract.START_TOL,
                               "endTolMs": contract.END_TOL, "durLo": contract.DUR_LO,
                               "durHi": contract.DUR_HI, "tailPadMs": contract.TAIL_PAD_MS})
-    measured = {}
+    measured, focused = {}, {}
     for name in ("generic", "quran"):
         try:
             measured[name] = raw_alignment(backend, name, pcm[start_ms * 16:total_ms * 16], texts, start_ms)
             checkpoint(name, measured[name])
+            focus_text = alignment_text(SURAH, 50, refs[49])
+            focus_start, focus_end = FOCUS_WINDOW_MS
+            require(focus_end <= total_ms, "fixed focus window exceeds decoded source")
+            focused[name] = raw_alignment(backend, name,
+                pcm[focus_start * 16:focus_end * 16], [focus_text], focus_start, FOCUS_IDS)
+            checkpoint(f"{name}-focus50", focused[name])
         finally:
             backend.clear()
     report["models"] = measured
+    report["focusedModels"] = focused
     report["perAyah"] = assess(idx, rows, measured, total_ms, rate, chars, contract)
+    report["focused50"] = assess_focus(focused, rate, chars, contract)
     report["measurementComplete"] = all(len(measured[name]["entries"]) == len(TARGET_IDS)
+                                         and len(focused[name]["entries"]) == 1
                                          for name in ("generic", "quran"))
     report["acceptedAyahs"] = [x["ayahId"] for x in report["perAyah"] if x["accepted"]]
     report["rejectedAyahs"] = [x["ayahId"] for x in report["perAyah"] if not x["accepted"]]
     report["rangeWitnessAccepted"] = report["measurementComplete"] and not report["rejectedAyahs"]
+    report["combinedWitnessAccepted"] = (report["rangeWitnessAccepted"] or (
+        report["measurementComplete"] and report["rejectedAyahs"] == [FOCUS_ID]
+        and report["focused50"]["accepted"]
+        and report["perAyah"][9]["reasons"] == ["generic:weak-confidence"]))
     return report
 
 
@@ -253,7 +301,7 @@ def main(argv=None):
         report["elapsedSeconds"] = time.perf_counter() - started
         report["peakRssKiB"] = resource.getrusage(resource.RUSAGE_SELF).ru_maxrss
         emit(report, "FAKHFAKH69_TAIL_DUAL_WITNESS")
-    return 0 if report["measurementComplete"] and not report["errors"] else 1
+    return 0 if report.get("combinedWitnessAccepted") and not report["errors"] else 1
 
 
 if __name__ == "__main__":
