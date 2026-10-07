@@ -29,6 +29,7 @@ for relative in ("tools/index_qa", "tools/alignment_v3", "tools/alignment", "too
 
 import independent_window_pilot as P  # noqa: E402
 import saad_free_decode as S  # noqa: E402
+from archive_node import fetch_verified as archive_fetch_verified  # noqa: E402
 
 SURAH = 69
 FIRST, LAST = 41, 52
@@ -63,6 +64,24 @@ def read_candidate(path=CANDIDATE, digest=CANDIDATE_SHA):
     require(all(type(e.get("startMs")) is int and type(e.get("endMs")) is int
                 and 0 <= e["startMs"] < e["endMs"] for e in rows), "invalid candidate boundaries")
     return idx, rows, {"path": path, "sha256": digest, "bytes": len(raw)}
+
+
+def fetch_source(path):
+    """الطريق العام أولاً،ثم عقدة Archive الموثقة بالحجم وMD5 عند فشله فقط."""
+    try:
+        receipt = S.metadata.fetch(SOURCE_URL, path, limit=MAX_SOURCE_BYTES)
+        transport = "archive-download-primary"
+    except Exception as primary:
+        verified = archive_fetch_verified(SOURCE_URL, path)
+        if not verified:
+            raise primary
+        _, size = verified
+        require(size <= MAX_SOURCE_BYTES, "verified source exceeds fixed byte limit")
+        receipt = {"sha256": P.sha_file(path), "bytes": size}
+        transport = "archive-node-publisher-size-md5"
+    require(receipt["sha256"] == SOURCE_SHA, "downloaded source SHA mismatch")
+    return {"url": SOURCE_URL, "sha256": SOURCE_SHA, "bytes": receipt["bytes"],
+            "transport": transport}
 
 
 def stable_prefix_rate(idx, contract):
@@ -213,9 +232,7 @@ def main(argv=None):
                                       for name in ("index.jz", "text_qalun.jz")}
         with tempfile.TemporaryDirectory(prefix="fakhfakh69-tail-", dir=os.environ.get("RUNNER_TEMP")) as tmp:
             audio = Path(tmp) / "069.mp3"
-            receipt = S.metadata.fetch(SOURCE_URL, audio, limit=MAX_SOURCE_BYTES)
-            require(receipt["sha256"] == SOURCE_SHA, "downloaded source SHA mismatch")
-            report["source"] = {"url": SOURCE_URL, "sha256": SOURCE_SHA, "bytes": receipt["bytes"]}
+            report["source"] = fetch_source(audio)
             run = importlib.import_module("run")
             pcm = run._full_decode_pcm(audio)
             require(P.sha_file(audio) == SOURCE_SHA, "source changed during decode")
