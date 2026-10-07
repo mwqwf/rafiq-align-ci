@@ -1,6 +1,6 @@
 {
   "schema": 1,
-  "generatedAt": "2026-10-07T09:36:00Z",
+  "generatedAt": "2026-10-07T09:44:00Z",
   "scope": "qalun/fakhfakh_qalun/38",
   "repository": {
     "fullName": "mwqwf/rafiq-align-ci",
@@ -407,7 +407,7 @@
     "unchangedByThisRun": true
   },
   "complete": false,
-  "next": "انتظر نتيجة الشوطين الجاريين 20:93 و11:19 دون تكرارهما؛ قارنهما بحدود المنشور الحية. أصلح فقط إذا ثبت تجاوز 1500ms بقياس مستقل وجوار سليم. بعد ذلك تبقى 9 نوافذ census المتعذرة و111 غير حاسم خارج س38 وأعمال المسح العام؛ لا 100%.",
+  "next": "ابن مرشحاً محدوداً لحدود 20:92-20:94 من قياس 37599193396 على الأب الحي المثبت،ثم أعد القياس المستقل للهدف والجوار والبوابات العامة على SHA الجديد. انتظر 11:19 الجاري دون تكراره. تبقى 9 نوافذ census المتعذرة و111 غير حاسم خارج س38 وأعمال المسح العام؛ لا 100%.",
   "independentDiagnostics": {
     "20:93": {
       "scope": "qalun/fakhfakh_qalun/20",
@@ -418,8 +418,25 @@
       "evidence": "build-logs",
       "runId": 37599193396,
       "runUrl": "https://github.com/mwqwf/rafiq-align-ci/actions/runs/37599193396",
-      "status": "in_progress",
-      "currentStep": "خريطةُ السماع",
+      "status": "completed-success-repair-candidate-required",
+      "currentStep": "completed",
+      "jobId": 112719130192,
+      "durationSeconds": 1327,
+      "artifacts": 0,
+      "resultReport": "ops/out/codex-fakhfakh20-ctc-37599193396.json",
+      "resultSha256": "d20c411a8b965dbd54d5457b334c7d69d31d67fd828dace3f5bc1b28d2fca85c",
+      "resultBytes": 53821,
+      "ctcTarget": {
+        "publishedStartMs": 1088613,
+        "publishedEndMs": 1093040,
+        "ctcStartMs": 1086713,
+        "ctcEndMs": 1092888,
+        "ctcStartDeltaMs": -1900,
+        "heardAnchorStartMs": 1087264,
+        "heardAnchorDeltaMs": -1349,
+        "anchorQuality": 0.889,
+        "decision": "build-limited-candidate-and-remeasure"
+      },
       "historicalBoundaryCheck": {
         "status": "completed-no-independent-timing",
         "exports": [
