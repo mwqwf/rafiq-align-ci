@@ -407,7 +407,7 @@
     "unchangedByThisRun": true
   },
   "complete": false,
-  "next": "لا تكرر 20:93 أو11:19: شوطا CTC read-only جاريان على مصدرين مثبتين. بعد اكتمالهما اقرأ حدود الموضعين وجوارهما من سجل build-logs، أصلح فقط إن اتفقت الأدلة المستقلة، ثم أعد القياس على SHA الجديد؛ وبعد ذلك تبقى فجوات census العامة وpublic/manifest/frozen والمسح النهائي.",
+  "next": "انتظر نتيجة الشوطين الجاريين 20:93 و11:19 دون تكرارهما؛ قارنهما بحدود المنشور الحية. أصلح فقط إذا ثبت تجاوز 1500ms بقياس مستقل وجوار سليم. بعد ذلك تبقى 9 نوافذ census المتعذرة و111 غير حاسم خارج س38 وأعمال المسح العام؛ لا 100%.",
   "independentDiagnostics": {
     "20:93": {
       "scope": "qalun/fakhfakh_qalun/20",
@@ -440,6 +440,87 @@
       "cacheWrite": false,
       "artifactWrite": false,
       "r2Write": false
+    },
+    "74:2": {
+      "runId": 37600863409,
+      "sourceSha256": "e87a0840e11761da44f3193527f765934beb86fe3caf5923387eadc8490856fa",
+      "liveStartMs": 11720,
+      "ctcAnchorStartMs": 10527,
+      "deltaMs": 1193,
+      "anchorQuality": 1,
+      "neighbors": {
+        "74:1": {
+          "liveStartMs": 7100,
+          "ctcAnchorStartMs": 7164,
+          "deltaMs": 64
+        },
+        "74:3": {
+          "liveStartMs": 13540,
+          "ctcAnchorStartMs": 13849,
+          "deltaMs": 309
+        },
+        "74:4": {
+          "liveStartMs": 17060,
+          "ctcAnchorStartMs": 17591,
+          "deltaMs": 531
+        }
+      },
+      "verdict": "within-strict-tolerance-independent-ctc",
+      "artifacts": 0
+    },
+    "76:29": {
+      "runId": 37600595366,
+      "sourceSha256": "8c740250efd47e0bea5731147c6e400bfa966ec618d46d7c2b1160ab5e3294d3",
+      "liveStartMs": 353500,
+      "ctcAnchorStartMs": 353968,
+      "deltaMs": 468,
+      "anchorQuality": 1,
+      "neighbors": {
+        "76:28": {
+          "liveStartMs": 339990,
+          "ctcAnchorStartMs": 340658,
+          "deltaMs": 668
+        },
+        "76:30": {
+          "liveStartMs": 367610,
+          "ctcAnchorStartMs": 368118,
+          "deltaMs": 508
+        },
+        "76:31": {
+          "liveStartMs": 384300,
+          "ctcAnchorStartMs": 384809,
+          "deltaMs": 509
+        }
+      },
+      "verdict": "within-strict-tolerance-independent-ctc",
+      "artifacts": 0
+    },
+    "83:26": {
+      "runId": 37600605072,
+      "sourceSha256": "bec40ad6896132e991533c8d88affba00b97403d579c9adce113b82cf545112b",
+      "liveStartMs": 180006,
+      "ctcAnchorStartMs": 180003,
+      "deltaMs": -3,
+      "anchorQuality": 0.933,
+      "neighbors": {
+        "83:25": {
+          "liveStartMs": 174800,
+          "ctcAnchorStartMs": 175440,
+          "deltaMs": 640
+        },
+        "83:27": {
+          "liveStartMs": 191110,
+          "ctcAnchorStartMs": 191771,
+          "deltaMs": 661
+        },
+        "83:28": {
+          "liveStartMs": 197040,
+          "ctcAnchorStartMs": 197795,
+          "deltaMs": 755
+        }
+      },
+      "verdict": "within-strict-tolerance-independent-ctc",
+      "artifacts": 0
     }
   },
   "shamrani79RestoreAttempt": {
@@ -475,5 +556,115 @@
     "qualityThresholdChanged": false,
     "indexingDataChanged": false,
     "note": "Future realign runs no longer save cache or upload work/s*.json artifacts; diagnostics remain in the job log."
+  },
+  "fakhfakhLiveIdentity": {
+    "observedAtUtc": "2026-10-07T09:30:32Z",
+    "report": "ops/out/codex-fakhfakh-live-identity-20261007.json",
+    "resultCommit": "00412dbc182d",
+    "productionSha256": "5bad920fd4994019caacc00b9edd6662941abae720ba0b3a2b41281016c23eef",
+    "manifestSha256": "5bad920fd4994019caacc00b9edd6662941abae720ba0b3a2b41281016c23eef",
+    "publicSha256": "5bad920fd4994019caacc00b9edd6662941abae720ba0b3a2b41281016c23eef",
+    "frozenBucketSha256": "5bad920fd4994019caacc00b9edd6662941abae720ba0b3a2b41281016c23eef",
+    "frozenRepoSha256": "e34a69dcf98807e3bfa0428ba9ffe753374ced1fbba2656ee5283dd830365ef3",
+    "frozenRepoMirrorStale": true,
+    "identityOk": true,
+    "entries": 6236,
+    "structuralMissing": 0,
+    "impossibleShort": 0,
+    "veryShort": [
+      "38:88",
+      "37:156"
+    ],
+    "note": "هذا تحقق هوية/بنية حي، لا شهادة صحة سمعية لكل آية ولا EOF."
+  },
+  "inheritedRs4InconclusiveResolution": {
+    "status": "three-independent-probes-completed",
+    "thresholdMs": 1500,
+    "thresholdChanged": false,
+    "repairsApplied": 0,
+    "targets": {
+      "74:2": {
+        "runId": 37600863409,
+        "sourceSha256": "e87a0840e11761da44f3193527f765934beb86fe3caf5923387eadc8490856fa",
+        "liveStartMs": 11720,
+        "ctcAnchorStartMs": 10527,
+        "deltaMs": 1193,
+        "anchorQuality": 1,
+        "neighbors": {
+          "74:1": {
+            "liveStartMs": 7100,
+            "ctcAnchorStartMs": 7164,
+            "deltaMs": 64
+          },
+          "74:3": {
+            "liveStartMs": 13540,
+            "ctcAnchorStartMs": 13849,
+            "deltaMs": 309
+          },
+          "74:4": {
+            "liveStartMs": 17060,
+            "ctcAnchorStartMs": 17591,
+            "deltaMs": 531
+          }
+        },
+        "verdict": "within-strict-tolerance-independent-ctc",
+        "artifacts": 0
+      },
+      "76:29": {
+        "runId": 37600595366,
+        "sourceSha256": "8c740250efd47e0bea5731147c6e400bfa966ec618d46d7c2b1160ab5e3294d3",
+        "liveStartMs": 353500,
+        "ctcAnchorStartMs": 353968,
+        "deltaMs": 468,
+        "anchorQuality": 1,
+        "neighbors": {
+          "76:28": {
+            "liveStartMs": 339990,
+            "ctcAnchorStartMs": 340658,
+            "deltaMs": 668
+          },
+          "76:30": {
+            "liveStartMs": 367610,
+            "ctcAnchorStartMs": 368118,
+            "deltaMs": 508
+          },
+          "76:31": {
+            "liveStartMs": 384300,
+            "ctcAnchorStartMs": 384809,
+            "deltaMs": 509
+          }
+        },
+        "verdict": "within-strict-tolerance-independent-ctc",
+        "artifacts": 0
+      },
+      "83:26": {
+        "runId": 37600605072,
+        "sourceSha256": "bec40ad6896132e991533c8d88affba00b97403d579c9adce113b82cf545112b",
+        "liveStartMs": 180006,
+        "ctcAnchorStartMs": 180003,
+        "deltaMs": -3,
+        "anchorQuality": 0.933,
+        "neighbors": {
+          "83:25": {
+            "liveStartMs": 174800,
+            "ctcAnchorStartMs": 175440,
+            "deltaMs": 640
+          },
+          "83:27": {
+            "liveStartMs": 191110,
+            "ctcAnchorStartMs": 191771,
+            "deltaMs": 661
+          },
+          "83:28": {
+            "liveStartMs": 197040,
+            "ctcAnchorStartMs": 197795,
+            "deltaMs": 755
+          }
+        },
+        "verdict": "within-strict-tolerance-independent-ctc",
+        "artifacts": 0
+      }
+    },
+    "note": "هذه القياسات تحسم غير الحاسم في rs4 لهذه المواضع فقط؛ لا تمحو 111 غير حاسم في census ولا تثبت 100%."
   }
 }
