@@ -1,0 +1,9 @@
+{
+  "action": "dispatch",
+  "workflow": "registered-source-quality.yml",
+  "inputs": {
+    "request": "20261007_fakhfakh38_archive.json",
+    "checks": "heard"
+  },
+  "reason": "إعادة قياس heard وحده بعد دمج fallback عقدة Archive الموثق بالحجم وMD5؛ الشوط الأصلي أخفق فقط بسبب HTTP 500 في س11 وس63"
+}
