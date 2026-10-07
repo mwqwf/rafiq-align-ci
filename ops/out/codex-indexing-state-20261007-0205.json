@@ -1,6 +1,6 @@
 {
   "schema": 1,
-  "generatedAt": "2026-10-07T10:18:00Z",
+  "generatedAt": "2026-10-07T11:04:00Z",
   "scope": "qalun/fakhfakh_qalun/38",
   "repository": {
     "fullName": "mwqwf/rafiq-align-ci",
@@ -35,11 +35,24 @@
     "qualityClaim": false,
     "productionChanged": false,
     "qualityRun": {
-      "runId": 37605950801,
-      "runUrl": "https://github.com/mwqwf/rafiq-align-ci/actions/runs/37605950801",
-      "status": "pending-behind-existing-registered-source-quality-run",
-      "blockingRunId": 37602653491,
-      "jobsStarted": 0,
+      "failedPushAttempt": {
+        "runId": 37605950801,
+        "runUrl": "https://github.com/mwqwf/rafiq-align-ci/actions/runs/37605950801",
+        "status": "completed-plan-failure-before-audio",
+        "reason": "push mode found four request JSON files and requires exactly one explicit request",
+        "qualitySkipped": true,
+        "artifacts": 0
+      },
+      "dispatchCommand": {
+        "path": "ops/commands/20261007_codex_1056_fakhfakh_boundaries_quality.json",
+        "commit": "8474e53cc181e5f9f000707127b0614ec43e9ee2",
+        "relayRunId": 37610873057
+      },
+      "runId": 37610962383,
+      "runUrl": "https://github.com/mwqwf/rafiq-align-ci/actions/runs/37610962383",
+      "status": "in-progress-all-seven-quality-checks",
+      "plan": "success",
+      "inProgress": ["openers", "census", "heard", "rs1", "rs2", "rs3", "rs4"],
       "artifacts": 0
     },
     "tests": {
@@ -443,7 +456,7 @@
     "unchangedByThisRun": true
   },
   "complete": false,
-  "next": "انتظر الشوط 37605950801 دون تكراره؛ اقرأ تقارير heard/census/openers/rs1..rs4 على SHA a906d8c1 نفسه،ولا تقبل النجاح إن بقي error أو unknown أو inconclusive. إن اجتازت الحدود المصححة وجوارها،يبقى المسح العام وبصمة public/manifest/frozen قبل أي ترقية. الإنتاج لم يتغير ولا 100%.",
+  "next": "انتظر الشوط 37610962383 دون تكراره؛ اقرأ تقارير heard/census/openers/rs1..rs4 على SHA a906d8c1 نفسه،ولا تقبل النجاح إن بقي error أو unknown أو inconclusive. إن اجتازت الحدود المصححة وجوارها،يبقى المسح العام وبصمة public/manifest/frozen قبل أي ترقية. الإنتاج لم يتغير ولا 100%.",
   "independentDiagnostics": {
     "20:93": {
       "scope": "qalun/fakhfakh_qalun/20",
