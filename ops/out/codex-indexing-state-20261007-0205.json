@@ -1,11 +1,11 @@
 {
   "schema": 1,
-  "generatedAt": "2026-10-07T09:22:00Z",
+  "generatedAt": "2026-10-07T09:36:00Z",
   "scope": "qalun/fakhfakh_qalun/38",
   "repository": {
     "fullName": "mwqwf/rafiq-align-ci",
     "visibility": "public",
-    "observedHead": "eac0f945aabb4f754b5405b58bc3590d9221db72"
+    "observedHead": "59f4687758e361926781fe427bd1fb31f02876df"
   },
   "candidate": {
     "path": "ops/source-repair/candidates/codex-fakhfakh38-archive-20261007.jz",
@@ -420,6 +420,37 @@
       "runUrl": "https://github.com/mwqwf/rafiq-align-ci/actions/runs/37599193396",
       "status": "in_progress",
       "currentStep": "خريطةُ السماع",
+      "historicalBoundaryCheck": {
+        "status": "completed-no-independent-timing",
+        "exports": [
+          {
+            "key": "timings-staging/qalun/fakhfakh_qalun.3108f0f3.jz",
+            "sha256": "3108f0f3dbbdb6dc0e285ca7059cdb1207f8fc197cd2374bcae58d629085cd89",
+            "report": "ops/out/codex-fakhfakh-independent-parent-3108-20261007.json",
+            "bytes": 87399,
+            "entryCount": 6226
+          },
+          {
+            "key": "timings-staging/qalun/fakhfakh_qalun.1ba608f1.jz",
+            "sha256": "1ba608f1e806d8393c365de5852357730b71edc44e4c37a69325f02c1a3d022f",
+            "report": "ops/out/codex-fakhfakh-independent-parent-1ba6-20261007.json",
+            "bytes": 87399,
+            "entryCount": 6226
+          }
+        ],
+        "range": "20:89-20:96",
+        "comparedBoundaryValues": 16,
+        "allBoundaryValuesIdentical": true,
+        "target": {
+          "ayahId": "20:93",
+          "startMs": 1088613,
+          "endMs": 1093040,
+          "conf": 0.48,
+          "confBand": "MED",
+          "startApprox": true
+        },
+        "conclusion": "المرشحان التاريخيان يعيدان الحد التقريبي نفسه؛ لا يصلحان شاهداً مستقلاً ولا أساساً لإصلاح."
+      },
       "cacheWrite": false,
       "artifactWrite": false,
       "r2Write": false
