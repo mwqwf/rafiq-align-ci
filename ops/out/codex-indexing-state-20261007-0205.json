@@ -208,6 +208,21 @@
       33
     ],
     "measurementComplete": false,
+    "rowVerdicts": {
+      "total": 1160,
+      "innocent": 1038,
+      "severe": 7,
+      "minor": 1,
+      "inconclusive": 114
+    },
+    "modifiedSurah38": {
+      "innocent": 85,
+      "inconclusive": [
+        "38:18",
+        "38:23",
+        "38:35"
+      ]
+    },
     "artifacts": 0
   },
   "heardRetry2": {
@@ -254,5 +269,5 @@
     "unchangedByThisRun": true
   },
   "complete": false,
-  "next": "Read heard retry2 when it finishes, confirm the isolated rs4 run was created and then read its report. Census still has 9 unmeasured error windows in surahs 3, 29, and 33, so retry those gaps after the queue clears. Do not promote before all three have complete measurements and accepted reports."
+  "next": "Read heard retry2 when it finishes and then read the pending isolated rs4 report. Census still has 9 download-error windows, 114 inconclusive rows overall, and unresolved 38:18, 38:23, 38:35 inside the modified surah; resolve these gaps after the queue clears. Do not promote before all measurements are conclusive and accepted."
 }
