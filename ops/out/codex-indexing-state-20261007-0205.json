@@ -1,0 +1,152 @@
+{
+  "schema": 1,
+  "generatedAt": "2026-10-07T02:05:51Z",
+  "scope": "qalun/fakhfakh_qalun/38",
+  "repository": {
+    "fullName": "mwqwf/rafiq-align-ci",
+    "visibility": "public",
+    "observedHead": "df10badee8277850a58f87579b0a6c2761fcf726"
+  },
+  "candidate": {
+    "path": "ops/source-repair/candidates/codex-fakhfakh38-archive-20261007.jz",
+    "sha256": "61d207912feef5df4041d9629d085642f0b1aadc53897959722d3b7ef82b8ed6",
+    "parentSha256": "5bad920fd4994019caacc00b9edd6662941abae720ba0b3a2b41281016c23eef",
+    "unpublishedLocalCandidate": true,
+    "productionChanged": false
+  },
+  "qualityRun": {
+    "runId": 37555905823,
+    "runUrl": "https://github.com/mwqwf/rafiq-align-ci/actions/runs/37555905823",
+    "status": "in_progress",
+    "completed": {
+      "plan": "success",
+      "openers": "success",
+      "rs1": "success",
+      "rs2": "success",
+      "rs3": "success",
+      "rs4": "action-success-report-incomplete",
+      "heard": "failure-incomplete-measurement"
+    },
+    "inProgress": ["census"],
+    "artifacts": 0,
+    "results": {
+      "openers": {
+        "shaMatched": true,
+        "checked": 112,
+        "defects": 0,
+        "unknown": 0,
+        "suspect": 0,
+        "swallowed": 0,
+        "late": 0,
+        "tail": 0,
+        "verdict": "clean",
+        "scope": "openers-only"
+      },
+      "rs1": {
+        "shaMatched": true,
+        "sample": 200,
+        "severe": 0,
+        "any": 0,
+        "errors": 0,
+        "verdict": "accepted"
+      },
+      "rs3": {
+        "shaMatched": true,
+        "sample": 200,
+        "severe": 0,
+        "any": 1,
+        "errors": 0,
+        "verdict": "accepted"
+      },
+      "rs2": {
+        "shaMatched": true,
+        "sample": 200,
+        "severe": 2,
+        "any": 2,
+        "errors": 0,
+        "upperPercent": 2.349,
+        "verdict": "accepted"
+      },
+      "rs4": {
+        "shaMatched": true,
+        "actionConclusion": "success",
+        "reportVerdict": "مقبول",
+        "severe": {"bad": 1, "measured": 190, "ratePercent": 0.526, "upperPercent": 1.558},
+        "anyDefect": {"bad": 1, "measured": 190},
+        "errors": 30,
+        "errorWindowsPerAyah": 3,
+        "errorSurah": 38,
+        "errorAyahs": [3, 7, 23, 28, 60, 63, 72, 74, 83, 88],
+        "errorReason": "full decode 973344 ms versus frame count 973584 ms",
+        "promotionAccepted": false
+      },
+      "heard": {
+        "candidateShaMatched": true,
+        "parentShaMatched": true,
+        "measurementComplete": false,
+        "gateError": null,
+        "reason": "incomplete required probe maps: 11,63",
+        "transportErrors": {
+          "11": "HTTP 500 from archive.org/download",
+          "63": "HTTP 500 from archive.org/download"
+        },
+        "modifiedSurahs": [38],
+        "requiredSurahs": [11, 38, 39, 63, 113],
+        "officialStateWritten": false
+      }
+    }
+  },
+  "transportFix": {
+    "publishedCommit": "ef95cb7466fab3daa715e00ce38e40f7c13d1ed2",
+    "primaryAttemptsPreserved": 6,
+    "fallback": "archive item storage node",
+    "fallbackAcceptance": "published size and md5 must both match",
+    "sourceUrlChanged": false,
+    "thresholdChanged": false,
+    "candidateChanged": false,
+    "retryScopeEnabled": ["heard"],
+    "tests": {"passed": 46, "failed": 0},
+    "diffCheck": "passed"
+  },
+  "rs4DurationDiagnosis": {
+    "sourceSha256": "fded733764386de895b63df4b067f44accee12186785396a3f61928a0fa3c212",
+    "decodedSamplesMono16k": 15573504,
+    "decodedDurationMs": 973344,
+    "frameDurationMs": 973584,
+    "independentContainerSha256": "930f4e059219553bbcf0d7b7ec453e0aa0f72e9a555a9d61df4528220e2674ec",
+    "matchingDecodedPcmSha256": "590f6a633c83e8da4f2e998dc6ed3e33b6a0fbda0bdc4c2e6b32bea8ab14ffeb",
+    "evidence": [
+      {"path": "ops/source-repair/fakhfakh-qalun-38-archive-mirror-audit-20261006.json", "sha256": "c1652760ce7c54ef19211e3f2cbbb725412b77425e3f03b5ca620a7938a9e3dc"},
+      {"path": "ops/out/codex-fakhfakh38-midad-metadata-20261006.json", "sha256": "138cc16e368b13740237538606ee4ff9e21c9199501b0e58baf5ab66e6e773ae"}
+    ],
+    "globalToleranceChanged": false,
+    "focusedTests": {"passed": 4, "failed": 0},
+    "broaderRegressionTests": {"passed": 60, "failed": 0},
+    "status": "source-bound exact witness tested locally; publish and rerun required"
+  },
+  "heardRetry": {
+    "runId": 37560771282,
+    "runUrl": "https://github.com/mwqwf/rafiq-align-ci/actions/runs/37560771282",
+    "checks": ["heard"],
+    "status": "queued-behind-existing-concurrency-group",
+    "commandResult": "ops/out/20261007_codex_0210_fakhfakh38_heard_retry.txt",
+    "dispatchRc": 0
+  },
+  "costControl": {
+    "runner": "ubuntu-latest",
+    "publicRepository": true,
+    "cacheRestoreOnly": true,
+    "cacheWrite": false,
+    "artifactWrite": false,
+    "r2Write": false,
+    "privateRunnerUsed": false
+  },
+  "productionBaseline": {
+    "entries": 1121595,
+    "missingAyahs": 885,
+    "impossibleShort": 1,
+    "unchangedByThisRun": true
+  },
+  "complete": false,
+  "next": "Publish and test the exact source-bound duration witness, then rerun only rs4 after the code change. Also wait for census, rs2, and the already-queued heard-only retry. Do not promote before every missing measurement is complete and accepted."
+}

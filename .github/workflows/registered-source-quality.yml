@@ -6,6 +6,11 @@ on:
         description: "اسم ملف طلب واحد داخل ops/source-repair/requests، شاملًا .json"
         required: true
         type: string
+      checks:
+        description: "فحوص محددة مفصولة بفواصل؛ فارغ يعني المجموعة الكاملة"
+        required: false
+        default: ""
+        type: string
   push:
     branches: [main]
     paths: [ops/source-repair/requests/*.json]
@@ -28,6 +33,7 @@ jobs:
         env:
           EVENT_NAME: ${{ github.event_name }}
           REQUEST_NAME: ${{ inputs.request }}
+          REQUESTED_CHECKS: ${{ inputs.checks }}
         run: |
           python - <<'PY'
           import hashlib, json, os, pathlib, re
@@ -56,7 +62,7 @@ jobs:
           if hashlib.sha256(candidate.read_bytes()).hexdigest() != data['sha256']:
               raise SystemExit('بصمة المرشح لا تطابق طلب الفحص')
           parent = data.get('parent') or ''
-          checks = ['openers', 'census', 'rs1', 'rs2', 'rs3', 'rs4']
+          from tools.index_qa.registered_source_quality_plan import selected_checks
           if parent:
               parent = pathlib.Path(parent)
               if (not parent.is_file() or parent.parent != pathlib.Path('ops/source-repair/parents')
@@ -67,7 +73,7 @@ jobs:
                   raise SystemExit('بصمة الأصل يجب أن تكون SHA-256 كاملة')
               if hashlib.sha256(parent.read_bytes()).hexdigest() != data['parentSha256']:
                   raise SystemExit('بصمة الأصل لا تطابق طلب الفحص')
-              checks.append('heard')
+          checks = selected_checks(os.environ.get('REQUESTED_CHECKS', ''), bool(parent))
           with open(os.environ['GITHUB_OUTPUT'], 'a') as f:
               f.write(f'request={request.stem}\ncandidate={candidate}\nparent={parent}\n')
               f.write('checks=' + json.dumps(checks, separators=(',', ':')) + '\n')

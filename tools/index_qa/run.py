@@ -1003,6 +1003,39 @@ _DECODED_KEEP = 6             # أقصى ما يبقى على القرص من م
 _DECODE_LOCK = threading.Lock()
 _FULL_TOL_MS = 200            # فرقُ الفكّ الكامل عن عدّ الإطارات: تأخيرُ المرمِّز وحشوُه
 
+# لا تُوسَّع `_FULL_TOL_MS` من أجل ملفٍّ بعينه. هذا المصدرُ العام له شاهدٌ
+# أضيق: الحاويتان المختلفتان أدناه تفكّان إلى PCM متطابقٍ (البصمة والعدد)،
+# بينما تختلف مدةُ الحاوية بينهما؛ لذلك 240م.ث هنا حشوُ ترميزٍ مشهود لا بتر.
+# أي اختلافٍ في بايتات المصدر أو عدد العينات أو عدّ الإطارات يبقي الرفض كما هو.
+_DECODE_DURATION_WITNESSES = {
+    "fded733764386de895b63df4b067f44accee12186785396a3f61928a0fa3c212": {
+        "samples": 15_573_504,
+        "decodedMs": 973_344.0,
+        "frameMs": 973_584.0,
+        "evidence": (
+            "ops/source-repair/fakhfakh-qalun-38-archive-mirror-audit-20261006.json"
+            "#archive2025Mirror.decodedMono16k",
+            "ops/out/codex-fakhfakh38-midad-metadata-20261006.json"
+            "#sources[0].pcm",
+        ),
+    },
+}
+
+
+def _verified_decode_duration_witness(mp3, samples, frame_ms):
+    """هل فرقُ المدة مغطّى بشاهدٍ ضيقٍ مطابقٍ للبايتات والفك وعدّ الإطارات؟"""
+    h = hashlib.sha256()
+    with open(mp3, "rb") as f:
+        for chunk in iter(lambda: f.read(1024 * 1024), b""):
+            h.update(chunk)
+    witness = _DECODE_DURATION_WITNESSES.get(h.hexdigest())
+    if witness is None:
+        return False
+    decoded_ms = samples * 1000.0 / 16000
+    return (samples == witness["samples"]
+            and abs(decoded_ms - witness["decodedMs"]) < 0.001
+            and abs(frame_ms - witness["frameMs"]) < 0.001)
+
 
 def _local_is_cbr(mp3):
     """أمُثبَتٌ ثباتُ معدّل الملفّ المحليّ؟ (‏الشكّ ⇒ لا)."""
@@ -1052,7 +1085,8 @@ def _full_decode_pcm(mp3):
             if (st0.st_size, st0.st_mtime_ns) != (st1.st_size, st1.st_mtime_ns):
                 raise RuntimeError(f"الملفّ تغيّر أثناء الفكّ ({st0.st_size}⇒{st1.st_size} بايت)"
                                    " — لا يُقصّ من ملفٍّ لم يكتمل")
-            if abs(got_ms - want_ms) > _FULL_TOL_MS:
+            if (abs(got_ms - want_ms) > _FULL_TOL_MS
+                    and not _verified_decode_duration_witness(key, len(x), want_ms)):
                 raise RuntimeError(f"الفكُّ الكامل {got_ms:.0f}م.ث والإطاراتُ "
                                    f"{want_ms:.0f}م.ث — لا يُقصّ من فكٍّ لا يطابق الملفّ")
             del x
