@@ -1,11 +1,11 @@
 {
   "schema": 1,
-  "generatedAt": "2026-10-07T09:20:10Z",
+  "generatedAt": "2026-10-07T09:22:00Z",
   "scope": "qalun/fakhfakh_qalun/38",
   "repository": {
     "fullName": "mwqwf/rafiq-align-ci",
     "visibility": "public",
-    "observedHead": "ddb879027b4f5ee10edb6d3820fb66e7c22c4b63"
+    "observedHead": "eac0f945aabb4f754b5405b58bc3590d9221db72"
   },
   "candidate": {
     "path": "ops/source-repair/candidates/codex-fakhfakh38-archive-20261007.jz",
@@ -441,5 +441,39 @@
       "artifactWrite": false,
       "r2Write": false
     }
+  },
+  "shamrani79RestoreAttempt": {
+    "runId": 37599366487,
+    "runUrl": "https://github.com/mwqwf/rafiq-align-ci/actions/runs/37599366487",
+    "status": "completed-failure-no-stage-write",
+    "parent": "timings/hafs/shamrani.jz",
+    "source": "https://server16.mp3quran.net/shamrani/Rewayat-Hafs-A-n-Assem/079.mp3",
+    "skipMs": 5060,
+    "alignment": {
+      "ayahs": 46,
+      "missingBoundaries": [
+        1,
+        15,
+        17,
+        18
+      ],
+      "fatal": "splice_surah rejected replacement because surah 79 still had unresolved boundaries",
+      "stagingWritten": false
+    },
+    "preGuardArtifact": {
+      "artifactId": 11472138612,
+      "name": "realign-37599366487",
+      "bytes": 1220,
+      "note": "This artifact was written by the pre-fix workflow after the alignment failure; it is not quality evidence and was not deleted by this session."
+    }
+  },
+  "realignCostGuard": {
+    "commit": "d79bf62dff58798f4b8699459b792758f0f9ffc7",
+    "workflow": ".github/workflows/realign_surah.yml",
+    "cacheMode": "restore-only",
+    "artifactWrite": false,
+    "qualityThresholdChanged": false,
+    "indexingDataChanged": false,
+    "note": "Future realign runs no longer save cache or upload work/s*.json artifacts; diagnostics remain in the job log."
   }
 }
