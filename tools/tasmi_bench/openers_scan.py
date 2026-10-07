@@ -42,6 +42,8 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 ROOT = os.path.dirname(os.path.dirname(HERE))
 sys.path.insert(0, os.path.join(ROOT, "tools", "alignment"))
 sys.path.insert(0, HERE)
+sys.path.insert(0, os.path.join(ROOT, "tools", "index_qa"))
+from archive_node import fetch_verified as archive_fetch_verified  # noqa: E402
 from basmala_local import (BAS, _edit, _eq, _eq_first, basmala_tail, cut,  # noqa: E402
                            fuzzy_seq, text_of)
 from common import load_index, load_text, norm, read_jz  # noqa: E402
@@ -169,6 +171,11 @@ def fetch_head(url, dst, need_ms=6000, nbytes=None):
         except Exception as ex:
             last = ex
         time.sleep(2 * (attempt + 1))
+    # ‏archive.org/download يعيد 500 متقطّعاً لبعض الملفات. بعد استنفاد الطريق
+    # العام وحده ننتقل إلى عقدة البند نفسها، ولا نقبل منها إلا الملف الكامل بعد
+    # مطابقة الحجم وmd5 المنشورين في metadata. الرابط المنطقي والمصدر لا يتغيران.
+    if archive_fetch_verified(url, dst):
+        return dst
     raise RuntimeError(f"تعذّر التنزيل: {last}")
 
 
