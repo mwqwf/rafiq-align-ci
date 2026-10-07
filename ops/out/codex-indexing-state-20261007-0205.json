@@ -1,6 +1,6 @@
 {
   "schema": 1,
-  "generatedAt": "2026-10-07T09:44:00Z",
+  "generatedAt": "2026-10-07T10:18:00Z",
   "scope": "qalun/fakhfakh_qalun/38",
   "repository": {
     "fullName": "mwqwf/rafiq-align-ci",
@@ -13,6 +13,42 @@
     "parentSha256": "5bad920fd4994019caacc00b9edd6662941abae720ba0b3a2b41281016c23eef",
     "unpublishedLocalCandidate": true,
     "productionChanged": false
+  },
+  "measuredBoundaryCandidate": {
+    "path": "ops/source-repair/candidates/codex-fakhfakh-boundaries-11-20-20261007.jz",
+    "sha256": "a906d8c1c4d1440884d8cc6917190a7de93c0dfebfe1de69cc1efd6f732b3e90",
+    "parentSha256": "5bad920fd4994019caacc00b9edd6662941abae720ba0b3a2b41281016c23eef",
+    "request": "ops/source-repair/requests/20261007_fakhfakh_boundaries_11_20.json",
+    "report": "ops/out/codex-fakhfakh-boundaries-11-20-candidate-20261007.json",
+    "publishedCommit": "ce75b62b9ee7dce7ff128939d54c5142233fc609",
+    "entryCount": 6236,
+    "added": 0,
+    "removed": 0,
+    "changedEntries": {
+      "11:18": {"endMs": {"from": 411610, "to": 409205}},
+      "11:19": {"startMs": {"from": 411610, "to": 409205}},
+      "20:92": {"endMs": {"from": 1088613, "to": 1086713}},
+      "20:93": {"startMs": {"from": 1088613, "to": 1086713}}
+    },
+    "confidenceChanged": false,
+    "thresholdChanged": false,
+    "qualityClaim": false,
+    "productionChanged": false,
+    "qualityRun": {
+      "runId": 37605950801,
+      "runUrl": "https://github.com/mwqwf/rafiq-align-ci/actions/runs/37605950801",
+      "status": "pending-behind-existing-registered-source-quality-run",
+      "blockingRunId": 37602653491,
+      "jobsStarted": 0,
+      "artifacts": 0
+    },
+    "tests": {
+      "focusedPassed": 43,
+      "focusedFailed": 0,
+      "structuralGate": "passed",
+      "indexGate": "passed",
+      "unrelatedExistingFlakyFailure": "test_ctc_heard_map.Pure.test_global_anchors_monotone_with_noise_extra_and_repeat: 4320 not less than 4320"
+    }
   },
   "qualityRun": {
     "runId": 37555905823,
@@ -407,7 +443,7 @@
     "unchangedByThisRun": true
   },
   "complete": false,
-  "next": "ابن مرشحاً محدوداً لحدود 20:92-20:94 من قياس 37599193396 على الأب الحي المثبت،ثم أعد القياس المستقل للهدف والجوار والبوابات العامة على SHA الجديد. انتظر 11:19 الجاري دون تكراره. تبقى 9 نوافذ census المتعذرة و111 غير حاسم خارج س38 وأعمال المسح العام؛ لا 100%.",
+  "next": "انتظر الشوط 37605950801 دون تكراره؛ اقرأ تقارير heard/census/openers/rs1..rs4 على SHA a906d8c1 نفسه،ولا تقبل النجاح إن بقي error أو unknown أو inconclusive. إن اجتازت الحدود المصححة وجوارها،يبقى المسح العام وبصمة public/manifest/frozen قبل أي ترقية. الإنتاج لم يتغير ولا 100%.",
   "independentDiagnostics": {
     "20:93": {
       "scope": "qalun/fakhfakh_qalun/20",
@@ -483,8 +519,25 @@
       "evidence": "build-logs",
       "runId": 37599896584,
       "runUrl": "https://github.com/mwqwf/rafiq-align-ci/actions/runs/37599896584",
-      "status": "in_progress",
-      "currentStep": "checkout",
+      "status": "completed-success-repair-candidate-built",
+      "currentStep": "completed",
+      "jobId": 112721453787,
+      "artifacts": 0,
+      "resultReport": "ops/out/codex-fakhfakh11-ctc-37599896584.json",
+      "resultSha256": "d82807247815cc2ed564a06833b13e9f69d9b0c6d95ee9d622e801268526de0f",
+      "resultBytes": 48360,
+      "ctcTarget": {
+        "publishedStartMs": 411610,
+        "publishedEndMs": 423660,
+        "ctcStartMs": 409205,
+        "ctcEndMs": 423465,
+        "ctcStartDeltaMs": -2405,
+        "heardAnchorStartMs": 409335,
+        "heardAnchorDeltaMs": -2275,
+        "anchorQuality": 0.918,
+        "occurrenceStartMs": 409215,
+        "decision": "included-in-limited-candidate-and-awaiting-final-sha-remeasurement"
+      },
       "cacheWrite": false,
       "artifactWrite": false,
       "r2Write": false
