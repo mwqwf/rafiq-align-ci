@@ -12,6 +12,7 @@
 """
 from __future__ import annotations
 
+import hashlib
 import shutil
 import struct
 import subprocess
@@ -197,6 +198,31 @@ class FullDecodeRejectsTest(unittest.TestCase):
         # ‏فكٌّ يقف قبل آخر إطار = ملفٌّ لم يُسمع كلُّه — لا يُقصّ منه
         with self._run(pcm=np.ones(16000)), \
                 mock.patch.object(R, "_file_duration_ms", return_value=5000.0):
+            with self.assertRaisesRegex(RuntimeError, "لا يطابق الملفّ"):
+                R._exact_window_pcm(self.mp3, 0, 500)
+        self._no_cache_left()
+
+    def test_exact_source_bound_duration_witness_is_accepted(self):
+        # الاستثناءُ ليس رفعاً للسماح: بايتاتٌ + عددُ عيناتٍ + عدُّ إطاراتٍ بعينها.
+        pcm = np.ones(16000)
+        sha = hashlib.sha256(self.mp3.read_bytes()).hexdigest()
+        witness = {"samples": 16000, "decodedMs": 1000.0,
+                   "frameMs": 1240.0, "evidence": ("test",)}
+        with mock.patch.dict(R._DECODE_DURATION_WITNESSES, {sha: witness}), \
+                self._run(pcm=pcm), \
+                mock.patch.object(R, "_file_duration_ms", return_value=1240.0):
+            x, rate = R._exact_window_pcm(self.mp3, 0, 500)
+        self.assertEqual(rate, 16000)
+        np.testing.assert_array_equal(x, pcm[:8000])
+
+    def test_duration_witness_stays_closed_on_frame_mismatch(self):
+        pcm = np.ones(16000)
+        sha = hashlib.sha256(self.mp3.read_bytes()).hexdigest()
+        witness = {"samples": 16000, "decodedMs": 1000.0,
+                   "frameMs": 1240.0, "evidence": ("test",)}
+        with mock.patch.dict(R._DECODE_DURATION_WITNESSES, {sha: witness}), \
+                self._run(pcm=pcm), \
+                mock.patch.object(R, "_file_duration_ms", return_value=1241.0):
             with self.assertRaisesRegex(RuntimeError, "لا يطابق الملفّ"):
                 R._exact_window_pcm(self.mp3, 0, 500)
         self._no_cache_left()

@@ -17,15 +17,18 @@
   "qualityRun": {
     "runId": 37555905823,
     "runUrl": "https://github.com/mwqwf/rafiq-align-ci/actions/runs/37555905823",
-    "status": "in_progress",
+    "status": "completed-with-incomplete-measurements",
     "completed": {
       "plan": "success",
       "openers": "success",
+      "census": "action-success-report-incomplete",
       "rs1": "success",
+      "rs2": "success",
       "rs3": "success",
+      "rs4": "action-success-report-incomplete",
       "heard": "failure-incomplete-measurement"
     },
-    "inProgress": ["census", "rs2", "rs4"],
+    "inProgress": [],
     "artifacts": 0,
     "results": {
       "openers": {
@@ -56,6 +59,39 @@
         "errors": 0,
         "verdict": "accepted"
       },
+      "rs2": {
+        "shaMatched": true,
+        "sample": 200,
+        "severe": 2,
+        "any": 2,
+        "errors": 0,
+        "upperPercent": 2.349,
+        "verdict": "accepted"
+      },
+      "rs4": {
+        "shaMatched": true,
+        "actionConclusion": "success",
+        "reportVerdict": "مقبول",
+        "severe": {"bad": 1, "measured": 190, "ratePercent": 0.526, "upperPercent": 1.558},
+        "anyDefect": {"bad": 1, "measured": 190},
+        "errors": 30,
+        "errorWindowsPerAyah": 3,
+        "errorSurah": 38,
+        "errorAyahs": [3, 7, 23, 28, 60, 63, 72, 74, 83, 88],
+        "errorReason": "full decode 973344 ms versus frame count 973584 ms",
+        "promotionAccepted": false
+      },
+      "census": {
+        "shaMatched": true,
+        "actionConclusion": "success",
+        "reportVerdict": "مقبول",
+        "severe": {"bad": 7, "measured": 1072, "upperPercent": 1.588},
+        "anyDefect": {"bad": 8, "measured": 1072},
+        "errors": 264,
+        "errorSurah": 38,
+        "errorReason": "full decode 973344 ms versus frame count 973584 ms",
+        "promotionAccepted": false
+      },
       "heard": {
         "candidateShaMatched": true,
         "parentShaMatched": true,
@@ -73,6 +109,7 @@
     }
   },
   "transportFix": {
+    "publishedCommit": "ef95cb7466fab3daa715e00ce38e40f7c13d1ed2",
     "primaryAttemptsPreserved": 6,
     "fallback": "archive item storage node",
     "fallbackAcceptance": "published size and md5 must both match",
@@ -82,6 +119,48 @@
     "retryScopeEnabled": ["heard"],
     "tests": {"passed": 46, "failed": 0},
     "diffCheck": "passed"
+  },
+  "rs4DurationDiagnosis": {
+    "sourceSha256": "fded733764386de895b63df4b067f44accee12186785396a3f61928a0fa3c212",
+    "decodedSamplesMono16k": 15573504,
+    "decodedDurationMs": 973344,
+    "frameDurationMs": 973584,
+    "independentContainerSha256": "930f4e059219553bbcf0d7b7ec453e0aa0f72e9a555a9d61df4528220e2674ec",
+    "matchingDecodedPcmSha256": "590f6a633c83e8da4f2e998dc6ed3e33b6a0fbda0bdc4c2e6b32bea8ab14ffeb",
+    "evidence": [
+      {"path": "ops/source-repair/fakhfakh-qalun-38-archive-mirror-audit-20261006.json", "sha256": "c1652760ce7c54ef19211e3f2cbbb725412b77425e3f03b5ca620a7938a9e3dc"},
+      {"path": "ops/out/codex-fakhfakh38-midad-metadata-20261006.json", "sha256": "138cc16e368b13740237538606ee4ff9e21c9199501b0e58baf5ab66e6e773ae"}
+    ],
+    "globalToleranceChanged": false,
+    "focusedTests": {"passed": 4, "failed": 0},
+    "broaderRegressionTests": {"passed": 60, "failed": 0},
+    "publishedCodeCommit": "992e2690e8fefb1d6d681d28f9b92d3a997e1949",
+    "publishedTestCommit": "048d827312bca4926ef023851d3de1707fa2aa80",
+    "status": "source-bound exact witness tested and published; rs4 and census reruns dispatched"
+  },
+  "heardRetry": {
+    "runId": 37560771282,
+    "runUrl": "https://github.com/mwqwf/rafiq-align-ci/actions/runs/37560771282",
+    "checks": ["heard"],
+    "status": "in-progress",
+    "commandResult": "ops/out/20261007_codex_0210_fakhfakh38_heard_retry.txt",
+    "dispatchRc": 0
+  },
+  "rs4Retry": {
+    "runId": 37561650222,
+    "runUrl": "https://github.com/mwqwf/rafiq-align-ci/actions/runs/37561650222",
+    "checks": ["rs4"],
+    "status": "queued-behind-heard-concurrency-group",
+    "commandResult": "ops/out/20261007_codex_0221_fakhfakh38_rs4_retry.txt",
+    "dispatchRc": 0
+  },
+  "censusRetry": {
+    "runId": 37561783634,
+    "runUrl": "https://github.com/mwqwf/rafiq-align-ci/actions/runs/37561783634",
+    "checks": ["census"],
+    "status": "queued-behind-heard-and-rs4-concurrency-group",
+    "commandResult": "ops/out/20261007_codex_0225_fakhfakh38_census_retry.txt",
+    "dispatchRc": 0
   },
   "costControl": {
     "runner": "ubuntu-latest",
@@ -99,5 +178,5 @@
     "unchangedByThisRun": true
   },
   "complete": false,
-  "next": "Publish the verified transport fix, then dispatch only heard after the existing quality run releases the concurrency group. Do not promote before heard, census, rs2, and rs4 are complete and accepted."
+  "next": "Read the heard retry now in progress, then the queued rs4 and census retries. Do not promote before all three have complete measurements and accepted reports."
 }
