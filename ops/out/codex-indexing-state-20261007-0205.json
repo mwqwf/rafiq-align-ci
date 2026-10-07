@@ -1,0 +1,103 @@
+{
+  "schema": 1,
+  "generatedAt": "2026-10-07T02:05:51Z",
+  "scope": "qalun/fakhfakh_qalun/38",
+  "repository": {
+    "fullName": "mwqwf/rafiq-align-ci",
+    "visibility": "public",
+    "observedHead": "df10badee8277850a58f87579b0a6c2761fcf726"
+  },
+  "candidate": {
+    "path": "ops/source-repair/candidates/codex-fakhfakh38-archive-20261007.jz",
+    "sha256": "61d207912feef5df4041d9629d085642f0b1aadc53897959722d3b7ef82b8ed6",
+    "parentSha256": "5bad920fd4994019caacc00b9edd6662941abae720ba0b3a2b41281016c23eef",
+    "unpublishedLocalCandidate": true,
+    "productionChanged": false
+  },
+  "qualityRun": {
+    "runId": 37555905823,
+    "runUrl": "https://github.com/mwqwf/rafiq-align-ci/actions/runs/37555905823",
+    "status": "in_progress",
+    "completed": {
+      "plan": "success",
+      "openers": "success",
+      "rs1": "success",
+      "rs3": "success",
+      "heard": "failure-incomplete-measurement"
+    },
+    "inProgress": ["census", "rs2", "rs4"],
+    "artifacts": 0,
+    "results": {
+      "openers": {
+        "shaMatched": true,
+        "checked": 112,
+        "defects": 0,
+        "unknown": 0,
+        "suspect": 0,
+        "swallowed": 0,
+        "late": 0,
+        "tail": 0,
+        "verdict": "clean",
+        "scope": "openers-only"
+      },
+      "rs1": {
+        "shaMatched": true,
+        "sample": 200,
+        "severe": 0,
+        "any": 0,
+        "errors": 0,
+        "verdict": "accepted"
+      },
+      "rs3": {
+        "shaMatched": true,
+        "sample": 200,
+        "severe": 0,
+        "any": 1,
+        "errors": 0,
+        "verdict": "accepted"
+      },
+      "heard": {
+        "candidateShaMatched": true,
+        "parentShaMatched": true,
+        "measurementComplete": false,
+        "gateError": null,
+        "reason": "incomplete required probe maps: 11,63",
+        "transportErrors": {
+          "11": "HTTP 500 from archive.org/download",
+          "63": "HTTP 500 from archive.org/download"
+        },
+        "modifiedSurahs": [38],
+        "requiredSurahs": [11, 38, 39, 63, 113],
+        "officialStateWritten": false
+      }
+    }
+  },
+  "transportFix": {
+    "primaryAttemptsPreserved": 6,
+    "fallback": "archive item storage node",
+    "fallbackAcceptance": "published size and md5 must both match",
+    "sourceUrlChanged": false,
+    "thresholdChanged": false,
+    "candidateChanged": false,
+    "retryScopeEnabled": ["heard"],
+    "tests": {"passed": 46, "failed": 0},
+    "diffCheck": "passed"
+  },
+  "costControl": {
+    "runner": "ubuntu-latest",
+    "publicRepository": true,
+    "cacheRestoreOnly": true,
+    "cacheWrite": false,
+    "artifactWrite": false,
+    "r2Write": false,
+    "privateRunnerUsed": false
+  },
+  "productionBaseline": {
+    "entries": 1121595,
+    "missingAyahs": 885,
+    "impossibleShort": 1,
+    "unchangedByThisRun": true
+  },
+  "complete": false,
+  "next": "Publish the verified transport fix, then dispatch only heard after the existing quality run releases the concurrency group. Do not promote before heard, census, rs2, and rs4 are complete and accepted."
+}

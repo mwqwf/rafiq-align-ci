@@ -41,6 +41,8 @@ import numpy as np
 HERE = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, HERE)
 sys.path.insert(0, os.path.join(os.path.dirname(HERE), "alignment"))
+sys.path.insert(0, os.path.join(os.path.dirname(HERE), "index_qa"))
+from archive_node import fetch_verified as archive_fetch_verified  # noqa: E402
 from ctc_seg import BASMALA, SR, _conf, _emissions, _segment  # noqa: E402
 from common import load_index, load_text, norm, to_wav16k  # noqa: E402
 from vad import read_wav, silences, snap_to_silence  # noqa: E402
@@ -100,6 +102,11 @@ def fetch(url: str, dst: str) -> None:
             last = RuntimeError(f"مبتور {os.path.getsize(dst)} من {want}")
         except Exception as ex:                        # noqa: BLE001
             last = ex
+    # archive.org/download يُعيد 500 متقطّعاً حتى بعد المحاولات؛ ننتقل عندئذٍ فقط
+    # إلى عقدة البند نفسها، ولا يقبل archive_fetch_verified بايتاً إلا بعد مطابقة
+    # الحجم وmd5 المنشورين في metadata. الرابط المنطقي للمصدر لا يتغيّر.
+    if archive_fetch_verified(url, dst):
+        return
     raise RuntimeError(f"تعذّر تنزيل {url}: {last}")
 
 
