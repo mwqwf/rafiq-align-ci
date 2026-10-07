@@ -1,11 +1,11 @@
 {
   "schema": 1,
-  "generatedAt": "2026-10-07T11:04:00Z",
+  "generatedAt": "2026-10-07T14:02:02Z",
   "scope": "qalun/fakhfakh_qalun/38",
   "repository": {
     "fullName": "mwqwf/rafiq-align-ci",
     "visibility": "public",
-    "observedHead": "59f4687758e361926781fe427bd1fb31f02876df"
+    "observedHead": "ad0717266187e40fe24372c70a624a1c8989ce28"
   },
   "candidate": {
     "path": "ops/source-repair/candidates/codex-fakhfakh38-archive-20261007.jz",
@@ -50,10 +50,77 @@
       },
       "runId": 37610962383,
       "runUrl": "https://github.com/mwqwf/rafiq-align-ci/actions/runs/37610962383",
-      "status": "in-progress-all-seven-quality-checks",
+      "status": "completed-with-known-defects-and-openers-transport-rerun",
       "plan": "success",
-      "inProgress": ["openers", "census", "heard", "rs1", "rs2", "rs3", "rs4"],
-      "artifacts": 0
+      "completed": ["openers", "census", "heard", "rs1", "rs2", "rs3", "rs4"],
+      "inProgress": [],
+      "artifacts": 0,
+      "results": {
+        "heard": {
+          "shaMatched": true,
+          "parentShaMatched": true,
+          "ok": true,
+          "measurementComplete": true,
+          "measurementErrors": {},
+          "officialStateWritten": false,
+          "targets": {
+            "11:19": {"startMs": 409205, "anchorMs": 409335, "quality": 0.918, "deviationMs": -130, "status": "ok"},
+            "20:93": {"startMs": 1086713, "anchorMs": 1086804, "quality": 0.944, "deviationMs": -91, "status": "ok"}
+          },
+          "remaining": {
+            "20:73": {"startMs": 781220, "anchorMs": 779619, "quality": 0.898, "deviationMs": 1601, "status": "repeat"}
+          }
+        },
+        "census": {
+          "shaMatched": true,
+          "rows": 1330,
+          "severe": 8,
+          "severeUpper95Percent": 1.291590032725761,
+          "anyDefect": 9,
+          "anyDefectUpper95Percent": 1.4542423956599227,
+          "errors": 0,
+          "inconclusive": 112,
+          "severeAyahs": ["10:60", "16:16", "16:28", "16:32", "20:101", "37:137", "42:47", "69:43"],
+          "mildAyahs": ["16:44"],
+          "statisticalVerdict": "مقبول",
+          "completionVerdict": false
+        },
+        "rs1": {"shaMatched": true, "rows": 200, "severe": 0, "errors": 0, "inconclusive": 3},
+        "rs2": {"shaMatched": true, "rows": 200, "severe": 2, "errors": 0, "inconclusive": 12, "severeAyahs": ["56:37", "20:101"]},
+        "rs3": {"shaMatched": true, "rows": 200, "severe": 0, "anyDefect": 1, "errors": 0, "inconclusive": 5, "mildAyahs": ["87:17"]},
+        "rs4": {"shaMatched": true, "rows": 200, "severe": 0, "errors": 0, "inconclusive": 3, "target20_93": "بريء"},
+        "openersInitial": {
+          "shaMatched": true,
+          "checked": 112,
+          "clean": 48,
+          "errors": 62,
+          "unknown": [7, 70],
+          "defects": 0,
+          "completionVerdict": false,
+          "reason": "HTTP 500 transport failures before verified Archive fallback"
+        }
+      },
+      "openersRetry": {
+        "runId": 37619639313,
+        "runUrl": "https://github.com/mwqwf/rafiq-align-ci/actions/runs/37619639313",
+        "status": "in-progress-openers-only",
+        "candidateSha256": "a906d8c1c4d1440884d8cc6917190a7de93c0dfebfe1de69cc1efd6f732b3e90",
+        "transportFixCommit": "741cee64f1b4be218da03b401cfd2103ccadf271",
+        "transportTestCommit": "54b1b4f4a649f36652789552f2ba4e4a30ade519",
+        "testsPassed": 20,
+        "selfTestPassed": 13,
+        "artifacts": 0
+      }
+    },
+    "followupEvidence": {
+      "path": "ops/out/codex-fakhfakh20-followup-evidence-20261007.json",
+      "commit": "4e48fd0273c9fa3efedd5aca17930aa9697638ec",
+      "candidateChanged": false,
+      "productionChanged": false,
+      "findings": {
+        "20:101": "direction-confirmed-but-881ms-ctc-occurrence-disagreement-exceeds-150ms-agreement-guard",
+        "20:73": "conflicting-witnesses-ctc-equals-candidate-heard-straddles-boundary"
+      }
     },
     "tests": {
       "focusedPassed": 43,
@@ -449,6 +516,77 @@
     "r2Write": false,
     "privateRunnerUsed": false
   },
+  "severeBoundaryProbeWave": {
+    "evidence": "ops/out/codex-fakhfakh-severe-boundary-probes-20261007.json",
+    "commandCommit": "0917724d06142adbe38b72152b5751748e02b513",
+    "relayRunId": 37626537558,
+    "candidateSha256": "a906d8c1c4d1440884d8cc6917190a7de93c0dfebfe1de69cc1efd6f732b3e90",
+    "candidateChanged": false,
+    "thresholdChanged": false,
+    "completed": {
+      "10:60": {
+        "runId": 37626674629,
+        "resultSha256": "59e7917d882730e764585b86c6e9c93a713bd1234605281d4494973944077259",
+        "candidateStartMs": 1356148,
+        "ctcStartMs": 1356183,
+        "heardStartMs": 1356648,
+        "decision": "census-severe-not-confirmed-current-boundary-retained"
+      },
+      "16:16": {
+        "runId": 37626687488,
+        "resultSha256": "56b37d1e1f88bb6d3a41bf137d91c7fe74609861432cbb5c3f8d11bbefed7877",
+        "candidateStartMs": 251923,
+        "ctcStartMs": 250386,
+        "heardStartMs": 250587,
+        "decision": "boundary-suspect-single-boundary-repair-rejected"
+      },
+      "16:28": {
+        "runId": 37626687488,
+        "resultSha256": "56b37d1e1f88bb6d3a41bf137d91c7fe74609861432cbb5c3f8d11bbefed7877",
+        "candidateStartMs": 439953,
+        "ctcStartMs": 437321,
+        "heardStartMs": 437452,
+        "decision": "boundary-defect-confirmed-single-boundary-repair-rejected"
+      },
+      "16:32": {
+        "runId": 37626687488,
+        "resultSha256": "56b37d1e1f88bb6d3a41bf137d91c7fe74609861432cbb5c3f8d11bbefed7877",
+        "candidateStartMs": 529310,
+        "ctcStartMs": 527521,
+        "heardStartMs": 527632,
+        "decision": "boundary-defect-confirmed-single-boundary-repair-rejected"
+      },
+      "37:137": {
+        "runId": 37626700009,
+        "resultSha256": "6f0a03ca6ae2c8fb3c44be306dbe20e7fe46fe7bc96418ed31e5a54eb7796cba",
+        "candidateStartMs": 972965,
+        "ctcStartMs": 979430,
+        "heardStartMs": 979620,
+        "decision": "range-defect-confirmed-single-boundary-repair-rejected"
+      },
+      "42:47": {
+        "runId": 37626711579,
+        "resultSha256": "eccb1a77962e59945a81628adc3205fc48d73e76cec8a0d5b455793c4c29a002",
+        "candidateStartMs": 873871,
+        "ctcStartMs": 883420,
+        "heardStartMs": 883688,
+        "decision": "range-defect-confirmed-single-boundary-repair-rejected"
+      },
+      "69:43": {
+        "runId": 37626725183,
+        "resultSha256": "40380522f14ceb62c08d497a36647c1b25daf17eac04771da972648fc841c4ba",
+        "candidateStartMs": 356867,
+        "ctcStartMs": 366864,
+        "heardStartMs": 368405,
+        "decision": "range-defect-confirmed-single-boundary-repair-rejected"
+      }
+    },
+    "inProgress": {
+      "openers": 37619639313
+    },
+    "artifacts": 0,
+    "productionChanged": false
+  },
   "productionBaseline": {
     "entries": 1121595,
     "missingAyahs": 885,
@@ -456,7 +594,7 @@
     "unchangedByThisRun": true
   },
   "complete": false,
-  "next": "انتظر الشوط 37610962383 دون تكراره؛ اقرأ تقارير heard/census/openers/rs1..rs4 على SHA a906d8c1 نفسه،ولا تقبل النجاح إن بقي error أو unknown أو inconclusive. إن اجتازت الحدود المصححة وجوارها،يبقى المسح العام وبصمة public/manifest/frozen قبل أي ترقية. الإنتاج لم يتغير ولا 100%.",
+  "next": "اعتبر 10:60 بريئة بالشاهد المستقل ولا تصلحها. يلزم شاهد إضافي لـ16:16،ودليل حدود أعلى ثقة لـ16:28 و16:32 قبل أي رقعة. اقرأ تقرير المطالع 37619639313 عند اكتماله؛كل error/unknown باقٍ. عيوب 37/42/69 انزياحات مدى لا تجتاز حارس الحد المفرد وتحتاج شاهداً ثنائياً مستقلاً. لا تخفِ 112 غير حاسم،ويلزم مسح عام ثابت وشواهد بدء/نهاية منفصلة وقراءة public/manifest/frozen قبل أي ترقية. الإنتاج لم يتغير ولا 100%.",
   "independentDiagnostics": {
     "20:93": {
       "scope": "qalun/fakhfakh_qalun/20",
