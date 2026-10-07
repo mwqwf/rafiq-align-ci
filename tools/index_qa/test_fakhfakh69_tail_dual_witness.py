@@ -112,6 +112,40 @@ class WitnessTest(unittest.TestCase):
                 with self.assertRaises(ValueError):
                     W.read_candidate(W.CANDIDATE, hashlib.sha256(changed).hexdigest())
 
+    def test_source_primary_success_does_not_call_fallback(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            path = Path(tmp) / "069.mp3"; path.write_bytes(b"primary")
+            digest = hashlib.sha256(b"primary").hexdigest()
+            receipt = {"sha256": digest, "bytes": 7}
+            with patch.object(W, "SOURCE_SHA", digest), \
+                 patch.object(W.S.metadata, "fetch", return_value=receipt), \
+                 patch.object(W, "archive_fetch_verified") as fallback:
+                got = W.fetch_source(path)
+            self.assertEqual(got["transport"], "archive-download-primary")
+            fallback.assert_not_called()
+
+    def test_source_http_failure_uses_only_publisher_verified_node(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            path = Path(tmp) / "069.mp3"
+            blob = b"verified-node"; digest = hashlib.sha256(blob).hexdigest()
+            def verified(url, target):
+                self.assertEqual(url, W.SOURCE_URL)
+                Path(target).write_bytes(blob)
+                return "https://archive-node.invalid/069.mp3", len(blob)
+            with patch.object(W, "SOURCE_SHA", digest), \
+                 patch.object(W.S.metadata, "fetch", side_effect=RuntimeError("HTTP 500")), \
+                 patch.object(W, "archive_fetch_verified", side_effect=verified):
+                got = W.fetch_source(path)
+            self.assertEqual(got["transport"], "archive-node-publisher-size-md5")
+            self.assertEqual(got["sha256"], digest)
+
+    def test_source_failure_stays_closed_without_verified_node(self):
+        with tempfile.TemporaryDirectory() as tmp, \
+             patch.object(W.S.metadata, "fetch", side_effect=RuntimeError("HTTP 500")), \
+             patch.object(W, "archive_fetch_verified", return_value=None):
+            with self.assertRaisesRegex(RuntimeError, "HTTP 500"):
+                W.fetch_source(Path(tmp) / "069.mp3")
+
 
 if __name__ == "__main__":
     unittest.main()
