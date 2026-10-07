@@ -1,0 +1,1059 @@
+{
+ "kind": "openers",
+ "key": "timings-staging/qalun/fakhfakh_qalun.a906d8c1.jz",
+ "sha256": "a906d8c1c4d1440884d8cc6917190a7de93c0dfebfe1de69cc1efd6f732b3e90",
+ "reciterId": "fakhfakh_qalun",
+ "riwaya": "qalun",
+ "scope": "full",
+ "checked": 112,
+ "counts": {
+  "error": 62,
+  "clean": 48,
+  "unknown": 2
+ },
+ "swallowed": [],
+ "tail": [],
+ "suspect": [],
+ "late": [],
+ "errors": [
+  2,
+  3,
+  5,
+  6,
+  8,
+  10,
+  11,
+  12,
+  13,
+  14,
+  16,
+  19,
+  20,
+  22,
+  23,
+  27,
+  28,
+  29,
+  30,
+  31,
+  33,
+  36,
+  39,
+  42,
+  44,
+  46,
+  48,
+  50,
+  51,
+  52,
+  55,
+  56,
+  58,
+  59,
+  60,
+  66,
+  69,
+  71,
+  77,
+  78,
+  79,
+  80,
+  81,
+  82,
+  83,
+  84,
+  87,
+  88,
+  92,
+  93,
+  94,
+  95,
+  99,
+  100,
+  101,
+  103,
+  104,
+  105,
+  107,
+  110,
+  111,
+  113
+ ],
+ "defects": 0,
+ "unknown": [
+  7,
+  70
+ ],
+ "tool": "openers_scan.py",
+ "commit": "8c0d5e00935bc6c31ae29d07de90fa20e2c5e759",
+ "ciCommit": "39ab19ae",
+ "threads": 4,
+ "model": "ggml-tiny-ar-quran-q8_0.bin",
+ "elapsedSec": 2300,
+ "at": 1791373142,
+ "note": "‏`swallowed` متحقَّقٌ صوتياً بعد الحدّ المقدَّر؛ و`suspect` كشفٌ بلا تحقّق ⇒ يُحتمل أن يكون هلوسة نموذج، فلا يُبنى عليه حكم. ولا حكم ترقيةٍ في هذا الملف.",
+ "rows": [
+  {
+   "surah": 2,
+   "startMs": 8060,
+   "url": "https://archive.org/download/48--kb--alhady--bn--altaher--alfakhfakh--by---qaloon---mp3--full--mushaf--qura/002Al-bakarah.mp3",
+   "endMs": 16850,
+   "verdict": "error",
+   "error": "تعذّر التنزيل: HTTP Error 500: Internal Server Error"
+  },
+  {
+   "surah": 3,
+   "startMs": 5660,
+   "url": "https://archive.org/download/48--kb--alhady--bn--altaher--alfakhfakh--by---qaloon---mp3--full--mushaf--qura/003El-imran.mp3",
+   "endMs": 12728,
+   "verdict": "error",
+   "error": "تعذّر التنزيل: HTTP Error 500: Internal Server Error"
+  },
+  {
+   "surah": 4,
+   "startMs": 6200,
+   "url": "https://archive.org/download/48--kb--alhady--bn--altaher--alfakhfakh--by---qaloon---mp3--full--mushaf--qura/004Annissa.mp3",
+   "endMs": 46290,
+   "verdict": "clean",
+   "heard": "يا ايها",
+   "rung": 1500
+  },
+  {
+   "surah": 5,
+   "startMs": 7560,
+   "url": "https://archive.org/download/48--kb--alhady--bn--altaher--alfakhfakh--by---qaloon---mp3--full--mushaf--qura/005Al-maidah.mp3",
+   "endMs": 36920,
+   "verdict": "error",
+   "error": "تعذّر التنزيل: HTTP Error 500: Internal Server Error"
+  },
+  {
+   "surah": 6,
+   "startMs": 6600,
+   "url": "https://archive.org/download/48--kb--alhady--bn--altaher--alfakhfakh--by---qaloon---mp3--full--mushaf--qura/006Al-anaam.mp3",
+   "endMs": 24640,
+   "verdict": "error",
+   "error": "تعذّر التنزيل: HTTP Error 500: Internal Server Error"
+  },
+  {
+   "surah": 7,
+   "startMs": 6780,
+   "url": "https://archive.org/download/48--kb--alhady--bn--altaher--alfakhfakh--by---qaloon---mp3--full--mushaf--qura/007Al-aaraf.mp3",
+   "endMs": 16890,
+   "verdict": "unknown",
+   "heard": "الم"
+  },
+  {
+   "surah": 8,
+   "startMs": 6180,
+   "url": "https://archive.org/download/48--kb--alhady--bn--altaher--alfakhfakh--by---qaloon---mp3--full--mushaf--qura/008Al-anfal.mp3",
+   "endMs": 32340,
+   "verdict": "error",
+   "error": "تعذّر التنزيل: HTTP Error 500: Internal Server Error"
+  },
+  {
+   "surah": 10,
+   "startMs": 6310,
+   "url": "https://archive.org/download/48--kb--alhady--bn--altaher--alfakhfakh--by---qaloon---mp3--full--mushaf--qura/010Younes.mp3",
+   "endMs": 16920,
+   "verdict": "error",
+   "error": "تعذّر التنزيل: HTTP Error 500: Internal Server Error"
+  },
+  {
+   "surah": 11,
+   "startMs": 6880,
+   "url": "https://archive.org/download/48--kb--alhady--bn--altaher--alfakhfakh--by---qaloon---mp3--full--mushaf--qura/011Houd.mp3",
+   "endMs": 21880,
+   "verdict": "error",
+   "error": "تعذّر التنزيل: HTTP Error 500: Internal Server Error"
+  },
+  {
+   "surah": 12,
+   "startMs": 6400,
+   "url": "https://archive.org/download/48--kb--alhady--bn--altaher--alfakhfakh--by---qaloon---mp3--full--mushaf--qura/012Youssef.mp3",
+   "endMs": 17030,
+   "verdict": "error",
+   "error": "تعذّر التنزيل: HTTP Error 500: Internal Server Error"
+  },
+  {
+   "surah": 13,
+   "startMs": 7220,
+   "url": "https://archive.org/download/48--kb--alhady--bn--altaher--alfakhfakh--by---qaloon---mp3--full--mushaf--qura/013Arraad.mp3",
+   "endMs": 35440,
+   "verdict": "error",
+   "error": "تعذّر التنزيل: HTTP Error 500: Internal Server Error"
+  },
+  {
+   "surah": 14,
+   "startMs": 7080,
+   "url": "https://archive.org/download/48--kb--alhady--bn--altaher--alfakhfakh--by---qaloon---mp3--full--mushaf--qura/014Ibrahim.mp3",
+   "endMs": 29600,
+   "verdict": "error",
+   "error": "تعذّر التنزيل: HTTP Error 500: Internal Server Error"
+  },
+  {
+   "surah": 15,
+   "startMs": 6740,
+   "url": "https://archive.org/download/48--kb--alhady--bn--altaher--alfakhfakh--by---qaloon---mp3--full--mushaf--qura/015Al-hijr.mp3",
+   "endMs": 19300,
+   "verdict": "clean",
+   "heard": "الر تبلي",
+   "rung": 1000
+  },
+  {
+   "surah": 16,
+   "startMs": 6780,
+   "url": "https://archive.org/download/48--kb--alhady--bn--altaher--alfakhfakh--by---qaloon---mp3--full--mushaf--qura/016Annahl.mp3",
+   "endMs": 20830,
+   "verdict": "error",
+   "error": "تعذّر التنزيل: HTTP Error 500: Internal Server Error"
+  },
+  {
+   "surah": 17,
+   "startMs": 7580,
+   "url": "https://archive.org/download/48--kb--alhady--bn--altaher--alfakhfakh--by---qaloon---mp3--full--mushaf--qura/017Al-isra.mp3",
+   "endMs": 33010,
+   "verdict": "clean",
+   "heard": "سبحان",
+   "rung": 1000
+  },
+  {
+   "surah": 18,
+   "startMs": 6660,
+   "url": "https://archive.org/download/48--kb--alhady--bn--altaher--alfakhfakh--by---qaloon---mp3--full--mushaf--qura/018Al-kahf.mp3",
+   "endMs": 17270,
+   "verdict": "clean",
+   "heard": "الحمد",
+   "rung": 1000
+  },
+  {
+   "surah": 19,
+   "startMs": 6980,
+   "url": "https://archive.org/download/48--kb--alhady--bn--altaher--alfakhfakh--by---qaloon---mp3--full--mushaf--qura/019Maryam.mp3",
+   "endMs": 17080,
+   "verdict": "error",
+   "error": "تعذّر التنزيل: HTTP Error 500: Internal Server Error"
+  },
+  {
+   "surah": 20,
+   "startMs": 6820,
+   "url": "https://archive.org/download/48--kb--alhady--bn--altaher--alfakhfakh--by---qaloon---mp3--full--mushaf--qura/020Taha.mp3",
+   "endMs": 9220,
+   "verdict": "error",
+   "error": "تعذّر التنزيل: HTTP Error 500: Internal Server Error"
+  },
+  {
+   "surah": 21,
+   "startMs": 6740,
+   "url": "https://archive.org/download/48--kb--alhady--bn--altaher--alfakhfakh--by---qaloon---mp3--full--mushaf--qura/021Al-anbiya.mp3",
+   "endMs": 17420,
+   "verdict": "clean",
+   "heard": "اقترب للناس",
+   "rung": 3000,
+   "lateProbe": {
+    "2000": "لا سح سابهم وهم في غفر",
+    "3000": "يا بهم وهم في غفله"
+   }
+  },
+  {
+   "surah": 22,
+   "startMs": 6720,
+   "url": "https://archive.org/download/48--kb--alhady--bn--altaher--alfakhfakh--by---qaloon---mp3--full--mushaf--qura/022Al-haj.mp3",
+   "endMs": 21020,
+   "verdict": "error",
+   "error": "تعذّر التنزيل: HTTP Error 500: Internal Server Error"
+  },
+  {
+   "surah": 23,
+   "startMs": 8040,
+   "url": "https://archive.org/download/48--kb--alhady--bn--altaher--alfakhfakh--by---qaloon---mp3--full--mushaf--qura/023Al-mouminoun.mp3",
+   "endMs": 13260,
+   "verdict": "error",
+   "error": "تعذّر التنزيل: HTTP Error 500: Internal Server Error"
+  },
+  {
+   "surah": 24,
+   "startMs": 6460,
+   "url": "https://archive.org/download/48--kb--alhady--bn--altaher--alfakhfakh--by---qaloon---mp3--full--mushaf--qura/024Annour.mp3",
+   "endMs": 21940,
+   "verdict": "clean",
+   "heard": "سوره",
+   "rung": 1000
+  },
+  {
+   "surah": 25,
+   "startMs": 6580,
+   "url": "https://archive.org/download/48--kb--alhady--bn--altaher--alfakhfakh--by---qaloon---mp3--full--mushaf--qura/025AlFourkaun.mp3",
+   "endMs": 17010,
+   "verdict": "clean",
+   "heard": "تبارك المركل",
+   "rung": 1000
+  },
+  {
+   "surah": 26,
+   "startMs": 6140,
+   "url": "https://archive.org/download/48--kb--alhady--bn--altaher--alfakhfakh--by---qaloon---mp3--full--mushaf--qura/026Ach-chouaara.mp3",
+   "endMs": 12810,
+   "verdict": "clean",
+   "heard": "طسم",
+   "rung": 1000
+  },
+  {
+   "surah": 27,
+   "startMs": 6560,
+   "url": "https://archive.org/download/48--kb--alhady--bn--altaher--alfakhfakh--by---qaloon---mp3--full--mushaf--qura/027Annaml.mp3",
+   "endMs": 19490,
+   "verdict": "error",
+   "error": "تعذّر التنزيل: HTTP Error 500: Internal Server Error"
+  },
+  {
+   "surah": 28,
+   "startMs": 7560,
+   "url": "https://archive.org/download/48--kb--alhady--bn--altaher--alfakhfakh--by---qaloon---mp3--full--mushaf--qura/028Al-kassas.mp3",
+   "endMs": 16690,
+   "verdict": "error",
+   "error": "تعذّر التنزيل: HTTP Error 500: Internal Server Error"
+  },
+  {
+   "surah": 29,
+   "startMs": 5283,
+   "url": "https://archive.org/download/48--kb--alhady--bn--altaher--alfakhfakh--by---qaloon---mp3--full--mushaf--qura/029Al-aankabout.mp3",
+   "endMs": 13450,
+   "verdict": "error",
+   "error": "تعذّر التنزيل: HTTP Error 500: Internal Server Error"
+  },
+  {
+   "surah": 30,
+   "startMs": 6400,
+   "url": "https://archive.org/download/48--kb--alhady--bn--altaher--alfakhfakh--by---qaloon---mp3--full--mushaf--qura/030Arroum.mp3",
+   "endMs": 13340,
+   "verdict": "error",
+   "error": "تعذّر التنزيل: HTTP Error 500: Internal Server Error"
+  },
+  {
+   "surah": 31,
+   "startMs": 6820,
+   "url": "https://archive.org/download/48--kb--alhady--bn--altaher--alfakhfakh--by---qaloon---mp3--full--mushaf--qura/031Lokmen.mp3",
+   "endMs": 14970,
+   "verdict": "error",
+   "error": "تعذّر التنزيل: HTTP Error 500: Internal Server Error"
+  },
+  {
+   "surah": 32,
+   "startMs": 6360,
+   "url": "https://archive.org/download/48--kb--alhady--bn--altaher--alfakhfakh--by---qaloon---mp3--full--mushaf--qura/032Assajda.mp3",
+   "endMs": 15210,
+   "verdict": "clean",
+   "heard": "الم",
+   "rung": 1000
+  },
+  {
+   "surah": 33,
+   "startMs": 7700,
+   "url": "https://archive.org/download/48--kb--alhady--bn--altaher--alfakhfakh--by---qaloon---mp3--full--mushaf--qura/033Al-ahzeb.mp3",
+   "endMs": 29610,
+   "verdict": "error",
+   "error": "تعذّر التنزيل: HTTP Error 500: Internal Server Error"
+  },
+  {
+   "surah": 34,
+   "startMs": 7240,
+   "url": "https://archive.org/download/48--kb--alhady--bn--altaher--alfakhfakh--by---qaloon---mp3--full--mushaf--qura/034Saba.mp3",
+   "endMs": 25310,
+   "verdict": "clean",
+   "heard": "الحمد",
+   "rung": 1000
+  },
+  {
+   "surah": 35,
+   "startMs": 7100,
+   "url": "https://archive.org/download/48--kb--alhady--bn--altaher--alfakhfakh--by---qaloon---mp3--full--mushaf--qura/035Fatir.mp3",
+   "endMs": 37490,
+   "verdict": "clean",
+   "heard": "الحمد",
+   "rung": 1000
+  },
+  {
+   "surah": 36,
+   "startMs": 6980,
+   "url": "https://archive.org/download/48--kb--alhady--bn--altaher--alfakhfakh--by---qaloon---mp3--full--mushaf--qura/036Yacin.mp3",
+   "endMs": 11180,
+   "verdict": "error",
+   "error": "تعذّر التنزيل: HTTP Error 500: Internal Server Error"
+  },
+  {
+   "surah": 37,
+   "startMs": 6444,
+   "url": "https://archive.org/download/48--kb--alhady--bn--altaher--alfakhfakh--by---qaloon---mp3--full--mushaf--qura/037Assauffet.mp3",
+   "endMs": 12160,
+   "verdict": "clean",
+   "heard": "والصور",
+   "rung": 1500
+  },
+  {
+   "surah": 38,
+   "startMs": 6520,
+   "url": "https://archive.org/download/48--kb--alhady--bn--altaher--alfakhfakh--by---qaloon---mp3--full--mushaf--qura/038Saud.mp3",
+   "endMs": 12880,
+   "verdict": "clean",
+   "heard": "ص",
+   "rung": 1000
+  },
+  {
+   "surah": 39,
+   "startMs": 6900,
+   "url": "https://archive.org/download/48--kb--alhady--bn--altaher--alfakhfakh--by---qaloon---mp3--full--mushaf--qura/039Azzoumar.mp3",
+   "endMs": 14680,
+   "verdict": "error",
+   "error": "تعذّر التنزيل: HTTP Error 500: Internal Server Error"
+  },
+  {
+   "surah": 40,
+   "startMs": 6040,
+   "url": "https://archive.org/download/48--kb--alhady--bn--altaher--alfakhfakh--by---qaloon---mp3--full--mushaf--qura/040Ghaufir.mp3",
+   "endMs": 9880,
+   "verdict": "clean",
+   "heard": "حم",
+   "rung": 1000
+  },
+  {
+   "surah": 41,
+   "startMs": 6300,
+   "url": "https://archive.org/download/48--kb--alhady--bn--altaher--alfakhfakh--by---qaloon---mp3--full--mushaf--qura/041Foussilat.mp3",
+   "endMs": 10490,
+   "verdict": "clean",
+   "heard": "حم",
+   "rung": 1000
+  },
+  {
+   "surah": 42,
+   "startMs": 6064,
+   "url": "https://archive.org/download/48--kb--alhady--bn--altaher--alfakhfakh--by---qaloon---mp3--full--mushaf--qura/042Ach-choura.mp3",
+   "endMs": 8706,
+   "verdict": "error",
+   "error": "تعذّر التنزيل: HTTP Error 500: Internal Server Error"
+  },
+  {
+   "surah": 43,
+   "startMs": 6460,
+   "url": "https://archive.org/download/48--kb--alhady--bn--altaher--alfakhfakh--by---qaloon---mp3--full--mushaf--qura/043Azzoukhrouf.mp3",
+   "endMs": 10410,
+   "verdict": "clean",
+   "heard": "حم",
+   "rung": 1000
+  },
+  {
+   "surah": 44,
+   "startMs": 6640,
+   "url": "https://archive.org/download/48--kb--alhady--bn--altaher--alfakhfakh--by---qaloon---mp3--full--mushaf--qura/044Addoukhan.mp3",
+   "endMs": 11160,
+   "verdict": "error",
+   "error": "تعذّر التنزيل: HTTP Error 500: Internal Server Error"
+  },
+  {
+   "surah": 45,
+   "startMs": 6380,
+   "url": "https://archive.org/download/48--kb--alhady--bn--altaher--alfakhfakh--by---qaloon---mp3--full--mushaf--qura/045Al-jathya.mp3",
+   "endMs": 10180,
+   "verdict": "clean",
+   "heard": "حم",
+   "rung": 1000
+  },
+  {
+   "surah": 46,
+   "startMs": 6820,
+   "url": "https://archive.org/download/48--kb--alhady--bn--altaher--alfakhfakh--by---qaloon---mp3--full--mushaf--qura/046Al-ahkauf.mp3",
+   "endMs": 11010,
+   "verdict": "error",
+   "error": "تعذّر التنزيل: HTTP Error 500: Internal Server Error"
+  },
+  {
+   "surah": 47,
+   "startMs": 6140,
+   "url": "https://archive.org/download/48--kb--alhady--bn--altaher--alfakhfakh--by---qaloon---mp3--full--mushaf--qura/047Mohammed.mp3",
+   "endMs": 15560,
+   "verdict": "clean",
+   "heard": "الذين",
+   "rung": 1000
+  },
+  {
+   "surah": 48,
+   "startMs": 6200,
+   "url": "https://archive.org/download/48--kb--alhady--bn--altaher--alfakhfakh--by---qaloon---mp3--full--mushaf--qura/048Al-fath.mp3",
+   "endMs": 12690,
+   "verdict": "error",
+   "error": "تعذّر التنزيل: HTTP Error 500: Internal Server Error"
+  },
+  {
+   "surah": 49,
+   "startMs": 6080,
+   "url": "https://archive.org/download/48--kb--alhady--bn--altaher--alfakhfakh--by---qaloon---mp3--full--mushaf--qura/049Al-houjouraut.mp3",
+   "endMs": 24300,
+   "verdict": "clean",
+   "heard": "يا ايها",
+   "rung": 1500
+  },
+  {
+   "surah": 50,
+   "startMs": 5820,
+   "url": "https://archive.org/download/48--kb--alhady--bn--altaher--alfakhfakh--by---qaloon---mp3--full--mushaf--qura/050Kauf.mp3",
+   "endMs": 14040,
+   "verdict": "error",
+   "error": "تعذّر التنزيل: HTTP Error 500: Internal Server Error"
+  },
+  {
+   "surah": 51,
+   "startMs": 6500,
+   "url": "https://archive.org/download/48--kb--alhady--bn--altaher--alfakhfakh--by---qaloon---mp3--full--mushaf--qura/051Adh-dharyet.mp3",
+   "endMs": 9840,
+   "verdict": "error",
+   "error": "تعذّر التنزيل: HTTP Error 500: Internal Server Error"
+  },
+  {
+   "surah": 52,
+   "startMs": 7080,
+   "url": "https://archive.org/download/48--kb--alhady--bn--altaher--alfakhfakh--by---qaloon---mp3--full--mushaf--qura/052Attour.mp3",
+   "endMs": 8786,
+   "verdict": "error",
+   "error": "تعذّر التنزيل: HTTP Error 500: Internal Server Error"
+  },
+  {
+   "surah": 53,
+   "startMs": 7680,
+   "url": "https://archive.org/download/48--kb--alhady--bn--altaher--alfakhfakh--by---qaloon---mp3--full--mushaf--qura/053Annajm.mp3",
+   "endMs": 11710,
+   "verdict": "clean",
+   "heard": "والن",
+   "rung": 1000
+  },
+  {
+   "surah": 54,
+   "startMs": 7120,
+   "url": "https://archive.org/download/48--kb--alhady--bn--altaher--alfakhfakh--by---qaloon---mp3--full--mushaf--qura/054Al-kamar.mp3",
+   "endMs": 12660,
+   "verdict": "clean",
+   "heard": "اقترب",
+   "rung": 1000
+  },
+  {
+   "surah": 55,
+   "startMs": 7360,
+   "url": "https://archive.org/download/48--kb--alhady--bn--altaher--alfakhfakh--by---qaloon---mp3--full--mushaf--qura/055Arrahmen.mp3",
+   "endMs": 9206,
+   "verdict": "error",
+   "error": "تعذّر التنزيل: HTTP Error 500: Internal Server Error"
+  },
+  {
+   "surah": 56,
+   "startMs": 6500,
+   "url": "https://archive.org/download/48--kb--alhady--bn--altaher--alfakhfakh--by---qaloon---mp3--full--mushaf--qura/056Al-wakya.mp3",
+   "endMs": 9530,
+   "verdict": "error",
+   "error": "تعذّر التنزيل: HTTP Error 500: Internal Server Error"
+  },
+  {
+   "surah": 57,
+   "startMs": 6480,
+   "url": "https://archive.org/download/48--kb--alhady--bn--altaher--alfakhfakh--by---qaloon---mp3--full--mushaf--qura/057Al-hadid.mp3",
+   "endMs": 16710,
+   "verdict": "clean",
+   "heard": "سبح الايم",
+   "rung": 1000
+  },
+  {
+   "surah": 58,
+   "startMs": 6980,
+   "url": "https://archive.org/download/48--kb--alhady--bn--altaher--alfakhfakh--by---qaloon---mp3--full--mushaf--qura/058Al-moujadilah.mp3",
+   "endMs": 26820,
+   "verdict": "error",
+   "error": "تعذّر التنزيل: HTTP Error 500: Internal Server Error"
+  },
+  {
+   "surah": 59,
+   "startMs": 6700,
+   "url": "https://archive.org/download/48--kb--alhady--bn--altaher--alfakhfakh--by---qaloon---mp3--full--mushaf--qura/059Al-hachr.mp3",
+   "endMs": 18200,
+   "verdict": "error",
+   "error": "تعذّر التنزيل: HTTP Error 500: Internal Server Error"
+  },
+  {
+   "surah": 60,
+   "startMs": 6800,
+   "url": "https://archive.org/download/48--kb--alhady--bn--altaher--alfakhfakh--by---qaloon---mp3--full--mushaf--qura/060Al-moumtahinah.mp3",
+   "endMs": 78700,
+   "verdict": "error",
+   "error": "تعذّر التنزيل: HTTP Error 500: Internal Server Error"
+  },
+  {
+   "surah": 61,
+   "startMs": 6280,
+   "url": "https://archive.org/download/48--kb--alhady--bn--altaher--alfakhfakh--by---qaloon---mp3--full--mushaf--qura/061Assaff.mp3",
+   "endMs": 16870,
+   "verdict": "clean",
+   "heard": "سبح لي",
+   "rung": 1000
+  },
+  {
+   "surah": 62,
+   "startMs": 6560,
+   "url": "https://archive.org/download/48--kb--alhady--bn--altaher--alfakhfakh--by---qaloon---mp3--full--mushaf--qura/062Al-joumoua.mp3",
+   "endMs": 18360,
+   "verdict": "clean",
+   "heard": "يسبح",
+   "rung": 1000
+  },
+  {
+   "surah": 63,
+   "startMs": 6060,
+   "url": "https://archive.org/download/48--kb--alhady--bn--altaher--alfakhfakh--by---qaloon---mp3--full--mushaf--qura/063Al-mounafikoun.mp3",
+   "endMs": 29790,
+   "verdict": "clean",
+   "heard": "اذا جا",
+   "rung": 1000
+  },
+  {
+   "surah": 64,
+   "startMs": 6340,
+   "url": "https://archive.org/download/48--kb--alhady--bn--altaher--alfakhfakh--by---qaloon---mp3--full--mushaf--qura/064Attaghaboun.mp3",
+   "endMs": 22810,
+   "verdict": "clean",
+   "heard": "يسبح",
+   "rung": 1000
+  },
+  {
+   "surah": 65,
+   "startMs": 6680,
+   "url": "https://archive.org/download/48--kb--alhady--bn--altaher--alfakhfakh--by---qaloon---mp3--full--mushaf--qura/065Attalek.mp3",
+   "endMs": 62440,
+   "verdict": "clean",
+   "heard": "يا ايها",
+   "rung": 1500
+  },
+  {
+   "surah": 66,
+   "startMs": 6640,
+   "url": "https://archive.org/download/48--kb--alhady--bn--altaher--alfakhfakh--by---qaloon---mp3--full--mushaf--qura/066Attahrim.mp3",
+   "endMs": 23920,
+   "verdict": "error",
+   "error": "تعذّر التنزيل: HTTP Error 500: Internal Server Error"
+  },
+  {
+   "surah": 67,
+   "startMs": 8120,
+   "url": "https://archive.org/download/48--kb--alhady--bn--altaher--alfakhfakh--by---qaloon---mp3--full--mushaf--qura/067Al-moulk.mp3",
+   "endMs": 18430,
+   "verdict": "clean",
+   "heard": "تبارك",
+   "rung": 1000
+  },
+  {
+   "surah": 68,
+   "startMs": 7220,
+   "url": "https://archive.org/download/48--kb--alhady--bn--altaher--alfakhfakh--by---qaloon---mp3--full--mushaf--qura/068Al-kalam.mp3",
+   "endMs": 17140,
+   "verdict": "clean",
+   "heard": "ن",
+   "rung": 1500
+  },
+  {
+   "surah": 69,
+   "startMs": 6724,
+   "url": "https://archive.org/download/48--kb--alhady--bn--altaher--alfakhfakh--by---qaloon---mp3--full--mushaf--qura/069Al-Hekkah.mp3",
+   "endMs": 10496,
+   "verdict": "error",
+   "error": "تعذّر التنزيل: HTTP Error 500: Internal Server Error"
+  },
+  {
+   "surah": 70,
+   "startMs": 7220,
+   "url": "https://archive.org/download/48--kb--alhady--bn--altaher--alfakhfakh--by---qaloon---mp3--full--mushaf--qura/070Al-Maarij.mp3",
+   "endMs": 12425,
+   "verdict": "unknown",
+   "heard": "سان سايل بعذاب واقع"
+  },
+  {
+   "surah": 71,
+   "startMs": 7600,
+   "url": "https://archive.org/download/48--kb--alhady--bn--altaher--alfakhfakh--by---qaloon---mp3--full--mushaf--qura/071Nouh.mp3",
+   "endMs": 24210,
+   "verdict": "error",
+   "error": "تعذّر التنزيل: HTTP Error 500: Internal Server Error"
+  },
+  {
+   "surah": 72,
+   "startMs": 6860,
+   "url": "https://archive.org/download/48--kb--alhady--bn--altaher--alfakhfakh--by---qaloon---mp3--full--mushaf--qura/072Al-jinn.mp3",
+   "endMs": 22230,
+   "verdict": "clean",
+   "heard": "قل اوح",
+   "rung": 1000
+  },
+  {
+   "surah": 73,
+   "startMs": 6880,
+   "url": "https://archive.org/download/48--kb--alhady--bn--altaher--alfakhfakh--by---qaloon---mp3--full--mushaf--qura/073Al-mouzzammil.mp3",
+   "endMs": 8094,
+   "verdict": "clean",
+   "heard": "يا ايه",
+   "rung": 1500
+  },
+  {
+   "surah": 74,
+   "startMs": 7100,
+   "url": "https://archive.org/download/48--kb--alhady--bn--altaher--alfakhfakh--by---qaloon---mp3--full--mushaf--qura/074Al-mouddath-thir.mp3",
+   "endMs": 11720,
+   "verdict": "clean",
+   "heard": "يا ايها",
+   "rung": 1500
+  },
+  {
+   "surah": 75,
+   "startMs": 7120,
+   "url": "https://archive.org/download/48--kb--alhady--bn--altaher--alfakhfakh--by---qaloon---mp3--full--mushaf--qura/075Al-kieimah.mp3",
+   "endMs": 11680,
+   "verdict": "clean",
+   "heard": "لا بطس",
+   "rung": 1000
+  },
+  {
+   "surah": 76,
+   "startMs": 7440,
+   "url": "https://archive.org/download/48--kb--alhady--bn--altaher--alfakhfakh--by---qaloon---mp3--full--mushaf--qura/076Al-insen.mp3",
+   "endMs": 20190,
+   "verdict": "clean",
+   "heard": "هل اتي",
+   "rung": 1000
+  },
+  {
+   "surah": 77,
+   "startMs": 6880,
+   "url": "https://archive.org/download/48--kb--alhady--bn--altaher--alfakhfakh--by---qaloon---mp3--full--mushaf--qura/077Al-moursalet.mp3",
+   "endMs": 10890,
+   "verdict": "error",
+   "error": "تعذّر التنزيل: HTTP Error 500: Internal Server Error"
+  },
+  {
+   "surah": 78,
+   "startMs": 6500,
+   "url": "https://archive.org/download/48--kb--alhady--bn--altaher--alfakhfakh--by---qaloon---mp3--full--mushaf--qura/078Annaba.mp3",
+   "endMs": 12210,
+   "verdict": "error",
+   "error": "تعذّر التنزيل: HTTP Error 500: Internal Server Error"
+  },
+  {
+   "surah": 79,
+   "startMs": 6620,
+   "url": "https://archive.org/download/48--kb--alhady--bn--altaher--alfakhfakh--by---qaloon---mp3--full--mushaf--qura/079Annazyat.mp3",
+   "endMs": 10640,
+   "verdict": "error",
+   "error": "تعذّر التنزيل: HTTP Error 500: Internal Server Error"
+  },
+  {
+   "surah": 80,
+   "startMs": 6320,
+   "url": "https://archive.org/download/48--kb--alhady--bn--altaher--alfakhfakh--by---qaloon---mp3--full--mushaf--qura/080Abass.mp3",
+   "endMs": 8872,
+   "verdict": "error",
+   "error": "تعذّر التنزيل: HTTP Error 500: Internal Server Error"
+  },
+  {
+   "surah": 81,
+   "startMs": 6240,
+   "url": "https://archive.org/download/48--kb--alhady--bn--altaher--alfakhfakh--by---qaloon---mp3--full--mushaf--qura/081Attakwir.mp3",
+   "endMs": 9500,
+   "verdict": "error",
+   "error": "تعذّر التنزيل: HTTP Error 500: Internal Server Error"
+  },
+  {
+   "surah": 82,
+   "startMs": 6400,
+   "url": "https://archive.org/download/48--kb--alhady--bn--altaher--alfakhfakh--by---qaloon---mp3--full--mushaf--qura/082Alinfitar.mp3",
+   "endMs": 10960,
+   "verdict": "error",
+   "error": "تعذّر التنزيل: HTTP Error 500: Internal Server Error"
+  },
+  {
+   "surah": 83,
+   "startMs": 6500,
+   "url": "https://archive.org/download/48--kb--alhady--bn--altaher--alfakhfakh--by---qaloon---mp3--full--mushaf--qura/083Al-moutaffifin.mp3",
+   "endMs": 9080,
+   "verdict": "error",
+   "error": "تعذّر التنزيل: HTTP Error 500: Internal Server Error"
+  },
+  {
+   "surah": 84,
+   "startMs": 7000,
+   "url": "https://archive.org/download/48--kb--alhady--bn--altaher--alfakhfakh--by---qaloon---mp3--full--mushaf--qura/084Al-inchikauk.mp3",
+   "endMs": 11820,
+   "verdict": "error",
+   "error": "تعذّر التنزيل: HTTP Error 500: Internal Server Error"
+  },
+  {
+   "surah": 85,
+   "startMs": 7060,
+   "url": "https://archive.org/download/48--kb--alhady--bn--altaher--alfakhfakh--by---qaloon---mp3--full--mushaf--qura/085Al-bourouj.mp3",
+   "endMs": 12590,
+   "verdict": "clean",
+   "heard": "والسما",
+   "rung": 1000
+  },
+  {
+   "surah": 86,
+   "startMs": 6560,
+   "url": "https://archive.org/download/48--kb--alhady--bn--altaher--alfakhfakh--by---qaloon---mp3--full--mushaf--qura/086Attauriq.mp3",
+   "endMs": 10580,
+   "verdict": "clean",
+   "heard": "والسما",
+   "rung": 1000
+  },
+  {
+   "surah": 87,
+   "startMs": 6360,
+   "url": "https://archive.org/download/48--kb--alhady--bn--altaher--alfakhfakh--by---qaloon---mp3--full--mushaf--qura/087Al-aala.mp3",
+   "endMs": 10640,
+   "verdict": "error",
+   "error": "تعذّر التنزيل: HTTP Error 500: Internal Server Error"
+  },
+  {
+   "surah": 88,
+   "startMs": 6580,
+   "url": "https://archive.org/download/48--kb--alhady--bn--altaher--alfakhfakh--by---qaloon---mp3--full--mushaf--qura/088Al-ghauchyah.mp3",
+   "endMs": 11080,
+   "verdict": "error",
+   "error": "تعذّر التنزيل: HTTP Error 500: Internal Server Error"
+  },
+  {
+   "surah": 89,
+   "startMs": 6180,
+   "url": "https://archive.org/download/48--kb--alhady--bn--altaher--alfakhfakh--by---qaloon---mp3--full--mushaf--qura/089Al-fajr.mp3",
+   "endMs": 7267,
+   "verdict": "clean",
+   "heard": "والفجر",
+   "rung": 1000
+  },
+  {
+   "surah": 90,
+   "startMs": 6460,
+   "url": "https://archive.org/download/48--kb--alhady--bn--altaher--alfakhfakh--by---qaloon---mp3--full--mushaf--qura/090Al-balad.mp3",
+   "endMs": 10150,
+   "verdict": "clean",
+   "heard": "لا اقسر",
+   "rung": 1000
+  },
+  {
+   "surah": 91,
+   "startMs": 6240,
+   "url": "https://archive.org/download/48--kb--alhady--bn--altaher--alfakhfakh--by---qaloon---mp3--full--mushaf--qura/091Ach-chams.mp3",
+   "endMs": 8600,
+   "verdict": "clean",
+   "heard": "والشمس",
+   "rung": 1000
+  },
+  {
+   "surah": 92,
+   "startMs": 6320,
+   "url": "https://archive.org/download/48--kb--alhady--bn--altaher--alfakhfakh--by---qaloon---mp3--full--mushaf--qura/092Allayl.mp3",
+   "endMs": 9950,
+   "verdict": "error",
+   "error": "تعذّر التنزيل: HTTP Error 500: Internal Server Error"
+  },
+  {
+   "surah": 93,
+   "startMs": 6140,
+   "url": "https://archive.org/download/48--kb--alhady--bn--altaher--alfakhfakh--by---qaloon---mp3--full--mushaf--qura/093Adh-dhouha.mp3",
+   "endMs": 8280,
+   "verdict": "error",
+   "error": "تعذّر التنزيل: HTTP Error 500: Internal Server Error"
+  },
+  {
+   "surah": 94,
+   "startMs": 6820,
+   "url": "https://archive.org/download/48--kb--alhady--bn--altaher--alfakhfakh--by---qaloon---mp3--full--mushaf--qura/094Ach-charh.mp3",
+   "endMs": 10330,
+   "verdict": "error",
+   "error": "تعذّر التنزيل: HTTP Error 500: Internal Server Error"
+  },
+  {
+   "surah": 95,
+   "startMs": 6700,
+   "url": "https://archive.org/download/48--kb--alhady--bn--altaher--alfakhfakh--by---qaloon---mp3--full--mushaf--qura/095Attin.mp3",
+   "endMs": 11060,
+   "verdict": "error",
+   "error": "تعذّر التنزيل: HTTP Error 500: Internal Server Error"
+  },
+  {
+   "surah": 96,
+   "startMs": 6220,
+   "url": "https://archive.org/download/48--kb--alhady--bn--altaher--alfakhfakh--by---qaloon---mp3--full--mushaf--qura/096Al-aalak.mp3",
+   "endMs": 10730,
+   "verdict": "clean",
+   "heard": "ويقرا بالسرب كالذي خلق",
+   "rung": 4000,
+   "lateProbe": {
+    "2000": "كالذي خلق",
+    "3000": "خلق الانسان"
+   }
+  },
+  {
+   "surah": 97,
+   "startMs": 6460,
+   "url": "https://archive.org/download/48--kb--alhady--bn--altaher--alfakhfakh--by---qaloon---mp3--full--mushaf--qura/097Al-kadr.mp3",
+   "endMs": 12650,
+   "verdict": "clean",
+   "heard": "انا",
+   "rung": 1500
+  },
+  {
+   "surah": 98,
+   "startMs": 6840,
+   "url": "https://archive.org/download/48--kb--alhady--bn--altaher--alfakhfakh--by---qaloon---mp3--full--mushaf--qura/098Al-bayyinah.mp3",
+   "endMs": 20040,
+   "verdict": "clean",
+   "heard": "لم يكني",
+   "rung": 1000
+  },
+  {
+   "surah": 99,
+   "startMs": 6500,
+   "url": "https://archive.org/download/48--kb--alhady--bn--altaher--alfakhfakh--by---qaloon---mp3--full--mushaf--qura/099Azzalzalah.mp3",
+   "endMs": 11630,
+   "verdict": "error",
+   "error": "تعذّر التنزيل: HTTP Error 500: Internal Server Error"
+  },
+  {
+   "surah": 100,
+   "startMs": 6600,
+   "url": "https://archive.org/download/48--kb--alhady--bn--altaher--alfakhfakh--by---qaloon---mp3--full--mushaf--qura/100Al-aadyet.mp3",
+   "endMs": 10070,
+   "verdict": "error",
+   "error": "تعذّر التنزيل: HTTP Error 500: Internal Server Error"
+  },
+  {
+   "surah": 101,
+   "startMs": 6560,
+   "url": "https://archive.org/download/48--kb--alhady--bn--altaher--alfakhfakh--by---qaloon---mp3--full--mushaf--qura/101Al-kauriaah.mp3",
+   "endMs": 7740,
+   "verdict": "error",
+   "error": "تعذّر التنزيل: HTTP Error 500: Internal Server Error"
+  },
+  {
+   "surah": 102,
+   "startMs": 6440,
+   "url": "https://archive.org/download/48--kb--alhady--bn--altaher--alfakhfakh--by---qaloon---mp3--full--mushaf--qura/102At-takeithour.mp3",
+   "endMs": 9710,
+   "verdict": "clean",
+   "heard": "علهاكم",
+   "rung": 1500
+  },
+  {
+   "surah": 103,
+   "startMs": 6300,
+   "url": "https://archive.org/download/48--kb--alhady--bn--altaher--alfakhfakh--by---qaloon---mp3--full--mushaf--qura/103Al-aasr.mp3",
+   "endMs": 7990,
+   "verdict": "error",
+   "error": "تعذّر التنزيل: HTTP Error 500: Internal Server Error"
+  },
+  {
+   "surah": 104,
+   "startMs": 6320,
+   "url": "https://archive.org/download/48--kb--alhady--bn--altaher--alfakhfakh--by---qaloon---mp3--full--mushaf--qura/104Al-houmazah.mp3",
+   "endMs": 10960,
+   "verdict": "error",
+   "error": "تعذّر التنزيل: HTTP Error 500: Internal Server Error"
+  },
+  {
+   "surah": 105,
+   "startMs": 6300,
+   "url": "https://archive.org/download/48--kb--alhady--bn--altaher--alfakhfakh--by---qaloon---mp3--full--mushaf--qura/105Al-fil.mp3",
+   "endMs": 13260,
+   "verdict": "error",
+   "error": "تعذّر التنزيل: HTTP Error 500: Internal Server Error"
+  },
+  {
+   "surah": 106,
+   "startMs": 6300,
+   "url": "https://archive.org/download/48--kb--alhady--bn--altaher--alfakhfakh--by---qaloon---mp3--full--mushaf--qura/106Kouraich.mp3",
+   "endMs": 10050,
+   "verdict": "clean",
+   "heard": "بايل",
+   "rung": 1000
+  },
+  {
+   "surah": 107,
+   "startMs": 6560,
+   "url": "https://archive.org/download/48--kb--alhady--bn--altaher--alfakhfakh--by---qaloon---mp3--full--mushaf--qura/107Al-maoun.mp3",
+   "endMs": 12080,
+   "verdict": "error",
+   "error": "تعذّر التنزيل: HTTP Error 500: Internal Server Error"
+  },
+  {
+   "surah": 108,
+   "startMs": 6240,
+   "url": "https://archive.org/download/48--kb--alhady--bn--altaher--alfakhfakh--by---qaloon---mp3--full--mushaf--qura/108Al-kawthar.mp3",
+   "endMs": 11350,
+   "verdict": "clean",
+   "heard": "انا",
+   "rung": 1500
+  },
+  {
+   "surah": 109,
+   "startMs": 6380,
+   "url": "https://archive.org/download/48--kb--alhady--bn--altaher--alfakhfakh--by---qaloon---mp3--full--mushaf--qura/109Al-keifiroun.mp3",
+   "endMs": 11140,
+   "verdict": "clean",
+   "heard": "قل يا",
+   "rung": 1000
+  },
+  {
+   "surah": 110,
+   "startMs": 6100,
+   "url": "https://archive.org/download/48--kb--alhady--bn--altaher--alfakhfakh--by---qaloon---mp3--full--mushaf--qura/110Annasr.mp3",
+   "endMs": 11550,
+   "verdict": "error",
+   "error": "تعذّر التنزيل: HTTP Error 500: Internal Server Error"
+  },
+  {
+   "surah": 111,
+   "startMs": 6660,
+   "url": "https://archive.org/download/48--kb--alhady--bn--altaher--alfakhfakh--by---qaloon---mp3--full--mushaf--qura/111Al-massad.mp3",
+   "endMs": 12140,
+   "verdict": "error",
+   "error": "تعذّر التنزيل: HTTP Error 500: Internal Server Error"
+  },
+  {
+   "surah": 112,
+   "startMs": 6320,
+   "url": "https://archive.org/download/48--kb--alhady--bn--altaher--alfakhfakh--by---qaloon---mp3--full--mushaf--qura/112Al-ikhlas.mp3",
+   "endMs": 9650,
+   "verdict": "clean",
+   "heard": "قل هو",
+   "rung": 1000
+  },
+  {
+   "surah": 113,
+   "startMs": 6340,
+   "url": "https://archive.org/download/48--kb--alhady--bn--altaher--alfakhfakh--by---qaloon---mp3--full--mushaf--qura/113Al-falak.mp3",
+   "endMs": 10030,
+   "verdict": "error",
+   "error": "تعذّر التنزيل: HTTP Error 500: Internal Server Error"
+  },
+  {
+   "surah": 114,
+   "startMs": 6340,
+   "url": "https://archive.org/download/48--kb--alhady--bn--altaher--alfakhfakh--by---qaloon---mp3--full--mushaf--qura/114Anneis.mp3",
+   "endMs": 11830,
+   "verdict": "clean",
+   "heard": "قل اعون",
+   "rung": 1000
+  }
+ ],
+ "openersVerdict": "clean",
+ "verdictText": "لا بسملة مبتلعة متحقَّقة في أي مطلع · تعذّر الحكم (أكثره فواتح مقطّعة): 2",
+ "verdictScope": "openers-only — ليس حكم ترقية",
+ "unpublishedLocalCandidate": true,
+ "provenance": {
+  "wrapperTool": "tools/index_qa/local_candidate.py",
+  "wrapperToolSha256": "e55671e67811e72a0f7ae6638798ad039b53c910c82e3a1c5b9729f23b07754f",
+  "runToolSha256": "e80716f2a95b702c9d69178cee0201acb6338281b7b841012ab9feadb4bcdc3a",
+  "run_id": "37610962383"
+ }
+}
