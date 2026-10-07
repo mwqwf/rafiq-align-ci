@@ -1,11 +1,11 @@
 {
   "schema": 1,
-  "generatedAt": "2026-10-07T02:05:51Z",
+  "generatedAt": "2026-10-07T06:02:00Z",
   "scope": "qalun/fakhfakh_qalun/38",
   "repository": {
     "fullName": "mwqwf/rafiq-align-ci",
     "visibility": "public",
-    "observedHead": "df10badee8277850a58f87579b0a6c2761fcf726"
+    "observedHead": "bd7c705c456f20582988ce08d9bd6e69b6f0a6fa"
   },
   "candidate": {
     "path": "ops/source-repair/candidates/codex-fakhfakh38-archive-20261007.jz",
@@ -97,7 +97,7 @@
         "parentShaMatched": true,
         "measurementComplete": false,
         "gateError": null,
-        "reason": "incomplete required probe maps: 11,63",
+        "reason": "first run incomplete required probe maps: 11,63; first retry incomplete required probe maps: 38,39,63,113",
         "transportErrors": {
           "11": "HTTP 500 from archive.org/download",
           "63": "HTTP 500 from archive.org/download"
@@ -119,6 +119,19 @@
     "retryScopeEnabled": ["heard"],
     "tests": {"passed": 46, "failed": 0},
     "diffCheck": "passed"
+  },
+  "transportFix2": {
+    "diagnosis": "archive_node.metadata cached a transient failure as None for the entire process",
+    "effectObserved": "after surah 38 metadata failure, later surahs from the same Archive item could not retry the verified node path",
+    "publishedCodeCommit": "4de780f6e9c8406d3b58642cb7f7aa71a680f01d",
+    "publishedTestCommit": "9f9cde9b6701cc2bf15a05d79b4a61fbe58fee19",
+    "metadataAttempts": 4,
+    "negativeCacheRemoved": true,
+    "positiveCachePreserved": true,
+    "fallbackAcceptance": "published size and md5 must both match",
+    "tests": {"passed": 17, "failed": 0},
+    "thresholdChanged": false,
+    "candidateChanged": false
   },
   "rs4DurationDiagnosis": {
     "sourceSha256": "fded733764386de895b63df4b067f44accee12186785396a3f61928a0fa3c212",
@@ -142,15 +155,25 @@
     "runId": 37560771282,
     "runUrl": "https://github.com/mwqwf/rafiq-align-ci/actions/runs/37560771282",
     "checks": ["heard"],
-    "status": "in-progress",
+    "status": "completed-failure-incomplete-transport",
     "commandResult": "ops/out/20261007_codex_0210_fakhfakh38_heard_retry.txt",
-    "dispatchRc": 0
+    "dispatchRc": 0,
+    "measurementComplete": false,
+    "officialStateWritten": false,
+    "reason": "incomplete required probe maps: 38,39,63,113",
+    "measuredSurahs": [11],
+    "transportErrors": {
+      "38": "urlopen timeout",
+      "39": "HTTP 502 Bad Gateway",
+      "63": "urlopen timeout",
+      "113": "HTTP 503 Service Temporarily Unavailable"
+    }
   },
   "rs4Retry": {
     "runId": 37561650222,
     "runUrl": "https://github.com/mwqwf/rafiq-align-ci/actions/runs/37561650222",
     "checks": ["rs4"],
-    "status": "queued-behind-heard-concurrency-group",
+    "status": "cancelled-before-any-job-when-newer-pending-census-replaced-it",
     "commandResult": "ops/out/20261007_codex_0221_fakhfakh38_rs4_retry.txt",
     "dispatchRc": 0
   },
@@ -158,9 +181,77 @@
     "runId": 37561783634,
     "runUrl": "https://github.com/mwqwf/rafiq-align-ci/actions/runs/37561783634",
     "checks": ["census"],
-    "status": "queued-behind-heard-and-rs4-concurrency-group",
+    "status": "completed-success-but-measurement-has-errors",
     "commandResult": "ops/out/20261007_codex_0225_fakhfakh38_census_retry.txt",
-    "dispatchRc": 0
+    "dispatchRc": 0,
+    "reportPath": "ops/source-repair/results/20261007_fakhfakh38_archive/census.json",
+    "reportCommit": "dee74a3692d2b23355179317255599755345e5e1",
+    "mergeCommit": "ccb3c17a77dc8d1561b05c48aa3b41dbd4e5c8cf",
+    "candidateSha256": "61d207912feef5df4041d9629d085642f0b1aadc53897959722d3b7ef82b8ed6",
+    "verdict": "مقبول",
+    "severe": {
+      "bad": 7,
+      "measured": 1158,
+      "rate": 0.006044905008635579,
+      "ciLow": 0.0008396357709892031,
+      "ciHigh": 0.014401366465047222
+    },
+    "anyDefect": {
+      "bad": 8,
+      "measured": 1158,
+      "ciHigh": 0.016348664070718937
+    },
+    "errors": 9,
+    "errorSurahs": [
+      3,
+      29,
+      33
+    ],
+    "measurementComplete": false,
+    "rowVerdicts": {
+      "total": 1160,
+      "innocent": 1038,
+      "severe": 7,
+      "minor": 1,
+      "inconclusive": 114
+    },
+    "modifiedSurah38": {
+      "innocent": 85,
+      "inconclusive": [
+        "38:18",
+        "38:23",
+        "38:35"
+      ]
+    },
+    "artifacts": 0
+  },
+  "heardRetry2": {
+    "command": "ops/commands/20261007_codex_0310_fakhfakh38_heard_retry2.json",
+    "commandCommit": "bd7c705c456f20582988ce08d9bd6e69b6f0a6fa",
+    "commandRunId": 37565240126,
+    "commandRunUrl": "https://github.com/mwqwf/rafiq-align-ci/actions/runs/37565240126",
+    "checks": ["heard"],
+    "status": "quality-run-in-progress",
+    "qualityRunId": 37565326133,
+    "qualityRunUrl": "https://github.com/mwqwf/rafiq-align-ci/actions/runs/37565326133",
+    "completedSteps": [
+      "structural precheck",
+      "opener CTC witness"
+    ],
+    "activeStep": "actual existing judge",
+    "artifacts": 0
+  },
+  "rs4Retry2": {
+    "command": "ops/commands/20261007_codex_0559_fakhfakh38_rs4_retry2.json",
+    "commandCommit": "739665a767996b273747215ab1bcf16f5aea9630",
+    "commandRunId": 37579141008,
+    "commandRunUrl": "https://github.com/mwqwf/rafiq-align-ci/actions/runs/37579141008",
+    "checks": [
+      "rs4"
+    ],
+    "status": "quality-run-pending-behind-heard",
+    "qualityRunId": 37579235737,
+    "qualityRunUrl": "https://github.com/mwqwf/rafiq-align-ci/actions/runs/37579235737"
   },
   "costControl": {
     "runner": "ubuntu-latest",
@@ -178,5 +269,5 @@
     "unchangedByThisRun": true
   },
   "complete": false,
-  "next": "Read the heard retry now in progress, then the queued rs4 and census retries. Do not promote before all three have complete measurements and accepted reports."
+  "next": "Read heard retry2 when it finishes and then read the pending isolated rs4 report. Census still has 9 download-error windows, 114 inconclusive rows overall, and unresolved 38:18, 38:23, 38:35 inside the modified surah; resolve these gaps after the queue clears. Do not promote before all measurements are conclusive and accepted."
 }
