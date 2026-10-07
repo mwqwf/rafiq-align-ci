@@ -1,0 +1,62 @@
+name: rafiq-fakhfakh69-tail-dual-witness
+run-name: شاهد ثنائي لذيل الفخفاخ 69
+
+# يدوي فقط؛مستودع عام وعداء قياسي،لا أسرار/R2/Artifact/cache-save.
+# generic من cache الموجود فقط؛النموذج القرآني تنزيل مؤقت مثبت البصمة ثم يزول مع العداء.
+on:
+  workflow_dispatch:
+    inputs:
+      model_policy:
+        type: choice
+        options: [cache-only, quran-pinned-ephemeral]
+        default: quran-pinned-ephemeral
+        required: true
+
+permissions:
+  contents: read
+
+concurrency:
+  group: rafiq-fakhfakh69-tail-dual-witness
+  cancel-in-progress: false
+
+jobs:
+  witness:
+    if: ${{ github.repository == 'mwqwf/rafiq-align-ci' && github.event.repository.private == false }}
+    runs-on: ubuntu-24.04
+    timeout-minutes: 60
+    env:
+      HF_HOME: ${{ github.workspace }}/.hf
+      HF_HUB_OFFLINE: '1'
+      TRANSFORMERS_OFFLINE: '1'
+      HF_HUB_DISABLE_XET: '1'
+      CTC_THREADS: '2'
+      CTC_INT8: '0'
+      PIP_NO_CACHE_DIR: '1'
+      TOKENIZERS_PARALLELISM: 'false'
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11.11'
+      - name: استعادة النموذج العام الموجود فقط دون حفظ
+        id: models
+        uses: actions/cache/restore@v4
+        with:
+          path: .hf
+          key: ctc-model-jonatasgrosman-xlsr53-ar-v1
+          fail-on-cache-miss: true
+      - name: تثبيت نسخ الاستدلال المحددة على قرص العداء المؤقت
+        run: |
+          python tools/ci_fleet/install_qa_ffmpeg.py
+          python -m pip install --only-binary=:all: --timeout 60 --retries 2 --index-url https://download.pytorch.org/whl/cpu 'torch==2.6.0+cpu'
+          python -m pip install --only-binary=:all: --timeout 60 --retries 2 'numpy==1.26.4' 'transformers==4.49.0' 'huggingface-hub==0.29.3' 'safetensors==0.5.3' 'tokenizers==0.21.1'
+          python -m pip install --only-binary=:all: --timeout 60 --retries 2 boto3 soundfile rapidfuzz
+          python -m pip install --timeout 60 --retries 2 ctc-segmentation
+      - name: اختبارات اصطناعية بلا نموذج أو شبكة
+        run: python -m unittest tools.index_qa.test_fakhfakh69_tail_dual_witness -v
+      - name: قياس 69:41–52 بالنموذجين حتى EOF وطباعته في السجل
+        env:
+          PILOT_CACHE_EXACT_HIT: ${{ steps.models.outputs.cache-hit }}
+        run: python tools/index_qa/fakhfakh69_tail_dual_witness.py --model-policy '${{ inputs.model_policy }}'
