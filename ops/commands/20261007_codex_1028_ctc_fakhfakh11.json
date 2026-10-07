@@ -1,0 +1,14 @@
+{
+  "action": "dispatch",
+  "workflow": "ctc_heard_probe.yml",
+  "inputs": {
+    "url": "https://archive.org/download/48--kb--alhady--bn--altaher--alfakhfakh--by---qaloon---mp3--full--mushaf--qura/011Houd.mp3",
+    "surah": "11",
+    "riwaya": "qalun",
+    "build": "true",
+    "int8": "0",
+    "evidence": "build-logs",
+    "source_sha256": "ec1ba4434cd5483a6ad43d1e1d057f513338b30bbfe1021bb3730afb592d088c",
+    "reason": "Codex: قياس مستقل موروث لحد 11:19 بعد شاهد heard +2275ms؛ قراءة وسجل فقط بلا R2/Artifact/cache-save"
+  }
+}
