@@ -1,11 +1,11 @@
 {
   "schema": 1,
-  "generatedAt": "2026-10-07T14:02:02Z",
+  "generatedAt": "2026-10-07T15:06:06Z",
   "scope": "qalun/fakhfakh_qalun/38",
   "repository": {
     "fullName": "mwqwf/rafiq-align-ci",
     "visibility": "public",
-    "observedHead": "ad0717266187e40fe24372c70a624a1c8989ce28"
+    "observedHead": "0e95e1b3edcf57d84c1bd680300e38a6acd90a47"
   },
   "candidate": {
     "path": "ops/source-repair/candidates/codex-fakhfakh38-archive-20261007.jz",
@@ -587,6 +587,30 @@
     "artifacts": 0,
     "productionChanged": false
   },
+  "openersRetryAndTail69": {
+    "evidence": "ops/out/codex-fakhfakh-openers-tail69-analysis-20261007.json",
+    "runId": 37619639313,
+    "reportCommit": "15d512fec1813dcb21d3a173c6cd3e598cbfe4b3",
+    "candidateSha256": "a906d8c1c4d1440884d8cc6917190a7de93c0dfebfe1de69cc1efd6f732b3e90",
+    "counts": {"clean":107,"unknown":4,"tail":1,"errors":0},
+    "unknownSurahs": [7,13,27,70],
+    "tailSurahs": [69],
+    "surah69": {
+      "stablePrefix": "69:1-69:40",
+      "stablePrefixMaximumAbsoluteStartDeltaMs": 58,
+      "compressionOnset": "69:41 end / 69:42 start",
+      "startDelta69_42Ms": 3292,
+      "startDelta69_43Ms": 9997,
+      "startDelta69_51Ms": 45788,
+      "candidateFinalEndMs": 390630,
+      "decodedAudioDurationMs": 435638,
+      "audioAfterCandidateEndMs": 45008,
+      "finalAyahBoundaryMissing": true,
+      "decision": "compressed-tail-confirmed-range-repair-required"
+    },
+    "artifacts": 0,
+    "productionChanged": false
+  },
   "productionBaseline": {
     "entries": 1121595,
     "missingAyahs": 885,
@@ -594,7 +618,7 @@
     "unchangedByThisRun": true
   },
   "complete": false,
-  "next": "اعتبر 10:60 بريئة بالشاهد المستقل ولا تصلحها. يلزم شاهد إضافي لـ16:16،ودليل حدود أعلى ثقة لـ16:28 و16:32 قبل أي رقعة. اقرأ تقرير المطالع 37619639313 عند اكتماله؛كل error/unknown باقٍ. عيوب 37/42/69 انزياحات مدى لا تجتاز حارس الحد المفرد وتحتاج شاهداً ثنائياً مستقلاً. لا تخفِ 112 غير حاسم،ويلزم مسح عام ثابت وشواهد بدء/نهاية منفصلة وقراءة public/manifest/frozen قبل أي ترقية. الإنتاج لم يتغير ولا 100%.",
+  "next": "تقرير المطالع مكتمل النقل لكنه ليس مكتملاً حكماً: 4 unknown في7/13/27/70 وtail في69. ثُبت أن كبس س69 يبدأ عند نهاية41/بداية42 ويتراكم حتى45.788ث في51،ويبقى45.008ث من الصوت بعد نهاية الفهرس والآية52 بلا حد. أنشئ شاهداً ثنائياً محدوداً للمدى69:41-52 يتضمن EOF قبل أي بناء. يلزم أيضاً شاهد إضافي لـ16:16 ودليل أعلى ثقة لـ16:28/32،وشاهد مدى مستقل37/42. لا تخفِ112 غير حاسم؛يلزم مسح عام ثابت وشواهد بدء/نهاية وقراءة public/manifest/frozen قبل أي ترقية. الإنتاج لم يتغير ولا100%.",
   "independentDiagnostics": {
     "20:93": {
       "scope": "qalun/fakhfakh_qalun/20",
