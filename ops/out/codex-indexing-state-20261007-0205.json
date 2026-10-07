@@ -1,11 +1,11 @@
 {
   "schema": 1,
-  "generatedAt": "2026-10-07T16:08:42Z",
+  "generatedAt": "2026-10-07T17:31:00Z",
   "scope": "qalun/fakhfakh_qalun/38",
   "repository": {
     "fullName": "mwqwf/rafiq-align-ci",
     "visibility": "public",
-    "observedHead": "c90e197637c6a18ae5bf31207aa80216c00c0bec"
+    "observedHead": "898fe3238e06c47c5c9ba02e1fc6bfacff39b9cc"
   },
   "candidate": {
     "path": "ops/source-repair/candidates/codex-fakhfakh38-archive-20261007.jz",
@@ -610,6 +610,93 @@
     },
     "artifacts": 0,
     "productionChanged": false
+  },
+  "tail69DualWitness": {
+    "scope": "qalun/fakhfakh_qalun/69:41-52",
+    "candidateSha256": "a906d8c1c4d1440884d8cc6917190a7de93c0dfebfe1de69cc1efd6f732b3e90",
+    "sourceSha256": "758f7383dfee9e1bf6040cf909dacac589f3e3bbc813d6dd67b3d79771e20880",
+    "workflow": ".github/workflows/fakhfakh69_tail_dual_witness.yml",
+    "readOnly": true,
+    "genericModel": {
+      "revision": "af46c2d8531b8dcbb5e23b952f739b372c2e5d2d",
+      "weightsSha256": "a0b26f6d9d3edfde1784aef863c192a8cc1e438a23b45910ab648531ebe1857b"
+    },
+    "quranModel": {
+      "revision": "b03a268c6ba1a693752307325ab376c86c3b12da",
+      "weightsSha256": "bf65674a26eb4ef7042cedade96c3c8f8cbd04f3a7d1a68eadceec8ed0f99ecb",
+      "acquisition": "pinned ephemeral public download"
+    },
+    "transportFailureRun": {
+      "runId": 37656965910,
+      "reportSha256": "d830587fc6ef87b243954c01fae02bcf354d0ae5169e78bd868d82de073560d7",
+      "error": "archive.org/download HTTP 500",
+      "measurementComplete": false,
+      "artifacts": 0
+    },
+    "verifiedTransportFix": {
+      "codeCommit": "3626f0a5cc12bf693f1815e6d420d777f5d09b17",
+      "testCommit": "15b33107af5cc0ec34973386f3d72529509b3441",
+      "acceptance": "publisher size and MD5, then pinned SHA-256",
+      "testsPassed": 29
+    },
+    "fullRangeRun": {
+      "runId": 37657763332,
+      "reportSha256": "a689b7d0eb3ea4b6cabb107c0215c473ce4e592d99e366bd5d2d3dfb65008c19",
+      "measurementComplete": true,
+      "rangeWitnessAccepted": false,
+      "acceptedAyahs": 11,
+      "rejectedAyahs": ["69:50"],
+      "decodedDurationMs": 444576,
+      "candidateFinalEndMs": 390630,
+      "audioAfterCandidateEndMs": 53946,
+      "finalAyah": {
+        "genericStartMs": 436891,
+        "quranStartMs": 436911,
+        "genericRawEndMs": 442744,
+        "quranRawEndMs": 442724,
+        "genericEofGapMs": 1832,
+        "quranEofGapMs": 1852
+      },
+      "ayah69_50": {
+        "genericStartMs": 421981,
+        "quranStartMs": 421981,
+        "genericConfidence": 0.45,
+        "quranConfidence": 0.731,
+        "rejectionReason": "generic confidence below unchanged 0.60 guard"
+      },
+      "artifacts": 0
+    },
+    "focused69_50Run": {
+      "runId": 37658780477,
+      "reportSha256": "c8ff595737b113caef79e18e685e6222d1bae28839f250c8a0b0fa5863ff4681",
+      "windowMs": [416000, 432000],
+      "heardAnchorMs": 422461,
+      "heardEvidenceSha256": "40380522f14ceb62c08d497a36647c1b25daf17eac04771da972648fc841c4ba",
+      "genericStartMs": 423810,
+      "genericConfidence": 0.35,
+      "quranStartMs": 421968,
+      "quranConfidence": 0.765,
+      "modelStartSpreadMs": 1842,
+      "genericToHeardMs": 1349,
+      "quranToHeardMs": -493,
+      "focusedAccepted": false,
+      "combinedWitnessAccepted": false,
+      "artifacts": 0
+    },
+    "thresholds": {
+      "targetConfidence": 0.6,
+      "startToleranceMs": 500,
+      "endToleranceMs": 800,
+      "durationRatio": [0.5, 2.0],
+      "eofPadMs": 3000,
+      "sampleThresholdPercent": 5,
+      "changed": false
+    },
+    "testsPassed": 30,
+    "candidateChanged": false,
+    "productionChanged": false,
+    "completionClaim": false,
+    "blocker": "The generic model remains below confidence and disagrees with Quran/heard in the focused 69:50 window; do not build the tail from this evidence."
   },
   "productionBaseline": {
     "entries": 1121595,
