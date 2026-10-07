@@ -1,6 +1,6 @@
 {
   "schema": 1,
-  "generatedAt": "2026-10-07T06:02:00Z",
+  "generatedAt": "2026-10-07T07:05:00Z",
   "scope": "qalun/fakhfakh_qalun/38",
   "repository": {
     "fullName": "mwqwf/rafiq-align-ci",
@@ -231,14 +231,43 @@
     "commandRunId": 37565240126,
     "commandRunUrl": "https://github.com/mwqwf/rafiq-align-ci/actions/runs/37565240126",
     "checks": ["heard"],
-    "status": "quality-run-in-progress",
+    "status": "completed-success-complete-measurement",
     "qualityRunId": 37565326133,
     "qualityRunUrl": "https://github.com/mwqwf/rafiq-align-ci/actions/runs/37565326133",
-    "completedSteps": [
-      "structural precheck",
-      "opener CTC witness"
+    "reportPath": "ops/source-repair/results/20261007_fakhfakh38_archive/heard.json",
+    "reportCommit": "4d13d2b303959a83c8fea03f5452ad01442dfbae",
+    "mergeCommit": "46b94ccc8875a193f21d54dc7ef309ca8b3b6f54",
+    "candidateSha256": "61d207912feef5df4041d9629d085642f0b1aadc53897959722d3b7ef82b8ed6",
+    "parentSha256": "5bad920fd4994019caacc00b9edd6662941abae720ba0b3a2b41281016c23eef",
+    "ok": true,
+    "measurementComplete": true,
+    "measurementErrors": {},
+    "gateError": null,
+    "officialStateWritten": false,
+    "requiredSurahs": [
+      11,
+      38,
+      39,
+      63,
+      113
     ],
-    "activeStep": "actual existing judge",
+    "modifiedSurah38": {
+      "measured": 88,
+      "deviations": 0,
+      "censusInconclusiveResolvedByIndependentHeard": [
+        "38:18",
+        "38:23",
+        "38:35"
+      ]
+    },
+    "inheritedSampleFinding": {
+      "ayahId": "11:19",
+      "indexedStartMs": 411610,
+      "heardAnchorMs": 409335,
+      "deviationMs": 2275,
+      "quality": 0.918,
+      "candidateChangedThisAyah": false
+    },
     "artifacts": 0
   },
   "rs4Retry2": {
@@ -249,7 +278,7 @@
     "checks": [
       "rs4"
     ],
-    "status": "quality-run-pending-behind-heard",
+    "status": "quality-run-in-progress",
     "qualityRunId": 37579235737,
     "qualityRunUrl": "https://github.com/mwqwf/rafiq-align-ci/actions/runs/37579235737"
   },
@@ -269,5 +298,5 @@
     "unchangedByThisRun": true
   },
   "complete": false,
-  "next": "Read heard retry2 when it finishes and then read the pending isolated rs4 report. Census still has 9 download-error windows, 114 inconclusive rows overall, and unresolved 38:18, 38:23, 38:35 inside the modified surah; resolve these gaps after the queue clears. Do not promote before all measurements are conclusive and accepted."
+  "next": "Read rs4 retry2 when it finishes. The independent heard witness resolved the three census-inconclusive rows inside modified surah 38, but census still has 9 download-error windows and 111 inconclusive rows outside surah 38. Diagnose inherited 11:19 separately without changing the candidate under active QA. Do not promote before required evidence is complete and accepted."
 }
