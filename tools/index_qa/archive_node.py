@@ -21,6 +21,7 @@ from __future__ import annotations
 import hashlib
 import json
 import re
+import time
 import urllib.parse
 import urllib.request
 
@@ -86,22 +87,29 @@ def matches(blob_size, blob_md5, want_size, want_md5):
     return int(blob_size) == int(want_size) and str(blob_md5).lower() == want_md5
 
 
-def metadata(item, timeout=60):
-    """بياناتُ البند (‏مخبَّأةٌ للعمليّة) أو None عند أيّ تعذّر."""
+def metadata(item, timeout=60, attempts=4, pause_s=1):
+    """بياناتُ البند (‏مخبَّأةٌ للعمليّة) أو None بعد محاولاتٍ محدودة.
+
+    لا نُخزّن الفشلَ العابر: جولةُ heard تجمع سوراً كثيرةً من البند نفسه، وقد كان timeout
+    واحدٌ في أوّل سورةٍ يضع ``None`` في الذاكرة، فيحرم كلَّ السور التالية من طريق العقدة
+    بلا أيّ طلبٍ جديد. النجاح وحده صالحٌ للتخزين؛ وكل محاولةٍ لاحقة تعيد طلب metadata.
+    """
     if item in _META_CACHE:
         return _META_CACHE[item]
-    doc = None
-    try:
-        rq = urllib.request.Request(f"https://archive.org/metadata/{urllib.parse.quote(item)}",
-                                    headers=UA)
-        with urllib.request.urlopen(rq, timeout=timeout) as r:
-            doc = json.loads(r.read().decode("utf-8", "replace"))
-        if not isinstance(doc, dict) or not doc.get("files"):
-            doc = None
-    except Exception:                                  # noqa: BLE001
-        doc = None
-    _META_CACHE[item] = doc
-    return doc
+    endpoint = f"https://archive.org/metadata/{urllib.parse.quote(item)}"
+    for n in range(max(1, int(attempts))):
+        try:
+            rq = urllib.request.Request(endpoint, headers=UA)
+            with urllib.request.urlopen(rq, timeout=timeout) as r:
+                doc = json.loads(r.read().decode("utf-8", "replace"))
+            if isinstance(doc, dict) and doc.get("files"):
+                _META_CACHE[item] = doc
+                return doc
+        except Exception:                              # noqa: BLE001
+            pass
+        if n + 1 < max(1, int(attempts)) and pause_s:
+            time.sleep(pause_s)
+    return None
 
 
 def fetch_verified(url, out_path, timeout=90, deadline_s=900):

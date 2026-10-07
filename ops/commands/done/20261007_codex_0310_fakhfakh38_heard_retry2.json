@@ -1,0 +1,10 @@
+{
+  "action": "dispatch",
+  "workflow": "registered-source-quality.yml",
+  "inputs": {
+    "request": "20261007_fakhfakh38_archive.json",
+    "checks": "heard"
+  },
+  "reason": "إعادة heard فقط بعد إصلاح cache السلبي لبيانات Archive: أربع سور تعذرت نقلاً، ولا يُقبل fallback إلا بالحجم وMD5 المنشورين",
+  "submittedAt": "2026-10-07T03:10:00Z"
+}
