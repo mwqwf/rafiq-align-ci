@@ -21,8 +21,9 @@ class PCM:
 
 
 class Backend:
-    def __init__(self, starts, contract, weak=None, eof_gap=500):
+    def __init__(self, starts, contract, weak=None, eof_gap=500, weak_model="quran"):
         self.starts, self.contract, self.weak, self.eof_gap = starts, contract, weak, eof_gap
+        self.weak_model = weak_model
         self.name = None
     def configure(self, name):
         self.name = name
@@ -31,12 +32,16 @@ class Backend:
     def reference_text(self, text):
         return text
     def segment(self, pcm, texts):
+        if len(texts) == 1:
+            shift = 100 if self.name == "quran" else 0
+            return [((421950 + shift - 416000) / 1000,
+                     (428950 + shift - 416000) / 1000, .85)]
         shift = 150 if self.name == "quran" else 0
         out = []
         for i, _ in enumerate(texts):
             start = self.starts[i] + shift
             end = (self.starts[i + 1] + shift if i + 1 < len(texts) else 435638 - self.eof_gap)
-            score = .59 if f"69:{41+i}" == self.weak and self.name == "quran" else .9
+            score = .59 if f"69:{41+i}" == self.weak and self.name == self.weak_model else .9
             out.append(((start - 344189) / 1000, (end - 344189) / 1000, score))
         return out
     def conf(self, score):
@@ -70,6 +75,8 @@ class WitnessTest(unittest.TestCase):
                            self.contract, Backend(self.starts, self.contract), {})
         self.assertTrue(report["measurementComplete"])
         self.assertTrue(report["rangeWitnessAccepted"])
+        self.assertTrue(report["combinedWitnessAccepted"])
+        self.assertTrue(report["focused50"]["accepted"])
         self.assertEqual(report["acceptedAyahs"], W.TARGET_IDS)
         self.assertEqual(report["thresholds"]["targetConf"], .60)
         self.assertEqual(report["perAyah"][-1]["decodedEofGapMs"], {"generic": 500, "quran": 500})
@@ -89,13 +96,24 @@ class WitnessTest(unittest.TestCase):
         class Disagree(Backend):
             def segment(self, pcm, texts):
                 rows = super().segment(pcm, texts)
-                if self.name == "quran":
+                if self.name == "quran" and len(rows) > 3:
                     rows[3] = (rows[3][0] + 1.0, rows[3][1] + 1.0, rows[3][2])
                 return rows
         report = W.measure(copy.deepcopy(self.idx), copy.deepcopy(self.idx["entries"]), PCM(),
                            self.contract, Disagree(self.starts, self.contract), {})
         self.assertFalse(report["rangeWitnessAccepted"])
         self.assertIn("models-disagree-start", report["perAyah"][3]["reasons"])
+
+    def test_focused_same_threshold_closes_only_isolated_full_range_weak_50(self):
+        report = W.measure(copy.deepcopy(self.idx), copy.deepcopy(self.idx["entries"]), PCM(),
+                           self.contract, Backend(self.starts, self.contract, weak="69:50",
+                                                  weak_model="generic"), {})
+        self.assertFalse(report["rangeWitnessAccepted"])
+        self.assertEqual(report["rejectedAyahs"], ["69:50"])
+        self.assertEqual(report["perAyah"][9]["reasons"], ["generic:weak-confidence"])
+        self.assertTrue(report["focused50"]["accepted"])
+        self.assertTrue(report["combinedWitnessAccepted"])
+        self.assertEqual(report["thresholds"]["targetConf"], .60)
 
     def test_candidate_identity_sha_url_and_order_are_closed(self):
         with tempfile.TemporaryDirectory() as tmp:
