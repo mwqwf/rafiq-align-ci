@@ -1,0 +1,95 @@
+{
+  "schema": 1,
+  "generatedAt": "2026-10-07T00:06:24Z",
+  "scope": "qalun/fakhfakh_qalun/38",
+  "repository": {
+    "fullName": "mwqwf/rafiq-align-ci",
+    "visibility": "public",
+    "headBeforeWork": "45ee1b78d7f18e22ef5875eb18cc41240da515fe",
+    "originMainBeforeWork": "45ee1b78d7f18e22ef5875eb18cc41240da515fe"
+  },
+  "liveWorkflows": {
+    "inProgress": [
+      {
+        "runId": 37549498703,
+        "name": "نبّاضٌ سحابيّ — يُبقي الأسطولَ يعمل بلا جهاز المالك",
+        "headSha": "45ee1b78d7f18e22ef5875eb18cc41240da515fe"
+      }
+    ],
+    "queued": [
+      {
+        "runId": 34748440538,
+        "name": "rafiq-agent-cmd",
+        "headSha": "b31cacd4135e04b03a0f8d49748b1a68c23bc6f0"
+      }
+    ],
+    "pending": [],
+    "topLevelCommandFiles": ["README.md"],
+    "collisionFound": false
+  },
+  "candidate": {
+    "path": "ops/source-repair/candidates/codex-fakhfakh38-archive-20261007.jz",
+    "sha256": "61d207912feef5df4041d9629d085642f0b1aadc53897959722d3b7ef82b8ed6",
+    "bytes": 91304,
+    "parentKey": "timings/qalun/fakhfakh_qalun.jz",
+    "parentSha256": "5bad920fd4994019caacc00b9edd6662941abae720ba0b3a2b41281016c23eef",
+    "entryCount": 6236,
+    "surahEntryCount": 88,
+    "timingChangedEntries": 84,
+    "sourceChangedEntries": 88,
+    "addedEntries": 0,
+    "removedEntries": 0,
+    "outsideSurahPreserved": true,
+    "sourceUrl": "https://archive.org/download/al-hadi-al-fakhfakh/038.mp3",
+    "audioSha256": "fded733764386de895b63df4b067f44accee12186785396a3f61928a0fa3c212",
+    "first": {"ayahId": "38:1", "startMs": 6104, "endMs": 12769, "confidence": 0.678},
+    "middle": {"ayahId": "38:44", "startMs": 558461, "endMs": 576850, "confidence": 0.797},
+    "last": {"ayahId": "38:88", "startMs": 965839, "endMs": 972313, "confidence": 0.82},
+    "unpublishedLocalCandidate": true,
+    "productionChanged": false
+  },
+  "evidence": {
+    "primaryRun": 37544489570,
+    "primaryReportSha256": "6fcad5cb6bd1354aae5d754274a3461b1ddf5ae4e6396f6464ce0776fb370c08",
+    "independentRun": 37546764143,
+    "independentReportSha256": "ef80882e5e9379323459688e43072ed8fe44ea0428fe2e8ad41b0093db1489db",
+    "sourceAuditSha256": "c1652760ce7c54ef19211e3f2cbbb725412b77425e3f03b5ca620a7938a9e3dc",
+    "fullEntriesEqual": true,
+    "openingWitnessSeparate": true,
+    "endingWitnessSeparate": true,
+    "openingMiddleEndingWindowDeltasMs": 0,
+    "maximumOverlapStartDisagreementSeconds": 0.000028,
+    "maximumOverlapEndDisagreementSeconds": 0.000029
+  },
+  "localGates": {
+    "candidateBuilder": "passed",
+    "indexGate": "passed",
+    "structuralGate": "passed-with-inherited-warning",
+    "tests": {"passed": 48, "failed": 0},
+    "pythonCompile": "passed",
+    "jsonValidation": "passed",
+    "diffCheck": "passed"
+  },
+  "notRun": {
+    "finalShaHeardGate": "candidate is not staged; no R2 write was authorized",
+    "censusAndSaltedAudioGates": "candidate is not staged; no workflow was launched",
+    "publicManifestFrozenReadback": "production was not changed",
+    "stableGeneralAudit": "production was not changed"
+  },
+  "costControl": {
+    "workflowLaunched": false,
+    "r2Write": false,
+    "artifactWrite": false,
+    "cacheWrite": false,
+    "privateRunnerUsed": false
+  },
+  "productionBaseline": {
+    "snapshot": "after-thirty-nine",
+    "entries": 1121595,
+    "missingAyahs": 885,
+    "impossibleShort": 1,
+    "unchangedByThisRun": true
+  },
+  "complete": false,
+  "next": "Prove a free storage-write path, stage this exact candidate SHA, run original exact-SHA audio gates, and only then perform public/manifest/frozen readback and a stable general audit."
+}
