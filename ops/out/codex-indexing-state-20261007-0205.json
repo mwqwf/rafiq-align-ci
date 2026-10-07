@@ -1,11 +1,11 @@
 {
   "schema": 1,
-  "generatedAt": "2026-10-07T15:06:06Z",
+  "generatedAt": "2026-10-07T16:08:42Z",
   "scope": "qalun/fakhfakh_qalun/38",
   "repository": {
     "fullName": "mwqwf/rafiq-align-ci",
     "visibility": "public",
-    "observedHead": "0e95e1b3edcf57d84c1bd680300e38a6acd90a47"
+    "observedHead": "c90e197637c6a18ae5bf31207aa80216c00c0bec"
   },
   "candidate": {
     "path": "ops/source-repair/candidates/codex-fakhfakh38-archive-20261007.jz",
@@ -942,5 +942,38 @@
       }
     },
     "note": "هذه القياسات تحسم غير الحاسم في rs4 لهذه المواضع فقط؛ لا تمحو 111 غير حاسم في census ولا تثبت 100%."
+  },
+  "publicationRecovery": {
+    "evidenceCommit": "42af7026c9950ddbe47115a13f685287c60cc4bb",
+    "resumeCommitInitial": "d29ff9d0b5a2ed0e30d04e10a64a39613a1d2ed5",
+    "stateCommit": "d08a31a99f3daaf9688230f2513400ad1ba19220",
+    "resumeCommitComplete": "c90e197637c6a18ae5bf31207aa80216c00c0bec",
+    "readbackSha256": {
+      "evidence": "aa5e4c33d08e412958e72a16534ba392e6d4203753bcfc6cf98d01fd93a7c3d7",
+      "resume": "005baf81e09bcf0f42039479c2db011923d370ccde2c32416c4fb653c43bc89d",
+      "stateBeforeThisUpdate": "32717f49304a79a6334d82f68747303c9168a8d5162e542c9cfe7cb94221a098"
+    },
+    "resumeGuard": {
+      "baselineRef": "0e95e1b3edcf57d84c1bd680300e38a6acd90a47",
+      "baselineLines": 829,
+      "candidateLines": 837,
+      "baselineBytes": 220261,
+      "candidateBytes": 222671,
+      "passed": true
+    },
+    "dualWitnessPathAssessment": {
+      "ctcDualfixUnitTests": "8/8 passed",
+      "ctcSpliceReadOnly": false,
+      "ctcSpliceReasons": [
+        "actions/cache@v4 may save cache",
+        "stage_transform writes a staged R2 candidate",
+        "actions/upload-artifact retains diagnostics for seven days"
+      ],
+      "tailClippingFollowupReadOnly": true,
+      "tailClippingFollowupCoversSurah69": false,
+      "decision": "do-not-dispatch-until-a-source-pinned-two-model-build-log-only-witness-for-69:41-52-is-available"
+    },
+    "productionChanged": false,
+    "completionClaim": false
   }
 }
