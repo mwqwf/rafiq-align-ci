@@ -1,11 +1,11 @@
 {
   "schema": 1,
-  "generatedAt": "2026-10-07T07:05:00Z",
+  "generatedAt": "2026-10-07T08:08:00Z",
   "scope": "qalun/fakhfakh_qalun/38",
   "repository": {
     "fullName": "mwqwf/rafiq-align-ci",
     "visibility": "public",
-    "observedHead": "bd7c705c456f20582988ce08d9bd6e69b6f0a6fa"
+    "observedHead": "1463641b170cf553dde6061886928d2d735c4f18"
   },
   "candidate": {
     "path": "ops/source-repair/candidates/codex-fakhfakh38-archive-20261007.jz",
@@ -278,9 +278,54 @@
     "checks": [
       "rs4"
     ],
-    "status": "quality-run-in-progress",
+    "status": "completed-success-complete-transport-measurement",
     "qualityRunId": 37579235737,
-    "qualityRunUrl": "https://github.com/mwqwf/rafiq-align-ci/actions/runs/37579235737"
+    "qualityRunUrl": "https://github.com/mwqwf/rafiq-align-ci/actions/runs/37579235737",
+    "reportPath": "ops/source-repair/results/20261007_fakhfakh38_archive/rs4.json",
+    "reportCommit": "e12efa12408f74086a113a21a9787050c0b39a55",
+    "mergeCommit": "1463641b170cf553dde6061886928d2d735c4f18",
+    "candidateSha256": "61d207912feef5df4041d9629d085642f0b1aadc53897959722d3b7ef82b8ed6",
+    "verdict": "مقبول",
+    "sample": 200,
+    "rowVerdicts": {
+      "innocent": 195,
+      "severe": 1,
+      "inconclusive": 4
+    },
+    "severe": {
+      "bad": 1,
+      "measured": 200,
+      "rate": 0.005,
+      "ciLow": 0.0,
+      "ciHigh": 0.014800000000000004
+    },
+    "errors": 0,
+    "errorWindows": {},
+    "modifiedSurah38": {
+      "sampled": 10,
+      "innocent": 9,
+      "inconclusive": [
+        "38:23"
+      ],
+      "inconclusiveResolvedByIndependentHeard": [
+        "38:23"
+      ]
+    },
+    "inheritedFindings": {
+      "severe": [
+        {
+          "ayahId": "20:93",
+          "verdict": "LATE_START",
+          "candidateChangedThisAyah": false
+        }
+      ],
+      "inconclusive": [
+        "74:2",
+        "83:26",
+        "76:29"
+      ]
+    },
+    "artifacts": 0
   },
   "costControl": {
     "runner": "ubuntu-latest",
@@ -298,5 +343,5 @@
     "unchangedByThisRun": true
   },
   "complete": false,
-  "next": "Read rs4 retry2 when it finishes. The independent heard witness resolved the three census-inconclusive rows inside modified surah 38, but census still has 9 download-error windows and 111 inconclusive rows outside surah 38. Diagnose inherited 11:19 separately without changing the candidate under active QA. Do not promote before required evidence is complete and accepted."
+  "next": "Candidate-specific evidence for modified surah 38 now includes a complete heard witness and a zero-transport-error rs4 sample, with rs4's 38:23 inconclusive independently measured by heard. Do not promote yet: census still has 9 download-error windows and 111 inconclusive rows outside surah 38, while inherited 20:93 and 11:19 require separate repair scopes. Complete the missing general evidence, then read back public/manifest/frozen and run a fresh general audit before any promotion claim."
 }
