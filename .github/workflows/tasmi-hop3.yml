@@ -37,13 +37,13 @@ jobs:
         run: |
           sudo apt-get update -qq && sudo apt-get install -y -qq ffmpeg cmake build-essential > /dev/null
           pip install -q numpy soundfile scipy
-      - name: whisper.cpp (مثبَّت على إيداع المحرك المشحون)
+      - name: whisper.cpp (مثبَّت على إيداع المحرك المشحون · بلا -march=native لأنّ مشغّلَ البناء غير مشغّل التفريغ وإلا SIGILL)
         run: |
           WCPP_SHA=c4ac0012a8f5a2082dfca6aad4ddfd8b2c02b337
           mkdir -p /tmp/wcpp && git -C /tmp/wcpp init -q \
             && git -C /tmp/wcpp fetch -q --depth 1 https://github.com/ggml-org/whisper.cpp "$WCPP_SHA" \
             && git -C /tmp/wcpp checkout -q FETCH_HEAD
-          cmake -S /tmp/wcpp -B /tmp/wcpp/build -DCMAKE_BUILD_TYPE=Release -DBUILD_SHARED_LIBS=OFF -DWHISPER_BUILD_TESTS=OFF > /dev/null
+          cmake -S /tmp/wcpp -B /tmp/wcpp/build -DCMAKE_BUILD_TYPE=Release -DBUILD_SHARED_LIBS=OFF -DWHISPER_BUILD_TESTS=OFF -DGGML_NATIVE=OFF -DGGML_AVX2=ON -DGGML_FMA=ON -DGGML_F16C=ON > /dev/null
           cmake --build /tmp/wcpp/build --config Release -j"$(nproc)" --target whisper-cli > /dev/null
           mkdir -p bin && cp /tmp/wcpp/build/bin/whisper-cli bin/
       - name: بناء g3r فقط (clean + noisy) — لا يحتاج سرّاً
@@ -107,7 +107,7 @@ jobs:
           retention-days: 1
   merge:
     needs: run
-    if: ${{ always() && needs.run.result != 'cancelled' }}
+    if: ${{ needs.run.result == 'success' }}
     runs-on: ubuntu-latest
     timeout-minutes: 20
     steps:
