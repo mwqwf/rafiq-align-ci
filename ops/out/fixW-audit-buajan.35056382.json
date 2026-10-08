@@ -1,0 +1,150 @@
+{
+ "schema": 1,
+ "tool": "full_audit-1.0",
+ "date": "20261008",
+ "timestampUtc": "2026-10-08T21:45:54Z",
+ "elapsedSec": 61.3,
+ "phase": "all",
+ "manifestIndexes": 180,
+ "frozenBucket": 220,
+ "reportsRead": 11757,
+ "rows": [
+  {
+   "key": "timings-staging/hafs/buajan.35056382.jz",
+   "sha256": "35056382f94b4ce6f2541c73b15bf5cbc74fc7ec6d5c8684b93fc937874ea767",
+   "riwaya": "hafs",
+   "reciterId": "buajan",
+   "bytes": 73586,
+   "engine": "mp3quran-timing-v1",
+   "transformOp": "ctc_heardmap_splice:7,9",
+   "staging": true,
+   "identity": {
+    "sha256": "35056382f94b4ce6f2541c73b15bf5cbc74fc7ec6d5c8684b93fc937874ea767",
+    "staging": true,
+    "errors": [],
+    "ok": true
+   },
+   "structure": {
+    "entries": 6236,
+    "errors": [],
+    "examples": {},
+    "registeredFileNoMappings": {},
+    "fileNoUnparsed": 0,
+    "structuralFatal": [],
+    "structuralWarn": [
+     "مداخل مدتها > 120ث: 1 · مثال: 2:282 مدتها 121ث"
+    ],
+    "decision": [],
+    "engine": "mp3quran-timing-v1",
+    "audioSha": 114,
+    "bands": {
+     "MED": 6156,
+     "HIGH": 4,
+     "LOW": 76
+    },
+    "ok": true
+   },
+   "gaps": {
+    "missingTotal": 0,
+    "internalGaps": [],
+    "headMissing": [],
+    "tailMissing": [],
+    "wholeMissing": [],
+    "declared": {
+     "transformOp": "ctc_heardmap_splice:7,9",
+     "transformReason": "fixW: إعادةُ دفعةٍ أُلغيت في الانقطاع (10-05) — fixT: إصلاحٌ دفعيٌّ لكبس الذيل — 5 سورةً مشتبهةً (فائضٌ ≥15ث بعد آخر مدخل · تدقيق الجولة الثانية 2026-10-03)، كلٌّ يُقاس بالسماع قبل أن يُمسّ",
+     "reasonCode": null,
+     "dropSurahs": [],
+     "byReason": {},
+     "declaredCount": 0,
+     "tagCount": 0,
+     "declaredIds": [],
+     "truncatedTail": null
+    },
+    "undeclaredEdge": [],
+    "errors": [],
+    "ok": true
+   },
+   "durations": {
+    "durationOutliers": 3,
+    "durationExamples": [
+     {
+      "aid": "20:134",
+      "ms": 2260,
+      "expMs": 16555,
+      "ratio": 0.14,
+      "chars": 77
+     },
+     {
+      "aid": "20:135",
+      "ms": 1440,
+      "expMs": 10320,
+      "ratio": 0.14,
+      "chars": 48
+     },
+     {
+      "aid": "20:133",
+      "ms": 2140,
+      "expMs": 11395,
+      "ratio": 0.19,
+      "chars": 53
+     }
+    ],
+    "impossibleShort": [],
+    "veryShort": [],
+    "extremeLong": [],
+    "longOutliers": 0,
+    "shortOutliers": 3,
+    "silenceGaps": 0,
+    "silenceExamples": [],
+    "surahsWithRate": 113
+   },
+   "audio": {
+    "audioReportsOnSha": 0,
+    "openersOnSha": false,
+    "errors": [
+     "لا حكمَ صوتيٍّ بعيّنةٍ على البصمة المنشورة",
+     "لا شاهدَ مطالعَ على البصمة المنشورة"
+    ],
+    "notes": [],
+    "samples": [],
+    "pooled": null,
+    "severeHi": null,
+    "otherShasWithSamples": [
+     "03ff2e56",
+     "0ff0da51",
+     "a7fa9bd4",
+     "ac74c7d0",
+     "f3570de5"
+    ],
+    "ok": false
+   }
+  }
+ ],
+ "summary": {
+  "indexes": 1,
+  "phase": "all",
+  "identityOk": 1,
+  "identityBad": [],
+  "structureOk": 1,
+  "structureBad": [],
+  "gapsOk": 1,
+  "gapsBad": [],
+  "audioOk": 0,
+  "audioBad": [
+   "timings-staging/hafs/buajan.35056382.jz"
+  ],
+  "durationOutliersTotal": 3,
+  "impossibleShortTotal": 0,
+  "indexesWithImpossibleShort": 0,
+  "veryShortTotal": 0,
+  "extremeLongTotal": 0,
+  "indexesWithExtremeLong": 0,
+  "mirrorStale": 0,
+  "silenceGapsTotal": 0,
+  "indexesWithDurationOutliers": 1,
+  "indexesWithSilenceGaps": 0,
+  "entriesTotal": 6236,
+  "missingTotal": 0
+ }
+}
