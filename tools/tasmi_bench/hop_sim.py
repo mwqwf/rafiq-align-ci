@@ -63,6 +63,7 @@ def cloud_min_from(frm, to, floor=0.0, min_s=MIN_WINDOW_S):
 ARMS = {
     "A": dict(hop=1.8, window=3.6, overlap=2.0),   # المشحون (CLOUD_HOP_MS = 1800)
     "B": dict(hop=3.0, window=6.0, overlap=3.0),   # المرشَّح (SLOW_CLOUD_HOP_MS · SLOW_WINDOW_MS · SLOW_OVERLAP_MS)
+    "C": dict(hop=2.4, window=6.0, overlap=3.6),   # نقطة الوسط (2.4ث · نافذة 6ث · تداخل = نافذة − قفزة كما في B)
 }
 
 
@@ -199,24 +200,33 @@ def aggregate(rows, seed=7, boot=2000):
         return sum(xs) / len(xs), ms[int(0.025 * boot)], ms[int(0.975 * boot)]
 
     out = {"n": len(rows)}
+    others = [a for a in ARMS if a != "A"]
     for k, name in ((0, "detect"), (1, "false_accuse"), (2, "latency_s")):
         a = [None if t[k] is None else float(t[k]) for t in table["A"]]
-        b = [None if t[k] is None else float(t[k]) for t in table["B"]]
-        d = [(y - x) if (x is not None and y is not None) else None for x, y in zip(a, b)]
-        out[name] = {"A": ci(a), "B": ci(b), "B-A": ci(d)}
+        out[name] = {"A": ci(a)}
+        for arm in others:
+            b = [None if t[k] is None else float(t[k]) for t in table[arm]]
+            d = [(y - x) if (x is not None and y is not None) else None for x, y in zip(a, b)]
+            out[name][arm] = ci(b)
+            out[name][arm + "-A"] = ci(d)
     out["billed_s"] = {a: sum(r["arms"][a]["billed"] for r in rows) for a in ARMS}
     out["calls"] = {a: sum(r["arms"][a]["calls"] for r in rows) for a in ARMS}
     out["saving"] = (1 - out["billed_s"]["B"] / out["billed_s"]["A"]) if out["billed_s"]["A"] else None
+    out["savings"] = {a: (1 - out["billed_s"][a] / out["billed_s"]["A"]) if out["billed_s"]["A"] else None for a in others}
     return out
 
 
 def verdict_text(agg, margin_det=0.03, margin_fa=0.01):
-    d, f = agg["detect"]["B-A"], agg["false_accuse"]["B-A"]
-    if not d or not f:
-        return "لا بنود كافية"
-    ok = d[1] >= -margin_det and f[2] <= margin_fa
-    return ("✅ عدمُ دونيّة" if ok else "⛔ لا يثبت عدمُ الدونيّة") + \
-        f" (كشف B−A {d[0]:+.3f} [{d[1]:+.3f}, {d[2]:+.3f}] · اتّهام كاذب B−A {f[0]:+.4f} [{f[1]:+.4f}, {f[2]:+.4f}])"
+    parts = []
+    for arm in [a for a in ARMS if a != "A"]:
+        d, f = agg["detect"].get(arm + "-A"), agg["false_accuse"].get(arm + "-A")
+        if not d or not f:
+            parts.append(f"{arm}: لا بنود كافية")
+            continue
+        ok = d[1] >= -margin_det and f[2] <= margin_fa
+        parts.append(f"{arm}: " + ("✅ عدمُ دونيّة" if ok else "⛔ لا يثبت عدمُ الدونيّة") +
+                     f" (كشف {arm}−A {d[0]:+.3f} [{d[1]:+.3f}, {d[2]:+.3f}] · اتّهام كاذب {arm}−A {f[0]:+.4f} [{f[1]:+.4f}, {f[2]:+.4f}])")
+    return " | ".join(parts)
 
 
 def selftest():
@@ -229,6 +239,8 @@ def selftest():
         for a, b in windows(arm, 60.0)[3:]:
             assert b - a <= 6.0 + 1e-6, (arm, a, b)
     assert ARMS["B"]["overlap"] >= ARMS["B"]["hop"]
+    sc, cc = billed("C", 60.0)
+    assert sb < sc < sa and cb < cc < ca, (sa, sc, sb)           # C بين A وB كلفةً
     assert cloud_min_from(4.0, 8.0, floor=0.0) == 2.0
     assert cloud_min_from(0.0, 3.8, floor=0.0) is None
     t = word_times(["ab", "cde", "f"], 10.0)

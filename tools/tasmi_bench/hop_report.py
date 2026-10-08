@@ -30,14 +30,14 @@ def main():
     for p in a.files:
         d = json.load(open(p, encoding="utf-8"))
         g, name = d["agg"], os.path.basename(p).replace(".json", "")
-        L += [f"## المجموعة: {name} ({g['n']} بنداً)", "",
-              "| المقياس | A (1.8ث) | B (3ث) | الفرق B−A |", "|---|---|---|---|",
-              f"| الكشف | {f(g['detect']['A'], True, 1)} | {f(g['detect']['B'], True, 1)} | {f(g['detect']['B-A'], True, 1)} |",
-              f"| الاتّهام الكاذب | {f(g['false_accuse']['A'], True, 2)} | {f(g['false_accuse']['B'], True, 2)} | {f(g['false_accuse']['B-A'], True, 2)} |",
-              f"| زمن الحكم بعد نهاية الكلمة (ث) | {f(g['latency_s']['A'], False, 2)} | {f(g['latency_s']['B'], False, 2)} | {f(g['latency_s']['B-A'], False, 2)} |",
-              f"| الكلفة: ثوانٍ مرسلة | {g['billed_s']['A']:.0f} | {g['billed_s']['B']:.0f} | توفير {100*(g['saving'] or 0):.1f}٪ |",
-              f"| النداءات | {g['calls']['A']} | {g['calls']['B']} | |", "",
-              "**الحكم:** " + d.get("verdict", ""), ""]
+        arms = [x for x in ("A", "B", "C") if x in g["billed_s"]]
+        hd = "| المقياس | " + " | ".join(f"{x} ({ {'A':'1.8ث','B':'3ث','C':'2.4ث'}[x]})" for x in arms) + " | " + " | ".join(f"{x}−A" for x in arms[1:]) + " |"
+        L += [f"## المجموعة: {name} ({g['n']} بنداً)", "", hd, "|" + "---|" * (len(arms) * 2)]
+        for lab, key, pct, dg in (("الكشف", "detect", True, 1), ("الاتّهام الكاذب", "false_accuse", True, 2), ("زمن الحكم بعد نهاية الكلمة (ث)", "latency_s", False, 2)):
+            L.append(f"| {lab} | " + " | ".join(f(g[key][x], pct, dg) for x in arms) + " | " + " | ".join(f(g[key][x + "-A"], pct, dg) for x in arms[1:]) + " |")
+        L.append("| الكلفة: ثوانٍ مرسلة | " + " | ".join(f"{g['billed_s'][x]:.0f}" for x in arms) + " | " + " | ".join(f"توفير {100*(g['savings'][x] or 0):.1f}٪" for x in arms[1:]) + " |")
+        L.append("| النداءات | " + " | ".join(str(g["calls"][x]) for x in arms) + " | " + " | ".join("" for _ in arms[1:]) + " |")
+        L += ["", "**الحكم:** " + d.get("verdict", ""), ""]
     L.append("العتبة: كشفٌ B−A حدُّه الأدنى ≥ −3 نقاط، واتّهامٌ كاذبٌ B−A حدُّه الأعلى ≤ +1 نقطة.")
     os.makedirs(os.path.dirname(a.out), exist_ok=True)
     open(a.out, "w", encoding="utf-8").write("\n".join(L) + "\n")

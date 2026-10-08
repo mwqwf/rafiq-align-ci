@@ -303,6 +303,8 @@ def main():
     # تُحفظ البنودُ القائمةُ حرفاً وتُضاف إليها آياتٌ **لم تُستعمل** من المسبح عينِه.
     ap.add_argument("--extend", default="",
                     help="مسارُ خطّةٍ قائمةٍ تُحفظ بنودُها كما هي ويُبنى عليها (توسيعٌ فائق)")
+    ap.add_argument("--first-surah", type=int, default=FIRST_SURAH,
+                    help="أوّلُ سورةٍ في المسبح (الافتراضُ 78؛ خفضُه يوسّع المسبحَ للتوسيع الفائق على حساب حجم التنزيل)")
     args = ap.parse_args()
     if args.selftest:
         return selftest()
@@ -332,7 +334,7 @@ def main():
         text = load_text(riwaya)
         # ⛔ **المسبحُ من دالّةٍ واحدةٍ** (‏`eligible`) يتقاسمها البانّي والقياسُ (`--audit`):
         #    مسبحان بشرطَين متفرّقَين يجعلان السقفَ المُعلَن غيرَ السقف المبنيّ **بلا صراخ**.
-        pool = eligible(d, text, start, FIRST_SURAH)
+        pool = eligible(d, text, start, args.first_surah)
         rng.shuffle(pool)
         census[riwaya] = {"مسبحٌ مؤهَّل": len(pool),
                           "مستعمَلٌ سابقاً": sum(1 for p in pool if (riwaya, p[0], p[1]) in kept_ayat)}

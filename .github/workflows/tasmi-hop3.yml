@@ -1,4 +1,4 @@
-# ⏩ قياسُ قفزة المتابعة السحابيّة 3ث مقابل 1.8ث على g3r (نظيفٌ وضجيج) — مستودعٌ عامٌّ، عدّادٌ قياسيّ، بلا أسرار.
+# ⏩ (الشوط 2: عيّنة موسَّعة 800 بنداً فائقةً للـ240 + الذراع C بقفزة 2.4ث) قياسُ قفزة المتابعة السحابيّة 3ث مقابل 1.8ث على g3r (نظيفٌ وضجيج) — مستودعٌ عامٌّ، عدّادٌ قياسيّ، بلا أسرار.
 # يُشعَل بتغيير ops/hop3_request.txt على فرع التطوير أو يدويّاً. يودِع النتائج في ops/out/hop3/ على الفرع نفسِه.
 name: tasmi-hop3
 on:
@@ -27,7 +27,7 @@ env:
 jobs:
   prep:
     runs-on: ubuntu-latest
-    timeout-minutes: 60
+    timeout-minutes: 85
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
@@ -49,7 +49,7 @@ jobs:
       - name: بناء g3r فقط (clean + noisy) — لا يحتاج سرّاً
         run: |
           cd tools/tasmi_bench
-          python inject_riwaya_local.py
+          python inject_riwaya_local.py --plan inject_plan_riwaya_x4.json
           for d in work/g3r/clean work/g3r/noisy; do echo "$d: $(ls $d | wc -l)"; done
           tar -cf work/g3r.tar -C work g3r
           ls -l work/g3r.tar
@@ -71,7 +71,7 @@ jobs:
       fail-fast: false
       matrix:
         set: [clean, noisy]
-        shard: [0, 1, 2, 3]
+        shard: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
@@ -91,7 +91,7 @@ jobs:
           chmod +x bin/whisper-cli
           mkdir -p models && curl -sSL -f --retry 3 -o models/shipped.bin "$MODEL_URL" && ls -l models
           cd tools/tasmi_bench/work && tar -xf g3r.tar && rm g3r.tar
-      - name: hop_sim (شظية ${{ matrix.shard }}/4 من ${{ matrix.set }})
+      - name: hop_sim (شظية ${{ matrix.shard }}/10 من ${{ matrix.set }})
         env:
           PYTHONIOENCODING: utf-8
         run: |
@@ -99,7 +99,7 @@ jobs:
           python hop_sim.py --selftest
           mkdir -p work/out
           python hop_sim.py --set "${{ matrix.set }}" --cli "$GITHUB_WORKSPACE/bin/whisper-cli" --model "$GITHUB_WORKSPACE/models/shipped.bin" \
-            --threads 4 --limit "$LIMIT" --shard "${{ matrix.shard }}/4" --out "work/out/${{ matrix.set }}_${{ matrix.shard }}.json"
+            --threads 4 --limit "$LIMIT" --shard "${{ matrix.shard }}/10" --plan inject_plan_riwaya_x4.json --out "work/out/${{ matrix.set }}_${{ matrix.shard }}.json"
       - uses: actions/upload-artifact@v4
         with:
           name: rows-${{ matrix.set }}-${{ matrix.shard }}
