@@ -149,6 +149,10 @@ def collect(binp, model_name, model, sets, threads, workers, limit, ts, free, pl
             times.append({"set": sname, "enc_ms": js["enc_ms"], "mel_ms": js["mel_ms"], "forced_ms": js["forced_ms"] / len(VARIANTS),
                           "free_ms": js["free_ms"], "n_samples": js["n_samples"]})
             vs = dict(zip(VARIANTS, js["variants"]))
+            # سجلُّ بندٍ (لا كلمة): التفريغُ الحرّ والأزمنة — يقرؤه `forced_veto.py`؛ والتلخيصُ يتجاهله (‏label=meta)
+            recs.append({"set": sname, "item": it["id"], "k": -1, "op": it["op"], "label": "meta", "zone": False, "sc": {},
+                         "free_text": js.get("free_text", ""), "free_ms": js["free_ms"], "enc_ms": js["enc_ms"],
+                         "forced_ms": js["forced_ms"] / len(VARIANTS), "n_samples": js["n_samples"]})
             for pos, k in enumerate(keep):
                 lab, in_zone = label_of(it, k)
                 rec = {"set": sname, "item": it["id"], "k": k, "op": it["op"], "label": lab, "zone": in_zone, "sc": {}}
@@ -326,6 +330,7 @@ def main():
     ap.add_argument("--free", action="store_true", help="يقيس الفكَّ الحرَّ أيضاً (‏للزمن)")
     ap.add_argument("--plan", default="inject_plan_riwaya.json", help="خطةُ الحقن (‏في مجلد الأداة)")
     ap.add_argument("--ops", default="", help="‏يقصر البنود على هذه الأنواع (‏OMIT,SUBSTITUTE)")
+    ap.add_argument("--variants", default="", help="‏يقصر صورَ النصّ (‏tash) لتوفير الزمن؛ الافتراضُ الثلاث")
     ap.add_argument("--md", default="")
     ap.add_argument("--json", default="")
     ap.add_argument("--words", default="")
@@ -335,6 +340,9 @@ def main():
     if not a.bin or not a.models:
         ap.error("--bin و--models لازمان")
     sets = [s for s in a.sets.split(",") if s]
+    if a.variants:
+        global VARIANTS
+        VARIANTS = [v for v in a.variants.split(",") if v in ("plain", "raw", "tash")]
     allrecs, alltimes = {}, {}
     for pair in a.models.split(","):
         name, path = pair.split("=", 1)

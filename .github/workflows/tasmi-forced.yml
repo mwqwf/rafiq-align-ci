@@ -90,6 +90,7 @@ jobs:
           set -o pipefail
           python tools/tasmi_bench/forced_auc.py --selftest
           python tools/tasmi_bench/forced_prereg2.py --selftest
+          python tools/tasmi_bench/forced_veto.py --selftest
           python - <<'PY'
           import numpy as np, soundfile as sf
           rng = np.random.default_rng(1)
@@ -129,6 +130,13 @@ jobs:
           ln -sfn g3r/noisy g3rn && ln -sfn g3r/clean g3rc
           echo "🔪 مضجَّجٌ $(ls g3rn | wc -l) · نظيفٌ $(ls g3rc | wc -l)"
           [ "$(ls g3rn | wc -l)" -ge 100 ] || { echo "⛔ مادّةُ الحقن ناقصة"; exit 1; }
+      - name: بناءُ عيّنة التسجيل المسبق 3 الجديدة (480 بنداً) فوق مادّة الخطة الأولى
+        if: steps.req.outputs.stage == 'prereg3'
+        run: |
+          set -o pipefail
+          cd tools/tasmi_bench
+          python inject_riwaya_local.py --plan inject_plan_forced3.json
+          echo "🔪 مضجَّجٌ $(ls work/g3r/noisy | wc -l)"
       - name: القياس
         env:
           PYTHONIOENCODING: utf-8
@@ -146,6 +154,18 @@ jobs:
           for m in $(echo "$MODELS" | tr ',' ' '); do ARGS="$ARGS,$m=model_$m.bin"; done
           ARGS="${ARGS#,}"
           mkdir -p work/out
+          if [ "$STAGE" = "prereg3" ]; then
+            python forced_auc.py --bin ../../wc/rafiq_forced --models "$ARGS" --free --variants tash --sets g3rn \
+              --threads 1 --workers "$(nproc)" --plan inject_plan_riwaya.json \
+              --md work/out/first_auc.md --words work/out/words_first.json > /dev/null
+            python forced_auc.py --bin ../../wc/rafiq_forced --models "$ARGS" --free --variants tash --sets g3rn \
+              --threads 1 --workers "$(nproc)" --plan inject_plan_forced3.json \
+              --md work/out/new_auc.md --words work/out/words_new.json > /dev/null
+            python forced_veto.py --first work/out/words_first.json --new work/out/words_new.json \
+              --md work/out/veto.md --json work/out/veto.json
+            cat work/out/veto.md >> "$GITHUB_STEP_SUMMARY"
+            exit 0
+          fi
           python forced_auc.py --bin ../../wc/rafiq_forced --models "$ARGS" $FREEFLAG \
             --threads 1 --workers "$(nproc)" --limit "$LIMIT" $TSFLAG --plan "$PLAN" --ops "$OPS" \
             --md work/out/forced_auc.md --json work/out/forced_auc.json --words work/out/forced_words.json
@@ -168,6 +188,13 @@ jobs:
           } > "/tmp/res/forced_auc_$RID.md"
           [ -s "$J" ] && cp "$J" "/tmp/res/forced_auc_$RID.json" || true
           [ -s "$W" ] && gzip -9 -c "$W" > "/tmp/res/forced_words_$RID.json.gz" || true
+          for f in veto; do
+            [ -s tools/tasmi_bench/work/out/$f.md ] && cp tools/tasmi_bench/work/out/$f.md "/tmp/res/${f}_$RID.md" || true
+            [ -s tools/tasmi_bench/work/out/$f.json ] && cp tools/tasmi_bench/work/out/$f.json "/tmp/res/${f}_$RID.json" || true
+          done
+          for f in words_first words_new; do
+            [ -s tools/tasmi_bench/work/out/$f.json ] && gzip -9 -c tools/tasmi_bench/work/out/$f.json > "/tmp/res/${f}_$RID.json.gz" || true
+          done
           [ -s tools/tasmi_bench/work/out/prereg2.md ] && cp tools/tasmi_bench/work/out/prereg2.md "/tmp/res/prereg2_$RID.md" || true
           [ -s tools/tasmi_bench/work/out/prereg2.json ] && cp tools/tasmi_bench/work/out/prereg2.json "/tmp/res/prereg2_$RID.json" || true
           git config user.name "rafiq-ci"
