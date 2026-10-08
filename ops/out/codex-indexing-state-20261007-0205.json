@@ -1,11 +1,11 @@
 {
   "schema": 1,
-  "generatedAt": "2026-10-07T17:31:00Z",
+  "generatedAt": "2026-10-07T18:07:00Z",
   "scope": "qalun/fakhfakh_qalun/38",
   "repository": {
     "fullName": "mwqwf/rafiq-align-ci",
     "visibility": "public",
-    "observedHead": "898fe3238e06c47c5c9ba02e1fc6bfacff39b9cc"
+    "observedHead": "b817f7be381c5c4af1eac43c853e7a7b4560ba5d"
   },
   "candidate": {
     "path": "ops/source-repair/candidates/codex-fakhfakh38-archive-20261007.jz",
@@ -1062,5 +1062,51 @@
     },
     "productionChanged": false,
     "completionClaim": false
+  },
+  "openersDualWitnessPreparation": {
+    "scope": [
+      "7:1",
+      "13:1",
+      "27:1",
+      "70:1"
+    ],
+    "candidateSha256": "a906d8c1c4d1440884d8cc6917190a7de93c0dfebfe1de69cc1efd6f732b3e90",
+    "sourceSha256": {
+      "7": "421e0a5d50d5ef72bad9b815c3ee2bcbbb96a3c3f100c4dbf0631ee046ab7fcb",
+      "13": "0e8cab1bf1769f93770ea6f1ee952153df1b2873ef711a857b6f1dbe9a91e1ac",
+      "27": "3e5ab2eef6c851e105f6e97bb401c1f3ef641469e515d83f766e8a7ada81f23d",
+      "70": "641913ae2ff67ee36d9e8ac32616c5789963deff3b601fe8682065b07eee28fb"
+    },
+    "workflow": ".github/workflows/fakhfakh_openers_dual_witness.yml",
+    "branch": "codex/fakhfakh-openers-dual-witness-20261007",
+    "commit": "b0805b458d426903450c2605681d8d7e9f442879",
+    "pullRequest": 33,
+    "pullRequestUrl": "https://github.com/mwqwf/rafiq-align-ci/pull/33",
+    "mergeable": true,
+    "merged": false,
+    "dispatched": false,
+    "recurringAutomationPausedForBlocker": true,
+    "readOnly": true,
+    "runner": "ubuntu-24.04",
+    "cacheMode": "restore-only",
+    "artifactWrite": false,
+    "r2Access": false,
+    "testsPassed": 15,
+    "thresholds": {
+      "targetConfidence": 0.6,
+      "anchorConfidence": 0.45,
+      "startToleranceMs": 500,
+      "endToleranceMs": 800,
+      "durationRatio": [
+        0.5,
+        2.0
+      ],
+      "changed": false
+    },
+    "measurementComplete": false,
+    "verifiedOpeners": [],
+    "productionChanged": false,
+    "completionClaim": false,
+    "blocker": "PR #33 must reach main before the guarded workflow can be dispatched; direct-main publication was rejected and was not bypassed."
   }
 }
