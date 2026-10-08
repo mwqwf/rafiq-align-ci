@@ -160,6 +160,24 @@ class Pure(unittest.TestCase):
             gate2, ev2 = H.gate_start_anchors(heard2, times2, ayahs, raw2)
         self.assertEqual(gate2, raw2); self.assertEqual(ev2, [None, None])
 
+    def test_gate_start_large_shift_needs_independent_witness(self):
+        heard, times = _heard(["ابجكضوز"])
+        ayahs = ["ابجد", "هوز"]
+        raw = [(0, 320, 0.75), (3 * 80, 6 * 80, 2 / 3)]
+        ops = [("equal", 0, 3, 0, 3), ("replace", 3, 4, 3, 5),
+               ("delete", 4, 5, 5, 5), ("equal", 5, 7, 5, 7)]
+        big = list(times); big[5] = big[3] + 2000          # إزاحةٌ مؤثّرة 2000م.ث
+        with mock.patch.object(H, "_opcodes", return_value=ops):
+            g, _ = H.gate_start_anchors(heard, big, ayahs, raw, witness_ms=None)
+            self.assertEqual(g, raw)                       # بلا شاهد: لا تنقية
+            g, _ = H.gate_start_anchors(heard, big, ayahs, raw, witness_ms=[0, raw[1][0]])
+            self.assertEqual(g, raw)                       # شاهدٌ لا يوافق: لا تنقية
+            g, ev = H.gate_start_anchors(heard, big, ayahs, raw, witness_ms=[0, big[5] + 100])
+            self.assertEqual(g[1][0], big[5])              # شاهدٌ موافق: تُعتمد
+            small = list(times)                            # إزاحةٌ صغيرة (80م.ث) بلا شاهد تُقبل
+            g, _ = H.gate_start_anchors(heard, small, ayahs, raw, witness_ms=None)
+            self.assertEqual(g[1][0], small[5])
+
     def test_plan_windows_caps_and_splits_on_gap(self):
         ms = [(k * 1000, k * 1000 + 900) for k in range(30)]
         self.assertEqual(H.plan_windows(ms, 30, max_ayat=12), [(0, 11), (12, 23), (24, 29)])
