@@ -116,14 +116,14 @@ def label_of(it, k):
     return ("pos" if exact else "near") if in_zone else "neg", in_zone
 
 
-def collect(binp, model_name, model, sets, threads, workers, limit, ts, free):
+def collect(binp, model_name, model, sets, threads, workers, limit, ts, free, plan="inject_plan_riwaya.json", ops=None):
     recs, times = [], []
     for sname in sets:
         folder = SETS[sname]
         d = os.path.join(WORK, folder)
         if not os.path.isdir(d):
             raise SystemExit(f"⛔ لا مجلدَ {d} — المجموعةُ {sname} لم تُبنَ")
-        items = [it for it in T.load_plan("inject_plan_riwaya.json") if os.path.exists(os.path.join(d, it["id"] + ".wav"))]
+        items = [it for it in T.load_plan(plan) if (not ops or it["op"] in ops) and os.path.exists(os.path.join(d, it["id"] + ".wav"))]
         if limit:
             items = items[:limit]
         if not items:
@@ -324,6 +324,8 @@ def main():
     ap.add_argument("--boot", type=int, default=2000)
     ap.add_argument("--ts", action="store_true", help="مطالعُ الزمن <|0.00|> بدل notimestamps")
     ap.add_argument("--free", action="store_true", help="يقيس الفكَّ الحرَّ أيضاً (‏للزمن)")
+    ap.add_argument("--plan", default="inject_plan_riwaya.json", help="خطةُ الحقن (‏في مجلد الأداة)")
+    ap.add_argument("--ops", default="", help="‏يقصر البنود على هذه الأنواع (‏OMIT,SUBSTITUTE)")
     ap.add_argument("--md", default="")
     ap.add_argument("--json", default="")
     ap.add_argument("--words", default="")
@@ -338,7 +340,8 @@ def main():
         name, path = pair.split("=", 1)
         if not os.path.exists(path):
             raise SystemExit(f"⛔ لا نموذجَ في {path}")
-        allrecs[name], alltimes[name] = collect(a.bin, name, path, sets, a.threads, a.workers, a.limit, a.ts, a.free)
+        allrecs[name], alltimes[name] = collect(a.bin, name, path, sets, a.threads, a.workers, a.limit, a.ts, a.free,
+                                                     a.plan, set(x for x in a.ops.split(',') if x))
     md, res = report(allrecs, alltimes, a.boot, "مطالعُ الزمن." if a.ts else "مطالعُ notimestamps.")
     md += "\n" + verdict(res)
     print(md)

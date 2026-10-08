@@ -50,6 +50,10 @@ jobs:
           env.write("models=" + r.get("models", "tiny,base") + "\n")
           env.write("limit=" + str(r.get("limit", "0")) + "\n")
           env.write("ts=" + ("--ts" if r.get("ts") else "") + "\n")
+          env.write("stage=" + r.get("stage", "first") + "\n")
+          env.write("plan=" + r.get("plan", "inject_plan_riwaya.json") + "\n")
+          env.write("ops=" + r.get("ops", "") + "\n")
+          env.write("free=" + ("--free" if r.get("free", True) else "") + "\n")
           env.close()
           print(r.get("note", ""))
           PY
@@ -85,6 +89,7 @@ jobs:
         run: |
           set -o pipefail
           python tools/tasmi_bench/forced_auc.py --selftest
+          python tools/tasmi_bench/forced_prereg2.py --selftest
           python - <<'PY'
           import numpy as np, soundfile as sf
           rng = np.random.default_rng(1)
@@ -97,17 +102,25 @@ jobs:
       # 🔪 مادّةُ g3r — بمفتاح tasmi-conf وarm-time نفسِه؛ ⛔ **restore فقط** (لا حفظَ فلا نموَّ في الكاش)
       - name: كاشُ مادّة الحقن (قراءةٌ فقط)
         id: inj
+        if: steps.req.outputs.stage != 'prereg2'
         uses: actions/cache/restore@v4
         with:
           path: tools/tasmi_bench/work/inj.tar
           key: tasmi-inj-v1-${{ hashFiles('tools/tasmi_bench/inject_plan_riwaya.json', 'tools/tasmi_bench/inject_riwaya_local.py') }}
-      - name: بناءُ مادّة الحقن إن غاب الكاش
+      - name: بناءُ مادّة الحقن إن غاب الكاش (أو عيّنة التسجيل المسبق الجديدة دائماً)
         if: steps.inj.outputs.cache-hit != 'true'
+        env:
+          PLAN: ${{ steps.req.outputs.plan }}
+          STAGE: ${{ steps.req.outputs.stage }}
         run: |
           set -o pipefail
           cd tools/tasmi_bench
-          python inject_riwaya_local.py
-          tar -cf work/inj.tar -C work g3r
+          if [ "$STAGE" = "prereg2" ]; then
+            python inject_riwaya_local.py --plan "$PLAN"
+          else
+            python inject_riwaya_local.py
+            tar -cf work/inj.tar -C work g3r
+          fi
       - name: فكُّ مادّة الحقن وتسطيحُ اسمَيها
         run: |
           set -o pipefail
@@ -122,6 +135,10 @@ jobs:
           MODELS: ${{ steps.req.outputs.models }}
           LIMIT: ${{ steps.req.outputs.limit }}
           TSFLAG: ${{ steps.req.outputs.ts }}
+          STAGE: ${{ steps.req.outputs.stage }}
+          PLAN: ${{ steps.req.outputs.plan }}
+          OPS: ${{ steps.req.outputs.ops }}
+          FREEFLAG: ${{ steps.req.outputs.free }}
         run: |
           set -o pipefail
           cd tools/tasmi_bench
@@ -129,10 +146,14 @@ jobs:
           for m in $(echo "$MODELS" | tr ',' ' '); do ARGS="$ARGS,$m=model_$m.bin"; done
           ARGS="${ARGS#,}"
           mkdir -p work/out
-          python forced_auc.py --bin ../../wc/rafiq_forced --models "$ARGS" --free \
-            --threads 1 --workers "$(nproc)" --limit "$LIMIT" $TSFLAG \
+          python forced_auc.py --bin ../../wc/rafiq_forced --models "$ARGS" $FREEFLAG \
+            --threads 1 --workers "$(nproc)" --limit "$LIMIT" $TSFLAG --plan "$PLAN" --ops "$OPS" \
             --md work/out/forced_auc.md --json work/out/forced_auc.json --words work/out/forced_words.json
           cat work/out/forced_auc.md >> "$GITHUB_STEP_SUMMARY"
+          if [ "$STAGE" = "prereg2" ]; then
+            python forced_prereg2.py --words work/out/forced_words.json --md work/out/prereg2.md --json work/out/prereg2.json
+            cat work/out/prereg2.md >> "$GITHUB_STEP_SUMMARY"
+          fi
       - name: نشرُ الأثر في git (على الفرع نفسه)
         if: always()
         run: |
@@ -147,6 +168,8 @@ jobs:
           } > "/tmp/res/forced_auc_$RID.md"
           [ -s "$J" ] && cp "$J" "/tmp/res/forced_auc_$RID.json" || true
           [ -s "$W" ] && gzip -9 -c "$W" > "/tmp/res/forced_words_$RID.json.gz" || true
+          [ -s tools/tasmi_bench/work/out/prereg2.md ] && cp tools/tasmi_bench/work/out/prereg2.md "/tmp/res/prereg2_$RID.md" || true
+          [ -s tools/tasmi_bench/work/out/prereg2.json ] && cp tools/tasmi_bench/work/out/prereg2.json "/tmp/res/prereg2_$RID.json" || true
           git config user.name "rafiq-ci"
           git config user.email "ci@users.noreply.github.com"
           for i in 1 2 3 4; do
