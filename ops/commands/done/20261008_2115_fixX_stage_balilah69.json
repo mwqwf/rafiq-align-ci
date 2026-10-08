@@ -1,0 +1,20 @@
+{
+ "action": "tool",
+ "tool": "index_qa/stage_transform.py",
+ "args": [
+  "--file",
+  "ops/source-repair/candidates/codex-balilah-s69-recovered-20261006.jz",
+  "--parent",
+  "timings/hafs/balilah.jz",
+  "--parent-sha",
+  "f1b40abe72f4f85bd41cc87166f2cf8785960c1e267f09816b99532851812207",
+  "--op",
+  "ctc_heardmap_splice:69",
+  "--by",
+  "build_recovered_balilah_candidate",
+  "--reason",
+  "إزالة المدة المستحيلة الوحيدة الباقية (الحاقة 69:50) مع حفظ الآية 26 المدعومة باستقلال وإصلاح الكلمة الأخيرة المقصوصة؛ المداخل متطابقة العدد والحدود وحدها أُزيحت",
+  "--manual-qa-only",
+  "--yes"
+ ]
+}
