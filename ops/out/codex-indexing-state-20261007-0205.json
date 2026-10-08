@@ -1,0 +1,1066 @@
+{
+  "schema": 1,
+  "generatedAt": "2026-10-07T17:31:00Z",
+  "scope": "qalun/fakhfakh_qalun/38",
+  "repository": {
+    "fullName": "mwqwf/rafiq-align-ci",
+    "visibility": "public",
+    "observedHead": "898fe3238e06c47c5c9ba02e1fc6bfacff39b9cc"
+  },
+  "candidate": {
+    "path": "ops/source-repair/candidates/codex-fakhfakh38-archive-20261007.jz",
+    "sha256": "61d207912feef5df4041d9629d085642f0b1aadc53897959722d3b7ef82b8ed6",
+    "parentSha256": "5bad920fd4994019caacc00b9edd6662941abae720ba0b3a2b41281016c23eef",
+    "unpublishedLocalCandidate": true,
+    "productionChanged": false
+  },
+  "measuredBoundaryCandidate": {
+    "path": "ops/source-repair/candidates/codex-fakhfakh-boundaries-11-20-20261007.jz",
+    "sha256": "a906d8c1c4d1440884d8cc6917190a7de93c0dfebfe1de69cc1efd6f732b3e90",
+    "parentSha256": "5bad920fd4994019caacc00b9edd6662941abae720ba0b3a2b41281016c23eef",
+    "request": "ops/source-repair/requests/20261007_fakhfakh_boundaries_11_20.json",
+    "report": "ops/out/codex-fakhfakh-boundaries-11-20-candidate-20261007.json",
+    "publishedCommit": "ce75b62b9ee7dce7ff128939d54c5142233fc609",
+    "entryCount": 6236,
+    "added": 0,
+    "removed": 0,
+    "changedEntries": {
+      "11:18": {"endMs": {"from": 411610, "to": 409205}},
+      "11:19": {"startMs": {"from": 411610, "to": 409205}},
+      "20:92": {"endMs": {"from": 1088613, "to": 1086713}},
+      "20:93": {"startMs": {"from": 1088613, "to": 1086713}}
+    },
+    "confidenceChanged": false,
+    "thresholdChanged": false,
+    "qualityClaim": false,
+    "productionChanged": false,
+    "qualityRun": {
+      "failedPushAttempt": {
+        "runId": 37605950801,
+        "runUrl": "https://github.com/mwqwf/rafiq-align-ci/actions/runs/37605950801",
+        "status": "completed-plan-failure-before-audio",
+        "reason": "push mode found four request JSON files and requires exactly one explicit request",
+        "qualitySkipped": true,
+        "artifacts": 0
+      },
+      "dispatchCommand": {
+        "path": "ops/commands/20261007_codex_1056_fakhfakh_boundaries_quality.json",
+        "commit": "8474e53cc181e5f9f000707127b0614ec43e9ee2",
+        "relayRunId": 37610873057
+      },
+      "runId": 37610962383,
+      "runUrl": "https://github.com/mwqwf/rafiq-align-ci/actions/runs/37610962383",
+      "status": "completed-with-known-defects-and-openers-transport-rerun",
+      "plan": "success",
+      "completed": ["openers", "census", "heard", "rs1", "rs2", "rs3", "rs4"],
+      "inProgress": [],
+      "artifacts": 0,
+      "results": {
+        "heard": {
+          "shaMatched": true,
+          "parentShaMatched": true,
+          "ok": true,
+          "measurementComplete": true,
+          "measurementErrors": {},
+          "officialStateWritten": false,
+          "targets": {
+            "11:19": {"startMs": 409205, "anchorMs": 409335, "quality": 0.918, "deviationMs": -130, "status": "ok"},
+            "20:93": {"startMs": 1086713, "anchorMs": 1086804, "quality": 0.944, "deviationMs": -91, "status": "ok"}
+          },
+          "remaining": {
+            "20:73": {"startMs": 781220, "anchorMs": 779619, "quality": 0.898, "deviationMs": 1601, "status": "repeat"}
+          }
+        },
+        "census": {
+          "shaMatched": true,
+          "rows": 1330,
+          "severe": 8,
+          "severeUpper95Percent": 1.291590032725761,
+          "anyDefect": 9,
+          "anyDefectUpper95Percent": 1.4542423956599227,
+          "errors": 0,
+          "inconclusive": 112,
+          "severeAyahs": ["10:60", "16:16", "16:28", "16:32", "20:101", "37:137", "42:47", "69:43"],
+          "mildAyahs": ["16:44"],
+          "statisticalVerdict": "مقبول",
+          "completionVerdict": false
+        },
+        "rs1": {"shaMatched": true, "rows": 200, "severe": 0, "errors": 0, "inconclusive": 3},
+        "rs2": {"shaMatched": true, "rows": 200, "severe": 2, "errors": 0, "inconclusive": 12, "severeAyahs": ["56:37", "20:101"]},
+        "rs3": {"shaMatched": true, "rows": 200, "severe": 0, "anyDefect": 1, "errors": 0, "inconclusive": 5, "mildAyahs": ["87:17"]},
+        "rs4": {"shaMatched": true, "rows": 200, "severe": 0, "errors": 0, "inconclusive": 3, "target20_93": "بريء"},
+        "openersInitial": {
+          "shaMatched": true,
+          "checked": 112,
+          "clean": 48,
+          "errors": 62,
+          "unknown": [7, 70],
+          "defects": 0,
+          "completionVerdict": false,
+          "reason": "HTTP 500 transport failures before verified Archive fallback"
+        }
+      },
+      "openersRetry": {
+        "runId": 37619639313,
+        "runUrl": "https://github.com/mwqwf/rafiq-align-ci/actions/runs/37619639313",
+        "status": "in-progress-openers-only",
+        "candidateSha256": "a906d8c1c4d1440884d8cc6917190a7de93c0dfebfe1de69cc1efd6f732b3e90",
+        "transportFixCommit": "741cee64f1b4be218da03b401cfd2103ccadf271",
+        "transportTestCommit": "54b1b4f4a649f36652789552f2ba4e4a30ade519",
+        "testsPassed": 20,
+        "selfTestPassed": 13,
+        "artifacts": 0
+      }
+    },
+    "followupEvidence": {
+      "path": "ops/out/codex-fakhfakh20-followup-evidence-20261007.json",
+      "commit": "4e48fd0273c9fa3efedd5aca17930aa9697638ec",
+      "candidateChanged": false,
+      "productionChanged": false,
+      "findings": {
+        "20:101": "direction-confirmed-but-881ms-ctc-occurrence-disagreement-exceeds-150ms-agreement-guard",
+        "20:73": "conflicting-witnesses-ctc-equals-candidate-heard-straddles-boundary"
+      }
+    },
+    "tests": {
+      "focusedPassed": 43,
+      "focusedFailed": 0,
+      "structuralGate": "passed",
+      "indexGate": "passed",
+      "unrelatedExistingFlakyFailure": "test_ctc_heard_map.Pure.test_global_anchors_monotone_with_noise_extra_and_repeat: 4320 not less than 4320"
+    }
+  },
+  "qualityRun": {
+    "runId": 37555905823,
+    "runUrl": "https://github.com/mwqwf/rafiq-align-ci/actions/runs/37555905823",
+    "status": "completed-with-incomplete-measurements",
+    "completed": {
+      "plan": "success",
+      "openers": "success",
+      "census": "action-success-report-incomplete",
+      "rs1": "success",
+      "rs2": "success",
+      "rs3": "success",
+      "rs4": "action-success-report-incomplete",
+      "heard": "failure-incomplete-measurement"
+    },
+    "inProgress": [],
+    "artifacts": 0,
+    "results": {
+      "openers": {
+        "shaMatched": true,
+        "checked": 112,
+        "defects": 0,
+        "unknown": 0,
+        "suspect": 0,
+        "swallowed": 0,
+        "late": 0,
+        "tail": 0,
+        "verdict": "clean",
+        "scope": "openers-only"
+      },
+      "rs1": {
+        "shaMatched": true,
+        "sample": 200,
+        "severe": 0,
+        "any": 0,
+        "errors": 0,
+        "verdict": "accepted"
+      },
+      "rs3": {
+        "shaMatched": true,
+        "sample": 200,
+        "severe": 0,
+        "any": 1,
+        "errors": 0,
+        "verdict": "accepted"
+      },
+      "rs2": {
+        "shaMatched": true,
+        "sample": 200,
+        "severe": 2,
+        "any": 2,
+        "errors": 0,
+        "upperPercent": 2.349,
+        "verdict": "accepted"
+      },
+      "rs4": {
+        "shaMatched": true,
+        "actionConclusion": "success",
+        "reportVerdict": "مقبول",
+        "severe": {
+          "bad": 1,
+          "measured": 190,
+          "ratePercent": 0.526,
+          "upperPercent": 1.558
+        },
+        "anyDefect": {
+          "bad": 1,
+          "measured": 190
+        },
+        "errors": 30,
+        "errorWindowsPerAyah": 3,
+        "errorSurah": 38,
+        "errorAyahs": [
+          3,
+          7,
+          23,
+          28,
+          60,
+          63,
+          72,
+          74,
+          83,
+          88
+        ],
+        "errorReason": "full decode 973344 ms versus frame count 973584 ms",
+        "promotionAccepted": false
+      },
+      "census": {
+        "shaMatched": true,
+        "actionConclusion": "success",
+        "reportVerdict": "مقبول",
+        "severe": {
+          "bad": 7,
+          "measured": 1072,
+          "upperPercent": 1.588
+        },
+        "anyDefect": {
+          "bad": 8,
+          "measured": 1072
+        },
+        "errors": 264,
+        "errorSurah": 38,
+        "errorReason": "full decode 973344 ms versus frame count 973584 ms",
+        "promotionAccepted": false
+      },
+      "heard": {
+        "candidateShaMatched": true,
+        "parentShaMatched": true,
+        "measurementComplete": false,
+        "gateError": null,
+        "reason": "first run incomplete required probe maps: 11,63; first retry incomplete required probe maps: 38,39,63,113",
+        "transportErrors": {
+          "11": "HTTP 500 from archive.org/download",
+          "63": "HTTP 500 from archive.org/download"
+        },
+        "modifiedSurahs": [
+          38
+        ],
+        "requiredSurahs": [
+          11,
+          38,
+          39,
+          63,
+          113
+        ],
+        "officialStateWritten": false
+      }
+    }
+  },
+  "transportFix": {
+    "publishedCommit": "ef95cb7466fab3daa715e00ce38e40f7c13d1ed2",
+    "primaryAttemptsPreserved": 6,
+    "fallback": "archive item storage node",
+    "fallbackAcceptance": "published size and md5 must both match",
+    "sourceUrlChanged": false,
+    "thresholdChanged": false,
+    "candidateChanged": false,
+    "retryScopeEnabled": [
+      "heard"
+    ],
+    "tests": {
+      "passed": 46,
+      "failed": 0
+    },
+    "diffCheck": "passed"
+  },
+  "transportFix2": {
+    "diagnosis": "archive_node.metadata cached a transient failure as None for the entire process",
+    "effectObserved": "after surah 38 metadata failure, later surahs from the same Archive item could not retry the verified node path",
+    "publishedCodeCommit": "4de780f6e9c8406d3b58642cb7f7aa71a680f01d",
+    "publishedTestCommit": "9f9cde9b6701cc2bf15a05d79b4a61fbe58fee19",
+    "metadataAttempts": 4,
+    "negativeCacheRemoved": true,
+    "positiveCachePreserved": true,
+    "fallbackAcceptance": "published size and md5 must both match",
+    "tests": {
+      "passed": 17,
+      "failed": 0
+    },
+    "thresholdChanged": false,
+    "candidateChanged": false
+  },
+  "rs4DurationDiagnosis": {
+    "sourceSha256": "fded733764386de895b63df4b067f44accee12186785396a3f61928a0fa3c212",
+    "decodedSamplesMono16k": 15573504,
+    "decodedDurationMs": 973344,
+    "frameDurationMs": 973584,
+    "independentContainerSha256": "930f4e059219553bbcf0d7b7ec453e0aa0f72e9a555a9d61df4528220e2674ec",
+    "matchingDecodedPcmSha256": "590f6a633c83e8da4f2e998dc6ed3e33b6a0fbda0bdc4c2e6b32bea8ab14ffeb",
+    "evidence": [
+      {
+        "path": "ops/source-repair/fakhfakh-qalun-38-archive-mirror-audit-20261006.json",
+        "sha256": "c1652760ce7c54ef19211e3f2cbbb725412b77425e3f03b5ca620a7938a9e3dc"
+      },
+      {
+        "path": "ops/out/codex-fakhfakh38-midad-metadata-20261006.json",
+        "sha256": "138cc16e368b13740237538606ee4ff9e21c9199501b0e58baf5ab66e6e773ae"
+      }
+    ],
+    "globalToleranceChanged": false,
+    "focusedTests": {
+      "passed": 4,
+      "failed": 0
+    },
+    "broaderRegressionTests": {
+      "passed": 60,
+      "failed": 0
+    },
+    "publishedCodeCommit": "992e2690e8fefb1d6d681d28f9b92d3a997e1949",
+    "publishedTestCommit": "048d827312bca4926ef023851d3de1707fa2aa80",
+    "status": "source-bound exact witness tested and published; rs4 and census reruns dispatched"
+  },
+  "heardRetry": {
+    "runId": 37560771282,
+    "runUrl": "https://github.com/mwqwf/rafiq-align-ci/actions/runs/37560771282",
+    "checks": [
+      "heard"
+    ],
+    "status": "completed-failure-incomplete-transport",
+    "commandResult": "ops/out/20261007_codex_0210_fakhfakh38_heard_retry.txt",
+    "dispatchRc": 0,
+    "measurementComplete": false,
+    "officialStateWritten": false,
+    "reason": "incomplete required probe maps: 38,39,63,113",
+    "measuredSurahs": [
+      11
+    ],
+    "transportErrors": {
+      "38": "urlopen timeout",
+      "39": "HTTP 502 Bad Gateway",
+      "63": "urlopen timeout",
+      "113": "HTTP 503 Service Temporarily Unavailable"
+    }
+  },
+  "rs4Retry": {
+    "runId": 37561650222,
+    "runUrl": "https://github.com/mwqwf/rafiq-align-ci/actions/runs/37561650222",
+    "checks": [
+      "rs4"
+    ],
+    "status": "cancelled-before-any-job-when-newer-pending-census-replaced-it",
+    "commandResult": "ops/out/20261007_codex_0221_fakhfakh38_rs4_retry.txt",
+    "dispatchRc": 0
+  },
+  "censusRetry": {
+    "runId": 37561783634,
+    "runUrl": "https://github.com/mwqwf/rafiq-align-ci/actions/runs/37561783634",
+    "checks": [
+      "census"
+    ],
+    "status": "completed-success-but-measurement-has-errors",
+    "commandResult": "ops/out/20261007_codex_0225_fakhfakh38_census_retry.txt",
+    "dispatchRc": 0,
+    "reportPath": "ops/source-repair/results/20261007_fakhfakh38_archive/census.json",
+    "reportCommit": "dee74a3692d2b23355179317255599755345e5e1",
+    "mergeCommit": "ccb3c17a77dc8d1561b05c48aa3b41dbd4e5c8cf",
+    "candidateSha256": "61d207912feef5df4041d9629d085642f0b1aadc53897959722d3b7ef82b8ed6",
+    "verdict": "مقبول",
+    "severe": {
+      "bad": 7,
+      "measured": 1158,
+      "rate": 0.006044905008635579,
+      "ciLow": 0.0008396357709892031,
+      "ciHigh": 0.014401366465047222
+    },
+    "anyDefect": {
+      "bad": 8,
+      "measured": 1158,
+      "ciHigh": 0.016348664070718937
+    },
+    "errors": 9,
+    "errorSurahs": [
+      3,
+      29,
+      33
+    ],
+    "measurementComplete": false,
+    "rowVerdicts": {
+      "total": 1160,
+      "innocent": 1038,
+      "severe": 7,
+      "minor": 1,
+      "inconclusive": 114
+    },
+    "modifiedSurah38": {
+      "innocent": 85,
+      "inconclusive": [
+        "38:18",
+        "38:23",
+        "38:35"
+      ]
+    },
+    "artifacts": 0
+  },
+  "heardRetry2": {
+    "command": "ops/commands/20261007_codex_0310_fakhfakh38_heard_retry2.json",
+    "commandCommit": "bd7c705c456f20582988ce08d9bd6e69b6f0a6fa",
+    "commandRunId": 37565240126,
+    "commandRunUrl": "https://github.com/mwqwf/rafiq-align-ci/actions/runs/37565240126",
+    "checks": [
+      "heard"
+    ],
+    "status": "completed-success-complete-measurement",
+    "qualityRunId": 37565326133,
+    "qualityRunUrl": "https://github.com/mwqwf/rafiq-align-ci/actions/runs/37565326133",
+    "reportPath": "ops/source-repair/results/20261007_fakhfakh38_archive/heard.json",
+    "reportCommit": "4d13d2b303959a83c8fea03f5452ad01442dfbae",
+    "mergeCommit": "46b94ccc8875a193f21d54dc7ef309ca8b3b6f54",
+    "candidateSha256": "61d207912feef5df4041d9629d085642f0b1aadc53897959722d3b7ef82b8ed6",
+    "parentSha256": "5bad920fd4994019caacc00b9edd6662941abae720ba0b3a2b41281016c23eef",
+    "ok": true,
+    "measurementComplete": true,
+    "measurementErrors": {},
+    "gateError": null,
+    "officialStateWritten": false,
+    "requiredSurahs": [
+      11,
+      38,
+      39,
+      63,
+      113
+    ],
+    "modifiedSurah38": {
+      "measured": 88,
+      "deviations": 0,
+      "censusInconclusiveResolvedByIndependentHeard": [
+        "38:18",
+        "38:23",
+        "38:35"
+      ]
+    },
+    "inheritedSampleFinding": {
+      "ayahId": "11:19",
+      "indexedStartMs": 411610,
+      "heardAnchorMs": 409335,
+      "deviationMs": 2275,
+      "quality": 0.918,
+      "candidateChangedThisAyah": false
+    },
+    "artifacts": 0
+  },
+  "rs4Retry2": {
+    "command": "ops/commands/20261007_codex_0559_fakhfakh38_rs4_retry2.json",
+    "commandCommit": "739665a767996b273747215ab1bcf16f5aea9630",
+    "commandRunId": 37579141008,
+    "commandRunUrl": "https://github.com/mwqwf/rafiq-align-ci/actions/runs/37579141008",
+    "checks": [
+      "rs4"
+    ],
+    "status": "completed-success-complete-transport-measurement",
+    "qualityRunId": 37579235737,
+    "qualityRunUrl": "https://github.com/mwqwf/rafiq-align-ci/actions/runs/37579235737",
+    "reportPath": "ops/source-repair/results/20261007_fakhfakh38_archive/rs4.json",
+    "reportCommit": "e12efa12408f74086a113a21a9787050c0b39a55",
+    "mergeCommit": "1463641b170cf553dde6061886928d2d735c4f18",
+    "candidateSha256": "61d207912feef5df4041d9629d085642f0b1aadc53897959722d3b7ef82b8ed6",
+    "verdict": "مقبول",
+    "sample": 200,
+    "rowVerdicts": {
+      "innocent": 195,
+      "severe": 1,
+      "inconclusive": 4
+    },
+    "severe": {
+      "bad": 1,
+      "measured": 200,
+      "rate": 0.005,
+      "ciLow": 0,
+      "ciHigh": 0.014800000000000004
+    },
+    "errors": 0,
+    "errorWindows": {},
+    "modifiedSurah38": {
+      "sampled": 10,
+      "innocent": 9,
+      "inconclusive": [
+        "38:23"
+      ],
+      "inconclusiveResolvedByIndependentHeard": [
+        "38:23"
+      ]
+    },
+    "inheritedFindings": {
+      "severe": [
+        {
+          "ayahId": "20:93",
+          "verdict": "LATE_START",
+          "candidateChangedThisAyah": false
+        }
+      ],
+      "inconclusive": [
+        "74:2",
+        "83:26",
+        "76:29"
+      ]
+    },
+    "artifacts": 0
+  },
+  "costControl": {
+    "runner": "ubuntu-latest",
+    "publicRepository": true,
+    "cacheRestoreOnly": true,
+    "cacheWrite": false,
+    "artifactWrite": false,
+    "r2Write": false,
+    "privateRunnerUsed": false
+  },
+  "severeBoundaryProbeWave": {
+    "evidence": "ops/out/codex-fakhfakh-severe-boundary-probes-20261007.json",
+    "commandCommit": "0917724d06142adbe38b72152b5751748e02b513",
+    "relayRunId": 37626537558,
+    "candidateSha256": "a906d8c1c4d1440884d8cc6917190a7de93c0dfebfe1de69cc1efd6f732b3e90",
+    "candidateChanged": false,
+    "thresholdChanged": false,
+    "completed": {
+      "10:60": {
+        "runId": 37626674629,
+        "resultSha256": "59e7917d882730e764585b86c6e9c93a713bd1234605281d4494973944077259",
+        "candidateStartMs": 1356148,
+        "ctcStartMs": 1356183,
+        "heardStartMs": 1356648,
+        "decision": "census-severe-not-confirmed-current-boundary-retained"
+      },
+      "16:16": {
+        "runId": 37626687488,
+        "resultSha256": "56b37d1e1f88bb6d3a41bf137d91c7fe74609861432cbb5c3f8d11bbefed7877",
+        "candidateStartMs": 251923,
+        "ctcStartMs": 250386,
+        "heardStartMs": 250587,
+        "decision": "boundary-suspect-single-boundary-repair-rejected"
+      },
+      "16:28": {
+        "runId": 37626687488,
+        "resultSha256": "56b37d1e1f88bb6d3a41bf137d91c7fe74609861432cbb5c3f8d11bbefed7877",
+        "candidateStartMs": 439953,
+        "ctcStartMs": 437321,
+        "heardStartMs": 437452,
+        "decision": "boundary-defect-confirmed-single-boundary-repair-rejected"
+      },
+      "16:32": {
+        "runId": 37626687488,
+        "resultSha256": "56b37d1e1f88bb6d3a41bf137d91c7fe74609861432cbb5c3f8d11bbefed7877",
+        "candidateStartMs": 529310,
+        "ctcStartMs": 527521,
+        "heardStartMs": 527632,
+        "decision": "boundary-defect-confirmed-single-boundary-repair-rejected"
+      },
+      "37:137": {
+        "runId": 37626700009,
+        "resultSha256": "6f0a03ca6ae2c8fb3c44be306dbe20e7fe46fe7bc96418ed31e5a54eb7796cba",
+        "candidateStartMs": 972965,
+        "ctcStartMs": 979430,
+        "heardStartMs": 979620,
+        "decision": "range-defect-confirmed-single-boundary-repair-rejected"
+      },
+      "42:47": {
+        "runId": 37626711579,
+        "resultSha256": "eccb1a77962e59945a81628adc3205fc48d73e76cec8a0d5b455793c4c29a002",
+        "candidateStartMs": 873871,
+        "ctcStartMs": 883420,
+        "heardStartMs": 883688,
+        "decision": "range-defect-confirmed-single-boundary-repair-rejected"
+      },
+      "69:43": {
+        "runId": 37626725183,
+        "resultSha256": "40380522f14ceb62c08d497a36647c1b25daf17eac04771da972648fc841c4ba",
+        "candidateStartMs": 356867,
+        "ctcStartMs": 366864,
+        "heardStartMs": 368405,
+        "decision": "range-defect-confirmed-single-boundary-repair-rejected"
+      }
+    },
+    "inProgress": {
+      "openers": 37619639313
+    },
+    "artifacts": 0,
+    "productionChanged": false
+  },
+  "openersRetryAndTail69": {
+    "evidence": "ops/out/codex-fakhfakh-openers-tail69-analysis-20261007.json",
+    "runId": 37619639313,
+    "reportCommit": "15d512fec1813dcb21d3a173c6cd3e598cbfe4b3",
+    "candidateSha256": "a906d8c1c4d1440884d8cc6917190a7de93c0dfebfe1de69cc1efd6f732b3e90",
+    "counts": {"clean":107,"unknown":4,"tail":1,"errors":0},
+    "unknownSurahs": [7,13,27,70],
+    "tailSurahs": [69],
+    "surah69": {
+      "stablePrefix": "69:1-69:40",
+      "stablePrefixMaximumAbsoluteStartDeltaMs": 58,
+      "compressionOnset": "69:41 end / 69:42 start",
+      "startDelta69_42Ms": 3292,
+      "startDelta69_43Ms": 9997,
+      "startDelta69_51Ms": 45788,
+      "candidateFinalEndMs": 390630,
+      "decodedAudioDurationMs": 435638,
+      "audioAfterCandidateEndMs": 45008,
+      "finalAyahBoundaryMissing": true,
+      "decision": "compressed-tail-confirmed-range-repair-required"
+    },
+    "artifacts": 0,
+    "productionChanged": false
+  },
+  "tail69DualWitness": {
+    "scope": "qalun/fakhfakh_qalun/69:41-52",
+    "candidateSha256": "a906d8c1c4d1440884d8cc6917190a7de93c0dfebfe1de69cc1efd6f732b3e90",
+    "sourceSha256": "758f7383dfee9e1bf6040cf909dacac589f3e3bbc813d6dd67b3d79771e20880",
+    "workflow": ".github/workflows/fakhfakh69_tail_dual_witness.yml",
+    "readOnly": true,
+    "genericModel": {
+      "revision": "af46c2d8531b8dcbb5e23b952f739b372c2e5d2d",
+      "weightsSha256": "a0b26f6d9d3edfde1784aef863c192a8cc1e438a23b45910ab648531ebe1857b"
+    },
+    "quranModel": {
+      "revision": "b03a268c6ba1a693752307325ab376c86c3b12da",
+      "weightsSha256": "bf65674a26eb4ef7042cedade96c3c8f8cbd04f3a7d1a68eadceec8ed0f99ecb",
+      "acquisition": "pinned ephemeral public download"
+    },
+    "transportFailureRun": {
+      "runId": 37656965910,
+      "reportSha256": "d830587fc6ef87b243954c01fae02bcf354d0ae5169e78bd868d82de073560d7",
+      "error": "archive.org/download HTTP 500",
+      "measurementComplete": false,
+      "artifacts": 0
+    },
+    "verifiedTransportFix": {
+      "codeCommit": "3626f0a5cc12bf693f1815e6d420d777f5d09b17",
+      "testCommit": "15b33107af5cc0ec34973386f3d72529509b3441",
+      "acceptance": "publisher size and MD5, then pinned SHA-256",
+      "testsPassed": 29
+    },
+    "fullRangeRun": {
+      "runId": 37657763332,
+      "reportSha256": "a689b7d0eb3ea4b6cabb107c0215c473ce4e592d99e366bd5d2d3dfb65008c19",
+      "measurementComplete": true,
+      "rangeWitnessAccepted": false,
+      "acceptedAyahs": 11,
+      "rejectedAyahs": ["69:50"],
+      "decodedDurationMs": 444576,
+      "candidateFinalEndMs": 390630,
+      "audioAfterCandidateEndMs": 53946,
+      "finalAyah": {
+        "genericStartMs": 436891,
+        "quranStartMs": 436911,
+        "genericRawEndMs": 442744,
+        "quranRawEndMs": 442724,
+        "genericEofGapMs": 1832,
+        "quranEofGapMs": 1852
+      },
+      "ayah69_50": {
+        "genericStartMs": 421981,
+        "quranStartMs": 421981,
+        "genericConfidence": 0.45,
+        "quranConfidence": 0.731,
+        "rejectionReason": "generic confidence below unchanged 0.60 guard"
+      },
+      "artifacts": 0
+    },
+    "focused69_50Run": {
+      "runId": 37658780477,
+      "reportSha256": "c8ff595737b113caef79e18e685e6222d1bae28839f250c8a0b0fa5863ff4681",
+      "windowMs": [416000, 432000],
+      "heardAnchorMs": 422461,
+      "heardEvidenceSha256": "40380522f14ceb62c08d497a36647c1b25daf17eac04771da972648fc841c4ba",
+      "genericStartMs": 423810,
+      "genericConfidence": 0.35,
+      "quranStartMs": 421968,
+      "quranConfidence": 0.765,
+      "modelStartSpreadMs": 1842,
+      "genericToHeardMs": 1349,
+      "quranToHeardMs": -493,
+      "focusedAccepted": false,
+      "combinedWitnessAccepted": false,
+      "artifacts": 0
+    },
+    "thresholds": {
+      "targetConfidence": 0.6,
+      "startToleranceMs": 500,
+      "endToleranceMs": 800,
+      "durationRatio": [0.5, 2.0],
+      "eofPadMs": 3000,
+      "sampleThresholdPercent": 5,
+      "changed": false
+    },
+    "testsPassed": 30,
+    "candidateChanged": false,
+    "productionChanged": false,
+    "completionClaim": false,
+    "blocker": "The generic model remains below confidence and disagrees with Quran/heard in the focused 69:50 window; do not build the tail from this evidence."
+  },
+  "productionBaseline": {
+    "entries": 1121595,
+    "missingAyahs": 885,
+    "impossibleShort": 1,
+    "unchangedByThisRun": true
+  },
+  "complete": false,
+  "next": "تقرير المطالع مكتمل النقل لكنه ليس مكتملاً حكماً: 4 unknown في7/13/27/70 وtail في69. ثُبت أن كبس س69 يبدأ عند نهاية41/بداية42 ويتراكم حتى45.788ث في51،ويبقى45.008ث من الصوت بعد نهاية الفهرس والآية52 بلا حد. أنشئ شاهداً ثنائياً محدوداً للمدى69:41-52 يتضمن EOF قبل أي بناء. يلزم أيضاً شاهد إضافي لـ16:16 ودليل أعلى ثقة لـ16:28/32،وشاهد مدى مستقل37/42. لا تخفِ112 غير حاسم؛يلزم مسح عام ثابت وشواهد بدء/نهاية وقراءة public/manifest/frozen قبل أي ترقية. الإنتاج لم يتغير ولا100%.",
+  "independentDiagnostics": {
+    "20:93": {
+      "scope": "qalun/fakhfakh_qalun/20",
+      "triggerFinding": "rs4 LATE_START؛ يسقط كلمة كاملة",
+      "sourceUrl": "https://archive.org/download/48--kb--alhady--bn--altaher--alfakhfakh--by---qaloon---mp3--full--mushaf--qura/020Taha.mp3",
+      "sourceSha256": "09b4306ed043ce8832506fc8b131cb7bd728bc8eb559e45ddb7bd47cb42d86a5",
+      "workflow": "ctc_heard_probe.yml",
+      "evidence": "build-logs",
+      "runId": 37599193396,
+      "runUrl": "https://github.com/mwqwf/rafiq-align-ci/actions/runs/37599193396",
+      "status": "completed-success-repair-candidate-required",
+      "currentStep": "completed",
+      "jobId": 112719130192,
+      "durationSeconds": 1327,
+      "artifacts": 0,
+      "resultReport": "ops/out/codex-fakhfakh20-ctc-37599193396.json",
+      "resultSha256": "d20c411a8b965dbd54d5457b334c7d69d31d67fd828dace3f5bc1b28d2fca85c",
+      "resultBytes": 53821,
+      "ctcTarget": {
+        "publishedStartMs": 1088613,
+        "publishedEndMs": 1093040,
+        "ctcStartMs": 1086713,
+        "ctcEndMs": 1092888,
+        "ctcStartDeltaMs": -1900,
+        "heardAnchorStartMs": 1087264,
+        "heardAnchorDeltaMs": -1349,
+        "anchorQuality": 0.889,
+        "decision": "build-limited-candidate-and-remeasure"
+      },
+      "historicalBoundaryCheck": {
+        "status": "completed-no-independent-timing",
+        "exports": [
+          {
+            "key": "timings-staging/qalun/fakhfakh_qalun.3108f0f3.jz",
+            "sha256": "3108f0f3dbbdb6dc0e285ca7059cdb1207f8fc197cd2374bcae58d629085cd89",
+            "report": "ops/out/codex-fakhfakh-independent-parent-3108-20261007.json",
+            "bytes": 87399,
+            "entryCount": 6226
+          },
+          {
+            "key": "timings-staging/qalun/fakhfakh_qalun.1ba608f1.jz",
+            "sha256": "1ba608f1e806d8393c365de5852357730b71edc44e4c37a69325f02c1a3d022f",
+            "report": "ops/out/codex-fakhfakh-independent-parent-1ba6-20261007.json",
+            "bytes": 87399,
+            "entryCount": 6226
+          }
+        ],
+        "range": "20:89-20:96",
+        "comparedBoundaryValues": 16,
+        "allBoundaryValuesIdentical": true,
+        "target": {
+          "ayahId": "20:93",
+          "startMs": 1088613,
+          "endMs": 1093040,
+          "conf": 0.48,
+          "confBand": "MED",
+          "startApprox": true
+        },
+        "conclusion": "المرشحان التاريخيان يعيدان الحد التقريبي نفسه؛ لا يصلحان شاهداً مستقلاً ولا أساساً لإصلاح."
+      },
+      "cacheWrite": false,
+      "artifactWrite": false,
+      "r2Write": false
+    },
+    "11:19": {
+      "scope": "qalun/fakhfakh_qalun/11",
+      "triggerFinding": "heard +2275ms؛ indexedStartMs=411610، heardAnchorMs=409335، quality=0.918",
+      "sourceUrl": "https://archive.org/download/48--kb--alhady--bn--altaher--alfakhfakh--by---qaloon---mp3--full--mushaf--qura/011Houd.mp3",
+      "sourceSha256": "ec1ba4434cd5483a6ad43d1e1d057f513338b30bbfe1021bb3730afb592d088c",
+      "commandCommit": "f036f5a53077618fb83b76285c143957556b50da",
+      "commandResultCommit": "ddb879027b4f5ee10edb6d3820fb66e7c22c4b63",
+      "workflow": "ctc_heard_probe.yml",
+      "evidence": "build-logs",
+      "runId": 37599896584,
+      "runUrl": "https://github.com/mwqwf/rafiq-align-ci/actions/runs/37599896584",
+      "status": "completed-success-repair-candidate-built",
+      "currentStep": "completed",
+      "jobId": 112721453787,
+      "artifacts": 0,
+      "resultReport": "ops/out/codex-fakhfakh11-ctc-37599896584.json",
+      "resultSha256": "d82807247815cc2ed564a06833b13e9f69d9b0c6d95ee9d622e801268526de0f",
+      "resultBytes": 48360,
+      "ctcTarget": {
+        "publishedStartMs": 411610,
+        "publishedEndMs": 423660,
+        "ctcStartMs": 409205,
+        "ctcEndMs": 423465,
+        "ctcStartDeltaMs": -2405,
+        "heardAnchorStartMs": 409335,
+        "heardAnchorDeltaMs": -2275,
+        "anchorQuality": 0.918,
+        "occurrenceStartMs": 409215,
+        "decision": "included-in-limited-candidate-and-awaiting-final-sha-remeasurement"
+      },
+      "cacheWrite": false,
+      "artifactWrite": false,
+      "r2Write": false
+    },
+    "74:2": {
+      "runId": 37600863409,
+      "sourceSha256": "e87a0840e11761da44f3193527f765934beb86fe3caf5923387eadc8490856fa",
+      "liveStartMs": 11720,
+      "ctcAnchorStartMs": 10527,
+      "deltaMs": 1193,
+      "anchorQuality": 1,
+      "neighbors": {
+        "74:1": {
+          "liveStartMs": 7100,
+          "ctcAnchorStartMs": 7164,
+          "deltaMs": 64
+        },
+        "74:3": {
+          "liveStartMs": 13540,
+          "ctcAnchorStartMs": 13849,
+          "deltaMs": 309
+        },
+        "74:4": {
+          "liveStartMs": 17060,
+          "ctcAnchorStartMs": 17591,
+          "deltaMs": 531
+        }
+      },
+      "verdict": "within-strict-tolerance-independent-ctc",
+      "artifacts": 0
+    },
+    "76:29": {
+      "runId": 37600595366,
+      "sourceSha256": "8c740250efd47e0bea5731147c6e400bfa966ec618d46d7c2b1160ab5e3294d3",
+      "liveStartMs": 353500,
+      "ctcAnchorStartMs": 353968,
+      "deltaMs": 468,
+      "anchorQuality": 1,
+      "neighbors": {
+        "76:28": {
+          "liveStartMs": 339990,
+          "ctcAnchorStartMs": 340658,
+          "deltaMs": 668
+        },
+        "76:30": {
+          "liveStartMs": 367610,
+          "ctcAnchorStartMs": 368118,
+          "deltaMs": 508
+        },
+        "76:31": {
+          "liveStartMs": 384300,
+          "ctcAnchorStartMs": 384809,
+          "deltaMs": 509
+        }
+      },
+      "verdict": "within-strict-tolerance-independent-ctc",
+      "artifacts": 0
+    },
+    "83:26": {
+      "runId": 37600605072,
+      "sourceSha256": "bec40ad6896132e991533c8d88affba00b97403d579c9adce113b82cf545112b",
+      "liveStartMs": 180006,
+      "ctcAnchorStartMs": 180003,
+      "deltaMs": -3,
+      "anchorQuality": 0.933,
+      "neighbors": {
+        "83:25": {
+          "liveStartMs": 174800,
+          "ctcAnchorStartMs": 175440,
+          "deltaMs": 640
+        },
+        "83:27": {
+          "liveStartMs": 191110,
+          "ctcAnchorStartMs": 191771,
+          "deltaMs": 661
+        },
+        "83:28": {
+          "liveStartMs": 197040,
+          "ctcAnchorStartMs": 197795,
+          "deltaMs": 755
+        }
+      },
+      "verdict": "within-strict-tolerance-independent-ctc",
+      "artifacts": 0
+    }
+  },
+  "shamrani79RestoreAttempt": {
+    "runId": 37599366487,
+    "runUrl": "https://github.com/mwqwf/rafiq-align-ci/actions/runs/37599366487",
+    "status": "completed-failure-no-stage-write",
+    "parent": "timings/hafs/shamrani.jz",
+    "source": "https://server16.mp3quran.net/shamrani/Rewayat-Hafs-A-n-Assem/079.mp3",
+    "skipMs": 5060,
+    "alignment": {
+      "ayahs": 46,
+      "missingBoundaries": [
+        1,
+        15,
+        17,
+        18
+      ],
+      "fatal": "splice_surah rejected replacement because surah 79 still had unresolved boundaries",
+      "stagingWritten": false
+    },
+    "preGuardArtifact": {
+      "artifactId": 11472138612,
+      "name": "realign-37599366487",
+      "bytes": 1220,
+      "note": "This artifact was written by the pre-fix workflow after the alignment failure; it is not quality evidence and was not deleted by this session."
+    }
+  },
+  "realignCostGuard": {
+    "commit": "d79bf62dff58798f4b8699459b792758f0f9ffc7",
+    "workflow": ".github/workflows/realign_surah.yml",
+    "cacheMode": "restore-only",
+    "artifactWrite": false,
+    "qualityThresholdChanged": false,
+    "indexingDataChanged": false,
+    "note": "Future realign runs no longer save cache or upload work/s*.json artifacts; diagnostics remain in the job log."
+  },
+  "fakhfakhLiveIdentity": {
+    "observedAtUtc": "2026-10-07T09:30:32Z",
+    "report": "ops/out/codex-fakhfakh-live-identity-20261007.json",
+    "resultCommit": "00412dbc182d",
+    "productionSha256": "5bad920fd4994019caacc00b9edd6662941abae720ba0b3a2b41281016c23eef",
+    "manifestSha256": "5bad920fd4994019caacc00b9edd6662941abae720ba0b3a2b41281016c23eef",
+    "publicSha256": "5bad920fd4994019caacc00b9edd6662941abae720ba0b3a2b41281016c23eef",
+    "frozenBucketSha256": "5bad920fd4994019caacc00b9edd6662941abae720ba0b3a2b41281016c23eef",
+    "frozenRepoSha256": "e34a69dcf98807e3bfa0428ba9ffe753374ced1fbba2656ee5283dd830365ef3",
+    "frozenRepoMirrorStale": true,
+    "identityOk": true,
+    "entries": 6236,
+    "structuralMissing": 0,
+    "impossibleShort": 0,
+    "veryShort": [
+      "38:88",
+      "37:156"
+    ],
+    "note": "هذا تحقق هوية/بنية حي، لا شهادة صحة سمعية لكل آية ولا EOF."
+  },
+  "inheritedRs4InconclusiveResolution": {
+    "status": "three-independent-probes-completed",
+    "thresholdMs": 1500,
+    "thresholdChanged": false,
+    "repairsApplied": 0,
+    "targets": {
+      "74:2": {
+        "runId": 37600863409,
+        "sourceSha256": "e87a0840e11761da44f3193527f765934beb86fe3caf5923387eadc8490856fa",
+        "liveStartMs": 11720,
+        "ctcAnchorStartMs": 10527,
+        "deltaMs": 1193,
+        "anchorQuality": 1,
+        "neighbors": {
+          "74:1": {
+            "liveStartMs": 7100,
+            "ctcAnchorStartMs": 7164,
+            "deltaMs": 64
+          },
+          "74:3": {
+            "liveStartMs": 13540,
+            "ctcAnchorStartMs": 13849,
+            "deltaMs": 309
+          },
+          "74:4": {
+            "liveStartMs": 17060,
+            "ctcAnchorStartMs": 17591,
+            "deltaMs": 531
+          }
+        },
+        "verdict": "within-strict-tolerance-independent-ctc",
+        "artifacts": 0
+      },
+      "76:29": {
+        "runId": 37600595366,
+        "sourceSha256": "8c740250efd47e0bea5731147c6e400bfa966ec618d46d7c2b1160ab5e3294d3",
+        "liveStartMs": 353500,
+        "ctcAnchorStartMs": 353968,
+        "deltaMs": 468,
+        "anchorQuality": 1,
+        "neighbors": {
+          "76:28": {
+            "liveStartMs": 339990,
+            "ctcAnchorStartMs": 340658,
+            "deltaMs": 668
+          },
+          "76:30": {
+            "liveStartMs": 367610,
+            "ctcAnchorStartMs": 368118,
+            "deltaMs": 508
+          },
+          "76:31": {
+            "liveStartMs": 384300,
+            "ctcAnchorStartMs": 384809,
+            "deltaMs": 509
+          }
+        },
+        "verdict": "within-strict-tolerance-independent-ctc",
+        "artifacts": 0
+      },
+      "83:26": {
+        "runId": 37600605072,
+        "sourceSha256": "bec40ad6896132e991533c8d88affba00b97403d579c9adce113b82cf545112b",
+        "liveStartMs": 180006,
+        "ctcAnchorStartMs": 180003,
+        "deltaMs": -3,
+        "anchorQuality": 0.933,
+        "neighbors": {
+          "83:25": {
+            "liveStartMs": 174800,
+            "ctcAnchorStartMs": 175440,
+            "deltaMs": 640
+          },
+          "83:27": {
+            "liveStartMs": 191110,
+            "ctcAnchorStartMs": 191771,
+            "deltaMs": 661
+          },
+          "83:28": {
+            "liveStartMs": 197040,
+            "ctcAnchorStartMs": 197795,
+            "deltaMs": 755
+          }
+        },
+        "verdict": "within-strict-tolerance-independent-ctc",
+        "artifacts": 0
+      }
+    },
+    "note": "هذه القياسات تحسم غير الحاسم في rs4 لهذه المواضع فقط؛ لا تمحو 111 غير حاسم في census ولا تثبت 100%."
+  },
+  "publicationRecovery": {
+    "evidenceCommit": "42af7026c9950ddbe47115a13f685287c60cc4bb",
+    "resumeCommitInitial": "d29ff9d0b5a2ed0e30d04e10a64a39613a1d2ed5",
+    "stateCommit": "d08a31a99f3daaf9688230f2513400ad1ba19220",
+    "resumeCommitComplete": "c90e197637c6a18ae5bf31207aa80216c00c0bec",
+    "readbackSha256": {
+      "evidence": "aa5e4c33d08e412958e72a16534ba392e6d4203753bcfc6cf98d01fd93a7c3d7",
+      "resume": "005baf81e09bcf0f42039479c2db011923d370ccde2c32416c4fb653c43bc89d",
+      "stateBeforeThisUpdate": "32717f49304a79a6334d82f68747303c9168a8d5162e542c9cfe7cb94221a098"
+    },
+    "resumeGuard": {
+      "baselineRef": "0e95e1b3edcf57d84c1bd680300e38a6acd90a47",
+      "baselineLines": 829,
+      "candidateLines": 837,
+      "baselineBytes": 220261,
+      "candidateBytes": 222671,
+      "passed": true
+    },
+    "dualWitnessPathAssessment": {
+      "ctcDualfixUnitTests": "8/8 passed",
+      "ctcSpliceReadOnly": false,
+      "ctcSpliceReasons": [
+        "actions/cache@v4 may save cache",
+        "stage_transform writes a staged R2 candidate",
+        "actions/upload-artifact retains diagnostics for seven days"
+      ],
+      "tailClippingFollowupReadOnly": true,
+      "tailClippingFollowupCoversSurah69": false,
+      "decision": "do-not-dispatch-until-a-source-pinned-two-model-build-log-only-witness-for-69:41-52-is-available"
+    },
+    "productionChanged": false,
+    "completionClaim": false
+  }
+}

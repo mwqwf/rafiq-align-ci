@@ -1,0 +1,223 @@
+{
+  "path": "ops/source-repair/candidates/codex-fakhfakh-boundaries-11-20-20261007.jz",
+  "sha256": "a906d8c1c4d1440884d8cc6917190a7de93c0dfebfe1de69cc1efd6f732b3e90",
+  "parentKey": "timings/qalun/fakhfakh_qalun.jz",
+  "parentSha256": "5bad920fd4994019caacc00b9edd6662941abae720ba0b3a2b41281016c23eef",
+  "surahs": [
+    11,
+    20
+  ],
+  "changedEntries": 4,
+  "addedEntries": 0,
+  "removedEntries": 0,
+  "entryCount": 6236,
+  "changes": [
+    {
+      "before": {
+        "ayahId": "11:18",
+        "fileRef": "https://archive.org/download/48--kb--alhady--bn--altaher--alfakhfakh--by---qaloon---mp3--full--mushaf--qura/011Houd.mp3",
+        "startMs": 384580,
+        "endMs": 411610,
+        "conf": 0.93,
+        "confBand": "HIGH"
+      },
+      "after": {
+        "ayahId": "11:18",
+        "fileRef": "https://archive.org/download/48--kb--alhady--bn--altaher--alfakhfakh--by---qaloon---mp3--full--mushaf--qura/011Houd.mp3",
+        "startMs": 384580,
+        "endMs": 409205,
+        "conf": 0.93,
+        "confBand": "HIGH"
+      }
+    },
+    {
+      "before": {
+        "ayahId": "11:19",
+        "fileRef": "https://archive.org/download/48--kb--alhady--bn--altaher--alfakhfakh--by---qaloon---mp3--full--mushaf--qura/011Houd.mp3",
+        "startMs": 411610,
+        "endMs": 423660,
+        "conf": 0.578,
+        "confBand": "MED",
+        "startApprox": true
+      },
+      "after": {
+        "ayahId": "11:19",
+        "fileRef": "https://archive.org/download/48--kb--alhady--bn--altaher--alfakhfakh--by---qaloon---mp3--full--mushaf--qura/011Houd.mp3",
+        "startMs": 409205,
+        "endMs": 423660,
+        "conf": 0.578,
+        "confBand": "MED",
+        "startApprox": true
+      }
+    },
+    {
+      "before": {
+        "ayahId": "20:92",
+        "fileRef": "https://archive.org/download/48--kb--alhady--bn--altaher--alfakhfakh--by---qaloon---mp3--full--mushaf--qura/020Taha.mp3",
+        "startMs": 1080110,
+        "endMs": 1088613,
+        "conf": 0.886,
+        "confBand": "HIGH"
+      },
+      "after": {
+        "ayahId": "20:92",
+        "fileRef": "https://archive.org/download/48--kb--alhady--bn--altaher--alfakhfakh--by---qaloon---mp3--full--mushaf--qura/020Taha.mp3",
+        "startMs": 1080110,
+        "endMs": 1086713,
+        "conf": 0.886,
+        "confBand": "HIGH"
+      }
+    },
+    {
+      "before": {
+        "ayahId": "20:93",
+        "fileRef": "https://archive.org/download/48--kb--alhady--bn--altaher--alfakhfakh--by---qaloon---mp3--full--mushaf--qura/020Taha.mp3",
+        "startMs": 1088613,
+        "endMs": 1093040,
+        "conf": 0.48,
+        "confBand": "MED",
+        "startApprox": true
+      },
+      "after": {
+        "ayahId": "20:93",
+        "fileRef": "https://archive.org/download/48--kb--alhady--bn--altaher--alfakhfakh--by---qaloon---mp3--full--mushaf--qura/020Taha.mp3",
+        "startMs": 1086713,
+        "endMs": 1093040,
+        "conf": 0.48,
+        "confBand": "MED",
+        "startApprox": true
+      }
+    }
+  ],
+  "proof": {
+    "kind": "independent-ctc-heard-boundary-repair",
+    "qualityClaim": false,
+    "thresholdMs": 1500,
+    "thresholdChanged": false,
+    "sourceChanged": false,
+    "canonicalTextChanged": false,
+    "evidence": {
+      "11": {
+        "path": "ops/out/codex-fakhfakh11-ctc-37599896584.json",
+        "sha256": "09f8bf8fda548e06b53271fad2eaddcd57aec8dd46224112ef071b0739452a90",
+        "runId": 37599896584,
+        "jobId": 112721453787,
+        "resultSha256": "d82807247815cc2ed564a06833b13e9f69d9b0c6d95ee9d622e801268526de0f",
+        "sourceSha256": "ec1ba4434cd5483a6ad43d1e1d057f513338b30bbfe1021bb3730afb592d088c",
+        "target": "11:19",
+        "oldStartMs": 411610,
+        "newStartMs": 409205,
+        "ctcConfidence": 0.74,
+        "heardAnchorStartMs": 409335,
+        "heardAnchorQuality": 0.918,
+        "heardOccurrenceStartMs": 409215,
+        "heardOccurrenceScore": 0.918
+      },
+      "20": {
+        "path": "ops/out/codex-fakhfakh20-ctc-37599193396.json",
+        "sha256": "1450cb7a03c16473e2ee7616800fe18e0ea1c1fc3c7a161d96e4b7d6fa8b0f03",
+        "runId": 37599193396,
+        "jobId": 112719130192,
+        "resultSha256": "d20c411a8b965dbd54d5457b334c7d69d31d67fd828dace3f5bc1b28d2fca85c",
+        "sourceSha256": "09b4306ed043ce8832506fc8b131cb7bd728bc8eb559e45ddb7bd47cb42d86a5",
+        "target": "20:93",
+        "oldStartMs": 1088613,
+        "newStartMs": 1086713,
+        "ctcConfidence": 0.704,
+        "heardAnchorStartMs": 1087264,
+        "heardAnchorQuality": 0.889,
+        "heardOccurrenceStartMs": 1086804,
+        "heardOccurrenceScore": 0.889
+      }
+    },
+    "changes": [
+      {
+        "before": {
+          "ayahId": "11:18",
+          "fileRef": "https://archive.org/download/48--kb--alhady--bn--altaher--alfakhfakh--by---qaloon---mp3--full--mushaf--qura/011Houd.mp3",
+          "startMs": 384580,
+          "endMs": 411610,
+          "conf": 0.93,
+          "confBand": "HIGH"
+        },
+        "after": {
+          "ayahId": "11:18",
+          "fileRef": "https://archive.org/download/48--kb--alhady--bn--altaher--alfakhfakh--by---qaloon---mp3--full--mushaf--qura/011Houd.mp3",
+          "startMs": 384580,
+          "endMs": 409205,
+          "conf": 0.93,
+          "confBand": "HIGH"
+        }
+      },
+      {
+        "before": {
+          "ayahId": "11:19",
+          "fileRef": "https://archive.org/download/48--kb--alhady--bn--altaher--alfakhfakh--by---qaloon---mp3--full--mushaf--qura/011Houd.mp3",
+          "startMs": 411610,
+          "endMs": 423660,
+          "conf": 0.578,
+          "confBand": "MED",
+          "startApprox": true
+        },
+        "after": {
+          "ayahId": "11:19",
+          "fileRef": "https://archive.org/download/48--kb--alhady--bn--altaher--alfakhfakh--by---qaloon---mp3--full--mushaf--qura/011Houd.mp3",
+          "startMs": 409205,
+          "endMs": 423660,
+          "conf": 0.578,
+          "confBand": "MED",
+          "startApprox": true
+        }
+      },
+      {
+        "before": {
+          "ayahId": "20:92",
+          "fileRef": "https://archive.org/download/48--kb--alhady--bn--altaher--alfakhfakh--by---qaloon---mp3--full--mushaf--qura/020Taha.mp3",
+          "startMs": 1080110,
+          "endMs": 1088613,
+          "conf": 0.886,
+          "confBand": "HIGH"
+        },
+        "after": {
+          "ayahId": "20:92",
+          "fileRef": "https://archive.org/download/48--kb--alhady--bn--altaher--alfakhfakh--by---qaloon---mp3--full--mushaf--qura/020Taha.mp3",
+          "startMs": 1080110,
+          "endMs": 1086713,
+          "conf": 0.886,
+          "confBand": "HIGH"
+        }
+      },
+      {
+        "before": {
+          "ayahId": "20:93",
+          "fileRef": "https://archive.org/download/48--kb--alhady--bn--altaher--alfakhfakh--by---qaloon---mp3--full--mushaf--qura/020Taha.mp3",
+          "startMs": 1088613,
+          "endMs": 1093040,
+          "conf": 0.48,
+          "confBand": "MED",
+          "startApprox": true
+        },
+        "after": {
+          "ayahId": "20:93",
+          "fileRef": "https://archive.org/download/48--kb--alhady--bn--altaher--alfakhfakh--by---qaloon---mp3--full--mushaf--qura/020Taha.mp3",
+          "startMs": 1086713,
+          "endMs": 1093040,
+          "conf": 0.48,
+          "confBand": "MED",
+          "startApprox": true
+        }
+      }
+    ],
+    "selection": "Use each unsnapped CTC start only where the full-file CTC boundary, heard anchor, heard occurrence, and both measured neighbours agree within pinned limits.",
+    "limits": [
+      "Only the two measured starts and their preceding ends changed; original confidence and flags remain untouched.",
+      "The unchanged final-SHA heard gate must remeasure both targets and their neighbourhoods.",
+      "Full census, openers, four random salts, and publication identity checks remain mandatory; this is not 100% certification."
+    ]
+  },
+  "warnings": [
+    "مداخل مدتها > 120ث: 2 · مثال: 2:282 مدتها 198ث"
+  ],
+  "qualityChecks": "pending",
+  "unpublishedLocalCandidate": true
+}

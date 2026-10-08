@@ -1,0 +1,73 @@
+{
+  "schema": 1,
+  "generatedAt": "2026-10-07T15:06:06Z",
+  "candidate": {
+    "path": "ops/source-repair/candidates/codex-fakhfakh-boundaries-11-20-20261007.jz",
+    "sha256": "a906d8c1c4d1440884d8cc6917190a7de93c0dfebfe1de69cc1efd6f732b3e90",
+    "parentSha256": "5bad920fd4994019caacc00b9edd6662941abae720ba0b3a2b41281016c23eef",
+    "changedByThisAnalysis": false
+  },
+  "openersRetry": {
+    "runId": 37619639313,
+    "jobId": 112786483903,
+    "reportCommit": "15d512fec1813dcb21d3a173c6cd3e598cbfe4b3",
+    "reportPath": "ops/source-repair/results/20261007_fakhfakh_boundaries_11_20/openers.json",
+    "reportBlobSha": "9085accada15b673e2f7c134b4a61b922d549267",
+    "candidateSha256Matches": true,
+    "checked": 112,
+    "counts": {
+      "clean": 107,
+      "unknown": 4,
+      "tail": 1,
+      "errors": 0
+    },
+    "unknownSurahs": [7, 13, 27, 70],
+    "tailSurahs": [69],
+    "artifacts": 0,
+    "decision": "not-complete-unknown-and-tail-remain"
+  },
+  "surah69IndependentComparison": {
+    "probeRunId": 37626725183,
+    "probeJobId": 112810288241,
+    "sourceSha256": "758f7383dfee9e1bf6040cf909dacac589f3e3bbc813d6dd67b3d79771e20880",
+    "probeResultSha256": "40380522f14ceb62c08d497a36647c1b25daf17eac04771da972648fc841c4ba",
+    "probeResultBytes": 20499,
+    "probeResultDigestVerified": true,
+    "stablePrefix": {
+      "ayahRange": "69:1-69:40",
+      "maximumAbsoluteStartDeltaMs": 58
+    },
+    "compressionOnset": "69:41 end / 69:42 start",
+    "candidateFinalEndMs": 390630,
+    "decodedAudioDurationMs": 435638,
+    "audioAfterCandidateEndMs": 45008,
+    "finalAyahProbeBoundaryMissing": true,
+    "rows": [
+      {"ayahId":"69:39","candidateStartMs":331570,"probeStartMs":331570,"startDeltaMs":0,"probeConfidence":0.740,"probeSnapped":false,"heardAnchorStartMs":331780},
+      {"ayahId":"69:40","candidateStartMs":336244,"probeStartMs":336264,"startDeltaMs":20,"probeConfidence":0.836,"probeSnapped":true,"heardAnchorStartMs":336744},
+      {"ayahId":"69:41","candidateStartMs":344189,"probeStartMs":344189,"startDeltaMs":0,"candidateEndMs":351944,"probeEndMs":355236,"endDeltaMs":3292,"probeConfidence":0.813,"probeSnapped":true,"heardAnchorStartMs":344689},
+      {"ayahId":"69:42","candidateStartMs":351944,"probeStartMs":355236,"startDeltaMs":3292,"probeConfidence":0.730,"probeSnapped":true,"heardAnchorStartMs":355956},
+      {"ayahId":"69:43","candidateStartMs":356867,"probeStartMs":366864,"startDeltaMs":9997,"probeConfidence":0.733,"probeSnapped":true,"heardAnchorStartMs":368405},
+      {"ayahId":"69:44","candidateStartMs":361741,"probeStartMs":375450,"startDeltaMs":13709,"probeConfidence":0.620,"probeSnapped":true,"heardAnchorStartMs":375950},
+      {"ayahId":"69:45","candidateStartMs":368835,"probeStartMs":381323,"startDeltaMs":12488,"probeConfidence":0.663,"probeSnapped":false,"heardAnchorStartMs":381534},
+      {"ayahId":"69:46","candidateStartMs":371117,"probeStartMs":386577,"startDeltaMs":15460,"probeConfidence":0.763,"probeSnapped":true,"heardAnchorStartMs":387077},
+      {"ayahId":"69:47","candidateStartMs":376820,"probeStartMs":393161,"startDeltaMs":16341,"probeConfidence":0.746,"probeSnapped":true,"heardAnchorStartMs":393662},
+      {"ayahId":"69:48","candidateStartMs":378582,"probeStartMs":402488,"startDeltaMs":23906,"probeConfidence":0.382,"probeSnapped":true,"heardAnchorStartMs":403008},
+      {"ayahId":"69:49","candidateStartMs":380443,"probeStartMs":411075,"startDeltaMs":30632,"probeConfidence":0.625,"probeSnapped":true,"heardAnchorStartMs":411594},
+      {"ayahId":"69:50","candidateStartMs":382524,"probeStartMs":421985,"startDeltaMs":39461,"probeConfidence":0.430,"probeSnapped":true,"heardAnchorStartMs":422461},
+      {"ayahId":"69:51","candidateStartMs":384205,"probeStartMs":429993,"startDeltaMs":45788,"probeConfidence":0.389,"probeSnapped":true,"heardAnchorStartMs":430466},
+      {"ayahId":"69:52","candidateStartMs":389189,"probeStartMs":null,"startDeltaMs":null,"probeConfidence":0.0,"probeSnapped":true,"heardAnchorStartMs":437411}
+    ],
+    "decision": "compressed-tail-confirmed-range-repair-required-single-boundary-repair-forbidden",
+    "nextEvidenceRequired": "bounded two-model witness for 69:41-69:52 including an independent final-ayah/end witness before rebuilding the suffix"
+  },
+  "unchangedGuards": {
+    "strictDeviationMs": 1500,
+    "minimumCtcConfidence": 0.7,
+    "maximumAnchorToCtcMs": 600,
+    "maximumOccurrenceToCtcMs": 150,
+    "sampleThresholdPercent": 5
+  },
+  "productionChanged": false,
+  "completionClaim": false
+}

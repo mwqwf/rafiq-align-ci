@@ -13,6 +13,7 @@ import sys
 import tempfile
 import unittest
 from pathlib import Path
+from unittest import mock
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 
@@ -98,6 +99,43 @@ class FetchGuards(unittest.TestCase):
         body = b"abc" * 7
         self.assertTrue(A.matches(len(body), hashlib.md5(body).hexdigest(),  # noqa: S324
                                   len(body), hashlib.md5(body).hexdigest()))  # noqa: S324
+
+
+class MetadataRetry(unittest.TestCase):
+    def setUp(self):
+        A._META_CACHE.clear()
+
+    def tearDown(self):
+        A._META_CACHE.clear()
+
+    @staticmethod
+    def response(doc):
+        class Response:
+            def __enter__(self):
+                return self
+
+            def __exit__(self, *_args):
+                return False
+
+            def read(self):
+                return __import__("json").dumps(doc).encode()
+        return Response()
+
+    def test_transient_failure_is_retried_then_success_cached(self):
+        good = self.response(META)
+        with mock.patch.object(A.urllib.request, "urlopen",
+                               side_effect=[TimeoutError("transient"), good]) as get:
+            self.assertEqual(A.metadata("my--item", attempts=2, pause_s=0), META)
+            self.assertEqual(A.metadata("my--item", attempts=2, pause_s=0), META)
+        self.assertEqual(get.call_count, 2)
+
+    def test_exhausted_failure_is_not_negative_cached(self):
+        good = self.response(META)
+        with mock.patch.object(A.urllib.request, "urlopen",
+                               side_effect=[TimeoutError("once"), good]) as get:
+            self.assertIsNone(A.metadata("my--item", attempts=1, pause_s=0))
+            self.assertEqual(A.metadata("my--item", attempts=1, pause_s=0), META)
+        self.assertEqual(get.call_count, 2)
 
 
 if __name__ == "__main__":

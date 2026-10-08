@@ -1,0 +1,71 @@
+{
+  "schema": 1,
+  "generatedAt": "2026-10-07T09:44:00Z",
+  "scope": "qalun/fakhfakh_qalun/20",
+  "runId": 37599193396,
+  "jobId": 112719130192,
+  "runUrl": "https://github.com/mwqwf/rafiq-align-ci/actions/runs/37599193396",
+  "conclusion": "success",
+  "durationSeconds": 1327,
+  "artifactCount": 0,
+  "cacheWrite": false,
+  "r2Write": false,
+  "source": {
+    "url": "https://archive.org/download/48--kb--alhady--bn--altaher--alfakhfakh--by---qaloon---mp3--full--mushaf--qura/020Taha.mp3",
+    "sha256": "09b4306ed043ce8832506fc8b131cb7bd728bc8eb559e45ddb7bd47cb42d86a5"
+  },
+  "engine": "ctc-heardmap-1",
+  "resultSha256": "d20c411a8b965dbd54d5457b334c7d69d31d67fd828dace3f5bc1b28d2fca85c",
+  "resultBytes": 53821,
+  "entryCount": 135,
+  "anchorQualityMedian": 0.893,
+  "bands": {
+    "HIGH": 8,
+    "MED": 123,
+    "LOW": 4
+  },
+  "target": {
+    "ayahId": "20:93",
+    "published": {
+      "startMs": 1088613,
+      "endMs": 1093040,
+      "conf": 0.48,
+      "confBand": "MED",
+      "startApprox": true
+    },
+    "ctcEntry": {
+      "startMs": 1086713,
+      "endMs": 1092888,
+      "conf": 0.704,
+      "heard": true,
+      "snapped": false,
+      "boundary": "window"
+    },
+    "heardAnchor": {
+      "startMs": 1087264,
+      "endMs": 1091307,
+      "quality": 0.889
+    },
+    "heardOccurrence": {
+      "startMs": 1086804,
+      "endMs": 1091147,
+      "score": 0.889
+    },
+    "deltaPublishedToCtcStartMs": -1900,
+    "deltaPublishedToHeardAnchorStartMs": -1349,
+    "deltaPublishedToCtcEndMs": -152
+  },
+  "neighbors": {
+    "20:92": {
+      "startMs": 1079979,
+      "endMs": 1086713,
+      "conf": 0.703
+    },
+    "20:94": {
+      "startMs": 1092888,
+      "endMs": 1113642,
+      "conf": 0.646
+    }
+  },
+  "assessment": "الحد الكامل المحاذى يبدأ قبل المنشور بـ1900م.ث،ويتسق مع سماع مستقل يبدأ قبل المنشور بـ1349م.ث؛هذا يثبت الحاجة إلى مرشح إصلاح محدود وإعادة قياس،ولا يجيز اعتماداً مباشراً أو شهادة اكتمال."
+}

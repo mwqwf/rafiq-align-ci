@@ -1,0 +1,10 @@
+{
+  "action": "dispatch",
+  "workflow": "registered-source-quality.yml",
+  "inputs": {
+    "request": "20261007_fakhfakh38_archive.json",
+    "checks": "rs4"
+  },
+  "reason": "إعادة rs4 وحده بعد إلغاء الشوط السابق قبل إنشاء أي job؛ اكتمل census مع بقاء نوافذ التعذر موثقة، وشوط heard جارٍ ولا يُكرر",
+  "submittedAt": "2026-10-07T05:59:00Z"
+}

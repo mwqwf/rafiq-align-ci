@@ -1,0 +1,13 @@
+{
+  "action": "tool",
+  "tool": "index_qa/export_index_bytes.py",
+  "args": [
+    "--key",
+    "timings-staging/qalun/fakhfakh_qalun.3108f0f3.jz",
+    "--expect-sha",
+    "3108f0f3dbbdb6dc0e285ca7059cdb1207f8fc197cd2374bcae58d629085cd89",
+    "--out",
+    "ops/out/codex-fakhfakh-independent-parent-3108-20261007.json",
+    "--allow-staging"
+  ]
+}
