@@ -1,0 +1,146 @@
+# ⏩ قياسُ قفزة المتابعة السحابيّة 3ث مقابل 1.8ث على g3r (نظيفٌ وضجيج) — مستودعٌ عامٌّ، عدّادٌ قياسيّ، بلا أسرار.
+# يُشعَل بتغيير ops/hop3_request.txt على فرع التطوير أو يدويّاً. يودِع النتائج في ops/out/hop3/ على الفرع نفسِه.
+name: tasmi-hop3
+on:
+  push:
+    branches: ["claude/recite-continuous-dev-l4osfq"]
+    paths: ["ops/hop3_request.txt"]
+  workflow_dispatch:
+    inputs:
+      model_url:
+        description: "نموذج q8 المشحون"
+        required: false
+        default: "https://pub-2c2e1dcd92e84a2898820dd38d3e09e6.r2.dev/models/whisper-tiny-ar-quran/ggml-q8_0.bin"
+      limit:
+        description: "حدُّ البنود لكلّ مجموعة (0 = الكلّ)"
+        required: false
+        default: "0"
+permissions:
+  contents: write
+concurrency:
+  group: tasmi-hop3
+  cancel-in-progress: false
+env:
+  BRANCH: claude/recite-continuous-dev-l4osfq
+  MODEL_URL: ${{ github.event.inputs.model_url || 'https://pub-2c2e1dcd92e84a2898820dd38d3e09e6.r2.dev/models/whisper-tiny-ar-quran/ggml-q8_0.bin' }}
+  LIMIT: ${{ github.event.inputs.limit || '0' }}
+jobs:
+  prep:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: deps
+        run: |
+          sudo apt-get update -qq && sudo apt-get install -y -qq ffmpeg cmake build-essential > /dev/null
+          pip install -q numpy soundfile scipy
+      - name: whisper.cpp (مثبَّت على إيداع المحرك المشحون)
+        run: |
+          WCPP_SHA=c4ac0012a8f5a2082dfca6aad4ddfd8b2c02b337
+          mkdir -p /tmp/wcpp && git -C /tmp/wcpp init -q \
+            && git -C /tmp/wcpp fetch -q --depth 1 https://github.com/ggml-org/whisper.cpp "$WCPP_SHA" \
+            && git -C /tmp/wcpp checkout -q FETCH_HEAD
+          cmake -S /tmp/wcpp -B /tmp/wcpp/build -DCMAKE_BUILD_TYPE=Release -DBUILD_SHARED_LIBS=OFF -DWHISPER_BUILD_TESTS=OFF > /dev/null
+          cmake --build /tmp/wcpp/build --config Release -j"$(nproc)" --target whisper-cli > /dev/null
+          mkdir -p bin && cp /tmp/wcpp/build/bin/whisper-cli bin/
+      - name: بناء g3r فقط (clean + noisy) — لا يحتاج سرّاً
+        run: |
+          cd tools/tasmi_bench
+          python inject_riwaya_local.py
+          for d in work/g3r/clean work/g3r/noisy; do echo "$d: $(ls $d | wc -l)"; done
+          tar -cf work/g3r.tar -C work g3r
+          ls -l work/g3r.tar
+      - uses: actions/upload-artifact@v4
+        with:
+          name: g3r
+          path: tools/tasmi_bench/work/g3r.tar
+          retention-days: 1
+      - uses: actions/upload-artifact@v4
+        with:
+          name: whisper-cli
+          path: bin/whisper-cli
+          retention-days: 1
+  run:
+    needs: prep
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    strategy:
+      fail-fast: false
+      matrix:
+        set: [clean, noisy]
+        shard: [0, 1, 2, 3]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - run: pip install -q numpy soundfile scipy
+      - uses: actions/download-artifact@v4
+        with:
+          name: g3r
+          path: tools/tasmi_bench/work
+      - uses: actions/download-artifact@v4
+        with:
+          name: whisper-cli
+          path: bin
+      - name: النموذج + المجموعة
+        run: |
+          chmod +x bin/whisper-cli
+          mkdir -p models && curl -sSL -f --retry 3 -o models/shipped.bin "$MODEL_URL" && ls -l models
+          cd tools/tasmi_bench/work && tar -xf g3r.tar && rm g3r.tar
+      - name: hop_sim (شظية ${{ matrix.shard }}/4 من ${{ matrix.set }})
+        env:
+          PYTHONIOENCODING: utf-8
+        run: |
+          cd tools/tasmi_bench
+          python hop_sim.py --selftest
+          mkdir -p work/out
+          python hop_sim.py --set "${{ matrix.set }}" --cli "$GITHUB_WORKSPACE/bin/whisper-cli" --model "$GITHUB_WORKSPACE/models/shipped.bin" \
+            --threads 4 --limit "$LIMIT" --shard "${{ matrix.shard }}/4" --out "work/out/${{ matrix.set }}_${{ matrix.shard }}.json"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: rows-${{ matrix.set }}-${{ matrix.shard }}
+          path: tools/tasmi_bench/work/out/*.json
+          retention-days: 1
+  merge:
+    needs: run
+    if: ${{ always() && needs.run.result != 'cancelled' }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: claude/recite-continuous-dev-l4osfq
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: rows-*
+          merge-multiple: true
+          path: shards
+      - name: دمج وتقرير
+        env:
+          PYTHONIOENCODING: utf-8
+        run: |
+          ls shards
+          mkdir -p ops/out/hop3
+          for S in clean noisy; do
+            python tools/tasmi_bench/hop_sim.py --merge shards/${S}_*.json --out ops/out/hop3/$S.json
+          done
+          python tools/tasmi_bench/hop_report.py ops/out/hop3/clean.json ops/out/hop3/noisy.json --out ops/out/hop3/summary.md \
+            --meta "التشغيلة: ${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}/actions/runs/${GITHUB_RUN_ID} · الإيداع ${GITHUB_SHA::9} · النموذج المشحون tiny q8 · whisper.cpp c4ac0012 · -l ar greedy"
+          cat ops/out/hop3/summary.md >> "$GITHUB_STEP_SUMMARY"
+      - name: إيداعُ النتائج على الفرع
+        run: |
+          git config user.name "tasmi-hop3[bot]"; git config user.email "actions@users.noreply.github.com"
+          git add ops/out/hop3
+          git commit -m "ops: نتائجُ قياس قفزة 3ث مقابل 1.8ث (tasmi-hop3 تشغيلة ${GITHUB_RUN_ID})" -- ops/out/hop3
+          for i in 1 2 3 4 5; do
+            git pull --rebase origin "$BRANCH" && git push origin "HEAD:$BRANCH" && exit 0
+            sleep $((i * 5))
+          done
+          echo "تعذّر الدفع" >&2; exit 1

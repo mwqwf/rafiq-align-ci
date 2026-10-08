@@ -93,8 +93,8 @@ def billed(arm, dur):
 
 
 def word_times(words, dur, skip=None):
-    """(بدء، نهاية) لكلّ كلمة مرجعيّة، تناسبيّاً بالحروف؛ كلمةُ `skip` (المحذوفةُ من الصوت) بلا مدّة."""
-    weights = [0 if i == skip else max(1, len(w)) for i, w in enumerate(words)]
+    """(بدء، نهاية) لكلّ كلمة مرجعيّة، تناسبيّاً بالحروف؛ كلمةُ `skip` (المحذوفةُ من الصوت) بمدّةٍ ضئيلة عند موضعها (فتُحكم «غائبة» بجيرانها)."""
+    weights = [0.05 if i == skip else max(1, len(w)) for i, w in enumerate(words)]   # المحذوفة: شقٌّ ضئيلٌ عند الموضع ليُحكم غيابُها
     tot = float(sum(weights)) or 1.0
     t, out = 0.0, []
     for wt in weights:
@@ -143,6 +143,8 @@ class CliDecoder:
     def __init__(self, cli, model, lang="ar", threads=4):
         self.cli, self.model, self.lang, self.threads = cli, model, lang, threads
         self.cache = {}
+        h = subprocess.run([cli, "--help"], capture_output=True, text=True)
+        self.flags = ["-nc"] if "-nc" in (h.stdout + h.stderr) else []   # كما في local_whisper (غيابُه في بعض الإصدارات)
 
     def __call__(self, wav_path, audio, a, b):
         key = hashlib.md5(f"{wav_path}|{a:.3f}|{b:.3f}".encode()).hexdigest()
@@ -154,8 +156,11 @@ class CliDecoder:
         with tempfile.TemporaryDirectory() as td:
             f = os.path.join(td, "w.wav")
             sf.write(f, seg.astype(np.float32), SR, subtype="PCM_16")
-            r = subprocess.run([self.cli, "-m", self.model, "-f", f, "-l", self.lang, "-t", str(self.threads), "-nt", "-np"],
+            r = subprocess.run([self.cli, "-m", self.model, "-f", f, "-l", self.lang, "-t", str(self.threads),
+                                "-bo", "1", "-bs", "1", "-nt", "-np"] + self.flags,
                                capture_output=True, text=True, timeout=300)
+            if r.returncode != 0:
+                raise RuntimeError(f"whisper-cli rc={r.returncode}: {r.stderr[-200:]}")
             text = " ".join(r.stdout.split())
         self.cache[key] = text
         return text
@@ -252,6 +257,9 @@ def main():
     ap.add_argument("--model", default=None)
     ap.add_argument("--threads", type=int, default=4)
     ap.add_argument("--limit", type=int, default=0)
+    ap.add_argument("--lang", default="ar")
+    ap.add_argument("--shard", default=None, help="k/N: يعالج البنودَ ذاتَ الفهرس ≡ k (mod N) — للتوازي على CI")
+    ap.add_argument("--merge", nargs="+", default=None, help="ملفّاتُ rows لشظايا نفسِ المجموعة: تُدمج وتُجمَّع")
     ap.add_argument("--plan", default=os.path.join(HERE, "inject_plan_riwaya.json"))
     ap.add_argument("--out", default=None)
     args = ap.parse_args()
@@ -262,6 +270,15 @@ def main():
         for d in (10, 20, 30, 60, 120, 300):
             sa, ca = billed("A", float(d)); sb, cb = billed("B", float(d))
             print(f"{d:>5} | {sa:7.1f} · {ca:3d} | {sb:7.1f} · {cb:3d} | {100 * (1 - sb / sa):5.1f}٪")
+        return
+    if args.merge:
+        rows = []
+        for f in args.merge:
+            rows += json.load(open(f, encoding="utf-8"))["rows"]
+        agg = aggregate(rows)
+        print(json.dumps(agg, ensure_ascii=False, indent=1)); print(verdict_text(agg))
+        if args.out:
+            json.dump({"agg": agg, "verdict": verdict_text(agg), "rows": rows}, open(args.out, "w", encoding="utf-8"), ensure_ascii=False)
         return
     import scorer
     if not args.model:
@@ -274,7 +291,10 @@ def main():
         random.Random(1).shuffle(items); items = items[:args.limit]
     if not items:
         raise SystemExit(f"⛔ لا صوتَ في {wdir} — ابنِ المجموعةَ أوّلاً (fetch_audio.py · inject_riwaya_local.py) كما في tasmi-gate.yml")
-    dec = CliDecoder(args.cli, args.model, threads=args.threads)
+    if args.shard:
+        k, n = (int(x) for x in args.shard.split("/"))
+        items = [x for i, x in enumerate(items) if i % n == k]
+    dec = CliDecoder(args.cli, args.model, lang=args.lang, threads=args.threads)
     rows = []
     for k, (it, p) in enumerate(items, 1):
         rows.append(measure_item(it, p, dec, scorer))
@@ -285,7 +305,7 @@ def main():
     print(verdict_text(agg))
     out = args.out or os.path.join(HERE, "work", f"hop_sim_{args.set}.json")
     os.makedirs(os.path.dirname(out), exist_ok=True)
-    json.dump({"agg": agg, "rows": rows}, open(out, "w", encoding="utf-8"), ensure_ascii=False)
+    json.dump({"agg": agg, "verdict": verdict_text(agg), "rows": rows}, open(out, "w", encoding="utf-8"), ensure_ascii=False)
     print("→", out)
 
 
