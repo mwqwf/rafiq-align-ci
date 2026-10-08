@@ -170,6 +170,8 @@ ALLOWED_TOOLS = {"index_qa/adopt_noah_source_gap.py",  # اعتماد مقيد �
                  "ci_fleet/test_source_ratio_refs.py",
                  "ci_fleet/test_needs_restore.py",
                  "index_qa/verdict_probe.py",
+                 # fixW 2026-10-08: قارئٌ محضٌ لحكم التجميع (promote.pooled_samples) على أملاح مرشّح
+                 "index_qa/pool_probe.py",
                  # 🔎 **أُضيف 2026-10-02 (أمرُ المالك: فحصٌ شاملٌ للفهرسة):** مسحٌ واحدٌ لكلّ المنشور
                  #    بالبنود الخمسة (هويّة · بنية · قاعدةُ البتر · أحكامُ الصوت على البصمة · مؤشّراتُ المدد).
                  # ⚖️ قارئٌ محض: يقرأ الدلوَ وstate/ والعنوانَ العامّ ويكتب تقريرَه في ops/out/ وحدَه؛
