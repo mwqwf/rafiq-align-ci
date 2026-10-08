@@ -56,6 +56,8 @@ DEV_TOL_MS = 3000       # أقصى بُعدٍ مقبولٍ لحدّ النافذ
 ANCHOR_Q = 0.3          # أدنى جودةٍ (نسبةُ حروفٍ مطابقة) تُعدّ بها المِرساةُ العامّةُ صالحةً للنافذة
 GATE_EQUAL_CHARS = 3    # أقصى بُعدٍ نصّيّ لأول حرفٍ متطابق بعد replace يعبر حدَّ آيتين
 GATE_EQUAL_SHIFT_MS = 3000  # لا يُنقل شاهدُ البوابة إلى تطابقٍ بعيدٍ زمنياً
+GATE_FREE_SHIFT_MS = 500    # دون هذا الإزاحة لا أثرَ لها على عتبة 1500 فلا تحتاج شاهداً ثانياً
+GATE_WITNESS_TOL_MS = 500   # فوقها: يلزم بدءُ الأداء المنفرد المستقلّ قريباً من البدء الجديد
 _SUB1 = {"ٱ": "ا", "أ": "ا", "إ": "ا", "آ": "ا", "ؤ": "و", "ئ": "ي", "ى": "ي", "ة": "ه",
          "ے": "ي", "ء": ""}
 
@@ -218,7 +220,7 @@ def global_anchors(heard_sk, times, ayah_sks, frame_ms=20):
 
 def gate_start_anchors(heard_sk, times, ayah_sks, anchors,
                        max_equal_chars=GATE_EQUAL_CHARS,
-                       max_shift_ms=GATE_EQUAL_SHIFT_MS):
+                       max_shift_ms=GATE_EQUAL_SHIFT_MS, witness_ms=None, rejects=None):
     """شاهدُ بدءٍ أدقّ للبوابة، بلا تغيير مِرساة البناء أو أي توقيتٍ منتَج.
 
     قد يبدأ حدُّ آيةٍ داخل opcode من نوع ``replace`` بدأ في الآية السابقة وانتهى في
@@ -274,6 +276,17 @@ def gate_start_anchors(heard_sk, times, ayah_sks, anchors,
         shift = exact - raw
         if not (0 < shift <= int(max_shift_ms)):
             continue
+        # شاهدٌ ثانٍ: الإزاحةُ المؤثّرة (> GATE_FREE_SHIFT_MS) تُعتمد فقط إن وافقها بدءُ الأداء المنفرد
+        # (‏محاذاةٌ محليّةٌ مستقلّةٌ عن العامّة)؛ بلا شاهدٍ تبقى المِرساةُ الأصليّة (‏أصعبُ خداعاً).
+        if shift > GATE_FREE_SHIFT_MS:
+            w = witness_ms[k] if witness_ms is not None and k < len(witness_ms) else None
+            if w is None or abs(int(w) - exact) > GATE_WITNESS_TOL_MS:
+                if rejects is not None:  # سببُ الرفض في قائمةٍ منفصلة كي لا يُعدّ تنقيةً معتمدة
+                    rejects.append({"ayahIndex": k, "kind": "rejected-large-shift",
+                                    "reason": "no-witness" if w is None else "witness-disagrees",
+                                    "rawStartMs": raw, "candidateStartMs": exact,
+                                    "shiftMs": shift, "witnessStartMs": None if w is None else int(w)})
+                continue
         refined[k] = (exact, a[1], a[2])
         evidence[k] = {"kind": "cross-ayah-replace-first-equal",
                        "rawStartMs": raw, "gateStartMs": exact,
@@ -385,7 +398,12 @@ def run(audio, surah, riwaya, log=print, probe=False, strict_tol_ms=0):
     bas_sk = norm(BASMALA).replace(" ", "") if surah not in (1, 9) else ""
     all_sks = ([bas_sk] if bas_sk else []) + sks
     anchors = global_anchors(heard_sk, times, all_sks, frame_ms)
-    gate_anchors, gate_evidence = gate_start_anchors(heard_sk, times, all_sks, anchors)
+    gate_rejects = []
+    gate_anchors, gate_evidence = gate_start_anchors(heard_sk, times, all_sks, anchors, rejects=gate_rejects,
+                                                       witness_ms=([None] if bas_sk else []) + [c[0] if c else None for c in chosen_ms])
+    for r in gate_rejects:
+        log(f"س{surah}: رُفضت تنقيةُ بدء الآية {r['ayahIndex'] + (0 if bas_sk else 1)}"
+            f" ({r['reason']}) إزاحة {r['shiftMs']}م.ث")
     bas_anchor = anchors[0] if bas_sk else None
     anchors = anchors[1:] if bas_sk else anchors
     gate_anchors = gate_anchors[1:] if bas_sk else gate_anchors
