@@ -1,0 +1,20 @@
+{
+ "action": "tool",
+ "tool": "index_qa/stage_transform.py",
+ "args": [
+  "--file",
+  "ops/source-repair/candidates/codex-asiri7-archive-20261006.jz",
+  "--parent",
+  "timings/hafs/3siri.jz",
+  "--parent-sha",
+  "fbf468c05fa3598df3103ce4f1cf53e093e9eb0ac719ad9b051d14c1a0cb1392",
+  "--op",
+  "ctc_quran_surah_splice:7",
+  "--by",
+  "codex-asiri7-archive",
+  "--reason",
+  "استعادة الأعراف كاملة (206 آيات) من مصدر أرشيف مسجل ومطابق بقياسين مستقلين متطابقين 206/206 بفرق صفر؛ لا تغيير خارج السورة؛ كل البوابات لازمة على بصمة المسرح",
+  "--manual-qa-only",
+  "--yes"
+ ]
+}
