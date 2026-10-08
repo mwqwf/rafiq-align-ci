@@ -1,0 +1,162 @@
+# 🎯 **المحاذاةُ القسريّة بالاحتمالات حكماً على كلمات المتعلّم** — خطوة 2-ب/2ج من خطة المستشار 2026-10-05 (البند 6).
+#
+# يُرمَّز الصوتُ مرّةً (`whisper_encode`) ثمّ يُفكّ قسراً تسلسلُ رموز النصّ المتوقَّع (`rafiq_forced.cpp`) فتُؤخذ لكلّ كلمةٍ نسبةُ
+# احتمال المسموع إلى المتوقَّع. الحكمُ كلُّه في `tools/tasmi_bench/forced_auc.py` المختبَرِ (`--selftest`) لا في YAML.
+#
+# ⚖️ **المعيارُ مكتوبٌ قبل القراءة:** AUC ≥ 0.80 لتمييز الكلمات الخاطئة فعلاً عن الصحيحة على g3r المضجَّج (‏gap · صورة tash)
+#    مع مجال bootstrap عنقوديّ بالبند؛ وإلا يُغلق البندُ بأرقامه.
+# ⚠️ حدُّه: لينكس x86 وwhisper.cpp لا محرّكُ `jni.c` على الهاتف؛ والمقيسُ **قابليّةُ الفصل** لا رقمُ الجهاز.
+# 💰 المستودعُ عامٌّ وعدّادُه قياسيّ (`ubuntu-latest`)؛ لا artifacts كبيرة، والكاشُ يُقرأ ولا يُحفظ (‏restore فقط).
+# 🔑 وزنادُه الإيداع: `tools/tasmi_bench/requests/forced.json` (‏أو يدويّاً). والنتائجُ تُودَع في `results/forced/` على الفرع نفسه.
+name: tasmi-forced
+
+on:
+  workflow_dispatch:
+    inputs:
+      note:
+        description: "سببُ الشوط (يُطبع في الخلاصة)"
+        required: false
+        default: ""
+  push:
+    paths:
+      - "tools/tasmi_bench/requests/forced.json"
+
+permissions:
+  contents: write
+
+concurrency:
+  group: tasmi-forced-${{ github.ref }}
+  cancel-in-progress: false
+
+env:
+  PUB: https://pub-2c2e1dcd92e84a2898820dd38d3e09e6.r2.dev
+  UA: "Mozilla/5.0 (QuranRafiq tasmi forced)"
+  WC: c4ac0012a8f5a2082dfca6aad4ddfd8b2c02b337   # الالتزامُ المثبَّت — نفسُ الذي في tasmi-conf وarm-time
+
+jobs:
+  forced:
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    steps:
+      - uses: actions/checkout@v4
+      - name: الطلب
+        id: req
+        run: |
+          set -o pipefail
+          python3 - <<'PY'
+          import json, os
+          r = json.load(open("tools/tasmi_bench/requests/forced.json", encoding="utf-8"))
+          env = open(os.environ["GITHUB_OUTPUT"], "a")
+          env.write("models=" + r.get("models", "tiny,base") + "\n")
+          env.write("limit=" + str(r.get("limit", "0")) + "\n")
+          env.write("ts=" + ("--ts" if r.get("ts") else "") + "\n")
+          env.close()
+          print(r.get("note", ""))
+          PY
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: المعمارية والعدّة
+        run: |
+          uname -m; nproc
+          sudo apt-get update -qq && sudo apt-get install -y -qq cmake ninja-build ffmpeg > /dev/null
+          pip install -q numpy soundfile scipy
+      - name: بناءُ whisper.cpp ثمّ rafiq_forced
+        run: |
+          set -o pipefail
+          git clone -q --depth 1 https://github.com/ggml-org/whisper.cpp wc && cd wc
+          git fetch -q --depth 1 origin "$WC" && git checkout -q FETCH_HEAD
+          cmake -S . -B b -G Ninja -DCMAKE_BUILD_TYPE=Release -DBUILD_SHARED_LIBS=OFF \
+            -DWHISPER_BUILD_TESTS=OFF -DWHISPER_BUILD_SERVER=OFF -DWHISPER_BUILD_EXAMPLES=OFF \
+            -DGGML_NATIVE=OFF -DGGML_AVX2=ON -DGGML_FMA=ON -DGGML_F16C=ON -DGGML_OPENMP=OFF > /dev/null
+          cmake --build b --target whisper -j"$(nproc)" > /dev/null
+          g++ -O2 -std=c++17 ../tools/tasmi_bench/rafiq_forced.cpp -I include -I ggml/include -o rafiq_forced \
+            -Wl,--start-group b/src/libwhisper.a b/ggml/src/libggml.a b/ggml/src/libggml-cpu.a b/ggml/src/libggml-base.a -Wl,--end-group -lpthread -ldl
+          ls -l rafiq_forced
+      - name: النماذجُ المشحونة (q8)
+        run: |
+          set -o pipefail
+          for m in tiny base; do
+            curl -sSL -f --retry 4 --retry-delay 5 --retry-all-errors -A "$UA" \
+              -o "tools/tasmi_bench/model_$m.bin" "$PUB/models/whisper-$m-ar-quran/ggml-q8_0.bin"
+            sha256sum "tools/tasmi_bench/model_$m.bin"; ls -l "tools/tasmi_bench/model_$m.bin"
+          done
+      - name: اختباراتُ الأداة (ذاتيّ + تدخينٌ على wav اصطناعيّ)
+        run: |
+          set -o pipefail
+          python tools/tasmi_bench/forced_auc.py --selftest
+          python - <<'PY'
+          import numpy as np, soundfile as sf
+          rng = np.random.default_rng(1)
+          sf.write("/tmp/smoke.wav", (0.05 * rng.standard_normal(16000 * 3)).astype("float32"), 16000, subtype="PCM_16")
+          open("/tmp/smoke_w.txt", "w", encoding="utf-8").write("بسم\nالله\nالرحمن\n")
+          PY
+          out=$(wc/rafiq_forced -m tools/tasmi_bench/model_tiny.bin -f /tmp/smoke.wav -w /tmp/smoke_w.txt -t 2 --free)
+          echo "$out" | head -c 600; echo
+          echo "$out" | python -c "import json,sys; j=json.loads(sys.stdin.read()); v=j['variants'][0]; assert len(v['words'])==3 and v['n_tokens']>=3 and j['enc_ms']>0, j; print('✅ تدخين rafiq_forced')"
+      # 🔪 مادّةُ g3r — بمفتاح tasmi-conf وarm-time نفسِه؛ ⛔ **restore فقط** (لا حفظَ فلا نموَّ في الكاش)
+      - name: كاشُ مادّة الحقن (قراءةٌ فقط)
+        id: inj
+        uses: actions/cache/restore@v4
+        with:
+          path: tools/tasmi_bench/work/inj.tar
+          key: tasmi-inj-v1-${{ hashFiles('tools/tasmi_bench/inject_plan_riwaya.json', 'tools/tasmi_bench/inject_riwaya_local.py') }}
+      - name: بناءُ مادّة الحقن إن غاب الكاش
+        if: steps.inj.outputs.cache-hit != 'true'
+        run: |
+          set -o pipefail
+          cd tools/tasmi_bench
+          python inject_riwaya_local.py
+          tar -cf work/inj.tar -C work g3r
+      - name: فكُّ مادّة الحقن وتسطيحُ اسمَيها
+        run: |
+          set -o pipefail
+          cd tools/tasmi_bench/work
+          [ -d g3r ] || tar -xf inj.tar
+          ln -sfn g3r/noisy g3rn && ln -sfn g3r/clean g3rc
+          echo "🔪 مضجَّجٌ $(ls g3rn | wc -l) · نظيفٌ $(ls g3rc | wc -l)"
+          [ "$(ls g3rn | wc -l)" -ge 100 ] || { echo "⛔ مادّةُ الحقن ناقصة"; exit 1; }
+      - name: القياس
+        env:
+          PYTHONIOENCODING: utf-8
+          MODELS: ${{ steps.req.outputs.models }}
+          LIMIT: ${{ steps.req.outputs.limit }}
+          TSFLAG: ${{ steps.req.outputs.ts }}
+        run: |
+          set -o pipefail
+          cd tools/tasmi_bench
+          ARGS=""
+          for m in $(echo "$MODELS" | tr ',' ' '); do ARGS="$ARGS,$m=model_$m.bin"; done
+          ARGS="${ARGS#,}"
+          mkdir -p work/out
+          python forced_auc.py --bin ../../wc/rafiq_forced --models "$ARGS" --free \
+            --threads 1 --workers "$(nproc)" --limit "$LIMIT" $TSFLAG \
+            --md work/out/forced_auc.md --json work/out/forced_auc.json --words work/out/forced_words.json
+          cat work/out/forced_auc.md >> "$GITHUB_STEP_SUMMARY"
+      - name: نشرُ الأثر في git (على الفرع نفسه)
+        if: always()
+        run: |
+          V="tools/tasmi_bench/work/out/forced_auc.md"
+          J="tools/tasmi_bench/work/out/forced_auc.json"
+          W="tools/tasmi_bench/work/out/forced_words.json"
+          RID="${{ github.run_id }}"
+          mkdir -p /tmp/res
+          {
+            echo "<!-- الشوط $RID · $(date -u +%FT%TZ) · الزناد ${{ github.event_name }} · العدّاء $(uname -m) nproc=$(nproc) -->"
+            if [ -s "$V" ]; then cat "$V"; else echo "⛔ **لا حكمَ**: سقط القياسُ قبل أن يُكتب — والسجلُّ في الشوط $RID."; fi
+          } > "/tmp/res/forced_auc_$RID.md"
+          [ -s "$J" ] && cp "$J" "/tmp/res/forced_auc_$RID.json" || true
+          [ -s "$W" ] && gzip -9 -c "$W" > "/tmp/res/forced_words_$RID.json.gz" || true
+          git config user.name "rafiq-ci"
+          git config user.email "ci@users.noreply.github.com"
+          for i in 1 2 3 4; do
+            mkdir -p results/forced
+            cp /tmp/res/* results/forced/
+            cp "/tmp/res/forced_auc_$RID.md" results/forced/LATEST.md
+            git add results/forced
+            git commit -q -m "results(tasmi-forced): المحاذاة القسرية بالاحتمالات · الشوط $RID" || { echo "لا تغيير"; exit 0; }
+            git pull -q --no-rebase --no-edit origin "${GITHUB_REF_NAME}" || true
+            git push -q origin "HEAD:${GITHUB_REF_NAME}" && { echo "✅ أُودع results/forced"; exit 0; }
+            echo "↻ دفعٌ $i"; sleep 8
+          done
+          echo "⛔ تعذّر الدفع"; exit 1
