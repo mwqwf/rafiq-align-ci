@@ -1,0 +1,14 @@
+{
+ "action": "tool",
+ "tool": "index_qa/promote_verified_transform.py",
+ "args": [
+  "--key",
+  "timings-staging/douri/sultani_douri.7e2fbf44.jz",
+  "--sha",
+  "7e2fbf447bbe4da7ec85dad18437a590240fe90466d7857433b774cfb7ad6a24",
+  "--parent-sha",
+  "7764ba71b8af3854bcea5ccf9bd21839bcd3a65acb1a45566cbf97be3ea260e3",
+  "--reason",
+  "اعتماد إصلاح ذيل sultani_douri (إزاحة 5 حدود): اجتاز free-post-stage كاملاً (run 37845011615: openers وcensus وrs1-rs4 وheard وreview) وheard_gate يمرّ وfull_audit بلا خطأ مؤكد في البنود 1-4؛ بلا override ولا allow"
+ ]
+}
