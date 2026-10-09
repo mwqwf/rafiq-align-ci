@@ -51,11 +51,11 @@ def list_published(cl, bucket, prefix="timings/"):
 
 
 def surah_counts(entries):
-    per: dict[int, int] = {}
-    for e in entries:
-        s = int(e["ayahId"].split(":")[0])
-        per[s] = per.get(s, 0) + 1
-    return per
+    seen: dict[int, set] = {}
+    for e in entries:                       # آياتٌ متمايزة لا مداخل: التكرارُ لا يسدّ غياباً
+        s, a = e["ayahId"].split(":")
+        seen.setdefault(int(s), set()).add(a)
+    return {s: len(v) for s, v in seen.items()}
 
 
 def missing_ayahs_in_surah(entries, surah, want):
@@ -87,6 +87,7 @@ def main():
         keys = [k for k in keys if a.only in k]
 
     checked = 0
+    unread = 0
     total_flags = 0
     by_surah: dict[int, int] = {}
     for key in keys:
@@ -94,6 +95,7 @@ def main():
             idx, _sha = _run.fetch_index(key)
         except Exception as e:                          # noqa: BLE001
             print(f"⛔ {key}: تعذّرت القراءة — {e}")
+            unread += 1
             continue
         checked += 1
         per = surah_counts(idx.get("entries", []))
@@ -133,6 +135,9 @@ def main():
         print("   وأكثرُ السور تكرّراً في هذا النقص (قارئون متأثّرون/162):")
         for s, n in top:
             print(f"    سورة {s}: {n} قارئاً")
+    if unread or not checked:
+        print(f"⛔ لم يكتمل المسح: تعذّرت قراءة {unread} وفُحص {checked}")
+        return 2
     return 1 if total_flags else 0
 
 
