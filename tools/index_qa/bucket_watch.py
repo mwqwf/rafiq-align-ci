@@ -61,6 +61,8 @@ def main():
     ap.add_argument("--max", type=int, default=12, help="أقصى ما يُطبع من الكتابات (‏fixS1: موجةٌ من 30 نافذةً تتجاوز 12)")
     a = ap.parse_args()
     since = dt.datetime.fromisoformat(a.since.replace("Z", "+00:00"))
+    if since.tzinfo is None:
+        since = since.replace(tzinfo=dt.timezone.utc)
     global PREFIXES
     if a.all_prefixes:
         PREFIXES = ("claims/", "timings/", "timings-staging/", "wordtimings/",
