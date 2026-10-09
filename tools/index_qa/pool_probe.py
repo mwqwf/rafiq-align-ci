@@ -28,6 +28,16 @@ def main() -> int:
                 reps.append(r)
                 sv = (r.get("sample") or {}).get("severe")
                 print(f"  {o['Key'][len(pre):]:<22} {str(r.get('verdict'))[:48]:<48} severe={sv[:2] if isinstance(sv, list) else sv} sha={str(r.get('sha256'))[:8]}")
+        # توزيعُ الأعطاب الجسيمة على السور (‏شرطُ التناثر في D-185) — ليُعرف موضعُ التكتّل
+        surs = {}
+        for r in reps:
+            for row in ((r.get("sample") or {}).get("rows") or []):
+                if row.get("verdict") in ("EARLY_START", "LATE_START", "WRONG_AYAH"):
+                    s = str(row.get("aid", "0:0")).split(":")[0]
+                    surs.setdefault(s, []).append(str(row.get("aid")))
+        tot = sum(len(v) for v in surs.values())
+        top = sorted(surs.items(), key=lambda kv: -len(kv[1]))[:8]
+        print(f"  الأعطاب {tot} في {len(surs)} سورة · الأكثر: " + " · ".join(f"س{s}={len(v)} {sorted(set(v))[:6]}" for s, v in top))
         pooled = P.pooled_samples(reps)
         if pooled is None:
             print(f"■ {key}: لا تجميع (رافضان · محرّكان · عيّنةٌ دون الحدّ · أو تكتّلٌ يمنعه)")
