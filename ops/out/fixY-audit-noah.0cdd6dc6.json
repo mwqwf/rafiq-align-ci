@@ -1,0 +1,148 @@
+{
+ "schema": 1,
+ "tool": "full_audit-1.0",
+ "date": "20261009",
+ "timestampUtc": "2026-10-09T01:06:50Z",
+ "elapsedSec": 73.8,
+ "phase": "all",
+ "manifestIndexes": 180,
+ "frozenBucket": 217,
+ "reportsRead": 11801,
+ "rows": [
+  {
+   "key": "timings-staging/hafs/noah.0cdd6dc6.jz",
+   "sha256": "0cdd6dc65799bdf134ea5155f291ab59c7d6e91c76e82c86ea85f33d9f7e1805",
+   "riwaya": "hafs",
+   "reciterId": "noah",
+   "bytes": 77405,
+   "engine": "mp3quran-timing-v1",
+   "transformOp": "ctc_heardmap_splice:114",
+   "staging": true,
+   "identity": {
+    "sha256": "0cdd6dc65799bdf134ea5155f291ab59c7d6e91c76e82c86ea85f33d9f7e1805",
+    "staging": true,
+    "errors": [],
+    "ok": true
+   },
+   "structure": {
+    "entries": 6236,
+    "errors": [],
+    "examples": {},
+    "registeredFileNoMappings": {},
+    "fileNoUnparsed": 2,
+    "structuralFatal": [],
+    "structuralWarn": [
+     "مداخل مدتها > 120ث: 1 · مثال: 2:282 مدتها 132ث"
+    ],
+    "decision": [],
+    "engine": "mp3quran-timing-v1",
+    "audioSha": 114,
+    "bands": {
+     "MED": 6161,
+     "LOW": 72,
+     "HIGH": 3
+    },
+    "ok": true
+   },
+   "gaps": {
+    "missingTotal": 0,
+    "internalGaps": [],
+    "headMissing": [],
+    "tailMissing": [],
+    "wholeMissing": [],
+    "declared": {
+     "transformOp": "ctc_heardmap_splice:114",
+     "transformReason": "fixY البند 5: مداخل مفرطة الطول وخريطة السماع (heard_pub) تُظهر انحرافاً > 1.5ث في السور المسمّاة ⇒ تُقاس وتُعاد على مراسٍ مسموعة",
+     "reasonCode": null,
+     "dropSurahs": [],
+     "byReason": {},
+     "declaredCount": 0,
+     "tagCount": 0,
+     "declaredIds": [],
+     "truncatedTail": null
+    },
+    "undeclaredEdge": [],
+    "errors": [],
+    "ok": true
+   },
+   "durations": {
+    "durationOutliers": 2,
+    "durationExamples": [
+     {
+      "aid": "50:10",
+      "ms": 25340,
+      "expMs": 5920,
+      "ratio": 4.28,
+      "chars": 21
+     },
+     {
+      "aid": "50:9",
+      "ms": 47340,
+      "expMs": 11558,
+      "ratio": 4.1,
+      "chars": 41
+     }
+    ],
+    "impossibleShort": [],
+    "veryShort": [],
+    "extremeLong": [],
+    "longOutliers": 2,
+    "shortOutliers": 0,
+    "silenceGaps": 0,
+    "silenceExamples": [],
+    "surahsWithRate": 113
+   },
+   "audio": {
+    "audioReportsOnSha": 0,
+    "openersOnSha": false,
+    "errors": [
+     "لا حكمَ صوتيٍّ بعيّنةٍ على البصمة المنشورة",
+     "لا شاهدَ مطالعَ على البصمة المنشورة"
+    ],
+    "notes": [],
+    "samples": [],
+    "pooled": null,
+    "severeHi": null,
+    "otherShasWithSamples": [
+     "00c2fdd6",
+     "01281c88",
+     "10e65f75",
+     "1364dc4d",
+     "1668f5e8",
+     "17191c80",
+     "17bdc5b1",
+     "1973473a",
+     "20cdba17",
+     "21ebad84"
+    ],
+    "ok": false
+   }
+  }
+ ],
+ "summary": {
+  "indexes": 1,
+  "phase": "all",
+  "identityOk": 1,
+  "identityBad": [],
+  "structureOk": 1,
+  "structureBad": [],
+  "gapsOk": 1,
+  "gapsBad": [],
+  "audioOk": 0,
+  "audioBad": [
+   "timings-staging/hafs/noah.0cdd6dc6.jz"
+  ],
+  "durationOutliersTotal": 2,
+  "impossibleShortTotal": 0,
+  "indexesWithImpossibleShort": 0,
+  "veryShortTotal": 0,
+  "extremeLongTotal": 0,
+  "indexesWithExtremeLong": 0,
+  "mirrorStale": 0,
+  "silenceGapsTotal": 0,
+  "indexesWithDurationOutliers": 1,
+  "indexesWithSilenceGaps": 0,
+  "entriesTotal": 6236,
+  "missingTotal": 0
+ }
+}
