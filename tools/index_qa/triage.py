@@ -68,9 +68,9 @@ def _target_state(key, sha):
     """
     tgt = _target_key(key)
     fr = _rows("frozen.txt")
-    if tgt in fr and fr[tgt].split()[0] != (sha or ""):
+    if tgt in fr and (fr[tgt].split()[:1] or [""])[0] != (sha or ""):
         return ("⏭️ لا تُنفَق عيّنة",
-                f"الهدف {tgt} مجمَّدٌ ببصمةٍ أخرى ({fr[tgt].split()[0][:8]}) — رفعُه قرارُ إنسان")
+                f"الهدف {tgt} مجمَّدٌ ببصمةٍ أخرى ({(fr[tgt].split()[:1] or ['—'])[0][:8]}) — رفعُه قرارُ إنسان")
     hold = _rows("hold.txt")
     if tgt in hold:
         return ("⚠️ محجوز", f"محجوز: {hold[tgt][:70]} — القياس يفيد لرفع الحجز")
