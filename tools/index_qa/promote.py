@@ -629,6 +629,81 @@ def _min_sample(ceiling, conf=0.95):
     return int(math.ceil(n))
 
 
+OWNER_DROP_APPROVALS = ROOT / "ops" / "OWNER_DROP_APPROVALS.json"
+# مطابقٌ حرفياً لبادئة سطر القرار في run.py (`structural`).
+DROP_DECISION_PREFIX = "سورٌ محذوفةٌ **بإعلانٍ وسبب**"
+
+
+def load_drop_approvals(path=None):
+    """اعتمادات المالك لإسقاط سورٍ بعينها: `{المفتاح: frozenset(السور)}`.
+
+    الملف قائمة JSON، وكلُّ سطرٍ: `{"key": نص, "surahs": [1..114], "rule_ref": نص,
+    "attempts": [نص, ...]}`. ما نقص حقلاً أو فسد نوعُه يُهمل، والملف المفقود
+    أو التالف يعني `{}`. اعتمادان لمفتاحٍ واحد يُجمعان.
+    """
+    path = Path(path) if path else OWNER_DROP_APPROVALS
+    try:
+        rows = json.loads(path.read_text(encoding="utf-8"))
+    except (OSError, ValueError):
+        return {}
+    return load_drop_approvals_rows(rows)
+
+
+def load_drop_approvals_rows(rows):
+    """يُرشّح أسطر الاعتماد الصحيحة (انظر `load_drop_approvals`)."""
+    if not isinstance(rows, list):
+        return {}
+    out = {}
+    for r in rows:
+        if not isinstance(r, dict):
+            continue
+        key, surahs = r.get("key"), r.get("surahs")
+        ref, att = r.get("rule_ref"), r.get("attempts")
+        if not (isinstance(key, str) and key.strip()):
+            continue
+        if not (isinstance(surahs, list) and surahs
+                and all(type(x) is int and 1 <= x <= 114 for x in surahs)):
+            continue
+        if not (isinstance(ref, str) and ref.strip()):
+            continue
+        if not (isinstance(att, list) and any(isinstance(x, str) and x.strip() for x in att)):
+            continue
+        out[key] = out.get(key, frozenset()) | frozenset(surahs)
+    return out
+
+
+def drop_approval_refs(key, path=None):
+    """مراجع القواعد (`rule_ref`) للاعتمادات الصحيحة لهذا المفتاح — للسجلّ فقط."""
+    try:
+        rows = json.loads(Path(path or OWNER_DROP_APPROVALS).read_text(encoding="utf-8"))
+    except (OSError, ValueError):
+        return []
+    one = lambda r: load_drop_approvals_rows([r])  # noqa: E731
+    return [r["rule_ref"] for r in rows if isinstance(r, dict) and r.get("key") == key
+            and one(r)] if isinstance(rows, list) else []
+
+
+def approved_drop(rep, approvals):
+    """هل «موقوف» هذا لسببٍ واحدٍ فقط: إسقاطٌ معلَنٌ أذن المالك بسوره لهذا المفتاح؟
+
+    يُشترط مجتمعاً: حكمٌ يبدأ بـ«موقوف» · لا فاتل · كلُّ أسطر القرار إسقاطٌ معلَن ·
+    `declaredDrops` غير فارغةٍ وكلُّها ضمن المعتمد. وهذا لا يرفع غير شرط الحكم؛
+    وباقي الحرّاس (العيّنة · D-068 · المطالع · التعارض · السحب) تعمل بعده كما هي.
+    """
+    if not isinstance(rep, dict) or not approvals:
+        return False
+    if not str(rep.get("verdict") or "").startswith("موقوف") or rep.get("fatal"):
+        return False
+    dec = rep.get("decision")
+    if not (isinstance(dec, list) and dec
+            and all(isinstance(x, str) and x.startswith(DROP_DECISION_PREFIX) for x in dec)):
+        return False
+    dd = rep.get("declaredDrops")
+    ok = approvals.get(rep.get("key"))
+    return bool(isinstance(dd, list) and dd and ok
+                and all(type(x) is int for x in dd) and set(dd) <= ok)
+
+
 def severe_ci(rep):
     """(المعدّل، الحدّ الأدنى، الحدّ الأعلى) من عيّنة الحكم — أو أعلى `None`.
 
@@ -1101,7 +1176,7 @@ def _cp_upper(m, n, conf=0.95):
     return hi
 
 
-def pooled_samples(reps):
+def pooled_samples(reps, approvals=None):
     """‏**D-098** (إذن المشرف github-5a، 2026-09-03) — تعميمُ D-092 من «الصفر» إلى
     أيّ عددِ أعطاب: عيّناتٌ **مستقلّة** على البصمة نفسها بملوحٍ مختلفة ومحرّكٍ
     واحد تُجمَّع، فالعطبُ المجمَّع `Σm / Σn` وحدُّه الأعلى بكلوبر–بيرسون.
@@ -1121,6 +1196,8 @@ def pooled_samples(reps):
     يُرجع `{m, n, rate, hi, parts, salts, engine, rule}` أو `None`.
     """
     n_min = _min_sample(SEVERE_CEILING)
+    if approvals is None:
+        approvals = load_drop_approvals()
     by_seed, engines, dissent, dropped = {}, set(), [], []
     for r in reps:
         sv = (r.get("sample") or {}).get("severe")
@@ -1142,8 +1219,9 @@ def pooled_samples(reps):
         #    عيّنته الصوتية: سببُه بنيويٌّ أو قرارُ منتَج لا تمحوه عيّناتٌ نظيفة أخرى،
         #    فلا يُذوَّب في المجموع ويبقى الحكمُ للملح الأسوأ.
         _v = str(r.get("verdict") or "")
-        if _v.startswith("مرفوض (خلل") or _v.startswith("موقوف"):
-            return None
+        if _v.startswith("مرفوض (خلل") or (_v.startswith("موقوف")
+                                           and not approved_drop(r, approvals)):
+            return None                    # الموقوف المعتمد (إسقاطٌ أذن به المالك) وحده يُستثنى
         if not salt or sv[1] < n_min:
             return None                    # ملحٌ مجهول أو عيّنةٌ دون الحدّ
         est = sv[0] / sv[1] if sv[1] else None
@@ -1315,7 +1393,8 @@ def pooled_reps(reports_iter, accepted_keys=()):
         # **الحكمُ على الحدّ الأعلى** (‏D-068): يُقبل إن كان الحدُّ دون العتبة،
         # ويُرفض إن بلغ **التقديرُ** العتبة، وما بينهما **حدّيٌّ لا يُرقّى**.
         if hi < SEVERE_CEILING:
-            verdict = ACCEPTED
+            # الممثِّل الموقوف المعتمد يحتفظ بحكمه الصادق، فيمرّ في gate بمسار الإسقاط المعتمد
+            verdict = base.get("verdict") if base.get("decision") else ACCEPTED
         elif rate is not None and rate >= SEVERE_CEILING:
             verdict = f"مرفوض (مجمَّع {rate:.1%} ≥ {SEVERE_CEILING:.0%})"
         else:
@@ -1428,14 +1507,16 @@ def shrink_refusal(cl, bucket, target, n_new, allow_shrink=None, reason=None):
 
 
 def gate(rep, frozen, prefix, holds=None, override=None, ci_reports=None,
-         openers_reports=None, pooled_map=None):
+         openers_reports=None, pooled_map=None, approvals=None):
     """(الهدف، سبب الرفض) — والرفض نصٌّ يُطبع، فالصمت ليس قبولاً."""
     target = f"{prefix}timings/{rep.get('riwaya')}/{rep.get('reciterId')}.jz"
     hold = (holds or {}).get(target) or (holds or {}).get(rep.get("key"))
     if hold:
         return target, f"محجوز: {hold}"
     verdict = rep.get("verdict")
-    if verdict != ACCEPTED and not override:
+    # «موقوف» لإسقاطٍ معلَنٍ أذن المالك بسوره لهذا المفتاح لا يردّه هنا وحده؛ وكلُّ ما
+    # بعده (فاتل · عيّنة · مطالع · تعارض · سحب · D-068) يسري عليه كاملاً بلا override.
+    if verdict != ACCEPTED and not override and not approved_drop(rep, approvals):
         return target, f"الحكم {verdict!r} لا {ACCEPTED!r}"
     if rep.get("fatal"):
         return target, f"خلل بنيوي: {len(rep['fatal'])}"
@@ -2300,6 +2381,7 @@ def main():
     cl, bucket = s3()
     frozen, frozen_text, _etag = load_frozen(cl, bucket)
     holds = held()
+    drop_approvals = load_drop_approvals()
     if a.sync_frozen:
         local = FROZEN.read_text(encoding="utf-8") if FROZEN.exists() else ""
         merged = dict(frozen)
@@ -2335,7 +2417,7 @@ def main():
     ready, refused, done = [], [], []
     for name, rep in items:
         target, why = gate(rep, frozen, a.prefix, holds, a.override,
-                           ci_reports, openers_reports, pooled_map)
+                           ci_reports, openers_reports, pooled_map, drop_approvals)
         if why:
             refused.append((rep.get("key"), why))
             if why.startswith("حدّيّ") and a.yes:
@@ -2649,7 +2731,13 @@ def main():
             #    ⛔ لكنّ التجميد يمضي: الفهرسُ منشورٌ في الهدف أصلاً، وتركُه بلا تجميد
             #    يفتحه لـkeepalive فيرقّي فوقه نسخةً أقدم (سابقة fateh_douri).
             print("  ⛔ المانيفست العام لا يطابق المكتوب — يُجمَّد المنشور ولا يُعدّ نجاحاً تامّاً")
-        note = ("ترقية بتجاوزٍ صريح" if a.override else "ترقية بحكمٍ")
+        if a.override:
+            note = "ترقية بتجاوزٍ صريح"
+        elif approved_drop(rep, drop_approvals):
+            note = ("ترقية بإسقاطٍ معتمد (سور " + str(rep.get("declaredDrops"))
+                    + " · rule_ref: " + "؛ ".join(drop_approval_refs(rep.get("key"))) + ")")
+        else:
+            note = "ترقية بحكمٍ"
         if rep.get("ciBorderline"):
             cb = rep["ciBorderline"]
             note += (f" (‏7e مقبول؛ وCI/{cb.get('salt')} حدّي {cb['rate'] * 100:.1f}% "
