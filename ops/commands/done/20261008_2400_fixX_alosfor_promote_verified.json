@@ -1,0 +1,14 @@
+{
+ "action": "tool",
+ "tool": "index_qa/promote_verified_transform.py",
+ "args": [
+  "--key",
+  "timings-staging/hafs/alosfor.4715cd6e.jz",
+  "--sha",
+  "4715cd6e55be325b040c50804a06168eb966964d5608031452a671379c1c91f1",
+  "--parent-sha",
+  "84c3ab871343c377a2c1a127a23560da43257dca8c7280881f16f5b562dc2319",
+  "--reason",
+  "اعتماد إصلاح ذيل alosfor (إزاحة 4 حدود): اجتاز free-post-stage كاملاً (run 37844974441: openers وcensus وrs1-rs4 وheard وreview) وheard_gate يمرّ وfull_audit بلا خطأ مؤكد في البنود 1-4؛ بلا override ولا allow"
+ ]
+}

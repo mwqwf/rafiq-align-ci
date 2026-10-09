@@ -1,0 +1,14 @@
+{
+ "action": "tool",
+ "tool": "index_qa/promote_verified_transform.py",
+ "args": [
+  "--key",
+  "timings-staging/hafs/i_sanankoua.b04306b8.jz",
+  "--sha",
+  "b04306b847b9fc358e212c26bbe439803caab283a7fb1e0b719ba4914656d3e0",
+  "--parent-sha",
+  "81d0359813d60711b1423883f022f0c23e363648e8a36136403d05aedbb9c0ed",
+  "--reason",
+  "اعتماد إصلاح ذيل i_sanankoua (إزاحة 4 حدود): اجتاز free-post-stage كاملاً (run 37844993562: openers وcensus وrs1-rs4 وheard وreview) وheard_gate يمرّ وfull_audit بلا خطأ مؤكد في البنود 1-4؛ بلا override ولا allow"
+ ]
+}

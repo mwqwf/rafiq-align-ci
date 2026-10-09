@@ -1,0 +1,14 @@
+{
+ "action": "tool",
+ "tool": "index_qa/promote_verified_transform.py",
+ "args": [
+  "--key",
+  "timings-staging/hafs/balilah.9e8a0942.jz",
+  "--sha",
+  "9e8a0942a3a6c94fb16cde7cc4f222d447d235840d1d24e99559db5c11b7ae04",
+  "--parent-sha",
+  "f1b40abe72f4f85bd41cc87166f2cf8785960c1e267f09816b99532851812207",
+  "--reason",
+  "اعتماد إصلاح بليلة س69 (المدة المستحيلة 69:50، إزاحة 52 حداً) بعد تشديد gate_start_anchors: اجتاز free-post-stage كاملاً (run 37851621642: openers وcensus وrs1-rs4 وheard وreview) وheard_gate يمرّ وfull_audit بلا خطأ مؤكد في البنود 1-4؛ بلا override ولا allow"
+ ]
+}
