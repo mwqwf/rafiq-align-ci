@@ -1,0 +1,49 @@
+name: rafiq-silence-probe
+
+run-name: "silence-probe س${{ inputs.surah }} · ${{ inputs.reason }}"
+
+# 🔎 سبرُ سكتات ملفّ صوتٍ واحد (ffmpeg silencedetect) — حَكَمٌ ثالث حين تتناقض أداتا محاذاة.
+# ⚖️ قارئٌ محض: لا سرَّ ولا دلوَ ولا كتابة، والأثر مخرَج تشغيلة يُقرأ بـci_fleet/show_artifact.py.
+# 💰 مستودعٌ عامّ + عدّاد ubuntu-latest القياسيّ.
+on:
+  workflow_dispatch:
+    inputs:
+      url: {description: "رابط صوت السورة الواحد", required: true}
+      surah: {description: "رقم السورة", required: true}
+      noise_db: {description: "عتبة الصمت بالديسيبل", default: "-35"}
+      min_s: {description: "أقصر سكتة بالثواني", default: "0.3"}
+      reason: {description: "سبب الإطلاق", default: ""}
+
+permissions:
+  contents: read
+
+concurrency:
+  group: rafiq-silence-probe-${{ inputs.surah }}-${{ inputs.url }}
+  cancel-in-progress: false
+
+jobs:
+  probe:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: الأدوات
+        run: sudo apt-get update -qq && sudo apt-get install -y -qq ffmpeg
+      - name: تنزيل الصوت وكشف السكتات
+        env:
+          URL: ${{ inputs.url }}
+          NOISE: ${{ inputs.noise_db }}
+          MINS: ${{ inputs.min_s }}
+        run: |
+          set -o pipefail
+          mkdir -p out
+          curl -sL --retry 5 --retry-delay 3 -A "rafiq-align/1.0" -o a.mp3 "$URL"
+          ls -l a.mp3
+          ffprobe -v error -show_entries format=duration -of csv=p=0 a.mp3 | tee out/duration.txt
+          ffmpeg -hide_banner -nostats -i a.mp3 -af "silencedetect=noise=${NOISE}dB:d=${MINS}" -f null - 2>&1 \
+            | grep -E "silence_(start|end)" | tee out/silence.txt
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: silence-probe-s${{ inputs.surah }}-${{ github.run_id }}
+          path: out/*
+          retention-days: 7
