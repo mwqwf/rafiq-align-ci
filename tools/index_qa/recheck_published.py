@@ -70,6 +70,22 @@ def main():
                 "updatedTs": e.get("updatedTs"), "runs": []}
         keys = sorted(by_sha.get(e["sha256"], []), key=lambda k: (not str(k).startswith("timings-staging/"), str(k)))
         item["reportKeys"] = keys
+        # 🩺 تشخيصُ البتر: سببُ «stale» إن وُجد (عدمُ تطابق ETag أم تعذّرُ القراءة)
+        try:
+            pe = cl.head_object(Bucket=bucket, Key=pk).get("ETag")
+            dk = P.DIAGNOSIS_KEY.format(riwaya=e["riwaya"], reciter=e["reciterId"])
+            try:
+                dd = json.loads(cl.get_object(Bucket=bucket, Key=dk)["Body"].read())
+                weak = [(w.get("surah"), w.get("verdict")) for w in (dd.get("weakSurahs") or [])
+                        if "TRUNC" in str(w.get("verdict") or "").upper()]
+                item["diag"] = {"read": "ok", "indexETag": dd.get("indexETag"), "publishedETag": pe,
+                                "match": (dd.get("indexETag") or "").strip('"') == (pe or "").strip('"'),
+                                "generatedAt": dd.get("generatedAt") or dd.get("ts") or dd.get("updated"),
+                                "truncatedSurahs": weak}
+            except Exception as ex:  # noqa: BLE001
+                item["diag"] = {"read": f"{type(ex).__name__}: {str(ex)[:120]}", "publishedETag": pe}
+        except Exception as ex:  # noqa: BLE001
+            item["diag"] = {"read": f"head {type(ex).__name__}"}
         if time.time() - t0 > a.budget_sec:
             item["note"] = "سقف الزمن — لم يُفحص"
             res.append(item)
