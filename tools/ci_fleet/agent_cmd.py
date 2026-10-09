@@ -187,7 +187,9 @@ ALLOWED_TOOLS = {"index_qa/adopt_noah_source_gap.py",  # اعتماد مقيد �
                  "ci_fleet/repo_parity.py",
                  # 🔎 أُضيف 2026-10-03 (تدقيقُ الجولة الثانية · أمرُ المالك): تصديرُ المنشور خاماً للتحليل المستقلّ.
                  # ⚖️ قارئٌ محض: يقرأ الدلوَ وstate/ وترويساتِ الصوت بطلبِ مدى، ويكتب في ops/out/audit-r2/ وحدَه.
-                 "index_qa/audit_export.py"}
+                 "index_qa/audit_export.py",
+                 # proofZ 2026-10-09: مسحٌ رخيص لمدّة الملفّ الصوتيّ مقابل نهاية الفهرس (قارئٌ محض: HEAD وطلب مدى 64ك.ب).
+                 "index_qa/duration_sweep.py"}
 MAX_OUT = 200_000            # حرفاً — جوابٌ أطولُ يُقصّ ويُعلَن قصُّه
 
 
