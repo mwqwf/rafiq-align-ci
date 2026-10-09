@@ -108,8 +108,10 @@ def main():
             sys.argv = argv0
             txt = buf.getvalue()
             ok, bad = classify(txt)
+            rel = [l.strip()[:300] for l in txt.splitlines()
+                   if k in l or "أحكامٌ مقروءة" in l or "SystemExit" in l or "EXC " in l]
             item["runs"].append({"src": k, "ok": ok, "bad": bad[:6], "code": str(code),
-                                 "tail": txt.strip().splitlines()[-4:]})
+                                 "rel": rel[:8], "tail": [t[:200] for t in txt.strip().splitlines()[-2:]]})
         res.append(item)
         r0 = item["runs"][0] if item["runs"] else None
         print(f"{pk} {e['sha256'][:8]} -> " + (("✅" if r0["ok"] else "⛔ " + " | ".join(r0["bad"][:2])) if r0 else "بلا حكم"))
