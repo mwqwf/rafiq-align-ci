@@ -54,6 +54,10 @@ def main():
     everywhere = list(P.reports()) + P.bucket_reports(cl, bucket)
     failed = P.READ_FAILED
     P.REPORTS_CACHE = everywhere
+    # ⚖️ الهدفُ المنشورُ مجمَّدٌ ببصمته بعد الترقية، وبوّابةُ `gate` ترفض كلَّ هدفٍ مجمَّد.
+    #    لإعادة قياس الحرّاس الأخرى على البصمة نفسها تُقدَّم قائمةُ تجميدٍ فارغة (قراءةٌ محضة):
+    #    تطابقُ التجميد مع المانيفست تقيسه `full_audit.py` (البند 1).
+    P.load_frozen = lambda _cl, _b: ({}, "", None)
     print(f"أحكامٌ محمَّلة: {len(everywhere)} · أحكامٌ تعذّرت قراءتها: {failed}")
     by_sha = {}
     for _n, r in everywhere:
