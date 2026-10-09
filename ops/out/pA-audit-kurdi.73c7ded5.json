@@ -2,24 +2,24 @@
  "schema": 1,
  "tool": "full_audit-1.0",
  "date": "20261009",
- "timestampUtc": "2026-10-09T18:41:04Z",
- "elapsedSec": 79.4,
+ "timestampUtc": "2026-10-09T20:23:42Z",
+ "elapsedSec": 67.7,
  "phase": "all",
  "manifestIndexes": 180,
  "frozenBucket": 220,
- "reportsRead": 12069,
+ "reportsRead": 12099,
  "rows": [
   {
-   "key": "timings-staging/hafs/kurdi.8d63ac1f.jz",
-   "sha256": "8d63ac1f7ab7ea5ada7cb916d971ba9bc4ec26d7244fa72481c2efce6d1d9ec3",
+   "key": "timings-staging/hafs/kurdi.73c7ded5.jz",
+   "sha256": "73c7ded5d11910b6445d48b5777953f11c183f5880ce41efe48f78dc9b02317b",
    "riwaya": "hafs",
    "reciterId": "kurdi",
-   "bytes": 101145,
+   "bytes": 100595,
    "engine": "align-0.2",
-   "transformOp": "ctc_heardmap_splice:4,26,32,42,45,51,68,75,79",
+   "transformOp": "ctc_heardmap_splice:32,68",
    "staging": true,
    "identity": {
-    "sha256": "8d63ac1f7ab7ea5ada7cb916d971ba9bc4ec26d7244fa72481c2efce6d1d9ec3",
+    "sha256": "73c7ded5d11910b6445d48b5777953f11c183f5880ce41efe48f78dc9b02317b",
     "staging": true,
     "errors": [],
     "ok": true
@@ -33,16 +33,16 @@
     "structuralFatal": [],
     "structuralWarn": [
      "مداخل مدتها > 120ث: 1 · مثال: 2:282 مدتها 181ث",
-     "مطالع سور تبدأ دون 3ث — مرشّحون للمسبار الصوتي لا حكمٌ عليهم: 8:1=220م.ث · 17:1=671م.ث · 18:1=2931م.ث · 24:1=720م.ث · 25:1=840م.ث · 27:1=861م.ث · 34:1=2431م.ث · 44:1=860م.ث · 73:1=1040م.ث · 99:1=2902م.ث … و3 غيرها",
+     "مطالع سور تبدأ دون 3ث — مرشّحون للمسبار الصوتي لا حكمٌ عليهم: 8:1=220م.ث · 17:1=671م.ث · 18:1=2931م.ث · 24:1=720م.ث · 25:1=840م.ث · 26:1=300م.ث · 27:1=861م.ث · 34:1=2431م.ث · 44:1=860م.ث · 45:1=1640م.ث … و6 غيرها",
      "فجوات > 15ث بين آيتين متتاليتين: 3 · مثال: 5:29→5:30 فجوة 25ث"
     ],
     "decision": [],
     "engine": "align-0.2",
     "audioSha": 114,
     "bands": {
-     "MED": 4608,
-     "HIGH": 1100,
-     "LOW": 528
+     "MED": 4392,
+     "HIGH": 1310,
+     "LOW": 534
     },
     "ok": true
    },
@@ -53,8 +53,8 @@
     "tailMissing": [],
     "wholeMissing": [],
     "declared": {
-     "transformOp": "ctc_heardmap_splice:4,26,32,42,45,51,68,75,79",
-     "transformReason": "pA: محاولة ثانية بوضع السماع (سورة تامّة تُبنى من مراسٍ مسموعة) للسور التي ردّتها بوّابة السماع في kurdi فوق المنشور cf5848bd؛ والمدى المعطوب المقيس مسمّى لكلّ سورة",
+     "transformOp": "ctc_heardmap_splice:32,68",
+     "transformReason": "pA: محاولة ثانية بوضع السماع لس32 وس68 فقط (اجتازتا بوّابة السماع في المرشّح 8d63ac1f) فوق المنشور cf5848bd",
      "reasonCode": "SOURCE_TRUNCATED",
      "dropSurahs": [],
      "byReason": {},
@@ -68,7 +68,7 @@
     "ok": true
    },
    "durations": {
-    "durationOutliers": 7,
+    "durationOutliers": 5,
     "durationExamples": [
      {
       "aid": "53:3",
@@ -76,13 +76,6 @@
       "expMs": 5065,
       "ratio": 4.91,
       "chars": 14
-     },
-     {
-      "aid": "26:59",
-      "ms": 22190,
-      "expMs": 6827,
-      "ratio": 3.25,
-      "chars": 20
      },
      {
       "aid": "20:64",
@@ -99,18 +92,11 @@
       "chars": 16
      },
      {
-      "aid": "4:80",
-      "ms": 3,
-      "expMs": 16547,
-      "ratio": 0.0,
-      "chars": 48
-     },
-     {
-      "aid": "4:68",
-      "ms": 1018,
-      "expMs": 6550,
-      "ratio": 0.16,
-      "chars": 19
+      "aid": "4:126",
+      "ms": 200,
+      "expMs": 14705,
+      "ratio": 0.01,
+      "chars": 42
      },
      {
       "aid": "37:182",
@@ -122,17 +108,17 @@
     ],
     "impossibleShort": [
      {
-      "aid": "4:80",
-      "ms": 3,
-      "expMs": 16547,
-      "ratio": 0.0,
-      "chars": 48
+      "aid": "4:126",
+      "ms": 200,
+      "expMs": 14705,
+      "ratio": 0.01,
+      "chars": 42
      }
     ],
     "veryShort": [],
     "extremeLong": [],
-    "longOutliers": 4,
-    "shortOutliers": 3,
+    "longOutliers": 3,
+    "shortOutliers": 2,
     "silenceGaps": 3,
     "silenceExamples": [
      {
@@ -160,52 +146,52 @@
     "notes": [],
     "samples": [
      {
-      "salt": "pA8d631",
+      "salt": "pA73c71",
       "source": "ci",
       "engine": "pywhispercpp/ggml-q8 (tiny-ar-quran)",
       "verdict": "مقبول",
       "m": 1,
       "n": 200,
       "rate": 0.005,
-      "hi": 0.014800000000000004,
+      "hi": 0.015465000000000003,
       "fatal": 0,
-      "ts": 1791569545.8906913
+      "ts": 1791575441.329655
      },
      {
-      "salt": "pA8d633",
-      "source": "ci",
-      "engine": "pywhispercpp/ggml-q8 (tiny-ar-quran)",
-      "verdict": "مقبول",
-      "m": 3,
-      "n": 200,
-      "rate": 0.015000000000000003,
-      "hi": 0.0364471688721747,
-      "fatal": 0,
-      "ts": 1791569643.5583413
-     },
-     {
-      "salt": "pA8d632",
+      "salt": "pA73c72",
       "source": "ci",
       "engine": "pywhispercpp/ggml-q8 (tiny-ar-quran)",
       "verdict": "مقبول",
       "m": 1,
       "n": 200,
       "rate": 0.005,
-      "hi": 0.0148,
+      "hi": 0.015465,
       "fatal": 0,
-      "ts": 1791569645.9255419
+      "ts": 1791575467.866191
      },
      {
-      "salt": "pA8d634",
+      "salt": "pA73c74",
       "source": "ci",
       "engine": "pywhispercpp/ggml-q8 (tiny-ar-quran)",
       "verdict": "مقبول",
-      "m": 0,
+      "m": 1,
       "n": 200,
-      "rate": 0.0,
-      "hi": 0.014867039231272083,
+      "rate": 0.005,
+      "hi": 0.015465000000000007,
       "fatal": 0,
-      "ts": 1791569696.6070483
+      "ts": 1791575478.4264514
+     },
+     {
+      "salt": "pA73c73",
+      "source": "ci",
+      "engine": "pywhispercpp/ggml-q8 (tiny-ar-quran)",
+      "verdict": "مقبول",
+      "m": 2,
+      "n": 200,
+      "rate": 0.01,
+      "hi": 0.024405013929732572,
+      "fatal": 0,
+      "ts": 1791575481.4230773
      }
     ],
     "pooled": {
@@ -214,10 +200,10 @@
      "rate": 0.00625,
      "hi": 0.013096055089993884,
      "salts": [
-      "pA8d631",
-      "pA8d632",
-      "pA8d633",
-      "pA8d634"
+      "pA73c71",
+      "pA73c72",
+      "pA73c73",
+      "pA73c74"
      ],
      "seeds": 4,
      "engine": "pywhispercpp/ggml-q8 (tiny-ar-quran)",
@@ -251,21 +237,18 @@
       15,
       19,
       21,
-      26,
       27,
       28,
       34,
       40,
       42,
       43,
-      45,
       49,
       50,
       53,
       55,
       61,
-      70,
-      75
+      70
      ],
      "verdict": "clean"
     },
@@ -296,7 +279,7 @@
   "gapsBad": [],
   "audioOk": 1,
   "audioBad": [],
-  "durationOutliersTotal": 7,
+  "durationOutliersTotal": 5,
   "impossibleShortTotal": 1,
   "indexesWithImpossibleShort": 1,
   "veryShortTotal": 0,
