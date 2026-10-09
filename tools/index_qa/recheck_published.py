@@ -58,6 +58,21 @@ def main():
     #    لإعادة قياس الحرّاس الأخرى على البصمة نفسها تُقدَّم قائمةُ تجميدٍ فارغة (قراءةٌ محضة):
     #    تطابقُ التجميد مع المانيفست تقيسه `full_audit.py` (البند 1).
     P.load_frozen = lambda _cl, _b: ({}, "", None)
+    # 🩺 تشخيصُ البتر يصف الفهرسَ الذي سبق الترقية (يُجدَّد بعد النشر) فيظهر «stale» بعدها دائماً.
+    #    لقياس بقيّة الحرّاس يُقرأ محتوى التشخيص بلا مقابلة ETag (سورُ البتر الموسومة تُحكم كما هي)،
+    #    ويبقى تعذّرُ القراءة الحقيقيّ «stale» كما أصلحه PR #34. والفرقُ يُسجَّل في `etagIgnored`.
+    _orig_trunc = P.truncation
+    ETAG_IGNORED = set()
+
+    def _trunc(cl_, b_, riw, rec, etag=None):
+        cut_, st_ = _orig_trunc(cl_, b_, riw, rec, etag)
+        if st_ == "stale":
+            cut2, st2 = _orig_trunc(cl_, b_, riw, rec, None)
+            if st2 == "match":
+                ETAG_IGNORED.add(f"{riw}/{rec}")
+                return cut2, "match"
+        return cut_, st_
+    P.truncation = _trunc
     print(f"أحكامٌ محمَّلة: {len(everywhere)} · أحكامٌ تعذّرت قراءتها: {failed}")
     by_sha = {}
     for _n, r in everywhere:
@@ -112,6 +127,7 @@ def main():
                    if k in l or "أحكامٌ مقروءة" in l or "SystemExit" in l or "EXC " in l]
             item["runs"].append({"src": k, "ok": ok, "bad": bad[:6], "code": str(code),
                                  "rel": rel[:8], "tail": [t[:200] for t in txt.strip().splitlines()[-2:]]})
+        item["etagIgnored"] = f"{e['riwaya']}/{e['reciterId']}" in ETAG_IGNORED
         res.append(item)
         r0 = item["runs"][0] if item["runs"] else None
         print(f"{pk} {e['sha256'][:8]} -> " + (("✅" if r0["ok"] else "⛔ " + " | ".join(r0["bad"][:2])) if r0 else "بلا حكم"))
