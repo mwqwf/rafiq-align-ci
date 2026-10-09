@@ -328,6 +328,8 @@ def held():
         parts = raw.split(TAB, 1) if TAB in raw else raw.split(None, 1)
         if len(parts) == 2:
             out[parts[0].strip()] = parts[1].strip()
+        elif len(parts) == 1:
+            out[parts[0].strip()] = "محجوزٌ بلا سببٍ مكتوب"      # لا يسقط حجزٌ لغياب علّته
     # ⛔ **حارسُ شكلِ المفتاح (‏وقعت الحادثة 2026-09-03):** الحجزُ يُطابَق على
     #    **الهدف** `timings/<الرواية>/<المعرّف>.jz` مطابقةً حرفية. فمن كتب مفتاح
     #    **المصدر** (`timings-staging/…`) أو ألحق بصمةً (`…/<id>.<sha>.jz`) كتب
@@ -359,7 +361,10 @@ def truncation(cl, bucket, riwaya, reciter, index_etag=None):
     key = DIAGNOSIS_KEY.format(riwaya=riwaya, reciter=reciter)
     try:
         data = json.loads(cl.get_object(Bucket=bucket, Key=key)["Body"].read())
-    except Exception:                                 # noqa: BLE001
+    except Exception as ex:  # noqa: BLE001
+        code = str(getattr(ex, "response", {}).get("Error", {}).get("Code", ""))
+        if code not in ("NoSuchKey", "404") and "NoSuchKey" not in str(ex):
+            return [], "stale"   # تعذّرُ القراءة ≠ غيابُ التشخيص: يُحجز ولا يُرقّى
         return [], "missing"
     # **الهوية لا الترتيب الزمني** (‏`schema: 2` من github-12): التشخيص يصف
     # فهرساً بعينه فيحمل بصمته (`indexETag`). والطابع الزمني يقول **متى كُتب**
@@ -488,8 +493,8 @@ def parse_frozen(text):
         if not row:
             continue
         parts = row.split()
-        if len(parts) >= 2:
-            out[parts[0]] = parts[1]
+        if parts:
+            out[parts[0]] = parts[1] if len(parts) >= 2 else ""   # مفتاحٌ بلا بصمة يبقى مجمَّداً
     return out
 
 
@@ -656,6 +661,7 @@ CI_SOURCES = {"ci", "cloud-build"}
 # ترقية (كانت 9 أزواج × 3 دقائق هدراً). ⛔ ولا تُخزَّن بين الدورتين: الراصد
 # يمحوها في آخر الدورة، فلا يُبنى حكمٌ على قراءةٍ أقدم من دورة.
 REPORTS_CACHE = None
+READ_FAILED = 0       # عددُ أحكامٍ تعذّرت قراءتُها — يمنع --yes (حكمٌ رافضٌ ضائعٌ يُقرأ قبولاً)
 
 
 def bucket_reports(cl, bucket):
@@ -748,6 +754,8 @@ def bucket_reports(cl, bucket):
                         out.append((key, rep))
         if hits:
             print(f"  ⚡ أحكامٌ من الذاكرة المحليّة: {hits} · نُزّل {len(keys)}")
+    global READ_FAILED  # noqa: PLW0603
+    READ_FAILED = failed
     if failed:
         # ⛔ **الرقمُ عند وجود فشلٍ حدٌّ أدنى لا قياس** — ولا يُبنى عليه رفض.
         print(f"  ⚠️ أحكامُ الدلو: قُرئ {len(out)} من {seen} ملفاً · "
@@ -811,7 +819,8 @@ def openers_tool_ok(op):
             OPENERS_TRUSTED = set()
     if not OPENERS_TRUSTED:
         return False                   # تعذّرَ السؤال ⇒ لا اعتداد، ويُعاد المسح
-    return any(c.startswith(t) or t.startswith(c) for t in OPENERS_TRUSTED)
+    return len(c) >= 7 and any(len(t) >= 7 and (c.startswith(t) or t.startswith(c))
+                                for t in OPENERS_TRUSTED)
 
 
 def openers_map(reports_iter):
@@ -1117,6 +1126,8 @@ def pooled_samples(reps):
         if not (isinstance(sv, list) and len(sv) >= 2
                 and isinstance(sv[0], int) and isinstance(sv[1], int)):
             return None
+        if r.get("fatal"):
+            return None                    # خللٌ مؤكَّدٌ في عيّنةٍ منفردة لا يُذوَّب في المتوسّط
         if not salt or sv[1] < n_min:
             return None                    # ملحٌ مجهول أو عيّنةٌ دون الحدّ
         est = sv[0] / sv[1] if sv[1] else None
@@ -1585,11 +1596,13 @@ def gate(rep, frozen, prefix, holds=None, override=None, ci_reports=None,
     # دون العتبة هو ‏`1 − عتبة^(1/ن) < عتبة` (استنتاج github-7e).
     n_min = _min_sample(SEVERE_CEILING)
     n_obs = ((rep.get("sample") or {}).get("severe") or [None, None])[1]
-    if isinstance(n_obs, int) and n_obs < n_min:
+    # ⛔ عددٌ غيرُ صحيح (float أو bool) لا يتخطّى الحدَّ الأدنى؛ والغيابُ (صيغةٌ قديمة) يبقى كما كان.
+    if n_obs is not None and (not isinstance(n_obs, int) or isinstance(n_obs, bool) or n_obs < n_min):
         return target, (f"عيّنةٌ من {n_obs} حدّاً لا تُغلق عتبة "
                         f"{SEVERE_CEILING * 100:.0f}% مهما نظفت — "
                         f"الحدّ الأدنى المشتقّ {n_min}")
-    if hi >= SEVERE_CEILING:
+    import math as _m
+    if not (isinstance(hi, (int, float)) and _m.isfinite(hi) and hi < SEVERE_CEILING):
         return target, (f"حدّيّ (D-068): الحدّ الأعلى {hi * 100:.1f}% ≥ "
                         f"{SEVERE_CEILING * 100:.0f}%")
     return target, None
@@ -1612,8 +1625,9 @@ def catalog(cl, bucket):
                                             Key=CATALOG_KEY)["Body"].read())
             _CATALOG = {r["id"]: {x["id"]: x for x in r.get("reciters", [])}
                         for r in data.get("riwayat", [])}
-        except Exception:                                         # noqa: BLE001
-            _CATALOG = {}                     # لا كتالوج ⇒ لا حكم، لا اختراع
+        except Exception as ex:                                   # noqa: BLE001
+            # ⛔ تعذّرُ القراءة ليس «لا كتالوج»: حارسُ الهويّة يقف ولا يتعطّل صامتاً.
+            raise SystemExit(f"⛔ تعذّرت قراءة كتالوج الهويّة ({type(ex).__name__}) — لا ترقية")
     return _CATALOG
 
 
@@ -1840,10 +1854,10 @@ def index_gate(idx, *, parent=None, parent_sha=None):
         dropped |= inherited
     gone = sorted({str(n) for n in range(1, 115)} - present - dropped,
                   key=int)
-    if gone and len(idx.get("entries", [])) > 4000:
+    if gone:
         return ("سورٌ غائبةٌ كلّياً: " + "، ".join(gone[:5])
                 + (f" (و{len(gone) - 5} غيرها)" if len(gone) > 5 else ""))
-    excused = int((miss.get("byReason") or {}).get("source_truncated", 0))
+    excused = max(0, min(int((miss.get("byReason") or {}).get("source_truncated", 0)), count))
     unexplained = count - excused
     if unexplained / total > MAX_MISSING_FRAC:
         return (f"غيابٌ غير معلَّل {unexplained}/{total} "
@@ -2283,6 +2297,8 @@ def main():
     everywhere = (self_test(cl, bucket, a.prefix) if a.self_test
                   else (list(REPORTS_CACHE) if REPORTS_CACHE is not None
                         else list(reports()) + bucket_reports(cl, bucket)))
+    if a.yes and READ_FAILED:
+        raise SystemExit(f"⛔ تعذّرت قراءة {READ_FAILED} حكماً من الدلو — قد يكون بينها رفضٌ؛ لا ترقية")
     ci_reports = ci_map(everywhere)
     openers_reports = None if a.self_test else openers_map(everywhere)
     # ⛔ **D-111 كانت نصفَ مطبَّقة**: بُنيت في الراصد وغابت هنا — والراصدُ
@@ -2482,7 +2498,9 @@ def main():
         #    الخامس عشر) — تكرّر لأنّ الدرسَ كان في مستندٍ لا في مكانِ الخطأ.
         #    ⇒ فليبقَ هذان الحارسان متجاورَين تحت سطر التحميل: **كلُّ حارسٍ
         #    يقرأ `idx` موضعُه بعده، بلا استثناء.**
-        if _op_mixes_engines((idx.get("transform") or {}).get("op") or ""):
+        _tr0 = idx.get("transform")
+        _tr0 = _tr0 if isinstance(_tr0, dict) else {"op": _tr0 or ""}
+        if _op_mixes_engines(_tr0.get("op") or ""):
             print(f"  ⛔ {src}: تحويلٌ يخلط محرّكين في فهرسٍ واحد — "
                   "فهرسٌ واحد = محرّكٌ واحد وجيلٌ واحد")
             continue
@@ -2509,7 +2527,7 @@ def main():
         if _hg:
             print(f"  ⛔ {src}: {_hg}")
             continue
-        _op = (idx.get("transform") or {}).get("op") or ""
+        _op = _tr0.get("op") or ""
         if _op.startswith("drop_surah:") and not a.allow_truncated:
             _big = [n for n in (int(x) for x in re.findall(r"\d+", _op))
                     if 1 <= n <= 114 and _AYAH_COUNTS[n - 1] > 20]

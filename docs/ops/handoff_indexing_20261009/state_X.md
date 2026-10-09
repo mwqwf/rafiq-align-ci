@@ -1,0 +1,20 @@
+# حالة fixX
+- [21:05] بدأت: قراءة الأدوات؛ بصمات الأصول للذيول الستة معروفة من ops/out؛ التالي: أمر state
+- 21:12 جرد state: 180/180. أصول: asiri fbf468c0 (3siri) · balilah f1b40abe · الذيول الستة 7764ba71/84c3ab87/214a5703/81d03598/aa7c8df8/9fc642e3 (من stage outputs)
+- 21:15 دُفعت أوامر 20261008_2115_fixX_*: stage asiri7 + balilah69، وdispatch free-post-stage-quality للذيول الستة (حارس plan يكشف تقادم الأصل). التالي: قراءة ops/out/20261008_2115_fixX_*
+- 21:20 المدير: أجّل heard_gate لبليلة حتى إشعاره (لا تُطلق free-post-stage لها؛ شغّل openers/salts/census منفردة). asiri: stage ردّ حارس الهوية (way2quran 009.mp3 لا يطابق قاعدة 3siri). بليلة staged 9e8a0942
+- 21:30 asiri: candidate جديد fixX-asiri7-declare-s9 (a55d367d) لإعلان مصدر س9؛ دُفع stage. بليلة: بوابات struct/openers/salt1-4/census/diag دُفعت بلا heard. الذيول الستة: free-post-stage أُطلقت (runs 378449xxxx-3784501xxxx)
+- 21:40 asiri محجوب: الأب fbf468c0 لا يعلن مصدر س9 (way2quran مسجل)؛ مرشح هوية 3siri.60234f4a (وصفي) مرحّل ولم يُعتمد؛ لا بدّ من ترقيته أوّلاً ثم إعادة بناء asiri على أبٍ جديد. أُطلق فحص مجاني لـ60234f4a. بقي: انتظار الذيول الستة وبوابات بليلة
+- 21:19 المدير: أكمل للحسم؛ ترقية عبر promote_verified_transform؛ أخبره فوراً إن نجح 3siri.60234f4a؛ بليلة heard ينتظر إشعاره
+- 21:44 أُطلق heard+audit لبليلة، وتدقيق الأحكام (full_audit) للستة و3siri؛ 3siri free-post-stage فشل (يُقرأ السبب)
+- 21:56 تدقيق full_audit: كل الستة+بليلة: لا خطأ مؤكد بند1-4؛ 3siri: بنية (س7 غائبة كليّاً) فاشل متوقع؛ free-post-stage فشل review فقط لـa_binaoun؛ المسار: diagnosis ثم rerun_stale_review.py؛ سجلات Actions محجوبة وjoblog.json رفضه المصنّف
+- 22:00 3siri: المرحّل الأول فشل plan (op source_declaration_metadata محا drop_surah:7 فصارت س7 غياباً غير معلن)؛ بنيت fixX-identity-3siri-dropkept (d7aeec9c) ورُفع 3siri.3a321fbf (sha 3a321fbf5bd2…)؛ أُطلق فحصه. a_binaoun: diag ثم rerun_stale_review
+- 22:05 3siri: حتى المعدّل مرفوض plan: inherited_drops يشترط reasonCode=SOURCE_TRUNCATED والأصل SOURCE_CORRUPT ⇒ لا يمرّ؛ والتعديل المقترح على stage_transform (declare-registered-sources) رفضه مصنّف الأذونات: يُرفع للمدير. بقي: الذيول وبليلة heard/audit وa_binaoun qa2
+- 22:08 heard_gate يمرّ للسبعة (ops/out/20261008_2320_fixX_hg_all.txt)؛ أُطلق qa موحّد لبليلة؛ تنتظر review للبقية
+- 22:29 a_binaoun ناجٍ كاملاً (run 37850899127) ⇒ كُتب أمر الترقية في fixX_promote
+- 22:37 sultani_douri ناجٍ (run 37845011615) ⇒ أمر ترقية كُتب
+- 22:38 balilah ناجٍ (run 37851621642) ⇒ أمر ترقية كُتب
+- 22:52 bader ناجٍ ⇒ أمر كُتب؛ ينتظر alosfor i_sanankoua jormy
+- 23:03 alosfor ناجٍ ⇒ أمر كُتب
+- 23:05 jormy ناجٍ ⇒ أمر كُتب
+- 23:31 i_sanankoua ناجٍ ⇒ أمر كُتب. كل السبعة جاهزة؛ 3siri/asiri محجوبان بقرار
