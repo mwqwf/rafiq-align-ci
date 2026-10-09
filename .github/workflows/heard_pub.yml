@@ -193,11 +193,25 @@ jobs:
           sha = hashlib.sha256(body).hexdigest()
           idx = json.loads(gzip.decompress(body))
           cs = H.by_surah(idx["entries"])
+          shas = idx.get("audioSha256"); present = sorted(cs)
+          if isinstance(shas, list) and len(shas) == 114:
+              want = {s: shas[s - 1] for s in present}
+          elif isinstance(shas, list) and len(shas) == len(present):
+              want = dict(zip(present, shas))
+          else:
+              want = {}
           new = {}
           for p in glob.glob("shards/**/heard_s*.json", recursive=True):
               m = H.compact_map(json.load(open(p, encoding="utf-8")))
-              if m.get("surah") and m.get("anchors"):
-                  new[int(m["surah"])] = m
+              if not (m.get("surah") and m.get("anchors")):
+                  continue
+              sn = int(m["surah"])
+              refs = {v[2] for v in cs.get(sn, {}).values()}
+              # الرابطُ من مداخل الفهرس نفسِه، والبصمةُ المقيسة تُقارن بالمعلنة؛ ما لا يطابق لا يُكتب
+              ok_sha = bool(want.get(sn)) and m.get("sha256") == want.get(sn)
+              print(f"   س{sn}: {'تطابق' if ok_sha else 'لا تطابق'} · مقيسة {str(m.get('sha256'))[:10]} · معلنة {str(want.get(sn))[:10]} · {sorted(refs)[0] if refs else '?'}")
+              if ok_sha and m.get("fileRef") in refs:
+                  new[sn] = m
           sk = H.state_key(key)
           try:
               old = json.loads(s3.get_object(Bucket=c["bucket"], Key=sk)["Body"].read())
