@@ -118,7 +118,7 @@ ALLOWED_TOOLS = {"index_qa/adopt_noah_source_gap.py",  # اعتماد مقيد �
                  "index_qa/truncate_tail.py", "index_qa/index_header.py",
                  # ⚖️ fixV 2026-10-05: تثبيتُ بدء آياتٍ على أداءٍ مسموعٍ مقيس في تسجيلٍ مكرَّر (يكتب الاختبارَ وحده؛ يلزمه الإحصاءُ الشامل).
                  "index_qa/pin_heard.py", "index_qa/census_gate_check.py",
-                 "index_qa/recheck_published.py",  # 🔎 pR 2026-10-09: إعادةُ فحص المنشور بالحرّاس المشدَّدة (عرضٌ فقط، قارئ محض)
+                 "index_qa/recheck_published.py", "index_qa/recheck_pool.py",  # 🔎 pR 2026-10-09: إعادةُ فحص المنشور بالحرّاس المشدَّدة (عرضٌ فقط، قارئ محض)
                  "index_qa/low_coverage_scan.py", "index_qa/dup_sha_sweep.py",
                  "index_qa/duration_profile.py", "index_qa/reciter_evidence.py",
                  "index_qa/dump_state.py", "index_qa/show_entries.py", "index_qa/heard_pub_rows.py", "index_qa/clamp_file_end.py", "index_qa/material_probe.py",
