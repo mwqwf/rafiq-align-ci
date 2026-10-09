@@ -1151,7 +1151,11 @@ def _exact_window_pcm(mp3, start_ms, end_ms, ayah_end_ms=None, file_end_ms=None)
     except RuntimeError as ex:
         if "أبلغ خطأ فكٍّ كامل" not in str(ex):
             raise
-        whole = _resync_full_decode_pcm(mp3)
+        try:
+            whole = _resync_full_decode_pcm(mp3)
+        except RuntimeError as ex2:
+            # سببُ الرفض الأوّل (‏خطأُ الفكّ مع rc=0) يبقى في الرسالة مع سبب تعذّر الترميم.
+            raise RuntimeError(f"{ex} · الترميم: {str(ex2)[:160]}") from None
     a = int(round(start * rate / 1000))
     x = np.array(whole[a:a + expected], dtype="float32")
     fd = len(whole) * 1000.0 / rate                     # نهايةُ الملفّ بالعيّنة
