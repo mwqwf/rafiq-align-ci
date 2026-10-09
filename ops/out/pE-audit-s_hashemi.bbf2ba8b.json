@@ -2,12 +2,12 @@
  "schema": 1,
  "tool": "full_audit-1.0",
  "date": "20261009",
- "timestampUtc": "2026-10-09T21:47:42Z",
- "elapsedSec": 68.4,
+ "timestampUtc": "2026-10-09T23:02:44Z",
+ "elapsedSec": 69.1,
  "phase": "all",
  "manifestIndexes": 180,
  "frozenBucket": 220,
- "reportsRead": 12104,
+ "reportsRead": 12115,
  "rows": [
   {
    "key": "timings-staging/hafs/s_hashemi.bbf2ba8b.jz",
@@ -187,16 +187,96 @@
     "surahsWithRate": 113
    },
    "audio": {
-    "audioReportsOnSha": 0,
-    "openersOnSha": false,
-    "errors": [
-     "لا حكمَ صوتيٍّ بعيّنةٍ على البصمة المنشورة",
-     "لا شاهدَ مطالعَ على البصمة المنشورة"
-    ],
+    "audioReportsOnSha": 4,
+    "openersOnSha": true,
+    "errors": [],
     "notes": [],
-    "samples": [],
-    "pooled": null,
-    "severeHi": null,
+    "samples": [
+     {
+      "salt": "pEbbf22",
+      "source": "ci",
+      "engine": "pywhispercpp/ggml-q8 (tiny-ar-quran)",
+      "verdict": "مقبول",
+      "m": 0,
+      "n": 200,
+      "rate": 0.0,
+      "hi": 0.014867039231272083,
+      "fatal": 0,
+      "ts": 1791583019.92491
+     },
+     {
+      "salt": "pEbbf23",
+      "source": "ci",
+      "engine": "pywhispercpp/ggml-q8 (tiny-ar-quran)",
+      "verdict": "مقبول",
+      "m": 0,
+      "n": 200,
+      "rate": 0.0,
+      "hi": 0.014867039231272083,
+      "fatal": 0,
+      "ts": 1791583021.6752856
+     },
+     {
+      "salt": "pEbbf21",
+      "source": "ci",
+      "engine": "pywhispercpp/ggml-q8 (tiny-ar-quran)",
+      "verdict": "مقبول",
+      "m": 0,
+      "n": 200,
+      "rate": 0.0,
+      "hi": 0.014867039231272083,
+      "fatal": 0,
+      "ts": 1791583031.9590297
+     },
+     {
+      "salt": "pEbbf24",
+      "source": "ci",
+      "engine": "pywhispercpp/ggml-q8 (tiny-ar-quran)",
+      "verdict": "مقبول",
+      "m": 0,
+      "n": 200,
+      "rate": 0.0,
+      "hi": 0.014867039231272083,
+      "fatal": 0,
+      "ts": 1791583036.6834505
+     }
+    ],
+    "pooled": {
+     "m": 0,
+     "n": 800,
+     "rate": 0.0,
+     "hi": 0.003737662826100608,
+     "salts": [
+      "pEbbf21",
+      "pEbbf22",
+      "pEbbf23",
+      "pEbbf24"
+     ],
+     "seeds": 4,
+     "engine": "pywhispercpp/ggml-q8 (tiny-ar-quran)",
+     "rule": "D-098"
+    },
+    "severeHi": 0.003737662826100608,
+    "openers": {
+     "commit": "8c0d5e00935bc6c31ae29d07de90fa20e2c5e759",
+     "toolOk": true,
+     "scope": "full",
+     "checked": 112,
+     "hasLate": true,
+     "late": [],
+     "lateCtcRule": null,
+     "lateConfirmed": [],
+     "swallowed": [],
+     "suspect": [],
+     "tail": [
+      69
+     ],
+     "unknown": [
+      7,
+      13
+     ],
+     "verdict": "clean"
+    },
     "otherShasWithSamples": [
      "2bac5d86",
      "52365f71",
@@ -206,7 +286,7 @@
      "c0ed7cf0",
      "dec282f0"
     ],
-    "ok": false
+    "ok": true
    }
   }
  ],
@@ -219,10 +299,8 @@
   "structureBad": [],
   "gapsOk": 1,
   "gapsBad": [],
-  "audioOk": 0,
-  "audioBad": [
-   "timings-staging/hafs/s_hashemi.bbf2ba8b.jz"
-  ],
+  "audioOk": 1,
+  "audioBad": [],
   "durationOutliersTotal": 16,
   "impossibleShortTotal": 0,
   "indexesWithImpossibleShort": 0,
