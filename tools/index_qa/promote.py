@@ -1793,7 +1793,8 @@ def inherited_drops(idx, parent, parent_sha):
     present = {e["ayahId"].split(":")[0] for e in idx.get("entries", [])}
     if not claimed <= old_declared or claimed & (old_present | present):
         return set(), "إعلان الغياب الموروث يحاول إسقاط سورة جديدة أو حاضرة"
-    if (pt.get("reasonCode") != "SOURCE_TRUNCATED" or not pt.get("reasonUser")
+    # إذن المالك 2026-10-08 23:51Z و2026-10-09 06:24Z: يُورَث إعلانُ الفاسد كالمبتور بالبيان نفسه حرفاً ولا إسقاطَ جديد
+    if (pt.get("reasonCode") not in ("SOURCE_TRUNCATED", "SOURCE_CORRUPT") or not pt.get("reasonUser")
             or any(tr.get(k) != pt.get(k) for k in ("reasonCode", "reasonUser"))):
         return set(), "بيان سبب الغياب الموروث مفقود أو تبدل"
     if not {e["ayahId"] for e in parent.get("entries", [])} <= {e["ayahId"] for e in idx.get("entries", [])}:

@@ -51,6 +51,21 @@ class InheritedDropsTest(unittest.TestCase):
             self.idx["transform"]["dropSurah"] = value
             self.assertIsNotNone(self.check()[1])
 
+    def test_corrupt_source_notice_is_inherited_only_unchanged(self):
+        self.parent["transform"].update(op="drop_surah:24", reasonCode="SOURCE_CORRUPT")
+        self.idx["transform"].update(reasonCode="SOURCE_CORRUPT")
+        self.assertEqual(self.check(), ({"24"}, None))
+        # تبدّل البيان بين الأصل والمرشح يُردّ
+        self.idx["transform"]["reasonCode"] = "SOURCE_TRUNCATED"
+        self.assertIsNotNone(self.check()[1])
+        # رمزٌ آخر غير الاثنين يُردّ ولو توافق الطرفان
+        self.parent["transform"]["reasonCode"] = self.idx["transform"]["reasonCode"] = "OTHER"
+        self.assertIsNotNone(self.check()[1])
+        # وإسقاطٌ جديد أو سورةٌ حاضرة يُردّ ولو كان الرمز CORRUPT
+        self.parent["transform"]["reasonCode"] = self.idx["transform"]["reasonCode"] = "SOURCE_CORRUPT"
+        self.idx["transform"]["dropSurah"] = [24, 107]
+        self.assertIsNotNone(self.check()[1])
+
 
 if __name__ == "__main__":
     unittest.main()
