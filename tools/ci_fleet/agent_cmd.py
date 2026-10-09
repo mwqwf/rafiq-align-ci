@@ -120,7 +120,7 @@ ALLOWED_TOOLS = {"index_qa/adopt_noah_source_gap.py",  # اعتماد مقيد �
                  "index_qa/pin_heard.py", "index_qa/census_gate_check.py",
                  "index_qa/low_coverage_scan.py", "index_qa/dup_sha_sweep.py",
                  "index_qa/duration_profile.py", "index_qa/reciter_evidence.py",
-                 "index_qa/dump_state.py", "index_qa/show_entries.py", "index_qa/clamp_file_end.py", "index_qa/material_probe.py",
+                 "index_qa/dump_state.py", "index_qa/show_entries.py", "index_qa/heard_pub_rows.py", "index_qa/clamp_file_end.py", "index_qa/material_probe.py",
                  # ⚖️ أُضيف 2026-09-28: مسبارُ صوتِ سورةٍ قارئٌ محض (‏مادّةٌ أم أداة؟) — لا دلوَ ولا سرّ.
                  "index_qa/surah_audio_probe.py",
                  # ⚖️ أُضيف 2026-09-28: مسبارُ عنصرٍ منفردٍ في archive.org (‏بياناتٌ ومدّةٌ ونوعُ معدّل) — قارئٌ محض.
