@@ -1,0 +1,69 @@
+# rc=0
+📦 heard-probe-s1-37887406710 · 3454 بايت
+── out/heard_s001.json (2151 بايت)
+{"surah": 1, "riwaya": "hafs", "engine": "ctc-heardmap-1", "totalMs": 55196, "heardMap": {"1": {"anchorMs": [160, 2681], "windowAnchorMs": null, "anchorStartEvidence": null, "anchorQuality": 0.632, "heard": true, "heardMs": [4022, 6084], "score": 0.973, "occurrences": [[4022, 6084, 0.973]]}, "2": {"anchorMs": [4022, 5603], "windowAnchorMs": null, "anchorStartEvidence": null, "anchorQuality": 0.471, "heard": true, "heardMs": null, "score": null, "occurrences": [[4763, 7585, 0.588]]}, "3": {"anchorMs": [5683, 7785], "windowAnchorMs": null, "anchorStartEvidence": null, "anchorQuality": 0.583, "heard": true, "heardMs": null, "score": null, "occurrences": [[600, 1681, 0.609], [1921, 4282, 0.609], [4763, 6084, 0.917]]}, "4": {"anchorMs": [8745, 13969], "windowAnchorMs": null, "anchorStartEvidence": null, "anchorQuality": 0.364, "heard": true, "heardMs": null, "score": null, "occurrences": []}, "5": {"anchorMs": [16751, 24496], "windowAnchorMs": [14229, 24496], "anchorStartEvidence": {"kind": "cross-ayah-replace-first-equal", "rawStartMs": 14229, "gateStartMs": 16751, "shiftMs": 2522, "canonicalCharGap": 2, "opcode": ["replace", 62, 66, 57, 61], "mappedHeardIndex": 64, "firstEqualHeardIndex": 66, "skippedDeleteHeardChars": 0}, "anchorQuality": 0.632, "heard": true, "heardMs": [16751, 23515], "score": 0.579, "occurrences": [[16751, 23515, 0.579]]}, "6": {"anchorMs": [24636, 29839], "windowAnchorMs": null, "anchorStartEvidence": null, "anchorQuality": 0.278, "heard": false, "heardMs": null, "score": null, "occurrences": []}, "7": {"anchorMs": [31701, 48252], "windowAnchorMs": null, "anchorStartEvidence": null, "anchorQuality": 0.419, "heard": true, "heardMs": null, "score": null, "occurrences": []}}, "chunkMap": [[0, 15000, 0, 0.947, 65], [15000, 30000, 4, 0.579, 41], [30000, 45000, 4, 0.474, 50], [45000, 60000, null, 0.0, 1], [60000, 75000, null, 0.0, 0]], "heardChars": 157, "anchorQualityMedian": 0.471, "entries": [], "issues": [], "bands": {}, "fileRef": "https://server10.mp3quran.net/jleel/001.mp3", "sha256": "6771fdf84083fbf1e4321ed23d2804f399ba828c45cb47745228a62d344f52f5", "vadRel": null, "vadVersion": "adaptive-2"}
+── out/report.txt (1339 بايت)
+# خريطةُ السماع س1 · 55196م.ث · 157 حرفاً مسموعاً
+# آية	مِرساةٌ عامّة بدء	نهاية	جودة	أداءٌ منفرد بدء	نهاية	تشابه	أداءاتٌ أخرى
+1:1	0.2	2.7	0.632	4.0	6.1	0.973	
+1:2	4.0	5.6	0.471	—	—	—	5–8s(0.588)
+1:3	5.7	7.8	0.583	—	—	—	1–2s(0.609) · 2–4s(0.609) · 5–6s(0.917)
+1:4	8.7	14.0	0.364	—	—	—	
+1:5	16.8	24.5	0.632	16.8	23.5	0.579	
+1:6	24.6	29.8	0.278	—	—	—	
+1:7	31.7	48.3	0.419	—	—	—	
+# قطعُ الملفّ (15ث): أقربُ آيةٍ وتشابهُها — ما لا يقارب شيئاً مادّةٌ زائدة · ثمّ المسموعُ نفسُه
+0–15s	1:1	0.947	65حرفاً	«أَعُوذُ بِاللّه مِنَ الشَّيْطَانِ الرّجِيمٌبِسْمِ اللَّهِ الرَّحْمَنِ الرَّحِيألْأَمنُمنََ من جِْعُنا مَ لَّهُمَا َا دِغَلع»
+15–30s	1:5	0.579	41حرفاً	«ما أَركِينإلَعَكاَِدوقَلإيا كانَ سَأقَإ إدي دُرْسِقَت ضَلوَصتامُ»
+30–45s	1:5	0.474	50حرفاً	«صطِضاء صال ل يقِير لا أن نعرب س عَليهمنظَيمٍمكذبعنبَيقنضبعَمَييهِ مله»
+45–60s	—	0.0	1حرفاً	«ل»
+60–75s	—	0.0	0حرفاً	«»
+
+── logs/probe.log (2836 بايت)
+Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+س1: 7 آية · الملفّ 55ث · فكّ CTC للملفّ كلِّه…
+
+Loading weights:   0%|          | 0/424 [00:00<?, ?it/s]
+Loading weights: 100%|██████████| 424/424 [00:00<00:00, 24078.11it/s]
+المسموع: 157 حرفاً هيكليّاً على 2758 إطاراً (20.0م.ث/إطار)
+مراسٍ عامّة ≥0.3: 6/7 · وسيطُ الجودة 0.471 · بلا مِرساة: [6]
+# خريطةُ السماع س1 · 55196م.ث · 157 حرفاً مسموعاً
+# آية	مِرساةٌ عامّة بدء	نهاية	جودة	أداءٌ منفرد بدء	نهاية	تشابه	أداءاتٌ أخرى
+1:1	0.2	2.7	0.632	4.0	6.1	0.973	
+1:2	4.0	5.6	0.471	—	—	—	5–8s(0.588)
+1:3	5.7	7.8	0.583	—	—	—	1–2s(0.609) · 2–4s(0.609) · 5–6s(0.917)
+1:4	8.7	14.0	0.364	—	—	—	
+1:5	16.8	24.5	0.632	16.8	23.5	0.579	
+1:6	24.6	29.8	0.278	—	—	—	
+1:7	31.7	48.3	0.419	—	—	—	
+# قطعُ الملفّ (15ث): أقربُ آيةٍ وتشابهُها — ما لا يقارب شيئاً مادّةٌ زائدة · ثمّ المسموعُ نفسُه
+0–15s	1:1	0.947	65حرفاً	«أَعُوذُ بِاللّه مِنَ الشَّيْطَانِ الرّجِيمٌبِسْمِ اللَّهِ الرَّحْمَنِ الرَّحِيألْأَمنُمنََ من جِْعُنا مَ لَّهُمَا َا دِغَلع»
+15–30s	1:5	0.579	41حرفاً	«ما أَركِينإلَعَكاَِدوقَلإيا كانَ سَأقَإ إدي دُرْسِقَت ضَلوَصتامُ»
+30–45s	1:5	0.474	50حرفاً	«صطِضاء صال ل يقِير لا أن نعرب س عَليهمنظَيمٍمكذبعنبَيقنضبعَمَييهِ مله»
+45–60s	—	0.0	1حرفاً	«ل»
+60–75s	—	0.0	0حرفاً	«»
+كُتب: out/heard_s001.json · out/report.txt
+	Command being timed: "python tools/alignment_v3/ctc_heard_map.py --url https://server10.mp3quran.net/jleel/001.mp3 --surah 1 --riwaya hafs --out-dir out --probe --report out/report.txt"
+	User time (seconds): 61.72
+	System time (seconds): 2.08
+	Percent of CPU this job got: 265%
+	Elapsed (wall clock) time (h:mm:ss or m:ss): 0:24.06
+	Average shared text size (kbytes): 0
+	Average unshared data size (kbytes): 0
+	Average stack size (kbytes): 0
+	Average total size (kbytes): 0
+	Maximum resident set size (kbytes): 2253484
+	Average resident set size (kbytes): 0
+	Major (requiring I/O) page faults: 58
+	Minor (reclaiming a frame) page faults: 278001
+	Voluntary context switches: 13851
+	Involuntary context switches: 3812
+	Swaps: 0
+	File system inputs: 15384
+	File system outputs: 6360
+	Socket messages sent: 0
+	Socket messages received: 0
+	Signals delivered: 0
+	Page size (bytes): 4096
+	Exit status: 0
+
