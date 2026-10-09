@@ -145,6 +145,8 @@ def declared_drops(idx):
     القراءة تفترقان يوماً، وقد افترقتا فعلاً حين التقط النمطُ **الأولى وحدها**
     من `drop_surah:93,101,103` (‏D-186)."""
     tr = idx.get("transform") or {}
+    if isinstance(tr, str):
+        tr = {"op": tr}
     out = []
     for _m in re.findall(r"drop_surah:([\d,\s]+)", str(tr.get("op") or "")):
         out += [int(x) for x in re.findall(r"\d+", _m)]

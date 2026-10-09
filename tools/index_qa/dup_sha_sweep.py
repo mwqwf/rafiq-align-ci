@@ -58,11 +58,13 @@ def main():
 
     checked = 0
     hits = 0
+    unread = 0
     for key in keys:
         try:
             idx, _sha = _run.fetch_index(key)
         except Exception as e:                          # noqa: BLE001
             print(f"⛔ {key}: تعذّرت القراءة — {e}")
+            unread += 1
             continue
         checked += 1
         sha = idx.get("audioSha256") or []
@@ -80,6 +82,9 @@ def main():
                 print(f"    {digest[:16]}…  ⇐  سور {sorted(surahs)}")
 
     print(f"⇒ فُحص {checked} فهرساً منشوراً · فهارسُ فيها بصمةٌ مكرّرة: {hits}")
+    if unread or not checked:
+        print(f"⛔ لم يكتمل المسح: تعذّرت قراءة {unread} وفُحص {checked} — لا يُقرأ هذا نجاحاً")
+        return 2
     return 1 if hits else 0
 
 
