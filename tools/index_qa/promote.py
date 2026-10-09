@@ -503,6 +503,16 @@ def frozen_keys():
     return parse_frozen(FROZEN.read_text(encoding="utf-8") if FROZEN.exists() else "")
 
 
+
+def _is_missing(ex):
+    """(صيد 2026-10-09) هل الاستثناءُ «المفتاح غير موجود» بالرمز لا بالنصّ؟
+
+    فحصُ `"404" in str(ex)` يلتقط أيَّ نصٍّ فيه 404 (اسمُ مفتاح أو مسارٌ)
+    فيُعدّ خطأٌ آخر غيابَ القائمة ويُكتب فوقها. الرمزُ من `response` هو الحكم."""
+    code = str(((getattr(ex, "response", None) or {}).get("Error") or {}).get("Code", ""))
+    return code in ("NoSuchKey", "404", "NotFound")
+
+
 def load_frozen(cl, bucket):
     """(القاموس، النصّ، ETag) من **الدلو** — مصدرُ الحقيقة الوحيد (D-075).
 
@@ -518,7 +528,7 @@ def load_frozen(cl, bucket):
         text = got["Body"].read().decode("utf-8")
         return parse_frozen(text), text, got.get("ETag")
     except Exception as ex:                           # noqa: BLE001
-        if "NoSuchKey" in str(ex) or "404" in str(ex):
+        if _is_missing(ex):
             return {}, "", None                       # أول كتابة
         raise SystemExit(f"⛔ تعذّرت قراءة قائمة التجميد من الدلو: {ex}")
 
@@ -1128,6 +1138,12 @@ def pooled_samples(reps):
             return None
         if r.get("fatal"):
             return None                    # خللٌ مؤكَّدٌ في عيّنةٍ منفردة لا يُذوَّب في المتوسّط
+        # (صيد 2026-10-09) حكمُ «مرفوض (خلل…» أو «موقوف…» مانعٌ مهما كان معدّلُ
+        #    عيّنته الصوتية: سببُه بنيويٌّ أو قرارُ منتَج لا تمحوه عيّناتٌ نظيفة أخرى،
+        #    فلا يُذوَّب في المجموع ويبقى الحكمُ للملح الأسوأ.
+        _v = str(r.get("verdict") or "")
+        if _v.startswith("مرفوض (خلل") or _v.startswith("موقوف"):
+            return None
         if not salt or sv[1] < n_min:
             return None                    # ملحٌ مجهول أو عيّنةٌ دون الحدّ
         est = sv[0] / sv[1] if sv[1] else None
@@ -1894,7 +1910,12 @@ def write_manifest(cl, bucket, prefix, row, tries=5):
             got = cl.get_object(Bucket=bucket, Key=key)
             cur = json.loads(got["Body"].read())
             etag = got.get("ETag")
-        except Exception:                             # noqa: BLE001
+        except Exception as ex:                       # noqa: BLE001
+            # (صيد 2026-10-09) الغيابُ وحدَه مانيفستٌ جديد؛ أيُّ خطأٍ آخر (شبكة · صلاحية ·
+            #    JSON تالف) يقف، وإلا كُتب مانيفستٌ فارغ بلا IfMatch فوق الحقيقي.
+            if not _is_missing(ex):
+                raise SystemExit(f"⛔ تعذّرت قراءة المانيفست ({type(ex).__name__}: "
+                                 f"{str(ex)[:80]}) — لا كتابة فوقه")
             cur = {"version": 1, "indexes": []}
         cur["indexes"] = [x for x in cur.get("indexes", [])
                           if not (x.get("riwaya") == row["riwaya"]
@@ -2622,6 +2643,12 @@ def main():
         print(f"  ↑ {mkey} ({mlen} بايت · {count} فهرساً · محاولات {tries} · "
               f"شرطية {'نعم' if cond else 'أول كتابة'}) · العام {mpub} "
               f"→ {'✅' if mpub == mlen else '❌'}")
+        if mpub != mlen:
+            # (صيد 2026-10-09) المانيفست العام لا يطابق ما كُتب (‏تأخّرُ الحافة أو كتابةٌ متزامنة):
+            #    يُعلَن صراحةً فلا يقرأ restore_loop الخرجَ نجاحاً (‏يشترط غيابَ «→ ❌»)،
+            #    ⛔ لكنّ التجميد يمضي: الفهرسُ منشورٌ في الهدف أصلاً، وتركُه بلا تجميد
+            #    يفتحه لـkeepalive فيرقّي فوقه نسخةً أقدم (سابقة fateh_douri).
+            print("  ⛔ المانيفست العام لا يطابق المكتوب — يُجمَّد المنشور ولا يُعدّ نجاحاً تامّاً")
         note = ("ترقية بتجاوزٍ صريح" if a.override else "ترقية بحكمٍ")
         if rep.get("ciBorderline"):
             cb = rep["ciBorderline"]
