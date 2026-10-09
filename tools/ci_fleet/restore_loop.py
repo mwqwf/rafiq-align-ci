@@ -300,9 +300,32 @@ def measured_skip(idx, surah: int) -> int | None:
     return int(statistics.median(nb)) if nb else None
 
 
+_GH_LAST = (0, "")        # (صيد 2026-10-09) آخرُ (returncode, stderr) لـ`gh()`
+
+
 def gh(*args) -> str:
-    return subprocess.run(["gh", *args], capture_output=True, text=True,
-                          encoding="utf-8", errors="replace").stdout
+    """يشغّل gh ويُرجع stdout؛ ويحفظ returncode وstderr في `_GH_LAST` كي لا يُخفى الفشل."""
+    global _GH_LAST                                               # noqa: PLW0603
+    p = subprocess.run(["gh", *args], capture_output=True, text=True,
+                       encoding="utf-8", errors="replace")
+    _GH_LAST = (p.returncode, p.stderr)
+    return p.stdout
+
+
+def gh_run(*args):
+    """(returncode, stdout, stderr) — ويمرّ بـ`gh()` فيبقى قابلاً للمحاكاة في الاختبار."""
+    global _GH_LAST                                               # noqa: PLW0603
+    _GH_LAST = (0, "")
+    out = gh(*args)
+    return _GH_LAST[0], out, _GH_LAST[1]
+
+
+def gh_dispatch(*args) -> bool:
+    """(صيد 2026-10-09) إطلاقٌ يُبلَّغ فشلُه: يطبع stderr ويُرجع False."""
+    rc, _out, err = gh_run(*args)
+    if rc != 0:
+        print(f"   ⛔ فشل `gh {' '.join(args[:3])}` (خروج {rc}): {err.strip()[:200]}")
+    return rc == 0
 
 
 def inflight_reciters() -> set:
@@ -321,8 +344,12 @@ def inflight_reciters() -> set:
     out = set()
     repo = os.environ.get("GITHUB_REPOSITORY", "mwqwf/rafiq-align-ci")
     for st in ("in_progress", "queued", "pending"):
-        txt = gh("api", f"repos/{repo}/actions/runs?status={st}&per_page=100",
-                 "-q", r'.workflow_runs[] | .path + "\t" + .display_title')
+        rc, txt, err = gh_run("api", f"repos/{repo}/actions/runs?status={st}&per_page=100",
+                              "-q", r'.workflow_runs[] | .path + "\t" + .display_title')
+        if rc != 0:
+            # (صيد 2026-10-09) مجموعةٌ فارغةٌ كاذبة تُعيد إطلاقَ ما في الطيران؛ فيقف الإطلاق.
+            raise SystemExit(f"⛔ تعذّر جرد التشغيلات الجارية ({st}): {err.strip()[:200]} — "
+                             "يقف الإطلاقُ في هذه الدورة")
         for ln in txt.splitlines():
             ln = ln.strip()
             if not ln:
@@ -516,7 +543,10 @@ def cmd_scan(a):
         call += ["-f", f"parent={r['key']}", "-f", f"surahs={s}",
                  "-f", f"skip_ms={skip}", "-f", f"url_template={realign_template(base, names)}",
                  "-f", f"reciter_id={rid}", "-f", f"riwaya={riw}", "-f", f"reason={reason}"]
-        out = gh(*call)
+        rc, out, err = gh_run(*call)
+        if rc != 0:
+            print(f"      ⛔ فشل إطلاقُ إعادة المحاذاة (خروج {rc}): {err.strip()[:200]}")
+            continue
         print(f"      ▶ أُطلقت إعادةُ المحاذاة {out.strip()}")
         done += 1
     print(f"⇒ أُطلق {done}")
@@ -789,6 +819,14 @@ def gate_picks(imp, salts, busy_s, struct_fatal):
 
 def cmd_gate(a):
     repo = os.environ.get("GITHUB_REPOSITORY", "mwqwf/rafiq-align-ci")
+
+    def fire(*args):
+        # (صيد 2026-10-09) إطلاقٌ يُبلَّغ فشلُه (‏returncode من `gh()` عبر `_GH_LAST`).
+        gh(*args)
+        rc, err = globals().get("_GH_LAST", (0, ""))
+        if rc != 0:
+            print(f"   ⛔ فشل `gh {' '.join(args[:3])}` (خروج {rc}): {err.strip()[:200]}")
+        return rc == 0
     busy = inflight_reciters()
     imp = _staged_improvements()
     salts = {r["key"]: _salt_count(r["key"]) for r in imp}
@@ -804,28 +842,30 @@ def cmd_gate(a):
     #    لكنّه قد يكون محبوساً بغياب إحصائه وحده (‏انظر `census_keys`).
     cen = census_keys(imp, batch, busy, lambda k: salts.get(k, 0), _census_due)
     if cen:
-        gh("workflow", "run", "splice_census.yml", "--repo", repo, "-f",
-           f"only={','.join(cen)}")
-        print(f"⇒ أُطلق الإحصاءُ الشامل لـ{len(cen)}: {', '.join(cen)}")
+        if fire("workflow", "run", "splice_census.yml", "--repo", repo, "-f",
+                       f"only={','.join(cen)}"):
+            print(f"⇒ أُطلق الإحصاءُ الشامل لـ{len(cen)}: {', '.join(cen)}")
     # ⭐ (fixT · 2026-10-03) وبوّابةُ السماع التي تطلبها الترقية (‏`promote.heard_gate_check`)
     #    تُطلق بالشرط نفسِه — وإلا حُبس كلُّ مرشّحٍ آليٍّ بغياب حكم السماع إلى الأبد.
     hg = census_keys(imp, batch, busy, lambda k: salts.get(k, 0), _heard_due)
     if hg:
-        gh("workflow", "run", "heard_gate.yml", "--repo", repo, "-f", f"only={','.join(hg)}")
-        print(f"⇒ أُطلقت بوّابةُ السماع لـ{len(hg)}: {', '.join(hg)}")
+        if fire("workflow", "run", "heard_gate.yml", "--repo", repo, "-f",
+                       f"only={','.join(hg)}"):
+            print(f"⇒ أُطلقت بوّابةُ السماع لـ{len(hg)}: {', '.join(hg)}")
     if not batch:
         print("لا شيء يُبوَّب."); return
     keys = ",".join(batch)
     for r in todo[:a.limit]:
         print(f"   {r['reciter']:16s} +{r['gain']} مدخلاً")
-    gh("workflow", "run", "openers.yml", "--repo", repo, "-f", f"only={keys}",
-       "-f", f"limit={len(batch)}")
+    fired_n = int(fire("workflow", "run", "openers.yml", "--repo", repo, "-f",
+                              f"only={keys}", "-f", f"limit={len(batch)}"))
     for salt in ("rs1", "rs2", "rs3", "rs4"):
-        gh("workflow", "run", "audio_qa.yml", "--repo", repo, "-f", f"only={keys}",
-           "-f", f"limit={len(batch)}", "-f", f"seed_salt={salt}")
+        fired_n += int(fire("workflow", "run", "audio_qa.yml", "--repo", repo,
+                                   "-f", f"only={keys}", "-f", f"limit={len(batch)}",
+                                   "-f", f"seed_salt={salt}"))
     # ⭐ المدموجُ بمحرّكين يلزمه إحصاءٌ شاملٌ فوق الملوح (‏حارسُ `census_gate`)؛
     #    وقد أُطلق أعلاه لما يلزمه وحدَه من الدفعة ومن مكتملي الملوح.
-    print(f"⇒ بُوِّب {len(batch)} بخمس تشغيلات (‏مطالعُ وأربعةُ ملوح)")
+    print(f"⇒ بُوِّب {len(batch)}: أُطلق {fired_n} من 5 تشغيلات (‏مطالعُ وأربعةُ ملوح)")
 
 
 # ───────────────────────── promote: يرقّي ما مرّ ─────────────────────────
@@ -856,7 +896,9 @@ def maybe_diagnose(key: str, out: str, fired: set) -> bool:
         return False
     fired.add(who)
     repo = os.environ.get("GITHUB_REPOSITORY", "mwqwf/rafiq-align-ci")
-    gh("workflow", "run", "diagnosis.yml", "--repo", repo, "-f", f"only={who}")
+    if not gh_dispatch("workflow", "run", "diagnosis.yml", "--repo", repo, "-f", f"only={who}"):
+        fired.discard(who)
+        return False
     print(f"      ↻ أُطلق diagnosis.yml لـ{who} — يُرقّى في الجولة التالية")
     return True
 
@@ -932,7 +974,13 @@ def _try_promote(r, prom, fired) -> tuple[bool, str]:
     done = subprocess.run([sys.executable, prom, "--only", r["key"], "--yes"],
                           capture_output=True, text=True, encoding="utf-8",
                           errors="replace", cwd=str(ROOT))
-    ok = done.returncode == 0 and "→ ✅" in done.stdout and "🧊 جُمّد" in done.stdout
+    # (صيد 2026-10-09) «→ ✅» تظهر أيضاً في سطر حجم الفهرس، فلا تكفي وحدها:
+    #    يُشترط سطرُ المانيفست نفسُه بـ«→ ✅» (‏يُطبع بعد كتابته وقياسِه عاماً)
+    #    وبلا «→ ❌» في أيّ سطر، ثم سطرُ التجميد.
+    _so = done.stdout
+    _man_ok = any("manifest.json" in l and "→ ✅" in l for l in _so.splitlines())
+    ok = (done.returncode == 0 and "→ ✅" in _so and _man_ok
+          and "→ ❌" not in _so and "🧊 جُمّد" in _so)
     # ⛔⛔ **يُسدّ ما رُفع إن رُدّت الترقية** (عطبٌ مقيسٌ 2026-09-23): رفعٌ بلا
     #    ترقيةٍ ناجحة ترك الهدفَ مفتوحاً، فرقّى `keepalive` فوقه نسخةً أقدم
     #    (رجع fateh_douri 6235⇒6209 وtrabulsi 6236⇒6214). ⇒ يُعاد التجميدُ على
