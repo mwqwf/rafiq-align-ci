@@ -24,6 +24,8 @@
 
 ⛔ **وقائمةُ المسموح مغلقة** (‏`ALLOWED_*`): أمرٌ خارجَها يُردّ ويُكتب سببُ ردّه.
 ⛔ **ولا شيءَ هنا يمسّ العتبات ولا الحُرّاس** — `promote.py` يحكم بحُرّاسه كما هو.
+⛔ (صيد 2026-10-09) **ويُردّ لـ`index_qa/promote.py` الوسيطان `--override` و`--allow-shrink`**
+   بكلّ صيغهما (‏`--x v` · `--x=v` · اختصار argparse)؛ ويبقى `--unfreeze` و`--allow-truncated` وغيرهما.
 ⛔ **والأمرُ المنفَّذُ يُنقل إلى `ops/commands/done/`** فلا يُعاد تنفيذُه عند كلّ دفعة.
 """
 from __future__ import annotations
@@ -233,11 +235,37 @@ def do_dispatch(c):
     return rc, out
 
 
+PROMOTE_FORBIDDEN_ARGS = ("--override", "--allow-shrink")
+
+
+def _forbidden_promote_args(tool, args):
+    """(صيد 2026-10-09) أوّلُ وسيطٍ ممنوعٍ لأداة الترقية أو None.
+
+    يُمسك الصيغتين `--x v` و`--x=v` وكذلك **الاختصارَ** (argparse يقبل
+    `--over` و`--allow-s` بادئةً فريدة)، ويطبّع مسارَ الأداة فلا يمرّ
+    `index_qa/./promote.py` ولا `./index_qa/promote.py`."""
+    import posixpath
+    if posixpath.normpath(tool.replace("\\", "/")).lstrip("./") != "index_qa/promote.py":
+        return None
+    for a in args:
+        if not a.startswith("--"):
+            continue
+        name = a.split("=", 1)[0]
+        if len(name) >= 3 and any(f.startswith(name) for f in PROMOTE_FORBIDDEN_ARGS):
+            return a
+    return None
+
+
 def do_tool(c):
     tool = c.get("tool", "")
     if tool not in ALLOWED_TOOLS:
         return 2, f"⛔ أداةٌ غيرُ مسموحة: {tool!r}\nوالمسموح: {sorted(ALLOWED_TOOLS)}"
     args = [x if isinstance(x, str) else str(x) for x in (c.get("args") or [])]
+    bad = _forbidden_promote_args(tool, args)
+    if bad:
+        return 2, ("⛔ (صيد 2026-10-09) وسيطٌ ممنوعٌ عبر القناة لـ promote.py: "
+                   f"{bad!r} — التجاوزُ وخفضُ المنشور قرارُ المالك المباشر لا أمرُ وكيل. "
+                   "يبقى `--unfreeze` و`--allow-truncated` وغيرُهما.")
     return run([sys.executable, str(ROOT / "tools" / tool), *args])
 
 
