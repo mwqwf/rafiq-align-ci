@@ -268,6 +268,9 @@ def structural(idx, key, allow_unmarked=False, txt_ref=None):
             # منه، والإزاحةُ تُصدَّق ويُحفَظ عليها الخطأ.
             # ⇒ الحذفُ المعلَن **قرارُ منتَجٍ لا حكمُ جودة**: يُعرض بارزاً
             # ويمنع الترقية الآلية، ولا يُسمّى عطباً ولا يُحسب في نسبة الفقد.
+            # حقلٌ منظَّم تقرؤه البوابة (`promote.approved_drop`) بدل تحليل نصّ القرار؛
+            # والتقارير القديمة بلا هذا الحقل تُعامل «غير معتمدة».
+            info["declaredDrops"] = sorted(declared)
             decision.append(f"سورٌ محذوفةٌ **بإعلانٍ وسبب**: {declared} "
                             f"(السبب: {tr.get('reason') or 'غير مذكور'}) — "
                             f"قرارُ منتَجٍ يُعرض على المشرف، لا حكمُ جودة")
@@ -1531,6 +1534,7 @@ def audit(key, args):
     rep = {"key": key, "reciterId": rid, "riwaya": riwaya, "info": info,
            "band": getattr(args, "band", None), "refined": getattr(args, "refined", None),
            "fatal": fatal, "warn": warn, "decision": info.get("decision") or [],
+           "declaredDrops": info.get("declaredDrops"),
            # ⛔ **نسبُ الحكم — من غيره يصير حكمان متطابقان دليلاً كاذباً على
            # اتفاق وهما حكمٌ واحدٌ كُتب مرتين.** (طلبُ github-f4 عبر 3a، وهو
            # عينُ ما نبّهتُ عليه في `alijon`: النسبُ يُحمل في الكائن لا
