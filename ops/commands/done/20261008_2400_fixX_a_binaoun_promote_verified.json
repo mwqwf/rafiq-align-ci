@@ -1,0 +1,14 @@
+{
+ "action": "tool",
+ "tool": "index_qa/promote_verified_transform.py",
+ "args": [
+  "--key",
+  "timings-staging/hafs/a_binaoun.52b5441b.jz",
+  "--sha",
+  "52b5441b5e6ea705431f38538f4e81b6db314c18bed665b9097311427f4d9a2a",
+  "--parent-sha",
+  "aa7c8df8263210a7fc864dbd44ec171619a4dce6c2d7b1c23e97abb8be6c5602",
+  "--reason",
+  "اعتماد إصلاح ذيل a_binaoun (إزاحة 8 حدود، 6236 إلى 6236): اجتاز free-post-stage كاملاً (run 37850899127: openers وcensus وrs1-rs4 وheard وreview) وheard_gate يمرّ وfull_audit بلا خطأ مؤكد في البنود 1-4 بعد تحديث التشخيص؛ بلا override ولا allow"
+ ]
+}

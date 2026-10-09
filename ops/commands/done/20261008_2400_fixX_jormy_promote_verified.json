@@ -1,0 +1,14 @@
+{
+ "action": "tool",
+ "tool": "index_qa/promote_verified_transform.py",
+ "args": [
+  "--key",
+  "timings-staging/hafs/jormy.5afb80f2.jz",
+  "--sha",
+  "5afb80f208e3ed0b45367730e93fd53648137e18de2e9011236bc53d9e19d9b8",
+  "--parent-sha",
+  "9fc642e3aefa16444b204bed40c572d948792983104253763e864e38dbe93dd8",
+  "--reason",
+  "اعتماد إصلاح ذيل jormy (إزاحة 4 حدود): اجتاز free-post-stage كاملاً (run 37845002592: openers وcensus وrs1-rs4 وheard وreview) وheard_gate يمرّ وfull_audit بلا خطأ مؤكد في البنود 1-4؛ بلا override ولا allow"
+ ]
+}
