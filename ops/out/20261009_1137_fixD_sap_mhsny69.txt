@@ -1,0 +1,39 @@
+# rc=0
+▶ timings/hafs/mhsny.jz · f14592b1da37201a · 6236 مدخلاً
+▶ timings-staging/hafs/mhsny.c6376150.jz · c6376150aa01454d · 6236 مدخلاً
+
+══ السورة 69
+  المنشور: 52 مدخلاً · fileRef=https://server11.mp3quran.net/mhsny/069.mp3
+     أوّلُ startMs=3662 · آخرُ endMs=268210 · آخرُ آية 69:52 (264437..268210)
+  المرشّح: 52 مدخلاً · fileRef=https://server11.mp3quran.net/mhsny/069.mp3
+     أوّلُ startMs=3662 · آخرُ endMs=594718 · آخرُ آية 69:52 (589614..594718)
+
+  ── السورة 69: https://server11.mp3quran.net/mhsny/069.mp3
+     HEAD: 200 · Content-Length=14423978 · النهائيّ=https://cdn.mp3quran.net/audio/muhammad-muhaisni/r1/069.mp3
+     archive.org يُعلن: None
+     محاولة 1: 200 · {'Content-Length': '14423978', 'Transfer-Encoding': None, 'Content-Type': 'audio/mpeg', 'Accept-Ranges': 'bytes'} · وصل 14423978
+     محاولة 1: 200 · {'Content-Length': '14423978', 'Transfer-Encoding': None, 'Content-Type': 'audio/mpeg', 'Accept-Ranges': 'bytes'} · وصل 14423978
+     تنزيل1: معلَن 14423978 · منزَّل 14423978 · sha 6448adb0b868c910 · md5 2d0da5a11808d81043c3a5643aadfb28
+     تنزيل2: معلَن 14423978 · منزَّل 14423978 · md5 2d0da5a11808d81043c3a5643aadfb28 · متطابقان
+     mp3dur: 595.801ث · 22808 إطاراً · info=(3, 3, 128, 44100) · 14423978 بايت
+     المدّةُ من الحجم بمعدّل 128ك.ب/ث: 901.5ث
+     مشيُ الإطارات: {"sec": 595.801, "frames": 22808, "bytes": 14423978, "bitrates": {"128": 1, "32": 7, "192": 21490, "224": 1277, "256": 33}, "gaps": 0, "gap_bytes": 0, "first_gaps": [], "last_gaps": [], "id3_mid": [], "gap_bytes_context": [], "tail_unframed": 128}
+     ffprobe: {     "programs": [      ],     "streams": [         {             "codec_name": "mp3",             "sample_rate": "44100",             "channels": 2,             "duration": "595.774694",             "side_data_list": [                 {                  }             ]         },         {             "codec_name": "png",             "duration": "595.774689"         }     ],     "format": {         "duration": "595.774694",         "bit_rate": "193683"     } } 
+     ffmpeg version 6.1.1-3ubuntu5 Copyright (c) 2000-2023 the FFmpeg developers
+     فكٌّ كامل: rc=0 · 595.720ث · stderr(0 سطراً)=''
+     فكٌّ متسامح (قياسٌ فقط): rc=0 · 595.720ث · stderr=''
+     أوّلُ 5ث وحدها: stderr=''
+     من الثانية 10 إلى الآخر: stderr='[aost#0:1/pcm_s16le @ 0x556f1ca07c40] Too many packets buffered for output stream 0:1.\n[aost#0:1/pcm_s16le @ 0x556f1ca07c40] Error submitting a packet to the muxer\n[aost#0:1/pcm_s16le @ 0x556f1ca07c40] Too many packets buffered for output stream 0:1.\n[aost#0:1/pcm_s16le @ 0x556f1ca07c40] Error submi'
+     طاقةُ كلّ 30ث (RMS): [0.07, 0.0655, 0.0772, 0.1011, 0.1102, 0.1084, 0.1032, 0.0856, 0.0958, 0.0715, 0.0868, 0.1086, 0.0974, 0.122, 0.0856, 0.0624, 0.1053, 0.0685, 0.0791, 0.0703]
+
+[stderr]
+
+Running kernel seems to be up-to-date.
+
+No services need to be restarted.
+
+No containers need to be restarted.
+
+No user sessions are running outdated binaries.
+
+No VM guests are running outdated hypervisor (qemu) binaries on this host.
