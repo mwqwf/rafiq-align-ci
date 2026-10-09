@@ -1,0 +1,240 @@
+name: rafiq-heard-pub
+
+run-name: heard-pub ${{ inputs.key }}
+
+# 🔎 **خرائطُ السماع للمنشور** (proofZ · 2026-10-09 · قياسٌ فقط): `completion_audit` يشترط لكلّ (قارئ، سورة)
+#    خريطةَ سماعٍ بصيغة heard-gate-1 على بصمة صوت السورة نفسِها حتى يُحسب بدءُ كلّ آيةٍ «مقيساً».
+#    و`heard_gate.yml` لا يغطّي المنشور (يلزمه مرشّحٌ في timings-staging ويقيس المعدَّلَ والعيّنةَ فقط)،
+#    فهذا السيرُ يقيس **سورَ فهرسٍ منشورٍ** (‏الناقصَ منها خريطةٌ مطابقة) بـ`ctc_heard_map --probe`
+#    float32 ويكتب `state-heard/<المفتاح مسطّحاً>.json` وحدَه.
+# ⛔ لا يرقّي ولا يرفع مرشّحاً ولا يمسّ `timings/` ولا `timings-staging/` ولا حارساً ولا عتبة،
+#    ولا يحكم بشيء: يجمع أدلّةً يقرؤها `completion_audit` و`heard_gate` كما هما.
+# 💰 مستودعٌ عامّ + عدّاد ubuntu-latest القياسيّ؛ النموذجُ يُستعاد من كاش موجود (restore فقط، لا حفظ جديد)،
+#    والـartifacts خرائطُ صغيرة بحفظ يوم واحد.
+on:
+  workflow_dispatch:
+    inputs:
+      key: {description: "فهرسٌ منشور: timings/<riw>/<id>.jz", required: true}
+      surahs: {description: "سورٌ بفواصل (‏فارغ = كلُّ الحاضرِ الذي لا خريطةَ مطابقةً له)", default: ""}
+      shards: {description: "عددُ الشرائح المتوازية (1–6)", default: "4"}
+      force: {description: "true = يُعاد القياسُ ولو وُجدت خريطةٌ مطابقة", default: "false"}
+
+permissions:
+  contents: write   # لكتابة سجلّ الحكم نصّاً في ops/out/heard-pub/ وحده
+  actions: read
+
+concurrency:
+  group: rafiq-heard-pub-${{ inputs.key }}
+  cancel-in-progress: false
+
+env:
+  PY: "3.11"
+  HF_HOME: ${{ github.workspace }}/.hf
+
+jobs:
+  plan:
+    if: ${{ github.repository == 'mwqwf/rafiq-align-ci' && github.event.repository.private == false }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    outputs:
+      idx: ${{ steps.plan.outputs.idx }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: {python-version: "${{ env.PY }}"}
+      - run: python -m pip install --quiet boto3
+      - name: اعتماد R2
+        env: {R2_CREDENTIALS_JSON: "${{ secrets.R2_CREDENTIALS_JSON }}"}
+        run: mkdir -p secure && printf '%s' "$R2_CREDENTIALS_JSON" > secure/r2_credentials.json
+      - name: السورُ التي تنقصها خريطةٌ مطابقة
+        id: plan
+        env: {KEY: "${{ inputs.key }}", SURAHS: "${{ inputs.surahs }}", SHARDS: "${{ inputs.shards }}", FORCE: "${{ inputs.force }}"}
+        run: |
+          python - <<'PY'
+          import gzip, hashlib, json, os, re, sys, boto3
+          sys.stdout.reconfigure(encoding="utf-8")
+          sys.path.insert(0, "tools/index_qa")
+          import heard_gate as H
+          key = os.environ["KEY"].strip()
+          if not re.fullmatch(r"timings/[a-z]+/[A-Za-z0-9_]+\.jz", key):
+              sys.exit(f"⛔ فهرسٌ منشورٌ وحده: {key}")
+          c = json.load(open("secure/r2_credentials.json"))
+          s3 = boto3.client("s3", endpoint_url=c["endpoint"], aws_access_key_id=c["accessKeyId"],
+                            aws_secret_access_key=c["secretAccessKey"], region_name="auto")
+          body = s3.get_object(Bucket=c["bucket"], Key=key)["Body"].read()
+          sha = hashlib.sha256(body).hexdigest()
+          idx = json.loads(gzip.decompress(body))
+          riw, stem = key.split("/")[1], key.split("/")[2][:-3]
+          cs = H.by_surah(idx["entries"])
+          shas = idx.get("audioSha256")
+          present = sorted(cs)
+          if isinstance(shas, list) and len(shas) == 114:
+              want = {s: shas[s - 1] for s in present}
+          elif isinstance(shas, list) and len(shas) == len(present):
+              want = dict(zip(present, shas))
+          else:
+              sys.exit("⛔ audioSha256 بلا شكلٍ صالح")
+          # خرائطُ القارئ القائمةُ (‏تقاريرُ هذا السيرِ وتقاريرُ heard_gate على مرشّحاته)
+          covered = set()
+          if os.environ.get("FORCE") != "true":
+              pages = []
+              for pre in (f"state-heard/timings-staging_{riw}_{stem}.", H.state_key(key)):
+                  for pg in s3.get_paginator("list_objects_v2").paginate(Bucket=c["bucket"], Prefix=pre):
+                      pages += [o["Key"] for o in pg.get("Contents", [])]
+              for k in pages:
+                  try:
+                      rep = json.loads(s3.get_object(Bucket=c["bucket"], Key=k)["Body"].read())
+                  except Exception:
+                      continue
+                  for sk, m in (rep.get("maps") or {}).items():
+                      s = int(sk)
+                      refs = {v[2] for v in cs.get(s, {}).values()}
+                      if (s in want and m.get("sha256") == want[s] and m.get("anchors")
+                              and m.get("fileRef") in refs and len(refs) == 1):
+                          covered.add(s)
+          ask = [int(x) for x in re.split(r"[,\s]+", os.environ.get("SURAHS", "").strip()) if x]
+          todo = sorted((set(ask) if ask else set(present)) & set(present) - covered)
+          print(f"■ {key} ({sha[:8]}) · حاضرة {len(present)} · مغطّاة {len(covered)} · للقياس {len(todo)}")
+          # وزنُ السورة = مدّةُ صوتها (‏آخرُ نهاية)
+          W = {s: max((v[1] or 0) for v in cs[s].values()) or 1 for s in todo}
+          n = max(1, min(6, int(os.environ.get("SHARDS") or 4), len(todo) or 1))
+          bins = [[] for _ in range(n)]; load = [0] * n
+          for s in sorted(todo, key=lambda s: -W[s]):
+              refs = {v[2] for v in cs[s].values()}
+              if len(refs) != 1:
+                  sys.exit(f"⛔ س{s}: أكثرُ من ملفّ {sorted(refs)[:2]}")
+              i = load.index(min(load)); bins[i].append([s, refs.pop()]); load[i] += W[s]
+          inc = [{"src": key, "sha": sha, "items": json.dumps(b)} for b in bins if b]
+          print(f"مدّةُ القياس الكلّيّة ≈ {sum(W.values())/3600000:.1f} ساعةَ صوت في {len(inc)} شريحة")
+          with open(os.environ["GITHUB_OUTPUT"], "a") as f:
+              f.write("idx=" + json.dumps(list(range(len(inc)))) + "\n")
+          json.dump(inc, open("plan.json", "w"))
+          PY
+      - uses: actions/upload-artifact@v4
+        with: {name: "heard-pub-plan-${{ github.run_id }}", path: plan.json, retention-days: 1}
+
+  probe:
+    needs: plan
+    if: ${{ needs.plan.outputs.idx != '[]' }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 340
+    strategy:
+      fail-fast: false
+      matrix:
+        k: ${{ fromJson(needs.plan.outputs.idx) }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: {python-version: "${{ env.PY }}"}
+      - name: الأدوات
+        run: |
+          sudo apt-get update -qq && sudo apt-get install -y -qq ffmpeg
+          python -m pip install --quiet --index-url https://download.pytorch.org/whl/cpu torch
+          python -m pip install --quiet "numpy<2" transformers ctc-segmentation rapidfuzz
+      - name: استعادة كاش النموذج الموجود (بلا حفظ)
+        uses: actions/cache/restore@v4
+        with:
+          path: .hf
+          key: ctc-model-jonatasgrosman-xlsr53-ar-v1
+      - uses: actions/download-artifact@v4
+        with: {name: "heard-pub-plan-${{ github.run_id }}"}
+      - name: خرائطُ السماع (float32 · بلا رفع)
+        env: {K: "${{ matrix.k }}"}
+        run: |
+          SRC="$(python -c "import json,sys; print(json.load(open('plan.json'))[int(sys.argv[1])]['src'])" "$K")"
+          export ITEMS="$(python -c "import json,sys; print(json.load(open('plan.json'))[int(sys.argv[1])]['items'])" "$K")"
+          d="hg/$(echo "$SRC" | tr '/' '_')"; mkdir -p "$d"; RIW="$(echo "$SRC" | cut -d/ -f2)"
+          python -c "import json,os; [print(s, u) for s, u in json.loads(os.environ['ITEMS'])]" | while read s u; do
+            CTC_INT8=0 python tools/alignment_v3/ctc_heard_map.py --url "$u" --surah "$s" --riwaya "$RIW" \
+              --out-dir "$d" --probe --report "$d/heard_s$(printf %03d $s).txt" < /dev/null > /dev/null 2> "$d/err_$s.txt" \
+              && echo "✓ س$s" || { echo "⚠️ س$s أخفق"; tail -5 "$d/err_$s.txt"; }
+            rm -f "$d"/*.mp3 "$d"/*.wav "$d"/*.m4a "$d"/*.ogg
+          done
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: heard-pub-${{ github.run_id }}-${{ strategy.job-index }}
+          path: hg/
+          retention-days: 1
+
+  judge:
+    needs: [plan, probe]
+    if: always() && needs.plan.result == 'success'
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: {python-version: "${{ env.PY }}"}
+      - run: python -m pip install --quiet boto3
+      - name: اعتماد R2
+        env: {R2_CREDENTIALS_JSON: "${{ secrets.R2_CREDENTIALS_JSON }}"}
+        run: mkdir -p secure && printf '%s' "$R2_CREDENTIALS_JSON" > secure/r2_credentials.json
+      - uses: actions/download-artifact@v4
+        continue-on-error: true
+        with:
+          pattern: heard-pub-${{ github.run_id }}-[0-9]*
+          path: shards
+          merge-multiple: true
+      - name: دمجُ الخرائط في state-heard/ (قياسٌ لا حكم)
+        env: {KEY: "${{ inputs.key }}", RUN: "${{ github.run_id }}"}
+        run: |
+          set -o pipefail
+          python - <<'PY' | tee judge.log
+          import glob, gzip, hashlib, json, os, sys, time, boto3
+          sys.stdout.reconfigure(encoding="utf-8")
+          sys.path.insert(0, "tools/index_qa")
+          import heard_gate as H
+          c = json.load(open("secure/r2_credentials.json"))
+          s3 = boto3.client("s3", endpoint_url=c["endpoint"], aws_access_key_id=c["accessKeyId"],
+                            aws_secret_access_key=c["secretAccessKey"], region_name="auto")
+          key = os.environ["KEY"].strip()
+          body = s3.get_object(Bucket=c["bucket"], Key=key)["Body"].read()
+          sha = hashlib.sha256(body).hexdigest()
+          idx = json.loads(gzip.decompress(body))
+          cs = H.by_surah(idx["entries"])
+          new = {}
+          for p in glob.glob("shards/**/heard_s*.json", recursive=True):
+              m = H.compact_map(json.load(open(p, encoding="utf-8")))
+              if m.get("surah") and m.get("anchors"):
+                  new[int(m["surah"])] = m
+          sk = H.state_key(key)
+          try:
+              old = json.loads(s3.get_object(Bucket=c["bucket"], Key=sk)["Body"].read())
+          except Exception:
+              old = {}
+          maps = {int(k): v for k, v in (old.get("maps") or {}).items()} if old.get("sha256") == sha else {}
+          maps.update(new)
+          print(f"■ {key} ({sha[:8]}) · خرائطُ جديدة {len(new)} · الجملة {len(maps)}")
+          if new:
+              rep = {"sha256": sha, "src": key, "version": H.VERSION, "kind": "heard", "run": os.environ["RUN"],
+                     "ts": int(time.time()), "maps": {str(k): v for k, v in sorted(maps.items())}}
+              s3.put_object(Bucket=c["bucket"], Key=sk, Body=json.dumps(rep, ensure_ascii=False).encode("utf-8"),
+                            ContentType="application/json")
+              back = json.loads(s3.get_object(Bucket=c["bucket"], Key=sk)["Body"].read())
+              assert back["sha256"] == sha and len(back["maps"]) == len(maps), "القراءةُ الراجعة لا تطابق"
+          ok = dev = unm = 0
+          for s in sorted(new):
+              st = {a: v[0] for a, v in cs.get(s, {}).items()}
+              rows = H.surah_rows(st, new[s])
+              d = [r for r in rows if r["status"] == "dev"]
+              ok += sum(r["status"] in ("ok", "repeat") for r in rows); dev += len(d)
+              unm += sum(r["status"] == "unmeasured" for r in rows)
+              if d:
+                  w = max(d, key=lambda r: abs(r["devMs"]))
+                  print(f"   س{s}: انحراف {len(d)} (أقصاها {w['ayah']}: {w['devMs']/1000:+.1f}ث)")
+          print(f"⇒ مقيس {ok} · منحرف {dev} · غير مقيس {unm}")
+          PY
+      - name: السجلُّ نصّاً في المستودع (ops/out/heard-pub/)
+        if: always()
+        env: {RUN: "${{ github.run_id }}"}
+        run: |
+          mkdir -p ops/out/heard-pub; f="ops/out/heard-pub/$RUN.txt"
+          { echo "# heard_pub $RUN · ${{ inputs.key }}"; cat judge.log 2>/dev/null; } > "$f"
+          git config user.name "rafiq-heard-pub"; git config user.email "actions@github.com"
+          git add "$f" && git commit -q -m "ops: سجلُّ خرائط السماع للمنشور ($RUN)" -- "$f" || exit 0
+          for i in 1 2 3 4 5 6 7 8 9 10; do
+            git pull -q --no-rebase --no-edit origin main && git push -q origin HEAD:main && exit 0
+            sleep $((RANDOM % 10 + 3))
+          done
+          echo "⚠️ تعذّر دفعُ السجلّ — الأثرُ في state-heard/"
