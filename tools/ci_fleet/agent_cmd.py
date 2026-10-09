@@ -53,6 +53,8 @@ ALLOWED_WF = {"heard_anchor_provenance_probe.yml", "free-noah-source-gap-quality
               "ctc_splice.yml", "splice_census.yml",
               # ⭐ (fixT · 2026-10-03) الإصلاحُ الدفعيّ لكبس الذيل (‏مرشّحٌ واحدٌ لكلّ فهرس) وبوّابةُ السماع التي تطلبها الترقية.
               "heard_batch.yml", "heard_gate.yml",
+              # 🔎 proofZ 2026-10-09: خرائطُ السماع للمنشور (قياسٌ فقط يكتب state-heard/ وحدَه؛ لا يرقّي ولا يمسّ timings/).
+              "heard_pub.yml",
               #    وعكسُه: سورُ النقص في فهرسٍ منشورٍ بـCTC تُحاذى بـWhisper وتُدمج.
               "whisper_splice.yml",
               "basmala.yml", "restore.yml", "keepalive.yml", "mirror_reciter.yml",

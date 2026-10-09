@@ -1,0 +1,200 @@
+# تدقيق اكتمال الفهرسة
+
+- الجاهزية: **غير مكتملة الإثبات**.
+- الفهارس المقروءة: 180/180؛ جاهزية البدء: 0.
+- الآيات الناقصة: 885؛ البدء غير المقيس: 849034؛ الانحراف: 7575.
+- نهايات اجتازت شاهد النافذة: 0؛ نهايات إثباتها غير محسوم: 1121595.
+- غير المحسوم فجوة في الأدلة المفحوصة، وليس عدداً لأخطاء توقيت مؤكدة.
+
+| الفهرس | البصمة | نقص | بدء غير مقيس | انحراف | بلا شهادة نهاية |
+|---|---|---:|---:|---:|---:|
+| timings/douri/deban_douri.jz | e622142954c6 | 0 | 3641 | 1 | 6236 |
+| timings/douri/fateh_douri.jz | e81832155b09 | 0 | 6094 | 8 | 6236 |
+| timings/douri/husary_douri.jz | 8153510b6ec7 | 0 | 6236 | 0 | 6236 |
+| timings/douri/nourin_douri.jz | c24ebc529a52 | 0 | 5948 | 18 | 6236 |
+| timings/douri/sultani_douri.jz | 7e2fbf447bbe | 0 | 3126 | 0 | 6236 |
+| timings/hafs/3siri.jz | fbf468c05fa3 | 206 | 6030 | 0 | 6030 |
+| timings/hafs/a_abdl.jz | 274e62eab739 | 0 | 5272 | 185 | 6236 |
+| timings/hafs/a_ahmed.jz | eb260dc076bd | 0 | 5939 | 4 | 6236 |
+| timings/hafs/a_albadr.jz | f56150ee13ff | 0 | 5634 | 37 | 6236 |
+| timings/hafs/a_alemadi.jz | 14e79dc65c3a | 0 | 6236 | 0 | 6236 |
+| timings/hafs/a_alhazmi.jz | 7498fa1e5a27 | 0 | 3505 | 130 | 6236 |
+| timings/hafs/a_alqrafi.jz | 5b450981ba0f | 0 | 4721 | 179 | 6236 |
+| timings/hafs/a_alshahhat.jz | e5e24f7ea5d6 | 0 | 2775 | 2 | 6236 |
+| timings/hafs/a_binaoun.jz | 52b5441b5e6e | 0 | 5727 | 114 | 6236 |
+| timings/hafs/a_ghailan.jz | 6e38ea0b0b2d | 0 | 5978 | 12 | 6236 |
+| timings/hafs/a_klb.jz | ee539a22659e | 0 | 3758 | 1 | 6236 |
+| timings/hafs/a_maasaraawi.jz | 4811c7222bb0 | 0 | 6236 | 0 | 6236 |
+| timings/hafs/a_majed.jz | 4b58d22269d7 | 0 | 6236 | 0 | 6236 |
+| timings/hafs/a_turki.jz | 15ed621df6ed | 0 | 6236 | 0 | 6236 |
+| timings/hafs/aamer.jz | 4bdebc82a86f | 0 | 6236 | 0 | 6236 |
+| timings/hafs/abdullahk.jz | f6d6da29be83 | 0 | 2686 | 0 | 6236 |
+| timings/hafs/abkar.jz | c5463f393c6e | 0 | 5753 | 2 | 6236 |
+| timings/hafs/afs.jz | e003a2a38aa2 | 0 | 4413 | 37 | 6236 |
+| timings/hafs/akdr.jz | 4b8255246930 | 0 | 6236 | 0 | 6236 |
+| timings/hafs/alijon.jz | a6a75025d7b7 | 0 | 5470 | 157 | 6236 |
+| timings/hafs/aloosi.jz | 57812ac605b3 | 0 | 6236 | 0 | 6236 |
+| timings/hafs/alosfor.jz | 4715cd6e55be | 0 | 3353 | 4 | 6236 |
+| timings/hafs/alzain.jz | a7200c5e2279 | 0 | 6236 | 0 | 6236 |
+| timings/hafs/arkani.jz | e91e80ef8710 | 0 | 4010 | 1 | 6236 |
+| timings/hafs/asim.jz | 40a6847fe8f9 | 0 | 4748 | 570 | 6236 |
+| timings/hafs/bader.jz | 897c85d55686 | 0 | 3237 | 0 | 6236 |
+| timings/hafs/balilah.jz | 9e8a0942a3a6 | 0 | 4990 | 121 | 6236 |
+| timings/hafs/bari.jz | eaf5a45720bd | 0 | 6236 | 0 | 6236 |
+| timings/hafs/bilal.jz | 131552bc35f5 | 0 | 5962 | 22 | 6236 |
+| timings/hafs/buajan.jz | f3570de5e712 | 0 | 5697 | 3 | 6236 |
+| timings/hafs/bukheet.jz | 8895966e1905 | 0 | 5544 | 1 | 6236 |
+| timings/hafs/darweez.jz | 7fb18cfb894c | 0 | 5341 | 65 | 6236 |
+| timings/hafs/deban.jz | 6293b9746257 | 0 | 5590 | 16 | 6236 |
+| timings/hafs/f_hajry.jz | 74c0874ae7d1 | 0 | 296 | 4 | 6236 |
+| timings/hafs/f_khamery.jz | 41ff45fab5c6 | 0 | 2743 | 3 | 6236 |
+| timings/hafs/gulan.jz | cb1230f82e8a | 0 | 5708 | 71 | 6236 |
+| timings/hafs/h_abudalal.jz | 13f195b2460b | 0 | 3231 | 1 | 6236 |
+| timings/hafs/h_aldaghriri.jz | e91f8686f53a | 0 | 3131 | 0 | 6236 |
+| timings/hafs/h_dukhain.jz | bb09c815e9d8 | 0 | 6054 | 21 | 6236 |
+| timings/hafs/h_saleh.jz | f682dde37847 | 0 | 3451 | 0 | 6236 |
+| timings/hafs/habdan.jz | 9227d6ed69aa | 0 | 5036 | 2 | 6236 |
+| timings/hafs/hafz.jz | f1843337e0af | 0 | 6006 | 7 | 6236 |
+| timings/hafs/hamza.jz | f4493b228dd4 | 0 | 2838 | 48 | 6236 |
+| timings/hafs/harthi.jz | d6939f4c47bd | 0 | 5772 | 20 | 6236 |
+| timings/hafs/hatem.jz | 3cdfac1a5602 | 0 | 2357 | 62 | 6236 |
+| timings/hafs/hawashi.jz | 3725b90e7d56 | 0 | 5904 | 13 | 6236 |
+| timings/hafs/hkm.jz | 4176c9378755 | 0 | 6236 | 0 | 6236 |
+| timings/hafs/i_sanankoua.jz | b04306b847b9 | 0 | 2715 | 84 | 6236 |
+| timings/hafs/ibrahim_dosri.jz | 00cde792422a | 0 | 5386 | 1 | 6236 |
+| timings/hafs/j_abdullah.jz | 353151ca1a99 | 0 | 5726 | 0 | 6236 |
+| timings/hafs/jaleel.jz | 1015177a7615 | 0 | 5370 | 14 | 6236 |
+| timings/hafs/jamal.jz | e59759370165 | 0 | 6000 | 18 | 6236 |
+| timings/hafs/jaman.jz | 0e5e1cfdccdd | 0 | 2062 | 0 | 6236 |
+| timings/hafs/jormy.jz | 5afb80f208e3 | 0 | 2939 | 1 | 6236 |
+| timings/hafs/k_alzadi.jz | 9c25d9956235 | 0 | 2637 | 0 | 6236 |
+| timings/hafs/kafi.jz | bc716d074230 | 0 | 2831 | 0 | 6236 |
+| timings/hafs/kamel.jz | 1e564b74d2e4 | 0 | 527 | 0 | 6236 |
+| timings/hafs/kanakeri.jz | c675d8e5148c | 0 | 6236 | 0 | 6236 |
+| timings/hafs/kh_mohammadi.jz | 9e644d1fbcf4 | 0 | 3217 | 0 | 6236 |
+| timings/hafs/khalf.jz | 03dc941b0a9c | 0 | 3552 | 0 | 6236 |
+| timings/hafs/khan.jz | 1f5139122eae | 0 | 3315 | 547 | 6236 |
+| timings/hafs/kurdi.jz | 60dd5ae3fc5c | 0 | 5259 | 209 | 6236 |
+| timings/hafs/kyat.jz | a47e693d3514 | 0 | 6024 | 41 | 6236 |
+| timings/hafs/lahoni.jz | b267646a23eb | 0 | 5946 | 3 | 6236 |
+| timings/hafs/lhdan.jz | ae8aa9a50f91 | 0 | 2922 | 0 | 6236 |
+| timings/hafs/m_abdelhakam.jz | 407bddd4c296 | 0 | 5958 | 0 | 6236 |
+| timings/hafs/m_alfaqih.jz | a46c655a1ce4 | 0 | 2747 | 0 | 6236 |
+| timings/hafs/m_alzubaidi.jz | 3a6025226c84 | 0 | 3119 | 1 | 6236 |
+| timings/hafs/m_burhaji.jz | 23b0c50a007d | 0 | 6236 | 0 | 6236 |
+| timings/hafs/m_harfoush.jz | b91d3491a7e7 | 0 | 4022 | 83 | 6236 |
+| timings/hafs/m_qari.jz | 2a27b0f8a6cf | 0 | 1663 | 4 | 6236 |
+| timings/hafs/mal_allah_jaber.jz | 7ab2d595c97f | 0 | 2504 | 0 | 6236 |
+| timings/hafs/mansor.jz | 58215bf46357 | 0 | 4813 | 92 | 6236 |
+| timings/hafs/mhsny.jz | 410518285a44 | 0 | 773 | 177 | 6236 |
+| timings/hafs/mohna.jz | d6daafa98a9c | 0 | 5946 | 0 | 6236 |
+| timings/hafs/mohsin_harthi.jz | ac38edba785e | 0 | 2947 | 2 | 6236 |
+| timings/hafs/mousa.jz | 04f7bdeb797f | 0 | 5661 | 9 | 6236 |
+| timings/hafs/mrifai.jz | ef3855a4a89f | 0 | 5784 | 98 | 6236 |
+| timings/hafs/muftah_sultany.jz | 8ffe9b84e1b4 | 0 | 5544 | 24 | 6236 |
+| timings/hafs/mukhtar_haj.jz | 9543ca89daf6 | 0 | 4826 | 207 | 6236 |
+| timings/hafs/mustafa.jz | 671d19e3c382 | 0 | 6236 | 0 | 6236 |
+| timings/hafs/nabil.jz | 465c0e8a40db | 0 | 5809 | 111 | 6236 |
+| timings/hafs/namh.jz | 14ee957a8bef | 0 | 6236 | 0 | 6236 |
+| timings/hafs/nasser_almajed.jz | 35dd76b62e50 | 165 | 5845 | 2 | 6071 |
+| timings/hafs/nathier.jz | 3ce1cb7be23b | 0 | 6236 | 0 | 6236 |
+| timings/hafs/noah.jz | 944dfdfa68b7 | 0 | 5111 | 2 | 6236 |
+| timings/hafs/nufais.jz | bf93c4c10be0 | 0 | 5347 | 117 | 6236 |
+| timings/hafs/obk.jz | b003a390154c | 0 | 6086 | 2 | 6236 |
+| timings/hafs/peshawa.jz | ca0edef5fdef | 0 | 5550 | 9 | 6236 |
+| timings/hafs/qasm.jz | 852faa4d3971 | 0 | 4133 | 1 | 6236 |
+| timings/hafs/qurashi.jz | 6a42a675870e | 0 | 5936 | 78 | 6236 |
+| timings/hafs/ra3ad.jz | 4e8d9da265f1 | 0 | 6079 | 5 | 6236 |
+| timings/hafs/rami.jz | 8bd5317c993f | 0 | 5907 | 1 | 6236 |
+| timings/hafs/rashad.jz | f8f39c32df77 | 0 | 908 | 0 | 6236 |
+| timings/hafs/ryan.jz | 5918089cfa8f | 0 | 6236 | 0 | 6236 |
+| timings/hafs/s_alquraishi.jz | 2e775f2ae93e | 0 | 4924 | 20 | 6236 |
+| timings/hafs/s_hashemi.jz | a3418221f9ec | 0 | 4992 | 2 | 6236 |
+| timings/hafs/s_sadeiq.jz | 927e8bbeb319 | 0 | 5709 | 151 | 6236 |
+| timings/hafs/saad.jz | 8e9f81317117 | 203 | 2945 | 48 | 6033 |
+| timings/hafs/saber.jz | c5f8e7c9de28 | 0 | 2896 | 0 | 6236 |
+| timings/hafs/sahood.jz | d71c398637dd | 0 | 5595 | 3 | 6236 |
+| timings/hafs/salah_hashim_m.jz | 60cf42aabaf5 | 0 | 6023 | 1 | 6236 |
+| timings/hafs/sayed.jz | dbec75851eb4 | 0 | 5618 | 206 | 6236 |
+| timings/hafs/shah.jz | bf1e87d4a6ff | 0 | 6236 | 0 | 6236 |
+| timings/hafs/shaheen.jz | cba54dae07d5 | 0 | 6236 | 0 | 6236 |
+| timings/hafs/shaksh.jz | 2cc4e7eb3ab9 | 0 | 2203 | 0 | 6236 |
+| timings/hafs/shamrani.jz | 8676b1a7a684 | 46 | 6190 | 0 | 6190 |
+| timings/hafs/shatri2.jz | b9fb0e165029 | 0 | 2219 | 0 | 6236 |
+| timings/hafs/soufi.jz | 39f7979a9a4b | 0 | 2765 | 0 | 6236 |
+| timings/hafs/swlim.jz | c6d34a6cd7f7 | 0 | 5942 | 17 | 6236 |
+| timings/hafs/taher.jz | c33fa1be1ea9 | 0 | 6236 | 0 | 6236 |
+| timings/hafs/tblawi.jz | 1b4ba4ad5ded | 0 | 5073 | 7 | 6236 |
+| timings/hafs/thubti.jz | 310e9044012c | 0 | 6236 | 0 | 6236 |
+| timings/hafs/trabulsi.jz | 01d5100674b8 | 0 | 5820 | 77 | 6236 |
+| timings/hafs/twfeeq.jz | f362cd1982a3 | 0 | 2886 | 1 | 6236 |
+| timings/hafs/wdee3.jz | 79baebc0951b | 0 | 2877 | 5 | 6236 |
+| timings/hafs/wdod.jz | a03e322f96d4 | 0 | 3608 | 0 | 6236 |
+| timings/hafs/yahya.jz | 48fb9a7af0c5 | 0 | 5745 | 28 | 6236 |
+| timings/hafs/yousef.jz | d3bfe80bf476 | 0 | 6080 | 2 | 6236 |
+| timings/hafs/zahrani.jz | 6a5b3f68e7d5 | 0 | 5252 | 98 | 6236 |
+| timings/hafs/zaki.jz | b767acf54488 | 0 | 5881 | 0 | 6236 |
+| timings/hafs/zaml.jz | 219b0c1210be | 0 | 5940 | 85 | 6236 |
+| timings/qalun/akri_qalun.jz | b99e357370ad | 210 | 5840 | 8 | 6026 |
+| timings/qalun/andari_qalun.jz | edfe3346f7ad | 0 | 5597 | 22 | 6236 |
+| timings/qalun/deban_qalun.jz | 5b38fcf62c56 | 0 | 3154 | 0 | 6236 |
+| timings/qalun/dokali.jz | dd2b2429af53 | 0 | 5825 | 15 | 6236 |
+| timings/qalun/fakhfakh_qalun.jz | 5bad920fd499 | 0 | 6078 | 0 | 6236 |
+| timings/qalun/gardeli_qalun.jz | d3fe322314ae | 0 | 5769 | 68 | 6236 |
+| timings/qalun/husary_qalun.jz | 67d92a1e3c52 | 0 | 5976 | 0 | 6236 |
+| timings/qalun/huthaify_qalun.jz | 62311c3bad0c | 0 | 5847 | 0 | 6236 |
+| timings/qalun/janaini_qalun.jz | 471d9599610d | 0 | 5782 | 45 | 6236 |
+| timings/qalun/jelmam_qalun.jz | 9196b2f80961 | 0 | 3533 | 159 | 6236 |
+| timings/qalun/kherkhashi_qalun.jz | c9c68909f3f4 | 0 | 2451 | 177 | 6236 |
+| timings/qalun/kshidan_qalun.jz | 40fc663569c3 | 0 | 3217 | 0 | 6236 |
+| timings/qalun/magdi_qalun.jz | a0d8adb999c1 | 0 | 6236 | 0 | 6236 |
+| timings/qalun/maroush_qalun.jz | 6c0e13b91b5a | 0 | 4609 | 977 | 6236 |
+| timings/qalun/noah_qalun.jz | 21ebad8421e4 | 0 | 3426 | 4 | 6236 |
+| timings/qalun/qeniwa_qalun.jz | bbd2a4827546 | 0 | 1135 | 0 | 6236 |
+| timings/qalun/qeryo_qalun.jz | 64ac066bd500 | 0 | 272 | 0 | 6236 |
+| timings/qalun/rajab_qalun.jz | d6e1894e540a | 0 | 6049 | 0 | 6236 |
+| timings/qalun/rakbawi_qalun.jz | 3d8dc7c9e31f | 0 | 5477 | 64 | 6236 |
+| timings/qalun/saber_qalun.jz | f34684301ac6 | 0 | 5998 | 0 | 6236 |
+| timings/qalun/shaykhna_qalun.jz | 03a7e3738662 | 0 | 5732 | 13 | 6236 |
+| timings/qalun/sneineh_qalun.jz | 98564c88b1f3 | 0 | 5811 | 41 | 6236 |
+| timings/qalun/suhaim_qalun.jz | 9323930457a1 | 0 | 2527 | 1 | 6236 |
+| timings/qalun/tareq_qalun.jz | b3de2afa72e1 | 0 | 6236 | 0 | 6236 |
+| timings/qalun/trablsi.jz | 5c4ca0a252be | 0 | 5574 | 170 | 6236 |
+| timings/qalun/waleed_qalun.jz | 754e6260e249 | 0 | 3174 | 0 | 6236 |
+| timings/shuba/deban_shuba.jz | b839ddd521e4 | 0 | 2790 | 4 | 6236 |
+| timings/shuba/huthaify_shuba.jz | fc740556c921 | 0 | 6236 | 0 | 6236 |
+| timings/sousi/soufi_sousi.jz | 5fadb4364599 | 0 | 3154 | 0 | 6236 |
+| timings/warsh/asali_warsh.jz | e4ac38120afc | 0 | 6236 | 0 | 6236 |
+| timings/warsh/basit_warsh.jz | 0ea2c88c6874 | 0 | 6236 | 0 | 6236 |
+| timings/warsh/benkirane_warsh.jz | 4f3ed339d7fd | 0 | 3792 | 120 | 6236 |
+| timings/warsh/bl3_warsh.jz | 58c0a63c4741 | 0 | 2659 | 0 | 6236 |
+| timings/warsh/chahboun_warsh.jz | d3b22ebc6a34 | 0 | 3345 | 1 | 6236 |
+| timings/warsh/deban_warsh.jz | 15b8d5270c5e | 0 | 2597 | 2 | 6236 |
+| timings/warsh/derini_warsh.jz | cb38c0c1fd0b | 0 | 5015 | 128 | 6236 |
+| timings/warsh/gharbi_warsh.jz | 6ace5d6bffdc | 0 | 5649 | 80 | 6236 |
+| timings/warsh/harraz_warsh.jz | f233a9f03cc8 | 0 | 5050 | 157 | 6236 |
+| timings/warsh/husary_warsh.jz | 20ed6f847cc5 | 0 | 5746 | 60 | 6236 |
+| timings/warsh/iraoui_warsh.jz | eb657493a47d | 0 | 5867 | 9 | 6236 |
+| timings/warsh/kentaoui_warsh.jz | 2c9166ac231b | 0 | 5940 | 29 | 6236 |
+| timings/warsh/kholti_warsh.jz | 563cfc75bbc4 | 0 | 2984 | 2 | 6236 |
+| timings/warsh/koshi_warsh.jz | 1f0f0a30bc7c | 0 | 5186 | 121 | 6236 |
+| timings/warsh/laghdaf_shinqiti.jz | 889c91909899 | 0 | 5750 | 105 | 6236 |
+| timings/warsh/m_abdulkareem_warsh.jz | 693326d1f6a3 | 0 | 4448 | 102 | 6236 |
+| timings/warsh/m_sayed_warsh.jz | 73d1ffd203da | 0 | 2731 | 0 | 6236 |
+| timings/warsh/masarawy_warsh.jz | a9eca314102f | 0 | 6236 | 0 | 6236 |
+| timings/warsh/noah_warsh.jz | b99262ae6b1b | 55 | 2864 | 0 | 6181 |
+| timings/warsh/qari_warsh.jz | d22877593d8f | 0 | 5734 | 8 | 6236 |
+| timings/warsh/qazabri.jz | afbaafb8b367 | 0 | 5761 | 68 | 6236 |
+| timings/warsh/rabbani_warsh.jz | 303bc4d0d6d2 | 0 | 5036 | 175 | 6236 |
+| timings/warsh/sultani_warsh.jz | 6950a288314b | 0 | 3359 | 3 | 6236 |
+| timings/warsh/wahrani_warsh.jz | 5fe9f415d540 | 0 | 2254 | 1 | 6236 |
+
+الأخطاء العامة: لا أخطاء في القراءة والهوية العامة
+
+- unknownEndEvidence فجوة إثبات، لا عدد نهايات ثبت فسادها
+- شهادة النهاية مستقلة عن heard وتخضع لعقد window_census الحالي؛ قد تشمل الوقفة حتى بدء التالية
+- موضع البدء مقارن بتقدير CTC بهامش 1500م.ث؛ ليس شهادة دقة سمعية مطلقة
+- لا قياس جديد للصوت ولا إثبات صوت القارئ من CTC
+- لا يتجاوز هذا التقرير بوابات المطالع والملوح والإحصاء والترقية القائمة
+- الجرد قراءات متتابعة ومقارنة ETag بسرد أخير؛ ليس لقطة ذرية للدلو
+- النتيجة تخص البصمات المقروءة؛ أي ترقية لاحقة تستلزم إعادة التدقيق
