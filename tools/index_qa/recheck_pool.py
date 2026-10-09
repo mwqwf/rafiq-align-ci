@@ -16,7 +16,32 @@ for _s in (sys.stdout, sys.stderr):
         pass
 
 
+def guards(src):
+    """حرّاسُ المصدر المرشَّح بعد الحكم، كما في main (عرضاً): الإحصاء · السماع · البنية · الهويّة · البتر."""
+    import gzip
+    cl, bucket = P.s3()
+    sha, size, body = P.object_sha(cl, bucket, src)
+    idx = json.loads(gzip.decompress(body).decode("utf-8"))
+    published = "timings/%s/%s.jz" % (idx.get("riwaya"), idx.get("reciterId"))
+    out = {"src": src, "sha": sha[:12], "entries": len(idx.get("entries", []))}
+    out["census_gate"] = P.census_gate(cl, bucket, src, sha, idx)
+    out["heard_gate"] = P.heard_gate_check(cl, bucket, src, sha, idx, published)
+    try:
+        out["index_gate"] = P.index_gate(idx)
+        out["catalog_gate"] = P.catalog_gate(idx, P.catalog(cl, bucket))
+    except SystemExit as ex:
+        out["catalog_exit"] = str(ex)
+    petag = cl.head_object(Bucket=bucket, Key=published).get("ETag")
+    cut, st = P.truncation(cl, bucket, idx.get("riwaya"), idx.get("reciterId"), None)
+    out["truncation"] = {"state": st, "cut": [r.get("surah") for r in cut]}
+    print(json.dumps(out, ensure_ascii=False))
+
+
 def main():
+    if sys.argv[1:2] == ["--guards"]:
+        for k in sys.argv[2:]:
+            guards(k)
+        return
     want = sys.argv[1:]
     cl, bucket = P.s3()
     ev = list(P.reports()) + P.bucket_reports(cl, bucket)
