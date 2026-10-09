@@ -932,7 +932,7 @@ def _try_promote(r, prom, fired) -> tuple[bool, str]:
     done = subprocess.run([sys.executable, prom, "--only", r["key"], "--yes"],
                           capture_output=True, text=True, encoding="utf-8",
                           errors="replace", cwd=str(ROOT))
-    ok = "→ ✅" in done.stdout
+    ok = done.returncode == 0 and "→ ✅" in done.stdout and "🧊 جُمّد" in done.stdout
     # ⛔⛔ **يُسدّ ما رُفع إن رُدّت الترقية** (عطبٌ مقيسٌ 2026-09-23): رفعٌ بلا
     #    ترقيةٍ ناجحة ترك الهدفَ مفتوحاً، فرقّى `keepalive` فوقه نسخةً أقدم
     #    (رجع fateh_douri 6235⇒6209 وtrabulsi 6236⇒6214). ⇒ يُعاد التجميدُ على
