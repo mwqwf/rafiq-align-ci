@@ -1,0 +1,369 @@
+{
+ "schema": 1,
+ "tool": "full_audit-1.0",
+ "date": "20261010",
+ "timestampUtc": "2026-10-10T00:05:07Z",
+ "elapsedSec": 70.6,
+ "phase": "all",
+ "manifestIndexes": 180,
+ "frozenBucket": 219,
+ "reportsRead": 12159,
+ "rows": [
+  {
+   "key": "timings-staging/hafs/m_harfoush.dfa87b81.jz",
+   "sha256": "dfa87b817423dec141e197aea190a73f877e9705169356275643e7c66da0f437",
+   "riwaya": "hafs",
+   "reciterId": "m_harfoush",
+   "bytes": 96124,
+   "engine": "ctc-seg-1",
+   "transformOp": "ctc_heardmap_splice:2,3,10,13,19,22,24,34,45,66",
+   "staging": true,
+   "identity": {
+    "sha256": "dfa87b817423dec141e197aea190a73f877e9705169356275643e7c66da0f437",
+    "staging": true,
+    "errors": [],
+    "ok": true
+   },
+   "structure": {
+    "entries": 6236,
+    "errors": [],
+    "examples": {},
+    "registeredFileNoMappings": {},
+    "fileNoUnparsed": 0,
+    "structuralFatal": [],
+    "structuralWarn": [
+     "مداخل مدتها > 120ث: 2 · مثال: 2:282 مدتها 161ث"
+    ],
+    "decision": [],
+    "engine": "ctc-seg-1",
+    "audioSha": 114,
+    "bands": {
+     "LOW": 926,
+     "MED": 5151,
+     "HIGH": 159
+    },
+    "ok": true
+   },
+   "gaps": {
+    "missingTotal": 0,
+    "internalGaps": [],
+    "headMissing": [],
+    "tailMissing": [],
+    "wholeMissing": [],
+    "declared": {
+     "transformOp": "ctc_heardmap_splice:2,3,10,13,19,22,24,34,45,66",
+     "transformReason": "pE: كبس مرشّح بمسح المدد في m_harfoush — السور 10 تُقاس بخريطة السماع قبل أن تُمسّ",
+     "reasonCode": null,
+     "dropSurahs": [],
+     "byReason": {},
+     "declaredCount": 0,
+     "tagCount": 0,
+     "declaredIds": [],
+     "truncatedTail": null
+    },
+    "undeclaredEdge": [],
+    "errors": [],
+    "ok": true
+   },
+   "durations": {
+    "durationOutliers": 16,
+    "durationExamples": [
+     {
+      "aid": "12:95",
+      "ms": 1170,
+      "expMs": 7960,
+      "ratio": 0.15,
+      "chars": 26
+     },
+     {
+      "aid": "39:62",
+      "ms": 1141,
+      "expMs": 7220,
+      "ratio": 0.16,
+      "chars": 25
+     },
+     {
+      "aid": "50:41",
+      "ms": 1846,
+      "expMs": 10033,
+      "ratio": 0.18,
+      "chars": 29
+     },
+     {
+      "aid": "89:29",
+      "ms": 701,
+      "expMs": 3409,
+      "ratio": 0.21,
+      "chars": 12
+     },
+     {
+      "aid": "44:54",
+      "ms": 1421,
+      "expMs": 5952,
+      "ratio": 0.24,
+      "chars": 18
+     },
+     {
+      "aid": "80:41",
+      "ms": 781,
+      "expMs": 3322,
+      "ratio": 0.24,
+      "chars": 10
+     },
+     {
+      "aid": "30:59",
+      "ms": 2288,
+      "expMs": 9164,
+      "ratio": 0.25,
+      "chars": 32
+     },
+     {
+      "aid": "58:21",
+      "ms": 2449,
+      "expMs": 9984,
+      "ratio": 0.25,
+      "chars": 34
+     },
+     {
+      "aid": "12:89",
+      "ms": 3032,
+      "expMs": 11634,
+      "ratio": 0.26,
+      "chars": 38
+     },
+     {
+      "aid": "58:15",
+      "ms": 3102,
+      "expMs": 11452,
+      "ratio": 0.27,
+      "chars": 39
+     },
+     {
+      "aid": "29:69",
+      "ms": 4053,
+      "expMs": 14221,
+      "ratio": 0.28,
+      "chars": 46
+     },
+     {
+      "aid": "57:28",
+      "ms": 8046,
+      "expMs": 29067,
+      "ratio": 0.28,
+      "chars": 93
+     }
+    ],
+    "impossibleShort": [],
+    "veryShort": [
+     {
+      "aid": "89:29",
+      "ms": 701,
+      "expMs": 3409,
+      "ratio": 0.21,
+      "chars": 12
+     },
+     {
+      "aid": "80:41",
+      "ms": 781,
+      "expMs": 3322,
+      "ratio": 0.24,
+      "chars": 10
+     }
+    ],
+    "extremeLong": [],
+    "longOutliers": 0,
+    "shortOutliers": 16,
+    "silenceGaps": 0,
+    "silenceExamples": [],
+    "surahsWithRate": 113
+   },
+   "audio": {
+    "audioReportsOnSha": 8,
+    "openersOnSha": true,
+    "errors": [],
+    "notes": [],
+    "samples": [
+     {
+      "salt": "k3",
+      "source": "ci",
+      "engine": "pywhispercpp/ggml-q8 (tiny-ar-quran)",
+      "verdict": "مقبول",
+      "m": 2,
+      "n": 200,
+      "rate": 0.01,
+      "hi": 0.024405013929732572,
+      "fatal": 0,
+      "ts": 1791588956.6696203
+     },
+     {
+      "salt": "k1",
+      "source": "ci",
+      "engine": "pywhispercpp/ggml-q8 (tiny-ar-quran)",
+      "verdict": "مقبول",
+      "m": 0,
+      "n": 200,
+      "rate": 0.0,
+      "hi": 0.014867039231272083,
+      "fatal": 0,
+      "ts": 1791588957.2297626
+     },
+     {
+      "salt": "k2",
+      "source": "ci",
+      "engine": "pywhispercpp/ggml-q8 (tiny-ar-quran)",
+      "verdict": "مقبول",
+      "m": 0,
+      "n": 200,
+      "rate": 0.0,
+      "hi": 0.014867039231272083,
+      "fatal": 0,
+      "ts": 1791588968.2420924
+     },
+     {
+      "salt": "k4",
+      "source": "ci",
+      "engine": "pywhispercpp/ggml-q8 (tiny-ar-quran)",
+      "verdict": "مقبول",
+      "m": 0,
+      "n": 200,
+      "rate": 0.0,
+      "hi": 0.014867039231272083,
+      "fatal": 0,
+      "ts": 1791588982.0027342
+     },
+     {
+      "salt": "pEdfa81",
+      "source": "ci",
+      "engine": "pywhispercpp/ggml-q8 (tiny-ar-quran)",
+      "verdict": "مقبول",
+      "m": 1,
+      "n": 200,
+      "rate": 0.005,
+      "hi": 0.015465000000000003,
+      "fatal": 0,
+      "ts": 1791589958.0172005
+     },
+     {
+      "salt": "pEdfa82",
+      "source": "ci",
+      "engine": "pywhispercpp/ggml-q8 (tiny-ar-quran)",
+      "verdict": "مقبول",
+      "m": 1,
+      "n": 200,
+      "rate": 0.005,
+      "hi": 0.015465000000000007,
+      "fatal": 0,
+      "ts": 1791589974.1393023
+     },
+     {
+      "salt": "pEdfa83",
+      "source": "ci",
+      "engine": "pywhispercpp/ggml-q8 (tiny-ar-quran)",
+      "verdict": "مقبول",
+      "m": 1,
+      "n": 200,
+      "rate": 0.005,
+      "hi": 0.015465000000000007,
+      "fatal": 0,
+      "ts": 1791589984.845784
+     },
+     {
+      "salt": "pEdfa84",
+      "source": "ci",
+      "engine": "pywhispercpp/ggml-q8 (tiny-ar-quran)",
+      "verdict": "مقبول",
+      "m": 0,
+      "n": 200,
+      "rate": 0.0,
+      "hi": 0.014867039231272083,
+      "fatal": 0,
+      "ts": 1791589994.2020702
+     }
+    ],
+    "pooled": {
+     "m": 5,
+     "n": 1600,
+     "rate": 0.003125,
+     "hi": 0.006559331974379752,
+     "salts": [
+      "k1",
+      "k2",
+      "k3",
+      "k4",
+      "pEdfa81",
+      "pEdfa82",
+      "pEdfa83",
+      "pEdfa84"
+     ],
+     "seeds": 8,
+     "engine": "pywhispercpp/ggml-q8 (tiny-ar-quran)",
+     "rule": "D-098"
+    },
+    "severeHi": 0.006559331974379752,
+    "openers": {
+     "commit": "8c0d5e00935bc6c31ae29d07de90fa20e2c5e759",
+     "toolOk": true,
+     "scope": "full",
+     "checked": 112,
+     "hasLate": true,
+     "late": [
+      4,
+      22,
+      60,
+      66,
+      74,
+      79
+     ],
+     "lateCtcRule": "CTC ≥1500م.ث بعد بدء المدخل بثقة ≥0.3 · float32 حتميّ",
+     "lateConfirmed": [],
+     "swallowed": [],
+     "suspect": [],
+     "tail": [],
+     "unknown": [
+      2,
+      7,
+      13,
+      27,
+      29,
+      30,
+      32,
+      70,
+      73
+     ],
+     "verdict": "clean"
+    },
+    "otherShasWithSamples": [
+     "aeccbafd",
+     "b91d3491",
+     "c9eaa61a",
+     "d207e7e9"
+    ],
+    "ok": true
+   }
+  }
+ ],
+ "summary": {
+  "indexes": 1,
+  "phase": "all",
+  "identityOk": 1,
+  "identityBad": [],
+  "structureOk": 1,
+  "structureBad": [],
+  "gapsOk": 1,
+  "gapsBad": [],
+  "audioOk": 1,
+  "audioBad": [],
+  "durationOutliersTotal": 16,
+  "impossibleShortTotal": 0,
+  "indexesWithImpossibleShort": 0,
+  "veryShortTotal": 2,
+  "extremeLongTotal": 0,
+  "indexesWithExtremeLong": 0,
+  "mirrorStale": 0,
+  "silenceGapsTotal": 0,
+  "indexesWithDurationOutliers": 1,
+  "indexesWithSilenceGaps": 0,
+  "entriesTotal": 6236,
+  "missingTotal": 0
+ }
+}
