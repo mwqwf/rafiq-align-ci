@@ -1,13 +1,13 @@
 {
  "schema": 1,
  "tool": "full_audit-1.0",
- "date": "20261009",
- "timestampUtc": "2026-10-09T21:35:42Z",
- "elapsedSec": 73.7,
+ "date": "20261010",
+ "timestampUtc": "2026-10-10T07:39:52Z",
+ "elapsedSec": 23.8,
  "phase": "all",
  "manifestIndexes": 180,
  "frozenBucket": 220,
- "reportsRead": 12104,
+ "reportsRead": 12254,
  "rows": [
   {
    "key": "timings-staging/hafs/mhsny.1f3c26ab.jz",
@@ -290,16 +290,157 @@
     "surahsWithRate": 113
    },
    "audio": {
-    "audioReportsOnSha": 0,
-    "openersOnSha": false,
-    "errors": [
-     "لا حكمَ صوتيٍّ بعيّنةٍ على البصمة المنشورة",
-     "لا شاهدَ مطالعَ على البصمة المنشورة"
-    ],
+    "audioReportsOnSha": 8,
+    "openersOnSha": true,
+    "errors": [],
     "notes": [],
-    "samples": [],
-    "pooled": null,
-    "severeHi": null,
+    "samples": [
+     {
+      "salt": "pD1f3c1",
+      "source": "ci",
+      "engine": "pywhispercpp/ggml-q8 (tiny-ar-quran)",
+      "verdict": "مقبول",
+      "m": 4,
+      "n": 200,
+      "rate": 0.02,
+      "hi": 0.04448381570709409,
+      "fatal": 0,
+      "ts": 1791588252.860958
+     },
+     {
+      "salt": "pD1f3c4",
+      "source": "ci",
+      "engine": "pywhispercpp/ggml-q8 (tiny-ar-quran)",
+      "verdict": "مقبول",
+      "m": 3,
+      "n": 200,
+      "rate": 0.015000000000000003,
+      "hi": 0.03214539599855799,
+      "fatal": 0,
+      "ts": 1791588260.5037036
+     },
+     {
+      "salt": "pD1f3c3",
+      "source": "ci",
+      "engine": "pywhispercpp/ggml-q8 (tiny-ar-quran)",
+      "verdict": "مقبول",
+      "m": 2,
+      "n": 200,
+      "rate": 0.01,
+      "hi": 0.024405013929732572,
+      "fatal": 0,
+      "ts": 1791588266.623838
+     },
+     {
+      "salt": "pD1f3c2",
+      "source": "ci",
+      "engine": "pywhispercpp/ggml-q8 (tiny-ar-quran)",
+      "verdict": "مقبول",
+      "m": 2,
+      "n": 200,
+      "rate": 0.01,
+      "hi": 0.03093,
+      "fatal": 0,
+      "ts": 1791588273.218132
+     },
+     {
+      "salt": "k1",
+      "source": "ci",
+      "engine": "pywhispercpp/ggml-q8 (tiny-ar-quran)",
+      "verdict": "حدّي (التقدير 2.5% والحدّ الأعلى 5.1% > 5%)",
+      "m": 5,
+      "n": 200,
+      "rate": 0.025,
+      "hi": 0.050746094108468295,
+      "fatal": 0,
+      "ts": 1791588993.365032
+     },
+     {
+      "salt": "k2",
+      "source": "ci",
+      "engine": "pywhispercpp/ggml-q8 (tiny-ar-quran)",
+      "verdict": "مقبول",
+      "m": 2,
+      "n": 200,
+      "rate": 0.01,
+      "hi": 0.024405013929732572,
+      "fatal": 0,
+      "ts": 1791588999.7596972
+     },
+     {
+      "salt": "k3",
+      "source": "ci",
+      "engine": "pywhispercpp/ggml-q8 (tiny-ar-quran)",
+      "verdict": "مقبول",
+      "m": 2,
+      "n": 200,
+      "rate": 0.01,
+      "hi": 0.024405013929732572,
+      "fatal": 0,
+      "ts": 1791589044.6212752
+     },
+     {
+      "salt": "k4",
+      "source": "ci",
+      "engine": "pywhispercpp/ggml-q8 (tiny-ar-quran)",
+      "verdict": "مقبول",
+      "m": 1,
+      "n": 200,
+      "rate": 0.005,
+      "hi": 0.015465000000000007,
+      "fatal": 0,
+      "ts": 1791589059.0805502
+     }
+    ],
+    "pooled": {
+     "m": 21,
+     "n": 1600,
+     "rate": 0.013125,
+     "hi": 0.018845638161132574,
+     "salts": [
+      "k1",
+      "k2",
+      "k3",
+      "k4",
+      "pD1f3c1",
+      "pD1f3c2",
+      "pD1f3c3",
+      "pD1f3c4"
+     ],
+     "seeds": 8,
+     "engine": "pywhispercpp/ggml-q8 (tiny-ar-quran)",
+     "rule": "D-098"
+    },
+    "severeHi": 0.018845638161132574,
+    "openers": {
+     "commit": "8c0d5e00935bc6c31ae29d07de90fa20e2c5e759",
+     "toolOk": true,
+     "scope": "full",
+     "checked": 112,
+     "hasLate": true,
+     "late": [
+      4,
+      5,
+      22
+     ],
+     "lateCtcRule": "CTC ≥1500م.ث بعد بدء المدخل بثقة ≥0.3 · float32 حتميّ",
+     "lateConfirmed": [],
+     "swallowed": [],
+     "suspect": [],
+     "tail": [],
+     "unknown": [
+      2,
+      6,
+      13,
+      30,
+      37,
+      48,
+      51,
+      54,
+      108
+     ],
+     "verdict": "clean"
+    },
     "otherShasWithSamples": [
      "3816ca6c",
      "3860f1a0",
@@ -312,7 +453,7 @@
      "c6376150",
      "ce66490d"
     ],
-    "ok": false
+    "ok": true
    }
   }
  ],
@@ -325,10 +466,8 @@
   "structureBad": [],
   "gapsOk": 1,
   "gapsBad": [],
-  "audioOk": 0,
-  "audioBad": [
-   "timings-staging/hafs/mhsny.1f3c26ab.jz"
-  ],
+  "audioOk": 1,
+  "audioBad": [],
   "durationOutliersTotal": 76,
   "impossibleShortTotal": 0,
   "indexesWithImpossibleShort": 0,

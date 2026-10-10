@@ -683,6 +683,65 @@ def drop_approval_refs(key, path=None):
             and one(r)] if isinstance(rows, list) else []
 
 
+def _approved_ayah_ids(ayahs):
+    """معرّفات آياتٍ معتمدة صحيحة الشكل، أو `None` إن فسد الصفّ.
+
+    الشرط: كلُّ سورةٍ يمسّها الصفّ تُعتمد منها آياتٌ تكوّن طرفاً متّصلاً من أولها
+    (1..k) أو من آخرها (k..n)، وأقصرَ من السورة كلّها (وإلا فهي إسقاطٌ للسورة).
+    """
+    if not (isinstance(ayahs, list) and ayahs):
+        return None
+    by_surah = {}
+    for x in ayahs:
+        if not isinstance(x, str) or x.count(":") != 1:
+            return None
+        s, a = x.split(":")
+        if not (s.isdigit() and a.isdigit()):
+            return None
+        s, a = int(s), int(a)
+        if not (1 <= s <= len(_AYAH_COUNTS) and 1 <= a <= _AYAH_COUNTS[s - 1]):
+            return None
+        by_surah.setdefault(s, set()).add(a)
+    for s, got in by_surah.items():
+        n = _AYAH_COUNTS[s - 1]
+        k = len(got)
+        if k >= n:
+            return None
+        if got != set(range(1, k + 1)) and got != set(range(n - k + 1, n + 1)):
+            return None
+    return frozenset(f"{s}:{a}" for s, got in by_surah.items() for a in got)
+
+
+def load_drop_ayah_approvals(path=None):
+    """اعتمادات المالك لآياتٍ طرفيّة غائبة: `{المفتاح: frozenset("س:آ")}`.
+
+    الصفّ: `{"key", "ayahs": ["69:52"], "rule_ref", "attempts": [...]}`؛ وما نقص
+    حقلاً (المفتاح · rule_ref · attempts غير فارغة) أو لم تكن آياتُه طرفاً متّصلاً
+    أقصرَ من السورة يُهمل. الملفّ المفقود أو التالف يعني `{}`.
+    """
+    try:
+        rows = json.loads(Path(path or OWNER_DROP_APPROVALS).read_text(encoding="utf-8"))
+    except (OSError, ValueError):
+        return {}
+    if not isinstance(rows, list):
+        return {}
+    out = {}
+    for r in rows:
+        if not isinstance(r, dict):
+            continue
+        key, ref, att = r.get("key"), r.get("rule_ref"), r.get("attempts")
+        if not (isinstance(key, str) and key.strip()):
+            continue
+        if not (isinstance(ref, str) and ref.strip()):
+            continue
+        if not (isinstance(att, list) and any(isinstance(x, str) and x.strip() for x in att)):
+            continue
+        ids = _approved_ayah_ids(r.get("ayahs"))
+        if ids:
+            out[key] = out.get(key, frozenset()) | ids
+    return out
+
+
 def approved_drop(rep, approvals):
     """هل «موقوف» هذا لسببٍ واحدٍ فقط: إسقاطٌ معلَنٌ أذن المالك بسوره لهذا المفتاح؟
 
@@ -1481,7 +1540,8 @@ def _swallowed_surahs_from(rep):
     return out
 
 
-def shrink_refusal(cl, bucket, target, n_new, allow_shrink=None, reason=None):
+def shrink_refusal(cl, bucket, target, n_new, allow_shrink=None, reason=None,
+                  new_ids=None, key=None, approvals_path=None):
     """سببُ الردّ إن كان المرشّحُ أقلَّ مداخلَ من المنشور، وإلا `None`.
 
     ⛔ تعذّرُ قراءة المنشور القائم يُردّ به لا يُعفى (الغيابُ ليس سلامة)؛ أمّا
@@ -1494,11 +1554,28 @@ def shrink_refusal(cl, bucket, target, n_new, allow_shrink=None, reason=None):
             return None
         return f"تعذّرت قراءةُ المنشور لمقارنة المداخل ({str(ex)[:60]}) — لا ترقية"
     try:
-        n_old = len(json.loads(gzip.decompress(body).decode("utf-8")).get("entries", []))
+        old_entries = json.loads(gzip.decompress(body).decode("utf-8")).get("entries", [])
+        n_old = len(old_entries)
     except Exception as ex:                                   # noqa: BLE001
         return f"المنشورُ لا يُقرأ فهرساً ({str(ex)[:60]}) — لا ترقية"
     if n_new >= n_old:
         return None
+    # النقصُ المعتمد بنصّ المالك: كلُّ معرّفٍ مفقودٍ إمّا من سورة إسقاطٍ معتمدةٍ لهذا
+    # المفتاح، أو من آياتٍ طرفيّةٍ معتمدة (انظر `load_drop_ayah_approvals`). وإلا يبقى الردّ.
+    if new_ids is not None and key:
+        try:
+            old_ids = {str(e.get("ayahId") or "") for e in old_entries}
+            lost = old_ids - {str(x) for x in new_ids}
+        except Exception:                                     # noqa: BLE001
+            lost = set()
+        if lost:
+            ok_s = load_drop_approvals(approvals_path).get(key, frozenset())
+            ok_a = load_drop_ayah_approvals(approvals_path).get(key, frozenset())
+            if all((i in ok_a) or (i.split(":", 1)[0].isdigit()
+                                    and int(i.split(":", 1)[0]) in ok_s) for i in lost):
+                print(f"  ⚠️ {target}: نقصٌ معتمدٌ بنصّ المالك {n_old}⇒{n_new} — "
+                      f"المفقود {len(lost)} مدخلاً: {sorted(lost)[:6]}")
+                return None
     if allow_shrink and allow_shrink == target and (reason or "").strip():
         print(f"  ⚠️ {target}: إنقاصٌ مأذونٌ باسمه {n_old}⇒{n_new} — {reason.strip()[:120]}")
         return None
@@ -1650,6 +1727,19 @@ def gate(rep, frozen, prefix, holds=None, override=None, ci_reports=None,
             and not ci_borderline_ok(rep, ci)
             and (pooled_map or {}).get(rep.get("sha256"), {}).get("verdict") == ACCEPTED):
         ci = None                       # فُصل الخلافُ بالتجميع — لا تعارضَ قائم
+    # التعارضُ الناشئ من «موقوف» سببُه الوحيد إسقاطٌ معتمدٌ بنصّ المالك لا خلافٌ في الجودة:
+    # يُرفع إن اتّفقت الأحكام الثلاثة (CI والممثِّل والمجمَّع) على سبب الإيقاف نفسِه
+    # والسورِ المُسقطة نفسِها، وكان الحدُّ الأعلى المجمَّع دون العتبة (لا تُمسّ العتبة).
+    if ci is not None and ci.get("verdict") != ACCEPTED and not ci_borderline_ok(rep, ci):
+        _pl = (pooled_map or {}).get(rep.get("sha256"))
+        if (_pl is not None and approved_drop(ci, approvals) and approved_drop(rep, approvals)
+                and approved_drop(_pl, approvals)
+                and ci.get("declaredDrops") == rep.get("declaredDrops") == _pl.get("declaredDrops")):
+            _phi = (_pl.get("severeRate") or {}).get("hi") if isinstance(
+                _pl.get("severeRate"), dict) else None
+            if (isinstance(_phi, (int, float)) and not isinstance(_phi, bool)
+                    and _phi == _phi and _phi < SEVERE_CEILING):
+                ci = None
     if ci is not None and ci.get("verdict") != ACCEPTED and not ci_borderline_ok(rep, ci):
         return target, (f"تعارضُ حكمين على البصمة نفسها: CI يقول "
                         f"{ci.get('verdict')!r}{corroboration(rep, ci)} — "
@@ -2662,7 +2752,9 @@ def main():
         #    حيث يمرّ كلُّ كاتب. ولا يُتجاوز إلا بـ`--allow-shrink` يسمّي الهدفَ
         #    نفسَه مع `--reason` (كإسقاطٍ مقصودٍ لسورةٍ تالفة).
         _shrink = shrink_refusal(cl, bucket, target, len(idx.get("entries", [])),
-                                 a.allow_shrink, a.reason)
+                                 a.allow_shrink, a.reason,
+                                 new_ids=[e.get("ayahId") for e in idx.get("entries", [])],
+                                 key=src)
         if _shrink:
             print(f"  ⛔ {src}: {_shrink}")
             continue
