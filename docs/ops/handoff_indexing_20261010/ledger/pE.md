@@ -1,0 +1,37 @@
+- 2026-10-09T17:52:38Z · hafs/alijon · a6a75025 → d0368773 · 24 سورة كبسها أُصلح (6,8,9,11,13,17,18,19,20,24,25,28,33,36,37,38,43,45,47,48,49,54,60,66؛ ~960 آية منحرفة) · ملوح 4 مجمّعة 1.00%/1.80% · إحصاء جسيم 1/2141 ✅ · سماع ✅ · مطالع نظيفة · ops/out: 20261009_1741_pE_P2_alijon.txt (P3 ✅ مجمَّد، P4 رُدّ لأن الأصل تبدّل = المتوقَّع)
+- 2026-10-09T18:56:03Z · warsh/laghdaf_shinqiti · 889c9190 → e078674a · 27 سورة (6,9,10,13,14,15,17,20,21,23,24,27,29,34,36,38,40,41,43,46,47,57,59,60,66,67,75)؛ س2 وس26 تُركتا بسببٍ مكتوب (بلا مراسٍ/غير حاسم) · ملوح 4: 0.62%/1.31% · إحصاء جسيم 20/2346 ✅ · سماع ✅ · مطالع نظيفة · ops/out: 20261009_1842_pE_P2_laghdaf_shinqiti.txt
+- 2026-10-09T19:54:46Z · hafs/sayed · dbec7585 → 7d6683ca · 12 سورة (2,4,5,6,8,11,12,18,22,24,34,59) · ملوح 4: 0.25%/0.78% · إحصاء جسيم 4/1522 ✅ · سماع ✅ · مطالع نظيفة · P2 في ops/out/*_pE_P2_sayed.txt
+- 2026-10-09T21:28:15Z · hafs/h_dukhain · bb09c815 → 4813c550 · 19 سورة (2,6,8,10,17,20,24,28,31,35,37,43,51,52,54,59,60,62,89) · ملوح 0.62%/1.06% · إحصاء جسيم 2/1892 ✅ · سماع ✅ · مطالع نظيفة · ops/out/*_pE_P2_h_dukhain.txt
+- 2026-10-09T21:51:47Z · hafs/darweez · 7fb18cfb → 6a1f2c40 · 33 سورة · ملوح 0.00%/0.37% · إحصاء (تسلسلي) جسيم 8/3127 ✅ · سماع ✅ · مطالع نظيفة · ops/out/*_pE_P2_darweez.txt
+- 2026-10-10T00:06:00Z · hafs/afs · e003a2a3 → 400d9912 · 11 سورة (كبس) · ملوح 0.19%/0.48% · إحصاء/سماع ✅ · مطالع نظيفة · ops/out/*_pE_P2_afs.txt (P3 ✅ جُمّد)
+- 2026-10-10T00:16:00Z · hafs/s_hashemi · a3418221 → bbf2ba8b · 9 سور · ملوح 0.19%/0.48% · إحصاء جسيم 7/2427 ✅ · سماع ✅ · مطالع نظيفة · جُمّد (ops/out/*_pE_P*_s_hashemi.txt)
+- 2026-10-10T00:42:31Z · hafs/a_alqrafi · 5b450981 → 81c99b47 · 20 سورة · ملوح 0.62%/1.06% · إحصاء جسيم 7/2560 ✅ · سماع ✅ · مطالع نظيفة · ops/out/*_pE_P2_a_alqrafi.txt
+- 2026-10-10T02:11:14Z · hafs/m_harfoush · b91d3491 → dfa87b81 · 10 سور · ملوح 0.31%/0.66% · إحصاء جسيم 1/3108 ✅ · سماع ✅ · مطالع نظيفة · ops/out/*_pE_P2_m_harfoush.txt
+- 2026-10-10T03:09:58Z · hafs/a_albadr · f56150ee → 05f2cd2d · 17 سورة · ملوح 0.62%/1.06% · إحصاء جسيم 2 ✅ · سماع ✅ · مطالع نظيفة · ops/out/20261010_0303_pE_P3_a_albadr.txt (جُمّد)
+- 2026-10-10T04:27:52Z · hafs/arkani · e91e80ef → 2ae09f36 · 11 سورة · ملوح 0.31%/0.66% · إحصاء جسيم 4 ✅ · سماع ✅ · مطالع نظيفة · ops/out/*_pE_P2_arkani.txt
+- 2026-10-10T05:12:09Z · douri/nourin_douri · c24ebc52 → f788bce3 · 15 سورة · ملوح 4 ✅ · إحصاء/سماع ✅ · مطالع نظيفة · ops/out/20261010_0508_pE_P3_nourin_douri.txt (أُعيدت P1-P4 مرّة لأن P2 الأولى رُدّت مجمَّد)
+- 2026-10-10T05:12:09Z · hafs/a_binaoun · 07080934 → 90ed884f · 16 سورة · ملوح 1.12%/1.95% · إحصاء/سماع ✅ · مطالع نظيفة · ops/out/*_pE_P3_a_binaoun.txt
+- 2026-10-10T05:55:17Z · hafs/deban · 6293b974 → b7ff40b6 · 11 سورة · ملوح/إحصاء/سماع ✅ · مطالع نظيفة · ops/out/*_pE_P3_deban.txt
+- 2026-10-10T06:38:33Z · hafs/s_sadeiq · 927e8bbe → 5c4e5f75 · سور مصلحة بالكبس · ملوح/إحصاء/سماع ✅ · مطالع نظيفة · ops/out/*_pE_P3_s_sadeiq.txt
+- 2026-10-10T06:49:12Z · hafs/lahoni · 512bbffb → c79d8b31 · سور مصلحة بالكبس · ملوح/إحصاء/سماع ✅ · مطالع نظيفة · ops/out/*_pE_P3_lahoni.txt
+- 2026-10-10T07:01:17Z · hafs/mrifai · ef3855a4 → 5b5d4dea · ملوح/إحصاء/سماع ✅ · ops/out/*_pE_P3_mrifai.txt
+- 2026-10-10T08:43:54Z · hafs/yahya · 48fb9a7a → aae710ac · ملوح/إحصاء/سماع ✅ · ops/out/*_pE_P3_yahya.txt
+- 2026-10-10T08:57:10Z · hafs/trabulsi · 01d51006 → 0683796a · ملوح/إحصاء/سماع ✅ · ops/out/*_pE_P3_trabulsi.txt
+- 2026-10-10T09:07:15Z · hafs/qurashi · 6a42a675 → c724044d · ملوح/إحصاء/سماع ✅ · ops/out/*_pE_P3_qurashi.txt
+- 2026-10-10T10:06:33Z · hafs/nabil · 465c0e8a → e2c86df9 · ملوح/إحصاء/سماع ✅ · ops/out/*_pE_P3_nabil.txt
+- 2026-10-10T10:25:34Z · hafs/swlim · c6d34a6c → 1b46bf53 · ملوح/إحصاء/سماع ✅ · ops/out/*_pE_P3_swlim.txt
+- 2026-10-10T11:06:24Z · warsh/harraz_warsh · f233a9f0 → 3ac16726 · ملوح/إحصاء/سماع ✅ · ops/out/*_pE_P3_harraz_warsh.txt
+- 2026-10-10T11:13:14Z · hafs/a_alhazmi · 7498fa1e → a3c7ac7e · ملوح/إحصاء/سماع ✅ · ops/out/*_pE_P3_a_alhazmi.txt
+- 2026-10-10T11:52:58Z · qalun/jelmam_qalun · 9196b2f8 → 8bc90998 · سور مصلحة · ملوح/إحصاء/سماع ✅ · ops/out/*_pE_P3_jelmam_qalun.txt
+- 2026-10-10T12:06:09Z · hafs/kyat · a47e693d → b97e1194 · ملوح/إحصاء/سماع ✅ · ops/out/*_pE_P3_kyat.txt
+- 2026-10-10T12:55:53Z · hafs/hatem · 3cdfac1a → b673da91 · ملوح/إحصاء/سماع ✅ · ops/out/*_pE_P3_hatem.txt
+- 2026-10-10T13:36:30Z · hafs/bilal · 131552bc → 7cff466f · ملوح/إحصاء/سماع ✅ · ops/out/*_pE_P3_bilal.txt
+- 2026-10-10T13:56:15Z · hafs/balilah · 9e8a0942 → a3dfecef · ملوح/إحصاء/سماع ✅ · ops/out/*_pE_P3_balilah.txt
+- 2026-10-10T14:24:53Z · warsh/husary_warsh · 20ed6f84 → b2a27478 · ملوح/إحصاء/سماع ✅ · ops/out/*_pE_P3_husary_warsh.txt
+- 2026-10-10T14:44:57Z · hafs/muftah_sultany · 8ffe9b84 → f59b26e3 · ✅ · ops/out/*_pE_P3_muftah_sultany.txt
+- 2026-10-10T14:44:57Z · hafs/shatri2 · b9fb0e16 → 4c38ff44 · ✅ · ops/out/*_pE_P3_shatri2.txt
+- 2026-10-10T15:08:15Z · warsh/koshi_warsh · 1f0f0a30 → 4c6f7afd · ✅ · ops/out/*_pE_P3_koshi_warsh.txt
+- 2026-10-10T15:35:19Z · warsh/m_abdulkareem_warsh · 693326d1 → 8bb95ac8 · ✅ · ops/out/*_pE_P3_m_abdulkareem_warsh.txt
+- 2026-10-10T15:46:37Z · hafs/nufais · bf93c4c1 → 7ac901ef · ملوح 8: مجمَّع 3.38%/4.22% (D-185) بعد 4 ملوح إضافية للحدّي · إحصاء جسيم 2/553 ✅ · سماع ✅ · ops/out/20261010_1521_pE_P2_nufais.txt (جُمّد)
+- 2026-10-10T16:16:28Z · qalun/dokali · dd2b2429 → 60ef781f · ✅ · ops/out/*_pE_P3_dokali.txt
+- 2026-10-10T16:46:38Z · warsh/derini_warsh · cb38c0c1 → 72da60f9 · ✅ · ops/out/*_pE_P3_derini_warsh.txt
