@@ -69,7 +69,7 @@ def _emissions(x):
     return np.concatenate(out)
 
 
-def _segment(lpz, n_samples, texts):
+def _segment(lpz, n_samples, texts, top_level=False):
     import ctc_segmentation as cs
     tok = _model()["proc"].tokenizer
     vocab = tok.get_vocab()
@@ -98,7 +98,7 @@ def _segment(lpz, n_samples, texts):
     if _cells:
         cfg.max_window_size = max(cfg.max_window_size,
                                   min(lpz.shape[0], _cells // max(len(gt), 1)))
-        if os.environ.get("CTC_AUTO_CHUNK") == "1" and cfg.max_window_size < lpz.shape[0]:
+        if top_level and os.environ.get("CTC_AUTO_CHUNK") == "1" and cfg.max_window_size < lpz.shape[0]:
             raise _NeedChunk(f"{lpz.shape[0]} إطاراً × {len(gt)} رمزاً خارج الميزانيّة {_cells}")
     timings, char_probs, _ = cs.ctc_segmentation(cfg, lpz, gt)
     return cs.determine_utterance_segments(cfg, utt, char_probs, timings, texts)
@@ -279,7 +279,7 @@ def run_surah(audio_path, surah_no, riwaya, log=print, spoken_openers=False, omi
     chunk_evidence = None
     if chunk_verses is None:
         try:
-            segs = _segment(lpz, len(x), lead + ref)[len(lead):]
+            segs = _segment(lpz, len(x), lead + ref, top_level=True)[len(lead):]
         except _NeedChunk as e:
             log(f"ℹ️ سورة خارج ميزانيّة النافذة ({e}) — مجموعات متداخلة 32/4")
             segs, chunk_evidence = _segment_overlapping_groups(
