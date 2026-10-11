@@ -1,0 +1,53 @@
+# تقطيع التفاسير المفتوحة (kufi) إلى مقتطفات صغيرة في R2 للمساعد الذكي.
+# المستودع عام فالدقائق مجانية؛ بلا artifacts ولا cache. الأداة لا تحذف ولا تكتب خارج ai-tafsir/v1/.
+name: tafsir_ai_split
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - "tools/tafsir_ai/**"
+      - ".github/workflows/tafsir_ai_split.yml"
+
+permissions:
+  contents: read
+
+concurrency:
+  group: tafsir_ai_split
+  cancel-in-progress: false
+
+jobs:
+  split:
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: العدّة
+        run: pip install -q boto3
+      - name: بيانة R2 (من السرّ الواحد)
+        env:
+          R2_CREDENTIALS_JSON: ${{ secrets.R2_CREDENTIALS_JSON }}
+        run: |
+          set -euo pipefail
+          [ -n "$R2_CREDENTIALS_JSON" ] || { echo "⛔ لا سرّ R2"; exit 1; }
+          python3 - <<'PY'
+          import json, os
+          c = json.loads(os.environ["R2_CREDENTIALS_JSON"])
+          env = open(os.environ["GITHUB_ENV"], "a")
+          for k, v in (("R2_ENDPOINT", c["endpoint"]), ("R2_ACCESS_KEY_ID", c["accessKeyId"]),
+                       ("R2_SECRET_ACCESS_KEY", c["secretAccessKey"]), ("R2_BUCKET", c["bucket"])):
+              print("::add-mask::" + v); env.write(k + "=" + v + chr(10))
+          env.close()
+          PY
+      - name: اختبار الدوال
+        run: |
+          set -euo pipefail
+          python3 -m unittest tools/tafsir_ai/test_split_open_tafsirs.py
+      - name: التقطيع والرفع
+        run: |
+          set -euo pipefail
+          python3 tools/tafsir_ai/split_open_tafsirs.py --out "$RUNNER_TEMP/ai_tafsir" --upload 2>&1 | tee "$RUNNER_TEMP/split.log"
