@@ -265,6 +265,12 @@ def run_surah(audio_path, surah_no, riwaya, log=print, spoken_openers=False, omi
         lead = [Q.reference_text('بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ')]
     lpz = _emissions(x)
     chunk_evidence = None
+    # اختياريّ بمتغيّر بيئة (CTC_AUTO_CHUNK=1): سورةٌ أطول من نافذة ctc_segmentation الافتراضيّة
+    # (64000 إطار ≈ 1280ث) تُحاذى نافذةً متحرّكة فتنجرف الآياتُ بمئات الثواني (ثبت: الأنفال عند الغربي ورش،
+    # ببوّابة السماع)؛ فتُحاذى بمجموعات متداخلة 32/4 على كامل الصوت وبحارس التوافق (> 5ث يُرفض).
+    if chunk_verses is None and os.environ.get("CTC_AUTO_CHUNK") == "1" and lpz.shape[0] > 64000:
+        log(f"ℹ️ سورة طويلة ({lpz.shape[0]} إطاراً > 64000) — مجموعات متداخلة 32/4")
+        chunk_verses, chunk_overlap = 32, 4
     if chunk_verses is None:
         try:
             segs = _segment(lpz, len(x), lead + ref)[len(lead):]
