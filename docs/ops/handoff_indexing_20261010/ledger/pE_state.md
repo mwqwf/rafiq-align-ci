@@ -1,0 +1,26 @@
+# حالة pE ($(date -u +%H:%MZ))
+- رُقّي: alijon (d0368773) · laghdaf_shinqiti (e078674a)
+- جارٍ: darweez.6a1f2c40 (سماع+إحصاء قيد التشغيل، ملوح 1-4 انتهت، مطالع نظيفة) · sayed.7d6683ca (مطالع نظيفة، ملوح 1-2 انتهت، 3-4 + موجة1 جارية) · h_dukhain.4813c550 (بنية ✅، لم تُطلق مطالعه)
+- gharbi_warsh س36: heard_batch لم يحسم (بلا مراسٍ) ⇒ تحتاج realign_surah بتخطٍّ مقيس (محاولة ثانية) — لم تُبدأ
+- الطابور: s_hashemi, afs, a_alqrafi, m_harfoush, arkani, a_albadr, nourin_douri…
+- أدوات: $S/pE/{put,rd,wait,mine,w1,w2,rv,prom,op}.sh و hb.py
+- 21:41 s_hashemi.bbf2ba8b (a3418221) انطلق خطّه go.sh
+- 21:52 خطوط go.sh جارية: s_hashemi.bbf2ba8b · afs.400d9912 (السجلات pE/go_*.log)؛ دفعات: a_alqrafi, m_harfoush. رُقّي: alijon laghdaf sayed h_dukhain darweez
+- رُقّي أيضاً: afs · s_hashemi. جارٍ: a_alqrafi (fin.sh) · m_harfoush.dfa87b81 (go.sh). التالي: gharbi s36 ثم arkani, a_albadr, nourin_douri... (e_plan idx 10+) ؛ تحقق امتداد ogg قبل البناء
+- 00:54Z رُقّي a_alqrafi. جارٍ: m_harfoush(go) · gharbi محاولة ثانية(38011007311) · hb arkani+a_albadr أُطلقا. التالي nourin_douri
+- 01:50Z أُطلقت go: gharbi.9ca78dd6 · arkani.2ae09f36 · a_albadr.05f2cd2d ؛ hb nourin_douri
+- 02:11Z gharbi.9ca78dd6 رُدّ بسماع (س36: 3 آيات تنحرف حتى +18.2ث؛ المحاولتان: until440000 بلا حدود · ac256 يُنتج لكن يرسب) ⇒ لا ترقية، المنشور باقٍ؛ نمضي
+- 03:02Z جارٍ: a_albadr(ترقية) arkani(موجة1) nourin_douri.f788bce3(go) ؛ hb a_binaoun
+- 05:12Z رُقّي arkani a_albadr nourin a_binaoun m_harfoush afs s_hashemi a_alqrafi. جارٍ: deban(go) ؛ hb: lahoni s_sadeiq jelmam_qalun mrifai. gharbi مرفوض
+- 07:01Z رُقّي حتى mrifai/lahoni/s_sadeiq/deban؛ جارٍ jelmam_qalun trabulsi yahya qurashi m_abdelhakam
+- 08:02Z m_abdelhakam: heard_batch لم يأخذ سورة (لا مرشّح) = لا عمل
+- 09:17Z saad: لا مرشّح
+- 10:46Z jelmam: إحصاء طويل (6h) فأعدتُ fin.sh لينتظره؛ بقية الخطوط جارية
+- 12:17Z fateh_douri.40a13cb0 مرفوض إحصاءً بعد force: نافذة L|43:89 الفكّ 106583/128000 (السماح 1280) أي آخر آية س43 تتجاوز نهاية الملف بـ1.34ث؛ لا ترخيص للحارس ⇒ باقٍ
+- 12:17Z abdullahk m_qari bl3_warsh saad m_abdelhakam: heard_batch لا مرشّح
+- 12:46Z akri_qalun.d91b53f5 رُدّ بنيوياً: سورة 4 غائبة كلياً من المرشّح ⇒ لا ترقية، المنشور باقٍ
+- 13:47Z i_sanankoua hamza h_saleh: لا مرشّح
+- 14:58Z nufais.7ac901ef حدّي (4 ملوح 3-5%): أطلقتُ 4 ملوح إضافية 5-8
+- 15:25Z rabbani_warsh.0380f77b مرفوض إحصاءً بعد force: F|37:182 وL|37:181-182 الفكّ لا يبلغ النافذة (الملفّ 1184210م.ث) أي نهاية س37 تتجاوز الملف ⇒ باقٍ
+- 15:56Z h_abudalal rami mhsny deban_douri mohsin_harthi habdan jaleel: لا مرشّح (لا سورة أُخذت)
+- 16:46Z انتهت الخطة: لا خطوط جارية. المتبقي: gharbi · fateh_douri · rabbani_warsh · akri_qalun

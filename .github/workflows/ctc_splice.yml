@@ -208,6 +208,7 @@ jobs:
       - name: المحاذاة بـCTC لسور النقص وحدها (⛔ بلا رفع)
         env:
           URLT: ${{ steps.plan.outputs.urlt }}
+          FOLDER: ${{ steps.plan.outputs.folder }}
           RIW: ${{ github.event.inputs.riwaya }}
           RID: ${{ steps.plan.outputs.rid }}
           SURAHS: ${{ steps.plan.outputs.surahs }}
@@ -266,7 +267,21 @@ jobs:
             #    فيه زيادةٌ أو تكرار. الأداةُ تُختبر أوّلاً، والمخرَجُ بصيغة batch_run نفسِها.
             python -m unittest tools/alignment_v3/test_ctc_heard_map.py
             for s in $(echo "$SURAHS" | tr ',' ' '); do
-              U="$(python -c "import sys; print(sys.argv[1].format(s=int(sys.argv[2])))" "$URLT" "$s")"
+              if [ -n "$FOLDER" ]; then
+                # ⭐ (2026-10-10 · pG) مضيفُ مجلَّدٍ بلا {s}: الرابطُ من الأب حرفاً (parent_refs) لا القالبُ —
+                #    وإلا نُزّل المجلّد نفسُه (HTML) فردّ ffmpeg «Header missing». لا تخفيفَ لحارس.
+                U="$(python - "$s" <<'PYU'
+          import sys, gzip, json
+          sys.path.insert(0, "tools/index_qa")
+          from splice_surah import parent_refs
+          idx = json.loads(gzip.decompress(open("parent.jz", "rb").read()).decode("utf-8"))
+          n = int(sys.argv[1])
+          print(parent_refs(idx["entries"], [n])[n])
+          PYU
+                )"
+              else
+                U="$(python -c "import sys; print(sys.argv[1].format(s=int(sys.argv[2])))" "$URLT" "$s")"
+              fi
               python tools/alignment_v3/ctc_heard_map.py --url "$U" --surah "$s" --riwaya "$RIW" \
                 --out-dir "tools/alignment/work/batch_$RID" 2>&1 | tee -a ctc.log
             done
