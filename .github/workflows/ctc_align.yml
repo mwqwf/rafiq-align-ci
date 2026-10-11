@@ -18,6 +18,8 @@ on:
       parts: {description: "عدد الأجزاء المتوازية 2..16", default: "8"}
       probe_surahs: {description: "سبرٌ بلا رفع: سورٌ مثل 2,78,108 (فارغ = القارئ كاملاً)", default: ""}
       reason: {description: "سبب الإطلاق", default: ""}
+      window_cells: {description: "ميزانيّة خلايا نافذة CTC (إطارات×رموز) مثل 1300000000؛ فارغ = السلوك القديم", default: ""}
+      auto_chunk: {description: "1 = السورُ الأطول من نافذة CTC تُحاذى بمجموعات متداخلة 32/4", default: ""}
 
 concurrency:
   group: rafiq-ctc-${{ inputs.riwaya }}-${{ inputs.reciter }}
@@ -26,6 +28,8 @@ concurrency:
 env:
   PY: "3.11"
   ALIGN_ENGINE: ctc
+  CTC_AUTO_CHUNK: ${{ inputs.auto_chunk }}
+  CTC_WINDOW_CELLS: ${{ inputs.window_cells }}
   HF_HOME: ${{ github.workspace }}/.hf
 
 jobs:
