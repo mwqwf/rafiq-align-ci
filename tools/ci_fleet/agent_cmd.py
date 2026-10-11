@@ -57,6 +57,8 @@ ALLOWED_WF = {"silence_probe.yml", "heard_anchor_provenance_probe.yml", "free-no
               "heard_batch.yml", "heard_gate.yml",
               # 🔎 proofZ 2026-10-09: خرائطُ السماع للمنشور (قياسٌ فقط يكتب state-heard/ وحدَه؛ لا يرقّي ولا يمسّ timings/).
               "heard_pub.yml",
+              # تقطيع التفاسير المفتوحة لمقتطفات المساعد الذكي (يكتب ai-tafsir/v1/ وحدها ولا يحذف).
+              "tafsir_ai_split.yml",
               #    وعكسُه: سورُ النقص في فهرسٍ منشورٍ بـCTC تُحاذى بـWhisper وتُدمج.
               "whisper_splice.yml",
               "basmala.yml", "restore.yml", "keepalive.yml", "mirror_reciter.yml",
