@@ -69,7 +69,7 @@ def _emissions(x):
     return np.concatenate(out)
 
 
-def _segment(lpz, n_samples, texts):
+def _segment(lpz, n_samples, texts, top_level=False):
     import ctc_segmentation as cs
     tok = _model()["proc"].tokenizer
     vocab = tok.get_vocab()
@@ -92,8 +92,20 @@ def _segment(lpz, n_samples, texts):
     # يُرفع إلى طول الصوت كلّه ما دام جدولُ الترصيد (نافذة × رموز × 4ب) دون ~4ج.ب.
     cfg.max_window_size = max(cfg.max_window_size,
                               min(lpz.shape[0], int(4e9 // (4 * max(len(gt), 1)))))
+    # ميزانيّة خلايا اختياريّة (CTC_WINDOW_CELLS): نافذةٌ بطول الصوت كلّه ما دام (إطارات × رموز) داخلها،
+    # فلا تنجرف آياتُ السور الطويلة بنافذةٍ متحرّكة أقصر من الصوت (الأنفال عند الغربي ورش: 42–75 مضغوطة).
+    _cells = int(os.environ.get("CTC_WINDOW_CELLS") or 0)
+    if _cells:
+        cfg.max_window_size = max(cfg.max_window_size,
+                                  min(lpz.shape[0], _cells // max(len(gt), 1)))
+        if top_level and os.environ.get("CTC_AUTO_CHUNK") == "1" and cfg.max_window_size < lpz.shape[0]:
+            raise _NeedChunk(f"{lpz.shape[0]} إطاراً × {len(gt)} رمزاً خارج الميزانيّة {_cells}")
     timings, char_probs, _ = cs.ctc_segmentation(cfg, lpz, gt)
     return cs.determine_utterance_segments(cfg, utt, char_probs, timings, texts)
+
+
+class _NeedChunk(Exception):
+    pass
 
 
 def _segment_overlapping_groups(lpz, n_samples, texts, leading_count, group_size, overlap,
@@ -265,15 +277,13 @@ def run_surah(audio_path, surah_no, riwaya, log=print, spoken_openers=False, omi
         lead = [Q.reference_text('بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ')]
     lpz = _emissions(x)
     chunk_evidence = None
-    # اختياريّ بمتغيّر بيئة (CTC_AUTO_CHUNK=1): سورةٌ أطول من نافذة ctc_segmentation الافتراضيّة
-    # (64000 إطار ≈ 1280ث) تُحاذى نافذةً متحرّكة فتنجرف الآياتُ بمئات الثواني (ثبت: الأنفال عند الغربي ورش،
-    # ببوّابة السماع)؛ فتُحاذى بمجموعات متداخلة 32/4 على كامل الصوت وبحارس التوافق (> 5ث يُرفض).
-    if chunk_verses is None and os.environ.get("CTC_AUTO_CHUNK") == "1" and lpz.shape[0] > 64000:
-        log(f"ℹ️ سورة طويلة ({lpz.shape[0]} إطاراً > 64000) — مجموعات متداخلة 32/4")
-        chunk_verses, chunk_overlap = 32, 4
     if chunk_verses is None:
         try:
-            segs = _segment(lpz, len(x), lead + ref)[len(lead):]
+            segs = _segment(lpz, len(x), lead + ref, top_level=True)[len(lead):]
+        except _NeedChunk as e:
+            log(f"ℹ️ سورة خارج ميزانيّة النافذة ({e}) — مجموعات متداخلة 32/4")
+            segs, chunk_evidence = _segment_overlapping_groups(
+                lpz, len(x), lead + ref, len(lead), 32, 4)
         except IndexError as e:
             # نافذة ctc_segmentation لا تتّسع لسورةٍ طويلة (الشعراء عند الغربي: index 64002 / 64000):
             # نعيد المحاذاة بمجموعات آياتٍ متداخلة (32 بتداخل 4) على كامل الصوت — المسار الذي
