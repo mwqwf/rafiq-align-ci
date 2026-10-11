@@ -266,7 +266,15 @@ def run_surah(audio_path, surah_no, riwaya, log=print, spoken_openers=False, omi
     lpz = _emissions(x)
     chunk_evidence = None
     if chunk_verses is None:
-        segs = _segment(lpz, len(x), lead + ref)[len(lead):]
+        try:
+            segs = _segment(lpz, len(x), lead + ref)[len(lead):]
+        except IndexError as e:
+            # نافذة ctc_segmentation لا تتّسع لسورةٍ طويلة (الشعراء عند الغربي: index 64002 / 64000):
+            # نعيد المحاذاة بمجموعات آياتٍ متداخلة (32 بتداخل 4) على كامل الصوت — المسار الذي
+            # أضافه Codex وله حارسُه (فرق بدء/نهاية > 5ث يُرفض). ولا مسّ بأيّ عتبة.
+            log(f"⚠️ نافذة CTC لا تتّسع ({e}) — إعادة بمجموعات متداخلة 32/4")
+            segs, chunk_evidence = _segment_overlapping_groups(
+                lpz, len(x), lead + ref, len(lead), 32, 4)
     else:
         segs, chunk_evidence = _segment_overlapping_groups(
             lpz, len(x), lead + ref, len(lead), chunk_verses, chunk_overlap)
