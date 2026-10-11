@@ -8,6 +8,7 @@
 ⛔ الرفع لا يحذف شيئاً ولا يكتب خارج البادئة ai-tafsir/v1/، ولا يبدأ قبل
    التحقق من أن الدلو هو دلو الخادم (وجود ai-src/v1/catalog.json).
 """
+from concurrent.futures import ThreadPoolExecutor
 import argparse
 import datetime
 import gzip
@@ -83,6 +84,7 @@ def build_surah(tid, s, texts):
 
 def r2_client():
     import boto3
+    from botocore.config import Config
     need = ("R2_ENDPOINT", "R2_ACCESS_KEY_ID", "R2_SECRET_ACCESS_KEY", "R2_BUCKET")
     miss = [k for k in need if not os.environ.get(k)]
     if miss:
@@ -90,7 +92,8 @@ def r2_client():
     s3 = boto3.client("s3", endpoint_url=os.environ["R2_ENDPOINT"],
                       aws_access_key_id=os.environ["R2_ACCESS_KEY_ID"],
                       aws_secret_access_key=os.environ["R2_SECRET_ACCESS_KEY"],
-                      region_name="auto")
+                      region_name="auto",
+                      config=Config(max_pool_connections=32, retries={"max_attempts": 5, "mode": "standard"}))
     return s3, os.environ["R2_BUCKET"]
 
 
@@ -137,14 +140,17 @@ def main():
         shards = sorted(tf["shards"], key=lambda x: int(x["surah"]))
         if args.limit_surahs:
             shards = shards[:args.limit_surahs]
-        n = 0
-        for sh in shards:
+        def one(sh, tf=tf, tid=tid):
             raw = fetch(f"{PUB}/{tf['prefix'].strip('/')}/{sh['file']}")
             if sh.get("sha256") and hashlib.sha256(raw).hexdigest() != sh["sha256"]:
-                sys.exit(f"⛔ sha256 مخالف: {tid}/{sh['file']}")
+                raise SystemExit(f"⛔ sha256 مخالف: {tid}/{sh['file']}")
             data = json.loads(gzip.decompress(raw) if raw[:2] == b"\x1f\x8b" else raw)
-            files.update(build_surah(tid, int(sh["surah"]), data.get("text", {})))
-            n += 1
+            return build_surah(tid, int(sh["surah"]), data.get("text", {}))
+        # التنزيل متوازٍ (التسلسلي استغرق 32 دقيقة للأربعة والثلاثين)
+        with ThreadPoolExecutor(8) as ex:
+            for part in ex.map(one, shards):
+                files.update(part)
+        n = len(shards)
         written.append(tf)
         print(f"{tid}: {n} سورة", flush=True)
 
@@ -170,12 +176,23 @@ def main():
     uploaded = 0
     if args.upload:
         etags = remote_etags(s3, bucket)
-        for key, body in list(files.items()) + [(index_key, ib)]:
+        todo = [(k, b) for k, b in files.items() if etags.get(k) != hashlib.md5(b).hexdigest()]
+
+        def put(kb):
+            key, body = kb
             assert key.startswith(PREFIX)
-            if etags.get(key) == hashlib.md5(body).hexdigest():
-                continue
             s3.put_object(Bucket=bucket, Key=key, Body=body,
                           ContentType="application/json; charset=utf-8")
+
+        # الرفع متوازٍ: التسلسلي لم يُتمّ ~15 ألف ملف في 13 دقيقة
+        with ThreadPoolExecutor(32) as ex:
+            for i, _ in enumerate(ex.map(put, todo), 1):
+                if i % 1000 == 0:
+                    print(f"رُفع {i}/{len(todo)}", flush=True)
+        uploaded = len(todo)
+        # الفهرس آخراً: لا يُعلن تفسيراً قبل أن تكتمل ملفاته
+        if etags.get(index_key) != hashlib.md5(ib).hexdigest():
+            put((index_key, ib))
             uploaded += 1
 
     print(f"الملخص: تفاسير={len(written)} ملفات={len(files) + 1} "
