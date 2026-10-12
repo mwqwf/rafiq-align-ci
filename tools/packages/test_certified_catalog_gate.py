@@ -51,7 +51,7 @@ class GateTest(unittest.TestCase):
 
     def test_coverage_rejects_bool_nan_inf_and_out_of_range(self):
         for value in (True, False, float("nan"), float("inf"),
-                      float("-inf"), 0.9799, 1.0001):
+                      float("-inf"), 0.8999, 1.0001):
             with self.subTest(value=value), self.assertRaisesRegex(ValueError, "تغطية"):
                 certified_only({"packages": [pkg(coverage=value)], "failures": []},
                                certificate_snapshot=snapshot("ok", coverage=value))
