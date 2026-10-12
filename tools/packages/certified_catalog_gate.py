@@ -11,7 +11,7 @@ import re
 from pathlib import Path
 
 _SHA256 = re.compile(r"^[0-9a-f]{64}$")
-_CERTIFIER = "certify_catalog-1.1"
+_CERTIFIER = "certify_catalog-1.2"
 
 
 def _finite_coverage(value, package_id: str) -> float:
