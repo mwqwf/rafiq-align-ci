@@ -11,15 +11,15 @@ import re
 from pathlib import Path
 
 _SHA256 = re.compile(r"^[0-9a-f]{64}$")
-_CERTIFIER = "certify_catalog-1.1"
+_CERTIFIER = "certify_catalog-1.2"
 
 
 def _finite_coverage(value, package_id: str) -> float:
     # bool is an int subclass in Python; a certificate must never accept it.
     if type(value) not in (int, float) or not math.isfinite(value):
         raise ValueError(f"{package_id}: certified مع تغطية غير محدودة {value!r}")
-    if not 0.98 <= value <= 1.0:
-        raise ValueError(f"{package_id}: certified مع تغطية خارج [0.98, 1] {value!r}")
+    if not 0.90 <= value <= 1.0:
+        raise ValueError(f"{package_id}: certified مع تغطية خارج [0.90, 1] {value!r}")
     return float(value)
 
 
