@@ -47,7 +47,11 @@ for _s in (sys.stdout, sys.stderr):
 
 CATALOG_KEY = "catalog/reciters.json"
 MIN_COV = 0.98
-CERTIFIER = "certify_catalog-1.1"
+# ⛔ **أرضيّةُ التغطية الخام** (أمر المالك 2026-10-12 13:03Z «عدل الحارس فورا»):
+#    الغيابُ المعلَنُ بإذنه لا يُحسب في MIN_COV، لكنّ الإعلانَ لا يُفرغ فهرساً:
+#    فهرسٌ حاضرُه دون 90% من القرآن لا يُشهد ولو كان غيابُه كلُّه معلَناً.
+MIN_RAW_COV = 0.90
+CERTIFIER = "certify_catalog-1.2"
 
 # ⛔ **أثرُ إسقاطٍ معلَن، لا عطبٌ**: من رُقّي بـ`--allow-truncated` يبقى فحصُه
 #    الصوتيُّ يطبع هذه الثلاثة أبداً، لأن السورةَ المحذوفةَ بقرارٍ **غائبةٌ
@@ -95,8 +99,36 @@ def undeclared_fatal(fatals, transform_op):
     return False
 
 
-def certify(cat, served, verdict_shas, rejected_shas=frozenset()):
-    """يُرجع (الكتالوجُ الجديد، إحصاء) — دالّةٌ نقيّةٌ تُختبر بلا شبكة."""
+def declared_absent(d):
+    """عددُ الآيات الغائبة **بإعلانٍ معتمد** في ترويسة الفهرس، أو 0.
+
+    ⭐ (أمر المالك 2026-10-12 13:03Z): السورةُ المُسقطةُ بإعلانٍ أذن به المالك
+    لا تُنزل التغطيةَ تحت MIN_COV — فالكردي والعكري وغيرهما خرجوا من «آية بآية»
+    بسورةٍ أُسقطت لأنّ مصدرها ناقص، لا لعطبٍ في توقيتهم.
+    ⛔ والإعلانُ المعتمدُ هنا أثرُ `drop_surah.py` وحده: عمليّةٌ تبدأ بـ`drop_surah:`
+    أو `declare_gap:` · ورمزُ سببٍ معلَن (`reasonCode`) · والعددُ من
+    `missing.byReason.source_truncated` (وهو ما تصنّفه الأداة عند الإسقاط)،
+    ولا يزيد على مجموع الغياب. وترقيةُ ذلك الإسقاط لا تمرّ إلا بحارس D-186
+    (`--allow-truncated` بإذنٍ نصّيّ) في `promote.py`. غيابُ `unknown` يبقى محسوباً.
+    """
+    tr = d.get("transform") if isinstance(d.get("transform"), dict) else {}
+    op = str(tr.get("op") or "")
+    if not (op.startswith("drop_surah:") or op.startswith("declare_gap:")) or not tr.get("reasonCode"):
+        return 0
+    miss = d.get("missing") if isinstance(d.get("missing"), dict) else {}
+    by = miss.get("byReason") if isinstance(miss.get("byReason"), dict) else {}
+    n = by.get("source_truncated")
+    if type(n) is not int or n <= 0:
+        return 0
+    return min(n, int(miss.get("count") or 0))
+
+
+def certify(cat, served, verdict_shas, rejected_shas=frozenset(), declared=None):
+    """يُرجع (الكتالوجُ الجديد، إحصاء) — دالّةٌ نقيّةٌ تُختبر بلا شبكة.
+
+    `declared`: مفتاحُ الفهرس ⇐ عددُ آياته الغائبة بإعلانٍ معتمد (‏`declared_absent`).
+    """
+    declared = declared or {}
     stat = {"certified": 0, "total": 0, "byRiwaya": {}}
     for r in cat.get("riwayat", []):
         rid = r["id"]
@@ -108,7 +140,9 @@ def certify(cat, served, verdict_shas, rejected_shas=frozenset()):
             elif key in served:
                 n, tot, sha, fatal = served[key]
                 cov = round(n / max(1, tot), 4)
-                cert = bool(cov >= MIN_COV and not fatal
+                dec = min(max(0, int(declared.get(key) or 0)), max(0, tot - n))
+                eff = n / max(1, tot - dec)
+                cert = bool(eff >= MIN_COV and cov >= MIN_RAW_COV and not fatal
                             and sha in verdict_shas and sha not in rejected_shas)
             else:
                 cov, cert = 0.0, False
@@ -188,6 +222,30 @@ def _self_test() -> None:
     assert out2["riwayat"][0]["reciters"][1]["ayahCertified"] is False, "الفشلُ البنيويّ يُسقط"
     print("  ✅ الشروطُ الثلاثة كلٌّ منها يُسقط الشهادةَ وحده، والمجتمِعُ يُشهد")
 
+    # ── الغيابُ المعلَنُ المعتمد (أمر المالك 2026-10-12) ─────────────────────
+    sv = {"timings/hafs/b.jz": (6060, 6236, "SHB", False),     # 97.2% وغيابٌ معلَن 176
+          "timings/hafs/c.jz": (6060, 6236, "SHC", False),     # 97.2% وغيابٌ غير معلَن
+          "timings/hafs/d.jz": (5500, 6236, "SHD", False)}     # 88% كلُّه معلَن
+    o4, _ = certify(json.loads(json.dumps(cat)), sv, {"SHB", "SHC", "SHD"}, set(),
+                    {"timings/hafs/b.jz": 176, "timings/hafs/d.jz": 736})
+    g4 = {x["id"]: x["ayahCertified"] for x in o4["riwayat"][0]["reciters"]}
+    assert g4["b"] is True, "الغيابُ المعلَنُ المعتمد لا يُسقط الشهادة"
+    assert g4["c"] is False, "⛔ والغيابُ غيرُ المعلَن يبقى محسوباً"
+    assert g4["d"] is False, "⛔ والإعلانُ لا يُفرغ فهرساً دون أرضيّة 90%"
+    o5, _ = certify(json.loads(json.dumps(cat)), sv, {"SHC"}, set(), {"timings/hafs/b.jz": 176})
+    assert o5["riwayat"][0]["reciters"][1]["ayahCertified"] is False, \
+        "⛔ والإعلانُ لا يُغني عن الحكم الصوتيّ"
+    o6, _ = certify(json.loads(json.dumps(cat)), sv, {"SHB"}, set(), {"timings/hafs/b.jz": 99999})
+    assert o6["riwayat"][0]["reciters"][1]["ayahCertified"] is True  # يُقصّ إلى الغياب الفعليّ
+    mk = lambda op, code, st, cnt: {"transform": {"op": op, **({"reasonCode": code} if code else {})},
+                                    "missing": {"count": cnt, "byReason": {"source_truncated": st}}}
+    assert declared_absent(mk("drop_surah:4", "SOURCE_TRUNCATED", 176, 176)) == 176
+    assert declared_absent(mk("drop_surah:4", "", 176, 176)) == 0, "⛔ بلا رمز سببٍ لا إعلان"
+    assert declared_absent(mk("graft:4", "SOURCE_TRUNCATED", 176, 176)) == 0, "⛔ بلا drop_surah لا إعلان"
+    assert declared_absent(mk("drop_surah:4", "X", 500, 176)) == 176, "لا يزيد على الغياب"
+    assert declared_absent({}) == 0
+    print("  ✅ الغيابُ المعلَنُ المعتمد يُستثنى، وغيرُ المعلَن والأرضيّةُ والحكمُ باقية")
+
     # ── الشرطُ الرابع: حكمٌ **مقروء** لا حكمٌ **موجود** ────────────────────
     out3, _ = certify(json.loads(json.dumps(cat)), served, {"SHB"}, {"SHB"})
     assert out3["riwayat"][0]["reciters"][1]["ayahCertified"] is False, \
@@ -265,12 +323,13 @@ def main() -> None:
         fatal = bool((d.get("qa") or {}).get("fatal"))
         op = (d.get("transform") or {}).get("op") or ""
         return k, (len(d.get("entries") or []), d.get("ayahCount") or 6236,
-                   hashlib.sha256(raw).hexdigest(), fatal), op
+                   hashlib.sha256(raw).hexdigest(), fatal), op, declared_absent(d)
     with ThreadPoolExecutor(4) as ex:
         rows = list(ex.map(load, keys))
-    served = {k: v for k, v, _ in rows}
+    served = {k: v for k, v, _, _ in rows}
+    declared = {k: dec for k, _, _, dec in rows if dec}
     # بصمةٌ ⇐ `transform.op` — لتمييز الإسقاط المعلَن عن العطب في الشرط الرابع.
-    op_of = {v[2]: op for _, v, op in rows}
+    op_of = {v[2]: op for _, v, op, _ in rows}
 
     # ⛔ **لا تُسقَط شهادةٌ بقراءةٍ ناقصة**: قراءةٌ ناقصةٌ لقائمة الأحكام
     #    (‏شبكةٌ متقطّعة) تُظهر الحكمَ غائباً وهو حاضر. والنقصُ الصامت أخطرُ من
@@ -335,7 +394,7 @@ def main() -> None:
 
     raw_cat = cl.get_object(Bucket=bucket, Key=CATALOG_KEY)["Body"].read()
     before = json.loads(raw_cat)
-    after, stat = certify(json.loads(raw_cat), served, verdict_shas, rejected_shas)
+    after, stat = certify(json.loads(raw_cat), served, verdict_shas, rejected_shas, declared)
     for r in before.get("riwayat", []):
         for x in r.get("reciters", []):
             k = f"timings/{r['id']}/{x['id']}.jz"
