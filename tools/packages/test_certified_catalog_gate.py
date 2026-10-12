@@ -15,7 +15,7 @@ def pkg(name="ok", certified=True, coverage=0.99, sha=SHA, sha8="aaaaaaaa"):
 
 
 def snapshot(*names, coverage=0.99, sha=SHA, rejected=False):
-    return {"schema": 1, "certifier": "certify_catalog-1.1",
+    return {"schema": 1, "certifier": "certify_catalog-1.2",
             "catalogSha256": "c" * 64, "indexes": {
         "hafs/" + name: {"sha256": sha, "coverage": coverage,
                           "rejected": rejected} for name in names
