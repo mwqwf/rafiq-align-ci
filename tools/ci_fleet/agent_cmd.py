@@ -100,7 +100,11 @@ ALLOWED_WF = {"silence_probe.yml", "heard_anchor_provenance_probe.yml", "free-no
               #    يقيس الزيادةَ والتكرارَ في تسجيلٍ طويلٍ قبل أن يُبنى عليه مرشّح.
               "ctc_heard_probe.yml",
               # قارئ بيانات مصدر واحد/دفعة محدودة: بلا نموذج أو دلو أو cache أو artifacts.
-              "source_metadata_probe.yml"}
+              "source_metadata_probe.yml",
+              # ⚖️🐦 **أُضيف 2026-10-13 (‏بند ج-1 · D-756):** شاهدُ LLR بالهدهد على مسطرة المتعلّمين —
+              #    قياسٌ لا تفعيل: يقرأ من مصادرَ عامّةٍ (HF · R2 العامّ) ويودع جوابَه في `ops/out/tasmi_llr_judge/`.
+              #    بلا سرٍّ ولا دلوٍ ولا artifacts ولا cache · ubuntu-latest · وظيفةٌ واحدةٌ بمهلة 75 دقيقة.
+              "tasmi-llr-judge.yml"}
 # ⛔ والأدواتُ المسموحةُ كلُّها **قارئةٌ أو محكومةٌ بحُرّاسها** — لا صدفةَ فيها.
 # ⛔ و`certify_catalog.py` منها (‏أُضيف 2026-09-13 ‏19:0xZ بقياس): الكتالوجُ
 #    `catalog/reciters.json` هو ما **يقرؤه التطبيق**، وحقلاه `ayahCoverage`

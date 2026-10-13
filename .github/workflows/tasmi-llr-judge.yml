@@ -1,0 +1,173 @@
+name: tasmi-llr-judge
+
+run-name: "llr-judge ${{ inputs.tag }} · ${{ inputs.reason }}"
+
+# ⚖️🐦 **شاهدُ LLR بفرضيّتين بالهدهد على مسطرة المتعلّمين** (‏بند ج-1 من تقرير 2026-10-13 · [[D-756]]).
+# السؤال: الحاكمُ المشحون (whisper) اتّهم كلمةً — فهل يؤيّده الهدهدُ (CTC فونيميّ)؟ يُطبع لكلّ هامشٍ m ما
+# يُطلق من الاتّهامات الكاذبة وما يُضيّع من الصائبة بمجال ويلسون. ⛔ لا يُشعل مفتاحُ `TASMI_HUDHUD_LLR` من هنا؛
+# هذا قياسٌ يُقرأ ثمّ يُقرَّر، والمعيارُ المكتوب: −2 نقطة اتّهامٍ كاذبٍ فأكثر **بلا نقصٍ في الكشف يفصله المجال**.
+#
+# ما يفعله (كلُّه من مصادرَ عامّة — لا يُعاد نشرُ صوتٍ D-024 · لا سرَّ ولا دلو):
+#   1. يجلب صوتَ المتعلّمين من مجموعة HF ذاتِ رخصة MIT بـ`learner_fetch.py` (الصفوفُ الصالحةُ وحدَها ≈85 م.ب)
+#      كما يفعل `tasmi-gate.yml` مع مجموعاته — بعد `learner_check.py` (الآيةُ تُثبَّت بنصّها لا برقمها).
+#   2. يبني الحاكمَ المشحون على CI (‏whisper.cpp مثبَّتٌ على إيداع المحرك + q8 المشحون · `-l en` · greedy)
+#      ويحكم بـ`learner_judge.py --backend cli` ⇒ `learner_judge_ci.json`. أو يأخذه جاهزاً من `judge_url`.
+#   3. يسحب الهدهد 1.0 (‏`models/hudhud/1.0/` على R2 العامّ) ويتحقّق من بصمته `HudhudModel.SHA256` **قبل** الاستعمال،
+#      ويشغّل `llr_judge.py` ويودع `ops/out/tasmi_llr_judge/<tag>.json` + `.md` في المستودع (لا artifacts ولا cache).
+# 💰 مستودعٌ عامّ + عدّاد ubuntu-latest القياسيّ · بلا artifacts ولا cache ⇒ لا تخزينَ مدفوع. وظيفةٌ واحدةٌ بمهلة.
+
+on:
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: "وسمُ القياس (اسمُ ملفّ الجواب في ops/out/tasmi_llr_judge/)"
+        required: true
+        default: "hudhud-1.0"
+      hudhud_url:
+        description: "مجلّدُ نموذج الهدهد على R2 العامّ (فيه hudhud-1.0-int8.onnx وvocab.json)"
+        required: false
+        default: "https://pub-2c2e1dcd92e84a2898820dd38d3e09e6.r2.dev/models/hudhud/1.0"
+      hudhud_sha256:
+        description: "بصمةُ ONNX المتوقَّعة (‏HudhudModel.SHA256) — تُرفض التشغيلةُ إن خالفت"
+        required: false
+        default: "5229a6e60efea77db93bad0db0ea3054b31618856b397104b512b512684ba9d5"
+      base_url:
+        description: "رابطُ النموذج المشحون q8 (‏الحاكم) — كما في tasmi-gate.yml"
+        required: false
+        default: "https://pub-2c2e1dcd92e84a2898820dd38d3e09e6.r2.dev/models/whisper-tiny-ar-quran/ggml-q8_0.bin"
+      labels_url:
+        description: "تسميات G2P (‏gz) — نفسُها التي يقرؤها tasmi-student-train.yml"
+        required: false
+        default: "https://pub-2c2e1dcd92e84a2898820dd38d3e09e6.r2.dev/tasmi/g2p_labels_2026-09-20.jsonl.gz"
+      judge_url:
+        description: "اختياريّ: رابطُ learner_judge.json جاهزٍ (حكمُ المالك المرجعيّ) بدل إعادة الحكم على CI"
+        required: false
+        default: ""
+      margins:
+        description: "هوامشُ m التي تُمسح"
+        required: false
+        default: "0,1,2,3,4,6,8"
+      reason:
+        description: "سببُ الإطلاق"
+        required: false
+        default: ""
+
+permissions:
+  contents: write        # لإيداع الجواب في ops/out — لا شيءَ غيرُه
+
+concurrency:
+  group: rafiq-tasmi-llr-judge-${{ inputs.tag }}
+  cancel-in-progress: false
+
+env:
+  UA: "Mozilla/5.0 (QuranRafiq tasmi llr-judge)"
+  PYTHONIOENCODING: utf-8
+
+jobs:
+  judge:
+    runs-on: ubuntu-latest
+    timeout-minutes: 75
+    steps:
+      - uses: actions/checkout@v4
+        with: { fetch-depth: 0 }
+      - uses: actions/setup-python@v5
+        with: { python-version: "3.11" }
+      - name: deps
+        run: |
+          sudo apt-get update -qq && sudo apt-get install -y -qq ffmpeg cmake build-essential > /dev/null
+          python -m pip install --quiet "numpy<2" soundfile onnxruntime
+          python -c "import onnxruntime, soundfile, numpy; print('deps ok', onnxruntime.__version__)"
+
+      - name: حرّاسُ الأداة (بلا شبكة)
+        run: python -m unittest discover -s tools/tasmi_phoneme -p test_llr_judge.py
+
+      - name: whisper.cpp (ثنائيٌّ ساكن · الإيداعُ نفسُه الذي يُبنى منه المحرك — D-298)
+        if: inputs.judge_url == ''
+        run: |
+          WCPP_SHA=c4ac0012a8f5a2082dfca6aad4ddfd8b2c02b337
+          mkdir -p /tmp/wcpp && git -C /tmp/wcpp init -q \
+            && git -C /tmp/wcpp fetch -q --depth 1 https://github.com/ggml-org/whisper.cpp "$WCPP_SHA" \
+            && git -C /tmp/wcpp checkout -q FETCH_HEAD && echo "whisper.cpp @ $(git -C /tmp/wcpp rev-parse --short HEAD)"
+          cmake -S /tmp/wcpp -B /tmp/wcpp/build -DCMAKE_BUILD_TYPE=Release -DBUILD_SHARED_LIBS=OFF -DWHISPER_BUILD_TESTS=OFF > /dev/null
+          cmake --build /tmp/wcpp/build --config Release -j"$(nproc)" --target whisper-cli > /dev/null
+          mkdir -p bin && cp /tmp/wcpp/build/bin/whisper-cli bin/ && bin/whisper-cli --help 2>&1 | head -2
+          curl -sSL -f -A "$UA" -o bin/shipped.bin "${{ inputs.base_url }}" && ls -l bin/shipped.bin
+
+      - name: الهدهد 1.0 — تنزيلٌ وتحقّقٌ من البصمة قبل أيّ استعمال
+        run: |
+          mkdir -p work/hudhud
+          curl -sSL -f -A "$UA" -o work/hudhud/hudhud-1.0-int8.onnx "${{ inputs.hudhud_url }}/hudhud-1.0-int8.onnx"
+          curl -sSL -f -A "$UA" -o work/hudhud/vocab.json "${{ inputs.hudhud_url }}/vocab.json"
+          GOT=$(sha256sum work/hudhud/hudhud-1.0-int8.onnx | cut -d' ' -f1)
+          echo "onnx sha256 = $GOT"
+          if [ "$GOT" != "${{ inputs.hudhud_sha256 }}" ]; then echo "⛔ بصمةُ الهدهد تخالف HudhudModel.SHA256 — لا يُقاس بنموذجٍ غيرِ المشحون"; exit 1; fi
+          python -c "import json; v=json.load(open('work/hudhud/vocab.json')); print('vocab', len(v), 'blank', [k for k,i in v.items() if i==0], 'delim |=', v.get('|'))"
+          curl -sSL -f -A "$UA" "${{ inputs.labels_url }}" | gunzip > work/g2p_labels.jsonl
+          echo "labels: $(wc -l < work/g2p_labels.jsonl) سطراً"
+
+      - name: صوتُ المتعلّمين (‏HF · MIT · الصفوفُ الصالحةُ وحدَها — لا يُعاد نشرُ صوت)
+        run: |
+          curl -sSL -f -A "$UA" -o work/metadata.jsonl \
+            "https://huggingface.co/datasets/sobolev210/quran-recitation-errors/resolve/main/metadata.jsonl"
+          python tools/tasmi_phoneme/learner_check.py --rows work/metadata.jsonl --out work/learner_check.json
+          python tools/tasmi_phoneme/learner_fetch.py --check work/learner_check.json --meta work/metadata.jsonl \
+            --rows work/metadata.jsonl --out work/learner_wav
+
+      - name: الحاكمُ المشحون على CI (‏مرآةُ المحرك · q8 · -l en · greedy) ⇒ learner_judge_ci.json
+        if: inputs.judge_url == ''
+        env:
+          WHISPER_CLI: ${{ github.workspace }}/bin/whisper-cli
+        run: |
+          python tools/tasmi_phoneme/learner_judge.py --wav work/learner_wav --check work/learner_check.json \
+            --model "$GITHUB_WORKSPACE/bin/shipped.bin" --backend cli --cli "$WHISPER_CLI" --lang en --threads 4 \
+            --out work/learner_judge.json | tail -8
+
+      - name: حكمٌ جاهزٌ من judge_url
+        if: inputs.judge_url != ''
+        run: |
+          curl -sSL -f -A "$UA" -o work/learner_judge.json "${{ inputs.judge_url }}"
+          python -c "import json; d=json.load(open('work/learner_judge.json')); print('rows', len(d['rows']), 'model', d.get('model'))"
+
+      - name: شاهدُ LLR (‏llr_judge.py)
+        run: |
+          python tools/tasmi_phoneme/llr_judge.py --onnx work/hudhud/hudhud-1.0-int8.onnx --vocab work/hudhud/vocab.json \
+            --labels work/g2p_labels.jsonl --index core/quran/src/main/assets/quran/index.jz \
+            --text core/quran/src/main/assets/quran/text_hafs.jz --judge work/learner_judge.json \
+            --wav-dir work/learner_wav --margins "${{ inputs.margins }}" --out work/llr_hudhud.json | tee work/llr_stdout.txt
+
+      - name: الجواب ⇒ ops/out/tasmi_llr_judge/<tag>
+        if: always()
+        run: |
+          TAG="${{ inputs.tag }}"; OUT=ops/out/tasmi_llr_judge; mkdir -p "$OUT"
+          python - "$TAG" "$OUT" <<'PY'
+          import json, os, sys
+          tag, out = sys.argv[1], sys.argv[2]
+          md = [f"# tasmi-llr-judge · {tag}", "", f"- التشغيلة: {os.environ.get('GITHUB_RUN_ID')} · السبب: {os.environ.get('REASON','')}"]
+          j = None
+          if os.path.isfile("work/learner_judge.json"):
+              j = json.load(open("work/learner_judge.json", encoding="utf-8"))
+              src = "judge_url" if os.environ.get("JUDGE_URL") else "حكمٌ أُعيد على CI (whisper-cli q8 · -l en)"
+              md.append(f"- الحاكم: {j.get('model')} ({src}) · تسجيلات {j.get('recordings')} · اتّهامٌ كاذب "
+                        f"{j.get('false_accusation_word_pct')}٪ · كشفٌ {j.get('detection_word_pct')}٪")
+              json.dump({k: v for k, v in j.items()}, open(f"{out}/{tag}.learner_judge.json", "w", encoding="utf-8"), ensure_ascii=False, indent=0)
+          if os.path.isfile("work/llr_hudhud.json"):
+              r = json.load(open("work/llr_hudhud.json", encoding="utf-8"))
+              md += ["", f"متَّهَماتٌ مقيسة {r['rows']} · كاذبةٌ {r['falseAccusations']} · صائبةٌ {r['trueAccusations']} · مُسقَط {r['skipped']}", "",
+                     "| m | يُطلق من الكاذبة ٪ | ويلسون 95 | يُضيّع من الصائبة ٪ | ويلسون 95 |", "|---|---|---|---|---|"]
+              for m, v in r["margins"].items():
+                  md.append(f"| {m} | {v['falseAccuseClearedPct']} | {v['falseAccuseClearedWilson95']} | {v['detectLostPct']} | {v['detectLostWilson95']} |")
+              json.dump(r, open(f"{out}/{tag}.json", "w", encoding="utf-8"), ensure_ascii=False, indent=1)
+          else:
+              md.append("\n⛔ لم يُنتج llr_hudhud.json — اقرأ سجلّ التشغيلة.")
+          if os.path.isfile("work/llr_stdout.txt"):
+              md += ["", "```", open("work/llr_stdout.txt", encoding="utf-8").read()[-6000:], "```"]
+          open(f"{out}/{tag}.md", "w", encoding="utf-8").write("\n".join(md) + "\n")
+          print("\n".join(md))
+          PY
+          cat "$OUT/$TAG.md" >> "$GITHUB_STEP_SUMMARY"
+          git config user.name "rafiq-tasmi-llr-judge" && git config user.email "actions@github.com"
+          git add "$OUT" && git commit -m "ops: جوابُ tasmi-llr-judge $TAG" -- "$OUT" || { echo "لا جوابَ يُدفع."; exit 0; }
+          git push origin HEAD:main || { git fetch origin main --quiet && git merge -X ours --no-edit origin/main && git push origin HEAD:main; }
+        env:
+          REASON: ${{ inputs.reason }}
+          JUDGE_URL: ${{ inputs.judge_url }}
