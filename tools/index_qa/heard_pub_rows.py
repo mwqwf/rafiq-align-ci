@@ -3,6 +3,12 @@
 """جدولُ انحرافات بدء الآيات عن المسموع لفهرسٍ منشور — قارئٌ محض (fixD · 2026-10-09).
 
     python tools/index_qa/heard_pub_rows.py <timings/riw/id.jz> [سور بفواصل] [--all]
+    python tools/index_qa/heard_pub_rows.py --sweep      # كلُّ خرائط state-heard على المنشور الحيّ
+
+⭐ (pV · 2026-10-13) سجلُّ heard_pub يحكم على بصمة الفهرس **يومَ القياس**؛ وكثيرٌ رُقّي بعده، فجردٌ
+يُبنى من أسطر «انحراف» في ops/out/heard-pub يعدّ عيوباً أصلحتها الترقية. لذا يُطبع هنا بصمةُ الفهرس
+المقيس مقابلَ الحيّ، ويُحسب الانحرافُ دائماً على **الفهرس الحيّ**، ويُكشف «التمدّد»: نسبةُ المسموع إلى
+المنشور ثابتةٌ بعيدةٌ عن 1 (‏فهرسٌ مضغوطٌ زمنيّاً كلُّه لا آيةٌ شاذّة).
 
 يقرأ الفهرسَ المنشور وخريطةَ السماع في `state-heard/` ويطبع لكلّ سورةٍ آياتِها
 المنحرفة (status=dev) بالبدء المنشور والمسموع والجودة والانحراف، مع مطابقة بصمة
@@ -18,7 +24,66 @@ import heard_gate as H  # noqa: E402
 from run import s3  # noqa: E402
 
 
+def surah_summary(starts: dict, m: dict) -> dict:
+    """ملخّصُ سورةٍ على الفهرس الحيّ: عدُّ المنحرف وأقصاه ونسبةُ التمدّد (وسيطُ المسموع÷المنشور)."""
+    rows = H.surah_rows(starts, m)
+    dev = [r for r in rows if r["status"] == "dev"]
+    rat = sorted(r["anchorMs"] / r["startMs"] for r in rows
+                 if r["devMs"] is not None and r["startMs"] >= 60000 and r["anchorMs"])
+    ratio = round(rat[len(rat) // 2], 3) if len(rat) >= 5 else None
+    worst = max(dev, key=lambda r: abs(r["devMs"])) if dev else None
+    return {"dev": len(dev), "measured": sum(r["devMs"] is not None for r in rows),
+            "worst": (worst["ayah"], worst["devMs"]) if worst else None,
+            "stretch": ratio is not None and abs(ratio - 1) > 0.1, "ratio": ratio}
+
+
+def sweep_line(key: str, idx: dict, live_sha: str, rep: dict) -> str:
+    cs = H.by_surah(idx["entries"])
+    shas = idx.get("audioSha256")
+    present = sorted(cs)
+    sha_of = ({s: shas[s - 1] for s in present} if isinstance(shas, list) and len(shas) == 114 else
+              dict(zip(present, shas)) if isinstance(shas, list) and len(shas) == len(present) else {})
+    maps = {int(k): v for k, v in (rep.get("maps") or {}).items()}
+    bad, stretch, nd, audio_ne = [], [], 0, 0
+    for s in present:
+        m = maps.get(s)
+        if not m:
+            continue
+        if m.get("sha256") != sha_of.get(s):
+            audio_ne += 1; continue
+        r = surah_summary({a: v[0] for a, v in cs[s].items()}, m)
+        if r["dev"]:
+            nd += r["dev"]
+            bad.append(f"{s}({r['dev']},{r['worst'][0]}:{r['worst'][1] / 1000:+.0f}s)")
+        if r["stretch"]:
+            stretch.append(f"{s}×{r['ratio']}")
+    stale = "حيّ" if rep.get("sha256") == live_sha else f"متقادم({str(rep.get('sha256'))[:8]})"
+    return (f"{key}\t{live_sha[:8]}\t{stale}\tخرائط={len(maps)}\tصوت≠={audio_ne}\tمنحرفة={nd}"
+            f"\tسور={len(bad)}\tتمدّد={','.join(stretch) or '-'}\t{' '.join(bad)}")
+
+
+def sweep() -> int:
+    import hashlib
+    cl, b = s3()
+    keys = []
+    for page in cl.get_paginator("list_objects_v2").paginate(Bucket=b, Prefix=H.STATE_PREFIX):
+        keys += [o["Key"] for o in page.get("Contents", []) if o["Key"].endswith(".json")]
+    for sk in sorted(keys):
+        try:
+            rep = json.loads(cl.get_object(Bucket=b, Key=sk)["Body"].read())
+            key = rep.get("src") or ""
+            if not key.startswith("timings/"):
+                continue
+            body = cl.get_object(Bucket=b, Key=key)["Body"].read()
+            print(sweep_line(key, json.loads(gzip.decompress(body)), hashlib.sha256(body).hexdigest(), rep))
+        except Exception as ex:  # noqa: BLE001
+            print(f"{sk}\t⛔ {type(ex).__name__}: {ex}")
+    return 0
+
+
 def main() -> int:
+    if "--sweep" in sys.argv:
+        return sweep()
     args = [a for a in sys.argv[1:] if not a.startswith("--")]
     show_all = "--all" in sys.argv
     key = args[0]
