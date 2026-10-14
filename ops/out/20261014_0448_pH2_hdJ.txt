@@ -1,0 +1,409 @@
+# rc=0
+== timings-staging/qalun/janaini_qalun.e5967652.jz · e59676520777 · مداخل 6236
+{
+ "schema": 1,
+ "riwaya": "qalun",
+ "reciterId": "janaini_qalun",
+ "sourceKind": "SURAH_FILES",
+ "ayahCounting": "KUFI",
+ "ayahCount": 6236,
+ "method": "ASR_ALIGN",
+ "engineVersion": "ctc-seg-1",
+ "refineVersion": "none",
+ "refinedCount": 0,
+ "medTargeted": 0,
+ "refineStats": {},
+ "lowCount": 1310,
+ "vad": {
+  "versions": {
+   "adaptive-2": 114
+  },
+  "rel": {
+   "min": 0.04,
+   "median": 0.1,
+   "max": 0.25,
+   "surahs": 114
+  }
+ },
+ "writerHostVadVersion": "adaptive-2",
+ "noSilenceShare": null,
+ "noSilenceToAnchor": null,
+ "sparsePauses": null,
+ "missing": {
+  "count": 0,
+  "byReason": {},
+  "medianLen": 3,
+  "medianLenAll": 10,
+  "biasedShort": false,
+  "ids": []
+ },
+ "exactEnds": true,
+ "generatedAt": 1789807894203,
+ "audioSha256": "[114 بصمة]",
+ "notes": "",
+ "engineBySurah": {
+  "10": "ctc-gapsplit-1",
+  "13": "ctc-gapsplit-1",
+  "19": "ctc-heardmap-1",
+  "20": "ctc-heardmap-1",
+  "21": "ctc-heardmap-1",
+  "26": "ctc-heardmap-1",
+  "28": "ctc-gapsplit-1",
+  "29": "ctc-heardmap-1",
+  "30": "ctc-gapsplit-1",
+  "33": "ctc-quran-surah-1",
+  "35": "ctc-gapsplit-1",
+  "36": "ctc-heardmap-1",
+  "40": "ctc-gapsplit-1",
+  "42": "ctc-heardmap-1",
+  "43": "ctc-heardmap-1",
+  "45": "ctc-heardmap-1",
+  "46": "ctc-heardmap-1",
+  "47": "ctc-heardmap-1",
+  "54": "align-0.2",
+  "55": "ctc-quran-surah-1",
+  "56": "ctc-quran-surah-1",
+  "57": "ctc-heardmap-1",
+  "77": "ctc-gapsplit-1",
+  "79": "ctc-gapsplit-1"
+ },
+ "transform": {
+  "op": "ctc_gapsplit:13",
+  "fromSha256": "1aacbc4c5dbc3d3842133e9a311db8012ae40e47aab06193d0d6001ad7c1e9eb",
+  "fromKey": "timings-staging/qalun/janaini_qalun.1aacbc4c.jz",
+  "entriesSha256": "0306270479da21683f0dfcfd2f52f9de118d3c28de2648dc563d69562440fe3c",
+  "parentEntriesSha256": "902407a834f6361baf0f6869fdba674191287c44f9e49aa9ef053a2acaea97f5",
+  "movedEntries": 7,
+  "reason": "pH2 محاولة4 (mode=window نوافذ أوسع ±2) فوق 1aacbc4c: بقايا السماع 13:17 30:48 40:25,37 42:23 46:21 (نجحت W1 في 10 و28 و35)",
+  "by": "github-ctc-splice",
+  "at": 1791948781645,
+  "note": "مقارنة بالأصل: حدود متغيرة في 7 مدخلاً، ومداخل مضافة 0، ومداخل محذوفة 0. الرفع إلى الاختبار ليس حكم جودة؛ يلزم اجتياز حراس الجودة والسماع القائمة على بصمة المرشح نفسه.",
+  "dropSurah": [],
+  "addedEntries": 0,
+  "removedEntries": 0
+ },
+ "alignmentModelBySurah": {
+  "33": {
+   "id": "rabah2026/wav2vec2-large-xlsr-53-arabic-quran-v_final",
+   "revision": "b03a268c6ba1a693752307325ab376c86c3b12da",
+   "weightsSha256": "bf65674a26eb4ef7042cedade96c3c8f8cbd04f3a7d1a68eadceec8ed0f99ecb",
+   "license": "Apache-2.0",
+   "canonicalTextChanged": false
+  },
+  "55": {
+   "id": "rabah2026/wav2vec2-large-xlsr-53-arabic-quran-v_final",
+   "revision": "b03a268c6ba1a693752307325ab376c86c3b12da",
+   "weightsSha256": "bf65674a26eb4ef7042cedade96c3c8f8cbd04f3a7d1a68eadceec8ed0f99ecb",
+   "license": "Apache-2.0",
+   "canonicalTextChanged": false
+  },
+  "56": {
+   "id": "rabah2026/wav2vec2-large-xlsr-53-arabic-quran-v_final",
+   "revision": "b03a268c6ba1a693752307325ab376c86c3b12da",
+   "weightsSha256": "bf65674a26eb4ef7042cedade96c3c8f8cbd04f3a7d1a68eadceec8ed0f99ecb",
+   "license": "Apache-2.0",
+   "canonicalTextChanged": false
+  }
+ },
+ "sourceBySurah": {
+  "33": "https://archive.org/download/033-mp-3_20240313/%D9%85%D8%AD%D9%85%D8%AF%20%D8%B9%D9%85%D8%B1%20%D8%A7%D9%84%D8%AC%D9%86%D8%A7%D9%8A%D9%86%D9%8A%20%D8%B1%D9%88%D8%A7%D9%8A%D8%A9%20%D9%82%D8%A7%D9%84%D9%88%D9%86%20%D8%B3%D9%88%D8%B1%D8%A9%20033%20%20%D8%A7%D9%84%D8%A3%D8%AD%D8%B2%D8%A7%D8%A8%20%20mp3.mp3",
+  "55": "https://archive.org/download/055-mp-3_20240313/%D9%85%D8%AD%D9%85%D8%AF%20%D8%B9%D9%85%D8%B1%20%D8%A7%D9%84%D8%AC%D9%86%D8%A7%D9%8A%D9%86%D9%8A%20%D8%B1%D9%88%D8%A7%D9%8A%D8%A9%20%D9%82%D8%A7%D9%84%D9%88%D9%86%20%D8%B3%D9%88%D8%B1%D8%A9%20055%20%20%D8%A7%D9%84%D8%B1%D8%AD%D9%85%D9%86%20%20mp3.mp3"
+ },
+ "alignmentWindowEvidenceBySurah": {
+  "33": {
+   "model": {
+    "id": "rabah2026/wav2vec2-large-xlsr-53-arabic-quran-v_final",
+    "revision": "b03a268c6ba1a693752307325ab376c86c3b12da",
+    "weightsSha256": "bf65674a26eb4ef7042cedade96c3c8f8cbd04f3a7d1a68eadceec8ed0f99ecb",
+    "license": "Apache-2.0",
+    "canonicalTextChanged": false
+   },
+   "sourceSha256": "e8665da5bf33482c1bd1fc1d4fc8770a7444d810f8b3153ffcd44a352d28d9af",
+   "trials": [
+    {
+     "range": [
+      47,
+      52
+     ],
+     "windowMs": [
+      956920,
+      1166190
+     ],
+     "confidence": [
+      0.783,
+      0.779,
+      0.551,
+      0.615,
+      0.672,
+      0.0
+     ],
+     "durationBad": [],
+     "accepted": false,
+     "issues": [],
+     "entries": [
+      {
+       "ayahIdx": 46,
+       "startMs": 956920,
+       "endMs": 965480,
+       "conf": 0.783,
+       "snapped": true,
+       "matched": 0,
+       "total": 8
+      },
+      {
+       "ayahIdx": 47,
+       "startMs": 965480,
+       "endMs": 978620,
+       "conf": 0.779,
+       "snapped": true,
+       "matched": 0,
+       "total": 12
+      },
+      {
+       "ayahIdx": 48,
+       "startMs": 978620,
+       "endMs": 1015256,
+       "conf": 0.551,
+       "snapped": true,
+       "matched": 0,
+       "total": 22
+      },
+      {
+       "ayahIdx": 49,
+       "startMs": 1015256,
+       "endMs": 1099170,
+       "conf": 0.615,
+       "snapped": true,
+       "matched": 0,
+       "total": 61
+      },
+      {
+       "ayahIdx": 50,
+       "startMs": 1099170,
+       "endMs": 1136610,
+       "conf": 0.672,
+       "snapped": true,
+       "matched": 0,
+       "total": 35
+      },
+      {
+       "ayahIdx": 51,
+       "startMs": 1136610,
+       "endMs": 1166190,
+       "conf": 0.0,
+       "snapped": true,
+       "matched": 0,
+       "total": 25
+      }
+     ]
+    },
+    {
+     "range": [
+      46,
+      53
+     ],
+     "windowMs": [
+      950020,
+      1249660
+     ],
+     "confidence": [
+      0.788,
+      0.768,
+      0.754,
+      0.638,
+      0.696,
+      0.679,
+      0.76,
+      0.549
+     ],
+     "durationBad": [],
+     "accepted": true,
+     "issues": [],
+     "entries": [
+      {
+       "ayahIdx": 45,
+       "startMs": 950020,
+       "endMs": 956920,
+       "conf": 0.788,
+       "snapped": true,
+       "matched": 0,
+       "total": 6
+      },
+      {
+       "ayahIdx": 46,
+       "startMs": 956920,
+       "endMs": 965480,
+       "conf": 0.768,
+       "snapped": true,
+       "matched": 0,
+       "total": 8
+      },
+      {
+       "ayahIdx": 47,
+       "startMs": 965480,
+       "endMs": 978620,
+       "conf": 0.754,
+       "snapped": true,
+       "matched": 0,
+       "total": 12
+      },
+      {
+       "ayahIdx": 48,
+       "startMs": 978620,
+       "endMs": 1015243,
+       "conf": 0.638,
+       "snapped": true,
+       "matched": 0,
+       "total": 22
+      },
+      {
+       "ayahIdx": 49,
+       "startMs": 1015243,
+       "endMs": 1099170,
+       "conf": 0.696,
+       "snapped": true,
+       "matched": 0,
+       "total": 61
+      },
+      {
+       "ayahIdx": 50,
+       "startMs": 1099170,
+       "endMs": 1136610,
+       "conf": 0.679,
+       "snapped": true,
+       "matched": 0,
+       "total": 35
+      },
+      {
+       "ayahIdx": 51,
+       "startMs": 1136610,
+       "endMs": 1166190,
+       "conf": 0.76,
+       "snapped": true,
+       "matched": 0,
+       "total": 25
+      },
+      {
+       "ayahIdx": 52,
+       "startMs": 1166190,
+       "endMs": 1249660,
+       "conf": 0.549,
+       "snapped": true,
+       "matched": 0,
+       "total": 69
+      }
+     ]
+    }
+   ],
+   "canonicalTextChanged": false
+  },
+  "55": {
+   "model": {
+    "id": "rabah2026/wav2vec2-large-xlsr-53-arabic-quran-v_final",
+    "revision": "b03a268c6ba1a693752307325ab376c86c3b12da",
+    "weightsSha256": "bf65674a26eb4ef7042cedade96c3c8f8cbd04f3a7d1a68eadceec8ed0f99ecb",
+    "license": "Apache-2.0",
+    "canonicalTextChanged": false
+   },
+   "sourceSha256": "da02b3e49f4e3c732df34c8d5142ac4108927a00a3438b454450245695478bbf",
+   "trials": [
+    {
+     "range": [
+      70,
+      72
+     ],
+     "windowMs": [
+      418450,
+      433309
+     ],
+     "confidence": [
+      0.865,
+      0.664,
+      0.768
+     ],
+     "durationBad": [],
+     "accepted": true,
+     "issues": [],
+     "entries": [
+      {
+       "ayahIdx": 69,
+       "startMs": 418450,
+       "endMs": 422335,
+       "conf": 0.865,
+       "snapped": true,
+       "matched": 0,
+       "total": 3
+      },
+      {
+       "ayahIdx": 70,
+       "startMs": 422335,
+       "endMs": 428410,
+       "conf": 0.664,
+       "snapped": false,
+       "matched": 0,
+       "total": 4
+      },
+      {
+       "ayahIdx": 71,
+       "startMs": 428410,
+       "endMs": 433309,
+       "conf": 0.768,
+       "snapped": true,
+       "matched": 0,
+       "total": 4
+      }
+     ]
+    },
+    {
+     "range": [
+      74,
+      76
+     ],
+     "windowMs": [
+      439214,
+      461710
+     ],
+     "confidence": [
+      0.789,
+      0.665,
+      0.882
+     ],
+     "durationBad": [],
+     "accepted": true,
+     "issues": [],
+     "entries": [
+      {
+       "ayahIdx": 73,
+       "startMs": 439214,
+       "endMs": 448650,
+       "conf": 0.74,
+       "snapped": false,
+       "matched": 0,
+       "total": 6
+      },
+      {
+       "ayahIdx": 74,
+       "startMs": 448650,
+       "endMs": 454445,
+       "conf": 0.665,
+       "snapped": true,
+       "matched": 0,
+       "total": 4
+      },
+      {
+       "ayahIdx": 75,
+       "startMs": 454445,
+       "endMs": 461710,
+       "conf": 0.74,
+       "snapped": false,
+       "matched": 0,
+       "total": 6
+      }
+     ]
+    }
+   ],
+   "canonicalTextChanged": false
+  },
+  "56": {}
+ }
+}
