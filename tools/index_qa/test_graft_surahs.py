@@ -112,6 +112,27 @@ class T(unittest.TestCase):
         self.donor["transform"]["fromSha256"] = "M"
         self.bad("أخرى", anc=[{"sha": "M", "idx": mid}])
 
+    def _long_chain(self, n, break_at=None):
+        anc, prev = [], "B"
+        for i in range(n):
+            sha = f"H{i}"
+            mid = idx({2: i + 1}, transform={"fromSha256": "Z" if i == break_at else prev})
+            anc.insert(0, {"sha": sha, "idx": mid})
+            prev = sha
+        self.donor["transform"]["fromSha256"] = prev
+        return anc
+
+    def test_chain_long_ok(self):
+        anc = self._long_chain(12)
+        out, rep = self.run_g(anc=anc)
+        self.assertEqual(len(rep["lineage"]), 12)
+
+    def test_chain_long_broken_deep_hop(self):
+        self.bad("لا تطابق", anc=self._long_chain(12, break_at=3))
+
+    def test_chain_too_long(self):
+        self.bad("أطول", anc=self._long_chain(g.MAX_CHAIN + 2))
+
     def test_chain_missing_hop(self):
         self.donor["transform"]["fromSha256"] = "M"
         self.bad("غيرُ مشتق")
