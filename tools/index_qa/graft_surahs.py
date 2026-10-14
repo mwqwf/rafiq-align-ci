@@ -44,7 +44,7 @@ sys.path.insert(0, str(HERE))
 _SURAH_MAPS = ("engineBySurah", "sourceBySurah", "sourceTimingBySurah",
                "alignmentModelBySurah", "dualFixEvidenceBySurah")
 _TEXT_KEYS = ("text", "textSha256", "textHash")
-MAX_CHAIN = 8
+MAX_CHAIN = 24  # كلّ حلقةٍ تُجلب وتُطابَق بصمتُها الكاملة، فالطولُ لا يُضعف التحقّق؛ سلاسلُ الإصلاح تبلغ 11+ حلقة
 
 
 def ayah_counts():
