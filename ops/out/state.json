@@ -1,5 +1,5 @@
 {
- "generatedAt": "2026-10-08T23:55:59Z",
+ "generatedAt": "2026-10-14T16:01:35Z",
  "readErrors": {},
  "fetchedCount": 180,
  "readComplete": true,
@@ -67,22 +67,56 @@
   "warsh": 24
  },
  "indexesWithGaps": {
-  "hafs/3siri": {
-   "entries": 6030,
+  "hafs/jaleel": {
+   "entries": 6229,
    "missingSurahs": [
-    7
+    1
    ],
-   "reasonCode": "SOURCE_CORRUPT",
-   "transformOp": "drop_surah:7",
+   "reasonCode": "OTHER",
+   "transformOp": "drop_surah:1",
    "declaredReasons": {
-    "unknown": 0,
-    "source_truncated": 206
+    "timing_truncated": 100,
+    "source_truncated": 7
    },
-   "declaredCount": 206,
+   "declaredCount": 107,
    "undeclaredCount": 0,
    "engine": "mp3quran-timing-v1",
    "gapSurahs": {
-    "7": 206
+    "1": 7
+   }
+  },
+  "hafs/kurdi": {
+   "entries": 6060,
+   "missingSurahs": [
+    4
+   ],
+   "reasonCode": "SOURCE_TRUNCATED",
+   "transformOp": "drop_surah:4",
+   "declaredReasons": {
+    "unknown": 0,
+    "source_truncated": 176
+   },
+   "declaredCount": 176,
+   "undeclaredCount": 0,
+   "engine": "align-0.2",
+   "gapSurahs": {
+    "4": 176
+   }
+  },
+  "hafs/mhsny": {
+   "entries": 6235,
+   "missingSurahs": [],
+   "reasonCode": "SOURCE_TRUNCATED",
+   "transformOp": "declare_gap:69",
+   "declaredReasons": {
+    "no-align": 1,
+    "source_truncated": 1
+   },
+   "declaredCount": 2,
+   "undeclaredCount": 0,
+   "engine": "ctc-seg-1",
+   "gapSurahs": {
+    "69": 1
    }
   },
   "hafs/nasser_almajed": {
@@ -159,6 +193,24 @@
    "gapSurahs": {
     "4": 176,
     "24": 34
+   }
+  },
+  "warsh/gharbi_warsh": {
+   "entries": 6153,
+   "missingSurahs": [
+    36
+   ],
+   "reasonCode": "SOURCE_TRUNCATED",
+   "transformOp": "drop_surah:36",
+   "declaredReasons": {
+    "no-align": 18,
+    "source_truncated": 83
+   },
+   "declaredCount": 101,
+   "undeclaredCount": 0,
+   "engine": "align-0.2",
+   "gapSurahs": {
+    "36": 83
    }
   },
   "warsh/noah_warsh": {
