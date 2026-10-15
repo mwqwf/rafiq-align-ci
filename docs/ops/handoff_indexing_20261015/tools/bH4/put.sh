@@ -1,0 +1,17 @@
+#!/bin/bash
+# put.sh <اسم> '<json>' ... — يدفع أوامر pE من worktree الخاص
+W=/tmp/claude-0/-home-user/06b0cdc4-1efe-58b9-bd35-06b0a18e1af5/scratchpad/wt_pH4
+cd $W
+t=$(date -u +%H%M); names=(); jsons=()
+while [ $# -ge 2 ]; do [ -n "$2" ] && echo "$2" | python3 -c "import sys,json;json.load(sys.stdin)" 2>/dev/null || { echo "json فارغ/معطوب — لا دفع" >&2; exit 2; }; n="$(date -u +%Y%m%d)_${t}_pH4_$1"; names+=("$n"); jsons+=("$2"); echo "ops/out/$n.txt"; shift 2; done
+for i in $(seq 1 30); do
+  git fetch -q origin main && git reset -q --hard origin/main
+  ps=(); for j in "${!names[@]}"; do echo "${jsons[$j]}" > ops/commands/${names[$j]}.json; ps+=(ops/commands/${names[$j]}.json); done
+  git add "${ps[@]}" && git commit -q -m "ops(pH4): ${#ps[@]} أمراً ($t)
+
+Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>
+Claude-Session: https://claude.ai/code/session_01Wfpch2b1FY8tAqdUyLhAuA" -- "${ps[@]}"
+  git push -q origin HEAD:main 2>/dev/null && { echo "دُفع" >&2; exit 0; }
+  sleep $((1+RANDOM%4))
+done
+echo "تعذّر الدفع" >&2; exit 1
