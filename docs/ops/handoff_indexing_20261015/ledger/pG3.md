@@ -1,0 +1,1 @@
+- 2026-10-13T08:30:01Z · timings/warsh/gharbi_warsh.jz · الحيّ ليس 3b7a7030 بل d774e631 (ops/out/20261013_080430_pG3_live36.txt) · س36 مُسقطةٌ فيه بإعلان (83 مدخلاً) بأمر pW_drop36d من eff8e7f1 (ops/out/20261012_012648_pW_drop36d.txt · fixD-audit5-gharbi_warsh.d774e631.md) · لم أُطلق شيئاً: شرط التكليف (الأصل 3b7a7030) انتقض.
