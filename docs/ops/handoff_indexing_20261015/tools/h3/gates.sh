@@ -1,0 +1,5 @@
+#!/bin/bash
+# gates.sh <riw> <id> <sha8> <tag> — كلّ بوّابات مرشّح
+H=$(dirname $0); K=timings-staging/$1/$2.$3.jz; t=$4
+d(){ python3 -c 'import json,sys;print(json.dumps({"action":"dispatch","workflow":sys.argv[1],"inputs":json.loads(sys.argv[2])},ensure_ascii=False))' "$1" "$2"; }
+$H/put.sh ${t}sb "$($H/mk index_qa/run.py --struct-only $K)" ${t}sh "$(d heard_gate.yml "{\"only\":\"$K\",\"shards\":\"4\"}")" ${t}op "$(d openers.yml "{\"only\":\"$K\"}")" ${t}cn "$(d splice_census.yml "{\"only\":\"$K\",\"force\":\"true\",\"no_range\":\"true\",\"parallel_surahs\":\"false\"}")" ${t}s1 "$(d audio_qa.yml "{\"only\":\"$K\",\"seed_salt\":\"pH3${t}A\",\"job_minutes\":\"240\"}")" ${t}s2 "$(d audio_qa.yml "{\"only\":\"$K\",\"seed_salt\":\"pH3${t}B\",\"job_minutes\":\"240\"}")" ${t}s3 "$(d audio_qa.yml "{\"only\":\"$K\",\"seed_salt\":\"pH3${t}C\",\"job_minutes\":\"240\"}")" ${t}s4 "$(d audio_qa.yml "{\"only\":\"$K\",\"seed_salt\":\"pH3${t}D\",\"job_minutes\":\"240\"}")" ${t}dg "$(d diagnosis.yml "{\"only\":\"$1/$2\"}")" 2>&1 | tail -1
