@@ -50,6 +50,7 @@ ASSET_ID = {"hafs": "hafs", "warsh": "warsh", "qalon": "qalun"}
 PAGES = 604
 WIDTH = 1000          # عرض الصورة النهائيّة بالبكسل
 CROP = None           # صندوق القصّ (يُملأ من --crop-box)
+FORMAT = "webp"       # webp | avif (avif: جودة 60 وسرعة 6 كما قِيس؛ المخرجات .avif)
 QUALITY = 80          # جودة WebP — الموازنة بين وضوح الرسم وحجم التنزيل
 MIN_BYTES = 10 * 1024  # أقل حجم مقبول؛ ما دونه دليل على تحويل فاشل
 BATCH = 32             # صفحات الدفعة الواحدة — سقفٌ لاستهلاك الذاكرة
@@ -144,7 +145,7 @@ def render(args):
     import fitz
     from PIL import Image
 
-    number, data, dest, width, quality, crop = args
+    number, data, dest, width, quality, crop, fmt = args
     doc = fitz.open(stream=data, filetype="pdf")
     page = doc[0]
     zoom = width / page.rect.width          # التكبير يُشتقّ من العرض المطلوب
@@ -154,7 +155,16 @@ def render(args):
         # قصٌّ بصندوق الهوامش نفسِه (مُعرَّفٍ على عرض 1000) مضروباً في نسبة العرض: يُبقي الإحداثياتِ المطبَّعة صالحةً للنسخة العالية.
         k = width / 1000
         img = img.crop(tuple(int(round(v * k)) for v in crop))
-    img.save(dest, "WEBP", quality=quality, method=6)
+    if fmt == "avif":
+        # عدّ مكوّنات الحبر (g<128، اتصال 8) في المصدر قبل الترميز — مرجعٌ لحارس فقد النقاط والحركات.
+        import numpy as np
+        from scipy import ndimage as ndi
+        g = np.asarray(img.convert("L"))
+        with open(dest + ".ink", "w") as f:
+            f.write(str(int(ndi.label(g < 128, structure=np.ones((3, 3)))[1])))
+        img.save(dest, "AVIF", quality=quality, speed=6)
+    else:
+        img.save(dest, "WEBP", quality=quality, method=6)
     doc.close()
     return number, os.path.getsize(dest)
 
@@ -167,8 +177,8 @@ def build(riwaya):
     with zipfile.ZipFile(zip_path) as zf:
         keyed = page_files(zf)
         todo = [(n, name) for n, name in keyed
-                if not (os.path.exists(os.path.join(out_dir, f"{n:03d}.webp"))
-                        and os.path.getsize(os.path.join(out_dir, f"{n:03d}.webp")) >= MIN_BYTES)]
+                if not (os.path.exists(os.path.join(out_dir, f"{n:03d}.{FORMAT}"))
+                        and os.path.getsize(os.path.join(out_dir, f"{n:03d}.{FORMAT}")) >= MIN_BYTES)]
 
         print(f"[{riwaya}] {len(todo)} صفحة للتحويل", flush=True)
         done = 0
@@ -178,7 +188,7 @@ def build(riwaya):
         # الذاكرة بلا داعٍ.
         with futures.ProcessPoolExecutor(max_workers=os.cpu_count()) as pool:
             for i in range(0, len(todo), BATCH):
-                jobs = [(n, zf.read(name), os.path.join(out_dir, f"{n:03d}.webp"), WIDTH, QUALITY, CROP)
+                jobs = [(n, zf.read(name), os.path.join(out_dir, X
                         for n, name in todo[i:i + BATCH]]
                 for _ in pool.map(render, jobs, chunksize=2):
                     done += 1
@@ -191,7 +201,7 @@ def verify(riwaya, out_dir):
     """يفشل بصوت عالٍ بدل تسليم مجموعة ناقصة بصمت."""
     missing, tiny, total = [], [], 0
     for n in range(1, PAGES + 1):
-        path = os.path.join(out_dir, f"{n:03d}.webp")
+        path = os.path.join(out_dir, f"{n:03d}.{FORMAT}")
         if not os.path.exists(path):
             missing.append(n)
             continue
@@ -207,12 +217,13 @@ def verify(riwaya, out_dir):
 
 
 def main():
-    global WIDTH, QUALITY, OUT, CROP
+    global WIDTH, QUALITY, OUT, CROP, FORMAT
     import argparse
     ap = argparse.ArgumentParser(description="يبني صور المصحف الملوّن")
     ap.add_argument("riwayat", nargs="*", help="hafs warsh qalon (الافتراضي: الثلاث)")
     ap.add_argument("--width", type=int, default=WIDTH, help=f"عرض الصورة بالبكسل (الافتراضي {WIDTH})")
     ap.add_argument("--quality", type=int, default=QUALITY, help=f"جودة WebP (الافتراضي {QUALITY})")
+    ap.add_argument("--format", default="webp", choices=("webp", "avif"), help="صيغة المخرجات")
     ap.add_argument("--out-prefix", default="mushaf-out",
                     help="اسم مجلّد المخرجات تحت TEMP (الافتراضي mushaf-out)")
     ap.add_argument("--crop-box", default="",
@@ -221,7 +232,7 @@ def main():
     CROP = tuple(int(v) for v in args.crop_box.split(",")) if args.crop_box else None
     if CROP is not None and len(CROP) != 4:
         raise SystemExit("--crop-box يلزمه أربع قيم")
-    WIDTH, QUALITY = args.width, args.quality
+    WIDTH, QUALITY, FORMAT = args.width, args.quality, args.format
     OUT = os.path.join(TEMP, args.out_prefix)
     bad = [r for r in args.riwayat if r not in SOURCES]
     if bad:

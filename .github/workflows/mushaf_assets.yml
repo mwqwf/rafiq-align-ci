@@ -10,7 +10,7 @@ on:
         description: "hafs أو warsh أو qalun أو all"
         default: "hafs"
       kind:
-        description: "hd أو juz"
+        description: "hd أو juz أو avif"
         default: "hd"
       dry_run:
         description: "true = توليدٌ وتحقّقٌ بلا رفع"
@@ -39,7 +39,7 @@ jobs:
         with:
           python-version: "3.11"
       - name: العدّة
-        run: pip install -q boto3 pymupdf pillow
+        run: pip install -q boto3 pymupdf pillow numpy scipy scikit-image
       - name: اختبار حزم الأجزاء
         run: |
           set -euo pipefail
