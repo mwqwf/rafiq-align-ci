@@ -8,11 +8,11 @@ on:
   workflow_dispatch:
     inputs:
       action:
-        description: "launch | status | export | teardown | watch"
+        description: "launch | relaunch (إلغاء المهمة النشطة ثم إطلاقٌ بالمدخلات الجديدة) | status | export | teardown | watch"
         required: true
         default: status
         type: choice
-        options: [launch, status, export, teardown, watch]
+        options: [launch, relaunch, status, export, teardown, watch]
       expect_step:
         description: "أدنى خطوةِ استئنافٍ مقبولة (مطلوب لـ launch)"
         required: false
@@ -89,7 +89,7 @@ jobs:
           service_account: mushafak-ci@black-network-509205-h7.iam.gserviceaccount.com
 
       - name: اعتماد R2 (للفعلَين launch وexport وteardown)
-        if: env.ACTION == 'launch' || env.ACTION == 'export' || env.ACTION == 'teardown'
+        if: env.ACTION == 'launch' || env.ACTION == 'relaunch' || env.ACTION == 'export' || env.ACTION == 'teardown'
         env:
           R2_CREDENTIALS_JSON: ${{ secrets.R2_CREDENTIALS_JSON }}
         run: |

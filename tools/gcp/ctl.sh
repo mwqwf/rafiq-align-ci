@@ -267,6 +267,8 @@ elif mode == "cost":
     secs = 0.0
     for j in jobs:
         if t(j.get("createTime", "")) < start or not j.get("startTime"): continue
+        # Vertex يضع startTime لحظةَ القبول ولو بقيت المهمة تنتظر السعة؛ والانتظارُ لا يُحاسَب
+        if j.get("state") in ("JOB_STATE_PENDING", "JOB_STATE_QUEUED"): continue
         end = t(j["endTime"]) if j.get("endTime") else now
         secs += max(0.0, end - t(j["startTime"]))
     print(f"{secs / 3600 * rate:.2f} {len(jobs)}")
@@ -478,6 +480,8 @@ cmd_watch()  { if [ "$BACKEND" = vertex ]; then v_watch; else gce_watch; fi; }
 
 resolve_backend "${1:-}"
 case "${1:?الفعل}" in
-  launch) cmd_launch ;; status) cmd_status ;; export) cmd_export ;; teardown) cmd_teardown ;; watch) cmd_watch ;;
+  launch) cmd_launch ;;
+  relaunch) [ "$BACKEND" = vertex ] || { err "relaunch لـvertex وحده"; exit 1; }; v_cancel_active; cmd_launch ;;
+  status) cmd_status ;; export) cmd_export ;; teardown) cmd_teardown ;; watch) cmd_watch ;;
   *) err "فعلٌ مجهول: $1"; exit 1 ;;
 esac
