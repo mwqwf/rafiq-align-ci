@@ -31,8 +31,8 @@ for R in roles/aiplatform.user roles/compute.admin roles/storage.admin roles/iam
 done
 gcloud iam workload-identity-pools describe github --location=global >/dev/null 2>&1 || \
   gcloud iam workload-identity-pools create github --location=global --display-name="GitHub"
-gcloud iam workload-identity-pools providers describe gh --location=global --workload-identity-pool=github >/dev/null 2>&1 || \
-  gcloud iam workload-identity-pools providers create-oidc gh --location=global --workload-identity-pool=github \
+gcloud iam workload-identity-pools providers describe github-oidc --location=global --workload-identity-pool=github >/dev/null 2>&1 || \
+  gcloud iam workload-identity-pools providers create-oidc github-oidc --location=global --workload-identity-pool=github \
     --issuer-uri="https://token.actions.githubusercontent.com" \
     --attribute-mapping="google.subject=assertion.sub,attribute.repository=assertion.repository,attribute.ref=assertion.ref" \
     --attribute-condition="(assertion.repository=='mwqwf/rafiq-align-ci' || assertion.repository=='mwqwf/QuranRafiq') && assertion.ref=='refs/heads/main'"
