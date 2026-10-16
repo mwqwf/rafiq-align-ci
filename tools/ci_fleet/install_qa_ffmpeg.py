@@ -1,12 +1,25 @@
 #!/usr/bin/env python3
 """Install only SHA-pinned ffmpeg/ffprobe when the standard runner omits them."""
-import hashlib,os,pathlib,platform,shutil,sys,tarfile,tempfile,urllib.request
+import hashlib,os,pathlib,platform,shutil,subprocess,sys,tarfile,tempfile,urllib.error,urllib.request
 URL='https://github.com/BtbN/FFmpeg-Builds/releases/download/autobuild-2026-10-01-13-06/ffmpeg-n8.1.3-14-g330caae0c1-linux64-lgpl-8.1.tar.xz'
 SHA='3c2c4d6066432b2eab54be830d3ce1f5b68a3f34ecaa6d9f2d0230a49e778560'
 SIZE=137039192
 BIN=pathlib.Path(__file__).resolve().parents[2]/'.qa-tools/bin'
+def apt_fallback(why):
+ # (2026-10-16) BtbN autobuilds rotate: the pinned release returned 404 and every audio_qa salt failed
+ # before measuring anything. Ubuntu's signed apt archive is the fallback; the pinned digest still wins when present.
+ print('Pinned archive unavailable (%s); installing signed Ubuntu ffmpeg via apt'%why,flush=True)
+ for cmd in (['sudo','apt-get','update','-qq','-o','Acquire::Retries=3'],
+             ['sudo','apt-get','install','-y','-qq','--no-install-recommends','ffmpeg']):
+  subprocess.run(['timeout','600']+cmd,check=True)
+ if not(shutil.which('ffmpeg') and shutil.which('ffprobe')):raise RuntimeError('apt fallback did not provide ffmpeg/ffprobe')
 def main():
  if shutil.which('ffmpeg') and shutil.which('ffprobe'):print('Using existing ffmpeg and ffprobe');return
+ try:pinned()
+ except urllib.error.HTTPError as e:
+  if e.code not in (404,410):raise
+  apt_fallback('HTTP %d'%e.code)
+def pinned():
  if platform.system()!='Linux' or platform.machine()!='x86_64':raise RuntimeError('Pinned fallback requires standard Linux x86_64 runner')
  BIN.mkdir(parents=True,exist_ok=True)
  with tempfile.TemporaryDirectory() as work:
