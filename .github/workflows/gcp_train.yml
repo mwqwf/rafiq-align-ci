@@ -1,4 +1,4 @@
-# حملة تدريب «مصحفك-1» على GCE (L4×2) بسقف إنفاقٍ صارم ثم حذفُ كلّ ما يكلّف.
+# حملة تدريب «مصحفك-1» (L4×2) بسقف إنفاقٍ صارم ثم حذفُ كلّ ما يكلّف. المسارُ الافتراضيّ Vertex AI CustomJob (حصةُ GPU لـGCE رُفضت)، ومسارُ GCE باقٍ.
 # المستودعُ عامٌّ فدقائقُ هذا السير مجانيّة؛ التدريبُ نفسُه يجري على الجهاز (tools/gcp/train_startup.sh).
 # لا Kaggle ولا مفاتيح دائمة: OIDC من main فقط، والمرحلةُ من R2 بروابط موقّعة (7 أيام) تُمرَّر في metadata.
 # الأفعال: launch · status · export · teardown (يدويّاً) · watch (كلَّ 30 د: يعيد التشغيلَ بعد قطع spot ويؤكّد الحذف).
@@ -17,23 +17,29 @@ on:
         description: "أدنى خطوةِ استئنافٍ مقبولة (مطلوب لـ launch)"
         required: false
         type: string
+      backend:
+        description: "مسار التنفيذ: vertex (CustomJob، الافتراضيّ) | gce (جهاز). غير launch يُقرأ من الدفتر campaign.json"
+        required: false
+        default: vertex
+        type: choice
+        options: [vertex, gce]
       budget_usd:
         description: "سقف الإنفاق بالدولار"
         required: false
         default: "270"
         type: string
       rate_usd_per_hour:
-        description: "سعر الساعة المحاسَب به (فارغ = spot 1.81 أو عند الطلب 2.01، أي السعر ×1.15 هامشاً)"
+        description: "سعر الساعة المحاسَب به (فارغ: vertex spot 2.15 / عند الطلب 2.65؛ gce spot 1.81 / عند الطلب 2.01)"
         required: false
         default: ""
         type: string
       spot:
-        description: "جهازٌ متقطّع"
+        description: "متقطّع (spot)"
         required: false
         default: true
         type: boolean
       zone:
-        description: "المنطقة"
+        description: "المنطقة (gce فقط؛ vertex دائماً us-central1)"
         required: false
         default: us-central1-a
         type: string
@@ -64,6 +70,8 @@ jobs:
       PROJECT_ID: black-network-509205-h7
       PROJECT_NUMBER: "506422438705"
       INSTANCE: mushafak1-train
+      BACKEND: ${{ inputs.backend || 'vertex' }}
+      REGION: us-central1
       ZONE: ${{ inputs.zone || 'us-central1-a' }}
       MACHINE_TYPE: ${{ inputs.machine_type || 'g2-standard-24' }}
       SPOT: ${{ github.event_name == 'schedule' && 'true' || inputs.spot }}
