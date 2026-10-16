@@ -70,6 +70,14 @@ runs = json.loads(subprocess.run(
     ["gh", "run", "list", "-R", REPO, "-w", "ctc_align.yml", "-L", "60",
      "--json", "displayTitle,status"], capture_output=True, text=True).stdout or "[]")
 busy = {r["displayTitle"].split()[1].split("/")[0] for r in runs if r["status"] != "completed"}
+# ⭐ (2026-10-16) وسلسلةُ إصلاحٍ جاريةٌ (‏ctc_splice فوق آخر بصمة) ستُنتج بصمةً أحدث: فلا تُبوَّب الوسيطةُ
+#    (‏كانت كلُّ خطوةٍ تكلّف خمسَ تشغيلاتٍ تُتجاوز قبل أن تبدأ، فبلغ الطابورُ 60 والأسطولُ يُجري ستّاً).
+splice = json.loads(subprocess.run(
+    ["gh", "run", "list", "-R", REPO, "-w", "ctc_splice.yml", "-L", "100",
+     "--json", "displayTitle,status"], capture_output=True, text=True).stdout or "[]")
+busy |= {r["displayTitle"].split()[1].split("/")[-1].split(".")[0] for r in splice
+         if r["status"] != "completed" and len(r["displayTitle"].split()) > 1
+         and r["displayTitle"].split()[1].startswith("timings-staging/")}
 for rid, o in latest.items():
     k = o["Key"]
     if rid in busy:                              # فهرسةٌ أحدثُ جارية: لا بوابةَ ولا ترقيةَ لما قبلها
