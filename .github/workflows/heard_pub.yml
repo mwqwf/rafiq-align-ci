@@ -78,7 +78,10 @@ jobs:
           covered = set()
           if os.environ.get("FORCE") != "true":
               pages = []
-              for pre in (f"state-heard/timings-staging_{riw}_{stem}.", H.state_key(key)):
+              # ⛔ (2026-10-16) المغطّى = ما في تقرير المنشور نفسِه وحده: خرائطُ مفاتيح staging كانت تُعدّ
+              #    «مغطّاة» ولا تُنسخ إلى تقرير المنشور، فيبقى الحيُّ ناقصاً (بنعون 58/114 · القرافي 97 · سويلم 109)
+              #    ولا يُكمله إلا force على الفهرس كلّه.
+              for pre in (H.state_key(key),):
                   for pg in s3.get_paginator("list_objects_v2").paginate(Bucket=c["bucket"], Prefix=pre):
                       pages += [o["Key"] for o in pg.get("Contents", [])]
               for k in pages:
