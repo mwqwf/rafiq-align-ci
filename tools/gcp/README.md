@@ -1,27 +1,20 @@
-# استئنافُ تدريب «مصحفك-1» على GCE (بطاقة L4)
+# تدريب «مصحفك-1» على GCE (L4×2) بسقف إنفاق
 
-يستأنف الشوطَ نفسَه الذي كان على Kaggle (الأمرُ نفسُه `cloud_run.py --local-state …` بوسائطه نفسِها) على جهاز Google Compute Engine من رصيد Google Cloud.
+لا Kaggle في السير ولا في الجهاز. المصادقة OIDC بلا مفاتيح، ومن `main` فقط. المشروع `black-network-509205-h7`.
+المرحلة تجهّزها خطوةٌ أخرى على R2 تحت `models/mushafak1/stage/` (manifest + ckpt + code + d2delta)، وأجزاء d1 تُقرأ من r2.dev العامّ.
 
-## الإطلاق
-Actions ▸ `gcp-train` ▸ Run workflow، بالمدخلات: `project_id` و`project_number` و`resume_kernel` (افتراضيّ `cloudenarymarwano/mushafak1-m1-b`) و`expect_step` (51571) و`max_hours` (11) و`spot` و`zone`.
-السيرُ يرفض الإطلاقَ إن كان `m1-a` أو `m1-b` على Kaggle RUNNING/QUEUED، أو كان الجهاز `mushafak1-train` قائماً، ثمّ ينشئ الدلوَ `gs://<project>-mushafak1` والجهازَ وينتهي في دقائق.
-المتابعة: `gs://<project>-mushafak1/m1/status.json` (المرحلة · الخطوة · PER · ساعات الاستهلاك) و`gcloud compute instances get-serial-port-output mushafak1-train`.
+## الأفعال (Actions ▸ `gcp-train` ▸ Run workflow ▸ `action`)
+- `launch`: يتطلّب `expect_step`. يرفض إن وُجد جهازٌ قائم أو بلغ الدفترُ السقف. يولّد روابط R2 موقّعة (7 أيام) ويمرّرها في metadata، وينشئ الجهاز (SPOT افتراضياً، `STOP` عند القطع).
+  المدخلات: `budget_usd` (270) و`rate_usd_per_hour` (فارغ = 1.81 لـspot أو 2.01 عند الطلب، أي السعر ×1.15) و`spot` و`zone` و`machine_type`.
+- `status`: حالة الجهاز + آخر `vm_status.json` + الساعات والكلفة التراكمية (أرقام فقط).
+- `export`: ينسخ `last.pt,best.pt,run.json,status.json` من `gs://<project>-mushafak1/m1/` إلى R2 `models/mushafak1/stage-out/<step>/`.
+- `teardown`: يطلب مزامنةً أخيرة، ثم export، ثم يحذف الأجهزة والأقراص واللقطات والصور والعناوين والدلو، ويطبع جرداً (instances · disks · snapshots · images · addresses · buckets · artifact repos · secrets · scheduler jobs) ويفشل إن لم يكن كلُّه صفراً.
+- `watch` (يعمل كلَّ 30 دقيقة تلقائياً): إن لم يوجد `gs://…/active` يخرج. جهازٌ متوقّف والتدريب لم ينتهِ والكلفة دون السقف ⇒ `start`. انتهى أو بلغ السقف ⇒ يؤكّد الحذف ويزيل `active`.
 
-## كيف يعمل الجهاز (`train_startup.sh`)
-1. ينزّل الشيفرةَ من مجموعة `mushafak1-code` ومخرَجَ دفتر الاستئناف ونسخَ البيانات (`mushafak1-d1-a/b` و`mushafak1-d2-delta`) من Kaggle، ويتحقّق من أحجام الأجزاء.
-2. يختار نقطةَ الاستئناف: الأكبر خطوةً بين مخرَج Kaggle وقرص الجهاز والدلو. وإن كانت دون `expect_step` سقط قبل أيّ تدريب (لا بدءَ من الصفر).
-3. يزامن مجلّدَ الحالة إلى `gs://<project>-mushafak1/m1/state/` كلَّ 5 دقائق وعند النهاية.
-4. عند الانتهاء (نجاحاً أو إخفاقاً) ينشر `status.json` ويطفئ الجهازَ. وفوقه مهلةٌ صلبة في السكربت و`--max-run-duration` على الجهاز.
-5. قطعُ الجهاز المتقطّع: `gcloud compute instances start mushafak1-train` فيستأنف من الدلو. وعدّادُ الساعات تراكميٌّ عبر القطع فلا يتجاوز `max_hours`.
+## على الجهاز (`train_startup.sh`)
+أول إقلاع: ينزّل المرحلة (sha256) وينسخها إلى `gs://…/stage/` ثم أجزاء d1 + الجزء 16 في مجلد واحد. الإقلاعات التالية لا تعيد ما على القرص. يستأنف من الأحدث خطوةً: المحلية ثم GCS ثم stage.
+كلَّ 5 دقائق: يزامن `state/ckpt/m1` إلى `gs://…/m1/` ويضيف دقائق التشغيل إلى `ledger.json` ويحسب الكلفة. عند السقف أو انتهاء التدريب أو `stop_request`: مزامنة أخيرة ثم `done` ثم حذفُ الجهاز وقرصه ذاتياً.
+ثلاثة إخفاقات متتالية تنهي الحملة. الكلفة المحسوبة تشمل ساعات التشغيل فقط (القرص يُغطّيه هامش 15%).
 
-## الاستئناف بعده على Kaggle
-النقطةُ الحاكمة: `gs://<project>-mushafak1/m1/state/ckpt/m1/{last.pt,best.pt,run.json,train.log}`.
-نزّلها (`gcloud storage cp -r`) وارفعها كمجموعة Kaggle خاصّة أو ضعها في مخرَج دفترٍ، ثم أطلق بـ`--resume-from` و`--expect-step <خطوة status.json>` كما في `docs/ops/MUSHAFAK1_TRAINING.md` على فرع التدريب. لا تستأنف على Kaggle من مخرَج دفترٍ أقدم من خطوة الدلو.
-
-## ⛔ قاعدة: لا منصّتان على نقطة واحدة
-لا يعمل Kaggle وGCE على الدرجة نفسِها معاً: شغّل واحداً، وانتظر `finished` في `status.json` (أو إطفاءَ الجهاز)، ثمّ انقل النقطة. بعد الانتهاء احذف الجهاز (`gcloud compute instances delete mushafak1-train`) فالقرص (200 غ.ب) يُحاسَب وهو متوقّف.
-
-## ملاحظات مهمّة
-- بطاقةٌ واحدة بدل T4×2: الدفعةُ لكلّ خطوة تنصف (200 ث بدل 400 ث) وجدولُ التعلّم يُحسب بـ`خطوات × دفعة × عدد البطاقات`، فيتغيّر منحنى التدريب عمّا كان. للمطابقة اختر `machine_type=g2-standard-24` (L4×2، يعمل DDP كما في الدفتر).
-- يلزم حصّةُ GPU لـL4 في المنطقة (والمتقطّعة لها حصّةٌ منفصلة). وحسابُ `mushafak-ci` يحتاج أدوار: إدارة جهاز Compute، ومشرف التخزين، و`iam.serviceAccountUser` على نفسه.
-- مفتاح Kaggle يُخزَّن في metadata الجهاز (مقروءٌ لمن يملك `compute.instances.get`)؛ يُحذف مع الجهاز.
+## الاستئناف على Kaggle من stage-out
+نزّل `models/mushafak1/stage-out/<step>/` من R2 وارفعه مجموعةً بتخطيط `state/ckpt/m1/{last.pt,best.pt,run.json,status.json}`، ثم شغّل `cloud_run.py --local-state … --expect-step <step>` على الدفتر. الرقم `<step>` حدٌّ أدنى للخطوة الفعلية. لا تشغّل Kaggle والجهاز معاً.
