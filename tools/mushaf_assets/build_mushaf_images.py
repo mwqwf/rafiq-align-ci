@@ -188,7 +188,7 @@ def build(riwaya):
         # الذاكرة بلا داعٍ.
         with futures.ProcessPoolExecutor(max_workers=os.cpu_count()) as pool:
             for i in range(0, len(todo), BATCH):
-                jobs = [(n, zf.read(name), os.path.join(out_dir, X
+                jobs = [(n, zf.read(name), os.path.join(out_dir, f"{n:03d}.{FORMAT}"), WIDTH, QUALITY, CROP, FORMAT)
                         for n, name in todo[i:i + BATCH]]
                 for _ in pool.map(render, jobs, chunksize=2):
                     done += 1
