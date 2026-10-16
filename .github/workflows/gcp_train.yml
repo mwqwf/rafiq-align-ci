@@ -1,0 +1,100 @@
+# حملة تدريب «مصحفك-1» على GCE (L4×2) بسقف إنفاقٍ صارم ثم حذفُ كلّ ما يكلّف.
+# المستودعُ عامٌّ فدقائقُ هذا السير مجانيّة؛ التدريبُ نفسُه يجري على الجهاز (tools/gcp/train_startup.sh).
+# لا Kaggle ولا مفاتيح دائمة: OIDC من main فقط، والمرحلةُ من R2 بروابط موقّعة (7 أيام) تُمرَّر في metadata.
+# الأفعال: launch · status · export · teardown (يدويّاً) · watch (كلَّ 30 د: يعيد التشغيلَ بعد قطع spot ويؤكّد الحذف).
+name: gcp-train
+
+on:
+  workflow_dispatch:
+    inputs:
+      action:
+        description: "launch | status | export | teardown | watch"
+        required: true
+        default: status
+        type: choice
+        options: [launch, status, export, teardown, watch]
+      expect_step:
+        description: "أدنى خطوةِ استئنافٍ مقبولة (مطلوب لـ launch)"
+        required: false
+        type: string
+      budget_usd:
+        description: "سقف الإنفاق بالدولار"
+        required: false
+        default: "270"
+        type: string
+      rate_usd_per_hour:
+        description: "سعر الساعة المحاسَب به (فارغ = spot 1.81 أو عند الطلب 2.01، أي السعر ×1.15 هامشاً)"
+        required: false
+        default: ""
+        type: string
+      spot:
+        description: "جهازٌ متقطّع"
+        required: false
+        default: true
+        type: boolean
+      zone:
+        description: "المنطقة"
+        required: false
+        default: us-central1-a
+        type: string
+      machine_type:
+        description: "g2-standard-24 = L4×2 (يطابق ddp:2)"
+        required: false
+        default: g2-standard-24
+        type: string
+  schedule:
+    - cron: "*/30 * * * *"
+
+permissions:
+  id-token: write
+  contents: read
+
+concurrency:
+  group: gcp-train
+  cancel-in-progress: false
+
+jobs:
+  run:
+    # OIDC لا يُقبل إلا من main
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    env:
+      ACTION: ${{ inputs.action || 'watch' }}
+      PROJECT_ID: black-network-509205-h7
+      PROJECT_NUMBER: "506422438705"
+      INSTANCE: mushafak1-train
+      ZONE: ${{ inputs.zone || 'us-central1-a' }}
+      MACHINE_TYPE: ${{ inputs.machine_type || 'g2-standard-24' }}
+      SPOT: ${{ github.event_name == 'schedule' && 'true' || inputs.spot }}
+      EXPECT_STEP: ${{ inputs.expect_step }}
+      BUDGET_USD: ${{ inputs.budget_usd || '270' }}
+      RATE_USD_PER_HOUR: ${{ inputs.rate_usd_per_hour }}
+      CLOUDSDK_CORE_DISABLE_PROMPTS: "1"
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+
+      - uses: google-github-actions/auth@v2.1.10
+        with:
+          project_id: black-network-509205-h7
+          workload_identity_provider: projects/506422438705/locations/global/workloadIdentityPools/github/providers/github-oidc
+          service_account: mushafak-ci@black-network-509205-h7.iam.gserviceaccount.com
+
+      - name: اعتماد R2 (للفعلَين launch وexport وteardown)
+        if: env.ACTION == 'launch' || env.ACTION == 'export' || env.ACTION == 'teardown'
+        env:
+          R2_CREDENTIALS_JSON: ${{ secrets.R2_CREDENTIALS_JSON }}
+        run: |
+          set -euo pipefail
+          umask 077
+          mkdir -p secure
+          printf '%s' "$R2_CREDENTIALS_JSON" > secure/r2_credentials.json
+
+      - name: تنفيذ الفعل
+        run: |
+          set -euo pipefail
+          bash tools/gcp/ctl.sh "$ACTION"
+
+      - name: إزالة الاعتماد
+        if: always()
+        run: rm -f secure/r2_credentials.json "$RUNNER_TEMP"/stage_urls.json
