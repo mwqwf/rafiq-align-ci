@@ -2,11 +2,14 @@
 # ينشئ حساب خدمة بلا مفاتيح، ويربطه بـGitHub Actions عبر OIDC (لا سرّ يُنسخ)،
 # ويفعّل الواجهات اللازمة، ويطلب حصة بطاقتي L4، ويضع تنبيه ميزانية عند 300$.
 set -euo pipefail
+echo "بدأ الإعداد…"
+trap 'echo "توقف عند السطر $LINENO؛ صوّر الشاشة وأرسلها"' ERR
 P="${1:-$(gcloud config get-value project 2>/dev/null)}"
 if [ -z "$P" ]; then
   # لا مشروع محدد في الصدفة: نأخذ المشروع الوحيد المربوط بالفوترة
   P="$(gcloud projects list --format='value(projectId)' | while read -r x; do
-        [ "$(gcloud billing projects describe "$x" --format='value(billingEnabled)' 2>/dev/null)" = "True" ] && echo "$x"; done | head -1)"
+        if [ "$(gcloud billing projects describe "$x" --format='value(billingEnabled)' 2>/dev/null || true)" = "True" ]; then echo "$x"; fi
+      done | head -1 || true)"
 fi
 [ -n "$P" ] || { echo "لم أجد مشروعاً مفوتراً؛ اكتب: bash setup.sh <PROJECT_ID>"; exit 1; }
 gcloud config set project "$P" -q
