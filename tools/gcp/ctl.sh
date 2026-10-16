@@ -392,6 +392,12 @@ v_status() {
   read -r api led mx b n <<< "$(v_costs)"
   read -r id st s e <<< "$(v_list | vj last)"
   echo "backend=vertex jobs=$n last_job=$id last_state=$st active_jobs=$(v_active_ids | grep -c . || true)"
+  [ "$id" != NONE ] && gc ai custom-jobs describe "$id" --region "$REGION" --format=json 2>/dev/null | python3 -c '
+import json, sys
+j = json.load(sys.stdin)
+print("job:", j.get("state"), "create", j.get("createTime"), "start", j.get("startTime"), "update", j.get("updateTime"))
+if j.get("error"): print("job.error:", j["error"].get("code"), str(j["error"].get("message", ""))[:300])' || true
+  gcloud storage cat "$GSB/startup.log" 2>/dev/null | tail -n 25 | sed 's/^/log| /' || true
   echo "active=$(gs_has "$GSB/active" && echo 1 || echo 0) done=$(gs_has "$GSB/done" && echo "$(gcloud storage cat "$GSB/done")" || echo 0)"
   echo "cost_api_usd=$api cost_ledger_usd=$led cost_effective_usd=$mx budget_usd=$b"
   gs_json "$GSB/vm_status.json" | python3 -c '
