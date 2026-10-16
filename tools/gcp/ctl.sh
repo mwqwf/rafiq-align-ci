@@ -323,6 +323,7 @@ v_submit() {
   awk -v h="$rem" 'BEGIN{exit !(h>0.05)}' || { err "لا ميزانية باقية (الكلفة \$$mx من \$$b)"; return 1; }
   secs=$(awk -v h="$rem" 'BEGIN{t=(h+0.25); if(t>24)t=24; printf "%d", t*3600}')
   strat=STANDARD; [ "$spot" = "True" ] || [ "$spot" = "true" ] && strat=SPOT
+  [ "$(echo "$c" | jget strategy auto)" = FLEX_START ] && strat=FLEX_START
   python3 - "$VERTEX_IMAGE" "$VERTEX_MACHINE" "$GSB/run" "$secs" "$strat" "$SA_EMAIL" > "$TMP/job.json" <<'PYEOF'
 import json, sys
 image, machine, run_uri, secs, strat, sa = sys.argv[1:7]
@@ -371,7 +372,7 @@ v_launch() {
 import json, os, sys, time
 rate, budget, machine, spot, start, project, expect, bucket = sys.argv[1:9]
 print(json.dumps({"backend": "vertex", "rate_usd_per_hour": float(rate), "budget_usd": float(budget), "machine_type": machine,
-                  "spot": spot == "true", "campaign_start": start, "region": os.environ.get("REGION", "us-central1"),
+                  "spot": spot == "true", "strategy": os.environ.get("STRATEGY", "auto"), "campaign_start": start, "region": os.environ.get("REGION", "us-central1"),
                   "launched": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime())}))
 with os.fdopen(3, "w") as f:
     json.dump({"bucket": bucket, "project": project, "expect_step": int(expect), "rate": float(rate), "budget_usd": float(budget),
