@@ -74,9 +74,15 @@ busy = {r["displayTitle"].split()[1].split("/")[0] for r in runs if r["status"] 
 #    (‏كانت كلُّ خطوةٍ تكلّف خمسَ تشغيلاتٍ تُتجاوز قبل أن تبدأ، فبلغ الطابورُ 60 والأسطولُ يُجري ستّاً).
 splice = json.loads(subprocess.run(
     ["gh", "run", "list", "-R", REPO, "-w", "ctc_splice.yml", "-L", "100",
-     "--json", "displayTitle,status"], capture_output=True, text=True).stdout or "[]")
+     "--json", "displayTitle,status,updatedAt"], capture_output=True, text=True).stdout or "[]")
+# ⭐ (2026-10-16 07:10Z) والفاصلُ بين خطوتين (‏حكمُ السماع ثمّ الخطوةُ التالية) يُبقي القارئَ مشغولاً:
+#    خطوةٌ انتهت قبل أقلَّ من 90 دقيقة تعني سلسلةً لم تنتهِ بعد. والمرشّحُ النهائيّ لا يجوع: من يبنيه
+#    يطلق ملوحَه بنفسه إن لم يطلقها السائق.
+import datetime as _dt
+_recent = (_dt.datetime.now(_dt.timezone.utc) - _dt.timedelta(minutes=90)).strftime("%Y-%m-%dT%H:%M:%SZ")
 busy |= {r["displayTitle"].split()[1].split("/")[-1].split(".")[0] for r in splice
-         if r["status"] != "completed" and len(r["displayTitle"].split()) > 1
+         if (r["status"] != "completed" or str(r.get("updatedAt", "")) >= _recent)
+         and len(r["displayTitle"].split()) > 1
          and r["displayTitle"].split()[1].startswith("timings-staging/")}
 for rid, o in latest.items():
     k = o["Key"]
