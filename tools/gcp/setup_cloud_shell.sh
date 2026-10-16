@@ -22,7 +22,12 @@ gcloud services enable aiplatform.googleapis.com texttospeech.googleapis.com com
 gcloud iam service-accounts describe "$SA" >/dev/null 2>&1 || \
   gcloud iam service-accounts create mushafak-ci --display-name="Mushafak CI"
 for R in roles/aiplatform.user roles/compute.admin roles/storage.admin roles/iam.serviceAccountUser; do
-  gcloud projects add-iam-policy-binding "$P" --member="serviceAccount:$SA" --role="$R" --condition=None -q >/dev/null
+  # الحساب الجديد يتأخر ظهوره في IAM دقيقة أحياناً ⇒ نعيد حتى 8 مرات
+  for i in 1 2 3 4 5 6 7 8; do
+    if gcloud projects add-iam-policy-binding "$P" --member="serviceAccount:$SA" --role="$R" --condition=None -q >/dev/null 2>&1; then break; fi
+    [ "$i" = 8 ] && { echo "تعذّر منح $R"; false; }
+    echo "أنتظر ظهور حساب الخدمة… ($i)"; sleep 15
+  done
 done
 gcloud iam workload-identity-pools describe github --location=global >/dev/null 2>&1 || \
   gcloud iam workload-identity-pools create github --location=global --display-name="GitHub"
@@ -33,7 +38,9 @@ gcloud iam workload-identity-pools providers describe gh --location=global --wor
     --attribute-condition="(assertion.repository=='mwqwf/rafiq-align-ci' || assertion.repository=='mwqwf/QuranRafiq') && assertion.ref=='refs/heads/main'"
 for REPO in mwqwf/rafiq-align-ci mwqwf/QuranRafiq; do
   gcloud iam service-accounts add-iam-policy-binding "$SA" --role=roles/iam.workloadIdentityUser \
-    --member="principalSet://iam.googleapis.com/projects/$N/locations/global/workloadIdentityPools/github/attribute.repository/$REPO" -q >/dev/null
+    --member="principalSet://iam.googleapis.com/projects/$N/locations/global/workloadIdentityPools/github/attribute.repository/$REPO" -q >/dev/null \
+    || { sleep 30; gcloud iam service-accounts add-iam-policy-binding "$SA" --role=roles/iam.workloadIdentityUser \
+    --member="principalSet://iam.googleapis.com/projects/$N/locations/global/workloadIdentityPools/github/attribute.repository/$REPO" -q >/dev/null; }
 done
 # حصة بطاقتين رسوميتين (L4×2 تطابق Kaggle) (قد تُقبل فوراً أو بعد مراجعة Google)
 gcloud beta quotas preferences create --service=compute.googleapis.com --quota-id=GPUS-ALL-REGIONS-per-project \
