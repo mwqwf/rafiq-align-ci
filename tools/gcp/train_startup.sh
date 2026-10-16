@@ -2,7 +2,7 @@
 # سكربت بدء تشغيل جهاز GCE (L4) لاستئناف شوط «مصحفك-1» الذي كان يجري على Kaggle.
 # يُمرَّر عبر metadata الجهاز (startup-script) ويُعاد تشغيله عند كل إقلاع (ومنه إقلاعُ ما بعد قطع الجهاز المتقطّع).
 # ما يشغّله هو الأمرُ نفسُه الذي يشغّله دفترُ Kaggle (cloud_run.py --local-state …) بوسائطه نفسِها.
-# إعداداتُه من metadata: kaggle-username · kaggle-key · resume-kernel · expect-step · max-hours · bucket
+# إعداداتُه من metadata: kaggle-token (رمز Kaggle الجديد KGAT) · resume-kernel · expect-step · max-hours · bucket
 # واختياريّاً: workers · data-tag · parts · grade · mirror-kernels · data-datasets · code-dataset.
 # ⛔ لا يطبع المفتاحَ في أيّ سجلّ (لا set -x ولا echo له).
 set -euo pipefail
@@ -37,8 +37,8 @@ GRADE=$(md_opt grade m1)
 MIRRORS=$(md_opt mirror-kernels cloudenarymarwano/mushafak1-d1-a,cloudenarymarwano/mushafak1-d1-b)
 DATASETS=$(md_opt data-datasets cloudenarymarwano/mushafak1-d2-delta)
 CODE_DS=$(md_opt code-dataset cloudenarymarwano/mushafak1-code)
-KAGGLE_USERNAME=$(md kaggle-username); KAGGLE_KEY=$(md kaggle-key)
-export KAGGLE_USERNAME KAGGLE_KEY
+KAGGLE_API_TOKEN=$(md kaggle-token)
+export KAGGLE_API_TOKEN
 [[ "$EXPECT_STEP" =~ ^[0-9]+$ ]] || { say "⛔ expect-step غير رقميّ"; exit 2; }
 [[ "$MAX_HOURS" =~ ^[0-9]+([.][0-9]+)?$ ]] || { say "⛔ max-hours غير رقميّ"; exit 2; }
 
@@ -158,7 +158,7 @@ nvidia-smi --query-gpu=name,memory.total --format=csv,noheader
 
 # ── الحزم (مثلُ دفتر Kaggle + ما تستورده الشيفرة) ──
 if [ ! -f "$BASE/.pip_ok" ]; then
-  "$PY" -m pip install -q kaggle soundfile boto3 onnx onnxruntime kaldi-native-fbank pyarrow requests cryptography
+  "$PY" -m pip install -q 'kaggle>=1.8' soundfile boto3 onnx onnxruntime kaldi-native-fbank pyarrow requests cryptography
   touch "$BASE/.pip_ok"
 fi
 
@@ -255,7 +255,7 @@ publish_status running || true
 REM_H=$(awk -v s="$(( BUDGET_S - $(used_now) ))" 'BEGIN{printf "%.3f", s/3600}')
 say "تشغيل cloud_run: max-hours=$REM_H workers=$WORKERS data=$DATA_TAG parts=$PARTS"
 set +e
-( cd "$CODE" && env -u R2_ACCESS_KEY_ID -u R2_SECRET_ACCESS_KEY -u KAGGLE_KEY -u KAGGLE_USERNAME M1_PLATFORM=gce \
+( cd "$CODE" && env -u R2_ACCESS_KEY_ID -u R2_SECRET_ACCESS_KEY -u KAGGLE_API_TOKEN M1_PLATFORM=gce \
     "$PY" -u tools/tasmi_model/cloud_run.py --grade "$GRADE" --work "$WORK" --local-state "$STATE" --inputs "$IN" \
     --max-hours "$REM_H" --workers "$WORKERS" --stall-minutes 20 --data-tag "$DATA_TAG" --parts "$PARTS" \
     --expect-step "$EXPECT_STEP" )
