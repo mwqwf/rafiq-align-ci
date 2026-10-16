@@ -1,0 +1,71 @@
+# صورُ المصحف المصوَّر عاليةُ الدقة (HD) وحزمُ الأجزاء — توليدٌ ورفعٌ إلى R2.
+# المستودع عام فدقائقه مجانية؛ بلا artifacts ولا cache. الأداة لا تحذف شيئاً من الدلو أبداً،
+# ولا ترفع ما هو موجودٌ بحجمه، وترفض الرفع إن قلّت الصفحات عن 604 أو صغرت صفحةٌ أو اختلفت نسبةُ الأبعاد عن العاديّة.
+name: mushaf_assets
+
+on:
+  workflow_dispatch:
+    inputs:
+      riwaya:
+        description: "hafs أو warsh أو qalun أو all"
+        default: "hafs"
+      kind:
+        description: "hd أو juz"
+        default: "hd"
+      dry_run:
+        description: "true = توليدٌ وتحقّقٌ بلا رفع"
+        default: "true"
+      quality:
+        description: "جودة WebP للنسخة HD"
+        default: "70"
+      reason:
+        description: "السبب"
+        default: ""
+
+permissions:
+  contents: read
+
+concurrency:
+  group: mushaf_assets
+  cancel-in-progress: false
+
+jobs:
+  assets:
+    runs-on: ubuntu-latest
+    timeout-minutes: 300
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: العدّة
+        run: pip install -q boto3 pymupdf pillow
+      - name: اختبار حزم الأجزاء
+        run: |
+          set -euo pipefail
+          python3 -m unittest discover -s tools/mushaf_assets -p 'test_*.py'
+      - name: بيانة R2 (من السرّ الواحد)
+        env:
+          R2_CREDENTIALS_JSON: ${{ secrets.R2_CREDENTIALS_JSON }}
+        run: |
+          set -euo pipefail
+          [ -n "$R2_CREDENTIALS_JSON" ] || { echo "⛔ لا سرّ R2"; exit 1; }
+          python3 - <<'PY'
+          import json, os
+          c = json.loads(os.environ["R2_CREDENTIALS_JSON"])
+          env = open(os.environ["GITHUB_ENV"], "a")
+          for k, v in (("R2_ENDPOINT", c["endpoint"]), ("R2_ACCESS_KEY_ID", c["accessKeyId"]),
+                       ("R2_SECRET_ACCESS_KEY", c["secretAccessKey"]), ("R2_BUCKET", c["bucket"])):
+              print("::add-mask::" + v); env.write(k + "=" + v + chr(10))
+          env.close()
+          PY
+      - name: التوليد والتحقق والرفع
+        env:
+          IN_RIWAYA: ${{ inputs.riwaya }}
+          IN_KIND: ${{ inputs.kind }}
+          IN_DRY: ${{ inputs.dry_run }}
+          IN_Q: ${{ inputs.quality }}
+        run: |
+          set -euo pipefail
+          python3 tools/mushaf_assets/run_assets.py --riwaya "$IN_RIWAYA" --kind "$IN_KIND" \
+            --dry-run "$IN_DRY" --quality "$IN_Q" 2>&1 | tee "$RUNNER_TEMP/assets.log"
