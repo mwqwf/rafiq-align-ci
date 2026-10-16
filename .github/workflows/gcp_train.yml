@@ -1,50 +1,55 @@
-# إطلاقُ استئناف تدريب «مصحفك-1» على جهاز GCE ببطاقة L4 (رصيد Google Cloud للمالك).
-# ⛔ السيرُ يُنشئ الجهازَ ثمّ ينتهي في دقائق؛ التدريبُ نفسُه يجري على الجهاز (tools/gcp/train_startup.sh)
-# ويُطفئ الجهازُ نفسَه. المستودعُ خاصٌّ ودقائقُه مدفوعة فلا انتظارَ للتدريب هنا.
-# ⛔ لا يُطلَق إلا والدفتران على Kaggle ليسا RUNNING/QUEUED (لا منصّتان على نقطةٍ واحدة).
+# حملة تدريب «مصحفك-1» (L4×2) بسقف إنفاقٍ صارم ثم حذفُ كلّ ما يكلّف. المسارُ الافتراضيّ Vertex AI CustomJob (حصةُ GPU لـGCE رُفضت)، ومسارُ GCE باقٍ.
+# المستودعُ عامٌّ فدقائقُ هذا السير مجانيّة؛ التدريبُ نفسُه يجري على الجهاز (tools/gcp/train_startup.sh).
+# لا Kaggle ولا مفاتيح دائمة: OIDC من main فقط، والمرحلةُ من R2 بروابط موقّعة (7 أيام) تُمرَّر في metadata.
+# الأفعال: launch · status · export · teardown (يدويّاً) · watch (كلَّ 30 د: يعيد التشغيلَ بعد قطع spot ويؤكّد الحذف).
 name: gcp-train
 
 on:
   workflow_dispatch:
     inputs:
-      project_id:
-        description: "معرّف مشروع Google Cloud"
+      action:
+        description: "launch | status | export | teardown | watch"
         required: true
-        type: string
-      project_number:
-        description: "رقم المشروع (لمزوّد الهوية)"
-        required: true
-        type: string
-      resume_kernel:
-        description: "دفترُ Kaggle الذي يُستأنف من مخرَجه"
-        required: true
-        default: cloudenarymarwano/mushafak1-m1-b
-        type: string
+        default: status
+        type: choice
+        options: [launch, status, export, teardown, watch]
       expect_step:
-        description: "أدنى خطوةِ استئنافٍ مقبولة (دونها يسقط الجهاز قبل التدريب)"
-        required: true
-        default: "51571"
+        description: "أدنى خطوةِ استئنافٍ مقبولة (مطلوب لـ launch)"
+        required: false
         type: string
-      max_hours:
-        description: "سقفُ ساعات الشوط الكلّيّة (تراكميّةٌ عبر قطعِ الجهاز المتقطّع)"
-        required: true
-        default: "11"
+      backend:
+        description: "مسار التنفيذ: vertex (CustomJob، الافتراضيّ) | gce (جهاز). غير launch يُقرأ من الدفتر campaign.json"
+        required: false
+        default: vertex
+        type: choice
+        options: [vertex, gce]
+      budget_usd:
+        description: "سقف الإنفاق بالدولار"
+        required: false
+        default: "270"
+        type: string
+      rate_usd_per_hour:
+        description: "سعر الساعة المحاسَب به (فارغ: vertex spot 2.15 / عند الطلب 2.65؛ gce spot 1.81 / عند الطلب 2.01)"
+        required: false
+        default: ""
         type: string
       spot:
-        description: "جهازٌ متقطّع (أرخص؛ قد يُقطع ويُستأنف من الدلو)"
-        required: true
+        description: "متقطّع (spot)"
+        required: false
         default: true
         type: boolean
       zone:
-        description: "المنطقة"
-        required: true
+        description: "المنطقة (gce فقط؛ vertex دائماً us-central1)"
+        required: false
         default: us-central1-a
         type: string
       machine_type:
-        description: "g2-standard-8 = L4 واحدة · g2-standard-24 = L4 اثنتان (تطابق T4×2 في الدفتر)"
-        required: true
+        description: "g2-standard-24 = L4×2 (يطابق ddp:2)"
+        required: false
         default: g2-standard-24
         type: string
+  schedule:
+    - cron: "*/30 * * * *"
 
 permissions:
   id-token: write
@@ -55,108 +60,49 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
-  launch:
+  run:
+    # OIDC لا يُقبل إلا من main
+    if: github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
-    timeout-minutes: 15
+    timeout-minutes: 45
     env:
-      PROJECT_ID: ${{ inputs.project_id }}
-      PROJECT_NUMBER: ${{ inputs.project_number }}
-      RESUME_KERNEL: ${{ inputs.resume_kernel }}
-      EXPECT_STEP: ${{ inputs.expect_step }}
-      MAX_HOURS: ${{ inputs.max_hours }}
-      SPOT: ${{ inputs.spot }}
-      ZONE: ${{ inputs.zone }}
-      MACHINE_TYPE: ${{ inputs.machine_type }}
+      ACTION: ${{ inputs.action || 'watch' }}
+      PROJECT_ID: black-network-509205-h7
+      PROJECT_NUMBER: "506422438705"
       INSTANCE: mushafak1-train
+      BACKEND: ${{ inputs.backend || 'vertex' }}
+      REGION: us-central1
+      ZONE: ${{ inputs.zone || 'us-central1-a' }}
+      MACHINE_TYPE: ${{ inputs.machine_type || 'g2-standard-24' }}
+      SPOT: ${{ github.event_name == 'schedule' && 'true' || inputs.spot }}
+      EXPECT_STEP: ${{ inputs.expect_step }}
+      BUDGET_USD: ${{ inputs.budget_usd || '270' }}
+      RATE_USD_PER_HOUR: ${{ inputs.rate_usd_per_hour }}
+      CLOUDSDK_CORE_DISABLE_PROMPTS: "1"
     steps:
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
 
-      - name: فحص المدخلات
-        run: |
-          set -euo pipefail
-          [[ "$PROJECT_ID" =~ ^[a-z][a-z0-9-]{4,28}[a-z0-9]$ ]] || { echo "::error::project_id غير صالح"; exit 1; }
-          [[ "$PROJECT_NUMBER" =~ ^[0-9]+$ ]] || { echo "::error::project_number غير رقميّ"; exit 1; }
-          [[ "$EXPECT_STEP" =~ ^[0-9]+$ ]] || { echo "::error::expect_step غير رقميّ"; exit 1; }
-          [[ "$MAX_HOURS" =~ ^[0-9]+([.][0-9]+)?$ ]] || { echo "::error::max_hours غير رقميّ"; exit 1; }
-          [[ "$RESUME_KERNEL" =~ ^[A-Za-z0-9_-]+/[A-Za-z0-9_-]+$ ]] || { echo "::error::resume_kernel غير صالح"; exit 1; }
-          [[ "$ZONE" =~ ^[a-z]+-[a-z]+[0-9]+-[a-z]$ ]] || { echo "::error::zone غير صالحة"; exit 1; }
-          [[ "$MACHINE_TYPE" =~ ^g2-standard-[0-9]+$ ]] || { echo "::error::machine_type يجب أن يكون من عائلة g2-standard"; exit 1; }
-
-      # ⛔ لا منصّتان على نقطةٍ واحدة: يُرفض الإطلاقُ إن كان أيّ دفتر GPU على Kaggle قيد العمل
-      - name: حارس Kaggle (m1-a وm1-b)
-        env:
-          KAGGLE_API_TOKEN: ${{ secrets.KAGGLE_API_TOKEN }}
-        run: |
-          set -euo pipefail
-          [ -n "$KAGGLE_API_TOKEN" ] || { echo "::error::السرّ KAGGLE_API_TOKEN غائب في المستودع"; exit 1; }
-          pip install -q 'kaggle>=1.8'
-          for slug in cloudenarymarwano/mushafak1-m1-a cloudenarymarwano/mushafak1-m1-b; do
-            out=$(kaggle kernels status "$slug" 2>&1) || { echo "::error::تعذّر قراءة حالة $slug فلا إطلاق"; exit 1; }
-            echo "$slug: $out"
-            if echo "$out" | grep -Eqi 'RUNNING|QUEUED'; then
-              echo "::error::$slug قيد العمل على Kaggle — لا يُطلق جهازُ GCE"; exit 1
-            fi
-          done
-
       - uses: google-github-actions/auth@v2.1.10
         with:
-          project_id: ${{ inputs.project_id }}
-          workload_identity_provider: projects/${{ inputs.project_number }}/locations/global/workloadIdentityPools/github/providers/github-oidc
-          service_account: mushafak-ci@${{ inputs.project_id }}.iam.gserviceaccount.com
+          project_id: black-network-509205-h7
+          workload_identity_provider: projects/506422438705/locations/global/workloadIdentityPools/github/providers/github-oidc
+          service_account: mushafak-ci@black-network-509205-h7.iam.gserviceaccount.com
 
-      # ⛔ لا جهازَ ثانياً (يحرق الرصيدَ ويكتب فوق النقطة نفسها)
-      - name: حارس الجهاز القائم
-        run: |
-          set -euo pipefail
-          cur=$(gcloud compute instances list --project "$PROJECT_ID" --filter="name=$INSTANCE" --format='value(name,zone.basename(),status)')
-          if [ -n "$cur" ]; then
-            echo "::error::الجهاز $INSTANCE قائمٌ ($cur). إن كان TERMINATED فاستأنفه بـ gcloud compute instances start، وإلّا فاحذفه ثمّ أعد الإطلاق."
-            exit 1
-          fi
-
-      - name: الدلو
-        run: |
-          set -euo pipefail
-          B="gs://${PROJECT_ID}-mushafak1"
-          if gcloud storage buckets describe "$B" --project "$PROJECT_ID" >/dev/null 2>&1; then
-            echo "الدلو $B قائم"
-          else
-            gcloud storage buckets create "$B" --project "$PROJECT_ID" --location=us-central1 --uniform-bucket-level-access
-          fi
-
-      # عائلةُ صورة Deep Learning VM (PyTorch + CUDA) تُحلّ وقتَ التشغيل من الموجود فعلاً لا من ذاكرة
-      - name: اختيار صورة PyTorch
-        run: |
-          set -euo pipefail
-          fam=$(gcloud compute images list --project deeplearning-platform-release --no-standard-images \
-            --filter='family~"^pytorch-[0-9-]+-cu[0-9]+-ubuntu-[0-9]+-nvidia-[0-9]+$" AND NOT deprecated.state:*' \
-            --sort-by=~creationTimestamp --limit=1 --format='value(family)')
-          [ -n "$fam" ] || { echo "::error::لا عائلةَ صورة pytorch+cuda مناسبة"; exit 1; }
-          echo "IMAGE_FAMILY=$fam" >> "$GITHUB_ENV"
-          echo "الصورة: $fam"
-
-      - name: إنشاء الجهاز
+      - name: اعتماد R2 (للفعلَين launch وexport وteardown)
+        if: env.ACTION == 'launch' || env.ACTION == 'export' || env.ACTION == 'teardown'
         env:
-          KAGGLE_API_TOKEN: ${{ secrets.KAGGLE_API_TOKEN }}
+          R2_CREDENTIALS_JSON: ${{ secrets.R2_CREDENTIALS_JSON }}
         run: |
           set -euo pipefail
           umask 077
-          # الأسرارُ في ملفاتٍ مؤقّتة لا في سطر الأوامر
-          printf '%s' "$KAGGLE_API_TOKEN" > "$RUNNER_TEMP/kt"
-          # سقفُ الجهاز = ساعات الشوط + ساعة أمان (طبقةٌ ثالثة فوق مهلة السكربت وإطفائه الذاتيّ)
-          secs=$(awk -v h="$MAX_HOURS" 'BEGIN{printf "%d", (h+1)*3600}')
-          prov=STANDARD; [ "$SPOT" = "true" ] && prov=SPOT
-          gcloud compute instances create "$INSTANCE" \
-            --project "$PROJECT_ID" --zone "$ZONE" \
-            --machine-type "$MACHINE_TYPE" \
-            --image-family "$IMAGE_FAMILY" --image-project deeplearning-platform-release \
-            --boot-disk-size 200GB --boot-disk-type pd-balanced \
-            --maintenance-policy TERMINATE --no-restart-on-failure \
-            --provisioning-model "$prov" --instance-termination-action STOP \
-            --max-run-duration "${secs}s" \
-            --service-account "mushafak-ci@${PROJECT_ID}.iam.gserviceaccount.com" --scopes cloud-platform \
-            --labels app=mushafak1 \
-            --metadata "install-nvidia-driver=True,resume-kernel=${RESUME_KERNEL},expect-step=${EXPECT_STEP},max-hours=${MAX_HOURS},bucket=${PROJECT_ID}-mushafak1" \
-            --metadata-from-file "startup-script=tools/gcp/train_startup.sh,kaggle-token=$RUNNER_TEMP/kt"
-          rm -f "$RUNNER_TEMP/ku" "$RUNNER_TEMP/kk"
-          echo "أُنشئ $INSTANCE. الحالة: gs://${PROJECT_ID}-mushafak1/m1/status.json · السجل: gcloud compute instances get-serial-port-output $INSTANCE --zone $ZONE"
+          mkdir -p secure
+          printf '%s' "$R2_CREDENTIALS_JSON" > secure/r2_credentials.json
+
+      - name: تنفيذ الفعل
+        run: |
+          set -euo pipefail
+          bash tools/gcp/ctl.sh "$ACTION"
+
+      - name: إزالة الاعتماد
+        if: always()
+        run: rm -f secure/r2_credentials.json "$RUNNER_TEMP"/stage_urls.json
