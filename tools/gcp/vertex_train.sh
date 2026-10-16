@@ -37,6 +37,8 @@ ensure_gcloud() {
 ensure_gcloud || { say "⛔ تعذّر توفير gcloud"; exit 3; }
 CFG=$BASE/config.json
 gcloud storage cp -q "$RUN_URI/config.json" "$CFG" || { say "⛔ لا config.json في الدلو"; exit 2; }
+# السجلُّ إلى الدلو كلَّ دقيقتين من أوّل لحظة (التحضيرُ قبل النبضة قد يطول أو يتعثّر بصمت)
+( while sleep 120; do gcloud storage cp -q "$LOG" "${RUN_URI%/run}/startup.log" >/dev/null 2>&1 || true; done ) &
 cfg() { python3 -c 'import json,sys;v=json.load(open(sys.argv[1])).get(sys.argv[2]);print(sys.argv[3] if v is None else v)' "$CFG" "$1" "${2:-}"; }
 PROJECT=$(cfg project "")
 [ -z "$PROJECT" ] || export CLOUDSDK_CORE_PROJECT=$PROJECT

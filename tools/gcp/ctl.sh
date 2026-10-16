@@ -267,6 +267,8 @@ elif mode == "cost":
     secs = 0.0
     for j in jobs:
         if t(j.get("createTime", "")) < start or not j.get("startTime"): continue
+        # Vertex يضع startTime لحظةَ القبول ولو بقيت المهمة تنتظر السعة؛ والانتظارُ لا يُحاسَب
+        if j.get("state") in ("JOB_STATE_PENDING", "JOB_STATE_QUEUED"): continue
         end = t(j["endTime"]) if j.get("endTime") else now
         secs += max(0.0, end - t(j["startTime"]))
     print(f"{secs / 3600 * rate:.2f} {len(jobs)}")
@@ -392,6 +394,12 @@ v_status() {
   read -r api led mx b n <<< "$(v_costs)"
   read -r id st s e <<< "$(v_list | vj last)"
   echo "backend=vertex jobs=$n last_job=$id last_state=$st active_jobs=$(v_active_ids | grep -c . || true)"
+  [ "$id" != NONE ] && gc ai custom-jobs describe "$id" --region "$REGION" --format=json 2>/dev/null | python3 -c '
+import json, sys
+j = json.load(sys.stdin)
+print("job:", j.get("state"), "create", j.get("createTime"), "start", j.get("startTime"), "update", j.get("updateTime"))
+if j.get("error"): print("job.error:", j["error"].get("code"), str(j["error"].get("message", ""))[:300])' || true
+  gcloud storage cat "$GSB/startup.log" 2>/dev/null | tail -n 25 | sed 's/^/log| /' || true
   echo "active=$(gs_has "$GSB/active" && echo 1 || echo 0) done=$(gs_has "$GSB/done" && echo "$(gcloud storage cat "$GSB/done")" || echo 0)"
   echo "cost_api_usd=$api cost_ledger_usd=$led cost_effective_usd=$mx budget_usd=$b"
   gs_json "$GSB/vm_status.json" | python3 -c '
@@ -472,6 +480,8 @@ cmd_watch()  { if [ "$BACKEND" = vertex ]; then v_watch; else gce_watch; fi; }
 
 resolve_backend "${1:-}"
 case "${1:?الفعل}" in
-  launch) cmd_launch ;; status) cmd_status ;; export) cmd_export ;; teardown) cmd_teardown ;; watch) cmd_watch ;;
+  launch) cmd_launch ;;
+  relaunch) [ "$BACKEND" = vertex ] || { err "relaunch لـvertex وحده"; exit 1; }; v_cancel_active; cmd_launch ;;
+  status) cmd_status ;; export) cmd_export ;; teardown) cmd_teardown ;; watch) cmd_watch ;;
   *) err "فعلٌ مجهول: $1"; exit 1 ;;
 esac
