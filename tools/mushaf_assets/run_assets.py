@@ -171,8 +171,8 @@ def avif_guards(riwaya, d, names):
         g2 = np.asarray(pub.convert("L")).astype(float)
         s = float(ssim(g1, g2, data_range=255))
         ca, cp = ink_count(g1), ink_count(g2)
-        cr = int(open(os.path.join(d, n + ".ink")).read())
-        return n, "ok", s, ca, (cp, cr)
+        cr, vanished = (int(v) for v in open(os.path.join(d, n + ".ink")).read().split())
+        return n, "ok", s, ca, (cp, cr, vanished)
 
     rows = []
     with futures.ThreadPoolExecutor(max_workers=os.cpu_count() or 2) as pool:
@@ -183,15 +183,20 @@ def avif_guards(riwaya, d, names):
     low = [(n, round(s, 5)) for n, _, s, _, _ in rows if s < 0.99]
     if low:
         raise SystemExit("❌ [%s] SSIM < 0.99 في %d صفحة: %s" % (riwaya, len(low), low[:10]))
-    lost = [(n, ca, cp, cr) for n, _, _, ca, (cp, cr) in rows if ca < min(cp, cr)]
+    # عدُّ المكوّنات عند عتبة 128 ضجيجيّ ±1..4 من ≈1000 في الاتجاهين (دمجُ/فصلُ نُقَطٍ متجاورة) فلا يصلح شرطاً صارماً؛
+    # فالشرطُ الحاكم: لا يضيع أيُّ مكوّنِ حبرٍ من المصدر (vanished==0)، ومعه عدّ AVIF ≥ 99% من المنشورة.
+    lost = [(n, v) for n, _, _, ca, (cp, cr, v) in rows if v > 0]
     if lost:
-        raise SystemExit("❌ [%s] فقدُ حبرٍ (مكوّنات أقل من المنشورة والمصدر معاً) في %d صفحة: %s" % (riwaya, len(lost), lost[:10]))
-    below_pub = [(n, ca, cp) for n, _, _, ca, (cp, cr) in rows if ca < cp]
+        raise SystemExit("❌ [%s] ضاعت مكوّناتُ حبرٍ في %d صفحة: %s" % (riwaya, len(lost), lost[:10]))
+    thin = [(n, ca, cp) for n, _, _, ca, (cp, cr, v) in rows if ca < 0.99 * cp]
+    if thin:
+        raise SystemExit("❌ [%s] عدّ الحبر دون 99%% من المنشورة في %d صفحة: %s" % (riwaya, len(thin), thin[:10]))
+    below_pub = [(n, ca, cp) for n, _, _, ca, (cp, cr, v) in rows if ca < cp]
     worst = min(rows, key=lambda r: r[2])
     mean = sum(r[2] for r in rows) / len(rows)
-    worst_ink = min(rows, key=lambda r: r[3] - r[4][0])
+    worst_ink = min(rows, key=lambda r: r[3] / max(r[4][0], 1))
     print("[%s] حرّاس AVIF: %d صفحة · أدنى SSIM %.5f (الصفحة %s) · متوسطه %.5f · أبعاد مطابقة 604/604 · "
-          "حبر ≥ المصدر 604/604 · أنقص من المنشورة بضجيجها %d صفحة · أسوأ فرق حبر %s (%d مقابل %d منشورة)" %
+          "مكوّنات حبر ضائعة من المصدر 0 في 604/604 · عدٌّ أنقص من المنشورة بضجيجها %d صفحة · أسوأ فرق حبر %s (%d مقابل %d منشورة)" %
           (riwaya, len(rows), worst[2], worst[0][:3], mean, len(below_pub), worst_ink[0][:3],
            worst_ink[3], worst_ink[4][0]), flush=True)
     return worst[2], worst[0], len(below_pub)

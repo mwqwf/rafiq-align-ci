@@ -156,13 +156,17 @@ def render(args):
         k = width / 1000
         img = img.crop(tuple(int(round(v * k)) for v in crop))
     if fmt == "avif":
-        # عدّ مكوّنات الحبر (g<128، اتصال 8) في المصدر قبل الترميز — مرجعٌ لحارس فقد النقاط والحركات.
+        # حارس فقد الحبر: كلُّ مكوّنٍ حبريٍّ في المصدر المصيَّر (g<128، اتصال 8) يجب أن يبقى في AVIF المفكوك
+        # فيه بكسلُ حبرٍ واحدٌ على الأقل (وإلا ضاعت نقطةٌ أو حركة). يُكتب "عدد مكوّنات المصدر الضائعة".
         import numpy as np
         from scipy import ndimage as ndi
-        g = np.asarray(img.convert("L"))
-        with open(dest + ".ink", "w") as f:
-            f.write(str(int(ndi.label(g < 128, structure=np.ones((3, 3)))[1])))
         img.save(dest, "AVIF", quality=quality, speed=6)
+        g = np.asarray(img.convert("L"))
+        ga = np.asarray(Image.open(dest).convert("L"))
+        lab, cnt = ndi.label(g < 128, structure=np.ones((3, 3)))
+        alive = np.unique(lab[(ga < 128) & (lab > 0)])
+        with open(dest + ".ink", "w") as f:
+            f.write("%d %d" % (cnt, cnt - len(alive)))
     else:
         img.save(dest, "WEBP", quality=quality, method=6)
     doc.close()
