@@ -156,13 +156,22 @@ def render(args):
         k = width / 1000
         img = img.crop(tuple(int(round(v * k)) for v in crop))
     if fmt == "avif":
-        # عدّ مكوّنات الحبر (g<128، اتصال 8) في المصدر قبل الترميز — مرجعٌ لحارس فقد النقاط والحركات.
+        # حارس فقد الحبر: كلُّ مكوّنٍ حبريٍّ في المصدر المصيَّر (g<128، اتصال 8) يجب أن يبقى في AVIF المفكوك
+        # فيه بكسلُ حبرٍ واحدٌ على الأقل (وإلا ضاعت نقطةٌ أو حركة). يُكتب "عدد مكوّنات المصدر الضائعة".
         import numpy as np
         from scipy import ndimage as ndi
-        g = np.asarray(img.convert("L"))
-        with open(dest + ".ink", "w") as f:
-            f.write(str(int(ndi.label(g < 128, structure=np.ones((3, 3)))[1])))
         img.save(dest, "AVIF", quality=quality, speed=6)
+        g = np.asarray(img.convert("L"))
+        ga = np.asarray(Image.open(dest).convert("L"))
+        lab, cnt = ndi.label(g < 128, structure=np.ones((3, 3)))
+        # المكوّن الضائع: ما لا بكسلَ حبرٍ (<140، هامشُ ترميزٍ فوق العتبة) له في AVIF؛ ولا يُعدّ ضياعاً
+        # بكسلٌ وحيدٌ حدّيٌّ (قيمتُه الدنيا ≥100) لأنه ضجيجُ تنعيمٍ لا نقطةٌ ولا حركة.
+        alive = set(np.unique(lab[(ga < 140) & (lab > 0)]).tolist())
+        mins = ndi.minimum(g, lab, range(1, cnt + 1))
+        sizes = ndi.sum(np.ones_like(g), lab, range(1, cnt + 1))
+        gone = sum(1 for i in range(1, cnt + 1) if i not in alive and (sizes[i - 1] >= 2 or mins[i - 1] < 100))
+        with open(dest + ".ink", "w") as f:
+            f.write("%d %d" % (cnt, gone))
     else:
         img.save(dest, "WEBP", quality=quality, method=6)
     doc.close()
