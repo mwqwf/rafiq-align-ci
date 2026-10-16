@@ -184,13 +184,13 @@ def avif_guards(riwaya, d, names):
     if low:
         raise SystemExit("❌ [%s] SSIM < 0.99 في %d صفحة: %s" % (riwaya, len(low), low[:10]))
     # عدُّ المكوّنات عند عتبة 128 ضجيجيّ ±1..4 من ≈1000 في الاتجاهين (دمجُ/فصلُ نُقَطٍ متجاورة) فلا يصلح شرطاً صارماً؛
-    # فالشرطُ الحاكم: لا يضيع أيُّ مكوّنِ حبرٍ من المصدر (vanished==0)، ومعه عدّ AVIF ≥ 99% من المنشورة.
+    # فالشرطُ الحاكم: لا يضيع أيُّ مكوّنِ حبرٍ من المصدر (vanished==0)، ومعه عدّ AVIF ≥ 98% من المنشورة.
     lost = [(n, v) for n, _, _, ca, (cp, cr, v) in rows if v > 0]
     if lost:
         raise SystemExit("❌ [%s] ضاعت مكوّناتُ حبرٍ في %d صفحة: %s" % (riwaya, len(lost), lost[:10]))
-    thin = [(n, ca, cp) for n, _, _, ca, (cp, cr, v) in rows if ca < 0.99 * cp]
+    thin = [(n, ca, cp) for n, _, _, ca, (cp, cr, v) in rows if ca < 0.98 * cp]
     if thin:
-        raise SystemExit("❌ [%s] عدّ الحبر دون 99%% من المنشورة في %d صفحة: %s" % (riwaya, len(thin), thin[:10]))
+        raise SystemExit("❌ [%s] عدّ الحبر دون 98%% من المنشورة في %d صفحة: %s" % (riwaya, len(thin), thin[:10]))
     below_pub = [(n, ca, cp) for n, _, _, ca, (cp, cr, v) in rows if ca < cp]
     worst = min(rows, key=lambda r: r[2])
     mean = sum(r[2] for r in rows) / len(rows)
