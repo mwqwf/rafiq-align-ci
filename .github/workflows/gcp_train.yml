@@ -33,6 +33,12 @@ on:
         required: false
         default: ""
         type: string
+      strategy:
+        description: "جدولة Vertex: auto (من spot) | FLEX_START (Dynamic Workload Scheduler لشحّ السعة، بحصة المتقطّعة)"
+        required: false
+        default: auto
+        type: choice
+        options: [auto, FLEX_START]
       spot:
         description: "متقطّع (spot)"
         required: false
@@ -74,6 +80,7 @@ jobs:
       REGION: us-central1
       ZONE: ${{ inputs.zone || 'us-central1-a' }}
       MACHINE_TYPE: ${{ inputs.machine_type || 'g2-standard-24' }}
+      STRATEGY: ${{ inputs.strategy || 'auto' }}
       SPOT: ${{ github.event_name == 'schedule' && 'true' || inputs.spot }}
       EXPECT_STEP: ${{ inputs.expect_step }}
       BUDGET_USD: ${{ inputs.budget_usd || '270' }}
