@@ -1,6 +1,6 @@
 # إعداد مشروع Google Cloud لمصحفك — يُلصق كاملاً في Cloud Shell مرة واحدة (2026-10-16)
 # ينشئ حساب خدمة بلا مفاتيح، ويربطه بـGitHub Actions عبر OIDC (لا سرّ يُنسخ)،
-# ويفعّل الواجهات اللازمة، ويطلب حصة بطاقة L4 واحدة، ويضع تنبيه ميزانية عند 300$.
+# ويفعّل الواجهات اللازمة، ويطلب حصة بطاقتي L4، ويضع تنبيه ميزانية عند 300$.
 set -euo pipefail
 P="${1:-$(gcloud config get-value project 2>/dev/null)}"
 if [ -z "$P" ]; then
@@ -32,9 +32,9 @@ for REPO in mwqwf/rafiq-align-ci mwqwf/QuranRafiq; do
   gcloud iam service-accounts add-iam-policy-binding "$SA" --role=roles/iam.workloadIdentityUser \
     --member="principalSet://iam.googleapis.com/projects/$N/locations/global/workloadIdentityPools/github/attribute.repository/$REPO" -q >/dev/null
 done
-# حصة بطاقة رسومية واحدة (قد تُقبل فوراً أو بعد مراجعة Google)
+# حصة بطاقتين رسوميتين (L4×2 تطابق Kaggle) (قد تُقبل فوراً أو بعد مراجعة Google)
 gcloud beta quotas preferences create --service=compute.googleapis.com --quota-id=GPUS-ALL-REGIONS-per-project \
-  --preferred-value=1 --project="$P" --justification="Training an on-device Quran recitation model" -q 2>/dev/null || \
+  --preferred-value=2 --project="$P" --justification="Training an on-device Quran recitation model" -q 2>/dev/null || \
   echo "تعذّر طلب الحصة آلياً؛ سأطلبها من جهتي"
 # تنبيه ميزانية (التنبيه لا يوقف الإنفاق؛ حارس الإطفاء عندنا)
 BA="$(gcloud billing projects describe "$P" --format='value(billingAccountName)' | sed 's#billingAccounts/##')"
