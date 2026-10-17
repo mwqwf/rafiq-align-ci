@@ -284,9 +284,13 @@ for i in $(seq 1 90); do nvidia-smi -L >/dev/null 2>&1 && break; [ "$i" = 90 ] &
 nvidia-smi --query-gpu=name,memory.total --format=csv,noheader
 
 if [ ! -f "$BASE/.pip_ok" ]; then
-  "$PY" -m pip install -q soundfile boto3 onnx onnxruntime kaldi-native-fbank pyarrow requests cryptography
+  # -U: pyarrow الصورةِ مبنيٌّ على numpy 1 وتثبيتُ torch يرفع numpy إلى 2 ⇒ «_ARRAY_API not found» (سقط به شوط 10-16)
+  "$PY" -m pip install -q -U soundfile boto3 onnx onnxruntime kaldi-native-fbank pyarrow requests cryptography
   touch "$BASE/.pip_ok"
 fi
+# فحصُ استيرادِ ما يحمّله عمّالُ البيانات قبل أيّ تنزيل: الخطأ هنا مجّانيّ، وفي الشوط يضيع وقتَ البطاقات
+"$PY" -c 'import numpy, pyarrow, pyarrow.parquet, soundfile, kaldi_native_fbank, onnxruntime; print("numpy", numpy.__version__, "pyarrow", pyarrow.__version__)' \
+  || { say "⛔ مكتباتُ البيانات لا تُستورد"; OUTCOME=failed; exit 3; }
 
 # ── المرحلة: تنزيلٌ مرّةً واحدة بتحقّق sha256 ثمّ نسخٌ إلى الدلو (تبقى بعد انتهاء الروابط) ──
 if [ ! -f "$BASE/.stage_ok" ]; then
@@ -395,6 +399,11 @@ else
     stopped) OUTCOME=stopped ;;
     *)       OUTCOME=budget_stop ;;     # paused: انتهى وقتُ الميزانيّة المحسوب
   esac
+  # cloud_run يسمّي سقوطَ train.py «PAUSED» ويخرج 0؛ فإن لم تتقدّم النقطةُ والميزانيّةُ باقيةٌ فهو إخفاقٌ لا سقف
+  if [ "$OUTCOME" = budget_stop ] && ! over_budget "$(cost_of "$(ledger_s)")" \
+     && [ "$(step_of "$CK/last.pt")" -le "$START_STEP" ]; then
+    say "⛔ لم تتقدّم النقطة عن $START_STEP والميزانيّةُ باقية ⇒ إخفاق"; OUTCOME=failed
+  fi
 fi
 rm -f "$BASE/train.pid"
 exit 0
