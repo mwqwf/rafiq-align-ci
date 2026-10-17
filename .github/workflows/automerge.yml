@@ -12,7 +12,8 @@ run-name: دمج تلقائي لطلبات claude/ (${{ github.event_name }})
 
 on:
   schedule:
-    - cron: '*/10 * * * *'
+    # دقائقُ بعيدةٌ عن رأس الساعة: GitHub يُسقط الجداول المزدحمة عند :00
+    - cron: '3-59/10 * * * *'
   workflow_dispatch:
 
 concurrency:
