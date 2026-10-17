@@ -133,7 +133,11 @@ def process_repo(token, repo, dry, min_age, now, log):
         except AuthError:
             raise
         except urllib.error.HTTPError as e:
-            log("%s#%d: خطأ HTTP %s — تُخطّي" % (repo, n, e.code))
+            # نوعُ النداء المرفوض يدلّ على الإذن الناقص في التوكن (بلا كشف مسارٍ أو اسمِ فحص)
+            u = (getattr(e, "url", "") or "").split("?")[0]
+            kind = next((k for k in ("check-runs", "actions/runs", "/status", "/files", "/merge", "/commits/", "/pulls/")
+                         if k in u), "?")
+            log("%s#%d: خطأ HTTP %s في %s — تُخطّي" % (repo, n, e.code, kind.strip("/")))
         except Exception as e:  # noqa: BLE001
             log("%s#%d: خطأ %s — تُخطّي" % (repo, n, e))
 
