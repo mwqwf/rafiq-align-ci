@@ -26,7 +26,7 @@ permissions:
 jobs:
   automerge:
     runs-on: ubuntu-latest
-    timeout-minutes: 5
+    timeout-minutes: 35
     steps:
       - uses: actions/checkout@v4
         with:
@@ -37,4 +37,20 @@ jobs:
       - name: دمج الطلبات الجاهزة
         env:
           AUTOMERGE_TOKEN: ${{ secrets.AUTOMERGE_TOKEN }}
-        run: python3 tools/ci_fleet/automerge.py
+        # جداولُ GitHub تُسقَط في هذا المستودع المزدحم (لم تشتعل إلا مرّةً في ساعات 2026-10-17)،
+        # فالتشغيلةُ تدور خمسَ دوراتٍ كلَّ 5 دقائق ثم تُطلق نفسَها (بأمر المالك 2026-10-17 15:18Z). دقائقُ المستودع العامّ مجّانية.
+        run: |
+          for i in 1 2 3 4 5; do
+            python3 tools/ci_fleet/automerge.py || true
+            [ "$i" = 5 ] || sleep 300
+          done
+      - name: إطلاقُ الدورة التالية
+        if: always()
+        env:
+          AUTOMERGE_TOKEN: ${{ secrets.AUTOMERGE_TOKEN }}
+        run: |
+          [ -n "$AUTOMERGE_TOKEN" ] || exit 0
+          curl -fsS -X POST -H "Authorization: Bearer $AUTOMERGE_TOKEN" \
+            -H "Accept: application/vnd.github+json" \
+            "https://api.github.com/repos/${{ github.repository }}/actions/workflows/automerge.yml/dispatches" \
+            -d '{"ref":"main"}' || echo "تعذّر الإطلاق الذاتي؛ يبقى الجدول احتياطاً"
