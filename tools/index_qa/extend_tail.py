@@ -9,7 +9,7 @@
 أُصلح القياسُ في `common.ffprobe_duration_ms` (‏مجموع مدد الحزم)، وهذه الأداة تصلح **المنشورَ القديم** بأضيق تغيير:
 
 لكلّ سورةٍ مسمّاة تمدّ `endMs` لآخر مدخلٍ فيها إلى المدّة الحقيقية **بشرطين معاً**:
-  ١) endMs = مدّة الترويسة (‏±50م.ث)، و٢) في الذيل بعده كلامٌ (‏متوسّط الطاقة > −30dB).
+  ١) endMs ≥ مدّة الترويسة − 1000م.ث، و٢) في الذيل بعده كلامٌ (‏متوسّط الطاقة > −30dB).
 وما لم يجتزهما يُترك ويُطبع السبب. لا يمسّ بدءَ أيّ آية ولا مدخلاً غير الأخير، ولا يُنقص عدداً.
 الناتجُ يُرفع بـ`stage_transform` (‏op = file_end_extend) بحُرّاسه كلّها إلى `timings-staging/` ولا يُرقّى.
 `--yes` يرفع؛ بدونه عرضٌ فقط.
@@ -31,7 +31,7 @@ sys.path.insert(0, str(HERE))
 sys.path.insert(0, str(HERE.parent / "alignment"))
 
 UA = {"User-Agent": "Mozilla/5.0 (QuranRafiq tools)"}
-HDR_TOL_MS = 50
+HDR_BELOW_MS = 1000   # endMs لا يقلّ عن الترويسة بأكثر من هذا (قصّت المحاذاةُ قبل الترويسة بقليل أحياناً: 37:182 بـ58م.ث و42:53 بـ206م.ث)
 MIN_GAIN_MS = 3000
 MIN_DB = -30.0
 
@@ -48,8 +48,8 @@ def last_entries(entries, surahs):
 
 def decide(end_ms, hdr_ms, true_ms, tail_db):
     """(يمدّ؟، السبب) — دالّةٌ صِرفةٌ مختبَرة."""
-    if abs(end_ms - hdr_ms) > HDR_TOL_MS:
-        return False, f"endMs {end_ms} ليس عند الترويسة {hdr_ms}"
+    if end_ms < hdr_ms - HDR_BELOW_MS:
+        return False, f"endMs {end_ms} دون الترويسة {hdr_ms} بأكثر من {HDR_BELOW_MS}م.ث"
     if true_ms - end_ms <= MIN_GAIN_MS:
         return False, f"الفرق {true_ms - end_ms}م.ث ≤ {MIN_GAIN_MS}"
     if tail_db is None or tail_db <= MIN_DB:
