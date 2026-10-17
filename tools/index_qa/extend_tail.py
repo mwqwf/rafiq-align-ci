@@ -82,6 +82,9 @@ def main() -> int:
     a = ap.parse_args()
     import common
     from run import s3
+    # عدّاءُ الأوامر خفيفٌ: يُنصَّب ffmpeg عند الحاجة (كما في clamp_file_end)
+    if subprocess.run(["which", "ffprobe"], capture_output=True).returncode:
+        subprocess.run("sudo apt-get update -qq && sudo apt-get install -y -qq ffmpeg", shell=True, check=True)
     cl, b = s3()
     body = cl.get_object(Bucket=b, Key=a.key)["Body"].read()
     live = hashlib.sha256(body).hexdigest()
