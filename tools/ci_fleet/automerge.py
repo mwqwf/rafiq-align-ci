@@ -13,7 +13,7 @@ import urllib.request
 from datetime import datetime, timezone
 
 API = "https://api.github.com"
-DEFAULT_REPOS = "mwqwf/QuranRafiq,mwqwf/rafiq-align-ci"
+DEFAULT_REPOS = "all"  # كل مستودعات المالك غير المؤرشفة (أمره 2026-10-17)
 OWNER_LOGIN = "mwqwf"
 RELEASE_FILE = "store/release-request.json"
 BLOCK_LABELS = {"no-automerge", "hold"}
@@ -157,7 +157,12 @@ def main():
 
     now = datetime.now(timezone.utc)
     try:
-        for repo in [r.strip() for r in a.repos.split(",") if r.strip()]:
+        if a.repos == "all":
+            repos = [r["full_name"] for r in paged(token, "/user/repos?affiliation=owner")
+                     if not r.get("archived") and not r.get("disabled")]
+        else:
+            repos = [r.strip() for r in a.repos.split(",") if r.strip()]
+        for repo in repos:
             try:
                 process_repo(token, repo, a.dry_run, a.min_age_min, now, log)
             except urllib.error.HTTPError as e:
