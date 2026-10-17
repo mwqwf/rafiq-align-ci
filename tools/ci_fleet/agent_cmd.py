@@ -201,7 +201,9 @@ ALLOWED_TOOLS = {"index_qa/source_inventory.py", "ci_fleet/promote_atomic.py",  
                  # ⚖️ قارئٌ محض: يقرأ الدلوَ وstate/ وترويساتِ الصوت بطلبِ مدى، ويكتب في ops/out/audit-r2/ وحدَه.
                  "index_qa/audit_export.py",
                  # proofZ 2026-10-09: مسحٌ رخيص لمدّة الملفّ الصوتيّ مقابل نهاية الفهرس (قارئٌ محض: HEAD وطلب مدى 64ك.ب).
-                 "index_qa/duration_sweep.py"}
+                 "index_qa/duration_sweep.py",
+                 # e5 2026-10-17: مدُّ نهاية آخر آية قصّتها المحاذاةُ عند مدّة الترويسة؛ يرفع إلى staging فقط بـstage_transform وحُرّاسه.
+                 "index_qa/extend_tail.py", "index_qa/header_clip.py"}
 MAX_OUT = 200_000            # حرفاً — جوابٌ أطولُ يُقصّ ويُعلَن قصُّه
 
 

@@ -162,7 +162,38 @@ def ffprobe_duration_ms(path):
              path],
             capture_output=True, text=True, errors="replace", check=True,
         ).stdout.strip()
-    return int(float(out) * 1000)
+    hdr_ms = int(float(out) * 1000)
+    # ⭐ (2026-10-17 · e5) مدّة الترويسة **تقديرٌ** (‏Xing/معدّل البتّ) وتقصر عن الصوت الحقيقيّ بنحو 0.5%
+    #    في ملفّات mp3quran الطويلة (‏lahoni س3: ترويسة 4253.8ث والصوت 4273.7ث؛ mohna س3: 4882.3ث ≈ 4905.2ث)،
+    #    فيُقصّ الصوتُ عند الترويسة وتخرج آخر آيةٍ بلا حدودٍ أو بمدّة 0.07ث ويُحكم بـ«بترٍ» كاذب.
+    #    ⇒ المدّة الحقيقية = مجموع مدد الحزم (‏بلا فكّ ترميز: ≈1.5ث لملفّ 70 د)، ولا تقلّ عن الترويسة أبداً
+    #    (‏يُشدّد ولا يُرخي)، وعند أيّ إخفاق تبقى الترويسة.
+    pk_ms = _packet_duration_ms(path)
+    return max(hdr_ms, pk_ms) if pk_ms else hdr_ms
+
+
+def _packet_duration_ms(path):
+    """مجموع `duration_time` لحزم تيّار الصوت الأوّل بـms، أو None عند أيّ إخفاق."""
+    try:
+        total = 0.0
+        n = 0
+        for extra in ([], ["-f", "mp3"]):
+            total, n = 0.0, 0
+            p = subprocess.Popen(
+                [FFPROBE, "-v", "error", *extra, "-select_streams", "a:0",
+                 "-show_entries", "packet=duration_time", "-of", "csv=p=0", path],
+                stdout=subprocess.PIPE, stderr=subprocess.DEVNULL, text=True, errors="replace")
+            for line in p.stdout:
+                line = line.strip()
+                if line and line != "N/A":
+                    total += float(line)
+                    n += 1
+            p.wait()
+            if p.returncode == 0 and n > 0:
+                return int(total * 1000)
+        return None
+    except Exception:  # noqa: BLE001 — القياس تحسينٌ؛ يبقى الأصل عند أيّ خلل
+        return None
 
 
 def to_wav16k(src, dst=None):
