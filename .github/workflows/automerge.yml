@@ -1,0 +1,36 @@
+# دمجٌ تلقائيٌّ لطلبات فروع claude/ في mwqwf/QuranRafiq (خاص) وmwqwf/rafiq-align-ci (عام)
+# بعد نجاح كل فحوصها. بإذن المالك الصريح في 2026-10-17.
+#
+# - لماذا في المستودع العامّ: دقائقه مجانية، فلا إنفاق في المستودع الخاص.
+# - لماذا توكن المالك (AUTOMERGE_TOKEN) لا GITHUB_TOKEN: الدمج بـGITHUB_TOKEN لا يُشعل
+#   سير عمل push على main فيتوقف نشر العامل والموقع وPlay، ولا يصل إلى المستودع الخاص.
+# - الجلسات لا تدمج بنفسها بعد الآن؛ هذا السير هو الدامج الوحيد.
+# - وسم hold (أو no-automerge) على الطلب يوقف دمجه.
+# - تغيير store/release-request.json يلزمه وسم release-approved.
+name: automerge
+run-name: دمج تلقائي لطلبات claude/ (${{ github.event_name }})
+
+on:
+  schedule:
+    - cron: '*/10 * * * *'
+  workflow_dispatch:
+
+concurrency:
+  group: automerge
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+jobs:
+  automerge:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+      - name: دمج الطلبات الجاهزة
+        env:
+          AUTOMERGE_TOKEN: ${{ secrets.AUTOMERGE_TOKEN }}
+        run: python3 tools/ci_fleet/automerge.py
