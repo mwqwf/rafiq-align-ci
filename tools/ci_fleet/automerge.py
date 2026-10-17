@@ -89,6 +89,47 @@ def api(token, method, path, body=None):
         raise
 
 
+ROLLUP_Q = """query($o:String!,$n:String!,$p:Int!){repository(owner:$o,name:$n){pullRequest(number:$p){
+commits(last:1){nodes{commit{oid statusCheckRollup{contexts(first:100){nodes{
+__typename ... on CheckRun{name status conclusion}}}}}}}}}}"""
+
+
+def rollup_to_checks(data, sha):
+    """تحوّل جواب GraphQL (statusCheckRollup) إلى قائمة فحوص بصيغة REST.
+
+    بديلُ check-runs حين يرفضه توكن fine-grained في المستودعات الخاصة بـ403.
+    الحالات الخارجية (StatusContext) تغطّيها الحالة المجمعة فتُترك هنا.
+    """
+    nodes = (((data or {}).get("data") or {}).get("repository") or {}).get("pullRequest") or {}
+    nodes = ((nodes.get("commits") or {}).get("nodes") or [])
+    if not nodes:
+        raise ValueError("لا رأس في جواب GraphQL")
+    commit = nodes[-1].get("commit") or {}
+    if commit.get("oid") != sha:
+        raise ValueError("رأس GraphQL لا يطابق رأس الطلب")
+    roll = commit.get("statusCheckRollup") or {}
+    out = []
+    for c in ((roll.get("contexts") or {}).get("nodes") or []):
+        if c.get("__typename") != "CheckRun":
+            continue
+        out.append({"name": c.get("name"), "status": (c.get("status") or "").lower(),
+                    "conclusion": (c.get("conclusion") or "").lower() or None})
+    return out
+
+
+def check_runs_for(token, repo, n, sha):
+    try:
+        return paged(token, "/repos/%s/commits/%s/check-runs" % (repo, sha), "check_runs")
+    except urllib.error.HTTPError as e:
+        if e.code != 403:
+            raise
+    o, name = repo.split("/", 1)
+    d = api(token, "POST", "/graphql", {"query": ROLLUP_Q, "variables": {"o": o, "n": name, "p": n}})
+    if (d or {}).get("errors"):
+        raise ValueError("GraphQL: %s" % d["errors"][0].get("type", "خطأ"))
+    return rollup_to_checks(d, sha)
+
+
 def paged(token, path, key=None):
     out, page = [], 1
     sep = "&" if "?" in path else "?"
@@ -114,7 +155,7 @@ def process_repo(token, repo, dry, min_age, now, log):
                 continue  # لا يهمّنا ولا يُطبع
             sha = p["head"]["sha"]
             files = paged(token, "/repos/%s/pulls/%d/files" % (repo, n))
-            checks = paged(token, "/repos/%s/commits/%s/check-runs" % (repo, sha), "check_runs")
+            checks = check_runs_for(token, repo, n, sha)
             runs = api(token, "GET", "/repos/%s/actions/runs?head_sha=%s&per_page=100" % (repo, sha)).get("workflow_runs", [])
             status = api(token, "GET", "/repos/%s/commits/%s/status" % (repo, sha))
             full = api(token, "GET", "/repos/%s/pulls/%d" % (repo, n))
