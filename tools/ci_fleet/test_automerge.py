@@ -107,3 +107,17 @@ class RollupFallbackTest(unittest.TestCase):
     def test_head_mismatch_raises(self):
         with self.assertRaises(ValueError):
             am.rollup_to_checks(self.data("old", []), "abc")
+
+
+class RollupPartialTest(unittest.TestCase):
+    """حين تُحجب بعض الفحوص عن التوكن يُحكم بالحالة الإجمالية وحدها."""
+
+    def data(self, state):
+        return {"data": {"repository": {"pullRequest": {"commits": {"nodes": [
+            {"commit": {"oid": "abc", "statusCheckRollup": {"state": state, "contexts": None}}}]}}}}}
+
+    def test_only_success_merges(self):
+        for state, want in (("SUCCESS", True), ("PENDING", False), ("FAILURE", False),
+                            ("ERROR", False), (None, False)):
+            ok, _ = run(checks=am.rollup_to_checks(self.data(state), "abc", partial=True))
+            self.assertEqual(ok, want, state)
