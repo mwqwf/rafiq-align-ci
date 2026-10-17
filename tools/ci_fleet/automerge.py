@@ -158,8 +158,12 @@ def main():
     now = datetime.now(timezone.utc)
     try:
         if a.repos == "all":
-            repos = [r["full_name"] for r in paged(token, "/user/repos?affiliation=owner")
-                     if not r.get("archived") and not r.get("disabled")]
+            seen = [r for r in paged(token, "/user/repos?affiliation=owner")
+                    if not r.get("archived") and not r.get("disabled")]
+            repos = [r["full_name"] for r in seen]
+            # تشخيص صلاحية التوكن بلا كشف أسماء المستودعات الخاصة في السجل العام
+            print("مستودعات يراها التوكن: %d، منها خاصة: %d"
+                  % (len(seen), sum(1 for r in seen if r.get("private"))))
         else:
             repos = [r.strip() for r in a.repos.split(",") if r.strip()]
         for repo in repos:
