@@ -80,3 +80,30 @@ class T(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class RollupFallbackTest(unittest.TestCase):
+    """بديل check-runs عبر GraphQL حين يرفضه توكن fine-grained في المستودع الخاص."""
+
+    def data(self, oid, nodes):
+        return {"data": {"repository": {"pullRequest": {"commits": {"nodes": [
+            {"commit": {"oid": oid, "statusCheckRollup": {"contexts": {"nodes": nodes}}}}]}}}}}
+
+    def test_maps_and_lowercases(self):
+        out = am.rollup_to_checks(self.data("abc", [
+            {"__typename": "CheckRun", "name": "test", "status": "COMPLETED", "conclusion": "SUCCESS"},
+            {"__typename": "CheckRun", "name": "emu", "status": "IN_PROGRESS", "conclusion": None},
+            {"__typename": "StatusContext"}]), "abc")
+        self.assertEqual(out, [{"name": "test", "status": "completed", "conclusion": "success"},
+                               {"name": "emu", "status": "in_progress", "conclusion": None}])
+
+    def test_pending_or_failed_blocks_merge(self):
+        for st, co in (("IN_PROGRESS", None), ("COMPLETED", "FAILURE")):
+            checks = am.rollup_to_checks(self.data("abc", [
+                {"__typename": "CheckRun", "name": "t", "status": st, "conclusion": co}]), "abc")
+            ok, _ = run(checks=checks)
+            self.assertFalse(ok)
+
+    def test_head_mismatch_raises(self):
+        with self.assertRaises(ValueError):
+            am.rollup_to_checks(self.data("old", []), "abc")
