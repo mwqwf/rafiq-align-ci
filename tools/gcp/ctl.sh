@@ -400,7 +400,10 @@ import json, sys
 j = json.load(sys.stdin)
 print("job:", j.get("state"), "create", j.get("createTime"), "start", j.get("startTime"), "update", j.get("updateTime"))
 if j.get("error"): print("job.error:", j["error"].get("code"), str(j["error"].get("message", ""))[:300])' || true
-  gcloud storage cat "$GSB/startup.log" 2>/dev/null | tail -n 25 | sed 's/^/log| /' || true
+  # ضجيجُ gcloud في سجلّ المهمة يُحذف ليظهر سطرُ التدريب نفسُه
+  gcloud storage cat "$GSB/startup.log" 2>/dev/null \
+    | grep -vE 'composite|crc32c|pythonjsonlogger|sitecustomize|gcloud config|Copying file|uploading large|normal upload|disable this warning|checksums|^[[:space:]]*clients\.|^[[:space:]]*$' \
+    | tail -n 80 | sed 's/^/log| /' || true
   echo "active=$(gs_has "$GSB/active" && echo 1 || echo 0) done=$(gs_has "$GSB/done" && echo "$(gcloud storage cat "$GSB/done")" || echo 0)"
   echo "cost_api_usd=$api cost_ledger_usd=$led cost_effective_usd=$mx budget_usd=$b"
   gs_json "$GSB/vm_status.json" | python3 -c '
