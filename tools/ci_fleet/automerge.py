@@ -90,11 +90,11 @@ def api(token, method, path, body=None):
 
 
 ROLLUP_Q = """query($o:String!,$n:String!,$p:Int!){repository(owner:$o,name:$n){pullRequest(number:$p){
-commits(last:1){nodes{commit{oid statusCheckRollup{contexts(first:100){nodes{
+commits(last:1){nodes{commit{oid statusCheckRollup{state contexts(first:100){nodes{
 __typename ... on CheckRun{name status conclusion}}}}}}}}}}"""
 
 
-def rollup_to_checks(data, sha):
+def rollup_to_checks(data, sha, partial=False):
     """تحوّل جواب GraphQL (statusCheckRollup) إلى قائمة فحوص بصيغة REST.
 
     بديلُ check-runs حين يرفضه توكن fine-grained في المستودعات الخاصة بـ403.
@@ -108,6 +108,14 @@ def rollup_to_checks(data, sha):
     if commit.get("oid") != sha:
         raise ValueError("رأس GraphQL لا يطابق رأس الطلب")
     roll = commit.get("statusCheckRollup") or {}
+    if partial:
+        # بعضُ الفحوص محجوبةٌ عن التوكن (FORBIDDEN): يُحكم بالحالة الإجمالية التي تشملها كلّها
+        st = (roll.get("state") or "").upper()
+        if st == "SUCCESS":
+            return [{"name": "rollup", "status": "completed", "conclusion": "success"}]
+        if st in ("PENDING", "EXPECTED"):
+            return [{"name": "rollup", "status": "in_progress", "conclusion": None}]
+        return [{"name": "rollup", "status": "completed", "conclusion": (st or "unknown").lower()}]
     out = []
     for c in ((roll.get("contexts") or {}).get("nodes") or []):
         if c.get("__typename") != "CheckRun":
@@ -125,9 +133,10 @@ def check_runs_for(token, repo, n, sha):
             raise
     o, name = repo.split("/", 1)
     d = api(token, "POST", "/graphql", {"query": ROLLUP_Q, "variables": {"o": o, "n": name, "p": n}})
-    if (d or {}).get("errors"):
-        raise ValueError("GraphQL: %s" % d["errors"][0].get("type", "خطأ"))
-    return rollup_to_checks(d, sha)
+    errs = (d or {}).get("errors") or []
+    if errs and not all(e.get("type") == "FORBIDDEN" for e in errs):
+        raise ValueError("GraphQL: %s" % errs[0].get("type", "خطأ"))
+    return rollup_to_checks(d, sha, partial=bool(errs))
 
 
 def paged(token, path, key=None):
