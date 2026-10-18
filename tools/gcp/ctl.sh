@@ -122,12 +122,18 @@ for k in ("stage", "phase", "last_step", "ckpt_step", "start_step", "resumed_fro
 cmd_export() { do_export; }
 
 count_zero() {   # $1 اسم $2.. الأمر ⇒ يطبع العدد؛ واجهةٌ معطّلة تُحسب صفراً
-  local name=$1 out; shift
-  if out=$("$@" 2>&1); then
-    echo "$name=$(printf '%s' "$out" | grep -c . || true)"
-  elif echo "$out" | grep -qiE "has not been used|is disabled|API .* not enabled|SERVICE_DISABLED|PERMISSION_DENIED.*disabled"; then
+  # تُعدّ أسطرُ stdout وحدها: gcloud يكتب «Using endpoint [...]» وتحذيراتِه في stderr فكانت تُعدّ موارد
+  local name=$1 out errf rc; shift
+  errf=$(mktemp)
+  out=$("$@" 2>"$errf") && rc=0 || rc=$?
+  if [ "$rc" -eq 0 ]; then
+    local n; n=$(printf '%s' "$out" | grep -c . || true)
+    echo "$name=$n"
+    if [ "$n" -gt 0 ]; then printf '%s\n' "$out" | sed "s/^/  · $name: /" >&2; fi
+  elif grep -qiE "has not been used|is disabled|API .* not enabled|SERVICE_DISABLED|PERMISSION_DENIED.*disabled" "$errf"; then
     echo "$name=0"
-  else echo "$name=ERR"; fi
+  else echo "$name=ERR"; sed "s/^/  · $name ERR: /" "$errf" | tail -3 >&2; fi
+  rm -f "$errf"
 }
 
 cmd_teardown() {
@@ -401,9 +407,14 @@ j = json.load(sys.stdin)
 print("job:", j.get("state"), "create", j.get("createTime"), "start", j.get("startTime"), "update", j.get("updateTime"))
 if j.get("error"): print("job.error:", j["error"].get("code"), str(j["error"].get("message", ""))[:300])' || true
   # ضجيجُ gcloud في سجلّ المهمة يُحذف ليظهر سطرُ التدريب نفسُه
+  local logf; logf=$(mktemp)
   gcloud storage cat "$GSB/startup.log" 2>/dev/null \
-    | grep -vE 'composite|crc32c|pythonjsonlogger|sitecustomize|gcloud config|Copying file|uploading large|normal upload|disable this warning|checksums|^[[:space:]]*clients\.|^[[:space:]]*$' \
-    | tail -n 80 | sed 's/^/log| /' || true
+    | grep -vE 'composite|crc32c|pythonjsonlogger|sitecustomize|gcloud config|Copying file|uploading large|normal upload|disable this warning|checksums|^WARNING:root:|^[[:space:]]*clients\.|^[[:space:]]*$' \
+    > "$logf" || true
+  tail -n 80 "$logf" | sed 's/^/log| /'
+  # كلُّ تقييمات الشوط (لا آخرُ 80 سطراً) ليُحكم بالهضبة من السجلّ كاملاً
+  grep -E '\] EVAL step ' "$logf" | sed 's/^/eval| /' || true
+  rm -f "$logf"
   echo "active=$(gs_has "$GSB/active" && echo 1 || echo 0) done=$(gs_has "$GSB/done" && echo "$(gcloud storage cat "$GSB/done")" || echo 0)"
   echo "cost_api_usd=$api cost_ledger_usd=$led cost_effective_usd=$mx budget_usd=$b"
   gs_json "$GSB/vm_status.json" | python3 -c '
