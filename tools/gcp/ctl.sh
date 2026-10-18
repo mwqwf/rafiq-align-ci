@@ -122,12 +122,18 @@ for k in ("stage", "phase", "last_step", "ckpt_step", "start_step", "resumed_fro
 cmd_export() { do_export; }
 
 count_zero() {   # $1 اسم $2.. الأمر ⇒ يطبع العدد؛ واجهةٌ معطّلة تُحسب صفراً
-  local name=$1 out; shift
-  if out=$("$@" 2>&1); then
-    echo "$name=$(printf '%s' "$out" | grep -c . || true)"
-  elif echo "$out" | grep -qiE "has not been used|is disabled|API .* not enabled|SERVICE_DISABLED|PERMISSION_DENIED.*disabled"; then
+  # تُعدّ أسطرُ stdout وحدها: gcloud يكتب «Using endpoint [...]» وتحذيراتِه في stderr فكانت تُعدّ موارد
+  local name=$1 out errf rc; shift
+  errf=$(mktemp)
+  out=$("$@" 2>"$errf") && rc=0 || rc=$?
+  if [ "$rc" -eq 0 ]; then
+    local n; n=$(printf '%s' "$out" | grep -c . || true)
+    echo "$name=$n"
+    if [ "$n" -gt 0 ]; then printf '%s\n' "$out" | sed "s/^/  · $name: /" >&2; fi
+  elif grep -qiE "has not been used|is disabled|API .* not enabled|SERVICE_DISABLED|PERMISSION_DENIED.*disabled" "$errf"; then
     echo "$name=0"
-  else echo "$name=ERR"; fi
+  else echo "$name=ERR"; sed "s/^/  · $name ERR: /" "$errf" | tail -3 >&2; fi
+  rm -f "$errf"
 }
 
 cmd_teardown() {
