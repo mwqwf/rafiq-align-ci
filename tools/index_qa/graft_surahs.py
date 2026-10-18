@@ -201,6 +201,27 @@ def graft(base, donor, base_sha, surahs, ancestors=None, donor_sha=None, counts=
                 if eng and eng != base.get("engineVersion"):
                     m[k] = eng
         out[f] = m
+    # بصمةُ الصوت للسور المزروعة وحدها تُؤخذ من المتبرِّع (2026-10-18): حين تبدّل ملفُّ السورة عند المصدر قاس المتبرِّعُ الملفَّ
+    # الحاليّ، وإبقاءُ بصمةِ الأصل القديمة يردّ بوّابةَ السماع بـ«الصوتُ المسموع غيرُ صوت المرشّح» (س22 القرافي).
+    # لا يُلمس شيءٌ غيرُها، ولا تُؤخذ بصمةٌ فارغة، ولا يُفعل شيءٌ إن لم تتطابق قائمتا البصمات في الطول والتخطيط
+    # (114 موضعاً ثابتاً أو مضغوطةً على السور الحاضرة). وبوّابةُ السماع تبقى تقارن هذه البصمةَ بالصوت المسموع فعلاً.
+    bsha, dsha = base.get("audioSha256"), donor.get("audioSha256")
+    if isinstance(bsha, list) and isinstance(dsha, list) and len(bsha) == len(dsha):
+        present = sorted(set(bs))
+        if sorted(set(ds)) == present:
+            if len(bsha) == 114:
+                pos = {s: s - 1 for s in present}
+            elif len(bsha) == len(present):
+                pos = {s: i for i, s in enumerate(present)}
+            else:
+                pos = None
+            if pos:
+                newsha = list(bsha)
+                for s in surahs:
+                    v = dsha[pos[s]]
+                    if isinstance(v, str) and v.strip():
+                        newsha[pos[s]] = v
+                out["audioSha256"] = newsha
     moved = sum(1 for s in surahs for a in ds[s] if _canon(ds[s][a]) != _canon(bs[s][a]))
     rep = {"surahs": surahs, "movedEntries": moved, "engines": engines, "lineage": chain,
            "donorSha256": donor_sha, "donorEngineVersion": donor.get("engineVersion")}
