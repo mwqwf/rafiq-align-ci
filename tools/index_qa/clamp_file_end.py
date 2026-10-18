@@ -86,7 +86,15 @@ def main() -> int:
             #    الإطاراتُ تحمل حشوَ المُرمِّز فتطول (‏a_alhazmi/093: الإطارات ≥53916 والفكُّ 53869)،
             #    والحارسُ يحكم بالفكّ — فمقياسان مختلفان يجعلان القصَّ «لا شيء» والحارسَ «يردّ».
             import run
-            cache[u] = len(run._full_decode_pcm(f.name)) * 1000.0 / 16000
+            d = len(run._full_decode_pcm(f.name)) * 1000.0 / 16000
+            # ⭐ (2026-10-18 · e3 · kyat 68:52) الإحصاءُ يقيس بـ`run._file_duration_ms` (عدّ الإطارات الدقيق، كسريّ)
+            #    و`_eof_pad_ok` يقارن `int(endMs) <= fd` بلا سماح: فكان الفكُّ 288418.0 والإطارات 288417.959
+            #    فتجاوزت endMs=288418 الملفَّ بـ0.04م.ث ولم يرها القصّ. ⇒ يُؤخذ **الأصغر** من المقياسين (تشديدٌ لا إرخاء).
+            try:
+                d = min(d, float(run._file_duration_ms(f.name)))
+            except Exception:  # noqa: BLE001 — يبقى مقياس الفكّ عند أيّ إخفاق
+                pass
+            cache[u] = d
         return cache[u]
 
     cuts, refused = plan(idx["entries"], surahs, dur_of)
