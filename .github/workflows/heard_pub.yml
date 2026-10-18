@@ -18,6 +18,7 @@ on:
       surahs: {description: "سورٌ بفواصل (‏فارغ = كلُّ الحاضرِ الذي لا خريطةَ مطابقةً له)", default: ""}
       shards: {description: "عددُ الشرائح المتوازية (1–6)", default: "4"}
       force: {description: "true = يُعاد القياسُ ولو وُجدت خريطةٌ مطابقة", default: "false"}
+      rekey: {description: "true = تُربط ببصمة الحيّ الجديدة خرائطُ السور التي يطابق صوتُها الصوتَ المعلَن (بلا CTC)، ولا يُحسب إلا ما تغيّر صوته أو غابت خريطتُه", default: "false"}
 
 permissions:
   contents: write   # لكتابة سجلّ الحكم نصّاً في ops/out/heard-pub/ وحده
@@ -180,7 +181,7 @@ jobs:
           path: shards
           merge-multiple: true
       - name: دمجُ الخرائط في state-heard/ (قياسٌ لا حكم)
-        env: {KEY: "${{ inputs.key }}", RUN: "${{ github.run_id }}"}
+        env: {KEY: "${{ inputs.key }}", RUN: "${{ github.run_id }}", REKEY: "${{ inputs.rekey }}"}
         run: |
           set -o pipefail
           python - <<'PY' | tee judge.log
@@ -220,10 +221,14 @@ jobs:
               old = json.loads(s3.get_object(Bucket=c["bucket"], Key=sk)["Body"].read())
           except Exception:
               old = {}
-          maps = {int(k): v for k, v in (old.get("maps") or {}).items()} if old.get("sha256") == sha else {}
+          # ⭐ rekey (e6 2026-10-18): خريطةُ السماع دالّةٌ في الصوت والنصّ لا في توقيتات الفهرس، فتُبقى خرائطُ تقريرٍ
+          #    متقادمٍ لكلّ سورةٍ يطابق صوتُها بصمةَ الصوت المعلَنة في الفهرس الحيّ (الشرطُ نفسُه في «مغطّاة»)؛
+          #    وما لم يثبت تطابقُ صوته لا يُربط (heard_rekey.valid_old_maps).
+          import heard_rekey as RK
+          maps = RK.valid_old_maps(old, sha, cs, want, os.environ.get("REKEY") == "true")
           maps.update(new)
           print(f"■ {key} ({sha[:8]}) · خرائطُ جديدة {len(new)} · الجملة {len(maps)}")
-          if new:
+          if new or (os.environ.get("REKEY") == "true" and maps and old.get("sha256") != sha):
               rep = {"sha256": sha, "src": key, "version": H.VERSION, "kind": "heard", "run": os.environ["RUN"],
                      "ts": int(time.time()), "maps": {str(k): v for k, v in sorted(maps.items())}}
               s3.put_object(Bucket=c["bucket"], Key=sk, Body=json.dumps(rep, ensure_ascii=False).encode("utf-8"),
