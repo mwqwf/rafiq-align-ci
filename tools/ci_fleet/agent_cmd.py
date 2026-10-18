@@ -267,17 +267,69 @@ def _forbidden_promote_args(tool, args):
     return None
 
 
-def do_tool(c):
-    tool = c.get("tool", "")
+def guard_tool(tool, args):
+    """(rc, رسالة) إن رُدّ الأمر، وإلا None — حراسةٌ واحدةٌ مشتركةٌ بين القناة وagent_tool.yml
+    (ALLOWED_TOOLS و_forbidden_promote_args بلا أي إرخاء)."""
     if tool not in ALLOWED_TOOLS:
         return 2, f"⛔ أداةٌ غيرُ مسموحة: {tool!r}\nوالمسموح: {sorted(ALLOWED_TOOLS)}"
-    args = [x if isinstance(x, str) else str(x) for x in (c.get("args") or [])]
     bad = _forbidden_promote_args(tool, args)
     if bad:
         return 2, ("⛔ (صيد 2026-10-09) وسيطٌ ممنوعٌ عبر القناة لـ promote.py: "
                    f"{bad!r} — التجاوزُ وخفضُ المنشور قرارُ المالك المباشر لا أمرُ وكيل. "
                    "يبقى `--unfreeze` و`--allow-truncated` وغيرُهما.")
+    return None
+
+
+def run_tool(tool, args):
+    """يشغّل أداةً مسموحةً بعد الحراسة — الدالةُ المشتركةُ للقناة وagent_tool.yml."""
+    args = [x if isinstance(x, str) else str(x) for x in (args or [])]
+    refused = guard_tool(tool, args)
+    if refused:
+        return refused
     return run([sys.executable, str(ROOT / "tools" / tool), *args])
+
+
+# أمرُ tool يُفوَّض إلى agent_tool.yml (تزامنٌ لكل name) فلا يحجز قناةَ الأوامر المتسلسلة.
+TOOL_WORKFLOW = "agent_tool.yml"
+DEFERRED = None      # rc=None من معالجٍ ⇒ الجوابُ يكتبه agent_tool وحده، فلا يكتب main ملفاً
+_NAME_RE = re.compile(r"[A-Za-z0-9_.\-]{1,120}")
+
+
+def do_tool(c):
+    tool = c.get("tool", "")
+    args = [x if isinstance(x, str) else str(x) for x in (c.get("args") or [])]
+    refused = guard_tool(tool, args)          # الرفضُ هنا يكتب جوابَه فوراً كما كان
+    if refused:
+        return refused
+    name = c.get("_name", "")
+    if not _NAME_RE.fullmatch(name or ""):
+        return 3, f"⛔ اسمُ الأمر لا يصلح لملفّ جواب: {name!r}"
+    rc, out = run(["gh", "workflow", "run", TOOL_WORKFLOW, "-f", f"name={name}",
+                   "-f", f"tool={tool}", "-f", "args=" + json.dumps(args, ensure_ascii=False)])
+    if rc != 0:
+        return rc, "⛔ تعذّر إطلاق agent_tool.yml:\n" + out
+    print(f"↪ فُوّض {name} إلى {TOOL_WORKFLOW} (يكتب ops/out/{name}.txt بنفسه)")
+    return DEFERRED, out
+
+
+def tool_main():
+    """نقطةُ دخول agent_tool.yml: NAME وTOOL وARGS(JSON) من البيئة؛ يكتب الجوابَ بالصيغة نفسها ويدفعه."""
+    name, tool = os.environ.get("NAME", ""), os.environ.get("TOOL", "")
+    OUT_DIR.mkdir(parents=True, exist_ok=True)
+    if not _NAME_RE.fullmatch(name):
+        print(f"⛔ اسمٌ غيرُ صالح: {name!r}"); sys.exit(1)
+    try:
+        args = json.loads(os.environ.get("ARGS") or "[]")
+        if not isinstance(args, list):
+            raise ValueError("args ليست قائمة")
+        rc, out = run_tool(tool, args)
+    except Exception:                                             # noqa: BLE001
+        rc, out = 3, "⛔ تعذّر تنفيذُ الأمر:\n" + traceback.format_exc()
+    if len(out) > MAX_OUT:
+        out = out[:MAX_OUT] + f"\n… [قُصّ الجواب عند {MAX_OUT} حرفاً]"
+    print(out[:4000])
+    (OUT_DIR / f"{name}.txt").write_text(f"# rc={rc}\n{out}", encoding="utf-8")
+    _push_answer(name)
 
 
 def _gap_surahs(entries):
@@ -459,6 +511,7 @@ def main():
         print(f"\n══ أمر: {name}  (المحاولةُ {tries + 1}/{MAX_TRIES})")
         try:
             c = json.loads(f.read_text(encoding="utf-8"))
+            c["_name"] = name
             h = HANDLERS.get(c.get("action"))
             if not h:
                 rc, out = 2, (f"⛔ فعلٌ غيرُ معروف: {c.get('action')!r} — "
@@ -470,8 +523,9 @@ def main():
         if len(out) > MAX_OUT:
             out = out[:MAX_OUT] + f"\n… [قُصّ الجواب عند {MAX_OUT} حرفاً]"
         print(out[:4000])
-        (OUT_DIR / f"{name}.txt").write_text(
-            f"# rc={rc}\n{out}", encoding="utf-8")
+        if rc is not DEFERRED:       # tool المفوَّض: يكتب agent_tool جوابَه وحدَه
+            (OUT_DIR / f"{name}.txt").write_text(
+                f"# rc={rc}\n{out}", encoding="utf-8")
         # ✅ تمّ ⇒ يُمحى عدّادُه فلا يُحسب عليه ما مضى.
         tries_p.unlink(missing_ok=True)
         # ⛔ يُنقل المنفَّذُ فلا يُعاد تنفيذُه عند كلّ دفعةٍ تالية
@@ -536,4 +590,7 @@ def _push_answer(name: str) -> None:
 
 
 if __name__ == "__main__":
-    main()
+    if "--tool-run" in sys.argv[1:]:
+        tool_main()
+    else:
+        main()
