@@ -1,0 +1,86 @@
+name: rafiq-agent-tool
+
+run-name: أداةُ الوكيل — ${{ inputs.name }}
+
+# ⭐ لماذا هذا الملفّ (أمر المالك «حاول التسريع» 2026-10-17):
+# قناةُ `agent_cmd.yml` متسلسلةٌ (`group: rafiq-agent-cmd`) وأوامرُ `tool` الطويلة
+# (heard_pub_rows · extend_tail · source_inventory · clamp_file_end · header_clip)
+# كانت تحجزها حتى 17 دقيقة فينتظر كلُّ أمرٍ بعدها.
+# ✅ فصار أمرُ `tool` يُفوَّض إلى هذا الملفّ: تزامنٌ **لكلّ name على حدة** (متوازٍ).
+# ⛔ الحراسةُ لم تُرخَ حرفاً: التنفيذُ عبر الدالة المشتركة `run_tool` في
+#    `tools/ci_fleet/agent_cmd.py` (فيها ALLOWED_TOOLS و`_forbidden_promote_args`)،
+#    والجوابُ يُكتب في `ops/out/<name>.txt` بالصيغة نفسها (السطر الأوّل `# rc=`)
+#    ويُدفع بالآلية نفسها `_push_answer` (جلبٌ ودمجٌ `-X ours` وإعادةُ محاولة).
+#    ولا يطلقه إلا `agent_cmd.py` بعد حراسته هو أيضاً؛ وكلُّ شيءٍ يُعاد فحصُه هنا.
+
+on:
+  workflow_dispatch:
+    inputs:
+      name: {description: "اسمُ الأمر (يُكتب ops/out/<name>.txt)", required: true}
+      tool: {description: "الأداة، مثل index_qa/run.py", required: true}
+      args: {description: "الوسائط بصيغة JSON (قائمة نصوص)", default: "[]"}
+
+permissions:
+  actions: write
+  contents: write
+
+concurrency:
+  group: rafiq-agent-tool-${{ inputs.name }}
+  cancel-in-progress: false
+
+jobs:
+  execute:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+        with: { fetch-depth: 0, ref: main }
+      - uses: actions/setup-python@v5
+        with: { python-version: "3.11" }
+      - run: python -m pip install --quiet boto3
+
+      # ذاكرةُ أحكام الصوت نفسُها كما في agent_cmd.yml (أحكامٌ لا تتغيّر؛ توفيرُ دقائق).
+      - name: ذاكرةُ أحكامِ الصوت
+        uses: actions/cache/restore@v4
+        with:
+          path: tools/index_qa/work/verdict_cache
+          key: verdict-cache-${{ github.run_id }}
+          restore-keys: |
+            verdict-cache-
+
+      - name: الاعتماد
+        env:
+          R2_CREDENTIALS_JSON: ${{ secrets.R2_CREDENTIALS_JSON }}
+        run: |
+          mkdir -p secure
+          printf '%s' "$R2_CREDENTIALS_JSON" > secure/r2_credentials.json
+
+      - name: تنفيذُ الأداة وإعادةُ الجواب
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          NAME: ${{ inputs.name }}
+          TOOL: ${{ inputs.tool }}
+          ARGS: ${{ inputs.args }}
+        run: python tools/ci_fleet/agent_cmd.py --tool-run
+
+      - name: ادفع الجواب
+        if: always()
+        run: |
+          git config user.name  "rafiq-agent-cmd"
+          git config user.email "actions@github.com"
+          if [ -f .git/MERGE_HEAD ]; then git merge --abort || true; fi
+          git add ops/out 2>/dev/null || true
+          if ! git diff --cached --quiet; then
+            git commit -m "ops: جوابُ أداةِ الوكيل" -- ops/out
+            git push origin HEAD:main || {
+              git fetch origin main --quiet
+              if git merge -X ours --no-edit origin/main; then
+                git push origin HEAD:main
+              else
+                git merge --abort || true
+                echo "⚠️ تعذّر دمجُ الجواب مع main"; exit 1
+              fi
+            }
+          else
+            echo "لا جوابَ يُدفع."
+          fi
