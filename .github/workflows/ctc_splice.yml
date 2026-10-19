@@ -227,8 +227,11 @@ jobs:
             python -m unittest tools/alignment_v3/test_ctc_dualfix.py
             for s in $(echo "$SURAHS" | tr ',' ' '); do
               U="$(python -c "import sys; print(sys.argv[1].format(s=int(sys.argv[2])))" "$URLT" "$s")"
+              # (2026-10-19) مدياتُ هذه السورة وحدها: الأداةُ تردّ مدىً لسورةٍ أخرى عمداً، فكانت دفعةٌ متعدّدةُ السور
+              #    تسقط كلُّها بـ«bad rewindow range» عند أوّل سورة. ما لا مدى له يُصحَّح بلا نافذة.
+              RW="$(echo "$REWIN" | tr ',;' '\n\n' | sed 's/^ *//' | grep -E "^0*$s:" | paste -sd, || true)"
               CTC_INT8=0 CTC_THREADS=2 python tools/alignment_v3/ctc_dualfix.py --base-key "$BASEKEY" --url "$U" \
-                --surah "$s" --riwaya "$RIW" --out-dir "tools/alignment/work/batch_$RID" --rewindow "$REWIN" 2>&1 | tee -a ctc.log
+                --surah "$s" --riwaya "$RIW" --out-dir "tools/alignment/work/batch_$RID" --rewindow "$RW" 2>&1 | tee -a ctc.log
             done
             exit 0
           fi
