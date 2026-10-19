@@ -285,7 +285,9 @@ jobs:
               else
                 U="$(python -c "import sys; print(sys.argv[1].format(s=int(sys.argv[2])))" "$URLT" "$s")"
               fi
-              python tools/alignment_v3/ctc_heard_map.py --url "$U" --surah "$s" --riwaya "$RIW" \
+              # ⭐ (2026-10-19 · تشخيص القرافي) تسامحُ المراسي هو تسامحُ بوّابة السماع 1.5ث كما في
+              #    heard_batch.yml — وإلا بقيت آياتٌ بين 1.5ث و3ث تردّها البوّابةُ جولةً بعد جولة. تشديدٌ لا تليين.
+              python tools/alignment_v3/ctc_heard_map.py --url "$U" --surah "$s" --riwaya "$RIW" --strict-tol-ms 1500 \
                 --out-dir "tools/alignment/work/batch_$RID" 2>&1 | tee -a ctc.log
             done
             exit 0
