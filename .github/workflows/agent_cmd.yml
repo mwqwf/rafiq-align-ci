@@ -85,6 +85,15 @@ jobs:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: python tools/ci_fleet/agent_cmd.py
 
+      - name: احتياطٌ - ارفع الجواب artifact
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: ans-cmd-${{ github.run_id }}
+          path: ops/out
+          retention-days: 1
+          if-no-files-found: ignore
+
       - name: ادفع الجواب
         if: always()
         run: |
@@ -105,16 +114,24 @@ jobs:
             #    نتائج `hamza`/`hafz`. ⇒ عند التعارض: ادمج بـ`-X ours` (نتيجتي
             #    التي حسبتُها الآن تبقى، فكلا الجوابين صادقٌ على الأمر نفسِه ولا
             #    خسارةَ حقيقةٍ) لا بترك الشوط يفشل صامتاً.
-            git push origin HEAD:main || {
-              git fetch origin main --quiet
-              if git merge -X ours --no-edit origin/main; then
-                git push origin HEAD:main
-              else
-                # تعارضٌ لا يحلّه ours: يُكتب في السجلّ ولا يُترك الدمجُ معلّقاً.
+            # دفعٌ متينٌ: حتى 8 محاولات بانتظارٍ متزايدٍ وعشوائيّة صغيرة، وفي كلّ محاولةٍ
+            # fetch ثم دمجٌ (بلا rebase ولا force). الفشلُ النهائيّ يُخرج غير صفريّ.
+            ok=0
+            for i in 1 2 3 4 5 6 7 8; do
+              git fetch origin main --quiet || true
+              if ! git merge -X ours --no-edit origin/main; then
                 git merge --abort || true
-                echo "⚠️ تعذّر دمجُ الجواب مع main — يُعاد بدفعةٍ تالية"; exit 1
+                echo "⚠️ محاولة $i: تعذّر الدمج"
+              elif git push origin HEAD:main; then
+                ok=1; break
               fi
-            }
+              w=$(( i * 3 + RANDOM % 5 ))
+              echo "محاولة $i رُفضت؛ انتظار ${w}ث"
+              sleep "$w"
+            done
+            if [ "$ok" != 1 ]; then
+              echo "⚠️ فشلت كلُّ محاولات دفع الجواب (الاحتياط: artifact ans-cmd)"; exit 1
+            fi
           else
             echo "لا جوابَ يُدفع."
           fi
