@@ -304,8 +304,13 @@ def do_tool(c):
     name = c.get("_name", "")
     if not _NAME_RE.fullmatch(name or ""):
         return 3, f"⛔ اسمُ الأمر لا يصلح لملفّ جواب: {name!r}"
-    rc, out = run(["gh", "workflow", "run", TOOL_WORKFLOW, "-f", f"name={name}",
-                   "-f", f"tool={tool}", "-f", "args=" + json.dumps(args, ensure_ascii=False)])
+    import time as _t
+    for _try in range(4):        # خطأ 5xx عابر من GitHub (وقع 2026-10-20: HTTP 500) لا يُسقط أمراً
+        rc, out = run(["gh", "workflow", "run", TOOL_WORKFLOW, "-f", f"name={name}",
+                       "-f", f"tool={tool}", "-f", "args=" + json.dumps(args, ensure_ascii=False)])
+        if rc == 0 or not re.search(r"HTTP 5\d\d", out):
+            break
+        _t.sleep(15 * (_try + 1))
     if rc != 0:
         return rc, "⛔ تعذّر إطلاق agent_tool.yml:\n" + out
     print(f"↪ فُوّض {name} إلى {TOOL_WORKFLOW} (يكتب ops/out/{name}.txt بنفسه)")
