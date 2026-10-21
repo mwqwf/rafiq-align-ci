@@ -206,6 +206,59 @@ ALLOWED_TOOLS = {"index_qa/heard_sweep_table.py", "index_qa/source_inventory.py"
                  "index_qa/extend_tail.py", "index_qa/header_clip.py"}
 MAX_OUT = 200_000            # حرفاً — جوابٌ أطولُ يُقصّ ويُعلَن قصُّه
 
+# ⛔ (تحصين 2026-10-21) العدّاءُ يحمل `secure/r2_credentials.json` وأجوبةُ ops/out تُدفع إلى مستودعٍ عامّ:
+#    فلا وسيطٌ لأيّ أداةٍ يشير إلى secure أو r2_credentials أو يصعد بـ`..` أو يقصد مواضعَ حسّاسةً مطلقة،
+#    ولا جوابٌ يُكتب قبل حجبِ قيم السرّ المعروفة منه. (نصوصُ الأسباب الحرّة بـ«53:39..62» سليمة: المنعُ بمكوّنِ مسارٍ كاملٍ لا بنصٍّ.)
+_SENSITIVE_ABS = ("/etc", "/proc", "/sys", "/dev", "/root", "/home", "/run", "/var", "/boot", "/mnt")
+SECRET_FILE = ROOT / "secure" / "r2_credentials.json"
+
+
+def _forbidden_path_arg(args):
+    """أوّلُ وسيطٍ يمسّ secure/r2_credentials/`..`/موضعاً مطلقاً حسّاساً أو None (لكل الأدوات)."""
+    import posixpath
+    for a in args:
+        a = str(a)
+        for v in {a, a.split("=", 1)[-1]}:
+            low = v.lower().replace("\\", "/")
+            parts = [x for x in low.split("/") if x]
+            if "r2_credentials" in low or "secure" in parts or ".." in parts:
+                return a
+            if low.startswith("/"):
+                n = posixpath.normpath(low)
+                inside = n == str(ROOT).lower() or n.startswith(str(ROOT).lower() + "/")  # المستودعُ نفسُه تحت /home/runner
+                if not inside and any(n == b or n.startswith(b + "/") for b in _SENSITIVE_ABS):
+                    return a
+    return None
+
+
+def _secret_values():
+    """قيمُ السرّ النصّيّة (≥8 حروف) من secure/r2_credentials.json، الأطولُ أوّلاً؛ فارغةٌ إن غاب الملفّ."""
+    try:
+        data = json.loads(SECRET_FILE.read_text(encoding="utf-8"))
+    except Exception:                                             # noqa: BLE001
+        return []
+    out = set()
+
+    def walk(x):
+        if isinstance(x, str):
+            if len(x.strip()) >= 8:
+                out.add(x.strip())
+        elif isinstance(x, dict):
+            for v in x.values():
+                walk(v)
+        elif isinstance(x, list):
+            for v in x:
+                walk(v)
+    walk(data)
+    return sorted(out, key=len, reverse=True)
+
+
+def redact(text):
+    """يحجب كلَّ ظهورٍ لقيمةِ سرٍّ معروفةٍ بـ*** قبل أن يُكتب الجوابُ أو يُطبع."""
+    for v in _secret_values():
+        text = text.replace(v, "***")
+    return text
+
 
 def run(cmd, **kw):
     p = subprocess.run(cmd, capture_output=True, text=True, encoding="utf-8",
@@ -272,6 +325,10 @@ def guard_tool(tool, args):
     (ALLOWED_TOOLS و_forbidden_promote_args بلا أي إرخاء)."""
     if tool not in ALLOWED_TOOLS:
         return 2, f"⛔ أداةٌ غيرُ مسموحة: {tool!r}\nوالمسموح: {sorted(ALLOWED_TOOLS)}"
+    bp = _forbidden_path_arg(args)
+    if bp:
+        return 2, (f"⛔ (تحصين 2026-10-21) وسيطٌ يمسّ مجلّد secure أو r2_credentials أو `..` "
+                   f"أو موضعاً مطلقاً حسّاساً: {bp!r} — مرفوضٌ لكل الأدوات.")
     bad = _forbidden_promote_args(tool, args)
     if bad:
         return 2, ("⛔ (صيد 2026-10-09) وسيطٌ ممنوعٌ عبر القناة لـ promote.py: "
@@ -330,6 +387,7 @@ def tool_main():
         rc, out = run_tool(tool, args)
     except Exception:                                             # noqa: BLE001
         rc, out = 3, "⛔ تعذّر تنفيذُ الأمر:\n" + traceback.format_exc()
+    out = redact(out)
     if len(out) > MAX_OUT:
         out = out[:MAX_OUT] + f"\n… [قُصّ الجواب عند {MAX_OUT} حرفاً]"
     print(out[:4000])
@@ -445,7 +503,7 @@ def do_state(c):
           "ayahModeExcluded": len(ayah_mode), "ayahModeIds": ayah_mode,
           "byRiwaya": per, "indexesWithGaps": gaps}
     (OUT_DIR / "state.json").write_text(
-        json.dumps(st, ensure_ascii=False, indent=1), encoding="utf-8")
+        redact(json.dumps(st, ensure_ascii=False, indent=1)), encoding="utf-8")
     _miss = ("\n⛔ **الباقي بالاسم** (" + str(len(missing)) + "): "
              + ("، ".join(missing) if missing else "لا شيء — ملفات القرّاء موجودة"))
     _reads = (f"قُرئ {fetched_count}/{len(pub)} فهرساً · أخطاء القراءة: {len(read_errors)}"
@@ -525,6 +583,7 @@ def main():
                 rc, out = h(c)
         except Exception:                                             # noqa: BLE001
             rc, out = 3, "⛔ تعذّر تنفيذُ الأمر:\n" + traceback.format_exc()
+        out = redact(out)
         if len(out) > MAX_OUT:
             out = out[:MAX_OUT] + f"\n… [قُصّ الجواب عند {MAX_OUT} حرفاً]"
         print(out[:4000])
