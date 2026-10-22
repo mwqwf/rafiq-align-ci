@@ -42,12 +42,39 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
+  # ⭐ (تسريع 2026-10-22، مقيس) كلُّ شوطٍ ينقل أمراً إلى `done/` يدفع حذفاً تحت `ops/commands/**`
+  #    فيُشعل شوطاً تالياً **لا أمرَ فيه** — وكان كلٌّ منها يدفع ≈135ث (checkout كاملٌ لـ52 ألف ملفّ)
+  #    ثمّ يقول «لا أمرَ جديد». فهذه الوظيفةُ الخفيفةُ (بلا checkout) تقرأ قائمةَ الأوامر من API
+  #    **على إيداع الزناد نفسِه** (متّسقةٌ فوراً، لا على main المتحرّك) وتتخطّى الثقيلةَ إن لم يوجد
+  #    `*.json`. ⛔ أيُّ خطأٍ أو التباسٍ ⇒ `has=true` (تفشل مفتوحةً فلا يضيع أمر).
+  check:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    outputs:
+      has: ${{ steps.c.outputs.has }}
+    steps:
+      - id: c
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          has=true
+          n=$(gh api "repos/${GITHUB_REPOSITORY}/contents/ops/commands?ref=${GITHUB_SHA}" \
+                --jq '[.[] | select(.type=="file" and (.name|endswith(".json")))] | length' 2>/dev/null) || n=""
+          if [ "$n" = "0" ]; then has=false; fi
+          echo "أوامر معلّقة على الزناد: '${n}' ⇒ has=${has}"
+          echo "has=${has}" >> "$GITHUB_OUTPUT"
+
   execute:
+    needs: check
+    if: needs.check.outputs.has == 'true'
     runs-on: ubuntu-latest
     timeout-minutes: 30
     steps:
+      # ⭐ (تسريع 2026-10-22) `fetch-depth: 0` كان ≈110ث من ≈160ث للشوط (تاريخٌ كاملٌ + 52 ألف ملفّ).
+      #    السطحيّ ≈25ث. ولا تحتاج الأدواتُ التاريخَ (`git show HEAD:…` فقط)، والدمجُ عند رفض
+      #    الدفع سليمٌ على نسخةٍ سطحيّةٍ (يجلب `fetch` ما بين حدّها والرأس، اختُبر).
       - uses: actions/checkout@v4
-        with: { fetch-depth: 0, ref: main }
+        with: { fetch-depth: 1, ref: main }
       - uses: actions/setup-python@v5
         with: { python-version: "3.11" }
       - run: python -m pip install --quiet boto3
@@ -85,16 +112,8 @@ jobs:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: python tools/ci_fleet/agent_cmd.py
 
-      - name: احتياطٌ - ارفع الجواب artifact
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: ans-cmd-${{ github.run_id }}
-          path: ops/out
-          retention-days: 1
-          if-no-files-found: ignore
-
       - name: ادفع الجواب
+        id: push
         if: always()
         run: |
           git config user.name  "rafiq-agent-cmd"
@@ -135,3 +154,13 @@ jobs:
           else
             echo "لا جوابَ يُدفع."
           fi
+
+      # الاحتياطُ لا يُرفع إلا إن فشل الدفعُ نفسُه (كان يُرفع دائماً ≈20ث لكلّ شوط وفيه مجلّدٌ بـ386 م.ب).
+      - name: احتياطٌ - ارفع الجواب artifact
+        if: always() && steps.push.outcome == 'failure'
+        uses: actions/upload-artifact@v4
+        with:
+          name: ans-cmd-${{ github.run_id }}
+          path: ops/out
+          retention-days: 1
+          if-no-files-found: ignore
