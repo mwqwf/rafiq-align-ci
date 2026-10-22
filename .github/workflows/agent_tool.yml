@@ -33,8 +33,9 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 30
     steps:
+      # (تسريع 2026-10-22) checkout سطحيٌّ: التاريخُ الكاملُ كان ≈110ث بلا حاجة (انظر agent_cmd.yml).
       - uses: actions/checkout@v4
-        with: { fetch-depth: 0, ref: main }
+        with: { fetch-depth: 1, ref: main }
       - uses: actions/setup-python@v5
         with: { python-version: "3.11" }
       - run: python -m pip install --quiet boto3
@@ -63,16 +64,8 @@ jobs:
           ARGS: ${{ inputs.args }}
         run: python tools/ci_fleet/agent_cmd.py --tool-run
 
-      - name: احتياطٌ - ارفع الجواب artifact
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: ans-tool-${{ github.run_id }}
-          path: ops/out
-          retention-days: 1
-          if-no-files-found: ignore
-
       - name: ادفع الجواب
+        id: push
         if: always()
         run: |
           git config user.name  "rafiq-agent-cmd"
@@ -102,3 +95,13 @@ jobs:
           else
             echo "لا جوابَ يُدفع."
           fi
+
+      # الاحتياطُ لا يُرفع إلا إن فشل الدفعُ نفسُه.
+      - name: احتياطٌ - ارفع الجواب artifact
+        if: always() && steps.push.outcome == 'failure'
+        uses: actions/upload-artifact@v4
+        with:
+          name: ans-tool-${{ github.run_id }}
+          path: ops/out
+          retention-days: 1
+          if-no-files-found: ignore
