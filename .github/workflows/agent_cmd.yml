@@ -42,31 +42,7 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
-  # ⭐ (تسريع 2026-10-22، مقيس) كلُّ شوطٍ ينقل أمراً إلى `done/` يدفع حذفاً تحت `ops/commands/**`
-  #    فيُشعل شوطاً تالياً **لا أمرَ فيه** — وكان كلٌّ منها يدفع ≈135ث (checkout كاملٌ لـ52 ألف ملفّ)
-  #    ثمّ يقول «لا أمرَ جديد». فهذه الوظيفةُ الخفيفةُ (بلا checkout) تقرأ قائمةَ الأوامر من API
-  #    **على إيداع الزناد نفسِه** (متّسقةٌ فوراً، لا على main المتحرّك) وتتخطّى الثقيلةَ إن لم يوجد
-  #    `*.json`. ⛔ أيُّ خطأٍ أو التباسٍ ⇒ `has=true` (تفشل مفتوحةً فلا يضيع أمر).
-  check:
-    runs-on: ubuntu-latest
-    timeout-minutes: 5
-    outputs:
-      has: ${{ steps.c.outputs.has }}
-    steps:
-      - id: c
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          has=true
-          n=$(gh api "repos/${GITHUB_REPOSITORY}/contents/ops/commands?ref=${GITHUB_SHA}" \
-                --jq '[.[] | select(.type=="file" and (.name|endswith(".json")))] | length' 2>/dev/null) || n=""
-          if [ "$n" = "0" ]; then has=false; fi
-          echo "أوامر معلّقة على الزناد: '${n}' ⇒ has=${has}"
-          echo "has=${has}" >> "$GITHUB_OUTPUT"
-
   execute:
-    needs: check
-    if: needs.check.outputs.has == 'true'
     runs-on: ubuntu-latest
     timeout-minutes: 30
     steps:
