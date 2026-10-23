@@ -19,6 +19,12 @@
         يُحفظ أصلُ المرآة في `audio/_superseded/<riwaya>/<id>/<NNN>.<sha8>.mp3` ويُرفع الجديد بالاسم القياسيّ
         ويُعاد التحقّق من بصمته في الدلو، ثمّ يُحدَّث المانيفست (بصمة/حجم/clipsOk) ويُرفع حجبُ SHA_MISMATCH
         عن ما تطابق فقط. ما لم تطابق بصمتُه أو كان fileRef غيرَ mp3 يُترك محجوباً ويُسمّى.
+    unregistered  [--only riw/id …] [--riwaya R …] [--list-only] [--workers N]
+        مسحُ المرآة **غير المسجَّلة** (report فقط، لا يكتب شيئاً): قرّاءٌ لفهرسهم المنشور ملفّاتُ مرآةٍ في
+        `audio/<riwaya>/<id>/` وليس لهم مدخلٌ في `audio/<riwaya>/manifest.json` (فلا يستعملهم التطبيق اليوم).
+        يحسب sha كلِّ ملفٍّ فعلاً (بثّاً) ويقارنه بـ`audioSha256` للفهرس المنشور. الخروج 0 = كلُّها مطابقة (التسجيلُ
+        مأمون)، 3 = فيها مخالفة (لا تُسجَّل قبل `sync` أو إعادة فهرسة)، 6 = فهرسٌ غيرُ قابلٍ للتحقّق. `--list-only`
+        يعدّ الملفّات والأحجام بلا تنزيل. ثقيلٌ بقدر المرآة (استعمل `--only` قبل تسجيل قارئٍ بعينه).
     selftest
         اختبارٌ بلا شبكة لمنطق المقارنة والتعديل.
 
@@ -28,6 +34,9 @@
 * `--rehash` يحسب sha كلِّ ملفٍّ فعلاً من الدلو (تنزيلٌ بثّيّ) — ثقيل؛ للمسح العميق الدوريّ لا لكلّ ترقية.
 * الحجبُ **رتابيّ**: لا يُزال هنا. إزالتُه تتمّ بالمزامنة بعد تطابق البصمة فعلاً.
 * ⛔ لا يكتب إلا `audio/<riwaya>/manifest.json` ونسختَه الاحتياطية.
+* ⛔ **لا يبتلع الخطأ (2026-10-23):** فهرسٌ لا يُقرأ أو `audioSha256` فيه معطوبةٌ/غيرُ 114 ⇒ **«غيرُ قابلٍ للتحقّق»**
+  يُسمّى بسببه ويُخرج رمزاً غيرَ صفريّ (6)؛ كان يُعامَل «لا مخالفة» فيمرّ. وتُقبل الصيغتان (قائمة أو نصُّ قائمة)
+  عبر `index_fields.py`.
 """
 from __future__ import annotations
 
@@ -41,6 +50,9 @@ import time
 import urllib.request
 from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
+
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+from index_fields import IndexFieldError, audio_shas, full_shas  # noqa: E402
 
 sys.stdout.reconfigure(encoding="utf-8", errors="replace")
 PUBLIC = "https://pub-2c2e1dcd92e84a2898820dd38d3e09e6.r2.dev/"
@@ -61,7 +73,9 @@ def find_mismatches(entry: dict, index_sha: list, bucket_sizes: dict | None = No
     """
     out: dict = {}
     if not isinstance(index_sha, list) or len(index_sha) != 114:
-        return out        # فهرسٌ بلا 114 بصمة لا يُحكم به (حارس البنية يردّه أصلاً)
+        # ⛔ كان يرجع {} صامتاً فيُحسب «لا مخالفة». الآن يُرفع ويسمّيه المسحُ «غيرَ قابلٍ للتحقّق».
+        raise IndexFieldError(f"audioSha256 غيرُ صالحةٍ للمقارنة ({type(index_sha).__name__}"
+                              f"{'' if not isinstance(index_sha, list) else f' · {len(index_sha)} موضعاً'})")
     for pf in entry.get("perFile") or []:
         n = pf.get("surah")
         if not isinstance(n, int) or not 1 <= n <= 114:
@@ -189,11 +203,10 @@ def load_manifest(src: Src, riw: str) -> dict | None:
         return None
 
 
-def load_index_sha(src: Src, riw: str, rid: str):
-    try:
-        return json.loads(gzip.decompress(src.get(f"timings/{riw}/{rid}.jz"))).get("audioSha256")
-    except Exception:                                                        # noqa: BLE001
-        return None
+def load_index_sha(src: Src, riw: str, rid: str) -> list:
+    """بصماتُ الفهرس المنشور (114 موضعاً). ⛔ لا يبتلع: خطأُ الشبكة/الفكّ/الصيغة يُرفع إلى المسح فيسمّيه."""
+    idx = json.loads(gzip.decompress(src.get(f"timings/{riw}/{rid}.jz")))
+    return full_shas(idx)
 
 
 def published_set(src: Src) -> set:
@@ -202,7 +215,7 @@ def published_set(src: Src) -> set:
 
 
 def scan(src: Src, riwayat, only, verify_size, rehash):
-    """يرجع {riwaya: (manifest, {rid: (entry, index_sha, mism)})} للمنشور فقط."""
+    """يرجع {riwaya: (manifest, {rid: (entry, index_sha, mism)}, {rid: سببُ عدمِ القابلية للتحقّق})} للمنشور فقط."""
     pub = published_set(src)
     res = {}
     for riw in riwayat:
@@ -210,13 +223,18 @@ def scan(src: Src, riwayat, only, verify_size, rehash):
         if not man:
             continue
         rows = {}
+        unver = {}
         for e in man.get("reciters", []):
             rid = e["id"]
             if (riw, rid) not in pub or e.get("mode") != "surah" or not e.get("complete"):
                 continue
             if only and f"{riw}/{rid}" not in only:
                 continue
-            idx_sha = load_index_sha(src, riw, rid)
+            try:
+                idx_sha = load_index_sha(src, riw, rid)
+            except Exception as exc:                                        # noqa: BLE001
+                unver[rid] = f"{type(exc).__name__}: {str(exc)[:160]}"
+                continue
             sizes = None
             if verify_size:
                 pre = f"audio/{riw}/{rid}/"
@@ -228,15 +246,24 @@ def scan(src: Src, riwayat, only, verify_size, rehash):
                     ns = [pf["surah"] for pf in e.get("perFile") or []]
                     real = dict(zip(ns, ex.map(lambda n: src.sha_of(f"audio/{riw}/{rid}/{n:03d}.mp3"), ns)))
             rows[rid] = (e, idx_sha, find_mismatches(e, idx_sha, sizes, real))
-        res[riw] = (man, rows)
+        res[riw] = (man, rows, unver)
     return res
+
+
+def _print_unverifiable(res) -> int:
+    n = 0
+    for riw, (_m, _rows, unver) in res.items():
+        for rid, why in sorted(unver.items()):
+            n += 1
+            print(f"⚠️ {riw}/{rid}: غيرُ قابلٍ للتحقّق — {why}")
+    return n
 
 
 def cmd_report(a):
     src = Src(a.public)
     res = scan(src, a.riwaya or RIWAYAT, set(a.only or []), a.verify_size, a.rehash)
     total = unblocked = 0
-    for riw, (_, rows) in res.items():
+    for riw, (_, rows, _u) in res.items():
         for rid, (e, _i, mism) in sorted(rows.items()):
             if not mism:
                 continue
@@ -244,8 +271,12 @@ def cmd_report(a):
             total += len(mism)
             unblocked += len(fresh)
             print(f"{riw}/{rid}: مخالفة {sorted(mism)} · غيرُ محجوبةٍ بعد {sorted(fresh)}")
-    print(f"== الجملة: {total} سورةً مخالفة · منها {unblocked} غيرُ محجوبةٍ (clipsOk) تحتاج حجباً")
-    return 0 if unblocked == 0 else 3
+    nun = _print_unverifiable(res)
+    print(f"== الجملة: {total} سورةً مخالفة · منها {unblocked} غيرُ محجوبةٍ (clipsOk) تحتاج حجباً"
+          + (f" · {nun} قارئاً غيرُ قابلٍ للتحقّق" if nun else ""))
+    if unblocked:
+        return 3
+    return 6 if nun else 0
 
 
 def cmd_apply(a):
@@ -260,8 +291,8 @@ def cmd_apply(a):
         only.add(k)
     res = scan(src, RIWAYAT, only, a.verify_size, a.rehash)
     ts = int(time.time())
-    rc = 0
-    for riw, (man, rows) in res.items():
+    rc = 6 if _print_unverifiable(res) else 0     # لا يمنع حجبَ ما أمكن التحقّقُ منه، لكنّه يُخرج رمزاً غيرَ صفريّ
+    for riw, (man, rows, _u) in res.items():
         new_man = copy.deepcopy(man)
         changed = []
         for i, e in enumerate(new_man["reciters"]):
@@ -370,9 +401,10 @@ def cmd_sync(a):
         if not ent:
             print(f"⛔ {k}: لا مدخلَ في المانيفست"); rc = 2; continue
         idx = json.loads(gzip.decompress(src.get(f"timings/{riw}/{rid}.jz")))
-        idx_sha = idx.get("audioSha256")
-        if not isinstance(idx_sha, list) or len(idx_sha) != 114:
-            print(f"⛔ {k}: الفهرس بلا 114 بصمة"); rc = 2; continue
+        try:
+            idx_sha = full_shas(idx)
+        except IndexFieldError as exc:
+            print(f"⛔ {k}: الفهرس بلا 114 بصمة صالحة — {exc}"); rc = 2; continue
         refs = {}
         for en in idx["entries"]:
             refs.setdefault(int(en["ayahId"].split(":")[0]), set()).add(en.get("fileRef"))
@@ -446,6 +478,94 @@ def cmd_sync(a):
     return rc
 
 
+# ───────────────────────── المرآة غير المسجَّلة (report فقط) ─────────────────────────
+
+def find_unregistered(mirror_keys, registered: set, published: set) -> dict:
+    """{(riwaya, id): {سورة: مفتاح}} لملفّات مرآةٍ لقارئٍ **منشورِ الفهرس** وليس له مدخلٌ في مانيفست المرآة.
+
+    * mirror_keys: مفاتيحُ الدلو تحت `audio/` (النمطُ `audio/<riwaya>/<id>/NNN.mp3` وحدَه يُحسب).
+    * registered: {(riwaya, id)} من مدخلات المانيفست (أيّاً كان وضعُها) — هؤلاء يغطّيهم `report/apply`.
+    * published: {(riwaya, id)} من `timings/manifest.json`.
+    """
+    out: dict = {}
+    for k in mirror_keys:
+        p = k.split("/")
+        if len(p) != 4 or p[0] != "audio" or not p[3].endswith(".mp3") or not p[3][:-4].isdigit():
+            continue
+        riw, rid, n = p[1], p[2], int(p[3][:-4])
+        if riw not in RIWAYAT or not 1 <= n <= 114:
+            continue
+        if (riw, rid) in registered or (riw, rid) not in published:
+            continue
+        out.setdefault((riw, rid), {})[n] = k
+    return out
+
+
+def compare_files(file_sha: dict, index_sha: list) -> dict:
+    """{سورة: سبب} لملفّاتٍ بصمتُها المحسوبة فعلاً `file_sha[n]`: SHA_MISMATCH إن خالفت الفهرس، NO_INDEX_SHA إن لم يسجّل
+    الفهرسُ بصمةً لها (غيرُ قابلةٍ للتحقّق فتُحسب مخالفةً حذراً: لا تُسجَّل على مجهول)."""
+    if not isinstance(index_sha, list) or len(index_sha) != 114:
+        raise IndexFieldError("audioSha256 غيرُ صالحةٍ للمقارنة")
+    out = {}
+    for n, got in sorted(file_sha.items()):
+        want = index_sha[n - 1]
+        if not want:
+            out[n] = "NO_INDEX_SHA"
+        elif got != want:
+            out[n] = "SHA_MISMATCH"
+    return out
+
+
+def cmd_unregistered(a):
+    src = Src(False)
+    only = set(a.only or [])
+    riwayat = tuple(a.riwaya or RIWAYAT)
+    pub = published_set(src)
+    registered, keys = set(), []
+    sizes = {}
+    for riw in riwayat:
+        man = load_manifest(src, riw)
+        registered |= {(riw, e["id"]) for e in (man or {}).get("reciters", [])}
+        for page in src.cl.get_paginator("list_objects_v2").paginate(Bucket=src.bucket, Prefix=f"audio/{riw}/"):
+            for o in page.get("Contents", []):
+                keys.append(o["Key"])
+                sizes[o["Key"]] = o["Size"]
+    groups = find_unregistered(keys, registered, {x for x in pub if x[0] in riwayat})
+    if only:
+        groups = {k: v for k, v in groups.items() if f"{k[0]}/{k[1]}" in only}
+    if not groups:
+        print("== لا مرآةَ غيرُ مسجَّلةٍ لقرّاء منشورين" + (" ضمن --only" if only else ""))
+        return 0
+    total = bad_total = unver = 0
+    for (riw, rid), files in sorted(groups.items()):
+        nbytes = sum(sizes[k] for k in files.values())
+        if a.list_only:
+            print(f"{riw}/{rid}: {len(files)} ملفّاً · {nbytes / 1e9:.2f} غ.ب (غيرُ مسجَّل)")
+            continue
+        try:
+            idx_sha = load_index_sha(src, riw, rid)
+        except Exception as exc:                                            # noqa: BLE001
+            unver += 1
+            print(f"⚠️ {riw}/{rid}: غيرُ قابلٍ للتحقّق — {type(exc).__name__}: {str(exc)[:160]}")
+            continue
+        with ThreadPoolExecutor(a.workers) as ex:
+            ns = sorted(files)
+            got = dict(zip(ns, ex.map(lambda n: src.sha_of(files[n]), ns)))
+        bad = compare_files(got, idx_sha)
+        total += len(files)
+        bad_total += len(bad)
+        tag = "✅ مطابقة — التسجيلُ مأمون" if not bad else f"⛔ مخالفة {sorted(bad)}"
+        print(f"{riw}/{rid}: {len(files)} ملفّاً · {tag}")
+    if a.list_only:
+        print(f"== {len(groups)} قارئاً غيرَ مسجَّل (عدٌّ فقط، بلا تنزيل)")
+        return 0
+    print(f"== مرآةٌ غيرُ مسجَّلة: {len(groups)} قارئاً · {total} ملفّاً · {bad_total} مخالفاً"
+          + (f" · {unver} غيرُ قابلٍ للتحقّق" if unver else "") + " (report فقط — لم يُكتب شيء)")
+    if bad_total:
+        return 3
+    return 6 if unver else 0
+
+
 # ───────────────────────── الاختبار ─────────────────────────
 
 def _fake_entry(shas, blocked=()):
@@ -490,8 +610,13 @@ def selftest():
     bad = copy.deepcopy(e)
     bad["perFile"][4]["sha256"] = "2" * 64
     assert find_mismatches(bad, idx, None, {5: idx[4]}) == {}
-    # فهرسٌ بلا 114 بصمة لا يُحكم به ولا يُحجب به
-    assert find_mismatches(e, idx[:100]) == {} and find_mismatches(e, None) == {}
+    # ⛔ فهرسٌ بلا 114 بصمة صالحة **لا يمرّ «نظيفاً»**: يُرفع ليسمّيه المسحُ «غيرَ قابلٍ للتحقّق»
+    for bad_idx in (idx[:100], None, "[]", {}):
+        try:
+            find_mismatches(e, bad_idx)
+            raise SystemExit(f"⛔ كان يجب أن يرفع على {type(bad_idx).__name__}")
+        except IndexFieldError:
+            pass
     # sync: يرفع SHA_MISMATCH وحده ويُبقي DURATION_MISMATCH
     e3 = _fake_entry(idx, blocked={9})
     e3["perFile"][6]["sha256"] = "0" * 64                      # س7 مخالفة
@@ -512,6 +637,23 @@ def selftest():
         pass
     assert _plain_mp3_url("https://x.org/a/007.mp3?x=1") and not _plain_mp3_url("https://archive.org/d/002.ogg") \
         and _plain_mp3_url("https://archive.org/d/%D8%B3.mp3")
+    # المرآة غير المسجَّلة
+    keys = ["audio/hafs/qasm/002.mp3", "audio/hafs/qasm/005.mp3", "audio/hafs/a_klb/002.mp3",
+            "audio/hafs/orphan/001.mp3", "audio/hafs/manifest.json", "audio/hafs/qasm/readme.txt",
+            "audio/_superseded/hafs/qasm/002.abc12345.mp3", "audio/hafs/qasm/000.mp3", "audio/hafs/qasm/115.mp3",
+            "audio/warsh/laghdaf_shinqiti/085.mp3"]
+    g = find_unregistered(keys, {("hafs", "a_klb")}, {("hafs", "qasm"), ("hafs", "a_klb"), ("warsh", "laghdaf_shinqiti")})
+    assert sorted(g) == [("hafs", "qasm"), ("warsh", "laghdaf_shinqiti")], g
+    assert sorted(g[("hafs", "qasm")]) == [2, 5] and ("hafs", "orphan") not in g
+    got = {2: idx[1], 5: "e" * 64, 7: idx[6]}
+    idx2 = list(idx)
+    idx2[6] = None
+    assert compare_files(got, idx2) == {5: "SHA_MISMATCH", 7: "NO_INDEX_SHA"}
+    try:
+        compare_files(got, idx[:5])
+        raise SystemExit("⛔ كان يجب أن يرفع على فهرسٍ ناقص")
+    except IndexFieldError:
+        pass
     print("✅ selftest: كلُّ الحالات سليمة")
     return 0
 
@@ -528,6 +670,11 @@ def main():
         q.add_argument("--rehash", action="store_true")
         if name == "apply":
             q.add_argument("--surahs", nargs="*", help="riw/id:1,2,3 — يحصر الحجب بهذه السور")
+    q = sp.add_parser("unregistered")
+    q.add_argument("--only", nargs="*")
+    q.add_argument("--riwaya", nargs="*")
+    q.add_argument("--list-only", action="store_true")
+    q.add_argument("--workers", type=int, default=6)
     q = sp.add_parser("sync")
     q.add_argument("--surahs", nargs="+", required=True, help="riw/id:1,2,3")
     q.add_argument("--dry", action="store_true")
@@ -537,6 +684,8 @@ def main():
         return selftest()
     if a.cmd == "sync":
         return cmd_sync(a)
+    if a.cmd == "unregistered":
+        return cmd_unregistered(a)
     return cmd_report(a) if a.cmd == "report" else cmd_apply(a)
 
 

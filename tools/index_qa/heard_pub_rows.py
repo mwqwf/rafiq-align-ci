@@ -21,6 +21,7 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 import heard_gate as H  # noqa: E402
+import index_fields as I  # noqa: E402
 from run import s3  # noqa: E402
 
 
@@ -39,10 +40,12 @@ def surah_summary(starts: dict, m: dict) -> dict:
 
 def sweep_line(key: str, idx: dict, live_sha: str, rep: dict) -> str:
     cs = H.by_surah(idx["entries"])
-    shas = idx.get("audioSha256")
     present = sorted(cs)
-    sha_of = ({s: shas[s - 1] for s in present} if isinstance(shas, list) and len(shas) == 114 else
-              dict(zip(present, shas)) if isinstance(shas, list) and len(shas) == len(present) else {})
+    try:
+        sha_of = I.sha_by_surah(idx, present)
+    except I.IndexFieldError as exc:
+        # ⛔ لا يُحسب «صوت≠» زوراً: العطبُ في ترويسة الفهرس نفسِه فيُسمّى
+        return f"{key}\t{live_sha[:8]}\t⛔ audioSha256 لا تُقرأ: {exc}"
     maps = {int(k): v for k, v in (rep.get("maps") or {}).items()}
     bad, stretch, nd, audio_ne = [], [], 0, 0
     for s in present:
@@ -91,14 +94,11 @@ def main() -> int:
     cl, b = s3()
     idx = json.loads(gzip.decompress(cl.get_object(Bucket=b, Key=key)["Body"].read()))
     cs = H.by_surah(idx["entries"])
-    shas = idx.get("audioSha256")
     present = sorted(cs)
-    if isinstance(shas, list) and len(shas) == 114:
-        sha_of = {s: shas[s - 1] for s in present}
-    elif isinstance(shas, list) and len(shas) == len(present):
-        sha_of = dict(zip(present, shas))
-    else:
-        sha_of = {}
+    try:
+        sha_of = I.sha_by_surah(idx, present)
+    except I.IndexFieldError as exc:
+        print(f"⛔ audioSha256 في {key} لا تُقرأ: {exc}"); return 1
     maps = {}
     for pre in (H.state_key(key),):
         try:

@@ -19,13 +19,16 @@ on:
   workflow_dispatch:
     inputs:
       mode:
-        description: "report (قراءة) · apply (يحجب)"
+        description: "report (قراءة) · apply (يحجب) · unregistered (يمسح المرآةَ غيرَ المسجَّلة — report فقط)"
         default: "apply"
       only:
         description: "riwaya/reciter — أو فارغٌ للكلّ"
         default: ""
       rehash:
         description: "true = يحسب sha كلّ ملفٍّ فعلاً من الدلو (ثقيل)"
+        default: "false"
+      list_only:
+        description: "unregistered فقط: true = عدٌّ بلا تنزيل"
         default: "false"
 
 concurrency:
@@ -67,9 +70,17 @@ jobs:
           MODE: ${{ github.event.inputs.mode || 'apply' }}
           ONLY: ${{ github.event.inputs.only }}
           REHASH: ${{ github.event.inputs.rehash }}
+          LIST_ONLY: ${{ github.event.inputs.list_only }}
         run: |
           set -o pipefail
-          args=(--verify-size)
-          [ -n "$ONLY" ] && args+=(--only $ONLY)
-          [ "$REHASH" = "true" ] && args+=(--rehash)
+          if [ "$MODE" = "unregistered" ]; then
+            # report فقط: لا حجبَ ولا كتابة. الخروج 3 = مخالفة، 6 = فهرسٌ غيرُ قابلٍ للتحقّق.
+            args=()
+            [ -n "$ONLY" ] && args+=(--only $ONLY)
+            [ "$LIST_ONLY" = "true" ] && args+=(--list-only)
+          else
+            args=(--verify-size)
+            [ -n "$ONLY" ] && args+=(--only $ONLY)
+            [ "$REHASH" = "true" ] && args+=(--rehash)
+          fi
           python tools/index_qa/mirror_sha_guard.py "$MODE" "${args[@]}"

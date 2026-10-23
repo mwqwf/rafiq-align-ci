@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 """اختبار وضع --sweep في heard_pub_rows (pV · 2026-10-13): الحكمُ على الفهرس الحيّ لا المقيس،
 وكشفُ القياس المتقادم، وكشفُ التمدّد الزمنيّ."""
-import sys, types
+import json, sys, types
 from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 sys.modules.setdefault("run", types.SimpleNamespace(s3=None))
@@ -22,6 +22,22 @@ def test_live_index_agrees_stale_measure_flagged():
     starts = {a: a * 100000 for a in range(1, 21)}
     line = R.sweep_line("timings/hafs/x.jz", _idx(starts), "LIVE0000", _rep(starts, idx_sha="OLD00000"))
     assert "متقادم(OLD00000)" in line and "منحرفة=0" in line and "تمدّد=-" in line
+
+
+def test_text_form_sha_gives_same_line_as_list():
+    starts = {a: a * 100000 for a in range(1, 21)}
+    a = R.sweep_line("timings/hafs/x.jz", _idx(starts), "LIVE0000", _rep(starts, idx_sha="LIVE0000"))
+    idx = _idx(starts)
+    idx["audioSha256"] = json.dumps(idx["audioSha256"])
+    assert R.sweep_line("timings/hafs/x.jz", idx, "LIVE0000", _rep(starts, idx_sha="LIVE0000")) == a
+
+
+def test_malformed_sha_is_named_not_counted_as_audio_mismatch():
+    starts = {a: a * 100000 for a in range(1, 21)}
+    idx = _idx(starts)
+    idx["audioSha256"] = "[oops"
+    line = R.sweep_line("timings/hafs/x.jz", idx, "LIVE0000", _rep(starts, idx_sha="LIVE0000"))
+    assert "⛔ audioSha256 لا تُقرأ" in line and "صوت≠" not in line
 
 
 def test_stretch_detected():

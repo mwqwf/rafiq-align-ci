@@ -53,6 +53,29 @@ class Decide(unittest.TestCase):
         self.assertFalse(d["take"])
         self.assertIn("تبدّل", d["why"])
 
+    def test_audio_sha_checked_with_114_slots_and_dropped_surah(self):
+        """كان الفحصُ يُتخطّى صامتاً حين تكون القائمةُ 114 موضعاً والحاضرُ سورةً واحدة ⇒ يمرّ صوتٌ مبدَّل."""
+        p = parent({1: 0, 2: 10000, 3: 12000, 4: 14000})
+        p["audioSha256"] = ["aa"] + [None] * 113
+        d = decide(1, p, res(AN, {1: 0, 2: 10000, 3: 40000, 4: 80000}, sha="zz"))
+        self.assertFalse(d["take"])
+        self.assertIn("تبدّل", d["why"])
+        d = decide(1, p, res(AN, {1: 100, 2: 10100, 3: 40200, 4: 80300}))
+        self.assertTrue(d["take"])
+
+    def test_audio_sha_text_form_accepted_malformed_rejected(self):
+        p = parent({1: 0, 2: 10000, 3: 12000, 4: 14000})
+        p["audioSha256"] = '["aa"]'
+        d = decide(1, p, res(AN, {1: 0, 2: 10000, 3: 40000, 4: 80000}, sha="zz"))
+        self.assertFalse(d["take"])
+        self.assertIn("تبدّل", d["why"])
+        p["audioSha256"] = "[oops"
+        d = decide(1, p, res(AN, {1: 100, 2: 10100, 3: 40200, 4: 80300}))
+        self.assertFalse(d["take"])
+        self.assertIn("لا تُقرأ", d["why"])
+        p.pop("audioSha256")
+        self.assertFalse(decide(1, p, res(AN, {1: 100, 2: 10100, 3: 40200, 4: 80300}))["take"])
+
     def test_other_file_rejected(self):
         d = decide(1, parent({1: 0, 2: 10000, 3: 12000, 4: 14000}),
                    res(AN, {1: 0, 2: 10000, 3: 40000, 4: 80000}, ref="https://x/001.mp3"))

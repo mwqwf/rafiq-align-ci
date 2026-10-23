@@ -479,8 +479,13 @@ def registered_source_remediation(idx, riwaya, reciter, surah, overrides=None):
     if wrong:
         return False, f"{len(wrong)} مدخلاً لا يشير إلى ملف البديل المسجّل"
     if row.get("audio_sha256"):
-        shas = idx.get("audioSha256") or []
-        if len(shas) != 114 or shas[surah - 1] != row["audio_sha256"]:
+        sys.path.insert(0, str(HERE))
+        from index_fields import IndexFieldError, full_shas
+        try:
+            shas = full_shas(idx)          # قائمةٌ أو نصُّ قائمة؛ والمعطوبةُ تُسمّى لا تُحسب «لا تطابق»
+        except IndexFieldError as ex:
+            return False, f"audioSha256 معطوبة في الفهرس: {ex}"
+        if shas[surah - 1] != row["audio_sha256"]:
             return False, "بصمة صوت السورة لا تطابق المصدر المسجّل"
     return True, f"{surah}:1–{surah}:{len(expected_ids)} على {expected_ref}"
 

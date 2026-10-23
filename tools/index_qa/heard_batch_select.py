@@ -27,6 +27,7 @@ import sys
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 import heard_gate as H  # noqa: E402
+import index_fields as I  # noqa: E402
 
 
 def decide(s: int, parent: dict, res: dict | None) -> dict:
@@ -41,12 +42,16 @@ def decide(s: int, parent: dict, res: dict | None) -> dict:
         out["why"] = "لا مداخلَ لها في الأب — ليست من شأن هذه الدفعة"
         return out
     present = sorted(cs)
-    shas = parent.get("audioSha256")
-    if isinstance(shas, list) and len(shas) == len(present):
-        want = shas[present.index(s)]
-        if want and res.get("sha256") != want:
-            out["why"] = f"صوتُ المصدر تبدّل ({str(res.get('sha256'))[:8]} ≠ {str(want)[:8]}) — يُترك للتحقيق"
-            return out
+    # ⛔ كان الفحصُ يُتخطّى صامتاً إن لم يساوِ طولُ القائمة عدد الحاضر (فهرسٌ بـ114 موضعاً وسورةٌ محذوفة)
+    #    أو جاءت نصّاً. الآن: الصيغتان تُقبلان، وما لا يغطّي الحاضرَ يُردّ بسببه.
+    try:
+        want = I.sha_by_surah(parent, present).get(s)
+    except I.IndexFieldError as exc:
+        out["why"] = f"audioSha256 في الأب لا تُقرأ ({exc}) — لا يُحكم بلا بصمةٍ صالحة"
+        return out
+    if want and res.get("sha256") != want:
+        out["why"] = f"صوتُ المصدر تبدّل ({str(res.get('sha256'))[:8]} ≠ {str(want)[:8]}) — يُترك للتحقيق"
+        return out
     refs = {v[2] for v in pub.values()}
     if res.get("fileRef") not in refs:
         out["why"] = f"سُمع {res.get('fileRef')} والأبُ يشير إلى {sorted(refs)}"

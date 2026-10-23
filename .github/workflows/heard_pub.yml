@@ -67,14 +67,12 @@ jobs:
           idx = json.loads(gzip.decompress(body))
           riw, stem = key.split("/")[1], key.split("/")[2][:-3]
           cs = H.by_surah(idx["entries"])
-          shas = idx.get("audioSha256")
+          import index_fields as IF
           present = sorted(cs)
-          if isinstance(shas, list) and len(shas) == 114:
-              want = {s: shas[s - 1] for s in present}
-          elif isinstance(shas, list) and len(shas) == len(present):
-              want = dict(zip(present, shas))
-          else:
-              sys.exit("⛔ audioSha256 بلا شكلٍ صالح")
+          try:
+              want = IF.sha_by_surah(idx, present)      # قائمةٌ أو نصُّ قائمة؛ والمعطوبةُ تُسمّى
+          except IF.IndexFieldError as exc:
+              sys.exit(f"⛔ audioSha256 بلا شكلٍ صالح: {exc}")
           # خرائطُ القارئ القائمةُ (‏تقاريرُ هذا السيرِ وتقاريرُ heard_gate على مرشّحاته)
           covered = set()
           if os.environ.get("FORCE") != "true":
@@ -202,13 +200,13 @@ jobs:
           sha = hashlib.sha256(body).hexdigest()
           idx = json.loads(gzip.decompress(body))
           cs = H.by_surah(idx["entries"])
-          shas = idx.get("audioSha256"); present = sorted(cs)
-          if isinstance(shas, list) and len(shas) == 114:
-              want = {s: shas[s - 1] for s in present}
-          elif isinstance(shas, list) and len(shas) == len(present):
-              want = dict(zip(present, shas))
-          else:
-              want = {}
+          import index_fields as IF
+          present = sorted(cs)
+          try:
+              want = IF.sha_by_surah(idx, present)      # قائمةٌ أو نصُّ قائمة؛ والمعطوبةُ تُسمّى
+          except IF.IndexFieldError as exc:
+              # ⛔ كان `want = {}` صامتاً فتُسقَط كلُّ الخرائط بعبارة «لا تطابق» والعطبُ في الترويسة نفسِها
+              sys.exit(f"⛔ audioSha256 بلا شكلٍ صالح: {exc}")
           new = {}
           for p in glob.glob("shards/**/heard_s*.json", recursive=True):
               m = H.compact_map(json.load(open(p, encoding="utf-8")))

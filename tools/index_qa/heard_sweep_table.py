@@ -15,15 +15,17 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 import heard_gate as H  # noqa: E402
+import index_fields as I  # noqa: E402
 from run import s3  # noqa: E402
 
 
 def row_for(key, idx, live_sha, rep):
     cs = H.by_surah(idx["entries"])
-    shas = idx.get("audioSha256")
     present = sorted(cs)
-    sha_of = ({s: shas[s - 1] for s in present} if isinstance(shas, list) and len(shas) == 114 else
-              dict(zip(present, shas)) if isinstance(shas, list) and len(shas) == len(present) else {})
+    try:
+        sha_of = I.sha_by_surah(idx, present)
+    except I.IndexFieldError as exc:
+        return f"R\t{key}\t⛔ audioSha256 لا تُقرأ: {exc}"
     maps = {int(k): v for k, v in (rep.get("maps") or {}).items()}
     surahs = dev = g15 = g5 = 0
     worst = (0, "-")

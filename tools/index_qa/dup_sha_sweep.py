@@ -35,6 +35,7 @@ for _s in (sys.stdout, sys.stderr):
 HERE = Path(__file__).resolve().parent
 sys.path.insert(0, str(HERE))
 import run as _run                                                   # noqa: E402
+from index_fields import audio_shas                                  # noqa: E402
 
 
 def list_published(cl, bucket, prefix="timings/"):
@@ -62,12 +63,12 @@ def main():
     for key in keys:
         try:
             idx, _sha = _run.fetch_index(key)
+            sha = audio_shas(idx)      # قائمةٌ أو نصُّ قائمة؛ والمعطوبةُ تُرفع (كان نصُّ القائمة يُعدّ حرفاً حرفاً)
         except Exception as e:                          # noqa: BLE001
             print(f"⛔ {key}: تعذّرت القراءة — {e}")
             unread += 1
             continue
         checked += 1
-        sha = idx.get("audioSha256") or []
         served = {int(e["ayahId"].split(":")[0]) for e in idx.get("entries", [])}
         exempt = {s for s in _run.declared_drops(idx) if s not in served}
         live = [(i + 1, x) for i, x in enumerate(sha) if (i + 1) not in exempt and x]

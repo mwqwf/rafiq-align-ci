@@ -89,6 +89,18 @@ class PinHeard(unittest.TestCase):
         with self.assertRaises(SystemExit):
             pin(_idx(), 77, h, {2: 30000, 3: 40000, 4: 50000})
 
+    def test_audio_sha_text_form_checked_and_malformed_refused(self):
+        """نصُّ القائمة يُفحص كالقائمة؛ والمعطوبُ يُرفض (كان يُتخطّى الفحصُ صامتاً)."""
+        h = copy.deepcopy(HMAP); h["sha256"] = "c" * 64
+        idx = _idx(); idx["audioSha256"] = '["%s", "%s"]' % ("a" * 64, "b" * 64)
+        with self.assertRaises(SystemExit):
+            pin(idx, 77, h, {2: 30000, 3: 40000, 4: 50000})
+        pin(idx, 77, copy.deepcopy(HMAP), {2: 30000, 3: 40000, 4: 50000}, {1: 10000})      # الصحيحة تمرّ
+        for bad in ("[oops", ["a" * 64], None):
+            idx = _idx(); idx["audioSha256"] = bad
+            with self.assertRaises(SystemExit):
+                pin(idx, 77, copy.deepcopy(HMAP), {2: 30000, 3: 40000, 4: 50000}, {1: 10000})
+
     def test_result_must_satisfy_heard_gate(self):
         with self.assertRaises(SystemExit):                            # 4 تبقى منحرفة 10ث
             pin(_idx(), 77, copy.deepcopy(HMAP), {2: 30000})

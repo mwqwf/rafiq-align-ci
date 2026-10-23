@@ -1,3 +1,4 @@
+import json
 import unittest
 
 from tools.index_qa.promote import registered_source_remediation
@@ -69,6 +70,24 @@ class RegisteredSourceRemediationTest(unittest.TestCase):
         idx["audioSha256"] = ["a" * 64] * 114
         idx["entries"][1]["fileRef"] = self.base + "009.mp3"
         self.assertFalse(registered_source_remediation(idx, "hafs", "reader", 9, override)[0])
+
+
+    def test_audio_sha_text_form_accepted_and_malformed_named(self):
+        """نصُّ القائمة يُقبل كالقائمة؛ والمعطوبُ يُسمّى «معطوبة» لا «لا تطابق» (كان يُبتلع ⇒ [])."""
+        override = [dict(self.override[0], url=self.base + "008.mp3", audio_sha256="a" * 64)]
+        entries = [dict(row, fileRef=self.base + "008.mp3") for row in self.entries]
+        as_list = ["a" * 64] * 114
+        ok, _ = registered_source_remediation({"entries": entries, "audioSha256": json.dumps(as_list)},
+                                              "hafs", "reader", 9, override)
+        self.assertTrue(ok)
+        ok, detail = registered_source_remediation({"entries": entries, "audioSha256": "[not a list"},
+                                                   "hafs", "reader", 9, override)
+        self.assertFalse(ok)
+        self.assertIn("معطوبة", detail)
+        ok, detail = registered_source_remediation({"entries": entries, "audioSha256": as_list[:50]},
+                                                   "hafs", "reader", 9, override)
+        self.assertFalse(ok)
+        self.assertIn("معطوبة", detail)
 
 
 if __name__ == "__main__":

@@ -46,6 +46,7 @@ for _s in (sys.stdout, sys.stderr):
 HERE = Path(__file__).resolve().parent
 sys.path.insert(0, str(HERE))
 import heard_gate                                                    # noqa: E402
+import index_fields                                                  # noqa: E402
 
 REPO = "mwqwf/rafiq-align-ci"
 ENGINE = "heard-pin-1"
@@ -115,11 +116,13 @@ def pin(idx, surah, hmap, pins, trims=None, last_end=None):
     if len(refs) != 1 or hmap.get("fileRef") not in refs:
         raise SystemExit(f"⛔ الخريطةُ سُمعت من {hmap.get('fileRef')} والفهرسُ يشير إلى {sorted(refs)[:2]}")
     present = sorted({_key(e["ayahId"])[0] for e in ents})
-    shas = idx.get("audioSha256")
-    if isinstance(shas, list) and len(shas) == len(present):
-        want = shas[present.index(surah)]
-        if want and want != hmap.get("sha256"):
-            raise SystemExit(f"⛔ بصمةُ الصوت المسموع {str(hmap.get('sha256'))[:8]} غيرُ بصمة الفهرس {str(want)[:8]}")
+    # ⛔ كان الفحصُ يُتخطّى صامتاً إن لم يساوِ طولُ القائمة عدد السور الحاضرة (114 موضعاً وسورةٌ محذوفة) أو جاءت نصّاً.
+    try:
+        want = index_fields.sha_by_surah(idx, present).get(surah)
+    except index_fields.IndexFieldError as exc:
+        raise SystemExit(f"⛔ audioSha256 في الفهرس لا تُقرأ ({exc}) — لا تثبيتَ بلا بصمةٍ صالحة")
+    if want and want != hmap.get("sha256"):
+        raise SystemExit(f"⛔ بصمةُ الصوت المسموع {str(hmap.get('sha256'))[:8]} غيرُ بصمة الفهرس {str(want)[:8]}")
     report = []
     for a, ms in sorted(pins.items()):
         if a not in mine:
