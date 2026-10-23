@@ -115,7 +115,8 @@ ALLOWED_WF = {"silence_probe.yml", "heard_anchor_provenance_probe.yml", "free-no
 #    استرجاع الـ310 آية لم تصل إلى المستخدم أصلاً، **لأنّ لا بابَ سحابيّاً
 #    كان يفتحه**. وهو محكومٌ بحُرّاسه (يُسقط التوليد كلَّه إن شُهد لمن لا حكمَ
 #    لبصمته، ولا يمسّ غير الحقلين)، فإدخالُه لا يُضعف حارساً.
-ALLOWED_TOOLS = {"index_qa/heard_sweep_table.py", "index_qa/source_inventory.py", "ci_fleet/promote_atomic.py",  # رفعٌ وترقيةٌ وإعادةُ تجميدٍ في عمليّةٍ واحدة (2026-10-17)
+ALLOWED_TOOLS = {"index_qa/set_reciter_files.py",  # يضع files في مدخلٍ واحدٍ من catalog/reciters.json بحُرّاس (اتّفاق الفهرس · HEAD 114 · نسخة احتياطية · لا تغيّر غير الحقل) — 2026-10-23
+                 "index_qa/heard_sweep_table.py", "index_qa/source_inventory.py", "ci_fleet/promote_atomic.py",  # رفعٌ وترقيةٌ وإعادةُ تجميدٍ في عمليّةٍ واحدة (2026-10-17)
                  "index_qa/adopt_noah_source_gap.py",  # اعتماد مقيد بالبصمة بعد نجاح كامل الفحص 37405972254
                  "ci_fleet/cancel_superseded_tail_qa.py", "ci_fleet/cancel_superseded_ctc_qa.py", "ci_fleet/rerun_stale_review.py",  # retry only pinned read-only review after stale diagnosis
                  "index_qa/export_index_bytes.py",  # SHA-pinned raw read only
