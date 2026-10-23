@@ -333,20 +333,22 @@ v_launch() {
   [[ "$rate" =~ ^[0-9]+([.][0-9]+)?$ ]] || { err "rate غير رقميّ"; exit 1; }
   local act; act=$(v_active_ids | head -1)
   [ -z "$act" ] || { err "توجد مهمة نشطة ($act) بالوسم app=mushafak1 — لا مهمةَ ثانية"; exit 1; }
-  local start=""
+  local start="" prev_skip=""
   if bucket_exists; then
     start=$(gs_json "$GSB/campaign.json" | jget campaign_start "")
+    prev_skip=$(gs_json "$GSB/campaign.json" | jget no_run_jobs "")   # تُحفظ عبر الإطلاقات فلا تعود كلفةُ مهمةٍ لم تجرِ
   else
     gc storage buckets create "$GSB" --location="$REGION" --uniform-bucket-level-access
   fi
   [[ "$start" =~ ^20[0-9][0-9]-[0-9][0-9]-[0-9][0-9]T ]] || start=$(date -u +%Y-%m-%dT%H:%M:%SZ)
   pip install -q boto3
   python3 "$HERE/r2_stage.py" urls --out "$TMP/stage_urls.json" --expect-step "$EXPECT_STEP"
-  python3 - "$rate" "$BUDGET_USD" "$VERTEX_MACHINE" "$SPOT" "$start" "$PROJECT_ID" "$EXPECT_STEP" "$BUCKET" > "$TMP/campaign.json" 3> "$TMP/config.json" <<'PYEOF'
+  local skip_all; skip_all=$({ echo "$prev_skip"; grep -v "^#" "$HERE/no_run_jobs.txt" 2>/dev/null || true; } | tr ' ' '\n' | { grep -E '^[0-9]+$' || true; } | sort -u | tr '\n' ' ' | sed 's/ $//')
+  NO_RUN_JOBS_ALL="$skip_all" python3 - "$rate" "$BUDGET_USD" "$VERTEX_MACHINE" "$SPOT" "$start" "$PROJECT_ID" "$EXPECT_STEP" "$BUCKET" > "$TMP/campaign.json" 3> "$TMP/config.json" <<'PYEOF'
 import json, os, sys, time
 rate, budget, machine, spot, start, project, expect, bucket = sys.argv[1:9]
 print(json.dumps({"backend": "vertex", "rate_usd_per_hour": float(rate), "budget_usd": float(budget), "machine_type": machine,
-                  "spot": spot == "true", "strategy": os.environ.get("STRATEGY", "auto"), "campaign_start": start, "region": os.environ.get("REGION", "us-central1"),
+                  "spot": spot == "true", "strategy": os.environ.get("STRATEGY", "auto"), "campaign_start": start, "region": os.environ.get("REGION", "us-central1"), "no_run_jobs": os.environ.get("NO_RUN_JOBS_ALL", ""),
                   "launched": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime())}))
 with os.fdopen(3, "w") as f:
     json.dump({"bucket": bucket, "project": project, "expect_step": int(expect), "rate": float(rate), "budget_usd": float(budget),
