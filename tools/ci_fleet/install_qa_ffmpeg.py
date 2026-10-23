@@ -9,9 +9,16 @@ def apt_fallback(why):
  # (2026-10-16) BtbN autobuilds rotate: the pinned release returned 404 and every audio_qa salt failed
  # before measuring anything. Ubuntu's signed apt archive is the fallback; the pinned digest still wins when present.
  print('Pinned archive unavailable (%s); installing signed Ubuntu ffmpeg via apt'%why,flush=True)
- for cmd in (['sudo','apt-get','update','-qq','-o','Acquire::Retries=3'],
-             ['sudo','apt-get','install','-y','-qq','--no-install-recommends','ffmpeg']):
-  subprocess.run(['timeout','600']+cmd,check=True)
+ # (2026-10-23) مرآةُ apt المعلَّقة كانت تستهلك مهلة الخطوة كلَّها (600ث ثمّ تموت الخطوة) فتسقط بوّابة الإحصاء/المطالع بعطب بنية:
+ # كلُّ أمرٍ الآن بمهلة 150ث وثلاث محاولات (المعلَّقة تُقتل وتُعاد، وغالباً تنجح الثانية)، ومهلة اتصال 20ث لكلّ طلب.
+ net=['-o','Acquire::Retries=3','-o','Acquire::http::Timeout=20','-o','Acquire::https::Timeout=20']
+ for cmd in (['sudo','apt-get','update','-qq']+net,
+             ['sudo','apt-get','install','-y','-qq','--no-install-recommends']+net+['ffmpeg']):
+  for attempt in (1,2,3):
+   r=subprocess.run(['timeout','150']+cmd)
+   if r.returncode==0:break
+   print('apt step failed rc=%d (attempt %d/3): %s'%(r.returncode,attempt,' '.join(cmd[:3])),flush=True)
+  else:raise subprocess.CalledProcessError(r.returncode,cmd)
  if not(shutil.which('ffmpeg') and shutil.which('ffprobe')):raise RuntimeError('apt fallback did not provide ffmpeg/ffprobe')
 def main():
  if shutil.which('ffmpeg') and shutil.which('ffprobe'):print('Using existing ffmpeg and ffprobe');return
