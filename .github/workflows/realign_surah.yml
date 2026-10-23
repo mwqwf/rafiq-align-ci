@@ -96,10 +96,17 @@ jobs:
         with:
           python-version: ${{ env.PY }}
 
+      - name: كاش ffmpeg (بديلُ apt المعلَّق · لا يغيّر النسخة)
+        uses: actions/cache@v4
+        with:
+          path: .qa-tools/apt-tree
+          key: qa-ffmpeg-apt-tree-v1-${{ hashFiles('tools/ci_fleet/install_qa_ffmpeg.py') }}
       - name: أدوات النظام
         run: |
-          sudo apt-get update -qq
-          sudo apt-get install -y -qq ffmpeg cmake build-essential
+          # (2026-10-23 · تسريع) مرآةُ apt المعلَّقة كلّفت هذه الخطوةَ ≈10 د للمهمّة (225 د في 24 ساعة): ffmpeg بالمثبِّت (مهلٌ وشجرةٌ مخبّأة · نسخةُ apt نفسُها)،
+          #    وcmake وbuild-essential مثبَّتان في صورة العدّاد فلا يُنزَّلان إلا إن غابا (بمهلة).
+          QA_FFMPEG_APT_ONLY=1 python tools/ci_fleet/install_qa_ffmpeg.py
+          for p in cmake build-essential; do dpkg -s $p >/dev/null 2>&1 || { timeout 150 sudo apt-get update -qq; timeout 300 sudo apt-get install -y -qq $p; }; done
           python -m pip install --quiet boto3 numpy
 
       # ⚠️ GGML_NATIVE=OFF عمداً كما في align.yml: الكاش يُستهلك على عدّاءٍ قد
