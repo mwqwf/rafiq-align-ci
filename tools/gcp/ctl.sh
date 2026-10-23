@@ -249,42 +249,7 @@ v_default_rate() { if [ "$SPOT" = "true" ]; then echo 2.15; else echo 2.65; fi; 
 
 v_list() { gc ai custom-jobs list --region "$REGION" --filter='labels.app=mushafak1' --format=json 2>/dev/null || echo '[]'; }
 # vj <وضع> [وسائط] ⇐ JSON المهام من stdin: active | nonterminal | cost <بدء> <سعر> | last
-vj() {
-  python3 -c '
-import json, sys, time
-from datetime import datetime
-mode = sys.argv[1]
-try: jobs = json.load(sys.stdin)
-except Exception: jobs = []
-def t(x):
-    try: return datetime.fromisoformat(x.replace("Z", "+00:00")).timestamp()
-    except Exception: return 0.0
-TERM = {"JOB_STATE_SUCCEEDED", "JOB_STATE_FAILED", "JOB_STATE_CANCELLED", "JOB_STATE_EXPIRED", "JOB_STATE_PARTIALLY_SUCCEEDED"}
-ACT = {"JOB_STATE_PENDING", "JOB_STATE_QUEUED", "JOB_STATE_RUNNING"}
-now = time.time()
-if mode == "active":
-    for j in jobs:
-        if j.get("state") in ACT: print(j["name"].rsplit("/", 1)[-1], j["state"].replace("JOB_STATE_", ""))
-elif mode == "nonterminal":
-    for j in jobs:
-        if j.get("state") not in TERM: print(j["name"].rsplit("/", 1)[-1], j.get("state"))
-elif mode == "cost":
-    start, rate = t(sys.argv[2]), float(sys.argv[3])
-    secs = 0.0
-    for j in jobs:
-        if t(j.get("createTime", "")) < start or not j.get("startTime"): continue
-        # Vertex يضع startTime لحظةَ القبول ولو بقيت المهمة تنتظر السعة؛ والانتظارُ لا يُحاسَب
-        if j.get("state") in ("JOB_STATE_PENDING", "JOB_STATE_QUEUED"): continue
-        end = t(j["endTime"]) if j.get("endTime") else now
-        secs += max(0.0, end - t(j["startTime"]))
-    print(f"{secs / 3600 * rate:.2f} {len(jobs)}")
-elif mode == "last":
-    if not jobs: print("NONE NONE 0 0")
-    else:
-        j = max(jobs, key=lambda x: t(x.get("createTime", "")))
-        print(j["name"].rsplit("/", 1)[-1], j.get("state", "?").replace("JOB_STATE_", ""), int(t(j.get("startTime") or j.get("createTime", ""))), int(t(j.get("endTime", ""))))
-' "$@"
-}
+vj() { python3 "$HERE/vj.py" "$@"; }
 v_active_ids() { v_list | vj active | awk '{print $1}'; }
 v_nonterminal_lines() {   # للجرد: بلا ابتلاعٍ للأخطاء (واجهةٌ معطّلة تُحسب صفراً في count_zero، وغيرُها ERR) ولا حصرَ بالوسم
   local j; j=$(gc ai custom-jobs list --region "$REGION" --format=json) || return 1
@@ -302,7 +267,10 @@ v_costs() {
   local c rate b start api jobs s led mx
   c=$(gs_json "$GSB/campaign.json"); rate=$(echo "$c" | jget rate_usd_per_hour 0); b=$(echo "$c" | jget budget_usd 0)
   start=$(echo "$c" | jget campaign_start "1970-01-01T00:00:00Z")
-  read -r api jobs <<< "$(v_list | vj cost "$start" "$rate")"
+  local ran skip; ran=$(gcloud storage ls "$GSB/jobs/" 2>/dev/null | xargs -r -n1 basename | tr '\n' ' ') || ran=""
+  skip=$(echo "$c" | jget no_run_jobs "")   # معرّفات مهامَ ثبت أنها لم تجرِ قبل نشر علامات الإقلاع (تُفصل بمسافات)
+  [ "$skip" = None ] && skip=""
+  read -r api jobs <<< "$(v_list | vj cost "$start" "$rate" "$ran" "$skip")"
   s=$(gs_json "$GSB/ledger.json" | jget seconds 0); led=$(cost_of "$s" "$rate")
   mx=$(awk -v a="$api" -v l="$led" 'BEGIN{printf "%.2f", (a>l)?a:l}')
   echo "$api $led $mx $b $jobs"

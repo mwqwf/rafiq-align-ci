@@ -43,6 +43,8 @@ cfg() { python3 -c 'import json,sys;v=json.load(open(sys.argv[1])).get(sys.argv[
 PROJECT=$(cfg project "")
 [ -z "$PROJECT" ] || export CLOUDSDK_CORE_PROJECT=$PROJECT
 INSTANCE=${CLOUD_ML_JOB_ID:-vertex-job}
+# علامة الإقلاع الفعليّ: ملفٌّ فارغ باسم <معرّف>.<epoch> يعتمده ctl.sh في حساب الكلفة (المهمة المنتظرة لا تُحاسَب)
+: | gcloud storage cp -q - "$GSB/jobs/${INSTANCE}.${BOOT}" >/dev/null 2>&1 || true
 EXPECT_STEP=$(cfg expect_step "")
 RATE=$(cfg rate "")
 BUDGET=$(cfg budget_usd "")
