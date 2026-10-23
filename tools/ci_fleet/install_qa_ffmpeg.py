@@ -5,6 +5,7 @@ URL='https://github.com/BtbN/FFmpeg-Builds/releases/download/autobuild-2026-10-0
 SHA='3c2c4d6066432b2eab54be830d3ce1f5b68a3f34ecaa6d9f2d0230a49e778560'
 SIZE=137039192
 BIN=pathlib.Path(__file__).resolve().parents[2]/'.qa-tools/bin'
+TREE=pathlib.Path(__file__).resolve().parents[2]/'.qa-tools/apt-tree'
 def apt_fallback(why):
  # (2026-10-16) BtbN autobuilds rotate: the pinned release returned 404 and every audio_qa salt failed
  # before measuring anything. Ubuntu's signed apt archive is the fallback; the pinned digest still wins when present.
@@ -20,12 +21,62 @@ def apt_fallback(why):
    print('apt step failed rc=%d (attempt %d/3): %s'%(r.returncode,attempt,' '.join(cmd[:3])),flush=True)
   else:raise subprocess.CalledProcessError(r.returncode,cmd)
  if not(shutil.which('ffmpeg') and shutil.which('ffprobe')):raise RuntimeError('apt fallback did not provide ffmpeg/ffprobe')
+# (2026-10-23 · تسريع) مرآةُ apt المعلَّقة أسقطت ~59 مهمّةً في اليوم (≈613 دقيقة عدّاد) عند خطوة «أدوات النظام» وكلُّها تُعاد.
+# فبعد أوّل تثبيتٍ ناجحٍ بـapt تُنسخ ثنائيّاتُ ffmpeg/ffprobe نفسُها (نسخةُ Ubuntu ذاتُها لا غيرُها) ومكتباتُها المشتركة
+# إلى `.qa-tools/apt-tree` ليحفظها `actions/cache`، وتُستعاد في المهامّ التالية بلا شبكة apt. ⛔ لا تغيّرُ النسخةَ ولا الفكَّ:
+# هي الثنائيّاتُ ذاتُها، فأحكامُ الصوت لا تتبدّل. وإن تلفت الشجرةُ أو لم تعمل أُهملت وعاد المسارُ العاديّ (apt).
+SYS=('libc.so','libm.so','libdl.so','libpthread.so','librt.so','libresolv.so','libgcc_s.so','libstdc++.so','ld-linux')
+def _wrap(name):
+ BIN.mkdir(parents=True,exist_ok=True)
+ w=BIN/name
+ w.write_text('#!/bin/sh\nd="${0%%/*}/../apt-tree"\nLD_LIBRARY_PATH="$d/lib${LD_LIBRARY_PATH:+:$LD_LIBRARY_PATH}" exec "$d/bin/%s.real" "$@"\n'%name)
+ w.chmod(0o755)
+def _add_path():
+ pathfile=os.environ.get('GITHUB_PATH')
+ if pathfile:
+  with open(pathfile,'a') as dst:dst.write(str(BIN)+'\n')
+ os.environ['PATH']=str(BIN)+os.pathsep+os.environ.get('PATH','')
+def restore_tree():
+ if not all((TREE/'bin'/(n+'.real')).is_file() for n in ('ffmpeg','ffprobe')):return False
+ for n in ('ffmpeg','ffprobe'):_wrap(n)
+ ok=all(subprocess.run([str(BIN/n),'-version'],stdout=subprocess.DEVNULL,stderr=subprocess.DEVNULL).returncode==0 for n in ('ffmpeg','ffprobe'))
+ if not ok:
+  print('Cached ffmpeg tree is unusable; ignoring it',flush=True)
+  for n in ('ffmpeg','ffprobe'):(BIN/n).unlink(missing_ok=True)
+  shutil.rmtree(TREE,ignore_errors=True)
+  return False
+ _add_path()
+ print('Using cached ffmpeg tree (no apt)',flush=True)
+ return True
+def save_tree():
+ try:
+  if (TREE/'bin'/'ffmpeg.real').is_file():return
+  tmp=TREE.with_name('apt-tree.tmp');shutil.rmtree(tmp,ignore_errors=True)
+  (tmp/'bin').mkdir(parents=True);(tmp/'lib').mkdir()
+  libs=set()
+  for n in ('ffmpeg','ffprobe'):
+   src=shutil.which(n)
+   shutil.copy2(src,tmp/'bin'/(n+'.real'))
+   for line in subprocess.run(['ldd',src],capture_output=True,text=True,check=True).stdout.splitlines():
+    if '=>' in line and '/' in line.split('=>')[1]:
+     lib=line.split('=>')[1].split()[0]
+     if not any(pathlib.Path(lib).name.startswith(x) for x in SYS):libs.add(lib)
+  for lib in sorted(libs):shutil.copy2(lib,tmp/'lib'/pathlib.Path(lib).name)
+  shutil.rmtree(TREE,ignore_errors=True);tmp.rename(TREE)
+  print('Saved ffmpeg tree for actions/cache: %d libs'%len(libs),flush=True)
+ except Exception as e:print('Could not save ffmpeg tree (ignored): %s'%e,flush=True)
 def main():
  if shutil.which('ffmpeg') and shutil.which('ffprobe'):print('Using existing ffmpeg and ffprobe');return
- try:pinned()
- except urllib.error.HTTPError as e:
-  if e.code not in (404,410):raise
-  apt_fallback('HTTP %d'%e.code)
+ # QA_FFMPEG_APT_ONLY=1: لسير عملٍ كان يثبّت ffmpeg بـapt حصراً (heard_gate · ctc_splice · diagnosis) فلا يتبدّل فكُّه بأرشيفٍ مثبَّت.
+ if os.environ.get('QA_FFMPEG_APT_ONLY')!='1':
+  try:pinned();return
+  except urllib.error.HTTPError as e:
+   if e.code not in (404,410):raise
+   why='HTTP %d'%e.code
+ else:why='apt-only'
+ if restore_tree():return
+ apt_fallback(why)
+ save_tree()
 def pinned():
  if platform.system()!='Linux' or platform.machine()!='x86_64':raise RuntimeError('Pinned fallback requires standard Linux x86_64 runner')
  BIN.mkdir(parents=True,exist_ok=True)

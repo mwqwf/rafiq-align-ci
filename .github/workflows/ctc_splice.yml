@@ -48,12 +48,20 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 350
     steps:
+      # (2026-10-23 · تسريع) ساعةُ بدء المهمّة: تُحسب منها ميزانيةُ المحاذاة فلا تقتلها مهلةُ 350 د بلا أثر (انظر خطوة المحاذاة).
+      - run: echo "JOB_T0=$(date +%s)" >> "$GITHUB_ENV"
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
         with: {python-version: "${{ env.PY }}"}
+      - name: كاش ffmpeg (بديلُ apt المعلَّق · لا يغيّر النسخة)
+        uses: actions/cache@v4
+        with:
+          path: .qa-tools/apt-tree
+          key: qa-ffmpeg-apt-tree-v1-${{ hashFiles('tools/ci_fleet/install_qa_ffmpeg.py') }}
       - name: الأدوات
         run: |
-          sudo apt-get update -qq && sudo apt-get install -y -qq ffmpeg
+          # (2026-10-23) apt المعلَّق التهم 21–29 د من بعض التشغيلات: مهلٌ ومحاولاتٌ وشجرةٌ مخبّأة، ونسخةُ apt نفسُها (APT_ONLY).
+          QA_FFMPEG_APT_ONLY=1 python tools/ci_fleet/install_qa_ffmpeg.py
           python -m pip install --quiet --index-url https://download.pytorch.org/whl/cpu torch
           python -m pip install --quiet "numpy<2" transformers ctc-segmentation boto3 rapidfuzz
       - name: كاش النموذج
@@ -298,8 +306,21 @@ jobs:
           # ‏batch_run يكتب ملفَّ سورةٍ لكلّ ما نجح؛ وفهرسُه الجزئيُّ في آخره لا يُستعمل.
           # ‏وأساسُ المجلَّد (‏بلا {s:03d}) يمرّ كما هو فيقرأ batch_run جدولَ files.
           BASE="$(printf '%s' "$URLT" | sed 's/{s:03d}/{surah:03d}/')"
-          python tools/alignment/batch_run.py --reciter "$RID" --riwaya "$RIW" \
-            --base "$BASE" --surahs "$SURAHS" 2>&1 | tee ctc.log
+          # ⭐ (2026-10-23 · تسريع) أربعُ تشغيلاتٍ في يومٍ (≈1400 د عدّاد) قتلتها مهلةُ المهمّة 350 د وهي في سورتها السادسة
+          #    فضاع كلُّ ما حوذي — مع أنّ batch_run يكتب ملفَّ كلِّ سورةٍ ذرّياً عند انتهائها. فالمحاذاةُ تُقيَّد بميزانيةٍ تُحسب
+          #    من الساعة الباقية (350 د − ما مضى − 25 د للدمج والرفع)، فإذا نفدت أُوقفت وبقيت السورُ المنجزةُ تُدمج بحُرّاسها
+          #    كلّها (‏السورةُ التي لم تُحاذَ «تبقى كما هي» فتُعاد في تشغيلةٍ لاحقة). ⛔ لا يمسّ حدَّ جودة ولا حارساً: ما يُدمج
+          #    هو ما حُلّ كاملاً فقط كما كان، ولا تُدمج سورةٌ مبتورة (الملفُّ ذرّيّ والمؤقّتُ يُهمل).
+          T0="${JOB_T0:-$(date +%s)}"; BUDGET=$(( 350 - ($(date +%s) - T0) / 60 - 25 )); [ "$BUDGET" -ge 30 ] || BUDGET=30
+          echo "⏱️ ميزانيةُ المحاذاة $BUDGET د"
+          rc=0
+          timeout --signal=TERM --kill-after=60 "${BUDGET}m" python tools/alignment/batch_run.py --reciter "$RID" --riwaya "$RIW" \
+            --base "$BASE" --surahs "$SURAHS" 2>&1 | tee ctc.log || rc=$?
+          if [ "$rc" = 124 ] || [ "$rc" = 137 ]; then
+            echo "⏱️ نفدت الميزانية — تُدمج السورُ المنجزةُ وحدها: $(ls tools/alignment/work/batch_$RID/s*.json 2>/dev/null | wc -l) ملفّاً"
+          elif [ "$rc" != 0 ]; then
+            exit "$rc"
+          fi
 
       - name: الدمجُ بحُرّاسه وبصماتُ الصوت
         env:
