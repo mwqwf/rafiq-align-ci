@@ -257,5 +257,71 @@ class PromoteHook(unittest.TestCase):
         self.assertIsNone(P.heard_gate_check(cl, "b", src, sha, j.cand, pubk))
 
 
+# ⭐ تشديد 2026-10-23: «الأداءُ البديل» لا يكون داخلَ مدى المِرساة. حالاتٌ حقيقيةٌ من تحقّقٍ مستقلّ
+# (‏S/vf/results2.jsonl): (آية، بدءٌ منشور، مِرساة [بدء، نهاية]، أداءٌ [بدء، نهاية، تشابه]، |الإزاحة المسموعة| بالثواني).
+LATE_INSIDE_ANCHOR = [
+    ("9:1", 4500, [620, 15009], [4683, 15009, .949], 1.9),
+    ("14:17", 355140, [352013, 370125], [355395, 369144, .933], 3.42),
+    ("68:7", 34180, [29760, 44731], [35104, 44731, .949], 4.74),
+    ("2:185", 3473620, [3466100, 3519916], [3475286, 3515313, .891], 8.0),
+    ("3:45", 1004350, [998907, 1023564], [1004571, 1022143, .921], 5.52),
+    ("14:40", 779280, [773658, 790069], [780983, 789949, .767], 10.64),
+    ("26:59", 585800, [573748, 592300], [586576, 590419, .718], 12.06),
+    # سليمةٌ فعلاً (‏إزاحة <1ث) لكنّ مِرساتها واسعة: تُردّ أيضاً — ثمنُ التشديد المقبول (~30٪)،
+    # وطريقُ قبولها لاحقاً شاهدٌ ثانٍ (‏ctc_opener_probe) لا إرخاءُ هذا الحارس.
+    ("11:1", 8135, [3302, 16871], [8285, 16871, .912], .95),
+    ("20:15", 138480, [128144, 152900], [139031, 148317, .897], .4),
+    ("38:86", 794844, [776966, 801863], [794438, 801863, .943], .36),
+]
+
+
+def row_for(start, anchor, occ, q=.95):
+    return H.surah_rows({1: start}, {"anchors": {"1": [anchor, q, [occ]]}})[0]
+
+
+class TightenedRepeat(unittest.TestCase):
+    def test_known_inside_anchor_cases_rejected(self):
+        for ayah, st, anchor, occ, _shift in LATE_INSIDE_ANCHOR:
+            with self.subTest(ayah=ayah):
+                r = row_for(st, anchor, occ)
+                self.assertEqual(r["status"], "dev", ayah)
+                self.assertIsNotNone(H.surah_verdict([r]), ayah)
+
+    def test_genuine_repeat_after_anchor_end_accepted(self):
+        # أداءٌ ثانٍ منفصلٌ بعد نهاية المِرساة والبدءُ المنشور عليه
+        r = row_for(50000, [10000, 14000], [49500, 53000, .85])
+        self.assertEqual(r["status"], "repeat")
+        # عند حدّ النهاية − TOL تماماً يُقبل، وقبلها بميلّي ثانية يُرفض
+        self.assertEqual(row_for(13000, [10000, 14500], [13000, 16000, .9])["status"], "repeat")
+        self.assertEqual(row_for(13000, [10000, 14501], [13000, 16000, .9])["status"], "dev")
+
+    def test_earlier_separate_performance_accepted(self):
+        # أداءٌ سابقٌ يبعد عن بدء المِرساة أكثر من TOL
+        self.assertEqual(row_for(4000, [20000, 24000], [3500, 7000, .9])["status"], "repeat")
+
+    def test_occurrence_equal_to_anchor_start_is_not_a_repeat(self):
+        # أداءٌ يطابق بدءَ المِرساة نفسَها هو المِرساةُ لا تكرار؛ فبدءٌ منحرفٌ 1.5–2ث لا يُعذَر به
+        r = row_for(11800, [10000, 14000], [10000, 14000, .95])
+        self.assertEqual(r["status"], "dev")
+        r = row_for(8200, [10000, 14000], [10000, 14000, .95])
+        self.assertEqual(r["status"], "dev")
+
+    def test_anchor_without_valid_end_treats_all_as_inside(self):
+        for am in ([10000, 10000], [10000, 9000], [10000, None]):
+            r = H.surah_rows({1: 50000}, {"anchors": {"1": [am, .9, [[49500, 53000, .9]]]}})[0]
+            self.assertEqual(r["status"], "dev", am)
+
+    def test_weak_or_far_occurrence_still_rejected(self):
+        self.assertEqual(row_for(50000, [10000, 14000], [49500, 53000, .6])["status"], "dev")
+        self.assertEqual(row_for(50000, [10000, 14000], [47000, 53000, .9])["status"], "dev")
+
+    def test_judge_rejects_surah_with_inside_anchor_start(self):
+        idx = {"entries": [ent(2, 1, 1000), ent(2, 2, 5000), ent(2, 3, 9000)], "audioSha256": ["x"] * 114}
+        m = cmap({1: (1000, .9), 2: (5000, .9), 3: (9000, .9)}, sha="x")
+        m["anchors"]["3"] = [[2000, 14000], .95, [[9300, 13000, .93]]]   # بدءٌ منشورٌ 9000 وسط المِرساة
+        j = H.judge(idx, None, "c" * 64, {2: m})
+        self.assertFalse(j["ok"])
+
+
 if __name__ == "__main__":
     unittest.main()

@@ -14,6 +14,7 @@ on:
     inputs:
       only: {description: "مرشّحٌ أو أكثر بفواصل: timings-staging/<riw>/<id>.<sha8>.jz", required: true}
       shards: {description: "عددُ الشرائح المتوازية لكلّ مرشّح (1–6)", default: "3"}
+      force: {description: "true = يُعاد القياسُ ولو كان حكمُ السماع المحفوظُ على هذه البصمة تمرّ به الترقية (الأصل: لا إعادة)", default: "false"}
 
 permissions:
   contents: write   # ⚖️ لكتابة الحكم نصّاً في ops/out/heard-gate/ وحده
@@ -45,7 +46,7 @@ jobs:
         run: mkdir -p secure && printf '%s' "$R2_CREDENTIALS_JSON" > secure/r2_credentials.json
       - name: السورُ المطلوبة (المعدّلُ ∪ العيّنة) وروابطُها من المرشّح
         id: plan
-        env: {ONLY: "${{ inputs.only }}", SHARDS: "${{ inputs.shards }}"}
+        env: {ONLY: "${{ inputs.only }}", SHARDS: "${{ inputs.shards }}", FORCE: "${{ inputs.force }}"}
         run: |
           python - <<'PY'
           import gzip, hashlib, json, os, sys, boto3
@@ -68,6 +69,19 @@ jobs:
                   Bucket=c["bucket"], Key=f"timings/{riw}/{fn.split('.')[0]}.jz")["Body"].read()))
               j = H.judge(idx, pub, sha, {})
               cs = H.by_surah(idx["entries"])
+              # ⭐ (2026-10-23 · تسريع) قِيس في يوم: خمسةُ مرشّحاتٍ قيس سماعُها مرّتين (‏≈100 د عدّاد للمرّة) وحكمُها ✅ في المرّة الأولى.
+              #    فإن كان المحفوظُ في state-heard على هذه البصمة بعينها وبالإصدار نفسِه، وتمرّ به **الترقيةُ نفسُها** (‏`gate_error`
+              #    تعيد الحكمَ من الخرائط ولا تقرأ حكماً مكتوباً) فإعادةُ القياس تُنتج الخرائطَ ذاتَها (float32 حتميّ). ⛔ والمردودُ لا
+              #    يُتخطّى أبداً (‏قد يكون إخفاقَ شريحةٍ عابراً)، ولا يُخفَّف شيء: force=true يُعيد القياسَ متى شئت.
+              if os.environ.get("FORCE") != "true" and j["required"]:
+                  try:
+                      back = json.loads(s3.get_object(Bucket=c["bucket"], Key=H.state_key(src))["Body"].read())
+                      if (back.get("version") == H.VERSION and back.get("sha256") == sha
+                              and H.gate_error(idx, pub, sha, back) is None):
+                          print(f"⏭ {src} ({sha[:8]}) — حكمُ السماع المحفوظ (تشغيلة {back.get('run')}) تمرّ به الترقية: لا إعادةَ قياس")
+                          continue
+                  except Exception:
+                      pass
               print(f"■ {src} ({sha[:8]}) · معدّلة {j['modified']} · عيّنة {j['sample']}")
               n = max(1, min(6, int(os.environ.get("SHARDS") or 3), len(j["required"])))
               bins = [[] for _ in range(n)]; load = [0] * n
@@ -94,6 +108,8 @@ jobs:
 
   probe:
     needs: plan
+    # (2026-10-23) كلُّ المرشّحات محفوظةُ الحكم ⇒ خطّةٌ فارغةٌ ومصفوفةٌ فارغة (‏تُسقط المهمّةَ بخطأ)؛ فتُتخطّى.
+    if: ${{ needs.plan.outputs.idx != '[]' }}
     runs-on: ubuntu-latest
     timeout-minutes: 340
     strategy:
@@ -104,9 +120,14 @@ jobs:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
         with: {python-version: "${{ env.PY }}"}
+      - name: كاش ffmpeg (بديلُ apt المعلَّق · لا يغيّر النسخة)
+        uses: actions/cache@v4
+        with:
+          path: .qa-tools/apt-tree
+          key: qa-ffmpeg-apt-tree-v1-${{ hashFiles('tools/ci_fleet/install_qa_ffmpeg.py') }}
       - name: الأدوات
         run: |
-          sudo apt-get update -qq && sudo apt-get install -y -qq ffmpeg
+          QA_FFMPEG_APT_ONLY=1 python tools/ci_fleet/install_qa_ffmpeg.py
           python -m pip install --quiet --index-url https://download.pytorch.org/whl/cpu torch
           python -m pip install --quiet "numpy<2" transformers ctc-segmentation rapidfuzz
       - name: كاش النموذج
@@ -150,6 +171,7 @@ jobs:
         env: {R2_CREDENTIALS_JSON: "${{ secrets.R2_CREDENTIALS_JSON }}"}
         run: mkdir -p secure && printf '%s' "$R2_CREDENTIALS_JSON" > secure/r2_credentials.json
       - uses: actions/download-artifact@v4
+        continue-on-error: true      # (2026-10-23) لا شرائحَ حين كلُّ المرشّحات محفوظةُ الحكم
         with:
           pattern: heard-gate-${{ github.run_id }}-[0-9]*
           path: shards
@@ -178,6 +200,19 @@ jobs:
               for p in glob.glob(f"shards/{src.replace('/', '_')}/heard_s*.json"):
                   m = H.compact_map(json.load(open(p, encoding="utf-8")))
                   maps[int(m["surah"])] = m
+              if not maps:
+                  # (2026-10-23) لم تُقَس شرائحُ لهذا المرشّح لأنّ حكمَه المحفوظَ تمرّ به الترقيةُ (‏انظر خطوة الخطّة): يُعاد حكمُه
+                  #    من المحفوظ بـ`gate_error` نفسِها ولا يُكتب شيء. وغيرُ ذلك يكمل المسارَ القديم (‏حكمٌ بلا خرائطَ يُكتب ويُردّ).
+                  try:
+                      back0 = json.loads(s3.get_object(Bucket=c["bucket"], Key=H.state_key(src))["Body"].read())
+                      if (back0.get("version") == H.VERSION and back0.get("sha256") == sha
+                              and H.gate_error(idx, pub, sha, back0) is None and H.judge(idx, pub, sha, {})["required"]):
+                          j0 = H.judge(idx, pub, sha, {})
+                          print(f"■ {src} ({sha[:8]}) · معدّلة {j0['modified']} · عيّنة {j0['sample']}")
+                          print(f"   ⇒ ✅ بوّابةُ السماع تمرّ (حكمٌ محفوظٌ لهذه البصمة من تشغيلة {back0.get('run')} — لم يُعَد القياس)")
+                          continue
+                  except Exception:
+                      pass
               j = H.judge(idx, pub, sha, maps)
               rep = {"sha256": sha, "src": src, "version": H.VERSION, "run": os.environ["RUN"],
                      "ts": int(time.time()), "ok": j["ok"], "reason": j["reason"],
@@ -186,9 +221,18 @@ jobs:
                      "surahs": {k: {"reason": v["reason"],
                                     "dev": [[r["ayah"], r["devMs"]] for r in v["rows"] if r["status"] == "dev"]}
                                 for k, v in j["surahs"].items()}}
-              s3.put_object(Bucket=c["bucket"], Key=H.state_key(src),
-                            Body=json.dumps(rep, ensure_ascii=False).encode("utf-8"),
-                            ContentType="application/json")
+              # (2026-10-23) حكمٌ بلا خرائط (‏لم تُقَس شرائح) لا يمحو المحفوظَ الذي فيه خرائطُ على البصمة نفسِها — يُحكم عليه كما هو.
+              keep_old = False
+              if not maps:
+                  try:
+                      o0 = json.loads(s3.get_object(Bucket=c["bucket"], Key=H.state_key(src))["Body"].read())
+                      keep_old = o0.get("sha256") == sha and bool(o0.get("maps"))
+                  except Exception:
+                      pass
+              if not keep_old:
+                  s3.put_object(Bucket=c["bucket"], Key=H.state_key(src),
+                                Body=json.dumps(rep, ensure_ascii=False).encode("utf-8"),
+                                ContentType="application/json")
               # ⛔ يُقرأ ما كُتب ويُعاد حكمُه كما تحكم الترقية
               back = json.loads(s3.get_object(Bucket=c["bucket"], Key=H.state_key(src))["Body"].read())
               why = H.gate_error(idx, pub, sha, back)
@@ -206,9 +250,15 @@ jobs:
           mkdir -p ops/out/heard-gate; f="ops/out/heard-gate/$RUN.txt"
           { echo "# heard_gate $RUN · ${{ inputs.only }}"; cat judge.log 2>/dev/null; } > "$f"
           git config user.name "rafiq-heard-gate"; git config user.email "actions@github.com"
-          git add "$f" && git commit -q -m "ops: حكمُ بوّابة السماع ($RUN)" -- "$f" || exit 0
+          # ⭐ (2026-10-23 · تسريع) `git pull` على نسخةٍ سطحيّةٍ (‏checkout بعمق 1) يجلب تاريخَ المستودع كلَّه — قِيس 131 مهمّةً
+          #    judge (heard_gate+heard_pub) كلٌّ منها ≈6.7 د (727 د عدّاد) لخطوةٍ عملُها الفعليّ ثوانٍ. فنجلب رأس main وحده
+          #    (‏--depth=1)، ونعيد الملفَّ فوقه ونرفع؛ وعند رفضٍ (‏سباق) نعيد من جلبٍ جديد. الملفُّ نفسُه والرسالةُ نفسُها.
+          cp "$f" "$RUNNER_TEMP/verdict.txt"
           for i in 1 2 3 4 5 6 7 8 9 10; do
-            git pull -q --no-rebase --no-edit origin main && git push -q origin HEAD:main && exit 0
+            git fetch -q --depth=1 origin main && git reset -q --hard FETCH_HEAD || { sleep $((RANDOM % 10 + 3)); continue; }
+            mkdir -p ops/out/heard-gate; cp "$RUNNER_TEMP/verdict.txt" "$f"
+            git add "$f" && git commit -q -m "ops: حكمُ بوّابة السماع ($RUN)" -- "$f" || exit 0
+            git push -q origin HEAD:main && exit 0
             sleep $((RANDOM % 10 + 3))
           done
           echo "⚠️ تعذّر دفعُ الحكم — الحكمُ في state-heard/ والسجلّ"
