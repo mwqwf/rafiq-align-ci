@@ -390,6 +390,8 @@ PYEOF
   gcloud storage cp -q "$HERE/vertex_train.sh" "$GSB/run/vertex_train.sh"
   rm -f "$TMP/stage_urls.json"
   gcloud storage rm -q "$GSB/done" "$GSB/stop_request" "$GSB/fails.json" 2>/dev/null || true
+  # نسخةُ المرحلة في الدلو تُحدَّث من R2 مع كلّ إطلاق: بقاؤها أعاد شيفرةً قديمةً بعد إصلاحها في R2 (فشل «-u» مرّتين 2026-10-23)
+  gcloud storage rm -q "$GSB/stage/.complete" 2>/dev/null || true
   v_submit || exit 1
   echo on > "$TMP/active"; gcloud storage cp -q "$TMP/active" "$GSB/active"
   echo "أُطلقت الحملة · rate=\$$rate/h · budget=\$$BUDGET_USD"
