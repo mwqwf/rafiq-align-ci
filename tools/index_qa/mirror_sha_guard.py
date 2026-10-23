@@ -14,6 +14,11 @@
     apply   [--only riw/id …] [--surahs riw/id:1,2,3 …] [--verify-size] [--rehash]
         يحجب ما يخالف (حجبٌ فقط؛ لا يرفع حجباً أبداً). يحفظ نسخةً من المانيفست أوّلاً في
         `audio/_manifest_backups/<riwaya>/manifest.<ts>.json` ويتحقّق بعد الكتابة أنّه لم يمسّ غير المقصود.
+    sync    --surahs riw/id:1,2,3 … [--dry]
+        الجذر: لكلّ سورةٍ يُنزَّل `fileRef` من الفهرس المنشور (mp3 فقط) ويُتحقَّق أنّ sha = audioSha256، ثمّ
+        يُحفظ أصلُ المرآة في `audio/_superseded/<riwaya>/<id>/<NNN>.<sha8>.mp3` ويُرفع الجديد بالاسم القياسيّ
+        ويُعاد التحقّق من بصمته في الدلو، ثمّ يُحدَّث المانيفست (بصمة/حجم/clipsOk) ويُرفع حجبُ SHA_MISMATCH
+        عن ما تطابق فقط. ما لم تطابق بصمتُه أو كان fileRef غيرَ mp3 يُترك محجوباً ويُسمّى.
     selftest
         اختبارٌ بلا شبكة لمنطق المقارنة والتعديل.
 
@@ -97,6 +102,40 @@ def apply_blocks(entry: dict, mism: dict, index_sha: list, ts: int) -> tuple[dic
         e["usableForClips"] = False
         e["shaGuard"] = {"ts": ts, "mismatched": sorted(mism), "reasons": {str(k): v for k, v in sorted(mism.items())}}
     return e, newly
+
+
+def apply_sync(entry: dict, updates: dict, index_sha: list, ts: int) -> dict:
+    """updates: {سورة: (sha, bytes)} لملفٍّ رُفع فعلاً وبصمتُه = audioSha256. يرجع مدخلاً جديداً.
+
+    يرفع حجبَ SHA_MISMATCH عن السورة (وحدها) ويُبقي DURATION_MISMATCH وغيره؛ ويُحدّث بصمةَ الملفّ وحجمَه
+    وإجماليَّ bytes وحكمَ المطابقة الكلّيّ.
+    """
+    e = copy.deepcopy(entry)
+    reason = dict(e.get("clipsBlockedReason") or {})
+    blocked = set(e.get("clipsBlockedBySurah") or [])
+    ok = set(e.get("clipsOkBySurah") or [])
+    for n, (sha, nbytes) in sorted(updates.items()):
+        if index_sha[n - 1] != sha:
+            raise ValueError(f"س{n}: بصمةٌ لا تطابق الفهرس — لا تحديث")
+        for pf in e["perFile"]:
+            if pf["surah"] == n:
+                pf["sha256"], pf["bytes"] = sha, nbytes
+                if reason.get(str(n)) in (None, "SHA_MISMATCH"):
+                    pf["clipsOk"] = True
+        if reason.get(str(n)) in (None, "SHA_MISMATCH"):
+            reason.pop(str(n), None)
+            blocked.discard(n)
+            ok.add(n)
+    e["clipsBlockedReason"] = dict(sorted(reason.items(), key=lambda kv: int(kv[0])))
+    e["clipsBlockedBySurah"] = sorted(blocked)
+    e["clipsOkBySurah"] = sorted(ok)
+    e["bytes"] = sum(pf["bytes"] for pf in e["perFile"])
+    still = sorted(pf["surah"] for pf in e["perFile"] if pf["sha256"] != index_sha[pf["surah"] - 1])
+    e["timingIndexShaMatch"] = "MATCH" if not still else f"MISMATCH {still[:10]}"
+    e["usableForClips"] = not still
+    e["shaGuard"] = {"ts": ts, "mismatched": still,
+                     "reasons": {str(k): "SHA_MISMATCH" for k in still}}
+    return e
 
 
 def _strip_volatile(m: dict) -> dict:
@@ -282,6 +321,131 @@ def cmd_apply(a):
     return rc
 
 
+def _plain_mp3_url(ref) -> bool:
+    from urllib.parse import urlparse, unquote
+    if not isinstance(ref, str) or not ref.startswith("https://"):
+        return False
+    return unquote(urlparse(ref).path).lower().endswith(".mp3")
+
+
+def _download(url: str, dest: Path):
+    """تنزيلٌ بثّيّ إلى ملفٍّ مؤقّت مع sha256. يرجع (sha, bytes)؛ يعيد المحاولة ثلاثاً."""
+    last = None
+    for attempt in range(3):
+        try:
+            rq = urllib.request.Request(url, headers={"User-Agent": "Mozilla/5.0 rafiq-mirror-sync/1.0"})
+            h = hashlib.sha256()
+            n = 0
+            with urllib.request.urlopen(rq, timeout=120) as r, open(dest, "wb") as f:
+                cl = r.headers.get("Content-Length")
+                while True:
+                    b = r.read(1 << 20)
+                    if not b:
+                        break
+                    h.update(b)
+                    f.write(b)
+                    n += len(b)
+            if cl is not None and int(cl) != n:
+                raise IOError(f"size mismatch {cl} != {n}")
+            return h.hexdigest(), n
+        except Exception as e:                                               # noqa: BLE001
+            last = e
+            time.sleep(5 * (attempt + 1))
+    raise last
+
+
+def cmd_sync(a):
+    import tempfile
+    src = Src(False)
+    ts = int(time.time())
+    rc = 0
+    by_reciter = {}
+    for spec in a.surahs:
+        k, _, v = spec.partition(":")
+        by_reciter.setdefault(k, set()).update(int(x) for x in v.split(",") if x)
+    for k, wanted in sorted(by_reciter.items()):
+        riw, rid = k.split("/")
+        man = load_manifest(src, riw)
+        ent = next((e for e in man["reciters"] if e["id"] == rid), None) if man else None
+        if not ent:
+            print(f"⛔ {k}: لا مدخلَ في المانيفست"); rc = 2; continue
+        idx = json.loads(gzip.decompress(src.get(f"timings/{riw}/{rid}.jz")))
+        idx_sha = idx.get("audioSha256")
+        if not isinstance(idx_sha, list) or len(idx_sha) != 114:
+            print(f"⛔ {k}: الفهرس بلا 114 بصمة"); rc = 2; continue
+        refs = {}
+        for en in idx["entries"]:
+            refs.setdefault(int(en["ayahId"].split(":")[0]), set()).add(en.get("fileRef"))
+        pf = {p["surah"]: p for p in ent["perFile"]}
+        updates = {}
+        for n in sorted(wanted):
+            tag = f"{k} س{n}"
+            rset = refs.get(n) or set()
+            if len(rset) != 1:
+                print(f"⏭️ {tag}: fileRef غيرُ وحيد ({len(rset)}) — يُترك محجوباً"); continue
+            ref = next(iter(rset))
+            if not _plain_mp3_url(ref):
+                print(f"⏭️ {tag}: fileRef ليس mp3 ({ref[-40:]}) — لا يوضع في اسم .mp3؛ يُترك محجوباً لإعادة الفهرسة"); continue
+            if pf[n]["sha256"] == idx_sha[n - 1]:
+                print(f"✓ {tag}: المرآة تطابق الفهرس سلفاً"); continue
+            with tempfile.TemporaryDirectory() as td:
+                tmp = Path(td) / "f.mp3"
+                try:
+                    sha, nbytes = _download(ref, tmp)
+                except Exception as e:                                       # noqa: BLE001
+                    print(f"⛔ {tag}: تعذّر تنزيل fileRef: {e!r}"); rc = 3; continue
+                if sha != idx_sha[n - 1] or nbytes < 10000:
+                    print(f"⛔ {tag}: بصمةُ fileRef الآن {sha[:12]} ≠ audioSha256 {idx_sha[n-1][:12]} "
+                          f"(المصدر تبدّل بعد الفهرسة) — لا استبدال؛ يلزم إعادة فهرسة"); rc = 3; continue
+                key = f"audio/{riw}/{rid}/{n:03d}.mp3"
+                old_sha, old_bytes = pf[n]["sha256"], pf[n]["bytes"]
+                if a.dry:
+                    print(f"🧪 {tag}: سيُستبدل {old_sha[:8]}({old_bytes}) ⇒ {sha[:8]}({nbytes})"); continue
+                # الأصلُ يُحفظ أوّلاً ويُتحقَّق من نسخته
+                bkey = f"audio/_superseded/{riw}/{rid}/{n:03d}.{old_sha[:8]}.mp3"
+                try:
+                    src.cl.head_object(Bucket=src.bucket, Key=bkey)
+                except Exception:                                            # noqa: BLE001
+                    src.cl.copy_object(Bucket=src.bucket, Key=bkey, CopySource={"Bucket": src.bucket, "Key": key},
+                                       ContentType="audio/mpeg")
+                if src.cl.head_object(Bucket=src.bucket, Key=bkey)["ContentLength"] != old_bytes:
+                    print(f"⛔ {tag}: نسخة الأصل الاحتياطية لا تطابق حجمه — لا استبدال"); rc = 3; continue
+                if src.sha_of(bkey) != old_sha:
+                    print(f"⛔ {tag}: بصمة النسخة الاحتياطية ≠ بصمة المانيفست للأصل — لا استبدال"); rc = 3; continue
+                src.cl.upload_file(str(tmp), src.bucket, key, ExtraArgs={"ContentType": "audio/mpeg"})
+                if src.cl.head_object(Bucket=src.bucket, Key=key)["ContentLength"] != nbytes or src.sha_of(key) != sha:
+                    print(f"⛔ {tag}: المرفوع لا يطابق بصمةَ الفهرس بعد الرفع — راجِع فوراً (الأصل في {bkey})"); rc = 5; continue
+                updates[n] = (sha, nbytes)
+                print(f"✅ {tag}: {old_sha[:8]}({old_bytes}) ⇒ {sha[:8]}({nbytes}) · الأصل في {bkey}")
+        if not updates:
+            continue
+        # تحديث المانيفست: قراءةٌ طازجة فتعديلٌ فكتابة، وتحقّقٌ أنّ غيرَ المقصودين لم يتغيّروا
+        for attempt in range(4):
+            raw = src.get(f"audio/{riw}/manifest.json")
+            cur = json.loads(raw)
+            i = next(j for j, e in enumerate(cur["reciters"]) if e["id"] == rid)
+            new = copy.deepcopy(cur)
+            new["reciters"][i] = apply_sync(cur["reciters"][i], updates, idx_sha, ts)
+            new["updated"] = ts
+            bkey = f"{BACKUP_PREFIX}/{riw}/manifest.{ts}.s{attempt}.json"
+            src.cl.put_object(Bucket=src.bucket, Key=bkey, Body=raw, ContentType="application/json")
+            src.cl.put_object(Bucket=src.bucket, Key=f"audio/{riw}/manifest.json", ContentType="application/json",
+                              Body=json.dumps(new, ensure_ascii=False, indent=1).encode("utf-8"))
+            back = json.loads(src.get(f"audio/{riw}/manifest.json"))
+            rest_ok = all(back["reciters"][j] == cur["reciters"][j] for j in range(len(cur["reciters"])) if j != i) \
+                and len(back["reciters"]) == len(cur["reciters"])
+            if rest_ok and back["reciters"][i] == new["reciters"][i]:
+                e2 = back["reciters"][i]
+                print(f"🧾 {k}: المانيفست حُدّث · محجوب الآن {e2['clipsBlockedBySurah']} · الحكم {e2['timingIndexShaMatch']} "
+                      f"· نسخة المانيفست قبل التعديل {bkey}")
+                break
+            print(f"⚠️ {k}: تعارضٌ مع كاتبٍ آخر للمانيفست — إعادة ({attempt + 1})")
+            time.sleep(3 + attempt * 3)
+        else:
+            print(f"⛔ {k}: تعذّر تحديث المانيفست بلا تعارض — الملفّات رُفعت (الأصول محفوظة) والمانيفست كما كان/يلزم تحديثه"); rc = 5
+    return rc
+
+
 # ───────────────────────── الاختبار ─────────────────────────
 
 def _fake_entry(shas, blocked=()):
@@ -328,6 +492,26 @@ def selftest():
     assert find_mismatches(bad, idx, None, {5: idx[4]}) == {}
     # فهرسٌ بلا 114 بصمة لا يُحكم به ولا يُحجب به
     assert find_mismatches(e, idx[:100]) == {} and find_mismatches(e, None) == {}
+    # sync: يرفع SHA_MISMATCH وحده ويُبقي DURATION_MISMATCH
+    e3 = _fake_entry(idx, blocked={9})
+    e3["perFile"][6]["sha256"] = "0" * 64                      # س7 مخالفة
+    e3["perFile"][8]["sha256"] = "1" * 64                      # س9 مخالفة ومحجوبة بالمدة
+    m3 = find_mismatches(e3, idx)
+    b3, _ = apply_blocks(e3, m3, idx, 1)
+    assert b3["clipsBlockedReason"] == {"7": "SHA_MISMATCH", "9": "DURATION_MISMATCH"}
+    u = apply_sync(b3, {7: (idx[6], 4242), 9: (idx[8], 99)}, idx, 2)
+    assert "7" not in u["clipsBlockedReason"] and u["clipsBlockedReason"]["9"] == "DURATION_MISMATCH"
+    assert u["clipsBlockedBySurah"] == [9] and 7 in u["clipsOkBySurah"] and 9 not in u["clipsOkBySurah"]
+    assert u["perFile"][6]["clipsOk"] is True and u["perFile"][6]["bytes"] == 4242 and u["perFile"][8]["clipsOk"] is False
+    assert u["timingIndexShaMatch"] == "MATCH" and u["usableForClips"] is True
+    assert u["bytes"] == sum(p["bytes"] for p in u["perFile"])
+    try:
+        apply_sync(b3, {7: ("f" * 64, 1)}, idx, 3)
+        raise SystemExit("⛔ كان يجب أن يرفض بصمةً لا تطابق الفهرس")
+    except ValueError:
+        pass
+    assert _plain_mp3_url("https://x.org/a/007.mp3?x=1") and not _plain_mp3_url("https://archive.org/d/002.ogg") \
+        and _plain_mp3_url("https://archive.org/d/%D8%B3.mp3")
     print("✅ selftest: كلُّ الحالات سليمة")
     return 0
 
@@ -344,10 +528,15 @@ def main():
         q.add_argument("--rehash", action="store_true")
         if name == "apply":
             q.add_argument("--surahs", nargs="*", help="riw/id:1,2,3 — يحصر الحجب بهذه السور")
+    q = sp.add_parser("sync")
+    q.add_argument("--surahs", nargs="+", required=True, help="riw/id:1,2,3")
+    q.add_argument("--dry", action="store_true")
     sp.add_parser("selftest")
     a = p.parse_args()
     if a.cmd == "selftest":
         return selftest()
+    if a.cmd == "sync":
+        return cmd_sync(a)
     return cmd_report(a) if a.cmd == "report" else cmd_apply(a)
 
 
