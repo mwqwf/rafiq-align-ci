@@ -1,0 +1,75 @@
+name: rafiq-mirror-sha-guard
+
+run-name: حارسُ بصمة المرآة — يحجب قصاصاتِ ما يخالف audioSha256
+
+# ⛔ السببُ (مقيسٌ 2026-10-23): التطبيق يقصّ آيات السورة المنزَّلة من ملفّ المرآة بحدود الفهرس الحيّ ولا يتحقّق
+#    من audioSha256؛ وحكمُ المطابقة في مانيفست المرآة يُحسب عند نشر المرآة فقط ثمّ يتقادم. فهذا الحارسُ يعيد المقارنةَ
+#    بالفهارس المنشورة الآن ويحجب (SHA_MISMATCH) ما اختلف.
+# ⚖️ حجبٌ رتابيّ فقط (لا يرفع حجباً)، يكتب مانيفستَ المرآة وحده بعد نسخةٍ احتياطيةٍ في الدلو، ولا يمسّ فهرساً ولا صوتاً
+#    ولا حارساً. مجّانيٌّ: مستودعٌ عامّ، دقيقتان.
+# وهو يُستدعى أيضاً بعد كلّ ترقيةٍ (promote_atomic.py وrestore_loop.py)؛ والجدولةُ شبكةُ أمان.
+
+on:
+  push:
+    paths:
+      - tools/index_qa/mirror_sha_guard.py
+      - .github/workflows/mirror_sha_guard.yml
+  schedule:
+    - cron: "53 */3 * * *"
+  workflow_dispatch:
+    inputs:
+      mode:
+        description: "report (قراءة) · apply (يحجب)"
+        default: "apply"
+      only:
+        description: "riwaya/reciter — أو فارغٌ للكلّ"
+        default: ""
+      rehash:
+        description: "true = يحسب sha كلّ ملفٍّ فعلاً من الدلو (ثقيل)"
+        default: "false"
+
+concurrency:
+  group: rafiq-mirror-sha-guard
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+jobs:
+  contract:
+    runs-on: ubuntu-latest
+    timeout-minutes: 3
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: { python-version: "3.11" }
+      - run: python tools/index_qa/mirror_sha_guard.py selftest
+
+  guard:
+    if: github.event_name != 'push'
+    needs: contract
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    steps:
+      - uses: actions/checkout@v4
+        with: { fetch-depth: 1 }
+      - uses: actions/setup-python@v5
+        with: { python-version: "3.11" }
+      - run: python -m pip install --quiet boto3
+      - name: اعتماد R2
+        env:
+          R2_CREDENTIALS_JSON: ${{ secrets.R2_CREDENTIALS_JSON }}
+        run: |
+          mkdir -p secure
+          printf '%s' "$R2_CREDENTIALS_JSON" > secure/r2_credentials.json
+      - name: المطابقة والحجب
+        env:
+          MODE: ${{ github.event.inputs.mode || 'apply' }}
+          ONLY: ${{ github.event.inputs.only }}
+          REHASH: ${{ github.event.inputs.rehash }}
+        run: |
+          set -o pipefail
+          args=(--verify-size)
+          [ -n "$ONLY" ] && args+=(--only $ONLY)
+          [ "$REHASH" = "true" ] && args+=(--rehash)
+          python tools/index_qa/mirror_sha_guard.py "$MODE" "${args[@]}"

@@ -63,7 +63,7 @@ ALLOWED_WF = {"silence_probe.yml", "heard_anchor_provenance_probe.yml", "free-no
               "tafsir_ai_split.yml",
               #    وعكسُه: سورُ النقص في فهرسٍ منشورٍ بـCTC تُحاذى بـWhisper وتُدمج.
               "whisper_splice.yml",
-              "mushaf_assets.yml", "basmala.yml", "restore.yml", "keepalive.yml", "mirror_reciter.yml",
+              "mirror_sha_guard.yml", "mushaf_assets.yml", "basmala.yml", "restore.yml", "keepalive.yml", "mirror_reciter.yml",
               "reciter_probe.yml", "free_candidate_probe.yml", "probe_ayah.yml", "diagnosis.yml", "timing_ingest.yml",
               # ⛔ **أُضيف 2026-09-14 (‏D-442 · مناوبةُ المحرك):** `bench-selftest.yml` يشغّل
               #    اختباراتِ عدّة القياس وحُرّاسَها (‏دقيقةٌ واحدة · بايثون وحدَه · لا محاكيَ ولا
@@ -203,7 +203,9 @@ ALLOWED_TOOLS = {"index_qa/heard_sweep_table.py", "index_qa/source_inventory.py"
                  # proofZ 2026-10-09: مسحٌ رخيص لمدّة الملفّ الصوتيّ مقابل نهاية الفهرس (قارئٌ محض: HEAD وطلب مدى 64ك.ب).
                  "index_qa/duration_sweep.py",
                  # e5 2026-10-17: مدُّ نهاية آخر آية قصّتها المحاذاةُ عند مدّة الترويسة؛ يرفع إلى staging فقط بـstage_transform وحُرّاسه.
-                 "index_qa/extend_tail.py", "index_qa/header_clip.py"}
+                 "index_qa/extend_tail.py", "index_qa/header_clip.py",
+                 # 🛡️ 2026-10-23: حارسُ بصمة المرآة — يحجب قصاصاتِ ملفّات المرآة المخالفة لـaudioSha256 (حجبٌ رتابيّ في المانيفست وحدَه بنسخةٍ احتياطية).
+                 "index_qa/mirror_sha_guard.py"}
 MAX_OUT = 200_000            # حرفاً — جوابٌ أطولُ يُقصّ ويُعلَن قصُّه
 
 # ⛔ (تحصين 2026-10-21) العدّاءُ يحمل `secure/r2_credentials.json` وأجوبةُ ops/out تُدفع إلى مستودعٍ عامّ:

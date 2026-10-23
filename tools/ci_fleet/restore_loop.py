@@ -990,6 +990,18 @@ def _try_promote(r, prom, fired) -> tuple[bool, str]:
                         r["live"], "", "سدٌّ بعد ترقيةٍ مردودة — يُغلق الرفعَ السابق"],
                        cwd=str(ROOT), text=True)
     print(f"   {'✅ رُقّي' if ok else '⛔ لم يُرقَّ'} {r['reciter']} (+{r['gain']})")
+    if ok:
+        # 🛡️ (2026-10-23) بعد كلّ ترقية: طابِق ملفّات المرآة بـaudioSha256 الجديد واحجب القصاصاتِ المخالِفة.
+        #    حجبٌ رتابيّ في مانيفست المرآة وحده؛ ولا يؤثّر في نجاح الترقية.
+        try:
+            _g = subprocess.run([sys.executable, str(ROOT / "tools" / "index_qa" / "mirror_sha_guard.py"),
+                                 "apply", "--only", r["live"].split("timings/")[-1][:-3], "--verify-size"],
+                                capture_output=True, text=True, encoding="utf-8", errors="replace",
+                                cwd=str(ROOT), timeout=600)
+            for l in _g.stdout.splitlines()[-6:]:
+                print("      🛡️ " + l.strip()[:160])
+        except Exception as _e:                                    # noqa: BLE001
+            print(f"      🛡️ تعذّر حارسُ بصمة المرآة (لا يمنع الترقية): {_e!r}")
     for l in done.stdout.splitlines():
         if any(m in l for m in ("🧊", "⛔", "⏳", "🔴")):
             print("      " + l.strip()[:160])

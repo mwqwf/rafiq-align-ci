@@ -26,6 +26,17 @@ for _s in (sys.stdout, sys.stderr):
 ROOT = Path(__file__).resolve().parents[2]
 PROM = str(ROOT / "tools" / "index_qa" / "promote.py")
 REFREEZE = str(ROOT / "tools" / "ci_fleet" / "refreeze.py")
+SHA_GUARD = str(ROOT / "tools" / "index_qa" / "mirror_sha_guard.py")
+
+
+def guard_mirror(riw: str, rid: str) -> None:
+    """بعد كلّ ترقيةٍ ناجحة: يطابق ملفّات مرآة القارئ بـaudioSha256 الفهرس الجديد ويحجب قصاصاتِ ما يخالف.
+
+    ⛔ حجبٌ فقط (رتابيّ) وفي مانيفست المرآة وحده؛ ولا يُفشل الترقيةَ ولا يُلغيها — الفهرسُ سليمٌ والحجبُ
+    مجرّد وقايةٍ للمنزَّل (مقيس 2026-10-23: 22 سورةً بقصاصاتٍ على صوتٍ غيرِ ما بُني عليه الفهرس).
+    """
+    rc = run(SHA_GUARD, "apply", "--only", f"{riw}/{rid}", "--verify-size")
+    print(f"🛡️ حارسُ بصمة المرآة لـ{riw}/{rid}: rc={rc}" + ("" if rc == 0 else " — راجِع المخرَج أعلاه"))
 
 
 def run(*args) -> int:
@@ -50,7 +61,9 @@ def main() -> int:
     rc = run(PROM, "--only", key, "--yes")
     # يُجمَّد المنشورُ فعلاً بعدها أيّاً كان: الجديد إن رُقّي وإلا القديم
     if run(REFREEZE, target, new, "تجميدٌ بعد ترقية " + new) == 0:
-        print(f"✅ رُقّي {target} ⇒ {new}"); return 0
+        print(f"✅ رُقّي {target} ⇒ {new}")
+        guard_mirror(riw, rid)
+        return 0
     r2 = run(REFREEZE, target, old, "إعادةُ تجميد " + old + " بعد ترقيةٍ مردودة — لا هدفَ مفتوح")
     print(f"⛔ لم يُرقَّ (rc={rc}) · أُعيد تجميدُ {old}: {'نعم' if r2 == 0 else 'لا — راجِع فوراً'}")
     return 1 if r2 == 0 else 5
