@@ -28,6 +28,15 @@ on:
       threads:
         description: "خيوطُ التنزيل على العدّاء"
         default: "8"
+      force:
+        description: "true = يُعاد التوليدُ ولو كان التشخيصُ المحفوظُ يصف الفهرسَ المنشورَ الحالي (الأصل: لا إعادة)"
+        default: "false"
+
+# (2026-10-23 · تسريع) تشغيلتان لقارئٍ واحد معاً تُنزّلان 114 ملفاً مرّتين؛ فتُرتَّبان: الثانيةُ تنتظر الأولى ثمّ تجد التشخيصَ
+# كُتب فتُتخطّى في دقيقة (‏انظر خطوة «هل التشخيصُ يصف الفهرس الحيّ»). ⛔ بلا cancel-in-progress: الأولى لا تُقتل.
+concurrency:
+  group: rafiq-diagnosis-${{ github.event.inputs.only || github.ref }}
+  cancel-in-progress: false
 
 jobs:
   contract:
@@ -48,9 +57,7 @@ jobs:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
         with: { python-version: "3.11" }
-      - run: |
-          sudo apt-get update -qq && sudo apt-get install -y -qq ffmpeg
-          python -m pip install --quiet boto3 requests
+      - run: python -m pip install --quiet boto3 requests
 
       - name: اعتماد R2
         env:
@@ -60,7 +67,57 @@ jobs:
           mkdir -p secure
           printf '%s' "$R2_CREDENTIALS_JSON" > secure/r2_credentials.json
 
+      - name: هل التشخيصُ يصف الفهرسَ الحيّ؟
+        id: fresh
+        env:
+          ONLY: ${{ github.event.inputs.only }}
+          FORCE: ${{ github.event.inputs.force }}
+        run: |
+          # ⭐ (2026-10-23 · تسريع) التشخيصُ يصف **الفهرسَ المنشور** (‏`indexETag` = بصمةُ timings/<رواية>/<قارئ>.jz) ولا يتبدّل بتبدّل
+          #    مرشّحٍ في المسرح؛ والترقيةُ تقابله بالبصمة نفسِها (‏`promote.truncation`). فإن طابق المحفوظُ بصمةَ المنشور الحاليّة لكلّ فهرسٍ
+          #    يسمّيه ONLY فتوليدُه ثانيةً (114 تنزيلاً ≈ 11 د) يُنتج الملفَّ ذاتَه: قِيس في يوم 52 تشغيلةً (‏a_alqrafi وحدَه 15 مرّة).
+          #    ⛔ غيابُ التشخيص أو اختلافُ البصمة أو أيُّ خطأٍ ⇒ يُولَّد كما كان. force=true يُعيد التوليد.
+          python - <<'PY' >> "$GITHUB_OUTPUT"
+          import json, os, sys, boto3
+          only = os.environ.get("ONLY", "").strip()
+          fresh = False
+          try:
+              if only and os.environ.get("FORCE") != "true":
+                  c = json.load(open("secure/r2_credentials.json"))
+                  s3 = boto3.client("s3", endpoint_url=c["endpoint"], aws_access_key_id=c["accessKeyId"],
+                                    aws_secret_access_key=c["secretAccessKey"], region_name="auto")
+                  keys = [o["Key"] for pg in s3.get_paginator("list_objects_v2").paginate(Bucket=c["bucket"], Prefix="timings/")
+                          for o in pg.get("Contents", []) if o["Key"].endswith(".jz") and only in o["Key"]]
+                  ok = bool(keys)
+                  for k in keys:
+                      riw, rid = k.split("/")[1], k.split("/")[2][:-3]
+                      et = s3.head_object(Bucket=c["bucket"], Key=k)["ETag"].strip('"')
+                      d = json.loads(s3.get_object(Bucket=c["bucket"], Key=f"catalog/diagnosis/{riw}/{rid}.json")["Body"].read())
+                      if not et or str(d.get("indexETag") or "").strip('"') != et:
+                          ok = False
+                          print(f"↻ {k}: التشخيصُ لا يصف البصمةَ الحالية", file=sys.stderr)
+                          break
+                  fresh = ok
+          except Exception as e:
+              print(f"↻ تعذّر الفحص ({str(e)[:80]}) ⇒ يُولَّد", file=sys.stderr)
+          if fresh:
+              print(f"⏭ التشخيصُ المحفوظُ لـ{only} يصف الفهرسَ المنشورَ الحاليّ — لا إعادة", file=sys.stderr)
+          print("fresh=" + ("true" if fresh else "false"))
+          PY
+
+      - name: كاش ffmpeg (بديلُ apt المعلَّق · لا يغيّر النسخة)
+        if: steps.fresh.outputs.fresh != 'true'
+        uses: actions/cache@v4
+        with:
+          path: .qa-tools/apt-tree
+          key: qa-ffmpeg-apt-tree-v1-${{ hashFiles('tools/ci_fleet/install_qa_ffmpeg.py') }}
+
+      - name: ffmpeg
+        if: steps.fresh.outputs.fresh != 'true'
+        run: QA_FFMPEG_APT_ONLY=1 python tools/ci_fleet/install_qa_ffmpeg.py
+
       - name: توليدُ التشخيص
+        if: steps.fresh.outputs.fresh != 'true'
         env:
           ONLY: ${{ github.event.inputs.only }}
           THREADS: ${{ github.event.inputs.threads }}
