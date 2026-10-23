@@ -46,7 +46,7 @@ class ToolDelegationTest(unittest.TestCase):
                 mock.patch.dict("os.environ", {"NAME": "nm", "TOOL": "index_qa/run.py", "ARGS": "[\"x\"]"}):
             A.tool_main()
             self.assertEqual((Path(d) / "nm.txt").read_text(encoding="utf-8"), "# rc=0\nhello")
-            push.assert_called_once_with("nm")
+            push.assert_called_once_with("nm", api_paths=["ops/out/nm.txt"])   # (2026-10-23) الواجهة احتياطٌ لخسارة سباق الدفع
 
     def test_tool_main_rechecks_guard(self):
         with tempfile.TemporaryDirectory() as d, \

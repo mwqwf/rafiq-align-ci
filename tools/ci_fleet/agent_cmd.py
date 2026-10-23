@@ -412,7 +412,7 @@ def tool_main():
         out = out[:MAX_OUT] + f"\n… [قُصّ الجواب عند {MAX_OUT} حرفاً]"
     print(out[:4000])
     (OUT_DIR / f"{name}.txt").write_text(f"# rc={rc}\n{out}", encoding="utf-8")
-    _push_answer(name)
+    _push_answer(name, api_paths=[f"ops/out/{name}.txt"])
 
 
 def _gap_surahs(entries):
@@ -651,8 +651,58 @@ def main():
     print("\n⇒ تمّت الأوامر.")
 
 
-def _push_answer(name: str) -> None:
-    """يُودع جوابَ أمرٍ واحدٍ ويدفعه فوراً — بمسارٍ صريحٍ ولا `-A`."""
+def _api_put_files(paths, repo=None, branch="main", tries=6, sleep=None) -> bool:
+    """يرفع كلَّ ملفٍّ في `paths` إلى `branch` بواجهة المحتويات (PUT /contents) — إيداعٌ ذرّيٌّ في الخادم بلا دمجٍ ولا جلب.
+
+    ⛔⛔ **عطبٌ مقيسٌ 2026-10-23:** `main` يُدفع إليها كلَّ ثوانٍ، وجلبُ المستودعِ السطحيّ ودمجُه في العدّاء يستغرق 6–7 دقائق
+       (‏13:39→13:46 · 13:55→14:01 · 15:43→15:50)، فيخسر الدفعُ الثاني السباقَ دائماً و`_push_answer` يكتفي بمحاولةٍ واحدة؛
+       ثمّ لا يرى `ادفع الجواب` في آخر الشوط فرقاً مرحلاً (‏الإيداعُ محلّيٌّ أصلاً) فيقول «لا جوابَ يُدفع» والشوطُ ✅.
+       ⇒ **ضاع جوابُ 20 أمراً من 488 في يوم** (‏وكلُّها أوامرُ tool): ترقيةُ نورين (15:43) تمّت ولا أثرَ لجوابها، وجوابُ زرع القرشي
+       ضاع فانتظرته سلسلتُه ستَّ ساعات. والترقيةُ نفسُها سليمةٌ (‏المانيفست تغيّر) — الضائعُ الجوابُ وحدَه.
+    يعيد True إن وصل كلُّ ملف، وFalse إن تعذّر شيءٌ (فيعود المنادي إلى الجلب والدمج). لا يرمي.
+    """
+    import base64
+    import time
+    repo = repo or os.environ.get("GITHUB_REPOSITORY", "")
+    if not repo or not paths:
+        return False
+    nap = sleep if sleep is not None else time.sleep
+    for rel in paths:
+        f = ROOT / rel
+        try:
+            body = base64.b64encode(f.read_bytes()).decode("ascii")
+        except OSError as ex:
+            print(f"⚠️ تعذّرت قراءة {rel}: {ex}")
+            return False
+        done = False
+        for k in range(tries):
+            try:
+                rc, cur = run(["gh", "api", f"repos/{repo}/contents/{rel}?ref={branch}", "--jq", ".sha"])
+                sha = cur.split("[stderr]")[0].strip() if rc == 0 else ""
+                payload = {"message": f"ops: جوابُ الأمر {f.stem}", "content": body, "branch": branch}
+                if sha:
+                    payload["sha"] = sha
+                rc, res = run(["gh", "api", "-X", "PUT", f"repos/{repo}/contents/{rel}", "--input", "-"],
+                              input=json.dumps(payload, ensure_ascii=False))
+            except Exception as ex:                                  # noqa: BLE001
+                rc, res = 1, str(ex)
+            if rc == 0:
+                done = True
+                break
+            print(f"⚠️ محاولة {k + 1}/{tries} لرفع {rel} بالواجهة فشلت: {res.strip()[:200]}")
+            nap(min(2 * (k + 1), 10))
+        if not done:
+            return False
+        print(f"✅ رُفع {rel} إلى {branch} بالواجهة")
+    return True
+
+
+def _push_answer(name: str, api_paths=None) -> None:
+    """يُودع جوابَ أمرٍ واحدٍ ويدفعه فوراً — بمسارٍ صريحٍ ولا `-A`.
+
+    `api_paths`: ملفّات جوابٍ تُرفع بالواجهة (‏`_api_put_files`) إن خسر الدفعُ السباقَ، قبل الجلب والدمج البطيئين.
+    وإن تعذّرت الواجهةُ فالجلب والدمج بحلقةٍ (حتى 3) لا بمحاولةٍ واحدة.
+    """
     import subprocess
     paths = ["ops/out", "ops/commands"]
     try:
@@ -675,7 +725,12 @@ def _push_answer(name: str) -> None:
         subprocess.run(["git", "commit", "-m", f"ops: جوابُ الأمر {name}",
                         "--", *live], cwd=ROOT, check=False)
         if subprocess.run(["git", "push", "origin", "HEAD:main"],
-                          cwd=ROOT).returncode != 0:
+                          cwd=ROOT).returncode == 0:
+            return
+        # خسر السباق: الواجهةُ أوّلاً (ثوانٍ) — الجلبُ والدمجُ في عدّاءٍ سطحيٍّ يستغرقان دقائق فيخسران ثانيةً.
+        if api_paths and _api_put_files(api_paths):
+            return
+        for _try in range(3):
             subprocess.run(["git", "fetch", "origin", "main", "--quiet"],
                            cwd=ROOT, check=False)
             # ⛔ لا `rebase` على هذه الشجرة المشتركة — `CLAUDE.md` نصّاً.
@@ -688,10 +743,11 @@ def _push_answer(name: str) -> None:
             if merged.returncode != 0:
                 subprocess.run(["git", "merge", "--abort"], cwd=ROOT, check=False)
                 return
-            subprocess.run(["git", "push", "origin", "HEAD:main"],
-                           cwd=ROOT, check=False)
+            if subprocess.run(["git", "push", "origin", "HEAD:main"],
+                              cwd=ROOT).returncode == 0:
+                return
     except Exception as ex:                                       # noqa: BLE001
-        # ⛔ لا يُوقف فشلُ الدفع بقيّةَ الأوامر: الخطوةُ الأخيرة شبكةُ أمان.
+        # ⛔ لا يوقف فشلُ الدفع بقيّةَ الأوامر: الخطوةُ الأخيرة شبكةُ أمان.
         print(f"⚠️ تعذّر دفعُ جواب {name} الآن (يبقى للخطوة الأخيرة): {ex}")
 
 
