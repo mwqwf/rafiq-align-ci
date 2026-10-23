@@ -187,7 +187,14 @@ def process_repo(token, repo, dry, min_age, now, log):
             u = (getattr(e, "url", "") or "").split("?")[0]
             kind = next((k for k in ("check-runs", "actions/runs", "/status", "/files", "/merge", "/commits/", "/pulls/")
                          if k in u), "?")
-            log("%s#%d: خطأ HTTP %s في %s — تُخطّي" % (repo, n, e.code, kind.strip("/")))
+            # رسالةُ GitHub والإذنُ الذي يطلبه (‏X-Accepted-GitHub-Permissions) يسمّيان النقصَ بلا تخمين
+            try:
+                msg = (json.loads(e.read().decode() or "{}").get("message") or "")[:120]
+            except Exception:  # noqa: BLE001
+                msg = ""
+            need = (e.headers.get("X-Accepted-GitHub-Permissions") if e.headers else "") or ""
+            log("%s#%d: خطأ HTTP %s في %s — تُخطّي%s%s" % (repo, n, e.code, kind.strip("/"),
+                " · «%s»" % msg if msg else "", " · الإذن المطلوب: %s" % need if need else ""))
         except Exception as e:  # noqa: BLE001
             log("%s#%d: خطأ %s — تُخطّي" % (repo, n, e))
 

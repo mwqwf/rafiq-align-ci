@@ -178,6 +178,18 @@ class Pure(unittest.TestCase):
             g, _ = H.gate_start_anchors(heard, small, ayahs, raw, witness_ms=None)
             self.assertEqual(g[1][0], small[5])
 
+    def test_build_anchor_uses_gate_refined_start(self):
+        # swlim 2:153: الخام 2615356 والمنقّى 2618809؛ المرشّحُ يجب أن يبني على ما تقيسه البوّابة.
+        anchors = [(1000, 5000, 0.9), (2615356, 2630000, 0.98), (2640000, 2650000, 0.5)]
+        gate = [anchors[0], (2618809, 2630000, 0.98), anchors[2]]
+        ev = [None, {"kind": "cross-ayah-replace-first-equal"}, None]
+        out = H.build_anchor_ms(anchors, gate, ev, 0.7)
+        self.assertEqual(out[1], (2618809, 2630000))
+        self.assertEqual(out[0], (1000, 5000))
+        self.assertIsNone(out[2])
+        out = H.build_anchor_ms(anchors, anchors, [None] * 3, 0.7)
+        self.assertEqual(out[1], (2615356, 2630000))
+
     def test_plan_windows_caps_and_splits_on_gap(self):
         ms = [(k * 1000, k * 1000 + 900) for k in range(30)]
         self.assertEqual(H.plan_windows(ms, 30, max_ayat=12), [(0, 11), (12, 23), (24, 29)])

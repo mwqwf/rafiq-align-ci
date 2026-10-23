@@ -334,6 +334,22 @@ def chunk_map(heard_sk, times, ayah_sks, chunk_ms=15000):
     return out
 
 
+def build_anchor_ms(anchors, gate_anchors, gate_evidence, min_q):
+    """مراسي بناء النوافذ. ⛔ (إصلاح heardbug · swlim 2:153) كانت تؤخذ من المحاذاة العامّة الخام
+    وحدها، بينما تقرأ بوّابةُ السماع المِرساةَ المنقّاة (‏`anchorMs`)؛ فإذا نُقّح بدءُ آيةٍ (‏evidence)
+    بنى المرشّحُ على الخام (‏2615356) وقاست البوّابةُ المنقّاةَ (‏2618809) فردّته بانحراف −3.45ث.
+    فحيث وُجد شاهدُ تنقيةٍ يُؤخذ البدءُ المنقّى (‏النهايةُ والجودةُ كما هما). لا يُمسّ أيُّ حارس."""
+    out = []
+    for k, a in enumerate(anchors):
+        if not a or a[2] < min_q:
+            out.append(None)
+            continue
+        g = gate_anchors[k] if k < len(gate_anchors) else None
+        ev = gate_evidence[k] if k < len(gate_evidence) else None
+        out.append((g[0], a[1]) if (ev and g and g[0] < a[1]) else (a[0], a[1]))
+    return out
+
+
 def anchor_tol(a, strict_ms=0):
     """أقصى بُعدٍ مقبولٍ لحدّ النافذة عن مِرساته: max(3ث، نصفَ مدّة المِرساة) — أو `strict_ms`
     ثابتاً إن أُعطي (‏fixT · 2026-10-03: الدفعةُ السماعيّة تطلب ما تطلبه بوّابةُ السماع، 1.5ث،
@@ -410,7 +426,7 @@ def run(audio, surah, riwaya, log=print, probe=False, strict_tol_ms=0):
     gate_evidence = gate_evidence[1:] if bas_sk else gate_evidence
     # المِرساةُ المعتمَدة للنوافذ: المحاذاةُ العامّةُ الرتيبة (‏جودةٌ ≥ ANCHOR_Q)؛ والأداءاتُ المنفردةُ
     # شاهدٌ على التكرار والزيادة فقط.
-    anchor_ms = [(a[0], a[1]) if a and a[2] >= ANCHOR_Q else None for a in anchors]
+    anchor_ms = build_anchor_ms(anchors, gate_anchors, gate_evidence, ANCHOR_Q)
     heard_map = {}
     for k in range(n):
         c = chosen[k]
@@ -497,6 +513,7 @@ def run(audio, surah, riwaya, log=print, probe=False, strict_tol_ms=0):
         tol = anchor_tol(a, strict_tol_ms)
         if abs(starts[k] - a[0]) <= tol:
             continue
+        raw_start = starts[k]
         ws, we = int(max(0, a[0] - PAD_MS)), int(min(total_ms, a[1] + PAD_MS))
         clip = x[ws * SR // 1000: we * SR // 1000]
         try:
@@ -508,7 +525,7 @@ def run(audio, surah, riwaya, log=print, probe=False, strict_tol_ms=0):
             starts[k], scores[k], source[k] = cand, sc, "narrow"
         else:
             starts[k], scores[k], source[k] = a[0], -2.4, "anchor"      # _conf(-2.4) = 0.4 ⇒ LOW
-        result["issues"].append(f"الآية {k + 1}: حدُّ النافذة {abs(starts[k] - a[0]) / 1000:.1f}ث عن مِرساتها"
+        result["issues"].append(f"الآية {k + 1}: حدُّ النافذة {abs(raw_start - a[0]) / 1000:.1f}ث عن مِرساتها"
                                 f" ⇒ {source[k]}")
     # حدٌّ مصحَّحٌ يزاحم التاليةَ (‏الصافات 106: 200م.ث) يُردّ إلى مِرساته إن وسعت.
     for k in range(n - 1):

@@ -113,7 +113,9 @@ def start_row(entry, cmap):
             if (isinstance(occurrence, list) and len(occurrence) >= 3
                     and all(finite(x) for x in occurrence[:3]) and occurrence[1] > occurrence[0] >= 0
                     and occurrence[2] >= REPEAT_SIM
-                    and abs(entry["startMs"] - occurrence[0]) <= REPEAT_NEAR_MS):
+                    and abs(entry["startMs"] - occurrence[0]) <= REPEAT_NEAR_MS
+                    # تشديد 2026-10-23 (‏كما في heard_gate.genuine_repeat): تكرارٌ منفصلٌ عن المِرساة لا داخل مداها
+                    and (occurrence[0] < anchor[0] - TOL_MS or occurrence[0] >= anchor[1] - TOL_MS)):
                 out["status"] = "repeat"
                 break
     return out

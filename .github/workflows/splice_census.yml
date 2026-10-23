@@ -79,6 +79,19 @@ jobs:
                       Key="state-census/" + k.replace("/", "_") + ".json")["Body"].read())
                   if old.get("sha256") == sha and os.environ.get("FORCE") != "true":
                       print(f"⏭ {k} — أُحصي على هذه البصمة سلفاً", file=sys.stderr); continue
+                  # ⭐ (2026-10-23 · تسريع) force=true لعلاج «نافذةٍ تعذّر تفريغُها» لا لإعادة إحصاءٍ سليم: قِيس في يوم 15 إعادةً
+                  #    لبصماتٍ أُحصيت سلفاً ≈1400 د عدّاد (‏sayed.067dd32e خمسَ مرّات). فإن كان الإحصاءُ المحفوظُ على هذه البصمة
+                  #    يقبله **حارسُ الترقية نفسُه** (‏`promote.census_gate` — الدالّةُ ذاتُها لا نسخةٌ) فلا إعادة: ستعطي الحكمَ ذاتَه.
+                  #    ⛔ لا يُخفَّف شيء: ما ردّه الحارسُ (‏نافذةٌ تعذّرت · ناقص · جسيم>5%) يُعاد كما كان تماماً.
+                  if old.get("sha256") == sha:
+                      try:
+                          from promote import census_gate
+                          why = census_gate(s3, c["bucket"], k, sha, d)
+                      except Exception as e:                       # تعذّر الاستدعاء ⇒ لا تخطّي (الأصلُ الإعادة)
+                          why = "تعذّر تقييم الحارس: " + str(e)[:80]
+                      if why is None:
+                          print(f"⏭ {k} — الإحصاءُ المحفوظُ على هذه البصمة يقبله الحارسُ فلا إعادة (force)", file=sys.stderr); continue
+                      print(f"↻ {k} — يُعاد: {why[:120]}", file=sys.stderr)
               except Exception:
                   pass
               if os.environ.get("PARALLEL") == "true":
@@ -111,6 +124,12 @@ jobs:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
         with: { python-version: "3.11" }
+      - name: كاش ffmpeg (بديلُ apt المعلَّق · لا يغيّر النسخة)
+        uses: actions/cache@v4
+        with:
+          path: .qa-tools/apt-tree
+          key: qa-ffmpeg-apt-tree-v1-${{ hashFiles('tools/ci_fleet/install_qa_ffmpeg.py') }}
+
       - name: أدوات النظام
         timeout-minutes: 10
         run: bash tools/ci_fleet/install_qa_deps.sh
@@ -167,6 +186,12 @@ jobs:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
         with: { python-version: "3.11" }
+      - name: كاش ffmpeg (بديلُ apt المعلَّق · لا يغيّر النسخة)
+        uses: actions/cache@v4
+        with:
+          path: .qa-tools/apt-tree
+          key: qa-ffmpeg-apt-tree-v1-${{ hashFiles('tools/ci_fleet/install_qa_ffmpeg.py') }}
+
       - name: أدوات النظام
         timeout-minutes: 10
         run: bash tools/ci_fleet/install_qa_deps.sh

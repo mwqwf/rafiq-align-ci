@@ -51,8 +51,23 @@ frozen = get("timings/frozen.txt").decode("utf-8")
 sys.path.insert(0, str(ROOT / 'tools' / 'index_qa'))
 from promote import held
 from qa_dispatch_guard import has_current_manual_sample, manual_qa_reason
+from gate_launch_guard import launch_skip_reason
 holds = held()
 promoted = 0
+
+
+def fresh_live():
+    m = json.loads(get("timings/manifest.json"))
+    return {(x["riwaya"], x["reciterId"]): x["sha256"] for x in m["indexes"]}
+
+
+def get_idx(key):
+    try:
+        raw = get(key)
+        return json.loads(gzip.decompress(raw) if raw[:2] == b"\x1f\x8b" else raw)
+    except Exception:                                   # noqa: BLE001
+        return None
+
 # الأحدثُ لكلّ قارئ وحدَه: بصمةٌ قديمةٌ ناقصةٌ لا تُبوَّب ولا تُرقّى فوق خليفتها.
 latest = {}
 for o in ls("timings-staging/"):
@@ -123,6 +138,11 @@ for rid, o in latest.items():
     mark = f"{flat}.ctc-gate-dispatched"
     if mark in state or any(x in state for x in salts):
         print(f"⏳ {k}: البوابة جارية")
+        continue
+    # ⭐ (2026-10-20) فحصٌ طازجٌ قبل الإطلاق مباشرة: مرقّى أصلاً · أساسُه تبدّل · ردّته بوّابة السماع.
+    _skip = launch_skip_reason(k, hdr, actual_sha, fresh_live(), get("timings/frozen.txt").decode("utf-8"), get_idx)
+    if _skip:
+        print(f"⏭️ {k}: لا ملوح ولا openers — {_skip}")
         continue
     print(f"▶ بوابة {k}")
     sh("gh", "workflow", "run", "openers.yml", "-R", REPO, "-f", f"only={k}", "-f", "limit=1")

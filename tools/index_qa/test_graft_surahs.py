@@ -67,6 +67,50 @@ class T(unittest.TestCase):
         out, _ = self.run_g()
         self.assertEqual(out["engineBySurah"]["2"], "E9")   # لا يُخفى محرّكٌ مغاير
 
+    def test_audio_sha_taken_from_donor_for_grafted_only(self):
+        base = idx(audioSha256=["a1", "a2", "a3"])
+        donor = idx({2: 5}, transform={"fromSha256": "B"}, audioSha256=["x1", "NEW", "x3"])
+        out, _ = g.graft(base, donor, "B", [2], None, "D", C)
+        self.assertEqual(out["audioSha256"], ["a1", "NEW", "a3"])
+
+    def test_audio_sha_fixed_114_layout(self):
+        fixed = ["f%d" % i for i in range(114)]
+        don = list(fixed)
+        don[1] = "NEW"
+        base = idx(audioSha256=fixed)
+        donor = idx({2: 5}, transform={"fromSha256": "B"}, audioSha256=don)
+        out, _ = g.graft(base, donor, "B", [2], None, "D", C)
+        self.assertEqual(out["audioSha256"][1], "NEW")
+        self.assertEqual(out["audioSha256"][0], "f0")
+        self.assertEqual(out["audioSha256"][2], "f2")
+
+    def test_audio_sha_empty_donor_value_not_taken(self):
+        base = idx(audioSha256=["a1", "a2", "a3"])
+        donor = idx({2: 5}, transform={"fromSha256": "B"}, audioSha256=["x1", "", "x3"])
+        out, _ = g.graft(base, donor, "B", [2], None, "D", C)
+        self.assertEqual(out["audioSha256"], ["a1", "a2", "a3"])
+
+    def test_audio_sha_untouched_when_lists_misaligned(self):
+        base = idx(audioSha256=["a1", "a2", "a3"])
+        donor = idx({2: 5}, transform={"fromSha256": "B"}, audioSha256=["a1", "NEW"])
+        out, _ = g.graft(base, donor, "B", [2], None, "D", C)
+        self.assertEqual(out["audioSha256"], ["a1", "a2", "a3"])
+
+    def test_grafted_sha_not_matching_current_source_still_rejected_by_heard_gate(self):
+        # الحارس لم يضعف: بصمةٌ مزروعةٌ من متبرِّعٍ لا تطابق الصوتَ المسموع فعلاً تُردّ في heard_gate
+        import heard_gate as H
+        base = idx(audioSha256=["a1", "OLD", "a3"])
+        donor = idx({2: 5}, transform={"fromSha256": "B"}, audioSha256=["a1", "DONOR", "a3"])
+        out, _ = g.graft(base, donor, "B", [2], None, "D", C)
+        self.assertEqual(out["audioSha256"][1], "DONOR")
+        def m(sha):
+            return {"sha256": sha, "fileRef": "f2", "anchors": {"1": [[105, 995], 0.9, []]}}
+        bad = H.judge(out, base, "x" * 64, {2: m("CURRENT"), 1: m("a1"), 3: m("a3")})
+        self.assertFalse(bad["ok"])
+        self.assertIn("غيرُ صوت المرشّح", bad["reason"])
+        ok = H.judge(out, base, "x" * 64, {2: m("DONOR"), 1: m("a1"), 3: m("a3")})
+        self.assertNotIn("غيرُ صوت المرشّح", ok["reason"] or "")
+
     def test_empty(self):
         self.bad("فارغة", surahs=())
 

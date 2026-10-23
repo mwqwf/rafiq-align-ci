@@ -33,8 +33,9 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 30
     steps:
+      # (تسريع 2026-10-22) checkout سطحيٌّ: التاريخُ الكاملُ كان ≈110ث بلا حاجة (انظر agent_cmd.yml).
       - uses: actions/checkout@v4
-        with: { fetch-depth: 0, ref: main }
+        with: { fetch-depth: 1, ref: main }
       - uses: actions/setup-python@v5
         with: { python-version: "3.11" }
       - run: python -m pip install --quiet boto3
@@ -64,6 +65,7 @@ jobs:
         run: python tools/ci_fleet/agent_cmd.py --tool-run
 
       - name: ادفع الجواب
+        id: push
         if: always()
         run: |
           git config user.name  "rafiq-agent-cmd"
@@ -72,15 +74,34 @@ jobs:
           git add ops/out 2>/dev/null || true
           if ! git diff --cached --quiet; then
             git commit -m "ops: جوابُ أداةِ الوكيل" -- ops/out
-            git push origin HEAD:main || {
-              git fetch origin main --quiet
-              if git merge -X ours --no-edit origin/main; then
-                git push origin HEAD:main
-              else
+            # دفعٌ متينٌ: حتى 8 محاولات بانتظارٍ متزايدٍ وعشوائيّة صغيرة، وفي كلّ محاولةٍ
+            # fetch ثم دمجٌ (بلا rebase ولا force). الفشلُ النهائيّ يُخرج غير صفريّ.
+            ok=0
+            for i in 1 2 3 4 5 6 7 8; do
+              git fetch origin main --quiet || true
+              if ! git merge -X ours --no-edit origin/main; then
                 git merge --abort || true
-                echo "⚠️ تعذّر دمجُ الجواب مع main"; exit 1
+                echo "⚠️ محاولة $i: تعذّر الدمج"
+              elif git push origin HEAD:main; then
+                ok=1; break
               fi
-            }
+              w=$(( i * 3 + RANDOM % 5 ))
+              echo "محاولة $i رُفضت؛ انتظار ${w}ث"
+              sleep "$w"
+            done
+            if [ "$ok" != 1 ]; then
+              echo "⚠️ فشلت كلُّ محاولات دفع الجواب (الاحتياط: artifact ans-tool)"; exit 1
+            fi
           else
             echo "لا جوابَ يُدفع."
           fi
+
+      # الاحتياطُ لا يُرفع إلا إن فشل الدفعُ نفسُه.
+      - name: احتياطٌ - ارفع الجواب artifact
+        if: always() && steps.push.outcome == 'failure'
+        uses: actions/upload-artifact@v4
+        with:
+          name: ans-tool-${{ github.run_id }}
+          path: ops/out
+          retention-days: 1
+          if-no-files-found: ignore

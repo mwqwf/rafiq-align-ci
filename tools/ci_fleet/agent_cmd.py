@@ -115,7 +115,7 @@ ALLOWED_WF = {"silence_probe.yml", "heard_anchor_provenance_probe.yml", "free-no
 #    استرجاع الـ310 آية لم تصل إلى المستخدم أصلاً، **لأنّ لا بابَ سحابيّاً
 #    كان يفتحه**. وهو محكومٌ بحُرّاسه (يُسقط التوليد كلَّه إن شُهد لمن لا حكمَ
 #    لبصمته، ولا يمسّ غير الحقلين)، فإدخالُه لا يُضعف حارساً.
-ALLOWED_TOOLS = {"index_qa/source_inventory.py", "ci_fleet/promote_atomic.py",  # رفعٌ وترقيةٌ وإعادةُ تجميدٍ في عمليّةٍ واحدة (2026-10-17)
+ALLOWED_TOOLS = {"index_qa/heard_sweep_table.py", "index_qa/source_inventory.py", "ci_fleet/promote_atomic.py",  # رفعٌ وترقيةٌ وإعادةُ تجميدٍ في عمليّةٍ واحدة (2026-10-17)
                  "index_qa/adopt_noah_source_gap.py",  # اعتماد مقيد بالبصمة بعد نجاح كامل الفحص 37405972254
                  "ci_fleet/cancel_superseded_tail_qa.py", "ci_fleet/cancel_superseded_ctc_qa.py", "ci_fleet/rerun_stale_review.py",  # retry only pinned read-only review after stale diagnosis
                  "index_qa/export_index_bytes.py",  # SHA-pinned raw read only
@@ -206,6 +206,69 @@ ALLOWED_TOOLS = {"index_qa/source_inventory.py", "ci_fleet/promote_atomic.py",  
                  "index_qa/extend_tail.py", "index_qa/header_clip.py"}
 MAX_OUT = 200_000            # حرفاً — جوابٌ أطولُ يُقصّ ويُعلَن قصُّه
 
+# ⛔ (تحصين 2026-10-21) العدّاءُ يحمل `secure/r2_credentials.json` وأجوبةُ ops/out تُدفع إلى مستودعٍ عامّ:
+#    فلا وسيطٌ لأيّ أداةٍ يشير إلى secure أو r2_credentials أو يصعد بـ`..` أو يقصد مواضعَ حسّاسةً مطلقة،
+#    ولا جوابٌ يُكتب قبل حجبِ قيم السرّ المعروفة منه. (نصوصُ الأسباب الحرّة بـ«53:39..62» سليمة: المنعُ بمكوّنِ مسارٍ كاملٍ لا بنصٍّ.)
+_SENSITIVE_ABS = ("/etc", "/proc", "/sys", "/dev", "/root", "/home", "/run", "/var", "/boot", "/mnt")
+SECRET_FILE = ROOT / "secure" / "r2_credentials.json"
+
+
+def _forbidden_path_arg(args):
+    """أوّلُ وسيطٍ يمسّ secure/r2_credentials/`..`/موضعاً مطلقاً حسّاساً أو None (لكل الأدوات)."""
+    import posixpath
+    for a in args:
+        a = str(a)
+        for v in {a, a.split("=", 1)[-1]}:
+            low = v.lower().replace("\\", "/")
+            parts = [x for x in low.split("/") if x]
+            if "r2_credentials" in low or "secure" in parts or ".." in parts:
+                return a
+            if low.startswith("/"):
+                n = posixpath.normpath(low)
+                inside = n == str(ROOT).lower() or n.startswith(str(ROOT).lower() + "/")  # المستودعُ نفسُه تحت /home/runner
+                if not inside and any(n == b or n.startswith(b + "/") for b in _SENSITIVE_ABS):
+                    return a
+    return None
+
+
+def _secret_values():
+    """قيمُ السرّ النصّيّة (≥8 حروف) من secure/r2_credentials.json، الأطولُ أوّلاً؛ فارغةٌ إن غاب الملفّ."""
+    try:
+        data = json.loads(SECRET_FILE.read_text(encoding="utf-8"))
+    except Exception:                                             # noqa: BLE001
+        return []
+    out = set()
+
+    def walk(x):
+        if isinstance(x, str):
+            if len(x.strip()) >= 8:
+                out.add(x.strip())
+        elif isinstance(x, dict):
+            for v in x.values():
+                walk(v)
+        elif isinstance(x, list):
+            for v in x:
+                walk(v)
+    walk(data)
+    return sorted(out, key=len, reverse=True)
+
+
+def redact(text):
+    """يحجب كلَّ ظهورٍ لقيمةِ سرٍّ معروفةٍ بـ*** قبل أن يُكتب الجوابُ أو يُطبع."""
+    for v in _secret_values():
+        text = text.replace(v, "***")
+    return text
+
+
+def _atomic_write(path, text):
+    """كتابةٌ ذرّيّة (ملفٌّ مؤقّتٌ خارج ops/out ثمّ استبدال): الدفعُ الجماعيّ قد يُجرى
+    بينما معالجٌ في خيطٍ آخر يكتب، فلا يُودَع أبداً ملفٌّ نصفُ مكتوب."""
+    path = Path(path)
+    tmp = ROOT / "ops" / f".tmp_{os.getpid()}_{path.name}"
+    tmp.parent.mkdir(parents=True, exist_ok=True)
+    tmp.write_text(text, encoding="utf-8")
+    os.replace(tmp, path)
+
 
 def run(cmd, **kw):
     p = subprocess.run(cmd, capture_output=True, text=True, encoding="utf-8",
@@ -233,7 +296,14 @@ def do_dispatch(c):
         a = ["gh", "workflow", "run", wf]
         for k, v in inp.items():
             a += ["-f", f"{k}={v}"]
-        return run(a)
+        # إطلاقاتٌ متوازية ⇒ قد يردّ GitHub بحدّ المعدّل الثانويّ؛ تُعاد المحاولةُ بعد انتظار (لا يُسقط أمراً).
+        for _t in range(4):
+            r = run(a)
+            if r[0] == 0 or not re.search(r"rate limit", r[1], re.I):
+                break
+            import time as _tm
+            _tm.sleep(20 * (_t + 1))
+        return r
 
     rc, out = _fire(given)
     if rc != 0 and "Unexpected inputs provided" in out:
@@ -272,6 +342,10 @@ def guard_tool(tool, args):
     (ALLOWED_TOOLS و_forbidden_promote_args بلا أي إرخاء)."""
     if tool not in ALLOWED_TOOLS:
         return 2, f"⛔ أداةٌ غيرُ مسموحة: {tool!r}\nوالمسموح: {sorted(ALLOWED_TOOLS)}"
+    bp = _forbidden_path_arg(args)
+    if bp:
+        return 2, (f"⛔ (تحصين 2026-10-21) وسيطٌ يمسّ مجلّد secure أو r2_credentials أو `..` "
+                   f"أو موضعاً مطلقاً حسّاساً: {bp!r} — مرفوضٌ لكل الأدوات.")
     bad = _forbidden_promote_args(tool, args)
     if bad:
         return 2, ("⛔ (صيد 2026-10-09) وسيطٌ ممنوعٌ عبر القناة لـ promote.py: "
@@ -304,8 +378,13 @@ def do_tool(c):
     name = c.get("_name", "")
     if not _NAME_RE.fullmatch(name or ""):
         return 3, f"⛔ اسمُ الأمر لا يصلح لملفّ جواب: {name!r}"
-    rc, out = run(["gh", "workflow", "run", TOOL_WORKFLOW, "-f", f"name={name}",
-                   "-f", f"tool={tool}", "-f", "args=" + json.dumps(args, ensure_ascii=False)])
+    import time as _t
+    for _try in range(4):        # خطأ 5xx عابر من GitHub (وقع 2026-10-20: HTTP 500) لا يُسقط أمراً
+        rc, out = run(["gh", "workflow", "run", TOOL_WORKFLOW, "-f", f"name={name}",
+                       "-f", f"tool={tool}", "-f", "args=" + json.dumps(args, ensure_ascii=False)])
+        if rc == 0 or not re.search(r"HTTP 5\d\d|rate limit", out, re.I):   # 5xx أو حدُّ المعدّل الثانويّ (التوازي)
+            break
+        _t.sleep(15 * (_try + 1))
     if rc != 0:
         return rc, "⛔ تعذّر إطلاق agent_tool.yml:\n" + out
     print(f"↪ فُوّض {name} إلى {TOOL_WORKFLOW} (يكتب ops/out/{name}.txt بنفسه)")
@@ -325,6 +404,7 @@ def tool_main():
         rc, out = run_tool(tool, args)
     except Exception:                                             # noqa: BLE001
         rc, out = 3, "⛔ تعذّر تنفيذُ الأمر:\n" + traceback.format_exc()
+    out = redact(out)
     if len(out) > MAX_OUT:
         out = out[:MAX_OUT] + f"\n… [قُصّ الجواب عند {MAX_OUT} حرفاً]"
     print(out[:4000])
@@ -439,8 +519,8 @@ def do_state(c):
           "catalogTotal": catalog_total,
           "ayahModeExcluded": len(ayah_mode), "ayahModeIds": ayah_mode,
           "byRiwaya": per, "indexesWithGaps": gaps}
-    (OUT_DIR / "state.json").write_text(
-        json.dumps(st, ensure_ascii=False, indent=1), encoding="utf-8")
+    _atomic_write(OUT_DIR / "state.json",
+                  redact(json.dumps(st, ensure_ascii=False, indent=1)))
     _miss = ("\n⛔ **الباقي بالاسم** (" + str(len(missing)) + "): "
              + ("، ".join(missing) if missing else "لا شيء — ملفات القرّاء موجودة"))
     _reads = (f"قُرئ {fetched_count}/{len(pub)} فهرساً · أخطاء القراءة: {len(read_errors)}"
@@ -456,92 +536,115 @@ def do_state(c):
 HANDLERS = {"dispatch": do_dispatch, "tool": do_tool, "state": do_state}
 
 
+# (تسريع 2026-10-22) المعالجاتُ كلُّها خفيفة (إطلاقُ gh أو تفويضٌ أو جردٌ للقراءة)،
+# فتُنفَّذ كلُّ دفعةٍ من الأوامر معاً بدل التسلسل، والدفعُ جماعيٌّ:
+# دفعةُ سجلّ المحاولات واحدة، ثمّ دفعةٌ لكلّ ما اكتمل معاً.
+# ⛔ الحارسان باقيان بحالهما: المحاولاتُ تُسجَّل **وتُدفع قبل** التنفيذ لكل دفعة،
+#    وكلُّ جوابٍ يُكتب في ملفّه ويُودَع بعد اكتماله لا في آخر الشوط.
+# ⛔ كلُّ عملياتِ git ونقلِ الملفّات في الخيط الرئيسيّ وحدَه؛ الخيوطُ تحسب (rc, out) فقط.
+POOL = max(1, int(os.environ.get("AGENT_CMD_POOL", "4")))
+
+
+def _execute(f, name):
+    """ينفّذ أمراً واحداً ويُرجع (rc, out) مُحجوبَ الأسرار ومقصوصاً — بلا لمس git ولا الملفّات."""
+    try:
+        c = json.loads(f.read_text(encoding="utf-8"))
+        c["_name"] = name
+        h = HANDLERS.get(c.get("action"))
+        if not h:
+            rc, out = 2, (f"⛔ فعلٌ غيرُ معروف: {c.get('action')!r} — "
+                          f"والمعروف: {sorted(HANDLERS)}")
+        else:
+            rc, out = h(c)
+    except Exception:                                             # noqa: BLE001
+        rc, out = 3, "⛔ تعذّر تنفيذُ الأمر:\n" + traceback.format_exc()
+    out = redact(out)
+    if len(out) > MAX_OUT:
+        out = out[:MAX_OUT] + f"\n… [قُصّ الجواب عند {MAX_OUT} حرفاً]"
+    return rc, out
+
+
 def main():
+    from concurrent.futures import ThreadPoolExecutor, wait, FIRST_COMPLETED
     OUT_DIR.mkdir(parents=True, exist_ok=True)
     DONE_DIR.mkdir(parents=True, exist_ok=True)
     cmds = sorted(p for p in CMD_DIR.glob("*.json"))
     if not cmds:
         print("لا أمرَ جديد."); return
-    for f in cmds:
-        name = f.stem
-        # ⛔ **عطبٌ مقيسٌ 2026-09-25** (‏الشوط 36161591140): دمجُ `origin/main` داخل
-        #    `_push_answer` يجلب ما نقله شوطٌ سابقٌ إلى `done/`، فيختفي الأمرُ من تحت
-        #    القائمة المحسوبة أوّلَ الشوط ⇒ `FileNotFoundError` يُسقط الشوطَ كلَّه وما
-        #    بعده من أوامر. ⇒ أمرٌ غاب ملفُّه نفّذه غيرُنا، فيُتخطّى ولا يُعاد.
-        if not f.exists():
-            print(f"⏭ {name}: نُفّذ في شوطٍ آخر (نُقل ملفُّه) — يُتخطّى")
-            continue
-        # ⛔⛔ **حارسُ المحاولات — عطبٌ مقيسٌ 2026-09-20:** أمرٌ أبطأُ من
-        #    `timeout-minutes` **لا يكتمل أبداً**: يُلغى الشوطُ قبل أن يُنفَّذ ما
-        #    بعده، ويبقى الأمرُ في مجلّده، فيُعاد الكرّةَ في كلّ شوطٍ تالٍ ⇒
-        #    **حجزٌ دائمٌ للطابور**. وقع على الشوطين 235 و236: نحوُ نصفِ ساعةٍ
-        #    لكلٍّ بلا جوابٍ واحدٍ وعشرةُ أوامرَ محتجزة.
-        # ✅ والعلاجُ أن تتعلّم القناةُ من محاولاتها: تُسجَّل المحاولةُ **قبل**
-        #    التنفيذ وتُدفع، فإن مات الشوطُ بقي السجلُّ شاهداً. وبعد حدٍّ
-        #    معلوم يُنحّى الأمرُ بجوابٍ يقول سببَه، **ولا يُحذف صامتاً**.
-        # ⚖️ ولا يُسقط عملاً صحيحاً: الحدُّ ثلاثُ محاولاتٍ، والأمرُ الناجحُ
-        #    يمحو عدّادَه أوّلَ ما يتمّ، فلا يبلغ الحدَّ إلا ما لا يكتمل أصلاً.
-        tries_p = OUT_DIR / f"{name}.attempts"
-        tries = 0
-        try:
-            tries = int(tries_p.read_text(encoding="utf-8").strip() or 0)
-        except Exception:                                         # noqa: BLE001
+    for k in range(0, len(cmds), POOL):
+        wave = []                                  # (ملفّ، اسم، رقمُ المحاولة)
+        retired = []
+        for f in cmds[k:k + POOL]:
+            name = f.stem
+            # ⛔ **عطبٌ مقيسٌ 2026-09-25**: دمجُ `origin/main` داخل `_push_answer` يجلب ما نقله
+            #    شوطٌ سابقٌ إلى `done/`، فيختفي الأمرُ من تحت القائمة المحسوبة ⇒ أمرٌ غاب
+            #    ملفُّه نفّذه غيرُنا، فيُتخطّى ولا يُعاد.
+            if not f.exists():
+                print(f"⏭ {name}: نُفّذ في شوطٍ آخر (نُقل ملفُّه) — يُتخطّى")
+                continue
+            # ⛔⛔ **حارسُ المحاولات — عطبٌ مقيسٌ 2026-09-20:** أمرٌ أبطأُ من `timeout-minutes`
+            #    لا يكتمل أبداً فيحجز الطابورَ أبداً. تُسجَّل المحاولةُ **قبل** التنفيذ
+            #    وتُدفع، فإن مات الشوطُ بقي السجلُّ شاهداً، وبعد `MAX_TRIES` يُنحّى الأمرُ
+            #    بجوابٍ يقول سببَه ولا يُحذف صامتاً. والأمرُ الناجحُ يمحو عدّادَه.
+            tries_p = OUT_DIR / f"{name}.attempts"
             tries = 0
-        if tries >= MAX_TRIES:
-            msg = (f"⛔ نُحّي بعد {tries} محاولةٍ لم تكتمل — الأمرُ أبطأُ من سقف "
-                   f"الوظيفة (`timeout-minutes`) فكان يحجز الطابورَ أبداً.\n"
-                   f"⚖️ ولم يُحذف: جوابُه هذا، وملفُّه في `ops/commands/done/`، "
-                   f"ويُعاد بأداةٍ أسرعَ أو بسقفٍ أعلى بقرارٍ مكتوب.")
-            print(msg)
-            (OUT_DIR / f"{name}.txt").write_text(f"# rc=98\n{msg}", encoding="utf-8")
-            tries_p.unlink(missing_ok=True)
-            f.replace(DONE_DIR / f.name)
-            _push_answer(name)
+            try:
+                tries = int(tries_p.read_text(encoding="utf-8").strip() or 0)
+            except Exception:                                     # noqa: BLE001
+                tries = 0
+            if tries >= MAX_TRIES:
+                msg = (f"⛔ نُحّي بعد {tries} محاولةٍ لم تكتمل — الأمرُ أبطأُ من سقف "
+                       f"الوظيفة (`timeout-minutes`) فكان يحجز الطابورَ أبداً.\n"
+                       f"⚖️ ولم يُحذف: جوابُه هذا، وملفُّه في `ops/commands/done/`، "
+                       f"ويُعاد بأداةٍ أسرعَ أو بسقفٍ أعلى بقرارٍ مكتوب.")
+                print(msg)
+                _atomic_write(OUT_DIR / f"{name}.txt", f"# rc=98\n{msg}")
+                tries_p.unlink(missing_ok=True)
+                f.replace(DONE_DIR / f.name)
+                retired.append(name)
+                continue
+            tries_p.write_text(str(tries + 1), encoding="utf-8")
+            wave.append((f, name, tries + 1))
+        if retired:
+            _push_answer("+".join(retired))
+        if not wave:
             continue
-        tries_p.write_text(str(tries + 1), encoding="utf-8")
-        _push_answer(f"{name}.محاولة{tries + 1}")
-        # ⛔ ودفعُ المحاولة نفسُه يدمج `origin/main`، فقد يجلب نقلَ الأمر إلى
-        #    `done/` من شوطٍ نفّذه قبلنا (مقيسٌ 2026-09-25: كُتب فوق جوابٍ صحيحٍ
-        #    لـ`0925_1755a_scan` خطأُ «الملفّ غير موجود»). ⇒ يُعاد الفحصُ هنا، ولا
-        #    يُكتب جوابٌ ولا يُترك عدّاد.
-        if not f.exists():
-            tries_p.unlink(missing_ok=True)
-            print(f"⏭ {name}: نُفّذ في شوطٍ آخر (نُقل ملفُّه أثناء الدفع) — يُتخطّى")
-            continue
-        print(f"\n══ أمر: {name}  (المحاولةُ {tries + 1}/{MAX_TRIES})")
-        try:
-            c = json.loads(f.read_text(encoding="utf-8"))
-            c["_name"] = name
-            h = HANDLERS.get(c.get("action"))
-            if not h:
-                rc, out = 2, (f"⛔ فعلٌ غيرُ معروف: {c.get('action')!r} — "
-                              f"والمعروف: {sorted(HANDLERS)}")
+        _push_answer("+".join(n for _, n, _ in wave) + ".محاولة")     # سجلُّ المحاولات: دفعةً واحدة
+        # ⛔ ودفعُ المحاولة يدمج `origin/main` فقد يجلب نقلَ الأمر إلى `done/` من شوطٍ نفّذه
+        #    قبلنا (مقيسٌ 2026-09-25) ⇒ يُعاد الفحصُ، ولا يُكتب جوابٌ ولا يُترك عدّاد.
+        live = []
+        for f, name, n in wave:
+            if not f.exists():
+                (OUT_DIR / f"{name}.attempts").unlink(missing_ok=True)
+                print(f"⏭ {name}: نُفّذ في شوطٍ آخر (نُقل ملفُّه أثناء الدفع) — يُتخطّى")
             else:
-                rc, out = h(c)
-        except Exception:                                             # noqa: BLE001
-            rc, out = 3, "⛔ تعذّر تنفيذُ الأمر:\n" + traceback.format_exc()
-        if len(out) > MAX_OUT:
-            out = out[:MAX_OUT] + f"\n… [قُصّ الجواب عند {MAX_OUT} حرفاً]"
-        print(out[:4000])
-        if rc is not DEFERRED:       # tool المفوَّض: يكتب agent_tool جوابَه وحدَه
-            (OUT_DIR / f"{name}.txt").write_text(
-                f"# rc={rc}\n{out}", encoding="utf-8")
-        # ✅ تمّ ⇒ يُمحى عدّادُه فلا يُحسب عليه ما مضى.
-        tries_p.unlink(missing_ok=True)
-        # ⛔ يُنقل المنفَّذُ فلا يُعاد تنفيذُه عند كلّ دفعةٍ تالية
-        if f.exists():
-            f.replace(DONE_DIR / f.name)
-        # ⛔⛔ **ويُدفع الجوابُ الآن لا في آخر الشوط** (عطبٌ مقيسٌ 2026-09-20):
-        #    كان الدفعُ خطوةً أخيرةً وحدَها، فإذا بلغ الشوطُ `timeout-minutes`
-        #    أُلغي **قبلها** ⇒ **ضاعت أجوبةُ الأوامر كلِّها** ولو كانت قد
-        #    نُفّذت فعلاً وكتبت في الدلو. وقع اليومَ على الشوط 35528235170:
-        #    ترقيتان نُفّذتا ولا أثرَ لجوابهما، فلا يُعرف أتمّتا أم لا إلا
-        #    بجردٍ جديدٍ من الدلو. ⇒ **الجوابُ يُحفظ بعد كلّ أمر**، فالسقفُ
-        #    يقطع ما لم يُنفَّذ بعدُ ولا يمحو ما نُفِّذ.
-        # ⚖️ وهو آمنٌ: نفسُ الإيداع بمسارٍ صريح، ونفسُ علاج التعارض `-X ours`
-        #    الموصوف في `agent_cmd.yml`؛ وفشلُ الدفع **لا يوقف بقيّةَ الأوامر**
-        #    لأنّ الخطوةَ الأخيرة تبقى شبكةَ أمانٍ لما لم يُدفع.
-        _push_answer(name)
+                live.append((f, name, n))
+        if not live:
+            continue
+        with ThreadPoolExecutor(max_workers=len(live)) as ex:
+            futs = {}
+            for f, name, n in live:
+                print(f"\n══ أمر: {name}  (المحاولةُ {n}/{MAX_TRIES})")
+                futs[ex.submit(_execute, f, name)] = (f, name)
+            pending = set(futs)
+            while pending:
+                finished, pending = wait(pending, return_when=FIRST_COMPLETED)
+                # نجمع كلَّ ما انتهى الآن ثمّ ندفع مرّةً واحدة.
+                names = []
+                for fut in sorted(finished, key=lambda x: futs[x][1]):
+                    f, name = futs[fut]
+                    rc, out = fut.result()
+                    print(f"\n── جواب {name}:")
+                    print(out[:4000])
+                    if rc is not DEFERRED:   # tool المفوَّض: يكتب agent_tool جوابَه وحدَه
+                        _atomic_write(OUT_DIR / f"{name}.txt", f"# rc={rc}\n{out}")
+                    (OUT_DIR / f"{name}.attempts").unlink(missing_ok=True)   # تمّ ⇒ يُمحى عدّادُه
+                    if f.exists():                                           # فلا يُعاد تنفيذُه
+                        f.replace(DONE_DIR / f.name)
+                    names.append(name)
+                # ⛔⛔ يُدفع الجوابُ الآن لا في آخر الشوط (عطبٌ مقيسٌ 2026-09-20): الشوطُ الذي
+                #    يبلغ `timeout-minutes` كان يمحو أجوبةَ ما نُفِّذ فعلاً.
+                _push_answer("+".join(names))
     print("\n⇒ تمّت الأوامر.")
 
 

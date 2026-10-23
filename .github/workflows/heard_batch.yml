@@ -162,9 +162,14 @@ jobs:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
         with: {python-version: "${{ env.PY }}"}
+      - name: كاش ffmpeg (بديلُ apt المعلَّق · لا يغيّر النسخة)
+        uses: actions/cache@v4
+        with:
+          path: .qa-tools/apt-tree
+          key: qa-ffmpeg-apt-tree-v1-${{ hashFiles('tools/ci_fleet/install_qa_ffmpeg.py') }}
       - name: الأدوات
         run: |
-          sudo apt-get update -qq && sudo apt-get install -y -qq ffmpeg
+          QA_FFMPEG_APT_ONLY=1 python tools/ci_fleet/install_qa_ffmpeg.py
           python -m pip install --quiet --index-url https://download.pytorch.org/whl/cpu torch
           python -m pip install --quiet "numpy<2" transformers ctc-segmentation rapidfuzz
       - name: كاش النموذج
@@ -189,7 +194,7 @@ jobs:
           for s in $(echo "$SHARD" | tr ',' ' '); do
             if [ $(( $(date +%s) - T0 )) -gt $BUDGET ]; then echo "⏳ س$s: لم يُبلغ في ميزانيّة الوقت — للدفعة التالية"; continue; fi
             U="$(python -c "import json,sys; print(json.load(open('plan.json'))['urls'][sys.argv[1]])" "$s")"
-            CTC_INT8=0 python tools/alignment_v3/ctc_heard_map.py --url "$U" --surah "$s" --riwaya "$RIW" --strict-tol-ms 1500 \
+            CTC_INT8=0 python tools/alignment_v3/ctc_heard_map.py --url "$U" --surah "$s" --riwaya "$RIW" --strict-tol-ms 1000 \
               --out-dir "$d" 2>&1 | grep -v "^[0-9]*:[0-9]*\s" | tail -25 | tee -a "ctc_$s.log" || echo "⚠️ س$s: أخفقت المحاذاة"
             rm -f "$d"/*.mp3 "$d"/*.wav
           done
