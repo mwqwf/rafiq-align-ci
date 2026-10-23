@@ -161,6 +161,12 @@ jobs:
       - uses: actions/setup-python@v5
         with: { python-version: "3.11" }
 
+      - name: كاش ffmpeg (بديلُ apt المعلَّق · لا يغيّر النسخة)
+        uses: actions/cache@v4
+        with:
+          path: .qa-tools/apt-tree
+          key: qa-ffmpeg-apt-tree-v1-${{ hashFiles('tools/ci_fleet/install_qa_ffmpeg.py') }}
+
       - name: أدوات النظام
         timeout-minutes: 10
         run: bash tools/ci_fleet/install_qa_deps.sh
