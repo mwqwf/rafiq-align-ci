@@ -145,6 +145,12 @@ class CompletionAuditTest(unittest.TestCase):
         cmap = {"anchors": {"1": [[1000, 5000], 0.9, [[10000, 14000, 0.8]]]}}
         self.assertEqual(C.start_row(entry, cmap)["status"], "repeat")
 
+    def test_repeat_inside_anchor_is_not_recognized(self):
+        # تشديد 2026-10-23: أداءٌ داخل مدى المِرساة (‏مثل 3:45 و2:185) ليس تكراراً حقيقياً
+        entry = {"ayahId": "1:1", "startMs": 4500}
+        cmap = {"anchors": {"1": [[620, 15009], 0.9, [[4683, 15009, 0.949]]]}}
+        self.assertEqual(C.start_row(entry, cmap)["status"], "deviation")
+
     def test_manifest_and_public_mismatches_block_starts_readiness(self):
         record, manifest, frozen, reports = fixture()
         record["publicSha"] = "c" * 64
