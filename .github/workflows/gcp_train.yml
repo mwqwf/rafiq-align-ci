@@ -54,6 +54,17 @@ on:
         required: false
         default: g2-standard-24
         type: string
+      job:
+        description: "نوع الحملة عند launch: m1 (تدريب مصحفك-1، الافتراضيّ) | distill (شوط تقطير «المُنصِت» التكميليّ؛ يشترط spot=false وmax_hours وrate_usd_per_hour صريحَين)"
+        required: false
+        default: m1
+        type: choice
+        options: [m1, distill]
+      max_hours:
+        description: "سقفُ ساعات الحملة (لـjob=distill): الميزانيّة الفعّالة = min(budget_usd, max_hours × rate)"
+        required: false
+        default: ""
+        type: string
   schedule:
     - cron: "*/30 * * * *"
 
@@ -80,6 +91,9 @@ jobs:
       REGION: us-central1
       ZONE: ${{ inputs.zone || 'us-central1-a' }}
       MACHINE_TYPE: ${{ inputs.machine_type || 'g2-standard-24' }}
+      VERTEX_MACHINE: ${{ inputs.machine_type || 'g2-standard-24' }}
+      JOB: ${{ inputs.job || 'm1' }}
+      MAX_HOURS: ${{ inputs.max_hours }}
       STRATEGY: ${{ inputs.strategy || 'auto' }}
       SPOT: ${{ github.event_name == 'schedule' && 'true' || inputs.spot }}
       EXPECT_STEP: ${{ inputs.expect_step }}

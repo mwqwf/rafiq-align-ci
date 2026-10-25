@@ -12,6 +12,8 @@ REGION=${REGION:-us-central1}
 VERTEX_IMAGE=${VERTEX_IMAGE:-us-docker.pkg.dev/vertex-ai/training/pytorch-gpu.2-4.py310:latest}
 SA_EMAIL=mushafak-ci@${PROJECT_ID}.iam.gserviceaccount.com
 VERTEX_MACHINE=${VERTEX_MACHINE:-g2-standard-24}
+JOB=${JOB:-m1}               # m1 (تدريب مصحفك-1 الأصليّ) | distill (شوط تقطير «المُنصِت» التكميليّ)؛ لغير launch يُقرأ من campaign.json
+MAX_HOURS=${MAX_HOURS:-}      # سقفُ ساعات الحملة (distill): تُقيَّد به الميزانيّةُ الفعّالة = min(budget_usd, max_hours × rate)
 GSB=gs://$BUCKET
 TMP=${RUNNER_TEMP:-/tmp}
 HERE=$(cd "$(dirname "$0")" && pwd)
@@ -38,6 +40,10 @@ default_rate() {   # سعر us-central1 لـg2-standard-24 (2026-07): عند ا�
 
 do_export() {
   bucket_exists || { echo "لا دلو — لا تصدير"; return 0; }
+  if [ "$(gs_json "$GSB/campaign.json" | jget job m1)" = distill ]; then
+    echo "job=distill: حالةُ الشوط على R2 تحت models/mushafak1/stage-distill-gcp/ (يرفعها distill_run)؛ لا تصدير إلى stage-out (فيها نقاط m1)"
+    return 0
+  fi
   gs_has "$GSB/m1/last.pt" || { echo "لا last.pt في الدلو — لا تصدير"; return 0; }
   local d="$TMP/export"; rm -rf "$d"; mkdir -p "$d"
   for f in last.pt best.pt run.json status.json; do gcloud storage cp -q "$GSB/m1/$f" "$d/$f" 2>/dev/null || true; done
@@ -247,6 +253,11 @@ PYEOF
 #   (0.74 – 1.57 للجهاز وحده) ⇒ نحسب بسقفٍ متحفّظ ≈ (1.57 + رسم إدارة تقديريّ 0.30) ×1.15 = 2.15. الكلفة الفعلية من API.
 v_default_rate() { if [ "$SPOT" = "true" ]; then echo 2.15; else echo 2.65; fi; }
 
+# عددُ بطاقات L4 لكلّ عائلة g2-standard (جدول Google): 4·8·12·16·32 ⇒ 1 · 24 ⇒ 2 · 48 ⇒ 4 · 96 ⇒ 8
+l4_count() {
+  case "${1##*-}" in 4|8|12|16|32) echo 1 ;; 24) echo 2 ;; 48) echo 4 ;; 96) echo 8 ;; *) echo 2 ;; esac
+}
+
 v_list() { gc ai custom-jobs list --region "$REGION" --filter='labels.app=mushafak1' --format=json 2>/dev/null || echo '[]'; }
 # vj <وضع> [وسائط] ⇐ JSON المهام من stdin: active | nonterminal | cost <بدء> <سعر> | last
 vj() { python3 "$HERE/vj.py" "$@"; }
@@ -298,9 +309,10 @@ v_submit() {
   secs=$(awk -v h="$rem" 'BEGIN{t=(h+0.25); if(t>24)t=24; printf "%d", t*3600}')
   strat=STANDARD; [ "$spot" = "True" ] || [ "$spot" = "true" ] && strat=SPOT
   [ "$(echo "$c" | jget strategy auto)" = FLEX_START ] && strat=FLEX_START
-  python3 - "$VERTEX_IMAGE" "$VERTEX_MACHINE" "$GSB/run" "$secs" "$strat" "$SA_EMAIL" > "$TMP/job.json" <<'PYEOF'
+  python3 - "$VERTEX_IMAGE" "$VERTEX_MACHINE" "$GSB/run" "$secs" "$strat" "$SA_EMAIL" "$(l4_count "$VERTEX_MACHINE")" > "$TMP/job.json" <<'PYEOF'
 import json, sys
 image, machine, run_uri, secs, strat, sa = sys.argv[1:7]
+count = int(sys.argv[7])
 boot = ('set -e; mkdir -p /tmp/vt; export RUN_URI="$1"; '
         'if command -v gcloud >/dev/null 2>&1; then gcloud storage cp -q "$RUN_URI/vertex_train.sh" /tmp/vt/vertex_train.sh; '
         'else python3 -m pip install -q google-cloud-storage && python3 -c "import sys;from google.cloud import storage;'
@@ -308,7 +320,7 @@ boot = ('set -e; mkdir -p /tmp/vt; export RUN_URI="$1"; '
         '"$RUN_URI/vertex_train.sh" /tmp/vt/vertex_train.sh; fi; exec bash /tmp/vt/vertex_train.sh')
 spec = {
     "workerPoolSpecs": [{
-        "machineSpec": {"machineType": machine, "acceleratorType": "NVIDIA_L4", "acceleratorCount": 2},
+        "machineSpec": {"machineType": machine, "acceleratorType": "NVIDIA_L4", "acceleratorCount": count},
         "replicaCount": 1,
         "diskSpec": {"bootDiskType": "pd-ssd", "bootDiskSizeGb": 200},
         "containerSpec": {"imageUri": image, "command": ["bash", "-c"], "args": [boot, "vertex_train", run_uri]},
@@ -333,6 +345,15 @@ v_launch() {
   [[ "$rate" =~ ^[0-9]+([.][0-9]+)?$ ]] || { err "rate غير رقميّ"; exit 1; }
   local act; act=$(v_active_ids | head -1)
   [ -z "$act" ] || { err "توجد مهمة نشطة ($act) بالوسم app=mushafak1 — لا مهمةَ ثانية"; exit 1; }
+  if [ "$JOB" = distill ]; then
+    # شوطُ التقطير: STANDARD فقط (SPOT وFLEX_START علقا ساعاتٍ PENDING)، وسقفُ ساعاتٍ صريح، وسعرٌ صريح (لا افتراضيّ)
+    [ "$SPOT" = "false" ] || { err "job=distill يشترط spot=false (STANDARD)"; exit 1; }
+    [ "${STRATEGY:-auto}" = auto ] || { err "job=distill يشترط strategy=auto (لا FLEX_START)"; exit 1; }
+    [[ "$MAX_HOURS" =~ ^[0-9]+([.][0-9]+)?$ ]] || { err "job=distill يشترط max_hours رقميّاً"; exit 1; }
+    [ -n "${RATE_USD_PER_HOUR:-}" ] || { err "job=distill يشترط rate_usd_per_hour صريحاً"; exit 1; }
+    BUDGET_USD=$(awk -v b="$BUDGET_USD" -v h="$MAX_HOURS" -v r="$rate" 'BEGIN{c=h*r; printf "%.2f", (c<b)?c:b}')
+    echo "job=distill: الميزانيّةُ الفعّالة \$$BUDGET_USD (= min(budget_usd, max_hours×rate)) · max_hours=$MAX_HOURS"
+  fi
   local start="" prev_skip=""
   if bucket_exists; then
     start=$(gs_json "$GSB/campaign.json" | jget campaign_start "")
@@ -341,24 +362,45 @@ v_launch() {
     gc storage buckets create "$GSB" --location="$REGION" --uniform-bucket-level-access
   fi
   [[ "$start" =~ ^20[0-9][0-9]-[0-9][0-9]-[0-9][0-9]T ]] || start=$(date -u +%Y-%m-%dT%H:%M:%SZ)
+  if [ "$JOB" = distill ]; then
+    start=$(date -u +%Y-%m-%dT%H:%M:%SZ)     # حملةٌ جديدة: كلفةُ API وسقفُها يبدآن الآن (لا تُحسب مهامُّ الحملات السابقة)
+    gcloud storage rm -q "$GSB/ledger.json" "$GSB/vm_status.json" "$GSB/startup.log" "$GSB/active" "$GSB/fails.json" 2>/dev/null || true
+  fi
   pip install -q boto3
-  python3 "$HERE/r2_stage.py" urls --out "$TMP/stage_urls.json" --expect-step "$EXPECT_STEP"
+  if [ "$JOB" = distill ]; then
+    python3 "$HERE/r2_distill_grant.py" --out "$TMP/grant.json" --expect-step "$EXPECT_STEP"
+  else
+    python3 "$HERE/r2_stage.py" urls --out "$TMP/stage_urls.json" --expect-step "$EXPECT_STEP"
+  fi
   local skip_all; skip_all=$({ echo "$prev_skip"; grep -v "^#" "$HERE/no_run_jobs.txt" 2>/dev/null || true; } | tr ' ' '\n' | { grep -E '^[0-9]+$' || true; } | sort -u | tr '\n' ' ' | sed 's/ $//')
-  NO_RUN_JOBS_ALL="$skip_all" python3 - "$rate" "$BUDGET_USD" "$VERTEX_MACHINE" "$SPOT" "$start" "$PROJECT_ID" "$EXPECT_STEP" "$BUCKET" > "$TMP/campaign.json" 3> "$TMP/config.json" <<'PYEOF'
+  NO_RUN_JOBS_ALL="$skip_all" RECIPE="$HERE/distill_recipe.json" python3 - "$rate" "$BUDGET_USD" "$VERTEX_MACHINE" "$SPOT" "$start" "$PROJECT_ID" "$EXPECT_STEP" "$BUCKET" > "$TMP/campaign.json" 3> "$TMP/config.json" <<'PYEOF'
 import json, os, sys, time
 rate, budget, machine, spot, start, project, expect, bucket = sys.argv[1:9]
-print(json.dumps({"backend": "vertex", "rate_usd_per_hour": float(rate), "budget_usd": float(budget), "machine_type": machine,
-                  "spot": spot == "true", "strategy": os.environ.get("STRATEGY", "auto"), "campaign_start": start, "region": os.environ.get("REGION", "us-central1"), "no_run_jobs": os.environ.get("NO_RUN_JOBS_ALL", ""),
-                  "launched": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime())}))
+job = os.environ.get("JOB", "m1")
+camp = {"backend": "vertex", "rate_usd_per_hour": float(rate), "budget_usd": float(budget), "machine_type": machine,
+        "spot": spot == "true", "strategy": os.environ.get("STRATEGY", "auto"), "campaign_start": start, "region": os.environ.get("REGION", "us-central1"), "no_run_jobs": os.environ.get("NO_RUN_JOBS_ALL", ""),
+        "launched": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime())}
+cfg = {"bucket": bucket, "project": project, "expect_step": int(expect), "rate": float(rate), "budget_usd": float(budget),
+       "workers": 10, "torch_pin": os.environ.get("TORCH_PIN", "2.10.0")}
+if job == "distill":
+    rec = json.load(open(os.environ["RECIPE"], encoding="utf-8"))
+    camp.update({"job": "distill", "max_hours": float(os.environ["MAX_HOURS"]), "recipe": rec.get("name")})
+    cfg.update({"job": "distill", "workers": int(rec["workers"]), "torch_pin": rec.get("torch_pin", cfg["torch_pin"]), "distill_args": rec["distill_args"]})
+print(json.dumps(camp))
 with os.fdopen(3, "w") as f:
-    json.dump({"bucket": bucket, "project": project, "expect_step": int(expect), "rate": float(rate), "budget_usd": float(budget),
-               "workers": 10, "torch_pin": os.environ.get("TORCH_PIN", "2.10.0")}, f)
+    json.dump(cfg, f)
 PYEOF
   gcloud storage cp -q "$TMP/campaign.json" "$GSB/campaign.json"
   gcloud storage cp -q "$TMP/config.json" "$GSB/run/config.json"
-  gcloud storage cp -q "$TMP/stage_urls.json" "$GSB/run/stage_urls.json"
-  gcloud storage cp -q "$HERE/vertex_train.sh" "$GSB/run/vertex_train.sh"
-  rm -f "$TMP/stage_urls.json"
+  if [ "$JOB" = distill ]; then
+    gcloud storage cp -q "$TMP/grant.json" "$GSB/run/grant.json"
+    gcloud storage cp -q "$HERE/vertex_distill.sh" "$GSB/run/vertex_train.sh"   # الحاويةُ تنزّل run/vertex_train.sh دائماً
+    rm -f "$TMP/grant.json"
+  else
+    gcloud storage cp -q "$TMP/stage_urls.json" "$GSB/run/stage_urls.json"
+    gcloud storage cp -q "$HERE/vertex_train.sh" "$GSB/run/vertex_train.sh"
+    rm -f "$TMP/stage_urls.json"
+  fi
   gcloud storage rm -q "$GSB/done" "$GSB/stop_request" "$GSB/fails.json" 2>/dev/null || true
   # نسخةُ المرحلة في الدلو تُحدَّث من R2 مع كلّ إطلاق: بقاؤها أعاد شيفرةً قديمةً بعد إصلاحها في R2 (فشل «-u» مرّتين 2026-10-23)
   gcloud storage rm -q "$GSB/stage/.complete" 2>/dev/null || true

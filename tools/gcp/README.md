@@ -27,3 +27,10 @@
 - `watch` (كل 30 د): بلا `active` يخرج. `done` أو بلوغ السقف ⇒ يلغي المهام النشطة ويزيل `active`. بلا مهمة نشطة ⇒ يطلق مهمةً تستأنف (3 مهام FAILED متتالية بلا تقدّم خطوة ⇒ `done=failed_final`). مهمة RUNNING لم تُحدَّث `vm_status.json` منذ 60 د ⇒ تُلغى وتُحسب إخفاقاً.
 - `status`: حالة آخر مهمة وعددها والكلفة (API/الدفتر/المعتمدة) وآخر `vm_status`. `teardown`: `stop_request` وانتظارٌ حتى 14 د ثم إلغاء النشط ثم export فحذفُ الدلو، والجردُ يضيف `vertex_active_jobs` و`vertex_endpoints` و`vertex_models`.
 - داخل المهمة (`vertex_train.sh`): لا metadata ولا حذف ذاتيّ؛ يكتب `done` عند finished/budget_stop/stop_request/failed_final، ويخرج 0 عند قطع spot أو SIGTERM بلا `done` ليعيد watch الإطلاق.
+
+## شوط تقطير «المُنصِت» التكميليّ (`job=distill`، 2026-10-25)
+حملةٌ ثانيةٌ على المسار نفسه لا تمسّ حملة m1: `launch` بـ`job=distill` يشترط **`spot=false` (STANDARD)** و`strategy=auto` و`max_hours` و`rate_usd_per_hour` صريحَين، ويحسب الميزانيّة الفعّالة `min(budget_usd, max_hours × rate)` ويفتح حملةً جديدةً (`campaign_start=الآن` وتصفير الدفتر) فلا تُحسب مهامُّ الحملات السابقة.
+- السكربتُ داخل المهمة: `vertex_distill.sh` (ينسخه launch إلى `run/vertex_train.sh`). الوصفةُ: `distill_recipe.json` (دورة جيبٍ جديدة قمّتها 0.002 · 4700 خطوة أو 6.0 س · تثقيل ورش وقالون · مرساة MSE خفيّة 0.1 · حفظ كلَّ 10 د).
+- المنحة: `r2_distill_grant.py` يولّد `run/grant.json` (روابط R2 موقّعة 7 أيام للمعلّم والشيفرة والجزء 16 ونقطة البدء، ومواضع كتابة النتائج). الحالةُ كلُّها على R2 تحت `models/mushafak1/stage-distill-gcp/` (`ckpt/last.pt` كلَّ 10 د · `status.json` كلَّ دقيقة · `out/*.onnx` في النهاية). لا يُصدَّر شيءٌ إلى `stage-out` (فيها نقاط m1).
+- الإيقافُ النظيف: `teardown` أو `stop_request` ⇒ ملفُّ `STOP_NOW` فيحفظ `last.pt` ويصدّر ONNX ويرفع ثمّ يخرج؛ ولا قتلَ قبل 12 د. ‏`watch` لا يعيد الإطلاق بعد `done` (finished/early_stop/budget_stop/stop_request).
+- عددُ بطاقات L4 يُشتقّ من `machine_type` (`l4_count` في ctl.sh): g2-standard-24 ⇒ 2.
