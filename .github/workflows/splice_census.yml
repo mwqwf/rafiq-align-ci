@@ -23,6 +23,11 @@ on:
         required: false
         default: "false"
 
+      reuse_census:
+        description: "false = لا إعادةَ استعمالٍ لأحكام السور السليمة المتطابقة المدخلات (‏سماعُ كلّ سورةٍ كالسابق) ولا كتابةَ في state-census-cache/"
+        required: false
+        default: "true"
+
       parallel_surahs:
         description: "true = فحص كل سورة بالتوازي ثم اتحاد كامل محكوم بالبصمة، بلا إسقاط أي آية"
         required: false
@@ -145,6 +150,8 @@ jobs:
           QA_MODEL: ${{ github.workspace }}/assets-archive/ggml/ggml-tiny-ar-quran-q8_0.bin
           QA_CACHE: ${{ github.workspace }}/qa_audio
           QA_NO_RANGE: ${{ github.event.inputs.no_range == 'true' && '1' || '' }}
+          # ⭐ مفتاحُ إطفاء إعادة استعمال أحكام السور (‏`tools/index_qa/census_cache.py`)
+          QA_CENSUS_NO_REUSE: ${{ github.event.inputs.reuse_census == 'false' && '1' || '' }}
           R2_CREDENTIALS_JSON: ${{ secrets.R2_CREDENTIALS_JSON }}
         run: |
           mkdir -p secure

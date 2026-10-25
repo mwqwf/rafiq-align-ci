@@ -137,6 +137,11 @@ def main():
         a.kind, a.out_prefix, a.seed_salt, a.out_suffix = (
             "splice-census", "state-census", "census", "")
         print(f"إحصاءٌ شامل للسور: {os.environ['QA_CENSUS_SURAHS']}")
+        # ⭐ إعادةُ استعمال أحكام السور السليمة الحاسمة المتطابقة المدخلات (‏`census_cache.py`).
+        #    ‏تُطفأ كلّياً بـ`QA_CENSUS_NO_REUSE=1`، وتُكتب من CI وحده في `state-census-cache/`.
+        import census_cache
+        R.CENSUS_CACHE = census_cache.for_run(
+            model, cl=cl, bucket=bucket, source=a.source, run_id=a.run_id)
     t0 = time.time()
     # نسبُ الحكم قبل التدقيق كي يُحمل في الكائن لا يُستنبط لاحقاً.
     os.environ["QA_SEED_SALT"] = a.seed_salt
@@ -173,6 +178,13 @@ def main():
         cl.put_object(Bucket=bucket, Key=out, Body=body,
                       ContentType="application/json; charset=utf-8")
         print(f"\n✅ كُتب الحكم: {out}  ({len(body)} بايت · {rep['elapsedSec']}ث)")
+        # ‏كاشُ السور يُكتب بعد الحكم وفي التشغيلة نفسِها التي كتبت `state-census/` — ولا يُسقط إحصاءً.
+        if getattr(R, "CENSUS_CACHE", None) is not None:
+            try:
+                done = R.CENSUS_CACHE.flush(index_key=a.key, index_sha=rep.get("sha256"))
+                print(f"♻️ كاش الإحصاء: كُتب لسور {done or 'لا شيء'}")
+            except Exception as ex:                                # noqa: BLE001
+                print(f"⚠️ تعذّرت كتابةُ كاش الإحصاء: {ex}")
 
     # الخروج غير الصفري يجعل الوظيفة تُخفق على المرفوض — فيُرى في اللوحة.
     sys.exit(1 if rep["verdict"].startswith("مرفوض") else 0)

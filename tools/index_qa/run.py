@@ -1525,6 +1525,11 @@ def _src_mtime(key):
     except Exception:
         return None
 
+# ⭐ كاشُ أحكام الإحصاء على مستوى السورة (‏`census_cache.py`): يضعه `ci_run --census` وحده،
+#    وبقاؤه None يُبقي السلوكَ القديم حرفاً (‏كلُّ سورةٍ تُسمع). لا يعمل إلا مع `QA_CENSUS_SURAHS`.
+CENSUS_CACHE = None
+
+
 def audit(key, args):
     idx, sha = fetch_index(key, getattr(args, "expect_sha", None))
     rid, riwaya = idx.get("reciterId", "?"), idx.get("riwaya", "?")
@@ -1588,6 +1593,23 @@ def audit(key, args):
         if _f and _st is not None and (_f not in _last or _st > _last[_f]):
             _last[_f] = _st
             _fend[_f] = _e.get("endMs")
+    # ⭐ إعادةُ استعمال حكمِ السورة السليم الحاسم حين تتطابق مدخلاتُه بايتاً بايتاً (‏`census_cache`).
+    #    ‏ما تقرؤه نوافذُ السورة: مدخلُ الآية نفسُه (‏`startMs` · `endMs` · `fileRef`) و`fileEndMs`
+    #    (‏نهايةُ آخر مدخلٍ في الملفّ — وقد يكون من سورةٍ أخرى تشاركه) ونصُّ الآية وسابقتُها والصوتُ
+    #    والنموذج؛ وكلُّها في مفتاح الكاش. ولا يمسّ هذا الحكمَ ولا العتباتِ: الصفوفُ المُعادة هي
+    #    صفوفُ `judge` نفسِها يوم سُمعت، وتمرّ التقريرَ على `census_gate` والشهود كما هي.
+    cache = CENSUS_CACHE if os.environ.get("QA_CENSUS_SURAHS", "").strip() else None
+    reused = {}
+    if cache is not None:
+        _by_s = {}
+        for _s, _e in sample:
+            _by_s.setdefault(_s, []).append(_e)
+        reused = cache.reuse(
+            idx, _by_s, _fend, hashlib.sha256(tpath.read_bytes()).hexdigest(),
+            {"FWD_MS": FWD_MS, "DEC_MS": DEC_MS, "LONG_MS": LONG_MS, "MIN_DEC_MS": MIN_DEC_MS,
+             "noRange": _NO_RANGE, "basmala": BASMALA})
+        if reused:
+            print(f"♻️ أحكامٌ مُعادة لسور: {','.join(map(str, sorted(reused)))}", flush=True)
     jobs, meta = [], {}
     for s, e in sample:
         aid = e["ayahId"]
@@ -1596,6 +1618,8 @@ def audit(key, args):
         dw = dec_window(st)
         meta[aid] = {"s": s, "ref": txt[flat(s, a)], "prev": prev, "noPre": dw is None,
                      "band": e.get("confBand"), "startApprox": e.get("startApprox", False)}
+        if s in reused:
+            continue                     # ‏حكمُ سورته محفوظٌ سليم — لا تُبنى له نوافذ
         u = e["fileRef"]
         # ‏(٢٠٢٦-٠٩-٣٠) لكلّ مدخلٍ نهايتُه ونهايةُ آخر مدخلٍ في ملفّه — والحشوُ لا يقع إلا إن كانت
         #    كلتاهما داخل الملفّ (‏`_eof_pad_ok`)؛ فلآخر مدخلٍ الشرطُ القديمُ نفسُه.
@@ -1637,6 +1661,11 @@ def audit(key, args):
 
     rows, by_cluster = [], {}
     for aid, m in meta.items():
+        if m["s"] in reused:             # ‏صفٌّ محفوظ بعلامة مصدره (‏`reusedFrom`)
+            row = reused[m["s"]][aid]
+            rows.append(row)
+            by_cluster.setdefault(m["s"], []).append(row["kind"])
+            continue
         g = lambda p: (res.get(f"{p}|{aid}") or {}).get("text", "")
         if not any(g(p) for p in "FDL") and f"F|{aid}" in errs:
             rows.append({"aid": aid, "cluster": m["s"], "verdict": "تعذّر", "kind": "غير حاسم",
@@ -1678,6 +1707,12 @@ def audit(key, args):
         if o["verdict"].startswith("بسملة"):
             rep["fatal"].append(f"بسملة مبتلعة في {o['surah']}:1 — مؤكَّدة بالصوت: «{o['heard'][:40]}»")
     out = _finish(rep, rows, by_cluster, seed, len(errs))
+    if cache is not None:
+        for _s in sorted(set(by_cluster) - set(reused)):
+            _aids = [a for a, m in meta.items() if m["s"] == _s]
+            _set = set(_aids)
+            cache.offer(_s, _aids, [r for r in rows if r["aid"] in _set], errs)
+        rep["censusReuse"] = cache.summary(sorted(set(by_cluster)))
     # ‏أسماءُ النوافذ المتعذّرة وعللُها تُحفظ مع العدد — ليُعرف أهي نافذةُ آيةٍ
     # (‏F/D/L) أم مسبارُ مطلع (‏O/P)، ولا يُكتفى بعددٍ لا يُفسَّر.
     rep["sample"]["errorWindows"] = {k: str(v)[:160] for k, v in sorted(errs.items())[:60]}
