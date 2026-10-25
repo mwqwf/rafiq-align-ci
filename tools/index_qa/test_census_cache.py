@@ -471,3 +471,9 @@ class ClosureTest(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+def test_only_innocent_rows_are_reusable():
+    """شُدّد: «طفيف» حكمُ عطبٍ فيُسمع من جديد؛ لا يُعاد إلا «بريء»."""
+    import census_cache
+    assert census_cache.REUSABLE_KINDS == ("بريء",)
