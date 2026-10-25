@@ -616,8 +616,11 @@ def main() -> int:
     with open(rep_path, "w", encoding="utf-8") as f:
         f.write(report + "\n")
     out = os.path.join(a.out_dir, f"heard_s{a.surah:03d}.json" if a.probe else f"s{a.surah:03d}.json")
-    with open(out, "w", encoding="utf-8") as f:
+    # ⭐ (2026-10-25 · تسريع) كتابةٌ ذرّيّة: مهلةُ الميزانية في سير العمل قد تقتل العمليةَ أثناء الكتابة، وملفُّ
+    #    سورةٍ مبتورٌ يكسر الدمجَ كلَّه؛ يُكتب مؤقّتاً ثمّ يُستبدَل والمحتوى بايتاً كما كان.
+    with open(out + ".part", "w", encoding="utf-8") as f:
         json.dump(res, f, ensure_ascii=False)
+    os.replace(out + ".part", out)
     print(report)
     print(f"كُتب: {out} · {rep_path}")
     return 0

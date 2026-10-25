@@ -41,6 +41,9 @@ env:
   PY: "3.11"
   ALIGN_ENGINE: ctc
   HF_HOME: ${{ github.workspace }}/.hf
+  # (2026-10-25 · تسريع) وضعُ dualfix وحده يقرؤه: عمّالٌ فرعيّون بخيطَين لكلٍّ (CTC_THREADS=2 كما هو) على المُشغّل
+  # ذي الأنوية الأربع فلا ينام نصفُها. القياسُ بالشيفرة والخيوط نفسِها نافذةً نافذة (انظر ctc_dualfix.measure_all).
+  CTC_DUALFIX_WORKERS: "2"
 
 jobs:
   splice:
@@ -228,18 +231,32 @@ jobs:
         run: |
           set -o pipefail
           if [ "$HW" = "true" ] && [ "$MODE" != "window" ]; then echo "⛔ heard_witness لوضع window وحده"; exit 1; fi
+          # ⏱️ (2026-10-25 · تسريع) ميزانيةُ الوقت لوضعَي dualfix وheard كما لوضع full أدناه: ثلاثُ تشغيلات dualfix من خمسٍ وعشرين
+          #    قتلتها مهلةُ المهمّة (350 د × 3 ≈ 1050 د عدّاد) بلا أثرٍ يُدمج. كلُّ سورةٍ تُكتب ذرّياً عند انتهائها، فإذا نفدت
+          #    الميزانية (350 د − ما مضى − 25 د للدمج والرفع) أُوقفت السورةُ الجارية وبقيت المنجزةُ تُدمج بحُرّاسها كلّها،
+          #    وما لم يُقَس «يبقى كما هو». ⛔ لا يمسّ حدَّ جودة ولا حارساً ولا ناتجَ سورةٍ تامّة القياس.
+          B_END=$(( ${JOB_T0:-$(date +%s)} + (350 - 25) * 60 ))
           if [ "$MODE" = "dualfix" ]; then
             # ⭐ تصحيحُ حدود مرشّح heardmap بما اتّفق عليه النموذجان المثبَّتان (‏2026-10-02 · عاصم س38):
             #    لا حدَّ مختلَقاً — مقيسٌ باتّفاقٍ أو موروثٌ من المرشّح. float32 وخيطان كما في الشاهد.
             [ -n "$BASEKEY" ] || { echo "⛔ وضعُ dualfix يلزمه base_key"; exit 1; }
             python -m unittest tools/alignment_v3/test_ctc_dualfix.py
             for s in $(echo "$SURAHS" | tr ',' ' '); do
+              LEFT=$(( B_END - $(date +%s) ))
+              if [ "$LEFT" -lt 300 ]; then echo "⏱️ نفدت الميزانية — س$s لم تُقَس (تبقى كما هي)"; continue; fi
               U="$(python -c "import sys; print(sys.argv[1].format(s=int(sys.argv[2])))" "$URLT" "$s")"
               # (2026-10-19) مدياتُ هذه السورة وحدها: الأداةُ تردّ مدىً لسورةٍ أخرى عمداً، فكانت دفعةٌ متعدّدةُ السور
               #    تسقط كلُّها بـ«bad rewindow range» عند أوّل سورة. ما لا مدى له يُصحَّح بلا نافذة.
               RW="$(echo "$REWIN" | tr ',;' '\n\n' | sed 's/^ *//' | grep -E "^0*$s:" | paste -sd, || true)"
-              CTC_INT8=0 CTC_THREADS=2 python tools/alignment_v3/ctc_dualfix.py --base-key "$BASEKEY" --url "$U" \
-                --surah "$s" --riwaya "$RIW" --out-dir "tools/alignment/work/batch_$RID" --rewindow "$RW" 2>&1 | tee -a ctc.log
+              rc=0
+              CTC_INT8=0 CTC_THREADS=2 timeout --signal=TERM --kill-after=60 "${LEFT}s" python tools/alignment_v3/ctc_dualfix.py --base-key "$BASEKEY" --url "$U" \
+                --surah "$s" --riwaya "$RIW" --out-dir "tools/alignment/work/batch_$RID" --rewindow "$RW" 2>&1 | tee -a ctc.log || rc=$?
+              if [ "$rc" = 124 ] || [ "$rc" = 137 ]; then
+                echo "⏱️ نفدت الميزانية أثناء س$s — لا تُدمج، وتُدمج المنجزةُ قبلها"
+                rm -f "tools/alignment/work/batch_$RID"/s*.json.part
+              elif [ "$rc" != 0 ]; then
+                exit "$rc"
+              fi
             done
             exit 0
           fi
@@ -278,6 +295,8 @@ jobs:
             #    فيه زيادةٌ أو تكرار. الأداةُ تُختبر أوّلاً، والمخرَجُ بصيغة batch_run نفسِها.
             python -m unittest tools/alignment_v3/test_ctc_heard_map.py
             for s in $(echo "$SURAHS" | tr ',' ' '); do
+              LEFT=$(( B_END - $(date +%s) ))
+              if [ "$LEFT" -lt 300 ]; then echo "⏱️ نفدت الميزانية — س$s لم تُقَس (تبقى كما هي)"; continue; fi
               if [ -n "$FOLDER" ]; then
                 # ⭐ (2026-10-10 · pG) مضيفُ مجلَّدٍ بلا {s}: الرابطُ من الأب حرفاً (parent_refs) لا القالبُ —
                 #    وإلا نُزّل المجلّد نفسُه (HTML) فردّ ffmpeg «Header missing». لا تخفيفَ لحارس.
@@ -297,8 +316,15 @@ jobs:
               #    heard_batch.yml — وإلا بقيت آياتٌ بين 1.5ث و3ث تردّها البوّابةُ جولةً بعد جولة. تشديدٌ لا تليين.
               #    ثمّ 1000 لا 1500: البوّابةُ تعيد حسابَ الخريطة فتتزحزح المِرساةُ ~100م.ث، فحدٌّ عند 1.5ث تماماً
               #    رُدّ بـ1.6ث (‏swlim 23:14 · 2026-10-19) — هامشٌ تحت البوّابة، تشديدٌ لا تليين.
-              python tools/alignment_v3/ctc_heard_map.py --url "$U" --surah "$s" --riwaya "$RIW" --strict-tol-ms 1000 \
-                --out-dir "tools/alignment/work/batch_$RID" 2>&1 | tee -a ctc.log
+              rc=0
+              timeout --signal=TERM --kill-after=60 "${LEFT}s" python tools/alignment_v3/ctc_heard_map.py --url "$U" --surah "$s" --riwaya "$RIW" --strict-tol-ms 1000 \
+                --out-dir "tools/alignment/work/batch_$RID" 2>&1 | tee -a ctc.log || rc=$?
+              if [ "$rc" = 124 ] || [ "$rc" = 137 ]; then
+                echo "⏱️ نفدت الميزانية أثناء س$s — لا تُدمج، وتُدمج المنجزةُ قبلها"
+                rm -f "tools/alignment/work/batch_$RID"/s*.json.part
+              elif [ "$rc" != 0 ]; then
+                exit "$rc"
+              fi
             done
             exit 0
           fi

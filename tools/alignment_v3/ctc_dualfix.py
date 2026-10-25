@@ -173,18 +173,14 @@ def rewindow_regions(pcm_all, base, ranges, texts, total_ms, log=print):
     return new_base, evidence
 
 
-def measure_all(pcm_all, idx, surah, total_ms, log=print):
-    """قياسُ كلّ آيةٍ في نافذتها بالنموذجين (‏النموذجُ خارجَ الحلقة كما في الشاهد)."""
+def _measure_windows(pcm_all, plans, log=print):
+    """قياسُ نوافذَ `plans` بالنموذجين، نموذجاً بعد نموذج (‏النموذجُ خارجَ الحلقة كما في الشاهد).
+
+    ⭐ هذه هي الحلقةُ الأصلُ بحرفها، أُخرجت في دالّةٍ ليُستدعى بها المسارُ المتسلسل والعاملُ الفرعيّ
+    على السواء: فالنافذةُ تُقاس بالشيفرة نفسِها والخيوطِ نفسِها (‏CTC_THREADS=2) أيّاً كان عدد العمّال.
+    يُرجع (‏{الاسم: {aid: (ents، pos)}}، {الاسم: نسبُ النموذج}) — ونافذةٌ تعذّرت لا تدخل النتيجة."""
     import ci_spoken_census as W
-    n = sum(1 for e in idx["entries"] if e["ayahId"].startswith(f"{surah}:"))
-    plans = {}
-    for k in range(1, n + 1):
-        aid = f"{surah}:{k}"
-        try:
-            plans[aid] = X.plan(idx, aid, total_ms)
-        except ValueError as exc:
-            log(f"⚠️ {aid}: لا نافذة ({exc})")
-    meas = {aid: {} for aid in plans}
+    found = {"generic": {}, "quran": {}}
     models = {}
     for name in ("generic", "quran"):
         model = W.configure_generic() if name == "generic" else W.Q.configure()
@@ -199,11 +195,101 @@ def measure_all(pcm_all, idx, surah, total_ms, log=print):
             ents = [(start + int(st * 1000), start + int(en * 1000), W.C._conf(sc)) for (st, en, sc) in raw]
             ents = [(s_, ents[i + 1][0] if i + 1 < len(ents) else e_, c_) for i, (s_, e_, c_) in enumerate(ents)]
             pos = ids.index(aid)
-            meas[aid][name] = [ents[pos][0], ents[pos][1], round(ents[pos][2], 4)]
-            meas[aid].setdefault("context", {})[name] = [[cid, s_, e_, round(c_, 3)] for cid, (s_, e_, c_) in zip(ids, ents)]
+            found[name][aid] = (ents, pos)
             log(f"{name} {aid} {ents[pos][0]} {ents[pos][1]} {ents[pos][2]:.3f}")
         W.C._M.clear(); gc.collect()
-    return meas, models, {aid: {"contextAyahIds": p[0], "windowMs": p[1]} for aid, p in plans.items()}
+    return found, models
+
+
+def _shard_worker(mm_path, n_samples, shard_plans):
+    """عاملٌ فرعيٌّ (‏عمليةٌ مستقلّةٌ بخيطَيها): يفتح الفكَّ المخبّأ نفسَه ذاكرةً مرسومةً ويقيس نوافذَ حصّته."""
+    import numpy as np
+    pcm_all = np.memmap(mm_path, dtype="<f4", mode="r")
+    if len(pcm_all) != n_samples:
+        raise RuntimeError("worker sees a different decoded length than the parent")
+    return _measure_windows(pcm_all, shard_plans, log=lambda m: print(m, flush=True))
+
+
+def split_shards(plans, workers):
+    """قسمةُ النوافذ على `workers` حصّةً بالتوازن على طول النافذة (‏الأطولُ أوّلاً إلى الأخفّ حِملاً؛
+    والتعادلُ لأدنى رقم) — حتميّةٌ، وتبقى ترتيبُ `plans` داخل كلّ حصّة. لا أثرَ لها في ناتج أيّ نافذة."""
+    workers = max(1, min(int(workers), len(plans)))
+    keys = list(plans)
+    span = {k: plans[k][1][1] - plans[k][1][0] for k in keys}
+    load = [0] * workers
+    bucket = [set() for _ in range(workers)]
+    for k in sorted(keys, key=lambda k: (-span[k], keys.index(k))):
+        w = min(range(workers), key=lambda j: (load[j], j))
+        load[w] += span[k]
+        bucket[w].add(k)
+    return [{k: plans[k] for k in keys if k in b} for b in bucket if b]
+
+
+def effective_workers(requested, threads=2, cpus=None):
+    """عددُ العمّال الفعليّ: لا يزيد على ما تسعه الأنويةُ بخيطَي كلٍّ منهم (‏فلا إفراطَ في الاشتراك)."""
+    cpus = cpus if cpus is not None else (os.cpu_count() or 1)
+    return max(1, min(int(requested or 1), cpus // max(1, int(threads))))
+
+
+def _run_shards_in_processes(shards, mm_path, n_samples):
+    """يشغّل كلَّ حصّةٍ في عمليةٍ فرعيّةٍ مستقلّة (‏spawn: لا حالةَ torch موروثة) ويُرجع نتائجها بترتيب الحصص."""
+    import multiprocessing
+    from concurrent.futures import ProcessPoolExecutor
+    with ProcessPoolExecutor(max_workers=len(shards), mp_context=multiprocessing.get_context("spawn")) as ex:
+        futs = [ex.submit(_shard_worker, str(mm_path), n_samples, sh) for sh in shards]
+        return [f.result() for f in futs]
+
+
+def assemble_meas(plans, found):
+    """يبني `meas` من نتائج القياس **بترتيب الأصل** (‏النموذجُ ثمّ الآية) — فتطابق المفاتيحُ ترتيباً وقيماً
+    ما كانت تبنيه الحلقةُ المتسلسلة، ولو جاءت النتائجُ مقسومةً على عمّال."""
+    meas = {aid: {} for aid in plans}
+    for name in ("generic", "quran"):
+        for aid, (ids, _w, _t) in plans.items():
+            if aid not in found[name]:
+                continue
+            ents, pos = found[name][aid]
+            meas[aid][name] = [ents[pos][0], ents[pos][1], round(ents[pos][2], 4)]
+            meas[aid].setdefault("context", {})[name] = [[cid, s_, e_, round(c_, 3)] for cid, (s_, e_, c_) in zip(ids, ents)]
+    return meas
+
+
+def measure_all(pcm_all, idx, surah, total_ms, log=print, workers=1, shard_runner=None):
+    """قياسُ كلّ آيةٍ في نافذتها بالنموذجين.
+
+    ⭐ (2026-10-25 · تسريع) `workers` > 1 يقسم النوافذَ على عمليّاتٍ فرعيّة، لكلٍّ خيطاها نفساهما وقياسُها
+    بالدالّة نفسِها `_measure_windows`؛ فكلُّ نافذةٍ تخرج بايتاً كما تخرج متسلسلةً، ويُجمع الناتجُ **بترتيب
+    الأصل** (`assemble_meas`) فيطابق `meas` الأصلَ ترتيبَ المفاتيح أيضاً. وتعذّرُ البنية (‏عاملٌ يموت)
+    يعود إلى المسار المتسلسل لا إلى نتيجةٍ ناقصة."""
+    n = sum(1 for e in idx["entries"] if e["ayahId"].startswith(f"{surah}:"))
+    plans = {}
+    for k in range(1, n + 1):
+        aid = f"{surah}:{k}"
+        try:
+            plans[aid] = X.plan(idx, aid, total_ms)
+        except ValueError as exc:
+            log(f"⚠️ {aid}: لا نافذة ({exc})")
+    mm_path = getattr(pcm_all, "filename", None)
+    workers = effective_workers(workers, X.RUNTIME["threads"]) if (mm_path or shard_runner) else 1
+    found = models = None
+    if workers > 1 and len(plans) >= 2 * workers:
+        shards = split_shards(plans, workers)
+        log(f"⏱️ قياسٌ موازٍ: {len(shards)} عمّالٍ × {X.RUNTIME['threads']} خيطاً · نوافذ كلٍّ منهم "
+            f"{[len(sh) for sh in shards]}")
+        try:
+            parts = (shard_runner or _run_shards_in_processes)(shards, mm_path, len(pcm_all))
+        except (OSError, RuntimeError) as exc:      # BrokenProcessPool ⊂ RuntimeError — يعود إلى المتسلسل
+            log(f"⚠️ تعذّر القياسُ الموازي ({type(exc).__name__}: {str(exc)[:120]}) — يعود إلى المتسلسل")
+            parts = None
+        if parts is not None:
+            found = {"generic": {}, "quran": {}}
+            for part_found, part_models in parts:
+                models = models or part_models
+                for name in found:
+                    found[name].update(part_found[name])
+    if found is None:
+        found, models = _measure_windows(pcm_all, plans, log)
+    return assemble_meas(plans, found), models, {aid: {"contextAyahIds": p[0], "windowMs": p[1]} for aid, p in plans.items()}
 
 
 def main() -> int:
@@ -258,7 +344,8 @@ def main() -> int:
         # ⛔ القياسُ المزدوجُ ونوافذُه تُبنى على الحدود المعادة لا على المرشّح القديم
         for e, (st, en) in zip(rows, base):
             e["startMs"], e["endMs"] = st, en
-    meas, models, plans = measure_all(pcm_all, idx, s, total_ms)
+    meas, models, plans = measure_all(pcm_all, idx, s, total_ms,
+                                      workers=int(os.environ.get("CTC_DUALFIX_WORKERS") or 1))
     original_base = [[e["startMs"], e["endMs"]] for e in
                      [x for x in json.loads(gzip.decompress(body))["entries"] if x["ayahId"].startswith(f"{s}:") and x.get("startMs") is not None]]
     bounds, src, detail = fuse(base, [meas.get(f"{s}:{k}") for k in range(1, n + 1)], chars, rate)
@@ -289,8 +376,11 @@ def main() -> int:
            "sha256": sha, "vadRel": None, "vadVersion": None, "entries": entries, "issues": issues,
            "bands": bands, "dualFixEvidence": evidence}
     out = os.path.join(a.out_dir, f"s{s:03d}.json")
-    with open(out, "w", encoding="utf-8") as f:
+    # ⭐ كتابةٌ ذرّيّة: مهلةُ المهمّة (‏المقيَّدةُ بالميزانية في سير العمل) قد تقتل العمليةَ أثناء الكتابة،
+    #    وملفُّ سورةٍ مبتورٌ يكسر الدمجَ كلَّه؛ فيُكتب مؤقّتاً ثمّ يُستبدَل — والمحتوى بايتاً كما كان.
+    with open(out + ".part", "w", encoding="utf-8") as f:
         json.dump(res, f, ensure_ascii=False)
+    os.replace(out + ".part", out)
     lines = [f"# dualfix س{s}: غُيّرت حدودُ {changed}/{n} آية · {bands} · {len(issues)} ملاحظة"]
     for d in detail:
         lines.append(f"{s}:{d['ayah']}\t{d['base']}\t→\t{d['taken']}\t{d['startSource']}/{d['endSource']}"

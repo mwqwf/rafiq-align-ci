@@ -105,7 +105,9 @@ class FuseTest(unittest.TestCase):
         wf = (root / ".github" / "workflows" / "ctc_splice.yml").read_text(encoding="utf-8")
         self.assertIn('if [ "$MODE" = "dualfix" ]; then ETAG="ctc-dualfix-1"; fi', wf)
         self.assertIn('OPN="ctc_dualfix_splice"', wf)
-        self.assertIn("CTC_INT8=0 CTC_THREADS=2 python tools/alignment_v3/ctc_dualfix.py", wf)
+        # (2026-10-25) `timeout` قد يتوسّط البيئةَ والبايثون (‏ميزانيةُ الوقت)؛ والعقدُ: float32 وخيطان لكلّ عملية.
+        import re
+        self.assertRegex(wf, r"CTC_INT8=0 CTC_THREADS=2 (timeout [^\n]*? )?python tools/alignment_v3/ctc_dualfix\.py")
         self.assertIn('--rewindow "$REWIN"', wf)
         self.assertIn('if extra and os.environ.get("MODE", "full") != "dualfix":', wf)   # السورةُ التامّة تُصحَّح
         self.assertEqual(F.ENGINE, "ctc-dualfix-1")
