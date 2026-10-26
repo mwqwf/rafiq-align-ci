@@ -201,9 +201,9 @@ class WiringTest(unittest.TestCase):
     def wf(self):
         return (self.ROOT / ".github" / "workflows" / "ctc_splice.yml").read_text(encoding="utf-8")
 
-    def test_workflow_enables_two_workers_without_changing_precision_or_threads(self):
+    def test_workflow_runs_dualfix_sequential_without_changing_precision_or_threads(self):
         y = self.wf()
-        self.assertIn('CTC_DUALFIX_WORKERS: "2"', y)
+        self.assertIn('CTC_DUALFIX_WORKERS: "1"', y)   # (2026-10-26) لا تسريعَ مقيسٌ لعاملَين على المُشغّل
         self.assertIn("CTC_INT8=0 CTC_THREADS=2", y)
         self.assertEqual(X.RUNTIME, {"precision": "float32", "threads": 2})   # العقدُ الذي يحكم عليه الشاهدُ
 
