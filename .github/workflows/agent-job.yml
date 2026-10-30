@@ -21,6 +21,7 @@ on:
         required: false
         default: ""
   push:
+    branches: [main]   # 🔒 (فحص أمني 2026-10-30) سكربتات jobs/ تجري بأسرار R2 ومفتاح القراءة؛ فلا تُطلق من فرعٍ جانبيّ
     paths:
       - "jobs/**"
 
@@ -48,8 +49,9 @@ jobs:
 
       - name: أيُّ السكربتات تُنفَّذ؟
         id: pick
+        env:
+          IN: ${{ github.event.inputs.script }}   # عبر env لا داخل الصدفة (فحص أمني 2026-10-30)
         run: |
-          IN="${{ github.event.inputs.script }}"
           if [ -n "$IN" ]; then
             LIST="$IN"
           else
