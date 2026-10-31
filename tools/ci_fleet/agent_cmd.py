@@ -128,6 +128,8 @@ ALLOWED_TOOLS = {"index_qa/set_reciter_files.py",  # يضع files في مدخل�
                  "index_qa/bucket_watch.py", "index_qa/drop_surah.py",
                  # ⚖️ أُضيف 2026-10-05 (fixV): ذيلٌ غيرُ متلوٍّ في ملفّه يُحذف ويُعلَن (‏يكتب الاختبارَ وحده، بحُرّاس declared_truncated_tail).
                  "index_qa/truncate_tail.py", "index_qa/index_header.py",
+                 # ⚖️ 2026-10-31 (أمر المالك): حجبُ آياتٍ غائبةٍ في وسط سورةٍ بدليلٍ لكلّ آية (يكتب الاختبارَ وحده، بحُرّاس declared_truncated_gaps).
+                 "index_qa/drop_ayahs.py",
                  # ⚖️ fixV 2026-10-05: تثبيتُ بدء آياتٍ على أداءٍ مسموعٍ مقيس في تسجيلٍ مكرَّر (يكتب الاختبارَ وحده؛ يلزمه الإحصاءُ الشامل).
                  "index_qa/pin_heard.py", "index_qa/census_gate_check.py", "index_qa/graft_surah_range.py", "index_qa/graft_surahs.py",  # pT 2026-10-14: زرعُ سورٍ كاملةٍ من متبرِّعٍ مشتقٍّ إلى timings-staging/ وحده
                  "index_qa/recheck_published.py", "index_qa/recheck_pool.py",  # 🔎 pR 2026-10-09: إعادةُ فحص المنشور بالحرّاس المشدَّدة (عرضٌ فقط، قارئ محض)
