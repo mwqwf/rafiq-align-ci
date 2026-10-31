@@ -182,7 +182,9 @@ def truncated_tail_error(have_old, have_new, realigned, tails):
     """نصُّ الردّ أو None — تغطيةُ السور المُعادة **مع ذيلٍ مبتورٍ مسمّى**.
 
     ⭐ أمرُ المالك 2026-10-02: «إن كان البترُ في أوّل السورة أو آخرها فلا بأس يُعلَن ذلك،
-    لكن إن كان في الوسط تُلغى السورةُ بأكملها». فالسورةُ المسمّاةُ في `tails` تُقبل
+    لكن إن كان في الوسط تُلغى السورةُ بأكملها» (‏وعُدّلت الوسطيّةُ بأمر 2026-10-31: حجبُ
+    الآيات الغائبة وحدَها بدليل — انظر `inherit_truncated_gaps` و`promote.declared_truncated_gaps`).
+    فالسورةُ المسمّاةُ في `tails` تُقبل
     **فقط** إن كانت مداخلُها بادئةً متّصلةً 1..N بلا فجوة، وN هي المسمّاةُ صراحةً لا
     غيرها (أكثرُ منها نشرٌ بعد البتر، وأقلُّ منها إعلانُ غيابٍ لما له صوت)، ولم تفقد
     مدخلاً كان في الأب، وزادت عليه فعلاً. وما سواها من السور المُعادة يبقى على الحارس
@@ -236,6 +238,35 @@ def truncated_header_error(idx, tails):
     if excused < need:
         return f"⛔ byReason.source_truncated = {excused} والذيلُ المبتور {need}"
     return None
+
+
+def inherit_truncated_gaps(pidx, out, realigned):
+    """يُورِّث إعلانَ **الحجب الوسطيّ** (‏أمر المالك 2026-10-31) من الأصل إلى المخرَج، أو يردّ.
+
+    التحويلُ يستبدل `transform` كلَّه بـ`op` جديد، فيضيع `declare_gap:س` ومعه `reasonCode`
+    و`reasonUser` ويردّ حارسُ البتر في الترقية سورةً معلَنةً أصلاً. فيُحمل الإعلانُ **كما هو**
+    لكلّ سورةٍ أعلنها الأصلُ ولم يُعِدها هذا التحويل، بشرط أن يجتاز المخرَجُ
+    `promote.declared_truncated_gaps` (‏مداخلُها = الآياتُ ناقص المحجوبة، والدليلُ لكلّ آية).
+    وسورةٌ مُعادةٌ يُسقط إعلانُها فيحكم عليها الحارسُ الأصل (‏كاملةٌ بعدد الرواية). ولا يُرخي شيئاً."""
+    ptr = pidx.get("transform") if isinstance(pidx.get("transform"), dict) else {}
+    gaps = {k: v for k, v in ((ptr or {}).get("truncatedGaps") or {}).items()
+            if isinstance(v, dict) and int(k) not in set(realigned)}
+    if not gaps:
+        return
+    ok_parent = {k for k in gaps if promote.declared_truncated_gaps(pidx, k)[0]}
+    if ok_parent != set(gaps):
+        raise SystemExit(f"⛔ الأصلُ يعلن حجباً وسطيّاً لا يجتاز الحارس: {sorted(set(gaps) - ok_parent, key=int)}")
+    tr = out["transform"]
+    tr["truncatedGaps"] = {**(tr.get("truncatedGaps") or {}), **gaps}
+    tr["op"] = str(tr.get("op") or "") + "|declare_gap:" + ",".join(sorted(gaps, key=int))
+    for f in ("reasonCode", "reasonUser"):
+        if not tr.get(f) and ptr.get(f):
+            tr[f] = ptr[f]
+    for k in sorted(gaps, key=int):
+        good, why = promote.declared_truncated_gaps(out, k)
+        if not good:
+            raise SystemExit(f"⛔ س{k}: الحجبُ الوسطيّ الموروث لا يصحّ في المخرَج: {why}")
+    print(f"  ✔ حجبٌ وسطيٌّ موروثٌ معلَن: {sorted(gaps, key=int)}")
 
 
 def apply_dispatch_policy(index, enabled, parent_key, parent_sha):
@@ -482,6 +513,7 @@ def main():
         "reason": a.reason, "by": a.by,
         "at": int(time.time() * 1000),
     })
+    inherit_truncated_gaps(pidx, out, realigned)
     # سياسة الجدولة تخص التحويل الحالي، ولا تورث حجزاً إلى تحويل لاحق تلقائياً.
     apply_dispatch_policy(out, a.manual_qa_only, a.parent, psha)
     packed = gzip.compress(json.dumps(out, ensure_ascii=False,

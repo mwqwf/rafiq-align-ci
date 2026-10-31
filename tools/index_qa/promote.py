@@ -389,7 +389,9 @@ def declared_truncated_tail(idx, surah):
     """هل تُعالج السورةُ الموسومةُ بالبتر بنشرِ **بادئتها المعلَنةِ الذيل** لا بتوقيتٍ تامّ الظاهر؟
 
     ⭐ أمرُ المالك 2026-10-02: «إن كان البترُ في أوّل السورة أو آخرها فلا بأس يُعلَن ذلك،
-    لكن إن كان في الوسط تُلغى السورةُ بأكملها». وحارسُ البتر وُضع يمنع **توقيتاً تامَّ
+    لكن إن كان في الوسط تُلغى السورةُ بأكملها» — ⭐ **ثمّ عُدّلت الوسطيّةُ بأمر 2026-10-31**:
+    تُحجب الآياتُ الغائبةُ وحدَها بدليلٍ لكلّ آية (‏`declared_truncated_gaps` أدناه)، والإسقاطُ الكامل
+    لما تجاوز ربعَ السورة. وحارسُ البتر وُضع يمنع **توقيتاً تامَّ
     الظاهر على صوتٍ ناقص** (الحافظُ يسمع موضعاً ويقرأ غيره). والبادئةُ 1..N التي يُعلَن
     ذيلُها غائباً ليست ذلك: كلُّ مدخلٍ منشورٍ له صوتُه، وما لا صوتَ له **لا مدخلَ له**
     ويراه المستخدمُ غياباً بسببه. فلا يُعفى إلا بشروطٍ مجتمعة، وإلا بقي حارسُ البتر مغلقاً:
@@ -428,6 +430,71 @@ def declared_truncated_tail(idx, surah):
     if surah not in declared or tr.get("reasonCode") != "SOURCE_TRUNCATED" or not tr.get("reasonUser"):
         return False, "النقصُ غيرُ معلَنٍ للمستخدم (declare_gap + SOURCE_TRUNCATED + reasonUser)"
     return True, f"بادئةٌ متّصلة 1..{n} والذيل {n + 1}..{count} معلَنٌ غائباً بسبب source_truncated"
+
+
+def declared_truncated_gaps(idx, surah):
+    """هل تُعالج السورةُ الموسومةُ بالبتر بحجبِ **آياتٍ غائبةٍ في وسطها** معلَنةً بدليلٍ لكلّ آية؟
+
+    ⭐ أمرُ المالك 2026-10-31 (cmsg_01SnWBBbg8UvScqE3YMKdPHaAmmNARSqWMUt85wRaf6dSw):
+    «إن كنتم ترون طريقة أفضل من الإسقاط فطبّقوه وصحّحوا القاعدة». كانت القاعدة (2026-10-02):
+    البترُ في أوّل السورة أو آخرها يُعلَن، وفي الوسط تُلغى السورةُ كلُّها. والجديد: تُحذف
+    مداخلُ الآيات الغائبة **وحدَها** وتُعلَن بسببها، وتبقى سائرُ مداخل السورة بحدودها كما هي.
+    وهو بابٌ ثالثٌ **أضيقُ** من البابين القائمين (لا يُرخي أيّاً منهما ولا عتبةَ 5٪ ولا حارساً آخر):
+      ① `transform.truncatedGaps[س].absent` غيرُ فارغ، أعدادٌ صحيحةٌ فريدةٌ، لا تشمل الأولى ولا الأخيرة
+         (تلك حالتا الصدر والذيل) و`reason = source_truncated`
+      ② عددُها ≤ ربع آيات السورة، وإلا فالإسقاطُ الكامل
+      ③ مداخلُ السورة = كلُّ آياتها ناقص absent بالضبط
+      ④ absent ⊆ `missing.ids` و`byReason.source_truncated` يعدّها
+      ⑤ لكلّ آيةٍ غائبةٍ دليلٌ `{"method": ctc_window|whisper, "detail": نصّ قياس}` في `evidence`
+      ⑥ `transform.op` يحمل `declare_gap:س` ومعه `reasonCode = SOURCE_TRUNCATED` و`reasonUser`
+    """
+    try:
+        surah = int(surah)
+    except (TypeError, ValueError):
+        return False, "رقم السورة غير صالح"
+    if not 1 <= surah <= len(_AYAH_COUNTS):
+        return False, "رقم السورة خارج المصحف"
+    tr = idx.get("transform") if isinstance(idx.get("transform"), dict) else {}
+    rec = ((tr or {}).get("truncatedGaps") or {}).get(str(surah))
+    count = _AYAH_COUNTS[surah - 1]
+    if not isinstance(rec, dict):
+        return False, "لا إعلانَ حجبٍ وسطيّ في الترويسة"
+    absent = rec.get("absent")
+    if (not isinstance(absent, list) or not absent
+            or any(type(a) is not int for a in absent)
+            or len(set(absent)) != len(absent)
+            or rec.get("reason") != "source_truncated"):
+        return False, f"إعلانُ الحجب الوسطيّ غيرُ سويّ: {rec}"
+    if min(absent) < 2 or max(absent) > count - 1:
+        return False, "الحجبُ يشمل أولى السورة أو آخرتها — ذاك بابُ الصدر/الذيل لا الوسط"
+    if len(absent) * 4 > count:
+        return False, f"المحجوب {len(absent)} يتجاوز ربع آيات السورة ({count}) — الإسقاطُ الكامل"
+    if ((tr or {}).get("truncatedTail") or {}).get(str(surah)):
+        return False, "السورةُ تعلن ذيلاً مبتوراً وحجباً وسطيّاً معاً — بابان لا يجتمعان"
+    have = sorted(int(str(e.get("ayahId")).split(":")[1]) for e in (idx.get("entries") or [])
+                  if str(e.get("ayahId") or "").split(":", 1)[0] == str(surah))
+    want = [a for a in range(1, count + 1) if a not in set(absent)]
+    if have != want:
+        return False, f"مداخلُ السورة ({len(have)}) ليست كلَّ آياتها ناقص المحجوبة ({len(want)})"
+    miss = idx.get("missing") or {}
+    ids = set(miss.get("ids") or [])
+    if not {f"{surah}:{a}" for a in absent} <= ids:
+        return False, "وسمُ الاكتمال لا يعدّ المحجوبةَ كلَّها غائبة"
+    if int((miss.get("byReason") or {}).get("source_truncated", 0)) < len(absent):
+        return False, "byReason.source_truncated لا يعدّ المحجوبة"
+    ev = rec.get("evidence")
+    for a in absent:
+        e = ev.get(f"{surah}:{a}") if isinstance(ev, dict) else None
+        if (not isinstance(e, dict) or e.get("method") not in ("ctc_window", "whisper")
+                or not str(e.get("detail") or "").strip()):
+            return False, f"لا دليلَ قياسٍ للآية {surah}:{a} (method + detail)"
+    declared = set()
+    for m in re.findall(r"declare_gap:([\d,\s]+)", str(tr.get("op") or "")):
+        declared |= {int(x) for x in re.findall(r"\d+", m)}
+    if surah not in declared or tr.get("reasonCode") != "SOURCE_TRUNCATED" or not tr.get("reasonUser"):
+        return False, "النقصُ غيرُ معلَنٍ للمستخدم (declare_gap + SOURCE_TRUNCATED + reasonUser)"
+    return True, (f"حجبٌ وسطيٌّ معلَنٌ بدليلٍ لكلّ آية: {sorted(absent)} من {count} "
+                  "بسبب source_truncated وحدودُ الباقي لم تُمسّ")
 
 
 def registered_source_remediation(idx, riwaya, reciter, surah, overrides=None):
@@ -2625,10 +2692,15 @@ def main():
                 if tail_ok:
                     fixed, evidence = True, tail_ev
                 else:
-                    evidence += f" · ولا بادئةَ معلَنةَ الذيل: {tail_ev}"
+                    # ⭐ الباب الثالث (أمر المالك 2026-10-31): آياتٌ غائبةٌ في الوسط معلَنةٌ بدليل.
+                    gap_ok, gap_ev = declared_truncated_gaps(idx_peek, cut_row.get("surah"))
+                    if gap_ok:
+                        tail_ok, fixed, evidence = True, True, gap_ev
+                    else:
+                        evidence += f" · ولا بادئةَ معلَنةَ الذيل: {tail_ev} · ولا حجبَ وسطيّاً معلَناً: {gap_ev}"
             if fixed:
                 print(f"  ✅ {src}: عولج بترُ س{cut_row.get('surah')} "
-                      + ("ببادئةٍ معلَنةِ الذيل" if tail_ok else "ببديلٍ مسجّل كامل")
+                      + ("ببادئةٍ أو حجبٍ وسطيٍّ معلَن" if tail_ok else "ببديلٍ مسجّل كامل")
                       + f" — {evidence}")
             else:
                 unresolved_cut.append(cut_row)
