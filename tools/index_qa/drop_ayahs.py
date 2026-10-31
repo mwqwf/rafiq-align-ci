@@ -13,7 +13,9 @@
 
 **ما يفعله بالضبط** (‏ولا شيءَ غيره):
 1. يتحقّق من بصمة المنشور، ويشترط أن تكون السورةُ في الأصل **تامّةَ المداخل**.
-2. يحذف مداخلَ الآيات المسمّاة وحدَها. ⛔ **`startMs`/`endMs` لكلّ مدخلٍ باقٍ لا يُمسّ** (‏لا تُمَدّ الجارة).
+2. يحذف مداخلَ الآيات المسمّاة وحدَها. ⛔ **`startMs`/`endMs` لكلّ مدخلٍ باقٍ لا يُمسّ** (‏لا تُمَدّ الجارة)
+   — إلا بـ`--aligned a<سورة>.json` من `ctc_gapsplit --absent-ayahs`: حدودُ الجارات مقيسةٌ بنافذة CTC
+   بنصوص الحاضرات وحدها (‏المحاذي القديمُ عصرها بين الغائبات)، فتُطبَّق بحرّاسها وتُعلَن السورةُ بـ`ctc-gapsplit-1`.
 3. يضيف المعرّفات إلى `missing.ids` معدودةً تحت `source_truncated`.
 4. يكتب `transform.truncatedGaps[س] = {absent, reason, evidence}` و`op` يحمل `declare_gap:س` مع
    `reasonCode = SOURCE_TRUNCATED` و`reasonUser`، ويحمل إعلاناتِ الذيل الموروثة (‏`carried_declared_tails`).
@@ -77,9 +79,65 @@ def parse_ayahs(spec: str):
     return {s: sorted(v) for s, v in out.items()}
 
 
+RETIME_KEYS = {"startMs", "endMs", "conf", "confBand", "startApprox"}
+RETIME_ENGINE = "ctc-gapsplit-1"
+
+
+def _band(conf: float) -> str:
+    return "HIGH" if conf >= 0.8 else ("MED" if conf >= 0.5 else "LOW")
+
+
+def apply_retimed(ents: list, s: int, absent: list, retimed: dict) -> list:
+    """يطبّق حدودَ الجارات المقيسة بنافذة CTC على مداخل السورة `s` (‏`retimed`: «س:آ» ⇒ {startMs,endMs,conf,snapped}).
+
+    ⛔ حرّاسُه: الجارةُ حاضرةٌ غيرُ محجوبة وداخلَ [أدنى المحجوب-1 ، أعلى المحجوب+1] وحدَها · حدّا النافذة
+    (بدءُ أوّل جارةٍ ونهايةُ آخرها) لا يتحرّكان · الحدودُ صاعدةٌ لا تتداخل في السورة كلّها بعد التطبيق.
+    ولا يُغيَّر في المدخل إلا `RETIME_KEYS`."""
+    lo, hi = min(absent) - 1, max(absent) + 1
+    mine = {k: v for k, v in (retimed or {}).items() if _key(k)[0] == s}
+    out, seen = [], set()
+    for e in ents:
+        ss, a = _key(e["ayahId"])
+        r = mine.get(e["ayahId"]) if ss == s else None
+        if r is None:
+            out.append(e)
+            continue
+        if a in absent or not lo <= a <= hi:
+            raise SystemExit(f"⛔ {e['ayahId']}: لا تُعاد محاذاةُ غير جارات النافذة [{s}:{lo}–{s}:{hi}] ولا المحجوبة")
+        st, en = r.get("startMs"), r.get("endMs")
+        if type(st) is not int or type(en) is not int or not 0 <= st < en:
+            raise SystemExit(f"⛔ {e['ayahId']}: حدودٌ غيرُ سويّة {st}→{en}")
+        if (a == lo and st != e["startMs"]) or (a == hi and en != e["endMs"]):
+            raise SystemExit(f"⛔ {e['ayahId']}: حدُّ النافذة الخارجيُّ لا يتحرّك (‏من الأب نفسِه)")
+        n = dict(e)
+        n["startMs"], n["endMs"] = st, en
+        if r.get("conf") is not None:
+            n["conf"] = round(float(r["conf"]), 3)
+            n["confBand"] = _band(float(r["conf"]))
+        if r.get("snapped") is False:
+            n["startApprox"] = True
+        seen.add(e["ayahId"])
+        out.append(n)
+    miss = sorted(set(mine) - seen, key=_key)
+    if miss:
+        raise SystemExit(f"⛔ جاراتٌ مسمّاةٌ بلا مدخلٍ في الأصل: {miss}")
+    prev = -1
+    for e in out:
+        if _key(e["ayahId"])[0] != s or _key(e["ayahId"])[1] in absent or not lo - 1 <= _key(e["ayahId"])[1] <= hi + 1:
+            continue                  # المحجوبةُ تُحذف؛ ولا يُحاكَم إلا ما لامسته النافذةُ (‏ما خارجها لم يُمسّ)
+        if e["startMs"] < prev:
+            raise SystemExit(f"⛔ {e['ayahId']}: يبدأ {e['startMs']} قبل نهاية سابقتِه {prev} بعد إعادة المحاذاة")
+        prev = e["endMs"]
+    return out
+
+
 def drop_ayahs(idx: dict, ayahs: dict, evidence: dict, *, reason: str, reason_user: str,
-               reason_code: str, from_sha: str, from_key: str) -> dict:
-    """يُعيد فهرساً جديداً حُجبت منه الآياتُ المسمّاة ومعلَنةً، أو يرفع SystemExit بالسبب."""
+               reason_code: str, from_sha: str, from_key: str, retimed: dict | None = None) -> dict:
+    """يُعيد فهرساً جديداً حُجبت منه الآياتُ المسمّاة ومعلَنةً، أو يرفع SystemExit بالسبب.
+
+    ‏`retimed` (اختياري · أمر 2026-10-31): حدودُ الجارات المقيسةُ بـCTC على نافذةٍ بنصوص الحاضرات وحدها
+    (‏`ctc_gapsplit --absent-ayahs`) — فالمحاذي القديمُ «عصر» الغائباتِ بين جاراتها فكانت حدودُها خاطئة.
+    ‏تُطبَّق قبل الحجب، وتُعلَن السورةُ بمحرّك `ctc-gapsplit-1` فيلزمها الإحصاءُ الشامل."""
     import drop_surah
     if reason_code != "SOURCE_TRUNCATED":
         raise SystemExit("⛔ --reason-code لهذا الباب SOURCE_TRUNCATED وحدَه")
@@ -92,6 +150,7 @@ def drop_ayahs(idx: dict, ayahs: dict, evidence: dict, *, reason: str, reason_us
     tr0 = idx.get("transform") if isinstance(idx.get("transform"), dict) else {}
     ents = list(idx.get("entries") or [])
     recs, gone = {}, set()
+    orig_all = {e["ayahId"]: e for e in ents}
     for s, absent in sorted(ayahs.items()):
         n = counts[s - 1]
         if min(absent) < 2 or max(absent) > n - 1:
@@ -112,6 +171,11 @@ def drop_ayahs(idx: dict, ayahs: dict, evidence: dict, *, reason: str, reason_us
             ev[f"{s}:{a}"] = {"method": rec["method"], "detail": str(rec["detail"])}
         recs[str(s)] = {"absent": list(absent), "reason": "source_truncated", "evidence": ev}
         gone |= {f"{s}:{a}" for a in absent}
+        if retimed:
+            ents = apply_retimed(ents, s, list(absent), retimed)
+    stray = sorted({_key(k)[0] for k in (retimed or {})} - set(ayahs))
+    if stray:
+        raise SystemExit(f"⛔ حدودٌ مُعاد قياسُها لسورٍ لا حجبَ فيها: {stray}")
 
     kept = [e for e in ents if e["ayahId"] not in gone]
     total = idx.get("ayahCount") or sum(counts)
@@ -145,7 +209,14 @@ def drop_ayahs(idx: dict, ayahs: dict, evidence: dict, *, reason: str, reason_us
     extra = sorted(set(keep_decl) | set(carried_gaps))
     if extra:
         op += "|declare_gap:" + ",".join(str(s) for s in extra)
+    moved = sorted((k for k in (retimed or {})), key=_key)
+    if moved:
+        ebs = dict(out.get("engineBySurah") or {})
+        for s in touched:
+            ebs[str(s)] = RETIME_ENGINE        # ⇒ يلزمها الإحصاءُ الشامل (‏promote.census_surahs)
+        out["engineBySurah"] = ebs
     out["transform"] = {
+        **({"retimedNeighbours": moved} if moved else {}),
         **({"truncatedTail": tails} if tails else {}),
         "truncatedGaps": {**old_gaps, **recs},
         "op": op,
@@ -157,13 +228,18 @@ def drop_ayahs(idx: dict, ayahs: dict, evidence: dict, *, reason: str, reason_us
         "reasonUser": reason_user,
         "reasonCode": reason_code,
         "at": int(time.time() * 1000),
-        "note": "آياتٌ غائبةٌ في وسط السورة حُجبت وأُعلنت بدليلٍ لكلٍّ؛ حدودُ كلّ مدخلٍ باقٍ لم تُمسّ.",
+        "note": ("آياتٌ غائبةٌ في وسط السورة حُجبت وأُعلنت بدليلٍ لكلٍّ؛ "
+                 + ("وحدودُ الجارات أُعيد قياسُها بنافذة CTC بنصوص الحاضرات وحدها." if moved
+                    else "حدودُ كلّ مدخلٍ باقٍ لم تُمسّ.")),
     }
     if len(kept) + miss["count"] != total:
         raise SystemExit(f"⛔ اختلال العقد: {len(kept)} + {miss['count']} ≠ {total}")
-    orig = {e["ayahId"]: e for e in ents}
-    if any(e != orig[e["ayahId"]] for e in kept):
-        raise SystemExit("⛔ تغيّر مدخلٌ باقٍ (startMs/endMs أو غيرهما) — لا يجوز")
+    for e in kept:
+        o = orig_all[e["ayahId"]]
+        if e == o:
+            continue
+        if e["ayahId"] not in (retimed or {}) or any(e.get(k) != o.get(k) for k in (set(e) | set(o)) - RETIME_KEYS):
+            raise SystemExit("⛔ تغيّر مدخلٌ باقٍ (startMs/endMs أو غيرهما) — لا يجوز")
     return out
 
 
@@ -172,14 +248,24 @@ def main():
     ap.add_argument("--key", required=True)
     ap.add_argument("--sha", required=True, help="بادئةُ بصمة المنشور (تحقّق)")
     ap.add_argument("--ayahs", required=True, help="«79:15,79:17,79:18»")
-    ap.add_argument("--evidence", required=True, help="ملفّ JSON: دليلُ كلّ آية")
+    ap.add_argument("--evidence", default="", help="ملفّ JSON: دليلُ كلّ آية (‏أو من --aligned)")
+    ap.add_argument("--aligned", nargs="*", default=[], help="a<سورة>.json من ctc_gapsplit --absent-ayahs: حدودُ الجارات + الدليل")
     ap.add_argument("--reason", required=True)
     ap.add_argument("--reason-user", required=True)
     ap.add_argument("--reason-code", required=True)
     ap.add_argument("--yes", action="store_true", help="ارفع إلى الاختبار (الافتراض عرض)")
     a = ap.parse_args()
     ayahs = parse_ayahs(a.ayahs)
-    evidence = json.loads(Path(a.evidence).read_text(encoding="utf-8"))
+    evidence = json.loads(Path(a.evidence).read_text(encoding="utf-8")) if a.evidence else {}
+    retimed = {}
+    for fp in a.aligned:
+        rec = json.loads(Path(fp).read_text(encoding="utf-8"))
+        if sorted(rec.get("absent") or []) != sorted(ayahs.get(int(rec.get("surah", 0)), [])):
+            raise SystemExit(f"⛔ {fp}: المحجوبةُ فيه تخالف --ayahs")
+        retimed.update(rec.get("retimed") or {})
+        evidence.update(rec.get("evidence") or {})
+    if not evidence:
+        raise SystemExit("⛔ لا دليلَ: --evidence أو --aligned")
     import promote
     cl, bucket = promote.s3()
     body = cl.get_object(Bucket=bucket, Key=a.key)["Body"].read()
@@ -188,7 +274,8 @@ def main():
         raise SystemExit(f"⛔ البصمة لا تطابق: الحيّة {live[:16]} والمطلوبة {a.sha}")
     idx = json.loads(gzip.decompress(body).decode("utf-8"))
     out = drop_ayahs(idx, ayahs, evidence, reason=a.reason, reason_user=a.reason_user,
-                     reason_code=a.reason_code, from_sha=live, from_key=a.key)
+                     reason_code=a.reason_code, from_sha=live, from_key=a.key,
+                     retimed=retimed or None)
     for s in ayahs:
         ok, why = promote.declared_truncated_gaps(out, s)
         if not ok:

@@ -31,6 +31,8 @@ on:
       base_key: {description: "وضعُ dualfix وحده: مفتاحُ مرشّح heardmap في timings-staging تُصحَّح حدودُه بما اتّفق عليه النموذجان المثبَّتان (ctc_dualfix)", default: ""}
       rewindow: {description: "أوضاعُ window وdualfix وheard (‏heard: تسميةُ المدى المعطوب المقيس شرطٌ لسورةٍ تامّة)؛ وضعا window وdualfix (بالنموذج القرآنيّ بين جارَين ثابتَين، مثل 38:44-51,38:80-88): مدى آياتٍ حاضرةٍ حدودُها معطوبةٌ يُعاد بنافذته بين جارتين ثابتتين، مثل 55:41-75؛ والطرفان: 89:1-2/nb (من بدء الملفّ، /nb = بلا بسملة بشاهد السماع) و92:20-21 (حتى نهاية الملفّ)", default: ""}
       heard_witness: {description: "وضعُ window وحده (fixS2 · بإذن المالك): يُقبل حدُّ المدّة الأعلى (2×) فقط لآيةٍ يوافق حدّاها خريطةَ السماع (ctc_heard_map) بفرقٍ مقيس ≤700/1000م.ث ومِرساةٍ ≥0.85 منفردة", default: "false"}
+      absent_ayahs: {description: "وضعُ window وحده (أمر المالك 2026-10-31): آياتٌ غائبةٌ في وسط سورةٍ تامّة المداخل في الأب — «79:15,79:17,79:18»؛ تُحاذى الجاراتُ بنصوص الحاضرات وحدها (ctc_gapsplit --absent-ayahs) ويُقاس دليلُ الغياب بمحاذاةٍ بنصّ الغائبة تردّها الحرّاس، ثمّ تُحجب وتُعلَن (drop_ayahs --aligned) بمرشّحٍ في timings-staging. surahs = سورُها نفسُها؛ ولا يجتمع مع rewindow", default: ""}
+      reason_user: {description: "وضعُ absent_ayahs وحده: السببُ المعروضُ للمستخدم (بلا كلماتٍ إداريّة)", default: "تسجيلُ هذه السورة ينقصه بعضُ آياتها."}
       truncated_tail: {description: "وضعُ full وحده (أمر المالك 2026-10-02): سورةٌ واحدةٌ مصدرُها مبتورُ الذيل تُحاذى بادئتُها 1..N بالنموذج القرآني المثبَّت ويُعلَن ذيلُها source_truncated — «24:30»؛ وsurahs = السورةُ نفسُها", default: ""}
 
 concurrency:
@@ -87,9 +89,19 @@ jobs:
           MODE: ${{ github.event.inputs.mode }}
           TRUNC: ${{ github.event.inputs.truncated_tail }}
           REWIN: ${{ github.event.inputs.rewindow }}
+          ABSENT: ${{ github.event.inputs.absent_ayahs }}
         run: |
           python - <<'PY'
           import gzip, hashlib, json, os, re, sys, boto3
+          # ⭐ الآياتُ الغائبةُ في الوسط (أمر المالك 2026-10-31): وضعُ window وحده، وsurahs = سورُها نفسُها، ولا rewindow معها.
+          absent = os.environ.get("ABSENT", "").strip()
+          absent_surahs = set()
+          if absent:
+              absent_surahs = {int(x.split(":")[0]) for x in re.split(r"[,\s]+", absent) if ":" in x}
+              if os.environ.get("MODE", "full") != "window" or os.environ.get("REWIN", "").strip() or os.environ.get("TRUNC", "").strip():
+                  sys.exit("⛔ absent_ayahs في وضع window وحده ولا يجتمع مع rewindow ولا truncated_tail")
+              if {int(x) for x in re.findall(r"\d+", os.environ.get("WANT", ""))} != absent_surahs:
+                  sys.exit(f"⛔ surahs يجب أن تساوي سورَ absent_ayahs {sorted(absent_surahs)}")
           # ⭐ الذيلُ المبتور (أمر المالك 2026-10-02): سورةٌ واحدةٌ مسمّاةٌ في surahs هي نفسُها،
           #    وفي وضع full وحده، وبقالبٍ مرقَّمٍ من الكتالوج — يُوقَف قبل تنزيل بايت إن اختلّ شرط.
           trunc = os.environ.get("TRUNC", "").strip()
@@ -181,7 +193,7 @@ jobs:
           # ⭐ (2026-10-02 · fixF · الغربي 55:2 و20:28) وضعُ window بـ`rewindow` بابُه **آياتٌ حاضرةٌ
           #    حدودُها معطوبة** (‏آيةٌ بلا تلاوة 300م.ث بين جارتين) — فسورةٌ تامّةٌ تُقبل فيه إن كانت
           #    **كلُّ** سورةٍ تامّةٍ مسمّاةً في rewindow؛ وما خارج المدى يحرسه الدمجُ حرفاً.
-          rewin_surahs = {int(x.split(":")[0]) for x in os.environ.get("REWIN", "").split(",") if ":" in x}
+          rewin_surahs = {int(x.split(":")[0]) for x in os.environ.get("REWIN", "").split(",") if ":" in x} | absent_surahs
           if extra and os.environ.get("MODE", "full") == "window" and set(extra) <= rewin_surahs:
               print(f"⭐ سورٌ تامّةٌ تُعاد نافذةُ مدىً منها (rewindow): {extra}")
               extra = []
@@ -229,6 +241,7 @@ jobs:
           BASEKEY: ${{ github.event.inputs.base_key }}
           TRUNC: ${{ github.event.inputs.truncated_tail }}
           HW: ${{ github.event.inputs.heard_witness }}
+          ABSENT: ${{ github.event.inputs.absent_ayahs }}
         run: |
           set -o pipefail
           if [ "$HW" = "true" ] && [ "$MODE" != "window" ]; then echo "⛔ heard_witness لوضع window وحده"; exit 1; fi
@@ -269,6 +282,14 @@ jobs:
             U="$(python -c "import sys; print(sys.argv[1].format(s=int(sys.argv[2])))" "$URLT" "$S")"
             CTC_INT8=0 CTC_THREADS=2 python tools/alignment_v3/ctc_prefix_align.py --url "$U" --surah "$S" \
               --riwaya "$RIW" --keep "$K" --quran-model --out-dir "tools/alignment/work/batch_$RID" 2>&1 | tee ctc.log
+            exit 0
+          fi
+          if [ -n "$ABSENT" ]; then
+            # ⭐ آياتٌ غائبةٌ في الوسط (أمر المالك 2026-10-31): الجاراتُ بنصوص الحاضرات وحدها + دليلُ الغياب.
+            #    المخرَج a<سورة>.json لخطوة الحجب (drop_ayahs --aligned) — ولا يمرّ بـsplice_surah.
+            python -m unittest tools/alignment_v3/test_ctc_gapsplit_absent.py
+            python tools/alignment_v3/ctc_gapsplit.py --index parent.jz --surahs "$SURAHS" \
+              --riwaya "$RIW" --out-dir "tools/alignment/work/batch_$RID" --absent-ayahs "$ABSENT" 2>&1 | tee ctc.log
             exit 0
           fi
           if [ "$MODE" = "window" ]; then
@@ -350,6 +371,7 @@ jobs:
           fi
 
       - name: الدمجُ بحُرّاسه وبصماتُ الصوت
+        if: ${{ github.event.inputs.absent_ayahs == '' }}
         env:
           URLT: ${{ steps.plan.outputs.urlt }}
           FOLDER: ${{ steps.plan.outputs.folder }}
@@ -413,7 +435,29 @@ jobs:
                 "· sourceBySurah:", idx.get("sourceBySurah"))
           PY
 
+      - name: حجبُ الغائبات في الوسط وإعلانُها ورفعُ المرشّح (‏drop_ayahs)
+        if: ${{ github.event.inputs.absent_ayahs != '' }}
+        env:
+          PARENT: ${{ github.event.inputs.parent }}
+          SHA: ${{ steps.plan.outputs.sha }}
+          REASON: ${{ github.event.inputs.reason }}
+          REASON_USER: ${{ github.event.inputs.reason_user }}
+          ABSENT: ${{ github.event.inputs.absent_ayahs }}
+          RID: ${{ steps.plan.outputs.rid }}
+        run: |
+          set -eo pipefail
+          d="tools/alignment/work/batch_$RID"
+          ls "$d"/a*.json >/dev/null 2>&1 || { echo "⛔ لا سورةَ اجتازت حرّاسَ الغياب (‏انظر ctc.log) — لا مرشّح"; exit 1; }
+          # ⛔ كلُّ سورةٍ مسمّاةٍ يجب أن تكون نجحت؛ وإلا يُوقَف بدل رفع بعضها بإعلانٍ ناقص.
+          for s in $(python -c "import sys; print(' '.join(sorted({x.split(':')[0] for x in sys.argv[1].replace(',', ' ').split() if ':' in x})))" "$ABSENT"); do
+            [ -f "$(printf '%s/a%03d.json' "$d" "$s")" ] || { echo "⛔ س$s رُفضت — لا إعلانَ جزئيّ"; exit 1; }
+          done
+          python tools/index_qa/drop_ayahs.py --key "$PARENT" --sha "${SHA:0:16}" --ayahs "$ABSENT" \
+            --aligned "$d"/a*.json --reason "$REASON" --reason-user "$REASON_USER" \
+            --reason-code SOURCE_TRUNCATED --yes
+
       - name: رفعٌ إلى الاختبار بحُرّاس stage_transform
+        if: ${{ github.event.inputs.absent_ayahs == '' }}
         env:
           PARENT: ${{ github.event.inputs.parent }}
           SHA: ${{ steps.plan.outputs.sha }}
@@ -439,5 +483,6 @@ jobs:
           name: ctc-splice-${{ github.run_id }}
           path: |
             tools/alignment/work/batch_*/s*.json
+            tools/alignment/work/batch_*/a*.json
             ctc.log
           retention-days: 7

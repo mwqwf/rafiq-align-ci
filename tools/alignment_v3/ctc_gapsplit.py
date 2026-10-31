@@ -191,6 +191,207 @@ def explicit_gap(ents: dict, n: int, b0: int, b1: int):
     return ("gap", b0, b1)
 
 
+# ───────────────────────── آياتٌ غائبةٌ في الوسط (أمر المالك 2026-10-31) ─────────────────────────
+# ⭐ سببُه مقيس (shamrani النازعات): الآيات 15 و17 و18 غيرُ متلوّةٍ في الملفّ أصلاً، لكنّ المحاذي القديم
+#    «عصرها» بين جاراتها (‏15 = 0.5ث، 17 = 1ث، 18 = 0.8ث) فخرجت حدودُ 14 و16 و19 خاطئة. و`drop_ayahs`
+#    يحذف المداخل ولا يمسّ الحدود. فهنا تُحاذى **نافذةُ الجارات بنصوص الحاضرات وحدها** (‏الغائبةُ تُتخطّى)،
+#    ثمّ يُقاس الدليلُ على الغياب بمحاذاةٍ ثانيةٍ **بنصّ الغائبة** تردّها الحرّاسُ نفسُها؛ فإن اجتازتها الغائبةُ
+#    فهي مسموعةٌ لا غائبة وتُرفض السورة. ⛔ لا حارسَ يُرخى ولا عتبةَ تُعدَّل.
+ABSENT_MAX_GAP = 3        # أقصى عددٍ من الحاضرات بين غائبتين لتشاركا نافذةً واحدة
+
+
+def parse_absent_spec(spec: str) -> dict:
+    """«79:15,79:17,79:18» ⇒ {79: [15, 17, 18]}."""
+    out: dict = {}
+    for item in [x for x in str(spec or "").replace("،", ",").replace(" ", ",").split(",") if x]:
+        try:
+            s_, a_ = (int(v) for v in item.split(":"))
+        except ValueError:
+            raise ValueError(f"صيغةٌ غيرُ صالحة {item!r} (‏سورة:آية)")
+        if a_ in out.setdefault(s_, []):
+            raise ValueError(f"آيةٌ مكرّرة {item}")
+        out[s_].append(a_)
+    if not out:
+        raise ValueError("قائمةُ الغائبات فارغة")
+    return {s_: sorted(v) for s_, v in out.items()}
+
+
+def absent_clusters(absent: list, n: int, ents: dict):
+    """يقسم الغائباتِ إلى عناقيد (‏بينها أكثرُ من ABSENT_MAX_GAP حاضرات ⇒ نافذةٌ أخرى) ⇒ [(lo، hi، غائباتُها)]
+    حيث lo/hi جارتان حاضرتان ثابتتان. ويرفع ValueError إن لزمت الأولى أو الأخيرة أو غابت المرساة."""
+    ab = sorted(set(absent))
+    if ab[0] < 2 or ab[-1] > n - 1:
+        raise ValueError("لا تُحجب أولى السورة ولا آخرتها (‏بابا الصدر والذيل)")
+    groups, cur = [], [ab[0]]
+    for a_ in ab[1:]:
+        if a_ - cur[-1] - 1 > ABSENT_MAX_GAP:
+            groups.append(cur)
+            cur = []
+        cur.append(a_)
+    groups.append(cur)
+    out = []
+    for g in groups:
+        lo, hi = g[0] - 1, g[-1] + 1
+        if lo in ab or hi in ab or lo not in ents or hi not in ents:
+            raise ValueError(f"مرساةُ النافذة {lo}/{hi} غائبةٌ في الأب — لا تخمين")
+        out.append((lo, hi, g))
+    return out
+
+
+def window_guards(s, ks, starts, ends, confs, fixed_idx, exps, ents):
+    """سببُ الردّ (‏نصّ) أو None — الحرّاسُ نفسُها: ثقة ≥0.45 · مدّة 0.5–2× · جارةٌ لا تنكمش دون 0.5×."""
+    for i, k in enumerate(ks):
+        dur, exp = ends[i] - starts[i], exps[i]
+        if i in fixed_idx:
+            if dur < NEIGH_LO * exp:
+                return f"الجارة {s}:{k} تنكمش إلى {dur}م.ث والمتوقَّع {exp:.0f}"
+            if starts[i] != ents[k]["startMs"] and confs[i] < MIN_CONF:
+                return f"مرساة {s}:{k} تغير بدءها وثقة الحد الجديد {confs[i]} < {MIN_CONF}"
+        elif confs[i] < MIN_CONF:
+            return f"{s}:{k} ثقةُ CTC {confs[i]} < {MIN_CONF}"
+        elif not (DUR_LO * exp <= dur <= DUR_HI * exp):
+            return f"{s}:{k} مدّتُها {dur}م.ث والمتوقَّع {exp:.0f} (خارج {DUR_LO}–{DUR_HI}×)"
+    return None
+
+
+def window_bounds(segs, ents, lo, hi):
+    """(starts، ends، confs): بدءُ أول مرساةٍ ونهايةُ آخرها من الأب، والباقي من CTC."""
+    starts = [sg[0] for sg in segs]
+    starts[0] = int(ents[lo]["startMs"])
+    ends = starts[1:] + [int(ents[hi]["endMs"])]
+    return starts, ends, [sg[2] for sg in segs]
+
+
+def judge_absent(s, ws, we, ks_all, absent, segs_full, ents, exp_of):
+    """يقيس محاذاةَ النافذة **بنصّ الغائبات** ⇒ (غائبةٌ؟، {آية: دليل}، سببٌ عند الرفض).
+    الغائبةُ تُقبل غائبةً فقط إن ردّتها الحرّاسُ: ثقتُها أو مدّتُها أو انكماشُ جارةٍ بسببها. وإن اجتازت
+    الحرّاسَ كلَّها فهي مسموعةٌ في الملفّ ⇒ (False، …) وتُرفض السورة."""
+    starts, ends, confs = window_bounds(segs_full, ents, ks_all[0], ks_all[-1])
+    fixed = {0, len(ks_all) - 1}
+    exps = [exp_of(k) for k in ks_all]
+    shrink = None
+    for i, k in enumerate(ks_all):
+        if i in fixed and ends[i] - starts[i] < NEIGH_LO * exps[i]:
+            shrink = f"الجارة {s}:{k} تنكمش إلى {ends[i] - starts[i]}م.ث (المتوقَّع {exps[i]:.0f})"
+            break
+    evidence, heard = {}, []
+    for a_ in absent:
+        i = ks_all.index(a_)
+        dur, exp, c = ends[i] - starts[i], exps[i], confs[i]
+        why = []
+        if c < MIN_CONF:
+            why.append(f"ثقةٌ {c:.2f} < {MIN_CONF}")
+        if not (DUR_LO * exp <= dur <= DUR_HI * exp):
+            why.append(f"مدّةٌ {dur}م.ث والمتوقَّع {exp:.0f} خارج {DUR_LO}–{DUR_HI}×")
+        if shrink:
+            why.append(shrink)
+        if not why:
+            heard.append(a_)
+            continue
+        evidence[f"{s}:{a_}"] = {
+            "method": "ctc_window",
+            "detail": (f"محاذاةُ النافذة {ws}–{we}م.ث بنصّ الآية {s}:{a_} بين جاراتها: "
+                       f"{starts[i]}–{ends[i]}م.ث بثقة {c:.2f} ⇒ ردّها الحارس ({' · '.join(why)}) "
+                       "بينما اجتازت الجاراتُ المحاذاةَ بنصوصها وحدها")}
+    if heard:
+        return False, {}, f"الآيات {[f'{s}:{a_}' for a_ in heard]} اجتازت حرّاسَ المحاذاة بنصّها — مسموعةٌ لا غائبة"
+    return True, evidence, None
+
+
+def align_absent_window(x, s, lo, hi, absent, ents, t_of, rate, align=None):
+    """نافذةُ عنقودٍ واحد ⇒ (retimed، evidence، سببُ الرفض). ‏`align(ws، we، texts)` يُحقن في الاختبار."""
+    align = align or (lambda ws, we, texts: split_window(x, ws, we, texts))
+    ks_all = list(range(lo, hi + 1))
+    ks_p = [k for k in ks_all if k not in absent]
+    ws, we = int(ents[lo]["startMs"]), int(ents[hi]["endMs"])
+    exp_of = lambda k: chars(t_of(k)) * rate               # noqa: E731
+    segs = align(ws, we, [norm(t_of(k)) for k in ks_p])
+    starts, ends, confs = window_bounds(segs, ents, lo, hi)
+    why = window_guards(s, ks_p, starts, ends, confs, {0, len(ks_p) - 1}, [exp_of(k) for k in ks_p], ents)
+    if why:
+        return None, None, f"الجاراتُ بنصوصها وحدها رُدّت — {why}"
+    segs_full = align(ws, we, [norm(t_of(k)) for k in ks_all])
+    ok, evidence, why = judge_absent(s, ws, we, ks_all, absent, segs_full, ents, exp_of)
+    if not ok:
+        return None, None, why
+    retimed = {}
+    for i, k in enumerate(ks_p):
+        old = ents[k]
+        row = {"startMs": int(starts[i]), "endMs": int(ends[i])}
+        # الجارةُ الأولى بدؤها من الأب فتبقى ثقتُها؛ وما بدؤه من CTC ثقتُه ثقةُ بدئه (‏يُسقَّف 0.74 في run_absent ما لم يقع الحدُّ على صمت).
+        if i != 0 and starts[i] != old["startMs"]:
+            row["conf"] = confs[i]
+        retimed[f"{s}:{k}"] = row
+    return retimed, evidence, None
+
+
+def run_absent(a, idx, qidx, text) -> int:
+    """وضعُ `--absent-ayahs`: يكتب `a<سورة>.json` (الجاراتُ المعادةُ + دليلُ الغياب) لما نجح كلُّه."""
+    absent_by = parse_absent_spec(a.absent_ayahs)
+    report = []
+    for s, absent in sorted(absent_by.items()):
+        meta = next(m for m in qidx["surahs"] if m["n"] == s)
+        st0, n = meta["start"], meta["ayahs"]
+        rows = [e for e in idx["entries"] if int(e["ayahId"].split(":")[0]) == s]
+        ents = {int(e["ayahId"].split(":")[1]): dict(e) for e in rows
+                if e.get("startMs") is not None and e.get("endMs") is not None}
+        if sorted(ents) != list(range(1, n + 1)):
+            report.append(f"س{s}: ⛔ ليست تامّةَ المداخل في الأب — ليست من هذا الباب")
+            continue
+        t_of = lambda k, st0=st0: text[st0 + k - 1]                # noqa: E731
+        try:
+            clusters = absent_clusters(absent, n, ents)
+        except ValueError as ex:
+            report.append(f"س{s}: ⛔ {ex}")
+            continue
+        if len(absent) * 4 > n:
+            report.append(f"س{s}: ⛔ المحجوب {len(absent)} يتجاوز ربع آيات السورة ({n}) — الإسقاطُ الكامل")
+            continue
+        win_ks = {k for lo, hi, _ in clusters for k in range(lo, hi + 1)}
+        pool = [k for k in ents if k not in absent and k not in win_ks] or [k for k in ents if k not in absent]
+        rate = statistics.median((ents[k]["endMs"] - ents[k]["startMs"]) / max(1, chars(t_of(k))) for k in pool)
+        refs = {e.get("fileRef") for e in rows}
+        if len(refs) != 1:
+            report.append(f"س{s}: ⛔ روابطُ صوتٍ متعدّدة {refs} — لا قسمة")
+            continue
+        url = refs.pop()
+        mp3 = os.path.join(a.out_dir, f"g{s:03d}.mp3")
+        fetch(url, mp3)
+        sha = hashlib.sha256(open(mp3, "rb").read()).hexdigest()
+        wav = to_wav16k(mp3)
+        x = read_wav(wav).astype(np.float32)
+        sil = silences(wav)
+        retimed, evidence, bad = {}, {}, None
+        for lo, hi, g in clusters:
+            try:
+                r, ev, bad = align_absent_window(x, s, lo, hi, g, ents, t_of, rate)
+            except Exception as ex:                        # noqa: BLE001
+                r, ev, bad = None, None, f"تعذّرت المحاذاة — {str(ex)[:80]}"
+            if bad:
+                bad = f"نافذة {s}:{lo}-{hi}: {bad}"
+                break
+            for key, row in r.items():
+                if int(row["startMs"]) != ents[int(key.split(":")[1])]["startMs"]:
+                    _t, on_sil = snap_to_silence(row["startMs"], sil, tolerance_ms=300)
+                    row["snapped"] = bool(on_sil)
+                    if not on_sil and "conf" in row:
+                        row["conf"] = min(row["conf"], 0.74)
+            retimed.update(r)
+            evidence.update(ev)
+        if bad:
+            report.append(f"س{s}: ⛔ رُفضت — {bad}")
+            continue
+        with open(os.path.join(a.out_dir, f"a{s:03d}.json"), "w", encoding="utf-8") as f:
+            json.dump({"fileRef": url, "sha256": sha, "surah": s, "engine": "ctc-gapsplit-1",
+                       "absent": absent, "retimed": retimed, "evidence": evidence}, f, ensure_ascii=False)
+        report.append(f"س{s}: ✅ غائباتٌ {absent} بدليل CTC · جاراتٌ أُعيد قياسُها: "
+                      + " · ".join(f"{k} {v['startMs']}–{v['endMs']}" for k, v in retimed.items()))
+        for k, v in evidence.items():
+            report.append(f"   {k}: {v['detail']}")
+    print("\n".join(report))
+    return 0
+
+
 def main() -> int:
     ap = argparse.ArgumentParser()
     ap.add_argument("--index", required=True)
@@ -211,6 +412,9 @@ def main() -> int:
     ap.add_argument("--rewindow", default="", help="مدى آياتٍ حاضرةٍ يُعاد بنافذته: 55:41-75[,…]")
     ap.add_argument("--heard-witness-dir", default="",
                     help="مجلّدُ heard_sNNN.json من ctc_heard_map: يُقبل به حدُّ المدّة الأعلى وحده بشروطه (fixS2)")
+    ap.add_argument("--absent-ayahs", default="",
+                    help="آياتٌ غائبةٌ في وسط سورةٍ حاضرة: 79:15,79:17,79:18 ⇒ تُحاذى الجاراتُ بنصوص الحاضرات وحدها "
+                         "ويُقاس دليلُ الغياب؛ المخرَج a<سورة>.json لـdrop_ayahs --aligned")
     ap.add_argument("--explicit-gap", default="", help="غياب مسمى بين جارتين حاضرتين ولو فصلتهما فجوة: 26:2-3؛ حراس الثقة والمدة نفسها")
     a = ap.parse_args()
     import ctc_seg as C
@@ -222,6 +426,8 @@ def main() -> int:
             ap.error('مدخل الرسم للنموذج المتخصص لا يجتمع مع تهجئة الحروف')
         import quran_ctc_model as Q
         model_evidence = Q.configure()
+    if a.absent_ayahs and (a.quran_model or a.rewindow or a.explicit_gap or a.starts_with_first_ayah):
+        ap.error("--absent-ayahs بابٌ مستقلّ: لا يجتمع مع النموذج القرآنيّ ولا rewindow ولا explicit-gap")
     requested_surahs = [int(v) for v in a.surahs.split(",") if v.strip()]
     if a.starts_with_first_ayah and len(requested_surahs) != 1:
         ap.error("شاهد بدء الملف يخص سورة واحدة صريحة")
@@ -246,6 +452,8 @@ def main() -> int:
     idx = json.loads(gzip.decompress(open(a.index, "rb").read()).decode("utf-8"))
     qidx = load_index()
     text = load_text(a.riwaya)
+    if a.absent_ayahs:
+        return run_absent(a, idx, qidx, text)
     report = []
     _heard_cache = {}
 
