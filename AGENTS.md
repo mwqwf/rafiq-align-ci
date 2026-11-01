@@ -1,3 +1,10 @@
+# 📚 المهارات إلزاميّةٌ بلا طلب — أمر المالك 2026-11-01
+
+«اجعل الوكلاء يرجعون إلى المهارة المناسبة عند الحاجة… رأيتُ أنهم لا يستخدمونها إلا إذا طلبتُها صراحةً وهذا مزعج».
+- **قبل أيّ مهمّة** طابِقها بمهارات `.claude/skills/` (يعرضها هوك `skills-index.cjs` أوّلَ كلّ جلسة) واقرأ `SKILL.md` لكلّ ما ينطبق واتّبعه — لا تنتظر أن يسمّيها المالك.
+- **كلّ تكليفٍ لوكيلٍ فرعيّ** يسمّي المهارات المنطبقة ويأمره بقراءتها؛ وفي التقرير سطرٌ بما استُعمل.
+- الخريطة: أيُّ عمل ← `workstyle` · CI وworkflows والإنفاق ← `github-actions-cost-control` · أداةٌ أو سيرُ عملٍ جديد كبير ← `speckit-specify` ثم `speckit-plan` ثم `speckit-tasks` ثم `speckit-implement`.
+
 ## OWNER FINAL INDEXING STOP — 2026-09-18
 
 The owner permanently stopped Quran indexing work. No agent, model, automation, or session may resume indexing research, source discovery, probing, alignment, QA, promotion, packaging, publishing, workflow dispatch, trigger restoration, or monitoring. Do not create replacement follow-ups. Preserve existing evidence read-only. This stop can be lifted only by a new explicit owner instruction that specifically names indexing.
