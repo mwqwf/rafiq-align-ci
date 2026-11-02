@@ -42,6 +42,14 @@ test('رسالة خيط إنجليزية تُردّ والعربية تمرّ', 
   expect((ar as any).deny).toBe(undefined)
 })
 
+test('أسطر النسبة الإلزامية لا تُحسب على العربية', async ($, on) => {
+  engine(on)
+  await $.session.start({ cwd: '/home/user', surface: 'mobile', isInteractive: true })
+  const body = '<!-- claude-projects-attribution: {"github_login":"x"} -->\n_Requested by **x** · [project thread](https://claude.ai/code/project/c?thread=t)_\n\nيجسر المود هوكات كل مستودع ويمنع الإيداع بالجملة.\n\n🤖 Generated with [Claude Code](https://claude.com/claude-code)\n\nhttps://claude.ai/code/session_1'
+  const r = await $.tool.call({ tool: 'mcp__github__create_pull_request', title: 'تعميم المود', body } as any)
+  expect((r as any).deny).toBe(undefined)
+})
+
 test('رسالة إيداع بلا عربية تُردّ', async ($, on) => {
   engine(on)
   await $.session.start({ cwd: '/home/user', surface: 'mobile', isInteractive: true })
@@ -49,6 +57,8 @@ test('رسالة إيداع بلا عربية تُردّ', async ($, on) => {
   expect(String((en as any).deny)).toContain('رسالة الإيداع')
   const ar = await $.tool.call({ tool: 'Bash', command: 'git commit -m "إصلاح الانهيار في `Foo`" -- app/a.kt', description: 'إيداع' })
   expect((ar as any).deny).toBe(undefined)
+  const v = await $.tool.call({ tool: 'Bash', command: 'git commit -m "$M" -- a.kt', description: 'إيداع' })
+  expect((v as any).deny).toBe(undefined)
 })
 
 test('git add -A يُردّ ومعه الملفات المتغيرة', async ($, on) => {
