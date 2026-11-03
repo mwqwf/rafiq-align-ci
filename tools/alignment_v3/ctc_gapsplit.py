@@ -107,7 +107,8 @@ def fetch(url: str, dst: str) -> None:
     # الحجم وmd5 المنشورين في metadata. الرابط المنطقي للمصدر لا يتغيّر.
     if archive_fetch_verified(url, dst):
         return
-    raise RuntimeError(f"تعذّر تنزيل {url}: {last}")
+    # ⛔ بلا سلسلة الاستعلام: الرابطُ الموقَّع لا يُكتب في نصّ خطأٍ يصل السجلَّ
+    raise RuntimeError(f"تعذّر تنزيل {url.split('?')[0]}: {str(last).replace(url, url.split('?')[0])}")
 
 
 def plan_splits(ents: dict, n: int, text_of, rate: float):

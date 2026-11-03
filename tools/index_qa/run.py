@@ -729,7 +729,8 @@ def _local_audio(url):
                             break
                     time.sleep(min(60, 2 ** attempt))
             else:
-                raise RuntimeError(f"تعذّر تنزيل {src}: {last}")
+                # ⛔ بلا سلسلة الاستعلام: الرابطُ الموقَّع لا يُكتب في نصّ خطأٍ يصل السجلَّ
+                raise RuntimeError(f"تعذّر تنزيل {str(src).split('?')[0]}: {str(last).replace(str(src), str(src).split('?')[0])}")
         finally:
             tmp.unlink(missing_ok=True)      # لا يُترك نصفُ ملفٍّ في المخبأ أبداً
     return str(p)
