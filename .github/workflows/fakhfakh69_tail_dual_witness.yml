@@ -59,4 +59,5 @@ jobs:
       - name: قياس 69:41–52 بالنموذجين حتى EOF وطباعته في السجل
         env:
           PILOT_CACHE_EXACT_HIT: ${{ steps.models.outputs.cache-hit }}
-        run: python tools/index_qa/fakhfakh69_tail_dual_witness.py --model-policy '${{ inputs.model_policy }}'
+          MODEL_POLICY: ${{ inputs.model_policy }}
+        run: python tools/index_qa/fakhfakh69_tail_dual_witness.py --model-policy "$MODEL_POLICY"
