@@ -23,5 +23,5 @@ jobs:
       - run: |
           sudo apt-get update -qq
           sudo apt-get install -y -qq ffmpeg
-      - run: python -m pip install --quiet numpy soundfile
+      - run: python -m pip install --quiet numpy==2.4.6 soundfile==0.14.0
       - run: python -m unittest tools.index_qa.test_audio_decode_fallback tools.index_qa.test_vbr_exact_window -v

@@ -20,7 +20,7 @@ jobs:
         env:
           R2_CREDENTIALS_JSON: ${{ secrets.R2_CREDENTIALS_JSON }}
         run: |
-          pip install -q boto3
+          pip install -q boto3==1.43.123
           python3 - <<'PY'
           import json, os, boto3
           c = json.loads(os.environ["R2_CREDENTIALS_JSON"])

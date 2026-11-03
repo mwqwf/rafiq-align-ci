@@ -41,14 +41,43 @@ WIN_S = 30          # نافذةُ الاستخراج؛ مخرجاتُها تُ�
 
 _M = {}
 
+# 🔐 (2026-11-03 · التدقيق الأمني) الوزنُ العامّ pickle (‏pytorch_model.bin) ويُحمَّل في وظائفَ تحمل أسرار الدلو:
+#    فلا رأسَ متحرّكاً — مراجعةٌ ثابتةٌ وبصمةٌ تُقاس قبل التحميل (‏هي نفسُها في dual_ctc_model)،
+#    ومعرّفٌ غيرُ مثبَّتٍ يُردّ؛ والمجلّدُ المحلّيُّ (‏نموذجٌ مثبَّتٌ هيّأه quran_ctc_model وأمثالُه) يُقبل كما هو.
+_PINNED = {
+    "jonatasgrosman/wav2vec2-large-xlsr-53-arabic": (
+        "af46c2d8531b8dcbb5e23b952f739b372c2e5d2d",
+        "a0b26f6d9d3edfde1784aef863c192a8cc1e438a23b45910ab648531ebe1857b"),
+}
+
+
+def _pinned_source(model_id):
+    if os.path.isdir(model_id):
+        return model_id
+    if model_id not in _PINNED:
+        raise ValueError(f"نموذجٌ غيرُ مثبَّتٍ بمراجعةٍ وبصمة: {model_id}")
+    import hashlib
+    from huggingface_hub import snapshot_download
+    revision, weights = _PINNED[model_id]
+    snap = snapshot_download(model_id, revision=revision,
+                             allow_patterns=["*.json", "pytorch_model.bin", "README.md"])
+    digest = hashlib.sha256()
+    with open(os.path.join(snap, "pytorch_model.bin"), "rb") as f:
+        for chunk in iter(lambda: f.read(1 << 20), b""):
+            digest.update(chunk)
+    if digest.hexdigest() != weights:
+        raise ValueError(f"بصمةُ وزن {model_id} تخالف المثبَّت")
+    return snap
+
 
 def _model():
     if not _M:
         import torch
         from transformers import Wav2Vec2ForCTC, Wav2Vec2Processor
         torch.set_num_threads(int(os.environ.get("CTC_THREADS", os.cpu_count() or 1)))
-        proc = Wav2Vec2Processor.from_pretrained(MODEL_ID)
-        mdl = Wav2Vec2ForCTC.from_pretrained(MODEL_ID).eval()
+        src = _pinned_source(MODEL_ID)
+        proc = Wav2Vec2Processor.from_pretrained(src, local_files_only=True)
+        mdl = Wav2Vec2ForCTC.from_pretrained(src, local_files_only=True).eval()
         if os.environ.get("CTC_INT8", "1") == "1":
             mdl = torch.quantization.quantize_dynamic(mdl, {torch.nn.Linear}, dtype=torch.qint8)
         _M.update(proc=proc, mdl=mdl, torch=torch)

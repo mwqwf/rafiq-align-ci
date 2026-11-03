@@ -38,7 +38,7 @@ jobs:
         with: { fetch-depth: 1, ref: main }
       - uses: actions/setup-python@v5
         with: { python-version: "3.11" }
-      - run: python -m pip install --quiet boto3
+      - run: python -m pip install --quiet boto3==1.43.123
 
       # ذاكرةُ أحكام الصوت نفسُها كما في agent_cmd.yml (أحكامٌ لا تتغيّر؛ توفيرُ دقائق).
       - name: ذاكرةُ أحكامِ الصوت

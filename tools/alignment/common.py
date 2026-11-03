@@ -23,7 +23,16 @@ _UA_OPENER = urllib.request.build_opener()
 _UA_OPENER.addheaders = [("User-Agent", "Mozilla/5.0 (QuranRafiq tools)")]
 
 
-def fetch_retry(url, dest, attempts=5, timeout=120):
+# 🔐 (2026-11-03 · التدقيق الأمني) خادمُ القارئ خارجيٌّ لا نملكه: سقفٌ لحجم ما يُكتب إلى القرص
+#    ومخطّطاتٌ مسموحةٌ صريحة، كي لا يملأ ملفٌّ لا ينتهي قرصَ مشغّلٍ يحمل أسرارَ الدلو.
+#    أطولُ ملفِّ سورةٍ منشورٍ دون ٣٠٠ م.ب، فالسقفُ ١٫٥ ج.ب واسعٌ لا يردّ ملفّاً سليماً.
+MAX_AUDIO_BYTES = int(os.environ.get("RAFIQ_MAX_AUDIO_BYTES") or (1536 << 20))
+_ALLOWED_SCHEMES = ("http://", "https://", "file://")
+# 🔐 ffmpeg/ffprobe على ملفٍّ منزَّل: لا بروتوكولَ شبكيّاً تفتحه قائمةُ تشغيلٍ مخبوءةٌ فيه (HLS/concat).
+FF_SAFE = ["-protocol_whitelist", "file,pipe"]
+
+
+def fetch_retry(url, dest, attempts=5, timeout=120, max_bytes=None):
     """تنزيل بمهلة وإعادة محاولات وتحقق Content-Length الكامل (درس rafiq-v2:
     تنزيل مبتور بصمت 21/37.8م.ب كاد يمر) — يحذف الجزئي عند الفشل.
 
@@ -37,16 +46,25 @@ def fetch_retry(url, dest, attempts=5, timeout=120):
     # ⛔ **ولا `install_opener`**: هو أثرٌ جانبيٌّ على **العملية كلِّها**، فأيُّ شفرةٍ أخرى في العملية
     # نفسِها تستعمل `urllib` تصير بوكيلنا بلا أن تدري — وهذه عدّةٌ مشتركة بين التسميع والفهرسة
     # (تنبيهُ جلسة الفهرسة `github-17`، 2026-09-08). فالفاتحُ **موضعيٌّ** ويُستعمل بـ`_UA_OPENER.open`.
+    if not str(url).lower().startswith(_ALLOWED_SCHEMES):
+        raise ValueError(f"مخطّطُ رابطٍ غيرُ مسموح: {str(url).split(':', 1)[0]}")
+    cap = max_bytes or MAX_AUDIO_BYTES
     last = None
     for i in range(attempts):
         try:
             with _UA_OPENER.open(url, timeout=timeout) as r:
                 expected = int(r.headers.get("Content-Length") or 0)
+                if expected > cap:
+                    raise IOError(f"الملفّ أكبر من السقف: {expected} > {cap}")
+                written = 0
                 with open(dest, "wb") as f:
                     while True:
                         chunk = r.read(1 << 20)
                         if not chunk:
                             break
+                        written += len(chunk)
+                        if written > cap:
+                            raise IOError(f"الملفّ تجاوز السقف: >{cap} بايت")
                         f.write(chunk)
             got = os.path.getsize(dest)
             # ⚠️ عطبٌ أُصلح (2026-09-08): كان الشرط `got > 1000 and (...)` فيرفض **كلَّ ملفٍ دون ألف
@@ -141,7 +159,7 @@ def norm(t):
 
 def ffprobe_duration_ms(path):
     out = subprocess.run(
-        [FFPROBE, "-v", "error", "-show_entries", "format=duration",
+        [FFPROBE, "-v", "error", *FF_SAFE, "-show_entries", "format=duration",
          "-of", "default=noprint_wrappers=1:nokey=1", path],
         # ⛔ errors="replace": وسوم ID3 في mp3 تُسرّب بايتات ليست utf-8 إلى
         #    مخرج ffprobe، فيرمي فكّ الترميز ويُسقط السورة كلها (سورة 70/f_hajry:
@@ -157,7 +175,7 @@ def ffprobe_duration_ms(path):
         #    **درسٌ أعمّ:** إصلاحُ موضعٍ واحدٍ من علّةٍ مشتركة يُزيح العطبَ ولا
         #    يرفعه — فيُفتَّش عن كلّ من يقرأ الملفّ نفسَه، لا عمّن اشتكى أوّلاً.
         out = subprocess.run(
-            [FFPROBE, "-v", "error", "-f", "mp3", "-show_entries",
+            [FFPROBE, "-v", "error", *FF_SAFE, "-f", "mp3", "-show_entries",
              "format=duration", "-of", "default=noprint_wrappers=1:nokey=1",
              path],
             capture_output=True, text=True, errors="replace", check=True,
@@ -180,7 +198,7 @@ def _packet_duration_ms(path):
         for extra in ([], ["-f", "mp3"]):
             total, n = 0.0, 0
             p = subprocess.Popen(
-                [FFPROBE, "-v", "error", *extra, "-select_streams", "a:0",
+                [FFPROBE, "-v", "error", *FF_SAFE, *extra, "-select_streams", "a:0",
                  "-show_entries", "packet=duration_time", "-of", "csv=p=0", path],
                 stdout=subprocess.PIPE, stderr=subprocess.DEVNULL, text=True, errors="replace")
             for line in p.stdout:
@@ -219,7 +237,7 @@ def to_wav16k(src, dst=None):
     if (not os.path.exists(dst)
             or os.stat(dst).st_mtime_ns < os.stat(src).st_mtime_ns
             or (channel_args and not os.path.exists(channel_stamp))):
-        base = [FFMPEG, "-y", "-v", "error"]
+        base = [FFMPEG, "-y", "-v", "error", *FF_SAFE]
         tail = ["-vn", *channel_args, "-ar", "16000", "-ac", "1", dst]
         try:
             subprocess.run(base + ["-i", src] + tail, check=True)

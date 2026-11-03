@@ -61,7 +61,7 @@ jobs:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
         with: { python-version: "3.11" }
-      - run: python -m pip install --quiet boto3 requests
+      - run: python -m pip install --quiet boto3==1.43.123 requests==2.34.2
 
       - name: اعتماد R2
         env:

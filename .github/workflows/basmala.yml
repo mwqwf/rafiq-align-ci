@@ -38,7 +38,7 @@ jobs:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
         with: { python-version: "3.11" }
-      - run: python -m pip install --quiet boto3
+      - run: python -m pip install --quiet boto3==1.43.123
       - id: gen
         env:
           R2_CREDENTIALS_JSON: ${{ secrets.R2_CREDENTIALS_JSON }}
@@ -84,7 +84,7 @@ jobs:
       - name: أدوات النظام
         run: |
           sudo apt-get update -qq && sudo apt-get install -y -qq ffmpeg
-          python -m pip install --quiet pywhispercpp numpy boto3
+          python -m pip install --quiet pywhispercpp==1.5.1 numpy==2.4.6 boto3==1.43.123
 
       - name: كاش النموذج
         uses: actions/cache@v4

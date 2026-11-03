@@ -3,7 +3,7 @@
 import datetime,hashlib,json,os,subprocess,sys,tempfile,urllib.request
 from pathlib import Path
 os.environ["OPENBLAS_NUM_THREADS"]="1"
-subprocess.run([sys.executable,"-m","pip","install","--quiet","numpy","yt-dlp"],check=True)
+subprocess.run([sys.executable,"-m","pip","install","--quiet","--only-binary=:all:","numpy","yt-dlp==2026.10.26"],check=True)  # 🔐 مثبَّتٌ: يجري بأسرار agent_cmd
 import numpy as np
 candidate="https://soundcloud.com/marwanalakri/an-noor"
 reference="https://archive.org/download/n2-mp-3_20230516nnnnnn/024%20%20%D8%B3%D9%88%D8%B1%D8%A9%20%20%20%D8%A7%D9%84%D9%86%D9%88%D8%B1%20%D8%AA%D9%84%D8%A7%D9%88%D8%A9%20%D9%85%D8%B1%D9%88%D8%A7%D9%86%20%D8%A7%D9%84%D8%B9%D9%83%D8%B1%D9%8A%20%D8%A8%D8%B1%D9%88%D8%A7%D9%8A%D8%A9%20%D9%82%D8%A7%D9%84%D9%88%D9%86%20%20%20mp3.mp3"

@@ -107,7 +107,7 @@ jobs:
           #    وcmake وbuild-essential مثبَّتان في صورة العدّاد فلا يُنزَّلان إلا إن غابا (بمهلة).
           QA_FFMPEG_APT_ONLY=1 python tools/ci_fleet/install_qa_ffmpeg.py
           for p in cmake build-essential; do dpkg -s $p >/dev/null 2>&1 || { timeout 150 sudo apt-get update -qq; timeout 300 sudo apt-get install -y -qq $p; }; done
-          python -m pip install --quiet boto3 numpy
+          python -m pip install --quiet boto3==1.43.123 numpy==2.4.6
 
       # ⚠️ GGML_NATIVE=OFF عمداً كما في align.yml: الكاش يُستهلك على عدّاءٍ قد
       #    يختلف طرازه، وثنائيٌّ بتعليمات معالجٍ آخر يسقط بـSIGILL.
@@ -327,6 +327,7 @@ jobs:
             # ✅ ومعه فائدةٌ ثانية: `pipeline.py` يقرأ الملفَّ المحلّيَّ فلا
             #    يُنزَّل الصوتُ مرّتين (‏نداءُ شبكةٍ أقلّ — القاعدة ٧).
             curl -sL --retry 5 --retry-delay 3 -A "rafiq-align/1.0" \
+                 --proto =http,https --proto-redir =http,https --max-filesize 1610612736 --max-time 1800 \
                  -o "$GITHUB_WORKSPACE/work/full_$S.mp3" "$URL"
             ls -l "$GITHUB_WORKSPACE/work/full_$S.mp3"
             SRC="file://$GITHUB_WORKSPACE/work/full_$S.mp3"
@@ -338,14 +339,14 @@ jobs:
               if [ "$UT" -le "$SK" ]; then echo "⛔ until_ms=$UT لا يتجاوز skip_ms=$SK للسورة $S"; exit 1; fi
               SEC=$(python -c "print(int('${SK}')/1000)")
               DUR=$(python -c "print((int('${UT}')-int('${SK}'))/1000)")
-              ffmpeg -y -v error -ss "$SEC" -i "$GITHUB_WORKSPACE/work/full_$S.mp3" -t "$DUR" -map 0:a -c copy "$GITHUB_WORKSPACE/work/cut_$S.mp3"
+              ffmpeg -y -v error -protocol_whitelist file,pipe -ss "$SEC" -i "$GITHUB_WORKSPACE/work/full_$S.mp3" -t "$DUR" -map 0:a -c copy "$GITHUB_WORKSPACE/work/cut_$S.mp3"
               SRC="file://$GITHUB_WORKSPACE/work/cut_$S.mp3"
               echo "  قُصّ الصوت إلى [${SK}، ${UT}] م.ث من رأس الملفّ (نهايةٌ مقيسة)"
             elif [ "$SK" != "0" ]; then
               # ⛔ `-map 0:a` (‏2026-09-30 · tblawi/034): ملفٌّ بصورة غلافٍ مدمجة (‏GIF) يجعل `-c copy`
               #    ينسخ الصورةَ مسارَ فيديو فيفشل الترويس «dimensions not set». والصوتُ يُنسخ كما هو.
               SEC=$(python -c "print(int('${SK}')/1000)")
-              ffmpeg -y -v error -ss "$SEC" -i "$GITHUB_WORKSPACE/work/full_$S.mp3" -map 0:a -c copy "$GITHUB_WORKSPACE/work/cut_$S.mp3"
+              ffmpeg -y -v error -protocol_whitelist file,pipe -ss "$SEC" -i "$GITHUB_WORKSPACE/work/full_$S.mp3" -map 0:a -c copy "$GITHUB_WORKSPACE/work/cut_$S.mp3"
               SRC="file://$GITHUB_WORKSPACE/work/cut_$S.mp3"
               echo "  تُخطّيت ${SK} م.ث من رأس الملفّ (بسملةٌ مقيسة)"
             fi

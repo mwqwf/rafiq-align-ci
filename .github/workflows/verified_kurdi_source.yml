@@ -16,7 +16,7 @@ jobs:
       - name: Native original source dependencies
         run: |
           python tools/ci_fleet/install_qa_ffmpeg.py
-          python -m pip install --only-binary=:all: --timeout 60 --retries 2 numpy yt-dlp
+          python -m pip install --only-binary=:all: --timeout 60 --retries 2 numpy==2.4.6 yt-dlp==2026.10.26  # 🔐 مثبَّتٌ: الوظيفةُ تدفع إلى main
       - name: Verify immutable public source and complete native decode
         run: python tools/index_qa/ci_copy_kurdi_original.py
       - name: Publish only verified original audio fixture and source proof

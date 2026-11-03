@@ -192,7 +192,7 @@ jobs:
             exit 0
           fi
           sudo apt-get install -y -qq ffmpeg > /dev/null 2>&1 || true
-          pip install -q numpy soundfile || true
+          pip install -q numpy==2.4.6 soundfile==0.14.0 || true
           # 🪤 الأنبوبُ يكتم فشلَ أوّله و`||` **لا يشتعل بلا هذا السطر** (‏مقيسٌ 2026-09-14).
           set -o pipefail
           python build_long.py --ayahs 6 2>&1 | tail -3 || echo "⚠️ تعذّر بناءُ المرجع (يُقال ولا يُكتَم)"
@@ -515,7 +515,7 @@ jobs:
           # ⛔ **لِمَ جردٌ مُودَع؟** درسُ D-365: أُنفق شوطُ محاكٍ على سؤالٍ جوابُه في فرضيّاتٍ
           # محفوظةٍ — **والوكيلُ لا يستطيع سردَ R2** (لا تصل شبكتُه، ولا السردُ متاحٌ للعامّ).
           # ⇒ العدّاءُ يسرد **بالسرّ** ويُودع الجردَ ملفّاً في git يقرؤه الجميعُ بـ`git pull`.
-          pip install -q boto3 || { echo "⛔ تعذّر boto3 — لا جرد"; exit 0; }
+          pip install -q boto3==1.43.123 || { echo "⛔ تعذّر boto3 — لا جرد"; exit 0; }
           python3 - <<'PY' > /tmp/inv.md || { echo "⛔ تعذّر الجرد (يُقال ولا يُكتَم)"; exit 0; }
           import json, os, collections, boto3
           c = json.loads(os.environ["R2_CREDENTIALS_JSON"])
