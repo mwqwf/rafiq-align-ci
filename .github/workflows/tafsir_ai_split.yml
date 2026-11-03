@@ -27,7 +27,7 @@ jobs:
         with:
           python-version: "3.11"
       - name: العدّة
-        run: pip install -q boto3
+        run: pip install -q boto3==1.43.123
       - name: بيانة R2 (من السرّ الواحد)
         env:
           R2_CREDENTIALS_JSON: ${{ secrets.R2_CREDENTIALS_JSON }}

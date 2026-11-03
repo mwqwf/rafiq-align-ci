@@ -58,7 +58,7 @@ jobs:
         with: { fetch-depth: 0 }      # ⛔ التاريخُ كاملاً: حارسُ D-175 يسأل `git log`
       - uses: actions/setup-python@v5
         with: { python-version: "3.11" }
-      - run: python -m pip install --quiet boto3
+      - run: python -m pip install --quiet boto3==1.43.123
 
       - name: الاعتماد
         env:

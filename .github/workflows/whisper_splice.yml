@@ -63,7 +63,7 @@ jobs:
         run: |
           sudo apt-get update -qq
           sudo apt-get install -y -qq ffmpeg cmake build-essential
-          python -m pip install --quiet boto3 numpy
+          python -m pip install --quiet boto3==1.43.123 numpy==2.4.6
 
       # ⚠️ الكاشُ نفسُه والبناءُ نفسُه كما في realign_surah.yml (GGML_NATIVE=OFF:
       #    عدّاءٌ بطرازٍ آخر يسقط بـSIGILL على ثنائيٍّ بتعليماتِ غيره).

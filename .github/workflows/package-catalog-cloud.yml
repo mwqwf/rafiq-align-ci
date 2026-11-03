@@ -62,7 +62,7 @@ jobs:
         run: |
           set -euo pipefail
           test -n "$R2_CREDENTIALS_JSON"
-          python -m pip install --quiet boto3
+          python -m pip install --quiet boto3==1.43.123
           mkdir -p secure
           printf '%s' "$R2_CREDENTIALS_JSON" > secure/r2_credentials.json
           chmod 600 secure/r2_credentials.json
@@ -179,7 +179,7 @@ jobs:
           APPROVED_CANDIDATE: ${{ inputs.approved_candidate_sha256 }}
         run: |
           set -euo pipefail
-          python -m pip install --quiet boto3
+          python -m pip install --quiet boto3==1.43.123
           CREDS="$RUNNER_TEMP/r2-credentials.json"
           printf '%s' "$R2_CREDENTIALS_JSON" > "$CREDS"
           test "$(curl -fsS "$R2_BASE/catalog/reciters.json" | sha256sum | cut -d' ' -f1)" = "$EXPECT_RECITERS"

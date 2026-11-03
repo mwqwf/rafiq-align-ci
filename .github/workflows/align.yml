@@ -178,7 +178,7 @@ jobs:
         run: |
           sudo apt-get update -qq
           sudo apt-get install -y -qq ffmpeg cmake build-essential
-          python -m pip install --quiet boto3 numpy
+          python -m pip install --quiet boto3==1.43.123 numpy==2.4.6
 
       # ── whisper.cpp: يُبنى مرة ويُخبَّأ ──────────────────────────────────
       # ⚠️ GGML_NATIVE=OFF عمداً: الكاش يُستهلك على عدّاء قد يختلف طرازه،

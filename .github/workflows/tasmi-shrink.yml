@@ -57,7 +57,7 @@ jobs:
       - name: deps
         run: |
           sudo apt-get update -qq && sudo apt-get install -y -qq ffmpeg cmake build-essential > /dev/null
-          pip install -q numpy soundfile scipy boto3
+          pip install -q numpy==2.4.6 soundfile==0.14.0 scipy==1.17.1 boto3==1.43.123
       - name: whisper.cpp (ثنائيٌّ ساكن · الإيداعُ المشحون نفسُه)
         run: |
           # ⛔ مقيس (الشوط 35981806735): ثنائيٌّ بُني بـGGML_NATIVE على آلةٍ خرج بـSIGILL (rc=132) على آلةٍ أخرى،
@@ -119,8 +119,8 @@ jobs:
       - name: deps (torch للمعالج وحده)
         run: |
           sudo apt-get update -qq && sudo apt-get install -y -qq time > /dev/null
-          pip install -q --index-url https://download.pytorch.org/whl/cpu torch
-          pip install -q "transformers<5" huggingface_hub numpy soundfile
+          pip install -q --index-url https://download.pytorch.org/whl/cpu torch==2.15.0
+          pip install -q "transformers==4.57.6" huggingface_hub==0.36.2 numpy==2.4.6 soundfile==0.14.0
           chmod +x bin/*
           git init -q /tmp/oai && git -C /tmp/oai fetch -q --depth 1 https://github.com/openai/whisper "$OAI_WHISPER_SHA" \
             && git -C /tmp/oai checkout -q FETCH_HEAD
@@ -236,7 +236,7 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: "3.11"
-      - run: pip install -q numpy soundfile scipy
+      - run: pip install -q numpy==2.4.6 soundfile==0.14.0 scipy==1.17.1
       - uses: actions/download-artifact@v4
         with:
           name: sets
@@ -279,7 +279,7 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: "3.11"
-      - run: pip install -q numpy
+      - run: pip install -q numpy==2.4.6
       - uses: actions/download-artifact@v4
         with:
           pattern: hyps-*

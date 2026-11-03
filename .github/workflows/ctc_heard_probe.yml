@@ -51,8 +51,8 @@ jobs:
       - name: الأدوات
         run: |
           QA_FFMPEG_APT_ONLY=1 python tools/ci_fleet/install_qa_ffmpeg.py
-          python -m pip install --quiet --index-url https://download.pytorch.org/whl/cpu torch
-          python -m pip install --quiet "numpy<2" transformers ctc-segmentation rapidfuzz
+          python -m pip install --quiet --index-url https://download.pytorch.org/whl/cpu torch==2.15.0
+          python -m pip install --quiet "numpy==1.26.4" transformers==5.22.1 ctc-segmentation==1.7.5 rapidfuzz==3.14.6
       - name: اختباراتُ الأداة أوّلاً
         run: python -m unittest tools/alignment_v3/test_ctc_heard_map.py
       - name: كاش النموذج

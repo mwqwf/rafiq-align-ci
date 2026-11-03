@@ -18,8 +18,8 @@ say "المستودعُ الخاصّ: $(git log --oneline -1)"
 PUB="https://pub-2c2e1dcd92e84a2898820dd38d3e09e6.r2.dev"
 
 say "① العُدّة"
-pip install -q "torch>=2.2" --index-url https://download.pytorch.org/whl/cpu || die "torch"
-pip install -q "transformers>=4.44,<5" soundfile || die "transformers"
+pip install -q "torch==2.15.0" --index-url https://download.pytorch.org/whl/cpu || die "torch"
+pip install -q "transformers==4.57.6" soundfile==0.14.0 || die "transformers"
 python3 -c "import torch,transformers;print('torch',torch.__version__,'tf',transformers.__version__)" || die "استيراد"
 
 say "② الوسمُ الفونيميّ (‏D-717)"

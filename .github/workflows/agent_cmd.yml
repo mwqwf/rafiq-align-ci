@@ -53,7 +53,7 @@ jobs:
         with: { fetch-depth: 1, ref: main }
       - uses: actions/setup-python@v5
         with: { python-version: "3.11" }
-      - run: python -m pip install --quiet boto3
+      - run: python -m pip install --quiet boto3==1.43.123
 
       # ⛔⛔ **العنقُ الحقيقيُّ لهذه القناة، مقيسٌ 2026-09-20:** `promote.py` يُنزّل
       #    أحكامَ `state/` كلَّها في كلّ شوط — **≈1000 ملفٍّ و65 م.ب** — ولها

@@ -58,7 +58,7 @@ jobs:
           set -o pipefail
           # ⛔ قِيس في الصندوق: ثلاثُ أدواتٍ تسقط بـ`numpy` ثمّ بـ`soundfile` ثمّ بـ`ffmpeg`
           #    — وسقوطُها بغياب حزمةٍ **ليس إخفاقَ اختبار**، فتُنصَّب قبل أن يُحكم.
-          python -m pip install --quiet numpy soundfile
+          python -m pip install --quiet numpy==2.4.6 soundfile==0.14.0
           command -v ffmpeg >/dev/null || sudo apt-get install -y -qq ffmpeg
 
       - name: 🧪 كلُّ أداةٍ لها اختبارٌ ذاتيٌّ تُشغَّل — والعدُّ صريحٌ

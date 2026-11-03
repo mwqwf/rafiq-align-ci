@@ -34,8 +34,8 @@ jobs:
       - name: العُدّة
         run: |
           [ "$(uname -m)" = "aarch64" ] || { echo "⛔ إخفاقٌ مُعلَن: العدّاءُ ليس arm64"; exit 1; }
-          pip install -q torch --index-url https://download.pytorch.org/whl/cpu
-          pip install -q "transformers>=4.44,<5" onnx onnxscript onnxruntime numpy
+          pip install -q torch==2.15.0 --index-url https://download.pytorch.org/whl/cpu
+          pip install -q "transformers==4.57.6" onnx==1.23.2 onnxscript==0.7.2 onnxruntime==1.31.1 numpy==2.4.6
           python -c "import torch,onnxruntime;print('torch',torch.__version__,'ort',onnxruntime.__version__)"
       - name: القياس
         env:

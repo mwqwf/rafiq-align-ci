@@ -49,8 +49,8 @@ jobs:
       - name: deps
         run: |
           sudo apt-get update -qq && sudo apt-get install -y -qq cmake build-essential > /dev/null
-          pip install -q --index-url https://download.pytorch.org/whl/cpu torch
-          pip install -q "transformers<5" huggingface_hub numpy
+          pip install -q --index-url https://download.pytorch.org/whl/cpu torch==2.15.0
+          pip install -q "transformers==4.57.6" huggingface_hub==0.36.2 numpy==2.4.6
           git init -q /tmp/oai && git -C /tmp/oai fetch -q --depth 1 https://github.com/openai/whisper "$OAI_WHISPER_SHA" \
             && git -C /tmp/oai checkout -q FETCH_HEAD
       - name: whisper.cpp (الإيداعُ نفسُه · بناءٌ محمول)

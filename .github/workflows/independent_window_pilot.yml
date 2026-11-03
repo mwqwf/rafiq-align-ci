@@ -49,9 +49,9 @@ jobs:
       - name: تثبيت الأدوات على قرص العداء المؤقت
         run: |
           python tools/ci_fleet/install_qa_ffmpeg.py
-          python -m pip install --only-binary=:all: --timeout 60 --retries 2 --index-url https://download.pytorch.org/whl/cpu torch
-          python -m pip install --only-binary=:all: --timeout 60 --retries 2 'numpy<2' 'transformers<5' boto3 soundfile rapidfuzz
-          python -m pip install --timeout 60 --retries 2 ctc-segmentation
+          python -m pip install --only-binary=:all: --timeout 60 --retries 2 --index-url https://download.pytorch.org/whl/cpu torch==2.15.0
+          python -m pip install --only-binary=:all: --timeout 60 --retries 2 'numpy==1.26.4' 'transformers==4.57.6' boto3==1.43.123 soundfile==0.14.0 rapidfuzz==3.14.6
+          python -m pip install --timeout 60 --retries 2 ctc-segmentation==1.7.5
       - name: اختبارات بلا نماذج أو شبكة
         run: python -m unittest tools.index_qa.test_independent_window_pilot -v
       - name: قياس جميع الآيات الإحدى عشرة وإخراج الدليل الكامل في السجل

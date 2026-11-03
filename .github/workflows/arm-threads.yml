@@ -106,7 +106,7 @@ jobs:
       - name: العدّة
         run: |
           sudo apt-get update -qq && sudo apt-get install -y -qq cmake ninja-build ffmpeg > /dev/null
-          pip install -q numpy soundfile scipy boto3
+          pip install -q numpy==2.4.6 soundfile==0.14.0 scipy==1.17.1 boto3==1.43.123
 
       # ⛔ **والحاكمُ يُختبر في الشوط نفسِه قبل أن يُحكم به** — حارسٌ معطوبٌ يكتب رقماً كاذباً.
       - name: اختبارُ الحاكم
