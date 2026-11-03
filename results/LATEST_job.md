@@ -1,69 +1,71 @@
-# 🦾 شغلُ الوكيل · الشوط 35576635380
+# 🦾 شغلُ الوكيل · الشوط 41626206045
 
-- التاريخ: 2026-09-21T08:12:49Z
+- التاريخ: 2026-11-03T11:17:41Z
 - المستودعُ الخاصّ: /home/runner/work/_temp/QuranRafiq
 
 ## `jobs/tasmi_student_measure.sh`
 
 ```
-▸ المستودعُ الخاصّ: 4d9244a ops: القاع 2248⇒2231 · yahya 6235 · وحارسٌ يردّ ابتلاعَ 228 آيةً عند ra3ad
+▸ المستودعُ الخاصّ: 30b3cbb الروابط العميقة: بصمة مفتاح توقيع Play في assetlinks.json (#697)
 ▸ ① العُدّة
+
+[notice] A new release of pip is available: 26.2.2 -> 26.3
+[notice] To update, run: pip install --upgrade pip
+
+[notice] A new release of pip is available: 26.2.2 -> 26.3
+[notice] To update, run: pip install --upgrade pip
 ▸ ② الوسمُ (‏D-717)
 ▸ ③ المعلّمُ وتهيئتُه (‏D-738)
-/opt/hostedtoolcache/Python/3.11.16/x64/lib/python3.11/site-packages/transformers/configuration_utils.py:335: UserWarning: Passing `gradient_checkpointing` to a config initialization is deprecated and will be removed in v5 Transformers. Using `model.gradient_checkpointing_enable()` instead, or if you are using the `Trainer` API, pass `gradient_checkpointing=True` in your `TrainingArguments`.
+/opt/hostedtoolcache/Python/3.11.17/x64/lib/python3.11/site-packages/transformers/configuration_utils.py:335: UserWarning: Passing `gradient_checkpointing` to a config initialization is deprecated and will be removed in v5 Transformers. Using `model.gradient_checkpointing_enable()` instead, or if you are using the `Trainer` API, pass `gradient_checkpointing=True` in your `TrainingArguments`.
   warnings.warn(
 ▸ ④ البيانات (‏قرّاءُ D-714 أنفسُهم · 150 لكلّ قارئ بدل 400 — والفرقُ يُنشر)
-08:18:59 ✅ ('hafs', 'a_alshahhat'): 150 clips · 0.33 h
-08:18:59 ✅ ('hafs', 'a_alhazmi'): 150 clips · 0.49 h
-08:18:59 DONE manifest rows = 2250 · 8.13 h · failed reciters = []
-▸ المجموعة: 2250 صفّاً
+11:26:56 ✅ ('hafs', 'a_alshahhat'): 150 clips · 0.36 h
+11:26:56 ✅ ('hafs', 'a_alhazmi'): 150 clips · 0.42 h
+11:26:56 DONE manifest rows = 2230 · 7.31 h · failed reciters = []
+▸ المجموعة: 2230 صفّاً
 ▸ ⑤ معايرةُ السرعة — أربعون خطوةً تُقاس ثمّ تُحسب ميزانيّةُ الخطوات
-🧍 قرّاءٌ محجوزون كلّياً ['a_alhazmi', 'm_sayed_warsh', 'tareq_qalun']: 214 آية للتقييم · 884 للتدريب
-/opt/hostedtoolcache/Python/3.11.16/x64/lib/python3.11/site-packages/transformers/configuration_utils.py:335: UserWarning: Passing `gradient_checkpointing` to a config initialization is deprecated and will be removed in v5 Transformers. Using `model.gradient_checkpointing_enable()` instead, or if you are using the `Trainer` API, pass `gradient_checkpointing=True` in your `TrainingArguments`.
+🧍 قرّاءٌ محجوزون كلّياً ['a_alhazmi', 'm_sayed_warsh', 'tareq_qalun']: 224 آية للتقييم · 1013 للتدريب
+/opt/hostedtoolcache/Python/3.11.17/x64/lib/python3.11/site-packages/transformers/configuration_utils.py:335: UserWarning: Passing `gradient_checkpointing` to a config initialization is deprecated and will be removed in v5 Transformers. Using `model.gradient_checkpointing_enable()` instead, or if you are using the `Trainer` API, pass `gradient_checkpointing=True` in your `TrainingArguments`.
   warnings.warn(
 🪶 طالبٌ ضيّق: hidden=384 · طبقات=8 · 19.8 م.معلمة · نُسخ من المعلّم 13/213 موتّراً
-  · 20/40 خسارة 23.208 · 18.50ث/خطوة
-  · 40/40 خسارة 5.023 · 18.37ث/خطوة
-  خطوة 40: خسارة 13.646 · PER 96.9٪
-✅ الخسارة 56.54 ⇐ 4.930 · PER 96.9٪
-▸ ⏱️ 22.55 ث/خطوة بدفعة 16 · استُهلك 21 دقيقة ⇒ سقفُ هذا الشوط 149 خطوة
-▸ ⑥ التدريبُ إلى 149 ثمّ التكميم
-🧍 قرّاءٌ محجوزون كلّياً ['a_alhazmi', 'm_sayed_warsh', 'tareq_qalun']: 214 آية للتقييم · 884 للتدريب
-⏯️ استئنافٌ من الخطوة 40 (PER آنذاك 96.9٪)
-  · 100/149 خسارة 3.906 · 18.36ث/خطوة
-  خطوة 149: خسارة 3.652 · PER 95.1٪
-/home/runner/work/_temp/QuranRafiq/tools/tasmi_phoneme/ctc_train.py:287: DeprecationWarning: torch.ao.quantization is deprecated and will be removed in 2.10. 
+  · 20/40 خسارة 15.021 · 24.32ث/خطوة
+  · 40/40 خسارة 3.605 · 23.86ث/خطوة
+  خطوة 40: خسارة 9.026 · PER 100.0٪
+✅ الخسارة 52.40 ⇐ 3.597 · PER 100.0٪
+▸ ⏱️ 27.6 ث/خطوة بدفعة 16 · استُهلك 27 دقيقة ⇒ سقفُ هذا الشوط 116 خطوة
+▸ ⑥ التدريبُ إلى 116 ثمّ التكميم
+🧍 قرّاءٌ محجوزون كلّياً ['a_alhazmi', 'm_sayed_warsh', 'tareq_qalun']: 224 آية للتقييم · 1013 للتدريب
+⏯️ استئنافٌ من الخطوة 40 (PER آنذاك 100.0٪)
+  · 100/116 خسارة 3.366 · 24.14ث/خطوة
+  خطوة 116: خسارة 3.308 · PER 100.0٪
+/home/runner/work/_temp/QuranRafiq/tools/tasmi_phoneme/ctc_train.py:323: DeprecationWarning: torch.ao.quantization is deprecated and will be removed in 2.10. 
 For migrations of users: 
 1. Eager mode quantization (torch.ao.quantization.quantize, torch.ao.quantization.quantize_dynamic), please migrate to use torchao eager mode quantize_ API instead 
 2. FX graph mode quantization (torch.ao.quantization.quantize_fx.prepare_fx,torch.ao.quantization.quantize_fx.convert_fx, please migrate to use torchao pt2e quantization API instead (prepare_pt2e, convert_pt2e) 
 3. pt2e quantization has been migrated to torchao (https://github.com/pytorch/ao/tree/main/torchao/quantization/pt2e) 
 see https://github.com/pytorch/ao/issues/2259 for more details
   q = torch.ao.quantization.quantize_dynamic(copy.deepcopy(cpu), {torch.nn.Linear}, dtype=torch.qint8)
-/opt/hostedtoolcache/Python/3.11.16/x64/lib/python3.11/site-packages/torch/ao/nn/quantized/modules/utils.py:72: UserWarning: torch.quantize_per_tensor, torch.quantize_per_channel and other quantized tensor creation functions that produce tensors with dtype torch.quint8, torch.qint8, and torch.qint32 are deprecated and will be removed in a future PyTorch release. Please see https://github.com/pytorch/pytorch/issues/184982 for more information. (Triggered internally at /__w/pytorch/pytorch/aten/src/ATen/quantized/Quantizer.cpp:111.)
+/opt/hostedtoolcache/Python/3.11.17/x64/lib/python3.11/site-packages/torch/ao/nn/quantized/modules/utils.py:72: UserWarning: torch.quantize_per_tensor, torch.quantize_per_channel and other quantized tensor creation functions that produce tensors with dtype torch.quint8, torch.qint8, and torch.qint32 are deprecated and will be removed in a future PyTorch release. Please see https://github.com/pytorch/pytorch/issues/184982 for more information. (Triggered internally at /__w/pytorch/pytorch/aten/src/ATen/quantized/Quantizer.cpp:111.)
   qweight = torch.quantize_per_tensor(
-📦 fp32 79.2 م.ب ⇐ int8 36.2 م.ب · PER على 100 آية: 95.4٪ ⇐ 95.4٪
-✅ الخسارة 4.78 ⇐ 3.574 · PER 95.1٪
+📦 fp32 79.2 م.ب ⇐ int8 36.2 م.ب · PER على 100 آية: 100.0٪ ⇐ 100.0٪
+✅ الخسارة 3.48 ⇐ 3.276 · PER 100.0٪
 ▸ 📄 الخلاصة:
-{"items": 1098, "firstLoss": 4.782358169555664, "finalLoss": 3.574039971828461, "per": 0.9513018847368995, "smoke": false, "heldout": 214, "holdoutReciters": "m_sayed_warsh,tareq_qalun,a_alhazmi", "sizeMbFp32": 79.248614, "sizeMbInt8": 36.167306, "perFp32Cpu": 0.9542981501632208, "perInt8Cpu": 0.9536452665941241, "quantN": 100}
+{"items": 1237, "firstLoss": 3.4841842651367188, "finalLoss": 3.276232635974884, "per": 1.0, "smoke": false, "heldout": 224, "holdoutReciters": "m_sayed_warsh,tareq_qalun,a_alhazmi", "sizeMbFp32": 79.248614, "sizeMbInt8": 36.167306, "perFp32Cpu": 1.0, "perInt8Cpu": 1.0, "quantN": 100}
 ▸ ⑦ مجموعةُ حدود الكلمة (‏العشرون سورةُ عينُها) ثمّ قياسُ الطوابع
 162 آيةً · **658 حدَّ كلمةٍ** · مُسقَطاتٌ 0 · ثباتُ القصّ (وسيط) 0.0 م.ث ⇒ work/tasmi/gwF/qurancdn/manifest.json
 ⛔ قطعُ ناشرٍ لا وسمٌ بشريٌّ يدويّ — لا تُسمَّى باسم بوّابة M3
 
 حدودُ كلمةٍ مقيسة: 658 في 162 آية (مُسقَط 0)
-الخطأُ المطلقُ الوسيط 555 م.ث · p90 1931 م.ث
-الانحيازُ الوسيط 0 م.ث · التشتّتُ حولَه 555 م.ث (p90 1931)
-ضمن 60 م.ث مطلقاً: 29.8٪ · ومن الانحياز: 29.8٪
+الخطأُ المطلقُ الوسيط 361 م.ث · p90 1295 م.ث
+الانحيازُ الوسيط -35 م.ث · التشتّتُ حولَه 349 م.ث (p90 1291)
+ضمن 60 م.ث مطلقاً: 12.3٪ · ومن الانحياز: 13.7٪
 ⛔ قطعُ ناشرٍ لا وسمٌ بشريّ — بوّابةُ M3 الأصليّةُ باقيةٌ بلا مسطرتها
 ▸ ⑧ ⛔ والمقارنةُ على تقاطع الآيات وحدَه (‏D-741) — لا على مادّتَين
-             ^^^^^^
-  File "/home/runner/work/_temp/QuranRafiq/tools/tasmi_phoneme/timing_intersect.py", line 66, in main
-    A, B = rows_of(a.a), rows_of(a.b)
-           ^^^^^^^^^^^^
-  File "/home/runner/work/_temp/QuranRafiq/tools/tasmi_phoneme/timing_intersect.py", line 32, in rows_of
-    d = json.load(io.open(path, encoding="utf-8"))
-                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-FileNotFoundError: [Errno 2] No such file or directory: 'docs/qa/tasmi_2026-09-20/teacher_word_timing_D733.json'
-▸ ✅ تمّ — والرقمُ يُنشر بعددِ خطواته (149 من 3200 المخطَّطة) ولا يُسمّى «الطالبَ النهائيّ»
+صفوفٌ مشتركة: 649 (في 160 آيةً) · وحدَها في معلّم-D733: 0 · وحدَها في طالب-116-خطوة: 9
+  معلّم-D733: انحيازٌ -98 م.ث · تشتّتٌ 62 م.ث · ضمن ±60 من الانحياز 48.4٪
+  طالب-116-خطوة: انحيازٌ -40 م.ث · تشتّتٌ 349 م.ث · ضمن ±60 من الانحياز 14.8٪
+⇒ الفرق: تشتّتٌ +287 م.ث · ضمن ±60 -33.6 نقطة
+▸ ✅ تمّ — والرقمُ يُنشر بعددِ خطواته (116 من 3200 المخطَّطة) ولا يُسمّى «الطالبَ النهائيّ»
 ```
 
 **الخروج: 0 ✅**
