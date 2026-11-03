@@ -73,7 +73,7 @@ def main() -> int:
     try:
         import numpy  # noqa: F401
     except ImportError:
-        subprocess.run([sys.executable, "-m", "pip", "install", "--quiet", "numpy<2", "soundfile"], check=True)
+        subprocess.run([sys.executable, "-m", "pip", "install", "--quiet", "numpy==1.26.4", "soundfile==0.14.0"], check=True)
     if subprocess.run(["which", "ffmpeg"], capture_output=True).returncode:
         subprocess.run("sudo apt-get update -qq && sudo apt-get install -y -qq ffmpeg", shell=True, check=True)
 

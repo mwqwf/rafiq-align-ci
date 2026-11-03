@@ -58,7 +58,7 @@ jobs:
         with: { fetch-depth: 1 }
       - uses: actions/setup-python@v5
         with: { python-version: "3.11" }
-      - run: python -m pip install --quiet boto3
+      - run: python -m pip install --quiet boto3==1.43.123
       - name: اعتماد R2
         env:
           R2_CREDENTIALS_JSON: ${{ secrets.R2_CREDENTIALS_JSON }}

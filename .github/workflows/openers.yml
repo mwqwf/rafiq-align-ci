@@ -34,7 +34,7 @@ jobs:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
         with: { python-version: "3.11" }
-      - run: python -m pip install --quiet boto3
+      - run: python -m pip install --quiet boto3==1.43.123
       - id: gen
         env:
           R2_CREDENTIALS_JSON: ${{ secrets.R2_CREDENTIALS_JSON }}
@@ -188,8 +188,8 @@ jobs:
           HF_HOME: ${{ github.workspace }}/.hf
         run: |
           set -o pipefail
-          python -m pip install --quiet --index-url https://download.pytorch.org/whl/cpu torch
-          python -m pip install --quiet "numpy<2" transformers ctc-segmentation
+          python -m pip install --quiet --index-url https://download.pytorch.org/whl/cpu torch==2.15.0
+          python -m pip install --quiet "numpy==1.26.4" transformers==5.22.1 ctc-segmentation==1.7.5
           RIW=$(echo "$KEY" | cut -d/ -f2)
           python tools/alignment_v3/ctc_opener_probe.py --witness "${{ steps.late.outputs.w }}" --riwaya "$RIW"
 

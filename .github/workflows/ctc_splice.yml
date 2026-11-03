@@ -68,8 +68,8 @@ jobs:
         run: |
           # (2026-10-23) apt المعلَّق التهم 21–29 د من بعض التشغيلات: مهلٌ ومحاولاتٌ وشجرةٌ مخبّأة، ونسخةُ apt نفسُها (APT_ONLY).
           QA_FFMPEG_APT_ONLY=1 python tools/ci_fleet/install_qa_ffmpeg.py
-          python -m pip install --quiet --index-url https://download.pytorch.org/whl/cpu torch
-          python -m pip install --quiet "numpy<2" transformers ctc-segmentation boto3 rapidfuzz
+          python -m pip install --quiet --index-url https://download.pytorch.org/whl/cpu torch==2.15.0
+          python -m pip install --quiet "numpy==1.26.4" transformers==5.22.1 ctc-segmentation==1.7.5 boto3==1.43.123 rapidfuzz==3.14.6
       - name: كاش النموذج
         uses: actions/cache@v4
         with:

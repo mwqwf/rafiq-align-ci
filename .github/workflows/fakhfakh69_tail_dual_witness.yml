@@ -52,8 +52,8 @@ jobs:
           python tools/ci_fleet/install_qa_ffmpeg.py
           python -m pip install --only-binary=:all: --timeout 60 --retries 2 --index-url https://download.pytorch.org/whl/cpu 'torch==2.6.0+cpu'
           python -m pip install --only-binary=:all: --timeout 60 --retries 2 'numpy==1.26.4' 'transformers==4.49.0' 'huggingface-hub==0.29.3' 'safetensors==0.5.3' 'tokenizers==0.21.1'
-          python -m pip install --only-binary=:all: --timeout 60 --retries 2 boto3 soundfile rapidfuzz
-          python -m pip install --timeout 60 --retries 2 ctc-segmentation
+          python -m pip install --only-binary=:all: --timeout 60 --retries 2 boto3==1.43.123 soundfile==0.14.0 rapidfuzz==3.14.6
+          python -m pip install --timeout 60 --retries 2 ctc-segmentation==1.7.5
       - name: اختبارات اصطناعية بلا نموذج أو شبكة
         run: python -m unittest tools.index_qa.test_fakhfakh69_tail_dual_witness -v
       - name: قياس 69:41–52 بالنموذجين حتى EOF وطباعته في السجل

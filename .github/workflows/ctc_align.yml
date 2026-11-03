@@ -64,8 +64,8 @@ jobs:
       - name: الأدوات
         run: |
           QA_FFMPEG_APT_ONLY=1 python tools/ci_fleet/install_qa_ffmpeg.py
-          python -m pip install --quiet --index-url https://download.pytorch.org/whl/cpu torch
-          python -m pip install --quiet "numpy<2" transformers ctc-segmentation && python -c "import ctc_segmentation, numpy; print('ctc ok', numpy.__version__)"
+          python -m pip install --quiet --index-url https://download.pytorch.org/whl/cpu torch==2.15.0
+          python -m pip install --quiet "numpy==1.26.4" transformers==5.22.1 ctc-segmentation==1.7.5 && python -c "import ctc_segmentation, numpy; print('ctc ok', numpy.__version__)"
       - name: كاش النموذج
         uses: actions/cache@v4
         with:
@@ -105,7 +105,7 @@ jobs:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
         with: {python-version: "${{ env.PY }}"}
-      - run: python -m pip install --quiet boto3 numpy
+      - run: python -m pip install --quiet boto3==1.43.123 numpy==2.4.6
       - uses: actions/download-artifact@v4
         with:
           pattern: ctc-${{ inputs.reciter }}-p*
