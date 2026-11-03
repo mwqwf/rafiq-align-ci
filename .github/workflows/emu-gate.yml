@@ -186,7 +186,9 @@ jobs:
       sets: ${{ steps.m.outputs.sets }}
     steps:
       - id: m
-        run: python3 -c "import json,os;print('sets='+json.dumps('${{ inputs.sets }}'.split(',')))" >> "$GITHUB_OUTPUT"
+        env:
+          SETS: ${{ inputs.sets }}
+        run: python3 -c "import json,os;print('sets='+json.dumps(os.environ['SETS'].split(',')))" >> "$GITHUB_OUTPUT"
   emu:
     needs: matrix
     runs-on: ubuntu-latest
