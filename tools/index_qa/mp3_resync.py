@@ -206,7 +206,8 @@ def ffmpeg_decode_bytes(b, extra_filter=()):
         t.write(b)
         p_in = t.name
     try:
-        p = subprocess.run(["ffmpeg", "-nostdin", "-v", "error", "-i", p_in, *extra_filter,
+        p = subprocess.run(["ffmpeg", "-nostdin", "-v", "error", "-protocol_whitelist", "file,pipe",
+                            "-i", p_in, *extra_filter,
                             "-f", "f32le", "-ac", "1", "-ar", str(RATE), "pipe:1"],
                            stdout=subprocess.PIPE, stderr=subprocess.PIPE, timeout=1800, check=False)
     finally:

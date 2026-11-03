@@ -22,6 +22,10 @@ env:
   PUB: https://pub-2c2e1dcd92e84a2898820dd38d3e09e6.r2.dev
   WCPP_SHA: c4ac0012a8f5a2082dfca6aad4ddfd8b2c02b337
   HF_BASE: tarteel-ai/whisper-base-ar-quran
+  # 🔐 (2026-11-03 · التدقيق الأمني) مراجعةٌ ثابتةٌ وبصمةُ وزنٍ لا رأسٌ متحرّك؛ الوزنُ pickle فلا يُحمَّل غيرُ ما قيس.
+  HF_REV: 5c3c53fdf9272c4f6ee0bee09a1e5a4a615ee25c
+  HF_WEIGHTS_SHA256: ec75894993a4570a237b2b1c19fd8a448f1e8f6e083cfab699574f7be53874fa
+  OAI_WHISPER_SHA: 86098128c0b4f24f0e2aa2994de830614b474227
   FREE_BYTES: "10000000000"
 jobs:
   publish:
@@ -47,7 +51,8 @@ jobs:
           sudo apt-get update -qq && sudo apt-get install -y -qq cmake build-essential > /dev/null
           pip install -q --index-url https://download.pytorch.org/whl/cpu torch
           pip install -q "transformers<5" huggingface_hub numpy
-          git clone -q --depth 1 https://github.com/openai/whisper /tmp/oai
+          git init -q /tmp/oai && git -C /tmp/oai fetch -q --depth 1 https://github.com/openai/whisper "$OAI_WHISPER_SHA" \
+            && git -C /tmp/oai checkout -q FETCH_HEAD
       - name: whisper.cpp (الإيداعُ نفسُه · بناءٌ محمول)
         run: |
           set -eo pipefail
@@ -64,9 +69,16 @@ jobs:
           python - <<'PY'
           import json, os
           from huggingface_hub import HfApi, snapshot_download
-          rev = HfApi().model_info(os.environ["HF_BASE"]).sha
+          import hashlib
+          rev = os.environ["HF_REV"]
           d = snapshot_download(os.environ["HF_BASE"], revision=rev, local_dir="/tmp/hf_base",
-                                allow_patterns=["*.json", "*.bin", "*.safetensors", "*.txt"])
+                                allow_patterns=["*.json", "pytorch_model.bin", "*.txt"])
+          h = hashlib.sha256()
+          with open(os.path.join(d, "pytorch_model.bin"), "rb") as f:
+              for b in iter(lambda: f.read(1 << 20), b""):
+                  h.update(b)
+          if h.hexdigest() != os.environ["HF_WEIGHTS_SHA256"]:
+              raise SystemExit("⛔ بصمةُ وزن النموذج الأساس تخالف المثبَّت")
           p = os.path.join(d, "config.json"); c = json.load(open(p))
           c["max_length"] = c["max_target_positions"]; json.dump(c, open(p, "w"), indent=1)
           open("/tmp/hf_rev", "w").write(rev); print("HF revision", rev)

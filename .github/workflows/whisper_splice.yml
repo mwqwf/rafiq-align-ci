@@ -311,8 +311,10 @@ jobs:
               out = f"{ws}/tail_{s}.json"
               try:
                   subprocess.run(["curl", "-sfL", "--retry", "5", "--retry-delay", "3",
+                                  "--proto", "=http,https", "--proto-redir", "=http,https",
+                                  "--max-filesize", "1610612736", "--max-time", "1800",
                                   "-A", "rafiq-align/1.0", "-o", full, url], check=True)
-                  subprocess.run(["ffmpeg", "-y", "-v", "error", "-ss", str(k / 1000),
+                  subprocess.run(["ffmpeg", "-y", "-v", "error", "-protocol_whitelist", "file,pipe", "-ss", str(k / 1000),
                                   "-i", full, "-c", "copy", cut], check=True)
                   subprocess.run([sys.executable, "pipeline.py", "--url", f"file://{cut}",
                                   "--surah", str(s), "--riwaya", os.environ["RIW"],
