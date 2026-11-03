@@ -258,11 +258,31 @@ def _secret_values():
     return sorted(out, key=len, reverse=True)
 
 
+# طبقةٌ ثانية بالأنماط: تحجب ما يشبه السرَّ ولو لم يكن في ملفّ الاعتماد (روابطُ موقَّعة، رموزُ GitHub، مفاتيحُ API).
+_PATTERNS = (
+    (re.compile(r"(X-Amz-(?:Signature|Credential|Security-Token)=)[^&\s\"'<>)]+", re.I), r"\1***"),
+    (re.compile(r"\b(?:ghs|ghp|gho|ghu|ghr)_[A-Za-z0-9]{20,}"), "***"),
+    (re.compile(r"\bgithub_pat_[A-Za-z0-9_]{20,}"), "***"),
+    (re.compile(r"\bAKIA[0-9A-Z]{16}\b"), "***"),
+    (re.compile(r"\bsk-ant-[A-Za-z0-9_\-]{10,}"), "***"),
+    (re.compile(r"(\bBearer\s+)[A-Za-z0-9._~+/=\-]{8,}", re.I), r"\1***"),
+)
+
+
 def redact(text):
-    """يحجب كلَّ ظهورٍ لقيمةِ سرٍّ معروفةٍ بـ*** قبل أن يُكتب الجوابُ أو يُطبع."""
+    """يحجب كلَّ ظهورٍ لقيمةِ سرٍّ معروفةٍ بـ*** قبل أن يُكتب الجوابُ أو يُطبع،
+    ثمّ يمرّ بطبقةِ الأنماط (روابطُ موقَّعة · رموز GitHub · AKIA · sk-ant · Bearer)."""
     for v in _secret_values():
         text = text.replace(v, "***")
+    for rx, rep in _PATTERNS:
+        text = rx.sub(rep, text)
     return text
+
+
+if __name__ == "__main__" and sys.argv[1:] == ["--redact-stdin"]:
+    # أداةُ سيور العمل: stdin ← stdout محجوباً (python tools/ci_fleet/agent_cmd.py --redact-stdin)
+    sys.stdout.write(redact(sys.stdin.read()))
+    sys.exit(0)
 
 
 def _atomic_write(path, text):

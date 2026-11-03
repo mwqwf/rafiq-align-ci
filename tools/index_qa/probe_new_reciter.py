@@ -369,7 +369,8 @@ def transcribe(url: str, model: str, threads: int, work: str) -> str:
             last = ex
         time.sleep(2 * (k + 1))
     if last is not None:
-        raise RuntimeError(f"تعذّر تنزيل الشاهد {url}: {last}")
+        # ⛔ بلا سلسلة الاستعلام: الرابطُ الموقَّع لا يُكتب في نصّ خطأٍ يصل السجلَّ
+        raise RuntimeError(f"تعذّر تنزيل الشاهد {url.split('?')[0]}: {str(last).replace(url, url.split('?')[0])}")
     subprocess.run(["ffmpeg", "-y", "-loglevel", "error", "-i", mp3,
                     "-ac", "1", "-ar", "16000", wav], check=True)
     from pywhispercpp.model import Model

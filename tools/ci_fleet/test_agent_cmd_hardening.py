@@ -39,6 +39,35 @@ class HardeningTest(unittest.TestCase):
                 A.SECRET_FILE = old
         self.assertEqual(out, "k=*** s=*** ab")
 
+    def test_redact_patterns(self):
+        old = A.SECRET_FILE
+        A.SECRET_FILE = Path("/nonexistent/x.json")
+        try:
+            cases = {
+                "https://b.r2.dev/x.mp3?X-Amz-Algorithm=A&X-Amz-Credential=AKIAABCDEFGHIJKLMNOP%2F2026&X-Amz-Signature=deadbeef01&X-Amz-Security-Token=tok123 ok":
+                    "https://b.r2.dev/x.mp3?X-Amz-Algorithm=A&X-Amz-Credential=***&X-Amz-Signature=***&X-Amz-Security-Token=*** ok",
+                "t=ghs_" + "a" * 36: "t=***",
+                "t=ghp_" + "B" * 36: "t=***",
+                "t=gho_" + "c" * 30: "t=***",
+                "t=github_pat_" + "D1_" * 10: "t=***",
+                "id AKIAABCDEFGHIJKLMNOP end": "id *** end",
+                "k=sk-ant-api03-abcDEF_123-xyz": "k=***",
+                "Authorization: Bearer abc.def-123_XYZ==": "Authorization: Bearer ***",
+            }
+            for src, want in cases.items():
+                self.assertEqual(A.redact(src), want, src)
+            for plain in ("الآية غائبة عند القارئ — تعذّر التنزيل", "timings/hafs/husary_douri.jz",
+                          "https://x.dev/a.mp3?v=1&n=2", "ghs_short", "Bearer x"):
+                self.assertEqual(A.redact(plain), plain)
+        finally:
+            A.SECRET_FILE = old
+
+    def test_redact_stdin_tool(self):
+        import subprocess, sys
+        r = subprocess.run([sys.executable, str(Path(A.__file__)), "--redact-stdin"],
+                           input="Bearer abcdefgh12345 عربي", capture_output=True, text=True, encoding="utf-8")
+        self.assertEqual(r.stdout, "Bearer *** عربي")
+
     def test_redact_without_file(self):
         old = A.SECRET_FILE
         A.SECRET_FILE = Path("/nonexistent/x.json")
