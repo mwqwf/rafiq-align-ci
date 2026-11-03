@@ -39,7 +39,7 @@ jobs:
         with:
           python-version: "3.11"
       - name: العدّة
-        run: pip install -q boto3 pymupdf pillow numpy scipy scikit-image
+        run: pip install -q boto3==1.43.123 pymupdf==2.1 pillow==13.0.0 numpy==2.4.6 scipy==1.17.1 scikit-image==0.26.0
       - name: اختبار حزم الأجزاء
         run: |
           set -euo pipefail

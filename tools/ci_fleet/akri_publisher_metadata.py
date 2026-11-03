@@ -2,7 +2,7 @@
 """Public publisher metadata only; never download, modify or promote recordings."""
 import datetime,json,subprocess,sys
 from pathlib import Path
-subprocess.run([sys.executable,"-m","pip","install","--quiet","yt-dlp"],check=True)
+subprocess.run([sys.executable,"-m","pip","install","--quiet","--only-binary=:all:","yt-dlp==2026.10.26"],check=True)  # 🔐 مثبَّتٌ: يجري بأسرار agent_cmd
 targets=["https://www.youtube.com/watch?v=KzuP7DQkXdI","https://www.youtube.com/watch?v=wrwvoeI81Q4","scsearch20:مروان العكري النور","scsearch20:Marwan Alakri Noor"]
 results=[]
 for target in targets:

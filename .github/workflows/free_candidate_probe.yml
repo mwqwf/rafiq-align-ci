@@ -29,7 +29,7 @@ jobs:
       - name: Install probe dependencies
         run: |
           sudo apt-get update -qq && sudo apt-get install -y -qq ffmpeg
-          python -m pip install --quiet pywhispercpp numpy boto3
+          python -m pip install --quiet pywhispercpp==1.5.1 numpy==2.4.6 boto3==1.43.123
       - name: Self-test before download
         run: python tools/index_qa/probe_new_reciter.py --self-test
       - name: Credentials and model from R2

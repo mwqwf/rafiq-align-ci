@@ -75,7 +75,7 @@ jobs:
       - name: deps
         run: |
           sudo apt-get update -qq && sudo apt-get install -y -qq ffmpeg cmake build-essential > /dev/null
-          python -m pip install --quiet "numpy<2" soundfile onnxruntime
+          python -m pip install --quiet "numpy==1.26.4" soundfile==0.14.0 onnxruntime==1.31.1
           python -c "import onnxruntime, soundfile, numpy; print('deps ok', onnxruntime.__version__)"
 
       - name: حرّاسُ الأداة (بلا شبكة)

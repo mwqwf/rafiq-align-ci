@@ -25,8 +25,8 @@ OUT=/tmp/out_student
 say "المستودعُ الخاصّ: $(git log --oneline -1)"
 
 say "① العُدّة"
-pip install -q "torch>=2.2" --index-url https://download.pytorch.org/whl/cpu || die "torch"
-pip install -q "transformers>=4.44,<5" soundfile || die "pip"
+pip install -q "torch==2.15.0" --index-url https://download.pytorch.org/whl/cpu || die "torch"
+pip install -q "transformers==4.57.6" soundfile==0.14.0 || die "pip"
 
 say "② الوسمُ (‏D-717)"
 mkdir -p tools/tasmi_bench/work work/tasmi/lab
