@@ -1613,7 +1613,7 @@ def _swallowed_surahs_from(rep):
 
 
 def shrink_refusal(cl, bucket, target, n_new, allow_shrink=None, reason=None,
-                  new_ids=None, key=None, approvals_path=None):
+                  new_ids=None, key=None, approvals_path=None, idx=None):
     """سببُ الردّ إن كان المرشّحُ أقلَّ مداخلَ من المنشور، وإلا `None`.
 
     ⛔ تعذّرُ قراءة المنشور القائم يُردّ به لا يُعفى (الغيابُ ليس سلامة)؛ أمّا
@@ -1643,7 +1643,19 @@ def shrink_refusal(cl, bucket, target, n_new, allow_shrink=None, reason=None,
         if lost:
             ok_s = load_drop_approvals(approvals_path).get(key, frozenset())
             ok_a = load_drop_ayah_approvals(approvals_path).get(key, frozenset())
-            if all((i in ok_a) or (i.split(":", 1)[0].isdigit()
+            # ⭐ (2026-11-03 · بأمر المالك cmsg_01SnWBBbg8UvScqE3YMKdPHa21QYwVuq4CRVshugnoQn6a) البابُ الثالث:
+            #    آياتٌ وسطيّةٌ محجوبةٌ بدليلٍ لكلّ آية (قاعدة 2026-10-31). يُقبل المفقودُ منها **فقط** إن
+            #    اجتازت سورتُه `declared_truncated_gaps` بشروطها الستّة على المرشّح نفسِه وكان ضمن
+            #    `absent` المعلَن — وأيُّ نقصٍ غيرُ معلَنٍ بدليل يبقى مردوداً.
+            #    (وقع: noah_warsh 54:16-17 حُجبتا بدليل ctc_window فردّهما هذا الحارسُ 6234 < 6236.)
+            ok_g = set()
+            tr = idx.get("transform") if isinstance(idx, dict) else None
+            gaps = tr.get("truncatedGaps") if isinstance(tr, dict) else None
+            if isinstance(gaps, dict):
+                for s_k, rec in gaps.items():
+                    if isinstance(rec, dict) and declared_truncated_gaps(idx, s_k)[0]:
+                        ok_g |= {f"{int(s_k)}:{x}" for x in (rec.get("absent") or []) if type(x) is int}
+            if all((i in ok_a) or (i in ok_g) or (i.split(":", 1)[0].isdigit()
                                     and int(i.split(":", 1)[0]) in ok_s) for i in lost):
                 print(f"  ⚠️ {target}: نقصٌ معتمدٌ بنصّ المالك {n_old}⇒{n_new} — "
                       f"المفقود {len(lost)} مدخلاً: {sorted(lost)[:6]}")
@@ -2831,7 +2843,7 @@ def main():
         _shrink = shrink_refusal(cl, bucket, target, len(idx.get("entries", [])),
                                  a.allow_shrink, a.reason,
                                  new_ids=[e.get("ayahId") for e in idx.get("entries", [])],
-                                 key=src)
+                                 key=src, idx=idx)
         if _shrink:
             print(f"  ⛔ {src}: {_shrink}")
             continue
