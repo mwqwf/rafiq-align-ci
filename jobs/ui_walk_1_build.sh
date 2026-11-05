@@ -1,6 +1,8 @@
 #!/usr/bin/env bash
 # 📱 جولةُ الواجهة (1/2) — بناءُ APK تصحيحيٍّ من المستودع الخاصّ ورفعُه إلى R2 (دراسة المستشار 2026-11-05).
-# ⟳ المراجعة 2 (2026-11-05 21:45Z): إعادةُ إطلاقٍ بإيداعٍ مباشرٍ على main — دفعةُ الدمج لم يرَ فيها agent-job السكربتين (يقارن بالأب الأوّل).
+# ⟳ المراجعة 3ب (2026-11-05 22:14Z): إيداعٌ مباشرٌ فوق main لأنّ دفعةَ الدمج لا تُظهر السكربتين لـagent-job.
+# ⟳ المراجعة 3 (2026-11-05 22:10Z): الشوط 42115041851 بنى 8 دقائق بخروج 0 ولم يجد APK — أزلتُ خاصّيةَ android.injected.build.abi
+#    (وصفةُ device-matrix المجرَّبة تبني بلا حقنٍ وتجد APK في app/build/outputs/apk/debug/)، وأضفتُ تشخيصاً ورفعَ سجلّ البناء إلى R2 في كلّ حال.
 #    لماذا هنا: صندوقُ الوكيل بلا dl.google.com ولا KVM؛ وهذا العدّاءُ العامُّ مجّانيٌّ وشبكتُه مفتوحة.
 #    المداخلُ التصحيحيّة (openMushaf · openTasmi …) لا تعمل إلا في بناء debug، فلا يُغني عنه APK المتجر.
 #    قراءةٌ محضة للمستودع الخاصّ: لا إيداعَ فيه ولا تغييرَ إعداد. ولا يكتب في timings/ ولا catalog/.
@@ -28,26 +30,42 @@ fi
 test "$(git -C "$WD" rev-parse HEAD)" = "$WHISPER_CPP_REF" || { echo "⛔ مرجعُ whisper.cpp مختلف"; exit 1; }
 for f in CMakeLists.txt src/whisper.cpp ggml/CMakeLists.txt; do test -e "$WD/$f" || { echo "⛔ ناقص $f"; exit 1; }; done
 
+upload_log(){ [ -n "${R2_ENDPOINT:-}" ] || return 0; python3 - <<'PY2' || true
+import boto3, os
+s3 = boto3.client("s3", endpoint_url=os.environ["R2_ENDPOINT"], aws_access_key_id=os.environ["R2_ACCESS_KEY_ID"],
+                  aws_secret_access_key=os.environ["R2_SECRET_ACCESS_KEY"], region_name="auto")
+k = "tmp/ui_walk/%s/build.log" % os.environ.get("GITHUB_RUN_ID", "local")
+s3.upload_file("/tmp/ui_walk/build.log", os.environ["R2_BUCKET"], k); print("📄 سجلُّ البناء في R2:", k)
+PY2
+}
 say "③ البناء: :app:assembleDebug لمعماريّة المحاكي x86_64 وحدها (JDK $(java -version 2>&1 | head -1 | cut -d'"' -f2))"
 cd "$QR_DIR" || exit 1
 chmod +x gradlew
 T0=$(date +%s)
-./gradlew :app:assembleDebug -Pandroid.injected.build.abi=x86_64 --console=plain --no-daemon > /tmp/ui_walk/build.log 2>&1
+./gradlew :app:assembleDebug --console=plain --no-daemon > /tmp/ui_walk/build.log 2>&1
 RC=$?
 say "زمنُ البناء $(( ($(date +%s)-T0)/60 )) د · الخروج $RC"
 if [ "$RC" -ne 0 ]; then
   echo "⛔ فشل البناء — آخرُ السجلّ:"
   grep -E '^e: |error:|FAILED|What went wrong|Exception|Could not' /tmp/ui_walk/build.log | head -30
   tail -25 /tmp/ui_walk/build.log
-  exit 1
+  upload_log; exit 1
 fi
-APK=$(find app/build/outputs/apk -name 'app-debug.apk' -o -name 'app-*-debug.apk' 2>/dev/null | head -1)
-[ -n "$APK" ] && [ -s "$APK" ] || { echo "⛔ لا APK بعد بناءٍ ناجح؟"; find app/build/outputs -name '*.apk' | head; exit 1; }
+grep -E 'BUILD (SUCCESSFUL|FAILED)' /tmp/ui_walk/build.log | tail -1
+APK=$(find app/build/outputs/apk/debug -name '*.apk' 2>/dev/null | head -1)
+[ -n "$APK" ] || APK=$(find "$QR_DIR" -name '*.apk' -not -path '*/intermediates/*' -not -path '*/androidTest/*' 2>/dev/null | head -1)
+if [ -z "$APK" ] || [ ! -s "$APK" ]; then
+  echo "⛔ لا APK بعد بناءٍ ناجح؟ — تشخيص:"
+  ls -la app/build/outputs 2>/dev/null | head; find "$QR_DIR" -name '*.apk' 2>/dev/null | head
+  echo "— آخرُ 40 سطراً من سجلّ البناء:"; tail -40 /tmp/ui_walk/build.log
+  upload_log; exit 1
+fi
 cp "$APK" /tmp/ui_walk/app-debug.apk
 SZ=$(stat -c %s "$APK"); SHA=$(sha256sum "$APK" | cut -c1-16)
 say "APK: $APK · $((SZ/1024/1024)) م.ب · sha256 $SHA… · المصدر $QR_SHA"
 grep -E 'BUILD (SUCCESSFUL|FAILED)' /tmp/ui_walk/build.log | tail -1
 
+upload_log
 say "④ الرفعُ إلى R2 (tmp/ui_walk/apk/) ليُعاد استعمالُه بلا بناءٍ جديد"
 [ -n "${R2_ENDPOINT:-}" ] || { echo "⚠ لا بيانةَ R2 — يبقى APK في /tmp للسكربت الثاني فقط"; exit 0; }
 python3 - "$QR_SHA" "$SZ" "$SHA" <<'PY'

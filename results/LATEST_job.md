@@ -1,72 +1,58 @@
-# 🦾 شغلُ الوكيل · الشوط 41626206045
+# 🦾 شغلُ الوكيل · الشوط 42115041851
 
-- التاريخ: 2026-11-03T11:17:41Z
+- التاريخ: 2026-11-05T21:49:18Z
 - المستودعُ الخاصّ: /home/runner/work/_temp/QuranRafiq
 
-## `jobs/tasmi_student_measure.sh`
+## `jobs/ui_walk_1_build.sh`
 
 ```
-▸ المستودعُ الخاصّ: 30b3cbb الروابط العميقة: بصمة مفتاح توقيع Play في assetlinks.json (#697)
-▸ ① العُدّة
-
-[notice] A new release of pip is available: 26.2.2 -> 26.3
-[notice] To update, run: pip install --upgrade pip
-
-[notice] A new release of pip is available: 26.2.2 -> 26.3
-[notice] To update, run: pip install --upgrade pip
-▸ ② الوسمُ (‏D-717)
-▸ ③ المعلّمُ وتهيئتُه (‏D-738)
-/opt/hostedtoolcache/Python/3.11.17/x64/lib/python3.11/site-packages/transformers/configuration_utils.py:335: UserWarning: Passing `gradient_checkpointing` to a config initialization is deprecated and will be removed in v5 Transformers. Using `model.gradient_checkpointing_enable()` instead, or if you are using the `Trainer` API, pass `gradient_checkpointing=True` in your `TrainingArguments`.
-  warnings.warn(
-▸ ④ البيانات (‏قرّاءُ D-714 أنفسُهم · 150 لكلّ قارئ بدل 400 — والفرقُ يُنشر)
-11:26:56 ✅ ('hafs', 'a_alshahhat'): 150 clips · 0.36 h
-11:26:56 ✅ ('hafs', 'a_alhazmi'): 150 clips · 0.42 h
-11:26:56 DONE manifest rows = 2230 · 7.31 h · failed reciters = []
-▸ المجموعة: 2230 صفّاً
-▸ ⑤ معايرةُ السرعة — أربعون خطوةً تُقاس ثمّ تُحسب ميزانيّةُ الخطوات
-🧍 قرّاءٌ محجوزون كلّياً ['a_alhazmi', 'm_sayed_warsh', 'tareq_qalun']: 224 آية للتقييم · 1013 للتدريب
-/opt/hostedtoolcache/Python/3.11.17/x64/lib/python3.11/site-packages/transformers/configuration_utils.py:335: UserWarning: Passing `gradient_checkpointing` to a config initialization is deprecated and will be removed in v5 Transformers. Using `model.gradient_checkpointing_enable()` instead, or if you are using the `Trainer` API, pass `gradient_checkpointing=True` in your `TrainingArguments`.
-  warnings.warn(
-🪶 طالبٌ ضيّق: hidden=384 · طبقات=8 · 19.8 م.معلمة · نُسخ من المعلّم 13/213 موتّراً
-  · 20/40 خسارة 15.021 · 24.32ث/خطوة
-  · 40/40 خسارة 3.605 · 23.86ث/خطوة
-  خطوة 40: خسارة 9.026 · PER 100.0٪
-✅ الخسارة 52.40 ⇐ 3.597 · PER 100.0٪
-▸ ⏱️ 27.6 ث/خطوة بدفعة 16 · استُهلك 27 دقيقة ⇒ سقفُ هذا الشوط 116 خطوة
-▸ ⑥ التدريبُ إلى 116 ثمّ التكميم
-🧍 قرّاءٌ محجوزون كلّياً ['a_alhazmi', 'm_sayed_warsh', 'tareq_qalun']: 224 آية للتقييم · 1013 للتدريب
-⏯️ استئنافٌ من الخطوة 40 (PER آنذاك 100.0٪)
-  · 100/116 خسارة 3.366 · 24.14ث/خطوة
-  خطوة 116: خسارة 3.308 · PER 100.0٪
-/home/runner/work/_temp/QuranRafiq/tools/tasmi_phoneme/ctc_train.py:323: DeprecationWarning: torch.ao.quantization is deprecated and will be removed in 2.10. 
-For migrations of users: 
-1. Eager mode quantization (torch.ao.quantization.quantize, torch.ao.quantization.quantize_dynamic), please migrate to use torchao eager mode quantize_ API instead 
-2. FX graph mode quantization (torch.ao.quantization.quantize_fx.prepare_fx,torch.ao.quantization.quantize_fx.convert_fx, please migrate to use torchao pt2e quantization API instead (prepare_pt2e, convert_pt2e) 
-3. pt2e quantization has been migrated to torchao (https://github.com/pytorch/ao/tree/main/torchao/quantization/pt2e) 
-see https://github.com/pytorch/ao/issues/2259 for more details
-  q = torch.ao.quantization.quantize_dynamic(copy.deepcopy(cpu), {torch.nn.Linear}, dtype=torch.qint8)
-/opt/hostedtoolcache/Python/3.11.17/x64/lib/python3.11/site-packages/torch/ao/nn/quantized/modules/utils.py:72: UserWarning: torch.quantize_per_tensor, torch.quantize_per_channel and other quantized tensor creation functions that produce tensors with dtype torch.quint8, torch.qint8, and torch.qint32 are deprecated and will be removed in a future PyTorch release. Please see https://github.com/pytorch/pytorch/issues/184982 for more information. (Triggered internally at /__w/pytorch/pytorch/aten/src/ATen/quantized/Quantizer.cpp:111.)
-  qweight = torch.quantize_per_tensor(
-📦 fp32 79.2 م.ب ⇐ int8 36.2 م.ب · PER على 100 آية: 100.0٪ ⇐ 100.0٪
-✅ الخسارة 3.48 ⇐ 3.276 · PER 100.0٪
-▸ 📄 الخلاصة:
-{"items": 1237, "firstLoss": 3.4841842651367188, "finalLoss": 3.276232635974884, "per": 1.0, "smoke": false, "heldout": 224, "holdoutReciters": "m_sayed_warsh,tareq_qalun,a_alhazmi", "sizeMbFp32": 79.248614, "sizeMbInt8": 36.167306, "perFp32Cpu": 1.0, "perInt8Cpu": 1.0, "quantN": 100}
-▸ ⑦ مجموعةُ حدود الكلمة (‏العشرون سورةُ عينُها) ثمّ قياسُ الطوابع
-162 آيةً · **658 حدَّ كلمةٍ** · مُسقَطاتٌ 0 · ثباتُ القصّ (وسيط) 0.0 م.ث ⇒ work/tasmi/gwF/qurancdn/manifest.json
-⛔ قطعُ ناشرٍ لا وسمٌ بشريٌّ يدويّ — لا تُسمَّى باسم بوّابة M3
-
-حدودُ كلمةٍ مقيسة: 658 في 162 آية (مُسقَط 0)
-الخطأُ المطلقُ الوسيط 361 م.ث · p90 1295 م.ث
-الانحيازُ الوسيط -35 م.ث · التشتّتُ حولَه 349 م.ث (p90 1291)
-ضمن 60 م.ث مطلقاً: 12.3٪ · ومن الانحياز: 13.7٪
-⛔ قطعُ ناشرٍ لا وسمٌ بشريّ — بوّابةُ M3 الأصليّةُ باقيةٌ بلا مسطرتها
-▸ ⑧ ⛔ والمقارنةُ على تقاطع الآيات وحدَه (‏D-741) — لا على مادّتَين
-صفوفٌ مشتركة: 649 (في 160 آيةً) · وحدَها في معلّم-D733: 0 · وحدَها في طالب-116-خطوة: 9
-  معلّم-D733: انحيازٌ -98 م.ث · تشتّتٌ 62 م.ث · ضمن ±60 من الانحياز 48.4٪
-  طالب-116-خطوة: انحيازٌ -40 م.ث · تشتّتٌ 349 م.ث · ضمن ±60 من الانحياز 14.8٪
-⇒ الفرق: تشتّتٌ +287 م.ث · ضمن ±60 -33.6 نقطة
-▸ ✅ تمّ — والرقمُ يُنشر بعددِ خطواته (116 من 3200 المخطَّطة) ولا يُسمّى «الطالبَ النهائيّ»
+▸ المستودعُ الخاصّ: 7c45dde الاسم الموحد للتسميع للجميع بلا استثناء (أمر المالك 2026-11-05) (#711)
+▸ ① مساحةُ القرص
+/dev/root       145G   51G   95G  35% /
+▸ ② whisper.cpp على المرجع المثبَّت نفسِه الذي تبني به سيورُ المستودع الخاصّ
+▸ ③ البناء: :app:assembleDebug لمعماريّة المحاكي x86_64 وحدها (JDK 17.0.21)
+▸ زمنُ البناء 8 د · الخروج 0
+⛔ لا APK بعد بناءٍ ناجح؟
 ```
 
-**الخروج: 0 ✅**
+**الخروج: 1 ⛔**
+
+## `jobs/ui_walk_2_walk.sh`
+
+```
+▸ ① APK
+▸ لا APK من السكربت الأوّل في هذا الشوط — يُنزَّل آخرُ بناءٍ من R2
+Traceback (most recent call last):
+  File "<stdin>", line 4, in <module>
+  File "/opt/hostedtoolcache/Python/3.11.18/x64/lib/python3.11/site-packages/botocore/context.py", line 123, in wrapper
+    return func(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/hostedtoolcache/Python/3.11.18/x64/lib/python3.11/site-packages/boto3/s3/inject.py", line 223, in download_file
+    return transfer.download_file(
+           ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/hostedtoolcache/Python/3.11.18/x64/lib/python3.11/site-packages/boto3/s3/transfer.py", line 484, in download_file
+    future.result()
+  File "/opt/hostedtoolcache/Python/3.11.18/x64/lib/python3.11/site-packages/s3transfer/futures.py", line 111, in result
+    return self._coordinator.result()
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/hostedtoolcache/Python/3.11.18/x64/lib/python3.11/site-packages/s3transfer/futures.py", line 287, in result
+    raise self._exception
+  File "/opt/hostedtoolcache/Python/3.11.18/x64/lib/python3.11/site-packages/s3transfer/tasks.py", line 272, in _main
+    self._submit(transfer_future=transfer_future, **kwargs)
+  File "/opt/hostedtoolcache/Python/3.11.18/x64/lib/python3.11/site-packages/s3transfer/download.py", line 379, in _submit
+    response = client.head_object(
+               ^^^^^^^^^^^^^^^^^^^
+  File "/opt/hostedtoolcache/Python/3.11.18/x64/lib/python3.11/site-packages/botocore/client.py", line 606, in _api_call
+    return self._make_api_call(operation_name, kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/hostedtoolcache/Python/3.11.18/x64/lib/python3.11/site-packages/botocore/context.py", line 123, in wrapper
+    return func(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/hostedtoolcache/Python/3.11.18/x64/lib/python3.11/site-packages/botocore/client.py", line 1094, in _make_api_call
+    raise error_class(parsed_response, operation_name)
+botocore.exceptions.ClientError: An error occurred (404) when calling the HeadObject operation: Not Found
+⛔ لا APK في R2 ولا في الشوط
+```
+
+**الخروج: 1 ⛔**
 
