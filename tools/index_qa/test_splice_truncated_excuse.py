@@ -5,6 +5,7 @@
 ① إعادةُ سورةٍ تامّةٍ لا غائبَ فيها لا تمحو عذرَ سورةٍ أخرى مُسقطةٍ بسببٍ مسجَّل.
 ② إعادةُ السورة المُسقطة نفسِها بمداخلها كلّها تُسقط عذرَها كاملاً.
 ③ العذرُ لا يزيد أبداً على ما كان في الأب.
+④ إعلانُ `drop_surah` الموروث يُحمل في `dropSurah` ويُزال عمّا عاد.
 """
 import gzip
 import json
@@ -33,7 +34,9 @@ def _parent():
                          "endMs": st + 4000, "conf": 0.9, "confBand": "HIGH"})
     n = COUNTS[DROPPED - 1]
     return {"riwaya": "hafs", "reciterId": "x", "engineVersion": "align-0.2", "entries": ents,
-            "missing": {"count": n, "ids": [], "byReason": {"source_truncated": n}}}
+            "missing": {"count": n, "ids": [], "byReason": {"source_truncated": n}},
+            "transform": {"op": f"drop_surah:{DROPPED}", "reasonCode": "SOURCE_TRUNCATED",
+                          "reasonUser": "تسجيل هذه السورة ناقص."}}
 
 
 def _aligned(s):
@@ -72,6 +75,20 @@ class TruncatedExcuse(unittest.TestCase):
         self.assertEqual(r.returncode, 0, r.stdout + r.stderr)
         self.assertEqual(out["missing"]["count"], 0)
         self.assertNotIn("source_truncated", out["missing"]["byReason"])
+
+    def test_drop_declaration_carried(self):
+        # ④ إعلانُ الإسقاط الموروث يبقى في `dropSurah` بعد ترقيع سورةٍ أخرى (لا بـ--registered-sources وحده)
+        with tempfile.TemporaryDirectory() as t:
+            r, out = _run(Path(t), 12)
+        self.assertEqual(r.returncode, 0, r.stdout + r.stderr)
+        self.assertEqual(out["transform"].get("dropSurah"), [DROPPED])
+        self.assertEqual(out["transform"].get("reasonCode"), "SOURCE_TRUNCATED")
+
+    def test_drop_declaration_cleared_when_returned(self):
+        with tempfile.TemporaryDirectory() as t:
+            r, out = _run(Path(t), DROPPED)
+        self.assertEqual(r.returncode, 0, r.stdout + r.stderr)
+        self.assertEqual(out["transform"].get("dropSurah"), [])
 
     def test_excuse_never_exceeds_missing(self):
         with tempfile.TemporaryDirectory() as t:
