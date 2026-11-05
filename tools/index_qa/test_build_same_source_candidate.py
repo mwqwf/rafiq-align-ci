@@ -218,11 +218,12 @@ class SameSourceTests(unittest.TestCase):
                 B.check_preserved(self.parent, candidate, 42, B.parent_source(self.parent, 42))
 
     def test_unrelated_missing_reason_cannot_be_erased_by_splice(self):
+        # (2026-11-05 · #63/#64) كان splice_surah يمحو عذراً لا يخصّ السورة المُعادة فيردّه
+        # الباني؛ والآن لا يُمحى أصلاً: يبقى `missing` كما في الأب حرفاً، وحارسُ الباني باقٍ.
         self.parent["missing"]["byReason"] = {"source_truncated": 12}
         self.save()
-        with self.assertRaisesRegex(ValueError, "missing"):
-            self.build()
-        self.assertFalse(self.out.exists())
+        self.build()
+        self.assertEqual(self.result()["missing"], self.parent["missing"])
 
     def test_input_mutation_or_structural_failure_writes_nothing(self):
         actual = B.splice_surah.main

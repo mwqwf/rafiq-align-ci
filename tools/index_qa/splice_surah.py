@@ -468,14 +468,17 @@ def main() -> None:
             prior.pop("dropSurah", None)
         out["transform"] = prior
 
-    if args.registered_sources:
-        # stage_transform يغيّر op؛ يبقى إعلان الغياب الموروث للسور التي
-        # ما زالت غائبة، ويُزال عن السور المسترجعة فعلاً.
-        prior = dict(out.get("transform") or {})
-        import re
-        declared = set(prior.get("dropSurah") or [])
-        for group in re.findall(r"drop_surah:([\d,\s]+)", str(prior.get("op") or "")):
-            declared.update(int(s) for s in re.findall(r"\d+", group))
+    # stage_transform يغيّر op؛ يبقى إعلان الغياب الموروث للسور التي ما زالت غائبة،
+    # ويُزال عن السور المسترجعة فعلاً. ⛔ (2026-11-05) كان هذا مع --registered-sources
+    # وحده، فيضيع `drop_surah:22,28,45` عند saad بأيّ ترقيعٍ آخر (heard/window) ويردّ
+    # الفحصُ البنيويّ «سورٌ غائبةٌ كلّياً». والحكمُ على الموروث يبقى لـpromote.inherited_drops
+    # بشروطه كلّها (أصلٌ منشورٌ مطابقُ البصمة، والسببُ نفسُه حرفاً، ولا إسقاطَ جديد).
+    import re
+    prior = dict(out.get("transform") or {}) if isinstance(out.get("transform"), dict) else {}
+    declared = set(prior.get("dropSurah") or [])
+    for group in re.findall(r"drop_surah:([\d,\s]+)", str(prior.get("op") or "")):
+        declared.update(int(s) for s in re.findall(r"\d+", group))
+    if args.registered_sources or declared:
         present = {int(e["ayahId"].split(":")[0]) for e in merged}
         prior["dropSurah"] = sorted(declared - present)
         out["transform"] = prior
