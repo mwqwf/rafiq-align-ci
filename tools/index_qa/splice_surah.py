@@ -418,10 +418,15 @@ def main() -> None:
     gone = [i for i in all_ids if i not in have]
     miss["count"] = len(gone)
     miss["ids"] = gone[:400]
-    # السورُ المُعادةُ تخرج من عذر البتر: عادت مداخلُها فلا غيابَ يُعتذر عنه.
+    # السورُ المُعادةُ تخرج من عذر البتر بقدر ما عاد منها فعلاً: ما كان غائباً في الأب
+    # وصار حاضراً لا غيابَ يُعتذر عنه. ⛔ (2026-11-05) كان يُطرح عددُ آيات السور المُعادة
+    # كاملاً ولو لم يكن فيها غائبٌ أصلاً، فيضيع إعلانُ سورٍ أخرى مُسقطةٍ بسببٍ مسجَّل
+    # (‏saad: إعادةُ س12 محت عذرَ 22 و28 و45 فردّ حارسُ البنية «غياباً غير معلَّل»).
+    # والعذرُ لا يزيد بهذا: لا يتجاوز ما كان، ويُطرح منه كلُّ ما عاد.
     by = dict(miss.get("byReason") or {})
     if by.get("source_truncated"):
-        back = sum(COUNTS[s - 1] for s in surahs)
+        parent_have = {e["ayahId"] for e in entries}
+        back = sum(1 for i in have if int(i.split(":")[0]) in surahs and i not in parent_have)
         by["source_truncated"] = max(0, int(by["source_truncated"]) - back)
         if not by["source_truncated"]:
             by.pop("source_truncated")

@@ -5,6 +5,8 @@ on:
       - tools/index_qa/promote.py
       - tools/index_qa/test_promote_source_remediation.py
       - tools/index_qa/test_shrink_declared_gaps.py
+      - tools/index_qa/splice_surah.py
+      - tools/index_qa/test_splice_truncated_excuse.py
       - tools/ci_fleet/source_overrides.json
       - .github/workflows/promote-source-remediation-contract.yml
   pull_request:
@@ -12,6 +14,8 @@ on:
       - tools/index_qa/promote.py
       - tools/index_qa/test_promote_source_remediation.py
       - tools/index_qa/test_shrink_declared_gaps.py
+      - tools/index_qa/splice_surah.py
+      - tools/index_qa/test_splice_truncated_excuse.py
       - tools/ci_fleet/source_overrides.json
       - .github/workflows/promote-source-remediation-contract.yml
   workflow_dispatch:
@@ -29,4 +33,4 @@ jobs:
       - uses: actions/setup-python@v5
         with: { python-version: "3.11" }
       - run: python -m unittest tools.index_qa.test_promote_source_remediation -v
-      - run: python -m unittest tools/index_qa/test_shrink_declared_gaps.py tools/index_qa/test_promote_shrink.py tools/index_qa/test_drop_ayahs.py -v
+      - run: python -m unittest tools/index_qa/test_shrink_declared_gaps.py tools/index_qa/test_promote_shrink.py tools/index_qa/test_drop_ayahs.py tools/index_qa/test_splice_truncated_excuse.py tools/index_qa/test_splice_keep_parent_gaps.py tools/index_qa/test_truncated_tail.py -v
