@@ -21,9 +21,12 @@ ALLOWED_USERS = {"package-catalog-cloud.yml", "tasmi-student-train.yml"}
 # أ7: سطرٌ بعينه لا ملفٌّ كامل — قائمةُ الرفض في job-log.yml (فُحصت يدويّاً). تغييرُه يتطلّب تعديلَ هذا الثابت عمداً.
 KNOWN_LINES = {
     "job-log.yml": {
-        'MARK = re.compile(r"\w*DEPLOY_KEY\w*|QuranRafiq\.git|mwqwf/QuranRafiq")  # أيُّ مفتاحِ نشرٍ أيّاً كان اسمُه',
+        r'MARK = re.compile(r"\w*DEPLOY_KEY\w*|QuranRafiq\.git|mwqwf/QuranRafiq")  # أيُّ مفتاحِ نشرٍ أيّاً كان اسمُه',
     },
 }
+# المساراتُ التي يحرسها السيرُ على push (pull_request بلا مرشّح: الفحصُ يظهر على كلّ طلب — Codex الرابعة أ7)
+GUARDED_PATHS = ('".github/workflows/**"', '"tools/ci_guard/**"', '"jobs/private_ci/**"', '"jobs/**/private*"',
+                 '".github/workflows/legacy-key-guard.yml"')
 
 
 def violations(root):
@@ -108,13 +111,24 @@ class LegacyKeyUsersTest(unittest.TestCase):
                 self.assertEqual(len(violations(d)), 1, sub)
 
     def test_a7_workflow_triggers_cover_the_guarded_paths(self):
-        """أ7: الحارسُ يجري على push وpull_request لكلّ مسارٍ يحرسه، ويدويّاً."""
+        """أ7: push يغطّي كلَّ مسارٍ محروس؛ وأ7-ب (Codex الرابعة): pull_request بلا مرشّح مسارات فيظهر الفحصُ على كلّ طلب،
+        وسياقُ الفحص باسم السير (اسمُ الوظيفة = legacy-key-guard)، ويدويّاً."""
         p = os.path.join(ROOT, ".github", "workflows", "legacy-key-guard.yml")
-        text = open(p, encoding="utf-8").read()
+        with open(p, encoding="utf-8") as f:
+            text = f.read()
         self.assertIn("workflow_dispatch:", text)
-        for path in ('".github/workflows/**"', '"tools/ci_guard/**"', '"jobs/private_ci/**"', '"jobs/**/private*"',
-                     '".github/workflows/legacy-key-guard.yml"'):
-            self.assertEqual(text.count(path), 2, path)  # مرّةً في pull_request ومرّةً في push
+        self.assertRegex(text, r"\nname: legacy-key-guard\n")        # اسم السير
+        self.assertRegex(text, r"\n    name: legacy-key-guard\n")    # اسم الوظيفة = السياق المطلوب في حماية main
+        self.assertNotIn("paths-ignore", text)
+        _, sep, triggers = text.partition("\non:\n")
+        self.assertTrue(sep, "كتلة on: مفقودة")
+        self.assertIn("\n  pull_request:", triggers)
+        pr = triggers.split("\n  pull_request:", 1)[1].split("\n  push:", 1)[0]
+        push = triggers.split("\n  push:", 1)[1].split("\n  workflow_dispatch:", 1)[0]
+        self.assertNotIn("paths", pr, "pull_request بلا مرشّح مسارات — وإلا غاب الفحصُ عن طلبٍ لا يمسّها فلا يُستوفى الشرط")
+        self.assertIn("branches: [main]", push)
+        for path in GUARDED_PATHS:
+            self.assertIn(path, push, path)
 
 
 if __name__ == "__main__":
