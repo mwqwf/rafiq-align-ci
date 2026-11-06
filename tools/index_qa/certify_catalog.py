@@ -90,13 +90,30 @@ def undeclared_fatal(fatals, transform_op):
     """
     if not fatals:
         return False
-    declared = str(transform_op or "").startswith("drop_surah")
+    declared = (declared_op(transform_op) if isinstance(transform_op, dict)
+                else str(transform_op or "").startswith("drop_surah"))
     for f in fatals:
         f = str(f)
         if declared and any(f.startswith(p) for p in DECLARED_DROP_FATALS):
             continue
         return True
     return False
+
+
+def declared_op(tr):
+    """هل في `transform` إسقاطٌ معلَن: أثرُ `drop_surah`/`declare_gap` نفسِه، أو **إعلانٌ موروث**
+    (‏`dropSurah`) في إصلاحٍ لاحقٍ لسورةٍ أخرى؟ والوراثةُ لا تصل المنشورَ إلا من باب
+    `promote.inherited_drops` (‏الأصلُ المنشور ببصمته · البيانُ نفسه حرفاً · لا إسقاطَ جديد ·
+    وللحجب المؤقّت صفُّ موافقة المالك). إذن المالك 2026-11-06 19:40Z («موافق»).
+    """
+    if not isinstance(tr, dict):
+        return False
+    op = str(tr.get("op") or "")
+    if op.startswith("drop_surah:") or op.startswith("declare_gap:"):
+        return True
+    ds = tr.get("dropSurah")
+    return (isinstance(ds, list) and bool(ds)
+            and all(type(x) is int and 1 <= x <= 114 for x in ds))
 
 
 def declared_absent(d):
@@ -112,8 +129,7 @@ def declared_absent(d):
     (`--allow-truncated` بإذنٍ نصّيّ) في `promote.py`. غيابُ `unknown` يبقى محسوباً.
     """
     tr = d.get("transform") if isinstance(d.get("transform"), dict) else {}
-    op = str(tr.get("op") or "")
-    if not (op.startswith("drop_surah:") or op.startswith("declare_gap:")) or not tr.get("reasonCode"):
+    if not declared_op(tr) or not tr.get("reasonCode"):
         return 0
     miss = d.get("missing") if isinstance(d.get("missing"), dict) else {}
     by = miss.get("byReason") if isinstance(miss.get("byReason"), dict) else {}
@@ -244,6 +260,16 @@ def _self_test() -> None:
     assert declared_absent(mk("graft:4", "SOURCE_TRUNCATED", 176, 176)) == 0, "⛔ بلا drop_surah لا إعلان"
     assert declared_absent(mk("drop_surah:4", "X", 500, 176)) == 176, "لا يزيد على الغياب"
     assert declared_absent({}) == 0
+    _inh = {"transform": {"op": "ctc_heardmap_splice:31", "dropSurah": [6, 89], "reasonCode": "OTHER"},
+            "missing": {"count": 195, "byReason": {"source_truncated": 195}}}
+    assert declared_absent(_inh) == 195, "الإعلانُ الموروث يُحتسب"
+    assert declared_absent({**_inh, "transform": {"op": "ctc_splice:31", "dropSurah": [],
+                                                  "reasonCode": "OTHER"}}) == 0, "⛔ قائمة فارغة لا إعلان"
+    assert declared_absent({**_inh, "transform": {"op": "ctc_splice:31", "dropSurah": [6]}}) == 0, \
+        "⛔ بلا رمز سببٍ لا إعلان"
+    assert undeclared_fatal(["سور غائبة كلياً: 2 → [6, 89]"], _inh["transform"]) is False
+    assert undeclared_fatal(["بسملة مبتلعة في 37:1"], _inh["transform"]) is True, "الفاتلُ الصوتيّ يبقى رادّاً"
+    assert undeclared_fatal(["سور غائبة كلياً: 1 → [6]"], {"op": "ctc_splice:31"}) is True
     print("  ✅ الغيابُ المعلَنُ المعتمد يُستثنى، وغيرُ المعلَن والأرضيّةُ والحكمُ باقية")
 
     # ── الشرطُ الرابع: حكمٌ **مقروء** لا حكمٌ **موجود** ────────────────────
@@ -321,7 +347,10 @@ def main() -> None:
                 time.sleep(2 ** i)
         d = json.load(gzip.open(io.BytesIO(raw), "rt", encoding="utf-8"))
         fatal = bool((d.get("qa") or {}).get("fatal"))
-        op = (d.get("transform") or {}).get("op") or ""
+        _tr = d.get("transform") if isinstance(d.get("transform"), dict) else {}
+        # الإعلانُ الموروث (‏dropSurah) يُعامَل كالإسقاط المعلن في الفواتل المعذورة وحدها.
+        op = _tr if (declared_op(_tr) and not str(_tr.get("op") or "").startswith("drop_surah")) \
+            else (_tr.get("op") or "")
         return k, (len(d.get("entries") or []), d.get("ayahCount") or 6236,
                    hashlib.sha256(raw).hexdigest(), fatal), op, declared_absent(d)
     with ThreadPoolExecutor(4) as ex:
