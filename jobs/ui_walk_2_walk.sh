@@ -4,7 +4,9 @@
 #    ثمّ يزحف على الأزرار بميزانيةٍ زمنيّة ويقيس زمنَ الفتح والذاكرة والانهيارات (دراسة المستشار 2026-11-05).
 #    المخرَج: tmp/ui_walk/<run_id>/ في R2 (لقطاتٌ كاملة ومصغّرة + شجرة الواجهة + تقريرٌ خام) — لا يكتب في timings/.
 #    الكلفة: دقائقُ هذا المستودع العامّ مجّانية؛ وسؤالُ «اسأل» الواحد وتسميعٌ سحابيٌّ واحد = سنتات.
-# ⟳ المراجعة 4 (2026-11-06 00:40Z): الشوط 42118906040 أُلغي بمهلة المهمّة (120 د) ولم يرفع شيئاً — بقي bash وadb وحدهما
+# ⟳ المراجعة 5 (2026-11-06 00:35Z): الرفعُ الحيّ كشف السببَ في دقيقتَين: avdmanager خرج بـ0 ولم يجد المحاكي الـAVD (ولا config.ini)
+#    — وهو عينُ ما أهلك الشوطَ الأوّل. العلاج: ANDROID_AVD_HOME صريحٌ للطرفَين + طباعةُ خرج avdmanager + قراءةُ المسار من walk.ini + تحقّقٌ بـ-list-avds.
+# ⟳ المراجعة 4 (2026-11-06 00:25Z): الشوط 42118906040 أُلغي بمهلة المهمّة (120 د) ولم يرفع شيئاً — بقي bash وadb وحدهما
 #    بلا محاكٍ عند الإلغاء، أي أنّ المحاكي مات وانتظره `adb wait-for-device` بلا حدّ، وخرجُ السكربت كلُّه كان محبوساً في
 #    `tail -400` فضاع. العلاج: (١) كلُّ انتظارٍ محدودٌ بمهلةٍ ويُفحص بقاءُ المحاكي قبله؛ (٢) سجلُّ التقدّم والتقريرُ الجزئيّ
 #    والمصغّراتُ تُرفع إلى R2 كلَّ دقيقتَين ونصف (tmp/ui_walk/<run>/live/) فلا يضيع شيءٌ إن قُتل الشوط؛ (٣) خياراتُ المحاكي
@@ -101,10 +103,21 @@ sudo udevadm control --reload-rules && sudo udevadm trigger --name-match=kvm
 sudo setfacl -m "u:$(id -un):rw" /dev/kvm 2>/dev/null || true
 test -r /dev/kvm -a -w /dev/kvm && say "KVM جاهز" || { ls -la /dev/kvm 2>&1; die "لا KVM — x86_64 لا يُقلع بلا تسريع (وصفةُ device-matrix تشترطه أيضاً)"; }
 AVDM="$(dirname "$SDKM")/avdmanager"
-echo no | timeout 300 "$AVDM" create avd -n walk -k "$IMG" -d pixel_2 --force > /tmp/ui_walk/avd.log 2>&1 || { tail -5 /tmp/ui_walk/avd.log; die "avdmanager"; }
-CFG="$HOME/.android/avd/walk.avd/config.ini"
+# ⛔ الشوطان 42118906040 و42136701323: avdmanager خرج بـ0 ولم يجد المحاكي الـAVD («Unknown AVD name [walk]») — فيُثبَّت بيتُ الـAVD صريحاً
+#    للطرفَين، ويُطبع خرجُ avdmanager كلُّه، ويُقرأ مسارُ الـAVD من walk.ini لا من افتراض، ويُتحقَّق بـ`emulator -list-avds` قبل الإقلاع.
+export ANDROID_AVD_HOME=/tmp/ui_walk/avd; mkdir -p "$ANDROID_AVD_HOME"
+echo no | timeout 300 "$AVDM" create avd --force -n walk --abi google_apis/x86_64 --package "$IMG" --device pixel_2 > /tmp/ui_walk/avd.log 2>&1; RCA=$?
+say "avdmanager خرج بـ$RCA؛ خرجُه:"; sed 's/^/   │ /' /tmp/ui_walk/avd.log | head -20
+say "بيئة أندرويد: $(env | grep -i -E '^(ANDROID|HOME=)' | tr '\n' ' ' | cut -c1-300)"
+say "AVDs التي يراها المحاكي: [$(emulator -list-avds 2>/dev/null | tr '\n' ' ')] · محتوى $ANDROID_AVD_HOME: [$(ls "$ANDROID_AVD_HOME" 2>/dev/null | tr '\n' ' ')] · ~/.android/avd: [$(ls "$HOME/.android/avd" 2>/dev/null | tr '\n' ' ')]"
+INI=$(ls "$ANDROID_AVD_HOME"/walk.ini "$HOME"/.android/avd/walk.ini 2>/dev/null | head -1)
+[ -n "$INI" ] || { find / -name 'walk.ini' -not -path '/proc/*' 2>/dev/null | head -5; die "لم يُنشأ AVD (avdmanager خرج بـ$RCA)"; }
+AVDDIR=$(grep -E '^path=' "$INI" | head -1 | cut -d= -f2-); [ -d "$AVDDIR" ] || AVDDIR="$(dirname "$INI")/walk.avd"
+CFG="$AVDDIR/config.ini"; [ -f "$CFG" ] || die "لا config.ini في $AVDDIR"
 sed -i '/^hw.ramSize/d;/^hw.keyboard/d;/^hw.lcd.density/d;/^disk.dataPartition.size/d' "$CFG"
 printf 'hw.ramSize=3072\nhw.keyboard=yes\nhw.lcd.density=420\ndisk.dataPartition.size=4096M\n' >> "$CFG"
+say "AVD في $AVDDIR · $(grep -c '' "$CFG") سطراً في config.ini"
+emulator -list-avds 2>/dev/null | grep -qx walk || die "المحاكي لا يرى AVD walk بعد الإنشاء"
 nproc; free -m | head -2
 
 say "④ إقلاعُ المحاكي (خياراتُ device-matrix المجرَّبة)"
