@@ -30,7 +30,8 @@ NEW_SECRETS = ("PCI_DEPLOY_KEY_B64", "PRIVATE_CI_R2_JSON", "PCI_STATUS_TOKEN")
 LEGACY_KEY = "QR_READ_DEPLOY_KEY_B64"
 # ⛔ إرثٌ معلَن (2026-11-06): ثلاثةُ سيورٍ تقرأ المفتاحَ القديم على مستوى المستودع — تعارضٌ قائمٌ مع (أ).
 #    خطّةُ إغلاقه في docs/ops/CI_PUBLIC_RUNNER_MIGRATION.md (‏في الخاص) §خطوات المالك؛ وعند ب3 تُفرَّغ هذه القائمة.
-LEGACY_KEY_USERS = {"agent-job.yml", "package-catalog-cloud.yml", "tasmi-student-train.yml"}
+# ⛔ (v2 · D7) agent-job.yml لم يعد يستنسخ الخاصّ؛ فأيُّ عودةٍ للمفتاح فيه مخالفة.
+LEGACY_KEY_USERS = {"package-catalog-cloud.yml", "tasmi-student-train.yml"}
 SHA_PIN = re.compile(r"^[\w.-]+/[\w.-]+(?:/[\w./-]+)?@[0-9a-f]{40}$")
 ALLOWED_SECRET_STEPS = {
     "PCI_DEPLOY_KEY_B64": "run.sh clone",
