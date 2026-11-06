@@ -8,9 +8,8 @@
 # فيُنفَّذ هنا على عدّاءٍ **بلا أيّ حجب**، وتعود مخرَجاتُه **ملفّاً في `results/`** يقرؤه
 # بـ`git pull` — ويُعلَّق في لوحة المتابعة فيصل هاتفَ المالك.
 #
-# 🔑 **والمستودع الخاص اختياري:** مفتاح نشر SSH للقراءة فقط يخص `QuranRafiq` وحده،
-# لا رمز GitHub واسع الصلاحية. إن غاب بقي ما لا يحتاجه يعمل، ولا ينجح اختبار محرك
-# بادعاء أنه فحص المصدر الخاص.
+# ⛔ **لا مستودعَ خاصّاً هنا** (v2 · D7 · 2026-11-06): هذا المستودعُ عامٌّ يدفع إليه الوكلاء، فلا يُستنسخ فيه
+# المصدرُ الخاصّ أبداً. ما يحتاجه (جولةُ الواجهة · فحصُ الأبواب) انتقل إلى العدّاء المخصّص mwqwf/mushafak-ci.
 name: agent-job
 
 on:
@@ -24,6 +23,11 @@ on:
     branches: [main]   # 🔒 (فحص أمني 2026-10-30) سكربتات jobs/ تجري بأسرار R2 ومفتاح القراءة؛ فلا تُطلق من فرعٍ جانبيّ
     paths:
       - "jobs/**"
+      # ⛔ سكربتاتٌ كانت تحتاج المصدرَ الخاصّ — لا تُطلق بالدفع (تخرج برسالةٍ ثابتة لو طُلبت يدويّاً)
+      - "!jobs/ui_walk_*.sh"
+      - "!jobs/ui_walk/**"
+      - "!jobs/open_doors_probe.sh"
+      - "!jobs/private_ci/**"
 
 # 🔑 أضيقُ ما يكفي: كتابةُ النتيجة في المستودع، وتعليقُها في لوحة المتابعة.
 permissions:
@@ -59,6 +63,10 @@ jobs:
             LIST=$(git diff --name-only --diff-filter=ACMR HEAD~1 HEAD -- 'jobs/*.sh' 2>/dev/null || true)
           fi
           LIST=$(printf '%s\n' $LIST | sed '/^$/d' | sort -u)
+          # ⛔ (D7) ما كان يحتاج المصدرَ الخاصّ لا يُختار بالدفع
+          if [ -z "$IN" ]; then
+            LIST=$(printf '%s\n' $LIST | grep -Ev '^jobs/(ui_walk_[^/]*\.sh|open_doors_probe\.sh)$' || true)
+          fi
           if [ -z "$LIST" ]; then
             echo "ℹ️ لا سكربتَ جديداً — لا شيءَ يُنفَّذ."
             echo "none=1" >> "$GITHUB_OUTPUT"
@@ -102,28 +110,6 @@ jobs:
           env.close()
           PY
 
-      # 🔑 المستودع الخاص — مفتاح نشر مقيّد بالقراءة على QuranRafiq فقط.
-      - name: استنساخ QuranRafiq إن وجد مفتاح القراءة المقيد
-        if: steps.pick.outputs.none != '1'
-        env:
-          QR_KEY_B64: ${{ secrets.QR_READ_DEPLOY_KEY_B64 }}
-        run: |
-          if [ -z "$QR_KEY_B64" ]; then
-            echo "ℹ️ لا مفتاح QR_READ_DEPLOY_KEY_B64 ⇒ لا مستودع خاص. وكل شغل لا يحتاجه يعمل."
-            exit 0
-          fi
-          umask 077
-          mkdir -p "$RUNNER_TEMP/qr-ssh"
-          # Base64 يبقي بنية PEM/OPENSSH كما هي بين Windows وLinux.
-          printf '%s' "$QR_KEY_B64" | base64 --decode > "$RUNNER_TEMP/qr-ssh/id_ed25519"
-          chmod 600 "$RUNNER_TEMP/qr-ssh/id_ed25519"
-          # GitHub runner يملك known_hosts موثوقاً؛ لا نقبل مضيفاً جديداً أو مفتاحاً متغيراً.
-          GIT_SSH_COMMAND="ssh -i $RUNNER_TEMP/qr-ssh/id_ed25519 -o IdentitiesOnly=yes -o StrictHostKeyChecking=yes" \
-            git clone -q --depth 1 git@github.com:mwqwf/QuranRafiq.git "$RUNNER_TEMP/QuranRafiq"
-          rm -f "$RUNNER_TEMP/qr-ssh/id_ed25519"
-          echo "QR_DIR=$RUNNER_TEMP/QuranRafiq" >> "$GITHUB_ENV"
-          echo "✅ QuranRafiq مستنسخ في \$QR_DIR بمفتاح قراءة محدود"
-
       - name: التنفيذ
         if: steps.pick.outputs.none != '1'
         env:
@@ -136,7 +122,6 @@ jobs:
             echo "# 🦾 شغلُ الوكيل · الشوط ${{ github.run_id }}"
             echo
             echo "- التاريخ: $(date -u +%FT%TZ)"
-            echo "- المستودعُ الخاصّ: ${QR_DIR:+حاضر (مسارُ العدّاء لا يُطبع)}${QR_DIR:-غائب (لا مفتاح)}"
             echo
           } > "$OUT"
           FAIL=0
