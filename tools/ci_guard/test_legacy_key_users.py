@@ -122,6 +122,7 @@ class LegacyKeyUsersTest(unittest.TestCase):
         self.assertNotIn("paths-ignore", text)
         _, sep, triggers = text.partition("\non:\n")
         self.assertTrue(sep, "كتلة on: مفقودة")
+        triggers = "\n" + triggers  # أوّلُ زنادٍ يلي «on:» مباشرةً بلا سطرٍ قبله، فيُسبق بسطرٍ ليُطابَق كغيره
         self.assertIn("\n  pull_request:", triggers)
         pr = triggers.split("\n  pull_request:", 1)[1].split("\n  push:", 1)[0]
         push = triggers.split("\n  push:", 1)[1].split("\n  workflow_dispatch:", 1)[0]
