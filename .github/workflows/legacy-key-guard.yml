@@ -1,0 +1,29 @@
+# 🛡️ حارسُ مستهلكي المفتاح القديم (§13-د): القائمةُ والنصوصُ المحظورة في tools/ci_guard/test_legacy_key_users.py (لا تُكرَّر هنا)،
+# ويفشل أيضاً إن ظهر سيرٌ باسم private-ci* أو عاد jobs/private_ci. 💰 عامٌّ ومجّانيّ وثوانٍ.
+name: legacy-key-guard
+
+on:
+  pull_request:
+    paths:
+      - ".github/workflows/**"
+      - "tools/ci_guard/**"
+  push:
+    branches: [main]
+    paths:
+      - ".github/workflows/**"
+      - "tools/ci_guard/**"
+
+permissions: {}
+
+jobs:
+  guard:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          persist-credentials: false
+      - name: اختبار الحارس
+        run: python3 -I tools/ci_guard/test_legacy_key_users.py -v
