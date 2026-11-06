@@ -43,9 +43,10 @@ concurrency:
 
 jobs:
   build-and-gate:
-    # بيئةٌ تُقيَّد بفرع main وحده، ويوضع فيها مفتاح قراءة الخاص بعد تبديله
+    # بيئةُ qr-private-read (‏كسير tasmi-student-train) تُقيَّد بفرع main وحده، ويوضع فيها مفتاح قراءة الخاص بعد تبديله
     # (مراجعة Codex الثالثة · البند 11). وحتى يُنقل يبقى سرّ المستودع متاحاً لها.
-    environment: private-source-read
+    if: github.ref == 'refs/heads/main'
+    environment: qr-private-read
     runs-on: ubuntu-latest
     timeout-minutes: 30
     env:
