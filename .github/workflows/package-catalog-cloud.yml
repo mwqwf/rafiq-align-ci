@@ -2,6 +2,8 @@ name: package-catalog-cloud
 
 on:
   push:
+    # مفتاح قراءة الخاص لا يُعرض لفرعٍ غير main (مراجعة Codex الثالثة · البند 11)
+    branches: [main]
     paths:
       - .github/workflows/package-catalog-cloud.yml
       - tools/packages/certified_catalog_gate.py
@@ -41,6 +43,9 @@ concurrency:
 
 jobs:
   build-and-gate:
+    # بيئةٌ تُقيَّد بفرع main وحده، ويوضع فيها مفتاح قراءة الخاص بعد تبديله
+    # (مراجعة Codex الثالثة · البند 11). وحتى يُنقل يبقى سرّ المستودع متاحاً لها.
+    environment: private-source-read
     runs-on: ubuntu-latest
     timeout-minutes: 30
     env:
