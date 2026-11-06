@@ -337,15 +337,23 @@ def structural(idx, key, allow_unmarked=False, txt_ref=None):
         # ⛔ **ولا يُمسّ `miss_ids` نفسه:** وسمُ الاكتمال يُقابَل بطوله بعد قليل،
         #    فمن أنقصه هنا جعل الترويسةَ الصادقة تُرفع «تخالف الحساب» — وقعت
         #    فعلاً في أوّل صياغةٍ لهذا الإصلاح. الاستثناءُ **لاختبار الشكل وحده**.
+        # ⛔ **إصلاح 2026-11-06 (بإذن المالك النصّيّ «أذنت بتعديل حارس الانحياز»):** كان هنا
+        #    `… or miss_ids`، فإذا كان **كلُّ** المفقود في سورٍ مُسقطةٍ بإعلان صارت القائمةُ فارغةً
+        #    فعاد الاختبارُ إلى المفقود كلِّه — أي نُقض الاستثناءُ في الحالة التي وُضع لها بعينها
+        #    (‏janaini_qalun.75ead42b: 182 مفقوداً كلُّها س37 المُسقطة، فرُفع «ابتلاع» بلا ابتلاع).
+        #    والقائمةُ الفارغة تعني صفرَ مفقودٍ غيرِ معلَن؛ ولا يتغيّر شيءٌ لغير المعلَن ولا عتبة.
         _bias_ids = [i for i in miss_ids
-                     if int(i.split(":")[0]) not in _dropped_set] or miss_ids
-        if _bias_ids is not miss_ids:
+                     if int(i.split(":")[0]) not in _dropped_set]
+        if _bias_ids and len(_bias_ids) != len(miss_ids):
             lens = sorted(len(txt_ref[flat(*map(int, i.split(":")))].split())
                           for i in _bias_ids)
             med_miss = lens[len(lens) // 2]
             short = sum(1 for l in lens if l <= 4) / len(lens)
         enough = len(_bias_ids) >= 50 or len(_bias_ids) >= 0.01 * 6236
-        if enough and med_miss * 2 < med_all:
+        if not _bias_ids:
+            warn.append(f"آيات بلا مدخل: {len(miss_ids)} — كلُّها في سورٍ مُسقطةٍ بإعلان "
+                        f"(‏{sorted(_dropped_set)}) ⇒ لا مفقودَ غيرَ معلَنٍ يُختبر انحيازُه")
+        elif enough and med_miss * 2 < med_all:
             fatal.append(f"الغياب منحازٌ إلى القصار (ابتلاع): وسيط طول المفقودة {med_miss} كلمة "
                          f"مقابل {med_all} في المصحف · و{short:.0%} منها ≤4 كلمات")
         else:
