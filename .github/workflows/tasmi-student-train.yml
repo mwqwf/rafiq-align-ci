@@ -46,6 +46,11 @@ env:
 
 jobs:
   train:
+    # ⛔ مفتاحُ قراءة المستودع الخاص لا يُقرأ إلا من environment مقيّدٍ بفرع main وحده
+    # (مراجعة Codex 13C البند 11، 2026-11-06). ونقطةُ الحفظ في actions/cache أوزانٌ
+    # مدرَّبةٌ على تلاواتٍ عامّةٍ من دلو PUB وحده؛ لا تُحفظ فيها شيفرةُ الخاصّ ولا بياناتُه.
+    if: github.ref == 'refs/heads/main'
+    environment: qr-private-read
     runs-on: ubuntu-latest
     timeout-minutes: 350
     steps:
