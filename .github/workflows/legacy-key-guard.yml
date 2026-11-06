@@ -1,16 +1,13 @@
 # 🛡️ حارسُ مستهلكي المفتاح القديم (§13-د): القائمةُ والنصوصُ المحظورة في tools/ci_guard/test_legacy_key_users.py (لا تُكرَّر هنا)،
 # ويفشل أيضاً إن ظهر سيرٌ باسم private-ci* أو عاد jobs/private_ci. 💰 عامٌّ ومجّانيّ وثوانٍ.
 # أ7 (الإصلاح الرابع): يجري أيضاً على عودة jobs/private_ci وأيِّ مسارٍ خاصٍّ تحت jobs/، وعلى تعديل السير نفسِه، ويدويّاً.
+# أ7-ب (مراجعة Codex الرابعة 2026-11-06): الفحصُ يظهر على **كلّ طلب دمج** (لا مرشّحَ مسارات على pull_request — فطلبٌ لا يمسّ
+#   تلك المسارات كان يتركه غائباً فلا يُستوفى الشرطُ المطلوب)، وسياقُه باسم السير نفسِه `legacy-key-guard` (اسمُ الوظيفة)
+#   لا `guard` (معرّفُها) — فحمايةُ main تطلبه بهذا الاسم حرفيّاً (§14-ب-2 في مستودع التطبيق).
 name: legacy-key-guard
 
 on:
   pull_request:
-    paths:
-      - ".github/workflows/**"
-      - ".github/workflows/legacy-key-guard.yml"
-      - "tools/ci_guard/**"
-      - "jobs/private_ci/**"
-      - "jobs/**/private*"
   push:
     branches: [main]
     paths:
@@ -25,6 +22,7 @@ permissions: {}
 
 jobs:
   guard:
+    name: legacy-key-guard
     runs-on: ubuntu-latest
     timeout-minutes: 5
     permissions:
