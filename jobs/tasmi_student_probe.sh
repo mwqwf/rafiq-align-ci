@@ -14,7 +14,7 @@ die() { echo "⛔ إخفاقٌ مُعلَن: $*"; exit 1; }
 
 [ -n "${QR_DIR:-}" ] || die "لا مستودعَ خاصّ (لا مفتاح قراءة) ⇒ لا شيءَ يُقاس — ولا يُدّعى نجاح"
 cd "$QR_DIR" || die "تعذّر الدخول إلى $QR_DIR"
-say "المستودعُ الخاصّ: $(git log --oneline -1)"
+say "المستودعُ الخاصّ: $(git rev-parse --short HEAD) (البصمةُ وحدها)"
 PUB="https://pub-2c2e1dcd92e84a2898820dd38d3e09e6.r2.dev"
 
 say "① العُدّة"
