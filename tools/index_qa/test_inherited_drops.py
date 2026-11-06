@@ -69,3 +69,32 @@ class InheritedDropsTest(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class InheritedTemporaryHideTest(unittest.TestCase):
+    """الحجب المؤقّت (OTHER) يُورَث فقط بأصلٍ drop_surah وموافقةِ المالك لكلّ سورة (2026-11-06)."""
+    def setUp(self):
+        self.sha = "a" * 64
+        self.parent = {"riwaya": "hafs", "reciterId": "reader", "entries": [{"ayahId": "31:1"}],
+                       "transform": {"op": "drop_surah:6,89", "reasonCode": "OTHER", "reasonUser": "قيد الإصلاح"}}
+        self.idx = copy.deepcopy(self.parent)
+        self.idx["transform"].update(op="ctc_heardmap_splice:31", dropSurah=[6, 89],
+                                     fromKey="timings/hafs/reader.jz", fromSha256=self.sha)
+
+    def test_without_owner_approval_refuses(self):
+        self.assertIsNotNone(inherited_drops(self.idx, self.parent, self.sha)[1])
+        self.assertIsNotNone(inherited_drops(self.idx, self.parent, self.sha, frozenset({6}))[1])
+
+    def test_with_owner_approval_of_every_surah_inherits(self):
+        self.assertEqual(inherited_drops(self.idx, self.parent, self.sha, frozenset({6, 89})), ({"6", "89"}, None))
+
+    def test_inheritance_of_inheritance_refuses(self):
+        self.parent["transform"]["op"] = "ctc_splice:2"
+        self.assertIsNotNone(inherited_drops(self.idx, self.parent, self.sha, frozenset({6, 89}))[1])
+
+    def test_changed_notice_or_new_drop_refuses(self):
+        self.idx["transform"]["reasonUser"] = "غيره"
+        self.assertIsNotNone(inherited_drops(self.idx, self.parent, self.sha, frozenset({6, 89}))[1])
+        self.idx["transform"]["reasonUser"] = "قيد الإصلاح"
+        self.idx["transform"]["dropSurah"] = [6, 31, 89]
+        self.assertIsNotNone(inherited_drops(self.idx, self.parent, self.sha, frozenset({6, 31, 89}))[1])

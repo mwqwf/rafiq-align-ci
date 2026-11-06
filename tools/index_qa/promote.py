@@ -2050,7 +2050,7 @@ def _fake_entries(f):
     return rows + [{"ayahId": f"{filler}:2"}] * pad
 
 
-def inherited_drops(idx, parent, parent_sha):
+def inherited_drops(idx, parent, parent_sha, owner_approved=frozenset()):
     """إعلان غياب موروث فقط؛ لا يقبل إسقاطاً جديداً بحقل dropSurah.
 
     يلزم الأصل المنشور على كامل بصمته، وغياب السورة فيه مسبقاً، ونفس البيان
@@ -2079,7 +2079,15 @@ def inherited_drops(idx, parent, parent_sha):
     if not claimed <= old_declared or claimed & (old_present | present):
         return set(), "إعلان الغياب الموروث يحاول إسقاط سورة جديدة أو حاضرة"
     # إذن المالك 2026-10-08 23:51Z و2026-10-09 06:24Z: يُورَث إعلانُ الفاسد كالمبتور بالبيان نفسه حرفاً ولا إسقاطَ جديد
-    if (pt.get("reasonCode") not in ("SOURCE_TRUNCATED", "SOURCE_CORRUPT") or not pt.get("reasonUser")
+    # والحجبُ المؤقّتُ المعلن (‏reasonCode=OTHER) يُورَث كذلك بالبيان نفسه حرفاً — بإذن المالك النصّيّ
+    # 2026-11-06 15:09Z («موافق» على تعديل حارس وراثة الحجب) — **بشرطين زائدين**: أن يكون الأصلُ نفسُه
+    # إسقاطاً معلناً (‏op=drop_surah) لا وراثةً عن وراثة، وأن يسمّي صفُّ موافقةِ المالك لمفتاح المرشّح
+    # (‏OWNER_DROP_APPROVALS.json) و`--allow-truncated` كلَّ سورةٍ موروثة. ولا يُحجب بها شيءٌ جديد.
+    _hide_ok = (pt.get("reasonCode") == "OTHER"
+                and str(pt.get("op") or "").startswith("drop_surah:")
+                and claimed <= {str(s) for s in owner_approved})
+    if ((pt.get("reasonCode") not in ("SOURCE_TRUNCATED", "SOURCE_CORRUPT") and not _hide_ok)
+            or not pt.get("reasonUser")
             or any(tr.get(k) != pt.get(k) for k in ("reasonCode", "reasonUser"))):
         return set(), "بيان سبب الغياب الموروث مفقود أو تبدل"
     if not {e["ayahId"] for e in parent.get("entries", [])} <= {e["ayahId"] for e in idx.get("entries", [])}:
@@ -2087,7 +2095,7 @@ def inherited_drops(idx, parent, parent_sha):
     return claimed, None
 
 
-def index_gate(idx, *, parent=None, parent_sha=None):
+def index_gate(idx, *, parent=None, parent_sha=None, owner_approved=frozenset()):
     """سبب رفض الفهرس نفسه، أو None. **الغياب رفضٌ لا تساهل.**"""
     if not idx.get("refineVersion"):
         return "الفهرس بلا أثر صقلٍ في ترويسته — مجهول الجيل فلا يُرقّى"
@@ -2119,7 +2127,7 @@ def index_gate(idx, *, parent=None, parent_sha=None):
     dropped = (set(re.findall(r"\d+", op_txt))
                if op_txt.startswith("drop_surah") else set())
     if not op_txt.startswith("drop_surah") and isinstance(tr, dict) and tr.get("dropSurah"):
-        inherited, why = inherited_drops(idx, parent, parent_sha)
+        inherited, why = inherited_drops(idx, parent, parent_sha, owner_approved)
         if why:
             return why
         dropped |= inherited
@@ -2830,7 +2838,11 @@ def main():
             except Exception as ex:
                 print(f"  ⛔ {src}: تعذر إثبات أصل إعلان الغياب: {ex}")
                 continue
-        bad = index_gate(idx, parent=drop_parent, parent_sha=drop_parent_sha) or catalog_gate(idx, catalog(cl, bucket))
+        # موافقةُ المالك على الحجب المؤقّت الموروث: صفُّه لمفتاح المرشّح ∩ ما يسمّيه --allow-truncated.
+        _own = (frozenset(load_drop_approvals().get(src, frozenset()))
+                & frozenset(int(x) for x in re.findall(r"\d+", a.allow_truncated or "")))
+        bad = (index_gate(idx, parent=drop_parent, parent_sha=drop_parent_sha, owner_approved=_own)
+               or catalog_gate(idx, catalog(cl, bucket)))
         if bad:
             print(f"  ⛔ {src}: {bad}")
             continue
