@@ -16,6 +16,9 @@
 # ⟳ المراجعة 3 (2026-11-05 22:10Z): يُعاد مع السكربت الأوّل بعد إصلاح إيجاد APK (الشوط 42115041851 بنى ولم يجد الملف).
 set -uo pipefail
 mkdir -p /tmp/ui_walk/out /tmp/ui_walk/live
+# ⛔ 2026-11-06: مخرجاتُ الجولة (APK تصحيحيّ · سجلّ البناء · اللقطات) تُرفع إلى الدلو الخاصّ وحده؛
+#    كانت تُرفع إلى الدلو العامّ rafiq-media فصار APK التطبيق قابلاً للتنزيل من r2.dev بلا مصادقة.
+export UI_WALK_BUCKET="${R2_PRIVATE_BUCKET:-mushafak-private}"
 OUT=/tmp/ui_walk/out
 APK=/tmp/ui_walk/app-debug.apk
 WS="${GITHUB_WORKSPACE:-$(pwd)}"
@@ -34,7 +37,7 @@ e = os.environ
 if not e.get("R2_ENDPOINT"): sys.exit(0)
 s3 = boto3.client("s3", endpoint_url=e["R2_ENDPOINT"], aws_access_key_id=e["R2_ACCESS_KEY_ID"],
                   aws_secret_access_key=e["R2_SECRET_ACCESS_KEY"], region_name="auto")
-b = e["R2_BUCKET"]; run = e.get("GITHUB_RUN_ID", "local"); out = "/tmp/ui_walk/out"
+b = e["UI_WALK_BUCKET"]; run = e.get("GITHUB_RUN_ID", "local"); out = "/tmp/ui_walk/out"
 small = sorted(glob.glob(out + "/small/*.jpg"))
 if small:
     with tarfile.open("/tmp/ui_walk/live/live_small.tgz", "w:gz") as t:
@@ -70,13 +73,13 @@ die(){ echo "⛔ $*"; tail -40 /tmp/ui_walk/emulator.log 2>/dev/null; kill $PUSH
 
 say "① APK"
 if [ ! -s "$APK" ]; then
-  say "لا APK من السكربت الأوّل في هذا الشوط — يُنزَّل آخرُ بناءٍ من R2"
+  say "لا APK من السكربت الأوّل في هذا الشوط — يُنزَّل آخرُ بناءٍ من الدلو الخاصّ"
   timeout 600 python3 - <<'PY' || die "لا APK في R2 ولا في الشوط"
 import boto3, os
 s3 = boto3.client("s3", endpoint_url=os.environ["R2_ENDPOINT"], aws_access_key_id=os.environ["R2_ACCESS_KEY_ID"],
                   aws_secret_access_key=os.environ["R2_SECRET_ACCESS_KEY"], region_name="auto")
-s3.download_file(os.environ["R2_BUCKET"], "tmp/ui_walk/apk/app-debug.apk", "/tmp/ui_walk/app-debug.apk")
-print(s3.get_object(Bucket=os.environ["R2_BUCKET"], Key="tmp/ui_walk/apk/LATEST.json")["Body"].read().decode())
+s3.download_file(os.environ["UI_WALK_BUCKET"], "tmp/ui_walk/apk/app-debug.apk", "/tmp/ui_walk/app-debug.apk")
+print(s3.get_object(Bucket=os.environ["UI_WALK_BUCKET"], Key="tmp/ui_walk/apk/LATEST.json")["Body"].read().decode())
 PY
 fi
 [ -s "$APK" ] || die "لا APK"
@@ -187,19 +190,22 @@ cp "$PROG" "$OUT/progress.log" 2>/dev/null; cp /tmp/ui_walk/walk_stdout.log "$OU
 ( cd "$OUT" && tar czf /tmp/ui_walk/walk_full.tgz shots logcat_last2mb.txt logcat_tail.txt 2>/dev/null )
 say "لقطات: $N · small $(( $(stat -c %s /tmp/ui_walk/walk_small.tgz 2>/dev/null || echo 0)/1024 )) ك.ب · full $(( $(stat -c %s /tmp/ui_walk/walk_full.tgz 2>/dev/null || echo 0)/1024/1024 )) م.ب"
 
-say "⑧ الرفعُ إلى R2: tmp/ui_walk/${RUN}/"
+say "⑧ الرفعُ إلى الدلو الخاصّ: tmp/ui_walk/${RUN}/"
 timeout 600 python3 - "$OUT" <<'PY'
 import boto3, os, sys
 s3 = boto3.client("s3", endpoint_url=os.environ["R2_ENDPOINT"], aws_access_key_id=os.environ["R2_ACCESS_KEY_ID"],
                   aws_secret_access_key=os.environ["R2_SECRET_ACCESS_KEY"], region_name="auto")
-b = os.environ["R2_BUCKET"]; run = os.environ.get("GITHUB_RUN_ID", "local"); out = sys.argv[1]
+b = os.environ["UI_WALK_BUCKET"]; run = os.environ.get("GITHUB_RUN_ID", "local"); out = sys.argv[1]
 for src, key, ct in (("/tmp/ui_walk/walk_small.tgz", "walk_small.tgz", "application/gzip"),
                      ("/tmp/ui_walk/walk_full.tgz", "walk_full.tgz", "application/gzip"),
                      (f"{out}/walk_report.md", "walk_report.md", "text/markdown; charset=utf-8"),
                      (f"{out}/walk_report.json", "walk_report.json", "application/json")):
     if os.path.isfile(src):
-        s3.upload_file(src, b, f"tmp/ui_walk/{run}/{key}", ExtraArgs={"ContentType": ct})
-        print(f"✅ tmp/ui_walk/{run}/{key} ({os.path.getsize(src)//1024} ك.ب)")
+        try:
+            s3.upload_file(src, b, f"tmp/ui_walk/{run}/{key}", ExtraArgs={"ContentType": ct})
+            print(f"✅ tmp/ui_walk/{run}/{key} ({os.path.getsize(src)//1024} ك.ب)")
+        except Exception as ex:  # لا يُرفع إلى الدلو العامّ بديلاً — التقريرُ الخامّ يُطبع أدناه على كلّ حال
+            print(f"⚠ لم يُرفع {key} إلى الدلو الخاصّ ({type(ex).__name__})")
 PY
 live_push
 echo "── رأسُ التقرير الخام ──"

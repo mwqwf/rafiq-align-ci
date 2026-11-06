@@ -10,9 +10,12 @@ set -uo pipefail
 say(){ echo "▸ $*"; }
 date +%s > /tmp/ui_walk_start          # ميزانيةُ السكربت الثاني تُحسب من هنا (الشوط كلُّه 120 د)
 mkdir -p /tmp/ui_walk
+# ⛔ 2026-11-06: مخرجاتُ الجولة (APK تصحيحيّ · سجلّ البناء · اللقطات) تُرفع إلى الدلو الخاصّ وحده؛
+#    كانت تُرفع إلى الدلو العامّ rafiq-media فصار APK التطبيق قابلاً للتنزيل من r2.dev بلا مصادقة.
+export UI_WALK_BUCKET="${R2_PRIVATE_BUCKET:-mushafak-private}"
 
 [ -n "${QR_DIR:-}" ] && [ -d "$QR_DIR" ] || { echo "⛔ لا مستودعَ خاصّ (QR_DIR غائب) — لا بناء"; exit 1; }
-say "المستودعُ الخاصّ: $(git -C "$QR_DIR" log -1 --format='%h %s' | cut -c1-140)"
+say "المستودعُ الخاصّ: $(git -C "$QR_DIR" rev-parse --short HEAD) (البصمةُ وحدها — عنوانُ الإيداع لا يُطبع في مستودعٍ عامّ)"
 QR_SHA=$(git -C "$QR_DIR" rev-parse --short HEAD)
 
 say "① مساحةُ القرص"
@@ -35,7 +38,7 @@ import boto3, os
 s3 = boto3.client("s3", endpoint_url=os.environ["R2_ENDPOINT"], aws_access_key_id=os.environ["R2_ACCESS_KEY_ID"],
                   aws_secret_access_key=os.environ["R2_SECRET_ACCESS_KEY"], region_name="auto")
 k = "tmp/ui_walk/%s/build.log" % os.environ.get("GITHUB_RUN_ID", "local")
-s3.upload_file("/tmp/ui_walk/build.log", os.environ["R2_BUCKET"], k); print("📄 سجلُّ البناء في R2:", k)
+s3.upload_file("/tmp/ui_walk/build.log", os.environ["UI_WALK_BUCKET"], k); print("📄 سجلُّ البناء في الدلو الخاصّ:", k)
 PY2
 }
 say "③ البناء: :app:assembleDebug لمعماريّة المحاكي x86_64 وحدها (JDK $(java -version 2>&1 | head -1 | cut -d'"' -f2))"
@@ -66,16 +69,19 @@ say "APK: $APK · $((SZ/1024/1024)) م.ب · sha256 $SHA… · المصدر $QR_
 grep -E 'BUILD (SUCCESSFUL|FAILED)' /tmp/ui_walk/build.log | tail -1
 
 upload_log
-say "④ الرفعُ إلى R2 (tmp/ui_walk/apk/) ليُعاد استعمالُه بلا بناءٍ جديد"
+say "④ الرفعُ إلى الدلو الخاصّ (tmp/ui_walk/apk/) ليُعاد استعمالُه بلا بناءٍ جديد"
 [ -n "${R2_ENDPOINT:-}" ] || { echo "⚠ لا بيانةَ R2 — يبقى APK في /tmp للسكربت الثاني فقط"; exit 0; }
 python3 - "$QR_SHA" "$SZ" "$SHA" <<'PY'
 import boto3, json, os, sys, datetime
 s3 = boto3.client("s3", endpoint_url=os.environ["R2_ENDPOINT"], aws_access_key_id=os.environ["R2_ACCESS_KEY_ID"],
                   aws_secret_access_key=os.environ["R2_SECRET_ACCESS_KEY"], region_name="auto")
-b = os.environ["R2_BUCKET"]
-s3.upload_file("/tmp/ui_walk/app-debug.apk", b, "tmp/ui_walk/apk/app-debug.apk")
+b = os.environ["UI_WALK_BUCKET"]
 meta = {"qr_sha": sys.argv[1], "bytes": int(sys.argv[2]), "sha256_16": sys.argv[3],
         "built": datetime.datetime.utcnow().isoformat() + "Z", "run": os.environ.get("GITHUB_RUN_ID", "")}
-s3.put_object(Bucket=b, Key="tmp/ui_walk/apk/LATEST.json", Body=json.dumps(meta, ensure_ascii=False).encode(), ContentType="application/json")
-print("✅ رُفع tmp/ui_walk/apk/app-debug.apk +", json.dumps(meta, ensure_ascii=False))
+try:
+    s3.upload_file("/tmp/ui_walk/app-debug.apk", b, "tmp/ui_walk/apk/app-debug.apk")
+    s3.put_object(Bucket=b, Key="tmp/ui_walk/apk/LATEST.json", Body=json.dumps(meta, ensure_ascii=False).encode(), ContentType="application/json")
+    print("✅ رُفع tmp/ui_walk/apk/app-debug.apk إلى الدلو الخاصّ +", json.dumps(meta, ensure_ascii=False))
+except Exception as ex:  # مفتاحُ R2 قد لا يملك الدلوَ الخاصّ — فلا يُرفع إلى العامّ أبداً، ويبقى APK في /tmp لهذا الشوط
+    print("⚠ لم يُرفع APK إلى الدلو الخاصّ (" + type(ex).__name__ + ") — يبقى في /tmp لهذا الشوط فقط")
 PY

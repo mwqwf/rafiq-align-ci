@@ -22,7 +22,7 @@ PUB="https://pub-2c2e1dcd92e84a2898820dd38d3e09e6.r2.dev"
 BUDGET_MIN=${BUDGET_MIN:-62}
 MAXPER=${MAXPER:-150}
 OUT=/tmp/out_student
-say "المستودعُ الخاصّ: $(git log --oneline -1)"
+say "المستودعُ الخاصّ: $(git rev-parse --short HEAD) (البصمةُ وحدها)"
 
 say "① العُدّة"
 pip install -q "torch==2.15.0" --index-url https://download.pytorch.org/whl/cpu || die "torch"
