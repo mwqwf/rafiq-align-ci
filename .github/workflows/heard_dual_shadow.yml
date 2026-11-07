@@ -1,6 +1,6 @@
 name: rafiq-heard-dual-shadow
 
-run-name: heard-dual-shadow ${{ inputs.reason }}
+run-name: heard-dual-shadow ${{ inputs.reason || github.sha }}
 
 # 🔎 **ظلُّ الباب المزدوج في بوّابة السماع** (‏`tools/index_qa/heard_gate.py` · `heard_dual.txt` · قرار القائد 1 · إذنُ المالك 2026-11-07 19:22Z).
 # ⚖️ **وضعُ التقرير وحدَه:** `contents: read`، بلا سرٍّ ولا دلوٍ ولا state ولا ترقية ولا كتابةٍ في timings/. المرشّحاتُ تُقرأ من الدلو العامّ (‏r2.dev) قراءةً.
@@ -9,9 +9,14 @@ run-name: heard-dual-shadow ${{ inputs.reason }}
 #    `controls` قرّاءُ ضبطٍ يُفرض عليهم الباب في التقرير وحدَه (‏ليسوا في القائمة) ليُثبَت أنّه لا يقلب حكمَهم نحو القبول.
 # 💰 مستودعٌ عامّ + عدّاد ubuntu-latest القياسيّ ⇒ دقائقُ مجّانيّة.
 on:
+  # ⭐ الإطلاقُ قبل الدمج: `workflow_dispatch` لا يرى ملفَّ سير عملٍ غيرَ موجودٍ في main (‏HTTP 404)، فيُطلَق من **دفعِ ملفّ المعاملات**
+  #    `ops/shadow/heard_dual_shadow.json` إلى فرع هذا الطلب وحدَه (‏لا يعمل في main ولا في فرعٍ آخر). يُحذف هذا الزنادُ مع ملفّه بعد الدمج.
+  push:
+    branches: [claude/heard-dual-ref]
+    paths: [ops/shadow/heard_dual_shadow.json]
   workflow_dispatch:
     inputs:
-      items: {description: "مرشّحاتُ القائمة: «مفتاح@سورة+سورة» مفصولةً بـ; (‏مثل timings-staging/hafs/saad.d7a45c48.jz@36+38)", required: true}
+      items: {description: "مرشّحاتُ القائمة: «مفتاح@سورة+سورة» مفصولةً بـ; (‏مثل timings-staging/hafs/saad.d7a45c48.jz@36+38)", default: ""}
       controls: {description: "قرّاءُ الضبط (‏بالصيغة نفسِها): يُفرض عليهم الباب في التقرير وحدَه", default: ""}
       reason: {description: "سببُ الإطلاق", default: ""}
 
@@ -41,7 +46,7 @@ jobs:
         run: python -m unittest tools/index_qa/test_heard_gate.py tools/index_qa/test_heard_dual.py
       - name: الخطّةُ (‏قراءةٌ من الدلو العامّ) وتنزيلُ المرشّحات
         id: plan
-        env: {ITEMS: "${{ inputs.items }}", CONTROLS: "${{ inputs.controls }}"}
+        env: {ITEMS: "${{ inputs.items }}", CONTROLS: "${{ inputs.controls }}", EVENT: "${{ github.event_name }}"}
         run: |
           python - <<'PY'
           import gzip, hashlib, json, os, sys, urllib.request
@@ -51,7 +56,11 @@ jobs:
           base = os.environ["R2_PUBLIC"]
           os.makedirs("cands", exist_ok=True)
           plan = []
-          for forced, raw in ((False, os.environ["ITEMS"]), (True, os.environ["CONTROLS"])):
+          items, controls = os.environ["ITEMS"], os.environ["CONTROLS"]
+          if os.environ["EVENT"] == "push":
+              cfg = json.load(open("ops/shadow/heard_dual_shadow.json", encoding="utf-8"))
+              items, controls = cfg["items"], cfg.get("controls", "")
+          for forced, raw in ((False, items), (True, controls)):
               for ent in [x.strip() for x in raw.split(";") if x.strip()]:
                   src, _, ss = ent.partition("@")
                   if not (src.startswith("timings-staging/") or src.startswith("timings/")) or src.count("/") != 2 or not ss:
