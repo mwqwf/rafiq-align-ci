@@ -1,15 +1,16 @@
-# 🎓 **سلسلةُ تدريب طالب M3 — تستأنف نفسَها، وكلُّ شيءٍ يبقى داخلَ هذا المستودع.**
+# 🎓 **تدريب طالب M3 — كلُّ شيءٍ يبقى داخلَ الوظيفة.**
 #
-# ⛔ **العطبُ الذي وُجدت له** ([[D-736]] ⇐ [[D-742]]): دفترُ Kaggle استنسخ مستودعاً **خاصّاً**
-# فوقف على سؤال اعتمادٍ أبداً. والشيفرةُ هنا تصل **بمفتاح القراءة المقيّد** الذي يملكه المالك
-# سلفاً (`QR_READ_DEPLOY_KEY_B64`) — بلا رفعِ شيفرةٍ ولا كلمةِ سرٍّ في دفتر.
+# ⛔ **العطبُ الذي وُجد له** ([[D-736]] ⇐ [[D-742]]): دفترُ Kaggle استنسخ مستودعاً **خاصّاً**
+# فوقف على سؤال اعتمادٍ أبداً. والشيفرةُ هنا تصل **بمفتاح القراءة المقيّد**
+# (`QR_READ_DEPLOY_KEY_B64`) من environment `qr-private-read` على main وحده.
 #
-# ⛔ **ونقطةُ الحفظ لا تخرج إلى خدمةٍ خارجيّة**: تبقى في **ذاكرة أشواط GitHub** في المستودع
-# الذي يجري فيه الشوطُ نفسُه. والمفتاحُ يحمل رقمَ الشوط (الذاكرةُ لا يُكتب فوقها)،
-# و`restore-keys` يلتقط أحدثَ نقطةٍ بالبادئة.
+# ⛔ **لا ذاكرةَ أشواط (actions/cache) بعد اليوم** (مراجعة Codex الخامسة 2026-11-07):
+# التدريبُ يستعمل شيفرةَ المستودع الخاص، فلا يوضع مشتقُّه في كاشٍ عامّ يُقرأ من طلبات fork.
+# ⇒ الناتجُ يبقى في الوظيفة ويزول بانتهائها، ولا استئنافَ بين الحلقات؛ و`chain` مطفأٌ افتراضاً
+# لأنّ كلَّ حلقةٍ تبدأ من الصفر. والكاشُ القديم `tasmi-student-m3-35581446145` يُثبَّت حذفُه
+# من حاسوب المالك بـ`gh cache list`.
 #
 # 💰 مستودعٌ عامّ + عدّاءٌ قياسيّ `ubuntu-latest` ⇒ بلا فوترة.
-# ⛔ ولا تُبدَّل وسائطُ التدريب بين الحلقات: الاستئنافُ لا يصحّ إلّا بالوسائط نفسِها.
 name: tasmi-student-train
 
 on:
@@ -24,9 +25,9 @@ on:
         required: false
         default: "0"
       chain:
-        description: "1 = تُطلق الحلقةَ التاليةَ بنفسها"
+        description: "1 = تُطلق الحلقةَ التاليةَ بنفسها (بلا استئناف: تبدأ من الصفر)"
         required: false
-        default: "1"
+        default: "0"
       increment:
         description: "زيادةُ الخطوات لكلّ حلقةٍ تالية"
         required: false
@@ -47,8 +48,7 @@ env:
 jobs:
   train:
     # ⛔ مفتاحُ قراءة المستودع الخاص لا يُقرأ إلا من environment مقيّدٍ بفرع main وحده
-    # (مراجعة Codex 13C البند 11، 2026-11-06). ونقطةُ الحفظ في actions/cache أوزانٌ
-    # مدرَّبةٌ على تلاواتٍ عامّةٍ من دلو PUB وحده؛ لا تُحفظ فيها شيفرةُ الخاصّ ولا بياناتُه.
+    # (مراجعة Codex 13C البند 11، 2026-11-06)؛ ولا شيء من ناتجه يُرفع إلى كاشٍ أو إلى العلن.
     if: github.ref == 'refs/heads/main'
     environment: qr-private-read
     runs-on: ubuntu-latest
@@ -78,13 +78,6 @@ jobs:
           pip install -q "torch==2.15.0" --index-url https://download.pytorch.org/whl/cpu
           pip install -q "transformers==4.57.6" soundfile==0.14.0 numpy==2.4.6
           python3 -c "import torch,transformers;print('torch',torch.__version__)"
-
-      - name: استعادةُ نقطة الحفظ (داخلَ GitHub)
-        uses: actions/cache/restore@v4
-        with:
-          path: /tmp/out_student
-          key: tasmi-student-m3-${{ github.run_id }}
-          restore-keys: tasmi-student-m3-
 
       - name: الوسمُ والمعلّمُ والبيانات
         run: |
@@ -138,13 +131,6 @@ jobs:
           echo "NOW=$NOW" >> "$GITHUB_ENV"
           echo "⏱️ $(( (T1-T0)/60 )) دقيقةً · $DONE ⇐ $NOW" | tee -a "$GITHUB_STEP_SUMMARY"
           [ -f /tmp/out_student/summary.json ] && cat /tmp/out_student/summary.json | tee -a "$GITHUB_STEP_SUMMARY" || true
-
-      - name: حفظُ نقطة الحفظ
-        if: always() && env.SKIP != '1'
-        uses: actions/cache/save@v4
-        with:
-          path: /tmp/out_student
-          key: tasmi-student-m3-${{ github.run_id }}
 
       - name: الحلقةُ التالية
         if: success() && inputs.chain == '1' && env.SKIP != '1'
