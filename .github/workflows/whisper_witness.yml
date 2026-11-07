@@ -1,0 +1,74 @@
+name: rafiq-whisper-witness
+
+run-name: "whisper-witness س${{ inputs.surah }} · ${{ inputs.reason }}"
+
+# 🔎 **شاهدُ Whisper float32 لنوافذ آياتٍ** (‏`tools/index_qa/whisper_witness.py`) — شاهدٌ إضافيٌّ لـ`pin_heard --witness-run`
+#    لآياتٍ مرساتُها في خريطة CTC دون شرط الجودة (‏3siri س56: 68 و69 مدموجتان في 67).
+# ⚖️ قارئٌ محض: لا سرَّ ولا دلوَ ولا كتابة (‏`contents: read`)، والأثرُ مخرَجُ تشغيلةٍ يُقرأ بـ`gh api` كخريطة السماع.
+#    التفريغُ مرشّحٌ للتوقيت فقط ولا يُكتب منه نصٌّ قرآنيٌّ في أيّ فهرس.
+# 💰 مستودعٌ عامّ + عدّاد ubuntu-latest القياسيّ · مهلةٌ 60 دقيقة · أثرٌ واحدٌ صغيرٌ (JSON) لسبعة أيّام.
+on:
+  workflow_dispatch:
+    inputs:
+      url: {description: "رابطُ صوت السورة الواحد (‏لا قالب) — هو نفسُ صوت الخريطة والفهرس", required: true}
+      surah: {description: "رقمُ السورة", required: true}
+      ayahs: {description: "نوافذُ الآيات: آية:بدء-نهاية بالم.ث مفصولةً بفواصل (‏مثل 68:229000-239000,69:236000-246000) — مثلاً من مرساة CTC −3ث إلى نهايتها +3ث", required: true}
+      riwaya: {description: "الرواية", default: "hafs"}
+      model: {description: "حجمُ النموذج (‏float32 دائماً)", type: choice, options: [small, medium], default: "small"}
+      reason: {description: "سببُ الإطلاق", default: ""}
+
+permissions:
+  contents: read
+
+concurrency:
+  group: rafiq-whisper-witness-${{ inputs.surah }}-${{ inputs.riwaya }}-${{ inputs.url }}
+  cancel-in-progress: false
+
+env:
+  PY: "3.11"
+  HF_HOME: ${{ github.workspace }}/.hf
+
+jobs:
+  witness:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: {python-version: "${{ env.PY }}"}
+      - name: كاش ffmpeg (بديلُ apt المعلَّق · لا يغيّر النسخة)
+        uses: actions/cache@v4
+        with:
+          path: .qa-tools/apt-tree
+          key: qa-ffmpeg-apt-tree-v1-${{ hashFiles('tools/ci_fleet/install_qa_ffmpeg.py') }}
+      - name: الأدوات (‏النسخُ مثبَّتة)
+        run: |
+          QA_FFMPEG_APT_ONLY=1 python tools/ci_fleet/install_qa_ffmpeg.py
+          python -m pip install --quiet "numpy==1.26.4" faster-whisper==1.1.1
+      - name: اختباراتُ الأداة أوّلاً
+        run: python -m unittest tools/index_qa/test_pin_heard_witness.py tools/index_qa/test_pin_heard.py
+      - name: كاش النموذج
+        uses: actions/cache@v4
+        with:
+          path: .hf
+          key: whisper-witness-${{ inputs.model }}-fw111-v1
+      - name: التفريغ (⛔ بلا رفعٍ ولا دلو)
+        env:
+          URL: ${{ inputs.url }}
+          SURAH: ${{ inputs.surah }}
+          AYAHS: ${{ inputs.ayahs }}
+          RIW: ${{ inputs.riwaya }}
+          MODEL: ${{ inputs.model }}
+        run: |
+          set -o pipefail
+          mkdir -p out
+          python tools/index_qa/whisper_witness.py --url "$URL" --surah "$SURAH" --riwaya "$RIW" \
+            --ayahs "$AYAHS" --model "$MODEL" --out out 2>&1 | tee out/witness.log
+      - uses: actions/upload-artifact@v4
+        if: ${{ always() }}
+        with:
+          name: whisper-witness-s${{ inputs.surah }}-${{ github.run_id }}
+          path: |
+            out/whisper_s*.json
+            out/witness.log
+          retention-days: 7

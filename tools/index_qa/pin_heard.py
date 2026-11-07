@@ -21,6 +21,13 @@
    للآية نفسِها أو لتاليتها) ودون البدء المثبَّت.
 4. ⛔ حُرّاسٌ قبل الرفع: البدءُ لا يتغيّر إلا للمثبَّت · الحدودُ صاعدةٌ بلا تداخل · وحكمُ `heard_gate`
    على السورة بالخريطة نفسِها سليم (‏وإلا لا معنى لرفعه) — ثمّ البوّابةُ الكاملة على المرشّح.
+6. ⭐ **مسارُ شاهد Whisper الإضافيّ (`--witness-run`، 2026-11-07):** آيةٌ مرساتُها في الخريطة دون شرط الجودة
+   (‏3siri س56: 68 و69 بجودة 0.25 و0.469 ووسيطُ المراسي 0.429) تُقبل **فقط** بشاهدٍ ثانٍ مستقلٍّ
+   (‏Whisper float32 على نافذة الآية، من مخرَج `whisper_witness.yml`) باجتماع: تطابقُ أوّلِ كلماتِ الآية
+   المرجعيّة وآخرِها كلمةً بكلمة بثقةٍ لكلّ كلمة · اتّفاقُ الشاهدين على الحدّ ≤300م.ث (‏بدءُ Whisper ومرساةُ
+   CTC أو أحدُ أداءاتها أيّاً كانت جودتها) · مدّةٌ مثبَّتة 0.5–2× المتوقَّع (‏وسيطُ النظراء) · جارةٌ لا تنكمش
+   دون 0.5×. ⛔ إضافيٌّ لا بديل: مسارُ CTC وعتباتُه كما هما حرفاً. والتفريغُ مرشّحٌ للتوقيت وحده:
+   لا يُكتب منه نصٌّ في الفهرس، والنصُّ المرجعيُّ من `text_<الرواية>.jz` في المستودع.
 5. `engineBySurah[س] = heard-pin-1` ⇒ تطلب الترقيةُ **إحصاءً صوتيّاً شاملاً** (‏Whisper، شاهدٌ مستقلّ عن
    خريطة CTC) لكلّ آيةٍ في السورة، فوق الملوح الأربعة والمطالع و`heard_gate` (‏بخريطةٍ تُقاس من جديد).
 """
@@ -94,13 +101,140 @@ def measured_bounds(hmap, ayahs):
     return out
 
 
-def pin(idx, surah, hmap, pins, trims=None, last_end=None):
+# ───────────── شاهد Whisper الإضافيّ (‏2026-11-07) ─────────────
+W_K = 3                  # عددُ كلماتِ الطرف (‏أوّلُ الآية وآخرُها) المطلوبُ تطابقُها كلمةً بكلمة
+# ⭐ عتبتا الثقة **اختياريّتان بالحذر لا بالقياس** (‏لا يوجد في المستودع تفريغُ float32 مقيسٌ لمعايرتهما):
+#    كلمةٌ بين 0.3 و0.5 تُرى عند Whisper في تلاوةٍ سليمةٍ نادراً، وتكثُر في الكلمة المُهلوَسة أو المبتورة،
+#    فالأدنى 0.5 لكلّ كلمةٍ طرفيّة. والمتوسّطُ 0.7 على الكلمات الستّ يمنع أن تنجو آيةٌ بكلمةٍ جيّدةٍ
+#    وخمسٍ على الحدّ. والتشدّدُ هنا يردّ ولا يقبل خطأً — ويُرخى بعد قياسِ أوّل تشغيلتين لا قبله.
+W_MIN_WORD_P = 0.5
+W_MEAN_WORD_P = 0.7
+W_AGREE_MS = 300         # أقصى فرقٍ بين بدء Whisper ومرساةِ/أداءِ CTC للآية نفسِها
+W_DUR_LO, W_DUR_HI = 0.5, 2.0     # مدّةُ الآية المثبَّتة نسبةً إلى المتوقَّع (‏وسيطِ النظراء بعد معايرة الوتيرة)
+W_NEIGHBOUR_MIN = 0.5    # الجارةُ السابقة لا تنكمش دون هذه النسبة من مدّتها في الأصل
+W_LEN_LO, W_LEN_HI = 0.7, 1.3     # عددُ كلمات Whisper بين الطرفين نسبةً إلى كلمات الآية المرجعيّة
+W_MODELS = ("small", "medium")
+_REPO_ROOT = HERE.parent.parent
+
+
+def all_starts(hmap, ayah):
+    """كلُّ بدءٍ مسموعٍ للآية **أيّاً كانت جودتُه**: مرساتُها وأداءاتُها — قاعدةُ اتّفاق الشاهدين لا قاعدةُ التثبيت العاديّ."""
+    rec = (hmap.get("heardMap") or {}).get(str(ayah)) or {}
+    out = []
+    if rec.get("anchorMs"):
+        out.append(int(rec["anchorMs"][0]))
+    out += [int(o[0]) for o in rec.get("occurrences") or []]
+    return out
+
+
+def ref_words_for(riwaya, surah, ayah):
+    """كلماتُ الآية المرجعيّة مطبَّعةً من نصّ المصحف الموثَّق في المستودع (‏`text_<الرواية>.jz`) — لا من التفريغ."""
+    sys.path.insert(0, str(_REPO_ROOT / "tools" / "alignment"))
+    from common import load_index, load_text, norm, surah_slice          # noqa: PLC0415
+    start, _end, info = surah_slice(load_index(), surah)
+    if not 1 <= ayah <= int(info["ayahs"]):
+        raise SystemExit(f"⛔ {surah}:{ayah} خارج السورة")
+    return norm(load_text(riwaya)[start + ayah - 1]).split()
+
+
+def _norm_words(words):
+    """يحوّل كلماتِ Whisper إلى رموزٍ مطبَّعة [(رمز، بدء، ثقة)]؛ الكلمةُ التي تتشظّى ترثها ثقتُها وبدؤها."""
+    sys.path.insert(0, str(_REPO_ROOT / "tools" / "alignment"))
+    from common import norm                                              # noqa: PLC0415
+    out = []
+    for w in words or []:
+        for t in norm(str(w.get("w", ""))).split():
+            out.append((t, int(w["s"]), float(w["p"])))
+    return out
+
+
+def check_witness(wit, surah, hmap, want_sha):
+    """يتحقّق من أنّ الشاهدَ لصوت السورة نفسِه ومن نموذجٍ مسموح — وإلا SystemExit."""
+    if not isinstance(wit, dict) or int(wit.get("surah") or 0) != surah:
+        raise SystemExit(f"⛔ شاهدُ Whisper لسورة {wit.get('surah') if isinstance(wit, dict) else '؟'} لا {surah}")
+    if not want_sha:
+        raise SystemExit("⛔ لا audioSha256 للسورة في الفهرس — لا يُقبل شاهدٌ بلا بصمةٍ يُقابَل بها")
+    for nm, v in (("الخريطة", hmap.get("sha256")), ("الفهرس", want_sha)):
+        if wit.get("sha256") != v:
+            raise SystemExit(f"⛔ بصمةُ صوت الشاهد {str(wit.get('sha256'))[:8]} غيرُ بصمة {nm} {str(v)[:8]}")
+    if wit.get("fileRef") != hmap.get("fileRef"):
+        raise SystemExit(f"⛔ الشاهدُ سُمع من {wit.get('fileRef')} والخريطةُ من {hmap.get('fileRef')}")
+    if wit.get("model") not in W_MODELS or wit.get("computeType") != "float32":
+        raise SystemExit(f"⛔ الشاهدُ يلزمه {W_MODELS} بـfloat32 (‏وجد {wit.get('model')}/{wit.get('computeType')})")
+
+
+def whisper_check(wit, hmap, surah, ayah, ref):
+    """يُرجع (بدءُ CTC المعتمَد، تفصيل) إن اجتاز الشاهدُ **كلَّ** شروط الآية، وإلا يُرجع (None، سببَ الردّ).
+
+    الشروط: تطابقُ أوّل W_K كلمةً بكلمة وآخرِ W_K (بعد التطبيع) · ثقةٌ لكلّ كلمةٍ طرفيّة ومتوسّطُها ·
+    عددُ الكلمات بين الطرفين قريبٌ من المرجع · بدءُ Whisper يوافق CTC ضمن W_AGREE_MS.
+    (‏المدّةُ والجارةُ تُفحصان في `pin` بعد حساب الحدود النهائيّة.)"""
+    rec = (wit.get("ayahs") or {}).get(str(ayah))
+    if not rec:
+        return None, "لا تفريغَ لهذه الآية في الشاهد"
+    if not ref:
+        return None, "لا نصَّ مرجعيَّ للآية"
+    toks = _norm_words(rec.get("words"))
+    k, n = min(W_K, len(ref)), len(ref)
+    head, tail = ref[:k], ref[-k:]
+    ctc = all_starts(hmap, ayah)
+    if not ctc:
+        return None, "لا مرساةَ CTC ولا أداءَ للآية يُقارَن به"
+    why = "أوّلُ كلماتِ الآية لا يطابق تفريغَ النافذة"
+    best = None
+    for i in range(len(toks) - k + 1):
+        if [t[0] for t in toks[i:i + k]] != head:
+            continue
+        ends = [j for j in range(i + k - 1, len(toks)) if [t[0] for t in toks[j - k + 1:j + 1]] == tail]
+        ends = [j for j in ends if max(k, int(W_LEN_LO * n)) <= j - i + 1 <= int(W_LEN_HI * n) + 1]
+        if not ends:
+            why = "آخرُ كلماتِ الآية لا يطابق التفريغ أو عددُ كلماته خارج المدى"
+            continue
+        j = min(ends, key=lambda e: abs((e - i + 1) - n))
+        edge = toks[i:i + k] + toks[j - k + 1:j + 1]
+        low = min(t[2] for t in edge)
+        mean = sum(t[2] for t in edge) / len(edge)
+        if low < W_MIN_WORD_P or mean < W_MEAN_WORD_P:
+            why = f"ثقةُ الكلمات الطرفيّة دون العتبة (أدناها {low:.2f}، متوسّطُها {mean:.2f})"
+            continue
+        ws = toks[i][1]
+        c = min(ctc, key=lambda x: abs(x - ws))
+        if abs(c - ws) > W_AGREE_MS:
+            why = f"الشاهدان يتعارضان: Whisper {ws} وأقربُ بدءٍ لـCTC {c} (>{W_AGREE_MS}م.ث)"
+            continue
+        if best is None or abs(c - ws) < best[2]:
+            best = (c, ws, abs(c - ws), low, mean)
+    if best is None:
+        return None, why
+    return best[0], f"whisper {best[1]} · CTC {best[0]} · أدنى ثقة {best[3]:.2f} · متوسّطها {best[4]:.2f}"
+
+
+def expected_from_peers(own_durs, peer_med, skip=()):
+    """المتوقَّعُ لكلّ آيةٍ = وسيطُ مدّتها عند النظراء × وتيرةُ هذا القارئ.
+
+    الوتيرةُ = وسيطُ (مدّتِه ÷ وسيطِ النظراء) على آياتِ السورة التي ليست في `skip` (‏المثبَّتة وما التهمها)،
+    فتُغني عن مقارنةِ قارئٍ بطيءٍ بنظيرٍ سريع."""
+    ratios = sorted(own_durs[a] / peer_med[a] for a in own_durs
+                    if a in peer_med and a not in skip and peer_med[a] > 0 and own_durs[a] > 0)
+    if not ratios:
+        return {}
+    pace = ratios[len(ratios) // 2]
+    return {a: m * pace for a, m in peer_med.items()}
+
+
+def pin(idx, surah, hmap, pins, trims=None, last_end=None, witness=None, ref_words=None,
+        expected=None, evidence=None):
     """يُعيد (فهرساً جديداً، تقريراً) أو يرفع SystemExit بالسبب.
 
     `last_end`: نهايةٌ مقيسةٌ لآخر آيةٍ في السورة (‏الفخفاخ 33:73 · 2026-10-05: قُصّت عند مدّةٍ قدّرها ffprobe
     من ترويسة VBR بـ1792.6ث والفكُّ الكامل أطول، فسُمع منها 2.6ث). شرطُها: الآيةُ آخرُ السورة ومثبَّتة،
-    والقيمةُ نهايةُ **الأداء نفسِه** الذي ثُبّت عليه بدؤها (‏±150م.ث) — والخريطةُ لا تُقيس إلا صوتاً مفكوكاً."""
+    والقيمةُ نهايةُ **الأداء نفسِه** الذي ثُبّت عليه بدؤها (‏±150م.ث) — والخريطةُ لا تُقيس إلا صوتاً مفكوكاً.
+
+    `witness` (‏اختياريّ · 2026-11-07): شاهدُ Whisper الإضافيّ (‏مخرَجُ whisper_witness)؛ يُجرَّب **بعد** فشل مسار CTC وحدَه.
+    `ref_words(surah, ayah)` ⇐ كلماتُ الآية المرجعيّة مطبَّعة؛ `expected` {آية: مدّةٌ متوقَّعةٌ م.ث}؛
+    `evidence` قاموسٌ يُملأ بـ{آية: "ctc" | "ctc+whisper"}. بلا `witness` السلوكُ القديمُ حرفاً."""
     trims = trims or {}
+    wpinned = {}
     tr = idx.get("transform") if isinstance(idx.get("transform"), dict) else {}
     if "drop_surah" in str((tr or {}).get("op") or "") or (tr or {}).get("dropSurah"):
         raise SystemExit("⛔ الأصلُ يحمل إعلانَ إسقاطٍ في ترويسته — التثبيتُ يستبدل التحويل فيمحوه؛ لا يُبنى عليه")
@@ -128,10 +262,28 @@ def pin(idx, surah, hmap, pins, trims=None, last_end=None):
         if a not in mine:
             raise SystemExit(f"⛔ {surah}:{a} لا مدخلَ لها")
         hit = [m for m in measured_starts(hmap, a) if abs(m[0] - ms) <= SNAP_MS]
-        if not hit:
+        if not hit and witness is not None:
+            # مسارُ الشاهد الإضافيّ: لا يُجرَّب إلا بعد أن يفشل مسارُ CTC بعتباته كما هي.
+            if ref_words is None:
+                raise SystemExit("⛔ مسارُ Whisper يلزمه نصٌّ مرجعيّ")
+            check_witness(witness, surah, hmap, want)
+            c, info = whisper_check(witness, hmap, surah, a, ref_words(surah, a))
+            if c is None:
+                raise SystemExit(f"⛔ {surah}:{a} بدءٌ {ms} لا يقع على أداءٍ مقيس ولم يُثبته شاهدُ Whisper: {info}")
+            if abs(c - ms) > SNAP_MS:
+                raise SystemExit(f"⛔ {surah}:{a} بدءٌ {ms} بعيدٌ عن البدء المعتمَد بالشاهدين {c} (>{SNAP_MS}م.ث)")
+            hit = [(c, c, "")]
+            wpinned[a] = info
+            report.append(f"{surah}:{a} ⇐ {c} (CTC بلا شرط الجودة + شاهدُ Whisper: {info})")
+            if evidence is not None:
+                evidence[a] = "ctc+whisper"
+        elif not hit:
             raise SystemExit(f"⛔ {surah}:{a} بدءٌ {ms} لا يقع على أداءٍ مقيس (المقيس: "
                              f"{[(m[0], m[2]) for m in measured_starts(hmap, a)]})")
-        report.append(f"{surah}:{a} ⇐ {hit[0][0]} ({hit[0][2]})")
+        else:
+            report.append(f"{surah}:{a} ⇐ {hit[0][0]} ({hit[0][2]})")
+            if evidence is not None:
+                evidence[a] = "ctc"
         pins[a] = hit[0][0]
     new = {a: dict(e) for a, e in mine.items()}
     for a in sorted(pins):
@@ -176,6 +328,20 @@ def pin(idx, surah, hmap, pins, trims=None, last_end=None):
         prev_end = en
         if a not in pins and int(e["startMs"]) != int(mine[a]["startMs"]):
             raise SystemExit(f"⛔ {surah}:{a}: تغيّر بدءُ آيةٍ غيرِ مثبَّتة")
+    for a in sorted(wpinned):
+        # ⛔ مدّةُ الآية المثبَّتة بالشاهد 0.5–2× المتوقَّع، والجارةُ السابقة لا تنكمش دون 0.5× مدّتها الأصليّة.
+        exp = (expected or {}).get(a)
+        if not exp or exp <= 0:
+            raise SystemExit(f"⛔ {surah}:{a} لا مدّةَ متوقَّعةَ (نظراء) تُقاس بها — لا يُقبل شاهدُ Whisper بلا مقياس")
+        dur = int(new[a]["endMs"]) - int(new[a]["startMs"])
+        if not (W_DUR_LO * exp <= dur <= W_DUR_HI * exp):
+            raise SystemExit(f"⛔ {surah}:{a} مدّتُها المثبَّتة {dur}م.ث خارج {W_DUR_LO}–{W_DUR_HI}× المتوقَّع {int(exp)}")
+        p = a - 1
+        if p in new and p not in pins:
+            was = int(mine[p]["endMs"]) - int(mine[p]["startMs"])
+            now = int(new[p]["endMs"]) - int(new[p]["startMs"])
+            if was > 0 and now < W_NEIGHBOUR_MIN * was:
+                raise SystemExit(f"⛔ الجارةُ {surah}:{p} تنكمش من {was} إلى {now}م.ث (دون {W_NEIGHBOUR_MIN}×) بتثبيت {a}")
     rows = heard_gate.surah_rows({a: new[a]["startMs"] for a in order}, heard_gate.compact_map(hmap))
     why = heard_gate.surah_verdict(rows)
     if why:
@@ -210,6 +376,46 @@ def load_map(run_id, surah):
     raise SystemExit(f"⛔ لا خريطةَ سماعٍ للسورة {surah} في مخرَج التشغيلة {run_id}")
 
 
+def load_witness(run_id, surah):
+    """شاهدُ Whisper من مخرَج تشغيلة `whisper_witness.yml` على GitHub (‏كما تُقرأ خريطةُ السماع) لا من ملفٍّ يكتبه المُطلِق."""
+    def gh(path, raw=False):
+        r = subprocess.run(["gh", "api", path], capture_output=True)
+        if r.returncode:
+            raise SystemExit(f"⛔ gh api {path}: {r.stderr.decode('utf-8', 'replace')[:200]}")
+        return r.stdout if raw else json.loads(r.stdout)
+    for art in gh(f"repos/{REPO}/actions/runs/{run_id}/artifacts").get("artifacts", []):
+        zf = zipfile.ZipFile(io.BytesIO(gh(f"repos/{REPO}/actions/artifacts/{art['id']}/zip", raw=True)))
+        for nm in zf.namelist():
+            if nm.endswith(f"whisper_s{surah:03d}.json"):
+                return json.loads(zf.read(nm))
+    raise SystemExit(f"⛔ لا شاهدَ Whisper للسورة {surah} في مخرَج التشغيلة {run_id}")
+
+
+def peer_medians(cl, bucket, riwaya, surah, own_key, cap=40):
+    """وسيطُ مدّة كلّ آيةٍ من السورة عند النظراء المنشورين في الرواية (‏حتى `cap` فهرساً بترتيبٍ ثابت)."""
+    keys, tok = [], None
+    while True:
+        kw = {"Bucket": bucket, "Prefix": f"timings/{riwaya}/"}
+        if tok:
+            kw["ContinuationToken"] = tok
+        r = cl.list_objects_v2(**kw)
+        keys += [o["Key"] for o in r.get("Contents", []) if o["Key"].endswith(".jz") and o["Key"] != own_key]
+        tok = r.get("NextContinuationToken")
+        if not tok:
+            break
+    durs = {}
+    for k in sorted(keys)[:cap]:
+        try:
+            ix = json.loads(gzip.decompress(cl.get_object(Bucket=bucket, Key=k)["Body"].read()).decode("utf-8"))
+        except Exception:                                                # noqa: BLE001
+            continue
+        for e in ix.get("entries") or []:
+            sa, a = _key(e["ayahId"])
+            if sa == surah and e.get("endMs") is not None and int(e["endMs"]) > int(e["startMs"]):
+                durs.setdefault(a, []).append(int(e["endMs"]) - int(e["startMs"]))
+    return {a: sorted(v)[len(v) // 2] for a, v in durs.items() if len(v) >= 3}
+
+
 def main():
     ap = argparse.ArgumentParser(description=__doc__.split("\n")[0])
     ap.add_argument("--key", required=True)
@@ -220,6 +426,8 @@ def main():
     ap.add_argument("--trim", default="", help="آية:نهايةٌ مقيسة لما قبل أوّل تثبيت")
     ap.add_argument("--last-end", type=int, default=None,
                     help="نهايةٌ مقيسةٌ لآخر آيةٍ في السورة (‏نهايةُ أدائها المثبَّت)")
+    ap.add_argument("--witness-run", default="",
+                    help="تشغيلةُ whisper_witness: شاهدٌ إضافيٌّ لآياتٍ مرساتُها دون شرط الجودة (‏بلا شرطٍ يُرخى)")
     ap.add_argument("--reason", required=True)
     ap.add_argument("--yes", action="store_true")
     a = ap.parse_args()
@@ -231,8 +439,20 @@ def main():
         raise SystemExit(f"⛔ البصمة لا تطابق: الحيّة {live[:16]} والمطلوبة {a.sha}")
     idx = json.loads(gzip.decompress(body).decode("utf-8"))
     hmap = load_map(a.run, a.surah)
+    wit = ref = expected = None
+    evidence = {}
+    if a.witness_run:
+        wit = load_witness(a.witness_run, a.surah)
+        riw = idx.get("riwaya") or "hafs"
+        ref = lambda s, ay: ref_words_for(riw, s, ay)                    # noqa: E731
+        med = peer_medians(cl, bucket, riw, a.surah, a.key)
+        own = {_key(e["ayahId"])[1]: int(e["endMs"]) - int(e["startMs"]) for e in idx["entries"]
+               if _key(e["ayahId"])[0] == a.surah and e.get("endMs") is not None}
+        pins0 = parse_pairs(a.pin)
+        expected = expected_from_peers(own, med, skip=set(pins0) | {x - 1 for x in pins0})
     out, report, changed = pin(idx, a.surah, hmap, parse_pairs(a.pin), parse_pairs(a.trim),
-                               a.last_end)
+                               a.last_end, witness=wit, ref_words=ref, expected=expected,
+                               evidence=evidence)
     out["transform"] = {
         **({"truncatedTail": idx["transform"]["truncatedTail"]}
            if isinstance(idx.get("transform"), dict) and idx["transform"].get("truncatedTail") else {}),
@@ -242,6 +462,9 @@ def main():
         "at": int(time.time() * 1000), "by": "pin_heard",
         "note": "بدءُ كلّ آيةٍ مثبَّتةٍ أداءٌ مسموعٌ مقيس؛ ما تكرّر قبله بلا مدخل؛ يلزمه الإحصاءُ الشامل.",
     }
+    if a.witness_run:
+        out["transform"]["witnessRun"] = str(a.witness_run)
+        out["transform"]["pinEvidence"] = {str(k): v for k, v in sorted(evidence.items())}
     for k in ("reasonCode", "reasonUser"):
         if isinstance(idx.get("transform"), dict) and idx["transform"].get(k):
             out["transform"][k] = idx["transform"][k]
