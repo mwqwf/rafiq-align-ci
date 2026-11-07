@@ -54,12 +54,15 @@ jobs:
         with:
           python-version: "3.11"
       - name: deps + نقطةُ الحفظ
+        env:
+          IN_PREFIX: ${{ github.event.inputs.prefix }}
+          IN_SOURCE: ${{ github.event.inputs.source }}
         run: |
           pip install -q torch --index-url https://download.pytorch.org/whl/cpu
           pip install -q transformers numpy boto3
           sudo mkdir -p /mnt/ft && sudo chown -R "$USER" /mnt/ft && mkdir -p /mnt/ft/ckpt
-          S="${{ github.event.inputs.source }}"
-          curl -sSL -f -A "$UA" -o "/mnt/ft/$S.tar" "$PUB/${{ github.event.inputs.prefix }}/$S.tar?t=$(date +%s)"
+          S="${IN_SOURCE}"
+          curl -sSL -f -A "$UA" -o "/mnt/ft/$S.tar" "$PUB/${IN_PREFIX}/$S.tar?t=$(date +%s)"
           tar -xf "/mnt/ft/$S.tar" -C /mnt/ft/ckpt && rm -f "/mnt/ft/$S.tar"
           ls -l "/mnt/ft/ckpt/$S" | head
           python3 - "/mnt/ft/ckpt/$S" <<'PY'
@@ -70,20 +73,25 @@ jobs:
           if os.path.exists(st): print("الخطوة:", json.load(open(st)))
           PY
       - name: ggml q8_0
+        env:
+          IN_SOURCE: ${{ github.event.inputs.source }}
         run: |
-          S="${{ github.event.inputs.source }}"
+          S="${IN_SOURCE}"
           bash tools/finetune/to_ggml.sh "/mnt/ft/ckpt/$S" /mnt/ft/ggml /mnt/ft
           ls -l /mnt/ft/ggml
       - name: رفعٌ إلى R2
+        env:
+          IN_OUT_TAG: ${{ github.event.inputs.out_tag }}
         run: |
-          T="${{ github.event.inputs.out_tag }}"
+          T="${IN_OUT_TAG}"
           python tools/finetune/r2_put.py /mnt/ft/ggml/ggml-q8_0.bin "finetune/out_$T/ggml-q8_0.bin"
           echo "☁️ $PUB/finetune/out_$T/ggml-q8_0.bin"
       - name: أطلق البوّابة
         if: github.event.inputs.gate == 'true'
         env:
+          IN_OUT_TAG: ${{ github.event.inputs.out_tag }}
           GH_TOKEN: ${{ github.token }}
         run: |
-          T="${{ github.event.inputs.out_tag }}"
+          T="${IN_OUT_TAG}"
           gh workflow run tasmi-gate.yml -R "$GITHUB_REPOSITORY" -f cand_url="$PUB/finetune/out_$T/ggml-q8_0.bin" -f tag="$T" \
             && echo "⚖️ بوّابةُ $T أُطلقت — الجدولُ سيكون على finetune/gate/$T/summary.md"

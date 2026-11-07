@@ -56,9 +56,12 @@ jobs:
           pip install -q numpy soundfile boto3
           ffmpeg -version | head -1; nproc; df -h / | tail -1
       - name: prep ${{ matrix.group }}
+        env:
+          IN_PER_RECITER: ${{ github.event.inputs.per_reciter }}
+          IN_PER_SURAH_CAP: ${{ github.event.inputs.per_surah_cap }}
         run: |
           python tools/finetune/prep.py --out data/${{ matrix.group }} --rel-root data --workers 4 \
-            --max-per-reciter ${{ github.event.inputs.per_reciter }} --per-surah-cap ${{ github.event.inputs.per_surah_cap }} \
+            --max-per-reciter ${IN_PER_RECITER} --per-surah-cap ${IN_PER_SURAH_CAP} \
             --reciters ${{ matrix.reciters }}
       - name: pack + upload
         run: |

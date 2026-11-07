@@ -51,10 +51,13 @@ jobs:
           path: tools_bin
           retention-days: 2
       - id: mx
+        env:
+          IN_PARTS: ${{ github.event.inputs.parts }}
+          IN_SHARDS: ${{ github.event.inputs.shards }}
         run: |
           python3 - <<'PY' >> "$GITHUB_OUTPUT"
           import json, os
-          parts = "${{ github.event.inputs.parts }}".split(); k = int("${{ github.event.inputs.shards }}")
+          parts = os.environ["IN_PARTS"].split(); k = int(os.environ["IN_SHARDS"])
           print("matrix=" + json.dumps({"include": [{"part": p, "shard": f"{i}/{k}", "i": i} for p in parts for i in range(k)]}))
           PY
   shard:
@@ -144,6 +147,7 @@ jobs:
           path: shards
       - name: دمجُ الشرائح ورفعُ audit.json لكلِّ جزء
         env:
+          IN_PARTS: ${{ github.event.inputs.parts }}
           PYTHONIOENCODING: utf-8
         run: |
           # ⛔ **بلا هذا لا يشتعل `|| echo` أصلاً** (‏قِيس 2026-09-14): حالةُ `cmd | tee` حالةُ
@@ -151,7 +155,7 @@ jobs:
           set -o pipefail
           ls -l shards || true
           ARGS=""
-          for p in ${{ github.event.inputs.parts }}; do
+          for p in ${IN_PARTS}; do
             python tools/finetune/audit_merge.py "shards/$p.audit.json" shards/$p.s*.audit.json | tee -a merge.log || echo "⚠️ $p: لا شرائح"
             [ -f "shards/$p.audit.json" ] && ARGS="$ARGS shards/$p.audit.json finetune/data_v2/$p.audit.json"
           done
@@ -165,8 +169,9 @@ jobs:
     steps:
       - name: أطلق v4 (وصفةُ v3 + تصفيةُ العناوين) — ثم يطلق التدريبُ بوّابةَ CI بنفسه
         env:
+          IN_RECIPE: ${{ github.event.inputs.recipe }}
           GH_TOKEN: ${{ github.token }}
         run: |
           gh workflow run finetune-train-cpu.yml -R "$GITHUB_REPOSITORY" -f prefix=finetune/out_v4 -f epochs=1.0 \
-            -f extra="${{ github.event.inputs.recipe }}" \
-            && echo "🚀 v4 أُطلق: out_v4 · ${{ github.event.inputs.recipe }}"
+            -f extra="${IN_RECIPE}" \
+            && echo "🚀 v4 أُطلق: out_v4 · ${IN_RECIPE}"

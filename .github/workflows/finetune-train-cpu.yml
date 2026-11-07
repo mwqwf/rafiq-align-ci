@@ -119,14 +119,30 @@ jobs:
           fi
           echo "RESUME=$RESUME" >> "$GITHUB_ENV"
       - name: train (حتى time_limit ثم حفظٌ نظيف)
+        env:
+          IN_ACCUM: ${{ github.event.inputs.accum }}
+          IN_AUG: ${{ github.event.inputs.aug }}
+          IN_BS: ${{ github.event.inputs.bs }}
+          IN_EPOCHS: ${{ github.event.inputs.epochs }}
+          IN_EXTRA: ${{ github.event.inputs.extra }}
+          IN_MAX_STEPS: ${{ github.event.inputs.max_steps }}
+          IN_TIME_LIMIT: ${{ github.event.inputs.time_limit }}
         run: |
           python tools/finetune/train.py --data "$W/data" --out "$W/out" --device cpu --workers 3 \
-            --aug-p "${{ github.event.inputs.aug }}" --epochs "${{ github.event.inputs.epochs }}" --max-steps "${{ github.event.inputs.max_steps }}" \
-            --bs "${{ github.event.inputs.bs }}" --accum "${{ github.event.inputs.accum }}" \
-            --save-every 50 --eval-every 400 --time-limit "${{ github.event.inputs.time_limit }}" $RESUME ${{ github.event.inputs.extra }} 2>&1 | tee "$W/train.log"
+            --aug-p "${IN_AUG}" --epochs "${IN_EPOCHS}" --max-steps "${IN_MAX_STEPS}" \
+            --bs "${IN_BS}" --accum "${IN_ACCUM}" \
+            --save-every 50 --eval-every 400 --time-limit "${IN_TIME_LIMIT}" $RESUME ${IN_EXTRA} 2>&1 | tee "$W/train.log"
           tail -1 "$W/out/train_log.jsonl"
       - name: outcome — تحويلٌ ورفعٌ إن اكتمل، وإلا الحلقةُ التالية
         env:
+          IN_ACCUM: ${{ github.event.inputs.accum }}
+          IN_AUG: ${{ github.event.inputs.aug }}
+          IN_BS: ${{ github.event.inputs.bs }}
+          IN_CHAIN: ${{ github.event.inputs.chain }}
+          IN_EPOCHS: ${{ github.event.inputs.epochs }}
+          IN_EXTRA: ${{ github.event.inputs.extra }}
+          IN_MAX_STEPS: ${{ github.event.inputs.max_steps }}
+          IN_TIME_LIMIT: ${{ github.event.inputs.time_limit }}
           GH_TOKEN: ${{ github.token }}
         run: |
           LAST=$(tail -1 "$W/out/train_log.jsonl")
@@ -142,12 +158,12 @@ jobs:
             # 📱 **والحكمُ الفاصلُ على المحرك** (‏D-306 مصدَّق · D-308: المرشَّحُ يُخدَم بـ`ar` والمشحونُ كما يُشحن).
             # بهذا تكتمل الحلقةُ بلا جهاز المالك: تدريبٌ ⇐ مرآةٌ ⇐ **محرّكٌ حقيقيّ** ⇐ نتائجُ على R2.
             gh workflow run emu-gate.yml -R "$GITHUB_REPOSITORY" -f apk_url="$APK_URL" -f cand_tag="$TAG"               -f sets="g3r:noisy,g1" -f langs="" -f chunk=12               && echo "📱 بوّابةُ المحرك أُطلقت لـ$TAG" || echo "⚠️ تعذّر إطلاقُ emu-gate"
-          elif [ "${{ github.event.inputs.chain }}" = "true" ]; then
+          elif [ "${IN_CHAIN}" = "true" ]; then
             echo "⏭ لم يكتمل ($LAST) — أطلق الحلقةَ التالية"
             gh workflow run finetune-train-cpu.yml -R "$GITHUB_REPOSITORY" \
-              -f prefix="$PREFIX" -f parts="$PARTS" -f epochs="${{ github.event.inputs.epochs }}" \
-              -f max_steps="${{ github.event.inputs.max_steps }}" -f time_limit="${{ github.event.inputs.time_limit }}" \
-              -f chain=true -f aug="${{ github.event.inputs.aug }}" -f bs="${{ github.event.inputs.bs }}" -f accum="${{ github.event.inputs.accum }}"               -f extra="${{ github.event.inputs.extra }}"
+              -f prefix="$PREFIX" -f parts="$PARTS" -f epochs="${IN_EPOCHS}" \
+              -f max_steps="${IN_MAX_STEPS}" -f time_limit="${IN_TIME_LIMIT}" \
+              -f chain=true -f aug="${IN_AUG}" -f bs="${IN_BS}" -f accum="${IN_ACCUM}"               -f extra="${IN_EXTRA}"
           else
             echo "⏸ لم يكتمل ولا تسلسل ($LAST)"
           fi

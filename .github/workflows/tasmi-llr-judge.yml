@@ -83,6 +83,8 @@ jobs:
 
       - name: whisper.cpp (ثنائيٌّ ساكن · الإيداعُ نفسُه الذي يُبنى منه المحرك — D-298)
         if: inputs.judge_url == ''
+        env:
+          IN_BASE_URL: ${{ inputs.base_url }}
         run: |
           WCPP_SHA=c4ac0012a8f5a2082dfca6aad4ddfd8b2c02b337
           mkdir -p /tmp/wcpp && git -C /tmp/wcpp init -q \
@@ -91,18 +93,22 @@ jobs:
           cmake -S /tmp/wcpp -B /tmp/wcpp/build -DCMAKE_BUILD_TYPE=Release -DBUILD_SHARED_LIBS=OFF -DWHISPER_BUILD_TESTS=OFF > /dev/null
           cmake --build /tmp/wcpp/build --config Release -j"$(nproc)" --target whisper-cli > /dev/null
           mkdir -p bin && cp /tmp/wcpp/build/bin/whisper-cli bin/ && bin/whisper-cli --help 2>&1 | head -2
-          curl -sSL -f -A "$UA" -o bin/shipped.bin "${{ inputs.base_url }}" && ls -l bin/shipped.bin
+          curl -sSL -f -A "$UA" -o bin/shipped.bin "${IN_BASE_URL}" && ls -l bin/shipped.bin
 
       - name: الهدهد 1.0 — تنزيلٌ وتحقّقٌ من البصمة قبل أيّ استعمال
+        env:
+          IN_HUDHUD_SHA256: ${{ inputs.hudhud_sha256 }}
+          IN_HUDHUD_URL: ${{ inputs.hudhud_url }}
+          IN_LABELS_URL: ${{ inputs.labels_url }}
         run: |
           mkdir -p work/hudhud
-          curl -sSL -f -A "$UA" -o work/hudhud/hudhud-1.0-int8.onnx "${{ inputs.hudhud_url }}/hudhud-1.0-int8.onnx"
-          curl -sSL -f -A "$UA" -o work/hudhud/vocab.json "${{ inputs.hudhud_url }}/vocab.json"
+          curl -sSL -f -A "$UA" -o work/hudhud/hudhud-1.0-int8.onnx "${IN_HUDHUD_URL}/hudhud-1.0-int8.onnx"
+          curl -sSL -f -A "$UA" -o work/hudhud/vocab.json "${IN_HUDHUD_URL}/vocab.json"
           GOT=$(sha256sum work/hudhud/hudhud-1.0-int8.onnx | cut -d' ' -f1)
           echo "onnx sha256 = $GOT"
-          if [ "$GOT" != "${{ inputs.hudhud_sha256 }}" ]; then echo "⛔ بصمةُ الهدهد تخالف HudhudModel.SHA256 — لا يُقاس بنموذجٍ غيرِ المشحون"; exit 1; fi
+          if [ "$GOT" != "${IN_HUDHUD_SHA256}" ]; then echo "⛔ بصمةُ الهدهد تخالف HudhudModel.SHA256 — لا يُقاس بنموذجٍ غيرِ المشحون"; exit 1; fi
           python -c "import json; v=json.load(open('work/hudhud/vocab.json')); print('vocab', len(v), 'blank', [k for k,i in v.items() if i==0], 'delim |=', v.get('|'))"
-          curl -sSL -f -A "$UA" "${{ inputs.labels_url }}" | gunzip > work/g2p_labels.jsonl
+          curl -sSL -f -A "$UA" "${IN_LABELS_URL}" | gunzip > work/g2p_labels.jsonl
           echo "labels: $(wc -l < work/g2p_labels.jsonl) سطراً"
 
       - name: صوتُ المتعلّمين (‏HF · MIT · الصفوفُ الصالحةُ وحدَها — لا يُعاد نشرُ صوت)
@@ -124,21 +130,25 @@ jobs:
 
       - name: حكمٌ جاهزٌ من judge_url
         if: inputs.judge_url != ''
+        env:
+          IN_JUDGE_URL: ${{ inputs.judge_url }}
         run: |
-          curl -sSL -f -A "$UA" -o work/learner_judge.json "${{ inputs.judge_url }}"
+          curl -sSL -f -A "$UA" -o work/learner_judge.json "${IN_JUDGE_URL}"
           python -c "import json; d=json.load(open('work/learner_judge.json')); print('rows', len(d['rows']), 'model', d.get('model'))"
 
       - name: شاهدُ LLR (‏llr_judge.py)
+        env:
+          IN_MARGINS: ${{ inputs.margins }}
         run: |
           python tools/tasmi_phoneme/llr_judge.py --onnx work/hudhud/hudhud-1.0-int8.onnx --vocab work/hudhud/vocab.json \
             --labels work/g2p_labels.jsonl --index core/quran/src/main/assets/quran/index.jz \
             --text core/quran/src/main/assets/quran/text_hafs.jz --judge work/learner_judge.json \
-            --wav-dir work/learner_wav --margins "${{ inputs.margins }}" --out work/llr_hudhud.json | tee work/llr_stdout.txt
+            --wav-dir work/learner_wav --margins "${IN_MARGINS}" --out work/llr_hudhud.json | tee work/llr_stdout.txt
 
       - name: الجواب ⇒ ops/out/tasmi_llr_judge/<tag>
         if: always()
         run: |
-          TAG="${{ inputs.tag }}"; OUT=ops/out/tasmi_llr_judge; mkdir -p "$OUT"
+          TAG="${IN_TAG}"; OUT=ops/out/tasmi_llr_judge; mkdir -p "$OUT"
           python - "$TAG" "$OUT" <<'PY'
           import json, os, sys
           tag, out = sys.argv[1], sys.argv[2]
@@ -169,5 +179,6 @@ jobs:
           git add "$OUT" && git commit -m "ops: جوابُ tasmi-llr-judge $TAG" -- "$OUT" || { echo "لا جوابَ يُدفع."; exit 0; }
           git push origin HEAD:main || { git fetch origin main --quiet && git merge -X ours --no-edit origin/main && git push origin HEAD:main; }
         env:
+          IN_TAG: ${{ inputs.tag }}
           REASON: ${{ inputs.reason }}
           JUDGE_URL: ${{ inputs.judge_url }}
