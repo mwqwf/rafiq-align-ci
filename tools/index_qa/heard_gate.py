@@ -369,14 +369,190 @@ def dual_surah(s: int, cs_s: dict, g_map: dict, r_map, wit, want: str, cand_sha:
     return None, out
 
 
+# ───────────── الباب الثالث: آيةٌ مكرّرةٌ مشهودة (‏إذنُ المالك 2026-11-07 20:40Z) ─────────────
+# ⭐ **إضافيٌّ لا بديل ويُغلق عند الشكّ.** آيةٌ **منحرفةٌ عن المِرساة العامّة** (‏status=dev بقاعدة 1500م.ث نفسِها) تمرّ إن اجتمعت فيها
+#    **ثلاثةُ شروطٍ لا يكفي منها اثنان**، وكلُّها يُعاد حسابُها من البيانات المحفوظة (‏لا حكمٌ مكتوب):
+#    ١. **شاهدُ Whisper حاسم** بشروط `pin_heard._whisper_check` نفسِها بلا fuzzy (‏تطابقُ الطرفين · الثقة · اتّفاقٌ ≤300م.ث مع **البدء
+#       المنشور**)، ونافذتُه المصلحةُ التي تبدأ من البدء المنشور بحشوٍ ≤ WIT_PAD_MS (‏يُتحقَّق منها في الشاهد المحفوظ نفسِه).
+#    ٢. **مدخلُها يمرّ إحصاءَ النوافذ** (‏`entry_window_census.judge_entry` بقاعدة الأقرب) على نافذة مدخلها المنشور بعينه (‏بدءاً ونهاية).
+#    ٣. **تكرارُها مقيسٌ في خريطة السماع**: أداءٌ آخرُ للآية نفسِها، قبل المِرساة أو بعدها (‏منفصلٌ عنها)، بجودةٍ ≥ REPEAT_OCC_Q،
+#       ولا يقع على مِرساة آيةٍ أخرى (‏فذاك المتشابهات لا التكرار).
+#    ⛔ لا يمسّ TOL_MS ولا MIN_Q ولا عتبة 5٪ ولا `--allow`؛ والثوابتُ في الشيفرة لا في البيئة. ومقصورٌ على الآيات المنحرفة عن العامّة:
+#       ما لم تنحرف لا يدخله، وما بقي منحرفاً بعد الباب يردّ السورةَ كما كان.
+REPEAT_VERSION = "heard-repeat-1"
+REPEAT_OCC_Q = 0.5           # أدنى جودةٍ لأداءٍ آخرَ للآية يُعدّ به التكرارُ مقيساً
+REPEAT_OTHER_OVERLAP = 0.5   # تقاطعُ الأداء مع مِرساة آيةٍ أخرى بهذه النسبة من الأقصر ⇒ تشابهٌ لا تكرار
+REPEAT_STATUS = "witnessed_repeat"
+# ⭐ الشاهدُ الملتصق بنافذته ليس شاهداً (‏تنبيهُ ظلّ #85 · التشغيلة 42411226107): في كلّ نوافذ Whisper المفرَّغة كان بدءُ الكلمة الأولى = بدءَ النافذة
+#    تماماً (‏المنشور − 300) فيمرّ شرطُ ≤300م.ث دائماً عند حدّه. فإن قلّ |بدءُ أوّل كلمةٍ مطابقة − بدءِ النافذة| عن هذا فالشاهدُ غيرُ حاسم.
+#    تشديدٌ في هذا الباب وحدَه (‏لا في `_whisper_check`).
+WIT_MIN_FROM_WINDOW_MS = 50
+
+
+def _span_overlap(x, y) -> float:
+    lo, hi = max(x[0], y[0]), min(x[1], y[1])
+    short = min(x[1] - x[0], y[1] - y[0])
+    return max(0, hi - lo) / short if short > 0 else 0.0
+
+
+def other_performance(ayah: int, am, occ, anchors: dict):
+    """الأداءُ الآخرُ المقيس للآية (‏الشرط ٣) أو None. `am=[بدء،نهاية]` مِرساةُ الآية، `occ` أداءاتُها [[بدء،نهاية،جودة]…]،
+    و`anchors` كلُّ مراسي السورة {آية: [مِرساة، جودة، أداءات]} لاستبعاد ما تفسّره آيةٌ أخرى."""
+    try:
+        a0, a1 = int(am[0]), int(am[1])
+    except (TypeError, ValueError, IndexError):
+        return None
+    if a1 <= a0:
+        return None
+    others = []
+    for b, rec in (anchors or {}).items():
+        if str(b) == str(ayah) or not isinstance(rec, list) or len(rec) < 2 or not rec[0] or rec[1] is None:
+            continue
+        try:
+            if float(rec[1]) >= MIN_Q and int(rec[0][1]) > int(rec[0][0]):
+                others.append((int(rec[0][0]), int(rec[0][1])))
+        except (TypeError, ValueError, IndexError):
+            continue
+    for o in occ or []:
+        try:
+            o0, o1, q = int(o[0]), int(o[1]), float(o[2])
+        except (TypeError, ValueError, IndexError):
+            continue
+        if q < REPEAT_OCC_Q or o1 <= o0:
+            continue
+        before, after = o0 < a0 - TOL_MS, (o0 >= a1 - TOL_MS and o0 > a0 + TOL_MS)   # منفصلٌ عن المِرساة (‏المِرساةُ نفسُها ليست أداءً آخر)
+        if not (before or after):
+            continue
+        if any(_span_overlap((o0, o1), x) > REPEAT_OTHER_OVERLAP for x in others):
+            continue
+        return {"startMs": o0, "endMs": o1, "q": q, "where": "before" if before else "after"}
+    return None
+
+
+def repeat_candidates(rows: list[dict], cmap: dict) -> dict:
+    """{آية: الأداءُ الآخر} للآيات المنحرفة عن المِرساة العامّة ولها تكرارٌ مقيس (‏الشرط ٣) — وحدَها تُسأل عن الشاهد والإحصاء."""
+    anc = (cmap or {}).get("anchors") or {}
+    out = {}
+    for r in rows:
+        if r["status"] != "dev":
+            continue
+        rec = anc.get(str(r["ayah"]))
+        if not isinstance(rec, list) or len(rec) < 3:
+            continue
+        o = other_performance(r["ayah"], rec[0], rec[2], anc)
+        if o:
+            out[r["ayah"]] = o
+    return out
+
+
+def repeat_plan(starts: dict, g_map: dict) -> list[int]:
+    """آياتُ السورة التي يُشغَّل لها الشاهدُ والإحصاء (‏من خريطة العامّة بعد قياسها — يستعملها سيرُ العمل)."""
+    return sorted(repeat_candidates(surah_rows(starts, g_map), g_map))
+
+
+def _window_ok(wit, a: int, start: int) -> bool:
+    """نافذةُ الشاهد المحفوظة تبدأ من البدء المنشور بحشوٍ ≤ WIT_PAD_MS (‏لا نافذةً أبكرَ تحمل ذيلَ السابقة)."""
+    try:
+        lo = int((((wit or {}).get("ayahs") or {}).get(str(a)) or {}).get("windowMs")[0])
+    except (TypeError, ValueError, IndexError):
+        return False
+    return start - WIT_PAD_MS <= lo <= start
+
+
+def _census_eval(cen, surah, want, cs_s, ayahs, texts):
+    """{آية: (يمرّ؟, تفصيل)} من إحصاء النوافذ المحفوظ: تُعاد قاعدةُ الأقرب من كلمات النافذة، ويُشترط أن تكون النافذةُ
+    نافذةَ مدخل المرشّح (‏بدءاً ونهاية) وأن يكون الصوتُ صوتَه. إحصاءٌ غيرُ صالح ⇒ لا شيء."""
+    import entry_window_census as EW  # noqa: PLC0415  (‏استيرادٌ كسول: يستورد هذا الملفَّ)
+    import pin_heard as PH  # noqa: PLC0415
+    if not isinstance(cen, dict) or int(cen.get("surah") or 0) != surah:
+        return {}, "لا إحصاءَ لهذه السورة"
+    if cen.get("sha256") != want:
+        return {}, f"إحصاءٌ على صوتٍ آخر ({str(cen.get('sha256'))[:8]}) لا صوتِ المرشّح ({str(want)[:8]})"
+    if cen.get("model") not in PH.W_MODELS or cen.get("computeType") != "float32":
+        return {}, f"الإحصاءُ يلزمه {PH.W_MODELS} بـfloat32 (‏وجد {cen.get('model')}/{cen.get('computeType')})"
+    res, ents = {}, cen.get("entries") or {}
+    for a in ayahs:
+        rec = ents.get(str(a))
+        if not isinstance(rec, dict):
+            res[a] = (False, {"reason": "لا إحصاءَ لمدخل هذه الآية"})
+            continue
+        if rec.get("startMs") != cs_s[a][0] or rec.get("endMs") != cs_s[a][1]:
+            res[a] = (False, {"reason": f"نافذةُ الإحصاء [{rec.get('startMs')},{rec.get('endMs')}] ليست مدخلَ المرشّح "
+                                        f"[{cs_s[a][0]},{cs_s[a][1]}]"})
+            continue
+        try:
+            r = EW.judge_entry(a, PH._norm_words(rec.get("words")), texts)
+        except (KeyError, ValueError) as e:                    # نصٌّ مرجعيٌّ ناقص ⇒ لا حكم
+            res[a] = (False, {"reason": f"تعذّر حكمُ المدخل: {e}"})
+            continue
+        res[a] = (r["verdict"] == "pass", {k: r.get(k) for k in ("verdict", "reason", "simSelf", "simNearestOther", "nearestOther",
+                                                                   "gap", "words", "heard", "detail")})
+    return res, None
+
+
+def repeat_rescue(s: int, rows: list[dict], g_map: dict, cs_s: dict, want, riwaya, wit, cen, ref_words=None, texts=None) -> dict:
+    """يرفع آياتِ `rows` المنحرفةَ المكرَّرةَ المشهودةَ إلى status=witnessed_repeat (‏في مكانها) ويُرجع دليلَ كلّ مرشَّحةٍ {آية: دليل}.
+    الدليلُ: التفريغُ والثقةُ والفرقُ (‏Whisper − البدء المنشور) ونتيجةُ الإحصاء والأداءُ الآخرُ المقيس. بلا مرشَّحةٍ ⇒ {}."""
+    cands = repeat_candidates(rows, g_map)
+    if not cands:
+        return {}
+    starts = {a: v[0] for a, v in cs_s.items()}
+    ayahs = sorted(cands)
+    wres, bad_w = ({}, "لا شاهدَ Whisper")
+    if wit:
+        wres, bad_w = _witness_eval(wit, s, g_map, want, riwaya, starts, ayahs, ref_words)
+    cres, bad_c = ({}, "لا إحصاءَ للنوافذ")
+    if cen:
+        try:
+            if texts is None:
+                import entry_window_census as EW  # noqa: PLC0415
+                texts = EW.surah_texts(riwaya, s)
+            cres, bad_c = _census_eval(cen, s, want, cs_s, ayahs, texts)
+        except (SystemExit, Exception) as e:                   # noqa: BLE001  نصُّ السورة المرجعيّ غيرُ متاح ⇒ يُغلق (لا إحصاءَ)
+            cres, bad_c = {}, f"تعذّر تحميلُ نصّ السورة المرجعيّ: {e}"
+
+    by_ayah = {r["ayah"]: r for r in rows}
+    ev = {}
+    for a in ayahs:
+        winfo = str(wres.get(a, (False, bad_w))[1])
+        m = re.search(r"[Ww]hisper (\d+) (?:· CTC|وأقربُ)", winfo)
+        try:
+            lo_w = int((((wit or {}).get("ayahs") or {}).get(str(a)) or {}).get("windowMs")[0])
+        except (TypeError, ValueError, IndexError):
+            lo_w = None
+        from_window = (int(m.group(1)) - lo_w) if (m and lo_w is not None) else None
+        stuck = from_window is None or abs(from_window) < WIT_MIN_FROM_WINDOW_MS
+        w_ok = bool(wres.get(a, (False,))[0]) and _window_ok(wit, a, starts[a]) and not stuck
+        c_ok = bool(cres.get(a, (False,))[0])
+        cinfo = cres.get(a, (False, {"reason": bad_c}))[1]
+        words = (((wit or {}).get("ayahs") or {}).get(str(a)) or {}).get("words") or []
+        ok = w_ok and c_ok
+        ev[a] = {"passed": ok, "witnessOk": w_ok, "censusOk": c_ok, "startMs": starts[a], "anchorMs": by_ayah[a]["anchorMs"],
+                 "devMs": by_ayah[a]["devMs"], "otherPerformance": cands[a],
+                 "witness": {"detail": winfo[:300], "whisperMs": int(m.group(1)) if m else None,
+                             "diffMs": (int(m.group(1)) - starts[a]) if m else None,
+                             "windowMs": ((((wit or {}).get("ayahs") or {}).get(str(a)) or {}).get("windowMs")),
+                             "windowOk": _window_ok(wit, a, starts[a]),
+                             "wordMinusWindowMs": from_window, "stuckToWindow": stuck,
+                             "heard": " ".join(str(x.get("w", "")) for x in words)[:400]},
+                 "census": cinfo}
+        if ok:
+            by_ayah[a]["status"] = REPEAT_STATUS
+            by_ayah[a]["repeat"] = {"otherPerformance": cands[a], "witness": winfo[:200]}
+    return ev
+
+
 def judge(cand_idx: dict, pub_idx: dict | None, cand_sha: str, maps: dict,
           maps_r: dict | None = None, witness: dict | None = None,
-          dual: dict | None = None, ref_words=None) -> dict:
+          dual: dict | None = None, ref_words=None,
+          rwit: dict | None = None, rcensus: dict | None = None, texts=None) -> dict:
     """حكمُ البوّابة كاملاً من المرشّح والمنشور والخرائط ({سورة: compact_map}).
     يُرجع {"ok": bool, "reason": str|None, "required": [...], "modified": [...], "sample": [...],
             "surahs": {س: {"reason":..., "rows":[...]}}, "dual": {س: دليل}}.
     الباب الثاني (‏`maps_r` خرائطُ نموذج التلاوة · `witness` {سورة: مخرَجُ whisper_witness} · `dual` قائمةٌ تُعطى بدل الملفّ):
-    لا يمسّ إلا سورةً **معدّلةً** لقارئٍ مسمّىً في `heard_dual.txt`؛ وما سواها بالشيفرة القديمة حرفاً."""
+    لا يمسّ إلا سورةً **معدّلةً** لقارئٍ مسمّىً في `heard_dual.txt`؛ وما سواها بالشيفرة القديمة حرفاً.
+    الباب الثالث (‏`rwit` {سورة: شاهدُ Whisper} · `rcensus` {سورة: إحصاءُ النوافذ} · `texts` نصوصُ السورة المرجعيّة تُعطى بدل المستودع):
+    لا يمسّ إلا **الآيةَ المنحرفةَ** عن المِرساة العامّة في المسار القديم ولها تكرارٌ مقيس؛ ودليلُه في `out["repeat"]`."""
     ents = cand_idx.get("entries") or []
     cs = by_surah(ents)
     modified = modified_surahs(ents, (pub_idx or {}).get("entries") or []) if pub_idx else sorted(cs)
@@ -392,7 +568,7 @@ def judge(cand_idx: dict, pub_idx: dict | None, cand_sha: str, maps: dict,
         elif len(shas) == len(present):
             audio_by_surah = dict(zip(present, shas))
     out = {"ok": False, "reason": None, "required": required, "modified": modified,
-           "sample": sample, "surahs": {}, "sampleFindings": [], "version": VERSION, "dual": {}}
+           "sample": sample, "surahs": {}, "sampleFindings": [], "version": VERSION, "dual": {}, "repeat": {}}
     dual_set = dual_surahs(cand_idx, dual)
     bad = []
     for s in required:
@@ -423,6 +599,11 @@ def judge(cand_idx: dict, pub_idx: dict | None, cand_sha: str, maps: dict,
                 sink.append(f"س{s}: {why}")
             continue
         rows = surah_rows({a: v[0] for a, v in cs[s].items()}, m)
+        if any(r["status"] == "dev" for r in rows):          # ⭐ الباب الثالث: آياتٌ منحرفةٌ مكرّرةٌ مشهودة (‏تُرفع في مكانها)
+            ev = repeat_rescue(s, rows, m, cs[s], want, cand_idx.get("riwaya"), (rwit or {}).get(s) or (rwit or {}).get(str(s)),
+                               (rcensus or {}).get(s) or (rcensus or {}).get(str(s)), ref_words, texts)
+            if ev:
+                out["repeat"][str(s)] = {str(a): v for a, v in ev.items()}
         why = surah_verdict(rows)
         out["surahs"][str(s)] = {"reason": why, "rows": rows}
         if why:
@@ -441,8 +622,10 @@ def gate_error(cand_idx: dict, pub_idx: dict | None, cand_sha: str, rep: dict | 
     maps = {int(k): v for k, v in (rep.get("maps") or {}).items()}
     maps_r = {int(k): v for k, v in (rep.get("mapsR") or {}).items()}
     wit = {int(k): v for k, v in (rep.get("witness") or {}).items()}
+    rwit = {int(k): v for k, v in (rep.get("repeatWitness") or {}).items()}
+    rcen = {int(k): v for k, v in (rep.get("repeatCensus") or {}).items()}
     try:
-        j = judge(cand_idx, pub_idx, cand_sha, maps, maps_r, wit)
+        j = judge(cand_idx, pub_idx, cand_sha, maps, maps_r, wit, rwit=rwit, rcensus=rcen)
     except ValueError as e:                      # heard_dual.txt معطوبٌ ⇒ يُغلق الحكم ولا يُفتح
         return f"بوّابةُ السماع: قائمةُ heard_dual.txt معطوبة — {e}"
     if not j["required"]:
