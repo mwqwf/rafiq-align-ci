@@ -134,6 +134,20 @@ def occurrences(ayah_sk, heard_sk, min_score=MIN_OCC, max_hits=6):
     return keep[:max_hits] if len(keep) <= max_hits else sorted(sorted(keep, key=lambda h: -h[2])[:max_hits])
 
 
+def _median(v):
+    v = sorted(v)
+    return v[len(v) // 2] if v else 0.0
+
+
+def best_scan(ayah_sk, heard_sk, times):
+    """أفضلُ مطابقةٍ لنصّ الآية في المسموع كلِّه بلا حدٍّ أدنى ⇒ {bestScore، bestAtMs} (‏دليلُ الغياب على الملفّ كلِّه)."""
+    hits = occurrences(ayah_sk, heard_sk, min_score=0.0, max_hits=10 ** 6)
+    if not hits:
+        return {"bestScore": 0.0, "bestAtMs": None}
+    a, _b, sc = max(hits, key=lambda h: h[2])
+    return {"bestScore": round(float(sc), 3), "bestAtMs": int(times[min(a, len(times) - 1)])}
+
+
 def choose_chain(occ, min_score=MIN_OCC, slack=6):
     """أداءٌ واحدٌ لكلّ آية، رتيبٌ، **بأكبر مجموعِ تشابهٍ** (‏برمجةٌ ديناميّة على سلسلةٍ صاعدة
     تسمح بتخطّي آياتٍ لم تُسمع) — لا مشياً جشعاً: فمطابقةٌ زائفةٌ واحدةٌ مبكّرةٌ كانت تجرّ كلَّ
@@ -381,7 +395,9 @@ def _char_list():
     return cl, tok.pad_token_id, (tok.word_delimiter_token if hasattr(tok, "word_delimiter_token") else "|")
 
 
-def run(audio, surah, riwaya, log=print, probe=False, strict_tol_ms=0):
+def run(audio, surah, riwaya, log=print, probe=False, strict_tol_ms=0, absent=None, peer=None):
+    """‏`absent` (‏آياتٌ 1-بدء مسمّاةٌ غائبة) و`peer` (‏خريطةُ نموذج التلاوة لنفس الملفّ) — بابٌ مستقلٌّ في `heard_absent`.
+    بلا `absent` يبقى السلوكُ كما كان حرفاً."""
     import numpy as np
     from ctc_seg import BASMALA, SR, _conf, _emissions, _segment
     from common import ffprobe_duration_ms, load_index, load_text, norm, surah_slice, to_wav16k
@@ -440,6 +456,13 @@ def run(audio, surah, riwaya, log=print, probe=False, strict_tol_ms=0):
             "score": c[2] if c else None,
             "occurrences": [[times[o[0]], times[min(o[1], len(times)) - 1] + int(frame_ms), o[2]]
                             for o in occ[k]]}
+    absent_idx = set()
+    scan = {}
+    if absent:
+        import heard_absent as HA
+        HA.check_named(n, absent)
+        absent_idx = {k - 1 for k in absent}
+        scan = {str(k): best_scan(sks[k - 1], heard_sk, times) for k in absent}
     chunks = chunk_map(heard_sk, times, sks)
     report = [f"# خريطةُ السماع س{surah} · {total_ms}م.ث · {len(heard_sk)} حرفاً مسموعاً",
               "# آية\tمِرساةٌ عامّة بدء\tنهاية\tجودة\tأداءٌ منفرد بدء\tنهاية\tتشابه\tأداءاتٌ أخرى"]
@@ -467,12 +490,29 @@ def run(audio, surah, riwaya, log=print, probe=False, strict_tol_ms=0):
               "heardMap": heard_map, "chunkMap": [list(c) for c in chunks],
               "heardChars": len(heard_sk), "anchorQualityMedian": med_q,
               "entries": [], "issues": [], "bands": {}}
+    if absent:
+        result["absent"] = list(absent)
+        result["absentScan"] = scan
+        for k in absent:
+            report.append(f"# غائبةٌ مسمّاة {surah}:{k} · أفضلُ مطابقةٍ في الملفّ كلِّه {scan[str(k)]['bestScore']} عند {scan[str(k)]['bestAtMs']}م.ث")
     if probe:
         return result, "\n".join(report)
 
+    agreement = None
+    if absent:
+        # ⭐ المراسي المتّفقة بين الخريطتين (‏العامّة هنا ونموذجُ التلاوة من `peer`) — وكلُّ ردٍّ مقيسٌ يوقف السورة.
+        if not peer:
+            raise HA.HeardAbsentError("⛔ --absent-ayahs في وضع البناء يلزمه --peer-map (‏خريطةُ نموذج التلاوة)")
+        anchor_ms, agreement = HA.agreed_anchors(heard_map, peer["heardMap"], n, absent)
+        result["peerAgreement"] = agreement
+        log(f"مراسٍ متّفقةٌ بين الخريطتين: {sum(1 for a in anchor_ms if a)}/{n - len(absent)} · غائباتٌ مسمّاة {len(absent)}"
+            + (f" · مختلَفٌ عليها (‏تُحسم بين جارتين): {agreement['disputed']}" if agreement['disputed'] else ""))
+        for k in agreement["disputed"]:
+            result["issues"].append(f"الآية {k}: مِرساتا الخريطتين تختلفان بأكثر من {HA.AGREE_MS}م.ث — تُحاذى بين جارتَيها المتّفقتين")
+
     # ── المحاذاةُ القسريّة على نوافذَ مرساتُها من المحاذاة العامّة ──
     sil = silences(wav)
-    wins = plan_windows(anchor_ms, n)
+    wins = HA.plan_groups(anchor_ms, n, absent_idx, plan_windows) if absent_idx else plan_windows(anchor_ms, n)
     starts, scores = [None] * n, [0.0] * n
     for i, j in wins:
         first = next((k for k in range(i, j + 1) if anchor_ms[k]), None)
@@ -557,6 +597,10 @@ def run(audio, surah, riwaya, log=print, probe=False, strict_tol_ms=0):
             continue
         nxt = next((entries[m]["startMs"] for m in range(k + 1, n) if entries[m]["startMs"] is not None), None)
         e["endMs"] = nxt if nxt is not None else min(total_ms, (anchor_ms[k][1] if anchor_ms[k] else e["startMs"]) + TAIL_MS)
+        if absent_idx and (k + 1) in absent_idx:
+            # ⛔ آخرُ مسموعةٍ قبل فجوة الغائبات: نهايتُها نهايةُ مِرساتها المتّفقة + ذيل، لا بدءُ ما بعد الفجوة.
+            e["endMs"] = min(total_ms, HA.end_before_gap(k, e["startMs"], nxt, anchor_ms))
+            continue
         if nxt is not None and anchor_ms[k] and nxt - anchor_ms[k][1] > REPEAT_GAP_MS:
             lo, hi = anchor_ms[k][1], nxt
             repeated = sorted({m + 1 for m in range(0, k + 1) for o in heard_map[str(m + 1)]["occurrences"]
@@ -572,6 +616,21 @@ def run(audio, surah, riwaya, log=print, probe=False, strict_tol_ms=0):
             e.update(startMs=None, endMs=None, conf=0.0)
         elif e["startMs"] is not None and not e["snapped"]:
             e["conf"] = min(e["conf"], 0.74)       # ⛔ D-025: لا HIGH بلا صمت
+    if absent:
+        HA.validate_built(entries, anchor_ms, absent, n)
+        HA.check_support(entries, heard_map, peer["heardMap"], absent)
+
+        def _align(ws, we, texts):
+            clip = x[ws * SR // 1000: we * SR // 1000]
+            return [(ws + int(st * 1000), ws + int(en * 1000), _conf(sc))
+                    for st, en, sc in _segment(_emissions(clip), len(clip), texts)]
+        rate = _median([(e["endMs"] - e["startMs"]) / max(1, len(sks[e["ayahIdx"]]))
+                        for e in entries if e["startMs"] is not None])
+        ents = {e["ayahIdx"] + 1: {"startMs": e["startMs"], "endMs": e["endMs"]}
+                for e in entries if e["startMs"] is not None}
+        result["absentEvidence"] = HA.build_evidence(
+            surah, absent, ents, lambda k: canonical[k - 1], rate, _align, scan, peer.get("absentScan") or {})
+        log(f"دليلُ الغياب: {len(result['absentEvidence'])} آيةً بنافذة CTC وبمسح الملفّ كلِّه في الخريطتين")
     result["issues"] += check_surah(entries, [len(sk) for sk in sks], total_ms)
     bands = {}
     for e in entries:
@@ -599,6 +658,11 @@ def main() -> int:
     ap.add_argument("--strict-tol-ms", type=int, default=0,
                     help="حدٌّ أقصى ثابتٌ لبُعد الحدّ عن مِرساته (‏مثل 1500 للدفعة السماعيّة) بدلَ max(3ث، نصفِ المدّة)")
     ap.add_argument("--report", default="", help="ملفُّ تقريرٍ نصّيّ (‏افتراضه <out-dir>/heard_s<س>.txt)")
+    ap.add_argument("--absent-ayahs", default="",
+                    help="آياتٌ غائبةٌ مسمّاةٌ في سورةٍ واحدةٍ: «74-94» أو «6:74-94» (‏بابُ heard_absent). في --probe تُمسح في الملفّ كلِّه؛ "
+                         "وفي البناء يلزمه --peer-map ويُنتج a<سورة>.json (دليلُ الغياب) لـ`drop_ayahs --aligned`")
+    ap.add_argument("--peer-map", default="",
+                    help="heard_sNNN.json لنموذج التلاوة على الملفّ نفسِه (‏--probe --quran-model --absent-ayahs)")
     ap.add_argument("--quran-model", action="store_true",
                     help="يفكّ بنموذج التلاوة المثبَّت البصمة (‏quran_ctc_model) بدل النموذج العامّ؛ خريطةُ R في بوّابة السماع المزدوجة "
                          "(‏heard_gate.py · heard_dual.txt). يلزمه --probe (‏بلا مداخل ولا رفع) وتحمل الخريطةُ نسبَ النموذج في `quranModel`")
@@ -618,7 +682,29 @@ def main() -> int:
         from ctc_gapsplit import fetch
         fetch(a.url, audio)
     sha = hashlib.sha256(open(audio, "rb").read()).hexdigest()
-    res, report = run(audio, a.surah, a.riwaya, probe=a.probe, strict_tol_ms=a.strict_tol_ms)
+    absent, peer = None, None
+    if a.absent_ayahs:
+        import heard_absent as HA
+        try:
+            absent = HA.expand_spec(a.absent_ayahs, a.surah)
+        except HA.HeardAbsentError as ex:
+            print(f"⛔ {ex}")
+            return 2
+        if not a.probe:
+            if not a.peer_map:
+                ap.error("--absent-ayahs في البناء يلزمه --peer-map")
+            peer = json.load(open(a.peer_map, encoding="utf-8"))
+            if (peer.get("surah") != a.surah or peer.get("sha256") != sha or not peer.get("quranModel")
+                    or "absentScan" not in peer or sorted(peer.get("absent") or []) != sorted(absent)):
+                print("⛔ خريطةُ النظير لا تطابق: سورةٌ وبصمةُ ملفٍّ ونموذجُ تلاوةٍ ومسحُ الغائبات نفسُها")
+                return 2
+    try:
+        res, report = run(audio, a.surah, a.riwaya, probe=a.probe, strict_tol_ms=a.strict_tol_ms, absent=absent, peer=peer)
+    except Exception as ex:                                                  # noqa: BLE001
+        if absent and type(ex).__name__ == "HeardAbsentError":
+            print(f"⛔ رُدّت السورةُ: {ex}")
+            return 2
+        raise
     import vad as _vad
     res.update(fileRef=a.url or audio, sha256=sha, vadRel=getattr(_vad, "LAST_REL", None),
                vadVersion=getattr(_vad, "VAD_VERSION", None))
@@ -633,6 +719,11 @@ def main() -> int:
     with open(out + ".part", "w", encoding="utf-8") as f:
         json.dump(res, f, ensure_ascii=False)
     os.replace(out + ".part", out)
+    if absent and not a.probe:
+        # ⭐ مخرَجُ الدليل بصيغة `a<سورة>.json` التي يقبلها `drop_ayahs --aligned` (‏بلا حدودٍ مُعاد قياسُها: الجاراتُ بُنيت هنا).
+        with open(os.path.join(a.out_dir, f"a{a.surah:03d}.json"), "w", encoding="utf-8") as f:
+            json.dump({"fileRef": a.url or audio, "sha256": sha, "surah": a.surah, "engine": ENGINE,
+                       "absent": absent, "retimed": {}, "evidence": res["absentEvidence"]}, f, ensure_ascii=False)
     print(report)
     print(f"كُتب: {out} · {rep_path}")
     return 0

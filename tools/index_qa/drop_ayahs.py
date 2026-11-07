@@ -132,12 +132,19 @@ def apply_retimed(ents: list, s: int, absent: list, retimed: dict) -> list:
 
 
 def drop_ayahs(idx: dict, ayahs: dict, evidence: dict, *, reason: str, reason_user: str,
-               reason_code: str, from_sha: str, from_key: str, retimed: dict | None = None) -> dict:
+               reason_code: str, from_sha: str, from_key: str, retimed: dict | None = None,
+               already_absent: bool = False) -> dict:
     """يُعيد فهرساً جديداً حُجبت منه الآياتُ المسمّاة ومعلَنةً، أو يرفع SystemExit بالسبب.
 
     ‏`retimed` (اختياري · أمر 2026-10-31): حدودُ الجارات المقيسةُ بـCTC على نافذةٍ بنصوص الحاضرات وحدها
     (‏`ctc_gapsplit --absent-ayahs`) — فالمحاذي القديمُ «عصر» الغائباتِ بين جاراتها فكانت حدودُها خاطئة.
-    ‏تُطبَّق قبل الحجب، وتُعلَن السورةُ بمحرّك `ctc-gapsplit-1` فيلزمها الإحصاءُ الشامل."""
+    ‏تُطبَّق قبل الحجب، وتُعلَن السورةُ بمحرّك `ctc-gapsplit-1` فيلزمها الإحصاءُ الشامل.
+
+    ‏`already_absent` (أمر القائد 2026-11-07 · `ctc_splice mode=heard absent_ayahs`): الآياتُ المسمّاةُ **غائبةٌ أصلاً** من
+    الفهرس المُدخَل (‏سورةٌ بُنيت من مراسٍ مسموعةٍ فقط من مصدرٍ ينقصه وسطُها، ولم يكن لها في الأب مدخلٌ أصلاً)،
+    فلا مدخلَ يُحذف: يُعلَن الغيابُ بدليله وتُتحقَّق تسويتُه بالترويسة. وأيُّ حارسٍ مما فوق يبقى كما هو؛ ويُشدَّد
+    بأن تكون مداخلُ السورة **كلَّ آياتها ناقص المسمّاة بالضبط**، وأن تكون المسمّاةُ مسجَّلةً في `missing.ids`
+    و`byReason.source_truncated`. الافتراضُ False = السلوكُ الأصليّ حرفاً (‏سورةٌ تامّةٌ في الأصل تُحذف منها المسمّاة)."""
     import drop_surah
     if reason_code != "SOURCE_TRUNCATED":
         raise SystemExit("⛔ --reason-code لهذا الباب SOURCE_TRUNCATED وحدَه")
@@ -158,7 +165,12 @@ def drop_ayahs(idx: dict, ayahs: dict, evidence: dict, *, reason: str, reason_us
         if len(absent) * 4 > n:
             raise SystemExit(f"⛔ س{s}: المحجوب {len(absent)} يتجاوز ربع آيات السورة ({n}) — الإسقاطُ الكامل")
         mine = sorted(_key(e["ayahId"])[1] for e in ents if _key(e["ayahId"])[0] == s)
-        if mine != list(range(1, n + 1)):
+        if already_absent:
+            want_mine = [a for a in range(1, n + 1) if a not in set(absent)]
+            if mine != want_mine:
+                raise SystemExit(f"⛔ س{s}: مداخلُها ({len(mine)}) ليست كلَّ آياتها ناقص المسمّاة ({len(want_mine)}) — "
+                                 "لا يُعلَن غيابٌ لآيةٍ حاضرة ولا تبقى آيةٌ غائبةٌ بلا إعلان")
+        elif mine != list(range(1, n + 1)):
             raise SystemExit(f"⛔ س{s} في الأصل ليست تامّة ({len(mine)}/{n}) — ليست حالةَ هذه الأداة")
         if (tr0.get("truncatedTail") or {}).get(str(s)) or (tr0.get("truncatedGaps") or {}).get(str(s)):
             raise SystemExit(f"⛔ س{s}: الأصلُ يعلن عليها ذيلاً أو حجباً — ابدأ من فهرسها قبل الإعلان")
@@ -181,14 +193,23 @@ def drop_ayahs(idx: dict, ayahs: dict, evidence: dict, *, reason: str, reason_us
     total = idx.get("ayahCount") or sum(counts)
     miss = dict(idx.get("missing") or {})
     ids = list(miss.get("ids") or [])
-    if set(ids) & gone:
-        raise SystemExit("⛔ وسمُ الاكتمال يعدّ آياتٍ حاضرةً غائبة — الأصلُ غيرُ متّسق")
-    if len(ents) + int(miss.get("count") or 0) != total:
-        raise SystemExit("⛔ الأصلُ نفسُه لا يحقّق العقد — لا يُبنى عليه")
-    reasons = dict(miss.get("byReason") or {})
-    reasons["source_truncated"] = int(reasons.get("source_truncated", 0)) + len(gone)
-    miss.update({"count": int(miss.get("count") or 0) + len(gone), "byReason": reasons,
-                 "ids": sorted(ids + sorted(gone), key=_key)})
+    if already_absent:
+        # الغيابُ قائمٌ في الفهرس المُدخَل: يُتحقَّق من تسويته ولا يُزاد شيء (‏وإلا عُدّت الآيةُ مرّتين).
+        if not gone <= set(ids):
+            raise SystemExit(f"⛔ المسمّاةُ غيرُ مسجَّلةٍ في missing.ids: {sorted(gone - set(ids), key=_key)[:6]}")
+        if int((miss.get("byReason") or {}).get("source_truncated", 0)) < len(gone):
+            raise SystemExit("⛔ byReason.source_truncated لا يعدّ المسمّاةَ كلَّها — الأصلُ غيرُ متّسق")
+        if len(ents) + int(miss.get("count") or 0) != total:
+            raise SystemExit("⛔ الأصلُ نفسُه لا يحقّق العقد — لا يُبنى عليه")
+    else:
+        if set(ids) & gone:
+            raise SystemExit("⛔ وسمُ الاكتمال يعدّ آياتٍ حاضرةً غائبة — الأصلُ غيرُ متّسق")
+        if len(ents) + int(miss.get("count") or 0) != total:
+            raise SystemExit("⛔ الأصلُ نفسُه لا يحقّق العقد — لا يُبنى عليه")
+        reasons = dict(miss.get("byReason") or {})
+        reasons["source_truncated"] = int(reasons.get("source_truncated", 0)) + len(gone)
+        miss.update({"count": int(miss.get("count") or 0) + len(gone), "byReason": reasons,
+                     "ids": sorted(ids + sorted(gone), key=_key)})
 
     out = dict(idx)
     out["entries"] = kept
@@ -222,7 +243,7 @@ def drop_ayahs(idx: dict, ayahs: dict, evidence: dict, *, reason: str, reason_us
         "op": op,
         "fromSha256": from_sha,
         "fromKey": from_key,
-        "droppedEntries": len(gone),
+        "droppedEntries": 0 if already_absent else len(gone),
         "gapAyahs": len(gone),
         "reason": reason,
         "reasonUser": reason_user,
@@ -253,6 +274,9 @@ def main():
     ap.add_argument("--reason", required=True)
     ap.add_argument("--reason-user", required=True)
     ap.add_argument("--reason-code", required=True)
+    ap.add_argument("--already-absent", action="store_true",
+                    help="المسمّاةُ غائبةٌ أصلاً من الفهرس (‏مرشّحُ ctc_splice mode=heard الذي بُنيت سورتُه من المسموع وحده): "
+                         "يُعلَن الغيابُ بدليله دون حذفِ مدخل — والمداخلُ يجب أن تساوي الآياتِ ناقص المسمّاة بالضبط")
     ap.add_argument("--yes", action="store_true", help="ارفع إلى الاختبار (الافتراض عرض)")
     a = ap.parse_args()
     ayahs = parse_ayahs(a.ayahs)
@@ -275,7 +299,7 @@ def main():
     idx = json.loads(gzip.decompress(body).decode("utf-8"))
     out = drop_ayahs(idx, ayahs, evidence, reason=a.reason, reason_user=a.reason_user,
                      reason_code=a.reason_code, from_sha=live, from_key=a.key,
-                     retimed=retimed or None)
+                     retimed=retimed or None, already_absent=a.already_absent)
     for s in ayahs:
         ok, why = promote.declared_truncated_gaps(out, s)
         if not ok:
@@ -284,7 +308,8 @@ def main():
     blob = gzip.compress(json.dumps(out, ensure_ascii=False, separators=(",", ":")).encode("utf-8"), 9)
     new_sha = hashlib.sha256(blob).hexdigest()
     target = f"timings-staging/{idx.get('riwaya')}/{idx.get('reciterId')}.{new_sha[:8]}.jz"
-    print(f"من {a.key} ({live[:12]}) · حُجبت {out['transform']['droppedEntries']} آيةً")
+    print(f"من {a.key} ({live[:12]}) · " + (f"أُعلن غيابُ {out['transform']['gapAyahs']} آيةً غائبةً أصلاً" if a.already_absent
+                                              else f"حُجبت {out['transform']['droppedEntries']} آيةً"))
     print(f"المداخل {len(idx['entries'])} ⇐ {len(out['entries'])} · الغياب ⇐ {out['missing']['count']}")
     print(f"إلى {target} ({len(blob)} بايت · بصمة {new_sha[:12]})")
     if not a.yes:
