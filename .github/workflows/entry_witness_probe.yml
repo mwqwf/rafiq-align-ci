@@ -1,0 +1,67 @@
+name: rafiq-entry-witness-probe
+run-name: entry-witness-probe ${{ inputs.key }} s${{ inputs.surah }}
+# شاهدٌ مستقلٌّ لصفوف الإحصاء «غير الحاسمة» في سورةٍ محصاة: نموذجا CTC مثبَّتان (عامٌّ
+# وقرآنيّ) بدقّة float32 يحاذيان نصَّ كلّ آيةٍ بسياقها داخل نافذة المرشّح على الصوت الأصليّ.
+# لا يحوّل جسيماً ولا طفيفاً، ولا يرقّي؛ يكتب التقريرَ المحدَّث بشرط ETag ويؤرشف الأصل.
+on:
+  workflow_dispatch:
+    inputs:
+      key:
+        description: مفتاحُ المرشّح في timings-staging (‏مثل timings-staging/hafs/asim.48b0baaa.jz)
+        required: true
+      surah:
+        description: رقمُ السورة المحصاة التي تُقاس نوافذُها غير الحاسمة
+        required: true
+      ayahs:
+        description: آياتُ السورة المقيسةُ نوافذُها بفواصل
+        required: true
+      reason:
+        description: السببُ المقيس
+        default: ''
+permissions:
+  contents: read
+jobs:
+  witness:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    env:
+      HF_HOME: ${{ github.workspace }}/.hf
+      CTC_THREADS: '2'
+      CTC_INT8: '0'
+      HF_HUB_DISABLE_XET: '1'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install bounded binary dependencies
+        timeout-minutes: 10
+        run: |
+          python tools/ci_fleet/install_qa_ffmpeg.py
+          python -m pip install --only-binary=:all: --timeout 60 --retries 2 --index-url https://download.pytorch.org/whl/cpu torch==2.15.0
+          python -m pip install --only-binary=:all: --timeout 60 --retries 2 'numpy==1.26.4' 'transformers==4.57.6' boto3==1.43.123 soundfile==0.14.0
+          python -m pip install --timeout 60 --retries 2 ctc-segmentation==1.7.5
+      - name: Restore existing model cache only
+        uses: actions/cache/restore@v4
+        with:
+          path: .hf
+          key: ctc-model-jonatasgrosman-xlsr53-ar-v1
+      - name: Measure inconclusive windows with two independent pinned models
+        env:
+          R2_CREDENTIALS_JSON: ${{ secrets.R2_CREDENTIALS_JSON }}
+          KEY: ${{ inputs.key }}
+          SURAH: ${{ inputs.surah }}
+          AYAHS: ${{ inputs.ayahs }}
+        run: |
+          mkdir -p secure
+          printf '%s' "$R2_CREDENTIALS_JSON" > secure/r2_credentials.json
+          python tools/index_qa/ci_entry_witness.py --key "$KEY" --surah "$SURAH" --ayahs "$AYAHS" 2>&1 | tee witness.log
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: entry-witness-s${{ inputs.surah }}-${{ github.run_id }}
+          path: |
+            ops/out/entry-witness-*.json
+            witness.log
+          retention-days: 7
+          if-no-files-found: ignore
