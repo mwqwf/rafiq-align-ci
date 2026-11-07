@@ -1,6 +1,6 @@
 name: rafiq-entry-window-census
 
-run-name: "entry-window-census ${{ inputs.key || 'timings-staging/qalun/maroush_qalun.3ff9b67d.jz' }} س${{ inputs.surahs || '67,78' }}"
+run-name: "entry-window-census ${{ inputs.key }} س${{ inputs.surahs }}"
 
 # 🔎 **إحصاءُ نوافذ المداخل** (‏`tools/index_qa/entry_window_census.py` · قرار القائد 2026-11-07 البند ٢.٥):
 #    لكلّ مدخلٍ في السور المطلوبة يُفرَّغ بـWhisper float32 نافذتُه [startMs, endMs] من صوت السورة نفسِه
@@ -10,10 +10,6 @@ run-name: "entry-window-census ${{ inputs.key || 'timings-staging/qalun/maroush_
 #    والأثرُ JSON مخرَجَ تشغيلةٍ لسبعة أيّام. التفريغُ مرشّحٌ للحكم وحده ولا يُكتب منه نصٌّ في أيّ فهرس.
 # 💰 مستودعٌ عامّ + عدّاد ubuntu-latest القياسيّ · مهلةٌ 60 دقيقة.
 on:
-  # ⛔ مؤقّت: سيرُ عملٍ لا يُطلَق بـdispatch قبل وجوده في main، فيُطلَق بدفع هذا الفرع وحدَه (‏يُنزع قبل الدمج بإيداعٍ [skip ci]).
-  push:
-    branches: [claude/entry-window-census]
-    paths: [".github/workflows/entry_window_census.yml", "tools/index_qa/entry_window_census.py"]
   workflow_dispatch:
     inputs:
       key: {description: "مفتاحُ المرشّح في timings-staging (‏مثل timings-staging/qalun/maroush_qalun.3ff9b67d.jz)", required: true}
@@ -25,7 +21,7 @@ permissions:
   contents: read
 
 concurrency:
-  group: rafiq-entry-window-census-${{ inputs.key || 'timings-staging/qalun/maroush_qalun.3ff9b67d.jz' }}
+  group: rafiq-entry-window-census-${{ inputs.key }}
   cancel-in-progress: false
 
 env:
@@ -55,15 +51,15 @@ jobs:
         uses: actions/cache@v4
         with:
           path: .hf
-          key: whisper-witness-${{ inputs.model || 'small' }}-fw111-v1
+          key: whisper-witness-${{ inputs.model }}-fw111-v1
       - name: اعتماد R2 (‏قراءةُ المرشّح وحدَها)
         env: {R2_CREDENTIALS_JSON: "${{ secrets.R2_CREDENTIALS_JSON }}"}
         run: mkdir -p secure && printf '%s' "$R2_CREDENTIALS_JSON" > secure/r2_credentials.json
       - name: إحصاءُ النوافذ (⛔ بلا رفعٍ ولا كتابةٍ في الدلو)
         env:
-          KEY: ${{ inputs.key || 'timings-staging/qalun/maroush_qalun.3ff9b67d.jz' }}
-          SURAHS: ${{ inputs.surahs || '67,78' }}
-          MODEL: ${{ inputs.model || 'small' }}
+          KEY: ${{ inputs.key }}
+          SURAHS: ${{ inputs.surahs }}
+          MODEL: ${{ inputs.model }}
         run: |
           set -o pipefail
           mkdir -p out
