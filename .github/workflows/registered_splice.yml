@@ -24,6 +24,7 @@ on:
       riwaya: {description: "الرواية", required: true}
       surahs: {description: "سورٌ مسجَّلةٌ بفواصل (‏سورةٌ واحدةٌ لكلّ تشغيلة هي الأفضل)", required: true}
       reason: {description: "سببُ التحويل", required: true}
+      engine: {description: "seg = CTC رتيبٌ على الملفّ كلّه (الافتراضُ) · heard = خريطةُ السماع ثمّ نوافذُ على مراسٍ مسموعة (ctc_heard_map) لملفٍّ طويلٍ ضاع فيه المحاذي الرتيب", default: "seg"}
 
 concurrency:
   group: rafiq-registered-splice-${{ inputs.parent }}
@@ -114,7 +115,8 @@ jobs:
         run: |
           set -eo pipefail
           python tools/ci_fleet/repair_registered_sources.py --parent-file parent.jz --catalog-file catalog.json \
-            --riwaya "$RIW" --reciter "$RID" --surahs "$SURAHS" --work-dir work --out patched.jz 2>&1 | tee ctc.log
+            --riwaya "$RIW" --reciter "$RID" --surahs "$SURAHS" --work-dir work --out patched.jz \
+            --engine "${{ github.event.inputs.engine || 'seg' }}" 2>&1 | tee ctc.log
           test -f patched.jz.taken || { echo "⛔ لا سورةَ اجتازت حرّاسَ الدمج"; exit 1; }
           echo "المأخوذ: $(cat patched.jz.taken)"
 
@@ -126,9 +128,10 @@ jobs:
         run: |
           set -eo pipefail
           TAKEN="$(cat patched.jz.taken)"
+          OPN="ctc_surah_splice"; [ "${{ github.event.inputs.engine || 'seg' }}" = "heard" ] && OPN="ctc_heardmap_splice"
           python tools/index_qa/stage_transform.py --file patched.jz \
                  --parent "$PARENT" --parent-sha "$SHA" \
-                 --op "ctc_surah_splice:$TAKEN" --reason "$REASON" \
+                 --op "$OPN:$TAKEN" --reason "$REASON" \
                  --by "github-registered-splice" --yes
 
       - uses: actions/upload-artifact@v4

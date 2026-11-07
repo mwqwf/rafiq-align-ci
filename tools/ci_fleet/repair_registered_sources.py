@@ -26,6 +26,10 @@ def main():
     ap.add_argument("--surahs", required=True)
     ap.add_argument("--work-dir", required=True)
     ap.add_argument("--out", required=True)
+    # (2026-11-07) محرّكُ المحاذاة: seg = CTC رتيبٌ على الملفّ كلّه (الافتراضُ كما كان) · heard = خريطةُ السماع ثمّ نوافذُ
+    # على مراسٍ مسموعة (ctc_heard_map) — لملفٍّ طويلٍ ضاع فيه المحاذي الرتيب (janaini س37: الثقةُ تنهار عند الآية 122
+    # فتُكبس 61 آيةً في 180ث بدل 320ث). لا يُخفَّف حارسٌ: المصدرُ والبصمةُ والدمجُ والرفعُ هي هي.
+    ap.add_argument("--engine", choices=("seg", "heard"), default="seg")
     a = ap.parse_args()
     idx = json.loads(gzip.decompress(Path(a.parent_file).read_bytes()))
     if idx.get("riwaya") != a.riwaya or idx.get("reciterId") != a.reciter:
@@ -45,7 +49,11 @@ def main():
     work = Path(a.work_dir).resolve()
     work.mkdir(parents=True, exist_ok=True)
     aligned = []
-    from ctc_seg import run_surah, ENGINE
+    if a.engine == "heard":
+        import ctc_heard_map as _H
+        ENGINE = _H.ENGINE
+    else:
+        from ctc_seg import run_surah, ENGINE
     for s, row in rows.items():
         audio = work / (row["audio_sha256"] + ".mp3")
         if not audio.exists():
@@ -54,7 +62,13 @@ def main():
         if sha != row["audio_sha256"]:
             raise SystemExit(f"⛔ س{s}: تغيرت بصمة المصدر؛ لا محاذاة على ملف مختلف")
         print(f"س{s}: رابط مسجّل وبصمة كاملة مطابقة", flush=True)
-        result = run_surah(str(audio), s, a.riwaya)
+        if a.engine == "heard":
+            # strict_tol_ms=1000 كما في وضع heard في ctc_splice.yml (هامشٌ تحت تسامح بوّابة السماع 1.5ث).
+            result, _report = _H.run(str(audio), s, a.riwaya, strict_tol_ms=1000)
+            print(_report, flush=True)
+            result.update(fileRef=row["url"], sha256=sha)
+        else:
+            result = run_surah(str(audio), s, a.riwaya)
         result.update(sourceUrl=row["url"], audioSha256=sha)
         path = work / f"s{s}.json"
         path.write_text(json.dumps(result, ensure_ascii=False, indent=2), encoding="utf-8")
