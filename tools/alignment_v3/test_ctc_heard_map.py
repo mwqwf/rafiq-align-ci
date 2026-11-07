@@ -225,5 +225,45 @@ class Wiring(unittest.TestCase):
         self.assertIn("rapidfuzz", y)
 
 
+class QuranModelFlag(unittest.TestCase):
+    """`--quran-model` (‏خريطةُ R في بوّابة السماع المزدوجة): تشخيصيٌّ بلا مداخل، ويكتب نسبَ النموذج في الخريطة."""
+
+    def _main(self, argv, evidence=None):
+        import json
+        import tempfile
+        d = tempfile.mkdtemp()
+        audio = os.path.join(d, "a.mp3")
+        with open(audio, "wb") as f:
+            f.write(b"x" * 20000)
+        fake_q = mock.MagicMock()
+        fake_q.configure.return_value = evidence or {"id": "m/id", "revision": "r" * 40, "weightsSha256": "w" * 64,
+                                                      "license": "Apache-2.0", "canonicalTextChanged": False}
+        res = {"surah": 1, "riwaya": "hafs", "engine": H.ENGINE, "totalMs": 1, "heardMap": {}, "entries": []}
+        with mock.patch.object(sys, "argv", ["ctc_heard_map.py", "--audio", audio, "--surah", "1", "--out-dir", d] + argv), \
+                mock.patch.dict(sys.modules, {"quran_ctc_model": fake_q}), \
+                mock.patch.object(H, "run", return_value=(res, "rep")) as run:
+            rc = H.main()
+        return rc, d, fake_q, run, json
+
+    def test_requires_probe(self):
+        with self.assertRaises(SystemExit) as cm:
+            self._main(["--quran-model"])
+        self.assertEqual(cm.exception.code, 2)
+
+    def test_map_carries_pinned_model_record(self):
+        rc, d, fake_q, run, json = self._main(["--probe", "--quran-model"])
+        self.assertEqual(rc, 0)
+        fake_q.configure.assert_called_once_with()
+        out = json.load(open(os.path.join(d, "heard_s001.json"), encoding="utf-8"))
+        self.assertEqual(out["quranModel"], {"id": "m/id", "revision": "r" * 40, "weightsSha256": "w" * 64})
+        self.assertEqual(out["sha256"], __import__("hashlib").sha256(b"x" * 20000).hexdigest())
+
+    def test_general_map_has_no_model_record_and_never_configures_it(self):
+        rc, d, fake_q, run, json = self._main(["--probe"])
+        out = json.load(open(os.path.join(d, "heard_s001.json"), encoding="utf-8"))
+        self.assertNotIn("quranModel", out)
+        fake_q.configure.assert_not_called()
+
+
 if __name__ == "__main__":
     unittest.main()
