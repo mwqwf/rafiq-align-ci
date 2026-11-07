@@ -1,0 +1,141 @@
+name: rafiq-registered-splice
+
+run-name: >-
+  registered-splice ${{ inputs.parent }} · س${{ inputs.surahs }}
+
+# ⭐ **محاذاةُ سورةٍ كاملةٍ من مصدرٍ بديلٍ مسجَّلٍ برابطٍ صريحٍ وبصمةٍ مقيسة**
+#    (قرار القائد 3 · 2026-11-07). يغلّف `tools/ci_fleet/repair_registered_sources.py` سحابياً،
+#    فلا يُبنى المرشّحُ محلياً ولا يُودَع `.jz` ثنائيٌّ في المستودع.
+#    الحاجةُ: اسمُ الملفّ عند archive.org غيرُ مرقَّم (‏janaini_qalun س37)، فلا يقبله حارسُ
+#    `realign_surah` (قالبٌ مرقَّمٌ أو مجلَّدٌ بجدول files) — وهو لا يُرخى.
+#
+# ⛔ لا يمسّ حارساً ولا عتبةً، والحُرّاسُ هنا زائدةٌ لا ناقصة:
+#    - كلُّ سورةٍ مسمّاةٍ يجب أن تكون مسجَّلةً في `source_overrides.json` بدليلٍ ورابطِ https صريحٍ وبصمةٍ كاملة
+#      (‏`source_registry.registered_source`) — وإلا يُوقَف قبل تنزيل بايت.
+#    - الأداةُ تنزّل الصوتَ وتُطابق بصمتَه بالمسجَّلة قبل المحاذاة (‏لا محاذاةَ على ملفٍّ مختلف).
+#    - `splice_surah --registered-sources --alt-source` يعلن المصدرَ في `sourceBySurah` ويحفظ ما سواه حرفاً.
+#    - الرفعُ إلى timings-staging بـ`stage_transform` وحرّاسِه نفسِها (‏`ctc_surah_splice`)، ولا كتابةَ في timings/.
+#    - الترقيةُ لا تتمّ هنا: تمرّ بالملوح الأربعة والمطالع والإحصاء الشامل والتجميد كما هي.
+# 💰 مستودعٌ عامّ + عدّاد ubuntu-latest القياسيّ ⇒ دقائقُ مجّانيّة؛ ولا نسخَ للصوت إلى R2.
+on:
+  workflow_dispatch:
+    inputs:
+      parent: {description: "الأصل: timings/<riw>/<id>.jz أو مرشّحٌ timings-staging/<riw>/<id>.<sha8>.jz", required: true}
+      riwaya: {description: "الرواية", required: true}
+      surahs: {description: "سورٌ مسجَّلةٌ بفواصل (‏سورةٌ واحدةٌ لكلّ تشغيلة هي الأفضل)", required: true}
+      reason: {description: "سببُ التحويل", required: true}
+
+concurrency:
+  group: rafiq-registered-splice-${{ inputs.parent }}
+  cancel-in-progress: false
+
+env:
+  PY: "3.11"
+  ALIGN_ENGINE: ctc
+  HF_HOME: ${{ github.workspace }}/.hf
+
+jobs:
+  splice:
+    name: registered-splice ${{ github.event.inputs.parent }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 350
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: {python-version: "${{ env.PY }}"}
+      - name: كاش ffmpeg (لا يغيّر النسخة)
+        uses: actions/cache@v4
+        with:
+          path: .qa-tools/apt-tree
+          key: qa-ffmpeg-apt-tree-v1-${{ hashFiles('tools/ci_fleet/install_qa_ffmpeg.py') }}
+      - name: الأدوات
+        run: |
+          QA_FFMPEG_APT_ONLY=1 python tools/ci_fleet/install_qa_ffmpeg.py
+          python -m pip install --quiet --index-url https://download.pytorch.org/whl/cpu torch==2.15.0
+          python -m pip install --quiet "numpy==1.26.4" transformers==5.22.1 ctc-segmentation==1.7.5 boto3==1.43.123 rapidfuzz==3.14.6
+      - name: كاش النموذج
+        uses: actions/cache@v4
+        with:
+          path: .hf
+          key: ctc-model-jonatasgrosman-xlsr53-ar-v1
+      - name: اعتماد R2
+        env: {R2_CREDENTIALS_JSON: "${{ secrets.R2_CREDENTIALS_JSON }}"}
+        run: mkdir -p secure && printf '%s' "$R2_CREDENTIALS_JSON" > secure/r2_credentials.json
+
+      - name: ⛔ حارسُ المصدر المسجَّل والأصل (قبل تنزيل بايت من الصوت)
+        id: plan
+        env:
+          PARENT: ${{ github.event.inputs.parent }}
+          RIW: ${{ github.event.inputs.riwaya }}
+          SURAHS: ${{ github.event.inputs.surahs }}
+        run: |
+          python - <<'PY'
+          import gzip, hashlib, json, os, re, sys, boto3
+          sys.stdout.reconfigure(encoding="utf-8")
+          sys.path.insert(0, "tools/ci_fleet")
+          from source_registry import registered_source
+          parent, riw = os.environ["PARENT"], os.environ["RIW"]
+          if (not parent.startswith(("timings/", "timings-staging/")) or parent.count("/") != 2
+                  or not parent.endswith(".jz") or parent.split("/")[1] != riw):
+              sys.exit(f"⛔ الأصلُ يجب أن يكون timings/{riw}/<id>.jz أو timings-staging/{riw}/<id>.<sha8>.jz: {parent}")
+          rid = parent.split("/")[2][:-3].split(".")[0]
+          if not re.fullmatch(r"[A-Za-z0-9_-]+", rid):
+              sys.exit("⛔ معرّفُ القارئ غيرُ صالح")
+          surahs = os.environ["SURAHS"].replace(" ", "").split(",")
+          if not all(re.fullmatch(r"\d{1,3}", s) and 1 <= int(s) <= 114 for s in surahs) or len(set(surahs)) != len(surahs):
+              sys.exit("⛔ قائمةُ السور غيرُ صالحة")
+          # كلُّ سورةٍ مسجَّلةٌ برابطٍ صريحٍ وبصمةٍ كاملةٍ ودليل — وإلا لا شيءَ يُنزَّل.
+          for s in surahs:
+              row = registered_source(riw, rid, int(s))
+              if not row.get("url") or not row.get("audio_sha256") or not row["url"].startswith("https://archive.org/download/"):
+                  sys.exit(f"⛔ س{s}: يلزم رابطٌ صريحٌ بصيغة https://archive.org/download/ وبصمةٌ كاملة في السجلّ")
+              print(f"✅ س{s}: مصدرٌ مسجَّل {row['url'][:90]}… · بصمة {row['audio_sha256'][:12]}")
+          c = json.load(open("secure/r2_credentials.json"))
+          s3 = boto3.client("s3", endpoint_url=c["endpoint"],
+                            aws_access_key_id=c["accessKeyId"],
+                            aws_secret_access_key=c["secretAccessKey"], region_name="auto")
+          body = s3.get_object(Bucket=c["bucket"], Key=parent)["Body"].read()
+          open("parent.jz", "wb").write(body)
+          idx = json.loads(gzip.decompress(body).decode("utf-8"))
+          if idx.get("reciterId") != rid or idx.get("riwaya") != riw:
+              sys.exit("⛔ الأصلُ يصف قارئاً آخر")
+          open("catalog.json", "wb").write(s3.get_object(Bucket=c["bucket"], Key="catalog/reciters.json")["Body"].read())
+          sha = hashlib.sha256(body).hexdigest()
+          print(f"الأصل {parent} ({sha[:12]}) · محرّكه {idx.get('engineVersion')}")
+          with open(os.environ["GITHUB_OUTPUT"], "a") as f:
+              f.write(f"rid={rid}\nsha={sha}\n")
+          PY
+
+      - name: المحاذاة بـCTC من المصدر المسجَّل (⛔ بلا رفع)
+        env:
+          RIW: ${{ github.event.inputs.riwaya }}
+          RID: ${{ steps.plan.outputs.rid }}
+          SURAHS: ${{ github.event.inputs.surahs }}
+        run: |
+          set -eo pipefail
+          python tools/ci_fleet/repair_registered_sources.py --parent-file parent.jz --catalog-file catalog.json \
+            --riwaya "$RIW" --reciter "$RID" --surahs "$SURAHS" --work-dir work --out patched.jz 2>&1 | tee ctc.log
+          test -f patched.jz.taken || { echo "⛔ لا سورةَ اجتازت حرّاسَ الدمج"; exit 1; }
+          echo "المأخوذ: $(cat patched.jz.taken)"
+
+      - name: رفعٌ إلى الاختبار بحُرّاس stage_transform
+        env:
+          PARENT: ${{ github.event.inputs.parent }}
+          SHA: ${{ steps.plan.outputs.sha }}
+          REASON: ${{ github.event.inputs.reason }}
+        run: |
+          set -eo pipefail
+          TAKEN="$(cat patched.jz.taken)"
+          python tools/index_qa/stage_transform.py --file patched.jz \
+                 --parent "$PARENT" --parent-sha "$SHA" \
+                 --op "ctc_surah_splice:$TAKEN" --reason "$REASON" \
+                 --by "github-registered-splice" --yes
+
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: registered-splice-${{ github.run_id }}
+          path: |
+            work/s*.json
+            ctc.log
+          retention-days: 3
