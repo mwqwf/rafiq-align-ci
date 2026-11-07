@@ -566,6 +566,52 @@ def _dump(res: dict, out: str) -> None:
     os.replace(out + ".part", out)
 
 
+def cmd_inventory(a) -> int:
+    """جردُ السور ذات التكرار المقيس في المنشور: كلُّ خرائط `state-heard/` على الدلو (‏قراءةٌ محضة) ⇒ (فهرس، سورة، آيات).
+    لا تُحسب خريطةٌ بصمةُ صوتها تخالف بصمةَ سورتها في الفهرس الحيّ (‏قياسٌ على ملفٍّ آخر)."""
+    import promote as P                                              # noqa: PLC0415
+    import index_fields as I                                         # noqa: PLC0415
+    cl, bucket = P.s3()
+    keys = []
+    for page in cl.get_paginator("list_objects_v2").paginate(Bucket=bucket, Prefix=heard_gate.STATE_PREFIX):
+        keys += [o["Key"] for o in page.get("Contents", []) if o["Key"].endswith(".json")]
+    rows, skipped = [], []
+    texts_cache: dict = {}
+    for sk in sorted(keys):
+        try:
+            rep = json.loads(cl.get_object(Bucket=bucket, Key=sk)["Body"].read())
+            src = rep.get("src") or ""
+            if not src.startswith("timings/"):
+                continue
+            body = cl.get_object(Bucket=bucket, Key=src)["Body"].read()
+            idx = json.loads(gzip.decompress(body))
+            live = hashlib.sha256(body).hexdigest()
+            present = sorted({int(str(e["ayahId"]).split(":")[0]) for e in idx["entries"] if e.get("startMs") is not None})
+            sha_of = I.sha_by_surah(idx, present)
+        except Exception as ex:                                      # noqa: BLE001
+            skipped.append({"state": sk, "error": f"{type(ex).__name__}: {ex}"[:200]})
+            continue
+        riwaya = src.split("/")[1]
+        for sn, cmap in sorted((rep.get("maps") or {}).items(), key=lambda kv: int(kv[0])):
+            s = int(sn)
+            if s not in present or cmap.get("sha256") != sha_of.get(s):
+                skipped.append({"state": sk, "surah": s, "why": "بصمةُ الصوت أو حضورُ السورة لا يطابق الفهرسَ الحيّ"})
+                continue
+            texts = texts_cache.setdefault((riwaya, s), surah_texts(riwaya, s))
+            rep_s = measured_repeats(cmap, texts)
+            if rep_s:
+                rows.append({"index": src, "surah": s, "ayahs": sorted(rep_s), "liveSha": live[:8],
+                             "stateSha": str(rep.get("sha256"))[:8],
+                             "performances": {str(k): len(v["performances"]) for k, v in sorted(rep_s.items())}})
+    os.makedirs(a.out, exist_ok=True)
+    _dump({"version": "measured-repeats-inventory-1", "mapsFiles": len(keys), "rows": rows, "skipped": skipped},
+          os.path.join(a.out, "measured_repeats_inventory.json"))
+    for r in rows:
+        print(f"{r['index']}\tس{r['surah']}\t{r['ayahs']}", flush=True)
+    print(f"■ {len(rows)} (فهرس، سورة) بتكرارٍ مقيس من {len(keys)} ملفّ خرائط؛ تُخطّي {len(skipped)}", flush=True)
+    return 0
+
+
 def cmd_targets(a) -> int:
     """شاهدُ CTC بالنموذجين لآياتٍ منشورةٍ بعينها وتصنيفُها: «الآيةُ نفسُها مسموعة» · «غيرها مسموع» · «غير محسوم»."""
     jobs = []
@@ -652,12 +698,16 @@ def main() -> int:
     q.add_argument("--model", default="small", choices=PH.W_MODELS)
     q.add_argument("--witness", action="store_true", help="الشاهدُ الأقوى بنموذجَي CTC لمردودات «نقص» المؤهَّلة")
     q.add_argument("--out", required=True)
+    v = sub.add_parser("inventory", help="جردُ التكرار المقيس في المنشور من state-heard/ (‏قراءةٌ محضة، يلزمه R2)")
+    v.add_argument("--out", required=True)
     t = sub.add_parser("targets", help="شاهدُ CTC بالنموذجين لمداخلَ منشورةٍ بعينها وتصنيفُها (‏قراءةٌ محضة)")
     t.add_argument("--targets", required=True, help="«مفتاح=س:آية,آية;مفتاح2=س:آية» (‏مفاتيحُ timings/ المنشورة)")
     t.add_argument("--out", required=True)
     a = ap.parse_args()
     if a.cmd == "targets":
         return cmd_targets(a)
+    if a.cmd == "inventory":
+        return cmd_inventory(a)
     return cmd_repeats(a) if a.cmd == "repeats" else cmd_run(a)
 
 
