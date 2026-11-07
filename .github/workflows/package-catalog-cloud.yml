@@ -120,12 +120,39 @@ jobs:
             echo "⛔ فشل بناء المرشح الخاص؛ التفاصيل محجوبة من السجل العام"
             exit 1
           fi
+          # ⭐ باب الإسقاط المعلن (إذن المالك 2026-11-07 11:09Z): لكلّ قارئٍ مصدَّقٍ سابقاً غاب عن الشهادة
+          #    يُنزَّل فهرسُه المنشور، ويفحصه declared_removal بالشروط الثلاثة؛ وما لم يجتزها يُبقي الردّ.
+          mkdir -p "$WORK/declared"
+          python - "$WORK" > "$WORK/declared.txt" <<'PY'
+          import json, pathlib, sys
+          work = pathlib.Path(sys.argv[1])
+          snap = set(json.loads((work / "certified-indexes.json").read_text())["indexes"])
+          for p in json.loads((work / "catalog.before.json").read_text()).get("packages") or []:
+              if p.get("kind") != "timing_index" or (p.get("quality") or {}).get("ayahCertified") is not True:
+                  continue
+              key = (p.get("files") or [{}])[0].get("key") or ""
+              parts = key.split("/")
+              if len(parts) == 3 and parts[0] == "timings" and parts[2].endswith(".jz"):
+                  tid = f"{parts[1]}/{parts[2][:-3]}"
+                  if tid not in snap:
+                      print(tid)
+          PY
+          DECLARED=()
+          while read -r TID; do
+            [ -n "$TID" ] || continue
+            F="$WORK/declared/${TID//\//__}.jz"
+            curl -fsS "$R2_BASE/timings/$TID.jz" -o "$F"
+            DECLARED+=(--declared-index "$TID=$F")
+            echo "إسقاطٌ يُفحص بباب الإعلان: $TID"
+          done < "$WORK/declared.txt"
           python tools/packages/certified_catalog_gate.py \
             --input "$WORK/catalog.json" \
             --output "$WORK/catalog.certified.json" \
             --certificate-snapshot "$WORK/certified-indexes.json" \
             --previous "$WORK/catalog.before.json" \
             --id-diff "$WORK/id-diff.json" \
+            --approvals ops/OWNER_DROP_APPROVALS.json \
+            "${DECLARED[@]}" \
             --min-timing 111 > "$WORK/gate-summary.json"
           CANDIDATE_SHA=$(sha256sum "$WORK/catalog.certified.json" | cut -d' ' -f1)
           python - "$WORK" "$CANDIDATE_SHA" >> "$GITHUB_STEP_SUMMARY" <<'PY'
@@ -140,6 +167,9 @@ jobs:
           print("previous_certified_timing=" + str(len(diff["beforeCertified"])))
           print("added=" + str(len(diff["added"])))
           print("removed=" + str(len(diff["removed"])))
+          for r in diff.get("removedDeclared") or []:
+              print(f"removed_declared={r['id']} sha8={r['sha256'][:8]} surahs={len(r['declaredSurahs'])} "
+                    f"code={r['reasonCode']} raw={r['rawCoverage']} with_declared={r['coverageWithDeclared']}")
           print("certificate_catalog_sha256=" + snapshot["catalogSha256"])
           PY
           if [[ "${{ github.event_name }}" == workflow_dispatch && "${{ inputs.publish }}" == true ]]; then

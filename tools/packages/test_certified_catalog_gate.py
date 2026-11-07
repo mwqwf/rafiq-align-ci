@@ -3,6 +3,11 @@ from __future__ import annotations
 import unittest
 from tools.packages.certified_catalog_gate import certified_only
 from tools.packages.certified_catalog_gate import id_diff
+from tools.packages.certified_catalog_gate import declared_removal
+from tools.packages.certified_catalog_gate import SURAH_AYAHS
+import gzip
+import hashlib
+import json
 
 SHA = "a" * 64
 
@@ -88,6 +93,151 @@ class GateTest(unittest.TestCase):
         self.assertEqual(report["removed"], [])
         with self.assertRaisesRegex(ValueError, "أسقط قارئاً"):
             id_diff(before, {"packages": [pkg("new")]})
+
+
+DROPPED = [2, 3, 4]          # 662 آية ⇒ الحاضرُ 0.894 دون الأرضيّة، ومع المعلَن 1.0
+REASON_USER = "توقيتُ هذه السورة لهذا القارئ قيد الإصلاح، فحُجب مؤقّتاً."
+
+
+def index_doc(drop=DROPPED, present_extra=(), code="OTHER", user=REASON_USER, op=None, rid="old",
+              thin=()):
+    """فهرسٌ تامُّ الآيات إلا السورَ المسقطة؛ و`thin` سورٌ حاضرةٌ لا يبقى منها إلا آيتها الأولى."""
+    present = [s for s in range(1, 115) if s not in drop]
+    tr = {"op": op if op is not None else "drop_surah:" + ",".join(map(str, drop))}
+    if code is not None:
+        tr["reasonCode"] = code
+    if user is not None:
+        tr["reasonUser"] = user
+    ents = [{"ayahId": f"{s}:{a}"} for s in present
+            for a in range(1, (1 if s in thin else SURAH_AYAHS[s - 1]) + 1)]
+    ents += [{"ayahId": f"{s}:1"} for s in present_extra]
+    return {"reciterId": rid, "riwaya": "hafs", "ayahCount": 6236, "transform": tr, "entries": ents}
+
+
+def blob(doc):
+    return gzip.compress(json.dumps(doc, ensure_ascii=False).encode("utf-8"), mtime=0)
+
+
+def approvals_for(b, surahs=DROPPED, rid="old"):
+    sha8 = hashlib.sha256(b).hexdigest()[:8]
+    return [{"key": f"timings-staging/hafs/{rid}.{sha8}.jz", "surahs": list(surahs)}]
+
+
+class DeclaredRemovalTest(unittest.TestCase):
+    """باب الإسقاط المعلن (‏إذن المالك 2026-11-07 11:09Z): الشروط الثلاثة مجتمعة، وغيابُ أيّها يُبقي الردّ."""
+
+    before = {"packages": [pkg("old"), pkg("keep")]}
+    after = {"packages": [pkg("keep")]}
+
+    def ok(self, doc=None):
+        b = blob(doc or index_doc())
+        return b, declared_removal("hafs/old", b, approvals_for(b))
+
+    def test_declared_and_approved_removal_passes_and_is_recorded(self):
+        b, rec = self.ok()
+        self.assertEqual(rec["declaredSurahs"], DROPPED)
+        self.assertEqual(rec["sha256"], hashlib.sha256(b).hexdigest())
+        report = id_diff(self.before, self.after, {"hafs/old": rec})
+        self.assertEqual(report["removed"], ["hafs/old"])
+        self.assertEqual(report["removedDeclared"], [rec])
+
+    def test_without_declaration_removal_still_blocked(self):
+        with self.assertRaisesRegex(ValueError, "أسقط قارئاً"):
+            id_diff(self.before, self.after)
+        with self.assertRaisesRegex(ValueError, "أسقط قارئاً"):
+            id_diff(self.before, {"packages": []}, {"hafs/old": self.ok()[1]})  # keep لم يُعلن
+
+    def test_declaration_for_reciter_not_removed_refused(self):
+        with self.assertRaisesRegex(ValueError, "لم يُسقَط"):
+            id_diff(self.before, self.before, {"hafs/old": self.ok()[1]})
+
+    def test_missing_approval_row_refused(self):
+        b = blob(index_doc())
+        with self.assertRaisesRegex(ValueError, "لا صفَّ موافقة"):
+            declared_removal("hafs/old", b, [])
+
+    def test_approval_for_other_sha_refused(self):
+        b = blob(index_doc())
+        other = blob(index_doc(user=REASON_USER + "!"))
+        with self.assertRaisesRegex(ValueError, "لا صفَّ موافقة"):
+            declared_removal("hafs/old", b, approvals_for(other))
+
+    def test_approval_for_other_reciter_refused(self):
+        b = blob(index_doc())
+        with self.assertRaisesRegex(ValueError, "لا صفَّ موافقة"):
+            declared_removal("hafs/old", b, approvals_for(b, rid="keep"))
+
+    def test_approval_surahs_mismatch_refused(self):
+        b = blob(index_doc())
+        for surahs in ([12], [12, 22, 40], []):
+            with self.assertRaisesRegex(ValueError, "لا يطابق"):
+                declared_removal("hafs/old", b, approvals_for(b, surahs))
+
+    def test_missing_reason_code_or_user_refused(self):
+        for kw in ({"code": None}, {"code": "  "}, {"user": None}, {"user": ""}):
+            b = blob(index_doc(**kw))
+            with self.assertRaisesRegex(ValueError, "بلا reason"):
+                declared_removal("hafs/old", b, approvals_for(b))
+
+    def test_without_drop_surah_op_refused(self):
+        for op in ("", "ctc_splice:12,22", "drop_surah:", "x drop_surah:12,22"):
+            b = blob(index_doc(op=op))
+            with self.assertRaisesRegex(ValueError, "لا إعلانَ drop_surah"):
+                declared_removal("hafs/old", b, approvals_for(b))
+
+    def test_silent_absent_surah_refused(self):
+        doc = index_doc()
+        doc["entries"] = [e for e in doc["entries"] if not e["ayahId"].startswith("40:")]
+        b = blob(doc)
+        with self.assertRaisesRegex(ValueError, "بلا إعلان"):
+            declared_removal("hafs/old", b, approvals_for(b))
+
+    def test_declared_but_present_surah_refused(self):
+        b = blob(index_doc(present_extra=(3,)))
+        with self.assertRaisesRegex(ValueError, "وهي حاضرة"):
+            declared_removal("hafs/old", b, approvals_for(b))
+
+    def test_index_of_other_reciter_or_unreadable_refused(self):
+        b = blob(index_doc(rid="keep"))
+        with self.assertRaisesRegex(ValueError, "قارئاً آخر"):
+            declared_removal("hafs/old", b, approvals_for(b))
+        with self.assertRaisesRegex(ValueError, "لا يُقرأ"):
+            declared_removal("hafs/old", b"not gzip", [])
+        with self.assertRaisesRegex(ValueError, "غير صالح"):
+            declared_removal("../old", blob(index_doc()), [])
+
+    def test_declaration_must_explain_the_exit(self):
+        """الشرط الرابع: قارئٌ فوق الأرضيّة له إعلانٌ وموافقة (‏سورةٌ صغيرة) لا يمرّ إسقاطُه."""
+        b = blob(index_doc(drop=[112]))
+        with self.assertRaisesRegex(ValueError, "لا يفسّره الإعلان"):
+            declared_removal("hafs/old", b, approvals_for(b, [112]))
+
+    def test_missing_ayahs_outside_declaration_refused(self):
+        """الحاضرُ ناقصُ الآيات فلا يبلغ المجموعُ الأرضيّة ⇒ ناقصٌ خارج المعلَن."""
+        b = blob(index_doc(thin=(5, 6, 7, 8, 9)))
+        with self.assertRaisesRegex(ValueError, "ناقصٌ خارج المعلَن"):
+            declared_removal("hafs/old", b, approvals_for(b))
+
+    def test_coverage_recorded_and_other_counting_refused(self):
+        _b, rec = self.ok()
+        self.assertEqual((rec["rawCoverage"], rec["coverageWithDeclared"]), (0.8938, 1.0))
+        doc = index_doc(); doc["ayahCount"] = 6214
+        b = blob(doc)
+        with self.assertRaisesRegex(ValueError, "عدّ الآيات"):
+            declared_removal("hafs/old", b, approvals_for(b))
+        doc = index_doc(); doc["entries"].append({"ayahId": "1:8"})
+        b = blob(doc)
+        with self.assertRaisesRegex(ValueError, "خارج المصحف"):
+            declared_removal("hafs/old", b, approvals_for(b))
+
+    def test_certified_only_unchanged_by_door(self):
+        """الباب لا يُدخل الفهرس المعلن في الحزم ولا يمسّ أرضيّة التغطية."""
+        doc = {"packages": [pkg("old", False, 0.87), pkg("keep")], "failures": [], "rejected": []}
+        out, stat = certified_only(doc, 1, snapshot("keep"))
+        self.assertEqual([p["id"] for p in out["packages"]], ["timings.hafs.keep"])
+        with self.assertRaisesRegex(ValueError, "خارج"):
+            certified_only({"packages": [pkg("old", True, 0.87)], "failures": []}, 0,
+                           snapshot("old", coverage=0.87))
 
 
 if __name__ == "__main__":
