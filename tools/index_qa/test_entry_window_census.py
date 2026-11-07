@@ -79,12 +79,32 @@ class JudgeEntry(unittest.TestCase):
         r = E.judge_entry(1, toks(T[1]), T)
         self.assertEqual(r["verdict"], "pass", r)
 
+    def test_rasm_spelling_difference_passes(self):
+        # فرقُ إملاءٍ في كلمةٍ طرفيّة (‏«تبرك» ↔ «تبارك») لا يردّ آيةً سليمة (‏مسارُ التشابه)
+        heard = list(T[2])
+        heard[0] = "حااء"
+        heard[-1] = "نونن"
+        r = E.judge_entry(2, toks(heard), T)
+        self.assertEqual(r["verdict"], "pass", r)
+
+    def test_dissimilar_head_rejected_even_with_fuzz(self):
+        heard = ["قاف", "صاد", "راء"] + T[2][3:]
+        r = E.judge_entry(2, toks(heard), T)
+        self.assertEqual((r["verdict"], r["reason"]), ("reject", "نقص"), r)
+
+    def test_one_extra_word_over_fuzzy_band_rejected(self):
+        # 7 كلمات ⇒ الحدّ الأعلى 8 (‏1.2×)؛ تسعٌ تُردّ (‏المسارُ المشابه أضيقُ من التامّ)
+        r = E.judge_entry(2, toks(T[2] + ["ظاء", "ذال"]), T)
+        self.assertEqual((r["verdict"], r["reason"]), ("reject", "زيادة"), r)
+
     def test_word_bounds_are_pin_heard_bounds(self):
+        import math
         n = len(T[2])
-        lo, hi = max(E.K, int(E.PH.W_LEN_LO * n)), int(E.PH.W_LEN_HI * n) + 1
+        lo, hi = max(E.K, math.ceil(E.PH.W_FUZZ_LEN_LO * n)), math.floor(E.PH.W_FUZZ_LEN_HI * n)
         r = E.judge_entry(2, toks(T[2]), T)
         self.assertEqual(r["wordBounds"], [lo, hi])
         self.assertIs(E.MIN_WORD_P, E.PH.W_MIN_WORD_P)
+        self.assertIs(E.FUZZ_SIM, E.PH.W_FUZZ_SIM)
         self.assertEqual(E.REPEAT_SIM, 0.7)
 
 

@@ -15,8 +15,9 @@
 (‏أداءٌ يقع على موضعِ آيةٍ أخرى تشبه نصَّها ≥ 0.7 ليس تكراراً: هو المتشابهات).
 
 **حكمُ المدخل** (‏Whisper float32 على النافذة · الثوابتُ من `pin_heard` لا نسخةً منها):
-- يمرّ: أوّلُ 3 كلماتٍ وآخرُ 3 من الآية المرجعيّة يطابقان التفريغَ كلمةً بكلمة بثقةٍ (‏`W_MIN_WORD_P` ·
-  `W_MEAN_WORD_P`) · وعددُ كلمات النافذة كلِّها بين `W_LEN_LO` و`W_LEN_HI` من كلمات الآية · ولا كلامَ زائداً من آيةٍ أخرى.
+- يمرّ: أوّلُ 3 كلماتٍ وآخرُ 3 من الآية المرجعيّة تشبهان التفريغَ (‏`W_FUZZ_SIM` — مسارُ `--witness-fuzzy`، لأنّ رسمَ
+  ورش/قالون المرجعيَّ يخالف إملاءَ Whisper) بثقةٍ (‏`W_MIN_WORD_P` · `W_MEAN_WORD_P`) · وعددُ كلمات النافذة كلِّها بين
+  `W_FUZZ_LEN_LO` و`W_FUZZ_LEN_HI` من كلمات الآية · ولا كلامَ زائداً من آيةٍ أخرى.
 - يُردّ «آية أخرى»: في النافذة نصٌّ من آيةٍ غيرها (‏ثلاثُ كلماتٍ متتالية من غير الآية نفسها، أو بدءُ/ختامُ آيةٍ مجاورة
   يلاصق الآيةَ المطابقة).
 - يُردّ «زيادة»: كلماتُ النافذة فوق الحدّ (‏ويشمل أداءَ الآية نفسِها مرّتين).
@@ -33,6 +34,7 @@ import glob
 import gzip
 import hashlib
 import json
+import math
 import os
 import sys
 import tempfile
@@ -57,7 +59,13 @@ SR = 16000
 K = PH.W_K
 MIN_WORD_P = PH.W_MIN_WORD_P
 MEAN_WORD_P = PH.W_MEAN_WORD_P
-LEN_LO, LEN_HI = PH.W_LEN_LO, PH.W_LEN_HI
+LEN_LO, LEN_HI = PH.W_LEN_LO, PH.W_LEN_HI                    # حدودُ المسار التامّ (‏للمرجع في التقرير)
+# ⭐ الحكمُ هنا بمسار `pin_heard` **المشابه** (‏`--witness-fuzzy`): نصُّ المصحف المرجعيّ في روايات ورش/قالون رسمُه
+#    بلا ألف الخنجريّة (‏«تبرك» «السما» «اصحب») وWhisper يخرج بالإملاء المعتاد («تبارك» «السماء» «اصحاب»)، فالتطابقُ
+#    التامّ يردّ آياتٍ سليمةً (‏قِيس: 24 من 30 في س67 بالتامّ، والتشابهُ ≥ 0.9 في أغلبها). فيُقبل تشابهُ حروف الكلمات
+#    الطرفيّة ≥ W_FUZZ_SIM، **وحدودُ عدد الكلمات أضيقُ** (‏W_FUZZ_LEN_*) فلا تنجو نافذةٌ مدموجةٌ أو مبتورة.
+FUZZ_SIM = PH.W_FUZZ_SIM
+FUZZ_LO, FUZZ_HI = PH.W_FUZZ_LEN_LO, PH.W_FUZZ_LEN_HI
 REPEAT_SIM = heard_gate.REPEAT_SIM          # 0.7
 MIN_ANCHOR_Q = heard_gate.MIN_Q             # 0.5
 SIMILAR_VERSE = 0.7                         # آيتان متشابهتان نصّاً بهذا التشابه فأعلى
@@ -182,7 +190,7 @@ def judge_entry(ayah: int, toks: list[tuple], texts: dict[int, list[str]]) -> di
     k = min(K, n)
     got = [t[0] for t in toks]
     total = len(got)
-    lo, hi = max(k, int(LEN_LO * n)), int(LEN_HI * n) + 1
+    lo, hi = max(k, math.ceil(FUZZ_LO * n)), math.floor(FUZZ_HI * n)
     base = {"ayah": ayah, "words": total, "refWords": n, "wordBounds": [lo, hi],
             "heard": " ".join(got),
             "ratio": round(difflib.SequenceMatcher(None, " ".join(got), " ".join(ref)).ratio(), 3)}
@@ -190,17 +198,21 @@ def judge_entry(ayah: int, toks: list[tuple], texts: dict[int, list[str]]) -> di
     def rej(reason, detail, **kw):
         return {**base, "verdict": "reject", "reason": reason, "detail": detail, **kw}
 
+    def same(x, y):
+        return PH._sim(x, y) >= FUZZ_SIM
+
     if not got:
         return rej("نقص", "لا تفريغَ في النافذة (‏صمتٌ أو لا كلام)")
     head, tail = ref[:k], ref[-k:]
-    why = "أوّلُ كلماتِ الآية لا يطابق تفريغَ النافذة"
+    why = "أوّلُ كلماتِ الآية لا يشبه تفريغَ النافذة"
     best = None
     for i in range(total - k + 1):
-        if got[i:i + k] != head:
+        if not same(got[i:i + k], head):
             continue
-        ends = [j for j in range(i + k - 1, total) if got[j - k + 1:j + 1] == tail and lo <= j - i + 1 <= hi]
+        ends = [j for j in range(i + k - 1, total)
+                if same(got[j - k + 1:j + 1], tail) and lo <= j - i + 1 <= hi]
         if not ends:
-            why = "آخرُ كلماتِ الآية لا يطابق التفريغ أو عددُ كلمات الآية خارج الحدّ"
+            why = "آخرُ كلماتِ الآية لا يشبه التفريغَ أو عددُ كلمات الآية خارج الحدّ"
             continue
         j = min(ends, key=lambda e: abs((e - i + 1) - n))
         edge = toks[i:i + k] + toks[j - k + 1:j + 1]
@@ -212,7 +224,7 @@ def judge_entry(ayah: int, toks: list[tuple], texts: dict[int, list[str]]) -> di
         if best is None or abs((j - i + 1) - n) < abs((best[1] - best[0] + 1) - n):
             best = (i, j, low, mean)
     if best is None:
-        # ما سببُ عدم المطابقة؟ آيةٌ أخرى تملأ النافذة، أم نقص؟
+        # ما سببُ عدم المطابقة؟ آيةٌ أخرى تملأ النافذة، أم زيادة، أم نقص؟
         other = other_ayah_in(got, [], ayah, texts)
         if other is not None:
             return rej("آية أخرى", f"لا يطابق نصَّ الآية، وفي النافذة نصٌّ من الآية {other} — {why}", otherAyah=other)

@@ -13,7 +13,7 @@ on:
   # ⛔ مؤقّت: سيرُ عملٍ لا يُطلَق بـdispatch قبل وجوده في main، فيُطلَق بدفع هذا الفرع وحدَه (‏يُنزع قبل الدمج بإيداعٍ [skip ci]).
   push:
     branches: [claude/entry-window-census]
-    paths: [".github/workflows/entry_window_census.yml"]
+    paths: [".github/workflows/entry_window_census.yml", "tools/index_qa/entry_window_census.py"]
   workflow_dispatch:
     inputs:
       key: {description: "مفتاحُ المرشّح في timings-staging (‏مثل timings-staging/qalun/maroush_qalun.3ff9b67d.jz)", required: true}
