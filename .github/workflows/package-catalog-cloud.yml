@@ -167,6 +167,9 @@ jobs:
           print("previous_certified_timing=" + str(len(diff["beforeCertified"])))
           print("added=" + str(len(diff["added"])))
           print("removed=" + str(len(diff["removed"])))
+          for r in diff.get("removedDeclared") or []:
+              print(f"removed_declared={r['id']} sha8={r['sha256'][:8]} surahs={len(r['declaredSurahs'])} "
+                    f"code={r['reasonCode']} raw={r['rawCoverage']} with_declared={r['coverageWithDeclared']}")
           print("certificate_catalog_sha256=" + snapshot["catalogSha256"])
           PY
           if [[ "${{ github.event_name }}" == workflow_dispatch && "${{ inputs.publish }}" == true ]]; then

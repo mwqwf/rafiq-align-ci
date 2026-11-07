@@ -13,6 +13,11 @@ import re
 from pathlib import Path
 
 _SHA256 = re.compile(r"^[0-9a-f]{64}$")
+# أرضيّةُ التغطية الخام للشهادة (‏= MIN_RAW_COV في certify_catalog)؛ ثابتٌ واحدٌ هنا لا يُخفَّض.
+MIN_RAW_COV = 0.90
+# عددُ آيات كلّ سورة بالعدّ الكوفيّ (‏ayahCounting في الفهارس، 6236) — لشرط «الإعلانُ يفسّر الخروج وحده».
+SURAH_AYAHS = (7, 286, 200, 176, 120, 165, 206, 75, 129, 109, 123, 111, 43, 52, 99, 128, 111, 110, 98, 135, 112, 78, 118, 64, 77, 227, 93, 88, 69, 60, 34, 30, 73, 54, 45, 83, 182, 88, 75, 85, 54, 53, 89, 59, 37, 35, 38, 29, 18, 45, 60, 49, 62, 55, 78, 96, 29, 22, 24, 13, 14, 11, 11, 18, 12, 12, 30, 52, 52, 44, 28, 28, 20, 56, 40, 31, 50, 40, 46, 42, 29, 19, 36, 25, 22, 17, 19, 26, 30, 20, 15, 21, 11, 8, 8, 19, 5, 8, 8, 11, 11, 8, 3, 9, 5, 4, 7, 3, 6, 3, 5, 4, 5, 6)
+TOTAL_AYAHS = sum(SURAH_AYAHS)
 _CERTIFIER = "certify_catalog-1.2"
 
 
@@ -20,8 +25,8 @@ def _finite_coverage(value, package_id: str) -> float:
     # bool is an int subclass in Python; a certificate must never accept it.
     if type(value) not in (int, float) or not math.isfinite(value):
         raise ValueError(f"{package_id}: certified مع تغطية غير محدودة {value!r}")
-    if not 0.90 <= value <= 1.0:
-        raise ValueError(f"{package_id}: certified مع تغطية خارج [0.90, 1] {value!r}")
+    if not MIN_RAW_COV <= value <= 1.0:
+        raise ValueError(f"{package_id}: certified مع تغطية خارج [{MIN_RAW_COV}, 1] {value!r}")
     return float(value)
 
 
@@ -120,6 +125,8 @@ def declared_removal(timing_id: str, index_bytes: bytes, approvals: list) -> dic
     2. ترويسةُ الفهرس `drop_surah:<سور>` معها `reasonCode` و`reasonUser` غيرُ فارغَين،
        وكلُّ سورةٍ معلَنةٍ غائبةٌ فعلاً، ولا سورةَ غائبةٌ بلا إعلان (‏لا حجبَ صامت).
     3. يُسجَّل في تقرير id_diff تحت `removedDeclared` (‏يتولّاه id_diff).
+    4. (‏تقسيةُ مراجعة القائد) **الإعلانُ يفسّر الخروج وحده**: التغطيةُ الخام للحاضر دون MIN_RAW_COV،
+       والحاضرُ مع آيات السور المعلنة يبلغها — فلا يمرّ قارئٌ خرج من الشهادة لعلّةٍ أخرى وله إعلانٌ قديم.
     لا يمسّ certified_only ولا أرضيّة التغطية: الفهرسُ يبقى غيرَ مصدَّقٍ وخارجَ الحزم."""
     parts = timing_id.split("/")
     if len(parts) != 2 or not all(re.fullmatch(r"[a-z0-9_]+", x) for x in parts):
@@ -146,17 +153,29 @@ def declared_removal(timing_id: str, index_bytes: bytes, approvals: list) -> dic
     for k in ("reasonCode", "reasonUser"):
         if not isinstance(tr.get(k), str) or not tr[k].strip():
             raise ValueError(f"{timing_id}: الإعلان بلا {k}")
-    present = set()
+    if idx.get("ayahCount") != TOTAL_AYAHS:
+        raise ValueError(f"{timing_id}: عدّ الآيات {idx.get('ayahCount')!r} غيرُ {TOTAL_AYAHS}")
+    present, ayahs = set(), set()
     for e in idx.get("entries") or []:
         try:
-            present.add(int(str(e.get("ayahId")).split(":")[0]))
+            su, ay = (int(x) for x in str(e.get("ayahId")).split(":"))
         except (ValueError, AttributeError):
             raise ValueError(f"{timing_id}: مدخلٌ بلا ayahId صالح") from None
+        if not (1 <= su <= 114 and 1 <= ay <= SURAH_AYAHS[su - 1]):
+            raise ValueError(f"{timing_id}: مدخلٌ خارج المصحف {su}:{ay}")
+        present.add(su)
+        ayahs.add((su, ay))
     if declared & present:
         raise ValueError(f"{timing_id}: سورٌ معلنةٌ وهي حاضرة {sorted(declared & present)}")
     silent = set(range(1, 115)) - present - declared
     if silent:
         raise ValueError(f"{timing_id}: سورٌ غائبةٌ بلا إعلان {sorted(silent)}")
+    raw = len(ayahs) / TOTAL_AYAHS
+    with_declared = (len(ayahs) + sum(SURAH_AYAHS[x - 1] for x in declared)) / TOTAL_AYAHS
+    if raw >= MIN_RAW_COV:
+        raise ValueError(f"{timing_id}: إسقاطُه لا يفسّره الإعلان (التغطية الخام {raw:.4f} ≥ {MIN_RAW_COV})")
+    if with_declared < MIN_RAW_COV:
+        raise ValueError(f"{timing_id}: ناقصٌ خارج المعلَن (الحاضر مع المعلن {with_declared:.4f} < {MIN_RAW_COV})")
     want = f"timings-staging/{riw}/{rid}.{sha[:8]}.jz"
     rows = [a for a in approvals or [] if isinstance(a, dict) and a.get("key") == want]
     if not rows:
@@ -164,7 +183,8 @@ def declared_removal(timing_id: str, index_bytes: bytes, approvals: list) -> dic
     if not any({int(x) for x in a.get("surahs") or []} == declared for a in rows):
         raise ValueError(f"{timing_id}: صفُّ الموافقة لا يطابق السور المعلنة {sorted(declared)}")
     return {"id": timing_id, "sha256": sha, "approvalKey": want,
-            "declaredSurahs": sorted(declared), "reasonCode": tr["reasonCode"]}
+            "declaredSurahs": sorted(declared), "reasonCode": tr["reasonCode"],
+            "rawCoverage": round(raw, 4), "coverageWithDeclared": round(with_declared, 4)}
 
 
 def id_diff(previous: dict, candidate: dict, declared: dict | None = None) -> dict:

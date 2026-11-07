@@ -4,6 +4,7 @@ import unittest
 from tools.packages.certified_catalog_gate import certified_only
 from tools.packages.certified_catalog_gate import id_diff
 from tools.packages.certified_catalog_gate import declared_removal
+from tools.packages.certified_catalog_gate import SURAH_AYAHS
 import gzip
 import hashlib
 import json
@@ -94,19 +95,23 @@ class GateTest(unittest.TestCase):
             id_diff(before, {"packages": [pkg("new")]})
 
 
-DROPPED = [12, 22]
+DROPPED = [2, 3, 4]          # 662 آية ⇒ الحاضرُ 0.894 دون الأرضيّة، ومع المعلَن 1.0
 REASON_USER = "توقيتُ هذه السورة لهذا القارئ قيد الإصلاح، فحُجب مؤقّتاً."
 
 
-def index_doc(drop=DROPPED, present_extra=(), code="OTHER", user=REASON_USER, op=None, rid="old"):
-    present = [s for s in range(1, 115) if s not in drop] + list(present_extra)
+def index_doc(drop=DROPPED, present_extra=(), code="OTHER", user=REASON_USER, op=None, rid="old",
+              thin=()):
+    """فهرسٌ تامُّ الآيات إلا السورَ المسقطة؛ و`thin` سورٌ حاضرةٌ لا يبقى منها إلا آيتها الأولى."""
+    present = [s for s in range(1, 115) if s not in drop]
     tr = {"op": op if op is not None else "drop_surah:" + ",".join(map(str, drop))}
     if code is not None:
         tr["reasonCode"] = code
     if user is not None:
         tr["reasonUser"] = user
-    return {"reciterId": rid, "riwaya": "hafs", "transform": tr,
-            "entries": [{"ayahId": f"{s}:1"} for s in present]}
+    ents = [{"ayahId": f"{s}:{a}"} for s in present
+            for a in range(1, (1 if s in thin else SURAH_AYAHS[s - 1]) + 1)]
+    ents += [{"ayahId": f"{s}:1"} for s in present_extra]
+    return {"reciterId": rid, "riwaya": "hafs", "ayahCount": 6236, "transform": tr, "entries": ents}
 
 
 def blob(doc):
@@ -182,13 +187,13 @@ class DeclaredRemovalTest(unittest.TestCase):
 
     def test_silent_absent_surah_refused(self):
         doc = index_doc()
-        doc["entries"] = [e for e in doc["entries"] if e["ayahId"] != "40:1"]
+        doc["entries"] = [e for e in doc["entries"] if not e["ayahId"].startswith("40:")]
         b = blob(doc)
         with self.assertRaisesRegex(ValueError, "بلا إعلان"):
             declared_removal("hafs/old", b, approvals_for(b))
 
     def test_declared_but_present_surah_refused(self):
-        b = blob(index_doc(present_extra=(22,)))
+        b = blob(index_doc(present_extra=(3,)))
         with self.assertRaisesRegex(ValueError, "وهي حاضرة"):
             declared_removal("hafs/old", b, approvals_for(b))
 
@@ -200,6 +205,30 @@ class DeclaredRemovalTest(unittest.TestCase):
             declared_removal("hafs/old", b"not gzip", [])
         with self.assertRaisesRegex(ValueError, "غير صالح"):
             declared_removal("../old", blob(index_doc()), [])
+
+    def test_declaration_must_explain_the_exit(self):
+        """الشرط الرابع: قارئٌ فوق الأرضيّة له إعلانٌ وموافقة (‏سورةٌ صغيرة) لا يمرّ إسقاطُه."""
+        b = blob(index_doc(drop=[112]))
+        with self.assertRaisesRegex(ValueError, "لا يفسّره الإعلان"):
+            declared_removal("hafs/old", b, approvals_for(b, [112]))
+
+    def test_missing_ayahs_outside_declaration_refused(self):
+        """الحاضرُ ناقصُ الآيات فلا يبلغ المجموعُ الأرضيّة ⇒ ناقصٌ خارج المعلَن."""
+        b = blob(index_doc(thin=(5, 6, 7, 8, 9)))
+        with self.assertRaisesRegex(ValueError, "ناقصٌ خارج المعلَن"):
+            declared_removal("hafs/old", b, approvals_for(b))
+
+    def test_coverage_recorded_and_other_counting_refused(self):
+        _b, rec = self.ok()
+        self.assertEqual((rec["rawCoverage"], rec["coverageWithDeclared"]), (0.8938, 1.0))
+        doc = index_doc(); doc["ayahCount"] = 6214
+        b = blob(doc)
+        with self.assertRaisesRegex(ValueError, "عدّ الآيات"):
+            declared_removal("hafs/old", b, approvals_for(b))
+        doc = index_doc(); doc["entries"].append({"ayahId": "1:8"})
+        b = blob(doc)
+        with self.assertRaisesRegex(ValueError, "خارج المصحف"):
+            declared_removal("hafs/old", b, approvals_for(b))
 
     def test_certified_only_unchanged_by_door(self):
         """الباب لا يُدخل الفهرس المعلن في الحزم ولا يمسّ أرضيّة التغطية."""
