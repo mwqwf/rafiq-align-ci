@@ -14,14 +14,19 @@
 **التكرارُ المقيس:** أداءان منفصلان أو أكثر للآية نفسها بتشابه ≥ 0.7 في خريطة السماع، في غير الآيات المتشابهة نصّاً
 (‏أداءٌ يقع على موضعِ آيةٍ أخرى تشبه نصَّها ≥ 0.7 ليس تكراراً: هو المتشابهات).
 
-**حكمُ المدخل** (‏Whisper float32 على النافذة · الثوابتُ من `pin_heard` لا نسخةً منها):
-- يمرّ: أوّلُ 3 كلماتٍ وآخرُ 3 من الآية المرجعيّة تشبهان التفريغَ (‏`W_FUZZ_SIM` — مسارُ `--witness-fuzzy`، لأنّ رسمَ
-  ورش/قالون المرجعيَّ يخالف إملاءَ Whisper) بثقةٍ (‏`W_MIN_WORD_P` · `W_MEAN_WORD_P`) · وعددُ كلمات النافذة كلِّها بين
-  `W_FUZZ_LEN_LO` و`W_FUZZ_LEN_HI` من كلمات الآية · ولا كلامَ زائداً من آيةٍ أخرى.
-- يُردّ «آية أخرى»: في النافذة نصٌّ من آيةٍ غيرها (‏ثلاثُ كلماتٍ متتالية من غير الآية نفسها، أو بدءُ/ختامُ آيةٍ مجاورة
-  يلاصق الآيةَ المطابقة).
-- يُردّ «زيادة»: كلماتُ النافذة فوق الحدّ (‏ويشمل أداءَ الآية نفسِها مرّتين).
-- يُردّ «نقص»: لا يطابق الطرفان، أو الكلماتُ دون الحدّ، أو الثقةُ دون العتبة.
+**حكمُ المدخل** (‏Whisper float32 على النافذة · الثوابتُ من `pin_heard` لا نسخةً منها) — **ثلاثةُ أمورٍ مجتمعة**
+(‏أمر القائد 2026-11-07 18:58Z، تحلُّ محلّ مطابقة الطرفين والتثليث):
+ ١. **توحيدُ الكتابة في الطرفين قبل أيّ مقارنة** بدالّة المستودع `common.norm` (‏تنزع الحركات والألفَ الخنجريّة
+    وعلاماتِ المصحف والوقف والتطويل، وتوحّد الهمزات أ إ آ ٱ ؤ ئ ء والألفَ والياء ا ى) — لا نسخةً ثانية منها.
+ ٢. **يمرّ المدخلُ إن كانت الآيةُ المتوقَّعة الأقربَ نصّاً إلى التفريغ** من بين نفسها وجاراتها الأربع (±2)، وبهامشٍ
+    `NEAREST_MARGIN` ثابتٍ في الشيفرة (‏تشابهُها − تشابهُ أقرب جارة ≥ الهامش؛ وعِلّةُ قيمته عند الثابت).
+ ٣. **اختبارُ التحوّر**: مدخلٌ يحمل نصَّ جارته يُردّ حتماً («آية أخرى»)، ومدخلٌ يحمل نصَّ آيتين يُردّ («زيادة»).
+ ثمّ **حدودُ عدد الكلمات** (`W_FUZZ_LEN_*`) و**ثوابتُ الثقة** (`W_MIN_WORD_P` · `W_MEAN_WORD_P` على الكلمات الطرفيّة
+ للتفريغ) مستورَدةً من `pin_heard` كما هي.
+- يُردّ «آية أخرى»: جارةٌ أقربُ من الآية، أو لا هامشَ بينها وبين الآية. (‏وما ظهر في تفريغٍ مردودٍ بالعدد من نصّ آيةٍ
+  أخرى — ثلاثُ كلماتٍ متتالية — يُسجَّل في `containsAyah` للتقرير وحدَه، ولا يغيّر الحكم ولا السبب.)
+- يُردّ «زيادة»: كلماتُ النافذة فوق الحدّ (‏ويشمل أداءَ الآية نفسِها مرّتين أو آيتين).
+- يُردّ «نقص»: لا تفريغَ، أو الكلماتُ دون الحدّ، أو الثقةُ دون العتبة.
 
 ⛔ لا يُرقّي ولا يكتب في `timings/` ولا يُعدّل عتبةً ولا حارساً: قارئٌ محض (‏يقرأ المرشّح من الدلو ويكتب JSON محلّياً).
 والتفريغُ مرشّحٌ للحكم وحدَه: لا يُكتب منه نصٌّ في أيّ فهرس، والنصُّ المرجعيُّ من `text_<الرواية>.jz` في المستودع.
@@ -53,7 +58,7 @@ sys.path.insert(0, str(HERE))
 import heard_gate                                                    # noqa: E402
 import pin_heard as PH                                               # noqa: E402
 
-VERSION = "entry-window-census-1"
+VERSION = "entry-window-census-2"
 SR = 16000
 # ثوابتُ الحكم كلُّها من `pin_heard` / `heard_gate` (‏مصدرٌ واحد — لا تُنسخ هنا ولا تُقرأ من البيئة).
 K = PH.W_K
@@ -69,6 +74,13 @@ FUZZ_LO, FUZZ_HI = PH.W_FUZZ_LEN_LO, PH.W_FUZZ_LEN_HI
 REPEAT_SIM = heard_gate.REPEAT_SIM          # 0.7
 MIN_ANCHOR_Q = heard_gate.MIN_Q             # 0.5
 SIMILAR_VERSE = 0.7                         # آيتان متشابهتان نصّاً بهذا التشابه فأعلى
+# ⭐ هامشُ «الأقرب» (‏أمر القائد 2026-11-07): تشابهُ الآية المتوقَّعة بالتفريغ − تشابهُ أقرب جاراتها (±2) ≥ هذا.
+#    عِلّةُ 0.10 (‏من تفريغات small الفعليّة لسورتي 67 و78 على مرشّحَين، `difflib` على النصّ الموحَّد): الفجوةُ لمداخلَ
+#    **سليمةٍ** بجاراتٍ متشابهةٍ فعلاً (‏78:4 و78:5 تشابهُهما 0.88) بلغت +0.12 و+0.14 فيجب أن تمرّ؛ والمداخلُ **الملتبسةُ**
+#    الفعليّةُ (‏67:1 · 67:16 · 67:22 · 78:7 · 78:10 · 78:11) فجوتُها ≤ +0.08 (‏بعضُها سالب: الجارةُ أقرب) فيجب أن تُردّ؛
+#    فالهامشُ في الفاصل بين +0.08 و+0.12. وأيُّ أخفضَ منه يُمرّر ملتبساً، وأيُّ أعلى منه يردّ 78:4 السليمة.
+NEAREST_MARGIN = 0.10
+NEAREST_RADIUS = 2                          # الجاراتُ المقارَنة: ±2 في السورة
 TOKEN_FUZZ = 0.8                            # تسامحُ حرفٍ في كشف نصّ الآية الأخرى (‏كشفُ ردٍّ لا قبول)
 OVERLAP_SAME = 0.5                          # تداخلُ زمنين بهذه النسبة من الأقصر ⇒ أداءٌ واحد
 
@@ -181,69 +193,84 @@ def other_ayah_in(extra_before: list[str], extra_after: list[str], ayah: int,
     return None
 
 
-def judge_entry(ayah: int, toks: list[tuple], texts: dict[int, list[str]]) -> dict:
-    """حكمُ نافذة المدخل: `toks` = [(رمزٌ مطبَّع، بدء م.ث، ثقة)] من تفريغ Whisper لنافذته، و`texts` نصوصُ آيات السورة المرجعيّة.
+def _unify(word: str) -> list[str]:
+    """توحيدُ الكتابة بدالّة المستودع `common.norm` (‏حركات · ألف خنجريّة · علاماتُ مصحف ووقف · تطويل · همزات · ألف/ياء)."""
+    sys.path.insert(0, str(ROOT / "tools" / "alignment"))
+    from common import norm                                              # noqa: PLC0415
+    return norm(str(word)).split()
 
-    يُرجع {verdict: pass|reject, reason: '' | آية أخرى | زيادة | نقص, detail, words, refWords, ratio, …}."""
+
+def _unify_ref(words: list[str]) -> list[str]:
+    return [t for w in words for t in _unify(w)]
+
+
+def _unify_toks(toks: list[tuple]) -> list[tuple]:
+    """(رمز، بدء، ثقة) ⇒ نفسُها برموزٍ موحَّدة (‏الكلمةُ التي تتشظّى ترثها ثقتُها وبدؤها؛ والفارغةُ بعد التوحيد تسقط)."""
+    return [(t, s, p) for w, s, p in toks for t in _unify(w)]
+
+
+def rivals(ayah: int, texts: dict[int, list[str]]) -> list[int]:
+    """جاراتُ الآية المنافِسة: ±2 في السورة وهي موجودةٌ ونصُّها يخالف نصَّ الآية
+    (‏آيتان نصُّهما واحدٌ لا يُفرِّق بينهما التفريغُ ولا يضرّ خلطُهما نصّاً)."""
+    own = texts[ayah]
+    return [b for b in range(ayah - NEAREST_RADIUS, ayah + NEAREST_RADIUS + 1)
+            if b != ayah and b in texts and texts[b] != own]
+
+
+def judge_entry(ayah: int, toks: list[tuple], texts: dict[int, list[str]]) -> dict:
+    """حكمُ نافذة المدخل: `toks` = [(رمزٌ، بدء م.ث، ثقة)] من تفريغ Whisper لنافذته، و`texts` نصوصُ آيات السورة المرجعيّة.
+
+    يُوحَّد الطرفان أوّلاً، ثمّ: الآيةُ أقربُ بهامشٍ · وعددُ الكلمات في الحدّ · والثقةُ فوق العتبة.
+    يُرجع {verdict: pass|reject, reason: '' | آية أخرى | زيادة | نقص, detail, words, refWords, simSelf, simNearest…}."""
+    texts = {a: _unify_ref(t) for a, t in texts.items()}
+    toks = _unify_toks(toks)
     ref = texts[ayah]
     n = len(ref)
     k = min(K, n)
     got = [t[0] for t in toks]
     total = len(got)
     lo, hi = max(k, math.ceil(FUZZ_LO * n)), math.floor(FUZZ_HI * n)
+    sims = {b: PH._sim(got, texts[b]) for b in [ayah] + rivals(ayah, texts)} if got else {}
+    s_self = sims.get(ayah, 0.0)
+    near, s_near = max(((b, v) for b, v in sims.items() if b != ayah), key=lambda x: x[1], default=(None, 0.0))
+    gap = s_self - s_near
     base = {"ayah": ayah, "words": total, "refWords": n, "wordBounds": [lo, hi],
-            "heard": " ".join(got),
-            "ratio": round(difflib.SequenceMatcher(None, " ".join(got), " ".join(ref)).ratio(), 3)}
+            "heard": " ".join(got), "ratio": round(s_self, 3), "simSelf": round(s_self, 3),
+            "nearestOther": near, "simNearestOther": round(s_near, 3), "gap": round(gap, 3),
+            "margin": NEAREST_MARGIN}
 
     def rej(reason, detail, **kw):
         return {**base, "verdict": "reject", "reason": reason, "detail": detail, **kw}
 
-    def same(x, y):
-        return PH._sim(x, y) >= FUZZ_SIM
+    def other_by_text():
+        """تسميةٌ للتقرير: آيةٌ أخرى يظهر نصُّها (‏ثلاثُ كلماتٍ متتالية) في التفريغ."""
+        return other_ayah_in(got, [], ayah, texts)
 
     if not got:
         return rej("نقص", "لا تفريغَ في النافذة (‏صمتٌ أو لا كلام)")
-    head, tail = ref[:k], ref[-k:]
-    why = "أوّلُ كلماتِ الآية لا يشبه تفريغَ النافذة"
-    best = None
-    for i in range(total - k + 1):
-        if not same(got[i:i + k], head):
-            continue
-        ends = [j for j in range(i + k - 1, total)
-                if same(got[j - k + 1:j + 1], tail) and lo <= j - i + 1 <= hi]
-        if not ends:
-            why = "آخرُ كلماتِ الآية لا يشبه التفريغَ أو عددُ كلمات الآية خارج الحدّ"
-            continue
-        j = min(ends, key=lambda e: abs((e - i + 1) - n))
-        edge = toks[i:i + k] + toks[j - k + 1:j + 1]
-        low = min(t[2] for t in edge)
-        mean = sum(t[2] for t in edge) / len(edge)
-        if low < MIN_WORD_P or mean < MEAN_WORD_P:
-            why = f"ثقةُ الكلمات الطرفيّة دون العتبة (أدناها {low:.2f}، متوسّطُها {mean:.2f})"
-            continue
-        if best is None or abs((j - i + 1) - n) < abs((best[1] - best[0] + 1) - n):
-            best = (i, j, low, mean)
-    if best is None:
-        # ما سببُ عدم المطابقة؟ آيةٌ أخرى تملأ النافذة، أم زيادة، أم نقص؟
-        other = other_ayah_in(got, [], ayah, texts)
-        if other is not None:
-            return rej("آية أخرى", f"لا يطابق نصَّ الآية، وفي النافذة نصٌّ من الآية {other} — {why}", otherAyah=other)
+    if near is not None and gap < 0:
+        return rej("آية أخرى", f"الآية {near} أقربُ إلى التفريغ من الآية نفسِها ({s_near:.2f} > {s_self:.2f})", otherAyah=near)
+    if near is not None and gap < NEAREST_MARGIN:
+        return rej("آية أخرى", f"لا هامشَ للآية على الآية {near}: {s_self:.2f} − {s_near:.2f} = {gap:.2f} < {NEAREST_MARGIN}",
+                   otherAyah=near)
+    if total > hi or total < lo:
+        # السببُ بالعدد (‏آيتان فأكثر ⇒ زيادة)، وما يظهر فيه من نصّ آيةٍ أخرى يُسجَّل في `containsAyah` للتقرير وحدَه
+        other = other_by_text()
+        hint = {"containsAyah": other} if other is not None else {}
         if total > hi:
-            return rej("زيادة", f"{total} كلمةً > الحدّ {hi} ولا مطابقةَ للآية — {why}")
-        return rej("نقص", why)
-    i, j, low, mean = best
-    before, after = got[:i], got[j + 1:]
-    base.update({"spanWords": j - i + 1, "extraBefore": len(before), "extraAfter": len(after),
-                 "lowP": round(low, 2), "meanP": round(mean, 2),
-                 "firstWordMs": toks[i][1]})
-    other = other_ayah_in(before, after, ayah, texts)
-    if other is not None:
-        return rej("آية أخرى", f"في النافذة نصٌّ من الآية {other} خارج الآية المطابقة "
-                   f"({len(before)} قبلها · {len(after)} بعدها)", otherAyah=other)
-    if total > hi:
-        return rej("زيادة", f"عددُ كلمات النافذة {total} فوق الحدّ {hi} (‏{len(before)} قبل الآية و{len(after)} بعدها)")
+            return rej("زيادة", f"عددُ كلمات النافذة {total} فوق الحدّ {hi}"
+                       + (f" وفيها نصٌّ من الآية {other}" if other else ""), **hint)
+        return rej("نقص", f"عددُ كلمات النافذة {total} دون الحدّ {lo}"
+                   + (f" وفيها نصٌّ من الآية {other}" if other else ""), **hint)
+    edge = toks[:k] + toks[-k:]
+    low = min(t[2] for t in edge)
+    mean = sum(t[2] for t in edge) / len(edge)
+    base.update({"lowP": round(low, 2), "meanP": round(mean, 2), "firstWordMs": toks[0][1]})
+    if low < MIN_WORD_P or mean < MEAN_WORD_P:
+        return rej("نقص", f"ثقةُ الكلمات الطرفيّة دون العتبة (أدناها {low:.2f}، متوسّطُها {mean:.2f})")
     return {**base, "verdict": "pass", "reason": "",
-            "detail": f"طرفا الآية مطابقان · {total} كلمةً ضمن [{lo},{hi}] · ثقة أدناها {low:.2f}"}
+            "detail": f"الآيةُ الأقرب ({s_self:.2f}" + (f" − {s_near:.2f} من {near} = {gap:.2f}" if near else "") +
+                      f") · {total} كلمةً ضمن [{lo},{hi}] · ثقة أدناها {low:.2f}"}
 
 
 def surah_verdict(rows: list[dict]) -> dict:

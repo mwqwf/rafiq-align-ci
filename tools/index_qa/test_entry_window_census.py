@@ -19,7 +19,10 @@ import entry_window_census as E                                       # noqa: E4
 T = {1: "الف باء جيم دال هاء واو زاي".split(),
      2: "حاء طاء ياء كاف لام ميم نون".split(),
      3: "سين عين غين فاء صاد قاف راء شين".split(),
-     4: "الف باء جيم دال هاء واو زاي حاء".split()}      # 4 تشبه 1 (متشابهة نصّاً)
+     4: "الف باء جيم دال هاء واو زاي حاء".split(),      # 4 تشبه 1 (متشابهة نصّاً)
+     5: "ظاء ذال ضاد".split(),                            # آيةٌ قصيرة (لاختبار آيتين)
+     6: "خاء ثاء تاء طاء ظاء ذال ضاد".split(),
+     7: "ألف إباء آجيم".split()}
 
 
 def toks(words, p=0.9, t0=0):
@@ -33,17 +36,20 @@ class JudgeEntry(unittest.TestCase):
 
     def test_other_ayah_after_rejected(self):
         # الآية 2 ثم بدءُ الآية 3 (‏ثلاثُ كلماتٍ من غيرها) — النافذةُ تحمل صوتَ آيةٍ أخرى
+        # يُردّ بالزيادة (‏10 > 8) ويُسجَّل في containsAyah أنّ فيه نصَّ الآية 3 (‏للتقرير)
         r = E.judge_entry(2, toks(T[2] + T[3][:3]), T)
-        self.assertEqual((r["verdict"], r["reason"]), ("reject", "آية أخرى"), r)
-        self.assertEqual(r["otherAyah"], 3)
+        self.assertEqual((r["verdict"], r["reason"]), ("reject", "زيادة"), r)
+        self.assertEqual(r["containsAyah"], 3)
 
     def test_other_ayah_before_rejected(self):
         r = E.judge_entry(2, toks(T[3][-3:] + T[2]), T)
-        self.assertEqual((r["verdict"], r["reason"]), ("reject", "آية أخرى"), r)
+        self.assertEqual((r["verdict"], r["reason"]), ("reject", "زيادة"), r)
+        self.assertEqual(r["containsAyah"], 3)
 
     def test_two_adjacent_words_of_next_ayah_rejected(self):
+        # 9 كلمات ⇒ فوق الحدّ 8 ⇒ تُردّ (‏بالزيادة: كلمتان لا تكفيان لتسمية «آية أخرى» بالتثليث)
         r = E.judge_entry(2, toks(T[2] + T[3][:2]), T)
-        self.assertEqual((r["verdict"], r["reason"]), ("reject", "آية أخرى"), r)
+        self.assertEqual(r["verdict"], "reject", r)
 
     def test_own_ayah_twice_is_excess(self):
         r = E.judge_entry(2, toks(T[2] + T[2]), T)
@@ -74,10 +80,12 @@ class JudgeEntry(unittest.TestCase):
         r = E.judge_entry(2, toks(T[3]), T)
         self.assertEqual((r["verdict"], r["reason"]), ("reject", "آية أخرى"), r)
 
-    def test_similar_verse_text_is_not_flagged_as_other(self):
-        # الآية 1 والآية 4 متشابهتان: تفريغُ الآية 1 بكلمةٍ زائدةٍ هي ختامُ 4 لا يُعدّ «آية أخرى» إن لم يبلغ ثلاثاً جديدة
-        r = E.judge_entry(1, toks(T[1]), T)
-        self.assertEqual(r["verdict"], "pass", r)
+    def test_similar_neighbour_without_margin_rejected(self):
+        # الآيتان 1 و4 متشابهتان (‏فجوة التشابه ≈ 0.07 < الهامش 0.10) ⇒ لا هامشَ للأقرب ⇒ تُردّ (‏التباس)
+        t = {1: T[1], 2: T[4], 3: T[3]}        # متجاورتان (‏±2) فتنافسان
+        r = E.judge_entry(1, toks(T[1]), t)
+        self.assertEqual((r["verdict"], r["reason"], r["nearestOther"]), ("reject", "آية أخرى", 2), r)
+        self.assertLess(r["gap"], E.NEAREST_MARGIN)
 
     def test_rasm_spelling_difference_passes(self):
         # فرقُ إملاءٍ في كلمةٍ طرفيّة (‏«تبرك» ↔ «تبارك») لا يردّ آيةً سليمة (‏مسارُ التشابه)
@@ -87,10 +95,11 @@ class JudgeEntry(unittest.TestCase):
         r = E.judge_entry(2, toks(heard), T)
         self.assertEqual(r["verdict"], "pass", r)
 
-    def test_dissimilar_head_rejected_even_with_fuzz(self):
-        heard = ["قاف", "صاد", "راء"] + T[2][3:]
+    def test_dissimilar_head_closer_to_neighbour_rejected(self):
+        # رأسٌ من الآية 3 وذيلٌ من الآية 2: الجارةُ 3 أقربُ ⇒ تُردّ
+        heard = T[3][:5] + T[2][5:]
         r = E.judge_entry(2, toks(heard), T)
-        self.assertEqual((r["verdict"], r["reason"]), ("reject", "نقص"), r)
+        self.assertEqual(r["verdict"], "reject", r)
 
     def test_one_extra_word_over_fuzzy_band_rejected(self):
         # 7 كلمات ⇒ الحدّ الأعلى 8 (‏1.2×)؛ تسعٌ تُردّ (‏المسارُ المشابه أضيقُ من التامّ)
@@ -106,6 +115,80 @@ class JudgeEntry(unittest.TestCase):
         self.assertIs(E.MIN_WORD_P, E.PH.W_MIN_WORD_P)
         self.assertIs(E.FUZZ_SIM, E.PH.W_FUZZ_SIM)
         self.assertEqual(E.REPEAT_SIM, 0.7)
+
+
+class Nearest(unittest.TestCase):
+    """القاعدةُ الجديدة (‏أمر القائد 2026-11-07): الأقربُ بهامشٍ + توحيدُ الكتابة + التحوّر."""
+
+    def test_margin_is_a_code_constant(self):
+        self.assertEqual(E.NEAREST_MARGIN, 0.10)
+        self.assertEqual(E.NEAREST_RADIUS, 2)
+
+    def test_mutation_entry_carrying_neighbour_text_rejected(self):
+        # مدخلُ الآية 2 يحمل نصَّ الآية 3 (‏كحالة 67:19 التي حملت نصَّ 18) ⇒ يُردّ حتماً
+        for host, carried in ((2, 3), (3, 2), (2, 1)):
+            r = E.judge_entry(host, toks(T[carried]), T)
+            self.assertEqual((r["verdict"], r["reason"]), ("reject", "آية أخرى"), (host, carried, r))
+            self.assertEqual(r["otherAyah"], carried, r)
+
+    def test_mutation_never_passes_even_with_full_confidence_and_fitting_length(self):
+        # الآية 3 (8 كلمات) في نافذة الآية 2 (7 كلمات): العددُ في الحدّ [6,8] والثقةُ 1.0 ومع ذلك تُردّ
+        r = E.judge_entry(2, toks(T[3], p=1.0), T)
+        self.assertEqual(r["wordBounds"], [6, 8])
+        self.assertEqual(r["verdict"], "reject", r)
+
+    def test_two_ayat_entry_rejected_as_excess(self):
+        # مدخلٌ بنصّ آيتين: الآية 2 (7) + الآية 5 القصيرة (3) = 10 > 8 ⇒ زيادة
+        r = E.judge_entry(2, toks(T[2] + T[5]), T)
+        self.assertEqual((r["verdict"], r["reason"]), ("reject", "زيادة"), r)
+
+    def test_two_equal_ayat_entry_rejected(self):
+        r = E.judge_entry(2, toks(T[2] + T[3]), T)
+        self.assertEqual(r["verdict"], "reject", r)
+
+    def test_nearest_with_margin_passes_despite_noise(self):
+        heard = list(T[3])
+        heard[3] = "فااء"
+        r = E.judge_entry(3, toks(heard), T)
+        self.assertEqual(r["verdict"], "pass", r)
+        self.assertGreaterEqual(r["gap"], E.NEAREST_MARGIN)
+
+    def test_identical_text_neighbour_is_not_a_rival(self):
+        t = dict(T)
+        t[9] = list(T[2])                       # آيةٌ نصُّها نصُّ 2 تماماً (‏جوارٌ بالمدى ±2 مع 8 و10)
+        t[8] = list(T[6])
+        self.assertEqual(E.rivals(9, t), [7, 8])        # 2 نفسُها نصّاً ليست منافِسة
+        r = E.judge_entry(9, toks(T[2]), t)
+        self.assertEqual(r["verdict"], "pass", r)
+
+    def test_rivals_radius_is_two(self):
+        t = {i: [f"ك{i}", f"ل{i}", f"م{i}"] for i in range(1, 9)}
+        self.assertEqual(E.rivals(4, t), [2, 3, 5, 6])
+        self.assertEqual(E.rivals(1, t), [2, 3])
+
+    def test_far_ayah_is_not_a_rival(self):
+        # نصُّ الآية 6 لا يُنافس الآية 2 (‏بُعدُ 4) ⇒ لا يُردّ المدخلُ بسببها
+        t = {1: T[1], 2: T[2], 3: T[3], 6: T[2][:6] + ["ياء"]}
+        self.assertNotIn(6, E.rivals(2, t))
+
+    def test_unify_removes_diacritics_hamza_forms_and_tatweel(self):
+        self.assertEqual(E._unify_ref(["أَلْمُلْكُ", "إِلَيْهِ", "آمَنَ", "مُؤْمِنُونَ", "شَيْءٍ", "ٱلْقُرْءَانَ", "تَبَـٰرَكَ"]),
+                         E._unify_ref(["الملك", "اليه", "امن", "مومنون", "شي", "القران", "تبرك"]))
+        self.assertEqual(E._unify("ى"), E._unify("ي"))
+
+    def test_both_sides_unified_before_comparison(self):
+        # مرجعٌ بالحركات والهمزات وتفريغٌ بدونها (‏وعكسُه) يتطابقان
+        ref = {1: ["أَلْف", "بَاء", "جِيم", "دَال", "هَاء", "وَاو", "زَاي"], 2: T[2], 3: T[3]}
+        r = E.judge_entry(1, toks(["الف", "باء", "جيم", "دال", "هاء", "واو", "زاي"]), ref)
+        self.assertEqual(r["verdict"], "pass", r)
+        r2 = E.judge_entry(1, toks(["أَلْف", "بَاء", "جِيم", "دَال", "هَاء", "وَاو", "زَاي"]),
+                           {1: T[1], 2: T[2], 3: T[3]})
+        self.assertEqual(r2["verdict"], "pass", r2)
+
+    def test_confidence_constants_still_from_pin_heard(self):
+        self.assertIs(E.MIN_WORD_P, E.PH.W_MIN_WORD_P)
+        self.assertIs(E.MEAN_WORD_P, E.PH.W_MEAN_WORD_P)
+        self.assertEqual((E.FUZZ_LO, E.FUZZ_HI), (E.PH.W_FUZZ_LEN_LO, E.PH.W_FUZZ_LEN_HI))
 
 
 class SurahVerdict(unittest.TestCase):
