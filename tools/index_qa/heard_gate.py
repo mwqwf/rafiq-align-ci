@@ -171,16 +171,7 @@ def surah_verdict(rows: list[dict]) -> str | None:
 DUAL_VERSION = "heard-dual-1"
 DUAL_COVER_PCT = 90          # تغطيةُ سورةٍ عامّتُها دون النصف: ≥ 90٪ بإحدى الخريطتين أو بالشاهد
 DUAL_SAMPLE_K = 4            # عيّنةُ الاستقلال من المقيس بالتلاوة وحدها
-# ⭐ **الشاهدُ غيرُ دائريّ** (‏قرار القائد 21:22Z، بعد ظلّ #85 · التشغيلة 42411226107): بدءُ الكلمة الأولى في تفريغ Whisper يلتصق ببدء
-#    النافذة تماماً، فإن قُطعت النافذةُ من البدء المنشور صار شرطُ ≤300م.ث دائماً صادقاً. فهنا:
-#    (أ) النافذةُ تبدأ قبل المنشور بـ≥3ث (‏فيها ذيلُ السابقة) وتنتهي بعده بـ3ث؛
-#    (ب) البدءُ المقيسُ = توقيتُ أوّل كلمةٍ من الآية بعد مطابقة أوّل 2–3 كلماتٍ متتاليةً **ومطابقة آخرها وعددها** في التفريغ
-#        (‏`witness_decide`)، فلا يُقبل ذيلُ السابقة ولو تشابه (‏المطابقةُ المتعدّدةُ ⇒ غيرُ حاسمة)؛
-#    (ج) الشاهدُ الملتصقُ ببدء نافذته (‏< WIT_MIN_FROM_WINDOW_MS) غيرُ حاسم.
-#    ⛔ لا يُمسّ `pin_heard._whisper_check` ولا تُخفَّض عتبة (‏الثقةُ والطولُ والاتّفاقُ ≤300م.ث من ثوابت pin_heard نفسِها).
-WIT_PAD_MS = 3000            # حشوُ ما قبل البدء المنشور (‏نافذةٌ لا عتبة؛ والحكمُ لا يقرأها) — لا يقلّ عن 3000
-WIT_TAIL_PAD_MS = 3000       # حشوُ ما بعد نهاية المنشور
-WIT_MIN_FROM_WINDOW_MS = 50  # بدءُ أوّل كلمةٍ مطابقةٍ أقربُ من هذا إلى بدء النافذة ⇒ ملتصقٌ فغيرُ حاسم
+WIT_PAD_MS = 3000            # حشوُ نافذة الشاهد حول الآية المنشورة (‏نافذةٌ لا عتبة؛ والحكمُ لا يقرأها)
 WIT_MAX_WINDOW_MS = 120_000  # سقفُ whisper_witness.parse_windows
 DUAL_FILE = Path(__file__).resolve().with_name("heard_dual.txt")
 
@@ -268,60 +259,14 @@ def dual_witness_plan(starts: dict, g_map: dict, r_map: dict, cand_sha: str, sur
 
 
 def witness_windows(ends: dict, ayahs) -> str:
-    """نوافذُ `whisper_witness --ayahs` (‏آية:بدء-نهاية): من البدء المنشور − WIT_PAD_MS إلى النهاية المنشورة + WIT_TAIL_PAD_MS، بسقف 120ث."""
+    """نوافذُ `whisper_witness --ayahs` (‏آية:بدء-نهاية) من بدء/نهاية المنشور ± الحشو، بسقف 120ث."""
     parts = []
     for a in sorted(ayahs):
         st, en = ends[a]
         lo = max(0, int(st) - WIT_PAD_MS)
-        hi = int(en if en is not None else st + 20000) + WIT_TAIL_PAD_MS
+        hi = int(en if en is not None else st + 20000) + WIT_PAD_MS
         parts.append(f"{a}:{lo}-{min(hi, lo + WIT_MAX_WINDOW_MS)}")
     return ",".join(parts)
-
-
-def witness_decide(wit, ayah, start, ref):
-    """(حاسمٌ؟، تفصيل) لآيةٍ واحدة من شاهد Whisper، **بقياسٍ مستقلٍّ عن البدء المنشور**.
-
-    البدءُ المقيسُ = بدءُ أوّل كلمةٍ من أوّل k=2..3 كلماتٍ متتاليةٍ تطابق نصَّ الآية (‏بلا fuzzy)، بشرط أن يطابق آخرُ k كلماتٍ وأن يقع
-    عددُ الكلمات في مدى pin_heard (‏W_LEN_LO..HI). يُرفض: تعدّدُ المطابقات (‏ذيلُ السابقة يشبه) · ثقةٌ دون عتبتَي pin_heard ·
-    التصاقٌ ببدء النافذة (‏< WIT_MIN_FROM_WINDOW_MS) · نافذةٌ أقصرُ من 3ث قبل المنشور · اتّفاقٌ يزيد على W_AGREE_MS مع البدء المنشور."""
-    import pin_heard as PH  # noqa: PLC0415
-    rec = ((wit or {}).get("ayahs") or {}).get(str(ayah))
-    if not rec:
-        return False, "لا تفريغَ لهذه الآية في الشاهد"
-    if not ref or len(ref) < 2:
-        return False, "لا نصَّ مرجعيَّ كافياً للآية (‏يلزم كلمتان على الأقلّ)"
-    try:
-        lo_w = int(rec["windowMs"][0])
-    except (KeyError, TypeError, ValueError, IndexError):
-        return False, "لا نافذةَ محفوظةً للشاهد"
-    if lo_w > max(0, int(start) - WIT_PAD_MS):
-        return False, f"النافذةُ تبدأ بعد {int(start) - lo_w}م.ث فقط من المنشور (‏يلزم ≥{WIT_PAD_MS})"
-    toks = PH._norm_words(rec.get("words"))
-    n, k = len(ref), min(PH.W_K, len(ref))
-    head, tail = ref[:k], ref[-k:]
-    lo, hi = max(k, int(PH.W_LEN_LO * n)), int(PH.W_LEN_HI * n) + 1
-    spans = []
-    for i in range(len(toks) - k + 1):
-        if [t[0] for t in toks[i:i + k]] != head:
-            continue
-        ends = [j for j in range(i + k - 1, len(toks)) if [t[0] for t in toks[j - k + 1:j + 1]] == tail and lo <= j - i + 1 <= hi]
-        if ends:
-            spans.append((i, min(ends, key=lambda e: abs((e - i + 1) - n))))
-    if not spans:
-        return False, "أوّلُ كلماتِ الآية وآخرُها بعددٍ مقبولٍ لا يطابق تفريغَ النافذة"
-    if len(spans) > 1:
-        return False, f"مطابقاتٌ متعدّدةٌ ({len(spans)}) للآية في النافذة — لا بدءَ واحداً مستقلّاً"
-    i, j = spans[0]
-    edge = toks[i:i + k] + toks[j - k + 1:j + 1]
-    low, mean = min(t[2] for t in edge), sum(t[2] for t in edge) / len(edge)
-    if low < PH.W_MIN_WORD_P or mean < PH.W_MEAN_WORD_P:
-        return False, f"ثقةُ الكلمات الطرفيّة دون العتبة (أدناها {low:.2f}، متوسّطُها {mean:.2f})"
-    ws = toks[i][1]
-    if ws - lo_w < WIT_MIN_FROM_WINDOW_MS:
-        return False, f"الشاهدُ ملتصقٌ ببدء نافذته (Whisper {ws} − النافذة {lo_w} = {ws - lo_w}م.ث)"
-    if abs(ws - int(start)) > PH.W_AGREE_MS:
-        return False, f"الشاهدان يتعارضان: Whisper {ws} وأقربُ بدءٍ لـCTC {int(start)} (>{PH.W_AGREE_MS}م.ث)"
-    return True, f"whisper {ws} · CTC {int(start)} · أدنى ثقة {low:.2f} · متوسّطها {mean:.2f}"
 
 
 def _witness_eval(wit, surah, g_map, want_sha, riwaya, starts, ayahs, ref_words=None):
@@ -341,7 +286,9 @@ def _witness_eval(wit, surah, g_map, want_sha, riwaya, starts, ayahs, ref_words=
             ref = ref_words(riwaya, surah, a)
         except (SystemExit, Exception):                    # noqa: BLE001
             ref = None
-        res[a] = witness_decide(wit, a, starts[a], ref)
+        hm = {"heardMap": {str(a): {"anchorMs": [int(starts[a]), int(starts[a]) + 1]}}}
+        c, info = PH._whisper_check(wit, hm, surah, a, ref, fuzzy=False)
+        res[a] = (c is not None, info)
     return res, None
 
 
