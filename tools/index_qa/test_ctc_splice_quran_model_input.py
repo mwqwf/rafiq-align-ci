@@ -44,7 +44,9 @@ class WorkflowContract(unittest.TestCase):
 
     def test_input_is_full_mode_only_and_excludes_tail_and_absent(self):
         self.assertIn('if qm not in ("true", "float32", "false")', self.y)
-        self.assertRegex(self.y, r'qm != "false" and \(os\.environ\.get\("MODE", "full"\) != "full"')
+        # (saad-tail-window) full وwindow وحدهما؛ وwindow بـrewindow لا بغيره
+        self.assertRegex(self.y, r'qm != "false" and \(os\.environ\.get\("MODE", "full"\) not in \("full", "window"\)')
+        self.assertIn('os.environ.get("MODE", "full") == "window" and not os.environ.get("REWIN", "").strip()', self.y)
         self.assertIn('os.environ.get("TRUNC", "").strip()', self.y)
         self.assertIn('os.environ.get("ABSENT", "").strip() or not os.environ.get("WANT", "").strip()', self.y)
 
@@ -61,6 +63,15 @@ class WorkflowContract(unittest.TestCase):
         self.assertIn('QMF=""; [ "$QM" != "false" ] && QMF="--quran-model"', self.y)
         self.assertIn('[ "$QM" = "float32" ] && export CTC_INT8=0 CTC_THREADS=2', self.y)
         self.assertIn('--base "$BASE" --surahs "$SURAHS" $QMF', self.y)
+
+    def test_tail_window_runs_after_full_alignment_with_same_model_and_guards(self):
+        # نافذةُ الذيل في التشغيلة نفسِها قبل الدمج، بالنموذج نفسِه، ولا مرشّحَ مسرحيّاً فوق مرشّح
+        self.assertIn('if [ -n "$REWIN" ] && [ "$QM" != "false" ]; then', self.y)
+        self.assertIn('--rewindow "$REWIN" --quran-model', self.y)
+        self.assertIn('QMW=""; [ "$QM" != "false" ] && QMW="--quran-model"', self.y)
+        i, j = self.y.index('--base "$BASE" --surahs "$SURAHS" $QMF'), self.y.index('--rewindow "$REWIN" --quran-model')
+        self.assertLess(i, j)
+        self.assertLess(j, self.y.index("الدمجُ بحُرّاسه وبصماتُ الصوت"))
 
     def test_engine_declared_with_distinct_name(self):
         self.assertIn('if [ "$QM" != "false" ]; then ETAG="ctc-quran-surah-1"; fi', self.y)
