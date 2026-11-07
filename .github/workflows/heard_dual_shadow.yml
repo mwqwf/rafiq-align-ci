@@ -144,7 +144,7 @@ jobs:
           PY
           set -a; . ./item.env; set +a
           python tools/index_qa/heard_dual_probe.py --url "$U" --surah "$S" --riwaya "$RIW" --out-dir "$D" \
-            --cand "$D/cand_$S.json" --mutate 3 < /dev/null || { echo "⚠️ أخفق"; tail -8 "$D/err_$S.txt" "$D/q/err_$S.txt" 2>/dev/null; exit 1; }
+            --cand "$D/cand_$S.json" < /dev/null || { echo "⚠️ أخفق"; tail -8 "$D/err_$S.txt" "$D/q/err_$S.txt" 2>/dev/null; exit 1; }
       - uses: actions/upload-artifact@v4
         if: always()
         with:

@@ -90,13 +90,6 @@ def main() -> int:
         print(f"   القديم (G وحدها): {'✅' if row['old']['ok'] else '⛔ ' + str(old_why)[:200]}")
         print(f"   المزدوج: {'✅' if row['dual']['ok'] else '⛔ ' + str(why)[:300]}")
         print(f"   {'⚠️ انقلب نحو القبول' if flip else 'لا انقلابَ نحو القبول'}")
-        pm = os.path.join(a.shards, flat, "w", f"mutation_s{s:03d}.json")
-        if os.path.exists(pm):
-            mu = json.load(open(pm, encoding="utf-8"))
-            row["mutation"] = mu
-            bad = [(dl, x) for dl, v in mu["shifts"].items() for x, r in v.items() if x != "error" and r[0]]
-            print(f"   تحوّر البدء (±400م.ث · ±1ث) على {mu['chosen']} (‏حاسمةٌ في الأصل {mu['baseDecisive']}): "
-                  f"{'⚠️ حسمها الشاهدُ بعد الإزاحة ' + str(bad) if bad else 'لا حسمَ بعد أيّ إزاحة'}")
     with open(a.out, "w", encoding="utf-8") as f:
         json.dump(report, f, ensure_ascii=False, indent=1)
     ctrl = [x for x in report if x.get("forced") and "dual" in x]
@@ -105,9 +98,6 @@ def main() -> int:
         print(f"  {x['src']} س{x['surah']}: قديم {'✅' if x['old']['ok'] else '⛔'} → مزدوج {'✅' if x['dual']['ok'] else '⛔'}"
               f"{'  ⚠️ انقلاب نحو القبول' if x['flipToAccept'] else ''}")
     print(f"انقلاباتٌ نحو القبول: {len(flips)} — {flips}")
-    mut_bad = [(x["src"], x["surah"]) for x in report if any(r[0] for v in x.get("mutation", {}).get("shifts", {}).values()
-                                                             for k, r in v.items() if k != "error")]
-    print(f"سورٌ حسم فيها الشاهدُ بدءاً مزاحاً: {len(mut_bad)} — {mut_bad}")
     return 0
 
 

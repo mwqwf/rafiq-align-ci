@@ -31,41 +31,6 @@ def run(cmd, env_extra, err_path):
         return subprocess.run(cmd, env=env, stdin=subprocess.DEVNULL, stdout=subprocess.DEVNULL, stderr=ef).returncode
 
 
-MUT_SHIFTS = (-1000, -400, 400, 1000)
-
-
-def mutate(a, gm, ends, starts, plan, dw, d) -> None:
-    """⭐ اختبارُ التحوّر بتفريغٍ حقيقيّ (‏قرار القائد 20:30Z): لكلّ آيةٍ حسمها الشاهدُ في الأصل نُزيح البدءَ المنشور δ ∈ ±400م.ث ·
-    ±1ث، فتُقطع النافذةُ من البدء المزاح (‏بشيفرة `witness_windows` نفسِها) وتُفرَّغ من جديدٍ ويُحكم بـ`_witness_eval` نفسِه والبدءُ
-    المقابَل هو المزاح. **المطلوب: لا حسمَ لأيٍّ منها.** يكتب `mutation_sNNN.json` ولا يقرأ منه الحكمُ."""
-    s3 = f"{a.surah:03d}"
-    wp = dw / f"whisper_s{s3}.json"
-    if not wp.exists():
-        return
-    wit = json.load(open(wp, encoding="utf-8"))
-    base, bad = H._witness_eval(wit, a.surah, gm, gm["sha256"], a.riwaya, starts, plan)
-    chosen = [x for x in plan if base.get(x, (False,))[0]][:a.mutate]
-    out = {"surah": a.surah, "baseDecisive": sorted(x for x in plan if base.get(x, (False,))[0]), "chosen": chosen, "shifts": {}}
-    for delta in MUT_SHIFTS if chosen else ():
-        e2 = {x: (ends[x][0] + delta, (ends[x][1] if ends[x][1] is not None else ends[x][0] + 20000) + delta) for x in chosen}
-        dm = dw / f"mut{delta}"
-        rc = run([sys.executable, str(HERE / "whisper_witness.py"), "--url", a.url, "--surah", str(a.surah),
-                  "--riwaya", a.riwaya, "--ayahs", H.witness_windows(e2, chosen), "--model", a.witness_model,
-                  "--out", str(dm)], {}, dw / f"err_mut{delta}_{a.surah}.txt")
-        mp = dm / f"whisper_s{s3}.json"
-        if rc or not mp.exists():
-            out["shifts"][str(delta)] = {"error": f"أخفق التفريغ ({rc})"}
-            continue
-        w2 = json.load(open(mp, encoding="utf-8"))
-        res, bad = H._witness_eval(w2, a.surah, gm, gm["sha256"], a.riwaya, {x: starts[x] + delta for x in chosen}, chosen)
-        out["shifts"][str(delta)] = {str(x): [bool(res.get(x, (False,))[0]), str(res.get(x, (False, bad))[1])[:120]] for x in chosen}
-        for f in list(dm.glob("*.mp3")) + list(dm.glob("*.wav")):
-            f.unlink()
-    json.dump(out, open(dw / f"mutation_s{s3}.json", "w", encoding="utf-8"), ensure_ascii=False, indent=1)
-    dec = [(dl, x) for dl, v in out["shifts"].items() for x, r in v.items() if x != "error" and r[0]]
-    print(f"✓ س{a.surah}: تحوّر على {chosen} · حاسمٌ بعد الإزاحة: {dec if dec else 'لا شيء'}")
-
-
 def main() -> int:
     ap = argparse.ArgumentParser(description=__doc__.split("\n")[0])
     ap.add_argument("--url", required=True)
@@ -74,7 +39,6 @@ def main() -> int:
     ap.add_argument("--out-dir", required=True)
     ap.add_argument("--cand", required=True, help="ملفُّ JSON: sha وends")
     ap.add_argument("--witness-model", default="medium", choices=("small", "medium"))
-    ap.add_argument("--mutate", type=int, default=0, help="اختبارُ التحوّر: حتى N آيةٍ حسمها الشاهدُ تُعاد بعد إزاحة البدء المنشور (‏±400م.ث و±1ث)")
     a = ap.parse_args()
     cand = json.load(open(a.cand, encoding="utf-8"))
     ends = {int(k): v for k, v in cand["ends"].items()}
@@ -108,8 +72,6 @@ def main() -> int:
                   "--out", str(dw)], {}, dw / f"err_{a.surah}.txt")
         if rc:
             print(f"⚠️ س{a.surah}: شاهدُ Whisper أخفق ({rc}) — يُحكم بلا شاهد (‏المتنازَعةُ تُردّ)")
-    if a.mutate and plan and rc == 0:
-        mutate(a, gm, ends, starts, plan, dw, d)
     for p in (d, dq, dw):
         for f in list(p.glob("*.mp3")) + list(p.glob("*.wav")):
             f.unlink()
