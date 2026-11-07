@@ -5,6 +5,8 @@ from __future__ import annotations
 
 import argparse
 import copy
+import gzip
+import hashlib
 import json
 import math
 import re
@@ -108,7 +110,64 @@ def certified_only(doc: dict, min_timing: int = 0,
     return out, out["certifiedGate"]
 
 
-def id_diff(previous: dict, candidate: dict) -> dict:
+def declared_removal(timing_id: str, index_bytes: bytes, approvals: list) -> dict:
+    """يُثبت أنّ خروج قارئٍ مصدَّقٍ من الكتالوج إسقاطٌ معلَنٌ معتمد، وإلا ValueError.
+
+    ⭐ بإذن المالك نصّاً («موافق بالتاكيد» 2026-11-07 11:09Z · cmsg_01SnWBBbg8UvScqE3YMKdPHaHkVmDDbLeDnbx5ubMMJs16).
+    الشروطُ الثلاثةُ مجتمعة:
+    1. صفُّ موافقةٍ في `ops/OWNER_DROP_APPROVALS.json` لمفتاح **الفهرس المنشور نفسه**
+       (‏`timings-staging/<riw>/<id>.<sha8>.jz` ببصمة البايتات المقروءة) وسورُه هي المعلَنةُ حرفاً.
+    2. ترويسةُ الفهرس `drop_surah:<سور>` معها `reasonCode` و`reasonUser` غيرُ فارغَين،
+       وكلُّ سورةٍ معلَنةٍ غائبةٌ فعلاً، ولا سورةَ غائبةٌ بلا إعلان (‏لا حجبَ صامت).
+    3. يُسجَّل في تقرير id_diff تحت `removedDeclared` (‏يتولّاه id_diff).
+    لا يمسّ certified_only ولا أرضيّة التغطية: الفهرسُ يبقى غيرَ مصدَّقٍ وخارجَ الحزم."""
+    parts = timing_id.split("/")
+    if len(parts) != 2 or not all(re.fullmatch(r"[a-z0-9_]+", x) for x in parts):
+        raise ValueError(f"{timing_id}: معرّفٌ غير صالح للإسقاط المعلن")
+    riw, rid = parts
+    sha = hashlib.sha256(index_bytes).hexdigest()
+    try:
+        idx = json.loads(gzip.decompress(index_bytes).decode("utf-8"))
+    except Exception as exc:  # noqa: BLE001
+        raise ValueError(f"{timing_id}: الفهرس لا يُقرأ ({type(exc).__name__})") from None
+    if not isinstance(idx, dict):
+        raise ValueError(f"{timing_id}: الفهرس ليس كائناً")
+    if idx.get("reciterId") not in (None, rid) or idx.get("riwaya") not in (None, riw):
+        raise ValueError(f"{timing_id}: الفهرس يصف قارئاً آخر")
+    tr = idx.get("transform")
+    if not isinstance(tr, dict):
+        raise ValueError(f"{timing_id}: لا ترويسةَ تحويلٍ فيها إعلان")
+    m = re.fullmatch(r"drop_surah:([0-9]+(?:,[0-9]+)*)", str(tr.get("op") or ""))
+    if not m:
+        raise ValueError(f"{timing_id}: لا إعلانَ drop_surah في الترويسة")
+    declared = {int(x) for x in m.group(1).split(",")}
+    if not declared <= set(range(1, 115)):
+        raise ValueError(f"{timing_id}: سورٌ معلنةٌ خارج المصحف")
+    for k in ("reasonCode", "reasonUser"):
+        if not isinstance(tr.get(k), str) or not tr[k].strip():
+            raise ValueError(f"{timing_id}: الإعلان بلا {k}")
+    present = set()
+    for e in idx.get("entries") or []:
+        try:
+            present.add(int(str(e.get("ayahId")).split(":")[0]))
+        except (ValueError, AttributeError):
+            raise ValueError(f"{timing_id}: مدخلٌ بلا ayahId صالح") from None
+    if declared & present:
+        raise ValueError(f"{timing_id}: سورٌ معلنةٌ وهي حاضرة {sorted(declared & present)}")
+    silent = set(range(1, 115)) - present - declared
+    if silent:
+        raise ValueError(f"{timing_id}: سورٌ غائبةٌ بلا إعلان {sorted(silent)}")
+    want = f"timings-staging/{riw}/{rid}.{sha[:8]}.jz"
+    rows = [a for a in approvals or [] if isinstance(a, dict) and a.get("key") == want]
+    if not rows:
+        raise ValueError(f"{timing_id}: لا صفَّ موافقةٍ للمفتاح المنشور {want}")
+    if not any({int(x) for x in a.get("surahs") or []} == declared for a in rows):
+        raise ValueError(f"{timing_id}: صفُّ الموافقة لا يطابق السور المعلنة {sorted(declared)}")
+    return {"id": timing_id, "sha256": sha, "approvalKey": want,
+            "declaredSurahs": sorted(declared), "reasonCode": tr["reasonCode"]}
+
+
+def id_diff(previous: dict, candidate: dict, declared: dict | None = None) -> dict:
     before = set()
     for package in previous.get("packages") or []:
         if package.get("kind") != "timing_index":
@@ -123,8 +182,15 @@ def id_diff(previous: dict, candidate: dict) -> dict:
         "added": sorted(after - before),
         "removed": sorted(before - after),
     }
-    if report["removed"]:
-        raise ValueError(f"المرشح أسقط قارئاً مخدوماً مصدقاً: {report['removed'][:5]}")
+    declared = declared or {}
+    stale = sorted(set(declared) - set(report["removed"]))
+    if stale:
+        raise ValueError(f"إعلانُ إسقاطٍ لقارئٍ لم يُسقَط: {stale[:5]}")
+    undeclared = [r for r in report["removed"] if r not in declared]
+    if undeclared:
+        raise ValueError(f"المرشح أسقط قارئاً مخدوماً مصدقاً: {undeclared[:5]}")
+    if declared:
+        report["removedDeclared"] = [declared[r] for r in report["removed"]]
     return report
 
 
@@ -136,7 +202,19 @@ def main() -> int:
     ap.add_argument("--certificate-snapshot", required=True)
     ap.add_argument("--previous")
     ap.add_argument("--id-diff")
+    ap.add_argument("--declared-index", action="append", default=[],
+                    help="معرّف=مسار فهرسه المنشور (‏.jz): إسقاطٌ معلنٌ معتمد يُفحص بـdeclared_removal")
+    ap.add_argument("--approvals", help="ops/OWNER_DROP_APPROVALS.json — يلزم مع --declared-index")
     args = ap.parse_args()
+    if args.declared_index and not (args.approvals and args.previous):
+        raise ValueError("--declared-index يلزمه --approvals و--previous")
+    approvals = json.loads(Path(args.approvals).read_text(encoding="utf-8")) if args.approvals else []
+    declared = {}
+    for item in args.declared_index:
+        tid, sep, path = item.partition("=")
+        if not sep or tid in declared:
+            raise ValueError(f"--declared-index غير صالح أو مكرر: {item!r}")
+        declared[tid] = declared_removal(tid, Path(path).read_bytes(), approvals)
     doc = json.loads(Path(args.input).read_text(encoding="utf-8"))
     snapshot = json.loads(Path(args.certificate_snapshot).read_text(encoding="utf-8"))
     out, stat = certified_only(doc, args.min_timing, snapshot)
@@ -144,13 +222,14 @@ def main() -> int:
         raise ValueError("--previous و--id-diff يُعطيان معاً")
     if args.previous:
         previous = json.loads(Path(args.previous).read_text(encoding="utf-8"))
-        diff = id_diff(previous, out)
+        diff = id_diff(previous, out, declared)
         Path(args.id_diff).write_text(
             json.dumps(diff, ensure_ascii=False, indent=1) + "\n", encoding="utf-8"
         )
         stat["beforeCertified"] = len(diff["beforeCertified"])
         stat["added"] = len(diff["added"])
         stat["removed"] = len(diff["removed"])
+        stat["removedDeclared"] = len(diff.get("removedDeclared") or [])
     Path(args.output).write_text(
         json.dumps(out, ensure_ascii=False, indent=1) + "\n", encoding="utf-8"
     )
