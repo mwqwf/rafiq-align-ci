@@ -1,0 +1,74 @@
+name: rafiq-entry-window-census
+
+run-name: "entry-window-census ${{ inputs.key }} س${{ inputs.surahs }}"
+
+# 🔎 **إحصاءُ نوافذ المداخل** (‏`tools/index_qa/entry_window_census.py` · قرار القائد 2026-11-07 البند ٢.٥):
+#    لكلّ مدخلٍ في السور المطلوبة يُفرَّغ بـWhisper float32 نافذتُه [startMs, endMs] من صوت السورة نفسِه
+#    (‏بصمةُ `audioSha256` تُفحص قبل التفريغ)، ثمّ يُقابَل التفريغُ بنصّ الآية وحدَها وبحدود عدد كلمات `pin_heard`.
+#    يمرّ المدخلُ بنصّ الآية وحدَها، ويُردّ لآيةٍ أخرى أو زيادةٍ أو نقص.
+# ⚖️ قارئٌ محض: يقرأ المرشّحَ من الدلو ولا يكتب فيه (‏`contents: read`)؛ لا ترقيةَ ولا كتابةَ في timings/.
+#    والأثرُ JSON مخرَجَ تشغيلةٍ لسبعة أيّام. التفريغُ مرشّحٌ للحكم وحده ولا يُكتب منه نصٌّ في أيّ فهرس.
+# 💰 مستودعٌ عامّ + عدّاد ubuntu-latest القياسيّ · مهلةٌ 60 دقيقة.
+on:
+  workflow_dispatch:
+    inputs:
+      key: {description: "مفتاحُ المرشّح في timings-staging (‏مثل timings-staging/qalun/maroush_qalun.3ff9b67d.jz)", required: true}
+      surahs: {description: "السورُ بفواصل (‏مثل 67,78)", required: true}
+      model: {description: "حجمُ النموذج (‏float32 دائماً)", type: choice, options: [small, medium], default: "small"}
+      reason: {description: "سببُ الإطلاق", default: ""}
+
+permissions:
+  contents: read
+
+concurrency:
+  group: rafiq-entry-window-census-${{ inputs.key }}
+  cancel-in-progress: false
+
+env:
+  PY: "3.11"
+  HF_HOME: ${{ github.workspace }}/.hf
+
+jobs:
+  census:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: {python-version: "${{ env.PY }}"}
+      - name: كاش ffmpeg (بديلُ apt المعلَّق · لا يغيّر النسخة)
+        uses: actions/cache@v4
+        with:
+          path: .qa-tools/apt-tree
+          key: qa-ffmpeg-apt-tree-v1-${{ hashFiles('tools/ci_fleet/install_qa_ffmpeg.py') }}
+      - name: الأدوات (‏النسخُ مثبَّتة)
+        run: |
+          QA_FFMPEG_APT_ONLY=1 python tools/ci_fleet/install_qa_ffmpeg.py
+          python -m pip install --quiet "numpy==1.26.4" faster-whisper==1.1.1 "requests==2.32.3" boto3==1.43.123
+      - name: اختباراتُ الأداة أوّلاً
+        run: python -m unittest tools/index_qa/test_entry_window_census.py tools/index_qa/test_pin_heard_witness.py tools/index_qa/test_pin_heard.py
+      - name: كاش النموذج (‏هو كاشُ whisper_witness نفسُه)
+        uses: actions/cache@v4
+        with:
+          path: .hf
+          key: whisper-witness-${{ inputs.model }}-fw111-v1
+      - name: اعتماد R2 (‏قراءةُ المرشّح وحدَها)
+        env: {R2_CREDENTIALS_JSON: "${{ secrets.R2_CREDENTIALS_JSON }}"}
+        run: mkdir -p secure && printf '%s' "$R2_CREDENTIALS_JSON" > secure/r2_credentials.json
+      - name: إحصاءُ النوافذ (⛔ بلا رفعٍ ولا كتابةٍ في الدلو)
+        env:
+          KEY: ${{ inputs.key }}
+          SURAHS: ${{ inputs.surahs }}
+          MODEL: ${{ inputs.model }}
+        run: |
+          set -o pipefail
+          mkdir -p out
+          python tools/index_qa/entry_window_census.py run --key "$KEY" --surahs "$SURAHS" --model "$MODEL" --out out 2>&1 | tee out/census.log
+      - uses: actions/upload-artifact@v4
+        if: ${{ always() }}
+        with:
+          name: entry-window-census-${{ github.run_id }}
+          path: |
+            out/entry_window_census_s*.json
+            out/census.log
+          retention-days: 7
