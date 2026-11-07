@@ -1,6 +1,6 @@
 name: rafiq-entry-window-census
 
-run-name: "entry-window-census ${{ inputs.key }} س${{ inputs.surahs }}"
+run-name: "entry-window-census ${{ inputs.key }} ${{ inputs.surahs }} ${{ inputs.pairs && 'pairs' || '' }}"
 
 # 🔎 **إحصاءُ نوافذ المداخل** (‏`tools/index_qa/entry_window_census.py` · قرار القائد 2026-11-07 البند ٢.٥):
 #    لكلّ مدخلٍ في السور المطلوبة يُفرَّغ بـWhisper float32 نافذتُه [startMs, endMs] من صوت السورة نفسِه
@@ -8,12 +8,14 @@ run-name: "entry-window-census ${{ inputs.key }} س${{ inputs.surahs }}"
 #    يمرّ المدخلُ بنصّ الآية وحدَها، ويُردّ لآيةٍ أخرى أو زيادةٍ أو نقص.
 # ⚖️ قارئٌ محض: يقرأ المرشّحَ من الدلو ولا يكتب فيه (‏`contents: read`)؛ لا ترقيةَ ولا كتابةَ في timings/.
 #    والأثرُ JSON مخرَجَ تشغيلةٍ لسبعة أيّام. التفريغُ مرشّحٌ للحكم وحده ولا يُكتب منه نصٌّ في أيّ فهرس.
-# 💰 مستودعٌ عامّ + عدّاد ubuntu-latest القياسيّ · مهلةٌ 60 دقيقة.
+# 💰 مستودعٌ عامّ + عدّاد ubuntu-latest القياسيّ · مهلةٌ 120 دقيقة.
 on:
   workflow_dispatch:
     inputs:
-      key: {description: "مفتاحُ المرشّح في timings-staging (‏مثل timings-staging/qalun/maroush_qalun.3ff9b67d.jz)", required: true}
-      surahs: {description: "السورُ بفواصل (‏مثل 67,78)", required: true}
+      key: {description: "مفتاحُ المرشّح في timings-staging (‏مثل timings-staging/qalun/maroush_qalun.3ff9b67d.jz)", default: ""}
+      surahs: {description: "السورُ بفواصل (‏مثل 67,78)", default: ""}
+      pairs: {description: "بديلُ key/surahs: «مفتاح=س1,س2;مفتاح2=س3» (‏عدّةُ فهارس في تشغيلةٍ؛ والفواصلُ الأسطرُ تُقبل)", default: ""}
+      published: {description: "الفهارسُ في timings/ المنشورة (‏قراءةٌ محضة، لا كتابةَ)", type: boolean, default: false}
       model: {description: "حجمُ النموذج (‏float32 دائماً)", type: choice, options: [small, medium], default: "small"}
       reason: {description: "سببُ الإطلاق", default: ""}
 
@@ -21,7 +23,7 @@ permissions:
   contents: read
 
 concurrency:
-  group: rafiq-entry-window-census-${{ inputs.key }}
+  group: rafiq-entry-window-census-${{ inputs.key }}-${{ github.run_id }}
   cancel-in-progress: false
 
 env:
@@ -31,7 +33,7 @@ env:
 jobs:
   census:
     runs-on: ubuntu-latest
-    timeout-minutes: 60
+    timeout-minutes: 120
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
@@ -60,15 +62,19 @@ jobs:
           KEY: ${{ inputs.key }}
           SURAHS: ${{ inputs.surahs }}
           MODEL: ${{ inputs.model }}
+          PAIRS: ${{ inputs.pairs }}
+          PUBLISHED: ${{ inputs.published }}
         run: |
           set -o pipefail
           mkdir -p out
-          python tools/index_qa/entry_window_census.py run --key "$KEY" --surahs "$SURAHS" --model "$MODEL" --out out 2>&1 | tee out/census.log
+          EXTRA=()
+          [ "$PUBLISHED" = "true" ] && EXTRA+=(--published)
+          python tools/index_qa/entry_window_census.py run --key "$KEY" --surahs "$SURAHS" --pairs "$PAIRS" "${EXTRA[@]}" --model "$MODEL" --out out 2>&1 | tee out/census.log
       - uses: actions/upload-artifact@v4
         if: ${{ always() }}
         with:
           name: entry-window-census-${{ github.run_id }}
           path: |
-            out/entry_window_census_s*.json
+            out/entry_window_census_*.json
             out/census.log
           retention-days: 7

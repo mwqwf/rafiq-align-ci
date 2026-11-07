@@ -191,6 +191,27 @@ class Nearest(unittest.TestCase):
         self.assertEqual((E.FUZZ_LO, E.FUZZ_HI), (E.PH.W_FUZZ_LEN_LO, E.PH.W_FUZZ_LEN_HI))
 
 
+class Pairs(unittest.TestCase):
+    class A:
+        def __init__(self, pairs="", key="", surahs=""):
+            self.pairs, self.key, self.surahs = pairs, key, surahs
+
+    def test_parse_pairs(self):
+        r = E._parse_pairs(self.A(pairs="timings/a/x.jz=1,2;timings/b/y.jz=3\ntimings/c/z.jz=4"))
+        self.assertEqual(r, [("timings/a/x.jz", "1,2"), ("timings/b/y.jz", "3"), ("timings/c/z.jz", "4")])
+
+    def test_single_key(self):
+        self.assertEqual(E._parse_pairs(self.A(key="k", surahs="1")), [("k", "1")])
+
+    def test_published_key_needs_flag(self):
+        E._check_key("timings/qalun/x.jz", True)
+        E._check_key("timings-staging/qalun/x.jz", False)
+        for k, pub in (("timings/qalun/x.jz", False), ("timings-staging/qalun/x.jz", True),
+                       ("timings/qalun/x/y.jz", True), ("timings/qalun/x.json", True), ("state/a/b.jz", True)):
+            with self.assertRaises(SystemExit):
+                E._check_key(k, pub)
+
+
 class SurahVerdict(unittest.TestCase):
     def test_one_reject_rejects_surah(self):
         rows = [{"ayah": 1, "verdict": "pass", "reason": ""}, {"ayah": 2, "verdict": "reject", "reason": "زيادة"}]

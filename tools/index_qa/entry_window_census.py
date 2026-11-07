@@ -309,16 +309,34 @@ def cmd_repeats(a) -> int:
     return 0
 
 
+def _parse_pairs(a) -> list[tuple[str, str]]:
+    """[(مفتاح، سور)] من `--pairs "مفتاح=س1,س2;مفتاح2=س3"` أو من `--key/--surahs`."""
+    if a.pairs:
+        out = []
+        for part in a.pairs.replace("\n", ";").split(";"):
+            part = part.strip()
+            if part:
+                k, _, ss = part.partition("=")
+                out.append((k.strip(), ss.strip()))
+        return out
+    if not a.key or not a.surahs:
+        raise SystemExit("⛔ يلزم --pairs أو (--key و--surahs)")
+    return [(a.key, a.surahs)]
+
+
+def _check_key(key: str, published: bool) -> None:
+    parts = key.split("/")
+    ok_dir = parts[0] == "timings" if published else parts[0] == "timings-staging"
+    if not ok_dir or len(parts) != 3 or not key.endswith(".jz"):
+        raise SystemExit("⛔ مفتاحُ مرشّحٍ صريحٌ في timings-staging/ (‏أو timings/ بـ--published قراءةً فقط)؛ لا كتابةَ في timings/")
+
+
 def cmd_run(a) -> int:
-    if (not a.key.startswith("timings-staging/") or a.key.count("/") != 2 or not a.key.endswith(".jz")):
-        raise SystemExit("⛔ مفتاحُ مرشّحٍ صريحٌ في timings-staging/ وحده (‏لا كتابةَ في timings/)")
-    riwaya = a.key.split("/")[1]
-    surahs = [int(x) for x in a.surahs.replace(",", " ").split()]
+    pairs = _parse_pairs(a)
+    for key, _ in pairs:
+        _check_key(key, a.published)
     import promote as P                                              # noqa: PLC0415
     cl, bucket = P.s3()
-    body = cl.get_object(Bucket=bucket, Key=a.key)["Body"].read()
-    cand_sha = hashlib.sha256(body).hexdigest()
-    idx = json.loads(gzip.decompress(body))
     sys.path.insert(0, str(ROOT / "tools" / "alignment"))
     from common import fetch_retry, to_wav16k                        # noqa: PLC0415
     import numpy as np                                               # noqa: PLC0415
@@ -327,54 +345,70 @@ def cmd_run(a) -> int:
     model = WhisperModel(a.model, device="cpu", compute_type="float32", cpu_threads=os.cpu_count() or 2)
     os.makedirs(a.out, exist_ok=True)
     rc = 0
-    for s in surahs:
-        texts = surah_texts(riwaya, s)
-        ents = [e for e in idx["entries"] if str(e["ayahId"]).startswith(f"{s}:") and e.get("startMs") is not None]
-        refs = {e.get("fileRef") for e in ents}
-        if len(refs) != 1:
-            raise SystemExit(f"⛔ س{s}: ملفُّ صوتٍ واحدٌ للسورة مطلوب ({sorted(map(str, refs))[:3]})")
-        url = refs.pop()
-        want = idx["audioSha256"][s - 1]
-        mp3 = os.path.join(a.out, f"{s:03d}.mp3")
-        fetch_retry(url, mp3)
-        got_sha = hashlib.sha256(open(mp3, "rb").read()).hexdigest()
-        if not want or got_sha != want:
-            os.remove(mp3)
-            print(f"⛔ س{s}: بصمةُ الصوت المنزَّل {got_sha[:8]} ≠ audioSha256 {str(want)[:8]} — لا إحصاء")
-            rc = 3
-            continue
-        wav = to_wav16k(mp3, os.path.join(tempfile.mkdtemp(), "a.wav"))
-        with wave.open(wav, "rb") as w:
-            if w.getframerate() != SR or w.getnchannels() != 1:
-                raise SystemExit("⛔ الصوتُ المفكوك ليس أحاديَّ 16ك.هز")
-            pcm = np.frombuffer(w.readframes(w.getnframes()), np.int16).astype(np.float32) / 32768.0
-        rows = []
-        for e in sorted(ents, key=lambda e: int(str(e["ayahId"]).split(":")[1])):
-            ay = int(str(e["ayahId"]).split(":")[1])
-            st, en = int(e["startMs"]), e.get("endMs")
-            if en is None or int(en) <= st:
-                rows.append({"ayah": ay, "startMs": st, "endMs": en, "verdict": "reject", "reason": "نقص",
-                             "detail": "مدخلٌ بلا نهايةٍ صالحة", "words": 0, "heard": ""})
+    for key, surahs_s in pairs:
+        riwaya = key.split("/")[1]
+        slug = key.split("/", 1)[1].replace("/", "__").removesuffix(".jz")
+        surahs = [int(x) for x in surahs_s.replace(",", " ").split()]
+        body = cl.get_object(Bucket=bucket, Key=key)["Body"].read()
+        cand_sha = hashlib.sha256(body).hexdigest()
+        idx = json.loads(gzip.decompress(body))
+        for s in surahs:
+            texts = surah_texts(riwaya, s)
+            ents = [e for e in idx["entries"] if str(e["ayahId"]).startswith(f"{s}:") and e.get("startMs") is not None]
+            refs = {e.get("fileRef") for e in ents}
+            if len(refs) != 1:
+                print(f"⛔ {key} س{s}: ملفُّ صوتٍ واحدٌ للسورة مطلوب ({sorted(map(str, refs))[:3]}) — تُتخطّى")
+                rc = 3
                 continue
-            seg = pcm[int(st * SR / 1000):int(int(en) * SR / 1000)]
-            segs, _i = model.transcribe(seg, language="ar", beam_size=5, word_timestamps=True,
-                                        condition_on_previous_text=False, vad_filter=False, temperature=0.0)
-            words = [{"w": x.word.strip(), "s": st + int(x.start * 1000), "p": round(float(x.probability), 4)}
-                     for sg in segs for x in (sg.words or [])]
-            r = judge_entry(ay, PH._norm_words(words), texts)
-            r.update({"startMs": st, "endMs": int(en)})
-            rows.append(r)
-            print(f"{s}:{ay} [{st}-{en}] ⇒ {r['verdict']} {r['reason']} · {r['detail']}", flush=True)
-        os.remove(mp3)
-        v = surah_verdict(rows)
-        res = {"version": VERSION, "key": a.key, "candidateSha256": cand_sha, "surah": s, "riwaya": riwaya,
-               "fileRef": url, "audioSha256": got_sha, "model": a.model, "computeType": "float32",
-               "fasterWhisper": getattr(faster_whisper, "__version__", ""), "verdict": v, "entries": rows}
-        out = os.path.join(a.out, f"entry_window_census_s{s:03d}.json")
-        with open(out + ".part", "w", encoding="utf-8") as f:
-            json.dump(res, f, ensure_ascii=False)
-        os.replace(out + ".part", out)
-        print(f"■ س{s}: {'✅ كلُّ المداخل تمرّ' if v['ok'] else '⛔ مردودة'} · {v['rejected']}/{v['entries']} · {v['byReason']}")
+            url = refs.pop()
+            want = idx["audioSha256"][s - 1]
+            mp3 = os.path.join(a.out, f"{s:03d}.mp3")
+            try:
+                fetch_retry(url, mp3)
+            except Exception as ex:                                  # noqa: BLE001
+                print(f"⛔ {key} س{s}: تعذّر تنزيل الصوت: {ex} — تُتخطّى")
+                rc = 3
+                continue
+            got_sha = hashlib.sha256(open(mp3, "rb").read()).hexdigest()
+            if not want or got_sha != want:
+                os.remove(mp3)
+                print(f"⛔ {key} س{s}: بصمةُ الصوت المنزَّل {got_sha[:8]} ≠ audioSha256 {str(want)[:8]} — لا إحصاء")
+                rc = 3
+                continue
+            wav = to_wav16k(mp3, os.path.join(tempfile.mkdtemp(), "a.wav"))
+            with wave.open(wav, "rb") as w:
+                if w.getframerate() != SR or w.getnchannels() != 1:
+                    raise SystemExit("⛔ الصوتُ المفكوك ليس أحاديَّ 16ك.هز")
+                pcm = np.frombuffer(w.readframes(w.getnframes()), np.int16).astype(np.float32) / 32768.0
+            os.remove(wav)
+            rows = []
+            for e in sorted(ents, key=lambda e: int(str(e["ayahId"]).split(":")[1])):
+                ay = int(str(e["ayahId"]).split(":")[1])
+                st, en = int(e["startMs"]), e.get("endMs")
+                if en is None or int(en) <= st:
+                    rows.append({"ayah": ay, "startMs": st, "endMs": en, "verdict": "reject", "reason": "نقص",
+                                 "detail": "مدخلٌ بلا نهايةٍ صالحة", "words": 0, "heard": ""})
+                    continue
+                seg = pcm[int(st * SR / 1000):int(int(en) * SR / 1000)]
+                segs, _i = model.transcribe(seg, language="ar", beam_size=5, word_timestamps=True,
+                                            condition_on_previous_text=False, vad_filter=False, temperature=0.0)
+                words = [{"w": x.word.strip(), "s": st + int(x.start * 1000), "p": round(float(x.probability), 4)}
+                         for sg in segs for x in (sg.words or [])]
+                r = judge_entry(ay, PH._norm_words(words), texts)
+                r.update({"startMs": st, "endMs": int(en)})
+                rows.append(r)
+                print(f"{riwaya}/{slug} {s}:{ay} [{st}-{en}] ⇒ {r['verdict']} {r['reason']} · {r['detail']}", flush=True)
+            os.remove(mp3)
+            v = surah_verdict(rows)
+            res = {"version": VERSION, "key": key, "candidateSha256": cand_sha, "surah": s, "riwaya": riwaya,
+                   "fileRef": url, "audioSha256": got_sha, "model": a.model, "computeType": "float32",
+                   "fasterWhisper": getattr(faster_whisper, "__version__", ""), "nearestMargin": NEAREST_MARGIN,
+                   "verdict": v, "entries": rows}
+            out = os.path.join(a.out, f"entry_window_census_{slug}_s{s:03d}.json")
+            with open(out + ".part", "w", encoding="utf-8") as f:
+                json.dump(res, f, ensure_ascii=False)
+            os.replace(out + ".part", out)
+            print(f"■ {key} س{s}: {'✅ كلُّ المداخل تمرّ' if v['ok'] else '⛔ مردودة'} · {v['rejected']}/{v['entries']} · {v['byReason']}", flush=True)
     return rc
 
 
@@ -387,8 +421,10 @@ def main() -> int:
     r.add_argument("--surahs", required=True)
     r.add_argument("--out", default="")
     q = sub.add_parser("run", help="تفريغُ نافذة كلّ مدخلٍ والحكمُ عليه")
-    q.add_argument("--key", required=True)
-    q.add_argument("--surahs", required=True)
+    q.add_argument("--key", default="")
+    q.add_argument("--surahs", default="")
+    q.add_argument("--pairs", default="", help="مفتاحٌ=سور؛ مفتاحٌ=سور (‏عدّةُ فهارس في تشغيلةٍ واحدة)")
+    q.add_argument("--published", action="store_true", help="قراءةُ فهرسٍ منشورٍ في timings/ (‏قراءةٌ محضة)")
     q.add_argument("--model", default="small", choices=PH.W_MODELS)
     q.add_argument("--out", required=True)
     a = ap.parse_args()
