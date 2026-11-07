@@ -33,7 +33,7 @@ on:
       heard_witness: {description: "وضعُ window وحده (fixS2 · بإذن المالك): يُقبل حدُّ المدّة الأعلى (2×) فقط لآيةٍ يوافق حدّاها خريطةَ السماع (ctc_heard_map) بفرقٍ مقيس ≤700/1000م.ث ومِرساةٍ ≥0.85 منفردة", default: "false"}
       absent_ayahs: {description: "وضعُ window وحده (أمر المالك 2026-10-31): آياتٌ غائبةٌ في وسط سورةٍ تامّة المداخل في الأب — «79:15,79:17,79:18»؛ تُحاذى الجاراتُ بنصوص الحاضرات وحدها (ctc_gapsplit --absent-ayahs) ويُقاس دليلُ الغياب بمحاذاةٍ بنصّ الغائبة تردّها الحرّاس، ثمّ تُحجب وتُعلَن (drop_ayahs --aligned) بمرشّحٍ في timings-staging. surahs = سورُها نفسُها؛ ولا يجتمع مع rewindow", default: ""}
       reason_user: {description: "وضعُ absent_ayahs وحده: السببُ المعروضُ للمستخدم (بلا كلماتٍ إداريّة)", default: "تسجيلُ هذه السورة ينقصه بعضُ آياتها."}
-      quran_model: {description: "وضعُ full وحده (مطفأٌ افتراضاً): true = محاذاةُ السور كاملةً بنموذج التلاوة المثبَّت البصمة (‏batch_run --quran-model) بدقّة الأسطول int8 · float32 = الشيءُ نفسُه بدقّة float32 وخيطين (‏كمسار الذيل المبتور) ويُعلَن محرّكُها ctc-quran-surah-1 بنسب النموذج فيلزمه الإحصاءُ الشامل؛ ويُستثنى به وحده ردُّ «الأصلُ منشورٌ بـCTC نفسِه»؛ ولا يجتمع مع truncated_tail ولا absent_ayahs", default: "false"}
+      quran_model: {description: "وضعُ full وحده (مطفأٌ افتراضاً): true = محاذاةُ السور كاملةً بنموذج التلاوة المثبَّت البصمة (‏batch_run --quran-model) بدقّة الأسطول int8 · float32 = الشيءُ نفسُه بدقّة float32 وخيطين (‏كمسار الذيل المبتور) ويُعلَن محرّكُها ctc-quran-surah-1 بنسب النموذج فيلزمه الإحصاءُ الشامل؛ ويُستثنى به وحده ردُّ «الأصلُ منشورٌ بـCTC نفسِه»؛ ومعه rewindow: في full تُصحَّح بنافذةٍ بالنموذج نفسِه بعد المحاذاة الكاملة وقبل الدمج (ذيلٌ انضغط)، وفي window تُشخَّص النافذةُ بالنموذج؛ ولا يجتمع مع truncated_tail ولا absent_ayahs", default: "false"}
       truncated_tail: {description: "وضعُ full وحده (أمر المالك 2026-10-02): سورةٌ واحدةٌ مصدرُها مبتورُ الذيل تُحاذى بادئتُها 1..N بالنموذج القرآني المثبَّت ويُعلَن ذيلُها source_truncated — «24:30»؛ وsurahs = السورةُ نفسُها", default: ""}
 
 concurrency:
@@ -100,9 +100,12 @@ jobs:
           qm = os.environ.get("QM", "false").strip()
           if qm not in ("true", "float32", "false"):
               sys.exit(f"⛔ quran_model true أو float32 أو false لا غير: {qm!r}")
-          if qm != "false" and (os.environ.get("MODE", "full") != "full" or os.environ.get("TRUNC", "").strip()
-                               or os.environ.get("ABSENT", "").strip() or not os.environ.get("WANT", "").strip()):
-              sys.exit("⛔ quran_model في وضع full وحده بسورٍ مسمّاة، ولا يجتمع مع truncated_tail ولا absent_ayahs")
+          # ⭐ (saad-tail-window) ومعه rewindow جائزٌ: في full يُصحَّح ذيلُ السورة بنافذةٍ على مرساةٍ ثابتةٍ بعد المحاذاة الكاملة،
+          #    وفي window يُشخَّص النافذةُ بنموذج التلاوة (الأبُ مرشّحٌ مسرحيّ). ولا يجتمعان مع truncated_tail ولا absent_ayahs.
+          if qm != "false" and (os.environ.get("MODE", "full") not in ("full", "window") or os.environ.get("TRUNC", "").strip()
+                               or os.environ.get("ABSENT", "").strip() or not os.environ.get("WANT", "").strip()
+                               or (os.environ.get("MODE", "full") == "window" and not os.environ.get("REWIN", "").strip())):
+              sys.exit("⛔ quran_model في وضع full أو window (بـrewindow) بسورٍ مسمّاة، ولا يجتمع مع truncated_tail ولا absent_ayahs")
           # ⭐ الآياتُ الغائبةُ في الوسط (أمر المالك 2026-10-31): وضعُ window وحده، وsurahs = سورُها نفسُها، ولا rewindow معها.
           absent = os.environ.get("ABSENT", "").strip()
           absent_surahs = set()
@@ -320,8 +323,11 @@ jobs:
                   --out-dir "$HWD" --probe --report "$HWD/report_s$s.txt" 2>&1 | tail -3
               done
             fi
+            # ⭐ (saad-tail-window) نافذةٌ بنموذج التلاوة المثبَّت: العَلَمُ صريحٌ، وfloat32 بخيطين كمسار الذيل المبتور.
+            QMW=""; [ "$QM" != "false" ] && QMW="--quran-model"
+            [ "$QM" = "float32" ] && export CTC_INT8=0 CTC_THREADS=2
             python tools/alignment_v3/ctc_gapsplit.py --index parent.jz --surahs "$SURAHS" \
-              --riwaya "$RIW" --out-dir "tools/alignment/work/batch_$RID" --rewindow "$REWIN" \
+              --riwaya "$RIW" --out-dir "tools/alignment/work/batch_$RID" --rewindow "$REWIN" $QMW \
               ${HWD:+--heard-witness-dir "$HWD"} 2>&1 | tee ctc.log
             exit 0
           fi
@@ -384,6 +390,20 @@ jobs:
             echo "⏱️ نفدت الميزانية — تُدمج السورُ المنجزةُ وحدها: $(ls tools/alignment/work/batch_$RID/s*.json 2>/dev/null | wc -l) ملفّاً"
           elif [ "$rc" != 0 ]; then
             exit "$rc"
+          fi
+          # ⭐ (saad-tail-window) تصحيحُ ذيلٍ انضغط في المحاذاة الكاملة: نافذةٌ بين مرساةٍ ثابتةٍ من المحاذاة نفسِها ونهاية الملفّ
+          #    بنموذج التلاوة نفسِه وبالحرّاس نفسِها (ثقة · مدّة · جارة)، قبل الدمج وفي التشغيلة نفسِها — فالمرشّحُ المسرحيُّ
+          #    لا يُبنى فوق مرشّحٍ مسرحيّ (حارسُ الغياب الموروث). ⛔ لا حارسَ يُرخى؛ وما ردّته النافذةُ يبقى كما حوذي كاملاً.
+          if [ -n "$REWIN" ] && [ "$QM" != "false" ]; then
+            d="tools/alignment/work/batch_$RID"; d2="tools/alignment/work/win_$RID"; mkdir -p "$d2"
+            F=""; for s in $(echo "$SURAHS" | tr ',' ' '); do j=$(printf "%s/s%03d.json" "$d" "$s"); [ -f "$j" ] && F="$F $j"; done
+            if [ -n "$F" ]; then
+              python tools/index_qa/splice_surah.py --index parent.jz --surah "$SURAHS" --aligned $F --url "$URLT" \
+                     --skip-unresolved --engine-tag ctc-quran-surah-1 --out interim.jz
+              python tools/alignment_v3/ctc_gapsplit.py --index interim.jz --surahs "$SURAHS" \
+                --riwaya "$RIW" --out-dir "$d2" --rewindow "$REWIN" --quran-model 2>&1 | tee -a ctc.log
+              for j in "$d2"/s*.json; do [ -f "$j" ] && cp "$j" "$d/$(basename "$j")" && echo "⭐ $(basename "$j"): استُبدلت بنتيجة النافذة"; done
+            fi
           fi
 
       - name: الدمجُ بحُرّاسه وبصماتُ الصوت
