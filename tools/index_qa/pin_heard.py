@@ -38,6 +38,7 @@ import gzip
 import hashlib
 import io
 import json
+import math
 import subprocess
 import sys
 import time
@@ -114,6 +115,13 @@ W_DUR_LO, W_DUR_HI = 0.5, 2.0     # مدّةُ الآية المثبَّتة ن�
 W_NEIGHBOUR_MIN = 0.5    # الجارةُ السابقة لا تنكمش دون هذه النسبة من مدّتها في الأصل
 W_LEN_LO, W_LEN_HI = 0.7, 1.3     # عددُ كلمات Whisper بين الطرفين نسبةً إلى كلمات الآية المرجعيّة
 W_MODELS = ("small", "medium")
+# ⭐ المسارُ المشابه (‏قرار خيط 2.0 · 2026-11-07، لدورة saad وحدها، خلف `--witness-fuzzy` المطفأ افتراضاً):
+#    Whisper يُخطئ حرفاً في كلمةٍ طرفيّة («يعقرون» لـ«يعقلون») فيردّ التطابقُ التامّ آيةً سليمة. فيُقبل بدلَه تشابهُ
+#    حروف الكلمات الطرفيّة بعد التطبيع ≥ W_FUZZ_SIM (‏أوّلُها وآخرُها معاً)، بقيدٍ معوِّض: عددُ كلمات Whisper من
+#    كلمة البدء إلى كلمة الختام ضمن ±20٪ من كلمات الآية (‏أضيقُ من ±30٪ في التامّ) فلا تنجو آيةٌ مدموجةٌ أو مبتورة.
+#    والثقةُ والاتّفاقُ ≤300م.ث والمدّةُ والجارةُ كما هي حرفاً، ومسارُ CTC لا يُمسّ.
+W_FUZZ_SIM = 0.8
+W_FUZZ_LEN_LO, W_FUZZ_LEN_HI = 0.8, 1.2
 _REPO_ROOT = HERE.parent.parent
 
 
@@ -163,7 +171,24 @@ def check_witness(wit, surah, hmap, want_sha):
         raise SystemExit(f"⛔ الشاهدُ يلزمه {W_MODELS} بـfloat32 (‏وجد {wit.get('model')}/{wit.get('computeType')})")
 
 
-def whisper_check(wit, hmap, surah, ayah, ref):
+def _sim(a, b):
+    """تشابهُ حروف سلسلتين مطبَّعتين (‏difflib) بين 0 و1."""
+    import difflib                                                       # noqa: PLC0415
+    return difflib.SequenceMatcher(None, " ".join(a), " ".join(b)).ratio()
+
+
+def whisper_check(wit, hmap, surah, ayah, ref, fuzzy=False):
+    """كـ`_whisper_check` بالتطابق التامّ؛ فإن ردّ و`fuzzy` فالمسارُ المشابه (‏W_FUZZ_*) — ويُعلَّم تفصيلُه بـ«~»."""
+    c, info = _whisper_check(wit, hmap, surah, ayah, ref, fuzzy=False)
+    if c is not None or not fuzzy:
+        return c, info
+    c2, info2 = _whisper_check(wit, hmap, surah, ayah, ref, fuzzy=True)
+    if c2 is None:
+        return None, f"{info} · والمشابه: {info2}"
+    return c2, "~" + info2
+
+
+def _whisper_check(wit, hmap, surah, ayah, ref, fuzzy=False):
     """يُرجع (بدءُ CTC المعتمَد، تفصيل) إن اجتاز الشاهدُ **كلَّ** شروط الآية، وإلا يُرجع (None، سببَ الردّ).
 
     الشروط: تطابقُ أوّل W_K كلمةً بكلمة وآخرِ W_K (بعد التطبيع) · ثقةٌ لكلّ كلمةٍ طرفيّة ومتوسّطُها ·
@@ -182,11 +207,15 @@ def whisper_check(wit, hmap, surah, ayah, ref):
         return None, "لا مرساةَ CTC ولا أداءَ للآية يُقارَن به"
     why = "أوّلُ كلماتِ الآية لا يطابق تفريغَ النافذة"
     best = None
+    def same(got, want):
+        return _sim(got, want) >= W_FUZZ_SIM if fuzzy else got == want
+    lo, hi = ((max(k, math.ceil(W_FUZZ_LEN_LO * n)), math.floor(W_FUZZ_LEN_HI * n)) if fuzzy
+              else (max(k, int(W_LEN_LO * n)), int(W_LEN_HI * n) + 1))
     for i in range(len(toks) - k + 1):
-        if [t[0] for t in toks[i:i + k]] != head:
+        if not same([t[0] for t in toks[i:i + k]], head):
             continue
-        ends = [j for j in range(i + k - 1, len(toks)) if [t[0] for t in toks[j - k + 1:j + 1]] == tail]
-        ends = [j for j in ends if max(k, int(W_LEN_LO * n)) <= j - i + 1 <= int(W_LEN_HI * n) + 1]
+        ends = [j for j in range(i + k - 1, len(toks)) if same([t[0] for t in toks[j - k + 1:j + 1]], tail)]
+        ends = [j for j in ends if lo <= j - i + 1 <= hi]
         if not ends:
             why = "آخرُ كلماتِ الآية لا يطابق التفريغ أو عددُ كلماته خارج المدى"
             continue
@@ -223,7 +252,7 @@ def expected_from_peers(own_durs, peer_med, skip=()):
 
 
 def pin(idx, surah, hmap, pins, trims=None, last_end=None, witness=None, ref_words=None,
-        expected=None, evidence=None):
+        expected=None, evidence=None, witness_fuzzy=False):
     """يُعيد (فهرساً جديداً، تقريراً) أو يرفع SystemExit بالسبب.
 
     `last_end`: نهايةٌ مقيسةٌ لآخر آيةٍ في السورة (‏الفخفاخ 33:73 · 2026-10-05: قُصّت عند مدّةٍ قدّرها ffprobe
@@ -267,7 +296,7 @@ def pin(idx, surah, hmap, pins, trims=None, last_end=None, witness=None, ref_wor
             if ref_words is None:
                 raise SystemExit("⛔ مسارُ Whisper يلزمه نصٌّ مرجعيّ")
             check_witness(witness, surah, hmap, want)
-            c, info = whisper_check(witness, hmap, surah, a, ref_words(surah, a))
+            c, info = whisper_check(witness, hmap, surah, a, ref_words(surah, a), fuzzy=witness_fuzzy)
             if c is None:
                 raise SystemExit(f"⛔ {surah}:{a} بدءٌ {ms} لا يقع على أداءٍ مقيس ولم يُثبته شاهدُ Whisper: {info}")
             if abs(c - ms) > SNAP_MS:
@@ -276,7 +305,7 @@ def pin(idx, surah, hmap, pins, trims=None, last_end=None, witness=None, ref_wor
             wpinned[a] = info
             report.append(f"{surah}:{a} ⇐ {c} (CTC بلا شرط الجودة + شاهدُ Whisper: {info})")
             if evidence is not None:
-                evidence[a] = "ctc+whisper"
+                evidence[a] = "ctc+whisper~" if info.startswith("~") else "ctc+whisper"
         elif not hit:
             raise SystemExit(f"⛔ {surah}:{a} بدءٌ {ms} لا يقع على أداءٍ مقيس (المقيس: "
                              f"{[(m[0], m[2]) for m in measured_starts(hmap, a)]})")
@@ -428,9 +457,13 @@ def main():
                     help="نهايةٌ مقيسةٌ لآخر آيةٍ في السورة (‏نهايةُ أدائها المثبَّت)")
     ap.add_argument("--witness-run", default="",
                     help="تشغيلةُ whisper_witness: شاهدٌ إضافيٌّ لآياتٍ مرساتُها دون شرط الجودة (‏بلا شرطٍ يُرخى)")
+    ap.add_argument("--witness-fuzzy", action="store_true",
+                    help="المسارُ المشابه (‏قرار خيط 2.0 2026-11-07 لدورة saad): تشابهُ الكلمات الطرفيّة ≥0.8 بقيد ±20٪")
     ap.add_argument("--reason", required=True)
     ap.add_argument("--yes", action="store_true")
     a = ap.parse_args()
+    if a.witness_fuzzy and not a.witness_run:
+        raise SystemExit("⛔ --witness-fuzzy لا يعمل إلا مع --witness-run")
     import promote
     cl, bucket = promote.s3()
     body = cl.get_object(Bucket=bucket, Key=a.key)["Body"].read()
@@ -452,7 +485,7 @@ def main():
         expected = expected_from_peers(own, med, skip=set(pins0) | {x - 1 for x in pins0})
     out, report, changed = pin(idx, a.surah, hmap, parse_pairs(a.pin), parse_pairs(a.trim),
                                a.last_end, witness=wit, ref_words=ref, expected=expected,
-                               evidence=evidence)
+                               evidence=evidence, witness_fuzzy=a.witness_fuzzy)
     out["transform"] = {
         **({"truncatedTail": idx["transform"]["truncatedTail"]}
            if isinstance(idx.get("transform"), dict) and idx["transform"].get("truncatedTail") else {}),
@@ -465,6 +498,9 @@ def main():
     if a.witness_run:
         out["transform"]["witnessRun"] = str(a.witness_run)
         out["transform"]["pinEvidence"] = {str(k): v for k, v in sorted(evidence.items())}
+        if a.witness_fuzzy:
+            out["transform"]["witnessFuzzy"] = {"sim": W_FUZZ_SIM, "lenBand": [W_FUZZ_LEN_LO, W_FUZZ_LEN_HI],
+                                                "decision": "خيط 2.0 · 2026-11-07 · دورة saad"}
     for k in ("reasonCode", "reasonUser"):
         if isinstance(idx.get("transform"), dict) and idx["transform"].get(k):
             out["transform"][k] = idx["transform"][k]

@@ -161,6 +161,70 @@ class WitnessNegative(unittest.TestCase):
         self.refused(w, "لا تفريغَ")
 
 
+def _fz(wit, **kw):
+    kw.setdefault("ev", None)
+    return pin(kw.pop("idx", None) or _idx(), 56, kw.pop("hmap", None) or _hmap(), kw.pop("pins", None) or {3: 12100},
+               witness=wit, ref_words=ref_words, expected={3: kw.pop("exp", 8000)}, evidence=kw.pop("ev"),
+               witness_fuzzy=True)
+
+
+def _misspelt(start=12150, extra=()):
+    """الآية 3 بخطأ حرفٍ واحدٍ في كلمتها الأخيرة (‏«الرحيك»)، مع كلماتٍ زائدةٍ اختياريّةٍ قبل الطرف الأخير."""
+    w = _words(3, start)
+    w[-1]["w"] = "الرحيك"
+    for n, x in enumerate(extra):
+        w.insert(3 + n, {"w": x, "s": w[2]["s"] + 100 + n, "e": w[2]["s"] + 200 + n, "p": 0.9})
+    return w
+
+
+class WitnessFuzzy(unittest.TestCase):
+    """المسارُ المشابه (‏قرار خيط 2.0 · 2026-11-07): تشابهُ حروف ≥0.8 بقيد ±20٪ في عدد الكلمات."""
+
+    def refused(self, wit, msg=None, **kw):
+        with self.assertRaises(SystemExit) as c:
+            _fz(wit, **kw)
+        if msg:
+            self.assertIn(msg, str(c.exception))
+
+    def test_off_by_default_exact_refuses_misspelling(self):
+        with self.assertRaises(SystemExit):
+            _run(_wit(_misspelt()))
+
+    def test_one_letter_misspelling_accepted_and_marked(self):
+        ev = {}
+        out, rep, _c = _fz(_wit(_misspelt()), ev=ev)
+        self.assertEqual([x["startMs"] for x in out["entries"] if x["ayahId"] == "56:3"], [12100])
+        self.assertEqual(ev, {3: "ctc+whisper~"})
+        self.assertTrue(any("~whisper" in r for r in rep))
+
+    def test_other_ayah_text_with_similar_edge_refused(self):
+        self.refused(_wit(_words(4, 12150)), "أوّلُ كلماتِ")            # نصُّ آيةٍ أخرى كلُّه
+        w = _words(1, 12150)[:3] + _misspelt()[3:]                       # صدرُ آيةٍ أخرى وذيلٌ مشابه
+        self.refused(_wit(w), "أوّلُ كلماتِ")
+
+    def test_merged_ayah_refused_by_word_count(self):
+        # ⭐ كلمتان زائدتان (‏8 من 6): يقبلها مدى التامّ (‏≤8)، ويردّها قيدُ ±20٪ في المشابه (‏≤7)
+        self.refused(_wit(_misspelt(extra=("مالك", "يوم"))), "عددُ كلماته")
+        self.refused(_wit(_words(3, 12150)[:3] + _words(4, 12500) + _misspelt()[3:]), "عددُ كلماته")
+
+    def test_truncated_ayah_refused_by_word_count(self):
+        # آيةٌ مبتورةُ الوسط (‏4 كلماتٍ من 6، دون 0.8) ⇒ مردودة ولو شابه طرفاها
+        self.refused(_wit(_words(3, 12150)[:2] + _misspelt()[-2:]))
+
+    def test_conflict_like_28_18_still_refused(self):
+        # ⭐ saad 28:18: مطابقةٌ مشابهة لكنّ بدء Whisper بعد مرساة CTC بـ1.7ث ⇒ يبقى مردوداً
+        self.refused(_wit(_misspelt(start=13800)), "يتعارضان")
+
+    def test_confidence_duration_neighbour_unchanged(self):
+        w = _misspelt()
+        w[-1]["p"] = 0.4
+        self.refused(_wit(w), "ثقةُ")
+        self.refused(_wit(_misspelt()), "خارج", exp=3000)
+        h = _hmap(a3=7000)
+        w = _misspelt(start=7050)
+        self.refused(_wit(w), "تنكمش", hmap=h, pins={3: 7000}, exp=13000)
+
+
 class Expected(unittest.TestCase):
     def test_pace_scaling(self):
         own = {1: 10000, 2: 20000, 3: 30000, 4: 99999}
