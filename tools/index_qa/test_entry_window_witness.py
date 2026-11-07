@@ -81,7 +81,7 @@ class Witness(unittest.TestCase):
             m[k]["audioMs"] = [0, 18800]
             m[k]["own"] = [60, 17900, 0.8] if k == "generic" else [40, 17900, 0.75]
             m[k]["clipLo"] = True
-        self.assertTrue(W.judge_witness((500 - 500 + 100, 18000), m)["pass"])
+        self.assertTrue(W.judge_witness((100, 18000), m)["pass"])
 
     def test_two_ayahs_in_window_rejected(self):
         # مدخلٌ بآيتين: المحاذاةُ المطوَّلة لنصّ آيةٍ واحدةٍ على صوتَين تنهار ثقتُها أو تخرج حدودُها
@@ -94,8 +94,18 @@ class Witness(unittest.TestCase):
 
     def test_boundary_outside_window_rejected(self):
         m = good()
-        m["quran"]["own"] = [10700, 17900, 0.8]            # بدءٌ بعيدٌ 700 > START_TOL
+        m["quran"]["own"] = [9400, 17900, 0.8]             # بدءٌ قبل نافذة المدخل − START_TOL
         self.assertFalse(W.judge_witness(ENTRY, m)["pass"])
+        m = good()
+        m["quran"]["own"] = [10100, 18900, 0.8]            # نهايةٌ بعد نهاية المدخل + END_TOL
+        self.assertFalse(W.judge_witness(ENTRY, m)["pass"])
+
+    def test_silence_inside_entry_is_not_a_defect(self):
+        # الآيةُ تبدأ بعد بدء المدخل وتنتهي قبل نهايته (‏صمتٌ في طرفيه): داخل النافذة ⇒ تمرّ
+        m = good()
+        m["generic"]["own"] = [11500, 16000, 0.8]
+        m["quran"]["own"] = [11400, 16200, 0.75]
+        self.assertTrue(W.judge_witness(ENTRY, m)["pass"])
 
     def test_single_model_not_enough(self):
         for only in W.MODELS:

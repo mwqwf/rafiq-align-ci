@@ -7,8 +7,8 @@
 مثبَّتا البصمة، float32، خيطان — كما `window_census_witness`):
  ١. المحاذاةُ القسريّة لنصّ الآية وحدَها في نافذة مدخلها (‏[بدء − START_TOL، نهاية + END_TOL] من صوت السورة) بثقة
     ≥ `TARGET_CONF` (‏الثابتُ نفسُه في `window_census_witness`، لا عتبةً جديدة).
- ٢. حدودُها داخل النافذة: بدؤها لا يبعد عن بدء المدخل أكثر من `START_TOL` ونهايتُها عن نهايته أكثر من `END_TOL`
-    (‏ثابتان من `window_census_witness`)، **ولا تلتصق بحافّة الصوت المقصوص** (‏أقلّ من إطارَين: النصُّ قد يمتدّ خارجها —
+ ٢. حدودُها داخل النافذة: بدؤها ≥ بدء المدخل − `START_TOL` ونهايتُها ≤ نهايته + `END_TOL`
+    (‏ثابتان من `window_census_witness`؛ ويُسمح أن تبدأ بعد بدء المدخل أو تنتهي قبل نهايته لصمتٍ فيه)، **ولا تلتصق بحافّة الصوت المقصوص** (‏أقلّ من إطارَين: النصُّ قد يمتدّ خارجها —
     نافذةٌ مبتورة؛ وتُعفى الحافّةُ التي قصّها بدءُ الملفّ أو نهايتُه فعلاً).
  ٣. ولا تفوز عليها جارةٌ ±2 بالمحاذاة نفسِها: كلُّ جارةٍ نصُّها يخالف الآية تُحاذى في النافذة نفسِها بالنموذج نفسِه،
     وثقتُها ليست أعلى من ثقة الآية (‏الأعلى تفوز). والجارةُ المطابقةُ نصّاً **منافِسةٌ** (‏تشديد ج): لا تفرّقها المحاذاةُ، فتُحسم
@@ -60,8 +60,10 @@ def model_check(name: str, m: dict, entry: tuple[int, int]) -> list[str]:
         return [f"{name}: قياسٌ غيرُ صالح"]
     if conf < TARGET_CONF:
         why.append(f"{name}: ثقةُ الآية {conf:.2f} دون TARGET_CONF={TARGET_CONF}")
-    if abs(s - entry[0]) > START_TOL or abs(e - entry[1]) > END_TOL:
-        why.append(f"{name}: حدودُ الآية المحاذاة [{s:.0f},{e:.0f}] خارج نافذة المدخل [{entry[0]},{entry[1]}] بأكثر من التسامح")
+    # حدودُها داخل النافذة: [بدء المدخل − START_TOL، نهايته + END_TOL] (‏نافذةُ الصوت المقصوص نفسُها). ولا يُشترط التطابقُ
+    # مع حدّي المدخل: يمتدّ المدخلُ عادةً على صمتٍ قبل الآية أو بعدها (‏قِيس في الدخان: نهايةٌ أبكرُ بـ1.2–2.4ث وثقةٌ ≥0.65).
+    if s < entry[0] - START_TOL or e > entry[1] + END_TOL:
+        why.append(f"{name}: حدودُ الآية المحاذاة [{s:.0f},{e:.0f}] خارج نافذة المدخل [{entry[0] - START_TOL},{entry[1] + END_TOL}]")
     edge = EDGE_FRAMES * frame
     if (not m.get("clipLo") and s <= a + edge) or (not m.get("clipHi") and e >= b - edge):
         why.append(f"{name}: الحدُّ ملتصقٌ بحافّة النافذة المقصوصة (‏نافذةٌ مبتورة أو آيةٌ تمتدّ خارجها)")
@@ -178,3 +180,8 @@ def usable(measures: dict | None) -> dict | None:
     if not measures:
         return None
     return {k: {kk: vv for kk, vv in v.items() if kk != "model"} for k, v in measures.items() if "error" not in v}
+
+
+def errors(measures: dict | None) -> dict:
+    """أخطاءُ القياس لكلّ نموذج (‏تُحفظ في الصفّ للتشخيص؛ ونموذجٌ بخطأٍ ⇒ الشاهدُ ناقصٌ فيُردّ)."""
+    return {k: v["error"] for k, v in (measures or {}).items() if "error" in v}

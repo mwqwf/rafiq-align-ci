@@ -549,6 +549,8 @@ def cmd_run(a) -> int:
         for c in pending:
             r = c["row"]
             new = EW.apply_witness(r, EW.usable(c.get("measures")))
+            if EW.errors(c.get("measures")):
+                new["witnessErrors"] = EW.errors(c.get("measures"))
             r.clear()
             r.update(new)
         for res, out, rows in results:
@@ -674,6 +676,8 @@ def cmd_targets(a) -> int:
     for c in cands:
         m = EW.usable(c.get("measures"))
         r = EW.classify((c["startMs"], c["endMs"]), m)
+        if EW.errors(c.get("measures")):
+            r["errors"] = EW.errors(c.get("measures"))
         out_rows.append({"key": c["key"], "surah": c["surah"], "ayah": c["ayah"], "startMs": c["startMs"],
                          "endMs": c["endMs"], **r, "measures": m})
         print(f"{c['key']} {c['surah']}:{c['ayah']} ⇒ {r['class']} {r.get('winners', '')} {r['why'][:2]}", flush=True)
