@@ -33,10 +33,12 @@ on:
       heard_witness: {description: "وضعُ window وحده (fixS2 · بإذن المالك): يُقبل حدُّ المدّة الأعلى (2×) فقط لآيةٍ يوافق حدّاها خريطةَ السماع (ctc_heard_map) بفرقٍ مقيس ≤700/1000م.ث ومِرساةٍ ≥0.85 منفردة", default: "false"}
       absent_ayahs: {description: "وضعُ window وحده (أمر المالك 2026-10-31): آياتٌ غائبةٌ في وسط سورةٍ تامّة المداخل في الأب — «79:15,79:17,79:18»؛ تُحاذى الجاراتُ بنصوص الحاضرات وحدها (ctc_gapsplit --absent-ayahs) ويُقاس دليلُ الغياب بمحاذاةٍ بنصّ الغائبة تردّها الحرّاس، ثمّ تُحجب وتُعلَن (drop_ayahs --aligned) بمرشّحٍ في timings-staging. surahs = سورُها نفسُها؛ ولا يجتمع مع rewindow", default: ""}
       reason_user: {description: "وضعُ absent_ayahs وحده: السببُ المعروضُ للمستخدم (بلا كلماتٍ إداريّة)", default: "تسجيلُ هذه السورة ينقصه بعضُ آياتها."}
+      quran_model: {description: "وضعُ full وحده (مطفأٌ افتراضاً): true = محاذاةُ السور كاملةً بنموذج التلاوة المثبَّت البصمة (‏batch_run --quran-model) ويُعلَن محرّكُها ctc-quran-surah-1 بنسب النموذج فيلزمه الإحصاءُ الشامل؛ ويُستثنى به وحده ردُّ «الأصلُ منشورٌ بـCTC نفسِه»؛ ولا يجتمع مع truncated_tail ولا absent_ayahs", default: "false"}
       truncated_tail: {description: "وضعُ full وحده (أمر المالك 2026-10-02): سورةٌ واحدةٌ مصدرُها مبتورُ الذيل تُحاذى بادئتُها 1..N بالنموذج القرآني المثبَّت ويُعلَن ذيلُها source_truncated — «24:30»؛ وsurahs = السورةُ نفسُها", default: ""}
 
 concurrency:
-  group: rafiq-ctc-splice-${{ inputs.parent }}
+  # (quran_model) السورُ تُوزَّع على تشغيلاتٍ متوازيةٍ من الأب نفسِه، فالمجموعةُ تضمّ السور وإلا ألغى المنتظِرُ منها أخاه.
+  group: rafiq-ctc-splice-${{ inputs.parent }}${{ inputs.quran_model == 'true' && format('-qm-{0}', inputs.surahs) || '' }}
   cancel-in-progress: false
 
 env:
@@ -90,9 +92,17 @@ jobs:
           TRUNC: ${{ github.event.inputs.truncated_tail }}
           REWIN: ${{ github.event.inputs.rewindow }}
           ABSENT: ${{ github.event.inputs.absent_ayahs }}
+          QM: ${{ github.event.inputs.quran_model }}
         run: |
           python - <<'PY'
           import gzip, hashlib, json, os, re, sys, boto3
+          # ⭐ نموذجُ التلاوة لمحاذاة السورة كاملةً: وضعُ full وحده بسورٍ مسمّاةٍ، ولا يجتمع مع الذيل المبتور ولا الغائبات.
+          qm = os.environ.get("QM", "false").strip()
+          if qm not in ("true", "false"):
+              sys.exit(f"⛔ quran_model true أو false لا غير: {qm!r}")
+          if qm == "true" and (os.environ.get("MODE", "full") != "full" or os.environ.get("TRUNC", "").strip()
+                               or os.environ.get("ABSENT", "").strip() or not os.environ.get("WANT", "").strip()):
+              sys.exit("⛔ quran_model في وضع full وحده بسورٍ مسمّاة، ولا يجتمع مع truncated_tail ولا absent_ayahs")
           # ⭐ الآياتُ الغائبةُ في الوسط (أمر المالك 2026-10-31): وضعُ window وحده، وsurahs = سورُها نفسُها، ولا rewindow معها.
           absent = os.environ.get("ABSENT", "").strip()
           absent_surahs = set()
@@ -179,7 +189,9 @@ jobs:
           # ⛔ المحرّكُ حتميّ: على ملفّ الكتالوج نفسِه يعيد النقصَ نفسَه؛ ومن بديلٍ
           #    مسجَّلٍ فالمدخلُ غيرُه فيُسمح. ووضعا window وheard مُدخَلُهما غيرُ المحاذاة الرتيبة
           #    (‏نافذةُ الجارتين · نوافذُ على مراسٍ مسموعة) فيُسمح بهما على الملفّ نفسِه.
-          if idx.get("engineVersion") == "ctc-seg-1" and not alt and os.environ.get("MODE", "full") not in ("window", "heard", "dualfix"):
+          #    ونموذجُ التلاوة محرّكٌ آخرُ بنسبٍ مثبَّتة (‏ctc-quran-surah-1) فلا تعيد محاذاتُه النقصَ نفسَه؛ والاستثناءُ
+          #    مشروطٌ بمُدخَل quran_model وحدَه (‏لا بالوضع ولا بالأصل).
+          if idx.get("engineVersion") == "ctc-seg-1" and not alt and qm != "true" and os.environ.get("MODE", "full") not in ("window", "heard", "dualfix"):
               sys.exit("⛔ الأصلُ منشورٌ بـCTC نفسِه — المحرّكُ حتميّ فإعادتُه تعيد النقصَ نفسَه")
           have = {}
           for e in idx["entries"]:
@@ -242,6 +254,7 @@ jobs:
           TRUNC: ${{ github.event.inputs.truncated_tail }}
           HW: ${{ github.event.inputs.heard_witness }}
           ABSENT: ${{ github.event.inputs.absent_ayahs }}
+          QM: ${{ github.event.inputs.quran_model }}
         run: |
           set -o pipefail
           if [ "$HW" = "true" ] && [ "$MODE" != "window" ]; then echo "⛔ heard_witness لوضع window وحده"; exit 1; fi
@@ -362,8 +375,10 @@ jobs:
           T0="${JOB_T0:-$(date +%s)}"; BUDGET=$(( 350 - ($(date +%s) - T0) / 60 - 25 )); [ "$BUDGET" -ge 30 ] || BUDGET=30
           echo "⏱️ ميزانيةُ المحاذاة $BUDGET د"
           rc=0
+          # ⭐ نموذجُ التلاوة: عَلَمٌ صريحٌ لا يقع سهواً؛ والنموذجُ يُنزَّل بنسخته وبصمته المثبَّتتين (‏quran_ctc_model.configure).
+          QMF=""; [ "$QM" = "true" ] && QMF="--quran-model"
           timeout --signal=TERM --kill-after=60 "${BUDGET}m" python tools/alignment/batch_run.py --reciter "$RID" --riwaya "$RIW" \
-            --base "$BASE" --surahs "$SURAHS" 2>&1 | tee ctc.log || rc=$?
+            --base "$BASE" --surahs "$SURAHS" $QMF 2>&1 | tee ctc.log || rc=$?
           if [ "$rc" = 124 ] || [ "$rc" = 137 ]; then
             echo "⏱️ نفدت الميزانية — تُدمج السورُ المنجزةُ وحدها: $(ls tools/alignment/work/batch_$RID/s*.json 2>/dev/null | wc -l) ملفّاً"
           elif [ "$rc" != 0 ]; then
@@ -380,6 +395,7 @@ jobs:
           ALT: ${{ steps.plan.outputs.alt }}
           MODE: ${{ github.event.inputs.mode }}
           TRUNC: ${{ github.event.inputs.truncated_tail }}
+          QM: ${{ github.event.inputs.quran_model }}
         run: |
           set -e
           d="tools/alignment/work/batch_$RID"
@@ -393,6 +409,9 @@ jobs:
           if [ "$MODE" = "dualfix" ]; then ETAG="ctc-dualfix-1"; fi
           # ⭐ الذيلُ المبتور: بادئةٌ 1..N وحدها بمحرّك النموذج القرآني، وN من المُطلِق تُطابَق بإعلان المحاذي.
           if [ -n "$TRUNC" ]; then ALTF="$ALTF --truncated-tail $TRUNC"; ETAG="ctc-quran-surah-1"; fi
+          # ⭐ محاذاةُ السورة كاملةً بنموذج التلاوة: محرّكٌ باسمه (‏promote.SPLICE_OPS) فيُعلَن في engineBySurah بنسب النموذج
+          #    (‏alignmentModelBySurah) ويلزمه الإحصاءُ الشامل — كما يُعلَن ctc_gapsplit وctc_heardmap.
+          if [ "$QM" = "true" ]; then ETAG="ctc-quran-surah-1"; fi
           # ⭐ مضيفُ المجلَّد: `fileRef` من الأب حرفاً (‏والتحقّقُ بعده يطابقه بالمنزَّل).
           [ -n "$FOLDER" ] && ALTF="$ALTF --refs-from-parent"
           S=""; F=""
@@ -472,6 +491,8 @@ jobs:
           # ⭐ الذيلُ المبتور (أمر المالك 2026-10-02): الخيارُ الضيّق يُسمّي N صراحةً ويبقى الحارسُ الأصل كما هو.
           TRUNC="${{ github.event.inputs.truncated_tail }}"
           if [ -n "$TRUNC" ]; then OPN="ctc_quran_surah_splice"; INH="--owner-truncated-tail $TRUNC"; fi
+          # ⭐ سورةٌ كاملةٌ بنموذج التلاوة (‏quran_model): الاسمُ نفسُه بلا --owner-truncated-tail فيبقى حارسُ التغطية الكاملة.
+          if [ "${{ github.event.inputs.quran_model }}" = "true" ]; then OPN="ctc_quran_surah_splice"; fi
           python tools/index_qa/stage_transform.py --file patched.jz \
                  --parent "$PARENT" --parent-sha "$SHA" \
                  --op "$OPN:$TAKEN" --reason "$REASON" \

@@ -103,7 +103,13 @@ def main():
                          "فتُقرأ أسماءُ الملفات من جدول files في الكتالوج")
     ap.add_argument("--surahs", default="1-114")
     ap.add_argument("--counting", default=None, help="KUFI/MADANI (الافتراضي: فهرس التطبيق الكوفي)")
+    # ⭐ محاذاةٌ كاملةٌ بنموذج التلاوة المثبَّت البصمة (‏ctc_seg.run_surah quran_model) — اختياريٌّ مطفأٌ افتراضاً،
+    #    ولا يعمل إلا بمحرّك CTC (‏ALIGN_ENGINE=ctc). المحرّكُ المعلَن عندئذٍ `ctc-quran-surah-1` بنسب النموذج.
+    ap.add_argument("--quran-model", action="store_true",
+                    help="نموذج التلاوة المثبَّت (يلزمه ALIGN_ENGINE=ctc)؛ يكتب engine وalignmentModel في ملف كل سورة")
     args = ap.parse_args()
+    if args.quran_model and ENGINE != "ctc":
+        raise SystemExit("⛔ --quran-model يلزمه ALIGN_ENGINE=ctc")
 
     # ── مصدرُ العناوين: قالبٌ أم جدولُ أسماءٍ من الكتالوج ────────────────
     # ⛔ الاختيارُ **بغياب `{surah` من الأساس** لا بعَلَمٍ جديد: فلا يُمَسّ
@@ -183,7 +189,9 @@ def main():
             if not os.path.exists(audio) or os.path.getsize(audio) < 10_000:
                 fetch_retry(url, audio)
             t0 = time.time()
-            result = run_surah(audio, sn, args.riwaya, log=lambda *a: None)
+            result = (run_surah(audio, sn, args.riwaya, log=lambda *a: None, quran_model=True)
+                      if args.quran_model else
+                      run_surah(audio, sn, args.riwaya, log=lambda *a: None))
             import vad as _vad  # noqa: PLC0415
             rec = {"fileRef": url, "sha256": sha256_file(audio),
                    "vadRel": _vad.LAST_REL,
@@ -192,6 +200,10 @@ def main():
                    "vadVersion": _vad.VAD_VERSION,
                    "entries": result["entries"], "issues": result["issues"],
                    "bands": result["bands"], "totalMs": result["totalMs"]}
+            if args.quran_model:
+                # ⛔ نسبُ النموذج من نتيجة المحاذي نفسِه لا مُصطنعة؛ ويردّ splice_surah ما لا يطابق المثبَّت.
+                rec["engine"] = result["engine"]
+                rec["alignmentModel"] = result["alignmentModel"]
             # ⛔ كتابةٌ ذرّية: الكتابة المباشرة تترك ملفاً **مبتوراً** إن انقطعت
             # (‏انتهاء مهلة المهمة، دحرجة، نفاد ذاكرة) — والمبتور أسوأ من
             # المفقود لأن الاستئناف يعدّه سورةً منجزة فلا يعيدها، فيدخل
