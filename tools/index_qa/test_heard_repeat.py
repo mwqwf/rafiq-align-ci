@@ -192,7 +192,20 @@ class WitnessConditions(unittest.TestCase):
         # نافذةٌ تبدأ قبل البدء المنشور بـ3000م.ث (‏القديمة) لا تُقبل شاهداً لهذا الباب
         self.assertFalse(judge(gmap(), wit(window_pad=3000), census())["ok"])
         self.assertTrue(judge(gmap(), wit(window_pad=300), census())["ok"])
-        self.assertTrue(judge(gmap(), wit(window_pad=0), census())["ok"])
+        self.assertFalse(judge(gmap(), wit(window_pad=0), census())["ok"])      # كلمةٌ ملتصقةٌ ببدء النافذة (‏فرق 0) ⇒ ليست شاهداً
+
+    def test_word_stuck_to_window_start_is_not_a_witness(self):
+        """شاهدٌ دائريّ: بدءُ أوّل كلمةٍ = بدءُ النافذة (‏المنشور − 300) يمرّ ≤300 دائماً ⇒ يُرفض (< 50م.ث)."""
+        j = judge(gmap(), wit(word_shift=-300), census())            # الكلمةُ عند بدء النافذة تماماً (‏فرقٌ 300 عن المنشور فيوافق ≤300)
+        self.assertFalse(j["ok"])
+        ev = j["repeat"][str(S)][str(DEV)]
+        self.assertTrue(ev["witness"]["stuckToWindow"])
+        self.assertEqual(ev["witness"]["wordMinusWindowMs"], 0)
+        self.assertFalse(judge(gmap(), wit(word_shift=-251), census())["ok"])    # فرقٌ 49 عن بدء النافذة
+        self.assertTrue(judge(gmap(), wit(word_shift=-250), census())["ok"])     # فرقٌ 50 ⇒ يُقبل
+        ev = judge(gmap(), wit(), census())["repeat"][str(S)][str(DEV)]
+        self.assertEqual(ev["witness"]["wordMinusWindowMs"], 300)                # الصيغةُ العاديّة: كلمةٌ بعد النافذة بـ300
+        self.assertFalse(ev["witness"]["stuckToWindow"])
 
     def test_missing_window_refused(self):
         w = wit()

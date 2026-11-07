@@ -93,7 +93,8 @@ def main() -> int:
             print(f"   {'✅ انقلبت' if e['passed'] else '⛔ بقيت'} {s}:{x} · بدء منشور {e['startMs']} · مِرساة {e['anchorMs']} (انحراف {e['devMs']})")
             print(f"      أداءٌ آخر مقيس: {e['otherPerformance']}")
             print(f"      شاهد: {'حاسم' if e['witnessOk'] else 'غير حاسم'} · فرق {e['witness']['diffMs']}م.ث · نافذة {e['witness']['windowMs']}"
-                  f" (سليمة {e['witness']['windowOk']}) · {e['witness']['detail']}")
+                  f" (سليمة {e['witness']['windowOk']}) · بدء الكلمة − بدء النافذة {e['witness']['wordMinusWindowMs']}م.ث"
+                  f"{' ⛔ ملتصق' if e['witness']['stuckToWindow'] else ''} · {e['witness']['detail']}")
             print(f"      تفريغ: {e['witness']['heard']}")
             c = e["census"]
             print(f"      إحصاء: {c.get('verdict') or 'لا حكم'} {c.get('reason') or ''} · تشابه {c.get('simSelf')} · أقرب جارة {c.get('nearestOther')} "

@@ -383,6 +383,10 @@ REPEAT_VERSION = "heard-repeat-1"
 REPEAT_OCC_Q = 0.5           # أدنى جودةٍ لأداءٍ آخرَ للآية يُعدّ به التكرارُ مقيساً
 REPEAT_OTHER_OVERLAP = 0.5   # تقاطعُ الأداء مع مِرساة آيةٍ أخرى بهذه النسبة من الأقصر ⇒ تشابهٌ لا تكرار
 REPEAT_STATUS = "witnessed_repeat"
+# ⭐ الشاهدُ الملتصق بنافذته ليس شاهداً (‏تنبيهُ ظلّ #85 · التشغيلة 42411226107): في كلّ نوافذ Whisper المفرَّغة كان بدءُ الكلمة الأولى = بدءَ النافذة
+#    تماماً (‏المنشور − 300) فيمرّ شرطُ ≤300م.ث دائماً عند حدّه. فإن قلّ |بدءُ أوّل كلمةٍ مطابقة − بدءِ النافذة| عن هذا فالشاهدُ غيرُ حاسم.
+#    تشديدٌ في هذا الباب وحدَه (‏لا في `_whisper_check`).
+WIT_MIN_FROM_WINDOW_MS = 50
 
 
 def _span_overlap(x, y) -> float:
@@ -510,11 +514,17 @@ def repeat_rescue(s: int, rows: list[dict], g_map: dict, cs_s: dict, want, riway
     by_ayah = {r["ayah"]: r for r in rows}
     ev = {}
     for a in ayahs:
-        w_ok = bool(wres.get(a, (False,))[0]) and _window_ok(wit, a, starts[a])
         winfo = str(wres.get(a, (False, bad_w))[1])
+        m = re.search(r"[Ww]hisper (\d+) (?:· CTC|وأقربُ)", winfo)
+        try:
+            lo_w = int((((wit or {}).get("ayahs") or {}).get(str(a)) or {}).get("windowMs")[0])
+        except (TypeError, ValueError, IndexError):
+            lo_w = None
+        from_window = (int(m.group(1)) - lo_w) if (m and lo_w is not None) else None
+        stuck = from_window is None or abs(from_window) < WIT_MIN_FROM_WINDOW_MS
+        w_ok = bool(wres.get(a, (False,))[0]) and _window_ok(wit, a, starts[a]) and not stuck
         c_ok = bool(cres.get(a, (False,))[0])
         cinfo = cres.get(a, (False, {"reason": bad_c}))[1]
-        m = re.search(r"[Ww]hisper (\d+) (?:· CTC|وأقربُ)", winfo)
         words = (((wit or {}).get("ayahs") or {}).get(str(a)) or {}).get("words") or []
         ok = w_ok and c_ok
         ev[a] = {"passed": ok, "witnessOk": w_ok, "censusOk": c_ok, "startMs": starts[a], "anchorMs": by_ayah[a]["anchorMs"],
@@ -523,6 +533,7 @@ def repeat_rescue(s: int, rows: list[dict], g_map: dict, cs_s: dict, want, riway
                              "diffMs": (int(m.group(1)) - starts[a]) if m else None,
                              "windowMs": ((((wit or {}).get("ayahs") or {}).get(str(a)) or {}).get("windowMs")),
                              "windowOk": _window_ok(wit, a, starts[a]),
+                             "wordMinusWindowMs": from_window, "stuckToWindow": stuck,
                              "heard": " ".join(str(x.get("w", "")) for x in words)[:400]},
                  "census": cinfo}
         if ok:
