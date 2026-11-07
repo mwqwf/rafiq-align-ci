@@ -53,6 +53,8 @@ PAD_MS = 1500           # هامشُ النافذة حول المسموع
 REPEAT_GAP_MS = 6000    # فجوةٌ بعد آيةٍ تُفحص عن تكرارٍ قبل أن تُضمّ إلى مدخلها
 MAX_HITS = 6            # سقفُ أداءات الآية الواحدة في occurrences (‏الافتراضُ القديم؛ يُرفع بـ--max-hits لقارئٍ يُكرّر)
 REPEAT_POLICIES = ("off", "last_contiguous")   # off = السلوكُ القديم حرفاً
+LINK_BACK_MS = 500      # سياسةُ التكرار: تداخلٌ مسموحٌ بين نهاية الأداء وبدء أداءٍ للتالية
+POLICY_MOVE_MS = 500    # سياسةُ التكرار: ما دون هذا الإزاحةُ ليست «أداءً متروكاً» يستوجب قصَّ السابقة
 TAIL_MS = 800           # ذيلُ آخر آية بعد آخر حرفٍ مسموع
 DEV_TOL_MS = 3000       # أقصى بُعدٍ مقبولٍ لحدّ النافذة عن مِرساته العامّة
 ANCHOR_Q = 0.3          # أدنى جودةٍ (نسبةُ حروفٍ مطابقة) تُعدّ بها المِرساةُ العامّةُ صالحةً للنافذة
@@ -166,8 +168,12 @@ def last_contiguous_anchors(anchor_ms, occ, chosen, times, frame_ms, strong=STRO
         fits = [o for o in hits if o[0] >= lo - slack and o[2] >= top - 0.15
                 and (nxt is None or o[1] <= nxt[0] + slack)]
         if nxt is not None:
-            nxt_start = times[nxt[0]]
-            fits = [o for o in fits if nxt_start - _ms(o)[1] <= link_ms]
+            # الوصلُ بأيّ أداءٍ مسموعٍ للتالية لا بالمختار وحدَه: التاليةُ قد تتعثّر أوّلَ مرّةٍ ثمّ تُعاد
+            # (س67: 12 ثمّ محاولةُ 13 المتعثّرة 219.3ث ثمّ أداؤها التامّ 227ث).
+            mn = next(m for m in range(k + 1, n) if chosen[m])
+            nxt_starts = [times[nxt[0]]] + [times[x[0]] for x in occ[mn] if x[2] >= MIN_OCC]
+            fits = [o for o in fits
+                    if any(-LINK_BACK_MS <= s0 - _ms(o)[1] <= link_ms for s0 in nxt_starts)]
         if not fits:
             continue
         new = _ms(max(fits, key=lambda o: o[0]))
@@ -175,6 +181,49 @@ def last_contiguous_anchors(anchor_ms, occ, chosen, times, frame_ms, strong=STRO
             out[k] = new
             changed[k] = (tuple(anchor_ms[k]), new)
     return out, changed
+
+
+def reconcile_next_anchors(anchor_ms, occ, times, frame_ms, changed, min_score=MIN_OCC,
+                           tol_ms=LINK_BACK_MS):
+    """بعد أن تنقل السياسةُ مِرساةَ آيةٍ إلى أدائها الأخير قد تقع مِرساةُ التالية العامّة داخل ذلك الأداء
+    (س67: 18 ⇒ 305.3–312.5ث ومِرساةُ 19 العامّة 307.6ث) فتحمل التاليةُ صوتَ آيةٍ أخرى. فيُنقل بدءُ التالية
+    (أولِ آيةٍ لها مِرساة بعد المنقولة) إلى أقدم أداءٍ مقيسٍ لها (>= min_score) يبدأ بعد نهاية الأداء المنقول؛
+    ولا أداءَ كهذا ⇒ تبقى كما هي (لا اختلاقَ لزمن). لا تمسّ إلا تالية آيةٍ نقلتها السياسةُ نفسُها.
+    تُرجع (مِراسيَ جديدة، {k: (قديم، جديد)})."""
+    out = list(anchor_ms)
+    fixed = {}
+    n = len(anchor_ms)
+
+    def _ms(o):
+        return times[o[0]], times[min(o[1], len(times)) - 1] + int(frame_ms)
+
+    for k in sorted(changed):
+        new_end = out[k][1]
+        m = next((j for j in range(k + 1, n) if out[j] is not None), None)
+        if m is None or m in changed or out[m][0] >= new_end - tol_ms:
+            continue
+        cands = [o for o in occ[m] if o[2] >= min_score and _ms(o)[0] >= new_end - tol_ms]
+        if not cands:
+            continue
+        o = min(cands, key=lambda x: x[0])
+        old = tuple(out[m])
+        new = _ms(o)           # الأداءُ المقيسُ نفسُه (‏بدءاً ونهايةً) كما تفعل السياسةُ للمنقولة
+        if new != old:
+            out[m] = new
+            fixed[m] = (old, new)
+    return out, fixed
+
+
+def policy_end_cut(start_ms, nxt_start_ms, anchor_end_ms, next_move, tail_ms=TAIL_MS, min_move_ms=POLICY_MOVE_MS):
+    """نهايةُ الآية حين تركت السياسةُ أداءً أو أكثر للتالية قبل أدائها المعتمَد: لا تمتدّ السابقةُ إلى بدء
+    التالية الجديد (وإلا حملت صوتَ التالية المتروك: س67:1) بل تُقصّ إلى حدّها المقيس (نهايةُ مِرساتها + ذيل).
+    next_move = (مِرساةٌ قديمة، مِرساةٌ جديدة) للتالية، كلٌّ (بدء، نهاية)، أو None. تُرجع النهايةَ المقصوصة أو None إن لم يلزم القصّ."""
+    if next_move is None or nxt_start_ms is None or anchor_end_ms is None:
+        return None
+    if int(next_move[1][0]) - int(next_move[0][0]) <= int(min_move_ms):
+        return None
+    cut = min(int(nxt_start_ms), int(anchor_end_ms) + int(tail_ms))
+    return cut if cut > int(start_ms) else None
 
 
 def choose_chain(occ, min_score=MIN_OCC, slack=6):
@@ -479,6 +528,12 @@ def run(audio, surah, riwaya, log=print, probe=False, strict_tol_ms=0,
         for k, (old, new) in sorted(repeat_changed.items()):
             log(f"س{surah}:{k + 1} سياسةُ الأداء الأخير الموصول: {old[0] / 1000:.1f}–{old[1] / 1000:.1f}ث"
                 f" ⇒ {new[0] / 1000:.1f}–{new[1] / 1000:.1f}ث")
+        anchor_ms, next_fixed = reconcile_next_anchors(anchor_ms, occ, times, frame_ms, repeat_changed)
+        for k, (old, new) in sorted(next_fixed.items()):
+            log(f"س{surah}:{k + 1} بدءُ التالية بعد أداءٍ منقول: {old[0] / 1000:.1f}ث ⇒ {new[0] / 1000:.1f}ث")
+        repeat_moves = {**repeat_changed, **next_fixed}
+    else:
+        next_fixed, repeat_moves = {}, {}
     heard_map = {}
     for k in range(n):
         c = chosen[k]
@@ -492,10 +547,12 @@ def run(audio, surah, riwaya, log=print, probe=False, strict_tol_ms=0,
             "score": c[2] if c else None,
             "occurrences": [[times[o[0]], times[min(o[1], len(times)) - 1] + int(frame_ms), o[2]]
                             for o in occ[k]]}
-        if k in repeat_changed:            # يظهر المفتاحُ عند التغيير وحده ⇒ بلا السياسة الخريطةُ كما كانت حرفاً
+        if k in repeat_moves:              # يظهر المفتاحُ عند التغيير وحده ⇒ بلا السياسة الخريطةُ كما كانت حرفاً
             heard_map[str(k + 1)]["repeatPolicy"] = {
-                "policy": repeat_policy, "prevAnchorMs": list(repeat_changed[k][0]),
-                "anchorMs": list(repeat_changed[k][1])}
+                "policy": repeat_policy, "prevAnchorMs": list(repeat_moves[k][0]),
+                "anchorMs": list(repeat_moves[k][1])}
+            if k in next_fixed:
+                heard_map[str(k + 1)]["repeatPolicy"]["via"] = "next-anchor-reconcile"
     chunks = chunk_map(heard_sk, times, sks)
     report = [f"# خريطةُ السماع س{surah} · {total_ms}م.ث · {len(heard_sk)} حرفاً مسموعاً",
               "# آية\tمِرساةٌ عامّة بدء\tنهاية\tجودة\tأداءٌ منفرد بدء\tنهاية\tتشابه\tأداءاتٌ أخرى"]
@@ -613,6 +670,21 @@ def run(audio, surah, riwaya, log=print, probe=False, strict_tol_ms=0,
             continue
         nxt = next((entries[m]["startMs"] for m in range(k + 1, n) if entries[m]["startMs"] is not None), None)
         e["endMs"] = nxt if nxt is not None else min(total_ms, (anchor_ms[k][1] if anchor_ms[k] else e["startMs"]) + TAIL_MS)
+        nm = next((m for m in range(k + 1, n) if entries[m]["startMs"] is not None), None)
+        pcut = policy_end_cut(e["startMs"], nxt, anchor_ms[k][1] if anchor_ms[k] else None,
+                              repeat_moves.get(nm) if nm is not None else None)
+        if pcut is None and k in repeat_moves and nxt is not None and anchor_ms[k] \
+                and nxt - anchor_ms[k][1] > REPEAT_GAP_MS:
+            # آيةٌ نقلتها السياسةُ إلى أدائها ثمّ فجوةٌ طويلةٌ غيرُ مفسَّرةٍ قبل التالية: لا تُضمّ إلى مدخلها.
+            pcut = min(nxt, anchor_ms[k][1] + TAIL_MS)
+            pcut = pcut if pcut > e["startMs"] else None
+        if pcut is not None and pcut < e["endMs"]:
+            # أداءٌ متروكٌ للتالية بين نهاية هذه وبدء التالية: فجوةٌ بلا مدخل لا ذيلٌ يحمل صوتَ التالية.
+            e["endMs"] = pcut
+            e["repeatExcluded"] = [nm + 1] if nm is not None else []
+            result["issues"].append(f"أداءٌ متروكٌ أو فجوةٌ غيرُ مفسَّرةٍ بعد الآية {k + 1} "
+                                    f"({pcut / 1000:.0f}–{nxt / 1000:.0f}ث) أُبقي خارجَ المداخل")
+            continue
         if nxt is not None and anchor_ms[k] and nxt - anchor_ms[k][1] > REPEAT_GAP_MS:
             lo, hi = anchor_ms[k][1], nxt
             repeated = sorted({m + 1 for m in range(0, k + 1) for o in heard_map[str(m + 1)]["occurrences"]

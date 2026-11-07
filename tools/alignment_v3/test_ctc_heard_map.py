@@ -257,6 +257,44 @@ class Pure(unittest.TestCase):
         self.assertEqual(out[1], base[1])
         self.assertNotIn(1, changed)
 
+    def test_repeat_policy_links_to_stumbled_first_attempt_of_next_ayah(self):
+        # س67:12→13: أداءان للسابقة ثمّ محاولةٌ متعثّرةٌ للتالية تلصق الأداءَ الأخير ثمّ أداؤها التامّ بعد فجوة
+        ayat = [A1, A2, A3]
+        parts = [A1, A2, self.NOISE, A2, A3[:28], "ظ" * 120, A3]
+        heard, times, occ, chosen, base = self._repeat_setup(parts, ayat)
+        out, changed = H.last_contiguous_anchors(base, occ, chosen, times, 80)
+        last_a2 = len(A1) + len(A2) + len(self.NOISE)
+        self.assertIn(1, changed)
+        self.assertEqual(out[1][0], times[last_a2])
+
+    def test_reconcile_moves_next_anchor_out_of_moved_performance(self):
+        # مِرساةُ التالية العامّة داخل الأداء المنقول (س67: 18 ثمّ 19) ⇒ بدؤها إلى أقدم أداءٍ مقيسٍ بعد نهايته
+        times = list(range(0, 400000, 1))
+        occ = [[(0, 10, 0.9)], [(100, 200, 0.9), (300, 400, 0.9)], [(250, 330, 0.8), (500, 600, 0.9)]]
+        anchor = [(0, 10), (300, 400), (320, 700)]
+        out, fixed = H.reconcile_next_anchors(anchor, occ, times, 0, {1: ((100, 400), (300, 400))}, tol_ms=5)
+        self.assertEqual(out[2], (500, 599))
+        self.assertIn(2, fixed)
+        # لا أداءَ بعد النهاية ⇒ تبقى كما هي (لا اختلاق)
+        occ2 = [occ[0], occ[1], [(250, 330, 0.8)]]
+        out2, fixed2 = H.reconcile_next_anchors(anchor, occ2, times, 0, {1: ((100, 400), (300, 400))}, tol_ms=5)
+        self.assertEqual(out2[2], anchor[2])
+        self.assertEqual(fixed2, {})
+        # تاليةٌ بدؤها بعد النهاية أصلاً لا تُمسّ
+        anchor3 = [(0, 10), (300, 400), (450, 700)]
+        out3, fixed3 = H.reconcile_next_anchors(anchor3, occ, times, 0, {1: ((100, 400), (300, 400))}, tol_ms=5)
+        self.assertEqual(out3, anchor3)
+
+    def test_policy_end_cut_clips_previous_to_its_measured_bound(self):
+        # التالية نُقل بدؤها من 14.8 إلى 22.1ث: السابقةُ (‏7.2–13.8ث) تُقصّ إلى 14.6ث لا إلى 22.1ث
+        self.assertEqual(H.policy_end_cut(6754, 22134, 13800, ((14800, 34700), (22100, 34700))), 14600)
+        # إزاحةٌ دون الحدّ ⇒ لا قصّ
+        self.assertIsNone(H.policy_end_cut(6754, 22134, 13800, ((22000, 34700), (22100, 34700))))
+        # بلا نقلٍ للتالية ⇒ لا قصّ (‏سلوكٌ قديمٌ حرفاً)
+        self.assertIsNone(H.policy_end_cut(6754, 22134, 13800, None))
+        # ولا يُنتج مدخلاً فارغاً
+        self.assertIsNone(H.policy_end_cut(15000, 22134, 13800, ((14800, 34700), (22100, 34700))))
+
     def test_repeat_policy_off_is_old_behaviour(self):
         import inspect
         sig = inspect.signature(H.run)
