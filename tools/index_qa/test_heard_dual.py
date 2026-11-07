@@ -364,10 +364,12 @@ class NotHeard(unittest.TestCase):
 class ListFile(unittest.TestCase):
     def test_real_list_loads_and_has_saad_and_named_surahs(self):
         d = H.load_dual()
-        self.assertTrue({36, 38, 39, 40, 29, 45, 12, 53} <= d["hafs/saad"])
-        self.assertIn(56, d["hafs/3siri"])
-        self.assertIn(36, d["warsh/gharbi_warsh"])
-        self.assertIn(14, d["hafs/m_qari"])
+        self.assertTrue({38, 39, 40, 29, 45, 12} <= d["hafs/saad"])
+        # قرار القائد 20:30Z: مقيسُ العامّة في 36 و53 ليس دون النصف فتمضيان بالحكم القديم،
+        # والثلاثُ لم تستوفِ (٣)/(٤) فلا تعود إلا بقاعدة «الشهادة الكاملة».
+        self.assertFalse({36, 53} & d["hafs/saad"])
+        for k in ("hafs/3siri", "warsh/gharbi_warsh", "hafs/m_qari"):
+            self.assertNotIn(k, d)
         self.assertNotIn("qalun/maroush_qalun", d)
 
     def test_every_line_has_evidence_and_reason(self):
