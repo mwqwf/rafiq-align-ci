@@ -399,9 +399,67 @@ class ListFile(unittest.TestCase):
         self.assertEqual((H.DUAL_COVER_PCT, H.DUAL_SAMPLE_K), (90, 4))
 
     def test_witness_windows_format_and_cap(self):
-        self.assertEqual(H.witness_windows({3: (5000, 9000)}, [3]), "3:2000-12000")
-        self.assertEqual(H.witness_windows({1: (1000, 400000)}, [1]), "1:0-120000")
-        self.assertEqual(H.witness_windows({2: (500, None)}, [2]), "2:0-23500")
+        self.assertEqual(H.witness_windows({3: (5000, 9000)}, [3]), "3:4700-12000")
+        self.assertEqual(H.witness_windows({1: (1000, 400000)}, [1]), "1:700-120700")
+        self.assertEqual(H.witness_windows({2: (200, None)}, [2]), "2:0-23200")
+
+
+class WitnessWindow(unittest.TestCase):
+    """نافذةُ الشاهد تبدأ من البدء المنشور (‏حشوٌ ≤300م.ث) — وتحوّرُ البدء المزاح لا يصير حاسماً (‏قرار القائد 20:30Z).
+
+    المُفرِّغُ هنا **محاكى** بقاعدتين: (‏١) لا يُسمع إلا ما بدأ داخل النافذة المقطوعة بشيفرة `witness_windows` نفسِها؛
+    (‏٢) إن دخل النافذةَ كلامٌ من الآية السابقة فسدت أولُ كلمةٍ من الآية (‏ما شُوهد في 53:4 «عن الهواء وإلا وحي» بدل «إن هو إلا وحي»).
+    والبرهانُ بتفريغٍ حقيقيٍّ يجري في سير الظلّ (‏`heard_dual_probe.py --mutate`)."""
+
+    TRUE = 50000                                                          # البدءُ الحقيقيّ للآية
+    PREV = [TRUE - 2200, TRUE - 1800, TRUE - 1400]                        # ذيلُ الآية السابقة (‏ينتهي قبل البدء بنحو 1.1ث)
+
+    def transcribe(self, win, prev_tail=True):
+        lo, hi = (int(x) for x in win.split(":")[1].split("-"))
+        words = [{"w": "هواء", "s": t, "e": t + 300, "p": .9} for t in (self.PREV if prev_tail else [])]
+        words += [{"w": w, "s": self.TRUE + i * 400, "e": self.TRUE + i * 400 + 300, "p": .9} for i, w in enumerate(BASE)]
+        words = [w for w in words if lo <= w["s"] and w["e"] <= hi]
+        if any(w["w"] == "هواء" for w in words):
+            for w in words:
+                if w["w"] != "هواء":
+                    w["w"] = "عن"                                          # فسادُ أول كلمةٍ من الآية بتلوّث الذيل
+                    break
+        return {"surah": S, "riwaya": "hafs", "fileRef": REF, "sha256": SHA, "model": "medium", "computeType": "float32",
+                "ayahs": {"7": {"windowMs": [lo, hi], "words": words}}}
+
+    def decide(self, delta, prev_tail=True, pad_ms=None):
+        pub = (self.TRUE + delta, self.TRUE + delta + 3100)               # المنشورُ مزاحٌ عن الحقيقة بـ delta
+        old = H.WIT_PAD_MS
+        try:
+            if pad_ms is not None:
+                H.WIT_PAD_MS = pad_ms
+            win = H.witness_windows({7: pub}, [7])
+        finally:
+            H.WIT_PAD_MS = old
+        res, bad = H._witness_eval(self.transcribe(win, prev_tail), S, G({1}), SHA, "hafs", {7: pub[0]}, [7], ref_words)
+        self.assertIsNone(bad)
+        return res[7][0]
+
+    def test_pad_is_small_and_constant_in_code(self):
+        self.assertLessEqual(H.WIT_PAD_MS, 300)
+        self.assertEqual(H.WIT_TAIL_PAD_MS, 3000)
+        lo = int(H.witness_windows({7: (50000, 53000)}, [7]).split(":")[1].split("-")[0])
+        self.assertGreaterEqual(lo, 50000 - 300)
+
+    def test_old_pad_fails_contaminated_and_new_decides(self):
+        self.assertFalse(self.decide(0, pad_ms=3000))                    # ما كان: ذيلُ السابقة يُفسد أول كلمة (‏53:4)
+        self.assertTrue(self.decide(0))                                  # الآن: النافذةُ من البدء فتُحسم دون قبول ذيل السابقة
+
+    def test_shifted_start_stays_undecided(self):
+        for delta in (-1000, -400, 400, 1000):
+            for prev_tail in (True, False):
+                with self.subTest(delta=delta, prev_tail=prev_tail):
+                    self.assertFalse(self.decide(delta, prev_tail), "بدءٌ مزاحٌ صار حاسماً")
+
+    def test_whisper_check_thresholds_untouched(self):
+        import pin_heard as PH
+        self.assertEqual((PH.W_K, PH.W_MIN_WORD_P, PH.W_MEAN_WORD_P, PH.W_AGREE_MS, PH.W_LEN_LO, PH.W_LEN_HI),
+                         (3, 0.5, 0.7, 300, 0.7, 1.3))
 
 
 if __name__ == "__main__":

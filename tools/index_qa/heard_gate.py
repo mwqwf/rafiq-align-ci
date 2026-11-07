@@ -171,7 +171,11 @@ def surah_verdict(rows: list[dict]) -> str | None:
 DUAL_VERSION = "heard-dual-1"
 DUAL_COVER_PCT = 90          # تغطيةُ سورةٍ عامّتُها دون النصف: ≥ 90٪ بإحدى الخريطتين أو بالشاهد
 DUAL_SAMPLE_K = 4            # عيّنةُ الاستقلال من المقيس بالتلاوة وحدها
-WIT_PAD_MS = 3000            # حشوُ نافذة الشاهد حول الآية المنشورة (‏نافذةٌ لا عتبة؛ والحكمُ لا يقرأها)
+# ⭐ النافذةُ **تبدأ من البدء المنشور** وقبلها حشوٌ لا يتجاوز 300م.ث (‏قرار القائد 20:30Z · كان 3000 فحمل ذيلَ الآية السابقة
+#    فسُمع «عن الهواء وإلا وحي» مكان «إن هو إلا وحي» في 53:4). ⛔ لا يُعالَج ذلك بقبول ذيل السابقة ولا بفزرة (fuzzy)
+#    ولا بتخفيف شرطٍ في `pin_heard._whisper_check` (‏الكلماتُ الأولى بلا fuzzy · الثقة · الاتّفاقُ ≤300م.ث مع البدء المنشور كما هي حرفاً).
+WIT_PAD_MS = 300             # حشوُ ما قبل البدء المنشور في نافذة الشاهد (‏نافذةٌ لا عتبة؛ والحكمُ لا يقرأها)
+WIT_TAIL_PAD_MS = 3000       # حشوُ ما بعد نهاية المنشور (‏لم يتغيّر: الآخرُ يُطابَق بالنهاية لا بالبدء)
 WIT_MAX_WINDOW_MS = 120_000  # سقفُ whisper_witness.parse_windows
 DUAL_FILE = Path(__file__).resolve().with_name("heard_dual.txt")
 
@@ -259,12 +263,12 @@ def dual_witness_plan(starts: dict, g_map: dict, r_map: dict, cand_sha: str, sur
 
 
 def witness_windows(ends: dict, ayahs) -> str:
-    """نوافذُ `whisper_witness --ayahs` (‏آية:بدء-نهاية) من بدء/نهاية المنشور ± الحشو، بسقف 120ث."""
+    """نوافذُ `whisper_witness --ayahs` (‏آية:بدء-نهاية): من البدء المنشور − WIT_PAD_MS إلى النهاية المنشورة + WIT_TAIL_PAD_MS، بسقف 120ث."""
     parts = []
     for a in sorted(ayahs):
         st, en = ends[a]
         lo = max(0, int(st) - WIT_PAD_MS)
-        hi = int(en if en is not None else st + 20000) + WIT_PAD_MS
+        hi = int(en if en is not None else st + 20000) + WIT_TAIL_PAD_MS
         parts.append(f"{a}:{lo}-{min(hi, lo + WIT_MAX_WINDOW_MS)}")
     return ",".join(parts)
 
