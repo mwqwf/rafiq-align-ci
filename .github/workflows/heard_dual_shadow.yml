@@ -67,7 +67,9 @@ jobs:
                       sys.exit(f"⛔ بندٌ غيرُ صالح: {ent!r}")
                   flat = src.replace("/", "_")
                   if not os.path.exists("cands/" + flat):
-                      body = urllib.request.urlopen(base + "/" + src, timeout=120).read()
+                      # r2.dev يردّ 403 على ترويسة Python-urllib الافتراضية؛ فترويسةٌ صريحة (‏قراءةٌ عامّةٌ بلا سرّ)
+                      req = urllib.request.Request(base + "/" + src, headers={"User-Agent": "curl/8.5.0"})
+                      body = urllib.request.urlopen(req, timeout=120).read()
                       open("cands/" + flat, "wb").write(body)
                   body = open("cands/" + flat, "rb").read()
                   sha = hashlib.sha256(body).hexdigest()
