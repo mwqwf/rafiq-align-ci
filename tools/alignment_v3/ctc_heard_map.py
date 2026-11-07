@@ -599,7 +599,17 @@ def main() -> int:
     ap.add_argument("--strict-tol-ms", type=int, default=0,
                     help="حدٌّ أقصى ثابتٌ لبُعد الحدّ عن مِرساته (‏مثل 1500 للدفعة السماعيّة) بدلَ max(3ث، نصفِ المدّة)")
     ap.add_argument("--report", default="", help="ملفُّ تقريرٍ نصّيّ (‏افتراضه <out-dir>/heard_s<س>.txt)")
+    ap.add_argument("--quran-model", action="store_true",
+                    help="يفكّ بنموذج التلاوة المثبَّت البصمة (‏quran_ctc_model) بدل النموذج العامّ؛ خريطةُ R في بوّابة السماع المزدوجة "
+                         "(‏heard_gate.py · heard_dual.txt). يلزمه --probe (‏بلا مداخل ولا رفع) وتحمل الخريطةُ نسبَ النموذج في `quranModel`")
     a = ap.parse_args()
+    qm = None
+    if a.quran_model:
+        if not a.probe:
+            ap.error("--quran-model يلزمه --probe (‏بلا مداخل ولا رفع)")
+        import quran_ctc_model as _Q
+        qm = _Q.configure()
+        print(f"نموذجُ التلاوة المثبَّت: {qm['id']}@{qm['revision'][:8]}")
     if not a.url and not a.audio:
         ap.error("يلزم --url أو --audio")
     os.makedirs(a.out_dir, exist_ok=True)
@@ -612,6 +622,8 @@ def main() -> int:
     import vad as _vad
     res.update(fileRef=a.url or audio, sha256=sha, vadRel=getattr(_vad, "LAST_REL", None),
                vadVersion=getattr(_vad, "VAD_VERSION", None))
+    if qm:
+        res["quranModel"] = {k: qm[k] for k in ("id", "revision", "weightsSha256")}
     rep_path = a.report or os.path.join(a.out_dir, f"heard_s{a.surah:03d}.txt")
     with open(rep_path, "w", encoding="utf-8") as f:
         f.write(report + "\n")

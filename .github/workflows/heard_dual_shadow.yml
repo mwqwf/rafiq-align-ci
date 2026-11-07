@@ -1,0 +1,174 @@
+name: rafiq-heard-dual-shadow
+
+run-name: heard-dual-shadow ${{ inputs.reason }}
+
+# 🔎 **ظلُّ الباب المزدوج في بوّابة السماع** (‏`tools/index_qa/heard_gate.py` · `heard_dual.txt` · قرار القائد 1 · إذنُ المالك 2026-11-07 19:22Z).
+# ⚖️ **وضعُ التقرير وحدَه:** `contents: read`، بلا سرٍّ ولا دلوٍ ولا state ولا ترقية ولا كتابةٍ في timings/. المرشّحاتُ تُقرأ من الدلو العامّ (‏r2.dev) قراءةً.
+#    لكلّ (مرشّح، سورة): خريطةُ العامّة G ثمّ خريطةُ نموذج التلاوة R على الصوت نفسِه ثمّ شاهدُ Whisper لما تطلبه الخريطتان
+#    (‏`heard_dual_probe.py`)، ثمّ تقريرٌ يقارن الحكمَ القديم (‏G وحدَها) بالمزدوج ويُظهر أيَّ انقلابٍ نحو القبول.
+#    `controls` قرّاءُ ضبطٍ يُفرض عليهم الباب في التقرير وحدَه (‏ليسوا في القائمة) ليُثبَت أنّه لا يقلب حكمَهم نحو القبول.
+# 💰 مستودعٌ عامّ + عدّاد ubuntu-latest القياسيّ ⇒ دقائقُ مجّانيّة.
+on:
+  workflow_dispatch:
+    inputs:
+      items: {description: "مرشّحاتُ القائمة: «مفتاح@سورة+سورة» مفصولةً بـ; (‏مثل timings-staging/hafs/saad.d7a45c48.jz@36+38)", required: true}
+      controls: {description: "قرّاءُ الضبط (‏بالصيغة نفسِها): يُفرض عليهم الباب في التقرير وحدَه", default: ""}
+      reason: {description: "سببُ الإطلاق", default: ""}
+
+permissions:
+  contents: read
+
+concurrency:
+  group: rafiq-heard-dual-shadow-${{ github.run_id }}
+  cancel-in-progress: false
+
+env:
+  PY: "3.11"
+  HF_HOME: ${{ github.workspace }}/.hf
+  R2_PUBLIC: https://pub-2c2e1dcd92e84a2898820dd38d3e09e6.r2.dev
+
+jobs:
+  plan:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    outputs:
+      idx: ${{ steps.plan.outputs.idx }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: {python-version: "${{ env.PY }}"}
+      - name: الاختبارات أوّلاً
+        run: python -m unittest tools/index_qa/test_heard_gate.py tools/index_qa/test_heard_dual.py
+      - name: الخطّةُ (‏قراءةٌ من الدلو العامّ) وتنزيلُ المرشّحات
+        id: plan
+        env: {ITEMS: "${{ inputs.items }}", CONTROLS: "${{ inputs.controls }}"}
+        run: |
+          python - <<'PY'
+          import gzip, hashlib, json, os, sys, urllib.request
+          sys.stdout.reconfigure(encoding="utf-8")
+          sys.path.insert(0, "tools/index_qa")
+          import heard_gate as H
+          base = os.environ["R2_PUBLIC"]
+          os.makedirs("cands", exist_ok=True)
+          plan = []
+          for forced, raw in ((False, os.environ["ITEMS"]), (True, os.environ["CONTROLS"])):
+              for ent in [x.strip() for x in raw.split(";") if x.strip()]:
+                  src, _, ss = ent.partition("@")
+                  if not (src.startswith("timings-staging/") or src.startswith("timings/")) or src.count("/") != 2 or not ss:
+                      sys.exit(f"⛔ بندٌ غيرُ صالح: {ent!r}")
+                  flat = src.replace("/", "_")
+                  if not os.path.exists("cands/" + flat):
+                      body = urllib.request.urlopen(base + "/" + src, timeout=120).read()
+                      open("cands/" + flat, "wb").write(body)
+                  body = open("cands/" + flat, "rb").read()
+                  sha = hashlib.sha256(body).hexdigest()
+                  idx = json.loads(gzip.decompress(body))
+                  cs = H.by_surah(idx["entries"])
+                  for s in [int(x) for x in ss.split("+")]:
+                      refs = {v[2] for v in cs[s].values()}
+                      if len(refs) != 1:
+                          sys.exit(f"⛔ {src} س{s}: أكثرُ من ملفٍّ {sorted(refs)[:2]}")
+                      plan.append({"src": src, "s": s, "ref": refs.pop(), "sha": sha, "forced": forced,
+                                   "ends": {str(a): [v[0], v[1]] for a, v in cs[s].items()}})
+          for i, p in enumerate(plan):
+              print(i, p["src"], "س%d" % p["s"], "ضبط" if p["forced"] else "قائمة", len(p["ends"]), "آية", p["ref"])
+          json.dump(plan, open("plan.json", "w"))
+          with open(os.environ["GITHUB_OUTPUT"], "a") as f:
+              f.write("idx=" + json.dumps(list(range(len(plan)))) + "\n")
+          PY
+      - uses: actions/upload-artifact@v4
+        with:
+          name: shadow-plan-${{ github.run_id }}
+          path: |
+            plan.json
+            cands/
+          retention-days: 7
+
+  probe:
+    needs: plan
+    runs-on: ubuntu-latest
+    timeout-minutes: 340
+    strategy:
+      fail-fast: false
+      matrix:
+        k: ${{ fromJson(needs.plan.outputs.idx) }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: {python-version: "${{ env.PY }}"}
+      - name: كاش ffmpeg (بديلُ apt المعلَّق · لا يغيّر النسخة)
+        uses: actions/cache@v4
+        with:
+          path: .qa-tools/apt-tree
+          key: qa-ffmpeg-apt-tree-v1-${{ hashFiles('tools/ci_fleet/install_qa_ffmpeg.py') }}
+      - name: الأدوات
+        run: |
+          QA_FFMPEG_APT_ONLY=1 python tools/ci_fleet/install_qa_ffmpeg.py
+          python -m pip install --quiet --index-url https://download.pytorch.org/whl/cpu torch==2.15.0
+          python -m pip install --quiet "numpy==1.26.4" transformers==5.22.1 ctc-segmentation==1.7.5 rapidfuzz==3.14.6 \
+            faster-whisper==1.1.1 "requests==2.32.3"
+      - name: كاش النموذج العامّ
+        uses: actions/cache@v4
+        with:
+          path: .hf
+          key: ctc-model-jonatasgrosman-xlsr53-ar-v1
+      - name: كاشُ نموذج التلاوة وWhisper
+        uses: actions/cache@v4
+        with:
+          path: .hf
+          key: heard-dual-quran-b03a268c-whisper-medium-fw111-v1
+      - uses: actions/download-artifact@v4
+        with: {name: "shadow-plan-${{ github.run_id }}"}
+      - name: القياسُ (G ثمّ R ثمّ الشاهد · بلا رفع)
+        env: {K: "${{ matrix.k }}"}
+        run: |
+          python -m unittest tools/alignment_v3/test_ctc_heard_map.py tools/index_qa/test_heard_dual.py
+          python - <<'PY'
+          import json, os
+          it = json.load(open("plan.json"))[int(os.environ["K"])]
+          d = "hg/" + it["src"].replace("/", "_")
+          os.makedirs(d, exist_ok=True)
+          json.dump({"sha": it["sha"], "ends": it["ends"]}, open(f"{d}/cand_{it['s']}.json", "w"))
+          open("item.env", "w").write(f"D={d}\nS={it['s']}\nU={it['ref']}\nRIW={it['src'].split('/')[1]}\n")
+          PY
+          set -a; . ./item.env; set +a
+          python tools/index_qa/heard_dual_probe.py --url "$U" --surah "$S" --riwaya "$RIW" --out-dir "$D" \
+            --cand "$D/cand_$S.json" < /dev/null || { echo "⚠️ أخفق"; tail -8 "$D/err_$S.txt" "$D/q/err_$S.txt" 2>/dev/null; exit 1; }
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: shadow-${{ github.run_id }}-${{ matrix.k }}
+          path: hg/
+          retention-days: 7
+
+  report:
+    needs: [plan, probe]
+    if: always() && needs.plan.result == 'success'
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: {python-version: "${{ env.PY }}"}
+      - uses: actions/download-artifact@v4
+        with: {name: "shadow-plan-${{ github.run_id }}", path: planned}
+      - uses: actions/download-artifact@v4
+        continue-on-error: true
+        with:
+          pattern: shadow-${{ github.run_id }}-[0-9]*
+          path: shards
+          merge-multiple: true
+      - name: التقرير (⛔ بلا كتابةٍ في state)
+        run: |
+          set -o pipefail
+          python tools/index_qa/heard_dual_shadow.py --plan planned/plan.json --shards shards --cands planned/cands \
+            --out shadow_report.json | tee shadow.log
+          { echo '### ظلُّ الباب المزدوج (تقرير)'; echo '```'; cat shadow.log; echo '```'; } >> "$GITHUB_STEP_SUMMARY"
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: shadow-report-${{ github.run_id }}
+          path: |
+            shadow_report.json
+            shadow.log
+          retention-days: 14
