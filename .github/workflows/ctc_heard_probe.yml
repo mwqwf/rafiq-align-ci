@@ -21,6 +21,12 @@ on:
         options: [artifacts, logs, build-logs]
         default: artifacts
       source_sha256: {description: "بصمة مصدر كاملة مقيسة؛ لازمة مع build-logs", default: ""}
+      quran_model:
+        description: "⛔ تشخيصٌ وحده (‏claude/diag-heard-quran-model): 0 = العاديّ · 1 = نموذج التلاوة فقط · both = العامّ ثمّ التلاوة + مقارنة (‏يلزمه evidence=artifacts وbuild=false)"
+        type: choice
+        options: ["0", "1", "both"]
+        default: "0"
+      focus: {description: "آياتٌ تُفصَّل في المقارنة، مثل 22:62,22:63", default: ""}
       reason: {description: "سببُ الإطلاق", default: ""}
 
 permissions:
@@ -38,7 +44,7 @@ env:
 jobs:
   probe:
     runs-on: ubuntu-latest
-    timeout-minutes: 90
+    timeout-minutes: 170
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
@@ -69,6 +75,7 @@ jobs:
           key: ctc-model-jonatasgrosman-xlsr53-ar-v1
           fail-on-cache-miss: true
       - name: خريطةُ السماع (⛔ بلا رفع)
+        if: ${{ inputs.quran_model != '1' }}
         env:
           URL: ${{ inputs.url }}
           SURAH: ${{ inputs.surah }}
@@ -93,6 +100,29 @@ jobs:
           fi
           /usr/bin/time -v python tools/alignment_v3/ctc_heard_map.py --url "$URL" --surah "$SURAH" \
             --riwaya "$RIW" --out-dir out $P "${STRICT[@]}" --report out/report.txt 2>&1 | tee logs/probe.log
+      - name: خريطةُ السماع بنموذج التلاوة المثبَّت (⛔ تشخيصٌ بلا رفع)
+        if: ${{ inputs.quran_model != '0' && inputs.evidence == 'artifacts' && inputs.build != 'true' }}
+        env:
+          URL: ${{ inputs.url }}
+          SURAH: ${{ inputs.surah }}
+          RIW: ${{ inputs.riwaya }}
+          CTC_INT8: ${{ inputs.int8 }}
+        run: |
+          set -o pipefail
+          mkdir -p out_q logs
+          # الصوتُ نفسُه بلا إعادة تنزيل إن وُجد (‏بصمةٌ واحدة للمقارنتين)
+          [ -f out/$(printf '%03d' "$SURAH").mp3 ] && cp out/$(printf '%03d' "$SURAH").mp3 out_q/
+          python tools/alignment_v3/ctc_heard_map.py --url "$URL" --surah "$SURAH" \
+            --riwaya "$RIW" --out-dir out_q --probe --quran-model --report out_q/report.txt 2>&1 | tee logs/probe_quran.log
+      - name: مقارنةُ النموذجين (⛔ تشخيص)
+        if: ${{ inputs.quran_model == 'both' && inputs.evidence == 'artifacts' && inputs.build != 'true' }}
+        env:
+          SURAH: ${{ inputs.surah }}
+          FOCUS: ${{ inputs.focus }}
+        run: |
+          S=$(printf '%03d' "$SURAH")
+          python tools/alignment_v3/diag_heard_compare.py out/heard_s$S.json out_q/heard_s$S.json \
+            --focus "$FOCUS" --out out_q/compare.json | tee logs/compare.log
       - name: خريطة كاملة قابلة للاستخراج من السجل
         if: ${{ inputs.evidence == 'logs' }}
         env:
@@ -116,5 +146,7 @@ jobs:
           path: |
             out/*.json
             out/report.txt
+            out_q/*.json
+            out_q/report.txt
             logs/**
           retention-days: 7
