@@ -31,6 +31,8 @@ on:
       base_key: {description: "وضعُ dualfix وحده: مفتاحُ مرشّح heardmap في timings-staging تُصحَّح حدودُه بما اتّفق عليه النموذجان المثبَّتان (ctc_dualfix)", default: ""}
       rewindow: {description: "أوضاعُ window وdualfix وheard (‏heard: تسميةُ المدى المعطوب المقيس شرطٌ لسورةٍ تامّة)؛ وضعا window وdualfix (بالنموذج القرآنيّ بين جارَين ثابتَين، مثل 38:44-51,38:80-88): مدى آياتٍ حاضرةٍ حدودُها معطوبةٌ يُعاد بنافذته بين جارتين ثابتتين، مثل 55:41-75؛ والطرفان: 89:1-2/nb (من بدء الملفّ، /nb = بلا بسملة بشاهد السماع) و92:20-21 (حتى نهاية الملفّ)", default: ""}
       heard_witness: {description: "وضعُ window وحده (fixS2 · بإذن المالك): يُقبل حدُّ المدّة الأعلى (2×) فقط لآيةٍ يوافق حدّاها خريطةَ السماع (ctc_heard_map) بفرقٍ مقيس ≤700/1000م.ث ومِرساةٍ ≥0.85 منفردة", default: "false"}
+      heard_max_hits: {description: "وضعُ heard وحده: سقفُ أداءات الآية الواحدة في خريطة السماع (ctc_heard_map --max-hits)؛ الافتراضُ 6 كما كان، و12 لقارئٍ يُكرّر مثل maroush", default: "6"}
+      repeat_policy: {description: "وضعُ heard وحده: off = كما كان · last_contiguous = بدءُ الآية المكرَّرة ونهايتُها من الأداء الأخير التامّ الموصول بما بعده (ctc_heard_map --repeat-policy؛ سياسةٌ مقترحةٌ تنتظر قرارَ القائد — مطفأةٌ افتراضاً)", default: "off"}
       absent_ayahs: {description: "وضعُ window وحده (أمر المالك 2026-10-31): آياتٌ غائبةٌ في وسط سورةٍ تامّة المداخل في الأب — «79:15,79:17,79:18»؛ تُحاذى الجاراتُ بنصوص الحاضرات وحدها (ctc_gapsplit --absent-ayahs) ويُقاس دليلُ الغياب بمحاذاةٍ بنصّ الغائبة تردّها الحرّاس، ثمّ تُحجب وتُعلَن (drop_ayahs --aligned) بمرشّحٍ في timings-staging. surahs = سورُها نفسُها؛ ولا يجتمع مع rewindow", default: ""}
       reason_user: {description: "وضعُ absent_ayahs وحده: السببُ المعروضُ للمستخدم (بلا كلماتٍ إداريّة)", default: "تسجيلُ هذه السورة ينقصه بعضُ آياتها."}
       truncated_tail: {description: "وضعُ full وحده (أمر المالك 2026-10-02): سورةٌ واحدةٌ مصدرُها مبتورُ الذيل تُحاذى بادئتُها 1..N بالنموذج القرآني المثبَّت ويُعلَن ذيلُها source_truncated — «24:30»؛ وsurahs = السورةُ نفسُها", default: ""}
@@ -242,8 +244,15 @@ jobs:
           TRUNC: ${{ github.event.inputs.truncated_tail }}
           HW: ${{ github.event.inputs.heard_witness }}
           ABSENT: ${{ github.event.inputs.absent_ayahs }}
+          HMH: ${{ github.event.inputs.heard_max_hits }}
+          RPOL: ${{ github.event.inputs.repeat_policy }}
         run: |
           set -o pipefail
+          # ⭐ مدخلا heard وحده؛ الافتراضُ (6 · off) يُمرَّر كما هو فلا يتغيّر سلوكُ غير maroush.
+          HMH="${HMH:-6}"; RPOL="${RPOL:-off}"
+          case "$HMH" in ''|*[!0-9]*) echo "⛔ heard_max_hits عددٌ صحيح"; exit 1;; esac
+          case "$RPOL" in off|last_contiguous) ;; *) echo "⛔ repeat_policy: off أو last_contiguous"; exit 1;; esac
+          if { [ "$HMH" != "6" ] || [ "$RPOL" != "off" ]; } && [ "$MODE" != "heard" ]; then echo "⛔ heard_max_hits وrepeat_policy لوضع heard وحده"; exit 1; fi
           if [ "$HW" = "true" ] && [ "$MODE" != "window" ]; then echo "⛔ heard_witness لوضع window وحده"; exit 1; fi
           # ⏱️ (2026-10-25 · تسريع) ميزانيةُ الوقت لوضعَي dualfix وheard كما لوضع full أدناه: ثلاثُ تشغيلات dualfix من خمسٍ وعشرين
           #    قتلتها مهلةُ المهمّة (350 د × 3 ≈ 1050 د عدّاد) بلا أثرٍ يُدمج. كلُّ سورةٍ تُكتب ذرّياً عند انتهائها، فإذا نفدت
@@ -340,6 +349,7 @@ jobs:
               #    رُدّ بـ1.6ث (‏swlim 23:14 · 2026-10-19) — هامشٌ تحت البوّابة، تشديدٌ لا تليين.
               rc=0
               timeout --signal=TERM --kill-after=60 "${LEFT}s" python tools/alignment_v3/ctc_heard_map.py --url "$U" --surah "$s" --riwaya "$RIW" --strict-tol-ms 1000 \
+                --max-hits "$HMH" --repeat-policy "$RPOL" \
                 --out-dir "tools/alignment/work/batch_$RID" 2>&1 | tee -a ctc.log || rc=$?
               if [ "$rc" = 124 ] || [ "$rc" = 137 ]; then
                 echo "⏱️ نفدت الميزانية أثناء س$s — لا تُدمج، وتُدمج المنجزةُ قبلها"
