@@ -43,7 +43,7 @@ jobs:
         with: {python-version: "${{ env.PY }}"}
       - run: python -m pip install --quiet boto3==1.43.123
       - name: الاختبارات أوّلاً
-        run: python -m unittest tools/index_qa/test_heard_gate.py tools/index_qa/test_heard_dual.py
+        run: python -m unittest tools/index_qa/test_heard_gate.py tools/index_qa/test_heard_dual.py tools/index_qa/test_heard_repeat.py
       - name: اعتماد R2
         env: {R2_CREDENTIALS_JSON: "${{ secrets.R2_CREDENTIALS_JSON }}"}
         run: mkdir -p secure && printf '%s' "$R2_CREDENTIALS_JSON" > secure/r2_credentials.json
@@ -101,6 +101,11 @@ jobs:
                   if s in dual_s:
                       item.append({"sha": sha, "ends": {str(a): [v[0], v[1]] for a, v in cs[s].items()}})
                       W[s] *= 3                                           # خريطتان + شاهد
+                  elif s in j["modified"]:
+                      # ⭐ الباب الثالث (‏2026-11-07 · إذنُ المالك 20:40Z): سورةٌ معدّلةٌ خارج القائمة المزدوجة — إن ظهر في خريطتها انحرافٌ ذو تكرارٍ
+                      #    مقيس شُغِّل الشاهدُ وإحصاءُ النوافذ لتلك الآيات وحدَها في الشريحة نفسِها (‏وإلا لا شيء).
+                      item += [None, {"sha": sha, "ends": {str(a): [v[0], v[1]] for a, v in cs[s].items()}}]
+                      W[s] = int(W[s] * 1.2)
                   i = load.index(min(load)); bins[i].append(item); load[i] += W[s]
               for b in bins:
                   if b:
@@ -152,7 +157,8 @@ jobs:
           python - <<'PY' >> "$GITHUB_OUTPUT"
           import json, os
           its = json.loads(json.load(open("plan.json"))[int(os.environ["K"])]["items"])
-          print("dual=" + ("true" if any(len(i) > 2 for i in its) else "false"))
+          print("dual=" + ("true" if any(len(i) > 2 and i[2] for i in its) else "false"))
+          print("rep=" + ("true" if any(len(i) > 3 and i[3] for i in its) else "false"))
           PY
       - name: كاشُ نموذج التلاوة وWhisper (الباب الثاني وحدَه)
         if: ${{ steps.need.outputs.dual == 'true' }}
@@ -160,8 +166,14 @@ jobs:
         with:
           path: .hf
           key: heard-dual-quran-b03a268c-whisper-medium-fw111-v1
-      - name: أدواتُ الباب الثاني (‏النسخُ مثبَّتة)
-        if: ${{ steps.need.outputs.dual == 'true' }}
+      - name: كاشُ Whisper (الباب الثالث وحدَه)
+        if: ${{ steps.need.outputs.rep == 'true' && steps.need.outputs.dual != 'true' }}
+        uses: actions/cache@v4
+        with:
+          path: .hf
+          key: heard-repeat-whisper-medium-small-fw111-v1
+      - name: أدواتُ البابين الثاني والثالث (‏النسخُ مثبَّتة)
+        if: ${{ steps.need.outputs.dual == 'true' || steps.need.outputs.rep == 'true' }}
         run: python -m pip install --quiet faster-whisper==1.1.1 "requests==2.32.3"
       - name: خرائطُ السماع (float32 · بلا رفع)
         env: {K: "${{ matrix.k }}"}
@@ -173,10 +185,12 @@ jobs:
           python -c "
           import json, os
           for it in json.loads(os.environ['ITEMS']):
-              if len(it) > 2:
+              if len(it) > 2 and it[2]:
                   json.dump(it[2], open(os.path.join(os.environ['D'], 'cand_%s.json' % it[0]), 'w'))
-              print(it[0], it[1], 1 if len(it) > 2 else 0)
-          " | while read s u dual; do
+              if len(it) > 3 and it[3]:
+                  json.dump(it[3], open(os.path.join(os.environ['D'], 'rcand_%s.json' % it[0]), 'w'))
+              print(it[0], it[1], 1 if len(it) > 2 and it[2] else 0, 1 if len(it) > 3 and it[3] else 0)
+          " | while read s u dual rep; do
             if [ "$dual" = 1 ]; then
               python tools/index_qa/heard_dual_probe.py --url "$u" --surah "$s" --riwaya "$RIW" --out-dir "$d" \
                 --cand "$d/cand_$s.json" < /dev/null \
@@ -185,8 +199,14 @@ jobs:
               CTC_INT8=0 python tools/alignment_v3/ctc_heard_map.py --url "$u" --surah "$s" --riwaya "$RIW" \
                 --out-dir "$d" --probe --report "$d/heard_s$(printf %03d $s).txt" < /dev/null > /dev/null 2> "$d/err_$s.txt" \
                 && echo "✓ س$s" || { echo "⚠️ س$s أخفق"; tail -5 "$d/err_$s.txt"; }
+              if [ "$rep" = 1 ] && [ -f "$d/heard_s$(printf %03d $s).json" ]; then
+                # ⭐ الباب الثالث: الشاهدُ والإحصاءُ للآيات المنحرفة ذواتِ التكرار المقيس وحدَها (‏قبل حذف الصوت)
+                python tools/index_qa/heard_repeat_probe.py --url "$u" --surah "$s" --riwaya "$RIW" --dir "$d" \
+                  --cand "$d/rcand_$s.json" < /dev/null \
+                  || { echo "⚠️ س$s (باب ثالث) أخفق"; tail -5 "$d/rw/err_$s.txt" 2>/dev/null; }
+              fi
             fi
-            rm -f "$d"/*.mp3 "$d"/*.wav "$d"/q/*.mp3 "$d"/w/*.mp3
+            rm -f "$d"/*.mp3 "$d"/*.wav "$d"/q/*.mp3 "$d"/w/*.mp3 "$d"/rw/*.mp3
           done
       - uses: actions/upload-artifact@v4
         if: always()
@@ -217,7 +237,7 @@ jobs:
       - name: الحكمُ والكتابةُ في state-heard/
         env: {ONLY: "${{ inputs.only }}", RUN: "${{ github.run_id }}"}
         run: |
-          python -m unittest tools/index_qa/test_heard_gate.py tools/index_qa/test_heard_dual.py
+          python -m unittest tools/index_qa/test_heard_gate.py tools/index_qa/test_heard_dual.py tools/index_qa/test_heard_repeat.py
           set -o pipefail
           python - <<'PY' | tee judge.log
           import glob, gzip, hashlib, json, os, sys, time, boto3
@@ -245,6 +265,13 @@ jobs:
               for p in glob.glob(f"shards/{src.replace('/', '_')}/w/whisper_s*.json"):
                   w = json.load(open(p, encoding="utf-8"))
                   wit[int(w["surah"])] = w
+              rwit, rcen = {}, {}
+              for p in glob.glob(f"shards/{src.replace('/', '_')}/rw/whisper_s*.json"):      # ⭐ الباب الثالث
+                  w = json.load(open(p, encoding="utf-8"))
+                  rwit[int(w["surah"])] = w
+              for p in glob.glob(f"shards/{src.replace('/', '_')}/rc/census_s*.json"):
+                  w = json.load(open(p, encoding="utf-8"))
+                  rcen[int(w["surah"])] = w
               if not maps:
                   # (2026-10-23) لم تُقَس شرائحُ لهذا المرشّح لأنّ حكمَه المحفوظَ تمرّ به الترقيةُ (‏انظر خطوة الخطّة): يُعاد حكمُه
                   #    من المحفوظ بـ`gate_error` نفسِها ولا يُكتب شيء. وغيرُ ذلك يكمل المسارَ القديم (‏حكمٌ بلا خرائطَ يُكتب ويُردّ).
@@ -258,7 +285,7 @@ jobs:
                           continue
                   except Exception:
                       pass
-              j = H.judge(idx, pub, sha, maps, maps_r, wit)
+              j = H.judge(idx, pub, sha, maps, maps_r, wit, rwit=rwit, rcensus=rcen)
               rep = {"sha256": sha, "src": src, "version": H.VERSION, "run": os.environ["RUN"],
                      "ts": int(time.time()), "ok": j["ok"], "reason": j["reason"],
                      "modified": j["modified"], "sample": j["sample"], "sampleFindings": j["sampleFindings"],
@@ -270,6 +297,10 @@ jobs:
                   rep.update({"mapsR": {str(k): v for k, v in maps_r.items()},
                               "witness": {str(k): v for k, v in wit.items()},
                               "dual": j["dual"], "dualVersion": H.DUAL_VERSION})
+              if j["repeat"]:                  # ⭐ الباب الثالث: الشاهدُ والإحصاءُ والدليلُ يُحفظ ويُعاد منه الحكم
+                  rep.update({"repeatWitness": {str(k): v for k, v in rwit.items()},
+                              "repeatCensus": {str(k): v for k, v in rcen.items()},
+                              "repeat": j["repeat"], "repeatVersion": H.REPEAT_VERSION})
               # (2026-10-23) حكمٌ بلا خرائط (‏لم تُقَس شرائح) لا يمحو المحفوظَ الذي فيه خرائطُ على البصمة نفسِها — يُحكم عليه كما هو.
               keep_old = False
               if not maps:
@@ -291,6 +322,10 @@ jobs:
               for k, v in sorted(j["dual"].items(), key=lambda x: int(x[0])):
                   print(f"   ⚖️ مزدوج س{k}: عامّ {v.get('gMeasured')}/{v.get('n')} · تلاوة {v.get('rMeasured')}/{v.get('n')} · "
                         f"متنازَع {v.get('contested')} (حُسم {v.get('contestedResolved')}) · عيّنة {v.get('sample')} (حُسمت {v.get('sampleOk')})")
+              for k, v in sorted(j["repeat"].items(), key=lambda x: int(x[0])):
+                  for a_, e_ in sorted(v.items(), key=lambda x: int(x[0])):
+                      print(f"   🔁 مكرّرةٌ س{k}:{a_}: {'✅ مرّت' if e_['passed'] else '⛔ لم تمرّ'} · شاهد {e_['witnessOk']} "
+                            f"(فرق {e_['witness']['diffMs']}م.ث) · إحصاء {e_['censusOk']} · أداءٌ آخر {e_['otherPerformance']}")
               for x in j["sampleFindings"]:
                   print(f"   ℹ️ عيّنةٌ للتقرير (لا تردّ · تُضاف لطابور الإصلاح): {x}")
               print(f"   ⇒ {'✅ بوّابةُ السماع تمرّ' if why is None else '⛔ ' + why}")
