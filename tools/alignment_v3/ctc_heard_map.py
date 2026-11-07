@@ -599,7 +599,16 @@ def main() -> int:
     ap.add_argument("--strict-tol-ms", type=int, default=0,
                     help="حدٌّ أقصى ثابتٌ لبُعد الحدّ عن مِرساته (‏مثل 1500 للدفعة السماعيّة) بدلَ max(3ث، نصفِ المدّة)")
     ap.add_argument("--report", default="", help="ملفُّ تقريرٍ نصّيّ (‏افتراضه <out-dir>/heard_s<س>.txt)")
+    ap.add_argument("--quran-model", action="store_true",
+                    help="⛔ للتشخيص وحده (‏claude/diag-heard-quran-model): يفكّ بنموذج التلاوة المثبَّت البصمة بدل النموذج العامّ؛ "
+                         "لا يُستعمل في بوّابة السماع ولا في بناء مداخل منشورة (‏يُلزِم --probe)")
     a = ap.parse_args()
+    if a.quran_model:
+        if not a.probe:
+            ap.error("--quran-model تشخيصيٌّ: يلزمه --probe (‏بلا مداخل ولا رفع)")
+        import quran_ctc_model as _Q
+        _ev = _Q.configure()
+        print(f"نموذجُ التلاوة المثبَّت: {_ev['id']}@{_ev['revision'][:8]}")
     if not a.url and not a.audio:
         ap.error("يلزم --url أو --audio")
     os.makedirs(a.out_dir, exist_ok=True)
