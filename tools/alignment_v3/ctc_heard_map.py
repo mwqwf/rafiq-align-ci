@@ -51,6 +51,8 @@ STRONG = 0.70           # مِرساةٌ قويّة
 MAX_WIN_AYAT = 12       # أقصى آياتٍ في نافذة محاذاة
 PAD_MS = 1500           # هامشُ النافذة حول المسموع
 REPEAT_GAP_MS = 6000    # فجوةٌ بعد آيةٍ تُفحص عن تكرارٍ قبل أن تُضمّ إلى مدخلها
+MAX_HITS = 6            # سقفُ أداءات الآية الواحدة في occurrences (‏الافتراضُ القديم؛ يُرفع بـ--max-hits لقارئٍ يُكرّر)
+REPEAT_POLICIES = ("off", "last_contiguous")   # off = السلوكُ القديم حرفاً
 TAIL_MS = 800           # ذيلُ آخر آية بعد آخر حرفٍ مسموع
 DEV_TOL_MS = 3000       # أقصى بُعدٍ مقبولٍ لحدّ النافذة عن مِرساته العامّة
 ANCHOR_Q = 0.3          # أدنى جودةٍ (نسبةُ حروفٍ مطابقة) تُعدّ بها المِرساةُ العامّةُ صالحةً للنافذة
@@ -107,7 +109,7 @@ def _partial(ayah, seg):
         return blocks[0].b, blocks[-1].b + blocks[-1].size, min(1.0, matched / max(len(ayah), 1))
 
 
-def occurrences(ayah_sk, heard_sk, min_score=MIN_OCC, max_hits=6):
+def occurrences(ayah_sk, heard_sk, min_score=MIN_OCC, max_hits=MAX_HITS):
     """كلُّ مواضع سماعِ الآية في الهيكل المسموع: [(a، b، تشابه)] مرتّبةً بالموضع، بلا تداخل."""
     L = len(ayah_sk)
     if L < 3 or not heard_sk:
@@ -132,6 +134,47 @@ def occurrences(ayah_sk, heard_sk, min_score=MIN_OCC, max_hits=6):
             keep.append(h)
     keep.sort()
     return keep[:max_hits] if len(keep) <= max_hits else sorted(sorted(keep, key=lambda h: -h[2])[:max_hits])
+
+
+def last_contiguous_anchors(anchor_ms, occ, chosen, times, frame_ms, strong=STRONG,
+                            link_ms=REPEAT_GAP_MS, slack=6):
+    """سياسةُ الأداء المكرَّر `last_contiguous` (‏مقترحةٌ تنتظر قرارَ القائد · تشخيص maroush 2026-11-07).
+
+    مِرساةُ الآية في المحاذاة العامّة مدىً قد **يدمج أداءَين** لآيةٍ أعادها القارئ (‏فتقع الإعادةُ
+    «داخل المِرساة» ولا تُعدّ تكراراً). فللآية التي لها **أداءان قويّان فأكثر** (‏تشابهٌ ≥ `strong`)
+    يُنسب بدؤها ونهايتها إلى **الأداء الأخير التامّ الموصول بما بعده**: أحدثُ أداءٍ يقع بين
+    جارتيها المختارتين في السلسلة (‏`chosen`) وتشابهُه ≥ أقوى أداءٍ − 0.15 وتفصله عن بدء التالية
+    فجوةٌ ≤ `link_ms`؛ وما قبله من أداءاتٍ يبقى بلا مدخل. وآيةٌ بأداءٍ واحدٍ أو بلا مِرساةٍ عامّةٍ أو
+    لا أداءَ موصولاً لها تبقى مِرساتُها كما هي. تُرجع نسخةً من `anchor_ms` وقاموساً {k: (قديم، جديد)}
+    بما تغيّر. لا تمسّ المُدخل ولا خريطةَ البوّابة."""
+    out = list(anchor_ms)
+    changed = {}
+    n = len(anchor_ms)
+
+    def _ms(o):
+        return times[o[0]], times[min(o[1], len(times)) - 1] + int(frame_ms)
+
+    for k in range(n):
+        if anchor_ms[k] is None or chosen[k] is None:
+            continue
+        hits = [o for o in occ[k] if o[2] >= strong]
+        if len(hits) < 2:
+            continue
+        top = max(o[2] for o in hits)
+        lo = next((chosen[m][1] for m in range(k - 1, -1, -1) if chosen[m]), -slack)
+        nxt = next((chosen[m] for m in range(k + 1, n) if chosen[m]), None)
+        fits = [o for o in hits if o[0] >= lo - slack and o[2] >= top - 0.15
+                and (nxt is None or o[1] <= nxt[0] + slack)]
+        if nxt is not None:
+            nxt_start = times[nxt[0]]
+            fits = [o for o in fits if nxt_start - _ms(o)[1] <= link_ms]
+        if not fits:
+            continue
+        new = _ms(max(fits, key=lambda o: o[0]))
+        if new != tuple(anchor_ms[k]):
+            out[k] = new
+            changed[k] = (tuple(anchor_ms[k]), new)
+    return out, changed
 
 
 def choose_chain(occ, min_score=MIN_OCC, slack=6):
@@ -381,13 +424,16 @@ def _char_list():
     return cl, tok.pad_token_id, (tok.word_delimiter_token if hasattr(tok, "word_delimiter_token") else "|")
 
 
-def run(audio, surah, riwaya, log=print, probe=False, strict_tol_ms=0):
+def run(audio, surah, riwaya, log=print, probe=False, strict_tol_ms=0,
+        max_hits=MAX_HITS, repeat_policy="off"):
     import numpy as np
     from ctc_seg import BASMALA, SR, _conf, _emissions, _segment
     from common import ffprobe_duration_ms, load_index, load_text, norm, surah_slice, to_wav16k
     from vad import read_wav, silences, snap_to_silence
     from validate import band, check_surah
 
+    if repeat_policy not in REPEAT_POLICIES:
+        raise ValueError(f"repeat_policy مجهول: {repeat_policy}")
     index = load_index()
     a, b, _ = surah_slice(index, surah)
     canonical = load_text(riwaya)[a:b]
@@ -405,7 +451,7 @@ def run(audio, surah, riwaya, log=print, probe=False, strict_tol_ms=0):
     heard_sk, times = skeleton(chars)
     log(f"المسموع: {len(heard_sk)} حرفاً هيكليّاً على {len(lpz)} إطاراً ({frame_ms:.1f}م.ث/إطار)")
 
-    occ = [occurrences(sk, heard_sk) for sk in sks]
+    occ = [occurrences(sk, heard_sk, max_hits=max_hits) for sk in sks]
     chosen = choose_chain(occ)
     chosen_ms = [(times[c[0]], times[min(c[1], len(times)) - 1] + int(frame_ms)) if c else None
                  for c in chosen]
@@ -427,6 +473,12 @@ def run(audio, surah, riwaya, log=print, probe=False, strict_tol_ms=0):
     # المِرساةُ المعتمَدة للنوافذ: المحاذاةُ العامّةُ الرتيبة (‏جودةٌ ≥ ANCHOR_Q)؛ والأداءاتُ المنفردةُ
     # شاهدٌ على التكرار والزيادة فقط.
     anchor_ms = build_anchor_ms(anchors, gate_anchors, gate_evidence, ANCHOR_Q)
+    repeat_changed = {}
+    if repeat_policy == "last_contiguous":
+        anchor_ms, repeat_changed = last_contiguous_anchors(anchor_ms, occ, chosen, times, frame_ms)
+        for k, (old, new) in sorted(repeat_changed.items()):
+            log(f"س{surah}:{k + 1} سياسةُ الأداء الأخير الموصول: {old[0] / 1000:.1f}–{old[1] / 1000:.1f}ث"
+                f" ⇒ {new[0] / 1000:.1f}–{new[1] / 1000:.1f}ث")
     heard_map = {}
     for k in range(n):
         c = chosen[k]
@@ -440,6 +492,10 @@ def run(audio, surah, riwaya, log=print, probe=False, strict_tol_ms=0):
             "score": c[2] if c else None,
             "occurrences": [[times[o[0]], times[min(o[1], len(times)) - 1] + int(frame_ms), o[2]]
                             for o in occ[k]]}
+        if k in repeat_changed:            # يظهر المفتاحُ عند التغيير وحده ⇒ بلا السياسة الخريطةُ كما كانت حرفاً
+            heard_map[str(k + 1)]["repeatPolicy"] = {
+                "policy": repeat_policy, "prevAnchorMs": list(repeat_changed[k][0]),
+                "anchorMs": list(repeat_changed[k][1])}
     chunks = chunk_map(heard_sk, times, sks)
     report = [f"# خريطةُ السماع س{surah} · {total_ms}م.ث · {len(heard_sk)} حرفاً مسموعاً",
               "# آية\tمِرساةٌ عامّة بدء\tنهاية\tجودة\tأداءٌ منفرد بدء\tنهاية\tتشابه\tأداءاتٌ أخرى"]
@@ -598,17 +654,25 @@ def main() -> int:
     ap.add_argument("--probe", action="store_true", help="خريطةُ السماع وحدها بلا محاذاة ولا مداخل")
     ap.add_argument("--strict-tol-ms", type=int, default=0,
                     help="حدٌّ أقصى ثابتٌ لبُعد الحدّ عن مِرساته (‏مثل 1500 للدفعة السماعيّة) بدلَ max(3ث، نصفِ المدّة)")
+    ap.add_argument("--max-hits", type=int, default=MAX_HITS,
+                    help="سقفُ أداءات الآية الواحدة في خريطة السماع (‏الافتراضُ 6 كما كان؛ ‏12 لقارئٍ يُكرّر مثل maroush)")
+    ap.add_argument("--repeat-policy", choices=REPEAT_POLICIES, default="off",
+                    help="off = كما كان · last_contiguous = بدءُ الآية المكرَّرة ونهايتُها من الأداء الأخير التامّ الموصول بما بعده "
+                         "(‏مقترحةٌ تنتظر قرارَ القائد؛ مطفأةٌ افتراضاً)")
     ap.add_argument("--report", default="", help="ملفُّ تقريرٍ نصّيّ (‏افتراضه <out-dir>/heard_s<س>.txt)")
     a = ap.parse_args()
     if not a.url and not a.audio:
         ap.error("يلزم --url أو --audio")
+    if a.max_hits < 1:
+        ap.error("--max-hits ≥ 1")
     os.makedirs(a.out_dir, exist_ok=True)
     audio = a.audio or os.path.join(a.out_dir, f"{a.surah:03d}.mp3")
     if not a.audio and (not os.path.exists(audio) or os.path.getsize(audio) < 10_000):
         from ctc_gapsplit import fetch
         fetch(a.url, audio)
     sha = hashlib.sha256(open(audio, "rb").read()).hexdigest()
-    res, report = run(audio, a.surah, a.riwaya, probe=a.probe, strict_tol_ms=a.strict_tol_ms)
+    res, report = run(audio, a.surah, a.riwaya, probe=a.probe, strict_tol_ms=a.strict_tol_ms,
+                      max_hits=a.max_hits, repeat_policy=a.repeat_policy)
     import vad as _vad
     res.update(fileRef=a.url or audio, sha256=sha, vadRel=getattr(_vad, "LAST_REL", None),
                vadVersion=getattr(_vad, "VAD_VERSION", None))
