@@ -33,12 +33,12 @@ on:
       heard_witness: {description: "وضعُ window وحده (fixS2 · بإذن المالك): يُقبل حدُّ المدّة الأعلى (2×) فقط لآيةٍ يوافق حدّاها خريطةَ السماع (ctc_heard_map) بفرقٍ مقيس ≤700/1000م.ث ومِرساةٍ ≥0.85 منفردة", default: "false"}
       absent_ayahs: {description: "وضعُ window وحده (أمر المالك 2026-10-31): آياتٌ غائبةٌ في وسط سورةٍ تامّة المداخل في الأب — «79:15,79:17,79:18»؛ تُحاذى الجاراتُ بنصوص الحاضرات وحدها (ctc_gapsplit --absent-ayahs) ويُقاس دليلُ الغياب بمحاذاةٍ بنصّ الغائبة تردّها الحرّاس، ثمّ تُحجب وتُعلَن (drop_ayahs --aligned) بمرشّحٍ في timings-staging. surahs = سورُها نفسُها؛ ولا يجتمع مع rewindow", default: ""}
       reason_user: {description: "وضعُ absent_ayahs وحده: السببُ المعروضُ للمستخدم (بلا كلماتٍ إداريّة)", default: "تسجيلُ هذه السورة ينقصه بعضُ آياتها."}
-      quran_model: {description: "وضعُ full وحده (مطفأٌ افتراضاً): true = محاذاةُ السور كاملةً بنموذج التلاوة المثبَّت البصمة (‏batch_run --quran-model) ويُعلَن محرّكُها ctc-quran-surah-1 بنسب النموذج فيلزمه الإحصاءُ الشامل؛ ويُستثنى به وحده ردُّ «الأصلُ منشورٌ بـCTC نفسِه»؛ ولا يجتمع مع truncated_tail ولا absent_ayahs", default: "false"}
+      quran_model: {description: "وضعُ full وحده (مطفأٌ افتراضاً): true = محاذاةُ السور كاملةً بنموذج التلاوة المثبَّت البصمة (‏batch_run --quran-model) بدقّة الأسطول int8 · float32 = الشيءُ نفسُه بدقّة float32 وخيطين (‏كمسار الذيل المبتور) ويُعلَن محرّكُها ctc-quran-surah-1 بنسب النموذج فيلزمه الإحصاءُ الشامل؛ ويُستثنى به وحده ردُّ «الأصلُ منشورٌ بـCTC نفسِه»؛ ولا يجتمع مع truncated_tail ولا absent_ayahs", default: "false"}
       truncated_tail: {description: "وضعُ full وحده (أمر المالك 2026-10-02): سورةٌ واحدةٌ مصدرُها مبتورُ الذيل تُحاذى بادئتُها 1..N بالنموذج القرآني المثبَّت ويُعلَن ذيلُها source_truncated — «24:30»؛ وsurahs = السورةُ نفسُها", default: ""}
 
 concurrency:
   # (quran_model) السورُ تُوزَّع على تشغيلاتٍ متوازيةٍ من الأب نفسِه، فالمجموعةُ تضمّ السور وإلا ألغى المنتظِرُ منها أخاه.
-  group: rafiq-ctc-splice-${{ inputs.parent }}${{ inputs.quran_model == 'true' && format('-qm-{0}', inputs.surahs) || '' }}
+  group: rafiq-ctc-splice-${{ inputs.parent }}${{ inputs.quran_model != 'false' && format('-qm-{0}-{1}', inputs.quran_model, inputs.surahs) || '' }}
   cancel-in-progress: false
 
 env:
@@ -98,9 +98,9 @@ jobs:
           import gzip, hashlib, json, os, re, sys, boto3
           # ⭐ نموذجُ التلاوة لمحاذاة السورة كاملةً: وضعُ full وحده بسورٍ مسمّاةٍ، ولا يجتمع مع الذيل المبتور ولا الغائبات.
           qm = os.environ.get("QM", "false").strip()
-          if qm not in ("true", "false"):
-              sys.exit(f"⛔ quran_model true أو false لا غير: {qm!r}")
-          if qm == "true" and (os.environ.get("MODE", "full") != "full" or os.environ.get("TRUNC", "").strip()
+          if qm not in ("true", "float32", "false"):
+              sys.exit(f"⛔ quran_model true أو float32 أو false لا غير: {qm!r}")
+          if qm != "false" and (os.environ.get("MODE", "full") != "full" or os.environ.get("TRUNC", "").strip()
                                or os.environ.get("ABSENT", "").strip() or not os.environ.get("WANT", "").strip()):
               sys.exit("⛔ quran_model في وضع full وحده بسورٍ مسمّاة، ولا يجتمع مع truncated_tail ولا absent_ayahs")
           # ⭐ الآياتُ الغائبةُ في الوسط (أمر المالك 2026-10-31): وضعُ window وحده، وsurahs = سورُها نفسُها، ولا rewindow معها.
@@ -191,7 +191,7 @@ jobs:
           #    (‏نافذةُ الجارتين · نوافذُ على مراسٍ مسموعة) فيُسمح بهما على الملفّ نفسِه.
           #    ونموذجُ التلاوة محرّكٌ آخرُ بنسبٍ مثبَّتة (‏ctc-quran-surah-1) فلا تعيد محاذاتُه النقصَ نفسَه؛ والاستثناءُ
           #    مشروطٌ بمُدخَل quran_model وحدَه (‏لا بالوضع ولا بالأصل).
-          if idx.get("engineVersion") == "ctc-seg-1" and not alt and qm != "true" and os.environ.get("MODE", "full") not in ("window", "heard", "dualfix"):
+          if idx.get("engineVersion") == "ctc-seg-1" and not alt and qm == "false" and os.environ.get("MODE", "full") not in ("window", "heard", "dualfix"):
               sys.exit("⛔ الأصلُ منشورٌ بـCTC نفسِه — المحرّكُ حتميّ فإعادتُه تعيد النقصَ نفسَه")
           have = {}
           for e in idx["entries"]:
@@ -376,7 +376,8 @@ jobs:
           echo "⏱️ ميزانيةُ المحاذاة $BUDGET د"
           rc=0
           # ⭐ نموذجُ التلاوة: عَلَمٌ صريحٌ لا يقع سهواً؛ والنموذجُ يُنزَّل بنسخته وبصمته المثبَّتتين (‏quran_ctc_model.configure).
-          QMF=""; [ "$QM" = "true" ] && QMF="--quran-model"
+          QMF=""; [ "$QM" != "false" ] && QMF="--quran-model"
+          [ "$QM" = "float32" ] && export CTC_INT8=0 CTC_THREADS=2
           timeout --signal=TERM --kill-after=60 "${BUDGET}m" python tools/alignment/batch_run.py --reciter "$RID" --riwaya "$RIW" \
             --base "$BASE" --surahs "$SURAHS" $QMF 2>&1 | tee ctc.log || rc=$?
           if [ "$rc" = 124 ] || [ "$rc" = 137 ]; then
@@ -411,7 +412,7 @@ jobs:
           if [ -n "$TRUNC" ]; then ALTF="$ALTF --truncated-tail $TRUNC"; ETAG="ctc-quran-surah-1"; fi
           # ⭐ محاذاةُ السورة كاملةً بنموذج التلاوة: محرّكٌ باسمه (‏promote.SPLICE_OPS) فيُعلَن في engineBySurah بنسب النموذج
           #    (‏alignmentModelBySurah) ويلزمه الإحصاءُ الشامل — كما يُعلَن ctc_gapsplit وctc_heardmap.
-          if [ "$QM" = "true" ]; then ETAG="ctc-quran-surah-1"; fi
+          if [ "$QM" != "false" ]; then ETAG="ctc-quran-surah-1"; fi
           # ⭐ مضيفُ المجلَّد: `fileRef` من الأب حرفاً (‏والتحقّقُ بعده يطابقه بالمنزَّل).
           [ -n "$FOLDER" ] && ALTF="$ALTF --refs-from-parent"
           S=""; F=""
@@ -492,7 +493,7 @@ jobs:
           TRUNC="${{ github.event.inputs.truncated_tail }}"
           if [ -n "$TRUNC" ]; then OPN="ctc_quran_surah_splice"; INH="--owner-truncated-tail $TRUNC"; fi
           # ⭐ سورةٌ كاملةٌ بنموذج التلاوة (‏quran_model): الاسمُ نفسُه بلا --owner-truncated-tail فيبقى حارسُ التغطية الكاملة.
-          if [ "${{ github.event.inputs.quran_model }}" = "true" ]; then OPN="ctc_quran_surah_splice"; fi
+          if [ "${{ github.event.inputs.quran_model }}" != "false" ]; then OPN="ctc_quran_surah_splice"; fi
           python tools/index_qa/stage_transform.py --file patched.jz \
                  --parent "$PARENT" --parent-sha "$SHA" \
                  --op "$OPN:$TAKEN" --reason "$REASON" \

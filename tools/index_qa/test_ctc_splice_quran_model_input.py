@@ -43,8 +43,8 @@ class WorkflowContract(unittest.TestCase):
         self.assertFalse(inp.get("required", False))
 
     def test_input_is_full_mode_only_and_excludes_tail_and_absent(self):
-        self.assertIn('if qm not in ("true", "false")', self.y)
-        self.assertRegex(self.y, r'qm == "true" and \(os\.environ\.get\("MODE", "full"\) != "full"')
+        self.assertIn('if qm not in ("true", "float32", "false")', self.y)
+        self.assertRegex(self.y, r'qm != "false" and \(os\.environ\.get\("MODE", "full"\) != "full"')
         self.assertIn('os.environ.get("TRUNC", "").strip()', self.y)
         self.assertIn('os.environ.get("ABSENT", "").strip() or not os.environ.get("WANT", "").strip()', self.y)
 
@@ -52,23 +52,24 @@ class WorkflowContract(unittest.TestCase):
         m = re.search(r'if idx\.get\("engineVersion"\) == "ctc-seg-1"[^\n]*', self.y)
         self.assertIsNotNone(m)
         line = m.group(0)
-        self.assertIn('qm != "true"', line)
+        self.assertIn('qm == "false"', line)
         # الأوضاعُ القائمة كما هي (لم يُوسَّع الاستثناءُ لغير المُدخَل)
         self.assertIn('not in ("window", "heard", "dualfix")', line)
         self.assertIn("not alt", line)
 
     def test_flag_reaches_aligner_only_when_true(self):
-        self.assertIn('QMF=""; [ "$QM" = "true" ] && QMF="--quran-model"', self.y)
+        self.assertIn('QMF=""; [ "$QM" != "false" ] && QMF="--quran-model"', self.y)
+        self.assertIn('[ "$QM" = "float32" ] && export CTC_INT8=0 CTC_THREADS=2', self.y)
         self.assertIn('--base "$BASE" --surahs "$SURAHS" $QMF', self.y)
 
     def test_engine_declared_with_distinct_name(self):
-        self.assertIn('if [ "$QM" = "true" ]; then ETAG="ctc-quran-surah-1"; fi', self.y)
-        self.assertIn('if [ "${{ github.event.inputs.quran_model }}" = "true" ]; then OPN="ctc_quran_surah_splice"; fi', self.y)
+        self.assertIn('if [ "$QM" != "false" ]; then ETAG="ctc-quran-surah-1"; fi', self.y)
+        self.assertIn('if [ "${{ github.event.inputs.quran_model }}" != "false" ]; then OPN="ctc_quran_surah_splice"; fi', self.y)
         # الاسمُ مُعلَنٌ في السجلّ الموحَّد فيلزمه الإحصاءُ الشامل، ومحرّكُه غيرُ ctc-seg-1
         self.assertEqual(promote.SPLICE_OPS["ctc_quran_surah_splice"], Q_ENGINE)
         self.assertNotEqual(Q_ENGINE, promote.SPLICE_OPS["ctc_surah_splice"])
         self.assertNotIn("--owner-truncated-tail", re.search(
-            r'if \[ "\$\{\{ github\.event\.inputs\.quran_model \}\}" = "true" \][^\n]*', self.y).group(0))
+            r'if \[ "\$\{\{ github\.event\.inputs\.quran_model \}\}" != "false" \][^\n]*', self.y).group(0))
 
     def test_existing_modes_and_guards_untouched(self):
         for needle in ('ETAG="ctc-seg-1"', 'ETAG="ctc-gapsplit-1"', 'ETAG="ctc-heardmap-1"', 'ETAG="ctc-dualfix-1"',
@@ -77,7 +78,7 @@ class WorkflowContract(unittest.TestCase):
 
     def test_concurrency_group_splits_by_surahs_only_for_quran_model(self):
         g = self.doc["concurrency"]["group"]
-        self.assertIn("inputs.quran_model == 'true'", g)
+        self.assertIn("inputs.quran_model != 'false'", g)
         self.assertTrue(g.startswith("${{ inputs.parent }}") or g.startswith("rafiq-ctc-splice-${{ inputs.parent }}"))
 
 
