@@ -1,0 +1,79 @@
+name: rafiq-heard-probe-quran
+
+run-name: "heard-probe-quran س${{ github.event.inputs.surah || 'push' }}"
+
+# سبرُ خريطة السماع **بنموذج التلاوة** وحده بلا رفع (ctc_heard_map --probe --quran-model) — تشخيصٌ بأمر القائد (ناصر الماجد س6).
+# قارئٌ محض (contents: read): بلا سرٍّ ولا دلوٍ ولا كتابةٍ في timings/. مستودعٌ عامّ + ubuntu-latest القياسيّ.
+# يُطلَق بدفع ملفّ المعاملات إلى فرع هذا الطلب وحده (workflow_dispatch لا يرى ملفّاً غيرَ موجودٍ في main).
+on:
+  push:
+    branches: [claude/nasser6-quran-probe]
+    paths: [ops/shadow/heard_probe_quran.json]
+  workflow_dispatch:
+    inputs:
+      url: {description: "رابط صوت السورة", default: ""}
+      surah: {description: "رقم السورة", default: ""}
+      riwaya: {description: "الرواية", default: "hafs"}
+
+permissions:
+  contents: read
+
+concurrency:
+  group: rafiq-heard-probe-quran-${{ github.run_id }}
+  cancel-in-progress: false
+
+env:
+  PY: "3.11"
+  HF_HOME: ${{ github.workspace }}/.hf
+
+jobs:
+  probe:
+    runs-on: ubuntu-latest
+    timeout-minutes: 340
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: {python-version: "${{ env.PY }}"}
+      - name: كاش ffmpeg
+        uses: actions/cache@v4
+        with:
+          path: .qa-tools/apt-tree
+          key: qa-ffmpeg-apt-tree-v1-${{ hashFiles('tools/ci_fleet/install_qa_ffmpeg.py') }}
+      - name: الأدوات
+        run: |
+          QA_FFMPEG_APT_ONLY=1 python tools/ci_fleet/install_qa_ffmpeg.py
+          python -m pip install --quiet --index-url https://download.pytorch.org/whl/cpu torch==2.15.0
+          python -m pip install --quiet "numpy==1.26.4" transformers==5.22.1 ctc-segmentation==1.7.5 rapidfuzz==3.14.6 "requests==2.32.3"
+      - name: كاش النموذج العامّ
+        uses: actions/cache@v4
+        with:
+          path: .hf
+          key: ctc-model-jonatasgrosman-xlsr53-ar-v1
+      - name: كاشُ نموذج التلاوة
+        uses: actions/cache@v4
+        with:
+          path: .hf
+          key: heard-dual-quran-b03a268c-whisper-medium-fw111-v1
+      - name: الخريطة بنموذج التلاوة (بلا رفع)
+        env:
+          EVENT: ${{ github.event_name }}
+          IN_URL: ${{ github.event.inputs.url }}
+          IN_SURAH: ${{ github.event.inputs.surah }}
+          IN_RIW: ${{ github.event.inputs.riwaya }}
+        run: |
+          set -o pipefail
+          if [ "$EVENT" = "push" ]; then
+            eval "$(python -c "import json;c=json.load(open('ops/shadow/heard_probe_quran.json'));print('U=%r S=%r RIW=%r'%(c['url'],c['surah'],c.get('riwaya','hafs')))")"
+          else U="$IN_URL"; S="$IN_SURAH"; RIW="$IN_RIW"; fi
+          mkdir -p out logs
+          CTC_INT8=0 python tools/alignment_v3/ctc_heard_map.py --url "$U" --surah "$S" --riwaya "$RIW" \
+            --out-dir out --probe --quran-model --report out/report.txt 2>&1 | tee logs/probe.log
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: heard-probe-quran-${{ github.run_id }}
+          path: |
+            out/*.json
+            out/report.txt
+            logs/**
+          retention-days: 7
