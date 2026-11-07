@@ -402,7 +402,22 @@ jobs:
                      --skip-unresolved --engine-tag ctc-quran-surah-1 --out interim.jz
               python tools/alignment_v3/ctc_gapsplit.py --index interim.jz --surahs "$SURAHS" \
                 --riwaya "$RIW" --out-dir "$d2" --rewindow "$REWIN" --quran-model 2>&1 | tee -a ctc.log
-              for j in "$d2"/s*.json; do [ -f "$j" ] && cp "$j" "$d/$(basename "$j")" && echo "⭐ $(basename "$j"): استُبدلت بنتيجة النافذة"; done
+              # المحرّكُ المعلَن للسورة يبقى ctc-quran-surah-1 (النموذجُ نفسُه بنسبه المثبَّتة نفسِها في المحاذاتين)؛ والنافذةُ تُسمّى في tailWindow.
+              for j in "$d2"/s*.json; do
+                [ -f "$j" ] || continue
+                python - "$j" "$d/$(basename "$j")" <<'PYW'
+          import json, sys
+          win, dst = (json.load(open(p, encoding="utf-8")) for p in sys.argv[1:3])
+          assert win.get("sha256") == dst.get("sha256") and win.get("fileRef") == dst.get("fileRef"), "نافذةٌ على صوتٍ غيرِ المحاذى"
+          k = ("id", "revision", "weightsSha256")
+          assert all((win.get("alignmentModel") or {}).get(x) == (dst.get("alignmentModel") or {}).get(x) for x in k), "نسبُ النموذج تختلف بين المحاذاة والنافذة"
+          win["alignmentModel"] = dst["alignmentModel"]
+          win["engine"] = dst["engine"]
+          win["tailWindow"] = win.pop("gapsplit", [])
+          json.dump(win, open(sys.argv[2], "w", encoding="utf-8"), ensure_ascii=False)
+          print(f"⭐ {sys.argv[2].split('/')[-1]}: استُبدلت بنتيجة النافذة {win['tailWindow']}")
+          PYW
+              done
             fi
           fi
 
