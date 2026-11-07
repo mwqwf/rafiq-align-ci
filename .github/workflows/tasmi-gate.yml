@@ -127,21 +127,26 @@ jobs:
           name: whisper-cli
           path: bin
       - name: models + sets
+        env:
+          IN_BASE_URL: ${{ github.event.inputs.base_url }}
+          IN_CAND_URL: ${{ github.event.inputs.cand_url }}
         run: |
           chmod +x bin/whisper-cli
-          mkdir -p models && curl -sSL -f -A "$UA" -o models/shipped.bin "${{ github.event.inputs.base_url }}" && curl -sSL -f -A "$UA" -o models/cand.bin "${{ github.event.inputs.cand_url }}"
+          mkdir -p models && curl -sSL -f -A "$UA" -o models/shipped.bin "${IN_BASE_URL}" && curl -sSL -f -A "$UA" -o models/cand.bin "${IN_CAND_URL}"
           ls -l models
           cd tools/tasmi_bench/work && tar -xf sets.tar && rm sets.tar
       - name: transcribe both arms (البوّابة + سقف 10ث · greedy)
         env:
+          IN_LANGS: ${{ github.event.inputs.langs }}
+          IN_TAG: ${{ github.event.inputs.tag }}
           WHISPER_CLI: ${{ github.workspace }}/bin/whisper-cli
           PYTHONIOENCODING: utf-8
         run: |
           cd tools/tasmi_bench
           T=$(echo "${{ matrix.set }}" | sed 's/:/-/')
-          for L in ${{ github.event.inputs.langs }}; do
+          for L in ${IN_LANGS}; do
             for A in shipped cand; do
-              [ "$A" = "shipped" ] && ARM="ci-shipped-$L" || ARM="ci-${{ github.event.inputs.tag }}-$L"
+              [ "$A" = "shipped" ] && ARM="ci-shipped-$L" || ARM="ci-${IN_TAG}-$L"
               echo "▶ $T · $ARM"
               python local_whisper.py --backend cli --model "$GITHUB_WORKSPACE/models/$A.bin" --set "${{ matrix.set }}" \
                 --gate --group-cap 10 --threads 4 --lang "$L" --out "work/hyps_${ARM}_${T}_gate_cap10.json" | tail -1
@@ -183,17 +188,19 @@ jobs:
           path: tools/tasmi_bench/work
       - name: الحكمُ الزوجيّ
         env:
+          IN_LANGS: ${{ github.event.inputs.langs }}
+          IN_TAG: ${{ github.event.inputs.tag }}
           PYTHONIOENCODING: utf-8
         run: |
           cd tools/tasmi_bench
           ls work/hyps_ci-*.json
-          TAG="${{ github.event.inputs.tag }}"; M="work/gate_$TAG.md"; : > "$M"
+          TAG="${IN_TAG}"; M="work/gate_$TAG.md"; : > "$M"
           # 🔬 D-298: أربعُ مقارناتٍ تعزل أثرَ رمز اللغة عن أثر الضبط — كلُّها على البنود عينِها.
-          for L in ${{ github.event.inputs.langs }}; do
+          for L in ${IN_LANGS}; do
             echo "### 🔤 المرشَّح مقابل المشحون · كلاهما \`-l $L\`" >> "$M"
             python v2_gate.py --pattern "work/hyps_{arm}_{tag}_gate_cap10.json" --arms "ci-shipped-$L" "ci-$TAG-$L" --md "work/_p.md" && cat work/_p.md >> "$M"
           done
-          set -- ${{ github.event.inputs.langs }}
+          set -- ${IN_LANGS}
           if [ $# -ge 2 ]; then
             for A in shipped "$TAG"; do
               echo "### 🔤 أثرُ رمز اللغة وحدَه على \`$A\` (‏$1 ⇐ $2)" >> "$M"
@@ -202,9 +209,11 @@ jobs:
           fi
           { echo "### ⚖️ tasmi-gate · $TAG (مرآةُ المحرك على CI · whisper.cpp مثبَّت · -nc)"; cat "$M"; } >> "$GITHUB_STEP_SUMMARY"
       - name: رفعُ النتائج إلى R2
+        env:
+          IN_TAG: ${{ github.event.inputs.tag }}
         run: |
           cd tools/tasmi_bench
-          TAG="${{ github.event.inputs.tag }}"
+          TAG="${IN_TAG}"
           ARGS="work/gate_$TAG.md finetune/gate/$TAG/summary.md"
           for f in work/hyps_ci-*.json; do ARGS="$ARGS $f finetune/gate/$TAG/$(basename $f)"; done
           python ../finetune/r2_put.py $ARGS

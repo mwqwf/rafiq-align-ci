@@ -56,9 +56,10 @@ jobs:
           cp "/mnt/ft/data/$P/manifest.jsonl" /mnt/ft/data/manifest.jsonl; wc -l /mnt/ft/data/manifest.jsonl; nproc
       - name: audit
         env:
+          IN_N: ${{ github.event.inputs.n }}
           PYTHONIOENCODING: utf-8
         run: |
-          python tools/finetune/label_audit.py --data /mnt/ft/data --n "${{ github.event.inputs.n }}" --bs 8 --ckpt 10 \
+          python tools/finetune/label_audit.py --data /mnt/ft/data --n "${IN_N}" --bs 8 --ckpt 10 \
             --cli "$PWD/bin/whisper-cli" --model "$PWD/models/shipped.bin" --out "/mnt/ft/audit_$P.json" | tee /mnt/ft/audit.log
           { echo "### 🔎 label audit · $P"; echo '```'; grep -v "^[0-9]*/[0-9]*$" /mnt/ft/audit.log | tail -60; echo '```'; } >> "$GITHUB_STEP_SUMMARY"
       - name: upload (ولو قُتل الشوط)
