@@ -57,8 +57,9 @@ ROOT = HERE.parent.parent
 sys.path.insert(0, str(HERE))
 import heard_gate                                                    # noqa: E402
 import pin_heard as PH                                               # noqa: E402
+import entry_window_witness as EW                                    # noqa: E402
 
-VERSION = "entry-window-census-2"
+VERSION = "entry-window-census-3"
 SR = 16000
 # ثوابتُ الحكم كلُّها من `pin_heard` / `heard_gate` (‏مصدرٌ واحد — لا تُنسخ هنا ولا تُقرأ من البيئة).
 K = PH.W_K
@@ -209,7 +210,7 @@ def _unify_toks(toks: list[tuple]) -> list[tuple]:
     return [(t, s, p) for w, s, p in toks for t in _unify(w)]
 
 
-def rivals(ayah: int, texts: dict[int, list[str]]) -> list[int]:
+def _baseline_rivals(ayah: int, texts: dict[int, list[str]]) -> list[int]:
     """جاراتُ الآية المنافِسة: ±2 في السورة وهي موجودةٌ ونصُّها يخالف نصَّ الآية
     (‏آيتان نصُّهما واحدٌ لا يُفرِّق بينهما التفريغُ ولا يضرّ خلطُهما نصّاً)."""
     own = texts[ayah]
@@ -217,8 +218,9 @@ def rivals(ayah: int, texts: dict[int, list[str]]) -> list[int]:
             if b != ayah and b in texts and texts[b] != own]
 
 
-def judge_entry(ayah: int, toks: list[tuple], texts: dict[int, list[str]]) -> dict:
-    """حكمُ نافذة المدخل: `toks` = [(رمزٌ، بدء م.ث، ثقة)] من تفريغ Whisper لنافذته، و`texts` نصوصُ آيات السورة المرجعيّة.
+def judge_entry_baseline(ayah: int, toks: list[tuple], texts: dict[int, list[str]]) -> dict:
+    """[مرجعٌ مجمَّد للقاعدة قبل التشديد — يُستعمل لعمود «قبل» في المعايرة وحدَه]
+    حكمُ نافذة المدخل: `toks` = [(رمزٌ، بدء م.ث، ثقة)] من تفريغ Whisper لنافذته، و`texts` نصوصُ آيات السورة المرجعيّة.
 
     يُوحَّد الطرفان أوّلاً، ثمّ: الآيةُ أقربُ بهامشٍ · وعددُ الكلمات في الحدّ · والثقةُ فوق العتبة.
     يُرجع {verdict: pass|reject, reason: '' | آية أخرى | زيادة | نقص, detail, words, refWords, simSelf, simNearest…}."""
@@ -230,7 +232,7 @@ def judge_entry(ayah: int, toks: list[tuple], texts: dict[int, list[str]]) -> di
     got = [t[0] for t in toks]
     total = len(got)
     lo, hi = max(k, math.ceil(FUZZ_LO * n)), math.floor(FUZZ_HI * n)
-    sims = {b: PH._sim(got, texts[b]) for b in [ayah] + rivals(ayah, texts)} if got else {}
+    sims = {b: PH._sim(got, texts[b]) for b in [ayah] + _baseline_rivals(ayah, texts)} if got else {}
     s_self = sims.get(ayah, 0.0)
     near, s_near = max(((b, v) for b, v in sims.items() if b != ayah), key=lambda x: x[1], default=(None, 0.0))
     gap = s_self - s_near
@@ -269,6 +271,122 @@ def judge_entry(ayah: int, toks: list[tuple], texts: dict[int, list[str]]) -> di
     if low < MIN_WORD_P or mean < MEAN_WORD_P:
         return rej("نقص", f"ثقةُ الكلمات الطرفيّة دون العتبة (أدناها {low:.2f}، متوسّطُها {mean:.2f})")
     return {**base, "verdict": "pass", "reason": "",
+            "detail": f"الآيةُ الأقرب ({s_self:.2f}" + (f" − {s_near:.2f} من {near} = {gap:.2f}" if near else "") +
+                      f") · {total} كلمةً ضمن [{lo},{hi}] · ثقة أدناها {low:.2f}"}
+
+
+SIM_FLOOR = 0.40
+# ⭐ حدٌّ أدنى لتشابه الآية بالتفريغ (‏تشديد أ — طلب القائد 2026-11-08). عِلّةُ 0.40 من بيانات المعايرة الفعليّة
+#    (‏12,255 مدخلاً من الأزواج الـ178 المقروءة، الإحصاء السابق): أدنى تشابهٍ بين 9,399 مدخلاً **مرّ** هو 0.411
+#    (‏33:53 عند fakhfakh_qalun: آيةٌ طويلةٌ 69 كلمة وWhisper يشوّش وسطَها وطرفاها سليمان) ثمّ 0.435 (‏7:157 gulan)
+#    و0.45 (‏2:259) و0.453 (‏33:35)، وكلُّها مداخلُ سليمةٌ موثّقةٌ (‏آياتٌ طويلةٌ) ⇒ لا يجوز أن يسقط شيءٌ منها، فالحدُّ
+#    تحت أدناها (‏0.411) مقرَّباً إلى 0.40. ولا يُسقط حدٌّ كهذا أيَّ مدخلٍ مرّ في المعايرة (‏صفر من 9,399)؛ وفائدتُه
+#    إغلاقُ بابِ مرورِ «الأقرب» بتشابهٍ متدنٍّ (‏رأسٌ خاطئ بثلاث كلماتٍ من سبع كان يمرّ إن لم تكن جارةٌ أقرب).
+#    وهو شرطٌ على المرور بكلا المسارين (‏Whisper وحدَه، أو بالشاهد الأقوى).
+
+
+def rivals(ayah: int, texts: dict[int, list[str]]) -> list[int]:
+    """جاراتُ الآية المنافِسة: ±2 في السورة وهي موجودةٌ ونصُّها يخالف نصَّ الآية (‏يُفرَّق بينها بالتفريغ)."""
+    own = texts[ayah]
+    return [b for b in range(ayah - NEAREST_RADIUS, ayah + NEAREST_RADIUS + 1)
+            if b != ayah and b in texts and texts[b] != own]
+
+
+def identical_rivals(ayah: int, texts: dict[int, list[str]]) -> list[int]:
+    """تشديد (ج): جاراتُ الآية ±2 **المطابقةُ لها نصّاً** — منافِسةٌ لا يُفرِّق بينها وبين الآية تفريغٌ ولا محاذاةٌ."""
+    own = texts[ayah]
+    return [b for b in range(ayah - NEAREST_RADIUS, ayah + NEAREST_RADIUS + 1)
+            if b != ayah and b in texts and texts[b] == own]
+
+
+def position_decides(ayah: int, rival: int, windows: dict | None) -> bool:
+    """تُحسم المطابقةُ نصّاً بالموضع: نافذتا الآيتين غيرُ متقاطعتين وبترتيب الآيات (‏الأصغرُ رقماً تنتهي قبل أن تبدأ الأكبر).
+    بلا نوافذ (‏`windows=None`) أو بنافذةٍ ناقصة ⇒ لا حسم ⇒ تُردّ."""
+    if not windows or ayah not in windows or rival not in windows:
+        return False
+    (s1, e1), (s2, e2) = windows[ayah], windows[rival]
+    if None in (s1, e1, s2, e2):
+        return False
+    return e1 <= s2 if ayah < rival else e2 <= s1
+
+
+def neighbour_words(got: list[str], ayah: int, texts: dict[int, list[str]]) -> int | None:
+    """تشديد (ب): رقمُ جارةٍ (±2، نصُّها يخالف الآية) تظهر كلماتُها في التفريغ — ثلاثُ كلماتٍ متتاليةٌ منها لا تشبه
+    موضعاً في نصّ الآية نفسِها (‏بالتسامح نفسِه) — أو بدءُ/ختامُ جارةٍ يلاصق الآية؛ وإلا None."""
+    cand = {b: texts[b] for b in [ayah] + rivals(ayah, texts)}
+    own = texts[ayah]
+    own_tri = [tuple(own[i:i + K]) for i in range(max(0, len(own) - K + 1))]
+    if len(got) >= K:
+        for i in range(len(got) - K + 1):
+            tri = tuple(got[i:i + K])
+            if any(all(_tok_eq(tri[m], o[m]) for m in range(K)) for o in own_tri):
+                continue
+            for b in sorted(cand):
+                if b == ayah:
+                    continue
+                ref = cand[b]
+                for j in range(len(ref) - K + 1):
+                    if all(_tok_eq(tri[m], ref[j + m]) for m in range(K)):
+                        return b
+    return None
+
+
+def judge_entry(ayah: int, toks: list[tuple], texts: dict[int, list[str]], windows: dict | None = None) -> dict:
+    """حكمُ نافذة المدخل بعد التشديدات الثلاثة (‏2026-11-08)؛ `toks` = [(رمزٌ، بدء م.ث، ثقة)] من تفريغ Whisper،
+    و`texts` نصوصُ آيات السورة، و`windows` = {آية: (بدء، نهاية)} للمداخل (‏لحسم المتطابقات نصّاً بالموضع).
+
+    يُوحَّد الطرفان أوّلاً، ثمّ: الآيةُ أقربُ بهامش · لا متطابقةَ نصّاً بلا حسمٍ بالموضع (ج) · لا كلماتَ جارةٍ فيه (ب) ·
+    عددُ الكلمات في الحدّ · تشابهُ الآية ≥ SIM_FLOOR (أ) · الثقةُ فوق العتبة.
+    يُرجع {verdict, reason: '' | آية أخرى | زيادة | نقص, detail, witnessEligible…}.
+    `witnessEligible`: «نقص» وحدَه (‏ثقةٌ أو عددٌ دون الحدّ) وبتفريغٍ غير فارغٍ وتشابهٍ ≥ SIM_FLOOR — فهو الذي يجوز
+    للشاهد الأقوى أن يحسمه؛ وغيرُه (‏زيادة · آية أخرى · لا تفريغ · تشابهٌ دون الأرضية) لا يمرّ بالشاهد."""
+    texts = {a: _unify_ref(t) for a, t in texts.items()}
+    toks = _unify_toks(toks)
+    ref = texts[ayah]
+    n = len(ref)
+    k = min(K, n)
+    got = [t[0] for t in toks]
+    total = len(got)
+    lo, hi = max(k, math.ceil(FUZZ_LO * n)), math.floor(FUZZ_HI * n)
+    sims = {b: PH._sim(got, texts[b]) for b in [ayah] + rivals(ayah, texts)} if got else {}
+    s_self = sims.get(ayah, PH._sim(got, ref) if got else 0.0)
+    near, s_near = max(((b, v) for b, v in sims.items() if b != ayah), key=lambda x: x[1], default=(None, 0.0))
+    gap = s_self - s_near
+    base = {"ayah": ayah, "words": total, "refWords": n, "wordBounds": [lo, hi],
+            "heard": " ".join(got), "ratio": round(s_self, 3), "simSelf": round(s_self, 3),
+            "nearestOther": near, "simNearestOther": round(s_near, 3), "gap": round(gap, 3),
+            "margin": NEAREST_MARGIN, "simFloor": SIM_FLOOR}
+
+    def rej(reason, detail, eligible=False, **kw):
+        return {**base, "verdict": "reject", "reason": reason, "detail": detail, "witnessEligible": eligible, **kw}
+
+    if not got:
+        return rej("نقص", "لا تفريغَ في النافذة (‏صمتٌ أو لا كلام)")
+    if near is not None and gap < 0:
+        return rej("آية أخرى", f"الآية {near} أقربُ إلى التفريغ من الآية نفسِها ({s_near:.2f} > {s_self:.2f})", otherAyah=near)
+    if near is not None and gap < NEAREST_MARGIN:
+        return rej("آية أخرى", f"لا هامشَ للآية على الآية {near}: {s_self:.2f} − {s_near:.2f} = {gap:.2f} < {NEAREST_MARGIN}",
+                   otherAyah=near)
+    undecided = [b for b in identical_rivals(ayah, texts) if not position_decides(ayah, b, windows)]
+    if undecided:
+        return rej("آية أخرى", f"الآية {undecided[0]} مطابقةٌ لها نصّاً ولم يُحسم الموضع (‏نافذتان متقاطعتان أو بلا ترتيب)",
+                   otherAyah=undecided[0], identicalRival=undecided)
+    other = neighbour_words(got, ayah, texts)
+    if other is not None:
+        return rej("زيادة", f"في النافذة كلماتٌ من الجارة {other} (‏ثلاثٌ متتاليةٌ لا تشبه نصَّ الآية)", containsAyah=other)
+    if total > hi:
+        return rej("زيادة", f"عددُ كلمات النافذة {total} فوق الحدّ {hi}")
+    if s_self < SIM_FLOOR:
+        return rej("نقص", f"تشابهُ الآية بالتفريغ {s_self:.2f} دون الأرضية {SIM_FLOOR}")
+    if total < lo:
+        return rej("نقص", f"عددُ كلمات النافذة {total} دون الحدّ {lo}", eligible=True)
+    edge = toks[:k] + toks[-k:]
+    low = min(t[2] for t in edge)
+    mean = sum(t[2] for t in edge) / len(edge)
+    base.update({"lowP": round(low, 2), "meanP": round(mean, 2), "firstWordMs": toks[0][1]})
+    if low < MIN_WORD_P or mean < MEAN_WORD_P:
+        return rej("نقص", f"ثقةُ الكلمات الطرفيّة دون العتبة (أدناها {low:.2f}، متوسّطُها {mean:.2f})", eligible=True)
+    return {**base, "verdict": "pass", "reason": "", "witnessEligible": False,
             "detail": f"الآيةُ الأقرب ({s_self:.2f}" + (f" − {s_near:.2f} من {near} = {gap:.2f}" if near else "") +
                       f") · {total} كلمةً ضمن [{lo},{hi}] · ثقة أدناها {low:.2f}"}
 
@@ -345,6 +463,8 @@ def cmd_run(a) -> int:
     model = WhisperModel(a.model, device="cpu", compute_type="float32", cpu_threads=os.cpu_count() or 2)
     os.makedirs(a.out, exist_ok=True)
     rc = 0
+    pending: list[dict] = []
+    results: list[tuple] = []
     for key, surahs_s in pairs:
         riwaya = key.split("/")[1]
         slug = key.split("/", 1)[1].replace("/", "__").removesuffix(".jz")
@@ -382,21 +502,35 @@ def cmd_run(a) -> int:
                 pcm = np.frombuffer(w.readframes(w.getnframes()), np.int16).astype(np.float32) / 32768.0
             os.remove(wav)
             rows = []
-            for e in sorted(ents, key=lambda e: int(str(e["ayahId"]).split(":")[1])):
+            ents_sorted = sorted(ents, key=lambda e: int(str(e["ayahId"]).split(":")[1]))
+            windows = {int(str(e["ayahId"]).split(":")[1]): (int(e["startMs"]),
+                       int(e["endMs"]) if e.get("endMs") is not None else None) for e in ents_sorted}
+            total_ms = int(len(pcm) * 1000 / SR)
+            for e in ents_sorted:
                 ay = int(str(e["ayahId"]).split(":")[1])
                 st, en = int(e["startMs"]), e.get("endMs")
                 if en is None or int(en) <= st:
                     rows.append({"ayah": ay, "startMs": st, "endMs": en, "verdict": "reject", "reason": "نقص",
-                                 "detail": "مدخلٌ بلا نهايةٍ صالحة", "words": 0, "heard": ""})
+                                 "detail": "مدخلٌ بلا نهايةٍ صالحة", "words": 0, "heard": "",
+                                 "before": {"verdict": "reject", "reason": "نقص"}})
                     continue
                 seg = pcm[int(st * SR / 1000):int(int(en) * SR / 1000)]
                 segs, _i = model.transcribe(seg, language="ar", beam_size=5, word_timestamps=True,
                                             condition_on_previous_text=False, vad_filter=False, temperature=0.0)
                 words = [{"w": x.word.strip(), "s": st + int(x.start * 1000), "p": round(float(x.probability), 4)}
                          for sg in segs for x in (sg.words or [])]
-                r = judge_entry(ay, PH._norm_words(words), texts)
-                r.update({"startMs": st, "endMs": int(en)})
+                nw = PH._norm_words(words)
+                r0 = judge_entry_baseline(ay, nw, texts)
+                r = judge_entry(ay, nw, texts, windows)
+                r.update({"startMs": st, "endMs": int(en),
+                          "before": {"verdict": r0["verdict"], "reason": r0["reason"]},
+                          "toks": [[t, s0, round(p0, 4)] for t, s0, p0 in nw]})
                 rows.append(r)
+                if a.witness and r.get("witnessEligible"):
+                    lo, hi, c_lo, c_hi = EW.window_of(st, int(en), total_ms)
+                    pending.append({"row": r, "ayah": ay, "audioMs": [lo, hi], "clipLo": c_lo, "clipHi": c_hi,
+                                    "pcm": pcm[int(lo * SR / 1000):int(hi * SR / 1000)].copy(),
+                                    "texts": EW.entry_texts(riwaya, s, ay)})
                 print(f"{riwaya}/{slug} {s}:{ay} [{st}-{en}] ⇒ {r['verdict']} {r['reason']} · {r['detail']}", flush=True)
             os.remove(mp3)
             v = surah_verdict(rows)
@@ -405,10 +539,100 @@ def cmd_run(a) -> int:
                    "fasterWhisper": getattr(faster_whisper, "__version__", ""), "nearestMargin": NEAREST_MARGIN,
                    "verdict": v, "entries": rows}
             out = os.path.join(a.out, f"entry_window_census_{slug}_s{s:03d}.json")
-            with open(out + ".part", "w", encoding="utf-8") as f:
-                json.dump(res, f, ensure_ascii=False)
-            os.replace(out + ".part", out)
+            _dump(res, out)
+            results.append((res, out, rows))
             print(f"■ {key} س{s}: {'✅ كلُّ المداخل تمرّ' if v['ok'] else '⛔ مردودة'} · {v['rejected']}/{v['entries']} · {v['byReason']}", flush=True)
+    if a.witness and pending:
+        print(f"◆ الشاهد الأقوى: {len(pending)} مرشَّحاً بنموذجَي CTC", flush=True)
+        for name in EW.MODELS:
+            EW.measure_candidates(pending, name)
+        for c in pending:
+            r = c["row"]
+            new = EW.apply_witness(r, EW.usable(c.get("measures")))
+            r.clear()
+            r.update(new)
+        for res, out, rows in results:
+            res["verdict"] = surah_verdict(rows)
+            res["witness"] = {"engine": "ctc-entry-witness-1", "targetConf": EW.TARGET_CONF,
+                              "startTol": EW.START_TOL, "endTol": EW.END_TOL, "simFloor": SIM_FLOOR}
+            _dump(res, out)
+        print(f"◆ أنقذ الشاهدُ {sum(1 for c in pending if c['row'].get('witnessRescued'))}/{len(pending)}", flush=True)
+    return rc
+
+
+def _dump(res: dict, out: str) -> None:
+    with open(out + ".part", "w", encoding="utf-8") as f:
+        json.dump(res, f, ensure_ascii=False)
+    os.replace(out + ".part", out)
+
+
+def cmd_targets(a) -> int:
+    """شاهدُ CTC بالنموذجين لآياتٍ منشورةٍ بعينها وتصنيفُها: «الآيةُ نفسُها مسموعة» · «غيرها مسموع» · «غير محسوم»."""
+    jobs = []
+    for part in a.targets.replace("\n", ";").split(";"):
+        part = part.strip()
+        if not part:
+            continue
+        key, _, rest = part.partition("=")
+        surah_s, _, ay_s = rest.partition(":")
+        _check_key(key.strip(), True)
+        jobs.append((key.strip(), int(surah_s), [int(x) for x in ay_s.replace(" ", "").split(",") if x]))
+    import promote as P                                              # noqa: PLC0415
+    cl, bucket = P.s3()
+    sys.path.insert(0, str(ROOT / "tools" / "alignment"))
+    from common import fetch_retry, to_wav16k                        # noqa: PLC0415
+    import numpy as np                                               # noqa: PLC0415
+    os.makedirs(a.out, exist_ok=True)
+    cands: list[dict] = []
+    rc = 0
+    for key, s, ayahs in jobs:
+        riwaya = key.split("/")[1]
+        body = cl.get_object(Bucket=bucket, Key=key)["Body"].read()
+        idx = json.loads(gzip.decompress(body))
+        ents = {int(str(e["ayahId"]).split(":")[1]): e for e in idx["entries"]
+                if str(e["ayahId"]).startswith(f"{s}:") and e.get("startMs") is not None}
+        refs = {e.get("fileRef") for e in ents.values()}
+        if len(refs) != 1:
+            print(f"⛔ {key} س{s}: ملفُّ صوتٍ واحدٌ للسورة مطلوب — تُتخطّى")
+            rc = 3
+            continue
+        url, want = refs.pop(), idx["audioSha256"][s - 1]
+        mp3 = os.path.join(a.out, f"{s:03d}.mp3")
+        fetch_retry(url, mp3)
+        got = hashlib.sha256(open(mp3, "rb").read()).hexdigest()
+        if not want or got != want:
+            os.remove(mp3)
+            print(f"⛔ {key} س{s}: بصمةُ الصوت {got[:8]} ≠ {str(want)[:8]} — لا شاهد")
+            rc = 3
+            continue
+        wav = to_wav16k(mp3, os.path.join(tempfile.mkdtemp(), "a.wav"))
+        with wave.open(wav, "rb") as w:
+            pcm = np.frombuffer(w.readframes(w.getnframes()), np.int16).astype(np.float32) / 32768.0
+        os.remove(wav)
+        total_ms = int(len(pcm) * 1000 / SR)
+        for ay in ayahs:
+            e = ents.get(ay)
+            if not e or e.get("endMs") is None:
+                print(f"⛔ {key} {s}:{ay}: لا مدخل")
+                rc = 3
+                continue
+            st, en = int(e["startMs"]), int(e["endMs"])
+            lo, hi, c_lo, c_hi = EW.window_of(st, en, total_ms)
+            cands.append({"key": key, "surah": s, "ayah": ay, "startMs": st, "endMs": en, "audioMs": [lo, hi],
+                          "clipLo": c_lo, "clipHi": c_hi, "pcm": pcm[int(lo * SR / 1000):int(hi * SR / 1000)].copy(),
+                          "texts": EW.entry_texts(riwaya, s, ay)})
+        os.remove(mp3)
+    for name in EW.MODELS:
+        EW.measure_candidates(cands, name)
+    out_rows = []
+    for c in cands:
+        m = EW.usable(c.get("measures"))
+        r = EW.classify((c["startMs"], c["endMs"]), m)
+        out_rows.append({"key": c["key"], "surah": c["surah"], "ayah": c["ayah"], "startMs": c["startMs"],
+                         "endMs": c["endMs"], **r, "measures": m})
+        print(f"{c['key']} {c['surah']}:{c['ayah']} ⇒ {r['class']} {r.get('winners', '')} {r['why'][:2]}", flush=True)
+    _dump({"version": "entry-witness-targets-1", "targetConf": EW.TARGET_CONF, "rows": out_rows},
+          os.path.join(a.out, "entry_witness_targets.json"))
     return rc
 
 
@@ -426,8 +650,14 @@ def main() -> int:
     q.add_argument("--pairs", default="", help="مفتاحٌ=سور؛ مفتاحٌ=سور (‏عدّةُ فهارس في تشغيلةٍ واحدة)")
     q.add_argument("--published", action="store_true", help="قراءةُ فهرسٍ منشورٍ في timings/ (‏قراءةٌ محضة)")
     q.add_argument("--model", default="small", choices=PH.W_MODELS)
+    q.add_argument("--witness", action="store_true", help="الشاهدُ الأقوى بنموذجَي CTC لمردودات «نقص» المؤهَّلة")
     q.add_argument("--out", required=True)
+    t = sub.add_parser("targets", help="شاهدُ CTC بالنموذجين لمداخلَ منشورةٍ بعينها وتصنيفُها (‏قراءةٌ محضة)")
+    t.add_argument("--targets", required=True, help="«مفتاح=س:آية,آية;مفتاح2=س:آية» (‏مفاتيحُ timings/ المنشورة)")
+    t.add_argument("--out", required=True)
     a = ap.parse_args()
+    if a.cmd == "targets":
+        return cmd_targets(a)
     return cmd_repeats(a) if a.cmd == "repeats" else cmd_run(a)
 
 
