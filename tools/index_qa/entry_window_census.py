@@ -88,7 +88,23 @@ OVERLAP_SAME = 0.5                          # تداخلُ زمنين بهذه �
 
 # ───────────────────────── تكرارٌ مقيس من خريطة السماع ─────────────────────────
 def _text_similar(a: list[str], b: list[str]) -> bool:
-    return difflib.SequenceMatcher(None, " ".join(a), " ".join(b)).ratio() >= SIMILAR_VERSE
+    sm = difflib.SequenceMatcher(None, " ".join(a), " ".join(b))
+    # حدّان علويّان أرخص من ratio() ولا يغيّران النتيجة (‏ratio ≤ quick_ratio ≤ real_quick_ratio): تسريعٌ للجرد الشامل
+    if sm.real_quick_ratio() < SIMILAR_VERSE or sm.quick_ratio() < SIMILAR_VERSE:
+        return False
+    return sm.ratio() >= SIMILAR_VERSE
+
+
+_SIMILAR_CACHE: dict = {}
+
+
+def _similar_map(texts: dict[int, list[str]]) -> dict[int, set]:
+    """{آية: متشابهاتُها نصّاً}؛ مخبَّأةٌ بنصوص السورة (‏تتكرّر الخريطةُ نفسُها لفهارسَ كثيرةٍ في الجرد الشامل)."""
+    key = tuple((a, tuple(t)) for a, t in sorted(texts.items()))
+    if key not in _SIMILAR_CACHE:
+        ayahs = sorted(texts)
+        _SIMILAR_CACHE[key] = {a: {b for b in ayahs if b != a and _text_similar(texts[a], texts[b])} for a in ayahs}
+    return _SIMILAR_CACHE[key]
 
 
 def _overlap(x, y) -> float:
@@ -126,7 +142,7 @@ def measured_repeats(cmap: dict, texts: dict[int, list[str]]) -> dict[int, dict]
             sp.append((int(am[0]), int(am[1])))
         sp += [(int(o[0]), int(o[1])) for o in occ if float(o[2]) >= REPEAT_SIM]
         spans[a] = sp
-    similar = {a: {b for b in ayahs if b != a and _text_similar(texts[a], texts[b])} for a in ayahs}
+    similar = _similar_map(texts)
     out: dict[int, dict] = {}
     for a in ayahs:
         am, q, occ = _rec(cmap, a)
