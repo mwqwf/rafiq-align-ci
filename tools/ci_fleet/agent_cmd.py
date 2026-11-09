@@ -52,7 +52,7 @@ MAX_TRIES = int(os.environ.get("AGENT_CMD_MAX_TRIES", "3"))
 ALLOWED_WF = {"silence_probe.yml", "heard_anchor_provenance_probe.yml", "free-noah-source-gap-quality.yml", "short_opener_context_diagnostics.yml", "reconcile_public_catalog.yml", "balilah_pause_probe.yml", "source_context_diagnostics.yml", "whisper_recovery_diagnostic.yml", "repair_boundary_diagnostics.yml", "duration_context_followup.yml", "duration_defect_diagnostic.yml", "quran_source_recovery.yml", "tail_clipping_followup.yml", "fakhfakh69_tail_dual_witness.yml", "final_verse_free_batch.yml", "peshawa_tail_dual_probe.yml", "peshawa_tail_free_decode.yml", "saad_free_decode.yml", "free-post-stage-quality.yml", "independent_window_pilot.yml", "registered-source-quality.yml", "verified_kurdi_source.yml", "spoken_census.yml", "window_census.yml", "source_quran_probe.yml", "align.yml", "realign_surah.yml", "registered_splice.yml", "openers.yml", "audio_qa.yml",
               # ⭐ 2026-09-24 (‏إذن المالك بالتسريع): محاذاةُ سور النقص وحدها بـCTC
               #    ودمجُها، وإحصاؤها الصوتيُّ الشامل الذي تطلبه الترقية.
-              "ctc_splice.yml", "splice_census.yml", "entry_witness_probe.yml",
+              "ctc_splice.yml", "ctc_splice_merge.yml", "splice_census.yml", "entry_witness_probe.yml",
               # 🔀 2026-10-17: الدمجُ التلقائيُّ لطلبات claude/ (بإذن المالك) — إطلاقٌ يدويٌّ عند تأخّر الجدول.
               "automerge.yml",
               # ⭐ (fixT · 2026-10-03) الإصلاحُ الدفعيّ لكبس الذيل (‏مرشّحٌ واحدٌ لكلّ فهرس) وبوّابةُ السماع التي تطلبها الترقية.
@@ -320,9 +320,14 @@ def do_dispatch(c):
     #    المُعلَنة أُسقطت **بأسمائها من الرسالة نفسِها** وأُعيد **مرّةً واحدة**. والمصدرُ
     #    هو GitHub لا ظنُّنا، ولا يحتاج شيئاً مثبَّتاً.
     given = dict(c.get("inputs") or {})
+    # 🔀 (2026-11-09 · أمر القائد: تشغيل سياسة الأداء الأخير من فرعها) `ref` اختياريٌّ: فرعُ `claude/…` وحده ولسيرٍ
+    #    واحدٍ مسمّى (‏ctc_splice.yml)، فلا يُشغَّل شيءٌ غير مراجَعٍ من فرعٍ آخر ولا يُفتح بابٌ لغيره. وبلا `ref` السلوكُ كما كان حرفاً.
+    ref = str(c.get("ref") or "").strip()
+    if ref and (wf not in REF_ALLOWED_WF or not re.fullmatch(r"claude/[A-Za-z0-9._-]+(?:/[A-Za-z0-9._-]+)*", ref) or ".." in ref):
+        return 2, f"⛔ ref غيرُ مسموح: {ref!r} (فرعُ claude/… وحده وللسير {sorted(REF_ALLOWED_WF)} فقط)"
 
     def _fire(inp):
-        a = ["gh", "workflow", "run", wf]
+        a = ["gh", "workflow", "run", wf] + (["--ref", ref] if ref else [])
         for k, v in inp.items():
             a += ["-f", f"{k}={v}"]
         # إطلاقاتٌ متوازية ⇒ قد يردّ GitHub بحدّ المعدّل الثانويّ؛ تُعاد المحاولةُ بعد انتظار (لا يُسقط أمراً).
@@ -344,6 +349,8 @@ def do_dispatch(c):
                    + "".join(f"   · {k} = {v}\n" for k, v in dropped.items()) + out2)
     return rc, out
 
+
+REF_ALLOWED_WF = {"ctc_splice.yml"}
 
 PROMOTE_FORBIDDEN_ARGS = ("--override", "--allow-shrink")
 
