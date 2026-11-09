@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 """رفعُ التجميد ثمّ الترقيةُ ثمّ إعادةُ التجميد **في عمليّةٍ واحدة** — لا نافذةَ مفتوحةً بينها.
 
-    python tools/ci_fleet/promote_atomic.py <staging key> <old sha8> "<سبب>"
+    python tools/ci_fleet/promote_atomic.py <staging key> <old sha8> "<سبب>" ["<نص --allow-truncated يسمّي السور>"]
 
 ⛔ **العطبُ الذي وُلد منه (مقيسٌ 2026-10-17):** كان الرفعُ والترقيةُ وإعادةُ التجميد
 أربعةَ أوامرَ متتابعةً في قناة الأوامر، وبينها ما يصل إلى 30 دقيقةً من الطابور. وفي
@@ -44,9 +44,12 @@ def run(*args) -> int:
 
 
 def main() -> int:
-    if len(sys.argv) != 4:
+    if len(sys.argv) not in (4, 5):
         print(__doc__); return 2
-    key, old, reason = sys.argv[1:]
+    key, old, reason = sys.argv[1:4]
+    # وسيطٌ رابعٌ اختياريّ: نصُّ `--allow-truncated` (يسمّي السورَ الموروثة الحجب). لا يُرخي حارساً:
+    # يشترط promote.py مع ذلك صفَّ موافقةِ المالك لمفتاح المرشّح في OWNER_DROP_APPROVALS.json.
+    allow_trunc = sys.argv[4].strip() if len(sys.argv) == 5 else ""
     parts = key.split("/")                        # timings-staging/<riw>/<rid>.<sha8>.jz
     if len(parts) != 3 or not parts[0] == "timings-staging" or not reason.strip():
         print("⛔ مفتاحٌ غيرُ صالح أو سببٌ فارغ"); return 2
@@ -58,7 +61,8 @@ def main() -> int:
         print("⛔ الأصلُ تبدّل — لا رفعَ ولا ترقية"); return 3
     if run(PROM, "--unfreeze", target, "--reason", reason) != 0:
         print("⛔ تعذّر رفعُ التجميد — لا ترقية"); return 4
-    rc = run(PROM, "--only", key, "--yes")
+    extra = ["--allow-truncated", allow_trunc] if allow_trunc else []
+    rc = run(PROM, "--only", key, "--yes", *extra)
     # يُجمَّد المنشورُ فعلاً بعدها أيّاً كان: الجديد إن رُقّي وإلا القديم
     if run(REFREEZE, target, new, "تجميدٌ بعد ترقية " + new) == 0:
         print(f"✅ رُقّي {target} ⇒ {new}")
