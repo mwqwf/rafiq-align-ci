@@ -320,9 +320,14 @@ def do_dispatch(c):
     #    المُعلَنة أُسقطت **بأسمائها من الرسالة نفسِها** وأُعيد **مرّةً واحدة**. والمصدرُ
     #    هو GitHub لا ظنُّنا، ولا يحتاج شيئاً مثبَّتاً.
     given = dict(c.get("inputs") or {})
+    # 🔀 (2026-11-09 · أمر القائد: تشغيل سياسة الأداء الأخير من فرعها) `ref` اختياريٌّ: فرعُ `claude/…` وحده ولسيرٍ
+    #    واحدٍ مسمّى (‏ctc_splice.yml)، فلا يُشغَّل شيءٌ غير مراجَعٍ من فرعٍ آخر ولا يُفتح بابٌ لغيره. وبلا `ref` السلوكُ كما كان حرفاً.
+    ref = str(c.get("ref") or "").strip()
+    if ref and (wf not in REF_ALLOWED_WF or not re.fullmatch(r"claude/[A-Za-z0-9._-]+(?:/[A-Za-z0-9._-]+)*", ref) or ".." in ref):
+        return 2, f"⛔ ref غيرُ مسموح: {ref!r} (فرعُ claude/… وحده وللسير {sorted(REF_ALLOWED_WF)} فقط)"
 
     def _fire(inp):
-        a = ["gh", "workflow", "run", wf]
+        a = ["gh", "workflow", "run", wf] + (["--ref", ref] if ref else [])
         for k, v in inp.items():
             a += ["-f", f"{k}={v}"]
         # إطلاقاتٌ متوازية ⇒ قد يردّ GitHub بحدّ المعدّل الثانويّ؛ تُعاد المحاولةُ بعد انتظار (لا يُسقط أمراً).
@@ -344,6 +349,8 @@ def do_dispatch(c):
                    + "".join(f"   · {k} = {v}\n" for k, v in dropped.items()) + out2)
     return rc, out
 
+
+REF_ALLOWED_WF = {"ctc_splice.yml"}
 
 PROMOTE_FORBIDDEN_ARGS = ("--override", "--allow-shrink")
 

@@ -12,6 +12,15 @@ class AgentCommandContractTest(unittest.TestCase):
     def test_guarded_package_catalog_workflow_is_dispatchable(self):
         self.assertIn("package-catalog-cloud.yml", ALLOWED_WF)
 
+    def test_dispatch_ref_only_claude_branch_and_ctc_splice(self):
+        """(2026-11-09) `ref` مسموحٌ لفرع claude/… ولـctc_splice.yml وحده؛ غيرُه يُردّ قبل أيّ إطلاق."""
+        from tools.ci_fleet.agent_cmd import do_dispatch
+        for wf, ref in (("align.yml", "claude/x"), ("ctc_splice.yml", "main"), ("ctc_splice.yml", "claude/../main"),
+                        ("ctc_splice.yml", "claude/a b"), ("ctc_splice.yml", "feature/x")):
+            rc, out = do_dispatch({"workflow": wf, "ref": ref, "inputs": {}})
+            self.assertEqual(rc, 2, (wf, ref, out))
+            self.assertIn("ref غيرُ مسموح", out)
+
     def test_whisper_witness_workflow_is_dispatchable_and_read_only(self):
         self.assertIn("whisper_witness.yml", ALLOWED_WF)
         text = (ROOT / ".github" / "workflows" / "whisper_witness.yml").read_text(encoding="utf-8")
