@@ -1,0 +1,52 @@
+name: rafiq-source-drift-sweep
+
+run-name: "source-drift ${{ inputs.only || 'كلّ المنشور' }}"
+
+# 🔎 مسحٌ قارئٌ محضٌ لتبدّل المصدر بعد الفهرسة (أمر القائد 2026-11-09 · 055.mp3 للكردي): لا سرَّ ولا دلوَ ولا كتابة (contents: read).
+#    مستودعٌ عامّ + عدّاد ubuntu-latest القياسيّ ⇒ دقائقُ مجّانيّة. الأثرُ JSON مخرَجَ تشغيلةٍ لسبعة أيّام.
+on:
+  workflow_dispatch:
+    inputs:
+      only: {description: "قوائم riw/id بفواصل (‏فارغ = كلُّ المنشور بالتجزئة)", default: ""}
+      shards: {description: "عددُ الشرائح المتوازية", default: "6"}
+      reason: {description: "سببُ الإطلاق", default: ""}
+
+permissions:
+  contents: read
+
+jobs:
+  plan:
+    runs-on: ubuntu-latest
+    outputs:
+      matrix: ${{ steps.m.outputs.matrix }}
+    steps:
+      - id: m
+        run: |
+          N="${{ inputs.shards }}"; case "$N" in ''|*[!0-9]*) N=6;; esac
+          python3 -c "import json,sys; n=int(sys.argv[1]); print('matrix='+json.dumps({'i':list(range(n)),'n':[n]}))" "$N" > "$GITHUB_OUTPUT"
+  sweep:
+    needs: plan
+    runs-on: ubuntu-latest
+    timeout-minutes: 340
+    strategy:
+      fail-fast: false
+      matrix: ${{ fromJson(needs.plan.outputs.matrix) }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: {python-version: "3.11"}
+      - name: مسحُ التبدّل (قراءةٌ محضة)
+        env:
+          ONLY: ${{ inputs.only }}
+        run: |
+          python tools/index_qa/source_drift_sweep.py --out ops/out/source-drift-${{ matrix.i }}.json \
+            --shard "${{ matrix.i }}/${{ matrix.n }}" ${ONLY:+--only "$ONLY"} 2>&1 | tee sweep-${{ matrix.i }}.log
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: source-drift-${{ matrix.i }}
+          path: |
+            ops/out/source-drift-${{ matrix.i }}.json
+            sweep-${{ matrix.i }}.log
+          retention-days: 7
+          if-no-files-found: ignore
