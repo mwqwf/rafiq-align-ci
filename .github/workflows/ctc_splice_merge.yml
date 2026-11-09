@@ -19,6 +19,7 @@ on:
       url_template: {description: "قالبُ الصوت من الكتالوج فيه {s:03d} (‏كما أُعطي لتشغيلات ctc_splice)", required: true}
       riwaya: {description: "الرواية", default: "qalun"}
       runs: {description: "معرّفاتُ تشغيلات ctc_splice مفصولةً بفواصل (‏من أثر ctc-splice-<معرّف>)", required: true}
+      only: {description: "سورٌ مسمّاةٌ مفصولةٌ بفواصل تُدمج وحدَها (‏فارغ = كلُّ ما في الآثار)؛ سورٌ لم تجتز البوّابةَ لا تُسمَّى هنا", default: ""}
       mode: {description: "heard = ctc-heardmap-1 · full = ctc-seg-1 (‏كما في التشغيلات المصدر)", default: "heard"}
       reason: {description: "سببُ التحويل", required: true}
 
@@ -116,6 +117,12 @@ jobs:
                       if rec.get("fileRef") != want:
                           sys.exit(f"⛔ س{s}: fileRef {rec.get('fileRef')} ≠ {want}")
                       seen[s] = (root, rec)
+          only = {int(x) for x in os.environ.get("ONLY", "").replace(" ", "").split(",") if x}
+          if only:
+              miss = sorted(only - set(seen))
+              if miss:
+                  sys.exit(f"⛔ سورٌ مسمّاةٌ بلا مُخرَجٍ في الآثار: {miss}")
+              seen = {s: v for s, v in seen.items() if s in only}
           if not seen:
               sys.exit("⛔ لا مُخرَجَ s<س>.json في الآثار")
           os.makedirs("merged", exist_ok=True)
