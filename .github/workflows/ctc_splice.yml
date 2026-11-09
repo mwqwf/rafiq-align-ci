@@ -264,7 +264,7 @@ jobs:
           case "$HCLIP" in true|false) ;; *) echo "⛔ heard_clip: true أو false"; exit 1;; esac
           if [ "$HCLIP" = "true" ] && [ "$MODE" != "heard" ]; then echo "⛔ heard_clip لوضع heard وحده"; exit 1; fi
           if [ "$HCLIP" = "true" ]; then
-            python -m pip install --quiet faster-whisper==1.1.1
+            python -m pip install --quiet faster-whisper==1.1.1 "requests==2.32.3"
             python -m unittest tools/alignment_v3/test_heard_clip.py
           fi
           if { [ "$HMH" != "6" ] || [ "$RPOL" != "off" ]; } && [ "$MODE" != "heard" ]; then echo "⛔ heard_max_hits وrepeat_policy لوضع heard وحده"; exit 1; fi
