@@ -206,6 +206,129 @@ class Pure(unittest.TestCase):
         self.assertEqual(chunks[0][2], 0)
         self.assertGreaterEqual(chunks[0][3], 0.9)
 
+    # ───────── سياسةُ الأداء المكرَّر وسقفُ الأداءات (maroush · 2026-11-07) ─────────
+    NOISE = "ظظظظظظظظظظظظ"
+
+    def _repeat_setup(self, parts, ayat):
+        heard, times = _heard(parts)
+        occ = [H.occurrences(a, heard) for a in ayat]
+        chosen = H.choose_chain(occ)
+        anchors = H.global_anchors(heard, times, ayat, 80)
+        base = [(a[0], a[1]) if a else None for a in anchors]
+        # المِرساةُ العامّةُ التي صُمّمت لها السياسةُ تدمج أداءَي الآية المكرَّرة في مدىً واحد (‏مِرساةُ main الحاليّة قد تقع على
+        # الأداء الأخير وحده)، فيُحاكى الدمجُ صراحةً: من بدء أوّل أداءٍ قويّ إلى نهاية آخرِ أداءٍ قويّ.
+        for k, hits in enumerate(occ):
+            strong = [o for o in hits if o[2] >= H.STRONG]
+            if len(strong) >= 2 and base[k] is not None:
+                base[k] = (times[min(o[0] for o in strong)], times[max(o[1] for o in strong) - 1] + 80)
+        return heard, times, occ, chosen, base
+
+    def test_occurrences_max_hits_default_six_and_raisable(self):
+        heard, _ = _heard([A2, self.NOISE] * 9)
+        self.assertEqual(len(H.occurrences(A2, heard)), 6)                 # الافتراضُ كما كان
+        self.assertEqual(len(H.occurrences(A2, heard, max_hits=6)), 6)
+        self.assertEqual(len(H.occurrences(A2, heard, max_hits=12)), 9)    # مرفوعٌ بالمدخل
+        self.assertEqual(H.MAX_HITS, 6)
+
+    def test_repeat_policy_three_performances_goes_to_last_connected(self):
+        ayat = [A1, A2, A3]
+        parts = [A1, A2, self.NOISE, A2, self.NOISE, A2, A3]
+        heard, times, occ, chosen, base = self._repeat_setup(parts, ayat)
+        self.assertGreaterEqual(len([o for o in occ[1] if o[2] >= H.STRONG]), 3)
+        out, changed = H.last_contiguous_anchors(base, occ, chosen, times, 80)
+        last_a2 = len(A1) + len(A2) + len(self.NOISE) + len(A2) + len(self.NOISE)   # فهرسُ أوّل حرفٍ في الأداء الأخير
+        self.assertEqual(out[1][0], times[last_a2])
+        self.assertEqual(out[1][1], times[last_a2 + len(A2) - 1] + 80)
+        self.assertIn(1, changed)
+        self.assertEqual(out[0], base[0])            # الأولى بأداءٍ واحدٍ لا تتغيّر
+        self.assertEqual(out[2], base[2])            # والثالثة كذلك
+
+    def test_repeat_policy_single_performance_unchanged(self):
+        ayat = [A1, A2, A3, A4]
+        heard, times, occ, chosen, base = self._repeat_setup(ayat, ayat)
+        out, changed = H.last_contiguous_anchors(base, occ, chosen, times, 80)
+        self.assertEqual(out, base)
+        self.assertEqual(changed, {})
+
+    def test_repeat_policy_unheard_anchor_or_unlinked_last_performance_unchanged(self):
+        ayat = [A1, A2, A3]
+        parts = [A1, A2, self.NOISE, A2, A3]
+        heard, times, occ, chosen, base = self._repeat_setup(parts, ayat)
+        out, _ = H.last_contiguous_anchors([base[0], None, base[2]], occ, chosen, times, 80)
+        self.assertIsNone(out[1])                    # بلا مِرساةٍ عامّةٍ لا تُنشأ مِرساة
+        # فجوةٌ بين الأداء الأخير وبدء التالية فوق link_ms ⇒ لا يُعتمد «موصولاً»
+        parts = [A1, A2, self.NOISE, A2, "ظ" * 200, A3]
+        heard, times, occ, chosen, base = self._repeat_setup(parts, ayat)
+        out, changed = H.last_contiguous_anchors(base, occ, chosen, times, 80, link_ms=2000)
+        self.assertEqual(out[1], base[1])
+        self.assertNotIn(1, changed)
+
+    def test_repeat_policy_links_to_stumbled_first_attempt_of_next_ayah(self):
+        # س67:12→13: أداءان للسابقة ثمّ محاولةٌ متعثّرةٌ للتالية تلصق الأداءَ الأخير ثمّ أداؤها التامّ بعد فجوة
+        ayat = [A1, A2, A3]
+        parts = [A1, A2, self.NOISE, A2, A3[:28], "ظ" * 120, A3]
+        heard, times, occ, chosen, base = self._repeat_setup(parts, ayat)
+        out, changed = H.last_contiguous_anchors(base, occ, chosen, times, 80)
+        last_a2 = len(A1) + len(A2) + len(self.NOISE)
+        self.assertIn(1, changed)
+        self.assertEqual(out[1][0], times[last_a2])
+
+    def test_reconcile_moves_next_anchor_out_of_moved_performance(self):
+        # مِرساةُ التالية العامّة داخل الأداء المنقول (س67: 18 ثمّ 19) ⇒ بدؤها إلى أقدم أداءٍ مقيسٍ بعد نهايته
+        times = list(range(0, 400000, 1))
+        occ = [[(0, 10, 0.9)], [(100, 200, 0.9), (300, 400, 0.9)], [(250, 330, 0.8), (500, 600, 0.9)]]
+        anchor = [(0, 10), (300, 400), (320, 700)]
+        out, fixed = H.reconcile_next_anchors(anchor, occ, times, 0, {1: ((100, 400), (300, 400))}, tol_ms=5)
+        self.assertEqual(out[2], (500, 599))
+        self.assertIn(2, fixed)
+        # لا أداءَ بعد النهاية ⇒ تبقى كما هي (لا اختلاق)
+        occ2 = [occ[0], occ[1], [(250, 330, 0.8)]]
+        out2, fixed2 = H.reconcile_next_anchors(anchor, occ2, times, 0, {1: ((100, 400), (300, 400))}, tol_ms=5)
+        self.assertEqual(out2[2], anchor[2])
+        self.assertEqual(fixed2, {})
+        # تاليةٌ بدؤها بعد النهاية أصلاً لا تُمسّ
+        anchor3 = [(0, 10), (300, 400), (450, 700)]
+        out3, fixed3 = H.reconcile_next_anchors(anchor3, occ, times, 0, {1: ((100, 400), (300, 400))}, tol_ms=5)
+        self.assertEqual(out3, anchor3)
+
+    def test_policy_end_cut_clips_previous_to_its_measured_bound(self):
+        # التالية نُقل بدؤها من 14.8 إلى 22.1ث: السابقةُ (‏7.2–13.8ث) تُقصّ إلى 14.6ث لا إلى 22.1ث
+        self.assertEqual(H.policy_end_cut(6754, 22134, 13800, ((14800, 34700), (22100, 34700))), 14600)
+        # إزاحةٌ دون الحدّ ⇒ لا قصّ
+        self.assertIsNone(H.policy_end_cut(6754, 22134, 13800, ((22000, 34700), (22100, 34700))))
+        # بلا نقلٍ للتالية ⇒ لا قصّ (‏سلوكٌ قديمٌ حرفاً)
+        self.assertIsNone(H.policy_end_cut(6754, 22134, 13800, None))
+        # ولا يُنتج مدخلاً فارغاً
+        self.assertIsNone(H.policy_end_cut(15000, 22134, 13800, ((14800, 34700), (22100, 34700))))
+
+    def test_repeat_policy_off_is_old_behaviour(self):
+        import inspect
+        sig = inspect.signature(H.run)
+        self.assertEqual(sig.parameters["repeat_policy"].default, "off")
+        self.assertEqual(sig.parameters["max_hits"].default, 6)
+        self.assertEqual(H.REPEAT_POLICIES[0], "off")
+        with self.assertRaises(ValueError):
+            H.run("x.mp3", 1, "hafs", repeat_policy="غلط")
+        # سطرُ الأوامر: بلا الخيارين يصل run بالافتراضين نفسيهما
+        import tempfile
+        with tempfile.TemporaryDirectory() as d:
+            audio = os.path.join(d, "a.mp3")
+            with open(audio, "wb") as fh:
+                fh.write(b"x")
+            with mock.patch.object(H, "run", return_value=({"engine": H.ENGINE}, "r")) as m, \
+                    mock.patch.dict(sys.modules, {"vad": mock.MagicMock(LAST_REL=None, VAD_VERSION=None)}), \
+                    mock.patch.object(sys, "argv", ["x", "--audio", audio, "--surah", "1", "--out-dir", d, "--probe"]):
+                H.main()
+            self.assertEqual(m.call_args.kwargs["max_hits"], 6)
+            self.assertEqual(m.call_args.kwargs["repeat_policy"], "off")
+            with mock.patch.object(H, "run", return_value=({"engine": H.ENGINE}, "r")) as m, \
+                    mock.patch.dict(sys.modules, {"vad": mock.MagicMock(LAST_REL=None, VAD_VERSION=None)}), \
+                    mock.patch.object(sys, "argv", ["x", "--audio", audio, "--surah", "1", "--out-dir", d, "--probe",
+                                                    "--max-hits", "12", "--repeat-policy", "last_contiguous"]):
+                H.main()
+            self.assertEqual(m.call_args.kwargs["max_hits"], 12)
+            self.assertEqual(m.call_args.kwargs["repeat_policy"], "last_contiguous")
+
 
 class Wiring(unittest.TestCase):
     """المحرّكُ معلَنٌ في سجلّ الحُرّاس الواحد وفي سير الدمج — فلا يتسلّل دمجٌ بلا إحصاء."""
@@ -223,6 +346,15 @@ class Wiring(unittest.TestCase):
         self.assertIn('OPN="ctc_heardmap_splice"', y)
         self.assertIn("tools/alignment_v3/ctc_heard_map.py --url", y)
         self.assertIn("rapidfuzz", y)
+
+    def test_ctc_splice_workflow_repeat_inputs_default_off(self):
+        import re
+        with open(os.path.join(self.ROOT, ".github/workflows/ctc_splice.yml"), encoding="utf-8") as f:
+            y = f.read()
+        self.assertRegex(y, r'heard_max_hits: \{description: "[^"]*", default: "6"\}')
+        self.assertRegex(y, r'repeat_policy: \{description: "[^"]*", default: "off"\}')
+        self.assertIn('--max-hits "$HMH" --repeat-policy "$RPOL"', y)
+        self.assertIn('RPOL="${RPOL:-off}"', y)
 
 
 class QuranModelFlag(unittest.TestCase):
