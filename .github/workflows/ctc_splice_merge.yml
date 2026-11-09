@@ -1,0 +1,193 @@
+name: rafiq-ctc-splice-merge
+
+run-name: "ctc-splice-merge ${{ inputs.parent }} · تشغيلات ${{ inputs.runs }}"
+
+# ⭐ **دمجُ مُخرَجات تشغيلاتِ ctc_splice المتوازية في مرشّحٍ واحدٍ مشتقٍّ من الأب مباشرةً** (‏تسريع maroush · 2026-11-09).
+#    السببُ مقيس: إعلانُ الحجب المؤقّت (‏reasonCode=OTHER) لا يُورَّث إلا مرّةً واحدة عن أصلٍ op=drop_surah
+#    (‏promote.inherited_drops)، فكلُّ السور المسترجَعة تلزمها ترقيةٌ واحدةٌ من مرشّحٍ `fromSha256 = الأب المنشور`.
+#    وctc_splice في وضع heard صار يتوازى بين تشغيلاتٍ لسورٍ مختلفة (‏مجموعةُ التزامنٍ تضمّ السور)، فهذه الوظيفةُ
+#    تأخذ ما حُلَّ من كلّ تشغيلة (‏s<س>.json من أثر ctc-splice-<تشغيلة> نفسِه) وتدمجه بالأداتين نفسيهما
+#    (‏splice_surah ثمّ stage_transform) وبحُرّاسهما كما هي لا تُخفَّف ولا تُتجاوز: لا محاذاةَ جديدة هنا.
+# ⛔ ما لم يُحَلّ في تشغيلته يبقى كما هو في الأب (‏--skip-unresolved)، والإحصاءُ الشامل وبوّابةُ السماع والملوحُ
+#    تحكم على المرشّح الناتج كاملاً قبل أيّ ترقية.
+# 💰 مستودعٌ عامّ + عدّاد ubuntu-latest القياسيّ ⇒ دقائقُ مجّانيّة؛ والوظيفةُ دقائقُ معدودة.
+on:
+  workflow_dispatch:
+    inputs:
+      parent: {description: "الأصل نفسُه الذي اشتُقّت منه التشغيلاتُ: timings/<riw>/<id>.jz أو مرشّحٌ في المسرح", required: true}
+      parent_sha: {description: "بصمةُ الأب (‏8 خانات فأكثر) — يجب أن تطابق الفعليّةَ وإلا يُوقَف", required: true}
+      url_template: {description: "قالبُ الصوت من الكتالوج فيه {s:03d} (‏كما أُعطي لتشغيلات ctc_splice)", required: true}
+      riwaya: {description: "الرواية", default: "qalun"}
+      runs: {description: "معرّفاتُ تشغيلات ctc_splice مفصولةً بفواصل (‏من أثر ctc-splice-<معرّف>)", required: true}
+      mode: {description: "heard = ctc-heardmap-1 · full = ctc-seg-1 (‏كما في التشغيلات المصدر)", default: "heard"}
+      reason: {description: "سببُ التحويل", required: true}
+
+permissions:
+  contents: read
+  actions: read
+
+concurrency:
+  group: rafiq-ctc-splice-merge-${{ inputs.parent }}
+  cancel-in-progress: false
+
+env:
+  PY: "3.11"
+
+jobs:
+  merge:
+    name: ctc-splice-merge ${{ github.event.inputs.parent }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: {python-version: "${{ env.PY }}"}
+      - name: الأدوات
+        run: python -m pip install --quiet "numpy==1.26.4" boto3==1.43.123 rapidfuzz==3.14.6 "requests==2.32.3"
+      - name: اعتماد R2
+        env: {R2_CREDENTIALS_JSON: "${{ secrets.R2_CREDENTIALS_JSON }}"}
+        run: mkdir -p secure && printf '%s' "$R2_CREDENTIALS_JSON" > secure/r2_credentials.json
+
+      - name: جلبُ آثار التشغيلات المصدر
+        env:
+          GH_TOKEN: ${{ github.token }}
+          RUNS: ${{ github.event.inputs.runs }}
+        run: |
+          set -eo pipefail
+          mkdir -p art
+          for r in $(echo "$RUNS" | tr ',' ' '); do
+            case "$r" in ''|*[!0-9]*) echo "⛔ معرّفٌ غيرُ رقميّ: $r"; exit 1;; esac
+            c="$(gh api "repos/${{ github.repository }}/actions/runs/$r" --jq '.name + " " + .path + " " + (.conclusion // "-")')"
+            echo "التشغيلة $r: $c"
+            case "$c" in *ctc_splice.yml*) ;; *) echo "⛔ التشغيلة $r ليست ctc_splice"; exit 1;; esac
+            gh run download "$r" -n "ctc-splice-$r" -D "art/$r"
+          done
+          find art -name 's*.json' | sort
+
+      - name: ⛔ الأبُ وحارسُ الرابط والبصمة
+        id: plan
+        env:
+          PARENT: ${{ github.event.inputs.parent }}
+          PSHA: ${{ github.event.inputs.parent_sha }}
+          URLT: ${{ github.event.inputs.url_template }}
+          RIW: ${{ github.event.inputs.riwaya }}
+        run: |
+          python - <<'PY'
+          import gzip, hashlib, json, os, sys, boto3
+          c = json.load(open("secure/r2_credentials.json"))
+          s3 = boto3.client("s3", endpoint_url=c["endpoint"], aws_access_key_id=c["accessKeyId"],
+                            aws_secret_access_key=c["secretAccessKey"], region_name="auto")
+          parent = os.environ["PARENT"]
+          if not parent.startswith(("timings/", "timings-staging/")) or parent.count("/") != 2 or not parent.endswith(".jz"):
+              sys.exit(f"⛔ الأصلُ يجب أن يكون timings/<riw>/<id>.jz أو مرشّحاً في المسرح: {parent}")
+          _, riw, fn = parent.split("/")
+          rid = fn[:-3].split(".")[0]
+          if riw != os.environ["RIW"]:
+              sys.exit(f"⛔ الرواية {os.environ['RIW']} والأصلُ {riw}")
+          cat = json.loads(s3.get_object(Bucket=c["bucket"], Key="catalog/reciters.json")["Body"].read())
+          base = None
+          for r in cat.get("riwayat", []):
+              if r["id"] == riw:
+                  for x in r.get("reciters", []):
+                      if x.get("id") == rid:
+                          base = x.get("base") or ""
+          if base is None:
+              sys.exit(f"⛔ {riw}/{rid} ليس في الكتالوج")
+          want_t = (base if base.endswith("/") else base + "/") + "{s:03d}.mp3"
+          if os.environ["URLT"] != want_t:
+              sys.exit(f"⛔ القالبُ يخالف الكتالوج\n   المعطى {os.environ['URLT']}\n   الكتالوج {want_t}")
+          body = s3.get_object(Bucket=c["bucket"], Key=parent)["Body"].read()
+          sha = hashlib.sha256(body).hexdigest()
+          if len(os.environ["PSHA"]) < 8 or not sha.startswith(os.environ["PSHA"]):
+              sys.exit(f"⛔ بصمةُ الأب الفعليّة {sha[:16]} لا تطابق المعطاة {os.environ['PSHA']}")
+          open("parent.jz", "wb").write(body)
+          idx = json.loads(gzip.decompress(body).decode("utf-8"))
+          if idx.get("reciterId") != rid or idx.get("riwaya") != riw:
+              sys.exit("⛔ الأصلُ يصف قارئاً آخر")
+          # كلُّ s<س>.json يجب أن يحمل fileRef هذا القالب نفسَه (‏لا يُدمج مُخرَجٌ من مصدرٍ آخر).
+          seen = {}
+          for root, _, files in os.walk("art"):
+              for f in files:
+                  if f.startswith("s") and f.endswith(".json") and f[1:-5].isdigit():
+                      s = int(f[1:-5]); rec = json.load(open(os.path.join(root, f), encoding="utf-8"))
+                      if s in seen:
+                          sys.exit(f"⛔ س{s} في أكثر من أثر: {seen[s][0]} و{root}")
+                      want = os.environ["URLT"].format(s=s)
+                      if rec.get("fileRef") != want:
+                          sys.exit(f"⛔ س{s}: fileRef {rec.get('fileRef')} ≠ {want}")
+                      seen[s] = (root, rec)
+          if not seen:
+              sys.exit("⛔ لا مُخرَجَ s<س>.json في الآثار")
+          os.makedirs("merged", exist_ok=True)
+          for s, (root, rec) in seen.items():
+              json.dump(rec, open(f"merged/s{s:03d}.json", "w", encoding="utf-8"), ensure_ascii=False)
+          print("سورٌ محاذاةٌ في الآثار:", sorted(seen))
+          with open(os.environ["GITHUB_OUTPUT"], "a") as f:
+              f.write(f"sha={sha}\nsurahs={','.join(map(str, sorted(seen)))}\n")
+          PY
+
+      - name: الدمجُ بحُرّاسه وبصماتُ الصوت
+        env:
+          URLT: ${{ github.event.inputs.url_template }}
+          SURAHS: ${{ steps.plan.outputs.surahs }}
+          MODE: ${{ github.event.inputs.mode }}
+        run: |
+          set -e
+          ETAG="ctc-seg-1"; [ "$MODE" = "heard" ] && ETAG="ctc-heardmap-1"
+          S=""; F=""
+          for s in $(echo "$SURAHS" | tr ',' ' '); do
+            j=$(printf "merged/s%03d.json" "$s")
+            S="$S,$s"; F="$F $j"
+          done
+          S="${S#,}"
+          python tools/index_qa/splice_surah.py --index parent.jz --surah "$S" \
+                 --aligned $F --url "$URLT" --skip-unresolved --engine-tag "$ETAG" \
+                 --out patched.jz
+          python - <<'PY'
+          import gzip, json
+          idx = json.loads(gzip.decompress(open("patched.jz", "rb").read()).decode())
+          taken = [int(x) for x in open("patched.jz.taken").read().split(",") if x]
+          present = sorted({int(e["ayahId"].split(":")[0]) for e in idx["entries"]})
+          sha = idx.get("audioSha256")
+          if isinstance(sha, list) and len(sha) == len(present):
+              pos = {s: i for i, s in enumerate(present)}
+              for s in taken:
+                  rec = json.load(open(f"merged/s{s:03d}.json", encoding="utf-8"))
+                  for e in idx["entries"]:
+                      if int(e["ayahId"].split(":")[0]) == s and e["fileRef"] != rec["fileRef"]:
+                          raise SystemExit(f"⛔ س{s}: fileRef المدموج {e['fileRef']} ≠ المحاذى {rec['fileRef']}")
+                  if rec.get("sha256"):
+                      if sha[pos[s]] and sha[pos[s]] != rec["sha256"]:
+                          print(f"🔄 س{s}: بصمةُ الصوت تبدّلت عند المصدر — تُكتب المقيسة")
+                      sha[pos[s]] = rec["sha256"]
+              idx["audioSha256"] = sha
+          else:
+              print(f"⚠️ قائمةُ البصمات {len(sha) if isinstance(sha, list) else '—'} والسورُ {len(present)} — تُترك كما هي")
+          with open("patched.jz", "wb") as f:
+              f.write(gzip.compress(json.dumps(idx, ensure_ascii=False).encode("utf-8")))
+          print("المأخوذ:", taken, "· engineBySurah:", idx.get("engineBySurah"))
+          PY
+
+      - name: رفعٌ إلى الاختبار بحُرّاس stage_transform
+        env:
+          PARENT: ${{ github.event.inputs.parent }}
+          SHA: ${{ steps.plan.outputs.sha }}
+          REASON: ${{ github.event.inputs.reason }}
+          MODE: ${{ github.event.inputs.mode }}
+        run: |
+          set -o pipefail
+          TAKEN="$(cat patched.jz.taken)"
+          OPN="ctc_surah_splice"; [ "$MODE" = "heard" ] && OPN="ctc_heardmap_splice"
+          python tools/index_qa/stage_transform.py --file patched.jz \
+                 --parent "$PARENT" --parent-sha "$SHA" \
+                 --op "$OPN:$TAKEN" --reason "$REASON" \
+                 --by "github-ctc-splice-merge" --yes | tee stage.log
+
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: ctc-splice-merge-${{ github.run_id }}
+          path: |
+            stage.log
+            patched.jz.taken
+          retention-days: 7
