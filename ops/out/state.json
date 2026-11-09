@@ -1,5 +1,5 @@
 {
- "generatedAt": "2026-11-07T20:36:36Z",
+ "generatedAt": "2026-11-09T10:11:29Z",
  "readErrors": {},
  "fetchedCount": 180,
  "readComplete": true,
@@ -85,24 +85,6 @@
     "56": 96
    }
   },
-  "hafs/a_alhazmi": {
-   "entries": 6193,
-   "missingSurahs": [
-    13
-   ],
-   "reasonCode": "OTHER",
-   "transformOp": "drop_surah:13",
-   "declaredReasons": {
-    "unknown": 0,
-    "source_truncated": 43
-   },
-   "declaredCount": 43,
-   "undeclaredCount": 0,
-   "engine": "ctc-seg-1",
-   "gapSurahs": {
-    "13": 43
-   }
-  },
   "hafs/asim": {
    "entries": 5732,
    "missingSurahs": [
@@ -152,24 +134,6 @@
    "gapSurahs": {
     "6": 165,
     "89": 30
-   }
-  },
-  "hafs/i_sanankoua": {
-   "entries": 6101,
-   "missingSurahs": [
-    20
-   ],
-   "reasonCode": "OTHER",
-   "transformOp": "drop_surah:20",
-   "declaredReasons": {
-    "unknown": 0,
-    "source_truncated": 135
-   },
-   "declaredCount": 135,
-   "undeclaredCount": 0,
-   "engine": "ctc-seg-1",
-   "gapSurahs": {
-    "20": 135
    }
   },
   "hafs/jaleel": {
@@ -231,21 +195,18 @@
    }
   },
   "hafs/mhsny": {
-   "entries": 6201,
-   "missingSurahs": [
-    31
-   ],
+   "entries": 6235,
+   "missingSurahs": [],
    "reasonCode": "OTHER",
-   "transformOp": "drop_surah:31",
+   "transformOp": "ctc_dualfix_splice:31",
    "declaredReasons": {
     "no-align": 1,
-    "source_truncated": 35
+    "source_truncated": 1
    },
-   "declaredCount": 36,
+   "declaredCount": 2,
    "undeclaredCount": 0,
    "engine": "ctc-seg-1",
    "gapSurahs": {
-    "31": 34,
     "69": 1
    }
   },
@@ -355,24 +316,6 @@
    "gapSurahs": {
     "4": 176,
     "24": 34
-   }
-  },
-  "qalun/janaini_qalun": {
-   "entries": 6054,
-   "missingSurahs": [
-    37
-   ],
-   "reasonCode": "OTHER",
-   "transformOp": "drop_surah:37",
-   "declaredReasons": {
-    "unknown": 0,
-    "source_truncated": 182
-   },
-   "declaredCount": 182,
-   "undeclaredCount": 0,
-   "engine": "ctc-seg-1",
-   "gapSurahs": {
-    "37": 182
    }
   },
   "qalun/maroush_qalun": {
@@ -554,21 +497,18 @@
    }
   },
   "warsh/noah_warsh": {
-   "entries": 6034,
-   "missingSurahs": [
-    3
-   ],
+   "entries": 6234,
+   "missingSurahs": [],
    "reasonCode": "OTHER",
-   "transformOp": "drop_surah:3",
+   "transformOp": "ctc_heardmap_splice:3",
    "declaredReasons": {
     "unknown": 0,
-    "source_truncated": 202
+    "source_truncated": 2
    },
-   "declaredCount": 202,
+   "declaredCount": 2,
    "undeclaredCount": 0,
    "engine": "ctc-seg-1",
    "gapSurahs": {
-    "3": 200,
     "54": 2
    }
   }
