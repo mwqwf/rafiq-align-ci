@@ -34,6 +34,7 @@ on:
       heard_max_hits: {description: "وضعُ heard وحده: سقفُ أداءات الآية الواحدة في خريطة السماع (ctc_heard_map --max-hits)؛ الافتراضُ 6 كما كان، و12 لقارئٍ يُكرّر مثل maroush", default: "6"}
       repeat_policy: {description: "وضعُ heard وحده: off = كما كان · last_contiguous = بدءُ الآية المكرَّرة ونهايتُها من الأداء الأخير التامّ الموصول بما بعده (ctc_heard_map --repeat-policy؛ سياسةٌ مقترحةٌ تنتظر قرارَ القائد — مطفأةٌ افتراضاً)", default: "off"}
       heard_f32: {description: "وضعُ heard وحده (مطفأٌ افتراضاً · تسريع maroush 2026-11-09): true = بناءُ الخريطة والنوافذ بدقّة float32 (‏CTC_INT8=0) كإعداد بوّابة السماع؛ ولا يمسّ البوّابةَ ولا الإحصاءَ ولا الملوحَ", default: "false"}
+      heard_clip: {description: "وضعُ heard وحده (مطفأٌ افتراضاً · قرار القائد 2026-11-09 · maroush): true = تُقصّ نافذةُ كلّ آيةٍ على آخر أداءٍ تامٍّ مثبَتٍ بشاهد Whisper ضمن 300م.ث (tools/alignment_v3/heard_clip.py)؛ ما لم يثبت له أداءٌ تامٌّ تبقى سورتُه محجوبةً معلَنةً ولا تُقصّ تخميناً", default: "false"}
       absent_ayahs: {description: "وضعُ window وحده (أمر المالك 2026-10-31): آياتٌ غائبةٌ في وسط سورةٍ تامّة المداخل في الأب — «79:15,79:17,79:18»؛ تُحاذى الجاراتُ بنصوص الحاضرات وحدها (ctc_gapsplit --absent-ayahs) ويُقاس دليلُ الغياب بمحاذاةٍ بنصّ الغائبة تردّها الحرّاس، ثمّ تُحجب وتُعلَن (drop_ayahs --aligned) بمرشّحٍ في timings-staging. surahs = سورُها نفسُها؛ ولا يجتمع مع rewindow", default: ""}
       reason_user: {description: "وضعُ absent_ayahs وحده: السببُ المعروضُ للمستخدم (بلا كلماتٍ إداريّة)", default: "تسجيلُ هذه السورة ينقصه بعضُ آياتها."}
       truncated_tail: {description: "وضعُ full وحده (أمر المالك 2026-10-02): سورةٌ واحدةٌ مصدرُها مبتورُ الذيل تُحاذى بادئتُها 1..N بالنموذج القرآني المثبَّت ويُعلَن ذيلُها source_truncated — «24:30»؛ وsurahs = السورةُ نفسُها", default: ""}
@@ -248,6 +249,7 @@ jobs:
           HMH: ${{ github.event.inputs.heard_max_hits }}
           RPOL: ${{ github.event.inputs.repeat_policy }}
           HF32: ${{ github.event.inputs.heard_f32 }}
+          HCLIP: ${{ github.event.inputs.heard_clip }}
         run: |
           set -o pipefail
           # ⭐ مدخلا heard وحده؛ الافتراضُ (6 · off) يُمرَّر كما هو فلا يتغيّر سلوكُ غير maroush.
@@ -258,6 +260,13 @@ jobs:
           case "$HF32" in true|false) ;; *) echo "⛔ heard_f32: true أو false"; exit 1;; esac
           if [ "$HF32" = "true" ] && [ "$MODE" != "heard" ]; then echo "⛔ heard_f32 لوضع heard وحده"; exit 1; fi
           HEARD_INT8=1; [ "$HF32" = "true" ] && HEARD_INT8=0
+          HCLIP="${HCLIP:-false}"
+          case "$HCLIP" in true|false) ;; *) echo "⛔ heard_clip: true أو false"; exit 1;; esac
+          if [ "$HCLIP" = "true" ] && [ "$MODE" != "heard" ]; then echo "⛔ heard_clip لوضع heard وحده"; exit 1; fi
+          if [ "$HCLIP" = "true" ]; then
+            python -m pip install --quiet faster-whisper==1.1.1
+            python -m unittest tools/alignment_v3/test_heard_clip.py
+          fi
           if { [ "$HMH" != "6" ] || [ "$RPOL" != "off" ]; } && [ "$MODE" != "heard" ]; then echo "⛔ heard_max_hits وrepeat_policy لوضع heard وحده"; exit 1; fi
           if [ "$HW" = "true" ] && [ "$MODE" != "window" ]; then echo "⛔ heard_witness لوضع window وحده"; exit 1; fi
           # ⏱️ (2026-10-25 · تسريع) ميزانيةُ الوقت لوضعَي dualfix وheard كما لوضع full أدناه: ثلاثُ تشغيلات dualfix من خمسٍ وعشرين
@@ -362,6 +371,10 @@ jobs:
                 rm -f "tools/alignment/work/batch_$RID"/s*.json.part
               elif [ "$rc" != 0 ]; then
                 exit "$rc"
+              elif [ "$HCLIP" = "true" ]; then
+                # ⭐ قرار القائد 2026-11-09: نافذةُ كلّ آيةٍ = آخرُ أداءٍ تامٍّ مثبَتٍ بشاهد Whisper؛ وما لم يثبت يُنقل ملفُّه جانباً (لا قصَّ بالتخمين).
+                python tools/alignment_v3/heard_clip.py clip --batch-dir "tools/alignment/work/batch_$RID" \
+                  --surah "$s" --url "$U" --riwaya "$RIW" --model small 2>&1 | tee -a ctc.log
               fi
             done
             exit 0
@@ -445,10 +458,17 @@ jobs:
           else:
               print(f"⚠️ قائمةُ البصمات {len(sha) if isinstance(sha, list) else '—'} "
                     f"والسورُ {len(present)} — تُترك كما هي")
+          # ⭐ قصُّ الأداء (‏heard_clip): دليلُ كلّ آيةٍ يُنقل من ملفّ سورتها إلى ترويسة الفهرس.
+          import sys
+          sys.path.insert(0, "tools/alignment_v3")
+          import heard_clip
+          recs = {s: json.load(open(f"{d}/s{s:03d}.json", encoding="utf-8")) for s in taken}
+          idx = heard_clip.inject_header(idx, recs)
           with open("patched.jz", "wb") as f:
               f.write(gzip.compress(json.dumps(idx, ensure_ascii=False).encode("utf-8")))
           print("المأخوذ:", taken, "· engineBySurah:", idx.get("engineBySurah"),
-                "· sourceBySurah:", idx.get("sourceBySurah"))
+                "· sourceBySurah:", idx.get("sourceBySurah"),
+                "· heardClip:", len((idx.get("heardClip") or {}).get("ayahs") or {}), "آية")
           PY
 
       - name: حجبُ الغائبات في الوسط وإعلانُها ورفعُ المرشّح (‏drop_ayahs)
@@ -500,5 +520,6 @@ jobs:
           path: |
             tools/alignment/work/batch_*/s*.json
             tools/alignment/work/batch_*/a*.json
+            tools/alignment/work/batch_*/clip_*.json
             ctc.log
           retention-days: 7
