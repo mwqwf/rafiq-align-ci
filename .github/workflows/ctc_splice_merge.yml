@@ -72,6 +72,7 @@ jobs:
           PSHA: ${{ github.event.inputs.parent_sha }}
           URLT: ${{ github.event.inputs.url_template }}
           RIW: ${{ github.event.inputs.riwaya }}
+          ONLY: ${{ github.event.inputs.only }}
         run: |
           python - <<'PY'
           import gzip, hashlib, json, os, sys, boto3
