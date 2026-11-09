@@ -509,10 +509,19 @@ def cmd_run(a) -> int:
                                  "before": {"verdict": "reject", "reason": "نقص"}})
                     continue
                 seg = pcm[int(st * SR / 1000):int(int(en) * SR / 1000)]
-                segs, _i = model.transcribe(seg, language="ar", beam_size=5, word_timestamps=True,
-                                            condition_on_previous_text=False, vad_filter=False, temperature=0.0)
-                words = [{"w": x.word.strip(), "s": st + int(x.start * 1000), "p": round(float(x.probability), 4)}
-                         for sg in segs for x in (sg.words or [])]
+                try:
+                    segs, _i = model.transcribe(seg, language="ar", beam_size=5, word_timestamps=True,
+                                                condition_on_previous_text=False, vad_filter=False, temperature=0.0)
+                    words = [{"w": x.word.strip(), "s": st + int(x.start * 1000), "p": round(float(x.probability), 4)}
+                             for sg in segs for x in (sg.words or [])]
+                except IndexError as ex:
+                    # عطبٌ داخل faster-whisper في محاذاة الكلمات لنافذةٍ بعينها (‏IndexError في find_alignment): لا يُسقط التشغيلةَ كلَّها
+                    # ولا يُعدّ المدخلُ سليماً؛ يُردّ «نقص» بتفصيلٍ صريحٍ أنه غيرُ مقيس (تشديدٌ لا تليين).
+                    rows.append({"ayah": ay, "startMs": st, "endMs": int(en), "verdict": "reject", "reason": "نقص",
+                                 "detail": f"تعذّر تفريغ النافذة (خطأ أداة التفريغ: {type(ex).__name__}) — غير مقيس", "words": 0,
+                                 "heard": "", "before": {"verdict": "reject", "reason": "نقص"}})
+                    print(f"{riwaya}/{slug} {s}:{ay} [{st}-{en}] ⇒ reject نقص · تعذّر التفريغ (غير مقيس)", flush=True)
+                    continue
                 nw = PH._norm_words(words)
                 r0 = judge_entry_baseline(ay, nw, texts)
                 r = judge_entry(ay, nw, texts, windows)
