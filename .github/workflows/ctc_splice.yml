@@ -38,7 +38,8 @@ on:
 
 concurrency:
   # (quran_model) السورُ تُوزَّع على تشغيلاتٍ متوازيةٍ من الأب نفسِه، فالمجموعةُ تضمّ السور وإلا ألغى المنتظِرُ منها أخاه.
-  group: rafiq-ctc-splice-${{ inputs.parent }}${{ inputs.quran_model != 'false' && format('-qm-{0}-{1}', inputs.quran_model, inputs.surahs) || '' }}
+  # (2026-11-09 · تسريع maroush) وضعُ heard بسورٍ مسمّاةٍ كذلك: تشغيلاتٌ متوازيةٌ لسورٍ مختلفة من الأب نفسِه، وتُدمج مرشّحاتُها بـgraft_surahs بحُرّاسه؛ لا حارسَ يُمسّ.
+  group: rafiq-ctc-splice-${{ inputs.parent }}${{ inputs.quran_model != 'false' && format('-qm-{0}-{1}', inputs.quran_model, inputs.surahs) || '' }}${{ (inputs.mode == 'heard' && inputs.absent_ayahs == '' && inputs.surahs != '') && format('-hd-{0}', inputs.surahs) || '' }}
   cancel-in-progress: false
 
 env:
