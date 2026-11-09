@@ -35,6 +35,7 @@ on:
       repeat_policy: {description: "وضعُ heard وحده: off = كما كان · last_contiguous = بدءُ الآية المكرَّرة ونهايتُها من الأداء الأخير التامّ الموصول بما بعده (ctc_heard_map --repeat-policy؛ سياسةٌ مقترحةٌ تنتظر قرارَ القائد — مطفأةٌ افتراضاً)", default: "off"}
       heard_f32: {description: "وضعُ heard وحده (مطفأٌ افتراضاً · تسريع maroush 2026-11-09): true = بناءُ الخريطة والنوافذ بدقّة float32 (‏CTC_INT8=0) كإعداد بوّابة السماع؛ ولا يمسّ البوّابةَ ولا الإحصاءَ ولا الملوحَ", default: "false"}
       heard_clip: {description: "وضعُ heard وحده (مطفأٌ افتراضاً · قرار القائد 2026-11-09 · maroush): true = تُقصّ نافذةُ كلّ آيةٍ على آخر أداءٍ تامٍّ مثبَتٍ بشاهد Whisper ضمن 300م.ث (tools/alignment_v3/heard_clip.py)؛ ما لم يثبت له أداءٌ تامٌّ تبقى سورتُه محجوبةً معلَنةً ولا تُقصّ تخميناً", default: "false"}
+      heard_clip_model: {description: "مع heard_clip: حجمُ نموذج Whisper الشاهد (small الافتراضيّ أو medium) — العتباتُ كلُّها كما هي", default: "small"}
       absent_ayahs: {description: "وضعُ window وحده (أمر المالك 2026-10-31): آياتٌ غائبةٌ في وسط سورةٍ تامّة المداخل في الأب — «79:15,79:17,79:18»؛ تُحاذى الجاراتُ بنصوص الحاضرات وحدها (ctc_gapsplit --absent-ayahs) ويُقاس دليلُ الغياب بمحاذاةٍ بنصّ الغائبة تردّها الحرّاس، ثمّ تُحجب وتُعلَن (drop_ayahs --aligned) بمرشّحٍ في timings-staging. surahs = سورُها نفسُها؛ ولا يجتمع مع rewindow", default: ""}
       reason_user: {description: "وضعُ absent_ayahs وحده: السببُ المعروضُ للمستخدم (بلا كلماتٍ إداريّة)", default: "تسجيلُ هذه السورة ينقصه بعضُ آياتها."}
       truncated_tail: {description: "وضعُ full وحده (أمر المالك 2026-10-02): سورةٌ واحدةٌ مصدرُها مبتورُ الذيل تُحاذى بادئتُها 1..N بالنموذج القرآني المثبَّت ويُعلَن ذيلُها source_truncated — «24:30»؛ وsurahs = السورةُ نفسُها", default: ""}
@@ -250,6 +251,7 @@ jobs:
           RPOL: ${{ github.event.inputs.repeat_policy }}
           HF32: ${{ github.event.inputs.heard_f32 }}
           HCLIP: ${{ github.event.inputs.heard_clip }}
+          HCMODEL: ${{ github.event.inputs.heard_clip_model }}
         run: |
           set -o pipefail
           # ⭐ مدخلا heard وحده؛ الافتراضُ (6 · off) يُمرَّر كما هو فلا يتغيّر سلوكُ غير maroush.
@@ -261,6 +263,8 @@ jobs:
           if [ "$HF32" = "true" ] && [ "$MODE" != "heard" ]; then echo "⛔ heard_f32 لوضع heard وحده"; exit 1; fi
           HEARD_INT8=1; [ "$HF32" = "true" ] && HEARD_INT8=0
           HCLIP="${HCLIP:-false}"
+          HCMODEL="${HCMODEL:-small}"
+          case "$HCMODEL" in small|medium) ;; *) echo "⛔ heard_clip_model: small أو medium"; exit 1;; esac
           case "$HCLIP" in true|false) ;; *) echo "⛔ heard_clip: true أو false"; exit 1;; esac
           if [ "$HCLIP" = "true" ] && [ "$MODE" != "heard" ]; then echo "⛔ heard_clip لوضع heard وحده"; exit 1; fi
           if [ "$HCLIP" = "true" ]; then
@@ -374,7 +378,7 @@ jobs:
               elif [ "$HCLIP" = "true" ]; then
                 # ⭐ قرار القائد 2026-11-09: نافذةُ كلّ آيةٍ = آخرُ أداءٍ تامٍّ مثبَتٍ بشاهد Whisper؛ وما لم يثبت يُنقل ملفُّه جانباً (لا قصَّ بالتخمين).
                 CTC_INT8=$HEARD_INT8 python tools/alignment_v3/heard_clip.py clip --batch-dir "tools/alignment/work/batch_$RID" \
-                  --surah "$s" --url "$U" --riwaya "$RIW" --model small 2>&1 | tee -a ctc.log
+                  --surah "$s" --url "$U" --riwaya "$RIW" --model "$HCMODEL" 2>&1 | tee -a ctc.log
               fi
             done
             exit 0
