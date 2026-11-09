@@ -1,5 +1,5 @@
 {
- "generatedAt": "2026-11-09T10:12:48Z",
+ "generatedAt": "2026-11-09T19:14:01Z",
  "readErrors": {},
  "fetchedCount": 180,
  "readComplete": true,
@@ -264,42 +264,6 @@
     "53": 62
    }
   },
-  "hafs/shamrani": {
-   "entries": 6190,
-   "missingSurahs": [
-    79
-   ],
-   "reasonCode": "SOURCE_TRUNCATED",
-   "transformOp": "drop_surah:79",
-   "declaredReasons": {
-    "unknown": 0,
-    "source_truncated": 46
-   },
-   "declaredCount": 46,
-   "undeclaredCount": 0,
-   "engine": "mp3quran-timing-v1",
-   "gapSurahs": {
-    "79": 46
-   }
-  },
-  "hafs/tblawi": {
-   "entries": 6215,
-   "missingSurahs": [
-    92
-   ],
-   "reasonCode": "OTHER",
-   "transformOp": "drop_surah:92",
-   "declaredReasons": {
-    "no-align": 9,
-    "source_truncated": 21
-   },
-   "declaredCount": 30,
-   "undeclaredCount": 0,
-   "engine": "align-0.2",
-   "gapSurahs": {
-    "92": 21
-   }
-  },
   "qalun/akri_qalun": {
    "entries": 6026,
    "missingSurahs": [
@@ -446,7 +410,7 @@
     23
    ],
    "reasonCode": "OTHER",
-   "transformOp": "drop_surah:23",
+   "transformOp": "ctc_heardmap_splice:40",
    "declaredReasons": {
     "no-align": 2,
     "source_truncated": 118
