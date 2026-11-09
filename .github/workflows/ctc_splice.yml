@@ -33,12 +33,13 @@ on:
       heard_witness: {description: "وضعُ window وحده (fixS2 · بإذن المالك): يُقبل حدُّ المدّة الأعلى (2×) فقط لآيةٍ يوافق حدّاها خريطةَ السماع (ctc_heard_map) بفرقٍ مقيس ≤700/1000م.ث ومِرساةٍ ≥0.85 منفردة", default: "false"}
       heard_max_hits: {description: "وضعُ heard وحده: سقفُ أداءات الآية الواحدة في خريطة السماع (ctc_heard_map --max-hits)؛ الافتراضُ 6 كما كان، و12 لقارئٍ يُكرّر مثل maroush", default: "6"}
       repeat_policy: {description: "وضعُ heard وحده: off = كما كان · last_contiguous = بدءُ الآية المكرَّرة ونهايتُها من الأداء الأخير التامّ الموصول بما بعده (ctc_heard_map --repeat-policy؛ سياسةٌ مقترحةٌ تنتظر قرارَ القائد — مطفأةٌ افتراضاً)", default: "off"}
+      heard_f32: {description: "وضعُ heard وحده (مطفأٌ افتراضاً · تسريع maroush 2026-11-09): true = بناءُ الخريطة والنوافذ بدقّة float32 (‏CTC_INT8=0) كإعداد بوّابة السماع؛ ولا يمسّ البوّابةَ ولا الإحصاءَ ولا الملوحَ", default: "false"}
       absent_ayahs: {description: "وضعُ window وحده (أمر المالك 2026-10-31): آياتٌ غائبةٌ في وسط سورةٍ تامّة المداخل في الأب — «79:15,79:17,79:18»؛ تُحاذى الجاراتُ بنصوص الحاضرات وحدها (ctc_gapsplit --absent-ayahs) ويُقاس دليلُ الغياب بمحاذاةٍ بنصّ الغائبة تردّها الحرّاس، ثمّ تُحجب وتُعلَن (drop_ayahs --aligned) بمرشّحٍ في timings-staging. surahs = سورُها نفسُها؛ ولا يجتمع مع rewindow", default: ""}
       reason_user: {description: "وضعُ absent_ayahs وحده: السببُ المعروضُ للمستخدم (بلا كلماتٍ إداريّة)", default: "تسجيلُ هذه السورة ينقصه بعضُ آياتها."}
       truncated_tail: {description: "وضعُ full وحده (أمر المالك 2026-10-02): سورةٌ واحدةٌ مصدرُها مبتورُ الذيل تُحاذى بادئتُها 1..N بالنموذج القرآني المثبَّت ويُعلَن ذيلُها source_truncated — «24:30»؛ وsurahs = السورةُ نفسُها", default: ""}
 
 concurrency:
-  group: rafiq-ctc-splice-${{ inputs.parent }}
+  group: rafiq-ctc-splice-${{ inputs.parent }}${{ (inputs.mode == 'heard' && inputs.absent_ayahs == '' && inputs.surahs != '') && format('-hd-{0}', inputs.surahs) || '' }}
   cancel-in-progress: false
 
 env:
@@ -246,12 +247,17 @@ jobs:
           ABSENT: ${{ github.event.inputs.absent_ayahs }}
           HMH: ${{ github.event.inputs.heard_max_hits }}
           RPOL: ${{ github.event.inputs.repeat_policy }}
+          HF32: ${{ github.event.inputs.heard_f32 }}
         run: |
           set -o pipefail
           # ⭐ مدخلا heard وحده؛ الافتراضُ (6 · off) يُمرَّر كما هو فلا يتغيّر سلوكُ غير maroush.
           HMH="${HMH:-6}"; RPOL="${RPOL:-off}"
           case "$HMH" in ''|*[!0-9]*) echo "⛔ heard_max_hits عددٌ صحيح"; exit 1;; esac
           case "$RPOL" in off|last_contiguous) ;; *) echo "⛔ repeat_policy: off أو last_contiguous"; exit 1;; esac
+          HF32="${HF32:-false}"
+          case "$HF32" in true|false) ;; *) echo "⛔ heard_f32: true أو false"; exit 1;; esac
+          if [ "$HF32" = "true" ] && [ "$MODE" != "heard" ]; then echo "⛔ heard_f32 لوضع heard وحده"; exit 1; fi
+          HEARD_INT8=1; [ "$HF32" = "true" ] && HEARD_INT8=0
           if { [ "$HMH" != "6" ] || [ "$RPOL" != "off" ]; } && [ "$MODE" != "heard" ]; then echo "⛔ heard_max_hits وrepeat_policy لوضع heard وحده"; exit 1; fi
           if [ "$HW" = "true" ] && [ "$MODE" != "window" ]; then echo "⛔ heard_witness لوضع window وحده"; exit 1; fi
           # ⏱️ (2026-10-25 · تسريع) ميزانيةُ الوقت لوضعَي dualfix وheard كما لوضع full أدناه: ثلاثُ تشغيلات dualfix من خمسٍ وعشرين
@@ -348,7 +354,7 @@ jobs:
               #    ثمّ 1000 لا 1500: البوّابةُ تعيد حسابَ الخريطة فتتزحزح المِرساةُ ~100م.ث، فحدٌّ عند 1.5ث تماماً
               #    رُدّ بـ1.6ث (‏swlim 23:14 · 2026-10-19) — هامشٌ تحت البوّابة، تشديدٌ لا تليين.
               rc=0
-              timeout --signal=TERM --kill-after=60 "${LEFT}s" python tools/alignment_v3/ctc_heard_map.py --url "$U" --surah "$s" --riwaya "$RIW" --strict-tol-ms 1000 \
+              CTC_INT8=$HEARD_INT8 timeout --signal=TERM --kill-after=60 "${LEFT}s" python tools/alignment_v3/ctc_heard_map.py --url "$U" --surah "$s" --riwaya "$RIW" --strict-tol-ms 1000 \
                 --max-hits "$HMH" --repeat-policy "$RPOL" \
                 --out-dir "tools/alignment/work/batch_$RID" 2>&1 | tee -a ctc.log || rc=$?
               if [ "$rc" = 124 ] || [ "$rc" = 137 ]; then
