@@ -46,7 +46,8 @@ TOL_MS = 300             # أقصى فرقٍ بين حدَّي الأداء وح
 W_K = 3                  # كلماتُ الطرف المطابَقة كلمةً بكلمة
 W_MIN_WORD_P = 0.5       # ثقةُ كلّ كلمةٍ طرفيّة (‏كما في pin_heard)
 W_MEAN_WORD_P = 0.7
-W_LEN_LO, W_LEN_HI = 0.7, 1.3
+W_FUZZ_SIM = 0.8         # تشابهُ حروف الكلمات الطرفيّة (‏رسمُ Whisper حفصيٌّ والنصُّ قالونيّ: «ايه»/«ايت» «الكتاب»/«الكتب»)
+W_LEN_LO, W_LEN_HI = 0.8, 1.2     # عددُ كلمات المقطع نسبةً إلى كلمات الآية (‏كالمسار المشابه في pin_heard)
 PAD_MS = 1500            # هامشُ نافذة الشاهد حول الأداء
 MAX_WINDOW_MS = 120_000  # حدُّ whisper_witness للنافذة الواحدة
 MAX_GAP_MS = 30_000      # أقصى فجوةٍ بين نهاية أداءٍ وبدء أداء تاليتها
@@ -78,6 +79,11 @@ def norm_tokens(words, norm):
     return out
 
 
+def _sim(a, b):
+    import difflib                                                          # noqa: PLC0415
+    return difflib.SequenceMatcher(None, " ".join(a), " ".join(b)).ratio()
+
+
 def find_matches(words, ref, norm):
     """كلُّ مقطعٍ تامٍّ للآية في تفريغ Whisper: ([dict(ws, we, pmin, pmean)], سببُ آخر ردّ)."""
     n = len(ref)
@@ -86,16 +92,17 @@ def find_matches(words, ref, norm):
     toks = norm_tokens(words, norm)
     k = min(W_K, n)
     head, tail = ref[:k], ref[-k:]
-    lo, hi = max(k, int(W_LEN_LO * n)), int(W_LEN_HI * n) + 1
-    why = "أوّلُ كلماتِ الآية لا يطابق تفريغَ النافذة"
+    lo, hi = max(k, math.ceil(W_LEN_LO * n)), max(math.floor(W_LEN_HI * n), k)
+    why = "أوّلُ كلماتِ الآية لا يطابق تفريغَ النافذة (الشاهد: %s | المرجع: %s)" % (
+        " ".join(t[0] for t in toks[:6]), " ".join(head))
     out = []
     for i in range(len(toks) - k + 1):
-        if [t[0] for t in toks[i:i + k]] != head:
+        if _sim([t[0] for t in toks[i:i + k]], head) < W_FUZZ_SIM:
             continue
         ends = [j for j in range(i + k - 1, len(toks))
-                if [t[0] for t in toks[j - k + 1:j + 1]] == tail and lo <= j - i + 1 <= hi]
+                if _sim([t[0] for t in toks[j - k + 1:j + 1]], tail) >= W_FUZZ_SIM and lo <= j - i + 1 <= hi]
         if not ends:
-            why = "آخرُ كلماتِ الآية لا يطابق التفريغ أو عددُ كلماته خارج المدى"
+            why = "آخرُ كلماتِ الآية لا يطابق التفريغ أو عددُ كلماته خارج المدى [%d..%d]" % (lo, hi)
             continue
         j = min(ends, key=lambda e: abs((e - i + 1) - n))
         edge = toks[i:i + k] + toks[j - k + 1:j + 1]

@@ -99,6 +99,17 @@ class ClipTest(unittest.TestCase):
         self.assertIsNone(bad)
         self.assertIn("يبعدان", why)
 
+    def test_orthographic_variant_accepted_but_other_ayah_rejected(self):
+        ref = "تلك ايت الكتب الحكيم".split()
+        ws = [{"w": w, "s": 1000 + i * 500, "e": 1400 + i * 500, "p": 0.9}
+              for i, w in enumerate("تلك ايه الكتاب الحكيم".split())]
+        ms, _ = H.find_matches(ws, ref, NORM)
+        self.assertEqual(len(ms), 1)
+        other = [{"w": w, "s": 1000 + i * 500, "e": 1400 + i * 500, "p": 0.9}
+                 for i, w in enumerate("ان الذين امنوا وعملوا".split())]
+        ms2, _ = H.find_matches(other, ref, NORM)
+        self.assertEqual(ms2, [])
+
     def test_low_word_confidence_rejected(self):
         ms, why = H.find_matches(words(REF[1], 10000, 15000, p=0.4), REF[1], NORM)
         self.assertEqual(ms, [])
