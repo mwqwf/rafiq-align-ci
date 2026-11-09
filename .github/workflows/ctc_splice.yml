@@ -373,7 +373,7 @@ jobs:
                 exit "$rc"
               elif [ "$HCLIP" = "true" ]; then
                 # ⭐ قرار القائد 2026-11-09: نافذةُ كلّ آيةٍ = آخرُ أداءٍ تامٍّ مثبَتٍ بشاهد Whisper؛ وما لم يثبت يُنقل ملفُّه جانباً (لا قصَّ بالتخمين).
-                python tools/alignment_v3/heard_clip.py clip --batch-dir "tools/alignment/work/batch_$RID" \
+                CTC_INT8=$HEARD_INT8 python tools/alignment_v3/heard_clip.py clip --batch-dir "tools/alignment/work/batch_$RID" \
                   --surah "$s" --url "$U" --riwaya "$RIW" --model small 2>&1 | tee -a ctc.log
               fi
             done

@@ -40,24 +40,34 @@ class Runner:
         return out
 
 
+def ctc_for(truth, shift=0):
+    """محاذاةُ CTC مصطنعة: تُرجع حدَّي الأداء الصحيح داخل النافذة (‏مع إزاحةٍ اختياريّة)."""
+    def run(lo, hi, a):
+        for (s, e) in truth.get(a, []):
+            if lo <= s and e <= hi:
+                return s + shift, e + shift
+        return None
+    return run
+
+
 class ClipTest(unittest.TestCase):
     def test_artificial_repeat_clipped_to_last_complete_performance(self):
         # الآية 2 تُقرأ مرّتين: 20000–26000 ثمّ 40000–46000؛ والتالية بعد الثانية
         hm = hmap({1: [(10000, 15000, 0.95)], 2: [(20000, 26000, 0.9), (40000, 46000, 0.92)],
                    3: [(47000, 52000, 0.95)]})
         truth = {1: [(10000, 15000)], 2: [(20000, 26000), (40000, 46000)], 3: [(47000, 52000)]}
-        r = H.clip_surah(hm, lambda a: REF[a], 3, Runner(truth), NORM)
+        r = H.clip_surah(hm, lambda a: REF[a], 3, Runner(truth), ctc_for(truth), NORM)
         self.assertTrue(r["ok"], r["unresolved"])
         by = {e["ayahIdx"] + 1: e for e in r["entries"]}
         self.assertEqual((by[2]["startMs"], by[2]["endMs"]), (40000, 46000))      # آخرُ أداءٍ لا الأوّل
-        self.assertEqual(r["evidence"]["2"]["k"], 2)
-        self.assertEqual(r["evidence"]["2"]["of"], 2)
+        self.assertEqual(r["evidence"]["2"]["occurrence"], [2, 2])
+        self.assertEqual(r["evidence"]["2"]["ctc"], [40000, 46000])
         self.assertEqual(len(r["entries"]), 3)
 
     def test_ayah_without_repeat_unchanged(self):
         hm = hmap({1: [(10000, 15000, 0.95)], 2: [(15500, 21000, 0.9)], 3: [(21500, 26000, 0.95)]})
         truth = {1: [(10000, 15000)], 2: [(15500, 21000)], 3: [(21500, 26000)]}
-        r = H.clip_surah(hm, lambda a: REF[a], 3, Runner(truth), NORM)
+        r = H.clip_surah(hm, lambda a: REF[a], 3, Runner(truth), ctc_for(truth), NORM)
         self.assertTrue(r["ok"])
         got = [(e["startMs"], e["endMs"]) for e in r["entries"]]
         self.assertEqual(got, [(10000, 15000), (15500, 21000), (21500, 26000)])
@@ -67,40 +77,51 @@ class ClipTest(unittest.TestCase):
         hm = hmap({1: [(10000, 15000, 0.95)], 2: [(16000, 21000, 0.9), (40000, 44000, 0.8)],
                    3: [(21800, 26000, 0.95)]})
         truth = {1: [(10000, 15000)], 2: [(16000, 21000), (40000, 44000)], 3: [(21800, 26000)]}
-        r = H.clip_surah(hm, lambda a: REF[a], 3, Runner(truth, tail_cut={(2, 40000)}), NORM)
+        r = H.clip_surah(hm, lambda a: REF[a], 3, Runner(truth, tail_cut={(2, 40000)}), ctc_for(truth), NORM)
         self.assertTrue(r["ok"], r["unresolved"])
         by = {e["ayahIdx"] + 1: e for e in r["entries"]}
         self.assertEqual(by[2]["startMs"], 16000)
-        self.assertEqual(r["evidence"]["2"]["k"], 1)
+        self.assertEqual(r["evidence"]["2"]["occurrence"][0], 1)
 
     def test_no_complete_performance_leaves_surah_unresolved(self):
         hm = hmap({1: [(10000, 15000, 0.95)], 2: [(16000, 21000, 0.9)], 3: [(21800, 26000, 0.95)]})
         truth = {1: [(10000, 15000)], 2: [(16000, 21000)], 3: [(21800, 26000)]}
-        r = H.clip_surah(hm, lambda a: REF[a], 3, Runner(truth, tail_cut={(2, 16000)}), NORM)
+        r = H.clip_surah(hm, lambda a: REF[a], 3, Runner(truth, tail_cut={(2, 16000)}), ctc_for(truth), NORM)
         self.assertFalse(r["ok"])
         self.assertIn(2, r["unresolved"])
         self.assertEqual(r["entries"], [])                    # لا قصَّ تخميناً
 
-    def test_witness_bounds_must_agree_within_300ms(self):
-        perf = (10000, 15000, 0.9)
-        ok, _ = H.verify(words(REF[1], 10200, 15200), REF[1], perf, NORM)
+    def test_ctc_and_whisper_bounds_must_agree_within_300ms(self):
+        m = {"ws": 10200, "we": 15200}
+        ok, _ = H.confirm(m, lambda lo, hi: (10000, 15000))
         self.assertIsNotNone(ok)
-        bad, why = H.verify(words(REF[1], 10600, 15000), REF[1], perf, NORM)
+        bad, why = H.confirm(m, lambda lo, hi: (10600, 15000))
         self.assertIsNone(bad)
         self.assertIn("يبعدان", why)
 
     def test_low_word_confidence_rejected(self):
-        perf = (10000, 15000, 0.9)
-        bad, why = H.verify(words(REF[1], 10000, 15000, p=0.4), REF[1], perf, NORM)
-        self.assertIsNone(bad)
+        ms, why = H.find_matches(words(REF[1], 10000, 15000, p=0.4), REF[1], NORM)
+        self.assertEqual(ms, [])
         self.assertIn("ثقة", why)
+
+    def test_two_complete_matches_inside_one_window_take_the_last(self):
+        # نافذةٌ واحدةٌ فيها أداءان تامّان (‏موضعٌ فضفاضٌ يضمّ التكرار)
+        ws = words(REF[2], 20000, 26000) + words(REF[2], 40000, 46000)
+        ms, _ = H.find_matches(ws, REF[2], NORM)
+        self.assertEqual(len(ms), 2)
+        hm = hmap({1: [(10000, 15000, 0.95)], 2: [(19000, 47000, 0.9)], 3: [(47500, 52000, 0.95)]})
+        truth = {1: [(10000, 15000)], 2: [(20000, 26000), (40000, 46000)], 3: [(47500, 52000)]}
+        r = H.clip_surah(hm, lambda a: REF[a], 3, Runner(truth), ctc_for(truth), NORM)
+        self.assertTrue(r["ok"], r["unresolved"])
+        by = {e["ayahIdx"] + 1: e for e in r["entries"]}
+        self.assertEqual((by[2]["startMs"], by[2]["endMs"]), (40000, 46000))
 
     def test_later_performance_after_next_ayah_is_not_chosen(self):
         # أداءٌ مثبَتٌ للآية 1 بعد بدء الآية 2 لا يُؤخذ (‏ترتيب) فيُؤخذ ما قبله
         hm = hmap({1: [(10000, 15000, 0.95), (30000, 35000, 0.95)], 2: [(16000, 21000, 0.9)],
                    3: [(21800, 26000, 0.95)]})
         truth = {1: [(10000, 15000), (30000, 35000)], 2: [(16000, 21000)], 3: [(21800, 26000)]}
-        r = H.clip_surah(hm, lambda a: REF[a], 3, Runner(truth), NORM)
+        r = H.clip_surah(hm, lambda a: REF[a], 3, Runner(truth), ctc_for(truth), NORM)
         self.assertTrue(r["ok"], r["unresolved"])
         by = {e["ayahIdx"] + 1: e for e in r["entries"]}
         self.assertEqual(by[1]["startMs"], 10000)
@@ -108,14 +129,14 @@ class ClipTest(unittest.TestCase):
     def test_far_gap_is_not_accepted(self):
         hm = hmap({1: [(10000, 15000, 0.95)], 2: [(200000, 205000, 0.9)], 3: [(205500, 210000, 0.95)]})
         truth = {1: [(10000, 15000)], 2: [(200000, 205000)], 3: [(205500, 210000)]}
-        r = H.clip_surah(hm, lambda a: REF[a], 3, Runner(truth), NORM)
+        r = H.clip_surah(hm, lambda a: REF[a], 3, Runner(truth), ctc_for(truth), NORM)
         self.assertFalse(r["ok"])
         self.assertIn(1, r["unresolved"])
 
     def test_header_injection_records_every_ayah(self):
         hm = hmap({1: [(10000, 15000, 0.95)], 2: [(15500, 21000, 0.9)], 3: [(21500, 26000, 0.95)]})
         truth = {1: [(10000, 15000)], 2: [(15500, 21000)], 3: [(21500, 26000)]}
-        res = H.clip_surah(hm, lambda a: REF[a], 3, Runner(truth), NORM)
+        res = H.clip_surah(hm, lambda a: REF[a], 3, Runner(truth), ctc_for(truth), NORM)
         rec = H.apply_to_surah_json({"surah": 5, "entries": []}, res)
         idx = H.inject_header({"entries": []}, {5: rec})
         self.assertEqual(sorted(idx["heardClip"]["ayahs"]), ["5:1", "5:2", "5:3"])
