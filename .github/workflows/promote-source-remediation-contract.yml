@@ -24,6 +24,8 @@ on:
       - tools/alignment_v3/test_heard_absent_witnessed.py
       - tools/index_qa/test_pin_heard_owntext.py
       - tools/index_qa/test_drop_ayahs_inherit.py
+      - tools/index_qa/test_drop_ayahs_inherit_dropsurah.py
+      - tools/index_qa/test_inherited_drops.py
       - tools/index_qa/test_drop_ayahs.py
       - tools/index_qa/test_pin_heard_declaration.py
       - tools/index_qa/test_pin_heard_disputed.py
@@ -57,6 +59,8 @@ on:
       - tools/alignment_v3/test_heard_absent_witnessed.py
       - tools/index_qa/test_pin_heard_owntext.py
       - tools/index_qa/test_drop_ayahs_inherit.py
+      - tools/index_qa/test_drop_ayahs_inherit_dropsurah.py
+      - tools/index_qa/test_inherited_drops.py
       - tools/index_qa/test_drop_ayahs.py
       - tools/index_qa/test_pin_heard_declaration.py
       - tools/index_qa/test_pin_heard_disputed.py
@@ -75,13 +79,14 @@ concurrency:
 jobs:
   test:
     runs-on: ubuntu-latest
-    timeout-minutes: 5
+    # كان 5: تثبيتُ ffmpeg بـapt يستغرق على بعض المشغّلات أكثر من 4 دقائق فأُلغي الفحص قبل أيّ اختبار (#114 مرّتين 2026-11-10).
+    timeout-minutes: 12
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
         with: { python-version: "3.11" }
       - run: python -m unittest tools.index_qa.test_promote_source_remediation -v
-      - run: python -m unittest tools/index_qa/test_shrink_declared_gaps.py tools/index_qa/test_promote_shrink.py tools/index_qa/test_drop_ayahs.py tools/index_qa/test_splice_truncated_excuse.py tools/index_qa/test_splice_keep_parent_gaps.py tools/index_qa/test_truncated_tail.py tools/index_qa/test_build_same_source_candidate.py tools/index_qa/test_build_registered_candidate.py tools/index_qa/test_drop_ayahs_inherit.py tools/index_qa/test_pin_heard_declaration.py tools/index_qa/test_pin_heard_disputed.py tools/index_qa/test_heard_disputed.py tools/index_qa/test_heard_witness_rasm_window.py tools/index_qa/test_heard_owntext.py tools/index_qa/test_pin_heard_owntext.py tools/index_qa/test_heard_witnessed_absent.py tools/index_qa/test_witnessed_prev_window.py tools/index_qa/test_drop_ayahs_witnessed.py tools/alignment_v3/test_heard_absent_witnessed.py tools/index_qa/test_drop_surah_declarations.py -v
+      - run: python -m unittest tools/index_qa/test_shrink_declared_gaps.py tools/index_qa/test_promote_shrink.py tools/index_qa/test_drop_ayahs.py tools/index_qa/test_splice_truncated_excuse.py tools/index_qa/test_splice_keep_parent_gaps.py tools/index_qa/test_truncated_tail.py tools/index_qa/test_build_same_source_candidate.py tools/index_qa/test_build_registered_candidate.py tools/index_qa/test_drop_ayahs_inherit.py tools/index_qa/test_drop_ayahs_inherit_dropsurah.py tools/index_qa/test_pin_heard_declaration.py tools/index_qa/test_pin_heard_disputed.py tools/index_qa/test_heard_disputed.py tools/index_qa/test_heard_witness_rasm_window.py tools/index_qa/test_heard_owntext.py tools/index_qa/test_pin_heard_owntext.py tools/index_qa/test_heard_witnessed_absent.py tools/index_qa/test_witnessed_prev_window.py tools/index_qa/test_drop_ayahs_witnessed.py tools/alignment_v3/test_heard_absent_witnessed.py tools/index_qa/test_drop_surah_declarations.py -v
       # (2026-11-10) جردُ الاختبارات غير المشغَّلة: كلُّ وحدةٍ في عمليةٍ مستقلّة (بعضها يضع بدائلَ في sys.modules)؛
       # بلا شبكةٍ ولا أسرارٍ ولا numpy؛ ويلزمها مسارُ tools/index_qa وtools/ci_fleet. وpyyaml لعقد سير ctc_splice.
       - run: pip install pyyaml
@@ -117,7 +122,8 @@ jobs:
       # soundfile غيرُ لازم (جُرّبت بدونه فمرّت)، وmp3_resync يتخطّى نفسَه إن غاب libmp3lame؛ وtest_download_deadline نحو 26 ثانية.
       - run: pip install numpy pyyaml
       # مشغّل ubuntu لا يحمل ffmpeg (فشل test_original_audio_fixture بـFileNotFoundError وتخطّت اختباراتٌ أخرى نفسَها بصمت)؛ حزمةٌ مجّانيّة.
-      - run: command -v ffmpeg >/dev/null || { sudo apt-get update -qq && sudo apt-get install -y -qq ffmpeg; }
+      - timeout-minutes: 8
+        run: command -v ffmpeg >/dev/null || { sudo apt-get update -qq && sudo DEBIAN_FRONTEND=noninteractive apt-get install -y -qq --no-install-recommends ffmpeg; }
       - name: اختباراتُ index_qa المحتاجة numpy (وحدةٌ لكلّ عملية)
         env:
           PYTHONPATH: tools/index_qa:tools/ci_fleet
