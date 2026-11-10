@@ -2,3 +2,5 @@
 - الحيّ: timings/hafs/zaki.jz بصمة dc20b8fc (ETag b727b79c5ca8df186fb14df8b97b4894، 6236 مدخلاً).
 - المحاذاة الكاملة: ctc_align.yml تشغيلة 42824472600 (parts=16, auto_chunk=1) نجحت ⇒ المرشّح timings-staging/hafs/zaki.72f45472.jz (6235 آية؛ HIGH 456، فشل سور: لا شيء).
 - التالي: struct (1110_zrl_zaki_sb) ثم heard_gate/openers/أربعة ملوح/diagnosis/census، ثم التحقّق من العناقيد التسعة.
+- 15:12Z: المرشّح 72f45472 (ctc_align كاملة) فشل: 80 سورة من 114 انحرف ذيلها 5ث..4786ث عن الحيّ وLOW 2571، و38:53 بلا محاذاة (ثقة 0.0)؛ سليم في 34 سورة قصيرة فقط. struct مرّ بتحذيرات. لا يُرقّى.
+- التجربة: ctc_splice mode=heard على الحيّ بسور كاملة (25 · 8 · 86-90) ثم تعميم على 114 (دفعات في /tmp/claude-0/zk/batches.json: 50 دفعة).
