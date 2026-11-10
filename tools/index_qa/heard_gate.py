@@ -811,6 +811,7 @@ WITNESSED_KEY = "witnessedAbsent"
 WITNESSED_MIN_WITNESSES = 2
 WITNESSED_Q_MAX = 0.5           # جودةُ الخريطة هناك دون هذا (‏الشرط ٤)
 WITNESSED_SPACE_FRAC = 0.5      # الفجوةُ بين الجارتين أقلُّ من هذه النسبة من المتوقَّع (‏الشرط ٥)
+WITNESSED_PREV_WINDOW = 6         # الجارةُ السابقة تُسمع بـW_K كلماتٍ متّصلةٍ من آخر هذا العدد من كلماتها
 WITNESSED_MIN_PEERS = 3         # أقلُّ عددٍ من الأقران تُحسب منه المدّةُ المتوقَّعة
 
 
@@ -890,10 +891,19 @@ def witnessed_witness_check(wit, surah, ayah, claim, own, prev, nxt, meta, want_
                 f"(‏نوافذُه {_merged_windows(wit)})"), None
     if _word_hits(wit, own[:k]):
         return f"يسمع في تفريغه أوّلَ {k} كلماتٍ من الآية الغائبة «{' '.join(own[:k])}» — مسموعةٌ لا غائبة", None
-    prevs = [h for h in _word_hits(wit, prev[-k:]) if _span_ok(h[0], h[1]) is None]
+    # ⭐ (‏kurdi 4:127 · أوّل تشغيلٍ حقيقيّ · أمر القائد) Whisper كتب «من كل شيء محيطا» لا «بكل شيء محيطا» في الشهود الأربعة، فلم تُسمع
+    #    آخرُ W_K كلماتٍ من السابقة. فيُقبل **أيُّ W_K كلماتٍ متّصلةٍ داخل آخر WITNESSED_PREV_WINDOW كلماتٍ** منها (‏مثل «الأرض وكان الله»)
+    #    مطابقةً حرفيّةً بالثقة نفسِها؛ ولا يتغيّر W_K. والفجوةُ تُحسب من **نهاية المقطع المطابَق نفسِه** لا من نهاية الآية (‏فتكبر الفجوةُ
+    #    ويصعب الشرط). ⛔ لا إرخاءَ لثقةٍ ولا لمطلع الغائبة ولا للملتقى ولا للجودة.
+    prevs = []                                                       # [(مقطع، نافذة، عددُ الكلمات بعد المقطع من السابقة)]
+    for i in range(max(0, len(prev) - WITNESSED_PREV_WINDOW), len(prev) - k + 1):
+        for h in _word_hits(wit, prev[i:i + k]):
+            if _span_ok(h[0], h[1]) is None:
+                prevs.append((h[0], h[1], prev[i + k:]))
     nexts = [h for h in _word_hits(wit, nxt[:k]) if _span_ok(h[0], h[1]) is None]
     if not prevs:
-        return f"لا يسمع الجارةَ السابقةَ بلفظها (‏آخرَ {k} كلماتٍ «{' '.join(prev[-k:])}» بثقةٍ كافية)", None
+        return (f"لا يسمع الجارةَ السابقةَ بلفظها ({k} كلماتٍ متّصلةً من آخر {WITNESSED_PREV_WINDOW} كلماتٍ منها "
+                f"«{' '.join(prev[-WITNESSED_PREV_WINDOW:])}» بثقةٍ كافية)"), None
     if not nexts:
         return f"لا يسمع الجارةَ اللاحقةَ بلفظها (‏أوّلَ {k} كلماتٍ «{' '.join(nxt[:k])}» بثقةٍ كافية)", None
     if not claim and not bounds:
@@ -904,19 +914,24 @@ def witnessed_witness_check(wit, surah, ayah, claim, own, prev, nxt, meta, want_
     # ⛔ (‏مراجعةُ القائد #108) الملتقى يجب أن يقع **في الموضع المدّعى** لا في أيّ موضعٍ يكرّر فيه القارئُ اللفظَ أو يتشابه:
     #    (أ) مع claim: الفترةُ [نهايةُ السابقة، بدءُ اللاحقة] تتقاطع مع نافذة الخريطة المدّعاة؛
     #    (ب) مع bounds (‏البوّابة: نهايةُ مدخل a−1 وبدءُ مدخل a+1 في المرشّح نفسِه): طرفا الملتقى كلٌّ ضمن TOL_MS من طرفه.
-    def located(p_end_, n_start_):
+    def located(p_end_, n_start_, p_est_):
         if claim and not (p_end_ <= claim[1] and n_start_ >= claim[0]):
             return False
-        if bounds and not (abs(p_end_ - bounds[0]) <= TOL_MS and abs(n_start_ - bounds[1]) <= TOL_MS):
+        if bounds and not (abs(p_est_ - bounds[0]) <= TOL_MS and abs(n_start_ - bounds[1]) <= TOL_MS):
             return False
         return True
-    cand = [(int(p[0][-1][2]), int(n[0][0][1])) for p, n in pairs]
-    cand = [c for c in cand if located(*c)]
+    # الفجوةُ من نهاية **المقطع المطابَق** (‏p[0][-1][2])؛ أمّا قيدُ البوّابة (ب) فيقارن **نهايةَ السابقة المقدَّرة** بنهاية مدخلها
+    # (‏المقطعُ المطابَق + مدّةُ ما بعده من كلمات السابقة بوتيرة الأقران) — فمقطعٌ أبكر من آخر الآية لا يُردّ لمجرّد بُعده عن نهاية
+    # المدخل؛ وبلا كلماتٍ بعده (‏آخرُ W_K) يتطابق الاثنان حرفاً كما كان.
+    own_chars = sum(len(w) for w in own)
+    rate = (expected_ms / own_chars) if (expected_ms and expected_ms > 0 and own_chars) else 0.0
+    cand = [(int(p[0][-1][2]), int(n[0][0][1]), int(p[0][-1][2]) + rate * sum(len(w) for w in p[2])) for p, n in pairs]
+    cand = [c for c in cand if located(c[0], c[1], c[2])]
     if not cand:
         where = (f"نافذة الخريطة [{claim[0]}، {claim[1]}]" if claim else "") + (" و" if claim and bounds else "") + \
                 (f"ما بين نهاية مدخل الجارة السابقة {bounds[0]} وبدء اللاحقة {bounds[1]} (±{TOL_MS})" if bounds else "")
         return f"ملتقى الجارتين في تفريغه لا يقع في الموضع المدّعى — {where}", None
-    p_end, n_start = min(cand, key=lambda c: max(0, c[1] - c[0]))
+    p_end, n_start, _est = min(cand, key=lambda c: max(0, c[1] - c[0]))
     gap = max(0, n_start - p_end)
     if not expected_ms or expected_ms <= 0:
         return "لا مدّةَ متوقَّعةً للآية من أقرانها — لا يثبت الغيابُ بالزمن", None
