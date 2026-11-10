@@ -170,6 +170,17 @@ def build(srcs, runs, surah, starts, riwaya, ref_words, n_ayahs, want_sha):
     return {"probes": probes, "witnesses": wits}, rep, 0
 
 
+def gate_ref_words():
+    """دالّةُ النصّ المرجعيّ التي تعيد بها البوّابةُ التحقّقَ (‏`timing_repair.evidence_error`) — لا غيرُها.
+
+    كان المسحُ يحقن `pin_heard.ref_words_for` والبوّابةُ تتحقّق بـ`heard_gate.disputed_ref_words` (‏تطبيعٌ آخر)،
+    فيختار المسحُ مسباراً تردّه البوّابة (‏fakhfakh_qalun س37: «ما سُمع عند البدء … ليس من نصّ 37:144»).
+    مصدرٌ واحدٌ للدالّة يمنع الافتراق: لا يُرخي البوّابةَ شيئاً، فهي تتحقّق بدالّتها كما كانت.
+    """
+    import timing_repair                                              # noqa: PLC0415
+    return timing_repair._default_ref_words()
+
+
 def main(argv=None):
     ap = argparse.ArgumentParser()
     ap.add_argument("--surah", type=int, required=True)
@@ -181,14 +192,13 @@ def main(argv=None):
     ap.add_argument("--out", required=True)
     ap.add_argument("--report", required=True)
     a = ap.parse_args(argv)
-    import pin_heard as PH                                            # noqa: PLC0415
     import promote                                                    # noqa: PLC0415
     runs = [x.strip() for x in a.runs.split(",")]
     srcs = [load_artifact(p.strip()) for p in a.witness_artifacts.split(",")]
     if len(srcs) != 2:
         raise SystemExit("⛔ يلزم شاهدان")
     n = promote._AYAH_COUNTS[a.surah - 1]
-    rec, rep, code = build(srcs, runs, a.surah, load_starts(a.entries, a.surah), a.riwaya, PH.ref_words_for, n, a.audio_sha)
+    rec, rep, code = build(srcs, runs, a.surah, load_starts(a.entries, a.surah), a.riwaya, gate_ref_words(), n, a.audio_sha)
     outp, repp = Path(a.report), None
     rp = json.loads(outp.read_text(encoding="utf-8")) if outp.exists() else {}
     rp[str(a.surah)] = rep
