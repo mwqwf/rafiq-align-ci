@@ -260,7 +260,6 @@ def build_end(srcs, runs, surah, ends, ayahs, riwaya, ref_words, n_ayahs, want_s
 
 def main_end(a):
     """`--kind end`: دليلُ نهاية المدخل لآياتٍ مسمّاة بصيغة drop_ayahs (‏مفاتيحُه «س:آ»)."""
-    import heard_gate as HG                                           # noqa: PLC0415
     import promote                                                    # noqa: PLC0415
     if not a.ayahs:
         raise SystemExit("⛔ --kind end يلزمه --ayahs")
@@ -273,7 +272,7 @@ def main_end(a):
     shas = [None] * 114
     shas[a.surah - 1] = a.audio_sha
     out, rep, code = build_end(srcs, runs, a.surah, load_ends(a.entries, a.surah), ayahs, a.riwaya,
-                               HG.disputed_ref_words, n, a.audio_sha, {"riwaya": a.riwaya, "audioSha256": shas})
+                               gate_ref_words(), n, a.audio_sha, {"riwaya": a.riwaya, "audioSha256": shas})
     outp = Path(a.report)
     rp = json.loads(outp.read_text(encoding="utf-8")) if outp.exists() else {}
     rp[f"end:{a.surah}"] = rep
@@ -285,6 +284,17 @@ def main_end(a):
         ev.update(out)
         ep.write_text(json.dumps(ev, ensure_ascii=False, indent=1), encoding="utf-8")
     return code
+
+
+def gate_ref_words():
+    """دالّةُ النصّ المرجعيّ التي تعيد بها البوّابةُ التحقّقَ (‏`timing_repair.evidence_error`) — لا غيرُها.
+
+    كان المسحُ يحقن `pin_heard.ref_words_for` والبوّابةُ تتحقّق بـ`heard_gate.disputed_ref_words` (‏تطبيعٌ آخر)،
+    فيختار المسحُ مسباراً تردّه البوّابة (‏fakhfakh_qalun س37: «ما سُمع عند البدء … ليس من نصّ 37:144»).
+    مصدرٌ واحدٌ للدالّة يمنع الافتراق: لا يُرخي البوّابةَ شيئاً، فهي تتحقّق بدالّتها كما كانت.
+    """
+    import timing_repair                                              # noqa: PLC0415
+    return timing_repair._default_ref_words()
 
 
 def main(argv=None):
@@ -303,14 +313,13 @@ def main(argv=None):
     a = ap.parse_args(argv)
     if a.kind == "end":
         return main_end(a)
-    import pin_heard as PH                                            # noqa: PLC0415
     import promote                                                    # noqa: PLC0415
     runs = [x.strip() for x in a.runs.split(",")]
     srcs = [load_artifact(p.strip()) for p in a.witness_artifacts.split(",")]
     if len(srcs) != 2:
         raise SystemExit("⛔ يلزم شاهدان")
     n = promote._AYAH_COUNTS[a.surah - 1]
-    rec, rep, code = build(srcs, runs, a.surah, load_starts(a.entries, a.surah), a.riwaya, PH.ref_words_for, n, a.audio_sha)
+    rec, rep, code = build(srcs, runs, a.surah, load_starts(a.entries, a.surah), a.riwaya, gate_ref_words(), n, a.audio_sha)
     outp, repp = Path(a.report), None
     rp = json.loads(outp.read_text(encoding="utf-8")) if outp.exists() else {}
     rp[str(a.surah)] = rep

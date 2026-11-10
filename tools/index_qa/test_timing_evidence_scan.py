@@ -168,5 +168,39 @@ class Coverage(unittest.TestCase):
         self.assertEqual(rep["coverage"]["need"], 19)
 
 
+class GateRefWordsTest(unittest.TestCase):
+    """المسحُ يختار المسابيرَ بدالّة النصّ نفسِها التي تتحقّق بها البوّابة (‏timing_repair) — لا بدالّةٍ أخرى."""
+
+    def test_same_function_as_gate(self):
+        import heard_gate as HG          # الاسمُ نفسُه الذي تستورده timing_repair (‏مسارُ tools/index_qa)
+        import timing_repair as TR
+        self.assertIs(S.gate_ref_words(), TR._default_ref_words())
+        self.assertIs(S.gate_ref_words(), HG.disputed_ref_words)
+
+    def test_main_passes_gate_function(self):
+        import json
+        import tempfile
+        from pathlib import Path
+        from unittest import mock
+        seen = {}
+
+        def fake_build(srcs, runs, surah, starts, riwaya, ref_words, n, sha):
+            seen["ref_words"] = ref_words
+            return None, {"counts": {}, "probes": [], "verdict": "x"}, 4
+
+        sentinel = object()
+        with tempfile.TemporaryDirectory() as d, \
+                mock.patch.object(S, "build", fake_build), \
+                mock.patch.object(S, "load_artifact", lambda p: {}), \
+                mock.patch.object(S, "load_starts", lambda p, s: {}), \
+                mock.patch.object(S, "gate_ref_words", lambda: sentinel):
+            rc = S.main(["--surah", "2", "--riwaya", "hafs", "--audio-sha", SHA, "--runs", "1,2",
+                         "--witness-artifacts", "a,b", "--entries", "e",
+                         "--out", str(Path(d) / "o.json"), "--report", str(Path(d) / "r.json")])
+            self.assertEqual(rc, 4)
+            self.assertEqual(json.loads((Path(d) / "r.json").read_text(encoding="utf-8"))["2"]["verdict"], "x")
+        self.assertIs(seen["ref_words"], sentinel)
+
+
 if __name__ == "__main__":
     unittest.main()
