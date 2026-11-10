@@ -105,7 +105,8 @@ class PinHeard(unittest.TestCase):
         with self.assertRaises(SystemExit):                            # 4 تبقى منحرفة 10ث
             pin(_idx(), 77, copy.deepcopy(HMAP), {2: 30000})
 
-    def test_drop_declaration_parent_refused(self):
+    def test_drop_declaration_parent_without_reason_refused(self):
+        # (2026-11-10) الأصلُ المعلَنُ يُبنى عليه ويُورَّث إعلانُه؛ لكنّ إعلاناً بلا سببٍ ظاهرٍ يُردّ كما كان.
         i = _idx(); i["transform"] = {"op": "drop_surah:9"}
         with self.assertRaises(SystemExit):
             pin(i, 77, copy.deepcopy(HMAP), {2: 30000, 3: 40000, 4: 50000})
