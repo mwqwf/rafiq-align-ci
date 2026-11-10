@@ -349,6 +349,35 @@ RASM_FORMS = {
     "مناه": "منوه",
     "الربا": "الربوا", "والربا": "والربوا",
 }
+# ⭐ (2026-11-10 · قرار القائد · على نسق #110) أزواجُ رواية قالون: ما يكتبه Whisper بالإملاء الحديث ⇒ ما في نصّ قالون بعد norm.
+#    ⛔ مفتاحٌ بالرواية: لا تسري على غير قالون (‏ولو اشترك الرسمُ مع حفص في الموضع، فلم يُقَس لحفصٍ شاهدٌ بعد).
+#    ⛔ قائمةٌ مغلقةٌ كلمةً كلمة؛ كلُّ زوجٍ مقيسٌ من تفريغٍ حقيقيٍّ في المستودع (‏ops/out/1700_hd24_art_10A · art_10B ·
+#    ops/evidence/timing-fakhfakh_qalun-5bad920f.json وغيرها) ومثبتٌ بموضعٍ مقروءٍ من `text_qalun.jz`
+#    (‏`QALUN_RASM_WITNESS` أدناه، ويتحقّق منه الاختبار آلياً). لا قاعدةَ عامّة (‏لا «احذف كلَّ ألف») ولا مسافةَ تحرير.
+RASM_FORMS_BY_RIWAYA = {
+    "qalun": {
+        "وجاوزنا": "وجوزنا",
+        "اسراييل": "اسرايل",
+        "الانسان": "الانسن",
+        "البلاغ": "البلغ",
+        "ارسلناك": "ارسلنك",
+        "الكتاب": "الكتب",
+        "يغشاهم": "يغشيهم",
+        "العاملين": "العملين",
+    },
+}
+# الشاهدُ النصّيّ: كلُّ شكلٍ قالونيٍّ ⇒ (سورة، آية) موجودٌ فيه في `text_qalun.jz` (‏يقرؤه `pin_heard.ref_words_for`).
+QALUN_RASM_WITNESS = {
+    "وجوزنا": (10, 90), "اسرايل": (10, 90), "الانسن": (42, 48), "البلغ": (42, 48),
+    "ارسلنك": (42, 48), "الكتب": (29, 51), "يغشيهم": (29, 55), "العملين": (29, 58),
+}
+
+
+def rasm_forms(riwaya=None) -> dict:
+    """القائمةُ الفعّالة لرواية: العامّةُ `RASM_FORMS` + أزواجُ تلك الرواية وحدَها (‏رواية مجهولةٌ أو None ⇒ العامّة فقط)."""
+    return {**RASM_FORMS, **RASM_FORMS_BY_RIWAYA.get(riwaya or "", {})}
+
+
 EXT_EDGE_MS = 100         # E2: آخرُ كلمةٍ ملاصقةٌ لحدّ النافذة (‏نهايتُها ≥ حدّ النافذة − هذا)
 EXT_CAP_MS = 1000         # E3: سقفُ الامتداد وراء حدّ النافذة
 EXT_SAME_START_MS = 150   # الكلمةُ الممتدّةُ هي نفسُها المقطوعة: بدؤها قريبٌ من بدء المقطوعة
@@ -361,13 +390,15 @@ def _ncommon(text: str) -> list[str]:
     return norm(str(text)).split()
 
 
-def rasm_unify_ref(ref):
+def rasm_unify_ref(ref, riwaya=None):
     """كلماتُ المرجع (‏المطبَّعة) بعد توحيد الرسم المسمّى؛ كلمةٌ خارج القائمة تبقى حرفاً."""
-    return None if ref is None else [RASM_FORMS.get(w, w) for w in ref]
+    forms = rasm_forms(riwaya)
+    return None if ref is None else [forms.get(w, w) for w in ref]
 
 
-def rasm_unify_wit(wit):
+def rasm_unify_wit(wit, riwaya=None):
     """نسخةٌ من الشاهد تُوحَّد فيها كلماتُ التفريغ المسمّاةُ بتمامها في `RASM_FORMS` (‏الكلمةُ الواحدةُ بعد norm فقط)."""
+    forms = rasm_forms(riwaya)
     out = dict(wit)
     out["ayahs"] = {}
     for a, rec in ((wit or {}).get("ayahs") or {}).items():
@@ -375,20 +406,20 @@ def rasm_unify_wit(wit):
         ws = []
         for w in rec.get("words") or []:
             toks = _ncommon(w.get("w", ""))
-            if len(toks) == 1 and toks[0] in RASM_FORMS:                                  # [شرط R1: الكلمةُ كلُّها في القائمة]
-                w = dict(w, w=RASM_FORMS[toks[0]])
+            if len(toks) == 1 and toks[0] in forms:                                       # [شرط R1: الكلمةُ كلُّها في القائمة]
+                w = dict(w, w=forms[toks[0]])
             ws.append(w)
         r2["words"] = ws
         out["ayahs"][a] = r2
     return out
 
 
-def _wtok1(w):
+def _wtok1(w, riwaya=None):
     t = _ncommon(w.get("w", ""))
-    return RASM_FORMS.get(t[0], t[0]) if len(t) == 1 else None
+    return rasm_forms(riwaya).get(t[0], t[0]) if len(t) == 1 else None
 
 
-def extend_cut_last_word(wit, ayah, ref):
+def extend_cut_last_word(wit, ayah, ref, riwaya=None):
     """يُرجع كلماتِ نافذة الآية، وقد استُبدلت آخرُ كلمةٍ مقطوعةٌ بقراءتها التامّة من نافذةٍ أطول لآيةٍ أخرى في **الشاهد نفسِه**
     (‏صلاحيتُه فُحصت: البصمةُ والملفُّ والنموذج) — بشروطٍ مجتمعة، وإلا تُرجَع الكلماتُ كما هي:
       E1 آخرُ كلمةٍ مفرَّغةٍ بادئةٌ حرفيّةٌ **أقصرُ** من الكلمة المرجعيّة الأخيرة المنتظرة؛
@@ -403,7 +434,7 @@ def extend_cut_last_word(wit, ayah, ref):
     if not words or not ref or not win or len(win) < 2:
         return words
     last, want = words[-1], ref[-1]
-    t = _wtok1(last)
+    t = _wtok1(last, riwaya)
     if not t or not want.startswith(t) or len(t) >= len(want):                               # [شرط E1: بادئةٌ حرفيّةٌ أقصر]
         return words
     if int(last["e"]) < int(win[1]) - EXT_EDGE_MS:                                            # [شرط E2: ملاصقةٌ للحدّ]
@@ -417,7 +448,7 @@ def extend_cut_last_word(wit, ayah, ref):
                 continue
             if int(cand.get("e", cand["s"])) > int(win[1]) + EXT_CAP_MS:                      # [شرط E3: سقفُ ثانية]
                 continue
-            if _wtok1(cand) != want:                                                           # [شرط E4: مطابقةٌ كاملة]
+            if _wtok1(cand, riwaya) != want:                                                           # [شرط E4: مطابقةٌ كاملة]
                 continue
             if float(cand["p"]) < PH.W_MIN_WORD_P:                                             # [شرط E5: الثقةُ نفسُها]
                 continue
@@ -434,18 +465,18 @@ def _witness_eval(wit, surah, g_map, want_sha, riwaya, starts, ayahs, ref_words=
     except SystemExit as e:
         return {}, str(e)
     ref_words = ref_words or PH.ref_words_for
-    wit_u = rasm_unify_wit(wit)
+    wit_u = rasm_unify_wit(wit, riwaya)
     res = {}
     for a in ayahs:
         if str(a) not in ((wit or {}).get("ayahs") or {}):
             res[a] = (False, "لا تفريغَ لهذه الآية في الشاهد")
             continue
         try:
-            ref = rasm_unify_ref(ref_words(riwaya, surah, a))
+            ref = rasm_unify_ref(ref_words(riwaya, surah, a), riwaya)
         except (SystemExit, Exception):                    # noqa: BLE001
             ref = None
         w_a = wit_u
-        ext = extend_cut_last_word(wit_u, a, ref)
+        ext = extend_cut_last_word(wit_u, a, ref, riwaya)
         if ext != (wit_u["ayahs"][str(a)].get("words") or []):
             w_a = dict(wit_u, ayahs=dict(wit_u["ayahs"], **{str(a): dict(wit_u["ayahs"][str(a)], words=ext)}))
         hm = {"heardMap": {str(a): {"anchorMs": [int(starts[a]), int(starts[a]) + 1]}}}
