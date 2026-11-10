@@ -1,0 +1,21 @@
+{
+ "action": "tool",
+ "tool": "index_qa/drop_ayahs.py",
+ "args": [
+  "--key",
+  "timings/hafs/a_ahmed.jz",
+  "--sha",
+  "774603c1",
+  "--ayahs",
+  "26:2",
+  "--evidence",
+  "ops/evidence/heard-drop-a_ahmed-774603c1-s26x2.json",
+  "--reason",
+  "بدءُ مدخل 26:2 المنشور 2010م.ث يقع في صوت الحروف المقطّعة (26:1) وليس في صوتها، بشهادة Whisper small 42767117911 («تلك» عند 8020) وmedium (9200) ومرساة CTC 9184؛ تُحجب مؤقّتاً حتى يُثبَّت بدؤها على موضعها المسموع",
+  "--reason-user",
+  "توقيت هذه الآية لهذا القارئ قيد الإصلاح، فحُجبت مؤقّتاً حتى لا تُعرض على صوت غيرها",
+  "--reason-code",
+  "TIMING_UNDER_REPAIR",
+  "--yes"
+ ]
+}
