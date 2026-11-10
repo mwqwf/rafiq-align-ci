@@ -6,3 +6,4 @@
 - التجربة: ctc_splice mode=heard على الحيّ بسور كاملة (25 · 8 · 86-90) ثم تعميم على 114 (دفعات في /tmp/claude-0/zk/batches.json: 50 دفعة).
 - 15:50Z: تجربة heard نجحت: 25 ⇒ zaki.6d52cfc6 · 86-90 ⇒ zaki.13a0b551 · 8 ⇒ (تشغيلة 42842370540). أُطلقت بقيّة الدفعات (47) على الحيّ بوضع heard؛ ثمّ تُزرع بـgraft_surahs سلسلةً.
 - 17:25: انتهت 50 تشغيلة heard (نجحت كلها وغطّت 114 سورة). أُطلق ctc_splice_merge لدمجها في مرشّح واحد من dc20b8fc (ops/commands/1110_zrl_zaki_merge.json؛ معرّفات التشغيلات في الأمر).
+- 17:35: المرشّح المدموج: timings-staging/hafs/zaki.e6cb8131.jz (6236 مدخلاً، 114 سورة، حدود أُزيحت 5846، محرّك align-0.2/heard). أُطلقت بواباته: struct · heard_gate · openers · 4 ملوح (zrl1110A-D) · census · diagnosis (ops/commands/1110_zrl_zaki_c_*).
