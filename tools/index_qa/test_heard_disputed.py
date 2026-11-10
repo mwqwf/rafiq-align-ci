@@ -305,6 +305,28 @@ class Orthography(unittest.TestCase):
         for s, a in ((10, 50), (10, 70), (10, 55), (9, 93), (2, 255), (1, 4)):
             self.assertEqual(len(H.disputed_ref_words("hafs", s, a)), len(P.ref_words_for("hafs", s, a)), (s, a))
 
+    def test_hamza_alif_merges_only_when_made_by_the_three(self):
+        # (‏#104) «ءا» = «آ»: ألفان متتاليتان تُدمجان إذا نتجت إحداهما عن التحويل؛ والألفُ الأصليّةُ المكرّرة لا تُمسّ
+        self.assertEqual(H.disputed_norm_words("ءَايَٰت"), ["ايات"])
+        self.assertEqual(H.disputed_norm_words("ءَايَٰتُ"), H.disputed_norm_words("آيات"))
+        self.assertEqual(H.disputed_norm_words("ءَامَنُوا۟"), H.disputed_norm_words("آمنوا"))
+        self.assertEqual(H.disputed_ref_words("hafs", 28, 2)[:3], H.disputed_norm_words("تلك آيات الكتاب"))
+        self.assertEqual(H.disputed_norm_words("جاا"), ["جاا"])          # ألفان أصليّتان: لا دمج
+        self.assertEqual(H.disputed_norm_words("أرأيتم"), ["ارايتم"])    # ألفٌ ناتجةٌ وحدها لا تُدمج بغير ألف
+
+    def test_alif_madda_is_normalised_by_common_norm(self):
+        sys.path.insert(0, str(P._REPO_ROOT / "tools" / "alignment"))
+        from common import norm
+        self.assertEqual(norm("آمنوا"), "امنوا")
+
+    def test_merge_makes_no_missing_alif(self):
+        for a, b in (("قال", "قُلْ"), ("مالك", "مَلِكِ"), ("كتب", "كتاب"), ("كتب", "كِتَٰبٌ")):
+            self.assertNotEqual(H.disputed_norm_words(a), H.disputed_norm_words(b), (a, b))
+
+    def test_mark_char_in_input_is_not_trusted(self):
+        # الحارسُ ػ في نصٍّ داخلٍ لا يُصنع منه دمج (‏يُحذف قبل التعليم)
+        self.assertEqual(H.disputed_norm_words("ا\u063bا"), ["اا"])
+
     def test_common_norm_untouched(self):
         self.assertEqual(P.ref_words_for("hafs", 10, 50)[:2], ["قل", "اريتم"])
         self.assertEqual(H.disputed_ref_words("hafs", 10, 50)[:2], ["قل", "ارايتم"])

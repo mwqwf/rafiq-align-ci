@@ -478,6 +478,13 @@ def disputed_sources(cand_idx, loader=None):
 #    ثلاثةُ تحويلاتٍ لا غير، تُطبَّق على الطرفين **قبل** `norm`، حرفاً بحرف (‏لا يتغيّر عددُ الكلمات): ٰ ← ا · ء ← ا · ٱ ← ا.
 #    ولا تُحذف بها حروف، فألفٌ حقيقيّةٌ غائبةٌ لا تُصنع (‏قال ≠ قل · مالك ≠ ملك · كتاب ≠ كتب).
 _DISPUTED_ORTHO = str.maketrans({"\u0670": "\u0627", "\u0621": "\u0627", "\u0671": "\u0627"})
+# ⭐ (‏قرار القائد 2026-11-10 · #104) «ءا» في المصحف (‏«ءَايَٰتُ» · «ءَامَنُوا۟») هي «آ» عند Whisper، فتصير بالتحويل ألفين
+#    («اايات» ≠ «ايات»). فتُدمج ألفان متتاليتان **إذا نتجت إحداهما على الأقلّ عن أحد التحويلات الثلاثة**، والألفُ الأصليّةُ
+#    المكرّرة لا تُمسّ. يُعلَّم الناتجُ من التحويل بحرفٍ حارسٍ (‏ػ U+063B: داخل مدى `norm` ولا يقع في نصٍّ قرآنيّ)،
+#    ثمّ `norm`، ثمّ الدمجُ، ثمّ يعود الحارسُ ألفاً.
+_ORTHO_MARK = "\u063b"
+_DISPUTED_MARK = str.maketrans({"\u0670": _ORTHO_MARK, "\u0621": _ORTHO_MARK, "\u0671": _ORTHO_MARK})
+_MARK_MERGE = re.compile(f"{_ORTHO_MARK}(?=[\u0627{_ORTHO_MARK}])|(?<=\u0627){_ORTHO_MARK}")
 
 
 def disputed_norm_words(text: str) -> list[str]:
@@ -485,7 +492,8 @@ def disputed_norm_words(text: str) -> list[str]:
     import pin_heard as PH  # noqa: PLC0415
     sys.path.insert(0, str(PH._REPO_ROOT / "tools" / "alignment"))
     from common import norm  # noqa: PLC0415
-    return norm(str(text).translate(_DISPUTED_ORTHO)).split()
+    t = norm(str(text).replace(_ORTHO_MARK, "").translate(_DISPUTED_MARK))
+    return _MARK_MERGE.sub("", t).replace(_ORTHO_MARK, "\u0627").split()
 
 
 def disputed_ref_words(riwaya, surah, ayah):

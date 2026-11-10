@@ -197,11 +197,15 @@ class RealCases(unittest.TestCase):
             _pin40(dict(K40[2]))
         self.assertIn("0.39", str(cm.exception))
 
-    def test_kurdi28_head_not_heard(self):
+    def test_kurdi28_head_low_confidence_and_far(self):
+        # بعد دمج «ءا» يسمع medium «تلك آيات الكتاب» كلمةً بكلمة ويُردّ بثقة «تلك» 0.48، وsmall يسمع «الكتابر»
         ents, hmap, wits = _case("kurdi28")
         with self.assertRaises(SystemExit) as cm:
             P.pin(_idx(ents), 28, hmap, {2: 9786}, opener_witnesses=wits, opener_evidence={})
-        self.assertIn("مطلعُ الآية الثانية", str(cm.exception))
+        self.assertIn("دون العتبة", str(cm.exception))
+        d, why = P._opener_witness(wits["42757143228"], P.heard_gate.disputed_ref_words("hafs", 28, 2)[:3], 9786)
+        self.assertIsNone(d)
+        self.assertIn("كلمةً بكلمة", why)
 
     def test_kurdi43_extension_beyond_3000(self):
         # لا خريطةَ float32 لس43 بعد: مطلعُ «والكتاب» عند Whisper 5780/6380، و«حامين» 4380/4980، والمنشورُ 43:1 = 8415.
