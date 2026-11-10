@@ -266,6 +266,9 @@ OPENER_DUR_MAX_MS = 8000
 #    فرّغها Whisper محرَّفةً («الرحم») تُعدّ حروفاً ويبدأ الحدُّ في وسطها. فكلُّ كلمةٍ تشبه كلمةً من البسملة (‏تشابه ≥ OPENER_BASMALA_SIM)
 #    قبل مطلع الثانية يجب أن تنتهي عند بدء الآية الأولى أو قبله، وإلا رُدّ المسار.
 OPENER_BASMALA_SIM = 0.75
+# ⭐ ٩) (‏قرار القائد 2026-11-10) المسارُ لحفص وحده حتى يوجد نصٌّ بالعدّ المدنيّ: فهارسُ ورش وقالون بعدٍّ كوفيٍّ موحَّد
+#    (‏`ayahCounting=KUFI` ونصُّهما 6236 آية)، وصوتُ 2:1 عندهم يمتدّ إلى ما بعد الحروف (‏asali_warsh 4100→11930 · fakhfakh_qalun 8060→16850).
+OPENER_RIWAYAT = frozenset({"hafs"})
 
 
 def opener_claim(cand_idx: dict, s: int):
@@ -298,6 +301,8 @@ def opener_letters_verdict(s, ayah, cand_s, pub_s, rows, g_map, want, cand_idx, 
         return False, f"س{s} ليست في قائمة سور الحروف المقطّعة ({len(OPENER_LETTER_SURAHS)} سورة)"
     if ayah != 1:
         return False, f"الآية {ayah} ليست الأولى — المسارُ للآية الأولى وحدها"
+    if (riwaya or "hafs") not in OPENER_RIWAYAT:
+        return False, f"الرواية {riwaya} ليست في OPENER_RIWAYAT {sorted(OPENER_RIWAYAT)} — المسارُ لحفص وحده"
     try:
         letters = PH.letters_opener_surahs(riwaya or "hafs")
     except (SystemExit, Exception) as e:                      # noqa: BLE001

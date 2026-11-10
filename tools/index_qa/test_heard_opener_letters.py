@@ -176,33 +176,49 @@ class LettersOnlyShape(unittest.TestCase):
         self.assertTrue(accepted(run()))
 
     def test_gate_list_is_the_builders_function(self):
-        for riw in ("hafs", "warsh", "qalun", "douri", "shuba", "sousi"):
-            for s in sorted(H.OPENER_LETTER_SURAHS):
-                ok, why = self._direct(s, riw)
-                self.assertEqual("ليست حروفاً" in why, s not in P.letters_opener_surahs(riw), (riw, s))
+        for s in sorted(H.OPENER_LETTER_SURAHS):
+            ok, why = self._direct(s, "hafs")
+            self.assertEqual("ليست حروفاً" in why, s not in P.letters_opener_surahs("hafs"), s)
 
     def test_exactly_the_ten_with_speech_and_42_are_excluded_in_hafs(self):
         self.assertEqual(sorted(H.OPENER_LETTER_SURAHS - set(P.letters_opener_surahs("hafs"))),
                          [10, 11, 12, 13, 14, 15, 27, 38, 42, 50, 68])
 
-    def test_madani_riwayat_follow_their_own_text(self):
-        # ⚠️ نصُّ ورش وقالون في المستودع مفهرسٌ بالعدّ الكوفيّ الموحَّد (‏`text_warsh.jz` و`text_qalun.jz` · 6236 آية): 2:1 فيهما «الم»
-        # وحدها، فالدالّةُ المشتركةُ مع الباني تقبل الشكلَ ولا تردّه — وطلبُ ردّ 2:1 عندهما يلزمه نصٌّ بعدٍّ مدنيٍّ غيرُ موجودٍ في المستودع.
-        # (‏والفهارسُ المنشورةُ لهما ayahCounting=KUFI أيضاً.) يُثبَّت هنا الواقعُ لا المرغوب.
+    def test_only_hafs_is_allowed(self):
+        self.assertEqual(H.OPENER_RIWAYAT, frozenset({"hafs"}))
+
+    def test_warsh_and_qalun_refused_even_for_2_1_and_40_1(self):
+        # ‏فهارسُ ورش وقالون بعدٍّ كوفيٍّ موحَّد وصوتُ 2:1 عندهم يمتدّ بعد الحروف؛ والمسارُ لحفص وحده حتى يوجد نصٌّ مدنيّ.
         for riw in ("warsh", "qalun"):
-            self.assertEqual(P.ref_words_for(riw, 2, 1), ["الم"])
+            for s in (2, 40):
+                ok, why = self._direct(s, riw)
+                self.assertFalse(ok, (riw, s))
+                self.assertIn("OPENER_RIWAYAT", why)
+
+    def test_shape_function_alone_still_accepts_kufi_text_of_madani_riwayat(self):
+        # ‏للدالّة المشتركة وحدها (‏لا للبوّابة): نصُّ ورش وقالون كوفيّ الفهرسة فالدالّة تقبل 2:1 — ولهذا شرطُ الرواية أعلاه.
+        for riw in ("warsh", "qalun"):
             self.assertIn(2, P.letters_opener_surahs(riw))
-            self.assertNotIn("ليست حروفاً", self._direct(2, riw)[1])
+
+    def test_warsh_candidate_refused_in_judge(self):
+        cidx, pidx, m, srcs = build()
+        cidx["riwaya"] = pidx["riwaya"] = "warsh"
+        j = H.judge(cidx, pidx, "c" * 64, {40: m}, dual={}, disputed_src={"40": srcs})
+        refused(self, j, "OPENER_RIWAYAT")
 
     def test_riwaya_is_passed_to_the_builders_function(self):
-        for riw in ("hafs", "warsh", "qalun"):
+        with mock.patch.object(H, "OPENER_RIWAYAT", frozenset({"hafs", "warsh"})):
             with mock.patch.object(P, "letters_opener_surahs", return_value=[2]) as m:
-                self._direct(2, riw)
-            m.assert_called_once_with(riw)
+                self._direct(2, "warsh")
+            m.assert_called_once_with("warsh")
+
+    def test_missing_riwaya_defaults_to_hafs(self):
+        ok, why = self._direct(2, None)
+        self.assertNotIn("OPENER_RIWAYAT", why)
 
     def test_surah_outside_builders_list_refused(self):
         with mock.patch.object(P, "letters_opener_surahs", return_value=[3]):
-            ok, why = self._direct(2, "warsh")
+            ok, why = self._direct(2, "hafs")
         self.assertFalse(ok)
         self.assertIn("ليست حروفاً مقطّعةً وحدها", why)
         with mock.patch.object(P, "letters_opener_surahs", side_effect=SystemExit("x")):
