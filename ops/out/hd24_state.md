@@ -1,21 +1,33 @@
-# حالة hd24 (مؤقّتة — أُحدّثها حتى التسليم)
+# حالة hd24 عند التسليم (2026-11-10 ~17:00Z) — لا «اجتاز» لأيّ مرشّح بعد
 
-الأداة: `timing_evidence_scan.py` المودَعة تستعمل `PH.ref_words_for` بينما بوّابة `drop_surah` تعيد التحقّق بـ`HG.disputed_ref_words` ⇒ مسبارٌ يمرّ في الأداة وتردّه البوّابة
-(س37 في fakhfakh: «ما سُمع عند البدء «بطمه الي يوم» ليس من نصّ 37:144»). استُعملت نسخةٌ محلّيةٌ غير مودَعة تبدّل الدالّة وحدها؛ والإصلاح يلزمه طلب دمج.
+## تنبيهات حاكمة
+1. أداة `timing_evidence_scan.py` المودَعة تحقن `PH.ref_words_for` بينما بوّابة `drop_surah` تعيد التحقّق بـ`HG.disputed_ref_words` ⇒ مسبارٌ يمرّ في الأداة وتردّه البوّابة
+   (س37 fakhfakh: «ما سُمع عند البدء «بطمه الي يوم» ليس من نصّ 37:144»). استُعملت نسخةٌ محلّيةٌ غير مودَعة (`tools/index_qa/_tes_local.py` في شجرة /tmp/claude-0/wt-hide24) تبدّل الدالّة وحدها (`PH.ref_words_for` ← `HG.disputed_ref_words`)؛ والإصلاح الدائم يلزمه طلب دمج. الأرقام أدناه من النسخة المصحّحة.
+2. **كلّ المرشّحات تنتظر صفَّ OWNER_DROP_APPROVALS (للقائد)** بمفتاح المسرح وسوره؛ وبغيره يردّ struct «لا صفَّ موافقةٍ يطابق declaredDrops تماماً» ولا يظهر سطر «معفى من عتبة 2%». ملوحُ مَن فاق غيابُه 2% («مرفوض (خلل بنيوي)») أُطلقت قبل الصفّ، فقد يلزم إعادتها بعده.
+3. التشخيص `catalog/diagnosis` لا يُكتب لـqalun/fakhfakh_qalun ولا warsh/harraz_warsh («تعذّر التشخيص» من write_diagnosis، وdump_state: NoSuchKey)؛ ومطابقٌ لـETag الحيّ عند البقيّة.
 
-| المرشّح | المسرح | الحالة |
-|---|---|---|
-| fakhfakh_qalun س10,29,37 | timings-staging/qalun/fakhfakh_qalun.a90b37fc.jz | مبنيّ + بوّابات؛ س42 cluster_only (3 مثبتة/6 في موضعها) |
-| lahoni س29 | timings-staging/hafs/lahoni.ade06e7e.jz | مبنيّ + بوّابات |
-| mohsin_harthi س46 | timings-staging/hafs/mohsin_harthi.2c889bfa.jz | مبنيّ + بوّابات |
-| s_hashemi س21,23,35 | timings-staging/hafs/s_hashemi.ccc05030.jz | مبنيّ + بوّابات |
-| h_abudalal س20 | timings-staging/hafs/h_abudalal.26722680.jz | مبنيّ + بوّابات |
-| kyat س21,28 | timings-staging/hafs/kyat.5e899ca6.jz | مبنيّ + بوّابات |
-| harraz_warsh س24,40,45 | timings-staging/warsh/harraz_warsh.64d74402.jz | مبنيّ + بوّابات |
-| a_alshahhat س20 | timings-staging/hafs/a_alshahhat.dc21b4aa.jz | مبنيّ + بوّابات أُطلقت |
-| m_qari س16 | — | 0 مثبتة من 128 (insufficient، رمز 4) فلا مرشّح |
-| benkirane 13:27-30 | — | drop_ayahs يردّ: الأصل يعلن إسقاط س23 كاملة (التوريث لا يكون إلا مع --already-absent) |
-| a_ahmed · 3siri | — | مرقّيان حيّاً بإعلاناتهما؛ لم يُلمسا |
-| habdan.8307660c | timings-staging/hafs/habdan.8307660c.jz | 3:195 وحدها؛ ملوح وإحصاء مقبولة؛ التشخيص مطابق ETag |
+## المرشّحات (مفتاح المسرح · السور · الدليل)
+| القارئ | المسرح | السور | عدّ الدليل (مثبتة/في موضعها/غير محسومة) | ملاحظة |
+|---|---|---|---|---|
+| fakhfakh_qalun | timings-staging/qalun/fakhfakh_qalun.a90b37fc.jz (حيّ 5bad920f) | 10 · 29 · 37 | 15/7/87 · 9/6/54 · 20/10/152 | س42 cluster_only (3/6/44) لم تُحجب |
+| lahoni | timings-staging/hafs/lahoni.ade06e7e.jz (حيّ 4d3cc4e9) | 29 | 9/2/58 | الإحصاء ما زال جارياً (42828923885) |
+| mohsin_harthi | timings-staging/hafs/mohsin_harthi.2c889bfa.jz (حيّ ef1fdbae) | 46 | 9/0/26 | بوّابات كلّها منتهية؛ حكم «موقوف» |
+| s_hashemi | timings-staging/hafs/s_hashemi.ccc05030.jz (حيّ 7db55c69) | 21 · 23 · 35 | 16/1/95 · 14/4/100 · 7/0/38 | |
+| h_abudalal | timings-staging/hafs/h_abudalal.26722680.jz (حيّ 13cb89b0) | 20 | 26/2/107 | |
+| kyat | timings-staging/hafs/kyat.5e899ca6.jz (حيّ e7cb7e27) | 21 · 28 | 14/0/98 · 7/0/81 | |
+| harraz_warsh | timings-staging/warsh/harraz_warsh.64d74402.jz (حيّ c19b1133) | 24 · 40 · 45 | 7/1/56 · 13/2/70 · 7/1/29 | |
+| a_alshahhat | timings-staging/hafs/a_alshahhat.dc21b4aa.jz (حيّ dd897486) | 20 | 6/5/124 | بوّابات أُطلقت 1850 |
+| habdan | timings-staging/hafs/habdan.8307660c.jz (حيّ c732ed1b) | 3:195 | — | ملوح hd1–4 وإحصاء (25/2239=1.1%) مقبولة؛ ETag مطابق |
+| a_abdl (آيات) | timings-staging/hafs/a_abdl.3f59e5da.jz (حيّ c0e25062) | 23:54 | شاهدان بالبدء | struct وبوّابات أُطلقت 1960 |
+| nufais (آيات) | timings-staging/hafs/nufais.eb20b541.jz (حيّ f3f37dad) | 43:48 · 20:5 · 13:4 | شاهدان بالبدء | struct وبوّابات أُطلقت 1960 |
 
-صفوف OWNER_DROP_APPROVALS اللازمة (للقائد): كلُّ مفتاح مسرحٍ أعلاه بسوره المحجوبة حديثاً (ولا يُعفى 2% بدونها).
+لا مرشّح: m_qari 16 (0 مثبتة من 128 · رمز 4) · benkirane 13:27–30 (drop_ayahs القديم ردّ؛ لم يُعَد بعد تعديله ليورّث إسقاط الأصل — يُجرَّب) · a_ahmed و3siri مرقّيان حيّاً بإعلاناتهما.
+
+## a_abdl وnufais (أمر القائد الإضافي) — العناقيد المحكومة «الفهرس مخطئ» (14 لكلّ منهما)
+شاهدان (A ±3000 وB ±4000م.ث) لكلّ سورة في العنقود؛ صُنّفت الآيات بدالّة الأداة (بدء المدخل). المثبتة وحدها حُجبت.
+- أغلب العناقيد من نوع end_other/end_short (العطب في **نهاية** المدخل)، وشرطُ البوّابة الحالي يثبت **انحراف البدء** فقط ⇒ بقيت غير محسومة: بلا دليلٍ نهائيّ لا تُحجب.
+- a_abdl: 23:54 مثبتة؛ والباقي غير محسوم عدا 5:37 «في موضعها».
+- nufais: 43:48 · 20:5 · 13:4 مثبتة؛ 57:13 «في موضعها»؛ والباقي غير محسوم.
+- خارج drop_ayahs: a_abdl 92:1–5 (تشمل الأولى) · nufais 29:64–69 (تشمل الأخيرة) · nufais 16:1–4 (تشمل الأولى) ⇒ بابها drop_surah أو بلا حجب.
+- قرارٌ للقائد: أيُقبل دليلُ نهاية (heard عند نهاية المدخل) لهذه العناقيد؟ الأداة والبوّابة لا تدعمانه الآن.
+- بقيّة جرد heard-strong-audit (253 عنقوداً لـa_abdl و311 لـnufais) لم تُعالَج بعد.
