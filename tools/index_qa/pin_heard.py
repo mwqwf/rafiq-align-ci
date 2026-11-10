@@ -285,6 +285,88 @@ def _whisper_check(wit, hmap, surah, ayah, ref, fuzzy=False):
     return best[0], f"whisper {best[1]} · CTC {best[0]} · أدنى ثقة {best[3]:.2f} · متوسّطها {best[4]:.2f}"
 
 
+# ───────────── حدُّ القصّ من شاهدَي Whisper (‏2026-11-10 · الكردي 55:29/30 · مسودّة لا تُدمج) ─────────────
+# ⭐ `--trim` كان لا يقبل إلا حدّاً في `measured_bounds`، وحالةُ 55:29/30 لا حدَّ مقيساً فيها بين نهاية «شأنٍ»
+#    وبدء الأداء الأوّل لـ«فبأي»: أداءُ CTC السماعيّ لـ29 ينتهي 183585 (‏قبل «شأنٍ» نفسِها) ومرساتُه القسريّة
+#    تنتهي 187988 (‏داخل «فبأي»). فيُقبل حدٌّ غيرُ مقيسٍ بـCTC **بشروطٍ كلّها مجتمعةً ولا يُرخى منها شيء**:
+#    1) شاهدان على الأقلّ من تشغيلتَين متمايزتَين، وكلُّ شاهدٍ يُمرَّر يجب أن يجتاز (‏لا انتقاءَ لشاهدٍ موافق)؛
+#    2) بصمةُ كلّ شاهدٍ = بصمةُ الفهرس = بصمةُ الخريطة، ومن float32 بنموذجٍ مسموح (‏`check_witness`)؛
+#    3) في التفريغ: آخرُ W_K كلماتٍ من الآية السابقة **متّصلةً** بأوّل W_K من التالية، كلمةً بكلمةٍ بعد التطبيع —
+#       فآخرُ كلمةٍ للسابقة مسموعةٌ قبل الحدّ (‏لا تُقطع)، والحدُّ بدءُ أوّل كلمةٍ للتالية في **أوّل** أداءٍ لها؛
+#    4) ثقةُ كلّ كلمةٍ من الستّ ≥ W_MIN_WORD_P ومتوسّطُها ≥ W_MEAN_WORD_P، ولا كلمةَ منها ملصوقةٌ بطرف النافذة
+#       (‏Whisper يُلصق أوّلَ كلمةٍ ببدء النافذة فلا يُعدّ بدؤها قياساً)؛
+#    5) الشاهدان يتّفقان على الحدّ ضمن W_AGREE_MS، والقيمةُ المطلوبة ضمن SNAP_MS من كلٍّ منهما،
+#       ويُعتمد **أبكرُهما** (‏فلا يدخل صوتُ التالية في السابقة)؛
+#    6) الحدُّ بعد آخر نهايةِ أداءٍ سماعيٍّ مقيسٍ للسابقة (‏occurrences) وقبل التثبيت التالي.
+W_TRIM_MIN_WITNESSES = 2
+
+
+def _junction(wit, ref_prev, ref_next):
+    """يبحث في نوافذ الشاهد عن أوّل موضعٍ تتّصل فيه خاتمةُ السابقة بمطلع التالية؛ يُرجع (الحدّ، تفصيل) أو (None، سبب)."""
+    k = min(W_K, len(ref_prev), len(ref_next))
+    tail, head = ref_prev[-k:], ref_next[:k]
+    why = "لا موضعَ في التفريغ تتّصل فيه آخرُ كلمات السابقة بأوّل كلمات التالية"
+    found = []
+    for ay, rec in sorted((wit.get("ayahs") or {}).items(), key=lambda kv: int(kv[0])):
+        win = rec.get("windowMs") or [None, None]
+        raw = []
+        for w in rec.get("words") or []:
+            for t in _norm_words([w]):
+                raw.append((t[0], t[1], int(w.get("e", t[1])), t[2]))
+        for i in range(k, len(raw) - k + 1):
+            if [x[0] for x in raw[i - k:i]] != tail or [x[0] for x in raw[i:i + k]] != head:
+                continue
+            edge = raw[i - k:i + k]
+            if win[0] is not None and any(x[1] <= int(win[0]) for x in edge):
+                why = f"كلمةٌ طرفيّةٌ ملصوقةٌ ببدء النافذة {win[0]} (‏بدؤها ليس قياساً)"
+                continue
+            if win[1] is not None and any(x[2] >= int(win[1]) for x in edge):
+                why = f"كلمةٌ طرفيّةٌ ملصوقةٌ بنهاية النافذة {win[1]}"
+                continue
+            low = min(x[3] for x in edge)
+            mean = sum(x[3] for x in edge) / len(edge)
+            if low < W_MIN_WORD_P or mean < W_MEAN_WORD_P:
+                why = f"ثقةُ الكلمات عند الحدّ دون العتبة (أدناها {low:.2f}، متوسّطُها {mean:.2f})"
+                continue
+            found.append((raw[i][1], raw[i - 1][2], low, mean, ay))
+            break
+    if not found:
+        return None, why
+    b = min(found)
+    return b[0], {"boundaryMs": b[0], "prevLastWordEndMs": b[1], "minP": round(b[2], 4),
+                  "meanP": round(b[3], 4), "window": b[4]}
+
+
+def trim_from_witnesses(wits, hmap, surah, ayah, want_ms, ref_prev, ref_next, next_start, want_sha, prev_start=None):
+    """حدُّ قصّ `ayah` من شاهدَي Whisper أو SystemExit بالسبب. `wits` = {تشغيلة: شاهد}."""
+    if len(wits) < W_TRIM_MIN_WITNESSES:
+        raise SystemExit(f"⛔ حدُّ القصّ من Whisper يلزمه {W_TRIM_MIN_WITNESSES} شاهدان من تشغيلتَين (‏وجد {len(wits)})")
+    got = {}
+    for run, w in sorted(wits.items()):
+        check_witness(w, surah, hmap, want_sha)
+        b, info = _junction(w, ref_prev, ref_next)
+        if b is None:
+            raise SystemExit(f"⛔ قصُّ {surah}:{ayah}: الشاهد {run} لا يُثبت الحدّ — {info}")
+        got[run] = info
+    bs = sorted(v["boundaryMs"] for v in got.values())
+    if bs[-1] - bs[0] > W_AGREE_MS:
+        raise SystemExit(f"⛔ قصُّ {surah}:{ayah}: الشاهدان يختلفان في الحدّ {bs} (>{W_AGREE_MS}م.ث)")
+    far = [b for b in bs if abs(b - want_ms) > SNAP_MS]
+    if far:
+        raise SystemExit(f"⛔ قصُّ {surah}:{ayah} إلى {want_ms} بعيدٌ عن حدّ الشاهدَين {bs} (>{SNAP_MS}م.ث)")
+    b = bs[0]
+    rec = (hmap.get("heardMap") or {}).get(str(ayah)) or {}
+    # أداءُ السابقة المقصود هو الذي يبدأ عند بدء مدخلها أو بعده وقبل الحدّ (‏لا تكرارُها بعد الحدّ)
+    lo = -1 if prev_start is None else int(prev_start) - SNAP_MS
+    occ_end = max([int(o[1]) for o in rec.get("occurrences") or [] if lo <= int(o[0]) < b], default=None)
+    if occ_end is None:
+        raise SystemExit(f"⛔ قصُّ {surah}:{ayah}: لا أداءَ سماعيّاً مقيساً للسابقة يُحدّ به")
+    if not occ_end <= b < int(next_start):
+        raise SystemExit(f"⛔ قصُّ {surah}:{ayah} إلى {b} خارج ({occ_end}، {next_start}): "
+                         "بين آخر نهايةِ أداءٍ مقيسٍ للسابقة والتثبيت التالي")
+    return b, {"ms": b, "witnesses": got, "prevHeardEndMs": occ_end, "nextPinMs": int(next_start)}
+
+
 def expected_from_peers(own_durs, peer_med, skip=()):
     """المتوقَّعُ لكلّ آيةٍ = وسيطُ مدّتها عند النظراء × وتيرةُ هذا القارئ.
 
@@ -299,7 +381,7 @@ def expected_from_peers(own_durs, peer_med, skip=()):
 
 
 def pin(idx, surah, hmap, pins, trims=None, last_end=None, witness=None, ref_words=None,
-        expected=None, evidence=None, witness_fuzzy=False):
+        expected=None, evidence=None, witness_fuzzy=False, trim_witnesses=None, trim_evidence=None):
     """يُعيد (فهرساً جديداً، تقريراً) أو يرفع SystemExit بالسبب.
 
     `last_end`: نهايةٌ مقيسةٌ لآخر آيةٍ في السورة (‏الفخفاخ 33:73 · 2026-10-05: قُصّت عند مدّةٍ قدّرها ffprobe
@@ -365,11 +447,28 @@ def pin(idx, surah, hmap, pins, trims=None, last_end=None, witness=None, ref_wor
     for a in sorted(pins):
         new[a]["startMs"] = pins[a]
     order = sorted(new)
+    if trims and not trim_witnesses:
+        # ⛔ (‏قرار القائد 2026-11-10 · #99) كلُّ `--trim` يلزمه شاهدا Whisper بلا استثناء: الحدُّ المقيسُ بـCTC وحده
+        #    قُبل في 55:29 مرّتين خطأً (‏183585 يقطع «شأنٍ» · 187988 يُدخل «فبأي»).
+        raise SystemExit("⛔ --trim بلا شاهدَي Whisper (‏--trim-witness-runs) مردود — الحدُّ المقيسُ بـCTC وحده لا يكفي")
     for a in trims:
         if a not in new or (a + 1) not in new or ((a + 1) not in pins and a not in pins):
             raise SystemExit(f"⛔ --trim {a}: يُقصّ آخرُ آيةٍ قبل تثبيتٍ أو آيةٌ مثبَّتة وحدهما")
         bounds = measured_bounds(hmap, [a, a + 1])
         hit = [b for b in bounds if abs(trims[a] - b) <= SNAP_MS]
+        if trim_witnesses:
+            # ⭐ مسارُ شاهدَي Whisper لحدّ القصّ (‏انظر `trim_from_witnesses`) — إلزاميٌّ لكلّ قصٍّ ولو كان حدّاً مقيساً بـCTC.
+            if ref_words is None or (a + 1) not in pins:
+                raise SystemExit(f"⛔ قصُّ {surah}:{a} بشاهد Whisper يلزمه نصٌّ مرجعيّ وتثبيتٌ لـ{surah}:{a + 1}")
+            b, ev = trim_from_witnesses(trim_witnesses, hmap, surah, a, trims[a], ref_words(surah, a),
+                                        ref_words(surah, a + 1), pins[a + 1], want,
+                                        prev_start=int(new[a]["startMs"]))
+            if b <= int(new[a]["startMs"]):
+                raise SystemExit(f"⛔ قصُّ {surah}:{a} إلى {b} قبل بدئها {new[a]['startMs']}")
+            if trim_evidence is not None:
+                trim_evidence[a] = ev
+            trims[a] = b
+            continue
         if not hit:
             raise SystemExit(f"⛔ قصُّ {surah}:{a} إلى {trims[a]} ليس حدّاً مقيساً")
         trims[a] = min(hit, key=lambda b: abs(trims[a] - b))
@@ -379,7 +478,8 @@ def pin(idx, surah, hmap, pins, trims=None, last_end=None, witness=None, ref_wor
             continue
         if a in trims:
             new[a]["endMs"] = trims[a]
-            report.append(f"{surah}:{a} نهايتُها ⇐ {trims[a]} (حدٌّ مقيس؛ ما بعده تكرارٌ بلا مدخل)")
+            how = "حدُّ شاهدَي Whisper" if trim_evidence and a in trim_evidence else "حدٌّ مقيس"
+            report.append(f"{surah}:{a} نهايتُها ⇐ {trims[a]} ({how}؛ ما بعده تكرارٌ بلا مدخل)")
         elif mine[a].get("endMs") is not None and int(mine[a]["endMs"]) == int(mine[nxt]["startMs"]):
             new[a]["endMs"] = new[nxt]["startMs"]            # كان متّصلاً بتاليه فيبقى متّصلاً
         else:
@@ -499,13 +599,15 @@ def main():
     ap.add_argument("--surah", type=int, required=True)
     ap.add_argument("--run", required=True, help="تشغيلةُ ctc_heard_probe (‏build=false) على صوت السورة نفسِه")
     ap.add_argument("--pin", required=True, help="آية:بدءٌ بالم.ث، مفصولةً بفواصل")
-    ap.add_argument("--trim", default="", help="آية:نهايةٌ مقيسة لما قبل أوّل تثبيت")
+    ap.add_argument("--trim", default="", help="آية:نهايةٌ لما قبل أوّل تثبيت — ⛔ يلزمه --trim-witness-runs (‏#99)")
     ap.add_argument("--last-end", type=int, default=None,
                     help="نهايةٌ مقيسةٌ لآخر آيةٍ في السورة (‏نهايةُ أدائها المثبَّت)")
     ap.add_argument("--witness-run", default="",
                     help="تشغيلةُ whisper_witness: شاهدٌ إضافيٌّ لآياتٍ مرساتُها دون شرط الجودة (‏بلا شرطٍ يُرخى)")
     ap.add_argument("--witness-fuzzy", action="store_true",
                     help="المسارُ المشابه (‏قرار خيط 2.0 2026-11-07 لدورة saad): تشابهُ الكلمات الطرفيّة ≥0.8 بقيد ±20٪")
+    ap.add_argument("--trim-witness-runs", default="",
+                    help="تشغيلتا whisper_witness (‏أو أكثر) مفصولتين بفواصل: حدُّ --trim من بدء أوّل كلمةٍ للتالية")
     ap.add_argument("--reason", required=True)
     ap.add_argument("--yes", action="store_true")
     a = ap.parse_args()
@@ -530,9 +632,19 @@ def main():
                if _key(e["ayahId"])[0] == a.surah and e.get("endMs") is not None}
         pins0 = parse_pairs(a.pin)
         expected = expected_from_peers(own, med, skip=set(pins0) | {x - 1 for x in pins0})
+    twits, tev = None, {}
+    if a.trim_witness_runs:
+        runs = [r.strip() for r in a.trim_witness_runs.split(",") if r.strip()]
+        if len(set(runs)) != len(runs):
+            raise SystemExit("⛔ --trim-witness-runs: تشغيلةٌ مكرّرة")
+        twits = {r: load_witness(r, a.surah) for r in runs}
+        if ref is None:
+            riw = idx.get("riwaya") or "hafs"
+            ref = lambda s, ay: ref_words_for(riw, s, ay)                # noqa: E731
     out, report, changed = pin(idx, a.surah, hmap, parse_pairs(a.pin), parse_pairs(a.trim),
                                a.last_end, witness=wit, ref_words=ref, expected=expected,
-                               evidence=evidence, witness_fuzzy=a.witness_fuzzy)
+                               evidence=evidence, witness_fuzzy=a.witness_fuzzy,
+                               trim_witnesses=twits, trim_evidence=tev)
     out["transform"] = {
         **({"truncatedTail": idx["transform"]["truncatedTail"]}
            if isinstance(idx.get("transform"), dict) and idx["transform"].get("truncatedTail") else {}),
@@ -542,6 +654,8 @@ def main():
         "at": int(time.time() * 1000), "by": "pin_heard",
         "note": "بدءُ كلّ آيةٍ مثبَّتةٍ أداءٌ مسموعٌ مقيس؛ ما تكرّر قبله بلا مدخل؛ يلزمه الإحصاءُ الشامل.",
     }
+    if tev:
+        out["transform"]["trimWitness"] = {str(k): v for k, v in sorted(tev.items())}
     if a.witness_run:
         out["transform"]["witnessRun"] = str(a.witness_run)
         out["transform"]["pinEvidence"] = {str(k): v for k, v in sorted(evidence.items())}
