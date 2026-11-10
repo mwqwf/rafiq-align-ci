@@ -368,3 +368,5 @@
 | 100 | benkirane_warsh | 2:213 | 4291048–4320007 | 4959883–5029410 (0.957) | -668835 | -709403 | 187:23446, 186:4633 | start |
 
 القائمة كاملةً في `heard-strong-audit-20261110.json` (`rows`).
+
+> وسمٌ لاحق (2026-11-10): عناقيد bari وhusary_qalun موسومةٌ `mapSuspect` في الـjson — الخريطةُ هي المخطئة بقياس Whisper؛ انظر `heard-strong-map-suspect-excluded-20261110.md`.
