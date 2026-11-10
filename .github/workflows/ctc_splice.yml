@@ -447,6 +447,7 @@ jobs:
           TRUNC: ${{ github.event.inputs.truncated_tail }}
           QM: ${{ github.event.inputs.quran_model }}
           ABSENT: ${{ github.event.inputs.absent_ayahs }}
+          REWIN: ${{ github.event.inputs.rewindow }}
         run: |
           set -e
           d="tools/alignment/work/batch_$RID"
@@ -479,29 +480,23 @@ jobs:
                  --aligned $F --url "$URLT" --skip-unresolved --engine-tag "$ETAG" $ALTF \
                  --out patched.jz
           python - <<'PY'
-          import gzip, json, os
+          import gzip, json, os, sys
+          sys.path.insert(0, "tools/index_qa")
+          import audio_sha_update as A
+          import graft_surahs as G
           d = f"tools/alignment/work/batch_{os.environ['RID']}"
           idx = json.loads(gzip.decompress(open("patched.jz", "rb").read()).decode())
           taken = [int(x) for x in open("patched.jz.taken").read().split(",") if x]
-          present = sorted({int(e["ayahId"].split(":")[0]) for e in idx["entries"]})
-          sha = idx.get("audioSha256")
-          if isinstance(sha, list) and len(sha) == len(present):
-              pos = {s: i for i, s in enumerate(present)}
-              for s in taken:
-                  rec = json.load(open(f"{d}/s{s:03d}.json", encoding="utf-8"))
-                  # ⛔ الفهرسُ يُشير إلى ملفّ الكتالوج نفسِه — والبصمةُ من الملفّ
-                  #    الذي نُزّل وحوذي فعلاً في هذه التشغيلة، لا مُصطنعة.
-                  for e in idx["entries"]:
-                      if int(e["ayahId"].split(":")[0]) == s and e["fileRef"] != rec["fileRef"]:
-                          raise SystemExit(f"⛔ س{s}: fileRef المدموج {e['fileRef']} ≠ المحاذى {rec['fileRef']}")
-                  if rec.get("sha256"):
-                      if sha[pos[s]] and sha[pos[s]] != rec["sha256"]:
-                          print(f"🔄 س{s}: بصمةُ الصوت تبدّلت عند المصدر — تُكتب المقيسة")
-                      sha[pos[s]] = rec["sha256"]
-              idx["audioSha256"] = sha
-          else:
-              print(f"⚠️ قائمةُ البصمات {len(sha) if isinstance(sha, list) else '—'} "
-                    f"والسورُ {len(present)} — تُترك كما هي")
+          # ⭐ (2026-11-10) بصمةُ الصوت تُكتب لسورةٍ أُعيدت **كلُّها** وحدها (‏بلا rewindow لها أو مداه 1..N)؛ والجزئيّةُ تبقى بصمتُها
+          #    فلا يُخفى انحرافُ ما خارج المدى. ويُقبل تخطيطا القائمة (‏114 موضعاً أو مضغوطةً) — انظر audio_sha_update.py.
+          # ⛔ حارسُ «fileRef المدموج ≠ المحاذى» باقٍ كما كان، ونقلتُه شيفرتُه إلى audio_sha_update.update (‏مُختبَرٌ في test_audio_sha_update).
+          C = G.ayah_counts()
+          full = A.full_surahs(taken, os.environ.get("REWIN", ""), C)
+          skipped = [s for s in taken if s not in full]
+          if skipped:
+              print(f"ℹ️ سورٌ أُعيدت جزئياً — بصمةُ صوتها لا تتحدّث: {skipped}")
+          recs = {s: json.load(open(f"{d}/s{s:03d}.json", encoding="utf-8")) for s in full}
+          A.update(idx, recs, full)
           with open("patched.jz", "wb") as f:
               f.write(gzip.compress(json.dumps(idx, ensure_ascii=False).encode("utf-8")))
           print("المأخوذ:", taken, "· engineBySurah:", idx.get("engineBySurah"),
