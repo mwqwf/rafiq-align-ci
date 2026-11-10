@@ -409,7 +409,7 @@ def _char_list():
     return cl, tok.pad_token_id, (tok.word_delimiter_token if hasattr(tok, "word_delimiter_token") else "|")
 
 
-def run(audio, surah, riwaya, log=print, probe=False, strict_tol_ms=0, absent=None, peer=None, start_ms=0):
+def run(audio, surah, riwaya, log=print, probe=False, strict_tol_ms=0, absent=None, peer=None, start_ms=0, witnessed=None):
     """‏`absent` (‏آياتٌ 1-بدء مسمّاةٌ غائبة) و`peer` (‏خريطةُ نموذج التلاوة لنفس الملفّ) — بابٌ مستقلٌّ في `heard_absent`.
     بلا `absent` يبقى السلوكُ كما كان حرفاً.
     ‏`start_ms` (‏--probe وحده): يُفكّ الصوتُ من هذا الموضع إلى آخره، وتُزاح الأزمنةُ به فتبقى مطلقةً على الملفّ؛ 0 ⇒ كما كان حرفاً."""
@@ -521,7 +521,23 @@ def run(audio, surah, riwaya, log=print, probe=False, strict_tol_ms=0, absent=No
         # ⭐ المراسي المتّفقة بين الخريطتين (‏العامّة هنا ونموذجُ التلاوة من `peer`) — وكلُّ ردٍّ مقيسٌ يوقف السورة.
         if not peer:
             raise HA.HeardAbsentError("⛔ --absent-ayahs في وضع البناء يلزمه --peer-map (‏خريطةُ نموذج التلاوة)")
-        anchor_ms, agreement = HA.agreed_anchors(heard_map, peer["heardMap"], n, absent)
+        # ⭐ (ctc-absent-witnessed-1) مسمّاةٌ غائبةٌ مسموعةٌ في الخريطة: تُستثنى وحدَها إن أثبت شاهدا float32 غيابَها بالشروط كلِّها.
+        exempt = {}
+        if witnessed:
+            exempt, refused_w = HA.witnessed_exemptions(
+                surah, n, absent, heard_map, peer["heardMap"], witnessed["wits"],
+                {"sha256": witnessed["sha256"], "fileRef": witnessed["fileRef"]}, witnessed["sha256"])
+            import heard_gate as _HG                          # (يُضيف witnessed_exemptions مسارَ index_qa)
+            for k, v in sorted(exempt.items()):
+                log(f"غيابٌ مشهودٌ {surah}:{k} (ctc-absent-witnessed-1): جودةُ الخريطة {v['mapQuality']} · الفجوةُ "
+                    + "/".join(str(w["gapMs"]) for w in v["witnesses"].values()) + f"م.ث من متوقَّع {v['expectedMs']}")
+            for k, why in sorted(refused_w.items()):
+                log(f"غيابٌ مشهودٌ مرفوضٌ {surah}:{k}: {why} — يبقى الردُّ القديم")
+            result["witnessedAbsent"] = {
+                str(k): {"version": _HG.WITNESSED_VERSION,
+                         "witnesses": {r: _HG.disputed_src_rec(w) for r, w in sorted(witnessed["wits"].items())},
+                         "detail": v} for k, v in sorted(exempt.items())}
+        anchor_ms, agreement = HA.agreed_anchors(heard_map, peer["heardMap"], n, absent, witnessed=set(exempt))
         result["peerAgreement"] = agreement
         log(f"مراسٍ متّفقةٌ بين الخريطتين: {sum(1 for a in anchor_ms if a)}/{n - len(absent)} · غائباتٌ مسمّاة {len(absent)}"
             + (f" · مختلَفٌ عليها (‏تُحسم بين جارتين): {agreement['disputed']}" if agreement['disputed'] else ""))
@@ -648,6 +664,11 @@ def run(audio, surah, riwaya, log=print, probe=False, strict_tol_ms=0, absent=No
                 for e in entries if e["startMs"] is not None}
         result["absentEvidence"] = HA.build_evidence(
             surah, absent, ents, lambda k: canonical[k - 1], rate, _align, scan, peer.get("absentScan") or {})
+        for k_, w_ in (result.get("witnessedAbsent") or {}).items():
+            rec_ = result["absentEvidence"].get(f"{surah}:{k_}")
+            if rec_ is not None:
+                rec_["detail"] += (f" · مسمّاةٌ غائبةٌ مسموعةٌ في الخريطة (جودة {w_['detail']['mapQuality']}) وثبت غيابُها بشاهدَين "
+                                   f"float32 ({'، '.join(w_['witnesses'])}) بالنصّ والزمن (ctc-absent-witnessed-1)")
         log(f"دليلُ الغياب: {len(result['absentEvidence'])} آيةً بنافذة CTC وبمسح الملفّ كلِّه في الخريطتين")
     result["issues"] += check_surah(entries, [len(sk) for sk in sks], total_ms)
     bands = {}
@@ -683,6 +704,9 @@ def main() -> int:
                          "وفي البناء يلزمه --peer-map ويُنتج a<سورة>.json (دليلُ الغياب) لـ`drop_ayahs --aligned`")
     ap.add_argument("--peer-map", default="",
                     help="heard_sNNN.json لنموذج التلاوة على الملفّ نفسِه (‏--probe --quran-model --absent-ayahs)")
+    ap.add_argument("--absent-witness-runs", default="",
+                    help="تشغيلتان أو أكثر لـwhisper_witness (float32) تُحمَّلان من مصدرهما: تثبتان غيابَ آيةٍ مسمّاةٍ غائبةٍ لكنّها مسموعةٌ في "
+                         "الخريطة (ctc-absent-witnessed-1 · heard_gate.witnessed_absent_one) — البناءُ وحدَه مع --absent-ayahs")
     ap.add_argument("--quran-model", action="store_true",
                     help="يفكّ بنموذج التلاوة المثبَّت البصمة (‏quran_ctc_model) بدل النموذج العامّ؛ خريطةُ R في بوّابة السماع المزدوجة "
                          "(‏heard_gate.py · heard_dual.txt). يلزمه --probe (‏بلا مداخل ولا رفع) وتحمل الخريطةُ نسبَ النموذج في `quranModel`")
@@ -720,9 +744,20 @@ def main() -> int:
                     or "absentScan" not in peer or sorted(peer.get("absent") or []) != sorted(absent)):
                 print("⛔ خريطةُ النظير لا تطابق: سورةٌ وبصمةُ ملفٍّ ونموذجُ تلاوةٍ ومسحُ الغائبات نفسُها")
                 return 2
+    witnessed = None
+    if a.absent_witness_runs:
+        if not absent or a.probe:
+            ap.error("--absent-witness-runs يلزمه --absent-ayahs في البناء (لا --probe)")
+        runs = [r.strip() for r in a.absent_witness_runs.split(",") if r.strip()]
+        if len(set(runs)) != len(runs) or len(runs) < 2:
+            ap.error("--absent-witness-runs يلزمه تشغيلتان متمايزتان على الأقلّ")
+        sys.path.insert(0, os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "index_qa"))
+        import pin_heard as _PH
+        witnessed = {"wits": {r: _PH.load_witness(r, a.surah) for r in runs}, "sha256": sha, "fileRef": a.url or audio}
     try:
         res, report = run(audio, a.surah, a.riwaya, probe=a.probe, strict_tol_ms=a.strict_tol_ms, absent=absent, peer=peer,
-                          **({"start_ms": a.start_ms} if a.start_ms else {}))
+                          **({"start_ms": a.start_ms} if a.start_ms else {}),
+                          **({"witnessed": witnessed} if witnessed else {}))
     except Exception as ex:                                                  # noqa: BLE001
         if absent and type(ex).__name__ == "HeardAbsentError":
             print(f"⛔ رُدّت السورةُ: {ex}")
@@ -752,7 +787,10 @@ def main() -> int:
         # ⭐ مخرَجُ الدليل بصيغة `a<سورة>.json` التي يقبلها `drop_ayahs --aligned` (‏بلا حدودٍ مُعاد قياسُها: الجاراتُ بُنيت هنا).
         with open(os.path.join(a.out_dir, f"a{a.surah:03d}.json"), "w", encoding="utf-8") as f:
             json.dump({"fileRef": a.url or audio, "sha256": sha, "surah": a.surah, "engine": ENGINE,
-                       "absent": absent, "retimed": {}, "evidence": res["absentEvidence"]}, f, ensure_ascii=False)
+                       "absent": absent, "retimed": {}, "evidence": res["absentEvidence"],
+                       **({"witnessedAbsent": {k: {"witnesses": v["witnesses"], "detail": v["detail"]}
+                                                for k, v in res["witnessedAbsent"].items()}}
+                          if res.get("witnessedAbsent") else {})}, f, ensure_ascii=False)
     print(report)
     print(f"كُتب: {out} · {rep_path}")
     return 0

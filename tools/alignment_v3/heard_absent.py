@@ -116,13 +116,18 @@ def agree(cg: list, cr: list):
     return None
 
 
-def agreed_anchors(gm: dict, rm: dict, n: int, absent: list):
+def agreed_anchors(gm: dict, rm: dict, n: int, absent: list, witnessed=None):
     """⇒ (anchor_ms[n]، ملاحظات). مِرساةٌ (بدء، نهاية) لكلّ مسموعةٍ اتّفقت عليها الخريطتان، و`None` للمسمّاة غائبةً.
     ‏`gm`/`rm` = `heardMap` للعامّة ولنموذج التلاوة. ويُرفع HeardAbsentError عند أيّ ردٍّ مقيس (‏تُجمع كلُّها في رسالةٍ واحدة).
     الآيةُ التي اختلف عليها المِرساتان بأكثر من AGREE_MS (‏مع وجود مرشّحاتٍ في الخريطتين) تبقى بلا مِرساةٍ
     ويُسجَّل اسمُها في `disputed` — يحسمها حدُّ المحاذاة بين جارتين متّفقتين ثمّ حارسُ الدعم `check_support`."""
+    # ⭐ `witnessed` (ctc-absent-witnessed-1 · اختياريّ): مجموعةُ آياتٍ مسمّاةٍ غائبةٍ أثبت غيابَها `witnessed_exemptions` بشروطها كلِّها —
+    #    يُستثنى بها وحدَها ردُّ «مسمّاةٌ غائبةٌ لكنّها مسموعة»؛ وفحصُ المطابقة القويّة في الملفّ كلِّه يبقى كما هو. بلاها السلوكُ القديمُ حرفاً.
     check_named(n, absent)
     ab = set(absent)
+    wit_ok = set(witnessed or ())
+    if not wit_ok <= ab:
+        raise HeardAbsentError(f"غيابٌ مشهودٌ لآياتٍ غيرِ مسمّاة: {sorted(wit_ok - ab)}")
     errors, disputed, kinds = [], [], {}
     out = [None] * n
     for k in range(1, n + 1):
@@ -130,7 +135,7 @@ def agreed_anchors(gm: dict, rm: dict, n: int, absent: list):
         cg, cr = candidates(hg), candidates(hr)
         if k in ab:
             for tag, c in (("العامّة", cg), ("نموذج التلاوة", cr)):
-                if c:
+                if c and k not in wit_ok:
                     errors.append(f"الآية {k} مسمّاةٌ غائبةٌ لكنّها مسموعةٌ في خريطة {tag} ({c[0][0]} {c[0][1]}–{c[0][2]} جودة {c[0][3]})")
             for tag, h in (("العامّة", hg), ("نموذج التلاوة", hr)):
                 strong = [o for o in ((h or {}).get("occurrences") or []) if o[2] >= ABSENT_BEST_MAX]
@@ -153,6 +158,44 @@ def agreed_anchors(gm: dict, rm: dict, n: int, absent: list):
     if errors:
         raise HeardAbsentError("⛔ " + " | ".join(errors))
     return out, {"disputed": disputed, "kinds": kinds}
+
+
+def witnessed_exemptions(surah: int, n: int, absent: list, gm: dict, rm: dict, wits: dict, meta: dict, want_sha: str,
+                         ref_words=None):
+    """⭐ (‏ctc-absent-witnessed-1 · قرار القائد 2026-11-10) ⇒ ({آية: دليل}، {آية: سببُ الرفض}) لكلّ آيةٍ مسمّاةٍ غائبةٍ **مسموعةٍ في إحدى الخريطتين**.
+    يُحكم بـ`heard_gate.witnessed_absent_one` (‏الشروط ١–٥ كلُّها) على الخريطتين معاً؛ وما رُفض يبقى لردّ `agreed_anchors` القديم حرفاً.
+    ‏`wits` {تشغيلة: شاهدٌ محمَّلٌ من مصدره} · `meta` = {sha256، fileRef} للملفّ · `want_sha` بصمتُه.
+    المدّةُ المتوقَّعةُ من مدى المراسي العامّة المتّفق عليها لأقران السورة (‏الغائباتُ مستثناة)."""
+    import sys as _sys
+    from pathlib import Path
+    ix = str(Path(__file__).resolve().parent.parent / "index_qa")
+    if ix not in _sys.path:
+        _sys.path.insert(0, ix)
+    import heard_gate as HG                                          # noqa: PLC0415
+    ref_words = ref_words or (lambda s_, a_: HG.disputed_ref_words("hafs", s_, a_))
+    chars_of = lambda a_: sum(len(w) for w in ref_words(surah, a_))  # noqa: E731
+    ab = set(absent)
+    durs = {}
+    for k in range(1, n + 1):
+        g, r = (gm or {}).get(str(k)), (rm or {}).get(str(k))
+        if k in ab:
+            continue
+        got = agree(candidates(g), candidates(r))
+        if got:
+            durs[k] = (got[0], got[1])
+    src = {str(run): HG.disputed_src_rec(w) for run, w in sorted((wits or {}).items())}
+    ok, refused = {}, {}
+    for k in absent:
+        g, r = (gm or {}).get(str(k)), (rm or {}).get(str(k))
+        if not (candidates(g) or candidates(r)):
+            continue                                                 # لا مسموعةَ في الخريطتين: لا استثناءَ مطلوب
+        why, det = HG.witnessed_absent_one(surah, k, n, g, r, src, src, ref_words, meta, want_sha,
+                                           HG.witnessed_expected_ms(durs, k, chars_of))
+        if why:
+            refused[k] = why
+        else:
+            ok[k] = det
+    return ok, refused
 
 
 def check_support(entries: list, gm: dict, rm: dict, absent: list) -> None:

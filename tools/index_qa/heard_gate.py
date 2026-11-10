@@ -469,7 +469,7 @@ def disputed_sources(cand_idx, loader=None):
     tr = cand_idx.get("transform") if isinstance(cand_idx.get("transform"), dict) else {}
     # ⭐ (‏#107) تشغيلاتُ قاعدة «المرساة المزاحة داخل نصّ الآية» (‏`ownTextAnchors`) تُحمَّل من المصدر نفسِه وبالطريقة نفسِها.
     per = {}
-    for key in ("disputedAnchors", OWNTEXT_KEY):
+    for key in ("disputedAnchors", OWNTEXT_KEY, WITNESSED_KEY):
         da = tr.get(key)
         if not isinstance(da, dict):
             continue
@@ -786,6 +786,233 @@ def own_text_verdict(s, rows, g_map, want, cand_idx, ref_words=None, n_ayahs=Non
     return (" · ".join(bad) if bad else None), ev
 
 
+# ───────────── مسمّاةٌ غائبةٌ لكنّها مسموعةٌ في خريطة العامّة (‏ctc-absent-witnessed-1 · قرار القائد 2026-11-10) ─────────────
+# ⭐ الحالةُ (‏الكردي 004.mp3 · س4 · 4:127): الخريطةُ تضع 4:127 مسموعةً عند [4133566، 4163246] بجودة 0.3، فيردّها
+#    `heard_absent.agreed_anchors` («مسمّاةٌ غائبةٌ لكنّها مسموعةٌ في خريطة…»). وشاهدا Whisper float32 (‏medium · small) فرّغا
+#    النافذةَ 4125–4170ث: 4:125 ثمّ 4:126 حتى ≈4162ث ثمّ 4:128 «وإن امرأة خافت» عند ≈4165ث — **ولا «ويستفتونك في النساء»**،
+#    وأفضلُ مطابقةٍ لنصّها في الملفّ كلِّه 0.514 عند 5527ث (‏موضعُ 4:176 الشبيهة). فالمرساةُ الضعيفةُ تلقّطت صوتَ جارتيها.
+#    فيُقبل التسميةُ **بشروطٍ مجتمعةٍ كلُّها تُعاد هنا من المصدر والخريطة لا من المكتوب**، وإلا بقي الردُّ القديمُ حرفاً:
+#    ١) شاهدان float32 على الأقلّ من تشغيلتين متمايزتين، يُحمَّلان من مصدر التشغيلة (‏`pin_heard.load_witness`) ويطابقان
+#       المكتوبَ حرفاً (‏كـ`disputed_src_rec`) — لا كلماتٌ مضمَّنةٌ يُوثق بها؛ وبصمةُ كلٍّ = بصمةُ الخريطة = بصمةُ الفهرس والملفُّ نفسُه
+#       (‏`pin_heard.check_witness`)؛
+#    ٢) كلٌّ منهما يفرّغ **النافذةَ التي ادّعتها الخريطةُ كاملةً** ويسمع فيها الجارتين بلفظهما: آخرَ W_K كلماتٍ من السابقة
+#       وأوّلَ W_K من اللاحقة متّصلةً كلمةً بكلمة بثقة `pin_heard` ولا التصاقَ بطرف النافذة، والسابقةُ قبل اللاحقة؛
+#    ٣) لا يسمع أيٌّ منهما **أوّلَ W_K كلماتٍ من الآية الغائبة** في تفريغه كلِّه (‏بأيّ ثقة)؛
+#    ٤) جودةُ الخريطة هناك **دون 0.5** في كلّ مرشّحٍ (‏مِرساةٌ عامّةٌ أو أداءٌ منفرد؛ والأداءُ المنفردُ المقبولُ يبدأ من 0.5 فيردّ)؛
+#    ٥) لا متّسعَ للآية: الفجوةُ بين نهاية السابقة المسموعة وبدء اللاحقة **عند كلٍّ من الشاهدين** أقلُّ من نصف المدّة المتوقَّعة
+#       للغائبة (‏`witnessed_expected_ms`: وسيطُ مدّة الحرف عند أقرانها من آيات السورة نفسِها × حروفُها — يقابل
+#       `pin_heard.expected_from_peers`) — فيثبت الغيابُ **بالزمن لا بالنصّ وحدَه**؛
+#    ٦) القاعدةُ باسمٍ وإصدارٍ مستقلّين: `transform.witnessedAbsent` و`ctc-absent-witnessed-1` مع الدليل؛ لا الأولى ولا الأخيرة،
+#       وضمن ربع آيات السورة؛ والإعلانُ يبقى SOURCE_TRUNCATED لكلّ آيةٍ (‏قاعدة 10-31 · `promote.declared_truncated_gaps`).
+#    ⛔ لا عتبةَ تنخفض (‏0.5 · 5٪ · 300م.ث)، ولا يُرخى مسارٌ قائم: فحصُ «المطابقة القويّة ≥ 0.70» في الملفّ كلِّه يبقى كما هو،
+#    والخريطةُ الجزئيّةُ تُردّ كما في #101. وسقفُ ربع السورة ولا-الأولى-ولا-الأخيرة في `heard_absent.check_named` قبل كلّ هذا.
+WITNESSED_VERSION = "ctc-absent-witnessed-1"
+WITNESSED_KEY = "witnessedAbsent"
+WITNESSED_MIN_WITNESSES = 2
+WITNESSED_Q_MAX = 0.5           # جودةُ الخريطة هناك دون هذا (‏الشرط ٤)
+WITNESSED_SPACE_FRAC = 0.5      # الفجوةُ بين الجارتين أقلُّ من هذه النسبة من المتوقَّع (‏الشرط ٥)
+WITNESSED_MIN_PEERS = 3         # أقلُّ عددٍ من الأقران تُحسب منه المدّةُ المتوقَّعة
+
+
+def _heard_absent():
+    """بابُ `heard_absent` (‏alignment_v3 · stdlib وحده) — مصدرٌ واحدٌ لتعريف «المسموعة» في الخريطة (‏`candidates`)."""
+    p = str(Path(__file__).resolve().parent.parent / "alignment_v3")
+    if p not in sys.path:
+        sys.path.insert(0, p)
+    import heard_absent                                              # noqa: PLC0415
+    return heard_absent
+
+
+def witnessed_expected_ms(durs: dict, ayah: int, chars_of):
+    """المدّةُ المتوقَّعةُ للآية الغائبة (‏م.ث) من أقرانها: وسيطُ (مدّةِ آيةٍ ÷ حروفِها) على `durs` {آية: (بدء، نهاية)} × حروفُ الغائبة.
+    أو None إن قلّ الأقرانُ عن WITNESSED_MIN_PEERS. (‏البناءُ يمدّها بمدى المراسي والبوّابةُ بمداخل المرشّح؛ والصيغةُ واحدة.)"""
+    rates = []
+    for a, d in (durs or {}).items():
+        try:
+            dur, ch = int(d[1]) - int(d[0]), chars_of(a)
+        except (TypeError, ValueError, IndexError):
+            continue
+        if a != ayah and dur > 0 and ch > 0:
+            rates.append(dur / ch)
+    if len(rates) < WITNESSED_MIN_PEERS:
+        return None
+    rates.sort()
+    return rates[len(rates) // 2] * chars_of(ayah)
+
+
+def _merged_windows(wit) -> list:
+    iv = []
+    for rec in ((wit or {}).get("ayahs") or {}).values():
+        w = rec.get("windowMs") if isinstance(rec, dict) else None
+        try:
+            a, b = int(w[0]), int(w[1])
+        except (TypeError, ValueError, IndexError):
+            continue
+        if b > a:
+            iv.append((a, b))
+    out: list = []
+    for a, b in sorted(iv):
+        if out and a <= out[-1][1]:
+            out[-1][1] = max(out[-1][1], b)
+        else:
+            out.append([a, b])
+    return out
+
+
+def witness_covers(wit, lo: int, hi: int) -> bool:
+    """هل يفرّغ الشاهدُ [lo، hi] كاملاً بنوافذَ متّصلة؟"""
+    return any(a <= int(lo) and b >= int(hi) for a, b in _merged_windows(wit))
+
+
+def _word_hits(wit, target) -> list:
+    """[(مقطع، نافذة)] كلُّ موضعٍ تتطابق فيه كلماتُ `target` متّصلةً كلمةً بكلمة (‏تطبيعُ هذا الباب) في تفريغ الشاهد."""
+    k, out = len(target), []
+    for rec in ((wit or {}).get("ayahs") or {}).values():
+        win = rec.get("windowMs") or [None, None]
+        tk = _wtoks(rec)
+        for i in range(len(tk) - k + 1):
+            span = tk[i:i + k]
+            if [x[0] for x in span] == list(target):
+                out.append((span, win))
+    return out
+
+
+def witnessed_witness_check(wit, surah, ayah, claim, own, prev, nxt, meta, want_sha, expected_ms, bounds=None):
+    """(None، تفصيل) إن أثبت الشاهدُ الواحدُ الشروطَ ١(‏النموذج float32 والبصمة) و٢ و٣ و٥ للآية، وإلا (السببُ، None)."""
+    import pin_heard as PH                                           # noqa: PLC0415
+    try:
+        PH.check_witness(wit, surah, meta, want_sha)
+    except SystemExit as e:
+        return str(e), None
+    k = PH.W_K
+    if claim and not witness_covers(wit, claim[0], claim[1]):
+        return (f"لا يفرّغ النافذةَ التي ادّعتها الخريطةُ [{claim[0]}، {claim[1]}] كاملةً "
+                f"(‏نوافذُه {_merged_windows(wit)})"), None
+    if _word_hits(wit, own[:k]):
+        return f"يسمع في تفريغه أوّلَ {k} كلماتٍ من الآية الغائبة «{' '.join(own[:k])}» — مسموعةٌ لا غائبة", None
+    prevs = [h for h in _word_hits(wit, prev[-k:]) if _span_ok(h[0], h[1]) is None]
+    nexts = [h for h in _word_hits(wit, nxt[:k]) if _span_ok(h[0], h[1]) is None]
+    if not prevs:
+        return f"لا يسمع الجارةَ السابقةَ بلفظها (‏آخرَ {k} كلماتٍ «{' '.join(prev[-k:])}» بثقةٍ كافية)", None
+    if not nexts:
+        return f"لا يسمع الجارةَ اللاحقةَ بلفظها (‏أوّلَ {k} كلماتٍ «{' '.join(nxt[:k])}» بثقةٍ كافية)", None
+    if not claim and not bounds:
+        return "لا موضعَ يقيّد ملتقى الجارتين (‏لا نافذةَ مدّعاةً ولا مداخلَ جارتين) — لا يُقبل ادّعاءٌ بلا قيدٍ مكانيّ", None
+    pairs = [(p, n) for p in prevs for n in nexts if n[0][0][1] >= p[0][0][1]]
+    if not pairs:
+        return "اللاحقةُ لا تأتي بعد السابقة في تفريغه", None
+    # ⛔ (‏مراجعةُ القائد #108) الملتقى يجب أن يقع **في الموضع المدّعى** لا في أيّ موضعٍ يكرّر فيه القارئُ اللفظَ أو يتشابه:
+    #    (أ) مع claim: الفترةُ [نهايةُ السابقة، بدءُ اللاحقة] تتقاطع مع نافذة الخريطة المدّعاة؛
+    #    (ب) مع bounds (‏البوّابة: نهايةُ مدخل a−1 وبدءُ مدخل a+1 في المرشّح نفسِه): طرفا الملتقى كلٌّ ضمن TOL_MS من طرفه.
+    def located(p_end_, n_start_):
+        if claim and not (p_end_ <= claim[1] and n_start_ >= claim[0]):
+            return False
+        if bounds and not (abs(p_end_ - bounds[0]) <= TOL_MS and abs(n_start_ - bounds[1]) <= TOL_MS):
+            return False
+        return True
+    cand = [(int(p[0][-1][2]), int(n[0][0][1])) for p, n in pairs]
+    cand = [c for c in cand if located(*c)]
+    if not cand:
+        where = (f"نافذة الخريطة [{claim[0]}، {claim[1]}]" if claim else "") + (" و" if claim and bounds else "") + \
+                (f"ما بين نهاية مدخل الجارة السابقة {bounds[0]} وبدء اللاحقة {bounds[1]} (±{TOL_MS})" if bounds else "")
+        return f"ملتقى الجارتين في تفريغه لا يقع في الموضع المدّعى — {where}", None
+    p_end, n_start = min(cand, key=lambda c: max(0, c[1] - c[0]))
+    gap = max(0, n_start - p_end)
+    if not expected_ms or expected_ms <= 0:
+        return "لا مدّةَ متوقَّعةً للآية من أقرانها — لا يثبت الغيابُ بالزمن", None
+    if gap >= WITNESSED_SPACE_FRAC * expected_ms:
+        return (f"الفجوةُ بين السابقة ({p_end}) واللاحقة ({n_start}) {gap}م.ث ≥ نصف المتوقَّع "
+                f"{WITNESSED_SPACE_FRAC * expected_ms:.0f}م.ث (‏{expected_ms:.0f}) — فيها متّسعٌ للآية"), None
+    return None, {"model": wit.get("model"), "computeType": wit.get("computeType"), "prevEndMs": p_end,
+                  "nextStartMs": n_start, "gapMs": gap, "windowsMs": _merged_windows(wit)}
+
+
+def witnessed_absent_one(surah, ayah, n_ayahs, g_rec, r_rec, wits, sources, ref_words, meta, want_sha, expected_ms, bounds=None):
+    """(None، دليل) إن ثبت غيابُ الآية المسمّاة بالشروط ١–٥ كلِّها، وإلا (سببُ الردّ، None).
+    `g_rec`/`r_rec`: سجلُّ الآية في خريطة العامّة وخريطة نموذج التلاوة (‏`heardMap[آية]`: anchorMs · anchorQuality · heardMs · score)
+    — `r_rec` اختياريّ (‏البوّابةُ لا تملك إلا العامّة). `wits`: {تشغيلة: سجلُّ الشاهد المكتوب}، و`sources`: المحمَّلُ من المصدر."""
+    import pin_heard as PH                                           # noqa: PLC0415
+    HA = _heard_absent()
+    if not 2 <= int(ayah) <= int(n_ayahs) - 1:
+        return f"لا تسري القاعدةُ على الآية الأولى ولا الأخيرة (‏2..{int(n_ayahs) - 1})", None
+    cands = HA.candidates(g_rec) + HA.candidates(r_rec)
+    hi_q = [c for c in cands if c[3] >= WITNESSED_Q_MAX]
+    if hi_q:
+        return (f"جودةُ الخريطة هناك {hi_q[0][3]} ({hi_q[0][0]} {hi_q[0][1]}–{hi_q[0][2]}) ≥ {WITNESSED_Q_MAX} — "
+                "الردُّ القديمُ باقٍ"), None
+    claim = [min(c[1] for c in cands), max(c[2] for c in cands)] if cands else None
+    if not isinstance(wits, dict) or len(wits) < WITNESSED_MIN_WITNESSES:
+        return f"يلزم {WITNESSED_MIN_WITNESSES} شاهدان float32 من تشغيلتين متمايزتين", None
+    own, prev, nxt = ref_words(surah, ayah), ref_words(surah, ayah - 1), ref_words(surah, ayah + 1)
+    if min(len(own), len(prev), len(nxt)) < PH.W_K:
+        return "نصُّ الآية أو إحدى جارتيها أقصرُ من W_K", None
+    det = {}
+    for run, w in sorted(wits.items()):
+        src = (sources or {}).get(str(run))
+        if not isinstance(src, dict):
+            why = "لا مصدرَ محمَّلٌ له من تشغيلة whisper_witness — المكتوبُ في المرشّح لا يُصدَّق وحده"
+        elif "error" in src:
+            why = f"تعذّر تحميلُه من مصدره: {src['error']}"
+        elif _canon(disputed_src_rec(w)) != _canon(src):
+            why = "المكتوبُ في المرشّح يخالف مصدرَه (‏مخرَج تشغيلته) حرفاً"
+        else:
+            why, d = witnessed_witness_check(src, surah, ayah, claim, own, prev, nxt, meta, want_sha, expected_ms, bounds)
+        if why:
+            return f"الشاهد {run}: {why}", None
+        det[str(run)] = d
+    return None, {"claimMs": claim, "mapQuality": max((c[3] for c in cands), default=None),
+                  "expectedMs": round(expected_ms), "witnesses": det}
+
+
+def witnessed_absent_verdict(s, g_map, want, cand_idx, ref_words=None, n_ayahs=None, sources=None):
+    """يُعيد حسابَ كلّ ادّعاءٍ في `transform.witnessedAbsent[س]` من المصدر والخريطة والمرشّح. يُرجع (سببُ ردّ السورة أو None، الدليل).
+    بلا ادّعاءٍ للسورة لا يتغيّر شيءٌ حرفاً. البوّابةُ تملك خريطةَ العامّة وحدَها، فشرطُ الجودة (‏٤) عليها وحدَها هنا
+    (‏والبناءُ يحكم بالخريطتين)، والمدّةُ المتوقَّعةُ من مداخل المرشّح نفسِه."""
+    tr = cand_idx.get("transform") if isinstance(cand_idx.get("transform"), dict) else {}
+    allc = tr.get(WITNESSED_KEY)
+    claims = allc.get(str(s)) if isinstance(allc, dict) else None
+    if not claims or not isinstance(claims, dict):
+        return None, None
+    import pin_heard as PH                                           # noqa: PLC0415
+    ref_words = ref_words or (lambda ss, a: disputed_ref_words(cand_idx.get("riwaya") or "hafs", ss, a))
+    n = n_ayahs or PH.heard_gate_n_ayahs(int(s))
+    gap_rec = (tr.get("truncatedGaps") or {}).get(str(s)) if isinstance(tr.get("truncatedGaps"), dict) else None
+    declared = {a for a in ((gap_rec or {}).get("absent") or []) if type(a) is int}
+    present = by_surah(cand_idx.get("entries") or []).get(int(s)) or {}
+    chars_of = lambda a: sum(len(w) for w in ref_words(int(s), a))   # noqa: E731
+    durs = {a: (v[0], v[1]) for a, v in present.items() if v[1] is not None}
+    ev = {"version": WITNESSED_VERSION, "accepted": {}, "refused": {}, "nAyahs": n}
+    bad = []
+    anc = (g_map or {}).get("anchors") or {}
+    for a_s, c in sorted(claims.items(), key=lambda kv: int(kv[0])):
+        a = int(a_s)
+        if a not in declared:
+            bad.append(f"{s}:{a}: ادّعاءُ غيابٍ مشهودٍ لآيةٍ لم يُعلَن حجبُها في truncatedGaps")
+            continue
+        if a in present:
+            bad.append(f"{s}:{a}: ادّعاءُ غيابٍ مشهودٍ لآيةٍ لها مدخلٌ في المرشّح")
+            continue
+        rec = anc.get(str(a))
+        g_rec = {"anchorMs": rec[0] if isinstance(rec, list) and rec else None,
+                 "anchorQuality": rec[1] if isinstance(rec, list) and len(rec) > 1 else None}
+        pe, ns = present.get(a - 1), present.get(a + 1)
+        if not pe or not ns or pe[1] is None:
+            bad.append(f"{s}:{a}: لا مدخلَ للجارة السابقة أو اللاحقة في المرشّح — لا قيدَ مكانيّ لملتقاهما")
+            continue
+        # ⛔ الملتقى بين نهاية مدخل a−1 وبدء مدخل a+1 في المرشّح نفسِه ضمن TOL_MS (‏مراجعةُ القائد #108)
+        why, det = witnessed_absent_one(int(s), a, n, g_rec, None, (c or {}).get("witnesses"), sources, ref_words,
+                                        g_map, want, witnessed_expected_ms(durs, a, chars_of),
+                                        bounds=(int(pe[1]), int(ns[0])))
+        if why:
+            ev["refused"][str(a)] = why
+            bad.append(f"{s}:{a}: {why}")
+            continue
+        ev["accepted"][str(a)] = det
+    if len(claims) * 4 > n:
+        bad.append(f"المسمّاةُ المشهودةُ {len(claims)} تتجاوز ربع آيات السورة ({n}) — الإسقاطُ الكامل")
+    return (" · ".join(bad) if bad else None), ev
+
+
 def judge(cand_idx: dict, pub_idx: dict | None, cand_sha: str, maps: dict,
           maps_r: dict | None = None, witness: dict | None = None,
           dual: dict | None = None, ref_words=None, disputed_src: dict | None = None) -> dict:
@@ -860,7 +1087,11 @@ def judge(cand_idx: dict, pub_idx: dict | None, cand_sha: str, maps: dict,
                                        already=len((ev_d or {}).get("accepted") or {}))
         if ev_o:
             out.setdefault("ownText", {})[str(s)] = ev_o
-        why = " · ".join(x for x in (surah_verdict(rows), why_d, why_o) if x) or None
+        # ⭐ (‏ctc-absent-witnessed-1) مسمّاةٌ غائبةٌ مسموعةٌ في الخريطة — يُعاد حكمُها من المصدر هنا لا من المكتوب
+        why_a, ev_a = witnessed_absent_verdict(s, m, want, cand_idx, ref_words, sources=(disputed_src or {}).get(str(s)))
+        if ev_a:
+            out.setdefault("witnessedAbsent", {})[str(s)] = ev_a
+        why = " · ".join(x for x in (surah_verdict(rows), why_d, why_o, why_a) if x) or None
         if s in modified:
             wt = (witness or {}).get(s) or (witness or {}).get(str(s))
             why_w, ev_w = weak_verdict(s, cs[s], ps.get(s), rows, m, wt, want, cand_idx.get("riwaya"), ref_words)
