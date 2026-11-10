@@ -84,8 +84,22 @@ def sample_surahs(cand_sha: str, pool, k: int = SAMPLE_K) -> list[int]:
     return sorted(random.Random(seed).sample(pool, min(k, len(pool))))
 
 
+PARTIAL_KEY = "windowStartMs"
+
+
+def partial_map_error(heard) -> str | None:
+    """⛔ (‏#105) خريطةٌ سُبرت من نافذةٍ جزئيّة (‏`ctc_heard_map --start-ms`) لم تسمع ما قبل بدئها، فلا تُعدّ خريطةً للملفّ كلِّه."""
+    if isinstance(heard, dict) and heard.get(PARTIAL_KEY):
+        return (f"خريطةٌ جزئيّةٌ من {heard.get(PARTIAL_KEY)}م.ث (‏{PARTIAL_KEY}) — لم تسمع ما قبلها فلا تدخل حكماً")
+    return None
+
+
 def compact_map(heard: dict) -> dict:
-    """ما يلزم الحكمَ من مخرَج `ctc_heard_map` (‏يُحفظ في state ويُعاد منه الحساب)."""
+    """ما يلزم الحكمَ من مخرَج `ctc_heard_map` (‏يُحفظ في state ويُعاد منه الحساب).
+    ⛔ الخريطةُ الجزئيّة تُردّ هنا، وكلُّ حكمٍ يمرّ من هنا (‏البوّابة · الباب المزدوج · الظلّ · المتنازَع)."""
+    why = partial_map_error(heard)
+    if why:
+        raise ValueError(f"⛔ {why}")
     hm = heard.get("heardMap") or {}
     out = {"surah": heard.get("surah"), "sha256": heard.get("sha256"), "fileRef": heard.get("fileRef"),
            "totalMs": heard.get("totalMs"), "engine": heard.get("engine"),

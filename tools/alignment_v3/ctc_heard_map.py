@@ -740,7 +740,9 @@ def main() -> int:
     rep_path = a.report or os.path.join(a.out_dir, f"heard_s{a.surah:03d}.txt")
     with open(rep_path, "w", encoding="utf-8") as f:
         f.write(report + "\n")
-    out = os.path.join(a.out_dir, f"heard_s{a.surah:03d}.json" if a.probe else f"s{a.surah:03d}.json")
+    # ⛔ (‏#105) الخريطةُ الجزئيّة باسمٍ لا يطابق `heard_s*.json` فلا تحلّ محلَّ الكاملة عند قارئٍ يقرأ بالاسم.
+    out = os.path.join(a.out_dir, (f"heardpart_s{a.surah:03d}_from{a.start_ms}.json" if a.start_ms
+                                   else f"heard_s{a.surah:03d}.json") if a.probe else f"s{a.surah:03d}.json")
     # ⭐ (2026-10-25 · تسريع) كتابةٌ ذرّيّة: مهلةُ الميزانية في سير العمل قد تقتل العمليةَ أثناء الكتابة، وملفُّ
     #    سورةٍ مبتورٌ يكسر الدمجَ كلَّه؛ يُكتب مؤقّتاً ثمّ يُستبدَل والمحتوى بايتاً كما كان.
     with open(out + ".part", "w", encoding="utf-8") as f:

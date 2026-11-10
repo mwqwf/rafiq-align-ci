@@ -89,7 +89,7 @@ jobs:
           if [ "$EVIDENCE" = "artifacts" ] && [ "$BUILD" = "true" ]; then P=""; fi
           [[ "${START_MS:-0}" =~ ^[0-9]+$ ]] || { echo "⛔ start_ms عددٌ غيرُ سالب"; exit 1; }
           if [ "${START_MS:-0}" != "0" ]; then
-            [ "$P" = "--probe" ] || { echo "⛔ start_ms للسبر وحده (‏build=false · evidence≠build-logs)"; exit 1; }
+            [ "$P" = "--probe" ] && [ "$EVIDENCE" = "artifacts" ] || { echo "⛔ start_ms للسبر وحده بمخرَج artifacts (‏build=false)"; exit 1; }
             STRICT+=(--start-ms "$START_MS")
           fi
           if [ "$EVIDENCE" = "build-logs" ]; then

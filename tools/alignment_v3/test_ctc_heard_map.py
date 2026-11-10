@@ -252,7 +252,16 @@ class StartMs(unittest.TestCase):
         with mock.patch.object(sys, "argv", ["ctc_heard_map.py", "--audio", audio, "--surah", "1", "--out-dir", d] + argv), \
                 mock.patch.object(H, "run", return_value=(dict(res), "rep")) as run:
             rc = H.main()
-        return rc, json.load(open(os.path.join(d, "heard_s001.json"), encoding="utf-8")), run
+        name = next(f for f in sorted(os.listdir(d)) if f.endswith(".json"))
+        self._names = sorted(f for f in os.listdir(d) if f.endswith(".json"))
+        return rc, json.load(open(os.path.join(d, name), encoding="utf-8")), run
+
+    def test_partial_map_has_another_name(self):
+        # ⛔ (‏#105) لا تُكتب الجزئيّة باسم الكاملة فلا تحلّ محلَّها عند قارئٍ يقرأ بالاسم
+        self._main(["--probe", "--start-ms", "4000"])
+        self.assertEqual(self._names, ["heardpart_s001_from4000.json"])
+        self._main(["--probe"])
+        self.assertEqual(self._names, ["heard_s001.json"])
 
     def test_zero_gives_the_same_output_and_call(self):
         rc0, out0, run0 = self._main(["--probe"])
