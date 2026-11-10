@@ -477,13 +477,17 @@ def expected_from_peers(own_durs, peer_med, skip=()):
 
 def pin(idx, surah, hmap, pins, trims=None, last_end=None, witness=None, ref_words=None,
         expected=None, evidence=None, witness_fuzzy=False, trim_witnesses=None, trim_evidence=None,
-        opener_witnesses=None, opener_evidence=None, disputed=None):
+        opener_witnesses=None, opener_evidence=None, disputed=None, own_text=None):
     """يُعيد (فهرساً جديداً، تقريراً) أو يرفع SystemExit بالسبب.
 
     `disputed` (‏اختياريّ · تصحيحُ توصيلٍ لقاعدة #101 · 2026-11-10): دالّةٌ `(فهرسٌ_مرشّح، صفوف) ⇒ مجموعةُ الآيات` تحكم على
     ادّعاءات `--disputed` بـ`heard_gate.disputed_verdict` بشروطها الستّة كلّها وسقفِ الـ10٪ **على المرشّح بعد التثبيت**، وترفع
     SystemExit بسبب ردّ أيّ ادّعاءٍ لم يثبت. وما أثبتته وحدَه يُستثنى من الفحص المسبق؛ وأيُّ انحرافٍ غير مدّعى يُردّ كما كان.
     وحكمُ `heard_gate` الكاملُ على المرشّح لا يتغيّر. بلا `disputed` السلوكُ القديمُ حرفاً.
+
+    `own_text` (‏اختياريّ · #107 · 2026-11-10): كـ`disputed` لقاعدة «المرساة المزاحة داخل نصّ الآية نفسِها»
+    (‏`heard_gate.own_text_verdict`): دالّةٌ `(فهرسٌ_مرشّح، صفوف، عددُ المتنازَع المقبول) ⇒ مجموعةُ الآيات`؛ السقفُ مشتركٌ مع #101،
+    وما أثبتته وحدَه يُستثنى، وترفع SystemExit بسبب ردّ أيّ ادّعاءٍ لم يثبت. بلا `own_text` السلوكُ القديمُ حرفاً.
 
     `last_end`: نهايةٌ مقيسةٌ لآخر آيةٍ في السورة (‏الفخفاخ 33:73 · 2026-10-05: قُصّت عند مدّةٍ قدّرها ffprobe
     من ترويسة VBR بـ1792.6ث والفكُّ الكامل أطول، فسُمع منها 2.6ث). شرطُها: الآيةُ آخرُ السورة ومثبَّتة،
@@ -640,12 +644,20 @@ def pin(idx, surah, hmap, pins, trims=None, last_end=None, witness=None, ref_wor
     rows = heard_gate.surah_rows({a: new[a]["startMs"] for a in order}, heard_gate.compact_map(hmap))
     out = dict(idx)
     out["entries"] = [new[_key(e["ayahId"])[1]] if _key(e["ayahId"])[0] == surah else e for e in ents]
+    n_disp = 0
     if disputed is not None:
         # ⭐ المدّعى المثبَتُ وحدَه يُستثنى؛ والدالّةُ ترفع SystemExit بسبب كلِّ ادّعاءٍ لم يثبت (‏لا استثناءَ بالادّعاء المجرّد).
         accepted = {int(a) for a in (disputed(out, rows) or ())}
+        n_disp = len(accepted)
         for r in rows:
             if r["ayah"] in accepted and r["status"] == "dev":
                 r["status"] = "disputed"
+    if own_text is not None:
+        # ⭐ (‏#107) المرساةُ المزاحةُ داخل نصّ الآية نفسِها: المثبَتُ وحدَه يُستثنى بالقاعدة المستقلّة، والسقفُ مشتركٌ مع المتنازَع.
+        accepted_o = {int(a) for a in (own_text(out, rows, n_disp) or ())}
+        for r in rows:
+            if r["ayah"] in accepted_o and r["status"] == "dev":
+                r["status"] = "owntext"
     why = heard_gate.surah_verdict(rows)
     if why:
         raise SystemExit(f"⛔ حكمُ السماع على السورة بعد التثبيت: {why}")
@@ -787,6 +799,37 @@ def disputed_claims(out, surah, hmap, claims, runs_txt, wits=None):
     return {str(surah): rec}
 
 
+def own_text_claims(out, surah, hmap, claims, runs_txt, wits=None, already=0):
+    """{سورة: {آية: {witnesses}}} لـ`transform.ownTextAnchors` (‏#107) — يُحكم عليها هنا بـ`heard_gate.own_text_verdict` نفسِها
+    قبل الرفع فلا يُرفع ادّعاءٌ تردّه البوّابة. `already` عددُ المتنازَع (‏#101) المقبول معها (‏السقفُ مشترك).
+    `wits` {تشغيلة: شاهد} للاختبار، وإلا تُقرأ من مخرَج التشغيلات."""
+    import heard_gate as HG                                              # noqa: PLC0415
+    if HG.partial_map_error(hmap):
+        raise SystemExit(f"⛔ --own-text: {HG.partial_map_error(hmap)}")
+    runs = [r.strip() for r in str(runs_txt or "").split(",") if r.strip()]
+    if wits is None:
+        if len(set(runs)) != len(runs) or len(runs) < HG.DISPUTED_MIN_WITNESSES:
+            raise SystemExit(f"⛔ --own-text يلزمه {HG.DISPUTED_MIN_WITNESSES} تشغيلتان متمايزتان في --own-text-runs")
+        wits = {r: load_witness(r, surah) for r in runs}
+    rec = {str(a): {"witnesses": {str(r): HG.disputed_src_rec(w) for r, w in wits.items()}} for a in sorted(claims)}
+    present = sorted({_key(e["ayahId"])[0] for e in out["entries"]})
+    want = index_fields.sha_by_surah(out, present).get(surah)
+    starts = {_key(e["ayahId"])[1]: int(e["startMs"]) for e in out["entries"] if _key(e["ayahId"])[0] == surah}
+    cmap = HG.compact_map(hmap)
+    rows = HG.surah_rows(starts, cmap)
+    probe = dict(out)
+    probe["transform"] = {**(out.get("transform") or {}), HG.OWNTEXT_KEY: {str(surah): rec}}
+    why, _ev = HG.own_text_verdict(surah, rows, cmap, want, probe,
+                                   sources={str(r): HG.disputed_src_rec(w) for r, w in wits.items()}, already=already)
+    if why:
+        raise SystemExit(f"⛔ المراسي المزاحةُ داخل نصّ الآية لا تجتاز heard_gate: {why}")
+    return {str(surah): rec}
+
+
+def parse_ayahs(txt):
+    return sorted({int(x) for x in re.split(r"[,،]", txt or "") if x.strip()})
+
+
 def main():
     ap = argparse.ArgumentParser(description=__doc__.split("\n")[0])
     ap.add_argument("--key", required=True)
@@ -806,6 +849,9 @@ def main():
     ap.add_argument("--disputed", default="",
                     help="آية:الآيةُ الأخرى المسموعةُ عند مرساتها، بفواصل (‏heard_gate.disputed_verdict) — مثل 82:81,93:92")
     ap.add_argument("--disputed-runs", default="", help="تشغيلتا whisper_witness (‏أو أكثر) تُضمَّنان دليلاً لكلّ متنازَع")
+    ap.add_argument("--own-text", default="",
+                    help="آياتٌ مرساتُها مزاحةٌ داخل نصّها نفسِه (‏heard_gate.own_text_verdict · #107)، بفواصل — مثل 51,62")
+    ap.add_argument("--own-text-runs", default="", help="تشغيلتا whisper_witness (‏أو أكثر) تُضمَّنان دليلاً لكلّ آيةٍ في --own-text")
     ap.add_argument("--opener-runs", default="",
                     help="تشغيلتا whisper_witness (‏أو أكثر): مطلعُ الحروف المقطّعة — يُثبَّت 2 بـ--pin وتُمَدّ 1 إلى الوراء "
                          f"({OPENER_VERSION})")
@@ -862,11 +908,23 @@ def main():
         def dcheck(probe, _rows):                                       # noqa: E306
             rec = disputed_claims(probe, a.surah, hmap, dclaims, a.disputed_runs, wits=dwits)
             return {int(k) for k in rec[str(a.surah)]}
+    xcheck = None
+    if a.own_text:
+        xruns = [r.strip() for r in str(a.own_text_runs or "").split(",") if r.strip()]
+        if len(set(xruns)) != len(xruns) or len(xruns) < heard_gate.DISPUTED_MIN_WITNESSES:
+            raise SystemExit(f"⛔ --own-text يلزمه {heard_gate.DISPUTED_MIN_WITNESSES} تشغيلتان متمايزتان في --own-text-runs")
+        xwits = {r: load_witness(r, a.surah) for r in xruns}
+        xclaims = parse_ayahs(a.own_text)
+        n_dclaims = len(parse_pairs(a.disputed)) if a.disputed else 0
+
+        def xcheck(probe, _rows, already=0):                            # noqa: E306
+            rec = own_text_claims(probe, a.surah, hmap, xclaims, a.own_text_runs, wits=xwits, already=already)
+            return {int(k) for k in rec[str(a.surah)]}
     out, report, changed = pin(idx, a.surah, hmap, parse_pairs(a.pin), parse_pairs(a.trim),
                                a.last_end, witness=wit, ref_words=ref, expected=expected,
                                evidence=evidence, witness_fuzzy=a.witness_fuzzy,
                                trim_witnesses=twits, trim_evidence=tev,
-                               opener_witnesses=owits, opener_evidence=oev, disputed=dcheck)
+                               opener_witnesses=owits, opener_evidence=oev, disputed=dcheck, own_text=xcheck)
     out["transform"] = {
         **({"truncatedTail": idx["transform"]["truncatedTail"]}
            if isinstance(idx.get("transform"), dict) and idx["transform"].get("truncatedTail") else {}),
@@ -890,6 +948,9 @@ def main():
     if a.disputed:
         out["transform"]["disputedAnchors"] = disputed_claims(out, a.surah, hmap, dclaims, a.disputed_runs,
                                                               wits=dwits)
+    if a.own_text:
+        out["transform"][heard_gate.OWNTEXT_KEY] = own_text_claims(out, a.surah, hmap, xclaims, a.own_text_runs,
+                                                                   wits=xwits, already=n_dclaims)
     blob = gzip.compress(json.dumps(out, ensure_ascii=False, separators=(",", ":")).encode("utf-8"), 9)
     new_sha = hashlib.sha256(blob).hexdigest()
     target = f"timings-staging/{idx.get('riwaya')}/{idx.get('reciterId')}.{new_sha[:8]}.jz"

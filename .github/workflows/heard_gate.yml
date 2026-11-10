@@ -244,7 +244,7 @@ jobs:
       - name: الحكمُ والكتابةُ في state-heard/
         env: {ONLY: "${{ inputs.only }}", RUN: "${{ github.run_id }}", GH_TOKEN: "${{ github.token }}"}
         run: |
-          python -m unittest tools/index_qa/test_heard_gate.py tools/index_qa/test_heard_dual.py tools/index_qa/test_heard_weak.py tools/index_qa/test_heard_disputed.py
+          python -m unittest tools/index_qa/test_heard_gate.py tools/index_qa/test_heard_dual.py tools/index_qa/test_heard_weak.py tools/index_qa/test_heard_disputed.py tools/index_qa/test_heard_owntext.py
           set -o pipefail
           python - <<'PY' | tee judge.log
           import glob, gzip, hashlib, json, os, sys, time, boto3
@@ -300,6 +300,9 @@ jobs:
               if j.get("disputed"):
                   rep["disputed"] = j["disputed"]
                   rep["disputedVersion"] = H.DISPUTED_VERSION
+              if j.get("ownText"):
+                  rep["ownText"] = j["ownText"]
+                  rep["ownTextVersion"] = H.OWNTEXT_VERSION
               if j.get("weak"):
                   rep["weak"] = j["weak"]
                   rep["weakVersion"] = H.WEAK_VERSION
@@ -335,6 +338,10 @@ jobs:
                   acc = ", ".join(f"{k}:{a}←{k}:{d['otherAyah']}" for a, d in sorted(v["accepted"].items(), key=lambda x: int(x[0])))
                   print(f"   ⚖️ مراسٍ متنازَعٌ عليها س{k}: قُبل {len(v['accepted'])}/{v.get('nAyahs')} ({acc or '—'})"
                         f" · رُدّ {sorted(v['refused'], key=int) or '—'} · بشاهدَين لكلٍّ ({H.DISPUTED_VERSION})")
+              for k, v in sorted((j.get("ownText") or {}).items(), key=lambda x: int(x[0])):
+                  print(f"   ⚖️ مراسٍ مزاحةٌ داخل نصّ الآية س{k}: قُبل {sorted(v['accepted'], key=int) or '—'}/{v.get('nAyahs')}"
+                        f" (مع متنازَعٍ {v.get('disputedAccepted')} · السقفُ مشترك) · رُدّ {sorted(v['refused'], key=int) or '—'}"
+                        f" · بشاهدَين لكلٍّ ({H.OWNTEXT_VERSION})")
               for x in j["sampleFindings"]:
                   print(f"   ℹ️ عيّنةٌ للتقرير (لا تردّ · تُضاف لطابور الإصلاح): {x}")
               print(f"   ⇒ {'✅ بوّابةُ السماع تمرّ' if why is None else '⛔ ' + why}")

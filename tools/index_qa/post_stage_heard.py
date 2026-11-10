@@ -149,7 +149,9 @@ def collect_maps(idx, parent, sha, out_dir, probe_fn=probe):
 
 
 def make_report(key, sha, parent_sha, idx, parent, maps, errors, provenance):
-    j = H.judge(idx, parent, sha, maps)
+    # ⭐ (‏#101 · #107) شواهدُ المراسي المتنازَع عليها والمزاحةِ داخل النصّ تُحمَّل من مصدرها (‏لا عملَ ولا شبكةَ بلا ادّعاء)
+    dsrc = H.disputed_sources(idx)
+    j = H.judge(idx, parent, sha, maps, disputed_src=dsrc)
     missing = sorted(set(j["required"]) - set(maps))
     complete = not errors and not missing
     rep = {"src": key, "sha256": sha, "parentSha256": parent_sha,
@@ -157,6 +159,8 @@ def make_report(key, sha, parent_sha, idx, parent, maps, errors, provenance):
            "ts": int(time.time()), **j,
            "maps": {str(s): m for s, m in sorted(maps.items())},
            "measurementComplete": complete, "measurementErrors": errors}
+    if dsrc:
+        rep["disputedSource"] = dsrc
     if not complete:
         rep["ok"] = False
         rep["reason"] = "incomplete required probe maps: " + ",".join(map(str, missing))
