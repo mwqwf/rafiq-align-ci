@@ -36,6 +36,7 @@ for _s in (sys.stdout, sys.stderr):
 
 ROOT    = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(ROOT / 'tools' / 'alignment'))
+sys.path.insert(0, str(Path(__file__).resolve().parent))   # ليجد `timing_repair` و`promote` عند الاستيراد بوصفه حزمة
 CREDS   = ROOT / "secure" / "r2_credentials.json"
 ASSETS  = ROOT / "core" / "quran" / "src" / "main" / "assets" / "quran"
 STATE   = Path(__file__).with_name("state")
@@ -156,7 +157,7 @@ def declared_drops(idx):
 
 
 # ───────────────────────── الفحص البنيوي ─────────────────────────
-def structural(idx, key, allow_unmarked=False, txt_ref=None):
+def structural(idx, key, allow_unmarked=False, txt_ref=None, timing_ctx=None):
     """كل بند يُرجع نصاً. القائمة الأولى مُوجِبة للحجب، والثانية مرشّحون لا أحكام."""
     fatal, warn, info = [], [], {}
     # ⛔ صنفٌ ثالث: ما **يمنع الترقية الآلية ولا يُسمّى عطباً**. الحذفُ المعلَن
@@ -288,13 +289,29 @@ def structural(idx, key, allow_unmarked=False, txt_ref=None):
     _mh = idx.get("missing") or {}
     if isinstance(_mh.get("byReason"), dict):
         excused = int(_mh["byReason"].get("source_truncated") or 0)
+    # ⭐ الحجبُ المؤقّت المعلَن `TIMING_UNDER_REPAIR` يُعفى من عتبة 2% **وحدَه** بصفّ موافقةٍ مطابقٍ وشاهدَي Whisper
+    #    مُتحقَّقٍ من مضمونهما وبصمةِ الصوت (‏`timing_repair.excused`). ‏OTHER وغيرُه لا يُعفى هنا. وما سواه يبقى بالعتبة.
+    import timing_repair                                              # noqa: PLC0415
+    _tc = timing_ctx or {}
+    tur = (timing_repair.excused(idx, key, info.get("declaredDrops") or [], _tc.get("approvals"),
+                                 _tc.get("loader"), _tc.get("ref_words")) if miss > 0
+           else {"count": 0, "surahs": [], "rejected": {}})
+    info["timingRepairExcused"] = {"count": tur["count"], "surahs": tur["surahs"]}
+    if tur["rejected"]:
+        info["timingRepairRejected"] = {str(k): v for k, v in tur["rejected"].items()}
+    if tur["count"]:
+        warn.append(f"معفى من عتبة 2% بحجبٍ مؤقّتٍ معلَن (TIMING_UNDER_REPAIR): {tur['count']} آيةً "
+                    f"في السور {tur['surahs']}")
+    if tur["rejected"]:
+        warn.append("حجبٌ مؤقّتٌ لا يُعفى: " + " · ".join(f"س{k}: {v}" for k, v in sorted(tur["rejected"].items())))
+    excused += tur["count"]
     info["missingExcused"], info["missingUnexcused"] = excused, miss - excused
     # العتبة 2% سياسةٌ قرّرها المشرف وحارس الأسطول عليها — ووحّدتُها معه قصداً
     # كي لا يقول حارسان رقمين. (وكانت عندي 350 مدخلاً ≈ 5.6%، وهي أرخى.)
     if miss > 0:
         unex = miss - excused
         tag = (f"مداخل ناقصة: {miss} من 6236 ({miss/6236:.1%})"
-               + (f" — منها {excused} بعذرٍ معلَن (بترٌ مصدري) "
+               + (f" — منها {excused} بعذرٍ معلَن (بترٌ مصدري أو حجبٌ مؤقّت مأذون) "
                   f"⇒ **غير المبرَّر {unex} ({unex/6236:.1%})**" if excused else "")
                + " — الحدّ 2% على غير المبرَّر")
         (fatal if unex > 0.02 * 6236 else warn).append(tag)

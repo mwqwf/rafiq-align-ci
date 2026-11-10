@@ -137,8 +137,12 @@ def main():
     #    مترجَم، ويبقى `reasonUser` احتياطاً حين لا يعرف التطبيقُ الرمز.
     ap.add_argument("--reason-code",
                     choices=["NO_PUBLISHED_RECORDING", "SOURCE_TRUNCATED",
-                             "SOURCE_CORRUPT", "OTHER"],
-                    help="رمزٌ ثابتٌ يُترجمه التطبيق")
+                             "SOURCE_CORRUPT", "OTHER", "TIMING_UNDER_REPAIR"],
+                    help="رمزٌ ثابتٌ يُترجمه التطبيق. ‏TIMING_UNDER_REPAIR (حجبٌ مؤقّتٌ لتوقيتٍ يُسمع على صوت غيره) "
+                         "يشترط --timing-evidence بشاهدَي Whisper مُتحقَّقٍ من مضمونهما")
+    ap.add_argument("--timing-evidence",
+                    help="ملفُّ JSON: {\"<سورة>\": {\"probes\": [{ayah, startMs, heardAyah}], \"witnesses\": {<تشغيلة>: سجلّ}}} "
+                         "لكلّ سورةٍ تُسقط برمز TIMING_UNDER_REPAIR (‏انظر timing_repair.py)")
     ap.add_argument("--yes", action="store_true", help="ارفع (الافتراض عرضٌ فقط)")
     ap.add_argument("--declare-absent", action="store_true",
                     help="السورةُ غائبةٌ سلفاً — يُعلَن غيابُها بسببه بلا حذفِ شيء")
@@ -178,6 +182,10 @@ def main():
                     f"يجد الصوت)، وضع الإذنَ والقرارَ الإداريَّ في "
                     f"docs/qa/DROPPED_SURAHS.md.")
 
+    if a.reason_code == "TIMING_UNDER_REPAIR" and (a.declare_gap or a.declare_absent):
+        raise SystemExit("⛔ TIMING_UNDER_REPAIR لإسقاط سورٍ حاضرةٍ فعلاً فقط، لا مع --declare-gap ولا --declare-absent")
+    if a.timing_evidence and a.reason_code != "TIMING_UNDER_REPAIR":
+        raise SystemExit("⛔ --timing-evidence لا يكون إلا مع --reason-code TIMING_UNDER_REPAIR")
     cl, bucket = promote.s3()
     body = cl.get_object(Bucket=bucket, Key=a.key)["Body"].read()
     live = hashlib.sha256(body).hexdigest()
@@ -216,6 +224,22 @@ def main():
     #    المذكورة، فسقط 154 مدخلاً في وضعٍ لا يحذف شيئاً — **وكشفه حارسُ العقد**
     #    (‏6034 + 48 ≠ 6236) لا عينِي. فالحارسُ الذي يجمع الحاضرَ والغائبَ
     #    ويقابله بالمجموع هو الذي منع فهرساً مبتوراً من الرفع.
+    # ⭐ حجبٌ مؤقّتٌ بـTIMING_UNDER_REPAIR: لكلّ سورةٍ تُسقط دليلٌ يُتحقَّق من مضمونه (‏شاهدا Whisper من تشغيلتين متمايزتين
+    #    وبصمةُ الصوت) بالدالّة نفسِها التي يعيد بها الفحصُ البنيويّ حكمَه — وإلا رُدّ الإسقاط قبل أن يُرفع شيء.
+    _timing = {}
+    if a.reason_code == "TIMING_UNDER_REPAIR":
+        import timing_repair                                              # noqa: PLC0415
+        try:
+            _ev = json.loads(Path(a.timing_evidence).read_text(encoding="utf-8")) if a.timing_evidence else None
+        except (OSError, ValueError) as e:
+            raise SystemExit(f"⛔ تعذّرت قراءة --timing-evidence: {e}")
+        if not isinstance(_ev, dict) or {str(k) for k in _ev} != {str(n) for n in surahs}:
+            raise SystemExit(f"⛔ --timing-evidence يلزمه سجلٌّ لكلّ سورةٍ تُسقط {surahs} ولا غيرِها")
+        for n in surahs:
+            _why = timing_repair.evidence_error(idx, n, _ev.get(str(n)))
+            if _why:
+                raise SystemExit(f"⛔ س{n}: دليلُ TIMING_UNDER_REPAIR مردود: {_why}")
+            _timing[str(n)] = _ev[str(n)]
     kept = (list(idx["entries"]) if a.declare_gap
             else [e for e in idx["entries"] if not e["ayahId"].startswith(prefixes)])
 
@@ -341,12 +365,17 @@ def main():
     # ⭐ وما في الأصل من إعلانٍ في حقله يُنقل كما هو: الذيلُ (‏أعلاه بشروطه) · الحجبُ الوسطيّ · الغيابُ الموروث.
     _gaps = {k: v for k, v in ((_ptr.get("truncatedGaps") or {}).items()) if k in prior}
     _inh = list(_ptr.get("dropSurah") or [])
+    # ⭐ دليلُ الحجب المؤقّت الموروث يُنقل حرفاً لسورٍ ما زالت معلَنةً بالرمز نفسِه، ويُضاف إليه الجديد.
+    _timing_all = {k: v for k, v in ((_ptr.get("timingRepair") or {}).items())
+                   if k in prior and prior[k].get("reasonCode") == "TIMING_UNDER_REPAIR"}
+    _timing_all.update(_timing)
     # **أثرُ التحويل في الترويسة نفسها** — لا في رسالةٍ ولا في سجلٍّ منفصل.
     out["transform"] = {
         **({"truncatedTail": _tt} if _tt else {}),
         **({"truncatedGaps": _gaps} if _gaps else {}),
         **({"dropSurah": _inh} if _inh else {}),
         "declarations": decls,
+        **({"timingRepair": _timing_all} if _timing_all else {}),
         "op": (merged_op(decls) if prior else
                ("declare_gap:" if a.declare_gap else "drop_surah:")
                + ",".join(str(n) for n in surahs)
