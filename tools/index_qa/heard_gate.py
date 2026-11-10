@@ -418,9 +418,214 @@ def dual_surah(s: int, cs_s: dict, g_map: dict, r_map, wit, want: str, cand_sha:
     return None, out
 
 
+# ───────────── المرساةُ المتنازَعُ عليها (‏قرار القائد 2026-11-10 · سندُه موافقةُ المالك 11-07 على المرجع المزدوج) ─────────────
+# ⭐ «التنازعُ لا يمرّ إلا بشاهد Whisper، ولا عتبةَ تنخفض». مرساةٌ قويّةٌ (‏جودة ≥ MIN_Q) قد تقع في **آيةٍ أخرى**
+#    (‏3siri 10:50 · 10:55 · 10:70 · 9:82 · 9:93: المرساةُ في ذيل السابقة والمنشورُ على مطلع الآية نفسِها)، فتردّ البوّابةُ
+#    منشوراً صحيحاً — وتثبيتُه على المرساة تحريف. فآيةٌ «منحرفة» (‏dev) تُعدّ «متنازَعاً عليها» لا تردّ **بشروطٍ مجتمعة**:
+#    ١) شاهدان على الأقلّ من تشغيلتين متمايزتين، بصمةُ كلٍّ = بصمةُ المرشّح للسورة = بصمةُ الخريطة، والملفُّ نفسُه، float32؛
+#    ٢) كلُّ شاهدٍ يضع أوّلَ W_K كلماتٍ من الآية (‏نصّ المصحف) متّصلةً، وبدءُ أولاها ضمن 300م.ث من **البدء المنشور**،
+#       بثقة `pin_heard` (‏كلُّ كلمةٍ ≥ W_MIN_WORD_P والمتوسّط ≥ W_MEAN_WORD_P)، ولا كلمةَ منها ملصوقةٌ بطرف النافذة؛
+#    ٣) كلُّ شاهدٍ يسمع **عند المرساة** نصَّ آيةٍ أخرى مسمّاةٍ بعينها: W_K كلماتٍ متّصلةً منها كلمةً بكلمة تغطّي زمنَ
+#       المرساة، بالثقة نفسِها وبلا التصاقٍ بطرف النافذة، وليست هذه الكلماتُ نصّاً من الآية نفسِها (‏فالتكرارُ لا يُعدّ تنازعاً)؛
+#    ٤) المتنازَعُ عليه في السورة ≤ 10٪ من آياتها، وإلا رُدّت السورةُ كلُّها؛
+#    ٥) الدليلُ (‏الشاهدان بكلماتهما) مكتوبٌ في `transform.disputedAnchors` ويُعاد حسابُه هنا ولا يُقرأ حكمٌ مكتوب (‏وانظر ٦)؛
+#    وأيُّ ادّعاءٍ مكتوبٍ لا يستوفي الشروط يردّ السورة (‏لا يُترك صامتاً).
+DISPUTED_VERSION = "heard-disputed-1"
+DISPUTED_MAX_PCT = 10
+DISPUTED_MIN_WITNESSES = 2
+# ⛔ ٦) (‏قرار القائد 2026-11-10 · ثغرةٌ سُدّت قبل الدمج) الشاهدُ المكتوبُ في المرشّح **لا يُصدَّق وحده**: من يبني المرشّح
+#    يقدر أن يكتب كلماتٍ لم تُسمع وينسبها إلى تشغيلتين لا وجود لهما. فتُحمَّل الشواهدُ بمعرّفات تشغيلاتها من مصدرها
+#    (‏`pin_heard.load_witness`: تشغيلةٌ ناجحةٌ لـ`whisper_witness.yml` على main ومخرَجُها المسمّى باسمها) في خطوة الحكم،
+#    وتُحفظ في `state-heard` (‏`disputedSource`) فيعيد `gate_error` الحكمَ منها؛ والمكتوبُ يجب أن يطابق المحمَّلَ **حرفاً**
+#    في حقول `DISPUTED_SRC_KEYS`، وإلا رُدّت السورة. ويُحكم بالمحمَّل لا بالمكتوب.
+DISPUTED_SRC_KEYS = ("surah", "riwaya", "fileRef", "sha256", "model", "computeType", "ayahs")
+
+
+def disputed_src_rec(w):
+    return {k: w.get(k) for k in DISPUTED_SRC_KEYS} if isinstance(w, dict) else None
+
+
+def _canon(x):
+    return json.dumps(x, ensure_ascii=False, sort_keys=True, separators=(",", ":"))
+
+
+def disputed_sources(cand_idx, loader=None):
+    """{سورة: {تشغيلة: سجلُّ الشاهد من مصدره أو {"error": سبب}}} لكلّ تشغيلةٍ مسمّاةٍ في `transform.disputedAnchors`.
+    `loader(run, surah)` للاختبار؛ وإلا `pin_heard.load_witness` (‏GitHub). خطأُ التحميل يُكتب ولا يُبتلع: يردّ السورةَ في الحكم."""
+    tr = cand_idx.get("transform") if isinstance(cand_idx.get("transform"), dict) else {}
+    da = tr.get("disputedAnchors")
+    if not isinstance(da, dict):
+        return {}
+    if loader is None:
+        import pin_heard as PH  # noqa: PLC0415
+        loader = PH.load_witness
+    out = {}
+    for s, claims in sorted(da.items(), key=lambda kv: str(kv[0])):
+        runs = set()
+        for c in (claims.values() if isinstance(claims, dict) else []):
+            if isinstance(c, dict) and isinstance(c.get("witnesses"), dict):
+                runs |= {str(r) for r in c["witnesses"]}
+        for r in sorted(runs):
+            try:
+                out.setdefault(str(s), {})[r] = disputed_src_rec(loader(r, int(s)))
+            except (SystemExit, Exception) as e:                     # noqa: BLE001
+                out.setdefault(str(s), {})[r] = {"error": str(e)[:300]}
+    return out
+
+
+# ⭐ تطبيعٌ إملائيٌّ ضيّق (‏قرار القائد 2026-11-10) **لمقارِن هذا الباب وحده** لا لـ`common.norm`: كان `norm` يحذف الألفَ
+#    الخنجريّة والهمزةَ المفردة، فـ«أرأيتم» (‏Whisper) تصير ارايتم و«أرءيتم» (‏المصحف) اريتم، و«متاع»/«متٰع» متاع/متع.
+#    ثلاثةُ تحويلاتٍ لا غير، تُطبَّق على الطرفين **قبل** `norm`، حرفاً بحرف (‏لا يتغيّر عددُ الكلمات): ٰ ← ا · ء ← ا · ٱ ← ا.
+#    ولا تُحذف بها حروف، فألفٌ حقيقيّةٌ غائبةٌ لا تُصنع (‏قال ≠ قل · مالك ≠ ملك · كتاب ≠ كتب).
+_DISPUTED_ORTHO = str.maketrans({"\u0670": "\u0627", "\u0621": "\u0627", "\u0671": "\u0627"})
+
+
+def disputed_norm_words(text: str) -> list[str]:
+    """كلماتُ نصٍّ خامٍ بتطبيع هذا الباب: التحويلاتُ الثلاثة ثمّ `common.norm` كما هو."""
+    import pin_heard as PH  # noqa: PLC0415
+    sys.path.insert(0, str(PH._REPO_ROOT / "tools" / "alignment"))
+    from common import norm  # noqa: PLC0415
+    return norm(str(text).translate(_DISPUTED_ORTHO)).split()
+
+
+def disputed_ref_words(riwaya, surah, ayah):
+    """نصُّ الآية من المصحف الموثَّق في المستودع بتطبيع هذا الباب (‏لا من التفريغ)."""
+    import pin_heard as PH  # noqa: PLC0415
+    sys.path.insert(0, str(PH._REPO_ROOT / "tools" / "alignment"))
+    from common import load_index, load_text, surah_slice  # noqa: PLC0415
+    start, _end, info = surah_slice(load_index(), surah)
+    if not 1 <= ayah <= int(info["ayahs"]):
+        raise SystemExit(f"⛔ {surah}:{ayah} خارج السورة")
+    return disputed_norm_words(load_text(riwaya or "hafs")[start + ayah - 1])
+
+
+def _wtoks(rec):
+    """كلماتُ نافذة الشاهد بتطبيع هذا الباب [(رمز، بدء، نهاية، ثقة)] بترتيبها؛ الكلمةُ التي تتشظّى ترثها ثقتُها وزمنُها."""
+    out = []
+    for w in (rec or {}).get("words") or []:
+        for t in disputed_norm_words(w.get("w", "")):
+            out.append((t, int(w["s"]), int(w.get("e", w["s"])), float(w["p"])))
+    return out
+
+
+def _span_ok(span, win):
+    import pin_heard as PH  # noqa: PLC0415
+    low = min(x[3] for x in span)
+    mean = sum(x[3] for x in span) / len(span)
+    if low < PH.W_MIN_WORD_P or mean < PH.W_MEAN_WORD_P:
+        return f"ثقةٌ دون العتبة (أدناها {low:.2f}، متوسّطُها {mean:.2f})"
+    if win and win[0] is not None and any(x[1] <= int(win[0]) for x in span):
+        return f"كلمةٌ ملصوقةٌ ببدء النافذة {win[0]}"
+    if win and len(win) > 1 and win[1] is not None and any(x[2] >= int(win[1]) for x in span):
+        return f"كلمةٌ ملصوقةٌ بنهاية النافذة {win[1]}"
+    return None
+
+
+def disputed_one(wit, surah, ayah, start, anchor, other, ref_words, g_map, want_sha):
+    """(None، تفصيل) إن أثبت الشاهدُ الواحد الشرطين ٢ و٣ للآية، وإلا (سببُ الردّ، None)."""
+    import pin_heard as PH  # noqa: PLC0415
+    try:
+        PH.check_witness(wit, surah, g_map, want_sha)
+    except SystemExit as e:
+        return str(e), None
+    own, oth = ref_words(surah, ayah), ref_words(surah, other)
+    k = PH.W_K
+    if len(own) < k or len(oth) < k:
+        return "نصُّ الآية أو الآية الأخرى أقصرُ من W_K", None
+    own_grams = {tuple(own[i:i + k]) for i in range(len(own) - k + 1)}
+    head = why2 = why3 = None
+    hit3 = None
+    for rec in (wit.get("ayahs") or {}).values():
+        win = rec.get("windowMs") or [None, None]
+        tk = _wtoks(rec)
+        for i in range(len(tk) - k + 1):
+            span = tk[i:i + k]
+            words = [x[0] for x in span]
+            if head is None and words == own[:k]:
+                if abs(span[0][1] - int(start)) > PH.W_AGREE_MS:
+                    why2 = f"مطلعُ الآية عند {span[0][1]} بعيدٌ عن المنشور {start} (>{PH.W_AGREE_MS}م.ث)"
+                else:
+                    bad = _span_ok(span, win)
+                    if bad:
+                        why2 = f"مطلعُ الآية: {bad}"
+                    else:
+                        head = span[0][1]
+            if hit3 is None and span[0][1] <= int(anchor) < span[-1][2]:
+                if tuple(words) in own_grams:
+                    why3 = "ما سُمع عند المرساة من نصّ الآية نفسِها (‏تكرارٌ لا تنازع)"
+                elif not any(words == oth[j:j + k] for j in range(len(oth) - k + 1)):
+                    why3 = why3 or f"ما سُمع عند المرساة «{' '.join(words)}» ليس من نصّ {surah}:{other}"
+                else:
+                    bad = _span_ok(span, win)
+                    if bad:
+                        why3 = f"عند المرساة: {bad}"
+                    else:
+                        hit3 = (span[0][1], " ".join(words))
+    if head is None:
+        return why2 or "لا يُسمع مطلعُ الآية كلمةً بكلمة", None
+    if hit3 is None:
+        return why3 or f"لا يُسمع عند المرساة {anchor} نصُّ {surah}:{other}", None
+    return None, {"headMs": head, "anchorText": hit3[1], "anchorSpanMs": hit3[0]}
+
+
+def disputed_verdict(s, rows, g_map, want, cand_idx, ref_words=None, n_ayahs=None, sources=None):
+    """يُحوّل كلَّ صفٍّ «dev» مدّعىً في `transform.disputedAnchors[س]` ومُثبَتٍ بالشروط إلى «disputed».
+    يُرجع (سببُ ردّ السورة أو None، الدليل). بلا ادّعاءٍ للسورة لا يتغيّر شيءٌ حرفاً."""
+    tr = cand_idx.get("transform") if isinstance(cand_idx.get("transform"), dict) else {}
+    claims = ((tr.get("disputedAnchors") or {}).get(str(s))) if isinstance(tr.get("disputedAnchors"), dict) else None
+    if not claims:
+        return None, None
+    import pin_heard as PH  # noqa: PLC0415
+    ref_words = ref_words or (lambda ss, a: disputed_ref_words(cand_idx.get("riwaya") or "hafs", ss, a))
+    byayah = {r["ayah"]: r for r in rows}
+    ev = {"version": DISPUTED_VERSION, "accepted": {}, "refused": {}}
+    bad = []
+    for a_s, c in sorted(claims.items(), key=lambda kv: int(kv[0])):
+        a = int(a_s)
+        r = byayah.get(a)
+        if r is None or r["status"] != "dev":
+            bad.append(f"{s}:{a}: ادّعاءُ تنازعٍ على آيةٍ ليست منحرفة")
+            continue
+        try:
+            other = int(c.get("otherAyah"))
+        except (TypeError, ValueError, AttributeError):
+            bad.append(f"{s}:{a}: لا آيةَ أخرى مسمّاة")
+            continue
+        wits = c.get("witnesses") if isinstance(c, dict) else None
+        if other == a or not isinstance(wits, dict) or len(wits) < DISPUTED_MIN_WITNESSES:
+            bad.append(f"{s}:{a}: يلزم {DISPUTED_MIN_WITNESSES} شاهدان من تشغيلتين وآيةٌ أخرى غيرُها")
+            continue
+        det, why = {}, None
+        for run, w in sorted(wits.items()):
+            src = (sources or {}).get(str(run))
+            if not isinstance(src, dict):
+                why = "لا مصدرَ محمَّلٌ له من تشغيلة whisper_witness — المكتوبُ في المرشّح لا يُصدَّق وحده"
+            elif "error" in src:
+                why = f"تعذّر تحميلُه من مصدره: {src['error']}"
+            elif _canon(disputed_src_rec(w)) != _canon(src):
+                why = "المكتوبُ في المرشّح يخالف مصدرَه (‏مخرَج تشغيلته) حرفاً"
+            else:
+                why, d = disputed_one(src, s, a, r["startMs"], r["anchorMs"], other, ref_words, g_map, want)
+            if why:
+                why = f"الشاهد {run}: {why}"
+                break
+            det[str(run)] = d
+        if why:
+            ev["refused"][str(a)] = why
+            bad.append(f"{s}:{a}: {why}")
+            continue
+        r["status"] = "disputed"
+        ev["accepted"][str(a)] = {"otherAyah": other, "witnesses": det}
+    n = n_ayahs or PH.heard_gate_n_ayahs(int(s))
+    ev["nAyahs"] = n
+    if len(ev["accepted"]) * 100 > DISPUTED_MAX_PCT * n:
+        bad.append(f"المراسي المتنازَعُ عليها {len(ev['accepted'])} تتجاوز {DISPUTED_MAX_PCT}٪ من {n} آية — تُردّ السورةُ كلُّها")
+    return (" · ".join(bad) if bad else None), ev
+
+
 def judge(cand_idx: dict, pub_idx: dict | None, cand_sha: str, maps: dict,
           maps_r: dict | None = None, witness: dict | None = None,
-          dual: dict | None = None, ref_words=None) -> dict:
+          dual: dict | None = None, ref_words=None, disputed_src: dict | None = None) -> dict:
     """حكمُ البوّابة كاملاً من المرشّح والمنشور والخرائط ({سورة: compact_map}).
     يُرجع {"ok": bool, "reason": str|None, "required": [...], "modified": [...], "sample": [...],
             "surahs": {س: {"reason":..., "rows":[...]}}, "dual": {س: دليل}}.
@@ -483,7 +688,11 @@ def judge(cand_idx: dict, pub_idx: dict | None, cand_sha: str, maps: dict,
                 sink.append(f"س{s}: {why}")
             continue
         rows = surah_rows({a: v[0] for a, v in cs[s].items()}, m)
-        why = surah_verdict(rows)
+        why_d, ev_d = disputed_verdict(s, rows, m, want, cand_idx, ref_words,
+                                       sources=(disputed_src or {}).get(str(s)))
+        if ev_d:
+            out.setdefault("disputed", {})[str(s)] = ev_d
+        why = " · ".join(x for x in (surah_verdict(rows), why_d) if x) or None
         if s in modified:
             wt = (witness or {}).get(s) or (witness or {}).get(str(s))
             why_w, ev_w = weak_verdict(s, cs[s], ps.get(s), rows, m, wt, want, cand_idx.get("riwaya"), ref_words)
@@ -506,8 +715,9 @@ def gate_error(cand_idx: dict, pub_idx: dict | None, cand_sha: str, rep: dict | 
     maps = {int(k): v for k, v in (rep.get("maps") or {}).items()}
     maps_r = {int(k): v for k, v in (rep.get("mapsR") or {}).items()}
     wit = {int(k): v for k, v in (rep.get("witness") or {}).items()}
+    dsrc = rep.get("disputedSource") if isinstance(rep.get("disputedSource"), dict) else {}
     try:
-        j = judge(cand_idx, pub_idx, cand_sha, maps, maps_r, wit)
+        j = judge(cand_idx, pub_idx, cand_sha, maps, maps_r, wit, disputed_src=dsrc)
     except ValueError as e:                      # heard_dual.txt معطوبٌ ⇒ يُغلق الحكم ولا يُفتح
         return f"بوّابةُ السماع: قائمةُ heard_dual.txt معطوبة — {e}"
     if not j["required"]:

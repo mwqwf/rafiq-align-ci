@@ -552,19 +552,48 @@ def load_map(run_id, surah):
     raise SystemExit(f"⛔ لا خريطةَ سماعٍ للسورة {surah} في مخرَج التشغيلة {run_id}")
 
 
+WITNESS_WORKFLOW = ".github/workflows/whisper_witness.yml"
+
+
+def witness_run_error(run_id, run):
+    """⛔ (‏قرار القائد 2026-11-10 · #101) الشاهدُ يُقبل من تشغيلةٍ **ناجحةٍ لسير العمل `whisper_witness.yml`** في هذا المستودع
+    على `main` بإطلاقٍ يدويّ — لا من أيّ تشغيلةٍ تحمل ملفّاً بالاسم نفسِه. يُرجع سببَ الردّ أو None."""
+    if not re.fullmatch(r"\d{6,15}", str(run_id)):
+        return f"معرّفُ التشغيلة {run_id!r} ليس رقماً"
+    if not isinstance(run, dict) or str(run.get("id")) != str(run_id):
+        return f"لا تشغيلةَ {run_id} في {REPO}"
+    if run.get("path") != WITNESS_WORKFLOW:
+        return f"التشغيلة {run_id} من {run.get('path')} لا من {WITNESS_WORKFLOW}"
+    if run.get("status") != "completed" or run.get("conclusion") != "success":
+        return f"التشغيلة {run_id} لم تنجح ({run.get('status')}/{run.get('conclusion')})"
+    if (run.get("repository") or {}).get("full_name") != REPO or (run.get("head_repository") or {}).get("full_name") != REPO:
+        return f"التشغيلة {run_id} ليست من {REPO} نفسِه"
+    if run.get("head_branch") != "main" or run.get("event") != "workflow_dispatch":
+        return f"التشغيلة {run_id} على {run.get('head_branch')}/{run.get('event')} لا على main بإطلاقٍ يدويّ"
+    return None
+
+
 def load_witness(run_id, surah):
-    """شاهدُ Whisper من مخرَج تشغيلة `whisper_witness.yml` على GitHub (‏كما تُقرأ خريطةُ السماع) لا من ملفٍّ يكتبه المُطلِق."""
+    """شاهدُ Whisper من مخرَج تشغيلة `whisper_witness.yml` على GitHub (‏كما تُقرأ خريطةُ السماع) لا من ملفٍّ يكتبه المُطلِق.
+    ⛔ وتُفحص التشغيلةُ نفسُها أوّلاً (‏`witness_run_error`) ثمّ يُقرأ مخرَجُها المسمّى باسمها وحده."""
     def gh(path, raw=False):
         r = subprocess.run(["gh", "api", path], capture_output=True)
         if r.returncode:
             raise SystemExit(f"⛔ gh api {path}: {r.stderr.decode('utf-8', 'replace')[:200]}")
         return r.stdout if raw else json.loads(r.stdout)
+    why = witness_run_error(run_id, None if not re.fullmatch(r"\d{6,15}", str(run_id))
+                            else gh(f"repos/{REPO}/actions/runs/{run_id}"))
+    if why:
+        raise SystemExit(f"⛔ شاهدٌ مردود: {why}")
+    want = f"whisper-witness-s{int(surah)}-{run_id}"
     for art in gh(f"repos/{REPO}/actions/runs/{run_id}/artifacts").get("artifacts", []):
+        if art.get("name") != want or art.get("expired"):
+            continue
         zf = zipfile.ZipFile(io.BytesIO(gh(f"repos/{REPO}/actions/artifacts/{art['id']}/zip", raw=True)))
         for nm in zf.namelist():
-            if nm.endswith(f"whisper_s{surah:03d}.json"):
+            if nm.endswith(f"whisper_s{int(surah):03d}.json"):
                 return json.loads(zf.read(nm))
-    raise SystemExit(f"⛔ لا شاهدَ Whisper للسورة {surah} في مخرَج التشغيلة {run_id}")
+    raise SystemExit(f"⛔ لا شاهدَ Whisper للسورة {surah} في مخرَج التشغيلة {run_id} ({want})")
 
 
 def peer_medians(cl, bucket, riwaya, surah, own_key, cap=40):
@@ -592,6 +621,35 @@ def peer_medians(cl, bucket, riwaya, surah, own_key, cap=40):
     return {a: sorted(v)[len(v) // 2] for a, v in durs.items() if len(v) >= 3}
 
 
+def disputed_claims(out, surah, hmap, claims, runs_txt, wits=None):
+    """{سورة: {آية: {otherAyah, witnesses}}} لـ`transform.disputedAnchors` — يُحكم عليها هنا بـ`heard_gate.disputed_verdict`
+    نفسِها قبل الرفع فلا يُرفع ادّعاءٌ تردّه البوّابة. `wits` {تشغيلة: شاهد} للاختبار، وإلا تُقرأ من مخرَج التشغيلات."""
+    import heard_gate as HG                                              # noqa: PLC0415
+    runs = [r.strip() for r in str(runs_txt or "").split(",") if r.strip()]
+    if wits is None:
+        if len(set(runs)) != len(runs) or len(runs) < HG.DISPUTED_MIN_WITNESSES:
+            raise SystemExit(f"⛔ --disputed يلزمه {HG.DISPUTED_MIN_WITNESSES} تشغيلتان متمايزتان في --disputed-runs")
+        wits = {r: load_witness(r, surah) for r in runs}
+    keep = ("surah", "riwaya", "fileRef", "sha256", "model", "computeType", "ayahs")
+    rec = {str(a): {"otherAyah": int(o), "witnesses": {str(r): {k: w.get(k) for k in keep} for r, w in wits.items()}}
+           for a, o in sorted(claims.items())}
+    present = sorted({_key(e["ayahId"])[0] for e in out["entries"]})
+    want = index_fields.sha_by_surah(out, present).get(surah)
+    starts = {_key(e["ayahId"])[1]: int(e["startMs"]) for e in out["entries"] if _key(e["ayahId"])[0] == surah}
+    cmap = HG.compact_map(hmap)
+    rows = HG.surah_rows(starts, cmap)
+    probe = dict(out)
+    probe["transform"] = {**(out.get("transform") or {}), "disputedAnchors": {str(surah): rec}}
+    why, ev = HG.disputed_verdict(surah, rows, cmap, want, probe,
+                                 sources={str(r): HG.disputed_src_rec(w) for r, w in wits.items()})
+    if why:
+        raise SystemExit(f"⛔ المراسي المتنازَعُ عليها لا تجتاز heard_gate: {why}")
+    rest = HG.surah_verdict(rows)
+    if rest:
+        print(f"  ⚠️ بعد قبول المتنازَع عليه تبقى السورةُ مردودةً عند البوّابة: {rest}")
+    return {str(surah): rec}
+
+
 def main():
     ap = argparse.ArgumentParser(description=__doc__.split("\n")[0])
     ap.add_argument("--key", required=True)
@@ -608,6 +666,9 @@ def main():
                     help="المسارُ المشابه (‏قرار خيط 2.0 2026-11-07 لدورة saad): تشابهُ الكلمات الطرفيّة ≥0.8 بقيد ±20٪")
     ap.add_argument("--trim-witness-runs", default="",
                     help="تشغيلتا whisper_witness (‏أو أكثر) مفصولتين بفواصل: حدُّ --trim من بدء أوّل كلمةٍ للتالية")
+    ap.add_argument("--disputed", default="",
+                    help="آية:الآيةُ الأخرى المسموعةُ عند مرساتها، بفواصل (‏heard_gate.disputed_verdict) — مثل 82:81,93:92")
+    ap.add_argument("--disputed-runs", default="", help="تشغيلتا whisper_witness (‏أو أكثر) تُضمَّنان دليلاً لكلّ متنازَع")
     ap.add_argument("--reason", required=True)
     ap.add_argument("--yes", action="store_true")
     a = ap.parse_args()
@@ -662,6 +723,9 @@ def main():
         if a.witness_fuzzy:
             out["transform"]["witnessFuzzy"] = {"sim": W_FUZZ_SIM, "lenBand": [W_FUZZ_LEN_LO, W_FUZZ_LEN_HI],
                                                 "decision": "خيط 2.0 · 2026-11-07 · دورة saad"}
+    if a.disputed:
+        out["transform"]["disputedAnchors"] = disputed_claims(out, a.surah, hmap, parse_pairs(a.disputed),
+                                                              a.disputed_runs)
     blob = gzip.compress(json.dumps(out, ensure_ascii=False, separators=(",", ":")).encode("utf-8"), 9)
     new_sha = hashlib.sha256(blob).hexdigest()
     target = f"timings-staging/{idx.get('riwaya')}/{idx.get('reciterId')}.{new_sha[:8]}.jz"
