@@ -210,7 +210,9 @@ class WorkflowContract(unittest.TestCase):
         self.assertIn("r != urlt + files[s - 1]", y)       # الأبُ = الكتالوجُ + الجدول
         self.assertNotIn("غيرُ مدعومٍ في هذا المسار", y)
         # حارسُ مطابقة المنزَّل بالمدموج والإحصاءُ باقيان
-        self.assertIn("fileRef المدموج", y)
+        # (#95 · 5a230b751a) الحارسُ انتقل إلى splice_audio_sha.py ويستدعيه السيرُ؛ يُحرَس الاثنان.
+        self.assertIn("python tools/index_qa/splice_audio_sha.py", y)
+        self.assertIn("fileRef المدموج", (ROOT / "tools/index_qa/splice_audio_sha.py").read_text(encoding="utf-8"))
         # ‏(2026-09-30) الوسمُ متغيّرٌ: ctc-seg-1 للوضع الكامل، وctc-gapsplit-1 لوضع النافذة وحده.
         self.assertIn('ETAG="ctc-seg-1"', y)
         self.assertIn('--engine-tag "$ETAG"', y)

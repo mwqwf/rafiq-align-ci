@@ -30,6 +30,8 @@ on:
       - tools/index_qa/test_heard_disputed.py
       - tools/index_qa/test_heard_witness_rasm_window.py
       - tools/index_qa/test_drop_surah_declarations.py
+      - tools/index_qa/*.py
+      - tools/ci_fleet/*.py
       - .github/workflows/promote-source-remediation-contract.yml
   pull_request:
     paths:
@@ -61,6 +63,8 @@ on:
       - tools/index_qa/test_heard_disputed.py
       - tools/index_qa/test_heard_witness_rasm_window.py
       - tools/index_qa/test_drop_surah_declarations.py
+      - tools/index_qa/*.py
+      - tools/ci_fleet/*.py
       - .github/workflows/promote-source-remediation-contract.yml
   workflow_dispatch:
 permissions:
@@ -78,3 +82,30 @@ jobs:
         with: { python-version: "3.11" }
       - run: python -m unittest tools.index_qa.test_promote_source_remediation -v
       - run: python -m unittest tools/index_qa/test_shrink_declared_gaps.py tools/index_qa/test_promote_shrink.py tools/index_qa/test_drop_ayahs.py tools/index_qa/test_splice_truncated_excuse.py tools/index_qa/test_splice_keep_parent_gaps.py tools/index_qa/test_truncated_tail.py tools/index_qa/test_build_same_source_candidate.py tools/index_qa/test_build_registered_candidate.py tools/index_qa/test_drop_ayahs_inherit.py tools/index_qa/test_pin_heard_declaration.py tools/index_qa/test_pin_heard_disputed.py tools/index_qa/test_heard_disputed.py tools/index_qa/test_heard_witness_rasm_window.py tools/index_qa/test_heard_owntext.py tools/index_qa/test_pin_heard_owntext.py tools/index_qa/test_heard_witnessed_absent.py tools/index_qa/test_witnessed_prev_window.py tools/index_qa/test_drop_ayahs_witnessed.py tools/alignment_v3/test_heard_absent_witnessed.py tools/index_qa/test_drop_surah_declarations.py -v
+      # (2026-11-10) جردُ الاختبارات غير المشغَّلة: كلُّ وحدةٍ في عمليةٍ مستقلّة (بعضها يضع بدائلَ في sys.modules)؛
+      # بلا شبكةٍ ولا أسرارٍ ولا numpy؛ ويلزمها مسارُ tools/index_qa وtools/ci_fleet. وpyyaml لعقد سير ctc_splice.
+      - run: pip install pyyaml
+      - name: بقيّةُ اختبارات index_qa السريعة (وحدةٌ لكلّ عملية)
+        env:
+          PYTHONPATH: tools/index_qa:tools/ci_fleet
+        run: |
+          rc=0
+          for t in test_adopt_noah_source_gap test_archive_node test_bias_declared_drop_2026_11_06 \
+            test_bug_hunt_guards_2026_10_09 test_build_asiri7_archive_repair \
+            test_build_fakhfakh38_archive_repair test_catalog_source_audit test_census_cache \
+            test_ci_census_parts test_ci_census_plan test_clamp_file_end test_completion_audit test_ctc_splice \
+            test_ctc_splice_quran_model_input test_dec_window test_decode_guards test_drop_surah_carry_tail \
+            test_drop_surah_maps test_expanded_tail_repairs test_export_index_bytes test_extend_tail \
+            test_full_audit test_graft_surah_range test_graft_surahs test_guard_hardening_2026_10_09 \
+            test_heard_pub_rows test_heard_rekey test_index_fields test_inherited_drops test_internal_id3 \
+            test_iraoui_publisher_repair test_local_candidate test_metadata_source_repair test_mirror_sha_guard \
+            test_missing_counter_by_code test_openers_late_gate test_partial_heard_map \
+            test_pin_heard_opener_letters test_pin_heard_trim_witness test_post_stage_guard \
+            test_post_stage_heard test_post_stage_quality test_promote_verified_transform \
+            test_quran_source_recovery test_registered_catalog_identity test_registered_source_quality_plan \
+            test_repair_review_targets test_resume_guard test_short_final_repairs test_splice_folder_refs \
+            test_splice_inherited_flags test_splice_registered_sources test_stage_transform_metadata \
+            test_stage_transform_readback test_truncate_tail_tool; do
+            python -m unittest "tools.index_qa.$t" || { echo "⛔ أخفق $t"; rc=1; }
+          done
+          exit $rc
