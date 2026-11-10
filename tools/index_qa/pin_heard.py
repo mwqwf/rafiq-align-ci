@@ -592,6 +592,34 @@ def peer_medians(cl, bucket, riwaya, surah, own_key, cap=40):
     return {a: sorted(v)[len(v) // 2] for a, v in durs.items() if len(v) >= 3}
 
 
+def disputed_claims(out, surah, hmap, claims, runs_txt, wits=None):
+    """{سورة: {آية: {otherAyah, witnesses}}} لـ`transform.disputedAnchors` — يُحكم عليها هنا بـ`heard_gate.disputed_verdict`
+    نفسِها قبل الرفع فلا يُرفع ادّعاءٌ تردّه البوّابة. `wits` {تشغيلة: شاهد} للاختبار، وإلا تُقرأ من مخرَج التشغيلات."""
+    import heard_gate as HG                                              # noqa: PLC0415
+    runs = [r.strip() for r in str(runs_txt or "").split(",") if r.strip()]
+    if wits is None:
+        if len(set(runs)) != len(runs) or len(runs) < HG.DISPUTED_MIN_WITNESSES:
+            raise SystemExit(f"⛔ --disputed يلزمه {HG.DISPUTED_MIN_WITNESSES} تشغيلتان متمايزتان في --disputed-runs")
+        wits = {r: load_witness(r, surah) for r in runs}
+    keep = ("surah", "riwaya", "fileRef", "sha256", "model", "computeType", "ayahs")
+    rec = {str(a): {"otherAyah": int(o), "witnesses": {str(r): {k: w.get(k) for k in keep} for r, w in wits.items()}}
+           for a, o in sorted(claims.items())}
+    present = sorted({_key(e["ayahId"])[0] for e in out["entries"]})
+    want = index_fields.sha_by_surah(out, present).get(surah)
+    starts = {_key(e["ayahId"])[1]: int(e["startMs"]) for e in out["entries"] if _key(e["ayahId"])[0] == surah}
+    cmap = HG.compact_map(hmap)
+    rows = HG.surah_rows(starts, cmap)
+    probe = dict(out)
+    probe["transform"] = {**(out.get("transform") or {}), "disputedAnchors": {str(surah): rec}}
+    why, ev = HG.disputed_verdict(surah, rows, cmap, want, probe)
+    if why:
+        raise SystemExit(f"⛔ المراسي المتنازَعُ عليها لا تجتاز heard_gate: {why}")
+    rest = HG.surah_verdict(rows)
+    if rest:
+        print(f"  ⚠️ بعد قبول المتنازَع عليه تبقى السورةُ مردودةً عند البوّابة: {rest}")
+    return {str(surah): rec}
+
+
 def main():
     ap = argparse.ArgumentParser(description=__doc__.split("\n")[0])
     ap.add_argument("--key", required=True)
@@ -608,6 +636,9 @@ def main():
                     help="المسارُ المشابه (‏قرار خيط 2.0 2026-11-07 لدورة saad): تشابهُ الكلمات الطرفيّة ≥0.8 بقيد ±20٪")
     ap.add_argument("--trim-witness-runs", default="",
                     help="تشغيلتا whisper_witness (‏أو أكثر) مفصولتين بفواصل: حدُّ --trim من بدء أوّل كلمةٍ للتالية")
+    ap.add_argument("--disputed", default="",
+                    help="آية:الآيةُ الأخرى المسموعةُ عند مرساتها، بفواصل (‏heard_gate.disputed_verdict) — مثل 82:81,93:92")
+    ap.add_argument("--disputed-runs", default="", help="تشغيلتا whisper_witness (‏أو أكثر) تُضمَّنان دليلاً لكلّ متنازَع")
     ap.add_argument("--reason", required=True)
     ap.add_argument("--yes", action="store_true")
     a = ap.parse_args()
@@ -662,6 +693,9 @@ def main():
         if a.witness_fuzzy:
             out["transform"]["witnessFuzzy"] = {"sim": W_FUZZ_SIM, "lenBand": [W_FUZZ_LEN_LO, W_FUZZ_LEN_HI],
                                                 "decision": "خيط 2.0 · 2026-11-07 · دورة saad"}
+    if a.disputed:
+        out["transform"]["disputedAnchors"] = disputed_claims(out, a.surah, hmap, parse_pairs(a.disputed),
+                                                              a.disputed_runs)
     blob = gzip.compress(json.dumps(out, ensure_ascii=False, separators=(",", ":")).encode("utf-8"), 9)
     new_sha = hashlib.sha256(blob).hexdigest()
     target = f"timings-staging/{idx.get('riwaya')}/{idx.get('reciterId')}.{new_sha[:8]}.jz"
