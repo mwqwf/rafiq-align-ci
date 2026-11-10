@@ -25,7 +25,21 @@ def main():
     ap.add_argument("--key", required=True, help="مفتاح فهرسٍ في الدلو يُقابَل به audioSha256")
     ap.add_argument("--surah", type=int, required=True)
     ap.add_argument("--runs", required=True, help="تشغيلاتٌ بفواصل")
+    ap.add_argument("--timing-repair-sha",
+                    help="بصمةُ إيداعٍ (40 خانة) يُجلب منها `tools/index_qa/timing_repair.py` ويُستورد — لفحص كودٍ لم يدخل main بعد")
     a = ap.parse_args()
+    if a.timing_repair_sha:
+        import base64, re, subprocess, tempfile
+        if not re.fullmatch(r"[0-9a-f]{40}", a.timing_repair_sha):
+            raise SystemExit("⛔ --timing-repair-sha بصمةُ إيداعٍ كاملة (40 خانة) لا فرعٌ متحرّك")
+        r = subprocess.run(["gh", "api", f"repos/mwqwf/rafiq-align-ci/contents/tools/index_qa/timing_repair.py?ref={a.timing_repair_sha}",
+                            "--jq", ".content"], capture_output=True, text=True)
+        if r.returncode:
+            raise SystemExit(f"⛔ تعذّر جلب timing_repair.py: {r.stderr[:200]}")
+        d = tempfile.mkdtemp(prefix="tr_")
+        Path(d, "timing_repair.py").write_bytes(base64.b64decode(r.stdout))
+        sys.path.insert(0, d)
+        print(f"timing_repair.py من الإيداع {a.timing_repair_sha[:10]}")
     import heard_gate as HG
     import pin_heard as PH
     import timing_repair as T
