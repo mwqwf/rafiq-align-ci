@@ -136,7 +136,7 @@ def apply_retimed(ents: list, s: int, absent: list, retimed: dict) -> list:
 
 def drop_ayahs(idx: dict, ayahs: dict, evidence: dict, *, reason: str, reason_user: str,
                reason_code: str, from_sha: str, from_key: str, retimed: dict | None = None,
-               already_absent: bool = False) -> dict:
+               already_absent: bool = False, witnessed: dict | None = None) -> dict:
     """يُعيد فهرساً جديداً حُجبت منه الآياتُ المسمّاة ومعلَنةً، أو يرفع SystemExit بالسبب.
 
     ‏`retimed` (اختياري · أمر 2026-10-31): حدودُ الجارات المقيسةُ بـCTC على نافذةٍ بنصوص الحاضرات وحدها
@@ -153,6 +153,8 @@ def drop_ayahs(idx: dict, ayahs: dict, evidence: dict, *, reason: str, reason_us
     if reason_code not in promote.GAP_REASON_CODES:                    # ⛔ القائمةُ مغلقةٌ على رمزين لا ثالثَ لهما
         raise SystemExit("⛔ --reason-code لهذا الباب SOURCE_TRUNCATED أو TIMING_UNDER_REPAIR وحدَهما")
     reason_key = promote.GAP_REASON_CODES[reason_code]
+    if witnessed and not already_absent:                               # ⛔ (ctc-absent-witnessed-1) لا يُكتب غيابٌ مشهودٌ إلا لسورةٍ بُنيت من المسموع
+        raise SystemExit("⛔ witnessedAbsent لا يكون إلا مع --already-absent (‏سورةٌ بُنيت من المسموع)")
     if not (reason_user or "").strip():
         raise SystemExit("⛔ --reason-user إلزاميّ: التطبيقُ لا يعرض سببَ النقص بدونه")
     for w in _BANNED:
@@ -233,6 +235,22 @@ def drop_ayahs(idx: dict, ayahs: dict, evidence: dict, *, reason: str, reason_us
     if stray:
         raise SystemExit(f"⛔ حدودٌ مُعاد قياسُها لسورٍ لا حجبَ فيها: {stray}")
 
+    # ⭐ (ctc-absent-witnessed-1 · قرار القائد 2026-11-10) غيابٌ مشهودٌ لآياتٍ مسمّاةٍ غائبةٍ لكنّها مسموعةٌ في الخريطة: يُكتب في
+    #    `transform.witnessedAbsent` باسمه وإصداره مع دليله (‏الشاهدان بتشغيلتيهما) ليعيد `heard_gate` حكمَه من المصدر.
+    #    ⛔ لا يكون إلا مع `already_absent` (‏سورةٌ بُنيت من المسموع) وعلى آياتٍ مسمّاةٍ حجبُها فعلاً، بشاهدَين من تشغيلتين متمايزتين.
+    wit_rec = {}
+    if witnessed:
+        if not already_absent:
+            raise SystemExit("⛔ witnessedAbsent لا يكون إلا مع --already-absent (‏سورةٌ بُنيت من المسموع)")
+        for s_k, claims in sorted(witnessed.items(), key=lambda kv: int(kv[0])):
+            named = set(ayahs.get(int(s_k)) or [])
+            if not isinstance(claims, dict) or not claims or not {int(a) for a in claims} <= named:
+                raise SystemExit(f"⛔ س{s_k}: غيابٌ مشهودٌ لآياتٍ غيرِ محجوبةٍ بالاسم ({sorted(claims) if isinstance(claims, dict) else claims})")
+            for a_k, c in claims.items():
+                ws = c.get("witnesses") if isinstance(c, dict) else None
+                if (not isinstance(ws, dict) or len(ws) < 2 or any(not isinstance(w, dict) for w in ws.values())):
+                    raise SystemExit(f"⛔ {s_k}:{a_k}: الغيابُ المشهودُ يلزمه شاهدان من تشغيلتين متمايزتين")
+            wit_rec[str(s_k)] = claims
     kept = [e for e in ents if e["ayahId"] not in gone]
     total = idx.get("ayahCount") or sum(counts)
     miss = dict(idx.get("missing") or {})
@@ -289,6 +307,9 @@ def drop_ayahs(idx: dict, ayahs: dict, evidence: dict, *, reason: str, reason_us
         **({"retimedNeighbours": moved} if moved else {}),
         **({"truncatedTail": tails} if tails else {}),
         "truncatedGaps": {**old_gaps, **recs},
+        **({"witnessedAbsent": {**{k: v for k, v in ((tr0.get("witnessedAbsent") or {}) if isinstance(tr0.get("witnessedAbsent"), dict) else {}).items()
+                                   if int(k) not in touched}, **wit_rec},
+            "witnessedAbsentVersion": "ctc-absent-witnessed-1"} if (wit_rec or tr0.get("witnessedAbsent")) else {}),
         "op": op,
         "fromSha256": from_sha,
         "fromKey": from_key,
@@ -338,13 +359,16 @@ def main():
     a = ap.parse_args()
     ayahs = parse_ayahs(a.ayahs)
     evidence = json.loads(Path(a.evidence).read_text(encoding="utf-8")) if a.evidence else {}
-    retimed = {}
+    retimed, witnessed = {}, {}
     for fp in a.aligned:
         rec = json.loads(Path(fp).read_text(encoding="utf-8"))
         if sorted(rec.get("absent") or []) != sorted(ayahs.get(int(rec.get("surah", 0)), [])):
             raise SystemExit(f"⛔ {fp}: المحجوبةُ فيه تخالف --ayahs")
         retimed.update(rec.get("retimed") or {})
         evidence.update(rec.get("evidence") or {})
+        if rec.get("witnessedAbsent"):
+            witnessed[str(int(rec["surah"]))] = {k: {"witnesses": v.get("witnesses"), "detail": v.get("detail")}
+                                                 for k, v in rec["witnessedAbsent"].items()}
     if not evidence:
         raise SystemExit("⛔ لا دليلَ: --evidence أو --aligned")
     import promote
@@ -356,7 +380,7 @@ def main():
     idx = json.loads(gzip.decompress(body).decode("utf-8"))
     out = drop_ayahs(idx, ayahs, evidence, reason=a.reason, reason_user=a.reason_user,
                      reason_code=a.reason_code, from_sha=live, from_key=a.key,
-                     retimed=retimed or None, already_absent=a.already_absent)
+                     retimed=retimed or None, already_absent=a.already_absent, witnessed=witnessed or None)
     for s in ayahs:
         ok, why = promote.declared_truncated_gaps(out, s)
         if not ok:
