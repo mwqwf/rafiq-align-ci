@@ -62,6 +62,13 @@ class ScanEnd(unittest.TestCase):
         self.assertEqual(ev, {})
         self.assertIn("end_record_error", rep["unproven"]["15"])
 
+    def test_margin_overrun_0_3s_not_proven(self):
+        """تجاوزُ النهاية بـ0.3ث عند أحد الشاهدين ⇒ لا دليل (‏هامشُ البوّابة TOL_MS)؛ و2ث ⇒ يُبنى."""
+        ev, _rep, code = build([witness(PROBES), witness(PROBES, lead=300)])
+        self.assertEqual((ev, code), ({}, 4))
+        ev, _rep, code = build([witness(PROBES), witness(PROBES, lead=2000)])
+        self.assertEqual(sorted(ev), [f"{S}:15", f"{S}:20"])
+
     def test_low_confidence_not_proven(self):
         ev, _rep, _c = build([witness(PROBES), witness(PROBES, p=0.45)])
         self.assertEqual(ev, {})
@@ -76,7 +83,7 @@ class ScanEnd(unittest.TestCase):
         """الواجهةُ بالنصّ الموثَّق ودالّة البوّابة `disputed_ref_words`: 78:24 ونهايتُها في صوت 78:25."""
         at = 249000
         def art(text):
-            ws = [{"w": w, "s": at - 600 + k * 400, "e": at - 600 + k * 400 + 380, "p": 0.95}
+            ws = [{"w": w, "s": at - 2000 + k * 700, "e": at - 2000 + k * 700 + 680, "p": 0.95}
                   for k, w in enumerate(text.split())]
             return {"surah": S, "riwaya": "hafs", "fileRef": "f", "sha256": SHA[S - 1], "model": "small",
                     "computeType": "float32", "ayahs": {"24": {"windowMs": [at - 3000, at + 3000], "words": ws}}}

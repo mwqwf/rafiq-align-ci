@@ -206,7 +206,12 @@ def excused(idx, key, declared, approvals=None, loader=None, ref_words=None):
 #    ٢) يُتحقَّق منه بدوالّ البوّابة نفسِها (‏`heard_gate.disputed_ref_words` · `_wtoks` · `_span_ok` · `pin_heard.W_K`)
 #       على تفريغ الشاهد، ولا يُقرأ حكمٌ مكتوب.
 #    ⛔ وأشدُّ من البدء في أمرٍ واحد: أيُّ W_K كلماتٍ من نصّ الآية نفسِها تُسمع عند تلك اللحظة تردّ الدليل (‏لا يكفي أن يُسمع
-#       معها غيرُها). ولا يمسّ هذا البابُ `drift_error` ولا `evidence_error` ولا `excused`: دليلٌ بلا kind يبقى على حكمه القديم.
+#       معها غيرُها).
+#    ⛔ (‏ملاحظةُ القائد على #124) والهامش: تذبذبُ الحدود العاديُّ (‏كلمةٌ من التالية ≈0.3ث في ذيل المدخل) ليس عطباً. فلا يُقبل
+#       الدليلُ إلا إذا شغل صوتُ الآية الأخرى من ذيل المدخل `heard_gate.TOL_MS` (‏1500م.ث، عتبةُ «الانحراف عن الموضع المسموع»
+#       نفسُها) فأكثر: بدءُ أوّل كلمةٍ مسموعةٍ من heardAyah — متّصلةً كلمةً بكلمة بنصّها حتى المقطع الذي يغطّي النهاية،
+#       وناجحةً كلُّها في `_span_ok` — ≤ endMs − TOL_MS، عند كلٍّ من الشاهدين.
+#    ولا يمسّ هذا البابُ `drift_error` ولا `evidence_error` ولا `excused`: دليلٌ بلا kind يبقى على حكمه القديم.
 END_KIND = "end"
 _RUN_RE = re.compile(r"[1-9]\d{5,14}")
 
@@ -215,7 +220,8 @@ def end_drift_error(src, surah, probe, riwaya, ref_words):
     """سببُ ردّ مسبار النهاية عند شاهدٍ واحد، أو None إن سمع عند آخر لحظةٍ من المدخل نصَّ `heardAyah` لا نصَّ الآية.
 
     `probe` = {ayah, heardAyah, endMs}: المدخلُ المنشور [بدء، endMs) فآخرُ لحظةٍ منه endMs−1، والمقطعُ يغطّيها إذا
-    بدأ قبل endMs وانتهى عنده أو بعده."""
+    بدأ قبل endMs وانتهى عنده أو بعده. ويُشترط هامشُ `heard_gate.TOL_MS`: من بدء أوّل كلمةٍ متّصلةٍ من نصّ heardAyah
+    (‏ممدودةً إلى الوراء من ذلك المقطع كلمةً بكلمة) إلى endMs لا يقلّ عن TOL_MS."""
     import heard_gate as HG                                           # noqa: PLC0415
     import pin_heard as PH                                            # noqa: PLC0415
     if not isinstance(probe, dict):
@@ -231,6 +237,7 @@ def end_drift_error(src, surah, probe, riwaya, ref_words):
         return "نصُّ الآية أو الآية المسموعة أقصرُ من W_K"
     own_grams = {tuple(own[i:i + k]) for i in range(len(own) - k + 1)}
     hit, why = False, None
+    margin = HG.TOL_MS                                                # ⭐ ثابتُ البوّابة نفسُه (‏1500م.ث) لا رقمٌ جديد
     for rec in (src.get("ayahs") or {}).values():
         win = rec.get("windowMs") or [None, None]
         tk = HG._wtoks(rec)
@@ -241,14 +248,26 @@ def end_drift_error(src, surah, probe, riwaya, ref_words):
             words = tuple(x[0] for x in span)
             if words in own_grams:
                 return f"ما سُمع عند نهاية المدخل «{' '.join(words)}» من نصّ الآية نفسِها — لا يثبت أنّ النهاية في صوت غيرها"
-            if not any(list(words) == oth[j:j + k] for j in range(len(oth) - k + 1)):
+            js = [j for j in range(len(oth) - k + 1) if list(words) == oth[j:j + k]]
+            if not js:
                 why = why or f"ما سُمع عند نهاية المدخل «{' '.join(words)}» ليس من نصّ {surah}:{o}"
                 continue
             bad = HG._span_ok(span, win)
             if bad:
                 why = why or bad
-            else:
+                continue
+            # الهامش: يُمدّ المقطعُ إلى الوراء ما دامت كلماتُ التفريغ تتبع نصَّ heardAyah كلمةً بكلمة، والممدودُ كلُّه يجتاز _span_ok.
+            head = None
+            for j in js:
+                ii, jj = i, j
+                while ii > 0 and jj > 0 and tk[ii - 1][0] == oth[jj - 1] and not HG._span_ok(tk[ii - 1:i + k], win):
+                    ii, jj = ii - 1, jj - 1
+                head = tk[ii][1] if head is None else min(head, tk[ii][1])
+            if head <= e - margin:
                 hit = True
+            else:
+                why = why or (f"صوتُ {surah}:{o} يشغل من ذيل المدخل {e - head}م.ث فقط (‏دون هامش البوّابة {margin}م.ث) — "
+                              "تذبذبُ حدٍّ لا عطب")
     if hit:
         return None
     return why or f"لا يُسمع عند نهاية المدخل {e}م.ث نصُّ {surah}:{o}"

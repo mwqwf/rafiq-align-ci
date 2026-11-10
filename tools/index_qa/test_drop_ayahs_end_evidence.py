@@ -53,19 +53,22 @@ def _idx():
                                 for a in range(1, promote._AYAH_COUNTS[s - 1] + 1)]}}
 
 
-def _words(a, at, p=0.95, first=0, n=4):
-    """أربعُ كلماتٍ متّصلةٍ من نصّ الآية a تغطّي اللحظةَ at (‏الثانيةُ تبدأ قبلها بـ200م.ث)."""
-    return [{"w": _w(a, first + k), "s": at - 600 + k * 400, "e": at - 600 + k * 400 + 380, "p": p} for k in range(n)]
+LEAD = 2000                          # صوتُ الآية الأخرى يبدأ قبل نهاية المدخل بـ2ث (‏فوق هامش البوّابة TOL_MS=1500)
+
+
+def _words(a, at, p=0.95, lead=LEAD):
+    """كلماتُ نصّ الآية a الثمانيةُ متّصلةً: أولاها تبدأ عند at−lead، كلٌّ 380م.ث بفاصل 20، فتغطّي اللحظةَ at−1."""
+    return [{"w": _w(a, k), "s": at - lead + k * 400, "e": at - lead + k * 400 + 380, "p": p} for k in range(8)]
 
 
 def witness(probes, heard=None, own=False, p=0.95, sha=None, surah=S, compute="float32", model="small",
-            shift=0, extra=None, win=None, words_fn=None):
+            shift=0, extra=None, win=None, words_fn=None, lead=LEAD):
     """شاهدٌ يسمع عند نهاية كلّ مدخلٍ مسبورٍ نصَّ heardAyah (‏أو heard، أو نصَّ الآية نفسِها إن own)."""
     ayahs = {}
     for i, (a, o) in enumerate(probes):
         h = a if own else (heard if heard is not None else o)
         at = _end(a) + shift
-        words = words_fn(h, at) if words_fn else _words(h, at, p)
+        words = words_fn(h, at) if words_fn else _words(h, at, p, lead)
         ayahs[str(a)] = {"windowMs": list(win(at)) if win else [at - 3000, at + 3000], "words": words}
     for k, v in (extra or {}).items():
         ayahs[k] = v
@@ -184,7 +187,7 @@ class Condition1TwoIndependentWitnesses(unittest.TestCase):
 
     def test_other_text_not_at_end_rejected(self):
         """نصُّ الآية الأخرى مسموعٌ لكن بعد نهاية المدخل لا عندها (‏مُزاحٌ 1500م.ث)."""
-        bad = {RUN_B: {"shift": 1500}}
+        bad = {RUN_B: {"shift": LEAD + 500}}                           # يبدأ بعد النهاية بـ500م.ث
         with self.assertRaisesRegex(SystemExit, "لا يُسمع عند نهاية المدخل"):
             make(evidence=ev_all(per_run=bad), loader=loader_for(per_run=bad))
 
@@ -199,6 +202,61 @@ class Condition1TwoIndependentWitnesses(unittest.TestCase):
         ev[f"{S}:15"]["probe"]["endMs"] = _end(15) + 1
         with self.assertRaisesRegex(SystemExit, "endMs"):
             make(evidence=ev)
+
+
+class Margin(unittest.TestCase):
+    """هامشُ البوّابة (‏`heard_gate.TOL_MS` = 1500م.ث): صوتُ الآية الأخرى يشغل من ذيل المدخل هذا القدرَ فأكثر عند كلٍّ من الشاهدين."""
+    def _case(self, lead_b):
+        per = {RUN_B: {"lead": lead_b}}
+        return make(evidence=ev_all(per_run=per), loader=loader_for(per_run=per))
+
+    def test_constant_is_the_gate_constant(self):
+        import heard_gate as HG
+        self.assertEqual(HG.TOL_MS, 1500)
+
+    def test_overrun_0_3s_rejected(self):
+        with self.assertRaisesRegex(SystemExit, "دون هامش البوّابة 1500"):
+            self._case(300)
+
+    def test_overrun_2s_accepted(self):
+        self.assertTrue(gate(self._case(2000))[0])
+
+    def test_exactly_1500_accepted(self):
+        self.assertTrue(gate(self._case(1500))[0])
+
+    def test_1499_rejected(self):
+        with self.assertRaisesRegex(SystemExit, "دون هامش البوّابة"):
+            self._case(1499)
+
+    def test_margin_reverified_by_promote(self):
+        """الشاهدُ المكتوبُ في المرشّح يُبدَّل بتجاوزٍ قدرُه 0.3ث ⇒ promote يردّه بالهامش نفسِه."""
+        out = make()
+        bad = copy.deepcopy(out)
+        e = bad["transform"]["truncatedGaps"][str(S)]["evidence"][f"{S}:15"]
+        e["witnesses"][RUN_B] = {k: witness(PROBES, lead=300)[k] for k in KEYS}
+        ok, why = gate(bad)
+        self.assertFalse(ok)
+        self.assertIn("هامش", why)
+
+    def test_extension_stops_at_foreign_word(self):
+        """كلمةٌ غريبةٌ تقطع التتابعَ قبل الهامش ⇒ لا يُمدّ عبرها (‏الصوتُ المتّصلُ دون 1500 يُردّ)."""
+        def broken(h, at):
+            ws = _words(h, at)
+            ws[2] = {"w": _w(39, 6), "s": ws[2]["s"], "e": ws[2]["e"], "p": 0.95}   # يقطع عند at−1200
+            return ws
+        per = {RUN_B: {"words_fn": broken}}
+        with self.assertRaisesRegex(SystemExit, "هامش"):
+            make(evidence=ev_all(per_run=per), loader=loader_for(per_run=per))
+
+    def test_extension_stops_at_low_confidence_word(self):
+        """كلمةٌ من نصّها بثقةٍ دون عتبة _span_ok قبل الهامش ⇒ لا تُحسب في المدّ."""
+        def weak(h, at):
+            ws = _words(h, at)
+            ws[1]["p"] = 0.3                                              # عند at−1600
+            return ws
+        per = {RUN_B: {"words_fn": weak}}
+        with self.assertRaisesRegex(SystemExit, "هامش"):
+            make(evidence=ev_all(per_run=per), loader=loader_for(per_run=per))
 
 
 class Condition2GateFunctions(unittest.TestCase):
@@ -220,9 +278,11 @@ class Condition2GateFunctions(unittest.TestCase):
     def test_fewer_than_w_k_words_rejected(self):
         """كلمتان فقط من الآية الأخرى متّصلتان عند النهاية (‏والثالثةُ من غيرها) ⇒ دون W_K."""
         def two(h, at):
-            ws = _words(h, at, n=2, first=0)
-            return ws + [{"w": _w(39, 5), "s": at + 200, "e": at + 580, "p": 0.95},
-                         {"w": _w(38, 6), "s": at + 600, "e": at + 980, "p": 0.95}]
+            # كلمتان من نصّها (‏الأولى طويلةٌ تبلغ الهامش وحدَها) بين كلماتٍ غريبة ⇒ دون W_K
+            return [{"w": _w(36, 2), "s": at - 2800, "e": at - 2420, "p": 0.95},
+                    {"w": _w(h, 0), "s": at - 2000, "e": at - 20, "p": 0.95},
+                    {"w": _w(h, 1), "s": at, "e": at + 380, "p": 0.95},
+                    {"w": _w(35, 3), "s": at + 400, "e": at + 780, "p": 0.95}]
         bad = {RUN_B: {"words_fn": two}}
         with self.assertRaises(SystemExit):
             make(evidence=ev_all(per_run=bad), loader=loader_for(per_run=bad))
@@ -380,7 +440,7 @@ class RealText(unittest.TestCase):
     """بالنصّ الموثَّق ودالّة البوّابة الافتراضيّة (‏`heard_gate.disputed_ref_words`): 78:24 ونهايتُها في صوت 78:25."""
     def _wit(self, text):
         at = 249000
-        ws = [{"w": w, "s": at - 600 + k * 400, "e": at - 600 + k * 400 + 380, "p": 0.95} for k, w in enumerate(text.split())]
+        ws = [{"w": w, "s": at - 2000 + k * 700, "e": at - 2000 + k * 700 + 680, "p": 0.95} for k, w in enumerate(text.split())]
         return {"surah": S, "riwaya": "hafs", "fileRef": "f", "sha256": SHA[S - 1], "model": "small",
                 "computeType": "float32", "ayahs": {"24": {"windowMs": [at - 3000, at + 3000], "words": ws}}}
 
