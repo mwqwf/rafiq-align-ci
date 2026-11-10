@@ -13,7 +13,7 @@
   (ج) لكلّ سورةٍ معفاة سجلُّ `transform.timingRepair[س]` فيه شاهدا Whisper مستقلّان من تشغيلتين متمايزتين
       (‏كلُّ شاهدٍ بصيغة `witnessedAbsent`/`disputedAnchors`: {تشغيلة: سجلُّ DISPUTED_SRC_KEYS}) يُحمَّلان من مصدر
       التشغيلة (‏`pin_heard.load_witness`) ويطابقان المكتوبَ حرفاً، وبصمةُ الصوت فيهما = `audioSha256[س-1]` للفهرس،
-      ويسمع كلٌّ منهما عند بدء كلّ آيةٍ مسبورة نصَّ آيةٍ أخرى (‏W_K كلماتٍ متّصلةً بثقة `_span_ok`، وليست من نصّ الآية نفسها).
+      ويسمع كلٌّ منهما، لكلٍّ من ثلاثِ آياتٍ مسبورةٍ على الأقلّ (مختلفةٍ غيرِ متجاورة)، عند بدء الآية نصَّ آيةٍ أخرى (‏W_K كلماتٍ متّصلةً بثقة `_span_ok`، وليست من نصّ الآية نفسها).
   (د) ما سوى المعفى من الغياب يبقى محسوباً بعتبة 2%؛ والمعفى يُطبع عدداً وسوراً.
 
 ⛔ لا يمسّ عتبةَ 5% ولا حكمَ الملوح ولا الإحصاء.
@@ -33,7 +33,7 @@ CODE = "TIMING_UNDER_REPAIR"
 REASON_KEY = "timing_under_repair"
 FIELD = "timingRepair"
 MIN_WITNESSES = 2
-MIN_PROBES = 1
+MIN_PROBES = 3          # ثلاثُ آياتٍ مختلفةٍ غيرِ متجاورة، ويشهد كلٌّ منها الشاهدان معاً
 
 
 def _canon(x):
@@ -96,8 +96,25 @@ def evidence_error(idx, surah, rec, loader=None, ref_words=None):
     if not isinstance(rec, dict):
         return "لا سجلَّ دليلٍ للسورة"
     probes, wits = rec.get("probes"), rec.get("witnesses")
+    ayat_n = _ayah_count(surah)
+    if ayat_n is None:
+        return f"رقمُ السورة {surah} خارج المصحف"
+    # ⭐ (قرار القائد 2026-11-10) المسابيرُ ثلاثٌ فأكثر لآياتٍ **مختلفةٍ غيرِ متجاورة**: مسبارٌ واحدٌ أو آيتان متجاورتان
+    #    قد تصادفان تكراراً في الصوت. وعنقودٌ دون ذلك (‏لا يتّسع لثلاثٍ غيرِ متجاورة، أي أقلُّ من 5 آيات) بابُه
+    #    `drop_ayahs` لا `drop_surah`.
+    if ayat_n < 2 * MIN_PROBES - 1:
+        return (f"السورة {surah} ({ayat_n} آيات) أقصرُ من أن تتّسع لـ{MIN_PROBES} مسابير غيرِ متجاورة — "
+                "عنقودٌ دون ذلك بابُه drop_ayahs لا drop_surah")
     if not isinstance(probes, list) or len(probes) < MIN_PROBES:
-        return f"يلزم {MIN_PROBES} مسباراً على الأقلّ"
+        return f"يلزم {MIN_PROBES} مسابير على الأقلّ لآياتٍ مختلفةٍ غيرِ متجاورة (‏وجد {len(probes) if isinstance(probes, list) else 0})"
+    ays = [p.get("ayah") if isinstance(p, dict) else None for p in probes]
+    if any(type(a) is not int or not 1 <= a <= ayat_n for a in ays):
+        return f"مسابيرُ بآياتٍ غيرِ سويّة {ays}"
+    if len(set(ays)) != len(ays):
+        return f"مسابيرُ مكرّرةُ الآية {sorted(ays)} — يلزم آياتٌ مختلفة"
+    srt = sorted(ays)
+    if any(b - a < 2 for a, b in zip(srt, srt[1:])):
+        return f"مسابيرُ متجاورة {srt} — يلزم ألّا تكون آيتان منها متتاليتين"
     if not isinstance(wits, dict) or len(wits) < MIN_WITNESSES:
         return f"يلزم {MIN_WITNESSES} شاهدان من تشغيلتين متمايزتين"
     # الصيغةُ القانونية وحدَها (‏بلا أصفارٍ بادئة ولا مسافات) مع تفرّد مفاتيح القاموس = تشغيلاتٌ متمايزة؛
@@ -130,6 +147,12 @@ def evidence_error(idx, surah, rec, loader=None, ref_words=None):
             if why:
                 return f"الشاهد {run}: {why}"
     return None
+
+
+def _ayah_count(surah):
+    import promote                                                    # noqa: PLC0415
+    n = promote._AYAH_COUNTS
+    return n[surah - 1] if isinstance(surah, int) and 1 <= surah <= len(n) else None
 
 
 def _src_rec(w):

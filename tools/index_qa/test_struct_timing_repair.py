@@ -25,24 +25,40 @@ def ref_words(_riwaya, _s, a):
     return [_w(a, i) for i in range(8)]
 
 
-def witness(sha=None, heard=7, at=5000, surah=S, own=False, p=0.95, compute="float32"):
-    """شاهدٌ يسمع عند 5000م.ث نصَّ الآية heard (‏أو نصَّ الآية 3 نفسِها إن own)."""
-    a = 3 if own else heard
-    words = [{"w": _w(a, i), "s": at - 200 + i * 400, "e": at - 200 + i * 400 + 380, "p": p} for i in range(4)]
+PROBES = [{"ayah": 3, "startMs": 5000, "heardAyah": 9},
+          {"ayah": 7, "startMs": 25000, "heardAyah": 13},
+          {"ayah": 11, "startMs": 45000, "heardAyah": 17}]
+
+
+def witness(sha=None, heard=None, surah=S, own=False, p=0.95, compute="float32", probes=None, skip=()):
+    """شاهدٌ يسمع عند كلّ مسبارٍ نصَّ heardAyah المدّعاة (‏أو heard إن سُمّيت، أو نصَّ الآية نفسِها إن own).
+    `skip`: فهارسُ مسابيرَ لا يغطّيها هذا الشاهد."""
+    ayahs = {}
+    for i, pr in enumerate(probes or PROBES):
+        if i in skip:
+            continue
+        a = pr["ayah"] if own else (heard if heard is not None else pr["heardAyah"])
+        at = pr["startMs"]
+        words = [{"w": _w(a, k), "s": at - 200 + k * 400, "e": at - 200 + k * 400 + 380, "p": p} for k in range(4)]
+        ayahs[str(i + 1)] = {"windowMs": [at - 2000, at + 3000], "words": words}
     return {"surah": surah, "riwaya": "hafs", "fileRef": "https://e.org/002.mp3", "sha256": sha or SHA[surah - 1],
-            "model": "small", "computeType": compute,
-            "ayahs": {"1": {"windowMs": [0, 20000], "words": words}}}
+            "model": "small", "computeType": compute, "ayahs": ayahs}
 
 
-def record(runs=(RUN_A, RUN_B), probe=None, **wkw):
-    """سجلُّ الدليل المكتوب في الترويسة — يُبنى من الشاهد نفسِه الذي يعيده المحمِّل (‏وإلا ردّه تطابقُ المصدر لا المضمون)."""
-    keys = ("surah", "riwaya", "fileRef", "sha256", "model", "computeType", "ayahs")
-    return {"probes": [probe or {"ayah": 3, "startMs": 5000, "heardAyah": 7}],
-            "witnesses": {r: {k: witness(**wkw)[k] for k in keys} for r in runs}}
+KEYS = ("surah", "riwaya", "fileRef", "sha256", "model", "computeType", "ayahs")
 
 
-def loader_for(**wkw):
-    return lambda run, surah: witness(**wkw)
+def record(runs=(RUN_A, RUN_B), probes=None, per_run=None, **wkw):
+    """سجلُّ الدليل المكتوب في الترويسة — يُبنى من الشاهد نفسِه الذي يعيده المحمِّل (‏وإلا ردّه تطابقُ المصدر لا المضمون).
+    `per_run`: {تشغيلة: وسائطُ شاهدٍ تخصّها}."""
+    pr = probes if probes is not None else PROBES
+    return {"probes": pr,
+            "witnesses": {r: {k: witness(probes=pr, **{**wkw, **(per_run or {}).get(r, {})})[k] for k in KEYS}
+                          for r in runs}}
+
+
+def loader_for(per_run=None, probes=None, **wkw):
+    return lambda run, surah: witness(probes=probes, **{**wkw, **(per_run or {}).get(str(run), {})})
 
 
 def make_idx(code="TIMING_UNDER_REPAIR", rec=None, drop=(S,), by_reason=None, extra_tr=None, recs=None):
@@ -153,8 +169,8 @@ class StructTimingRepair(unittest.TestCase):
         self.assertTrue(gap_fatal(f))
 
     def test_11b_witness_hears_a_different_ayah_than_claimed_rejected(self):
-        # المسبارُ يدّعي سماعَ نصّ الآية 7، والشاهدُ يسمع نصَّ الآية 9 ⇒ ادّعاءٌ لم يُثبته الشاهد.
-        f, _w, _i = tag(make_idx(rec=record(heard=9)), GOOD_ROW, loader=loader_for(heard=9))
+        # المسابيرُ تدّعي سماعَ نصوصٍ بعينها، والشاهدُ يسمع نصَّ الآية 5 ⇒ ادّعاءٌ لم يُثبته الشاهد.
+        f, _w, _i = tag(make_idx(rec=record(heard=5)), GOOD_ROW, loader=loader_for(heard=5))
         self.assertTrue(gap_fatal(f))
 
     def test_13_no_evidence_record_rejected(self):
@@ -198,7 +214,7 @@ class StructTimingRepair(unittest.TestCase):
     def test_19_repeated_text_is_not_drift(self):
         # آيتان نصُّهما واحد (‏تكرار): الشاهدُ يسمع نصَّ الآية الأخرى وهو نصُّها هي ⇒ لا انحراف.
         f, _w, _i = tag(make_idx(rec=record(own=True)), GOOD_ROW, loader=loader_for(own=True),
-                        rw=lambda r, s, a: ref_words(r, s, 3 if a in (3, 7) else a))
+                        rw=lambda r, s, a: ref_words(r, s, {9: 3, 13: 7, 17: 11}.get(a, a)))
         self.assertTrue(gap_fatal(f))
 
     def test_20_witness_of_another_surah_rejected(self):
@@ -218,8 +234,47 @@ class StructTimingRepair(unittest.TestCase):
         self.assertTrue(gap_fatal(f))
 
     def test_23_witness_hears_nothing_at_probe_time_rejected(self):
-        f, _w, _i = tag(make_idx(rec=record(probe={"ayah": 3, "startMs": 90000, "heardAyah": 7})), GOOD_ROW)
+        # الشاهدان كما هما (‏يسمعان عند 5000) والمسبارُ يدّعي البدء عند 90000 ⇒ لا يسمع الشاهدُ هناك شيئاً.
+        rec = record()
+        rec["probes"] = [dict(PROBES[0], startMs=90000), PROBES[1], PROBES[2]]
+        f, _w, _i = tag(make_idx(rec=rec), GOOD_ROW)
         self.assertTrue(gap_fatal(f))
+
+    # ── (قرار القائد 2026-11-10) المسابيرُ ثلاثٌ لآياتٍ مختلفةٍ غيرِ متجاورة، ويشهد كلَّ مسبارٍ الشاهدان معاً ──
+    def _why(self, probes, **kw):
+        return T.evidence_error(make_idx(rec=record(probes=probes)), S, record(probes=probes),
+                                loader_for(probes=probes, **kw), ref_words)
+
+    def test_24_one_probe_rejected(self):
+        self.assertIn("3 مسابير", self._why(PROBES[:1]))
+
+    def test_25_two_probes_rejected(self):
+        self.assertIn("3 مسابير", self._why(PROBES[:2]))
+
+    def test_26_duplicate_ayah_probes_rejected(self):
+        pr = [PROBES[0], dict(PROBES[0], startMs=9000), PROBES[2]]
+        self.assertIn("مكرّرةُ الآية", self._why(pr))
+
+    def test_27_adjacent_probes_rejected(self):
+        pr = [PROBES[0], dict(PROBES[1], ayah=4, startMs=25000), PROBES[2]]
+        self.assertIn("متجاورة", self._why(pr))
+
+    def test_28_probe_attested_by_one_witness_only_rejected(self):
+        # الشاهدُ B لا يغطّي المسبارَ الثالث؛ والمكتوبُ والمحمَّلُ متّفقان ⇒ يردّه الشاهدُ الثاني وحدَه.
+        pr = PROBES
+        rec = record(probes=pr, per_run={RUN_B: {"skip": (2,)}})
+        why = T.evidence_error(make_idx(rec=rec), S, rec, loader_for(probes=pr, per_run={RUN_B: {"skip": (2,)}}), ref_words)
+        self.assertIn(RUN_B, why or "")
+
+    def test_29_three_valid_probes_accepted(self):
+        self.assertIsNone(self._why(PROBES))
+
+    def test_30_short_cluster_points_to_drop_ayahs(self):
+        # سورةٌ بأربع آيات (112) لا تتّسع لثلاثٍ غيرِ متجاورة ⇒ رسالةٌ صريحة: بابُها drop_ayahs لا drop_surah.
+        idx = make_idx(drop=(112,))
+        why = T.evidence_error(idx, 112, record(surah=112), loader_ok, ref_words)
+        self.assertIn("drop_ayahs", why)
+        self.assertIn("drop_surah", why)
 
 
 class DropSurahAcceptsCode(unittest.TestCase):
