@@ -330,5 +330,40 @@ class StageTransformInheritsBoth(unittest.TestCase):
         self.assertNotIn("dropSurah", out["transform"])
 
 
+class ForgedGapOnInheritedSurah(unittest.TestCase):
+    """شرط «غير موروثة» بعينه: سورةٌ موروثةُ الحجب لها سجلُّ truncatedGaps مزوَّر لا يُعفي شيئاً من الفقد."""
+
+    def forged(self):
+        parent = published()
+        out = drop(copy.deepcopy(parent))
+        tr = out["transform"]
+        # تزوير: سجلٌّ كاملٌ يجتاز declared_truncated_gaps على س23 نفسها (‏مداخلُها = آياتُها ناقص 5 مع وسم غياب ودليل)
+        out["entries"] += [e for e in _entries() if e["ayahId"].startswith(f"{DROPPED}:") and e["ayahId"] != f"{DROPPED}:5"]
+        out["missing"]["ids"] = [i for i in out["missing"]["ids"] if not i.startswith(f"{DROPPED}:") or i == f"{DROPPED}:5"]
+        out["missing"]["count"] = len(out["missing"]["ids"])
+        out["missing"]["byReason"] = {"source_truncated": out["missing"]["count"]}
+        tr["truncatedGaps"][str(DROPPED)] = {"absent": [5], "reason": "source_truncated",
+                                              "evidence": _ev(DROPPED, [5])}
+        tr["declarations"][str(DROPPED)] = {"op": "declare_gap", "reasonCode": "SOURCE_TRUNCATED",
+                                            "reasonUser": OLD_USER, "reason": "x"}
+        tr["op"] += f"|declare_gap:{DROPPED}"
+        return parent, out
+
+    def test_forged_record_is_valid_for_the_gate_alone(self):
+        _, out = self.forged()
+        self.assertTrue(promote.declared_truncated_gaps(out, DROPPED)[0])      # يجتاز لو نُظر إليه وحده
+
+    def test_helper_excuses_nothing_of_an_inherited_surah(self):
+        _, out = self.forged()
+        ex = promote.gap_excused_ids(out, {str(DROPPED)})
+        self.assertFalse([i for i in ex if i.startswith(f"{DROPPED}:")])
+        self.assertIn("13:27", ex)
+        self.assertIn(f"{DROPPED}:5", promote.gap_excused_ids(out, set()))     # ولولا الشرط لأعفاها
+
+    def test_inherited_drops_refuses_forged_surah(self):
+        parent, out = self.forged()
+        self.assertIsNotNone(promote.inherited_drops(out, parent, LIVE_SHA)[1])
+
+
 if __name__ == "__main__":
     unittest.main()

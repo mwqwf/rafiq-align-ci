@@ -2227,6 +2227,22 @@ def _fake_entries(f):
     return rows + [{"ayahId": f"{filler}:2"}] * pad
 
 
+def gap_excused_ids(idx, claimed):
+    """مداخلُ الآيات المحجوبة في الوسط التي يُعفى فقدُها من شرط بقاء المنشور في `inherited_drops`.
+
+    سورةٌ لها حجبٌ وسطيٌّ تجتاز `declared_truncated_gaps` كاملةً، و**ليست من الموروثة الحجب** (‏`claimed`):
+    سجلُّ `truncatedGaps` مزوَّرٌ على سورةٍ موروثةِ الحجب لا يُعفي شيئاً."""
+    tr = idx.get("transform") if isinstance(idx.get("transform"), dict) else {}
+    gaps = tr.get("truncatedGaps") if isinstance(tr.get("truncatedGaps"), dict) else {}
+    excused = set()
+    for k, rec in gaps.items():
+        if str(k) in {str(c) for c in claimed} or not isinstance(rec, dict) or not str(k).isdigit():
+            continue
+        if declared_truncated_gaps(idx, int(k))[0]:
+            excused |= {f"{int(k)}:{a}" for a in rec.get("absent") or []}
+    return excused
+
+
 def inherited_drops(idx, parent, parent_sha, owner_approved=frozenset()):
     """إعلان غياب موروث فقط؛ لا يقبل إسقاطاً جديداً بحقل dropSurah.
 
@@ -2272,16 +2288,8 @@ def inherited_drops(idx, parent, parent_sha, owner_approved=frozenset()):
     #    `declared_truncated_gaps` كاملةً (‏دليلُ كلّ آية · ≤ ربع السورة · لا الأولى ولا الأخيرة · مداخلُها = الآياتُ ناقص المحجوب).
     #    وكلُّ فقدٍ سوى ذلك يُردّ كما كان: ولا يُرخى حارسٌ — فالاستثناءُ مشروطٌ بأشدّ الحُرّاس لا بغيابه.
     lost = {e["ayahId"] for e in parent.get("entries", [])} - {e["ayahId"] for e in idx.get("entries", [])}
-    if lost:
-        excused = set()
-        gaps = tr.get("truncatedGaps") if isinstance(tr.get("truncatedGaps"), dict) else {}
-        for k, rec in gaps.items():
-            if str(k) in claimed or not isinstance(rec, dict) or not str(k).isdigit():
-                continue
-            if declared_truncated_gaps(idx, int(k))[0]:
-                excused |= {f"{int(k)}:{a}" for a in rec.get("absent") or []}
-        if not lost <= excused:
-            return set(), "إعلان الغياب الموروث مع فقد مداخل منشورة"
+    if lost and not lost <= gap_excused_ids(idx, claimed):
+        return set(), "إعلان الغياب الموروث مع فقد مداخل منشورة"
     return claimed, None
 
 
