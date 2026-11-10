@@ -73,8 +73,12 @@ class WorkflowContract(unittest.TestCase):
 
     def test_existing_modes_and_guards_untouched(self):
         for needle in ('ETAG="ctc-seg-1"', 'ETAG="ctc-gapsplit-1"', 'ETAG="ctc-heardmap-1"', 'ETAG="ctc-dualfix-1"',
-                       'ETAG="ctc-quran-surah-1"', "--skip-unresolved", "stage_transform.py", "fileRef المدموج"):
+                       'ETAG="ctc-quran-surah-1"', "--skip-unresolved", "stage_transform.py"):
             self.assertIn(needle, self.y)
+        # (#95 · 5a230b751a) حارسُ «fileRef المدموج» انتقل من سطر السير المضمَّن إلى splice_audio_sha.py (مختبَر في
+        # test_splice_audio_sha)؛ فيلزم أن يستدعيه السيرُ وأن يبقى الحارسُ في الأداة.
+        self.assertIn("python tools/index_qa/splice_audio_sha.py", self.y)
+        self.assertIn("fileRef المدموج", (Path(__file__).resolve().parent / "splice_audio_sha.py").read_text(encoding="utf-8"))
 
     def test_concurrency_group_splits_by_surahs_only_for_quran_model(self):
         g = self.doc["concurrency"]["group"]
