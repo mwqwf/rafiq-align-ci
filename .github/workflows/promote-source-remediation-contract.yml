@@ -105,9 +105,25 @@ jobs:
             test_quran_source_recovery test_registered_catalog_identity test_registered_source_quality_plan \
             test_repair_review_targets test_resume_guard test_short_final_repairs test_splice_folder_refs \
             test_splice_inherited_flags test_splice_registered_sources test_stage_transform_metadata \
-            test_stage_transform_readback test_truncate_tail_tool; do
+            test_stage_transform_readback test_truncate_tail_tool \
+            test_approved_drop_guards test_owner_drop_approvals test_hold_candidate_key \
+            test_declared_sha_fatal test_orphan_filter; do
             python -m unittest "tools.index_qa.$t" || { echo "⛔ أخفق $t"; rc=1; }
           done
           # صنفُ عقد السير وحدَه: صنفُ BatchRunBehaviour يستدعي batch_run فيلزمه numpy (غائبٌ عن هذا المشغِّل).
           python -m unittest tools.index_qa.test_ctc_splice_quran_model_input.WorkflowContract || { echo "⛔ أخفق WorkflowContract"; rc=1; }
+          exit $rc
+      # (2026-11-10 · 2) الاختباراتُ التي يلزمها numpy: خطوةٌ مستقلّةٌ تثبّته وحدَها كي لا يُثقَل ما قبلها.
+      # soundfile غيرُ لازم (جُرّبت بدونه فمرّت)، وmp3_resync يتخطّى نفسَه إن غاب libmp3lame؛ وtest_download_deadline نحو 26 ثانية.
+      - run: pip install numpy pyyaml
+      - name: اختباراتُ index_qa المحتاجة numpy (وحدةٌ لكلّ عملية)
+        env:
+          PYTHONPATH: tools/index_qa:tools/ci_fleet
+        run: |
+          rc=0
+          for t in test_ci_kalbani_generic test_ci_kalbani_quran_inputs test_download_race \
+            test_ogg_exact_duration test_original_audio_fixture test_short_sndfile_window \
+            test_download_deadline test_mp3_resync test_ctc_splice_quran_model_input; do
+            python -m unittest "tools.index_qa.$t" || { echo "⛔ أخفق $t"; rc=1; }
+          done
           exit $rc

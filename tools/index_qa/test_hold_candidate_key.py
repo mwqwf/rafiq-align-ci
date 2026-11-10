@@ -1,7 +1,10 @@
 """حجزُ المرشّح بعينه: مفتاحُ `timings-staging/<ر>/<م>.<بصمة8>.jz` يحجب تلك البصمة وحدها."""
+import contextlib
+import io
 import os
 import sys
 import tempfile
+import unittest
 from pathlib import Path
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
@@ -25,27 +28,31 @@ def _rep(sha8):
             "riwaya": "hafs", "reciterId": "nasser_almajed", "verdict": "x"}
 
 
-def test_candidate_hold_blocks_only_that_sha():
-    holds = _held("timings-staging/hafs/nasser_almajed.05b18814.jz\tسبب\n")
-    _t, why = promote.gate(_rep("05b18814"), {}, "", holds)
-    assert why.startswith("محجوز")
-    _t, why = promote.gate(_rep("1e1b3eed"), {}, "", holds)
-    assert not why.startswith("محجوز")
-
-
-def test_target_hold_still_blocks_every_candidate():
-    holds = _held("timings/hafs/nasser_almajed.jz\tسبب\n")
-    for sha in ("05b18814", "1e1b3eed"):
-        _t, why = promote.gate(_rep(sha), {}, "", holds)
+class TestHoldCandidateKey(unittest.TestCase):
+    def test_candidate_hold_blocks_only_that_sha(self):
+        holds = _held("timings-staging/hafs/nasser_almajed.05b18814.jz\tسبب\n")
+        _t, why = promote.gate(_rep("05b18814"), {}, "", holds)
         assert why.startswith("محجوز")
+        _t, why = promote.gate(_rep("1e1b3eed"), {}, "", holds)
+        assert not why.startswith("محجوز")
+
+    def test_target_hold_still_blocks_every_candidate(self):
+        holds = _held("timings/hafs/nasser_almajed.jz\tسبب\n")
+        for sha in ("05b18814", "1e1b3eed"):
+            _t, why = promote.gate(_rep(sha), {}, "", holds)
+            assert why.startswith("محجوز")
+
+    def test_sampling_skip_honours_candidate_hold(self):
+        holds = _held("timings-staging/hafs/nasser_almajed.05b18814.jz\tسبب\n")
+        assert promote.sampling_skip_reason(_rep("05b18814")["key"], [], holds) == "محجوز"
+        assert promote.sampling_skip_reason(_rep("1e1b3eed")["key"], [], holds) is None
+
+    def test_malformed_key_still_warned(self):
+        err = io.StringIO()
+        with contextlib.redirect_stderr(err):
+            _held("timings-staging/hafs/nasser_almajed.jz\tسبب\n")
+        assert "لا تحجب شيئاً" in err.getvalue()
 
 
-def test_sampling_skip_honours_candidate_hold():
-    holds = _held("timings-staging/hafs/nasser_almajed.05b18814.jz\tسبب\n")
-    assert promote.sampling_skip_reason(_rep("05b18814")["key"], [], holds) == "محجوز"
-    assert promote.sampling_skip_reason(_rep("1e1b3eed")["key"], [], holds) is None
-
-
-def test_malformed_key_still_warned(capsys):
-    _held("timings-staging/hafs/nasser_almajed.jz\tسبب\n")
-    assert "لا تحجب شيئاً" in capsys.readouterr().err
+if __name__ == "__main__":
+    unittest.main()

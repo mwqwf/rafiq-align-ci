@@ -17,6 +17,7 @@
 كلُّ فاتلٍ آخرَ رادّاً ولو مع الإعلان.
 """
 import sys
+import unittest
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
@@ -56,5 +57,15 @@ def main():
     return 1 if bad else 0
 
 
+class TestDeclaredShaFatal(unittest.TestCase):
+    def test_cases(self):
+        for fatals, op, want, why in CASES:
+            with self.subTest(why=why):
+                self.assertEqual(undeclared_fatal(fatals, op), want, why)
+
+    def test_main_returns_zero(self):
+        self.assertEqual(main(), 0)
+
+
 if __name__ == "__main__":
-    raise SystemExit(main())
+    unittest.main()
