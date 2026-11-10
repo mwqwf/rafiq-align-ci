@@ -23,6 +23,8 @@ on:
       - tools/alignment_v3/heard_absent.py
       - tools/alignment_v3/test_heard_absent_witnessed.py
       - tools/index_qa/test_pin_heard_owntext.py
+      - tools/index_qa/test_witness_live_probe_no_foreign_code.py
+      - tools/index_qa/witness_live_probe.py
       - tools/index_qa/test_drop_ayahs_inherit.py
       - tools/index_qa/test_drop_ayahs_inherit_dropsurah.py
       - tools/index_qa/test_inherited_drops.py
@@ -95,7 +97,7 @@ jobs:
           PYTHONPATH: tools/index_qa:tools/ci_fleet
         run: |
           rc=0
-          for t in test_adopt_noah_source_gap test_archive_node test_bias_declared_drop_2026_11_06 \
+          for t in test_witness_live_probe_no_foreign_code test_adopt_noah_source_gap test_archive_node test_bias_declared_drop_2026_11_06 \
             test_bug_hunt_guards_2026_10_09 test_build_asiri7_archive_repair \
             test_build_fakhfakh38_archive_repair test_catalog_source_audit test_census_cache \
             test_ci_census_parts test_ci_census_plan test_clamp_file_end test_completion_audit test_ctc_splice \
