@@ -258,6 +258,14 @@ OPENER_LETTER_SURAHS = frozenset({2, 3, 7, 10, 11, 12, 13, 14, 15, 19, 20, 26, 2
 #    وحرصاً على أن لا يُرخى: ما يتجاوز 8000م.ث (‏سورٌ بحروفٍ أكثر كمريم) يُردّ ولا يُقبل، وتُرفع القائمةُ بدليلٍ لا بتوسيعٍ هنا.
 OPENER_DUR_MIN_MS = 1000
 OPENER_DUR_MAX_MS = 8000
+# ⭐ ٧) (‏مراجعة القائد 2026-11-10) القائمةُ بالسورة لا تكفي: في عشرٍ من الـ29 (‏10–15 · 27 · 38 · 50 · 68) آيتُها الأولى عند حفص فيها كلامٌ
+#    بعد الحروف («الر تلك آيات…» · «ص والقرآن» · «ن والقلم»). فيُشترط أن تكون السورةُ في `pin_heard.letters_opener_surahs(الرواية)`
+#    — الدالّةُ نفسُها التي يبني بها الباني (‏`is_letters_ayah` على نصّ `text_<الرواية>.jz` الخامّ: آيتُها الأولى كلمةٌ واحدةٌ من حروف
+#    الفواتح بمدٍّ لازمٍ أو حرفان وحدهما، وثانيتُها ليست حروفاً) — فيتّسق الباني والحارس. ما لم يتحقّق ذلك رُدّ المسار وبقي السلوكُ القديم.
+# ⭐ ٨) أبكرُ كلمةٍ مسموعةٍ لا تقع داخل البسملة المسموعة: كان الباني يقصّ عند آخر كلمةٍ **مطابقةٍ تماماً** لكلمات البسملة فقط، فبسملةٌ
+#    فرّغها Whisper محرَّفةً («الرحم») تُعدّ حروفاً ويبدأ الحدُّ في وسطها. فكلُّ كلمةٍ تشبه كلمةً من البسملة (‏تشابه ≥ OPENER_BASMALA_SIM)
+#    قبل مطلع الثانية يجب أن تنتهي عند بدء الآية الأولى أو قبله، وإلا رُدّ المسار.
+OPENER_BASMALA_SIM = 0.75
 
 
 def opener_claim(cand_idx: dict, s: int):
@@ -268,6 +276,21 @@ def opener_claim(cand_idx: dict, s: int):
     return ev if isinstance(ev, dict) else None
 
 
+def _basmala_inside(src, start1, pin2):
+    """(كلمة، بدء، نهاية) لأوّل كلمةٍ تشبه كلمةً من البسملة قبل مطلع الثانية وتنتهي بعد `start1`، أو None."""
+    import difflib  # noqa: PLC0415
+    import pin_heard as PH  # noqa: PLC0415
+    for rec in (src.get("ayahs") or {}).values():
+        for w in rec.get("words") or []:
+            if int(w["s"]) >= int(pin2):
+                continue
+            for t in disputed_norm_words(str(w.get("w", ""))):
+                if any(difflib.SequenceMatcher(None, t, b).ratio() >= OPENER_BASMALA_SIM for b in PH._BASMALA) \
+                        and int(w.get("e", w["s"])) > int(start1):
+                    return t, int(w["s"]), int(w.get("e", w["s"]))
+    return None
+
+
 def opener_letters_verdict(s, ayah, cand_s, pub_s, rows, g_map, want, cand_idx, sources, riwaya, ref2=None):
     """(True، دليل) إن اجتمعت الشروط ١–٦ أعلاه، وإلا (False، سببُ الردّ بالعربية). الشواهدُ تُحكم من `sources` المحمَّلة لا من المكتوب."""
     import pin_heard as PH  # noqa: PLC0415
@@ -275,6 +298,13 @@ def opener_letters_verdict(s, ayah, cand_s, pub_s, rows, g_map, want, cand_idx, 
         return False, f"س{s} ليست في قائمة سور الحروف المقطّعة ({len(OPENER_LETTER_SURAHS)} سورة)"
     if ayah != 1:
         return False, f"الآية {ayah} ليست الأولى — المسارُ للآية الأولى وحدها"
+    try:
+        letters = PH.letters_opener_surahs(riwaya or "hafs")
+    except (SystemExit, Exception) as e:                      # noqa: BLE001
+        return False, f"نصُّ الرواية {riwaya}: {e}"
+    if s not in letters:
+        return False, (f"الآية {s}:1 في نصّ {riwaya or 'hafs'} ليست حروفاً مقطّعةً وحدها "
+                       "(‏فيها كلامٌ بعد الحروف، أو ثانيتُها حروفٌ أيضاً) — ليست في pin_heard.letters_opener_surahs")
     oev = opener_claim(cand_idx, s)
     if oev is None:
         return False, f"لا transform.{OPENER_KEY} للسورة {s}"
@@ -325,6 +355,10 @@ def opener_letters_verdict(s, ayah, cand_s, pub_s, rows, g_map, want, cand_idx, 
     new = min(cands)
     if st1 != new:
         return False, f"بدءُ الآية الأولى {st1} ليس أبكرَ بدءٍ مشهود ({new})"
+    for r in sorted(written):
+        inside = _basmala_inside(sources[str(r)], st1, st2)
+        if inside:
+            return False, f"بدءُ الآية الأولى {st1} داخل البسملة المسموعة في الشاهد {r} («{inside[0]}» حتى {inside[2]})"
     if st1 < 0:
         return False, f"بدءُ الآية الأولى {st1} قبل بدء الملفّ"
     if pub_start - st1 > PH.OPENER_MAX_EXTEND_MS:

@@ -155,6 +155,96 @@ class ListOfSurahs(unittest.TestCase):
         self.assertIn("الآيات 3", j["reason"])
 
 
+class LettersOnlyShape(unittest.TestCase):
+    """٧) الآيةُ الأولى في نصّ الرواية نفسِها حروفٌ مقطّعةٌ وحدها (‏مراجعة القائد 2026-11-10)."""
+
+    def _direct(self, s, riwaya):
+        ok, why = H.opener_letters_verdict(s, 1, {}, {}, [], {}, SHA, {}, {}, riwaya)
+        return ok, why
+
+    def test_hafs_with_speech_after_letters_refused(self):
+        for s in (38, 68, 10, 11, 12, 13, 14, 15, 27, 50):
+            ok, why = self._direct(s, "hafs")
+            self.assertFalse(ok, s)
+            self.assertIn("ليست حروفاً مقطّعةً وحدها", why, s)
+
+    def test_hafs_40_passes_the_shape(self):
+        ok, why = self._direct(40, "hafs")
+        self.assertNotIn("ليست حروفاً", why)            # ‏يتجاوز الشكلَ ثمّ يقف عند غياب الادّعاء في هذا الاستدعاء المجرَّد
+
+    def test_judge_accepts_40_in_hafs(self):
+        self.assertTrue(accepted(run()))
+
+    def test_gate_list_is_the_builders_function(self):
+        for riw in ("hafs", "warsh", "qalun", "douri", "shuba", "sousi"):
+            for s in sorted(H.OPENER_LETTER_SURAHS):
+                ok, why = self._direct(s, riw)
+                self.assertEqual("ليست حروفاً" in why, s not in P.letters_opener_surahs(riw), (riw, s))
+
+    def test_exactly_the_ten_with_speech_and_42_are_excluded_in_hafs(self):
+        self.assertEqual(sorted(H.OPENER_LETTER_SURAHS - set(P.letters_opener_surahs("hafs"))),
+                         [10, 11, 12, 13, 14, 15, 27, 38, 42, 50, 68])
+
+    def test_madani_riwayat_follow_their_own_text(self):
+        # ⚠️ نصُّ ورش وقالون في المستودع مفهرسٌ بالعدّ الكوفيّ الموحَّد (‏`text_warsh.jz` و`text_qalun.jz` · 6236 آية): 2:1 فيهما «الم»
+        # وحدها، فالدالّةُ المشتركةُ مع الباني تقبل الشكلَ ولا تردّه — وطلبُ ردّ 2:1 عندهما يلزمه نصٌّ بعدٍّ مدنيٍّ غيرُ موجودٍ في المستودع.
+        # (‏والفهارسُ المنشورةُ لهما ayahCounting=KUFI أيضاً.) يُثبَّت هنا الواقعُ لا المرغوب.
+        for riw in ("warsh", "qalun"):
+            self.assertEqual(P.ref_words_for(riw, 2, 1), ["الم"])
+            self.assertIn(2, P.letters_opener_surahs(riw))
+            self.assertNotIn("ليست حروفاً", self._direct(2, riw)[1])
+
+    def test_riwaya_is_passed_to_the_builders_function(self):
+        for riw in ("hafs", "warsh", "qalun"):
+            with mock.patch.object(P, "letters_opener_surahs", return_value=[2]) as m:
+                self._direct(2, riw)
+            m.assert_called_once_with(riw)
+
+    def test_surah_outside_builders_list_refused(self):
+        with mock.patch.object(P, "letters_opener_surahs", return_value=[3]):
+            ok, why = self._direct(2, "warsh")
+        self.assertFalse(ok)
+        self.assertIn("ليست حروفاً مقطّعةً وحدها", why)
+        with mock.patch.object(P, "letters_opener_surahs", side_effect=SystemExit("x")):
+            self.assertFalse(self._direct(2, "hafs")[0])
+
+
+class BasmalaBoundary(unittest.TestCase):
+    """٨) بدءُ الآية الأولى لا يقع داخل البسملة المسموعة."""
+
+    def _garbled_basmala(self):
+        head2 = H.disputed_ref_words("hafs", 40, 2)[:3]
+
+        def src(s):
+            ws = words_of(s, RUN_A)
+            pre = [{"w": "بسم", "s": 3000, "e": 3400, "p": 0.9}, {"w": "الله", "s": 3400, "e": 3900, "p": 0.9},
+                   {"w": "الرحمن", "s": 3900, "e": 4700, "p": 0.9}, {"w": "الرحم", "s": 4800, "e": 5100, "p": 0.6}]
+            s[RUN_A]["ayahs"]["1"]["words"] = pre + ws
+        cidx, _p, _m, srcs = build(sources=src)
+        d, why = P._opener_witness(srcs[RUN_A], head2, 6684)
+        self.assertIsNone(why)
+        self.assertEqual(d["earliestMs"], 4800)           # ‏الباني وحدَه يبدأ من «الرحم» داخل البسملة
+
+        def tr(t):
+            t["openerLetters"]["40"]["witnesses"][RUN_A] = d
+            t["openerLetters"]["40"]["startMs"] = 4800
+        return src, tr
+
+    def test_garbled_basmala_word_refused(self):
+        src, tr = self._garbled_basmala()
+        refused(self, run(sources=src, transform=tr, cand=lambda e: _entry(e, 1).update(startMs=4800)), "داخل البسملة")
+
+    def test_real_candidate_has_no_basmala_word_after_start(self):
+        _c, _p, _m, srcs = build()
+        for r in (RUN_A, RUN_B):
+            self.assertIsNone(H._basmala_inside(srcs[r], 5119, 6684))
+
+    def test_basmala_ending_before_start_is_fine(self):
+        src = {"ayahs": {"1": {"words": [{"w": "الرحيم", "s": 4000, "e": 5000, "p": 0.9}]}}}
+        self.assertIsNone(H._basmala_inside(src, 5119, 6684))
+        self.assertIsNotNone(H._basmala_inside(src, 4500, 6684))
+
+
 class DirectCalls(unittest.TestCase):
     def _args(self, **kw):
         cidx, pidx, m, srcs = build(**kw)
