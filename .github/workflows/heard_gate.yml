@@ -242,7 +242,7 @@ jobs:
           path: shards
           merge-multiple: true
       - name: الحكمُ والكتابةُ في state-heard/
-        env: {ONLY: "${{ inputs.only }}", RUN: "${{ github.run_id }}"}
+        env: {ONLY: "${{ inputs.only }}", RUN: "${{ github.run_id }}", GH_TOKEN: "${{ github.token }}"}
         run: |
           python -m unittest tools/index_qa/test_heard_gate.py tools/index_qa/test_heard_dual.py tools/index_qa/test_heard_weak.py tools/index_qa/test_heard_disputed.py
           set -o pipefail
@@ -285,7 +285,9 @@ jobs:
                           continue
                   except Exception:
                       pass
-              j = H.judge(idx, pub, sha, maps, maps_r, wit)
+              # ⛔ (‏#101) شواهدُ المراسي المتنازَع عليها تُحمَّل من مصدرها (‏مخرَج تشغيلة whisper_witness) لا من المرشّح
+              dsrc = H.disputed_sources(idx)
+              j = H.judge(idx, pub, sha, maps, maps_r, wit, disputed_src=dsrc)
               rep = {"sha256": sha, "src": src, "version": H.VERSION, "run": os.environ["RUN"],
                      "ts": int(time.time()), "ok": j["ok"], "reason": j["reason"],
                      "modified": j["modified"], "sample": j["sample"], "sampleFindings": j["sampleFindings"],
@@ -293,6 +295,8 @@ jobs:
                      "surahs": {k: {"reason": v["reason"],
                                     "dev": [[r["ayah"], r["devMs"]] for r in v["rows"] if r["status"] == "dev"]}
                                 for k, v in j["surahs"].items()}}
+              if dsrc:
+                  rep["disputedSource"] = dsrc
               if j.get("disputed"):
                   rep["disputed"] = j["disputed"]
                   rep["disputedVersion"] = H.DISPUTED_VERSION

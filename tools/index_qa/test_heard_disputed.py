@@ -68,10 +68,20 @@ def _idx(claims=None):
     return i
 
 
-def _verdict(claims, n=None):
+def _src(claims):
+    """مصدرُ الشواهد كما يحمّله `disputed_sources` (‏هنا نسخةٌ مطابقةٌ لما في الادّعاء — لاختبار الشروط ١–٥)."""
+    out = {}
+    for c in (claims or {}).values():
+        for r, w in (c.get("witnesses") or {}).items():
+            out[str(r)] = H.disputed_src_rec(copy.deepcopy(w))
+    return out
+
+
+def _verdict(claims, n=None, src="same"):
     i = _idx(claims)
     rows = H.surah_rows({int(e["ayahId"].split(":")[1]): e["startMs"] for e in i["entries"]}, CMAP)
-    why, ev = H.disputed_verdict(10, rows, CMAP, SHA, i, ref, n_ayahs=n)
+    why, ev = H.disputed_verdict(10, rows, CMAP, SHA, i, ref, n_ayahs=n,
+                                 sources=_src(claims) if src == "same" else src)
     return why, ev, {r["ayah"]: r for r in rows}
 
 
@@ -119,7 +129,8 @@ class Rule(unittest.TestCase):
         self.assertIn("الندامه", acc["witnesses"]["run-a"]["anchorText"])
 
     def test_judge_reports_disputed_and_still_judges_the_rest(self):
-        j = H.judge(_idx({"55": {"otherAyah": 54, "witnesses": _pair()}}), None, "c" * 64, {10: CMAP})
+        cl = {"55": {"otherAyah": 54, "witnesses": _pair()}}
+        j = H.judge(_idx(cl), None, "c" * 64, {10: CMAP}, disputed_src={"10": _src(cl)})
         self.assertIn("55", j["disputed"]["10"]["accepted"])
         self.assertNotIn("55,", j["surahs"]["10"]["reason"] + ",")    # ‏55 خرجت من المنحرفة؛ وغيرُها يبقى يردّ
         self.assertIn("50", j["surahs"]["10"]["reason"])
@@ -184,10 +195,88 @@ class Rule(unittest.TestCase):
         self.assertIn("ليست منحرفة", why)
 
     def test_gate_error_recomputes_from_candidate(self):
-        i = _idx({"55": {"otherAyah": 54, "witnesses": _pair()}})
-        rep = {"sha256": "c" * 64, "maps": {"10": CMAP}}
+        cl = {"55": {"otherAyah": 54, "witnesses": _pair()}}
+        i = _idx(cl)
+        rep = {"sha256": "c" * 64, "maps": {"10": CMAP}, "disputedSource": {"10": _src(cl)}}
         why = H.gate_error(i, None, "c" * 64, rep)
         self.assertNotIn("الآيات 4,5,14,26,50,51,53,55", why)
+        self.assertNotIn("مصدر", why)
+        rep.pop("disputedSource")                     # حكمٌ محفوظٌ بلا مصدرٍ محمَّل ⇒ المكتوبُ وحده لا يُصدَّق
+        self.assertIn("لا مصدرَ محمَّلٌ", H.gate_error(i, None, "c" * 64, rep))
+
+
+class Source(unittest.TestCase):
+    """⛔ (‏قرار القائد 2026-11-10) الشاهدُ المكتوبُ في المرشّح لا يُصدَّق وحده: يُحمَّل من مخرَج تشغيلته ويطابقه حرفاً."""
+
+    def _cl(self):
+        return {"55": {"otherAyah": 54, "witnesses": _pair()}}
+
+    def test_forged_witness_without_source_refused(self):
+        cl = self._cl()
+        for src in ({}, {"run-a": _src(cl)["run-a"]}, None):
+            why, _ev, rows = _verdict(cl, src=src)
+            self.assertIn("لا مصدرَ محمَّلٌ", why)
+            self.assertEqual(rows[55]["status"], "dev")
+
+    def test_one_word_changed_refused(self):
+        cl = self._cl()
+        src = _src(cl)
+        cl["55"]["witnesses"]["run-b"]["ayahs"]["55"]["words"][0]["w"] += "ـ"     # كلمةٌ واحدةٌ عُدّلت في المكتوب
+        why, _ev, rows = _verdict(cl, src=src)
+        self.assertIn("يخالف مصدرَه", why)
+        self.assertEqual(rows[55]["status"], "dev")
+
+    def test_one_time_or_confidence_changed_refused(self):
+        for k, d in (("s", 1), ("p", 0.01)):
+            cl = self._cl()
+            src = _src(cl)
+            cl["55"]["witnesses"]["run-a"]["ayahs"]["55"]["words"][3][k] += d
+            self.assertIn("يخالف مصدرَه", _verdict(cl, src=src)[0], k)
+
+    def test_source_load_error_refused(self):
+        cl = self._cl()
+        src = _src(cl)
+        src["run-b"] = {"error": "⛔ شاهدٌ مردود: التشغيلة 1 لم تنجح"}
+        self.assertIn("تعذّر تحميلُه", _verdict(cl, src=src)[0])
+
+    def test_judgment_uses_the_loaded_source(self):
+        # المكتوبُ يطابق المصدرَ في حقول الدليل ⇒ يُحكم؛ وحقلٌ خارجها لا يدخل الحكم ولا المقارنة
+        cl = self._cl()
+        src = _src(cl)
+        cl["55"]["witnesses"]["run-a"]["note"] = "x"
+        self.assertIsNone(_verdict(cl, src=src)[0])
+
+    def test_disputed_sources_loads_every_named_run(self):
+        cl = self._cl()
+        pair = _pair()
+        calls = []
+
+        def loader(r, s):
+            calls.append((r, s))
+            if r == "run-b":
+                raise SystemExit("⛔ لا شاهدَ")
+            return pair[r]
+        got = H.disputed_sources(_idx(cl), loader)
+        self.assertEqual(sorted(calls), [("run-a", 10), ("run-b", 10)])
+        self.assertEqual(_canon_eq(got["10"]["run-a"], H.disputed_src_rec(pair["run-a"])), True)
+        self.assertIn("لا شاهدَ", got["10"]["run-b"]["error"])
+        self.assertEqual(H.disputed_sources(_idx()), {})
+
+    def test_witness_run_must_be_a_successful_whisper_witness_run_on_main(self):
+        ok = {"id": 42756381986, "path": ".github/workflows/whisper_witness.yml", "status": "completed",
+              "conclusion": "success", "repository": {"full_name": P.REPO}, "head_repository": {"full_name": P.REPO},
+              "head_branch": "main", "event": "workflow_dispatch"}
+        self.assertIsNone(P.witness_run_error("42756381986", ok))
+        for k, v in (("path", ".github/workflows/heard_gate.yml"), ("conclusion", "failure"), ("status", "in_progress"),
+                     ("head_repository", {"full_name": "x/fork"}), ("head_branch", "wk"), ("event", "push"),
+                     ("id", 1)):
+            self.assertIsNotNone(P.witness_run_error("42756381986", dict(ok, **{k: v})), k)
+        for bad in ("run-a", "../x", "", "1"):
+            self.assertIsNotNone(P.witness_run_error(bad, ok), bad)
+
+
+def _canon_eq(a, b):
+    return json.dumps(a, sort_keys=True, ensure_ascii=False) == json.dumps(b, sort_keys=True, ensure_ascii=False)
 
 
 class PinHeardWrites(unittest.TestCase):

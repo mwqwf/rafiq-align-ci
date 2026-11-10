@@ -552,19 +552,48 @@ def load_map(run_id, surah):
     raise SystemExit(f"⛔ لا خريطةَ سماعٍ للسورة {surah} في مخرَج التشغيلة {run_id}")
 
 
+WITNESS_WORKFLOW = ".github/workflows/whisper_witness.yml"
+
+
+def witness_run_error(run_id, run):
+    """⛔ (‏قرار القائد 2026-11-10 · #101) الشاهدُ يُقبل من تشغيلةٍ **ناجحةٍ لسير العمل `whisper_witness.yml`** في هذا المستودع
+    على `main` بإطلاقٍ يدويّ — لا من أيّ تشغيلةٍ تحمل ملفّاً بالاسم نفسِه. يُرجع سببَ الردّ أو None."""
+    if not re.fullmatch(r"\d{6,15}", str(run_id)):
+        return f"معرّفُ التشغيلة {run_id!r} ليس رقماً"
+    if not isinstance(run, dict) or str(run.get("id")) != str(run_id):
+        return f"لا تشغيلةَ {run_id} في {REPO}"
+    if run.get("path") != WITNESS_WORKFLOW:
+        return f"التشغيلة {run_id} من {run.get('path')} لا من {WITNESS_WORKFLOW}"
+    if run.get("status") != "completed" or run.get("conclusion") != "success":
+        return f"التشغيلة {run_id} لم تنجح ({run.get('status')}/{run.get('conclusion')})"
+    if (run.get("repository") or {}).get("full_name") != REPO or (run.get("head_repository") or {}).get("full_name") != REPO:
+        return f"التشغيلة {run_id} ليست من {REPO} نفسِه"
+    if run.get("head_branch") != "main" or run.get("event") != "workflow_dispatch":
+        return f"التشغيلة {run_id} على {run.get('head_branch')}/{run.get('event')} لا على main بإطلاقٍ يدويّ"
+    return None
+
+
 def load_witness(run_id, surah):
-    """شاهدُ Whisper من مخرَج تشغيلة `whisper_witness.yml` على GitHub (‏كما تُقرأ خريطةُ السماع) لا من ملفٍّ يكتبه المُطلِق."""
+    """شاهدُ Whisper من مخرَج تشغيلة `whisper_witness.yml` على GitHub (‏كما تُقرأ خريطةُ السماع) لا من ملفٍّ يكتبه المُطلِق.
+    ⛔ وتُفحص التشغيلةُ نفسُها أوّلاً (‏`witness_run_error`) ثمّ يُقرأ مخرَجُها المسمّى باسمها وحده."""
     def gh(path, raw=False):
         r = subprocess.run(["gh", "api", path], capture_output=True)
         if r.returncode:
             raise SystemExit(f"⛔ gh api {path}: {r.stderr.decode('utf-8', 'replace')[:200]}")
         return r.stdout if raw else json.loads(r.stdout)
+    why = witness_run_error(run_id, None if not re.fullmatch(r"\d{6,15}", str(run_id))
+                            else gh(f"repos/{REPO}/actions/runs/{run_id}"))
+    if why:
+        raise SystemExit(f"⛔ شاهدٌ مردود: {why}")
+    want = f"whisper-witness-s{int(surah)}-{run_id}"
     for art in gh(f"repos/{REPO}/actions/runs/{run_id}/artifacts").get("artifacts", []):
+        if art.get("name") != want or art.get("expired"):
+            continue
         zf = zipfile.ZipFile(io.BytesIO(gh(f"repos/{REPO}/actions/artifacts/{art['id']}/zip", raw=True)))
         for nm in zf.namelist():
-            if nm.endswith(f"whisper_s{surah:03d}.json"):
+            if nm.endswith(f"whisper_s{int(surah):03d}.json"):
                 return json.loads(zf.read(nm))
-    raise SystemExit(f"⛔ لا شاهدَ Whisper للسورة {surah} في مخرَج التشغيلة {run_id}")
+    raise SystemExit(f"⛔ لا شاهدَ Whisper للسورة {surah} في مخرَج التشغيلة {run_id} ({want})")
 
 
 def peer_medians(cl, bucket, riwaya, surah, own_key, cap=40):
@@ -611,7 +640,8 @@ def disputed_claims(out, surah, hmap, claims, runs_txt, wits=None):
     rows = HG.surah_rows(starts, cmap)
     probe = dict(out)
     probe["transform"] = {**(out.get("transform") or {}), "disputedAnchors": {str(surah): rec}}
-    why, ev = HG.disputed_verdict(surah, rows, cmap, want, probe)
+    why, ev = HG.disputed_verdict(surah, rows, cmap, want, probe,
+                                 sources={str(r): HG.disputed_src_rec(w) for r, w in wits.items()})
     if why:
         raise SystemExit(f"⛔ المراسي المتنازَعُ عليها لا تجتاز heard_gate: {why}")
     rest = HG.surah_verdict(rows)

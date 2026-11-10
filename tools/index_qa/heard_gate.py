@@ -428,11 +428,49 @@ def dual_surah(s: int, cs_s: dict, g_map: dict, r_map, wit, want: str, cand_sha:
 #    ٣) كلُّ شاهدٍ يسمع **عند المرساة** نصَّ آيةٍ أخرى مسمّاةٍ بعينها: W_K كلماتٍ متّصلةً منها كلمةً بكلمة تغطّي زمنَ
 #       المرساة، بالثقة نفسِها وبلا التصاقٍ بطرف النافذة، وليست هذه الكلماتُ نصّاً من الآية نفسِها (‏فالتكرارُ لا يُعدّ تنازعاً)؛
 #    ٤) المتنازَعُ عليه في السورة ≤ 10٪ من آياتها، وإلا رُدّت السورةُ كلُّها؛
-#    ٥) الدليلُ (‏الشاهدان بكلماتهما) مكتوبٌ في `transform.disputedAnchors` ويُعاد حسابُه هنا ولا يُقرأ حكمٌ مكتوب؛
+#    ٥) الدليلُ (‏الشاهدان بكلماتهما) مكتوبٌ في `transform.disputedAnchors` ويُعاد حسابُه هنا ولا يُقرأ حكمٌ مكتوب (‏وانظر ٦)؛
 #    وأيُّ ادّعاءٍ مكتوبٍ لا يستوفي الشروط يردّ السورة (‏لا يُترك صامتاً).
 DISPUTED_VERSION = "heard-disputed-1"
 DISPUTED_MAX_PCT = 10
 DISPUTED_MIN_WITNESSES = 2
+# ⛔ ٦) (‏قرار القائد 2026-11-10 · ثغرةٌ سُدّت قبل الدمج) الشاهدُ المكتوبُ في المرشّح **لا يُصدَّق وحده**: من يبني المرشّح
+#    يقدر أن يكتب كلماتٍ لم تُسمع وينسبها إلى تشغيلتين لا وجود لهما. فتُحمَّل الشواهدُ بمعرّفات تشغيلاتها من مصدرها
+#    (‏`pin_heard.load_witness`: تشغيلةٌ ناجحةٌ لـ`whisper_witness.yml` على main ومخرَجُها المسمّى باسمها) في خطوة الحكم،
+#    وتُحفظ في `state-heard` (‏`disputedSource`) فيعيد `gate_error` الحكمَ منها؛ والمكتوبُ يجب أن يطابق المحمَّلَ **حرفاً**
+#    في حقول `DISPUTED_SRC_KEYS`، وإلا رُدّت السورة. ويُحكم بالمحمَّل لا بالمكتوب.
+DISPUTED_SRC_KEYS = ("surah", "riwaya", "fileRef", "sha256", "model", "computeType", "ayahs")
+
+
+def disputed_src_rec(w):
+    return {k: w.get(k) for k in DISPUTED_SRC_KEYS} if isinstance(w, dict) else None
+
+
+def _canon(x):
+    return json.dumps(x, ensure_ascii=False, sort_keys=True, separators=(",", ":"))
+
+
+def disputed_sources(cand_idx, loader=None):
+    """{سورة: {تشغيلة: سجلُّ الشاهد من مصدره أو {"error": سبب}}} لكلّ تشغيلةٍ مسمّاةٍ في `transform.disputedAnchors`.
+    `loader(run, surah)` للاختبار؛ وإلا `pin_heard.load_witness` (‏GitHub). خطأُ التحميل يُكتب ولا يُبتلع: يردّ السورةَ في الحكم."""
+    tr = cand_idx.get("transform") if isinstance(cand_idx.get("transform"), dict) else {}
+    da = tr.get("disputedAnchors")
+    if not isinstance(da, dict):
+        return {}
+    if loader is None:
+        import pin_heard as PH  # noqa: PLC0415
+        loader = PH.load_witness
+    out = {}
+    for s, claims in sorted(da.items(), key=lambda kv: str(kv[0])):
+        runs = set()
+        for c in (claims.values() if isinstance(claims, dict) else []):
+            if isinstance(c, dict) and isinstance(c.get("witnesses"), dict):
+                runs |= {str(r) for r in c["witnesses"]}
+        for r in sorted(runs):
+            try:
+                out.setdefault(str(s), {})[r] = disputed_src_rec(loader(r, int(s)))
+            except (SystemExit, Exception) as e:                     # noqa: BLE001
+                out.setdefault(str(s), {})[r] = {"error": str(e)[:300]}
+    return out
 
 
 # ⭐ تطبيعٌ إملائيٌّ ضيّق (‏قرار القائد 2026-11-10) **لمقارِن هذا الباب وحده** لا لـ`common.norm`: كان `norm` يحذف الألفَ
@@ -530,7 +568,7 @@ def disputed_one(wit, surah, ayah, start, anchor, other, ref_words, g_map, want_
     return None, {"headMs": head, "anchorText": hit3[1], "anchorSpanMs": hit3[0]}
 
 
-def disputed_verdict(s, rows, g_map, want, cand_idx, ref_words=None, n_ayahs=None):
+def disputed_verdict(s, rows, g_map, want, cand_idx, ref_words=None, n_ayahs=None, sources=None):
     """يُحوّل كلَّ صفٍّ «dev» مدّعىً في `transform.disputedAnchors[س]` ومُثبَتٍ بالشروط إلى «disputed».
     يُرجع (سببُ ردّ السورة أو None، الدليل). بلا ادّعاءٍ للسورة لا يتغيّر شيءٌ حرفاً."""
     tr = cand_idx.get("transform") if isinstance(cand_idx.get("transform"), dict) else {}
@@ -559,7 +597,15 @@ def disputed_verdict(s, rows, g_map, want, cand_idx, ref_words=None, n_ayahs=Non
             continue
         det, why = {}, None
         for run, w in sorted(wits.items()):
-            why, d = disputed_one(w, s, a, r["startMs"], r["anchorMs"], other, ref_words, g_map, want)
+            src = (sources or {}).get(str(run))
+            if not isinstance(src, dict):
+                why = "لا مصدرَ محمَّلٌ له من تشغيلة whisper_witness — المكتوبُ في المرشّح لا يُصدَّق وحده"
+            elif "error" in src:
+                why = f"تعذّر تحميلُه من مصدره: {src['error']}"
+            elif _canon(disputed_src_rec(w)) != _canon(src):
+                why = "المكتوبُ في المرشّح يخالف مصدرَه (‏مخرَج تشغيلته) حرفاً"
+            else:
+                why, d = disputed_one(src, s, a, r["startMs"], r["anchorMs"], other, ref_words, g_map, want)
             if why:
                 why = f"الشاهد {run}: {why}"
                 break
@@ -579,7 +625,7 @@ def disputed_verdict(s, rows, g_map, want, cand_idx, ref_words=None, n_ayahs=Non
 
 def judge(cand_idx: dict, pub_idx: dict | None, cand_sha: str, maps: dict,
           maps_r: dict | None = None, witness: dict | None = None,
-          dual: dict | None = None, ref_words=None) -> dict:
+          dual: dict | None = None, ref_words=None, disputed_src: dict | None = None) -> dict:
     """حكمُ البوّابة كاملاً من المرشّح والمنشور والخرائط ({سورة: compact_map}).
     يُرجع {"ok": bool, "reason": str|None, "required": [...], "modified": [...], "sample": [...],
             "surahs": {س: {"reason":..., "rows":[...]}}, "dual": {س: دليل}}.
@@ -642,7 +688,8 @@ def judge(cand_idx: dict, pub_idx: dict | None, cand_sha: str, maps: dict,
                 sink.append(f"س{s}: {why}")
             continue
         rows = surah_rows({a: v[0] for a, v in cs[s].items()}, m)
-        why_d, ev_d = disputed_verdict(s, rows, m, want, cand_idx, ref_words)
+        why_d, ev_d = disputed_verdict(s, rows, m, want, cand_idx, ref_words,
+                                       sources=(disputed_src or {}).get(str(s)))
         if ev_d:
             out.setdefault("disputed", {})[str(s)] = ev_d
         why = " · ".join(x for x in (surah_verdict(rows), why_d) if x) or None
@@ -668,8 +715,9 @@ def gate_error(cand_idx: dict, pub_idx: dict | None, cand_sha: str, rep: dict | 
     maps = {int(k): v for k, v in (rep.get("maps") or {}).items()}
     maps_r = {int(k): v for k, v in (rep.get("mapsR") or {}).items()}
     wit = {int(k): v for k, v in (rep.get("witness") or {}).items()}
+    dsrc = rep.get("disputedSource") if isinstance(rep.get("disputedSource"), dict) else {}
     try:
-        j = judge(cand_idx, pub_idx, cand_sha, maps, maps_r, wit)
+        j = judge(cand_idx, pub_idx, cand_sha, maps, maps_r, wit, disputed_src=dsrc)
     except ValueError as e:                      # heard_dual.txt معطوبٌ ⇒ يُغلق الحكم ولا يُفتح
         return f"بوّابةُ السماع: قائمةُ heard_dual.txt معطوبة — {e}"
     if not j["required"]:
