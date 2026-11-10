@@ -187,8 +187,13 @@ class Coverage(unittest.TestCase):
         # 17 + شاهدٌ لآيةٍ واحدة = 18/20 = 90٪ بالضبط ⇒ تُقبل التغطية (‏≥ 90٪ لا > 90٪)
         plan = H.dual_witness_plan(starts_for(), self.g, self.r, CAND_SHA, S)
         j = judge(cand_idx(), self.g, self.r, witness([a for a in plan if a not in (18, 19)]))
-        self.assertTrue(j["ok"], j["reason"])
         self.assertEqual(j["dual"][str(S)]["covered"], 18)
+        # ⛔ (2026-11-10 · تشديد) التغطيةُ 90٪ لا تُعفي الآيتين الممسوستين اللتين لم تقسهما خريطةٌ ولا شاهد
+        self.assertFalse(j["ok"])
+        self.assertIn("الآيات 18,19", j["reason"])
+        self.assertIn("مسّها التحويل", j["reason"])
+        j2 = judge(cand_idx(), self.g, self.r, witness(plan))
+        self.assertTrue(j2["ok"], j2["reason"])
 
     def test_half_rule_unchanged_when_general_reaches_half(self):
         g, r = G(set(range(1, 11))), R(set())                                   # عامّ 10/20 = النصف بالضبط
@@ -260,7 +265,10 @@ class OutsideList(unittest.TestCase):
     """٥: من خارج القائمة حكمُه القديمُ حرفاً."""
 
     def _same(self, cand, g, r):
-        old = H.judge(cand, pub_idx(cand["reciterId"]), CAND_SHA, {S: g})
+        # (2026-11-10) الشاهدُ يُقرأ الآن لقاعدة المِرساة الضعيفة في كلّ سورةٍ معدّلة ⇒ يُعطى للقديم أيضاً؛ والمقصودُ باقٍ:
+        #    الباب المزدوج (‏maps_r والقائمة) لا يغيّر شيئاً لقارئٍ خارجها.
+        old = H.judge(cand, pub_idx(cand["reciterId"]), CAND_SHA, {S: g}, None, {S: witness(range(1, N + 1))},
+                      ref_words=ref_words)
         new = H.judge(cand, pub_idx(cand["reciterId"]), CAND_SHA, {S: g}, {S: r}, {S: witness(range(1, N + 1))},
                       dual=DUAL, ref_words=ref_words)
         for k in ("ok", "reason", "required", "modified", "sample", "surahs", "sampleFindings", "version"):
