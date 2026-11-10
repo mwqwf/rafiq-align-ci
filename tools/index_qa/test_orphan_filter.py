@@ -16,6 +16,7 @@ from __future__ import annotations
 import datetime as dt
 import re
 import sys
+import unittest
 
 for _s in (sys.stdout, sys.stderr):
     try:
@@ -127,5 +128,13 @@ def main() -> int:
     return 0 if (ok and ok_doors) else 1
 
 
+class TestOrphanFilter(unittest.TestCase):
+    def test_two_doors(self):
+        self.assertTrue(test_two_doors())
+
+    def test_main_returns_zero(self):
+        self.assertEqual(main(), 0)
+
+
 if __name__ == "__main__":
-    raise SystemExit(main())
+    unittest.main()
