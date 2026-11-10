@@ -172,13 +172,15 @@ class ClipTest(unittest.TestCase):
 
     def test_selftest_rejects_shifted_starts_even_when_whisper_snaps(self):
         truth = {1: [(10000, 15000)], 2: [(15500, 21000)], 3: [(21500, 26000)]}
-        samples = [(1, 10000, 15000), (2, 15500, 21000), (3, 21500, 26000)]
+        # بدءُ «المنشور» قبل الكلام بـ450م.ث (‏يضمّ التوقّف): الأساسُ المقبولُ يُوجد عند إزاحة +450
+        samples = [(1, 9550, 15000), (2, 15050, 21000), (3, 21050, 26000)]
         rows = H.selftest_rows(samples, lambda a: REF[a], Runner(truth, snap=True), sil_of(truth), NORM)
-        for r in rows:
-            if r["shift"] == 0:
-                self.assertEqual(r["verdict"], "accepted", r)
-            else:
-                self.assertEqual(r["verdict"], "rejected", r)
+        self.assertEqual(sum(1 for r in rows if r["role"] == "base" and r["verdict"] == "accepted"), 3, rows)
+        mutants = [r for r in rows if r["role"] == "mutant"]
+        self.assertEqual(len(mutants), 12)
+        self.assertFalse([r for r in mutants if r["verdict"] == "accepted-BAD"], mutants)
+        for r in mutants:
+            self.assertEqual(r["verdict"], "rejected", r)
 
     def test_header_injection_records_every_ayah(self):
         hm = hmap({1: [(10000, 15000, 0.95)], 2: [(15500, 21000, 0.9)], 3: [(21500, 26000, 0.95)]})

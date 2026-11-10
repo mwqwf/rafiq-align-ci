@@ -372,36 +372,55 @@ def make_ctc_runner(url, refs, want_sha):
     return run, sil
 
 
-SHIFTS_MS = (0, 400, -400, 1000, -1000)
+BASE_SHIFTS_MS = (0, 300, 450, 600)      # بدءُ الفهرس المنشور يضمّ عادةً توقّفَ ما قبل الآية (‏≈450م.ث في swlim)
+MUTATE_SHIFTS_MS = (400, -400, 1000, -1000)
+SHARP_MS = 100           # أساسٌ بخطأ قياسٍ ≤100م.ث: عنده تُردّ كلُّ إزاحةٍ ≥400م.ث حتماً (‏التسامحُ 300م.ث)
+
+
+def _probe(cands, ref_words, witness_runner, sil, norm, base_key):
+    """يقيس بدءاً مرشَّحاً لكلّ (آية، cs، نهاية العيّنة) بشاهد البدء الإنتاجيّ: {id: (دليل|None، سبب)}."""
+    wins, own, out = {}, {}, {}
+    for i, (cid, a, cs, en) in enumerate(cands):
+        ow = onset_window(sil, cs)
+        if ow is None:
+            out[cid] = (None, "لا صمتَ قبل البدء المرشَّح")
+            continue
+        key = base_key + i
+        wins[key] = (ow[0], en + PAD_MS)
+        own[key] = (cid, a, cs)
+    got = witness_runner(wins) if wins else {}
+    for key, (cid, a, cs) in own.items():
+        rec = got.get(str(key)) or got.get(key)
+        out[cid] = eval_start(rec.get("words"), ref_words(a), cs, None, norm) if rec else (None, "لا تفريغَ")
+    return out
 
 
 def selftest_rows(samples, ref_words, witness_runner, sil, norm):
-    """يطبّق شاهدَ البدء الإنتاجيّ نفسَه على عيّناتٍ (آية، بدء، نهاية) من فهرسٍ سليم مع إزاحاتٍ للبدء.
+    """اختبارُ التحوّر على عيّناتٍ (آية، بدء، نهاية) من فهرسٍ منشورٍ سليم، بالشاهد الإنتاجيّ نفسِه.
 
-    يُرجع [{ayah, shift, verdict, why}]. القبولُ عند إزاحة 0 غيرُ مشروط (‏يُقاس ولا يُشترط)، أمّا المزاحُ فيجب أن يُردّ."""
-    wins, own, rows = {}, {}, []
-    i = 0
+    (1) يُوجد لكلّ آيةٍ **أساسٌ** يقبله الشاهدُ: بدءُ الفهرس مُزاحاً بـ0/300/450/600م.ث (‏يضمّ بدءُ المنشور توقّفَ ما قبل الآية)
+        واختيارُ الأدنى فرقاً. (2) تُزاح قيمةُ الأساس ±400م.ث و±1000م.ث وتُقاس. ⛔ المزاحةُ يجب أن تُردّ إن كان خطأُ قياس
+    الأساس ≤ SHARP_MS؛ وفوق ذلك تُسجَّل «حدّيّة» (‏تسامحُ 300م.ث لا يضمن ردَّ 400 في اتجاه الخطأ). يُرجع قائمةَ صفوف."""
+    base_c = [((a, d), a, st + d, en) for a, st, en in samples for d in BASE_SHIFTS_MS]
+    base_res = _probe(base_c, ref_words, witness_runner, sil, norm, 20_000_000)
+    rows, mut = [], []
     for a, st, en in samples:
-        for d in SHIFTS_MS:
-            cs = st + d
-            ow = onset_window(sil, cs)
-            if ow is None:
-                rows.append({"ayah": a, "shift": d, "verdict": "rejected", "why": "لا صمتَ قبل البدء المرشَّح"})
-                continue
-            key = 20_000_000 + i
-            i += 1
-            wins[key] = (ow[0], en + PAD_MS)
-            own[key] = (a, d, cs)
-    got = witness_runner(wins) if wins else {}
-    for key, (a, d, cs) in own.items():
-        rec = got.get(str(key)) or got.get(key)
-        if not rec:
-            rows.append({"ayah": a, "shift": d, "verdict": "rejected", "why": "لا تفريغَ"})
+        accepted = [(base_res[(a, d)][0], d) for d in BASE_SHIFTS_MS if base_res[(a, d)][0]]
+        if not accepted:
+            why = "؛ ".join(f"{d}: {base_res[(a, d)][1][:60]}" for d in BASE_SHIFTS_MS[:2])
+            rows.append({"ayah": a, "role": "base", "shift": None, "verdict": "no-baseline", "why": why})
             continue
-        ev, why = eval_start(rec.get("words"), ref_words(a), cs, None, norm)
-        rows.append({"ayah": a, "shift": d, "verdict": "accepted" if ev else "rejected",
-                     "why": "" if ev else why, "ds": (ev or {}).get("ds")})
-    return sorted(rows, key=lambda r: (r["ayah"], r["shift"]))
+        ev, d0 = min(accepted, key=lambda x: x[0]["ds"])
+        rows.append({"ayah": a, "role": "base", "shift": d0, "verdict": "accepted", "ds": ev["ds"], "why": ""})
+        for m in MUTATE_SHIFTS_MS:
+            mut.append(((a, m), a, st + d0 + m, en, ev["ds"], d0))
+    mres = _probe([(c[0], c[1], c[2], c[3]) for c in mut], ref_words, witness_runner, sil, norm, 30_000_000)
+    for (cid, a, cs, en, dsb, d0) in mut:
+        ev, why = mres[cid]
+        verdict = "rejected" if ev is None else ("accepted-boundary" if dsb > SHARP_MS else "accepted-BAD")
+        rows.append({"ayah": a, "role": "mutant", "shift": cid[1], "base": d0, "baseDs": dsb, "verdict": verdict,
+                     "ds": (ev or {}).get("ds"), "why": why or ""})
+    return sorted(rows, key=lambda r: (r["ayah"], r["role"], r["shift"] if r["shift"] is not None else 0))
 
 
 def selftest(a):
@@ -426,15 +445,18 @@ def selftest(a):
     runner = subprocess_witness(a.url, a.surah, a.riwaya, a.model)
     _ctc, sil = make_ctc_runner(a.url, refs, None)
     rows = selftest_rows(samples, ref, runner, sil, norm)
-    acc = {d: sum(1 for r in rows if r["shift"] == d and r["verdict"] == "accepted") for d in SHIFTS_MS}
-    tot = {d: sum(1 for r in rows if r["shift"] == d) for d in SHIFTS_MS}
-    bad = [r for r in rows if r["shift"] != 0 and r["verdict"] == "accepted"]
+    base_ok = [r for r in rows if r["role"] == "base" and r["verdict"] == "accepted"]
+    mut = [r for r in rows if r["role"] == "mutant"]
+    by = {s: {v: sum(1 for r in mut if r["shift"] == s and r["verdict"] == v)
+              for v in ("rejected", "accepted-boundary", "accepted-BAD")} for s in MUTATE_SHIFTS_MS}
+    bad = [r for r in mut if r["verdict"] == "accepted-BAD"]
     out = {"surah": a.surah, "index": os.path.basename(a.index), "model": a.model, "samples": len(samples),
-           "accepted": acc, "total": tot, "shiftedAccepted": bad, "rows": rows}
+           "baselines": len(base_ok), "mutants": by, "badAccepted": bad, "rows": rows}
     os.makedirs(os.path.dirname(a.out) or ".", exist_ok=True)
     json.dump(out, open(a.out, "w", encoding="utf-8"), ensure_ascii=False)
-    print(f"اختبار التحوّر س{a.surah}: عيّنات {len(samples)} · المقبول لكلّ إزاحة {acc} من {tot}")
-    print("⛔ إزاحاتٌ قُبلت (يجب ألّا تُقبل): %d" % len(bad) if bad else "✅ كلُّ البدءات المزاحة رُدّت")
+    print(f"اختبار التحوّر س{a.surah}: عيّنات {len(samples)} · أُسُس مقبولة {len(base_ok)} · المزاحة {by}")
+    print("⛔ مزاحاتٌ قُبلت بخطأ أساسٍ ≤%dم.ث (يجب ردّها): %d" % (SHARP_MS, len(bad)) if bad
+          else "✅ كلُّ المزاحات رُدّت أو حدّيّة (خطأ الأساس >%dم.ث ⇒ داخل تسامح 300)" % SHARP_MS)
     for r in bad[:10]:
         print("   ", r)
     return 0
