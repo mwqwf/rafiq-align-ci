@@ -367,7 +367,9 @@ class TimingUnderRepair(unittest.TestCase):
 
 
 class DropParentRefused(unittest.TestCase):
-    """⛔ (‏2026-11-10 · 3siri bc63afc4) أصلٌ يعلن إسقاطَ سورةٍ كاملة يُردّ صراحةً — كان إعلانُه يُمحى بصمت."""
+    """⛔ (‏2026-11-10 · 3siri bc63afc4) أصلٌ يعلن إسقاطَ سورةٍ كاملة يُردّ صراحةً — كان إعلانُه يُمحى بصمت.
+    وبعد طلب التوريث يبقى الحجبُ **بالحذف** فوقه مردوداً (‏يردّه `inherited_drops` في الترقية)؛ والتوريثُ مع
+    `--already-absent` وحده في `test_drop_ayahs_inherit.py`."""
 
     def _parent(self, tr):
         i = _idx()

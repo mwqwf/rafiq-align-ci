@@ -69,50 +69,8 @@ def _key(aid):
     return int(s), int(a)
 
 
-def declared_absent(idx, surah=None):
-    """السورُ المعلَنةُ الغيابِ في ترويسة الأصل: `transform.dropSurah` ∪ مجموعاتُ `drop_surah:` في `op`.
-
-    ⛔ يُردّ: تثبيتُ سورةٍ معلَنةِ الغياب · إعلانٌ لسورةٍ لها مداخلُ في الأصل · إعلانٌ بلا `reasonCode` و`reasonUser`
-    (‏فلا يُورَّث إعلانٌ لا يُعرض سببُه على المستخدم)."""
-    tr = idx.get("transform") if isinstance(idx.get("transform"), dict) else {}
-    declared = {int(s) for s in (tr.get("dropSurah") or [])}
-    for group in re.findall(r"drop_surah:([\d,\s]+)", str(tr.get("op") or "")):
-        declared.update(int(s) for s in re.findall(r"\d+", group))
-    if not declared:
-        return []
-    if surah is not None and surah in declared:
-        raise SystemExit(f"⛔ س{surah} معلَنةُ الغياب في الأصل — لا يُثبَّت ما لا مدخلَ له")
-    present = {_key(e["ayahId"])[0] for e in idx.get("entries") or []}
-    if declared & present:
-        raise SystemExit(f"⛔ إعلانُ الغياب يسمّي سوراً لها مداخل في الأصل: {sorted(declared & present)}")
-    if not tr.get("reasonCode") or not tr.get("reasonUser"):
-        raise SystemExit("⛔ إعلانُ الغياب في الأصل بلا reasonCode وreasonUser — لا يُورَّث إعلانٌ بلا سببٍ ظاهر")
-    return sorted(declared)
-
-
-def inherit_declaration(idx, key, live_sha):
-    """حقولُ التحويل الجديد التي تحمل إعلانَ الغياب الموروث كما يحمله `splice_surah`:
-    `dropSurah` (‏السورُ المعلَنة وحدَها، لا يُضاف إليها شيء) و`reasonCode`/`reasonUser` بنصّهما حرفاً،
-    والمنشأ: `fromKey`/`fromSha256` هو الأصلُ المنشور الذي صدر عنه الإعلان (‏شرطُ `promote.inherited_drops`
-    الذي لا يُمسّ)، والأصلُ المرحليُّ المباشر يُسجَّل في `stagedFromKey`/`stagedFromSha256`.
-    بلا إعلانٍ في الأصل ⇒ `fromKey` = المفتاحُ نفسُه كما كان حرفاً."""
-    tr = idx.get("transform") if isinstance(idx.get("transform"), dict) else {}
-    out = {"fromSha256": live_sha, "fromKey": key}
-    for k in ("reasonCode", "reasonUser"):
-        if tr.get(k):
-            out[k] = tr[k]
-    drops = declared_absent(idx)
-    if not drops:
-        return out
-    out["dropSurah"] = drops
-    if key.startswith("timings-staging/"):
-        origin, origin_sha = str(tr.get("fromKey") or ""), str(tr.get("fromSha256") or "")
-        want = f"timings/{idx.get('riwaya')}/{idx.get('reciterId')}.jz"
-        if origin != want or not re.fullmatch(r"[0-9a-f]{64}", origin_sha):
-            raise SystemExit(f"⛔ الأصلُ المرحليّ يحمل إعلانَ غيابٍ ومنشؤه ليس المنشورَ {want} ببصمةٍ كاملة ({origin!r}) "
-                             "— لا يُورَّث إعلانٌ مجهولُ المنشأ")
-        out.update(fromKey=origin, fromSha256=origin_sha, stagedFromKey=key, stagedFromSha256=live_sha)
-    return out
+# ⭐ (‏طلب توريث drop_ayahs · 2026-11-10) نُقلتا حرفاً إلى الوحدة المشتركة `declarations.py` (‏مع drop_surah وdrop_ayahs).
+from declarations import declared_absent, inherit_declaration            # noqa: E402,F401
 
 
 PARTIAL_MARGIN_MS = 1000   # (‏#105) لا يُستعمل من خريطةٍ جزئيّةٍ إلا ما يبدأ بعد بدء نافذتها بهذا القدر على الأقلّ

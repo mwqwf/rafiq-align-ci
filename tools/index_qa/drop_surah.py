@@ -65,53 +65,11 @@ def pruned_surah_maps(idx, surahs):
     return out
 
 
-_DECL_FIELDS = ("reasonCode", "reasonUser", "reason")
-
-
-def _op_surahs(op, name):
-    """سورُ مقطعٍ واحدٍ من `op` (‏`drop_surah:` أو `declare_gap:`) — المقاطعُ تفصلها `|`."""
-    out = set()
-    for seg in str(op or "").split("|"):
-        seg = seg.strip()
-        if seg.startswith(name + ":"):
-            out |= {int(x) for x in re.findall(r"\d+", seg[len(name) + 1:])}
-    return out
-
-
-def prior_declarations(idx):
-    """كلُّ إعلانٍ في ترويسة الأصل، سورةً سورة: {"س": {"op", "reasonCode", "reasonUser", "reason"}}.
-
-    ⛔ العطبُ المقيس (‏akri_qalun.b99e3573 · 2026-11-10): الأصلُ `drop_surah:4|declare_gap:24`، وإسقاطُ
-    س10 وس37 برمزٍ غير SOURCE_TRUNCATED كان يكتب ترويسةً جديدة بحقلٍ واحدٍ للرمز ⇒ إمّا أن يُمحى
-    إعلانُ ذيل س24 وإسقاطُ س4، وإمّا أن يُكتب للسور كلِّها رمزٌ واحدٌ لا يصف إلا بعضَها.
-    ⇒ الإعلانُ سجلٌّ لكلّ سورةٍ في `transform.declarations`: ما حمله الأصلُ في هذا الحقل يُنقل **حرفاً**،
-    وما لم يحمله يُشتقّ من حقول الأصل العليا التي كانت وحدَها تصفه يومَ كُتب (‏`op` و`dropSurah`)."""
-    tr = idx.get("transform") if isinstance(idx.get("transform"), dict) else {}
-    if not tr:
-        return {}
-    have = tr.get("declarations")
-    if have is not None and not isinstance(have, dict):
-        raise SystemExit("⛔ transform.declarations في الأصل ليس قاموساً — لا يُورَّث ما لا يُقرأ")
-    out = {str(k): dict(v) for k, v in (have or {}).items()}
-    top = {f: tr[f] for f in _DECL_FIELDS if tr.get(f)}
-    kinds = [("drop_surah", _op_surahs(tr.get("op"), "drop_surah")),
-             ("declare_gap", _op_surahs(tr.get("op"), "declare_gap")),
-             ("drop_surah", {int(x) for x in (tr.get("dropSurah") or [])})]
-    for kind, ss in kinds:
-        for s in sorted(ss):
-            if str(s) not in out:
-                out[str(s)] = {"op": kind, **top}
-    return out
-
-
-def merged_op(decls):
-    """`op` يضمّ كلَّ إعلانٍ قديمٍ وجديد: `drop_surah:4,10,37|declare_gap:24`."""
-    parts = []
-    for kind in ("drop_surah", "declare_gap"):
-        ss = sorted(int(s) for s, d in decls.items() if d.get("op") == kind)
-        if ss:
-            parts.append(kind + ":" + ",".join(str(n) for n in ss))
-    return "|".join(parts)
+# ⭐ (‏طلب توريث drop_ayahs · 2026-11-10) دوالُّ الإعلان نُقلت حرفاً إلى الوحدة المشتركة `declarations.py`
+#    ليستعملها drop_surah وpin_heard وdrop_ayahs بنسخةٍ واحدة؛ والأسماءُ القديمة باقيةٌ هنا لمن يستوردها.
+from declarations import DECL_FIELDS as _DECL_FIELDS                    # noqa: E402,F401
+from declarations import merged_op, prior_declarations                  # noqa: E402,F401
+from declarations import op_surahs as _op_surahs                        # noqa: E402,F401
 
 
 def carried_declared_tails(idx, kept, surahs, reason_code, reason_user, prior=None):

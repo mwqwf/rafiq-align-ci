@@ -38,7 +38,6 @@ import argparse
 import gzip
 import hashlib
 import json
-import re
 import sys
 import time
 from pathlib import Path
@@ -161,15 +160,39 @@ def drop_ayahs(idx: dict, ayahs: dict, evidence: dict, *, reason: str, reason_us
             raise SystemExit(f"⛔ السببُ يحمل «{w}» — والحقلُ يُعرض للمستخدم")
     counts = drop_surah.SURAH_AYAHS_OF(idx)
     tr0 = idx.get("transform") if isinstance(idx.get("transform"), dict) else {}
-    # ⛔ (‏2026-11-10 · 3siri bc63afc4) أصلٌ يحمل إعلانَ إسقاطِ سورةٍ كاملة (‏`dropSurah` أو op=drop_surah:…) يُردّ صراحةً:
-    #    الترويسةُ الجديدة تُكتب من الصفر فكان الإعلانُ يُمحى بصمت (‏op=declare_gap وreasonCode جديد بلا dropSurah)،
-    #    فتبقى السورةُ غائبةً بلا سبب ثمّ يردّها index_gate بـ«سورٌ غائبةٌ كلّياً». ولا يُخلط رمزان في ترويسةٍ واحدة.
+    # ⛔ (‏2026-11-10 · 3siri bc63afc4 · #100) الترويسةُ الجديدة تُكتب من الصفر، فكان إعلانُ إسقاطِ سورةٍ كاملة في الأصل
+    #    (‏`dropSurah` أو op=drop_surah:…) يُمحى بصمت ثمّ يردّه index_gate بـ«سورٌ غائبةٌ كلّياً».
+    # ⭐ (‏أمر القائد 2026-11-10 · الكردي س4 فوق إعلان س55) يُورَّث الإعلانُ الآن **بالدوالّ المشتركة نفسها** التي
+    #    في drop_surah (#102) وpin_heard (‏`declarations.py`)، بشروطٍ مجتمعة وإلا فالردُّ القديم:
+    #    ① لا تُطلب آيةٌ من سورةٍ معلَنةٍ هي نفسُها (‏ولا من سورةٍ لها في الأصل سجلُّ إعلانٍ أيّاً كان) ⇒ الردُّ القديم حرفاً.
+    #    ①ب `--already-absent` وحده (‏المسمّاةُ غائبةٌ أصلاً): الحذفُ تحت إعلانٍ موروث يردّه `inherited_drops` في الترقية.
+    #    ② منشأُ الإعلان المنشورُ ببصمته الكاملة (‏`inherit_declaration`: والأصلُ المرحليّ يسمّي منشأه وإلا رُدّ).
+    #    ③ `dropSurah` و`reasonCode`/`reasonUser` العليا تُنقل حرفاً (‏شرطُ `promote.inherited_drops`)، و`declarations`
+    #       يُنقل حرفاً (‏`prior_declarations`) ويُضاف إليه سجلُّ كلّ سورةٍ محجوبٍ منها برمزها هي (‏فلا يُخلط رمزان
+    #       في حقلٍ واحد: `promote.surah_declaration` يقرأ رمزَ السورة من سجلّها وحدَه).
+    #    و`op` يبقى `declare_gap:…` (‏لا `merged_op`): فـ`op` يبدأ بـdrop_surah يجعل index_gate يعدّه إسقاطاً جديداً
+    #    فيتخطّى تحقّقَ `inherited_drops` من الأصل المنشور — والتوريثُ هنا يمرّ به كما يمرّ إعلانُ pin_heard.
+    import declarations
     _op0 = idx.get("transform") if isinstance(idx.get("transform"), str) else str(tr0.get("op") or "")
-    if tr0.get("dropSurah") or _op0.startswith("drop_surah"):
-        _named = sorted(({int(x) for x in re.findall(r"\d+", _op0)} if _op0.startswith("drop_surah") else set())
+    inherit = None
+    if tr0.get("dropSurah") or _op0.startswith("drop_surah") or "drop_surah:" in _op0:
+        _named = sorted(declarations.op_surahs(_op0, "drop_surah")
                         | {int(x) for x in (tr0.get("dropSurah") or []) if str(x).isdigit()})
-        raise SystemExit(f"⛔ الأصلُ يعلن إسقاطَ سورٍ كاملة {_named} (‏{_op0 or 'dropSurah'}) ولا تورّث هذه الأداةُ ذلك الإعلان — "
-                         "الحجبُ عليه يمحوه بصمت. أصلِح الآياتِ بـpin_heard (‏يورّث الإعلانَ حرفاً) أو ابدأ من أصلٍ بلا إسقاط")
+        if not isinstance(idx.get("transform"), dict) or set(ayahs) & set(_named):
+            raise SystemExit(f"⛔ الأصلُ يعلن إسقاطَ سورٍ كاملة {_named} (‏{_op0 or 'dropSurah'}) ولا تورّث هذه الأداةُ ذلك الإعلان — "
+                             "الحجبُ عليه يمحوه بصمت. أصلِح الآياتِ بـpin_heard (‏يورّث الإعلانَ حرفاً) أو ابدأ من أصلٍ بلا إسقاط")
+        if not already_absent:
+            # ⛔ الحجبُ بحذف مداخلَ تحت إعلانٍ موروث لا يُرقّى: `promote.inherited_drops` (‏لا يُمسّ) يشترط بقاءَ كلّ
+            #    مداخل المنشور ⇒ يُردّ هنا قبل أن تُنفق عليه البوّابات. والبابُ المفتوح `--already-absent` وحده.
+            raise SystemExit(f"⛔ الأصلُ يعلن إسقاطَ سورٍ كاملة {_named} (‏{_op0 or 'dropSurah'}): التوريثُ لا يكون إلا مع "
+                             "--already-absent، وحذفُ مداخلَ تحته يردّه حارسُ الترقية («مع فقد مداخل منشورة»). "
+                             "أصلِح الآياتِ بـpin_heard (‏يورّث الإعلانَ حرفاً) أو ابدأ من أصلٍ بلا إسقاط")
+        prior = declarations.prior_declarations(idx)
+        clash = sorted(set(ayahs) & {int(k) for k in prior})
+        if clash:
+            raise SystemExit(f"⛔ س{clash}: لها في الأصل سجلُّ إعلانٍ ({[prior[str(k)] for k in clash]}) — "
+                             "إعلانٌ جديدٌ عليها يمحو سجلَّها. ابدأ من فهرسها قبل الإعلان")
+        inherit = {"fields": declarations.inherit_declaration(idx, from_key, from_sha), "prior": prior}
     ents = list(idx.get("entries") or [])
     recs, gone = {}, set()
     orig_all = {e["ayahId"]: e for e in ents}
@@ -237,7 +260,8 @@ def drop_ayahs(idx: dict, ayahs: dict, evidence: dict, *, reason: str, reason_us
     out["missing"] = miss
     out["lowCount"] = sum(1 for e in kept if e.get("confBand") == "LOW")
     touched = sorted(ayahs)
-    tails, keep_decl = drop_surah.carried_declared_tails(idx, kept, set(touched), reason_code, reason_user)
+    tails, keep_decl = drop_surah.carried_declared_tails(idx, kept, set(touched), reason_code, reason_user,
+                                                          prior=(inherit or {}).get("prior"))
     # إعلاناتُ حجبٍ وسطيٍّ موروثةٌ لسورٍ أخرى: تُحمل كما هي بشرط أن تبقى مداخلُها مطابقة.
     old_gaps = {k: v for k, v in (tr0.get("truncatedGaps") or {}).items()
                 if int(k) not in touched and isinstance(v, dict)}
@@ -278,6 +302,14 @@ def drop_ayahs(idx: dict, ayahs: dict, evidence: dict, *, reason: str, reason_us
                  + ("وحدودُ الجارات أُعيد قياسُها بنافذة CTC بنصوص الحاضرات وحدها." if moved
                     else "حدودُ كلّ مدخلٍ باقٍ لم تُمسّ.")),
     }
+    if inherit:
+        # الإعلانُ الموروث حرفاً (‏dropSurah · reasonCode/reasonUser العليا · المنشأ)، وسجلُّ كلّ سورةٍ في declarations:
+        # القديمُ كما هو، والمحجوبُ منها الآن برمزها ونصّها هي.
+        out["transform"].update(inherit["fields"])
+        decls = {k: dict(v) for k, v in inherit["prior"].items()}
+        for s in touched:
+            decls[str(s)] = {"op": "declare_gap", "reasonCode": reason_code, "reasonUser": reason_user, "reason": reason}
+        out["transform"]["declarations"] = decls
     if len(kept) + miss["count"] != total:
         raise SystemExit(f"⛔ اختلال العقد: {len(kept)} + {miss['count']} ≠ {total}")
     for e in kept:
