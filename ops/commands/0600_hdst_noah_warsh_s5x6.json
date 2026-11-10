@@ -1,0 +1,21 @@
+{
+ "action": "tool",
+ "tool": "index_qa/drop_ayahs.py",
+ "args": [
+  "--key",
+  "timings/warsh/noah_warsh.jz",
+  "--sha",
+  "b77cccf35ed8d0af",
+  "--ayahs",
+  "5:12,5:20,5:36,5:48,5:72,5:117",
+  "--evidence",
+  "ops/evidence/heard-drop-noah_warsh-b77cccf3-s5x6.json",
+  "--reason",
+  "بدءُ مداخل الآيات 5:12 و5:20 و5:36 و5:48 و5:72 و5:117 عند noah_warsh يقع في صوت الآية السابقة بشهادة شاهدَي Whisper لكلٍّ منها، فيُسمع غيرُها أوّلاً؛ تُحجب مؤقّتاً حتى يُثبَّت بدؤها على موضعها المسموع",
+  "--reason-user",
+  "توقيت هذه الآيات لهذا القارئ قيد الإصلاح، فحُجبت مؤقّتاً حتى لا تُعرض على صوت غيرها",
+  "--reason-code",
+  "TIMING_UNDER_REPAIR",
+  "--yes"
+ ]
+}
