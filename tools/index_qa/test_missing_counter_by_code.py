@@ -127,9 +127,57 @@ class OldPublishedCounter(unittest.TestCase):
 
     def test_verdict_changes_and_is_stated(self):
         self.assertEqual(promote.truncation_excused(self.k), 0)
-        self.assertIn("غيابٌ غير معلَّل 254/6236", promote.index_gate(self.k))
-        self.assertIsNone(promote.index_gate(self.k, coded_approved=frozenset({4, 55})))
-        self.assertEqual(certify_catalog.declared_absent(self.k), 0)
+        self.assertIn("غيابٌ غير معلَّل 254/6236", promote.index_gate(self.k, inherited={}))
+        self.assertIsNone(promote.index_gate(self.k, coded_approved=frozenset({4, 55}), inherited={}))
+        self.assertEqual(certify_catalog.declared_absent(self.k, inherited={}), 0)
+
+
+ROW = {"title": "موروث قبل #103", "date": "2026-11-10", "key": "timings/hafs/kurdi.jz", "sha8": "b7fe6778",
+       "surahs": {"4": "OTHER", "55": "OTHER"}, "basis": ["أمر المالك 2026-10-12 للكردي والعكري"]}
+
+
+class InheritedRow(unittest.TestCase):
+    """البند ١ و٢ من حكم القائد: الصفُّ الموروث يُبقي حكمَ المنشور كما كان، ويحمي سورَه برموزها فقط."""
+
+    @classmethod
+    def setUpClass(cls):
+        cls.k = json.loads(gzip.decompress(KURDI.read_bytes()))
+
+    def _rows(self, row=ROW):
+        import tempfile
+        with tempfile.NamedTemporaryFile("w", suffix=".json", delete=False, encoding="utf-8") as f:
+            json.dump([row], f, ensure_ascii=False)
+        return promote.load_inherited_declarations(f.name)
+
+    def test_row_keeps_published_verdict(self):
+        rows = self._rows()
+        self.assertIsNone(promote.index_gate(self.k, inherited=rows))
+        self.assertEqual(certify_catalog.declared_absent(self.k, inherited=rows), 254)
+
+    def test_row_protects_only_its_surahs_and_codes(self):
+        k2 = json.loads(json.dumps(self.k))
+        k2["transform"]["reasonCode"] = "SOURCE_CORRUPT"                       # رمزٌ آخر للسورتين نفسيهما
+        self.assertIn("غيابٌ غير معلَّل", promote.index_gate(k2, inherited=self._rows()))
+        only4 = self._rows({**ROW, "surahs": {"4": "OTHER"}})                 # الصفُّ لا يسمّي س55
+        self.assertEqual(promote.inherited_protected(self.k, only4), {4})
+        self.assertEqual(certify_catalog.declared_absent(self.k, inherited=only4), 176)
+
+    def test_new_drop_after_row_needs_new_row(self):
+        more = _drop(self.k, "7", "OTHER")
+        rows = self._rows()
+        self.assertEqual(promote.inherited_protected(more, rows), {4, 55})
+        self.assertIn("غيابٌ غير معلَّل", promote.index_gate(more, inherited=rows))
+        self.assertIsNone(promote.index_gate(more, inherited=rows, coded_approved=frozenset({7})))
+
+    def test_row_never_excuses_more_than_old_counter(self):
+        k2 = json.loads(json.dumps(self.k))
+        k2["missing"]["byReason"]["source_truncated"] = 100                    # العدّادُ القديم عدّ 100 فقط
+        self.assertEqual(promote.gate_excused(k2, inherited=self._rows()), 100)
+
+    def test_malformed_rows_ignored(self):
+        for bad in ({**ROW, "title": "x"}, {**ROW, "sha8": "zz"}, {**ROW, "basis": []}, {**ROW, "surahs": {}},
+                    {**ROW, "date": ""}, {**ROW, "key": "timings-staging/hafs/kurdi.1.jz"}):
+            self.assertEqual(self._rows(bad), {})
 
 
 if __name__ == "__main__":
