@@ -432,6 +432,23 @@ def declared_truncated_tail(idx, surah):
     return True, f"بادئةٌ متّصلة 1..{n} والذيل {n + 1}..{count} معلَنٌ غائباً بسبب source_truncated"
 
 
+# ⭐ قائمةُ أسباب الحجب الوسطيّ **مغلقةٌ على رمزين** (‏أمر القائد): الرمزُ ⇒ مفتاحُ `missing.byReason` ورمزُ `truncatedGaps[س].reason`.
+# والثاني «توقيتٌ قيد الإصلاح»: آياتٌ منشورةٌ يُسمع في مدخلها صوتُ آيةٍ أخرى فتُحجب مؤقّتاً إلى أن يُصلح توقيتُها —
+# السببُ فيه ليس بتراً في المصدر، ولذا لا يُسمّى بتراً ولا يُعدّ في `byReason.source_truncated` (‏فلا يدخل في إعفاء العتبة).
+GAP_REASON_CODES = {"SOURCE_TRUNCATED": "source_truncated", "TIMING_UNDER_REPAIR": "timing_under_repair"}
+
+
+def heard_evidence_ok(rec):
+    """دليلُ سماعٍ لآيةٍ من نوع «صوتُ غيرها»: `rec["heard"] = {witness, runId, text}` كلُّها حاضرة.
+    الشاهدُ اسمُه نصّ، ورقمُ التشغيلة عددٌ موجبٌ (‏أو نصٌّ رقميّ)، ونصُّ ما سُمع غيرُ فارغ."""
+    h = rec.get("heard") if isinstance(rec, dict) else None
+    if not isinstance(h, dict):
+        return False
+    run = h.get("runId")
+    run_ok = (type(run) is int and run > 0) or (isinstance(run, str) and run.isdigit() and int(run) > 0)
+    return bool(str(h.get("witness") or "").strip() and run_ok and str(h.get("text") or "").strip())
+
+
 def declared_truncated_gaps(idx, surah):
     """هل تُعالج السورةُ الموسومةُ بالبتر بحجبِ **آياتٍ غائبةٍ في وسطها** معلَنةً بدليلٍ لكلّ آية؟
 
@@ -441,12 +458,13 @@ def declared_truncated_gaps(idx, surah):
     مداخلُ الآيات الغائبة **وحدَها** وتُعلَن بسببها، وتبقى سائرُ مداخل السورة بحدودها كما هي.
     وهو بابٌ ثالثٌ **أضيقُ** من البابين القائمين (لا يُرخي أيّاً منهما ولا عتبةَ 5٪ ولا حارساً آخر):
       ① `transform.truncatedGaps[س].absent` غيرُ فارغ، أعدادٌ صحيحةٌ فريدةٌ، لا تشمل الأولى ولا الأخيرة
-         (تلك حالتا الصدر والذيل) و`reason = source_truncated`
+         (تلك حالتا الصدر والذيل) و`reason` يطابق الرمز (‏source_truncated أو timing_under_repair)
       ② عددُها ≤ ربع آيات السورة، وإلا فالإسقاطُ الكامل
       ③ مداخلُ السورة = كلُّ آياتها ناقص absent بالضبط
-      ④ absent ⊆ `missing.ids` و`byReason.source_truncated` يعدّها
+      ④ absent ⊆ `missing.ids` و`byReason[مفتاحُ الرمز]` يعدّها (‏source_truncated أو timing_under_repair)
       ⑤ لكلّ آيةٍ غائبةٍ دليلٌ `{"method": ctc_window|whisper, "detail": نصّ قياس}` في `evidence`
-      ⑥ `transform.op` يحمل `declare_gap:س` ومعه `reasonCode = SOURCE_TRUNCATED` و`reasonUser`
+         ⭐ ومع `TIMING_UNDER_REPAIR` يلزمها أيضاً `heard = {witness, runId, text}` (‏دليلُ سماعِ صوتِ غيرها)
+      ⑥ `transform.op` يحمل `declare_gap:س` ومعه `reasonCode` من `GAP_REASON_CODES` (‏رمزان لا ثالث) و`reasonUser`
     """
     try:
         surah = int(surah)
@@ -459,11 +477,15 @@ def declared_truncated_gaps(idx, surah):
     count = _AYAH_COUNTS[surah - 1]
     if not isinstance(rec, dict):
         return False, "لا إعلانَ حجبٍ وسطيّ في الترويسة"
+    code = tr.get("reasonCode")
+    reason_key = GAP_REASON_CODES.get(code)
+    if reason_key is None:
+        return False, "النقصُ غيرُ معلَنٍ للمستخدم (declare_gap + SOURCE_TRUNCATED|TIMING_UNDER_REPAIR + reasonUser)"
     absent = rec.get("absent")
     if (not isinstance(absent, list) or not absent
             or any(type(a) is not int for a in absent)
             or len(set(absent)) != len(absent)
-            or rec.get("reason") != "source_truncated"):
+            or rec.get("reason") != reason_key):
         return False, f"إعلانُ الحجب الوسطيّ غيرُ سويّ: {rec}"
     if min(absent) < 2 or max(absent) > count - 1:
         return False, "الحجبُ يشمل أولى السورة أو آخرتها — ذاك بابُ الصدر/الذيل لا الوسط"
@@ -480,21 +502,23 @@ def declared_truncated_gaps(idx, surah):
     ids = set(miss.get("ids") or [])
     if not {f"{surah}:{a}" for a in absent} <= ids:
         return False, "وسمُ الاكتمال لا يعدّ المحجوبةَ كلَّها غائبة"
-    if int((miss.get("byReason") or {}).get("source_truncated", 0)) < len(absent):
-        return False, "byReason.source_truncated لا يعدّ المحجوبة"
+    if int((miss.get("byReason") or {}).get(reason_key, 0)) < len(absent):
+        return False, f"byReason.{reason_key} لا يعدّ المحجوبة"
     ev = rec.get("evidence")
     for a in absent:
         e = ev.get(f"{surah}:{a}") if isinstance(ev, dict) else None
         if (not isinstance(e, dict) or e.get("method") not in ("ctc_window", "whisper")
                 or not str(e.get("detail") or "").strip()):
             return False, f"لا دليلَ قياسٍ للآية {surah}:{a} (method + detail)"
+        if code == "TIMING_UNDER_REPAIR" and not heard_evidence_ok(e):
+            return False, f"لا دليلَ سماعٍ للآية {surah}:{a} (heard: witness + runId + text)"
     declared = set()
     for m in re.findall(r"declare_gap:([\d,\s]+)", str(tr.get("op") or "")):
         declared |= {int(x) for x in re.findall(r"\d+", m)}
-    if surah not in declared or tr.get("reasonCode") != "SOURCE_TRUNCATED" or not tr.get("reasonUser"):
-        return False, "النقصُ غيرُ معلَنٍ للمستخدم (declare_gap + SOURCE_TRUNCATED + reasonUser)"
+    if surah not in declared or not tr.get("reasonUser"):
+        return False, f"النقصُ غيرُ معلَنٍ للمستخدم (declare_gap + {code} + reasonUser)"
     return True, (f"حجبٌ وسطيٌّ معلَنٌ بدليلٍ لكلّ آية: {sorted(absent)} من {count} "
-                  "بسبب source_truncated وحدودُ الباقي لم تُمسّ")
+                  f"بسبب {reason_key} وحدودُ الباقي لم تُمسّ")
 
 
 def registered_source_remediation(idx, riwaya, reciter, surah, overrides=None):

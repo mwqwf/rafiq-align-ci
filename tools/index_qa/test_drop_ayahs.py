@@ -194,5 +194,177 @@ class Inherit(unittest.TestCase):
         self.assertNotIn("truncatedGaps", out["transform"])
 
 
+# ─── TIMING_UNDER_REPAIR: الرمزُ الثاني (‏آياتٌ يُسمع في مدخلها صوتُ غيرها) ───
+TUR = "TIMING_UNDER_REPAIR"
+HEARD = {"witness": "ctc_opener_probe", "runId": 25123456789, "text": "وَالنَّازِعَاتِ غَرْقًا"}
+
+
+def _ev_tur(absent, heard=HEARD):
+    out = {}
+    for a in absent:
+        r = dict(EV)
+        if heard is not None:
+            r["heard"] = dict(heard) if isinstance(heard, dict) else heard
+        out[f"{S}:{a}"] = r
+    return out
+
+
+def _make_tur(absent=(15, 17, 18), **kw):
+    ev = kw.pop("evidence", _ev_tur(absent))
+    kw.setdefault("reason_code", TUR)
+    return _make(absent=absent, evidence=ev, **kw)
+
+
+class SourceTruncatedUnchanged(unittest.TestCase):
+    """سلوكُ SOURCE_TRUNCATED لم يتغيّر حرفاً: المفتاحُ والسببُ والعدّاد كما كانت، و`heard` لا يُنسخ ولا يُشترط."""
+
+    def test_same_bytes_as_before(self):
+        out = _make()
+        tr = out["transform"]
+        self.assertEqual(tr["reasonCode"], "SOURCE_TRUNCATED")
+        self.assertEqual(tr["truncatedGaps"][str(S)]["reason"], "source_truncated")
+        self.assertEqual(out["missing"]["byReason"]["source_truncated"], 3)
+        self.assertNotIn("timing_under_repair", out["missing"]["byReason"])
+        self.assertEqual(tr["truncatedGaps"][str(S)]["evidence"][f"{S}:15"], EV)      # لا حقلَ heard
+
+    def test_heard_ignored_not_copied(self):
+        out = _make(evidence=_ev_tur((15, 17, 18)))
+        self.assertNotIn("heard", out["transform"]["truncatedGaps"][str(S)]["evidence"][f"{S}:15"])
+        self.assertTrue(promote.declared_truncated_gaps(out, S)[0])
+
+
+class TimingUnderRepair(unittest.TestCase):
+    def test_accepted(self):
+        out = _make_tur()
+        ok, why = promote.declared_truncated_gaps(out, S)
+        self.assertTrue(ok, why)
+        tr = out["transform"]
+        self.assertEqual(tr["reasonCode"], TUR)
+        self.assertEqual(tr["truncatedGaps"][str(S)]["reason"], "timing_under_repair")
+        self.assertEqual(tr["truncatedGaps"][str(S)]["evidence"][f"{S}:17"]["heard"], HEARD)
+        by = out["missing"]["byReason"]
+        self.assertEqual(by["timing_under_repair"], 3)
+        self.assertEqual(by.get("source_truncated", 0), 0)     # لا يُعدّ بتراً فلا يُعفى من العتبة
+        src = {e["ayahId"]: e for e in _idx()["entries"]}
+        for e in out["entries"]:
+            self.assertEqual(e, src[e["ayahId"]])
+        self.assertEqual(len(out["entries"]) + out["missing"]["count"], 6236)
+
+    def test_not_excused_from_missing_threshold(self):
+        """بقاؤها «غيرَ معلَّلٍ» في عتبة الغياب هو الاتجاهُ الأشدّ: لا يُخفَّف حارسُ index_gate."""
+        out = _make_tur()
+        miss = out["missing"]
+        excused = max(0, min(int(miss["byReason"].get("source_truncated", 0)), miss["count"]))
+        self.assertEqual(excused, 0)
+
+    def test_third_code_rejected_tool(self):
+        for code in ("OTHER", "SOURCE_CORRUPT", "NO_PUBLISHED_RECORDING", "timing_under_repair", ""):
+            with self.assertRaises(SystemExit, msg=code):
+                _make_tur(reason_code=code)
+
+    def test_third_code_rejected_promote(self):
+        for code in ("OTHER", "SOURCE_CORRUPT", None):
+            o = _make_tur()
+            o["transform"]["reasonCode"] = code
+            self.assertFalse(promote.declared_truncated_gaps(o, S)[0], code)
+
+    def test_code_and_reason_must_agree(self):
+        o = _make_tur()
+        o["transform"]["reasonCode"] = "SOURCE_TRUNCATED"           # دليلُ سماعٍ لكن رمزٌ آخر: يُردّ
+        self.assertFalse(promote.declared_truncated_gaps(o, S)[0])
+        o = _make()
+        o["transform"]["reasonCode"] = TUR                          # رمزٌ جديدٌ بسجلّ البتر: يُردّ
+        self.assertFalse(promote.declared_truncated_gaps(o, S)[0])
+
+    def test_no_heard_evidence_rejected_tool(self):
+        with self.assertRaises(SystemExit):
+            _make_tur(evidence=_ev_tur((15, 17, 18), heard=None))
+        for bad in ({"witness": "", "runId": 1, "text": "x"}, {"witness": "w", "runId": 0, "text": "x"},
+                    {"witness": "w", "runId": "abc", "text": "x"}, {"witness": "w", "runId": 1, "text": " "},
+                    {"witness": "w", "runId": 1}, {"runId": 1, "text": "x"}, "نصّ"):
+            with self.assertRaises(SystemExit, msg=str(bad)):
+                _make_tur(evidence=_ev_tur((15, 17, 18), heard=bad))
+
+    def test_one_ayah_missing_heard_rejected_tool(self):
+        ev = _ev_tur((15, 17, 18))
+        ev[f"{S}:17"].pop("heard")
+        with self.assertRaises(SystemExit):
+            _make_tur(evidence=ev)
+
+    def test_no_heard_evidence_rejected_promote(self):
+        o = _make_tur()
+        o["transform"]["truncatedGaps"][str(S)]["evidence"][f"{S}:17"].pop("heard")
+        self.assertFalse(promote.declared_truncated_gaps(o, S)[0])
+        o = _make_tur()
+        o["transform"]["truncatedGaps"][str(S)]["evidence"][f"{S}:15"]["heard"]["text"] = ""
+        self.assertFalse(promote.declared_truncated_gaps(o, S)[0])
+
+    def test_first_or_last_rejected(self):
+        for ab in ((1, 15), (15, N)):
+            with self.assertRaises(SystemExit):
+                _make_tur(absent=ab)
+        o = _make_tur()
+        o["transform"]["truncatedGaps"][str(S)]["absent"] = [1, 15, 17, 18]
+        self.assertFalse(promote.declared_truncated_gaps(o, S)[0])
+
+    def test_over_quarter_rejected(self):
+        with self.assertRaises(SystemExit):
+            _make_tur(absent=tuple(range(2, 14)))                   # 12 > ربع 46
+        self.assertTrue(promote.declared_truncated_gaps(_make_tur(absent=tuple(range(2, 13))), S)[0])
+        o = _make_tur(absent=tuple(range(2, 13)))
+        o["transform"]["truncatedGaps"][str(S)]["absent"].append(13)
+        self.assertFalse(promote.declared_truncated_gaps(o, S)[0])
+
+    def test_reason_user_mandatory_and_banned_words(self):
+        with self.assertRaises(SystemExit):
+            _make_tur(reason_user=" ")
+        with self.assertRaises(SystemExit):
+            _make_tur(reason_user="أمر المالك")
+        o = _make_tur()
+        o["transform"].pop("reasonUser")
+        self.assertFalse(promote.declared_truncated_gaps(o, S)[0])
+
+    def test_by_reason_must_count(self):
+        o = _make_tur()
+        o["missing"]["byReason"]["timing_under_repair"] = 2
+        self.assertFalse(promote.declared_truncated_gaps(o, S)[0])
+        o = _make_tur()
+        o["missing"]["byReason"] = {"source_truncated": 3}          # عدُّها بغير مفتاحها: يُردّ
+        self.assertFalse(promote.declared_truncated_gaps(o, S)[0])
+
+    def test_inherited(self):
+        parent = _make_tur()
+        out = copy.deepcopy(parent)
+        out["transform"] = {"op": "basmala_fix", "reason": "r"}
+        stage_transform.inherit_truncated_gaps(parent, out, [])
+        self.assertEqual(out["transform"]["reasonCode"], TUR)
+        ok, why = promote.declared_truncated_gaps(out, S)
+        self.assertTrue(ok, why)
+        self.assertEqual(out["transform"]["truncatedGaps"][str(S)]["evidence"][f"{S}:15"]["heard"], HEARD)
+
+    def test_inherited_with_conflicting_code_rejected(self):
+        parent = _make_tur()
+        out = copy.deepcopy(parent)
+        out["transform"] = {"op": "x", "reasonCode": "SOURCE_TRUNCATED", "reasonUser": "u"}
+        with self.assertRaises(SystemExit):
+            stage_transform.inherit_truncated_gaps(parent, out, [])
+
+    def test_no_mixing_codes_in_one_header(self):
+        """أصلٌ يعلن حجباً بـSOURCE_TRUNCATED في س79 لا يُحجب فوقه بالرمز الآخر في سورةٍ أخرى."""
+        base = _idx()
+        src_out = _make()                                            # س79 معلَنةٌ بالبتر
+        s2 = 80                                                      # عبس: 42 آية
+        n2 = promote._AYAH_COUNTS[s2 - 1]
+        src_out["entries"] += [{"ayahId": f"{s2}:{a}", "startMs": 10 ** 6 + a * 1000, "endMs": 10 ** 6 + a * 1000 + 900,
+                                "fileRef": "f", "confBand": "HIGH"} for a in range(1, n2 + 1)]
+        src_out["missing"]["ids"] = [i for i in src_out["missing"]["ids"] if not i.startswith(f"{s2}:")]
+        src_out["missing"]["count"] -= n2
+        ev = {f"{s2}:5": {**EV, "heard": dict(HEARD)}}
+        with self.assertRaises(SystemExit):
+            drop_ayahs.drop_ayahs(src_out, {s2: [5]}, ev, reason="r", reason_user="تسجيلُ هذه السورة ينقصه بعضُ آياتها.",
+                                  reason_code=TUR, from_sha="a" * 64, from_key="timings/hafs/x.jz")
+        self.assertIsNotNone(base)
+
+
 if __name__ == "__main__":
     unittest.main()
