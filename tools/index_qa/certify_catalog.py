@@ -116,7 +116,7 @@ def declared_op(tr):
             and all(type(x) is int and 1 <= x <= 114 for x in ds))
 
 
-def declared_absent(d):
+def declared_absent(d, inherited=None):
     """عددُ الآيات الغائبة **بإعلانٍ معتمد** في ترويسة الفهرس، أو 0.
 
     ⭐ (أمر المالك 2026-10-12 13:03Z): السورةُ المُسقطةُ بإعلانٍ أذن به المالك
@@ -136,7 +136,12 @@ def declared_absent(d):
     n = by.get("source_truncated")
     if type(n) is not int or n <= 0:
         return 0
-    return min(n, int(miss.get("count") or 0))
+    # ⛔ (تشديد 2026-11-10) لا يُحسب إلا البترُ: يُطرح كلُّ غائبٍ من سورةٍ معلَنةٍ برمزٍ غيرِ SOURCE_TRUNCATED.
+    sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+    import promote                                                   # noqa: E402
+    # ⭐ وما يحميه صفٌّ «موروث قبل #103» (‏أمر المالك 2026-10-12 للكردي والعكري وإذنه 2026-11-05) يبقى محسوباً كما كان.
+    return min(n, promote.truncation_excused(d) + promote._missing_in(d, promote.inherited_protected(
+        d, promote.load_inherited_declarations() if inherited is None else inherited)))
 
 
 def certify(cat, served, verdict_shas, rejected_shas=frozenset(), declared=None):
