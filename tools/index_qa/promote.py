@@ -524,10 +524,29 @@ def load_inherited_declarations(path=None):
 
 def inherited_protected(idx, inherited):
     """سورٌ يحميها صفٌّ موروث: معلَنةٌ في الفهرس برمزٍ غيرِ البتر، **ورمزُها هو المكتوبُ في صفّ قارئها بعينه**.
-    سورةٌ أخرى أو رمزٌ آخر لا يحميه الصفّ — يلزمه صفٌّ جديد في OWNER_DROP_APPROVALS."""
+    سورةٌ أخرى أو رمزٌ آخر لا يحميه الصفّ — يلزمه صفٌّ جديد في OWNER_DROP_APPROVALS.
+    ⭐ (حكم القائد 2026-11-10) الربطُ بالمفتاح المنشور والسورة والرمز معاً، و`sha8` سجلٌّ لا شرط — فترقيةٌ ترث
+    الإعلانَ نفسَه تبقى محميّة. ⛔ وتسقط الحمايةُ عن سورةٍ عادت مداخلُها كاملةً: الإعلانُ حينئذٍ لا موضعَ له."""
     rows = (inherited or {}).get(f"timings/{idx.get('riwaya')}/{idx.get('reciterId')}.jz") or {}
+    have = {}
+    for e in idx.get("entries") or []:
+        sn = str(e.get("ayahId") or "").split(":", 1)[0]
+        if sn.isdigit():
+            have[int(sn)] = have.get(int(sn), 0) + 1
     return {s for s, c in declared_surah_codes(idx.get("transform")).items()
-            if c != "SOURCE_TRUNCATED" and str(s) in rows and rows[str(s)] == c}
+            if c != "SOURCE_TRUNCATED" and str(s) in rows and rows[str(s)] == c
+            and 1 <= s <= len(_AYAH_COUNTS) and have.get(s, 0) < _AYAH_COUNTS[s - 1]}
+
+
+def inherited_additions(idx, inherited, coded_approved=frozenset()):
+    """سورٌ أو رموزٌ **جديدة** فوق صفٍّ موروثٍ لهذا القارئ بلا صفِّ موافقةٍ جديد — المرشّحُ يُردّ بها.
+    (سورةٌ معلَنةٌ برمزٍ غيرِ البتر ليست في الصفّ، أو في الصفّ برمزٍ آخر.)"""
+    rows = (inherited or {}).get(f"timings/{idx.get('riwaya')}/{idx.get('reciterId')}.jz")
+    if not rows:
+        return []
+    return sorted(s for s, c in declared_surah_codes(idx.get("transform")).items()
+                  if c != "SOURCE_TRUNCATED" and rows.get(str(s), "∅") != c
+                  and s not in set(coded_approved or ()))
 
 
 def _missing_in(idx, surahs):
@@ -2297,7 +2316,12 @@ def index_gate(idx, *, parent=None, parent_sha=None, owner_approved=frozenset(),
                 + (f" (و{len(gone) - 5} غيرها)" if len(gone) > 5 else ""))
     # ⭐ والحجبُ برمزٍ آخر لا يُعفيه العدّاد؛ يُعفيه بابان لا ثالث لهما (‏`gate_excused`): صفُّ موافقةٍ لمفتاح المرشّح
     #    (‏`coded_approved` من OWNER_DROP_APPROVALS)، أو صفٌّ «موروث قبل #103» يسمّي السورةَ برمزها لهذا القارئ.
-    excused = gate_excused(idx, coded_approved, inherited_rows)
+    _rows = load_inherited_declarations() if inherited_rows is None else inherited_rows
+    _add = inherited_additions(idx, _rows, coded_approved)
+    if _add:
+        return (f"المرشّحُ يضيف إلى الصفّ الموروث قبل #103 سوراً أو رموزاً جديدة {_add} بلا صفّ موافقةٍ في "
+                f"OWNER_DROP_APPROVALS — الصفُّ الموروث لا يحمي إلا سورَه برموزها")
+    excused = gate_excused(idx, coded_approved, _rows)
     unexplained = count - excused
     if unexplained / total > MAX_MISSING_FRAC:
         return (f"غيابٌ غير معلَّل {unexplained}/{total} "

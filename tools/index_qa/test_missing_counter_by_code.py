@@ -157,7 +157,7 @@ class InheritedRow(unittest.TestCase):
     def test_row_protects_only_its_surahs_and_codes(self):
         k2 = json.loads(json.dumps(self.k))
         k2["transform"]["reasonCode"] = "SOURCE_CORRUPT"                       # رمزٌ آخر للسورتين نفسيهما
-        self.assertIn("غيابٌ غير معلَّل", promote.index_gate(k2, inherited_rows=self._rows()))
+        self.assertIn("الصفّ الموروث", promote.index_gate(k2, inherited_rows=self._rows()))
         only4 = self._rows({**ROW, "surahs": {"4": "OTHER"}})                 # الصفُّ لا يسمّي س55
         self.assertEqual(promote.inherited_protected(self.k, only4), {4})
         self.assertEqual(certify_catalog.declared_absent(self.k, inherited=only4), 176)
@@ -166,13 +166,40 @@ class InheritedRow(unittest.TestCase):
         more = _drop(self.k, "7", "OTHER")
         rows = self._rows()
         self.assertEqual(promote.inherited_protected(more, rows), {4, 55})
-        self.assertIn("غيابٌ غير معلَّل", promote.index_gate(more, inherited_rows=rows))
+        self.assertIn("الصفّ الموروث", promote.index_gate(more, inherited_rows=rows))
         self.assertIsNone(promote.index_gate(more, inherited_rows=rows, coded_approved=frozenset({7})))
 
     def test_row_never_excuses_more_than_old_counter(self):
         k2 = json.loads(json.dumps(self.k))
         k2["missing"]["byReason"]["source_truncated"] = 100                    # العدّادُ القديم عدّ 100 فقط
         self.assertEqual(promote.gate_excused(k2, inherited=self._rows()), 100)
+
+    def test_promotion_inheriting_same_declaration_stays_protected(self):
+        # ترقيةٌ لاحقة (بصمةٌ أخرى: مدخلٌ في سورةٍ أخرى أُزيح) ترث الإعلانَ نفسَه ⇒ محميّة؛ وsha8 سجلٌّ لا شرط.
+        k2 = json.loads(json.dumps(self.k))
+        k2["entries"][0]["startMs"] += 10
+        k2["transform"]["op"] = "drop_surah:4,55"
+        rows = self._rows({**ROW, "sha8": "00000000"})
+        self.assertEqual(promote.inherited_protected(k2, rows), {4, 55})
+        self.assertIsNone(promote.index_gate(k2, inherited_rows=rows))
+
+    def test_code_change_or_added_surah_refused(self):
+        rows = self._rows()
+        k2 = json.loads(json.dumps(self.k))
+        k2["transform"]["reasonCode"] = "SOURCE_CORRUPT"
+        self.assertIn("الصفّ الموروث", promote.index_gate(k2, inherited_rows=rows))
+        more = _drop(self.k, "7", "OTHER")
+        self.assertIn("[7]", promote.index_gate(more, inherited_rows=rows))
+        self.assertIsNone(promote.index_gate(more, inherited_rows=rows, coded_approved=frozenset({7})))
+
+    def test_protection_dropped_for_surah_returned_complete(self):
+        # س55 عادت مداخلُها كاملةً والإعلانُ باقٍ في الترويسة ⇒ لا حمايةَ لها (الإعلانُ لا موضعَ له).
+        k2 = json.loads(json.dumps(self.k))
+        k2["entries"] += [{"ayahId": f"55:{a}", "startMs": a * 1000, "endMs": a * 1000 + 900,
+                           "fileRef": "https://h.example/055.mp3", "confBand": "MED"} for a in range(1, 79)]
+        k2["missing"]["ids"] = [i for i in k2["missing"]["ids"] if not i.startswith("55:")]
+        k2["missing"]["count"] -= 78
+        self.assertEqual(promote.inherited_protected(k2, self._rows()), {4})
 
     def test_malformed_rows_ignored(self):
         for bad in ({**ROW, "title": "x"}, {**ROW, "sha8": "zz"}, {**ROW, "basis": []}, {**ROW, "surahs": {}},
