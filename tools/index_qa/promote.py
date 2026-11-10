@@ -602,7 +602,7 @@ def heard_evidence_ok(rec):
     return bool(str(h.get("witness") or "").strip() and run_ok and str(h.get("text") or "").strip())
 
 
-def declared_truncated_gaps(idx, surah):
+def declared_truncated_gaps(idx, surah, end_ref_words=None):
     """هل تُعالج السورةُ الموسومةُ بالبتر بحجبِ **آياتٍ غائبةٍ في وسطها** معلَنةً بدليلٍ لكلّ آية؟
 
     ⭐ أمرُ المالك 2026-10-31 (cmsg_01SnWBBbg8UvScqE3YMKdPHaAmmNARSqWMUt85wRaf6dSw):
@@ -617,6 +617,8 @@ def declared_truncated_gaps(idx, surah):
       ④ absent ⊆ `missing.ids` و`byReason[مفتاحُ الرمز]` يعدّها (‏source_truncated أو timing_under_repair)
       ⑤ لكلّ آيةٍ غائبةٍ دليلٌ `{"method": ctc_window|whisper, "detail": نصّ قياس}` في `evidence`
          ⭐ ومع `TIMING_UNDER_REPAIR` يلزمها أيضاً `heard = {witness, runId, text}` (‏دليلُ سماعِ صوتِ غيرها)
+         ⭐ ودليلُ «نهاية المدخل» (‏`kind = "end"`، مع TIMING_UNDER_REPAIR وحدَه) يُعاد التحقّقُ من مضمونه هنا بدالّة
+            `timing_repair.end_record_error` على شاهدَيه المكتوبَين (‏بصمةُ الصوت · W_K · `_span_ok` · نصٌّ ليس من الآية)
       ⑥ `transform.op` يحمل `declare_gap:س` ومعه `reasonCode` من `GAP_REASON_CODES` (‏رمزان لا ثالث) و`reasonUser`
     """
     try:
@@ -665,6 +667,13 @@ def declared_truncated_gaps(idx, surah):
             return False, f"لا دليلَ قياسٍ للآية {surah}:{a} (method + detail)"
         if code == "TIMING_UNDER_REPAIR" and not heard_evidence_ok(e):
             return False, f"لا دليلَ سماعٍ للآية {surah}:{a} (heard: witness + runId + text)"
+        if "kind" in e:
+            if code != "TIMING_UNDER_REPAIR":
+                return False, f"دليلٌ بنوعٍ (kind) للآية {surah}:{a} لا يكون إلا مع TIMING_UNDER_REPAIR"
+            import timing_repair                                      # noqa: PLC0415
+            why = timing_repair.end_record_error(idx, surah, a, e, end_ref_words)
+            if why:
+                return False, f"دليلُ نهاية المدخل للآية {surah}:{a} مردود: {why}"
     declared = set()
     for m in re.findall(r"declare_gap:([\d,\s]+)", str(tr.get("op") or "")):
         declared |= {int(x) for x in re.findall(r"\d+", m)}
