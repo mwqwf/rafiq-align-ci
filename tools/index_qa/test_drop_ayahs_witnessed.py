@@ -19,6 +19,7 @@ sys.path.insert(0, str(HERE.parent / "alignment_v3"))
 import drop_ayahs                                                # noqa: E402
 import heard_gate as H                                           # noqa: E402
 import promote                                                   # noqa: E402
+import stage_transform                                           # noqa: E402
 import test_heard_witnessed_absent as W                          # noqa: E402
 
 S, A, N = W.S, W.A, W.N
@@ -108,6 +109,44 @@ class Refuse(unittest.TestCase):
         for a in (1, N):
             with self.assertRaises(SystemExit):
                 _make(ayahs=(a,), witnessed=None)
+
+
+class InheritedThroughStageTransform(unittest.TestCase):
+    """(‏د · مراجعةُ القائد #108) تحويلٌ لاحقٌ يستبدل `transform` كلَّه: يجب أن يُورَّث `witnessedAbsent` مع إعلان الحجب."""
+
+    def _child(self, parent):
+        out = copy.deepcopy(parent)
+        out["transform"] = {"op": "basmala_fix", "reason": "r"}          # كما يكتبه stage_transform
+        return out
+
+    def test_witnessed_absent_inherited_with_the_declaration(self):
+        parent = _make()
+        out = self._child(parent)
+        stage_transform.inherit_truncated_gaps(parent, out, [])
+        tr = out["transform"]
+        self.assertEqual(tr["witnessedAbsent"], parent["transform"]["witnessedAbsent"])
+        self.assertEqual(tr["witnessedAbsentVersion"], "ctc-absent-witnessed-1")
+        self.assertTrue(promote.declared_truncated_gaps(out, S)[0])
+
+    def test_without_witnessed_nothing_added(self):
+        parent = _make(witnessed=None)
+        out = self._child(parent)
+        stage_transform.inherit_truncated_gaps(parent, out, [])
+        self.assertNotIn("witnessedAbsent", out["transform"])
+
+    def test_realigned_surah_drops_both_declaration_and_claims(self):
+        parent = _make()
+        out = self._child(parent)
+        stage_transform.inherit_truncated_gaps(parent, out, [S])
+        self.assertNotIn("witnessedAbsent", out["transform"])
+        self.assertNotIn("truncatedGaps", out["transform"])
+
+    def test_claim_outside_declared_absent_not_carried(self):
+        parent = _make()
+        parent["transform"]["witnessedAbsent"][str(S)]["100"] = parent["transform"]["witnessedAbsent"][str(S)].pop(str(A))
+        out = self._child(parent)
+        with self.assertRaisesRegex(SystemExit, "خارج المحجوب المعلَن"):
+            stage_transform.inherit_truncated_gaps(parent, out, [])
 
 
 if __name__ == "__main__":

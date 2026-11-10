@@ -877,7 +877,7 @@ def _word_hits(wit, target) -> list:
     return out
 
 
-def witnessed_witness_check(wit, surah, ayah, claim, own, prev, nxt, meta, want_sha, expected_ms):
+def witnessed_witness_check(wit, surah, ayah, claim, own, prev, nxt, meta, want_sha, expected_ms, bounds=None):
     """(None، تفصيل) إن أثبت الشاهدُ الواحدُ الشروطَ ١(‏النموذج float32 والبصمة) و٢ و٣ و٥ للآية، وإلا (السببُ، None)."""
     import pin_heard as PH                                           # noqa: PLC0415
     try:
@@ -896,12 +896,27 @@ def witnessed_witness_check(wit, surah, ayah, claim, own, prev, nxt, meta, want_
         return f"لا يسمع الجارةَ السابقةَ بلفظها (‏آخرَ {k} كلماتٍ «{' '.join(prev[-k:])}» بثقةٍ كافية)", None
     if not nexts:
         return f"لا يسمع الجارةَ اللاحقةَ بلفظها (‏أوّلَ {k} كلماتٍ «{' '.join(nxt[:k])}» بثقةٍ كافية)", None
-    p = max(prevs, key=lambda h: h[0][-1][2])
-    later = [h for h in nexts if h[0][0][1] >= p[0][0][1]]
-    if not later:
+    if not claim and not bounds:
+        return "لا موضعَ يقيّد ملتقى الجارتين (‏لا نافذةَ مدّعاةً ولا مداخلَ جارتين) — لا يُقبل ادّعاءٌ بلا قيدٍ مكانيّ", None
+    pairs = [(p, n) for p in prevs for n in nexts if n[0][0][1] >= p[0][0][1]]
+    if not pairs:
         return "اللاحقةُ لا تأتي بعد السابقة في تفريغه", None
-    n = min(later, key=lambda h: h[0][0][1])
-    p_end, n_start = int(p[0][-1][2]), int(n[0][0][1])
+    # ⛔ (‏مراجعةُ القائد #108) الملتقى يجب أن يقع **في الموضع المدّعى** لا في أيّ موضعٍ يكرّر فيه القارئُ اللفظَ أو يتشابه:
+    #    (أ) مع claim: الفترةُ [نهايةُ السابقة، بدءُ اللاحقة] تتقاطع مع نافذة الخريطة المدّعاة؛
+    #    (ب) مع bounds (‏البوّابة: نهايةُ مدخل a−1 وبدءُ مدخل a+1 في المرشّح نفسِه): طرفا الملتقى كلٌّ ضمن TOL_MS من طرفه.
+    def located(p_end_, n_start_):
+        if claim and not (p_end_ <= claim[1] and n_start_ >= claim[0]):
+            return False
+        if bounds and not (abs(p_end_ - bounds[0]) <= TOL_MS and abs(n_start_ - bounds[1]) <= TOL_MS):
+            return False
+        return True
+    cand = [(int(p[0][-1][2]), int(n[0][0][1])) for p, n in pairs]
+    cand = [c for c in cand if located(*c)]
+    if not cand:
+        where = (f"نافذة الخريطة [{claim[0]}، {claim[1]}]" if claim else "") + (" و" if claim and bounds else "") + \
+                (f"ما بين نهاية مدخل الجارة السابقة {bounds[0]} وبدء اللاحقة {bounds[1]} (±{TOL_MS})" if bounds else "")
+        return f"ملتقى الجارتين في تفريغه لا يقع في الموضع المدّعى — {where}", None
+    p_end, n_start = min(cand, key=lambda c: max(0, c[1] - c[0]))
     gap = max(0, n_start - p_end)
     if not expected_ms or expected_ms <= 0:
         return "لا مدّةَ متوقَّعةً للآية من أقرانها — لا يثبت الغيابُ بالزمن", None
@@ -912,7 +927,7 @@ def witnessed_witness_check(wit, surah, ayah, claim, own, prev, nxt, meta, want_
                   "nextStartMs": n_start, "gapMs": gap, "windowsMs": _merged_windows(wit)}
 
 
-def witnessed_absent_one(surah, ayah, n_ayahs, g_rec, r_rec, wits, sources, ref_words, meta, want_sha, expected_ms):
+def witnessed_absent_one(surah, ayah, n_ayahs, g_rec, r_rec, wits, sources, ref_words, meta, want_sha, expected_ms, bounds=None):
     """(None، دليل) إن ثبت غيابُ الآية المسمّاة بالشروط ١–٥ كلِّها، وإلا (سببُ الردّ، None).
     `g_rec`/`r_rec`: سجلُّ الآية في خريطة العامّة وخريطة نموذج التلاوة (‏`heardMap[آية]`: anchorMs · anchorQuality · heardMs · score)
     — `r_rec` اختياريّ (‏البوّابةُ لا تملك إلا العامّة). `wits`: {تشغيلة: سجلُّ الشاهد المكتوب}، و`sources`: المحمَّلُ من المصدر."""
@@ -941,7 +956,7 @@ def witnessed_absent_one(surah, ayah, n_ayahs, g_rec, r_rec, wits, sources, ref_
         elif _canon(disputed_src_rec(w)) != _canon(src):
             why = "المكتوبُ في المرشّح يخالف مصدرَه (‏مخرَج تشغيلته) حرفاً"
         else:
-            why, d = witnessed_witness_check(src, surah, ayah, claim, own, prev, nxt, meta, want_sha, expected_ms)
+            why, d = witnessed_witness_check(src, surah, ayah, claim, own, prev, nxt, meta, want_sha, expected_ms, bounds)
         if why:
             return f"الشاهد {run}: {why}", None
         det[str(run)] = d
@@ -980,8 +995,14 @@ def witnessed_absent_verdict(s, g_map, want, cand_idx, ref_words=None, n_ayahs=N
         rec = anc.get(str(a))
         g_rec = {"anchorMs": rec[0] if isinstance(rec, list) and rec else None,
                  "anchorQuality": rec[1] if isinstance(rec, list) and len(rec) > 1 else None}
+        pe, ns = present.get(a - 1), present.get(a + 1)
+        if not pe or not ns or pe[1] is None:
+            bad.append(f"{s}:{a}: لا مدخلَ للجارة السابقة أو اللاحقة في المرشّح — لا قيدَ مكانيّ لملتقاهما")
+            continue
+        # ⛔ الملتقى بين نهاية مدخل a−1 وبدء مدخل a+1 في المرشّح نفسِه ضمن TOL_MS (‏مراجعةُ القائد #108)
         why, det = witnessed_absent_one(int(s), a, n, g_rec, None, (c or {}).get("witnesses"), sources, ref_words,
-                                        g_map, want, witnessed_expected_ms(durs, a, chars_of))
+                                        g_map, want, witnessed_expected_ms(durs, a, chars_of),
+                                        bounds=(int(pe[1]), int(ns[0])))
         if why:
             ev["refused"][str(a)] = why
             bad.append(f"{s}:{a}: {why}")

@@ -291,6 +291,104 @@ class Mutations(unittest.TestCase):
             self.assertNotIn("الأولى ولا الأخيرة", why or "")
 
 
+def _wit2(prev_ends=(), next_starts=(), window=(4125000, 4210000), model="medium"):
+    """شاهدٌ مركّب بمواضعَ حرّة: كلُّ prev_end ذيلُ 4:126 ينتهي عنده، وكلُّ next_start مطلعُ 4:128 يبدأ عنده."""
+    words = _words(125, 4126000)
+    for e in prev_ends:
+        words += _words(126, e - 11 * 400 - 300)
+    for st in next_starts:
+        words += _words(128, st)
+    words.sort(key=lambda w: w["s"])
+    return {"surah": S, "riwaya": "hafs", "fileRef": URL, "sha256": SHA, "model": model, "computeType": "float32",
+            "ayahs": {"126": {"windowMs": list(window), "words": words}}}
+
+
+def _pair2(**kw):
+    return {"run-a": _wit2(model="medium", **kw), "run-b": _wit2(model="small", **kw)}
+
+
+class MeetingLocation(unittest.TestCase):
+    """⛔ (‏مراجعةُ القائد #108) الملتقى في الموضع المدّعى لا في موضعٍ آخر يتكرّر فيه اللفظ."""
+
+    # (أ) مع claim: [نهاية السابقة، بدء اللاحقة] تتقاطع مع نافذة الخريطة المدّعاة
+    def test_a_meeting_outside_claim_refused(self):
+        why, _ = one(_pair2(prev_ends=[4200000], next_starts=[4201000]))
+        self.assertIn("لا يقع في الموضع المدّعى", why)
+
+    def test_a_meeting_inside_claim_accepted(self):
+        self.assertIsNone(one(_pair2(prev_ends=[4162000], next_starts=[4165000]))[0])
+
+    def test_a_meeting_before_claim_refused(self):
+        g = dict(G_REC, anchorMs=[4150000, 4160000])
+        why, _ = one(_pair2(prev_ends=[4140000], next_starts=[4141000]), g=g)
+        self.assertIn("لا يقع في الموضع المدّعى", why)
+
+    def test_a_repeated_tail_far_away_cannot_prove_absence(self):
+        # ذيلُ السابقة يتكرّر عند 4200000 ومطلعُ اللاحقة بعده بثانية: كان «آخرُ ظهورٍ + أوّلُ ظهورٍ بعده» يُثبت فجوةَ ثانيةٍ في غير مكانها.
+        # والموضعُ الحقيقيّ (‏السابقة 4162000) لا لاحقةَ بعده إلا البعيدة ⇒ فجوةٌ واسعة ⇒ ردّ.
+        why, _ = one(_pair2(prev_ends=[4162000, 4200000], next_starts=[4201000]))
+        self.assertIn("متّسعٌ", why)
+
+    def test_a_repeated_pair_far_away_while_real_place_has_room(self):
+        # في الموضع الحقيقيّ فجوةٌ واسعةٌ (‏9000) وفي موضعٍ بعيدٍ زوجٌ متلاصق: لا يُنتخب البعيدُ.
+        why, _ = one(_pair2(prev_ends=[4162000, 4200000], next_starts=[4171000, 4201000]))
+        self.assertIn("متّسعٌ", why)
+
+    # (ب) في البوّابة وبلا claim: الملتقى بين نهاية مدخل a−1 وبدء مدخل a+1 ضمن TOL_MS
+    NOCLAIM = {"anchorMs": None, "anchorQuality": None, "heardMs": None, "score": None, "occurrences": []}
+
+    def test_b_no_claim_and_no_bounds_refused(self):
+        why, _ = one(_pair2(prev_ends=[4162000], next_starts=[4165000]), g=self.NOCLAIM)
+        self.assertIn("لا موضعَ يقيّد", why)
+
+    def test_b_no_claim_with_bounds_accepted(self):
+        wits = _pair2(prev_ends=[4162000], next_starts=[4165000])
+        why, _ = H.witnessed_absent_one(S, A, N, self.NOCLAIM, None, wits, _src(wits), ref, META, SHA, EXPECTED,
+                                        bounds=(PREV_END, NEXT_START))
+        self.assertIsNone(why)
+
+    def test_b_meeting_outside_bounds_refused(self):
+        wits = _pair2(prev_ends=[4162000], next_starts=[4165000])
+        for b in ((PREV_END + 5000, NEXT_START + 9000), (PREV_END - 20000, NEXT_START - 9000)):
+            why, _ = H.witnessed_absent_one(S, A, N, self.NOCLAIM, None, wits, _src(wits), ref, META, SHA, EXPECTED, bounds=b)
+            self.assertIn("لا يقع في الموضع المدّعى", why)
+
+    def test_b_bounds_tolerance_is_tol_ms(self):
+        wits = _pair2(prev_ends=[4162000], next_starts=[4165000])
+        ok, _ = H.witnessed_absent_one(S, A, N, self.NOCLAIM, None, wits, _src(wits), ref, META, SHA, EXPECTED,
+                                       bounds=(PREV_END + H.TOL_MS, NEXT_START))
+        self.assertIsNone(ok)
+        bad, _ = H.witnessed_absent_one(S, A, N, self.NOCLAIM, None, wits, _src(wits), ref, META, SHA, EXPECTED,
+                                        bounds=(PREV_END + H.TOL_MS + 1, NEXT_START))
+        self.assertIn("لا يقع في الموضع المدّعى", bad)
+
+    def test_b_gate_refuses_when_neighbour_entries_elsewhere(self):
+        idx = _idx()
+        for e in idx["entries"]:
+            if e["ayahId"] == f"{S}:{A - 1}":
+                e["startMs"], e["endMs"] = 1000000, 1008000
+        why, _ = _verdict(idx, cmap=_cmap())
+        self.assertIn("لا يقع في الموضع المدّعى", why)
+
+    def test_b_gate_refuses_when_neighbour_entry_missing(self):
+        idx = _idx()
+        idx["entries"] = [e for e in idx["entries"] if e["ayahId"] != f"{S}:{A + 1}"]
+        why, _ = _verdict(idx)
+        self.assertIn("لا مدخلَ للجارة", why)
+
+    def test_b_gate_without_claim_in_map_still_bounded(self):
+        # خريطةٌ لا تسمع الغائبةَ (‏بلا claim): القيدُ المكانيّ على مداخل المرشّح وحدَه ⇒ يقبل الملتقى الصحيح ويردّ البعيد.
+        cm = _cmap()
+        cm["anchors"][str(A)] = [None, None, []]
+        self.assertIsNone(_verdict(cmap=cm)[0])
+        idx = _idx()
+        for e in idx["entries"]:
+            if e["ayahId"] == f"{S}:{A + 1}":
+                e["startMs"], e["endMs"] = 9000000, 9008000
+        why, _ = _verdict(idx, cmap=cm)
+        self.assertIn("لا يقع في الموضع المدّعى", why)
+
+
 class ExpectedFromPeers(unittest.TestCase):
     def chars(self, a):
         return sum(len(w) for w in ref(S, a))
@@ -309,13 +407,22 @@ class ExpectedFromPeers(unittest.TestCase):
 
 
 # ───────────── البوّابةُ: يُعاد الحكمُ من المصدر والمرشّح ─────────────
+def _span(a):
+    """مدى مدخل الآية في المرشّح: 126 تنتهي PREV_END و128 تبدأ NEXT_START (‏ملتقاهما = ما سمعه الشاهدان)، وغيرُهما a*10000."""
+    if a == A - 1:
+        return PREV_END - 8000, PREV_END
+    if a == A + 1:
+        return NEXT_START, NEXT_START + 8000
+    return a * 10000, a * 10000 + 8000
+
+
 def _entries():
-    return [{"ayahId": f"{S}:{a}", "startMs": a * 10000, "endMs": a * 10000 + 8000, "fileRef": URL, "conf": 0.9,
+    return [{"ayahId": f"{S}:{a}", "startMs": _span(a)[0], "endMs": _span(a)[1], "fileRef": URL, "conf": 0.9,
              "confBand": "HIGH"} for a in range(1, N + 1) if a != A]
 
 
 def _cmap(q=0.3):
-    anc = {str(a): [[a * 10000, a * 10000 + 8000], 0.9, []] for a in range(1, N + 1) if a != A}
+    anc = {str(a): [list(_span(a)), 0.9, []] for a in range(1, N + 1) if a != A}
     anc[str(A)] = [list(CLAIM), q, [[5527000, 5540000, 0.514]]]
     return {"surah": S, "sha256": SHA, "fileRef": URL, "totalMs": 9_000_000, "engine": "ctc", "anchors": anc}
 
@@ -386,7 +493,8 @@ class Gate(unittest.TestCase):
         # مداخلُ الأقران تُطوَّل ×20 ⇒ المتوقَّعُ ضخمٌ فتتّسع الفجوةُ نسبيّاً (‏يقبل)، وتُقصَّر ⇒ المتوقَّعُ صغيرٌ فتردّ.
         idx = _idx()
         for e in idx["entries"]:
-            e["endMs"] = e["startMs"] + 50
+            if e["ayahId"] not in (f"{S}:{A - 1}", f"{S}:{A + 1}"):
+                e["endMs"] = e["startMs"] + 50
         why, _ = _verdict(idx)
         self.assertIn("متّسعٌ", why)
 
