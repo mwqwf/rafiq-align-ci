@@ -34,6 +34,7 @@ on:
       absent_ayahs: {description: "وضعُ window أو heard (أمر المالك 2026-10-31 · وللقائد 2026-11-07 في heard): آياتٌ غائبةٌ في وسط سورة — window: سورةٌ تامّةُ المداخل في الأب «79:15,79:17,79:18» تُحاذى جاراتُها بنصوص الحاضرات وحدها (ctc_gapsplit --absent-ayahs) ويُقاس دليلُ الغياب ثمّ تُحجب (drop_ayahs --aligned)؛ heard: سورةٌ واحدةٌ **بلا مداخلَ في الأب** «6:74-94» تُبنى مداخلُ المسموعة وحدها من المراسي المتّفقة بين خريطتَي السماع (العامّة ونموذج التلاوة) وتُترك المسمّاةُ غائبةً ثمّ يُعلَن غيابُها بدليل (drop_ayahs --already-absent) بمرشّحٍ ثانٍ في timings-staging. surahs = سورُها نفسُها؛ ولا يجتمع مع rewindow", default: ""}
       reason_user: {description: "وضعُ absent_ayahs وحده: السببُ المعروضُ للمستخدم (بلا كلماتٍ إداريّة)", default: "تسجيلُ هذه السورة ينقصه بعضُ آياتها."}
       quran_model: {description: "وضعُ full وحده (مطفأٌ افتراضاً): true = محاذاةُ السور كاملةً بنموذج التلاوة المثبَّت البصمة (‏batch_run --quran-model) بدقّة الأسطول int8 · float32 = الشيءُ نفسُه بدقّة float32 وخيطين (‏كمسار الذيل المبتور) ويُعلَن محرّكُها ctc-quran-surah-1 بنسب النموذج فيلزمه الإحصاءُ الشامل؛ ويُستثنى به وحده ردُّ «الأصلُ منشورٌ بـCTC نفسِه»؛ ولا يجتمع مع truncated_tail ولا absent_ayahs", default: "false"}
+      absent_witness_runs: {description: "وضعُ heard مع absent_ayahs وحده (ctc-absent-witnessed-1 · قرار القائد 2026-11-10): أرقامُ تشغيلتَين أو أكثر لـwhisper_witness (float32 · متمايزة) تُحمَّلان من مصدرهما لتثبتا غيابَ آيةٍ مسمّاةٍ غائبةٍ لكنّها مسموعةٌ في خريطة العامّة بجودةٍ دون 0.5 (يسمعان جارتَيها بلفظهما ولا يسمعان مطلعَها ولا متّسعَ لها بالزمن). فارغٌ = الردُّ القديمُ كما هو", default: ""}
       truncated_tail: {description: "وضعُ full وحده (أمر المالك 2026-10-02): سورةٌ واحدةٌ مصدرُها مبتورُ الذيل تُحاذى بادئتُها 1..N بالنموذج القرآني المثبَّت ويُعلَن ذيلُها source_truncated — «24:30»؛ وsurahs = السورةُ نفسُها", default: ""}
 
 concurrency:
@@ -99,10 +100,17 @@ jobs:
           TRUNC: ${{ github.event.inputs.truncated_tail }}
           REWIN: ${{ github.event.inputs.rewindow }}
           ABSENT: ${{ github.event.inputs.absent_ayahs }}
+          ABSENT_WITNESS_RUNS: ${{ github.event.inputs.absent_witness_runs }}
           QM: ${{ github.event.inputs.quran_model }}
         run: |
           python - <<'PY'
           import gzip, hashlib, json, os, re, sys, boto3
+          # ⭐ (ctc-absent-witnessed-1) شاهدا الغياب المشهود: heard + absent_ayahs وحده، وتشغيلتان متمايزتان على الأقلّ (أرقامٌ لا غير).
+          wr = [x for x in re.split(r"[,\s]+", os.environ.get("ABSENT_WITNESS_RUNS", "").strip()) if x]
+          if wr and (os.environ.get("MODE") != "heard" or not os.environ.get("ABSENT", "").strip()):
+              sys.exit("⛔ absent_witness_runs لوضع heard مع absent_ayahs وحده")
+          if wr and (len(set(wr)) != len(wr) or len(wr) < 2 or not all(re.fullmatch(r"\d{6,15}", x) for x in wr)):
+              sys.exit("⛔ absent_witness_runs: تشغيلتان متمايزتان على الأقلّ بأرقامٍ صحيحة")
           # ⭐ نموذجُ التلاوة لمحاذاة السورة كاملةً: وضعُ full وحده بسورٍ مسمّاةٍ، ولا يجتمع مع الذيل المبتور ولا الغائبات.
           qm = os.environ.get("QM", "false").strip()
           if qm not in ("true", "float32", "false"):
@@ -267,6 +275,8 @@ jobs:
           BASEKEY: ${{ github.event.inputs.base_key }}
           TRUNC: ${{ github.event.inputs.truncated_tail }}
           HW: ${{ github.event.inputs.heard_witness }}
+          ABSENT_WITNESS_RUNS: ${{ github.event.inputs.absent_witness_runs }}
+          GH_TOKEN: ${{ github.token }}      # تحميلُ مخرَج تشغيلتَي الشاهدين من مصدرهما (pin_heard.load_witness)
           ABSENT: ${{ github.event.inputs.absent_ayahs }}
           QM: ${{ github.event.inputs.quran_model }}
         run: |
@@ -315,7 +325,7 @@ jobs:
             # ⭐ (أمر القائد 2026-11-07 · ناصر الماجد س6 74–94) مصدرٌ بديلٌ ينقصه وسطُ السورة: تُبنى مداخلُ **المسموعة** وحدها
             #    من المراسي المتّفقة بين خريطتَي السماع، وتُترك المسمّاةُ غائبةً ويُنتج دليلُها (a<س>.json). الأداتان تُختبران أوّلاً.
             #    ⛔ لا حارسٌ يُرخى: كلُّ غائبٍ غيرِ مسمّى أو مسمّىً مسموعٍ أو مدخلٍ يغطّي الفجوة أو حجبٍ للأولى/الأخيرة/فوق الربع يُردّ.
-            python -m unittest tools/alignment_v3/test_heard_absent.py tools/alignment_v3/test_ctc_heard_map.py tools/index_qa/test_drop_ayahs.py
+            python -m unittest tools/alignment_v3/test_heard_absent.py tools/alignment_v3/test_ctc_heard_map.py tools/index_qa/test_drop_ayahs.py tools/index_qa/test_heard_witnessed_absent.py tools/alignment_v3/test_heard_absent_witnessed.py tools/index_qa/test_drop_ayahs_witnessed.py
             S="${SURAHS%%,*}"
             case "$S" in ''|*[!0-9]*) echo "⛔ سورةٌ واحدةٌ مطلوبة"; exit 1;; esac
             AL="$(python tools/alignment_v3/heard_absent.py expand "$ABSENT" --surah "$S")"
@@ -328,7 +338,9 @@ jobs:
             F="$(printf '%03d' "$S").mp3"
             cp "$RD/$F" "$BD/$F"                      # الملفُّ نفسُه (‏بصمةٌ واحدة) فلا يُنزَّل ثانيةً
             echo "── ٢) خريطةُ العامّة + المراسي المتّفقة + المداخل + دليلُ الغياب ──"
-            python tools/alignment_v3/ctc_heard_map.py --url "$U" --surah "$S" --riwaya "$RIW" --strict-tol-ms 1000 \
+            # ⭐ (ctc-absent-witnessed-1) شاهدا float32 يُحمَّلان من مصدر تشغيلتيهما (GH_TOKEN) — فارغٌ = الردُّ القديمُ حرفاً
+            WITR=""; [ -n "$ABSENT_WITNESS_RUNS" ] && WITR="--absent-witness-runs $ABSENT_WITNESS_RUNS"
+            python tools/alignment_v3/ctc_heard_map.py --url "$U" --surah "$S" --riwaya "$RIW" --strict-tol-ms 1000 $WITR \
               --out-dir "$BD" --absent-ayahs "$AL" --peer-map "$RD/heard_s$(printf '%03d' "$S").json" 2>&1 | tee ctc.log
             test -f "$BD/s$(printf '%03d' "$S").json" -a -f "$BD/a$(printf '%03d' "$S").json" || { echo "⛔ لا مخرَجَ — رُدّت السورة (انظر ctc.log)"; exit 1; }
             # ⛔ بصمةُ الملفّ المنزَّل تطابق المسجَّل في source_overrides (‏إن سُجّلت بصمةٌ كاملة) — لا محاذاةَ على ملفٍّ مختلف.

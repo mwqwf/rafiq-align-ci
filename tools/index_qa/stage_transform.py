@@ -267,6 +267,18 @@ def inherit_truncated_gaps(pidx, out, realigned):
         _keep = set(gaps) | set((tr.get("truncatedTail") or {}))
         tr["declarations"] = {**(tr.get("declarations") or {}),
                               **{k: ptr["declarations"][k] for k in _keep if k in ptr["declarations"]}}
+    # ⭐ (‏ctc-absent-witnessed-1 · مراجعةُ القائد #108) دليلُ الغياب المشهود يُورَّث مع إعلانه حرفاً: حجبٌ معلَنٌ يضيع دليلُه
+    #    عند تحويلٍ لاحقٍ غيرُ مقبول (‏يعيد heard_gate حكمَه من هذا الحقل). ولا يُحمل ادّعاءٌ على آيةٍ ليست في absent المعلَن.
+    pwa = ptr.get("witnessedAbsent")
+    if isinstance(pwa, dict):
+        keep_w = {k: v for k, v in pwa.items() if k in gaps}
+        for k, claims in keep_w.items():
+            named = {a for a in (gaps[k].get("absent") or []) if type(a) is int}
+            if not isinstance(claims, dict) or not {int(a) for a in claims} <= named:
+                raise SystemExit(f"⛔ س{k}: غيابٌ مشهودٌ موروثٌ لآياتٍ خارج المحجوب المعلَن — لا يُحمل")
+        if keep_w:
+            tr["witnessedAbsent"] = {**(tr.get("witnessedAbsent") or {}), **keep_w}
+            tr["witnessedAbsentVersion"] = ptr.get("witnessedAbsentVersion") or "ctc-absent-witnessed-1"
     for k in sorted(gaps, key=int):
         good, why = promote.declared_truncated_gaps(out, k)
         if not good:
