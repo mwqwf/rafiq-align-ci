@@ -84,9 +84,18 @@ class CarryTail(unittest.TestCase):
 
     def test_refuses_when_drop_would_erase_user_declaration(self):
         with self.assertRaises(SystemExit):
-            _drop(_parent())                                      # بلا SOURCE_TRUNCATED/reasonUser
-        with self.assertRaises(SystemExit):
-            _drop(_parent(), "--reason-code", "OTHER", "--reason-user", "x")
+            _drop(_parent())                                      # بلا رمزٍ ولا reasonUser للإسقاط الجديد
+
+    def test_other_code_keeps_tail_in_its_own_record(self):
+        # ⭐ (2026-11-10) رمزٌ آخرُ للإسقاط الجديد لا يمحو إعلانَ الذيل: يبقى SOURCE_TRUNCATED في سجلّه.
+        out = _drop(_parent(), "--reason-code", "OTHER", "--reason-user", "x")
+        tr = out["transform"]
+        self.assertEqual(tr["op"], "drop_surah:4|declare_gap:24")
+        self.assertEqual(tr["reasonCode"], "OTHER")
+        self.assertEqual(tr["declarations"]["24"]["reasonCode"], "SOURCE_TRUNCATED")
+        self.assertEqual(tr["declarations"]["4"]["reasonCode"], "OTHER")
+        ok, why = promote.declared_truncated_tail(out, 24)
+        self.assertTrue(ok, why)
 
     def test_undeclared_tail_not_carried(self):
         out = _drop(_parent(op="ctc_quran_surah_splice:24"), *OK)

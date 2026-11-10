@@ -262,6 +262,11 @@ def inherit_truncated_gaps(pidx, out, realigned):
     for f in ("reasonCode", "reasonUser"):
         if not tr.get(f) and ptr.get(f):
             tr[f] = ptr[f]
+    # ⭐ وسجلُّ إعلان السورة في `declarations` يُورَّث معها حرفاً (‏promote يقرأ رمزَها منه حين يوجد).
+    if isinstance(ptr.get("declarations"), dict):
+        _keep = set(gaps) | set((tr.get("truncatedTail") or {}))
+        tr["declarations"] = {**(tr.get("declarations") or {}),
+                              **{k: ptr["declarations"][k] for k in _keep if k in ptr["declarations"]}}
     for k in sorted(gaps, key=int):
         good, why = promote.declared_truncated_gaps(out, k)
         if not good:
