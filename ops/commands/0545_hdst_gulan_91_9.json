@@ -1,0 +1,21 @@
+{
+ "action": "tool",
+ "tool": "index_qa/drop_ayahs.py",
+ "args": [
+  "--key",
+  "timings/hafs/gulan.jz",
+  "--sha",
+  "2fc91446416dedd7",
+  "--ayahs",
+  "91:9",
+  "--evidence",
+  "ops/evidence/heard-drop-gulan-2fc91446.json",
+  "--reason",
+  "بدءُ مدخل الآية 91:9 عند gulan يقع في صوت الآية السابقة بشهادة Whisper مرّتين، فيُسمع غيرُها أوّلاً؛ تُحجب مؤقّتاً حتى يُثبَّت بدؤها على موضعها المسموع",
+  "--reason-user",
+  "توقيت هذه الآية لهذا القارئ قيد الإصلاح، فحُجبت مؤقّتاً حتى لا تُعرض على صوت غيرها",
+  "--reason-code",
+  "TIMING_UNDER_REPAIR",
+  "--yes"
+ ]
+}
