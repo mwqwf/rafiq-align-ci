@@ -137,8 +137,19 @@ class OtherSchedulersTest(unittest.TestCase):
         other = 'timings-staging/hafs/other.abcdef00.jz'
         docs = {KEY: candidate(), other: candidate(False, 'other')}
         calls, writes = [], []
+        # حارسُ الإطلاق الحقيقيّ (‏gate_launch_guard · 2026-10-20) يجري في الحلقة كما هو، لا بديلٌ عنه:
+        # لا حيَّ لهذين القارئين ولا تجميد ولا حكمَ سماع ⇒ لا يمنع، فيبقى الاختبارُ على تخطّي اليدويّ وحده.
+        for _d in ('tools/ci_fleet', 'tools/index_qa'):
+            if str(ROOT / _d) not in sys.path:
+                sys.path.insert(0, str(ROOT / _d))
+        from gate_launch_guard import launch_skip_reason
+        def get(k):
+            if k == 'timings/frozen.txt':
+                return b''
+            return gzip.compress(json.dumps(docs[k]).encode())
         scope = {'latest': {'peshawa': {'Key': KEY}, 'other': {'Key': other}},
-                 'busy': set(), 'frozen': '', 'get': lambda k: gzip.compress(json.dumps(docs[k]).encode()),
+                 'busy': set(), 'frozen': '', 'get': get,
+                 'launch_skip_reason': launch_skip_reason, 'fresh_live': lambda: {}, 'get_idx': lambda k: None,
                  'gzip': gzip, 'json': json, 'hashlib': hashlib, 'manual_qa_reason': manual_qa_reason,
                  'state': set(), 'SALTS': ['k1', 'k2', 'k3', 'k4'], 'REPO': 'mwqwf/rafiq-align-ci',
                  'sh': lambda *a: calls.append(a), 's3': types.SimpleNamespace(put_object=lambda **k: writes.append(k)),
