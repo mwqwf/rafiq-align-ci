@@ -36,6 +36,8 @@ on:
       heard_f32: {description: "وضعُ heard وحده (مطفأٌ افتراضاً · تسريع maroush 2026-11-09): true = بناءُ الخريطة والنوافذ بدقّة float32 (‏CTC_INT8=0) كإعداد بوّابة السماع؛ ولا يمسّ البوّابةَ ولا الإحصاءَ ولا الملوحَ", default: "false"}
       heard_clip: {description: "وضعُ heard وحده (مطفأٌ افتراضاً · قرار القائد 2026-11-09 · maroush): true = تُقصّ نافذةُ كلّ آيةٍ على آخر أداءٍ تامٍّ مثبَتٍ بشاهد Whisper ضمن 300م.ث (tools/alignment_v3/heard_clip.py)؛ ما لم يثبت له أداءٌ تامٌّ تبقى سورتُه محجوبةً معلَنةً ولا تُقصّ تخميناً", default: "false"}
       heard_clip_model: {description: "مع heard_clip: حجمُ نموذج Whisper الشاهد (small الافتراضيّ أو medium) — العتباتُ كلُّها كما هي", default: "small"}
+      heard_clip_selftest: {description: "وضعُ heard وحده: true = اختبارُ التحوّر لشاهد البدء على الفهرس **الأب** (يجب أن يكون فهرساً منشوراً سليماً لقارئٍ آخر): يزيح بدءَ عيّناتٍ ±400م.ث و±1ث ويجب أن تُردّ كلُّها؛ لا خريطةَ ولا مرشّح", default: "false"}
+      heard_clip_ayahs: {description: "مع heard_clip_selftest: آياتٌ مسمّاةٌ بفواصل بدل عيّنةٍ متباعدة", default: ""}
       absent_ayahs: {description: "وضعُ window وحده (أمر المالك 2026-10-31): آياتٌ غائبةٌ في وسط سورةٍ تامّة المداخل في الأب — «79:15,79:17,79:18»؛ تُحاذى الجاراتُ بنصوص الحاضرات وحدها (ctc_gapsplit --absent-ayahs) ويُقاس دليلُ الغياب بمحاذاةٍ بنصّ الغائبة تردّها الحرّاس، ثمّ تُحجب وتُعلَن (drop_ayahs --aligned) بمرشّحٍ في timings-staging. surahs = سورُها نفسُها؛ ولا يجتمع مع rewindow", default: ""}
       reason_user: {description: "وضعُ absent_ayahs وحده: السببُ المعروضُ للمستخدم (بلا كلماتٍ إداريّة)", default: "تسجيلُ هذه السورة ينقصه بعضُ آياتها."}
       truncated_tail: {description: "وضعُ full وحده (أمر المالك 2026-10-02): سورةٌ واحدةٌ مصدرُها مبتورُ الذيل تُحاذى بادئتُها 1..N بالنموذج القرآني المثبَّت ويُعلَن ذيلُها source_truncated — «24:30»؛ وsurahs = السورةُ نفسُها", default: ""}
@@ -252,6 +254,8 @@ jobs:
           HF32: ${{ github.event.inputs.heard_f32 }}
           HCLIP: ${{ github.event.inputs.heard_clip }}
           HCMODEL: ${{ github.event.inputs.heard_clip_model }}
+          HCST: ${{ github.event.inputs.heard_clip_selftest }}
+          HCAYAHS: ${{ github.event.inputs.heard_clip_ayahs }}
         run: |
           set -o pipefail
           # ⭐ مدخلا heard وحده؛ الافتراضُ (6 · off) يُمرَّر كما هو فلا يتغيّر سلوكُ غير maroush.
@@ -267,7 +271,9 @@ jobs:
           case "$HCMODEL" in small|medium) ;; *) echo "⛔ heard_clip_model: small أو medium"; exit 1;; esac
           case "$HCLIP" in true|false) ;; *) echo "⛔ heard_clip: true أو false"; exit 1;; esac
           if [ "$HCLIP" = "true" ] && [ "$MODE" != "heard" ]; then echo "⛔ heard_clip لوضع heard وحده"; exit 1; fi
-          if [ "$HCLIP" = "true" ]; then
+          HCST="${HCST:-false}"
+          if [ "$HCST" = "true" ] && [ "$MODE" != "heard" ]; then echo "⛔ heard_clip_selftest لوضع heard وحده"; exit 1; fi
+          if [ "$HCLIP" = "true" ] || [ "$HCST" = "true" ]; then
             python -m pip install --quiet faster-whisper==1.1.1 "requests==2.32.3"
             python -m unittest tools/alignment_v3/test_heard_clip.py
           fi
@@ -366,6 +372,13 @@ jobs:
               #    heard_batch.yml — وإلا بقيت آياتٌ بين 1.5ث و3ث تردّها البوّابةُ جولةً بعد جولة. تشديدٌ لا تليين.
               #    ثمّ 1000 لا 1500: البوّابةُ تعيد حسابَ الخريطة فتتزحزح المِرساةُ ~100م.ث، فحدٌّ عند 1.5ث تماماً
               #    رُدّ بـ1.6ث (‏swlim 23:14 · 2026-10-19) — هامشٌ تحت البوّابة، تشديدٌ لا تليين.
+              if [ "$HCST" = "true" ]; then
+                # ⭐ اختبارُ التحوّر (‏قرار القائد 2026-11-10): لا خريطةَ ولا مرشّح — الأبُ فهرسٌ منشورٌ سليم.
+                python tools/alignment_v3/heard_clip.py selftest --index parent.jz --surah "$s" --url "$U" --riwaya "$RIW" \
+                  --model "$HCMODEL" --samples 12 --ayahs "$HCAYAHS" \
+                  --out "tools/alignment/work/batch_$RID/clip_selftest_s$(printf '%03d' "$s").json" 2>&1 | tee -a ctc.log
+                continue
+              fi
               rc=0
               CTC_INT8=$HEARD_INT8 timeout --signal=TERM --kill-after=60 "${LEFT}s" python tools/alignment_v3/ctc_heard_map.py --url "$U" --surah "$s" --riwaya "$RIW" --strict-tol-ms 1000 \
                 --max-hits "$HMH" --repeat-policy "$RPOL" \

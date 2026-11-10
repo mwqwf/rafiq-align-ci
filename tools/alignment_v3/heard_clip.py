@@ -12,6 +12,12 @@
    من كلمات الآية، وثقةُ الكلمات الطرفيّة ≥0.5 ومتوسّطُها ≥0.7؛ **ثمّ تثبته محاذاةُ CTC القسريّةُ** لنصّ الآية وحدها
    على نافذةٍ ضيّقةٍ حول مقطع Whisper: بدؤها ونهايتُها يوافقان بدءَ أوّل كلمةٍ ونهايةَ آخرها عند Whisper
    **بفرقٍ ≤ 300م.ث** (‏حدودُ مواضع الخريطة نفسُها فضفاضةٌ تضمّ التكرارَ فلا تصلح حدوداً).
+   ⭐ **شاهدُ البدء (قرار القائد 2026-11-09 · الخيار الأوّل وحده):** تفريغُ المقطع الأوّل بنافذةٍ واسعةٍ يُلصق بدءَ أوّل
+   كلمةٍ ببدء النافذة (‏قيسٌ: 1008م.ث = 1500 − 492 في 31:2). فيُعاد التفريغُ **بنافذةٍ تبدأ داخل الصمت الذي قبل الآية**
+   (‏`onset_window`: صمتُ VAD ينتهي قرب بدء CTC، وبدءُ النافذة قبل أوّل الكلام بـ150م.ث)، فيبقى بدءُ **الكلمة الأولى نفسِها**
+   هو المقيس، ويُقابَل ببدء CTC بفرق ≤300م.ث. ولا صمتَ قبل الآية ⇒ لا قياسَ ⇒ الآيةُ غيرُ محلولة. ⛔ لا يُقاس البدءُ على الكلمة الثانية.
+   وقيدُ العطب الدائريّ: النافذةُ تُوضع من **صمتٍ صوتيّ** لا من بدء CTC مباشرة، واختبارُ التحوّر (‏`selftest`) يثبت أنّ
+   إزاحةَ البدء ±400م.ث و±1ث على فهارس منشورةٍ سليمة تُردّ.
 2. إن تعدّد الأداءُ التامّ فالمأخوذُ **آخرُه** (‏fixV)، بشرط أن يتّسق مع جارتيه: نهايتُه ≤ بدء تاليتها،
    والفجوةُ إلى بدء تاليتها ≤ `MAX_GAP_MS` (‏حارسٌ إضافيّ: لا تُقبل آيةٌ على بُعد دقائق من جارتها).
 3. **ما لم يثبت له أداءٌ تامٌّ واحد لا يُقصّ تخميناً**: تُرجع الأداةُ سورتَه «غيرَ محلولة» بسببٍ مكتوب،
@@ -51,6 +57,9 @@ W_LEN_LO, W_LEN_HI = 0.8, 1.2     # عددُ كلمات المقطع نسبةً 
 PAD_MS = 1500            # هامشُ نافذة الشاهد حول الأداء
 MAX_WINDOW_MS = 120_000  # حدُّ whisper_witness للنافذة الواحدة
 MAX_GAP_MS = 30_000      # أقصى فجوةٍ بين نهاية أداءٍ وبدء أداء تاليتها
+ONSET_BACK_MS = 600     # أبعدُ ما يسبق به انتهاءُ الصمتِ بدءَ CTC ليُعدّ «الصمتَ الذي قبل الآية»
+ONSET_AHEAD_MS = 300     # وأبعدُ ما يلحقه به
+LEAD_IN_MS = 150         # تبدأ نافذةُ شاهد البدء داخل الصمت قبل أوّل الكلام بهذا القدر
 MAX_ROUNDS = 6           # جولاتُ الشاهد: كلُّ جولةٍ الأداءُ التالي الأقدمُ للآيات غير المحلولة
 
 
@@ -115,17 +124,49 @@ def find_matches(words, ref, norm):
     return out, why
 
 
-def confirm(match, ctc_bounds):
-    """يؤكّد مقطعَ Whisper بمحاذاة CTC القسريّة: (دليل، None) أو (None، سبب). `ctc_bounds(lo, hi)` ⇒ (بدء، نهاية) م.ث أو None."""
+def confirm(match, ctc_bounds, check_start=True):
+    """يؤكّد مقطعَ Whisper بمحاذاة CTC القسريّة: (دليل، None) أو (None، سبب). `ctc_bounds(lo, hi)` ⇒ (بدء، نهاية) أو None.
+
+    في التفريغ الواسع لا يُقاس البدءُ (‏يلتصق ببدء النافذة)؛ يُقاس في نافذة شاهد البدء (`eval_start`). النهايةُ تُقاس هنا دائماً."""
     lo, hi = max(0, match["ws"] - PAD_MS), match["we"] + PAD_MS
     got = ctc_bounds(lo, hi)
     if not got:
         return None, "تعذّرت محاذاةُ CTC على النافذة الضيّقة"
     cs, ce = int(got[0]), int(got[1])
     ds, de = abs(cs - match["ws"]), abs(ce - match["we"])
-    if ds > TOL_MS or de > TOL_MS:
+    if de > TOL_MS or (check_start and ds > TOL_MS):
         return None, f"حدّا CTC ({cs}-{ce}) يبعدان عن حدّي Whisper ({match['ws']}-{match['we']}) بـ{ds}/{de}م.ث (>{TOL_MS})"
     return {**match, "cs": cs, "ce": ce, "ds": ds, "de": de}, None
+
+
+def onset_window(sil, cs):
+    """نافذةُ شاهد البدء: (lo, onset) — lo داخل صمتٍ ينتهي (‏بدءُ الكلام) في [cs−600، cs+300]؛ أو None.
+
+    `sil`: [(بدء، نهاية)] م.ث من VAD. يُختار الصمتُ الأقربُ انتهاءً إلى cs؛ وlo = max(بدء الصمت، نهايته − 150)."""
+    best = None
+    for s_, e_ in sil or []:
+        if cs - ONSET_BACK_MS <= e_ <= cs + ONSET_AHEAD_MS:
+            if best is None or abs(e_ - cs) < abs(best[1] - cs):
+                best = (int(s_), int(e_))
+    if best is None:
+        return None
+    return max(best[0], best[1] - LEAD_IN_MS), best[1]
+
+
+def eval_start(words, ref, cs, ce, norm):
+    """يُقابل تفريغَ نافذة شاهد البدء بحدّي CTC: (دليل، None) أو (None، سبب). ⛔ أوّلُ كلمةٍ هي المقيسة."""
+    ms, why = find_matches(words, ref, norm)
+    if not ms:
+        return None, why
+    def d_end(m):
+        return 0 if ce is None else abs(m["we"] - ce)          # ce=None: اختبارُ البدء وحدَه (selftest)
+    ok = [m for m in ms if abs(m["ws"] - cs) <= TOL_MS and d_end(m) <= TOL_MS]
+    if not ok:
+        m = min(ms, key=lambda m: abs(m["ws"] - cs) + d_end(m))
+        return None, (f"شاهدُ البدء: حدّا Whisper ({m['ws']}-{m['we']}) يبعدان عن حدّي CTC ({cs}-{ce}) "
+                      f"بـ{abs(m['ws'] - cs)}/{d_end(m)}م.ث (>{TOL_MS})")
+    m = min(ok, key=lambda m: abs(m["ws"] - cs) + d_end(m))
+    return {**m, "ds": abs(m["ws"] - cs), "de": d_end(m)}, None
 
 
 def select(verified, n_ayahs):
@@ -173,9 +214,12 @@ def next_windows(hmap, n_ayahs, verified, tried, unresolved):
     return wins, owners
 
 
-def clip_surah(hmap, ref_words, n_ayahs, witness_runner, ctc_runner, norm):
-    """يقصّ سورةً واحدة. `witness_runner(wins)` ⇒ {مفتاح: {"words": [...]}}؛ و`ctc_runner(lo, hi, ayah)` ⇒ (بدء، نهاية) أو None.
+def clip_surah(hmap, ref_words, n_ayahs, witness_runner, ctc_runner, norm, sil):
+    """يقصّ سورةً واحدة. `witness_runner(wins)` ⇒ {مفتاح: {"words": [...]}}؛ و`ctc_runner(lo, hi, ayah)` ⇒ (بدء، نهاية) أو None؛
+    و`sil` صمتُ VAD [(بدء، نهاية)] م.ث.
 
+    لكلّ مقطعٍ تامٍّ عند Whisper (نافذةٌ واسعة): (1) تأكيدُ CTC القسريّ ونهايتُه تطابق نهايةَ Whisper ≤300م.ث،
+    (2) شاهدُ البدء بنافذةٍ داخل الصمت قبل الآية (‏`onset_window`) وبدءُ أوّل كلمةٍ يطابق بدءَ CTC ≤300م.ث.
     يُرجع dict: ok، entries (‏صيغة batch_run)، evidence، unresolved {آية: سبب}، rounds."""
     verified, tried, reasons = {}, {}, {}
     chosen, missing = {}, list(range(1, n_ayahs + 1))
@@ -185,6 +229,7 @@ def clip_surah(hmap, ref_words, n_ayahs, witness_runner, ctc_runner, norm):
         if not wins:
             break
         got = witness_runner(wins)
+        cands = []                                   # (آية، k، n، perf، مقطع Whisper، cs، ce)
         for key, (a, k, n, perf) in owners.items():
             rec = got.get(str(key)) or got.get(key)
             if not rec:
@@ -195,12 +240,36 @@ def clip_surah(hmap, ref_words, n_ayahs, witness_runner, ctc_runner, norm):
                 reasons[a] = f"الموضع {k}/{n} [{perf[0]}-{perf[1]}]: {why}"
                 continue
             for m in matches:
-                ev, why2 = confirm(m, lambda lo, hi, _a=a: ctc_runner(lo, hi, _a))
+                ev, why2 = confirm(m, lambda lo, hi, _a=a: ctc_runner(lo, hi, _a), check_start=False)
                 if ev is None:
                     reasons[a] = f"الموضع {k}/{n} [{perf[0]}-{perf[1]}]: {why2}"
                     continue
-                s_, e_ = min(ev["cs"], ev["ws"]), max(ev["ce"], ev["we"])
-                verified.setdefault(a, []).append({"s": s_, "e": e_, "sim": round(perf[2], 3), "k": k, "n": n, **ev})
+                cands.append((a, k, n, perf, m, ev["cs"], ev["ce"]))
+        # شاهدُ البدء: نافذةٌ داخل الصمت قبل الآية، تفريغٌ ثانٍ
+        bwins, bown = {}, {}
+        for i, (a, k, n, perf, m, cs, ce) in enumerate(cands):
+            ow = onset_window(sil, cs)
+            if ow is None:
+                reasons[a] = f"الموضع {k}/{n}: لا صمتَ قبل بدء CTC {cs} (‏±{ONSET_BACK_MS}/{ONSET_AHEAD_MS}م.ث) فلا يُقاس بدءُ أوّل كلمة"
+                continue
+            key = 10_000_000 + i
+            bwins[key] = (ow[0], ce + PAD_MS)
+            bown[key] = (a, k, n, perf, m, cs, ce, ow)
+        got2 = witness_runner(bwins) if bwins else {}
+        for key, (a, k, n, perf, m, cs, ce, ow) in bown.items():
+            rec = got2.get(str(key)) or got2.get(key)
+            if not rec:
+                reasons[a] = "لا تفريغَ لنافذة شاهد البدء"
+                continue
+            ev, why = eval_start(rec.get("words"), ref_words(a), cs, ce, norm)
+            if ev is None:
+                reasons[a] = f"الموضع {k}/{n} [{perf[0]}-{perf[1]}]: {why}"
+                continue
+            s_, e_ = min(cs, ev["ws"]), max(ce, ev["we"])
+            verified.setdefault(a, []).append({
+                "s": s_, "e": e_, "sim": round(perf[2], 3), "k": k, "n": n, "ws": ev["ws"], "we": ev["we"],
+                "pmin": ev["pmin"], "pmean": ev["pmean"], "cs": cs, "ce": ce, "ds": ev["ds"], "de": ev["de"],
+                "onset": [ow[0], ow[1]]})
         chosen, missing = select(verified, n_ayahs)
         if not missing:
             break
@@ -222,7 +291,7 @@ def clip_surah(hmap, ref_words, n_ayahs, witness_runner, ctc_runner, norm):
                         "total": 0, "heard": True, "boundary": "clip"})
         evidence[str(a)] = {"performance": [v["s"], v["e"]], "occurrence": [v["k"], v["n"]], "sim": v["sim"],
                             "whisper": [v["ws"], v["we"]], "ctc": [v["cs"], v["ce"]], "diffMs": [v["ds"], v["de"]],
-                            "pMin": v["pmin"], "pMean": v["pmean"]}
+                            "onsetSilence": v["onset"], "pMin": v["pmin"], "pMean": v["pmean"]}
     for i in range(len(entries) - 1):
         if entries[i]["endMs"] > entries[i + 1]["startMs"]:
             entries[i]["endMs"] = entries[i + 1]["startMs"]       # تماسُّ الحدّين لا تداخل
@@ -286,7 +355,10 @@ def make_ctc_runner(url, refs, want_sha):
     sha = hashlib.sha256(open(mp3, "rb").read()).hexdigest()
     if want_sha and sha != want_sha:
         raise SystemExit(f"⛔ بصمةُ صوت التأكيد {sha[:8]} غيرُ بصمة الخريطة {str(want_sha)[:8]}")
-    x = read_wav(to_wav16k(mp3)).astype(np.float32)
+    wav = to_wav16k(mp3)
+    x = read_wav(wav).astype(np.float32)
+    from vad import silences                                                # noqa: PLC0415
+    sil = [(int(s), int(e)) for s, e in silences(wav)]
 
     def run(lo, hi, a):
         clip = x[int(lo) * SR // 1000: int(hi) * SR // 1000]
@@ -297,7 +369,75 @@ def make_ctc_runner(url, refs, want_sha):
         except Exception:                                                   # noqa: BLE001
             return None
         return int(lo) + int(st * 1000), int(lo) + int(en * 1000)
-    return run
+    return run, sil
+
+
+SHIFTS_MS = (0, 400, -400, 1000, -1000)
+
+
+def selftest_rows(samples, ref_words, witness_runner, sil, norm):
+    """يطبّق شاهدَ البدء الإنتاجيّ نفسَه على عيّناتٍ (آية، بدء، نهاية) من فهرسٍ سليم مع إزاحاتٍ للبدء.
+
+    يُرجع [{ayah, shift, verdict, why}]. القبولُ عند إزاحة 0 غيرُ مشروط (‏يُقاس ولا يُشترط)، أمّا المزاحُ فيجب أن يُردّ."""
+    wins, own, rows = {}, {}, []
+    i = 0
+    for a, st, en in samples:
+        for d in SHIFTS_MS:
+            cs = st + d
+            ow = onset_window(sil, cs)
+            if ow is None:
+                rows.append({"ayah": a, "shift": d, "verdict": "rejected", "why": "لا صمتَ قبل البدء المرشَّح"})
+                continue
+            key = 20_000_000 + i
+            i += 1
+            wins[key] = (ow[0], en + PAD_MS)
+            own[key] = (a, d, cs)
+    got = witness_runner(wins) if wins else {}
+    for key, (a, d, cs) in own.items():
+        rec = got.get(str(key)) or got.get(key)
+        if not rec:
+            rows.append({"ayah": a, "shift": d, "verdict": "rejected", "why": "لا تفريغَ"})
+            continue
+        ev, why = eval_start(rec.get("words"), ref_words(a), cs, None, norm)
+        rows.append({"ayah": a, "shift": d, "verdict": "accepted" if ev else "rejected",
+                     "why": "" if ev else why, "ds": (ev or {}).get("ds")})
+    return sorted(rows, key=lambda r: (r["ayah"], r["shift"]))
+
+
+def selftest(a):
+    import gzip                                                             # noqa: PLC0415
+    from common import load_index, load_text, norm, surah_slice             # noqa: PLC0415
+    idx = json.loads(gzip.decompress(open(a.index, "rb").read()).decode("utf-8"))
+    ents = {int(e["ayahId"].split(":")[1]): e for e in idx["entries"] if int(e["ayahId"].split(":")[0]) == a.surah}
+    if not ents:
+        raise SystemExit(f"⛔ لا مداخل للسورة {a.surah} في الفهرس")
+    start, _end, info = surah_slice(load_index(), a.surah)
+    texts = load_text(a.riwaya)
+    n = int(info["ayahs"])
+    refs = [norm(texts[start + i]) for i in range(n)]
+    ref = lambda ay: refs[ay - 1].split()                                      # noqa: E731
+    if a.ayahs:
+        pick = [int(x) for x in a.ayahs.split(",") if x]
+    else:
+        keys = sorted(ents)
+        step = max(1, len(keys) // max(1, a.samples))
+        pick = keys[::step][:a.samples]
+    samples = [(k, int(ents[k]["startMs"]), int(ents[k]["endMs"])) for k in pick if k in ents]
+    runner = subprocess_witness(a.url, a.surah, a.riwaya, a.model)
+    _ctc, sil = make_ctc_runner(a.url, refs, None)
+    rows = selftest_rows(samples, ref, runner, sil, norm)
+    acc = {d: sum(1 for r in rows if r["shift"] == d and r["verdict"] == "accepted") for d in SHIFTS_MS}
+    tot = {d: sum(1 for r in rows if r["shift"] == d) for d in SHIFTS_MS}
+    bad = [r for r in rows if r["shift"] != 0 and r["verdict"] == "accepted"]
+    out = {"surah": a.surah, "index": os.path.basename(a.index), "model": a.model, "samples": len(samples),
+           "accepted": acc, "total": tot, "shiftedAccepted": bad, "rows": rows}
+    os.makedirs(os.path.dirname(a.out) or ".", exist_ok=True)
+    json.dump(out, open(a.out, "w", encoding="utf-8"), ensure_ascii=False)
+    print(f"اختبار التحوّر س{a.surah}: عيّنات {len(samples)} · المقبول لكلّ إزاحة {acc} من {tot}")
+    print("⛔ إزاحاتٌ قُبلت (يجب ألّا تُقبل): %d" % len(bad) if bad else "✅ كلُّ البدءات المزاحة رُدّت")
+    for r in bad[:10]:
+        print("   ", r)
+    return 0
 
 
 def main():
@@ -309,7 +449,18 @@ def main():
     c.add_argument("--url", required=True)
     c.add_argument("--riwaya", required=True)
     c.add_argument("--model", default="small", choices=("small", "medium"))
+    st = sub.add_parser("selftest", help="اختبارُ التحوّر: إزاحةُ البدء ±400م.ث و±1ث على فهرسٍ منشورٍ سليم يجب أن تُردّ")
+    st.add_argument("--index", required=True)
+    st.add_argument("--surah", type=int, required=True)
+    st.add_argument("--url", required=True)
+    st.add_argument("--riwaya", required=True)
+    st.add_argument("--model", default="small", choices=("small", "medium"))
+    st.add_argument("--samples", type=int, default=12)
+    st.add_argument("--ayahs", default="", help="آياتٌ مسمّاة بفواصل بدل العيّنة المتباعدة")
+    st.add_argument("--out", required=True)
     a = ap.parse_args()
+    if a.cmd == "selftest":
+        return selftest(a)
     from common import load_index, load_text, norm, surah_slice                 # noqa: PLC0415
     path = Path(a.batch_dir) / f"s{a.surah:03d}.json"
     if not path.exists():
@@ -323,8 +474,8 @@ def main():
     ref = lambda ay: refs[ay - 1].split()                                      # noqa: E731
     runner = subprocess_witness(a.url, a.surah, a.riwaya, a.model)
     runner.sha = rec.get("sha256")
-    ctc = make_ctc_runner(a.url, refs, rec.get("sha256"))
-    res = clip_surah(rec, ref, n, runner, ctc, norm)
+    ctc, sil = make_ctc_runner(a.url, refs, rec.get("sha256"))
+    res = clip_surah(rec, ref, n, runner, ctc, norm, sil)
     if not res["ok"]:
         # ⛔ لا قصَّ بالتخمين: السورةُ تبقى بلا مداخل (‏يُنقل الملفُّ جانباً فلا يدمجه الدمج) ويُكتب السببُ.
         report = Path(a.batch_dir) / f"clip_s{a.surah:03d}.unresolved.json"
