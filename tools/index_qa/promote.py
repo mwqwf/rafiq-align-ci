@@ -2267,8 +2267,21 @@ def inherited_drops(idx, parent, parent_sha, owner_approved=frozenset()):
             or not pt.get("reasonUser")
             or any(tr.get(k) != pt.get(k) for k in ("reasonCode", "reasonUser"))):
         return set(), "بيان سبب الغياب الموروث مفقود أو تبدل"
-    if not {e["ayahId"] for e in parent.get("entries", [])} <= {e["ayahId"] for e in idx.get("entries", [])}:
-        return set(), "إعلان الغياب الموروث مع فقد مداخل منشورة"
+    # ⭐ (أمر القائد 2026-11-10 · توريثُ drop_ayahs لإعلان الإسقاط) الأصلُ أن لا يُفقد مدخلٌ منشور. ويُستثنى منه **وحدَه**
+    #    المحجوبُ في الوسط: آيةٌ غائبةٌ معلَنةٌ في `truncatedGaps[س].absent` لسورةٍ **ليست من الموروثة** وتجتاز
+    #    `declared_truncated_gaps` كاملةً (‏دليلُ كلّ آية · ≤ ربع السورة · لا الأولى ولا الأخيرة · مداخلُها = الآياتُ ناقص المحجوب).
+    #    وكلُّ فقدٍ سوى ذلك يُردّ كما كان: ولا يُرخى حارسٌ — فالاستثناءُ مشروطٌ بأشدّ الحُرّاس لا بغيابه.
+    lost = {e["ayahId"] for e in parent.get("entries", [])} - {e["ayahId"] for e in idx.get("entries", [])}
+    if lost:
+        excused = set()
+        gaps = tr.get("truncatedGaps") if isinstance(tr.get("truncatedGaps"), dict) else {}
+        for k, rec in gaps.items():
+            if str(k) in claimed or not isinstance(rec, dict) or not str(k).isdigit():
+                continue
+            if declared_truncated_gaps(idx, int(k))[0]:
+                excused |= {f"{int(k)}:{a}" for a in rec.get("absent") or []}
+        if not lost <= excused:
+            return set(), "إعلان الغياب الموروث مع فقد مداخل منشورة"
     return claimed, None
 
 
