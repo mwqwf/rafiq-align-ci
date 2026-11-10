@@ -127,8 +127,8 @@ class OldPublishedCounter(unittest.TestCase):
 
     def test_verdict_changes_and_is_stated(self):
         self.assertEqual(promote.truncation_excused(self.k), 0)
-        self.assertIn("غيابٌ غير معلَّل 254/6236", promote.index_gate(self.k, inherited={}))
-        self.assertIsNone(promote.index_gate(self.k, coded_approved=frozenset({4, 55}), inherited={}))
+        self.assertIn("غيابٌ غير معلَّل 254/6236", promote.index_gate(self.k, inherited_rows={}))
+        self.assertIsNone(promote.index_gate(self.k, coded_approved=frozenset({4, 55}), inherited_rows={}))
         self.assertEqual(certify_catalog.declared_absent(self.k, inherited={}), 0)
 
 
@@ -151,13 +151,13 @@ class InheritedRow(unittest.TestCase):
 
     def test_row_keeps_published_verdict(self):
         rows = self._rows()
-        self.assertIsNone(promote.index_gate(self.k, inherited=rows))
+        self.assertIsNone(promote.index_gate(self.k, inherited_rows=rows))
         self.assertEqual(certify_catalog.declared_absent(self.k, inherited=rows), 254)
 
     def test_row_protects_only_its_surahs_and_codes(self):
         k2 = json.loads(json.dumps(self.k))
         k2["transform"]["reasonCode"] = "SOURCE_CORRUPT"                       # رمزٌ آخر للسورتين نفسيهما
-        self.assertIn("غيابٌ غير معلَّل", promote.index_gate(k2, inherited=self._rows()))
+        self.assertIn("غيابٌ غير معلَّل", promote.index_gate(k2, inherited_rows=self._rows()))
         only4 = self._rows({**ROW, "surahs": {"4": "OTHER"}})                 # الصفُّ لا يسمّي س55
         self.assertEqual(promote.inherited_protected(self.k, only4), {4})
         self.assertEqual(certify_catalog.declared_absent(self.k, inherited=only4), 176)
@@ -166,8 +166,8 @@ class InheritedRow(unittest.TestCase):
         more = _drop(self.k, "7", "OTHER")
         rows = self._rows()
         self.assertEqual(promote.inherited_protected(more, rows), {4, 55})
-        self.assertIn("غيابٌ غير معلَّل", promote.index_gate(more, inherited=rows))
-        self.assertIsNone(promote.index_gate(more, inherited=rows, coded_approved=frozenset({7})))
+        self.assertIn("غيابٌ غير معلَّل", promote.index_gate(more, inherited_rows=rows))
+        self.assertIsNone(promote.index_gate(more, inherited_rows=rows, coded_approved=frozenset({7})))
 
     def test_row_never_excuses_more_than_old_counter(self):
         k2 = json.loads(json.dumps(self.k))

@@ -2254,7 +2254,7 @@ def inherited_drops(idx, parent, parent_sha, owner_approved=frozenset()):
 
 
 def index_gate(idx, *, parent=None, parent_sha=None, owner_approved=frozenset(), coded_approved=frozenset(),
-               inherited=None):
+               inherited_rows=None):
     """سبب رفض الفهرس نفسه، أو None. **الغياب رفضٌ لا تساهل.**"""
     if not idx.get("refineVersion"):
         return "الفهرس بلا أثر صقلٍ في ترويسته — مجهول الجيل فلا يُرقّى"
@@ -2297,7 +2297,7 @@ def index_gate(idx, *, parent=None, parent_sha=None, owner_approved=frozenset(),
                 + (f" (و{len(gone) - 5} غيرها)" if len(gone) > 5 else ""))
     # ⭐ والحجبُ برمزٍ آخر لا يُعفيه العدّاد؛ يُعفيه بابان لا ثالث لهما (‏`gate_excused`): صفُّ موافقةٍ لمفتاح المرشّح
     #    (‏`coded_approved` من OWNER_DROP_APPROVALS)، أو صفٌّ «موروث قبل #103» يسمّي السورةَ برمزها لهذا القارئ.
-    excused = gate_excused(idx, coded_approved, inherited)
+    excused = gate_excused(idx, coded_approved, inherited_rows)
     unexplained = count - excused
     if unexplained / total > MAX_MISSING_FRAC:
         return (f"غيابٌ غير معلَّل {unexplained}/{total} "

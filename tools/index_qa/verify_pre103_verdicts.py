@@ -70,9 +70,9 @@ def main():
             raise SystemExit(f"⛔ {key}: البصمةُ لا تطابق manifest — لا حكمَ على غير الحيّ")
         idx = json.loads(gzip.decompress(body))
         n += 1
-        new_gate = promote.index_gate(idx, inherited=rows)
+        new_gate = promote.index_gate(idx, inherited_rows=rows)
         with mock.patch.object(promote, "gate_excused", legacy_excused):
-            old_gate = promote.index_gate(idx, inherited=rows)
+            old_gate = promote.index_gate(idx, inherited_rows=rows)
         new_d, old_d = certify_catalog.declared_absent(idx, inherited=rows), legacy_declared(idx)
         if new_gate != old_gate or new_d != old_d:
             diff.append(f"{key} ({x['sha256'][:8]}): index_gate {old_gate!r} ⇒ {new_gate!r} · declared_absent {old_d} ⇒ {new_d}")
