@@ -240,6 +240,27 @@ def truncated_header_error(idx, tails):
     return None
 
 
+def parent_coded_approved(pidx, idx, parent_key, psha, approvals=None):
+    """سورُ إعفاء العتبة الموروثة من صفّ موافقة **الأصل** — لحارس البنية في التحزيم وحده.
+
+    المرشّحُ لا صفَّ لمفتاحه قبل أن يُبنى، فكان حارسُ البنية هنا يردّ كلَّ إعادة محاذاةٍ لقارئٍ عليه حجبٌ
+    مؤقّتٌ معلن معتمد (‏akri_qalun س10 وس37 · 2026-11-10). ⛔ ولا يُرخى شيء: يُعفى من السور ما اجتمعت فيه
+    ثلاثة: (١) يسمّيه صفُّ موافقةِ مفتاحِ الأصل في OWNER_DROP_APPROVALS، (٢) محجوبٌ في الأصل برمزٍ غير
+    SOURCE_TRUNCATED، (٣) محجوبٌ في المرشّح **بالرمز نفسه**. فلا يمرّ به حجبٌ جديد ولا رمزٌ مبدَّل،
+    والترقيةُ (‏promote) تبقى تطلب صفّاً لمفتاح المرشّح نفسه كما كانت."""
+    if approvals is None:
+        approvals = promote.load_drop_approvals()
+    if str(parent_key).startswith("timings-staging/"):
+        key = parent_key
+    else:
+        key = f"timings-staging/{pidx.get('riwaya')}/{pidx.get('reciterId')}.{str(psha)[:8]}.jz"
+    row = set(approvals.get(key) or ())
+    old = promote.declared_surah_codes(pidx.get("transform"))
+    new = promote.declared_surah_codes(idx.get("transform"))
+    return frozenset(s for s in row
+                     if s in old and old[s] != "SOURCE_TRUNCATED" and s in new and new[s] == old[s])
+
+
 def inherit_truncated_gaps(pidx, out, realigned):
     """يُورِّث إعلانَ **الحجب الوسطيّ** (‏أمر المالك 2026-10-31) من الأصل إلى المخرَج، أو يردّ.
 
@@ -543,7 +564,10 @@ def main():
         if not changed:
             raise SystemExit("⛔ لا مداخلَ تغيّرت ولا ترويسة — لا شيء هنا")
         print(f"  ✔ تصحيحٌ ترويسيّ بلا مسِّ مدخلٍ واحد: {changed}")
-    for check, name in ((promote.index_gate(idx), "البنية"),
+    _inh = parent_coded_approved(pidx, idx, a.parent, psha)
+    if _inh:
+        print(f"  ⓘ إعفاءُ العتبة موروثٌ من صفّ موافقة الأصل لسورٍ محجوبةٍ فيه بالرمز نفسه: {sorted(_inh)}")
+    for check, name in ((promote.index_gate(idx, coded_approved=_inh), "البنية"),
                         (promote.catalog_gate(idx, promote.catalog(cl, bucket)),
                          "الهويّة")):
         if check:
