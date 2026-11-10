@@ -38,6 +38,7 @@ import argparse
 import gzip
 import hashlib
 import json
+import re
 import sys
 import time
 from pathlib import Path
@@ -160,6 +161,15 @@ def drop_ayahs(idx: dict, ayahs: dict, evidence: dict, *, reason: str, reason_us
             raise SystemExit(f"⛔ السببُ يحمل «{w}» — والحقلُ يُعرض للمستخدم")
     counts = drop_surah.SURAH_AYAHS_OF(idx)
     tr0 = idx.get("transform") if isinstance(idx.get("transform"), dict) else {}
+    # ⛔ (‏2026-11-10 · 3siri bc63afc4) أصلٌ يحمل إعلانَ إسقاطِ سورةٍ كاملة (‏`dropSurah` أو op=drop_surah:…) يُردّ صراحةً:
+    #    الترويسةُ الجديدة تُكتب من الصفر فكان الإعلانُ يُمحى بصمت (‏op=declare_gap وreasonCode جديد بلا dropSurah)،
+    #    فتبقى السورةُ غائبةً بلا سبب ثمّ يردّها index_gate بـ«سورٌ غائبةٌ كلّياً». ولا يُخلط رمزان في ترويسةٍ واحدة.
+    _op0 = idx.get("transform") if isinstance(idx.get("transform"), str) else str(tr0.get("op") or "")
+    if tr0.get("dropSurah") or _op0.startswith("drop_surah"):
+        _named = sorted(({int(x) for x in re.findall(r"\d+", _op0)} if _op0.startswith("drop_surah") else set())
+                        | {int(x) for x in (tr0.get("dropSurah") or []) if str(x).isdigit()})
+        raise SystemExit(f"⛔ الأصلُ يعلن إسقاطَ سورٍ كاملة {_named} (‏{_op0 or 'dropSurah'}) ولا تورّث هذه الأداةُ ذلك الإعلان — "
+                         "الحجبُ عليه يمحوه بصمت. أصلِح الآياتِ بـpin_heard (‏يورّث الإعلانَ حرفاً) أو ابدأ من أصلٍ بلا إسقاط")
     ents = list(idx.get("entries") or [])
     recs, gone = {}, set()
     orig_all = {e["ayahId"]: e for e in ents}

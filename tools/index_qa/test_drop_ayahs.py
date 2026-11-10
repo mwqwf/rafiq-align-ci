@@ -366,5 +366,40 @@ class TimingUnderRepair(unittest.TestCase):
         self.assertIsNotNone(base)
 
 
+class DropParentRefused(unittest.TestCase):
+    """⛔ (‏2026-11-10 · 3siri bc63afc4) أصلٌ يعلن إسقاطَ سورةٍ كاملة يُردّ صراحةً — كان إعلانُه يُمحى بصمت."""
+
+    def _parent(self, tr):
+        i = _idx()
+        i["transform"] = tr
+        return i
+
+    def _drop(self, parent, code="SOURCE_TRUNCATED", ev=None):
+        return drop_ayahs.drop_ayahs(parent, {S: [15, 17, 18]}, ev or _ev_tur((15, 17, 18)), reason="قياس",
+                                     reason_user="توقيتُ هذه الآيات قيد الإصلاح.", reason_code=code,
+                                     from_sha="a" * 64, from_key="timings/hafs/x.jz")
+
+    def test_drop_surah_56_other_parent_refused(self):
+        """الحالةُ نفسُها: أصلٌ يحمل dropSurah=[56] بسبب OTHER، والحجبُ الجديد TIMING_UNDER_REPAIR."""
+        p = self._parent({"op": "drop_surah:56", "dropSurah": [56], "reasonCode": "OTHER",
+                          "reasonUser": "توقيتُ هذه السورة لهذا القارئ قيد الإصلاح، فحُجب مؤقّتاً."})
+        for code in (TUR, "SOURCE_TRUNCATED"):
+            with self.assertRaises(SystemExit) as cm:
+                self._drop(copy.deepcopy(p), code)
+            self.assertIn("[56]", str(cm.exception))
+            self.assertIn("pin_heard", str(cm.exception))
+
+    def test_op_only_and_field_only_and_text_form_refused(self):
+        for tr in ({"op": "drop_surah:48,56", "reasonCode": "OTHER", "reasonUser": "x"},
+                   {"op": "heard_pin:9", "dropSurah": [56], "reasonCode": "OTHER", "reasonUser": "x"},
+                   "drop_surah:56"):
+            with self.assertRaises(SystemExit):
+                self._drop(self._parent(tr), TUR)
+
+    def test_parent_without_drop_unchanged(self):
+        out = self._drop(self._parent({"op": "heard_pin:9"}), TUR)
+        self.assertEqual(out["transform"]["reasonCode"], TUR)
+
+
 if __name__ == "__main__":
     unittest.main()
