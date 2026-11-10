@@ -15,10 +15,12 @@
   «غير محسومة»     — ما سوى ذلك (‏خلافٌ بين الشاهدين · آيتان محتملتان · تكرارٌ · لا تغطية كافية).
 المسابير: الأولى والوسطى والأخيرة من «المنحرفة المثبتة» بقاعدةٍ ثابتةٍ غيرِ متجاورة (‏`pick_probes`) — لا بيدٍ ولا بانتقاءٍ بعد النتيجة.
 الشرط (٤): إن زادت «في موضعها» على «المنحرفة المثبتة» فلا تُحجب السورةُ كاملةً (‏يُرفض البناء برمز 3) ويُحجب العنقودُ بـ`drop_ayahs`.
+التغطية: إن غطّى الشاهدان معاً أقلَّ من ثلاثة أرباع آيات السورة رُدّ البناءُ برمز 5 (‏العنقودُ المغطّى بـ`drop_ayahs`).
 """
 from __future__ import annotations
 
 import argparse
+import math
 import json
 import re
 import sys
@@ -31,6 +33,7 @@ if str(HERE) not in sys.path:
 SRC_KEYS = ("surah", "riwaya", "fileRef", "sha256", "model", "computeType", "ayahs")
 IN_PLACE, PROVEN, UNDECIDED = "في موضعها", "منحرفة مثبتة", "غير محسومة"
 MIN_PROBES = 3
+MIN_COVER_NUM, MIN_COVER_DEN = 3, 4                                # حجبُ السورة كاملةً يلزمه تغطيةُ الشاهدين معاً لثلاثة أرباع آياتها (أمر القائد 2026-11-10)
 RUN_RE = re.compile(r"[1-9]\d{5,14}")
 
 
@@ -147,6 +150,12 @@ def build(srcs, runs, surah, starts, riwaya, ref_words, n_ayahs, want_sha):
     undec = sorted(a for a, (c, _) in cls.items() if c == UNDECIDED)
     rep = {"surah": surah, "runs": [str(r) for r in runs], "counts": {PROVEN: len(proven), IN_PLACE: len(own), UNDECIDED: len(undec)},
            PROVEN: proven, IN_PLACE: own, UNDECIDED: undec, "probes": None, "verdict": None}
+    need = math.ceil(n_ayahs * MIN_COVER_NUM / MIN_COVER_DEN)
+    rep["coverage"] = {"covered": len(cls), "ayahs": n_ayahs, "need": need}
+    if len(cls) < need:                                               # التغطية: لا حكمَ على سورةٍ لم يُسمع ربعُها
+        rep["verdict"] = (f"coverage: غطّى الشاهدان معاً {len(cls)} من {n_ayahs} آية (يلزم {need}) — "
+                          "لا حجبَ كاملاً للسورة، العنقودُ المغطّى بـdrop_ayahs")
+        return None, rep, 5
     if len(own) > len(proven):                                        # الشرط (٤)
         rep["verdict"] = "cluster_only: «في موضعها» أكثر من «المنحرفة المثبتة» — لا حجبَ كاملاً للسورة، العنقودُ بـdrop_ayahs"
         return None, rep, 3

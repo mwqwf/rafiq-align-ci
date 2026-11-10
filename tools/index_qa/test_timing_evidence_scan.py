@@ -136,5 +136,37 @@ class Condition4(unittest.TestCase):
             build({}, runs=(RA, "abc"))
 
 
+class Coverage(unittest.TestCase):
+    """حجبُ السورة كاملةً يلزمه تغطيةُ الشاهدين معاً لثلاثة أرباع آياتها (‏N=24 ⇒ 18)."""
+    DEV = {a: (a + 7 if a + 7 <= N else a - 7) for a in range(1, 18)}
+
+    def _b(self, covered_a, covered_b=None):
+        cb = covered_a if covered_b is None else covered_b
+        return S.build([wit(self.DEV, covered=covered_a), wit(self.DEV, covered=cb)], [RA, RB],
+                       SURAH, STARTS, "hafs", ref_words, N, SHA)
+
+    def test_below_three_quarters_refused(self):
+        rec, rep, code = self._b(list(range(1, 18)))               # 17 < 18
+        self.assertEqual((rec, code), (None, 5))
+        self.assertIn("drop_ayahs", rep["verdict"])
+        self.assertEqual(rep["coverage"], {"covered": 17, "ayahs": N, "need": 18})
+
+    def test_exactly_three_quarters_builds(self):
+        rec, rep, code = self._b(list(range(1, 19)))               # 18 = 18
+        self.assertEqual(code, 0, rep)
+        self.assertIsNotNone(rec)
+
+    def test_coverage_is_joint_not_either(self):
+        rec, _rep, code = self._b(list(range(1, 25)), list(range(1, 18)))   # أحدهما كامل والآخر 17
+        self.assertEqual((rec, code), (None, 5))
+
+    def test_need_rounds_up(self):
+        cov = list(range(1, 19))                                    # 18 من 25 ⇒ يلزم ceil(18.75)=19
+        rec, rep, code = S.build([wit(self.DEV, covered=cov), wit(self.DEV, covered=cov)], [RA, RB],
+                                 SURAH, STARTS, "hafs", ref_words, 25, SHA)
+        self.assertEqual((rec, code), (None, 5))
+        self.assertEqual(rep["coverage"]["need"], 19)
+
+
 if __name__ == "__main__":
     unittest.main()
