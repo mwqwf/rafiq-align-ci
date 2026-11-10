@@ -90,6 +90,20 @@ def greedy_decode(lpz, frame_ms, char_list, blank, delimiter="|"):
     return out
 
 
+def shift_chars(chars, start_ms):
+    """(‏2026-11-10 · نافذةٌ جزئيّة) أزمنةُ حروفٍ فُكّت من صوتٍ مقصوصٍ عند `start_ms` ⇒ مطلقةٌ على الملفّ. 0 ⇒ كما هي."""
+    if not start_ms:
+        return chars
+    return [(c, int(t) + int(start_ms)) for c, t in chars]
+
+
+def crop_samples(x, start_ms, sr):
+    """العيّناتُ من `start_ms` إلى آخر الملفّ. 0 ⇒ المصفوفةُ نفسُها."""
+    if not start_ms:
+        return x
+    return x[int(start_ms) * int(sr) // 1000:]
+
+
 def _partial(ayah, seg):
     """(‏بدءٌ، نهايةٌ، تشابهٌ) لأفضل موضعٍ للآية داخل `seg` — rapidfuzz إن وُجد وإلا difflib."""
     try:
@@ -395,9 +409,12 @@ def _char_list():
     return cl, tok.pad_token_id, (tok.word_delimiter_token if hasattr(tok, "word_delimiter_token") else "|")
 
 
-def run(audio, surah, riwaya, log=print, probe=False, strict_tol_ms=0, absent=None, peer=None):
+def run(audio, surah, riwaya, log=print, probe=False, strict_tol_ms=0, absent=None, peer=None, start_ms=0):
     """‏`absent` (‏آياتٌ 1-بدء مسمّاةٌ غائبة) و`peer` (‏خريطةُ نموذج التلاوة لنفس الملفّ) — بابٌ مستقلٌّ في `heard_absent`.
-    بلا `absent` يبقى السلوكُ كما كان حرفاً."""
+    بلا `absent` يبقى السلوكُ كما كان حرفاً.
+    ‏`start_ms` (‏--probe وحده): يُفكّ الصوتُ من هذا الموضع إلى آخره، وتُزاح الأزمنةُ به فتبقى مطلقةً على الملفّ؛ 0 ⇒ كما كان حرفاً."""
+    if start_ms and not probe:
+        raise ValueError("start_ms لـ--probe وحده (‏لا مداخلَ من نافذةٍ جزئيّة)")
     import numpy as np
     from ctc_seg import BASMALA, SR, _conf, _emissions, _segment
     from common import ffprobe_duration_ms, load_index, load_text, norm, surah_slice, to_wav16k
@@ -412,12 +429,13 @@ def run(audio, surah, riwaya, log=print, probe=False, strict_tol_ms=0, absent=No
     n = len(refs)
     wav = to_wav16k(audio)
     total_ms = ffprobe_duration_ms(audio)
-    x = read_wav(wav).astype(np.float32)
-    log(f"س{surah}: {n} آية · الملفّ {total_ms / 1000:.0f}ث · فكّ CTC للملفّ كلِّه…")
+    x = crop_samples(read_wav(wav).astype(np.float32), start_ms, SR)
+    log(f"س{surah}: {n} آية · الملفّ {total_ms / 1000:.0f}ث · فكّ CTC للملفّ كلِّه…"
+        if not start_ms else f"س{surah}: {n} آية · الملفّ {total_ms / 1000:.0f}ث · فكّ CTC من {start_ms}م.ث إلى آخره…")
     lpz = _emissions(x)
     frame_ms = len(x) / lpz.shape[0] * 1000.0 / SR
     cl, blank, delim = _char_list()
-    chars = greedy_decode(lpz, frame_ms, cl, blank, delim)
+    chars = shift_chars(greedy_decode(lpz, frame_ms, cl, blank, delim), start_ms)
     heard_sk, times = skeleton(chars)
     log(f"المسموع: {len(heard_sk)} حرفاً هيكليّاً على {len(lpz)} إطاراً ({frame_ms:.1f}م.ث/إطار)")
 
@@ -657,6 +675,8 @@ def main() -> int:
     ap.add_argument("--probe", action="store_true", help="خريطةُ السماع وحدها بلا محاذاة ولا مداخل")
     ap.add_argument("--strict-tol-ms", type=int, default=0,
                     help="حدٌّ أقصى ثابتٌ لبُعد الحدّ عن مِرساته (‏مثل 1500 للدفعة السماعيّة) بدلَ max(3ث، نصفِ المدّة)")
+    ap.add_argument("--start-ms", type=int, default=0,
+                    help="بدءُ النافذة بالم.ث (‏--probe وحده): يُفكّ من هنا إلى آخر الملفّ والأزمنةُ مطلقة؛ 0 = الملفُّ كلُّه كما كان")
     ap.add_argument("--report", default="", help="ملفُّ تقريرٍ نصّيّ (‏افتراضه <out-dir>/heard_s<س>.txt)")
     ap.add_argument("--absent-ayahs", default="",
                     help="آياتٌ غائبةٌ مسمّاةٌ في سورةٍ واحدةٍ: «74-94» أو «6:74-94» (‏بابُ heard_absent). في --probe تُمسح في الملفّ كلِّه؛ "
@@ -676,6 +696,8 @@ def main() -> int:
         print(f"نموذجُ التلاوة المثبَّت: {qm['id']}@{qm['revision'][:8]}")
     if not a.url and not a.audio:
         ap.error("يلزم --url أو --audio")
+    if a.start_ms < 0 or (a.start_ms and not a.probe):
+        ap.error("--start-ms عددٌ غيرُ سالب، ولـ--probe وحده")
     os.makedirs(a.out_dir, exist_ok=True)
     audio = a.audio or os.path.join(a.out_dir, f"{a.surah:03d}.mp3")
     if not a.audio and (not os.path.exists(audio) or os.path.getsize(audio) < 10_000):
@@ -699,7 +721,8 @@ def main() -> int:
                 print("⛔ خريطةُ النظير لا تطابق: سورةٌ وبصمةُ ملفٍّ ونموذجُ تلاوةٍ ومسحُ الغائبات نفسُها")
                 return 2
     try:
-        res, report = run(audio, a.surah, a.riwaya, probe=a.probe, strict_tol_ms=a.strict_tol_ms, absent=absent, peer=peer)
+        res, report = run(audio, a.surah, a.riwaya, probe=a.probe, strict_tol_ms=a.strict_tol_ms, absent=absent, peer=peer,
+                          **({"start_ms": a.start_ms} if a.start_ms else {}))
     except Exception as ex:                                                  # noqa: BLE001
         if absent and type(ex).__name__ == "HeardAbsentError":
             print(f"⛔ رُدّت السورةُ: {ex}")
@@ -708,12 +731,18 @@ def main() -> int:
     import vad as _vad
     res.update(fileRef=a.url or audio, sha256=sha, vadRel=getattr(_vad, "LAST_REL", None),
                vadVersion=getattr(_vad, "VAD_VERSION", None))
+    if a.start_ms:
+        # ⭐ النافذةُ جزئيّة: ما قبل هذا الموضع لم يُسمع، فلا يُقرأ غيابُ مِرساةٍ قبله عدماً.
+        res["windowStartMs"] = a.start_ms
+        report = f"# نافذةٌ جزئيّة: من {a.start_ms}م.ث إلى آخر الملفّ (‏الأزمنةُ مطلقة)\n" + report
     if qm:
         res["quranModel"] = {k: qm[k] for k in ("id", "revision", "weightsSha256")}
     rep_path = a.report or os.path.join(a.out_dir, f"heard_s{a.surah:03d}.txt")
     with open(rep_path, "w", encoding="utf-8") as f:
         f.write(report + "\n")
-    out = os.path.join(a.out_dir, f"heard_s{a.surah:03d}.json" if a.probe else f"s{a.surah:03d}.json")
+    # ⛔ (‏#105) الخريطةُ الجزئيّة باسمٍ لا يطابق `heard_s*.json` فلا تحلّ محلَّ الكاملة عند قارئٍ يقرأ بالاسم.
+    out = os.path.join(a.out_dir, (f"heardpart_s{a.surah:03d}_from{a.start_ms}.json" if a.start_ms
+                                   else f"heard_s{a.surah:03d}.json") if a.probe else f"s{a.surah:03d}.json")
     # ⭐ (2026-10-25 · تسريع) كتابةٌ ذرّيّة: مهلةُ الميزانية في سير العمل قد تقتل العمليةَ أثناء الكتابة، وملفُّ
     #    سورةٍ مبتورٌ يكسر الدمجَ كلَّه؛ يُكتب مؤقّتاً ثمّ يُستبدَل والمحتوى بايتاً كما كان.
     with open(out + ".part", "w", encoding="utf-8") as f:

@@ -115,6 +115,31 @@ def inherit_declaration(idx, key, live_sha):
     return out
 
 
+PARTIAL_MARGIN_MS = 1000   # (‏#105) لا يُستعمل من خريطةٍ جزئيّةٍ إلا ما يبدأ بعد بدء نافذتها بهذا القدر على الأقلّ
+
+
+def usable_map(hmap):
+    """(خريطةٌ صالحةٌ للتثبيت، حدُّها الأدنى أو None). الخريطةُ الكاملةُ كما هي حرفاً. والجزئيّة (‏`windowStartMs`)
+    تُبقي من كلّ آيةٍ مِرساتَها وأداءاتِها التي تبدأ عند (‏البدء + PARTIAL_MARGIN_MS) أو بعده وحدها، ويُحذف الحقلُ من
+    النسخة بعد التصفية (‏فما بقي مقيسٌ داخل النافذة)."""
+    ws = hmap.get(heard_gate.PARTIAL_KEY) if isinstance(hmap, dict) else None
+    if not ws:
+        return hmap, None
+    lo = int(ws) + PARTIAL_MARGIN_MS
+    out = {k: v for k, v in hmap.items() if k != heard_gate.PARTIAL_KEY}
+    hm = {}
+    for a, rec in (hmap.get("heardMap") or {}).items():
+        r = dict(rec)
+        if r.get("anchorMs") and int(r["anchorMs"][0]) < lo:
+            r.update(anchorMs=None, anchorQuality=None, windowAnchorMs=None, anchorStartEvidence=None)
+        r["occurrences"] = [o for o in (r.get("occurrences") or []) if int(o[0]) >= lo]
+        if r.get("heardMs") and int(r["heardMs"][0]) < lo:
+            r["heardMs"] = None
+        hm[a] = r
+    out["heardMap"] = hm
+    return out, lo
+
+
 def parse_pairs(txt):
     out = {}
     for part in (txt or "").replace("،", ",").split(","):
@@ -511,6 +536,13 @@ def pin(idx, surah, hmap, pins, trims=None, last_end=None, witness=None, ref_wor
     declared_absent(idx, surah)
     if not pins:
         raise SystemExit("⛔ لا تثبيت")
+    hmap, part_lo = usable_map(hmap)
+    if part_lo is not None:
+        early = sorted(a for a, ms in (pins or {}).items() if int(ms) < part_lo)
+        early += sorted(a for a, ms in (trims or {}).items() if int(ms) < part_lo)
+        if early:
+            raise SystemExit(f"⛔ خريطةٌ جزئيّة: لا تثبيتَ ولا قصَّ قبل {part_lo}م.ث (‏بدءُ النافذة + {PARTIAL_MARGIN_MS}) — "
+                             f"الآيات {early}")
     if int(hmap.get("surah") or 0) != surah:
         raise SystemExit(f"⛔ الخريطةُ لسورة {hmap.get('surah')} لا {surah}")
     ents = list(idx.get("entries") or [])
@@ -668,11 +700,21 @@ def load_map(run_id, surah):
             raise SystemExit(f"⛔ gh api {path}: {r.stderr.decode('utf-8', 'replace')[:200]}")
         return r.stdout if raw else json.loads(r.stdout)
     arts = gh(f"repos/{REPO}/actions/runs/{run_id}/artifacts").get("artifacts", [])
+    part = re.compile(rf"heardpart_s{surah:03d}_from(\d+)\.json$")
     for art in arts:
         zf = zipfile.ZipFile(io.BytesIO(gh(f"repos/{REPO}/actions/artifacts/{art['id']}/zip", raw=True)))
         for nm in zf.namelist():
             if nm.endswith(f"heard_s{surah:03d}.json"):
-                return json.loads(zf.read(nm))
+                m = json.loads(zf.read(nm))
+                if heard_gate.partial_map_error(m):
+                    raise SystemExit(f"⛔ {nm} يحمل {heard_gate.PARTIAL_KEY} باسم الخريطة الكاملة — مردود")
+                return m
+            g = part.search(nm)
+            if g:
+                m = json.loads(zf.read(nm))
+                if int(m.get(heard_gate.PARTIAL_KEY) or 0) != int(g.group(1)):
+                    raise SystemExit(f"⛔ {nm}: بدءُ النافذة في الاسم غيرُ {heard_gate.PARTIAL_KEY} في الخريطة")
+                return m
     raise SystemExit(f"⛔ لا خريطةَ سماعٍ للسورة {surah} في مخرَج التشغيلة {run_id}")
 
 
@@ -749,6 +791,8 @@ def disputed_claims(out, surah, hmap, claims, runs_txt, wits=None):
     """{سورة: {آية: {otherAyah, witnesses}}} لـ`transform.disputedAnchors` — يُحكم عليها هنا بـ`heard_gate.disputed_verdict`
     نفسِها قبل الرفع فلا يُرفع ادّعاءٌ تردّه البوّابة. `wits` {تشغيلة: شاهد} للاختبار، وإلا تُقرأ من مخرَج التشغيلات."""
     import heard_gate as HG                                              # noqa: PLC0415
+    if HG.partial_map_error(hmap):
+        raise SystemExit(f"⛔ --disputed: {HG.partial_map_error(hmap)}")
     runs = [r.strip() for r in str(runs_txt or "").split(",") if r.strip()]
     if wits is None:
         if len(set(runs)) != len(runs) or len(runs) < HG.DISPUTED_MIN_WITNESSES:
@@ -848,6 +892,7 @@ def main():
            if isinstance(idx.get("transform"), dict) and idx["transform"].get("truncatedTail") else {}),
         "op": f"heard_pin:{a.surah}", **inherit_declaration(idx, a.key, live),
         "evidenceRun": str(a.run), "evidenceAudioSha256": hmap.get("sha256"),
+        **({"evidenceWindowStartMs": int(hmap[heard_gate.PARTIAL_KEY])} if hmap.get(heard_gate.PARTIAL_KEY) else {}),
         "pins": report, "changedAyahs": changed, "reason": a.reason,
         "at": int(time.time() * 1000), "by": "pin_heard",
         "note": "بدءُ كلّ آيةٍ مثبَّتةٍ أداءٌ مسموعٌ مقيس؛ ما تكرّر قبله بلا مدخل؛ يلزمه الإحصاءُ الشامل.",

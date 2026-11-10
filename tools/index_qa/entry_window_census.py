@@ -412,6 +412,10 @@ def cmd_repeats(a) -> int:
             print(f"س{s}: لا خريطةَ سماعٍ في {a.maps}")
             return 2
         cmap = json.load(open(files[0], encoding="utf-8"))
+        if cmap.get("windowStartMs"):
+            # ⛔ (‏#105) خريطةٌ جزئيّة لم تسمع ما قبل بدئها، فلا يُحصى منها تكرار
+            print(f"⛔ س{s}: {files[0]} خريطةٌ جزئيّةٌ من {cmap['windowStartMs']}م.ث — لا تدخل الجرد")
+            return 2
         rep = measured_repeats(cmap, surah_texts(a.riwaya, s))
         print(f"س{s}: {len(rep)} آيةً بتكرارٍ مقيس {sorted(rep)}")
         for ay, r in sorted(rep.items()):
