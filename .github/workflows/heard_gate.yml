@@ -11,6 +11,9 @@ run-name: heard-gate ${{ inputs.only }}
 # ⭐ **الباب الثاني (‏2026-11-07 · قرار القائد 1 · إذنُ المالك 19:22Z):** لقارئٍ مسمّىً في `tools/index_qa/heard_dual.txt` وسورةٍ **معدّلةٍ** منه تُقاس
 #    **خريطتان** على الصوت نفسِه (‏العامّةُ G ونموذجُ التلاوة R) في التشغيلة نفسِها، ثمّ شاهدُ Whisper لما تطلبه الخريطتان
 #    (‏`tools/index_qa/heard_dual_probe.py`)؛ ويُكتب الكلُّ في `state-heard` ويعيد `promote.heard_gate` الحكمَ منه. ومن خارج القائمة: القديمُ حرفاً.
+# ⛔ **قاعدةُ المِرساة الضعيفة (‏تشديد 2026-11-10 · `heard_gate.weak_verdict`):** في كلّ سورةٍ معدّلة، الآيةُ التي تخالف حدودُها
+#    المنشورَ ومرساتُها دون 0.5 تردّ المرشّح إلا بشاهد Whisper لنصّها في موضعها. فبعد خريطة السورة يُحسب ما يلزمه شاهدٌ
+#    (‏`heard_weak_windows.py`) ويُشغَّل `whisper_witness.py` medium float32 عليه وحده، ويُحفظ الشاهدُ في state-heard.
 # 💰 مستودعٌ عامّ + عدّاد ubuntu-latest القياسيّ ⇒ دقائقُ مجّانيّة.
 on:
   workflow_dispatch:
@@ -43,7 +46,7 @@ jobs:
         with: {python-version: "${{ env.PY }}"}
       - run: python -m pip install --quiet boto3==1.43.123
       - name: الاختبارات أوّلاً
-        run: python -m unittest tools/index_qa/test_heard_gate.py tools/index_qa/test_heard_dual.py
+        run: python -m unittest tools/index_qa/test_heard_gate.py tools/index_qa/test_heard_dual.py tools/index_qa/test_heard_weak.py
       - name: اعتماد R2
         env: {R2_CREDENTIALS_JSON: "${{ secrets.R2_CREDENTIALS_JSON }}"}
         run: mkdir -p secure && printf '%s' "$R2_CREDENTIALS_JSON" > secure/r2_credentials.json
@@ -93,13 +96,17 @@ jobs:
               _t, _ix = load_text(riw), load_index()
               W = {s: sum(len(x) for x in _t[surah_slice(_ix, s)[0]:surah_slice(_ix, s)[1]]) + 400 for s in j["required"]}
               dual_s = set(H.dual_surahs(idx)) & set(j["modified"])      # ⭐ الباب الثاني: سورٌ معدّلةٌ لقارئٍ في heard_dual.txt
+              ps = H.by_surah(pub.get("entries") or [])                  # ⛔ قاعدةُ المِرساة الضعيفة: حدودُ المنشور للمقارنة
               for s in sorted(j["required"], key=lambda s: -W[s]):
                   refs = {v[2] for v in cs[s].values()}
                   if len(refs) != 1:
                       sys.exit(f"⛔ {src} س{s}: أكثرُ من ملفٍّ للسورة {sorted(refs)[:2]}")
                   item = [s, refs.pop()]
+                  if s in j["modified"]:
+                      item.append({"sha": sha, "ends": {str(a): [v[0], v[1]] for a, v in cs[s].items()},
+                                   "pubEnds": ({str(a): [v[0], v[1]] for a, v in ps[s].items()} if s in ps else None),
+                                   "dual": s in dual_s})
                   if s in dual_s:
-                      item.append({"sha": sha, "ends": {str(a): [v[0], v[1]] for a, v in cs[s].items()}})
                       W[s] *= 3                                           # خريطتان + شاهد
                   i = load.index(min(load)); bins[i].append(item); load[i] += W[s]
               for b in bins:
@@ -152,7 +159,8 @@ jobs:
           python - <<'PY' >> "$GITHUB_OUTPUT"
           import json, os
           its = json.loads(json.load(open("plan.json"))[int(os.environ["K"])]["items"])
-          print("dual=" + ("true" if any(len(i) > 2 for i in its) else "false"))
+          print("dual=" + ("true" if any(len(i) > 2 and i[2].get("dual") for i in its) else "false"))
+          print("weak=" + ("true" if any(len(i) > 2 and not i[2].get("dual") for i in its) else "false"))
           PY
       - name: كاشُ نموذج التلاوة وWhisper (الباب الثاني وحدَه)
         if: ${{ steps.need.outputs.dual == 'true' }}
@@ -163,6 +171,12 @@ jobs:
       - name: أدواتُ الباب الثاني (‏النسخُ مثبَّتة)
         if: ${{ steps.need.outputs.dual == 'true' }}
         run: python -m pip install --quiet faster-whisper==1.1.1 "requests==2.32.3"
+      - name: كاشُ Whisper لقاعدة المِرساة الضعيفة (‏استعادةٌ فقط — لا حفظَ جديد)
+        if: ${{ steps.need.outputs.weak == 'true' && steps.need.outputs.dual != 'true' }}
+        uses: actions/cache/restore@v4
+        with:
+          path: .hf
+          key: whisper-witness-medium-fw111-v1
       - name: خرائطُ السماع (float32 · بلا رفع)
         env: {K: "${{ matrix.k }}"}
         run: |
@@ -175,7 +189,7 @@ jobs:
           for it in json.loads(os.environ['ITEMS']):
               if len(it) > 2:
                   json.dump(it[2], open(os.path.join(os.environ['D'], 'cand_%s.json' % it[0]), 'w'))
-              print(it[0], it[1], 1 if len(it) > 2 else 0)
+              print(it[0], it[1], 1 if len(it) > 2 and it[2].get('dual') else 0)
           " | while read s u dual; do
             if [ "$dual" = 1 ]; then
               python tools/index_qa/heard_dual_probe.py --url "$u" --surah "$s" --riwaya "$RIW" --out-dir "$d" \
@@ -185,6 +199,19 @@ jobs:
               CTC_INT8=0 python tools/alignment_v3/ctc_heard_map.py --url "$u" --surah "$s" --riwaya "$RIW" \
                 --out-dir "$d" --probe --report "$d/heard_s$(printf %03d $s).txt" < /dev/null > /dev/null 2> "$d/err_$s.txt" \
                 && echo "✓ س$s" || { echo "⚠️ س$s أخفق"; tail -5 "$d/err_$s.txt"; }
+              # ⛔ قاعدةُ المِرساة الضعيفة: آياتٌ ممسوسةٌ مرساتُها دون 0.5 ⇒ شاهدُ Whisper عليها وحدها (‏وبلا شاهدٍ تُردّ)
+              hm="$d/heard_s$(printf %03d $s).json"
+              if [ -f "$d/cand_$s.json" ] && [ -f "$hm" ]; then
+                WW="$(python tools/index_qa/heard_weak_windows.py "$hm" "$d/cand_$s.json")" || WW=""
+                if [ -n "$WW" ]; then
+                  echo "   س$s: آياتٌ ممسوسةٌ بمراسٍ ضعيفة ⇒ شاهد: $WW" | cut -c1-300
+                  python -c "import faster_whisper" 2>/dev/null || python -m pip install --quiet faster-whisper==1.1.1 "requests==2.32.3"
+                  mkdir -p "$d/w"
+                  python tools/index_qa/whisper_witness.py --url "$u" --surah "$s" --riwaya "$RIW" --ayahs "$WW" \
+                    --model medium --out "$d/w" < /dev/null > "$d/w/err_$s.txt" 2>&1 \
+                    && echo "✓ س$s شاهد" || { echo "⚠️ س$s شاهدُ Whisper أخفق — يُحكم بلا شاهد (‏الممسوسةُ الضعيفةُ تُردّ)"; tail -5 "$d/w/err_$s.txt"; }
+                fi
+              fi
             fi
             rm -f "$d"/*.mp3 "$d"/*.wav "$d"/q/*.mp3 "$d"/w/*.mp3
           done
@@ -217,7 +244,7 @@ jobs:
       - name: الحكمُ والكتابةُ في state-heard/
         env: {ONLY: "${{ inputs.only }}", RUN: "${{ github.run_id }}"}
         run: |
-          python -m unittest tools/index_qa/test_heard_gate.py tools/index_qa/test_heard_dual.py
+          python -m unittest tools/index_qa/test_heard_gate.py tools/index_qa/test_heard_dual.py tools/index_qa/test_heard_weak.py
           set -o pipefail
           python - <<'PY' | tee judge.log
           import glob, gzip, hashlib, json, os, sys, time, boto3
@@ -266,7 +293,10 @@ jobs:
                      "surahs": {k: {"reason": v["reason"],
                                     "dev": [[r["ayah"], r["devMs"]] for r in v["rows"] if r["status"] == "dev"]}
                                 for k, v in j["surahs"].items()}}
-              if j["dual"] or maps_r:          # ⭐ الباب الثاني: خريطتا R والشاهدُ يُحفظان ويُعاد منهما الحكم
+              if j.get("weak"):
+                  rep["weak"] = j["weak"]
+                  rep["weakVersion"] = H.WEAK_VERSION
+              if j["dual"] or maps_r or wit:   # ⭐ الباب الثاني وقاعدةُ المِرساة الضعيفة: R والشاهدُ يُحفظان ويُعاد منهما الحكم
                   rep.update({"mapsR": {str(k): v for k, v in maps_r.items()},
                               "witness": {str(k): v for k, v in wit.items()},
                               "dual": j["dual"], "dualVersion": H.DUAL_VERSION})
@@ -291,6 +321,9 @@ jobs:
               for k, v in sorted(j["dual"].items(), key=lambda x: int(x[0])):
                   print(f"   ⚖️ مزدوج س{k}: عامّ {v.get('gMeasured')}/{v.get('n')} · تلاوة {v.get('rMeasured')}/{v.get('n')} · "
                         f"متنازَع {v.get('contested')} (حُسم {v.get('contestedResolved')}) · عيّنة {v.get('sample')} (حُسمت {v.get('sampleOk')})")
+              for k, v in sorted((j.get("weak") or {}).items(), key=lambda x: int(x[0])):
+                  if v.get("weak"):
+                      print(f"   ⛔ مراسٍ ضعيفةٌ ممسوسة س{k}: {v['weak'][:30]} · شُهد لها {v.get('witnessed', [])[:30]} · بلا شاهد {v.get('missing', [])[:30]}")
               for x in j["sampleFindings"]:
                   print(f"   ℹ️ عيّنةٌ للتقرير (لا تردّ · تُضاف لطابور الإصلاح): {x}")
               print(f"   ⇒ {'✅ بوّابةُ السماع تمرّ' if why is None else '⛔ ' + why}")

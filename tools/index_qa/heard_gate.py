@@ -18,6 +18,12 @@
 - **السورةُ تُردّ** إن: (١) فيها انحرافٌ واحد؛ أو (٢) المقيسُ أقلُّ من نصف الحاضر
   (‏«ما لم يُحسم لم يُسمع» — كحارس الإحصاء)؛ أو (٣) **ذيلُها غيرُ مقيس**: آخرُ ثلاث آياتٍ
   حاضرةٍ فأكثر بلا مِرساةٍ مقيسة (‏آياتٌ منشورةٌ بلا صوتٍ يقابلها — noah 3:154–200).
+- ⛔ **(٤) مِرساةٌ ضعيفةٌ في آيةٍ مسّها التحويل** (‏تشديد 2026-11-10): في سورةٍ معدّلة، كلُّ آيةٍ تخالف حدودُها
+  (‏بدءٌ أو نهايةٌ أو ملفّ أو حضور) حدودَ المنشور وجودةُ مرساتها < 0.5 تردّ السورة، إلا أن يشهد لها شاهدُ Whisper
+  بنصّها في موضعها بشروط `pin_heard._whisper_check` نفسِها (‏الطرفان · الثقة · بدءٌ ≤300م.ث من **بدء المرشّح**).
+  سببُها مقيس: `kurdi.e8a49589` مرّ بمراسي 4:125–127 (‏0.254·0.262·0.318) وشاهدُ Whisper (‏التشغيلة 42734080787)
+  سمع 125 ثمّ 126 ثمّ 128، فمدخلُ 4:127 (‏4133047–4166440) صوتُ آيتين أخريين — والقاعدةُ القديمة كانت «لا يُحكم بها
+  ولا لها» فتتجاهلها. ⛔ لا يرخيه شيء: لا عتبةٌ ولا `--allow`، والشاهدُ يُعاد حكمُه من ملفّه في كلّ ترقية.
 - والمرشّحُ يُردّ إن رُدّت **سورةٌ واحدةٌ معدّلةٌ عن المنشور** (‏كلُّ معدّلةٍ تُفحص، بلا انحرافٍ
   فوق 1.5ث ⇒ لا آيةَ فيها أسوأَ من المنشور).
 - ⚖️ **والعيّنةُ للتقرير وحده** (‏قرارُ المنسّق 2026-10-03): 4 سورٍ غيرُ معدّلة، بذرتُها بصمةُ
@@ -157,6 +163,46 @@ def surah_verdict(rows: list[dict]) -> str | None:
     return None
 
 
+WEAK_VERSION = "heard-weak-1"
+
+
+def weak_touched(cand_s: dict, pub_s, rows: list[dict]) -> list[int]:
+    """آياتُ سورةٍ معدّلة مسّها التحويل ومرساتُها غيرُ مقيسة (‏جودة < MIN_Q أو بلا مِرساة) — يلزم كلاً منها شاهد.
+    `cand_s`/`pub_s`: {آية: (بدء، نهاية، fileRef)} من `by_surah`؛ وسورةٌ غائبةٌ من المنشور (‏None) ⇒ كلُّ آياتها ممسوسة."""
+    pub_s = pub_s or {}
+    return sorted(r["ayah"] for r in rows
+                  if r["status"] == "unmeasured" and tuple(pub_s.get(r["ayah"]) or ()) != tuple(cand_s.get(r["ayah"]) or ()))
+
+
+def weak_plan(cand_ends: dict, pub_ends, cmap: dict) -> list[int]:
+    """آياتُ الشاهد لقاعدة المِرساة الضعيفة من خريطةٍ قِيست للتوّ (‏يستعملها سيرُ العمل؛ والحكمُ يعيد الحساب).
+    `cand_ends`/`pub_ends`: {آية: [بدء، نهاية]} (‏pub_ends=None ⇒ السورةُ غائبةٌ من المنشور)."""
+    c = {int(a): tuple(v[:2]) for a, v in cand_ends.items()}
+    p = None if pub_ends is None else {int(a): tuple(v[:2]) for a, v in pub_ends.items()}
+    rows = surah_rows({a: v[0] for a, v in c.items()}, cmap)
+    return weak_touched(c, p, rows)
+
+
+def weak_verdict(s: int, cand_s: dict, pub_s, rows: list[dict], g_map: dict, wit, want: str, riwaya,
+                 ref_words=None):
+    """(سببُ الردّ أو None، دليل) لقاعدة المِرساة الضعيفة في سورةٍ معدّلة. الشاهدُ يُعاد حكمُه هنا ولا يُقرأ حكمٌ مكتوب."""
+    weak = weak_touched(cand_s, pub_s, rows)
+    ev = {"version": WEAK_VERSION, "weak": weak, "witnessed": [], "missing": [], "witnessInvalid": None}
+    if not weak:
+        return None, ev
+    res, bad = ({}, "لا شاهدَ Whisper لهذه السورة")
+    if wit:
+        res, bad = _witness_eval(wit, s, g_map, want, riwaya, {a: v[0] for a, v in cand_s.items()}, weak, ref_words)
+    ok = [a for a in weak if (res.get(a) or (False,))[0]]
+    miss = [a for a in weak if a not in ok]
+    ev.update({"witnessed": ok, "missing": miss, "witnessInvalid": bad,
+               "detail": {str(a): (res[a][1] or "")[:200] for a in weak if a in res}})
+    if not miss:
+        return None, ev
+    return (f"{len(miss)} آيةً مسّها التحويل ومرساتُها دون {MIN_Q} بلا شاهد Whisper يشهد لنصّها في موضعها "
+            f"(الآيات {','.join(str(a) for a in miss[:30])})" + (f" — {bad}" if bad and not res else "")), ev
+
+
 # ───────────── الباب الثاني: مرجعٌ مزدوجٌ (‏قرار القائد 1 · 2026-11-07 · إذنُ المالك 19:22Z) ─────────────
 # ⭐ **إضافيٌّ لا بديل ويُغلق عند الشكّ.** للقرّاء المسمَّين في `heard_dual.txt` (‏سطرٌ لكلّ قارئٍ وسورةٍ بقياسه وسببه) وفي
 #    **سورةٍ معدّلةٍ** وحدَها: تُحسب خريطتان على الصوت نفسِه (‏العامّةُ G ونموذجُ التلاوة المثبَّتُ R) ويحكم كلٌّ منهما فيما قاسه
@@ -254,8 +300,11 @@ def dual_needs(rows: list[dict], cand_sha: str, surah: int) -> dict:
 
 def dual_witness_plan(starts: dict, g_map: dict, r_map: dict, cand_sha: str, surah: int) -> list[int]:
     """آياتُ السورة التي يُشغَّل لها شاهدُ Whisper (‏تُحسب من الخريطتين بعد قياسهما — يستعملها سيرُ العمل)."""
-    nd = dual_needs(dual_classify(starts, g_map, r_map), cand_sha, surah)
-    return sorted(set(nd["contested"]) | set(nd["cover"]) | set(nd["sample"]))
+    rows = dual_classify(starts, g_map, r_map)
+    nd = dual_needs(rows, cand_sha, surah)
+    # (2026-11-10) وما لم تقسه خريطةٌ قطّ يلزمه شاهدٌ لقاعدة المِرساة الضعيفة (‏فائضٌ لا يضرّ في غير الممسوس)
+    unm = {r["ayah"] for r in rows if r["status"] == "unmeasured"}
+    return sorted(set(nd["contested"]) | set(nd["cover"]) | set(nd["sample"]) | unm)
 
 
 def witness_windows(ends: dict, ayahs) -> str:
@@ -312,7 +361,8 @@ def dual_surah(s: int, cs_s: dict, g_map: dict, r_map, wit, want: str, cand_sha:
     ends = {a: (v[0], v[1]) for a, v in cs_s.items()}
     rows = dual_classify(starts, g_map, r_map)
     nd = dual_needs(rows, cand_sha, s)
-    asked = sorted(set(nd["contested"]) | set(nd["cover"]) | set(nd["sample"]))
+    unm = {r["ayah"] for r in rows if r["status"] == "unmeasured"}
+    asked = sorted(set(nd["contested"]) | set(nd["cover"]) | set(nd["sample"]) | unm)
     res, bad_wit = ({}, None)
     if asked and wit:
         res, bad_wit = _witness_eval(wit, s, g_map, want, riwaya, starts, asked, ref_words)
@@ -329,14 +379,17 @@ def dual_surah(s: int, cs_s: dict, g_map: dict, r_map, wit, want: str, cand_sha:
                 resolved.append(a)
             else:
                 r["status"], r["contested"] = "dev", True
-        elif r["status"] == "unmeasured" and a in nd["cover"] and a in ok_wit:
+        elif r["status"] == "unmeasured" and a in ok_wit:
+            # ما في `cover` يسدّ التغطية؛ وما سواه لا يُحتاج للتغطية (‏العامّةُ بلغت النصف) فلا يغيّر حكمَها،
+            # ويُسجَّل شاهدُه لقاعدة المِرساة الضعيفة وحدها.
             r["status"], r["witness"] = "witness", res[a][1]
     covered = sum(1 for r in rows if r["status"] != "unmeasured")
     ev.update({"n": n, "gMeasured": g_meas, "rMeasured": r_meas, "covered": covered,
                "contested": nd["contested"], "contestedResolved": resolved,
-               "coverWitnessed": [r["ayah"] for r in rows if r["status"] == "witness"],
+               "coverWitnessed": [r["ayah"] for r in rows if r["status"] == "witness" and r["ayah"] in nd["cover"]],
+               "weakWitnessed": [r["ayah"] for r in rows if r["status"] == "witness" and r["ayah"] not in nd["cover"]],
                "sample": nd["sample"], "sampleOk": [a for a in nd["sample"] if a in ok_wit],
-               "witness": {str(a): res[a][1][:200] for a in sorted(res) if a in set(resolved) | set(nd["sample"]) | set(nd["cover"])},
+               "witness": {str(a): res[a][1][:200] for a in sorted(res) if a in set(resolved) | set(nd["sample"]) | set(nd["cover"]) | unm},
                "witnessModel": (wit or {}).get("model"), "witnessInvalid": bad_wit, "engine": r_map.get("engine")})
     out = {"rows": rows, "evidence": ev}
     dev = [r for r in rows if r["status"] == "dev"]
@@ -390,6 +443,8 @@ def judge(cand_idx: dict, pub_idx: dict | None, cand_sha: str, maps: dict,
     out = {"ok": False, "reason": None, "required": required, "modified": modified,
            "sample": sample, "surahs": {}, "sampleFindings": [], "version": VERSION, "dual": {}}
     dual_set = dual_surahs(cand_idx, dual)
+    ps = by_surah((pub_idx or {}).get("entries") or []) if pub_idx else {}
+    out["weak"] = {}
     bad = []
     for s in required:
         # ⚖️ العيّنةُ (غيرُ المعدّلة) للتقرير وحده: ما يُوجد فيها يُسجَّل ولا يردّ.
@@ -413,6 +468,15 @@ def judge(cand_idx: dict, pub_idx: dict | None, cand_sha: str, maps: dict,
             mr = (maps_r or {}).get(s) or (maps_r or {}).get(str(s))
             wt = (witness or {}).get(s) or (witness or {}).get(str(s))
             why, dv = dual_surah(s, cs[s], m, mr, wt, want, cand_sha, cand_idx.get("riwaya"), ref_words)
+            # ⛔ قاعدةُ المِرساة الضعيفة في الباب المزدوج: آيةٌ ممسوسةٌ لم تقسها **أيُّ** خريطةٍ (‏G ولا R) ولم يحسمها شاهد
+            #    تردّ السورة — ولا تُعفى بنسبة التغطية 90٪ (‏تشديد 2026-11-10). والمقيسةُ بـR وحدها تبقى لعيّنة الاستقلال كما هي.
+            pend = [r for r in dv["rows"] if r["status"] == "unmeasured"]
+            weak_d = weak_touched(cs[s], ps.get(s), pend)
+            ev_w = {"version": WEAK_VERSION, "weak": weak_d, "witnessed": [], "missing": weak_d, "dualPath": True}
+            out["weak"][str(s)] = ev_w
+            why_w = (f"{len(weak_d)} آيةً مسّها التحويل ولم تقسها خريطةٌ بجودة {MIN_Q} ولا شهد لها شاهد Whisper في موضعها "
+                     f"(الآيات {','.join(str(a) for a in weak_d[:30])})") if weak_d else None
+            why = " · ".join(x for x in (why, why_w) if x) or None
             out["surahs"][str(s)] = {"reason": why, "rows": dv["rows"]}
             out["dual"][str(s)] = dv["evidence"]
             if why:
@@ -420,6 +484,11 @@ def judge(cand_idx: dict, pub_idx: dict | None, cand_sha: str, maps: dict,
             continue
         rows = surah_rows({a: v[0] for a, v in cs[s].items()}, m)
         why = surah_verdict(rows)
+        if s in modified:
+            wt = (witness or {}).get(s) or (witness or {}).get(str(s))
+            why_w, ev_w = weak_verdict(s, cs[s], ps.get(s), rows, m, wt, want, cand_idx.get("riwaya"), ref_words)
+            out["weak"][str(s)] = ev_w
+            why = " · ".join(x for x in (why, why_w) if x) or None
         out["surahs"][str(s)] = {"reason": why, "rows": rows}
         if why:
             sink.append(f"س{s}{'' if s in modified else ' (عيّنة)'}: {why}")
