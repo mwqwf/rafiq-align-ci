@@ -989,7 +989,7 @@ def _ffmpeg_window_pcm(mp3, start_ms, end_ms, ayah_end_ms=None, file_dur_ms=None
             return _exact_window_pcm(mp3, start_ms, end_ms, ayah_end_ms=ayah_end_ms,
                                      file_end_ms=file_end_ms)
         except Exception as ex2:                       # noqa: BLE001
-            raise RuntimeError(f"ffmpeg أبلغ خطأ فك مع rc=0: {why} · الترميم: {str(ex2)[:160]}")
+            raise RuntimeError(f"ffmpeg أبلغ خطأ فك مع rc=0: {why} · الترميم: {str(ex2)[-160:]}")
     raw = p.stdout
     if len(raw) % 4:
         raise RuntimeError(f"ffmpeg أخرج float32 غير محاذى ({len(raw)} بايت)")
