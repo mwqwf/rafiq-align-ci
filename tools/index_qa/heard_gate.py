@@ -198,8 +198,10 @@ def weak_plan(cand_ends: dict, pub_ends, cmap: dict) -> list[int]:
 
 
 def weak_verdict(s: int, cand_s: dict, pub_s, rows: list[dict], g_map: dict, wit, want: str, riwaya,
-                 ref_words=None):
-    """(سببُ الردّ أو None، دليل) لقاعدة المِرساة الضعيفة في سورةٍ معدّلة. الشاهدُ يُعاد حكمُه هنا ولا يُقرأ حكمٌ مكتوب."""
+                 ref_words=None, cand_idx=None, sources=None):
+    """(سببُ الردّ أو None، دليل) لقاعدة المِرساة الضعيفة في سورةٍ معدّلة. الشاهدُ يُعاد حكمُه هنا ولا يُقرأ حكمٌ مكتوب.
+    `cand_idx`/`sources` اختياريّان: بهما يُعرض مطلعُ الحروف المقطّعة على `opener_letters_verdict` للآية الأولى وحدها،
+    وبدونهما (‏أو بلا `transform.openerLetters` للسورة) يبقى السلوكُ القديمُ حرفاً."""
     weak = weak_touched(cand_s, pub_s, rows)
     ev = {"version": WEAK_VERSION, "weak": weak, "witnessed": [], "missing": [], "witnessInvalid": None}
     if not weak:
@@ -211,10 +213,174 @@ def weak_verdict(s: int, cand_s: dict, pub_s, rows: list[dict], g_map: dict, wit
     miss = [a for a in weak if a not in ok]
     ev.update({"witnessed": ok, "missing": miss, "witnessInvalid": bad,
                "detail": {str(a): (res[a][1] or "")[:200] for a in weak if a in res}})
+    opener_why = None
+    if 1 in miss and cand_idx is not None and opener_claim(cand_idx, s) is not None:
+        good, info = opener_letters_verdict(s, 1, cand_s, pub_s, rows, g_map, want, cand_idx, sources, riwaya)
+        if good:
+            miss = [a for a in miss if a != 1]
+            ev.update({"missing": miss, "openerAccepted": [1], "openerLetters": {"1": info}})
+        else:
+            opener_why = info
+            ev["openerRefused"] = {"1": info}
     if not miss:
         return None, ev
     return (f"{len(miss)} آيةً مسّها التحويل ومرساتُها دون {MIN_Q} بلا شاهد Whisper يشهد لنصّها في موضعها "
-            f"(الآيات {','.join(str(a) for a in miss[:30])})" + (f" — {bad}" if bad and not res else "")), ev
+            f"(الآيات {','.join(str(a) for a in miss[:30])})" + (f" — {bad}" if bad and not res else "")
+            + (f" · مطلعُ الحروف {s}:1 مردود: {opener_why}" if opener_why else "")), ev
+
+
+# ───────────── مطلعُ الحروف المقطّعة: مِرساةٌ ضعيفةٌ للآية الأولى وحدها (‏قرار القائد 2026-11-10) ─────────────
+# ⭐ Whisper لا يفرّغ أسماءَ الحروف («حميم» · «قاسم»)، فآيةٌ أولى هي حروفٌ مقطّعةٌ وحدها تبني حدَّها `pin_heard`
+#    بنصّ `opener-letters-1` (‏ويحفظ دليلَه في `transform.openerLetters`) ولا يجد لها هذا الحارسُ شاهداً فيردّ السورة
+#    (‏الكردي س40 · المرشّح cd85eecc · التشغيلة 42807865400 · «أوّلُ كلماتِ الآية لا يطابق تفريغَ النافذة»).
+#    ⇒ مسارٌ **ضيّقٌ** يقبل الآيةَ الأولى وحدها إذا اجتمعت كلُّها (‏ومنها كلُّ ما يشترطه الباني نفسُه، يُعاد حسابُه من
+#    مصدر الشاهدَين لا من المكتوب):
+#    ١) السورةُ من `OPENER_LETTER_SURAHS` (‏قائمةٌ مغلقةٌ مسمّاة بـ29 سورة) والآيةُ هي الأولى؛
+#    ٢) `transform.openerLetters[س]` بنسخة الباني، وفيه شاهدان لتشغيلتين متمايزتين (‏معرّفان مختلفان بعد توحيد الأرقام)،
+#       كلٌّ منهما يُحمَّل من مصدره (‏`disputed_sources`) فيجتاز `check_witness` (‏float32 · نموذجٌ مسموح · بصمةُ الصوت)؛
+#    ٣) بصمةُ الشاهدين = `audioSha256[س-1]` للمرشّح (‏وهي `want`)؛
+#    ٤) بدءُ الآية الثانية في المرشّح مقيسٌ بـCTC (‏صفٌّ «ok») ويشهد له كلٌّ من الشاهدين في موضعه بقاعدة الباني نفسِها
+#       (‏`pin_heard._opener_witness`: W_K كلماتٍ بالثقة وبلا التصاقٍ بطرف النافذة وضمن `W_AGREE_MS` من التثبيت) —
+#       فاتّفاقُ الشاهدين هو `W_AGREE_MS` نفسُه (‏300م.ث لكلٍّ من التثبيت) لا أرخى منه؛ والمكتوبُ في الدليل يطابق المحسوبَ حرفاً؛
+#    ٥) طرفا الآية الأولى محدودان: بدؤها = min(بدئها المنشور، أبكرِ كلمةٍ مسموعةٍ قبل مطلع الثانية) ولا يسبق الملفَّ (‏0)
+#       ولا يبعد عن المنشور أكثر من `OPENER_MAX_EXTEND_MS`، ونهايتُها = بدءُ الثانية، في الملفّ نفسِه؛
+#    ٦) مدّتُها بين `OPENER_DUR_MIN_MS` و`OPENER_DUR_MAX_MS`.
+#    ⛔ لا يخفّض عتبةً ولا يغيّر مساراً قائماً، ولا يمسّ غيرَ الآية الأولى ولا غيرَ هذه السور.
+OPENER_GATE_VERSION = "heard-opener-letters-1"
+OPENER_KEY = "openerLetters"
+OPENER_LETTER_SURAHS = frozenset({2, 3, 7, 10, 11, 12, 13, 14, 15, 19, 20, 26, 27, 28, 29, 30, 31, 32, 36, 38,
+                                  40, 41, 42, 43, 44, 45, 46, 50, 68})
+# ⭐ مدّةُ الآية الأولى = بدءُ الثانية − بدؤها المعتمد (‏أبكرُ كلمةٍ مسموعةٌ بعد البسملة). الحدّان من المنشور لا من الذوق:
+#    فُحصت مداخلُ الحروف المقطّعة (‏آيتا س40–46 عدا 42: «حم») في 122 فهرساً منشوراً لحفص (‏timings/hafs/*.jz · 2026-11-10 ·
+#    728 آيةً بنهايتُها = بدءُ الثانية): الأدنى 98م.ث والمئينُ الخامسُ 1119 (‏الفرقُ: 5٪ من المنشور مبتورة)،
+#    وفي النطاق العالي الثقة (‏HIGH، 434) المئينُ الخامس 2193 والأقصى 7410. فالأدنى 1000م.ث (‏دون المئين الخامس لكلّ الفئات:
+#    مدٌّ لازمٌ على حرفٍ بنطقٍ سريعٍ لا ينزل دونه) والأقصى 8000م.ث (‏فوق أقصى العالي الثقة) — ومن خرج عنهما رُدّ.
+#    وحرصاً على أن لا يُرخى: ما يتجاوز 8000م.ث (‏سورٌ بحروفٍ أكثر كمريم) يُردّ ولا يُقبل، وتُرفع القائمةُ بدليلٍ لا بتوسيعٍ هنا.
+OPENER_DUR_MIN_MS = 1000
+OPENER_DUR_MAX_MS = 8000
+# ⭐ ٧) (‏مراجعة القائد 2026-11-10) القائمةُ بالسورة لا تكفي: في عشرٍ من الـ29 (‏10–15 · 27 · 38 · 50 · 68) آيتُها الأولى عند حفص فيها كلامٌ
+#    بعد الحروف («الر تلك آيات…» · «ص والقرآن» · «ن والقلم»). فيُشترط أن تكون السورةُ في `pin_heard.letters_opener_surahs(الرواية)`
+#    — الدالّةُ نفسُها التي يبني بها الباني (‏`is_letters_ayah` على نصّ `text_<الرواية>.jz` الخامّ: آيتُها الأولى كلمةٌ واحدةٌ من حروف
+#    الفواتح بمدٍّ لازمٍ أو حرفان وحدهما، وثانيتُها ليست حروفاً) — فيتّسق الباني والحارس. ما لم يتحقّق ذلك رُدّ المسار وبقي السلوكُ القديم.
+# ⭐ ٨) أبكرُ كلمةٍ مسموعةٍ لا تقع داخل البسملة المسموعة: كان الباني يقصّ عند آخر كلمةٍ **مطابقةٍ تماماً** لكلمات البسملة فقط، فبسملةٌ
+#    فرّغها Whisper محرَّفةً («الرحم») تُعدّ حروفاً ويبدأ الحدُّ في وسطها. فكلُّ كلمةٍ تشبه كلمةً من البسملة (‏تشابه ≥ OPENER_BASMALA_SIM)
+#    قبل مطلع الثانية يجب أن تنتهي عند بدء الآية الأولى أو قبله، وإلا رُدّ المسار.
+OPENER_BASMALA_SIM = 0.75
+# ⭐ ٩) (‏قرار القائد 2026-11-10) المسارُ لحفص وحده حتى يوجد نصٌّ بالعدّ المدنيّ: فهارسُ ورش وقالون بعدٍّ كوفيٍّ موحَّد
+#    (‏`ayahCounting=KUFI` ونصُّهما 6236 آية)، وصوتُ 2:1 عندهم يمتدّ إلى ما بعد الحروف (‏asali_warsh 4100→11930 · fakhfakh_qalun 8060→16850).
+OPENER_RIWAYAT = frozenset({"hafs"})
+
+
+def opener_claim(cand_idx: dict, s: int):
+    """`transform.openerLetters[س]` أو None إن لم يدّعِ المرشّحُ مطلعَ حروفٍ لهذه السورة."""
+    tr = cand_idx.get("transform") if isinstance(cand_idx, dict) else None
+    ol = tr.get(OPENER_KEY) if isinstance(tr, dict) else None
+    ev = ol.get(str(s)) if isinstance(ol, dict) else None
+    return ev if isinstance(ev, dict) else None
+
+
+def _basmala_inside(src, start1, pin2):
+    """(كلمة، بدء، نهاية) لأوّل كلمةٍ تشبه كلمةً من البسملة قبل مطلع الثانية وتنتهي بعد `start1`، أو None."""
+    import difflib  # noqa: PLC0415
+    import pin_heard as PH  # noqa: PLC0415
+    for rec in (src.get("ayahs") or {}).values():
+        for w in rec.get("words") or []:
+            if int(w["s"]) >= int(pin2):
+                continue
+            for t in disputed_norm_words(str(w.get("w", ""))):
+                if any(difflib.SequenceMatcher(None, t, b).ratio() >= OPENER_BASMALA_SIM for b in PH._BASMALA) \
+                        and int(w.get("e", w["s"])) > int(start1):
+                    return t, int(w["s"]), int(w.get("e", w["s"]))
+    return None
+
+
+def opener_letters_verdict(s, ayah, cand_s, pub_s, rows, g_map, want, cand_idx, sources, riwaya, ref2=None):
+    """(True، دليل) إن اجتمعت الشروط ١–٦ أعلاه، وإلا (False، سببُ الردّ بالعربية). الشواهدُ تُحكم من `sources` المحمَّلة لا من المكتوب."""
+    import pin_heard as PH  # noqa: PLC0415
+    if s not in OPENER_LETTER_SURAHS:
+        return False, f"س{s} ليست في قائمة سور الحروف المقطّعة ({len(OPENER_LETTER_SURAHS)} سورة)"
+    if ayah != 1:
+        return False, f"الآية {ayah} ليست الأولى — المسارُ للآية الأولى وحدها"
+    if (riwaya or "hafs") not in OPENER_RIWAYAT:
+        return False, f"الرواية {riwaya} ليست في OPENER_RIWAYAT {sorted(OPENER_RIWAYAT)} — المسارُ لحفص وحده"
+    try:
+        letters = PH.letters_opener_surahs(riwaya or "hafs")
+    except (SystemExit, Exception) as e:                      # noqa: BLE001
+        return False, f"نصُّ الرواية {riwaya}: {e}"
+    if s not in letters:
+        return False, (f"الآية {s}:1 في نصّ {riwaya or 'hafs'} ليست حروفاً مقطّعةً وحدها "
+                       "(‏فيها كلامٌ بعد الحروف، أو ثانيتُها حروفٌ أيضاً) — ليست في pin_heard.letters_opener_surahs")
+    oev = opener_claim(cand_idx, s)
+    if oev is None:
+        return False, f"لا transform.{OPENER_KEY} للسورة {s}"
+    if oev.get("version") != PH.OPENER_VERSION:
+        return False, f"نسخةُ الدليل {oev.get('version')} لا {PH.OPENER_VERSION}"
+    written = oev.get("witnesses") if isinstance(oev.get("witnesses"), dict) else {}
+    ids = {}
+    for r in written:
+        if not re.fullmatch(r"\d{6,15}", str(r)):
+            return False, f"معرّفُ التشغيلة {r!r} ليس رقماً صالحاً"
+        ids.setdefault(int(r), str(r))
+    if len(ids) != len(written):
+        return False, "تشغيلتان بالمعرّف نفسه — يلزم تشغيلتان متمايزتان"
+    if len(ids) < PH.OPENER_MIN_WITNESSES:
+        return False, f"يلزم {PH.OPENER_MIN_WITNESSES} شاهدان من تشغيلتين متمايزتين (‏وجد {len(ids)})"
+    c1, c2 = (cand_s or {}).get(1), (cand_s or {}).get(2)
+    if not c1 or not c2:
+        return False, "الآيتان الأولى والثانية غيرُ حاضرتين في المرشّح"
+    st1, end1, st2 = int(c1[0]), c1[1], int(c2[0])
+    row2 = next((r for r in rows if r["ayah"] == 2), None)
+    if not row2 or row2["status"] != "ok":
+        return False, "بدءُ الآية الثانية غيرُ مقيسٍ بـCTC (‏ليس صفّاً سليماً)"
+    try:
+        ref2 = ref2 if ref2 is not None else disputed_ref_words(riwaya or "hafs", s, 2)
+    except (SystemExit, Exception) as e:                      # noqa: BLE001
+        return False, f"نصُّ الآية الثانية: {e}"
+    head2 = list(ref2[:min(PH.W_K, len(ref2))])
+    got = {}
+    for r in sorted(written):
+        src = (sources or {}).get(str(r))
+        if not isinstance(src, dict) or src.get("error") or not src.get("ayahs"):
+            return False, f"الشاهد {r} لم يُحمَّل من مصدره" + (f" ({src.get('error')})" if isinstance(src, dict) and src.get("error") else "")
+        try:
+            PH.check_witness(src, s, g_map, want)
+        except SystemExit as e:
+            return False, f"الشاهد {r}: {e}"
+        d, why = PH._opener_witness(src, head2, st2)
+        if d is None:
+            return False, f"الآية الثانية بلا شاهد في موضعها — الشاهد {r}: {why}"
+        if _canon(d) != _canon(written[r]):
+            return False, f"دليلُ الشاهد {r} المكتوب لا يطابق المحسوبَ من مصدره"
+        got[str(r)] = d
+    pub1 = (pub_s or {}).get(1)
+    if not pub1:
+        return False, "لا بدءَ منشورَ للآية الأولى يُقاس به التمديد"
+    pub_start = int(pub1[0])
+    cands = [pub_start] + [d["earliestMs"] for d in got.values() if d["earliestMs"] is not None]
+    new = min(cands)
+    if st1 != new:
+        return False, f"بدءُ الآية الأولى {st1} ليس أبكرَ بدءٍ مشهود ({new})"
+    for r in sorted(written):
+        inside = _basmala_inside(sources[str(r)], st1, st2)
+        if inside:
+            return False, f"بدءُ الآية الأولى {st1} داخل البسملة المسموعة في الشاهد {r} («{inside[0]}» حتى {inside[2]})"
+    if st1 < 0:
+        return False, f"بدءُ الآية الأولى {st1} قبل بدء الملفّ"
+    if pub_start - st1 > PH.OPENER_MAX_EXTEND_MS:
+        return False, f"تمديدُ بدء الآية الأولى {pub_start - st1}م.ث (>{PH.OPENER_MAX_EXTEND_MS}م.ث)"
+    if end1 is None or int(end1) != st2:
+        return False, f"نهايةُ الآية الأولى {end1} ليست بدءَ الثانية {st2}"
+    if c1[2] != c2[2]:
+        return False, "الآيتان في ملفّين مختلفين"
+    dur = st2 - st1                           # ‏سالبةٌ أو ضئيلةٌ إن لم يسبق بدؤها بدءَ الثانية ⇒ يردّها حدُّ الأدنى
+    if not OPENER_DUR_MIN_MS <= dur <= OPENER_DUR_MAX_MS:
+        return False, f"مدّةُ الآية الأولى {dur}م.ث خارج [{OPENER_DUR_MIN_MS}، {OPENER_DUR_MAX_MS}]"
+    for k, want_v in (("startMs", st1), ("ayah2PinMs", st2), ("publishedStartMs", pub_start)):
+        if oev.get(k) != want_v:
+            return False, f"الدليلُ المكتوب {k}={oev.get(k)} يخالف المحسوب {want_v}"
+    return True, {"version": OPENER_GATE_VERSION, "surah": s, "ayah": 1, "startMs": st1, "ayah2StartMs": st2,
+                  "durationMs": dur, "publishedStartMs": pub_start, "agreeMs": PH.W_AGREE_MS,
+                  "runs": sorted(got), "witnesses": got}
 
 
 # ───────────── الباب الثاني: مرجعٌ مزدوجٌ (‏قرار القائد 1 · 2026-11-07 · إذنُ المالك 19:22Z) ─────────────
@@ -607,6 +773,11 @@ def disputed_sources(cand_idx, loader=None):
             for c in (claims.values() if isinstance(claims, dict) else []):
                 if isinstance(c, dict) and isinstance(c.get("witnesses"), dict):
                     per.setdefault(str(s), set()).update(str(r) for r in c["witnesses"])
+    # ⭐ مطلعُ الحروف المقطّعة (‏`openerLetters[س].witnesses` = {تشغيلة: تفصيل}) يُحمَّل شاهداه من المصدر نفسِه وبالطريقة نفسِها.
+    ol = tr.get(OPENER_KEY)
+    for s, ev in (ol.items() if isinstance(ol, dict) else []):
+        if isinstance(ev, dict) and isinstance(ev.get("witnesses"), dict):
+            per.setdefault(str(s), set()).update(str(r) for r in ev["witnesses"])
     if not per:
         return {}
     if loader is None:
@@ -1246,7 +1417,8 @@ def judge(cand_idx: dict, pub_idx: dict | None, cand_sha: str, maps: dict,
         why = " · ".join(x for x in (surah_verdict(rows), why_d, why_o, why_a) if x) or None
         if s in modified:
             wt = (witness or {}).get(s) or (witness or {}).get(str(s))
-            why_w, ev_w = weak_verdict(s, cs[s], ps.get(s), rows, m, wt, want, cand_idx.get("riwaya"), ref_words)
+            why_w, ev_w = weak_verdict(s, cs[s], ps.get(s), rows, m, wt, want, cand_idx.get("riwaya"), ref_words,
+                                       cand_idx=cand_idx, sources=(disputed_src or {}).get(str(s)))
             out["weak"][str(s)] = ev_w
             why = " · ".join(x for x in (why, why_w) if x) or None
         out["surahs"][str(s)] = {"reason": why, "rows": rows}
