@@ -33,6 +33,11 @@ on:
         required: false
         default: "false"
 
+# ⚖️ أقلُّ الأذونات: الرمزُ يقرأ مخرجات شواهد Whisper (gh api …/actions/runs) ولا يكتب شيئاً.
+permissions:
+  contents: read
+  actions: read
+
 jobs:
   prepare:
     runs-on: ubuntu-latest
@@ -49,6 +54,8 @@ jobs:
       - id: gen
         env:
           R2_CREDENTIALS_JSON: ${{ secrets.R2_CREDENTIALS_JSON }}
+          # الحجبُ المؤقّتُ المعفى (timing_repair.excused) يحمّل شاهدَي Whisper بـgh api؛ وبلا رمزٍ يسقط الإعفاء فيُردّ المرشّح «خللاً بنيوياً».
+          GH_TOKEN: ${{ github.token }}
           ONLY: ${{ github.event.inputs.only }}
           FORCE: ${{ github.event.inputs.force }}
           PARALLEL: ${{ github.event.inputs.parallel_surahs }}
@@ -153,6 +160,8 @@ jobs:
           # ⭐ مفتاحُ إطفاء إعادة استعمال أحكام السور (‏`tools/index_qa/census_cache.py`)؛ وforce مستقلٌّ عنها (‏يُعيد الإحصاءَ كلَّه، والسورُ المعادة بريئةٌ متطابقةُ المدخلات فقط)
           QA_CENSUS_NO_REUSE: ${{ github.event.inputs.reuse_census == 'false' && '1' || '' }}
           R2_CREDENTIALS_JSON: ${{ secrets.R2_CREDENTIALS_JSON }}
+          # الحجبُ المؤقّتُ المعفى (timing_repair.excused) يحمّل شاهدَي Whisper بـgh api؛ وبلا رمزٍ يسقط الإعفاء فيُردّ المرشّح «خللاً بنيوياً».
+          GH_TOKEN: ${{ github.token }}
         run: |
           mkdir -p secure
           printf '%s' "$R2_CREDENTIALS_JSON" > secure/r2_credentials.json
@@ -215,6 +224,8 @@ jobs:
           QA_CACHE: ${{ github.workspace }}/qa_audio
           QA_NO_RANGE: ${{ github.event.inputs.no_range == 'true' && '1' || '' }}
           R2_CREDENTIALS_JSON: ${{ secrets.R2_CREDENTIALS_JSON }}
+          # الحجبُ المؤقّتُ المعفى (timing_repair.excused) يحمّل شاهدَي Whisper بـgh api؛ وبلا رمزٍ يسقط الإعفاء فيُردّ المرشّح «خللاً بنيوياً».
+          GH_TOKEN: ${{ github.token }}
         run: |
           mkdir -p secure
           printf '%s' "$R2_CREDENTIALS_JSON" > secure/r2_credentials.json
@@ -247,6 +258,8 @@ jobs:
         env:
           CANDIDATE: ${{ matrix.candidate }}
           R2_CREDENTIALS_JSON: ${{ secrets.R2_CREDENTIALS_JSON }}
+          # الحجبُ المؤقّتُ المعفى (timing_repair.excused) يحمّل شاهدَي Whisper بـgh api؛ وبلا رمزٍ يسقط الإعفاء فيُردّ المرشّح «خللاً بنيوياً».
+          GH_TOKEN: ${{ github.token }}
         run: |
           mkdir -p secure
           printf '%s' "$R2_CREDENTIALS_JSON" > secure/r2_credentials.json
