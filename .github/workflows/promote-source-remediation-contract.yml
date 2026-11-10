@@ -132,8 +132,15 @@ jobs:
       # soundfile غيرُ لازم (جُرّبت بدونه فمرّت)، وmp3_resync يتخطّى نفسَه إن غاب libmp3lame؛ وtest_download_deadline نحو 26 ثانية.
       - run: pip install numpy pyyaml
       # مشغّل ubuntu لا يحمل ffmpeg (فشل test_original_audio_fixture بـFileNotFoundError وتخطّت اختباراتٌ أخرى نفسَها بصمت)؛ حزمةٌ مجّانيّة.
-      - timeout-minutes: 8
-        run: command -v ffmpeg >/dev/null || { sudo apt-get update -qq && sudo DEBIAN_FRONTEND=noninteractive apt-get install -y -qq --no-install-recommends ffmpeg; }
+      # ffmpeg ثابتٌ من حزمة pip مثبّتة النسخة والبصمة بدل apt: تثبيتُ apt تجاوز 8 دقائق على #118 (2026-11-10).
+      - timeout-minutes: 3
+        run: |
+          command -v ffmpeg >/dev/null && exit 0
+          pip download -q --no-deps --only-binary=:all: --platform manylinux2014_x86_64 imageio-ffmpeg==0.6.0 -d /tmp/ffw
+          echo "c7e46fcec401dd990405049d2e2f475e2b397779df2519b544b8aab515195282  /tmp/ffw/imageio_ffmpeg-0.6.0-py3-none-manylinux2014_x86_64.whl" | sha256sum -c -
+          pip install -q --no-deps /tmp/ffw/imageio_ffmpeg-0.6.0-py3-none-manylinux2014_x86_64.whl
+          sudo ln -sf "$(python -c 'import imageio_ffmpeg; print(imageio_ffmpeg.get_ffmpeg_exe())')" /usr/local/bin/ffmpeg
+          ffmpeg -hide_banner -version | sed -n 1p
       - name: اختباراتُ index_qa المحتاجة numpy (وحدةٌ لكلّ عملية)
         env:
           PYTHONPATH: tools/index_qa:tools/ci_fleet
