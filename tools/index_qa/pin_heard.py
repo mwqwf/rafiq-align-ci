@@ -477,8 +477,13 @@ def expected_from_peers(own_durs, peer_med, skip=()):
 
 def pin(idx, surah, hmap, pins, trims=None, last_end=None, witness=None, ref_words=None,
         expected=None, evidence=None, witness_fuzzy=False, trim_witnesses=None, trim_evidence=None,
-        opener_witnesses=None, opener_evidence=None):
+        opener_witnesses=None, opener_evidence=None, disputed=None):
     """يُعيد (فهرساً جديداً، تقريراً) أو يرفع SystemExit بالسبب.
+
+    `disputed` (‏اختياريّ · تصحيحُ توصيلٍ لقاعدة #101 · 2026-11-10): دالّةٌ `(فهرسٌ_مرشّح، صفوف) ⇒ مجموعةُ الآيات` تحكم على
+    ادّعاءات `--disputed` بـ`heard_gate.disputed_verdict` بشروطها الستّة كلّها وسقفِ الـ10٪ **على المرشّح بعد التثبيت**، وترفع
+    SystemExit بسبب ردّ أيّ ادّعاءٍ لم يثبت. وما أثبتته وحدَه يُستثنى من الفحص المسبق؛ وأيُّ انحرافٍ غير مدّعى يُردّ كما كان.
+    وحكمُ `heard_gate` الكاملُ على المرشّح لا يتغيّر. بلا `disputed` السلوكُ القديمُ حرفاً.
 
     `last_end`: نهايةٌ مقيسةٌ لآخر آيةٍ في السورة (‏الفخفاخ 33:73 · 2026-10-05: قُصّت عند مدّةٍ قدّرها ffprobe
     من ترويسة VBR بـ1792.6ث والفكُّ الكامل أطول، فسُمع منها 2.6ث). شرطُها: الآيةُ آخرُ السورة ومثبَّتة،
@@ -633,11 +638,17 @@ def pin(idx, surah, hmap, pins, trims=None, last_end=None, witness=None, ref_wor
             if was > 0 and now < W_NEIGHBOUR_MIN * was:
                 raise SystemExit(f"⛔ الجارةُ {surah}:{p} تنكمش من {was} إلى {now}م.ث (دون {W_NEIGHBOUR_MIN}×) بتثبيت {a}")
     rows = heard_gate.surah_rows({a: new[a]["startMs"] for a in order}, heard_gate.compact_map(hmap))
+    out = dict(idx)
+    out["entries"] = [new[_key(e["ayahId"])[1]] if _key(e["ayahId"])[0] == surah else e for e in ents]
+    if disputed is not None:
+        # ⭐ المدّعى المثبَتُ وحدَه يُستثنى؛ والدالّةُ ترفع SystemExit بسبب كلِّ ادّعاءٍ لم يثبت (‏لا استثناءَ بالادّعاء المجرّد).
+        accepted = {int(a) for a in (disputed(out, rows) or ())}
+        for r in rows:
+            if r["ayah"] in accepted and r["status"] == "dev":
+                r["status"] = "disputed"
     why = heard_gate.surah_verdict(rows)
     if why:
         raise SystemExit(f"⛔ حكمُ السماع على السورة بعد التثبيت: {why}")
-    out = dict(idx)
-    out["entries"] = [new[_key(e["ayahId"])[1]] if _key(e["ayahId"])[0] == surah else e for e in ents]
     ebs = dict(idx.get("engineBySurah") or {})
     ebs[str(surah)] = ENGINE
     out["engineBySurah"] = ebs
@@ -840,11 +851,22 @@ def main():
         if ref is None:
             riw = idx.get("riwaya") or "hafs"
             ref = lambda s, ay: ref_words_for(riw, s, ay)                # noqa: E731
+    dwits = dcheck = None
+    if a.disputed:
+        druns = [r.strip() for r in str(a.disputed_runs or "").split(",") if r.strip()]
+        if len(set(druns)) != len(druns) or len(druns) < heard_gate.DISPUTED_MIN_WITNESSES:
+            raise SystemExit(f"⛔ --disputed يلزمه {heard_gate.DISPUTED_MIN_WITNESSES} تشغيلتان متمايزتان في --disputed-runs")
+        dwits = {r: load_witness(r, a.surah) for r in druns}
+        dclaims = parse_pairs(a.disputed)
+
+        def dcheck(probe, _rows):                                       # noqa: E306
+            rec = disputed_claims(probe, a.surah, hmap, dclaims, a.disputed_runs, wits=dwits)
+            return {int(k) for k in rec[str(a.surah)]}
     out, report, changed = pin(idx, a.surah, hmap, parse_pairs(a.pin), parse_pairs(a.trim),
                                a.last_end, witness=wit, ref_words=ref, expected=expected,
                                evidence=evidence, witness_fuzzy=a.witness_fuzzy,
                                trim_witnesses=twits, trim_evidence=tev,
-                               opener_witnesses=owits, opener_evidence=oev)
+                               opener_witnesses=owits, opener_evidence=oev, disputed=dcheck)
     out["transform"] = {
         **({"truncatedTail": idx["transform"]["truncatedTail"]}
            if isinstance(idx.get("transform"), dict) and idx["transform"].get("truncatedTail") else {}),
@@ -866,8 +888,8 @@ def main():
             out["transform"]["witnessFuzzy"] = {"sim": W_FUZZ_SIM, "lenBand": [W_FUZZ_LEN_LO, W_FUZZ_LEN_HI],
                                                 "decision": "خيط 2.0 · 2026-11-07 · دورة saad"}
     if a.disputed:
-        out["transform"]["disputedAnchors"] = disputed_claims(out, a.surah, hmap, parse_pairs(a.disputed),
-                                                              a.disputed_runs)
+        out["transform"]["disputedAnchors"] = disputed_claims(out, a.surah, hmap, dclaims, a.disputed_runs,
+                                                              wits=dwits)
     blob = gzip.compress(json.dumps(out, ensure_ascii=False, separators=(",", ":")).encode("utf-8"), 9)
     new_sha = hashlib.sha256(blob).hexdigest()
     target = f"timings-staging/{idx.get('riwaya')}/{idx.get('reciterId')}.{new_sha[:8]}.jz"
