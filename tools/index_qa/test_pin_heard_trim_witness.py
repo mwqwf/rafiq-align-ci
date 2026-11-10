@@ -98,18 +98,21 @@ class RealWitnesses(unittest.TestCase):
             _run(187160, {"syn-a": _composite()["syn-a"]})
         self.assertIn("شاهدان", str(cm.exception))
 
-    def test_old_path_accepts_both_wrong_ctc_bounds(self):
-        """⚠️ توثيقٌ لا تشديد: المسارُ القديم (‏بلا شاهد) يقبل 183585 (‏يقطع «شأنٍ») و187988 (‏يُدخل «فبأي»)
-        لأنّهما في `measured_bounds` — وردُّهما كان باليد. ومع الشاهدَين يُردّان (‏`RuleOnComposite`)."""
+    def test_trim_without_witness_refused(self):
+        """⛔ (‏#99 · قرار القائد) `--trim` بلا شاهدَين مردودٌ أيّاً كانت قيمتُه."""
+        for t in (183585, 187160, 187988):
+            with self.assertRaises(SystemExit) as cm:
+                P.pin(_idx(), 55, HMAP, {30: 191830}, {29: t})
+            self.assertIn("بلا شاهدَي Whisper", str(cm.exception))
+
+    def test_wrong_ctc_bounds_183585_and_187988_refused(self):
+        """الحدّان المقيسان بـCTC اللذان كانا يُقبلان قبل #99 (‏183585 يقطع «شأنٍ» · 187988 يُدخل «فبأي»)
+        يُردّان الآن بلا شاهد، وبالشواهد الحقيقيّة، وبالزوج المركّب الذي يقبل 187160."""
         for t in (183585, 187988):
-            out, _r, _c = P.pin(_idx(), 55, HMAP, {30: 191830}, {29: t})
-            self.assertEqual({x["ayahId"]: x for x in out["entries"]}["55:29"]["endMs"], t)
-
-    def test_ctc_bounds_alone_refuse_187160(self):
-        with self.assertRaises(SystemExit) as cm:
-            P.pin(_idx(), 55, HMAP, {30: 191830}, {29: 187160})
-        self.assertIn("ليس حدّاً مقيساً", str(cm.exception))
-
+            for wits in (None, dict(W), _composite()):
+                with self.assertRaises(SystemExit):
+                    P.pin(_idx(), 55, HMAP, {30: 191830}, {29: t}, ref_words=ref_words,
+                          trim_witnesses=wits, trim_evidence={})
 
 class RuleOnComposite(unittest.TestCase):
     def test_187160_accepted_and_evidence_recorded(self):

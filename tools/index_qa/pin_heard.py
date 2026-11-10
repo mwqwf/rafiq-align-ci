@@ -337,7 +337,7 @@ def _junction(wit, ref_prev, ref_next):
                   "meanP": round(b[3], 4), "window": b[4]}
 
 
-def trim_from_witnesses(wits, hmap, surah, ayah, want_ms, ref_prev, ref_next, next_start, want_sha):
+def trim_from_witnesses(wits, hmap, surah, ayah, want_ms, ref_prev, ref_next, next_start, want_sha, prev_start=None):
     """حدُّ قصّ `ayah` من شاهدَي Whisper أو SystemExit بالسبب. `wits` = {تشغيلة: شاهد}."""
     if len(wits) < W_TRIM_MIN_WITNESSES:
         raise SystemExit(f"⛔ حدُّ القصّ من Whisper يلزمه {W_TRIM_MIN_WITNESSES} شاهدان من تشغيلتَين (‏وجد {len(wits)})")
@@ -356,10 +356,12 @@ def trim_from_witnesses(wits, hmap, surah, ayah, want_ms, ref_prev, ref_next, ne
         raise SystemExit(f"⛔ قصُّ {surah}:{ayah} إلى {want_ms} بعيدٌ عن حدّ الشاهدَين {bs} (>{SNAP_MS}م.ث)")
     b = bs[0]
     rec = (hmap.get("heardMap") or {}).get(str(ayah)) or {}
-    occ_end = max([int(o[1]) for o in rec.get("occurrences") or []], default=None)
+    # أداءُ السابقة المقصود هو الذي يبدأ عند بدء مدخلها أو بعده وقبل الحدّ (‏لا تكرارُها بعد الحدّ)
+    lo = -1 if prev_start is None else int(prev_start) - SNAP_MS
+    occ_end = max([int(o[1]) for o in rec.get("occurrences") or [] if lo <= int(o[0]) < b], default=None)
     if occ_end is None:
         raise SystemExit(f"⛔ قصُّ {surah}:{ayah}: لا أداءَ سماعيّاً مقيساً للسابقة يُحدّ به")
-    if not occ_end < b < int(next_start):
+    if not occ_end <= b < int(next_start):
         raise SystemExit(f"⛔ قصُّ {surah}:{ayah} إلى {b} خارج ({occ_end}، {next_start}): "
                          "بين آخر نهايةِ أداءٍ مقيسٍ للسابقة والتثبيت التالي")
     return b, {"ms": b, "witnesses": got, "prevHeardEndMs": occ_end, "nextPinMs": int(next_start)}
@@ -445,19 +447,22 @@ def pin(idx, surah, hmap, pins, trims=None, last_end=None, witness=None, ref_wor
     for a in sorted(pins):
         new[a]["startMs"] = pins[a]
     order = sorted(new)
+    if trims and not trim_witnesses:
+        # ⛔ (‏قرار القائد 2026-11-10 · #99) كلُّ `--trim` يلزمه شاهدا Whisper بلا استثناء: الحدُّ المقيسُ بـCTC وحده
+        #    قُبل في 55:29 مرّتين خطأً (‏183585 يقطع «شأنٍ» · 187988 يُدخل «فبأي»).
+        raise SystemExit("⛔ --trim بلا شاهدَي Whisper (‏--trim-witness-runs) مردود — الحدُّ المقيسُ بـCTC وحده لا يكفي")
     for a in trims:
         if a not in new or (a + 1) not in new or ((a + 1) not in pins and a not in pins):
             raise SystemExit(f"⛔ --trim {a}: يُقصّ آخرُ آيةٍ قبل تثبيتٍ أو آيةٌ مثبَّتة وحدهما")
         bounds = measured_bounds(hmap, [a, a + 1])
         hit = [b for b in bounds if abs(trims[a] - b) <= SNAP_MS]
         if trim_witnesses:
-            # ⭐ مسارُ شاهدَي Whisper لحدّ القصّ (‏انظر `trim_from_witnesses`). ومتى مُرّر شاهدان فكلُّ قصٍّ يلزمه
-            #    إثباتُهما **ولو كان حدّاً مقيساً بـCTC**: في 55:29 الحدّان المقيسان 183585 (‏قبل «شأنٍ») و187988
-            #    (‏داخل «فبأي») كانا يُقبلان بالمسار القديم وكلاهما خطأ — فالشاهدُ هنا يشدّد ولا يُرخي.
+            # ⭐ مسارُ شاهدَي Whisper لحدّ القصّ (‏انظر `trim_from_witnesses`) — إلزاميٌّ لكلّ قصٍّ ولو كان حدّاً مقيساً بـCTC.
             if ref_words is None or (a + 1) not in pins:
                 raise SystemExit(f"⛔ قصُّ {surah}:{a} بشاهد Whisper يلزمه نصٌّ مرجعيّ وتثبيتٌ لـ{surah}:{a + 1}")
             b, ev = trim_from_witnesses(trim_witnesses, hmap, surah, a, trims[a], ref_words(surah, a),
-                                        ref_words(surah, a + 1), pins[a + 1], want)
+                                        ref_words(surah, a + 1), pins[a + 1], want,
+                                        prev_start=int(new[a]["startMs"]))
             if b <= int(new[a]["startMs"]):
                 raise SystemExit(f"⛔ قصُّ {surah}:{a} إلى {b} قبل بدئها {new[a]['startMs']}")
             if trim_evidence is not None:
@@ -594,7 +599,7 @@ def main():
     ap.add_argument("--surah", type=int, required=True)
     ap.add_argument("--run", required=True, help="تشغيلةُ ctc_heard_probe (‏build=false) على صوت السورة نفسِه")
     ap.add_argument("--pin", required=True, help="آية:بدءٌ بالم.ث، مفصولةً بفواصل")
-    ap.add_argument("--trim", default="", help="آية:نهايةٌ مقيسة لما قبل أوّل تثبيت")
+    ap.add_argument("--trim", default="", help="آية:نهايةٌ لما قبل أوّل تثبيت — ⛔ يلزمه --trim-witness-runs (‏#99)")
     ap.add_argument("--last-end", type=int, default=None,
                     help="نهايةٌ مقيسةٌ لآخر آيةٍ في السورة (‏نهايةُ أدائها المثبَّت)")
     ap.add_argument("--witness-run", default="",

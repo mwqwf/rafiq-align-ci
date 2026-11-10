@@ -36,13 +36,47 @@ def _idx():
     return {"entries": ents, "audioSha256": ["a" * 64, "b" * 64], "engineVersion": "align-0.2"}
 
 
+# ⛔ (‏#99 · 2026-11-10) كلُّ `--trim` يلزمه شاهدا Whisper. شاهدان مركّبان لهذا التسجيل المصطنع: خاتمةُ الآية
+#    السابقة تنتهي عند حدّ القصّ ومطلعُ التالية يبدأ عنده، بثقةٍ 0.9 ونافذةٍ لا تلصق بها كلمة.
+REF77 = {1: ["قل", "هو", "الله", "احد"], 2: ["الله", "الصمد", "لم", "يلد"],
+         3: ["ولم", "يولد", "ولم", "يكن"], 4: ["له", "كفوا", "احد", "قل"]}
+
+
+def ref77(_s, a):
+    return REF77[a]
+
+
+def _tw(trims, sha="a" * 64, url=URL):
+    out = {}
+    for run, shift in (("w-a", 0), ("w-b", 40)):
+        ays = {}
+        for a, b in trims.items():
+            tail, head = REF77[a][-3:], REF77.get(a + 1, ["x", "y", "z"])[:3]
+            ws = [{"w": w, "s": b - 900 * (3 - i) + shift, "e": b - 900 * (2 - i) + shift, "p": 0.9}
+                  for i, w in enumerate(tail)]
+            ws += [{"w": w, "s": b + 900 * i + shift, "e": b + 900 * (i + 1) + shift, "p": 0.9}
+                   for i, w in enumerate(head)]
+            ays[str(a + 1)] = {"windowMs": [b - 5000, b + 5000], "words": ws}
+        out[run] = {"surah": 77, "sha256": sha, "fileRef": url, "model": "small", "computeType": "float32",
+                    "ayahs": ays}
+    return out
+
+
+def pin_t(idx, surah, hmap, pins, trims=None, **kw):
+    """`pin` مع شاهدَي القصّ المركّبَين متى طُلب قصّ."""
+    if trims:
+        kw.setdefault("ref_words", ref77)
+        kw.setdefault("trim_witnesses", _tw(trims, sha=hmap.get("sha256"), url=hmap.get("fileRef")))
+    return pin(idx, surah, hmap, pins, trims, **kw)
+
+
 class PinHeard(unittest.TestCase):
     def test_published_shape_is_refused_by_heard_gate(self):
         rows = heard_gate.surah_rows({1: 0, 2: 10000, 3: 39800, 4: 40000}, heard_gate.compact_map(HMAP))
         self.assertIsNotNone(heard_gate.surah_verdict(rows))
 
     def test_pin_second_performance(self):
-        out, rep, changed = pin(_idx(), 77, copy.deepcopy(HMAP), {2: 30000, 3: 40000, 4: 50000}, {1: 10000})
+        out, rep, changed = pin_t(_idx(), 77, copy.deepcopy(HMAP), {2: 30000, 3: 40000, 4: 50000}, {1: 10000})
         e = {x["ayahId"]: (x["startMs"], x["endMs"]) for x in out["entries"]}
         self.assertEqual(e["77:1"], (0, 10000))
         self.assertEqual(e["77:2"], (30000, 40000))
@@ -54,14 +88,21 @@ class PinHeard(unittest.TestCase):
         out2, _, _ = pin(_idx(), 77, copy.deepcopy(HMAP), {2: 30000, 3: 40000, 4: 50000})
         self.assertEqual([x for x in out2["entries"] if x["ayahId"] == "77:1"][0]["endMs"], 30000)  # بلا قصّ يبقى متّصلاً
 
+    def test_trim_without_witness_refused(self):
+        """⛔ (‏#99) `--trim` بلا شاهدَي Whisper مردودٌ ولو كان حدّاً مقيساً بـCTC."""
+        with self.assertRaises(SystemExit) as cm:
+            pin(_idx(), 77, copy.deepcopy(HMAP), {3: 40000, 4: 50000}, {2: 20000})
+        self.assertIn("بلا شاهدَي Whisper", str(cm.exception))
+
     def test_trim_must_be_measured(self):
         out, _, _ = pin(_idx(), 77, copy.deepcopy(HMAP), {2: 30000, 3: 40000, 4: 50000})
         with self.assertRaises(SystemExit):
-            pin(_idx(), 77, copy.deepcopy(HMAP), {3: 40000, 4: 50000}, {2: 23456})
-        out, _, _ = pin(_idx(), 77, copy.deepcopy(HMAP), {3: 40000, 4: 50000}, {2: 20000})
+            pin_t(_idx(), 77, copy.deepcopy(HMAP), {3: 40000, 4: 50000}, {2: 23456},
+                  trim_witnesses=_tw({2: 20000}))                      # الشاهدان على 20000 لا على 23456
+        out, _, _ = pin_t(_idx(), 77, copy.deepcopy(HMAP), {3: 40000, 4: 50000}, {2: 20000})
         self.assertEqual([x for x in out["entries"] if x["ayahId"] == "77:2"][0]["endMs"], 20000)
         with self.assertRaises(SystemExit):                            # لا قصَّ لآيةٍ لا يليها تثبيت
-            pin(_idx(), 77, copy.deepcopy(HMAP), {2: 30000, 3: 40000}, {4: 60000})
+            pin_t(_idx(), 77, copy.deepcopy(HMAP), {2: 30000, 3: 40000}, {4: 60000})
 
     def test_contiguous_neighbour_stays_contiguous(self):
         out, _, _ = pin(_idx(), 77, copy.deepcopy(HMAP), {2: 10000, 3: 40000, 4: 50000})
@@ -70,7 +111,7 @@ class PinHeard(unittest.TestCase):
         self.assertEqual(e["77:2"], (10000, 40000))
 
     def test_pinned_ayah_trimmed_to_its_measured_end(self):
-        out, _, _ = pin(_idx(), 77, copy.deepcopy(HMAP), {2: 10000, 3: 40000, 4: 50000}, {2: 20000})
+        out, _, _ = pin_t(_idx(), 77, copy.deepcopy(HMAP), {2: 10000, 3: 40000, 4: 50000}, {2: 20000})
         e = {x["ayahId"]: (x["startMs"], x["endMs"]) for x in out["entries"]}
         self.assertEqual(e["77:2"], (10000, 20000))                   # التكرارُ 20–40ث بلا مدخل
         self.assertEqual(e["77:3"], (40000, 50000))
@@ -95,11 +136,11 @@ class PinHeard(unittest.TestCase):
         idx = _idx(); idx["audioSha256"] = '["%s", "%s"]' % ("a" * 64, "b" * 64)
         with self.assertRaises(SystemExit):
             pin(idx, 77, h, {2: 30000, 3: 40000, 4: 50000})
-        pin(idx, 77, copy.deepcopy(HMAP), {2: 30000, 3: 40000, 4: 50000}, {1: 10000})      # الصحيحة تمرّ
+        pin_t(idx, 77, copy.deepcopy(HMAP), {2: 30000, 3: 40000, 4: 50000}, {1: 10000})      # الصحيحة تمرّ
         for bad in ("[oops", ["a" * 64], None):
             idx = _idx(); idx["audioSha256"] = bad
             with self.assertRaises(SystemExit):
-                pin(idx, 77, copy.deepcopy(HMAP), {2: 30000, 3: 40000, 4: 50000}, {1: 10000})
+                pin_t(idx, 77, copy.deepcopy(HMAP), {2: 30000, 3: 40000, 4: 50000}, {1: 10000})
 
     def test_result_must_satisfy_heard_gate(self):
         with self.assertRaises(SystemExit):                            # 4 تبقى منحرفة 10ث

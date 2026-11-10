@@ -22,7 +22,7 @@ HERE = Path(__file__).resolve().parent
 sys.path.insert(0, str(HERE))
 
 from pin_heard import declared_absent, inherit_declaration, pin  # noqa: E402
-from test_pin_heard import HMAP, _idx                             # noqa: E402
+from test_pin_heard import HMAP, _idx, pin_t                      # noqa: E402
 
 LIVE = "timings/hafs/r.jz"
 LIVE_SHA = "1" * 64
@@ -97,7 +97,7 @@ class Declaration(unittest.TestCase):
 
     def test_pin_on_declared_parent_touches_pinned_surah_only(self):
         i = _declared()
-        out, _report, changed = pin(i, 77, copy.deepcopy(HMAP), {2: 30000, 3: 40000, 4: 50000}, {1: 10000})
+        out, _report, changed = pin_t(i, 77, copy.deepcopy(HMAP), {2: 30000, 3: 40000, 4: 50000}, {1: 10000})
         before = {e["ayahId"]: e for e in i["entries"]}
         after = {e["ayahId"]: e for e in out["entries"]}
         self.assertEqual(set(before), set(after))               # لا مدخلَ يضيع ولا يُضاف
