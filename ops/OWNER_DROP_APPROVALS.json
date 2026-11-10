@@ -941,5 +941,17 @@
    "جرد المراسي القويّة: شاهدا Whisper سمعا في بدء مدخل 5:36 صوتَ آيةٍ غيرها في الحيّ b77cccf3",
    "الدليل لكلّ آية في ops/evidence/heard-drop-*.json (heard: witness · runId · text)"
   ]
+ },
+ {
+  "key": "timings-staging/qalun/akri_qalun.143e13dd.jz",
+  "surahs": [
+   10,
+   37
+  ],
+  "rule_ref": "إذن المالك النصّيّ 2026-11-05 21:53Z بالحجب المؤقّت المعلن (cmsg_01SnWBBbg8UvScqE3YMKdPHaJxKNTZhRpG5BhYHFbxyNXY)، وأمر القائد 2026-11-10 04:50Z بحجب السور التي ثبت بشاهدَي Whisper أنّ آياتها تُعرض على صوت غيرها حتى تُعاد محاذاتها",
+  "attempts": [
+   "جرد المراسي القويّة ومعايرته (ops/out/heard-strong-calibration-20261110.md): شاهدا Whisper سمعا عند موضع الفهرس في الحيّ b99e3573 نصَّ آيةٍ أخرى في 10:109 و37:182، والعنقود يشمل آخر آية فلا يصلح drop_ayahs",
+   "realign_surah لس10 أخفق في 42759032765 («لم تُحلّ سورةٌ واحدة — س10: 86 بلا حدود»)، وس37 جارية؛ وإعلانا س4 (drop_surah) وس24 (SOURCE_TRUNCATED) موروثان حرفاً منذ #102"
+  ]
  }
 ]
