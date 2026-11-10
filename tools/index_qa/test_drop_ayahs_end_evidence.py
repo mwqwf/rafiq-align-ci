@@ -289,6 +289,17 @@ class ExplicitKind(unittest.TestCase):
         with self.assertRaisesRegex(SystemExit, "TIMING_UNDER_REPAIR"):
             make(evidence=ev, code="SOURCE_TRUNCATED")
 
+    def test_gate_rejects_kind_under_source_truncated(self):
+        """مرشّحٌ SOURCE_TRUNCATED يحمل سجلَّ نهايةٍ سليماً في دليله ⇒ promote يردّه (‏النوعُ لـTIMING_UNDER_REPAIR وحدَه)."""
+        ev = {f"{S}:{a}": {"method": "whisper", "detail": "بتر"} for a, _ in PROBES}
+        out = make(evidence=ev, code="SOURCE_TRUNCATED")
+        self.assertTrue(gate(out)[0])
+        good = make()["transform"]["truncatedGaps"][str(S)]["evidence"]
+        out["transform"]["truncatedGaps"][str(S)]["evidence"] = copy.deepcopy(good)
+        ok, why = gate(out)
+        self.assertFalse(ok)
+        self.assertIn("TIMING_UNDER_REPAIR", why)
+
     def test_method_must_be_whisper(self):
         ev = ev_all()
         ev[f"{S}:15"]["method"] = "ctc_window"

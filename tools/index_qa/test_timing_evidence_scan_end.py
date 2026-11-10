@@ -54,6 +54,14 @@ class ScanEnd(unittest.TestCase):
         self.assertEqual(ev, {})
         self.assertIn("invalid", rep["unproven"]["15"])
 
+    def test_witness_of_other_surah_not_proven(self):
+        """تفريغٌ يُعلن سورةً أخرى ببصمة السورة نفسِها: لا تكشفه حالةُ الشاهد، ويردّه فحصُ البوّابة قبل الكتابة."""
+        bad = witness(PROBES)
+        bad["surah"] = 77
+        ev, rep, _c = build([witness(PROBES), bad])
+        self.assertEqual(ev, {})
+        self.assertIn("end_record_error", rep["unproven"]["15"])
+
     def test_low_confidence_not_proven(self):
         ev, _rep, _c = build([witness(PROBES), witness(PROBES, p=0.45)])
         self.assertEqual(ev, {})
