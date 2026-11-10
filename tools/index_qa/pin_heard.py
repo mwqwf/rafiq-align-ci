@@ -367,6 +367,118 @@ def trim_from_witnesses(wits, hmap, surah, ayah, want_ms, ref_prev, ref_next, ne
     return b, {"ms": b, "witnesses": got, "prevHeardEndMs": occ_end, "nextPinMs": int(next_start)}
 
 
+# ───────────── مطلعُ الحروف المقطّعة: «حدٌّ بلا قياسٍ للحروف» (‏قرار القائد 2026-11-10 · خيار أ) ─────────────
+# ⭐ Whisper لا يكتب أسماءَ الحروف (‏«حميم» · «قاسم» · «موسيقى» في شواهد الكردي وa_ahmed وmhsny الحقيقيّة)، والشاهدان
+#    إن سمعاها اختلفا 600–1000م.ث، فبدءُ الحروف **لا يُقاس**. والمقيسُ بدءُ الآية الثانية (‏CTC + Whisper). فالقاعدة:
+#    ١) السورةُ من قائمةٍ **مشتقّةٍ من نصّ المصحف الموثَّق للرواية** (‏`letters_opener_surahs`) لا مكتوبةٍ باليد:
+#       آيتُها الأولى كلمةٌ واحدةٌ من حروف الفواتح الأربعة عشر عليها مدٌّ لازمٌ (‏ٓ) على حرفٍ غير الألف، أو حرفان وحدهما
+#       بلا ألفٍ ولا سكون (‏«طه»: لا مدَّ لازمَ فيها، و«ما»/«لم» ليستا منها)؛ و**تُستثنى** كلُّ سورةٍ آيتُها الثانية حروفٌ أيضاً (‏42:2 «عسق»: تثبيتُ الثانية فيها غيرُ مقيس)؛
+#    ٢) تُثبَّت الآيةُ الثانية بالمسار المقيس (‏CTC) **ويشهد لها شاهدان** محمَّلان من مصدرهما (‏`load_witness`):
+#       أوّلُ W_K كلماتٍ منها كلمةً بكلمة، بالثقة (‏W_MIN_WORD_P/W_MEAN_WORD_P)، بلا التصاقٍ بطرف النافذة، وبدؤها ضمن
+#       W_AGREE_MS من التثبيت؛
+#    ٣) يُمَدّ بدءُ الآية الأولى **إلى الوراء وحده** إلى أبكر: بدئها المنشور، وأبكرِ كلمةٍ مسموعةٍ قبل مطلع الثانية في
+#       الشاهدين (‏بعد البسملة إن سُمعت، وبلا كلمةٍ ملصوقةٍ ببدء النافذة) — فلا يُقصّ من الحروف شيء؛ ونهايتُها بدءُ الثانية؛
+#    ٤) لا يُمَدّ قبل بدء الملفّ (‏0)، ولا أبعدَ من OPENER_MAX_EXTEND_MS قبل بدئها المنشور، وإلا رُدّت السورة؛
+#    ٥) الدليلُ في `transform.openerLetters` وسطرٌ في `pins`؛ و`openers.yml` و`lateConfirmed` يُشغَّلان على المرشّح كما هو.
+OPENER_VERSION = "opener-letters-1"
+OPENER_MAX_EXTEND_MS = 3000
+OPENER_MIN_WITNESSES = 2
+_MUQ_LETTERS = frozenset("المصركهيعطسحقن")
+_MUQ_MADDA = re.compile("[لمصركهيعطسحقن][\u064b-\u0652\u0670\u06df-\u06ed\u065c]*\u0653")
+_BASMALA = ("بسم", "الله", "الرحمن", "الرحيم")
+
+
+def is_letters_ayah(raw):
+    """آيةٌ هي حروفٌ مقطّعةٌ وحدها في نصّ المصحف (‏انظر الشرط ١)."""
+    sys.path.insert(0, str(_REPO_ROOT / "tools" / "alignment"))
+    from common import norm                                              # noqa: PLC0415
+    w = norm(str(raw or "")).split()
+    return (len(w) == 1 and set(w[0]) <= _MUQ_LETTERS
+            and (bool(_MUQ_MADDA.search(str(raw)))
+                 or (len(w[0]) == 2 and "ا" not in w[0] and "\u0652" not in str(raw))))
+
+
+def letters_opener_surahs(riwaya):
+    """السورُ التي آيتُها الأولى حروفٌ وحدها والثانيةُ ليست حروفاً — من `text_<الرواية>.jz` نفسِه."""
+    sys.path.insert(0, str(_REPO_ROOT / "tools" / "alignment"))
+    from common import load_index, load_text, surah_slice                # noqa: PLC0415
+    text, index = load_text(riwaya or "hafs"), load_index()
+    out = []
+    for s in range(1, 115):
+        start, _end, info = surah_slice(index, s)
+        if int(info["ayahs"]) >= 2 and is_letters_ayah(text[start]) and not is_letters_ayah(text[start + 1]):
+            out.append(s)
+    return out
+
+
+def _opener_witness(wit, head2, pin2):
+    """(تفصيلٌ، None) أو (None، سبب): مطلعُ الثانية عند `pin2` وأبكرُ كلمةٍ قبله (‏بعد البسملة · بلا التصاق)."""
+    k = len(head2)
+    why = "لا يُسمع مطلعُ الآية الثانية كلمةً بكلمة"
+    for ay, rec in sorted((wit.get("ayahs") or {}).items(), key=lambda kv: int(kv[0])):
+        win = rec.get("windowMs") or [None, None]
+        raw = []
+        for w in rec.get("words") or []:
+            # ⭐ المقارِنُ الإملائيُّ الضيّق نفسُه في #101 (‏ٰ ء ٱ ← ا): «الكتاب» (‏Whisper) = «ٱلْكِتَٰبِ» (‏المصحف)
+            for t in heard_gate.disputed_norm_words(str(w.get("w", ""))):
+                raw.append((t, int(w["s"]), int(w.get("e", w["s"])), float(w["p"])))
+        for i in range(len(raw) - k + 1):
+            if [x[0] for x in raw[i:i + k]] != head2:
+                continue
+            edge = raw[i:i + k]
+            if win[0] is not None and any(x[1] <= int(win[0]) for x in edge):
+                why = f"مطلعُ الثانية ملصوقٌ ببدء النافذة {win[0]}"
+                continue
+            if win[1] is not None and any(x[2] >= int(win[1]) for x in edge):
+                why = f"مطلعُ الثانية ملصوقٌ بنهاية النافذة {win[1]}"
+                continue
+            low = min(x[3] for x in edge)
+            mean = sum(x[3] for x in edge) / len(edge)
+            if low < W_MIN_WORD_P or mean < W_MEAN_WORD_P:
+                why = f"ثقةُ مطلع الثانية دون العتبة (أدناها {low:.2f}، متوسّطُها {mean:.2f})"
+                continue
+            if abs(raw[i][1] - int(pin2)) > W_AGREE_MS:
+                why = f"مطلعُ الثانية عند Whisper {raw[i][1]} بعيدٌ عن التثبيت {pin2} (>{W_AGREE_MS}م.ث)"
+                continue
+            before = raw[:i]
+            cut = max([j for j, x in enumerate(before) if x[0] in _BASMALA], default=-1)
+            pre = [x for x in before[cut + 1:]
+                   if re.search("[\u0621-\u064a]", x[0]) and (win[0] is None or x[1] > int(win[0]))]
+            return {"window": ay, "ayah2HeadMs": raw[i][1], "minP": round(low, 4), "meanP": round(mean, 4),
+                    "lettersWords": [[x[0], x[1], round(x[3], 4)] for x in pre],
+                    "earliestMs": min((x[1] for x in pre), default=None)}, None
+    return None, why
+
+
+def opener_letters_start(wits, surah, riwaya, hmap, want_sha, published_start, pin2, ref2=None):
+    """بدءُ الآية الأولى الجديد ودليلُه، أو SystemExit بالسبب (‏الشروط ١–٤ أعلاه)."""
+    if surah not in letters_opener_surahs(riwaya):
+        raise SystemExit(f"⛔ س{surah} ليست في قائمة المطالع المقطّعة المشتقّة من نصّ {riwaya} "
+                         "(‏آيتُها الأولى ليست حروفاً وحدها، أو الثانيةُ حروفٌ أيضاً)")
+    if len(wits or {}) < OPENER_MIN_WITNESSES:
+        raise SystemExit(f"⛔ مطلعُ الحروف يلزمه {OPENER_MIN_WITNESSES} شاهدان من تشغيلتين (‏وجد {len(wits or {})})")
+    ref2 = ref2 if ref2 is not None else heard_gate.disputed_ref_words(riwaya, surah, 2)
+    head2 = list(ref2[:min(W_K, len(ref2))])
+    got = {}
+    for run, w in sorted(wits.items()):
+        check_witness(w, surah, hmap, want_sha)
+        d, why = _opener_witness(w, head2, pin2)
+        if d is None:
+            raise SystemExit(f"⛔ مطلعُ {surah}:1: الشاهد {run} — {why}")
+        got[str(run)] = d
+    cands = [int(published_start)] + [d["earliestMs"] for d in got.values() if d["earliestMs"] is not None]
+    new = min(cands)
+    if new < 0:
+        raise SystemExit(f"⛔ مطلعُ {surah}:1 يُمَدّ إلى {new} قبل بدء الملفّ")
+    if int(published_start) - new > OPENER_MAX_EXTEND_MS:
+        raise SystemExit(f"⛔ مطلعُ {surah}:1 يُمَدّ {int(published_start) - new}م.ث قبل بدئه المنشور {published_start} "
+                         f"(>{OPENER_MAX_EXTEND_MS}م.ث) — تُردّ السورة")
+    if not new < int(pin2):
+        raise SystemExit(f"⛔ مطلعُ {surah}:1 عند {new} ليس قبل تثبيت الثانية {pin2}")
+    return new, {"version": OPENER_VERSION, "publishedStartMs": int(published_start), "startMs": new,
+                 "ayah2PinMs": int(pin2), "maxExtendMs": OPENER_MAX_EXTEND_MS, "witnesses": got}
+
+
 def expected_from_peers(own_durs, peer_med, skip=()):
     """المتوقَّعُ لكلّ آيةٍ = وسيطُ مدّتها عند النظراء × وتيرةُ هذا القارئ.
 
@@ -381,7 +493,8 @@ def expected_from_peers(own_durs, peer_med, skip=()):
 
 
 def pin(idx, surah, hmap, pins, trims=None, last_end=None, witness=None, ref_words=None,
-        expected=None, evidence=None, witness_fuzzy=False, trim_witnesses=None, trim_evidence=None):
+        expected=None, evidence=None, witness_fuzzy=False, trim_witnesses=None, trim_evidence=None,
+        opener_witnesses=None, opener_evidence=None):
     """يُعيد (فهرساً جديداً، تقريراً) أو يرفع SystemExit بالسبب.
 
     `last_end`: نهايةٌ مقيسةٌ لآخر آيةٍ في السورة (‏الفخفاخ 33:73 · 2026-10-05: قُصّت عند مدّةٍ قدّرها ffprobe
@@ -495,6 +608,17 @@ def pin(idx, surah, hmap, pins, trims=None, last_end=None, witness=None, ref_wor
                              f"(‏{[(m[0], m[1]) for m in perf]})")
         new[last]["endMs"] = hit[0]
         report.append(f"{surah}:{last} نهايتُها ⇐ {hit[0]} (نهايةُ أدائها المقيس)")
+    if opener_witnesses is not None:
+        # ⭐ مطلعُ الحروف المقطّعة (‏`opener_letters_start`): الثانيةُ مثبَّتةٌ بالمسار المقيس، والأولى تُمَدّ إلى الوراء وحده.
+        if 2 not in pins or 1 in pins or 1 not in new or order[0] != 1:
+            raise SystemExit(f"⛔ مطلعُ الحروف: يلزمه تثبيتُ {surah}:2 وحدها ومدخلٌ لـ{surah}:1 غيرُ مثبَّت")
+        st1, ev1 = opener_letters_start(opener_witnesses, surah, idx.get("riwaya") or "hafs", hmap, want,
+                                        int(mine[1]["startMs"]), pins[2])
+        new[1]["startMs"], new[1]["endMs"] = st1, pins[2]
+        report.append(f"{surah}:1 بدؤها ⇐ {st1} (حدٌّ بلا قياسٍ للحروف {OPENER_VERSION}: المنشور {mine[1]['startMs']} · "
+                      f"أبكرُ كلمةٍ قبل مطلع الثانية · نهايتُها تثبيتُ الثانية {pins[2]} · شاهدان {sorted(ev1['witnesses'])})")
+        if opener_evidence is not None:
+            opener_evidence.update(ev1)
     prev_end = -1
     for a in order:
         e = new[a]
@@ -502,7 +626,7 @@ def pin(idx, surah, hmap, pins, trims=None, last_end=None, witness=None, ref_wor
         if not (0 <= st < en) or st < prev_end:
             raise SystemExit(f"⛔ {surah}:{a}: حدودٌ غيرُ صاعدة ({st}→{en}، والسابقة تنتهي {prev_end})")
         prev_end = en
-        if a not in pins and int(e["startMs"]) != int(mine[a]["startMs"]):
+        if a not in pins and int(e["startMs"]) != int(mine[a]["startMs"]) and not (a == 1 and opener_witnesses is not None):
             raise SystemExit(f"⛔ {surah}:{a}: تغيّر بدءُ آيةٍ غيرِ مثبَّتة")
     for a in sorted(wpinned):
         # ⛔ مدّةُ الآية المثبَّتة بالشاهد 0.5–2× المتوقَّع، والجارةُ السابقة لا تنكمش دون 0.5× مدّتها الأصليّة.
@@ -669,6 +793,9 @@ def main():
     ap.add_argument("--disputed", default="",
                     help="آية:الآيةُ الأخرى المسموعةُ عند مرساتها، بفواصل (‏heard_gate.disputed_verdict) — مثل 82:81,93:92")
     ap.add_argument("--disputed-runs", default="", help="تشغيلتا whisper_witness (‏أو أكثر) تُضمَّنان دليلاً لكلّ متنازَع")
+    ap.add_argument("--opener-runs", default="",
+                    help="تشغيلتا whisper_witness (‏أو أكثر): مطلعُ الحروف المقطّعة — يُثبَّت 2 بـ--pin وتُمَدّ 1 إلى الوراء "
+                         f"({OPENER_VERSION})")
     ap.add_argument("--reason", required=True)
     ap.add_argument("--yes", action="store_true")
     a = ap.parse_args()
@@ -702,10 +829,20 @@ def main():
         if ref is None:
             riw = idx.get("riwaya") or "hafs"
             ref = lambda s, ay: ref_words_for(riw, s, ay)                # noqa: E731
+    owits, oev = None, {}
+    if a.opener_runs:
+        runs = [r.strip() for r in a.opener_runs.split(",") if r.strip()]
+        if len(set(runs)) != len(runs):
+            raise SystemExit("⛔ --opener-runs: تشغيلةٌ مكرّرة")
+        owits = {r: load_witness(r, a.surah) for r in runs}
+        if ref is None:
+            riw = idx.get("riwaya") or "hafs"
+            ref = lambda s, ay: ref_words_for(riw, s, ay)                # noqa: E731
     out, report, changed = pin(idx, a.surah, hmap, parse_pairs(a.pin), parse_pairs(a.trim),
                                a.last_end, witness=wit, ref_words=ref, expected=expected,
                                evidence=evidence, witness_fuzzy=a.witness_fuzzy,
-                               trim_witnesses=twits, trim_evidence=tev)
+                               trim_witnesses=twits, trim_evidence=tev,
+                               opener_witnesses=owits, opener_evidence=oev)
     out["transform"] = {
         **({"truncatedTail": idx["transform"]["truncatedTail"]}
            if isinstance(idx.get("transform"), dict) and idx["transform"].get("truncatedTail") else {}),
@@ -715,6 +852,8 @@ def main():
         "at": int(time.time() * 1000), "by": "pin_heard",
         "note": "بدءُ كلّ آيةٍ مثبَّتةٍ أداءٌ مسموعٌ مقيس؛ ما تكرّر قبله بلا مدخل؛ يلزمه الإحصاءُ الشامل.",
     }
+    if oev:
+        out["transform"]["openerLetters"] = {str(a.surah): oev}
     if tev:
         out["transform"]["trimWitness"] = {str(k): v for k, v in sorted(tev.items())}
     if a.witness_run:
