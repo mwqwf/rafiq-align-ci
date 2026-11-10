@@ -1,0 +1,32 @@
+{
+ "key": "timings/hafs/afs.jz",
+ "liveSha256": "b3b9b914973a3105dbd4660962853063c7a94c29d347693c29e6973b70c55493",
+ "surahs": [
+  22
+ ],
+ "cases": {
+  "22": {
+   "ayah": "22:78",
+   "cluster": "54-78",
+   "clusterSize": 25,
+   "indexStartMs": 1458212,
+   "mapAnchorStartMs": 1711833,
+   "whisperHeardStartMs": [
+    1711713
+   ],
+   "witnesses": [
+    {
+     "kind": "whisper_witness.yml medium float32",
+     "runId": 42756956769,
+     "heardHead": "ما في الأرض والفلك تجري في البحر بأمره ويمسك السماء أن تبقى وجاهدوا في الله حق جهاده هو اجتباكم وما جعل عليكم في الدين من حرج"
+    },
+    {
+     "kind": "ctc_heard_map (state-heard المنشور)",
+     "anchorStartMs": 1711833
+    }
+   ],
+   "verdict": "الفهرس مخطئ: نصُّ الآية يُسمع عند موضع الخريطة، وعند موضع الفهرس صوتُ آيةٍ أخرى"
+  }
+ },
+ "calibration": "ops/out/heard-strong-calibration-20261110.md"
+}

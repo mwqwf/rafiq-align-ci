@@ -1,0 +1,32 @@
+{
+ "key": "timings/qalun/janaini_qalun.jz",
+ "liveSha256": "64fa59990a75ca1eac20690a05050d8707fb5365c8f4edb534ae5fa41c6a9d51",
+ "surahs": [
+  5
+ ],
+ "cases": {
+  "5": {
+   "ayah": "5:109",
+   "cluster": "70-109",
+   "clusterSize": 40,
+   "indexStartMs": 2303407,
+   "mapAnchorStartMs": 2725879,
+   "whisperHeardStartMs": [
+    2725679
+   ],
+   "witnesses": [
+    {
+     "kind": "whisper_witness.yml medium float32",
+     "runId": 42756711507,
+     "heardHead": "إنما يريد الشيطان أن يوقع بينكم العداوة والبغضاء في الخمر والميسر ويصدكم يوم الفاسخين يوم يجمع الله الرسل فيقول ماذا أجبتم قالوا لا علم لنا إنك أنت علامة"
+    },
+    {
+     "kind": "ctc_heard_map (state-heard المنشور)",
+     "anchorStartMs": 2725879
+    }
+   ],
+   "verdict": "الفهرس مخطئ: نصُّ الآية يُسمع عند موضع الخريطة، وعند موضع الفهرس صوتُ آيةٍ أخرى"
+  }
+ },
+ "calibration": "ops/out/heard-strong-calibration-20261110.md"
+}

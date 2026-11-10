@@ -1,0 +1,55 @@
+{
+ "key": "timings/qalun/akri_qalun.jz",
+ "liveSha256": "b99e357370ad40c215a6d39e08ff26ce83f6883edf19dbbcef5607e705797bcd",
+ "surahs": [
+  10,
+  37
+ ],
+ "cases": {
+  "10": {
+   "ayah": "10:109",
+   "cluster": "23-109",
+   "clusterSize": 85,
+   "indexStartMs": 1862865,
+   "mapAnchorStartMs": 2668789,
+   "whisperHeardStartMs": [
+    2668649
+   ],
+   "witnesses": [
+    {
+     "kind": "whisper_witness.yml medium float32",
+     "runId": 42756669766,
+     "heardHead": "إلينا مرجعهم ثم نذيقهم العذاب الشديد بما كانوا يكفرون واتبع ما يُوحى إليك ويصبر حتى يحكم الله وهو خير الحي"
+    },
+    {
+     "kind": "ctc_heard_map (state-heard المنشور)",
+     "anchorStartMs": 2668789
+    }
+   ],
+   "verdict": "الفهرس مخطئ: نصُّ الآية يُسمع عند موضع الخريطة، وعند موضع الفهرس صوتُ آيةٍ أخرى"
+  },
+  "37": {
+   "ayah": "37:182",
+   "cluster": "138-182",
+   "clusterSize": 45,
+   "indexStartMs": 1258309,
+   "mapAnchorStartMs": 1414504,
+   "whisperHeardStartMs": [
+    1414543
+   ],
+   "witnesses": [
+    {
+     "kind": "whisper_witness.yml medium float32",
+     "runId": 42756522605,
+     "heardHead": "إلا عباد الله المخلصين فإنكم وما تعبدون والحمد لله رب العالمين"
+    },
+    {
+     "kind": "ctc_heard_map (state-heard المنشور)",
+     "anchorStartMs": 1414504
+    }
+   ],
+   "verdict": "الفهرس مخطئ: نصُّ الآية يُسمع عند موضع الخريطة، وعند موضع الفهرس صوتُ آيةٍ أخرى"
+  }
+ },
+ "calibration": "ops/out/heard-strong-calibration-20261110.md"
+}

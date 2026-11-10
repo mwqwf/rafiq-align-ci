@@ -1,0 +1,32 @@
+{
+ "key": "timings/hafs/a_alhazmi.jz",
+ "liveSha256": "8021f013c7c9dda743b6387f0bbb5f72790feec40361ae979e168b8c371a55ac",
+ "surahs": [
+  6
+ ],
+ "cases": {
+  "6": {
+   "ayah": "6:165",
+   "cluster": "111-165",
+   "clusterSize": 55,
+   "indexStartMs": 2882219,
+   "mapAnchorStartMs": 3439662,
+   "whisperHeardStartMs": [
+    3439542
+   ],
+   "witnesses": [
+    {
+     "kind": "whisper_witness.yml medium float32",
+     "runId": 42756684459,
+     "heardHead": "النخل والزرع مختلفاً أكلوه والزيتون والرمان متشابهاً وغير متشابه كلو من ثمره إذا أثمر فيه تختلفون وهو الذي جعلكم خلائفا الأرض ورفع بعضكم فوق بعضٍ درجات"
+    },
+    {
+     "kind": "ctc_heard_map (state-heard المنشور)",
+     "anchorStartMs": 3439662
+    }
+   ],
+   "verdict": "الفهرس مخطئ: نصُّ الآية يُسمع عند موضع الخريطة، وعند موضع الفهرس صوتُ آيةٍ أخرى"
+  }
+ },
+ "calibration": "ops/out/heard-strong-calibration-20261110.md"
+}

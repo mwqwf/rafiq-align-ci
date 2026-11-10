@@ -1,0 +1,32 @@
+{
+ "key": "timings/hafs/a_alqrafi.jz",
+ "liveSha256": "0921404e613ec9bdb2804b1bb822dd79407be8023c84f2cb10f32cb7b413f94b",
+ "surahs": [
+  30
+ ],
+ "cases": {
+  "30": {
+   "ayah": "30:60",
+   "cluster": "28-60",
+   "clusterSize": 33,
+   "indexStartMs": 867846,
+   "mapAnchorStartMs": 1230938,
+   "whisperHeardStartMs": [
+    1230758
+   ],
+   "witnesses": [
+    {
+     "kind": "whisper_witness.yml medium float32",
+     "runId": 42756877965,
+     "heardHead": "فاقبة الذين من قبل كان أكثرهم مشركين لا يعلمون فاصبر إن وعد الله حق ولا يستخفنك"
+    },
+    {
+     "kind": "ctc_heard_map (state-heard المنشور)",
+     "anchorStartMs": 1230938
+    }
+   ],
+   "verdict": "الفهرس مخطئ: نصُّ الآية يُسمع عند موضع الخريطة، وعند موضع الفهرس صوتُ آيةٍ أخرى"
+  }
+ },
+ "calibration": "ops/out/heard-strong-calibration-20261110.md"
+}

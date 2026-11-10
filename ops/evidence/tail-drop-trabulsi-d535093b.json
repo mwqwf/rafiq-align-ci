@@ -1,0 +1,32 @@
+{
+ "key": "timings/hafs/trabulsi.jz",
+ "liveSha256": "d535093b8bfe556e4516d08cc1bfe57092fbaa21e946cff4b6dcce055c82efce",
+ "surahs": [
+  12
+ ],
+ "cases": {
+  "12": {
+   "ayah": "12:111",
+   "cluster": "70-111",
+   "clusterSize": 42,
+   "indexStartMs": 2065643,
+   "mapAnchorStartMs": 2359909,
+   "whisperHeardStartMs": [
+    2359729
+   ],
+   "witnesses": [
+    {
+     "kind": "whisper_witness.yml medium float32",
+     "runId": 42756931730,
+     "heardHead": "قَالَ أَلَمْ أَكُلَّكُمْ إِنِّي أَعْلَمُ مِنَ اللَّهِ مَا لَا تَعْلَمُوا قَالُوا يَــــــــــــــــــــــــــــــــــــــــــــــــــــــــــــــــــــــــــــــــــــــــــــــــــــــــــــــــــــــــــــــــــــــــــــــــــــــــــــــــــــــــــــــــــــــــــــــــــــــــــــــــــــــــ "
+    },
+    {
+     "kind": "ctc_heard_map (state-heard المنشور)",
+     "anchorStartMs": 2359909
+    }
+   ],
+   "verdict": "الفهرس مخطئ: نصُّ الآية يُسمع عند موضع الخريطة، وعند موضع الفهرس صوتُ آيةٍ أخرى"
+  }
+ },
+ "calibration": "ops/out/heard-strong-calibration-20261110.md"
+}

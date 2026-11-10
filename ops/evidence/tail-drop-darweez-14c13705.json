@@ -1,0 +1,32 @@
+{
+ "key": "timings/hafs/darweez.jz",
+ "liveSha256": "14c137051b289ca3d9c319c33d15d8d1b0655f0277db5494d82a41338ebd950c",
+ "surahs": [
+  11
+ ],
+ "cases": {
+  "11": {
+   "ayah": "11:123",
+   "cluster": "92-123",
+   "clusterSize": 32,
+   "indexStartMs": 2380547,
+   "mapAnchorStartMs": 2689845,
+   "whisperHeardStartMs": [
+    2688885
+   ],
+   "witnesses": [
+    {
+     "kind": "whisper_witness.yml medium float32",
+     "runId": 42756917959,
+     "heardHead": "وخالدين فيها ما دامت السماوات والأرض إلا ما شاء ربك إن ربك فعال لما يريد والأرض ولله غيب السماوات والأرض وإليه يرجع الأمر كله فاعبده وتوتر"
+    },
+    {
+     "kind": "ctc_heard_map (state-heard المنشور)",
+     "anchorStartMs": 2689845
+    }
+   ],
+   "verdict": "الفهرس مخطئ: نصُّ الآية يُسمع عند موضع الخريطة، وعند موضع الفهرس صوتُ آيةٍ أخرى"
+  }
+ },
+ "calibration": "ops/out/heard-strong-calibration-20261110.md"
+}

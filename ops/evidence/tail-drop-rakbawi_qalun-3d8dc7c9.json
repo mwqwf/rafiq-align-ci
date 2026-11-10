@@ -1,0 +1,32 @@
+{
+ "key": "timings/qalun/rakbawi_qalun.jz",
+ "liveSha256": "3d8dc7c9e31f3579939f7607efbc38ae142aec17900025b49fa3320ec71c09fc",
+ "surahs": [
+  36
+ ],
+ "cases": {
+  "36": {
+   "ayah": "36:83",
+   "cluster": "65-83",
+   "clusterSize": 19,
+   "indexStartMs": 633575,
+   "mapAnchorStartMs": 718182,
+   "whisperHeardStartMs": [
+    718242
+   ],
+   "witnesses": [
+    {
+     "kind": "whisper_witness.yml medium float32",
+     "runId": 42756510314,
+     "heardHead": "لا يستطيعون نصرهم وهم لهم جود محضرون فلا يحزنك قولهم فسبحان الذي بيده ملكوت كل شيء وإليه ترجعون"
+    },
+    {
+     "kind": "ctc_heard_map (state-heard المنشور)",
+     "anchorStartMs": 718182
+    }
+   ],
+   "verdict": "الفهرس مخطئ: نصُّ الآية يُسمع عند موضع الخريطة، وعند موضع الفهرس صوتُ آيةٍ أخرى"
+  }
+ },
+ "calibration": "ops/out/heard-strong-calibration-20261110.md"
+}

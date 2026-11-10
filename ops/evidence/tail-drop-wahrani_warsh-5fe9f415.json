@@ -1,0 +1,32 @@
+{
+ "key": "timings/warsh/wahrani_warsh.jz",
+ "liveSha256": "5fe9f415d540f31c173714ba5e0f046cef3de3e7b7b799f743d51726461be283",
+ "surahs": [
+  16
+ ],
+ "cases": {
+  "16": {
+   "ayah": "16:128",
+   "cluster": "78-128",
+   "clusterSize": 51,
+   "indexStartMs": 1617509,
+   "mapAnchorStartMs": 2043784,
+   "whisperHeardStartMs": [
+    2043644
+   ],
+   "witnesses": [
+    {
+     "kind": "whisper_witness.yml medium float32",
+     "runId": 42756725062,
+     "heardHead": "وَاللَّهُ أَعْلَمُ بِمَا يُنَزِّلُ قَالُواْ إِنَّمَا أَنْتَ مُفْتَظٍ بَلَ اكثرُ هُمْ لَا يَعْلَمُونَ 6 - إن الله مع الذين اتقوا والذين هم محسنون"
+    },
+    {
+     "kind": "ctc_heard_map (state-heard المنشور)",
+     "anchorStartMs": 2043784
+    }
+   ],
+   "verdict": "الفهرس مخطئ: نصُّ الآية يُسمع عند موضع الخريطة، وعند موضع الفهرس صوتُ آيةٍ أخرى"
+  }
+ },
+ "calibration": "ops/out/heard-strong-calibration-20261110.md"
+}

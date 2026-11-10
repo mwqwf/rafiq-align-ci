@@ -1,0 +1,32 @@
+{
+ "key": "timings/hafs/qurashi.jz",
+ "liveSha256": "6969cf337ae5fa56203e1a18bb5842a43e1975fe701a7ae138e8206db27caf9f",
+ "surahs": [
+  10
+ ],
+ "cases": {
+  "10": {
+   "ayah": "10:109",
+   "cluster": "75-109",
+   "clusterSize": 33,
+   "indexStartMs": 2507218,
+   "mapAnchorStartMs": 2879495,
+   "whisperHeardStartMs": [
+    2879275
+   ],
+   "witnesses": [
+    {
+     "kind": "whisper_witness.yml medium float32",
+     "runId": 42756890732,
+     "heardHead": "إذا كنت في شك من ما أنزلنا إليك فاسأل الذين وكيل واتبع ما يوحى إليك واصبر حتى يحكم الله"
+    },
+    {
+     "kind": "ctc_heard_map (state-heard المنشور)",
+     "anchorStartMs": 2879495
+    }
+   ],
+   "verdict": "الفهرس مخطئ: نصُّ الآية يُسمع عند موضع الخريطة، وعند موضع الفهرس صوتُ آيةٍ أخرى"
+  }
+ },
+ "calibration": "ops/out/heard-strong-calibration-20261110.md"
+}
