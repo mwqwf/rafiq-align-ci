@@ -11,7 +11,11 @@
 ⭐ القاعدة (‏أداةُ البناء لا الحارس — البوّابةُ كما هي حرفاً):
   - تُكتب البصمةُ المقيسة (‏`sha256` من الملفّ الذي نُزّل وحوذي في التشغيلة نفسِها) **فقط** إذا:
     ① كان الوضعُ وضعَ محاذاةٍ للسورة كلّها (‏`full` أو `heard`) بلا ذيلٍ مبتورٍ ولا غائباتٍ مسمّاة؛
-    ② وفي `heard` بـ`rewindow` يُسمّي السورةَ: المدى المسمّى هو 1..N تماماً؛
+       أو `dualfix` الذي يُثبت مخرجُه أنّ أساسَه (‏مرشّح heardmap تامّ السورة) قيس على الملفّ نفسِه:
+       `ctc_dualfix` يردّ إن خالف الملفُّ المنزَّلُ `audioSha256` للسورة في الأساس، ودليلُه
+       (‏`dualFixEvidence.sourceSha256`) يساوي البصمةَ المقيسة — فحدودُه كلُّها من قياسٍ على الملفّ الحاليّ؛
+    ② وفي `heard` بـ`rewindow` يُسمّي السورةَ: المدى المسمّى هو 1..N تماماً (‏ولا يُشترط في dualfix، فالمدى
+       فيه مدى التصحيح وما خارجه من الأساس المقيس على الملفّ نفسِه)؛
     ③ وصفوفُ المحاذاة N صفّاً كلُّها بحدود، ومداخلُ السورة في المدموج N مدخلاً **هي صفوفُ المحاذاة نفسُها**
        (‏بدءاً ونهايةً) — فلا مدخلَ موروثٌ من الأب يبقى تحت بصمةٍ جديدة؛
     ④ و`fileRef` لكلّ مدخلٍ من السورة = `fileRef` الملفّ الذي حوذي (‏وإلا ردٌّ كما كان).
@@ -32,7 +36,7 @@ HERE = Path(__file__).resolve().parent
 sys.path.insert(0, str(HERE))
 from splice_surah import COUNTS  # noqa: E402
 
-WHOLE_MODES = ("full", "heard")
+WHOLE_MODES = ("full", "heard", "dualfix")
 
 
 def parse_rewindow(txt: str) -> dict:
@@ -58,7 +62,12 @@ def whole_surah_reason(s: int, rec: dict, entries: list, mode: str, rewin: dict,
         return "ذيلٌ مبتورٌ معلَن"
     if absent:
         return "غائباتٌ مسمّاة"
-    if s in rewin and rewin[s] != [(1, n)]:
+    if mode == "dualfix":
+        ev = rec.get("dualFixEvidence") or {}
+        if (rec.get("engine") != "ctc-dualfix-1" or not ev.get("baseKey")
+                or ev.get("sourceSha256") != rec.get("sha256")):
+            return "dualfix بلا دليلٍ أنّ أساسَه قيس على الملفّ نفسِه"
+    elif s in rewin and rewin[s] != [(1, n)]:
         return f"rewindow يُسمّي {rewin[s]} لا 1..{n}"
     rows = rec.get("entries") or []
     if len(rows) != n or any(r.get("startMs") is None or r.get("endMs") is None for r in rows):

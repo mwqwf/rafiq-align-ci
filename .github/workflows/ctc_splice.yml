@@ -479,7 +479,7 @@ jobs:
           python tools/index_qa/splice_surah.py --index parent.jz --surah "$S" \
                  --aligned $F --url "$URLT" --skip-unresolved --engine-tag "$ETAG" $ALTF \
                  --out patched.jz
-          # ⭐ (2026-11-10 · الكردي س55) البصمةُ المقيسةُ تُكتب للسورة المعاد محاذاتُها كلِّها 1..N (‏full/heard) وحدَها،
+          # ⭐ (2026-11-10 · الكردي س55) البصمةُ المقيسةُ تُكتب للسورة المعاد محاذاتُها كلِّها 1..N (‏full/heard، وdualfix بدليل أساسٍ على الملفّ نفسِه) وحدَها،
           #    في موضعها من قائمة 114 أو المضغوطة، وبعد مطابقة fileRef؛ والجزئيّةُ لا تُمسّ (‏splice_audio_sha.py · مختبَرة).
           python -m unittest tools/index_qa/test_splice_audio_sha.py
           SHAF=""; [ -n "$TRUNC" ] && SHAF="--truncated"; [ -n "$ABSENT" ] && SHAF="$SHAF --absent"

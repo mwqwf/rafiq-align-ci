@@ -4,7 +4,7 @@
 
   ① قائمةٌ ثابتةٌ من 114 وسورةٌ محجوبةٌ (‏113 حاضرة) + heard بـrewindow 55:1-78 ⇒ تُكتب بصمةُ س55 في موضعها 54.
   ② heard بمدىً جزئيّ (55:41-75) ⇒ لا تُمسّ.
-  ③ وضعُ window ولو بصفوفٍ تامّة ⇒ لا تُمسّ.
+  ③ وضعُ window ولو بصفوفٍ تامّة ⇒ لا تُمسّ؛ وdualfix بدليل أساسٍ على الملفّ نفسِه ⇒ تُكتب، وبلا دليل ⇒ لا.
   ④ مدخلٌ موروثٌ من الأب لم يأتِ من المحاذاة ⇒ لا تُمسّ.
   ⑤ قائمةٌ مضغوطةٌ على الحاضرة ⇒ موضعُ السورة بين الحاضرة.
   ⑥ fileRef مخالف ⇒ ردّ.
@@ -71,6 +71,24 @@ class T(unittest.TestCase):
         r = M.apply(idx, [55], {55: _rec()}, "window", "55:1-78", log=lambda *_: None)
         self.assertTrue(r[55].startswith("partial:"))
         self.assertEqual(idx["audioSha256"][54], OLD)
+
+    def test_dualfix_with_evidence_written(self):
+        idx = _idx(s55_rows=_rows(55))
+        rec = _rec()
+        rec.update(engine="ctc-dualfix-1",
+                   dualFixEvidence={"baseKey": "timings-staging/hafs/x.11111111.jz", "sourceSha256": NEW})
+        r = M.apply(idx, [55], {55: rec}, "dualfix", "55:5-7,55:36-38", log=lambda *_: None)
+        self.assertEqual(r[55], "written")
+        self.assertEqual(idx["audioSha256"][54], NEW)
+
+    def test_dualfix_without_evidence_kept(self):
+        for ev in ({}, {"baseKey": "k", "sourceSha256": OLD}):
+            idx = _idx(s55_rows=_rows(55))
+            rec = _rec()
+            rec.update(engine="ctc-dualfix-1", dualFixEvidence=ev)
+            r = M.apply(idx, [55], {55: rec}, "dualfix", "", log=lambda *_: None)
+            self.assertTrue(r[55].startswith("partial:"), ev)
+            self.assertEqual(idx["audioSha256"][54], OLD)
 
     def test_inherited_entry_kept(self):
         rows = _rows(55)
