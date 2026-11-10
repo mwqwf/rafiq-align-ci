@@ -1,0 +1,15 @@
+{
+ "action": "dispatch",
+ "workflow": "ctc_splice.yml",
+ "inputs": {
+  "parent": "timings/hafs/kurdi.jz",
+  "url_template": "https://server6.mp3quran.net/kurdi/{s:03d}.mp3",
+  "riwaya": "hafs",
+  "surahs": "4",
+  "mode": "heard",
+  "absent_ayahs": "4:127",
+  "absent_witness_runs": "42772750710,42772755657",
+  "reason": "kurdi س4 فوق الحيّ b7fe6778: بناءُ س4 من خريطتَي السماع وإعلانُ غياب 4:127 بشاهدَين float32 (medium 42772750710 وsmall 42772755657 على 4125000..4170000: 4:125 ثمّ 4:126 ثمّ 4:128 بلا كلمةٍ من 4:127)؛ وإعلانُ س55 يُورَّث حرفاً (#106)",
+  "reason_user": "تسجيل سورة النساء عند الناشر ناقص، فالآية 127 غير متاحة بصوت هذا القارئ."
+ }
+}
