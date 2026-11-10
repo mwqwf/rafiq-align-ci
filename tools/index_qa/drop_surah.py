@@ -65,7 +65,56 @@ def pruned_surah_maps(idx, surahs):
     return out
 
 
-def carried_declared_tails(idx, kept, surahs, reason_code, reason_user):
+_DECL_FIELDS = ("reasonCode", "reasonUser", "reason")
+
+
+def _op_surahs(op, name):
+    """سورُ مقطعٍ واحدٍ من `op` (‏`drop_surah:` أو `declare_gap:`) — المقاطعُ تفصلها `|`."""
+    out = set()
+    for seg in str(op or "").split("|"):
+        seg = seg.strip()
+        if seg.startswith(name + ":"):
+            out |= {int(x) for x in re.findall(r"\d+", seg[len(name) + 1:])}
+    return out
+
+
+def prior_declarations(idx):
+    """كلُّ إعلانٍ في ترويسة الأصل، سورةً سورة: {"س": {"op", "reasonCode", "reasonUser", "reason"}}.
+
+    ⛔ العطبُ المقيس (‏akri_qalun.b99e3573 · 2026-11-10): الأصلُ `drop_surah:4|declare_gap:24`، وإسقاطُ
+    س10 وس37 برمزٍ غير SOURCE_TRUNCATED كان يكتب ترويسةً جديدة بحقلٍ واحدٍ للرمز ⇒ إمّا أن يُمحى
+    إعلانُ ذيل س24 وإسقاطُ س4، وإمّا أن يُكتب للسور كلِّها رمزٌ واحدٌ لا يصف إلا بعضَها.
+    ⇒ الإعلانُ سجلٌّ لكلّ سورةٍ في `transform.declarations`: ما حمله الأصلُ في هذا الحقل يُنقل **حرفاً**،
+    وما لم يحمله يُشتقّ من حقول الأصل العليا التي كانت وحدَها تصفه يومَ كُتب (‏`op` و`dropSurah`)."""
+    tr = idx.get("transform") if isinstance(idx.get("transform"), dict) else {}
+    if not tr:
+        return {}
+    have = tr.get("declarations")
+    if have is not None and not isinstance(have, dict):
+        raise SystemExit("⛔ transform.declarations في الأصل ليس قاموساً — لا يُورَّث ما لا يُقرأ")
+    out = {str(k): dict(v) for k, v in (have or {}).items()}
+    top = {f: tr[f] for f in _DECL_FIELDS if tr.get(f)}
+    kinds = [("drop_surah", _op_surahs(tr.get("op"), "drop_surah")),
+             ("declare_gap", _op_surahs(tr.get("op"), "declare_gap")),
+             ("drop_surah", {int(x) for x in (tr.get("dropSurah") or [])})]
+    for kind, ss in kinds:
+        for s in sorted(ss):
+            if str(s) not in out:
+                out[str(s)] = {"op": kind, **top}
+    return out
+
+
+def merged_op(decls):
+    """`op` يضمّ كلَّ إعلانٍ قديمٍ وجديد: `drop_surah:4,10,37|declare_gap:24`."""
+    parts = []
+    for kind in ("drop_surah", "declare_gap"):
+        ss = sorted(int(s) for s, d in decls.items() if d.get("op") == kind)
+        if ss:
+            parts.append(kind + ":" + ",".join(str(n) for n in ss))
+    return "|".join(parts)
+
+
+def carried_declared_tails(idx, kept, surahs, reason_code, reason_user, prior=None):
     """إعلاناتُ «الذيل المبتور» في الأصل التي تبقى صحيحةً بعد **إسقاط** سورٍ أخرى (fixV · 2026-10-05).
 
     ⛔ العطبُ المقيس (‏akri_qalun.4a48d8c3): إسقاطُ سورةٍ يكتب ترويسةً جديدة فيمحو
@@ -91,7 +140,15 @@ def carried_declared_tails(idx, kept, surahs, reason_code, reason_user):
                       if e["ayahId"].startswith(f"{s}:"))
         if have != list(range(1, int(rec.get("published") or 0) + 1)):
             raise SystemExit(f"⛔ س{s}: إعلانُ الذيل المبتور الموروث لا يطابق مداخلَها — لا يُحمل كذب")
-        if reason_code != "SOURCE_TRUNCATED" or not (reason_user or "").strip():
+        if prior is not None:
+            # ⭐ إعلانُ الذيل يُحمل **بسجلّه هو** (‏`declarations[س]`): رمزُه SOURCE_TRUNCATED ونصُّه كما
+            #    كُتبا، فلا يُشترط أن يحمل الإسقاطُ الجديدُ الرمزَ نفسَه — ولا يُقبل سجلٌّ ينقصه أحدُهما.
+            d = prior.get(str(s)) or {}
+            if (d.get("op") != "declare_gap" or d.get("reasonCode") != "SOURCE_TRUNCATED"
+                    or not str(d.get("reasonUser") or "").strip()):
+                raise SystemExit(f"⛔ س{s}: إعلانُ الذيل الموروث بلا سجلٍّ سويّ (declare_gap + SOURCE_TRUNCATED "
+                                 f"+ reasonUser): {d}")
+        elif reason_code != "SOURCE_TRUNCATED" or not (reason_user or "").strip():
             raise SystemExit(f"⛔ الأصلُ يُعلن ذيلَ س{s} مبتوراً، والإسقاطُ الجديد بلا SOURCE_TRUNCATED "
                              f"و--reason-user ⇒ يمحو الإعلانَ عن المستخدم. اذكرهما.")
         out[str(s)] = rec
@@ -297,15 +354,41 @@ def main():
             _tt[_s] = _v
     # ⭐ وفي وضع الإسقاط يُحمل إعلانُ ذيلٍ مبتورٍ لسورةٍ أخرى بشروطه (‏`carried_declared_tails`)،
     #    ويُلحق `declare_gap:س` بالعمليّة بعد `drop_surah:` فيقرؤهما الحارسان كليهما.
+    # ⭐ **كلُّ إعلانٍ سابقٍ يُورَّث حرفاً برمزه ونصّه في حقله** (‏قرار القائد 2026-11-10 · akri_qalun.b99e3573):
+    #    والإسقاطُ الجديدُ يأخذ رمزَه هو، و`op` يضمّ القديمَ والجديد، ولا يُكتب رمزان في حقلٍ واحد.
+    #    ⛔ وإعلانٌ جديدٌ لسورةٍ أُعلنت سلفاً يمحو سجلَّها ⇒ مردود (‏لا يُمحى إعلانٌ بحال).
+    prior = prior_declarations(idx)
+    _again = sorted({str(n) for n in surahs} & set(prior), key=int)
+    if _again:
+        raise SystemExit(f"⛔ السور {_again} معلَنةٌ سلفاً في الأصل ({ {k: prior[k].get('op') for k in _again} }) "
+                         f"— إعلانٌ جديدٌ لها يمحو السابق. لا يُحذف إعلانٌ قائم.")
+    if prior and (not a.reason_code or not (a.reason_user or "").strip()):
+        raise SystemExit("⛔ الأصلُ يحمل إعلاناتٍ لسورٍ أخرى، والإسقاطُ الجديد بلا --reason-code و--reason-user "
+                         "⇒ لا سجلَّ له يقف بجانبها. اذكرهما.")
+    decls = {k: dict(v) for k, v in prior.items()}
+    for n in surahs:
+        decls[str(n)] = {"op": "declare_gap" if a.declare_gap else "drop_surah",
+                         **({"reasonCode": a.reason_code} if a.reason_code else {}),
+                         **({"reasonUser": a.reason_user} if a.reason_user else {}),
+                         "reason": a.reason}
     _keep_decl = []
     if not a.declare_gap:
-        _tt, _keep_decl = carried_declared_tails(idx, kept, surahs, a.reason_code, a.reason_user)
+        _tt, _keep_decl = carried_declared_tails(idx, kept, surahs, a.reason_code, a.reason_user,
+                                                 prior=prior if prior else None)
+    _ptr = idx.get("transform") if isinstance(idx.get("transform"), dict) else {}
+    # ⭐ وما في الأصل من إعلانٍ في حقله يُنقل كما هو: الذيلُ (‏أعلاه بشروطه) · الحجبُ الوسطيّ · الغيابُ الموروث.
+    _gaps = {k: v for k, v in ((_ptr.get("truncatedGaps") or {}).items()) if k in prior}
+    _inh = list(_ptr.get("dropSurah") or [])
     # **أثرُ التحويل في الترويسة نفسها** — لا في رسالةٍ ولا في سجلٍّ منفصل.
     out["transform"] = {
         **({"truncatedTail": _tt} if _tt else {}),
-        "op": ("declare_gap:" if a.declare_gap else "drop_surah:")
-              + ",".join(str(n) for n in surahs)
-              + ("|declare_gap:" + ",".join(str(n) for n in _keep_decl) if _keep_decl else ""),
+        **({"truncatedGaps": _gaps} if _gaps else {}),
+        **({"dropSurah": _inh} if _inh else {}),
+        "declarations": decls,
+        "op": (merged_op(decls) if prior else
+               ("declare_gap:" if a.declare_gap else "drop_surah:")
+               + ",".join(str(n) for n in surahs)
+               + ("|declare_gap:" + ",".join(str(n) for n in _keep_decl) if _keep_decl else "")),
         "fromSha256": live,
         "fromKey": a.key,
         "droppedEntries": len(dropped),
@@ -317,6 +400,18 @@ def main():
         "note": ("‏`refineStats` و`medTargeted` و`vad` تصف **البناء الأصلي** ولم"
                  " تُعد حسابها؛ والمعاد حسابه: المداخل وعدّ LOW ووسم الاكتمال."),
     }
+    # ⛔ وكلُّ إعلانٍ وُرِّث يُعاد فحصُه بحارس الترقية نفسِه على المخرَج — لا يُحمل إعلانٌ لا يصحّ فيه.
+    for _k in sorted(_tt, key=int):
+        _ok, _why = promote.declared_truncated_tail(out, _k)
+        if not _ok:
+            raise SystemExit(f"⛔ س{_k}: إعلانُ الذيل الموروث لا يصحّ في المخرَج: {_why}")
+    for _k in sorted(_gaps, key=int):
+        _ok, _why = promote.declared_truncated_gaps(out, _k)
+        if not _ok:
+            raise SystemExit(f"⛔ س{_k}: الحجبُ الوسطيّ الموروث لا يصحّ في المخرَج: {_why}")
+    _lost = sorted(set(prior) - set(out["transform"]["declarations"]), key=int)
+    if _lost or any(out["transform"]["declarations"][k] != prior[k] for k in prior):
+        raise SystemExit(f"⛔ إعلانٌ سابقٌ ضاع أو تبدّل في المخرَج: {_lost or 'نصّ'}")
     if len(kept) + miss["count"] != AYAH_TOTAL_OF(idx):
         raise SystemExit(f"⛔ اختلال العقد: {len(kept)} + {miss['count']} "
                          f"≠ {AYAH_TOTAL_OF(idx)}")

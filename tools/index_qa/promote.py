@@ -427,9 +427,25 @@ def declared_truncated_tail(idx, surah):
     declared = set()
     for m in re.findall(r"declare_gap:([\d,\s]+)", str(tr.get("op") or "")):
         declared |= {int(x) for x in re.findall(r"\d+", m)}
-    if surah not in declared or tr.get("reasonCode") != "SOURCE_TRUNCATED" or not tr.get("reasonUser"):
+    code, user = surah_declaration(tr, surah)
+    if surah not in declared or code != "SOURCE_TRUNCATED" or not user:
         return False, "النقصُ غيرُ معلَنٍ للمستخدم (declare_gap + SOURCE_TRUNCATED + reasonUser)"
     return True, f"بادئةٌ متّصلة 1..{n} والذيل {n + 1}..{count} معلَنٌ غائباً بسبب source_truncated"
+
+
+def surah_declaration(tr, surah):
+    """(رمزُ السبب، نصُّه للمستخدم) لسورةٍ معلَنة.
+
+    ⭐ (قرار القائد 2026-11-10 · akri_qalun.b99e3573): ترويسةٌ تجمع إعلاناتٍ بأسبابٍ مختلفة تحمل لكلّ سورةٍ
+    سجلَّها في `transform.declarations[س]`، فيُقرأ رمزُها منه **وحدَه** — ولا يُقبل الرمزُ الأعلى بديلاً عنه
+    حين يوجد الحقل (‏فلا تُعفى سورةٌ برمز سورةٍ أخرى). وبلا الحقل يبقى السلوكُ الأصليّ حرفاً: الرمزُ الأعلى."""
+    decls = (tr or {}).get("declarations")
+    if isinstance(decls, dict):
+        d = decls.get(str(surah))
+        if not isinstance(d, dict) or d.get("op") != "declare_gap":
+            return None, None
+        return d.get("reasonCode"), str(d.get("reasonUser") or "").strip() or None
+    return (tr or {}).get("reasonCode"), (tr or {}).get("reasonUser")
 
 
 # ⭐ قائمةُ أسباب الحجب الوسطيّ **مغلقةٌ على رمزين** (‏أمر القائد): الرمزُ ⇒ مفتاحُ `missing.byReason` ورمزُ `truncatedGaps[س].reason`.
@@ -477,7 +493,7 @@ def declared_truncated_gaps(idx, surah):
     count = _AYAH_COUNTS[surah - 1]
     if not isinstance(rec, dict):
         return False, "لا إعلانَ حجبٍ وسطيّ في الترويسة"
-    code = tr.get("reasonCode")
+    code, user = surah_declaration(tr, surah)
     reason_key = GAP_REASON_CODES.get(code)
     if reason_key is None:
         return False, "النقصُ غيرُ معلَنٍ للمستخدم (declare_gap + SOURCE_TRUNCATED|TIMING_UNDER_REPAIR + reasonUser)"
@@ -515,7 +531,7 @@ def declared_truncated_gaps(idx, surah):
     declared = set()
     for m in re.findall(r"declare_gap:([\d,\s]+)", str(tr.get("op") or "")):
         declared |= {int(x) for x in re.findall(r"\d+", m)}
-    if surah not in declared or not tr.get("reasonUser"):
+    if surah not in declared or not user:
         return False, f"النقصُ غيرُ معلَنٍ للمستخدم (declare_gap + {code} + reasonUser)"
     return True, (f"حجبٌ وسطيٌّ معلَنٌ بدليلٍ لكلّ آية: {sorted(absent)} من {count} "
                   f"بسبب {reason_key} وحدودُ الباقي لم تُمسّ")
