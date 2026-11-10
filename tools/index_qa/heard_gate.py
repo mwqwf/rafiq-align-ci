@@ -435,13 +435,38 @@ DISPUTED_MAX_PCT = 10
 DISPUTED_MIN_WITNESSES = 2
 
 
-def _wtoks(rec):
-    """كلماتُ نافذة الشاهد مطبَّعةً [(رمز، بدء، نهاية، ثقة)] بترتيبها."""
+# ⭐ تطبيعٌ إملائيٌّ ضيّق (‏قرار القائد 2026-11-10) **لمقارِن هذا الباب وحده** لا لـ`common.norm`: كان `norm` يحذف الألفَ
+#    الخنجريّة والهمزةَ المفردة، فـ«أرأيتم» (‏Whisper) تصير ارايتم و«أرءيتم» (‏المصحف) اريتم، و«متاع»/«متٰع» متاع/متع.
+#    ثلاثةُ تحويلاتٍ لا غير، تُطبَّق على الطرفين **قبل** `norm`، حرفاً بحرف (‏لا يتغيّر عددُ الكلمات): ٰ ← ا · ء ← ا · ٱ ← ا.
+#    ولا تُحذف بها حروف، فألفٌ حقيقيّةٌ غائبةٌ لا تُصنع (‏قال ≠ قل · مالك ≠ ملك · كتاب ≠ كتب).
+_DISPUTED_ORTHO = str.maketrans({"\u0670": "\u0627", "\u0621": "\u0627", "\u0671": "\u0627"})
+
+
+def disputed_norm_words(text: str) -> list[str]:
+    """كلماتُ نصٍّ خامٍ بتطبيع هذا الباب: التحويلاتُ الثلاثة ثمّ `common.norm` كما هو."""
     import pin_heard as PH  # noqa: PLC0415
+    sys.path.insert(0, str(PH._REPO_ROOT / "tools" / "alignment"))
+    from common import norm  # noqa: PLC0415
+    return norm(str(text).translate(_DISPUTED_ORTHO)).split()
+
+
+def disputed_ref_words(riwaya, surah, ayah):
+    """نصُّ الآية من المصحف الموثَّق في المستودع بتطبيع هذا الباب (‏لا من التفريغ)."""
+    import pin_heard as PH  # noqa: PLC0415
+    sys.path.insert(0, str(PH._REPO_ROOT / "tools" / "alignment"))
+    from common import load_index, load_text, surah_slice  # noqa: PLC0415
+    start, _end, info = surah_slice(load_index(), surah)
+    if not 1 <= ayah <= int(info["ayahs"]):
+        raise SystemExit(f"⛔ {surah}:{ayah} خارج السورة")
+    return disputed_norm_words(load_text(riwaya or "hafs")[start + ayah - 1])
+
+
+def _wtoks(rec):
+    """كلماتُ نافذة الشاهد بتطبيع هذا الباب [(رمز، بدء، نهاية، ثقة)] بترتيبها؛ الكلمةُ التي تتشظّى ترثها ثقتُها وزمنُها."""
     out = []
     for w in (rec or {}).get("words") or []:
-        for t in PH._norm_words([w]):
-            out.append((t[0], int(w["s"]), int(w.get("e", w["s"])), float(w["p"])))
+        for t in disputed_norm_words(w.get("w", "")):
+            out.append((t, int(w["s"]), int(w.get("e", w["s"])), float(w["p"])))
     return out
 
 
@@ -513,7 +538,7 @@ def disputed_verdict(s, rows, g_map, want, cand_idx, ref_words=None, n_ayahs=Non
     if not claims:
         return None, None
     import pin_heard as PH  # noqa: PLC0415
-    ref_words = ref_words or (lambda ss, a: PH.ref_words_for(cand_idx.get("riwaya") or "hafs", ss, a))
+    ref_words = ref_words or (lambda ss, a: disputed_ref_words(cand_idx.get("riwaya") or "hafs", ss, a))
     byayah = {r["ayah"]: r for r in rows}
     ev = {"version": DISPUTED_VERSION, "accepted": {}, "refused": {}}
     bad = []

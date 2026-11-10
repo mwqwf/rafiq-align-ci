@@ -34,7 +34,7 @@ SHA = HMAP["sha256"]
 
 
 def ref(s, a):
-    return P.ref_words_for("hafs", s, a)
+    return H.disputed_ref_words("hafs", s, a)
 
 
 def start(a):
@@ -87,12 +87,15 @@ class RealCases(unittest.TestCase):
         self.assertIsNone(d)
         self.assertIn("تكرار", why)
 
-    def test_real_50_and_70_head_spelled_otherwise(self):
-        # Whisper يكتب «أرأيتم» و«متاع» والمصحفُ «أرءيتم» و«متٰع» ⇒ لا تطابقَ كلمةً بكلمة؛ فلا يُقبل (‏لا ترخية).
-        for a, o in ((50, 49), (70, 68)):
-            why, d = H.disputed_one(WIT, 10, a, start(a), anchor(a), o, ref, CMAP, SHA)
-            self.assertIsNone(d, a)
-            self.assertIn("مطلع", why)
+    def test_real_50_and_70_after_orthography_refused_by_other_conditions(self):
+        # بعد التطبيع الإملائيّ يطابق المطلعُ نصَّ المصحف («أرأيتم» = «أرءيتم» · «متاع» = «متٰع»)، ويبقى الردُّ بشرطٍ آخر حرفاً:
+        # 10:50 مطلعُ Whisper 1390005 والمنشور 1389500 (‏505 > 300م.ث) · 10:70 «على» عند المرساة ثقتُها 0.39.
+        why, d = H.disputed_one(WIT, 10, 50, start(50), anchor(50), 49, ref, CMAP, SHA)
+        self.assertIsNone(d)
+        self.assertIn("بعيدٌ عن المنشور", why)
+        why, d = H.disputed_one(WIT, 10, 70, start(70), anchor(70), 68, ref, CMAP, SHA)
+        self.assertIsNone(d)
+        self.assertIn("عند المرساة", why)
 
     def test_real_55_confidence_on_the_edge_refused(self):
         why, d = H.disputed_one(WIT, 10, 55, start(55), anchor(55), 54, ref, CMAP, SHA)
@@ -196,6 +199,26 @@ class PinHeardWrites(unittest.TestCase):
             P.disputed_claims(_idx(), 10, HMAP, {55: 53}, "", wits=_pair())
         with self.assertRaises(SystemExit):
             P.disputed_claims(_idx(), 10, HMAP, {55: 54}, "1")             # تشغيلةٌ واحدة
+
+
+class Orthography(unittest.TestCase):
+    """التطبيعُ الإملائيّ الضيّق لهذا الباب وحده: ٰ ← ا · ء ← ا · ٱ ← ا، ولا حذف."""
+
+    def test_equal_pairs(self):
+        for a, b in (("أرأيتم", "أَرَءَيْتُمْ"), ("متاع", "مَتَٰعٌ"), ("الكتاب", "ٱلْكِتَٰبُ")):
+            self.assertEqual(H.disputed_norm_words(a), H.disputed_norm_words(b), (a, b))
+
+    def test_a_missing_real_alif_is_not_made(self):
+        for a, b in (("قال", "قُلْ"), ("ملك", "مَٰلِكِ"), ("كتب", "ٱلْكِتَٰبُ"), ("كتب", "كتاب")):
+            self.assertNotEqual(H.disputed_norm_words(a), H.disputed_norm_words(b), (a, b))
+
+    def test_word_count_unchanged_on_the_mushaf(self):
+        for s, a in ((10, 50), (10, 70), (10, 55), (9, 93), (2, 255), (1, 4)):
+            self.assertEqual(len(H.disputed_ref_words("hafs", s, a)), len(P.ref_words_for("hafs", s, a)), (s, a))
+
+    def test_common_norm_untouched(self):
+        self.assertEqual(P.ref_words_for("hafs", 10, 50)[:2], ["قل", "اريتم"])
+        self.assertEqual(H.disputed_ref_words("hafs", 10, 50)[:2], ["قل", "ارايتم"])
 
 
 if __name__ == "__main__":
