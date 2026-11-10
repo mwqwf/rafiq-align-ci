@@ -283,7 +283,39 @@ def inherit_truncated_gaps(pidx, out, realigned):
         good, why = promote.declared_truncated_gaps(out, k)
         if not good:
             raise SystemExit(f"⛔ س{k}: الحجبُ الوسطيّ الموروث لا يصحّ في المخرَج: {why}")
+    inherit_drop_surah(pidx, out)
     print(f"  ✔ حجبٌ وسطيٌّ موروثٌ معلَن: {sorted(gaps, key=int)}")
+
+
+def inherit_drop_surah(pidx, out):
+    """يُورِّث معه إعلانَ **إسقاط السور الكاملة** في الأصل (‏أمر القائد 2026-11-10 · توريث drop_ayahs).
+
+    أصلٌ يحمل حجباً وسطيّاً ومعه `dropSurah` (‏كالناتج `drop_ayahs` فوق قارئٍ له سورةٌ محجوبة) يُستبدل `transform` فيه كلُّه،
+    فكان الحجبُ الوسطيُّ يُورَّث وحدَه ويضيع إعلانُ السورة المحجوبة فيردّه index_gate بـ«سورٌ غائبةٌ كلّياً». فيُحمل هنا:
+    `dropSurah` وسجلُّ كلّ سورةٍ منه في `declarations` حرفاً، و`reasonCode`/`reasonUser` العليا (‏شرطُ `promote.inherited_drops`)
+    إن غابت عن المخرَج؛ وإن وُجدت وخالفت الأصلَ رُدّ (‏لا يُبدَّل بيانٌ معروضٌ للمستخدم). ولا تُحمل سورةٌ صار لها مداخلُ في المخرَج.
+    ولا يُرخي شيئاً: المنشأُ (‏fromKey/fromSha256) هو المنشورُ الذي بُنيت عليه الترويسة، والحكمُ يبقى لـ`promote.inherited_drops`."""
+    import declarations
+    ptr = pidx.get("transform") if isinstance(pidx.get("transform"), dict) else {}
+    drops = declarations.declared_absent(pidx)
+    if not drops:
+        return
+    tr = out["transform"]
+    present = {int(e["ayahId"].split(":")[0]) for e in out.get("entries") or []}
+    carry = [d for d in drops if d not in present]
+    if not carry:
+        return
+    if set(tr.get("dropSurah") or []) - set(carry):
+        raise SystemExit(f"⛔ المخرَج يعلن إسقاطَ سورٍ ليست في إعلان الأصل {carry}: {tr.get('dropSurah')}")
+    for f in ("reasonCode", "reasonUser"):
+        if tr.get(f) and tr[f] != ptr.get(f):
+            raise SystemExit(f"⛔ {f} في المخرَج يخالف إعلانَ الأصل الموروث — لا يُبدَّل بيانٌ معروضٌ للمستخدم")
+        tr[f] = ptr[f]
+    tr["dropSurah"] = sorted(set(tr.get("dropSurah") or []) | set(carry))
+    if isinstance(ptr.get("declarations"), dict):
+        tr["declarations"] = {**(tr.get("declarations") or {}),
+                              **{k: ptr["declarations"][k] for k in map(str, carry) if k in ptr["declarations"]}}
+    print(f"  ✔ إعلانُ إسقاطٍ موروثٌ معلَن: {carry}")
 
 
 def apply_dispatch_policy(index, enabled, parent_key, parent_sha):
