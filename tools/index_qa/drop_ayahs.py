@@ -25,7 +25,10 @@
 - لا أولى السورة ولا آخرتها (‏تلك بابُ الصدر/الذيل: `truncate_tail.py`).
 - لا يُحجب أكثر من **ربع** آيات السورة، وإلا فالإسقاطُ الكامل (‏`drop_surah.py`).
 - لكلّ آيةٍ دليلٌ في ملفّ `--evidence`: `{"79:15": {"method": "ctc_window|whisper", "detail": "نصّ قياس"}}`.
-- `--reason-code` لا يقبل إلا `SOURCE_TRUNCATED` و`--reason-user` إلزاميٌّ بلا كلماتٍ إداريّة.
+- `--reason-code` لا يقبل إلا `SOURCE_TRUNCATED` أو `TIMING_UNDER_REPAIR` (‏قائمةٌ مغلقةٌ على رمزين) و`--reason-user` إلزاميٌّ بلا كلماتٍ إداريّة.
+- ⭐ `TIMING_UNDER_REPAIR` (‏آياتٌ منشورةٌ يُسمع في مدخلها صوتُ آيةٍ أخرى فتُحجب مؤقّتاً إلى أن يُصلح توقيتُها — ليس بتراً في المصدر):
+  يشترط لكلّ آيةٍ في ملفّ الدليل، فوق method وdetail، `"heard": {"witness": "…", "runId": 12345, "text": "نصّ ما سُمع"}`؛
+  ويُسجَّل الغيابُ تحت `byReason.timing_under_repair` لا `source_truncated` (‏فلا يُعفى من عتبة الغياب غيرِ المعلَّل). ولا يُخلط الرمزان في ترويسةٍ واحدة.
 - الناتجُ يجتاز `promote.declared_truncated_gaps` قبل الرفع.
 ⚖️ **ولا يُعفي من شيء**: المرشّحُ يمرّ بعده ببوّابات الترقية كلّها.
 """
@@ -146,8 +149,10 @@ def drop_ayahs(idx: dict, ayahs: dict, evidence: dict, *, reason: str, reason_us
     بأن تكون مداخلُ السورة **كلَّ آياتها ناقص المسمّاة بالضبط**، وأن تكون المسمّاةُ مسجَّلةً في `missing.ids`
     و`byReason.source_truncated`. الافتراضُ False = السلوكُ الأصليّ حرفاً (‏سورةٌ تامّةٌ في الأصل تُحذف منها المسمّاة)."""
     import drop_surah
-    if reason_code != "SOURCE_TRUNCATED":
-        raise SystemExit("⛔ --reason-code لهذا الباب SOURCE_TRUNCATED وحدَه")
+    import promote
+    if reason_code not in promote.GAP_REASON_CODES:                    # ⛔ القائمةُ مغلقةٌ على رمزين لا ثالثَ لهما
+        raise SystemExit("⛔ --reason-code لهذا الباب SOURCE_TRUNCATED أو TIMING_UNDER_REPAIR وحدَهما")
+    reason_key = promote.GAP_REASON_CODES[reason_code]
     if not (reason_user or "").strip():
         raise SystemExit("⛔ --reason-user إلزاميّ: التطبيقُ لا يعرض سببَ النقص بدونه")
     for w in _BANNED:
@@ -181,7 +186,13 @@ def drop_ayahs(idx: dict, ayahs: dict, evidence: dict, *, reason: str, reason_us
                     or not str(rec.get("detail") or "").strip()):
                 raise SystemExit(f"⛔ لا دليلَ قياسٍ للآية {s}:{a} (‏method من {METHODS} + detail)")
             ev[f"{s}:{a}"] = {"method": rec["method"], "detail": str(rec["detail"])}
-        recs[str(s)] = {"absent": list(absent), "reason": "source_truncated", "evidence": ev}
+            if reason_code == "TIMING_UNDER_REPAIR":
+                if not promote.heard_evidence_ok(rec):
+                    raise SystemExit(f"⛔ لا دليلَ سماعٍ للآية {s}:{a} — TIMING_UNDER_REPAIR يشترط "
+                                     "heard = {witness, runId, text}: الشاهدُ ورقمُ تشغيلته ونصُّ ما سُمع")
+                h = rec["heard"]
+                ev[f"{s}:{a}"]["heard"] = {"witness": str(h["witness"]), "runId": h["runId"], "text": str(h["text"])}
+        recs[str(s)] = {"absent": list(absent), "reason": reason_key, "evidence": ev}
         gone |= {f"{s}:{a}" for a in absent}
         if retimed:
             ents = apply_retimed(ents, s, list(absent), retimed)
@@ -207,7 +218,7 @@ def drop_ayahs(idx: dict, ayahs: dict, evidence: dict, *, reason: str, reason_us
         if len(ents) + int(miss.get("count") or 0) != total:
             raise SystemExit("⛔ الأصلُ نفسُه لا يحقّق العقد — لا يُبنى عليه")
         reasons = dict(miss.get("byReason") or {})
-        reasons["source_truncated"] = int(reasons.get("source_truncated", 0)) + len(gone)
+        reasons[reason_key] = int(reasons.get(reason_key, 0)) + len(gone)
         miss.update({"count": int(miss.get("count") or 0) + len(gone), "byReason": reasons,
                      "ids": sorted(ids + sorted(gone), key=_key)})
 
@@ -225,6 +236,10 @@ def drop_ayahs(idx: dict, ayahs: dict, evidence: dict, *, reason: str, reason_us
         want = [a for a in range(1, counts[int(k) - 1] + 1) if a not in set(v.get("absent") or [])]
         if have != want:
             raise SystemExit(f"⛔ س{k}: إعلانُ الحجب الموروث لا يطابق مداخلَها — لا يُحمل كذب")
+    for k, v in old_gaps.items():
+        if v.get("reason") != reason_key:
+            raise SystemExit(f"⛔ س{k}: الأصلُ يعلن حجباً بسبب {v.get('reason')} ولا يُخلط رمزان في ترويسةٍ واحدة "
+                             f"(‏الجديد {reason_code}) — ابدأ كلَّ رمزٍ من مرشّحٍ منفصل")
     carried_gaps = sorted({int(k) for k in old_gaps})
     op = "declare_gap:" + ",".join(str(s) for s in touched)
     extra = sorted(set(keep_decl) | set(carried_gaps))
