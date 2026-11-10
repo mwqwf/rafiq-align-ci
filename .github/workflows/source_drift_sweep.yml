@@ -5,6 +5,8 @@ run-name: "source-drift ${{ inputs.only || 'كلّ المنشور' }}"
 # 🔎 مسحٌ قارئٌ محضٌ لتبدّل المصدر بعد الفهرسة (أمر القائد 2026-11-09 · 055.mp3 للكردي): لا سرَّ ولا دلوَ ولا كتابة (contents: read).
 #    مستودعٌ عامّ + عدّاد ubuntu-latest القياسيّ ⇒ دقائقُ مجّانيّة. الأثرُ JSON مخرَجَ تشغيلةٍ لسبعة أيّام.
 on:
+  schedule:
+    - cron: "17 5 * * 1"   # أسبوعيّاً (الاثنين) — في هذا المستودع العامّ وحده؛ يكتب تقريراً ويفتح بنداً ولا يحجب شيئاً
   workflow_dispatch:
     inputs:
       only: {description: "قوائم riw/id بفواصل (‏فارغ = كلُّ المنشور بالتجزئة)", default: ""}
@@ -50,3 +52,39 @@ jobs:
             sweep-${{ matrix.i }}.log
           retention-days: 7
           if-no-files-found: ignore
+  report:
+    needs: sweep
+    if: ${{ always() && needs.sweep.result != 'skipped' }}
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      issues: write
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: {python-version: "3.11"}
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: source-drift-*
+          path: shards
+          merge-multiple: true
+      - name: التقرير (الجديدُ عمّا عُرف)
+        id: rep
+        run: |
+          set -o pipefail
+          python tools/index_qa/test_source_drift_report.py
+          python tools/index_qa/source_drift_report.py --known ops/source_drift_known.json.gz --out report.md shards/source-drift-*.json | tee rep.log
+          echo "new=$(sed -n 's/^NEW=//p' rep.log)" >> "$GITHUB_OUTPUT"
+          cat report.md >> "$GITHUB_STEP_SUMMARY"
+      - name: بندٌ (issue) إن وُجد جديد — لا حجبَ آليّاً
+        if: ${{ steps.rep.outputs.new != '0' && steps.rep.outputs.new != '' }}
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh issue create --title "تبدّل مصدرٍ بعد الفهرسة: ${{ steps.rep.outputs.new }} سورةً جديدة ($(date -u +%F))" \
+            --body-file report.md
+      - uses: actions/upload-artifact@v4
+        with:
+          name: source-drift-report
+          path: report.md
+          retention-days: 30
