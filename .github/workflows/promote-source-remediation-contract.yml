@@ -41,6 +41,8 @@ on:
       - tools/index_qa/test_drop_surah_declarations.py
       - tools/index_qa/timing_repair.py
       - tools/index_qa/test_struct_timing_repair.py
+      - tools/index_qa/test_drop_ayahs_end_evidence.py
+      - tools/index_qa/test_timing_evidence_scan_end.py
       - tools/index_qa/run.py
       - tools/index_qa/*.py
       - tools/ci_fleet/*.py
@@ -82,6 +84,8 @@ on:
       - tools/index_qa/test_drop_surah_declarations.py
       - tools/index_qa/timing_repair.py
       - tools/index_qa/test_struct_timing_repair.py
+      - tools/index_qa/test_drop_ayahs_end_evidence.py
+      - tools/index_qa/test_timing_evidence_scan_end.py
       - tools/index_qa/run.py
       - tools/index_qa/*.py
       - tools/ci_fleet/*.py
@@ -111,7 +115,7 @@ jobs:
           PYTHONPATH: tools/index_qa:tools/ci_fleet
         run: |
           rc=0
-          for t in test_witness_live_probe_no_foreign_code test_timing_evidence_scan test_adopt_noah_source_gap test_archive_node test_bias_declared_drop_2026_11_06 \
+          for t in test_witness_live_probe_no_foreign_code test_timing_evidence_scan test_drop_ayahs_end_evidence test_timing_evidence_scan_end test_adopt_noah_source_gap test_archive_node test_bias_declared_drop_2026_11_06 \
             test_bug_hunt_guards_2026_10_09 test_build_asiri7_archive_repair \
             test_build_fakhfakh38_archive_repair test_catalog_source_audit test_census_cache \
             test_ci_census_parts test_ci_census_plan test_clamp_file_end test_completion_audit test_ctc_splice \

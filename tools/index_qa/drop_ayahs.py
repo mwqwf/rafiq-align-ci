@@ -29,6 +29,11 @@
 - ⭐ `TIMING_UNDER_REPAIR` (‏آياتٌ منشورةٌ يُسمع في مدخلها صوتُ آيةٍ أخرى فتُحجب مؤقّتاً إلى أن يُصلح توقيتُها — ليس بتراً في المصدر):
   يشترط لكلّ آيةٍ في ملفّ الدليل، فوق method وdetail، `"heard": {"witness": "…", "runId": 12345, "text": "نصّ ما سُمع"}`؛
   ويُسجَّل الغيابُ تحت `byReason.timing_under_repair` لا `source_truncated` (‏فلا يُعفى من عتبة الغياب غيرِ المعلَّل). ولا يُخلط الرمزان في ترويسةٍ واحدة.
+- ⭐ دليلُ «نهاية المدخل» (‏`"kind": "end"` · موافقةُ القائد 2026-11-10): لآيةٍ بدؤها سليمٌ ونهايةُ مدخلها في صوت آيةٍ أخرى.
+  مع TIMING_UNDER_REPAIR وحدَه، ويلزمه فوق ما سبق `method=whisper` و`probe = {ayah, heardAyah, endMs}` و`witnesses` =
+  {تشغيلة: سجلُّ الشاهد}: شاهدان متمايزان يُحمَّلان من مصدرهما ويطابقان المكتوبَ حرفاً، وبصمتُهما audioSha256 للسورة، و`endMs`
+  نهايةُ المدخل المنشور، ويسمع كلٌّ منهما عند آخر لحظةٍ منه نصَّ heardAyah لا نصَّ الآية (‏`timing_repair.end_evidence_error`).
+  وكلُّ قيود هذا الباب باقيةٌ عليه كما هي (‏الربع · لا الأولى ولا الأخيرة · reasonUser · دليلٌ لكلّ آية).
 - الناتجُ يجتاز `promote.declared_truncated_gaps` قبل الرفع.
 ⚖️ **ولا يُعفي من شيء**: المرشّحُ يمرّ بعده ببوّابات الترقية كلّها.
 """
@@ -136,7 +141,8 @@ def apply_retimed(ents: list, s: int, absent: list, retimed: dict) -> list:
 
 def drop_ayahs(idx: dict, ayahs: dict, evidence: dict, *, reason: str, reason_user: str,
                reason_code: str, from_sha: str, from_key: str, retimed: dict | None = None,
-               already_absent: bool = False, witnessed: dict | None = None) -> dict:
+               already_absent: bool = False, witnessed: dict | None = None,
+               end_loader=None, end_ref_words=None) -> dict:
     """يُعيد فهرساً جديداً حُجبت منه الآياتُ المسمّاة ومعلَنةً، أو يرفع SystemExit بالسبب.
 
     ‏`retimed` (اختياري · أمر 2026-10-31): حدودُ الجارات المقيسةُ بـCTC على نافذةٍ بنصوص الحاضرات وحدها
@@ -219,12 +225,27 @@ def drop_ayahs(idx: dict, ayahs: dict, evidence: dict, *, reason: str, reason_us
                     or not str(rec.get("detail") or "").strip()):
                 raise SystemExit(f"⛔ لا دليلَ قياسٍ للآية {s}:{a} (‏method من {METHODS} + detail)")
             ev[f"{s}:{a}"] = {"method": rec["method"], "detail": str(rec["detail"])}
+            if "kind" in rec and reason_code != "TIMING_UNDER_REPAIR":
+                raise SystemExit(f"⛔ {s}:{a}: دليلٌ بنوعٍ (kind) لا يكون إلا مع TIMING_UNDER_REPAIR")
             if reason_code == "TIMING_UNDER_REPAIR":
                 if not promote.heard_evidence_ok(rec):
                     raise SystemExit(f"⛔ لا دليلَ سماعٍ للآية {s}:{a} — TIMING_UNDER_REPAIR يشترط "
                                      "heard = {witness, runId, text}: الشاهدُ ورقمُ تشغيلته ونصُّ ما سُمع")
                 h = rec["heard"]
                 ev[f"{s}:{a}"]["heard"] = {"witness": str(h["witness"]), "runId": h["runId"], "text": str(h["text"])}
+                if "kind" in rec:
+                    # ⭐ دليلُ نهاية المدخل: يُتحقَّق من مضمونه على الأصل المنشور ومن مصدر شاهدَيه (‏لا من حكمٍ مكتوب).
+                    import timing_repair                              # noqa: PLC0415
+                    if rec.get("kind") != timing_repair.END_KIND:
+                        raise SystemExit(f"⛔ {s}:{a}: نوعُ الدليل {rec.get('kind')!r} غيرُ معروف (‏المقبول {timing_repair.END_KIND!r})")
+                    if already_absent:
+                        raise SystemExit(f"⛔ {s}:{a}: دليلُ نهاية المدخل لمدخلٍ منشورٍ فقط لا مع --already-absent")
+                    why = timing_repair.end_evidence_error(idx, s, a, rec, end_loader, end_ref_words)
+                    if why:
+                        raise SystemExit(f"⛔ {s}:{a}: دليلُ نهاية المدخل مردود: {why}")
+                    ev[f"{s}:{a}"].update({"kind": timing_repair.END_KIND, "probe": dict(rec["probe"]),
+                                           "witnesses": {str(r): timing_repair._src_rec(w)
+                                                         for r, w in sorted(rec["witnesses"].items())}})
         recs[str(s)] = {"absent": list(absent), "reason": reason_key, "evidence": ev}
         gone |= {f"{s}:{a}" for a in absent}
         if retimed:

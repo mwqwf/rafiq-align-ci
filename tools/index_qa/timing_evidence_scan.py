@@ -16,6 +16,11 @@
 المسابير: الأولى والوسطى والأخيرة من «المنحرفة المثبتة» بقاعدةٍ ثابتةٍ غيرِ متجاورة (‏`pick_probes`) — لا بيدٍ ولا بانتقاءٍ بعد النتيجة.
 الشرط (٤): إن زادت «في موضعها» على «المنحرفة المثبتة» فلا تُحجب السورةُ كاملةً (‏يُرفض البناء برمز 3) ويُحجب العنقودُ بـ`drop_ayahs`.
 التغطية: إن غطّى الشاهدان معاً أقلَّ من ثلاثة أرباع آيات السورة رُدّ البناءُ برمز 5 (‏العنقودُ المغطّى بـ`drop_ayahs`).
+
+⭐ `--kind end` (‏دليلُ «نهاية المدخل» لـ`drop_ayahs` · موافقةُ القائد 2026-11-10): لآياتٍ مسمّاةٍ بـ`--ayahs` يبني سجلَّ
+`{"kind": "end", probe, witnesses, heard, method, detail}` لكلّ آيةٍ سمع الشاهدان معاً عند **آخر لحظةٍ من مدخلها المنشور**
+نصَّ آيةٍ أخرى واحدةٍ بعينها — والحكمُ لـ`timing_repair.end_drift_error` نفسِها بنصّ `heard_gate.disputed_ref_words` (‏دالّةِ البوّابة)،
+ثمّ يُعاد كلُّ سجلٍّ مبنيٍّ على `timing_repair.end_record_error` قبل كتابته. وما لم يثبت عند الشاهدين معاً لا يُكتب له دليل.
 """
 from __future__ import annotations
 
@@ -170,6 +175,117 @@ def build(srcs, runs, surah, starts, riwaya, ref_words, n_ayahs, want_sha):
     return {"probes": probes, "witnesses": wits}, rep, 0
 
 
+def load_ends(path, surah):
+    """{آية: نهايةٌ منشورة} من مخرَج `show_entries.py` («س:آ<TAB>بدء<TAB>نهاية…»)."""
+    out = {}
+    for ln in Path(path).read_text(encoding="utf-8").splitlines():
+        m = re.match(rf"\s*{surah}:(\d+)\t(\d+)\t(\d+)", ln)
+        if m:
+            out[int(m.group(1))] = int(m.group(3))
+    return out
+
+
+def _end_spans(src, e):
+    """مقاطعُ W_K كلماتٍ متّصلةٍ تغطّي آخرَ لحظةٍ من المدخل (‏endMs−1) عند شاهدٍ واحد: [(كلمات، نافذة)]."""
+    import heard_gate as HG                                           # noqa: PLC0415
+    import pin_heard as PH                                            # noqa: PLC0415
+    k, out = PH.W_K, []
+    for rec in (src.get("ayahs") or {}).values():
+        tk = HG._wtoks(rec)
+        for i in range(len(tk) - k + 1):
+            span = tk[i:i + k]
+            if span[0][1] < e <= span[-1][2]:
+                out.append(tuple(x[0] for x in span))
+    return out
+
+
+def end_witness_state(src, surah, a, ends, riwaya, ref_words, idx, want_sha):
+    """حالةُ نهاية الآية `a` عند شاهدٍ واحد: ("end", o, نصّ) · ("ambiguous",) · ("none",) · ("uncovered",) · ("invalid", سبب)."""
+    import pin_heard as PH                                            # noqa: PLC0415
+    import timing_repair as T                                         # noqa: PLC0415
+    if src.get("sha256") != want_sha:
+        return ("invalid", "بصمةُ الصوت غيرُ audioSha256 للسورة")
+    if src.get("model") not in PH.W_MODELS or src.get("computeType") != "float32":
+        return ("invalid", "نموذجٌ غيرُ مقبول")
+    e = int(ends[a])
+    spans = _end_spans(src, e)
+    if not spans:
+        return ("uncovered",)
+    cands = set()
+    for w in spans:
+        cands |= idx.get(w, set())
+    ok = sorted(o for o in cands if o != a and T.end_drift_error(
+        src, surah, {"ayah": a, "heardAyah": o, "endMs": e}, riwaya, ref_words) is None)
+    if len(ok) == 1:
+        oth = list(ref_words(riwaya, surah, ok[0]))
+        txt = next(" ".join(w) for w in spans if any(list(w) == oth[j:j + len(w)] for j in range(len(oth) - len(w) + 1)))
+        return ("end", ok[0], txt)
+    return ("ambiguous",) if ok else ("none",)
+
+
+def build_end(srcs, runs, surah, ends, ayahs, riwaya, ref_words, n_ayahs, want_sha, idx_meta):
+    """({"س:آ": سجلُّ دليل النهاية}، تقرير، رمز 0/4). `idx_meta` = {riwaya, audioSha256} للتحقّق بـ`end_record_error`."""
+    import timing_repair as T                                         # noqa: PLC0415
+    if len(runs) != 2 or len(set(runs)) != 2 or not all(RUN_RE.fullmatch(str(r)) for r in runs):
+        raise SystemExit("⛔ يلزم معرّفا تشغيلتين قانونيّان متمايزان")
+    gidx = gram_index(surah, riwaya, ref_words, n_ayahs)
+    out, rep = {}, {"surah": surah, "kind": T.END_KIND, "runs": [str(r) for r in runs], "proven": [], "unproven": {}}
+    for a in sorted(ayahs):
+        if a not in ends:
+            rep["unproven"][str(a)] = "لا مدخلَ منشورٌ للآية"
+            continue
+        sts = [end_witness_state(s, surah, a, ends, riwaya, ref_words, gidx, want_sha) for s in srcs]
+        if not (all(x[0] == "end" for x in sts) and len({x[1] for x in sts}) == 1):
+            rep["unproven"][str(a)] = " · ".join(f"{r}:{x[0]}" for r, x in zip(runs, sts))
+            continue
+        o, e = sts[0][1], int(ends[a])
+        src0 = srcs[0]
+        rec = {"method": "whisper", "kind": T.END_KIND,
+               "detail": (f"شاهدا Whisper {src0.get('model')} {src0.get('computeType')} (التشغيلتان {runs[0]} و{runs[1]}) سمعا عند "
+                          f"آخر لحظةٍ من المدخل المنشور (نهايته {e}م.ث) نصَّ الآية {surah}:{o} لا نصَّ {surah}:{a} "
+                          "(W_K كلماتٍ متّصلة بثقة _span_ok عند الشاهدين معاً بدالّة timing_repair.end_drift_error)"),
+               "heard": {"witness": f"whisper_witness.yml {src0.get('model')} {src0.get('computeType')}",
+                         "runId": int(runs[0]), "text": sts[0][2]},
+               "probe": {"ayah": a, "heardAyah": o, "endMs": e},
+               "witnesses": {str(r): {k: s.get(k) for k in SRC_KEYS} for r, s in zip(runs, srcs)}}
+        why = T.end_record_error(idx_meta, surah, a, rec, ref_words)  # ⭐ دالّةُ البوّابة نفسُها قبل الكتابة
+        if why:
+            rep["unproven"][str(a)] = f"end_record_error: {why}"
+            continue
+        out[f"{surah}:{a}"] = rec
+        rep["proven"].append(a)
+    rep["verdict"] = "ok" if out else "insufficient: لا آيةَ أثبت الشاهدان معاً أنّ نهايةَ مدخلها في صوت غيرها"
+    return out, rep, (0 if out else 4)
+
+
+def main_end(a):
+    """`--kind end`: دليلُ نهاية المدخل لآياتٍ مسمّاة بصيغة drop_ayahs (‏مفاتيحُه «س:آ»)."""
+    import promote                                                    # noqa: PLC0415
+    if not a.ayahs:
+        raise SystemExit("⛔ --kind end يلزمه --ayahs")
+    ayahs = sorted({int(x) for x in a.ayahs.replace("،", ",").split(",") if x.strip()})
+    runs = [x.strip() for x in a.runs.split(",")]
+    srcs = [load_artifact(p.strip()) for p in a.witness_artifacts.split(",")]
+    if len(srcs) != 2:
+        raise SystemExit("⛔ يلزم شاهدان")
+    n = promote._AYAH_COUNTS[a.surah - 1]
+    shas = [None] * 114
+    shas[a.surah - 1] = a.audio_sha
+    out, rep, code = build_end(srcs, runs, a.surah, load_ends(a.entries, a.surah), ayahs, a.riwaya,
+                               gate_ref_words(), n, a.audio_sha, {"riwaya": a.riwaya, "audioSha256": shas})
+    outp = Path(a.report)
+    rp = json.loads(outp.read_text(encoding="utf-8")) if outp.exists() else {}
+    rp[f"end:{a.surah}"] = rep
+    outp.write_text(json.dumps(rp, ensure_ascii=False, indent=1), encoding="utf-8")
+    print(json.dumps({k: rep[k] for k in ("surah", "kind", "proven", "unproven", "verdict")}, ensure_ascii=False))
+    if out:
+        ep = Path(a.out)
+        ev = json.loads(ep.read_text(encoding="utf-8")) if ep.exists() else {}
+        ev.update(out)
+        ep.write_text(json.dumps(ev, ensure_ascii=False, indent=1), encoding="utf-8")
+    return code
+
+
 def gate_ref_words():
     """دالّةُ النصّ المرجعيّ التي تعيد بها البوّابةُ التحقّقَ (‏`timing_repair.evidence_error`) — لا غيرُها.
 
@@ -191,7 +307,12 @@ def main(argv=None):
     ap.add_argument("--entries", required=True, help="مخرَج show_entries.py للفهرس المنشور")
     ap.add_argument("--out", required=True)
     ap.add_argument("--report", required=True)
+    ap.add_argument("--kind", choices=("start", "end"), default="start",
+                    help="start (الافتراض: دليلُ انحراف البدء لـdrop_surah كما هو) · end: دليلُ نهاية المدخل لآياتٍ مسمّاةٍ لـdrop_ayahs")
+    ap.add_argument("--ayahs", default="", help="--kind end: أرقامُ الآيات في السورة بفاصلة (مثل 24,27)")
     a = ap.parse_args(argv)
+    if a.kind == "end":
+        return main_end(a)
     import promote                                                    # noqa: PLC0415
     runs = [x.strip() for x in a.runs.split(",")]
     srcs = [load_artifact(p.strip()) for p in a.witness_artifacts.split(",")]
