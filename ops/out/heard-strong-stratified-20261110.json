@@ -1,0 +1,4973 @@
+{
+ "what": "تقدير نسبة «الفهرس مخطئ» في عناقيد جرد المراسي القويّة بعد الرتب 1–94 المعايَرة، بعيّنة طبقيّة حسب القارئ بشاهد Whisper medium float32",
+ "frame": {
+  "audit": "ops/out/heard-strong-audit-20261110.json",
+  "excludedRanks": "1-94",
+  "clusters": 15388,
+  "readers": 176
+ },
+ "design": {
+  "sampleSeed": 20261110,
+  "bootstrapSeed": 20261110,
+  "bootstrapB": 20000,
+  "sampleSize": 86,
+  "strata": {
+   "R:3siri": {
+    "N": 232,
+    "n": 1,
+    "recs": [
+     "3siri"
+    ]
+   },
+   "R:a_abdl": {
+    "N": 253,
+    "n": 3,
+    "recs": [
+     "a_abdl"
+    ]
+   },
+   "R:a_ghailan": {
+    "N": 180,
+    "n": 1,
+    "recs": [
+     "a_ghailan"
+    ]
+   },
+   "R:akri_qalun": {
+    "N": 290,
+    "n": 3,
+    "recs": [
+     "akri_qalun"
+    ]
+   },
+   "R:balilah": {
+    "N": 298,
+    "n": 3,
+    "recs": [
+     "balilah"
+    ]
+   },
+   "R:bari": {
+    "N": 372,
+    "n": 3,
+    "recs": [
+     "bari"
+    ]
+   },
+   "R:basit_warsh": {
+    "N": 175,
+    "n": 1,
+    "recs": [
+     "basit_warsh"
+    ]
+   },
+   "R:derini_warsh": {
+    "N": 223,
+    "n": 1,
+    "recs": [
+     "derini_warsh"
+    ]
+   },
+   "R:dokali": {
+    "N": 392,
+    "n": 3,
+    "recs": [
+     "dokali"
+    ]
+   },
+   "R:gharbi_warsh": {
+    "N": 283,
+    "n": 3,
+    "recs": [
+     "gharbi_warsh"
+    ]
+   },
+   "R:gulan": {
+    "N": 229,
+    "n": 1,
+    "recs": [
+     "gulan"
+    ]
+   },
+   "R:harthi": {
+    "N": 158,
+    "n": 1,
+    "recs": [
+     "harthi"
+    ]
+   },
+   "R:hawashi": {
+    "N": 228,
+    "n": 1,
+    "recs": [
+     "hawashi"
+    ]
+   },
+   "R:husary_douri": {
+    "N": 306,
+    "n": 3,
+    "recs": [
+     "husary_douri"
+    ]
+   },
+   "R:husary_qalun": {
+    "N": 334,
+    "n": 3,
+    "recs": [
+     "husary_qalun"
+    ]
+   },
+   "R:husary_warsh": {
+    "N": 437,
+    "n": 3,
+    "recs": [
+     "husary_warsh"
+    ]
+   },
+   "R:iraoui_warsh": {
+    "N": 248,
+    "n": 1,
+    "recs": [
+     "iraoui_warsh"
+    ]
+   },
+   "R:jamal": {
+    "N": 171,
+    "n": 1,
+    "recs": [
+     "jamal"
+    ]
+   },
+   "R:kentaoui_warsh": {
+    "N": 193,
+    "n": 1,
+    "recs": [
+     "kentaoui_warsh"
+    ]
+   },
+   "R:magdi_qalun": {
+    "N": 233,
+    "n": 1,
+    "recs": [
+     "magdi_qalun"
+    ]
+   },
+   "R:mansor": {
+    "N": 189,
+    "n": 1,
+    "recs": [
+     "mansor"
+    ]
+   },
+   "R:mousa": {
+    "N": 155,
+    "n": 1,
+    "recs": [
+     "mousa"
+    ]
+   },
+   "R:namh": {
+    "N": 256,
+    "n": 3,
+    "recs": [
+     "namh"
+    ]
+   },
+   "R:nasser_almajed": {
+    "N": 212,
+    "n": 1,
+    "recs": [
+     "nasser_almajed"
+    ]
+   },
+   "R:nathier": {
+    "N": 168,
+    "n": 1,
+    "recs": [
+     "nathier"
+    ]
+   },
+   "R:nufais": {
+    "N": 310,
+    "n": 3,
+    "recs": [
+     "nufais"
+    ]
+   },
+   "R:ra3ad": {
+    "N": 193,
+    "n": 1,
+    "recs": [
+     "ra3ad"
+    ]
+   },
+   "R:rakbawi_qalun": {
+    "N": 271,
+    "n": 3,
+    "recs": [
+     "rakbawi_qalun"
+    ]
+   },
+   "R:ryan": {
+    "N": 169,
+    "n": 1,
+    "recs": [
+     "ryan"
+    ]
+   },
+   "R:s_alquraishi": {
+    "N": 162,
+    "n": 1,
+    "recs": [
+     "s_alquraishi"
+    ]
+   },
+   "R:salah_hashim_m": {
+    "N": 201,
+    "n": 1,
+    "recs": [
+     "salah_hashim_m"
+    ]
+   },
+   "R:sneineh_qalun": {
+    "N": 229,
+    "n": 1,
+    "recs": [
+     "sneineh_qalun"
+    ]
+   },
+   "R:tareq_qalun": {
+    "N": 235,
+    "n": 1,
+    "recs": [
+     "tareq_qalun"
+    ]
+   },
+   "R:trablsi": {
+    "N": 220,
+    "n": 1,
+    "recs": [
+     "trablsi"
+    ]
+   },
+   "R:yousef": {
+    "N": 186,
+    "n": 1,
+    "recs": [
+     "yousef"
+    ]
+   },
+   "R:zahrani": {
+    "N": 199,
+    "n": 1,
+    "recs": [
+     "zahrani"
+    ]
+   },
+   "R:zaki": {
+    "N": 394,
+    "n": 3,
+    "recs": [
+     "zaki"
+    ]
+   },
+   "R:zaml": {
+    "N": 221,
+    "n": 1,
+    "recs": [
+     "zaml"
+    ]
+   },
+   "TAIL": {
+    "N": 6183,
+    "n": 22,
+    "recs": [
+     "a_ahmed",
+     "a_albadr",
+     "a_alemadi",
+     "a_alhazmi",
+     "a_alqrafi",
+     "a_alshahhat",
+     "a_binaoun",
+     "a_klb",
+     "a_maasaraawi",
+     "a_majed",
+     "a_turki",
+     "aamer",
+     "abdullahk",
+     "abkar",
+     "afs",
+     "akdr",
+     "alijon",
+     "aloosi",
+     "alosfor",
+     "alzain",
+     "andari_qalun",
+     "arkani",
+     "asali_warsh",
+     "bader",
+     "benkirane_warsh",
+     "bilal",
+     "bl3_warsh",
+     "buajan",
+     "bukheet",
+     "chahboun_warsh",
+     "darweez",
+     "deban",
+     "deban_douri",
+     "deban_qalun",
+     "deban_shuba",
+     "deban_warsh",
+     "f_hajry",
+     "f_khamery",
+     "fakhfakh_qalun",
+     "fateh_douri",
+     "gardeli_qalun",
+     "h_abudalal",
+     "h_aldaghriri",
+     "h_dukhain",
+     "h_saleh",
+     "habdan",
+     "hafz",
+     "hamza",
+     "harraz_warsh",
+     "hkm",
+     "huthaify_qalun",
+     "huthaify_shuba",
+     "i_sanankoua",
+     "ibrahim_dosri",
+     "j_abdullah",
+     "jaleel",
+     "jaman",
+     "janaini_qalun",
+     "jelmam_qalun",
+     "jormy",
+     "k_alzadi",
+     "kafi",
+     "kamel",
+     "kanakeri",
+     "kh_mohammadi",
+     "khalf",
+     "khan",
+     "kherkhashi_qalun",
+     "kholti_warsh",
+     "koshi_warsh",
+     "kshidan_qalun",
+     "kurdi",
+     "kyat",
+     "laghdaf_shinqiti",
+     "lahoni",
+     "lhdan",
+     "m_abdelhakam",
+     "m_abdulkareem_warsh",
+     "m_alfaqih",
+     "m_alzubaidi",
+     "m_burhaji",
+     "m_harfoush",
+     "m_qari",
+     "m_sayed_warsh",
+     "mal_allah_jaber",
+     "masarawy_warsh",
+     "mhsny",
+     "mohna",
+     "mohsin_harthi",
+     "mrifai",
+     "muftah_sultany",
+     "mukhtar_haj",
+     "mustafa",
+     "nabil",
+     "noah",
+     "noah_qalun",
+     "noah_warsh",
+     "nourin_douri",
+     "obk",
+     "peshawa",
+     "qari_warsh",
+     "qasm",
+     "qazabri",
+     "qeniwa_qalun",
+     "qeryo_qalun",
+     "qurashi",
+     "rabbani_warsh",
+     "rajab_qalun",
+     "rami",
+     "rashad",
+     "s_hashemi",
+     "s_sadeiq",
+     "saber",
+     "saber_qalun",
+     "sahood",
+     "sayed",
+     "shah",
+     "shaheen",
+     "shaksh",
+     "shamrani",
+     "shatri2",
+     "shaykhna_qalun",
+     "soufi",
+     "soufi_sousi",
+     "suhaim_qalun",
+     "sultani_douri",
+     "sultani_warsh",
+     "swlim",
+     "taher",
+     "tblawi",
+     "thubti",
+     "trabulsi",
+     "twfeeq",
+     "wahrani_warsh",
+     "waleed_qalun",
+     "wdee3",
+     "wdod",
+     "yahya"
+    ]
+   }
+  },
+  "rule": "قارئٌ فيه ≥250 عنقوداً: طبقةٌ منفردة بثلاثة عناقيد؛ 150–249: طبقةٌ منفردة بعنقودٍ واحد؛ وسائرُ القرّاء (138) طبقةٌ مجمَّعةٌ «الذيل» بـ22 عنقوداً عشوائيّاً من عناقيدها كلّها. الآيةُ المقيسة هي أسوأُ آيةٍ في العنقود."
+ },
+ "estimate": {
+  "method_consistent": {
+   "label": "الحكم بقاعدة المعايرة حرفاً (كلاهما = سُمع في موضعَي الفهرس والخريطة ضمن 1.5ث)",
+   "p": 0.5222542547262836,
+   "lo": 0.4093775303819099,
+   "hi": 0.6373773895219101,
+   "B": 20000
+  },
+  "refined": {
+   "label": "مع فكّ «كلاهما» التي سببُها حدثٌ سمعيٌّ واحد (التفريغان متّفقان ≤0.8ث وفرق موضعَي الفهرس والخريطة <3ث) بأقرب الموضعين بهامش 0.3ث",
+   "p": 0.6512110429973856,
+   "lo": 0.5411557089859858,
+   "hi": 0.7564568381352367,
+   "B": 20000
+  }
+ },
+ "sensitivity": {
+  "undecided_bounds_method": {
+   "lower": 0.4798160313821874,
+   "upper": 0.5610757300060659
+  },
+  "undecided_bounds_refined": {
+   "lower": 0.5982938299028764,
+   "upper": 0.6795535285267547
+  },
+  "index_wrong_or_both_method": {
+   "p": 0.8367846272559698,
+   "lo": 0.7478880556677987,
+   "hi": 0.9158032756308343
+  },
+  "ayah_weighted_method": {
+   "p": 0.5560853502064869,
+   "lo": 0.41516473377512114,
+   "hi": 0.6961697836976312
+  },
+  "ayah_weighted_refined": {
+   "p": 0.6258619637810685,
+   "lo": 0.4817612217439439,
+   "hi": 0.7700378937271216
+  },
+  "wilson_effective_n_method": {
+   "neff": 73.75064750566884,
+   "ci": [
+    0.410004887984216,
+    0.6323000776171621
+   ]
+  },
+  "wilson_effective_n_refined": {
+   "neff": 75.29186382315957,
+   "ci": [
+    0.5386092209742487,
+    0.7491320457595456
+   ]
+  },
+  "verdict_share_weighted_method": {
+   "الفهرس مخطئ": 0.4798160313821868,
+   "الخريطة مخطئة": 0.1499525407440666,
+   "كلاهما": 0.2889717292498681,
+   "غير محسوم": 0.08125969862387851
+  },
+  "verdict_share_weighted_refined": {
+   "الفهرس مخطئ": 0.5982938299028758,
+   "الخريطة مخطئة": 0.18268662712385092,
+   "كلاهما": 0.13775984434939464,
+   "غير محسوم": 0.08125969862387851
+  }
+ },
+ "counts": {
+  "method": {
+   "الخريطة مخطئة": 14,
+   "الفهرس مخطئ": 44,
+   "كلاهما": 22,
+   "غير محسوم": 6
+  },
+  "refined": {
+   "الخريطة مخطئة": 17,
+   "الفهرس مخطئ": 53,
+   "كلاهما": 10,
+   "غير محسوم": 6
+  }
+ },
+ "byKind": {
+  "method": [
+   {
+    "key": "end_other",
+    "n": 40,
+    "IW": 22,
+    "MW": 4,
+    "BO": 13,
+    "UN": 1,
+    "decided": 39,
+    "pct": 0.5641025641025641,
+    "wilson": [
+     0.40975691533553216,
+     0.7069524622291739
+    ]
+   },
+   {
+    "key": "end_short",
+    "n": 16,
+    "IW": 7,
+    "MW": 6,
+    "BO": 2,
+    "UN": 1,
+    "decided": 15,
+    "pct": 0.4666666666666667,
+    "wilson": [
+     0.24809535232620922,
+     0.6988302012468901
+    ]
+   },
+   {
+    "key": "start",
+    "n": 30,
+    "IW": 15,
+    "MW": 4,
+    "BO": 7,
+    "UN": 4,
+    "decided": 26,
+    "pct": 0.5769230769230769,
+    "wilson": [
+     0.3894861361059128,
+     0.7445555679512275
+    ]
+   }
+  ],
+  "refined": [
+   {
+    "key": "end_other",
+    "n": 40,
+    "IW": 27,
+    "MW": 6,
+    "BO": 6,
+    "UN": 1,
+    "decided": 39,
+    "pct": 0.6923076923076923,
+    "wilson": [
+     0.5357874549954498,
+     0.8143406776986681
+    ]
+   },
+   {
+    "key": "end_short",
+    "n": 16,
+    "IW": 8,
+    "MW": 6,
+    "BO": 1,
+    "UN": 1,
+    "decided": 15,
+    "pct": 0.5333333333333333,
+    "wilson": [
+     0.30116979875311006,
+     0.751904647673791
+    ]
+   },
+   {
+    "key": "start",
+    "n": 30,
+    "IW": 18,
+    "MW": 5,
+    "BO": 3,
+    "UN": 4,
+    "decided": 26,
+    "pct": 0.6923076923076923,
+    "wilson": [
+     0.5001174152619071,
+     0.8349868448809437
+    ]
+   }
+  ]
+ },
+ "byRiwaya": {
+  "method": [
+   {
+    "key": "douri",
+    "n": 5,
+    "IW": 3,
+    "MW": 1,
+    "BO": 0,
+    "UN": 1,
+    "decided": 4,
+    "pct": 0.75,
+    "wilson": [
+     0.30064184009690814,
+     0.954412739704631
+    ]
+   },
+   {
+    "key": "hafs",
+    "n": 51,
+    "IW": 25,
+    "MW": 9,
+    "BO": 13,
+    "UN": 4,
+    "decided": 47,
+    "pct": 0.5319148936170213,
+    "wilson": [
+     0.3923238311661734,
+     0.6666831301998323
+    ]
+   },
+   {
+    "key": "qalun",
+    "n": 16,
+    "IW": 10,
+    "MW": 2,
+    "BO": 4,
+    "UN": 0,
+    "decided": 16,
+    "pct": 0.625,
+    "wilson": [
+     0.3864104037661133,
+     0.8151876754845354
+    ]
+   },
+   {
+    "key": "warsh",
+    "n": 14,
+    "IW": 6,
+    "MW": 2,
+    "BO": 5,
+    "UN": 1,
+    "decided": 13,
+    "pct": 0.46153846153846156,
+    "wilson": [
+     0.23206067674961361,
+     0.7085620444143711
+    ]
+   }
+  ],
+  "refined": [
+   {
+    "key": "douri",
+    "n": 5,
+    "IW": 3,
+    "MW": 1,
+    "BO": 0,
+    "UN": 1,
+    "decided": 4,
+    "pct": 0.75,
+    "wilson": [
+     0.30064184009690814,
+     0.954412739704631
+    ]
+   },
+   {
+    "key": "hafs",
+    "n": 51,
+    "IW": 30,
+    "MW": 10,
+    "BO": 7,
+    "UN": 4,
+    "decided": 47,
+    "pct": 0.6382978723404256,
+    "wilson": [
+     0.49535896422345144,
+     0.7603378683625733
+    ]
+   },
+   {
+    "key": "qalun",
+    "n": 16,
+    "IW": 11,
+    "MW": 4,
+    "BO": 1,
+    "UN": 0,
+    "decided": 16,
+    "pct": 0.6875,
+    "wilson": [
+     0.4440435565274822,
+     0.858353562348491
+    ]
+   },
+   {
+    "key": "warsh",
+    "n": 14,
+    "IW": 9,
+    "MW": 2,
+    "BO": 2,
+    "UN": 1,
+    "decided": 13,
+    "pct": 0.6923076923076923,
+    "wilson": [
+     0.42369342985078,
+     0.8731929643292967
+    ]
+   }
+  ]
+ },
+ "byGroup": {
+  "method": [
+   {
+    "key": "MID",
+    "n": 25,
+    "IW": 12,
+    "MW": 3,
+    "BO": 7,
+    "UN": 3,
+    "decided": 22,
+    "pct": 0.5454545454545454,
+    "wilson": [
+     0.3465979518249957,
+     0.7307970593927182
+    ]
+   },
+   {
+    "key": "TAIL",
+    "n": 22,
+    "IW": 9,
+    "MW": 3,
+    "BO": 8,
+    "UN": 2,
+    "decided": 20,
+    "pct": 0.45,
+    "wilson": [
+     0.25819785703764037,
+     0.6579146589808728
+    ]
+   },
+   {
+    "key": "TOP",
+    "n": 39,
+    "IW": 23,
+    "MW": 8,
+    "BO": 7,
+    "UN": 1,
+    "decided": 38,
+    "pct": 0.6052631578947368,
+    "wilson": [
+     0.44717867875421835,
+     0.7440192434476809
+    ]
+   }
+  ],
+  "refined": [
+   {
+    "key": "MID",
+    "n": 25,
+    "IW": 16,
+    "MW": 3,
+    "BO": 3,
+    "UN": 3,
+    "decided": 22,
+    "pct": 0.7272727272727273,
+    "wilson": [
+     0.5184826582032106,
+     0.8684923978853596
+    ]
+   },
+   {
+    "key": "TAIL",
+    "n": 22,
+    "IW": 12,
+    "MW": 4,
+    "BO": 4,
+    "UN": 2,
+    "decided": 20,
+    "pct": 0.6,
+    "wilson": [
+     0.3865814992347542,
+     0.7811934687282198
+    ]
+   },
+   {
+    "key": "TOP",
+    "n": 39,
+    "IW": 25,
+    "MW": 10,
+    "BO": 3,
+    "UN": 1,
+    "decided": 38,
+    "pct": 0.6578947368421053,
+    "wilson": [
+     0.4989210342647264,
+     0.7878758490381227
+    ]
+   }
+  ]
+ },
+ "byCls": {
+  "method": [
+   {
+    "key": "isolated",
+    "n": 82,
+    "IW": 42,
+    "MW": 14,
+    "BO": 20,
+    "UN": 6,
+    "decided": 76,
+    "pct": 0.5526315789473685,
+    "wilson": [
+     0.44100514978727895,
+     0.6591934201298112
+    ]
+   },
+   {
+    "key": "surah",
+    "n": 4,
+    "IW": 2,
+    "MW": 0,
+    "BO": 2,
+    "UN": 0,
+    "decided": 4,
+    "pct": 0.5,
+    "wilson": [
+     0.15003898774401983,
+     0.8499610122559802
+    ]
+   }
+  ],
+  "refined": [
+   {
+    "key": "isolated",
+    "n": 82,
+    "IW": 50,
+    "MW": 17,
+    "BO": 9,
+    "UN": 6,
+    "decided": 76,
+    "pct": 0.6578947368421053,
+    "wilson": [
+     0.5459589772527303,
+     0.7546367324985396
+    ]
+   },
+   {
+    "key": "surah",
+    "n": 4,
+    "IW": 3,
+    "MW": 0,
+    "BO": 1,
+    "UN": 0,
+    "decided": 4,
+    "pct": 0.75,
+    "wilson": [
+     0.30064184009690814,
+     0.954412739704631
+    ]
+   }
+  ]
+ },
+ "byReciter": [
+  {
+   "rec": "a_abdl",
+   "riwaya": "hafs",
+   "stratum": "منفردة n=3",
+   "N": 253,
+   "n": 3,
+   "IW": 3,
+   "MW": 0,
+   "BO": 0,
+   "UN": 0,
+   "pct": 1.0,
+   "IWr": 3,
+   "pctr": 1.0,
+   "dec": 3
+  },
+  {
+   "rec": "akri_qalun",
+   "riwaya": "qalun",
+   "stratum": "منفردة n=3",
+   "N": 290,
+   "n": 3,
+   "IW": 2,
+   "MW": 0,
+   "BO": 1,
+   "UN": 0,
+   "pct": 0.6666666666666666,
+   "IWr": 3,
+   "pctr": 1.0,
+   "dec": 3
+  },
+  {
+   "rec": "balilah",
+   "riwaya": "hafs",
+   "stratum": "منفردة n=3",
+   "N": 298,
+   "n": 3,
+   "IW": 3,
+   "MW": 0,
+   "BO": 0,
+   "UN": 0,
+   "pct": 1.0,
+   "IWr": 3,
+   "pctr": 1.0,
+   "dec": 3
+  },
+  {
+   "rec": "rakbawi_qalun",
+   "riwaya": "qalun",
+   "stratum": "منفردة n=3",
+   "N": 271,
+   "n": 3,
+   "IW": 3,
+   "MW": 0,
+   "BO": 0,
+   "UN": 0,
+   "pct": 1.0,
+   "IWr": 3,
+   "pctr": 1.0,
+   "dec": 3
+  },
+  {
+   "rec": "tblawi",
+   "riwaya": "hafs",
+   "stratum": "الذيل",
+   "N": 140,
+   "n": 2,
+   "IW": 1,
+   "MW": 0,
+   "BO": 1,
+   "UN": 0,
+   "pct": 0.5,
+   "IWr": 2,
+   "pctr": 1.0,
+   "dec": 2
+  },
+  {
+   "rec": "zaki",
+   "riwaya": "hafs",
+   "stratum": "منفردة n=3",
+   "N": 394,
+   "n": 3,
+   "IW": 2,
+   "MW": 0,
+   "BO": 0,
+   "UN": 1,
+   "pct": 1.0,
+   "IWr": 2,
+   "pctr": 1.0,
+   "dec": 2
+  },
+  {
+   "rec": "a_ahmed",
+   "riwaya": "hafs",
+   "stratum": "الذيل",
+   "N": 130,
+   "n": 1,
+   "IW": 1,
+   "MW": 0,
+   "BO": 0,
+   "UN": 0,
+   "pct": 1.0,
+   "IWr": 1,
+   "pctr": 1.0,
+   "dec": 1
+  },
+  {
+   "rec": "a_ghailan",
+   "riwaya": "hafs",
+   "stratum": "متوسّطة n=1",
+   "N": 180,
+   "n": 1,
+   "IW": 0,
+   "MW": 0,
+   "BO": 1,
+   "UN": 0,
+   "pct": 0.0,
+   "IWr": 1,
+   "pctr": 1.0,
+   "dec": 1
+  },
+  {
+   "rec": "a_turki",
+   "riwaya": "hafs",
+   "stratum": "الذيل",
+   "N": 50,
+   "n": 1,
+   "IW": 0,
+   "MW": 0,
+   "BO": 1,
+   "UN": 0,
+   "pct": 0.0,
+   "IWr": 1,
+   "pctr": 1.0,
+   "dec": 1
+  },
+  {
+   "rec": "alijon",
+   "riwaya": "hafs",
+   "stratum": "الذيل",
+   "N": 29,
+   "n": 1,
+   "IW": 0,
+   "MW": 0,
+   "BO": 1,
+   "UN": 0,
+   "pct": 0.0,
+   "IWr": 1,
+   "pctr": 1.0,
+   "dec": 1
+  },
+  {
+   "rec": "benkirane_warsh",
+   "riwaya": "warsh",
+   "stratum": "الذيل",
+   "N": 76,
+   "n": 1,
+   "IW": 1,
+   "MW": 0,
+   "BO": 0,
+   "UN": 0,
+   "pct": 1.0,
+   "IWr": 1,
+   "pctr": 1.0,
+   "dec": 1
+  },
+  {
+   "rec": "derini_warsh",
+   "riwaya": "warsh",
+   "stratum": "متوسّطة n=1",
+   "N": 223,
+   "n": 1,
+   "IW": 0,
+   "MW": 0,
+   "BO": 1,
+   "UN": 0,
+   "pct": 0.0,
+   "IWr": 1,
+   "pctr": 1.0,
+   "dec": 1
+  },
+  {
+   "rec": "gulan",
+   "riwaya": "hafs",
+   "stratum": "متوسّطة n=1",
+   "N": 229,
+   "n": 1,
+   "IW": 1,
+   "MW": 0,
+   "BO": 0,
+   "UN": 0,
+   "pct": 1.0,
+   "IWr": 1,
+   "pctr": 1.0,
+   "dec": 1
+  },
+  {
+   "rec": "ibrahim_dosri",
+   "riwaya": "hafs",
+   "stratum": "الذيل",
+   "N": 125,
+   "n": 1,
+   "IW": 1,
+   "MW": 0,
+   "BO": 0,
+   "UN": 0,
+   "pct": 1.0,
+   "IWr": 1,
+   "pctr": 1.0,
+   "dec": 1
+  },
+  {
+   "rec": "iraoui_warsh",
+   "riwaya": "warsh",
+   "stratum": "متوسّطة n=1",
+   "N": 248,
+   "n": 1,
+   "IW": 1,
+   "MW": 0,
+   "BO": 0,
+   "UN": 0,
+   "pct": 1.0,
+   "IWr": 1,
+   "pctr": 1.0,
+   "dec": 1
+  },
+  {
+   "rec": "kentaoui_warsh",
+   "riwaya": "warsh",
+   "stratum": "متوسّطة n=1",
+   "N": 193,
+   "n": 1,
+   "IW": 0,
+   "MW": 0,
+   "BO": 1,
+   "UN": 0,
+   "pct": 0.0,
+   "IWr": 1,
+   "pctr": 1.0,
+   "dec": 1
+  },
+  {
+   "rec": "magdi_qalun",
+   "riwaya": "qalun",
+   "stratum": "متوسّطة n=1",
+   "N": 233,
+   "n": 1,
+   "IW": 1,
+   "MW": 0,
+   "BO": 0,
+   "UN": 0,
+   "pct": 1.0,
+   "IWr": 1,
+   "pctr": 1.0,
+   "dec": 1
+  },
+  {
+   "rec": "mansor",
+   "riwaya": "hafs",
+   "stratum": "متوسّطة n=1",
+   "N": 189,
+   "n": 1,
+   "IW": 1,
+   "MW": 0,
+   "BO": 0,
+   "UN": 0,
+   "pct": 1.0,
+   "IWr": 1,
+   "pctr": 1.0,
+   "dec": 1
+  },
+  {
+   "rec": "mustafa",
+   "riwaya": "hafs",
+   "stratum": "الذيل",
+   "N": 77,
+   "n": 1,
+   "IW": 1,
+   "MW": 0,
+   "BO": 0,
+   "UN": 0,
+   "pct": 1.0,
+   "IWr": 1,
+   "pctr": 1.0,
+   "dec": 1
+  },
+  {
+   "rec": "nathier",
+   "riwaya": "hafs",
+   "stratum": "متوسّطة n=1",
+   "N": 168,
+   "n": 1,
+   "IW": 1,
+   "MW": 0,
+   "BO": 0,
+   "UN": 0,
+   "pct": 1.0,
+   "IWr": 1,
+   "pctr": 1.0,
+   "dec": 1
+  },
+  {
+   "rec": "noah_warsh",
+   "riwaya": "warsh",
+   "stratum": "الذيل",
+   "N": 43,
+   "n": 1,
+   "IW": 1,
+   "MW": 0,
+   "BO": 0,
+   "UN": 0,
+   "pct": 1.0,
+   "IWr": 1,
+   "pctr": 1.0,
+   "dec": 1
+  },
+  {
+   "rec": "ra3ad",
+   "riwaya": "hafs",
+   "stratum": "متوسّطة n=1",
+   "N": 193,
+   "n": 1,
+   "IW": 0,
+   "MW": 0,
+   "BO": 1,
+   "UN": 0,
+   "pct": 0.0,
+   "IWr": 1,
+   "pctr": 1.0,
+   "dec": 1
+  },
+  {
+   "rec": "rami",
+   "riwaya": "hafs",
+   "stratum": "الذيل",
+   "N": 29,
+   "n": 1,
+   "IW": 1,
+   "MW": 0,
+   "BO": 0,
+   "UN": 0,
+   "pct": 1.0,
+   "IWr": 1,
+   "pctr": 1.0,
+   "dec": 1
+  },
+  {
+   "rec": "ryan",
+   "riwaya": "hafs",
+   "stratum": "متوسّطة n=1",
+   "N": 169,
+   "n": 1,
+   "IW": 1,
+   "MW": 0,
+   "BO": 0,
+   "UN": 0,
+   "pct": 1.0,
+   "IWr": 1,
+   "pctr": 1.0,
+   "dec": 1
+  },
+  {
+   "rec": "s_alquraishi",
+   "riwaya": "hafs",
+   "stratum": "متوسّطة n=1",
+   "N": 162,
+   "n": 1,
+   "IW": 1,
+   "MW": 0,
+   "BO": 0,
+   "UN": 0,
+   "pct": 1.0,
+   "IWr": 1,
+   "pctr": 1.0,
+   "dec": 1
+  },
+  {
+   "rec": "sahood",
+   "riwaya": "hafs",
+   "stratum": "الذيل",
+   "N": 107,
+   "n": 1,
+   "IW": 1,
+   "MW": 0,
+   "BO": 0,
+   "UN": 0,
+   "pct": 1.0,
+   "IWr": 1,
+   "pctr": 1.0,
+   "dec": 1
+  },
+  {
+   "rec": "salah_hashim_m",
+   "riwaya": "hafs",
+   "stratum": "متوسّطة n=1",
+   "N": 201,
+   "n": 1,
+   "IW": 1,
+   "MW": 0,
+   "BO": 0,
+   "UN": 0,
+   "pct": 1.0,
+   "IWr": 1,
+   "pctr": 1.0,
+   "dec": 1
+  },
+  {
+   "rec": "sneineh_qalun",
+   "riwaya": "qalun",
+   "stratum": "متوسّطة n=1",
+   "N": 229,
+   "n": 1,
+   "IW": 1,
+   "MW": 0,
+   "BO": 0,
+   "UN": 0,
+   "pct": 1.0,
+   "IWr": 1,
+   "pctr": 1.0,
+   "dec": 1
+  },
+  {
+   "rec": "sultani_douri",
+   "riwaya": "douri",
+   "stratum": "الذيل",
+   "N": 14,
+   "n": 1,
+   "IW": 1,
+   "MW": 0,
+   "BO": 0,
+   "UN": 0,
+   "pct": 1.0,
+   "IWr": 1,
+   "pctr": 1.0,
+   "dec": 1
+  },
+  {
+   "rec": "trablsi",
+   "riwaya": "qalun",
+   "stratum": "متوسّطة n=1",
+   "N": 220,
+   "n": 1,
+   "IW": 1,
+   "MW": 0,
+   "BO": 0,
+   "UN": 0,
+   "pct": 1.0,
+   "IWr": 1,
+   "pctr": 1.0,
+   "dec": 1
+  },
+  {
+   "rec": "yousef",
+   "riwaya": "hafs",
+   "stratum": "متوسّطة n=1",
+   "N": 186,
+   "n": 1,
+   "IW": 1,
+   "MW": 0,
+   "BO": 0,
+   "UN": 0,
+   "pct": 1.0,
+   "IWr": 1,
+   "pctr": 1.0,
+   "dec": 1
+  },
+  {
+   "rec": "zahrani",
+   "riwaya": "hafs",
+   "stratum": "متوسّطة n=1",
+   "N": 199,
+   "n": 1,
+   "IW": 1,
+   "MW": 0,
+   "BO": 0,
+   "UN": 0,
+   "pct": 1.0,
+   "IWr": 1,
+   "pctr": 1.0,
+   "dec": 1
+  },
+  {
+   "rec": "dokali",
+   "riwaya": "qalun",
+   "stratum": "منفردة n=3",
+   "N": 392,
+   "n": 3,
+   "IW": 2,
+   "MW": 1,
+   "BO": 0,
+   "UN": 0,
+   "pct": 0.6666666666666666,
+   "IWr": 2,
+   "pctr": 0.6666666666666666,
+   "dec": 3
+  },
+  {
+   "rec": "gharbi_warsh",
+   "riwaya": "warsh",
+   "stratum": "منفردة n=3",
+   "N": 283,
+   "n": 3,
+   "IW": 1,
+   "MW": 1,
+   "BO": 1,
+   "UN": 0,
+   "pct": 0.3333333333333333,
+   "IWr": 2,
+   "pctr": 0.6666666666666666,
+   "dec": 3
+  },
+  {
+   "rec": "husary_douri",
+   "riwaya": "douri",
+   "stratum": "منفردة n=3",
+   "N": 306,
+   "n": 3,
+   "IW": 2,
+   "MW": 1,
+   "BO": 0,
+   "UN": 0,
+   "pct": 0.6666666666666666,
+   "IWr": 2,
+   "pctr": 0.6666666666666666,
+   "dec": 3
+  },
+  {
+   "rec": "husary_warsh",
+   "riwaya": "warsh",
+   "stratum": "منفردة n=3",
+   "N": 437,
+   "n": 3,
+   "IW": 2,
+   "MW": 0,
+   "BO": 1,
+   "UN": 0,
+   "pct": 0.6666666666666666,
+   "IWr": 2,
+   "pctr": 0.6666666666666666,
+   "dec": 3
+  },
+  {
+   "rec": "nufais",
+   "riwaya": "hafs",
+   "stratum": "منفردة n=3",
+   "N": 310,
+   "n": 3,
+   "IW": 2,
+   "MW": 1,
+   "BO": 0,
+   "UN": 0,
+   "pct": 0.6666666666666666,
+   "IWr": 2,
+   "pctr": 0.6666666666666666,
+   "dec": 3
+  },
+  {
+   "rec": "namh",
+   "riwaya": "hafs",
+   "stratum": "منفردة n=3",
+   "N": 256,
+   "n": 3,
+   "IW": 1,
+   "MW": 2,
+   "BO": 0,
+   "UN": 0,
+   "pct": 0.3333333333333333,
+   "IWr": 1,
+   "pctr": 0.3333333333333333,
+   "dec": 3
+  },
+  {
+   "rec": "bari",
+   "riwaya": "hafs",
+   "stratum": "منفردة n=3",
+   "N": 372,
+   "n": 3,
+   "IW": 0,
+   "MW": 1,
+   "BO": 2,
+   "UN": 0,
+   "pct": 0.0,
+   "IWr": 0,
+   "pctr": 0.0,
+   "dec": 3
+  },
+  {
+   "rec": "husary_qalun",
+   "riwaya": "qalun",
+   "stratum": "منفردة n=3",
+   "N": 334,
+   "n": 3,
+   "IW": 0,
+   "MW": 1,
+   "BO": 2,
+   "UN": 0,
+   "pct": 0.0,
+   "IWr": 0,
+   "pctr": 0.0,
+   "dec": 3
+  },
+  {
+   "rec": "3siri",
+   "riwaya": "hafs",
+   "stratum": "متوسّطة n=1",
+   "N": 232,
+   "n": 1,
+   "IW": 0,
+   "MW": 1,
+   "BO": 0,
+   "UN": 0,
+   "pct": 0.0,
+   "IWr": 0,
+   "pctr": 0.0,
+   "dec": 1
+  },
+  {
+   "rec": "aloosi",
+   "riwaya": "hafs",
+   "stratum": "الذيل",
+   "N": 26,
+   "n": 1,
+   "IW": 0,
+   "MW": 1,
+   "BO": 0,
+   "UN": 0,
+   "pct": 0.0,
+   "IWr": 0,
+   "pctr": 0.0,
+   "dec": 1
+  },
+  {
+   "rec": "bader",
+   "riwaya": "hafs",
+   "stratum": "الذيل",
+   "N": 31,
+   "n": 1,
+   "IW": 0,
+   "MW": 0,
+   "BO": 1,
+   "UN": 0,
+   "pct": 0.0,
+   "IWr": 0,
+   "pctr": 0.0,
+   "dec": 1
+  },
+  {
+   "rec": "basit_warsh",
+   "riwaya": "warsh",
+   "stratum": "متوسّطة n=1",
+   "N": 175,
+   "n": 1,
+   "IW": 0,
+   "MW": 1,
+   "BO": 0,
+   "UN": 0,
+   "pct": 0.0,
+   "IWr": 0,
+   "pctr": 0.0,
+   "dec": 1
+  },
+  {
+   "rec": "bukheet",
+   "riwaya": "hafs",
+   "stratum": "الذيل",
+   "N": 78,
+   "n": 1,
+   "IW": 0,
+   "MW": 1,
+   "BO": 0,
+   "UN": 0,
+   "pct": 0.0,
+   "IWr": 0,
+   "pctr": 0.0,
+   "dec": 1
+  },
+  {
+   "rec": "jaleel",
+   "riwaya": "hafs",
+   "stratum": "الذيل",
+   "N": 139,
+   "n": 1,
+   "IW": 0,
+   "MW": 1,
+   "BO": 0,
+   "UN": 0,
+   "pct": 0.0,
+   "IWr": 0,
+   "pctr": 0.0,
+   "dec": 1
+  },
+  {
+   "rec": "kurdi",
+   "riwaya": "hafs",
+   "stratum": "الذيل",
+   "N": 105,
+   "n": 1,
+   "IW": 0,
+   "MW": 0,
+   "BO": 1,
+   "UN": 0,
+   "pct": 0.0,
+   "IWr": 0,
+   "pctr": 0.0,
+   "dec": 1
+  },
+  {
+   "rec": "laghdaf_shinqiti",
+   "riwaya": "warsh",
+   "stratum": "الذيل",
+   "N": 59,
+   "n": 1,
+   "IW": 0,
+   "MW": 0,
+   "BO": 1,
+   "UN": 0,
+   "pct": 0.0,
+   "IWr": 0,
+   "pctr": 0.0,
+   "dec": 1
+  },
+  {
+   "rec": "m_harfoush",
+   "riwaya": "hafs",
+   "stratum": "الذيل",
+   "N": 14,
+   "n": 1,
+   "IW": 0,
+   "MW": 0,
+   "BO": 1,
+   "UN": 0,
+   "pct": 0.0,
+   "IWr": 0,
+   "pctr": 0.0,
+   "dec": 1
+  },
+  {
+   "rec": "mousa",
+   "riwaya": "hafs",
+   "stratum": "متوسّطة n=1",
+   "N": 155,
+   "n": 1,
+   "IW": 0,
+   "MW": 0,
+   "BO": 1,
+   "UN": 0,
+   "pct": 0.0,
+   "IWr": 0,
+   "pctr": 0.0,
+   "dec": 1
+  },
+  {
+   "rec": "nasser_almajed",
+   "riwaya": "hafs",
+   "stratum": "متوسّطة n=1",
+   "N": 212,
+   "n": 1,
+   "IW": 0,
+   "MW": 0,
+   "BO": 1,
+   "UN": 0,
+   "pct": 0.0,
+   "IWr": 0,
+   "pctr": 0.0,
+   "dec": 1
+  },
+  {
+   "rec": "peshawa",
+   "riwaya": "hafs",
+   "stratum": "الذيل",
+   "N": 141,
+   "n": 1,
+   "IW": 0,
+   "MW": 0,
+   "BO": 1,
+   "UN": 0,
+   "pct": 0.0,
+   "IWr": 0,
+   "pctr": 0.0,
+   "dec": 1
+  },
+  {
+   "rec": "tareq_qalun",
+   "riwaya": "qalun",
+   "stratum": "متوسّطة n=1",
+   "N": 235,
+   "n": 1,
+   "IW": 0,
+   "MW": 0,
+   "BO": 1,
+   "UN": 0,
+   "pct": 0.0,
+   "IWr": 0,
+   "pctr": 0.0,
+   "dec": 1
+  },
+  {
+   "rec": "zaml",
+   "riwaya": "hafs",
+   "stratum": "متوسّطة n=1",
+   "N": 221,
+   "n": 1,
+   "IW": 0,
+   "MW": 1,
+   "BO": 0,
+   "UN": 0,
+   "pct": 0.0,
+   "IWr": 0,
+   "pctr": 0.0,
+   "dec": 1
+  },
+  {
+   "rec": "harthi",
+   "riwaya": "hafs",
+   "stratum": "متوسّطة n=1",
+   "N": 158,
+   "n": 1,
+   "IW": 0,
+   "MW": 0,
+   "BO": 0,
+   "UN": 1,
+   "pct": null,
+   "IWr": 0,
+   "pctr": null,
+   "dec": 0
+  },
+  {
+   "rec": "hawashi",
+   "riwaya": "hafs",
+   "stratum": "متوسّطة n=1",
+   "N": 228,
+   "n": 1,
+   "IW": 0,
+   "MW": 0,
+   "BO": 0,
+   "UN": 1,
+   "pct": null,
+   "IWr": 0,
+   "pctr": null,
+   "dec": 0
+  },
+  {
+   "rec": "jamal",
+   "riwaya": "hafs",
+   "stratum": "متوسّطة n=1",
+   "N": 171,
+   "n": 1,
+   "IW": 0,
+   "MW": 0,
+   "BO": 0,
+   "UN": 1,
+   "pct": null,
+   "IWr": 0,
+   "pctr": null,
+   "dec": 0
+  },
+  {
+   "rec": "koshi_warsh",
+   "riwaya": "warsh",
+   "stratum": "الذيل",
+   "N": 135,
+   "n": 1,
+   "IW": 0,
+   "MW": 0,
+   "BO": 0,
+   "UN": 1,
+   "pct": null,
+   "IWr": 0,
+   "pctr": null,
+   "dec": 0
+  },
+  {
+   "rec": "nourin_douri",
+   "riwaya": "douri",
+   "stratum": "الذيل",
+   "N": 29,
+   "n": 1,
+   "IW": 0,
+   "MW": 0,
+   "BO": 0,
+   "UN": 1,
+   "pct": null,
+   "IWr": 0,
+   "pctr": null,
+   "dec": 0
+  }
+ ],
+ "cases": [
+  {
+   "idx": 0,
+   "rank": 3061,
+   "stratum": "R:3siri",
+   "rec": "3siri",
+   "key": "timings/hafs/3siri.jz",
+   "s": 3,
+   "a": 28,
+   "clusterAyahs": [
+    28,
+    29
+   ],
+   "n": 2,
+   "kind": "end_other",
+   "cls": "isolated",
+   "posIndex": 787900,
+   "posMap": 784162,
+   "hitsIndexWindow": [
+    [
+     787560,
+     0.9
+    ]
+   ],
+   "hitsMapWindow": [
+    [
+     787142,
+     0.83
+    ]
+   ],
+   "verdict": "الخريطة مخطئة",
+   "verdictRefined": "الخريطة مخطئة",
+   "run": "42787489995",
+   "url": "https://server6.mp3quran.net/3siri/003.mp3",
+   "windows": "28:778900-790900,1028:775162-787162",
+   "audioSha8": "0fcf4c40",
+   "model": "medium",
+   "computeType": "float32"
+  },
+  {
+   "idx": 1,
+   "rank": 8285,
+   "stratum": "R:a_abdl",
+   "rec": "a_abdl",
+   "key": "timings/hafs/a_abdl.jz",
+   "s": 54,
+   "a": 52,
+   "clusterAyahs": [
+    52,
+    52
+   ],
+   "n": 1,
+   "kind": "end_other",
+   "cls": "isolated",
+   "posIndex": 501508,
+   "posMap": 499536,
+   "hitsIndexWindow": [
+    [
+     499908,
+     1.0
+    ]
+   ],
+   "hitsMapWindow": [
+    [
+     499756,
+     1.0
+    ]
+   ],
+   "verdict": "الفهرس مخطئ",
+   "verdictRefined": "الفهرس مخطئ",
+   "run": "42787489699",
+   "url": "https://server16.mp3quran.net/a_abdl/Rewayat-Hafs-A-n-Assem/054.mp3",
+   "windows": "52:492508-504508,1052:490536-502536",
+   "audioSha8": "aeeb2287",
+   "model": "medium",
+   "computeType": "float32"
+  },
+  {
+   "idx": 2,
+   "rank": 3884,
+   "stratum": "R:a_abdl",
+   "rec": "a_abdl",
+   "key": "timings/hafs/a_abdl.jz",
+   "s": 78,
+   "a": 24,
+   "clusterAyahs": [
+    24,
+    26
+   ],
+   "n": 3,
+   "kind": "end_other",
+   "cls": "isolated",
+   "posIndex": 144310,
+   "posMap": 141068,
+   "hitsIndexWindow": [
+    [
+     142110,
+     0.92
+    ]
+   ],
+   "hitsMapWindow": [
+    [
+     141488,
+     0.92
+    ]
+   ],
+   "verdict": "الفهرس مخطئ",
+   "verdictRefined": "الفهرس مخطئ",
+   "run": "42787489781",
+   "url": "https://server16.mp3quran.net/a_abdl/Rewayat-Hafs-A-n-Assem/078.mp3",
+   "windows": "24:135310-147310,1024:132068-144068",
+   "audioSha8": "3000ed14",
+   "model": "medium",
+   "computeType": "float32"
+  },
+  {
+   "idx": 3,
+   "rank": 7814,
+   "stratum": "R:a_abdl",
+   "rec": "a_abdl",
+   "key": "timings/hafs/a_abdl.jz",
+   "s": 92,
+   "a": 3,
+   "clusterAyahs": [
+    1,
+    5
+   ],
+   "n": 3,
+   "kind": "end_other",
+   "cls": "surah",
+   "posIndex": 18260,
+   "posMap": 16192,
+   "hitsIndexWindow": [
+    [
+     15260,
+     0.88
+    ]
+   ],
+   "hitsMapWindow": [
+    [
+     16952,
+     1.0
+    ],
+    [
+     18972,
+     0.76
+    ]
+   ],
+   "verdict": "الفهرس مخطئ",
+   "verdictRefined": "الفهرس مخطئ",
+   "run": "42787490008",
+   "url": "https://server16.mp3quran.net/a_abdl/Rewayat-Hafs-A-n-Assem/092.mp3",
+   "windows": "3:9260-21260,1003:7192-19192",
+   "audioSha8": "7e5317eb",
+   "model": "medium",
+   "computeType": "float32"
+  },
+  {
+   "idx": 4,
+   "rank": 8928,
+   "stratum": "R:a_ghailan",
+   "rec": "a_ghailan",
+   "key": "timings/hafs/a_ghailan.jz",
+   "s": 19,
+   "a": 2,
+   "clusterAyahs": [
+    2,
+    2
+   ],
+   "n": 1,
+   "kind": "end_other",
+   "cls": "isolated",
+   "posIndex": 25073,
+   "posMap": 23235,
+   "hitsIndexWindow": [
+    [
+     23833,
+     1.0
+    ]
+   ],
+   "hitsMapWindow": [
+    [
+     23155,
+     1.0
+    ]
+   ],
+   "verdict": "كلاهما",
+   "verdictRefined": "الفهرس مخطئ",
+   "run": "42787832560",
+   "url": "https://server16.mp3quran.net/A-Ghailan/Rewayat-Hafs-A-n-Assem/019.mp3",
+   "windows": "2:16073-28073,1002:14235-26235",
+   "audioSha8": "89cdde62",
+   "model": "medium",
+   "computeType": "float32"
+  },
+  {
+   "idx": 5,
+   "rank": 8155,
+   "stratum": "R:akri_qalun",
+   "rec": "akri_qalun",
+   "key": "timings/qalun/akri_qalun.jz",
+   "s": 21,
+   "a": 60,
+   "clusterAyahs": [
+    59,
+    60
+   ],
+   "n": 2,
+   "kind": "start",
+   "cls": "isolated",
+   "posIndex": 918198,
+   "posMap": 919971,
+   "hitsIndexWindow": [
+    [
+     919518,
+     0.93
+    ]
+   ],
+   "hitsMapWindow": [
+    [
+     919471,
+     0.93
+    ]
+   ],
+   "verdict": "كلاهما",
+   "verdictRefined": "الفهرس مخطئ",
+   "run": "42787832233",
+   "url": "https://server16.mp3quran.net/m_akri/Rewayat-Qalon-A-n-Nafi/021.mp3",
+   "windows": "60:915198-927198,1060:916971-928971",
+   "audioSha8": "1a18d241",
+   "model": "medium",
+   "computeType": "float32"
+  },
+  {
+   "idx": 6,
+   "rank": 6646,
+   "stratum": "R:akri_qalun",
+   "rec": "akri_qalun",
+   "key": "timings/qalun/akri_qalun.jz",
+   "s": 113,
+   "a": 3,
+   "clusterAyahs": [
+    2,
+    3
+   ],
+   "n": 2,
+   "kind": "end_other",
+   "cls": "isolated",
+   "posIndex": 22416,
+   "posMap": 20086,
+   "hitsIndexWindow": [
+    [
+     20676,
+     0.96
+    ]
+   ],
+   "hitsMapWindow": [
+    [
+     20406,
+     1.0
+    ]
+   ],
+   "verdict": "الفهرس مخطئ",
+   "verdictRefined": "الفهرس مخطئ",
+   "run": "42787832182",
+   "url": "https://server16.mp3quran.net/m_akri/Rewayat-Qalon-A-n-Nafi/113.mp3",
+   "windows": "3:13416-25416,1003:11086-23086",
+   "audioSha8": "d5fab3fb",
+   "model": "medium",
+   "computeType": "float32"
+  },
+  {
+   "idx": 7,
+   "rank": 4050,
+   "stratum": "R:akri_qalun",
+   "rec": "akri_qalun",
+   "key": "timings/qalun/akri_qalun.jz",
+   "s": 77,
+   "a": 48,
+   "clusterAyahs": [
+    45,
+    49
+   ],
+   "n": 3,
+   "kind": "end_other",
+   "cls": "isolated",
+   "posIndex": 253529,
+   "posMap": 250372,
+   "hitsIndexWindow": [
+    [
+     249929,
+     0.94
+    ]
+   ],
+   "hitsMapWindow": [
+    [
+     250532,
+     0.97
+    ]
+   ],
+   "verdict": "الفهرس مخطئ",
+   "verdictRefined": "الفهرس مخطئ",
+   "run": "42787832227",
+   "url": "https://server16.mp3quran.net/m_akri/Rewayat-Qalon-A-n-Nafi/077.mp3",
+   "windows": "48:244529-256529,1048:241372-253372",
+   "audioSha8": "4b828f02",
+   "model": "medium",
+   "computeType": "float32"
+  },
+  {
+   "idx": 8,
+   "rank": 14621,
+   "stratum": "R:balilah",
+   "rec": "balilah",
+   "key": "timings/hafs/balilah.jz",
+   "s": 72,
+   "a": 9,
+   "clusterAyahs": [
+    9,
+    9
+   ],
+   "n": 1,
+   "kind": "start",
+   "cls": "isolated",
+   "posIndex": 75796,
+   "posMap": 77470,
+   "hitsIndexWindow": [
+    [
+     77596,
+     0.96
+    ]
+   ],
+   "hitsMapWindow": [
+    [
+     77590,
+     0.96
+    ]
+   ],
+   "verdict": "الفهرس مخطئ",
+   "verdictRefined": "الفهرس مخطئ",
+   "run": "42792340145",
+   "url": "https://server6.mp3quran.net/balilah/072.mp3",
+   "windows": "9:72796-84796,1009:74470-86470",
+   "audioSha8": "4dc1fe91",
+   "model": "medium",
+   "computeType": "float32"
+  },
+  {
+   "idx": 9,
+   "rank": 6902,
+   "stratum": "R:balilah",
+   "rec": "balilah",
+   "key": "timings/hafs/balilah.jz",
+   "s": 113,
+   "a": 3,
+   "clusterAyahs": [
+    3,
+    4
+   ],
+   "n": 2,
+   "kind": "start",
+   "cls": "isolated",
+   "posIndex": 9800,
+   "posMap": 12073,
+   "hitsIndexWindow": [
+    [
+     11360,
+     1.0
+    ]
+   ],
+   "hitsMapWindow": [
+    [
+     9073,
+     0.8
+    ],
+    [
+     12073,
+     1.0
+    ]
+   ],
+   "verdict": "الفهرس مخطئ",
+   "verdictRefined": "الفهرس مخطئ",
+   "run": "42792340281",
+   "url": "https://server6.mp3quran.net/balilah/113.mp3",
+   "windows": "3:6800-18800,1003:9073-21073",
+   "audioSha8": "a0edc400",
+   "model": "medium",
+   "computeType": "float32"
+  },
+  {
+   "idx": 10,
+   "rank": 5152,
+   "stratum": "R:balilah",
+   "rec": "balilah",
+   "key": "timings/hafs/balilah.jz",
+   "s": 28,
+   "a": 21,
+   "clusterAyahs": [
+    21,
+    22
+   ],
+   "n": 2,
+   "kind": "end_other",
+   "cls": "isolated",
+   "posIndex": 310809,
+   "posMap": 308065,
+   "hitsIndexWindow": [
+    [
+     307849,
+     0.97
+    ]
+   ],
+   "hitsMapWindow": [
+    [
+     308545,
+     0.97
+    ]
+   ],
+   "verdict": "الفهرس مخطئ",
+   "verdictRefined": "الفهرس مخطئ",
+   "run": "42792340331",
+   "url": "https://server6.mp3quran.net/balilah/028.mp3",
+   "windows": "21:301809-313809,1021:299065-311065",
+   "audioSha8": "671f3b9f",
+   "model": "medium",
+   "computeType": "float32"
+  },
+  {
+   "idx": 11,
+   "rank": 5385,
+   "stratum": "R:bari",
+   "rec": "bari",
+   "key": "timings/hafs/bari.jz",
+   "s": 5,
+   "a": 119,
+   "clusterAyahs": [
+    119,
+    119
+   ],
+   "n": 1,
+   "kind": "end_other",
+   "cls": "isolated",
+   "posIndex": 4582210,
+   "posMap": 4579529,
+   "hitsIndexWindow": [
+    [
+     4581290,
+     0.91
+    ]
+   ],
+   "hitsMapWindow": [
+    [
+     4581249,
+     1.0
+    ]
+   ],
+   "verdict": "الخريطة مخطئة",
+   "verdictRefined": "الخريطة مخطئة",
+   "run": "42792369020",
+   "url": "https://server12.mp3quran.net/bari/005.mp3",
+   "windows": "119:4573210-4585210,1119:4570529-4582529",
+   "audioSha8": "d5ea41f5",
+   "model": "medium",
+   "computeType": "float32"
+  },
+  {
+   "idx": 12,
+   "rank": 8833,
+   "stratum": "R:bari",
+   "rec": "bari",
+   "key": "timings/hafs/bari.jz",
+   "s": 43,
+   "a": 10,
+   "clusterAyahs": [
+    10,
+    11
+   ],
+   "n": 2,
+   "kind": "end_other",
+   "cls": "isolated",
+   "posIndex": 118780,
+   "posMap": 116919,
+   "hitsIndexWindow": [
+    [
+     117460,
+     1.0
+    ]
+   ],
+   "hitsMapWindow": [
+    [
+     117959,
+     1.0
+    ]
+   ],
+   "verdict": "كلاهما",
+   "verdictRefined": "كلاهما",
+   "run": "42792369224",
+   "url": "https://server12.mp3quran.net/bari/043.mp3",
+   "windows": "10:109780-121780,1010:107919-119919",
+   "audioSha8": "918934f5",
+   "model": "medium",
+   "computeType": "float32"
+  },
+  {
+   "idx": 13,
+   "rank": 9114,
+   "stratum": "R:bari",
+   "rec": "bari",
+   "key": "timings/hafs/bari.jz",
+   "s": 77,
+   "a": 29,
+   "clusterAyahs": [
+    29,
+    30
+   ],
+   "n": 2,
+   "kind": "end_other",
+   "cls": "isolated",
+   "posIndex": 177820,
+   "posMap": 176018,
+   "hitsIndexWindow": [
+    [
+     176820,
+     1.0
+    ]
+   ],
+   "hitsMapWindow": [
+    [
+     177158,
+     1.0
+    ]
+   ],
+   "verdict": "كلاهما",
+   "verdictRefined": "كلاهما",
+   "run": "42792369160",
+   "url": "https://server12.mp3quran.net/bari/077.mp3",
+   "windows": "29:168820-180820,1029:167018-179018",
+   "audioSha8": "a001a5c0",
+   "model": "medium",
+   "computeType": "float32"
+  },
+  {
+   "idx": 14,
+   "rank": 12718,
+   "stratum": "R:basit_warsh",
+   "rec": "basit_warsh",
+   "key": "timings/warsh/basit_warsh.jz",
+   "s": 3,
+   "a": 99,
+   "clusterAyahs": [
+    99,
+    99
+   ],
+   "n": 1,
+   "kind": "end_short",
+   "cls": "isolated",
+   "posIndex": 2968500,
+   "posMap": 2971365,
+   "hitsIndexWindow": [
+    [
+     2968520,
+     0.97
+    ]
+   ],
+   "hitsMapWindow": [
+    [
+     2969005,
+     0.97
+    ]
+   ],
+   "verdict": "الخريطة مخطئة",
+   "verdictRefined": "الخريطة مخطئة",
+   "run": "42792369838",
+   "url": "https://server7.mp3quran.net/basit/Rewayat-Warsh-A-n-Nafi/003.mp3",
+   "windows": "99:2959500-2971500,1099:2962365-2974365",
+   "audioSha8": "d48ab9fd",
+   "model": "medium",
+   "computeType": "float32"
+  },
+  {
+   "idx": 15,
+   "rank": 7142,
+   "stratum": "R:derini_warsh",
+   "rec": "derini_warsh",
+   "key": "timings/warsh/derini_warsh.jz",
+   "s": 33,
+   "a": 6,
+   "clusterAyahs": [
+    6,
+    6
+   ],
+   "n": 1,
+   "kind": "end_other",
+   "cls": "isolated",
+   "posIndex": 181716,
+   "posMap": 179501,
+   "hitsIndexWindow": [
+    [
+     180236,
+     0.97
+    ]
+   ],
+   "hitsMapWindow": [
+    [
+     180221,
+     0.97
+    ]
+   ],
+   "verdict": "كلاهما",
+   "verdictRefined": "الفهرس مخطئ",
+   "run": "42792399134",
+   "url": "https://archive.org/download/amrou-el-derini_Warsh/033.mp3",
+   "windows": "6:172716-184716,1006:170501-182501",
+   "audioSha8": "00fc267e",
+   "model": "medium",
+   "computeType": "float32"
+  },
+  {
+   "idx": 16,
+   "rank": 2244,
+   "stratum": "R:dokali",
+   "rec": "dokali",
+   "key": "timings/qalun/dokali.jz",
+   "s": 56,
+   "a": 84,
+   "clusterAyahs": [
+    84,
+    87
+   ],
+   "n": 4,
+   "kind": "end_other",
+   "cls": "isolated",
+   "posIndex": 484290,
+   "posMap": 479689,
+   "hitsIndexWindow": [
+    [
+     479790,
+     0.94
+    ]
+   ],
+   "hitsMapWindow": [
+    [
+     479789,
+     1.0
+    ]
+   ],
+   "verdict": "الفهرس مخطئ",
+   "verdictRefined": "الفهرس مخطئ",
+   "run": "42795434328",
+   "url": "https://server7.mp3quran.net/dokali/056.mp3",
+   "windows": "84:475290-487290,1084:470689-482689",
+   "audioSha8": "a16351ef",
+   "model": "medium",
+   "computeType": "float32"
+  },
+  {
+   "idx": 17,
+   "rank": 6119,
+   "stratum": "R:dokali",
+   "rec": "dokali",
+   "key": "timings/qalun/dokali.jz",
+   "s": 36,
+   "a": 60,
+   "clusterAyahs": [
+    60,
+    61
+   ],
+   "n": 2,
+   "kind": "end_other",
+   "cls": "isolated",
+   "posIndex": 656310,
+   "posMap": 653845,
+   "hitsIndexWindow": [],
+   "hitsMapWindow": [
+    [
+     654125,
+     1.0
+    ]
+   ],
+   "verdict": "الفهرس مخطئ",
+   "verdictRefined": "الفهرس مخطئ",
+   "run": "42795434264",
+   "url": "https://server7.mp3quran.net/dokali/036.mp3",
+   "windows": "60:647310-659310,1060:644845-656845",
+   "audioSha8": "70b24505",
+   "model": "medium",
+   "computeType": "float32"
+  },
+  {
+   "idx": 18,
+   "rank": 12851,
+   "stratum": "R:dokali",
+   "rec": "dokali",
+   "key": "timings/qalun/dokali.jz",
+   "s": 23,
+   "a": 51,
+   "clusterAyahs": [
+    51,
+    51
+   ],
+   "n": 1,
+   "kind": "end_short",
+   "cls": "isolated",
+   "posIndex": 699880,
+   "posMap": 702648,
+   "hitsIndexWindow": [
+    [
+     700080,
+     1.0
+    ]
+   ],
+   "hitsMapWindow": [
+    [
+     699648,
+     1.0
+    ]
+   ],
+   "verdict": "الخريطة مخطئة",
+   "verdictRefined": "الخريطة مخطئة",
+   "run": "42795434078",
+   "url": "https://server7.mp3quran.net/dokali/023.mp3",
+   "windows": "51:690880-702880,1051:693648-705648",
+   "audioSha8": "6532282c",
+   "model": "medium",
+   "computeType": "float32"
+  },
+  {
+   "idx": 19,
+   "rank": 10042,
+   "stratum": "R:gharbi_warsh",
+   "rec": "gharbi_warsh",
+   "key": "timings/warsh/gharbi_warsh.jz",
+   "s": 40,
+   "a": 36,
+   "clusterAyahs": [
+    36,
+    36
+   ],
+   "n": 1,
+   "kind": "end_other",
+   "cls": "isolated",
+   "posIndex": 726750,
+   "posMap": 725141,
+   "hitsIndexWindow": [
+    [
+     725290,
+     0.9
+    ]
+   ],
+   "hitsMapWindow": [
+    [
+     725321,
+     0.88
+    ]
+   ],
+   "verdict": "كلاهما",
+   "verdictRefined": "الفهرس مخطئ",
+   "run": "42795433936",
+   "url": "https://archive.org/download/128----kb-mustufa--gharby---by--warsh-mp3--full--mushaf--quran--114--sora---fr/ar_040_Mustapha_Gharbi_Warsh.mp3",
+   "windows": "36:717750-729750,1036:716141-728141",
+   "audioSha8": "8c02df30",
+   "model": "medium",
+   "computeType": "float32"
+  },
+  {
+   "idx": 20,
+   "rank": 8807,
+   "stratum": "R:gharbi_warsh",
+   "rec": "gharbi_warsh",
+   "key": "timings/warsh/gharbi_warsh.jz",
+   "s": 91,
+   "a": 9,
+   "clusterAyahs": [
+    9,
+    9
+   ],
+   "n": 1,
+   "kind": "end_other",
+   "cls": "isolated",
+   "posIndex": 39269,
+   "posMap": 37402,
+   "hitsIndexWindow": [
+    [
+     37689,
+     0.92
+    ]
+   ],
+   "hitsMapWindow": [
+    [
+     37762,
+     0.92
+    ]
+   ],
+   "verdict": "الفهرس مخطئ",
+   "verdictRefined": "الفهرس مخطئ",
+   "run": "42795899158",
+   "url": "https://archive.org/download/128----kb-mustufa--gharby---by--warsh-mp3--full--mushaf--quran--114--sora---fr/ar_091_Mustapha_Gharbi_Warsh.mp3",
+   "windows": "9:30269-42269,1009:28402-40402",
+   "audioSha8": "27339c7d",
+   "model": "medium",
+   "computeType": "float32"
+  },
+  {
+   "idx": 21,
+   "rank": 5130,
+   "stratum": "R:gharbi_warsh",
+   "rec": "gharbi_warsh",
+   "key": "timings/warsh/gharbi_warsh.jz",
+   "s": 80,
+   "a": 21,
+   "clusterAyahs": [
+    21,
+    21
+   ],
+   "n": 1,
+   "kind": "start",
+   "cls": "isolated",
+   "posIndex": 95340,
+   "posMap": 92588,
+   "hitsIndexWindow": [
+    [
+     95499,
+     0.93
+    ]
+   ],
+   "hitsMapWindow": [
+    [
+     95188,
+     0.93
+    ]
+   ],
+   "verdict": "الخريطة مخطئة",
+   "verdictRefined": "الخريطة مخطئة",
+   "run": "42795899193",
+   "url": "https://archive.org/download/128----kb-mustufa--gharby---by--warsh-mp3--full--mushaf--quran--114--sora---fr/ar_080_Mustapha_Gharbi_Warsh.mp3",
+   "windows": "21:92340-104340,1021:89588-101588",
+   "audioSha8": "49931e37",
+   "model": "medium",
+   "computeType": "float32"
+  },
+  {
+   "idx": 22,
+   "rank": 4429,
+   "stratum": "R:gulan",
+   "rec": "gulan",
+   "key": "timings/hafs/gulan.jz",
+   "s": 11,
+   "a": 32,
+   "clusterAyahs": [
+    31,
+    36
+   ],
+   "n": 5,
+   "kind": "start",
+   "cls": "isolated",
+   "posIndex": 676493,
+   "posMap": 679492,
+   "hitsIndexWindow": [
+    [
+     678953,
+     0.8
+    ]
+   ],
+   "hitsMapWindow": [
+    [
+     679212,
+     0.8
+    ]
+   ],
+   "verdict": "الفهرس مخطئ",
+   "verdictRefined": "الفهرس مخطئ",
+   "run": "42795899208",
+   "url": "https://server8.mp3quran.net/gulan/011.mp3",
+   "windows": "32:673493-685493,1032:676492-688492",
+   "audioSha8": "04e86364",
+   "model": "medium",
+   "computeType": "float32"
+  },
+  {
+   "idx": 23,
+   "rank": 11849,
+   "stratum": "R:harthi",
+   "rec": "harthi",
+   "key": "timings/hafs/harthi.jz",
+   "s": 2,
+   "a": 175,
+   "clusterAyahs": [
+    175,
+    175
+   ],
+   "n": 1,
+   "kind": "end_short",
+   "cls": "isolated",
+   "posIndex": 3064700,
+   "posMap": 3068506,
+   "hitsIndexWindow": [
+    [
+     3067680,
+     1.0
+    ]
+   ],
+   "hitsMapWindow": [
+    [
+     3066506,
+     1.0
+    ]
+   ],
+   "verdict": "غير محسوم",
+   "verdictRefined": "غير محسوم",
+   "run": "42795898896",
+   "url": "https://server8.mp3quran.net/harthi/002.mp3",
+   "windows": "175:3055700-3067700,1175:3059506-3071506",
+   "audioSha8": "d07dca73",
+   "model": "medium",
+   "computeType": "float32"
+  },
+  {
+   "idx": 24,
+   "rank": 8152,
+   "stratum": "R:hawashi",
+   "rec": "hawashi",
+   "key": "timings/hafs/hawashi.jz",
+   "s": 53,
+   "a": 1,
+   "clusterAyahs": [
+    1,
+    2
+   ],
+   "n": 2,
+   "kind": "end_other",
+   "cls": "isolated",
+   "posIndex": 6060,
+   "posMap": 4062,
+   "hitsIndexWindow": [],
+   "hitsMapWindow": [],
+   "verdict": "غير محسوم",
+   "verdictRefined": "غير محسوم",
+   "run": "42796283206",
+   "url": "https://server11.mp3quran.net/hawashi/053.mp3",
+   "windows": "1:0-9060,1001:0-7062",
+   "audioSha8": "91627996",
+   "model": "medium",
+   "computeType": "float32"
+  },
+  {
+   "idx": 25,
+   "rank": 14090,
+   "stratum": "R:husary_douri",
+   "rec": "husary_douri",
+   "key": "timings/douri/husary_douri.jz",
+   "s": 27,
+   "a": 72,
+   "clusterAyahs": [
+    72,
+    72
+   ],
+   "n": 1,
+   "kind": "end_short",
+   "cls": "isolated",
+   "posIndex": 1508920,
+   "posMap": 1510790,
+   "hitsIndexWindow": [
+    [
+     1510980,
+     1.0
+    ]
+   ],
+   "hitsMapWindow": [
+    [
+     1511270,
+     1.0
+    ]
+   ],
+   "verdict": "الفهرس مخطئ",
+   "verdictRefined": "الفهرس مخطئ",
+   "run": "42796283532",
+   "url": "https://server13.mp3quran.net/husr/Rewayat-Aldori-A-n-Abi-Amr/027.mp3",
+   "windows": "72:1499920-1511920,1072:1501790-1513790",
+   "audioSha8": "c9e9367a",
+   "model": "medium",
+   "computeType": "float32"
+  },
+  {
+   "idx": 26,
+   "rank": 14723,
+   "stratum": "R:husary_douri",
+   "rec": "husary_douri",
+   "key": "timings/douri/husary_douri.jz",
+   "s": 29,
+   "a": 37,
+   "clusterAyahs": [
+    37,
+    37
+   ],
+   "n": 1,
+   "kind": "start",
+   "cls": "isolated",
+   "posIndex": 956680,
+   "posMap": 958329,
+   "hitsIndexWindow": [
+    [
+     959039,
+     1.0
+    ]
+   ],
+   "hitsMapWindow": [
+    [
+     959048,
+     1.0
+    ]
+   ],
+   "verdict": "الفهرس مخطئ",
+   "verdictRefined": "الفهرس مخطئ",
+   "run": "42796283095",
+   "url": "https://server13.mp3quran.net/husr/Rewayat-Aldori-A-n-Abi-Amr/029.mp3",
+   "windows": "37:953680-965680,1037:955329-967329",
+   "audioSha8": "ee4d97f0",
+   "model": "medium",
+   "computeType": "float32"
+  },
+  {
+   "idx": 27,
+   "rank": 12047,
+   "stratum": "R:husary_douri",
+   "rec": "husary_douri",
+   "key": "timings/douri/husary_douri.jz",
+   "s": 76,
+   "a": 2,
+   "clusterAyahs": [
+    1,
+    5
+   ],
+   "n": 4,
+   "kind": "end_short",
+   "cls": "isolated",
+   "posIndex": 46500,
+   "posMap": 49994,
+   "hitsIndexWindow": [
+    [
+     46740,
+     0.97
+    ]
+   ],
+   "hitsMapWindow": [
+    [
+     46994,
+     0.86
+    ]
+   ],
+   "verdict": "الخريطة مخطئة",
+   "verdictRefined": "الخريطة مخطئة",
+   "run": "42796282976",
+   "url": "https://server13.mp3quran.net/husr/Rewayat-Aldori-A-n-Abi-Amr/076.mp3",
+   "windows": "2:37500-49500,1002:40994-52994",
+   "audioSha8": "c9b0ce24",
+   "model": "medium",
+   "computeType": "float32"
+  },
+  {
+   "idx": 28,
+   "rank": 8732,
+   "stratum": "R:husary_qalun",
+   "rec": "husary_qalun",
+   "key": "timings/qalun/husary_qalun.jz",
+   "s": 88,
+   "a": 11,
+   "clusterAyahs": [
+    11,
+    11
+   ],
+   "n": 1,
+   "kind": "end_other",
+   "cls": "isolated",
+   "posIndex": 87400,
+   "posMap": 85518,
+   "hitsIndexWindow": [
+    [
+     86880,
+     0.97
+    ]
+   ],
+   "hitsMapWindow": [
+    [
+     86618,
+     0.97
+    ]
+   ],
+   "verdict": "كلاهما",
+   "verdictRefined": "الخريطة مخطئة",
+   "run": "42796663596",
+   "url": "https://server13.mp3quran.net/husr/Rewayat-Qalon-A-n-Nafi/088.mp3",
+   "windows": "11:78400-90400,1011:76518-88518",
+   "audioSha8": "17e8b0e5",
+   "model": "medium",
+   "computeType": "float32"
+  },
+  {
+   "idx": 29,
+   "rank": 9421,
+   "stratum": "R:husary_qalun",
+   "rec": "husary_qalun",
+   "key": "timings/qalun/husary_qalun.jz",
+   "s": 19,
+   "a": 90,
+   "clusterAyahs": [
+    90,
+    90
+   ],
+   "n": 1,
+   "kind": "end_other",
+   "cls": "isolated",
+   "posIndex": 1398940,
+   "posMap": 1397200,
+   "hitsIndexWindow": [
+    [
+     1398340,
+     0.93
+    ]
+   ],
+   "hitsMapWindow": [
+    [
+     1398420,
+     0.93
+    ]
+   ],
+   "verdict": "كلاهما",
+   "verdictRefined": "الخريطة مخطئة",
+   "run": "42796663964",
+   "url": "https://server13.mp3quran.net/husr/Rewayat-Qalon-A-n-Nafi/019.mp3",
+   "windows": "90:1389940-1401940,1090:1388200-1400200",
+   "audioSha8": "65fe0481",
+   "model": "medium",
+   "computeType": "float32"
+  },
+  {
+   "idx": 30,
+   "rank": 11518,
+   "stratum": "R:husary_qalun",
+   "rec": "husary_qalun",
+   "key": "timings/qalun/husary_qalun.jz",
+   "s": 15,
+   "a": 5,
+   "clusterAyahs": [
+    5,
+    5
+   ],
+   "n": 1,
+   "kind": "end_short",
+   "cls": "isolated",
+   "posIndex": 66340,
+   "posMap": 70827,
+   "hitsIndexWindow": [
+    [
+     67840,
+     0.97
+    ]
+   ],
+   "hitsMapWindow": [
+    [
+     68267,
+     0.97
+    ]
+   ],
+   "verdict": "الخريطة مخطئة",
+   "verdictRefined": "الخريطة مخطئة",
+   "run": "42796663354",
+   "url": "https://server13.mp3quran.net/husr/Rewayat-Qalon-A-n-Nafi/015.mp3",
+   "windows": "5:57340-69340,1005:61827-73827",
+   "audioSha8": "5d8d4935",
+   "model": "medium",
+   "computeType": "float32"
+  },
+  {
+   "idx": 31,
+   "rank": 8172,
+   "stratum": "R:husary_warsh",
+   "rec": "husary_warsh",
+   "key": "timings/warsh/husary_warsh.jz",
+   "s": 18,
+   "a": 35,
+   "clusterAyahs": [
+    35,
+    35
+   ],
+   "n": 1,
+   "kind": "end_other",
+   "cls": "isolated",
+   "posIndex": 1207142,
+   "posMap": 1205148,
+   "hitsIndexWindow": [
+    [
+     1206242,
+     1.0
+    ]
+   ],
+   "hitsMapWindow": [
+    [
+     1206268,
+     1.0
+    ]
+   ],
+   "verdict": "كلاهما",
+   "verdictRefined": "كلاهما",
+   "run": "42796663945",
+   "url": "https://server13.mp3quran.net/husr/Rewayat-Warsh-A-n-Nafi/018.mp3",
+   "windows": "35:1198142-1210142,1035:1196148-1208148",
+   "audioSha8": "2251fd36",
+   "model": "medium",
+   "computeType": "float32"
+  },
+  {
+   "idx": 32,
+   "rank": 13123,
+   "stratum": "R:husary_warsh",
+   "rec": "husary_warsh",
+   "key": "timings/warsh/husary_warsh.jz",
+   "s": 26,
+   "a": 124,
+   "clusterAyahs": [
+    124,
+    124
+   ],
+   "n": 1,
+   "kind": "end_short",
+   "cls": "isolated",
+   "posIndex": 1662680,
+   "posMap": 1665251,
+   "hitsIndexWindow": [
+    [
+     1665340,
+     0.96
+    ]
+   ],
+   "hitsMapWindow": [
+    [
+     1665471,
+     0.92
+    ]
+   ],
+   "verdict": "الفهرس مخطئ",
+   "verdictRefined": "الفهرس مخطئ",
+   "run": "42796980497",
+   "url": "https://server13.mp3quran.net/husr/Rewayat-Warsh-A-n-Nafi/026.mp3",
+   "windows": "124:1653680-1665680,1124:1656251-1668251",
+   "audioSha8": "90033ccd",
+   "model": "medium",
+   "computeType": "float32"
+  },
+  {
+   "idx": 33,
+   "rank": 2255,
+   "stratum": "R:husary_warsh",
+   "rec": "husary_warsh",
+   "key": "timings/warsh/husary_warsh.jz",
+   "s": 2,
+   "a": 46,
+   "clusterAyahs": [
+    46,
+    56
+   ],
+   "n": 6,
+   "kind": "end_other",
+   "cls": "isolated",
+   "posIndex": 1421446,
+   "posMap": 1416866,
+   "hitsIndexWindow": [],
+   "hitsMapWindow": [
+    [
+     1417226,
+     0.97
+    ]
+   ],
+   "verdict": "الفهرس مخطئ",
+   "verdictRefined": "الفهرس مخطئ",
+   "run": "42796980926",
+   "url": "https://server13.mp3quran.net/husr/Rewayat-Warsh-A-n-Nafi/002.mp3",
+   "windows": "46:1412446-1424446,1046:1407866-1419866",
+   "audioSha8": "fb2fecc8",
+   "model": "medium",
+   "computeType": "float32"
+  },
+  {
+   "idx": 34,
+   "rank": 1118,
+   "stratum": "R:iraoui_warsh",
+   "rec": "iraoui_warsh",
+   "key": "timings/warsh/iraoui_warsh.jz",
+   "s": 24,
+   "a": 14,
+   "clusterAyahs": [
+    14,
+    15
+   ],
+   "n": 2,
+   "kind": "end_other",
+   "cls": "isolated",
+   "posIndex": 298550,
+   "posMap": 291234,
+   "hitsIndexWindow": [],
+   "hitsMapWindow": [
+    [
+     291534,
+     1.0
+    ]
+   ],
+   "verdict": "الفهرس مخطئ",
+   "verdictRefined": "الفهرس مخطئ",
+   "run": "42796980634",
+   "url": "https://archive.org/download/64--kb-mohammad---aleerawy-----by--warsh----mp3--full--mushaf--quran--114--sora/024.mp3",
+   "windows": "14:289550-301550,1014:282234-294234",
+   "audioSha8": "e59d1723",
+   "model": "medium",
+   "computeType": "float32"
+  },
+  {
+   "idx": 35,
+   "rank": 8011,
+   "stratum": "R:jamal",
+   "rec": "jamal",
+   "key": "timings/hafs/jamal.jz",
+   "s": 81,
+   "a": 23,
+   "clusterAyahs": [
+    22,
+    24
+   ],
+   "n": 3,
+   "kind": "start",
+   "cls": "isolated",
+   "posIndex": 73828,
+   "posMap": 75852,
+   "hitsIndexWindow": [
+    [
+     75648,
+     1.0
+    ]
+   ],
+   "hitsMapWindow": [],
+   "verdict": "غير محسوم",
+   "verdictRefined": "غير محسوم",
+   "run": "42796980502",
+   "url": "https://server6.mp3quran.net/jamal/081.mp3",
+   "windows": "23:70828-82828,1023:72852-84852",
+   "audioSha8": "dfa7f664",
+   "model": "medium",
+   "computeType": "float32"
+  },
+  {
+   "idx": 36,
+   "rank": 9397,
+   "stratum": "R:kentaoui_warsh",
+   "rec": "kentaoui_warsh",
+   "key": "timings/warsh/kentaoui_warsh.jz",
+   "s": 71,
+   "a": 13,
+   "clusterAyahs": [
+    13,
+    13
+   ],
+   "n": 1,
+   "kind": "end_other",
+   "cls": "isolated",
+   "posIndex": 131413,
+   "posMap": 129668,
+   "hitsIndexWindow": [
+    [
+     130273,
+     1.0
+    ]
+   ],
+   "hitsMapWindow": [
+    [
+     129768,
+     1.0
+    ]
+   ],
+   "verdict": "كلاهما",
+   "verdictRefined": "الفهرس مخطئ",
+   "run": "42797329699",
+   "url": "https://archive.org/download/128--kb---mohammad--alkentawy----by--rewayt--warsh--mp3--full--mushaf--quran--/ar_071_Mohammed_El_Kantaoui_Warsh.mp3",
+   "windows": "13:122413-134413,1013:120668-132668",
+   "audioSha8": "60cb4287",
+   "model": "medium",
+   "computeType": "float32"
+  },
+  {
+   "idx": 37,
+   "rank": 3751,
+   "stratum": "R:magdi_qalun",
+   "rec": "magdi_qalun",
+   "key": "timings/qalun/magdi_qalun.jz",
+   "s": 46,
+   "a": 13,
+   "clusterAyahs": [
+    13,
+    14
+   ],
+   "n": 2,
+   "kind": "end_other",
+   "cls": "isolated",
+   "posIndex": 224520,
+   "posMap": 221208,
+   "hitsIndexWindow": [
+    [
+     221620,
+     1.0
+    ]
+   ],
+   "hitsMapWindow": [
+    [
+     221528,
+     1.0
+    ]
+   ],
+   "verdict": "الفهرس مخطئ",
+   "verdictRefined": "الفهرس مخطئ",
+   "run": "42797329895",
+   "url": "https://archive.org/download/Al-Quran_Qaloon_tilawat_Magdi_Salem/046.mp3",
+   "windows": "13:215520-227520,1013:212208-224208",
+   "audioSha8": "aa60b09d",
+   "model": "medium",
+   "computeType": "float32"
+  },
+  {
+   "idx": 38,
+   "rank": 3106,
+   "stratum": "R:mansor",
+   "rec": "mansor",
+   "key": "timings/hafs/mansor.jz",
+   "s": 96,
+   "a": 5,
+   "clusterAyahs": [
+    1,
+    6
+   ],
+   "n": 6,
+   "kind": "start",
+   "cls": "surah",
+   "posIndex": 21591,
+   "posMap": 19812,
+   "hitsIndexWindow": [
+    [
+     18591,
+     0.96
+    ]
+   ],
+   "hitsMapWindow": [
+    [
+     19412,
+     0.96
+    ]
+   ],
+   "verdict": "الفهرس مخطئ",
+   "verdictRefined": "الفهرس مخطئ",
+   "run": "42797329987",
+   "url": "https://server14.mp3quran.net/mansor/096.mp3",
+   "windows": "5:18591-30591,1005:16812-28812",
+   "audioSha8": "dd5dd9e7",
+   "model": "medium",
+   "computeType": "float32"
+  },
+  {
+   "idx": 39,
+   "rank": 1575,
+   "stratum": "R:mousa",
+   "rec": "mousa",
+   "key": "timings/hafs/mousa.jz",
+   "s": 21,
+   "a": 53,
+   "clusterAyahs": [
+    46,
+    54
+   ],
+   "n": 6,
+   "kind": "end_other",
+   "cls": "isolated",
+   "posIndex": 600080,
+   "posMap": 594172,
+   "hitsIndexWindow": [
+    [
+     600200,
+     0.97
+    ]
+   ],
+   "hitsMapWindow": [
+    [
+     594292,
+     0.97
+    ]
+   ],
+   "verdict": "كلاهما",
+   "verdictRefined": "كلاهما",
+   "run": "42797330045",
+   "url": "https://server14.mp3quran.net/mousa/Rewayat-Hafs-A-n-Assem/021.mp3",
+   "windows": "53:591080-603080,1053:585172-597172",
+   "audioSha8": "88b886f4",
+   "model": "medium",
+   "computeType": "float32"
+  },
+  {
+   "idx": 40,
+   "rank": 11631,
+   "stratum": "R:namh",
+   "rec": "namh",
+   "key": "timings/hafs/namh.jz",
+   "s": 29,
+   "a": 61,
+   "clusterAyahs": [
+    61,
+    61
+   ],
+   "n": 1,
+   "kind": "start",
+   "cls": "isolated",
+   "posIndex": 1175800,
+   "posMap": 1180008,
+   "hitsIndexWindow": [
+    [
+     1179919,
+     1.0
+    ]
+   ],
+   "hitsMapWindow": [
+    [
+     1179967,
+     1.0
+    ]
+   ],
+   "verdict": "الفهرس مخطئ",
+   "verdictRefined": "الفهرس مخطئ",
+   "run": "42797659955",
+   "url": "https://server8.mp3quran.net/namh/029.mp3",
+   "windows": "61:1172800-1184800,1061:1177008-1189008",
+   "audioSha8": "7069ee1b",
+   "model": "medium",
+   "computeType": "float32"
+  },
+  {
+   "idx": 41,
+   "rank": 6263,
+   "stratum": "R:namh",
+   "rec": "namh",
+   "key": "timings/hafs/namh.jz",
+   "s": 40,
+   "a": 45,
+   "clusterAyahs": [
+    45,
+    46
+   ],
+   "n": 2,
+   "kind": "end_other",
+   "cls": "isolated",
+   "posIndex": 930640,
+   "posMap": 928216,
+   "hitsIndexWindow": [
+    [
+     930620,
+     1.0
+    ]
+   ],
+   "hitsMapWindow": [
+    [
+     930496,
+     1.0
+    ]
+   ],
+   "verdict": "الخريطة مخطئة",
+   "verdictRefined": "الخريطة مخطئة",
+   "run": "42797660253",
+   "url": "https://server8.mp3quran.net/namh/040.mp3",
+   "windows": "45:921640-933640,1045:919216-931216",
+   "audioSha8": "d8b80589",
+   "model": "medium",
+   "computeType": "float32"
+  },
+  {
+   "idx": 42,
+   "rank": 14657,
+   "stratum": "R:namh",
+   "rec": "namh",
+   "key": "timings/hafs/namh.jz",
+   "s": 50,
+   "a": 22,
+   "clusterAyahs": [
+    22,
+    22
+   ],
+   "n": 1,
+   "kind": "start",
+   "cls": "isolated",
+   "posIndex": 251440,
+   "posMap": 253107,
+   "hitsIndexWindow": [
+    [
+     251780,
+     1.0
+    ],
+    [
+     254780,
+     1.0
+    ]
+   ],
+   "hitsMapWindow": [
+    [
+     250107,
+     1.0
+    ],
+    [
+     254727,
+     1.0
+    ]
+   ],
+   "verdict": "الخريطة مخطئة",
+   "verdictRefined": "الخريطة مخطئة",
+   "run": "42797660197",
+   "url": "https://server8.mp3quran.net/namh/050.mp3",
+   "windows": "22:248440-260440,1022:250107-262107",
+   "audioSha8": "af61c756",
+   "model": "medium",
+   "computeType": "float32"
+  },
+  {
+   "idx": 43,
+   "rank": 1492,
+   "stratum": "R:nasser_almajed",
+   "rec": "nasser_almajed",
+   "key": "timings/hafs/nasser_almajed.jz",
+   "s": 43,
+   "a": 73,
+   "clusterAyahs": [
+    73,
+    75
+   ],
+   "n": 3,
+   "kind": "start",
+   "cls": "isolated",
+   "posIndex": 749380,
+   "posMap": 743240,
+   "hitsIndexWindow": [
+    [
+     748580,
+     0.96
+    ]
+   ],
+   "hitsMapWindow": [
+    [
+     742340,
+     0.96
+    ],
+    [
+     747620,
+     0.96
+    ]
+   ],
+   "verdict": "كلاهما",
+   "verdictRefined": "كلاهما",
+   "run": "42797659947",
+   "url": "https://server14.mp3quran.net/nasser_almajed/043.mp3",
+   "windows": "73:746380-758380,1073:740240-752240",
+   "audioSha8": "6069f78d",
+   "model": "medium",
+   "computeType": "float32"
+  },
+  {
+   "idx": 44,
+   "rank": 5369,
+   "stratum": "R:nathier",
+   "rec": "nathier",
+   "key": "timings/hafs/nathier.jz",
+   "s": 77,
+   "a": 25,
+   "clusterAyahs": [
+    22,
+    26
+   ],
+   "n": 3,
+   "kind": "end_other",
+   "cls": "isolated",
+   "posIndex": 112869,
+   "posMap": 110184,
+   "hitsIndexWindow": [
+    [
+     110329,
+     0.9
+    ]
+   ],
+   "hitsMapWindow": [
+    [
+     110564,
+     1.0
+    ]
+   ],
+   "verdict": "الفهرس مخطئ",
+   "verdictRefined": "الفهرس مخطئ",
+   "run": "42801169970",
+   "url": "https://server16.mp3quran.net//nathier/Rewayat-Hafs-A-n-Assem/077.mp3",
+   "windows": "25:103869-115869,1025:101184-113184",
+   "audioSha8": "862b5c2a",
+   "model": "medium",
+   "computeType": "float32"
+  },
+  {
+   "idx": 45,
+   "rank": 3145,
+   "stratum": "R:nufais",
+   "rec": "nufais",
+   "key": "timings/hafs/nufais.jz",
+   "s": 9,
+   "a": 70,
+   "clusterAyahs": [
+    65,
+    70
+   ],
+   "n": 4,
+   "kind": "start",
+   "cls": "isolated",
+   "posIndex": 1876300,
+   "posMap": 1879975,
+   "hitsIndexWindow": [
+    [
+     1879600,
+     0.96
+    ]
+   ],
+   "hitsMapWindow": [
+    [
+     1879035,
+     0.96
+    ]
+   ],
+   "verdict": "الفهرس مخطئ",
+   "verdictRefined": "الفهرس مخطئ",
+   "run": "42801170075",
+   "url": "https://server16.mp3quran.net/nufais/Rewayat-Hafs-A-n-Assem/009.mp3",
+   "windows": "70:1873300-1885300,1070:1876975-1888975",
+   "audioSha8": "b2cf0369",
+   "model": "medium",
+   "computeType": "float32"
+  },
+  {
+   "idx": 46,
+   "rank": 12106,
+   "stratum": "R:nufais",
+   "rec": "nufais",
+   "key": "timings/hafs/nufais.jz",
+   "s": 10,
+   "a": 26,
+   "clusterAyahs": [
+    26,
+    26
+   ],
+   "n": 1,
+   "kind": "end_short",
+   "cls": "isolated",
+   "posIndex": 763940,
+   "posMap": 767349,
+   "hitsIndexWindow": [
+    [
+     763640,
+     0.89
+    ]
+   ],
+   "hitsMapWindow": [
+    [
+     763809,
+     0.89
+    ]
+   ],
+   "verdict": "الخريطة مخطئة",
+   "verdictRefined": "الخريطة مخطئة",
+   "run": "42801170008",
+   "url": "https://server16.mp3quran.net/nufais/Rewayat-Hafs-A-n-Assem/010.mp3",
+   "windows": "26:754940-766940,1026:758349-770349",
+   "audioSha8": "f415cff2",
+   "model": "medium",
+   "computeType": "float32"
+  },
+  {
+   "idx": 47,
+   "rank": 8456,
+   "stratum": "R:nufais",
+   "rec": "nufais",
+   "key": "timings/hafs/nufais.jz",
+   "s": 57,
+   "a": 13,
+   "clusterAyahs": [
+    13,
+    13
+   ],
+   "n": 1,
+   "kind": "end_other",
+   "cls": "isolated",
+   "posIndex": 271640,
+   "posMap": 269702,
+   "hitsIndexWindow": [
+    [
+     270120,
+     1.0
+    ]
+   ],
+   "hitsMapWindow": [
+    [
+     270002,
+     1.0
+    ]
+   ],
+   "verdict": "الفهرس مخطئ",
+   "verdictRefined": "الفهرس مخطئ",
+   "run": "42801170423",
+   "url": "https://server16.mp3quran.net/nufais/Rewayat-Hafs-A-n-Assem/057.mp3",
+   "windows": "13:262640-274640,1013:260702-272702",
+   "audioSha8": "7cda370b",
+   "model": "medium",
+   "computeType": "float32"
+  },
+  {
+   "idx": 48,
+   "rank": 7599,
+   "stratum": "R:ra3ad",
+   "rec": "ra3ad",
+   "key": "timings/hafs/ra3ad.jz",
+   "s": 89,
+   "a": 22,
+   "clusterAyahs": [
+    22,
+    22
+   ],
+   "n": 1,
+   "kind": "end_other",
+   "cls": "isolated",
+   "posIndex": 121952,
+   "posMap": 119836,
+   "hitsIndexWindow": [
+    [
+     120652,
+     1.0
+    ]
+   ],
+   "hitsMapWindow": [
+    [
+     120636,
+     1.0
+    ]
+   ],
+   "verdict": "كلاهما",
+   "verdictRefined": "الفهرس مخطئ",
+   "run": "42801684328",
+   "url": "https://server8.mp3quran.net/ra3ad/089.mp3",
+   "windows": "22:112952-124952,1022:110836-122836",
+   "audioSha8": "53229b38",
+   "model": "medium",
+   "computeType": "float32"
+  },
+  {
+   "idx": 49,
+   "rank": 2738,
+   "stratum": "R:rakbawi_qalun",
+   "rec": "rakbawi_qalun",
+   "key": "timings/qalun/rakbawi_qalun.jz",
+   "s": 34,
+   "a": 3,
+   "clusterAyahs": [
+    1,
+    3
+   ],
+   "n": 3,
+   "kind": "start",
+   "cls": "isolated",
+   "posIndex": 31030,
+   "posMap": 26998,
+   "hitsIndexWindow": [],
+   "hitsMapWindow": [
+    [
+     26938,
+     0.94
+    ]
+   ],
+   "verdict": "الفهرس مخطئ",
+   "verdictRefined": "الفهرس مخطئ",
+   "run": "42801684404",
+   "url": "https://archive.org/download/128-kb---mo7ammad---ayyoob--alrakbawy---by--qaloon----mp3--full--mushaf--quran/034_.mp3",
+   "windows": "3:28030-40030,1003:23998-35998",
+   "audioSha8": "cb837055",
+   "model": "medium",
+   "computeType": "float32"
+  },
+  {
+   "idx": 50,
+   "rank": 3952,
+   "stratum": "R:rakbawi_qalun",
+   "rec": "rakbawi_qalun",
+   "key": "timings/qalun/rakbawi_qalun.jz",
+   "s": 47,
+   "a": 12,
+   "clusterAyahs": [
+    12,
+    13
+   ],
+   "n": 2,
+   "kind": "end_other",
+   "cls": "isolated",
+   "posIndex": 146142,
+   "posMap": 142934,
+   "hitsIndexWindow": [
+    [
+     143522,
+     0.93
+    ]
+   ],
+   "hitsMapWindow": [
+    [
+     143574,
+     0.93
+    ]
+   ],
+   "verdict": "الفهرس مخطئ",
+   "verdictRefined": "الفهرس مخطئ",
+   "run": "42801684479",
+   "url": "https://archive.org/download/128-kb---mo7ammad---ayyoob--alrakbawy---by--qaloon----mp3--full--mushaf--quran/047_.mp3",
+   "windows": "12:137142-149142,1012:133934-145934",
+   "audioSha8": "730f66a6",
+   "model": "medium",
+   "computeType": "float32"
+  },
+  {
+   "idx": 51,
+   "rank": 1516,
+   "stratum": "R:rakbawi_qalun",
+   "rec": "rakbawi_qalun",
+   "key": "timings/qalun/rakbawi_qalun.jz",
+   "s": 14,
+   "a": 10,
+   "clusterAyahs": [
+    10,
+    17
+   ],
+   "n": 6,
+   "kind": "end_other",
+   "cls": "isolated",
+   "posIndex": 210840,
+   "posMap": 204777,
+   "hitsIndexWindow": [
+    [
+     205000,
+     0.94
+    ]
+   ],
+   "hitsMapWindow": [
+    [
+     204857,
+     0.97
+    ]
+   ],
+   "verdict": "الفهرس مخطئ",
+   "verdictRefined": "الفهرس مخطئ",
+   "run": "42801684084",
+   "url": "https://archive.org/download/128-kb---mo7ammad---ayyoob--alrakbawy---by--qaloon----mp3--full--mushaf--quran/014_.mp3",
+   "windows": "10:201840-213840,1010:195777-207777",
+   "audioSha8": "234b0f0e",
+   "model": "medium",
+   "computeType": "float32"
+  },
+  {
+   "idx": 52,
+   "rank": 483,
+   "stratum": "R:ryan",
+   "rec": "ryan",
+   "key": "timings/hafs/ryan.jz",
+   "s": 20,
+   "a": 127,
+   "clusterAyahs": [
+    126,
+    127
+   ],
+   "n": 2,
+   "kind": "start",
+   "cls": "isolated",
+   "posIndex": 1187200,
+   "posMap": 1175211,
+   "hitsIndexWindow": [
+    [
+     1188760,
+     1.0
+    ]
+   ],
+   "hitsMapWindow": [
+    [
+     1174891,
+     1.0
+    ]
+   ],
+   "verdict": "الفهرس مخطئ",
+   "verdictRefined": "الفهرس مخطئ",
+   "run": "42802864178",
+   "url": "https://server8.mp3quran.net/ryan/020.mp3",
+   "windows": "127:1184200-1196200,1127:1172211-1184211",
+   "audioSha8": "8f3d0fb2",
+   "model": "medium",
+   "computeType": "float32"
+  },
+  {
+   "idx": 53,
+   "rank": 6174,
+   "stratum": "R:s_alquraishi",
+   "rec": "s_alquraishi",
+   "key": "timings/hafs/s_alquraishi.jz",
+   "s": 77,
+   "a": 36,
+   "clusterAyahs": [
+    36,
+    39
+   ],
+   "n": 3,
+   "kind": "end_other",
+   "cls": "isolated",
+   "posIndex": 225720,
+   "posMap": 223271,
+   "hitsIndexWindow": [
+    [
+     224060,
+     1.0
+    ]
+   ],
+   "hitsMapWindow": [
+    [
+     223891,
+     0.94
+    ]
+   ],
+   "verdict": "الفهرس مخطئ",
+   "verdictRefined": "الفهرس مخطئ",
+   "run": "42802863675",
+   "url": "https://server16.mp3quran.net/s_alquraishi/Rewayat-Hafs-A-n-Assem/077.mp3",
+   "windows": "36:216720-228720,1036:214271-226271",
+   "audioSha8": "ece6e0f3",
+   "model": "medium",
+   "computeType": "float32"
+  },
+  {
+   "idx": 54,
+   "rank": 7890,
+   "stratum": "R:salah_hashim_m",
+   "rec": "salah_hashim_m",
+   "key": "timings/hafs/salah_hashim_m.jz",
+   "s": 93,
+   "a": 6,
+   "clusterAyahs": [
+    6,
+    6
+   ],
+   "n": 1,
+   "kind": "end_other",
+   "cls": "isolated",
+   "posIndex": 29074,
+   "posMap": 27026,
+   "hitsIndexWindow": [
+    [
+     27534,
+     1.0
+    ]
+   ],
+   "hitsMapWindow": [
+    [
+     27546,
+     1.0
+    ]
+   ],
+   "verdict": "الفهرس مخطئ",
+   "verdictRefined": "الفهرس مخطئ",
+   "run": "42802864310",
+   "url": "https://server12.mp3quran.net/salah_hashim_m/093.mp3",
+   "windows": "6:20074-32074,1006:18026-30026",
+   "audioSha8": "b450ae6c",
+   "model": "medium",
+   "computeType": "float32"
+  },
+  {
+   "idx": 55,
+   "rank": 1704,
+   "stratum": "R:sneineh_qalun",
+   "rec": "sneineh_qalun",
+   "key": "timings/qalun/sneineh_qalun.jz",
+   "s": 70,
+   "a": 42,
+   "clusterAyahs": [
+    42,
+    43
+   ],
+   "n": 2,
+   "kind": "end_other",
+   "cls": "isolated",
+   "posIndex": 250430,
+   "posMap": 244797,
+   "hitsIndexWindow": [
+    [
+     244930,
+     1.0
+    ]
+   ],
+   "hitsMapWindow": [
+    [
+     244957,
+     1.0
+    ]
+   ],
+   "verdict": "الفهرس مخطئ",
+   "verdictRefined": "الفهرس مخطئ",
+   "run": "42802863891",
+   "url": "https://server16.mp3quran.net/sneineh/Rewayat-Qalon-A-n-Nafi/070.mp3",
+   "windows": "42:241430-253430,1042:235797-247797",
+   "audioSha8": "e2cb4de1",
+   "model": "medium",
+   "computeType": "float32"
+  },
+  {
+   "idx": 56,
+   "rank": 12891,
+   "stratum": "R:tareq_qalun",
+   "rec": "tareq_qalun",
+   "key": "timings/qalun/tareq_qalun.jz",
+   "s": 79,
+   "a": 23,
+   "clusterAyahs": [
+    23,
+    23
+   ],
+   "n": 1,
+   "kind": "start",
+   "cls": "isolated",
+   "posIndex": 113840,
+   "posMap": 111101,
+   "hitsIndexWindow": [
+    [
+     113260,
+     0.9
+    ]
+   ],
+   "hitsMapWindow": [
+    [
+     110301,
+     0.9
+    ]
+   ],
+   "verdict": "كلاهما",
+   "verdictRefined": "كلاهما",
+   "run": "42803417228",
+   "url": "https://server10.mp3quran.net/tareq/079.mp3",
+   "windows": "23:110840-122840,1023:108101-120101",
+   "audioSha8": "92aca970",
+   "model": "medium",
+   "computeType": "float32"
+  },
+  {
+   "idx": 57,
+   "rank": 4185,
+   "stratum": "R:trablsi",
+   "rec": "trablsi",
+   "key": "timings/qalun/trablsi.jz",
+   "s": 68,
+   "a": 4,
+   "clusterAyahs": [
+    3,
+    5
+   ],
+   "n": 3,
+   "kind": "start",
+   "cls": "isolated",
+   "posIndex": 30673,
+   "posMap": 28678,
+   "hitsIndexWindow": [
+    [
+     29093,
+     1.0
+    ]
+   ],
+   "hitsMapWindow": [
+    [
+     29118,
+     1.0
+    ]
+   ],
+   "verdict": "الفهرس مخطئ",
+   "verdictRefined": "الفهرس مخطئ",
+   "run": "42803417101",
+   "url": "https://server10.mp3quran.net/trablsi/068.mp3",
+   "windows": "4:27673-39673,1004:25678-37678",
+   "audioSha8": "52e2eba9",
+   "model": "medium",
+   "computeType": "float32"
+  },
+  {
+   "idx": 58,
+   "rank": 8803,
+   "stratum": "R:yousef",
+   "rec": "yousef",
+   "key": "timings/hafs/yousef.jz",
+   "s": 29,
+   "a": 52,
+   "clusterAyahs": [
+    52,
+    52
+   ],
+   "n": 1,
+   "kind": "end_other",
+   "cls": "isolated",
+   "posIndex": 968460,
+   "posMap": 966592,
+   "hitsIndexWindow": [
+    [
+     966460,
+     0.97
+    ]
+   ],
+   "hitsMapWindow": [
+    [
+     967192,
+     0.97
+    ]
+   ],
+   "verdict": "الفهرس مخطئ",
+   "verdictRefined": "الفهرس مخطئ",
+   "run": "42803416914",
+   "url": "https://server9.mp3quran.net/yousef/029.mp3",
+   "windows": "52:959460-971460,1052:957592-969592",
+   "audioSha8": "1dff82aa",
+   "model": "medium",
+   "computeType": "float32"
+  },
+  {
+   "idx": 59,
+   "rank": 4198,
+   "stratum": "R:zahrani",
+   "rec": "zahrani",
+   "key": "timings/hafs/zahrani.jz",
+   "s": 38,
+   "a": 34,
+   "clusterAyahs": [
+    34,
+    39
+   ],
+   "n": 6,
+   "kind": "start",
+   "cls": "isolated",
+   "posIndex": 481494,
+   "posMap": 483461,
+   "hitsIndexWindow": [
+    [
+     483454,
+     0.97
+    ]
+   ],
+   "hitsMapWindow": [
+    [
+     483421,
+     0.97
+    ]
+   ],
+   "verdict": "الفهرس مخطئ",
+   "verdictRefined": "الفهرس مخطئ",
+   "run": "42803416772",
+   "url": "https://server9.mp3quran.net/zahrani/038.mp3",
+   "windows": "34:478494-490494,1034:480461-492461",
+   "audioSha8": "df776996",
+   "model": "medium",
+   "computeType": "float32"
+  },
+  {
+   "idx": 60,
+   "rank": 2190,
+   "stratum": "R:zaki",
+   "rec": "zaki",
+   "key": "timings/hafs/zaki.jz",
+   "s": 88,
+   "a": 24,
+   "clusterAyahs": [
+    22,
+    24
+   ],
+   "n": 2,
+   "kind": "start",
+   "cls": "isolated",
+   "posIndex": 129720,
+   "posMap": 134416,
+   "hitsIndexWindow": [
+    [
+     134839,
+     1.0
+    ]
+   ],
+   "hitsMapWindow": [
+    [
+     134856,
+     1.0
+    ]
+   ],
+   "verdict": "الفهرس مخطئ",
+   "verdictRefined": "الفهرس مخطئ",
+   "run": "42803715819",
+   "url": "https://server9.mp3quran.net/zaki/088.mp3",
+   "windows": "24:126720-138720,1024:131416-143416",
+   "audioSha8": "51e432c0",
+   "model": "medium",
+   "computeType": "float32"
+  },
+  {
+   "idx": 61,
+   "rank": 1280,
+   "stratum": "R:zaki",
+   "rec": "zaki",
+   "key": "timings/hafs/zaki.jz",
+   "s": 9,
+   "a": 1,
+   "clusterAyahs": [
+    1,
+    7
+   ],
+   "n": 4,
+   "kind": "start",
+   "cls": "isolated",
+   "posIndex": 10040,
+   "posMap": 3302,
+   "hitsIndexWindow": [
+    [
+     12159,
+     1.0
+    ]
+   ],
+   "hitsMapWindow": [],
+   "verdict": "غير محسوم",
+   "verdictRefined": "غير محسوم",
+   "run": "42803715927",
+   "url": "https://server9.mp3quran.net/zaki/009.mp3",
+   "windows": "1:7040-19040,1001:302-12302",
+   "audioSha8": "12e92138",
+   "model": "medium",
+   "computeType": "float32"
+  },
+  {
+   "idx": 62,
+   "rank": 3506,
+   "stratum": "R:zaki",
+   "rec": "zaki",
+   "key": "timings/hafs/zaki.jz",
+   "s": 55,
+   "a": 63,
+   "clusterAyahs": [
+    63,
+    67
+   ],
+   "n": 4,
+   "kind": "end_other",
+   "cls": "isolated",
+   "posIndex": 544514,
+   "posMap": 541066,
+   "hitsIndexWindow": [
+    [
+     541254,
+     0.94
+    ]
+   ],
+   "hitsMapWindow": [
+    [
+     541266,
+     1.0
+    ]
+   ],
+   "verdict": "الفهرس مخطئ",
+   "verdictRefined": "الفهرس مخطئ",
+   "run": "42803715939",
+   "url": "https://server9.mp3quran.net/zaki/055.mp3",
+   "windows": "63:535514-547514,1063:532066-544066",
+   "audioSha8": "e63454bd",
+   "model": "medium",
+   "computeType": "float32"
+  },
+  {
+   "idx": 63,
+   "rank": 566,
+   "stratum": "R:zaml",
+   "rec": "zaml",
+   "key": "timings/hafs/zaml.jz",
+   "s": 53,
+   "a": 57,
+   "clusterAyahs": [
+    52,
+    62
+   ],
+   "n": 10,
+   "kind": "start",
+   "cls": "isolated",
+   "posIndex": 413600,
+   "posMap": 407839,
+   "hitsIndexWindow": [
+    [
+     412940,
+     0.91
+    ],
+    [
+     415420,
+     0.91
+    ],
+    [
+     418220,
+     0.91
+    ]
+   ],
+   "hitsMapWindow": [],
+   "verdict": "الخريطة مخطئة",
+   "verdictRefined": "الخريطة مخطئة",
+   "run": "42803715797",
+   "url": "https://server9.mp3quran.net/zaml/053.mp3",
+   "windows": "57:410600-422600,1057:404839-416839",
+   "audioSha8": "abfaa33a",
+   "model": "medium",
+   "computeType": "float32"
+  },
+  {
+   "idx": 64,
+   "rank": 12662,
+   "stratum": "TAIL",
+   "rec": "bukheet",
+   "key": "timings/hafs/bukheet.jz",
+   "s": 15,
+   "a": 44,
+   "clusterAyahs": [
+    44,
+    44
+   ],
+   "n": 1,
+   "kind": "end_short",
+   "cls": "isolated",
+   "posIndex": 507520,
+   "posMap": 510420,
+   "hitsIndexWindow": [
+    [
+     507340,
+     1.0
+    ]
+   ],
+   "hitsMapWindow": [
+    [
+     507460,
+     1.0
+    ]
+   ],
+   "verdict": "الخريطة مخطئة",
+   "verdictRefined": "الخريطة مخطئة",
+   "run": "42804056207",
+   "url": "https://server14.mp3quran.net/bukheet/015.mp3",
+   "windows": "44:498520-510520,1044:501420-513420",
+   "audioSha8": "af781f48",
+   "model": "medium",
+   "computeType": "float32"
+  },
+  {
+   "idx": 65,
+   "rank": 6858,
+   "stratum": "TAIL",
+   "rec": "laghdaf_shinqiti",
+   "key": "timings/warsh/laghdaf_shinqiti.jz",
+   "s": 5,
+   "a": 96,
+   "clusterAyahs": [
+    95,
+    96
+   ],
+   "n": 2,
+   "kind": "start",
+   "cls": "surah",
+   "posIndex": 3062690,
+   "posMap": 3064248,
+   "hitsIndexWindow": [
+    [
+     3063450,
+     0.91
+    ]
+   ],
+   "hitsMapWindow": [
+    [
+     3063628,
+     0.91
+    ]
+   ],
+   "verdict": "كلاهما",
+   "verdictRefined": "كلاهما",
+   "run": "42804055817",
+   "url": "https://pub-2c2e1dcd92e84a2898820dd38d3e09e6.r2.dev/audio/warsh/laghdaf_shinqiti/005.mp3",
+   "windows": "96:3059690-3071690,1096:3061248-3073248",
+   "audioSha8": "949e0d73",
+   "model": "medium",
+   "computeType": "float32"
+  },
+  {
+   "idx": 66,
+   "rank": 12852,
+   "stratum": "TAIL",
+   "rec": "mustafa",
+   "key": "timings/hafs/mustafa.jz",
+   "s": 26,
+   "a": 29,
+   "clusterAyahs": [
+    29,
+    29
+   ],
+   "n": 1,
+   "kind": "end_short",
+   "cls": "isolated",
+   "posIndex": 277800,
+   "posMap": 280568,
+   "hitsIndexWindow": [
+    [
+     279440,
+     1.0
+    ]
+   ],
+   "hitsMapWindow": [
+    [
+     279568,
+     1.0
+    ]
+   ],
+   "verdict": "الفهرس مخطئ",
+   "verdictRefined": "الفهرس مخطئ",
+   "run": "42804055733",
+   "url": "https://server8.mp3quran.net/mustafa/026.mp3",
+   "windows": "29:268800-280800,1029:271568-283568",
+   "audioSha8": "e8e83c91",
+   "model": "medium",
+   "computeType": "float32"
+  },
+  {
+   "idx": 67,
+   "rank": 397,
+   "stratum": "TAIL",
+   "rec": "a_ahmed",
+   "key": "timings/hafs/a_ahmed.jz",
+   "s": 59,
+   "a": 21,
+   "clusterAyahs": [
+    20,
+    21
+   ],
+   "n": 2,
+   "kind": "start",
+   "cls": "isolated",
+   "posIndex": 450240,
+   "posMap": 463928,
+   "hitsIndexWindow": [],
+   "hitsMapWindow": [
+    [
+     463168,
+     1.0
+    ]
+   ],
+   "verdict": "الفهرس مخطئ",
+   "verdictRefined": "الفهرس مخطئ",
+   "run": "42804055947",
+   "url": "https://server11.mp3quran.net/a_ahmed/059.mp3",
+   "windows": "21:447240-459240,1021:460928-472928",
+   "audioSha8": "7b6ec8cf",
+   "model": "medium",
+   "computeType": "float32"
+  },
+  {
+   "idx": 68,
+   "rank": 13375,
+   "stratum": "TAIL",
+   "rec": "sultani_douri",
+   "key": "timings/douri/sultani_douri.jz",
+   "s": 4,
+   "a": 176,
+   "clusterAyahs": [
+    176,
+    176
+   ],
+   "n": 1,
+   "kind": "end_short",
+   "cls": "isolated",
+   "posIndex": 4384359,
+   "posMap": 4386671,
+   "hitsIndexWindow": [
+    [
+     4387019,
+     1.0
+    ]
+   ],
+   "hitsMapWindow": [
+    [
+     4387131,
+     1.0
+    ]
+   ],
+   "verdict": "الفهرس مخطئ",
+   "verdictRefined": "الفهرس مخطئ",
+   "run": "42804426730",
+   "url": "https://server14.mp3quran.net/muftah_sultany/Rewayat-Aldori-A-n-Abi-Amr/004.mp3",
+   "windows": "176:4375359-4387359,1176:4377671-4389671",
+   "audioSha8": "643cbd5f",
+   "model": "medium",
+   "computeType": "float32"
+  },
+  {
+   "idx": 69,
+   "rank": 7544,
+   "stratum": "TAIL",
+   "rec": "koshi_warsh",
+   "key": "timings/warsh/koshi_warsh.jz",
+   "s": 20,
+   "a": 134,
+   "clusterAyahs": [
+    133,
+    134
+   ],
+   "n": 2,
+   "kind": "start",
+   "cls": "isolated",
+   "posIndex": 1597764,
+   "posMap": 1595639,
+   "hitsIndexWindow": [],
+   "hitsMapWindow": [],
+   "verdict": "غير محسوم",
+   "verdictRefined": "غير محسوم",
+   "run": "42804426940",
+   "url": "https://server11.mp3quran.net/koshi/020.mp3",
+   "windows": "134:1594764-1606764,1134:1592639-1604639",
+   "audioSha8": "4858e49d",
+   "model": "medium",
+   "computeType": "float32"
+  },
+  {
+   "idx": 70,
+   "rank": 519,
+   "stratum": "TAIL",
+   "rec": "peshawa",
+   "key": "timings/hafs/peshawa.jz",
+   "s": 12,
+   "a": 85,
+   "clusterAyahs": [
+    85,
+    90
+   ],
+   "n": 4,
+   "kind": "end_other",
+   "cls": "isolated",
+   "posIndex": 1641980,
+   "posMap": 1630425,
+   "hitsIndexWindow": [
+    [
+     1641920,
+     0.9
+    ]
+   ],
+   "hitsMapWindow": [
+    [
+     1631745,
+     0.9
+    ]
+   ],
+   "verdict": "كلاهما",
+   "verdictRefined": "كلاهما",
+   "run": "42804426673",
+   "url": "https://server16.mp3quran.net/peshawa/Rewayat-Hafs-A-n-Assem/012.mp3",
+   "windows": "85:1632980-1644980,1085:1621425-1633425",
+   "audioSha8": "49c72d8b",
+   "model": "medium",
+   "computeType": "float32"
+  },
+  {
+   "idx": 71,
+   "rank": 10557,
+   "stratum": "TAIL",
+   "rec": "noah_warsh",
+   "key": "timings/warsh/noah_warsh.jz",
+   "s": 58,
+   "a": 22,
+   "clusterAyahs": [
+    22,
+    22
+   ],
+   "n": 1,
+   "kind": "end_short",
+   "cls": "isolated",
+   "posIndex": 451480,
+   "posMap": 481031,
+   "hitsIndexWindow": [],
+   "hitsMapWindow": [
+    [
+     480391,
+     1.0
+    ]
+   ],
+   "verdict": "الفهرس مخطئ",
+   "verdictRefined": "الفهرس مخطئ",
+   "run": "42804426962",
+   "url": "https://archive.org/download/Al-Quran_Warsh_tilawat_Youssef_Noah/058.mp3",
+   "windows": "22:442480-454480,1022:472031-484031",
+   "audioSha8": "0cc313b7",
+   "model": "medium",
+   "computeType": "float32"
+  },
+  {
+   "idx": 72,
+   "rank": 4566,
+   "stratum": "TAIL",
+   "rec": "jaleel",
+   "key": "timings/hafs/jaleel.jz",
+   "s": 11,
+   "a": 25,
+   "clusterAyahs": [
+    24,
+    25
+   ],
+   "n": 2,
+   "kind": "start",
+   "cls": "isolated",
+   "posIndex": 412440,
+   "posMap": 409493,
+   "hitsIndexWindow": [
+    [
+     412440,
+     1.0
+    ]
+   ],
+   "hitsMapWindow": [],
+   "verdict": "الخريطة مخطئة",
+   "verdictRefined": "الخريطة مخطئة",
+   "run": "42804762018",
+   "url": "https://server10.mp3quran.net/jleel/011.mp3",
+   "windows": "25:409440-421440,1025:406493-418493",
+   "audioSha8": "c30ee61a",
+   "model": "medium",
+   "computeType": "float32"
+  },
+  {
+   "idx": 73,
+   "rank": 15437,
+   "stratum": "TAIL",
+   "rec": "m_harfoush",
+   "key": "timings/hafs/m_harfoush.jz",
+   "s": 23,
+   "a": 16,
+   "clusterAyahs": [
+    16,
+    16
+   ],
+   "n": 1,
+   "kind": "start",
+   "cls": "isolated",
+   "posIndex": 139788,
+   "posMap": 141294,
+   "hitsIndexWindow": [
+    [
+     140188,
+     1.0
+    ]
+   ],
+   "hitsMapWindow": [
+    [
+     140134,
+     1.0
+    ]
+   ],
+   "verdict": "كلاهما",
+   "verdictRefined": "الخريطة مخطئة",
+   "run": "42804762622",
+   "url": "https://server16.mp3quran.net/M-Harfoush/Rewayat-Hafs-A-n-Assem/023.mp3",
+   "windows": "16:136788-148788,1016:138294-150294",
+   "audioSha8": "963a3c6c",
+   "model": "medium",
+   "computeType": "float32"
+  },
+  {
+   "idx": 74,
+   "rank": 5934,
+   "stratum": "TAIL",
+   "rec": "rami",
+   "key": "timings/hafs/rami.jz",
+   "s": 19,
+   "a": 34,
+   "clusterAyahs": [
+    33,
+    34
+   ],
+   "n": 2,
+   "kind": "start",
+   "cls": "isolated",
+   "posIndex": 375775,
+   "posMap": 378292,
+   "hitsIndexWindow": [
+    [
+     377655,
+     0.91
+    ]
+   ],
+   "hitsMapWindow": [
+    [
+     377752,
+     0.91
+    ]
+   ],
+   "verdict": "الفهرس مخطئ",
+   "verdictRefined": "الفهرس مخطئ",
+   "run": "42804762513",
+   "url": "https://server6.mp3quran.net/rami/019.mp3",
+   "windows": "34:372775-384775,1034:375292-387292",
+   "audioSha8": "4c8777d2",
+   "model": "medium",
+   "computeType": "float32"
+  },
+  {
+   "idx": 75,
+   "rank": 13576,
+   "stratum": "TAIL",
+   "rec": "tblawi",
+   "key": "timings/hafs/tblawi.jz",
+   "s": 8,
+   "a": 11,
+   "clusterAyahs": [
+    11,
+    11
+   ],
+   "n": 1,
+   "kind": "end_short",
+   "cls": "isolated",
+   "posIndex": 214020,
+   "posMap": 216182,
+   "hitsIndexWindow": [
+    [
+     216240,
+     1.0
+    ]
+   ],
+   "hitsMapWindow": [
+    [
+     216502,
+     1.0
+    ]
+   ],
+   "verdict": "الفهرس مخطئ",
+   "verdictRefined": "الفهرس مخطئ",
+   "run": "42804762208",
+   "url": "https://server12.mp3quran.net/tblawi/008.mp3",
+   "windows": "11:205020-217020,1011:207182-219182",
+   "audioSha8": "787cb64b",
+   "model": "medium",
+   "computeType": "float32"
+  },
+  {
+   "idx": 76,
+   "rank": 10664,
+   "stratum": "TAIL",
+   "rec": "benkirane_warsh",
+   "key": "timings/warsh/benkirane_warsh.jz",
+   "s": 62,
+   "a": 11,
+   "clusterAyahs": [
+    11,
+    11
+   ],
+   "n": 1,
+   "kind": "end_short",
+   "cls": "isolated",
+   "posIndex": 207105,
+   "posMap": 222505,
+   "hitsIndexWindow": [],
+   "hitsMapWindow": [
+    [
+     222585,
+     0.97
+    ]
+   ],
+   "verdict": "الفهرس مخطئ",
+   "verdictRefined": "الفهرس مخطئ",
+   "run": "42805091951",
+   "url": "https://server16.mp3quran.net/A-Benkirane/Rewayat-Warsh-A-n-Nafi/062.mp3",
+   "windows": "11:198105-210105,1011:213505-225505",
+   "audioSha8": "54089768",
+   "model": "medium",
+   "computeType": "float32"
+  },
+  {
+   "idx": 77,
+   "rank": 9199,
+   "stratum": "TAIL",
+   "rec": "aloosi",
+   "key": "timings/hafs/aloosi.jz",
+   "s": 32,
+   "a": 18,
+   "clusterAyahs": [
+    18,
+    19
+   ],
+   "n": 2,
+   "kind": "end_other",
+   "cls": "isolated",
+   "posIndex": 307800,
+   "posMap": 306015,
+   "hitsIndexWindow": [
+    [
+     307860,
+     0.97
+    ]
+   ],
+   "hitsMapWindow": [
+    [
+     308055,
+     0.97
+    ]
+   ],
+   "verdict": "الخريطة مخطئة",
+   "verdictRefined": "الخريطة مخطئة",
+   "run": "42805092002",
+   "url": "https://server6.mp3quran.net/aloosi/032.mp3",
+   "windows": "18:298800-310800,1018:297015-309015",
+   "audioSha8": "5caff2ec",
+   "model": "medium",
+   "computeType": "float32"
+  },
+  {
+   "idx": 78,
+   "rank": 3922,
+   "stratum": "TAIL",
+   "rec": "ibrahim_dosri",
+   "key": "timings/hafs/ibrahim_dosri.jz",
+   "s": 56,
+   "a": 37,
+   "clusterAyahs": [
+    32,
+    37
+   ],
+   "n": 4,
+   "kind": "start",
+   "cls": "isolated",
+   "posIndex": 231095,
+   "posMap": 234315,
+   "hitsIndexWindow": [
+    [
+     234475,
+     1.0
+    ]
+   ],
+   "hitsMapWindow": [
+    [
+     234235,
+     1.0
+    ]
+   ],
+   "verdict": "الفهرس مخطئ",
+   "verdictRefined": "الفهرس مخطئ",
+   "run": "42805091799",
+   "url": "https://server10.mp3quran.net/ibrahim_dosri/Rewayat-Hafs-A-n-Assem/056.mp3",
+   "windows": "37:228095-240095,1037:231315-243315",
+   "audioSha8": "bd683814",
+   "model": "medium",
+   "computeType": "float32"
+  },
+  {
+   "idx": 79,
+   "rank": 14503,
+   "stratum": "TAIL",
+   "rec": "alijon",
+   "key": "timings/hafs/alijon.jz",
+   "s": 4,
+   "a": 121,
+   "clusterAyahs": [
+    121,
+    121
+   ],
+   "n": 1,
+   "kind": "start",
+   "cls": "surah",
+   "posIndex": 3788299,
+   "posMap": 3790010,
+   "hitsIndexWindow": [
+    [
+     3789799,
+     0.94
+    ]
+   ],
+   "hitsMapWindow": [
+    [
+     3790209,
+     0.94
+    ]
+   ],
+   "verdict": "كلاهما",
+   "verdictRefined": "الفهرس مخطئ",
+   "run": "42805091932",
+   "url": "https://server16.mp3quran.net/Alijon/Rewayat-Hafs-A-n-Assem/004.mp3",
+   "windows": "121:3785299-3797299,1121:3787010-3799010",
+   "audioSha8": "17bddde9",
+   "model": "medium",
+   "computeType": "float32"
+  },
+  {
+   "idx": 80,
+   "rank": 10714,
+   "stratum": "TAIL",
+   "rec": "nourin_douri",
+   "key": "timings/douri/nourin_douri.jz",
+   "s": 14,
+   "a": 1,
+   "clusterAyahs": [
+    1,
+    1
+   ],
+   "n": 1,
+   "kind": "start",
+   "cls": "isolated",
+   "posIndex": 19002,
+   "posMap": 6104,
+   "hitsIndexWindow": [],
+   "hitsMapWindow": [],
+   "verdict": "غير محسوم",
+   "verdictRefined": "غير محسوم",
+   "run": "42805454726",
+   "url": "https://server16.mp3quran.net/nourin_siddig/Rewayat-Aldori-A-n-Abi-Amr/014.mp3",
+   "windows": "1:16002-28002,1001:3104-15104",
+   "audioSha8": "5c4b9ce8",
+   "model": "medium",
+   "computeType": "float32"
+  },
+  {
+   "idx": 81,
+   "rank": 4451,
+   "stratum": "TAIL",
+   "rec": "bader",
+   "key": "timings/hafs/bader.jz",
+   "s": 37,
+   "a": 22,
+   "clusterAyahs": [
+    22,
+    23
+   ],
+   "n": 2,
+   "kind": "end_other",
+   "cls": "isolated",
+   "posIndex": 136539,
+   "posMap": 133547,
+   "hitsIndexWindow": [
+    [
+     136699,
+     1.0
+    ],
+    [
+     137159,
+     0.77
+    ]
+   ],
+   "hitsMapWindow": [
+    [
+     132547,
+     1.0
+    ]
+   ],
+   "verdict": "كلاهما",
+   "verdictRefined": "كلاهما",
+   "run": "42805454752",
+   "url": "https://server10.mp3quran.net/bader/Rewayat-Hafs-A-n-Assem/037.mp3",
+   "windows": "22:127539-139539,1022:124547-136547",
+   "audioSha8": "8bf1c81b",
+   "model": "medium",
+   "computeType": "float32"
+  },
+  {
+   "idx": 82,
+   "rank": 10429,
+   "stratum": "TAIL",
+   "rec": "tblawi",
+   "key": "timings/hafs/tblawi.jz",
+   "s": 28,
+   "a": 72,
+   "clusterAyahs": [
+    72,
+    73
+   ],
+   "n": 2,
+   "kind": "end_short",
+   "cls": "isolated",
+   "posIndex": 1339504,
+   "posMap": 1341032,
+   "hitsIndexWindow": [
+    [
+     1340564,
+     1.0
+    ]
+   ],
+   "hitsMapWindow": [
+    [
+     1340612,
+     1.0
+    ]
+   ],
+   "verdict": "كلاهما",
+   "verdictRefined": "الفهرس مخطئ",
+   "run": "42805454629",
+   "url": "https://server12.mp3quran.net/tblawi/028.mp3",
+   "windows": "72:1330504-1342504,1072:1332032-1344032",
+   "audioSha8": "d019530d",
+   "model": "medium",
+   "computeType": "float32"
+  },
+  {
+   "idx": 83,
+   "rank": 317,
+   "stratum": "TAIL",
+   "rec": "kurdi",
+   "key": "timings/hafs/kurdi.jz",
+   "s": 37,
+   "a": 91,
+   "clusterAyahs": [
+    90,
+    93
+   ],
+   "n": 4,
+   "kind": "end_short",
+   "cls": "isolated",
+   "posIndex": 733560,
+   "posMap": 748210,
+   "hitsIndexWindow": [
+    [
+     733600,
+     1.0
+    ]
+   ],
+   "hitsMapWindow": [
+    [
+     748390,
+     1.0
+    ]
+   ],
+   "verdict": "كلاهما",
+   "verdictRefined": "كلاهما",
+   "run": "42805454659",
+   "url": "https://server6.mp3quran.net/kurdi/037.mp3",
+   "windows": "91:724560-736560,1091:739210-751210",
+   "audioSha8": "7cbf6204",
+   "model": "medium",
+   "computeType": "float32"
+  },
+  {
+   "idx": 84,
+   "rank": 14447,
+   "stratum": "TAIL",
+   "rec": "a_turki",
+   "key": "timings/hafs/a_turki.jz",
+   "s": 72,
+   "a": 18,
+   "clusterAyahs": [
+    18,
+    18
+   ],
+   "n": 1,
+   "kind": "start",
+   "cls": "isolated",
+   "posIndex": 199540,
+   "posMap": 201266,
+   "hitsIndexWindow": [
+    [
+     200979,
+     0.97
+    ]
+   ],
+   "hitsMapWindow": [
+    [
+     200986,
+     0.97
+    ]
+   ],
+   "verdict": "كلاهما",
+   "verdictRefined": "الفهرس مخطئ",
+   "run": "42805789435",
+   "url": "https://server16.mp3quran.net/a_turki/Rewayat-Hafs-A-n-Assem/072.mp3",
+   "windows": "18:196540-208540,1018:198266-210266",
+   "audioSha8": "9547a183",
+   "model": "medium",
+   "computeType": "float32"
+  },
+  {
+   "idx": 85,
+   "rank": 6645,
+   "stratum": "TAIL",
+   "rec": "sahood",
+   "key": "timings/hafs/sahood.jz",
+   "s": 83,
+   "a": 22,
+   "clusterAyahs": [
+    22,
+    23
+   ],
+   "n": 2,
+   "kind": "end_other",
+   "cls": "isolated",
+   "posIndex": 144974,
+   "posMap": 142644,
+   "hitsIndexWindow": [
+    [
+     143074,
+     1.0
+    ]
+   ],
+   "hitsMapWindow": [
+    [
+     142764,
+     1.0
+    ]
+   ],
+   "verdict": "الفهرس مخطئ",
+   "verdictRefined": "الفهرس مخطئ",
+   "run": "42805789043",
+   "url": "https://server8.mp3quran.net/sahood/083.mp3",
+   "windows": "22:135974-147974,1022:133644-145644",
+   "audioSha8": "e923c62f",
+   "model": "medium",
+   "computeType": "float32"
+  }
+ ]
+}
