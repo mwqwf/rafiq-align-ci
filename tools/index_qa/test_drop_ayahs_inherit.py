@@ -156,20 +156,17 @@ class InheritFromPublished(unittest.TestCase):
         self.assertEqual(out["transform"]["declarations"][str(DROP)], rec)
 
     def test_removing_published_entries_refused_early(self):
-        """⛔ التوريثُ لا يفتح بابَ حذفِ مداخلَ منشورةٍ تحت إعلانٍ موروث: حارسُ `inherited_drops` الذي لم يُمسّ
-        يردّه في الترقية («مع فقد مداخل منشورة»)، فيُردّ في الأداة قبل أن تُنفق عليه البوّابات."""
+        """⭐ (أمر القائد 2026-11-10 · يُعكس ردُّ #106) حجبُ مداخلَ منشورةٍ تحت إعلانٍ موروثٍ لم يعد يُردّ: يُورَّث الإعلانُ
+        حرفاً بدل الرفض (‏التفصيلُ في test_drop_ayahs_inherit_dropsurah.py)، وتقبل `inherited_drops` ما فقده المنشورُ
+        إن كان المحجوبَ المعلَنَ بدليله وحدَه — وبقي الردُّ لكلّ فقدٍ سواه (‏هنا: مدخلٌ آخر ضاع خارج الإعلان)."""
         p = published(code="SOURCE_TRUNCATED", drops=(DROP,))
-        with self.assertRaises(SystemExit) as cm:
-            run(p, LIVE, LIVE_SHA)
-        self.assertIn("--already-absent", str(cm.exception))
-        self.assertIn("pin_heard", str(cm.exception))
-        # والحارسُ في الترقية يردّه فعلاً لو بُني (‏يُبنى هنا يدويّاً بنقل الحقول الموروثة إلى مخرَجٍ بلا إعلان).
-        q = copy.deepcopy(p)
-        q["transform"] = {"op": "refine"}
-        o = run(q, LIVE, LIVE_SHA)
-        o["transform"].update(declarations.inherit_declaration(p, LIVE, LIVE_SHA))
-        self.assertEqual(promote.index_gate(o, parent=p, parent_sha=LIVE_SHA),
-                         "إعلان الغياب الموروث مع فقد مداخل منشورة")
+        out = run(p, LIVE, LIVE_SHA)
+        self.assertEqual(out["transform"]["dropSurah"], [DROP])
+        self.assertEqual(promote.inherited_drops(out, p, LIVE_SHA), ({str(DROP)}, None))
+        o = copy.deepcopy(out)
+        o["entries"] = [e for e in o["entries"] if e["ayahId"] != "2:5"]
+        self.assertEqual(promote.inherited_drops(o, p, LIVE_SHA),
+                         (set(), "إعلان الغياب الموروث مع فقد مداخل منشورة"))
 
 
 class Refusals(unittest.TestCase):

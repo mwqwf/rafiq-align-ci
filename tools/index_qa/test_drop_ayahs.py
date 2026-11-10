@@ -367,9 +367,10 @@ class TimingUnderRepair(unittest.TestCase):
 
 
 class DropParentRefused(unittest.TestCase):
-    """⛔ (‏2026-11-10 · 3siri bc63afc4) أصلٌ يعلن إسقاطَ سورةٍ كاملة يُردّ صراحةً — كان إعلانُه يُمحى بصمت.
-    وبعد طلب التوريث يبقى الحجبُ **بالحذف** فوقه مردوداً (‏يردّه `inherited_drops` في الترقية)؛ والتوريثُ مع
-    `--already-absent` وحده في `test_drop_ayahs_inherit.py`."""
+    """⛔ (‏2026-11-10 · 3siri bc63afc4) أصلٌ يعلن إسقاطَ سورةٍ كاملة لا يُمحى إعلانُه بصمت.
+    ⭐ (أمر القائد 2026-11-10 · توريث dropSurah) كان الحجبُ بالحذف فوقه مردوداً؛ والآن يُورَّث الإعلانُ حرفاً
+    (‏التفصيلُ والتحوّرُ في `test_drop_ayahs_inherit_dropsurah.py`) ويبقى مردوداً: الصيغةُ النصّيّةُ لـ`transform`،
+    والحجبُ على السورة المحجوبة نفسِها."""
 
     def _parent(self, tr):
         i = _idx()
@@ -381,22 +382,25 @@ class DropParentRefused(unittest.TestCase):
                                      reason_user="توقيتُ هذه الآيات قيد الإصلاح.", reason_code=code,
                                      from_sha="a" * 64, from_key="timings/hafs/x.jz")
 
-    def test_drop_surah_56_other_parent_refused(self):
-        """الحالةُ نفسُها: أصلٌ يحمل dropSurah=[56] بسبب OTHER، والحجبُ الجديد TIMING_UNDER_REPAIR."""
-        p = self._parent({"op": "drop_surah:56", "dropSurah": [56], "reasonCode": "OTHER",
-                          "reasonUser": "توقيتُ هذه السورة لهذا القارئ قيد الإصلاح، فحُجب مؤقّتاً."})
+    def test_drop_surah_56_other_parent_inherited(self):
+        """الحالةُ نفسُها: أصلٌ يحمل dropSurah=[56] بسبب OTHER، والحجبُ الجديد TIMING_UNDER_REPAIR أو SOURCE_TRUNCATED."""
+        user = "توقيتُ هذه السورة لهذا القارئ قيد الإصلاح، فحُجب مؤقّتاً."
+        p = self._parent({"op": "drop_surah:56", "dropSurah": [56], "reasonCode": "OTHER", "reasonUser": user})
         for code in (TUR, "SOURCE_TRUNCATED"):
-            with self.assertRaises(SystemExit) as cm:
-                self._drop(copy.deepcopy(p), code)
-            self.assertIn("[56]", str(cm.exception))
-            self.assertIn("pin_heard", str(cm.exception))
+            out = self._drop(copy.deepcopy(p), code)
+            tr = out["transform"]
+            self.assertEqual((tr["dropSurah"], tr["reasonCode"], tr["reasonUser"]), ([56], "OTHER", user))
+            self.assertEqual(tr["declarations"]["56"]["reasonCode"], "OTHER")
+            self.assertEqual(tr["declarations"][str(S)]["reasonCode"], code)
 
-    def test_op_only_and_field_only_and_text_form_refused(self):
+    def test_op_only_and_field_only_inherited_and_text_form_refused(self):
         for tr in ({"op": "drop_surah:48,56", "reasonCode": "OTHER", "reasonUser": "x"},
-                   {"op": "heard_pin:9", "dropSurah": [56], "reasonCode": "OTHER", "reasonUser": "x"},
-                   "drop_surah:56"):
-            with self.assertRaises(SystemExit):
-                self._drop(self._parent(tr), TUR)
+                   {"op": "heard_pin:9", "dropSurah": [56], "reasonCode": "OTHER", "reasonUser": "x"}):
+            out = self._drop(self._parent(tr), TUR)
+            self.assertTrue(out["transform"]["dropSurah"])
+            self.assertEqual(out["transform"]["reasonUser"], "x")
+        with self.assertRaises(SystemExit):
+            self._drop(self._parent("drop_surah:56"), TUR)
 
     def test_parent_without_drop_unchanged(self):
         out = self._drop(self._parent({"op": "heard_pin:9"}), TUR)
