@@ -105,7 +105,11 @@ class B99e3573(unittest.TestCase):
     def test_guards_accept_the_output(self):
         ok, why = promote.declared_truncated_tail(self.out, 24)
         self.assertTrue(ok, why)
-        self.assertIsNone(promote.index_gate(self.out))
+        # ⛔ (تشديد العدّاد 2026-11-10) س10 وس37 برمز OTHER لا يعفيهما العدّاد؛ يعفيهما صفُّ الموافقة وحدَه.
+        self.assertIn("غيابٌ غير معلَّل", promote.index_gate(self.out))
+        self.assertIsNone(promote.index_gate(self.out, coded_approved=frozenset({10, 37})))
+        self.assertEqual(self.out["missing"]["byReason"].get("other"), 109 + 182)
+        self.assertEqual(self.out["missing"]["byReason"].get("source_truncated"), 210)
         present = {e["ayahId"].split(":")[0] for e in self.out["entries"]}
         self.assertFalse({"4", "10", "37"} & present)
         self.assertEqual(len(self.out["entries"]) + self.out["missing"]["count"], 6236)

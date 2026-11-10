@@ -448,6 +448,61 @@ def surah_declaration(tr, surah):
     return (tr or {}).get("reasonCode"), (tr or {}).get("reasonUser")
 
 
+# ⭐ **عدّادُ الغياب برمزه** (‏أمر القائد 2026-11-10 · تشديد): رمزُ الإعلان ⇒ مفتاحُه في `missing.byReason`.
+#    و`source_truncated` لا يعدّ إلا ما رمزُه SOURCE_TRUNCATED، فهو وحدَه يُعفي من عتبة الغياب ومن MIN_COV.
+REASON_KEYS = {"SOURCE_TRUNCATED": "source_truncated", "OTHER": "other", "SOURCE_CORRUPT": "source_corrupt",
+               "NO_PUBLISHED_RECORDING": "no_published_recording", "TIMING_UNDER_REPAIR": "timing_under_repair"}
+
+
+def declared_surah_codes(tr):
+    """{س: رمز} لكلّ سورةٍ معلَنةٍ في الترويسة (‏`drop_surah:` · `declare_gap:` · `dropSurah`).
+
+    رمزُ السورة من سجلّها في `declarations` حين يوجد، وإلا فالرمزُ الأعلى (‏`None` بلا رمز)."""
+    if not isinstance(tr, dict):
+        return {}
+    top = tr.get("reasonCode")
+    decls = tr.get("declarations") if isinstance(tr.get("declarations"), dict) else {}
+    out = {}
+    for seg in str(tr.get("op") or "").split("|"):
+        name, _, nums = seg.strip().partition(":")
+        if name in ("drop_surah", "declare_gap"):
+            out.update({int(x): top for x in re.findall(r"\d+", nums)})
+    for x in tr.get("dropSurah") or []:
+        if type(x) is int:
+            out[x] = top
+    for k, d in decls.items():
+        if str(k).isdigit() and isinstance(d, dict):
+            out[int(k)] = d.get("reasonCode")
+    return out
+
+
+def truncation_excused(idx):
+    """عددُ الغياب المعفى من العتبة: `byReason.source_truncated` بعد طرح كلِّ غائبٍ من سورةٍ معلَنةٍ برمزٍ غيرِ
+    SOURCE_TRUNCATED — فعدّادٌ قديمٌ ضمّ رموزاً أخرى (‏كان `drop_surah` يعدّ كلَّ محذوفٍ فيه) لا يُعفي ما ليس بتراً."""
+    miss = idx.get("missing") if isinstance(idx.get("missing"), dict) else {}
+    count = int(miss.get("count") or 0)
+    st = int((miss.get("byReason") or {}).get("source_truncated", 0) or 0)
+    other = {s for s, c in declared_surah_codes(idx.get("transform")).items() if c != "SOURCE_TRUNCATED"}
+    not_trunc = sum(1 for i in (miss.get("ids") or []) if str(i).split(":", 1)[0].isdigit()
+                    and int(str(i).split(":", 1)[0]) in other)
+    return max(0, min(st, count - not_trunc))
+
+
+def coded_drop_gate(idx, live, approved):
+    """⛔ حجبٌ **جديدٌ** برمزٍ غيرِ SOURCE_TRUNCATED لا يمرّ إلا بباب الإسقاط المعلن: صفٌّ في
+    `OWNER_DROP_APPROVALS.json` لمفتاح المرشّح يسمّي سورَه (‏`approved`). والجديدُ ما لم يُعلنه المنشورُ
+    (‏`live`) بالرمز نفسِه — فالإعلانُ الموروثُ كما هو لا يُطلب له صفٌّ ثانٍ. يُرجع سببَ الردّ أو None."""
+    old = declared_surah_codes((live or {}).get("transform")) if isinstance(live, dict) else {}
+    new = sorted(s for s, c in declared_surah_codes(idx.get("transform")).items()
+                 if c != "SOURCE_TRUNCATED" and old.get(s, "∅") != c)
+    lacking = [s for s in new if s not in set(approved or ())]
+    if lacking:
+        codes = sorted({str(declared_surah_codes(idx.get("transform")).get(s)) for s in lacking})
+        return (f"حجبٌ برمز {'/'.join(codes)} للسور {lacking} بلا صفّ موافقةٍ في OWNER_DROP_APPROVALS "
+                f"لهذا المفتاح — الإعفاءُ والحجبُ بغير البتر بابُهما الصفّ")
+    return None
+
+
 # ⭐ قائمةُ أسباب الحجب الوسطيّ **مغلقةٌ على رمزين** (‏أمر القائد): الرمزُ ⇒ مفتاحُ `missing.byReason` ورمزُ `truncatedGaps[س].reason`.
 # والثاني «توقيتٌ قيد الإصلاح»: آياتٌ منشورةٌ يُسمع في مدخلها صوتُ آيةٍ أخرى فتُحجب مؤقّتاً إلى أن يُصلح توقيتُها —
 # السببُ فيه ليس بتراً في المصدر، ولذا لا يُسمّى بتراً ولا يُعدّ في `byReason.source_truncated` (‏فلا يدخل في إعفاء العتبة).
@@ -2135,7 +2190,7 @@ def inherited_drops(idx, parent, parent_sha, owner_approved=frozenset()):
     return claimed, None
 
 
-def index_gate(idx, *, parent=None, parent_sha=None, owner_approved=frozenset()):
+def index_gate(idx, *, parent=None, parent_sha=None, owner_approved=frozenset(), coded_approved=frozenset()):
     """سبب رفض الفهرس نفسه، أو None. **الغياب رفضٌ لا تساهل.**"""
     if not idx.get("refineVersion"):
         return "الفهرس بلا أثر صقلٍ في ترويسته — مجهول الجيل فلا يُرقّى"
@@ -2176,7 +2231,14 @@ def index_gate(idx, *, parent=None, parent_sha=None, owner_approved=frozenset())
     if gone:
         return ("سورٌ غائبةٌ كلّياً: " + "، ".join(gone[:5])
                 + (f" (و{len(gone) - 5} غيرها)" if len(gone) > 5 else ""))
-    excused = max(0, min(int((miss.get("byReason") or {}).get("source_truncated", 0)), count))
+    # ⭐ والحجبُ برمزٍ آخر لا يُعفيه العدّاد؛ يُعفيه **بابُ الصفّ** وحدَه: سورٌ يسمّيها صفُّ موافقة المالك لمفتاح
+    #    المرشّح (‏`coded_approved`، يمرّرها main من OWNER_DROP_APPROVALS). وبلا صفٍّ يُحسب غيابُها على العتبة.
+    _appr = {s for s, c in declared_surah_codes(idx.get("transform")).items()
+             if c != "SOURCE_TRUNCATED" and s in set(coded_approved or ())}
+    excused = truncation_excused(idx) + sum(
+        1 for i in (miss.get("ids") or []) if str(i).split(":", 1)[0].isdigit()
+        and int(str(i).split(":", 1)[0]) in _appr)
+    excused = min(excused, count)
     unexplained = count - excused
     if unexplained / total > MAX_MISSING_FRAC:
         return (f"غيابٌ غير معلَّل {unexplained}/{total} "
@@ -2881,8 +2943,18 @@ def main():
         # موافقةُ المالك على الحجب المؤقّت الموروث: صفُّه لمفتاح المرشّح ∩ ما يسمّيه --allow-truncated.
         _own = (frozenset(load_drop_approvals().get(src, frozenset()))
                 & frozenset(int(x) for x in re.findall(r"\d+", a.allow_truncated or "")))
-        bad = (index_gate(idx, parent=drop_parent, parent_sha=drop_parent_sha, owner_approved=_own)
+        bad = (index_gate(idx, parent=drop_parent, parent_sha=drop_parent_sha, owner_approved=_own,
+                          coded_approved=load_drop_approvals().get(src, frozenset()))
                or catalog_gate(idx, catalog(cl, bucket)))
+        if not bad:
+            try:
+                _live = json.loads(gzip.decompress(object_sha(cl, bucket, published)[2]))
+            except Exception as ex:                   # noqa: BLE001
+                if not _is_missing(ex):
+                    print(f"  ⛔ {src}: تعذّرت قراءة المنشور لفحص رموز الحجب: {ex}")
+                    continue
+                _live = None
+            bad = coded_drop_gate(idx, _live, load_drop_approvals().get(src, frozenset()))
         if bad:
             print(f"  ⛔ {src}: {bad}")
             continue

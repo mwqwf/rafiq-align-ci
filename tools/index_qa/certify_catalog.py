@@ -136,7 +136,10 @@ def declared_absent(d):
     n = by.get("source_truncated")
     if type(n) is not int or n <= 0:
         return 0
-    return min(n, int(miss.get("count") or 0))
+    # ⛔ (تشديد 2026-11-10) لا يُحسب إلا البترُ: يُطرح كلُّ غائبٍ من سورةٍ معلَنةٍ برمزٍ غيرِ SOURCE_TRUNCATED.
+    sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+    import promote                                                   # noqa: E402
+    return min(n, promote.truncation_excused(d))
 
 
 def certify(cat, served, verdict_shas, rejected_shas=frozenset(), declared=None):

@@ -279,7 +279,11 @@ def main():
                 "note": "الفهرس بُني قبل وسم الاكتمال، فسببُ غيابه غير مقيس"}
         assert len(present) + len(absent) == total
     reasons = dict(miss.get("byReason") or {})
-    reasons["source_truncated"] = reasons.get("source_truncated", 0) + len(dropped)
+    # ⛔ **العدّادُ برمزه** (‏تشديد 2026-11-10): كان كلُّ محذوفٍ يُعدّ في `source_truncated` أيّاً كان رمزُه، فيُعفى
+    #    حجبٌ مؤقّتٌ (‏OTHER) من عتبة الغياب ومن MIN_COV كأنّه بترُ مصدر. الآن لكلّ رمزٍ مفتاحُه، وبلا رمزٍ `unknown`.
+    _rkey = promote.REASON_KEYS.get(a.reason_code, "unknown")
+    if dropped:
+        reasons[_rkey] = reasons.get(_rkey, 0) + len(dropped)
     # ✅ **التصنيف**: الآياتُ الغائبةُ من هذه السور محسوبةٌ سلفاً في `ids` تحت
     #    `unknown` — فيُنقل عددُها إلى `source_truncated` **ولا يُضاف مدخلٌ ولا
     #    يُحذف**، فالعقدُ (‏حاضر + غائب = المجموع) لا يتغيّر بحرف.
@@ -298,7 +302,7 @@ def main():
         #    (‏كشفه أنّي قرأتُ `byReason` من الفهرس المنشور بعد الرفع.)
         # ⇒ تُستنزف الدلاءُ العامّةُ كلُّها بالترتيب، وما لم يُوجد له دلوٌ عامّ
         #    يبقى عددُه في `transform.gapAyahs` — وهو مصدرُ الحقيقة للتطبيق.
-        _need = len(gap_ids)
+        _need = len(gap_ids) if _rkey != "unknown" else 0
         for _generic in ("unknown", "no-align", "no_align", "unaligned"):
             if _need <= 0:
                 break
@@ -309,7 +313,7 @@ def main():
             reasons[_generic] = _have - _take
             if not reasons[_generic]:
                 reasons.pop(_generic)
-            reasons["source_truncated"] = reasons.get("source_truncated", 0) + _take
+            reasons[_rkey] = reasons.get(_rkey, 0) + _take
             _need -= _take
         if _need:
             print(f"⚠️ {_need} آيةً لم يُوجد لها دلوٌ عامٌّ في byReason — "
