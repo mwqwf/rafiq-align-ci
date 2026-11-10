@@ -332,25 +332,124 @@ def witness_windows(ends: dict, ayahs) -> str:
     return ",".join(parts)
 
 
+# ───────────── مقارِنُ الشاهد في بوّابة السماع: رسمٌ مسمّى + امتدادُ آخر كلمةٍ مقطوعة (‏قرار القائد 2026-11-10 · nasser 6:72/73) ─────────────
+# ⭐ حالةُ nasser_almajed.a70a43a0 س6: 6:72 «وأن أقيموا الصلاة» مسموعةٌ صحيحة، لكنّ المصحف «الصلوه» (‏بعد norm) وWhisper «الصلاه»
+#    فسقط التطابقُ الحرفيّ؛ و6:73 قصّت نافذةُ البوّابة آخرَ كلمةٍ فخرجت «الخبي» بينما نافذةٌ أطول أعطتها «الخبير» بثقة 0.99.
+# ⛔ قيودُ القائد (‏ملزمةٌ حرفاً): (أ) الرسمُ بقائمةٍ **مغلقةٍ مسمّاةٍ كلمةً كلمة** لا قاعدةٍ عامّة، وفي هذا المقارِن وحدِه
+#    (‏لا `common.norm` ولا `pin_heard._whisper_check` ولا مقارِنُ المتنازَع/المرساة)؛ (ب) لا تُمدّ آخرُ كلمةٍ إلا بشروطٍ مجتمعة
+#    (‏E1–E5 أدناه)؛ (ج) `fuzzy=False` ثابتٌ. ولا عتبةَ تنخفض ولا ثقةَ تُرخى.
+# ⭐ القائمةُ بعد `norm` (‏ة←ه): الكلمةُ الحديثة ⇒ كلمةُ المصحف. وهي كلماتٌ كاملةٌ بعينها (‏بسابقاتها المسمّاة) لا أنماط:
+RASM_FORMS = {
+    "الصلاه": "الصلوه", "والصلاه": "والصلوه", "بالصلاه": "بالصلوه",
+    "الزكاه": "الزكوه", "والزكاه": "والزكوه", "بالزكاه": "بالزكوه",
+    "الحياه": "الحيوه", "والحياه": "والحيوه", "بالحياه": "بالحيوه",
+    "مشكاه": "مشكوه",
+    "النجاه": "النجوه",
+    "الغداه": "الغدوه", "بالغداه": "بالغدوه",
+    "مناه": "منوه",
+    "الربا": "الربوا", "والربا": "والربوا",
+}
+EXT_EDGE_MS = 100         # E2: آخرُ كلمةٍ ملاصقةٌ لحدّ النافذة (‏نهايتُها ≥ حدّ النافذة − هذا)
+EXT_CAP_MS = 1000         # E3: سقفُ الامتداد وراء حدّ النافذة
+EXT_SAME_START_MS = 150   # الكلمةُ الممتدّةُ هي نفسُها المقطوعة: بدؤها قريبٌ من بدء المقطوعة
+
+
+def _ncommon(text: str) -> list[str]:
+    import pin_heard as PH  # noqa: PLC0415
+    sys.path.insert(0, str(PH._REPO_ROOT / "tools" / "alignment"))
+    from common import norm  # noqa: PLC0415
+    return norm(str(text)).split()
+
+
+def rasm_unify_ref(ref):
+    """كلماتُ المرجع (‏المطبَّعة) بعد توحيد الرسم المسمّى؛ كلمةٌ خارج القائمة تبقى حرفاً."""
+    return None if ref is None else [RASM_FORMS.get(w, w) for w in ref]
+
+
+def rasm_unify_wit(wit):
+    """نسخةٌ من الشاهد تُوحَّد فيها كلماتُ التفريغ المسمّاةُ بتمامها في `RASM_FORMS` (‏الكلمةُ الواحدةُ بعد norm فقط)."""
+    out = dict(wit)
+    out["ayahs"] = {}
+    for a, rec in ((wit or {}).get("ayahs") or {}).items():
+        r2 = dict(rec)
+        ws = []
+        for w in rec.get("words") or []:
+            toks = _ncommon(w.get("w", ""))
+            if len(toks) == 1 and toks[0] in RASM_FORMS:                                  # [شرط R1: الكلمةُ كلُّها في القائمة]
+                w = dict(w, w=RASM_FORMS[toks[0]])
+            ws.append(w)
+        r2["words"] = ws
+        out["ayahs"][a] = r2
+    return out
+
+
+def _wtok1(w):
+    t = _ncommon(w.get("w", ""))
+    return RASM_FORMS.get(t[0], t[0]) if len(t) == 1 else None
+
+
+def extend_cut_last_word(wit, ayah, ref):
+    """يُرجع كلماتِ نافذة الآية، وقد استُبدلت آخرُ كلمةٍ مقطوعةٌ بقراءتها التامّة من نافذةٍ أطول لآيةٍ أخرى في **الشاهد نفسِه**
+    (‏صلاحيتُه فُحصت: البصمةُ والملفُّ والنموذج) — بشروطٍ مجتمعة، وإلا تُرجَع الكلماتُ كما هي:
+      E1 آخرُ كلمةٍ مفرَّغةٍ بادئةٌ حرفيّةٌ **أقصرُ** من الكلمة المرجعيّة الأخيرة المنتظرة؛
+      E2 ملاصقةٌ لحدّ النافذة (‏نهايتُها ≥ الحدّ − EXT_EDGE_MS)؛
+      E3 والقراءةُ الأطولُ تنتهي في سقف الامتداد (‏≤ الحدّ + EXT_CAP_MS)، وبدؤها كبدء المقطوعة (‏EXT_SAME_START_MS)؛
+      E4 وتطابق الكلمةَ المرجعيّة **مطابقةً حرفيّةً كاملة** (‏لا تشابهَ ولا fuzzy)؛
+      E5 وثقتُها ≥ W_MIN_WORD_P (‏وما بعده من عتبة المتوسّط يفحصه `_whisper_check` على الطرف كما هو)."""
+    import pin_heard as PH  # noqa: PLC0415
+    rec = ((wit or {}).get("ayahs") or {}).get(str(ayah)) or {}
+    words = list(rec.get("words") or [])
+    win = rec.get("windowMs")
+    if not words or not ref or not win or len(win) < 2:
+        return words
+    last, want = words[-1], ref[-1]
+    t = _wtok1(last)
+    if not t or not want.startswith(t) or len(t) >= len(want):                               # [شرط E1: بادئةٌ حرفيّةٌ أقصر]
+        return words
+    if int(last["e"]) < int(win[1]) - EXT_EDGE_MS:                                            # [شرط E2: ملاصقةٌ للحدّ]
+        return words
+    for k, other in ((wit or {}).get("ayahs") or {}).items():
+        ow = other.get("windowMs") or []
+        if k == str(ayah) or len(ow) < 2 or int(ow[1]) <= int(win[1]):
+            continue
+        for cand in other.get("words") or []:
+            if abs(int(cand["s"]) - int(last["s"])) > EXT_SAME_START_MS:
+                continue
+            if int(cand.get("e", cand["s"])) > int(win[1]) + EXT_CAP_MS:                      # [شرط E3: سقفُ ثانية]
+                continue
+            if _wtok1(cand) != want:                                                           # [شرط E4: مطابقةٌ كاملة]
+                continue
+            if float(cand["p"]) < PH.W_MIN_WORD_P:                                             # [شرط E5: الثقةُ نفسُها]
+                continue
+            return words[:-1] + [dict(cand)]
+    return words
+
+
 def _witness_eval(wit, surah, g_map, want_sha, riwaya, starts, ayahs, ref_words=None):
-    """{آية: (حاسمٌ؟, تفصيل)} بشروط `pin_heard._whisper_check` نفسِها، والبدءُ المقابَل هو **البدءُ المنشور**. الشاهدُ غيرُ الصالح ⇒ لا شيء."""
+    """{آية: (حاسمٌ؟, تفصيل)} بشروط `pin_heard._whisper_check` نفسِها، والبدءُ المقابَل هو **البدءُ المنشور**. الشاهدُ غيرُ الصالح ⇒ لا شيء.
+    قبل المقابلة: توحيدُ الرسم المسمّى (‏`RASM_FORMS`) وامتدادُ آخرِ كلمةٍ مقطوعةٍ (‏`extend_cut_last_word`) — وfuzzy=False دائماً."""
     import pin_heard as PH  # noqa: PLC0415  (‏استيرادٌ كسول: pin_heard نفسُه يستورد هذا الملفّ)
     try:
         PH.check_witness(wit, surah, g_map, want_sha)
     except SystemExit as e:
         return {}, str(e)
     ref_words = ref_words or PH.ref_words_for
+    wit_u = rasm_unify_wit(wit)
     res = {}
     for a in ayahs:
         if str(a) not in ((wit or {}).get("ayahs") or {}):
             res[a] = (False, "لا تفريغَ لهذه الآية في الشاهد")
             continue
         try:
-            ref = ref_words(riwaya, surah, a)
+            ref = rasm_unify_ref(ref_words(riwaya, surah, a))
         except (SystemExit, Exception):                    # noqa: BLE001
             ref = None
+        w_a = wit_u
+        ext = extend_cut_last_word(wit_u, a, ref)
+        if ext != (wit_u["ayahs"][str(a)].get("words") or []):
+            w_a = dict(wit_u, ayahs=dict(wit_u["ayahs"], **{str(a): dict(wit_u["ayahs"][str(a)], words=ext)}))
         hm = {"heardMap": {str(a): {"anchorMs": [int(starts[a]), int(starts[a]) + 1]}}}
-        c, info = PH._whisper_check(wit, hm, surah, a, ref, fuzzy=False)
+        c, info = PH._whisper_check(w_a, hm, surah, a, ref, fuzzy=False)
         res[a] = (c is not None, info)
     return res, None
 
