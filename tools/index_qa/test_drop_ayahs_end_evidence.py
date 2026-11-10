@@ -279,7 +279,7 @@ class ExplicitKind(unittest.TestCase):
     def test_unknown_kind_rejected(self):
         ev = ev_all()
         ev[f"{S}:15"]["kind"] = "start"
-        with self.assertRaisesRegex(SystemExit, "kind|نوع"):
+        with self.assertRaisesRegex(SystemExit, "نوعُ الدليل 'start' غيرُ معروف"):
             make(evidence=ev)
 
     def test_kind_with_source_truncated_rejected(self):
