@@ -225,6 +225,62 @@ class Wiring(unittest.TestCase):
         self.assertIn("rapidfuzz", y)
 
 
+class StartMs(unittest.TestCase):
+    """`--start-ms` (‏2026-11-10): نافذةٌ جزئيّةٌ للسبر؛ 0 يُبقي المخرَجَ نفسَه حرفاً."""
+
+    def test_zero_is_identity(self):
+        chars = [("ا", 0), ("ل", 20), ("م", 40)]
+        self.assertIs(H.shift_chars(chars, 0), chars)
+        x = list(range(10))
+        self.assertIs(H.crop_samples(x, 0, 16000), x)
+
+    def test_times_become_absolute(self):
+        self.assertEqual(H.shift_chars([("ا", 0), ("ل", 20)], 5000), [("ا", 5000), ("ل", 5020)])
+        self.assertEqual(len(H.crop_samples(list(range(32000)), 1000, 16000)), 16000)
+        sk, ts = H.skeleton(H.shift_chars([("ذ", 0), ("ل", 20), ("ك", 40)], 4000))
+        self.assertEqual((sk, ts), ("ذلك", [4000, 4020, 4040]))
+
+    def _main(self, argv):
+        import json
+        import tempfile
+        d = tempfile.mkdtemp()
+        audio = os.path.join(d, "a.mp3")
+        with open(audio, "wb") as f:
+            f.write(b"x" * 20000)
+        res = {"surah": 1, "riwaya": "hafs", "engine": H.ENGINE, "totalMs": 1, "heardMap": {"1": {"anchorMs": [1, 2]}},
+               "entries": []}
+        with mock.patch.object(sys, "argv", ["ctc_heard_map.py", "--audio", audio, "--surah", "1", "--out-dir", d] + argv), \
+                mock.patch.object(H, "run", return_value=(dict(res), "rep")) as run:
+            rc = H.main()
+        return rc, json.load(open(os.path.join(d, "heard_s001.json"), encoding="utf-8")), run
+
+    def test_zero_gives_the_same_output_and_call(self):
+        rc0, out0, run0 = self._main(["--probe"])
+        rc1, out1, run1 = self._main(["--probe", "--start-ms", "0"])
+        self.assertEqual((rc0, rc1), (0, 0))
+        out0.pop("fileRef"), out1.pop("fileRef")              # مسارٌ مؤقّتٌ يختلف بين الاستدعاءين وحده
+        self.assertEqual(out0, out1)
+        self.assertNotIn("windowStartMs", out1)
+        self.assertEqual(run0.call_args.args[1:], run1.call_args.args[1:])
+        self.assertEqual(run0.call_args.kwargs, run1.call_args.kwargs)
+        self.assertNotIn("start_ms", run1.call_args.kwargs)
+
+    def test_start_is_written_and_passed(self):
+        rc, out, run = self._main(["--probe", "--start-ms", "4000"])
+        self.assertEqual(out["windowStartMs"], 4000)
+        self.assertEqual(run.call_args.kwargs["start_ms"], 4000)
+
+    def test_start_requires_probe_and_non_negative(self):
+        for argv in (["--start-ms", "4000"], ["--probe", "--start-ms", "-1"]):
+            with self.assertRaises(SystemExit) as cm:
+                self._main(argv)
+            self.assertEqual(cm.exception.code, 2)
+
+    def test_run_refuses_start_without_probe(self):
+        with self.assertRaises(ValueError):
+            H.run("a.mp3", 1, "hafs", probe=False, start_ms=4000)
+
+
 class QuranModelFlag(unittest.TestCase):
     """`--quran-model` (‏خريطةُ R في بوّابة السماع المزدوجة): تشخيصيٌّ بلا مداخل، ويكتب نسبَ النموذج في الخريطة."""
 
