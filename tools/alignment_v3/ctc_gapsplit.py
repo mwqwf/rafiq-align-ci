@@ -462,6 +462,10 @@ def main() -> int:
         if s not in _heard_cache:
             fp = os.path.join(a.heard_witness_dir, f"heard_s{s:03d}.json")
             _heard_cache[s] = json.load(open(fp, encoding="utf-8")) if os.path.exists(fp) else None
+            if _heard_cache[s] is not None and _heard_cache[s].get("windowStartMs"):
+                # ⛔ (‏#105) خريطةٌ جزئيّة: تُتجاهل بسببٍ مكتوب ولا يُقبل بها حدُّ المدّة
+                print(f"⚠️ س{s}: {fp} خريطةٌ جزئيّةٌ من {_heard_cache[s]['windowStartMs']}م.ث — تُتجاهل شاهداً")
+                _heard_cache[s] = None
         return _heard_cache[s]
     witness_log = {}
     for s in requested_surahs:

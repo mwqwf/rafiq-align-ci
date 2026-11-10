@@ -21,6 +21,7 @@ on:
         options: [artifacts, logs, build-logs]
         default: artifacts
       source_sha256: {description: "بصمة مصدر كاملة مقيسة؛ لازمة مع build-logs", default: ""}
+      start_ms: {description: "بدءُ النافذة بالم.ث (‏السبرُ وحده): يُفكّ من هنا إلى آخر الملفّ والأزمنةُ مطلقة ويُكتب windowStartMs؛ 0 = الملفُّ كلُّه كما كان", default: "0"}
       reason: {description: "سببُ الإطلاق", default: ""}
 
 permissions:
@@ -77,6 +78,7 @@ jobs:
           CTC_INT8: ${{ inputs.evidence == 'build-logs' && '0' || inputs.int8 }}
           EVIDENCE: ${{ inputs.evidence }}
           SOURCE_SHA256: ${{ inputs.source_sha256 }}
+          START_MS: ${{ inputs.start_ms }}
           HF_HUB_OFFLINE: ${{ inputs.evidence != 'artifacts' && '1' || '0' }}
           TRANSFORMERS_OFFLINE: ${{ inputs.evidence != 'artifacts' && '1' || '0' }}
         run: |
@@ -85,6 +87,11 @@ jobs:
           P="--probe"
           STRICT=()
           if [ "$EVIDENCE" = "artifacts" ] && [ "$BUILD" = "true" ]; then P=""; fi
+          [[ "${START_MS:-0}" =~ ^[0-9]+$ ]] || { echo "⛔ start_ms عددٌ غيرُ سالب"; exit 1; }
+          if [ "${START_MS:-0}" != "0" ]; then
+            [ "$P" = "--probe" ] && [ "$EVIDENCE" = "artifacts" ] || { echo "⛔ start_ms للسبر وحده بمخرَج artifacts (‏build=false)"; exit 1; }
+            STRICT+=(--start-ms "$START_MS")
+          fi
           if [ "$EVIDENCE" = "build-logs" ]; then
             [[ "$SOURCE_SHA256" =~ ^[0-9a-f]{64}$ ]] || { echo "بناء السجل يتطلب بصمة مصدر كاملة مقيسة"; exit 1; }
             export CTC_THREADS=2
