@@ -914,24 +914,31 @@ def witnessed_witness_check(wit, surah, ayah, claim, own, prev, nxt, meta, want_
     # ⛔ (‏مراجعةُ القائد #108) الملتقى يجب أن يقع **في الموضع المدّعى** لا في أيّ موضعٍ يكرّر فيه القارئُ اللفظَ أو يتشابه:
     #    (أ) مع claim: الفترةُ [نهايةُ السابقة، بدءُ اللاحقة] تتقاطع مع نافذة الخريطة المدّعاة؛
     #    (ب) مع bounds (‏البوّابة: نهايةُ مدخل a−1 وبدءُ مدخل a+1 في المرشّح نفسِه): طرفا الملتقى كلٌّ ضمن TOL_MS من طرفه.
-    def located(p_end_, n_start_, p_est_):
+    def located(p_end_, n_start_, tail_):
         if claim and not (p_end_ <= claim[1] and n_start_ >= claim[0]):
             return False
-        if bounds and not (abs(p_est_ - bounds[0]) <= TOL_MS and abs(n_start_ - bounds[1]) <= TOL_MS):
-            return False
+        if bounds:
+            # بدءُ اللاحقة ضمن TOL_MS من بدء مدخل a+1 كما كان.
+            if abs(n_start_ - bounds[1]) > TOL_MS:
+                return False
+            if not tail_:
+                # المقطعُ هو آخرُ W_K كلماتٍ بلا شيءٍ بعده ⇒ القيدُ القديمُ حرفاً (‏نهايته ضمن TOL_MS من نهاية مدخل a−1).
+                if abs(p_end_ - bounds[0]) > TOL_MS:
+                    return False
+            else:
+                # بقيت بعده كلماتٌ ⇒ نهايتُه المقيسةُ داخل مدخل a−1 نفسِه: بين بدئه ونهايته + TOL_MS (‏بلا تقديرٍ بوتيرة الأقران).
+                p_start_ = bounds[2] if len(bounds) > 2 else None
+                if p_start_ is None or not (p_start_ <= p_end_ <= bounds[0] + TOL_MS):
+                    return False
         return True
-    # الفجوةُ من نهاية **المقطع المطابَق** (‏p[0][-1][2])؛ أمّا قيدُ البوّابة (ب) فيقارن **نهايةَ السابقة المقدَّرة** بنهاية مدخلها
-    # (‏المقطعُ المطابَق + مدّةُ ما بعده من كلمات السابقة بوتيرة الأقران) — فمقطعٌ أبكر من آخر الآية لا يُردّ لمجرّد بُعده عن نهاية
-    # المدخل؛ وبلا كلماتٍ بعده (‏آخرُ W_K) يتطابق الاثنان حرفاً كما كان.
-    own_chars = sum(len(w) for w in own)
-    rate = (expected_ms / own_chars) if (expected_ms and expected_ms > 0 and own_chars) else 0.0
-    cand = [(int(p[0][-1][2]), int(n[0][0][1]), int(p[0][-1][2]) + rate * sum(len(w) for w in p[2])) for p, n in pairs]
-    cand = [c for c in cand if located(c[0], c[1], c[2])]
+    # الفجوةُ من نهاية **المقطع المطابَق** (‏p[0][-1][2]) لا من نهاية الآية.
+    cand = [(int(p[0][-1][2]), int(n[0][0][1]), bool(p[2])) for p, n in pairs]
+    cand = [c for c in cand if located(*c)]
     if not cand:
         where = (f"نافذة الخريطة [{claim[0]}، {claim[1]}]" if claim else "") + (" و" if claim and bounds else "") + \
                 (f"ما بين نهاية مدخل الجارة السابقة {bounds[0]} وبدء اللاحقة {bounds[1]} (±{TOL_MS})" if bounds else "")
         return f"ملتقى الجارتين في تفريغه لا يقع في الموضع المدّعى — {where}", None
-    p_end, n_start, _est = min(cand, key=lambda c: max(0, c[1] - c[0]))
+    p_end, n_start, _tail = min(cand, key=lambda c: max(0, c[1] - c[0]))
     gap = max(0, n_start - p_end)
     if not expected_ms or expected_ms <= 0:
         return "لا مدّةَ متوقَّعةً للآية من أقرانها — لا يثبت الغيابُ بالزمن", None
@@ -1017,7 +1024,7 @@ def witnessed_absent_verdict(s, g_map, want, cand_idx, ref_words=None, n_ayahs=N
         # ⛔ الملتقى بين نهاية مدخل a−1 وبدء مدخل a+1 في المرشّح نفسِه ضمن TOL_MS (‏مراجعةُ القائد #108)
         why, det = witnessed_absent_one(int(s), a, n, g_rec, None, (c or {}).get("witnesses"), sources, ref_words,
                                         g_map, want, witnessed_expected_ms(durs, a, chars_of),
-                                        bounds=(int(pe[1]), int(ns[0])))
+                                        bounds=(int(pe[1]), int(ns[0]), int(pe[0])))
         if why:
             ev["refused"][str(a)] = why
             bad.append(f"{s}:{a}: {why}")

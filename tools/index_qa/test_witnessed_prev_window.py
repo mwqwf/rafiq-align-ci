@@ -174,29 +174,66 @@ class PrevWindow(unittest.TestCase):
 
 
 class GateBounds(unittest.TestCase):
-    """البوّابةُ والبناءُ يعيدان الحكمَ نفسَه: قيدُ ±TOL_MS على نهاية السابقة **المقدَّرة** (‏المقطع + مدّةُ ما بعده بوتيرة الأقران)."""
+    """البوّابةُ والبناءُ يعيدان الحكمَ نفسَه، **بلا تقديرٍ بوتيرة الأقران**:
+    (١) المقطعُ هو آخرُ W_K كلماتٍ بلا شيءٍ بعده ⇒ القيدُ القديمُ حرفاً (‏نهايتُه ضمن ±TOL_MS من نهاية مدخل a−1)؛
+    (٢) بقيت بعده كلماتٌ ⇒ نهايتُه المقيسةُ داخل مدخل a−1: بين بدئه ونهايته + TOL_MS؛ وبدءُ اللاحقة ضمن ±TOL_MS كما كان."""
 
-    def _wits(self):
+    NEXT_START = 4163000
+
+    def _wits(self, seg):
         def mk(model):
-            w = [_real(x, 4150.0 + i * 0.4, 0.9) for i, x in enumerate(PREV[-6:-3])]
+            w = [_real(x, 4150.0 + i * 0.4, 0.9) for i, x in enumerate(seg)]
             w += [_real(x, 4163.0 + i * 0.4, 0.9) for i, x in enumerate(NXT[:3])]
             return _wit(model, w, WIDE)
         return {"r1": mk("medium"), "r2": mk("small")}
 
-    SEG_END = 4150000 + 800 + 300
-    EST_END = SEG_END + 190 * sum(len(w) for w in PREV[-3:])     # 11 حرفاً × 190
+    SEG_END = 4150000 + 800 + 300                                # نهايةُ المقطع المطابَق (‏3 كلماتٍ × 0.4 ثم 0.3)
 
-    def test_estimated_verse_end_within_tol_accepted(self):
-        why, _ = one(self._wits(), bounds=(self.EST_END + H.TOL_MS, 4163000))
+    # --- (٢) كلماتٌ بعد المقطع -------------------------------------------------------------------------------------
+    def test_tail_segment_inside_entry_accepted(self):
+        why, _ = one(self._wits(PREV[-6:-3]), bounds=(self.SEG_END + 3000, self.NEXT_START, self.SEG_END - 5000))
         self.assertIsNone(why, why)
 
-    def test_segment_end_alone_would_not_match_entry_end(self):
-        # بلا تقدير ما بعد المقطع كان |نهايةُ المقطع − نهايةُ المدخل| = 2090+1500 > TOL فيُردّ حقّاً سليم.
-        self.assertGreater(abs(self.SEG_END - (self.EST_END + H.TOL_MS)), H.TOL_MS)
+    def test_tail_segment_end_tolerance_is_tol_ms_after_entry_end(self):
+        ok, _ = one(self._wits(PREV[-6:-3]), bounds=(self.SEG_END - H.TOL_MS, self.NEXT_START, self.SEG_END - 5000))
+        self.assertIsNone(ok, ok)
+        bad, _ = one(self._wits(PREV[-6:-3]), bounds=(self.SEG_END - H.TOL_MS - 1, self.NEXT_START, self.SEG_END - 5000))
+        self.assertIn("لا يقع في الموضع المدّعى", bad)
 
-    def test_estimate_beyond_tol_refused(self):
-        why, _ = one(self._wits(), bounds=(self.EST_END + H.TOL_MS + 1, 4163000))
-        self.assertIn("لا يقع في الموضع المدّعى", why)
+    def test_tail_segment_before_entry_start_refused(self):
+        # المقطعُ ينتهي قبل بدء مدخل a−1 بميلّي ثانيةٍ واحدةٍ ⇒ ليس داخلَ المدخل ⇒ ردّ.
+        bad, _ = one(self._wits(PREV[-6:-3]), bounds=(self.SEG_END + 3000, self.NEXT_START, self.SEG_END + 1))
+        self.assertIn("لا يقع في الموضع المدّعى", bad)
+        ok, _ = one(self._wits(PREV[-6:-3]), bounds=(self.SEG_END + 3000, self.NEXT_START, self.SEG_END))
+        self.assertIsNone(ok, ok)
+
+    def test_tail_segment_without_entry_start_refused(self):
+        # بلا بدء مدخل a−1 لا يُتحقَّق من أنّ المقطع داخله ⇒ لا يُقبل مقطعٌ تبقّت بعده كلمات.
+        bad, _ = one(self._wits(PREV[-6:-3]), bounds=(self.SEG_END + 3000, self.NEXT_START))
+        self.assertIn("لا يقع في الموضع المدّعى", bad)
+
+    def test_tail_segment_next_start_still_within_tol(self):
+        ok, _ = one(self._wits(PREV[-6:-3]), bounds=(self.SEG_END + 3000, self.NEXT_START + H.TOL_MS, self.SEG_END - 5000))
+        self.assertIsNone(ok, ok)
+        bad, _ = one(self._wits(PREV[-6:-3]), bounds=(self.SEG_END + 3000, self.NEXT_START + H.TOL_MS + 1, self.SEG_END - 5000))
+        self.assertIn("لا يقع في الموضع المدّعى", bad)
+
+    # --- (١) المقطع آخرُ W_K بلا كلماتٍ بعده: القيدُ القديمُ حرفاً (‏حتى مع تمرير بدء المدخل) -------------------------------
+    def test_last_words_keep_old_constraint_literally(self):
+        wits = self._wits(PREV[-3:])
+        seg_end = 4150000 + 800 + 300
+        ok, _ = one(wits, bounds=(seg_end + H.TOL_MS, self.NEXT_START, seg_end - 5000))
+        self.assertIsNone(ok, ok)
+        bad, _ = one(wits, bounds=(seg_end + H.TOL_MS + 1, self.NEXT_START, seg_end - 5000))
+        self.assertIn("لا يقع في الموضع المدّعى", bad)
+        bad2, _ = one(wits, bounds=(seg_end - H.TOL_MS - 1, self.NEXT_START, seg_end - 5000))
+        self.assertIn("لا يقع في الموضع المدّعى", bad2)
+
+    def test_last_words_ignore_entry_start(self):
+        # القيدُ القديم لا يعرف بدءَ المدخل: بدءٌ بعد المقطع لا يغيّر الحكم.
+        wits = self._wits(PREV[-3:])
+        ok, _ = one(wits, bounds=(4150000 + 1100, self.NEXT_START, 4160000))
+        self.assertIsNone(ok, ok)
 
 
 if __name__ == "__main__":
