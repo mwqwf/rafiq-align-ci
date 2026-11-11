@@ -34,7 +34,8 @@ def index(transform, skip=(HIDE,)):
 
 
 def blob(idx):
-    b = gzip.compress(json.dumps(idx, sort_keys=True).encode("utf-8"))
+    # mtime=0: بايتاتٌ حتميّة، فلا تتبدّل البصمةُ بين استدعاءين يعبران حدَّ ثانية (‏مراجعة القائد #130)
+    b = gzip.compress(json.dumps(idx, sort_keys=True).encode("utf-8"), mtime=0)
     return b, hashlib.sha256(b).hexdigest()
 
 
@@ -163,13 +164,12 @@ class Mutations(unittest.TestCase):
     def test_drop_list_disappears_in_middle(self):
         w = World()
         w.l1["transform"]["dropSurah"] = []
-        w.store[skey(w.l1_sha)] = blob(w.l1)[0]
-        l1sha = blob(w.l1)[1]
+        b1, l1sha = blob(w.l1)
+        w.store[skey(l1sha)] = b1
         w.l2["transform"].update(fromKey=skey(l1sha), fromSha256=l1sha)
-        w.store[skey(w.l2_sha)] = blob(w.l2)[0]
-        w.store[skey(l1sha)] = blob(w.l1)[0]
-        w.product["transform"].update(fromSha256=blob(w.l2)[1], fromKey=skey(blob(w.l2)[1]))
-        w.store[skey(blob(w.l2)[1])] = blob(w.l2)[0]
+        b2, l2sha = blob(w.l2)
+        w.store[skey(l2sha)] = b2
+        w.product["transform"].update(fromSha256=l2sha, fromKey=skey(l2sha))
         # L1 يفقد dropSurah ويبقى op=ctc_splice ⇒ مجموعتُه الفارغةُ تخالف المنتَج
         self.assertIn("تبدّلت", w.gate())
 
