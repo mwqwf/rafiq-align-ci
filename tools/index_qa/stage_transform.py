@@ -598,9 +598,10 @@ def main():
         print(f"  ✔ تصحيحٌ ترويسيّ بلا مسِّ مدخلٍ واحد: {changed}")
     _inh = parent_coded_approved(pidx, idx, a.parent, psha)
     _dp, _dps, _own = None, None, frozenset()
+
+    def _fetch(key):
+        return cl.get_object(Bucket=bucket, Key=key)["Body"].read()
     if a.parent.startswith("timings-staging/") or needs_drop_parent(idx):
-        def _fetch(key):
-            return cl.get_object(Bucket=bucket, Key=key)["Body"].read()
         _dp, _dps = published_origin(idx, _fetch)
         if _dp is not None:
             _inh = _inh | parent_coded_approved(
@@ -610,7 +611,7 @@ def main():
     if _inh:
         print(f"  ⓘ إعفاءُ العتبة موروثٌ من صفّ موافقة الأصل لسورٍ محجوبةٍ فيه بالرمز نفسه: {sorted(_inh)}")
     for check, name in ((promote.index_gate(idx, parent=_dp, parent_sha=_dps, owner_approved=_own,
-                                            coded_approved=_inh), "البنية"),
+                                            coded_approved=_inh, chain_fetch=_fetch), "البنية"),
                         (promote.catalog_gate(idx, promote.catalog(cl, bucket)),
                          "الهويّة")):
         if check:
