@@ -1,13 +1,13 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-"""اختباراتُ التسامح الأوسع داخل مسار «المرساة المتنازَع عليها» (‏قرار القائد 2026-11-11 · سندُه موافقةُ المالك 11-07).
+"""اختباراتُ تدقيق المطابقة داخل مسار «المرساة المتنازَع عليها» (‏قرار القائد 2026-11-11 · سندُه موافقةُ المالك 11-07).
 
-الشواهدُ كلُّها **مصنوعةٌ على هيئة** الحالات الثلاث التي ردّها المسارُ مع صحّتها بشهادة شاهدَين (‏لا تُحمَّل من GitHub):
-  habdan 3:199: مطلعُ الشاهدَين 3850307 والمنشورُ 3850614 (‏307م.ث > 300).
+الشواهدُ كلُّها **مصنوعةٌ على هيئة** الحالات الحقيقيّة (‏لا تُحمَّل من GitHub):
   nufais 20:106: «فيذرها قاع صفصفاه» والمصحفُ «فيذرها قاعا صفصفا» والآيةُ تنتهي بوقف.
   a_abdl 23:22: نافذةُ المرساة «ومنها تاكلون وعليها» تعبر من آخر 23:21 إلى أوّل 23:22.
-وما يُثبت: الردُّ في شاهدٍ واحد · شاهدَين متباعدَين > 400م.ث · نافذةٍ تعبر الحدّ · تطبيعٍ خارج الصيغتين أو على غير آخر كلمة ·
-شاهدٍ يتجاوز 1500م.ث؛ والقبولُ في الثلاث، وبقاءُ القاعدة القديمة (‏كلُّ شاهدٍ ضمن 300م.ث) مقبولةً بلا شرط الاتّفاق.
+  habdan 3:199: مطلعُ الشاهدَين بعد 307م.ث من المنشور ⇒ **يبقى مردوداً** (‏الحدُّ 300 لا يتّسع؛ يُثبَّت بدؤه بمسار التثبيت).
+وما يُثبت: الردُّ في شاهدٍ واحد · مطلعٍ فوق 300م.ث ولو اتّفق الشاهدان · نافذةٍ تعبر الحدّ · تطبيعٍ خارج الصيغتين أو على غير
+آخر كلمة؛ والقبولُ بصيغتَي الوقف على آخر كلمة، وبالآية القصيرة كلِّها، وبنافذةٍ خالصةٍ من الآية الأخرى.
 
     python -m unittest tools/index_qa/test_heard_disputed_wide.py
 """
@@ -64,9 +64,9 @@ class World:
                                      raw_last=(lambda s, a: rl))
         return why, ev, rows[0]["status"]
 
-    def one(self, wit, head_tol=H.TOL_MS):
+    def one(self, wit):
         return H.disputed_one(wit, self.surah, self.ayah, self.S, self.A, self.other, self.ref, GMAP, SHA,
-                              head_tol=head_tol, raw_last=self.raw_last)
+                              raw_last=self.raw_last)
 
 
 # ‏habdan 3:199 — المنشور 3850614
@@ -79,22 +79,8 @@ def _pair(w, ha, hb, **kw):
 
 
 class Accepted(unittest.TestCase):
-    def test_habdan_3_199_head_307_off_with_agreeing_witnesses(self):
-        # ‏3850307 بعيدٌ عن المنشور 3850614 بـ307م.ث (>300)، والشاهدان متّفقان (‏3850307 و3850330: 23م.ث ≤ 400)
-        why, ev, st = HAB.verdict(_pair(HAB, 3850307, 3850330))
-        self.assertIsNone(why)
-        self.assertEqual(st, "disputed")
-        w = ev["accepted"]["199"]["witnesses"]
-        self.assertEqual((w["run-a"]["headMs"], w["run-b"]["headMs"]), (3850307, 3850330))
-        self.assertEqual(ev["accepted"]["199"]["otherAyah"], 198)
-
-    def test_agreement_exactly_at_400_accepted_and_up_to_1500_off(self):
-        why, _ev, st = HAB.verdict(_pair(HAB, HAB.S - 1100, HAB.S - 1500))        # ‏1500 = TOL_MS تُقبل؛ والفرقُ 400
-        self.assertIsNone(why)
-        self.assertEqual(st, "disputed")
-
-    def test_old_rule_still_accepted_without_agreement_condition(self):
-        # ‏كلُّ شاهدٍ ضمن 300م.ث من المنشور (‏-250 و+290: بينهما 540 > 400) ⇒ مقبولٌ كما كان
+    def test_old_rule_still_accepted(self):
+        # ‏كلُّ شاهدٍ ضمن 300م.ث من المنشور ⇒ مقبولٌ كما كان
         why, _ev, st = HAB.verdict(_pair(HAB, HAB.S - 250, HAB.S + 290))
         self.assertIsNone(why)
         self.assertEqual(st, "disputed")
@@ -106,7 +92,7 @@ class Accepted(unittest.TestCase):
         # ‏آيةٌ من ثلاث كلماتٍ تنتهي بوقف: «فيذرها قاعا صفصفا»؛ ويُسمع آخرُها «صفصفاه» (‏هاء السكت) ⇒ يُثبَت مطلعُها بالآية كلِّها
         n = World(20, 106, 105, ["فيذرها", "قاعا", "صفصفا"], ["ويسالونك", "عن", "الجبال", "فقل", "ينسفها", "ربي"],
                   S=2000000, A=1980000, raw_last="صَفْصَفًا")
-        why, _ev, st = n.verdict(_pair(n, 2000500, 2000540, head_words=["فيذرها", "قاعا", "صفصفاه"]))
+        why, _ev, st = n.verdict(_pair(n, 2000100, 2000140, head_words=["فيذرها", "قاعا", "صفصفاه"]))
         self.assertIsNone(why)
         self.assertEqual(st, "disputed")
 
@@ -114,7 +100,7 @@ class Accepted(unittest.TestCase):
         # ‏«فيذرها قاع صفصفاه»: «قاع» ليست آخرَ كلمةٍ فلا تُطبَّع، فتبقى مردودةً (‏وهو الصواب)
         n = World(20, 106, 105, ["فيذرها", "قاعا", "صفصفا"], ["ويسالونك", "عن", "الجبال", "فقل", "ينسفها", "ربي"],
                   S=2000000, A=1980000, raw_last="صَفْصَفًا")
-        why, ev, st = n.verdict(_pair(n, 2000500, 2000540, head_words=["فيذرها", "قاع", "صفصفاه"]))
+        why, ev, st = n.verdict(_pair(n, 2000100, 2000140, head_words=["فيذرها", "قاع", "صفصفاه"]))
         self.assertIn("لا يُسمع مطلعُ الآية كلمةً بكلمة", why)
         self.assertEqual(st, "dev")
 
@@ -148,25 +134,19 @@ class ShortAyahs(unittest.TestCase):
 
 class Refused(unittest.TestCase):
     def test_single_witness(self):
-        why, _ev, st = HAB.verdict({"run-a": HAB.witness(3850307)})
+        why, _ev, st = HAB.verdict({"run-a": HAB.witness(HAB.S - 100)})
         self.assertIn("شاهدان", why)
         self.assertEqual(st, "dev")
 
-    def test_two_witnesses_more_than_400_apart(self):
-        why, _ev, st = HAB.verdict(_pair(HAB, HAB.S - 700, HAB.S - 1200))          # ‏بينهما 500
-        self.assertIn("بعيدٌ عن المنشور", why)
-        self.assertIn("400", why)
+    def test_habdan_3_199_head_307_off_refused_even_with_agreeing_witnesses(self):
+        # ‏3850307 و3850330 متّفقان، لكنّ المنشور 3850614 بعيدٌ عنهما >300 ⇒ ردٌّ (‏علاجُه التثبيتُ لا توسيعُ الحدّ)
+        why, _ev, st = HAB.verdict(_pair(HAB, 3850307, 3850330))
+        self.assertIn("(>300م.ث)", why)
         self.assertEqual(st, "dev")
 
-    def test_one_far_one_near_apart_more_than_400(self):
-        # ‏شاهدٌ ضمن 300 وآخرُ على 700: بينهما 700 > 400 والثاني تجاوز 300 ⇒ يلزم الاتّفاق ولا اتّفاق
-        why, _ev, st = HAB.verdict(_pair(HAB, HAB.S - 50, HAB.S - 700))
-        self.assertIn("400", why)
-        self.assertEqual(st, "dev")
-
-    def test_witness_beyond_1500(self):
-        why, _ev, st = HAB.verdict(_pair(HAB, HAB.S - 1600, HAB.S - 1620))         # ‏متّفقان لكنْ فوق TOL_MS
-        self.assertIn("(>1500م.ث)", why)
+    def test_one_far_one_near_refused(self):
+        why, _ev, st = HAB.verdict(_pair(HAB, HAB.S - 50, HAB.S - 301))
+        self.assertIn("(>300م.ث)", why)
         self.assertEqual(st, "dev")
 
     def test_window_crossing_the_boundary_is_not_counted(self):
@@ -181,10 +161,10 @@ class Refused(unittest.TestCase):
 
     def test_normalisation_not_on_the_last_word(self):
         # ‏آيةٌ طويلةٌ (‏آخرُ كلمةٍ منها ليس في المطلع): لا تطبيعَ حتى لو جاءت الكلمةُ الثالثةُ بهاء السكت
-        why, _ev, st = HAB.verdict(_pair(HAB, 3850307, 3850330, head_words=["وان", "من", "اههل"]))
+        why, _ev, st = HAB.verdict(_pair(HAB, HAB.S - 100, HAB.S - 60, head_words=["وان", "من", "اههل"]))
         self.assertIn("لا يُسمع مطلعُ الآية كلمةً بكلمة", why)
         self.assertEqual(st, "dev")
-        why, _ev, _ = HAB.verdict(_pair(HAB, 3850307, 3850330, head_words=["وان", "من", "اهله"]))   # ‏هاءٌ على غير آخر كلمة
+        why, _ev, _ = HAB.verdict(_pair(HAB, HAB.S - 100, HAB.S - 60, head_words=["وان", "من", "اهله"]))   # ‏هاءٌ على غير آخر كلمة
         self.assertIsNotNone(why)
 
     def test_hā_sakt_on_a_middle_word_of_a_whole_ayah_refused(self):
@@ -192,7 +172,7 @@ class Refused(unittest.TestCase):
         n = World(20, 106, 105, ["فيذرها", "قاعا", "صفصفا"], ["ويسالونك", "عن", "الجبال", "فقل", "ينسفها", "ربي"],
                   S=2000000, A=1980000, raw_last="صَفْصَفًا")
         for heard in (["فيذرها", "قاعاه", "صفصفا"], ["فيذرهاه", "قاعا", "صفصفاه"]):
-            why, _ev, st = n.verdict(_pair(n, 2000500, 2000540, head_words=heard))
+            why, _ev, st = n.verdict(_pair(n, 2000100, 2000140, head_words=heard))
             self.assertIn("لا يُسمع مطلعُ الآية كلمةً بكلمة", why)
             self.assertEqual(st, "dev")
 
@@ -200,7 +180,7 @@ class Refused(unittest.TestCase):
         n = World(20, 106, 105, ["فيذرها", "قاعا", "صفصفا"], ["ويسالونك", "عن", "الجبال", "فقل", "ينسفها", "ربي"],
                   S=2000000, A=1980000, raw_last="صَفْصَفًا")
         for heard in ("صفصفي", "صفصفاك", "صفصف", "صفصفاهه", "صفصفاها", "صفصفاا"):                 # ‏لا صيغةَ ثالثة
-            why, _ev, st = n.verdict(_pair(n, 2000500, 2000540, head_words=["فيذرها", "قاعا", heard]))
+            why, _ev, st = n.verdict(_pair(n, 2000100, 2000140, head_words=["فيذرها", "قاعا", heard]))
             self.assertIsNotNone(why, heard)
             self.assertEqual(st, "dev", heard)
 
@@ -208,25 +188,24 @@ class Refused(unittest.TestCase):
         base = dict(S=2000000, A=1980000)
         oth = ["ويسالونك", "عن", "الجبال", "فقل", "ينسفها", "ربي"]
         ok = World(20, 106, 105, ["فيذرها", "قاعا", "كتب"], oth, raw_last="كُتُبًۭ", **base)           # ‏فتحتان بلا ألف
-        self.assertIsNone(ok.verdict(_pair(ok, 2000500, 2000540, head_words=["فيذرها", "قاعا", "كتبا"]))[0])
+        self.assertIsNone(ok.verdict(_pair(ok, 2000100, 2000140, head_words=["فيذرها", "قاعا", "كتبا"]))[0])
         no = World(20, 106, 105, ["فيذرها", "قاعا", "كتب"], oth, raw_last="كُتُبٌ", **base)            # ‏تنوينُ ضمٍّ ليس نصباً
-        self.assertIsNotNone(no.verdict(_pair(no, 2000500, 2000540, head_words=["فيذرها", "قاعا", "كتبا"]))[0])
-        self.assertIsNotNone(ok.verdict(_pair(ok, 2000500, 2000540, head_words=["فيذرها", "قاعا", "كتبا"]),
+        self.assertIsNotNone(no.verdict(_pair(no, 2000100, 2000140, head_words=["فيذرها", "قاعا", "كتبا"]))[0])
+        self.assertIsNotNone(ok.verdict(_pair(ok, 2000100, 2000140, head_words=["فيذرها", "قاعا", "كتبا"]),
                                         raw_last=None)[0])
 
-    def test_one_alone_cannot_pass_through_disputed_one_beyond_old_tol_by_default(self):
-        # ‏السلوكُ الافتراضيّ لـ`disputed_one` بلا head_tol يبقى 300م.ث (‏لا يُرخى مسارٌ يستدعيه مباشرةً)
-        why, d = HAB.one(HAB.witness(3850307), head_tol=None)
+    def test_disputed_one_keeps_300(self):
+        why, d = HAB.one(HAB.witness(3850307))
         self.assertIsNone(d)
         self.assertIn("(>300م.ث)", why)
 
 
 class Constants(unittest.TestCase):
-    def test_constants_unchanged_and_new_one_named(self):
+    def test_constants_unchanged_and_no_new_tolerance(self):
         self.assertEqual(H.TOL_MS, 1500)
         self.assertEqual(P.W_AGREE_MS, 300)
         self.assertEqual(P.W_K, 3)
-        self.assertEqual(H.DISPUTED_AGREE_MS, 400)
+        self.assertFalse(hasattr(H, "DISPUTED_AGREE_MS"))
         self.assertEqual(H.DISPUTED_MAX_PCT, 10)
         self.assertEqual(H.DISPUTED_MIN_WITNESSES, 2)
 

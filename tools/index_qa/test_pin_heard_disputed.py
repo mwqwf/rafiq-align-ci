@@ -103,13 +103,12 @@ class Wiring(unittest.TestCase):
         self.assertIn("شاهدان", str(c.exception))
 
     def test_witness_head_outside_300ms_refused(self):
-        # ‏منذ قرار القائد 2026-11-11 يُقبل شاهدان متّفقان حتى TOL_MS (1500)؛ فالإزاحةُ 1600 تبقى ردّاً.
         w = _wits()
         for r in w.values():                                 # ‏يُزاح الشاهدان معاً فيبعد المطلعُ عن المنشور
             for rec in r["ayahs"].values():
                 for x in rec["words"]:
-                    x["s"] -= 1600
-                    x["e"] -= 1600
+                    x["s"] -= 400
+                    x["e"] -= 400
         with self.assertRaises(SystemExit) as c:
             _run({55: 54}, w)
         self.assertIn("بعيدٌ عن المنشور", str(c.exception))
