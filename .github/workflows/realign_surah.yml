@@ -104,9 +104,8 @@ jobs:
       - name: أدوات النظام
         run: |
           # (2026-10-23 · تسريع) مرآةُ apt المعلَّقة كلّفت هذه الخطوةَ ≈10 د للمهمّة (225 د في 24 ساعة): ffmpeg بالمثبِّت (مهلٌ وشجرةٌ مخبّأة · نسخةُ apt نفسُها)،
-          #    وcmake وbuild-essential مثبَّتان في صورة العدّاد فلا يُنزَّلان إلا إن غابا (بمهلة).
+          #    أدوات البناء تُفحص عند غياب كاش whisper فقط (انظر خطوة البناء).
           QA_FFMPEG_APT_ONLY=1 python tools/ci_fleet/install_qa_ffmpeg.py
-          for p in cmake build-essential; do dpkg -s $p >/dev/null 2>&1 || { timeout 150 sudo apt-get update -qq; timeout 300 sudo apt-get install -y -qq $p; }; done
           python -m pip install --quiet boto3==1.43.123 numpy==2.4.6
 
       # ⚠️ GGML_NATIVE=OFF عمداً كما في align.yml: الكاش يُستهلك على عدّاءٍ قد
@@ -123,6 +122,7 @@ jobs:
       - name: بناء whisper.cpp (عند غياب الكاش)
         if: steps.whisper-cache.outputs.cache-hit != 'true'
         run: |
+          bash tools/ci_fleet/ensure_whisper_build_tools.sh
           mkdir -p wsrc && cd wsrc && git init -q .
           git remote add origin https://github.com/ggml-org/whisper.cpp.git
           git fetch -q --depth 1 origin "$WHISPER_REF"
