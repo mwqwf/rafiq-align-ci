@@ -740,9 +740,24 @@ def dual_surah(s: int, cs_s: dict, g_map: dict, r_map, wit, want: str, cand_sha:
 #    ٤) المتنازَعُ عليه في السورة ≤ 10٪ من آياتها، وإلا رُدّت السورةُ كلُّها؛
 #    ٥) الدليلُ (‏الشاهدان بكلماتهما) مكتوبٌ في `transform.disputedAnchors` ويُعاد حسابُه هنا ولا يُقرأ حكمٌ مكتوب (‏وانظر ٦)؛
 #    وأيُّ ادّعاءٍ مكتوبٍ لا يستوفي الشروط يردّ السورة (‏لا يُترك صامتاً).
+# ⭐ (‏قرار القائد 2026-11-11 · سندُه موافقةُ المالك 11-07) تسامحٌ أوسعُ **داخل هذا المسار وحدَه** (‏ثلاث آياتٍ صحيحةٌ بشهادة
+#    شاهدَين رُدّت: habdan 3:199 · nufais 20:106 · a_abdl 23:22). وهو تعديلٌ على الشرطين ٢ و٣ لا على غيرهما:
+#    ٢أ) يُقبل مطلعٌ يبعد عن البدء المنشور حتى `TOL_MS` (1500م.ث) بدل 300م.ث **بشرط أن يتّفق مطلعا الشاهدَين فيما بينهما ضمن
+#        `DISPUTED_AGREE_MS` (400م.ث)** متى تجاوز أيُّ شاهدٍ 300م.ث؛ فشاهدٌ واحدٌ يُردّ وشاهدان متباعدان أكثرَ من 400م.ث يُردّان
+#        وشاهدٌ يتجاوز 1500م.ث يُردّ. ⛔ والادّعاءُ الذي يستوفي القاعدةَ القديمة (‏كلُّ شاهدٍ ضمن 300م.ث) يبقى مقبولاً بلا شرط الاتّفاق.
+#    ٢ب) المطلعُ يُثبَت بكلمات الآية نفسِها: أوّلُ W_K كلماتٍ متتاليةً، أو الآيةُ كلُّها إن قصرت عن W_K.
+#    ٣أ) ما يُسمع عند المرساة: نافذةٌ **كلُّها** من كلمات الآية الأخرى متتاليةً (‏W_K كلماتٍ، أو الآيةُ الأخرى كلُّها إن قصرت)
+#        تغطّي زمنَ المرساة ولا تعبر حدَّ تلك الآية؛ فنافذةٌ فيها كلمةٌ من غيرها لا تُحسب (‏وتُجرَّب كلُّ النوافذ المغطّية).
+#    ٣ب) تطبيعٌ لصيغتَي وقفٍ مسمّاتين **وعلى آخر كلمةٍ من الآية وحدَها** في مطلعها: (‏١) التنوينُ المنصوب يُقرأ ألفاً (‏الكلمةُ
+#        المكتوبةُ بفتحتين ولا ألفَ في رسمها المطبَّع، وتُسمع بألفٍ زائدة)، (‏٢) هاءُ السكت (‏هاءٌ زائدةٌ في آخر الكلمة المسموعة).
+#        ولا تطبيعَ لكلمةٍ أخرى ولا لصيغةٍ أخرى (‏20:106: «قاع» وسطَ الآية ليست آخرَ كلمةٍ فتبقى مردودةً — وهو الصواب).
+#    ولا قاعدةَ خاصّةً للتكرار، ولا تتغيّر `TOL_MS` ولا عتبةٌ أخرى، ولا يُرخى مسارٌ قائم. والإصدارُ `DISPUTED_VERSION` لم يُرفع
+#    فلا يكسر الأدلّةَ المكتوبةَ القائمة (‏حقولُ الدليل نفسُها وزيادةُ `headMs` موجودةٌ أصلاً).
 DISPUTED_VERSION = "heard-disputed-1"
 DISPUTED_MAX_PCT = 10
 DISPUTED_MIN_WITNESSES = 2
+DISPUTED_AGREE_MS = 400   # اتّفاقُ مطلعَي الشاهدَين فيما بينهما حين يتجاوز أيٌّ منهما W_AGREE_MS عن المنشور
+_FATHATAN = ("\u064b", "\u08f0", "\u08e4")   # فتحتان (‏عاديّتان ومفتوحتان) في الرسم العثمانيّ
 # ⛔ ٦) (‏قرار القائد 2026-11-10 · ثغرةٌ سُدّت قبل الدمج) الشاهدُ المكتوبُ في المرشّح **لا يُصدَّق وحده**: من يبني المرشّح
 #    يقدر أن يكتب كلماتٍ لم تُسمع وينسبها إلى تشغيلتين لا وجود لهما. فتُحمَّل الشواهدُ بمعرّفات تشغيلاتها من مصدرها
 #    (‏`pin_heard.load_witness`: تشغيلةٌ ناجحةٌ لـ`whisper_witness.yml` على main ومخرَجُها المسمّى باسمها) في خطوة الحكم،
@@ -849,8 +864,57 @@ def _span_ok(span, win):
     return None
 
 
-def disputed_one(wit, surah, ayah, start, anchor, other, ref_words, g_map, want_sha):
-    """(None، تفصيل) إن أثبت الشاهدُ الواحد الشرطين ٢ و٣ للآية، وإلا (سببُ الردّ، None)."""
+def disputed_raw_last(riwaya, surah, ayah):
+    """آخرُ كلمةٍ من الآية **خامّاً** (‏بتشكيلها) من المصحف الموثَّق — لمعرفة أنّ تنوينَها نصبٌ؛ لا تُحكم بها إلا صيغتا الوقف."""
+    import pin_heard as PH  # noqa: PLC0415
+    sys.path.insert(0, str(PH._REPO_ROOT / "tools" / "alignment"))
+    from common import load_index, load_text, surah_slice  # noqa: PLC0415
+    start, _end, info = surah_slice(load_index(), surah)
+    if not 1 <= ayah <= int(info["ayahs"]):
+        raise SystemExit(f"⛔ {surah}:{ayah} خارج السورة")
+    return str(load_text(riwaya or "hafs")[start + ayah - 1]).split()[-1]
+
+
+def _stop_equal(h, w, raw_last):
+    """هل الكلمةُ المسموعة h هي آخرُ كلمةٍ من الآية w (‏مطبَّعةً) بإحدى صيغتَي الوقف المسمّاتين وحدَهما؟
+    (‏١) التنوينُ المنصوب يُقرأ ألفاً: الرسمُ المكتوبُ بفتحتين بلا ألفٍ في آخره وتُسمع بألفٍ زائدة.
+    (‏٢) هاءُ السكت: هاءٌ زائدةٌ في آخر الكلمة المسموعة. ولا ثالثةَ."""
+    if h == w:
+        return True
+    if h == w + "\u0647":                                                   # هاء السكت
+        return True
+    if raw_last and any(f in raw_last for f in _FATHATAN) and not w.endswith("\u0627") and h == w + "\u0627":
+        return True                                                         # التنوين المنصوب ألفاً
+    return False
+
+
+def _head_equal(words, own, whole, raw_last):
+    """مطابقةُ نافذةٍ مسموعةٍ لمطلع الآية كلمةً بكلمة؛ والتطبيعُ لآخر كلمةٍ من الآية وحدَها (‏حين تكون النافذةُ الآيةَ كلَّها)."""
+    if len(words) != len(own):
+        return False
+    if not whole:
+        return words == own
+    return words[:-1] == own[:-1] and _stop_equal(words[-1], own[-1], raw_last)
+
+
+def _in_other(words, oth):
+    """النافذةُ كلُّها متتاليةً من كلمات الآية الأخرى وحدَها (‏لا تعبر حدَّها إلى غيرها)."""
+    n = len(words)
+    return any(words == oth[j:j + n] for j in range(len(oth) - n + 1))
+
+
+def disputed_raw_last_safe(riwaya, surah, ayah):
+    """كـ`disputed_raw_last` وبلا تعثّرٍ إن غاب المصحفُ (‏لا صيغةَ تنوينٍ حينئذٍ: الأضيقُ)."""
+    try:
+        return disputed_raw_last(riwaya, surah, ayah)
+    except (SystemExit, Exception):  # noqa: BLE001
+        return None
+
+
+def disputed_one(wit, surah, ayah, start, anchor, other, ref_words, g_map, want_sha, head_tol=None, raw_last=None):
+    """(None، تفصيل) إن أثبت الشاهدُ الواحد الشرطين ٢ و٣ للآية، وإلا (سببُ الردّ، None).
+    `head_tol`: أقصى بعدٍ لمطلع الشاهد عن البدء المنشور (‏الأصل W_AGREE_MS؛ و`disputed_verdict` يمرّر TOL_MS).
+    ويُرجع في التفصيل `headMs` ليُقارَن بين الشاهدَين (‏`DISPUTED_AGREE_MS`). `raw_last`: آخرُ كلمةٍ من الآية خامّاً لصيغة التنوين."""
     import pin_heard as PH  # noqa: PLC0415
     try:
         PH.check_witness(wit, surah, g_map, want_sha)
@@ -858,30 +922,34 @@ def disputed_one(wit, surah, ayah, start, anchor, other, ref_words, g_map, want_
         return str(e), None
     own, oth = ref_words(surah, ayah), ref_words(surah, other)
     k = PH.W_K
-    if len(own) < k or len(oth) < k:
-        return "نصُّ الآية أو الآية الأخرى أقصرُ من W_K", None
-    own_grams = {tuple(own[i:i + k]) for i in range(len(own) - k + 1)}
+    if not own or not oth:
+        return "نصُّ الآية أو الآية الأخرى فارغ", None
+    kh, ko = min(k, len(own)), min(k, len(oth))      # ثلاثٌ على الأقلّ، أو الآيةُ كلُّها إن قصرت
+    tol = PH.W_AGREE_MS if head_tol is None else int(head_tol)
+    own_grams = {tuple(own[i:i + ko]) for i in range(len(own) - ko + 1)}
     head = why2 = why3 = None
     hit3 = None
     for rec in (wit.get("ayahs") or {}).values():
         win = rec.get("windowMs") or [None, None]
         tk = _wtoks(rec)
-        for i in range(len(tk) - k + 1):
-            span = tk[i:i + k]
-            words = [x[0] for x in span]
-            if head is None and words == own[:k]:
-                if abs(span[0][1] - int(start)) > PH.W_AGREE_MS:
-                    why2 = f"مطلعُ الآية عند {span[0][1]} بعيدٌ عن المنشور {start} (>{PH.W_AGREE_MS}م.ث)"
+        for i in range(len(tk) - kh + 1):
+            span = tk[i:i + kh]
+            if head is None and _head_equal([x[0] for x in span], own[:kh], kh == len(own), raw_last):
+                if abs(span[0][1] - int(start)) > tol:
+                    why2 = f"مطلعُ الآية عند {span[0][1]} بعيدٌ عن المنشور {start} (>{tol}م.ث)"
                 else:
                     bad = _span_ok(span, win)
                     if bad:
                         why2 = f"مطلعُ الآية: {bad}"
                     else:
                         head = span[0][1]
+        for i in range(len(tk) - ko + 1):
+            span = tk[i:i + ko]
+            words = [x[0] for x in span]
             if hit3 is None and span[0][1] <= int(anchor) < span[-1][2]:
                 if tuple(words) in own_grams:
                     why3 = "ما سُمع عند المرساة من نصّ الآية نفسِها (‏تكرارٌ لا تنازع)"
-                elif not any(words == oth[j:j + k] for j in range(len(oth) - k + 1)):
+                elif not _in_other(words, oth):
                     why3 = why3 or f"ما سُمع عند المرساة «{' '.join(words)}» ليس من نصّ {surah}:{other}"
                 else:
                     bad = _span_ok(span, win)
@@ -896,7 +964,7 @@ def disputed_one(wit, surah, ayah, start, anchor, other, ref_words, g_map, want_
     return None, {"headMs": head, "anchorText": hit3[1], "anchorSpanMs": hit3[0]}
 
 
-def disputed_verdict(s, rows, g_map, want, cand_idx, ref_words=None, n_ayahs=None, sources=None):
+def disputed_verdict(s, rows, g_map, want, cand_idx, ref_words=None, n_ayahs=None, sources=None, raw_last=None):
     """يُحوّل كلَّ صفٍّ «dev» مدّعىً في `transform.disputedAnchors[س]` ومُثبَتٍ بالشروط إلى «disputed».
     يُرجع (سببُ ردّ السورة أو None، الدليل). بلا ادّعاءٍ للسورة لا يتغيّر شيءٌ حرفاً."""
     tr = cand_idx.get("transform") if isinstance(cand_idx.get("transform"), dict) else {}
@@ -905,6 +973,7 @@ def disputed_verdict(s, rows, g_map, want, cand_idx, ref_words=None, n_ayahs=Non
         return None, None
     import pin_heard as PH  # noqa: PLC0415
     ref_words = ref_words or (lambda ss, a: disputed_ref_words(cand_idx.get("riwaya") or "hafs", ss, a))
+    raw_last = raw_last or (lambda ss, a: disputed_raw_last_safe(cand_idx.get("riwaya") or "hafs", ss, a))
     byayah = {r["ayah"]: r for r in rows}
     ev = {"version": DISPUTED_VERSION, "accepted": {}, "refused": {}}
     bad = []
@@ -933,11 +1002,18 @@ def disputed_verdict(s, rows, g_map, want, cand_idx, ref_words=None, n_ayahs=Non
             elif _canon(disputed_src_rec(w)) != _canon(src):
                 why = "المكتوبُ في المرشّح يخالف مصدرَه (‏مخرَج تشغيلته) حرفاً"
             else:
-                why, d = disputed_one(src, s, a, r["startMs"], r["anchorMs"], other, ref_words, g_map, want)
+                why, d = disputed_one(src, s, a, r["startMs"], r["anchorMs"], other, ref_words, g_map, want,
+                                      head_tol=TOL_MS, raw_last=raw_last(s, a))
             if why:
                 why = f"الشاهد {run}: {why}"
                 break
             det[str(run)] = d
+        if not why:
+            heads = [int(d["headMs"]) for d in det.values()]
+            # ⭐ القاعدةُ القديمة (‏كلُّ شاهدٍ ضمن W_AGREE_MS من المنشور) تُقبل كما هي؛ وما جاوزها يلزمه اتّفاقُ الشاهدَين فيما بينهما
+            if any(abs(h - int(r["startMs"])) > PH.W_AGREE_MS for h in heads) and max(heads) - min(heads) > DISPUTED_AGREE_MS:
+                why = (f"مطلعا الشاهدَين متباعدان ({max(heads) - min(heads)}م.ث > {DISPUTED_AGREE_MS}م.ث) "
+                       f"ومطلعٌ بعيدٌ عن المنشور {r['startMs']} (>{PH.W_AGREE_MS}م.ث) لا يُقبل إلا باتّفاقهما")
         if why:
             ev["refused"][str(a)] = why
             bad.append(f"{s}:{a}: {why}")
