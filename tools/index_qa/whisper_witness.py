@@ -48,7 +48,7 @@ def main():
     ap.add_argument("--surah", type=int, required=True)
     ap.add_argument("--riwaya", default="hafs")
     ap.add_argument("--ayahs", required=True, help="آية:بدء-نهاية بالم.ث، مفصولةً بفواصل")
-    ap.add_argument("--model", default="small", choices=("small", "medium"))
+    ap.add_argument("--model", default="small", choices=("small", "medium", "large-v3"))
     ap.add_argument("--out", required=True)
     a = ap.parse_args()
     wins = parse_windows(a.ayahs)
