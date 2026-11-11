@@ -14,7 +14,7 @@ on:
       surah: {description: "رقمُ السورة", required: true}
       ayahs: {description: "نوافذُ الآيات: آية:بدء-نهاية بالم.ث مفصولةً بفواصل (‏مثل 68:229000-239000,69:236000-246000) — مثلاً من مرساة CTC −3ث إلى نهايتها +3ث", required: true}
       riwaya: {description: "الرواية", default: "hafs"}
-      model: {description: "حجمُ النموذج (‏float32 دائماً)", type: choice, options: [small, medium], default: "small"}
+      model: {description: "حجمُ النموذج (‏float32 دائماً)", type: choice, options: [small, medium, large-v3], default: "small"}
       reason: {description: "سببُ الإطلاق", default: ""}
 
 permissions:
@@ -46,7 +46,7 @@ jobs:
           QA_FFMPEG_APT_ONLY=1 python tools/ci_fleet/install_qa_ffmpeg.py
           python -m pip install --quiet "numpy==1.26.4" faster-whisper==1.1.1 "requests==2.32.3"
       - name: اختباراتُ الأداة أوّلاً
-        run: python -m unittest tools/index_qa/test_pin_heard_witness.py tools/index_qa/test_pin_heard.py
+        run: python -m unittest tools/index_qa/test_pin_heard_witness.py tools/index_qa/test_pin_heard.py tools/index_qa/test_witness_large_model.py
       - name: كاش النموذج
         uses: actions/cache@v4
         with:

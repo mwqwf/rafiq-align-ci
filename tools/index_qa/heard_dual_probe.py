@@ -38,7 +38,7 @@ def main() -> int:
     ap.add_argument("--riwaya", required=True)
     ap.add_argument("--out-dir", required=True)
     ap.add_argument("--cand", required=True, help="ملفُّ JSON: sha وends")
-    ap.add_argument("--witness-model", default="medium", choices=("small", "medium"))
+    ap.add_argument("--witness-model", default="medium", choices=("small", "medium", "large-v3"))
     a = ap.parse_args()
     cand = json.load(open(a.cand, encoding="utf-8"))
     ends = {int(k): v for k, v in cand["ends"].items()}
