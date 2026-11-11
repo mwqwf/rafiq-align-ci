@@ -261,6 +261,38 @@ def parent_coded_approved(pidx, idx, parent_key, psha, approvals=None):
                      if s in old and old[s] != "SOURCE_TRUNCATED" and s in new and new[s] == old[s])
 
 
+def needs_drop_parent(idx):
+    """أيحمل المنتَجُ إعلانَ غيابٍ موروثاً (‏`dropSurah` بلا op إسقاط)؟ فحينئذٍ لا يُحكم عليه إلا بأصله المنشور."""
+    tr = idx.get("transform")
+    return bool(isinstance(tr, dict) and tr.get("dropSurah")
+                and not str(tr.get("op") or "").startswith("drop_surah"))
+
+
+def published_origin(idx, fetch):
+    """الأصلُ **المنشور** للقارئ وبصمتُه، كما يقرؤه `promote` عند الترقية — من الإنتاج وحده لا من مفتاحٍ يختاره
+    صانعُ المرشّح. `fetch(key) -> bytes`؛ وغيابُه (‏قارئٌ لم يُنشر) يُرجع `(None, None)`.
+
+    (2026-11-10) الدفعةُ فوق مرشّحِ مسرحٍ ورث إسقاطاً كانت تُردّ «إعلان الغياب الموروث بلا أصل منشور مطابق كامل
+    البصمة»، لأنّ حارسَ البنية هنا يُستدعى بلا أصل. ⛔ ولا يُرخى شيء: `inherited_drops` يبقى يطابق `fromKey`
+    و`fromSha256` في ترويسة المنتَج بهذا الأصل المنشور نفسه، فسلسلةٌ لا تعود إلى الحيّ تُردّ كما كانت."""
+    key = f"timings/{idx.get('riwaya')}/{idx.get('reciterId')}.jz"
+    try:
+        body = fetch(key)
+    except Exception:                                  # noqa: BLE001
+        return None, None
+    return json.loads(gzip.decompress(body).decode("utf-8")), hashlib.sha256(body).hexdigest()
+
+
+def published_owner_approved(live, live_sha, approvals=None):
+    """صفُّ الموافقة الذي نُشر به الحيُّ نفسُه (‏مفتاحُ مسرحه ببصمته)، مقصوراً على السور المعلَنة فيه.
+    فلا يُجيز إلا إعلاناً قائماً في المنشور؛ والترقيةُ تبقى تطلب صفّاً لمفتاح المرشّح و`--allow-truncated`."""
+    if approvals is None:
+        approvals = promote.load_drop_approvals()
+    key = f"timings-staging/{live.get('riwaya')}/{live.get('reciterId')}.{str(live_sha)[:8]}.jz"
+    old = promote.declared_surah_codes(live.get("transform"))
+    return frozenset(s for s in (approvals.get(key) or ()) if s in old)
+
+
 def inherit_truncated_gaps(pidx, out, realigned):
     """يُورِّث إعلانَ **الحجب الوسطيّ** (‏أمر المالك 2026-10-31) من الأصل إلى المخرَج، أو يردّ.
 
@@ -565,9 +597,20 @@ def main():
             raise SystemExit("⛔ لا مداخلَ تغيّرت ولا ترويسة — لا شيء هنا")
         print(f"  ✔ تصحيحٌ ترويسيّ بلا مسِّ مدخلٍ واحد: {changed}")
     _inh = parent_coded_approved(pidx, idx, a.parent, psha)
+    _dp, _dps, _own = None, None, frozenset()
+    if a.parent.startswith("timings-staging/") or needs_drop_parent(idx):
+        def _fetch(key):
+            return cl.get_object(Bucket=bucket, Key=key)["Body"].read()
+        _dp, _dps = published_origin(idx, _fetch)
+        if _dp is not None:
+            _inh = _inh | parent_coded_approved(
+                _dp, idx, f"timings/{idx.get('riwaya')}/{idx.get('reciterId')}.jz", _dps)
+            if needs_drop_parent(idx):
+                _own = published_owner_approved(_dp, _dps)
     if _inh:
         print(f"  ⓘ إعفاءُ العتبة موروثٌ من صفّ موافقة الأصل لسورٍ محجوبةٍ فيه بالرمز نفسه: {sorted(_inh)}")
-    for check, name in ((promote.index_gate(idx, coded_approved=_inh), "البنية"),
+    for check, name in ((promote.index_gate(idx, parent=_dp, parent_sha=_dps, owner_approved=_own,
+                                            coded_approved=_inh), "البنية"),
                         (promote.catalog_gate(idx, promote.catalog(cl, bucket)),
                          "الهويّة")):
         if check:
