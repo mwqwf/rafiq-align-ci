@@ -2252,11 +2252,93 @@ def gap_excused_ids(idx, claimed):
     return excused
 
 
-def inherited_drops(idx, parent, parent_sha, owner_approved=frozenset()):
+CHAIN_MAX_DEPTH = 8
+
+
+def _declared_surahs(tr):
+    """السورُ المعلَنةُ غياباً في ترويسةٍ: أرقامُ op=drop_surah ∪ dropSurah (‏كلاهما نصّاً)."""
+    op = str(tr.get("op") or "")
+    # ما قبل أول «|» فقط: `drop_surah:4,10,37|declare_gap:24` تعلن 4 و10 و37 غياباً؛ و24 حجبٌ وسطيٌّ لا سورةٌ مُسقطة.
+    got = set(re.findall(r"\d+", op.split("|", 1)[0])) if op.startswith("drop_surah:") else set()
+    ds = tr.get("dropSurah")
+    return got | {str(s) for s in (ds if isinstance(ds, list) else [])}
+
+
+def drop_chain_origin(idx, fetch, max_depth=CHAIN_MAX_DEPTH):
+    """يمشي سلسلةَ المنشأ من ترويسة المنتَج إلى **الحيّ الحاليّ** ويُرجع `(live, live_sha, None)` أو `(None, None, سبب)`.
+
+    ⭐ (أمر القائد 2026-11-11) دفعةٌ مبنيّةٌ على مرشّح مسرحٍ مبنيٍّ هو نفسُه على الحيّ يكون `fromKey` فيها المسرحَ
+    فكان `inherited_drops` يردّها. هنا تُقبل **بشروطٍ لا تُرخي شيئاً**:
+      ١) كلُّ حلقةٍ تُجلب بـ`fetch(fromKey)` وتُطابَق **بصمةُ بايتاتها الكاملة** على `fromSha256` للحلقة التي فوقها (‏لا باسم المفتاح).
+      ٢) تنتهي حيث `fromKey == timings/<riw>/<id>.jz` (‏الحيّ)؛ وتطابق المحتوى المجلوب الآن بصمةً — والمقارنةُ ببصمة الحيّ
+         الحاليّ يجريها المستدعي (‏`inherited_drops`)، فسلسلةٌ تنتهي عند حيٍّ سابقٍ تُردّ.
+      ٣) كلُّ حلقةٍ: الرواية والقارئ نفساهما · مجموعةُ السور المعلَنة غياباً **ثابتةٌ حرفاً** (‏لا يختفي إعلانٌ ولا يُضاف) ·
+         `reasonCode`/`reasonUser` ثابتان · وما في `truncatedGaps` لا يختفي ولا يتبدّل سجلُّه نزولاً في السلسلة.
+      ٤) العمقُ ≤ max_depth · الدائريةُ تُردّ (‏مفتاحاً أو بصمةً) · والحلقةُ التي لا تُجلب تُردّ.
+    ولا يُقبل مفتاحٌ سوى مسرحِ هذا القارئ أو حيِّه."""
+    def bad(why):
+        return None, None, why
+    if not callable(fetch):
+        return bad("لا جالبَ لسلسلة المنشأ")
+    tr0 = idx.get("transform") if isinstance(idx.get("transform"), dict) else None
+    if tr0 is None:
+        return bad("ترويسةُ المنتَج بلا transform قاموسيّ")
+    riw, rid = idx.get("riwaya"), idx.get("reciterId")
+    if not isinstance(riw, str) or not isinstance(rid, str) or not riw or not rid:
+        return bad("هويةُ القارئ ناقصةٌ في المنتَج")
+    live_key = f"timings/{riw}/{rid}.jz"
+    stage_re = re.compile(rf"timings-staging/{re.escape(riw)}/{re.escape(rid)}\.[0-9a-f]{{8}}\.jz")
+    declared = _declared_surahs(tr0)
+    reasons = (tr0.get("reasonCode"), tr0.get("reasonUser"))
+    child, child_tr = idx, tr0
+    seen_keys, seen_shas = set(), set()
+    for depth in range(1, max_depth + 1):
+        key, want = child_tr.get("fromKey"), child_tr.get("fromSha256")
+        if not isinstance(key, str) or not re.fullmatch(r"[0-9a-f]{64}", want if isinstance(want, str) else ""):
+            return bad(f"حلقةٌ بلا fromKey/fromSha256 سويّين (العمق {depth})")
+        if key != live_key and not stage_re.fullmatch(key):
+            return bad(f"حلقةٌ بمفتاحٍ ليس حيَّ هذا القارئ ولا مسرحَه: {key}")
+        if key in seen_keys or want in seen_shas:
+            return bad(f"سلسلةٌ دائرية عند {key}")
+        seen_keys.add(key)
+        seen_shas.add(want)
+        try:
+            body = fetch(key)
+        except Exception as ex:                        # noqa: BLE001
+            return bad(f"حلقةٌ مفقودةٌ لا تُجلب: {key} ({type(ex).__name__})")
+        if not isinstance(body, (bytes, bytearray)) or hashlib.sha256(body).hexdigest() != want:
+            return bad(f"بصمةُ محتوى الحلقة المجلوبة لا تطابق fromSha256: {key}")
+        try:
+            link = json.loads(gzip.decompress(body).decode("utf-8"))
+        except Exception:                              # noqa: BLE001
+            return bad(f"حلقةٌ غيرُ مقروءة: {key}")
+        if not isinstance(link, dict) or (link.get("riwaya"), link.get("reciterId")) != (riw, rid):
+            return bad(f"حلقةٌ لقارئٍ أو روايةٍ أخرى: {key}")
+        ltr = link.get("transform") if isinstance(link.get("transform"), dict) else None
+        if ltr is None:
+            return bad(f"حلقةٌ بلا transform قاموسيّ: {key}")
+        if _declared_surahs(ltr) != declared:
+            return bad(f"مجموعةُ السور المعلَنة غياباً تبدّلت في الحلقة {key}")
+        if (ltr.get("reasonCode"), ltr.get("reasonUser")) != reasons:
+            return bad(f"reasonCode/reasonUser تبدّلا في الحلقة {key}")
+        cg = child_tr.get("truncatedGaps") if isinstance(child_tr.get("truncatedGaps"), dict) else {}
+        lg = ltr.get("truncatedGaps") if isinstance(ltr.get("truncatedGaps"), dict) else {}
+        if any(k not in cg or cg[k] != v for k, v in lg.items()):
+            return bad(f"إعلانُ حجبٍ وسطيّ اختفى أو تبدّل بين الحلقة {key} وما فوقها")
+        if key == live_key:
+            return link, want, None
+        child_tr = ltr
+    return bad(f"السلسلةُ أطولُ من {max_depth} حلقاتٍ")
+
+
+def inherited_drops(idx, parent, parent_sha, owner_approved=frozenset(), chain_fetch=None):
     """إعلان غياب موروث فقط؛ لا يقبل إسقاطاً جديداً بحقل dropSurah.
 
     يلزم الأصل المنشور على كامل بصمته، وغياب السورة فيه مسبقاً، ونفس البيان
     الظاهر للمستخدم، وبقاء جميع مداخله. تغيير op بعد دمج سورة لا يلغي الإعلان.
+
+    `chain_fetch` (اختياريّ): إن كان `fromKey` مسرحاً لا الحيَّ، يُمشى إلى الحيّ بـ`drop_chain_origin`
+    ولا يُقبل إلا إن انتهت السلسلةُ ببصمة `parent_sha` ذاتها. بدونه (أو بحلقةٍ واحدة) السلوكُ كما كان حرفاً.
     """
     tr = idx.get("transform") or {}
     values = tr.get("dropSurah") if isinstance(tr, dict) else None
@@ -2266,10 +2348,17 @@ def inherited_drops(idx, parent, parent_sha, owner_approved=frozenset()):
             or len(values) != len(set(values))):
         return set(), "إعلان الغياب الموروث غير سوي"
     target = f"timings/{idx.get('riwaya')}/{idx.get('reciterId')}.jz"
+    _direct = (tr.get("fromSha256") == parent_sha and tr.get("fromKey") == target)
     if (not parent or not re.fullmatch(r"[0-9a-f]{64}", parent_sha or "")
-            or tr.get("fromSha256") != parent_sha or tr.get("fromKey") != target
             or (parent.get("riwaya"), parent.get("reciterId")) != (idx.get("riwaya"), idx.get("reciterId"))):
         return set(), "إعلان الغياب الموروث بلا أصل منشور مطابق كامل البصمة"
+    if not _direct:
+        if chain_fetch is None or tr.get("fromKey") == target:
+            return set(), "إعلان الغياب الموروث بلا أصل منشور مطابق كامل البصمة"
+        _, _csha, _cwhy = drop_chain_origin(idx, chain_fetch)
+        if _cwhy or _csha != parent_sha:
+            return set(), ("إعلان الغياب الموروث بلا أصل منشور مطابق كامل البصمة"
+                           + (f" — {_cwhy}" if _cwhy else " — السلسلة لا تنتهي بالحيّ الحاليّ"))
     pt = parent.get("transform") or {}
     if not isinstance(pt, dict):
         return set(), "إعلان الغياب في الأصل بلا سبب ظاهر للمستخدم"
@@ -2303,7 +2392,7 @@ def inherited_drops(idx, parent, parent_sha, owner_approved=frozenset()):
 
 
 def index_gate(idx, *, parent=None, parent_sha=None, owner_approved=frozenset(), coded_approved=frozenset(),
-               inherited_rows=None):
+               inherited_rows=None, chain_fetch=None):
     """سبب رفض الفهرس نفسه، أو None. **الغياب رفضٌ لا تساهل.**"""
     if not idx.get("refineVersion"):
         return "الفهرس بلا أثر صقلٍ في ترويسته — مجهول الجيل فلا يُرقّى"
@@ -2335,7 +2424,7 @@ def index_gate(idx, *, parent=None, parent_sha=None, owner_approved=frozenset(),
     dropped = (set(re.findall(r"\d+", op_txt))
                if op_txt.startswith("drop_surah") else set())
     if not op_txt.startswith("drop_surah") and isinstance(tr, dict) and tr.get("dropSurah"):
-        inherited, why = inherited_drops(idx, parent, parent_sha, owner_approved)
+        inherited, why = inherited_drops(idx, parent, parent_sha, owner_approved, chain_fetch)
         if why:
             return why
         dropped |= inherited
@@ -3056,8 +3145,10 @@ def main():
         # موافقةُ المالك على الحجب المؤقّت الموروث: صفُّه لمفتاح المرشّح ∩ ما يسمّيه --allow-truncated.
         _own = (frozenset(load_drop_approvals().get(src, frozenset()))
                 & frozenset(int(x) for x in re.findall(r"\d+", a.allow_truncated or "")))
+        def _chain_fetch(key):
+            return cl.get_object(Bucket=bucket, Key=key)["Body"].read()
         bad = (index_gate(idx, parent=drop_parent, parent_sha=drop_parent_sha, owner_approved=_own,
-                          coded_approved=load_drop_approvals().get(src, frozenset()))
+                          coded_approved=load_drop_approvals().get(src, frozenset()), chain_fetch=_chain_fetch)
                or catalog_gate(idx, catalog(cl, bucket)))
         if not bad:
             try:
