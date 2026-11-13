@@ -70,6 +70,7 @@ def pruned_surah_maps(idx, surahs):
 from declarations import DECL_FIELDS as _DECL_FIELDS                    # noqa: E402,F401
 from declarations import merged_op, prior_declarations                  # noqa: E402,F401
 from declarations import op_surahs as _op_surahs                        # noqa: E402,F401
+from declarations import declared_absent                                # noqa: E402
 
 
 def carried_declared_tails(idx, kept, surahs, reason_code, reason_user, prior=None):
@@ -112,6 +113,161 @@ def carried_declared_tails(idx, kept, surahs, reason_code, reason_user, prior=No
         out[str(s)] = rec
         names.append(int(s))
     return out, sorted(names)
+
+
+# ─────────────────────────────────────────────────────────────────────────────────────────────────────────────
+# ⭐ وضعُ `--reaffirm`: إعادةُ كتابةِ إعلاناتٍ **قائمةٍ** حرفاً، بلا مسّ مدخلٍ ولا إضافةِ إعلانٍ ولا حذفِه (‏2026-11-13).
+#
+# العلّةُ المقيسة (‏akri_qalun.5ab97519): الحيُّ ناتجُ `graft_surahs` فـ`op` فيه `graft_surahs:…` والإعلاناتُ موروثةٌ في
+# `declarations`/`dropSurah`/`priorOp`؛ و`promote.inherited_drops` لا يورّث حجبَ OTHER إلا عن أصلٍ يبدأ `op` فيه بـ`drop_surah:`
+# ⇒ كلُّ مرشّحٍ فوقه يُردّ. و`main` يرفض إعادةَ إعلانِ سورةٍ معلَنة (‏`_again`) — وهو حقٌّ لا يُرخى.
+# ⇒ هذا وضعٌ مستقلٌّ صريح: لا يُعلن شيئاً جديداً، إنما يكتب `op` صادقاً (‏`merged_op`) عن الإعلانات نفسِها حرفاً،
+#   ويُلزم دليلَ الحجب الأصليّ نفسَه. ولا يمسّ `promote.py` ولا حارساً آخر.
+# وكلُّ شرطٍ موسومٌ بـ`[reaffirm:<اسم>]` في رسالته، وباختبارٍ يُثبت أنّ إزالتَه تكسره (‏test_drop_surah_reaffirm.py).
+# ─────────────────────────────────────────────────────────────────────────────────────────────────────────────
+REPO = HERE.parent.parent
+EVIDENCE_DIR = "ops/evidence"
+
+
+def _reject(tag, msg):
+    raise SystemExit(f"⛔ [reaffirm:{tag}] {msg}")
+
+
+def _sha_file(path):
+    return hashlib.sha256(Path(path).read_bytes()).hexdigest()
+
+
+def reaffirm_evidence(evidence, key, surahs, prior, repo=None):
+    """يتحقّق أنّ `evidence` هو ملفُّ الدليل الذي استند إليه حجبُ كلّ سورةٍ مسمّاة، ويُرجع سجلَّه للترويسة.
+
+    الشروطُ مجتمعة: ملفٌّ موجودٌ داخل المستودع تحت `ops/evidence/` · قاموسُ JSON مفتاحُه `key` نفسُه (‏القارئُ والرواية) ·
+    `liveSha256` بصمةٌ كاملة · يسمّي كلَّ سورةٍ مسمّاة في `surahs` وفي `cases` بآيةٍ منها وبشاهدٍ ذي `runId`.
+    والربطُ الآليّ: كلُّ `runId` لشهود السورة مذكورٌ بنصّه في `reason` سجلِّها ⇒ `link="reason-runId"`؛ وإن لم يُذكر
+    (‏سجلٌّ مشتقٌّ من حقولٍ عليا لا تسمّي الشاهد) ⇒ `link="path"`: يُقبل لأنّ المسارَ وبصمتَه يُسجَّلان في الترويسة
+    والملفَّ في المستودع — ويُعلَن ذلك في المخرَج لا يُخفى."""
+    repo = Path(repo or REPO).resolve()
+    if not evidence:
+        _reject("no_evidence", "--reaffirm يلزمه --evidence <ملفّ الدليل الذي استند إليه الحجبُ الأصليّ>")
+    p = Path(evidence)
+    p = (p if p.is_absolute() else repo / p).resolve()
+    try:
+        rel = p.relative_to(repo)
+    except ValueError:
+        rel = None
+    if rel is None or not str(rel).replace("\\", "/").startswith(EVIDENCE_DIR + "/"):
+        _reject("evidence_outside", f"الدليل {evidence} ليس داخل المستودع تحت {EVIDENCE_DIR}/")
+    if not p.is_file():
+        _reject("evidence_file", f"ملفّ الدليل غير موجود: {rel}")
+    try:
+        ev = json.loads(p.read_text(encoding="utf-8"))
+    except (OSError, ValueError) as e:
+        _reject("evidence_file", f"ملفّ الدليل لا يُقرأ JSON: {e}")
+    if not isinstance(ev, dict) or ev.get("key") != key:
+        _reject("evidence_key", f"الدليلُ لفهرسٍ آخر ({(ev or {}).get('key') if isinstance(ev, dict) else type(ev).__name__!r}) "
+                                f"لا {key}")
+    if not re.fullmatch(r"[0-9a-f]{64}", str(ev.get("liveSha256") or "")):
+        _reject("evidence_key", "الدليلُ بلا liveSha256 كاملة — لا يُعرف على أيّ فهرسٍ قِيس")
+    ev_surahs = {int(s) for s in (ev.get("surahs") or []) if str(s).isdigit()}
+    cases = ev.get("cases") if isinstance(ev.get("cases"), dict) else {}
+    links = {}
+    for s in surahs:
+        case = cases.get(str(s))
+        if s not in ev_surahs or not isinstance(case, dict) or not str(case.get("ayah") or "").startswith(f"{s}:"):
+            _reject("evidence_surah", f"س{s} ليست في الدليل {rel} (‏surahs وcases بآيةٍ منها)")
+        runs = [w.get("runId") for w in (case.get("witnesses") or []) if isinstance(w, dict) and w.get("runId")]
+        if not runs or any(type(r) is not int for r in runs):
+            _reject("evidence_surah", f"س{s}: الدليلُ بلا شاهدٍ ذي runId صحيح")
+        reason = str(prior[str(s)].get("reason") or "")
+        links[str(s)] = ("reason-runId" if all(re.search(rf"(?<!\d){r}(?!\d)", reason) for r in runs)
+                         else "path")
+    return {"path": str(rel).replace("\\", "/"), "sha256": _sha_file(p),
+            "liveSha256": ev["liveSha256"], "link": links}
+
+
+def reaffirm(idx, live_sha, key, surahs, evidence, *, reason=None, reason_code=None, reason_user=None, repo=None):
+    """يُرجع فهرساً **مداخلُه ووسمُ اكتماله وسائرُ ترويسته** هي الأصلُ حرفاً، و`transform` فيه يعيد كتابة الإعلانات القائمة
+    بـ`op = merged_op(...)` صادقاً. ويردّ (‏`SystemExit` موسوماً) عند أيّ شرطٍ لا يتحقّق — انظر رأسَ القسم."""
+    want = f"timings/{idx.get('riwaya')}/{idx.get('reciterId')}.jz"
+    if key != want or not re.fullmatch(r"[0-9a-f]{64}", str(live_sha or "")):
+        _reject("key_live", f"--reaffirm للحيّ المنشور وحده ({want}) ببصمةٍ كاملة، لا {key}")
+    tr = idx.get("transform") if isinstance(idx.get("transform"), dict) else None
+    if not tr:
+        _reject("not_declared", "الأصلُ بلا transform — لا إعلانَ قائماً يُعاد تأكيده")
+    if str(tr.get("op") or "").startswith("drop_surah:"):
+        _reject("op_already", f"op الأصل يبدأ بـdrop_surah: سلفاً ({tr.get('op')}) — لا شيءَ يُعاد تأكيده")
+    if not surahs or len(set(surahs)) != len(surahs) or any(not 1 <= s <= 114 for s in surahs):
+        _reject("not_declared", f"قائمةُ السور غير سويّة: {surahs}")
+    prior = prior_declarations(idx)
+    named_in = ({str(k) for k in (tr.get("declarations") or {})}
+                | {str(s) for s in (tr.get("dropSurah") or [])}
+                | {str(s) for s in _op_surahs(tr.get("priorOp"), "drop_surah")}
+                | {str(s) for s in _op_surahs(tr.get("priorOp"), "declare_gap")})
+    present = {int(e["ayahId"].split(":")[0]) for e in idx.get("entries") or []}
+    for s in surahs:
+        if str(s) not in named_in or str(s) not in prior:
+            _reject("not_declared", f"س{s} غيرُ معلَنةٍ في الأصل (‏declarations · dropSurah · priorOp) — "
+                                    f"--reaffirm لا يُعلن جديداً")
+        if prior[str(s)].get("op") != "drop_surah":
+            _reject("not_drop", f"س{s} إعلانُها {prior[str(s)].get('op')} لا drop_surah — لا يُعاد تأكيده إسقاطاً")
+        if s in present:
+            _reject("has_entries", f"س{s} لها مداخلُ في الأصل — الإعلانُ القائم لا يصفها")
+    # ⛔ الحقولُ الثلاثةُ تحمل الإعلاناتِ نفسَها: `dropSurah` = سورُ سجلّات drop_surah، و`priorOp` (‏إن وُجد) = `merged_op`.
+    drops = {int(k) for k, d in prior.items() if d.get("op") == "drop_surah"}
+    if {int(s) for s in (tr.get("dropSurah") or [])} != drops:
+        _reject("fields_disagree", f"dropSurah {tr.get('dropSurah')} ≠ سورِ سجلّات drop_surah {sorted(drops)}")
+    if tr.get("priorOp") is not None and tr.get("priorOp") != merged_op(prior):
+        _reject("fields_disagree", f"priorOp {tr.get('priorOp')!r} ≠ ما تقوله السجلّات {merged_op(prior)!r}")
+    if drops & present:
+        _reject("has_entries", f"سجلّاتُ drop_surah تسمّي سوراً لها مداخل: {sorted(drops & present)}")
+    for name, val, fld in (("--reason-code", reason_code, "reasonCode"), ("--reason-user", reason_user, "reasonUser"),
+                           ("--reason", reason, "reason")):
+        if val is None:
+            continue
+        bad = [s for s in surahs if prior[str(s)].get(fld) != val]
+        if bad:
+            _reject("arg_mismatch", f"{name} يخالف {fld} في سجلّ السور {bad} — --reaffirm يكتب السجلَّ القائم حرفاً")
+    declared_absent(idx)                                    # حارسُ الوحدة المشتركة نفسُه: رمزٌ ونصٌّ ظاهران ولا مداخل
+    ev = reaffirm_evidence(evidence, key, surahs, prior, repo=repo)
+
+    from rename_reciter import entries_sha                                    # noqa: PLC0415
+    esha = entries_sha(idx["entries"])
+    out = dict(idx)
+    keep = {k: v for k, v in tr.items()
+            if k not in ("op", "fromSha256", "fromKey", "by", "at", "droppedEntries", "movedEntries",
+                         "addedEntries", "removedEntries", "entriesSha256", "parentEntriesSha256", "declarations")}
+    out["transform"] = {
+        **keep,
+        "declarations": {k: dict(v) for k, v in prior.items()},
+        "op": merged_op(prior),
+        "fromSha256": live_sha,
+        "fromKey": key,
+        "droppedEntries": 0, "movedEntries": 0, "addedEntries": 0, "removedEntries": 0,
+        "entriesSha256": esha,
+        "parentEntriesSha256": esha,
+        "reaffirm": {"surahs": sorted(surahs), "replacedOp": tr.get("op"),
+                     "replacedFrom": {k: tr.get(k) for k in ("fromKey", "fromSha256", "by") if tr.get(k) is not None},
+                     "evidence": ev},
+        "by": "drop_surah --reaffirm",
+        "at": int(time.time() * 1000),
+    }
+    # ⛔ تحقّقٌ بعديّ على المخرَج نفسِه: لا يُرفع ما يخالف الوعد ولو أخطأ البناءُ أعلاه.
+    if out["entries"] is not idx["entries"] or entries_sha(out["entries"]) != esha:
+        _reject("post", "المداخلُ تبدّلت")
+    if (tr.get("entriesSha256") and tr["entriesSha256"] != esha):
+        _reject("post", f"entriesSha256 في الأصل {tr['entriesSha256'][:12]}… لا يطابق مداخلَه {esha[:12]}…")
+    if {k: v for k, v in out.items() if k != "transform"} != {k: v for k, v in idx.items() if k != "transform"}:
+        _reject("post", "حقلٌ خارج transform تبدّل")
+    if prior_declarations(out) != prior or declared_absent(out) != declared_absent(idx):
+        _reject("post", "الإعلاناتُ في المخرَج ليست هي القائمةَ حرفاً (‏إضافةٌ أو حذفٌ أو تبدّل)")
+    for k in sorted(out["transform"].get("truncatedTail") or {}, key=int):
+        ok, why = promote.declared_truncated_tail(out, k)
+        if not ok:
+            _reject("post", f"س{k}: إعلانُ الذيل لا يصحّ في المخرَج: {why}")
+    for k in sorted(out["transform"].get("truncatedGaps") or {}, key=int):
+        ok, why = promote.declared_truncated_gaps(out, k)
+        if not ok:
+            _reject("post", f"س{k}: الحجبُ الوسطيّ لا يصحّ في المخرَج: {why}")
+    return out
 
 
 def main():
@@ -158,7 +314,17 @@ def main():
     ap.add_argument("--declare-gap", action="store_true",
                     help="السورةُ تعمل وبعضُ آياتها غائبٌ — يُسمّى سببُ النقص "
                          "بلا حذفِ مدخلٍ واحد")
+    # ⭐ إعادةُ تأكيد إعلاناتٍ قائمةٍ حرفاً (‏انظر `reaffirm`): لا يُعلن جديداً ولا يمسّ مدخلاً، ويلزمه دليلُ الحجب الأصليّ.
+    ap.add_argument("--reaffirm", action="store_true",
+                    help="أعد كتابة إعلاناتٍ قائمةٍ في الحيّ حرفاً بـop صادق (‏بعد graft_surahs ونحوه) — لا إعلانَ جديد")
+    ap.add_argument("--evidence",
+                    help="مع --reaffirm وحده: ملفُّ الدليل تحت ops/evidence/ الذي استند إليه الحجبُ الأصليّ")
     a = ap.parse_args()
+    if a.evidence and not a.reaffirm:
+        raise SystemExit("⛔ [reaffirm:flags] --evidence لا يكون إلا مع --reaffirm")
+    if a.reaffirm and (a.declare_gap or a.declare_absent or a.timing_evidence):
+        raise SystemExit("⛔ [reaffirm:flags] --reaffirm لا يجتمع مع --declare-gap ولا --declare-absent ولا --timing-evidence "
+                         "— فهو لا يُعلن شيئاً جديداً")
     if a.declare_gap and a.declare_absent:
         raise SystemExit("⛔ --declare-gap و--declare-absent وضعان متناقضان: "
                          "الأوّلُ لسورةٍ تعمل وينقصها بعضُ آياتها، والثاني "
@@ -181,6 +347,32 @@ def main():
                     f"في التطبيق. اكتب فيه ما يهمّ القارئَ (‏ما حدث ولماذا لا "
                     f"يجد الصوت)، وضع الإذنَ والقرارَ الإداريَّ في "
                     f"docs/qa/DROPPED_SURAHS.md.")
+
+    if a.reaffirm:
+        cl, bucket = promote.s3()
+        body = cl.get_object(Bucket=bucket, Key=a.key)["Body"].read()
+        live = hashlib.sha256(body).hexdigest()
+        if not live.startswith(a.sha.rstrip(".")):
+            raise SystemExit(f"⛔ البصمة لا تطابق: الحيّة {live[:16]}… والمطلوبة {a.sha}")
+        idx = json.loads(gzip.decompress(body).decode("utf-8"))
+        surahs = [int(x) for x in str(a.surah).replace("،", ",").split(",") if x.strip()]
+        out = reaffirm(idx, live, a.key, surahs, a.evidence, reason=a.reason,
+                       reason_code=a.reason_code, reason_user=a.reason_user)
+        blob = gzip.compress(json.dumps(out, ensure_ascii=False, separators=(",", ":")).encode("utf-8"), 9)
+        new_sha = hashlib.sha256(blob).hexdigest()
+        target = f"timings-staging/{idx.get('riwaya')}/{idx.get('reciterId')}.{new_sha[:8]}.jz"
+        r = out["transform"]["reaffirm"]
+        print(f"إعادةُ تأكيد: {a.key} ({live[:12]}…) · op {r['replacedOp'][:40]!r} ⇐ {out['transform']['op']!r}")
+        print(f"المداخل {len(out['entries'])} بلا تغيير (‏entriesSha256 {out['transform']['entriesSha256'][:12]}…) · "
+              f"الدليل {r['evidence']['path']} · الربط {r['evidence']['link']}")
+        print(f"إلى {target} ({len(blob)} بايت · بصمة {new_sha[:12]}…)")
+        if not a.yes:
+            print("(عرضٌ فقط — أضف --yes للرفع)")
+            return
+        cl.put_object(Bucket=bucket, Key=target, Body=blob, ContentType="application/gzip")
+        got = cl.head_object(Bucket=bucket, Key=target)["ContentLength"]
+        print(f"↑ رُفع · الدلو {got} · المحلّي {len(blob)} → {'✅' if got == len(blob) else '❌'}")
+        return
 
     if a.reason_code == "TIMING_UNDER_REPAIR" and (a.declare_gap or a.declare_absent):
         raise SystemExit("⛔ TIMING_UNDER_REPAIR لإسقاط سورٍ حاضرةٍ فعلاً فقط، لا مع --declare-gap ولا --declare-absent")
