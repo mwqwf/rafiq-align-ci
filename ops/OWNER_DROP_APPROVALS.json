@@ -1,1235 +1,1235 @@
 [
-  {
-    "key": "timings-staging/hafs/kurdi.8dd3cf93.jz",
-    "surahs": [
-      4
-    ],
-    "rule_ref": "قاعدة المالك 2026-10-02 — فجوة في وسط السورة (4:127 غائبة من صوت المصدر نفسه، ولا مصدر بديل) ⇒ تُسقط السورة كلّها وتُعلن",
-    "attempts": [
-      "خريطة السماع لـ004.mp3 (heard_batch): 4:126 ثمّ 4:128 مباشرةً، أي 4:127 غير منطوقة في الملف نفسه — رُدّ الإكمال",
-      "بدائل المصدر (alt_source) لـkurdi: لا ملف بديل لسورة النساء — رُدّ",
-      "pin_heard لـ4:127: مراسي 125-127 دون 0.5 ثقة فلا تثبيت ممكن — رُدّ"
-    ]
-  },
-  {
-    "key": "timings-staging/hafs/mhsny.1f3c26ab.jz",
-    "ayahs": [
-      "69:52"
-    ],
-    "rule_ref": "قاعدة المالك 2026-10-02 (بترُ آخر السورة يُبقى ويُعلَن) — وإذنه النصّيّ 2026-10-10 07:26Z بإعلان غياب 69:52 (آخر آية في الحاقّة) عند المحيسني",
-    "attempts": [
-      "إحصاء force+no_range (تشغيلة 37947128050) ردّ 69:52 بالخطأ نفسه (ffmpeg 97696/128000)؛ وclamp_file_end لا يجد تجاوزاً يُقصّ (ops/out/20261009_1421_pB_clampdry_mhsny.txt)",
-      "نهاية مدخل 69:52 هي 594718 وهي دون نهاية الفكّ 595720 فلا قصّ ممكن؛ والعلّة 1م.ث في شرط got_end≥fd−tol بمسار ffmpeg (ترويسة 595801)",
-      "find_sources: خادم المحيسني ليس في mp3quran فلا مصدر بديل لسورة الحاقّة"
-    ]
-  },
-  {
-    "key": "timings-staging/warsh/gharbi_warsh.bae81afe.jz",
-    "surahs": [
-      36
-    ],
-    "rule_ref": "قاعدة المالك 2026-10-02 — خلل وسط السورة غير قابل للإصلاح ⇒ تُسقط السورة كلّها وتُعلن؛ وإذنه النصّيّ 2026-10-11 06:02Z: «أصلح يس عند الغربي مادام حل مشكلته معروفا فإن تعذر أسقطه»",
-    "attempts": [
-      "ctc_splice mode=heard rewindow=36:1-83 على الحيّ: «36: 56 بلا حدود» (run 38094885754)",
-      "ctc_splice mode=window rewindow=36:1-5 على 98df26d2: 36:3 مدّتها 861م.ث والمتوقَّع 2500 (run 38095612466)",
-      "realign_surah بتخطٍّ 5100 (whisper_ac=1500 ثمّ 0 مع until_ms): «آيات بلا حدود: [1, 71]» (runs 38096514663 و38096519119)",
-      "ctc_splice window rewindow=36:1-83: «المدى السورةُ كلُّها» (run 38097453554)؛ و36:2-83: 36:3 مدّتها 741م.ث والمتوقَّع 1665 (run 38097457661)",
-      "سبر ctc_align س36: 36:1 عند 10457م.ث وهي القيمة المكبوسة نفسها (run 38093895059)؛ وpin_heard: مرساة 36:2 جودتها 0.385",
-      "المرشّح 98df26d2: مداخله كلّها LOW ومدد شاذّة (36:6 ≈55ث) فلا يُرقّى"
-    ]
-  },
-  {
-    "key": "timings-staging/warsh/gharbi_warsh.51b92b5a.jz",
-    "surahs": [
-      36
-    ],
-    "rule_ref": "قاعدة المالك 2026-10-02 — خلل وسط السورة غير قابل للإصلاح ⇒ تُسقط السورة كلّها وتُعلن؛ وإذنه النصّيّ 2026-10-11 06:02Z: «أصلح يس عند الغربي مادام حل مشكلته معروفا فإن تعذر أسقطه»",
-    "attempts": [
-      "ctc_splice mode=heard rewindow=36:1-83 على الحيّ: «36: 56 بلا حدود» (run 38094885754)",
-      "ctc_splice mode=window rewindow=36:1-5 على 98df26d2: 36:3 مدّتها 861م.ث والمتوقَّع 2500 (run 38095612466)",
-      "realign_surah بتخطٍّ 5100 (whisper_ac=1500 ثمّ 0 مع until_ms): «آيات بلا حدود: [1, 71]» (runs 38096514663 و38096519119)",
-      "ctc_splice window rewindow=36:1-83: «المدى السورةُ كلُّها» (run 38097453554)؛ و36:2-83: 36:3 مدّتها 741م.ث والمتوقَّع 1665 (run 38097457661)",
-      "سبر ctc_align س36: 36:1 عند 10457م.ث وهي القيمة المكبوسة نفسها (run 38093895059)؛ وpin_heard: مرساة 36:2 جودتها 0.385",
-      "المرشّح 98df26d2: مداخله كلّها LOW ومدد شاذّة (36:6 ≈55ث) فلا يُرقّى"
-    ]
-  },
-  {
-    "key": "timings-staging/warsh/gharbi_warsh.a6e83f81.jz",
-    "surahs": [
-      36
-    ],
-    "rule_ref": "قاعدة المالك 2026-10-02 — خلل وسط السورة غير قابل للإصلاح ⇒ تُسقط السورة كلّها وتُعلن؛ وإذنه النصّيّ 2026-10-11 06:02Z: «أصلح يس عند الغربي مادام حل مشكلته معروفا فإن تعذر أسقطه»",
-    "attempts": [
-      "ctc_splice mode=heard rewindow=36:1-83 على الحيّ: «36: 56 بلا حدود» (run 38094885754)",
-      "ctc_splice mode=window rewindow=36:1-5 على 98df26d2: 36:3 مدّتها 861م.ث والمتوقَّع 2500 (run 38095612466)",
-      "realign_surah بتخطٍّ 5100 (whisper_ac=1500 ثمّ 0 مع until_ms): «آيات بلا حدود: [1, 71]» (runs 38096514663 و38096519119)",
-      "ctc_splice window rewindow=36:1-83: «المدى السورةُ كلُّها» (run 38097453554)؛ و36:2-83: 36:3 مدّتها 741م.ث والمتوقَّع 1665 (run 38097457661)",
-      "سبر ctc_align س36: 36:1 عند 10457م.ث وهي القيمة المكبوسة نفسها (run 38093895059)؛ وpin_heard: مرساة 36:2 جودتها 0.385",
-      "المرشّح 98df26d2: مداخله كلّها LOW ومدد شاذّة (36:6 ≈55ث) فلا يُرقّى"
-    ]
-  },
-  {
-    "key": "timings-staging/warsh/gharbi_warsh.26fb5b3e.jz",
-    "surahs": [
-      36
-    ],
-    "rule_ref": "قاعدة المالك 2026-10-02 — خلل وسط السورة غير قابل للإصلاح ⇒ تُسقط السورة كلّها وتُعلن؛ وإذنه النصّيّ 2026-10-11 06:02Z: «أصلح يس عند الغربي مادام حل مشكلته معروفا فإن تعذر أسقطه»",
-    "attempts": [
-      "ctc_splice mode=heard rewindow=36:1-83 على الحيّ: «36: 56 بلا حدود» (run 38094885754)",
-      "ctc_splice mode=window rewindow=36:1-5 على 98df26d2: 36:3 مدّتها 861م.ث والمتوقَّع 2500 (run 38095612466)",
-      "realign_surah بتخطٍّ 5100 (whisper_ac=1500 ثمّ 0 مع until_ms): «آيات بلا حدود: [1, 71]» (runs 38096514663 و38096519119)",
-      "ctc_splice window rewindow=36:1-83: «المدى السورةُ كلُّها» (run 38097453554)؛ و36:2-83: 36:3 مدّتها 741م.ث والمتوقَّع 1665 (run 38097457661)",
-      "سبر ctc_align س36: 36:1 عند 10457م.ث وهي القيمة المكبوسة نفسها (run 38093895059)؛ وpin_heard: مرساة 36:2 جودتها 0.385",
-      "المرشّح 98df26d2: مداخله كلّها LOW ومدد شاذّة (36:6 ≈55ث) فلا يُرقّى"
-    ]
-  },
-  {
-    "key": "timings-staging/warsh/gharbi_warsh.3393518c.jz",
-    "surahs": [
-      36
-    ],
-    "rule_ref": "قاعدة المالك 2026-10-02 — خلل وسط السورة غير قابل للإصلاح ⇒ تُسقط السورة كلّها وتُعلن؛ وإذنه النصّيّ 2026-10-11 06:02Z: «أصلح يس عند الغربي مادام حل مشكلته معروفا فإن تعذر أسقطه»",
-    "attempts": [
-      "ctc_splice mode=heard rewindow=36:1-83 على الحيّ: «36: 56 بلا حدود» (run 38094885754)",
-      "ctc_splice mode=window rewindow=36:1-5 على 98df26d2: 36:3 مدّتها 861م.ث والمتوقَّع 2500 (run 38095612466)",
-      "realign_surah بتخطٍّ 5100 (whisper_ac=1500 ثمّ 0 مع until_ms): «آيات بلا حدود: [1, 71]» (runs 38096514663 و38096519119)",
-      "ctc_splice window rewindow=36:1-83: «المدى السورةُ كلُّها» (run 38097453554)؛ و36:2-83: 36:3 مدّتها 741م.ث والمتوقَّع 1665 (run 38097457661)",
-      "سبر ctc_align س36: 36:1 عند 10457م.ث وهي القيمة المكبوسة نفسها (run 38093895059)؛ وpin_heard: مرساة 36:2 جودتها 0.385",
-      "المرشّح 98df26d2: مداخله كلّها LOW ومدد شاذّة (36:6 ≈55ث) فلا يُرقّى"
-    ]
-  },
-  {
-    "key": "timings-staging/warsh/gharbi_warsh.39a2d9d6.jz",
-    "surahs": [
-      36
-    ],
-    "rule_ref": "قاعدة المالك 2026-10-02 — خلل وسط السورة غير قابل للإصلاح ⇒ تُسقط السورة كلّها وتُعلن؛ وإذنه النصّيّ 2026-10-11 06:02Z: «أصلح يس عند الغربي مادام حل مشكلته معروفا فإن تعذر أسقطه»",
-    "attempts": [
-      "ctc_splice mode=heard rewindow=36:1-83 على الحيّ: «36: 56 بلا حدود» (run 38094885754)",
-      "ctc_splice mode=window rewindow=36:1-5 على 98df26d2: 36:3 مدّتها 861م.ث والمتوقَّع 2500 (run 38095612466)",
-      "realign_surah بتخطٍّ 5100 (whisper_ac=1500 ثمّ 0 مع until_ms): «آيات بلا حدود: [1, 71]» (runs 38096514663 و38096519119)",
-      "ctc_splice window rewindow=36:1-83: «المدى السورةُ كلُّها» (run 38097453554)؛ و36:2-83: 36:3 مدّتها 741م.ث والمتوقَّع 1665 (run 38097457661)",
-      "سبر ctc_align س36: 36:1 عند 10457م.ث وهي القيمة المكبوسة نفسها (run 38093895059)؛ وpin_heard: مرساة 36:2 جودتها 0.385",
-      "المرشّح 98df26d2: مداخله كلّها LOW ومدد شاذّة (36:6 ≈55ث) فلا يُرقّى"
-    ]
-  },
-  {
-    "key": "timings-staging/warsh/gharbi_warsh.d774e631.jz",
-    "surahs": [
-      36
-    ],
-    "rule_ref": "قاعدة المالك 2026-10-02 — خلل وسط السورة غير قابل للإصلاح ⇒ تُسقط السورة كلّها وتُعلن؛ وإذنه النصّيّ 2026-10-11 06:02Z: «أصلح يس عند الغربي مادام حل مشكلته معروفا فإن تعذر أسقطه»",
-    "attempts": [
-      "ctc_splice mode=heard rewindow=36:1-83 على الحيّ: «36: 56 بلا حدود» (run 38094885754)",
-      "ctc_splice mode=window rewindow=36:1-5 على 98df26d2: 36:3 مدّتها 861م.ث والمتوقَّع 2500 (run 38095612466)",
-      "realign_surah بتخطٍّ 5100 (whisper_ac=1500 ثمّ 0 مع until_ms): «آيات بلا حدود: [1, 71]» (runs 38096514663 و38096519119)",
-      "ctc_splice window rewindow=36:1-83: «المدى السورةُ كلُّها» (run 38097453554)؛ و36:2-83: 36:3 مدّتها 741م.ث والمتوقَّع 1665 (run 38097457661)",
-      "سبر ctc_align س36: 36:1 عند 10457م.ث وهي القيمة المكبوسة نفسها (run 38093895059)؛ وpin_heard: مرساة 36:2 جودتها 0.385",
-      "المرشّح 98df26d2: مداخله كلّها LOW ومدد شاذّة (36:6 ≈55ث) فلا يُرقّى"
-    ]
-  },
-  {
-    "key": "timings-staging/hafs/shamrani.31a89e75.jz",
-    "surahs": [
-      79
-    ],
-    "rule_ref": "قاعدة المالك المعدّلة 2026-10-31 (الحجب الجزئي أولاً والإسقاط الكامل حين لا يثبت الدليل) — وإذنه النصّيّ 2026-11-01 09:56Z «نعم» (cmsg_01SnWBBbg8UvScqE3YMKdPHa9ijYWqrS8ABcT4aQVMqnXs) جواباً على سؤال إسقاط النازعات عند الشمراني",
-    "attempts": [
-      "تفريغ whisper medium للمقطع: بعد «بالساهرة» (14) يأتي «ربه بالواد المقدس طوى» (16 بلا «إذ ناداه») ثم «أهديك إلى ربك فتخشى» (19) — الآيات 15 و17 و18 غير متلوّة، والملف موصول",
-      "ctc_splice window بغياب 15,17,18 (run 41215659073): «79:16 ثقة CTC 0.38 < 0.45» — رُدّ",
-      "ctc_splice window بغياب 15-18 (run 41215987942): «مرساة 79:19 ثقة الحد الجديد 0.133» — رُدّ",
-      "ctc_splice window بغياب 15-19 (run 41220891761): «مرساة 79:20 ثقة الحد الجديد 0.064» — رُدّ",
-      "لا مصدر بديل لسورة النازعات عند الشمراني في mp3quran"
-    ]
-  },
-  {
-    "key": "timings-staging/hafs/a_alhazmi.28302038.jz",
-    "surahs": [
-      13
-    ],
-    "rule_ref": "إذن المالك النصّيّ 2026-11-05 21:53Z «أذنتُ بالحجب المؤقت مع --allow-truncated» (cmsg_01SnWBBbg8UvScqE3YMKdPHaJxKNTZhRpG5BhYHFbxyNXY) جواباً على سؤال حجب السور التي توقيتُها على صوت غيرها حجباً مؤقّتاً معلناً حتى يُصلَح توقيتها",
-    "attempts": [
-      "فحص السماع (posverify: whisper small عند ثلاث آيات في السورة) أثبت أنّ توقيت السورة المنشور يقع على صوت آياتٍ أخرى",
-      "ctc_splice heard rewindow 13:1-N (ff_a_alhazmi_13) — رُدّ ببوّابة السماع",
-      "نوافذ ffw ±1 على الآيات المنحرفة — رُدّت ببوّابة السماع",
-      "جولة c3 (heard) — رُدّت ببوّابة السماع"
-    ]
-  },
-  {
-    "key": "timings-staging/warsh/benkirane_warsh.b495bd0a.jz",
-    "surahs": [
-      23
-    ],
-    "rule_ref": "إذن المالك النصّيّ 2026-11-05 21:53Z «أذنتُ بالحجب المؤقت مع --allow-truncated» (cmsg_01SnWBBbg8UvScqE3YMKdPHaJxKNTZhRpG5BhYHFbxyNXY) جواباً على سؤال حجب السور التي توقيتُها على صوت غيرها حجباً مؤقّتاً معلناً حتى يُصلَح توقيتها",
-    "attempts": [
-      "فحص السماع (posverify: whisper small عند ثلاث آيات في السورة) أثبت أنّ توقيت السورة المنشور يقع على صوت آياتٍ أخرى",
-      "ctc_splice heard rewindow 23:1-N (ff_benkirane__19) — رُدّ ببوّابة السماع",
-      "جولتا c3 وd3 (heard) — رُدّتا ببوّابة السماع"
-    ]
-  },
-  {
-    "key": "timings-staging/hafs/hatem.05c4f7c1.jz",
-    "surahs": [
-      6
-    ],
-    "rule_ref": "إذن المالك النصّيّ 2026-11-05 21:53Z «أذنتُ بالحجب المؤقت مع --allow-truncated» (cmsg_01SnWBBbg8UvScqE3YMKdPHaJxKNTZhRpG5BhYHFbxyNXY) جواباً على سؤال حجب السور التي توقيتُها على صوت غيرها حجباً مؤقّتاً معلناً حتى يُصلَح توقيتها",
-    "attempts": [
-      "فحص السماع (posverify: whisper small عند ثلاث آيات في السورة) أثبت أنّ توقيت السورة المنشور يقع على صوت آياتٍ أخرى",
-      "ctc_splice heard rewindow 6:1-N (ff_hatem_14) — رُدّ ببوّابة السماع",
-      "نوافذ ffw ±1 — رُدّت ببوّابة السماع",
-      "جولتا c3 وd3 (heard) — رُدّتا ببوّابة السماع"
-    ]
-  },
-  {
-    "key": "timings-staging/hafs/i_sanankoua.6aea825f.jz",
-    "surahs": [
-      20
-    ],
-    "rule_ref": "إذن المالك النصّيّ 2026-11-05 21:53Z «أذنتُ بالحجب المؤقت مع --allow-truncated» (cmsg_01SnWBBbg8UvScqE3YMKdPHaJxKNTZhRpG5BhYHFbxyNXY) جواباً على سؤال حجب السور التي توقيتُها على صوت غيرها حجباً مؤقّتاً معلناً حتى يُصلَح توقيتها",
-    "attempts": [
-      "فحص السماع (posverify: whisper small عند ثلاث آيات في السورة) أثبت أنّ توقيت السورة المنشور يقع على صوت آياتٍ أخرى",
-      "ctc_splice heard rewindow 20:1-N (ff_i_sanankou_12) — رُدّ ببوّابة السماع",
-      "جولة c3 رُقّيت دون إصلاح طه"
-    ]
-  },
-  {
-    "key": "timings-staging/warsh/laghdaf_shinqiti.5ad78aaa.jz",
-    "surahs": [
-      2,
-      26
-    ],
-    "rule_ref": "إذن المالك النصّيّ 2026-11-05 21:53Z «أذنتُ بالحجب المؤقت مع --allow-truncated» (cmsg_01SnWBBbg8UvScqE3YMKdPHaJxKNTZhRpG5BhYHFbxyNXY) جواباً على سؤال حجب السور التي توقيتُها على صوت غيرها حجباً مؤقّتاً معلناً حتى يُصلَح توقيتها",
-    "attempts": [
-      "فحص السماع (posverify: whisper small عند ثلاث آيات في السورة) أثبت أنّ توقيت السورة المنشور يقع على صوت آياتٍ أخرى",
-      "ctc_splice heard rewindow (ff_laghdaf_sh_11) — رُدّ ببوّابة السماع",
-      "نوافذ ffw على البقرة — رُدّت",
-      "جولة c3 (heard) — رُدّت ببوّابة السماع"
-    ]
-  },
-  {
-    "key": "timings-staging/hafs/m_qari.83a16af6.jz",
-    "surahs": [
-      13,
-      14,
-      76
-    ],
-    "rule_ref": "إذن المالك النصّيّ 2026-11-05 21:53Z «أذنتُ بالحجب المؤقت مع --allow-truncated» (cmsg_01SnWBBbg8UvScqE3YMKdPHaJxKNTZhRpG5BhYHFbxyNXY) جواباً على سؤال حجب السور التي توقيتُها على صوت غيرها حجباً مؤقّتاً معلناً حتى يُصلَح توقيتها",
-    "attempts": [
-      "فحص السماع (posverify: whisper small عند ثلاث آيات في السورة) أثبت أنّ توقيت السورة المنشور يقع على صوت آياتٍ أخرى",
-      "ctc_splice heard rewindow (ff_m_qari_9) — رُدّ ببوّابة السماع",
-      "نوافذ ffw ±1 — رُدّت ببوّابة السماع",
-      "جولة c3 (heard) — رُدّت ببوّابة السماع"
-    ]
-  },
-  {
-    "key": "timings-staging/warsh/noah_warsh.15fadd12.jz",
-    "surahs": [
-      3
-    ],
-    "rule_ref": "إذن المالك النصّيّ 2026-11-05 21:53Z «أذنتُ بالحجب المؤقت مع --allow-truncated» (cmsg_01SnWBBbg8UvScqE3YMKdPHaJxKNTZhRpG5BhYHFbxyNXY) جواباً على سؤال حجب السور التي توقيتُها على صوت غيرها حجباً مؤقّتاً معلناً حتى يُصلَح توقيتها",
-    "attempts": [
-      "فحص السماع (posverify: whisper small عند ثلاث آيات في السورة) أثبت أنّ توقيت السورة المنشور يقع على صوت آياتٍ أخرى",
-      "جولة c3 (heard) رُقّيت دون إصلاح آل عمران",
-      "ctc_splice heard rewindow 3:1-N (ff_noah_warsh_18) — لم يخرج منه مرشّح"
-    ]
-  },
-  {
-    "key": "timings-staging/hafs/saad.cf851372.jz",
-    "surahs": [
-      12,
-      22,
-      28,
-      29,
-      36,
-      38,
-      39,
-      40,
-      45,
-      53
-    ],
-    "rule_ref": "إذن المالك النصّيّ 2026-11-05 21:53Z «أذنتُ بالحجب المؤقت مع --allow-truncated» (cmsg_01SnWBBbg8UvScqE3YMKdPHaJxKNTZhRpG5BhYHFbxyNXY) جواباً على سؤال حجب السور التي توقيتُها على صوت غيرها حجباً مؤقّتاً معلناً حتى يُصلَح توقيتها",
-    "attempts": [
-      "فحص السماع (posverify: whisper small عند ثلاث آيات في السورة) أثبت أنّ توقيت السورة المنشور يقع على صوت آياتٍ أخرى",
-      "ctc_splice heard rewindow (ff_saad_7/8/20/21) — رُدّ ببوّابة البنية ثم السماع",
-      "جولة c3 (heard) — رُدّت ببوّابة البنية",
-      "22 و28 و45 محجوبةٌ أصلاً في المنشور وتُعاد في القائمة لأنّ drop_surah يستبدل الإعلان"
-    ]
-  },
-  {
-    "key": "timings-staging/hafs/tblawi.a7e07d7e.jz",
-    "surahs": [
-      92
-    ],
-    "rule_ref": "إذن المالك النصّيّ 2026-11-05 21:53Z «أذنتُ بالحجب المؤقت مع --allow-truncated» (cmsg_01SnWBBbg8UvScqE3YMKdPHaJxKNTZhRpG5BhYHFbxyNXY) جواباً على سؤال حجب السور التي توقيتُها على صوت غيرها حجباً مؤقّتاً معلناً حتى يُصلَح توقيتها",
-    "attempts": [
-      "فحص السماع (posverify: whisper small عند ثلاث آيات في السورة) أثبت أنّ توقيت السورة المنشور يقع على صوت آياتٍ أخرى",
-      "ctc_splice heard rewindow — رُدّ ببوّابة السماع",
-      "مرشّح حجبٍ قديم رُدّ لأنّه بُني على أصلٍ أقدم من المنشور؛ أُعيد بناؤه على المنشور bdbf924c"
-    ]
-  },
-  {
-    "key": "timings-staging/hafs/hatem.5ef9c40d.jz",
-    "surahs": [
-      6,
-      89
-    ],
-    "rule_ref": "إذن المالك النصّيّ 2026-11-05 21:53Z «أذنتُ بالحجب المؤقت مع --allow-truncated» (cmsg_01SnWBBbg8UvScqE3YMKdPHaJxKNTZhRpG5BhYHFbxyNXY) جواباً على سؤال حجب السور التي توقيتُها على صوت غيرها حجباً مؤقّتاً معلناً حتى يُصلَح توقيتها",
-    "attempts": [
-      "فحص السماع (posverify: whisper small عند ثلاث آيات في السورة) أثبت أنّ توقيت السورة المنشور يقع على صوت آياتٍ أخرى",
-      "ctc_splice heard rewindow على 89 — رُدّ ببوّابة السماع",
-      "6 محجوبةٌ أصلاً في المنشور 05c4f7c1 وتُعاد في القائمة لأنّ drop_surah يستبدل الإعلان"
-    ]
-  },
-  {
-    "key": "timings-staging/qalun/maroush_qalun.a648d799.jz",
-    "surahs": [
-      2,
-      3,
-      4,
-      5,
-      6,
-      7,
-      8,
-      9,
-      10,
-      11,
-      12,
-      14,
-      15,
-      16,
-      17,
-      21,
-      23,
-      25,
-      26,
-      27,
-      33,
-      36,
-      38,
-      39,
-      40,
-      41,
-      42,
-      51,
-      67,
-      68,
-      72
-    ],
-    "rule_ref": "إذن المالك النصّيّ 2026-11-05 21:53Z «أذنتُ بالحجب المؤقت مع --allow-truncated» (cmsg_01SnWBBbg8UvScqE3YMKdPHaJxKNTZhRpG5BhYHFbxyNXY) جواباً على سؤال حجب السور التي توقيتُها على صوت غيرها حجباً مؤقّتاً معلناً حتى يُصلَح توقيتها",
-    "attempts": [
-      "فحص السماع (posverify: whisper small عند ثلاث آيات في السورة) أثبت أنّ توقيت السورة المنشور يقع على صوت آياتٍ أخرى",
-      "جولات ff وc3 وd3 (heard rewindow) — رُدّت ببوّابتي البنية والسماع",
-      "15 أُضيفت بفحص squeeze_gate ثم أكّدها posverify (الآية 99 بدرجة 0.0)"
-    ]
-  },
-  {
-    "key": "timings-staging/hafs/asim.1e9f7f67.jz",
-    "surahs": [
-      8,
-      15,
-      17,
-      40,
-      46,
-      55,
-      92
-    ],
-    "rule_ref": "إذن المالك النصّيّ 2026-11-05 21:53Z «أذنتُ بالحجب المؤقت مع --allow-truncated» (cmsg_01SnWBBbg8UvScqE3YMKdPHaJxKNTZhRpG5BhYHFbxyNXY) جواباً على سؤال حجب السور التي توقيتُها على صوت غيرها حجباً مؤقّتاً معلناً حتى يُصلَح توقيتها",
-    "attempts": [
-      "فحص السماع (posverify: whisper small عند ثلاث آيات في السورة) أثبت أنّ توقيت السورة المنشور يقع على صوت آياتٍ أخرى",
-      "جولات ff وc3 (heard rewindow) — رُدّت ببوّابتي البنية والسماع",
-      "17 أكّدها posverify (الآية 111 بدرجة 0.0) وسماعٌ موضعيّ عند 17:108 سمع «إلا خسارا» (17:82)"
-    ]
-  },
-  {
-    "key": "timings-staging/qalun/maroush_qalun.269a93a7.jz",
-    "surahs": [
-      2,
-      3,
-      4,
-      5,
-      6,
-      7,
-      8,
-      9,
-      10,
-      11,
-      12,
-      14,
-      15,
-      16,
-      17,
-      18,
-      21,
-      22,
-      23,
-      25,
-      26,
-      27,
-      29,
-      30,
-      33,
-      36,
-      38,
-      39,
-      40,
-      41,
-      42,
-      43,
-      44,
-      47,
-      49,
-      51,
-      55,
-      58,
-      66,
-      67,
-      68,
-      72,
-      73
-    ],
-    "rule_ref": "إذن المالك النصّيّ 2026-11-05 21:53Z «أذنتُ بالحجب المؤقت مع --allow-truncated» (cmsg_01SnWBBbg8UvScqE3YMKdPHaJxKNTZhRpG5BhYHFbxyNXY) جواباً على سؤال حجب السور التي توقيتُها على صوت غيرها حجباً مؤقّتاً معلناً حتى يُصلَح توقيتها",
-    "attempts": [
-      "فحص السماع (posverify: whisper small عند ثلاث آيات في السورة) أثبت أنّ توقيت السورة المنشور يقع على صوت آياتٍ أخرى",
-      "جولات ff وc3 وd3 (heard rewindow) — رُدّت ببوّابتي البنية والسماع",
-      "15 أُضيفت بفحص squeeze_gate ثم أكّدها posverify (الآية 99 بدرجة 0.0)",
-      "2026-11-06: ثمانية ملوح على مرشّح الحجب a648d799 وجدت آياتٍ تبدأ بمادة الآية السابقة أو تسقط صدرها (WRONG_AYAH/EARLY/LATE) متكرّرةً في ملحين فأكثر في س18,22,29,30,43,44,47,49,55,58,66,73 (المجمَّع 4.9% والحدّ الأعلى 5.9%) ⇒ أُضيفت إلى الحجب المؤقّت حتى تُصلح",
-      "2026-11-06: محاذاة CTC كاملة للقارئ (163200fb) ردّتها بوّابة السماع في 85 سورة"
-    ]
-  },
-  {
-    "key": "timings-staging/hafs/mhsny.c7f6c175.jz",
-    "surahs": [
-      31
-    ],
-    "rule_ref": "إذن المالك النصّيّ 2026-11-05 21:53Z «أذنتُ بالحجب المؤقت مع --allow-truncated» (cmsg_01SnWBBbg8UvScqE3YMKdPHaJxKNTZhRpG5BhYHFbxyNXY) جواباً على سؤال حجب السور التي توقيتُها على صوت غيرها حجباً مؤقّتاً معلناً حتى يُصلَح توقيتها",
-    "attempts": [
-      "2026-11-06: تفريغ whisper أثبت أنّ 31:34 تبدأ بعد موضعها المنشور بنحو 20ث (القارئ يكرّر خاتمة 31:33)، وردّت بوّابةُ السماع إعادةَ المحاذاة heard (fin_ff_mhsny_30)"
-    ]
-  },
-  {
-    "key": "timings-staging/qalun/janaini_qalun.75ead42b.jz",
-    "surahs": [
-      37
-    ],
-    "rule_ref": "إذن المالك النصّيّ 2026-11-05 21:53Z «أذنتُ بالحجب المؤقت مع --allow-truncated» (cmsg_01SnWBBbg8UvScqE3YMKdPHaJxKNTZhRpG5BhYHFbxyNXY) جواباً على سؤال حجب السور التي توقيتُها على صوت غيرها حجباً مؤقّتاً معلناً حتى يُصلَح توقيتها",
-    "attempts": [
-      "2026-11-05/06: مسح الامتداد (0.64 من النظراء) وفحص السماع أثبتا أنّ توقيت س37 يقع على صوت آيات أخرى، ورُدّت محاولات الإصلاح بحارس انحياز الآيات القصيرة"
-    ]
-  },
-  {
-    "key": "timings-staging/hafs/3siri.eb107d30.jz",
-    "surahs": [
-      56
-    ],
-    "rule_ref": "إذن المالك النصّيّ 2026-11-05 21:53Z «أذنتُ بالحجب المؤقت مع --allow-truncated» (cmsg_01SnWBBbg8UvScqE3YMKdPHaJxKNTZhRpG5BhYHFbxyNXY) جواباً على سؤال حجب السور التي توقيتُها على صوت غيرها حجباً مؤقّتاً معلناً حتى يُصلَح توقيتها",
-    "attempts": [
-      "2026-11-05/06: posverify (whisper عند ثلاث آيات) أثبت أنّ توقيت س56 يقع على صوت آيات أخرى (24:0.25، 48:0.0، 96:0.0)، ورُدّت محاولات الإصلاح ff وffw بحارس انحياز الآيات القصيرة"
-    ]
-  },
-  {
-    "key": "timings-staging/hafs/hatem.617f2063.jz",
-    "surahs": [
-      6,
-      89
-    ],
-    "rule_ref": "إذن المالك النصّيّ 2026-11-05 21:53Z «أذنتُ بالحجب المؤقت مع --allow-truncated» (cmsg_01SnWBBbg8UvScqE3YMKdPHaJxKNTZhRpG5BhYHFbxyNXY) جواباً على سؤال حجب السور التي توقيتُها على صوت غيرها حجباً مؤقّتاً معلناً حتى يُصلَح توقيتها",
-    "attempts": [
-      "فحص السماع (posverify: whisper small عند ثلاث آيات في السورة) أثبت أنّ توقيت السورة المنشور يقع على صوت آياتٍ أخرى",
-      "ctc_splice heard rewindow على 89 — رُدّ ببوّابة السماع",
-      "6 محجوبةٌ أصلاً في المنشور 05c4f7c1 وتُعاد في القائمة لأنّ drop_surah يستبدل الإعلان",
-      "2026-11-06 ff_hatem_29: س31 أُصلحت سماعاً (heard) فلا تُحجب؛ والمرشّح يرث حجب السور المعلنة نفسها من الحيّ 5ef9c40d بلا زيادة"
-    ]
-  },
-  {
-    "key": "timings-staging/qalun/maroush_qalun.506ddfe4.jz",
-    "surahs": [
-      60
-    ],
-    "rule_ref": "إذن المالك النصّيّ 2026-11-05 21:53Z «أذنتُ بالحجب المؤقت مع --allow-truncated» (cmsg_01SnWBBbg8UvScqE3YMKdPHaJxKNTZhRpG5BhYHFbxyNXY) جواباً على سؤال حجب السور التي توقيتُها على صوت غيرها حجباً مؤقّتاً معلناً حتى يُصلَح توقيتها",
-    "attempts": [
-      "2026-11-06: تفريغ whisper أثبت أنّ 60:3 تبدأ بعد موضعها المنشور بنحو 20ث (القارئ يكرّر 60:2) ⇒ حجبٌ مؤقّت حتى تُثبَّت بـpin_heard"
-    ]
-  },
-  {
-    "key": "timings-staging/qalun/maroush_qalun.efb06bcb.jz",
-    "surahs": [
-      2,
-      3,
-      4,
-      5,
-      6,
-      7,
-      8,
-      9,
-      10,
-      11,
-      12,
-      14,
-      15,
-      16,
-      17,
-      18,
-      21,
-      22,
-      23,
-      25,
-      26,
-      27,
-      29,
-      30,
-      33,
-      36,
-      38,
-      39,
-      40,
-      41,
-      42,
-      43,
-      44,
-      47,
-      49,
-      51,
-      55,
-      58,
-      60,
-      66,
-      67,
-      68,
-      72,
-      73
-    ],
-    "rule_ref": "إذن المالك النصّيّ 2026-11-05 21:53Z «أذنتُ بالحجب المؤقت مع --allow-truncated» (cmsg_01SnWBBbg8UvScqE3YMKdPHaJxKNTZhRpG5BhYHFbxyNXY) جواباً على سؤال حجب السور التي توقيتُها على صوت غيرها حجباً مؤقّتاً معلناً حتى يُصلَح توقيتها",
-    "attempts": [
-      "2026-11-06: تفريغ whisper أثبت أنّ 60:3 تبدأ بعد موضعها المنشور بنحو 20ث (القارئ يكرّر 60:2) ⇒ حجبٌ مؤقّت حتى تُثبَّت بـpin_heard؛ مع إبقاء حجب السور الـ43 المعلنة"
-    ]
-  },
-  {
-    "key": "timings-staging/hafs/hatem.fb9da840.jz",
-    "surahs": [
-      6,
-      31,
-      89
-    ],
-    "rule_ref": "إذن المالك النصّيّ 2026-11-05 21:53Z «أذنتُ بالحجب المؤقت مع --allow-truncated» (cmsg_01SnWBBbg8UvScqE3YMKdPHaJxKNTZhRpG5BhYHFbxyNXY) جواباً على سؤال حجب السور التي توقيتُها على صوت غيرها حجباً مؤقّتاً معلناً حتى يُصلَح توقيتها",
-    "attempts": [
-      "2026-11-06: س31 أُصلحت سماعاً (617f2063 اجتاز البنية والسماع والملوح) لكن حارس الوراثة يردّ إصلاحاً فوق حجبٍ مؤقّت (reasonCode=OTHER) ⇒ تُحجب س31 مؤقّتاً مع 6 و89 حتى يُعدَّل الحارس بإذن المالك"
-    ]
-  },
-  {
-    "key": "timings-staging/qalun/maroush_qalun.3c0913dd.jz",
-    "surahs": [
-      2,
-      3,
-      4,
-      5,
-      6,
-      7,
-      8,
-      9,
-      10,
-      11,
-      12,
-      13,
-      14,
-      15,
-      16,
-      17,
-      18,
-      21,
-      22,
-      23,
-      25,
-      26,
-      27,
-      28,
-      29,
-      30,
-      31,
-      33,
-      35,
-      36,
-      38,
-      39,
-      40,
-      41,
-      42,
-      43,
-      44,
-      46,
-      47,
-      49,
-      51,
-      55,
-      58,
-      59,
-      60,
-      66,
-      67,
-      68,
-      70,
-      71,
-      72,
-      73,
-      78
-    ],
-    "rule_ref": "إذن المالك النصّيّ 2026-11-05 21:53Z «أذنتُ بالحجب المؤقت مع --allow-truncated» (cmsg_01SnWBBbg8UvScqE3YMKdPHaJxKNTZhRpG5BhYHFbxyNXY) جواباً على سؤال حجب السور التي توقيتُها على صوت غيرها حجباً مؤقّتاً معلناً حتى يُصلَح توقيتها",
-    "attempts": [
-      "2026-11-06: حجب س60 (60:3 بعد موضعها بنحو 20ث) رُدّ حدّياً بـ12 ملحاً (مجمَّع 4.8% والحدّ الأعلى 5.5%)؛ وpool_defects أثبت عيوباً جسيمة متكرّرة في ≥3 ملوح في س13,28,31,35,46,59,70,71,78 (آيةٌ تبدأ بمادة سابقتها) ⇒ تُحجب معها مؤقّتاً حتى تُثبَّت بـpin_heard"
-    ]
-  },
-  {
-    "key": "timings-staging/hafs/saad.5df13726.jz",
-    "surahs": [
-      12,
-      29,
-      36,
-      38,
-      39,
-      40,
-      45,
-      53
-    ],
-    "rule_ref": "إذن المالك النصّيّ 2026-11-05 21:53Z «أذنتُ بالحجب المؤقت مع --allow-truncated» (cmsg_01SnWBBbg8UvScqE3YMKdPHaJxKNTZhRpG5BhYHFbxyNXY) جواباً على سؤال حجب السور التي توقيتُها على صوت غيرها حجباً مؤقّتاً معلناً حتى يُصلَح توقيتها",
-    "attempts": [
-      "2026-11-07 حَكَم CTC النافذة (ctc_splice 42362946192): 22:61-62 و28:17-18 قُسمتا، و45:3-5 رُدّت بثقة 0.0؛ وشاهد Whisper المشابه لم يُثبت 45:4"
-    ]
-  },
-  {
-    "key": "timings-staging/warsh/benkirane_warsh.07195175.jz",
-    "surahs": [
-      23
-    ],
-    "rule_ref": "إذن المالك النصّيّ 2026-11-05 21:53Z «أذنتُ بالحجب المؤقت مع --allow-truncated» (cmsg_01SnWBBbg8UvScqE3YMKdPHaJxKNTZhRpG5BhYHFbxyNXY)، وإذنه بوراثة الحجب في هذا المرشّح 2026-11-09 17:25Z «موافق على وراثة حجب س23 عند بن كيران في المرشّح الجديد» (cmsg_01SnWBBbg8UvScqE3YMKdPHaVwA7A9H6o1TUJGwEAAS5XS)",
-    "attempts": [
-      "posverify أثبت أنّ توقيت س23 المنشور على صوت آياتٍ أخرى",
-      "ctc_splice heard rewindow 23:1-N (ff_benkirane__19) رُدّ ببوّابة السماع",
-      "جولتا c3 وd3 (heard) رُدّتا ببوّابة السماع"
-    ]
-  },
-  {
-    "key": "timings-staging/hafs/abkar.ecd90eb1.jz",
-    "surahs": [
-      36
-    ],
-    "rule_ref": "إذن المالك النصّيّ 2026-11-05 21:53Z بالحجب المؤقّت المعلن مع --allow-truncated (cmsg_01SnWBBbg8UvScqE3YMKdPHaJxKNTZhRpG5BhYHFbxyNXY)، وأمر القائد 2026-11-10 بحجب ما ثبت انحرافه بالسماع بعد تبدّل ملفّه عند المصدر (mp3quran، 13 أكتوبر)",
-    "attempts": [
-      "خريطة السماع 42725349177 على الملفّ الحاليّ: 73 آية من 81 تنحرف بين −84ث و+10ث",
-      "بصمة صوت المصدر تبدّلت من c478856b إلى c8bbcbeb (مسح انجراف المصدر 2026-11-10)"
-    ]
-  },
-  {
-    "key": "timings-staging/hafs/shaksh.56c10163.jz",
-    "surahs": [
-      7
-    ],
-    "rule_ref": "إذن المالك النصّيّ 2026-11-05 21:53Z بالحجب المؤقّت المعلن مع --allow-truncated (cmsg_01SnWBBbg8UvScqE3YMKdPHaJxKNTZhRpG5BhYHFbxyNXY)، وأمر القائد 2026-11-10 بحجب ما ثبت انحرافه بالسماع بعد تبدّل ملفّه عند المصدر (mp3quran، 13 أكتوبر)",
-    "attempts": [
-      "خريطة السماع 42725352775 على الملفّ الحاليّ: الآيات 184..206 تنحرف حتى +226ث",
-      "بصمة صوت المصدر تبدّلت من 999f1fbf إلى 6e244415 (مسح انجراف المصدر 2026-11-10)"
-    ]
-  },
-  {
-    "key": "timings-staging/hafs/3siri.de6c3014.jz",
-    "surahs": [
-      48,
-      56
-    ],
-    "rule_ref": "إذن المالك النصّيّ 2026-11-05 21:53Z بالحجب المؤقّت المعلن مع --allow-truncated (cmsg_01SnWBBbg8UvScqE3YMKdPHaJxKNTZhRpG5BhYHFbxyNXY)، وأمر القائد 2026-11-10 بحجب ما ثبت انحرافه بالسماع بعد تبدّل ملفّه عند المصدر (mp3quran، 13 أكتوبر)",
-    "attempts": [
-      "خريطة السماع 42725355931 على الملفّ الحاليّ: الآيات 48:11..29 تنحرف بنحو +27ث؛ وحجب س56 قائمٌ في الحيّ eb107d30 ويُحمل كما هو",
-      "بصمة صوت المصدر تبدّلت من 489105a2 إلى 8123710a (مسح انجراف المصدر 2026-11-10)"
-    ]
-  },
-  {
-    "key": "timings-staging/hafs/rami.451d9df6.jz",
-    "surahs": [
-      114
-    ],
-    "rule_ref": "إذن المالك النصّيّ 2026-11-05 21:53Z بالحجب المؤقّت المعلن مع --allow-truncated (cmsg_01SnWBBbg8UvScqE3YMKdPHaJxKNTZhRpG5BhYHFbxyNXY)، وأمر القائد 2026-11-10 بحجب ما ثبت انحرافه بالسماع بعد تبدّل ملفّه عند المصدر (mp3quran، 13 أكتوبر)",
-    "attempts": [
-      "خريطة السماع 42725360113 على الملفّ الحاليّ: الآيات الستّ كلّها تنحرف بنحو −4.5ث",
-      "بصمة صوت المصدر تبدّلت من 84061367 إلى 3a604652 (مسح انجراف المصدر 2026-11-10)"
-    ]
-  },
-  {
-    "key": "timings-staging/hafs/hamza.dc3bc373.jz",
-    "surahs": [
-      5
-    ],
-    "rule_ref": "إذن المالك النصّيّ 2026-11-05 21:53Z بالحجب المؤقّت المعلن مع --allow-truncated (cmsg_01SnWBBbg8UvScqE3YMKdPHaJxKNTZhRpG5BhYHFbxyNXY)، وأمر القائد 2026-11-10 بحجب ما ثبت انحرافه بالسماع بعد تبدّل ملفّه عند المصدر (mp3quran، 13 أكتوبر)",
-    "attempts": [
-      "خريطة السماع 42725373212 على الملفّ الحاليّ: 111 آية من 120 تنحرف حتى +864ث",
-      "بصمة صوت المصدر تبدّلت من 6e044361 إلى d5766123 (مسح انجراف المصدر 2026-11-10)"
-    ]
-  },
-  {
-    "key": "timings-staging/hafs/kurdi.b7fe6778.jz",
-    "surahs": [
-      4,
-      55
-    ],
-    "rule_ref": "س4: حجبٌ قائمٌ في الحيّ 8dd3cf93 يُحمل كما هو (4:127 غير منطوقة في 004.mp3) · س55: إذن المالك النصّيّ 2026-11-05 21:53Z بالحجب المؤقّت المعلن (cmsg_01SnWBBbg8UvScqE3YMKdPHaJxKNTZhRpG5BhYHFbxyNXY) وأمر القائد 2026-11-09 23:50Z بحجب الكردي س55 لتحريفٍ سمعيّ",
-    "attempts": [
-      "س4: 004.mp3 لم يتبدّل (sha256 a59e257e = ترويسة الحيّ)؛ مرساة 4:127 جودتها 0.318 بلا أداء؛ شاهد Whisper 42734080787 على 4115000..4170000 سمع 4:125 ثمّ 4:126 ثمّ 4:128 بلا كلمة من 4:127",
-      "س55: خريطة السماع 42722306119 على الملفّ الحاليّ: الآيات 1..78 مسموعة كلّها، ومواضع المنشور متأخّرة عن المسموع بـ42.1..47.6ث (الوسيط 46.8ث)؛ بصمة الصوت تبدّلت من 5f498f57 إلى 60b66c8b",
-      "ctc_splice heard rewindow 55:1-78 (42723674633) أنتج bd3c5d89 فردّته بوّابة السماع لبقاء البصمة القديمة"
-    ]
-  },
-  {
-    "key": "timings-staging/hafs/kurdi.55035e81.jz",
-    "surahs": [
-      4
-    ],
-    "rule_ref": "س4: حجبٌ قائمٌ في الحيّ 8dd3cf93 يُحمل كما هو (4:127 غير منطوقة في 004.mp3) · وس55 أُعيدت محاذاتُها كلُّها على الملفّ الحاليّ فلا تُحجب",
-    "attempts": [
-      "س4: 004.mp3 لم يتبدّل (sha256 a59e257e = ترويسة الحيّ)؛ مرساة 4:127 جودتها 0.318 بلا أداء؛ شاهد Whisper 42734080787 على 4115000..4170000 سمع 4:125 ثمّ 4:126 ثمّ 4:128 بلا كلمة من 4:127",
-      "المرشّحات e8a49589 و1c0c20e6 وbbc6fa45 التي استرجعت س4 متروكة لتحريفٍ في 4:125–127"
-    ]
-  },
-  {
-    "key": "timings-staging/hafs/3siri.bc63afc4.jz",
-    "surahs": [
-      56
-    ],
-    "rule_ref": "س56: حجبٌ قائمٌ في الحيّ يُحمل، وأُعيدت كتابة إعلانه لس56 وحدها (OTHER، توقيتها قيد الإصلاح) لأنّ النصّ الموروث كان يذكر الفتح وقد أُعيدت محاذاتها؛ وسنده إذن المالك بالحجب المؤقّت المعلن 2026-11-05 21:53Z (cmsg_01SnWBBbg8UvScqE3YMKdPHaJxKNTZhRpG5BhYHFbxyNXY)",
-    "attempts": [
-      "س56: شاهد Whisper خالف مرساة الآية 66 فلم تُثبَّت (خيط الفهرسة 2026-11-09 23:40Z)",
-      "س48 في المرشّح نفسه أُعيدت محاذاتها كاملةً على البصمة الحاليّة 8123710a"
-    ]
-  },
-  {
-    "key": "timings-staging/hafs/a_ahmed.774603c1.jz",
-    "surahs": [
-      23,
-      25,
-      26,
-      75
-    ],
-    "rule_ref": "إذن المالك النصّيّ 2026-11-05 21:53Z بالحجب المؤقّت المعلن (cmsg_01SnWBBbg8UvScqE3YMKdPHaJxKNTZhRpG5BhYHFbxyNXY)، وأمر القائد 2026-11-10 03:00Z بحجب آيات «صوت غيرها» برمز TIMING_UNDER_REPAIR حتى يُصلح توقيتها",
-    "attempts": [
-      "تدقيق المراسي الضعيفة heard-weak-audit-20261110 (ops/out/heard-weak-audit-20261110.md): شاهد Whisper medium سمع في مداخل الآيات 23:89,105,106,109,110,111 · 25:14,15,66,73 · 26:86,87 · 75:29 صوتَ آيةٍ غيرها في الحيّ a40e3f76",
-      "الدليل لكلّ آية في ops/evidence/heard-drop-*.json (heard: witness · runId · text)"
-    ]
-  },
-  {
-    "key": "timings-staging/hafs/a_binaoun.6a3c67ac.jz",
-    "surahs": [
-      3
-    ],
-    "rule_ref": "إذن المالك النصّيّ 2026-11-05 21:53Z بالحجب المؤقّت المعلن (cmsg_01SnWBBbg8UvScqE3YMKdPHaJxKNTZhRpG5BhYHFbxyNXY)، وأمر القائد 2026-11-10 03:00Z بحجب آيات «صوت غيرها» برمز TIMING_UNDER_REPAIR حتى يُصلح توقيتها",
-    "attempts": [
-      "تدقيق المراسي الضعيفة heard-weak-audit-20261110 (ops/out/heard-weak-audit-20261110.md): شاهد Whisper medium سمع في مداخل الآيات 3:145,175,176,195 صوتَ آيةٍ غيرها في الحيّ f7611b60",
-      "الدليل لكلّ آية في ops/evidence/heard-drop-*.json (heard: witness · runId · text)"
-    ]
-  },
-  {
-    "key": "timings-staging/qalun/noah_qalun.82308bb1.jz",
-    "surahs": [
-      15
-    ],
-    "rule_ref": "إذن المالك النصّيّ 2026-11-05 21:53Z بالحجب المؤقّت المعلن (cmsg_01SnWBBbg8UvScqE3YMKdPHaJxKNTZhRpG5BhYHFbxyNXY)، وأمر القائد 2026-11-10 03:00Z بحجب آيات «صوت غيرها» برمز TIMING_UNDER_REPAIR حتى يُصلح توقيتها",
-    "attempts": [
-      "تدقيق المراسي الضعيفة heard-weak-audit-20261110 (ops/out/heard-weak-audit-20261110.md): شاهد Whisper medium سمع في مداخل الآيات 15:17,18 صوتَ آيةٍ غيرها في الحيّ 211c530c",
-      "الدليل لكلّ آية في ops/evidence/heard-drop-*.json (heard: witness · runId · text)"
-    ]
-  },
-  {
-    "key": "timings-staging/hafs/m_alfaqih.73e74b3f.jz",
-    "surahs": [
-      37
-    ],
-    "rule_ref": "إذن المالك النصّيّ 2026-11-05 21:53Z بالحجب المؤقّت المعلن (cmsg_01SnWBBbg8UvScqE3YMKdPHaJxKNTZhRpG5BhYHFbxyNXY)، وأمر القائد 2026-11-10 03:00Z بحجب آيات «صوت غيرها» برمز TIMING_UNDER_REPAIR حتى يُصلح توقيتها",
-    "attempts": [
-      "تدقيق المراسي الضعيفة heard-weak-audit-20261110 (ops/out/heard-weak-audit-20261110.md): شاهد Whisper medium سمع في مداخل الآيات 37:159 صوتَ آيةٍ غيرها في الحيّ c828a201",
-      "الدليل لكلّ آية في ops/evidence/heard-drop-*.json (heard: witness · runId · text)"
-    ]
-  },
-  {
-    "key": "timings-staging/hafs/mhsny.2c1297ea.jz",
-    "surahs": [
-      23
-    ],
-    "rule_ref": "إذن المالك النصّيّ 2026-11-05 21:53Z بالحجب المؤقّت المعلن (cmsg_01SnWBBbg8UvScqE3YMKdPHaJxKNTZhRpG5BhYHFbxyNXY)، وأمر القائد 2026-11-10 03:00Z بحجب آيات «صوت غيرها» برمز TIMING_UNDER_REPAIR حتى يُصلح توقيتها",
-    "attempts": [
-      "تدقيق المراسي الضعيفة heard-weak-audit-20261110 (ops/out/heard-weak-audit-20261110.md): شاهد Whisper medium سمع في مداخل الآيات 23:116 صوتَ آيةٍ غيرها في الحيّ 51d9615e",
-      "الدليل لكلّ آية في ops/evidence/heard-drop-*.json (heard: witness · runId · text)"
-    ]
-  },
-  {
-    "key": "timings-staging/hafs/rashad.1d2fdbe3.jz",
-    "surahs": [
-      19
-    ],
-    "rule_ref": "إذن المالك النصّيّ 2026-11-05 21:53Z بالحجب المؤقّت المعلن (cmsg_01SnWBBbg8UvScqE3YMKdPHaJxKNTZhRpG5BhYHFbxyNXY)، وأمر القائد 2026-11-10 03:00Z بحجب آيات «صوت غيرها» برمز TIMING_UNDER_REPAIR حتى يُصلح توقيتها",
-    "attempts": [
-      "تدقيق المراسي الضعيفة heard-weak-audit-20261110 (ops/out/heard-weak-audit-20261110.md): شاهد Whisper medium سمع في مداخل الآيات 19:18 صوتَ آيةٍ غيرها في الحيّ f2f1cb34",
-      "الدليل لكلّ آية في ops/evidence/heard-drop-*.json (heard: witness · runId · text)"
-    ]
-  },
-  {
-    "key": "timings-staging/hafs/a_alhazmi.3d32a8a3.jz",
-    "surahs": [
-      2
-    ],
-    "rule_ref": "إذن المالك النصّيّ 2026-11-05 21:53Z بالحجب المؤقّت المعلن (cmsg_01SnWBBbg8UvScqE3YMKdPHaJxKNTZhRpG5BhYHFbxyNXY)، وأمر القائد 2026-11-10 03:00Z بحجب آيات «صوت غيرها» برمز TIMING_UNDER_REPAIR حتى يُصلح توقيتها",
-    "attempts": [
-      "تدقيق المراسي الضعيفة heard-weak-audit-20261110 (ops/out/heard-weak-audit-20261110.md): شاهد Whisper medium سمع في مداخل الآيات 2:215 صوتَ آيةٍ غيرها في الحيّ 8021f013",
-      "الدليل لكلّ آية في ops/evidence/heard-drop-*.json (heard: witness · runId · text)"
-    ]
-  },
-  {
-    "key": "timings-staging/hafs/gulan.2fc91446.jz",
-    "surahs": [
-      28
-    ],
-    "rule_ref": "إذن المالك النصّيّ 2026-11-05 21:53Z بالحجب المؤقّت المعلن (cmsg_01SnWBBbg8UvScqE3YMKdPHaJxKNTZhRpG5BhYHFbxyNXY)، وأمر القائد 2026-11-10 03:00Z بحجب آيات «صوت غيرها» برمز TIMING_UNDER_REPAIR حتى يُصلح توقيتها",
-    "attempts": [
-      "تدقيق المراسي الضعيفة heard-weak-audit-20261110 (ops/out/heard-weak-audit-20261110.md): شاهد Whisper medium سمع في مداخل الآيات 28:71 صوتَ آيةٍ غيرها في الحيّ 5a2a237e",
-      "الدليل لكلّ آية في ops/evidence/heard-drop-*.json (heard: witness · runId · text)"
-    ]
-  },
-  {
-    "key": "timings-staging/qalun/jelmam_qalun.5af0501f.jz",
-    "surahs": [
-      2
-    ],
-    "rule_ref": "إذن المالك النصّيّ 2026-11-05 21:53Z بالحجب المؤقّت المعلن (cmsg_01SnWBBbg8UvScqE3YMKdPHaJxKNTZhRpG5BhYHFbxyNXY)، وأمر القائد 2026-11-10 03:00Z بحجب آيات «صوت غيرها» برمز TIMING_UNDER_REPAIR حتى يُصلح توقيتها",
-    "attempts": [
-      "تدقيق المراسي الضعيفة heard-weak-audit-20261110 (ops/out/heard-weak-audit-20261110.md): شاهد Whisper medium سمع في مداخل الآيات 2:152 صوتَ آيةٍ غيرها في الحيّ 7f1ac96b",
-      "الدليل لكلّ آية في ops/evidence/heard-drop-*.json (heard: witness · runId · text)"
-    ]
-  },
-  {
-    "key": "timings-staging/qalun/suhaim_qalun.0f32aa04.jz",
-    "surahs": [
-      19
-    ],
-    "rule_ref": "إذن المالك النصّيّ 2026-11-05 21:53Z بالحجب المؤقّت المعلن (cmsg_01SnWBBbg8UvScqE3YMKdPHaJxKNTZhRpG5BhYHFbxyNXY)، وأمر القائد 2026-11-10 03:00Z بحجب آيات «صوت غيرها» برمز TIMING_UNDER_REPAIR حتى يُصلح توقيتها",
-    "attempts": [
-      "تدقيق المراسي الضعيفة heard-weak-audit-20261110 (ops/out/heard-weak-audit-20261110.md): شاهد Whisper medium سمع في مداخل الآيات 19:69 صوتَ آيةٍ غيرها في الحيّ 0f062ae3",
-      "الدليل لكلّ آية في ops/evidence/heard-drop-*.json (heard: witness · runId · text)"
-    ]
-  },
-  {
-    "key": "timings-staging/hafs/sayed.2c9b5b1f.jz",
-    "surahs": [
-      22
-    ],
-    "rule_ref": "إذن المالك النصّيّ 2026-11-05 21:53Z بالحجب المؤقّت المعلن (cmsg_01SnWBBbg8UvScqE3YMKdPHaJxKNTZhRpG5BhYHFbxyNXY)، وأمر القائد 2026-11-10 03:00Z بحجب آيات «صوت غيرها» برمز TIMING_UNDER_REPAIR حتى يُصلح توقيتها",
-    "attempts": [
-      "تدقيق المراسي الضعيفة heard-weak-audit-20261110 (ops/out/heard-weak-audit-20261110.md): شاهد Whisper medium سمع في مداخل الآيات 22:66 صوتَ آيةٍ غيرها في الحيّ 82baa436",
-      "الدليل لكلّ آية في ops/evidence/heard-drop-*.json (heard: witness · runId · text)"
-    ]
-  },
-  {
-    "key": "timings-staging/warsh/rabbani_warsh.28cb839a.jz",
-    "surahs": [
-      37
-    ],
-    "rule_ref": "إذن المالك النصّيّ 2026-11-05 21:53Z بالحجب المؤقّت المعلن (cmsg_01SnWBBbg8UvScqE3YMKdPHaJxKNTZhRpG5BhYHFbxyNXY)، وأمر القائد 2026-11-10 03:00Z بحجب آيات «صوت غيرها» برمز TIMING_UNDER_REPAIR حتى يُصلح توقيتها",
-    "attempts": [
-      "تدقيق المراسي الضعيفة heard-weak-audit-20261110 (ops/out/heard-weak-audit-20261110.md): شاهد Whisper medium سمع في مداخل الآيات 37:131 صوتَ آيةٍ غيرها في الحيّ 96affba1",
-      "الدليل لكلّ آية في ops/evidence/heard-drop-*.json (heard: witness · runId · text)"
-    ]
-  },
-  {
-    "key": "timings-staging/hafs/a_alqrafi.6dc7bf51.jz",
-    "surahs": [
-      30
-    ],
-    "rule_ref": "إذن المالك النصّيّ 2026-11-05 21:53Z بالحجب المؤقّت المعلن (cmsg_01SnWBBbg8UvScqE3YMKdPHaJxKNTZhRpG5BhYHFbxyNXY)، وأمر القائد 2026-11-10 04:50Z بحجب السور التي ثبت بشاهدَي Whisper أنّ آياتها تُعرض على صوت غيرها حتى تُعاد محاذاتها",
-    "attempts": [
-      "جرد المراسي القويّة ومعايرته (ops/out/heard-strong-audit-20261110.md · heard-strong-calibration-20261110.md): شاهدا Whisper سمعا عند موضع الفهرس في الحيّ 0921404e نصَّ آيةٍ أخرى، والعنقود يجاوز ربع السورة أو يشمل آخر آية فلا يصلح drop_ayahs",
-      "الدليل في ops/evidence/tail-drop-a_alqrafi-0921404e.json؛ وrealign_surah جارٍ ليحلّ محلّ الحجب"
-    ]
-  },
-  {
-    "key": "timings-staging/hafs/afs.a777307b.jz",
-    "surahs": [
-      22
-    ],
-    "rule_ref": "إذن المالك النصّيّ 2026-11-05 21:53Z بالحجب المؤقّت المعلن (cmsg_01SnWBBbg8UvScqE3YMKdPHaJxKNTZhRpG5BhYHFbxyNXY)، وأمر القائد 2026-11-10 04:50Z بحجب السور التي ثبت بشاهدَي Whisper أنّ آياتها تُعرض على صوت غيرها حتى تُعاد محاذاتها",
-    "attempts": [
-      "جرد المراسي القويّة ومعايرته (ops/out/heard-strong-audit-20261110.md · heard-strong-calibration-20261110.md): شاهدا Whisper سمعا عند موضع الفهرس في الحيّ b3b9b914 نصَّ آيةٍ أخرى، والعنقود يجاوز ربع السورة أو يشمل آخر آية فلا يصلح drop_ayahs",
-      "الدليل في ops/evidence/tail-drop-afs-b3b9b914.json؛ وrealign_surah جارٍ ليحلّ محلّ الحجب"
-    ]
-  },
-  {
-    "key": "timings-staging/hafs/darweez.23bb56ee.jz",
-    "surahs": [
-      11
-    ],
-    "rule_ref": "إذن المالك النصّيّ 2026-11-05 21:53Z بالحجب المؤقّت المعلن (cmsg_01SnWBBbg8UvScqE3YMKdPHaJxKNTZhRpG5BhYHFbxyNXY)، وأمر القائد 2026-11-10 04:50Z بحجب السور التي ثبت بشاهدَي Whisper أنّ آياتها تُعرض على صوت غيرها حتى تُعاد محاذاتها",
-    "attempts": [
-      "جرد المراسي القويّة ومعايرته (ops/out/heard-strong-audit-20261110.md · heard-strong-calibration-20261110.md): شاهدا Whisper سمعا عند موضع الفهرس في الحيّ 14c13705 نصَّ آيةٍ أخرى، والعنقود يجاوز ربع السورة أو يشمل آخر آية فلا يصلح drop_ayahs",
-      "الدليل في ops/evidence/tail-drop-darweez-14c13705.json؛ وrealign_surah جارٍ ليحلّ محلّ الحجب"
-    ]
-  },
-  {
-    "key": "timings-staging/qalun/janaini_qalun.0cce1189.jz",
-    "surahs": [
-      5
-    ],
-    "rule_ref": "إذن المالك النصّيّ 2026-11-05 21:53Z بالحجب المؤقّت المعلن (cmsg_01SnWBBbg8UvScqE3YMKdPHaJxKNTZhRpG5BhYHFbxyNXY)، وأمر القائد 2026-11-10 04:50Z بحجب السور التي ثبت بشاهدَي Whisper أنّ آياتها تُعرض على صوت غيرها حتى تُعاد محاذاتها",
-    "attempts": [
-      "جرد المراسي القويّة ومعايرته (ops/out/heard-strong-audit-20261110.md · heard-strong-calibration-20261110.md): شاهدا Whisper سمعا عند موضع الفهرس في الحيّ 64fa5999 نصَّ آيةٍ أخرى، والعنقود يجاوز ربع السورة أو يشمل آخر آية فلا يصلح drop_ayahs",
-      "الدليل في ops/evidence/tail-drop-janaini_qalun-64fa5999.json؛ وrealign_surah جارٍ ليحلّ محلّ الحجب"
-    ]
-  },
-  {
-    "key": "timings-staging/hafs/qurashi.150b6e29.jz",
-    "surahs": [
-      10
-    ],
-    "rule_ref": "إذن المالك النصّيّ 2026-11-05 21:53Z بالحجب المؤقّت المعلن (cmsg_01SnWBBbg8UvScqE3YMKdPHaJxKNTZhRpG5BhYHFbxyNXY)، وأمر القائد 2026-11-10 04:50Z بحجب السور التي ثبت بشاهدَي Whisper أنّ آياتها تُعرض على صوت غيرها حتى تُعاد محاذاتها",
-    "attempts": [
-      "جرد المراسي القويّة ومعايرته (ops/out/heard-strong-audit-20261110.md · heard-strong-calibration-20261110.md): شاهدا Whisper سمعا عند موضع الفهرس في الحيّ 6969cf33 نصَّ آيةٍ أخرى، والعنقود يجاوز ربع السورة أو يشمل آخر آية فلا يصلح drop_ayahs",
-      "الدليل في ops/evidence/tail-drop-qurashi-6969cf33.json؛ وrealign_surah جارٍ ليحلّ محلّ الحجب"
-    ]
-  },
-  {
-    "key": "timings-staging/qalun/rakbawi_qalun.2a3735e8.jz",
-    "surahs": [
-      36
-    ],
-    "rule_ref": "إذن المالك النصّيّ 2026-11-05 21:53Z بالحجب المؤقّت المعلن (cmsg_01SnWBBbg8UvScqE3YMKdPHaJxKNTZhRpG5BhYHFbxyNXY)، وأمر القائد 2026-11-10 04:50Z بحجب السور التي ثبت بشاهدَي Whisper أنّ آياتها تُعرض على صوت غيرها حتى تُعاد محاذاتها",
-    "attempts": [
-      "جرد المراسي القويّة ومعايرته (ops/out/heard-strong-audit-20261110.md · heard-strong-calibration-20261110.md): شاهدا Whisper سمعا عند موضع الفهرس في الحيّ 3d8dc7c9 نصَّ آيةٍ أخرى، والعنقود يجاوز ربع السورة أو يشمل آخر آية فلا يصلح drop_ayahs",
-      "الدليل في ops/evidence/tail-drop-rakbawi_qalun-3d8dc7c9.json؛ وrealign_surah جارٍ ليحلّ محلّ الحجب"
-    ]
-  },
-  {
-    "key": "timings-staging/hafs/trabulsi.06859847.jz",
-    "surahs": [
-      12
-    ],
-    "rule_ref": "إذن المالك النصّيّ 2026-11-05 21:53Z بالحجب المؤقّت المعلن (cmsg_01SnWBBbg8UvScqE3YMKdPHaJxKNTZhRpG5BhYHFbxyNXY)، وأمر القائد 2026-11-10 04:50Z بحجب السور التي ثبت بشاهدَي Whisper أنّ آياتها تُعرض على صوت غيرها حتى تُعاد محاذاتها",
-    "attempts": [
-      "جرد المراسي القويّة ومعايرته (ops/out/heard-strong-audit-20261110.md · heard-strong-calibration-20261110.md): شاهدا Whisper سمعا عند موضع الفهرس في الحيّ d535093b نصَّ آيةٍ أخرى، والعنقود يجاوز ربع السورة أو يشمل آخر آية فلا يصلح drop_ayahs",
-      "الدليل في ops/evidence/tail-drop-trabulsi-d535093b.json؛ وrealign_surah جارٍ ليحلّ محلّ الحجب"
-    ]
-  },
-  {
-    "key": "timings-staging/warsh/wahrani_warsh.d01a39d7.jz",
-    "surahs": [
-      16
-    ],
-    "rule_ref": "إذن المالك النصّيّ 2026-11-05 21:53Z بالحجب المؤقّت المعلن (cmsg_01SnWBBbg8UvScqE3YMKdPHaJxKNTZhRpG5BhYHFbxyNXY)، وأمر القائد 2026-11-10 04:50Z بحجب السور التي ثبت بشاهدَي Whisper أنّ آياتها تُعرض على صوت غيرها حتى تُعاد محاذاتها",
-    "attempts": [
-      "جرد المراسي القويّة ومعايرته (ops/out/heard-strong-audit-20261110.md · heard-strong-calibration-20261110.md): شاهدا Whisper سمعا عند موضع الفهرس في الحيّ 5fe9f415 نصَّ آيةٍ أخرى، والعنقود يجاوز ربع السورة أو يشمل آخر آية فلا يصلح drop_ayahs",
-      "الدليل في ops/evidence/tail-drop-wahrani_warsh-5fe9f415.json؛ وrealign_surah جارٍ ليحلّ محلّ الحجب"
-    ]
-  },
-  {
-    "key": "timings-staging/hafs/nathier.409a3ef1.jz",
-    "surahs": [
-      12
-    ],
-    "rule_ref": "إذن المالك النصّيّ 2026-11-05 21:53Z بالحجب المؤقّت المعلن (cmsg_01SnWBBbg8UvScqE3YMKdPHaJxKNTZhRpG5BhYHFbxyNXY)، وأمر القائد 2026-11-10 04:50Z بحجب الآيات التي ثبت بشاهدَي Whisper أنّ آياتها تُعرض على صوت غيرها برمز TIMING_UNDER_REPAIR حتى يُصلح توقيتها",
-    "attempts": [
-      "جرد المراسي القويّة: شاهدا Whisper سمعا في بدء مدخل 12:69 صوتَ آيةٍ غيرها في الحيّ 97773431",
-      "الدليل لكلّ آية في ops/evidence/heard-drop-*.json (heard: witness · runId · text)"
-    ]
-  },
-  {
-    "key": "timings-staging/warsh/noah_warsh.c4ab3f73.jz",
-    "surahs": [
-      5
-    ],
-    "rule_ref": "إذن المالك النصّيّ 2026-11-05 21:53Z بالحجب المؤقّت المعلن (cmsg_01SnWBBbg8UvScqE3YMKdPHaJxKNTZhRpG5BhYHFbxyNXY)، وأمر القائد 2026-11-10 04:50Z بحجب الآيات التي ثبت بشاهدَي Whisper أنّ آياتها تُعرض على صوت غيرها برمز TIMING_UNDER_REPAIR حتى يُصلح توقيتها",
-    "attempts": [
-      "جرد المراسي القويّة: شاهدا Whisper سمعا في بدء مدخل 5:36 صوتَ آيةٍ غيرها في الحيّ b77cccf3",
-      "الدليل لكلّ آية في ops/evidence/heard-drop-*.json (heard: witness · runId · text)"
-    ]
-  },
-  {
-    "key": "timings-staging/qalun/akri_qalun.143e13dd.jz",
-    "surahs": [
-      4,
-      10,
-      37
-    ],
-    "rule_ref": "إذن المالك النصّيّ 2026-11-05 21:53Z بالحجب المؤقّت المعلن (cmsg_01SnWBBbg8UvScqE3YMKdPHaJxKNTZhRpG5BhYHFbxyNXY)، وأمر القائد 2026-11-10 04:50Z بحجب السور التي ثبت بشاهدَي Whisper أنّ آياتها تُعرض على صوت غيرها حتى تُعاد محاذاتها · وس4 إعلانٌ منشور موروث: أُسقطت كاملةً SOURCE_TRUNCATED في الحيّ b99e3573 (op=drop_surah:4، أصله akri_qalun.0744b79c) بقاعدة البتر الوسطيّ 2026-10-02 السارية يومها؛ يُورَّث حرفاً بلا إسقاطٍ جديد",
-    "attempts": [
-      "جرد المراسي القويّة ومعايرته (ops/out/heard-strong-calibration-20261110.md): شاهدا Whisper سمعا عند موضع الفهرس في الحيّ b99e3573 نصَّ آيةٍ أخرى في 10:109 و37:182، والعنقود يشمل آخر آية فلا يصلح drop_ayahs",
-      "realign_surah لس10 أخفق في 42759032765 («لم تُحلّ سورةٌ واحدة — س10: 86 بلا حدود»)، وس37 جارية؛ وإعلانا س4 (drop_surah) وس24 (SOURCE_TRUNCATED) موروثان حرفاً منذ #102",
-      "س4: الآية 4:140 غائبة من التسجيل (نحو عشر ثوانٍ بين 4:139 و4:141 والآية نحو أربعين ثانية)؛ لم تسمعها خريطة السماع على mp3quran ولا على archive.org، وردّت نافذة CTC بثقة 0.0 (ترويسة الحيّ b99e3573)"
-    ]
-  },
-  {
-    "key": "timings-staging/hafs/gulan.f4fd20df.jz",
-    "surahs": [
-      91
-    ],
-    "rule_ref": "إذن المالك النصّيّ 2026-11-05 21:53Z بالحجب المؤقّت المعلن (cmsg_01SnWBBbg8UvScqE3YMKdPHaJxKNTZhRpG5BhYHFbxyNXY)، وأمر القائد 2026-11-10 03:00Z بحجب آيات «صوت غيرها» برمز TIMING_UNDER_REPAIR حتى يُصلح توقيتها",
-    "attempts": [
-      "جرد المراسي القويّة: شاهدا Whisper يضعان مطلع 91:9 عند 33420 و33540، والمدخل في الحيّ 2fc91446 يبدأ عند 31760 داخل صوت 91:8",
-      "الدليل في ops/evidence/heard-drop-*.json (heard: witness · runId · text)؛ وإعلان 28:71 القديم موروث حرفاً"
-    ]
-  },
-  {
-    "key": "timings-staging/warsh/noah_warsh.df33ceba.jz",
-    "surahs": [
-      5
-    ],
-    "rule_ref": "إذن المالك النصّيّ 2026-11-05 21:53Z بالحجب المؤقّت المعلن (cmsg_01SnWBBbg8UvScqE3YMKdPHaJxKNTZhRpG5BhYHFbxyNXY)، وأمر القائد 2026-11-10 03:00Z بحجب آيات «صوت غيرها» برمز TIMING_UNDER_REPAIR حتى يُصلح توقيتها",
-    "attempts": [
-      "جرد المراسي القويّة: شاهدا Whisper (medium وsmall على 005.mp3 بصمة 35b98c9d) يضعان بدء مداخل 5:12 و5:20 و5:36 و5:48 و5:72 و5:117 في صوت الآية السابقة في الحيّ b77cccf3 (تأخّر 1.7–14.8ث)",
-      "يحلّ محلّ c4ab3f73؛ الدليل في ops/evidence/heard-drop-*.json"
-    ]
-  },
-  {
-    "key": "timings-staging/hafs/nathier.cda92da9.jz",
-    "surahs": [
-      12
-    ],
-    "rule_ref": "إذن المالك النصّيّ 2026-11-05 21:53Z بالحجب المؤقّت المعلن (cmsg_01SnWBBbg8UvScqE3YMKdPHaJxKNTZhRpG5BhYHFbxyNXY)، وأمر القائد 2026-11-10 04:50Z بحجب الآيات التي ثبت بشاهدَي Whisper أنّ آياتها تُعرض على صوت غيرها برمز TIMING_UNDER_REPAIR حتى يُصلح توقيتها",
-    "attempts": [
-      "جرد المراسي القويّة: شاهدا Whisper سمعا في بدء مدخل 12:69 صوتَ آيةٍ غيرها في الحيّ 97773431",
-      "الدليل لكلّ آية في ops/evidence/heard-drop-*.json (heard: witness · runId · text)",
-      "ثُبّت بدء 12:3 و17 و47 و63 بـpin_heard (الأمر 20261110_0640_nathier_pin12) على مراسيها المقيسة بجودة 0.76–0.87 في خريطة float32 42768817556 بعد أن ردّتها بوّابة السماع 42759412085 بانحراف -2.1..-2.5ث"
-    ]
-  },
-  {
-    "key": "timings-staging/hafs/3siri.0d353a28.jz",
-    "surahs": [
-      10,
-      56
-    ],
-    "rule_ref": "إذن المالك النصّيّ 2026-11-05 21:53Z بالحجب المؤقّت المعلن (cmsg_01SnWBBbg8UvScqE3YMKdPHaJxKNTZhRpG5BhYHFbxyNXY) لما توقيتُه على صوت غيره حتى يُصلَح؛ وأمر القائد 2026-11-10 بحجب س10 مع بقاء إعلان س56 الموروث حرفاً",
-    "attempts": [
-      "س10: شاهدا Whisper أثبتا انحراف المنشور عن المسموع في الحيّ bc63afc4؛ الدليل في ops/evidence/heard-drop-surah-3siri-bc63afc4-s10.json",
-      "س10: قاعدة المرساة داخل نصّ الآية (#107) ردّت الآيات 14 و51 و62 لأنّ مطلعها يبعد 580–980م.ث عن المنشور (>300م.ث)، وعرض pin_heard ردّ 50 و55 و70 لتخالف الشاهدين",
-      "س56: إعلان drop_surah موروث من الحيّ bc63afc4 دون تغيير (drop_surah يردّ إعادة إعلانها)"
-    ]
-  },
-  {
-    "key": "timings-staging/hafs/kurdi.cd85eecc.jz",
-    "surahs": [
-      4,
-      55
-    ],
-    "rule_ref": "س4: حجبٌ قائمٌ في الحيّ 8dd3cf93 يُحمل كما هو (4:127 غير منطوقة في 004.mp3) · س55: إذن المالك النصّيّ 2026-11-05 21:53Z بالحجب المؤقّت المعلن (cmsg_01SnWBBbg8UvScqE3YMKdPHaJxKNTZhRpG5BhYHFbxyNXY) وأمر القائد 2026-11-09 23:50Z بحجب الكردي س55 لتحريفٍ سمعيّ · يُحمل الإعلانان كما هما من الحيّ b7fe6778؛ والمرشّح يثبّت مطلع غافر 40:1–2 وحده بمسار الحروف (#121)",
-    "attempts": [
-      "س4: 004.mp3 لم يتبدّل (sha256 a59e257e = ترويسة الحيّ)؛ مرساة 4:127 جودتها 0.318 بلا أداء؛ شاهد Whisper 42734080787 على 4115000..4170000 سمع 4:125 ثمّ 4:126 ثمّ 4:128 بلا كلمة من 4:127",
-      "س55: خريطة السماع 42722306119 على الملفّ الحاليّ: الآيات 1..78 مسموعة كلّها، ومواضع المنشور متأخّرة عن المسموع بـ42.1..47.6ث (الوسيط 46.8ث)؛ بصمة الصوت تبدّلت من 5f498f57 إلى 60b66c8b",
-      "ctc_splice heard rewindow 55:1-78 (42723674633) أنتج bd3c5d89 فردّته بوّابة السماع لبقاء البصمة القديمة",
-      "المرشّح cd85eecc: heard_gate 42816921776 تمرّ، المطالع 42807905002 نظيفة، الملوح الأربعة 1.5 و0.5 و0 و0٪، الإحصاء بلا fatal وseverity 0.489٪"
-    ]
-  },
-  {
-    "key": "timings-staging/hafs/mhsny.5af48f2b.jz",
-    "surahs": [
-      2,
-      23
-    ],
-    "rule_ref": "إذن المالك النصّيّ 2026-11-05 21:53Z بالحجب المؤقّت المعلن (cmsg_01SnWBBbg8UvScqE3YMKdPHaJxKNTZhRpG5BhYHFbxyNXY)، وأمر القائد 2026-11-10 03:00Z بحجب آيات «صوت غيرها» برمز TIMING_UNDER_REPAIR حتى يُصلح توقيتها، وقرار القائد 2026-11-10 بحجب mhsny 2:2 وحدها",
-    "attempts": [
-      "mhsny 2:2: مدخلها الحيّ 7122 متأخّر نحو 1.9ث عن المسموع: Whisper medium 42767215625 عند 5160 وsmall 42767233527 عند 5260 (بصمة 6bb0178d58c5 = audioSha256[1])، وردّ pin_heard: «⛔ 2:2 بدءٌ 5320 لا يقع على أداءٍ مقيس (المقيس: [])»",
-      "mhsny 23:116: موروث من الحيّ 2c1297ea بدليل Whisper medium 42744121402",
-      "الدليل لكلّ آية في ops/evidence/heard-drop-mhsny-2c1297ea-s2x2.json وفي ترويسة المرشّح",
-      "المرشّح 5af48f2b: الإحصاء 42818839950 بلا fatal والعطب الجسيم 1.59٪، heard_gate 42818753329 تمرّ، المطالع 42818795848 نظيفة، الملوح 9/800"
-    ]
-  },
-  {
-    "key": "timings-staging/qalun/fakhfakh_qalun.a90b37fc.jz",
-    "surahs": [
-      10,
-      29,
-      37
-    ],
-    "rule_ref": "إذن المالك النصّيّ 2026-11-05 21:53Z بالحجب المؤقّت المعلن (cmsg_01SnWBBbg8UvScqE3YMKdPHaJxKNTZhRpG5BhYHFbxyNXY)، وأمر القائد 2026-11-10 بحجب ما ثبت أنّ آياته تُسمع بصوت غيرها برمز TIMING_UNDER_REPAIR حتى يُصلح توقيته؛ الحجب مؤقّت معلن لا إسقاط نهائيّ",
-    "attempts": [
-      "عدّ الدليل لكلّ سورة (مثبتة/في موضعها/غير محسومة) بشاهدَين ومسابير ثلاثة: 15/7/87 · 9/6/54 · 20/10/152 — من ops/out/hd24_state.md (2026-11-10)",
-      "الصفّ يأذن بالإعفاء من عتبة الغياب 2٪ وحدها؛ والترقية تبقى مشروطةً بـstruct وheard_gate والمطالع والملوح الأربعة والإحصاء، ولا عتبة تُخفض"
-    ]
-  },
-  {
-    "key": "timings-staging/hafs/lahoni.ade06e7e.jz",
-    "surahs": [
-      29
-    ],
-    "rule_ref": "إذن المالك النصّيّ 2026-11-05 21:53Z بالحجب المؤقّت المعلن (cmsg_01SnWBBbg8UvScqE3YMKdPHaJxKNTZhRpG5BhYHFbxyNXY)، وأمر القائد 2026-11-10 بحجب ما ثبت أنّ آياته تُسمع بصوت غيرها برمز TIMING_UNDER_REPAIR حتى يُصلح توقيته؛ الحجب مؤقّت معلن لا إسقاط نهائيّ",
-    "attempts": [
-      "عدّ الدليل لكلّ سورة (مثبتة/في موضعها/غير محسومة) بشاهدَين ومسابير ثلاثة: 9/2/58 — من ops/out/hd24_state.md (2026-11-10)",
-      "الصفّ يأذن بالإعفاء من عتبة الغياب 2٪ وحدها؛ والترقية تبقى مشروطةً بـstruct وheard_gate والمطالع والملوح الأربعة والإحصاء، ولا عتبة تُخفض"
-    ]
-  },
-  {
-    "key": "timings-staging/hafs/mohsin_harthi.2c889bfa.jz",
-    "surahs": [
-      46
-    ],
-    "rule_ref": "إذن المالك النصّيّ 2026-11-05 21:53Z بالحجب المؤقّت المعلن (cmsg_01SnWBBbg8UvScqE3YMKdPHaJxKNTZhRpG5BhYHFbxyNXY)، وأمر القائد 2026-11-10 بحجب ما ثبت أنّ آياته تُسمع بصوت غيرها برمز TIMING_UNDER_REPAIR حتى يُصلح توقيته؛ الحجب مؤقّت معلن لا إسقاط نهائيّ",
-    "attempts": [
-      "عدّ الدليل لكلّ سورة (مثبتة/في موضعها/غير محسومة) بشاهدَين ومسابير ثلاثة: 9/0/26 — من ops/out/hd24_state.md (2026-11-10)",
-      "الصفّ يأذن بالإعفاء من عتبة الغياب 2٪ وحدها؛ والترقية تبقى مشروطةً بـstruct وheard_gate والمطالع والملوح الأربعة والإحصاء، ولا عتبة تُخفض"
-    ]
-  },
-  {
-    "key": "timings-staging/hafs/s_hashemi.ccc05030.jz",
-    "surahs": [
-      21,
-      23,
-      35
-    ],
-    "rule_ref": "إذن المالك النصّيّ 2026-11-05 21:53Z بالحجب المؤقّت المعلن (cmsg_01SnWBBbg8UvScqE3YMKdPHaJxKNTZhRpG5BhYHFbxyNXY)، وأمر القائد 2026-11-10 بحجب ما ثبت أنّ آياته تُسمع بصوت غيرها برمز TIMING_UNDER_REPAIR حتى يُصلح توقيته؛ الحجب مؤقّت معلن لا إسقاط نهائيّ",
-    "attempts": [
-      "عدّ الدليل لكلّ سورة (مثبتة/في موضعها/غير محسومة) بشاهدَين ومسابير ثلاثة: 16/1/95 · 14/4/100 · 7/0/38 — من ops/out/hd24_state.md (2026-11-10)",
-      "الصفّ يأذن بالإعفاء من عتبة الغياب 2٪ وحدها؛ والترقية تبقى مشروطةً بـstruct وheard_gate والمطالع والملوح الأربعة والإحصاء، ولا عتبة تُخفض"
-    ]
-  },
-  {
-    "key": "timings-staging/hafs/h_abudalal.26722680.jz",
-    "surahs": [
-      20
-    ],
-    "rule_ref": "إذن المالك النصّيّ 2026-11-05 21:53Z بالحجب المؤقّت المعلن (cmsg_01SnWBBbg8UvScqE3YMKdPHaJxKNTZhRpG5BhYHFbxyNXY)، وأمر القائد 2026-11-10 بحجب ما ثبت أنّ آياته تُسمع بصوت غيرها برمز TIMING_UNDER_REPAIR حتى يُصلح توقيته؛ الحجب مؤقّت معلن لا إسقاط نهائيّ",
-    "attempts": [
-      "عدّ الدليل لكلّ سورة (مثبتة/في موضعها/غير محسومة) بشاهدَين ومسابير ثلاثة: 26/2/107 — من ops/out/hd24_state.md (2026-11-10)",
-      "الصفّ يأذن بالإعفاء من عتبة الغياب 2٪ وحدها؛ والترقية تبقى مشروطةً بـstruct وheard_gate والمطالع والملوح الأربعة والإحصاء، ولا عتبة تُخفض"
-    ]
-  },
-  {
-    "key": "timings-staging/hafs/kyat.5e899ca6.jz",
-    "surahs": [
-      21,
-      28
-    ],
-    "rule_ref": "إذن المالك النصّيّ 2026-11-05 21:53Z بالحجب المؤقّت المعلن (cmsg_01SnWBBbg8UvScqE3YMKdPHaJxKNTZhRpG5BhYHFbxyNXY)، وأمر القائد 2026-11-10 بحجب ما ثبت أنّ آياته تُسمع بصوت غيرها برمز TIMING_UNDER_REPAIR حتى يُصلح توقيته؛ الحجب مؤقّت معلن لا إسقاط نهائيّ",
-    "attempts": [
-      "عدّ الدليل لكلّ سورة (مثبتة/في موضعها/غير محسومة) بشاهدَين ومسابير ثلاثة: 14/0/98 · 7/0/81 — من ops/out/hd24_state.md (2026-11-10)",
-      "الصفّ يأذن بالإعفاء من عتبة الغياب 2٪ وحدها؛ والترقية تبقى مشروطةً بـstruct وheard_gate والمطالع والملوح الأربعة والإحصاء، ولا عتبة تُخفض"
-    ]
-  },
-  {
-    "key": "timings-staging/warsh/harraz_warsh.64d74402.jz",
-    "surahs": [
-      24,
-      40,
-      45
-    ],
-    "rule_ref": "إذن المالك النصّيّ 2026-11-05 21:53Z بالحجب المؤقّت المعلن (cmsg_01SnWBBbg8UvScqE3YMKdPHaJxKNTZhRpG5BhYHFbxyNXY)، وأمر القائد 2026-11-10 بحجب ما ثبت أنّ آياته تُسمع بصوت غيرها برمز TIMING_UNDER_REPAIR حتى يُصلح توقيته؛ الحجب مؤقّت معلن لا إسقاط نهائيّ",
-    "attempts": [
-      "عدّ الدليل لكلّ سورة (مثبتة/في موضعها/غير محسومة) بشاهدَين ومسابير ثلاثة: 7/1/56 · 13/2/70 · 7/1/29 — من ops/out/hd24_state.md (2026-11-10)",
-      "الصفّ يأذن بالإعفاء من عتبة الغياب 2٪ وحدها؛ والترقية تبقى مشروطةً بـstruct وheard_gate والمطالع والملوح الأربعة والإحصاء، ولا عتبة تُخفض"
-    ]
-  },
-  {
-    "key": "timings-staging/hafs/a_alshahhat.dc21b4aa.jz",
-    "surahs": [
-      20
-    ],
-    "rule_ref": "إذن المالك النصّيّ 2026-11-05 21:53Z بالحجب المؤقّت المعلن (cmsg_01SnWBBbg8UvScqE3YMKdPHaJxKNTZhRpG5BhYHFbxyNXY)، وأمر القائد 2026-11-10 بحجب ما ثبت أنّ آياته تُسمع بصوت غيرها برمز TIMING_UNDER_REPAIR حتى يُصلح توقيته؛ الحجب مؤقّت معلن لا إسقاط نهائيّ",
-    "attempts": [
-      "عدّ الدليل لكلّ سورة (مثبتة/في موضعها/غير محسومة) بشاهدَين ومسابير ثلاثة: 6/5/124 — من ops/out/hd24_state.md (2026-11-10)",
-      "الصفّ يأذن بالإعفاء من عتبة الغياب 2٪ وحدها؛ والترقية تبقى مشروطةً بـstruct وheard_gate والمطالع والملوح الأربعة والإحصاء، ولا عتبة تُخفض"
-    ]
-  },
-  {
-    "key": "timings-staging/warsh/benkirane_warsh.5f37b13f.jz",
-    "surahs": [
-      13,
-      23
-    ],
-    "rule_ref": "س23: إذن المالك النصّيّ 2026-11-05 21:53Z «أذنتُ بالحجب المؤقت مع --allow-truncated» (cmsg_01SnWBBbg8UvScqE3YMKdPHaJxKNTZhRpG5BhYHFbxyNXY)، وإذنه بوراثة الحجب في هذا المرشّح 2026-11-09 17:25Z «موافق على وراثة حجب س23 عند بن كيران في المرشّح الجديد» (cmsg_01SnWBBbg8UvScqE3YMKdPHaVwA7A9H6o1TUJGwEAAS5XS) — يُحمل كما هو من الحيّ 07195175 · س13: حجب الآيات 13:27–30 وحدها بإذن المالك النصّيّ 2026-11-05 21:53Z بالحجب المؤقّت المعلن، وأمر القائد 2026-11-10 بحجب آيات «صوت غيرها» برمز TIMING_UNDER_REPAIR حتى يُصلح توقيتها",
-    "attempts": [
-      "posverify أثبت أنّ توقيت س23 المنشور على صوت آياتٍ أخرى",
-      "ctc_splice heard rewindow 23:1-N (ff_benkirane__19) رُدّ ببوّابة السماع",
-      "جولتا c3 وd3 (heard) رُدّتا ببوّابة السماع",
-      "س13: 13:27–30 بُنيت بـdrop_ayahs المعدَّل (يورّث إسقاط الأصل) فوق الحيّ 07195175؛ الدليل في ترويسة المرشّح 5f37b13f",
-      "الصفّ لا يغني عن struct وheard_gate والمطالع والملوح الأربعة والإحصاء قبل الترقية"
-    ]
-  },
-  {
-    "key": "timings-staging/warsh/benkirane_warsh.7bafad18.jz",
-    "surahs": [
-      13,
-      23
-    ],
-    "rule_ref": "س23: إذن المالك النصّيّ 2026-11-05 21:53Z «أذنتُ بالحجب المؤقت مع --allow-truncated» (cmsg_01SnWBBbg8UvScqE3YMKdPHaJxKNTZhRpG5BhYHFbxyNXY)، وإذنه بوراثة الحجب 2026-11-09 17:25Z (cmsg_01SnWBBbg8UvScqE3YMKdPHaVwA7A9H6o1TUJGwEAAS5XS) — يُحمل كما هو من الحيّ 07195175 · س13: حجب السورة كلّها برمز TIMING_UNDER_REPAIR بإذن المالك النصّيّ 2026-11-05 21:53Z بالحجب المؤقّت المعلن، وأمر القائد 2026-11-10 بحجب ما يُسمع بصوت غيره حتى يُصلح توقيته",
-    "attempts": [
-      "خريطة سماع CTC (42890321423): انزياح متراكم في 13:14–31 يبلغ +72.5ث عند الآية 26 في الحيّ 07195175",
-      "realign_surah بتخطّي 5300 (42891572157): «آيات بلا حدود: [14,19,20,21,23,24]»",
-      "realign_surah مع whisper_ac=1500 (42892474704): الردّ نفسه",
-      "شاهدا Whisper small (42893468869 و42893469032) على الآيات الـ43: منحرفة مثبتة 10 وغير محسومة 33؛ الأدلّة في ops/evidence/timing-surah13-benkirane_warsh-07195175*.json",
-      "المنحرف فوق ربع آيات السورة فلا يصلح الحجب آيةً آية",
-      "الصفّ لا يغني عن struct وheard_gate والمطالع والملوح الأربعة والإحصاء قبل الترقية"
-    ]
-  },
-  {
-    "key": "timings-staging/hafs/habdan.3446e18f.jz",
-    "surahs": [
-      3
-    ],
-    "rule_ref": "حجب آياتٍ بعينها لا السورة: إذن المالك النصّيّ 2026-11-05 21:53Z بالحجب المؤقّت المعلن (cmsg_01SnWBBbg8UvScqE3YMKdPHaJxKNTZhRpG5BhYHFbxyNXY)، وقرار القائد 2026-11-11: تُحجب الآية العالقة برمز TIMING_UNDER_REPAIR حين يحمل مرشّح سورتها تصحيحاً لآياتٍ منحرفةٍ أخرى وهي منحرفةٌ في الحيّ؛ الحجب مؤقّت معلن لا إسقاط نهائيّ",
-    "attempts": [
-      "3:199 وحدها: انحراف الحيّ c732ed1b +10233م.ث (مرساة 3839907 بثقة 0.847)؛ شهود Whisper 42940165834 و42935280646 و42935280434؛ ردّ التثبيت بعد #128 «بدءٌ لا يقع على أداءٍ مقيس ولم يُثبته شاهدُ Whisper»",
-      "المرشّح يصحّح 3:193 و194 و195 (منحرفة في الحيّ بين -57 و-68ث)؛ heard 42944264596 · census 42944236059 (جسيم 1.03%)",
-      "الصفّ يأذن بالإعفاء من عتبة الغياب وحدها؛ والترقية تبقى مشروطةً بـstruct وheard_gate والمطالع والملوح الأربعة والإحصاء، ولا عتبة تُخفض"
-    ]
-  },
-  {
-    "key": "timings-staging/hafs/a_abdl.959bcafa.jz",
-    "surahs": [
-      23
-    ],
-    "rule_ref": "حجب آياتٍ بعينها لا السورة: إذن المالك النصّيّ 2026-11-05 21:53Z بالحجب المؤقّت المعلن (cmsg_01SnWBBbg8UvScqE3YMKdPHaJxKNTZhRpG5BhYHFbxyNXY)، وقرار القائد 2026-11-11: تُحجب الآية العالقة برمز TIMING_UNDER_REPAIR حين يحمل مرشّح سورتها تصحيحاً لآياتٍ منحرفةٍ أخرى وهي منحرفةٌ في الحيّ؛ الحجب مؤقّت معلن لا إسقاط نهائيّ",
-    "attempts": [
-      "23:22: انحراف الحيّ c0e25062 +1753م.ث (مرساة 248007 بثقة 0.857)؛ شاهدا Whisper 42941007216 و42941029450؛ ردّ التنازع «مطلعُ الآية عند 248800 بعيدٌ عن المنشور 249760 (>300م.ث)»",
-      "23:80: انحراف الحيّ +2643م.ث (مرساة 1015245 بثقة 0.727)؛ شاهدا Whisper 42935280228 و42935280888؛ ردّت الأداة تثبيتها بسبب الآية 22",
-      "المرشّح يصحّح 10 آياتٍ أخرى من 12 منحرفة في س23؛ heard 42944264272 · census 42944236069 (جسيم 0.11%)",
-      "الصفّ يأذن بالإعفاء من عتبة الغياب وحدها؛ والترقية تبقى مشروطةً بـstruct وheard_gate والمطالع والملوح الأربعة والإحصاء، ولا عتبة تُخفض"
-    ]
-  },
-  {
-    "key": "timings-staging/hafs/nufais.9897ab4f.jz",
-    "surahs": [
-      16,
-      20,
-      29
-    ],
-    "rule_ref": "حجب آياتٍ بعينها لا السورة: إذن المالك النصّيّ 2026-11-05 21:53Z بالحجب المؤقّت المعلن (cmsg_01SnWBBbg8UvScqE3YMKdPHaJxKNTZhRpG5BhYHFbxyNXY)، وقرار القائد 2026-11-11: تُحجب الآية العالقة برمز TIMING_UNDER_REPAIR حين يحمل مرشّح سورتها تصحيحاً لآياتٍ منحرفةٍ أخرى وهي منحرفةٌ في الحيّ؛ الحجب مؤقّت معلن لا إسقاط نهائيّ",
-    "attempts": [
-      "انحراف الحيّ f3f37dad في الآيات المحجوبة: 16:23 (-9222م.ث) · 16:73 (+7382) · 20:106 (+5320) · 29:43 (+6200)؛ شهود Whisper 42940486068 و42940486202 و42935344493 و42935344789 و42939411214، وlarge-v3 لم يسمع 20:106 وثُبّتت 29:43 على مرساةٍ تبعد 940م.ث عن مطلع الشاهدين فلم يُبنَ عليه",
-      "المرشّح يثبّت 13:23 و13:36 ويصحّح 69 آيةً منحرفةً في السور 16 و20 و29؛ الملوح الثمانية xnu1–xnu8 مجمَّعها 39/1600 = 2.44% (الحدّ الأعلى 3.17%)؛ census 0.31%",
-      "الصفّ يأذن بالإعفاء من عتبة الغياب وحدها؛ والترقية تبقى مشروطةً بـstruct وheard_gate والمطالع والملوح والإحصاء، ولا عتبة تُخفض"
-    ]
-  },
-  {
-    "key": "timings-staging/hafs/zaki.a269b3d5.jz",
-    "surahs": [
-      56
-    ],
-    "rule_ref": "حجب آياتٍ بعينها لا السورة: إذن المالك النصّيّ 2026-11-05 21:53Z بالحجب المؤقّت المعلن (cmsg_01SnWBBbg8UvScqE3YMKdPHaJxKNTZhRpG5BhYHFbxyNXY)، وقرار القائد 2026-11-11: تُحجب الآية العالقة برمز TIMING_UNDER_REPAIR حين يحمل مرشّح سورتها تصحيحاً لآياتٍ منحرفةٍ أخرى وهي منحرفةٌ في الحيّ؛ الحجب مؤقّت معلن لا إسقاط نهائيّ",
-    "attempts": [
-      "انحراف الحيّ 741e7e5c في الآيات المحجوبة من س56 (11 من 96، دون الربع، لا الأولى ولا الأخيرة): 3 (+3265م.ث) · 5 (+3907) · 6 (+2515) · 8 (+1534) · 31 (+6742) · 46 (+7518) · 47 (+1901) · 48 (+3016) · 52 (-1779) · 80 (+2100) · 95 (-1930)؛ دليل whisper في ops/evidence/heard-drop-zaki-56b-8735b8bf.json",
-      "المرشّح يثبّت 56:2 و56:4 و56:84؛ heard 42958733833 · census 42958733786 (0.34%) · الملوح الأربعة zrl1111fA..D بين 0 و2% · المطالع نظيفة",
-      "الصفّ يأذن بالإعفاء من عتبة الغياب وحدها؛ والترقية تبقى مشروطةً بـstruct وheard_gate والمطالع والملوح الأربعة والإحصاء، ولا عتبة تُخفض"
-    ]
-  },
-  {
-    "key": "timings-staging/hafs/zaki.d83205c5.jz",
-    "surahs": [
-      80
-    ],
-    "rule_ref": "حجب آياتٍ بعينها لا السورة: إذن المالك النصّيّ 2026-11-05 21:53Z بالحجب المؤقّت المعلن (cmsg_01SnWBBbg8UvScqE3YMKdPHaJxKNTZhRpG5BhYHFbxyNXY)، وقرار القائد 2026-11-11: تُحجب الآية العالقة برمز TIMING_UNDER_REPAIR حين يحمل مرشّح سورتها تصحيحاً لآياتٍ منحرفةٍ أخرى وهي منحرفةٌ في الحيّ؛ الحجب مؤقّت معلن لا إسقاط نهائيّ",
-    "attempts": [
-      "انحراف الحيّ a269b3d5 في الآيات المحجوبة من س80 (4 من 42، دون الربع، لا الأولى ولا الأخيرة): 2 (+1898م.ث) · 26 (+6401) · 28 (+1523) · 31 (-1633)؛ دليل whisper في ops/evidence/heard-drop-zaki-80-8735b8bf.json بشاهدَي large-v3 (42944016786 و42944016684)، ولم يتوفّر لها مطلعٌ يتّفق عليه الشاهدان فلم تُثبَّت",
-      "المرشّح يثبّت 80:20 و80:29 و80:32 و80:35 و80:36؛ قرأ القائدُ: struct سليم (6221 مدخلاً، ops/out/1111_zl3_k_sb.txt) وheard_gate 42976311467 يمرّ (ops/out/heard-gate/42976311467.txt)؛ وبحسب تقرير خيط الفهرسة من الدلو: المطالع نظيفة · census 0.34% · الملوح الأربعة zrl1111gA..D بين 0.5% و1.5%",
-      "الصفّ يأذن بالإعفاء من عتبة الغياب وحدها؛ والترقية تبقى مشروطةً بـstruct وheard_gate والمطالع والملوح الأربعة والإحصاء، ولا عتبة تُخفض"
-    ]
-  },
-  {
-    "key": "timings-staging/qalun/rakbawi_qalun.68939f29.jz",
-    "surahs": [
-      36
-    ],
-    "rule_ref": "إذن المالك النصّيّ 2026-11-05 21:53Z بالحجب المؤقّت المعلن (cmsg_01SnWBBbg8UvScqE3YMKdPHaJxKNTZhRpG5BhYHFbxyNXY)، وأمر القائد 2026-11-10 04:50Z بحجب السور التي ثبت بشاهدَي Whisper أنّ آياتها تُعرض على صوت غيرها حتى تُعاد محاذاتها",
-    "attempts": [
-      "جرد المراسي القويّة ومعايرته (ops/out/heard-strong-audit-20261110.md · heard-strong-calibration-20261110.md): شاهدا Whisper سمعا عند موضع الفهرس في الحيّ 3d8dc7c9 نصَّ آيةٍ أخرى، والعنقود يجاوز ربع السورة أو يشمل آخر آية فلا يصلح drop_ayahs",
-      "الدليل في ops/evidence/tail-drop-rakbawi_qalun-3d8dc7c9.json؛ وrealign_surah جارٍ ليحلّ محلّ الحجب",
-      "المرشّح المركّب 68939f29 (تطعيم 85 سورة فوق الحيّ 2a3735e8) لا يمسّ السورة 36 ويورّث حجبها المعلن drop_surah:36 بأداة graft_surahs المصلحة (main 7d1d243673)؛ وإعادة محاذاتها باقية في الطابور"
-    ]
-  }
+ {
+  "key": "timings-staging/hafs/kurdi.8dd3cf93.jz",
+  "surahs": [
+   4
+  ],
+  "rule_ref": "قاعدة المالك 2026-10-02 — فجوة في وسط السورة (4:127 غائبة من صوت المصدر نفسه، ولا مصدر بديل) ⇒ تُسقط السورة كلّها وتُعلن",
+  "attempts": [
+   "خريطة السماع لـ004.mp3 (heard_batch): 4:126 ثمّ 4:128 مباشرةً، أي 4:127 غير منطوقة في الملف نفسه — رُدّ الإكمال",
+   "بدائل المصدر (alt_source) لـkurdi: لا ملف بديل لسورة النساء — رُدّ",
+   "pin_heard لـ4:127: مراسي 125-127 دون 0.5 ثقة فلا تثبيت ممكن — رُدّ"
+  ]
+ },
+ {
+  "key": "timings-staging/hafs/mhsny.1f3c26ab.jz",
+  "ayahs": [
+   "69:52"
+  ],
+  "rule_ref": "قاعدة المالك 2026-10-02 (بترُ آخر السورة يُبقى ويُعلَن) — وإذنه النصّيّ 2026-10-10 07:26Z بإعلان غياب 69:52 (آخر آية في الحاقّة) عند المحيسني",
+  "attempts": [
+   "إحصاء force+no_range (تشغيلة 37947128050) ردّ 69:52 بالخطأ نفسه (ffmpeg 97696/128000)؛ وclamp_file_end لا يجد تجاوزاً يُقصّ (ops/out/20261009_1421_pB_clampdry_mhsny.txt)",
+   "نهاية مدخل 69:52 هي 594718 وهي دون نهاية الفكّ 595720 فلا قصّ ممكن؛ والعلّة 1م.ث في شرط got_end≥fd−tol بمسار ffmpeg (ترويسة 595801)",
+   "find_sources: خادم المحيسني ليس في mp3quran فلا مصدر بديل لسورة الحاقّة"
+  ]
+ },
+ {
+  "key": "timings-staging/warsh/gharbi_warsh.bae81afe.jz",
+  "surahs": [
+   36
+  ],
+  "rule_ref": "قاعدة المالك 2026-10-02 — خلل وسط السورة غير قابل للإصلاح ⇒ تُسقط السورة كلّها وتُعلن؛ وإذنه النصّيّ 2026-10-11 06:02Z: «أصلح يس عند الغربي مادام حل مشكلته معروفا فإن تعذر أسقطه»",
+  "attempts": [
+   "ctc_splice mode=heard rewindow=36:1-83 على الحيّ: «36: 56 بلا حدود» (run 38094885754)",
+   "ctc_splice mode=window rewindow=36:1-5 على 98df26d2: 36:3 مدّتها 861م.ث والمتوقَّع 2500 (run 38095612466)",
+   "realign_surah بتخطٍّ 5100 (whisper_ac=1500 ثمّ 0 مع until_ms): «آيات بلا حدود: [1, 71]» (runs 38096514663 و38096519119)",
+   "ctc_splice window rewindow=36:1-83: «المدى السورةُ كلُّها» (run 38097453554)؛ و36:2-83: 36:3 مدّتها 741م.ث والمتوقَّع 1665 (run 38097457661)",
+   "سبر ctc_align س36: 36:1 عند 10457م.ث وهي القيمة المكبوسة نفسها (run 38093895059)؛ وpin_heard: مرساة 36:2 جودتها 0.385",
+   "المرشّح 98df26d2: مداخله كلّها LOW ومدد شاذّة (36:6 ≈55ث) فلا يُرقّى"
+  ]
+ },
+ {
+  "key": "timings-staging/warsh/gharbi_warsh.51b92b5a.jz",
+  "surahs": [
+   36
+  ],
+  "rule_ref": "قاعدة المالك 2026-10-02 — خلل وسط السورة غير قابل للإصلاح ⇒ تُسقط السورة كلّها وتُعلن؛ وإذنه النصّيّ 2026-10-11 06:02Z: «أصلح يس عند الغربي مادام حل مشكلته معروفا فإن تعذر أسقطه»",
+  "attempts": [
+   "ctc_splice mode=heard rewindow=36:1-83 على الحيّ: «36: 56 بلا حدود» (run 38094885754)",
+   "ctc_splice mode=window rewindow=36:1-5 على 98df26d2: 36:3 مدّتها 861م.ث والمتوقَّع 2500 (run 38095612466)",
+   "realign_surah بتخطٍّ 5100 (whisper_ac=1500 ثمّ 0 مع until_ms): «آيات بلا حدود: [1, 71]» (runs 38096514663 و38096519119)",
+   "ctc_splice window rewindow=36:1-83: «المدى السورةُ كلُّها» (run 38097453554)؛ و36:2-83: 36:3 مدّتها 741م.ث والمتوقَّع 1665 (run 38097457661)",
+   "سبر ctc_align س36: 36:1 عند 10457م.ث وهي القيمة المكبوسة نفسها (run 38093895059)؛ وpin_heard: مرساة 36:2 جودتها 0.385",
+   "المرشّح 98df26d2: مداخله كلّها LOW ومدد شاذّة (36:6 ≈55ث) فلا يُرقّى"
+  ]
+ },
+ {
+  "key": "timings-staging/warsh/gharbi_warsh.a6e83f81.jz",
+  "surahs": [
+   36
+  ],
+  "rule_ref": "قاعدة المالك 2026-10-02 — خلل وسط السورة غير قابل للإصلاح ⇒ تُسقط السورة كلّها وتُعلن؛ وإذنه النصّيّ 2026-10-11 06:02Z: «أصلح يس عند الغربي مادام حل مشكلته معروفا فإن تعذر أسقطه»",
+  "attempts": [
+   "ctc_splice mode=heard rewindow=36:1-83 على الحيّ: «36: 56 بلا حدود» (run 38094885754)",
+   "ctc_splice mode=window rewindow=36:1-5 على 98df26d2: 36:3 مدّتها 861م.ث والمتوقَّع 2500 (run 38095612466)",
+   "realign_surah بتخطٍّ 5100 (whisper_ac=1500 ثمّ 0 مع until_ms): «آيات بلا حدود: [1, 71]» (runs 38096514663 و38096519119)",
+   "ctc_splice window rewindow=36:1-83: «المدى السورةُ كلُّها» (run 38097453554)؛ و36:2-83: 36:3 مدّتها 741م.ث والمتوقَّع 1665 (run 38097457661)",
+   "سبر ctc_align س36: 36:1 عند 10457م.ث وهي القيمة المكبوسة نفسها (run 38093895059)؛ وpin_heard: مرساة 36:2 جودتها 0.385",
+   "المرشّح 98df26d2: مداخله كلّها LOW ومدد شاذّة (36:6 ≈55ث) فلا يُرقّى"
+  ]
+ },
+ {
+  "key": "timings-staging/warsh/gharbi_warsh.26fb5b3e.jz",
+  "surahs": [
+   36
+  ],
+  "rule_ref": "قاعدة المالك 2026-10-02 — خلل وسط السورة غير قابل للإصلاح ⇒ تُسقط السورة كلّها وتُعلن؛ وإذنه النصّيّ 2026-10-11 06:02Z: «أصلح يس عند الغربي مادام حل مشكلته معروفا فإن تعذر أسقطه»",
+  "attempts": [
+   "ctc_splice mode=heard rewindow=36:1-83 على الحيّ: «36: 56 بلا حدود» (run 38094885754)",
+   "ctc_splice mode=window rewindow=36:1-5 على 98df26d2: 36:3 مدّتها 861م.ث والمتوقَّع 2500 (run 38095612466)",
+   "realign_surah بتخطٍّ 5100 (whisper_ac=1500 ثمّ 0 مع until_ms): «آيات بلا حدود: [1, 71]» (runs 38096514663 و38096519119)",
+   "ctc_splice window rewindow=36:1-83: «المدى السورةُ كلُّها» (run 38097453554)؛ و36:2-83: 36:3 مدّتها 741م.ث والمتوقَّع 1665 (run 38097457661)",
+   "سبر ctc_align س36: 36:1 عند 10457م.ث وهي القيمة المكبوسة نفسها (run 38093895059)؛ وpin_heard: مرساة 36:2 جودتها 0.385",
+   "المرشّح 98df26d2: مداخله كلّها LOW ومدد شاذّة (36:6 ≈55ث) فلا يُرقّى"
+  ]
+ },
+ {
+  "key": "timings-staging/warsh/gharbi_warsh.3393518c.jz",
+  "surahs": [
+   36
+  ],
+  "rule_ref": "قاعدة المالك 2026-10-02 — خلل وسط السورة غير قابل للإصلاح ⇒ تُسقط السورة كلّها وتُعلن؛ وإذنه النصّيّ 2026-10-11 06:02Z: «أصلح يس عند الغربي مادام حل مشكلته معروفا فإن تعذر أسقطه»",
+  "attempts": [
+   "ctc_splice mode=heard rewindow=36:1-83 على الحيّ: «36: 56 بلا حدود» (run 38094885754)",
+   "ctc_splice mode=window rewindow=36:1-5 على 98df26d2: 36:3 مدّتها 861م.ث والمتوقَّع 2500 (run 38095612466)",
+   "realign_surah بتخطٍّ 5100 (whisper_ac=1500 ثمّ 0 مع until_ms): «آيات بلا حدود: [1, 71]» (runs 38096514663 و38096519119)",
+   "ctc_splice window rewindow=36:1-83: «المدى السورةُ كلُّها» (run 38097453554)؛ و36:2-83: 36:3 مدّتها 741م.ث والمتوقَّع 1665 (run 38097457661)",
+   "سبر ctc_align س36: 36:1 عند 10457م.ث وهي القيمة المكبوسة نفسها (run 38093895059)؛ وpin_heard: مرساة 36:2 جودتها 0.385",
+   "المرشّح 98df26d2: مداخله كلّها LOW ومدد شاذّة (36:6 ≈55ث) فلا يُرقّى"
+  ]
+ },
+ {
+  "key": "timings-staging/warsh/gharbi_warsh.39a2d9d6.jz",
+  "surahs": [
+   36
+  ],
+  "rule_ref": "قاعدة المالك 2026-10-02 — خلل وسط السورة غير قابل للإصلاح ⇒ تُسقط السورة كلّها وتُعلن؛ وإذنه النصّيّ 2026-10-11 06:02Z: «أصلح يس عند الغربي مادام حل مشكلته معروفا فإن تعذر أسقطه»",
+  "attempts": [
+   "ctc_splice mode=heard rewindow=36:1-83 على الحيّ: «36: 56 بلا حدود» (run 38094885754)",
+   "ctc_splice mode=window rewindow=36:1-5 على 98df26d2: 36:3 مدّتها 861م.ث والمتوقَّع 2500 (run 38095612466)",
+   "realign_surah بتخطٍّ 5100 (whisper_ac=1500 ثمّ 0 مع until_ms): «آيات بلا حدود: [1, 71]» (runs 38096514663 و38096519119)",
+   "ctc_splice window rewindow=36:1-83: «المدى السورةُ كلُّها» (run 38097453554)؛ و36:2-83: 36:3 مدّتها 741م.ث والمتوقَّع 1665 (run 38097457661)",
+   "سبر ctc_align س36: 36:1 عند 10457م.ث وهي القيمة المكبوسة نفسها (run 38093895059)؛ وpin_heard: مرساة 36:2 جودتها 0.385",
+   "المرشّح 98df26d2: مداخله كلّها LOW ومدد شاذّة (36:6 ≈55ث) فلا يُرقّى"
+  ]
+ },
+ {
+  "key": "timings-staging/warsh/gharbi_warsh.d774e631.jz",
+  "surahs": [
+   36
+  ],
+  "rule_ref": "قاعدة المالك 2026-10-02 — خلل وسط السورة غير قابل للإصلاح ⇒ تُسقط السورة كلّها وتُعلن؛ وإذنه النصّيّ 2026-10-11 06:02Z: «أصلح يس عند الغربي مادام حل مشكلته معروفا فإن تعذر أسقطه»",
+  "attempts": [
+   "ctc_splice mode=heard rewindow=36:1-83 على الحيّ: «36: 56 بلا حدود» (run 38094885754)",
+   "ctc_splice mode=window rewindow=36:1-5 على 98df26d2: 36:3 مدّتها 861م.ث والمتوقَّع 2500 (run 38095612466)",
+   "realign_surah بتخطٍّ 5100 (whisper_ac=1500 ثمّ 0 مع until_ms): «آيات بلا حدود: [1, 71]» (runs 38096514663 و38096519119)",
+   "ctc_splice window rewindow=36:1-83: «المدى السورةُ كلُّها» (run 38097453554)؛ و36:2-83: 36:3 مدّتها 741م.ث والمتوقَّع 1665 (run 38097457661)",
+   "سبر ctc_align س36: 36:1 عند 10457م.ث وهي القيمة المكبوسة نفسها (run 38093895059)؛ وpin_heard: مرساة 36:2 جودتها 0.385",
+   "المرشّح 98df26d2: مداخله كلّها LOW ومدد شاذّة (36:6 ≈55ث) فلا يُرقّى"
+  ]
+ },
+ {
+  "key": "timings-staging/hafs/shamrani.31a89e75.jz",
+  "surahs": [
+   79
+  ],
+  "rule_ref": "قاعدة المالك المعدّلة 2026-10-31 (الحجب الجزئي أولاً والإسقاط الكامل حين لا يثبت الدليل) — وإذنه النصّيّ 2026-11-01 09:56Z «نعم» (cmsg_01SnWBBbg8UvScqE3YMKdPHa9ijYWqrS8ABcT4aQVMqnXs) جواباً على سؤال إسقاط النازعات عند الشمراني",
+  "attempts": [
+   "تفريغ whisper medium للمقطع: بعد «بالساهرة» (14) يأتي «ربه بالواد المقدس طوى» (16 بلا «إذ ناداه») ثم «أهديك إلى ربك فتخشى» (19) — الآيات 15 و17 و18 غير متلوّة، والملف موصول",
+   "ctc_splice window بغياب 15,17,18 (run 41215659073): «79:16 ثقة CTC 0.38 < 0.45» — رُدّ",
+   "ctc_splice window بغياب 15-18 (run 41215987942): «مرساة 79:19 ثقة الحد الجديد 0.133» — رُدّ",
+   "ctc_splice window بغياب 15-19 (run 41220891761): «مرساة 79:20 ثقة الحد الجديد 0.064» — رُدّ",
+   "لا مصدر بديل لسورة النازعات عند الشمراني في mp3quran"
+  ]
+ },
+ {
+  "key": "timings-staging/hafs/a_alhazmi.28302038.jz",
+  "surahs": [
+   13
+  ],
+  "rule_ref": "إذن المالك النصّيّ 2026-11-05 21:53Z «أذنتُ بالحجب المؤقت مع --allow-truncated» (cmsg_01SnWBBbg8UvScqE3YMKdPHaJxKNTZhRpG5BhYHFbxyNXY) جواباً على سؤال حجب السور التي توقيتُها على صوت غيرها حجباً مؤقّتاً معلناً حتى يُصلَح توقيتها",
+  "attempts": [
+   "فحص السماع (posverify: whisper small عند ثلاث آيات في السورة) أثبت أنّ توقيت السورة المنشور يقع على صوت آياتٍ أخرى",
+   "ctc_splice heard rewindow 13:1-N (ff_a_alhazmi_13) — رُدّ ببوّابة السماع",
+   "نوافذ ffw ±1 على الآيات المنحرفة — رُدّت ببوّابة السماع",
+   "جولة c3 (heard) — رُدّت ببوّابة السماع"
+  ]
+ },
+ {
+  "key": "timings-staging/warsh/benkirane_warsh.b495bd0a.jz",
+  "surahs": [
+   23
+  ],
+  "rule_ref": "إذن المالك النصّيّ 2026-11-05 21:53Z «أذنتُ بالحجب المؤقت مع --allow-truncated» (cmsg_01SnWBBbg8UvScqE3YMKdPHaJxKNTZhRpG5BhYHFbxyNXY) جواباً على سؤال حجب السور التي توقيتُها على صوت غيرها حجباً مؤقّتاً معلناً حتى يُصلَح توقيتها",
+  "attempts": [
+   "فحص السماع (posverify: whisper small عند ثلاث آيات في السورة) أثبت أنّ توقيت السورة المنشور يقع على صوت آياتٍ أخرى",
+   "ctc_splice heard rewindow 23:1-N (ff_benkirane__19) — رُدّ ببوّابة السماع",
+   "جولتا c3 وd3 (heard) — رُدّتا ببوّابة السماع"
+  ]
+ },
+ {
+  "key": "timings-staging/hafs/hatem.05c4f7c1.jz",
+  "surahs": [
+   6
+  ],
+  "rule_ref": "إذن المالك النصّيّ 2026-11-05 21:53Z «أذنتُ بالحجب المؤقت مع --allow-truncated» (cmsg_01SnWBBbg8UvScqE3YMKdPHaJxKNTZhRpG5BhYHFbxyNXY) جواباً على سؤال حجب السور التي توقيتُها على صوت غيرها حجباً مؤقّتاً معلناً حتى يُصلَح توقيتها",
+  "attempts": [
+   "فحص السماع (posverify: whisper small عند ثلاث آيات في السورة) أثبت أنّ توقيت السورة المنشور يقع على صوت آياتٍ أخرى",
+   "ctc_splice heard rewindow 6:1-N (ff_hatem_14) — رُدّ ببوّابة السماع",
+   "نوافذ ffw ±1 — رُدّت ببوّابة السماع",
+   "جولتا c3 وd3 (heard) — رُدّتا ببوّابة السماع"
+  ]
+ },
+ {
+  "key": "timings-staging/hafs/i_sanankoua.6aea825f.jz",
+  "surahs": [
+   20
+  ],
+  "rule_ref": "إذن المالك النصّيّ 2026-11-05 21:53Z «أذنتُ بالحجب المؤقت مع --allow-truncated» (cmsg_01SnWBBbg8UvScqE3YMKdPHaJxKNTZhRpG5BhYHFbxyNXY) جواباً على سؤال حجب السور التي توقيتُها على صوت غيرها حجباً مؤقّتاً معلناً حتى يُصلَح توقيتها",
+  "attempts": [
+   "فحص السماع (posverify: whisper small عند ثلاث آيات في السورة) أثبت أنّ توقيت السورة المنشور يقع على صوت آياتٍ أخرى",
+   "ctc_splice heard rewindow 20:1-N (ff_i_sanankou_12) — رُدّ ببوّابة السماع",
+   "جولة c3 رُقّيت دون إصلاح طه"
+  ]
+ },
+ {
+  "key": "timings-staging/warsh/laghdaf_shinqiti.5ad78aaa.jz",
+  "surahs": [
+   2,
+   26
+  ],
+  "rule_ref": "إذن المالك النصّيّ 2026-11-05 21:53Z «أذنتُ بالحجب المؤقت مع --allow-truncated» (cmsg_01SnWBBbg8UvScqE3YMKdPHaJxKNTZhRpG5BhYHFbxyNXY) جواباً على سؤال حجب السور التي توقيتُها على صوت غيرها حجباً مؤقّتاً معلناً حتى يُصلَح توقيتها",
+  "attempts": [
+   "فحص السماع (posverify: whisper small عند ثلاث آيات في السورة) أثبت أنّ توقيت السورة المنشور يقع على صوت آياتٍ أخرى",
+   "ctc_splice heard rewindow (ff_laghdaf_sh_11) — رُدّ ببوّابة السماع",
+   "نوافذ ffw على البقرة — رُدّت",
+   "جولة c3 (heard) — رُدّت ببوّابة السماع"
+  ]
+ },
+ {
+  "key": "timings-staging/hafs/m_qari.83a16af6.jz",
+  "surahs": [
+   13,
+   14,
+   76
+  ],
+  "rule_ref": "إذن المالك النصّيّ 2026-11-05 21:53Z «أذنتُ بالحجب المؤقت مع --allow-truncated» (cmsg_01SnWBBbg8UvScqE3YMKdPHaJxKNTZhRpG5BhYHFbxyNXY) جواباً على سؤال حجب السور التي توقيتُها على صوت غيرها حجباً مؤقّتاً معلناً حتى يُصلَح توقيتها",
+  "attempts": [
+   "فحص السماع (posverify: whisper small عند ثلاث آيات في السورة) أثبت أنّ توقيت السورة المنشور يقع على صوت آياتٍ أخرى",
+   "ctc_splice heard rewindow (ff_m_qari_9) — رُدّ ببوّابة السماع",
+   "نوافذ ffw ±1 — رُدّت ببوّابة السماع",
+   "جولة c3 (heard) — رُدّت ببوّابة السماع"
+  ]
+ },
+ {
+  "key": "timings-staging/warsh/noah_warsh.15fadd12.jz",
+  "surahs": [
+   3
+  ],
+  "rule_ref": "إذن المالك النصّيّ 2026-11-05 21:53Z «أذنتُ بالحجب المؤقت مع --allow-truncated» (cmsg_01SnWBBbg8UvScqE3YMKdPHaJxKNTZhRpG5BhYHFbxyNXY) جواباً على سؤال حجب السور التي توقيتُها على صوت غيرها حجباً مؤقّتاً معلناً حتى يُصلَح توقيتها",
+  "attempts": [
+   "فحص السماع (posverify: whisper small عند ثلاث آيات في السورة) أثبت أنّ توقيت السورة المنشور يقع على صوت آياتٍ أخرى",
+   "جولة c3 (heard) رُقّيت دون إصلاح آل عمران",
+   "ctc_splice heard rewindow 3:1-N (ff_noah_warsh_18) — لم يخرج منه مرشّح"
+  ]
+ },
+ {
+  "key": "timings-staging/hafs/saad.cf851372.jz",
+  "surahs": [
+   12,
+   22,
+   28,
+   29,
+   36,
+   38,
+   39,
+   40,
+   45,
+   53
+  ],
+  "rule_ref": "إذن المالك النصّيّ 2026-11-05 21:53Z «أذنتُ بالحجب المؤقت مع --allow-truncated» (cmsg_01SnWBBbg8UvScqE3YMKdPHaJxKNTZhRpG5BhYHFbxyNXY) جواباً على سؤال حجب السور التي توقيتُها على صوت غيرها حجباً مؤقّتاً معلناً حتى يُصلَح توقيتها",
+  "attempts": [
+   "فحص السماع (posverify: whisper small عند ثلاث آيات في السورة) أثبت أنّ توقيت السورة المنشور يقع على صوت آياتٍ أخرى",
+   "ctc_splice heard rewindow (ff_saad_7/8/20/21) — رُدّ ببوّابة البنية ثم السماع",
+   "جولة c3 (heard) — رُدّت ببوّابة البنية",
+   "22 و28 و45 محجوبةٌ أصلاً في المنشور وتُعاد في القائمة لأنّ drop_surah يستبدل الإعلان"
+  ]
+ },
+ {
+  "key": "timings-staging/hafs/tblawi.a7e07d7e.jz",
+  "surahs": [
+   92
+  ],
+  "rule_ref": "إذن المالك النصّيّ 2026-11-05 21:53Z «أذنتُ بالحجب المؤقت مع --allow-truncated» (cmsg_01SnWBBbg8UvScqE3YMKdPHaJxKNTZhRpG5BhYHFbxyNXY) جواباً على سؤال حجب السور التي توقيتُها على صوت غيرها حجباً مؤقّتاً معلناً حتى يُصلَح توقيتها",
+  "attempts": [
+   "فحص السماع (posverify: whisper small عند ثلاث آيات في السورة) أثبت أنّ توقيت السورة المنشور يقع على صوت آياتٍ أخرى",
+   "ctc_splice heard rewindow — رُدّ ببوّابة السماع",
+   "مرشّح حجبٍ قديم رُدّ لأنّه بُني على أصلٍ أقدم من المنشور؛ أُعيد بناؤه على المنشور bdbf924c"
+  ]
+ },
+ {
+  "key": "timings-staging/hafs/hatem.5ef9c40d.jz",
+  "surahs": [
+   6,
+   89
+  ],
+  "rule_ref": "إذن المالك النصّيّ 2026-11-05 21:53Z «أذنتُ بالحجب المؤقت مع --allow-truncated» (cmsg_01SnWBBbg8UvScqE3YMKdPHaJxKNTZhRpG5BhYHFbxyNXY) جواباً على سؤال حجب السور التي توقيتُها على صوت غيرها حجباً مؤقّتاً معلناً حتى يُصلَح توقيتها",
+  "attempts": [
+   "فحص السماع (posverify: whisper small عند ثلاث آيات في السورة) أثبت أنّ توقيت السورة المنشور يقع على صوت آياتٍ أخرى",
+   "ctc_splice heard rewindow على 89 — رُدّ ببوّابة السماع",
+   "6 محجوبةٌ أصلاً في المنشور 05c4f7c1 وتُعاد في القائمة لأنّ drop_surah يستبدل الإعلان"
+  ]
+ },
+ {
+  "key": "timings-staging/qalun/maroush_qalun.a648d799.jz",
+  "surahs": [
+   2,
+   3,
+   4,
+   5,
+   6,
+   7,
+   8,
+   9,
+   10,
+   11,
+   12,
+   14,
+   15,
+   16,
+   17,
+   21,
+   23,
+   25,
+   26,
+   27,
+   33,
+   36,
+   38,
+   39,
+   40,
+   41,
+   42,
+   51,
+   67,
+   68,
+   72
+  ],
+  "rule_ref": "إذن المالك النصّيّ 2026-11-05 21:53Z «أذنتُ بالحجب المؤقت مع --allow-truncated» (cmsg_01SnWBBbg8UvScqE3YMKdPHaJxKNTZhRpG5BhYHFbxyNXY) جواباً على سؤال حجب السور التي توقيتُها على صوت غيرها حجباً مؤقّتاً معلناً حتى يُصلَح توقيتها",
+  "attempts": [
+   "فحص السماع (posverify: whisper small عند ثلاث آيات في السورة) أثبت أنّ توقيت السورة المنشور يقع على صوت آياتٍ أخرى",
+   "جولات ff وc3 وd3 (heard rewindow) — رُدّت ببوّابتي البنية والسماع",
+   "15 أُضيفت بفحص squeeze_gate ثم أكّدها posverify (الآية 99 بدرجة 0.0)"
+  ]
+ },
+ {
+  "key": "timings-staging/hafs/asim.1e9f7f67.jz",
+  "surahs": [
+   8,
+   15,
+   17,
+   40,
+   46,
+   55,
+   92
+  ],
+  "rule_ref": "إذن المالك النصّيّ 2026-11-05 21:53Z «أذنتُ بالحجب المؤقت مع --allow-truncated» (cmsg_01SnWBBbg8UvScqE3YMKdPHaJxKNTZhRpG5BhYHFbxyNXY) جواباً على سؤال حجب السور التي توقيتُها على صوت غيرها حجباً مؤقّتاً معلناً حتى يُصلَح توقيتها",
+  "attempts": [
+   "فحص السماع (posverify: whisper small عند ثلاث آيات في السورة) أثبت أنّ توقيت السورة المنشور يقع على صوت آياتٍ أخرى",
+   "جولات ff وc3 (heard rewindow) — رُدّت ببوّابتي البنية والسماع",
+   "17 أكّدها posverify (الآية 111 بدرجة 0.0) وسماعٌ موضعيّ عند 17:108 سمع «إلا خسارا» (17:82)"
+  ]
+ },
+ {
+  "key": "timings-staging/qalun/maroush_qalun.269a93a7.jz",
+  "surahs": [
+   2,
+   3,
+   4,
+   5,
+   6,
+   7,
+   8,
+   9,
+   10,
+   11,
+   12,
+   14,
+   15,
+   16,
+   17,
+   18,
+   21,
+   22,
+   23,
+   25,
+   26,
+   27,
+   29,
+   30,
+   33,
+   36,
+   38,
+   39,
+   40,
+   41,
+   42,
+   43,
+   44,
+   47,
+   49,
+   51,
+   55,
+   58,
+   66,
+   67,
+   68,
+   72,
+   73
+  ],
+  "rule_ref": "إذن المالك النصّيّ 2026-11-05 21:53Z «أذنتُ بالحجب المؤقت مع --allow-truncated» (cmsg_01SnWBBbg8UvScqE3YMKdPHaJxKNTZhRpG5BhYHFbxyNXY) جواباً على سؤال حجب السور التي توقيتُها على صوت غيرها حجباً مؤقّتاً معلناً حتى يُصلَح توقيتها",
+  "attempts": [
+   "فحص السماع (posverify: whisper small عند ثلاث آيات في السورة) أثبت أنّ توقيت السورة المنشور يقع على صوت آياتٍ أخرى",
+   "جولات ff وc3 وd3 (heard rewindow) — رُدّت ببوّابتي البنية والسماع",
+   "15 أُضيفت بفحص squeeze_gate ثم أكّدها posverify (الآية 99 بدرجة 0.0)",
+   "2026-11-06: ثمانية ملوح على مرشّح الحجب a648d799 وجدت آياتٍ تبدأ بمادة الآية السابقة أو تسقط صدرها (WRONG_AYAH/EARLY/LATE) متكرّرةً في ملحين فأكثر في س18,22,29,30,43,44,47,49,55,58,66,73 (المجمَّع 4.9% والحدّ الأعلى 5.9%) ⇒ أُضيفت إلى الحجب المؤقّت حتى تُصلح",
+   "2026-11-06: محاذاة CTC كاملة للقارئ (163200fb) ردّتها بوّابة السماع في 85 سورة"
+  ]
+ },
+ {
+  "key": "timings-staging/hafs/mhsny.c7f6c175.jz",
+  "surahs": [
+   31
+  ],
+  "rule_ref": "إذن المالك النصّيّ 2026-11-05 21:53Z «أذنتُ بالحجب المؤقت مع --allow-truncated» (cmsg_01SnWBBbg8UvScqE3YMKdPHaJxKNTZhRpG5BhYHFbxyNXY) جواباً على سؤال حجب السور التي توقيتُها على صوت غيرها حجباً مؤقّتاً معلناً حتى يُصلَح توقيتها",
+  "attempts": [
+   "2026-11-06: تفريغ whisper أثبت أنّ 31:34 تبدأ بعد موضعها المنشور بنحو 20ث (القارئ يكرّر خاتمة 31:33)، وردّت بوّابةُ السماع إعادةَ المحاذاة heard (fin_ff_mhsny_30)"
+  ]
+ },
+ {
+  "key": "timings-staging/qalun/janaini_qalun.75ead42b.jz",
+  "surahs": [
+   37
+  ],
+  "rule_ref": "إذن المالك النصّيّ 2026-11-05 21:53Z «أذنتُ بالحجب المؤقت مع --allow-truncated» (cmsg_01SnWBBbg8UvScqE3YMKdPHaJxKNTZhRpG5BhYHFbxyNXY) جواباً على سؤال حجب السور التي توقيتُها على صوت غيرها حجباً مؤقّتاً معلناً حتى يُصلَح توقيتها",
+  "attempts": [
+   "2026-11-05/06: مسح الامتداد (0.64 من النظراء) وفحص السماع أثبتا أنّ توقيت س37 يقع على صوت آيات أخرى، ورُدّت محاولات الإصلاح بحارس انحياز الآيات القصيرة"
+  ]
+ },
+ {
+  "key": "timings-staging/hafs/3siri.eb107d30.jz",
+  "surahs": [
+   56
+  ],
+  "rule_ref": "إذن المالك النصّيّ 2026-11-05 21:53Z «أذنتُ بالحجب المؤقت مع --allow-truncated» (cmsg_01SnWBBbg8UvScqE3YMKdPHaJxKNTZhRpG5BhYHFbxyNXY) جواباً على سؤال حجب السور التي توقيتُها على صوت غيرها حجباً مؤقّتاً معلناً حتى يُصلَح توقيتها",
+  "attempts": [
+   "2026-11-05/06: posverify (whisper عند ثلاث آيات) أثبت أنّ توقيت س56 يقع على صوت آيات أخرى (24:0.25، 48:0.0، 96:0.0)، ورُدّت محاولات الإصلاح ff وffw بحارس انحياز الآيات القصيرة"
+  ]
+ },
+ {
+  "key": "timings-staging/hafs/hatem.617f2063.jz",
+  "surahs": [
+   6,
+   89
+  ],
+  "rule_ref": "إذن المالك النصّيّ 2026-11-05 21:53Z «أذنتُ بالحجب المؤقت مع --allow-truncated» (cmsg_01SnWBBbg8UvScqE3YMKdPHaJxKNTZhRpG5BhYHFbxyNXY) جواباً على سؤال حجب السور التي توقيتُها على صوت غيرها حجباً مؤقّتاً معلناً حتى يُصلَح توقيتها",
+  "attempts": [
+   "فحص السماع (posverify: whisper small عند ثلاث آيات في السورة) أثبت أنّ توقيت السورة المنشور يقع على صوت آياتٍ أخرى",
+   "ctc_splice heard rewindow على 89 — رُدّ ببوّابة السماع",
+   "6 محجوبةٌ أصلاً في المنشور 05c4f7c1 وتُعاد في القائمة لأنّ drop_surah يستبدل الإعلان",
+   "2026-11-06 ff_hatem_29: س31 أُصلحت سماعاً (heard) فلا تُحجب؛ والمرشّح يرث حجب السور المعلنة نفسها من الحيّ 5ef9c40d بلا زيادة"
+  ]
+ },
+ {
+  "key": "timings-staging/qalun/maroush_qalun.506ddfe4.jz",
+  "surahs": [
+   60
+  ],
+  "rule_ref": "إذن المالك النصّيّ 2026-11-05 21:53Z «أذنتُ بالحجب المؤقت مع --allow-truncated» (cmsg_01SnWBBbg8UvScqE3YMKdPHaJxKNTZhRpG5BhYHFbxyNXY) جواباً على سؤال حجب السور التي توقيتُها على صوت غيرها حجباً مؤقّتاً معلناً حتى يُصلَح توقيتها",
+  "attempts": [
+   "2026-11-06: تفريغ whisper أثبت أنّ 60:3 تبدأ بعد موضعها المنشور بنحو 20ث (القارئ يكرّر 60:2) ⇒ حجبٌ مؤقّت حتى تُثبَّت بـpin_heard"
+  ]
+ },
+ {
+  "key": "timings-staging/qalun/maroush_qalun.efb06bcb.jz",
+  "surahs": [
+   2,
+   3,
+   4,
+   5,
+   6,
+   7,
+   8,
+   9,
+   10,
+   11,
+   12,
+   14,
+   15,
+   16,
+   17,
+   18,
+   21,
+   22,
+   23,
+   25,
+   26,
+   27,
+   29,
+   30,
+   33,
+   36,
+   38,
+   39,
+   40,
+   41,
+   42,
+   43,
+   44,
+   47,
+   49,
+   51,
+   55,
+   58,
+   60,
+   66,
+   67,
+   68,
+   72,
+   73
+  ],
+  "rule_ref": "إذن المالك النصّيّ 2026-11-05 21:53Z «أذنتُ بالحجب المؤقت مع --allow-truncated» (cmsg_01SnWBBbg8UvScqE3YMKdPHaJxKNTZhRpG5BhYHFbxyNXY) جواباً على سؤال حجب السور التي توقيتُها على صوت غيرها حجباً مؤقّتاً معلناً حتى يُصلَح توقيتها",
+  "attempts": [
+   "2026-11-06: تفريغ whisper أثبت أنّ 60:3 تبدأ بعد موضعها المنشور بنحو 20ث (القارئ يكرّر 60:2) ⇒ حجبٌ مؤقّت حتى تُثبَّت بـpin_heard؛ مع إبقاء حجب السور الـ43 المعلنة"
+  ]
+ },
+ {
+  "key": "timings-staging/hafs/hatem.fb9da840.jz",
+  "surahs": [
+   6,
+   31,
+   89
+  ],
+  "rule_ref": "إذن المالك النصّيّ 2026-11-05 21:53Z «أذنتُ بالحجب المؤقت مع --allow-truncated» (cmsg_01SnWBBbg8UvScqE3YMKdPHaJxKNTZhRpG5BhYHFbxyNXY) جواباً على سؤال حجب السور التي توقيتُها على صوت غيرها حجباً مؤقّتاً معلناً حتى يُصلَح توقيتها",
+  "attempts": [
+   "2026-11-06: س31 أُصلحت سماعاً (617f2063 اجتاز البنية والسماع والملوح) لكن حارس الوراثة يردّ إصلاحاً فوق حجبٍ مؤقّت (reasonCode=OTHER) ⇒ تُحجب س31 مؤقّتاً مع 6 و89 حتى يُعدَّل الحارس بإذن المالك"
+  ]
+ },
+ {
+  "key": "timings-staging/qalun/maroush_qalun.3c0913dd.jz",
+  "surahs": [
+   2,
+   3,
+   4,
+   5,
+   6,
+   7,
+   8,
+   9,
+   10,
+   11,
+   12,
+   13,
+   14,
+   15,
+   16,
+   17,
+   18,
+   21,
+   22,
+   23,
+   25,
+   26,
+   27,
+   28,
+   29,
+   30,
+   31,
+   33,
+   35,
+   36,
+   38,
+   39,
+   40,
+   41,
+   42,
+   43,
+   44,
+   46,
+   47,
+   49,
+   51,
+   55,
+   58,
+   59,
+   60,
+   66,
+   67,
+   68,
+   70,
+   71,
+   72,
+   73,
+   78
+  ],
+  "rule_ref": "إذن المالك النصّيّ 2026-11-05 21:53Z «أذنتُ بالحجب المؤقت مع --allow-truncated» (cmsg_01SnWBBbg8UvScqE3YMKdPHaJxKNTZhRpG5BhYHFbxyNXY) جواباً على سؤال حجب السور التي توقيتُها على صوت غيرها حجباً مؤقّتاً معلناً حتى يُصلَح توقيتها",
+  "attempts": [
+   "2026-11-06: حجب س60 (60:3 بعد موضعها بنحو 20ث) رُدّ حدّياً بـ12 ملحاً (مجمَّع 4.8% والحدّ الأعلى 5.5%)؛ وpool_defects أثبت عيوباً جسيمة متكرّرة في ≥3 ملوح في س13,28,31,35,46,59,70,71,78 (آيةٌ تبدأ بمادة سابقتها) ⇒ تُحجب معها مؤقّتاً حتى تُثبَّت بـpin_heard"
+  ]
+ },
+ {
+  "key": "timings-staging/hafs/saad.5df13726.jz",
+  "surahs": [
+   12,
+   29,
+   36,
+   38,
+   39,
+   40,
+   45,
+   53
+  ],
+  "rule_ref": "إذن المالك النصّيّ 2026-11-05 21:53Z «أذنتُ بالحجب المؤقت مع --allow-truncated» (cmsg_01SnWBBbg8UvScqE3YMKdPHaJxKNTZhRpG5BhYHFbxyNXY) جواباً على سؤال حجب السور التي توقيتُها على صوت غيرها حجباً مؤقّتاً معلناً حتى يُصلَح توقيتها",
+  "attempts": [
+   "2026-11-07 حَكَم CTC النافذة (ctc_splice 42362946192): 22:61-62 و28:17-18 قُسمتا، و45:3-5 رُدّت بثقة 0.0؛ وشاهد Whisper المشابه لم يُثبت 45:4"
+  ]
+ },
+ {
+  "key": "timings-staging/warsh/benkirane_warsh.07195175.jz",
+  "surahs": [
+   23
+  ],
+  "rule_ref": "إذن المالك النصّيّ 2026-11-05 21:53Z «أذنتُ بالحجب المؤقت مع --allow-truncated» (cmsg_01SnWBBbg8UvScqE3YMKdPHaJxKNTZhRpG5BhYHFbxyNXY)، وإذنه بوراثة الحجب في هذا المرشّح 2026-11-09 17:25Z «موافق على وراثة حجب س23 عند بن كيران في المرشّح الجديد» (cmsg_01SnWBBbg8UvScqE3YMKdPHaVwA7A9H6o1TUJGwEAAS5XS)",
+  "attempts": [
+   "posverify أثبت أنّ توقيت س23 المنشور على صوت آياتٍ أخرى",
+   "ctc_splice heard rewindow 23:1-N (ff_benkirane__19) رُدّ ببوّابة السماع",
+   "جولتا c3 وd3 (heard) رُدّتا ببوّابة السماع"
+  ]
+ },
+ {
+  "key": "timings-staging/hafs/abkar.ecd90eb1.jz",
+  "surahs": [
+   36
+  ],
+  "rule_ref": "إذن المالك النصّيّ 2026-11-05 21:53Z بالحجب المؤقّت المعلن مع --allow-truncated (cmsg_01SnWBBbg8UvScqE3YMKdPHaJxKNTZhRpG5BhYHFbxyNXY)، وأمر القائد 2026-11-10 بحجب ما ثبت انحرافه بالسماع بعد تبدّل ملفّه عند المصدر (mp3quran، 13 أكتوبر)",
+  "attempts": [
+   "خريطة السماع 42725349177 على الملفّ الحاليّ: 73 آية من 81 تنحرف بين −84ث و+10ث",
+   "بصمة صوت المصدر تبدّلت من c478856b إلى c8bbcbeb (مسح انجراف المصدر 2026-11-10)"
+  ]
+ },
+ {
+  "key": "timings-staging/hafs/shaksh.56c10163.jz",
+  "surahs": [
+   7
+  ],
+  "rule_ref": "إذن المالك النصّيّ 2026-11-05 21:53Z بالحجب المؤقّت المعلن مع --allow-truncated (cmsg_01SnWBBbg8UvScqE3YMKdPHaJxKNTZhRpG5BhYHFbxyNXY)، وأمر القائد 2026-11-10 بحجب ما ثبت انحرافه بالسماع بعد تبدّل ملفّه عند المصدر (mp3quran، 13 أكتوبر)",
+  "attempts": [
+   "خريطة السماع 42725352775 على الملفّ الحاليّ: الآيات 184..206 تنحرف حتى +226ث",
+   "بصمة صوت المصدر تبدّلت من 999f1fbf إلى 6e244415 (مسح انجراف المصدر 2026-11-10)"
+  ]
+ },
+ {
+  "key": "timings-staging/hafs/3siri.de6c3014.jz",
+  "surahs": [
+   48,
+   56
+  ],
+  "rule_ref": "إذن المالك النصّيّ 2026-11-05 21:53Z بالحجب المؤقّت المعلن مع --allow-truncated (cmsg_01SnWBBbg8UvScqE3YMKdPHaJxKNTZhRpG5BhYHFbxyNXY)، وأمر القائد 2026-11-10 بحجب ما ثبت انحرافه بالسماع بعد تبدّل ملفّه عند المصدر (mp3quran، 13 أكتوبر)",
+  "attempts": [
+   "خريطة السماع 42725355931 على الملفّ الحاليّ: الآيات 48:11..29 تنحرف بنحو +27ث؛ وحجب س56 قائمٌ في الحيّ eb107d30 ويُحمل كما هو",
+   "بصمة صوت المصدر تبدّلت من 489105a2 إلى 8123710a (مسح انجراف المصدر 2026-11-10)"
+  ]
+ },
+ {
+  "key": "timings-staging/hafs/rami.451d9df6.jz",
+  "surahs": [
+   114
+  ],
+  "rule_ref": "إذن المالك النصّيّ 2026-11-05 21:53Z بالحجب المؤقّت المعلن مع --allow-truncated (cmsg_01SnWBBbg8UvScqE3YMKdPHaJxKNTZhRpG5BhYHFbxyNXY)، وأمر القائد 2026-11-10 بحجب ما ثبت انحرافه بالسماع بعد تبدّل ملفّه عند المصدر (mp3quran، 13 أكتوبر)",
+  "attempts": [
+   "خريطة السماع 42725360113 على الملفّ الحاليّ: الآيات الستّ كلّها تنحرف بنحو −4.5ث",
+   "بصمة صوت المصدر تبدّلت من 84061367 إلى 3a604652 (مسح انجراف المصدر 2026-11-10)"
+  ]
+ },
+ {
+  "key": "timings-staging/hafs/hamza.dc3bc373.jz",
+  "surahs": [
+   5
+  ],
+  "rule_ref": "إذن المالك النصّيّ 2026-11-05 21:53Z بالحجب المؤقّت المعلن مع --allow-truncated (cmsg_01SnWBBbg8UvScqE3YMKdPHaJxKNTZhRpG5BhYHFbxyNXY)، وأمر القائد 2026-11-10 بحجب ما ثبت انحرافه بالسماع بعد تبدّل ملفّه عند المصدر (mp3quran، 13 أكتوبر)",
+  "attempts": [
+   "خريطة السماع 42725373212 على الملفّ الحاليّ: 111 آية من 120 تنحرف حتى +864ث",
+   "بصمة صوت المصدر تبدّلت من 6e044361 إلى d5766123 (مسح انجراف المصدر 2026-11-10)"
+  ]
+ },
+ {
+  "key": "timings-staging/hafs/kurdi.b7fe6778.jz",
+  "surahs": [
+   4,
+   55
+  ],
+  "rule_ref": "س4: حجبٌ قائمٌ في الحيّ 8dd3cf93 يُحمل كما هو (4:127 غير منطوقة في 004.mp3) · س55: إذن المالك النصّيّ 2026-11-05 21:53Z بالحجب المؤقّت المعلن (cmsg_01SnWBBbg8UvScqE3YMKdPHaJxKNTZhRpG5BhYHFbxyNXY) وأمر القائد 2026-11-09 23:50Z بحجب الكردي س55 لتحريفٍ سمعيّ",
+  "attempts": [
+   "س4: 004.mp3 لم يتبدّل (sha256 a59e257e = ترويسة الحيّ)؛ مرساة 4:127 جودتها 0.318 بلا أداء؛ شاهد Whisper 42734080787 على 4115000..4170000 سمع 4:125 ثمّ 4:126 ثمّ 4:128 بلا كلمة من 4:127",
+   "س55: خريطة السماع 42722306119 على الملفّ الحاليّ: الآيات 1..78 مسموعة كلّها، ومواضع المنشور متأخّرة عن المسموع بـ42.1..47.6ث (الوسيط 46.8ث)؛ بصمة الصوت تبدّلت من 5f498f57 إلى 60b66c8b",
+   "ctc_splice heard rewindow 55:1-78 (42723674633) أنتج bd3c5d89 فردّته بوّابة السماع لبقاء البصمة القديمة"
+  ]
+ },
+ {
+  "key": "timings-staging/hafs/kurdi.55035e81.jz",
+  "surahs": [
+   4
+  ],
+  "rule_ref": "س4: حجبٌ قائمٌ في الحيّ 8dd3cf93 يُحمل كما هو (4:127 غير منطوقة في 004.mp3) · وس55 أُعيدت محاذاتُها كلُّها على الملفّ الحاليّ فلا تُحجب",
+  "attempts": [
+   "س4: 004.mp3 لم يتبدّل (sha256 a59e257e = ترويسة الحيّ)؛ مرساة 4:127 جودتها 0.318 بلا أداء؛ شاهد Whisper 42734080787 على 4115000..4170000 سمع 4:125 ثمّ 4:126 ثمّ 4:128 بلا كلمة من 4:127",
+   "المرشّحات e8a49589 و1c0c20e6 وbbc6fa45 التي استرجعت س4 متروكة لتحريفٍ في 4:125–127"
+  ]
+ },
+ {
+  "key": "timings-staging/hafs/3siri.bc63afc4.jz",
+  "surahs": [
+   56
+  ],
+  "rule_ref": "س56: حجبٌ قائمٌ في الحيّ يُحمل، وأُعيدت كتابة إعلانه لس56 وحدها (OTHER، توقيتها قيد الإصلاح) لأنّ النصّ الموروث كان يذكر الفتح وقد أُعيدت محاذاتها؛ وسنده إذن المالك بالحجب المؤقّت المعلن 2026-11-05 21:53Z (cmsg_01SnWBBbg8UvScqE3YMKdPHaJxKNTZhRpG5BhYHFbxyNXY)",
+  "attempts": [
+   "س56: شاهد Whisper خالف مرساة الآية 66 فلم تُثبَّت (خيط الفهرسة 2026-11-09 23:40Z)",
+   "س48 في المرشّح نفسه أُعيدت محاذاتها كاملةً على البصمة الحاليّة 8123710a"
+  ]
+ },
+ {
+  "key": "timings-staging/hafs/a_ahmed.774603c1.jz",
+  "surahs": [
+   23,
+   25,
+   26,
+   75
+  ],
+  "rule_ref": "إذن المالك النصّيّ 2026-11-05 21:53Z بالحجب المؤقّت المعلن (cmsg_01SnWBBbg8UvScqE3YMKdPHaJxKNTZhRpG5BhYHFbxyNXY)، وأمر القائد 2026-11-10 03:00Z بحجب آيات «صوت غيرها» برمز TIMING_UNDER_REPAIR حتى يُصلح توقيتها",
+  "attempts": [
+   "تدقيق المراسي الضعيفة heard-weak-audit-20261110 (ops/out/heard-weak-audit-20261110.md): شاهد Whisper medium سمع في مداخل الآيات 23:89,105,106,109,110,111 · 25:14,15,66,73 · 26:86,87 · 75:29 صوتَ آيةٍ غيرها في الحيّ a40e3f76",
+   "الدليل لكلّ آية في ops/evidence/heard-drop-*.json (heard: witness · runId · text)"
+  ]
+ },
+ {
+  "key": "timings-staging/hafs/a_binaoun.6a3c67ac.jz",
+  "surahs": [
+   3
+  ],
+  "rule_ref": "إذن المالك النصّيّ 2026-11-05 21:53Z بالحجب المؤقّت المعلن (cmsg_01SnWBBbg8UvScqE3YMKdPHaJxKNTZhRpG5BhYHFbxyNXY)، وأمر القائد 2026-11-10 03:00Z بحجب آيات «صوت غيرها» برمز TIMING_UNDER_REPAIR حتى يُصلح توقيتها",
+  "attempts": [
+   "تدقيق المراسي الضعيفة heard-weak-audit-20261110 (ops/out/heard-weak-audit-20261110.md): شاهد Whisper medium سمع في مداخل الآيات 3:145,175,176,195 صوتَ آيةٍ غيرها في الحيّ f7611b60",
+   "الدليل لكلّ آية في ops/evidence/heard-drop-*.json (heard: witness · runId · text)"
+  ]
+ },
+ {
+  "key": "timings-staging/qalun/noah_qalun.82308bb1.jz",
+  "surahs": [
+   15
+  ],
+  "rule_ref": "إذن المالك النصّيّ 2026-11-05 21:53Z بالحجب المؤقّت المعلن (cmsg_01SnWBBbg8UvScqE3YMKdPHaJxKNTZhRpG5BhYHFbxyNXY)، وأمر القائد 2026-11-10 03:00Z بحجب آيات «صوت غيرها» برمز TIMING_UNDER_REPAIR حتى يُصلح توقيتها",
+  "attempts": [
+   "تدقيق المراسي الضعيفة heard-weak-audit-20261110 (ops/out/heard-weak-audit-20261110.md): شاهد Whisper medium سمع في مداخل الآيات 15:17,18 صوتَ آيةٍ غيرها في الحيّ 211c530c",
+   "الدليل لكلّ آية في ops/evidence/heard-drop-*.json (heard: witness · runId · text)"
+  ]
+ },
+ {
+  "key": "timings-staging/hafs/m_alfaqih.73e74b3f.jz",
+  "surahs": [
+   37
+  ],
+  "rule_ref": "إذن المالك النصّيّ 2026-11-05 21:53Z بالحجب المؤقّت المعلن (cmsg_01SnWBBbg8UvScqE3YMKdPHaJxKNTZhRpG5BhYHFbxyNXY)، وأمر القائد 2026-11-10 03:00Z بحجب آيات «صوت غيرها» برمز TIMING_UNDER_REPAIR حتى يُصلح توقيتها",
+  "attempts": [
+   "تدقيق المراسي الضعيفة heard-weak-audit-20261110 (ops/out/heard-weak-audit-20261110.md): شاهد Whisper medium سمع في مداخل الآيات 37:159 صوتَ آيةٍ غيرها في الحيّ c828a201",
+   "الدليل لكلّ آية في ops/evidence/heard-drop-*.json (heard: witness · runId · text)"
+  ]
+ },
+ {
+  "key": "timings-staging/hafs/mhsny.2c1297ea.jz",
+  "surahs": [
+   23
+  ],
+  "rule_ref": "إذن المالك النصّيّ 2026-11-05 21:53Z بالحجب المؤقّت المعلن (cmsg_01SnWBBbg8UvScqE3YMKdPHaJxKNTZhRpG5BhYHFbxyNXY)، وأمر القائد 2026-11-10 03:00Z بحجب آيات «صوت غيرها» برمز TIMING_UNDER_REPAIR حتى يُصلح توقيتها",
+  "attempts": [
+   "تدقيق المراسي الضعيفة heard-weak-audit-20261110 (ops/out/heard-weak-audit-20261110.md): شاهد Whisper medium سمع في مداخل الآيات 23:116 صوتَ آيةٍ غيرها في الحيّ 51d9615e",
+   "الدليل لكلّ آية في ops/evidence/heard-drop-*.json (heard: witness · runId · text)"
+  ]
+ },
+ {
+  "key": "timings-staging/hafs/rashad.1d2fdbe3.jz",
+  "surahs": [
+   19
+  ],
+  "rule_ref": "إذن المالك النصّيّ 2026-11-05 21:53Z بالحجب المؤقّت المعلن (cmsg_01SnWBBbg8UvScqE3YMKdPHaJxKNTZhRpG5BhYHFbxyNXY)، وأمر القائد 2026-11-10 03:00Z بحجب آيات «صوت غيرها» برمز TIMING_UNDER_REPAIR حتى يُصلح توقيتها",
+  "attempts": [
+   "تدقيق المراسي الضعيفة heard-weak-audit-20261110 (ops/out/heard-weak-audit-20261110.md): شاهد Whisper medium سمع في مداخل الآيات 19:18 صوتَ آيةٍ غيرها في الحيّ f2f1cb34",
+   "الدليل لكلّ آية في ops/evidence/heard-drop-*.json (heard: witness · runId · text)"
+  ]
+ },
+ {
+  "key": "timings-staging/hafs/a_alhazmi.3d32a8a3.jz",
+  "surahs": [
+   2
+  ],
+  "rule_ref": "إذن المالك النصّيّ 2026-11-05 21:53Z بالحجب المؤقّت المعلن (cmsg_01SnWBBbg8UvScqE3YMKdPHaJxKNTZhRpG5BhYHFbxyNXY)، وأمر القائد 2026-11-10 03:00Z بحجب آيات «صوت غيرها» برمز TIMING_UNDER_REPAIR حتى يُصلح توقيتها",
+  "attempts": [
+   "تدقيق المراسي الضعيفة heard-weak-audit-20261110 (ops/out/heard-weak-audit-20261110.md): شاهد Whisper medium سمع في مداخل الآيات 2:215 صوتَ آيةٍ غيرها في الحيّ 8021f013",
+   "الدليل لكلّ آية في ops/evidence/heard-drop-*.json (heard: witness · runId · text)"
+  ]
+ },
+ {
+  "key": "timings-staging/hafs/gulan.2fc91446.jz",
+  "surahs": [
+   28
+  ],
+  "rule_ref": "إذن المالك النصّيّ 2026-11-05 21:53Z بالحجب المؤقّت المعلن (cmsg_01SnWBBbg8UvScqE3YMKdPHaJxKNTZhRpG5BhYHFbxyNXY)، وأمر القائد 2026-11-10 03:00Z بحجب آيات «صوت غيرها» برمز TIMING_UNDER_REPAIR حتى يُصلح توقيتها",
+  "attempts": [
+   "تدقيق المراسي الضعيفة heard-weak-audit-20261110 (ops/out/heard-weak-audit-20261110.md): شاهد Whisper medium سمع في مداخل الآيات 28:71 صوتَ آيةٍ غيرها في الحيّ 5a2a237e",
+   "الدليل لكلّ آية في ops/evidence/heard-drop-*.json (heard: witness · runId · text)"
+  ]
+ },
+ {
+  "key": "timings-staging/qalun/jelmam_qalun.5af0501f.jz",
+  "surahs": [
+   2
+  ],
+  "rule_ref": "إذن المالك النصّيّ 2026-11-05 21:53Z بالحجب المؤقّت المعلن (cmsg_01SnWBBbg8UvScqE3YMKdPHaJxKNTZhRpG5BhYHFbxyNXY)، وأمر القائد 2026-11-10 03:00Z بحجب آيات «صوت غيرها» برمز TIMING_UNDER_REPAIR حتى يُصلح توقيتها",
+  "attempts": [
+   "تدقيق المراسي الضعيفة heard-weak-audit-20261110 (ops/out/heard-weak-audit-20261110.md): شاهد Whisper medium سمع في مداخل الآيات 2:152 صوتَ آيةٍ غيرها في الحيّ 7f1ac96b",
+   "الدليل لكلّ آية في ops/evidence/heard-drop-*.json (heard: witness · runId · text)"
+  ]
+ },
+ {
+  "key": "timings-staging/qalun/suhaim_qalun.0f32aa04.jz",
+  "surahs": [
+   19
+  ],
+  "rule_ref": "إذن المالك النصّيّ 2026-11-05 21:53Z بالحجب المؤقّت المعلن (cmsg_01SnWBBbg8UvScqE3YMKdPHaJxKNTZhRpG5BhYHFbxyNXY)، وأمر القائد 2026-11-10 03:00Z بحجب آيات «صوت غيرها» برمز TIMING_UNDER_REPAIR حتى يُصلح توقيتها",
+  "attempts": [
+   "تدقيق المراسي الضعيفة heard-weak-audit-20261110 (ops/out/heard-weak-audit-20261110.md): شاهد Whisper medium سمع في مداخل الآيات 19:69 صوتَ آيةٍ غيرها في الحيّ 0f062ae3",
+   "الدليل لكلّ آية في ops/evidence/heard-drop-*.json (heard: witness · runId · text)"
+  ]
+ },
+ {
+  "key": "timings-staging/hafs/sayed.2c9b5b1f.jz",
+  "surahs": [
+   22
+  ],
+  "rule_ref": "إذن المالك النصّيّ 2026-11-05 21:53Z بالحجب المؤقّت المعلن (cmsg_01SnWBBbg8UvScqE3YMKdPHaJxKNTZhRpG5BhYHFbxyNXY)، وأمر القائد 2026-11-10 03:00Z بحجب آيات «صوت غيرها» برمز TIMING_UNDER_REPAIR حتى يُصلح توقيتها",
+  "attempts": [
+   "تدقيق المراسي الضعيفة heard-weak-audit-20261110 (ops/out/heard-weak-audit-20261110.md): شاهد Whisper medium سمع في مداخل الآيات 22:66 صوتَ آيةٍ غيرها في الحيّ 82baa436",
+   "الدليل لكلّ آية في ops/evidence/heard-drop-*.json (heard: witness · runId · text)"
+  ]
+ },
+ {
+  "key": "timings-staging/warsh/rabbani_warsh.28cb839a.jz",
+  "surahs": [
+   37
+  ],
+  "rule_ref": "إذن المالك النصّيّ 2026-11-05 21:53Z بالحجب المؤقّت المعلن (cmsg_01SnWBBbg8UvScqE3YMKdPHaJxKNTZhRpG5BhYHFbxyNXY)، وأمر القائد 2026-11-10 03:00Z بحجب آيات «صوت غيرها» برمز TIMING_UNDER_REPAIR حتى يُصلح توقيتها",
+  "attempts": [
+   "تدقيق المراسي الضعيفة heard-weak-audit-20261110 (ops/out/heard-weak-audit-20261110.md): شاهد Whisper medium سمع في مداخل الآيات 37:131 صوتَ آيةٍ غيرها في الحيّ 96affba1",
+   "الدليل لكلّ آية في ops/evidence/heard-drop-*.json (heard: witness · runId · text)"
+  ]
+ },
+ {
+  "key": "timings-staging/hafs/a_alqrafi.6dc7bf51.jz",
+  "surahs": [
+   30
+  ],
+  "rule_ref": "إذن المالك النصّيّ 2026-11-05 21:53Z بالحجب المؤقّت المعلن (cmsg_01SnWBBbg8UvScqE3YMKdPHaJxKNTZhRpG5BhYHFbxyNXY)، وأمر القائد 2026-11-10 04:50Z بحجب السور التي ثبت بشاهدَي Whisper أنّ آياتها تُعرض على صوت غيرها حتى تُعاد محاذاتها",
+  "attempts": [
+   "جرد المراسي القويّة ومعايرته (ops/out/heard-strong-audit-20261110.md · heard-strong-calibration-20261110.md): شاهدا Whisper سمعا عند موضع الفهرس في الحيّ 0921404e نصَّ آيةٍ أخرى، والعنقود يجاوز ربع السورة أو يشمل آخر آية فلا يصلح drop_ayahs",
+   "الدليل في ops/evidence/tail-drop-a_alqrafi-0921404e.json؛ وrealign_surah جارٍ ليحلّ محلّ الحجب"
+  ]
+ },
+ {
+  "key": "timings-staging/hafs/afs.a777307b.jz",
+  "surahs": [
+   22
+  ],
+  "rule_ref": "إذن المالك النصّيّ 2026-11-05 21:53Z بالحجب المؤقّت المعلن (cmsg_01SnWBBbg8UvScqE3YMKdPHaJxKNTZhRpG5BhYHFbxyNXY)، وأمر القائد 2026-11-10 04:50Z بحجب السور التي ثبت بشاهدَي Whisper أنّ آياتها تُعرض على صوت غيرها حتى تُعاد محاذاتها",
+  "attempts": [
+   "جرد المراسي القويّة ومعايرته (ops/out/heard-strong-audit-20261110.md · heard-strong-calibration-20261110.md): شاهدا Whisper سمعا عند موضع الفهرس في الحيّ b3b9b914 نصَّ آيةٍ أخرى، والعنقود يجاوز ربع السورة أو يشمل آخر آية فلا يصلح drop_ayahs",
+   "الدليل في ops/evidence/tail-drop-afs-b3b9b914.json؛ وrealign_surah جارٍ ليحلّ محلّ الحجب"
+  ]
+ },
+ {
+  "key": "timings-staging/hafs/darweez.23bb56ee.jz",
+  "surahs": [
+   11
+  ],
+  "rule_ref": "إذن المالك النصّيّ 2026-11-05 21:53Z بالحجب المؤقّت المعلن (cmsg_01SnWBBbg8UvScqE3YMKdPHaJxKNTZhRpG5BhYHFbxyNXY)، وأمر القائد 2026-11-10 04:50Z بحجب السور التي ثبت بشاهدَي Whisper أنّ آياتها تُعرض على صوت غيرها حتى تُعاد محاذاتها",
+  "attempts": [
+   "جرد المراسي القويّة ومعايرته (ops/out/heard-strong-audit-20261110.md · heard-strong-calibration-20261110.md): شاهدا Whisper سمعا عند موضع الفهرس في الحيّ 14c13705 نصَّ آيةٍ أخرى، والعنقود يجاوز ربع السورة أو يشمل آخر آية فلا يصلح drop_ayahs",
+   "الدليل في ops/evidence/tail-drop-darweez-14c13705.json؛ وrealign_surah جارٍ ليحلّ محلّ الحجب"
+  ]
+ },
+ {
+  "key": "timings-staging/qalun/janaini_qalun.0cce1189.jz",
+  "surahs": [
+   5
+  ],
+  "rule_ref": "إذن المالك النصّيّ 2026-11-05 21:53Z بالحجب المؤقّت المعلن (cmsg_01SnWBBbg8UvScqE3YMKdPHaJxKNTZhRpG5BhYHFbxyNXY)، وأمر القائد 2026-11-10 04:50Z بحجب السور التي ثبت بشاهدَي Whisper أنّ آياتها تُعرض على صوت غيرها حتى تُعاد محاذاتها",
+  "attempts": [
+   "جرد المراسي القويّة ومعايرته (ops/out/heard-strong-audit-20261110.md · heard-strong-calibration-20261110.md): شاهدا Whisper سمعا عند موضع الفهرس في الحيّ 64fa5999 نصَّ آيةٍ أخرى، والعنقود يجاوز ربع السورة أو يشمل آخر آية فلا يصلح drop_ayahs",
+   "الدليل في ops/evidence/tail-drop-janaini_qalun-64fa5999.json؛ وrealign_surah جارٍ ليحلّ محلّ الحجب"
+  ]
+ },
+ {
+  "key": "timings-staging/hafs/qurashi.150b6e29.jz",
+  "surahs": [
+   10
+  ],
+  "rule_ref": "إذن المالك النصّيّ 2026-11-05 21:53Z بالحجب المؤقّت المعلن (cmsg_01SnWBBbg8UvScqE3YMKdPHaJxKNTZhRpG5BhYHFbxyNXY)، وأمر القائد 2026-11-10 04:50Z بحجب السور التي ثبت بشاهدَي Whisper أنّ آياتها تُعرض على صوت غيرها حتى تُعاد محاذاتها",
+  "attempts": [
+   "جرد المراسي القويّة ومعايرته (ops/out/heard-strong-audit-20261110.md · heard-strong-calibration-20261110.md): شاهدا Whisper سمعا عند موضع الفهرس في الحيّ 6969cf33 نصَّ آيةٍ أخرى، والعنقود يجاوز ربع السورة أو يشمل آخر آية فلا يصلح drop_ayahs",
+   "الدليل في ops/evidence/tail-drop-qurashi-6969cf33.json؛ وrealign_surah جارٍ ليحلّ محلّ الحجب"
+  ]
+ },
+ {
+  "key": "timings-staging/qalun/rakbawi_qalun.2a3735e8.jz",
+  "surahs": [
+   36
+  ],
+  "rule_ref": "إذن المالك النصّيّ 2026-11-05 21:53Z بالحجب المؤقّت المعلن (cmsg_01SnWBBbg8UvScqE3YMKdPHaJxKNTZhRpG5BhYHFbxyNXY)، وأمر القائد 2026-11-10 04:50Z بحجب السور التي ثبت بشاهدَي Whisper أنّ آياتها تُعرض على صوت غيرها حتى تُعاد محاذاتها",
+  "attempts": [
+   "جرد المراسي القويّة ومعايرته (ops/out/heard-strong-audit-20261110.md · heard-strong-calibration-20261110.md): شاهدا Whisper سمعا عند موضع الفهرس في الحيّ 3d8dc7c9 نصَّ آيةٍ أخرى، والعنقود يجاوز ربع السورة أو يشمل آخر آية فلا يصلح drop_ayahs",
+   "الدليل في ops/evidence/tail-drop-rakbawi_qalun-3d8dc7c9.json؛ وrealign_surah جارٍ ليحلّ محلّ الحجب"
+  ]
+ },
+ {
+  "key": "timings-staging/hafs/trabulsi.06859847.jz",
+  "surahs": [
+   12
+  ],
+  "rule_ref": "إذن المالك النصّيّ 2026-11-05 21:53Z بالحجب المؤقّت المعلن (cmsg_01SnWBBbg8UvScqE3YMKdPHaJxKNTZhRpG5BhYHFbxyNXY)، وأمر القائد 2026-11-10 04:50Z بحجب السور التي ثبت بشاهدَي Whisper أنّ آياتها تُعرض على صوت غيرها حتى تُعاد محاذاتها",
+  "attempts": [
+   "جرد المراسي القويّة ومعايرته (ops/out/heard-strong-audit-20261110.md · heard-strong-calibration-20261110.md): شاهدا Whisper سمعا عند موضع الفهرس في الحيّ d535093b نصَّ آيةٍ أخرى، والعنقود يجاوز ربع السورة أو يشمل آخر آية فلا يصلح drop_ayahs",
+   "الدليل في ops/evidence/tail-drop-trabulsi-d535093b.json؛ وrealign_surah جارٍ ليحلّ محلّ الحجب"
+  ]
+ },
+ {
+  "key": "timings-staging/warsh/wahrani_warsh.d01a39d7.jz",
+  "surahs": [
+   16
+  ],
+  "rule_ref": "إذن المالك النصّيّ 2026-11-05 21:53Z بالحجب المؤقّت المعلن (cmsg_01SnWBBbg8UvScqE3YMKdPHaJxKNTZhRpG5BhYHFbxyNXY)، وأمر القائد 2026-11-10 04:50Z بحجب السور التي ثبت بشاهدَي Whisper أنّ آياتها تُعرض على صوت غيرها حتى تُعاد محاذاتها",
+  "attempts": [
+   "جرد المراسي القويّة ومعايرته (ops/out/heard-strong-audit-20261110.md · heard-strong-calibration-20261110.md): شاهدا Whisper سمعا عند موضع الفهرس في الحيّ 5fe9f415 نصَّ آيةٍ أخرى، والعنقود يجاوز ربع السورة أو يشمل آخر آية فلا يصلح drop_ayahs",
+   "الدليل في ops/evidence/tail-drop-wahrani_warsh-5fe9f415.json؛ وrealign_surah جارٍ ليحلّ محلّ الحجب"
+  ]
+ },
+ {
+  "key": "timings-staging/hafs/nathier.409a3ef1.jz",
+  "surahs": [
+   12
+  ],
+  "rule_ref": "إذن المالك النصّيّ 2026-11-05 21:53Z بالحجب المؤقّت المعلن (cmsg_01SnWBBbg8UvScqE3YMKdPHaJxKNTZhRpG5BhYHFbxyNXY)، وأمر القائد 2026-11-10 04:50Z بحجب الآيات التي ثبت بشاهدَي Whisper أنّ آياتها تُعرض على صوت غيرها برمز TIMING_UNDER_REPAIR حتى يُصلح توقيتها",
+  "attempts": [
+   "جرد المراسي القويّة: شاهدا Whisper سمعا في بدء مدخل 12:69 صوتَ آيةٍ غيرها في الحيّ 97773431",
+   "الدليل لكلّ آية في ops/evidence/heard-drop-*.json (heard: witness · runId · text)"
+  ]
+ },
+ {
+  "key": "timings-staging/warsh/noah_warsh.c4ab3f73.jz",
+  "surahs": [
+   5
+  ],
+  "rule_ref": "إذن المالك النصّيّ 2026-11-05 21:53Z بالحجب المؤقّت المعلن (cmsg_01SnWBBbg8UvScqE3YMKdPHaJxKNTZhRpG5BhYHFbxyNXY)، وأمر القائد 2026-11-10 04:50Z بحجب الآيات التي ثبت بشاهدَي Whisper أنّ آياتها تُعرض على صوت غيرها برمز TIMING_UNDER_REPAIR حتى يُصلح توقيتها",
+  "attempts": [
+   "جرد المراسي القويّة: شاهدا Whisper سمعا في بدء مدخل 5:36 صوتَ آيةٍ غيرها في الحيّ b77cccf3",
+   "الدليل لكلّ آية في ops/evidence/heard-drop-*.json (heard: witness · runId · text)"
+  ]
+ },
+ {
+  "key": "timings-staging/qalun/akri_qalun.143e13dd.jz",
+  "surahs": [
+   4,
+   10,
+   37
+  ],
+  "rule_ref": "إذن المالك النصّيّ 2026-11-05 21:53Z بالحجب المؤقّت المعلن (cmsg_01SnWBBbg8UvScqE3YMKdPHaJxKNTZhRpG5BhYHFbxyNXY)، وأمر القائد 2026-11-10 04:50Z بحجب السور التي ثبت بشاهدَي Whisper أنّ آياتها تُعرض على صوت غيرها حتى تُعاد محاذاتها · وس4 إعلانٌ منشور موروث: أُسقطت كاملةً SOURCE_TRUNCATED في الحيّ b99e3573 (op=drop_surah:4، أصله akri_qalun.0744b79c) بقاعدة البتر الوسطيّ 2026-10-02 السارية يومها؛ يُورَّث حرفاً بلا إسقاطٍ جديد",
+  "attempts": [
+   "جرد المراسي القويّة ومعايرته (ops/out/heard-strong-calibration-20261110.md): شاهدا Whisper سمعا عند موضع الفهرس في الحيّ b99e3573 نصَّ آيةٍ أخرى في 10:109 و37:182، والعنقود يشمل آخر آية فلا يصلح drop_ayahs",
+   "realign_surah لس10 أخفق في 42759032765 («لم تُحلّ سورةٌ واحدة — س10: 86 بلا حدود»)، وس37 جارية؛ وإعلانا س4 (drop_surah) وس24 (SOURCE_TRUNCATED) موروثان حرفاً منذ #102",
+   "س4: الآية 4:140 غائبة من التسجيل (نحو عشر ثوانٍ بين 4:139 و4:141 والآية نحو أربعين ثانية)؛ لم تسمعها خريطة السماع على mp3quran ولا على archive.org، وردّت نافذة CTC بثقة 0.0 (ترويسة الحيّ b99e3573)"
+  ]
+ },
+ {
+  "key": "timings-staging/hafs/gulan.f4fd20df.jz",
+  "surahs": [
+   91
+  ],
+  "rule_ref": "إذن المالك النصّيّ 2026-11-05 21:53Z بالحجب المؤقّت المعلن (cmsg_01SnWBBbg8UvScqE3YMKdPHaJxKNTZhRpG5BhYHFbxyNXY)، وأمر القائد 2026-11-10 03:00Z بحجب آيات «صوت غيرها» برمز TIMING_UNDER_REPAIR حتى يُصلح توقيتها",
+  "attempts": [
+   "جرد المراسي القويّة: شاهدا Whisper يضعان مطلع 91:9 عند 33420 و33540، والمدخل في الحيّ 2fc91446 يبدأ عند 31760 داخل صوت 91:8",
+   "الدليل في ops/evidence/heard-drop-*.json (heard: witness · runId · text)؛ وإعلان 28:71 القديم موروث حرفاً"
+  ]
+ },
+ {
+  "key": "timings-staging/warsh/noah_warsh.df33ceba.jz",
+  "surahs": [
+   5
+  ],
+  "rule_ref": "إذن المالك النصّيّ 2026-11-05 21:53Z بالحجب المؤقّت المعلن (cmsg_01SnWBBbg8UvScqE3YMKdPHaJxKNTZhRpG5BhYHFbxyNXY)، وأمر القائد 2026-11-10 03:00Z بحجب آيات «صوت غيرها» برمز TIMING_UNDER_REPAIR حتى يُصلح توقيتها",
+  "attempts": [
+   "جرد المراسي القويّة: شاهدا Whisper (medium وsmall على 005.mp3 بصمة 35b98c9d) يضعان بدء مداخل 5:12 و5:20 و5:36 و5:48 و5:72 و5:117 في صوت الآية السابقة في الحيّ b77cccf3 (تأخّر 1.7–14.8ث)",
+   "يحلّ محلّ c4ab3f73؛ الدليل في ops/evidence/heard-drop-*.json"
+  ]
+ },
+ {
+  "key": "timings-staging/hafs/nathier.cda92da9.jz",
+  "surahs": [
+   12
+  ],
+  "rule_ref": "إذن المالك النصّيّ 2026-11-05 21:53Z بالحجب المؤقّت المعلن (cmsg_01SnWBBbg8UvScqE3YMKdPHaJxKNTZhRpG5BhYHFbxyNXY)، وأمر القائد 2026-11-10 04:50Z بحجب الآيات التي ثبت بشاهدَي Whisper أنّ آياتها تُعرض على صوت غيرها برمز TIMING_UNDER_REPAIR حتى يُصلح توقيتها",
+  "attempts": [
+   "جرد المراسي القويّة: شاهدا Whisper سمعا في بدء مدخل 12:69 صوتَ آيةٍ غيرها في الحيّ 97773431",
+   "الدليل لكلّ آية في ops/evidence/heard-drop-*.json (heard: witness · runId · text)",
+   "ثُبّت بدء 12:3 و17 و47 و63 بـpin_heard (الأمر 20261110_0640_nathier_pin12) على مراسيها المقيسة بجودة 0.76–0.87 في خريطة float32 42768817556 بعد أن ردّتها بوّابة السماع 42759412085 بانحراف -2.1..-2.5ث"
+  ]
+ },
+ {
+  "key": "timings-staging/hafs/3siri.0d353a28.jz",
+  "surahs": [
+   10,
+   56
+  ],
+  "rule_ref": "إذن المالك النصّيّ 2026-11-05 21:53Z بالحجب المؤقّت المعلن (cmsg_01SnWBBbg8UvScqE3YMKdPHaJxKNTZhRpG5BhYHFbxyNXY) لما توقيتُه على صوت غيره حتى يُصلَح؛ وأمر القائد 2026-11-10 بحجب س10 مع بقاء إعلان س56 الموروث حرفاً",
+  "attempts": [
+   "س10: شاهدا Whisper أثبتا انحراف المنشور عن المسموع في الحيّ bc63afc4؛ الدليل في ops/evidence/heard-drop-surah-3siri-bc63afc4-s10.json",
+   "س10: قاعدة المرساة داخل نصّ الآية (#107) ردّت الآيات 14 و51 و62 لأنّ مطلعها يبعد 580–980م.ث عن المنشور (>300م.ث)، وعرض pin_heard ردّ 50 و55 و70 لتخالف الشاهدين",
+   "س56: إعلان drop_surah موروث من الحيّ bc63afc4 دون تغيير (drop_surah يردّ إعادة إعلانها)"
+  ]
+ },
+ {
+  "key": "timings-staging/hafs/kurdi.cd85eecc.jz",
+  "surahs": [
+   4,
+   55
+  ],
+  "rule_ref": "س4: حجبٌ قائمٌ في الحيّ 8dd3cf93 يُحمل كما هو (4:127 غير منطوقة في 004.mp3) · س55: إذن المالك النصّيّ 2026-11-05 21:53Z بالحجب المؤقّت المعلن (cmsg_01SnWBBbg8UvScqE3YMKdPHaJxKNTZhRpG5BhYHFbxyNXY) وأمر القائد 2026-11-09 23:50Z بحجب الكردي س55 لتحريفٍ سمعيّ · يُحمل الإعلانان كما هما من الحيّ b7fe6778؛ والمرشّح يثبّت مطلع غافر 40:1–2 وحده بمسار الحروف (#121)",
+  "attempts": [
+   "س4: 004.mp3 لم يتبدّل (sha256 a59e257e = ترويسة الحيّ)؛ مرساة 4:127 جودتها 0.318 بلا أداء؛ شاهد Whisper 42734080787 على 4115000..4170000 سمع 4:125 ثمّ 4:126 ثمّ 4:128 بلا كلمة من 4:127",
+   "س55: خريطة السماع 42722306119 على الملفّ الحاليّ: الآيات 1..78 مسموعة كلّها، ومواضع المنشور متأخّرة عن المسموع بـ42.1..47.6ث (الوسيط 46.8ث)؛ بصمة الصوت تبدّلت من 5f498f57 إلى 60b66c8b",
+   "ctc_splice heard rewindow 55:1-78 (42723674633) أنتج bd3c5d89 فردّته بوّابة السماع لبقاء البصمة القديمة",
+   "المرشّح cd85eecc: heard_gate 42816921776 تمرّ، المطالع 42807905002 نظيفة، الملوح الأربعة 1.5 و0.5 و0 و0٪، الإحصاء بلا fatal وseverity 0.489٪"
+  ]
+ },
+ {
+  "key": "timings-staging/hafs/mhsny.5af48f2b.jz",
+  "surahs": [
+   2,
+   23
+  ],
+  "rule_ref": "إذن المالك النصّيّ 2026-11-05 21:53Z بالحجب المؤقّت المعلن (cmsg_01SnWBBbg8UvScqE3YMKdPHaJxKNTZhRpG5BhYHFbxyNXY)، وأمر القائد 2026-11-10 03:00Z بحجب آيات «صوت غيرها» برمز TIMING_UNDER_REPAIR حتى يُصلح توقيتها، وقرار القائد 2026-11-10 بحجب mhsny 2:2 وحدها",
+  "attempts": [
+   "mhsny 2:2: مدخلها الحيّ 7122 متأخّر نحو 1.9ث عن المسموع: Whisper medium 42767215625 عند 5160 وsmall 42767233527 عند 5260 (بصمة 6bb0178d58c5 = audioSha256[1])، وردّ pin_heard: «⛔ 2:2 بدءٌ 5320 لا يقع على أداءٍ مقيس (المقيس: [])»",
+   "mhsny 23:116: موروث من الحيّ 2c1297ea بدليل Whisper medium 42744121402",
+   "الدليل لكلّ آية في ops/evidence/heard-drop-mhsny-2c1297ea-s2x2.json وفي ترويسة المرشّح",
+   "المرشّح 5af48f2b: الإحصاء 42818839950 بلا fatal والعطب الجسيم 1.59٪، heard_gate 42818753329 تمرّ، المطالع 42818795848 نظيفة، الملوح 9/800"
+  ]
+ },
+ {
+  "key": "timings-staging/qalun/fakhfakh_qalun.a90b37fc.jz",
+  "surahs": [
+   10,
+   29,
+   37
+  ],
+  "rule_ref": "إذن المالك النصّيّ 2026-11-05 21:53Z بالحجب المؤقّت المعلن (cmsg_01SnWBBbg8UvScqE3YMKdPHaJxKNTZhRpG5BhYHFbxyNXY)، وأمر القائد 2026-11-10 بحجب ما ثبت أنّ آياته تُسمع بصوت غيرها برمز TIMING_UNDER_REPAIR حتى يُصلح توقيته؛ الحجب مؤقّت معلن لا إسقاط نهائيّ",
+  "attempts": [
+   "عدّ الدليل لكلّ سورة (مثبتة/في موضعها/غير محسومة) بشاهدَين ومسابير ثلاثة: 15/7/87 · 9/6/54 · 20/10/152 — من ops/out/hd24_state.md (2026-11-10)",
+   "الصفّ يأذن بالإعفاء من عتبة الغياب 2٪ وحدها؛ والترقية تبقى مشروطةً بـstruct وheard_gate والمطالع والملوح الأربعة والإحصاء، ولا عتبة تُخفض"
+  ]
+ },
+ {
+  "key": "timings-staging/hafs/lahoni.ade06e7e.jz",
+  "surahs": [
+   29
+  ],
+  "rule_ref": "إذن المالك النصّيّ 2026-11-05 21:53Z بالحجب المؤقّت المعلن (cmsg_01SnWBBbg8UvScqE3YMKdPHaJxKNTZhRpG5BhYHFbxyNXY)، وأمر القائد 2026-11-10 بحجب ما ثبت أنّ آياته تُسمع بصوت غيرها برمز TIMING_UNDER_REPAIR حتى يُصلح توقيته؛ الحجب مؤقّت معلن لا إسقاط نهائيّ",
+  "attempts": [
+   "عدّ الدليل لكلّ سورة (مثبتة/في موضعها/غير محسومة) بشاهدَين ومسابير ثلاثة: 9/2/58 — من ops/out/hd24_state.md (2026-11-10)",
+   "الصفّ يأذن بالإعفاء من عتبة الغياب 2٪ وحدها؛ والترقية تبقى مشروطةً بـstruct وheard_gate والمطالع والملوح الأربعة والإحصاء، ولا عتبة تُخفض"
+  ]
+ },
+ {
+  "key": "timings-staging/hafs/mohsin_harthi.2c889bfa.jz",
+  "surahs": [
+   46
+  ],
+  "rule_ref": "إذن المالك النصّيّ 2026-11-05 21:53Z بالحجب المؤقّت المعلن (cmsg_01SnWBBbg8UvScqE3YMKdPHaJxKNTZhRpG5BhYHFbxyNXY)، وأمر القائد 2026-11-10 بحجب ما ثبت أنّ آياته تُسمع بصوت غيرها برمز TIMING_UNDER_REPAIR حتى يُصلح توقيته؛ الحجب مؤقّت معلن لا إسقاط نهائيّ",
+  "attempts": [
+   "عدّ الدليل لكلّ سورة (مثبتة/في موضعها/غير محسومة) بشاهدَين ومسابير ثلاثة: 9/0/26 — من ops/out/hd24_state.md (2026-11-10)",
+   "الصفّ يأذن بالإعفاء من عتبة الغياب 2٪ وحدها؛ والترقية تبقى مشروطةً بـstruct وheard_gate والمطالع والملوح الأربعة والإحصاء، ولا عتبة تُخفض"
+  ]
+ },
+ {
+  "key": "timings-staging/hafs/s_hashemi.ccc05030.jz",
+  "surahs": [
+   21,
+   23,
+   35
+  ],
+  "rule_ref": "إذن المالك النصّيّ 2026-11-05 21:53Z بالحجب المؤقّت المعلن (cmsg_01SnWBBbg8UvScqE3YMKdPHaJxKNTZhRpG5BhYHFbxyNXY)، وأمر القائد 2026-11-10 بحجب ما ثبت أنّ آياته تُسمع بصوت غيرها برمز TIMING_UNDER_REPAIR حتى يُصلح توقيته؛ الحجب مؤقّت معلن لا إسقاط نهائيّ",
+  "attempts": [
+   "عدّ الدليل لكلّ سورة (مثبتة/في موضعها/غير محسومة) بشاهدَين ومسابير ثلاثة: 16/1/95 · 14/4/100 · 7/0/38 — من ops/out/hd24_state.md (2026-11-10)",
+   "الصفّ يأذن بالإعفاء من عتبة الغياب 2٪ وحدها؛ والترقية تبقى مشروطةً بـstruct وheard_gate والمطالع والملوح الأربعة والإحصاء، ولا عتبة تُخفض"
+  ]
+ },
+ {
+  "key": "timings-staging/hafs/h_abudalal.26722680.jz",
+  "surahs": [
+   20
+  ],
+  "rule_ref": "إذن المالك النصّيّ 2026-11-05 21:53Z بالحجب المؤقّت المعلن (cmsg_01SnWBBbg8UvScqE3YMKdPHaJxKNTZhRpG5BhYHFbxyNXY)، وأمر القائد 2026-11-10 بحجب ما ثبت أنّ آياته تُسمع بصوت غيرها برمز TIMING_UNDER_REPAIR حتى يُصلح توقيته؛ الحجب مؤقّت معلن لا إسقاط نهائيّ",
+  "attempts": [
+   "عدّ الدليل لكلّ سورة (مثبتة/في موضعها/غير محسومة) بشاهدَين ومسابير ثلاثة: 26/2/107 — من ops/out/hd24_state.md (2026-11-10)",
+   "الصفّ يأذن بالإعفاء من عتبة الغياب 2٪ وحدها؛ والترقية تبقى مشروطةً بـstruct وheard_gate والمطالع والملوح الأربعة والإحصاء، ولا عتبة تُخفض"
+  ]
+ },
+ {
+  "key": "timings-staging/hafs/kyat.5e899ca6.jz",
+  "surahs": [
+   21,
+   28
+  ],
+  "rule_ref": "إذن المالك النصّيّ 2026-11-05 21:53Z بالحجب المؤقّت المعلن (cmsg_01SnWBBbg8UvScqE3YMKdPHaJxKNTZhRpG5BhYHFbxyNXY)، وأمر القائد 2026-11-10 بحجب ما ثبت أنّ آياته تُسمع بصوت غيرها برمز TIMING_UNDER_REPAIR حتى يُصلح توقيته؛ الحجب مؤقّت معلن لا إسقاط نهائيّ",
+  "attempts": [
+   "عدّ الدليل لكلّ سورة (مثبتة/في موضعها/غير محسومة) بشاهدَين ومسابير ثلاثة: 14/0/98 · 7/0/81 — من ops/out/hd24_state.md (2026-11-10)",
+   "الصفّ يأذن بالإعفاء من عتبة الغياب 2٪ وحدها؛ والترقية تبقى مشروطةً بـstruct وheard_gate والمطالع والملوح الأربعة والإحصاء، ولا عتبة تُخفض"
+  ]
+ },
+ {
+  "key": "timings-staging/warsh/harraz_warsh.64d74402.jz",
+  "surahs": [
+   24,
+   40,
+   45
+  ],
+  "rule_ref": "إذن المالك النصّيّ 2026-11-05 21:53Z بالحجب المؤقّت المعلن (cmsg_01SnWBBbg8UvScqE3YMKdPHaJxKNTZhRpG5BhYHFbxyNXY)، وأمر القائد 2026-11-10 بحجب ما ثبت أنّ آياته تُسمع بصوت غيرها برمز TIMING_UNDER_REPAIR حتى يُصلح توقيته؛ الحجب مؤقّت معلن لا إسقاط نهائيّ",
+  "attempts": [
+   "عدّ الدليل لكلّ سورة (مثبتة/في موضعها/غير محسومة) بشاهدَين ومسابير ثلاثة: 7/1/56 · 13/2/70 · 7/1/29 — من ops/out/hd24_state.md (2026-11-10)",
+   "الصفّ يأذن بالإعفاء من عتبة الغياب 2٪ وحدها؛ والترقية تبقى مشروطةً بـstruct وheard_gate والمطالع والملوح الأربعة والإحصاء، ولا عتبة تُخفض"
+  ]
+ },
+ {
+  "key": "timings-staging/hafs/a_alshahhat.dc21b4aa.jz",
+  "surahs": [
+   20
+  ],
+  "rule_ref": "إذن المالك النصّيّ 2026-11-05 21:53Z بالحجب المؤقّت المعلن (cmsg_01SnWBBbg8UvScqE3YMKdPHaJxKNTZhRpG5BhYHFbxyNXY)، وأمر القائد 2026-11-10 بحجب ما ثبت أنّ آياته تُسمع بصوت غيرها برمز TIMING_UNDER_REPAIR حتى يُصلح توقيته؛ الحجب مؤقّت معلن لا إسقاط نهائيّ",
+  "attempts": [
+   "عدّ الدليل لكلّ سورة (مثبتة/في موضعها/غير محسومة) بشاهدَين ومسابير ثلاثة: 6/5/124 — من ops/out/hd24_state.md (2026-11-10)",
+   "الصفّ يأذن بالإعفاء من عتبة الغياب 2٪ وحدها؛ والترقية تبقى مشروطةً بـstruct وheard_gate والمطالع والملوح الأربعة والإحصاء، ولا عتبة تُخفض"
+  ]
+ },
+ {
+  "key": "timings-staging/warsh/benkirane_warsh.5f37b13f.jz",
+  "surahs": [
+   13,
+   23
+  ],
+  "rule_ref": "س23: إذن المالك النصّيّ 2026-11-05 21:53Z «أذنتُ بالحجب المؤقت مع --allow-truncated» (cmsg_01SnWBBbg8UvScqE3YMKdPHaJxKNTZhRpG5BhYHFbxyNXY)، وإذنه بوراثة الحجب في هذا المرشّح 2026-11-09 17:25Z «موافق على وراثة حجب س23 عند بن كيران في المرشّح الجديد» (cmsg_01SnWBBbg8UvScqE3YMKdPHaVwA7A9H6o1TUJGwEAAS5XS) — يُحمل كما هو من الحيّ 07195175 · س13: حجب الآيات 13:27–30 وحدها بإذن المالك النصّيّ 2026-11-05 21:53Z بالحجب المؤقّت المعلن، وأمر القائد 2026-11-10 بحجب آيات «صوت غيرها» برمز TIMING_UNDER_REPAIR حتى يُصلح توقيتها",
+  "attempts": [
+   "posverify أثبت أنّ توقيت س23 المنشور على صوت آياتٍ أخرى",
+   "ctc_splice heard rewindow 23:1-N (ff_benkirane__19) رُدّ ببوّابة السماع",
+   "جولتا c3 وd3 (heard) رُدّتا ببوّابة السماع",
+   "س13: 13:27–30 بُنيت بـdrop_ayahs المعدَّل (يورّث إسقاط الأصل) فوق الحيّ 07195175؛ الدليل في ترويسة المرشّح 5f37b13f",
+   "الصفّ لا يغني عن struct وheard_gate والمطالع والملوح الأربعة والإحصاء قبل الترقية"
+  ]
+ },
+ {
+  "key": "timings-staging/warsh/benkirane_warsh.7bafad18.jz",
+  "surahs": [
+   13,
+   23
+  ],
+  "rule_ref": "س23: إذن المالك النصّيّ 2026-11-05 21:53Z «أذنتُ بالحجب المؤقت مع --allow-truncated» (cmsg_01SnWBBbg8UvScqE3YMKdPHaJxKNTZhRpG5BhYHFbxyNXY)، وإذنه بوراثة الحجب 2026-11-09 17:25Z (cmsg_01SnWBBbg8UvScqE3YMKdPHaVwA7A9H6o1TUJGwEAAS5XS) — يُحمل كما هو من الحيّ 07195175 · س13: حجب السورة كلّها برمز TIMING_UNDER_REPAIR بإذن المالك النصّيّ 2026-11-05 21:53Z بالحجب المؤقّت المعلن، وأمر القائد 2026-11-10 بحجب ما يُسمع بصوت غيره حتى يُصلح توقيته",
+  "attempts": [
+   "خريطة سماع CTC (42890321423): انزياح متراكم في 13:14–31 يبلغ +72.5ث عند الآية 26 في الحيّ 07195175",
+   "realign_surah بتخطّي 5300 (42891572157): «آيات بلا حدود: [14,19,20,21,23,24]»",
+   "realign_surah مع whisper_ac=1500 (42892474704): الردّ نفسه",
+   "شاهدا Whisper small (42893468869 و42893469032) على الآيات الـ43: منحرفة مثبتة 10 وغير محسومة 33؛ الأدلّة في ops/evidence/timing-surah13-benkirane_warsh-07195175*.json",
+   "المنحرف فوق ربع آيات السورة فلا يصلح الحجب آيةً آية",
+   "الصفّ لا يغني عن struct وheard_gate والمطالع والملوح الأربعة والإحصاء قبل الترقية"
+  ]
+ },
+ {
+  "key": "timings-staging/hafs/habdan.3446e18f.jz",
+  "surahs": [
+   3
+  ],
+  "rule_ref": "حجب آياتٍ بعينها لا السورة: إذن المالك النصّيّ 2026-11-05 21:53Z بالحجب المؤقّت المعلن (cmsg_01SnWBBbg8UvScqE3YMKdPHaJxKNTZhRpG5BhYHFbxyNXY)، وقرار القائد 2026-11-11: تُحجب الآية العالقة برمز TIMING_UNDER_REPAIR حين يحمل مرشّح سورتها تصحيحاً لآياتٍ منحرفةٍ أخرى وهي منحرفةٌ في الحيّ؛ الحجب مؤقّت معلن لا إسقاط نهائيّ",
+  "attempts": [
+   "3:199 وحدها: انحراف الحيّ c732ed1b +10233م.ث (مرساة 3839907 بثقة 0.847)؛ شهود Whisper 42940165834 و42935280646 و42935280434؛ ردّ التثبيت بعد #128 «بدءٌ لا يقع على أداءٍ مقيس ولم يُثبته شاهدُ Whisper»",
+   "المرشّح يصحّح 3:193 و194 و195 (منحرفة في الحيّ بين -57 و-68ث)؛ heard 42944264596 · census 42944236059 (جسيم 1.03%)",
+   "الصفّ يأذن بالإعفاء من عتبة الغياب وحدها؛ والترقية تبقى مشروطةً بـstruct وheard_gate والمطالع والملوح الأربعة والإحصاء، ولا عتبة تُخفض"
+  ]
+ },
+ {
+  "key": "timings-staging/hafs/a_abdl.959bcafa.jz",
+  "surahs": [
+   23
+  ],
+  "rule_ref": "حجب آياتٍ بعينها لا السورة: إذن المالك النصّيّ 2026-11-05 21:53Z بالحجب المؤقّت المعلن (cmsg_01SnWBBbg8UvScqE3YMKdPHaJxKNTZhRpG5BhYHFbxyNXY)، وقرار القائد 2026-11-11: تُحجب الآية العالقة برمز TIMING_UNDER_REPAIR حين يحمل مرشّح سورتها تصحيحاً لآياتٍ منحرفةٍ أخرى وهي منحرفةٌ في الحيّ؛ الحجب مؤقّت معلن لا إسقاط نهائيّ",
+  "attempts": [
+   "23:22: انحراف الحيّ c0e25062 +1753م.ث (مرساة 248007 بثقة 0.857)؛ شاهدا Whisper 42941007216 و42941029450؛ ردّ التنازع «مطلعُ الآية عند 248800 بعيدٌ عن المنشور 249760 (>300م.ث)»",
+   "23:80: انحراف الحيّ +2643م.ث (مرساة 1015245 بثقة 0.727)؛ شاهدا Whisper 42935280228 و42935280888؛ ردّت الأداة تثبيتها بسبب الآية 22",
+   "المرشّح يصحّح 10 آياتٍ أخرى من 12 منحرفة في س23؛ heard 42944264272 · census 42944236069 (جسيم 0.11%)",
+   "الصفّ يأذن بالإعفاء من عتبة الغياب وحدها؛ والترقية تبقى مشروطةً بـstruct وheard_gate والمطالع والملوح الأربعة والإحصاء، ولا عتبة تُخفض"
+  ]
+ },
+ {
+  "key": "timings-staging/hafs/nufais.9897ab4f.jz",
+  "surahs": [
+   16,
+   20,
+   29
+  ],
+  "rule_ref": "حجب آياتٍ بعينها لا السورة: إذن المالك النصّيّ 2026-11-05 21:53Z بالحجب المؤقّت المعلن (cmsg_01SnWBBbg8UvScqE3YMKdPHaJxKNTZhRpG5BhYHFbxyNXY)، وقرار القائد 2026-11-11: تُحجب الآية العالقة برمز TIMING_UNDER_REPAIR حين يحمل مرشّح سورتها تصحيحاً لآياتٍ منحرفةٍ أخرى وهي منحرفةٌ في الحيّ؛ الحجب مؤقّت معلن لا إسقاط نهائيّ",
+  "attempts": [
+   "انحراف الحيّ f3f37dad في الآيات المحجوبة: 16:23 (-9222م.ث) · 16:73 (+7382) · 20:106 (+5320) · 29:43 (+6200)؛ شهود Whisper 42940486068 و42940486202 و42935344493 و42935344789 و42939411214، وlarge-v3 لم يسمع 20:106 وثُبّتت 29:43 على مرساةٍ تبعد 940م.ث عن مطلع الشاهدين فلم يُبنَ عليه",
+   "المرشّح يثبّت 13:23 و13:36 ويصحّح 69 آيةً منحرفةً في السور 16 و20 و29؛ الملوح الثمانية xnu1–xnu8 مجمَّعها 39/1600 = 2.44% (الحدّ الأعلى 3.17%)؛ census 0.31%",
+   "الصفّ يأذن بالإعفاء من عتبة الغياب وحدها؛ والترقية تبقى مشروطةً بـstruct وheard_gate والمطالع والملوح والإحصاء، ولا عتبة تُخفض"
+  ]
+ },
+ {
+  "key": "timings-staging/hafs/zaki.a269b3d5.jz",
+  "surahs": [
+   56
+  ],
+  "rule_ref": "حجب آياتٍ بعينها لا السورة: إذن المالك النصّيّ 2026-11-05 21:53Z بالحجب المؤقّت المعلن (cmsg_01SnWBBbg8UvScqE3YMKdPHaJxKNTZhRpG5BhYHFbxyNXY)، وقرار القائد 2026-11-11: تُحجب الآية العالقة برمز TIMING_UNDER_REPAIR حين يحمل مرشّح سورتها تصحيحاً لآياتٍ منحرفةٍ أخرى وهي منحرفةٌ في الحيّ؛ الحجب مؤقّت معلن لا إسقاط نهائيّ",
+  "attempts": [
+   "انحراف الحيّ 741e7e5c في الآيات المحجوبة من س56 (11 من 96، دون الربع، لا الأولى ولا الأخيرة): 3 (+3265م.ث) · 5 (+3907) · 6 (+2515) · 8 (+1534) · 31 (+6742) · 46 (+7518) · 47 (+1901) · 48 (+3016) · 52 (-1779) · 80 (+2100) · 95 (-1930)؛ دليل whisper في ops/evidence/heard-drop-zaki-56b-8735b8bf.json",
+   "المرشّح يثبّت 56:2 و56:4 و56:84؛ heard 42958733833 · census 42958733786 (0.34%) · الملوح الأربعة zrl1111fA..D بين 0 و2% · المطالع نظيفة",
+   "الصفّ يأذن بالإعفاء من عتبة الغياب وحدها؛ والترقية تبقى مشروطةً بـstruct وheard_gate والمطالع والملوح الأربعة والإحصاء، ولا عتبة تُخفض"
+  ]
+ },
+ {
+  "key": "timings-staging/hafs/zaki.d83205c5.jz",
+  "surahs": [
+   80
+  ],
+  "rule_ref": "حجب آياتٍ بعينها لا السورة: إذن المالك النصّيّ 2026-11-05 21:53Z بالحجب المؤقّت المعلن (cmsg_01SnWBBbg8UvScqE3YMKdPHaJxKNTZhRpG5BhYHFbxyNXY)، وقرار القائد 2026-11-11: تُحجب الآية العالقة برمز TIMING_UNDER_REPAIR حين يحمل مرشّح سورتها تصحيحاً لآياتٍ منحرفةٍ أخرى وهي منحرفةٌ في الحيّ؛ الحجب مؤقّت معلن لا إسقاط نهائيّ",
+  "attempts": [
+   "انحراف الحيّ a269b3d5 في الآيات المحجوبة من س80 (4 من 42، دون الربع، لا الأولى ولا الأخيرة): 2 (+1898م.ث) · 26 (+6401) · 28 (+1523) · 31 (-1633)؛ دليل whisper في ops/evidence/heard-drop-zaki-80-8735b8bf.json بشاهدَي large-v3 (42944016786 و42944016684)، ولم يتوفّر لها مطلعٌ يتّفق عليه الشاهدان فلم تُثبَّت",
+   "المرشّح يثبّت 80:20 و80:29 و80:32 و80:35 و80:36؛ قرأ القائدُ: struct سليم (6221 مدخلاً، ops/out/1111_zl3_k_sb.txt) وheard_gate 42976311467 يمرّ (ops/out/heard-gate/42976311467.txt)؛ وبحسب تقرير خيط الفهرسة من الدلو: المطالع نظيفة · census 0.34% · الملوح الأربعة zrl1111gA..D بين 0.5% و1.5%",
+   "الصفّ يأذن بالإعفاء من عتبة الغياب وحدها؛ والترقية تبقى مشروطةً بـstruct وheard_gate والمطالع والملوح الأربعة والإحصاء، ولا عتبة تُخفض"
+  ]
+ },
+ {
+  "key": "timings-staging/qalun/rakbawi_qalun.68939f29.jz",
+  "surahs": [
+   36
+  ],
+  "rule_ref": "إذن المالك النصّيّ 2026-11-05 21:53Z بالحجب المؤقّت المعلن (cmsg_01SnWBBbg8UvScqE3YMKdPHaJxKNTZhRpG5BhYHFbxyNXY)، وأمر القائد 2026-11-10 04:50Z بحجب السور التي ثبت بشاهدَي Whisper أنّ آياتها تُعرض على صوت غيرها حتى تُعاد محاذاتها",
+  "attempts": [
+   "جرد المراسي القويّة ومعايرته (ops/out/heard-strong-audit-20261110.md · heard-strong-calibration-20261110.md): شاهدا Whisper سمعا عند موضع الفهرس في الحيّ 3d8dc7c9 نصَّ آيةٍ أخرى، والعنقود يجاوز ربع السورة أو يشمل آخر آية فلا يصلح drop_ayahs",
+   "الدليل في ops/evidence/tail-drop-rakbawi_qalun-3d8dc7c9.json؛ وrealign_surah جارٍ ليحلّ محلّ الحجب",
+   "المرشّح المركّب 68939f29 (تطعيم 85 سورة فوق الحيّ 2a3735e8) لا يمسّ السورة 36 ويورّث حجبها المعلن drop_surah:36 بأداة graft_surahs المصلحة (main 7d1d243673)؛ وإعادة محاذاتها باقية في الطابور"
+  ]
+ }
 ]
