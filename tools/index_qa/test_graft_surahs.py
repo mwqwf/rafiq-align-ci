@@ -61,6 +61,27 @@ class T(unittest.TestCase):
         self.assertEqual(t["graft"]["engineBySurah"], {"2": "E2"})
         self.assertEqual(t["graft"]["donorSha256"], "D")
 
+    def test_header_keeps_declared_drop_from_op(self):
+        out, rep = self.run_g()
+        self.base["transform"] = {"op": "drop_surah:36", "reasonCode": "OTHER", "reasonUser": "u"}
+        t = g.build_transform(self.base, out, "B", "k", "dk", rep, "r")
+        self.assertTrue(t["op"].startswith("graft_surahs:"))
+        self.assertEqual(t["dropSurah"], [36])
+        self.assertEqual(t["priorOp"], "drop_surah:36")
+        import run
+        self.assertEqual(run.declared_drops({"transform": t}), [36])
+
+    def test_header_keeps_declared_drop_list(self):
+        out, rep = self.run_g()
+        self.base["transform"] = {"op": "x", "dropSurah": [4, 10]}
+        t = g.build_transform(self.base, out, "B", "k", "dk", rep, "r")
+        self.assertEqual(t["dropSurah"], [4, 10])
+
+    def test_header_no_drop_invented(self):
+        out, rep = self.run_g()
+        t = g.build_transform(self.base, out, "B", "k", "dk", rep, "r")
+        self.assertNotIn("dropSurah", t)
+
     def test_engine_same_as_index_not_hidden(self):
         del self.donor["engineBySurah"]
         self.donor["engineVersion"] = "E9"

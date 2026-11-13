@@ -235,6 +235,15 @@ def build_transform(base, out, base_sha, base_key, donor_key, rep, reason, by="g
         meta.pop(k, None)
     from rename_reciter import entries_sha
     surahs = rep["surahs"]
+    # ⛔ إعلانُ إسقاطٍ في الأصل لا يضيع بالتطعيم (2026-11-13 · rakbawi_qalun.5b061c63): كان `op` الجديد يمحو
+    #    `drop_surah:36` فتغيب السورةُ بلا إعلان ويردّها الفحصُ البنيويّ. فيُنقل كلُّ إسقاطٍ معلَنٍ في الأصل إلى `dropSurah`
+    #    حرفاً، ويُحفظ `op` السابق في `priorOp`. لا يُعلَن إسقاطٌ جديد هنا، ولا يُرخى حارس.
+    from run import declared_drops
+    inherited = sorted(set(declared_drops(base)))
+    if inherited:
+        meta["dropSurah"] = inherited
+    if isinstance(prior, dict) and prior.get("op"):
+        meta["priorOp"] = prior["op"]
     meta.update({
         "op": "graft_surahs:" + ",".join(map(str, surahs)),
         "fromSha256": base_sha, "fromKey": base_key,
