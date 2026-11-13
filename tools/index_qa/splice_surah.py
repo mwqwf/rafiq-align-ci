@@ -404,6 +404,25 @@ def main() -> None:
     #    من مصدر الكتالوج يُمحى منه، فيبقى السجلُّ وصفاً صادقاً لكلّ سورة.
     sbs = {k: v for k, v in dict(idx.get("sourceBySurah") or {}).items()
            if int(k) not in surahs}
+    # ⭐ (2026-11-13) الإعلانُ الموروثُ يبقى حرفاً حين تُشير المداخلُ الناتجةُ لسورةٍ مسمّاةٍ إلى
+    #    الرابط نفسِه الذي يعلنه الأصلُ (‏akri_qalun س106–108: مضيفُ مجلّدٍ مع --refs-from-parent
+    #    لا يجتمع مع --alt-source فكان الإعلانُ يُمحى ومداخلُها ما زالت تُشير إلى المصدر البديل
+    #    فيردّ حارسُ stage_transform). وإن تغيّر المصدرُ الفعليّ للمداخل فالمحوُ كما كان.
+    #    ⛔ ويقتصر على --refs-from-parent (الروابطُ تُؤخذ حرفاً من الأب فلا يتغيّر المصدر)؛ أمّا إعادةُ
+    #    الأخذ من الكتالوج بـ--url فتبقى تمحو الإعلان (test_catalog_retake_clears_alt_declaration).
+    #    (‏sourceTimingBySurah لا تمسّه هذه الدالة: يُنقل مع الترويسة كما هو.)
+    if args.refs_from_parent and not args.alt_source:
+        for k, v in dict(idx.get("sourceBySurah") or {}).items():
+            if int(k) not in surahs:
+                continue
+            try:
+                want_ref = str(v).format(s=int(k))
+            except Exception:                              # noqa: BLE001
+                continue
+            got_refs = {e.get("fileRef") for e in merged
+                        if int(e["ayahId"].split(":")[0]) == int(k)}
+            if got_refs == {want_ref}:
+                sbs[k] = v
     if args.alt_source:
         for s in surahs:
             sbs[str(s)] = refs[s] if args.registered_sources else args.url
