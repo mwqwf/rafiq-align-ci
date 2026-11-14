@@ -1,0 +1,13 @@
+{
+ "action": "dispatch",
+ "workflow": "ctc_splice.yml",
+ "inputs": {
+  "parent": "timings/qalun/akri_qalun.jz",
+  "riwaya": "qalun",
+  "url_template": "https://server16.mp3quran.net/m_akri/Rewayat-Qalon-A-n-Nafi/{s:03d}.mp3",
+  "surahs": "4",
+  "mode": "heard",
+  "rewindow": "4:1-176",
+  "reason": "akri_qalun س4: استرجاعها كاملةً بوضع السماع فوق الحيّ 094ff20d (المرشّح القديم 5550abb9 مبنيٌّ على أصلٍ قديم ويخالف الحيّ في ~80 سورة فلا يُنقل)؛ يبقى كلّ إعلانٍ آخر حرفاً"
+ }
+}
