@@ -2374,7 +2374,10 @@ def inherited_drops(idx, parent, parent_sha, owner_approved=frozenset(), chain_f
     # 2026-11-06 15:09Z («موافق» على تعديل حارس وراثة الحجب) — **بشرطين زائدين**: أن يكون الأصلُ نفسُه
     # إسقاطاً معلناً (‏op=drop_surah) لا وراثةً عن وراثة، وأن يسمّي صفُّ موافقةِ المالك لمفتاح المرشّح
     # (‏OWNER_DROP_APPROVALS.json) و`--allow-truncated` كلَّ سورةٍ موروثة. ولا يُحجب بها شيءٌ جديد.
-    _hide_ok = (pt.get("reasonCode") == "OTHER"
+    # ⭐ (2026-11-14 · موافقة المالك على البطاقة cmsg_01SnWBBbg8UvScqE3YMKdPHaN5z5dBMF64q9kPBzHcNaZh) ورمزُ
+    #    `TIMING_UNDER_REPAIR` (‏أمر القائد 2026-11-10) حجبٌ مؤقّتٌ معلنٌ من جنس OTHER، فيُورَث **بالشروط نفسِها حرفاً**
+    #    (‏أصلٌ drop_surah · صفُّ موافقةٍ و--allow-truncated لكلّ سورة · البيانُ نفسُه). وكلُّ رمزٍ سواهما يبقى مردوداً.
+    _hide_ok = (pt.get("reasonCode") in ("OTHER", "TIMING_UNDER_REPAIR")
                 and str(pt.get("op") or "").startswith("drop_surah:")
                 and claimed <= {str(s) for s in owner_approved})
     if ((pt.get("reasonCode") not in ("SOURCE_TRUNCATED", "SOURCE_CORRUPT") and not _hide_ok)
