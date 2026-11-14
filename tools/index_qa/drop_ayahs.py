@@ -43,6 +43,7 @@ import argparse
 import gzip
 import hashlib
 import json
+import re
 import sys
 import time
 from pathlib import Path
@@ -139,6 +140,66 @@ def apply_retimed(ents: list, s: int, absent: list, retimed: dict) -> list:
     return out
 
 
+def restored_dropped_surahs(idx, ayahs, counts):
+    """السورُ المطلوبُ الحجبُ منها التي كان سجلُّها في الأصل `drop_surah` **وصارت مداخلُها كلَّ آياتها** (‏أمر 2026-11-14).
+
+    ‏`ctc_splice` يُعيد محاذاةَ سورةٍ كانت محجوبةً كاملةً فتصير مداخلُها حاضرةً كلُّها، ويبقى سجلُّ الإعلان القديم
+    موروثاً في الترويسة (‏kyat س21 · benkirane_warsh س23) سجلّاً لا يصف الواقع. ولا يُعدّ السجلُّ كاذباً إلا بشرطين مجتمعين:
+    ① سجلُّ السورة في الأصل `op = drop_surah` (‏`declarations.prior_declarations`) ② مداخلُها **كلُّ** آياتها 1..N بلا نقصٍ ولا تكرار.
+    وفي كلّ حالةٍ أخرى (‏سجلٌّ بـop آخر · آيةٌ ناقصة · سورةٌ بلا مداخل أصلاً) تُترك السورةُ خارج المجموعة فيبقى الردُّ القديم حرفاً."""
+    import declarations
+    tr = idx.get("transform")
+    if not isinstance(tr, dict):
+        return set()
+    try:
+        prior = declarations.prior_declarations(idx)
+    except SystemExit:
+        return set()                  # ترويسةٌ لا تُقرأ ⇒ المسارُ القديم يردّها بنصّه
+    have = {}
+    for e in idx.get("entries") or []:
+        ss, a = _key(e["ayahId"])
+        have.setdefault(ss, []).append(a)
+    out = set()
+    for s in ayahs:
+        rec = prior.get(str(s))
+        if (isinstance(rec, dict) and rec.get("op") == "drop_surah" and 1 <= s <= len(counts)
+                and sorted(have.get(s, [])) == list(range(1, counts[s - 1] + 1))):
+            out.add(s)
+    return out
+
+
+def without_stale_drop(idx, restored):
+    """نسخةُ الأصل بلا إعلان إسقاطٍ **للسور المستردّة وحدَها** (‏`dropSurah` · مقطعُ `drop_surah:` في `op` · `declarations`).
+
+    ما سوى ذلك في الترويسة يبقى حرفاً: سائرُ السور في `dropSurah` وسجلاتُها في `declarations` و`reasonCode`/`reasonUser` العليا.
+    تُستعمل هذه النسخةُ لاشتقاق الإعلان الموروث وحدَه؛ أمّا الفهرسُ والمداخلُ فمن الأصل نفسِه."""
+    tr = dict(idx["transform"])
+    gone = {str(s) for s in restored}
+    if tr.get("dropSurah"):
+        left = [x for x in tr["dropSurah"] if str(x) not in gone]
+        if left:
+            tr["dropSurah"] = left
+        else:
+            tr.pop("dropSurah")
+    if isinstance(tr.get("declarations"), dict):
+        tr["declarations"] = {k: v for k, v in tr["declarations"].items() if str(k) not in gone}
+    if isinstance(tr.get("op"), str):
+        segs = []
+        for seg in tr["op"].split("|"):
+            if seg.strip().startswith("drop_surah:"):
+                nums = re.findall(r"\d+", seg.split(":", 1)[1])
+                keep = [n for n in nums if n not in gone]
+                if not keep:
+                    continue
+                if len(keep) != len(nums):
+                    seg = "drop_surah:" + ",".join(keep)
+            segs.append(seg)
+        tr["op"] = "|".join(segs)
+    out = dict(idx)
+    out["transform"] = tr
+    return out
+
+
 def drop_ayahs(idx: dict, ayahs: dict, evidence: dict, *, reason: str, reason_user: str,
                reason_code: str, from_sha: str, from_key: str, retimed: dict | None = None,
                already_absent: bool = False, witnessed: dict | None = None,
@@ -184,8 +245,15 @@ def drop_ayahs(idx: dict, ayahs: dict, evidence: dict, *, reason: str, reason_us
     _op0 = idx.get("transform") if isinstance(idx.get("transform"), str) else str(tr0.get("op") or "")
     inherit = None
     if tr0.get("dropSurah") or _op0.startswith("drop_surah") or "drop_surah:" in _op0:
-        _named = sorted(declarations.op_surahs(_op0, "drop_surah")
-                        | {int(x) for x in (tr0.get("dropSurah") or []) if str(x).isdigit()})
+        # ⭐ (أمر القائد 2026-11-14 · kyat س21:82 وbenkirane_warsh س23:25) سورةٌ كانت محجوبةً كاملةً ثمّ استُرجعت **تامّةً**:
+        #    سجلُّها القديمُ لم يعد صادقاً فيُستبدل بسجلّ الحجب الجديد، ولا يُمسّ سجلُّ سورةٍ أخرى. شرطاه المجتمعان في
+        #    `restored_dropped_surahs`؛ وفي كلّ حالةٍ أخرى `idx_h is idx` فيبقى كلُّ ردٍّ أدناه حرفاً.
+        restored = restored_dropped_surahs(idx, ayahs, counts)
+        idx_h = without_stale_drop(idx, restored) if restored else idx
+        tr_h = idx_h.get("transform") if isinstance(idx_h.get("transform"), dict) else {}
+        _op_h = idx_h.get("transform") if isinstance(idx_h.get("transform"), str) else str(tr_h.get("op") or "")
+        _named = sorted(declarations.op_surahs(_op_h, "drop_surah")
+                        | {int(x) for x in (tr_h.get("dropSurah") or []) if str(x).isdigit()})
         if not isinstance(idx.get("transform"), dict) or set(ayahs) & set(_named):
             raise SystemExit(f"⛔ الأصلُ يعلن إسقاطَ سورٍ كاملة {_named} (‏{_op0 or 'dropSurah'}) ولا تورّث هذه الأداةُ ذلك الإعلان — "
                              "الحجبُ عليه يمحوه بصمت. أصلِح الآياتِ بـpin_heard (‏يورّث الإعلانَ حرفاً) أو ابدأ من أصلٍ بلا إسقاط")
@@ -193,12 +261,12 @@ def drop_ayahs(idx: dict, ayahs: dict, evidence: dict, *, reason: str, reason_us
         #    لم يعد مردوداً هنا: يُورَّث إعلانُ الإسقاط القائم حرفاً (‏الدوالّ المشتركة أدناه) بدل الرفض، وتقبل
         #    `promote.inherited_drops` الناتجَ لأنّ ما يفقده المنشورُ هو المحجوبُ المعلَنُ بدليله وحدَه (‏انظر استثناءها).
         #    ولا يُلتفّ بـ`--already-absent`: يبقى بابُه لما كان غائباً أصلاً فحسب.
-        prior = declarations.prior_declarations(idx)
+        prior = declarations.prior_declarations(idx_h)
         clash = sorted(set(ayahs) & {int(k) for k in prior})
         if clash:
             raise SystemExit(f"⛔ س{clash}: لها في الأصل سجلُّ إعلانٍ ({[prior[str(k)] for k in clash]}) — "
                              "إعلانٌ جديدٌ عليها يمحو سجلَّها. ابدأ من فهرسها قبل الإعلان")
-        inherit = {"fields": declarations.inherit_declaration(idx, from_key, from_sha), "prior": prior}
+        inherit = {"fields": declarations.inherit_declaration(idx_h, from_key, from_sha), "prior": prior}
     ents = list(idx.get("entries") or [])
     recs, gone = {}, set()
     orig_all = {e["ayahId"]: e for e in ents}
