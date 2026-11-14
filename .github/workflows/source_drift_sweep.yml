@@ -23,8 +23,9 @@ jobs:
       matrix: ${{ steps.m.outputs.matrix }}
     steps:
       - id: m
+        env: {SHARDS: "${{ inputs.shards }}"}  # 🔒 المدخلُ عبر env لا داخل run:
         run: |
-          N="${{ inputs.shards }}"; case "$N" in ''|*[!0-9]*) N=6;; esac
+          N="$SHARDS"; case "$N" in ''|*[!0-9]*) N=6;; esac
           python3 -c "import json,sys; n=int(sys.argv[1]); print('matrix='+json.dumps({'i':list(range(n)),'n':[n]}))" "$N" > "$GITHUB_OUTPUT"
   sweep:
     needs: plan

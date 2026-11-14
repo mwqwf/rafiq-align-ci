@@ -64,12 +64,19 @@ class WorkflowContract(unittest.TestCase):
 
     def test_engine_declared_with_distinct_name(self):
         self.assertIn('if [ "$QM" != "false" ]; then ETAG="ctc-quran-surah-1"; fi', self.y)
-        self.assertIn('if [ "${{ github.event.inputs.quran_model }}" != "false" ]; then OPN="ctc_quran_surah_splice"; fi', self.y)
+        self.assertIn('if [ "$QM" != "false" ]; then OPN="ctc_quran_surah_splice"; fi', self.y)
+
         # الاسمُ مُعلَنٌ في السجلّ الموحَّد فيلزمه الإحصاءُ الشامل، ومحرّكُه غيرُ ctc-seg-1
         self.assertEqual(promote.SPLICE_OPS["ctc_quran_surah_splice"], Q_ENGINE)
         self.assertNotEqual(Q_ENGINE, promote.SPLICE_OPS["ctc_surah_splice"])
         self.assertNotIn("--owner-truncated-tail", re.search(
-            r'if \[ "\$\{\{ github\.event\.inputs\.quran_model \}\}" != "false" \][^\n]*', self.y).group(0))
+            r'if \[ "\$QM" != "false" \]; then OPN[^\n]*', self.y).group(0))
+
+    def test_no_input_interpolated_inside_run(self):
+        # 🔒 (المراجعة الأمنية 2026-11-14) لا ${{ inputs.* }} داخل run: في سيرٍ يحمل سرَّ R2 — المدخلاتُ عبر env وحدها
+        import re
+        for block in re.findall(r"run: \|\n((?:          .*\n|\s*\n)+)", self.y):
+            self.assertNotRegex(block, r"\$\{\{\s*(github\.event\.)?inputs\.")
 
     def test_existing_modes_and_guards_untouched(self):
         for needle in ('ETAG="ctc-seg-1"', 'ETAG="ctc-gapsplit-1"', 'ETAG="ctc-heardmap-1"', 'ETAG="ctc-dualfix-1"',

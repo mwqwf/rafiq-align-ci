@@ -526,20 +526,24 @@ jobs:
           PARENT: ${{ github.event.inputs.parent }}
           SHA: ${{ steps.plan.outputs.sha }}
           REASON: ${{ github.event.inputs.reason }}
+          # 🔒 المدخلاتُ عبر env لا داخل run: (‏حقنُ أوامرٍ في خطوةٍ تحمل سرَّ R2)
+          MODE: ${{ github.event.inputs.mode }}
+          ABSENT: ${{ github.event.inputs.absent_ayahs }}
+          TRUNC: ${{ github.event.inputs.truncated_tail }}
+          QM: ${{ github.event.inputs.quran_model }}
         run: |
           TAKEN="$(cat patched.jz.taken)"
           # ⭐ وضعُ النافذة وحده: الغيابُ الموروثُ يُقبل بلا غائبٍ جديد وبزيادةٍ فعليّة (test_stage_inherited_gaps).
           INH=""; OPN="ctc_surah_splice"
-          if [ "${{ github.event.inputs.mode }}" = "window" ]; then INH="--allow-inherited-gaps"; OPN="ctc_gapsplit"; fi
-          if [ "${{ github.event.inputs.mode }}" = "heard" ]; then OPN="ctc_heardmap_splice"; fi
+          if [ "$MODE" = "window" ]; then INH="--allow-inherited-gaps"; OPN="ctc_gapsplit"; fi
+          if [ "$MODE" = "heard" ]; then OPN="ctc_heardmap_splice"; fi
           # ⭐ heard + الغائبات: الغائبُ موروثٌ من الأب (‏سورةٌ بلا مداخل) وزادت المداخلُ زيادةً فعليّة — الشرطان المنصوصان في هذا الخيار.
-          if [ "${{ github.event.inputs.mode }}" = "heard" ] && [ -n "${{ github.event.inputs.absent_ayahs }}" ]; then INH="--allow-inherited-gaps"; fi
-          if [ "${{ github.event.inputs.mode }}" = "dualfix" ]; then OPN="ctc_dualfix_splice"; fi
+          if [ "$MODE" = "heard" ] && [ -n "$ABSENT" ]; then INH="--allow-inherited-gaps"; fi
+          if [ "$MODE" = "dualfix" ]; then OPN="ctc_dualfix_splice"; fi
           # ⭐ الذيلُ المبتور (أمر المالك 2026-10-02): الخيارُ الضيّق يُسمّي N صراحةً ويبقى الحارسُ الأصل كما هو.
-          TRUNC="${{ github.event.inputs.truncated_tail }}"
           if [ -n "$TRUNC" ]; then OPN="ctc_quran_surah_splice"; INH="--owner-truncated-tail $TRUNC"; fi
           # ⭐ سورةٌ كاملةٌ بنموذج التلاوة (‏quran_model): الاسمُ نفسُه بلا --owner-truncated-tail فيبقى حارسُ التغطية الكاملة.
-          if [ "${{ github.event.inputs.quran_model }}" != "false" ]; then OPN="ctc_quran_surah_splice"; fi
+          if [ "$QM" != "false" ]; then OPN="ctc_quran_surah_splice"; fi
           set -o pipefail
           python tools/index_qa/stage_transform.py --file patched.jz \
                  --parent "$PARENT" --parent-sha "$SHA" \
