@@ -16,6 +16,9 @@ on:
       surahs: {description: "السورُ بفواصل (‏مثل 67,78)", default: ""}
       pairs: {description: "بديلُ key/surahs: «مفتاح=س1,س2;مفتاح2=س3» (‏عدّةُ فهارس في تشغيلةٍ؛ والفواصلُ الأسطرُ تُقبل)", default: ""}
       published: {description: "الفهارسُ في timings/ المنشورة (‏قراءةٌ محضة، لا كتابةَ)", type: boolean, default: false}
+      witness: {description: "الشاهدُ الأقوى (‏محاذاةٌ قسريّةٌ بنموذجَي CTC) لمردودات «نقص» المؤهَّلة — قراءةٌ محضة", type: boolean, default: false}
+      inventory: {description: "جردُ السور ذات التكرار المقيس في المنشور من state-heard/ (‏قراءةٌ محضة، بلا Whisper)", type: boolean, default: false}
+      targets: {description: "بديلُ الإحصاء: شاهدُ CTC بالنموذجين لمداخلَ منشورةٍ بعينها «مفتاح=س:آية,آية;…» (‏بلا Whisper)", default: ""}
       model: {description: "حجمُ النموذج (‏float32 دائماً)", type: choice, options: [small, medium], default: "small"}
       reason: {description: "سببُ الإطلاق", default: ""}
 
@@ -29,6 +32,9 @@ concurrency:
 env:
   PY: "3.11"
   HF_HOME: ${{ github.workspace }}/.hf
+  CTC_THREADS: "2"
+  CTC_INT8: "0"
+  HF_HUB_DISABLE_XET: "1"
 
 jobs:
   census:
@@ -47,9 +53,23 @@ jobs:
         run: |
           QA_FFMPEG_APT_ONLY=1 python tools/ci_fleet/install_qa_ffmpeg.py
           python -m pip install --quiet "numpy==1.26.4" faster-whisper==1.1.1 "requests==2.32.3" boto3==1.43.123
+      - name: أدواتُ الشاهد (‏CTC · النسخُ مثبَّتة كما entry_witness_probe)
+        if: ${{ inputs.witness || inputs.targets != '' }}
+        timeout-minutes: 10
+        run: |
+          python -m pip install --only-binary=:all: --timeout 60 --retries 2 --index-url https://download.pytorch.org/whl/cpu torch==2.15.0
+          python -m pip install --only-binary=:all: --timeout 60 --retries 2 'transformers==4.57.6' soundfile==0.14.0
+          python -m pip install --timeout 60 --retries 2 ctc-segmentation==1.7.5
+      - name: كاشُ نموذجَي CTC (‏استعادةٌ فقط — لا كتابةَ في الكاش)
+        if: ${{ inputs.witness || inputs.targets != '' }}
+        uses: actions/cache/restore@v4
+        with:
+          path: .hf
+          key: ctc-model-jonatasgrosman-xlsr53-ar-v1
       - name: اختباراتُ الأداة أوّلاً
-        run: python -m unittest tools/index_qa/test_entry_window_census.py tools/index_qa/test_entry_window_tightenings.py tools/index_qa/test_pin_heard_witness.py tools/index_qa/test_pin_heard.py
+        run: python -m unittest tools/index_qa/test_entry_window_census.py tools/index_qa/test_entry_window_tightenings.py tools/index_qa/test_entry_window_witness.py tools/index_qa/test_pin_heard_witness.py tools/index_qa/test_pin_heard.py
       - name: كاش النموذج (‏هو كاشُ whisper_witness نفسُه)
+        if: ${{ inputs.targets == '' }}
         uses: actions/cache@v4
         with:
           path: .hf
@@ -64,11 +84,23 @@ jobs:
           MODEL: ${{ inputs.model }}
           PAIRS: ${{ inputs.pairs }}
           PUBLISHED: ${{ inputs.published }}
+          WITNESS: ${{ inputs.witness }}
+          TARGETS: ${{ inputs.targets }}
+          INVENTORY: ${{ inputs.inventory }}
         run: |
           set -o pipefail
           mkdir -p out
+          if [ "$INVENTORY" = "true" ]; then
+            python tools/index_qa/entry_window_census.py inventory --out out 2>&1 | tee out/census.log
+            exit 0
+          fi
+          if [ -n "$TARGETS" ]; then
+            python tools/index_qa/entry_window_census.py targets --targets "$TARGETS" --out out 2>&1 | tee out/census.log
+            exit 0
+          fi
           EXTRA=()
           [ "$PUBLISHED" = "true" ] && EXTRA+=(--published)
+          [ "$WITNESS" = "true" ] && EXTRA+=(--witness)
           python tools/index_qa/entry_window_census.py run --key "$KEY" --surahs "$SURAHS" --pairs "$PAIRS" "${EXTRA[@]}" --model "$MODEL" --out out 2>&1 | tee out/census.log
       - uses: actions/upload-artifact@v4
         if: ${{ always() }}
@@ -76,5 +108,7 @@ jobs:
           name: entry-window-census-${{ github.run_id }}
           path: |
             out/entry_window_census_*.json
+            out/entry_witness_targets.json
+            out/measured_repeats_inventory.json
             out/census.log
           retention-days: 7

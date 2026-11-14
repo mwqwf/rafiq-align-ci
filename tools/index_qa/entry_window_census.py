@@ -57,6 +57,7 @@ ROOT = HERE.parent.parent
 sys.path.insert(0, str(HERE))
 import heard_gate                                                    # noqa: E402
 import pin_heard as PH                                               # noqa: E402
+import entry_window_witness as EW                                    # noqa: E402
 
 VERSION = "entry-window-census-3"
 SR = 16000
@@ -87,7 +88,23 @@ OVERLAP_SAME = 0.5                          # تداخلُ زمنين بهذه �
 
 # ───────────────────────── تكرارٌ مقيس من خريطة السماع ─────────────────────────
 def _text_similar(a: list[str], b: list[str]) -> bool:
-    return difflib.SequenceMatcher(None, " ".join(a), " ".join(b)).ratio() >= SIMILAR_VERSE
+    sm = difflib.SequenceMatcher(None, " ".join(a), " ".join(b))
+    # حدّان علويّان أرخص من ratio() ولا يغيّران النتيجة (‏ratio ≤ quick_ratio ≤ real_quick_ratio): تسريعٌ للجرد الشامل
+    if sm.real_quick_ratio() < SIMILAR_VERSE or sm.quick_ratio() < SIMILAR_VERSE:
+        return False
+    return sm.ratio() >= SIMILAR_VERSE
+
+
+_SIMILAR_CACHE: dict = {}
+
+
+def _similar_map(texts: dict[int, list[str]]) -> dict[int, set]:
+    """{آية: متشابهاتُها نصّاً}؛ مخبَّأةٌ بنصوص السورة (‏تتكرّر الخريطةُ نفسُها لفهارسَ كثيرةٍ في الجرد الشامل)."""
+    key = tuple((a, tuple(t)) for a, t in sorted(texts.items()))
+    if key not in _SIMILAR_CACHE:
+        ayahs = sorted(texts)
+        _SIMILAR_CACHE[key] = {a: {b for b in ayahs if b != a and _text_similar(texts[a], texts[b])} for a in ayahs}
+    return _SIMILAR_CACHE[key]
 
 
 def _overlap(x, y) -> float:
@@ -125,7 +142,7 @@ def measured_repeats(cmap: dict, texts: dict[int, list[str]]) -> dict[int, dict]
             sp.append((int(am[0]), int(am[1])))
         sp += [(int(o[0]), int(o[1])) for o in occ if float(o[2]) >= REPEAT_SIM]
         spans[a] = sp
-    similar = {a: {b for b in ayahs if b != a and _text_similar(texts[a], texts[b])} for a in ayahs}
+    similar = _similar_map(texts)
     out: dict[int, dict] = {}
     for a in ayahs:
         am, q, occ = _rec(cmap, a)
@@ -336,7 +353,9 @@ def judge_entry(ayah: int, toks: list[tuple], texts: dict[int, list[str]], windo
 
     يُوحَّد الطرفان أوّلاً، ثمّ: الآيةُ أقربُ بهامش · لا متطابقةَ نصّاً بلا حسمٍ بالموضع (ج) · لا كلماتَ جارةٍ فيه (ب) ·
     عددُ الكلمات في الحدّ · تشابهُ الآية ≥ SIM_FLOOR (أ) · الثقةُ فوق العتبة.
-    يُرجع {verdict, reason: '' | آية أخرى | زيادة | نقص, detail…}."""
+    يُرجع {verdict, reason: '' | آية أخرى | زيادة | نقص, detail, witnessEligible…}.
+    `witnessEligible`: «نقص» وحدَه (‏ثقةٌ أو عددٌ دون الحدّ) وبتفريغٍ غير فارغٍ وتشابهٍ ≥ SIM_FLOOR — فهو الذي يجوز
+    للشاهد الأقوى أن يحسمه؛ وغيرُه (‏زيادة · آية أخرى · لا تفريغ · تشابهٌ دون الأرضية) لا يمرّ بالشاهد."""
     texts = {a: _unify_ref(t) for a, t in texts.items()}
     toks = _unify_toks(toks)
     ref = texts[ayah]
@@ -354,8 +373,8 @@ def judge_entry(ayah: int, toks: list[tuple], texts: dict[int, list[str]], windo
             "nearestOther": near, "simNearestOther": round(s_near, 3), "gap": round(gap, 3),
             "margin": NEAREST_MARGIN, "simFloor": SIM_FLOOR}
 
-    def rej(reason, detail, **kw):
-        return {**base, "verdict": "reject", "reason": reason, "detail": detail, **kw}
+    def rej(reason, detail, eligible=False, **kw):
+        return {**base, "verdict": "reject", "reason": reason, "detail": detail, "witnessEligible": eligible, **kw}
 
     if not got:
         return rej("نقص", "لا تفريغَ في النافذة (‏صمتٌ أو لا كلام)")
@@ -376,14 +395,14 @@ def judge_entry(ayah: int, toks: list[tuple], texts: dict[int, list[str]], windo
     if s_self < SIM_FLOOR:
         return rej("نقص", f"تشابهُ الآية بالتفريغ {s_self:.2f} دون الأرضية {SIM_FLOOR}")
     if total < lo:
-        return rej("نقص", f"عددُ كلمات النافذة {total} دون الحدّ {lo}")
+        return rej("نقص", f"عددُ كلمات النافذة {total} دون الحدّ {lo}", eligible=True)
     edge = toks[:k] + toks[-k:]
     low = min(t[2] for t in edge)
     mean = sum(t[2] for t in edge) / len(edge)
     base.update({"lowP": round(low, 2), "meanP": round(mean, 2), "firstWordMs": toks[0][1]})
     if low < MIN_WORD_P or mean < MEAN_WORD_P:
-        return rej("نقص", f"ثقةُ الكلمات الطرفيّة دون العتبة (أدناها {low:.2f}، متوسّطُها {mean:.2f})")
-    return {**base, "verdict": "pass", "reason": "",
+        return rej("نقص", f"ثقةُ الكلمات الطرفيّة دون العتبة (أدناها {low:.2f}، متوسّطُها {mean:.2f})", eligible=True)
+    return {**base, "verdict": "pass", "reason": "", "witnessEligible": False,
             "detail": f"الآيةُ الأقرب ({s_self:.2f}" + (f" − {s_near:.2f} من {near} = {gap:.2f}" if near else "") +
                       f") · {total} كلمةً ضمن [{lo},{hi}] · ثقة أدناها {low:.2f}"}
 
@@ -464,6 +483,8 @@ def cmd_run(a) -> int:
     model = WhisperModel(a.model, device="cpu", compute_type="float32", cpu_threads=os.cpu_count() or 2)
     os.makedirs(a.out, exist_ok=True)
     rc = 0
+    pending: list[dict] = []
+    results: list[tuple] = []
     for key, surahs_s in pairs:
         riwaya = key.split("/")[1]
         slug = key.split("/", 1)[1].replace("/", "__").removesuffix(".jz")
@@ -504,6 +525,7 @@ def cmd_run(a) -> int:
             ents_sorted = sorted(ents, key=lambda e: int(str(e["ayahId"]).split(":")[1]))
             windows = {int(str(e["ayahId"]).split(":")[1]): (int(e["startMs"]),
                        int(e["endMs"]) if e.get("endMs") is not None else None) for e in ents_sorted}
+            total_ms = int(len(pcm) * 1000 / SR)
             for e in ents_sorted:
                 ay = int(str(e["ayahId"]).split(":")[1])
                 st, en = int(e["startMs"]), e.get("endMs")
@@ -521,8 +543,14 @@ def cmd_run(a) -> int:
                 r0 = judge_entry_baseline(ay, nw, texts)
                 r = judge_entry(ay, nw, texts, windows)
                 r.update({"startMs": st, "endMs": int(en),
-                          "before": {"verdict": r0["verdict"], "reason": r0["reason"]}})
+                          "before": {"verdict": r0["verdict"], "reason": r0["reason"]},
+                          "toks": [[t, s0, round(p0, 4)] for t, s0, p0 in nw]})
                 rows.append(r)
+                if a.witness and r.get("witnessEligible"):
+                    lo, hi, c_lo, c_hi = EW.window_of(st, int(en), total_ms)
+                    pending.append({"row": r, "ayah": ay, "audioMs": [lo, hi], "clipLo": c_lo, "clipHi": c_hi,
+                                    "pcm": pcm[int(lo * SR / 1000):int(hi * SR / 1000)].copy(),
+                                    "texts": EW.entry_texts(riwaya, s, ay)})
                 print(f"{riwaya}/{slug} {s}:{ay} [{st}-{en}] ⇒ {r['verdict']} {r['reason']} · {r['detail']}", flush=True)
             os.remove(mp3)
             v = surah_verdict(rows)
@@ -531,10 +559,150 @@ def cmd_run(a) -> int:
                    "fasterWhisper": getattr(faster_whisper, "__version__", ""), "nearestMargin": NEAREST_MARGIN,
                    "verdict": v, "entries": rows}
             out = os.path.join(a.out, f"entry_window_census_{slug}_s{s:03d}.json")
-            with open(out + ".part", "w", encoding="utf-8") as f:
-                json.dump(res, f, ensure_ascii=False)
-            os.replace(out + ".part", out)
+            _dump(res, out)
+            results.append((res, out, rows))
             print(f"■ {key} س{s}: {'✅ كلُّ المداخل تمرّ' if v['ok'] else '⛔ مردودة'} · {v['rejected']}/{v['entries']} · {v['byReason']}", flush=True)
+    if a.witness and pending:
+        print(f"◆ الشاهد الأقوى: {len(pending)} مرشَّحاً بنموذجَي CTC", flush=True)
+        for name in EW.MODELS:
+            EW.measure_candidates(pending, name)
+        for c in pending:
+            r = c["row"]
+            new = EW.apply_witness(r, EW.usable(c.get("measures")))
+            if EW.errors(c.get("measures")):
+                new["witnessErrors"] = EW.errors(c.get("measures"))
+            r.clear()
+            r.update(new)
+        for res, out, rows in results:
+            res["verdict"] = surah_verdict(rows)
+            res["witness"] = {"engine": "ctc-entry-witness-1", "targetConf": EW.TARGET_CONF,
+                              "startTol": EW.START_TOL, "endTol": EW.END_TOL, "simFloor": SIM_FLOOR}
+            _dump(res, out)
+        print(f"◆ أنقذ الشاهدُ {sum(1 for c in pending if c['row'].get('witnessRescued'))}/{len(pending)}", flush=True)
+    return rc
+
+
+def _dump(res: dict, out: str) -> None:
+    with open(out + ".part", "w", encoding="utf-8") as f:
+        json.dump(res, f, ensure_ascii=False)
+    os.replace(out + ".part", out)
+
+
+def cmd_inventory(a) -> int:
+    """جردُ السور ذات التكرار المقيس في المنشور: كلُّ خرائط `state-heard/` على الدلو (‏قراءةٌ محضة) ⇒ (فهرس، سورة، آيات).
+    لا تُحسب خريطةٌ بصمةُ صوتها تخالف بصمةَ سورتها في الفهرس الحيّ (‏قياسٌ على ملفٍّ آخر)."""
+    import promote as P                                              # noqa: PLC0415
+    import index_fields as I                                         # noqa: PLC0415
+    cl, bucket = P.s3()
+    keys = []
+    for page in cl.get_paginator("list_objects_v2").paginate(Bucket=bucket, Prefix=heard_gate.STATE_PREFIX):
+        keys += [o["Key"] for o in page.get("Contents", []) if o["Key"].endswith(".json")]
+    rows, skipped = [], []
+    texts_cache: dict = {}
+    for sk in sorted(keys):
+        try:
+            rep = json.loads(cl.get_object(Bucket=bucket, Key=sk)["Body"].read())
+            src = rep.get("src") or ""
+            if not src.startswith("timings/"):
+                continue
+            body = cl.get_object(Bucket=bucket, Key=src)["Body"].read()
+            idx = json.loads(gzip.decompress(body))
+            live = hashlib.sha256(body).hexdigest()
+            present = sorted({int(str(e["ayahId"]).split(":")[0]) for e in idx["entries"] if e.get("startMs") is not None})
+            sha_of = I.sha_by_surah(idx, present)
+        except Exception as ex:                                      # noqa: BLE001
+            skipped.append({"state": sk, "error": f"{type(ex).__name__}: {ex}"[:200]})
+            continue
+        riwaya = src.split("/")[1]
+        for sn, cmap in sorted((rep.get("maps") or {}).items(), key=lambda kv: int(kv[0])):
+            s = int(sn)
+            if s not in present or cmap.get("sha256") != sha_of.get(s):
+                skipped.append({"state": sk, "surah": s, "why": "بصمةُ الصوت أو حضورُ السورة لا يطابق الفهرسَ الحيّ"})
+                continue
+            texts = texts_cache.setdefault((riwaya, s), surah_texts(riwaya, s))
+            rep_s = measured_repeats(cmap, texts)
+            if rep_s:
+                rows.append({"index": src, "surah": s, "ayahs": sorted(rep_s), "liveSha": live[:8],
+                             "stateSha": str(rep.get("sha256"))[:8],
+                             "performances": {str(k): len(v["performances"]) for k, v in sorted(rep_s.items())}})
+    os.makedirs(a.out, exist_ok=True)
+    _dump({"version": "measured-repeats-inventory-1", "mapsFiles": len(keys), "rows": rows, "skipped": skipped},
+          os.path.join(a.out, "measured_repeats_inventory.json"))
+    for r in rows:
+        print(f"{r['index']}\tس{r['surah']}\t{r['ayahs']}", flush=True)
+    print(f"■ {len(rows)} (فهرس، سورة) بتكرارٍ مقيس من {len(keys)} ملفّ خرائط؛ تُخطّي {len(skipped)}", flush=True)
+    return 0
+
+
+def cmd_targets(a) -> int:
+    """شاهدُ CTC بالنموذجين لآياتٍ منشورةٍ بعينها وتصنيفُها: «الآيةُ نفسُها مسموعة» · «غيرها مسموع» · «غير محسوم»."""
+    jobs = []
+    for part in a.targets.replace("\n", ";").split(";"):
+        part = part.strip()
+        if not part:
+            continue
+        key, _, rest = part.partition("=")
+        surah_s, _, ay_s = rest.partition(":")
+        _check_key(key.strip(), True)
+        jobs.append((key.strip(), int(surah_s), [int(x) for x in ay_s.replace(" ", "").split(",") if x]))
+    import promote as P                                              # noqa: PLC0415
+    cl, bucket = P.s3()
+    sys.path.insert(0, str(ROOT / "tools" / "alignment"))
+    from common import fetch_retry, to_wav16k                        # noqa: PLC0415
+    import numpy as np                                               # noqa: PLC0415
+    os.makedirs(a.out, exist_ok=True)
+    cands: list[dict] = []
+    rc = 0
+    for key, s, ayahs in jobs:
+        riwaya = key.split("/")[1]
+        body = cl.get_object(Bucket=bucket, Key=key)["Body"].read()
+        idx = json.loads(gzip.decompress(body))
+        ents = {int(str(e["ayahId"]).split(":")[1]): e for e in idx["entries"]
+                if str(e["ayahId"]).startswith(f"{s}:") and e.get("startMs") is not None}
+        refs = {e.get("fileRef") for e in ents.values()}
+        if len(refs) != 1:
+            print(f"⛔ {key} س{s}: ملفُّ صوتٍ واحدٌ للسورة مطلوب — تُتخطّى")
+            rc = 3
+            continue
+        url, want = refs.pop(), idx["audioSha256"][s - 1]
+        mp3 = os.path.join(a.out, f"{s:03d}.mp3")
+        fetch_retry(url, mp3)
+        got = hashlib.sha256(open(mp3, "rb").read()).hexdigest()
+        if not want or got != want:
+            os.remove(mp3)
+            print(f"⛔ {key} س{s}: بصمةُ الصوت {got[:8]} ≠ {str(want)[:8]} — لا شاهد")
+            rc = 3
+            continue
+        wav = to_wav16k(mp3, os.path.join(tempfile.mkdtemp(), "a.wav"))
+        with wave.open(wav, "rb") as w:
+            pcm = np.frombuffer(w.readframes(w.getnframes()), np.int16).astype(np.float32) / 32768.0
+        os.remove(wav)
+        total_ms = int(len(pcm) * 1000 / SR)
+        for ay in ayahs:
+            e = ents.get(ay)
+            if not e or e.get("endMs") is None:
+                print(f"⛔ {key} {s}:{ay}: لا مدخل")
+                rc = 3
+                continue
+            st, en = int(e["startMs"]), int(e["endMs"])
+            lo, hi, c_lo, c_hi = EW.window_of(st, en, total_ms)
+            cands.append({"key": key, "surah": s, "ayah": ay, "startMs": st, "endMs": en, "audioMs": [lo, hi],
+                          "clipLo": c_lo, "clipHi": c_hi, "pcm": pcm[int(lo * SR / 1000):int(hi * SR / 1000)].copy(),
+                          "texts": EW.entry_texts(riwaya, s, ay)})
+        os.remove(mp3)
+    for name in EW.MODELS:
+        EW.measure_candidates(cands, name)
+    out_rows = []
+    for c in cands:
+        m = EW.usable(c.get("measures"))
+        r = EW.classify((c["startMs"], c["endMs"]), m)
+        if EW.errors(c.get("measures")):
+            r["errors"] = EW.errors(c.get("measures"))
+        out_rows.append({"key": c["key"], "surah": c["surah"], "ayah": c["ayah"], "startMs": c["startMs"],
+                         "endMs": c["endMs"], **r, "measures": m})
+        print(f"{c['key']} {c['surah']}:{c['ayah']} ⇒ {r['class']} {r.get('winners', '')} {r['why'][:2]}", flush=True)
+    _dump({"version": "entry-witness-targets-1", "targetConf": EW.TARGET_CONF, "rows": out_rows},
+          os.path.join(a.out, "entry_witness_targets.json"))
     return rc
 
 
@@ -552,8 +720,18 @@ def main() -> int:
     q.add_argument("--pairs", default="", help="مفتاحٌ=سور؛ مفتاحٌ=سور (‏عدّةُ فهارس في تشغيلةٍ واحدة)")
     q.add_argument("--published", action="store_true", help="قراءةُ فهرسٍ منشورٍ في timings/ (‏قراءةٌ محضة)")
     q.add_argument("--model", default="small", choices=PH.W_MODELS)
+    q.add_argument("--witness", action="store_true", help="الشاهدُ الأقوى بنموذجَي CTC لمردودات «نقص» المؤهَّلة")
     q.add_argument("--out", required=True)
+    v = sub.add_parser("inventory", help="جردُ التكرار المقيس في المنشور من state-heard/ (‏قراءةٌ محضة، يلزمه R2)")
+    v.add_argument("--out", required=True)
+    t = sub.add_parser("targets", help="شاهدُ CTC بالنموذجين لمداخلَ منشورةٍ بعينها وتصنيفُها (‏قراءةٌ محضة)")
+    t.add_argument("--targets", required=True, help="«مفتاح=س:آية,آية;مفتاح2=س:آية» (‏مفاتيحُ timings/ المنشورة)")
+    t.add_argument("--out", required=True)
     a = ap.parse_args()
+    if a.cmd == "targets":
+        return cmd_targets(a)
+    if a.cmd == "inventory":
+        return cmd_inventory(a)
     return cmd_repeats(a) if a.cmd == "repeats" else cmd_run(a)
 
 
