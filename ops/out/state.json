@@ -1,5 +1,5 @@
 {
- "generatedAt": "2026-11-13T17:18:37Z",
+ "generatedAt": "2026-11-14T19:31:02Z",
  "readErrors": {},
  "fetchedCount": 180,
  "readComplete": true,
@@ -477,21 +477,19 @@
    }
   },
   "hafs/mohsin_harthi": {
-   "entries": 6201,
-   "missingSurahs": [
-    46
-   ],
+   "entries": 6235,
+   "missingSurahs": [],
    "reasonCode": "TIMING_UNDER_REPAIR",
-   "transformOp": "drop_surah:46",
+   "transformOp": "declare_gap:46",
    "declaredReasons": {
     "unknown": 0,
-    "timing_under_repair": 35
+    "timing_under_repair": 36
    },
-   "declaredCount": 35,
+   "declaredCount": 36,
    "undeclaredCount": 0,
    "engine": "ctc-seg-1",
    "gapSurahs": {
-    "46": 35
+    "46": 1
    }
   },
   "hafs/nasser_almajed": {
@@ -580,25 +578,21 @@
    }
   },
   "hafs/s_hashemi": {
-   "entries": 5961,
-   "missingSurahs": [
-    21,
-    23,
-    35
-   ],
+   "entries": 6233,
+   "missingSurahs": [],
    "reasonCode": "TIMING_UNDER_REPAIR",
-   "transformOp": "drop_surah:21,23,35",
+   "transformOp": "heard_pin:21",
    "declaredReasons": {
     "no-align": 2,
-    "timing_under_repair": 275
+    "timing_under_repair": 278
    },
-   "declaredCount": 277,
+   "declaredCount": 280,
    "undeclaredCount": 0,
    "engine": "ctc-seg-1",
    "gapSurahs": {
-    "21": 112,
-    "23": 118,
-    "35": 45
+    "21": 1,
+    "23": 1,
+    "35": 1
    }
   },
   "hafs/saad": {
@@ -713,7 +707,7 @@
     37
    ],
    "reasonCode": "OTHER",
-   "transformOp": "graft_surahs:76,77,79,81,82,83,85,86,87,88,89,90,91,92,93,94,95,97,98,99,100,101,102,103,104,105,106,107,108,109,110,111,112,113,114",
+   "transformOp": "drop_surah:4,10,37|declare_gap:24",
    "declaredReasons": {
     "source_truncated": 501
    },
@@ -975,25 +969,20 @@
    }
   },
   "warsh/harraz_warsh": {
-   "entries": 6050,
-   "missingSurahs": [
-    24,
-    40,
-    45
-   ],
+   "entries": 6232,
+   "missingSurahs": [],
    "reasonCode": "TIMING_UNDER_REPAIR",
-   "transformOp": "drop_surah:24,40,45",
+   "transformOp": "heard_pin:45",
    "declaredReasons": {
     "unknown": 0,
-    "timing_under_repair": 186
+    "timing_under_repair": 190
    },
-   "declaredCount": 186,
+   "declaredCount": 190,
    "undeclaredCount": 0,
    "engine": "ctc-seg-1",
    "gapSurahs": {
-    "24": 64,
-    "40": 85,
-    "45": 37
+    "40": 1,
+    "45": 3
    }
   },
   "warsh/laghdaf_shinqiti": {
