@@ -1,0 +1,43 @@
+{
+ "key": "timings/hafs/kyat.jz",
+ "liveSha256": "0282740d320b568257a6654d57846cff52545d9245a2430729b025474a80f721",
+ "surahs": [
+  28
+ ],
+ "source": "ops/evidence/timing-kyat-e7cb7e27-gate.json",
+ "cases": {
+  "28": {
+   "ayah": "28:86",
+   "indexStartMs": 1059544,
+   "heardAyah": "28:75",
+   "probes": [
+    {
+     "ayah": 31,
+     "startMs": 440402,
+     "heardAyah": 30
+    },
+    {
+     "ayah": 71,
+     "startMs": 928486,
+     "heardAyah": 64
+    },
+    {
+     "ayah": 86,
+     "startMs": 1059544,
+     "heardAyah": 75
+    }
+   ],
+   "witnesses": [
+    {
+     "kind": "whisper_witness.yml small float32",
+     "runId": 42823203274
+    },
+    {
+     "kind": "whisper_witness.yml small float32",
+     "runId": 42823203984
+    }
+   ],
+   "verdict": "الدليلُ الأصليّ لحجب س28 (e7cb7e27) نفسُه: عند مواضع الفهرس تُسمع آياتٌ أخرى؛ والسورةُ لا مداخل لها في الحيّ 0282740d، ويُعاد تأكيد إعلانها حرفاً ليحمل منشأه الحيَّ الحاليّ قبل إصلاح الأنفال فوقه"
+  }
+ }
+}
