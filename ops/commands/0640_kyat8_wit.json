@@ -1,0 +1,12 @@
+{
+ "action": "dispatch",
+ "workflow": "whisper_witness.yml",
+ "inputs": {
+  "url": "https://server12.mp3quran.net/kyat/008.mp3",
+  "surah": "8",
+  "riwaya": "hafs",
+  "model": "medium",
+  "ayahs": "69:991000-1010000,71:1025800-1039400,73:1078000-1093700,75:1108600-1127784",
+  "reason": "تأكيد انجراف س8 المنشورة عند kyat: هل تُسمع الآيات 69/71/73/75 عند مراسي CTC (لا عند مداخل المنشور)؟"
+ }
+}
