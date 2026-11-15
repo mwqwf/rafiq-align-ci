@@ -210,6 +210,7 @@ jobs:
           #    مشروطٌ بمُدخَل quran_model وحدَه (‏لا بالوضع ولا بالأصل).
           if idx.get("engineVersion") == "ctc-seg-1" and not alt and qm == "false" and os.environ.get("MODE", "full") not in ("window", "heard", "dualfix"):
               sys.exit("⛔ الأصلُ منشورٌ بـCTC نفسِه — المحرّكُ حتميّ فإعادتُه تعيد النقصَ نفسَه")
+          refsmap = ""
           have = {}
           for e in idx["entries"]:
               s = int(e["ayahId"].split(":")[0]); have[s] = have.get(s, 0) + 1
@@ -248,25 +249,36 @@ jobs:
               #    يبني أساسَ الكتالوج + اسمَ الجدول) — سورةٌ بلا مدخلٍ في الأب
               #    أو بروابطَ مختلفة أو برابطٍ غيرِ هذا تُردّ هنا قبل تنزيل بايت.
               from splice_surah import parent_refs
-              refs = parent_refs(idx["entries"], todo)
+              # ⭐ (2026-11-15 · الفخفاخ س10/29/37) سورةٌ **بلا مداخلَ في الأب** (‏محجوبةٌ كلُّها) رابطُها من جدول files
+              #    في الكتالوج نفسِه (‏أساسُه + اسمُها)؛ فلا يُردّ الطلبُ هنا بل يُمرَّر `--refs-map` لكلّ السور المطلوبة
+              #    (‏ما في الأب منها يُطابَق بالكتالوج حرفاً كما كان). وإن كان لكلّ السور مداخلُ فالسلوكُ القديم بلا تغيير.
+              have_p = {int(e["ayahId"].split(":")[0]) for e in idx["entries"]}
+              miss_p = [s for s in todo if s not in have_p]
+              refs = parent_refs(idx["entries"], todo) if not miss_p else parent_refs(idx["entries"], [s for s in todo if s in have_p])
               bad = {s: r for s, r in refs.items() if r != urlt + files[s - 1]}
               if bad:
                   sys.exit("⛔ روابطُ الأب تخالف أساسَ الكتالوج + جدولَ files: "
                            + " · ".join(f"س{s}: {r} ≠ {urlt + files[s - 1]}" for s, r in bad.items()))
-              print("📇 مضيفُ مجلَّد — الروابطُ من الأب:", {s: refs[s] for s in todo})
+              if len(refs) < len(todo):
+                  refsmap = ",".join(f"{s}={urlt + files[s - 1]}" for s in todo)
+                  print("📇 مضيفُ مجلَّد — سورٌ بلا مداخلَ في الأب، روابطُها من جدول files:",
+                        {s: urlt + files[s - 1] for s in todo if s not in refs})
+              else:
+                  print("📇 مضيفُ مجلَّد — الروابطُ من الأب:", {s: refs[s] for s in todo})
           sha = hashlib.sha256(body).hexdigest()
           print(f"الأصل {parent} ({sha[:12]}) · محرّكه {idx.get('engineVersion')} · "
                 f"سورُ النقص {len(gaps)} · المطلوبة {todo}")
           with open(os.environ["GITHUB_OUTPUT"], "a") as f:
               f.write(f"rid={rid}\nsha={sha}\nsurahs={','.join(map(str, todo))}\n"
                       f"alt={'1' if alt else ''}\nfolder={'1' if folder else ''}\n"
-                      f"urlt={urlt}\n")
+                      f"urlt={urlt}\nrefsmap={refsmap}\n")
           PY
 
       - name: المحاذاة بـCTC لسور النقص وحدها (⛔ بلا رفع)
         env:
           URLT: ${{ steps.plan.outputs.urlt }}
           FOLDER: ${{ steps.plan.outputs.folder }}
+          REFSMAP: ${{ steps.plan.outputs.refsmap }}
           RIW: ${{ github.event.inputs.riwaya }}
           RID: ${{ steps.plan.outputs.rid }}
           SURAHS: ${{ steps.plan.outputs.surahs }}
@@ -393,7 +405,9 @@ jobs:
             for s in $(echo "$SURAHS" | tr ',' ' '); do
               LEFT=$(( B_END - $(date +%s) ))
               if [ "$LEFT" -lt 300 ]; then echo "⏱️ نفدت الميزانية — س$s لم تُقَس (تبقى كما هي)"; continue; fi
-              if [ -n "$FOLDER" ]; then
+              if [ -n "$FOLDER" ] && [ -n "$REFSMAP" ]; then
+                U="$(python -c "import sys; print(dict(x.split('=', 1) for x in sys.argv[1].split(','))[sys.argv[2]])" "$REFSMAP" "$s")"
+              elif [ -n "$FOLDER" ]; then
                 # ⭐ (2026-10-10 · pG) مضيفُ مجلَّدٍ بلا {s}: الرابطُ من الأب حرفاً (parent_refs) لا القالبُ —
                 #    وإلا نُزّل المجلّد نفسُه (HTML) فردّ ffmpeg «Header missing». لا تخفيفَ لحارس.
                 U="$(python - "$s" <<'PYU'
@@ -452,6 +466,7 @@ jobs:
         env:
           URLT: ${{ steps.plan.outputs.urlt }}
           FOLDER: ${{ steps.plan.outputs.folder }}
+          REFSMAP: ${{ steps.plan.outputs.refsmap }}
           RID: ${{ steps.plan.outputs.rid }}
           SURAHS: ${{ steps.plan.outputs.surahs }}
           ALT: ${{ steps.plan.outputs.alt }}
@@ -480,7 +495,7 @@ jobs:
           #    (‏alignmentModelBySurah) ويلزمه الإحصاءُ الشامل — كما يُعلَن ctc_gapsplit وctc_heardmap.
           if [ "$QM" != "false" ]; then ETAG="ctc-quran-surah-1"; fi
           # ⭐ مضيفُ المجلَّد: `fileRef` من الأب حرفاً (‏والتحقّقُ بعده يطابقه بالمنزَّل).
-          [ -n "$FOLDER" ] && ALTF="$ALTF --refs-from-parent"
+          if [ -n "$FOLDER" ] && [ -n "$REFSMAP" ]; then ALTF="$ALTF --refs-map $REFSMAP"; elif [ -n "$FOLDER" ]; then ALTF="$ALTF --refs-from-parent"; fi
           S=""; F=""
           for s in $(echo "$SURAHS" | tr ',' ' '); do
             j=$(printf "%s/s%03d.json" "$d" "$s")
