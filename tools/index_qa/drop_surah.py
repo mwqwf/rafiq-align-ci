@@ -286,6 +286,279 @@ def reaffirm(idx, live_sha, key, surahs, evidence, *, reason=None, reason_code=N
     return out
 
 
+# ─────────────────────────────────────────────────────────────────────────────────────────────────────────────
+# ⭐ وضعُ `--reclassify-source-truncated`: تصحيحُ **رمزِ** إعلانِ سورةٍ محجوبةٍ كلِّها من `TIMING_UNDER_REPAIR` إلى
+#    `SOURCE_TRUNCATED` حين يثبت بالقياس أنّ ملفَّ المصدر نفسَه ناقصٌ (‏2026-11-15 · benkirane_warsh.45e17a08 س13).
+#
+# العلّةُ المقيسة: شاهدا Whisper يسمعان في الملفّ نفسِه آيةً ثمّ، بعد ثوانٍ، آيةً بعد فجوةٍ كبيرةٍ من الآيات — أي أنّ الصوتَ
+# المنشورَ يقفز فوق آياتٍ لا وجودَ لها فيه، فليست المشكلةُ في توقيتنا (‏يُصلَح بإعادة المحاذاة) بل في الملفّ (‏لا يُصلَح).
+# ورمزُ «قيد الإصلاح» يَعِد بإصلاحٍ لن يأتي؛ والرمزُ الصادقُ بتر المصدر. وبابُ `drop_surah` يرفض إعلاناً جديداً لسورةٍ
+# معلَنةٍ (‏`_again`) وهو حقٌّ لا يُرخى، و`--reaffirm` يكتب السجلَّ القائمَ حرفاً ولا يغيّر رمزَه ⇒ هذا وضعٌ ثالثٌ ضيّق.
+#
+# لا يُعلن جديداً ولا يحذف إعلاناً آخر ولا يمسّ مدخلاً: الناتجُ مطابقٌ للأصل بايتاً في المداخل وسائرِ الحقول، ويتغيّر
+# فيه ما يلي وحدَه: سجلُّ السورة في `declarations` (‏الرمز والنصّان) · عدّادُ `missing.byReason` (‏تحويلُ عددِ آي السورة
+# من `timing_under_repair` إلى `source_truncated`) · `transform` (‏المنشأ والأثر والرمزُ العلويّ حين يصفها وحدَها).
+# وكلُّ شرطٍ موسومٌ بـ`[reclassify:<اسم>]` في رسالته، وباختبارٍ يُثبت أنّ إزالتَه تقبل ما كان يُرَدّ (‏test_drop_surah_reclassify.py).
+# ─────────────────────────────────────────────────────────────────────────────────────────────────────────────
+RECLASSIFY_FROM_CODE = "TIMING_UNDER_REPAIR"
+RECLASSIFY_TO_CODE = "SOURCE_TRUNCATED"
+RECLASSIFY_MIN_WITNESSES = 2
+# أقصى ما يُقبل بين انتهاء مقطع الآية A-1 وبدء مقطع الآية B+1 في الشاهد نفسِه. لا يكفي أن تُسمع الآيتان؛ يلزم أن تتجاورا:
+# الباقي من A-1 وأوّلُ B+1 غيرُ المسموعين لا يملآن أكثر من هذا، وإلا اتّسع بينهما ما يتّسع لآيةٍ من A..B لم يلتقطها النموذج.
+RECLASSIFY_MAX_GAP_MS = 12000
+_RUN_ID_RE = re.compile(r"[1-9]\d{5,14}")
+
+
+def _reclass_reject(tag, msg):
+    raise SystemExit(f"⛔ [reclassify:{tag}] {msg}")
+
+
+def banned_terms_error(reason, reason_user):
+    """نصُّ الردّ إن حمل `reason` أو `reason_user` أثرَ حوكمةٍ داخلية (‏الحقلان يُعرضان للمستخدم)، وإلا None."""
+    for word in ("إذن المالك", "أمر المالك", "بإذنٍ نصّيّ", "بإذن نصي", "المشرف",
+                 "D-186", "D-220", "D-098", "D-183", "github-", "المالك"):
+        for field, name in ((reason or "", "--reason"), (reason_user or "", "--reason-user")):
+            if word in field:
+                return (f"⛔ {name} يحمل «{word}» — وهذا الحقلُ **يُعرض للمستخدم** "
+                        f"في التطبيق. اكتب فيه ما يهمّ القارئَ (‏ما حدث ولماذا لا "
+                        f"يجد الصوت)، وضع الإذنَ والقرارَ الإداريَّ في "
+                        f"docs/qa/DROPPED_SURAHS.md.")
+    return None
+
+
+def parse_gap(text):
+    m = re.fullmatch(r"\s*(\d+)\s*-\s*(\d+)\s*", str(text or ""))
+    if not m:
+        _reclass_reject("gap_form", f"--gap يُكتب A-B (‏مثل 14-24) لا {text!r}")
+    return int(m.group(1)), int(m.group(2))
+
+
+def heard_gap_evidence(src, riwaya, surah, a, b, ref_words, run):
+    """يتحقّق في شاهدٍ واحدٍ (‏سجلُّه من مصدره) أنّه يسمع، متتاليين متجاورين، W_K كلماتٍ من نصّ الآية A-1 ثمّ W_K كلماتٍ من نصّ
+    الآية B+1، **وبينهما لا تُسمع W_K كلماتٍ متّصلةً من نصّ أيّ آيةٍ من A..B**. يُرجع تفصيلَ ما سُمع أو يردّ بوسمٍ.
+
+    ⛔ لا يُشترط «لا كلمةَ» حرفيّاً: كلماتُ الوصل (‏في · من · الله · وهم) تتكرّر في كلّ الآيات فيستحيل. ولذا الوحدةُ هي مقطعُ W_K
+    كلماتٍ متّصلةً (‏نفسُ عتبة البوّابة `pin_heard.W_K`)، ويُشترط في طرفَي الجوار ألّا يكون أيٌّ من مقطعَيهما من نصّ A..B،
+    وأن تجتاز كلماتُهما `_span_ok` (‏الثقةُ وعدمُ الالتصاق بحدّ النافذة) — فلا يُصدَّق تفريغٌ ضعيفٌ.
+    وطرفا الجوار يؤخذان من أيّ موضعٍ في نصّ الآيتين لا من مطلعهما وحدَه: فالنموذجُ يخطئ كثيراً في مطلع الآية (‏الرعد⇐الرعب)."""
+    import heard_gate as HG                                           # noqa: PLC0415
+    import pin_heard as PH                                            # noqa: PLC0415
+    k = PH.W_K
+    prev_w, next_w = ref_words(riwaya, surah, a - 1), ref_words(riwaya, surah, b + 1)
+    if len(prev_w) < k or len(next_w) < k:
+        _reclass_reject("heard_text", f"نصُّ {surah}:{a - 1} أو {surah}:{b + 1} أقصرُ من W_K={k}")
+    grams = lambda w: {tuple(w[i:i + k]) for i in range(len(w) - k + 1)}      # noqa: E731
+    prev_g, next_g = grams(prev_w), grams(next_w)
+    gap_g = set()
+    for ay in range(a, b + 1):
+        gap_g |= grams(ref_words(riwaya, surah, ay))
+    prev_g, next_g = prev_g - gap_g, next_g - gap_g          # مقطعٌ مشتركٌ مع A..B لا يُميّز موضعَه
+    # ⭐ المقاطعُ تُجمع من كلّ نوافذ الشاهد؛ فنافذةُ الآية 13 تنتهي قبل نافذة الآية 25 أو تتداخل معها (‏في الشاهدين الحقيقيَّين:
+    #    طرفُ 13:13 في نافذة 13 وطرفُ 13:25 في نافذة 25)، والترتيبُ والجوارُ يُقاسان بالزمن لا بموضع القائمة.
+    recs = []
+    for rec in (src.get("ayahs") or {}).values():
+        win = rec.get("windowMs") or [None, None]
+        tk = HG._wtoks(rec)
+        recs.append((tk, win, [tuple(x[0] for x in tk[i:i + k]) for i in range(max(0, len(tk) - k + 1))]))
+    prevs, nexts = [], []                                  # (بدء، نهاية، كلمات)
+    for tk, win, words in recs:
+        for i, w in enumerate(words):
+            if HG._span_ok(tk[i:i + k], win) is not None:
+                continue
+            span = (tk[i][1], tk[i + k - 1][2], w)
+            if w in prev_g:
+                prevs.append(span)
+            if w in next_g:
+                nexts.append(span)
+    n_prev, n_next, n_pair, n_near = len(prevs), len(nexts), 0, 0
+    for p0, p1, pw in prevs:
+        for n0, n1, nw in nexts:
+            if n0 < p1:
+                continue
+            n_pair += 1
+            if n0 - p1 > RECLASSIFY_MAX_GAP_MS:
+                continue
+            n_near += 1
+            if any(w in gap_g for tk, _win, words in recs for i, w in enumerate(words)
+                   if p0 <= tk[i][1] and tk[i + k - 1][2] <= n1):
+                continue
+            between = [t[0] for tk, _win, _w in recs for t in tk if p1 <= t[1] and t[2] <= n0]
+            return {"run": str(run), "prevGram": " ".join(pw), "prevEndMs": p1, "nextGram": " ".join(nw),
+                    "nextStartMs": n0, "gapMs": n0 - p1, "between": between}
+    if not n_prev:
+        _reclass_reject("heard_prev", f"الشاهد {run}: لا يُسمع في تفريغه مقطعٌ من W_K={k} كلماتٍ من نصّ {surah}:{a - 1} "
+                                      f"بثقةٍ كافيةٍ ولا يشاركه نصَّ {surah}:{a}–{b}")
+    if not n_next:
+        _reclass_reject("heard_next", f"الشاهد {run}: لا يُسمع في تفريغه مقطعٌ من W_K={k} كلماتٍ من نصّ {surah}:{b + 1} "
+                                      f"بثقةٍ كافيةٍ ولا يشاركه نصَّ {surah}:{a}–{b}")
+    if not n_pair:
+        _reclass_reject("heard_order", f"الشاهد {run}: لا يُسمع نصُّ {surah}:{b + 1} بعد نصّ {surah}:{a - 1} في نافذةٍ واحدة")
+    if not n_near:
+        _reclass_reject("heard_gap", f"الشاهد {run}: بين مقطعَي الآيتين أكثرُ من {RECLASSIFY_MAX_GAP_MS}م.ث — "
+                                     f"يتّسع لآيةٍ من {a}–{b} لم يلتقطها النموذج")
+    _reclass_reject("heard_between", f"الشاهد {run}: يُسمع بين الآيتين نصٌّ من {surah}:{a}–{b} (‏W_K={k} كلماتٍ متّصلة) "
+                                     f"— فالآياتُ ليست غائبةً من الملفّ")
+
+
+def reclassify_source_truncated(idx, live_sha, key, surah, gap, runs, *, reason, reason_user, loader=None,
+                                ref_words=None):
+    """يُرجع فهرساً **مداخلُه وسائرُ حقوله خلا `missing.byReason` و`transform`** هي الأصلُ حرفاً، وسجلُّ إعلان `surah` فيه برمز
+    `SOURCE_TRUNCATED` بدل `TIMING_UNDER_REPAIR`. ويردّ (‏`SystemExit` موسوماً) عند أيّ شرطٍ لا يتحقّق — انظر رأسَ القسم."""
+    import timing_repair                                              # noqa: PLC0415
+    import heard_gate as HG                                           # noqa: PLC0415
+    import pin_heard as PH                                            # noqa: PLC0415
+    from rename_reciter import entries_sha                            # noqa: PLC0415
+    loader = loader or PH.load_witness
+    ref_words = ref_words or HG.disputed_ref_words
+    want = f"timings/{idx.get('riwaya')}/{idx.get('reciterId')}.jz"
+    if key != want or not re.fullmatch(r"[0-9a-f]{64}", str(live_sha or "")):
+        _reclass_reject("key_live", f"--reclassify-source-truncated للحيّ المنشور وحده ({want}) ببصمةٍ كاملة، لا {key}")
+    if type(surah) is not int or not 1 <= surah <= 114:
+        _reclass_reject("not_declared", f"سورةٌ واحدةٌ بين 1 و114 لا {surah!r}")
+    if not str(reason or "").strip() or not str(reason_user or "").strip():
+        _reclass_reject("reason_required", "يلزم --reason و--reason-user (‏الثاني جملةُ المستخدم)")
+    bad_terms = banned_terms_error(reason, reason_user)
+    if bad_terms:
+        _reclass_reject("banned", bad_terms)
+    tr = idx.get("transform") if isinstance(idx.get("transform"), dict) else None
+    if not tr:
+        _reclass_reject("not_declared", "الأصلُ بلا transform — لا إعلانَ قائماً يُصحَّح رمزُه")
+    prior = prior_declarations(idx)
+    rec = prior.get(str(surah))
+    present = {int(e["ayahId"].split(":")[0]) for e in idx.get("entries") or []}
+    if surah in present:
+        _reclass_reject("has_entries", f"س{surah} لها مداخلُ في الأصل — الإعلانُ القائم لا يصفها")
+    try:
+        declared = declared_absent(idx)                         # حارسُ الوحدة المشتركة: رمزٌ ونصٌّ ظاهران ولا مداخل للمعلَن
+    except SystemExit as e:
+        _reclass_reject("not_declared", str(e))
+    if rec is None or surah not in declared:
+        _reclass_reject("not_declared", f"س{surah} غيرُ معلَنةٍ كلُّها في الأصل — هذا الوضعُ لا يُعلن جديداً")
+    if rec.get("op") != "drop_surah":
+        _reclass_reject("not_drop", f"س{surah} إعلانُها {rec.get('op')} لا drop_surah — الحجبُ الجزئيّ بابُه drop_ayahs")
+    if rec.get("reasonCode") != RECLASSIFY_FROM_CODE:
+        _reclass_reject("code", f"س{surah} رمزُها {rec.get('reasonCode')!r} لا {RECLASSIFY_FROM_CODE} — لا يُصحَّح غيرُه")
+    # ── الفجوة ─────────────────────────────────────────────────────────────────────────────────────────────
+    a, b = gap
+    n = timing_repair._ayah_count(surah)
+    if type(a) is not int or type(b) is not int or not 1 <= a <= b <= n:
+        _reclass_reject("gap_form", f"فجوةٌ {a}-{b} خارج 1..{n} في س{surah}")
+    if a == 1 or b == n:
+        _reclass_reject("gap_edge", f"الفجوةُ {a}-{b} تمسّ أوّلَ السورة أو آخرَها — بابُهما الصدرُ والذيلُ المعلَنان لا هذا")
+    if (b - a + 1) * 4 <= n:
+        _reclass_reject("gap_small", f"الفجوةُ {a}-{b} ({b - a + 1} من {n}) لا تزيد على ربع آيات السورة — بابُها drop_ayahs")
+    # ── الشاهدان ───────────────────────────────────────────────────────────────────────────────────────────
+    runs = [str(r).strip() for r in (runs or [])]
+    if len(runs) < RECLASSIFY_MIN_WITNESSES or len(set(runs)) != len(runs) \
+            or any(not _RUN_ID_RE.fullmatch(r) for r in runs):
+        _reclass_reject("witness_runs", f"يلزم {RECLASSIFY_MIN_WITNESSES} تشغيلاتٍ متمايزةٍ بمعرّفاتٍ قانونيّة (‏وجد {runs})")
+    shas = idx.get("audioSha256") or []
+    want_sha = shas[surah - 1] if len(shas) >= surah else None
+    if not want_sha:
+        _reclass_reject("witness_sha", "لا audioSha256 للسورة في الفهرس — لا يُقابَل به شاهد")
+    riwaya = idx.get("riwaya") or "hafs"
+    srcs, heard, sigs = {}, {}, {}
+    for run in sorted(runs):
+        try:
+            src = loader(run, surah)                            # ⛔ من مصدر التشغيلة (‏GitHub) لا من ملفٍّ يكتبه المُطلِق
+        except (SystemExit, Exception) as e:                    # noqa: BLE001
+            _reclass_reject("witness_load", f"الشاهد {run}: تعذّر تحميلُه من مصدره: {str(e)[:160]}")
+        if not isinstance(src, dict) or int(src.get("surah") or 0) != surah or src.get("riwaya") != riwaya:
+            _reclass_reject("witness_surah", f"الشاهد {run}: ليس لسورة {surah} برواية {riwaya}")
+        if src.get("sha256") != want_sha:
+            _reclass_reject("witness_sha", f"الشاهد {run}: بصمةُ الصوت {str(src.get('sha256'))[:8]} غيرُ audioSha256 للسورة "
+                                           f"{str(want_sha)[:8]}")
+        if src.get("model") not in PH.W_MODELS or src.get("computeType") != "float32":
+            _reclass_reject("witness_model", f"الشاهد {run}: {src.get('model')}/{src.get('computeType')} غيرُ مقبول")
+        srcs[run] = HG.disputed_src_rec(src)
+        sigs[run] = (src.get("model"), tuple(sorted((k, tuple(v.get("windowMs") or ()))
+                                                    for k, v in (src.get("ayahs") or {}).items())))
+        heard[run] = heard_gap_evidence(src, riwaya, surah, a, b, ref_words, run)
+    if len(set(sigs.values())) != len(sigs):
+        _reclass_reject("witness_diff", "الشاهدان بالنموذج نفسِه والنوافذ نفسِها — ليسا مستقلَّين")
+    # ── البناء ─────────────────────────────────────────────────────────────────────────────────────────────
+    miss = json.loads(json.dumps(idx.get("missing") or {}))
+    ids13 = [i for i in (miss.get("ids") or []) if str(i).startswith(f"{surah}:")]
+    br = dict(miss.get("byReason") or {})
+    k_from, k_to = promote.REASON_KEYS[RECLASSIFY_FROM_CODE], promote.REASON_KEYS[RECLASSIFY_TO_CODE]
+    if len(ids13) != n or int(br.get(k_from, 0) or 0) < len(ids13):
+        _reclass_reject("counts", f"missing لا يعدّ آيات س{surah} ({len(ids13)}/{n}) تحت {k_from} ({br.get(k_from, 0)}) — "
+                                  "العدّادُ لا يُنقَل ما لم يكن مسجَّلاً")
+    br[k_from] -= len(ids13)
+    if not br[k_from]:
+        br.pop(k_from)
+    br[k_to] = int(br.get(k_to, 0) or 0) + len(ids13)
+    miss["byReason"] = br
+
+    old_excused = promote.truncation_excused(idx)
+    decls = {k: dict(v) for k, v in prior.items()}
+    decls[str(surah)] = {"op": "drop_surah", "reasonCode": RECLASSIFY_TO_CODE, "reasonUser": reason_user, "reason": reason}
+    keep = {k: v for k, v in tr.items()
+            if k not in ("op", "fromSha256", "fromKey", "by", "at", "droppedEntries", "movedEntries",
+                         "addedEntries", "removedEntries", "entriesSha256", "parentEntriesSha256", "declarations")}
+    # الرمزُ العلويّ (‏يقرؤه كلُّ مَن لا يجد سجلَّ السورة) يتبع السورةَ المصحَّحة إن كان يصفها وحدَها، وإلا يبقى حرفاً.
+    top_is_this = (tr.get("reasonCode"), tr.get("reasonUser")) == (rec.get("reasonCode"), rec.get("reasonUser"))
+    others_keep = any(d.get("reasonCode") == RECLASSIFY_FROM_CODE for k, d in decls.items() if k != str(surah))
+    if top_is_this and not others_keep:
+        keep.update(reasonCode=RECLASSIFY_TO_CODE, reasonUser=reason_user, reason=reason)
+    timing_rec = None
+    if isinstance(keep.get("timingRepair"), dict) and str(surah) in keep["timingRepair"]:
+        keep["timingRepair"] = {k: v for k, v in keep["timingRepair"].items() if k != str(surah)}
+        timing_rec = tr["timingRepair"][str(surah)]
+        if not keep["timingRepair"]:
+            keep.pop("timingRepair")
+    esha = entries_sha(idx["entries"])
+    out = dict(idx)
+    out["missing"] = miss
+    out["transform"] = {
+        **keep,
+        "declarations": decls,
+        "op": merged_op(decls),
+        "fromSha256": live_sha,
+        "fromKey": key,
+        "droppedEntries": 0, "movedEntries": 0, "addedEntries": 0, "removedEntries": 0,
+        "entriesSha256": esha,
+        "parentEntriesSha256": esha,
+        "reclassify": {**(tr.get("reclassify") if isinstance(tr.get("reclassify"), dict) else {}),
+                       str(surah): {"from": RECLASSIFY_FROM_CODE, "to": RECLASSIFY_TO_CODE, "gap": [a, b],
+                                    "maxGapMs": RECLASSIFY_MAX_GAP_MS, "witnesses": srcs, "heard": heard,
+                                    "movedAyahs": len(ids13), "replacedRecord": dict(rec),
+                                    **({"replacedTimingRepair": timing_rec} if timing_rec is not None else {}),
+                                    "replacedOp": tr.get("op")}},
+        "by": "drop_surah --reclassify-source-truncated",
+        "at": int(time.time() * 1000),
+    }
+    # ⛔ تحقّقٌ بعديّ على المخرَج نفسِه: لا يُرفع ما يخالف الوعد ولو أخطأ البناءُ أعلاه.
+    if out["entries"] is not idx["entries"] or entries_sha(out["entries"]) != esha:
+        _reclass_reject("post", "المداخلُ تبدّلت")
+    if tr.get("entriesSha256") and tr["entriesSha256"] != esha:
+        _reclass_reject("post", f"entriesSha256 في الأصل {tr['entriesSha256'][:12]}… لا يطابق مداخلَه {esha[:12]}…")
+    if {k: v for k, v in out.items() if k not in ("transform", "missing")} \
+            != {k: v for k, v in idx.items() if k not in ("transform", "missing")}:
+        _reclass_reject("post", "حقلٌ خارج transform وmissing تبدّل")
+    if (out["missing"]["ids"], out["missing"]["count"]) != (idx["missing"]["ids"], idx["missing"]["count"]) \
+            or sum(out["missing"]["byReason"].values()) != sum((idx["missing"].get("byReason") or {}).values()):
+        _reclass_reject("post", "ids أو count أو مجموعُ byReason في missing تبدّل")
+    got, was = prior_declarations(out), prior
+    if set(got) != set(was) or any(got[k] != was[k] for k in was if k != str(surah)) \
+            or got[str(surah)].get("op") != was[str(surah)].get("op"):
+        _reclass_reject("post", "إعلانٌ آخر أُضيف أو حُذف أو تبدّل — لا يُمسّ إلا رمزُ السورة المسمّاة")
+    codes_old, codes_new = promote.declared_surah_codes(tr), promote.declared_surah_codes(out["transform"])
+    if codes_new != {**codes_old, surah: RECLASSIFY_TO_CODE} or declared_absent(out) != declared:
+        _reclass_reject("post", f"رموزُ السور في المخرَج ليست الأصلَ إلا س{surah}: {codes_new} ⇐ {codes_old}")
+    if promote.truncation_excused(out) - old_excused != len(ids13):
+        _reclass_reject("post", "إعفاءُ البتر لا يزيد بعدد آيات السورة بالضبط")
+    for k in sorted(out["transform"].get("truncatedTail") or {}, key=int):
+        ok, why = promote.declared_truncated_tail(out, k)
+        if not ok:
+            _reclass_reject("post", f"س{k}: إعلانُ الذيل لا يصحّ في المخرَج: {why}")
+    for k in sorted(out["transform"].get("truncatedGaps") or {}, key=int):
+        ok, why = promote.declared_truncated_gaps(out, k)
+        if not ok:
+            _reclass_reject("post", f"س{k}: الحجبُ الوسطيّ لا يصحّ في المخرَج: {why}")
+    return out
+
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--key", required=True, help="مفتاح الفهرس على الدلو")
@@ -335,12 +608,31 @@ def main():
                     help="أعد كتابة إعلاناتٍ قائمةٍ في الحيّ حرفاً بـop صادق (‏بعد graft_surahs ونحوه) — لا إعلانَ جديد")
     ap.add_argument("--evidence",
                     help="مع --reaffirm وحده: ملفُّ الدليل تحت ops/evidence/ الذي استند إليه الحجبُ الأصليّ")
+    # ⭐ تصحيحُ رمز إعلانٍ قائمٍ إلى بتر المصدر بدليلِ سماعٍ (‏انظر `reclassify_source_truncated`): لا إعلانَ جديد ولا مسّ مدخل.
+    ap.add_argument("--reclassify-source-truncated", action="store_true", dest="reclassify",
+                    help="صحّح رمزَ إعلان سورةٍ محجوبةٍ كلِّها من TIMING_UNDER_REPAIR إلى SOURCE_TRUNCATED "
+                         "(‏يلزمه --witness-runs و--gap و--reason و--reason-user)")
+    ap.add_argument("--witness-runs",
+                    help="مع --reclassify-source-truncated وحده: تشغيلتا whisper_witness (‏أو أكثر) مفصولةً بفاصلة")
+    ap.add_argument("--gap", help="مع --reclassify-source-truncated وحده: الفجوةُ A-B (‏مثل 14-24)")
     a = ap.parse_args()
     if a.evidence and not a.reaffirm:
         raise SystemExit("⛔ [reaffirm:flags] --evidence لا يكون إلا مع --reaffirm")
     if a.reaffirm and (a.declare_gap or a.declare_absent or a.timing_evidence):
         raise SystemExit("⛔ [reaffirm:flags] --reaffirm لا يجتمع مع --declare-gap ولا --declare-absent ولا --timing-evidence "
                          "— فهو لا يُعلن شيئاً جديداً")
+    if (a.witness_runs or a.gap) and not a.reclassify:
+        raise SystemExit("⛔ [reclassify:flags] --witness-runs و--gap لا يكونان إلا مع --reclassify-source-truncated")
+    if a.reclassify:
+        if a.reaffirm or a.declare_gap or a.declare_absent or a.timing_evidence or a.evidence:
+            raise SystemExit("⛔ [reclassify:flags] --reclassify-source-truncated لا يجتمع مع --reaffirm ولا --declare-gap "
+                             "ولا --declare-absent ولا --timing-evidence ولا --evidence — فهو لا يُعلن شيئاً جديداً")
+        if a.reason_code not in (None, "SOURCE_TRUNCATED"):
+            raise SystemExit("⛔ [reclassify:flags] الرمزُ الجديد SOURCE_TRUNCATED ضمناً؛ --reason-code لا يُعطى غيرَه")
+        if not a.witness_runs or not a.gap or not (a.reason_user or "").strip():
+            raise SystemExit("⛔ [reclassify:flags] يلزم --witness-runs و--gap و--reason-user")
+        if len([x for x in str(a.surah).replace("،", ",").split(",") if x.strip()]) != 1:
+            raise SystemExit("⛔ [reclassify:flags] سورةٌ واحدةٌ في --surah")
     if a.declare_gap and a.declare_absent:
         raise SystemExit("⛔ --declare-gap و--declare-absent وضعان متناقضان: "
                          "الأوّلُ لسورةٍ تعمل وينقصها بعضُ آياتها، والثاني "
@@ -352,17 +644,9 @@ def main():
     #    وليس موضع شيء كهذا»). **والسجلُّ الإداريّ موضعُه المستودع**
     #    (`docs/qa/DROPPED_SURAHS.md`) لا ترويسةُ فهرسٍ منشور.
     #    ⇒ يُردّ كلُّ نصٍّ يحمل أثرَ حوكمةٍ داخلية، ويُقال للكاتب أين يضعه.
-    _BANNED = ("إذن المالك", "أمر المالك", "بإذنٍ نصّيّ", "بإذن نصي", "المشرف",
-               "D-186", "D-220", "D-098", "D-183", "github-", "المالك")
-    for _word in _BANNED:
-        for _field, _name in ((a.reason, "--reason"),
-                              (a.reason_user or "", "--reason-user")):
-            if _word in _field:
-                raise SystemExit(
-                    f"⛔ {_name} يحمل «{_word}» — وهذا الحقلُ **يُعرض للمستخدم** "
-                    f"في التطبيق. اكتب فيه ما يهمّ القارئَ (‏ما حدث ولماذا لا "
-                    f"يجد الصوت)، وضع الإذنَ والقرارَ الإداريَّ في "
-                    f"docs/qa/DROPPED_SURAHS.md.")
+    _banned = banned_terms_error(a.reason, a.reason_user)
+    if _banned:
+        raise SystemExit(_banned)
 
     if a.reaffirm:
         cl, bucket = promote.s3()
@@ -381,6 +665,36 @@ def main():
         print(f"إعادةُ تأكيد: {a.key} ({live[:12]}…) · op {r['replacedOp'][:40]!r} ⇐ {out['transform']['op']!r}")
         print(f"المداخل {len(out['entries'])} بلا تغيير (‏entriesSha256 {out['transform']['entriesSha256'][:12]}…) · "
               f"الدليل {r['evidence']['path']} · الربط {r['evidence']['link']}")
+        print(f"إلى {target} ({len(blob)} بايت · بصمة {new_sha[:12]}…)")
+        if not a.yes:
+            print("(عرضٌ فقط — أضف --yes للرفع)")
+            return
+        cl.put_object(Bucket=bucket, Key=target, Body=blob, ContentType="application/gzip")
+        got = cl.head_object(Bucket=bucket, Key=target)["ContentLength"]
+        print(f"↑ رُفع · الدلو {got} · المحلّي {len(blob)} → {'✅' if got == len(blob) else '❌'}")
+        return
+
+    if a.reclassify:
+        cl, bucket = promote.s3()
+        body = cl.get_object(Bucket=bucket, Key=a.key)["Body"].read()
+        live = hashlib.sha256(body).hexdigest()
+        if not live.startswith(a.sha.rstrip(".")):
+            raise SystemExit(f"⛔ البصمة لا تطابق: الحيّة {live[:16]}… والمطلوبة {a.sha}")
+        idx = json.loads(gzip.decompress(body).decode("utf-8"))
+        s0 = int(str(a.surah).replace("،", ",").split(",")[0])
+        runs = [x.strip() for x in str(a.witness_runs).replace("،", ",").split(",") if x.strip()]
+        out = reclassify_source_truncated(idx, live, a.key, s0, parse_gap(a.gap), runs,
+                                          reason=a.reason, reason_user=a.reason_user)
+        blob = gzip.compress(json.dumps(out, ensure_ascii=False, separators=(",", ":")).encode("utf-8"), 9)
+        new_sha = hashlib.sha256(blob).hexdigest()
+        target = f"timings-staging/{idx.get('riwaya')}/{idx.get('reciterId')}.{new_sha[:8]}.jz"
+        r = out["transform"]["reclassify"][str(s0)]
+        print(f"تصحيحُ رمز: {a.key} ({live[:12]}…) · س{s0}: {r['from']} ⇐ {r['to']} · الفجوة {r['gap'][0]}-{r['gap'][1]} · "
+              f"آياتٌ منقولةٌ في العدّاد {r['movedAyahs']}")
+        for run, h in sorted(r["heard"].items()):
+            print(f"  شاهد {run}: «{h['prevGram']}» ثمّ «{h['nextGram']}» بعد {h['gapMs']}م.ث")
+        print(f"المداخل {len(out['entries'])} بلا تغيير (‏entriesSha256 {out['transform']['entriesSha256'][:12]}…) · "
+              f"op {r['replacedOp']!r} ⇐ {out['transform']['op']!r}")
         print(f"إلى {target} ({len(blob)} بايت · بصمة {new_sha[:12]}…)")
         if not a.yes:
             print("(عرضٌ فقط — أضف --yes للرفع)")
