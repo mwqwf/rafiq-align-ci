@@ -227,5 +227,30 @@ class WorkflowContract(unittest.TestCase):
         self.assertIn('REFMAP="$REFMAP,$S=$URL"', y)
 
 
+
+class FolderSurahAbsentFromParent(unittest.TestCase):
+    """⭐ (2026-11-15 · الفخفاخ س10/29/37) سورةٌ محجوبةٌ كلُّها بلا مداخلَ في الأب بأسماءٍ غيرِ مرقَّمة:
+    رابطُها من جدول files عبر `--refs-map`؛ و`--refs-from-parent` يبقى يردّها كما كان."""
+
+    NAMES = {28: "028Al-kassas.mp3", 36: "036Yacin.mp3"}
+
+    def test_refs_map_serves_surah_with_no_parent_entries(self):
+        m = ",".join(f"{s}={FOLDER + n}" for s, n in self.NAMES.items())
+        with tempfile.TemporaryDirectory() as t:
+            r, out = _run(Path(t), _parent(FOLDER, drop=(28, 36)), FOLDER, refs=False, refs_map=m)
+        self.assertEqual(r.returncode, 0, r.stdout + r.stderr)
+        for s, n in self.NAMES.items():
+            got = {e["fileRef"] for e in out["entries"] if e["ayahId"].startswith(f"{s}:")}
+            self.assertEqual(got, {FOLDER + n})
+        self.assertEqual(len(out["entries"]), 6236)
+
+    def test_workflow_wires_refsmap_only_when_parent_lacks_surah(self):
+        wf = (ROOT / ".github/workflows/ctc_splice.yml").read_text(encoding="utf-8")
+        self.assertIn("refsmap={refsmap}", wf)
+        self.assertIn("if len(refs) < len(todo):", wf)
+        self.assertIn('--refs-map $REFSMAP"; elif [ -n "$FOLDER" ]; then ALTF="$ALTF --refs-from-parent"', wf)
+        self.assertIn("miss_p = [s for s in todo if s not in have_p]", wf)
+
+
 if __name__ == "__main__":
     unittest.main()
