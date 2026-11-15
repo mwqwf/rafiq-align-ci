@@ -89,6 +89,16 @@ def carried_declared_tails(idx, kept, surahs, reason_code, reason_user, prior=No
     declared = set()
     for m in re.findall(r"declare_gap:([\d,\s]+)", str((tr or {}).get("op") or "")):
         declared |= {int(x) for x in re.findall(r"\d+", m)}
+    # ⭐ (2026-11-15 · akri_qalun.d5aa0d41←e243c200) أداةٌ تكتب `op` جديداً (‏ctc_splice) وتحفظ السابقَ في `priorOp`
+    #    فيصير إعلانُ الذيل في `priorOp` وحده، فكان يُمحى صامتاً. ⇒ يُقرأ `priorOp` أيضاً، لكنّ ما عُرف منه
+    #    وحده لا يُحمل إلا بسجلٍّ سويٍّ في `declarations[س]` (‏declare_gap + SOURCE_TRUNCATED + reasonUser)
+    #    مهما كان رمزُ الإسقاط الجديد — فلا يُحمل ذيلٌ بلا سجلِّه، ولا يُرخى شرطٌ ممّا سبق.
+    via_prior = set()
+    for m in re.findall(r"declare_gap:([\d,\s]+)", str((tr or {}).get("priorOp") or "")):
+        via_prior |= {int(x) for x in re.findall(r"\d+", m)}
+    via_prior -= declared
+    declared |= via_prior
+    decl_all = (tr or {}).get("declarations") if isinstance((tr or {}).get("declarations"), dict) else {}
     out, names = {}, []
     for s, rec in tails.items():
         if int(s) in surahs:
@@ -99,6 +109,12 @@ def carried_declared_tails(idx, kept, surahs, reason_code, reason_user, prior=No
                       if e["ayahId"].startswith(f"{s}:"))
         if have != list(range(1, int(rec.get("published") or 0) + 1)):
             raise SystemExit(f"⛔ س{s}: إعلانُ الذيل المبتور الموروث لا يطابق مداخلَها — لا يُحمل كذب")
+        if int(s) in via_prior:
+            d = decl_all.get(str(s)) or {}
+            if (d.get("op") != "declare_gap" or d.get("reasonCode") != "SOURCE_TRUNCATED"
+                    or not str(d.get("reasonUser") or "").strip()):
+                raise SystemExit(f"⛔ س{s}: إعلانُ الذيل في priorOp وحده بلا سجلٍّ سويٍّ في declarations "
+                                 f"(declare_gap + SOURCE_TRUNCATED + reasonUser): {d}")
         if prior is not None:
             # ⭐ إعلانُ الذيل يُحمل **بسجلّه هو** (‏`declarations[س]`): رمزُه SOURCE_TRUNCATED ونصُّه كما
             #    كُتبا، فلا يُشترط أن يحمل الإسقاطُ الجديدُ الرمزَ نفسَه — ولا يُقبل سجلٌّ ينقصه أحدُهما.
