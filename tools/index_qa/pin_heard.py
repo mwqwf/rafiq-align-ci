@@ -76,6 +76,35 @@ from declarations import declared_absent, inherit_declaration            # noqa:
 PARTIAL_MARGIN_MS = 1000   # (‏#105) لا يُستعمل من خريطةٍ جزئيّةٍ إلا ما يبدأ بعد بدء نافذتها بهذا القدر على الأقلّ
 
 
+def preserve_gap_declarations(idx, out):
+    """يحفظ دليل الحجب الوسطي حرفاً أو يرفض الأصل ناقص الدليل قبل أي رفع.
+
+    يعاد حارس promote الحالي على الأصل والمخرج دون تغيير حد أو مدخل.
+    """
+    import copy
+    import promote
+    from declarations import prior_declarations
+    from stage_transform import inherit_truncated_gaps
+    gaps = []
+    for s in range(1, 115):
+        have = {int(e["ayahId"].split(":")[1]) for e in idx.get("entries", [])
+                if e["ayahId"].split(":")[0] == str(s)}
+        if have and set(range(min(have), max(have) + 1)) - have:
+            gaps.append(s)
+    if not gaps:
+        return
+    for s in gaps:
+        ok, why = promote.declared_truncated_gaps(idx, s)
+        if not ok:
+            raise SystemExit(f"⛔ حجب وسطي موروث بلا دليل صالح في س{s}: {why}")
+    # المساعد المشترك يحفظ أيضاً witnessedAbsent/version ويفحص أن ادعاءاته
+    # ضمن absent. لا تُعاد سورة هنا: pin لا يضيف مداخل الآيات الغائبة.
+    parent = copy.deepcopy(idx)
+    parent["transform"]["declarations"] = prior_declarations(parent)
+    inherit_truncated_gaps(parent, out, realigned=[])
+
+
+
 def usable_map(hmap):
     """(خريطةٌ صالحةٌ للتثبيت، حدُّها الأدنى أو None). الخريطةُ الكاملةُ كما هي حرفاً. والجزئيّة (‏`windowStartMs`)
     تُبقي من كلّ آيةٍ مِرساتَها وأداءاتِها التي تبدأ عند (‏البدء + PARTIAL_MARGIN_MS) أو بعده وحدها، ويُحذف الحقلُ من
@@ -951,6 +980,7 @@ def main():
     if a.own_text:
         out["transform"][heard_gate.OWNTEXT_KEY] = own_text_claims(out, a.surah, hmap, xclaims, a.own_text_runs,
                                                                    wits=xwits, already=n_dclaims)
+    preserve_gap_declarations(idx, out)
     blob = gzip.compress(json.dumps(out, ensure_ascii=False, separators=(",", ":")).encode("utf-8"), 9)
     new_sha = hashlib.sha256(blob).hexdigest()
     target = f"timings-staging/{idx.get('riwaya')}/{idx.get('reciterId')}.{new_sha[:8]}.jz"
