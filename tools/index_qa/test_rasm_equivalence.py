@@ -29,34 +29,48 @@ def _wit(words, start=1000):
 
 
 def _run(own_text, other_text, heard, anchor_idx):
+    raws = {1: own_text, 2: other_text}
     texts = {1: own_text.split(), 2: other_text.split()}
     ref = lambda s, a: H.disputed_norm_words(" ".join(texts[a]))                  # noqa: E731
     wit = _wit(heard.split())
     anchor = 1000 + 400 * anchor_idx + 100
     with mock.patch.object(P, "check_witness", lambda *a, **k: None):
-        return H.disputed_one(wit, 16, 1, 1000, anchor, 2, ref, None, "x")
+        return H.disputed_one(wit, 16, 1, 1000, anchor, 2, ref, None, "x", raw_ref=lambda s, a: raws[a])
 
 
-def _taa_eq(ref_word, heard_word):
-    """هل يكافئ تفريغُ heard_word كلمةَ المرجع ref_word بتكافؤ التاء المفتوحة (‏المرجعُ وحدَه يؤهّل)؟"""
-    ref = H.disputed_norm_words(ref_word)
-    q = H.open_taa_ref_words(set(ref))
+def _taa_eq(ref_raw, heard_word):
+    """هل يكافئ تفريغُ heard_word كلمةَ المرجع الخامّ ref_raw بتكافؤ التاء المفتوحة (‏المرجعُ الخامّ وحدَه يؤهّل)؟"""
+    ref = H.disputed_norm_words(ref_raw)
+    q = H.open_taa_ref_words([ref_raw])
     return H.taa_fold_heard(H.disputed_norm_words(heard_word), q) == ref
 
 
 class Norm(unittest.TestCase):
     def test_taa_listed_stems_accept(self):
-        for a, b in [("وبنعمت", "وبنعمه"), ("رحمت", "رحمه"), ("وبنعمت", "وبنعمت"), ("بذات", "بذاه"), ("ولات", "ولاه")]:
+        for a, b in [("وبنعمت", "وبنعمه"), ("رحمت", "رحمه"), ("وبنعمت", "وبنعمت"), ("بِنِعۡمَتِ", "بنعمه"), ("جَنَّتُ", "جنه")]:
             self.assertTrue(_taa_eq(a, b), (a, b))
 
+    def test_alef_before_taa_rejected(self):
+        for a, b in [("جنات", "جنه"), ("جَنَّٰتٍ", "جنه"), ("كلمات", "كلمه"), ("كَلِمَٰتُ", "كلمه")]:
+            self.assertFalse(_taa_eq(a, b), (a, b))
+
+    def test_allat_vs_allah_rejected(self):
+        raw = H.disputed_raw_text("hafs", 53, 19)
+        q = H.open_taa_ref_words([raw])
+        self.assertEqual(q, set())
+        ref = H.disputed_norm_words(raw)
+        self.assertNotEqual(H.taa_fold_heard(H.disputed_norm_words("افرأيتم الله والعزى"), q), ref)
+        self.assertFalse(_taa_eq("ٱللَّٰتَ", "الله"))
+        self.assertFalse(_taa_eq("اللات", "الله"))
+
     def test_taa_unlisted_rejected(self):
-        for a, b in [("قالت", "قاله"), ("كتبت", "كتبه"), ("فقالت", "فقاله"), ("ضربت", "ضربه")]:
+        for a, b in [("قالت", "قاله"), ("كتبت", "كتبه"), ("فقالت", "فقاله"), ("ضربت", "ضربه"), ("هيهات", "هيهاه"), ("ذات", "ذاه"), ("ولات", "ولاه"), ("مرضات", "مرضاه")]:
             self.assertFalse(_taa_eq(a, b), (a, b))
 
     def test_heard_alone_never_activates(self):
         # المرجعُ «ه» (‏ليس في القائمة بالتاء) والتفريغُ «ت»: لا طيّ
         self.assertEqual(H.taa_fold_heard(["وبنعمه"], set()), ["وبنعمه"])
-        self.assertEqual(H.taa_fold_heard(["نعمه"], H.open_taa_ref_words({"قالت"})), ["نعمه"])
+        self.assertEqual(H.taa_fold_heard(["نعمه"], H.open_taa_ref_words(["قالت"])), ["نعمه"])
 
     def test_stems_exist_in_mushaf_text(self):
         import re as _re
@@ -65,6 +79,7 @@ class Norm(unittest.TestCase):
         words = {norm(w) for a in load_text("hafs") for w in a.split()}
         for st in H.OPEN_TAA_STEMS:
             self.assertTrue(any(st in H._prefix_strips(w) for w in words), st)
+        self.assertEqual(len(H.OPEN_TAA_STEMS), 14)
 
     def test_hamza_chair_same(self):
         self.assertEqual(H.disputed_norm_words("شيئا"), H.disputed_norm_words("شيا"))
