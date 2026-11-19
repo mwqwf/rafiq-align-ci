@@ -347,34 +347,7 @@ jobs:
         #    وهو لا يُرى إلا لمن يقرأ سجلَّ ترقيةٍ قديم.
         run: |
           set -o pipefail
-          python - <<'PY' | tee -a "$GITHUB_STEP_SUMMARY"
-          import json, boto3, collections
-          c = json.load(open("secure/r2_credentials.json"))
-          s = boto3.client("s3", endpoint_url=c["endpoint"],
-                           aws_access_key_id=c["accessKeyId"],
-                           aws_secret_access_key=c["secretAccessKey"],
-                           region_name="auto")
-          b = c["bucket"]
-          per = collections.Counter()
-          for pg in s.get_paginator("list_objects_v2").paginate(
-                  Bucket=b, Prefix="state-ci"):
-              for o in pg.get("Contents", []):
-                  try:
-                      j = json.loads(s.get_object(Bucket=b, Key=o["Key"])["Body"].read())
-                  except Exception:
-                      continue
-                  v = str(j.get("verdict") or "")
-                  if v.startswith("مقبول"):
-                      continue
-                  kind = ("خلل بنيوي" if "بنيوي" in v else
-                          "عطبٌ جسيم" if "جسيم" in v else
-                          "حدّي" if "حدّي" in v else
-                          "موقوف" if "موقوف" in v else "آخر")
-                  per[kind] += 1
-          print("## ⚡ ما ينتظر قراراً")
-          for k, n in per.most_common():
-              print(f"- {k}: {n} شاهداً")
-          PY
+          python tools/index_qa/verdict_inventory.py | tee -a "$GITHUB_STEP_SUMMARY"
 
   # الانتظار في وظيفة مستقلة: انقضاء مهلة الفحص لا يبتلع إطلاق النبضة التالية.
   # لا ضمان ضد إلغاء سير العمل كله أو تعطيل Actions؛ الجدولة تبقى سنداً.

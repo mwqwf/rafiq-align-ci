@@ -66,6 +66,11 @@ from concurrent.futures import ThreadPoolExecutor
 import urllib.request
 from pathlib import Path
 
+if __package__:
+    from .verdict_cache import cached, store
+else:
+    from verdict_cache import cached, store
+
 for _s in (sys.stdout, sys.stderr):
     try:
         _s.reconfigure(encoding="utf-8")
@@ -1105,26 +1110,10 @@ def bucket_reports(cl, bucket):
         cdir = Path(__file__).resolve().parent / "work" / "verdict_cache"
         cdir.mkdir(parents=True, exist_ok=True)
 
-        def _cached(key, etag):
-            f = cdir / (hashlib.sha256(f"{key}|{etag}".encode()).hexdigest() + ".json")
-            if f.exists():
-                try:
-                    return json.loads(f.read_text(encoding="utf-8"))
-                except Exception:                     # noqa: BLE001
-                    pass
-            return None
-
-        def _store(key, etag, data):
-            f = cdir / (hashlib.sha256(f"{key}|{etag}".encode()).hexdigest() + ".json")
-            try:
-                f.write_text(json.dumps(data, ensure_ascii=False), encoding="utf-8")
-            except Exception:                         # noqa: BLE001
-                pass
-
         hits = 0
         keys = []
         for key, etag in objs:
-            d = _cached(key, etag)
+            d = cached(cdir, key, etag)
             if d is None:
                 keys.append(key)
                 continue
@@ -1150,7 +1139,7 @@ def bucket_reports(cl, bucket):
                 if data is None:
                     failed += 1
                     continue
-                _store(key, _ETAGS.get(key, ""), data)
+                store(cdir, key, _ETAGS.get(key, ""), data)
                 for rep in (data if isinstance(data, list) else [data]):
                     if isinstance(rep, dict) and rep.get("key"):
                         out.append((key, rep))

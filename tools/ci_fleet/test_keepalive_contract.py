@@ -3,6 +3,7 @@ import ast
 import os
 from pathlib import Path
 import subprocess
+import tempfile
 import unittest
 import yaml
 
@@ -112,6 +113,31 @@ class KeepaliveContract(unittest.TestCase):
                 )
                 result = subprocess.run(['bash', '-c', script], capture_output=True, timeout=10)
                 self.assertEqual(result.returncode, code)
+
+    def inventory_script(self):
+        steps = self.workflow['jobs']['gate_and_promote']['steps']
+        return next(s['run'] for s in steps
+                    if s.get('name') == '⚡ اجرد ما ينتظر قراراً بشريّاً')
+
+    def test_inventory_uses_helper_and_keeps_pipefail(self):
+        script = self.inventory_script()
+        self.assertIn('set -o pipefail', script)
+        self.assertIn('python tools/index_qa/verdict_inventory.py', script)
+        self.assertNotIn('||', script)
+
+    @unittest.skipIf(os.name == 'nt', 'فحص Bash محلي على Linux')
+    def test_partial_inventory_exit_status_reaches_job(self):
+        with tempfile.TemporaryDirectory() as directory:
+            env = dict(os.environ, GITHUB_STEP_SUMMARY=str(Path(directory) / 'summary'))
+            for code in (0, 1):
+                with self.subTest(code=code):
+                    script = self.inventory_script().replace(
+                        'python tools/index_qa/verdict_inventory.py',
+                        f'python -c "raise SystemExit({code})"',
+                    )
+                    result = subprocess.run(['bash', '-c', script], env=env,
+                                            capture_output=True, timeout=10)
+                    self.assertEqual(result.returncode, code)
 
 
 if __name__ == '__main__':
