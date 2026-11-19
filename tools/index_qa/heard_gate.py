@@ -824,8 +824,36 @@ def disputed_norm_words(text: str) -> list[str]:
     import pin_heard as PH  # noqa: PLC0415
     sys.path.insert(0, str(PH._REPO_ROOT / "tools" / "alignment"))
     from common import norm  # noqa: PLC0415
-    t = norm(str(text).replace(_ORTHO_MARK, "").translate(_DISPUTED_MARK))
-    return _MARK_MERGE.sub("", t).replace(_ORTHO_MARK, "\u0627").split()
+    t = str(text).replace(_ORTHO_MARK, "").replace(_HAMZA_MARK, "")
+    t = t.replace("\u0624", "\u0648" + _HAMZA_MARK).replace("\u0626", "\u064a" + _HAMZA_MARK)
+    t = norm(t.translate(_DISPUTED_MARK))
+    t = _MARK_MERGE.sub("", t).replace(_ORTHO_MARK, "\u0627")
+    return [_hamza_equiv_word(w) for w in t.split()]
+
+
+# ⭐ تكافؤُ الرسم وحده (‏النحل 16:73 «وبنعمت»↔«وبنعمه» · «شيئا»↔«شيا»)، على الطرفين بالتساوي (‏الهمزةُ في `disputed_norm_words` والتاءُ في `disputed_cmp_words`):
+#    (١) كرسيُّ الهمزة ئ/ؤ يُحذف **إن جاور مثلَه** («شيئا» ⇒ شيا · «مسؤول» ⇒ مسول)؛ وإلا بقي ياءً/واواً كما في `norm`
+#        (فـ«مؤمن» ≡ «مومن» ولا يُحذف حرفٌ لفظيّ). (٢) التاءُ المفتوحة آخرَ الكلمة ≡ ة ≡ ه (‏`norm` يحوّل ة←ه فتوحَّد ت←ه)
+#        إن بقي قبلها ثلاثةُ حروفٍ فأكثر. ⛔ لا عتبةَ ولا نسبةَ ولا شرطَ تغيّر؛ وسائرُ حروف الكلمة لا تُمسّ.
+_HAMZA_MARK = "\u063c"          # ؼ: يعلّم ياءً/واواً ناتجةً عن كرسيّ همزة (‏خارج النصّ القرآنيّ)
+_HAMZA_DUP = re.compile(f"(?<=([\u0648\u064a]))\\1{_HAMZA_MARK}|([\u0648\u064a]){_HAMZA_MARK}(?=\\2)")
+
+
+def _hamza_equiv_word(w: str) -> str:
+    return _HAMZA_DUP.sub("", w).replace(_HAMZA_MARK, "")
+
+
+def rasm_equiv_word(w: str) -> str:
+    """تكافؤُ التاء المفتوحة آخرَ الكلمة ≡ ه، وهو **للمقارنة وحدها** (‏`disputed_cmp_words`) لا لـ`disputed_norm_words`
+    (‏فاختبارُ «ءايات» ⇒ «ايات» قائمٌ كما هو). يُطبَّق على المرجع والتفريغ معاً."""
+    if len(w) >= 4 and w.endswith("\u062a"):
+        w = w[:-1] + "\u0647"
+    return w
+
+
+def disputed_cmp_words(text: str) -> list[str]:
+    """كلماتُ المقارنة: `disputed_norm_words` ثمّ تكافؤُ التاء/ه آخرَ الكلمة، على المرجع والتفريغ بالتساوي."""
+    return [rasm_equiv_word(w) for w in disputed_norm_words(text)]
 
 
 def disputed_ref_words(riwaya, surah, ayah):
@@ -916,7 +944,8 @@ def disputed_one(wit, surah, ayah, start, anchor, other, ref_words, g_map, want_
         PH.check_witness(wit, surah, g_map, want_sha)
     except SystemExit as e:
         return str(e), None
-    own, oth = ref_words(surah, ayah), ref_words(surah, other)
+    own = [rasm_equiv_word(x) for x in ref_words(surah, ayah)]            # تكافؤ التاء/ه على الطرفين بالتساوي
+    oth = [rasm_equiv_word(x) for x in ref_words(surah, other)]
     k = PH.W_K
     if not own or not oth:
         return "نصُّ الآية أو الآية الأخرى فارغ", None
@@ -927,7 +956,7 @@ def disputed_one(wit, surah, ayah, start, anchor, other, ref_words, g_map, want_
     hit3 = None
     for rec in (wit.get("ayahs") or {}).values():
         win = rec.get("windowMs") or [None, None]
-        tk = _wtoks(rec)
+        tk = [(rasm_equiv_word(x[0]),) + x[1:] for x in _wtoks(rec)]
         for i in range(len(tk) - kh + 1):
             span = tk[i:i + kh]
             if head is None and _head_equal([x[0] for x in span], own[:kh], kh == len(own), raw_last):
