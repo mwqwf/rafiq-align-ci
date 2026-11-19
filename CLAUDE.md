@@ -7,7 +7,7 @@
 «اجعل الوكلاء يرجعون إلى المهارة المناسبة عند الحاجة… رأيتُ أنهم لا يستخدمونها إلا إذا طلبتُها صراحةً وهذا مزعج».
 - **قبل أيّ مهمّة** طابِقها بمهارات `.claude/skills/` (يعرضها هوك `skills-index.cjs` أوّلَ كلّ جلسة) واقرأ `SKILL.md` لكلّ ما ينطبق واتّبعه — لا تنتظر أن يسمّيها المالك.
 - **كلّ تكليفٍ لوكيلٍ فرعيّ** يسمّي المهارات المنطبقة ويأمره بقراءتها؛ وفي التقرير سطرٌ بما استُعمل.
-- الخريطة: أيُّ عمل ← `workstyle` · CI وworkflows والإنفاق ← `github-actions-cost-control` · أداةٌ أو سيرُ عملٍ جديد كبير ← `speckit-specify` ثم `speckit-plan` ثم `speckit-tasks` ثم `speckit-implement`.
+- الخريطة: أيُّ عمل ← `workstyle` · CI وworkflows والإنفاق ← `github-actions-cost-control` · **قبل أيّ إيداعٍ أو إعلان إنجاز ← `verify`** (ومعه `REVIEW.md` ووكيل `reviewer`) · أداةٌ أو سيرُ عملٍ جديد كبير ← `speckit-specify` ثم `speckit-plan` ثم `speckit-tasks` ثم `speckit-implement`.
 
 ## ✅ رُفع إيقافُ الفهرسة — أمرُ المالك 2026-09-20
 
