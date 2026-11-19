@@ -824,8 +824,70 @@ def disputed_norm_words(text: str) -> list[str]:
     import pin_heard as PH  # noqa: PLC0415
     sys.path.insert(0, str(PH._REPO_ROOT / "tools" / "alignment"))
     from common import norm  # noqa: PLC0415
-    t = norm(str(text).replace(_ORTHO_MARK, "").translate(_DISPUTED_MARK))
-    return _MARK_MERGE.sub("", t).replace(_ORTHO_MARK, "\u0627").split()
+    t = str(text).replace(_ORTHO_MARK, "").replace(_HAMZA_MARK, "")
+    t = t.replace("\u0624", "\u0648" + _HAMZA_MARK).replace("\u0626", "\u064a" + _HAMZA_MARK)
+    t = norm(t.translate(_DISPUTED_MARK))
+    t = _MARK_MERGE.sub("", t).replace(_ORTHO_MARK, "\u0627")
+    return [_hamza_equiv_word(w) for w in t.split()]
+
+
+# ⭐ تكافؤُ الرسم وحده (‏النحل 16:73 «وبنعمت»↔«وبنعمه» · «شيئا»↔«شيا»)، على الطرفين بالتساوي (‏الهمزةُ في `disputed_norm_words` والتاءُ بقائمة `OPEN_TAA_STEMS` في `disputed_one`):
+#    (١) كرسيُّ الهمزة ئ/ؤ يُحذف **إن جاور مثلَه** («شيئا» ⇒ شيا · «مسؤول» ⇒ مسول)؛ وإلا بقي ياءً/واواً كما في `norm`
+#        (فـ«مؤمن» ≡ «مومن» ولا يُحذف حرفٌ لفظيّ). (٢) التاءُ المفتوحة: «…ه» في التفريغ تُقبل لـ«…ت» في المرجع إن كان جذعُ
+#        كلمة المرجع (‏بعد نزع السوابق) في القائمة المسمّاة؛ والتفريغُ وحدَه لا يُفعّلها. ⛔ لا عتبةَ ولا نسبةَ ولا شرطَ تغيّر؛ وسائرُ حروف الكلمة لا تُمسّ.
+_HAMZA_MARK = "\u063c"          # ؼ: يعلّم ياءً/واواً ناتجةً عن كرسيّ همزة (‏خارج النصّ القرآنيّ)
+_HAMZA_DUP = re.compile(f"(?<=([\u0648\u064a]))\\1{_HAMZA_MARK}|([\u0648\u064a]){_HAMZA_MARK}(?=\\2)")
+
+
+def _hamza_equiv_word(w: str) -> str:
+    return _HAMZA_DUP.sub("", w).replace(_HAMZA_MARK, "")
+
+
+# ⭐ التاءُ المفتوحة في الرسم العثمانيّ (‏قرار القائد، طلب الدمج #140): المبدأُ **تكافؤُ رسمٍ لكلمةٍ واحدةٍ منطوقة** («وبنعمت»↔«وبنعمه»)،
+#    لا قاعدةَ عامّة (‏«قالت» ≠ «قاله» · «كتبت» ≠ «كتبه»)، فالقائمةُ **مسمّاةٌ مغلقةٌ** من جذوعٍ (‏بعد `norm`) مُتحقَّقٍ من وجودها
+#    كلمةً أخيرُها ت في `text_hafs.jz`. والتأهيلُ **من كلمة المرجع الخامّ قبل `norm`**: لا تُؤهَّل كلمةٌ سبق تاءَها ألفٌ
+#    (‏ا ٱ آ) ولا ألفٌ خنجريّة (‏U+0670)، فلا تُطوى «جنات» ولا «كلمات» ولا «اللات» (‏المصحف «ٱللَّٰتَ» فيدخل «الله» بينهما).
+#    وحُذفت «اللت» و«هيهات» و«لات» و«ذات» و«جملت» و«مرضات»: لا حالةَ مقيسةً لها. والتفريغُ وحدَه لا يُفعّل شيئاً.
+OPEN_TAA_STEMS = frozenset({
+    "نعمت", "رحمت", "امرات", "سنت", "لعنت", "معصيت", "كلمت", "شجرت", "قرت", "بقيت", "فطرت", "جنت", "ابنت",
+    "غيبت",
+})
+_TAA_PREFIX = "\u0648\u0641\u0628\u0644\u0643"            # و ف ب ل ك
+
+
+def _prefix_strips(w: str):
+    """كلُّ ما ينتج عن نزع السوابق (‏و ف ب ل ك · ال) متتاليةً من أوّل الكلمة، ومعها الكلمةُ نفسُها."""
+    seen, todo = {w}, [w]
+    while todo:
+        x = todo.pop()
+        for n in ((x[1:] if len(x) > 2 and x[0] in _TAA_PREFIX else None),
+                  (x[2:] if x.startswith("\u0627\u0644") and len(x) > 4 else None)):
+            if n and n not in seen:
+                seen.add(n)
+                todo.append(n)
+    return seen
+
+
+def open_taa_ref_words(raw_texts, stems=None):
+    """كلماتُ **المرجع** (‏مطبَّعةً) التي تكافئ ت↔ه: جذعُها بعد نزع السوابق في القائمة، وتأهيلُها من الكلمة **الخامّ** قبل `norm`
+    بلا ألفٍ ولا ألفٍ خنجريّةٍ قبل التاء. `raw_texts`: نصوصُ آياتٍ خامّة. التفريغُ وحدَه لا يُفعّل شيئاً."""
+    import unicodedata                                                   # noqa: PLC0415
+    stems = OPEN_TAA_STEMS if stems is None else stems
+    out = set()
+    for raw in raw_texts:
+        for rw in str(raw).split():
+            letters = [c for c in rw if c == "\u0670" or not (unicodedata.category(c) == "Mn" or c == "\u0640")]
+            if len(letters) < 2 or letters[-1] != "\u062a" or letters[-2] in "\u0670\u0627\u0671\u0622":
+                continue
+            for w in disputed_norm_words(rw):
+                if w.endswith("\u062a") and _prefix_strips(w) & stems:
+                    out.add(w)
+    return out
+
+
+def taa_fold_heard(tokens, qualified):
+    """يُحوِّل كلمةَ التفريغ «…ه» إلى «…ت» **فقط** إن كانت «…ت» من كلمات المرجع المؤهَّلة (‏`open_taa_ref_words`)."""
+    return [t[:-1] + "\u062a" if t.endswith("\u0647") and (t[:-1] + "\u062a") in qualified else t for t in tokens]
 
 
 def disputed_ref_words(riwaya, surah, ayah):
@@ -859,6 +921,17 @@ def _span_ok(span, win):
     if win and len(win) > 1 and win[1] is not None and any(x[2] >= int(win[1]) for x in span):
         return f"كلمةٌ ملصوقةٌ بنهاية النافذة {win[1]}"
     return None
+
+
+def disputed_raw_text(riwaya, surah, ayah):
+    """نصُّ الآية **خامّاً** (‏بتشكيله وألفه الخنجريّة) من المصحف الموثَّق — لتأهيل التاء المفتوحة."""
+    import pin_heard as PH  # noqa: PLC0415
+    sys.path.insert(0, str(PH._REPO_ROOT / "tools" / "alignment"))
+    from common import load_index, load_text, surah_slice  # noqa: PLC0415
+    start, _end, info = surah_slice(load_index(), surah)
+    if not 1 <= ayah <= int(info["ayahs"]):
+        raise SystemExit(f"⛔ {surah}:{ayah} خارج السورة")
+    return str(load_text(riwaya or "hafs")[start + ayah - 1])
 
 
 def disputed_raw_last(riwaya, surah, ayah):
@@ -908,7 +981,7 @@ def disputed_raw_last_safe(riwaya, surah, ayah):
         return None
 
 
-def disputed_one(wit, surah, ayah, start, anchor, other, ref_words, g_map, want_sha, raw_last=None):
+def disputed_one(wit, surah, ayah, start, anchor, other, ref_words, g_map, want_sha, raw_last=None, raw_ref=None):
     """(None، تفصيل) إن أثبت الشاهدُ الواحد الشرطين ٢ و٣ للآية، وإلا (سببُ الردّ، None).
     `raw_last`: آخرُ كلمةٍ من الآية خامّاً لصيغة التنوين."""
     import pin_heard as PH  # noqa: PLC0415
@@ -917,6 +990,7 @@ def disputed_one(wit, surah, ayah, start, anchor, other, ref_words, g_map, want_
     except SystemExit as e:
         return str(e), None
     own, oth = ref_words(surah, ayah), ref_words(surah, other)
+    taa = open_taa_ref_words([raw_ref(surah, ayah), raw_ref(surah, other)]) if raw_ref else set()   # من المرجع الخامّ وحدَه
     k = PH.W_K
     if not own or not oth:
         return "نصُّ الآية أو الآية الأخرى فارغ", None
@@ -927,7 +1001,7 @@ def disputed_one(wit, surah, ayah, start, anchor, other, ref_words, g_map, want_
     hit3 = None
     for rec in (wit.get("ayahs") or {}).values():
         win = rec.get("windowMs") or [None, None]
-        tk = _wtoks(rec)
+        tk = [(f,) + x[1:] for f, x in zip(taa_fold_heard([x[0] for x in _wtoks(rec)], taa), _wtoks(rec))]
         for i in range(len(tk) - kh + 1):
             span = tk[i:i + kh]
             if head is None and _head_equal([x[0] for x in span], own[:kh], kh == len(own), raw_last):
@@ -960,7 +1034,7 @@ def disputed_one(wit, surah, ayah, start, anchor, other, ref_words, g_map, want_
     return None, {"headMs": head, "anchorText": hit3[1], "anchorSpanMs": hit3[0]}
 
 
-def disputed_verdict(s, rows, g_map, want, cand_idx, ref_words=None, n_ayahs=None, sources=None, raw_last=None):
+def disputed_verdict(s, rows, g_map, want, cand_idx, ref_words=None, n_ayahs=None, sources=None, raw_last=None, raw_ref=None):
     """يُحوّل كلَّ صفٍّ «dev» مدّعىً في `transform.disputedAnchors[س]` ومُثبَتٍ بالشروط إلى «disputed».
     يُرجع (سببُ ردّ السورة أو None، الدليل). بلا ادّعاءٍ للسورة لا يتغيّر شيءٌ حرفاً."""
     tr = cand_idx.get("transform") if isinstance(cand_idx.get("transform"), dict) else {}
@@ -970,6 +1044,7 @@ def disputed_verdict(s, rows, g_map, want, cand_idx, ref_words=None, n_ayahs=Non
     import pin_heard as PH  # noqa: PLC0415
     ref_words = ref_words or (lambda ss, a: disputed_ref_words(cand_idx.get("riwaya") or "hafs", ss, a))
     raw_last = raw_last or (lambda ss, a: disputed_raw_last_safe(cand_idx.get("riwaya") or "hafs", ss, a))
+    raw_ref = raw_ref or (lambda ss, a: disputed_raw_text(cand_idx.get("riwaya") or "hafs", ss, a))
     byayah = {r["ayah"]: r for r in rows}
     ev = {"version": DISPUTED_VERSION, "accepted": {}, "refused": {}}
     bad = []
@@ -999,7 +1074,7 @@ def disputed_verdict(s, rows, g_map, want, cand_idx, ref_words=None, n_ayahs=Non
                 why = "المكتوبُ في المرشّح يخالف مصدرَه (‏مخرَج تشغيلته) حرفاً"
             else:
                 why, d = disputed_one(src, s, a, r["startMs"], r["anchorMs"], other, ref_words, g_map, want,
-                                      raw_last=raw_last(s, a))
+                                      raw_last=raw_last(s, a), raw_ref=raw_ref)
             if why:
                 why = f"الشاهد {run}: {why}"
                 break
