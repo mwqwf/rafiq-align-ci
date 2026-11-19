@@ -2904,6 +2904,7 @@ def main():
         items = [(n, r) for n, r in items if r.get("key") == a.only]
 
     ready, refused, done = [], [], []
+    verified_promotions = []
     for name, rep in items:
         target, why = gate(rep, frozen, a.prefix, holds, a.override,
                            ci_reports, openers_reports, pooled_map, drop_approvals)
@@ -3266,6 +3267,8 @@ def main():
                         + "- **حكم الفهرس كما هو ولم يُعدَّل:** "
                         + str(rep.get("verdict")) + chr(10)
                         + "- **السبب:** " + a.override + chr(10))
+        if mpub == mlen:
+            verified_promotions.append({"src": src, "dst": target, "sha256": live_sha})
         promoted_targets.add(target)
         done.append({"when": time.strftime("%Y-%m-%d %H:%M")
                      + (" (تجربة)" if a.self_test else ""),
@@ -3278,6 +3281,7 @@ def main():
         print(f"سُجّلت {len(done)} ترقية في {LOG.relative_to(ROOT)}")
     elif a.yes:
         print("لا ترقية — ولا شيء كُتب.")
+    print("PROMOTION_RESULT_V1=" + json.dumps({"verified": verified_promotions}, ensure_ascii=False))
 
 
 if __name__ == "__main__":

@@ -393,6 +393,8 @@ def main():
     ap.add_argument("--metadata-only", metavar="سبب",
                     help="تصحيحُ حقولِ الترويسة وحدها والمداخلُ متطابقةٌ بايتاً "
                          "— يجب أن يذكر السببُ الحقلَ والقياسَ الذي بُني عليه")
+    ap.add_argument("--restore-gap-evidence", metavar="JSON",
+                    help="خطة سلسلة آباء مثبتة لاستعادة دليل غياب في transform وحده؛ يلزم metadata-only وmanual-qa-only")
     ap.add_argument("--allow-inherited-gaps", action="store_true",
                     help="(ctc_gapsplit وحده) سورةٌ مُعادةٌ ناقصةٌ تُقبل إن كان كلُّ غائبٍ فيها غائباً في الأب "
                          "ولا غائبَ جديد، وزادت مداخلُها زيادةً فعليّة")
@@ -441,6 +443,18 @@ def main():
     if not psha.startswith(a.parent_sha.rstrip(".")):
         raise SystemExit(f"⛔ الأصل بصمتُه {psha[:16]} لا {a.parent_sha}")
     pidx = json.loads(gzip.decompress(pbody).decode("utf-8"))
+
+    restoration = None
+    if a.restore_gap_evidence:
+        if (not a.metadata_only or not a.manual_qa_only or a.op != "restore_gap_declarations"
+                or a.parent != f"timings/{pidx.get('riwaya')}/{pidx.get('reciterId')}.jz"
+                or a.parent_sha != psha or a.allow_inherited_gaps or tails):
+            raise SystemExit("⛔ استعادة دليل الغياب لها عملية metadata-only يدوية من الحي وحده، بلا دمج أو بتر جديد")
+        from gap_metadata_restore import from_file
+        try:
+            restoration = from_file(pidx, idx, psha, a.restore_gap_evidence)
+        except (ValueError, KeyError, TypeError, IndexError, OSError) as ex:
+            raise SystemExit("⛔ " + str(ex)) from ex
 
     n_new, n_old = len(idx.get("entries") or []), len(pidx.get("entries") or [])
     # ⛔ **استثناءُ `realign_surah` وحدَه (‏قرار المشرف github-10، 2026-09-05):**
@@ -593,7 +607,7 @@ def main():
         changed = sorted(k for k in set(idx) | set(pidx)
                          if k not in ("entries", "transform", "generatedAt")
                          and idx.get(k) != pidx.get(k))
-        if not changed:
+        if not changed and not restoration:
             raise SystemExit("⛔ لا مداخلَ تغيّرت ولا ترويسة — لا شيء هنا")
         print(f"  ✔ تصحيحٌ ترويسيّ بلا مسِّ مدخلٍ واحد: {changed}")
     _inh = parent_coded_approved(pidx, idx, a.parent, psha)
@@ -630,7 +644,24 @@ def main():
         "reason": a.reason, "by": a.by,
         "at": int(time.time() * 1000),
     })
+    if restoration:
+        import copy
+        from declarations import prior_declarations, merged_op
+        out["transform"]["op"] = a.op + "|" + merged_op(prior_declarations(idx))
+        out["transform"]["gapEvidenceRestoration"] = restoration
+        provenance = copy.deepcopy(out["transform"].get("provenance") or {})
+        if not isinstance(provenance, dict):
+            raise SystemExit("⛔ provenance في الأصل ليس قاموساً")
+        provenance["publishedParentTransform"] = copy.deepcopy(pidx.get("transform"))
+        out["transform"]["provenance"] = provenance
     inherit_truncated_gaps(pidx, out, realigned)
+    if restoration:
+        # التوريث قد يضيف مقطع op مكرراً؛ نعيد صياغة المقاطع من سجل الإعلان نفسه.
+        out["transform"]["op"] = a.op + "|" + merged_op(prior_declarations(idx))
+        for row in restoration["sources"]:
+            valid, why = promote.declared_truncated_gaps(out, row["surah"])
+            if not valid:
+                raise SystemExit("⛔ المخرج النهائي فقد إعلاناً مستعاداً: " + why)
     # سياسة الجدولة تخص التحويل الحالي، ولا تورث حجزاً إلى تحويل لاحق تلقائياً.
     apply_dispatch_policy(out, a.manual_qa_only, a.parent, psha)
     packed = gzip.compress(json.dumps(out, ensure_ascii=False,

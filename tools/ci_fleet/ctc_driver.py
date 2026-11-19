@@ -46,6 +46,31 @@ def sh(*a):
     return subprocess.run(a, cwd=ROOT).returncode
 
 
+def verified_promotion(returncode, output, source, expected_sha):
+    """A successful process is not necessarily a successful promotion. Fail closed."""
+    if returncode != 0:
+        return False
+    records = [line.split("=", 1)[1] for line in output.splitlines()
+               if line.startswith("PROMOTION_RESULT_V1=")]
+    if len(records) != 1:
+        return False
+    target = "timings/" + source.split("/")[1] + "/" + source.split("/")[-1].split(".")[0] + ".jz"
+    try:
+        rows = json.loads(records[0])["verified"]
+        return isinstance(rows, list) and {"src": source, "dst": target, "sha256": expected_sha} in rows
+    except (ValueError, KeyError, TypeError):
+        return False
+
+
+def promote_verified(source, expected_sha):
+    args = (sys.executable, "tools/index_qa/promote.py", "--only", source, "--yes")
+    print("$", " ".join(args), flush=True)
+    result = subprocess.run(args, cwd=ROOT, capture_output=True, text=True)
+    print(result.stdout, end="", flush=True)
+    print(result.stderr, end="", file=sys.stderr, flush=True)
+    return verified_promotion(result.returncode, result.stdout, source, expected_sha)
+
+
 state = {o["Key"] for o in ls("state/timings-staging_")}
 frozen = get("timings/frozen.txt").decode("utf-8")
 sys.path.insert(0, str(ROOT / 'tools' / 'index_qa'))
@@ -130,7 +155,7 @@ for rid, o in latest.items():
         verdicts = [json.loads(get(x)).get("verdict") for x in salts]
         if all(v == "مقبول" for v in verdicts) and f"{flat}.openers.json" in state:
             print(f"▶ ترقية {k}")
-            if sh(sys.executable, "tools/index_qa/promote.py", "--only", k, "--yes") == 0:
+            if promote_verified(k, actual_sha):
                 promoted += 1
         else:
             print(f"⛔ {k}: أحكام {verdicts} — لا ترقية")
