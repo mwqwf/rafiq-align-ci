@@ -631,7 +631,9 @@ def gap_reason_count_error(idx):
     هذا الرمزُ لا يولد إلا من إعلان حجبٍ وسطيّ (‏drop_ayahs)، فكلُّ زيادةٍ فيه غيابٌ بلا إعلانٍ يُلبَس سببَ
     «قيد الإصلاح»، وكلُّ نقصٍ إعلانٌ بلا عدّاد. وقعت (‏noah_warsh 2026-11-20): استرجاعُ 5:20 و5:36 طُرح من
     source_truncated فصار 54:16-17 معدوداً «قيد الإصلاح» بلا إعلان. تشديدٌ لا إرخاء: لا يمسّ source_truncated
-    ولا عتبةَ 5٪ ولا شرطاً قائماً (‏الشرط ④ في declared_truncated_gaps يبقى كما هو)."""
+    ولا عتبةَ 5٪ ولا شرطاً قائماً (‏الشرط ④ في declared_truncated_gaps يبقى كما هو).
+    ⚠️ (2026-11-20) أداةُ تشخيصٍ لا حارسٌ في index_gate: عدّاداتُ فهارسَ حيّةٍ كثيرةٍ تاريخيّةٌ لا تساوي ترويستَها
+    (‏harraz 190 مقابل 4 غائبات)، فالحارسُ هو `gap_reason_shift_error` المقارِنُ بالأصل."""
     miss = idx.get("missing") if isinstance(idx.get("missing"), dict) else {}
     have = int((miss.get("byReason") or {}).get("timing_under_repair", 0) or 0)
     tr = idx.get("transform") if isinstance(idx.get("transform"), dict) else {}
@@ -641,6 +643,36 @@ def gap_reason_count_error(idx):
     if have != want:
         return (f"⛔ byReason.timing_under_repair = {have} والمعلَنُ بهذا السبب في truncatedGaps = {want}"
                 " — عدّادُ «قيد الإصلاح» لا يطابق إعلانَه")
+    return None
+
+
+def gap_reason_shift_error(idx, parent):
+    """⛔ سببُ رفضٍ إن لم ينقص `byReason.timing_under_repair` بقدر ما عاد من آياتٍ كانت معلَنةً في الأصل بهذا السبب، وإلا None.
+
+    مقارنةٌ بالأصل لا بالمطلق: كثيرٌ من الفهارس الحيّة يحمل عدّاداً تاريخيّاً لا يُعاد بناؤه من ترويستها
+    (‏إسقاطٌ كاملٌ قيد الإصلاح، heard_pin، دمجٌ قديم)، فالمساواةُ المطلقة (‏`gap_reason_count_error`) تردّها كلَّها
+    ردّاً كاذباً. والقاعدةُ هنا تمسك العطبَ نفسَه دون غيره:
+      عدّادُ المرشّح ≤ عدّادُ الأصل − ما عاد من معلَنِ الأصل قيد الإصلاح + ما غاب حديثاً.
+    وقع (‏noah_warsh d643f291 · 2026-11-20): عادت 5:20 و5:36 المعلَنتان قيد الإصلاح فبقي العدّاد 6 ونقص عذرُ البتر.
+    بلا أصلٍ لا حكم (‏None). تشديدٌ لا إرخاء: لا يمسّ source_truncated ولا عتبةَ 5٪ ولا شرطاً قائماً."""
+    if not isinstance(parent, dict):
+        return None
+    def _by(x):
+        m = x.get("missing") if isinstance(x.get("missing"), dict) else {}
+        return int((m.get("byReason") or {}).get("timing_under_repair", 0) or 0)
+    def _have(x):
+        return {str(e.get("ayahId")) for e in (x.get("entries") or []) if isinstance(e, dict)}
+    hc, hp = _have(idx), _have(parent)
+    ptr = parent.get("transform") if isinstance(parent.get("transform"), dict) else {}
+    pg = ptr.get("truncatedGaps") if isinstance(ptr.get("truncatedGaps"), dict) else {}
+    tur_p = {f"{k}:{a}" for k, rec in pg.items() if isinstance(rec, dict)
+             and rec.get("reason") == "timing_under_repair" for a in (rec.get("absent") or [])}
+    back_tur = len((hc - hp) & tur_p)
+    newly_missing = len(hp - hc)
+    cap = _by(parent) - back_tur + newly_missing
+    if back_tur and _by(idx) > cap:
+        return (f"⛔ byReason.timing_under_repair = {_by(idx)} وكان في الأصل {_by(parent)} وعاد من معلَنه {back_tur}"
+                f" (‏الحدّ {cap}) — العائدُ طُرح من سببٍ غيرِ سببه")
     return None
 
 
@@ -2447,7 +2479,7 @@ def index_gate(idx, *, parent=None, parent_sha=None, owner_approved=frozenset(),
     _present_bad = gap_declared_present_error(idx)
     if _present_bad:
         return _present_bad
-    _reason_bad = gap_reason_count_error(idx)
+    _reason_bad = gap_reason_shift_error(idx, parent)
     if _reason_bad:
         return _reason_bad
     total = idx.get("ayahCount") or 6236
