@@ -602,6 +602,28 @@ def heard_evidence_ok(rec):
     return bool(str(h.get("witness") or "").strip() and run_ok and str(h.get("text") or "").strip())
 
 
+def gap_declared_present_error(idx):
+    """⛔ سببُ رفضٍ إن أعلن المرشّحُ غيابَ آيةٍ لها مدخلٌ فيه، وإلا None.
+
+    `transform.truncatedGaps[س].absent` تعدّ آياتٍ **غائبةً**؛ فإن بقيت فيها آيةٌ استُرجعت (‏صار لها مدخل) كان الإعلانُ
+    كاذباً على آيةٍ حاضرة: يُخفيها التطبيقُ أو يُنبئ المستخدمَ بغيابها وهي مسموعة. تشديدٌ لا إرخاء: لا يُرخي حارساً."""
+    tr = idx.get("transform") if isinstance(idx.get("transform"), dict) else {}
+    gaps = tr.get("truncatedGaps") if isinstance(tr.get("truncatedGaps"), dict) else {}
+    have = {str(e.get("ayahId")) for e in (idx.get("entries") or []) if isinstance(e, dict)}
+    bad = []
+    for k, rec in gaps.items():
+        if not isinstance(rec, dict):
+            continue
+        for a in rec.get("absent") or []:
+            if f"{k}:{a}" in have:
+                bad.append(f"{k}:{a}")
+    if bad:
+        return ("⛔ إعلانُ الحجب الوسطيّ يشمل آياتٍ حاضرةً لها مداخل: "
+                + "، ".join(sorted(bad, key=lambda x: tuple(int(p) for p in x.split(":") if p.isdigit())))
+                + " — يُحذف من الإعلان كلُّ ما استُرجع")
+    return None
+
+
 def declared_truncated_gaps(idx, surah, end_ref_words=None):
     """هل تُعالج السورةُ الموسومةُ بالبتر بحجبِ **آياتٍ غائبةٍ في وسطها** معلَنةً بدليلٍ لكلّ آية؟
 
@@ -2402,6 +2424,9 @@ def index_gate(idx, *, parent=None, parent_sha=None, owner_approved=frozenset(),
     miss = idx.get("missing")
     if not isinstance(miss, dict):
         return "الفهرس بلا وسم اكتمال — لا يُرقّى ما لم يُقَس اكتماله"
+    _present_bad = gap_declared_present_error(idx)
+    if _present_bad:
+        return _present_bad
     total = idx.get("ayahCount") or 6236
     count = miss.get("count")
     if count is None:
