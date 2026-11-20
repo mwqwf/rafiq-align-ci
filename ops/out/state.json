@@ -1,5 +1,5 @@
 {
- "generatedAt": "2026-11-15T21:08:13Z",
+ "generatedAt": "2026-11-20T01:57:34Z",
  "readErrors": {},
  "fetchedCount": 180,
  "readComplete": true,
@@ -696,29 +696,6 @@
     "37": 182
    }
   },
-  "qalun/fakhfakh_qalun": {
-   "entries": 5876,
-   "missingSurahs": [
-    10,
-    29,
-    37
-   ],
-   "reasonCode": "TIMING_UNDER_REPAIR",
-   "transformOp": "drop_surah:10,29,37",
-   "declaredReasons": {
-    "no-align": 3,
-    "invalid": 7,
-    "timing_under_repair": 360
-   },
-   "declaredCount": 370,
-   "undeclaredCount": 0,
-   "engine": "align-0.2",
-   "gapSurahs": {
-    "10": 109,
-    "29": 69,
-    "37": 182
-   }
-  },
   "qalun/janaini_qalun": {
    "entries": 6116,
    "missingSurahs": [
@@ -910,10 +887,11 @@
     13
    ],
    "reasonCode": "TIMING_UNDER_REPAIR",
-   "transformOp": "declare_gap:23",
+   "transformOp": "drop_surah:13|declare_gap:23",
    "declaredReasons": {
     "no-align": 2,
-    "timing_under_repair": 44
+    "timing_under_repair": 1,
+    "source_truncated": 43
    },
    "declaredCount": 46,
    "undeclaredCount": 0,
