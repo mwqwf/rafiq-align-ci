@@ -624,6 +624,26 @@ def gap_declared_present_error(idx):
     return None
 
 
+def gap_reason_count_error(idx):
+    """⛔ سببُ رفضٍ إن لم يساوِ `missing.byReason.timing_under_repair` مجموعَ الآيات المعلَنة في
+    `transform.truncatedGaps` بسبب timing_under_repair، وإلا None.
+
+    هذا الرمزُ لا يولد إلا من إعلان حجبٍ وسطيّ (‏drop_ayahs)، فكلُّ زيادةٍ فيه غيابٌ بلا إعلانٍ يُلبَس سببَ
+    «قيد الإصلاح»، وكلُّ نقصٍ إعلانٌ بلا عدّاد. وقعت (‏noah_warsh 2026-11-20): استرجاعُ 5:20 و5:36 طُرح من
+    source_truncated فصار 54:16-17 معدوداً «قيد الإصلاح» بلا إعلان. تشديدٌ لا إرخاء: لا يمسّ source_truncated
+    ولا عتبةَ 5٪ ولا شرطاً قائماً (‏الشرط ④ في declared_truncated_gaps يبقى كما هو)."""
+    miss = idx.get("missing") if isinstance(idx.get("missing"), dict) else {}
+    have = int((miss.get("byReason") or {}).get("timing_under_repair", 0) or 0)
+    tr = idx.get("transform") if isinstance(idx.get("transform"), dict) else {}
+    gaps = tr.get("truncatedGaps") if isinstance(tr.get("truncatedGaps"), dict) else {}
+    want = sum(len(rec.get("absent") or []) for rec in gaps.values()
+               if isinstance(rec, dict) and rec.get("reason") == "timing_under_repair")
+    if have != want:
+        return (f"⛔ byReason.timing_under_repair = {have} والمعلَنُ بهذا السبب في truncatedGaps = {want}"
+                " — عدّادُ «قيد الإصلاح» لا يطابق إعلانَه")
+    return None
+
+
 def declared_truncated_gaps(idx, surah, end_ref_words=None):
     """هل تُعالج السورةُ الموسومةُ بالبتر بحجبِ **آياتٍ غائبةٍ في وسطها** معلَنةً بدليلٍ لكلّ آية؟
 
@@ -2427,6 +2447,9 @@ def index_gate(idx, *, parent=None, parent_sha=None, owner_approved=frozenset(),
     _present_bad = gap_declared_present_error(idx)
     if _present_bad:
         return _present_bad
+    _reason_bad = gap_reason_count_error(idx)
+    if _reason_bad:
+        return _reason_bad
     total = idx.get("ayahCount") or 6236
     count = miss.get("count")
     if count is None:
