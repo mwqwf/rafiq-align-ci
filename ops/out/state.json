@@ -1,5 +1,5 @@
 {
- "generatedAt": "2026-11-20T01:57:34Z",
+ "generatedAt": "2026-11-20T11:12:18Z",
  "readErrors": {},
  "fetchedCount": 180,
  "readComplete": true,
@@ -957,20 +957,20 @@
    }
   },
   "warsh/noah_warsh": {
-   "entries": 6228,
+   "entries": 6230,
    "missingSurahs": [],
    "reasonCode": "TIMING_UNDER_REPAIR",
-   "transformOp": "declare_gap:5",
+   "transformOp": "ctc_gapsplit:5",
    "declaredReasons": {
     "unknown": 0,
     "source_truncated": 2,
-    "timing_under_repair": 6
+    "timing_under_repair": 4
    },
-   "declaredCount": 8,
+   "declaredCount": 6,
    "undeclaredCount": 0,
    "engine": "ctc-seg-1",
    "gapSurahs": {
-    "5": 6,
+    "5": 4,
     "54": 2
    }
   },
