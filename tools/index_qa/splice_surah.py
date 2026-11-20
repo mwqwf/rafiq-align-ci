@@ -443,12 +443,27 @@ def main() -> None:
     # (‏saad: إعادةُ س12 محت عذرَ 22 و28 و45 فردّ حارسُ البنية «غياباً غير معلَّل»).
     # والعذرُ لا يزيد بهذا: لا يتجاوز ما كان، ويُطرح منه كلُّ ما عاد.
     by = dict(miss.get("byReason") or {})
-    if by.get("source_truncated"):
-        parent_have = {e["ayahId"] for e in entries}
-        back = sum(1 for i in have if int(i.split(":")[0]) in surahs and i not in parent_have)
-        by["source_truncated"] = max(0, int(by["source_truncated"]) - back)
-        if not by["source_truncated"]:
-            by.pop("source_truncated")
+    # ⛔ (2026-11-20 · noah_warsh س5) العائدُ يُطرح من **سببِ إعلانه** لا من source_truncated دائماً:
+    #    آيةٌ معلَنةٌ في `transform.truncatedGaps[س]` بسبب timing_under_repair إذا عادت نقص ذلك العدّاد،
+    #    وكان طرحُها من source_truncated يمحو عذرَ سورةٍ أخرى (‏54:16-17) ويُبقي عدّادَ الإصلاح منتفخاً.
+    parent_have = {e["ayahId"] for e in entries}
+    back_ids = [i for i in have if int(i.split(":")[0]) in surahs and i not in parent_have]
+    _tr = out.get("transform") if isinstance(out.get("transform"), dict) else {}
+    _gaps = _tr.get("truncatedGaps") if isinstance(_tr.get("truncatedGaps"), dict) else {}
+    gap_reason = {}
+    for _k, _rec in _gaps.items():
+        if isinstance(_rec, dict) and _rec.get("reason") in ("source_truncated", "timing_under_repair"):
+            for _a in _rec.get("absent") or []:
+                gap_reason[f"{_k}:{_a}"] = _rec["reason"]
+    dec = {}
+    for i in back_ids:
+        r = gap_reason.get(i, "source_truncated")
+        dec[r] = dec.get(r, 0) + 1
+    for r, n in dec.items():
+        if by.get(r):
+            by[r] = max(0, int(by[r]) - n)
+            if not by[r]:
+                by.pop(r)
     # ⭐ الذيلُ المبتور يُسجَّل بسببه (أمر المالك 2026-10-02): آياتُ N+1..آخرها تُعدّ
     #    `source_truncated`، ولا تُترك الدلاءُ العامّةُ (unknown/no-align) تدّعي أكثرَ ممّا
     #    بقي غائباً خارج السورة المبتورة — فتُستنزف إلى ما يصفه الغيابُ فعلاً.
