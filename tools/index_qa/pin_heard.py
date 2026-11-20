@@ -478,6 +478,28 @@ def opener_letters_start(wits, surah, riwaya, hmap, want_sha, published_start, p
         if d is None:
             raise SystemExit(f"⛔ مطلعُ {surah}:1: الشاهد {run} — {why}")
         got[str(run)] = d
+    if published_start is None:
+        # ⭐ بلا خطّ أساسٍ منشور (‏سورةٌ غائبةٌ من الحيّ كلِّها · baseline=none): لا سقفَ منشورَ يُقاس به التمديد، فيُعوَّض بدليلٍ
+        #    **أشدّ** لا بأخفّ — كلُّ شاهدٍ يسمع كلمةً قبل مطلع الثانية (‏بعد البسملة)، والشاهدان يتّفقان على أبكرها ضمن
+        #    W_AGREE_MS، ومدّةُ الأولى بين OPENER_DUR_MIN_MS وOPENER_DUR_MAX_MS. ما لم يتحقّق ذلك رُدّت السورة.
+        early = {r: d["earliestMs"] for r, d in got.items()}
+        silent = sorted(r for r, v in early.items() if v is None)
+        if silent:
+            raise SystemExit(f"⛔ مطلعُ {surah}:1 بلا خطّ أساسٍ منشور: الشاهد {silent[0]} لم يسمع كلمةً قبل مطلع الثانية")
+        if max(early.values()) - min(early.values()) > W_AGREE_MS:
+            raise SystemExit(f"⛔ مطلعُ {surah}:1 بلا خطّ أساسٍ منشور: الشاهدان يختلفان في أبكر كلمةٍ {sorted(early.values())} "
+                             f"(>{W_AGREE_MS}م.ث)")
+        new = min(early.values())
+        if new < 0:
+            raise SystemExit(f"⛔ مطلعُ {surah}:1 يُمَدّ إلى {new} قبل بدء الملفّ")
+        if not new < int(pin2):
+            raise SystemExit(f"⛔ مطلعُ {surah}:1 عند {new} ليس قبل تثبيت الثانية {pin2}")
+        dur = int(pin2) - new
+        if not heard_gate.OPENER_DUR_MIN_MS <= dur <= heard_gate.OPENER_DUR_MAX_MS:
+            raise SystemExit(f"⛔ مطلعُ {surah}:1 بلا خطّ أساسٍ منشور: مدّتُه {dur}م.ث خارج "
+                             f"[{heard_gate.OPENER_DUR_MIN_MS}، {heard_gate.OPENER_DUR_MAX_MS}]")
+        return new, {"version": OPENER_VERSION, "baseline": "none", "publishedStartMs": None, "startMs": new,
+                     "ayah2PinMs": int(pin2), "maxExtendMs": None, "witnesses": got}
     cands = [int(published_start)] + [d["earliestMs"] for d in got.values() if d["earliestMs"] is not None]
     new = min(cands)
     if new < 0:
@@ -506,7 +528,7 @@ def expected_from_peers(own_durs, peer_med, skip=()):
 
 def pin(idx, surah, hmap, pins, trims=None, last_end=None, witness=None, ref_words=None,
         expected=None, evidence=None, witness_fuzzy=False, trim_witnesses=None, trim_evidence=None,
-        opener_witnesses=None, opener_evidence=None, disputed=None, own_text=None):
+        opener_witnesses=None, opener_evidence=None, disputed=None, own_text=None, opener_no_baseline=False):
     """يُعيد (فهرساً جديداً، تقريراً) أو يرفع SystemExit بالسبب.
 
     `disputed` (‏اختياريّ · تصحيحُ توصيلٍ لقاعدة #101 · 2026-11-10): دالّةٌ `(فهرسٌ_مرشّح، صفوف) ⇒ مجموعةُ الآيات` تحكم على
@@ -640,10 +662,13 @@ def pin(idx, surah, hmap, pins, trims=None, last_end=None, witness=None, ref_wor
         # ⭐ مطلعُ الحروف المقطّعة (‏`opener_letters_start`): الثانيةُ مثبَّتةٌ بالمسار المقيس، والأولى تُمَدّ إلى الوراء وحده.
         if 2 not in pins or 1 in pins or 1 not in new or order[0] != 1:
             raise SystemExit(f"⛔ مطلعُ الحروف: يلزمه تثبيتُ {surah}:2 وحدها ومدخلٌ لـ{surah}:1 غيرُ مثبَّت")
+        # ⭐ `opener_no_baseline` (‏سورةٌ غائبةٌ من الحيّ كلِّها): بدءُ الأولى في الأصل المرحليّ ليس منشوراً فلا يُقاس به شيء؛ يُمرَّر None
+        #    فيُطبَّق شرطُ «بلا خطّ أساس» الأشدّ، ويردّه الحارسُ إن وجد للسورة مدخلاً منشوراً (‏heard_gate.opener_letters_verdict).
         st1, ev1 = opener_letters_start(opener_witnesses, surah, idx.get("riwaya") or "hafs", hmap, want,
-                                        int(mine[1]["startMs"]), pins[2])
+                                        None if opener_no_baseline else int(mine[1]["startMs"]), pins[2])
         new[1]["startMs"], new[1]["endMs"] = st1, pins[2]
-        report.append(f"{surah}:1 بدؤها ⇐ {st1} (حدٌّ بلا قياسٍ للحروف {OPENER_VERSION}: المنشور {mine[1]['startMs']} · "
+        report.append(f"{surah}:1 بدؤها ⇐ {st1} (حدٌّ بلا قياسٍ للحروف {OPENER_VERSION}: "
+                      f"{'بلا خطّ أساسٍ منشور' if opener_no_baseline else 'المنشور ' + str(mine[1]['startMs'])} · "
                       f"أبكرُ كلمةٍ قبل مطلع الثانية · نهايتُها تثبيتُ الثانية {pins[2]} · شاهدان {sorted(ev1['witnesses'])})")
         if opener_evidence is not None:
             opener_evidence.update(ev1)
@@ -884,9 +909,14 @@ def main():
     ap.add_argument("--opener-runs", default="",
                     help="تشغيلتا whisper_witness (‏أو أكثر): مطلعُ الحروف المقطّعة — يُثبَّت 2 بـ--pin وتُمَدّ 1 إلى الوراء "
                          f"({OPENER_VERSION})")
+    ap.add_argument("--opener-no-baseline", action="store_true",
+                    help="مع --opener-runs وحدها: سورةٌ غائبةٌ من الحيّ كلِّها فلا بدءَ منشورَ للأولى — يُطبَّق شرطٌ أشدّ "
+                         "(‏كلُّ شاهدٍ يسمع كلمةً قبل مطلع الثانية · اتّفاقٌ ≤300م.ث · مدّةٌ 1–8ث) ويردّه الحارسُ إن كانت السورةُ منشورة")
     ap.add_argument("--reason", required=True)
     ap.add_argument("--yes", action="store_true")
     a = ap.parse_args()
+    if a.opener_no_baseline and not a.opener_runs:
+        raise SystemExit("⛔ --opener-no-baseline لا يعمل إلا مع --opener-runs")
     if a.witness_fuzzy and not a.witness_run:
         raise SystemExit("⛔ --witness-fuzzy لا يعمل إلا مع --witness-run")
     import promote
@@ -953,7 +983,8 @@ def main():
                                a.last_end, witness=wit, ref_words=ref, expected=expected,
                                evidence=evidence, witness_fuzzy=a.witness_fuzzy,
                                trim_witnesses=twits, trim_evidence=tev,
-                               opener_witnesses=owits, opener_evidence=oev, disputed=dcheck, own_text=xcheck)
+                               opener_witnesses=owits, opener_evidence=oev, disputed=dcheck, own_text=xcheck,
+                               opener_no_baseline=a.opener_no_baseline)
     out["transform"] = {
         **({"truncatedTail": idx["transform"]["truncatedTail"]}
            if isinstance(idx.get("transform"), dict) and idx["transform"].get("truncatedTail") else {}),
