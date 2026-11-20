@@ -353,11 +353,30 @@ def opener_letters_verdict(s, ayah, cand_s, pub_s, rows, g_map, want, cand_idx, 
             return False, f"دليلُ الشاهد {r} المكتوب لا يطابق المحسوبَ من مصدره"
         got[str(r)] = d
     pub1 = (pub_s or {}).get(1)
-    if not pub1:
-        return False, "لا بدءَ منشورَ للآية الأولى يُقاس به التمديد"
-    pub_start = int(pub1[0])
-    cands = [pub_start] + [d["earliestMs"] for d in got.values() if d["earliestMs"] is not None]
-    new = min(cands)
+    # ⭐ بلا خطّ أساسٍ منشور — **لا يُقبل إلا حين تكون السورةُ غائبةً من المنشور كلِّها** (‏`pub_s` فارغ: يُقاس من الحيّ لا من المكتوب)
+    #    وبادّعاءٍ صريحٍ `baseline=none` في الدليل؛ وإلا (‏للسورة مدخلٌ منشور) بقي الحكمُ القديمُ حرفاً، ويُردّ ادّعاءُ «بلا خطّ أساس».
+    #    والشرطُ أشدّ لا أخفّ: كلُّ شاهدٍ يسمع كلمةً قبل مطلع الثانية · اتّفاقُ الشاهدين على أبكرها ≤ W_AGREE_MS · مدّةٌ ضمن الحدّين.
+    no_base_claim = oev.get("baseline") == "none"
+    if pub_s:
+        if no_base_claim:
+            return False, "الدليلُ يدّعي «بلا خطّ أساسٍ منشور» والسورةُ لها مداخلُ منشورة — يُردّ الادّعاء"
+        if not pub1:
+            return False, "لا بدءَ منشورَ للآية الأولى يُقاس به التمديد"
+        pub_start = int(pub1[0])
+        cands = [pub_start] + [d["earliestMs"] for d in got.values() if d["earliestMs"] is not None]
+        new = min(cands)
+    else:
+        if not no_base_claim or oev.get("publishedStartMs") is not None:
+            return False, ("لا بدءَ منشورَ للآية الأولى يُقاس به التمديد، والدليلُ لا يدّعي «بلا خطّ أساسٍ منشور» "
+                           "(‏السورةُ غائبةٌ من المنشور كلِّها)")
+        silent = sorted(r for r, d in got.items() if d["earliestMs"] is None)
+        if silent:
+            return False, f"بلا خطّ أساسٍ منشور: الشاهد {silent[0]} لم يسمع كلمةً قبل مطلع الثانية"
+        early = [d["earliestMs"] for d in got.values()]
+        if max(early) - min(early) > PH.W_AGREE_MS:
+            return False, f"بلا خطّ أساسٍ منشور: الشاهدان يختلفان في أبكر كلمةٍ {sorted(early)} (>{PH.W_AGREE_MS}م.ث)"
+        pub_start = None
+        new = min(early)
     if st1 != new:
         return False, f"بدءُ الآية الأولى {st1} ليس أبكرَ بدءٍ مشهود ({new})"
     for r in sorted(written):
@@ -366,7 +385,7 @@ def opener_letters_verdict(s, ayah, cand_s, pub_s, rows, g_map, want, cand_idx, 
             return False, f"بدءُ الآية الأولى {st1} داخل البسملة المسموعة في الشاهد {r} («{inside[0]}» حتى {inside[2]})"
     if st1 < 0:
         return False, f"بدءُ الآية الأولى {st1} قبل بدء الملفّ"
-    if pub_start - st1 > PH.OPENER_MAX_EXTEND_MS:
+    if pub_start is not None and pub_start - st1 > PH.OPENER_MAX_EXTEND_MS:
         return False, f"تمديدُ بدء الآية الأولى {pub_start - st1}م.ث (>{PH.OPENER_MAX_EXTEND_MS}م.ث)"
     if end1 is None or int(end1) != st2:
         return False, f"نهايةُ الآية الأولى {end1} ليست بدءَ الثانية {st2}"
