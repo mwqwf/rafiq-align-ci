@@ -198,10 +198,12 @@ def weak_plan(cand_ends: dict, pub_ends, cmap: dict) -> list[int]:
 
 
 def weak_verdict(s: int, cand_s: dict, pub_s, rows: list[dict], g_map: dict, wit, want: str, riwaya,
-                 ref_words=None, cand_idx=None, sources=None):
+                 ref_words=None, cand_idx=None, sources=None, wit_l=None, lv3_text=None):
     """(سببُ الردّ أو None، دليل) لقاعدة المِرساة الضعيفة في سورةٍ معدّلة. الشاهدُ يُعاد حكمُه هنا ولا يُقرأ حكمٌ مكتوب.
     `cand_idx`/`sources` اختياريّان: بهما يُعرض مطلعُ الحروف المقطّعة على `opener_letters_verdict` للآية الأولى وحدها،
-    وبدونهما (‏أو بلا `transform.openerLetters` للسورة) يبقى السلوكُ القديمُ حرفاً."""
+    وبدونهما (‏أو بلا `transform.openerLetters` للسورة) يبقى السلوكُ القديمُ حرفاً.
+    `wit_l` اختياريّ: شاهدُ large-v3 للسورة (‏`large_v3_weak`)؛ وبدونه يبقى السلوكُ القديمُ حرفاً.
+    `lv3_text` للاختبار وحده: (‏نصُّ الآية مطبَّعاً (س، آ) ⇐ كلمات، الآياتُ التي فيها ثلاثيّةٌ ⇐ {(س، آ)})."""
     weak = weak_touched(cand_s, pub_s, rows)
     ev = {"version": WEAK_VERSION, "weak": weak, "witnessed": [], "missing": [], "witnessInvalid": None}
     if not weak:
@@ -213,6 +215,14 @@ def weak_verdict(s: int, cand_s: dict, pub_s, rows: list[dict], g_map: dict, wit
     miss = [a for a in weak if a not in ok]
     ev.update({"witnessed": ok, "missing": miss, "witnessInvalid": bad,
                "detail": {str(a): (res[a][1] or "")[:200] for a in weak if a in res}})
+    # ⭐ (‏heard-weak-lv3-1 · قرار القائد 2026-11-20) ما لم يشهد له medium يُعرض على large-v3 بشرط أنّ medium «لا يناقض».
+    #    بلا شاهد large-v3 (‏`wit_l=None`) لا يُستدعى شيء ويبقى السلوكُ القديمُ حرفاً (‏ولا يُضاف حقلٌ إلى الدليل).
+    if miss and wit_l:
+        acc, ev_l = large_v3_weak(s, cand_s, miss, g_map, wit, wit_l, want, riwaya, ref_words, lv3_text)
+        ev[LV3_KEY] = acc
+        ev["largeV3"] = ev_l
+        miss = [a for a in miss if a not in acc]
+        ev["missing"] = miss
     opener_why = None
     if 1 in miss and cand_idx is not None and opener_claim(cand_idx, s) is not None:
         good, info = opener_letters_verdict(s, 1, cand_s, pub_s, rows, g_map, want, cand_idx, sources, riwaya)
@@ -227,6 +237,119 @@ def weak_verdict(s: int, cand_s: dict, pub_s, rows: list[dict], g_map: dict, wit
     return (f"{len(miss)} آيةً مسّها التحويل ومرساتُها دون {MIN_Q} بلا شاهد Whisper يشهد لنصّها في موضعها "
             f"(الآيات {','.join(str(a) for a in miss[:30])})" + (f" — {bad}" if bad and not res else "")
             + (f" · مطلعُ الحروف {s}:1 مردود: {opener_why}" if opener_why else "")), ev
+
+
+# ───────────── شاهدُ large-v3 للمرساة الضعيفة (‏heard-weak-lv3-1 · قرار القائد 2026-11-20) ─────────────
+# ⭐ نصُّ القاعدة كما أُقرّت: «يُقبل شاهدُ المرساة الضعيفة إذا شهد medium كما اليوم، **أو** شهد large-v3 بالنصّ ضمن 300م.ث
+#    وكان medium "لا يناقض"، أي لا يسمع آيةً أخرى؛ والصمتُ أو النصُّ الناقص ليس مناقضة».
+#    سندُها `docs/qa/WITNESS_CALIBRATION_2026-11.md`: على 428 حالةً سلبيّة (‏آيةٌ بصوت جارتها · بدءٌ مُزاح ±2..5ث · مطلعٌ مشتركٌ
+#    من سورةٍ أخرى) قبولُها الكاذب 0/428، وتضيف 6 موجباتٍ إلى 11 لـmedium. والشروطُ مجتمعةً (‏كلُّها يُعاد حسابُها هنا):
+#    ١) شاهدُ large-v3 float32 للصوت نفسِه يجتاز `_witness_eval` كما هو: الطرفان · الثقة · وبدءٌ ≤ `W_AGREE_MS` (‏300م.ث) من
+#       **بدء المرشّح** — فلا يُرخى الحدُّ الحاملُ ولا غيرُه؛
+#    ٢) وشاهدُ medium (‏نموذجٌ آخر هو الشاهدُ المستقلّ — فتشغيلتا large-v3 متطابقتان بحتميّة الفكّ) صالحٌ للصوت نفسِه
+#       (‏`check_witness`) **وله تفريغٌ لهذه الآية**؛ فإن غاب فلا قبولَ بهذا المسار؛
+#    ٣) وmedium لا يناقض: لا يسمع **داخل حدود الآية المدّعاة** [بدء، نهاية] W_K كلماتٍ متّصلةً هي ثلاثيّةٌ من نصّ آيةٍ أخرى
+#       مسمّاةٍ بعينها في مصحف الرواية ولا ترد في نصّ الآية نفسِها، **بالثقة نفسِها** (‏`_span_ok` باب المتنازَع)، وبتطبيع
+#       باب المتنازَع نفسِه (‏`disputed_norm_words` على الطرفين). فهذا معنى «يسمع نصَّ آيةٍ أخرى» هناك؛ والصمتُ أو النصُّ
+#       الناقص ليس مناقضة.
+#    ⛔ لا عتبةَ تتغيّر ولا مسارٌ قائمٌ يُرخى، ولا يُقرأ حكمٌ مكتوب: الشاهدان يُحفظان في state-heard (‏`witness` و`witnessL`).
+#    والمقبولُ يُسجَّل باسمه في الدليل (‏`weakWitnessLargeV3`) ليُعاد فحصُه إن ظهر بلاغ.
+LV3_VERSION = "heard-weak-lv3-1"
+LV3_KEY = "weakWitnessLargeV3"
+LV3_MODEL = "large-v3"
+LV3_INDEPENDENT_MODEL = "medium"
+_MUSHAF_GRAMS: dict = {}
+
+
+def mushaf_grams(riwaya) -> dict:
+    """{ثلاثيّةٌ (‏W_K كلمات بتطبيع باب المتنازَع): {(سورة، آية)}} لمصحف الرواية كلِّه من النصّ الموثَّق في المستودع."""
+    riwaya = riwaya or "hafs"
+    if riwaya not in _MUSHAF_GRAMS:
+        import pin_heard as PH  # noqa: PLC0415
+        sys.path.insert(0, str(PH._REPO_ROOT / "tools" / "alignment"))
+        from common import load_index, load_text, surah_slice  # noqa: PLC0415
+        idx, txt, k, g = load_index(), load_text(riwaya), PH.W_K, {}
+        for s in range(1, 115):
+            st, _e, info = surah_slice(idx, s)
+            for a in range(1, int(info["ayahs"]) + 1):
+                w = disputed_norm_words(txt[st + a - 1])
+                for i in range(len(w) - k + 1):
+                    g.setdefault(tuple(w[i:i + k]), set()).add((s, a))
+        _MUSHAF_GRAMS[riwaya] = g
+    return _MUSHAF_GRAMS[riwaya]
+
+
+def medium_contradiction(rec, surah, ayah, lo, hi, own, grams_of):
+    """نصُّ المناقضة إن سمع تفريغُ medium (‏`rec` نافذةُ الآية) داخل [lo، hi] W_K كلماتٍ متّصلةً من آيةٍ أخرى مسمّاة
+    لا ترد في نصّ الآية `own`، بالثقة نفسِها وبلا التصاقٍ بطرف النافذة (‏`_span_ok`)؛ وإلا None (‏ومنه الصمتُ والنصُّ الناقص)."""
+    import pin_heard as PH  # noqa: PLC0415
+    k = PH.W_K
+    win = rec.get("windowMs") or [None, None]
+    tk = [x for x in _wtoks(rec) if x[1] >= int(lo) and x[2] <= int(hi)]
+    own_g = {tuple(own[i:i + k]) for i in range(len(own) - k + 1)}
+    for i in range(len(tk) - k + 1):
+        span = tk[i:i + k]
+        g = tuple(x[0] for x in span)
+        if g in own_g:
+            continue
+        others = sorted(x for x in (grams_of(g) or ()) if tuple(x) != (int(surah), int(ayah)))
+        if not others or _span_ok(span, win):
+            continue
+        return f"medium يسمع «{' '.join(g)}» عند {span[0][1]} من {others[0][0]}:{others[0][1]}"
+    return None
+
+
+def large_v3_weak(s, cand_s, miss, g_map, wit_m, wit_l, want, riwaya, ref_words=None, lv3_text=None):
+    """(المقبولُ بشاهد large-v3، الدليل) لآياتٍ ممسوسةٍ ضعيفةِ المرساة لم يشهد لها medium. الشروطُ في الترويسة أعلاه."""
+    import pin_heard as PH  # noqa: PLC0415
+    ev = {"version": LV3_VERSION, "accepted": [], "refused": {}, "invalid": None, "detail": {}}
+    if not isinstance(wit_l, dict) or wit_l.get("model") != LV3_MODEL:
+        ev["invalid"] = f"شاهدُ المسار ليس {LV3_MODEL} (وجد {(wit_l or {}).get('model') if isinstance(wit_l, dict) else '؟'})"
+        return [], ev
+    medium_ok = isinstance(wit_m, dict) and wit_m.get("model") == LV3_INDEPENDENT_MODEL
+    if medium_ok:
+        try:
+            PH.check_witness(wit_m, s, g_map, want)
+        except SystemExit as e:
+            medium_ok, ev["invalid"] = False, f"شاهدُ medium غيرُ صالح: {e}"
+    if not medium_ok:
+        ev["invalid"] = ev["invalid"] or "لا شاهدَ medium مستقلّ — لا قبولَ بـlarge-v3 وحده"
+        return [], ev
+    res, bad = _witness_eval(wit_l, s, g_map, want, riwaya, {a: v[0] for a, v in cand_s.items()}, miss, ref_words)
+    if bad:
+        ev["invalid"] = f"شاهدُ large-v3 غيرُ صالح: {bad}"
+        return [], ev
+    if lv3_text is not None:
+        dref, grams_of = lv3_text
+    else:
+        dref = lambda ss, a: disputed_ref_words(riwaya or "hafs", ss, a)  # noqa: E731
+        try:
+            grams_of = mushaf_grams(riwaya).get
+        except (SystemExit, Exception) as e:             # noqa: BLE001  (‏بلا مصحفٍ يُحكم به لا قبول — يُغلق ولا يُفتح)
+            ev["invalid"] = f"تعذّر نصُّ مصحف الرواية لفحص المناقضة: {str(e)[:150]}"
+            return [], ev
+    for a in miss:
+        good, info = res.get(a) or (False, "لا حكم")
+        if not good:
+            ev["refused"][str(a)] = ("large-v3: " + (info or ""))[:200]
+            continue
+        rec_m = (wit_m.get("ayahs") or {}).get(str(a))
+        if not isinstance(rec_m, dict):
+            ev["refused"][str(a)] = "لا تفريغَ medium لهذه الآية — لا قبولَ بـlarge-v3 وحده"
+            continue
+        lo, hi = cand_s[a][0], cand_s[a][1]
+        try:
+            own = dref(s, a)
+        except (SystemExit, Exception) as e:             # noqa: BLE001
+            ev["refused"][str(a)] = f"تعذّر نصُّ الآية: {str(e)[:150]}"
+            continue
+        contra = medium_contradiction(rec_m, s, a, lo, hi, own, grams_of)
+        if contra:
+            ev["refused"][str(a)] = f"medium يناقض: {contra}"[:200]
+            continue
+        ev["accepted"].append(a)
+        ev["detail"][str(a)] = (info or "")[:200]
+    return list(ev["accepted"]), ev
 
 
 # ───────────── مطلعُ الحروف المقطّعة: مِرساةٌ ضعيفةٌ للآية الأولى وحدها (‏قرار القائد 2026-11-10) ─────────────
@@ -1498,7 +1621,8 @@ def witnessed_absent_verdict(s, g_map, want, cand_idx, ref_words=None, n_ayahs=N
 
 def judge(cand_idx: dict, pub_idx: dict | None, cand_sha: str, maps: dict,
           maps_r: dict | None = None, witness: dict | None = None,
-          dual: dict | None = None, ref_words=None, disputed_src: dict | None = None) -> dict:
+          dual: dict | None = None, ref_words=None, disputed_src: dict | None = None,
+          witness_l: dict | None = None, lv3_text=None) -> dict:
     """حكمُ البوّابة كاملاً من المرشّح والمنشور والخرائط ({سورة: compact_map}).
     يُرجع {"ok": bool, "reason": str|None, "required": [...], "modified": [...], "sample": [...],
             "surahs": {س: {"reason":..., "rows":[...]}}, "dual": {س: دليل}}.
@@ -1577,8 +1701,10 @@ def judge(cand_idx: dict, pub_idx: dict | None, cand_sha: str, maps: dict,
         why = " · ".join(x for x in (surah_verdict(rows), why_d, why_o, why_a) if x) or None
         if s in modified:
             wt = (witness or {}).get(s) or (witness or {}).get(str(s))
+            wl = (witness_l or {}).get(s) or (witness_l or {}).get(str(s))
             why_w, ev_w = weak_verdict(s, cs[s], ps.get(s), rows, m, wt, want, cand_idx.get("riwaya"), ref_words,
-                                       cand_idx=cand_idx, sources=(disputed_src or {}).get(str(s)))
+                                       cand_idx=cand_idx, sources=(disputed_src or {}).get(str(s)),
+                                       wit_l=wl, lv3_text=lv3_text)
             out["weak"][str(s)] = ev_w
             why = " · ".join(x for x in (why, why_w) if x) or None
         out["surahs"][str(s)] = {"reason": why, "rows": rows}
@@ -1598,9 +1724,10 @@ def gate_error(cand_idx: dict, pub_idx: dict | None, cand_sha: str, rep: dict | 
     maps = {int(k): v for k, v in (rep.get("maps") or {}).items()}
     maps_r = {int(k): v for k, v in (rep.get("mapsR") or {}).items()}
     wit = {int(k): v for k, v in (rep.get("witness") or {}).items()}
+    wit_l = {int(k): v for k, v in (rep.get("witnessL") or {}).items()} if isinstance(rep.get("witnessL"), dict) else {}
     dsrc = rep.get("disputedSource") if isinstance(rep.get("disputedSource"), dict) else {}
     try:
-        j = judge(cand_idx, pub_idx, cand_sha, maps, maps_r, wit, disputed_src=dsrc)
+        j = judge(cand_idx, pub_idx, cand_sha, maps, maps_r, wit, disputed_src=dsrc, witness_l=wit_l)
     except ValueError as e:                      # heard_dual.txt معطوبٌ ⇒ يُغلق الحكم ولا يُفتح
         return f"بوّابةُ السماع: قائمةُ heard_dual.txt معطوبة — {e}"
     if not j["required"]:
