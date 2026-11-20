@@ -14,6 +14,10 @@ run-name: heard-gate ${{ inputs.only }}
 # ⛔ **قاعدةُ المِرساة الضعيفة (‏تشديد 2026-11-10 · `heard_gate.weak_verdict`):** في كلّ سورةٍ معدّلة، الآيةُ التي تخالف حدودُها
 #    المنشورَ ومرساتُها دون 0.5 تردّ المرشّح إلا بشاهد Whisper لنصّها في موضعها. فبعد خريطة السورة يُحسب ما يلزمه شاهدٌ
 #    (‏`heard_weak_windows.py`) ويُشغَّل `whisper_witness.py` medium float32 عليه وحده، ويُحفظ الشاهدُ في state-heard.
+# ⭐ **شاهدُ large-v3 (‏heard-weak-lv3-1 · قرار القائد 2026-11-20 · `heard_gate.large_v3_weak`):** بعد شاهد medium يُشغَّل
+#    `whisper_witness.py` large-v3 float32 على **الآيات نفسِها** ويُحفظ بجواره (‏`witnessL` في state-heard)؛ ويعيد
+#    `promote.heard_gate` الحكمَ منهما معاً: يُقبل ما شهد له medium كما كان، أو ما شهد له large-v3 ضمن 300م.ث وmedium لا يناقضه.
+#    سندُه `docs/qa/WITNESS_CALIBRATION_2026-11.md` (‏قبولٌ كاذب 0/428). ولا يُمسّ شاهدُ medium ولا مسارُه.
 # 💰 مستودعٌ عامّ + عدّاد ubuntu-latest القياسيّ ⇒ دقائقُ مجّانيّة.
 on:
   workflow_dispatch:
@@ -46,7 +50,7 @@ jobs:
         with: {python-version: "${{ env.PY }}"}
       - run: python -m pip install --quiet boto3==1.43.123
       - name: الاختبارات أوّلاً
-        run: python -m unittest tools/index_qa/test_heard_gate.py tools/index_qa/test_heard_dual.py tools/index_qa/test_heard_weak.py
+        run: python -m unittest tools/index_qa/test_heard_gate.py tools/index_qa/test_heard_dual.py tools/index_qa/test_heard_weak.py tools/index_qa/test_heard_weak_lv3.py
       - name: اعتماد R2
         env: {R2_CREDENTIALS_JSON: "${{ secrets.R2_CREDENTIALS_JSON }}"}
         run: mkdir -p secure && printf '%s' "$R2_CREDENTIALS_JSON" > secure/r2_credentials.json
@@ -177,6 +181,12 @@ jobs:
         with:
           path: .hf
           key: whisper-witness-medium-fw111-v1
+      - name: كاشُ Whisper large-v3 لقاعدة المِرساة الضعيفة (‏استعادةٌ فقط — لا حفظَ جديد · مفتاحُ whisper_witness.yml)
+        if: ${{ steps.need.outputs.weak == 'true' && steps.need.outputs.dual != 'true' }}
+        uses: actions/cache/restore@v4
+        with:
+          path: .hf
+          key: whisper-witness-large-v3-fw111-v1
       - name: خرائطُ السماع (float32 · بلا رفع)
         env: {K: "${{ matrix.k }}"}
         run: |
@@ -210,10 +220,15 @@ jobs:
                   python tools/index_qa/whisper_witness.py --url "$u" --surah "$s" --riwaya "$RIW" --ayahs "$WW" \
                     --model medium --out "$d/w" < /dev/null > "$d/w/err_$s.txt" 2>&1 \
                     && echo "✓ س$s شاهد" || { echo "⚠️ س$s شاهدُ Whisper أخفق — يُحكم بلا شاهد (‏الممسوسةُ الضعيفةُ تُردّ)"; tail -5 "$d/w/err_$s.txt"; }
+                  # ⭐ (‏heard-weak-lv3-1) شاهدُ large-v3 على الآيات نفسِها في مجلّدٍ مستقلّ؛ إخفاقُه لا يمسّ شاهدَ medium (‏يُحكم بمساره القديم)
+                  mkdir -p "$d/wl"
+                  python tools/index_qa/whisper_witness.py --url "$u" --surah "$s" --riwaya "$RIW" --ayahs "$WW" \
+                    --model large-v3 --out "$d/wl" < /dev/null > "$d/wl/err_$s.txt" 2>&1 \
+                    && echo "✓ س$s شاهد large-v3" || { echo "⚠️ س$s شاهدُ large-v3 أخفق — يُحكم بـmedium وحده"; tail -5 "$d/wl/err_$s.txt"; }
                 fi
               fi
             fi
-            rm -f "$d"/*.mp3 "$d"/*.wav "$d"/q/*.mp3 "$d"/w/*.mp3
+            rm -f "$d"/*.mp3 "$d"/*.wav "$d"/q/*.mp3 "$d"/w/*.mp3 "$d"/wl/*.mp3
           done
       - uses: actions/upload-artifact@v4
         if: always()
@@ -244,7 +259,7 @@ jobs:
       - name: الحكمُ والكتابةُ في state-heard/
         env: {ONLY: "${{ inputs.only }}", RUN: "${{ github.run_id }}", GH_TOKEN: "${{ github.token }}"}
         run: |
-          python -m unittest tools/index_qa/test_heard_gate.py tools/index_qa/test_heard_dual.py tools/index_qa/test_heard_weak.py tools/index_qa/test_heard_disputed.py tools/index_qa/test_heard_owntext.py
+          python -m unittest tools/index_qa/test_heard_gate.py tools/index_qa/test_heard_dual.py tools/index_qa/test_heard_weak.py tools/index_qa/test_heard_weak_lv3.py tools/index_qa/test_heard_disputed.py tools/index_qa/test_heard_owntext.py
           set -o pipefail
           python - <<'PY' | tee judge.log
           import glob, gzip, hashlib, json, os, sys, time, boto3
@@ -272,6 +287,10 @@ jobs:
               for p in glob.glob(f"shards/{src.replace('/', '_')}/w/whisper_s*.json"):
                   w = json.load(open(p, encoding="utf-8"))
                   wit[int(w["surah"])] = w
+              wit_l = {}                     # ⭐ (‏heard-weak-lv3-1) شاهدُ large-v3 بجوار شاهد medium
+              for p in glob.glob(f"shards/{src.replace('/', '_')}/wl/whisper_s*.json"):
+                  w = json.load(open(p, encoding="utf-8"))
+                  wit_l[int(w["surah"])] = w
               if not maps:
                   # (2026-10-23) لم تُقَس شرائحُ لهذا المرشّح لأنّ حكمَه المحفوظَ تمرّ به الترقيةُ (‏انظر خطوة الخطّة): يُعاد حكمُه
                   #    من المحفوظ بـ`gate_error` نفسِها ولا يُكتب شيء. وغيرُ ذلك يكمل المسارَ القديم (‏حكمٌ بلا خرائطَ يُكتب ويُردّ).
@@ -287,7 +306,7 @@ jobs:
                       pass
               # ⛔ (‏#101) شواهدُ المراسي المتنازَع عليها تُحمَّل من مصدرها (‏مخرَج تشغيلة whisper_witness) لا من المرشّح
               dsrc = H.disputed_sources(idx)
-              j = H.judge(idx, pub, sha, maps, maps_r, wit, disputed_src=dsrc)
+              j = H.judge(idx, pub, sha, maps, maps_r, wit, disputed_src=dsrc, witness_l=wit_l)
               rep = {"sha256": sha, "src": src, "version": H.VERSION, "run": os.environ["RUN"],
                      "ts": int(time.time()), "ok": j["ok"], "reason": j["reason"],
                      "modified": j["modified"], "sample": j["sample"], "sampleFindings": j["sampleFindings"],
@@ -310,6 +329,9 @@ jobs:
                   rep.update({"mapsR": {str(k): v for k, v in maps_r.items()},
                               "witness": {str(k): v for k, v in wit.items()},
                               "dual": j["dual"], "dualVersion": H.DUAL_VERSION})
+              if wit_l:                        # ⭐ يُحفظ ويُعاد منه الحكمُ في `gate_error` (‏لا يُقرأ حكمٌ مكتوب)
+                  rep["witnessL"] = {str(k): v for k, v in wit_l.items()}
+                  rep["weakLargeV3Version"] = H.LV3_VERSION
               # (2026-10-23) حكمٌ بلا خرائط (‏لم تُقَس شرائح) لا يمحو المحفوظَ الذي فيه خرائطُ على البصمة نفسِها — يُحكم عليه كما هو.
               keep_old = False
               if not maps:
@@ -334,6 +356,9 @@ jobs:
               for k, v in sorted((j.get("weak") or {}).items(), key=lambda x: int(x[0])):
                   if v.get("weak"):
                       print(f"   ⛔ مراسٍ ضعيفةٌ ممسوسة س{k}: {v['weak'][:30]} · شُهد لها {v.get('witnessed', [])[:30]} · بلا شاهد {v.get('missing', [])[:30]}")
+                  if v.get(H.LV3_KEY) is not None:
+                      print(f"   ⚖️ شاهدُ large-v3 س{k}: قُبل {v[H.LV3_KEY][:30] or '—'} · رُدّ {sorted((v.get('largeV3') or {}).get('refused', {}), key=int)[:30] or '—'}"
+                            f"{' · ' + v['largeV3']['invalid'] if (v.get('largeV3') or {}).get('invalid') else ''} ({H.LV3_VERSION})")
               for k, v in sorted((j.get("disputed") or {}).items(), key=lambda x: int(x[0])):
                   acc = ", ".join(f"{k}:{a}←{k}:{d['otherAyah']}" for a, d in sorted(v["accepted"].items(), key=lambda x: int(x[0])))
                   print(f"   ⚖️ مراسٍ متنازَعٌ عليها س{k}: قُبل {len(v['accepted'])}/{v.get('nAyahs')} ({acc or '—'})"
