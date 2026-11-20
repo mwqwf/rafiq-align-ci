@@ -5,8 +5,11 @@
 ① `splice_surah`: استرجاعُ آيتين معلَنتين بسبب timing_under_repair يُنقص ذلك العدّادَ وحده،
    ويبقى source_truncated لسورةٍ أخرى (‏54:16-17) كما هو.
 ② العائدُ غيرُ المعلَن في truncatedGaps يُطرح من source_truncated كما كان (‏لا تغيير في السلوك القديم).
-③ `promote.gap_reason_count_error` يردّ عدّاداً لا يطابق الإعلان (‏زيادةً أو نقصاً) ويقبل المتطابق.
+③ `promote.gap_reason_count_error` (‏تشخيصٌ مطلق) يردّ عدّاداً لا يطابق الإعلان ويقبل المتطابق.
+④ الحارسُ في index_gate وstage_transform هو `gap_reason_shift_error` المقارِنُ بالأصل: يردّ مرشّح noah
+   البعطوب (‏6 بعد عودة اثنتين من 6) ويقبل المصلَح (‏4)، ولا يردّ فهرساً حيّاً بعدّادٍ تاريخيّ لم يتغيّر.
 """
+import copy
 import gzip
 import json
 import subprocess
@@ -108,10 +111,48 @@ class Guard(unittest.TestCase):
                "transform": {"truncatedGaps": {"5": {"absent": [12, 48, 72, 117], "reason": "source_truncated"}}}}
         self.assertIsNone(promote.gap_reason_count_error(idx))
 
-    def test_index_gate_calls_it(self):
+    def test_index_gate_calls_shift_guard(self):
         src = (HERE / "promote.py").read_text(encoding="utf-8")
         body = src[src.index("def index_gate"):]
-        self.assertIn("gap_reason_count_error(idx)", body[:4000])
+        self.assertIn("gap_reason_shift_error(idx, parent)", body[:4000])
+        st = (HERE / "stage_transform.py").read_text(encoding="utf-8")
+        self.assertIn("promote.gap_reason_shift_error(idx, pidx)", st)
+
+
+def _p(tur, gaps5, ents5, st=2):
+    tg = {"5": {"absent": gaps5, "reason": "timing_under_repair"}} if gaps5 else {}
+    return {"entries": [{"ayahId": f"5:{a}"} for a in ents5],
+            "missing": {"byReason": {"timing_under_repair": tur, "source_truncated": st}},
+            "transform": {"truncatedGaps": tg}}
+
+
+ALL = list(range(1, 121))
+
+
+class Shift(unittest.TestCase):
+    P = _p(6, GAPS5, [a for a in ALL if a not in GAPS5])
+    BACK = [a for a in ALL if a not in (12, 48, 72, 117)]
+
+    def test_buggy_noah_refused(self):                 # d643f291: عادت 20 و36 وبقي العدّاد 6
+        self.assertIn("timing_under_repair", promote.gap_reason_shift_error(_p(6, [12, 48, 72, 117], self.BACK, 0), self.P))
+
+    def test_fixed_noah_passes(self):                  # 0b6818fc
+        self.assertIsNone(promote.gap_reason_shift_error(_p(4, [12, 48, 72, 117], self.BACK), self.P))
+
+    def test_no_parent_no_verdict(self):
+        self.assertIsNone(promote.gap_reason_shift_error(_p(6, [], self.BACK), None))
+
+    def test_historic_inflated_counter_unchanged_passes(self):   # harraz: 190 وغائباتٌ 4 بلا عودة
+        par = _p(190, [], [a for a in ALL if a not in (1, 2, 3, 4)])
+        self.assertIsNone(promote.gap_reason_shift_error(copy.deepcopy(par), par))
+
+    def test_new_missing_allows_increase(self):
+        cand = _p(5, [12, 48, 72, 117], [a for a in self.BACK if a != 50])
+        self.assertIsNone(promote.gap_reason_shift_error(cand, self.P))
+
+    def test_live_reciters_not_blocked_by_absolute_rule(self):
+        par = {"entries": [], "missing": {"byReason": {"timing_under_repair": 135}}, "transform": {}}
+        self.assertIsNone(promote.gap_reason_shift_error(copy.deepcopy(par), par))
 
 
 if __name__ == "__main__":

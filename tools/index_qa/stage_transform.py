@@ -682,6 +682,9 @@ def main():
     # ⭐ الحذفُ قبل الحارس: المرشّحُ الخارجُ من الدمج (‏ctc_gapsplit) يحمل ترويسةَ الأصل بإعلانها كاملاً، فلو بلغ index_gate
     #    وفيه آيةٌ استُرجعت ردّه حارسُ «إعلانٌ يشمل حاضرة» (‏التشغيلة 44688704348). والحارسُ نفسُه لم يُرخَ.
     prune_recovered_gaps(idx)
+    _shift = promote.gap_reason_shift_error(idx, pidx)
+    if _shift:
+        raise SystemExit(_shift)
     for check, name in ((promote.index_gate(idx, parent=_dp, parent_sha=_dps, owner_approved=_own,
                                             coded_approved=_inh, chain_fetch=_fetch), "البنية"),
                         (promote.catalog_gate(idx, promote.catalog(cl, bucket)),
