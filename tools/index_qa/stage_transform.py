@@ -293,6 +293,61 @@ def published_owner_approved(live, live_sha, approvals=None):
     return frozenset(s for s in (approvals.get(key) or ()) if s in old)
 
 
+def prune_recovered_gaps(out):
+    """يحذف من إعلان الحجب الوسطيّ الموروث كلَّ آيةٍ صار لها مدخلٌ في المخرَج (‏استُرجعت)، وإعلانَ السورة كلَّه إن فرغ.
+
+    التحويلُ يرث `truncatedGaps` من ترويسة الأصل حرفاً، فإن استرجع `ctc_gapsplit` آيةً بقيت معلَنةً غائبةً وهي حاضرة.
+    يُحذف من `absent` وأدلّتِه (‏`evidence`) ومن ادّعاء `witnessedAbsent` ما استُرجع **وحده**؛ وما بقي غائباً يبقى بأدلّته ورموزه
+    حرفاً. وإن فرغت السورةُ سقط سجلُّها وسجلُّها في `declarations` ومقطعُ `declare_gap` لها في `op`، و`gapAyahs` يُنقَص بعدد المسترجَع.
+    تُرجع {سورة: [الآيات المحذوفة]}."""
+    tr = out.get("transform")
+    gaps = tr.get("truncatedGaps") if isinstance(tr, dict) else None
+    if not isinstance(gaps, dict) or not gaps:
+        return {}
+    have = {str(e.get("ayahId")) for e in (out.get("entries") or []) if isinstance(e, dict)}
+    removed, emptied = {}, set()
+    for k in sorted(gaps, key=lambda x: int(x)):
+        rec = gaps[k]
+        if not isinstance(rec, dict) or not isinstance(rec.get("absent"), list):
+            continue
+        back = [a for a in rec["absent"] if f"{k}:{a}" in have]
+        if not back:
+            continue
+        removed[k] = back
+        rec["absent"] = [a for a in rec["absent"] if a not in back]
+        if isinstance(rec.get("evidence"), dict):
+            rec["evidence"] = {i: v for i, v in rec["evidence"].items() if i not in {f"{k}:{a}" for a in back}}
+        wa = tr.get("witnessedAbsent")
+        if isinstance(wa, dict) and isinstance(wa.get(k), dict):
+            _gone = {str(a) for a in back} | {f"{k}:{a}" for a in back}
+            wa[k] = {i: v for i, v in wa[k].items() if str(i) not in _gone}
+            if not wa[k]:
+                del wa[k]
+            if not wa:
+                tr.pop("witnessedAbsent", None)
+                tr.pop("witnessedAbsentVersion", None)
+        if not rec["absent"]:
+            emptied.add(k)
+    for k in emptied:
+        del gaps[k]
+        if isinstance(tr.get("declarations"), dict):
+            tr["declarations"].pop(k, None)
+    if not gaps:
+        tr.pop("truncatedGaps", None)
+    if emptied:
+        def _strip(m):
+            keep = [x for x in re.findall(r"\d+", m.group(1)) if x not in emptied]
+            return ("declare_gap:" + ",".join(keep)) if keep else ""
+        op = re.sub(r"declare_gap:([\d,\s]+)", _strip, str(tr.get("op") or ""))
+        tr["op"] = "|".join(p for p in op.split("|") if p)
+    if isinstance(tr.get("gapAyahs"), int):
+        tr["gapAyahs"] = max(0, tr["gapAyahs"] - sum(len(v) for v in removed.values()))
+    print(f"  ✔ حُذف من الحجب الوسطيّ الموروث ما استُرجع: "
+          + "، ".join(f"{k}:{v}" for k, v in removed.items())
+          + (f" · سقط إعلانُ السور {sorted(emptied, key=int)}" if emptied else ""))
+    return removed
+
+
 def inherit_truncated_gaps(pidx, out, realigned):
     """يُورِّث إعلانَ **الحجب الوسطيّ** (‏أمر المالك 2026-10-31) من الأصل إلى المخرَج، أو يردّ.
 
@@ -654,7 +709,9 @@ def main():
             raise SystemExit("⛔ provenance في الأصل ليس قاموساً")
         provenance["publishedParentTransform"] = copy.deepcopy(pidx.get("transform"))
         out["transform"]["provenance"] = provenance
+    prune_recovered_gaps(out)
     inherit_truncated_gaps(pidx, out, realigned)
+    prune_recovered_gaps(out)
     if restoration:
         # التوريث قد يضيف مقطع op مكرراً؛ نعيد صياغة المقاطع من سجل الإعلان نفسه.
         out["transform"]["op"] = a.op + "|" + merged_op(prior_declarations(idx))
