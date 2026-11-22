@@ -527,7 +527,7 @@ def main():
     realigned = []
     # أسماء الدمج من سجل الحارس نفسه؛ لا اسم جديد في موضع يغيب عن الآخر.
     splice_names = "|".join(re.escape(n) for n in sorted(promote.SPLICE_OPS))
-    _m = re.match(rf"^(?:realign_surah|source_timing_splice|{splice_names}):([\d,\s]+)$", a.op.strip())
+    _m = re.match(rf"^(?:realign_surah|source_timing_splice|union_same_parent|{splice_names}):([\d,\s]+)$", a.op.strip())
     if _m:
         realigned = sorted({int(x) for x in re.findall(r"\d+", _m.group(1))})
     # ⛔ **دمجُ محرّكين لا يُرفع إلا معلَناً سورةً سورة** (‏إذن المالك 2026-09-24):
@@ -579,6 +579,25 @@ def main():
         if extra:
             raise SystemExit(f"⛔ سورٌ معلَنةٌ بمحرّكٍ آخر لم يمسّها التحويل ولا "
                              f"ورثها الأصل: {sorted(extra, key=int)}")
+    elif re.match(r"^union_same_parent:[\d,\s]+$", a.op.strip()):
+        # ⭐ اتحاد أبناء الأب نفسه قد يخلط محرّكاتٍ معلَنة في المتبرّعين (‏whisper
+        #    بلا وسم كـrealign_surah، وCTC بوسمه). يُسمح بزيادة السجلّ للسور
+        #    المسمّاة فقط، وبمحرّكٍ معروف، ولا يُخترَع وسمٌ ولم يُرخَ الإحصاء:
+        #    كلُّ مفتاح جديد يدخل census_surahs كغيره.
+        named = {str(s) for s in realigned}
+        extra = {str(k) for k in ebs} - {str(k) for k in p_ebs}
+        if not named:
+            raise SystemExit("⛔ union_same_parent بلا سور مسمّاة في --op")
+        if extra - named:
+            raise SystemExit(
+                f"⛔ سورٌ معلَنة بمحرّكٍ آخر لم يمسّها الاتحاد: {sorted(extra - named, key=int)}")
+        known = {v for v in list(promote.SPLICE_OPS.values())
+                 + [idx.get("engineVersion"), pidx.get("engineVersion")] if v}
+        wrong = sorted((k for k in extra if ebs.get(k) not in known), key=int)
+        if wrong:
+            raise SystemExit(
+                f"⛔ محرّك غير معروف في سجل الاتحاد للسور {wrong}: "
+                f"{sorted({ebs.get(k) for k in wrong})}")
     elif set(ebs) - set(p_ebs):
         raise SystemExit("⛔ سجلُّ المحرّكات زاد سوراً في تحويلٍ لا يدمج محرّكين — يُردّ")
     named_src = {str(s) for s in realigned} if _splice else set()
