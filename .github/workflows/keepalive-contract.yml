@@ -8,6 +8,8 @@ on:
       - tools/ci_fleet/blocked_realigns.json
       - tools/ci_fleet/reciters_remaining.tsv
       - tools/ci_fleet/test_keepalive_contract.py
+      - tools/ci_fleet/pending_human_verdicts.py
+      - tools/ci_fleet/test_pending_human_verdicts.py
       - tools/ci_fleet/test_agent_cmd_contract.py
       - tools/ci_fleet/test_workflow_yaml_contract.py
       - tools/ci_fleet/agent_cmd.py

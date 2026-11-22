@@ -47,7 +47,7 @@ permissions:
 #    تُطلقان موجتين وتبوّبان المفاتيحَ نفسَها مرّتين. `cancel-in-progress: false`
 #    فلا تُقتل نبضةٌ تعمل — تُترك الثانيةُ معلّقةً أو تسقط.
 concurrency:
-  group: rafiq-keepalive
+  group: rafiq-keepalive-${{ github.ref }}
   cancel-in-progress: false
 
 jobs:
@@ -345,36 +345,25 @@ jobs:
         # ⛔ **الغرض: ألّا يضيع المحبوسُ في السجلّات.** الحلقةُ تُنتج بلا توقّف،
         #    فإن حُبس مرشَّحٌ لسببٍ يحتاج قراراً **ولم يُجرد**، بقي محبوساً أبداً
         #    وهو لا يُرى إلا لمن يقرأ سجلَّ ترقيةٍ قديم.
+        # ⛔⛔ **ولماذا تغيّر التنفيذ 2026-11-22:** الجرد القديم نزّل كلّ شاهد
+        #    في state-ci واحداً تلو الآخر بلا سقف، فتجاوز مهلة الوظيفة (25د)
+        #    بعد نجاح الترقية، وأُلغي الشوط (`The operation was canceled`) —
+        #    لا بسبب مجموعة التزامن (ما زالت cancel-in-progress: false).
+        #    الجرد الآن أداة محدودة الزمن (الأحدث أولاً)، وcontinue-on-error
+        #    حتى لا يبتلع الجرد الثقيل نتيجة الترقية ولا سلسلة النبض.
+        timeout-minutes: 4
+        continue-on-error: true
         run: |
           set -o pipefail
-          python - <<'PY' | tee -a "$GITHUB_STEP_SUMMARY"
-          import json, boto3, collections
-          c = json.load(open("secure/r2_credentials.json"))
-          s = boto3.client("s3", endpoint_url=c["endpoint"],
-                           aws_access_key_id=c["accessKeyId"],
-                           aws_secret_access_key=c["secretAccessKey"],
-                           region_name="auto")
-          b = c["bucket"]
-          per = collections.Counter()
-          for pg in s.get_paginator("list_objects_v2").paginate(
-                  Bucket=b, Prefix="state-ci"):
-              for o in pg.get("Contents", []):
-                  try:
-                      j = json.loads(s.get_object(Bucket=b, Key=o["Key"])["Body"].read())
-                  except Exception:
-                      continue
-                  v = str(j.get("verdict") or "")
-                  if v.startswith("مقبول"):
-                      continue
-                  kind = ("خلل بنيوي" if "بنيوي" in v else
-                          "عطبٌ جسيم" if "جسيم" in v else
-                          "حدّي" if "حدّي" in v else
-                          "موقوف" if "موقوف" in v else "آخر")
-                  per[kind] += 1
-          print("## ⚡ ما ينتظر قراراً")
-          for k, n in per.most_common():
-              print(f"- {k}: {n} شاهداً")
-          PY
+          python tools/ci_fleet/pending_human_verdicts.py --budget-sec 90 | tee -a "$GITHUB_STEP_SUMMARY"
+
+      - name: حالة إصلاح الفهارس المضغوطة
+        # جرد قراءة فقط: يقابل بصمات الـ55 بمسح pV ولا يرقّي ولا يقيس صوتاً.
+        timeout-minutes: 5
+        continue-on-error: true
+        run: |
+          set -o pipefail
+          python tools/index_qa/compressed_repair_status.py | tee -a "$GITHUB_STEP_SUMMARY"
 
   # الانتظار في وظيفة مستقلة: انقضاء مهلة الفحص لا يبتلع إطلاق النبضة التالية.
   # لا ضمان ضد إلغاء سير العمل كله أو تعطيل Actions؛ الجدولة تبقى سنداً.

@@ -102,6 +102,22 @@ class KeepaliveContract(unittest.TestCase):
         self.assertNotIn('||', script)
         self.assertIn('python tools/index_qa/promote.py --yes 2>&1 | tail -25', script)
 
+
+    def test_inventory_is_budgeted_and_cannot_cancel_the_job(self):
+        steps = self.workflow['jobs']['gate_and_promote']['steps']
+        inv = next(s for s in steps if s.get('name') == '⚡ اجرد ما ينتظر قراراً بشريّاً')
+        self.assertEqual(inv.get('continue-on-error'), 'true')
+        self.assertLessEqual(int(inv['timeout-minutes']), 5)
+        self.assertIn('pending_human_verdicts.py', inv['run'])
+        self.assertNotIn('get_object', inv['run'])
+        # الجرد الثقيل لا يُعاد إلى متن الملف فيبتلع المهلة كما قِيس 2026-11-22.
+        self.assertNotIn("Prefix=\"state-ci\"", inv['run'])
+
+    def test_job_timeout_leaves_room_for_promotion_before_inventory(self):
+        job = self.workflow['jobs']['gate_and_promote']
+        self.assertGreaterEqual(int(job['timeout-minutes']), 25)
+        self.assertEqual(self.workflow['concurrency']['group'], 'rafiq-keepalive-${{ github.ref }}')
+
     @unittest.skipIf(os.name == 'nt', 'فحص Bash الفعلي يعمل على عداء Linux السحابي')
     def test_promotion_exit_status_reaches_job_without_touching_r2(self):
         for code in (0, 7):

@@ -111,8 +111,10 @@ jobs:
 
       # ⚠️ GGML_NATIVE=OFF عمداً كما في align.yml: الكاش يُستهلك على عدّاءٍ قد
       #    يختلف طرازه، وثنائيٌّ بتعليمات معالجٍ آخر يسقط بـSIGILL.
-      # ⛔ ماليّاً: استعادةٌ فقط. لا cache-save في مسار الاسترجاع؛ إن غاب الكاش
-      # يُبنى الثنائي لهذه التشغيلة ويُترك مؤقتاً من غير كتابة تخزين Actions.
+      # ✅ **وحُفظ الكاش 2026-11-22 في المستودع العام:** ذاكرة Actions هنا مجّانيّة
+      #    حتى 10 ج.ب (CLAUDE.md). قِيس اليوم أنّ اثنتي عشرة إعادة محاذاة أعادت
+      #    بناء الثنائي (~80ث لكلّ منها) لأنّ المسار كان استعادةً فقط بلا حفظ،
+      #    فغاب الكاش دائماً. الحفظ لا يغيّر المحاذاة ولا العتبات.
       - name: استعادة كاش ثنائي whisper فقط
         id: whisper-cache
         uses: actions/cache/restore@v4
@@ -134,6 +136,13 @@ jobs:
           mkdir -p whisper-bin
           cp "$(find wsrc/build -name whisper-cli -type f | head -1)" whisper-bin/whisper-cli
           find wsrc/build -name "*.so*" -exec cp {} whisper-bin/ \;
+
+      - name: حفظ كاش ثنائي whisper
+        if: steps.whisper-cache.outputs.cache-hit != 'true'
+        uses: actions/cache/save@v4
+        with:
+          path: whisper-bin
+          key: whisper-cli-${{ runner.os }}-${{ env.WHISPER_REF }}-noNative-v1
 
       - name: تنصيب الثنائي وبرهانُ عمله
         run: |
