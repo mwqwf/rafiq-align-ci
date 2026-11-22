@@ -266,8 +266,9 @@ def source_ratio(idx, base: str, surah: int, refs, names: dict | None = None,
     def url(s: int) -> str:
         if names is None:
             return f"{base}{s:03d}.mp3"
-        from urllib.parse import quote                         # noqa: PLC0415
-        return base.rstrip("/") + "/" + quote(names[s])        # KeyError ⇒ لا تخمين
+        # نفس قاعدة resolve_url.href_filename: الجدول قد يكون مرمّزاً سلفاً.
+        from urllib.parse import quote, unquote
+        return base.rstrip("/") + "/" + quote(unquote(names[s]), safe="")  # KeyError ⇒ لا تخمين
 
     d = surah_ends(idx)
     probe = [s for s in sorted(d, key=lambda x: -d[x]) if s != surah][:3]
