@@ -135,7 +135,7 @@ ALLOWED_TOOLS = {"ci_fleet/r2_tmp_purge.py",  # 🧹 2026-11-06: تنظيف tmp/
                  # ⚖️ 2026-10-31 (أمر المالك): حجبُ آياتٍ غائبةٍ في وسط سورةٍ بدليلٍ لكلّ آية (يكتب الاختبارَ وحده، بحُرّاس declared_truncated_gaps).
                  "index_qa/drop_ayahs.py",
                  # ⚖️ fixV 2026-10-05: تثبيتُ بدء آياتٍ على أداءٍ مسموعٍ مقيس في تسجيلٍ مكرَّر (يكتب الاختبارَ وحده؛ يلزمه الإحصاءُ الشامل).
-                 "index_qa/pin_heard.py", "index_qa/census_gate_check.py", "index_qa/graft_surah_range.py", "index_qa/graft_surahs.py",  # pT 2026-10-14: زرعُ سورٍ كاملةٍ من متبرِّعٍ مشتقٍّ إلى timings-staging/ وحده
+                 "index_qa/pin_heard.py", "index_qa/census_gate_check.py", "index_qa/graft_surah_range.py", "index_qa/graft_surahs.py", "index_qa/union_same_parent.py",  # pT 2026-10-14 زرعٌ · 2026-11-22 اتحاد أبناء الأب نفسه إلى المسرح بحراس splice+stage
                  "index_qa/recheck_published.py", "index_qa/recheck_pool.py",  # 🔎 pR 2026-10-09: إعادةُ فحص المنشور بالحرّاس المشدَّدة (عرضٌ فقط، قارئ محض)
                  "index_qa/low_coverage_scan.py", "index_qa/dup_sha_sweep.py",
                  "index_qa/duration_profile.py", "index_qa/reciter_evidence.py",
