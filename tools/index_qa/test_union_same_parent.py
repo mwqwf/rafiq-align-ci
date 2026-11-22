@@ -148,3 +148,31 @@ class T(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class OpAndMapGuardT(unittest.TestCase):
+    """حارس الترويسة لـ union_same_parent كما في stage_transform: زيادة السجلّ
+    للسور المسمّاة فقط وبمحرّك معروف. لا يُرخى الإحصاء."""
+
+    def test_op_regex_parses_union(self):
+        import re, promote
+        splice_names = "|".join(re.escape(n) for n in sorted(promote.SPLICE_OPS))
+        rx = re.compile(rf"^(?:realign_surah|source_timing_splice|union_same_parent|{splice_names}):([\d,\s]+)$")
+        m = rx.match("union_same_parent:2,3,4,40")
+        self.assertIsNotNone(m)
+        self.assertEqual(sorted({int(x) for x in re.findall(r"\d+", m.group(1))}), [2, 3, 4, 40])
+        self.assertIsNone(promote.splice_op_name("union_same_parent:2,3"))  # ليس محرّكاً واحداً
+
+    def test_growth_only_named_known_engines(self):
+        named = {"4", "40"}
+        p_ebs = {"19": "ctc-heardmap-1"}
+        ebs = {"19": "ctc-heardmap-1", "4": "ctc-quran-surah-1", "40": "ctc-quran-surah-1"}
+        extra = set(ebs) - set(p_ebs)
+        self.assertEqual(extra, named)
+        import promote
+        known = set(promote.SPLICE_OPS.values()) | {"ctc-seg-1"}
+        self.assertTrue(all(ebs[k] in known for k in extra))
+        # سورة خارج التحويل تُردّ
+        ebs2 = dict(ebs, **{"99": "ctc-quran-surah-1"})
+        extra2 = set(ebs2) - set(p_ebs)
+        self.assertTrue(extra2 - named)
