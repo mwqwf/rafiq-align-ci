@@ -1,0 +1,13 @@
+# rc=0
+  ✔ إعادةُ محاذاة [13, 16]: 5460 ⇐ 5460 مدخلاً (‏+0)، وما خارجها لم يُمسّ
+  ⓘ إعفاءُ العتبة موروثٌ من صفّ موافقة الأصل لسورٍ محجوبةٍ فيه بالرمز نفسه: [12, 22, 28, 29, 36, 38, 39, 40, 45, 53]
+الأصل timings/hafs/saad.jz (cf8513720321) · المنتَج patched.jz (8e609e8b5498)
+المداخل 5460 ⇒ 5460 ✅ · بصمةُ المداخل 9d0064fbff ⇒ a0ed6fb30d (مختلفة ✅) · حدودٌ أُزيحت 165
+إلى timings-staging/hafs/saad.5dcf34d3.jz (81390 بايت · بصمة 5dcf34d3f1b727384d9126beecd1169dcf9b51a6fb7778a410eaf6863f1fcd21)
+STAGE_RESULT {"key": "timings-staging/hafs/saad.5dcf34d3.jz", "localCandidateSha256": "8e609e8b549810feeebb16469518513b544bcaeb8f75bbc1ee10b97936430c31", "manualQaOnly": false, "parentKey": "timings/hafs/saad.jz", "parentSha256": "cf8513720321d4cb82cf8f7241e541e59c24325f899e3a448a4327490ab2c117", "productionChanged": false, "readBackVerified": true, "sha256": "5dcf34d3f1b727384d9126beecd1169dcf9b51a6fb7778a410eaf6863f1fcd21", "sizeBytes": 81390}
+خطة الدمج:
+  س13: من timings-staging/hafs/saad.fc05b0e9.jz (fc05b0e93cc0)
+  س16: من timings-staging/hafs/saad.a0983e8e.jz (a0983e8e6214)
+المداخل 5460 ⇐ 5460 · الغياب 776 ⇐ 776 · سور [13, 16]
+✅ /tmp/union_3v2tpiyb/patched.jz · sha256 be30d3ab97799faf…
+المخرج /tmp/union_3v2tpiyb/patched.jz · sha 8e609e8b549810fe… · مداخل 5460 · غياب 776 · سور [13, 16]
