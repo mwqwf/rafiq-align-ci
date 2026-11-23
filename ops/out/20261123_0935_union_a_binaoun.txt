@@ -1,0 +1,17 @@
+# rc=0
+  ✔ إعادةُ محاذاة [23, 36]: 6232 ⇐ 6232 مدخلاً (‏+0)، وما خارجها لم يُمسّ
+  ⓘ إعفاءُ العتبة موروثٌ من صفّ موافقة الأصل لسورٍ محجوبةٍ فيه بالرمز نفسه: [3]
+  ✔ حُذف من الحجب الوسطيّ الموروث ما استُرجع: 
+  ✔ حُذف من الحجب الوسطيّ الموروث ما استُرجع: 
+  ✔ حجبٌ وسطيٌّ موروثٌ معلَن: ['3']
+  ✔ حُذف من الحجب الوسطيّ الموروث ما استُرجع: 
+الأصل timings/hafs/a_binaoun.jz (6a3c67ac567d) · المنتَج patched.jz (2751fc62255f)
+المداخل 6232 ⇒ 6232 ✅ · بصمةُ المداخل 2eef60d9c0 ⇒ 4d1dcd4e57 (مختلفة ✅) · حدودٌ أُزيحت 182
+إلى timings-staging/hafs/a_binaoun.acc7c1a6.jz (150022 بايت · بصمة acc7c1a6f246a4c822f942246a8aca35253edabdc749bbea7de4967d3064411e)
+STAGE_RESULT {"key": "timings-staging/hafs/a_binaoun.acc7c1a6.jz", "localCandidateSha256": "2751fc62255f40e04e7a6e1e14079276e98563115643d1af4670f0284afb076e", "manualQaOnly": false, "parentKey": "timings/hafs/a_binaoun.jz", "parentSha256": "6a3c67ac567d69ceb81f03f73e5019e459547b237fc887b92b73ca0a21ac8b2e", "productionChanged": false, "readBackVerified": true, "sha256": "acc7c1a6f246a4c822f942246a8aca35253edabdc749bbea7de4967d3064411e", "sizeBytes": 150022}
+خطة الدمج:
+  س23: من timings-staging/hafs/a_binaoun.7131ed4c.jz (7131ed4c40a0)
+  س36: من timings-staging/hafs/a_binaoun.c270c12a.jz (c270c12a180f)
+المداخل 6232 ⇐ 6232 · الغياب 4 ⇐ 4 · سور [23, 36]
+✅ /tmp/union_iei8nw4v/patched.jz · sha256 7a7117dd42bcfa57…
+المخرج /tmp/union_iei8nw4v/patched.jz · sha 2751fc62255f40e0… · مداخل 6232 · غياب 4 · سور [23, 36]
