@@ -1,0 +1,11 @@
+{
+  "action": "dispatch",
+  "workflow": "ctc_heard_probe.yml",
+  "inputs": {
+    "url": "https://server10.mp3quran.net/Abdullahk/003.mp3",
+    "surah": "3",
+    "riwaya": "hafs",
+    "build": "false",
+    "reason": "خريطة سماع مفردة لآل عمران عند عبدالله كامل من الملف الرسمي نفسه، لأن تشغيلة البوابة 45078600283 تحمل أيضاً heard_s003.json للعفاسي فلا تصلح --run لـpin_heard (load_map يأخذ أول خريطة س003). المرشّح aa38f92d رُدّ لآيتين (2،174) فقط ومحاكاة تثبيتهما إلى heardMs تعطي 0 انحراف. لا رفع (build=false). لا إرخاء."
+  }
+}
