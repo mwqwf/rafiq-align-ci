@@ -118,14 +118,42 @@ jobs:
             --reciter "$RID" --riwaya "$RIW" --read "$READ" \
             --url "$URL" $REF $CM --audio-proof --out "out.jz"
 
-      - name: الرفعُ إلى الاختبار بحُرّاس stage_source
+      - name: الرفعُ إلى الاختبار بحُرّاس stage_source أو official_timing_splice عند تعذّر الخانات الواسعة
         env:
           RID: ${{ matrix.r.rid }}
           RIW: ${{ matrix.r.riw }}
           READ: ${{ matrix.r.read }}
+          URL: ${{ matrix.r.url }}
         run: |
           # ⛔ الحُرّاس تُختبر قبل أوّل رفعٍ في كل تشغيلة — لا ثقةَ بأداةٍ لم تُختبر.
           python tools/index_qa/stage_source.py --self-test
-          python tools/index_qa/stage_source.py --file out.jz \
-            --reciter "$RID" --riwaya "$RIW" \
-            --source "mp3quran ayat_timing read=$READ" --yes
+          MAP="tools/index_qa/countmap_$RIW.json"
+          WIDE_SPLICE=$(python - <<'PY'
+          import gzip, json, os
+          from pathlib import Path
+          if not (Path("parent.jz").exists() and Path(os.environ["MAP_PATH"]).exists()):
+              print("")
+          else:
+              d = json.loads(gzip.decompress(Path("out.jz").read_bytes()).decode("utf-8"))
+              by = (d.get("missing") or {}).get("byReason") or {}
+              print("1" if int(by.get("count_map_wide_ayah") or 0) > 0 else "")
+          PY
+          MAP_PATH="$MAP")
+          if [ -n "$WIDE_SPLICE" ]; then
+            PARENT_SHA=$(sha256sum parent.jz | awk '{print $1}')
+            python tools/index_qa/splice_official_complete.py \
+              --parent parent.jz --official out.jz \
+              --url "$URL" --read "$READ" --out patched.jz
+            TAKEN=$(cat patched.jz.taken)
+            python tools/index_qa/stage_transform.py \
+              --file patched.jz \
+              --parent "timings/$RIW/$RID.jz" \
+              --parent-sha "$PARENT_SHA" \
+              --op "official_timing_splice:$TAKEN" \
+              --reason "زرع السور المكتملة العدّ فقط من mp3quran (read=$READ) فوق المنشور؛ الخانات الواسعة في بقية السور أُسقطت بلا تخمين حدّ وسط وبلا إرخاء لحارس stage_source" \
+              --yes
+          else
+            python tools/index_qa/stage_source.py --file out.jz \
+              --reciter "$RID" --riwaya "$RIW" \
+              --source "mp3quran ayat_timing read=$READ" --yes
+          fi
