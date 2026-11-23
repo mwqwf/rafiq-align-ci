@@ -1,17 +1,53 @@
-# 📚 المهارات إلزاميّةٌ بلا طلب — أمر المالك 2026-11-01
+# AGENTS.md — `rafiq-align-ci` · محاذاة التلاوات والحوسبة العامّة لمصحفك
 
-«اجعل الوكلاء يرجعون إلى المهارة المناسبة عند الحاجة… رأيتُ أنهم لا يستخدمونها إلا إذا طلبتُها صراحةً وهذا مزعج».
-- **قبل أيّ مهمّة** طابِقها بمهارات `.claude/skills/` (يعرضها هوك `skills-index.cjs` أوّلَ كلّ جلسة) واقرأ `SKILL.md` لكلّ ما ينطبق واتّبعه — لا تنتظر أن يسمّيها المالك.
-- **كلّ تكليفٍ لوكيلٍ فرعيّ** يسمّي المهارات المنطبقة ويأمره بقراءتها؛ وفي التقرير سطرٌ بما استُعمل.
-- الخريطة: أيُّ عمل ← `workstyle` · CI وworkflows والإنفاق ← `github-actions-cost-control` · أداةٌ أو سيرُ عملٍ جديد كبير ← `speckit-specify` ثم `speckit-plan` ثم `speckit-tasks` ثم `speckit-implement`.
+> **المصدر الوحيد لتعليمات الوكلاء** (Codex · Cursor · Copilot · Gemini · Grok Bot · Claude عبر `CLAUDE.md` = `@AGENTS.md`).
+> مولَّد بقالب [mwqwf/agent-skills](https://github.com/mwqwf/agent-skills) — عدّل هذا الملف هنا بحرّية، وأبقِه < 100 سطر.
 
-## OWNER FINAL INDEXING STOP — 2026-09-18
+## قبل أيّ عمل (بهذا الترتيب)
+1. مهارة **`mwqwf-workflow`** (دستور العمل الملزم) ثم مهارة المشروع `quran-audio-alignment` · `quran-rafiq` — في `.agents/skills/` (الفهرس `.agents/skills/INDEX.md`). طابِق كل مهمّة بمهارتها واقرأ `SKILL.md` بلا انتظار طلب.
+2. الحالة: `docs/PROJECT_STATE.md` (الخطة والحالة والعمل المفتوح) · `docs/PROJECT_INDEX.md` (آليّ: الإصدار والوحدات وسير العمل والمهارات).
+3. القواعد الملزمة التفصيلية لهذا المستودع: `docs/agents/REPO_RULES.md` — **اقرأ القسم المعنيّ بمهمّتك قبل البدء**.
+4. ⭐ **إن كنت الوكيل السحابيّ لهذا المستودع فـ`docs/agents/REPO_RULES.md` تكليفُك كاملاً — اقرأه كلّه أوّل كل دورة** (الحدود، المفاتيح، الحلقة، قاعدة البتر، لوحة المالك، دستور الحرّية).
 
-The owner permanently stopped Quran indexing work. No agent, model, automation, or session may resume indexing research, source discovery, probing, alignment, QA, promotion, packaging, publishing, workflow dispatch, trigger restoration, or monitoring. Do not create replacement follow-ups. Preserve existing evidence read-only. This stop can be lifted only by a new explicit owner instruction that specifically names indexing.
+## قواعد عامّة ملزمة (تفصيلها في `mwqwf-workflow`)
+- **اللغة:** العربية الفصحى في كل ما يراه المالك: الردود، أسطر التقدّم، أوصاف الأوامر، رسائل الإيداع، عناوين الطلبات ووصفها، التعليقات، الوثائق، تكليفات الوكلاء الفرعيين.
+- **شكل الردّ:** ما قد يُنسخ (أمر، مسار، نصّ، قيمة) في كتلة شيفرة قابلة للنسخ · كل رابط قابل للنقر `[النص](https://...)` · موجز دائماً إلا الإرشاد خطوةً بخطوة · المصطلح اللاتينيّ الذي لا بدّ منه بين قوسين بعد مقابله العربيّ.
+- **نطاق الطلب هو الإذن**، والأتمتة الآمنة إلى النهاية أولاً (مهارة `automation-first`): محفّزات الأحداث بدل الاستطلاع، ولا سؤال إلا لما يستحيل دون المالك.
+- **«أُنجز» = أثرٌ مقروء من مصدر الحقيقة** لا قول أداة (مهارة `verify-and-review`).
+- ⛔ **لا أسرار:** مفاتيح التوقيع وحسابات الخدمة والرموز في GitHub Secrets تُكتب ولا تُقرأ ولا تُودَع ولا تُطبع.
+- ⛔ **المشاريع غير النشطة لا تُمسّ** بلا طلب صريح يسمّيها (مهارة `project-registry`).
+- **تنبيه المالك** عبر قناة التنبيه المهيّأة (إن وُجدت) لما يحتاجه فعلاً فقط: فشل لا تصلحه، قرار لا يتمّ إلا به، حدث مهمّ، أو اكتمال مهمّة طويلة.
+- **حدّ إنفاق Actions:** المستودع عامّ ودقائق العدّاد القياسيّ (`ubuntu-latest`) مجّانية؛ لا عدّادات كبيرة/macOS، ونظّف التخزين (Artifacts/Cache) بعد التحقّق.
 
-# Owner financial stop — 2026-09-18
+## ⭐ الفهرس الحيّ — إلزاميّ
+- **كل وكيل يُنهي تغييراً يحدّث `docs/PROJECT_STATE.md` في الطلب (PR) نفسه:** ما تغيّر، الحالة الآن، العمل المفتوح، وسطر في «السجلّ». 
+- `docs/PROJECT_INDEX.md` يجدّده سير عمل `project-index` آلياً عند الدفع إلى `main` — لا تعدّله يدوياً (`python3 tools/agents/gen_project_index.py` للمعاينة).
+- **المهارات المركزية** (فيها `.agent-skills-source`) لا تُعدَّل هنا: عدّل في `mwqwf/agent-skills` ثم زامن. `.claude/skills/*` روابط إلى `.agents/skills/*`. المهارات المحلّية الخاصّة بالمستودع تُعدَّل هنا.
 
-No new charges are authorized. Before any push, PR, workflow dispatch, rerun, schedule, deployment, storage write or external API use, establish that the entire operation is free within available quotas. `ubuntu-latest`, a public repository, or an available budget alone is not sufficient proof. Do not re-enable Actions or use old branch snapshots to bypass the stop. Paid work requires NEW explicit owner approval of the necessity, estimated cost and hard cap. Never make private repositories public or disclose private code/secrets to obtain free compute. Prefer verified free cloud, then the session environment, then lightweight local work. Continue read-only analysis and small offline checks; do not repeat rejected candidates or tests without a material reason. Existing Quran accuracy gates and the 5% threshold remain mandatory. Use existing follow-up cycles only.
+## هذا المستودع — أهمّ ما يجب معرفته
+- الغاية: كل آية عند كل قارئ منشور بتوقيت صحيح، بلا حاسوب المالك. الفهرسة مأذونة (رُفع الإيقاف 2026-09-20).
+- ⛔⛔ لا تحريف للقرآن بأيّ وجه: فهرس يُسمع آيةً بصوت غيرها لا يُنشر ولو رفع العدّ — النقص المعلَن هو الصواب.
+- ⛔ عتبة العطب الجسيم 5% لا تُخفَّض ولا يُعطَّل حارس؛ الحدّيّ يُحسم بعيّنة أكبر. «أُنجز» = مقروء في `timings/` بالدلو.
+- الثقيل هنا (عامّ مجّاني) لا في `QuranRafiq` الخاصّ. ⛔ لا تلمس `emu-gate` و`arm-time` و`chunk-ab` و`finetune-*`.
+- الأوامر عبر ملفات الأوامر و`agent_cmd.yml` (التفصيل في REPO_RULES ومهارة `quran-audio-alignment`).
 
-All default-branch workflow jobs have a reversible `if: ${{ false }}` stop. This does NOT cancel already running jobs or disable GitHub schedules at the API level. See `ops/FINANCIAL_STOP_2026-09-18.md` for rollback and outstanding cancellation.
+## فهرس `docs/agents/REPO_RULES.md`
+  - 📚 المهارات إلزاميّةٌ بلا طلب — أمر المالك 2026-11-01
+  - OWNER FINAL INDEXING STOP — 2026-09-18
+  - Owner financial stop — 2026-09-18
+  - ✅ رُفع إيقافُ الفهرسة — أمرُ المالك 2026-09-20
+  - تكليفُ الوكيل السحابيّ — «مصحفك» · جنديُّ الفهرسة والاسترجاع
+  - مَن أنت وما غايتُك
+  - ⛔⛔ حدودٌ لا تُتجاوز بحال (وهي أمرُ المالك نصّاً)
+  - 🔑 لا يتعذّر عليك شيء — وهذه مفاتيحُك
+  - الحلقةُ التي تُديرها (كلُّ دورة)
+  - ⭐ ما يجب أن تعرفه قبل أن تقيس (دروسٌ دُفع ثمنُها)
+  - أين الحقيقة
+  - أدواتٌ تُعيدها كلَّ دورة
+  - كيف تُنهي دورتَك
+  - ⚖️ قاعدةُ البتر (مصحَّحةٌ بأمر المالك 2026-10-31 · cmsg_01SnWBBbg8UvScqE3YMKdPHaAmmNARSqWMUt85wRaf6dSw)
+  - 📱 لوحةُ المالك — **قناةُ هاتفه، إلزاميّةٌ في كلّ دورة**
+  - ⚖️ دستورُ الحرّية — يُقرأ في أوّل كلّ دورة
 
+<!-- يحمّل Claude Code التفصيل تلقائياً؛ وغيره يقرأ المسار نفسه -->
+@docs/agents/REPO_RULES.md

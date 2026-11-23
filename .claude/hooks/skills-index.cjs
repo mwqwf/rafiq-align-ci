@@ -11,7 +11,7 @@ const fs = require('fs');
 const path = require('path');
 
 const root = process.env.CLAUDE_PROJECT_DIR || process.cwd();
-const dir = path.join(root, '.claude', 'skills');
+const dir = path.join(root, '.agents', 'skills');
 
 function frontmatter(text) {
   const m = /^---\r?\n([\s\S]*?)\r?\n---/.exec(text);
@@ -56,7 +56,7 @@ rows.sort();
 process.stdout.write(
   [
     '📚 مهارات هذا المستودع (أمر المالك 2026-11-01 — إلزاميّ بلا طلبٍ صريح):',
-    'قبل البدء في أيّ مهمّة طابِقها بالقائمة أدناه، واقرأ SKILL.md لكلّ مهارةٍ تنطبق (`.claude/skills/<الاسم>/SKILL.md`) واتّبعها.',
+    'قبل البدء في أيّ مهمّة طابِقها بالقائمة أدناه، واقرأ SKILL.md لكلّ مهارةٍ تنطبق (`.agents/skills/<الاسم>/SKILL.md`) واتّبعها.',
     'وكلُّ تكليفٍ لوكيلٍ فرعيّ يسمّي المهارات المنطبقة ويأمره بقراءتها. وفي التقرير اذكر بسطرٍ أيَّ مهارةٍ استعملت.',
     ...rows,
     '',

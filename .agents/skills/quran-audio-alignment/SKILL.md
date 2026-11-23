@@ -1,0 +1,49 @@
+---
+name: quran-audio-alignment
+description: Stable rules for Mushafak's recitation audio–text alignment pipeline in mwqwf/rafiq-align-ci (ayah timings per reciter/riwaya, CTC/Whisper alignment, basmala handling, gap splicing, index QA with salted audio checks, promote/freeze guards, bucket as source of truth, command-file dispatch). Use when indexing or repairing a reciter, investigating missing/late/short ayahs, running align/realign/ctc_splice/audio_qa/promote, reading index state, or changing any alignment guard or threshold. قواعد محاذاة التلاوات بالآيات في مصحفك.
+license: Proprietary (mwqwf) — internal
+metadata:
+  repo: "mwqwf/rafiq-align-ci (public, free minutes)"
+  live-brief: "rafiq-align-ci/docs/agents/RULES.md (full operational brief) + docs/PROJECT_STATE.md"
+---
+
+# محاذاة التلاوات (مصحفك · rafiq-align-ci)
+
+الغاية الواحدة: **أن يجد المستخدم كل آيةٍ عند كل قارئٍ منشور، بتوقيتٍ صحيح، بلا حاسوب المالك.** التكليف التشغيليّ الكامل ودروسه المؤرّخة في `rafiq-align-ci/docs/agents/RULES.md`؛ والحالة الحيّة في `docs/PROJECT_STATE.md` و`ops/out/state.json`.
+
+## ⛔ حدود مطلقة (أمر المالك نصّاً)
+1. **لا تحريف للقرآن بأي وجه:** فهرسٌ يجعل آيةً تُقرأ بصوت سورةٍ أخرى لا يُنشر ولو رفع العدّ؛ النقص المُعلَن بسببه خيرٌ من صوتٍ خاطئ.
+2. **عتبة العطب الجسيم 5% لا تُخفَّض، ولا يُعطَّل حارس.** تعديل حارس يجعله أصعب خداعاً ويُختبر قبل استعماله. الحدّ الحدّيّ (قرب 5%) يُحسم بعيّنةٍ أكبر (ملوح إضافية) لا بعتبةٍ أصغر.
+3. **لا نجاح قبل قراءة الأثر من الدلو:** «أُطلق» ≠ «تمّ»، و«رُقّي» ≠ «مقروءٌ في `timings/`». و`conclusion=failure` في لوحة Actions ليس حكماً؛ الأثر من `state/`.
+4. **الثقيل في `rafiq-align-ci` العامّ (مجانيّ)**، ولا تشغيل في `QuranRafiq` الخاصّ إلا لضرورة مسمّاة؛ المشغّلات الكبيرة والتخزين الزائد ليست مجانية.
+5. لا تلمس `emu-gate` و`arm-time` و`chunk-ab` و`finetune-*` (لجلسة التسميع).
+
+## كيف تأمر (الصلاحية تبقى في CI)
+اكتب JSON في `ops/commands/` وادفعه ⇒ `agent_cmd.yml` ينفّذ ويكتب الجواب في `ops/out/<الاسم>.txt`:
+```
+{"action":"state"}                                   # جرد كامل من الدلو ⇒ ops/out/state.json
+{"action":"dispatch","workflow":"<wf>.yml","inputs":{…,"reason":"سبب مقيس"}}
+{"action":"tool","tool":"index_qa/run.py","args":["--struct-only","<مفتاح>"]}
+{"action":"tool","tool":"ci_fleet/restore_loop.py","args":["promote"]}
+```
+القوائم المسموحة في `tools/ci_fleet/agent_cmd.py` (`ALLOWED_WF`/`ALLOWED_TOOLS`) — أضف ما تحتاجه وأودعه. وإن تعذّر شيءٌ بعد المحاولة: `ops/out/BLOCKED.md` بما حاولتَ والرسالة حرفاً.
+
+## الحلقة
+1. عُدّ الأسطول بالحالات الثلاث (`in_progress` ثم `queued` ثم `pending`) — لا الأولى وحدها.
+2. بصمات جديدة: `python tools/index_qa/bucket_watch.py --since <ISO>`.
+3. لكل بصمة — المجانيّ أوّلاً: `run.py --struct-only` ⇒ إن نجت: `openers.yml` + **أربعة ملوح** `audio_qa.yml` (`seed_salt` متمايزة) ⇒ `promote.py --only <المفتاح>`. ⛔ لا ملح قبل الفحص البنيويّ.
+4. حلقة الاسترجاع `restore_loop.py scan|gate|promote` (مجدولة في `restore.yml`).
+5. ما لا يُسترجع يُعلَن بسببٍ مقيس (`drop_surah.py --declare-absent`)، لا صمت.
+
+## دروسٌ ثابتة (قياسٌ دُفع ثمنه)
+- **الدلو هو الحقيقة لا الوثيقة:** قائمة العمل تُشتقّ بالطرح من `timings/` و`catalog/reciters.json`.
+- **الحكم بوسيط أربعة مراجع**، لا بمرجعٍ واحد. وحين تتناقض أداتان فالحكَم قياسٌ ثالث من بياناتنا.
+- **البسملة تُقاس من فهرس القارئ نفسه** (وسيط `startMs` للآية الأولى في الجارات)، لا من سُلَّمٍ ثابت (`basmala.yml` سقفه 3000م.ث).
+- `realign_surah` بـ`skip_ms=0` يبتلع البسملة ⇒ الاسترجاع خطوتان؛ وفي سورةٍ تامّة: `ctc_align.yml` بـ`probe_surahs` ثم `realign_surah` بتخطّي (بدء CTC − 300م.ث).
+- **الآية الغائبة عند قارئٍ حاضر صوتها غالباً داخل مدخل جارتها** ⇒ `ctc_splice.yml` بـ`mode=window` بحرّاس (ثقة ≥0.45 · مدّة 0.5–2× · جارة لا تنكمش دون 0.5×). «الجارة تنكمش» غالباً ردٌّ صائب (الآية غير متلوّة).
+- **المطلع المتأخّر يُسدّ بشاهدين:** `late` و`ctc_opener_probe` معاً ⇒ `lateConfirmed` مانع في promote؛ و`late` وحده يكذب، وCTC وحده يخطئ في الحروف المقطّعة.
+- الترقية اليدوية لمرشّحٍ مدموج: `diagnosis.yml` و`splice_census.yml` **قبل** المحاولة، ثم `--unfreeze` ⇒ `--only … --yes` ⇒ `refreeze.py` دائماً.
+- «محجوزٌ بعلّة» ليس نهائياً: اسأل أفي المادّة أم في أداتنا؟
+
+## التحقّق
+`verify-and-review` + اختبارات `tools/` المجاورة، وأي تغيير في حارس أو عتبة يحتاج اختبار رفضٍ يثبت أنه أصعب خداعاً. سلامة النصّ: `arabic-rtl-and-islamic-typography` §٣.
