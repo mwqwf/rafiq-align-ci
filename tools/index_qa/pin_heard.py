@@ -215,6 +215,12 @@ def _norm_words(words):
     return out
 
 
+def _ortho_norm_words(text):
+    """تكافؤ الرسم المعتمد في بوّابة المتنازَع: ٰ/ء/ٱ ← ا قبل `common.norm`، بلا عتبةٍ ولا إدراج ألفٍ غائبة."""
+    import heard_gate as HG                                              # noqa: PLC0415
+    return HG.disputed_norm_words(text)
+
+
 def check_witness(wit, surah, hmap, want_sha):
     """يتحقّق من أنّ الشاهدَ لصوت السورة نفسِه ومن نموذجٍ مسموح — وإلا SystemExit."""
     if not isinstance(wit, dict) or int(wit.get("surah") or 0) != surah:
@@ -315,16 +321,22 @@ W_TRIM_MIN_WITNESSES = 2
 
 def _junction(wit, ref_prev, ref_next):
     """يبحث في نوافذ الشاهد عن أوّل موضعٍ تتّصل فيه خاتمةُ السابقة بمطلع التالية؛ يُرجع (الحدّ، تفصيل) أو (None، سبب)."""
-    k = min(W_K, len(ref_prev), len(ref_next))
-    tail, head = ref_prev[-k:], ref_next[:k]
+    # ⭐ التطبيع الإملائيّ نفسه المعتمد في `disputed_norm_words` (ٰ←ا) على الطرفين:
+    #    `common.norm` كان يحذف الألف الخنجريّة في مرجع حفص وورش (`الغَٰبرين`→`الغبرين`) بينما Whisper يكتب `الغابرين`.
+    #    لا عتبة تُغيَّر، ولا تُصنع ألفٌ لم تكن خنجريّة (`قال`≠`قل`، `فانجينا`≠`فانجيناه`).
+    prev_o = [w for tok in (ref_prev or []) for w in _ortho_norm_words(tok)]
+    next_o = [w for tok in (ref_next or []) for w in _ortho_norm_words(tok)]
+    k = min(W_K, len(prev_o), len(next_o))
+    tail, head = prev_o[-k:], next_o[:k]
     why = "لا موضعَ في التفريغ تتّصل فيه آخرُ كلمات السابقة بأوّل كلمات التالية"
     found = []
     for ay, rec in sorted((wit.get("ayahs") or {}).items(), key=lambda kv: int(kv[0])):
         win = rec.get("windowMs") or [None, None]
         raw = []
         for w in rec.get("words") or []:
-            for t in _norm_words([w]):
-                raw.append((t[0], t[1], int(w.get("e", t[1])), t[2]))
+            toks = _ortho_norm_words(str(w.get("w", "")))
+            for t in toks:
+                raw.append((t, int(w["s"]), int(w.get("e", w["s"])), float(w["p"])))
         for i in range(k, len(raw) - k + 1):
             if [x[0] for x in raw[i - k:i]] != tail or [x[0] for x in raw[i:i + k]] != head:
                 continue
@@ -528,7 +540,8 @@ def expected_from_peers(own_durs, peer_med, skip=()):
 
 def pin(idx, surah, hmap, pins, trims=None, last_end=None, witness=None, ref_words=None,
         expected=None, evidence=None, witness_fuzzy=False, trim_witnesses=None, trim_evidence=None,
-        opener_witnesses=None, opener_evidence=None, disputed=None, own_text=None, opener_no_baseline=False):
+        opener_witnesses=None, opener_evidence=None, disputed=None, own_text=None, opener_no_baseline=False,
+        trim_ref_words=None):
     """يُعيد (فهرساً جديداً، تقريراً) أو يرفع SystemExit بالسبب.
 
     `disputed` (‏اختياريّ · تصحيحُ توصيلٍ لقاعدة #101 · 2026-11-10): دالّةٌ `(فهرسٌ_مرشّح، صفوف) ⇒ مجموعةُ الآيات` تحكم على
@@ -623,8 +636,11 @@ def pin(idx, surah, hmap, pins, trims=None, last_end=None, witness=None, ref_wor
             # ⭐ مسارُ شاهدَي Whisper لحدّ القصّ (‏انظر `trim_from_witnesses`) — إلزاميٌّ لكلّ قصٍّ ولو كان حدّاً مقيساً بـCTC.
             if ref_words is None or (a + 1) not in pins:
                 raise SystemExit(f"⛔ قصُّ {surah}:{a} بشاهد Whisper يلزمه نصٌّ مرجعيّ وتثبيتٌ لـ{surah}:{a + 1}")
-            b, ev = trim_from_witnesses(trim_witnesses, hmap, surah, a, trims[a], ref_words(surah, a),
-                                        ref_words(surah, a + 1), pins[a + 1], want,
+            # مراجع القصّ: `trim_ref_words` إن أُعطيت (‏الإنتاج: disputed_ref_words كي تُطوى الألف الخنجريّة)،
+            # وإلا `ref_words` كما كانت الاختبارات.
+            tref = trim_ref_words or ref_words
+            b, ev = trim_from_witnesses(trim_witnesses, hmap, surah, a, trims[a], tref(surah, a),
+                                        tref(surah, a + 1), pins[a + 1], want,
                                         prev_start=int(new[a]["startMs"]))
             if b <= int(new[a]["startMs"]):
                 raise SystemExit(f"⛔ قصُّ {surah}:{a} إلى {b} قبل بدئها {new[a]['startMs']}")
@@ -979,12 +995,16 @@ def main():
         def xcheck(probe, _rows, already=0):                            # noqa: E306
             rec = own_text_claims(probe, a.surah, hmap, xclaims, a.own_text_runs, wits=xwits, already=already)
             return {int(k) for k in rec[str(a.surah)]}
+    tref = None
+    if twits is not None:
+        _riw = (idx.get("riwaya") or "hafs")
+        tref = (lambda s, ay, _r=_riw: heard_gate.disputed_ref_words(_r, s, ay))
     out, report, changed = pin(idx, a.surah, hmap, parse_pairs(a.pin), parse_pairs(a.trim),
                                a.last_end, witness=wit, ref_words=ref, expected=expected,
                                evidence=evidence, witness_fuzzy=a.witness_fuzzy,
                                trim_witnesses=twits, trim_evidence=tev,
                                opener_witnesses=owits, opener_evidence=oev, disputed=dcheck, own_text=xcheck,
-                               opener_no_baseline=a.opener_no_baseline)
+                               opener_no_baseline=a.opener_no_baseline, trim_ref_words=tref)
     out["transform"] = {
         **({"truncatedTail": idx["transform"]["truncatedTail"]}
            if isinstance(idx.get("transform"), dict) and idx["transform"].get("truncatedTail") else {}),
