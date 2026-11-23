@@ -5,6 +5,10 @@
     python tools/index_qa/preflight_duplicate_performance.py \
         --url URL --surah 14 --expected-sec 1393 --timing-start-ms 2548840 --file-sec 3942.8
 
+    # أو بقياس فعلي على الصوت (ffprobe / ffmpeg 400 هرتز):
+    python tools/index_qa/preflight_duplicate_performance.py \
+        --url URL --surah 4 --expected-sec 4785.6 --ffprobe --envelope
+
 طرق الكشف (من الأرخص إلى الأثقل):
 
 1) نسبة مدّة الملف إلى مدى التوقيت الرسمي أو إلى مرجع معلَن (`--expected-sec`).
@@ -19,16 +23,19 @@
 from __future__ import annotations
 
 import argparse
+import array
 import json
 import math
+import subprocess
 import sys
-from typing import Iterable
+from pathlib import Path
 
 sys.stdout.reconfigure(encoding="utf-8", errors="replace")
 
 STRONG = 2.5
 WARN = 1.6
 START_FRAC = 0.40
+ENVELOPE_SR = 400
 
 
 def classify_ratio(file_sec: float, expected_sec: float | None) -> dict:
@@ -64,7 +71,6 @@ def envelope_peaks(energy: list[float], min_lag_s: int = 120, corr_min: float = 
     """ارتباط ذاتي بسيط على غلاف طاقة ثانية-بثانية. energy[i] ≥ 0."""
     if len(energy) < min_lag_s * 2:
         return {"error": "envelope_too_short"}
-    # تسوية
     mean = sum(energy) / len(energy)
     var = sum((x - mean) ** 2 for x in energy) / len(energy)
     if var <= 1e-12:
@@ -83,7 +89,6 @@ def envelope_peaks(energy: list[float], min_lag_s: int = 120, corr_min: float = 
 
 def synthesize_repeated_envelope(perf_s: int = 200, reps: int = 3, hop: int = 1) -> list[float]:
     """غلاف اصطناعي غير دوري داخل الأداء، يتكرر reps مرات — لاختبار الوحدة."""
-    # نمط فريد داخل الأداء (لا موجة قصيرة) حتى لا يفوز مضاعف صغير في الارتباط.
     pat = []
     for i in range(perf_s):
         x = i / max(1, perf_s - 1)
@@ -98,6 +103,32 @@ def synthesize_repeated_envelope(perf_s: int = 200, reps: int = 3, hop: int = 1)
     out: list[float] = []
     for _ in range(reps):
         out.extend(pat)
+    return out
+
+
+def probe_duration_sec(url: str, timeout: int = 60) -> float:
+    """قراءة مدّة الصوت الفعلية بـffprobe دون الاعتماد على ترويسة CBR أو التخمين."""
+    cmd = [
+        "ffprobe", "-v", "error", "-show_entries", "format=duration",
+        "-of", "default=noprint_wrappers=1:nokey=1", url,
+    ]
+    r = subprocess.run(cmd, capture_output=True, text=True, timeout=timeout, check=True)
+    return float(r.stdout.strip())
+
+
+def extract_rms_envelope(url: str, sr: int = ENVELOPE_SR, timeout: int = 180) -> list[float]:
+    """بثّ PCM أحادي 400 هرتز عبر ffmpeg وحساب طاقة RMS لكل ثانية."""
+    cmd = [
+        "ffmpeg", "-v", "error", "-i", url,
+        "-ac", "1", "-ar", str(sr), "-f", "s16le", "-",
+    ]
+    r = subprocess.run(cmd, capture_output=True, timeout=timeout, check=True)
+    samples = array.array("h")
+    samples.frombytes(r.stdout[: len(r.stdout) - (len(r.stdout) % 2)])
+    out: list[float] = []
+    for off in range(0, len(samples) - sr + 1, sr):
+        chunk = samples[off : off + sr]
+        out.append(math.sqrt(sum(x * x for x in chunk) / sr) / 32768.0)
     return out
 
 
@@ -120,21 +151,38 @@ def report(file_sec, expected_sec=None, timing_start_ms=None, envelope=None) -> 
 
 def main(argv=None):
     ap = argparse.ArgumentParser()
-    ap.add_argument("--url", default="", help="للتسجيل فقط في هذه النسخة (المدّة تُمرَّر)")
-    ap.add_argument("--file-sec", type=float, required=True)
+    ap.add_argument("--url", default="", help="رابط الصوت أو مساره (يُستخدم مع --ffprobe أو --envelope)")
+    ap.add_argument("--file-sec", type=float, default=None)
+    ap.add_argument("--ffprobe", action="store_true", help="قياس المدّة الفعلية بـffprobe من --url")
+    ap.add_argument("--envelope", action="store_true", help="بناء غلاف الطاقة 400 هرتز عبر ffmpeg من --url")
     ap.add_argument("--expected-sec", type=float, default=None)
     ap.add_argument("--timing-start-ms", type=int, default=None)
     ap.add_argument("--surah", type=int, default=None)
     ap.add_argument("--reciter", default="")
     ap.add_argument("--out", default="")
     args = ap.parse_args(argv)
-    rec = report(args.file_sec, args.expected_sec, args.timing_start_ms)
+    file_sec = args.file_sec
+    if args.ffprobe:
+        if not args.url:
+            ap.error("--ffprobe يتطلّب --url")
+        file_sec = probe_duration_sec(args.url)
+    env = None
+    if args.envelope:
+        if not args.url:
+            ap.error("--envelope يتطلّب --url")
+        env = extract_rms_envelope(args.url)
+        if file_sec is None:
+            file_sec = float(len(env))
+    if file_sec is None:
+        ap.error("--file-sec أو --ffprobe أو --envelope مطلوب")
+    rec = report(file_sec, args.expected_sec, args.timing_start_ms, envelope=env)
+    if env is not None:
+        rec["envelope_seconds"] = len(env)
     rec["reciter"] = args.reciter
     rec["surah"] = args.surah
     rec["url"] = args.url
     print(json.dumps(rec, ensure_ascii=False, indent=2))
     if args.out:
-        Path = __import__("pathlib").Path
         Path(args.out).write_text(json.dumps(rec, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
     return 0
 

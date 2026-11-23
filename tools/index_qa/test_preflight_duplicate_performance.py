@@ -1,8 +1,15 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
+import array
+import json
+import sys
 import unittest
+from pathlib import Path
+from unittest import mock
+
+sys.path.insert(0, str(Path(__file__).resolve().parent))
 from preflight_duplicate_performance import (
-    classify_ratio, classify_start, envelope_peaks, report, synthesize_repeated_envelope,
+    classify_ratio, classify_start, envelope_peaks, main, report, synthesize_repeated_envelope,
 )
 
 
@@ -29,6 +36,27 @@ class PreflightTest(unittest.TestCase):
         peaks = envelope_peaks(env, min_lag_s=80, corr_min=0.7)
         self.assertTrue(peaks["repeated_like"])
         self.assertAlmostEqual(peaks["lag_s"], 200, delta=2)
+
+    def test_cli_ffprobe_and_envelope_mocked(self):
+        pcm = array.array("h", [min(30000, 100 + (i // 400) * 100) for i in range(400 * 260)]).tobytes()
+        with mock.patch("preflight_duplicate_performance.subprocess.run") as mrun:
+            mrun.side_effect = [
+                mock.Mock(stdout="2167.7\n"),
+                mock.Mock(stdout=pcm),
+            ]
+            out_path = Path("/tmp/test_preflight_out.json")
+            rc = main([
+                "--url", "https://example.com/010.mp3",
+                "--expected-sec", "2690.5",
+                "--ffprobe", "--envelope",
+                "--reciter", "jelmam_qalun", "--surah", "10",
+                "--out", str(out_path),
+            ])
+            self.assertEqual(rc, 0)
+            data = json.loads(out_path.read_text(encoding="utf-8"))
+            self.assertEqual(data["verdict"], "ok_by_duration")
+            self.assertEqual(data["file_sec"], 2167.7)
+            self.assertEqual(data["envelope_seconds"], 260)
 
 
 if __name__ == "__main__":
