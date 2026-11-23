@@ -10,7 +10,7 @@
 «اجعل الوكلاء يرجعون إلى المهارة المناسبة عند الحاجة… رأيتُ أنهم لا يستخدمونها إلا إذا طلبتُها صراحةً وهذا مزعج».
 - **قبل أيّ مهمّة** طابِقها بمهارات `.agents/skills/` (يعرضها هوك `skills-index.cjs` أوّلَ كلّ جلسة) واقرأ `SKILL.md` لكلّ ما ينطبق واتّبعه — لا تنتظر أن يسمّيها المالك.
 - **كلّ تكليفٍ لوكيلٍ فرعيّ** يسمّي المهارات المنطبقة ويأمره بقراءتها؛ وفي التقرير سطرٌ بما استُعمل.
-- الخريطة: أيُّ عمل ← `mwqwf-workflow` · CI وworkflows والإنفاق ← `mwqwf-workflow` (`references/actions-cost-control.md`) · أداةٌ أو سيرُ عملٍ جديد كبير ← `brainstorming` ثم `writing-plans` ثم `executing-plans` (بدل speckit).
+- الخريطة: أيُّ عمل ← `mwqwf-workflow` · CI وworkflows والإنفاق ← `mwqwf-workflow` (`references/actions-cost-control.md`) · أداةٌ أو سيرُ عملٍ جديد كبير ← `engineering-discipline` §٥ (بدل speckit).
 
 ## OWNER FINAL INDEXING STOP — 2026-09-18
 
@@ -31,7 +31,7 @@ All default-branch workflow jobs have a reversible `if: ${{ false }}` stop. This
 > **اقرأ أولاً قبل أي عمل:** `.agents/skills/mwqwf-workflow/SKILL.md` — الدستور التنفيذيّ (عتبة الإذن · معيار «أُنجز» · ما لا يُقبل عذراً · شكل التقرير)، ثم مهارةَ المشروع المعنية في `.agents/skills/`. هذه المهارات نسخةٌ مطابقة للمحليّة وتعمل في الجلسات السحابية بلا جهاز المالك.
 
 
-- الخريطة: أيُّ عمل ← `mwqwf-workflow` · CI وworkflows والإنفاق ← `mwqwf-workflow` (`references/actions-cost-control.md`) · **قبل أيّ إيداعٍ أو إعلان إنجاز ← `verify-and-review`** (ومعه `REVIEW.md` ووكيل `reviewer`) · أداةٌ أو سيرُ عملٍ جديد كبير ← `brainstorming` ثم `writing-plans` ثم `executing-plans` (بدل speckit).
+- الخريطة: أيُّ عمل ← `mwqwf-workflow` · CI وworkflows والإنفاق ← `mwqwf-workflow` (`references/actions-cost-control.md`) · **قبل أيّ إيداعٍ أو إعلان إنجاز ← `engineering-discipline`** (ومعه `REVIEW.md` ووكيل `reviewer`) · أداةٌ أو سيرُ عملٍ جديد كبير ← `engineering-discipline` §٥ (بدل speckit).
 
 ## ✅ رُفع إيقافُ الفهرسة — أمرُ المالك 2026-09-20
 
