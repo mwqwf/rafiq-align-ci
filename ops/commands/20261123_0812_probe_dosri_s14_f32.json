@@ -1,0 +1,12 @@
+{
+  "action": "dispatch",
+  "workflow": "ctc_heard_probe.yml",
+  "inputs": {
+    "url": "https://server10.mp3quran.net/ibrahim_dosri/Rewayat-Hafs-A-n-Assem/014.mp3",
+    "surah": "14",
+    "riwaya": "hafs",
+    "build": "false",
+    "int8": "0",
+    "reason": "سبر خريطة سماع float32 (int8=0) لسورة إبراهيم عند الدوسري من الملف الرسمي نفسه (https://server10.mp3quran.net/ibrahim_dosri/Rewayat-Hafs-A-n-Assem/014.mp3) بعد أن مرساة CTC الحالية لـ14:31 منتفخة (127ث) وتبتلع الأداء الوحيد عند 3433ث. سبرٌ بلا رفع (build=false). لا إرخاء."
+  }
+}
