@@ -128,7 +128,7 @@ jobs:
           # ⛔ الحُرّاس تُختبر قبل أوّل رفعٍ في كل تشغيلة — لا ثقةَ بأداةٍ لم تُختبر.
           python tools/index_qa/stage_source.py --self-test
           MAP="tools/index_qa/countmap_$RIW.json"
-          WIDE_SPLICE=$(python - <<'PY'
+          WIDE_SPLICE=$(MAP_PATH="$MAP" python - <<'PY'
           import gzip, json, os
           from pathlib import Path
           if not (Path("parent.jz").exists() and Path(os.environ["MAP_PATH"]).exists()):
@@ -138,7 +138,7 @@ jobs:
               by = (d.get("missing") or {}).get("byReason") or {}
               print("1" if int(by.get("count_map_wide_ayah") or 0) > 0 else "")
           PY
-          MAP_PATH="$MAP")
+          )
           if [ -n "$WIDE_SPLICE" ]; then
             PARENT_SHA=$(sha256sum parent.jz | awk '{print $1}')
             python tools/index_qa/splice_official_complete.py \
