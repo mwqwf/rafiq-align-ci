@@ -1,0 +1,19 @@
+# rc=0
+  ✔ إعادةُ محاذاة [17, 29, 41, 43]: 6235 ⇐ 6235 مدخلاً (‏+0)، وما خارجها لم يُمسّ
+  ⓘ إعفاءُ العتبة موروثٌ من صفّ موافقة الأصل لسورٍ محجوبةٍ فيه بالرمز نفسه: [2]
+  ✔ حُذف من الحجب الوسطيّ الموروث ما استُرجع: 
+  ✔ حُذف من الحجب الوسطيّ الموروث ما استُرجع: 
+  ✔ حجبٌ وسطيٌّ موروثٌ معلَن: ['2']
+  ✔ حُذف من الحجب الوسطيّ الموروث ما استُرجع: 
+الأصل timings/hafs/a_alhazmi.jz (3d32a8a3741f) · المنتَج patched.jz (50a77ef693a6)
+المداخل 6235 ⇒ 6235 ✅ · بصمةُ المداخل 4498d71bda ⇒ cbfeb3b9b6 (مختلفة ✅) · حدودٌ أُزيحت 305
+إلى timings-staging/hafs/a_alhazmi.c069e025.jz (211137 بايت · بصمة c069e0257619dcae453f40dbf4a26f5dd4394ee48e486eda3e3b3601f7750198)
+STAGE_RESULT {"key": "timings-staging/hafs/a_alhazmi.c069e025.jz", "localCandidateSha256": "50a77ef693a637674ee8c84989b588be4d12747593087a9a763a18001449f353", "manualQaOnly": false, "parentKey": "timings/hafs/a_alhazmi.jz", "parentSha256": "3d32a8a3741f50e0ed7adfa9416d0d9500c5e264f1af5003e8be05251a6a6861", "productionChanged": false, "readBackVerified": true, "sha256": "c069e0257619dcae453f40dbf4a26f5dd4394ee48e486eda3e3b3601f7750198", "sizeBytes": 211137}
+خطة الدمج:
+  س17: من timings-staging/hafs/a_alhazmi.beb96e27.jz (beb96e27f8bb)
+  س29: من timings-staging/hafs/a_alhazmi.ba1ef5cf.jz (ba1ef5cfc638)
+  س41: من timings-staging/hafs/a_alhazmi.eae5b94a.jz (eae5b94a026d)
+  س43: من timings-staging/hafs/a_alhazmi.8056ac91.jz (8056ac914865)
+المداخل 6235 ⇐ 6235 · الغياب 1 ⇐ 1 · سور [17, 29, 41, 43]
+✅ /tmp/union_m98n5837/patched.jz · sha256 7527069452d897d9…
+المخرج /tmp/union_m98n5837/patched.jz · sha 50a77ef693a63767… · مداخل 6235 · غياب 1 · سور [17, 29, 41, 43]
