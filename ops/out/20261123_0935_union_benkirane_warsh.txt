@@ -1,0 +1,20 @@
+# rc=0
+  ✔ إعادةُ محاذاة [2, 24, 37, 38]: 6192 ⇐ 6192 مدخلاً (‏+0)، وما خارجها لم يُمسّ
+  ⓘ إعفاءُ العتبة موروثٌ من صفّ موافقة الأصل لسورٍ محجوبةٍ فيه بالرمز نفسه: [23]
+  ✔ حُذف من الحجب الوسطيّ الموروث ما استُرجع: 
+  ✔ حُذف من الحجب الوسطيّ الموروث ما استُرجع: 
+  ✔ إعلانُ إسقاطٍ موروثٌ معلَن: [13]
+  ✔ حجبٌ وسطيٌّ موروثٌ معلَن: ['23']
+  ✔ حُذف من الحجب الوسطيّ الموروث ما استُرجع: 
+الأصل timings/warsh/benkirane_warsh.jz (b6d207b53463) · المنتَج patched.jz (4b6796dbc12f)
+المداخل 6192 ⇒ 6192 ✅ · بصمةُ المداخل 1b1ee20211 ⇒ 42781e48b4 (مختلفة ✅) · حدودٌ أُزيحت 592
+إلى timings-staging/warsh/benkirane_warsh.83123954.jz (249589 بايت · بصمة 83123954be4500ffc0a0110771f83a8baba18b1b86b926453f56dc9fc5c0813d)
+STAGE_RESULT {"key": "timings-staging/warsh/benkirane_warsh.83123954.jz", "localCandidateSha256": "4b6796dbc12ffc3778212e0f2843ef662bcb7bf16c1ea919f54643f156855f8f", "manualQaOnly": false, "parentKey": "timings/warsh/benkirane_warsh.jz", "parentSha256": "b6d207b534636f5cff2838e53e9644662f3092924a1e9a2dfe9b373cf1930852", "productionChanged": false, "readBackVerified": true, "sha256": "83123954be4500ffc0a0110771f83a8baba18b1b86b926453f56dc9fc5c0813d", "sizeBytes": 249589}
+خطة الدمج:
+  س2: من timings-staging/warsh/benkirane_warsh.b317f81f.jz (b317f81fd212)
+  س24: من timings-staging/warsh/benkirane_warsh.19f4f312.jz (19f4f312c611)
+  س37: من timings-staging/warsh/benkirane_warsh.42f659be.jz (42f659be8a9f)
+  س38: من timings-staging/warsh/benkirane_warsh.0fa61969.jz (0fa619692088)
+المداخل 6192 ⇐ 6192 · الغياب 44 ⇐ 44 · سور [2, 24, 37, 38]
+✅ /tmp/union_sixp1y_z/patched.jz · sha256 23c70ac599c92d1f…
+المخرج /tmp/union_sixp1y_z/patched.jz · sha 4b6796dbc12ffc37… · مداخل 6192 · غياب 44 · سور [2, 24, 37, 38]
