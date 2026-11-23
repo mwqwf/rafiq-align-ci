@@ -1,0 +1,12 @@
+# rc=0
+  ✔ إعادةُ محاذاة [14, 52]: 6236 ⇐ 6236 مدخلاً (‏+0)، وما خارجها لم يُمسّ
+الأصل timings/hafs/mrifai.jz (995549549d25) · المنتَج patched.jz (1c1fdcda2292)
+المداخل 6236 ⇒ 6236 ✅ · بصمةُ المداخل ffee5c7c61 ⇒ dd054df861 (مختلفة ✅) · حدودٌ أُزيحت 95
+إلى timings-staging/hafs/mrifai.98b7d2e3.jz (235066 بايت · بصمة 98b7d2e38e4a566ebb5fa3e53e03711b38e85edf5d607d474a4413a152587c0f)
+STAGE_RESULT {"key": "timings-staging/hafs/mrifai.98b7d2e3.jz", "localCandidateSha256": "1c1fdcda2292b5fb4c084ada09ebcd82e814500674965b48cdc2bf00bc2dc667", "manualQaOnly": false, "parentKey": "timings/hafs/mrifai.jz", "parentSha256": "995549549d257bd2845143d6746c228ecd37bc48f5fd0a34352be5980e2464b2", "productionChanged": false, "readBackVerified": true, "sha256": "98b7d2e38e4a566ebb5fa3e53e03711b38e85edf5d607d474a4413a152587c0f", "sizeBytes": 235066}
+خطة الدمج:
+  س14: من timings-staging/hafs/mrifai.5a70430b.jz (5a70430b5677)
+  س52: من timings-staging/hafs/mrifai.0f8ddd62.jz (0f8ddd62024a)
+المداخل 6236 ⇐ 6236 · الغياب 0 ⇐ 0 · سور [14, 52]
+✅ /tmp/union_a9iussmj/patched.jz · sha256 fca196c172129a90…
+المخرج /tmp/union_a9iussmj/patched.jz · sha 1c1fdcda2292b5fb… · مداخل 6236 · غياب 0 · سور [14, 52]
