@@ -1,0 +1,169 @@
+{
+  "source": "2124_heard_sweep + pV 55 + PROGRESS 2026-11-23",
+  "confirmed_live": 30,
+  "remaining_work": 25,
+  "note": "24 surahs with >60s drift in last sweep + maroush (53 dropped maps). shaykhna promoted after sweep.",
+  "reciters": [
+    {
+      "id": "ibrahim_dosri",
+      "riwaya": "hafs",
+      "worst_s": 14,
+      "mp3quran_read": 232,
+      "ayat_timing": true,
+      "audio_matches_cdn": true,
+      "do_not_touch_runs": true
+    },
+    {
+      "id": "rabbani_warsh",
+      "riwaya": "warsh",
+      "worst_s": 7,
+      "mp3quran_read": null,
+      "ayat_timing": false,
+      "do_not_touch_runs": true
+    },
+    {
+      "id": "benkirane_warsh",
+      "riwaya": "warsh",
+      "mp3quran_read": 10920,
+      "ayat_timing": false,
+      "audio_matches_cdn": true
+    },
+    {
+      "id": "abdullahk",
+      "riwaya": "hafs",
+      "mp3quran_read": null,
+      "note": "not Abdullah Kamel 267"
+    },
+    {
+      "id": "laghdaf_shinqiti",
+      "riwaya": "warsh",
+      "worst_s": 85
+    },
+    {
+      "id": "a_alhazmi",
+      "riwaya": "hafs",
+      "mp3quran_read": 316,
+      "ayat_timing": false,
+      "audio_matches_cdn": true
+    },
+    {
+      "id": "jelmam_qalun",
+      "riwaya": "qalun",
+      "suspect_repeat": true,
+      "duration_ratio_vs_afs": {
+        "10": 4.3,
+        "27": 4.89
+      }
+    },
+    {
+      "id": "a_alqrafi",
+      "riwaya": "hafs",
+      "mp3quran_read": 10914,
+      "ayat_timing": false,
+      "audio_matches_cdn": true
+    },
+    {
+      "id": "akri_qalun",
+      "riwaya": "qalun",
+      "mp3quran_read": 287,
+      "ayat_timing": false,
+      "audio_matches_cdn": true,
+      "inherited_drop_guard": true
+    },
+    {
+      "id": "m_qari",
+      "riwaya": "hafs",
+      "mp3quran_read": 229,
+      "ayat_timing": true,
+      "audio_matches_cdn": true
+    },
+    {
+      "id": "qurashi",
+      "riwaya": "hafs",
+      "mp3quran_read": 93,
+      "ayat_timing": false,
+      "audio_matches_cdn": true
+    },
+    {
+      "id": "a_binaoun",
+      "riwaya": "hafs"
+    },
+    {
+      "id": "janaini_qalun",
+      "riwaya": "qalun"
+    },
+    {
+      "id": "harraz_warsh",
+      "riwaya": "warsh",
+      "mp3quran_read": 317,
+      "ayat_timing": false,
+      "audio_matches_cdn": true
+    },
+    {
+      "id": "darweez",
+      "riwaya": "hafs",
+      "mp3quran_read": 260,
+      "ayat_timing": false,
+      "audio_matches_cdn": true
+    },
+    {
+      "id": "hatem",
+      "riwaya": "hafs",
+      "mp3quran_read": 163,
+      "ayat_timing": false,
+      "audio_matches_cdn": true,
+      "inherited_drop_guard": true
+    },
+    {
+      "id": "saad",
+      "riwaya": "hafs"
+    },
+    {
+      "id": "mrifai",
+      "riwaya": "hafs",
+      "mp3quran_read": 165,
+      "ayat_timing": false,
+      "audio_matches_cdn": true
+    },
+    {
+      "id": "afs",
+      "riwaya": "hafs",
+      "mp3quran_read": 123,
+      "ayat_timing": true,
+      "audio_matches_cdn": true
+    },
+    {
+      "id": "deban",
+      "riwaya": "hafs",
+      "mp3quran_read": 265,
+      "ayat_timing": true,
+      "audio_matches_cdn": true
+    },
+    {
+      "id": "sayed",
+      "riwaya": "hafs"
+    },
+    {
+      "id": "husary_douri",
+      "riwaya": "douri",
+      "mp3quran_read": 269,
+      "ayat_timing": true,
+      "audio_matches_cdn": true,
+      "stage_source_count_conflict": true
+    },
+    {
+      "id": "wahrani_warsh",
+      "riwaya": "warsh"
+    },
+    {
+      "id": "shaykhna_qalun",
+      "riwaya": "qalun",
+      "promoted_after_sweep": true
+    },
+    {
+      "id": "maroush_qalun",
+      "riwaya": "qalun",
+      "dropped_surahs_live": 53
+    }
+  ]
+}
