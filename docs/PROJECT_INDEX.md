@@ -6,14 +6,15 @@
 ## البنية (عدد الملفات المتتبَّعة)
 | المجلد | الملفات |
 |---|---|
-| `.agents/` | 45 |
+| `"ops/` | 2 |
+| `.agents/` | 17 |
 | `.github/` | 103 |
 | `core/` | 17 |
 | `docs/` | 207 |
 | `jobs/` | 7 |
-| `ops/` | 89122 |
+| `ops/` | 89177 |
 | `results/` | 146 |
-| `tools/` | 5432 |
+| `tools/` | 5433 |
 
 ## سير العمل (102)
 | الملف | الاسم | المحفّزات | الجدول (cron UTC) | المشغّل |
@@ -121,8 +122,8 @@
 | `whisper_witness.yml` | rafiq-whisper-witness | workflow_dispatch | — | ubuntu |
 | `window_census.yml` | rafiq-independent-window-census | workflow_dispatch | — | ubuntu |
 
-## المهارات (12) — `.agents/skills/` (و`.claude/skills/` روابط لها)
-`arabic-rtl-and-islamic-typography` (مركزية) · `automation-first` (مركزية) · `mwqwf-workflow` (مركزية) · `project-registry` (مركزية) · `quran-audio-alignment` (مركزية) · `quran-rafiq` (مركزية) · `receiving-code-review` (مركزية) · `systematic-debugging` (مركزية) · `test-driven-development` (مركزية) · `verification-before-completion` (مركزية) · `verify-and-review` (مركزية) · `writing-plans` (مركزية)
+## المهارات (4) — `.agents/skills/` (و`.claude/skills/` روابط لها)
+`arabic-text-integrity` (مركزية) · `engineering-discipline` (مركزية) · `mushafak` (مركزية) · `mwqwf-workflow` (مركزية)
 
 ## وثائق `docs/`
 [`PROJECT_STATE.md`](PROJECT_STATE.md)
