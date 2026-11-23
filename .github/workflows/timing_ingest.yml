@@ -22,6 +22,9 @@ on:
       offset:
         description: "تخطّي أوّلَ n سطراً (للدفعات المتتالية)"
         default: "0"
+      surahs:
+        description: "اختياريّ: زرعُ هذه السور التامّة وحدَها من التوقيت الرسميّ فوق المنشور (‏official_timing_splice) بدل فهرسٍ كاملٍ منافس — يلزمه only بقارئٍ واحد"
+        default: ""
 
 env:
   PY: "3.11"
@@ -124,9 +127,36 @@ jobs:
           RIW: ${{ matrix.r.riw }}
           READ: ${{ matrix.r.read }}
           URL: ${{ matrix.r.url }}
+          SURAHS: ${{ github.event.inputs.surahs }}
+          ONLY: ${{ github.event.inputs.only }}
         run: |
           # ⛔ الحُرّاس تُختبر قبل أوّل رفعٍ في كل تشغيلة — لا ثقةَ بأداةٍ لم تُختبر.
           python tools/index_qa/stage_source.py --self-test
+          SURAHS=$(printf '%s' "${SURAHS:-}" | tr -d ' ')
+          if [ -n "$SURAHS" ]; then
+            # ⭐ زرعٌ مسمّى (2026-11-23): السورُ التامّة المسمّاة وحدَها فوق المنشور، والباقي بايتاً كما هو.
+            #    لا يُرخي حارساً: splice_surah + stage_transform بحُرّاسهما، ثمّ البوّاباتُ كاملةً على المرشّح.
+            case "$ONLY" in *,*|*" "*|"") echo "⛔ surahs يلزمه only بقارئٍ واحد"; exit 2;; esac
+            [ -f parent.jz ] || { echo "⛔ surahs يلزمه فهرسٌ منشور (parent.jz)"; exit 2; }
+            PARENT_SHA=$(sha256sum parent.jz | awk '{print $1}')
+            python tools/index_qa/splice_official_complete.py \
+              --parent parent.jz --official out.jz \
+              --url "$URL" --read "$READ" --out patched.jz --surahs "$SURAHS"
+            TAKEN=$(cat patched.jz.taken)
+            WANT=$(printf '%s' "$SURAHS" | tr ',' '\n' | sort -n | paste -sd, -)
+            GOT=$(printf '%s' "$TAKEN" | tr ',' '\n' | sort -n | paste -sd, -)
+            if [ "$WANT" != "$GOT" ]; then
+              echo "⛔ السورُ التامّة في التوقيت الرسميّ ($GOT) غيرُ المطلوبة ($WANT) — لا رفع"; exit 3
+            fi
+            python tools/index_qa/stage_transform.py \
+              --file patched.jz \
+              --parent "timings/$RIW/$RID.jz" \
+              --parent-sha "$PARENT_SHA" \
+              --op "official_timing_splice:$TAKEN" \
+              --reason "زرع السور المسمّاة ($TAKEN) تامّةَ العدّ من mp3quran (read=$READ) فوق المنشور؛ بقية السور بايتاً كما في المنشور؛ بلا إرخاء لحارس" \
+              --yes
+            exit 0
+          fi
           MAP="tools/index_qa/countmap_$RIW.json"
           WIDE_SPLICE=$(MAP_PATH="$MAP" python - <<'PY'
           import gzip, json, os
