@@ -9,8 +9,20 @@ from unittest import mock
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 from preflight_duplicate_performance import (
-    classify_ratio, classify_start, envelope_peaks, main, report, synthesize_repeated_envelope,
+    SEG_MIN_S, classify_ratio, classify_start, envelope_peaks, main, repeated_segment, report, segment_run,
+    synthesize_repeated_envelope,
 )
+import random
+
+
+def _speechlike(n, seed):
+    """غلافٌ شبيهٌ بالكلام بلا تكرار: مقاطع بطول عشوائيّ وطاقة عشوائيّة ووقفات."""
+    rng = random.Random(seed)
+    out = []
+    while len(out) < n:
+        out.extend([rng.uniform(0.2, 1.0) + rng.uniform(-0.05, 0.05) for _ in range(rng.randint(2, 9))])
+        out.extend([rng.uniform(0.0, 0.05)] * rng.randint(0, 2))
+    return out[:n]
 
 
 class PreflightTest(unittest.TestCase):
@@ -36,6 +48,33 @@ class PreflightTest(unittest.TestCase):
         peaks = envelope_peaks(env, min_lag_s=80, corr_min=0.7)
         self.assertTrue(peaks["repeated_like"])
         self.assertAlmostEqual(peaks["lag_s"], 200, delta=2)
+
+    def test_partial_copy_is_caught_by_segments(self):
+        """نمط الرباني س7: جزءٌ من الملف (600ث) منسوخٌ في وسطه ⇒ الارتباط الكلّيّ ضعيف والمقطعيّ يكشفه."""
+        base = _speechlike(3000, 7)
+        env = base[:2000] + base[100:700] + base[2000:]          # نسخةُ 100–700 عند 2000
+        r = report(float(len(env)), None, None, envelope=env)
+        seg = r["envelope"].get("repeated_segment")
+        self.assertIsNotNone(seg, r["envelope"])
+        self.assertEqual(r["verdict"], "repeated_segment")
+        self.assertGreaterEqual(seg["run_s"], SEG_MIN_S)
+        self.assertAlmostEqual(seg["lag_s"], 1900, delta=2)
+        self.assertNotIn("suggested_trim", r)                     # لا قصّ مقترح لمقطعٍ داخليّ
+
+    def test_no_repeat_stays_clean(self):
+        """سالبٌ: غلافٌ بلا تكرار لا يُتّهم (صفر اتّهامٍ كاذب)."""
+        for seed in (1, 2, 3):
+            env = _speechlike(2500, seed)
+            r = report(float(len(env)), 2500.0, None, envelope=env)
+            self.assertIsNone(r["envelope"].get("repeated_segment"), seed)
+            self.assertEqual(r["verdict"], "ok_by_duration", seed)
+
+    def test_short_local_repeat_below_min_is_not_flagged(self):
+        """تكرارُ آيةٍ واحدة (≈100ث كما في المروش س4) دون SEG_MIN_S لا يُعدّ تكراراً للملف."""
+        base = _speechlike(2500, 11)
+        env = base[:1500] + base[1400:1500] + base[1500:]
+        self.assertIsNone(repeated_segment(env, [100]))
+        self.assertLess(segment_run(env, 100)["run_s"], SEG_MIN_S)
 
     def test_cli_ffprobe_and_envelope_mocked(self):
         pcm = array.array("h", [min(30000, 100 + (i // 400) * 100) for i in range(400 * 260)]).tobytes()

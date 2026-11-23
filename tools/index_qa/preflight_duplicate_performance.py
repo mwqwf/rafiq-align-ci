@@ -36,6 +36,16 @@ STRONG = 2.5
 WARN = 1.6
 START_FRAC = 0.40
 ENVELOPE_SR = 400
+# ⭐ كشف المقطع المكرَّر (2026-11-23): الارتباط الكلّيّ يُمَيَّع حين يتكرّر **جزءٌ** من الملف
+#    (الرباني س7: نسخةٌ من 70–1390ث عند +1820ث ⇒ ارتباطٌ كلّيّ 0.294 فقط). فيُقاس الارتباطُ
+#    بنوافذ عند كلّ إزاحةٍ مرشَّحة، ويُعدّ تكراراً مقطعٌ متّصلٌ ≥ SEG_MIN_S بارتباطٍ ≥ SEG_CORR.
+#    مقيسٌ على الصوت: الرباني س7 1320ث والدوسري س14 1710ث (إيجابيّان معروفان)، والسالبُ المروش س4
+#    100ث والعفاسي س2 0ث — فالحدّ 300ث بينهما بهامشٍ واسع. تقريريٌّ لا يقصّ ولا يرقّي.
+SEG_WIN_S = 60
+SEG_STEP_S = 10
+SEG_CORR = 0.8
+SEG_MIN_S = 300
+SEG_TOP_LAGS = 5
 
 
 def classify_ratio(file_sec: float, expected_sec: float | None) -> dict:
@@ -77,13 +87,73 @@ def envelope_peaks(energy: list[float], min_lag_s: int = 120, corr_min: float = 
         return {"error": "flat_envelope"}
     best = {"lag_s": None, "corr": 0.0}
     max_lag = min(len(energy) - min_lag_s, len(energy) // 2)
-    for lag in range(min_lag_s, max_lag + 1):
+    # مرشّحاتُ الفحص المقطعيّ تمتدّ إلى ما يُبقي تداخلاً ≥ SEG_MIN_S (‏نسخةٌ قرب آخر الملف إزاحتُها > نصفه)؛
+    # والحكمُ الكلّيّ القديم (‏best/repeated_like) يبقى على ≤ نصف الملف كما كان حرفاً.
+    seg_max = max(max_lag, len(energy) - SEG_MIN_S)
+    by_lag = []
+    for lag in range(min_lag_s, seg_max + 1):
         n = len(energy) - lag
         num = sum((energy[i] - mean) * (energy[i + lag] - mean) for i in range(n))
         corr = num / (n * var)
-        if corr > best["corr"]:
+        # الترتيبُ بالمقدِّر المنحاز (‏÷ طول الملف كلّه): إزاحةٌ بتداخلٍ قصيرٍ لا تعلو بضجيجها على نسخةٍ طويلة
+        by_lag.append((float(num / (len(energy) * var)), lag))
+        if lag <= max_lag and corr > best["corr"]:
             best = {"lag_s": lag, "corr": round(float(corr), 3)}
     best["repeated_like"] = bool(best["lag_s"] and best["corr"] >= corr_min)
+    best["top_lags"] = _top_lags(by_lag)
+    return best
+
+
+def _top_lags(by_lag, k: int = SEG_TOP_LAGS, sep: int = 30) -> list[int]:
+    """أعلى k إزاحاتٍ متباعدةٍ (≥ sep ثانية) بالارتباط الكلّيّ — مرشّحاتٌ للفحص المقطعيّ."""
+    out: list[int] = []
+    for _c, lag in sorted(by_lag, reverse=True):
+        if all(abs(lag - o) > sep for o in out):
+            out.append(lag)
+        if len(out) >= k:
+            break
+    return out
+
+
+def _pearson(a, b) -> float:
+    n = len(a)
+    ma, mb = sum(a) / n, sum(b) / n
+    va = sum((x - ma) ** 2 for x in a)
+    vb = sum((y - mb) ** 2 for y in b)
+    if va <= 1e-12 or vb <= 1e-12:
+        return 0.0
+    return sum((x - ma) * (y - mb) for x, y in zip(a, b)) / math.sqrt(va * vb)
+
+
+def segment_run(energy: list[float], lag: int, win: int = SEG_WIN_S, step: int = SEG_STEP_S,
+                corr_min: float = SEG_CORR) -> dict:
+    """أطولُ مقطعٍ متّصلٍ يتكرّر بالإزاحة `lag`: نوافذُ `win` ثانية بخطوة `step`، كلٌّ بارتباطٍ ≥ corr_min.
+    يُرجع {lag_s, run_s, start_s, end_s, copy_start_s, copy_end_s} (‏run_s=0 إن لم يوجد)."""
+    n = len(energy)
+    best = {"lag_s": lag, "run_s": 0, "start_s": None, "end_s": None}
+    cur = None
+    for s in range(0, max(0, n - lag - win) + 1, step):
+        c = _pearson(energy[s:s + win], energy[s + lag:s + lag + win])
+        if c >= corr_min:
+            cur = s if cur is None else cur
+            run = s + win - cur
+            if run > best["run_s"]:
+                best.update(run_s=run, start_s=cur, end_s=s + win)
+        else:
+            cur = None
+    if best["run_s"]:
+        best["copy_start_s"] = best["start_s"] + lag
+        best["copy_end_s"] = best["end_s"] + lag
+    return best
+
+
+def repeated_segment(energy: list[float], lags) -> dict | None:
+    """أطولُ مقطعٍ مكرَّرٍ عبر الإزاحات المرشَّحة إن بلغ SEG_MIN_S، وإلا None."""
+    best = None
+    for lag in lags or []:
+        r = segment_run(energy, int(lag))
+        if r["run_s"] >= SEG_MIN_S and (best is None or r["run_s"] > best["run_s"]):
+            best = r
     return best
 
 
@@ -138,6 +208,13 @@ def report(file_sec, expected_sec=None, timing_start_ms=None, envelope=None) -> 
     out.update(classify_start(file_sec or 0, timing_start_ms))
     if envelope is not None:
         out["envelope"] = envelope_peaks(list(envelope))
+        seg = repeated_segment(list(envelope), out["envelope"].get("top_lags"))
+        if seg:
+            out["envelope"]["repeated_segment"] = seg
+            if out["verdict"] in ("ok_by_duration", "unknown") and not out["envelope"].get("repeated_like"):
+                # ⛔ مقطعٌ مكرَّرٌ داخل الملف: لا قصَّ مقترحاً (الأداءُ الأوّل قد لا يكون أوّلَ الملف) —
+                #    يُعرض الموضعان ليُحسما بالسماع (‏pin_heard على الأداء الواحد).
+                out["verdict"] = "repeated_segment"
         if out["envelope"].get("repeated_like") and out["verdict"] == "ok_by_duration":
             out["verdict"] = "repeated_performance"
             lag = out["envelope"]["lag_s"]
