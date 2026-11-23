@@ -1,0 +1,17 @@
+{
+  "action": "tool",
+  "tool": "index_qa/union_same_parent.py",
+  "args": [
+    "--parent",
+    "timings/hafs/qurashi.jz",
+    "--parent-sha",
+    "150b6e29d22b",
+    "--url",
+    "https://server9.mp3quran.net/qurashi/{s:03d}.mp3",
+    "--donors-file",
+    "ops/out/union_donors_qurashi.json",
+    "--reason",
+    "اتحاد مرشّحات qurashi (5 سور: 22,31,35,36,46) على الأب المنشور 150b6e29d22b بلا إرخاء حارس",
+    "--yes"
+  ]
+}

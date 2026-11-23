@@ -1,0 +1,17 @@
+{
+  "action": "tool",
+  "tool": "index_qa/union_same_parent.py",
+  "args": [
+    "--parent",
+    "timings/warsh/benkirane_warsh.jz",
+    "--parent-sha",
+    "b6d207b53463",
+    "--url",
+    "https://server16.mp3quran.net/A-Benkirane/Rewayat-Warsh-A-n-Nafi/{s:03d}.mp3",
+    "--donors-file",
+    "ops/out/union_donors_benkirane_warsh.json",
+    "--reason",
+    "اتحاد مرشّحات benkirane_warsh (4 سور: 2,24,37,38) على الأب المنشور b6d207b53463 بلا إرخاء حارس",
+    "--yes"
+  ]
+}

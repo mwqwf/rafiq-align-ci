@@ -1,0 +1,17 @@
+{
+  "action": "tool",
+  "tool": "index_qa/union_same_parent.py",
+  "args": [
+    "--parent",
+    "timings/qalun/jelmam_qalun.jz",
+    "--parent-sha",
+    "5af0501f25ec",
+    "--url",
+    "https://archive.org/download/256--kb--ahmad--jelmam--by---qaloon----mp3--full--mushaf--quran--114--sora---/{s:03d}.mp3",
+    "--donors-file",
+    "ops/out/union_donors_jelmam_qalun.json",
+    "--reason",
+    "اتحاد مرشّحات jelmam_qalun (3 سور: 10,27,43) على الأب المنشور 5af0501f25ec بلا إرخاء حارس",
+    "--yes"
+  ]
+}

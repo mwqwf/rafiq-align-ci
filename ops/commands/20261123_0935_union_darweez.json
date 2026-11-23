@@ -1,0 +1,17 @@
+{
+  "action": "tool",
+  "tool": "index_qa/union_same_parent.py",
+  "args": [
+    "--parent",
+    "timings/hafs/darweez.jz",
+    "--parent-sha",
+    "3c575f2389f0",
+    "--url",
+    "https://server16.mp3quran.net/darweez/Rewayat-Hafs-A-n-Assem/{s:03d}.mp3",
+    "--donors-file",
+    "ops/out/union_donors_darweez.json",
+    "--reason",
+    "اتحاد مرشّحات darweez (2 سور: 35,39) على الأب المنشور 3c575f2389f0 بلا إرخاء حارس",
+    "--yes"
+  ]
+}

@@ -1,0 +1,17 @@
+{
+  "action": "tool",
+  "tool": "index_qa/union_same_parent.py",
+  "args": [
+    "--parent",
+    "timings/hafs/a_binaoun.jz",
+    "--parent-sha",
+    "6a3c67ac567d",
+    "--url",
+    "https://server16.mp3quran.net/a_binaoun/Rewayat-Hafs-A-n-Assem/{s:03d}.mp3",
+    "--donors-file",
+    "ops/out/union_donors_a_binaoun.json",
+    "--reason",
+    "اتحاد مرشّحات a_binaoun (2 سور: 23,36) على الأب المنشور 6a3c67ac567d بلا إرخاء حارس",
+    "--yes"
+  ]
+}

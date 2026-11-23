@@ -1,0 +1,17 @@
+{
+  "action": "tool",
+  "tool": "index_qa/union_same_parent.py",
+  "args": [
+    "--parent",
+    "timings/qalun/janaini_qalun.jz",
+    "--parent-sha",
+    "0cce11890f2d",
+    "--url",
+    "https://archive.org/download/Al-Quran_Qaloon_tilawat_Aljanaini/{s:03d}.mp3",
+    "--donors-file",
+    "ops/out/union_donors_janaini_qalun.json",
+    "--reason",
+    "اتحاد مرشّحات janaini_qalun (2 سور: 9,30) على الأب المنشور 0cce11890f2d بلا إرخاء حارس",
+    "--yes"
+  ]
+}

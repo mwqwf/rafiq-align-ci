@@ -1,0 +1,17 @@
+{
+  "action": "tool",
+  "tool": "index_qa/union_same_parent.py",
+  "args": [
+    "--parent",
+    "timings/hafs/a_alhazmi.jz",
+    "--parent-sha",
+    "3d32a8a3741f",
+    "--url",
+    "https://server16.mp3quran.net/a_alhazmi/Rewayat-Hafs-A-n-Assem/{s:03d}.mp3",
+    "--donors-file",
+    "ops/out/union_donors_a_alhazmi.json",
+    "--reason",
+    "اتحاد مرشّحات a_alhazmi (4 سور: 17,29,41,43) على الأب المنشور 3d32a8a3741f بلا إرخاء حارس",
+    "--yes"
+  ]
+}

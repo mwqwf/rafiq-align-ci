@@ -1,0 +1,17 @@
+{
+  "action": "tool",
+  "tool": "index_qa/union_same_parent.py",
+  "args": [
+    "--parent",
+    "timings/hafs/mrifai.jz",
+    "--parent-sha",
+    "995549549d25",
+    "--url",
+    "https://server11.mp3quran.net/mrifai/{s:03d}.mp3",
+    "--donors-file",
+    "ops/out/union_donors_mrifai.json",
+    "--reason",
+    "اتحاد مرشّحات mrifai (2 سور: 14,52) على الأب المنشور 995549549d25 بلا إرخاء حارس",
+    "--yes"
+  ]
+}

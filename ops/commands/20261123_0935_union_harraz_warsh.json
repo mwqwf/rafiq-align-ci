@@ -1,0 +1,17 @@
+{
+  "action": "tool",
+  "tool": "index_qa/union_same_parent.py",
+  "args": [
+    "--parent",
+    "timings/warsh/harraz_warsh.jz",
+    "--parent-sha",
+    "31b9f5c6154d",
+    "--url",
+    "https://server16.mp3quran.net/H-Lharraz/Rewayat-Warsh-A-n-Nafi/{s:03d}.mp3",
+    "--donors-file",
+    "ops/out/union_donors_harraz_warsh.json",
+    "--reason",
+    "اتحاد مرشّحات harraz_warsh (3 سور: 20,46,59) على الأب المنشور 31b9f5c6154d بلا إرخاء حارس",
+    "--yes"
+  ]
+}
