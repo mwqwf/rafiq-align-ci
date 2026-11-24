@@ -704,7 +704,13 @@ def main():
     _shift = promote.gap_reason_shift_error(idx, pidx)
     if _shift:
         raise SystemExit(_shift)
-    for check, name in ((promote.index_gate(idx, parent=_dp, parent_sha=_dps, owner_approved=_own,
+    # ⭐ (2026-11-24) إعادةُ المحاذاة على **الحيّ** تحمل حتى هذه اللحظة ترويسةَ الحيّ القديمة (‏fromSha لأصلِ الحيّ)،
+    #    وتُكتب ترويستُها الحقيقيّة (‏fromKey=الأصل · fromSha256=بصمته) بعد الحارس. فيُحكم على **الترويسة التي ستُكتب**
+    #    لا على القديمة — والحارسُ نفسُه يجري كاملاً، ولا يتغيّر ما يُرفع.
+    _gidx = None
+    if a.parent.startswith("timings/") and needs_drop_parent(idx):
+        _gidx = dict(idx, transform=dict(idx["transform"], fromKey=a.parent, fromSha256=psha))
+    for check, name in ((promote.index_gate(idx if _gidx is None else _gidx, parent=_dp, parent_sha=_dps, owner_approved=_own,
                                             coded_approved=_inh, chain_fetch=_fetch), "البنية"),
                         (promote.catalog_gate(idx, promote.catalog(cl, bucket)),
                          "الهويّة")):

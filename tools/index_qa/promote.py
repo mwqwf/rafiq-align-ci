@@ -2405,7 +2405,7 @@ def drop_chain_origin(idx, fetch, max_depth=CHAIN_MAX_DEPTH):
     return bad(f"السلسلةُ أطولُ من {max_depth} حلقاتٍ")
 
 
-def inherited_drops(idx, parent, parent_sha, owner_approved=frozenset(), chain_fetch=None):
+def inherited_drops(idx, parent, parent_sha, owner_approved=frozenset(), chain_fetch=None, parent_approved=None):
     """إعلان غياب موروث فقط؛ لا يقبل إسقاطاً جديداً بحقل dropSurah.
 
     يلزم الأصل المنشور على كامل بصمته، وغياب السورة فيه مسبقاً، ونفس البيان
@@ -2451,8 +2451,21 @@ def inherited_drops(idx, parent, parent_sha, owner_approved=frozenset(), chain_f
     # ⭐ (2026-11-14 · موافقة المالك على البطاقة cmsg_01SnWBBbg8UvScqE3YMKdPHaN5z5dBMF64q9kPBzHcNaZh) ورمزُ
     #    `TIMING_UNDER_REPAIR` (‏أمر القائد 2026-11-10) حجبٌ مؤقّتٌ معلنٌ من جنس OTHER، فيُورَث **بالشروط نفسِها حرفاً**
     #    (‏أصلٌ drop_surah · صفُّ موافقةٍ و--allow-truncated لكلّ سورة · البيانُ نفسُه). وكلُّ رمزٍ سواهما يبقى مردوداً.
+    # ⭐ (إذن المالك 2026-11-24 t14u «افعل الأفضل… وحاول بكل السبل تسريع الفهرسة»، وأمر القائد بتعديل هذا الحارس):
+    #    الوراثةُ عن وراثةٍ **مأذونةٍ في كلّ حلقة** تُقبل: الأصلُ الحيُّ نفسُه نُشر بصفّ موافقةٍ لمفتاح مسرحه
+    #    (‏`timings-staging/<riw>/<id>.<sha8 الحيّ>.jz`) يسمّي السورةَ، **والمرشّحُ** له صفُّه كذلك. البيانُ نفسُه حرفاً،
+    #    ولا إسقاطَ جديد، ولا فقدَ مداخل — كلُّ ذلك باقٍ كما هو. وبلا صفّ الحيّ يبقى الردُّ كما كان.
+    if parent_approved is None:
+        try:
+            _pk = (f"timings-staging/{parent.get('riwaya')}/{parent.get('reciterId')}."
+                   f"{str(parent_sha)[:8]}.jz")
+            parent_approved = load_drop_approvals().get(_pk) or frozenset()
+        except Exception:                             # noqa: BLE001
+            parent_approved = frozenset()
+    _chain_ok = (str(pt.get("op") or "").startswith("drop_surah:")
+                 or (bool(claimed) and claimed <= {str(s) for s in parent_approved}))
     _hide_ok = (pt.get("reasonCode") in ("OTHER", "TIMING_UNDER_REPAIR")
-                and str(pt.get("op") or "").startswith("drop_surah:")
+                and _chain_ok
                 and claimed <= {str(s) for s in owner_approved})
     if ((pt.get("reasonCode") not in ("SOURCE_TRUNCATED", "SOURCE_CORRUPT") and not _hide_ok)
             or not pt.get("reasonUser")
