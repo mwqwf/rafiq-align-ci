@@ -10,11 +10,11 @@
 | `.agents/` | 17 |
 | `.github/` | 105 |
 | `core/` | 17 |
-| `docs/` | 208 |
+| `docs/` | 209 |
 | `jobs/` | 7 |
 | `ops/` | 89441 |
 | `results/` | 146 |
-| `tools/` | 5435 |
+| `tools/` | 5437 |
 
 ## سير العمل (102)
 | الملف | الاسم | المحفّزات | الجدول (cron UTC) | المشغّل |
@@ -126,4 +126,4 @@
 `arabic-text-integrity` (مركزية) · `engineering-discipline` (مركزية) · `mushafak` (مركزية) · `mwqwf-workflow` (مركزية)
 
 ## وثائق `docs/`
-[`PROJECT_STATE.md`](PROJECT_STATE.md)
+[`DATA_LICENSE_REGISTRY.md`](DATA_LICENSE_REGISTRY.md) · [`PROJECT_STATE.md`](PROJECT_STATE.md)
