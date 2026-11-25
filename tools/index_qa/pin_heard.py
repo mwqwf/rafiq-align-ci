@@ -181,6 +181,17 @@ W_MODELS = ("small", "medium", "large-v3")   # large-v3 شاهدٌ أقوى (‏
 #    والثقةُ والاتّفاقُ ≤300م.ث والمدّةُ والجارةُ كما هي حرفاً، ومسارُ CTC لا يُمسّ.
 W_FUZZ_SIM = 0.8
 W_FUZZ_LEN_LO, W_FUZZ_LEN_HI = 0.8, 1.2
+# ⭐ م1 — الشاهدُ الزمنيّ (‏أمر المالك 2026-11-25 20:18 · `--timing-witness-run`، مخرَجُ `timing_witness.yml`):
+#    طابعُ Whisper الزمنيّ غيرُ دقيق (‏large-v3 أبكرُ من medium بوسيطٍ 380م.ث، ويختلفان >300 في 67٪ من الكلمات)، فيُردّ
+#    به كثيرٌ من الآيات السليمة. فإن **اجتاز Whisper شروطَ السماع كلَّها** (‏الطرفان والثقة وعددُ الكلمات) وخالف طابعُه CTC،
+#    جاز بدلَ طابعه بدءٌ زمنيٌّ يتّفق عليه محاذيان مستقلّان بالاصطلاح الصوتيّ نفسِه لخرائط CTC (‏MMS_FA وQWA) ضمن
+#    TW_CONS_MS، ثمّ يُقارَن بـCTC **بالعتبة W_AGREE_MS نفسِها** ويُعتمد بدءُ CTC كما كان. ويُلزم أن يقع رأسُ الآية الذي سمعه
+#    Whisper ضمن TW_LOCATE_MS (‏= تسامح heard_gate) من البدء الزمنيّ كي تكون الهويّةُ والتوقيتُ للموضع نفسِه.
+#    ⛔ إضافيٌّ لا بديل: المسارُ القديم يُجرَّب أوّلاً حرفاً؛ ولا شاهدَ زمنيَّ بمحاذٍ واحد؛ ولا يُقبل من غير بصمة الصوت نفسِها.
+#    الظلّ: /workspace/mushafak-index/PROGRESS.md (‏2026-11-25، م1).
+TW_CONS_MS = 150
+TW_LOCATE_MS = 1500
+TW_TOOL = "mms_fa+qwa"
 _REPO_ROOT = HERE.parent.parent
 
 
@@ -236,24 +247,48 @@ def check_witness(wit, surah, hmap, want_sha):
         raise SystemExit(f"⛔ الشاهدُ يلزمه {W_MODELS} بـfloat32 (‏وجد {wit.get('model')}/{wit.get('computeType')})")
 
 
+def check_timing_witness(tw, surah, hmap, want_sha):
+    """كـ`check_witness` للشاهد الزمنيّ: السورةُ نفسُها وبصمةُ الصوت = بصمةُ الخريطة = بصمةُ الفهرس، والمصدرُ نفسُه."""
+    if not isinstance(tw, dict) or int(tw.get("surah") or 0) != surah:
+        raise SystemExit(f"⛔ الشاهدُ الزمنيّ لسورة {tw.get('surah') if isinstance(tw, dict) else '؟'} لا {surah}")
+    if not want_sha:
+        raise SystemExit("⛔ لا audioSha256 للسورة في الفهرس — لا يُقبل شاهدٌ زمنيٌّ بلا بصمة")
+    for nm, v in (("الخريطة", hmap.get("sha256")), ("الفهرس", want_sha)):
+        if tw.get("sha256") != v:
+            raise SystemExit(f"⛔ بصمةُ صوت الشاهد الزمنيّ {str(tw.get('sha256'))[:8]} غيرُ بصمة {nm} {str(v)[:8]}")
+    if tw.get("fileRef") != hmap.get("fileRef"):
+        raise SystemExit(f"⛔ الشاهدُ الزمنيّ من {tw.get('fileRef')} والخريطةُ من {hmap.get('fileRef')}")
+    if tw.get("tool") != TW_TOOL:
+        raise SystemExit(f"⛔ الشاهدُ الزمنيّ يلزمه {TW_TOOL} (‏وجد {tw.get('tool')})")
+
+
+def timing_onset(tw, ayah):
+    """البدءُ الزمنيّ للآية = متوسّطُ MMS وQWA إن اتّفقا ضمن TW_CONS_MS، وإلا None (‏لا شاهدَ بمحاذٍ واحد)."""
+    rec = ((tw or {}).get("ayahs") or {}).get(str(ayah)) or {}
+    m, q = rec.get("mms"), rec.get("qwa")
+    if m is None or q is None or abs(int(m) - int(q)) > TW_CONS_MS:
+        return None
+    return (int(m) + int(q)) / 2
+
+
 def _sim(a, b):
     """تشابهُ حروف سلسلتين مطبَّعتين (‏difflib) بين 0 و1."""
     import difflib                                                       # noqa: PLC0415
     return difflib.SequenceMatcher(None, " ".join(a), " ".join(b)).ratio()
 
 
-def whisper_check(wit, hmap, surah, ayah, ref, fuzzy=False):
+def whisper_check(wit, hmap, surah, ayah, ref, fuzzy=False, timing=None):
     """كـ`_whisper_check` بالتطابق التامّ؛ فإن ردّ و`fuzzy` فالمسارُ المشابه (‏W_FUZZ_*) — ويُعلَّم تفصيلُه بـ«~»."""
-    c, info = _whisper_check(wit, hmap, surah, ayah, ref, fuzzy=False)
+    c, info = _whisper_check(wit, hmap, surah, ayah, ref, fuzzy=False, timing=timing)
     if c is not None or not fuzzy:
         return c, info
-    c2, info2 = _whisper_check(wit, hmap, surah, ayah, ref, fuzzy=True)
+    c2, info2 = _whisper_check(wit, hmap, surah, ayah, ref, fuzzy=True, timing=timing)
     if c2 is None:
         return None, f"{info} · والمشابه: {info2}"
     return c2, "~" + info2
 
 
-def _whisper_check(wit, hmap, surah, ayah, ref, fuzzy=False):
+def _whisper_check(wit, hmap, surah, ayah, ref, fuzzy=False, timing=None):
     """يُرجع (بدءُ CTC المعتمَد، تفصيل) إن اجتاز الشاهدُ **كلَّ** شروط الآية، وإلا يُرجع (None، سببَ الردّ).
 
     الشروط: تطابقُ أوّل W_K كلمةً بكلمة وآخرِ W_K (بعد التطبيع) · ثقةٌ لكلّ كلمةٍ طرفيّة ومتوسّطُها ·
@@ -293,14 +328,27 @@ def _whisper_check(wit, hmap, surah, ayah, ref, fuzzy=False):
             continue
         ws = toks[i][1]
         c = min(ctc, key=lambda x: abs(x - ws))
+        src = "whisper"
         if abs(c - ws) > W_AGREE_MS:
             why = f"الشاهدان يتعارضان: Whisper {ws} وأقربُ بدءٍ لـCTC {c} (>{W_AGREE_MS}م.ث)"
-            continue
+            t = timing_onset(timing, ayah) if timing is not None else None
+            if t is None:
+                if timing is not None:
+                    why += " · ولا بدءَ زمنيَّ متّفقاً عليه (‏MMS∧QWA)"
+                continue
+            if abs(t - ws) > TW_LOCATE_MS:
+                why += f" · ورأسُ Whisper {ws} بعيدٌ عن البدء الزمنيّ {t:.0f} (>{TW_LOCATE_MS}م.ث)"
+                continue
+            c = min(ctc, key=lambda x: abs(x - t))
+            if abs(c - t) > W_AGREE_MS:
+                why += f" · والبدءُ الزمنيّ {t:.0f} يخالف أقربَ CTC {c} (>{W_AGREE_MS}م.ث)"
+                continue
+            ws, src = int(round(t)), "mms∧qwa"
         if best is None or abs(c - ws) < best[2]:
-            best = (c, ws, abs(c - ws), low, mean)
+            best = (c, ws, abs(c - ws), low, mean, src)
     if best is None:
         return None, why
-    return best[0], f"whisper {best[1]} · CTC {best[0]} · أدنى ثقة {best[3]:.2f} · متوسّطها {best[4]:.2f}"
+    return best[0], f"{best[5]} {best[1]} · CTC {best[0]} · أدنى ثقة {best[3]:.2f} · متوسّطها {best[4]:.2f}"
 
 
 # ───────────── حدُّ القصّ من شاهدَي Whisper (‏2026-11-10 · الكردي 55:29/30 · مسودّة لا تُدمج) ─────────────
@@ -541,7 +589,7 @@ def expected_from_peers(own_durs, peer_med, skip=()):
 def pin(idx, surah, hmap, pins, trims=None, last_end=None, witness=None, ref_words=None,
         expected=None, evidence=None, witness_fuzzy=False, trim_witnesses=None, trim_evidence=None,
         opener_witnesses=None, opener_evidence=None, disputed=None, own_text=None, opener_no_baseline=False,
-        trim_ref_words=None):
+        trim_ref_words=None, timing=None):
     """يُعيد (فهرساً جديداً، تقريراً) أو يرفع SystemExit بالسبب.
 
     `disputed` (‏اختياريّ · تصحيحُ توصيلٍ لقاعدة #101 · 2026-11-10): دالّةٌ `(فهرسٌ_مرشّح، صفوف) ⇒ مجموعةُ الآيات` تحكم على
@@ -601,7 +649,9 @@ def pin(idx, surah, hmap, pins, trims=None, last_end=None, witness=None, ref_wor
             if ref_words is None:
                 raise SystemExit("⛔ مسارُ Whisper يلزمه نصٌّ مرجعيّ")
             check_witness(witness, surah, hmap, want)
-            c, info = whisper_check(witness, hmap, surah, a, ref_words(surah, a), fuzzy=witness_fuzzy)
+            if timing is not None:
+                check_timing_witness(timing, surah, hmap, want)
+            c, info = whisper_check(witness, hmap, surah, a, ref_words(surah, a), fuzzy=witness_fuzzy, timing=timing)
             if c is None:
                 raise SystemExit(f"⛔ {surah}:{a} بدءٌ {ms} لا يقع على أداءٍ مقيس ولم يُثبته شاهدُ Whisper: {info}")
             if abs(c - ms) > SNAP_MS:
@@ -610,7 +660,8 @@ def pin(idx, surah, hmap, pins, trims=None, last_end=None, witness=None, ref_wor
             wpinned[a] = info
             report.append(f"{surah}:{a} ⇐ {c} (CTC بلا شرط الجودة + شاهدُ Whisper: {info})")
             if evidence is not None:
-                evidence[a] = "ctc+whisper~" if info.startswith("~") else "ctc+whisper"
+                evidence[a] = ("ctc+whisper~" if info.startswith("~") else "ctc+whisper") + (
+                    "+timing" if "mms∧qwa" in info else "")
         elif not hit:
             raise SystemExit(f"⛔ {surah}:{a} بدءٌ {ms} لا يقع على أداءٍ مقيس (المقيس: "
                              f"{[(m[0], m[2]) for m in measured_starts(hmap, a)]})")
@@ -772,15 +823,18 @@ def load_map(run_id, surah):
 WITNESS_WORKFLOW = ".github/workflows/whisper_witness.yml"
 
 
-def witness_run_error(run_id, run):
+TIMING_WORKFLOW = ".github/workflows/timing_witness.yml"
+
+
+def witness_run_error(run_id, run, workflow=WITNESS_WORKFLOW):
     """⛔ (‏قرار القائد 2026-11-10 · #101) الشاهدُ يُقبل من تشغيلةٍ **ناجحةٍ لسير العمل `whisper_witness.yml`** في هذا المستودع
     على `main` بإطلاقٍ يدويّ — لا من أيّ تشغيلةٍ تحمل ملفّاً بالاسم نفسِه. يُرجع سببَ الردّ أو None."""
     if not re.fullmatch(r"\d{6,15}", str(run_id)):
         return f"معرّفُ التشغيلة {run_id!r} ليس رقماً"
     if not isinstance(run, dict) or str(run.get("id")) != str(run_id):
         return f"لا تشغيلةَ {run_id} في {REPO}"
-    if run.get("path") != WITNESS_WORKFLOW:
-        return f"التشغيلة {run_id} من {run.get('path')} لا من {WITNESS_WORKFLOW}"
+    if run.get("path") != workflow:
+        return f"التشغيلة {run_id} من {run.get('path')} لا من {workflow}"
     if run.get("status") != "completed" or run.get("conclusion") != "success":
         return f"التشغيلة {run_id} لم تنجح ({run.get('status')}/{run.get('conclusion')})"
     if (run.get("repository") or {}).get("full_name") != REPO or (run.get("head_repository") or {}).get("full_name") != REPO:
@@ -788,6 +842,28 @@ def witness_run_error(run_id, run):
     if run.get("head_branch") != "main" or run.get("event") != "workflow_dispatch":
         return f"التشغيلة {run_id} على {run.get('head_branch')}/{run.get('event')} لا على main بإطلاقٍ يدويّ"
     return None
+
+
+def load_timing_witness(run_id, surah):
+    """الشاهدُ الزمنيّ (‏م1) من مخرَج تشغيلةٍ ناجحةٍ لـ`timing_witness.yml` على main بإطلاقٍ يدويّ — بالفحوص نفسِها."""
+    def gh(path, raw=False):
+        r = subprocess.run(["gh", "api", path], capture_output=True)
+        if r.returncode:
+            raise SystemExit(f"⛔ gh api {path}: {r.stderr.decode('utf-8', 'replace')[:200]}")
+        return r.stdout if raw else json.loads(r.stdout)
+    why = witness_run_error(run_id, None if not re.fullmatch(r"\d{6,15}", str(run_id))
+                            else gh(f"repos/{REPO}/actions/runs/{run_id}"), workflow=TIMING_WORKFLOW)
+    if why:
+        raise SystemExit(f"⛔ شاهدٌ زمنيٌّ مردود: {why}")
+    want = f"timing-witness-s{int(surah)}-{run_id}"
+    for art in gh(f"repos/{REPO}/actions/runs/{run_id}/artifacts").get("artifacts", []):
+        if art.get("name") != want or art.get("expired"):
+            continue
+        zf = zipfile.ZipFile(io.BytesIO(gh(f"repos/{REPO}/actions/artifacts/{art['id']}/zip", raw=True)))
+        for nm in zf.namelist():
+            if nm.endswith(f"timing_s{int(surah):03d}.json"):
+                return json.loads(zf.read(nm))
+    raise SystemExit(f"⛔ لا شاهدَ زمنيَّ للسورة {surah} في مخرَج التشغيلة {run_id} ({want})")
 
 
 def load_witness(run_id, surah):
@@ -914,6 +990,8 @@ def main():
                     help="تشغيلةُ whisper_witness: شاهدٌ إضافيٌّ لآياتٍ مرساتُها دون شرط الجودة (‏بلا شرطٍ يُرخى)")
     ap.add_argument("--witness-fuzzy", action="store_true",
                     help="المسارُ المشابه (‏قرار خيط 2.0 2026-11-07 لدورة saad): تشابهُ الكلمات الطرفيّة ≥0.8 بقيد ±20٪")
+    ap.add_argument("--timing-witness-run", default="",
+                    help="تشغيلةُ timing_witness (‏م1): بدءٌ زمنيٌّ يتّفق عليه MMS∧QWA ≤150م.ث بدلَ طابع Whisper — مع --witness-run وحدها")
     ap.add_argument("--trim-witness-runs", default="",
                     help="تشغيلتا whisper_witness (‏أو أكثر) مفصولتين بفواصل: حدُّ --trim من بدء أوّل كلمةٍ للتالية")
     ap.add_argument("--disputed", default="",
@@ -935,6 +1013,8 @@ def main():
         raise SystemExit("⛔ --opener-no-baseline لا يعمل إلا مع --opener-runs")
     if a.witness_fuzzy and not a.witness_run:
         raise SystemExit("⛔ --witness-fuzzy لا يعمل إلا مع --witness-run")
+    if a.timing_witness_run and not a.witness_run:
+        raise SystemExit("⛔ --timing-witness-run لا يعمل إلا مع --witness-run (‏السماعُ لـWhisper وحده)")
     import promote
     cl, bucket = promote.s3()
     body = cl.get_object(Bucket=bucket, Key=a.key)["Body"].read()
@@ -1004,7 +1084,8 @@ def main():
                                evidence=evidence, witness_fuzzy=a.witness_fuzzy,
                                trim_witnesses=twits, trim_evidence=tev,
                                opener_witnesses=owits, opener_evidence=oev, disputed=dcheck, own_text=xcheck,
-                               opener_no_baseline=a.opener_no_baseline, trim_ref_words=tref)
+                               opener_no_baseline=a.opener_no_baseline, trim_ref_words=tref,
+                               timing=load_timing_witness(a.timing_witness_run, a.surah) if a.timing_witness_run else None)
     out["transform"] = {
         **({"truncatedTail": idx["transform"]["truncatedTail"]}
            if isinstance(idx.get("transform"), dict) and idx["transform"].get("truncatedTail") else {}),
@@ -1012,6 +1093,7 @@ def main():
         "evidenceRun": str(a.run), "evidenceAudioSha256": hmap.get("sha256"),
         **({"evidenceWindowStartMs": int(hmap[heard_gate.PARTIAL_KEY])} if hmap.get(heard_gate.PARTIAL_KEY) else {}),
         "pins": report, "changedAyahs": changed, "reason": a.reason,
+        **({"timingWitnessRun": str(a.timing_witness_run)} if a.timing_witness_run else {}),
         "at": int(time.time() * 1000), "by": "pin_heard",
         "note": "بدءُ كلّ آيةٍ مثبَّتةٍ أداءٌ مسموعٌ مقيس؛ ما تكرّر قبله بلا مدخل؛ يلزمه الإحصاءُ الشامل.",
     }
