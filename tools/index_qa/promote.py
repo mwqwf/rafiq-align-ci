@@ -2484,6 +2484,14 @@ def inherited_drops(idx, parent, parent_sha, owner_approved=frozenset(), chain_f
 def index_gate(idx, *, parent=None, parent_sha=None, owner_approved=frozenset(), coded_approved=frozenset(),
                inherited_rows=None, chain_fetch=None):
     """سبب رفض الفهرس نفسه، أو None. **الغياب رفضٌ لا تساهل.**"""
+    # ⛔ مراسي voltarostudio (وغيرها من externalAnchors): لا ترقية إلا بشاهدَي
+    #    Whisper ضمن 300م.ث. إن غاب الحقل لم يتغيّر سلوك الفهارس القائمة.
+    if str(HERE) not in sys.path:
+        sys.path.insert(0, str(HERE))
+    from external_anchor_policy import promotion_block_reason
+    _ext = promotion_block_reason(idx)
+    if _ext:
+        return _ext
     if not idx.get("refineVersion"):
         return "الفهرس بلا أثر صقلٍ في ترويسته — مجهول الجيل فلا يُرقّى"
     miss = idx.get("missing")

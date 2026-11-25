@@ -8,3 +8,4 @@
 التشغيل: تبويب Actions ← `rafiq-align` ← Run workflow. **ابدأ بـ smoke = true.**
 
 النصوص والأصول تحت رخصها الموثقة في `QuranRafiq/docs/DATA_LICENSE_REGISTRY.md`.
+مصادر محاذاة هذا المستودع في `docs/DATA_LICENSE_REGISTRY.md` (النسبة إلزامية).
