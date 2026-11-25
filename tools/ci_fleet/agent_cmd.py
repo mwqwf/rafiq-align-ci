@@ -140,6 +140,7 @@ ALLOWED_TOOLS = {"ci_fleet/r2_tmp_purge.py",  # 🧹 2026-11-06: تنظيف tmp/
                  "index_qa/low_coverage_scan.py", "index_qa/dup_sha_sweep.py",
                  "index_qa/duration_profile.py", "index_qa/reciter_evidence.py",
                  "index_qa/dump_state.py", "index_qa/census_empty_rows.py", "index_qa/show_entries.py", "index_qa/witness_live_probe.py",  # 🔎 2026-11-10: سبرُ شاهد Whisper حيّاً (قارئ محض: لا يكتب في الدلو ولا المستودع)
+                 "index_qa/census_parts_recount.py",  # إعادة عدّ الإحصاء المتوازي من state-census-parts (قراءة فقط، 2026-11-25)
                  "index_qa/heard_pub_rows.py", "index_qa/compressed_repair_status.py",  # جرد بصمات الـ55 مقابل مسح pV (قراءة فقط، 2026-11-22)
                  "index_qa/clamp_file_end.py", "index_qa/material_probe.py",
                  # ⚖️ أُضيف 2026-09-28: مسبارُ صوتِ سورةٍ قارئٌ محض (‏مادّةٌ أم أداة؟) — لا دلوَ ولا سرّ.
