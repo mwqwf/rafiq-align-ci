@@ -126,6 +126,9 @@ jobs:
         with: { python-version: "3.11" }
       - run: python -m pip install --quiet boto3==1.43.123
 
+      - name: ذاكرةُ أحكامِ الصوت (تُستعاد قبل promote.py)
+        uses: ./.github/actions/verdict-cache-restore
+
       - name: الاعتماد
         env:
           R2_CREDENTIALS_JSON: ${{ secrets.R2_CREDENTIALS_JSON }}
@@ -340,6 +343,11 @@ jobs:
           #    يذكر أرقاماً قِيست**، وسببٌ تكتبه آلةٌ بلا قياسٍ هو تزويرٌ لا حوكمة.
           #    فيبقى ذلك للجلسة، وتكتفي النبضةُ بما لا يحتاج عذراً.
           echo "ℹ️ ما يحتاج سبباً مكتوباً يبقى للجلسة — انظر docs/ops/RESUME_NOW.md"
+
+      - name: حفظُ ذاكرةِ الأحكام
+        if: always()
+        uses: ./.github/actions/verdict-cache-save
+        with: { token: "${{ github.token }}" }
 
       - name: ⚡ اجرد ما ينتظر قراراً بشريّاً
         # ⛔ **الغرض: ألّا يضيع المحبوسُ في السجلّات.** الحلقةُ تُنتج بلا توقّف،

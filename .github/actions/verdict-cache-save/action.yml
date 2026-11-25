@@ -1,0 +1,33 @@
+name: verdict-cache-save
+description: >-
+  يحفظ ذاكرةَ أحكام الصوت إن زادت في هذه الدورة، ويُبقي أحدثَ نسختين فقط
+  (‏فلا تُزاحم ذاكرةُ الأحكام نماذجَ whisper/CTC على سقف العشرة ج.ب).
+inputs:
+  token:
+    description: توكنٌ بصلاحية actions:write لحذف النسخ القديمة
+    required: true
+runs:
+  using: composite
+  steps:
+    - id: count
+      shell: bash
+      run: |
+        d=tools/index_qa/work/verdict_cache
+        n=$(find "$d" -maxdepth 1 -name '*.json' 2>/dev/null | wc -l)
+        b=${VERDICT_CACHE_BEFORE:-0}
+        echo "🗃️ ذاكرةُ الأحكام: قبل $b · بعد $n"
+        if [ "$n" -gt "$b" ]; then echo "save=true" >> "$GITHUB_OUTPUT"; fi
+    - if: steps.count.outputs.save == 'true'
+      uses: actions/cache/save@v4
+      with:
+        path: tools/index_qa/work/verdict_cache
+        key: verdict-cache-${{ github.run_id }}-${{ github.run_attempt }}-${{ github.job }}
+    # ⛔ التقليمُ لا يُفشل الوظيفة: نسخةٌ زائدةٌ تُحذف في الدورة التالية.
+    - if: steps.count.outputs.save == 'true'
+      shell: bash
+      env:
+        GH_TOKEN: ${{ inputs.token }}
+      run: |
+        gh cache list -R "$GITHUB_REPOSITORY" --key verdict-cache- -L 100 \
+          --sort created_at --order desc --json id -q '.[2:][].id' 2>/dev/null \
+          | while read -r id; do gh cache delete "$id" -R "$GITHUB_REPOSITORY" || true; done
