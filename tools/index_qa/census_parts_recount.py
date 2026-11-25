@@ -35,7 +35,10 @@ def main(argv):
     expected = sorted(map(int, P.census_surahs(idx)))
     parts = [json.loads(cl.get_object(Bucket=bucket, Key=C.part_key(got, run_id, s))['Body'].read())
              for s in expected]
-    canon = cl.get_object(Bucket=bucket, Key=f"quran-text/text_{idx['riwaya']}.jz")['Body'].read()
+    # المرجعُ نفسُه الذي يقرؤه الإحصاء المتوازي (ci_census_parts.main): ملفُّ المستودع إن وُجد وإلا نسخةُ الدلو.
+    local = R.ASSETS / f"text_{idx['riwaya']}.jz"
+    canon = (local.read_bytes() if local.exists() else
+             cl.get_object(Bucket=bucket, Key=f"quran-text/text_{idx['riwaya']}.jz")['Body'].read())
     text = json.loads(gzip.decompress(canon))
     tool_sha = parts[0]['partProvenance']['toolSha256']
     rep = C.aggregate(idx, got, key, parts, run_id, run_sha, text, C.digest(canon), tool_sha)
