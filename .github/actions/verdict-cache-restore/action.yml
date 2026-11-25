@@ -1,0 +1,25 @@
+name: verdict-cache-restore
+description: >-
+  يستعيد ذاكرةَ أحكام الصوت (tools/index_qa/work/verdict_cache) من ذاكرة أكشنز قبل أن
+  يقرأ promote.py أحكامَ state/ من الدلو، فلا يُنزَّل إلا الجديد.
+# 💰 سببُه مقيس (2026-11-25): ‏97% من قراءات GetObject على rafiq-media (‏6.05 مليون من
+#    7.70 مليون في أسبوع) كانت تنزيلَ state/ كاملاً (‏≈21.5 ألف ملف · 2.17 ج.ب) في كلّ
+#    دورة، لأنّ عدّاءً جديداً يبدأ بذاكرةٍ فارغة. وهي فئة B المدفوعة في فاتورة Cloudflare.
+# ⚖️ لا يغيّر حكماً: الذاكرةُ مفتاحُها «المفتاح|ETag» داخل promote.bucket_reports نفسِها،
+#    فملفٌّ تغيّر على الدلو يُنزَّل من جديد، وملفٌّ لم يتغيّر يُقرأ بايتاتِه نفسَها.
+runs:
+  using: composite
+  steps:
+    - uses: actions/cache/restore@v4
+      with:
+        path: tools/index_qa/work/verdict_cache
+        key: verdict-cache-${{ github.run_id }}-${{ github.job }}
+        restore-keys: |
+          verdict-cache-
+    - shell: bash
+      run: |
+        d=tools/index_qa/work/verdict_cache
+        mkdir -p "$d"
+        n=$(find "$d" -maxdepth 1 -name '*.json' | wc -l)
+        echo "VERDICT_CACHE_BEFORE=$n" >> "$GITHUB_ENV"
+        echo "🗃️ ذاكرةُ الأحكام المستعادة: $n ملفّاً"
