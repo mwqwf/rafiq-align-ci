@@ -8,15 +8,15 @@
 |---|---|
 | `"ops/` | 2 |
 | `.agents/` | 17 |
-| `.github/` | 105 |
+| `.github/` | 106 |
 | `core/` | 17 |
 | `docs/` | 209 |
 | `jobs/` | 7 |
-| `ops/` | 89441 |
+| `ops/` | 89508 |
 | `results/` | 146 |
-| `tools/` | 5437 |
+| `tools/` | 5442 |
 
-## سير العمل (102)
+## سير العمل (103)
 | الملف | الاسم | المحفّزات | الجدول (cron UTC) | المشغّل |
 |---|---|---|---|---|
 | `agent-job.yml` | agent-job | push, workflow_dispatch, issues | — | ubuntu |
@@ -116,6 +116,7 @@
 | `tasmi-student-armtime.yml` | tasmi-student-armtime | workflow_dispatch | — | ubuntu |
 | `tasmi-student-train.yml` | tasmi-student-train | workflow_dispatch | — | ubuntu |
 | `timing_ingest.yml` | rafiq-timing-ingest | workflow_dispatch | — | ubuntu |
+| `timing_witness.yml` | rafiq-timing-witness | workflow_dispatch | — | ubuntu |
 | `verified_kurdi_source.yml` | verified-original-kurdi-source | workflow_dispatch | — | ubuntu |
 | `whisper_recovery_diagnostic.yml` | rafiq-whisper-recovery-diagnostic | workflow_dispatch | — | ubuntu |
 | `whisper_splice.yml` | rafiq-whisper-splice | workflow_dispatch | — | ubuntu |
