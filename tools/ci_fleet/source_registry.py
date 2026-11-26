@@ -1,6 +1,7 @@
 """مصدر مسجّل لسورة بعينها؛ الاسم الرقمي لا يثبت محتوى التسجيل."""
 from __future__ import annotations
 
+import hashlib
 import json
 import re
 from pathlib import Path
@@ -33,3 +34,30 @@ def registered_source(riwaya, reciter, surah, rows=None):
     if sha is not None and not re.fullmatch(r"[0-9a-f]{64}", str(sha)):
         raise ValueError("بصمة الصوت غير صالحة")
     return dict(row, url=url)
+
+
+# قائمةُ مضيفين صريحة (بلا أحرف بدل): المضيفُ يطابق تماماً والمسار يبدأ بالبادئة، وhttps فقط.
+SPLICE_ALLOWED_SOURCES = (
+    ("archive.org", "/download/"),
+    ("download.quranicaudio.com", "/quran/"),
+)
+
+
+def registered_splice_source(riwaya, reciter, surah, rows=None):
+    """مصدر registered_splice: رابط https صريح على مضيفٍ في القائمة + بصمة كاملة (وإلا ValueError)."""
+    row = registered_source(riwaya, reciter, surah, rows)
+    if not row.get("audio_sha256") or not re.fullmatch(r"[0-9a-f]{64}", str(row["audio_sha256"])):
+        raise ValueError("يلزم رابط صريح وبصمة كاملة في السجلّ")
+    parts = urlsplit(row["url"])
+    if parts.scheme != "https" or parts.port is not None or not any(
+            parts.hostname == h and parts.path.startswith(p) for h, p in SPLICE_ALLOWED_SOURCES):
+        raise ValueError("مضيف المصدر خارج القائمة المسموحة")
+    return row
+
+
+def assert_audio_sha(path, expected):
+    """يرفض الملف إن اختلفت بصمته عن المسجَّلة."""
+    got = hashlib.sha256(Path(path).read_bytes()).hexdigest()
+    if got != expected:
+        raise ValueError("تغيرت بصمة المصدر")
+    return got

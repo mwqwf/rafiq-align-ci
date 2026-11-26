@@ -13,7 +13,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(ROOT / "tools" / "alignment"))
 sys.path.insert(0, str(ROOT / "tools" / "alignment_v3"))
-from source_registry import registered_source
+from source_registry import registered_source, assert_audio_sha
 from common import fetch_retry
 
 
@@ -58,8 +58,9 @@ def main():
         audio = work / (row["audio_sha256"] + ".mp3")
         if not audio.exists():
             fetch_retry(row["url"], str(audio))
-        sha = hashlib.sha256(audio.read_bytes()).hexdigest()
-        if sha != row["audio_sha256"]:
+        try:
+            sha = assert_audio_sha(audio, row["audio_sha256"])
+        except ValueError:
             raise SystemExit(f"⛔ س{s}: تغيرت بصمة المصدر؛ لا محاذاة على ملف مختلف")
         print(f"س{s}: رابط مسجّل وبصمة كاملة مطابقة", flush=True)
         if a.engine == "heard":
