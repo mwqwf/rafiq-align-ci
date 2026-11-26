@@ -545,14 +545,36 @@ def opener_timing_b(tw, riwaya, surah, ayah=2):
     return b, {"tool": TW_TOOL, "pauseEndMs": b, "qwaMs": int(q), "qwaConf": float(c), "mmsMs": int(m)}
 
 
+def opener_timing_start1(tw, surah, pin2):
+    """م3أ (‏أمر المالك 2026-11-26): بدءُ الآية 1 = نهايةُ أقرب سكتةٍ إلى بدء MMS (‏التي تلي البسملة/الاستعاذة)، أو 0 إن لم توجد سكتةٌ
+    وكان بدءُ MMS ≤600م.ث (‏لا بسملة). يشترط أن يقع بدءُ MMS أو أوّلِ كلمةٍ عند QWA في [B1−300، pin2−300] وأن يكون B1 < pin2."""
+    rec = ((tw or {}).get("ayahs") or {}).get("1") or {}
+    m, qf, p = rec.get("mms"), rec.get("qwaFirst"), rec.get("pauseMms")
+    if m is None:
+        raise SystemExit(f"⛔ م3أ {surah}:1: لا بدءَ MMS للحروف")
+    if p and len(p) == 2:
+        b1 = int(p[1])
+    elif int(m) <= 600:
+        b1 = 0
+    else:
+        raise SystemExit(f"⛔ م3أ {surah}:1: لا سكتةَ قبل الحروف وبدؤها {m} (>600م.ث)")
+    if not b1 < int(pin2):
+        raise SystemExit(f"⛔ م3أ {surah}:1: B1={b1} ليس قبل تثبيت الثانية {pin2}")
+    if not any(v is not None and b1 - 300 <= int(v) <= int(pin2) - 300 for v in (m, qf)):
+        raise SystemExit(f"⛔ م3أ {surah}:1: لا MMS ({m}) ولا QWA ({qf}) يؤكّد مقطعَ الحروف في [{b1 - 300}، {int(pin2) - 300}]")
+    return b1, {"pauseEndMs": b1, "mmsMs": int(m), "qwaFirstMs": (None if qf is None else int(qf))}
+
+
 def opener_letters_start(wits, surah, riwaya, hmap, want_sha, published_start, pin2, ref2=None, timing=None):
     """بدءُ الآية الأولى الجديد ودليلُه، أو SystemExit بالسبب (‏الشروط ١–٤ أعلاه)."""
     if surah not in letters_opener_surahs(riwaya):
         raise SystemExit(f"⛔ س{surah} ليست في قائمة المطالع المقطّعة المشتقّة من نصّ {riwaya} "
                          "(‏آيتُها الأولى ليست حروفاً وحدها، أو الثانيةُ حروفٌ أيضاً)")
-    tdet = None
+    tdet = b1 = None
     if timing is not None:
         b2, tdet = opener_timing_b(timing, riwaya, surah)
+        b1, d1 = opener_timing_start1(timing, surah, pin2)
+        tdet = {**tdet, "ayah1": d1}
         if abs(int(pin2) - b2) > W_AGREE_MS:
             raise SystemExit(f"⛔ م3 {surah}:2: التثبيت {pin2} يبعد عن نهاية السكتة {b2} أكثر من {W_AGREE_MS}م.ث")
         if published_start is None:
@@ -591,6 +613,8 @@ def opener_letters_start(wits, surah, riwaya, hmap, want_sha, published_start, p
         return new, {"version": OPENER_VERSION, "baseline": "none", "publishedStartMs": None, "startMs": new,
                      "ayah2PinMs": int(pin2), "maxExtendMs": None, "witnesses": got}
     cands = [int(published_start)] + [d["earliestMs"] for d in got.values() if d["earliestMs"] is not None]
+    if b1 is not None:
+        cands.append(b1)
     new = min(cands)
     if new < 0:
         raise SystemExit(f"⛔ مطلعُ {surah}:1 يُمَدّ إلى {new} قبل بدء الملفّ")
