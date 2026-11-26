@@ -525,6 +525,97 @@ def opener_letters_verdict(s, ayah, cand_s, pub_s, rows, g_map, want, cand_idx, 
                   "runs": sorted(got), "witnesses": got}
 
 
+# ───────────── م3ب: مرساةُ الآية 2 في سورةٍ مفتتحةٍ بالحروف المقطّعة من الشاهد الزمنيّ (‏قرار المالك 2026-11-26) ─────────────
+# القاعدة المسجَّلة قبل أي نتيجة: في سورةٍ **حفصيّةٍ** مفتتحةٍ بالحروف (‏`pin_heard.letters_opener_surahs`) إذا اجتاز م3 بشروطه كلِّها
+# (‏`pin_heard.opener_timing_b`: ثقةُ QWA ≥ 0.9 · سكتةٌ موجودة · |MMS−B| ≤ 150م.ث) وكان بدءٌ مقيسٌ بـCTC للآية 2 (‏مرساةٌ بجودة ≥ MIN_Q
+# أو أداءٌ بتشابه ≥ REPEAT_SIM) ضمن 300م.ث من B، **استُبدلت مرساةُ الآية 2** في خريطة سماع السورة بذلك البدء المقيس.
+# كلُّ ما عداها كما هو حرفاً (‏عتبة 1.5ث · جودة 0.5 · بقيّةُ الآيات). الشاهدُ يُحمَّل من مخرَج تشغيلته (‏`transform.timingWitnessRun`)
+# ويُعاد حكمُه هنا؛ وبصمةُ صوته يجب أن تطابق صوتَ المرشّح. لا شاهدَ/لا شرط ⇒ لا استبدال (‏السلوكُ القديمُ حرفاً).
+TIMING_ANCHOR_VERSION = "heard-timing-anchor-1"
+TIMING_KEY = "timingWitnessRun"
+TIMING_CTC_MS = 300
+TIMING_SRC_KEYS = ("surah", "riwaya", "sha256", "tool")
+
+
+def timing_src_rec(tw):
+    """ما يُحفظ من الشاهد الزمنيّ: الهويّةُ وسجلُّ الآية 2 فقط."""
+    if not isinstance(tw, dict):
+        return None
+    out = {k: tw.get(k) for k in TIMING_SRC_KEYS}
+    a2 = ((tw.get("ayahs") or {}).get("2"))
+    out["ayahs"] = {"2": a2} if isinstance(a2, dict) else {}
+    return out
+
+
+def timing_sources(cand_idx, loader=None):
+    """{سورة: {"run": تشغيلة, "tw": سجلّ أو {"error": سبب}}} للسورة المثبَّتة في `transform.op` (‏heard_pin:س) إن سمّى
+    المرشّحُ `transform.timingWitnessRun`. `loader(run, surah)` للاختبار؛ وإلا `pin_heard.load_timing_witness` (‏GitHub)."""
+    tr = cand_idx.get("transform") if isinstance(cand_idx.get("transform"), dict) else {}
+    run = tr.get(TIMING_KEY)
+    m = re.fullmatch(r"heard_pin:(\d+)", str(tr.get("op") or ""))
+    if not run or not m:
+        return {}
+    s = int(m.group(1))
+    if loader is None:
+        import pin_heard as PH  # noqa: PLC0415
+        loader = PH.load_timing_witness
+    try:
+        return {str(s): {"run": str(run), "tw": timing_src_rec(loader(str(run), s))}}
+    except (SystemExit, Exception) as e:                          # noqa: BLE001
+        return {str(s): {"run": str(run), "tw": {"error": str(e)[:300]}}}
+
+
+def timing_override(s, cmap, src, want, riwaya):
+    """(خريطةٌ بعد الاستبدال أو الأصل، دليل). لا يُغيَّر شيءٌ إلا إذا اجتمعت كلُّ الشروط؛ والسببُ يُكتب في الدليل."""
+    ev = {"version": TIMING_ANCHOR_VERSION, "surah": s, "replaced": None, "reason": None}
+    tw = (src or {}).get("tw") if isinstance(src, dict) else None
+    if not isinstance(tw, dict) or tw.get("error"):
+        ev["reason"] = "لا شاهدَ زمنيَّ صالح" + (f": {tw.get('error')}" if isinstance(tw, dict) and tw.get("error") else "")
+        return cmap, ev
+    if (riwaya or "hafs") != "hafs":
+        ev["reason"] = f"الرواية {riwaya} ليست حفصاً"
+        return cmap, ev
+    import pin_heard as PH  # noqa: PLC0415
+    try:
+        letters = PH.letters_opener_surahs("hafs")
+    except (SystemExit, Exception) as e:                          # noqa: BLE001
+        ev["reason"] = f"نصُّ الرواية: {e}"
+        return cmap, ev
+    if s not in letters:
+        ev["reason"] = f"س{s} ليست مفتتحةً بالحروف المقطّعة وحدها"
+        return cmap, ev
+    if tw.get("sha256") != want or int(tw.get("surah") or -1) != s or (tw.get("riwaya") or "hafs") != "hafs":
+        ev["reason"] = "الشاهدُ الزمنيّ لصوتٍ أو سورةٍ أخرى"
+        return cmap, ev
+    try:
+        b, det = PH.opener_timing_b(tw, "hafs", s)
+    except SystemExit as e:
+        ev["reason"] = str(e)
+        return cmap, ev
+    rec = (cmap.get("anchors") or {}).get("2")
+    am, q, occ = (rec + [None, None, []])[:3] if isinstance(rec, list) else (None, None, [])
+    cands = []
+    if am and q is not None and float(q) >= MIN_Q:
+        cands.append((int(am[0]), int(am[1]), float(q), None))
+    for i, o in enumerate(occ or []):
+        if float(o[2]) >= REPEAT_SIM:
+            cands.append((int(o[0]), int(o[1]), float(o[2]), i))
+    if not cands:
+        ev["reason"] = "لا بدءَ مقيساً للآية 2"
+        return cmap, ev
+    st, en, sc, oi = min(cands, key=lambda c: abs(c[0] - b))
+    if abs(st - b) > TIMING_CTC_MS:
+        ev["reason"] = f"أقربُ بدءٍ مقيس {st} يبعد عن B={b} أكثر من {TIMING_CTC_MS}م.ث"
+        return cmap, ev
+    rest = [o for i, o in enumerate(occ or []) if i != oi]
+    new = dict(cmap)
+    anc = dict(cmap.get("anchors") or {})
+    anc["2"] = [[st, en], sc, rest]
+    new["anchors"] = anc
+    ev["replaced"] = {"from": int(am[0]) if am else None, "to": st, "B": b, "ctcMs": abs(st - b), "detail": det}
+    return new, ev
+
+
 # ───────────── الباب الثاني: مرجعٌ مزدوجٌ (‏قرار القائد 1 · 2026-11-07 · إذنُ المالك 19:22Z) ─────────────
 # ⭐ **إضافيٌّ لا بديل ويُغلق عند الشكّ.** للقرّاء المسمَّين في `heard_dual.txt` (‏سطرٌ لكلّ قارئٍ وسورةٍ بقياسه وسببه) وفي
 #    **سورةٍ معدّلةٍ** وحدَها: تُحسب خريطتان على الصوت نفسِه (‏العامّةُ G ونموذجُ التلاوة المثبَّتُ R) ويحكم كلٌّ منهما فيما قاسه
@@ -1622,7 +1713,7 @@ def witnessed_absent_verdict(s, g_map, want, cand_idx, ref_words=None, n_ayahs=N
 def judge(cand_idx: dict, pub_idx: dict | None, cand_sha: str, maps: dict,
           maps_r: dict | None = None, witness: dict | None = None,
           dual: dict | None = None, ref_words=None, disputed_src: dict | None = None,
-          witness_l: dict | None = None, lv3_text=None) -> dict:
+          witness_l: dict | None = None, lv3_text=None, timing_src: dict | None = None) -> dict:
     """حكمُ البوّابة كاملاً من المرشّح والمنشور والخرائط ({سورة: compact_map}).
     يُرجع {"ok": bool, "reason": str|None, "required": [...], "modified": [...], "sample": [...],
             "surahs": {س: {"reason":..., "rows":[...]}}, "dual": {س: دليل}}.
@@ -1684,6 +1775,9 @@ def judge(cand_idx: dict, pub_idx: dict | None, cand_sha: str, maps: dict,
             if why:
                 sink.append(f"س{s}: {why}")
             continue
+        if s in modified and (timing_src or {}).get(str(s)):
+            m, ev_t = timing_override(s, m, timing_src[str(s)], want, cand_idx.get("riwaya"))
+            out.setdefault("timing", {})[str(s)] = ev_t
         rows = surah_rows({a: v[0] for a, v in cs[s].items()}, m)
         why_d, ev_d = disputed_verdict(s, rows, m, want, cand_idx, ref_words,
                                        sources=(disputed_src or {}).get(str(s)))
@@ -1727,7 +1821,8 @@ def gate_error(cand_idx: dict, pub_idx: dict | None, cand_sha: str, rep: dict | 
     wit_l = {int(k): v for k, v in (rep.get("witnessL") or {}).items()} if isinstance(rep.get("witnessL"), dict) else {}
     dsrc = rep.get("disputedSource") if isinstance(rep.get("disputedSource"), dict) else {}
     try:
-        j = judge(cand_idx, pub_idx, cand_sha, maps, maps_r, wit, disputed_src=dsrc, witness_l=wit_l)
+        tsrc = rep.get("timingSource") if isinstance(rep.get("timingSource"), dict) else {}
+        j = judge(cand_idx, pub_idx, cand_sha, maps, maps_r, wit, disputed_src=dsrc, witness_l=wit_l, timing_src=tsrc)
     except ValueError as e:                      # heard_dual.txt معطوبٌ ⇒ يُغلق الحكم ولا يُفتح
         return f"بوّابةُ السماع: قائمةُ heard_dual.txt معطوبة — {e}"
     if not j["required"]:
