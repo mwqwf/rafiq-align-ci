@@ -26,11 +26,13 @@ def _idx(start1=4000):
     return idx
 
 
-def _tw(**kw):
+def _tw(kw1=None, **kw):
     a2 = {"mms": 6700, "mmsScore": 0.9, "qwa": 6690, "qwaConf": 0.95, "pause": [6400, 6690]}
     a2.update(kw)
+    a1 = {"mms": 4100, "mmsScore": 0.8, "qwa": None, "qwaConf": None, "pause": None, "pauseMms": [3900, 4000], "qwaFirst": 4120}
+    a1.update(kw1 or {})
     return {"surah": 40, "riwaya": "hafs", "fileRef": HMAP.get("fileRef"), "sha256": HMAP.get("sha256"),
-            "tool": P.TW_TOOL, "ayahs": {"2": a2}}
+            "tool": P.TW_TOOL, "ayahs": {"1": a1, "2": a2}}
 
 
 def _pin(tw, idx=None, pin2=6684):
@@ -53,6 +55,28 @@ class OpenerTiming(unittest.TestCase):
         with self.assertRaises(SystemExit) as cm:
             _pin(tw, **kw)
         self.assertIn(why, str(cm.exception))
+
+    def test_ayah1_start_is_pause_end_when_published_is_after_it(self):
+        # المنشور 6900 بعد الثانية 6684 (‏مثل alhazmi) ⇒ B1=4000 من م3أ؛ التمديد 2900 ≤ السقف 3000
+        e, report, ev = _pin(_tw(), idx=_idx(start1=6900))
+        self.assertEqual(e["40:1"]["startMs"], 4000)
+        self.assertEqual(ev["ayah2Timing"]["ayah1"]["pauseEndMs"], 4000)
+
+    def test_ayah1_extension_cap_still_applies(self):
+        self._refused(_tw(kw1={"pauseMms": [3500, 3600], "mms": 3700, "qwaFirst": 3720}), "تُردّ السورة", idx=_idx(start1=6900))
+
+    def test_ayah1_no_pause_and_late_letters_refused(self):
+        self._refused(_tw(kw1={"pauseMms": None, "mms": 4100}), "لا سكتةَ")
+
+    def test_ayah1_no_pause_but_file_start_ok(self):
+        e, _, ev = _pin(_tw(kw1={"pauseMms": None, "mms": 400, "qwaFirst": 420}), idx=_idx(start1=2500))
+        self.assertEqual(ev["ayah2Timing"]["ayah1"]["pauseEndMs"], 0)
+
+    def test_ayah1_letters_not_confirmed_refused(self):
+        self._refused(_tw(kw1={"mms": 6600, "qwaFirst": None, "pauseMms": [3900, 4000]}), "يؤكّد")
+
+    def test_ayah1_b1_not_before_ayah2_refused(self):
+        self._refused(_tw(kw1={"pauseMms": [6700, 6800], "mms": 6800}), "ليس قبل")
 
     def test_low_confidence_refused(self):
         self._refused(_tw(qwaConf=0.89), "ثقةُ QWA")

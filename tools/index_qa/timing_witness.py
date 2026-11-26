@@ -95,7 +95,7 @@ def mms_starts(wav_path, ayat_text, with_basmala_text=None):
     return starts, scores
 
 
-def qwa_sequence(mp3, surah, riwaya):
+def qwa_sequence(mp3, surah, riwaya, first_out=None):
     """تسلسلُ كلمات QWA [(كلمةٌ مطبَّعة، بدء، ثقة)] بالترتيب المسموع (‏الكلمةُ المعادةُ تُعدّ مرّةً أخرى)."""
     from quran_word_align import align as Q                              # noqa: PLC0415
     import quran_word_align                                              # noqa: PLC0415
@@ -103,6 +103,8 @@ def qwa_sequence(mp3, surah, riwaya):
     W = json.load(open(Path(quran_word_align.__file__).parent / "data" / f"{riwaya}-words.json", encoding="utf-8"))
     seq = []
     for a, ws in res.items():
+        if first_out is not None and ws:
+            first_out[int(a)] = int(ws[0][1])
         txt = dict((i, t) for i, t in W.get(f"{surah}:{int(a)}", []))
         for wi, st, _en, cf in ws:
             seq.append((first_norm(txt.get(wi, "")), int(st), float(cf)))
@@ -160,11 +162,15 @@ def main():
     bas = text[0] if a.surah not in (1, 9) else None
     mms, score = mms_starts(wav, ayat, bas)
     firsts = {k: first_norm(t.split()[0]) for k, t in enumerate(ayat, 1)}
-    qwa = kufi_from_qwa(qwa_sequence(mp3, a.surah, a.riwaya), firsts, mms)
+    qfirst = {}
+    qwa = kufi_from_qwa(qwa_sequence(mp3, a.surah, a.riwaya, first_out=qfirst), firsts, mms)
     res = {"surah": a.surah, "riwaya": a.riwaya, "fileRef": a.url, "sha256": sha, "tool": "mms_fa+qwa",
            "ayahs": {str(k): {"mms": mms[k], "mmsScore": score[k],
                               "qwa": qwa.get(k, (None, None))[0], "qwaConf": qwa.get(k, (None, None))[1],
-                              "pause": (pause_around(wav, qwa[k][0]) if k in qwa and k <= 3 else None)}
+                              "pause": (pause_around(wav, qwa[k][0]) if k in qwa and k <= 3 else None),
+                              # م3أ: الآية 1 (الحروف): أقربُ سكتةٍ إلى بدء MMS وأوّلُ كلمةٍ لها عند QWA
+                              "pauseMms": (pause_around(wav, mms[k]) if k == 1 else None),
+                              "qwaFirst": (qfirst.get(k) if k == 1 else None)}
                      for k in sorted(mms)}}
     out = os.path.join(a.out, f"timing_s{a.surah:03d}.json")
     with open(out + ".part", "w", encoding="utf-8") as f:
