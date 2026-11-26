@@ -74,7 +74,7 @@ jobs:
           import gzip, hashlib, json, os, re, sys, boto3
           sys.stdout.reconfigure(encoding="utf-8")
           sys.path.insert(0, "tools/ci_fleet")
-          from source_registry import registered_source
+          from source_registry import registered_splice_source
           parent, riw = os.environ["PARENT"], os.environ["RIW"]
           if (not parent.startswith(("timings/", "timings-staging/")) or parent.count("/") != 2
                   or not parent.endswith(".jz") or parent.split("/")[1] != riw):
@@ -87,9 +87,10 @@ jobs:
               sys.exit("⛔ قائمةُ السور غيرُ صالحة")
           # كلُّ سورةٍ مسجَّلةٌ برابطٍ صريحٍ وبصمةٍ كاملةٍ ودليل — وإلا لا شيءَ يُنزَّل.
           for s in surahs:
-              row = registered_source(riw, rid, int(s))
-              if not row.get("url") or not row.get("audio_sha256") or not row["url"].startswith("https://archive.org/download/"):
-                  sys.exit(f"⛔ س{s}: يلزم رابطٌ صريحٌ بصيغة https://archive.org/download/ وبصمةٌ كاملة في السجلّ")
+              try:
+                  row = registered_splice_source(riw, rid, int(s))
+              except ValueError as e:
+                  sys.exit(f"⛔ س{s}: يلزم رابطٌ https صريحٌ على مضيفٍ مسموح (archive.org/download/ أو download.quranicaudio.com/quran/) وبصمةٌ كاملة في السجلّ — {e}")
               print(f"✅ س{s}: مصدرٌ مسجَّل {row['url'][:90]}… · بصمة {row['audio_sha256'][:12]}")
           c = json.load(open("secure/r2_credentials.json"))
           s3 = boto3.client("s3", endpoint_url=c["endpoint"],
