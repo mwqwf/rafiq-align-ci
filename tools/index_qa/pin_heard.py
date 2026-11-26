@@ -522,12 +522,42 @@ def _opener_witness(wit, head2, pin2):
     return None, why
 
 
-def opener_letters_start(wits, surah, riwaya, hmap, want_sha, published_start, pin2, ref2=None):
+# ⭐ م3 (‏أمر المالك 2026-11-26 · ظلّ shadow2/m3.py): بدءُ الآية الثانية بعد فاتحة الحروف = نهايةُ السكتة التي تسبق أوّل كلمةٍ منها
+#    بقياس QWA (‏ثقةٌ ≥0.9)، **لحفص وحده** (‏لم يُنتج قالونَ ولا ورشاً)، ويشترط أيضاً |MMS−B|≤150م.ث. يحلّ محلّ شاهدَي Whisper
+#    في سماع الثانية فقط؛ أمّا تثبيتُها فبالمسار المقيس (‏CTC ≤SNAP_MS) ويُقارَن بـB بعتبة W_AGREE_MS، والحارسُ كما هو.
+OPENER_TW_CONF = 0.9
+OPENER_TW_MMS_MS = 150
+
+
+def opener_timing_b(tw, riwaya, surah, ayah=2):
+    """(B، تفصيل) أو SystemExit بالسبب — شروط م3."""
+    if (riwaya or "hafs") != "hafs":
+        raise SystemExit(f"⛔ م3 لحفص وحده (‏الرواية {riwaya})")
+    rec = ((tw or {}).get("ayahs") or {}).get(str(ayah)) or {}
+    q, c, m, p = rec.get("qwa"), rec.get("qwaConf"), rec.get("mms"), rec.get("pause")
+    if q is None or c is None or float(c) < OPENER_TW_CONF:
+        raise SystemExit(f"⛔ م3 {surah}:{ayah}: ثقةُ QWA {c} دون {OPENER_TW_CONF}")
+    if not p or len(p) != 2:
+        raise SystemExit(f"⛔ م3 {surah}:{ayah}: لا سكتةَ قبل أوّل كلمةٍ منها")
+    b = int(p[1])
+    if m is None or abs(int(m) - b) > OPENER_TW_MMS_MS:
+        raise SystemExit(f"⛔ م3 {surah}:{ayah}: MMS {m} يبعد عن نهاية السكتة {b} أكثر من {OPENER_TW_MMS_MS}م.ث")
+    return b, {"tool": TW_TOOL, "pauseEndMs": b, "qwaMs": int(q), "qwaConf": float(c), "mmsMs": int(m)}
+
+
+def opener_letters_start(wits, surah, riwaya, hmap, want_sha, published_start, pin2, ref2=None, timing=None):
     """بدءُ الآية الأولى الجديد ودليلُه، أو SystemExit بالسبب (‏الشروط ١–٤ أعلاه)."""
     if surah not in letters_opener_surahs(riwaya):
         raise SystemExit(f"⛔ س{surah} ليست في قائمة المطالع المقطّعة المشتقّة من نصّ {riwaya} "
                          "(‏آيتُها الأولى ليست حروفاً وحدها، أو الثانيةُ حروفٌ أيضاً)")
-    if len(wits or {}) < OPENER_MIN_WITNESSES:
+    tdet = None
+    if timing is not None:
+        b2, tdet = opener_timing_b(timing, riwaya, surah)
+        if abs(int(pin2) - b2) > W_AGREE_MS:
+            raise SystemExit(f"⛔ م3 {surah}:2: التثبيت {pin2} يبعد عن نهاية السكتة {b2} أكثر من {W_AGREE_MS}م.ث")
+        if published_start is None:
+            raise SystemExit("⛔ م3 لا يُقبل بلا خطّ أساسٍ منشور (‏يلزمه شاهدا Whisper)")
+    elif len(wits or {}) < OPENER_MIN_WITNESSES:
         raise SystemExit(f"⛔ مطلعُ الحروف يلزمه {OPENER_MIN_WITNESSES} شاهدان من تشغيلتين (‏وجد {len(wits or {})})")
     ref2 = ref2 if ref2 is not None else heard_gate.disputed_ref_words(riwaya, surah, 2)
     head2 = list(ref2[:min(W_K, len(ref2))])
@@ -570,7 +600,8 @@ def opener_letters_start(wits, surah, riwaya, hmap, want_sha, published_start, p
     if not new < int(pin2):
         raise SystemExit(f"⛔ مطلعُ {surah}:1 عند {new} ليس قبل تثبيت الثانية {pin2}")
     return new, {"version": OPENER_VERSION, "publishedStartMs": int(published_start), "startMs": new,
-                 "ayah2PinMs": int(pin2), "maxExtendMs": OPENER_MAX_EXTEND_MS, "witnesses": got}
+                 "ayah2PinMs": int(pin2), "maxExtendMs": OPENER_MAX_EXTEND_MS, "witnesses": got,
+                 **({"ayah2Timing": tdet} if tdet else {})}
 
 
 def expected_from_peers(own_durs, peer_med, skip=()):
@@ -731,8 +762,11 @@ def pin(idx, surah, hmap, pins, trims=None, last_end=None, witness=None, ref_wor
             raise SystemExit(f"⛔ مطلعُ الحروف: يلزمه تثبيتُ {surah}:2 وحدها ومدخلٌ لـ{surah}:1 غيرُ مثبَّت")
         # ⭐ `opener_no_baseline` (‏سورةٌ غائبةٌ من الحيّ كلِّها): بدءُ الأولى في الأصل المرحليّ ليس منشوراً فلا يُقاس به شيء؛ يُمرَّر None
         #    فيُطبَّق شرطُ «بلا خطّ أساس» الأشدّ، ويردّه الحارسُ إن وجد للسورة مدخلاً منشوراً (‏heard_gate.opener_letters_verdict).
+        if timing is not None:
+            check_timing_witness(timing, surah, hmap, want)
         st1, ev1 = opener_letters_start(opener_witnesses, surah, idx.get("riwaya") or "hafs", hmap, want,
-                                        None if opener_no_baseline else int(mine[1]["startMs"]), pins[2])
+                                        None if opener_no_baseline else int(mine[1]["startMs"]), pins[2],
+                                        timing=timing if (timing is not None and not opener_witnesses) else None)
         new[1]["startMs"], new[1]["endMs"] = st1, pins[2]
         report.append(f"{surah}:1 بدؤها ⇐ {st1} (حدٌّ بلا قياسٍ للحروف {OPENER_VERSION}: "
                       f"{'بلا خطّ أساسٍ منشور' if opener_no_baseline else 'المنشور ' + str(mine[1]['startMs'])} · "
@@ -1003,6 +1037,8 @@ def main():
     ap.add_argument("--opener-runs", default="",
                     help="تشغيلتا whisper_witness (‏أو أكثر): مطلعُ الحروف المقطّعة — يُثبَّت 2 بـ--pin وتُمَدّ 1 إلى الوراء "
                          f"({OPENER_VERSION})")
+    ap.add_argument("--opener-timing", action="store_true",
+                    help="م3: مطلعُ الحروف بالشاهد الزمنيّ (‏--timing-witness-run) بدل شاهدَي Whisper — حفص وحده")
     ap.add_argument("--opener-no-baseline", action="store_true",
                     help="مع --opener-runs وحدها: سورةٌ غائبةٌ من الحيّ كلِّها فلا بدءَ منشورَ للأولى — يُطبَّق شرطٌ أشدّ "
                          "(‏كلُّ شاهدٍ يسمع كلمةً قبل مطلع الثانية · اتّفاقٌ ≤300م.ث · مدّةٌ 1–8ث) ويردّه الحارسُ إن كانت السورةُ منشورة")
@@ -1013,8 +1049,10 @@ def main():
         raise SystemExit("⛔ --opener-no-baseline لا يعمل إلا مع --opener-runs")
     if a.witness_fuzzy and not a.witness_run:
         raise SystemExit("⛔ --witness-fuzzy لا يعمل إلا مع --witness-run")
-    if a.timing_witness_run and not a.witness_run:
-        raise SystemExit("⛔ --timing-witness-run لا يعمل إلا مع --witness-run (‏السماعُ لـWhisper وحده)")
+    if a.opener_timing and (not a.timing_witness_run or a.opener_runs or a.witness_run):
+        raise SystemExit("⛔ --opener-timing يلزمه --timing-witness-run وحده (‏بلا --opener-runs ولا --witness-run)")
+    if a.timing_witness_run and not a.witness_run and not a.opener_timing:
+        raise SystemExit("⛔ --timing-witness-run لا يعمل إلا مع --witness-run (‏السماعُ لـWhisper وحده) أو --opener-timing")
     import promote
     cl, bucket = promote.s3()
     body = cl.get_object(Bucket=bucket, Key=a.key)["Body"].read()
@@ -1049,6 +1087,11 @@ def main():
         if len(set(runs)) != len(runs):
             raise SystemExit("⛔ --opener-runs: تشغيلةٌ مكرّرة")
         owits = {r: load_witness(r, a.surah) for r in runs}
+        if ref is None:
+            riw = idx.get("riwaya") or "hafs"
+            ref = lambda s, ay: ref_words_for(riw, s, ay)                # noqa: E731
+    if a.opener_timing:
+        owits = {}
         if ref is None:
             riw = idx.get("riwaya") or "hafs"
             ref = lambda s, ay: ref_words_for(riw, s, ay)                # noqa: E731

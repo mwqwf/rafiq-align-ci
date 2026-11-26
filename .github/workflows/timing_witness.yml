@@ -52,7 +52,7 @@ jobs:
           python -m pip install --quiet "numpy==2.5.5" "uroman==1.3.1.1" "onnxruntime==1.32.0" "kaldi-native-fbank==1.23.3" "requests==2.32.3" \
             "quran-word-align @ git+https://github.com/voltarostudio/quran-word-align@188aff3032cedede2ac3adcc9d0dc27c59273c40"
       - name: اختباراتُ الأداة والحارس أوّلاً
-        run: python -m unittest tools/index_qa/test_timing_witness.py tools/index_qa/test_pin_heard_timing_witness.py tools/index_qa/test_pin_heard_witness.py
+        run: python -m unittest tools/index_qa/test_timing_witness.py tools/index_qa/test_pin_heard_timing_witness.py tools/index_qa/test_pin_heard_opener_timing.py tools/index_qa/test_pin_heard_witness.py
       - name: القياس (⛔ بلا رفعٍ ولا دلو)
         env:
           URL: ${{ inputs.url }}

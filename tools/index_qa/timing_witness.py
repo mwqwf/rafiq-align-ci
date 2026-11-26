@@ -109,6 +109,35 @@ def qwa_sequence(mp3, surah, riwaya):
     return sorted(seq, key=lambda x: x[1])
 
 
+def pause_around(wav_path, t_ms, back=1500, fwd=400, thr=18, minrun=8):
+    """م3: أقربُ سكتةٍ (‏≥minrun×10م.ث تحت p90−thr د.ب) تنتهي في [t−back, t+fwd] ⇒ [بدء، نهاية] بالم.ث أو None.
+    هي نفسُ `pause_bounds` في ظلّ م3 (‏shadow2/build.py) حرفاً."""
+    import wave                                                          # noqa: PLC0415
+    import numpy as np                                                   # noqa: PLC0415
+    with wave.open(wav_path, "rb") as w:
+        x = np.frombuffer(w.readframes(w.getnframes()), np.int16).astype(float)
+    db = 20 * np.log10(np.sqrt(np.convolve(x ** 2, np.ones(160) / 160, "same")[::160]) + 1e-9)
+    i0, i1 = max(0, int(t_ms - back) // 10), min(len(db), int(t_ms + fwd) // 10)
+    if i1 <= i0:
+        return None
+    ref = np.percentile(db[max(0, i0 - 300):i1 + 300], 90)
+    q = db[i0:i1] < ref - thr
+    best, j = None, 0
+    while j < len(q):
+        if q[j]:
+            k = j
+            while k < len(q) and q[k]:
+                k += 1
+            if k - j >= minrun:
+                s, e = (i0 + j) * 10, (i0 + k) * 10
+                if best is None or abs(e - t_ms) < abs(best[1] - t_ms):
+                    best = (s, e)
+            j = k
+        else:
+            j += 1
+    return list(best) if best else None
+
+
 def main():
     ap = argparse.ArgumentParser(description=__doc__.split("\n")[0])
     ap.add_argument("--url", required=True)
@@ -134,7 +163,8 @@ def main():
     qwa = kufi_from_qwa(qwa_sequence(mp3, a.surah, a.riwaya), firsts, mms)
     res = {"surah": a.surah, "riwaya": a.riwaya, "fileRef": a.url, "sha256": sha, "tool": "mms_fa+qwa",
            "ayahs": {str(k): {"mms": mms[k], "mmsScore": score[k],
-                              "qwa": qwa.get(k, (None, None))[0], "qwaConf": qwa.get(k, (None, None))[1]}
+                              "qwa": qwa.get(k, (None, None))[0], "qwaConf": qwa.get(k, (None, None))[1],
+                              "pause": (pause_around(wav, qwa[k][0]) if k in qwa and k <= 3 else None)}
                      for k in sorted(mms)}}
     out = os.path.join(a.out, f"timing_s{a.surah:03d}.json")
     with open(out + ".part", "w", encoding="utf-8") as f:
