@@ -50,7 +50,7 @@ jobs:
         with: {python-version: "${{ env.PY }}"}
       - run: python -m pip install --quiet boto3==1.43.123
       - name: الاختبارات أوّلاً
-        run: python -m unittest tools/index_qa/test_heard_gate.py tools/index_qa/test_heard_dual.py tools/index_qa/test_heard_weak.py tools/index_qa/test_heard_weak_lv3.py
+        run: python -m unittest tools/index_qa/test_heard_gate.py tools/index_qa/test_heard_dual.py tools/index_qa/test_heard_weak.py tools/index_qa/test_heard_weak_lv3.py tools/index_qa/test_heard_timing_anchor.py
       - name: اعتماد R2
         env: {R2_CREDENTIALS_JSON: "${{ secrets.R2_CREDENTIALS_JSON }}"}
         run: mkdir -p secure && printf '%s' "$R2_CREDENTIALS_JSON" > secure/r2_credentials.json
@@ -259,7 +259,7 @@ jobs:
       - name: الحكمُ والكتابةُ في state-heard/
         env: {ONLY: "${{ inputs.only }}", RUN: "${{ github.run_id }}", GH_TOKEN: "${{ github.token }}"}
         run: |
-          python -m unittest tools/index_qa/test_heard_gate.py tools/index_qa/test_heard_dual.py tools/index_qa/test_heard_weak.py tools/index_qa/test_heard_weak_lv3.py tools/index_qa/test_heard_disputed.py tools/index_qa/test_heard_owntext.py
+          python -m unittest tools/index_qa/test_heard_gate.py tools/index_qa/test_heard_dual.py tools/index_qa/test_heard_weak.py tools/index_qa/test_heard_weak_lv3.py tools/index_qa/test_heard_disputed.py tools/index_qa/test_heard_owntext.py tools/index_qa/test_heard_timing_anchor.py
           set -o pipefail
           python - <<'PY' | tee judge.log
           import glob, gzip, hashlib, json, os, sys, time, boto3
@@ -306,7 +306,8 @@ jobs:
                       pass
               # ⛔ (‏#101) شواهدُ المراسي المتنازَع عليها تُحمَّل من مصدرها (‏مخرَج تشغيلة whisper_witness) لا من المرشّح
               dsrc = H.disputed_sources(idx)
-              j = H.judge(idx, pub, sha, maps, maps_r, wit, disputed_src=dsrc, witness_l=wit_l)
+              tsrc = H.timing_sources(idx)       # ⭐ م3ب: الشاهدُ الزمنيّ يُحمَّل من مخرَج تشغيلته ويُعاد منه الحكم
+              j = H.judge(idx, pub, sha, maps, maps_r, wit, disputed_src=dsrc, witness_l=wit_l, timing_src=tsrc)
               rep = {"sha256": sha, "src": src, "version": H.VERSION, "run": os.environ["RUN"],
                      "ts": int(time.time()), "ok": j["ok"], "reason": j["reason"],
                      "modified": j["modified"], "sample": j["sample"], "sampleFindings": j["sampleFindings"],
@@ -316,6 +317,11 @@ jobs:
                                 for k, v in j["surahs"].items()}}
               if dsrc:
                   rep["disputedSource"] = dsrc
+              if tsrc:
+                  rep["timingSource"] = tsrc
+                  rep["timingAnchorVersion"] = H.TIMING_ANCHOR_VERSION
+                  if j.get("timing"):
+                      rep["timing"] = j["timing"]
               if j.get("disputed"):
                   rep["disputed"] = j["disputed"]
                   rep["disputedVersion"] = H.DISPUTED_VERSION
