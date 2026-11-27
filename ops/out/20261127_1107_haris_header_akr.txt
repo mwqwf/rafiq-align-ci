@@ -1,0 +1,285 @@
+# rc=0
+== timings/qalun/akri_qalun.jz · e9930f758ccf · مداخل 5792
+{
+ "schema": 1,
+ "riwaya": "qalun",
+ "reciterId": "akri_qalun",
+ "sourceKind": "SURAH_FILES",
+ "ayahCounting": "KUFI",
+ "ayahCount": 6236,
+ "method": "ASR_ALIGN",
+ "engineVersion": "align-0.2",
+ "refineVersion": "v2.1",
+ "refinedCount": 707,
+ "medTargeted": 2575,
+ "refineStats": {
+  "skip:no-words": 9,
+  "token-snap": 707,
+  "skip:no-anchor": 1214,
+  "skip:no-silence": 642,
+  "skip:overrun": 3
+ },
+ "lowCount": 425,
+ "vad": {
+  "versions": {
+   "adaptive-2": 114
+  },
+  "rel": {
+   "min": 0.06,
+   "median": 0.06,
+   "max": 0.06,
+   "surahs": 114
+  },
+  "writerVersion": "adaptive-2"
+ },
+ "noSilenceShare": 0.344,
+ "noSilenceToAnchor": 0.53,
+ "sparsePauses": false,
+ "missing": {
+  "count": 444,
+  "byReason": {
+   "source_truncated": 443,
+   "timing_under_repair": 1
+  },
+  "ids": [
+   "4:140",
+   "24:31",
+   "24:32",
+   "24:33",
+   "24:34",
+   "24:35",
+   "24:36",
+   "24:37",
+   "24:38",
+   "24:39",
+   "24:40",
+   "24:41",
+   "24:42",
+   "24:43",
+   "24:44",
+   "24:45",
+   "24:46",
+   "24:47",
+   "24:48",
+   "24:49",
+   "24:50",
+   "24:51",
+   "24:52",
+   "24:53",
+   "24:54",
+   "24:55",
+   "24:56",
+   "24:57",
+   "24:58",
+   "24:59",
+   "24:60",
+   "24:61",
+   "24:62",
+   "24:63",
+   "24:64",
+   "26:1",
+   "26:2",
+   "26:3",
+   "26:4",
+   "26:5",
+   "26:6",
+   "26:7",
+   "26:8",
+   "26:9",
+   "26:10",
+   "26:11",
+   "26:12",
+   "26:13",
+   "26:14",
+   "26:15",
+   "26:16",
+   "26:17",
+   "26:18",
+   "26:19",
+   "26:20",
+   "26:21",
+   "26:22",
+   "26:23",
+   "26:24",
+   "26:25",
+   "… و384"
+  ],
+  "note": "الفهرس بُني قبل وسم الاكتمال، فسببُ غيابه غير مقيس"
+ },
+ "exactEnds": true,
+ "generatedAt": 1788707110892,
+ "audioSha256": "[114 بصمة]",
+ "notes": "",
+ "transform": {
+  "truncatedTail": {
+   "24": {
+    "published": 30,
+    "absentFrom": 31,
+    "absentTo": 64,
+    "reason": "source_truncated",
+    "sourceSha256": "7be95a73720fb50b95dbeaced9cccc4e1ec341fc91480594ff1e9adda0bedd24",
+    "totalMs": 765759
+   }
+  },
+  "truncatedGaps": {
+   "4": {
+    "absent": [
+     140
+    ],
+    "reason": "timing_under_repair",
+    "evidence": {
+     "4:140": {
+      "method": "whisper",
+      "detail": "بوّابة السماع (43654281431) ردّت 4:140 في المرشّح 5fbdf5fc: مرساتها دون 0.5، وشاهد Whisper medium float32 على نافذة المدخل 3929583–3944710 يسمع ختام الآية 139 «أيبتغون عندهم العزة فإن العزة لله جميعا» ولا شيء من نصّ 4:140 «وقد نزّل عليكم في الكتاب». ويوافق صفّ akri أنّ 4:140 غائبة من التسجيل (نحو عشر ثوانٍ بين 139 و141). فالمدخل على صوت غيرها؛ تُحجب مؤقّتاً. والمدخل نفسه (3932583–3941710) في المرشّح d5aa0d41 المبنيّ مباشرةً فوق الحيّ (43656637819) مطابقٌ حرفاً لمدخل 5fbdf5fc، فالدليل قائم عليه.",
+      "heard": {
+       "witness": "heard_gate.yml whisper medium float32",
+       "runId": 43654281431,
+       "text": "أيبتغون عندهم العزة فإن العزة لله جميعا"
+      }
+     }
+    }
+   }
+  },
+  "dropSurah": [
+   37
+  ],
+  "declarations": {
+   "24": {
+    "op": "declare_gap",
+    "reasonCode": "SOURCE_TRUNCATED",
+    "reasonUser": "تسجيلُ هذا القارئ عند الناشر ناقص: النساء تنقصها الآية 140 فلم تُنشر، والنور تتوفّر منها الآيات 1–30 فقط.",
+    "reason": "تسجيلُ النساء عند هذا القارئ يخلو من الآية 140 في وسط السورة: بين نهاية 4:139 (3932ث) وبدء 4:141 (3943ث) نحو عشر ثوانٍ والآيةُ نحو أربعين ثانية؛ لم تسمعها خريطةُ السماع على ملفّ mp3quran ولا على نسخة archive.org (التسجيل نفسه)، وردّت نافذةُ CTC للجارتين 4:139-141 بثقة 0.0. فجوةٌ وسطى ⇒ تُسقط السورة كلّها وتُعلن، ويبقى إعلان النور 31–64 كما هو."
+   },
+   "10": {
+    "op": "drop_surah",
+    "reasonCode": "OTHER",
+    "reasonUser": "توقيت هذه السورة لهذا القارئ قيد الإصلاح، فحُجبت مؤقّتاً حتى لا تُعرض آياتها على صوت غيرها",
+    "reason": "ذيلُ السورة في هذا الفهرس مُزاحٌ بدقائق عن صوته: س10: الآية 109 تُسمع عند 2668ث والفهرس يضعها عند 1862ث (شاهد Whisper 42756669766)؛ س37: الآية 182 تُسمع عند 1414ث والفهرس يضعها عند 1258ث (شاهد Whisper 42756522605)، وخريطةُ السماع توافق الشاهد. تُحجب مؤقّتاً حتى تُعاد محاذاتها."
+   },
+   "37": {
+    "op": "drop_surah",
+    "reasonCode": "OTHER",
+    "reasonUser": "توقيت هذه السورة لهذا القارئ قيد الإصلاح، فحُجبت مؤقّتاً حتى لا تُعرض آياتها على صوت غيرها",
+    "reason": "ذيلُ السورة في هذا الفهرس مُزاحٌ بدقائق عن صوته: س10: الآية 109 تُسمع عند 2668ث والفهرس يضعها عند 1862ث (شاهد Whisper 42756669766)؛ س37: الآية 182 تُسمع عند 1414ث والفهرس يضعها عند 1258ث (شاهد Whisper 42756522605)، وخريطةُ السماع توافق الشاهد. تُحجب مؤقّتاً حتى تُعاد محاذاتها."
+   },
+   "4": {
+    "op": "declare_gap",
+    "reasonCode": "TIMING_UNDER_REPAIR",
+    "reasonUser": "توقيت هذه الآية قيد الضبط، فتُعرض بلا صوتٍ مؤقّتاً.",
+    "reason": "استرجاع س4 عند akri_qalun: الآية 140 وحدها ردّتها بوّابة السماع وشاهد Whisper يسمع في مدخلها ختام 139، فتُحجب مؤقّتاً لتُنشر السورة"
+   },
+   "26": {
+    "op": "drop_surah",
+    "reasonCode": "SOURCE_TRUNCATED",
+    "reasonUser": "في تسجيل هذه السورة آيةٌ ناقصة لدى القارئ؛ حُجب توقيتها حتى يتوفّر تسجيل كامل.",
+    "reason": "بترٌ مصدري: 26:166 نصفها الأول غائب من التسجيل نفسه، وكل نسخ المصدر (mp3quran cdn وarchive ومرقّق الصوت) هي الصوت نفسه ولا بديل مختلف (فحص 2026-11-26)."
+   }
+  },
+  "op": "drop_surah:10,26,37|declare_gap:4,24",
+  "fromSha256": "e986bc50284589ef7152691f375da2504f7ae917190f6cd4c9cae654c617179e",
+  "fromKey": "timings/qalun/akri_qalun.jz",
+  "droppedEntries": 227,
+  "reason": "بترٌ مصدري: 26:166 نصفها الأول غائب من التسجيل نفسه، وكل نسخ المصدر (mp3quran cdn وarchive ومرقّق الصوت) هي الصوت نفسه ولا بديل مختلف (فحص 2026-11-26).",
+  "reasonUser": "في تسجيل هذه السورة آيةٌ ناقصة لدى القارئ؛ حُجب توقيتها حتى يتوفّر تسجيل كامل.",
+  "reasonCode": "SOURCE_TRUNCATED",
+  "at": 1795751415230,
+  "note": "‏`refineStats` و`medTargeted` و`vad` تصف **البناء الأصلي** ولم تُعد حسابها؛ والمعاد حسابه: المداخل وعدّ LOW ووسم الاكتمال."
+ },
+ "engineBySurah": {
+  "1": "ctc-heardmap-1",
+  "4": "ctc-heardmap-1",
+  "10": "ctc-heardmap-1",
+  "12": "ctc-heardmap-1",
+  "13": "ctc-heardmap-1",
+  "15": "ctc-heardmap-1",
+  "16": "ctc-heardmap-1",
+  "17": "ctc-heardmap-1",
+  "18": "ctc-heardmap-1",
+  "19": "ctc-heardmap-1",
+  "20": "ctc-seg-1",
+  "24": "ctc-quran-surah-1",
+  "28": "ctc-heardmap-1",
+  "29": "ctc-heardmap-1",
+  "32": "ctc-heardmap-1",
+  "34": "ctc-heardmap-1",
+  "35": "ctc-heardmap-1",
+  "36": "ctc-heardmap-1",
+  "38": "ctc-heardmap-1",
+  "39": "ctc-heardmap-1",
+  "40": "ctc-heardmap-1",
+  "42": "ctc-heardmap-1",
+  "43": "ctc-heardmap-1",
+  "44": "ctc-heardmap-1",
+  "45": "ctc-heardmap-1",
+  "46": "ctc-heardmap-1",
+  "48": "ctc-heardmap-1",
+  "49": "ctc-heardmap-1",
+  "50": "ctc-heardmap-1",
+  "55": "ctc-heardmap-1",
+  "56": "ctc-seg-1",
+  "57": "ctc-heardmap-1",
+  "58": "ctc-heardmap-1",
+  "59": "ctc-heardmap-1",
+  "60": "ctc-heardmap-1",
+  "61": "ctc-heardmap-1",
+  "62": "ctc-heardmap-1",
+  "63": "ctc-heardmap-1",
+  "64": "ctc-heardmap-1",
+  "65": "ctc-heardmap-1",
+  "66": "ctc-heardmap-1",
+  "67": "ctc-heardmap-1",
+  "72": "ctc-heardmap-1",
+  "73": "ctc-heardmap-1",
+  "74": "ctc-heardmap-1",
+  "75": "ctc-heardmap-1",
+  "76": "ctc-heardmap-1",
+  "77": "ctc-heardmap-1",
+  "79": "ctc-heardmap-1",
+  "81": "ctc-heardmap-1",
+  "82": "ctc-heardmap-1",
+  "83": "ctc-heardmap-1",
+  "85": "ctc-heardmap-1",
+  "86": "ctc-heardmap-1",
+  "87": "ctc-heardmap-1",
+  "88": "ctc-heardmap-1",
+  "89": "ctc-heardmap-1",
+  "90": "ctc-heardmap-1",
+  "91": "ctc-heardmap-1",
+  "92": "ctc-heardmap-1",
+  "93": "ctc-heardmap-1",
+  "94": "ctc-heardmap-1",
+  "95": "ctc-heardmap-1",
+  "97": "ctc-heardmap-1",
+  "98": "ctc-heardmap-1",
+  "99": "ctc-heardmap-1",
+  "100": "ctc-heardmap-1",
+  "101": "ctc-heardmap-1",
+  "102": "ctc-heardmap-1",
+  "103": "ctc-heardmap-1",
+  "104": "ctc-heardmap-1",
+  "105": "ctc-heardmap-1",
+  "106": "ctc-heardmap-1",
+  "107": "ctc-heardmap-1",
+  "108": "ctc-heardmap-1",
+  "109": "ctc-heardmap-1",
+  "110": "ctc-heardmap-1",
+  "111": "ctc-heardmap-1",
+  "112": "ctc-heardmap-1",
+  "113": "ctc-heardmap-1",
+  "114": "ctc-heardmap-1"
+ },
+ "sourceBySurah": {
+  "106": "https://server16.mp3quran.net/m_akri/Rewayat-Qalon-A-n-Nafi/108.mp3",
+  "107": "https://server16.mp3quran.net/m_akri/Rewayat-Qalon-A-n-Nafi/106.mp3",
+  "108": "https://server16.mp3quran.net/m_akri/Rewayat-Qalon-A-n-Nafi/107.mp3"
+ },
+ "alignmentModelBySurah": {
+  "24": {
+   "id": "rabah2026/wav2vec2-large-xlsr-53-arabic-quran-v_final",
+   "revision": "b03a268c6ba1a693752307325ab376c86c3b12da",
+   "weightsSha256": "bf65674a26eb4ef7042cedade96c3c8f8cbd04f3a7d1a68eadceec8ed0f99ecb",
+   "license": "Apache-2.0",
+   "canonicalTextChanged": false
+  }
+ }
+}
