@@ -97,8 +97,12 @@ def shift_chars(chars, start_ms):
     return [(c, int(t) + int(start_ms)) for c, t in chars]
 
 
-def crop_samples(x, start_ms, sr):
-    """العيّناتُ من `start_ms` إلى آخر الملفّ. 0 ⇒ المصفوفةُ نفسُها."""
+def crop_samples(x, start_ms, sr, end_ms=0):
+    """العيّناتُ من `start_ms` إلى `end_ms` (‏0 = آخر الملفّ). 0 و0 ⇒ المصفوفةُ نفسُها."""
+    if end_ms:
+        if end_ms <= start_ms:
+            raise ValueError("end_ms يجب أن يكون بعد start_ms")
+        x = x[:int(end_ms) * int(sr) // 1000]
     if not start_ms:
         return x
     return x[int(start_ms) * int(sr) // 1000:]
@@ -409,12 +413,12 @@ def _char_list():
     return cl, tok.pad_token_id, (tok.word_delimiter_token if hasattr(tok, "word_delimiter_token") else "|")
 
 
-def run(audio, surah, riwaya, log=print, probe=False, strict_tol_ms=0, absent=None, peer=None, start_ms=0, witnessed=None):
+def run(audio, surah, riwaya, log=print, probe=False, strict_tol_ms=0, absent=None, peer=None, start_ms=0, witnessed=None, end_ms=0):
     """‏`absent` (‏آياتٌ 1-بدء مسمّاةٌ غائبة) و`peer` (‏خريطةُ نموذج التلاوة لنفس الملفّ) — بابٌ مستقلٌّ في `heard_absent`.
     بلا `absent` يبقى السلوكُ كما كان حرفاً.
     ‏`start_ms` (‏--probe وحده): يُفكّ الصوتُ من هذا الموضع إلى آخره، وتُزاح الأزمنةُ به فتبقى مطلقةً على الملفّ؛ 0 ⇒ كما كان حرفاً."""
-    if start_ms and not probe:
-        raise ValueError("start_ms لـ--probe وحده (‏لا مداخلَ من نافذةٍ جزئيّة)")
+    if (start_ms or end_ms) and not probe:
+        raise ValueError("start_ms/end_ms لـ--probe وحده (‏لا مداخلَ من نافذةٍ جزئيّة)")
     import numpy as np
     from ctc_seg import BASMALA, SR, _conf, _emissions, _segment
     from common import ffprobe_duration_ms, load_index, load_text, norm, surah_slice, to_wav16k
@@ -429,7 +433,7 @@ def run(audio, surah, riwaya, log=print, probe=False, strict_tol_ms=0, absent=No
     n = len(refs)
     wav = to_wav16k(audio)
     total_ms = ffprobe_duration_ms(audio)
-    x = crop_samples(read_wav(wav).astype(np.float32), start_ms, SR)
+    x = crop_samples(read_wav(wav).astype(np.float32), start_ms, SR, end_ms)
     log(f"س{surah}: {n} آية · الملفّ {total_ms / 1000:.0f}ث · فكّ CTC للملفّ كلِّه…"
         if not start_ms else f"س{surah}: {n} آية · الملفّ {total_ms / 1000:.0f}ث · فكّ CTC من {start_ms}م.ث إلى آخره…")
     lpz = _emissions(x)
@@ -698,6 +702,11 @@ def main() -> int:
                     help="حدٌّ أقصى ثابتٌ لبُعد الحدّ عن مِرساته (‏مثل 1500 للدفعة السماعيّة) بدلَ max(3ث، نصفِ المدّة)")
     ap.add_argument("--start-ms", type=int, default=0,
                     help="بدءُ النافذة بالم.ث (‏--probe وحده): يُفكّ من هنا إلى آخر الملفّ والأزمنةُ مطلقة؛ 0 = الملفُّ كلُّه كما كان")
+    ap.add_argument("--end-ms", type=int, default=0,
+                    help="نهايةُ النافذة بالم.ث (‏--probe وحده): يُفكّ إلى هذا الموضع لا إلى آخر الملفّ — لملفٍّ متعدّد السور؛ 0 = إلى آخر الملفّ")
+    ap.add_argument("--span-window", action="store_true",
+                    help="النافذةُ (‏--start-ms/--end-ms) هي **مدى السورة في المصدر** لا فحصٌ جزئيّ: يُكتب heard_sNNN.json كاملَ الاسم وفيه spanWindowMs "
+                         "(‏لملفٍّ متعدّد السور في heard_pub). يلزمه --probe و--end-ms")
     ap.add_argument("--report", default="", help="ملفُّ تقريرٍ نصّيّ (‏افتراضه <out-dir>/heard_s<س>.txt)")
     ap.add_argument("--absent-ayahs", default="",
                     help="آياتٌ غائبةٌ مسمّاةٌ في سورةٍ واحدةٍ: «74-94» أو «6:74-94» (‏بابُ heard_absent). في --probe تُمسح في الملفّ كلِّه؛ "
@@ -722,6 +731,10 @@ def main() -> int:
         ap.error("يلزم --url أو --audio")
     if a.start_ms < 0 or (a.start_ms and not a.probe):
         ap.error("--start-ms عددٌ غيرُ سالب، ولـ--probe وحده")
+    if a.span_window and not (a.probe and a.end_ms):
+        ap.error("--span-window يلزمه --probe و--end-ms")
+    if a.end_ms < 0 or (a.end_ms and not a.probe) or (a.end_ms and a.end_ms <= a.start_ms):
+        ap.error("--end-ms عددٌ غيرُ سالب بعد --start-ms، ولـ--probe وحده")
     os.makedirs(a.out_dir, exist_ok=True)
     audio = a.audio or os.path.join(a.out_dir, f"{a.surah:03d}.mp3")
     if not a.audio and (not os.path.exists(audio) or os.path.getsize(audio) < 10_000):
@@ -757,6 +770,7 @@ def main() -> int:
     try:
         res, report = run(audio, a.surah, a.riwaya, probe=a.probe, strict_tol_ms=a.strict_tol_ms, absent=absent, peer=peer,
                           **({"start_ms": a.start_ms} if a.start_ms else {}),
+                          **({"end_ms": a.end_ms} if a.end_ms else {}),
                           **({"witnessed": witnessed} if witnessed else {}))
     except Exception as ex:                                                  # noqa: BLE001
         if absent and type(ex).__name__ == "HeardAbsentError":
@@ -766,7 +780,10 @@ def main() -> int:
     import vad as _vad
     res.update(fileRef=a.url or audio, sha256=sha, vadRel=getattr(_vad, "LAST_REL", None),
                vadVersion=getattr(_vad, "VAD_VERSION", None))
-    if a.start_ms:
+    if a.span_window:
+        res["spanWindowMs"] = [a.start_ms, a.end_ms]
+        report = f"# نافذةُ مدى السورة: {a.start_ms}–{a.end_ms}م.ث (‏الأزمنةُ مطلقة)\n" + report
+    elif a.start_ms:
         # ⭐ النافذةُ جزئيّة: ما قبل هذا الموضع لم يُسمع، فلا يُقرأ غيابُ مِرساةٍ قبله عدماً.
         res["windowStartMs"] = a.start_ms
         report = f"# نافذةٌ جزئيّة: من {a.start_ms}م.ث إلى آخر الملفّ (‏الأزمنةُ مطلقة)\n" + report
@@ -776,7 +793,7 @@ def main() -> int:
     with open(rep_path, "w", encoding="utf-8") as f:
         f.write(report + "\n")
     # ⛔ (‏#105) الخريطةُ الجزئيّة باسمٍ لا يطابق `heard_s*.json` فلا تحلّ محلَّ الكاملة عند قارئٍ يقرأ بالاسم.
-    out = os.path.join(a.out_dir, (f"heardpart_s{a.surah:03d}_from{a.start_ms}.json" if a.start_ms
+    out = os.path.join(a.out_dir, (f"heardpart_s{a.surah:03d}_from{a.start_ms}.json" if (a.start_ms and not a.span_window)
                                    else f"heard_s{a.surah:03d}.json") if a.probe else f"s{a.surah:03d}.json")
     # ⭐ (2026-10-25 · تسريع) كتابةٌ ذرّيّة: مهلةُ الميزانية في سير العمل قد تقتل العمليةَ أثناء الكتابة، وملفُّ
     #    سورةٍ مبتورٌ يكسر الدمجَ كلَّه؛ يُكتب مؤقّتاً ثمّ يُستبدَل والمحتوى بايتاً كما كان.

@@ -330,5 +330,17 @@ class QuranModelFlag(unittest.TestCase):
         fake_q.configure.assert_not_called()
 
 
+
+class CropWindow(unittest.TestCase):
+    def test_end_ms_crops_tail(self):
+        import ctc_heard_map as M
+        x = list(range(10_000))                      # 10 ثانية عند sr=1000
+        self.assertEqual(len(M.crop_samples(x, 2000, 1000, 6000)), 4000)
+        self.assertEqual(M.crop_samples(x, 2000, 1000)[0], 2000)      # بلا end: السلوكُ كما كان
+        self.assertIs(M.crop_samples(x, 0, 1000), x)
+        with self.assertRaises(ValueError):
+            M.crop_samples(x, 6000, 1000, 6000)
+
+
 if __name__ == "__main__":
     unittest.main()
