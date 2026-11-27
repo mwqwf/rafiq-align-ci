@@ -402,10 +402,27 @@ def inherit_drop_surah(pidx, out):
     فكان الحجبُ الوسطيُّ يُورَّث وحدَه ويضيع إعلانُ السورة المحجوبة فيردّه index_gate بـ«سورٌ غائبةٌ كلّياً». فيُحمل هنا:
     `dropSurah` وسجلُّ كلّ سورةٍ منه في `declarations` حرفاً، و`reasonCode`/`reasonUser` العليا (‏شرطُ `promote.inherited_drops`)
     إن غابت عن المخرَج؛ وإن وُجدت وخالفت الأصلَ رُدّ (‏لا يُبدَّل بيانٌ معروضٌ للمستخدم). ولا تُحمل سورةٌ صار لها مداخلُ في المخرَج.
-    ولا يُرخي شيئاً: المنشأُ (‏fromKey/fromSha256) هو المنشورُ الذي بُنيت عليه الترويسة، والحكمُ يبقى لـ`promote.inherited_drops`."""
+    ولا يُرخي شيئاً: المنشأُ (‏fromKey/fromSha256) هو المنشورُ الذي بُنيت عليه الترويسة، والحكمُ يبقى لـ`promote.inherited_drops`.
+
+    ⭐ (‏2026-11-27 · akri e9930f75 س10): إعلانُ إسقاطٍ بالٍ لسورة استُرجعت ولها مداخل في الأصل كان يردّ
+    `declared_absent(pidx)` قبل أن يُستثنى ما له مداخل. فيُنزع من نسخة اشتقاقٍ وحدَها (`drop_ayahs.without_stale_drop`)
+    ثم يُمرَّر الحارس على النسخة المنظّفة. الحارسُ نفسُه لا يُرخى: الأصل المتناقض يبقى مردوداً إن قُرئ مباشرة،
+    وكتّاب الإعلان (‏drop_surah / pin_heard) يُردّون كما كانوا."""
     import declarations
+    from drop_ayahs import without_stale_drop
     ptr = pidx.get("transform") if isinstance(pidx.get("transform"), dict) else {}
-    drops = declarations.declared_absent(pidx)
+    named = declarations.op_surahs(ptr.get("op"), "drop_surah") | {
+        int(x) for x in (ptr.get("dropSurah") or []) if str(x).isdigit()
+    }
+    present_parent = {int(str(e["ayahId"]).split(":")[0])
+                      for e in (pidx.get("entries") or [])
+                      if isinstance(e, dict) and e.get("ayahId")}
+    stale = sorted(s for s in named if s in present_parent)
+    src = without_stale_drop(pidx, stale) if stale else pidx
+    if stale:
+        print(f"  ✔ حُذف من إسقاط السور الموروث ما استُرجع: {stale}")
+    ptr = src.get("transform") if isinstance(src.get("transform"), dict) else {}
+    drops = declarations.declared_absent(src)
     if not drops:
         return
     tr = out["transform"]
