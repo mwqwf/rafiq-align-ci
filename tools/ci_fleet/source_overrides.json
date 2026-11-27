@@ -640,5 +640,25 @@
     "audio_sha256": "3088b4a24d72c677269ed6df59f892f51046b28d2c66a8794fcccbba134feabc",
     "identitySourceUrl": "https://archive.org/details/rabieaaa2018_yahoo_0073246236_201505",
     "evidence": "2026-11-27 (مُحاذي التلاوات): ملفّنا لس7 (الحيّ 28cb839a) 6205.54ث وفيه تكرار مقيس عند 1820.15ث (ارتباط ذاتي 0.95–0.97)، وينحرف الفهرس −1792ث عند 7:54. بديل archive.org العنصر rabieaaa2018_yahoo_0073246236_201505 «مصحف القراء الموريتانيين · سليمان ولد الرباني · ورش» الملف 007 الأعراف.mp3 (4392.62ث، sha256 3088b4a24d72c677269ed6df59f892f51046b28d2c66a8794fcccbba134feabc، MD5 الناشر c276d0205f0a780addf33350f409937f مطابق للمنزَّل 2026-11-27): يطابق الأداء الثاني في ملفّنا (من 1820ث، 4385ث) ارتباط غلاف 0.978–0.997 من 300ث حتى النهاية (النهاية 0.995) بإزاحة شبه ثابتة (−3.63 ثم −4.39ث؛ +7ث عند 3900 مع بقاء الارتباط ≥0.988). البداية تطابق الأداء الأول 0–1800ث بارتباط 0.99 وإزاحة −3.62ث. ليس تسجيلاً مختلفاً ولا قارئاً آخر، بل أداء واحد كامل بلا التكرار الناقص في رأس ملفّنا. القاعدة المسجَّلة 2026-11-27 06:54 وسابقة husary_douri س39 (الأداء نفسه، التسجيل الكامل). لم يُغيَّر نصٌّ ولا عتبة."
+  },
+  {
+    "riwaya": "warsh",
+    "reciter": "wahrani_warsh",
+    "surah": 11,
+    "base": "https://archive.org/download/Mansour-Belhaj-Alwahrany/",
+    "url": "https://archive.org/download/Mansour-Belhaj-Alwahrany/011.mp3",
+    "audio_sha256": "0ecc8f842c3f9cab85fe7bcfa63b763f7e1d3061690f950e64930f68ec40e804",
+    "identitySourceUrl": "https://archive.org/details/Mansour-Belhaj-Alwahrany",
+    "evidence": "2026-11-27 (مسح المصادر البديلة): ملفّنا لس11 (Al-Quran_tilawat_Mansour_Al-Wahrani، 2184.64ث) فيه تكرار مطلع (مسح 20261127_0429). بديل archive.org العنصر Mansour-Belhaj-Alwahrany «مصحف منصور بلحاج الوهراني 114 سورة كامل مرتل برواية ورش عن نافع عن طريق الأصبهاني» الملف 011.mp3 (2112.54ث، sha256 0ecc8f842c3f9cab85fe7bcfa63b763f7e1d3061690f950e64930f68ec40e804، MD5 الناشر 7343e2713da548e5bcb4296bd0797763 مطابق للمنزَّل). ليس الأداء نفسه: ارتباط الغلاف 0.45–0.63 بإزاحات غير ثابتة (−10…+6ث). اختبار الصوت ECAPA (spk.py، مراسٍ A_067/A_075/A_078 من ملفّات ملفّنا للقارئ نفسه): min_CA=0.803 mean_CA=0.82 max_CN=0.376 min_AA=0.896 test_valid=true accept=true (يجتاز min_CA≥0.6 وmin_CA>max_CN+0.10). الاكتمال: ctc_heard_probe 46004980953 (warsh): heard 123/123 لـ11:1–123 (الأولى جودة 0.971، الأخيرة heardMap 0.848). لم يُغيَّر نصٌّ ولا عتبة."
+  },
+  {
+    "riwaya": "hafs",
+    "reciter": "hatem",
+    "surah": 57,
+    "base": "https://archive.org/download/TvQuran.com__Hatem/",
+    "url": "https://archive.org/download/TvQuran.com__Hatem/057.mp3",
+    "audio_sha256": "f49344f86bb116f6be9b18cd6f9a3a41d24c7599b99e6bc9272af9b85926677f",
+    "identitySourceUrl": "https://archive.org/details/TvQuran.com__Hatem",
+    "evidence": "2026-11-27 (مسح المصادر البديلة): ملفّنا لس57 (hatem-waer، 665.16ث، الحيّ 617f2063) محجوب. بديل archive.org العنصر TvQuran.com__Hatem الملف 057.mp3 (794.84ث، sha256 f49344f86bb116f6be9b18cd6f9a3a41d24c7599b99e6bc9272af9b85926677f، MD5 الناشر 60476f04078dd8a57fb91e040d9fb078 مطابق للمنزَّل). ليس الأداء نفسه: ارتباط الغلاف 0.26 بإزاحات غير ثابتة. اختبار الصوت ECAPA (spk.py، مراسٍ A_030/A_057/A_067 من hatem-waer): للملف C_057tv min_CA=0.797 (0.797/0.798/0.833) max_CN=0.346 min_AA=0.878 test_valid=true ⇒ يجتاز الشرطين. الاكتمال: ctc_heard_probe 46005064078 (hafs): heard 29/29 لـ57:1–29 (الأولى 0.784، الأخيرة 0.695). لم يُغيَّر نصٌّ ولا عتبة."
   }
 ]
