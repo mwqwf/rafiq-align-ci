@@ -1,0 +1,200 @@
+{
+  "path": "ops/source-repair/candidates/codex-expanded-tail-hafs-alijon-20261006.jz",
+  "sha256": "3864af8dc67bfaa7ed4f1db96764623f73ab921b75dd878c436c0e5b8e6954fc",
+  "parentKey": "timings/hafs/alijon.jz",
+  "parentSha256": "5e9fd934732d6ad50325098a0cc20330ef06a13f5732e5d528eedd6ba5c3e154",
+  "op": "ctc_quran_window:89",
+  "changedEntries": 8,
+  "warnings": [
+    "مداخل مدتها > 120ث: 1 · مثال: 2:282 مدتها 198ث"
+  ],
+  "proof": {
+    "qualityClaim": false,
+    "contexts": [
+      {
+        "reportPath": "ops/out/codex-alijon89-eof-24-30-report-20261006.json",
+        "reportSha256": "c37cbe6412d1413c14bcf6383dac41279233dfa4496968a49d3bd54efe736b42",
+        "bundlePath": "ops/out/codex-alijon89-eof-24-30-complete-20261006.json.gz",
+        "bundleSha256": "fb0212c9757c2868a0ae29a36022c73f49716b163c965c4cf7bc67b1848b1a8d",
+        "jobId": 112121575716,
+        "id": "alijon89_eof_24_30",
+        "sourceSha256": "082f84fdf5f56fd825170e8b49c1e452f1148dd5ca90a07fc8730f1c6644fb87",
+        "targetAyahs": [
+          24,
+          25,
+          26,
+          27,
+          28,
+          29,
+          30
+        ],
+        "provenance": {
+          "runId": "37417827282",
+          "runSha": "bbc120787189708307d87bcbbe72404d87ffcba0",
+          "toolSha256": "443806492a44bb5cddcdd4002d4006b65eb88b9dfb2ed34eece7e9e502cd3cda"
+        }
+      }
+    ],
+    "changes": [
+      {
+        "before": {
+          "ayahId": "89:23",
+          "fileRef": "https://server16.mp3quran.net/Alijon/Rewayat-Hafs-A-n-Assem/089.mp3",
+          "startMs": 148950,
+          "endMs": 165517,
+          "conf": 0.635,
+          "confBand": "MED"
+        },
+        "after": {
+          "ayahId": "89:23",
+          "fileRef": "https://server16.mp3quran.net/Alijon/Rewayat-Hafs-A-n-Assem/089.mp3",
+          "startMs": 148950,
+          "endMs": 165536,
+          "conf": 0.635,
+          "confBand": "MED"
+        }
+      },
+      {
+        "before": {
+          "ayahId": "89:24",
+          "fileRef": "https://server16.mp3quran.net/Alijon/Rewayat-Hafs-A-n-Assem/089.mp3",
+          "startMs": 165517,
+          "endMs": 172522,
+          "conf": 0.726,
+          "confBand": "MED"
+        },
+        "after": {
+          "ayahId": "89:24",
+          "fileRef": "https://server16.mp3quran.net/Alijon/Rewayat-Hafs-A-n-Assem/089.mp3",
+          "startMs": 165536,
+          "endMs": 172521,
+          "conf": 0.726,
+          "confBand": "MED"
+        }
+      },
+      {
+        "before": {
+          "ayahId": "89:25",
+          "fileRef": "https://server16.mp3quran.net/Alijon/Rewayat-Hafs-A-n-Assem/089.mp3",
+          "startMs": 172522,
+          "endMs": 180990,
+          "conf": 0.637,
+          "confBand": "MED"
+        },
+        "after": {
+          "ayahId": "89:25",
+          "fileRef": "https://server16.mp3quran.net/Alijon/Rewayat-Hafs-A-n-Assem/089.mp3",
+          "startMs": 172521,
+          "endMs": 180667,
+          "conf": 0.637,
+          "confBand": "MED"
+        }
+      },
+      {
+        "before": {
+          "ayahId": "89:26",
+          "fileRef": "https://server16.mp3quran.net/Alijon/Rewayat-Hafs-A-n-Assem/089.mp3",
+          "startMs": 180990,
+          "endMs": 185721,
+          "conf": 0.641,
+          "confBand": "MED"
+        },
+        "after": {
+          "ayahId": "89:26",
+          "fileRef": "https://server16.mp3quran.net/Alijon/Rewayat-Hafs-A-n-Assem/089.mp3",
+          "startMs": 180667,
+          "endMs": 186472,
+          "conf": 0.641,
+          "confBand": "MED"
+        }
+      },
+      {
+        "before": {
+          "ayahId": "89:27",
+          "fileRef": "https://server16.mp3quran.net/Alijon/Rewayat-Hafs-A-n-Assem/089.mp3",
+          "startMs": 185721,
+          "endMs": 188924,
+          "conf": 0.0,
+          "confBand": "LOW",
+          "startApprox": true
+        },
+        "after": {
+          "ayahId": "89:27",
+          "fileRef": "https://server16.mp3quran.net/Alijon/Rewayat-Hafs-A-n-Assem/089.mp3",
+          "startMs": 186472,
+          "endMs": 194257,
+          "conf": 0.0,
+          "confBand": "LOW",
+          "startApprox": true
+        }
+      },
+      {
+        "before": {
+          "ayahId": "89:28",
+          "fileRef": "https://server16.mp3quran.net/Alijon/Rewayat-Hafs-A-n-Assem/089.mp3",
+          "startMs": 188924,
+          "endMs": 190465,
+          "conf": 0.0,
+          "confBand": "LOW",
+          "startApprox": true
+        },
+        "after": {
+          "ayahId": "89:28",
+          "fileRef": "https://server16.mp3quran.net/Alijon/Rewayat-Hafs-A-n-Assem/089.mp3",
+          "startMs": 194257,
+          "endMs": 202603,
+          "conf": 0.0,
+          "confBand": "LOW",
+          "startApprox": true
+        }
+      },
+      {
+        "before": {
+          "ayahId": "89:29",
+          "fileRef": "https://server16.mp3quran.net/Alijon/Rewayat-Hafs-A-n-Assem/089.mp3",
+          "startMs": 190465,
+          "endMs": 191065,
+          "conf": 0.0,
+          "confBand": "LOW",
+          "startApprox": true
+        },
+        "after": {
+          "ayahId": "89:29",
+          "fileRef": "https://server16.mp3quran.net/Alijon/Rewayat-Hafs-A-n-Assem/089.mp3",
+          "startMs": 202603,
+          "endMs": 206787,
+          "conf": 0.0,
+          "confBand": "LOW",
+          "startApprox": true
+        }
+      },
+      {
+        "before": {
+          "ayahId": "89:30",
+          "fileRef": "https://server16.mp3quran.net/Alijon/Rewayat-Hafs-A-n-Assem/089.mp3",
+          "startMs": 191065,
+          "endMs": 191826,
+          "conf": 0.078,
+          "confBand": "LOW",
+          "startApprox": true
+        },
+        "after": {
+          "ayahId": "89:30",
+          "fileRef": "https://server16.mp3quran.net/Alijon/Rewayat-Hafs-A-n-Assem/089.mp3",
+          "startMs": 206787,
+          "endMs": 212330,
+          "conf": 0.078,
+          "confBand": "LOW",
+          "startApprox": true
+        }
+      }
+    ],
+    "decodedEofMs": {
+      "89": 212330
+    },
+    "limits": [
+      "الحد الأصلي لثقة المحاذاة0.45؛ لا تغيير لأي حارس أو ثقة منشورة.",
+      "الخواتيم المقيسة فقط؛ يلزم الفحص الأصلي الكامل للبصمة المرفوعة."
+    ]
+  }
+}

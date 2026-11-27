@@ -1,0 +1,275 @@
+{
+ "schema": 1,
+ "tool": "full_audit-1.0",
+ "date": "20261003",
+ "timestampUtc": "2026-10-03T23:34:37Z",
+ "elapsedSec": 34.2,
+ "phase": "all",
+ "manifestIndexes": 180,
+ "frozenBucket": 214,
+ "reportsRead": 10148,
+ "rows": [
+  {
+   "key": "timings-staging/warsh/husary_warsh.20ed6f84.jz",
+   "sha256": "20ed6f847cc553f055f344ecc4edffe574590468c7a020f8f7c7ab78bd170ca8",
+   "riwaya": "warsh",
+   "reciterId": "husary_warsh",
+   "bytes": 96809,
+   "engine": "align-0.2",
+   "transformOp": "ctc_dualfix_splice:35",
+   "staging": true,
+   "identity": {
+    "sha256": "20ed6f847cc553f055f344ecc4edffe574590468c7a020f8f7c7ab78bd170ca8",
+    "staging": true,
+    "errors": [],
+    "ok": true
+   },
+   "structure": {
+    "entries": 6236,
+    "errors": [],
+    "examples": {},
+    "fileNoUnparsed": 0,
+    "structuralFatal": [],
+    "structuralWarn": [
+     "مداخل مدتها > 120ث: 26 · مثال: 2:102 مدتها 130ث",
+     "فجوات > 15ث بين آيتين متتاليتين: 21 · مثال: 2:76→2:77 فجوة 47ث"
+    ],
+    "decision": [],
+    "engine": "align-0.2",
+    "audioSha": 114,
+    "bands": {
+     "HIGH": 5262,
+     "MED": 834,
+     "LOW": 140
+    },
+    "ok": true
+   },
+   "gaps": {
+    "missingTotal": 0,
+    "internalGaps": [],
+    "headMissing": [],
+    "tailMissing": [],
+    "wholeMissing": [],
+    "declared": {
+     "transformOp": "ctc_dualfix_splice:35",
+     "transformReason": "fixR: heard_gate (float32) ردّ مرشّح husary_warsh 2d30de78 بـ35:41 (+2.1ث) ⇒ dualfix لـ35:40-42 بين جارين ثابتين",
+     "reasonCode": null,
+     "dropSurahs": [],
+     "byReason": {},
+     "declaredCount": 0,
+     "tagCount": 0,
+     "declaredIds": [],
+     "truncatedTail": null
+    },
+    "undeclaredEdge": [],
+    "errors": [],
+    "ok": true
+   },
+   "durations": {
+    "durationOutliers": 16,
+    "durationExamples": [
+     {
+      "aid": "35:4",
+      "ms": 71448,
+      "expMs": 19698,
+      "ratio": 3.63,
+      "chars": 43
+     },
+     {
+      "aid": "16:16",
+      "ms": 28100,
+      "expMs": 8903,
+      "ratio": 3.16,
+      "chars": 20
+     },
+     {
+      "aid": "55:73",
+      "ms": 1230,
+      "expMs": 9378,
+      "ratio": 0.13,
+      "chars": 18
+     },
+     {
+      "aid": "37:143",
+      "ms": 1541,
+      "expMs": 9317,
+      "ratio": 0.17,
+      "chars": 21
+     },
+     {
+      "aid": "37:126",
+      "ms": 2441,
+      "expMs": 10648,
+      "ratio": 0.23,
+      "chars": 24
+     },
+     {
+      "aid": "37:139",
+      "ms": 1881,
+      "expMs": 7986,
+      "ratio": 0.24,
+      "chars": 18
+     },
+     {
+      "aid": "37:167",
+      "ms": 1641,
+      "expMs": 6655,
+      "ratio": 0.25,
+      "chars": 15
+     },
+     {
+      "aid": "37:127",
+      "ms": 2085,
+      "expMs": 7986,
+      "ratio": 0.26,
+      "chars": 18
+     },
+     {
+      "aid": "37:144",
+      "ms": 2582,
+      "expMs": 9761,
+      "ratio": 0.26,
+      "chars": 22
+     },
+     {
+      "aid": "37:179",
+      "ms": 1761,
+      "expMs": 6655,
+      "ratio": 0.26,
+      "chars": 15
+     },
+     {
+      "aid": "37:136",
+      "ms": 1670,
+      "expMs": 6211,
+      "ratio": 0.27,
+      "chars": 14
+     },
+     {
+      "aid": "37:173",
+      "ms": 2171,
+      "expMs": 7986,
+      "ratio": 0.27,
+      "chars": 18
+     }
+    ],
+    "impossibleShort": [],
+    "veryShort": [],
+    "extremeLong": [],
+    "longOutliers": 2,
+    "shortOutliers": 13,
+    "silenceGaps": 21,
+    "silenceExamples": [
+     {
+      "from": "9:33",
+      "to": "9:34",
+      "gapMs": 96160
+     },
+     {
+      "from": "4:35",
+      "to": "4:36",
+      "gapMs": 89820
+     },
+     {
+      "from": "27:58",
+      "to": "27:59",
+      "gapMs": 78340
+     },
+     {
+      "from": "2:195",
+      "to": "2:196",
+      "gapMs": 72120
+     },
+     {
+      "from": "3:132",
+      "to": "3:133",
+      "gapMs": 60840
+     },
+     {
+      "from": "51:42",
+      "to": "51:43",
+      "gapMs": 55340
+     },
+     {
+      "from": "46:25",
+      "to": "46:26",
+      "gapMs": 49860
+     },
+     {
+      "from": "20:52",
+      "to": "20:53",
+      "gapMs": 48500
+     },
+     {
+      "from": "16:110",
+      "to": "16:111",
+      "gapMs": 48340
+     },
+     {
+      "from": "22:2",
+      "to": "22:3",
+      "gapMs": 47540
+     },
+     {
+      "from": "5:64",
+      "to": "5:65",
+      "gapMs": 47140
+     },
+     {
+      "from": "2:76",
+      "to": "2:77",
+      "gapMs": 47000
+     }
+    ],
+    "surahsWithRate": 113
+   },
+   "audio": {
+    "audioReportsOnSha": 0,
+    "openersOnSha": false,
+    "errors": [
+     "لا حكمَ صوتيٍّ بعيّنةٍ على البصمة المنشورة",
+     "لا شاهدَ مطالعَ على البصمة المنشورة"
+    ],
+    "notes": [],
+    "samples": [],
+    "pooled": null,
+    "severeHi": null,
+    "otherShasWithSamples": [
+     "2d30de78",
+     "5dc353f6",
+     "5de0a957",
+     "717b7a5a",
+     "a22f531b",
+     "fe66e731"
+    ],
+    "ok": false
+   }
+  }
+ ],
+ "summary": {
+  "indexes": 1,
+  "phase": "all",
+  "identityOk": 1,
+  "identityBad": [],
+  "structureOk": 1,
+  "structureBad": [],
+  "gapsOk": 1,
+  "gapsBad": [],
+  "audioOk": 0,
+  "audioBad": [
+   "timings-staging/warsh/husary_warsh.20ed6f84.jz"
+  ],
+  "durationOutliersTotal": 16,
+  "impossibleShortTotal": 0,
+  "indexesWithImpossibleShort": 0,
+  "veryShortTotal": 0,
+  "extremeLongTotal": 0,
+  "indexesWithExtremeLong": 0,
+  "mirrorStale": 0,
+  "silenceGapsTotal": 21,
+  "indexesWithDurationOutliers": 1,
+  "indexesWithSilenceGaps": 1,
+  "entriesTotal": 6236,
+  "missingTotal": 0
+ }
+}

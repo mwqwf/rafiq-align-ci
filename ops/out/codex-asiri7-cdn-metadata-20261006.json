@@ -1,0 +1,47 @@
+{
+  "schema": 1,
+  "generatedAt": "2026-10-06T05:06:27Z",
+  "kind": "rejected-complete-source-candidate",
+  "qualityClaim": false,
+  "productionChanged": false,
+  "readerId": "3siri",
+  "riwaya": "hafs",
+  "surah": 7,
+  "sourcePage": "https://surahquran.com/mp3/Ibrahim-al-Asiri/7.html",
+  "sourcePageClaim": "إبراهيم العسيري · حفص عن عاصم · سورة الأعراف كاملة",
+  "requestedUrl": "https://cdn.mp3quran.net/audio/ibrahim-asiri/r1/007.mp3",
+  "workflowRun": 37416781237,
+  "workflowJob": 112117040825,
+  "sourceMetadataReportSha256": "20a0795f6aefc576ed7c4b3ea99cad2b79f574885f7f28ff9a3163ee2ea1fbcf",
+  "file": {
+    "bytes": 78238338,
+    "sha256": "eba546de36747d4ac3cc87db17415c0049d64d8a9fce030559d0fafc9e61bfd9",
+    "durationSeconds": 4888.424438,
+    "codec": "mp3",
+    "sampleRateHz": 44100,
+    "channels": 2
+  },
+  "decodedPcm": {
+    "decodedWithoutErrors": true,
+    "durationSeconds": 4888.4245,
+    "hasSignalAboveThreshold": true,
+    "sha256": "ab77a2a26b13e07cce1ef4d51b92ad90243f4319f92b73f5c08b2b74683498e3",
+    "longSilences": [
+      {
+        "startSeconds": 2798.7,
+        "endSeconds": 3917.9,
+        "durationSeconds": 1119.2
+      }
+    ]
+  },
+  "stereo": {
+    "decodedWithoutErrors": true,
+    "phaseCancellationSuspected": false,
+    "correlationLR": 0.901773209874902
+  },
+  "identityVerified": false,
+  "identityAndVerseCoverageCertified": false,
+  "acceptedAsCompleteSource": false,
+  "rejection": "المصدر يفك سليماً تقنياً لكنه يحوي صمتاً متصلاً قدره 1119.2 ثانية؛ لذلك لا يثبت تغطية الأعراف كاملة ولا يجوز بناء 206 توقيتاً عليه قبل إيجاد أصل كامل مطابق أو قياس محتوى مستقل يفسر هذه الفجوة.",
+  "next": "البحث المقيس عن مصدر مستقل كامل مطابق للقارئ والرواية، بلا تركيب صوت ولا توقيت مختلق."
+}

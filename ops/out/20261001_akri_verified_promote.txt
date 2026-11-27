@@ -1,0 +1,13 @@
+# rc=1
+أحكامٌ مقروءة: 1 · مرشّحون: 1 · مرفوضون: 0
+  ⛔ timings-staging/qalun/akri_qalun.3cec14aa.jz: سورٌ غائبةٌ كلّياً: 24
+
+[stderr]
+Traceback (most recent call last):
+  File "/home/runner/work/rafiq-align-ci/rafiq-align-ci/tools/index_qa/promote_verified_transform.py", line 114, in <module>
+    main()
+  File "/home/runner/work/rafiq-align-ci/rafiq-align-ci/tools/index_qa/promote_verified_transform.py", line 110, in main
+    adopt(a.key, a.sha, a.parent_sha, a.reason)
+  File "/home/runner/work/rafiq-align-ci/rafiq-align-ci/tools/index_qa/promote_verified_transform.py", line 75, in adopt
+    raise ValueError("ردت الحراس المعاينة؛ بقي تجميد الأصل دون كتابة")
+ValueError: ردت الحراس المعاينة؛ بقي تجميد الأصل دون كتابة

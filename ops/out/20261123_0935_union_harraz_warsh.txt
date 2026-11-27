@@ -1,0 +1,13 @@
+# rc=0
+  ✔ إعادةُ محاذاة [20, 46, 59]: 6232 ⇐ 6232 مدخلاً (‏+0)، وما خارجها لم يُمسّ
+الأصل timings/warsh/harraz_warsh.jz (31b9f5c6154d) · المنتَج patched.jz (646285f68ab0)
+المداخل 6232 ⇒ 6232 ✅ · بصمةُ المداخل aebfbb7231 ⇒ b8f2b1db6e (مختلفة ✅) · حدودٌ أُزيحت 186
+إلى timings-staging/warsh/harraz_warsh.c2e1aa14.jz (165982 بايت · بصمة c2e1aa143a10114cd97b9c2a63f9147a089be9de5171fc2c59f9a280f44376a2)
+STAGE_RESULT {"key": "timings-staging/warsh/harraz_warsh.c2e1aa14.jz", "localCandidateSha256": "646285f68ab0b49124d37583462bc772aa135a90dc69d4b7971e00174430b8df", "manualQaOnly": false, "parentKey": "timings/warsh/harraz_warsh.jz", "parentSha256": "31b9f5c6154df5a886c8aac47aee5aa0150fa35c45bad9f685d04adef41398e7", "productionChanged": false, "readBackVerified": true, "sha256": "c2e1aa143a10114cd97b9c2a63f9147a089be9de5171fc2c59f9a280f44376a2", "sizeBytes": 165982}
+خطة الدمج:
+  س20: من timings-staging/warsh/harraz_warsh.78ebf5d2.jz (78ebf5d23c72)
+  س46: من timings-staging/warsh/harraz_warsh.6ec0d2d7.jz (6ec0d2d78e0e)
+  س59: من timings-staging/warsh/harraz_warsh.573a4c45.jz (573a4c45e9d1)
+المداخل 6232 ⇐ 6232 · الغياب 4 ⇐ 4 · سور [20, 46, 59]
+✅ /tmp/union_jdsitkz1/patched.jz · sha256 e3eba46daf42b009…
+المخرج /tmp/union_jdsitkz1/patched.jz · sha 646285f68ab0b491… · مداخل 6232 · غياب 4 · سور [20, 46, 59]

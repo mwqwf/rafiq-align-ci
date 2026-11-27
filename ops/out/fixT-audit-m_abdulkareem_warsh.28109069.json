@@ -1,0 +1,273 @@
+{
+ "schema": 1,
+ "tool": "full_audit-1.0",
+ "date": "20261005",
+ "timestampUtc": "2026-10-05T16:11:25Z",
+ "elapsedSec": 29.7,
+ "phase": "all",
+ "manifestIndexes": 180,
+ "frozenBucket": 220,
+ "reportsRead": 11129,
+ "rows": [
+  {
+   "key": "timings-staging/warsh/m_abdulkareem_warsh.28109069.jz",
+   "sha256": "28109069b564884aa364dd61c145aa481d9fd62a1b0903335940e794ecf33076",
+   "riwaya": "warsh",
+   "reciterId": "m_abdulkareem_warsh",
+   "bytes": 90951,
+   "engine": "align-0.2",
+   "transformOp": "ctc_heardmap_splice:19,42,45,52,56,69",
+   "staging": true,
+   "identity": {
+    "sha256": "28109069b564884aa364dd61c145aa481d9fd62a1b0903335940e794ecf33076",
+    "staging": true,
+    "errors": [],
+    "ok": true
+   },
+   "structure": {
+    "entries": 6236,
+    "errors": [],
+    "examples": {},
+    "fileNoUnparsed": 0,
+    "structuralFatal": [],
+    "structuralWarn": [
+     "مداخل مدتها > 120ث: 1 · مثال: 2:282 مدتها 156ث"
+    ],
+    "decision": [],
+    "engine": "align-0.2",
+    "audioSha": 114,
+    "bands": {
+     "MED": 2088,
+     "HIGH": 3987,
+     "LOW": 161
+    },
+    "ok": true
+   },
+   "gaps": {
+    "missingTotal": 0,
+    "internalGaps": [],
+    "headMissing": [],
+    "tailMissing": [],
+    "wholeMissing": [],
+    "declared": {
+     "transformOp": "ctc_heardmap_splice:19,42,45,52,56,69",
+     "transformReason": "fixT: إصلاحٌ دفعيٌّ لكبس الذيل — 6 سورةً مشتبهةً (فائضٌ ≥15ث بعد آخر مدخل · تدقيق الجولة الثانية 2026-10-03)، كلٌّ يُقاس بالسماع قبل أن يُمسّ",
+     "reasonCode": null,
+     "dropSurahs": [],
+     "byReason": {
+      "no-align": 16
+     },
+     "declaredCount": 16,
+     "tagCount": 0,
+     "declaredIds": [],
+     "truncatedTail": null
+    },
+    "undeclaredEdge": [],
+    "errors": [],
+    "ok": true
+   },
+   "durations": {
+    "durationOutliers": 11,
+    "durationExamples": [
+     {
+      "aid": "74:22",
+      "ms": 7640,
+      "expMs": 2476,
+      "ratio": 3.09,
+      "chars": 9
+     },
+     {
+      "aid": "21:48",
+      "ms": 1120,
+      "expMs": 11812,
+      "ratio": 0.09,
+      "chars": 41
+     },
+     {
+      "aid": "74:35",
+      "ms": 417,
+      "expMs": 3852,
+      "ratio": 0.11,
+      "chars": 14
+     },
+     {
+      "aid": "85:5",
+      "ms": 555,
+      "expMs": 4483,
+      "ratio": 0.12,
+      "chars": 14
+     },
+     {
+      "aid": "77:10",
+      "ms": 620,
+      "expMs": 4378,
+      "ratio": 0.14,
+      "chars": 14
+     },
+     {
+      "aid": "90:3",
+      "ms": 456,
+      "expMs": 3322,
+      "ratio": 0.14,
+      "chars": 11
+     },
+     {
+      "aid": "18:89",
+      "ms": 419,
+      "expMs": 2662,
+      "ratio": 0.16,
+      "chars": 10
+     },
+     {
+      "aid": "74:42",
+      "ms": 536,
+      "expMs": 3302,
+      "ratio": 0.16,
+      "chars": 12
+     },
+     {
+      "aid": "85:2",
+      "ms": 893,
+      "expMs": 4163,
+      "ratio": 0.21,
+      "chars": 13
+     },
+     {
+      "aid": "89:7",
+      "ms": 820,
+      "expMs": 3277,
+      "ratio": 0.25,
+      "chars": 12
+     },
+     {
+      "aid": "109:5",
+      "ms": 1920,
+      "expMs": 7082,
+      "ratio": 0.27,
+      "chars": 18
+     }
+    ],
+    "impossibleShort": [
+     {
+      "aid": "21:48",
+      "ms": 1120,
+      "expMs": 11812,
+      "ratio": 0.09,
+      "chars": 41
+     }
+    ],
+    "veryShort": [
+     {
+      "aid": "74:35",
+      "ms": 417,
+      "expMs": 3852,
+      "ratio": 0.11,
+      "chars": 14
+     },
+     {
+      "aid": "85:5",
+      "ms": 555,
+      "expMs": 4483,
+      "ratio": 0.12,
+      "chars": 14
+     },
+     {
+      "aid": "77:10",
+      "ms": 620,
+      "expMs": 4378,
+      "ratio": 0.14,
+      "chars": 14
+     },
+     {
+      "aid": "90:3",
+      "ms": 456,
+      "expMs": 3322,
+      "ratio": 0.14,
+      "chars": 11
+     },
+     {
+      "aid": "18:89",
+      "ms": 419,
+      "expMs": 2662,
+      "ratio": 0.16,
+      "chars": 10
+     },
+     {
+      "aid": "74:42",
+      "ms": 536,
+      "expMs": 3302,
+      "ratio": 0.16,
+      "chars": 12
+     },
+     {
+      "aid": "85:2",
+      "ms": 893,
+      "expMs": 4163,
+      "ratio": 0.21,
+      "chars": 13
+     },
+     {
+      "aid": "89:7",
+      "ms": 820,
+      "expMs": 3277,
+      "ratio": 0.25,
+      "chars": 12
+     }
+    ],
+    "extremeLong": [],
+    "longOutliers": 1,
+    "shortOutliers": 10,
+    "silenceGaps": 0,
+    "silenceExamples": [],
+    "surahsWithRate": 113
+   },
+   "audio": {
+    "audioReportsOnSha": 0,
+    "openersOnSha": false,
+    "errors": [
+     "لا حكمَ صوتيٍّ بعيّنةٍ على البصمة المنشورة",
+     "لا شاهدَ مطالعَ على البصمة المنشورة"
+    ],
+    "notes": [],
+    "samples": [],
+    "pooled": null,
+    "severeHi": null,
+    "otherShasWithSamples": [
+     "746e762f",
+     "9477c728",
+     "ae617081",
+     "b9ce2b7c",
+     "ca731c1f",
+     "e27b9195"
+    ],
+    "ok": false
+   }
+  }
+ ],
+ "summary": {
+  "indexes": 1,
+  "phase": "all",
+  "identityOk": 1,
+  "identityBad": [],
+  "structureOk": 1,
+  "structureBad": [],
+  "gapsOk": 1,
+  "gapsBad": [],
+  "audioOk": 0,
+  "audioBad": [
+   "timings-staging/warsh/m_abdulkareem_warsh.28109069.jz"
+  ],
+  "durationOutliersTotal": 11,
+  "impossibleShortTotal": 1,
+  "indexesWithImpossibleShort": 1,
+  "veryShortTotal": 8,
+  "extremeLongTotal": 0,
+  "indexesWithExtremeLong": 0,
+  "mirrorStale": 0,
+  "silenceGapsTotal": 0,
+  "indexesWithDurationOutliers": 1,
+  "indexesWithSilenceGaps": 0,
+  "entriesTotal": 6236,
+  "missingTotal": 0
+ }
+}

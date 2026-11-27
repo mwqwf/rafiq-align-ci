@@ -1,0 +1,492 @@
+{
+ "schema": 1,
+ "tool": "full_audit-1.0",
+ "date": "20261011",
+ "timestampUtc": "2026-10-11T07:06:27Z",
+ "elapsedSec": 79.4,
+ "phase": "all",
+ "manifestIndexes": 180,
+ "frozenBucket": 220,
+ "reportsRead": 12423,
+ "rows": [
+  {
+   "key": "timings-staging/warsh/gharbi_warsh.bae81afe.jz",
+   "sha256": "bae81afece50eb581b7d21cd112de87fc9e7f8b6dd3f36818bfd5b5176a82550",
+   "riwaya": "warsh",
+   "reciterId": "gharbi_warsh",
+   "bytes": 90636,
+   "engine": "align-0.2",
+   "transformOp": "drop_surah:36",
+   "staging": true,
+   "identity": {
+    "sha256": "bae81afece50eb581b7d21cd112de87fc9e7f8b6dd3f36818bfd5b5176a82550",
+    "staging": true,
+    "errors": [],
+    "ok": true
+   },
+   "structure": {
+    "entries": 6153,
+    "errors": [],
+    "examples": {},
+    "registeredFileNoMappings": {},
+    "fileNoUnparsed": 113,
+    "structuralFatal": [],
+    "structuralWarn": [
+     "مداخل ناقصة: 83 من 6236 (1.3%) — منها 83 بعذرٍ معلَن (بترٌ مصدري) ⇒ **غير المبرَّر 0 (0.0%)** — الحدّ 2% على غير المبرَّر",
+     "آيات بلا مدخل: 83 · وسيط طولها 8 كلمة (المصحف 10) — غيابٌ غير منحاز",
+     "مداخل مدتها > 120ث: 1 · مثال: 2:282 مدتها 172ث",
+     "مطالع سور تبدأ دون 3ث — مرشّحون للمسبار الصوتي لا حكمٌ عليهم: 41:1=220م.ث"
+    ],
+    "decision": [
+     "سورٌ محذوفةٌ **بإعلانٍ وسبب**: [36] (السبب: يس عند gharbi_warsh: كانت مواضع الآيات في الصوت خاطئة معظمَ السورة (36:40 عند 208ث والصحيح 423ث، والإزاحة تتجاوز 450ث في آخرها)، ولم تنجح إعادة المحاذاة بثلاثة محرّكات، فأُسقطت السورة كلّها وأُعلن ذلك حتى لا تُسمع آيةٌ في غير موضعها.) — قرارُ منتَجٍ يُعرض على المشرف، لا حكمُ جودة"
+    ],
+    "engine": "align-0.2",
+    "audioSha": 114,
+    "bands": {
+     "HIGH": 3930,
+     "LOW": 233,
+     "MED": 1990
+    },
+    "ok": true
+   },
+   "gaps": {
+    "missingTotal": 83,
+    "internalGaps": [],
+    "headMissing": [],
+    "tailMissing": [],
+    "wholeMissing": [
+     36
+    ],
+    "declared": {
+     "transformOp": "drop_surah:36",
+     "transformReason": "يس عند gharbi_warsh: كانت مواضع الآيات في الصوت خاطئة معظمَ السورة (36:40 عند 208ث والصحيح 423ث، والإزاحة تتجاوز 450ث في آخرها)، ولم تنجح إعادة المحاذاة بثلاثة محرّكات، فأُسقطت السورة كلّها وأُعلن ذلك حتى لا تُسمع آيةٌ في غير موضعها.",
+     "reasonCode": "SOURCE_TRUNCATED",
+     "dropSurahs": [
+      36
+     ],
+     "byReason": {
+      "no-align": 18,
+      "source_truncated": 83
+     },
+     "declaredCount": 101,
+     "tagCount": 83,
+     "declaredIds": [
+      "36:1",
+      "36:2",
+      "36:3",
+      "36:4",
+      "36:5",
+      "36:6",
+      "36:7",
+      "36:8",
+      "36:9",
+      "36:10",
+      "36:11",
+      "36:12",
+      "36:13",
+      "36:14",
+      "36:15",
+      "36:16",
+      "36:17",
+      "36:18",
+      "36:19",
+      "36:20",
+      "36:21",
+      "36:22",
+      "36:23",
+      "36:24",
+      "36:25",
+      "36:26",
+      "36:27",
+      "36:28",
+      "36:29",
+      "36:30",
+      "36:31",
+      "36:32",
+      "36:33",
+      "36:34",
+      "36:35",
+      "36:36",
+      "36:37",
+      "36:38",
+      "36:39",
+      "36:40",
+      "36:41",
+      "36:42",
+      "36:43",
+      "36:44",
+      "36:45",
+      "36:46",
+      "36:47",
+      "36:48",
+      "36:49",
+      "36:50",
+      "36:51",
+      "36:52",
+      "36:53",
+      "36:54",
+      "36:55",
+      "36:56",
+      "36:57",
+      "36:58",
+      "36:59",
+      "36:60",
+      "36:61",
+      "36:62",
+      "36:63",
+      "36:64",
+      "36:65",
+      "36:66",
+      "36:67",
+      "36:68",
+      "36:69",
+      "36:70",
+      "36:71",
+      "36:72",
+      "36:73",
+      "36:74",
+      "36:75",
+      "36:76",
+      "36:77",
+      "36:78",
+      "36:79",
+      "36:80",
+      "36:81",
+      "36:82",
+      "36:83"
+     ],
+     "truncatedTail": null
+    },
+    "undeclaredEdge": [],
+    "errors": [],
+    "ok": true
+   },
+   "durations": {
+    "durationOutliers": 12,
+    "durationExamples": [
+     {
+      "aid": "113:4",
+      "ms": 610,
+      "expMs": 5052,
+      "ratio": 0.12,
+      "chars": 18
+     },
+     {
+      "aid": "67:11",
+      "ms": 1240,
+      "expMs": 8328,
+      "ratio": 0.15,
+      "chars": 30
+     },
+     {
+      "aid": "74:13",
+      "ms": 424,
+      "expMs": 2710,
+      "ratio": 0.16,
+      "chars": 10
+     },
+     {
+      "aid": "27:72",
+      "ms": 1650,
+      "expMs": 9927,
+      "ratio": 0.17,
+      "chars": 32
+     },
+     {
+      "aid": "74:29",
+      "ms": 566,
+      "expMs": 2710,
+      "ratio": 0.21,
+      "chars": 10
+     },
+     {
+      "aid": "26:69",
+      "ms": 1300,
+      "expMs": 5512,
+      "ratio": 0.24,
+      "chars": 18
+     },
+     {
+      "aid": "75:10",
+      "ms": 1493,
+      "expMs": 6283,
+      "ratio": 0.24,
+      "chars": 23
+     },
+     {
+      "aid": "26:223",
+      "ms": 1703,
+      "expMs": 6736,
+      "ratio": 0.25,
+      "chars": 22
+     },
+     {
+      "aid": "37:139",
+      "ms": 1269,
+      "expMs": 5158,
+      "ratio": 0.25,
+      "chars": 18
+     },
+     {
+      "aid": "75:11",
+      "ms": 537,
+      "expMs": 2185,
+      "ratio": 0.25,
+      "chars": 8
+     },
+     {
+      "aid": "5:28",
+      "ms": 4870,
+      "expMs": 18390,
+      "ratio": 0.26,
+      "chars": 63
+     },
+     {
+      "aid": "74:3",
+      "ms": 584,
+      "expMs": 2168,
+      "ratio": 0.27,
+      "chars": 8
+     }
+    ],
+    "impossibleShort": [],
+    "veryShort": [
+     {
+      "aid": "113:4",
+      "ms": 610,
+      "expMs": 5052,
+      "ratio": 0.12,
+      "chars": 18
+     },
+     {
+      "aid": "74:13",
+      "ms": 424,
+      "expMs": 2710,
+      "ratio": 0.16,
+      "chars": 10
+     },
+     {
+      "aid": "74:29",
+      "ms": 566,
+      "expMs": 2710,
+      "ratio": 0.21,
+      "chars": 10
+     },
+     {
+      "aid": "75:11",
+      "ms": 537,
+      "expMs": 2185,
+      "ratio": 0.25,
+      "chars": 8
+     },
+     {
+      "aid": "74:3",
+      "ms": 584,
+      "expMs": 2168,
+      "ratio": 0.27,
+      "chars": 8
+     }
+    ],
+    "extremeLong": [],
+    "longOutliers": 0,
+    "shortOutliers": 12,
+    "silenceGaps": 0,
+    "silenceExamples": [],
+    "surahsWithRate": 112
+   },
+   "audio": {
+    "audioReportsOnSha": 8,
+    "openersOnSha": true,
+    "errors": [
+     "لا حدَّ أعلى مقبولاً (لا تجميعَ ولا حكمَ مقبولاً)"
+    ],
+    "notes": [],
+    "samples": [
+     {
+      "salt": "nTbae2",
+      "source": "ci",
+      "engine": "pywhispercpp/ggml-q8 (tiny-ar-quran)",
+      "verdict": "موقوف — قرارُ منتَجٍ مطلوب: سورٌ محذوفةٌ **بإعلانٍ وسبب**: [36] (السبب: يس عند gharbi_warsh: كانت مواضع الآيات في الصوت خاطئة معظمَ السورة (36:40 عن",
+      "m": 4,
+      "n": 200,
+      "rate": 0.02,
+      "hi": 0.039206685239643435,
+      "fatal": 0,
+      "ts": 1791699352.5859053
+     },
+     {
+      "salt": "nTbae1",
+      "source": "ci",
+      "engine": "pywhispercpp/ggml-q8 (tiny-ar-quran)",
+      "verdict": "موقوف — قرارُ منتَجٍ مطلوب: سورٌ محذوفةٌ **بإعلانٍ وسبب**: [36] (السبب: يس عند gharbi_warsh: كانت مواضع الآيات في الصوت خاطئة معظمَ السورة (36:40 عن",
+      "m": 2,
+      "n": 200,
+      "rate": 0.01,
+      "hi": 0.024405013929732572,
+      "fatal": 0,
+      "ts": 1791699362.997234
+     },
+     {
+      "salt": "nTbae4",
+      "source": "ci",
+      "engine": "pywhispercpp/ggml-q8 (tiny-ar-quran)",
+      "verdict": "موقوف — قرارُ منتَجٍ مطلوب: سورٌ محذوفةٌ **بإعلانٍ وسبب**: [36] (السبب: يس عند gharbi_warsh: كانت مواضع الآيات في الصوت خاطئة معظمَ السورة (36:40 عن",
+      "m": 3,
+      "n": 200,
+      "rate": 0.015000000000000003,
+      "hi": 0.03214539599855799,
+      "fatal": 0,
+      "ts": 1791699369.2207804
+     },
+     {
+      "salt": "nTbae3",
+      "source": "ci",
+      "engine": "pywhispercpp/ggml-q8 (tiny-ar-quran)",
+      "verdict": "موقوف — قرارُ منتَجٍ مطلوب: سورٌ محذوفةٌ **بإعلانٍ وسبب**: [36] (السبب: يس عند gharbi_warsh: كانت مواضع الآيات في الصوت خاطئة معظمَ السورة (36:40 عن",
+      "m": 10,
+      "n": 200,
+      "rate": 0.05,
+      "hi": 0.08221059036371342,
+      "fatal": 0,
+      "ts": 1791699374.9929
+     },
+     {
+      "salt": "nTbae5",
+      "source": "ci",
+      "engine": "pywhispercpp/ggml-q8 (tiny-ar-quran)",
+      "verdict": "موقوف — قرارُ منتَجٍ مطلوب: سورٌ محذوفةٌ **بإعلانٍ وسبب**: [36] (السبب: يس عند gharbi_warsh: كانت مواضع الآيات في الصوت خاطئة معظمَ السورة (36:40 عن",
+      "m": 3,
+      "n": 200,
+      "rate": 0.015000000000000003,
+      "hi": 0.03214539599855799,
+      "fatal": 0,
+      "ts": 1791701103.3645833
+     },
+     {
+      "salt": "nTbae6",
+      "source": "ci",
+      "engine": "pywhispercpp/ggml-q8 (tiny-ar-quran)",
+      "verdict": "موقوف — قرارُ منتَجٍ مطلوب: سورٌ محذوفةٌ **بإعلانٍ وسبب**: [36] (السبب: يس عند gharbi_warsh: كانت مواضع الآيات في الصوت خاطئة معظمَ السورة (36:40 عن",
+      "m": 3,
+      "n": 200,
+      "rate": 0.015000000000000003,
+      "hi": 0.03214539599855799,
+      "fatal": 0,
+      "ts": 1791701133.8709028
+     },
+     {
+      "salt": "nTbae7",
+      "source": "ci",
+      "engine": "pywhispercpp/ggml-q8 (tiny-ar-quran)",
+      "verdict": "موقوف — قرارُ منتَجٍ مطلوب: سورٌ محذوفةٌ **بإعلانٍ وسبب**: [36] (السبب: يس عند gharbi_warsh: كانت مواضع الآيات في الصوت خاطئة معظمَ السورة (36:40 عن",
+      "m": 10,
+      "n": 200,
+      "rate": 0.049999999999999996,
+      "hi": 0.07840707056165308,
+      "fatal": 0,
+      "ts": 1791701135.350056
+     },
+     {
+      "salt": "nTbae8",
+      "source": "ci",
+      "engine": "pywhispercpp/ggml-q8 (tiny-ar-quran)",
+      "verdict": "موقوف — قرارُ منتَجٍ مطلوب: سورٌ محذوفةٌ **بإعلانٍ وسبب**: [36] (السبب: يس عند gharbi_warsh: كانت مواضع الآيات في الصوت خاطئة معظمَ السورة (36:40 عن",
+      "m": 4,
+      "n": 200,
+      "rate": 0.02,
+      "hi": 0.039206685239643435,
+      "fatal": 0,
+      "ts": 1791701141.3002722
+     }
+    ],
+    "pooled": null,
+    "severeHi": null,
+    "openers": {
+     "commit": "8c0d5e00935bc6c31ae29d07de90fa20e2c5e759",
+     "toolOk": true,
+     "scope": "full",
+     "checked": 111,
+     "hasLate": true,
+     "late": [
+      22,
+      49,
+      60,
+      73,
+      74
+     ],
+     "lateCtcRule": "CTC ≥1500م.ث بعد بدء المدخل بثقة ≥0.3 · float32 حتميّ",
+     "lateConfirmed": [],
+     "swallowed": [],
+     "suspect": [],
+     "tail": [],
+     "unknown": [
+      3,
+      6,
+      7,
+      12,
+      13,
+      16,
+      19,
+      20,
+      24,
+      26,
+      27,
+      29,
+      31,
+      54,
+      57,
+      63,
+      68,
+      69,
+      70,
+      72,
+      76,
+      77,
+      85,
+      87,
+      88,
+      113
+     ],
+     "verdict": "clean"
+    },
+    "otherShasWithSamples": [
+     "257464b3",
+     "395e8144",
+     "3b7a7030",
+     "6ace5d6b",
+     "9ca78dd6",
+     "a0fc3b68",
+     "d5f93fd7",
+     "ff6f503e"
+    ],
+    "ok": false
+   }
+  }
+ ],
+ "summary": {
+  "indexes": 1,
+  "phase": "all",
+  "identityOk": 1,
+  "identityBad": [],
+  "structureOk": 1,
+  "structureBad": [],
+  "gapsOk": 1,
+  "gapsBad": [],
+  "audioOk": 0,
+  "audioBad": [
+   "timings-staging/warsh/gharbi_warsh.bae81afe.jz"
+  ],
+  "durationOutliersTotal": 12,
+  "impossibleShortTotal": 0,
+  "indexesWithImpossibleShort": 0,
+  "veryShortTotal": 5,
+  "extremeLongTotal": 0,
+  "indexesWithExtremeLong": 0,
+  "mirrorStale": 0,
+  "silenceGapsTotal": 0,
+  "indexesWithDurationOutliers": 1,
+  "indexesWithSilenceGaps": 0,
+  "entriesTotal": 6153,
+  "missingTotal": 83
+ }
+}

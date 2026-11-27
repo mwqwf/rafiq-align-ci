@@ -1,0 +1,79 @@
+{
+  "schema": 1,
+  "kind": "codex-fakhfakh-boundary-measurement",
+  "runId": 37599193396,
+  "jobId": 112719130192,
+  "surah": 20,
+  "riwaya": "qalun",
+  "reciterId": "fakhfakh_qalun",
+  "productionKey": "timings/qalun/fakhfakh_qalun.jz",
+  "productionSha256": "5bad920fd4994019caacc00b9edd6662941abae720ba0b3a2b41281016c23eef",
+  "source": {
+    "url": "https://archive.org/download/48--kb--alhady--bn--altaher--alfakhfakh--by---qaloon---mp3--full--mushaf--qura/020Taha.mp3",
+    "sha256": "09b4306ed043ce8832506fc8b131cb7bd728bc8eb559e45ddb7bd47cb42d86a5"
+  },
+  "alignmentResultSha256": "d20c411a8b965dbd54d5457b334c7d69d31d67fd828dace3f5bc1b28d2fca85c",
+  "measured": [
+    {
+      "ayahId": "20:92",
+      "startMs": 1079979,
+      "endMs": 1086713,
+      "conf": 0.703,
+      "boundary": "window"
+    },
+    {
+      "ayahId": "20:93",
+      "startMs": 1086713,
+      "endMs": 1092888,
+      "conf": 0.704,
+      "boundary": "window"
+    },
+    {
+      "ayahId": "20:94",
+      "startMs": 1092888,
+      "endMs": 1113642,
+      "conf": 0.646,
+      "boundary": "window"
+    }
+  ],
+  "production": [
+    {
+      "ayahId": "20:92",
+      "startMs": 1080110,
+      "endMs": 1088613,
+      "confBand": "HIGH"
+    },
+    {
+      "ayahId": "20:93",
+      "startMs": 1088613,
+      "endMs": 1093040,
+      "confBand": "MED"
+    },
+    {
+      "ayahId": "20:94",
+      "startMs": 1093040,
+      "endMs": 1113850,
+      "confBand": "HIGH"
+    }
+  ],
+  "sharedBoundaryDeltasMs": {
+    "between92and93": -1900,
+    "between93and94": -152
+  },
+  "conclusion": {
+    "target": "20:93",
+    "lateStartConfirmed": true,
+    "startDeltaMs": -1900,
+    "thresholdMs": 1500,
+    "repairRule": "Move the two shared boundaries to measured 1086713 and 1092888; preserve 20:92 start and 20:94 end until neighbor remeasurement.",
+    "endEvidenceSeparate": true,
+    "productionChanged": false
+  },
+  "cost": {
+    "repositoryPublic": true,
+    "standardRunner": true,
+    "artifactCount": 0,
+    "cacheSave": false,
+    "r2Write": false
+  }
+}

@@ -1,0 +1,1303 @@
+# rc=0
+== timings/warsh/m_sayed_warsh.jz · 5d2f3bdc4940 · مداخل 6236
+{
+ "schema": 1,
+ "riwaya": "warsh",
+ "reciterId": "m_sayed_warsh",
+ "sourceKind": "SURAH_FILES",
+ "ayahCounting": "KUFI",
+ "ayahCount": 6236,
+ "method": "ASR_ALIGN",
+ "engineVersion": "ctc-seg-1",
+ "refineVersion": "none",
+ "refinedCount": 0,
+ "medTargeted": 0,
+ "refineStats": {},
+ "lowCount": 1100,
+ "vad": {
+  "versions": {
+   "adaptive-2": 114
+  },
+  "rel": {
+   "min": 0.04,
+   "median": 0.04,
+   "max": 0.15,
+   "surahs": 114
+  }
+ },
+ "writerHostVadVersion": "adaptive-2",
+ "noSilenceShare": null,
+ "noSilenceToAnchor": null,
+ "sparsePauses": null,
+ "missing": {
+  "count": 0,
+  "byReason": {
+   "no-align": 1
+  },
+  "medianLen": 3,
+  "medianLenAll": 10,
+  "biasedShort": false,
+  "ids": []
+ },
+ "exactEnds": true,
+ "generatedAt": 1790209859828,
+ "audioSha256": "[114 بصمة]",
+ "notes": "",
+ "engineBySurah": {
+  "56": "align-0.2"
+ },
+ "transform": {
+  "op": "whisper_surah_splice:56",
+  "fromSha256": "96898b443f5efae446cb8d265be8f436f0f64d31093cd0592ed66161630387ad",
+  "fromKey": "timings/warsh/m_sayed_warsh.jz",
+  "entriesSha256": "14f3dcc5509dca66a4abe382cf54cd663f1e4abf22cea1f825102c5cd4749744",
+  "parentEntriesSha256": "1a1af877988aaf0d09ccc32adb4e3ee15581bcec10b1498a0489a4b07c715fb8",
+  "movedEntries": 1251,
+  "reason": "سورُ النقص في فهرس CTC تُحاذى بـWhisper ويُدمج ما حُلّ كاملاً — المسار العكسي نجح في 22 من 24 · إذنُ المالك بالتسريع 2026-09-24",
+  "by": "github-whisper-splice",
+  "at": 1790308228921,
+  "note": "‏عددُ المداخل مطابقٌ للأصل والحدودُ وحدها أُزيحت؛ ولا يُرقّى بحكم الأصل: يدخل الطابور بفحص مطالعَ وعيّنةٍ على بصمته."
+ }
+}
+== timings/hafs/mhsny.jz · 410518285a44 · مداخل 6236
+{
+ "schema": 1,
+ "riwaya": "hafs",
+ "reciterId": "mhsny",
+ "sourceKind": "SURAH_FILES",
+ "ayahCounting": "KUFI",
+ "ayahCount": 6236,
+ "method": "ASR_ALIGN",
+ "engineVersion": "ctc-seg-1",
+ "refineVersion": "none",
+ "refinedCount": 0,
+ "medTargeted": 0,
+ "refineStats": {},
+ "lowCount": 1595,
+ "vad": {
+  "versions": {
+   "adaptive-2": 114
+  },
+  "rel": {
+   "min": 0.04,
+   "median": 0.25,
+   "max": 0.25,
+   "surahs": 114
+  }
+ },
+ "writerHostVadVersion": "adaptive-2",
+ "noSilenceShare": null,
+ "noSilenceToAnchor": null,
+ "sparsePauses": null,
+ "missing": {
+  "count": 0,
+  "byReason": {
+   "no-align": 1
+  },
+  "medianLen": 1,
+  "medianLenAll": 11,
+  "biasedShort": false,
+  "ids": []
+ },
+ "exactEnds": true,
+ "generatedAt": 1789783775259,
+ "audioSha256": "[114 بصمة]",
+ "notes": "",
+ "engineBySurah": {
+  "1": "ctc-heardmap-1",
+  "3": "ctc-heardmap-1",
+  "4": "ctc-heardmap-1",
+  "5": "ctc-heardmap-1",
+  "7": "ctc-heardmap-1",
+  "8": "ctc-heardmap-1",
+  "9": "ctc-heardmap-1",
+  "10": "ctc-heardmap-1",
+  "11": "ctc-heardmap-1",
+  "12": "ctc-heardmap-1",
+  "13": "ctc-heardmap-1",
+  "14": "ctc-heardmap-1",
+  "15": "ctc-heardmap-1",
+  "16": "ctc-heardmap-1",
+  "17": "ctc-heardmap-1",
+  "18": "ctc-heardmap-1",
+  "19": "ctc-heardmap-1",
+  "20": "ctc-heardmap-1",
+  "21": "ctc-heardmap-1",
+  "22": "ctc-heardmap-1",
+  "23": "ctc-heardmap-1",
+  "24": "ctc-heardmap-1",
+  "25": "ctc-heardmap-1",
+  "26": "ctc-heardmap-1",
+  "27": "ctc-heardmap-1",
+  "28": "ctc-heardmap-1",
+  "29": "ctc-heardmap-1",
+  "30": "ctc-heardmap-1",
+  "31": "ctc-heardmap-1",
+  "32": "ctc-heardmap-1",
+  "33": "ctc-heardmap-1",
+  "34": "ctc-heardmap-1",
+  "35": "ctc-heardmap-1",
+  "36": "ctc-heardmap-1",
+  "37": "ctc-heardmap-1",
+  "38": "ctc-heardmap-1",
+  "39": "ctc-heardmap-1",
+  "40": "ctc-heardmap-1",
+  "41": "ctc-heardmap-1",
+  "42": "ctc-heardmap-1",
+  "43": "ctc-heardmap-1",
+  "44": "ctc-heardmap-1",
+  "45": "ctc-heardmap-1",
+  "46": "ctc-heardmap-1",
+  "47": "ctc-heardmap-1",
+  "49": "ctc-heardmap-1",
+  "50": "ctc-heardmap-1",
+  "52": "ctc-gapsplit-1",
+  "53": "ctc-heardmap-1",
+  "54": "ctc-heardmap-1",
+  "55": "ctc-heardmap-1",
+  "56": "ctc-heardmap-1",
+  "57": "ctc-heardmap-1",
+  "58": "ctc-heardmap-1",
+  "59": "ctc-heardmap-1",
+  "63": "ctc-heardmap-1",
+  "64": "ctc-heardmap-1",
+  "67": "ctc-heardmap-1",
+  "68": "ctc-heardmap-1",
+  "70": "ctc-heardmap-1",
+  "72": "ctc-heardmap-1",
+  "73": "ctc-heardmap-1",
+  "74": "ctc-heardmap-1",
+  "75": "ctc-heardmap-1",
+  "76": "ctc-heardmap-1",
+  "97": "ctc-heardmap-1"
+ },
+ "transform": {
+  "op": "file_end_clamp",
+  "fromSha256": "ea76c96b42f0e51d43e2974cbcdac312755fb39641bb2b9598cbffba9e8f9c97",
+  "fromKey": "timings-staging/hafs/mhsny.ea76c96b.jz",
+  "entriesSha256": "e97208d793a291c3b09fce6fb366ea24fd393ff3273c0e4a738dbcf10f438c7f",
+  "parentEntriesSha256": "85a8ec06b5dd7f4803919e609bdb578a79d2f86a991074f9daffe78414177f99",
+  "movedEntries": 3,
+  "reason": "قصُّ نهاية آخر مدخلٍ إلى نهاية ملفّه المقيسة بطول الفكّ: 21:112 −5م.ث · 32:30 −8م.ث · 64:18 −44م.ث",
+  "by": "github-clamp",
+  "at": 1791137921250,
+  "note": "‏عددُ المداخل مطابقٌ للأصل والحدودُ وحدها أُزيحت؛ ولا يُرقّى بحكم الأصل: يدخل الطابور بفحص مطالعَ وعيّنةٍ على بصمته.",
+  "addedEntries": 0,
+  "removedEntries": 0
+ }
+}
+== timings/qalun/fakhfakh_qalun.jz · 95664b41f20e · مداخل 6236
+{
+ "schema": 1,
+ "riwaya": "qalun",
+ "reciterId": "fakhfakh_qalun",
+ "sourceKind": "SURAH_FILES",
+ "ayahCounting": "KUFI",
+ "ayahCount": 6236,
+ "method": "ASR_ALIGN",
+ "engineVersion": "align-0.2",
+ "refineVersion": "v2.1",
+ "refinedCount": 201,
+ "medTargeted": 609,
+ "refineStats": {
+  "skip:no-anchor": 213,
+  "token-snap": 201,
+  "skip:no-silence": 190,
+  "skip:no-words": 5
+ },
+ "lowCount": 32,
+ "vad": {
+  "versions": {
+   "adaptive-2": 114
+  },
+  "rel": {
+   "min": 0.04,
+   "median": 0.04,
+   "max": 0.04,
+   "surahs": 114
+  }
+ },
+ "writerHostVadVersion": "adaptive-2",
+ "noSilenceShare": 0.466,
+ "noSilenceToAnchor": 0.89,
+ "sparsePauses": true,
+ "missing": {
+  "count": 0,
+  "byReason": {
+   "no-align": 3,
+   "invalid": 7
+  },
+  "medianLen": 8,
+  "medianLenAll": 10,
+  "biasedShort": false,
+  "ids": []
+ },
+ "exactEnds": true,
+ "generatedAt": 1789059900592,
+ "audioSha256": "[114 بصمة]",
+ "notes": "",
+ "engineBySurah": {
+  "3": "ctc-seg-1",
+  "7": "ctc-gapsplit-1",
+  "10": "ctc-seg-1",
+  "16": "ctc-gapsplit-1",
+  "29": "ctc-seg-1",
+  "37": "ctc-seg-1",
+  "42": "ctc-seg-1",
+  "69": "ctc-seg-1"
+ },
+ "transform": {
+  "op": "ctc_gapsplit:7,16",
+  "fromSha256": "316839369d8e3372b81e3586588e765f2cbdf579e00e5105a4570b8b05e0a5a9",
+  "fromKey": "timings/qalun/fakhfakh_qalun.jz",
+  "entriesSha256": "e4d9f07053bfb50352e61a138af8be3ebaedd129ae9c63944e2a14ae33becd88",
+  "parentEntriesSha256": "d4572064fd470f84abf488fe80223cab87b2620f47137c0182650fe0bd9f8365",
+  "movedEntries": 5075,
+  "reason": "قسمةُ المبتلع (ctc_gapsplit) للمطالع والخواتيم: غيابٌ من الآية الأولى أو حتى آخر السورة (gap_probe) ⇒ نافذةٌ من بدء الملفّ أو حتى نهايته بالحرّاس نفسِها.",
+  "by": "github-ctc-splice",
+  "at": 1790757308604,
+  "note": "‏عددُ المداخل مطابقٌ للأصل والحدودُ وحدها أُزيحت؛ ولا يُرقّى بحكم الأصل: يدخل الطابور بفحص مطالعَ وعيّنةٍ على بصمته."
+ }
+}
+== timings/qalun/maroush_qalun.jz · 6c0e13b91b5a · مداخل 6236
+{
+ "schema": 1,
+ "riwaya": "qalun",
+ "reciterId": "maroush_qalun",
+ "sourceKind": "SURAH_FILES",
+ "ayahCounting": "KUFI",
+ "ayahCount": 6236,
+ "method": "ASR_ALIGN",
+ "engineVersion": "ctc-seg-1",
+ "refineVersion": "none",
+ "refinedCount": 0,
+ "medTargeted": 0,
+ "refineStats": {},
+ "lowCount": 4897,
+ "vad": {
+  "versions": {
+   "adaptive-2": 114
+  },
+  "rel": {
+   "min": 0.1,
+   "median": 0.25,
+   "max": 0.25,
+   "surahs": 114
+  }
+ },
+ "writerHostVadVersion": "adaptive-2",
+ "noSilenceShare": null,
+ "noSilenceToAnchor": null,
+ "sparsePauses": null,
+ "missing": {
+  "count": 0,
+  "byReason": {
+   "no-align": 1
+  },
+  "medianLen": 4,
+  "medianLenAll": 10,
+  "biasedShort": false,
+  "ids": []
+ },
+ "exactEnds": true,
+ "generatedAt": 1789787811816,
+ "audioSha256": "[114 بصمة]",
+ "notes": "",
+ "engineBySurah": {
+  "18": "ctc-heardmap-1",
+  "19": "ctc-heardmap-1",
+  "22": "heard-pin-1",
+  "43": "ctc-heardmap-1",
+  "55": "ctc-heardmap-1",
+  "59": "ctc-heardmap-1",
+  "69": "ctc-heardmap-1",
+  "92": "ctc-heardmap-1"
+ },
+ "transform": {
+  "op": "heard_pin:22",
+  "fromSha256": "c22d913824d89ce7c0c3c318a07bb08b746baf1b7f86fdc6dfd2242cf6556e20",
+  "fromKey": "timings-staging/qalun/maroush_qalun.c22d9138.jz",
+  "evidenceRun": "37253191675",
+  "evidenceAudioSha256": "7416386ddef5d5a2ae9be6693cb28b4dfc08017f9235a19d6f1d656b6632edcc",
+  "pins": [
+   "22:1 ⇐ 7725 (مرساة 1.0)",
+   "22:2 ⇐ 29279 (أداء 0.779)",
+   "22:3 ⇐ 72528 (مرساة 1.0)",
+   "22:5 ⇐ 100246 (مرساة 0.973)",
+   "22:20 ⇐ 619832 (مرساة 1.0)",
+   "22:21 ⇐ 628758 (أداء 0.857)",
+   "22:23 ⇐ 645589 (مرساة 0.947)",
+   "22:24 ⇐ 676890 (مرساة 0.946)",
+   "22:28 ⇐ 744495 (مرساة 0.978)",
+   "22:29 ⇐ 795649 (مرساة 0.978)",
+   "22:32 ⇐ 848984 (مرساة 0.971)",
+   "22:33 ⇐ 857830 (مرساة 0.952)",
+   "22:34 ⇐ 878884 (مرساة 0.92)",
+   "22:36 ⇐ 984134 (مرساة 0.96)",
+   "22:40 ⇐ 1083560 (مرساة 0.965)",
+   "22:41 ⇐ 1154447 (مرساة 0.952)",
+   "22:43 ⇐ 1200118 (أداء 0.941)",
+   "22:51 ⇐ 1332506 (مرساة 1.0)",
+   "22:58 ⇐ 1474680 (أداء 0.821)",
+   "22:59 ⇐ 1497075 (مرساة 0.971)",
+   "22:66 ⇐ 1600204 (مرساة 1.0)",
+   "22:68 ⇐ 1653219 (مرساة 1.0)",
+   "22:70 ⇐ 1666908 (مرساة 1.0)",
+   "22:73 ⇐ 1767355 (مرساة 0.917)",
+   "22:78 ⇐ 1855273 (مرساة 0.934)"
+  ],
+  "changedAyahs": [
+   1,
+   2,
+   3,
+   4,
+   5,
+   19,
+   20,
+   21,
+   22,
+   23,
+   24,
+   28,
+   29,
+   31,
+   32,
+   33,
+   34,
+   36,
+   40,
+   41,
+   43,
+   51,
+   57,
+   58,
+   59,
+   66,
+   67,
+   68,
+   69,
+   70,
+   72,
+   73,
+   77,
+   78
+  ],
+  "reason": "تسجيلُ الحجّ عند هذا القارئ يكرّر المقاطع (22:5 تُتلى بتكرارٍ من 100ث إلى 380ث)، والتوقيتُ السابق يضع 22:1 عند 46ث والمسموعُ 7.7ث، و22:5 عند 125.8ث والمسموعُ 100.2ث. ثُبّت بدءُ كلّ آيةٍ ينحرف أكثر من 1.5ث على مرساتها المسموعة (22:2 على أدائها الأوّل 29.3ث بتشابه 0.78)، والجارةُ المتّصلة تبقى متّصلة، والتكرارُ داخل مدخل آيته. و22:21 و22:43 و22:58 على أدائها المنفرد (0.86 · 0.94 · 0.82) لا على مرساةٍ تبدأ بتكرار ذيل سابقتها.",
+  "at": 1791174457985,
+  "by": "pin_heard",
+  "note": "بدءُ كلّ آيةٍ مثبَّتةٍ أداءٌ مسموعٌ مقيس؛ ما تكرّر قبله بلا مدخل؛ يلزمه الإحصاءُ الشامل."
+ }
+}
+== timings/hafs/saad.jz · 8e9f81317117 · مداخل 6033
+{
+ "schema": 1,
+ "riwaya": "hafs",
+ "reciterId": "saad",
+ "sourceKind": "SURAH_FILES",
+ "ayahCounting": "KUFI",
+ "ayahCount": 6236,
+ "method": "ASR_ALIGN",
+ "engineVersion": "ctc-seg-1",
+ "refineVersion": "none",
+ "refinedCount": 0,
+ "medTargeted": 0,
+ "refineStats": {},
+ "lowCount": 593,
+ "vad": {
+  "versions": {
+   "adaptive-2": 114
+  },
+  "rel": {
+   "min": 0.04,
+   "median": 0.25,
+   "max": 0.25,
+   "surahs": 114
+  }
+ },
+ "writerHostVadVersion": "adaptive-2",
+ "noSilenceShare": null,
+ "noSilenceToAnchor": null,
+ "sparsePauses": null,
+ "missing": {
+  "count": 203,
+  "byReason": {
+   "unknown": 0,
+   "source_truncated": 203
+  },
+  "ids": [
+   "22:1",
+   "22:2",
+   "22:3",
+   "22:4",
+   "22:5",
+   "22:6",
+   "22:7",
+   "22:8",
+   "22:9",
+   "22:10",
+   "22:11",
+   "22:12",
+   "22:13",
+   "22:14",
+   "22:15",
+   "22:16",
+   "22:17",
+   "22:18",
+   "22:19",
+   "22:20",
+   "22:21",
+   "22:22",
+   "22:23",
+   "22:24",
+   "22:25",
+   "22:26",
+   "22:27",
+   "22:28",
+   "22:29",
+   "22:30",
+   "22:31",
+   "22:32",
+   "22:33",
+   "22:34",
+   "22:35",
+   "22:36",
+   "22:37",
+   "22:38",
+   "22:39",
+   "22:40",
+   "22:41",
+   "22:42",
+   "22:43",
+   "22:44",
+   "22:45",
+   "22:46",
+   "22:47",
+   "22:48",
+   "22:49",
+   "22:50",
+   "22:51",
+   "22:52",
+   "22:53",
+   "22:54",
+   "22:55",
+   "22:56",
+   "22:57",
+   "22:58",
+   "22:59",
+   "22:60",
+   "… و143"
+  ],
+  "note": "الفهرس بُني قبل وسم الاكتمال، فسببُ غيابه غير مقيس"
+ },
+ "exactEnds": true,
+ "generatedAt": 1789807873787,
+ "audioSha256": "[114 بصمة]",
+ "notes": "",
+ "engineBySurah": {
+  "4": "ctc-heardmap-1",
+  "5": "ctc-heardmap-1",
+  "6": "ctc-heardmap-1",
+  "7": "ctc-heardmap-1",
+  "8": "ctc-heardmap-1",
+  "9": "ctc-heardmap-1",
+  "10": "ctc-heardmap-1",
+  "11": "ctc-heardmap-1",
+  "15": "ctc-heardmap-1",
+  "17": "ctc-heardmap-1",
+  "18": "ctc-heardmap-1",
+  "20": "ctc-gapsplit-1",
+  "21": "ctc-heardmap-1",
+  "23": "ctc-heardmap-1",
+  "24": "ctc-heardmap-1",
+  "25": "ctc-heardmap-1",
+  "26": "ctc-heardmap-1",
+  "27": "ctc-heardmap-1",
+  "31": "ctc-heardmap-1",
+  "32": "ctc-heardmap-1",
+  "33": "ctc-heardmap-1",
+  "34": "ctc-heardmap-1",
+  "37": "ctc-gapsplit-1",
+  "41": "ctc-heardmap-1",
+  "42": "ctc-heardmap-1",
+  "47": "ctc-heardmap-1",
+  "48": "ctc-heardmap-1",
+  "50": "ctc-heardmap-1",
+  "51": "ctc-heardmap-1",
+  "52": "ctc-heardmap-1",
+  "54": "ctc-heardmap-1",
+  "55": "ctc-heardmap-1",
+  "56": "ctc-heardmap-1",
+  "57": "ctc-heardmap-1",
+  "58": "ctc-heardmap-1",
+  "59": "ctc-heardmap-1",
+  "67": "ctc-heardmap-1",
+  "68": "ctc-heardmap-1",
+  "69": "ctc-heardmap-1",
+  "70": "ctc-heardmap-1",
+  "71": "ctc-heardmap-1",
+  "72": "ctc-heardmap-1",
+  "74": "ctc-heardmap-1",
+  "75": "ctc-heardmap-1",
+  "76": "ctc-heardmap-1",
+  "77": "ctc-heardmap-1",
+  "78": "ctc-heardmap-1",
+  "79": "ctc-heardmap-1",
+  "80": "ctc-heardmap-1",
+  "85": "ctc-heardmap-1",
+  "88": "ctc-heardmap-1"
+ },
+ "transform": {
+  "op": "drop_surah:22,28,45",
+  "fromSha256": "fb81e6b5a26fd6526d804bc822b36d4fb969b6a735b67c2dc714f5380be0aa73",
+  "fromKey": "timings/hafs/saad.jz",
+  "droppedEntries": 203,
+  "reason": "ثلاث سورٍ لهذا القارئ توقيتُها منحرفٌ عن صوته ولا يُصلح داخل الحرّاس، فتُحجب حتى يُصلح توقيتها فلا تُعرض آيةٌ على صوت غيرها. الحجّ (س22): التوقيت السابق ينحرف حتى 330ث من الآية 26، وخريطةُ السماع تقيس 32 من 78 آيةً فقط فيُردّ أيّ إصلاح (heard_batch وخريطة float32). الجاثية (س45): الآيات 1–8 منحرفة حتى 30ث (45:1 مدخلٌ 160م.ث)، والمقيس 15 من 37 فيُردّ أيّ إصلاح. القصص (س28): توقيت القصص (س28) لهذا القارئ منحرفٌ عن صوته: 14 آيةً بعيدةً عن موضعها المسموع أقصاها 28:88 بـ544ث (heard_gate 37237920554). وستّ محاولاتٍ بمداخل مختلفة لم تُخرج سورةً تجتاز حرّاسها: heard_batch (28:43 بلا حدود) · نافذة 28:16-88 (37242742514: مدّة 28:17) · بناءٌ من مراسٍ مسموعة (37243994387: 28:26 و28:45 بـ0.2ث) · dualfix (37244928886: بقيتا) · نافذتا 26-27/45-46 (37247928967: ثقة 0.402 وانكماش 44) · نافذتا 25-27/44-46 (37249698592: ثقة 0.407 ومدّة 44). ففجوةٌ في وسط السورة ⇒ تُلغى السورة كلّها وتُعلن حتى يُصلح توقيتها، فلا تُعرض آيةٌ على صوت غيرها.",
+  "reasonUser": "توقيت سور الحجّ والقصص والجاثية لهذا القارئ قيد الإصلاح؛ استمع إليها بقارئٍ آخر.",
+  "reasonCode": "OTHER",
+  "at": 1791166908905,
+  "note": "‏`refineStats` و`medTargeted` و`vad` تصف **البناء الأصلي** ولم تُعد حسابها؛ والمعاد حسابه: المداخل وعدّ LOW ووسم الاكتمال."
+ }
+}
+== timings/hafs/asim.jz · 086929b64c23 · مداخل 6236
+{
+ "schema": 1,
+ "riwaya": "hafs",
+ "reciterId": "asim",
+ "sourceKind": "SURAH_FILES",
+ "ayahCounting": "KUFI",
+ "ayahCount": 6236,
+ "method": "ASR_ALIGN",
+ "engineVersion": "ctc-seg-1",
+ "refineVersion": "none",
+ "refinedCount": 0,
+ "medTargeted": 0,
+ "refineStats": {},
+ "lowCount": 2666,
+ "vad": {
+  "versions": {
+   "adaptive-2": 113
+  },
+  "rel": {
+   "min": 0.04,
+   "median": 0.25,
+   "max": 0.25,
+   "surahs": 113
+  }
+ },
+ "writerHostVadVersion": "adaptive-2",
+ "noSilenceShare": null,
+ "noSilenceToAnchor": null,
+ "sparsePauses": null,
+ "missing": {
+  "count": 0,
+  "byReason": {
+   "no-align": 2,
+   "surah-absent": 88,
+   "source_truncated": 0
+  },
+  "medianLen": 7,
+  "medianLenAll": 11,
+  "biasedShort": false,
+  "ids": []
+ },
+ "exactEnds": true,
+ "generatedAt": 1789808234254,
+ "audioSha256": "[114 بصمة]",
+ "notes": "",
+ "transform": {
+  "op": "heard_pin:77",
+  "fromSha256": "9d8f6b49061a47dfc277d1868cac43bfb64ca173b126b8e3bb715a915797f809",
+  "fromKey": "timings/hafs/asim.jz",
+  "evidenceRun": "37105657402",
+  "evidenceAudioSha256": "c9e83c09a20e81ca5437eeb4840b44ccccae4f2e208dbcf313cf9caa58daaa7c",
+  "pins": [
+   "77:21 ⇐ 95550 (أداء 0.733)",
+   "77:22 ⇐ 100573 (أداء 0.762)",
+   "77:23 ⇐ 105297 (أداء 0.706)",
+   "77:24 ⇐ 114183 (مرساة 0.688)",
+   "77:36 ⇐ 189359 (مرساة 0.778)"
+  ],
+  "changedAyahs": [
+   20,
+   21,
+   22,
+   23,
+   24,
+   35,
+   36
+  ],
+  "reason": "تسجيلُ المرسلات عند هذا القارئ يعيد 77:20–23 مرّتين (الأداء الأوّل 54–88ث ثمّ 88–114ث)، والمنشورُ يضع 77:22 في 200م.ث و77:24 قبل موضعه المسموع بـ17.4ث. ثُبّتت 21–23 على أدائها الثاني المقيس (95.6 · 100.6 · 105.3ث) المتّصل بـ77:24 (114.2ث)، وما قبله من تكرارٍ بلا مدخل. (إعادة بناءٍ فوق المنشور 9d8f6b49 بعد ترقية س21 وس62) وثُبّتت 77:36 على مرساتها 189.4ث (كان المدخل يبدأ بعد بدء تلاوتها بـ0.8ث؛ وسمه الإحصاء LATE_START).",
+  "at": 1791169171920,
+  "by": "pin_heard",
+  "note": "بدءُ كلّ آيةٍ مثبَّتةٍ أداءٌ مسموعٌ مقيس؛ ما تكرّر قبله بلا مدخل؛ يلزمه الإحصاءُ الشامل.",
+  "reasonCode": "NO_PUBLISHED_RECORDING",
+  "reasonUser": "سورة ص غير منشورة في تسجيل هذا القارئ"
+ },
+ "engineBySurah": {
+  "21": "ctc-heardmap-1",
+  "37": "ctc-dualfix-1",
+  "38": "ctc-dualfix-1",
+  "62": "ctc-heardmap-1",
+  "77": "heard-pin-1",
+  "80": "ctc-heardmap-1"
+ },
+ "dualFixEvidenceBySurah": {
+  "38": {
+   "engine": "ctc-dualfix-1",
+   "baseKey": "timings-staging/hafs/asim.13a73f88.jz",
+   "baseSha256": "13a73f886e01cefb1e6c47d0d942278649ea4f5cee36d386dd81ddb0f218b3d9",
+   "baseEngine": "ctc-dualfix-1",
+   "sourceSha256": "78ce5f4539cbef30aabdf22aebbe7a719fc90d999a42eed57b022639b9323d11",
+   "totalMs": 945658,
+   "models": {
+    "generic": {
+     "id": "jonatasgrosman/wav2vec2-large-xlsr-53-arabic",
+     "revision": "af46c2d8531b8dcbb5e23b952f739b372c2e5d2d",
+     "weightsSha256": "a0b26f6d9d3edfde1784aef863c192a8cc1e438a23b45910ab648531ebe1857b",
+     "license": "Apache-2.0"
+    },
+    "quran": {
+     "id": "rabah2026/wav2vec2-large-xlsr-53-arabic-quran-v_final",
+     "revision": "b03a268c6ba1a693752307325ab376c86c3b12da",
+     "weightsSha256": "bf65674a26eb4ef7042cedade96c3c8f8cbd04f3a7d1a68eadceec8ed0f99ecb",
+     "license": "Apache-2.0"
+    }
+   },
+   "runtime": {
+    "precision": "float32",
+    "threads": 2
+   },
+   "canonicalTextChanged": false,
+   "thresholds": {
+    "startTol": 500,
+    "endTol": 800,
+    "minConf": 0.6,
+    "durLo": 0.5,
+    "durHi": 2.0,
+    "rateMsPerChar": 277.08947970268724
+   },
+   "windows": {
+    "38:1": {
+     "contextAyahIds": [
+      "38:basmala",
+      "38:1",
+      "38:2"
+     ],
+     "windowMs": [
+      0,
+      14469
+     ]
+    },
+    "38:2": {
+     "contextAyahIds": [
+      "38:1",
+      "38:2",
+      "38:3"
+     ],
+     "windowMs": [
+      3273,
+      23170
+     ]
+    },
+    "38:3": {
+     "contextAyahIds": [
+      "38:2",
+      "38:3",
+      "38:4"
+     ],
+     "windowMs": [
+      9260,
+      37525
+     ]
+    },
+    "38:4": {
+     "contextAyahIds": [
+      "38:3",
+      "38:4",
+      "38:5"
+     ],
+     "windowMs": [
+      14469,
+      48252
+     ]
+    },
+    "38:5": {
+     "contextAyahIds": [
+      "38:4",
+      "38:5",
+      "38:6"
+     ],
+     "windowMs": [
+      23170,
+      60280
+     ]
+    },
+    "38:6": {
+     "contextAyahIds": [
+      "38:5",
+      "38:6",
+      "38:7"
+     ],
+     "windowMs": [
+      37525,
+      68787
+     ]
+    },
+    "38:7": {
+     "contextAyahIds": [
+      "38:6",
+      "38:7",
+      "38:8"
+     ],
+     "windowMs": [
+      48252,
+      81123
+     ]
+    },
+    "38:8": {
+     "contextAyahIds": [
+      "38:7",
+      "38:8",
+      "38:9"
+     ],
+     "windowMs": [
+      60280,
+      88462
+     ]
+    },
+    "38:9": {
+     "contextAyahIds": [
+      "38:8",
+      "38:9",
+      "38:10"
+     ],
+     "windowMs": [
+      68787,
+      98595
+     ]
+    },
+    "38:10": {
+     "contextAyahIds": [
+      "38:9",
+      "38:10",
+      "38:11"
+     ],
+     "windowMs": [
+      81123,
+      105348
+     ]
+    },
+    "38:11": {
+     "contextAyahIds": [
+      "38:10",
+      "38:11",
+      "38:12"
+     ],
+     "windowMs": [
+      88462,
+      113122
+     ]
+    },
+    "38:12": {
+     "contextAyahIds": [
+      "38:11",
+      "38:12",
+      "38:13"
+     ],
+     "windowMs": [
+      98595,
+      122343
+     ]
+    },
+    "38:13": {
+     "contextAyahIds": [
+      "38:12",
+      "38:13",
+      "38:14"
+     ],
+     "windowMs": [
+      105348,
+      127595
+     ]
+    },
+    "38:14": {
+     "contextAyahIds": [
+      "38:13",
+      "38:14",
+      "38:15"
+     ],
+     "windowMs": [
+      113122,
+      139148
+     ]
+    },
+    "38:15": {
+     "contextAyahIds": [
+      "38:14",
+      "38:15",
+      "38:16"
+     ],
+     "windowMs": [
+      122343,
+      146785
+     ]
+    },
+    "38:16": {
+     "contextAyahIds": [
+      "38:15",
+      "38:16",
+      "38:17"
+     ],
+     "windowMs": [
+      127595,
+      156734
+     ]
+    },
+    "38:17": {
+     "contextAyahIds": [
+      "38:16",
+      "38:17",
+      "38:18"
+     ],
+     "windowMs": [
+      139148,
+      165567
+     ]
+    },
+    "38:18": {
+     "contextAyahIds": [
+      "38:17",
+      "38:18",
+      "38:19"
+     ],
+     "windowMs": [
+      146785,
+      171500
+     ]
+    },
+    "38:19": {
+     "contextAyahIds": [
+      "38:18",
+      "38:19",
+      "38:20"
+     ],
+     "windowMs": [
+      156734,
+      179845
+     ]
+    },
+    "38:20": {
+     "contextAyahIds": [
+      "38:19",
+      "38:20",
+      "38:21"
+     ],
+     "windowMs": [
+      165567,
+      185290
+     ]
+    },
+    "38:21": {
+     "contextAyahIds": [
+      "38:20",
+      "38:21",
+      "38:22"
+     ],
+     "windowMs": [
+      171500,
+      199424
+     ]
+    },
+    "38:22": {
+     "contextAyahIds": [
+      "38:21",
+      "38:22",
+      "38:23"
+     ],
+     "windowMs": [
+      179845,
+      207810
+     ]
+    },
+    "38:23": {
+     "contextAyahIds": [
+      "38:22",
+      "38:23",
+      "38:24"
+     ],
+     "windowMs": [
+      185290,
+      260210
+     ]
+    },
+    "38:24": {
+     "contextAyahIds": [
+      "38:23",
+      "38:24",
+      "38:25"
+     ],
+     "windowMs": [
+      199424,
+      271617
+     ]
+    },
+    "38:25": {
+     "contextAyahIds": [
+      "38:24",
+      "38:25",
+      "38:26"
+     ],
+     "windowMs": [
+      207810,
+      298535
+     ]
+    },
+    "38:26": {
+     "contextAyahIds": [
+      "38:25",
+      "38:26",
+      "38:27"
+     ],
+     "windowMs": [
+      260210,
+      314396
+     ]
+    },
+    "38:27": {
+     "contextAyahIds": [
+      "38:26",
+      "38:27",
+      "38:28"
+     ],
+     "windowMs": [
+      271617,
+      328025
+     ]
+    },
+    "38:28": {
+     "contextAyahIds": [
+      "38:27",
+      "38:28",
+      "38:29"
+     ],
+     "windowMs": [
+      298535,
+      339663
+     ]
+    },
+    "38:29": {
+     "contextAyahIds": [
+      "38:28",
+      "38:29",
+      "38:30"
+     ],
+     "windowMs": [
+      314396,
+      348009
+     ]
+    },
+    "38:30": {
+     "contextAyahIds": [
+      "38:29",
+      "38:30",
+      "38:31"
+     ],
+     "windowMs": [
+      328025,
+      354275
+     ]
+    },
+    "38:31": {
+     "contextAyahIds": [
+      "38:30",
+      "38:31",
+      "38:32"
+     ],
+     "windowMs": [
+      339663,
+      365177
+     ]
+    },
+    "38:32": {
+     "contextAyahIds": [
+      "38:31",
+      "38:32",
+      "38:33"
+     ],
+     "windowMs": [
+      348009,
+      372319
+     ]
+    },
+    "38:33": {
+     "contextAyahIds": [
+      "38:32",
+      "38:33",
+      "38:34"
+     ],
+     "windowMs": [
+      354275,
+      382721
+     ]
+    },
+    "38:34": {
+     "contextAyahIds": [
+      "38:33",
+      "38:34",
+      "38:35"
+     ],
+     "windowMs": [
+      365177,
+      395986
+     ]
+    },
+    "38:35": {
+     "contextAyahIds": [
+      "38:34",
+      "38:35",
+      "38:36"
+     ],
+     "windowMs": [
+      372319,
+      404393
+     ]
+    },
+    "38:36": {
+     "contextAyahIds": [
+      "38:35",
+      "38:36",
+      "38:37"
+     ],
+     "windowMs": [
+      382721,
+      413586
+     ]
+    },
+    "38:37": {
+     "contextAyahIds": [
+      "38:36",
+      "38:37",
+      "38:38"
+     ],
+     "windowMs": [
+      395986,
+      425936
+     ]
+    },
+    "38:38": {
+     "contextAyahIds": [
+      "38:37",
+      "38:38",
+      "38:39"
+     ],
+     "windowMs": [
+      404393,
+      431080
+     ]
+    },
+    "38:39": {
+     "contextAyahIds": [
+      "38:38",
+      "38:39",
+      "38:40"
+     ],
+     "windowMs": [
+      413586,
+      438963
+     ]
+    },
+    "38:40": {
+     "contextAyahIds": [
+      "38:39",
+      "38:40",
+      "38:41"
+     ],
+     "windowMs": [
+      425936,
+      449126
+     ]
+    },
+    "38:41": {
+     "contextAyahIds": [
+      "38:40",
+      "38:41",
+      "38:42"
+     ],
+     "windowMs": [
+      431080,
+      456551
+     ]
+    },
+    "38:42": {
+     "contextAyahIds": [
+      "38:41",
+      "38:42",
+      "38:43"
+     ],
+     "windowMs": [
+      438963,
+      466904
+     ]
+    },
+    "38:43": {
+     "contextAyahIds": [
+      "38:42",
+      "38:43",
+      "38:44"
+     ],
+     "windowMs": [
+      449126,
+      546916
+     ]
+    },
+    "38:44": {
+     "contextAyahIds": [
+      "38:43",
+      "38:44",
+      "38:45"
+     ],
+     "windowMs": [
+      456551,
+      559274
+     ]
+    },
+    "38:45": {
+     "contextAyahIds": [
+      "38:44",
+      "38:45",
+      "38:46"
+     ],
+     "windowMs": [
+      466904,
+      568420
+     ]
+    },
+    "38:46": {
+     "contextAyahIds": [
+      "38:45",
+      "38:46",
+      "38:47"
+     ],
+     "windowMs": [
+      546916,
+      578556
+     ]
+    },
+    "38:47": {
+     "contextAyahIds": [
+      "38:46",
+      "38:47",
+      "38:48"
+     ],
+     "windowMs": [
+      559274,
+      586402
+     ]
+    },
+    "38:48": {
+     "contextAyahIds": [
+      "38:47",
+      "38:48",
+      "38:49"
+     ],
+     "windowMs": [
+      568420,
+      592466
+     ]
+    },
+    "38:49": {
+     "contextAyahIds": [
+      "38:48",
+      "38:49",
+      "38:50"
+     ],
+     "windowMs": [
+      578556,
+      598870
+     ]
+    },
+    "38:50": {
+     "contextAyahIds": [
+      "38:49",
+      "38:50",
+      "38:51"
+     ],
+     "windowMs": [
+      586402,
+      612939
+     ]
+    },
+    "38:51": {
+     "contextAyahIds": [
+      "38:50",
+      "38:51",
+      "38:52"
+     ],
+     "windowMs": [
+      592466,
+      619071
+     ]
+    },
+    "38:52": {
+     "contextAyahIds": [
+      "38:51",
+      "38:52",
+      "38:53"
+     ],
+     "windowMs": [
+      598870,
+      627103
+     ]
+    },
+    "38:53": {
+     "contextAyahIds": [
+      "38:52",
+      "38:53",
+      "38:54"
+     ],
+     "windowMs": [
+      612939,
+      635869
+     ]
+    },
+    "38:54": {
+     "contextAyahIds": [
+      "38:53",
+      "38:54",
+      "38:55"
+     ],
+     "windowMs": [
+      619071,
+      642243
+     ]
+    },
+    "38:55": {
+     "contextAyahIds": [
+      "38:54",
+      "38:55",
+      "38:56"
+     ],
+     "windowMs": [
+      627103,
+      647757
+     ]
+    },
+    "38:56": {
+     "contextAyahIds": [
+      "38:55",
+      "38:56",
+      "38:57"
+     ],
+     "windowMs": [
+      635869,
+      654033
+     ]
+    },
+    "38:57": {
+     "contextAyahIds": [
+      "38:56",
+      "38:57",
+      "38:58"
+     ],
+     "windowMs": [
+      6422

@@ -1,0 +1,407 @@
+# rc=0
+== timings-staging/warsh/laghdaf_shinqiti.a8690883.jz · a86908838b42 · مداخل 6236
+{
+ "schema": 1,
+ "riwaya": "warsh",
+ "reciterId": "laghdaf_shinqiti",
+ "sourceKind": "SURAH_FILES",
+ "ayahCounting": "KUFI",
+ "ayahCount": 6236,
+ "method": "ASR_ALIGN",
+ "engineVersion": "ctc-seg-1",
+ "refineVersion": "none",
+ "refinedCount": 0,
+ "medTargeted": 0,
+ "refineStats": {},
+ "lowCount": 2687,
+ "vad": {
+  "versions": {
+   "adaptive-2": 114
+  },
+  "rel": {
+   "min": 0.04,
+   "median": 0.04,
+   "max": 0.04,
+   "surahs": 114
+  }
+ },
+ "writerHostVadVersion": "adaptive-2",
+ "noSilenceShare": null,
+ "noSilenceToAnchor": null,
+ "sparsePauses": null,
+ "missing": {
+  "count": 0,
+  "byReason": {},
+  "medianLen": 3,
+  "medianLenAll": 10,
+  "biasedShort": false,
+  "ids": []
+ },
+ "exactEnds": true,
+ "generatedAt": 1790192366349,
+ "audioSha256": "[114 بصمة]",
+ "notes": "",
+ "engineBySurah": {
+  "4": "ctc-heardmap-1",
+  "6": "ctc-heardmap-1",
+  "9": "ctc-heardmap-1",
+  "10": "ctc-heardmap-1",
+  "11": "ctc-gapsplit-1",
+  "13": "ctc-heardmap-1",
+  "14": "ctc-heardmap-1",
+  "15": "ctc-heardmap-1",
+  "17": "ctc-heardmap-1",
+  "19": "ctc-gapsplit-1",
+  "20": "ctc-heardmap-1",
+  "21": "ctc-heardmap-1",
+  "22": "ctc-heardmap-1",
+  "23": "ctc-heardmap-1",
+  "24": "ctc-heardmap-1",
+  "27": "ctc-heardmap-1",
+  "29": "ctc-heardmap-1",
+  "30": "ctc-gapsplit-1",
+  "33": "ctc-gapsplit-1",
+  "34": "ctc-heardmap-1",
+  "35": "ctc-heardmap-1",
+  "36": "ctc-heardmap-1",
+  "37": "ctc-heardmap-1",
+  "38": "ctc-heardmap-1",
+  "39": "ctc-heardmap-1",
+  "40": "ctc-heardmap-1",
+  "41": "ctc-heardmap-1",
+  "42": "ctc-heardmap-1",
+  "43": "ctc-heardmap-1",
+  "45": "ctc-heardmap-1",
+  "46": "ctc-heardmap-1",
+  "47": "ctc-heardmap-1",
+  "48": "ctc-heardmap-1",
+  "54": "align-0.2",
+  "55": "align-0.2",
+  "56": "ctc-heardmap-1",
+  "57": "ctc-heardmap-1",
+  "59": "ctc-heardmap-1",
+  "60": "ctc-heardmap-1",
+  "66": "ctc-heardmap-1",
+  "67": "ctc-heardmap-1",
+  "69": "ctc-quran-window-1",
+  "75": "ctc-heardmap-1",
+  "77": "ctc-gapsplit-1",
+  "79": "align-0.2",
+  "85": "ctc-dual-window-1",
+  "87": "ctc-gapsplit-1",
+  "89": "align-0.2",
+  "103": "align-0.2"
+ },
+ "transform": {
+  "op": "ctc_gapsplit:11,19,30,33,87",
+  "fromSha256": "c9f9abdb0323dbcc650e0f65c95e2cc6c237544a2bcc570968d272f1581bbc68",
+  "fromKey": "timings-staging/warsh/laghdaf_shinqiti.c9f9abdb.jz",
+  "entriesSha256": "86df3e7e49c4a565bd7d3450970a40137f97499d8d158b3c927b2f76a55e36e6",
+  "parentEntriesSha256": "72d9895071b3582cf29b3c433cb28df23285dbd755c4cb60c9f02d5f36d542b4",
+  "movedEntries": 22,
+  "reason": "pH2 محاولة3 (mode=window بين جارتين ثابتتين) فوق c9f9abdb: بقايا السماع لغدف 4(10 آيات) 11(83,84,120) 19:77 22(9,11,25,36) 30(35,36) 33(10,24,49) 35:12 39(7,22,49,73) 42:36 87:5 و78:40",
+  "by": "github-ctc-splice",
+  "at": 1791949096092,
+  "note": "مقارنة بالأصل: حدود متغيرة في 22 مدخلاً، ومداخل مضافة 0، ومداخل محذوفة 0. الرفع إلى الاختبار ليس حكم جودة؛ يلزم اجتياز حراس الجودة والسماع القائمة على بصمة المرشح نفسه.",
+  "dropSurah": [],
+  "addedEntries": 0,
+  "removedEntries": 0,
+  "provenance": {
+   "kind": "historical-parent-transform",
+   "parentSha256": "3840d4aebfa883cd246b2cb7a66d4da6b5cf50c6cca906372ee32afbfdeed218",
+   "parentKey": "timings/warsh/laghdaf_shinqiti.jz",
+   "parentTransform": {
+    "op": "ctc_heardmap_splice:45",
+    "fromSha256": "cb2c1bfbb4b23f998fb089a55b2433e0f7219dfa6aece00edf3cea4802c379d2",
+    "fromKey": "timings/warsh/laghdaf_shinqiti.jz",
+    "entriesSha256": "b9cf88a25231d8886b8c80f617aaf67b936565065c77154aefdd7781f52641d4",
+    "parentEntriesSha256": "a5734a100818706f2ad18051a5de2a64aafa51ab39d2a79a39cc098035d89131",
+    "movedEntries": 28,
+    "reason": "fixR (تدقيق الجولة الثانية · مؤكَّدٌ بالسماع 37128814813): laghdaf_shinqiti — ذيلُ 45:26–37 (12 آية) قبل موضعه حتى 124ث ⇒ وضع heard يبني السورةَ من مراسٍ مسموعة بالمدى المقيس 45:26-37، ثمّ البوّاباتُ كاملةً مع الإحصاء ومسبرِ السماع",
+    "by": "github-ctc-splice",
+    "at": 1791040761847,
+    "note": "‏عددُ المداخل مطابقٌ للأصل والحدودُ وحدها أُزيحت؛ ولا يُرقّى بحكم الأصل: يدخل الطابور بفحص مطالعَ وعيّنةٍ على بصمته.",
+    "dropSurah": [],
+    "addedEntries": 0,
+    "removedEntries": 0
+   },
+   "parentMissing": {
+    "count": 0,
+    "byReason": {},
+    "medianLen": 3,
+    "medianLenAll": 10,
+    "biasedShort": false,
+    "ids": []
+   }
+  },
+  "sameSourceRepair": {
+   "qualityClaim": false,
+   "contexts": [
+    {
+     "reportPath": "ops/out/codex-laghdaf69-43-52-expanded-report-20261006.json",
+     "reportSha256": "9559666986deefa71d26903b5742c609fc17fda1736597b7f6a113b7b1907d87",
+     "bundlePath": "ops/out/codex-laghdaf69-43-52-expanded-complete-20261006.json.gz",
+     "bundleSha256": "2c35d607b28ef8f065baeed5d1fa1f7c3ed39bb0bdb8ed1171862a587653224f",
+     "jobId": 112113100297,
+     "id": "short_final_laghdaf69_43_52",
+     "sourceSha256": "10716657290a2e620b212d95dde9de6272f8227388e92d150180703dcd1ae9fc",
+     "targetAyahs": [
+      43,
+      44,
+      45,
+      46,
+      47,
+      48,
+      49,
+      50,
+      51,
+      52
+     ],
+     "provenance": {
+      "runId": "37415498655",
+      "runSha": "bb8489b4a1bee753ae1311c2a412a6d807c23080",
+      "toolSha256": "5004bcab6d6ed2c10ec91c9b20ca596e5d62d9c6fef7a42d8805d422f239a5ef"
+     }
+    }
+   ],
+   "changes": [
+    {
+     "before": {
+      "ayahId": "69:42",
+      "fileRef": "https://pub-2c2e1dcd92e84a2898820dd38d3e09e6.r2.dev/audio/warsh/laghdaf_shinqiti/069.mp3",
+      "startMs": 271256,
+      "endMs": 275679,
+      "conf": 0.253,
+      "confBand": "LOW",
+      "startApprox": true
+     },
+     "after": {
+      "ayahId": "69:42",
+      "fileRef": "https://pub-2c2e1dcd92e84a2898820dd38d3e09e6.r2.dev/audio/warsh/laghdaf_shinqiti/069.mp3",
+      "startMs": 271256,
+      "endMs": 286112,
+      "conf": 0.253,
+      "confBand": "LOW",
+      "startApprox": true
+     }
+    },
+    {
+     "before": {
+      "ayahId": "69:43",
+      "fileRef": "https://pub-2c2e1dcd92e84a2898820dd38d3e09e6.r2.dev/audio/warsh/laghdaf_shinqiti/069.mp3",
+      "startMs": 275679,
+      "endMs": 276399,
+      "conf": 0.0,
+      "confBand": "LOW",
+      "startApprox": true
+     },
+     "after": {
+      "ayahId": "69:43",
+      "fileRef": "https://pub-2c2e1dcd92e84a2898820dd38d3e09e6.r2.dev/audio/warsh/laghdaf_shinqiti/069.mp3",
+      "startMs": 286112,
+      "endMs": 293878,
+      "conf": 0.0,
+      "confBand": "LOW",
+      "startApprox": true
+     }
+    },
+    {
+     "before": {
+      "ayahId": "69:44",
+      "fileRef": "https://pub-2c2e1dcd92e84a2898820dd38d3e09e6.r2.dev/audio/warsh/laghdaf_shinqiti/069.mp3",
+      "startMs": 276399,
+      "endMs": 277700,
+      "conf": 0.0,
+      "confBand": "LOW",
+      "startApprox": true
+     },
+     "after": {
+      "ayahId": "69:44",
+      "fileRef": "https://pub-2c2e1dcd92e84a2898820dd38d3e09e6.r2.dev/audio/warsh/laghdaf_shinqiti/069.mp3",
+      "startMs": 293878,
+      "endMs": 298171,
+      "conf": 0.0,
+      "confBand": "LOW",
+      "startApprox": true
+     }
+    },
+    {
+     "before": {
+      "ayahId": "69:45",
+      "fileRef": "https://pub-2c2e1dcd92e84a2898820dd38d3e09e6.r2.dev/audio/warsh/laghdaf_shinqiti/069.mp3",
+      "startMs": 277700,
+      "endMs": 278741,
+      "conf": 0.0,
+      "confBand": "LOW",
+      "startApprox": true
+     },
+     "after": {
+      "ayahId": "69:45",
+      "fileRef": "https://pub-2c2e1dcd92e84a2898820dd38d3e09e6.r2.dev/audio/warsh/laghdaf_shinqiti/069.mp3",
+      "startMs": 298171,
+      "endMs": 300833,
+      "conf": 0.0,
+      "confBand": "LOW",
+      "startApprox": true
+     }
+    },
+    {
+     "before": {
+      "ayahId": "69:46",
+      "fileRef": "https://pub-2c2e1dcd92e84a2898820dd38d3e09e6.r2.dev/audio/warsh/laghdaf_shinqiti/069.mp3",
+      "startMs": 278741,
+      "endMs": 280262,
+      "conf": 0.061,
+      "confBand": "LOW",
+      "startApprox": true
+     },
+     "after": {
+      "ayahId": "69:46",
+      "fileRef": "https://pub-2c2e1dcd92e84a2898820dd38d3e09e6.r2.dev/audio/warsh/laghdaf_shinqiti/069.mp3",
+      "startMs": 300833,
+      "endMs": 306928,
+      "conf": 0.061,
+      "confBand": "LOW",
+      "startApprox": true
+     }
+    },
+    {
+     "before": {
+      "ayahId": "69:47",
+      "fileRef": "https://pub-2c2e1dcd92e84a2898820dd38d3e09e6.r2.dev/audio/warsh/laghdaf_shinqiti/069.mp3",
+      "startMs": 280262,
+      "endMs": 282584,
+      "conf": 0.158,
+      "confBand": "LOW",
+      "startApprox": true
+     },
+     "after": {
+      "ayahId": "69:47",
+      "fileRef": "https://pub-2c2e1dcd92e84a2898820dd38d3e09e6.r2.dev/audio/warsh/laghdaf_shinqiti/069.mp3",
+      "startMs": 306928,
+      "endMs": 312422,
+      "conf": 0.158,
+      "confBand": "LOW",
+      "startApprox": true
+     }
+    },
+    {
+     "before": {
+      "ayahId": "69:48",
+      "fileRef": "https://pub-2c2e1dcd92e84a2898820dd38d3e09e6.r2.dev/audio/warsh/laghdaf_shinqiti/069.mp3",
+      "startMs": 282584,
+      "endMs": 287967,
+      "conf": 0.233,
+      "confBand": "LOW",
+      "startApprox": true
+     },
+     "after": {
+      "ayahId": "69:48",
+      "fileRef": "https://pub-2c2e1dcd92e84a2898820dd38d3e09e6.r2.dev/audio/warsh/laghdaf_shinqiti/069.mp3",
+      "startMs": 312422,
+      "endMs": 319017,
+      "conf": 0.233,
+      "confBand": "LOW",
+      "startApprox": true
+     }
+    },
+    {
+     "before": {
+      "ayahId": "69:49",
+      "fileRef": "https://pub-2c2e1dcd92e84a2898820dd38d3e09e6.r2.dev/audio/warsh/laghdaf_shinqiti/069.mp3",
+      "startMs": 287967,
+      "endMs": 288968,
+      "conf": 0.0,
+      "confBand": "LOW",
+      "startApprox": true
+     },
+     "after": {
+      "ayahId": "69:49",
+      "fileRef": "https://pub-2c2e1dcd92e84a2898820dd38d3e09e6.r2.dev/audio/warsh/laghdaf_shinqiti/069.mp3",
+      "startMs": 319017,
+      "endMs": 327424,
+      "conf": 0.0,
+      "confBand": "LOW",
+      "startApprox": true
+     }
+    },
+    {
+     "before": {
+      "ayahId": "69:50",
+      "fileRef": "https://pub-2c2e1dcd92e84a2898820dd38d3e09e6.r2.dev/audio/warsh/laghdaf_shinqiti/069.mp3",
+      "startMs": 288968,
+      "endMs": 293902,
+      "conf": 0.0,
+      "confBand": "LOW",
+      "startApprox": true
+     },
+     "after": {
+      "ayahId": "69:50",
+      "fileRef": "https://pub-2c2e1dcd92e84a2898820dd38d3e09e6.r2.dev/audio/warsh/laghdaf_shinqiti/069.mp3",
+      "startMs": 327424,
+      "endMs": 332057,
+      "conf": 0.0,
+      "confBand": "LOW",
+      "startApprox": true
+     }
+    },
+    {
+     "before": {
+      "ayahId": "69:51",
+      "fileRef": "https://pub-2c2e1dcd92e84a2898820dd38d3e09e6.r2.dev/audio/warsh/laghdaf_shinqiti/069.mp3",
+      "startMs": 293902,
+      "endMs": 295232,
+      "conf": 0.0,
+      "confBand": "LOW"
+     },
+     "after": {
+      "ayahId": "69:51",
+      "fileRef": "https://pub-2c2e1dcd92e84a2898820dd38d3e09e6.r2.dev/audio/warsh/laghdaf_shinqiti/069.mp3",
+      "startMs": 332057,
+      "endMs": 335200,
+      "conf": 0.0,
+      "confBand": "LOW"
+     }
+    },
+    {
+     "before": {
+      "ayahId": "69:52",
+      "fileRef": "https://pub-2c2e1dcd92e84a2898820dd38d3e09e6.r2.dev/audio/warsh/laghdaf_shinqiti/069.mp3",
+      "startMs": 295232,
+      "endMs": 295973,
+      "conf": 0.0,
+      "confBand": "LOW",
+      "startApprox": true
+     },
+     "after": {
+      "ayahId": "69:52",
+      "fileRef": "https://pub-2c2e1dcd92e84a2898820dd38d3e09e6.r2.dev/audio/warsh/laghdaf_shinqiti/069.mp3",
+      "startMs": 335200,
+      "endMs": 339313,
+      "conf": 0.0,
+      "confBand": "LOW",
+      "startApprox": true
+     }
+    }
+   ],
+   "decodedEofMs": {
+    "69": 339313
+   },
+   "limits": [
+    "الحد الأصلي لثقة المحاذاة0.45؛ لا تغيير لأي حارس أو ثقة منشورة.",
+    "الخواتيم المقيسة فقط؛ يلزم الفحص الأصلي الكامل للبصمة المرفوعة."
+   ]
+  }
+ },
+ "dualAlignmentEvidenceBySurah": {
+  "85": {
+   "surah": 85,
+   "riwaya": "warsh",
+   "sourceSha256": "3379207275de071c5a1c32fd04e30e23498bf4eeebc2034f20235c41f7d01ddc",
+   "canonicalTextChanged": false,
+   "totalMs": 1823138,
+   "models": {
+    "quran": {
+     "id": "rabah2026/wav2vec2-large-xlsr-53-arabic-quran-v_final",
+     "revision": "b03a268c6ba1a693752307325ab376c86c3b12da",
+     "weightsSha256": "bf65674a26eb4ef7042cedade

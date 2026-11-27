@@ -1,0 +1,464 @@
+{
+  "generatedAtUtc": "2026-10-05T19:51:29.035312+00:00",
+  "candidatePath": "ops/source-repair/candidates/codex-derini-s11-s14-s23-s83-20261005.jz",
+  "candidateSha256": "0d2de0b9d99a7243f3e9ee542bfd91a1b05d602fead644aea422ce4afd888479",
+  "parentPath": "ops/source-repair/parents/codex-warsh-derini_warsh-ffa7ef76.jz",
+  "parentSha256": "ffa7ef763237bf0f7d34d492d9a74ef595fd2528f6be0a7d1f1581a312384825",
+  "parentKey": "timings/warsh/derini_warsh.jz",
+  "unpublishedLocalCandidate": true,
+  "surahs": [
+    11,
+    14,
+    23,
+    83
+  ],
+  "checks": {
+    "candidateParentShaMatches": true,
+    "same6236UniqueOrderedEntries": true,
+    "allOutsideSelectedIdentical": true,
+    "audioSha256Unchanged": true,
+    "sourceBySurahUnchanged": true,
+    "missingUnchanged": true,
+    "historicalTransformPreserved": true,
+    "historicalMissingPreserved": true,
+    "lowCountRecountMatches": true,
+    "modifiedSurahsExact": true,
+    "unpublishedMarked": true,
+    "surah11SourceExact": true,
+    "surah11BoundsExactAndValid": true,
+    "surah14SourceExact": true,
+    "surah14BoundsExactAndValid": true,
+    "surah23SourceExact": true,
+    "surah23BoundsExactAndValid": true,
+    "surah83SourceExact": true,
+    "surah83BoundsExactAndValid": true,
+    "indexGatePassed": true
+  },
+  "outsideEntries": 5907,
+  "changes": {
+    "moved": 241,
+    "added": 0,
+    "removed": 0
+  },
+  "lowCount": {
+    "parentStored": 85,
+    "parentActual": 181,
+    "candidateActual": 219
+  },
+  "previousKnownDeviations": [
+    {
+      "ayahId": "11:44",
+      "oldStartMs": 1137592,
+      "newStartMs": 1135460,
+      "previousMeasuredAnchorMs": 1136000,
+      "oldDeviationMs": 1592,
+      "newDeviationAgainstPreviousAnchorMs": -540,
+      "earlierRun": "37344653717"
+    },
+    {
+      "ayahId": "11:51",
+      "oldStartMs": 1321367,
+      "newStartMs": 1323428,
+      "previousMeasuredAnchorMs": 1323929,
+      "oldDeviationMs": -2562,
+      "newDeviationAgainstPreviousAnchorMs": -501,
+      "earlierRun": "37344653717"
+    },
+    {
+      "ayahId": "11:66",
+      "oldStartMs": 1741470,
+      "newStartMs": 1738733,
+      "previousMeasuredAnchorMs": 1739274,
+      "oldDeviationMs": 2196,
+      "newDeviationAgainstPreviousAnchorMs": -541,
+      "earlierRun": "37344653717"
+    },
+    {
+      "ayahId": "11:79",
+      "oldStartMs": 2048528,
+      "newStartMs": 2050708,
+      "previousMeasuredAnchorMs": 2051229,
+      "oldDeviationMs": -2701,
+      "newDeviationAgainstPreviousAnchorMs": -521,
+      "earlierRun": "37344653717"
+    },
+    {
+      "ayahId": "11:114",
+      "oldStartMs": 2865900,
+      "newStartMs": 2867629,
+      "previousMeasuredAnchorMs": 2868190,
+      "oldDeviationMs": -2290,
+      "newDeviationAgainstPreviousAnchorMs": -561,
+      "earlierRun": "37344653717"
+    },
+    {
+      "ayahId": "14:31",
+      "oldStartMs": 874168,
+      "newStartMs": 876309,
+      "previousMeasuredAnchorMs": 876830,
+      "oldDeviationMs": -2662,
+      "newDeviationAgainstPreviousAnchorMs": -521,
+      "earlierRun": "37344653717"
+    },
+    {
+      "ayahId": "14:40",
+      "oldStartMs": 1122320,
+      "newStartMs": 1126097,
+      "previousMeasuredAnchorMs": 1126598,
+      "oldDeviationMs": -4278,
+      "newDeviationAgainstPreviousAnchorMs": -501,
+      "earlierRun": "37344653717"
+    },
+    {
+      "ayahId": "14:41",
+      "oldStartMs": 1138743,
+      "newStartMs": 1140427,
+      "previousMeasuredAnchorMs": 1140928,
+      "oldDeviationMs": -2185,
+      "newDeviationAgainstPreviousAnchorMs": -501,
+      "earlierRun": "37344653717"
+    },
+    {
+      "ayahId": "23:1",
+      "oldStartMs": 19563,
+      "newStartMs": 7380,
+      "previousMeasuredAnchorMs": 7505,
+      "oldDeviationMs": 12058,
+      "newDeviationAgainstPreviousAnchorMs": -125,
+      "earlierRun": "37344653717"
+    },
+    {
+      "ayahId": "23:2",
+      "oldStartMs": 20743,
+      "newStartMs": 11640,
+      "previousMeasuredAnchorMs": 11927,
+      "oldDeviationMs": 8816,
+      "newDeviationAgainstPreviousAnchorMs": -287,
+      "earlierRun": "37344653717"
+    },
+    {
+      "ayahId": "23:3",
+      "oldStartMs": 23335,
+      "newStartMs": 17990,
+      "previousMeasuredAnchorMs": 18172,
+      "oldDeviationMs": 5163,
+      "newDeviationAgainstPreviousAnchorMs": -182,
+      "earlierRun": "37344653717"
+    },
+    {
+      "ayahId": "23:4",
+      "oldStartMs": 26027,
+      "newStartMs": 23335,
+      "previousMeasuredAnchorMs": 23835,
+      "oldDeviationMs": 2192,
+      "newDeviationAgainstPreviousAnchorMs": -500,
+      "earlierRun": "37344653717"
+    },
+    {
+      "ayahId": "83:3",
+      "oldStartMs": 20608,
+      "newStartMs": 17251,
+      "previousMeasuredAnchorMs": 17751,
+      "oldDeviationMs": 2857,
+      "newDeviationAgainstPreviousAnchorMs": -500,
+      "earlierRun": "37344653717"
+    },
+    {
+      "ayahId": "83:33",
+      "oldStartMs": 273520,
+      "newStartMs": 275073,
+      "previousMeasuredAnchorMs": 275560,
+      "oldDeviationMs": -2040,
+      "newDeviationAgainstPreviousAnchorMs": -487,
+      "earlierRun": "37344653717"
+    }
+  ],
+  "sameModelEvidence": [
+    {
+      "surah": 11,
+      "alignmentPath": "ops/out/codex-derini11-alignment-37361644080.json",
+      "alignmentSha256": "04891e221aad8559fd24157f03b5ce2017244d872f3f78a83386869f1a5349d7",
+      "run": "37361644080",
+      "envelopeChecksPassed": true,
+      "audioSha256": "89551773d888cce00bc020bce5cc3b10f03a09ffb77d1f7d8bb4ef9f6a6fddcd",
+      "sourceUrl": "https://archive.org/download/amrou-el-derini_Warsh/011.mp3",
+      "entryCount": 123,
+      "totalMs": 3060062,
+      "firstEntry": {
+        "ayahIdx": 0,
+        "startMs": 7065,
+        "endMs": 24417,
+        "conf": 0.591,
+        "snapped": true,
+        "matched": 0,
+        "total": 10,
+        "heard": true,
+        "boundary": "window"
+      },
+      "lastEntry": {
+        "ayahIdx": 122,
+        "startMs": 3033930,
+        "endMs": 3055138,
+        "conf": 0.667,
+        "snapped": true,
+        "matched": 0,
+        "total": 16,
+        "heard": true,
+        "boundary": "window"
+      },
+      "tailAfterLastEndMs": 4924,
+      "lowConfidenceAyahs": [
+        3,
+        7,
+        11,
+        12,
+        15,
+        24,
+        31,
+        42,
+        52,
+        57,
+        58,
+        61,
+        63,
+        66,
+        71,
+        81,
+        84,
+        93,
+        94,
+        95,
+        102,
+        119
+      ],
+      "issues": [
+        "الآية 12: حدُّ النافذة 0.0ث عن مِرساتها ⇒ anchor",
+        "الآية 32: حدُّ النافذة 0.5ث عن مِرساتها ⇒ narrow",
+        "الآية 33: حدُّ النافذة 0.5ث عن مِرساتها ⇒ narrow",
+        "الآية 34: حدُّ النافذة 0.5ث عن مِرساتها ⇒ narrow",
+        "الآية 35: حدُّ النافذة 0.5ث عن مِرساتها ⇒ narrow",
+        "الآية 36: حدُّ النافذة 0.4ث عن مِرساتها ⇒ narrow",
+        "الآية 59: حدُّ النافذة 0.5ث عن مِرساتها ⇒ narrow",
+        "الآية 60: حدُّ النافذة 0.5ث عن مِرساتها ⇒ narrow",
+        "الآية 83: حدُّ النافذة 0.6ث عن مِرساتها ⇒ narrow",
+        "الآية 84: حدُّ النافذة 0.3ث عن مِرساتها ⇒ narrow",
+        "الآية 94: حدُّ النافذة 0.6ث عن مِرساتها ⇒ narrow",
+        "الآية 95: حدُّ النافذة 0.1ث عن مِرساتها ⇒ narrow",
+        "الآية 96: حدُّ النافذة 0.6ث عن مِرساتها ⇒ narrow",
+        "الآية 120: حدُّ النافذة 0.6ث عن مِرساتها ⇒ narrow"
+      ],
+      "sameModelConsistency": {
+        "independentQualityCertificate": false,
+        "rowStatuses": {
+          "ok": 123
+        },
+        "verdict": null
+      }
+    },
+    {
+      "surah": 14,
+      "alignmentPath": "ops/out/codex-derini14-alignment-37361655915.json",
+      "alignmentSha256": "79ed0f9157426dd8f700a2aefe7b5b827a186feadecf63336ec12f20826e76be",
+      "run": "37361655915",
+      "envelopeChecksPassed": true,
+      "audioSha256": "a41c72e5753ab9af3d231dfc18129fdd7b5bd9f020e27b3f7dc9880a5e449a2d",
+      "sourceUrl": "https://archive.org/download/amrou-el-derini_Warsh/014.mp3",
+      "entryCount": 52,
+      "totalMs": 1389035,
+      "firstEntry": {
+        "ayahIdx": 0,
+        "startMs": 7565,
+        "endMs": 35624,
+        "conf": 0.469,
+        "snapped": true,
+        "matched": 0,
+        "total": 16,
+        "heard": true,
+        "boundary": "window"
+      },
+      "lastEntry": {
+        "ayahIdx": 51,
+        "startMs": 1351360,
+        "endMs": 1384831,
+        "conf": 0.391,
+        "snapped": true,
+        "matched": 0,
+        "total": 13,
+        "heard": true,
+        "boundary": "window"
+      },
+      "tailAfterLastEndMs": 4204,
+      "lowConfidenceAyahs": [
+        1,
+        5,
+        10,
+        21,
+        22,
+        23,
+        24,
+        27,
+        28,
+        31,
+        36,
+        37,
+        44,
+        45,
+        52
+      ],
+      "issues": [
+        "الآية 11: حدُّ النافذة 0.5ث عن مِرساتها ⇒ narrow",
+        "الآية 12: حدُّ النافذة 0.5ث عن مِرساتها ⇒ narrow",
+        "الآية 23: حدُّ النافذة 0.2ث عن مِرساتها ⇒ narrow",
+        "الآية 24: حدُّ النافذة 0.0ث عن مِرساتها ⇒ anchor",
+        "الآية 32: حدُّ النافذة 0.4ث عن مِرساتها ⇒ narrow"
+      ],
+      "sameModelConsistency": {
+        "independentQualityCertificate": false,
+        "rowStatuses": {
+          "ok": 52
+        },
+        "verdict": null
+      }
+    },
+    {
+      "surah": 23,
+      "alignmentPath": "ops/out/codex-derini23-alignment-37361667260.json",
+      "alignmentSha256": "11e0386f0c44d224c9ca1fd890abf39826cce005026ecd19141462b00261644b",
+      "run": "37361667260",
+      "envelopeChecksPassed": true,
+      "audioSha256": "04a390a6f37087e21fd364a8e4c9009894a3f6d2d8568bce42a54380909fdb35",
+      "sourceUrl": "https://archive.org/download/amrou-el-derini_Warsh/023.mp3",
+      "entryCount": 118,
+      "totalMs": 1694275,
+      "firstEntry": {
+        "ayahIdx": 0,
+        "startMs": 7380,
+        "endMs": 11640,
+        "conf": 0.664,
+        "snapped": true,
+        "matched": 0,
+        "total": 3,
+        "heard": true,
+        "boundary": "window"
+      },
+      "lastEntry": {
+        "ayahIdx": 117,
+        "startMs": 1678364,
+        "endMs": 1686350,
+        "conf": 0.0,
+        "snapped": false,
+        "matched": 0,
+        "total": 7,
+        "heard": true,
+        "boundary": "window"
+      },
+      "tailAfterLastEndMs": 7925,
+      "lowConfidenceAyahs": [
+        24,
+        27,
+        33,
+        51,
+        57,
+        60,
+        96,
+        109,
+        118
+      ],
+      "issues": [
+        "الآية 44: حدُّ النافذة 1.4ث عن مِرساتها ⇒ narrow",
+        "الآية 57: حدُّ النافذة 0.8ث عن مِرساتها ⇒ narrow",
+        "الآية 61: حدُّ النافذة 1.5ث عن مِرساتها ⇒ narrow"
+      ],
+      "sameModelConsistency": {
+        "independentQualityCertificate": false,
+        "rowStatuses": {
+          "ok": 118
+        },
+        "verdict": null
+      }
+    },
+    {
+      "surah": 83,
+      "alignmentPath": "ops/out/codex-derini83-alignment-37361681370.json",
+      "alignmentSha256": "afab7d715a33526b144112edf127da6ced68ef7817063ccd799f56f414423366",
+      "run": "37361681370",
+      "envelopeChecksPassed": true,
+      "audioSha256": "2625a0b8698a65a6f6b5051541e74693aff1142b7210ab8401d770dbb092054a",
+      "sourceUrl": "https://archive.org/download/amrou-el-derini_Warsh/083.mp3",
+      "entryCount": 36,
+      "totalMs": 316447,
+      "firstEntry": {
+        "ayahIdx": 0,
+        "startMs": 5603,
+        "endMs": 9966,
+        "conf": 0.74,
+        "snapped": false,
+        "matched": 0,
+        "total": 2,
+        "heard": true,
+        "boundary": "window"
+      },
+      "lastEntry": {
+        "ayahIdx": 35,
+        "startMs": 302940,
+        "endMs": 308661,
+        "conf": 0.755,
+        "snapped": true,
+        "matched": 0,
+        "total": 6,
+        "heard": true,
+        "boundary": "window"
+      },
+      "tailAfterLastEndMs": 7786,
+      "lowConfidenceAyahs": [
+        23
+      ],
+      "issues": [],
+      "sameModelConsistency": {
+        "independentQualityCertificate": false,
+        "rowStatuses": {
+          "ok": 36
+        },
+        "verdict": null
+      }
+    }
+  ],
+  "qualityChecks": "pending",
+  "heardGate": "pending",
+  "independentCompletionClaim": false,
+  "limitations": [
+    "اتفاق التوقيت مع مراسي النموذج نفسه لا يعد فحصاً صوتياً مستقلاً",
+    "يلزم تثبيت بصمة الأصل الحي قبل أي ترقية؛ الملفات هنا محلية فقط",
+    "تفحص النهايات ومواضع ضعف الثقة والنافذة كاملة مستقلاً"
+  ],
+  "independentCodeReview": {
+    "reviewer": "prior_builds",
+    "localStructuralBlockers": [],
+    "all6236EntriesNonoverlapping": true,
+    "selected329BoundsExact": true,
+    "indexGateVerdict": null,
+    "lowCount": {
+      "parentStored": 85,
+      "parentActual": 181,
+      "candidateStoredAndActual": 219,
+      "inheritedOutsideSelected": 172,
+      "newSelected": 47
+    },
+    "zeroConfidenceAyahs": [
+      "11:31",
+      "11:58",
+      "11:93",
+      "11:94",
+      "11:119",
+      "14:10",
+      "14:22",
+      "23:24",
+      "23:118"
+    ],
+    "specialChecks": [
+      "23:118ثقتها0وبعدنهايتها7925مللي ثانية",
+      "14:52ثقتها0.391ولهاوقوعان منفصلانداخلنافذتها"
+    ],
+    "qualityChecks": "pending"
+  }
+}

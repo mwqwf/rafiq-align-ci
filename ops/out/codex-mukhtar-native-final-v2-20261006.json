@@ -1,0 +1,951 @@
+{
+  "path": "ops/source-repair/candidates/codex-mukhtar-native-final-v2-20261006.jz",
+  "sha256": "ac3cacbc0c52e105387203c84ee9fa9c7a25f2b6e1e1d96957aefcae017d157a",
+  "parentSha256": "a01f926802dc95b0ae76ea74ac5f9b5521b1b94d5a7977e3c0fdb6f7bd5d25d1",
+  "changedEntries": 28,
+  "op": "ctc_quran_window:37",
+  "warnings": [
+    "مداخل مدتها > 120ث: 2 · مثال: 2:282 مدتها 157ث",
+    "فجوات > 15ث بين آيتين متتاليتين: 2 · مثال: 27:58→27:59 فجوة 15ث"
+  ],
+  "proof": {
+    "qualityClaim": false,
+    "previousProof": {
+      "qualityClaim": false,
+      "reportPath": "ops/out/codex-short-openers-37399039017-reports.json",
+      "reportSha256": "d7f32ae6737470c6fefc78115cd70f2dca3606e40659edcf90f32cd3488d575f",
+      "rawBundlePath": "ops/out/codex-short-openers-37399039017-complete.json.gz",
+      "rawBundleSha256": "cb3fdc970c6edd70869d2b95ae5e9160096c06600726b8c96cce39480bacd2ee",
+      "changes": [
+        {
+          "before": {
+            "ayahId": "37:1",
+            "fileRef": "https://server16.mp3quran.net/mukhtar_haj/Rewayat-Hafs-A-n-Assem/037.mp3",
+            "startMs": 9900,
+            "endMs": 10790,
+            "conf": 0.44,
+            "confBand": "LOW"
+          },
+          "after": {
+            "ayahId": "37:1",
+            "fileRef": "https://server16.mp3quran.net/mukhtar_haj/Rewayat-Hafs-A-n-Assem/037.mp3",
+            "startMs": 5184,
+            "endMs": 12050,
+            "conf": 0.44,
+            "confBand": "LOW"
+          }
+        },
+        {
+          "before": {
+            "ayahId": "37:2",
+            "fileRef": "https://server16.mp3quran.net/mukhtar_haj/Rewayat-Hafs-A-n-Assem/037.mp3",
+            "startMs": 10790,
+            "endMs": 16410,
+            "conf": 0.8,
+            "confBand": "HIGH"
+          },
+          "after": {
+            "ayahId": "37:2",
+            "fileRef": "https://server16.mp3quran.net/mukhtar_haj/Rewayat-Hafs-A-n-Assem/037.mp3",
+            "startMs": 12050,
+            "endMs": 15694,
+            "conf": 0.8,
+            "confBand": "HIGH"
+          }
+        },
+        {
+          "before": {
+            "ayahId": "37:3",
+            "fileRef": "https://server16.mp3quran.net/mukhtar_haj/Rewayat-Hafs-A-n-Assem/037.mp3",
+            "startMs": 16410,
+            "endMs": 19360,
+            "conf": 0.8,
+            "confBand": "HIGH"
+          },
+          "after": {
+            "ayahId": "37:3",
+            "fileRef": "https://server16.mp3quran.net/mukhtar_haj/Rewayat-Hafs-A-n-Assem/037.mp3",
+            "startMs": 15694,
+            "endMs": 19360,
+            "conf": 0.8,
+            "confBand": "HIGH"
+          }
+        }
+      ],
+      "measurements": [
+        {
+          "reader": "mukhtar_haj_37",
+          "sourceSha256": "09a35e9b865f875b3151772c9c096fef8dda71d384b208fa3e45f5d9fb564e1f",
+          "provenance": {
+            "runId": "37399039017",
+            "runSha": "07e1cb8b357d187e285c69835d606c0f033aaef8",
+            "toolSha256": "2aa5649376cc92d825b3b45e6252ccb338aa4856ff2a65c4397e7a772c1463d1"
+          },
+          "measurements": [
+            {
+              "model": "generic",
+              "channel": "native-1",
+              "alignmentModel": {
+                "id": "jonatasgrosman/wav2vec2-large-xlsr-53-arabic",
+                "revision": "af46c2d8531b8dcbb5e23b952f739b372c2e5d2d",
+                "weightsSha256": "a0b26f6d9d3edfde1784aef863c192a8cc1e438a23b45910ab648531ebe1857b",
+                "license": "Apache-2.0"
+              },
+              "alignmentInput": [
+                "وَٱلصَّٰٓفَّٰتِ صَفًّۭا",
+                "فَٱلزَّٰجِرَٰتِ زَجْرًۭا",
+                "فَٱلتَّٰلِيَٰتِ ذِكْرًا"
+              ],
+              "windowSeconds": [
+                0.0,
+                23.0
+              ],
+              "inputPcmSha256": "ed6075503503c5ae1eeda935f38549999b872736ceccd6514be0124f46d4dd6c",
+              "rawSegments": [
+                [
+                  5.184943429068756,
+                  11.059617058311577,
+                  -0.8546887209557875
+                ],
+                [
+                  12.050913838120106,
+                  14.642732811140124,
+                  -1.2272111688214329
+                ],
+                [
+                  15.67406440382942,
+                  18.22584856396867,
+                  -1.0419195716776963
+                ]
+              ],
+              "rawEntries": [
+                {
+                  "ayahId": "37:1",
+                  "startMs": 5184,
+                  "endMs": 11059,
+                  "conf": 0.786
+                },
+                {
+                  "ayahId": "37:2",
+                  "startMs": 12050,
+                  "endMs": 14642,
+                  "conf": 0.693
+                },
+                {
+                  "ayahId": "37:3",
+                  "startMs": 15674,
+                  "endMs": 18225,
+                  "conf": 0.74
+                }
+              ],
+              "entries": [
+                {
+                  "ayahId": "37:1",
+                  "startMs": 5184,
+                  "endMs": 12050,
+                  "conf": 0.786
+                },
+                {
+                  "ayahId": "37:2",
+                  "startMs": 12050,
+                  "endMs": 15674,
+                  "conf": 0.693
+                },
+                {
+                  "ayahId": "37:3",
+                  "startMs": 15674,
+                  "endMs": 18225,
+                  "conf": 0.74
+                }
+              ]
+            },
+            {
+              "model": "generic",
+              "channel": "native-2",
+              "alignmentModel": {
+                "id": "jonatasgrosman/wav2vec2-large-xlsr-53-arabic",
+                "revision": "af46c2d8531b8dcbb5e23b952f739b372c2e5d2d",
+                "weightsSha256": "a0b26f6d9d3edfde1784aef863c192a8cc1e438a23b45910ab648531ebe1857b",
+                "license": "Apache-2.0"
+              },
+              "alignmentInput": [
+                "وَٱلصَّٰٓفَّٰتِ صَفًّۭا",
+                "فَٱلزَّٰجِرَٰتِ زَجْرًۭا",
+                "فَٱلتَّٰلِيَٰتِ ذِكْرًا"
+              ],
+              "windowSeconds": [
+                0.0,
+                23.0
+              ],
+              "inputPcmSha256": "e2f0b089b69783dbde006d124f41ecfcdb4c160a867702fa56720d9e004f75e1",
+              "rawSegments": [
+                [
+                  5.184943429068756,
+                  11.059617058311577,
+                  -0.8472974137450838
+                ],
+                [
+                  12.050913838120106,
+                  14.642732811140124,
+                  -1.1975561714656573
+                ],
+                [
+                  15.67406440382942,
+                  18.22584856396867,
+                  -1.007280539126369
+                ]
+              ],
+              "rawEntries": [
+                {
+                  "ayahId": "37:1",
+                  "startMs": 5184,
+                  "endMs": 11059,
+                  "conf": 0.788
+                },
+                {
+                  "ayahId": "37:2",
+                  "startMs": 12050,
+                  "endMs": 14642,
+                  "conf": 0.701
+                },
+                {
+                  "ayahId": "37:3",
+                  "startMs": 15674,
+                  "endMs": 18225,
+                  "conf": 0.748
+                }
+              ],
+              "entries": [
+                {
+                  "ayahId": "37:1",
+                  "startMs": 5184,
+                  "endMs": 12050,
+                  "conf": 0.788
+                },
+                {
+                  "ayahId": "37:2",
+                  "startMs": 12050,
+                  "endMs": 15674,
+                  "conf": 0.701
+                },
+                {
+                  "ayahId": "37:3",
+                  "startMs": 15674,
+                  "endMs": 18225,
+                  "conf": 0.748
+                }
+              ]
+            },
+            {
+              "model": "quran",
+              "channel": "native-1",
+              "alignmentModel": {
+                "id": "rabah2026/wav2vec2-large-xlsr-53-arabic-quran-v_final",
+                "revision": "b03a268c6ba1a693752307325ab376c86c3b12da",
+                "weightsSha256": "bf65674a26eb4ef7042cedade96c3c8f8cbd04f3a7d1a68eadceec8ed0f99ecb",
+                "license": "Apache-2.0"
+              },
+              "alignmentInput": [
+                "وَٱلصَّٰٓفَّٰتِ صَفًّا",
+                "فَٱلزَّٰجِرَٰتِ زَجْرًا",
+                "فَٱلتَّٰلِيَٰتِ ذِكْرًا"
+              ],
+              "windowSeconds": [
+                0.0,
+                23.0
+              ],
+              "inputPcmSha256": "ed6075503503c5ae1eeda935f38549999b872736ceccd6514be0124f46d4dd6c",
+              "rawSegments": [
+                [
+                  5.184943429068756,
+                  11.019582245430811,
+                  -2.166310570739112
+                ],
+                [
+                  12.050913838120106,
+                  14.62271540469974,
+                  -1.4910498975186783
+                ],
+                [
+                  15.6940818102698,
+                  18.185813751087906,
+                  -1.4433440524629078
+                ]
+              ],
+              "rawEntries": [
+                {
+                  "ayahId": "37:1",
+                  "startMs": 5184,
+                  "endMs": 11019,
+                  "conf": 0.458
+                },
+                {
+                  "ayahId": "37:2",
+                  "startMs": 12050,
+                  "endMs": 14622,
+                  "conf": 0.627
+                },
+                {
+                  "ayahId": "37:3",
+                  "startMs": 15694,
+                  "endMs": 18185,
+                  "conf": 0.639
+                }
+              ],
+              "entries": [
+                {
+                  "ayahId": "37:1",
+                  "startMs": 5184,
+                  "endMs": 12050,
+                  "conf": 0.458
+                },
+                {
+                  "ayahId": "37:2",
+                  "startMs": 12050,
+                  "endMs": 15694,
+                  "conf": 0.627
+                },
+                {
+                  "ayahId": "37:3",
+                  "startMs": 15694,
+                  "endMs": 18185,
+                  "conf": 0.639
+                }
+              ]
+            },
+            {
+              "model": "quran",
+              "channel": "native-2",
+              "alignmentModel": {
+                "id": "rabah2026/wav2vec2-large-xlsr-53-arabic-quran-v_final",
+                "revision": "b03a268c6ba1a693752307325ab376c86c3b12da",
+                "weightsSha256": "bf65674a26eb4ef7042cedade96c3c8f8cbd04f3a7d1a68eadceec8ed0f99ecb",
+                "license": "Apache-2.0"
+              },
+              "alignmentInput": [
+                "وَٱلصَّٰٓفَّٰتِ صَفًّا",
+                "فَٱلزَّٰجِرَٰتِ زَجْرًا",
+                "فَٱلتَّٰلِيَٰتِ ذِكْرًا"
+              ],
+              "windowSeconds": [
+                0.0,
+                23.0
+              ],
+              "inputPcmSha256": "e2f0b089b69783dbde006d124f41ecfcdb4c160a867702fa56720d9e004f75e1",
+              "rawSegments": [
+                [
+                  5.184943429068756,
+                  11.019582245430811,
+                  -2.1623031858425295
+                ],
+                [
+                  12.050913838120106,
+                  14.62271540469974,
+                  -1.4927179316391326
+                ],
+                [
+                  15.6940818102698,
+                  18.185813751087906,
+                  -1.42461692293247
+                ]
+              ],
+              "rawEntries": [
+                {
+                  "ayahId": "37:1",
+                  "startMs": 5184,
+                  "endMs": 11019,
+                  "conf": 0.459
+                },
+                {
+                  "ayahId": "37:2",
+                  "startMs": 12050,
+                  "endMs": 14622,
+                  "conf": 0.627
+                },
+                {
+                  "ayahId": "37:3",
+                  "startMs": 15694,
+                  "endMs": 18185,
+                  "conf": 0.644
+                }
+              ],
+              "entries": [
+                {
+                  "ayahId": "37:1",
+                  "startMs": 5184,
+                  "endMs": 12050,
+                  "conf": 0.459
+                },
+                {
+                  "ayahId": "37:2",
+                  "startMs": 12050,
+                  "endMs": 15694,
+                  "conf": 0.627
+                },
+                {
+                  "ayahId": "37:3",
+                  "startMs": 15694,
+                  "endMs": 18185,
+                  "conf": 0.644
+                }
+              ]
+            }
+          ]
+        }
+      ],
+      "limits": [
+        "Original confidence, including LOW and zero, is unchanged.",
+        "Independent full-surah census and exact-SHA quality gates are required.",
+        "Free CTC outputs are supporting evidence, not calibrated certainty."
+      ]
+    },
+    "evidence": [
+      {
+        "reports": "ops/out/codex-mukhtar-rejected-contexts-20261006.json",
+        "reportsSha256": "3092106692dfce72b694f5f6049474cbb5d19fc53ea3707e15afb7aedc2ec091",
+        "raw": "ops/out/codex-mukhtar-rejected-contexts-20261006-complete.json.gz",
+        "rawSha256": "b4b139424428f126f936bad910a01f8257d9c7028ebbf03d8e2db17d6e5099f6"
+      },
+      {
+        "reports": "ops/out/codex-mukhtar-adjacent-context-20261006.json",
+        "reportsSha256": "cd5a68fb9998e2e14aa4145246b21ad2c4962c5654f1cc05d6baffc0197d7a0d",
+        "raw": "ops/out/codex-mukhtar-adjacent-context-20261006-complete.json.gz",
+        "rawSha256": "55d45d0270d8e5b2bd01a0b94b0c553225c3efd5b6ce28ca0f2887d992021e5f"
+      }
+    ],
+    "changes": [
+      {
+        "before": {
+          "ayahId": "37:1",
+          "fileRef": "https://server16.mp3quran.net/mukhtar_haj/Rewayat-Hafs-A-n-Assem/037.mp3",
+          "startMs": 9900,
+          "endMs": 10790,
+          "conf": 0.44,
+          "confBand": "LOW"
+        },
+        "after": {
+          "ayahId": "37:1",
+          "fileRef": "https://server16.mp3quran.net/mukhtar_haj/Rewayat-Hafs-A-n-Assem/037.mp3",
+          "startMs": 5184,
+          "endMs": 12050,
+          "conf": 0.44,
+          "confBand": "LOW"
+        }
+      },
+      {
+        "before": {
+          "ayahId": "37:2",
+          "fileRef": "https://server16.mp3quran.net/mukhtar_haj/Rewayat-Hafs-A-n-Assem/037.mp3",
+          "startMs": 10790,
+          "endMs": 16410,
+          "conf": 0.8,
+          "confBand": "HIGH"
+        },
+        "after": {
+          "ayahId": "37:2",
+          "fileRef": "https://server16.mp3quran.net/mukhtar_haj/Rewayat-Hafs-A-n-Assem/037.mp3",
+          "startMs": 12050,
+          "endMs": 15694,
+          "conf": 0.8,
+          "confBand": "HIGH"
+        }
+      },
+      {
+        "before": {
+          "ayahId": "37:3",
+          "fileRef": "https://server16.mp3quran.net/mukhtar_haj/Rewayat-Hafs-A-n-Assem/037.mp3",
+          "startMs": 16410,
+          "endMs": 19360,
+          "conf": 0.8,
+          "confBand": "HIGH"
+        },
+        "after": {
+          "ayahId": "37:3",
+          "fileRef": "https://server16.mp3quran.net/mukhtar_haj/Rewayat-Hafs-A-n-Assem/037.mp3",
+          "startMs": 15694,
+          "endMs": 19360,
+          "conf": 0.8,
+          "confBand": "HIGH"
+        }
+      },
+      {
+        "before": {
+          "ayahId": "37:17",
+          "fileRef": "https://server16.mp3quran.net/mukhtar_haj/Rewayat-Hafs-A-n-Assem/037.mp3",
+          "startMs": 127940,
+          "endMs": 131933,
+          "conf": 1.0,
+          "confBand": "HIGH"
+        },
+        "after": {
+          "ayahId": "37:17",
+          "fileRef": "https://server16.mp3quran.net/mukhtar_haj/Rewayat-Hafs-A-n-Assem/037.mp3",
+          "startMs": 127940,
+          "endMs": 133931,
+          "conf": 1.0,
+          "confBand": "HIGH"
+        }
+      },
+      {
+        "before": {
+          "ayahId": "37:18",
+          "fileRef": "https://server16.mp3quran.net/mukhtar_haj/Rewayat-Hafs-A-n-Assem/037.mp3",
+          "startMs": 131933,
+          "endMs": 137773,
+          "conf": 0.27,
+          "confBand": "LOW",
+          "startApprox": true
+        },
+        "after": {
+          "ayahId": "37:18",
+          "fileRef": "https://server16.mp3quran.net/mukhtar_haj/Rewayat-Hafs-A-n-Assem/037.mp3",
+          "startMs": 133931,
+          "endMs": 140316,
+          "conf": 0.27,
+          "confBand": "LOW",
+          "startApprox": true
+        }
+      },
+      {
+        "before": {
+          "ayahId": "37:19",
+          "fileRef": "https://server16.mp3quran.net/mukhtar_haj/Rewayat-Hafs-A-n-Assem/037.mp3",
+          "startMs": 137773,
+          "endMs": 151540,
+          "conf": 0.566,
+          "confBand": "MED",
+          "startApprox": true
+        },
+        "after": {
+          "ayahId": "37:19",
+          "fileRef": "https://server16.mp3quran.net/mukhtar_haj/Rewayat-Hafs-A-n-Assem/037.mp3",
+          "startMs": 140316,
+          "endMs": 151208,
+          "conf": 0.566,
+          "confBand": "MED",
+          "startApprox": true
+        }
+      },
+      {
+        "before": {
+          "ayahId": "37:20",
+          "fileRef": "https://server16.mp3quran.net/mukhtar_haj/Rewayat-Hafs-A-n-Assem/037.mp3",
+          "startMs": 151540,
+          "endMs": 157620,
+          "conf": 0.92,
+          "confBand": "HIGH"
+        },
+        "after": {
+          "ayahId": "37:20",
+          "fileRef": "https://server16.mp3quran.net/mukhtar_haj/Rewayat-Hafs-A-n-Assem/037.mp3",
+          "startMs": 151208,
+          "endMs": 157354,
+          "conf": 0.92,
+          "confBand": "HIGH"
+        }
+      },
+      {
+        "before": {
+          "ayahId": "37:21",
+          "fileRef": "https://server16.mp3quran.net/mukhtar_haj/Rewayat-Hafs-A-n-Assem/037.mp3",
+          "startMs": 157620,
+          "endMs": 168540,
+          "conf": 1.0,
+          "confBand": "HIGH"
+        },
+        "after": {
+          "ayahId": "37:21",
+          "fileRef": "https://server16.mp3quran.net/mukhtar_haj/Rewayat-Hafs-A-n-Assem/037.mp3",
+          "startMs": 157354,
+          "endMs": 168305,
+          "conf": 1.0,
+          "confBand": "HIGH"
+        }
+      },
+      {
+        "before": {
+          "ayahId": "37:22",
+          "fileRef": "https://server16.mp3quran.net/mukhtar_haj/Rewayat-Hafs-A-n-Assem/037.mp3",
+          "startMs": 168540,
+          "endMs": 177330,
+          "conf": 0.943,
+          "confBand": "HIGH"
+        },
+        "after": {
+          "ayahId": "37:22",
+          "fileRef": "https://server16.mp3quran.net/mukhtar_haj/Rewayat-Hafs-A-n-Assem/037.mp3",
+          "startMs": 168305,
+          "endMs": 177330,
+          "conf": 0.943,
+          "confBand": "HIGH"
+        }
+      },
+      {
+        "before": {
+          "ayahId": "37:23",
+          "fileRef": "https://server16.mp3quran.net/mukhtar_haj/Rewayat-Hafs-A-n-Assem/037.mp3",
+          "startMs": 177330,
+          "endMs": 185760,
+          "conf": 0.943,
+          "confBand": "HIGH"
+        },
+        "after": {
+          "ayahId": "37:23",
+          "fileRef": "https://server16.mp3quran.net/mukhtar_haj/Rewayat-Hafs-A-n-Assem/037.mp3",
+          "startMs": 177330,
+          "endMs": 185651,
+          "conf": 0.943,
+          "confBand": "HIGH"
+        }
+      },
+      {
+        "before": {
+          "ayahId": "37:24",
+          "fileRef": "https://server16.mp3quran.net/mukhtar_haj/Rewayat-Hafs-A-n-Assem/037.mp3",
+          "startMs": 185760,
+          "endMs": 191237,
+          "conf": 0.867,
+          "confBand": "HIGH"
+        },
+        "after": {
+          "ayahId": "37:24",
+          "fileRef": "https://server16.mp3quran.net/mukhtar_haj/Rewayat-Hafs-A-n-Assem/037.mp3",
+          "startMs": 185651,
+          "endMs": 194000,
+          "conf": 0.867,
+          "confBand": "HIGH"
+        }
+      },
+      {
+        "before": {
+          "ayahId": "37:25",
+          "fileRef": "https://server16.mp3quran.net/mukhtar_haj/Rewayat-Hafs-A-n-Assem/037.mp3",
+          "startMs": 191237,
+          "endMs": 198270,
+          "conf": 0.6,
+          "confBand": "MED",
+          "startApprox": true
+        },
+        "after": {
+          "ayahId": "37:25",
+          "fileRef": "https://server16.mp3quran.net/mukhtar_haj/Rewayat-Hafs-A-n-Assem/037.mp3",
+          "startMs": 194000,
+          "endMs": 197984,
+          "conf": 0.6,
+          "confBand": "MED",
+          "startApprox": true
+        }
+      },
+      {
+        "before": {
+          "ayahId": "37:26",
+          "fileRef": "https://server16.mp3quran.net/mukhtar_haj/Rewayat-Hafs-A-n-Assem/037.mp3",
+          "startMs": 198270,
+          "endMs": 202530,
+          "conf": 1.0,
+          "confBand": "HIGH"
+        },
+        "after": {
+          "ayahId": "37:26",
+          "fileRef": "https://server16.mp3quran.net/mukhtar_haj/Rewayat-Hafs-A-n-Assem/037.mp3",
+          "startMs": 197984,
+          "endMs": 202530,
+          "conf": 1.0,
+          "confBand": "HIGH"
+        }
+      },
+      {
+        "before": {
+          "ayahId": "37:82",
+          "fileRef": "https://server16.mp3quran.net/mukhtar_haj/Rewayat-Hafs-A-n-Assem/037.mp3",
+          "startMs": 624330,
+          "endMs": 630025,
+          "conf": 1.0,
+          "confBand": "HIGH"
+        },
+        "after": {
+          "ayahId": "37:82",
+          "fileRef": "https://server16.mp3quran.net/mukhtar_haj/Rewayat-Hafs-A-n-Assem/037.mp3",
+          "startMs": 624330,
+          "endMs": 630329,
+          "conf": 1.0,
+          "confBand": "HIGH"
+        }
+      },
+      {
+        "before": {
+          "ayahId": "37:83",
+          "fileRef": "https://server16.mp3quran.net/mukhtar_haj/Rewayat-Hafs-A-n-Assem/037.mp3",
+          "startMs": 630025,
+          "endMs": 635391,
+          "conf": 0.51,
+          "confBand": "MED",
+          "startApprox": true
+        },
+        "after": {
+          "ayahId": "37:83",
+          "fileRef": "https://server16.mp3quran.net/mukhtar_haj/Rewayat-Hafs-A-n-Assem/037.mp3",
+          "startMs": 630329,
+          "endMs": 636975,
+          "conf": 0.51,
+          "confBand": "MED",
+          "startApprox": true
+        }
+      },
+      {
+        "before": {
+          "ayahId": "37:84",
+          "fileRef": "https://server16.mp3quran.net/mukhtar_haj/Rewayat-Hafs-A-n-Assem/037.mp3",
+          "startMs": 635391,
+          "endMs": 646540,
+          "conf": 0.504,
+          "confBand": "MED",
+          "startApprox": true
+        },
+        "after": {
+          "ayahId": "37:84",
+          "fileRef": "https://server16.mp3quran.net/mukhtar_haj/Rewayat-Hafs-A-n-Assem/037.mp3",
+          "startMs": 636975,
+          "endMs": 646083,
+          "conf": 0.504,
+          "confBand": "MED",
+          "startApprox": true
+        }
+      },
+      {
+        "before": {
+          "ayahId": "37:85",
+          "fileRef": "https://server16.mp3quran.net/mukhtar_haj/Rewayat-Hafs-A-n-Assem/037.mp3",
+          "startMs": 646540,
+          "endMs": 654532,
+          "conf": 0.9,
+          "confBand": "HIGH"
+        },
+        "after": {
+          "ayahId": "37:85",
+          "fileRef": "https://server16.mp3quran.net/mukhtar_haj/Rewayat-Hafs-A-n-Assem/037.mp3",
+          "startMs": 646083,
+          "endMs": 654532,
+          "conf": 0.9,
+          "confBand": "HIGH"
+        }
+      },
+      {
+        "before": {
+          "ayahId": "37:151",
+          "fileRef": "https://server16.mp3quran.net/mukhtar_haj/Rewayat-Hafs-A-n-Assem/037.mp3",
+          "startMs": 1094510,
+          "endMs": 1102390,
+          "conf": 1.0,
+          "confBand": "HIGH"
+        },
+        "after": {
+          "ayahId": "37:151",
+          "fileRef": "https://server16.mp3quran.net/mukhtar_haj/Rewayat-Hafs-A-n-Assem/037.mp3",
+          "startMs": 1094510,
+          "endMs": 1102091,
+          "conf": 1.0,
+          "confBand": "HIGH"
+        }
+      },
+      {
+        "before": {
+          "ayahId": "37:152",
+          "fileRef": "https://server16.mp3quran.net/mukhtar_haj/Rewayat-Hafs-A-n-Assem/037.mp3",
+          "startMs": 1102390,
+          "endMs": 1107330,
+          "conf": 0.85,
+          "confBand": "HIGH"
+        },
+        "after": {
+          "ayahId": "37:152",
+          "fileRef": "https://server16.mp3quran.net/mukhtar_haj/Rewayat-Hafs-A-n-Assem/037.mp3",
+          "startMs": 1102091,
+          "endMs": 1109078,
+          "conf": 0.85,
+          "confBand": "HIGH"
+        }
+      },
+      {
+        "before": {
+          "ayahId": "37:153",
+          "fileRef": "https://server16.mp3quran.net/mukhtar_haj/Rewayat-Hafs-A-n-Assem/037.mp3",
+          "startMs": 1107330,
+          "endMs": 1114000,
+          "conf": 0.48,
+          "confBand": "MED",
+          "startApprox": true
+        },
+        "after": {
+          "ayahId": "37:153",
+          "fileRef": "https://server16.mp3quran.net/mukhtar_haj/Rewayat-Hafs-A-n-Assem/037.mp3",
+          "startMs": 1109078,
+          "endMs": 1114063,
+          "conf": 0.48,
+          "confBand": "MED",
+          "startApprox": true
+        }
+      },
+      {
+        "before": {
+          "ayahId": "37:154",
+          "fileRef": "https://server16.mp3quran.net/mukhtar_haj/Rewayat-Hafs-A-n-Assem/037.mp3",
+          "startMs": 1114000,
+          "endMs": 1119884,
+          "conf": 1.0,
+          "confBand": "HIGH"
+        },
+        "after": {
+          "ayahId": "37:154",
+          "fileRef": "https://server16.mp3quran.net/mukhtar_haj/Rewayat-Hafs-A-n-Assem/037.mp3",
+          "startMs": 1114063,
+          "endMs": 1119884,
+          "conf": 1.0,
+          "confBand": "HIGH"
+        }
+      },
+      {
+        "before": {
+          "ayahId": "37:161",
+          "fileRef": "https://server16.mp3quran.net/mukhtar_haj/Rewayat-Hafs-A-n-Assem/037.mp3",
+          "startMs": 1162390,
+          "endMs": 1166720,
+          "conf": 1.0,
+          "confBand": "HIGH"
+        },
+        "after": {
+          "ayahId": "37:161",
+          "fileRef": "https://server16.mp3quran.net/mukhtar_haj/Rewayat-Hafs-A-n-Assem/037.mp3",
+          "startMs": 1162390,
+          "endMs": 1168091,
+          "conf": 1.0,
+          "confBand": "HIGH"
+        }
+      },
+      {
+        "before": {
+          "ayahId": "37:162",
+          "fileRef": "https://server16.mp3quran.net/mukhtar_haj/Rewayat-Hafs-A-n-Assem/037.mp3",
+          "startMs": 1166720,
+          "endMs": 1172320,
+          "conf": 0.54,
+          "confBand": "MED",
+          "startApprox": true
+        },
+        "after": {
+          "ayahId": "37:162",
+          "fileRef": "https://server16.mp3quran.net/mukhtar_haj/Rewayat-Hafs-A-n-Assem/037.mp3",
+          "startMs": 1168091,
+          "endMs": 1176139,
+          "conf": 0.54,
+          "confBand": "MED",
+          "startApprox": true
+        }
+      },
+      {
+        "before": {
+          "ayahId": "37:163",
+          "fileRef": "https://server16.mp3quran.net/mukhtar_haj/Rewayat-Hafs-A-n-Assem/037.mp3",
+          "startMs": 1172320,
+          "endMs": 1179320,
+          "conf": 0.6,
+          "confBand": "MED",
+          "startApprox": true
+        },
+        "after": {
+          "ayahId": "37:163",
+          "fileRef": "https://server16.mp3quran.net/mukhtar_haj/Rewayat-Hafs-A-n-Assem/037.mp3",
+          "startMs": 1176139,
+          "endMs": 1180543,
+          "conf": 0.6,
+          "confBand": "MED",
+          "startApprox": true
+        }
+      },
+      {
+        "before": {
+          "ayahId": "37:164",
+          "fileRef": "https://server16.mp3quran.net/mukhtar_haj/Rewayat-Hafs-A-n-Assem/037.mp3",
+          "startMs": 1179320,
+          "endMs": 1187720,
+          "conf": 0.6,
+          "confBand": "MED",
+          "startApprox": true
+        },
+        "after": {
+          "ayahId": "37:164",
+          "fileRef": "https://server16.mp3quran.net/mukhtar_haj/Rewayat-Hafs-A-n-Assem/037.mp3",
+          "startMs": 1180543,
+          "endMs": 1188151,
+          "conf": 0.6,
+          "confBand": "MED",
+          "startApprox": true
+        }
+      },
+      {
+        "before": {
+          "ayahId": "37:165",
+          "fileRef": "https://server16.mp3quran.net/mukhtar_haj/Rewayat-Hafs-A-n-Assem/037.mp3",
+          "startMs": 1187720,
+          "endMs": 1192720,
+          "conf": 0.44,
+          "confBand": "LOW",
+          "startApprox": true
+        },
+        "after": {
+          "ayahId": "37:165",
+          "fileRef": "https://server16.mp3quran.net/mukhtar_haj/Rewayat-Hafs-A-n-Assem/037.mp3",
+          "startMs": 1188151,
+          "endMs": 1195739,
+          "conf": 0.44,
+          "confBand": "LOW",
+          "startApprox": true
+        }
+      },
+      {
+        "before": {
+          "ayahId": "37:166",
+          "fileRef": "https://server16.mp3quran.net/mukhtar_haj/Rewayat-Hafs-A-n-Assem/037.mp3",
+          "startMs": 1192720,
+          "endMs": 1199320,
+          "conf": 0.6,
+          "confBand": "MED",
+          "startApprox": true
+        },
+        "after": {
+          "ayahId": "37:166",
+          "fileRef": "https://server16.mp3quran.net/mukhtar_haj/Rewayat-Hafs-A-n-Assem/037.mp3",
+          "startMs": 1195739,
+          "endMs": 1200704,
+          "conf": 0.6,
+          "confBand": "MED",
+          "startApprox": true
+        }
+      },
+      {
+        "before": {
+          "ayahId": "37:167",
+          "fileRef": "https://server16.mp3quran.net/mukhtar_haj/Rewayat-Hafs-A-n-Assem/037.mp3",
+          "startMs": 1199320,
+          "endMs": 1206010,
+          "conf": 0.6,
+          "confBand": "MED",
+          "startApprox": true
+        },
+        "after": {
+          "ayahId": "37:167",
+          "fileRef": "https://server16.mp3quran.net/mukhtar_haj/Rewayat-Hafs-A-n-Assem/037.mp3",
+          "startMs": 1200704,
+          "endMs": 1206010,
+          "conf": 0.6,
+          "confBand": "MED",
+          "startApprox": true
+        }
+      }
+    ],
+    "limits": [
+      "The earlier37:20 context forced speech into21; the new20..22 context agrees across models and controls that boundary. No confidence values raised.",
+      "All original quality gates and final-SHA fresh QA are required."
+    ]
+  }
+}

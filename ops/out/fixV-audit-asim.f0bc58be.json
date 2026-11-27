@@ -1,0 +1,475 @@
+{
+ "schema": 1,
+ "tool": "full_audit-1.0",
+ "date": "20261005",
+ "timestampUtc": "2026-10-05T01:59:02Z",
+ "elapsedSec": 41.5,
+ "phase": "all",
+ "manifestIndexes": 180,
+ "frozenBucket": 220,
+ "reportsRead": 10816,
+ "rows": [
+  {
+   "key": "timings-staging/hafs/asim.f0bc58be.jz",
+   "sha256": "f0bc58be5a51e867eeefb2a7c36505790c4389c67a40d0ab25f9b5eb657240ba",
+   "riwaya": "hafs",
+   "reciterId": "asim",
+   "bytes": 124748,
+   "engine": "ctc-seg-1",
+   "transformOp": "heard_pin:77",
+   "staging": true,
+   "identity": {
+    "sha256": "f0bc58be5a51e867eeefb2a7c36505790c4389c67a40d0ab25f9b5eb657240ba",
+    "staging": true,
+    "errors": [],
+    "ok": true
+   },
+   "structure": {
+    "entries": 6236,
+    "errors": [],
+    "examples": {},
+    "fileNoUnparsed": 0,
+    "structuralFatal": [],
+    "structuralWarn": [
+     "مطالع سور تبدأ دون 3ث — مرشّحون للمسبار الصوتي لا حكمٌ عليهم: 37:1=50م.ث"
+    ],
+    "decision": [],
+    "engine": "ctc-seg-1",
+    "audioSha": 114,
+    "bands": {
+     "MED": 3446,
+     "HIGH": 124,
+     "LOW": 2666
+    },
+    "ok": true
+   },
+   "gaps": {
+    "missingTotal": 0,
+    "internalGaps": [],
+    "headMissing": [],
+    "tailMissing": [],
+    "wholeMissing": [],
+    "declared": {
+     "transformOp": "heard_pin:77",
+     "transformReason": "تسجيلُ المرسلات عند هذا القارئ يعيد 77:20–23 مرّتين (الأداء الأوّل 54–88ث ثمّ 88–114ث)، والمنشورُ يضع 77:22 في 200م.ث و77:24 قبل موضعه المسموع بـ17.4ث. ثُبّتت 21–23 على أدائها الثاني المقيس (95.6 · 100.6 · 105.3ث) المتّصل بـ77:24 (114.2ث)، وما قبله من تكرارٍ بلا مدخل. (إعادة بناءٍ فوق المنشور 9d8f6b49 بعد ترقية س21 وس62)",
+     "reasonCode": "NO_PUBLISHED_RECORDING",
+     "dropSurahs": [],
+     "byReason": {
+      "no-align": 2,
+      "surah-absent": 88,
+      "source_truncated": 0
+     },
+     "declaredCount": 90,
+     "tagCount": 0,
+     "declaredIds": [],
+     "truncatedTail": null
+    },
+    "undeclaredEdge": [],
+    "errors": [],
+    "ok": true
+   },
+   "durations": {
+    "durationOutliers": 167,
+    "durationExamples": [
+     {
+      "aid": "20:26",
+      "ms": 17672,
+      "expMs": 1444,
+      "ratio": 12.24,
+      "chars": 10
+     },
+     {
+      "aid": "21:83",
+      "ms": 102169,
+      "expMs": 11611,
+      "ratio": 8.8,
+      "chars": 40
+     },
+     {
+      "aid": "77:20",
+      "ms": 41522,
+      "expMs": 5101,
+      "ratio": 8.14,
+      "chars": 17
+     },
+     {
+      "aid": "37:101",
+      "ms": 25354,
+      "expMs": 3365,
+      "ratio": 7.53,
+      "chars": 14
+     },
+     {
+      "aid": "26:48",
+      "ms": 9666,
+      "expMs": 1541,
+      "ratio": 6.27,
+      "chars": 11
+     },
+     {
+      "aid": "21:23",
+      "ms": 31762,
+      "expMs": 5806,
+      "ratio": 5.47,
+      "chars": 20
+     },
+     {
+      "aid": "6:69",
+      "ms": 43329,
+      "expMs": 7955,
+      "ratio": 5.45,
+      "chars": 46
+     },
+     {
+      "aid": "38:44",
+      "ms": 80012,
+      "expMs": 14852,
+      "ratio": 5.39,
+      "chars": 53
+     },
+     {
+      "aid": "23:15",
+      "ms": 11477,
+      "expMs": 2132,
+      "ratio": 5.38,
+      "chars": 18
+     },
+     {
+      "aid": "20:25",
+      "ms": 11578,
+      "expMs": 2166,
+      "ratio": 5.34,
+      "chars": 15
+     },
+     {
+      "aid": "80:35",
+      "ms": 14409,
+      "expMs": 2797,
+      "ratio": 5.15,
+      "chars": 9
+     },
+     {
+      "aid": "42:19",
+      "ms": 41407,
+      "expMs": 8294,
+      "ratio": 4.99,
+      "chars": 37
+     }
+    ],
+    "impossibleShort": [],
+    "veryShort": [
+     {
+      "aid": "56:80",
+      "ms": 501,
+      "expMs": 4450,
+      "ratio": 0.11,
+      "chars": 16
+     },
+     {
+      "aid": "56:78",
+      "ms": 421,
+      "expMs": 2781,
+      "ratio": 0.15,
+      "chars": 10
+     },
+     {
+      "aid": "44:47",
+      "ms": 901,
+      "expMs": 5722,
+      "ratio": 0.16,
+      "chars": 23
+     },
+     {
+      "aid": "44:51",
+      "ms": 781,
+      "expMs": 4727,
+      "ratio": 0.17,
+      "chars": 19
+     },
+     {
+      "aid": "80:21",
+      "ms": 741,
+      "expMs": 4041,
+      "ratio": 0.18,
+      "chars": 13
+     },
+     {
+      "aid": "54:55",
+      "ms": 860,
+      "expMs": 4551,
+      "ratio": 0.19,
+      "chars": 21
+     },
+     {
+      "aid": "54:54",
+      "ms": 781,
+      "expMs": 3901,
+      "ratio": 0.2,
+      "chars": 18
+     },
+     {
+      "aid": "26:225",
+      "ms": 680,
+      "expMs": 3081,
+      "ratio": 0.22,
+      "chars": 22
+     },
+     {
+      "aid": "83:35",
+      "ms": 981,
+      "expMs": 4465,
+      "ratio": 0.22,
+      "chars": 16
+     },
+     {
+      "aid": "93:8",
+      "ms": 880,
+      "expMs": 3932,
+      "ratio": 0.22,
+      "chars": 15
+     },
+     {
+      "aid": "44:46",
+      "ms": 560,
+      "expMs": 2488,
+      "ratio": 0.23,
+      "chars": 10
+     },
+     {
+      "aid": "20:41",
+      "ms": 460,
+      "expMs": 1878,
+      "ratio": 0.24,
+      "chars": 13
+     },
+     {
+      "aid": "89:26",
+      "ms": 981,
+      "expMs": 4006,
+      "ratio": 0.24,
+      "chars": 15
+     },
+     {
+      "aid": "26:218",
+      "ms": 521,
+      "expMs": 2101,
+      "ratio": 0.25,
+      "chars": 15
+     },
+     {
+      "aid": "53:53",
+      "ms": 631,
+      "expMs": 2550,
+      "ratio": 0.25,
+      "chars": 13
+     },
+     {
+      "aid": "79:41",
+      "ms": 980,
+      "expMs": 3877,
+      "ratio": 0.25,
+      "chars": 16
+     },
+     {
+      "aid": "2:242",
+      "ms": 941,
+      "expMs": 3567,
+      "ratio": 0.26,
+      "chars": 30
+     },
+     {
+      "aid": "26:209",
+      "ms": 540,
+      "expMs": 2101,
+      "ratio": 0.26,
+      "chars": 15
+     },
+     {
+      "aid": "53:38",
+      "ms": 920,
+      "expMs": 3531,
+      "ratio": 0.26,
+      "chars": 18
+     },
+     {
+      "aid": "26:143",
+      "ms": 521,
+      "expMs": 1961,
+      "ratio": 0.27,
+      "chars": 14
+     },
+     {
+      "aid": "26:68",
+      "ms": 861,
+      "expMs": 2941,
+      "ratio": 0.29,
+      "chars": 21
+     },
+     {
+      "aid": "93:7",
+      "ms": 981,
+      "expMs": 3407,
+      "ratio": 0.29,
+      "chars": 13
+     },
+     {
+      "aid": "26:147",
+      "ms": 420,
+      "expMs": 1401,
+      "ratio": 0.3,
+      "chars": 10
+     },
+     {
+      "aid": "44:43",
+      "ms": 881,
+      "expMs": 2985,
+      "ratio": 0.3,
+      "chars": 12
+     },
+     {
+      "aid": "53:57",
+      "ms": 580,
+      "expMs": 1962,
+      "ratio": 0.3,
+      "chars": 10
+     }
+    ],
+    "extremeLong": [
+     {
+      "aid": "20:26",
+      "ms": 17672,
+      "expMs": 1444,
+      "ratio": 12.24,
+      "chars": 10
+     },
+     {
+      "aid": "21:83",
+      "ms": 102169,
+      "expMs": 11611,
+      "ratio": 8.8,
+      "chars": 40
+     },
+     {
+      "aid": "77:20",
+      "ms": 41522,
+      "expMs": 5101,
+      "ratio": 8.14,
+      "chars": 17
+     },
+     {
+      "aid": "37:101",
+      "ms": 25354,
+      "expMs": 3365,
+      "ratio": 7.53,
+      "chars": 14
+     },
+     {
+      "aid": "26:48",
+      "ms": 9666,
+      "expMs": 1541,
+      "ratio": 6.27,
+      "chars": 11
+     },
+     {
+      "aid": "21:23",
+      "ms": 31762,
+      "expMs": 5806,
+      "ratio": 5.47,
+      "chars": 20
+     },
+     {
+      "aid": "6:69",
+      "ms": 43329,
+      "expMs": 7955,
+      "ratio": 5.45,
+      "chars": 46
+     },
+     {
+      "aid": "38:44",
+      "ms": 80012,
+      "expMs": 14852,
+      "ratio": 5.39,
+      "chars": 53
+     },
+     {
+      "aid": "23:15",
+      "ms": 11477,
+      "expMs": 2132,
+      "ratio": 5.38,
+      "chars": 18
+     },
+     {
+      "aid": "20:25",
+      "ms": 11578,
+      "expMs": 2166,
+      "ratio": 5.34,
+      "chars": 15
+     },
+     {
+      "aid": "80:35",
+      "ms": 14409,
+      "expMs": 2797,
+      "ratio": 5.15,
+      "chars": 9
+     }
+    ],
+    "longOutliers": 89,
+    "shortOutliers": 68,
+    "silenceGaps": 0,
+    "silenceExamples": [],
+    "surahsWithRate": 113
+   },
+   "audio": {
+    "audioReportsOnSha": 0,
+    "openersOnSha": false,
+    "errors": [
+     "لا حكمَ صوتيٍّ بعيّنةٍ على البصمة المنشورة",
+     "لا شاهدَ مطالعَ على البصمة المنشورة"
+    ],
+    "notes": [],
+    "samples": [],
+    "pooled": null,
+    "severeHi": null,
+    "otherShasWithSamples": [
+     "0da4de06",
+     "0e637457",
+     "12e4114f",
+     "13a73f88",
+     "16b999ac",
+     "16c56192",
+     "17e29359",
+     "2dde8db7",
+     "2e03ebb8",
+     "3151214d"
+    ],
+    "ok": false
+   }
+  }
+ ],
+ "summary": {
+  "indexes": 1,
+  "phase": "all",
+  "identityOk": 1,
+  "identityBad": [],
+  "structureOk": 1,
+  "structureBad": [],
+  "gapsOk": 1,
+  "gapsBad": [],
+  "audioOk": 0,
+  "audioBad": [
+   "timings-staging/hafs/asim.f0bc58be.jz"
+  ],
+  "durationOutliersTotal": 167,
+  "impossibleShortTotal": 0,
+  "indexesWithImpossibleShort": 0,
+  "veryShortTotal": 25,
+  "extremeLongTotal": 11,
+  "indexesWithExtremeLong": 1,
+  "mirrorStale": 0,
+  "silenceGapsTotal": 0,
+  "indexesWithDurationOutliers": 1,
+  "indexesWithSilenceGaps": 0,
+  "entriesTotal": 6236,
+  "missingTotal": 0
+ }
+}

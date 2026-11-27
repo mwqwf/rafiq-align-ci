@@ -1,0 +1,81 @@
+{
+  "path": "ops/source-repair/candidates/codex-expanded-tail-qalun-suhaim_qalun-20261006.jz",
+  "sha256": "e32900d9204378b27fab18d68432a15a57a7142057f3d14b99efe568b796dc52",
+  "parentKey": "timings/qalun/suhaim_qalun.jz",
+  "parentSha256": "9323930457a179624befb399b7e46a4687ce2c8bd66f51ed3f8bfff12a155234",
+  "op": "ctc_quran_window:91",
+  "changedEntries": 2,
+  "warnings": [
+    "مداخل مدتها > 120ث: 1 · مثال: 2:282 مدتها 122ث",
+    "مطالع سور تبدأ دون 3ث — مرشّحون للمسبار الصوتي لا حكمٌ عليهم: 22:1=2851م.ث · 29:1=2911م.ث · 73:1=2912م.ث"
+  ],
+  "proof": {
+    "qualityClaim": false,
+    "contexts": [
+      {
+        "reportPath": "ops/out/codex-suhaim91-final15-report-20261006.json",
+        "reportSha256": "21eab0ac65fe058af4204cca9a78a7c0fe37b1999efcff2f589114ce25504ef6",
+        "bundlePath": "ops/out/codex-suhaim91-final15-complete-20261006.json.gz",
+        "bundleSha256": "2e3d27a467de976dbb830965e8e4b005f3524c93790f570cc8eb6abd2a9359ff",
+        "jobId": 112121825389,
+        "id": "suhaim91_final15",
+        "sourceSha256": "26fd805a29b525e1c7063f86a8beacbdbd33aa6233fd40538445b00a7a06f97a",
+        "targetAyahs": [
+          15
+        ],
+        "provenance": {
+          "runId": "37417833419",
+          "runSha": "6ead738562f61e18d96325d716207ada39508ab8",
+          "toolSha256": "443806492a44bb5cddcdd4002d4006b65eb88b9dfb2ed34eece7e9e502cd3cda"
+        }
+      }
+    ],
+    "changes": [
+      {
+        "before": {
+          "ayahId": "91:14",
+          "fileRef": "https://archive.org/download/Al-Quran_Qaloon_tilawat_Mohammed_Sahim/091.mp3",
+          "startMs": 59370,
+          "endMs": 68596,
+          "conf": 0.464,
+          "confBand": "MED"
+        },
+        "after": {
+          "ayahId": "91:14",
+          "fileRef": "https://archive.org/download/Al-Quran_Qaloon_tilawat_Mohammed_Sahim/091.mp3",
+          "startMs": 59370,
+          "endMs": 74607,
+          "conf": 0.464,
+          "confBand": "MED"
+        }
+      },
+      {
+        "before": {
+          "ayahId": "91:15",
+          "fileRef": "https://archive.org/download/Al-Quran_Qaloon_tilawat_Mohammed_Sahim/091.mp3",
+          "startMs": 68596,
+          "endMs": 69396,
+          "conf": 0.0,
+          "confBand": "LOW",
+          "startApprox": true
+        },
+        "after": {
+          "ayahId": "91:15",
+          "fileRef": "https://archive.org/download/Al-Quran_Qaloon_tilawat_Mohammed_Sahim/091.mp3",
+          "startMs": 74607,
+          "endMs": 79673,
+          "conf": 0.0,
+          "confBand": "LOW",
+          "startApprox": true
+        }
+      }
+    ],
+    "decodedEofMs": {
+      "91": 79673
+    },
+    "limits": [
+      "الحد الأصلي لثقة المحاذاة0.45؛ لا تغيير لأي حارس أو ثقة منشورة.",
+      "الخواتيم المقيسة فقط؛ يلزم الفحص الأصلي الكامل للبصمة المرفوعة."
+    ]
+  }
+}

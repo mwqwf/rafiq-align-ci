@@ -1,0 +1,23 @@
+# rc=0
+📦 ctc-splice-37076816564 · 873 بايت
+── ctc.log (1507 بايت)
+Incorrect BOM value
+Error reading frame GEOB, skipped
+Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+
+Loading weights:   0%|          | 0/424 [00:00<?, ?it/s]
+Loading weights: 100%|██████████| 424/424 [00:00<00:00, 18379.15it/s]
+/opt/hostedtoolcache/Python/3.11.16/x64/lib/python3.11/site-packages/torch/ao/nn/quantized/modules/utils.py:72: UserWarning: torch.quantize_per_tensor, torch.quantize_per_channel and other quantized tensor creation functions that produce tensors with dtype torch.quint8, torch.qint8, and torch.qint32 are deprecated and will be removed in a future PyTorch release. Please see https://github.com/pytorch/pytorch/issues/184982 for more information. (Triggered internally at /__w/pytorch/pytorch/aten/src/ATen/quantized/Quantizer.cpp:111.)
+  qweight = torch.quantize_per_tensor(
+Incorrect BOM value
+Error reading frame GEOB, skipped
+Incorrect BOM value
+Error reading frame GEOB, skipped
+Incorrect BOM value
+Error reading frame GEOB, skipped
+س18:85-85 (rewin): ⛔ رُدّت — 18:85 ثقةُ CTC 0.173 < 0.45
+س18:89-89 (rewin): ⛔ رُدّت — 18:89 ثقةُ CTC 0.0 < 0.45
+س55:48-48 (rewin): ⛔ رُدّت — الجارة 55:47 تنكمش إلى 1193م.ث والمتوقَّع 3181
+س69:23-23 (rewin): ⛔ رُدّت — 69:23 ثقةُ CTC 0.0 < 0.45
+س92:4-4 (rewin): ⛔ رُدّت — الجارة 92:3 تنكمش إلى 532م.ث والمتوقَّع 3467
+

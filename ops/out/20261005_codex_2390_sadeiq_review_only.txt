@@ -1,0 +1,12 @@
+# rc=1
+
+[stderr]
+Traceback (most recent call last):
+  File "/home/runner/work/rafiq-align-ci/rafiq-align-ci/tools/ci_fleet/rerun_stale_review.py", line 65, in <module>
+    main()
+  File "/home/runner/work/rafiq-align-ci/rafiq-align-ci/tools/ci_fleet/rerun_stale_review.py", line 54, in main
+    log = subprocess.run(['gh', 'api', f'repos/{REPO}/actions/jobs/{review["id"]}/logs'],
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/hostedtoolcache/Python/3.11.16/x64/lib/python3.11/subprocess.py", line 571, in run
+    raise CalledProcessError(retcode, process.args,
+subprocess.CalledProcessError: Command '['gh', 'api', 'repos/mwqwf/rafiq-align-ci/actions/jobs/112026613615/logs']' returned non-zero exit status 1.

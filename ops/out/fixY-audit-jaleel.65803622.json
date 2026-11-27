@@ -1,0 +1,252 @@
+{
+ "schema": 1,
+ "tool": "full_audit-1.0",
+ "date": "20261009",
+ "timestampUtc": "2026-10-09T07:35:39Z",
+ "elapsedSec": 51.0,
+ "phase": "all",
+ "manifestIndexes": 180,
+ "frozenBucket": 220,
+ "reportsRead": 11976,
+ "rows": [
+  {
+   "key": "timings-staging/hafs/jaleel.65803622.jz",
+   "sha256": "658036224cfdb1d09a5b6be5232ac50ce64a5b5c7b713266daec900cdc3bedff",
+   "riwaya": "hafs",
+   "reciterId": "jaleel",
+   "bytes": 73249,
+   "engine": "mp3quran-timing-v1",
+   "transformOp": "drop_surah:1",
+   "staging": true,
+   "identity": {
+    "sha256": "658036224cfdb1d09a5b6be5232ac50ce64a5b5c7b713266daec900cdc3bedff",
+    "staging": true,
+    "errors": [],
+    "ok": true
+   },
+   "structure": {
+    "entries": 6229,
+    "errors": [],
+    "examples": {},
+    "registeredFileNoMappings": {},
+    "fileNoUnparsed": 0,
+    "structuralFatal": [],
+    "structuralWarn": [
+     "مداخل ناقصة: 7 من 6236 (0.1%) — منها 7 بعذرٍ معلَن (بترٌ مصدري) ⇒ **غير المبرَّر 0 (0.0%)** — الحدّ 2% على غير المبرَّر",
+     "آيات بلا مدخل: 7 · وسيط طولها 4 كلمة (المصحف 11) — غيابٌ غير منحاز",
+     "مداخل مدتها > 120ث: 1 · مثال: 2:282 مدتها 124ث",
+     "فجوات > 15ث بين آيتين متتاليتين: 1 · مثال: 27:86→27:87 فجوة 383ث"
+    ],
+    "decision": [
+     "سورٌ محذوفةٌ **بإعلانٍ وسبب**: [1] (السبب: الفاتحة عند جليل: المنشور معيب في وسط السورة بقياس مستقل — الملف (55.2ث) فيه وقفة داخلية واحدة فقط عند 6.44–6.86ث (silence_probe عند -25 و-30 و-40dB) والقراءة موصولة بعدها حتى 54.2ث، بينما المنشور يضع نهاية 1:1 وبدء 1:2 عند 23.56ث. خمس محاولات بمدخلات مختلفة رُدّت كلها: (1) heard_batch ردّته بوابة السماع في 1:5 بـ-2.5ث، (2) نافذة CTC على 1:3-5 و23:77 و23:99، (3) realign_surah بتخطٍّ 3700م.ث: 1:3 بـ+33.8ث، (4) ctc_splice بوضع السماع على 1:2-7: 1:3 بـ+3.1ث (وبدء 1:1 عند 0.16ث ونهاية 1:7 عند 49.19ث)، (5) نافذة CTC من 1:1 الثابت حتى نهاية الملف: ردّها حارس المدّة (1:4 بمدة 4753م.ث والمتوقع 1983).) — قرارُ منتَجٍ يُعرض على المشرف، لا حكمُ جودة"
+    ],
+    "engine": "mp3quran-timing-v1",
+    "audioSha": 114,
+    "bands": {
+     "MED": 6148,
+     "LOW": 54,
+     "HIGH": 27
+    },
+    "ok": true
+   },
+   "gaps": {
+    "missingTotal": 7,
+    "internalGaps": [],
+    "headMissing": [],
+    "tailMissing": [],
+    "wholeMissing": [
+     1
+    ],
+    "declared": {
+     "transformOp": "drop_surah:1",
+     "transformReason": "الفاتحة عند جليل: المنشور معيب في وسط السورة بقياس مستقل — الملف (55.2ث) فيه وقفة داخلية واحدة فقط عند 6.44–6.86ث (silence_probe عند -25 و-30 و-40dB) والقراءة موصولة بعدها حتى 54.2ث، بينما المنشور يضع نهاية 1:1 وبدء 1:2 عند 23.56ث. خمس محاولات بمدخلات مختلفة رُدّت كلها: (1) heard_batch ردّته بوابة السماع في 1:5 بـ-2.5ث، (2) نافذة CTC على 1:3-5 و23:77 و23:99، (3) realign_surah بتخطٍّ 3700م.ث: 1:3 بـ+33.8ث، (4) ctc_splice بوضع السماع على 1:2-7: 1:3 بـ+3.1ث (وبدء 1:1 عند 0.16ث ونهاية 1:7 عند 49.19ث)، (5) نافذة CTC من 1:1 الثابت حتى نهاية الملف: ردّها حارس المدّة (1:4 بمدة 4753م.ث والمتوقع 1983).",
+     "reasonCode": "OTHER",
+     "dropSurahs": [
+      1
+     ],
+     "byReason": {
+      "timing_truncated": 100,
+      "source_truncated": 7
+     },
+     "declaredCount": 107,
+     "tagCount": 7,
+     "declaredIds": [
+      "1:1",
+      "1:2",
+      "1:3",
+      "1:4",
+      "1:5",
+      "1:6",
+      "1:7"
+     ],
+     "truncatedTail": null
+    },
+    "undeclaredEdge": [],
+    "errors": [],
+    "ok": true
+   },
+   "durations": {
+    "durationOutliers": 24,
+    "durationExamples": [
+     {
+      "aid": "23:99",
+      "ms": 38780,
+      "expMs": 6593,
+      "ratio": 5.88,
+      "chars": 29
+     },
+     {
+      "aid": "68:31",
+      "ms": 23620,
+      "expMs": 4733,
+      "ratio": 4.99,
+      "chars": 21
+     },
+     {
+      "aid": "15:49",
+      "ms": 33080,
+      "expMs": 7230,
+      "ratio": 4.58,
+      "chars": 26
+     },
+     {
+      "aid": "21:20",
+      "ms": 23820,
+      "expMs": 5683,
+      "ratio": 4.19,
+      "chars": 25
+     },
+     {
+      "aid": "15:45",
+      "ms": 21920,
+      "expMs": 5283,
+      "ratio": 4.15,
+      "chars": 19
+     },
+     {
+      "aid": "56:87",
+      "ms": 22240,
+      "expMs": 5409,
+      "ratio": 4.11,
+      "chars": 19
+     },
+     {
+      "aid": "43:67",
+      "ms": 33420,
+      "expMs": 8245,
+      "ratio": 4.05,
+      "chars": 33
+     },
+     {
+      "aid": "75:14",
+      "ms": 21220,
+      "expMs": 5488,
+      "ratio": 3.87,
+      "chars": 20
+     },
+     {
+      "aid": "79:34",
+      "ms": 18360,
+      "expMs": 4812,
+      "ratio": 3.82,
+      "chars": 19
+     },
+     {
+      "aid": "56:24",
+      "ms": 18400,
+      "expMs": 4840,
+      "ratio": 3.8,
+      "chars": 17
+     },
+     {
+      "aid": "70:18",
+      "ms": 8960,
+      "expMs": 2356,
+      "ratio": 3.8,
+      "chars": 9
+     },
+     {
+      "aid": "14:16",
+      "ms": 26040,
+      "expMs": 6921,
+      "ratio": 3.76,
+      "chars": 24
+     }
+    ],
+    "impossibleShort": [],
+    "veryShort": [],
+    "extremeLong": [
+     {
+      "aid": "23:99",
+      "ms": 38780,
+      "expMs": 6593,
+      "ratio": 5.88,
+      "chars": 29
+     }
+    ],
+    "longOutliers": 23,
+    "shortOutliers": 0,
+    "silenceGaps": 1,
+    "silenceExamples": [
+     {
+      "from": "27:86",
+      "to": "27:87",
+      "gapMs": 383132
+     }
+    ],
+    "surahsWithRate": 112
+   },
+   "audio": {
+    "audioReportsOnSha": 0,
+    "openersOnSha": false,
+    "errors": [
+     "لا حكمَ صوتيٍّ بعيّنةٍ على البصمة المنشورة",
+     "لا شاهدَ مطالعَ على البصمة المنشورة"
+    ],
+    "notes": [],
+    "samples": [],
+    "pooled": null,
+    "severeHi": null,
+    "otherShasWithSamples": [
+     "1015177a",
+     "1946c3be",
+     "3ab7c393",
+     "3ec4393f",
+     "5662beb6",
+     "6673b686",
+     "90fa1096",
+     "a8946f07",
+     "b08cbf20",
+     "c16c2012"
+    ],
+    "ok": false
+   }
+  }
+ ],
+ "summary": {
+  "indexes": 1,
+  "phase": "all",
+  "identityOk": 1,
+  "identityBad": [],
+  "structureOk": 1,
+  "structureBad": [],
+  "gapsOk": 1,
+  "gapsBad": [],
+  "audioOk": 0,
+  "audioBad": [
+   "timings-staging/hafs/jaleel.65803622.jz"
+  ],
+  "durationOutliersTotal": 24,
+  "impossibleShortTotal": 0,
+  "indexesWithImpossibleShort": 0,
+  "veryShortTotal": 0,
+  "extremeLongTotal": 1,
+  "indexesWithExtremeLong": 1,
+  "mirrorStale": 0,
+  "silenceGapsTotal": 1,
+  "indexesWithDurationOutliers": 1,
+  "indexesWithSilenceGaps": 1,
+  "entriesTotal": 6229,
+  "missingTotal": 7
+ }
+}

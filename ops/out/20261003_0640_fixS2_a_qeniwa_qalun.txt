@@ -1,0 +1,13 @@
+# rc=0
+📦 ctc-splice-37076856054 · 784 بايت
+── ctc.log (1108 بايت)
+Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+
+Loading weights:   0%|          | 0/424 [00:00<?, ?it/s]
+Loading weights: 100%|██████████| 424/424 [00:00<00:00, 25037.10it/s]
+/opt/hostedtoolcache/Python/3.11.16/x64/lib/python3.11/site-packages/torch/ao/nn/quantized/modules/utils.py:72: UserWarning: torch.quantize_per_tensor, torch.quantize_per_channel and other quantized tensor creation functions that produce tensors with dtype torch.quint8, torch.qint8, and torch.qint32 are deprecated and will be removed in a future PyTorch release. Please see https://github.com/pytorch/pytorch/issues/184982 for more information. (Triggered internally at /__w/pytorch/pytorch/aten/src/ATen/quantized/Quantizer.cpp:111.)
+  qweight = torch.quantize_per_tensor(
+س18:92-92 (rewin): ⛔ رُدّت — الجارة 18:91 تنكمش إلى 1871م.ث والمتوقَّع 3935
+س78:5-5 (rewin): ⛔ رُدّت — 78:5 ثقةُ CTC 0.0 < 0.45
+س100:2-2 (rewin): ⛔ رُدّت — 100:2 ثقةُ CTC 0.0 < 0.45
+

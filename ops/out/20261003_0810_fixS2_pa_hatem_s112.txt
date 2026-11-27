@@ -1,0 +1,59 @@
+# rc=0
+📦 heard-probe-s112-37105679964 · 3053 بايت
+── out/heard_s112.json (1116 بايت)
+{"surah": 112, "riwaya": "hafs", "engine": "ctc-heardmap-1", "totalMs": 12808, "heardMap": {"1": {"anchorMs": [3345, 5168], "anchorQuality": 0.727, "heard": true, "heardMs": [3345, 5168], "score": 0.762, "occurrences": [[3345, 5168, 0.762], [6930, 7932, 0.588]]}, "2": {"anchorMs": [5468, 6870], "anchorQuality": 0.667, "heard": true, "heardMs": [6930, 7932], "score": 0.667, "occurrences": [[500, 1702, 0.778], [5468, 6870, 0.667], [6930, 7932, 0.667]]}, "3": {"anchorMs": [7271, 9134], "anchorQuality": 0.75, "heard": true, "heardMs": [6930, 8933], "score": 0.75, "occurrences": [[6930, 8933, 0.75], [9114, 10276, 0.6]]}, "4": {"anchorMs": [9254, 12259], "anchorQuality": 0.733, "heard": true, "heardMs": [9254, 10636], "score": 0.75, "occurrences": [[9254, 10636, 0.75]]}}, "chunkMap": [[0, 15000, 1, 0.778, 70], [15000, 30000, null, 0.0, 0]], "heardChars": 70, "anchorQualityMedian": 0.733, "entries": [], "issues": [], "bands": {}, "fileRef": "https://server11.mp3quran.net/hatem/112.mp3", "sha256": "7c094b316d276c1fd54c328cbe6de021a79cf35e9dda6b72199e6e2ae0c358ca", "vadRel": null, "vadVersion": "adaptive-2"}
+── out/report.txt (905 بايت)
+# خريطةُ السماع س112 · 12808م.ث · 70 حرفاً مسموعاً
+# آية	مِرساةٌ عامّة بدء	نهاية	جودة	أداءٌ منفرد بدء	نهاية	تشابه	أداءاتٌ أخرى
+112:1	3.3	5.2	0.727	3.3	5.2	0.762	7–8s(0.588)
+112:2	5.5	6.9	0.667	6.9	7.9	0.667	0–2s(0.778) · 5–7s(0.667)
+112:3	7.3	9.1	0.75	6.9	8.9	0.75	9–10s(0.6)
+112:4	9.3	12.3	0.733	9.3	10.6	0.75	
+# قطعُ الملفّ (15ث): أقربُ آيةٍ وتشابهُها — ما لا يقارب شيئاً مادّةٌ زائدة · ثمّ المسموعُ نفسُه
+0–15s	112:2	0.778	70حرفاً	«بِسْمِ اللَّهِ الرَّحْمَنِ الرَّحِيم - قُل هُوَ للَهَفعَدَمت- أَم لهُوَصْبَمَدَا لَم َلإِدُوألَمودَدَ وَلَم يَكُن لَهُوكُتُوعَن أََدَأَ»
+15–30s	—	0.0	0حرفاً	«»
+
+── logs/probe.log (2950 بايت)
+Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+س112: 4 آية · الملفّ 13ث · فكّ CTC للملفّ كلِّه…
+
+Loading weights:   0%|          | 0/424 [00:00<?, ?it/s]
+Loading weights: 100%|██████████| 424/424 [00:00<00:00, 37194.59it/s]
+/opt/hostedtoolcache/Python/3.11.16/x64/lib/python3.11/site-packages/torch/ao/nn/quantized/modules/utils.py:72: UserWarning: torch.quantize_per_tensor, torch.quantize_per_channel and other quantized tensor creation functions that produce tensors with dtype torch.quint8, torch.qint8, and torch.qint32 are deprecated and will be removed in a future PyTorch release. Please see https://github.com/pytorch/pytorch/issues/184982 for more information. (Triggered internally at /__w/pytorch/pytorch/aten/src/ATen/quantized/Quantizer.cpp:111.)
+  qweight = torch.quantize_per_tensor(
+المسموع: 70 حرفاً هيكليّاً على 639 إطاراً (20.0م.ث/إطار)
+مراسٍ عامّة ≥0.3: 4/4 · وسيطُ الجودة 0.733
+# خريطةُ السماع س112 · 12808م.ث · 70 حرفاً مسموعاً
+# آية	مِرساةٌ عامّة بدء	نهاية	جودة	أداءٌ منفرد بدء	نهاية	تشابه	أداءاتٌ أخرى
+112:1	3.3	5.2	0.727	3.3	5.2	0.762	7–8s(0.588)
+112:2	5.5	6.9	0.667	6.9	7.9	0.667	0–2s(0.778) · 5–7s(0.667)
+112:3	7.3	9.1	0.75	6.9	8.9	0.75	9–10s(0.6)
+112:4	9.3	12.3	0.733	9.3	10.6	0.75	
+# قطعُ الملفّ (15ث): أقربُ آيةٍ وتشابهُها — ما لا يقارب شيئاً مادّةٌ زائدة · ثمّ المسموعُ نفسُه
+0–15s	112:2	0.778	70حرفاً	«بِسْمِ اللَّهِ الرَّحْمَنِ الرَّحِيم - قُل هُوَ للَهَفعَدَمت- أَم لهُوَصْبَمَدَا لَم َلإِدُوألَمودَدَ وَلَم يَكُن لَهُوكُتُوعَن أََدَأَ»
+15–30s	—	0.0	0حرفاً	«»
+كُتب: out/heard_s112.json · out/report.txt
+	Command being timed: "python tools/alignment_v3/ctc_heard_map.py --url https://server11.mp3quran.net/hatem/112.mp3 --surah 112 --riwaya hafs --out-dir out --probe --report out/report.txt"
+	User time (seconds): 12.30
+	System time (seconds): 1.43
+	Percent of CPU this job got: 165%
+	Elapsed (wall clock) time (h:mm:ss or m:ss): 0:08.28
+	Average shared text size (kbytes): 0
+	Average unshared data size (kbytes): 0
+	Average stack size (kbytes): 0
+	Average total size (kbytes): 0
+	Maximum resident set size (kbytes): 3543504
+	Average resident set size (kbytes): 0
+	Major (requiring I/O) page faults: 23
+	Minor (reclaiming a frame) page faults: 272417
+	Voluntary context switches: 6642
+	Involuntary context switches: 1105
+	Swaps: 0
+	File system inputs: 9456
+	File system outputs: 2592
+	Socket messages sent: 0
+	Socket messages received: 0
+	Signals delivered: 0
+	Page size (bytes): 4096
+	Exit status: 0
+

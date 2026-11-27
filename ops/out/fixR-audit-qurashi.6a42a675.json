@@ -1,0 +1,284 @@
+{
+ "schema": 1,
+ "tool": "full_audit-1.0",
+ "date": "20261003",
+ "timestampUtc": "2026-10-03T15:41:05Z",
+ "elapsedSec": 17.4,
+ "phase": "all",
+ "manifestIndexes": 180,
+ "frozenBucket": 220,
+ "reportsRead": 9658,
+ "rows": [
+  {
+   "key": "timings-staging/hafs/qurashi.6a42a675.jz",
+   "sha256": "6a42a675870ed312366d67b2168ae3c56e911026ce94c846805a85ed201b13de",
+   "riwaya": "hafs",
+   "reciterId": "qurashi",
+   "bytes": 94370,
+   "engine": "ctc-seg-1",
+   "transformOp": "ctc_heardmap_splice:80",
+   "staging": true,
+   "identity": {
+    "sha256": "6a42a675870ed312366d67b2168ae3c56e911026ce94c846805a85ed201b13de",
+    "staging": true,
+    "errors": [],
+    "ok": true
+   },
+   "structure": {
+    "entries": 6236,
+    "errors": [],
+    "examples": {},
+    "fileNoUnparsed": 0,
+    "structuralFatal": [],
+    "structuralWarn": [
+     "مداخل مدتها > 120ث: 1 · مثال: 2:282 مدتها 161ث"
+    ],
+    "decision": [],
+    "engine": "ctc-seg-1",
+    "audioSha": 114,
+    "bands": {
+     "MED": 3928,
+     "HIGH": 1095,
+     "LOW": 1213
+    },
+    "ok": true
+   },
+   "gaps": {
+    "missingTotal": 0,
+    "internalGaps": [],
+    "headMissing": [],
+    "tailMissing": [],
+    "wholeMissing": [],
+    "declared": {
+     "transformOp": "ctc_heardmap_splice:80",
+     "transformReason": "fixR (تدقيق الجولة الثانية · مؤكَّدٌ بالسماع 37129681723): qurashi — ذيلُ 80:38–42 قبل موضعه حتى 11ث ⇒ وضع heard يبني السورةَ من مراسٍ مسموعة بالمدى المقيس 80:38-42، ثمّ البوّاباتُ كاملةً مع الإحصاء ومسبرِ السماع",
+     "reasonCode": null,
+     "dropSurahs": [],
+     "byReason": {
+      "no-align": 2
+     },
+     "declaredCount": 2,
+     "tagCount": 0,
+     "declaredIds": [],
+     "truncatedTail": null
+    },
+    "undeclaredEdge": [],
+    "errors": [],
+    "ok": true
+   },
+   "durations": {
+    "durationOutliers": 58,
+    "durationExamples": [
+     {
+      "aid": "37:168",
+      "ms": 840,
+      "expMs": 6781,
+      "ratio": 0.12,
+      "chars": 22
+     },
+     {
+      "aid": "79:42",
+      "ms": 989,
+      "expMs": 7140,
+      "ratio": 0.14,
+      "chars": 24
+     },
+     {
+      "aid": "38:80",
+      "ms": 920,
+      "expMs": 5368,
+      "ratio": 0.17,
+      "chars": 17
+     },
+     {
+      "aid": "69:40",
+      "ms": 801,
+      "expMs": 4800,
+      "ratio": 0.17,
+      "chars": 15
+     },
+     {
+      "aid": "12:108",
+      "ms": 3422,
+      "expMs": 19171,
+      "ratio": 0.18,
+      "chars": 67
+     },
+     {
+      "aid": "26:198",
+      "ms": 1341,
+      "expMs": 7474,
+      "ratio": 0.18,
+      "chars": 22
+     },
+     {
+      "aid": "26:211",
+      "ms": 1361,
+      "expMs": 7474,
+      "ratio": 0.18,
+      "chars": 22
+     },
+     {
+      "aid": "26:213",
+      "ms": 2151,
+      "expMs": 11551,
+      "ratio": 0.19,
+      "chars": 34
+     },
+     {
+      "aid": "44:49",
+      "ms": 1381,
+      "expMs": 7189,
+      "ratio": 0.19,
+      "chars": 20
+     },
+     {
+      "aid": "44:50",
+      "ms": 1280,
+      "expMs": 6829,
+      "ratio": 0.19,
+      "chars": 19
+     },
+     {
+      "aid": "25:41",
+      "ms": 1661,
+      "expMs": 8419,
+      "ratio": 0.2,
+      "chars": 44
+     },
+     {
+      "aid": "26:203",
+      "ms": 1201,
+      "expMs": 6115,
+      "ratio": 0.2,
+      "chars": 18
+     }
+    ],
+    "impossibleShort": [],
+    "veryShort": [
+     {
+      "aid": "37:168",
+      "ms": 840,
+      "expMs": 6781,
+      "ratio": 0.12,
+      "chars": 22
+     },
+     {
+      "aid": "79:42",
+      "ms": 989,
+      "expMs": 7140,
+      "ratio": 0.14,
+      "chars": 24
+     },
+     {
+      "aid": "38:80",
+      "ms": 920,
+      "expMs": 5368,
+      "ratio": 0.17,
+      "chars": 17
+     },
+     {
+      "aid": "69:40",
+      "ms": 801,
+      "expMs": 4800,
+      "ratio": 0.17,
+      "chars": 15
+     },
+     {
+      "aid": "18:89",
+      "ms": 400,
+      "expMs": 1796,
+      "ratio": 0.22,
+      "chars": 10
+     },
+     {
+      "aid": "37:155",
+      "ms": 740,
+      "expMs": 3082,
+      "ratio": 0.24,
+      "chars": 10
+     },
+     {
+      "aid": "44:52",
+      "ms": 861,
+      "expMs": 3594,
+      "ratio": 0.24,
+      "chars": 10
+     },
+     {
+      "aid": "79:44",
+      "ms": 910,
+      "expMs": 3868,
+      "ratio": 0.24,
+      "chars": 13
+     },
+     {
+      "aid": "44:46",
+      "ms": 940,
+      "expMs": 3594,
+      "ratio": 0.26,
+      "chars": 10
+     },
+     {
+      "aid": "89:30",
+      "ms": 911,
+      "expMs": 3117,
+      "ratio": 0.29,
+      "chars": 10
+     }
+    ],
+    "extremeLong": [],
+    "longOutliers": 0,
+    "shortOutliers": 56,
+    "silenceGaps": 0,
+    "silenceExamples": [],
+    "surahsWithRate": 113
+   },
+   "audio": {
+    "audioReportsOnSha": 0,
+    "openersOnSha": false,
+    "errors": [
+     "لا حكمَ صوتيٍّ بعيّنةٍ على البصمة المنشورة",
+     "لا شاهدَ مطالعَ على البصمة المنشورة"
+    ],
+    "notes": [],
+    "samples": [],
+    "pooled": null,
+    "severeHi": null,
+    "otherShasWithSamples": [
+     "32f94d70",
+     "3e5edafb",
+     "4b9d4799",
+     "70c5f7e0"
+    ],
+    "ok": false
+   }
+  }
+ ],
+ "summary": {
+  "indexes": 1,
+  "phase": "all",
+  "identityOk": 1,
+  "identityBad": [],
+  "structureOk": 1,
+  "structureBad": [],
+  "gapsOk": 1,
+  "gapsBad": [],
+  "audioOk": 0,
+  "audioBad": [
+   "timings-staging/hafs/qurashi.6a42a675.jz"
+  ],
+  "durationOutliersTotal": 58,
+  "impossibleShortTotal": 0,
+  "indexesWithImpossibleShort": 0,
+  "veryShortTotal": 10,
+  "extremeLongTotal": 0,
+  "indexesWithExtremeLong": 0,
+  "mirrorStale": 0,
+  "silenceGapsTotal": 0,
+  "indexesWithDurationOutliers": 1,
+  "indexesWithSilenceGaps": 0,
+  "entriesTotal": 6236,
+  "missingTotal": 0
+ }
+}

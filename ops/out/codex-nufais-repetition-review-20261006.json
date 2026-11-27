@@ -1,0 +1,38 @@
+{
+  "schema": 1,
+  "kind": "nufais-repeated-verse-prepromotion-review",
+  "qualityClaim": false,
+  "sourceRun": 37391351958,
+  "sourceJob": 112036926175,
+  "candidateSha256": "31106cbe8babd4d506b5e5ccf0c75980e7652ec60791f259fb30ae2c4078b43c",
+  "rawBundleSha256": "a4a30860ec0c9c5534ceb28c3e4841013d4fad4692e1ba92250802d32751cc58",
+  "reportsSha256": "11d151b26e8789739a5e0ef22a16f100e1c9357aee547b331735cb123c78f7f3",
+  "sourceSha256": "1f35501e0d4cd3b3489f997c779f5859bd0f2fc8e233df0718dc4318b6661eea",
+  "ayahId": "25:10",
+  "candidateBoundsMs": [
+    185180,
+    248210
+  ],
+  "observations": {
+    "bothNativeQuranFirstTaCenterMs": 185412,
+    "bothNativeQuranFinalAlifCenterMs": 247052,
+    "bothNativeQuranNextVerseBaCenterMs": 248392,
+    "fullRepeatStartsFreelyDecodedInSecondChunk": true,
+    "quranForcedAlignmentLastOccurrenceMs": [
+      224797,
+      247065
+    ]
+  },
+  "limits": [
+    "No timing change from this diagnostic; existing LOW confidence retained.",
+    "Forced alignment selected the last occurrence, not the full repeated interval.",
+    "Raw chunk overlaps are not counted as additional recitations.",
+    "Token centers are acoustic support, not calibrated verse-boundary confidence."
+  ],
+  "guardedReview": {
+    "run": 37384796841,
+    "job": 112035560699,
+    "conclusion": "success",
+    "upperSevereBoundPercent": 3.9
+  }
+}

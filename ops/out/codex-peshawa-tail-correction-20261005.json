@@ -1,0 +1,77 @@
+{
+  "kind": "diagnostic-tail-boundary-proposal",
+  "qualityClaim": false,
+  "independentWindowWitnessStillRejected": true,
+  "sourceSha256": "bbfc9570680b5172ad15e417ce0ef5b8aaf8d15e16ec6f12fe46ea1752243301",
+  "baseLocalCandidateSha256": "00fbc75a874d45f80600ccf8f1f7bfe774aae5bffaba89cad3f37eb381997aee",
+  "originalParentSha256": "435095f6f5a9e737854f5fdea9b434d17034b7e58ef15aa9a56b3f948f21f124",
+  "pilotReportSha256": "3247788b04216cb02bdf958f5fca0ce05a893b07c76eebd0b3bead44ec1a8cae",
+  "freeAsrReportSha256": "f41beee90c7cd3dc0d729046b661329329f36432ca5b54bffcf598441fa84f5b",
+  "rawFrameBundleSha256": "f86ed3e142e7c8b198adcbda4c4ced53f66de71373c380ff8fd970bf9164b8cc",
+  "freeAsrRun": "37386012711",
+  "startRule": "Quran diagnostic raw start from full previous-verse context; not a passing dual witness",
+  "endRule": "ceil(last Quran token frame center / 100ms)*100ms + 200ms proposal padding",
+  "terminalFrames": [
+    {
+      "channel": "native-1",
+      "partSha256": "263e1f1bd1002602079d652bd29d0a5769ff8d3be9ff6df1e4cce670816dafc2",
+      "lastTokenCenterMs": 282052.46875,
+      "terminalNunCenterMs": 281932.46875,
+      "posteriorIsCalibratedConfidence": false
+    },
+    {
+      "channel": "native-2",
+      "partSha256": "f633eaaf71ed7d11d8b5595c93825c732653dfdbadaeb83cd9ee6f64eefc3441",
+      "lastTokenCenterMs": 282052.46875,
+      "terminalNunCenterMs": 281932.46875,
+      "posteriorIsCalibratedConfidence": false
+    }
+  ],
+  "changes": [
+    {
+      "before": {
+        "ayahId": "63:10",
+        "fileRef": "https://download.quranicaudio.com/quran/peshawa_qadir_al-kurdi/mp3/063.mp3",
+        "startMs": 214410,
+        "endMs": 266091,
+        "conf": 0.621,
+        "confBand": "MED"
+      },
+      "after": {
+        "ayahId": "63:10",
+        "fileRef": "https://download.quranicaudio.com/quran/peshawa_qadir_al-kurdi/mp3/063.mp3",
+        "startMs": 214410,
+        "endMs": 264706,
+        "conf": 0.621,
+        "confBand": "MED"
+      }
+    },
+    {
+      "before": {
+        "ayahId": "63:11",
+        "fileRef": "https://download.quranicaudio.com/quran/peshawa_qadir_al-kurdi/mp3/063.mp3",
+        "startMs": 266091,
+        "endMs": 279139,
+        "conf": 0.092,
+        "confBand": "LOW",
+        "startApprox": true
+      },
+      "after": {
+        "ayahId": "63:11",
+        "fileRef": "https://download.quranicaudio.com/quran/peshawa_qadir_al-kurdi/mp3/063.mp3",
+        "startMs": 264706,
+        "endMs": 282300,
+        "conf": 0.092,
+        "confBand": "LOW",
+        "startApprox": true
+      }
+    }
+  ],
+  "limits": [
+    "Native channels share one Quran model; not independent model agreement",
+    "CTC frame posteriors are not calibrated boundary confidence",
+    "Candidate requires fresh audio QA and tail verification before adoption"
+  ],
+  "candidatePath": "ops/source-repair/candidates/codex-peshawa-s63-20261005-v3.jz",
+  "candidateSha256": "ef312d31cb8047ea440240c32ea9f41921bf842ae3f348af7e0d58da9b90d8e0"
+}

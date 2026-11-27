@@ -1,0 +1,16 @@
+# rc=0
+📦 ctc-splice-37135759397 · 532 بايت
+── ctc.log (883 بايت)
+Traceback (most recent call last):
+  File "/home/runner/work/rafiq-align-ci/rafiq-align-ci/tools/alignment_v3/ctc_dualfix.py", line 306, in <module>
+    sys.exit(main())
+             ^^^^^^
+  File "/home/runner/work/rafiq-align-ci/rafiq-align-ci/tools/alignment_v3/ctc_dualfix.py", line 247, in main
+    pcm_all = R._full_decode_pcm(audio)
+              ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/rafiq-align-ci/rafiq-align-ci/tools/index_qa/run.py", line 1021, in _full_decode_pcm
+    raise RuntimeError(f"ffmpeg أبلغ خطأ فكٍّ كامل مع rc=0: {why}")
+RuntimeError: ffmpeg أبلغ خطأ فكٍّ كامل مع rc=0: 8d179020c0] Error submitting packet to decoder: Invalid data found when processing input
+[mp3float @ 0x558d178e4d80] Header missing
+[aist#0:0/mp3 @ 0x558d179020c0] Error submitting packet to decoder: Invalid data found when processing input
+

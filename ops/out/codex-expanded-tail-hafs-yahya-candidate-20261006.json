@@ -1,0 +1,222 @@
+{
+  "path": "ops/source-repair/candidates/codex-expanded-tail-hafs-yahya-20261006.jz",
+  "sha256": "2d6029fce44eb57a375ef5963082a81ff1addf37697b05d8f2f5522fd1805584",
+  "parentKey": "timings/hafs/yahya.jz",
+  "parentSha256": "aa9ad2ef19ce132980788c38da835ed56c5954553a60774806b1895c1685c1ec",
+  "op": "ctc_quran_window:68",
+  "changedEntries": 9,
+  "warnings": [
+    "مداخل مدتها > 120ث: 1 · مثال: 2:282 مدتها 145ث",
+    "مطالع سور تبدأ دون 3ث — مرشّحون للمسبار الصوتي لا حكمٌ عليهم: 45:1=2782م.ث · 52:1=2882م.ث · 59:1=2882م.ث · 65:1=2882م.ث · 66:1=2742م.ث · 68:1=2982م.ث · 78:1=2620م.ث · 79:1=2962م.ث · 91:1=2750م.ث · 94:1=2723م.ث … و6 غيرها"
+  ],
+  "proof": {
+    "qualityClaim": false,
+    "contexts": [
+      {
+        "reportPath": "ops/out/codex-yahya68-45-52-expanded-report-20261006.json",
+        "reportSha256": "21c6d91d9e9c8c94abf61d540ac675908a0aaefd37e0dd9f208ffda31475e703",
+        "bundlePath": "ops/out/codex-yahya68-45-52-expanded-complete-20261006.json.gz",
+        "bundleSha256": "8b0ad57ed66f64d2b73fc6de39b904be8191570864cb9008f15b05957babf029",
+        "jobId": 112113100047,
+        "id": "short_final_yahya68_45_52",
+        "sourceSha256": "435e6545a76e3ee4237b28fbc127120dff35d57ea64af1bde238fefcf6317aec",
+        "targetAyahs": [
+          45,
+          46,
+          47,
+          48,
+          49,
+          50,
+          51,
+          52
+        ],
+        "provenance": {
+          "runId": "37415498655",
+          "runSha": "bb8489b4a1bee753ae1311c2a412a6d807c23080",
+          "toolSha256": "5004bcab6d6ed2c10ec91c9b20ca596e5d62d9c6fef7a42d8805d422f239a5ef"
+        }
+      }
+    ],
+    "changes": [
+      {
+        "before": {
+          "ayahId": "68:44",
+          "fileRef": "https://server12.mp3quran.net/yahya/068.mp3",
+          "startMs": 234260,
+          "endMs": 243090,
+          "conf": 0.514,
+          "confBand": "MED"
+        },
+        "after": {
+          "ayahId": "68:44",
+          "fileRef": "https://server12.mp3quran.net/yahya/068.mp3",
+          "startMs": 234260,
+          "endMs": 242748,
+          "conf": 0.514,
+          "confBand": "MED"
+        }
+      },
+      {
+        "before": {
+          "ayahId": "68:45",
+          "fileRef": "https://server12.mp3quran.net/yahya/068.mp3",
+          "startMs": 243090,
+          "endMs": 247340,
+          "conf": 0.472,
+          "confBand": "MED"
+        },
+        "after": {
+          "ayahId": "68:45",
+          "fileRef": "https://server12.mp3quran.net/yahya/068.mp3",
+          "startMs": 242748,
+          "endMs": 246981,
+          "conf": 0.472,
+          "confBand": "MED"
+        }
+      },
+      {
+        "before": {
+          "ayahId": "68:46",
+          "fileRef": "https://server12.mp3quran.net/yahya/068.mp3",
+          "startMs": 247340,
+          "endMs": 252211,
+          "conf": 0.372,
+          "confBand": "LOW"
+        },
+        "after": {
+          "ayahId": "68:46",
+          "fileRef": "https://server12.mp3quran.net/yahya/068.mp3",
+          "startMs": 246981,
+          "endMs": 254078,
+          "conf": 0.372,
+          "confBand": "LOW"
+        }
+      },
+      {
+        "before": {
+          "ayahId": "68:47",
+          "fileRef": "https://server12.mp3quran.net/yahya/068.mp3",
+          "startMs": 252211,
+          "endMs": 254420,
+          "conf": 0.0,
+          "confBand": "LOW",
+          "startApprox": true
+        },
+        "after": {
+          "ayahId": "68:47",
+          "fileRef": "https://server12.mp3quran.net/yahya/068.mp3",
+          "startMs": 254078,
+          "endMs": 258231,
+          "conf": 0.0,
+          "confBand": "LOW",
+          "startApprox": true
+        }
+      },
+      {
+        "before": {
+          "ayahId": "68:48",
+          "fileRef": "https://server12.mp3quran.net/yahya/068.mp3",
+          "startMs": 254420,
+          "endMs": 257615,
+          "conf": 0.0,
+          "confBand": "LOW"
+        },
+        "after": {
+          "ayahId": "68:48",
+          "fileRef": "https://server12.mp3quran.net/yahya/068.mp3",
+          "startMs": 258231,
+          "endMs": 265927,
+          "conf": 0.0,
+          "confBand": "LOW"
+        }
+      },
+      {
+        "before": {
+          "ayahId": "68:49",
+          "fileRef": "https://server12.mp3quran.net/yahya/068.mp3",
+          "startMs": 257615,
+          "endMs": 261678,
+          "conf": 0.0,
+          "confBand": "LOW",
+          "startApprox": true
+        },
+        "after": {
+          "ayahId": "68:49",
+          "fileRef": "https://server12.mp3quran.net/yahya/068.mp3",
+          "startMs": 265927,
+          "endMs": 275736,
+          "conf": 0.0,
+          "confBand": "LOW",
+          "startApprox": true
+        }
+      },
+      {
+        "before": {
+          "ayahId": "68:50",
+          "fileRef": "https://server12.mp3quran.net/yahya/068.mp3",
+          "startMs": 261678,
+          "endMs": 263079,
+          "conf": 0.0,
+          "confBand": "LOW",
+          "startApprox": true
+        },
+        "after": {
+          "ayahId": "68:50",
+          "fileRef": "https://server12.mp3quran.net/yahya/068.mp3",
+          "startMs": 275736,
+          "endMs": 280509,
+          "conf": 0.0,
+          "confBand": "LOW",
+          "startApprox": true
+        }
+      },
+      {
+        "before": {
+          "ayahId": "68:51",
+          "fileRef": "https://server12.mp3quran.net/yahya/068.mp3",
+          "startMs": 263079,
+          "endMs": 270344,
+          "conf": 0.0,
+          "confBand": "LOW",
+          "startApprox": true
+        },
+        "after": {
+          "ayahId": "68:51",
+          "fileRef": "https://server12.mp3quran.net/yahya/068.mp3",
+          "startMs": 280509,
+          "endMs": 291709,
+          "conf": 0.0,
+          "confBand": "LOW",
+          "startApprox": true
+        }
+      },
+      {
+        "before": {
+          "ayahId": "68:52",
+          "fileRef": "https://server12.mp3quran.net/yahya/068.mp3",
+          "startMs": 270344,
+          "endMs": 271015,
+          "conf": 0.0,
+          "confBand": "LOW",
+          "startApprox": true
+        },
+        "after": {
+          "ayahId": "68:52",
+          "fileRef": "https://server12.mp3quran.net/yahya/068.mp3",
+          "startMs": 291709,
+          "endMs": 302498,
+          "conf": 0.0,
+          "confBand": "LOW",
+          "startApprox": true
+        }
+      }
+    ],
+    "decodedEofMs": {
+      "68": 302498
+    },
+    "limits": [
+      "الحد الأصلي لثقة المحاذاة0.45؛ لا تغيير لأي حارس أو ثقة منشورة.",
+      "الخواتيم المقيسة فقط؛ يلزم الفحص الأصلي الكامل للبصمة المرفوعة."
+    ]
+  }
+}

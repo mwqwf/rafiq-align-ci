@@ -1,0 +1,175 @@
+{
+ "schema": 1,
+ "tool": "full_audit-1.0",
+ "date": "20261005",
+ "timestampUtc": "2026-10-05T20:30:32Z",
+ "elapsedSec": 77.1,
+ "phase": "all",
+ "manifestIndexes": 180,
+ "frozenBucket": 220,
+ "reportsRead": 11285,
+ "rows": [
+  {
+   "key": "timings-staging/qalun/shaykhna_qalun.d9e17389.jz",
+   "sha256": "d9e17389c46c9cdc9f4619a726ee6def7a4613f6fe60b9b74576eb4a7c56ab07",
+   "riwaya": "qalun",
+   "reciterId": "shaykhna_qalun",
+   "bytes": 88238,
+   "engine": "align-0.2",
+   "transformOp": "file_end_clamp",
+   "staging": true,
+   "identity": {
+    "sha256": "d9e17389c46c9cdc9f4619a726ee6def7a4613f6fe60b9b74576eb4a7c56ab07",
+    "staging": true,
+    "errors": [],
+    "ok": true
+   },
+   "structure": {
+    "entries": 6236,
+    "errors": [],
+    "examples": {},
+    "registeredFileNoMappings": {},
+    "fileNoUnparsed": 0,
+    "structuralFatal": [],
+    "structuralWarn": [
+     "مداخل مدتها > 120ث: 1 · مثال: 2:282 مدتها 131ث",
+     "مطالع سور تبدأ دون 3ث — مرشّحون للمسبار الصوتي لا حكمٌ عليهم: 34:1=1680م.ث · 54:1=2802م.ث · 94:1=2920م.ث",
+     "فجوات > 15ث بين آيتين متتاليتين: 1 · مثال: 24:3→24:4 فجوة 22ث"
+    ],
+    "decision": [],
+    "engine": "align-0.2",
+    "audioSha": 114,
+    "bands": {
+     "HIGH": 5554,
+     "MED": 505,
+     "LOW": 177
+    },
+    "ok": true
+   },
+   "gaps": {
+    "missingTotal": 0,
+    "internalGaps": [],
+    "headMissing": [],
+    "tailMissing": [],
+    "wholeMissing": [],
+    "declared": {
+     "transformOp": "file_end_clamp",
+     "transformReason": "قصُّ نهاية آخر مدخلٍ إلى نهاية ملفّه المقيسة بطول الفكّ: 54:55 −32م.ث",
+     "reasonCode": null,
+     "dropSurahs": [],
+     "byReason": {
+      "no-align": 2
+     },
+     "declaredCount": 2,
+     "tagCount": 0,
+     "declaredIds": [],
+     "truncatedTail": null
+    },
+    "undeclaredEdge": [],
+    "errors": [],
+    "ok": true
+   },
+   "durations": {
+    "durationOutliers": 3,
+    "durationExamples": [
+     {
+      "aid": "27:27",
+      "ms": 838,
+      "expMs": 6690,
+      "ratio": 0.13,
+      "chars": 27
+     },
+     {
+      "aid": "27:1",
+      "ms": 965,
+      "expMs": 5699,
+      "ratio": 0.17,
+      "chars": 23
+     },
+     {
+      "aid": "29:37",
+      "ms": 2612,
+      "expMs": 8954,
+      "ratio": 0.29,
+      "chars": 38
+     }
+    ],
+    "impossibleShort": [],
+    "veryShort": [
+     {
+      "aid": "27:27",
+      "ms": 838,
+      "expMs": 6690,
+      "ratio": 0.13,
+      "chars": 27
+     },
+     {
+      "aid": "27:1",
+      "ms": 965,
+      "expMs": 5699,
+      "ratio": 0.17,
+      "chars": 23
+     }
+    ],
+    "extremeLong": [],
+    "longOutliers": 0,
+    "shortOutliers": 3,
+    "silenceGaps": 1,
+    "silenceExamples": [
+     {
+      "from": "24:3",
+      "to": "24:4",
+      "gapMs": 21700
+     }
+    ],
+    "surahsWithRate": 113
+   },
+   "audio": {
+    "audioReportsOnSha": 0,
+    "openersOnSha": false,
+    "errors": [
+     "لا حكمَ صوتيٍّ بعيّنةٍ على البصمة المنشورة",
+     "لا شاهدَ مطالعَ على البصمة المنشورة"
+    ],
+    "notes": [],
+    "samples": [],
+    "pooled": null,
+    "severeHi": null,
+    "otherShasWithSamples": [
+     "03a7e373",
+     "072c3d19",
+     "1614167e",
+     "5fc8e712",
+     "cbe3f479"
+    ],
+    "ok": false
+   }
+  }
+ ],
+ "summary": {
+  "indexes": 1,
+  "phase": "all",
+  "identityOk": 1,
+  "identityBad": [],
+  "structureOk": 1,
+  "structureBad": [],
+  "gapsOk": 1,
+  "gapsBad": [],
+  "audioOk": 0,
+  "audioBad": [
+   "timings-staging/qalun/shaykhna_qalun.d9e17389.jz"
+  ],
+  "durationOutliersTotal": 3,
+  "impossibleShortTotal": 0,
+  "indexesWithImpossibleShort": 0,
+  "veryShortTotal": 2,
+  "extremeLongTotal": 0,
+  "indexesWithExtremeLong": 0,
+  "mirrorStale": 0,
+  "silenceGapsTotal": 1,
+  "indexesWithDurationOutliers": 1,
+  "indexesWithSilenceGaps": 1,
+  "entriesTotal": 6236,
+  "missingTotal": 0
+ }
+}

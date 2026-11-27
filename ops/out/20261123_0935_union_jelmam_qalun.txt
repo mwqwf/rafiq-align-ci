@@ -1,0 +1,18 @@
+# rc=0
+  ✔ إعادةُ محاذاة [10, 27, 43]: 6235 ⇐ 6235 مدخلاً (‏+0)، وما خارجها لم يُمسّ
+  ⓘ إعفاءُ العتبة موروثٌ من صفّ موافقة الأصل لسورٍ محجوبةٍ فيه بالرمز نفسه: [2]
+  ✔ حُذف من الحجب الوسطيّ الموروث ما استُرجع: 
+  ✔ حُذف من الحجب الوسطيّ الموروث ما استُرجع: 
+  ✔ حجبٌ وسطيٌّ موروثٌ معلَن: ['2']
+  ✔ حُذف من الحجب الوسطيّ الموروث ما استُرجع: 
+الأصل timings/qalun/jelmam_qalun.jz (5af0501f25ec) · المنتَج patched.jz (58e64f5582d7)
+المداخل 6235 ⇒ 6235 ✅ · بصمةُ المداخل 71207c3f2a ⇒ b9be3a1a48 (مختلفة ✅) · حدودٌ أُزيحت 261
+إلى timings-staging/qalun/jelmam_qalun.4bf6081e.jz (180555 بايت · بصمة 4bf6081e5ffe621d187a9a86d7bebc9f68ba811184fea365c1bd7c0e7af2e0e5)
+STAGE_RESULT {"key": "timings-staging/qalun/jelmam_qalun.4bf6081e.jz", "localCandidateSha256": "58e64f5582d7c437835b15e81e33a1ee228c0aa8a2acbee4c55c8f42db951255", "manualQaOnly": false, "parentKey": "timings/qalun/jelmam_qalun.jz", "parentSha256": "5af0501f25ec44c2901ae4e45ba9a69c964c71303d24fb42d992c3e5f46efbd0", "productionChanged": false, "readBackVerified": true, "sha256": "4bf6081e5ffe621d187a9a86d7bebc9f68ba811184fea365c1bd7c0e7af2e0e5", "sizeBytes": 180555}
+خطة الدمج:
+  س10: من timings-staging/qalun/jelmam_qalun.66cf90d3.jz (66cf90d34e45)
+  س27: من timings-staging/qalun/jelmam_qalun.5554983d.jz (5554983d187b)
+  س43: من timings-staging/qalun/jelmam_qalun.d737aef4.jz (d737aef4c60e)
+المداخل 6235 ⇐ 6235 · الغياب 1 ⇐ 1 · سور [10, 27, 43]
+✅ /tmp/union_n_4q67r6/patched.jz · sha256 0794592646aff645…
+المخرج /tmp/union_n_4q67r6/patched.jz · sha 58e64f5582d7c437… · مداخل 6235 · غياب 1 · سور [10, 27, 43]

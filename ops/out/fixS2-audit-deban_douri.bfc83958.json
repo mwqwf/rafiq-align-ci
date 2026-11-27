@@ -1,0 +1,280 @@
+{
+ "schema": 1,
+ "tool": "full_audit-1.0",
+ "date": "20261003",
+ "timestampUtc": "2026-10-03T12:57:27Z",
+ "elapsedSec": 19.5,
+ "phase": "all",
+ "manifestIndexes": 180,
+ "frozenBucket": 220,
+ "reportsRead": 9556,
+ "rows": [
+  {
+   "key": "timings-staging/douri/deban_douri.bfc83958.jz",
+   "sha256": "bfc83958d93a95163da86a4ff4a6d19d3bd5adf6e5e220cd361ad9e5813969dd",
+   "riwaya": "douri",
+   "reciterId": "deban_douri",
+   "bytes": 94278,
+   "engine": "ctc-seg-1",
+   "transformOp": "ctc_heardmap_splice:55",
+   "staging": true,
+   "identity": {
+    "sha256": "bfc83958d93a95163da86a4ff4a6d19d3bd5adf6e5e220cd361ad9e5813969dd",
+    "staging": true,
+    "errors": [],
+    "ok": true
+   },
+   "structure": {
+    "entries": 6236,
+    "errors": [],
+    "examples": {},
+    "fileNoUnparsed": 0,
+    "structuralFatal": [],
+    "structuralWarn": [
+     "مداخل مدتها > 120ث: 1 · مثال: 2:282 مدتها 138ث"
+    ],
+    "decision": [],
+    "engine": "ctc-seg-1",
+    "audioSha": 114,
+    "bands": {
+     "MED": 4613,
+     "HIGH": 796,
+     "LOW": 827
+    },
+    "ok": true
+   },
+   "gaps": {
+    "missingTotal": 0,
+    "internalGaps": [],
+    "headMissing": [],
+    "tailMissing": [],
+    "wholeMissing": [],
+    "declared": {
+     "transformOp": "ctc_heardmap_splice:55",
+     "transformReason": "fixS2 موجة7ب (مدخلٌ بمحرّك آخر ctc-heardmap-1 بعد ردّ شاهد السماع): deban_douri — نافذة window بشاهد السماع رُدّت لأنّ الخريطة تُظهر أداءً مكرّراً في 55:57-78 فلا يُرجَّح أحدُهما، ووضعُ heard مصمَّمٌ للتسجيل ذي التكرار ⇒ بناءُ السورة من مراسٍ مسموعة، ثمّ البوّاباتُ كاملةً مع الإحصاء",
+     "reasonCode": null,
+     "dropSurahs": [],
+     "byReason": {},
+     "declaredCount": 0,
+     "tagCount": 0,
+     "declaredIds": [],
+     "truncatedTail": null
+    },
+    "undeclaredEdge": [],
+    "errors": [],
+    "ok": true
+   },
+   "durations": {
+    "durationOutliers": 54,
+    "durationExamples": [
+     {
+      "aid": "18:37",
+      "ms": 24340,
+      "expMs": 7195,
+      "ratio": 3.38,
+      "chars": 57
+     },
+     {
+      "aid": "18:45",
+      "ms": 37690,
+      "expMs": 12243,
+      "ratio": 3.08,
+      "chars": 97
+     },
+     {
+      "aid": "18:44",
+      "ms": 13860,
+      "expMs": 4544,
+      "ratio": 3.05,
+      "chars": 36
+     },
+     {
+      "aid": "38:81",
+      "ms": 621,
+      "expMs": 4613,
+      "ratio": 0.13,
+      "chars": 18
+     },
+     {
+      "aid": "53:47",
+      "ms": 720,
+      "expMs": 4997,
+      "ratio": 0.14,
+      "chars": 19
+     },
+     {
+      "aid": "74:50",
+      "ms": 700,
+      "expMs": 4544,
+      "ratio": 0.15,
+      "chars": 15
+     },
+     {
+      "aid": "77:48",
+      "ms": 1081,
+      "expMs": 7037,
+      "ratio": 0.15,
+      "chars": 24
+     },
+     {
+      "aid": "15:89",
+      "ms": 1000,
+      "expMs": 5880,
+      "ratio": 0.17,
+      "chars": 21
+     },
+     {
+      "aid": "15:91",
+      "ms": 954,
+      "expMs": 5600,
+      "ratio": 0.17,
+      "chars": 20
+     },
+     {
+      "aid": "19:89",
+      "ms": 640,
+      "expMs": 3703,
+      "ratio": 0.17,
+      "chars": 13
+     },
+     {
+      "aid": "15:94",
+      "ms": 1337,
+      "expMs": 7560,
+      "ratio": 0.18,
+      "chars": 27
+     },
+     {
+      "aid": "53:57",
+      "ms": 501,
+      "expMs": 2630,
+      "ratio": 0.19,
+      "chars": 10
+     }
+    ],
+    "impossibleShort": [],
+    "veryShort": [
+     {
+      "aid": "38:81",
+      "ms": 621,
+      "expMs": 4613,
+      "ratio": 0.13,
+      "chars": 18
+     },
+     {
+      "aid": "53:47",
+      "ms": 720,
+      "expMs": 4997,
+      "ratio": 0.14,
+      "chars": 19
+     },
+     {
+      "aid": "74:50",
+      "ms": 700,
+      "expMs": 4544,
+      "ratio": 0.15,
+      "chars": 15
+     },
+     {
+      "aid": "15:91",
+      "ms": 954,
+      "expMs": 5600,
+      "ratio": 0.17,
+      "chars": 20
+     },
+     {
+      "aid": "19:89",
+      "ms": 640,
+      "expMs": 3703,
+      "ratio": 0.17,
+      "chars": 13
+     },
+     {
+      "aid": "53:57",
+      "ms": 501,
+      "expMs": 2630,
+      "ratio": 0.19,
+      "chars": 10
+     },
+     {
+      "aid": "19:91",
+      "ms": 978,
+      "expMs": 4558,
+      "ratio": 0.21,
+      "chars": 16
+     },
+     {
+      "aid": "89:30",
+      "ms": 620,
+      "expMs": 2865,
+      "ratio": 0.22,
+      "chars": 10
+     },
+     {
+      "aid": "53:53",
+      "ms": 940,
+      "expMs": 3419,
+      "ratio": 0.27,
+      "chars": 13
+     }
+    ],
+    "extremeLong": [],
+    "longOutliers": 3,
+    "shortOutliers": 47,
+    "silenceGaps": 0,
+    "silenceExamples": [],
+    "surahsWithRate": 113
+   },
+   "audio": {
+    "audioReportsOnSha": 0,
+    "openersOnSha": false,
+    "errors": [
+     "لا حكمَ صوتيٍّ بعيّنةٍ على البصمة المنشورة",
+     "لا شاهدَ مطالعَ على البصمة المنشورة"
+    ],
+    "notes": [],
+    "samples": [],
+    "pooled": null,
+    "severeHi": null,
+    "otherShasWithSamples": [
+     "1317afd8",
+     "37f09a70",
+     "4a83300b",
+     "68fc01a8",
+     "6cacb771",
+     "7cd26e16",
+     "84169bf8",
+     "88260d77",
+     "c63e3183"
+    ],
+    "ok": false
+   }
+  }
+ ],
+ "summary": {
+  "indexes": 1,
+  "phase": "all",
+  "identityOk": 1,
+  "identityBad": [],
+  "structureOk": 1,
+  "structureBad": [],
+  "gapsOk": 1,
+  "gapsBad": [],
+  "audioOk": 0,
+  "audioBad": [
+   "timings-staging/douri/deban_douri.bfc83958.jz"
+  ],
+  "durationOutliersTotal": 54,
+  "impossibleShortTotal": 0,
+  "indexesWithImpossibleShort": 0,
+  "veryShortTotal": 9,
+  "extremeLongTotal": 0,
+  "indexesWithExtremeLong": 0,
+  "mirrorStale": 0,
+  "silenceGapsTotal": 0,
+  "indexesWithDurationOutliers": 1,
+  "indexesWithSilenceGaps": 0,
+  "entriesTotal": 6236,
+  "missingTotal": 0
+ }
+}

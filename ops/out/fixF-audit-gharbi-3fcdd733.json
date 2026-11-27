@@ -1,0 +1,251 @@
+{
+ "schema": 1,
+ "tool": "full_audit-1.0",
+ "date": "20261003",
+ "timestampUtc": "2026-10-03T06:31:22Z",
+ "elapsedSec": 2.2,
+ "phase": "struct",
+ "manifestIndexes": 180,
+ "frozenBucket": 220,
+ "reportsRead": 0,
+ "rows": [
+  {
+   "key": "timings-staging/warsh/gharbi_warsh.3fcdd733.jz",
+   "sha256": "3fcdd73398f9dddc4d5e5d3f86bc6f7ce62dad1d00098fdfa66d057ae2e5bbe6",
+   "riwaya": "warsh",
+   "reciterId": "gharbi_warsh",
+   "bytes": 91630,
+   "engine": "align-0.2",
+   "transformOp": "realign_surah:30,32,68",
+   "staging": true,
+   "identity": {
+    "sha256": "3fcdd73398f9dddc4d5e5d3f86bc6f7ce62dad1d00098fdfa66d057ae2e5bbe6",
+    "staging": true,
+    "errors": [],
+    "ok": true
+   },
+   "structure": {
+    "entries": 6236,
+    "errors": [],
+    "examples": {},
+    "fileNoUnparsed": 0,
+    "structuralFatal": [],
+    "structuralWarn": [
+     "مداخل مدتها > 120ث: 1 · مثال: 2:282 مدتها 172ث",
+     "مطالع سور تبدأ دون 3ث — مرشّحون للمسبار الصوتي لا حكمٌ عليهم: 41:1=220م.ث"
+    ],
+    "decision": [],
+    "engine": "align-0.2",
+    "audioSha": 114,
+    "bands": {
+     "HIGH": 3929,
+     "LOW": 313,
+     "MED": 1994
+    },
+    "ok": true
+   },
+   "gaps": {
+    "missingTotal": 0,
+    "internalGaps": [],
+    "headMissing": [],
+    "tailMissing": [],
+    "wholeMissing": [],
+    "declared": {
+     "transformOp": "realign_surah:30,32,68",
+     "transformReason": "fixF 2026-10-02: fileRef لس30/32/68 مجلّدُ archive.org بلا اسم ملفّ (84 تداخلاً ولا تشغيلَ في التطبيق) — إعادةُ المحاذاة على ملفّات ar_0NN_Mustapha_Gharbi_Warsh.mp3 المحلولة من جدول الكتالوج (--refs-map)، والتخطّي من سبر CTC 37074343617: 30:1 عند 5453 و32:1 عند 4863 و68:1 عند 4203م.ث (−300)",
+     "reasonCode": null,
+     "dropSurahs": [],
+     "byReason": {
+      "no-align": 18
+     },
+     "declaredCount": 18,
+     "tagCount": 0,
+     "declaredIds": [],
+     "truncatedTail": null
+    },
+    "undeclaredEdge": [],
+    "errors": [],
+    "ok": true
+   },
+   "durations": {
+    "durationOutliers": 17,
+    "durationExamples": [
+     {
+      "aid": "36:30",
+      "ms": 20374,
+      "expMs": 5293,
+      "ratio": 3.85,
+      "chars": 45
+     },
+     {
+      "aid": "36:31",
+      "ms": 18202,
+      "expMs": 5293,
+      "ratio": 3.44,
+      "chars": 45
+     },
+     {
+      "aid": "55:2",
+      "ms": 350,
+      "expMs": 3442,
+      "ratio": 0.1,
+      "chars": 9
+     },
+     {
+      "aid": "20:28",
+      "ms": 307,
+      "expMs": 2627,
+      "ratio": 0.12,
+      "chars": 10
+     },
+     {
+      "aid": "113:4",
+      "ms": 610,
+      "expMs": 5052,
+      "ratio": 0.12,
+      "chars": 18
+     },
+     {
+      "aid": "55:4",
+      "ms": 480,
+      "expMs": 3825,
+      "ratio": 0.13,
+      "chars": 10
+     },
+     {
+      "aid": "67:11",
+      "ms": 1240,
+      "expMs": 8328,
+      "ratio": 0.15,
+      "chars": 30
+     },
+     {
+      "aid": "74:13",
+      "ms": 424,
+      "expMs": 2710,
+      "ratio": 0.16,
+      "chars": 10
+     },
+     {
+      "aid": "27:72",
+      "ms": 1650,
+      "expMs": 9927,
+      "ratio": 0.17,
+      "chars": 32
+     },
+     {
+      "aid": "74:29",
+      "ms": 566,
+      "expMs": 2710,
+      "ratio": 0.21,
+      "chars": 10
+     },
+     {
+      "aid": "26:69",
+      "ms": 1300,
+      "expMs": 5512,
+      "ratio": 0.24,
+      "chars": 18
+     },
+     {
+      "aid": "75:10",
+      "ms": 1493,
+      "expMs": 6283,
+      "ratio": 0.24,
+      "chars": 23
+     }
+    ],
+    "impossibleShort": [
+     {
+      "aid": "55:2",
+      "ms": 350,
+      "expMs": 3442,
+      "ratio": 0.1,
+      "chars": 9
+     },
+     {
+      "aid": "20:28",
+      "ms": 307,
+      "expMs": 2627,
+      "ratio": 0.12,
+      "chars": 10
+     }
+    ],
+    "veryShort": [
+     {
+      "aid": "113:4",
+      "ms": 610,
+      "expMs": 5052,
+      "ratio": 0.12,
+      "chars": 18
+     },
+     {
+      "aid": "55:4",
+      "ms": 480,
+      "expMs": 3825,
+      "ratio": 0.13,
+      "chars": 10
+     },
+     {
+      "aid": "74:13",
+      "ms": 424,
+      "expMs": 2710,
+      "ratio": 0.16,
+      "chars": 10
+     },
+     {
+      "aid": "74:29",
+      "ms": 566,
+      "expMs": 2710,
+      "ratio": 0.21,
+      "chars": 10
+     },
+     {
+      "aid": "75:11",
+      "ms": 537,
+      "expMs": 2185,
+      "ratio": 0.25,
+      "chars": 8
+     },
+     {
+      "aid": "74:3",
+      "ms": 584,
+      "expMs": 2168,
+      "ratio": 0.27,
+      "chars": 8
+     }
+    ],
+    "extremeLong": [],
+    "longOutliers": 2,
+    "shortOutliers": 15,
+    "silenceGaps": 0,
+    "silenceExamples": [],
+    "surahsWithRate": 113
+   }
+  }
+ ],
+ "summary": {
+  "indexes": 1,
+  "phase": "struct",
+  "identityOk": 1,
+  "identityBad": [],
+  "structureOk": 1,
+  "structureBad": [],
+  "gapsOk": 1,
+  "gapsBad": [],
+  "audioOk": 0,
+  "audioBad": [],
+  "durationOutliersTotal": 17,
+  "impossibleShortTotal": 2,
+  "indexesWithImpossibleShort": 1,
+  "veryShortTotal": 6,
+  "extremeLongTotal": 0,
+  "indexesWithExtremeLong": 0,
+  "mirrorStale": 0,
+  "silenceGapsTotal": 0,
+  "indexesWithDurationOutliers": 1,
+  "indexesWithSilenceGaps": 0,
+  "entriesTotal": 6236,
+  "missingTotal": 0
+ }
+}

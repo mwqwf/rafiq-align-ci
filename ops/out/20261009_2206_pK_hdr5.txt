@@ -1,0 +1,590 @@
+# rc=0
+== timings-staging/hafs/kurdi.e5e972c6.jz · e5e972c6ab2b · مداخل 6236
+{
+ "schema": 1,
+ "riwaya": "hafs",
+ "reciterId": "kurdi",
+ "sourceKind": "SURAH_FILES",
+ "ayahCounting": "KUFI",
+ "ayahCount": 6236,
+ "method": "ASR_ALIGN",
+ "engineVersion": "align-0.2",
+ "refineVersion": "v2.1",
+ "refinedCount": 16,
+ "medTargeted": 1968,
+ "refineStats": {
+  "skip:overrun": 1,
+  "skip:no-silence": 787,
+  "token-snap": 16,
+  "skip:no-anchor": 1152,
+  "skip:no-words": 12
+ },
+ "lowCount": 119,
+ "vad": {
+  "versions": {
+   "adaptive-2": 114
+  },
+  "rel": {
+   "min": 0.04,
+   "median": 0.15,
+   "max": 0.25,
+   "surahs": 114
+  }
+ },
+ "writerHostVadVersion": "adaptive-2",
+ "noSilenceShare": 0.403,
+ "noSilenceToAnchor": 0.68,
+ "sparsePauses": true,
+ "missing": {
+  "count": 0,
+  "byReason": {},
+  "medianLen": 4,
+  "medianLenAll": 11,
+  "biasedShort": false,
+  "ids": []
+ },
+ "exactEnds": true,
+ "generatedAt": 1788387763775,
+ "audioSha256": "[114 بصمة]",
+ "notes": "",
+ "basmalaTrim": {
+  "tool": "basmala_postpass.py",
+  "at": 1788562156,
+  "trimmed": 0,
+  "verified": true,
+  "sourceIndex": "index.jz"
+ },
+ "transform": {
+  "op": "ctc_heardmap_splice:42",
+  "fromSha256": "73c7ded5d11910b6445d48b5777953f11c183f5880ce41efe48f78dc9b02317b",
+  "fromKey": "timings/hafs/kurdi.jz",
+  "droppedEntries": 0,
+  "reason": "pK: إصلاح ذيل س42 المضغوط (42:25-53 تنحرف حتى 367ث عن المسموع) بوضع السماع وبمدى معطوب مقيس صحيح فوق المنشور 73c7ded5",
+  "reasonUser": "سورة الضحى غير متوفّرة لهذا القارئ حالياً.",
+  "reasonCode": "SOURCE_TRUNCATED",
+  "at": 1791581251689,
+  "note": "مقارنة بالأصل: حدود متغيرة في 48 مدخلاً، ومداخل مضافة 0، ومداخل محذوفة 0. الرفع إلى الاختبار ليس حكم جودة؛ يلزم اجتياز حراس الجودة والسماع القائمة على بصمة المرشح نفسه.",
+  "entriesSha256": "b2cdc8143a4fb1aa6e2b07d934770fbff505e600f7ec51e537805f373a178869",
+  "parentEntriesSha256": "5c3a8cb3cb087b1a1eb31723741d1a698118cc8423d5acafbd4acf25d729a962",
+  "movedEntries": 48,
+  "by": "github-ctc-splice",
+  "dropSurah": [],
+  "addedEntries": 0,
+  "removedEntries": 0
+ },
+ "engineBySurah": {
+  "1": "ctc-seg-1",
+  "2": "ctc-heardmap-1",
+  "3": "ctc-seg-1",
+  "4": "ctc-heardmap-1",
+  "6": "ctc-heardmap-1",
+  "7": "ctc-heardmap-1",
+  "8": "ctc-heardmap-1",
+  "9": "ctc-heardmap-1",
+  "10": "ctc-heardmap-1",
+  "12": "ctc-heardmap-1",
+  "13": "ctc-heardmap-1",
+  "15": "ctc-heardmap-1",
+  "16": "ctc-dual-window-1",
+  "17": "ctc-heardmap-1",
+  "18": "ctc-heardmap-1",
+  "19": "ctc-heardmap-1",
+  "20": "ctc-heardmap-1",
+  "21": "ctc-heardmap-1",
+  "22": "ctc-heardmap-1",
+  "23": "ctc-heardmap-1",
+  "24": "ctc-heardmap-1",
+  "25": "ctc-heardmap-1",
+  "27": "ctc-heardmap-1",
+  "28": "ctc-heardmap-1",
+  "29": "ctc-heardmap-1",
+  "30": "ctc-heardmap-1",
+  "32": "ctc-heardmap-1",
+  "33": "ctc-heardmap-1",
+  "34": "ctc-heardmap-1",
+  "36": "ctc-heardmap-1",
+  "37": "ctc-seg-1",
+  "38": "ctc-heardmap-1",
+  "39": "ctc-heardmap-1",
+  "40": "ctc-heardmap-1",
+  "42": "ctc-heardmap-1",
+  "43": "ctc-heardmap-1",
+  "46": "ctc-heardmap-1",
+  "47": "ctc-heardmap-1",
+  "49": "ctc-heardmap-1",
+  "50": "ctc-heardmap-1",
+  "52": "ctc-heardmap-1",
+  "53": "ctc-heardmap-1",
+  "55": "ctc-heardmap-1",
+  "56": "ctc-heardmap-1",
+  "57": "ctc-heardmap-1",
+  "59": "ctc-heardmap-1",
+  "60": "ctc-heardmap-1",
+  "64": "ctc-heardmap-1",
+  "67": "ctc-heardmap-1",
+  "68": "ctc-heardmap-1",
+  "71": "ctc-heardmap-1",
+  "72": "ctc-heardmap-1",
+  "74": "ctc-heardmap-1",
+  "76": "ctc-heardmap-1",
+  "78": "ctc-heardmap-1",
+  "80": "ctc-heardmap-1",
+  "81": "ctc-heardmap-1",
+  "83": "ctc-heardmap-1",
+  "85": "ctc-heardmap-1",
+  "87": "ctc-heardmap-1",
+  "88": "ctc-heardmap-1",
+  "89": "ctc-heardmap-1",
+  "90": "ctc-heardmap-1",
+  "91": "ctc-heardmap-1",
+  "92": "ctc-heardmap-1",
+  "93": "ctc-seg-1",
+  "94": "ctc-heardmap-1",
+  "95": "ctc-heardmap-1",
+  "96": "ctc-heardmap-1",
+  "97": "ctc-heardmap-1",
+  "99": "ctc-heardmap-1",
+  "100": "ctc-heardmap-1",
+  "101": "ctc-heardmap-1",
+  "102": "ctc-heardmap-1",
+  "106": "ctc-heardmap-1",
+  "108": "ctc-heardmap-1",
+  "109": "ctc-heardmap-1",
+  "111": "ctc-heardmap-1",
+  "114": "ctc-heardmap-1"
+ },
+ "dualAlignmentEvidenceBySurah": {
+  "16": {
+   "surah": 16,
+   "riwaya": "hafs",
+   "sourceSha256": "c82dee8759a803dbe1364e9745880856ca5a5eb98b8473a70f689b4905e27e3a",
+   "canonicalTextChanged": false,
+   "totalMs": 2785384,
+   "models": {
+    "quran": {
+     "id": "rabah2026/wav2vec2-large-xlsr-53-arabic-quran-v_final",
+     "revision": "b03a268c6ba1a693752307325ab376c86c3b12da",
+     "weightsSha256": "bf65674a26eb4ef7042cedade96c3c8f8cbd04f3a7d1a68eadceec8ed0f99ecb",
+     "license": "Apache-2.0",
+     "canonicalTextChanged": false
+    },
+    "generic": {
+     "id": "jonatasgrosman/wav2vec2-large-xlsr-53-arabic",
+     "revision": "af46c2d8531b8dcbb5e23b952f739b372c2e5d2d",
+     "weightsSha256": "a0b26f6d9d3edfde1784aef863c192a8cc1e438a23b45910ab648531ebe1857b",
+     "license": "Apache-2.0"
+    }
+   },
+   "baseMeasurements": [
+    {
+     "ayahIdx": 0,
+     "startMs": 5673,
+     "endMs": 19340,
+     "conf": 0.799,
+     "snapped": true,
+     "matched": 0,
+     "total": 9
+    },
+    {
+     "ayahIdx": 1,
+     "startMs": 19340,
+     "endMs": 45120,
+     "conf": 0.51,
+     "snapped": true,
+     "matched": 0,
+     "total": 18
+    },
+    {
+     "ayahIdx": 2,
+     "startMs": 45120,
+     "endMs": 54076,
+     "conf": 0.735,
+     "snapped": true,
+     "matched": 0,
+     "total": 7
+    },
+    {
+     "ayahIdx": 3,
+     "startMs": 54076,
+     "endMs": 64580,
+     "conf": 0.74,
+     "snapped": false,
+     "matched": 0,
+     "total": 8
+    },
+    {
+     "ayahIdx": 4,
+     "startMs": 64580,
+     "endMs": 77291,
+     "conf": 0.755,
+     "snapped": true,
+     "matched": 0,
+     "total": 8
+    },
+    {
+     "ayahIdx": 5,
+     "startMs": 77291,
+     "endMs": 85957,
+     "conf": 0.953,
+     "snapped": true,
+     "matched": 0,
+     "total": 7
+    },
+    {
+     "ayahIdx": 6,
+     "startMs": 85957,
+     "endMs": 104060,
+     "conf": 0.74,
+     "snapped": false,
+     "matched": 0,
+     "total": 14
+    },
+    {
+     "ayahIdx": 7,
+     "startMs": 104060,
+     "endMs": 116337,
+     "conf": 0.74,
+     "snapped": true,
+     "matched": 0,
+     "total": 9
+    },
+    {
+     "ayahIdx": 8,
+     "startMs": 116337,
+     "endMs": 133729,
+     "conf": 0.74,
+     "snapped": false,
+     "matched": 0,
+     "total": 10
+    },
+    {
+     "ayahIdx": 9,
+     "startMs": 133729,
+     "endMs": 153140,
+     "conf": 0.733,
+     "snapped": true,
+     "matched": 0,
+     "total": 13
+    },
+    {
+     "ayahIdx": 10,
+     "startMs": 153140,
+     "endMs": 175760,
+     "conf": 0.684,
+     "snapped": true,
+     "matched": 0,
+     "total": 16
+    },
+    {
+     "ayahIdx": 11,
+     "startMs": 175760,
+     "endMs": 199272,
+     "conf": 0.565,
+     "snapped": true,
+     "matched": 0,
+     "total": 15
+    },
+    {
+     "ayahIdx": 12,
+     "startMs": 199272,
+     "endMs": 214100,
+     "conf": 0.53,
+     "snapped": false,
+     "matched": 0,
+     "total": 13
+    },
+    {
+     "ayahIdx": 13,
+     "startMs": 214100,
+     "endMs": 241520,
+     "conf": 0.704,
+     "snapped": true,
+     "matched": 0,
+     "total": 21
+    },
+    {
+     "ayahIdx": 14,
+     "startMs": 241520,
+     "endMs": 257030,
+     "conf": 0.703,
+     "snapped": false,
+     "matched": 0,
+     "total": 11
+    },
+    {
+     "ayahIdx": 15,
+     "startMs": 257030,
+     "endMs": 267310,
+     "conf": 0.808,
+     "snapped": true,
+     "matched": 0,
+     "total": 4
+    },
+    {
+     "ayahIdx": 16,
+     "startMs": 267310,
+     "endMs": 275072,
+     "conf": 0.906,
+     "snapped": true,
+     "matched": 0,
+     "total": 7
+    },
+    {
+     "ayahIdx": 17,
+     "startMs": 275072,
+     "endMs": 289480,
+     "conf": 0.74,
+     "snapped": false,
+     "matched": 0,
+     "total": 10
+    },
+    {
+     "ayahIdx": 18,
+     "startMs": 289480,
+     "endMs": 298940,
+     "conf": 0.757,
+     "snapped": true,
+     "matched": 0,
+     "total": 6
+    },
+    {
+     "ayahIdx": 19,
+     "startMs": 298940,
+     "endMs": 311640,
+     "conf": 0.62,
+     "snapped": true,
+     "matched": 0,
+     "total": 10
+    },
+    {
+     "ayahIdx": 20,
+     "startMs": 311640,
+     "endMs": 324836,
+     "conf": 0.799,
+     "snapped": true,
+     "matched": 0,
+     "total": 7
+    },
+    {
+     "ayahIdx": 21,
+     "startMs": 324836,
+     "endMs": 344660,
+     "conf": 0.477,
+     "snapped": true,
+     "matched": 0,
+     "total": 11
+    },
+    {
+     "ayahIdx": 22,
+     "startMs": 344660,
+     "endMs": 359699,
+     "conf": 0.812,
+     "snapped": true,
+     "matched": 0,
+     "total": 13
+    },
+    {
+     "ayahIdx": 23,
+     "startMs": 359699,
+     "endMs": 373728,
+     "conf": 0.74,
+     "snapped": false,
+     "matched": 0,
+     "total": 9
+    },
+    {
+     "ayahIdx": 24,
+     "startMs": 373728,
+     "endMs": 397430,
+     "conf": 0.786,
+     "snapped": true,
+     "matched": 0,
+     "total": 15
+    },
+    {
+     "ayahIdx": 25,
+     "startMs": 397430,
+     "endMs": 419498,
+     "conf": 0.637,
+     "snapped": true,
+     "matched": 0,
+     "total": 21
+    },
+    {
+     "ayahIdx": 26,
+     "startMs": 419498,
+     "endMs": 459650,
+     "conf": 0.633,
+     "snapped": true,
+     "matched": 0,
+     "total": 21
+    },
+    {
+     "ayahIdx": 27,
+     "startMs": 459650,
+     "endMs": 495089,
+     "conf": 0.54,
+     "snapped": true,
+     "matched": 0,
+     "total": 19
+    },
+    {
+     "ayahIdx": 28,
+     "startMs": 495089,
+     "endMs": 507827,
+     "conf": 0.74,
+     "snapped": false,
+     "matched": 0,
+     "total": 8
+    },
+    {
+     "ayahIdx": 29,
+     "startMs": 507827,
+     "endMs": 536456,
+     "conf": 0.515,
+     "snapped": false,
+     "matched": 0,
+     "total": 20
+    },
+    {
+     "ayahIdx": 30,
+     "startMs": 536456,
+     "endMs": 564034,
+     "conf": 0.712,
+     "snapped": false,
+     "matched": 0,
+     "total": 15
+    },
+    {
+     "ayahIdx": 31,
+     "startMs": 564034,
+     "endMs": 588620,
+     "conf": 0.726,
+     "snapped": false,
+     "matched": 0,
+     "total": 12
+    },
+    {
+     "ayahIdx": 32,
+     "startMs": 588620,
+     "endMs": 620740,
+     "conf": 0.501,
+     "snapped": true,
+     "matched": 0,
+     "total": 22
+    },
+    {
+     "ayahIdx": 33,
+     "startMs": 620740,
+     "endMs": 638013,
+     "conf": 0.801,
+     "snapped": true,
+     "matched": 0,
+     "total": 10
+    },
+    {
+     "ayahIdx": 34,
+     "startMs": 638013,
+     "endMs": 677260,
+     "conf": 0.603,
+     "snapped": true,
+     "matched": 0,
+     "total": 32
+    },
+    {
+     "ayahIdx": 35,
+     "startMs": 677260,
+     "endMs": 709231,
+     "conf": 0.676,
+     "snapped": true,
+     "matched": 0,
+     "total": 28
+    },
+    {
+     "ayahIdx": 36,
+     "startMs": 709231,
+     "endMs": 726940,
+     "conf": 0.803,
+     "snapped": true,
+     "matched": 0,
+     "total": 14
+    },
+    {
+     "ayahIdx": 37,
+     "startMs": 726940,
+     "endMs": 751890,
+     "conf": 0.789,
+     "snapped": true,
+     "matched": 0,
+     "total": 18
+    },
+    {
+     "ayahIdx": 38,
+     "startMs": 751890,
+     "endMs": 766360,
+     "conf": 0.805,
+     "snapped": true,
+     "matched": 0,
+     "total": 11
+    },
+    {
+     "ayahIdx": 39,
+     "startMs": 766360,
+     "endMs": 781319,
+     "conf": 0.815,
+     "snapped": true,
+     "matched": 0,
+     "total": 10
+    },
+    {
+     "ayahIdx": 40,
+     "startMs": 781319,
+     "endMs": 803654,
+     "conf": 0.531,
+     "snapped": false,
+     "matched": 0,
+     "total": 18
+    },
+    {
+     "ayahIdx": 41,
+     "startMs": 803654,
+     "endMs": 811959,
+     "conf": 0.74,
+     "snapped": false,
+     "matched": 0,
+     "total": 5
+    },
+    {
+     "ayahIdx": 42,
+     "startMs": 811959,
+     "endMs": 834914,
+     "conf": 0.703,
+     "snapped": true,
+     "matched": 0,
+     "total": 15
+    },
+    {
+     "ayahIdx": 43,
+     "startMs": 834914,
+     "endMs": 855168,
+     "conf": 0.74,
+     "snapped": false,
+     "matched": 0,
+     "total": 12
+    },
+    {
+     "ayahIdx": 44,
+     "startMs": 855168,
+     "endMs": 871780,
+     "conf": 0.74,
+     "snapped": false,
+     "matched": 0,
+     "total": 16
+    },
+    {
+     "ayahIdx": 45,
+     "startMs": 871780,
+     "endMs": 881725,
+     "conf": 0.777,
+     "snapped": true,
+  

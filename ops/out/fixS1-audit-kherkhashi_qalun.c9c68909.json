@@ -1,0 +1,179 @@
+{
+ "schema": 1,
+ "tool": "full_audit-1.0",
+ "date": "20261003",
+ "timestampUtc": "2026-10-03T09:01:44Z",
+ "elapsedSec": 17.1,
+ "phase": "all",
+ "manifestIndexes": 180,
+ "frozenBucket": 220,
+ "reportsRead": 9188,
+ "rows": [
+  {
+   "key": "timings-staging/qalun/kherkhashi_qalun.c9c68909.jz",
+   "sha256": "c9c68909f3f4c4f742a6b32bfe25c52bef7e578c28a7e03a048cee7fc676b4ee",
+   "riwaya": "qalun",
+   "reciterId": "kherkhashi_qalun",
+   "bytes": 88837,
+   "engine": "align-0.2",
+   "transformOp": "ctc_heardmap_splice:12",
+   "staging": true,
+   "identity": {
+    "sha256": "c9c68909f3f4c4f742a6b32bfe25c52bef7e578c28a7e03a048cee7fc676b4ee",
+    "staging": true,
+    "errors": [],
+    "ok": true
+   },
+   "structure": {
+    "entries": 6236,
+    "errors": [],
+    "examples": {},
+    "fileNoUnparsed": 0,
+    "structuralFatal": [],
+    "structuralWarn": [
+     "مداخل مدتها > 120ث: 1 · مثال: 2:282 مدتها 156ث"
+    ],
+    "decision": [],
+    "engine": "align-0.2",
+    "audioSha": 114,
+    "bands": {
+     "HIGH": 3906,
+     "MED": 2110,
+     "LOW": 220
+    },
+    "ok": true
+   },
+   "gaps": {
+    "missingTotal": 0,
+    "internalGaps": [],
+    "headMissing": [],
+    "tailMissing": [],
+    "wholeMissing": [],
+    "declared": {
+     "transformOp": "ctc_heardmap_splice:12",
+     "transformReason": "fixS1: 12:78–80 عند الخرخاشي كبسها المنشور (السماع 37103820415: بعد مواضعها بـ14–26ث) ونافذةُ الجارتين المسموعتين رُدّت (12:80 ثقة 0.388) ⇒ بناءُ يوسف بخريطة السماع فوق 965d9491 (85:5 و12:17–19 مُصلحة)",
+     "reasonCode": null,
+     "dropSurahs": [],
+     "byReason": {
+      "no-align": 10
+     },
+     "declaredCount": 10,
+     "tagCount": 0,
+     "declaredIds": [],
+     "truncatedTail": null
+    },
+    "undeclaredEdge": [],
+    "errors": [],
+    "ok": true
+   },
+   "durations": {
+    "durationOutliers": 6,
+    "durationExamples": [
+     {
+      "aid": "3:168",
+      "ms": 4463,
+      "expMs": 18472,
+      "ratio": 0.24,
+      "chars": 71
+     },
+     {
+      "aid": "85:2",
+      "ms": 986,
+      "expMs": 4098,
+      "ratio": 0.24,
+      "chars": 13
+     },
+     {
+      "aid": "3:150",
+      "ms": 1621,
+      "expMs": 6504,
+      "ratio": 0.25,
+      "chars": 25
+     },
+     {
+      "aid": "3:184",
+      "ms": 3722,
+      "expMs": 13269,
+      "ratio": 0.28,
+      "chars": 51
+     },
+     {
+      "aid": "27:2",
+      "ms": 1315,
+      "expMs": 4740,
+      "ratio": 0.28,
+      "chars": 16
+     },
+     {
+      "aid": "109:4",
+      "ms": 1334,
+      "expMs": 4497,
+      "ratio": 0.3,
+      "chars": 17
+     }
+    ],
+    "impossibleShort": [],
+    "veryShort": [
+     {
+      "aid": "85:2",
+      "ms": 986,
+      "expMs": 4098,
+      "ratio": 0.24,
+      "chars": 13
+     }
+    ],
+    "extremeLong": [],
+    "longOutliers": 0,
+    "shortOutliers": 5,
+    "silenceGaps": 0,
+    "silenceExamples": [],
+    "surahsWithRate": 113
+   },
+   "audio": {
+    "audioReportsOnSha": 0,
+    "openersOnSha": false,
+    "errors": [
+     "لا حكمَ صوتيٍّ بعيّنةٍ على البصمة المنشورة",
+     "لا شاهدَ مطالعَ على البصمة المنشورة"
+    ],
+    "notes": [],
+    "samples": [],
+    "pooled": null,
+    "severeHi": null,
+    "otherShasWithSamples": [
+     "3071e99e",
+     "33b4e8ac",
+     "4ea67105",
+     "93069c54"
+    ],
+    "ok": false
+   }
+  }
+ ],
+ "summary": {
+  "indexes": 1,
+  "phase": "all",
+  "identityOk": 1,
+  "identityBad": [],
+  "structureOk": 1,
+  "structureBad": [],
+  "gapsOk": 1,
+  "gapsBad": [],
+  "audioOk": 0,
+  "audioBad": [
+   "timings-staging/qalun/kherkhashi_qalun.c9c68909.jz"
+  ],
+  "durationOutliersTotal": 6,
+  "impossibleShortTotal": 0,
+  "indexesWithImpossibleShort": 0,
+  "veryShortTotal": 1,
+  "extremeLongTotal": 0,
+  "indexesWithExtremeLong": 0,
+  "mirrorStale": 0,
+  "silenceGapsTotal": 0,
+  "indexesWithDurationOutliers": 1,
+  "indexesWithSilenceGaps": 0,
+  "entriesTotal": 6236,
+  "missingTotal": 0
+ }
+}

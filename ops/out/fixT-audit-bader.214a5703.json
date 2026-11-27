@@ -1,0 +1,165 @@
+{
+ "schema": 1,
+ "tool": "full_audit-1.0",
+ "date": "20261004",
+ "timestampUtc": "2026-10-04T20:47:45Z",
+ "elapsedSec": 55.2,
+ "phase": "all",
+ "manifestIndexes": 180,
+ "frozenBucket": 220,
+ "reportsRead": 10667,
+ "rows": [
+  {
+   "key": "timings-staging/hafs/bader.214a5703.jz",
+   "sha256": "214a5703dc2d2bbcd060c660801c7d6a4523f72064774d2389f04f5d928c94ab",
+   "riwaya": "hafs",
+   "reciterId": "bader",
+   "bytes": 95917,
+   "engine": "ctc-seg-1",
+   "transformOp": "ctc_heardmap_splice:8,12,13,14,15,16,18,19,21,22,23,24,25,29,30,31,32,34,35,36,38,39,40,41,42,43,44,45,46,47,49,50,52,53,55,56,57,59,60,64,65,66,67,68,70,71,72,75,76,79",
+   "staging": true,
+   "identity": {
+    "sha256": "214a5703dc2d2bbcd060c660801c7d6a4523f72064774d2389f04f5d928c94ab",
+    "staging": true,
+    "errors": [],
+    "ok": true
+   },
+   "structure": {
+    "entries": 6236,
+    "errors": [],
+    "examples": {},
+    "fileNoUnparsed": 0,
+    "structuralFatal": [],
+    "structuralWarn": [
+     "مداخل مدتها > 120ث: 1 · مثال: 2:282 مدتها 153ث",
+     "مطالع سور تبدأ دون 3ث — مرشّحون للمسبار الصوتي لا حكمٌ عليهم: 58:1=1871م.ث · 64:1=1450م.ث"
+    ],
+    "decision": [],
+    "engine": "ctc-seg-1",
+    "audioSha": 114,
+    "bands": {
+     "MED": 5221,
+     "HIGH": 154,
+     "LOW": 861
+    },
+    "ok": true
+   },
+   "gaps": {
+    "missingTotal": 0,
+    "internalGaps": [],
+    "headMissing": [],
+    "tailMissing": [],
+    "wholeMissing": [],
+    "declared": {
+     "transformOp": "ctc_heardmap_splice:8,12,13,14,15,16,18,19,21,22,23,24,25,29,30,31,32,34,35,36,38,39,40,41,42,43,44,45,46,47,49,50,52,53,55,56,57,59,60,64,65,66,67,68,70,71,72,75,76,79",
+     "transformReason": "fixT: إصلاحٌ دفعيٌّ لكبس الذيل — 54 سورةً مشتبهةً (فائضٌ ≥15ث بعد آخر مدخل · تدقيق الجولة الثانية 2026-10-03)، كلٌّ يُقاس بالسماع قبل أن يُمسّ",
+     "reasonCode": null,
+     "dropSurahs": [],
+     "byReason": {
+      "no-align": 2
+     },
+     "declaredCount": 2,
+     "tagCount": 0,
+     "declaredIds": [],
+     "truncatedTail": null
+    },
+    "undeclaredEdge": [],
+    "errors": [],
+    "ok": true
+   },
+   "durations": {
+    "durationOutliers": 3,
+    "durationExamples": [
+     {
+      "aid": "53:55",
+      "ms": 17376,
+      "expMs": 4330,
+      "ratio": 4.01,
+      "chars": 16
+     },
+     {
+      "aid": "75:27",
+      "ms": 7365,
+      "expMs": 2442,
+      "ratio": 3.02,
+      "chars": 9
+     },
+     {
+      "aid": "88:25",
+      "ms": 740,
+      "expMs": 3028,
+      "ratio": 0.24,
+      "chars": 13
+     }
+    ],
+    "impossibleShort": [],
+    "veryShort": [
+     {
+      "aid": "88:25",
+      "ms": 740,
+      "expMs": 3028,
+      "ratio": 0.24,
+      "chars": 13
+     }
+    ],
+    "extremeLong": [],
+    "longOutliers": 2,
+    "shortOutliers": 1,
+    "silenceGaps": 0,
+    "silenceExamples": [],
+    "surahsWithRate": 113
+   },
+   "audio": {
+    "audioReportsOnSha": 0,
+    "openersOnSha": false,
+    "errors": [
+     "لا حكمَ صوتيٍّ بعيّنةٍ على البصمة المنشورة",
+     "لا شاهدَ مطالعَ على البصمة المنشورة"
+    ],
+    "notes": [],
+    "samples": [],
+    "pooled": null,
+    "severeHi": null,
+    "otherShasWithSamples": [
+     "0fcf12c6",
+     "195873a1",
+     "2b3ac26c",
+     "3e9c89d6",
+     "45e999ab",
+     "6df134d0",
+     "6fafeac8",
+     "86b5a19a",
+     "ac17e39a",
+     "ca088c4f"
+    ],
+    "ok": false
+   }
+  }
+ ],
+ "summary": {
+  "indexes": 1,
+  "phase": "all",
+  "identityOk": 1,
+  "identityBad": [],
+  "structureOk": 1,
+  "structureBad": [],
+  "gapsOk": 1,
+  "gapsBad": [],
+  "audioOk": 0,
+  "audioBad": [
+   "timings-staging/hafs/bader.214a5703.jz"
+  ],
+  "durationOutliersTotal": 3,
+  "impossibleShortTotal": 0,
+  "indexesWithImpossibleShort": 0,
+  "veryShortTotal": 1,
+  "extremeLongTotal": 0,
+  "indexesWithExtremeLong": 0,
+  "mirrorStale": 0,
+  "silenceGapsTotal": 0,
+  "indexesWithDurationOutliers": 1,
+  "indexesWithSilenceGaps": 0,
+  "entriesTotal": 6236,
+  "missingTotal": 0
+ }
+}

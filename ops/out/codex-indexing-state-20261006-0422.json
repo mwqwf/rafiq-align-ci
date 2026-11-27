@@ -1,0 +1,65 @@
+{
+  "generatedAt": "2026-10-06T04:22:13Z",
+  "productionSnapshot": {
+    "verifiedAdoptionsThisContinuation": 18,
+    "latestKey": "timings/hafs/a_alhazmi.jz",
+    "latestSha256": "7498fa1e5a270e8263d93e19aaaadc963769879cd84f6eea0e2ea39add73fc96",
+    "previousKey": "timings/hafs/obk.jz",
+    "previousSha256": "b003a390154cd0002407832fdf28a98523ef1d81b353502676e83f8687a55851"
+  },
+  "structuralAudit": {
+    "timestampUtc": "2026-10-06T04:19:21Z",
+    "phase": "struct",
+    "indexes": 180,
+    "entries": 1121596,
+    "missingAyahs": 884,
+    "identityPass": 180,
+    "structurePass": 180,
+    "declaredGapContractPass": 180,
+    "errors": 0,
+    "impossibleDurationCount": 4,
+    "veryShortReviewCount": 424,
+    "durationOutlierCount": 3065,
+    "indexesWithDurationOutliers": 155,
+    "silenceIndicatorCount": 140,
+    "indexesWithSilenceIndicators": 27,
+    "repoFrozenMirrorStaleIndexes": 158,
+    "impossibleDurations": [
+      {"key": "timings/hafs/balilah.jz", "surah": 69, "ayah": 50, "durationMs": 327},
+      {"key": "timings/hafs/tblawi.jz", "surah": 7, "ayah": 24, "durationMs": 1218},
+      {"key": "timings/warsh/m_abdulkareem_warsh.jz", "surah": 21, "ayah": 48, "durationMs": 1120},
+      {"key": "timings/warsh/noah_warsh.jz", "surah": 54, "ayah": 17, "durationMs": 200}
+    ],
+    "files": [
+      "ops/out/full-audit-codex-after-eighteen-adoptions-20261006.json",
+      "ops/out/full-audit-codex-after-eighteen-adoptions-20261006.md"
+    ]
+  },
+  "completionAudit": {
+    "timestampUtc": "2026-10-06T04:21:27Z",
+    "snapshotTimestampUtc": "2026-10-06T04:21:23Z",
+    "atomicSnapshot": false,
+    "readObjects": 2975,
+    "indexes": 180,
+    "expectedIndexes": 180,
+    "manifestIndexes": 180,
+    "readyIndexes": 0,
+    "startsReadyIndexes": 0,
+    "missingAyahs": 884,
+    "unmeasuredStarts": 857568,
+    "startDeviations": 7877,
+    "verifiedEndEvidence": 0,
+    "unknownEndEvidence": 1121596,
+    "errors": [],
+    "files": [
+      "ops/out/completion-codex-after-eighteen-20261006.json",
+      "ops/out/completion-codex-after-eighteen-20261006-summary.json"
+    ]
+  },
+  "interpretation": {
+    "structuralPassIsAudioCompletion": false,
+    "unknownEndMeansCorrupt": false,
+    "completionClaim": false,
+    "rerunRequiredAfterAnyLaterAdoption": true
+  }
+}

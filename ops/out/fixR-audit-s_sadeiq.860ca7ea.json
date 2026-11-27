@@ -1,0 +1,353 @@
+{
+ "schema": 1,
+ "tool": "full_audit-1.0",
+ "date": "20261003",
+ "timestampUtc": "2026-10-03T16:00:01Z",
+ "elapsedSec": 30.3,
+ "phase": "all",
+ "manifestIndexes": 180,
+ "frozenBucket": 220,
+ "reportsRead": 9668,
+ "rows": [
+  {
+   "key": "timings-staging/hafs/s_sadeiq.860ca7ea.jz",
+   "sha256": "860ca7ea5a375353181c8aa2a31e2eaff1c691f2663b409fcbd7c0cb9f5c53b3",
+   "riwaya": "hafs",
+   "reciterId": "s_sadeiq",
+   "bytes": 93177,
+   "engine": "ctc-seg-1",
+   "transformOp": "drop_surah:42",
+   "staging": true,
+   "identity": {
+    "sha256": "860ca7ea5a375353181c8aa2a31e2eaff1c691f2663b409fcbd7c0cb9f5c53b3",
+    "staging": true,
+    "errors": [],
+    "ok": true
+   },
+   "structure": {
+    "entries": 6183,
+    "errors": [],
+    "examples": {},
+    "fileNoUnparsed": 0,
+    "structuralFatal": [],
+    "structuralWarn": [
+     "مداخل ناقصة: 53 من 6236 (0.8%) — منها 53 بعذرٍ معلَن (بترٌ مصدري) ⇒ **غير المبرَّر 0 (0.0%)** — الحدّ 2% على غير المبرَّر",
+     "آيات بلا مدخل: 53 · وسيط طولها 16 كلمة (المصحف 11) — غيابٌ غير منحاز",
+     "مداخل مدتها > 120ث: 1 · مثال: 2:282 مدتها 142ث"
+    ],
+    "decision": [
+     "سورٌ محذوفةٌ **بإعلانٍ وسبب**: [42] (السبب: ملفّ الشورى عند الناشر (server16.mp3quran.net/s_sadeiq/…/042.mp3 → cdn.mp3quran.net/audio/salman-siddiq/r1/042.mp3، 1052ث، 16857174 بايت، تنزيلان متطابقان md5 cd9ac4e2…) صامتٌ كلُّه: طاقةُ RMS لكلّ 30ث = 0.0 من أوّله إلى آخره (surah_audio_probe 20261003_1545)، ومسبرا السماع int8 (37128882347) وfloat32 (37132955276) لم يسمعا حرفاً. فالسورةُ المنشورة (53 آيةً في 95ث، 42:1 و42:2 بمدّة 0.1ث) توقيتٌ بلا صوت. ولا مصحفَ آخرَ للقارئ في mp3quran (alt_source)، وما في archive.org تسجيلاتٌ أخرى «حدر مسرع» بترقيمٍ مختلف لا تحلّ محلّ هذا المصحف. ⇒ تُسقط السورة كلّها وتُعلن.) — قرارُ منتَجٍ يُعرض على المشرف، لا حكمُ جودة"
+    ],
+    "engine": "ctc-seg-1",
+    "audioSha": 114,
+    "bands": {
+     "MED": 4515,
+     "HIGH": 238,
+     "LOW": 1430
+    },
+    "ok": true
+   },
+   "gaps": {
+    "missingTotal": 53,
+    "internalGaps": [],
+    "headMissing": [],
+    "tailMissing": [],
+    "wholeMissing": [
+     42
+    ],
+    "declared": {
+     "transformOp": "drop_surah:42",
+     "transformReason": "ملفّ الشورى عند الناشر (server16.mp3quran.net/s_sadeiq/…/042.mp3 → cdn.mp3quran.net/audio/salman-siddiq/r1/042.mp3، 1052ث، 16857174 بايت، تنزيلان متطابقان md5 cd9ac4e2…) صامتٌ كلُّه: طاقةُ RMS لكلّ 30ث = 0.0 من أوّله إلى آخره (surah_audio_probe 20261003_1545)، ومسبرا السماع int8 (37128882347) وfloat32 (37132955276) لم يسمعا حرفاً. فالسورةُ المنشورة (53 آيةً في 95ث، 42:1 و42:2 بمدّة 0.1ث) توقيتٌ بلا صوت. ولا مصحفَ آخرَ للقارئ في mp3quran (alt_source)، وما في archive.org تسجيلاتٌ أخرى «حدر مسرع» بترقيمٍ مختلف لا تحلّ محلّ هذا المصحف. ⇒ تُسقط السورة كلّها وتُعلن.",
+     "reasonCode": "SOURCE_CORRUPT",
+     "dropSurahs": [
+      42
+     ],
+     "byReason": {
+      "no-align": 3,
+      "source_truncated": 53
+     },
+     "declaredCount": 56,
+     "tagCount": 53,
+     "declaredIds": [
+      "42:1",
+      "42:2",
+      "42:3",
+      "42:4",
+      "42:5",
+      "42:6",
+      "42:7",
+      "42:8",
+      "42:9",
+      "42:10",
+      "42:11",
+      "42:12",
+      "42:13",
+      "42:14",
+      "42:15",
+      "42:16",
+      "42:17",
+      "42:18",
+      "42:19",
+      "42:20",
+      "42:21",
+      "42:22",
+      "42:23",
+      "42:24",
+      "42:25",
+      "42:26",
+      "42:27",
+      "42:28",
+      "42:29",
+      "42:30",
+      "42:31",
+      "42:32",
+      "42:33",
+      "42:34",
+      "42:35",
+      "42:36",
+      "42:37",
+      "42:38",
+      "42:39",
+      "42:40",
+      "42:41",
+      "42:42",
+      "42:43",
+      "42:44",
+      "42:45",
+      "42:46",
+      "42:47",
+      "42:48",
+      "42:49",
+      "42:50",
+      "42:51",
+      "42:52",
+      "42:53"
+     ],
+     "truncatedTail": null
+    },
+    "undeclaredEdge": [],
+    "errors": [],
+    "ok": true
+   },
+   "durations": {
+    "durationOutliers": 63,
+    "durationExamples": [
+     {
+      "aid": "12:16",
+      "ms": 12100,
+      "expMs": 3067,
+      "ratio": 3.94,
+      "chars": 17
+     },
+     {
+      "aid": "12:1",
+      "ms": 11310,
+      "expMs": 3609,
+      "ratio": 3.13,
+      "chars": 20
+     },
+     {
+      "aid": "22:21",
+      "ms": 6711,
+      "expMs": 2155,
+      "ratio": 3.11,
+      "chars": 14
+     },
+     {
+      "aid": "67:28",
+      "ms": 2361,
+      "expMs": 17091,
+      "ratio": 0.14,
+      "chars": 56
+     },
+     {
+      "aid": "43:69",
+      "ms": 1361,
+      "expMs": 8313,
+      "ratio": 0.16,
+      "chars": 28
+     },
+     {
+      "aid": "43:66",
+      "ms": 2151,
+      "expMs": 11876,
+      "ratio": 0.18,
+      "chars": 40
+     },
+     {
+      "aid": "53:61",
+      "ms": 441,
+      "expMs": 2450,
+      "ratio": 0.18,
+      "chars": 10
+     },
+     {
+      "aid": "39:64",
+      "ms": 1935,
+      "expMs": 10067,
+      "ratio": 0.19,
+      "chars": 33
+     },
+     {
+      "aid": "39:66",
+      "ms": 1301,
+      "expMs": 7017,
+      "ratio": 0.19,
+      "chars": 23
+     },
+     {
+      "aid": "51:55",
+      "ms": 1521,
+      "expMs": 7802,
+      "ratio": 0.19,
+      "chars": 25
+     },
+     {
+      "aid": "56:83",
+      "ms": 1140,
+      "expMs": 6017,
+      "ratio": 0.19,
+      "chars": 19
+     },
+     {
+      "aid": "53:49",
+      "ms": 700,
+      "expMs": 3430,
+      "ratio": 0.2,
+      "chars": 14
+     }
+    ],
+    "impossibleShort": [],
+    "veryShort": [
+     {
+      "aid": "53:61",
+      "ms": 441,
+      "expMs": 2450,
+      "ratio": 0.18,
+      "chars": 10
+     },
+     {
+      "aid": "53:49",
+      "ms": 700,
+      "expMs": 3430,
+      "ratio": 0.2,
+      "chars": 14
+     },
+     {
+      "aid": "53:57",
+      "ms": 500,
+      "expMs": 2450,
+      "ratio": 0.2,
+      "chars": 10
+     },
+     {
+      "aid": "56:67",
+      "ms": 760,
+      "expMs": 3800,
+      "ratio": 0.2,
+      "chars": 12
+     },
+     {
+      "aid": "26:188",
+      "ms": 920,
+      "expMs": 3930,
+      "ratio": 0.23,
+      "chars": 19
+     },
+     {
+      "aid": "56:94",
+      "ms": 761,
+      "expMs": 3167,
+      "ratio": 0.24,
+      "chars": 10
+     },
+     {
+      "aid": "74:55",
+      "ms": 601,
+      "expMs": 2534,
+      "ratio": 0.24,
+      "chars": 9
+     },
+     {
+      "aid": "53:48",
+      "ms": 961,
+      "expMs": 3675,
+      "ratio": 0.26,
+      "chars": 15
+     },
+     {
+      "aid": "38:67",
+      "ms": 960,
+      "expMs": 3422,
+      "ratio": 0.28,
+      "chars": 12
+     },
+     {
+      "aid": "80:41",
+      "ms": 936,
+      "expMs": 3345,
+      "ratio": 0.28,
+      "chars": 10
+     }
+    ],
+    "extremeLong": [],
+    "longOutliers": 3,
+    "shortOutliers": 53,
+    "silenceGaps": 0,
+    "silenceExamples": [],
+    "surahsWithRate": 112
+   },
+   "audio": {
+    "audioReportsOnSha": 0,
+    "openersOnSha": false,
+    "errors": [
+     "لا حكمَ صوتيٍّ بعيّنةٍ على البصمة المنشورة",
+     "لا شاهدَ مطالعَ على البصمة المنشورة"
+    ],
+    "notes": [],
+    "samples": [],
+    "pooled": null,
+    "severeHi": null,
+    "otherShasWithSamples": [
+     "0b8cf8e3",
+     "17d85826",
+     "3a0a4f54",
+     "4f28c49b",
+     "6add441c",
+     "7462d342",
+     "abc236a2",
+     "ba423244",
+     "dfd05cf6",
+     "e3c750ee"
+    ],
+    "ok": false
+   }
+  }
+ ],
+ "summary": {
+  "indexes": 1,
+  "phase": "all",
+  "identityOk": 1,
+  "identityBad": [],
+  "structureOk": 1,
+  "structureBad": [],
+  "gapsOk": 1,
+  "gapsBad": [],
+  "audioOk": 0,
+  "audioBad": [
+   "timings-staging/hafs/s_sadeiq.860ca7ea.jz"
+  ],
+  "durationOutliersTotal": 63,
+  "impossibleShortTotal": 0,
+  "indexesWithImpossibleShort": 0,
+  "veryShortTotal": 10,
+  "extremeLongTotal": 0,
+  "indexesWithExtremeLong": 0,
+  "mirrorStale": 0,
+  "silenceGapsTotal": 0,
+  "indexesWithDurationOutliers": 1,
+  "indexesWithSilenceGaps": 0,
+  "entriesTotal": 6183,
+  "missingTotal": 53
+ }
+}

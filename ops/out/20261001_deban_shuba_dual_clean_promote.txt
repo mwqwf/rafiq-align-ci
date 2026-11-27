@@ -1,0 +1,30 @@
+# rc=1
+
+[stderr]
+Traceback (most recent call last):
+  File "/home/runner/work/rafiq-align-ci/rafiq-align-ci/tools/index_qa/promote_verified_transform.py", line 117, in <module>
+    main()
+  File "/home/runner/work/rafiq-align-ci/rafiq-align-ci/tools/index_qa/promote_verified_transform.py", line 113, in main
+    adopt(a.key, a.sha, a.parent_sha, a.reason)
+  File "/home/runner/work/rafiq-align-ci/rafiq-align-ci/tools/index_qa/promote_verified_transform.py", line 73, in adopt
+    invoke(key)
+  File "/home/runner/work/rafiq-align-ci/rafiq-align-ci/tools/index_qa/promote_verified_transform.py", line 24, in invoke
+    p.main()
+  File "/home/runner/work/rafiq-align-ci/rafiq-align-ci/tools/index_qa/promote.py", line 2339, in main
+    _cg = census_gate(cl, bucket, src, live_sha, idx)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/rafiq-align-ci/rafiq-align-ci/tools/index_qa/promote.py", line 165, in census_gate
+    model_error = records_error(idx)
+                  ^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/rafiq-align-ci/rafiq-align-ci/tools/alignment_v3/quran_ctc_model.py", line 64, in records_error
+    return dual_records_error(idx)
+           ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/rafiq-align-ci/rafiq-align-ci/tools/alignment_v3/dual_ctc_model.py", line 116, in records_error
+    error = evidence_error(evidence, shas[s - 1] if len(shas) >= s else None, rows)
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/rafiq-align-ci/rafiq-align-ci/tools/alignment_v3/dual_ctc_model.py", line 32, in evidence_error
+    from common import load_index, load_text, norm, surah_slice
+  File "/home/runner/work/rafiq-align-ci/rafiq-align-ci/tools/alignment/common.py", line 15, in <module>
+    sys.stdout.reconfigure(encoding="utf-8", errors="replace")
+    ^^^^^^^^^^^^^^^^^^^^^^
+AttributeError: '_io.StringIO' object has no attribute 'reconfigure'

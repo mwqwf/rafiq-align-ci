@@ -1,0 +1,56 @@
+{
+  "kind": "pinned-parent-diagnostic-request",
+  "qualityClaim": false,
+  "reciterId": "rabbani_warsh",
+  "riwaya": "warsh",
+  "surah": 96,
+  "parentSha256": "d9534de9ed7aed07154a5784f2cefc5b7fef16981061bf9e4c3f9bc22a44b2aa",
+  "parentPath": "ops/source-repair/parents/codex-opener-rabbani_warsh-d9534de9.jz",
+  "sourceSha256": "1dd1f1593829f35296b31767c1da16ab0f056181fd04389e1747422723041fcd",
+  "url": "https://archive.org/download/alfirdwsiy1433_35686535653683658668356566586356gmail_002/096.mp3",
+  "entries": [
+    {
+      "ayahId": "96:15",
+      "fileRef": "https://archive.org/download/alfirdwsiy1433_35686535653683658668356566586356gmail_002/096.mp3",
+      "startMs": 68380,
+      "endMs": 77110,
+      "conf": 0.8,
+      "confBand": "HIGH"
+    },
+    {
+      "ayahId": "96:16",
+      "fileRef": "https://archive.org/download/alfirdwsiy1433_35686535653683658668356566586356gmail_002/096.mp3",
+      "startMs": 77110,
+      "endMs": 80320,
+      "conf": 0.587,
+      "confBand": "MED",
+      "refined": true
+    },
+    {
+      "ayahId": "96:17",
+      "fileRef": "https://archive.org/download/alfirdwsiy1433_35686535653683658668356566586356gmail_002/096.mp3",
+      "startMs": 80320,
+      "endMs": 83070,
+      "conf": 1.0,
+      "confBand": "HIGH"
+    },
+    {
+      "ayahId": "96:18",
+      "fileRef": "https://archive.org/download/alfirdwsiy1433_35686535653683658668356566586356gmail_002/096.mp3",
+      "startMs": 83070,
+      "endMs": 85810,
+      "conf": 0.36,
+      "confBand": "LOW",
+      "startApprox": true
+    },
+    {
+      "ayahId": "96:19",
+      "fileRef": "https://archive.org/download/alfirdwsiy1433_35686535653683658668356566586356gmail_002/096.mp3",
+      "startMs": 85810,
+      "endMs": 90671,
+      "conf": 1.0,
+      "confBand": "HIGH"
+    }
+  ],
+  "reason": "Expand measured rejected boundary context through original decoded EOF; diagnostic only."
+}

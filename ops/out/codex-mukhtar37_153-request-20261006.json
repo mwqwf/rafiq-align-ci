@@ -1,0 +1,41 @@
+{
+  "kind": "pinned-parent-diagnostic-request",
+  "qualityClaim": false,
+  "reciterId": "mukhtar_haj",
+  "riwaya": "hafs",
+  "surah": 37,
+  "parentSha256": "a01f926802dc95b0ae76ea74ac5f9b5521b1b94d5a7977e3c0fdb6f7bd5d25d1",
+  "parentPath": "ops/source-repair/parents/codex-opener-mukhtar_haj-a01f9268.jz",
+  "sourceSha256": "09a35e9b865f875b3151772c9c096fef8dda71d384b208fa3e45f5d9fb564e1f",
+  "url": "https://server16.mp3quran.net/mukhtar_haj/Rewayat-Hafs-A-n-Assem/037.mp3",
+  "entries": [
+    {
+      "ayahId": "37:152",
+      "fileRef": "https://server16.mp3quran.net/mukhtar_haj/Rewayat-Hafs-A-n-Assem/037.mp3",
+      "startMs": 1102390,
+      "endMs": 1107330,
+      "conf": 0.85,
+      "confBand": "HIGH"
+    },
+    {
+      "ayahId": "37:153",
+      "fileRef": "https://server16.mp3quran.net/mukhtar_haj/Rewayat-Hafs-A-n-Assem/037.mp3",
+      "startMs": 1107330,
+      "endMs": 1114000,
+      "conf": 0.48,
+      "confBand": "MED",
+      "startApprox": true
+    },
+    {
+      "ayahId": "37:154",
+      "fileRef": "https://server16.mp3quran.net/mukhtar_haj/Rewayat-Hafs-A-n-Assem/037.mp3",
+      "startMs": 1114000,
+      "endMs": 1119884,
+      "conf": 1.0,
+      "confBand": "HIGH"
+    }
+  ],
+  "rejectionReportPath": "ops/out/codex-mukhtar-heard-rejection-37401034806.json",
+  "rejectionReportSha256": "badb9ea2e85acfc90336a744f0cc5375266045ccceac33e72c13fd6cdb3a914d",
+  "reason": "Native diagnosis of rejected modified-surah boundary; no timing changes."
+}

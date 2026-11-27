@@ -1,0 +1,274 @@
+{
+ "schema": 1,
+ "tool": "full_audit-1.0",
+ "date": "20261003",
+ "timestampUtc": "2026-10-03T19:44:04Z",
+ "elapsedSec": 18.5,
+ "phase": "all",
+ "manifestIndexes": 180,
+ "frozenBucket": 220,
+ "reportsRead": 9952,
+ "rows": [
+  {
+   "key": "timings-staging/hafs/k_alzadi.79358ed8.jz",
+   "sha256": "79358ed81b95dfb58111c692d603274212b0a0d66d06f255ccad751445e93f62",
+   "riwaya": "hafs",
+   "reciterId": "k_alzadi",
+   "bytes": 95432,
+   "engine": "ctc-seg-1",
+   "transformOp": "ctc_heardmap_splice:87",
+   "staging": true,
+   "identity": {
+    "sha256": "79358ed81b95dfb58111c692d603274212b0a0d66d06f255ccad751445e93f62",
+    "staging": true,
+    "errors": [],
+    "ok": true
+   },
+   "structure": {
+    "entries": 6236,
+    "errors": [],
+    "examples": {},
+    "fileNoUnparsed": 0,
+    "structuralFatal": [],
+    "structuralWarn": [
+     "مداخل مدتها > 120ث: 1 · مثال: 2:282 مدتها 180ث"
+    ],
+    "decision": [],
+    "engine": "ctc-seg-1",
+    "audioSha": 114,
+    "bands": {
+     "MED": 4448,
+     "HIGH": 566,
+     "LOW": 1222
+    },
+    "ok": true
+   },
+   "gaps": {
+    "missingTotal": 0,
+    "internalGaps": [],
+    "headMissing": [],
+    "tailMissing": [],
+    "wholeMissing": [],
+    "declared": {
+     "transformOp": "ctc_heardmap_splice:87",
+     "transformReason": "fixR: إعادة بناء k_alzadi على س87 وحدها — المرشّح 9ab1a59d ردّه heard_gate في 62:11 (−9.3ث، النافذتان 62:10-11 و62:11 رُدّتا بثقة 0.0)، فتُصلَح س87 (منشورةٌ متأخّرة 20–108ث، مؤكَّدةٌ بالسماع 37128845408) وتبقى 62:11 للإعلان في التقرير",
+     "reasonCode": null,
+     "dropSurahs": [],
+     "byReason": {},
+     "declaredCount": 0,
+     "tagCount": 0,
+     "declaredIds": [],
+     "truncatedTail": null
+    },
+    "undeclaredEdge": [],
+    "errors": [],
+    "ok": true
+   },
+   "durations": {
+    "durationOutliers": 91,
+    "durationExamples": [
+     {
+      "aid": "26:165",
+      "ms": 880,
+      "expMs": 7723,
+      "ratio": 0.11,
+      "chars": 22
+     },
+     {
+      "aid": "26:157",
+      "ms": 861,
+      "expMs": 6670,
+      "ratio": 0.13,
+      "chars": 19
+     },
+     {
+      "aid": "37:129",
+      "ms": 760,
+      "expMs": 5474,
+      "ratio": 0.14,
+      "chars": 19
+     },
+     {
+      "aid": "53:53",
+      "ms": 541,
+      "expMs": 3747,
+      "ratio": 0.14,
+      "chars": 13
+     },
+     {
+      "aid": "26:167",
+      "ms": 1801,
+      "expMs": 11936,
+      "ratio": 0.15,
+      "chars": 34
+     },
+     {
+      "aid": "26:217",
+      "ms": 1081,
+      "expMs": 7021,
+      "ratio": 0.15,
+      "chars": 20
+     },
+     {
+      "aid": "18:100",
+      "ms": 1361,
+      "expMs": 7488,
+      "ratio": 0.18,
+      "chars": 26
+     },
+     {
+      "aid": "26:160",
+      "ms": 1147,
+      "expMs": 6319,
+      "ratio": 0.18,
+      "chars": 18
+     },
+     {
+      "aid": "26:169",
+      "ms": 1241,
+      "expMs": 7021,
+      "ratio": 0.18,
+      "chars": 20
+     },
+     {
+      "aid": "37:96",
+      "ms": 1001,
+      "expMs": 5474,
+      "ratio": 0.18,
+      "chars": 19
+     },
+     {
+      "aid": "68:50",
+      "ms": 1441,
+      "expMs": 7947,
+      "ratio": 0.18,
+      "chars": 23
+     },
+     {
+      "aid": "72:26",
+      "ms": 1681,
+      "expMs": 9106,
+      "ratio": 0.18,
+      "chars": 26
+     }
+    ],
+    "impossibleShort": [],
+    "veryShort": [
+     {
+      "aid": "26:165",
+      "ms": 880,
+      "expMs": 7723,
+      "ratio": 0.11,
+      "chars": 22
+     },
+     {
+      "aid": "26:157",
+      "ms": 861,
+      "expMs": 6670,
+      "ratio": 0.13,
+      "chars": 19
+     },
+     {
+      "aid": "37:129",
+      "ms": 760,
+      "expMs": 5474,
+      "ratio": 0.14,
+      "chars": 19
+     },
+     {
+      "aid": "53:53",
+      "ms": 541,
+      "expMs": 3747,
+      "ratio": 0.14,
+      "chars": 13
+     },
+     {
+      "aid": "37:181",
+      "ms": 820,
+      "expMs": 4321,
+      "ratio": 0.19,
+      "chars": 15
+     },
+     {
+      "aid": "53:61",
+      "ms": 680,
+      "expMs": 2882,
+      "ratio": 0.24,
+      "chars": 10
+     },
+     {
+      "aid": "79:44",
+      "ms": 981,
+      "expMs": 3929,
+      "ratio": 0.25,
+      "chars": 13
+     },
+     {
+      "aid": "89:29",
+      "ms": 944,
+      "expMs": 3776,
+      "ratio": 0.25,
+      "chars": 12
+     },
+     {
+      "aid": "18:92",
+      "ms": 801,
+      "expMs": 2880,
+      "ratio": 0.28,
+      "chars": 10
+     }
+    ],
+    "extremeLong": [],
+    "longOutliers": 0,
+    "shortOutliers": 86,
+    "silenceGaps": 0,
+    "silenceExamples": [],
+    "surahsWithRate": 113
+   },
+   "audio": {
+    "audioReportsOnSha": 0,
+    "openersOnSha": false,
+    "errors": [
+     "لا حكمَ صوتيٍّ بعيّنةٍ على البصمة المنشورة",
+     "لا شاهدَ مطالعَ على البصمة المنشورة"
+    ],
+    "notes": [],
+    "samples": [],
+    "pooled": null,
+    "severeHi": null,
+    "otherShasWithSamples": [
+     "6ab50f9c",
+     "9ab1a59d",
+     "f7f7de13"
+    ],
+    "ok": false
+   }
+  }
+ ],
+ "summary": {
+  "indexes": 1,
+  "phase": "all",
+  "identityOk": 1,
+  "identityBad": [],
+  "structureOk": 1,
+  "structureBad": [],
+  "gapsOk": 1,
+  "gapsBad": [],
+  "audioOk": 0,
+  "audioBad": [
+   "timings-staging/hafs/k_alzadi.79358ed8.jz"
+  ],
+  "durationOutliersTotal": 91,
+  "impossibleShortTotal": 0,
+  "indexesWithImpossibleShort": 0,
+  "veryShortTotal": 9,
+  "extremeLongTotal": 0,
+  "indexesWithExtremeLong": 0,
+  "mirrorStale": 0,
+  "silenceGapsTotal": 0,
+  "indexesWithDurationOutliers": 1,
+  "indexesWithSilenceGaps": 0,
+  "entriesTotal": 6236,
+  "missingTotal": 0
+ }
+}

@@ -1,0 +1,218 @@
+{
+ "schema": 1,
+ "tool": "full_audit-1.0",
+ "date": "20261004",
+ "timestampUtc": "2026-10-04T12:31:12Z",
+ "elapsedSec": 44.7,
+ "phase": "all",
+ "manifestIndexes": 180,
+ "frozenBucket": 219,
+ "reportsRead": 10505,
+ "rows": [
+  {
+   "key": "timings-staging/hafs/kamel.1e564b74.jz",
+   "sha256": "1e564b74d2e4e64b3a2b687414f695ec1f3cd063e2d9f42cdebd22b7cd6d5838",
+   "riwaya": "hafs",
+   "reciterId": "kamel",
+   "bytes": 95287,
+   "engine": "ctc-seg-1",
+   "transformOp": "file_end_clamp",
+   "staging": true,
+   "identity": {
+    "sha256": "1e564b74d2e4e64b3a2b687414f695ec1f3cd063e2d9f42cdebd22b7cd6d5838",
+    "staging": true,
+    "errors": [],
+    "ok": true
+   },
+   "structure": {
+    "entries": 6236,
+    "errors": [],
+    "examples": {},
+    "fileNoUnparsed": 0,
+    "structuralFatal": [],
+    "structuralWarn": [
+     "مداخل مدتها > 120ث: 4 · مثال: 2:282 مدتها 163ث"
+    ],
+    "decision": [],
+    "engine": "ctc-seg-1",
+    "audioSha": 114,
+    "bands": {
+     "HIGH": 491,
+     "MED": 4198,
+     "LOW": 1547
+    },
+    "ok": true
+   },
+   "gaps": {
+    "missingTotal": 0,
+    "internalGaps": [],
+    "headMissing": [],
+    "tailMissing": [],
+    "wholeMissing": [],
+    "declared": {
+     "transformOp": "file_end_clamp",
+     "transformReason": "قصُّ نهاية آخر مدخلٍ إلى نهاية ملفّه المقيسة بطول الفكّ: 101:11 −21م.ث · 21:112 −21م.ث · 22:78 −21م.ث · 2:286 −21م.ث · 30:60 −21م.ث · 31:34 −21م.ث · 34:54 −21م.ث · 41:54 −21م.ث · 47:38 −19م.ث · 50:45 −19م.ث · 69:52 −21م.ث · 74:56 −21م.ث · 80:42 −21م.ث · 91:15 −19م.ث · 97:5 −21م.ث",
+     "reasonCode": null,
+     "dropSurahs": [],
+     "byReason": {
+      "no-align": 3
+     },
+     "declaredCount": 3,
+     "tagCount": 0,
+     "declaredIds": [],
+     "truncatedTail": null
+    },
+    "undeclaredEdge": [],
+    "errors": [],
+    "ok": true
+   },
+   "durations": {
+    "durationOutliers": 35,
+    "durationExamples": [
+     {
+      "aid": "56:43",
+      "ms": 16271,
+      "expMs": 3713,
+      "ratio": 4.38,
+      "chars": 10
+     },
+     {
+      "aid": "53:61",
+      "ms": 12168,
+      "expMs": 2922,
+      "ratio": 4.16,
+      "chars": 10
+     },
+     {
+      "aid": "2:278",
+      "ms": 64803,
+      "expMs": 16060,
+      "ratio": 4.03,
+      "chars": 54
+     },
+     {
+      "aid": "14:49",
+      "ms": 46611,
+      "expMs": 11708,
+      "ratio": 3.98,
+      "chars": 32
+     },
+     {
+      "aid": "56:84",
+      "ms": 23408,
+      "expMs": 5941,
+      "ratio": 3.94,
+      "chars": 16
+     },
+     {
+      "aid": "36:64",
+      "ms": 32387,
+      "expMs": 8517,
+      "ratio": 3.8,
+      "chars": 24
+     },
+     {
+      "aid": "80:35",
+      "ms": 10921,
+      "expMs": 2921,
+      "ratio": 3.74,
+      "chars": 9
+     },
+     {
+      "aid": "101:5",
+      "ms": 29616,
+      "expMs": 8026,
+      "ratio": 3.69,
+      "chars": 24
+     },
+     {
+      "aid": "81:27",
+      "ms": 16252,
+      "expMs": 4614,
+      "ratio": 3.52,
+      "chars": 17
+     },
+     {
+      "aid": "81:26",
+      "ms": 9528,
+      "expMs": 2714,
+      "ratio": 3.51,
+      "chars": 10
+     },
+     {
+      "aid": "75:29",
+      "ms": 18754,
+      "expMs": 5425,
+      "ratio": 3.46,
+      "chars": 17
+     },
+     {
+      "aid": "20:111",
+      "ms": 36313,
+      "expMs": 10521,
+      "ratio": 3.45,
+      "chars": 35
+     }
+    ],
+    "impossibleShort": [],
+    "veryShort": [],
+    "extremeLong": [],
+    "longOutliers": 34,
+    "shortOutliers": 0,
+    "silenceGaps": 0,
+    "silenceExamples": [],
+    "surahsWithRate": 113
+   },
+   "audio": {
+    "audioReportsOnSha": 0,
+    "openersOnSha": false,
+    "errors": [
+     "لا حكمَ صوتيٍّ بعيّنةٍ على البصمة المنشورة",
+     "لا شاهدَ مطالعَ على البصمة المنشورة"
+    ],
+    "notes": [],
+    "samples": [],
+    "pooled": null,
+    "severeHi": null,
+    "otherShasWithSamples": [
+     "4164c6d2",
+     "6af32954",
+     "7b3af4f3",
+     "99f24055",
+     "9bb08ba7",
+     "dd92c8f2",
+     "e14adaf5",
+     "f53d5296",
+     "fd78008b"
+    ],
+    "ok": false
+   }
+  }
+ ],
+ "summary": {
+  "indexes": 1,
+  "phase": "all",
+  "identityOk": 1,
+  "identityBad": [],
+  "structureOk": 1,
+  "structureBad": [],
+  "gapsOk": 1,
+  "gapsBad": [],
+  "audioOk": 0,
+  "audioBad": [
+   "timings-staging/hafs/kamel.1e564b74.jz"
+  ],
+  "durationOutliersTotal": 35,
+  "impossibleShortTotal": 0,
+  "indexesWithImpossibleShort": 0,
+  "veryShortTotal": 0,
+  "extremeLongTotal": 0,
+  "indexesWithExtremeLong": 0,
+  "mirrorStale": 0,
+  "silenceGapsTotal": 0,
+  "indexesWithDurationOutliers": 1,
+  "indexesWithSilenceGaps": 0,
+  "entriesTotal": 6236,
+  "missingTotal": 0
+ }
+}

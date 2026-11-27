@@ -1,0 +1,38 @@
+{
+  "timestampUtc": "2026-10-06T16:01:51Z",
+  "headBeforeCommit": "d4d6ec47e9ba4a1569d69e761b06108376e6bc6d",
+  "status": "incomplete",
+  "newVerifiedWork": {
+    "report": "ops/out/codex-after39-candidate-overlay-20261006.json",
+    "after39ParentBindings": 2,
+    "candidateHashesRecomputed": 2,
+    "candidateEntrySetsValidated": 2,
+    "projectedMissingIfBothEventuallyPassAllGates": 679,
+    "projectedImpossibleShortIfBothEventuallyPassAllGates": 0
+  },
+  "productionTruth": {
+    "latestStableStructuralAudit": "ops/out/full-audit-codex-after-thirty-nine-20261006.json",
+    "entries": 1121595,
+    "missing": 885,
+    "impossibleShort": 1,
+    "latestStableCompletionAudit": "ops/out/completion-codex-after-twenty-five-20261006-summary.json",
+    "completionAuditStaleAfterLaterAdoptions": true,
+    "latestCompletionAttemptAfter28Stable": false,
+    "readyIndexes": 0,
+    "verifiedEndEvidence": 0
+  },
+  "remaining": {
+    "candidateOverlayIsNotProduction": true,
+    "missingAfterOverlayProjection": 679,
+    "finalShaQaRequired": ["timings/hafs/3siri.jz", "timings/hafs/balilah.jz"],
+    "freshStableCompletionAuditRequiredAfterAnyAdoption": true,
+    "r2PutFreeQuotaProven": false
+  },
+  "costAndWrites": {
+    "repositoryPublic": true,
+    "workflowDispatched": false,
+    "r2Written": false,
+    "artifactWritten": false,
+    "cacheWritten": false
+  }
+}

@@ -1,0 +1,40 @@
+# rc=0
+📦 ctc-zaml-p0 · 1842 بايت
+── tools/alignment/work/batch_zaml/s111.json (801 بايت)
+{"fileRef": "https://server9.mp3quran.net/zaml/111.mp3", "sha256": "08b33bc5bb3dbfbfdabb153572816b3f95e8788d4e0ccba4deeca1c587c19fad", "vadRel": 0.15, "vadVersion": "adaptive-2", "entries": [{"ayahIdx": 0, "startMs": 3151, "endMs": 5770, "conf": 0.0, "snapped": false, "matched": 0, "total": 5}, {"ayahIdx": 1, "startMs": 5770, "endMs": 10465, "conf": 0.719, "snapped": true, "matched": 0, "total": 6}, {"ayahIdx": 2, "startMs": 10465, "endMs": 14127, "conf": 0.74, "snapped": false, "matched": 0, "total": 4}, {"ayahIdx": 3, "startMs": 14127, "endMs": 18660, "conf": 0.73, "snapped": false, "matched": 0, "total": 3}, {"ayahIdx": 4, "startMs": 18660, "endMs": 22740, "conf": 0.795, "snapped": true, "matched": 0, "total": 5}], "issues": [], "bands": {"LOW": 1, "MED": 3, "HIGH": 1}, "totalMs": 23771}
+── logs/part0.log (2103 بايت)
+Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+
+Loading weights:   0%|          | 0/424 [00:00<?, ?it/s]
+Loading weights: 100%|██████████| 424/424 [00:00<00:00, 23566.32it/s]
+/opt/hostedtoolcache/Python/3.11.16/x64/lib/python3.11/site-packages/torch/ao/nn/quantized/modules/utils.py:72: UserWarning: torch.quantize_per_tensor, torch.quantize_per_channel and other quantized tensor creation functions that produce tensors with dtype torch.quint8, torch.qint8, and torch.qint32 are deprecated and will be removed in a future PyTorch release. Please see https://github.com/pytorch/pytorch/issues/184982 for more information. (Triggered internally at /__w/pytorch/pytorch/aten/src/ATen/quantized/Quantizer.cpp:111.)
+  qweight = torch.quantize_per_tensor(
+سورة 111: {'LOW': 1, 'MED': 3, 'HIGH': 1} ✅ (14ث)
+⏱️ أطوارُ zaml: ffmpeg=0ث · vad=0ث · whisper=0ث · refine=0ث
+
+=== TimingIndex: /home/runner/work/rafiq-align-ci/rafiq-align-ci/tools/alignment/work/timings_hafs_zaml.jz (15ك.ب) ===
+آيات مفهرسة: 5 · نطاقات: {'LOW': 1, 'MED': 3, 'HIGH': 1} · مخالفات: 0 · فشل سور: []
+	Command being timed: "python tools/alignment/batch_run.py --reciter zaml --riwaya hafs --base https://server9.mp3quran.net/zaml/{surah:03d}.mp3 --surahs 111"
+	User time (seconds): 30.19
+	System time (seconds): 1.95
+	Percent of CPU this job got: 210%
+	Elapsed (wall clock) time (h:mm:ss or m:ss): 0:15.28
+	Average shared text size (kbytes): 0
+	Average unshared data size (kbytes): 0
+	Average stack size (kbytes): 0
+	Average total size (kbytes): 0
+	Maximum resident set size (kbytes): 3787456
+	Average resident set size (kbytes): 0
+	Major (requiring I/O) page faults: 59
+	Minor (reclaiming a frame) page faults: 323166
+	Voluntary context switches: 5926
+	Involuntary context switches: 3516
+	Swaps: 0
+	File system inputs: 18760
+	File system outputs: 4208
+	Socket messages sent: 0
+	Socket messages received: 0
+	Signals delivered: 0
+	Page size (bytes): 4096
+	Exit status: 0
+

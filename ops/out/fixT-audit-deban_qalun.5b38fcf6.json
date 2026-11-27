@@ -1,0 +1,134 @@
+{
+ "schema": 1,
+ "tool": "full_audit-1.0",
+ "date": "20261005",
+ "timestampUtc": "2026-10-05T02:02:01Z",
+ "elapsedSec": 42.9,
+ "phase": "all",
+ "manifestIndexes": 180,
+ "frozenBucket": 220,
+ "reportsRead": 10820,
+ "rows": [
+  {
+   "key": "timings-staging/qalun/deban_qalun.5b38fcf6.jz",
+   "sha256": "5b38fcf62c56cc11d4192330e70a2ede1fd8b8b17d47d1ce4eae78aa9ec07dc4",
+   "riwaya": "qalun",
+   "reciterId": "deban_qalun",
+   "bytes": 93201,
+   "engine": "ctc-seg-1",
+   "transformOp": "ctc_heardmap_splice:8,9,10,11,13,14,17,21,23,24,25,28,29,31,32,34,35,36,37,39,40,41,42,44,45,46,47,50,51,52,54,55,56,58,59,60,61,63,64,65,66,67,68,70,71,72,74,75,76,77,83",
+   "staging": true,
+   "identity": {
+    "sha256": "5b38fcf62c56cc11d4192330e70a2ede1fd8b8b17d47d1ce4eae78aa9ec07dc4",
+    "staging": true,
+    "errors": [],
+    "ok": true
+   },
+   "structure": {
+    "entries": 6236,
+    "errors": [],
+    "examples": {},
+    "fileNoUnparsed": 0,
+    "structuralFatal": [],
+    "structuralWarn": [
+     "مداخل مدتها > 120ث: 1 · مثال: 2:282 مدتها 145ث"
+    ],
+    "decision": [],
+    "engine": "ctc-seg-1",
+    "audioSha": 114,
+    "bands": {
+     "MED": 4937,
+     "HIGH": 832,
+     "LOW": 467
+    },
+    "ok": true
+   },
+   "gaps": {
+    "missingTotal": 0,
+    "internalGaps": [],
+    "headMissing": [],
+    "tailMissing": [],
+    "wholeMissing": [],
+    "declared": {
+     "transformOp": "ctc_heardmap_splice:8,9,10,11,13,14,17,21,23,24,25,28,29,31,32,34,35,36,37,39,40,41,42,44,45,46,47,50,51,52,54,55,56,58,59,60,61,63,64,65,66,67,68,70,71,72,74,75,76,77,83",
+     "transformReason": "fixT: إصلاحٌ دفعيٌّ لكبس الذيل — 55 سورةً مشتبهةً (فائضٌ ≥15ث بعد آخر مدخل · تدقيق الجولة الثانية 2026-10-03)، كلٌّ يُقاس بالسماع قبل أن يُمسّ",
+     "reasonCode": null,
+     "dropSurahs": [],
+     "byReason": {
+      "no-align": 6
+     },
+     "declaredCount": 6,
+     "tagCount": 0,
+     "declaredIds": [],
+     "truncatedTail": null
+    },
+    "undeclaredEdge": [],
+    "errors": [],
+    "ok": true
+   },
+   "durations": {
+    "durationOutliers": 0,
+    "durationExamples": [],
+    "impossibleShort": [],
+    "veryShort": [],
+    "extremeLong": [],
+    "longOutliers": 0,
+    "shortOutliers": 0,
+    "silenceGaps": 0,
+    "silenceExamples": [],
+    "surahsWithRate": 113
+   },
+   "audio": {
+    "audioReportsOnSha": 0,
+    "openersOnSha": false,
+    "errors": [
+     "لا حكمَ صوتيٍّ بعيّنةٍ على البصمة المنشورة",
+     "لا شاهدَ مطالعَ على البصمة المنشورة"
+    ],
+    "notes": [],
+    "samples": [],
+    "pooled": null,
+    "severeHi": null,
+    "otherShasWithSamples": [
+     "5b31d9c1",
+     "7292c76e",
+     "7a096256",
+     "7af33455",
+     "7b38eeed",
+     "7d70c3af",
+     "8388616e",
+     "87b83b59",
+     "b434599c",
+     "cba1f5a5"
+    ],
+    "ok": false
+   }
+  }
+ ],
+ "summary": {
+  "indexes": 1,
+  "phase": "all",
+  "identityOk": 1,
+  "identityBad": [],
+  "structureOk": 1,
+  "structureBad": [],
+  "gapsOk": 1,
+  "gapsBad": [],
+  "audioOk": 0,
+  "audioBad": [
+   "timings-staging/qalun/deban_qalun.5b38fcf6.jz"
+  ],
+  "durationOutliersTotal": 0,
+  "impossibleShortTotal": 0,
+  "indexesWithImpossibleShort": 0,
+  "veryShortTotal": 0,
+  "extremeLongTotal": 0,
+  "indexesWithExtremeLong": 0,
+  "mirrorStale": 0,
+  "silenceGapsTotal": 0,
+  "indexesWithDurationOutliers": 0,
+  "indexesWithSilenceGaps": 0,
+  "entriesTotal": 6236,
+  "missingTotal": 0
+ }
+}

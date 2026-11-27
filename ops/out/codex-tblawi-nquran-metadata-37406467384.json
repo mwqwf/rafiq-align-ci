@@ -1,0 +1,126 @@
+{
+  "complete": true,
+  "decoderVersion": "ffmpeg version 6.1.1-3ubuntu5 Copyright (c) 2000-2023 the FFmpeg developers",
+  "generatedAt": "2026-10-06T02:55:44.379340+00:00",
+  "identityAndVerseCoverageCertified": false,
+  "readOnly": true,
+  "schema": 2,
+  "sources": [
+    {
+      "container": {
+        "audioStreams": [
+          {
+            "channel_layout": "stereo",
+            "channels": 2,
+            "codec_name": "mp3",
+            "sample_rate": "22050"
+          }
+        ],
+        "durationSeconds": 4378.128256
+      },
+      "declaredIdentity": "محمد محمود الطبلاوي — حفص عن عاصم، مرتل",
+      "durationDifferenceSeconds": -0.03188099999988481,
+      "file": {
+        "bytes": 35032209,
+        "finalUrl": "https://www.nquran.com/audiof/quran/mohd_muh_tablawee/007.mp3",
+        "sha256": "76b0d10dbb33d90cdbb98e71786653a497dbe73f7af704bf2297848ce1fbc547"
+      },
+      "id": "tblawi7_nquran",
+      "identitySourceUrl": "https://www.nquran.com/ar/view/10716",
+      "identityVerified": false,
+      "ok": true,
+      "pcm": {
+        "bytes": 140099084,
+        "channels": 1,
+        "decodedWithoutErrors": true,
+        "durationSeconds": 4378.096375,
+        "format": "s16le",
+        "hasSignalAboveThreshold": true,
+        "longSilenceCount": 0,
+        "longSilenceTotalSeconds": 0,
+        "longSilences": [],
+        "omittedSilenceIntervals": 0,
+        "peak": 0.57867431640625,
+        "rms": 0.09194302819134387,
+        "rmsDbfs": -20.729623932720635,
+        "sampleRateHz": 16000,
+        "samples": 70049542,
+        "sha256": "6b62ddfcd62e8a49469afe74cb4505e1c38148adefc75678b958863d6493981f",
+        "silenceMinimumExclusiveSeconds": 15,
+        "silenceThresholdDbfs": -50,
+        "windowSeconds": 0.1
+      },
+      "requestedUrl": "https://www.nquran.com/ar/saveaudio.php",
+      "riwaya": "hafs",
+      "stereo": {
+        "arithmeticMeanAttenuationDb": -0.1747466242112895,
+        "arithmeticMeanExactlyZeroWithChannelEnergy": false,
+        "arithmeticMeanRms": 0.09194302766551812,
+        "arithmeticMeanToChannelRmsRatio": 0.9800825770239999,
+        "bytes": 280198168,
+        "channelOrder": "first-and-second-native-channel",
+        "channels": 2,
+        "correlationLR": 0.921887462764915,
+        "correlationMethod": "Pearson-full-recording-mean-centered",
+        "decodedWithoutErrors": true,
+        "durationSeconds": 4378.096375,
+        "evaluated": true,
+        "format": "s16le",
+        "frames": 70049542,
+        "left": {
+          "bytes": 140099084,
+          "channels": 1,
+          "durationSeconds": 4378.096375,
+          "format": "s16le",
+          "hasSignalAboveThreshold": true,
+          "longSilenceCount": 0,
+          "longSilenceTotalSeconds": 0,
+          "longSilences": [],
+          "omittedSilenceIntervals": 0,
+          "peak": 0.63067626953125,
+          "rms": 0.0918827186560444,
+          "rmsDbfs": -20.73532326478388,
+          "sampleRateHz": 16000,
+          "samples": 70049542,
+          "sha256": "9c92454e44c594fef298e483882950d301963f7dae79dd91031c0902de22d91d",
+          "silenceMinimumExclusiveSeconds": 15,
+          "silenceThresholdDbfs": -50,
+          "windowSeconds": 0.1
+        },
+        "nativeChannelLayout": "stereo",
+        "nativeChannels": 2,
+        "phaseCancellationCriteria": {
+          "maximumCorrelation": -0.95,
+          "maximumMeanAttenuationDb": -20,
+          "minimumEachChannelRmsDbfs": -50
+        },
+        "phaseCancellationSuspected": false,
+        "right": {
+          "bytes": 140099084,
+          "channels": 1,
+          "durationSeconds": 4378.096375,
+          "format": "s16le",
+          "hasSignalAboveThreshold": true,
+          "longSilenceCount": 0,
+          "longSilenceTotalSeconds": 0,
+          "longSilences": [],
+          "omittedSilenceIntervals": 0,
+          "peak": 0.611907958984375,
+          "rms": 0.0957014382599893,
+          "rmsDbfs": -20.381630706598294,
+          "sampleRateHz": 16000,
+          "samples": 70049542,
+          "sha256": "c9007bfb236923d9bab47c8c235d7e57434fa58b95f7e1cec9474ffca629369a",
+          "silenceMinimumExclusiveSeconds": 15,
+          "silenceThresholdDbfs": -50,
+          "windowSeconds": 0.1
+        },
+        "sampleRateHz": 16000,
+        "sha256": "ebbbd2c85e6e5b42fc97550fc868995991545dc90252e7998c6b17e7d7b9f10b",
+        "signalIdentityCertified": false
+      },
+      "surah": 7
+    }
+  ],
+  "tool": "rafiq-source-metadata-2"
+}

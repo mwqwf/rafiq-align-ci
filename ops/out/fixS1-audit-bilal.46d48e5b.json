@@ -1,0 +1,319 @@
+{
+ "schema": 1,
+ "tool": "full_audit-1.0",
+ "date": "20261003",
+ "timestampUtc": "2026-10-03T08:45:48Z",
+ "elapsedSec": 18.9,
+ "phase": "all",
+ "manifestIndexes": 180,
+ "frozenBucket": 220,
+ "reportsRead": 9162,
+ "rows": [
+  {
+   "key": "timings-staging/hafs/bilal.46d48e5b.jz",
+   "sha256": "46d48e5bf606fb02df47e872e223378899da9bdcb0a75bed6ff6e1105e07c90a",
+   "riwaya": "hafs",
+   "reciterId": "bilal",
+   "bytes": 93571,
+   "engine": "ctc-seg-1",
+   "transformOp": "ctc_heardmap_splice:56",
+   "staging": true,
+   "identity": {
+    "sha256": "46d48e5bf606fb02df47e872e223378899da9bdcb0a75bed6ff6e1105e07c90a",
+    "staging": true,
+    "errors": [],
+    "ok": true
+   },
+   "structure": {
+    "entries": 6236,
+    "errors": [],
+    "examples": {},
+    "fileNoUnparsed": 0,
+    "structuralFatal": [],
+    "structuralWarn": [],
+    "decision": [],
+    "engine": "ctc-seg-1",
+    "audioSha": 114,
+    "bands": {
+     "HIGH": 644,
+     "MED": 4508,
+     "LOW": 1084
+    },
+    "ok": true
+   },
+   "gaps": {
+    "missingTotal": 0,
+    "internalGaps": [],
+    "headMissing": [],
+    "tailMissing": [],
+    "wholeMissing": [],
+    "declared": {
+     "transformOp": "ctc_heardmap_splice:56",
+     "transformReason": "fixS1 الموجة 4 — خريطةُ السماع ثمّ نوافذُ على مراسٍ مسموعة لسورٍ كبس المنشورُ مداها (56:89-96) بعد ردّ نوافذ الجارتين ثلاثَ مرّاتٍ بحرّاسها (ضيّقة · أوسع · على مراسٍ مسموعة)؛ الإحصاءُ الشامل والملوحُ حَكَم",
+     "reasonCode": null,
+     "dropSurahs": [],
+     "byReason": {
+      "surah-absent": 111,
+      "no-align": 5
+     },
+     "declaredCount": 116,
+     "tagCount": 0,
+     "declaredIds": [],
+     "truncatedTail": null
+    },
+    "undeclaredEdge": [],
+    "errors": [],
+    "ok": true
+   },
+   "durations": {
+    "durationOutliers": 26,
+    "durationExamples": [
+     {
+      "aid": "22:32",
+      "ms": 30414,
+      "expMs": 6143,
+      "ratio": 4.95,
+      "chars": 35
+     },
+     {
+      "aid": "20:36",
+      "ms": 14680,
+      "expMs": 4336,
+      "ratio": 3.39,
+      "chars": 19
+     },
+     {
+      "aid": "69:2",
+      "ms": 5930,
+      "expMs": 1761,
+      "ratio": 3.37,
+      "chars": 8
+     },
+     {
+      "aid": "15:80",
+      "ms": 700,
+      "expMs": 4791,
+      "ratio": 0.15,
+      "chars": 24
+     },
+     {
+      "aid": "26:192",
+      "ms": 720,
+      "expMs": 3938,
+      "ratio": 0.18,
+      "chars": 19
+     },
+     {
+      "aid": "19:82",
+      "ms": 1782,
+      "expMs": 7997,
+      "ratio": 0.22,
+      "chars": 33
+     },
+     {
+      "aid": "55:61",
+      "ms": 1141,
+      "expMs": 4932,
+      "ratio": 0.23,
+      "chars": 18
+     },
+     {
+      "aid": "42:50",
+      "ms": 2241,
+      "expMs": 9497,
+      "ratio": 0.24,
+      "chars": 45
+     },
+     {
+      "aid": "67:25",
+      "ms": 1454,
+      "expMs": 5941,
+      "ratio": 0.24,
+      "chars": 29
+     },
+     {
+      "aid": "8:69",
+      "ms": 2401,
+      "expMs": 9649,
+      "ratio": 0.25,
+      "chars": 45
+     },
+     {
+      "aid": "19:97",
+      "ms": 2680,
+      "expMs": 10662,
+      "ratio": 0.25,
+      "chars": 44
+     },
+     {
+      "aid": "40:79",
+      "ms": 2081,
+      "expMs": 8247,
+      "ratio": 0.25,
+      "chars": 42
+     }
+    ],
+    "impossibleShort": [],
+    "veryShort": [
+     {
+      "aid": "15:80",
+      "ms": 700,
+      "expMs": 4791,
+      "ratio": 0.15,
+      "chars": 24
+     },
+     {
+      "aid": "26:192",
+      "ms": 720,
+      "expMs": 3938,
+      "ratio": 0.18,
+      "chars": 19
+     },
+     {
+      "aid": "26:218",
+      "ms": 833,
+      "expMs": 3109,
+      "ratio": 0.27,
+      "chars": 15
+     },
+     {
+      "aid": "74:54",
+      "ms": 660,
+      "expMs": 2405,
+      "ratio": 0.27,
+      "chars": 11
+     }
+    ],
+    "extremeLong": [],
+    "longOutliers": 3,
+    "shortOutliers": 21,
+    "silenceGaps": 0,
+    "silenceExamples": [],
+    "surahsWithRate": 113
+   },
+   "audio": {
+    "audioReportsOnSha": 4,
+    "openersOnSha": true,
+    "errors": [],
+    "notes": [],
+    "samples": [
+     {
+      "salt": "fixS146d41",
+      "source": "ci",
+      "engine": "pywhispercpp/ggml-q8 (tiny-ar-quran)",
+      "verdict": "مقبول",
+      "m": 2,
+      "n": 200,
+      "rate": 0.01,
+      "hi": 0.02348964515158903,
+      "fatal": 0,
+      "ts": 1791014912.9513333
+     },
+     {
+      "salt": "fixS146d42",
+      "source": "ci",
+      "engine": "pywhispercpp/ggml-q8 (tiny-ar-quran)",
+      "verdict": "مقبول",
+      "m": 3,
+      "n": 200,
+      "rate": 0.015000000000000003,
+      "hi": 0.03105588922941886,
+      "fatal": 0,
+      "ts": 1791015009.2594962
+     },
+     {
+      "salt": "fixS146d43",
+      "source": "ci",
+      "engine": "pywhispercpp/ggml-q8 (tiny-ar-quran)",
+      "verdict": "مقبول",
+      "m": 1,
+      "n": 200,
+      "rate": 0.005,
+      "hi": 0.014800000000000008,
+      "fatal": 0,
+      "ts": 1791015084.0828657
+     },
+     {
+      "salt": "fixS146d44",
+      "source": "ci",
+      "engine": "pywhispercpp/ggml-q8 (tiny-ar-quran)",
+      "verdict": "مقبول",
+      "m": 1,
+      "n": 200,
+      "rate": 0.005,
+      "hi": 0.014800000000000004,
+      "fatal": 0,
+      "ts": 1791015107.083633
+     }
+    ],
+    "pooled": {
+     "m": 7,
+     "n": 800,
+     "rate": 0.00875,
+     "hi": 0.01637202740470296,
+     "salts": [
+      "fixS146d41",
+      "fixS146d42",
+      "fixS146d43",
+      "fixS146d44"
+     ],
+     "seeds": 4,
+     "engine": "pywhispercpp/ggml-q8 (tiny-ar-quran)",
+     "rule": "D-098"
+    },
+    "severeHi": 0.01637202740470296,
+    "openers": {
+     "commit": "8c0d5e00935bc6c31ae29d07de90fa20e2c5e759",
+     "toolOk": true,
+     "scope": "full",
+     "checked": 112,
+     "hasLate": true,
+     "late": [],
+     "lateCtcRule": null,
+     "lateConfirmed": [],
+     "swallowed": [],
+     "suspect": [],
+     "tail": [],
+     "unknown": [
+      7,
+      13
+     ],
+     "verdict": "clean"
+    },
+    "otherShasWithSamples": [
+     "13b5ecca",
+     "1ba9a68e",
+     "5be18603",
+     "6e2ddb28",
+     "8335c0ca",
+     "d02348f4"
+    ],
+    "ok": true
+   }
+  }
+ ],
+ "summary": {
+  "indexes": 1,
+  "phase": "all",
+  "identityOk": 1,
+  "identityBad": [],
+  "structureOk": 1,
+  "structureBad": [],
+  "gapsOk": 1,
+  "gapsBad": [],
+  "audioOk": 1,
+  "audioBad": [],
+  "durationOutliersTotal": 26,
+  "impossibleShortTotal": 0,
+  "indexesWithImpossibleShort": 0,
+  "veryShortTotal": 4,
+  "extremeLongTotal": 0,
+  "indexesWithExtremeLong": 0,
+  "mirrorStale": 0,
+  "silenceGapsTotal": 0,
+  "indexesWithDurationOutliers": 1,
+  "indexesWithSilenceGaps": 0,
+  "entriesTotal": 6236,
+  "missingTotal": 0
+ }
+}

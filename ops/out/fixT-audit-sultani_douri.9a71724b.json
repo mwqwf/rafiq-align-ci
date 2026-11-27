@@ -1,0 +1,166 @@
+{
+ "schema": 1,
+ "tool": "full_audit-1.0",
+ "date": "20261005",
+ "timestampUtc": "2026-10-05T07:36:06Z",
+ "elapsedSec": 42.1,
+ "phase": "all",
+ "manifestIndexes": 180,
+ "frozenBucket": 220,
+ "reportsRead": 10923,
+ "rows": [
+  {
+   "key": "timings-staging/douri/sultani_douri.9a71724b.jz",
+   "sha256": "9a71724b12ba2f536a8b42a0759180229f061d5df0d77a0b00d710cca74b5640",
+   "riwaya": "douri",
+   "reciterId": "sultani_douri",
+   "bytes": 96813,
+   "engine": "ctc-seg-1",
+   "transformOp": "ctc_heardmap_splice:3,5,10,13,14,18,19,22,23,24,25,28,31,32,34,35,36,38,39,43,45,46,47,48,49,50,51,52,53,54,55,56,57,59,60,65,66,67,71,72,74,75,79",
+   "staging": true,
+   "identity": {
+    "sha256": "9a71724b12ba2f536a8b42a0759180229f061d5df0d77a0b00d710cca74b5640",
+    "staging": true,
+    "errors": [],
+    "ok": true
+   },
+   "structure": {
+    "entries": 6236,
+    "errors": [],
+    "examples": {},
+    "fileNoUnparsed": 0,
+    "structuralFatal": [],
+    "structuralWarn": [
+     "مداخل مدتها > 120ث: 1 · مثال: 2:282 مدتها 151ث"
+    ],
+    "decision": [],
+    "engine": "ctc-seg-1",
+    "audioSha": 114,
+    "bands": {
+     "MED": 4530,
+     "HIGH": 703,
+     "LOW": 1003
+    },
+    "ok": true
+   },
+   "gaps": {
+    "missingTotal": 0,
+    "internalGaps": [],
+    "headMissing": [],
+    "tailMissing": [],
+    "wholeMissing": [],
+    "declared": {
+     "transformOp": "ctc_heardmap_splice:3,5,10,13,14,18,19,22,23,24,25,28,31,32,34,35,36,38,39,43,45,46,47,48,49,50,51,52,53,54,55,56,57,59,60,65,66,67,71,72,74,75,79",
+     "transformReason": "fixT: إصلاحٌ دفعيٌّ لكبس الذيل — 61 سورةً مشتبهةً (فائضٌ ≥15ث بعد آخر مدخل · تدقيق الجولة الثانية 2026-10-03)، كلٌّ يُقاس بالسماع قبل أن يُمسّ",
+     "reasonCode": null,
+     "dropSurahs": [],
+     "byReason": {
+      "no-align": 1
+     },
+     "declaredCount": 1,
+     "tagCount": 0,
+     "declaredIds": [],
+     "truncatedTail": null
+    },
+    "undeclaredEdge": [],
+    "errors": [],
+    "ok": true
+   },
+   "durations": {
+    "durationOutliers": 4,
+    "durationExamples": [
+     {
+      "aid": "80:41",
+      "ms": 500,
+      "expMs": 3382,
+      "ratio": 0.15,
+      "chars": 10
+     },
+     {
+      "aid": "80:42",
+      "ms": 1041,
+      "expMs": 6426,
+      "ratio": 0.16,
+      "chars": 19
+     },
+     {
+      "aid": "68:52",
+      "ms": 1361,
+      "expMs": 5660,
+      "ratio": 0.24,
+      "chars": 18
+     },
+     {
+      "aid": "80:40",
+      "ms": 1762,
+      "expMs": 6426,
+      "ratio": 0.27,
+      "chars": 19
+     }
+    ],
+    "impossibleShort": [],
+    "veryShort": [
+     {
+      "aid": "80:41",
+      "ms": 500,
+      "expMs": 3382,
+      "ratio": 0.15,
+      "chars": 10
+     }
+    ],
+    "extremeLong": [],
+    "longOutliers": 0,
+    "shortOutliers": 4,
+    "silenceGaps": 0,
+    "silenceExamples": [],
+    "surahsWithRate": 113
+   },
+   "audio": {
+    "audioReportsOnSha": 0,
+    "openersOnSha": false,
+    "errors": [
+     "لا حكمَ صوتيٍّ بعيّنةٍ على البصمة المنشورة",
+     "لا شاهدَ مطالعَ على البصمة المنشورة"
+    ],
+    "notes": [],
+    "samples": [],
+    "pooled": null,
+    "severeHi": null,
+    "otherShasWithSamples": [
+     "78add6ed",
+     "b206204a",
+     "b7135072",
+     "d2e47536",
+     "ef6b1ba4"
+    ],
+    "ok": false
+   }
+  }
+ ],
+ "summary": {
+  "indexes": 1,
+  "phase": "all",
+  "identityOk": 1,
+  "identityBad": [],
+  "structureOk": 1,
+  "structureBad": [],
+  "gapsOk": 1,
+  "gapsBad": [],
+  "audioOk": 0,
+  "audioBad": [
+   "timings-staging/douri/sultani_douri.9a71724b.jz"
+  ],
+  "durationOutliersTotal": 4,
+  "impossibleShortTotal": 0,
+  "indexesWithImpossibleShort": 0,
+  "veryShortTotal": 1,
+  "extremeLongTotal": 0,
+  "indexesWithExtremeLong": 0,
+  "mirrorStale": 0,
+  "silenceGapsTotal": 0,
+  "indexesWithDurationOutliers": 1,
+  "indexesWithSilenceGaps": 0,
+  "entriesTotal": 6236,
+  "missingTotal": 0
+ }
+}

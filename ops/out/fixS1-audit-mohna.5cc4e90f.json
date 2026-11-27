@@ -1,0 +1,130 @@
+{
+ "schema": 1,
+ "tool": "full_audit-1.0",
+ "date": "20261003",
+ "timestampUtc": "2026-10-03T07:26:43Z",
+ "elapsedSec": 16.4,
+ "phase": "all",
+ "manifestIndexes": 180,
+ "frozenBucket": 220,
+ "reportsRead": 9035,
+ "rows": [
+  {
+   "key": "timings-staging/hafs/mohna.5cc4e90f.jz",
+   "sha256": "5cc4e90fa41a3f20f057308e6402088c58290ae4a6691520edbc9ea5da883f8b",
+   "riwaya": "hafs",
+   "reciterId": "mohna",
+   "bytes": 83994,
+   "engine": "align-0.2",
+   "transformOp": "ctc_gapsplit:9,16,37",
+   "staging": true,
+   "identity": {
+    "sha256": "5cc4e90fa41a3f20f057308e6402088c58290ae4a6691520edbc9ea5da883f8b",
+    "staging": true,
+    "errors": [],
+    "ok": true
+   },
+   "structure": {
+    "entries": 6236,
+    "errors": [],
+    "examples": {},
+    "fileNoUnparsed": 0,
+    "structuralFatal": [],
+    "structuralWarn": [
+     "مداخل مدتها > 120ث: 1 · مثال: 2:282 مدتها 163ث"
+    ],
+    "decision": [],
+    "engine": "align-0.2",
+    "audioSha": 114,
+    "bands": {
+     "HIGH": 6103,
+     "MED": 104,
+     "LOW": 29
+    },
+    "ok": true
+   },
+   "gaps": {
+    "missingTotal": 0,
+    "internalGaps": [],
+    "headMissing": [],
+    "tailMissing": [],
+    "wholeMissing": [],
+    "declared": {
+     "transformOp": "ctc_gapsplit:9,16,37",
+     "transformReason": "fixS1 مرشّحٌ واحدٌ لمحنا: خواتيم 9:129 و16:128 و37:182 قُصّت عند طول ترويسة ffprobe والصوتُ المفكوك أطول (~0.4%) — خرائط السماع 37075775089/37075781962/37075788582 تضعها بعدها ⇒ نافذة الخاتمة من بدء الجارة السابقة الثابتة حتى نهاية الصوت المفكوك",
+     "reasonCode": null,
+     "dropSurahs": [],
+     "byReason": {
+      "invalid": 3,
+      "no-align": 1
+     },
+     "declaredCount": 4,
+     "tagCount": 0,
+     "declaredIds": [],
+     "truncatedTail": null
+    },
+    "undeclaredEdge": [],
+    "errors": [],
+    "ok": true
+   },
+   "durations": {
+    "durationOutliers": 0,
+    "durationExamples": [],
+    "impossibleShort": [],
+    "veryShort": [],
+    "extremeLong": [],
+    "longOutliers": 0,
+    "shortOutliers": 0,
+    "silenceGaps": 0,
+    "silenceExamples": [],
+    "surahsWithRate": 113
+   },
+   "audio": {
+    "audioReportsOnSha": 0,
+    "openersOnSha": false,
+    "errors": [
+     "لا حكمَ صوتيٍّ بعيّنةٍ على البصمة المنشورة",
+     "لا شاهدَ مطالعَ على البصمة المنشورة"
+    ],
+    "notes": [],
+    "samples": [],
+    "pooled": null,
+    "severeHi": null,
+    "otherShasWithSamples": [
+     "1b59ec1a",
+     "2fe53df6",
+     "65530a29",
+     "8207583a",
+     "bf49893f"
+    ],
+    "ok": false
+   }
+  }
+ ],
+ "summary": {
+  "indexes": 1,
+  "phase": "all",
+  "identityOk": 1,
+  "identityBad": [],
+  "structureOk": 1,
+  "structureBad": [],
+  "gapsOk": 1,
+  "gapsBad": [],
+  "audioOk": 0,
+  "audioBad": [
+   "timings-staging/hafs/mohna.5cc4e90f.jz"
+  ],
+  "durationOutliersTotal": 0,
+  "impossibleShortTotal": 0,
+  "indexesWithImpossibleShort": 0,
+  "veryShortTotal": 0,
+  "extremeLongTotal": 0,
+  "indexesWithExtremeLong": 0,
+  "mirrorStale": 0,
+  "silenceGapsTotal": 0,
+  "indexesWithDurationOutliers": 0,
+  "indexesWithSilenceGaps": 0,
+  "entriesTotal": 6236,
+  "missingTotal": 0
+ }
+}

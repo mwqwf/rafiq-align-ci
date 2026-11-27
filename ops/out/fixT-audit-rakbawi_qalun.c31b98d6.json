@@ -1,0 +1,152 @@
+{
+ "schema": 1,
+ "tool": "full_audit-1.0",
+ "date": "20261005",
+ "timestampUtc": "2026-10-05T17:18:09Z",
+ "elapsedSec": 55.6,
+ "phase": "all",
+ "manifestIndexes": 180,
+ "frozenBucket": 220,
+ "reportsRead": 11155,
+ "rows": [
+  {
+   "key": "timings-staging/qalun/rakbawi_qalun.c31b98d6.jz",
+   "sha256": "c31b98d6fb6f2a077bd1da64a5f7cc97b485a56b3de6475505a3f0641ccca806",
+   "riwaya": "qalun",
+   "reciterId": "rakbawi_qalun",
+   "bytes": 88968,
+   "engine": "align-0.2",
+   "transformOp": "ctc_heardmap_splice:36,40,42,77",
+   "staging": true,
+   "identity": {
+    "sha256": "c31b98d6fb6f2a077bd1da64a5f7cc97b485a56b3de6475505a3f0641ccca806",
+    "staging": true,
+    "errors": [],
+    "ok": true
+   },
+   "structure": {
+    "entries": 6236,
+    "errors": [],
+    "examples": {},
+    "fileNoUnparsed": 0,
+    "structuralFatal": [],
+    "structuralWarn": [
+     "مطالع سور تبدأ دون 3ث — مرشّحون للمسبار الصوتي لا حكمٌ عليهم: 49:1=2980م.ث"
+    ],
+    "decision": [],
+    "engine": "align-0.2",
+    "audioSha": 114,
+    "bands": {
+     "HIGH": 4104,
+     "MED": 2034,
+     "LOW": 98
+    },
+    "ok": true
+   },
+   "gaps": {
+    "missingTotal": 0,
+    "internalGaps": [],
+    "headMissing": [],
+    "tailMissing": [],
+    "wholeMissing": [],
+    "declared": {
+     "transformOp": "ctc_heardmap_splice:36,40,42,77",
+     "transformReason": "fixT: إصلاحٌ دفعيٌّ لكبس الذيل — 4 سورةً مشتبهةً (فائضٌ ≥15ث بعد آخر مدخل · تدقيق الجولة الثانية 2026-10-03)، كلٌّ يُقاس بالسماع قبل أن يُمسّ",
+     "reasonCode": null,
+     "dropSurahs": [],
+     "byReason": {
+      "no-align": 13
+     },
+     "declaredCount": 13,
+     "tagCount": 0,
+     "declaredIds": [],
+     "truncatedTail": null
+    },
+    "undeclaredEdge": [],
+    "errors": [],
+    "ok": true
+   },
+   "durations": {
+    "durationOutliers": 2,
+    "durationExamples": [
+     {
+      "aid": "94:5",
+      "ms": 990,
+      "expMs": 3331,
+      "ratio": 0.3,
+      "chars": 14
+     },
+     {
+      "aid": "109:4",
+      "ms": 1382,
+      "expMs": 4663,
+      "ratio": 0.3,
+      "chars": 17
+     }
+    ],
+    "impossibleShort": [],
+    "veryShort": [
+     {
+      "aid": "94:5",
+      "ms": 990,
+      "expMs": 3331,
+      "ratio": 0.3,
+      "chars": 14
+     }
+    ],
+    "extremeLong": [],
+    "longOutliers": 0,
+    "shortOutliers": 0,
+    "silenceGaps": 0,
+    "silenceExamples": [],
+    "surahsWithRate": 113
+   },
+   "audio": {
+    "audioReportsOnSha": 0,
+    "openersOnSha": false,
+    "errors": [
+     "لا حكمَ صوتيٍّ بعيّنةٍ على البصمة المنشورة",
+     "لا شاهدَ مطالعَ على البصمة المنشورة"
+    ],
+    "notes": [],
+    "samples": [],
+    "pooled": null,
+    "severeHi": null,
+    "otherShasWithSamples": [
+     "85886e2b",
+     "a099bbd7",
+     "d3f03688",
+     "e498b8cf",
+     "f2b3848c"
+    ],
+    "ok": false
+   }
+  }
+ ],
+ "summary": {
+  "indexes": 1,
+  "phase": "all",
+  "identityOk": 1,
+  "identityBad": [],
+  "structureOk": 1,
+  "structureBad": [],
+  "gapsOk": 1,
+  "gapsBad": [],
+  "audioOk": 0,
+  "audioBad": [
+   "timings-staging/qalun/rakbawi_qalun.c31b98d6.jz"
+  ],
+  "durationOutliersTotal": 2,
+  "impossibleShortTotal": 0,
+  "indexesWithImpossibleShort": 0,
+  "veryShortTotal": 1,
+  "extremeLongTotal": 0,
+  "indexesWithExtremeLong": 0,
+  "mirrorStale": 0,
+  "silenceGapsTotal": 0,
+  "indexesWithDurationOutliers": 1,
+  "indexesWithSilenceGaps": 0,
+  "entriesTotal": 6236,
+  "missingTotal": 0
+ }
+}

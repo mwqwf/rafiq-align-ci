@@ -1,0 +1,230 @@
+{
+ "schema": 1,
+ "tool": "full_audit-1.0",
+ "date": "20261003",
+ "timestampUtc": "2026-10-03T07:24:04Z",
+ "elapsedSec": 16.6,
+ "phase": "all",
+ "manifestIndexes": 180,
+ "frozenBucket": 220,
+ "reportsRead": 9035,
+ "rows": [
+  {
+   "key": "timings-staging/hafs/ibrahim_dosri.9b7af011.jz",
+   "sha256": "9b7af01138309a1d31b5bb6e4c80c796a7fbb4082e1cfdc51f8fb42f178b3abc",
+   "riwaya": "hafs",
+   "reciterId": "ibrahim_dosri",
+   "bytes": 86874,
+   "engine": "align-0.2",
+   "transformOp": "ctc_gapsplit:91",
+   "staging": true,
+   "identity": {
+    "sha256": "9b7af01138309a1d31b5bb6e4c80c796a7fbb4082e1cfdc51f8fb42f178b3abc",
+    "staging": true,
+    "errors": [],
+    "ok": true
+   },
+   "structure": {
+    "entries": 6236,
+    "errors": [],
+    "examples": {},
+    "fileNoUnparsed": 0,
+    "structuralFatal": [],
+    "structuralWarn": [
+     "مداخل مدتها > 120ث: 5 · مثال: 2:282 مدتها 120ث"
+    ],
+    "decision": [],
+    "engine": "align-0.2",
+    "audioSha": 114,
+    "bands": {
+     "HIGH": 5107,
+     "MED": 745,
+     "LOW": 384
+    },
+    "ok": true
+   },
+   "gaps": {
+    "missingTotal": 0,
+    "internalGaps": [],
+    "headMissing": [],
+    "tailMissing": [],
+    "wholeMissing": [],
+    "declared": {
+     "transformOp": "ctc_gapsplit:91",
+     "transformReason": "fixG 2026-10-03: مرشّحٌ واحدٌ للدوسري فوق 77c86452 (س14 من أدائها الكامل الأخير) — 91:3 مدّتها 510م.ث (0.10× المتوقَّع)؛ نافذةُ 91:2-4 رُدّت بحارس الثقة (91:2 = 0.435 < 0.45، تشغيلة 37103983965)، فتُجرَّب نافذةُ 91:3-4 بين جارتين ثابتتين بالحرّاس نفسها بلا خفض.",
+     "reasonCode": null,
+     "dropSurahs": [],
+     "byReason": {},
+     "declaredCount": 0,
+     "tagCount": 0,
+     "declaredIds": [],
+     "truncatedTail": null
+    },
+    "undeclaredEdge": [],
+    "errors": [],
+    "ok": true
+   },
+   "durations": {
+    "durationOutliers": 11,
+    "durationExamples": [
+     {
+      "aid": "2:18",
+      "ms": 13267,
+      "expMs": 3473,
+      "ratio": 3.82,
+      "chars": 19
+     },
+     {
+      "aid": "2:23",
+      "ms": 47251,
+      "expMs": 13893,
+      "ratio": 3.4,
+      "chars": 76
+     },
+     {
+      "aid": "55:70",
+      "ms": 540,
+      "expMs": 4584,
+      "ratio": 0.12,
+      "chars": 12
+     },
+     {
+      "aid": "79:4",
+      "ms": 560,
+      "expMs": 3647,
+      "ratio": 0.15,
+      "chars": 11
+     },
+     {
+      "aid": "53:57",
+      "ms": 611,
+      "expMs": 2684,
+      "ratio": 0.23,
+      "chars": 10
+     },
+     {
+      "aid": "53:45",
+      "ms": 1721,
+      "expMs": 6979,
+      "ratio": 0.25,
+      "chars": 26
+     },
+     {
+      "aid": "25:59",
+      "ms": 5020,
+      "expMs": 19395,
+      "ratio": 0.26,
+      "chars": 68
+     },
+     {
+      "aid": "43:74",
+      "ms": 2081,
+      "expMs": 8063,
+      "ratio": 0.26,
+      "chars": 25
+     },
+     {
+      "aid": "43:89",
+      "ms": 2062,
+      "expMs": 8063,
+      "ratio": 0.26,
+      "chars": 25
+     },
+     {
+      "aid": "55:76",
+      "ms": 2654,
+      "expMs": 9550,
+      "ratio": 0.28,
+      "chars": 25
+     },
+     {
+      "aid": "53:42",
+      "ms": 1281,
+      "expMs": 4295,
+      "ratio": 0.3,
+      "chars": 16
+     }
+    ],
+    "impossibleShort": [],
+    "veryShort": [
+     {
+      "aid": "55:70",
+      "ms": 540,
+      "expMs": 4584,
+      "ratio": 0.12,
+      "chars": 12
+     },
+     {
+      "aid": "79:4",
+      "ms": 560,
+      "expMs": 3647,
+      "ratio": 0.15,
+      "chars": 11
+     },
+     {
+      "aid": "53:57",
+      "ms": 611,
+      "expMs": 2684,
+      "ratio": 0.23,
+      "chars": 10
+     }
+    ],
+    "extremeLong": [],
+    "longOutliers": 2,
+    "shortOutliers": 8,
+    "silenceGaps": 0,
+    "silenceExamples": [],
+    "surahsWithRate": 113
+   },
+   "audio": {
+    "audioReportsOnSha": 0,
+    "openersOnSha": false,
+    "errors": [
+     "لا حكمَ صوتيٍّ بعيّنةٍ على البصمة المنشورة",
+     "لا شاهدَ مطالعَ على البصمة المنشورة"
+    ],
+    "notes": [],
+    "samples": [],
+    "pooled": null,
+    "severeHi": null,
+    "otherShasWithSamples": [
+     "039ad982",
+     "089c60df",
+     "39be1e5a",
+     "716647cb",
+     "97f51e8f",
+     "ca1cbd5c",
+     "f4a744a0",
+     "f9b1678b"
+    ],
+    "ok": false
+   }
+  }
+ ],
+ "summary": {
+  "indexes": 1,
+  "phase": "all",
+  "identityOk": 1,
+  "identityBad": [],
+  "structureOk": 1,
+  "structureBad": [],
+  "gapsOk": 1,
+  "gapsBad": [],
+  "audioOk": 0,
+  "audioBad": [
+   "timings-staging/hafs/ibrahim_dosri.9b7af011.jz"
+  ],
+  "durationOutliersTotal": 11,
+  "impossibleShortTotal": 0,
+  "indexesWithImpossibleShort": 0,
+  "veryShortTotal": 3,
+  "extremeLongTotal": 0,
+  "indexesWithExtremeLong": 0,
+  "mirrorStale": 0,
+  "silenceGapsTotal": 0,
+  "indexesWithDurationOutliers": 1,
+  "indexesWithSilenceGaps": 0,
+  "entriesTotal": 6236,
+  "missingTotal": 0
+ }
+}

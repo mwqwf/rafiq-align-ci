@@ -1,0 +1,150 @@
+{
+  "schema": 1,
+  "kind": "codex-fakhfakh-independent-start-resolution",
+  "timestampUtc": "2026-10-07T09:35:00Z",
+  "production": {
+    "key": "timings/qalun/fakhfakh_qalun.jz",
+    "sha256": "5bad920fd4994019caacc00b9edd6662941abae720ba0b3a2b41281016c23eef",
+    "identityReadback": "ops/out/codex-fakhfakh-live-identity-20261007.json",
+    "identityOk": true
+  },
+  "rule": {
+    "startToleranceMs": 1500,
+    "endEvidenceSeparate": true,
+    "claim": "Independent CTC start-anchor resolution only; no end-boundary certification and no production mutation."
+  },
+  "cases": [
+    {
+      "ayahId": "74:2",
+      "run": 37600863409,
+      "sourceSha256": "e87a0840e11761da44f3193527f765934beb86fe3caf5923387eadc8490856fa",
+      "current": {
+        "prev": {
+          "ayahId": "74:1",
+          "startMs": 7100
+        },
+        "target": {
+          "startMs": 11720,
+          "band": "LOW"
+        },
+        "next": {
+          "ayahId": "74:3",
+          "startMs": 13540
+        }
+      },
+      "measured": {
+        "prev": {
+          "startMs": 7164,
+          "quality": 0.818
+        },
+        "target": {
+          "startMs": 10527,
+          "quality": 1
+        },
+        "next": {
+          "startMs": 13849,
+          "quality": 1
+        }
+      },
+      "startDeltaMs": {
+        "prev": 64,
+        "target": -1193,
+        "next": 309
+      },
+      "withinTolerance": true,
+      "artifactCount": 0
+    },
+    {
+      "ayahId": "76:29",
+      "run": 37600595366,
+      "sourceSha256": "8c740250efd47e0bea5731147c6e400bfa966ec618d46d7c2b1160ab5e3294d3",
+      "current": {
+        "prev": {
+          "ayahId": "76:28",
+          "startMs": 339990
+        },
+        "target": {
+          "startMs": 353500,
+          "band": "HIGH"
+        },
+        "next": {
+          "ayahId": "76:30",
+          "startMs": 367610
+        }
+      },
+      "measured": {
+        "prev": {
+          "startMs": 340658,
+          "quality": 0.911
+        },
+        "target": {
+          "startMs": 353968,
+          "quality": 1
+        },
+        "next": {
+          "startMs": 368118,
+          "quality": 0.949
+        }
+      },
+      "startDeltaMs": {
+        "prev": 668,
+        "target": 468,
+        "next": 508
+      },
+      "withinTolerance": true,
+      "artifactCount": 0
+    },
+    {
+      "ayahId": "83:26",
+      "run": 37600605072,
+      "sourceSha256": "bec40ad6896132e991533c8d88affba00b97403d579c9adce113b82cf545112b",
+      "current": {
+        "prev": {
+          "ayahId": "83:25",
+          "startMs": 174800
+        },
+        "target": {
+          "startMs": 180006,
+          "band": "MED"
+        },
+        "next": {
+          "ayahId": "83:27",
+          "startMs": 191110
+        }
+      },
+      "measured": {
+        "prev": {
+          "startMs": 175440,
+          "quality": 1
+        },
+        "target": {
+          "startMs": 180003,
+          "quality": 0.933
+        },
+        "next": {
+          "startMs": 191771,
+          "quality": 1
+        }
+      },
+      "startDeltaMs": {
+        "prev": 640,
+        "target": -3,
+        "next": 661
+      },
+      "withinTolerance": true,
+      "artifactCount": 0
+    }
+  ],
+  "result": {
+    "startCasesResolved": [
+      "74:2",
+      "76:29",
+      "83:26"
+    ],
+    "startCasesRejected": [],
+    "productionChanged": false,
+    "candidateChanged": false,
+    "endsVerified": false,
+    "qualityThresholdLowered": false
+  }
+}

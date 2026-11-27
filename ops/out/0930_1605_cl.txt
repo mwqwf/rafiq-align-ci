@@ -1,0 +1,19 @@
+# rc=1
+
+[stderr]
+Traceback (most recent call last):
+  File "/home/runner/work/rafiq-align-ci/rafiq-align-ci/tools/index_qa/clamp_file_end.py", line 110, in <module>
+    sys.exit(main())
+             ^^^^^^
+  File "/home/runner/work/rafiq-align-ci/rafiq-align-ci/tools/index_qa/clamp_file_end.py", line 85, in main
+    cuts, refused = plan(idx["entries"], surahs, dur_of)
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/rafiq-align-ci/rafiq-align-ci/tools/index_qa/clamp_file_end.py", line 43, in plan
+    fd = int(dur_of(u))
+             ^^^^^^^^^
+  File "/home/runner/work/rafiq-align-ci/rafiq-align-ci/tools/index_qa/clamp_file_end.py", line 82, in dur_of
+    cache[u] = len(run._full_decode_pcm(f.name)) * 1000.0 / 16000
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/rafiq-align-ci/rafiq-align-ci/tools/index_qa/run.py", line 965, in _full_decode_pcm
+    import numpy as np
+ModuleNotFoundError: No module named 'numpy'

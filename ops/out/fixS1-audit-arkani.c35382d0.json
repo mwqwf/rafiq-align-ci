@@ -1,0 +1,296 @@
+{
+ "schema": 1,
+ "tool": "full_audit-1.0",
+ "date": "20261003",
+ "timestampUtc": "2026-10-03T10:07:15Z",
+ "elapsedSec": 24.5,
+ "phase": "all",
+ "manifestIndexes": 180,
+ "frozenBucket": 220,
+ "reportsRead": 9332,
+ "rows": [
+  {
+   "key": "timings-staging/hafs/arkani.c35382d0.jz",
+   "sha256": "c35382d0f026cc7e5c32d5cc047ef13f1550a7c7126cd7f85697887d7a532142",
+   "riwaya": "hafs",
+   "reciterId": "arkani",
+   "bytes": 93774,
+   "engine": "ctc-seg-1",
+   "transformOp": "realign_surah:73",
+   "staging": true,
+   "identity": {
+    "sha256": "c35382d0f026cc7e5c32d5cc047ef13f1550a7c7126cd7f85697887d7a532142",
+    "staging": true,
+    "errors": [],
+    "ok": true
+   },
+   "structure": {
+    "entries": 6236,
+    "errors": [],
+    "examples": {},
+    "fileNoUnparsed": 0,
+    "structuralFatal": [],
+    "structuralWarn": [
+     "مداخل مدتها > 120ث: 1 · مثال: 2:282 مدتها 135ث",
+     "مطالع سور تبدأ دون 3ث — مرشّحون للمسبار الصوتي لا حكمٌ عليهم: 5:1=2551م.ث · 19:1=2221م.ث · 20:1=2271م.ث · 21:1=2982م.ث · 25:1=1891م.ث · 32:1=2840م.ث · 34:1=2782م.ث · 36:1=2842م.ث · 44:1=2740م.ث · 48:1=2522م.ث … و12 غيرها"
+    ],
+    "decision": [],
+    "engine": "ctc-seg-1",
+    "audioSha": 114,
+    "bands": {
+     "LOW": 1534,
+     "MED": 4198,
+     "HIGH": 504
+    },
+    "ok": true
+   },
+   "gaps": {
+    "missingTotal": 0,
+    "internalGaps": [],
+    "headMissing": [],
+    "tailMissing": [],
+    "wholeMissing": [],
+    "declared": {
+     "transformOp": "realign_surah:73",
+     "transformReason": "fixS1 مدخلٌ غيرُ CTC لمطلع المزّمل عند arkani فوق مرشّح السماع 70e96352 (الذي أصلح 83:35): الملفّ يبدأ بالآية بلا بسملة بشاهدين — خريطةُ السماع (73:1 عند 0.4–3.6ث بتشابه 0.909) والتفريغ (37110950211: «0–15s يا أيها المزمل قم الليل…») — وCTC وحده يخالفهما (بدءٌ 3606م.ث بلا بسملة · ثقة 0.082 بها) فرُدّت نوافذُه الثلاث ⇒ إعادةُ محاذاة س73 بالمحرّك الآخر بتخطّي 100م.ث (بدءُ 73:1 المسموع 400 − 300)؛ والبوّاباتُ كاملةً وعتبة 5% كما هي",
+     "reasonCode": null,
+     "dropSurahs": [],
+     "byReason": {},
+     "declaredCount": 0,
+     "tagCount": 0,
+     "declaredIds": [],
+     "truncatedTail": null
+    },
+    "undeclaredEdge": [],
+    "errors": [],
+    "ok": true
+   },
+   "durations": {
+    "durationOutliers": 50,
+    "durationExamples": [
+     {
+      "aid": "18:37",
+      "ms": 27850,
+      "expMs": 6889,
+      "ratio": 4.04,
+      "chars": 57
+     },
+     {
+      "aid": "12:16",
+      "ms": 9847,
+      "expMs": 2465,
+      "ratio": 3.99,
+      "chars": 17
+     },
+     {
+      "aid": "12:1",
+      "ms": 11280,
+      "expMs": 2900,
+      "ratio": 3.89,
+      "chars": 20
+     },
+     {
+      "aid": "9:22",
+      "ms": 12782,
+      "expMs": 3793,
+      "ratio": 3.37,
+      "chars": 30
+     },
+     {
+      "aid": "37:1",
+      "ms": 6475,
+      "expMs": 1921,
+      "ratio": 3.37,
+      "chars": 9
+     },
+     {
+      "aid": "18:29",
+      "ms": 50033,
+      "expMs": 14987,
+      "ratio": 3.34,
+      "chars": 124
+     },
+     {
+      "aid": "9:21",
+      "ms": 17150,
+      "expMs": 5310,
+      "ratio": 3.23,
+      "chars": 42
+     },
+     {
+      "aid": "4:41",
+      "ms": 16451,
+      "expMs": 5187,
+      "ratio": 3.17,
+      "chars": 42
+     },
+     {
+      "aid": "12:28",
+      "ms": 18573,
+      "expMs": 6090,
+      "ratio": 3.05,
+      "chars": 42
+     },
+     {
+      "aid": "15:93",
+      "ms": 460,
+      "expMs": 3530,
+      "ratio": 0.13,
+      "chars": 14
+     },
+     {
+      "aid": "26:172",
+      "ms": 420,
+      "expMs": 2920,
+      "ratio": 0.14,
+      "chars": 14
+     },
+     {
+      "aid": "89:29",
+      "ms": 601,
+      "expMs": 3492,
+      "ratio": 0.17,
+      "chars": 12
+     }
+    ],
+    "impossibleShort": [],
+    "veryShort": [
+     {
+      "aid": "15:93",
+      "ms": 460,
+      "expMs": 3530,
+      "ratio": 0.13,
+      "chars": 14
+     },
+     {
+      "aid": "26:172",
+      "ms": 420,
+      "expMs": 2920,
+      "ratio": 0.14,
+      "chars": 14
+     },
+     {
+      "aid": "89:29",
+      "ms": 601,
+      "expMs": 3492,
+      "ratio": 0.17,
+      "chars": 12
+     },
+     {
+      "aid": "53:51",
+      "ms": 540,
+      "expMs": 2959,
+      "ratio": 0.18,
+      "chars": 13
+     },
+     {
+      "aid": "11:122",
+      "ms": 880,
+      "expMs": 4439,
+      "ratio": 0.2,
+      "chars": 18
+     },
+     {
+      "aid": "53:53",
+      "ms": 840,
+      "expMs": 2959,
+      "ratio": 0.28,
+      "chars": 13
+     }
+    ],
+    "extremeLong": [],
+    "longOutliers": 9,
+    "shortOutliers": 37,
+    "silenceGaps": 0,
+    "silenceExamples": [],
+    "surahsWithRate": 113
+   },
+   "audio": {
+    "audioReportsOnSha": 0,
+    "openersOnSha": true,
+    "errors": [
+     "لا حكمَ صوتيٍّ بعيّنةٍ على البصمة المنشورة"
+    ],
+    "notes": [],
+    "samples": [],
+    "pooled": null,
+    "severeHi": null,
+    "openers": {
+     "commit": "8c0d5e00935bc6c31ae29d07de90fa20e2c5e759",
+     "toolOk": true,
+     "scope": "full",
+     "checked": 112,
+     "hasLate": true,
+     "late": [],
+     "lateCtcRule": null,
+     "lateConfirmed": [],
+     "swallowed": [],
+     "suspect": [],
+     "tail": [],
+     "unknown": [
+      2,
+      5,
+      7,
+      20,
+      23,
+      25,
+      27,
+      31,
+      32,
+      50,
+      54,
+      58,
+      68,
+      69,
+      70,
+      71,
+      72,
+      75,
+      76,
+      77,
+      84
+     ],
+     "verdict": "clean"
+    },
+    "otherShasWithSamples": [
+     "0c3c33c5",
+     "0f338b95",
+     "15dc4a9e",
+     "3e25c3b3",
+     "4cbae72a",
+     "4f169976",
+     "8404ff69",
+     "95205698",
+     "a589c047"
+    ],
+    "ok": false
+   }
+  }
+ ],
+ "summary": {
+  "indexes": 1,
+  "phase": "all",
+  "identityOk": 1,
+  "identityBad": [],
+  "structureOk": 1,
+  "structureBad": [],
+  "gapsOk": 1,
+  "gapsBad": [],
+  "audioOk": 0,
+  "audioBad": [
+   "timings-staging/hafs/arkani.c35382d0.jz"
+  ],
+  "durationOutliersTotal": 50,
+  "impossibleShortTotal": 0,
+  "indexesWithImpossibleShort": 0,
+  "veryShortTotal": 6,
+  "extremeLongTotal": 0,
+  "indexesWithExtremeLong": 0,
+  "mirrorStale": 0,
+  "silenceGapsTotal": 0,
+  "indexesWithDurationOutliers": 1,
+  "indexesWithSilenceGaps": 0,
+  "entriesTotal": 6236,
+  "missingTotal": 0
+ }
+}

@@ -1,0 +1,14 @@
+# rc=0
+📦 ctc-splice-37104078988 · 1267 بايت
+── tools/alignment/work/batch_m_qari/s114.json (976 بايت)
+{"fileRef": "https://server8.mp3quran.net/m_qari/114.mp3", "sha256": "b4f3135aa20ced878fc4a6d2276926b56a9443a33be0bd281a2a069c30753d19", "surah": 114, "engine": "ctc-gapsplit-1", "gapsplit": ["5-6"], "entries": [{"ayahIdx": 0, "startMs": 6720, "endMs": 11671, "conf": 0.737, "snapped": true, "inherited": true, "matched": 0, "total": 4}, {"ayahIdx": 1, "startMs": 11671, "endMs": 16116, "conf": 0.74, "snapped": false, "inherited": true, "matched": 0, "total": 2}, {"ayahIdx": 2, "startMs": 16116, "endMs": 20129, "conf": 0.74, "snapped": false, "inherited": true, "matched": 0, "total": 2}, {"ayahIdx": 3, "startMs": 20129, "endMs": 27533, "conf": 0.74, "snapped": false, "inherited": false, "matched": 0, "total": 4}, {"ayahIdx": 4, "startMs": 27533, "endMs": 35658, "conf": 0.71, "snapped": false, "inherited": false, "matched": 0, "total": 5}, {"ayahIdx": 5, "startMs": 35658, "endMs": 43412, "conf": 0.74, "snapped": false, "inherited": false, "matched": 0, "total": 3}]}
+── ctc.log (1040 بايت)
+Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+
+Loading weights:   0%|          | 0/424 [00:00<?, ?it/s]
+Loading weights: 100%|██████████| 424/424 [00:00<00:00, 24698.42it/s]
+/opt/hostedtoolcache/Python/3.11.16/x64/lib/python3.11/site-packages/torch/ao/nn/quantized/modules/utils.py:72: UserWarning: torch.quantize_per_tensor, torch.quantize_per_channel and other quantized tensor creation functions that produce tensors with dtype torch.quint8, torch.qint8, and torch.qint32 are deprecated and will be removed in a future PyTorch release. Please see https://github.com/pytorch/pytorch/issues/184982 for more information. (Triggered internally at /__w/pytorch/pytorch/aten/src/ATen/quantized/Quantizer.cpp:111.)
+  qweight = torch.quantize_per_tensor(
+س92:19-21 (rewtail): ⛔ رُدّت — 92:19 ثقةُ CTC 0.307 < 0.45
+س114:5-6 (rewtail): ✅ قُسمت · 114:4 20129–27533 · 114:5 27533–35658 · 114:6 35658–43412
+

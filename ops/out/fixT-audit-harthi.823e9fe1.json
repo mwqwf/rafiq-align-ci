@@ -1,0 +1,207 @@
+{
+ "schema": 1,
+ "tool": "full_audit-1.0",
+ "date": "20261005",
+ "timestampUtc": "2026-10-05T18:37:57Z",
+ "elapsedSec": 50.1,
+ "phase": "all",
+ "manifestIndexes": 180,
+ "frozenBucket": 220,
+ "reportsRead": 11217,
+ "rows": [
+  {
+   "key": "timings-staging/hafs/harthi.823e9fe1.jz",
+   "sha256": "823e9fe1b9558a3481eade3f15c036e1b7d1c3a68c7989ac4d81972f531bb5c8",
+   "riwaya": "hafs",
+   "reciterId": "harthi",
+   "bytes": 87798,
+   "engine": "align-0.2",
+   "transformOp": "ctc_heardmap_splice:39,44,52",
+   "staging": true,
+   "identity": {
+    "sha256": "823e9fe1b9558a3481eade3f15c036e1b7d1c3a68c7989ac4d81972f531bb5c8",
+    "staging": true,
+    "errors": [],
+    "ok": true
+   },
+   "structure": {
+    "entries": 6236,
+    "errors": [],
+    "examples": {},
+    "registeredFileNoMappings": {},
+    "fileNoUnparsed": 0,
+    "structuralFatal": [],
+    "structuralWarn": [
+     "مداخل مدتها > 120ث: 1 · مثال: 2:282 مدتها 125ث"
+    ],
+    "decision": [],
+    "engine": "align-0.2",
+    "audioSha": 114,
+    "bands": {
+     "HIGH": 4759,
+     "MED": 1374,
+     "LOW": 103
+    },
+    "ok": true
+   },
+   "gaps": {
+    "missingTotal": 0,
+    "internalGaps": [],
+    "headMissing": [],
+    "tailMissing": [],
+    "wholeMissing": [],
+    "declared": {
+     "transformOp": "ctc_heardmap_splice:39,44,52",
+     "transformReason": "fixT: إصلاحٌ دفعيٌّ لكبس الذيل — 3 سورةً مشتبهةً (فائضٌ ≥15ث بعد آخر مدخل · تدقيق الجولة الثانية 2026-10-03)، كلٌّ يُقاس بالسماع قبل أن يُمسّ",
+     "reasonCode": null,
+     "dropSurahs": [],
+     "byReason": {
+      "no-align": 6
+     },
+     "declaredCount": 6,
+     "tagCount": 0,
+     "declaredIds": [],
+     "truncatedTail": null
+    },
+    "undeclaredEdge": [],
+    "errors": [],
+    "ok": true
+   },
+   "durations": {
+    "durationOutliers": 7,
+    "durationExamples": [
+     {
+      "aid": "4:136",
+      "ms": 91620,
+      "expMs": 27456,
+      "ratio": 3.34,
+      "chars": 125
+     },
+     {
+      "aid": "37:1",
+      "ms": 5770,
+      "expMs": 1779,
+      "ratio": 3.24,
+      "chars": 9
+     },
+     {
+      "aid": "12:86",
+      "ms": 35713,
+      "expMs": 11341,
+      "ratio": 3.15,
+      "chars": 48
+     },
+     {
+      "aid": "14:52",
+      "ms": 41370,
+      "expMs": 13607,
+      "ratio": 3.04,
+      "chars": 58
+     },
+     {
+      "aid": "67:25",
+      "ms": 918,
+      "expMs": 5753,
+      "ratio": 0.16,
+      "chars": 29
+     },
+     {
+      "aid": "92:11",
+      "ms": 890,
+      "expMs": 4742,
+      "ratio": 0.19,
+      "chars": 21
+     },
+     {
+      "aid": "82:17",
+      "ms": 966,
+      "expMs": 3772,
+      "ratio": 0.26,
+      "chars": 18
+     }
+    ],
+    "impossibleShort": [],
+    "veryShort": [
+     {
+      "aid": "67:25",
+      "ms": 918,
+      "expMs": 5753,
+      "ratio": 0.16,
+      "chars": 29
+     },
+     {
+      "aid": "92:11",
+      "ms": 890,
+      "expMs": 4742,
+      "ratio": 0.19,
+      "chars": 21
+     },
+     {
+      "aid": "82:17",
+      "ms": 966,
+      "expMs": 3772,
+      "ratio": 0.26,
+      "chars": 18
+     }
+    ],
+    "extremeLong": [],
+    "longOutliers": 4,
+    "shortOutliers": 3,
+    "silenceGaps": 0,
+    "silenceExamples": [],
+    "surahsWithRate": 113
+   },
+   "audio": {
+    "audioReportsOnSha": 0,
+    "openersOnSha": false,
+    "errors": [
+     "لا حكمَ صوتيٍّ بعيّنةٍ على البصمة المنشورة",
+     "لا شاهدَ مطالعَ على البصمة المنشورة"
+    ],
+    "notes": [],
+    "samples": [],
+    "pooled": null,
+    "severeHi": null,
+    "otherShasWithSamples": [
+     "0295da92",
+     "3dad72c4",
+     "4b60f774",
+     "638a95ee",
+     "7c9434b7",
+     "a959c67b",
+     "ac38edba",
+     "b688d44c",
+     "c160cb42",
+     "c1f1635b"
+    ],
+    "ok": false
+   }
+  }
+ ],
+ "summary": {
+  "indexes": 1,
+  "phase": "all",
+  "identityOk": 1,
+  "identityBad": [],
+  "structureOk": 1,
+  "structureBad": [],
+  "gapsOk": 1,
+  "gapsBad": [],
+  "audioOk": 0,
+  "audioBad": [
+   "timings-staging/hafs/harthi.823e9fe1.jz"
+  ],
+  "durationOutliersTotal": 7,
+  "impossibleShortTotal": 0,
+  "indexesWithImpossibleShort": 0,
+  "veryShortTotal": 3,
+  "extremeLongTotal": 0,
+  "indexesWithExtremeLong": 0,
+  "mirrorStale": 0,
+  "silenceGapsTotal": 0,
+  "indexesWithDurationOutliers": 1,
+  "indexesWithSilenceGaps": 0,
+  "entriesTotal": 6236,
+  "missingTotal": 0
+ }
+}

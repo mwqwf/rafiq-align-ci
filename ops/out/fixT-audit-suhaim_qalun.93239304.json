@@ -1,0 +1,214 @@
+{
+ "schema": 1,
+ "tool": "full_audit-1.0",
+ "date": "20261003",
+ "timestampUtc": "2026-10-03T23:12:27Z",
+ "elapsedSec": 36.3,
+ "phase": "all",
+ "manifestIndexes": 180,
+ "frozenBucket": 220,
+ "reportsRead": 10119,
+ "rows": [
+  {
+   "key": "timings-staging/qalun/suhaim_qalun.93239304.jz",
+   "sha256": "9323930457a179624befb399b7e46a4687ce2c8bd66f51ed3f8bfff12a155234",
+   "riwaya": "qalun",
+   "reciterId": "suhaim_qalun",
+   "bytes": 95242,
+   "engine": "ctc-seg-1",
+   "transformOp": "ctc_heardmap_splice:3,4,7,10,12,13,15,16,18,20,23,25,26,28,29,30,31,32,34,35,36,39,40,41,42,44,45,46,47,50,51,52,54,56,58,59,60,61,63,64,65,66,67,68,69,70,71,76,77,78,83",
+   "staging": true,
+   "identity": {
+    "sha256": "9323930457a179624befb399b7e46a4687ce2c8bd66f51ed3f8bfff12a155234",
+    "staging": true,
+    "errors": [],
+    "ok": true
+   },
+   "structure": {
+    "entries": 6236,
+    "errors": [],
+    "examples": {},
+    "fileNoUnparsed": 0,
+    "structuralFatal": [],
+    "structuralWarn": [
+     "مداخل مدتها > 120ث: 1 · مثال: 2:282 مدتها 122ث",
+     "مطالع سور تبدأ دون 3ث — مرشّحون للمسبار الصوتي لا حكمٌ عليهم: 22:1=2851م.ث · 29:1=2911م.ث · 73:1=2912م.ث"
+    ],
+    "decision": [],
+    "engine": "ctc-seg-1",
+    "audioSha": 114,
+    "bands": {
+     "HIGH": 354,
+     "MED": 5017,
+     "LOW": 865
+    },
+    "ok": true
+   },
+   "gaps": {
+    "missingTotal": 0,
+    "internalGaps": [],
+    "headMissing": [],
+    "tailMissing": [],
+    "wholeMissing": [],
+    "declared": {
+     "transformOp": "ctc_heardmap_splice:3,4,7,10,12,13,15,16,18,20,23,25,26,28,29,30,31,32,34,35,36,39,40,41,42,44,45,46,47,50,51,52,54,56,58,59,60,61,63,64,65,66,67,68,69,70,71,76,77,78,83",
+     "transformReason": "fixT: إصلاحٌ دفعيٌّ لكبس الذيل — 52 سورةً مشتبهةً (فائضٌ ≥15ث بعد آخر مدخل · تدقيق الجولة الثانية 2026-10-03)، كلٌّ يُقاس بالسماع قبل أن يُمسّ",
+     "reasonCode": null,
+     "dropSurahs": [],
+     "byReason": {},
+     "declaredCount": 0,
+     "tagCount": 0,
+     "declaredIds": [],
+     "truncatedTail": null
+    },
+    "undeclaredEdge": [],
+    "errors": [],
+    "ok": true
+   },
+   "durations": {
+    "durationOutliers": 10,
+    "durationExamples": [
+     {
+      "aid": "54:55",
+      "ms": 27163,
+      "expMs": 5242,
+      "ratio": 5.18,
+      "chars": 21
+     },
+     {
+      "aid": "7:52",
+      "ms": 45474,
+      "expMs": 11220,
+      "ratio": 4.05,
+      "chars": 42
+     },
+     {
+      "aid": "56:89",
+      "ms": 21385,
+      "expMs": 5596,
+      "ratio": 3.82,
+      "chars": 18
+     },
+     {
+      "aid": "26:54",
+      "ms": 14350,
+      "expMs": 4159,
+      "ratio": 3.45,
+      "chars": 18
+     },
+     {
+      "aid": "89:14",
+      "ms": 12128,
+      "expMs": 3673,
+      "ratio": 3.3,
+      "chars": 14
+     },
+     {
+      "aid": "68:11",
+      "ms": 9846,
+      "expMs": 2997,
+      "ratio": 3.28,
+      "chars": 12
+     },
+     {
+      "aid": "10:57",
+      "ms": 51419,
+      "expMs": 16686,
+      "ratio": 3.08,
+      "chars": 60
+     },
+     {
+      "aid": "37:1",
+      "ms": 6815,
+      "expMs": 2237,
+      "ratio": 3.05,
+      "chars": 9
+     },
+     {
+      "aid": "50:34",
+      "ms": 21455,
+      "expMs": 7128,
+      "ratio": 3.01,
+      "chars": 23
+     },
+     {
+      "aid": "91:15",
+      "ms": 800,
+      "expMs": 3106,
+      "ratio": 0.26,
+      "chars": 12
+     }
+    ],
+    "impossibleShort": [],
+    "veryShort": [
+     {
+      "aid": "91:15",
+      "ms": 800,
+      "expMs": 3106,
+      "ratio": 0.26,
+      "chars": 12
+     }
+    ],
+    "extremeLong": [
+     {
+      "aid": "54:55",
+      "ms": 27163,
+      "expMs": 5242,
+      "ratio": 5.18,
+      "chars": 21
+     }
+    ],
+    "longOutliers": 9,
+    "shortOutliers": 1,
+    "silenceGaps": 0,
+    "silenceExamples": [],
+    "surahsWithRate": 113
+   },
+   "audio": {
+    "audioReportsOnSha": 0,
+    "openersOnSha": false,
+    "errors": [
+     "لا حكمَ صوتيٍّ بعيّنةٍ على البصمة المنشورة",
+     "لا شاهدَ مطالعَ على البصمة المنشورة"
+    ],
+    "notes": [],
+    "samples": [],
+    "pooled": null,
+    "severeHi": null,
+    "otherShasWithSamples": [
+     "24032592",
+     "63368ce4",
+     "b132df44",
+     "ee66247c"
+    ],
+    "ok": false
+   }
+  }
+ ],
+ "summary": {
+  "indexes": 1,
+  "phase": "all",
+  "identityOk": 1,
+  "identityBad": [],
+  "structureOk": 1,
+  "structureBad": [],
+  "gapsOk": 1,
+  "gapsBad": [],
+  "audioOk": 0,
+  "audioBad": [
+   "timings-staging/qalun/suhaim_qalun.93239304.jz"
+  ],
+  "durationOutliersTotal": 10,
+  "impossibleShortTotal": 0,
+  "indexesWithImpossibleShort": 0,
+  "veryShortTotal": 1,
+  "extremeLongTotal": 1,
+  "indexesWithExtremeLong": 1,
+  "mirrorStale": 0,
+  "silenceGapsTotal": 0,
+  "indexesWithDurationOutliers": 1,
+  "indexesWithSilenceGaps": 0,
+  "entriesTotal": 6236,
+  "missingTotal": 0
+ }
+}

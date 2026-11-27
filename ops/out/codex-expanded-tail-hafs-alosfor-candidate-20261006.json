@@ -1,0 +1,124 @@
+{
+  "path": "ops/source-repair/candidates/codex-expanded-tail-hafs-alosfor-20261006.jz",
+  "sha256": "02db9a6d5cfb91964d0607743ff0f138be0a3f79544593781fcae2cd4a0e5137",
+  "parentKey": "timings/hafs/alosfor.jz",
+  "parentSha256": "84c3ab871343c377a2c1a127a23560da43257dca8c7280881f16f5b562dc2319",
+  "op": "ctc_quran_window:88",
+  "changedEntries": 4,
+  "warnings": [
+    "مداخل مدتها > 120ث: 1 · مثال: 2:282 مدتها 120ث"
+  ],
+  "proof": {
+    "qualityClaim": false,
+    "contexts": [
+      {
+        "reportPath": "ops/out/codex-alosfor88-tail-report-20261006.json",
+        "reportSha256": "5a06c9d3f213b4b03ea02d069e5465517e6b837648bb3130e92cbdea11e101a0",
+        "bundlePath": "ops/out/codex-alosfor88-tail-complete-20261006.json.gz",
+        "bundleSha256": "b7135560cd7759d0cfc0a4989027a9650ab0455f19a8cc8aec2c0b7c49899b68",
+        "jobId": 112140630523,
+        "id": "penultimate_hafs_alosfor_88",
+        "targetAyahs": [
+          24,
+          25,
+          26
+        ],
+        "sourceSha256": "250ed378812d6dcf7fc428cea03dd9ed7d07e08207a9af601026e8aa2ee4cc97",
+        "provenance": {
+          "runId": "37424386611",
+          "runSha": "4469d698e74a5ccd14ff20075e8efe6c674d7c84",
+          "toolSha256": "9709b2bb449495ac28f7f618215cca94b8a5633fa1d81368ceeff9005455faee"
+        }
+      }
+    ],
+    "changes": [
+      {
+        "before": {
+          "ayahId": "88:23",
+          "fileRef": "https://server14.mp3quran.net/alosfor/088.mp3",
+          "startMs": 82804,
+          "endMs": 86367,
+          "conf": 0.7,
+          "confBand": "MED",
+          "startApprox": true
+        },
+        "after": {
+          "ayahId": "88:23",
+          "fileRef": "https://server14.mp3quran.net/alosfor/088.mp3",
+          "startMs": 82804,
+          "endMs": 86348,
+          "conf": 0.7,
+          "confBand": "MED",
+          "startApprox": true
+        }
+      },
+      {
+        "before": {
+          "ayahId": "88:24",
+          "fileRef": "https://server14.mp3quran.net/alosfor/088.mp3",
+          "startMs": 86367,
+          "endMs": 89699,
+          "conf": 0.45,
+          "confBand": "MED",
+          "startApprox": true
+        },
+        "after": {
+          "ayahId": "88:24",
+          "fileRef": "https://server14.mp3quran.net/alosfor/088.mp3",
+          "startMs": 86348,
+          "endMs": 90611,
+          "conf": 0.45,
+          "confBand": "MED",
+          "startApprox": true
+        }
+      },
+      {
+        "before": {
+          "ayahId": "88:25",
+          "fileRef": "https://server14.mp3quran.net/alosfor/088.mp3",
+          "startMs": 89699,
+          "endMs": 90420,
+          "conf": 0.223,
+          "confBand": "LOW",
+          "startApprox": true
+        },
+        "after": {
+          "ayahId": "88:25",
+          "fileRef": "https://server14.mp3quran.net/alosfor/088.mp3",
+          "startMs": 90611,
+          "endMs": 93673,
+          "conf": 0.223,
+          "confBand": "LOW",
+          "startApprox": true
+        }
+      },
+      {
+        "before": {
+          "ayahId": "88:26",
+          "fileRef": "https://server14.mp3quran.net/alosfor/088.mp3",
+          "startMs": 90420,
+          "endMs": 93602,
+          "conf": 0.432,
+          "confBand": "LOW",
+          "startApprox": true
+        },
+        "after": {
+          "ayahId": "88:26",
+          "fileRef": "https://server14.mp3quran.net/alosfor/088.mp3",
+          "startMs": 93673,
+          "endMs": 100258,
+          "conf": 0.432,
+          "confBand": "LOW",
+          "startApprox": true
+        }
+      }
+    ],
+    "decodedEofMs": {
+      "88": 100258
+    },
+    "limits": [
+      "الحد الأصلي لثقة المحاذاة0.45؛ لا تغيير لأي حارس أو ثقة منشورة.",
+      "الخواتيم المقيسة فقط؛ يلزم الفحص الأصلي الكامل للبصمة المرفوعة."
+    ]
+  }
+}

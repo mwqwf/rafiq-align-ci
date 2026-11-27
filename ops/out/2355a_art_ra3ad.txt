@@ -1,0 +1,40 @@
+# rc=0
+📦 ctc-ra3ad-p0 · 1861 بايت
+── tools/alignment/work/batch_ra3ad/s102.json (1108 بايت)
+{"fileRef": "https://server8.mp3quran.net/ra3ad/102.mp3", "sha256": "1dfe4fa417034b9e7390fd915bb644f9b9610d7ebad2101bfbea8085c5b7824f", "vadRel": 0.1, "vadVersion": "adaptive-2", "entries": [{"ayahIdx": 0, "startMs": 4090, "endMs": 6668, "conf": 0.707, "snapped": true, "matched": 0, "total": 2}, {"ayahIdx": 1, "startMs": 6668, "endMs": 10232, "conf": 0.699, "snapped": false, "matched": 0, "total": 3}, {"ayahIdx": 2, "startMs": 10232, "endMs": 13596, "conf": 0.691, "snapped": false, "matched": 0, "total": 3}, {"ayahIdx": 3, "startMs": 13596, "endMs": 17721, "conf": 0.707, "snapped": false, "matched": 0, "total": 4}, {"ayahIdx": 4, "startMs": 17721, "endMs": 22246, "conf": 0.687, "snapped": false, "matched": 0, "total": 5}, {"ayahIdx": 5, "startMs": 22246, "endMs": 25449, "conf": 0.74, "snapped": false, "matched": 0, "total": 2}, {"ayahIdx": 6, "startMs": 25449, "endMs": 30730, "conf": 0.74, "snapped": false, "matched": 0, "total": 4}, {"ayahIdx": 7, "startMs": 30730, "endMs": 36942, "conf": 0.64, "snapped": true, "matched": 0, "total": 5}], "issues": [], "bands": {"MED": 8}, "totalMs": 37911}
+── logs/part0.log (2070 بايت)
+Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+
+Loading weights:   0%|          | 0/424 [00:00<?, ?it/s]
+Loading weights: 100%|██████████| 424/424 [00:00<00:00, 23881.52it/s]
+/opt/hostedtoolcache/Python/3.11.16/x64/lib/python3.11/site-packages/torch/ao/nn/quantized/modules/utils.py:72: UserWarning: torch.quantize_per_tensor, torch.quantize_per_channel and other quantized tensor creation functions that produce tensors with dtype torch.quint8, torch.qint8, and torch.qint32 are deprecated and will be removed in a future PyTorch release. Please see https://github.com/pytorch/pytorch/issues/184982 for more information. (Triggered internally at /__w/pytorch/pytorch/aten/src/ATen/quantized/Quantizer.cpp:111.)
+  qweight = torch.quantize_per_tensor(
+سورة 102: {'MED': 8} ✅ (24ث)
+⏱️ أطوارُ ra3ad: ffmpeg=0ث · vad=0ث · whisper=0ث · refine=0ث
+
+=== TimingIndex: /home/runner/work/rafiq-align-ci/rafiq-align-ci/tools/alignment/work/timings_hafs_ra3ad.jz (15ك.ب) ===
+آيات مفهرسة: 8 · نطاقات: {'MED': 8} · مخالفات: 0 · فشل سور: []
+	Command being timed: "python tools/alignment/batch_run.py --reciter ra3ad --riwaya hafs --base https://server8.mp3quran.net/ra3ad/{surah:03d}.mp3 --surahs 102"
+	User time (seconds): 48.91
+	System time (seconds): 6.42
+	Percent of CPU this job got: 223%
+	Elapsed (wall clock) time (h:mm:ss or m:ss): 0:24.77
+	Average shared text size (kbytes): 0
+	Average unshared data size (kbytes): 0
+	Average stack size (kbytes): 0
+	Average total size (kbytes): 0
+	Maximum resident set size (kbytes): 4381872
+	Average resident set size (kbytes): 0
+	Major (requiring I/O) page faults: 59
+	Minor (reclaiming a frame) page faults: 296703
+	Voluntary context switches: 23524
+	Involuntary context switches: 15419
+	Swaps: 0
+	File system inputs: 18760
+	File system outputs: 4936200
+	Socket messages sent: 0
+	Socket messages received: 0
+	Signals delivered: 0
+	Page size (bytes): 4096
+	Exit status: 0
+

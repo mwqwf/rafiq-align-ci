@@ -1,0 +1,38 @@
+{
+  "kind": "pinned-parent-diagnostic-request",
+  "qualityClaim": false,
+  "reciterId": "rabbani_warsh",
+  "riwaya": "warsh",
+  "surah": 77,
+  "parentSha256": "d9534de9ed7aed07154a5784f2cefc5b7fef16981061bf9e4c3f9bc22a44b2aa",
+  "parentPath": "ops/source-repair/parents/codex-opener-rabbani_warsh-d9534de9.jz",
+  "sourceSha256": "6e736156317423fbeb3f8a0f0105904af03726e6b571e20af7a55ae92a1b1a50",
+  "url": "https://archive.org/download/alfirdwsiy1433_35686535653683658668356566586356gmail_002/077.mp3",
+  "entries": [
+    {
+      "ayahId": "77:48",
+      "fileRef": "https://archive.org/download/alfirdwsiy1433_35686535653683658668356566586356gmail_002/077.mp3",
+      "startMs": 248080,
+      "endMs": 254030,
+      "conf": 1.0,
+      "confBand": "HIGH"
+    },
+    {
+      "ayahId": "77:49",
+      "fileRef": "https://archive.org/download/alfirdwsiy1433_35686535653683658668356566586356gmail_002/077.mp3",
+      "startMs": 254030,
+      "endMs": 259260,
+      "conf": 1.0,
+      "confBand": "HIGH"
+    },
+    {
+      "ayahId": "77:50",
+      "fileRef": "https://archive.org/download/alfirdwsiy1433_35686535653683658668356566586356gmail_002/077.mp3",
+      "startMs": 259260,
+      "endMs": 265508,
+      "conf": 1.0,
+      "confBand": "HIGH"
+    }
+  ],
+  "reason": "Expand measured rejected boundary context through original decoded EOF; diagnostic only."
+}

@@ -1,0 +1,175 @@
+{
+ "schema": 1,
+ "tool": "full_audit-1.0",
+ "date": "20261005",
+ "timestampUtc": "2026-10-05T14:21:26Z",
+ "elapsedSec": 50.6,
+ "phase": "all",
+ "manifestIndexes": 180,
+ "frozenBucket": 220,
+ "reportsRead": 11083,
+ "rows": [
+  {
+   "key": "timings-staging/hafs/mukhtar_haj.6d5ed284.jz",
+   "sha256": "6d5ed2841e6c0755e0e698126a1b892a24e2ad897bbcd23a89ff71961d2e7cb4",
+   "riwaya": "hafs",
+   "reciterId": "mukhtar_haj",
+   "bytes": 90358,
+   "engine": "align-0.2",
+   "transformOp": "ctc_heardmap_splice:21,36,51,55,56,77",
+   "staging": true,
+   "identity": {
+    "sha256": "6d5ed2841e6c0755e0e698126a1b892a24e2ad897bbcd23a89ff71961d2e7cb4",
+    "staging": true,
+    "errors": [],
+    "ok": true
+   },
+   "structure": {
+    "entries": 6236,
+    "errors": [],
+    "examples": {},
+    "fileNoUnparsed": 0,
+    "structuralFatal": [],
+    "structuralWarn": [
+     "مداخل مدتها > 120ث: 2 · مثال: 2:282 مدتها 157ث",
+     "فجوات > 15ث بين آيتين متتاليتين: 2 · مثال: 27:58→27:59 فجوة 15ث"
+    ],
+    "decision": [],
+    "engine": "align-0.2",
+    "audioSha": 114,
+    "bands": {
+     "HIGH": 3182,
+     "MED": 2957,
+     "LOW": 97
+    },
+    "ok": true
+   },
+   "gaps": {
+    "missingTotal": 0,
+    "internalGaps": [],
+    "headMissing": [],
+    "tailMissing": [],
+    "wholeMissing": [],
+    "declared": {
+     "transformOp": "ctc_heardmap_splice:21,36,51,55,56,77",
+     "transformReason": "fixT: إصلاحٌ دفعيٌّ لكبس الذيل — 6 سورةً مشتبهةً (فائضٌ ≥15ث بعد آخر مدخل · تدقيق الجولة الثانية 2026-10-03)، كلٌّ يُقاس بالسماع قبل أن يُمسّ",
+     "reasonCode": "SOURCE_TRUNCATED",
+     "dropSurahs": [],
+     "byReason": {
+      "no-align": 13
+     },
+     "declaredCount": 13,
+     "tagCount": 0,
+     "declaredIds": [],
+     "truncatedTail": null
+    },
+    "undeclaredEdge": [],
+    "errors": [],
+    "ok": true
+   },
+   "durations": {
+    "durationOutliers": 3,
+    "durationExamples": [
+     {
+      "aid": "9:43",
+      "ms": 2334,
+      "expMs": 14551,
+      "ratio": 0.16,
+      "chars": 51
+     },
+     {
+      "aid": "38:81",
+      "ms": 1334,
+      "expMs": 5965,
+      "ratio": 0.22,
+      "chars": 18
+     },
+     {
+      "aid": "37:1",
+      "ms": 890,
+      "expMs": 2998,
+      "ratio": 0.3,
+      "chars": 9
+     }
+    ],
+    "impossibleShort": [],
+    "veryShort": [
+     {
+      "aid": "37:1",
+      "ms": 890,
+      "expMs": 2998,
+      "ratio": 0.3,
+      "chars": 9
+     }
+    ],
+    "extremeLong": [],
+    "longOutliers": 0,
+    "shortOutliers": 2,
+    "silenceGaps": 2,
+    "silenceExamples": [
+     {
+      "from": "39:52",
+      "to": "39:53",
+      "gapMs": 32800
+     },
+     {
+      "from": "27:58",
+      "to": "27:59",
+      "gapMs": 15060
+     }
+    ],
+    "surahsWithRate": 113
+   },
+   "audio": {
+    "audioReportsOnSha": 0,
+    "openersOnSha": false,
+    "errors": [
+     "لا حكمَ صوتيٍّ بعيّنةٍ على البصمة المنشورة",
+     "لا شاهدَ مطالعَ على البصمة المنشورة"
+    ],
+    "notes": [],
+    "samples": [],
+    "pooled": null,
+    "severeHi": null,
+    "otherShasWithSamples": [
+     "09b910bc",
+     "1fdc0bd5",
+     "5636e010",
+     "650c4b97",
+     "7741171f",
+     "9e69596f",
+     "a01f9268",
+     "b31581d8",
+     "eede71f0"
+    ],
+    "ok": false
+   }
+  }
+ ],
+ "summary": {
+  "indexes": 1,
+  "phase": "all",
+  "identityOk": 1,
+  "identityBad": [],
+  "structureOk": 1,
+  "structureBad": [],
+  "gapsOk": 1,
+  "gapsBad": [],
+  "audioOk": 0,
+  "audioBad": [
+   "timings-staging/hafs/mukhtar_haj.6d5ed284.jz"
+  ],
+  "durationOutliersTotal": 3,
+  "impossibleShortTotal": 0,
+  "indexesWithImpossibleShort": 0,
+  "veryShortTotal": 1,
+  "extremeLongTotal": 0,
+  "indexesWithExtremeLong": 0,
+  "mirrorStale": 0,
+  "silenceGapsTotal": 2,
+  "indexesWithDurationOutliers": 1,
+  "indexesWithSilenceGaps": 1,
+  "entriesTotal": 6236,
+  "missingTotal": 0
+ }
+}

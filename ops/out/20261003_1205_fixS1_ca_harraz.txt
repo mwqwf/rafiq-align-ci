@@ -1,0 +1,42 @@
+# rc=0
+📦 ctc-harraz_warsh-p0 · 2173 بايت
+── tools/alignment/work/batch_harraz_warsh/s073.json (2463 بايت)
+{"fileRef": "https://server16.mp3quran.net/H-Lharraz/Rewayat-Warsh-A-n-Nafi/073.mp3", "sha256": "2b7f77c48d7573511169b3a263711531d32a7318c2c108540890cc7b1ffc059e", "vadRel": 0.25, "vadVersion": "adaptive-2", "entries": [{"ayahIdx": 0, "startMs": 2711, "endMs": 7014, "conf": 0.74, "snapped": false, "matched": 0, "total": 2}, {"ayahIdx": 1, "startMs": 7014, "endMs": 9906, "conf": 0.74, "snapped": false, "matched": 0, "total": 4}, {"ayahIdx": 2, "startMs": 9906, "endMs": 15160, "conf": 0.74, "snapped": false, "matched": 0, "total": 5}, {"ayahIdx": 3, "startMs": 15160, "endMs": 20193, "conf": 0.74, "snapped": false, "matched": 0, "total": 6}, {"ayahIdx": 4, "startMs": 20193, "endMs": 25377, "conf": 0.74, "snapped": false, "matched": 0, "total": 5}, {"ayahIdx": 5, "startMs": 25377, "endMs": 32101, "conf": 0.601, "snapped": false, "matched": 0, "total": 8}, {"ayahIdx": 6, "startMs": 32101, "endMs": 38065, "conf": 0.74, "snapped": false, "matched": 0, "total": 6}, {"ayahIdx": 7, "startMs": 38065, "endMs": 43008, "conf": 0.604, "snapped": false, "matched": 0, "total": 6}, {"ayahIdx": 8, "startMs": 43008, "endMs": 51794, "conf": 0.708, "snapped": false, "matched": 0, "total": 9}, {"ayahIdx": 9, "startMs": 51794, "endMs": 59620, "conf": 0.74, "snapped": false, "matched": 0, "total": 7}, {"ayahIdx": 10, "startMs": 59620, "endMs": 66354, "conf": 0.586, "snapped": false, "matched": 0, "total": 6}, {"ayahIdx": 11, "startMs": 66354, "endMs": 73669, "conf": 0.74, "snapped": false, "matched": 0, "total": 4}, {"ayahIdx": 12, "startMs": 73669, "endMs": 79573, "conf": 0.687, "snapped": false, "matched": 0, "total": 5}, {"ayahIdx": 13, "startMs": 79573, "endMs": 87148, "conf": 0.74, "snapped": false, "matched": 0, "total": 8}, {"ayahIdx": 14, "startMs": 87148, "endMs": 108092, "conf": 0.652, "snapped": false, "matched": 0, "total": 11}, {"ayahIdx": 15, "startMs": 108092, "endMs": 115777, "conf": 0.619, "snapped": false, "matched": 0, "total": 6}, {"ayahIdx": 16, "startMs": 115777, "endMs": 123442, "conf": 0.708, "snapped": false, "matched": 0, "total": 8}, {"ayahIdx": 17, "startMs": 123442, "endMs": 131527, "conf": 0.74, "snapped": false, "matched": 0, "total": 6}, {"ayahIdx": 18, "startMs": 131527, "endMs": 140943, "conf": 0.709, "snapped": false, "matched": 0, "total": 9}, {"ayahIdx": 19, "startMs": 140943, "endMs": 229262, "conf": 0.663, "snapped": false, "matched": 0, "total": 78}], "issues": [], "bands": {"MED": 20}, "totalMs": 229781}
+── logs/part0.log (2290 بايت)
+Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+
+Loading weights:   0%|          | 0/424 [00:00<?, ?it/s]
+Loading weights: 100%|██████████| 424/424 [00:00<00:00, 24661.09it/s]
+/opt/hostedtoolcache/Python/3.11.16/x64/lib/python3.11/site-packages/torch/ao/nn/quantized/modules/utils.py:72: UserWarning: torch.quantize_per_tensor, torch.quantize_per_channel and other quantized tensor creation functions that produce tensors with dtype torch.quint8, torch.qint8, and torch.qint32 are deprecated and will be removed in a future PyTorch release. Please see https://github.com/pytorch/pytorch/issues/184982 for more information. (Triggered internally at /__w/pytorch/pytorch/aten/src/ATen/quantized/Quantizer.cpp:111.)
+  qweight = torch.quantize_per_tensor(
+WARNING:ctc_segmentation:IndexError: Backtracking was not successful, the window size might be too small.
+WARNING:ctc_segmentation:Increasing the window size to: 16000
+سورة  73: {'MED': 20} ✅ (58ث)
+⏱️ أطوارُ harraz_warsh: ffmpeg=0ث · vad=0ث · whisper=0ث · refine=0ث
+
+=== TimingIndex: /home/runner/work/rafiq-align-ci/rafiq-align-ci/tools/alignment/work/timings_warsh_harraz_warsh.jz (15ك.ب) ===
+آيات مفهرسة: 20 · نطاقات: {'MED': 20} · مخالفات: 0 · فشل سور: []
+	Command being timed: "python tools/alignment/batch_run.py --reciter harraz_warsh --riwaya warsh --base https://server16.mp3quran.net/H-Lharraz/Rewayat-Warsh-A-n-Nafi/{surah:03d}.mp3 --surahs 73"
+	User time (seconds): 201.17
+	System time (seconds): 5.46
+	Percent of CPU this job got: 346%
+	Elapsed (wall clock) time (h:mm:ss or m:ss): 0:59.58
+	Average shared text size (kbytes): 0
+	Average unshared data size (kbytes): 0
+	Average stack size (kbytes): 0
+	Average total size (kbytes): 0
+	Maximum resident set size (kbytes): 3966792
+	Average resident set size (kbytes): 0
+	Major (requiring I/O) page faults: 58
+	Minor (reclaiming a frame) page faults: 761169
+	Voluntary context switches: 40056
+	Involuntary context switches: 30338
+	Swaps: 0
+	File system inputs: 18712
+	File system outputs: 23600
+	Socket messages sent: 0
+	Socket messages received: 0
+	Signals delivered: 0
+	Page size (bytes): 4096
+	Exit status: 0
+

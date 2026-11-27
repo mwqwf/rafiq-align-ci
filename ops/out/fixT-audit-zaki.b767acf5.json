@@ -1,0 +1,174 @@
+{
+ "schema": 1,
+ "tool": "full_audit-1.0",
+ "date": "20261005",
+ "timestampUtc": "2026-10-05T16:18:14Z",
+ "elapsedSec": 65.7,
+ "phase": "all",
+ "manifestIndexes": 180,
+ "frozenBucket": 220,
+ "reportsRead": 11131,
+ "rows": [
+  {
+   "key": "timings-staging/hafs/zaki.b767acf5.jz",
+   "sha256": "b767acf544881256fe4933112f27131d17c2475a1eb2cd241bd54ec2886cb85f",
+   "riwaya": "hafs",
+   "reciterId": "zaki",
+   "bytes": 89667,
+   "engine": "align-0.2",
+   "transformOp": "ctc_heardmap_splice:41,42,44,46",
+   "staging": true,
+   "identity": {
+    "sha256": "b767acf544881256fe4933112f27131d17c2475a1eb2cd241bd54ec2886cb85f",
+    "staging": true,
+    "errors": [],
+    "ok": true
+   },
+   "structure": {
+    "entries": 6236,
+    "errors": [],
+    "examples": {},
+    "fileNoUnparsed": 0,
+    "structuralFatal": [],
+    "structuralWarn": [
+     "مداخل مدتها > 120ث: 7 · مثال: 2:282 مدتها 233ث",
+     "فجوات > 15ث بين آيتين متتاليتين: 3 · مثال: 12:2→12:3 فجوة 19ث"
+    ],
+    "decision": [],
+    "engine": "align-0.2",
+    "audioSha": 114,
+    "bands": {
+     "MED": 1194,
+     "HIGH": 4885,
+     "LOW": 157
+    },
+    "ok": true
+   },
+   "gaps": {
+    "missingTotal": 0,
+    "internalGaps": [],
+    "headMissing": [],
+    "tailMissing": [],
+    "wholeMissing": [],
+    "declared": {
+     "transformOp": "ctc_heardmap_splice:41,42,44,46",
+     "transformReason": "fixT: إصلاحٌ دفعيٌّ لكبس الذيل — 4 سورةً مشتبهةً (فائضٌ ≥15ث بعد آخر مدخل · تدقيق الجولة الثانية 2026-10-03)، كلٌّ يُقاس بالسماع قبل أن يُمسّ",
+     "reasonCode": null,
+     "dropSurahs": [],
+     "byReason": {
+      "no-align": 123
+     },
+     "declaredCount": 123,
+     "tagCount": 0,
+     "declaredIds": [],
+     "truncatedTail": null
+    },
+    "undeclaredEdge": [],
+    "errors": [],
+    "ok": true
+   },
+   "durations": {
+    "durationOutliers": 4,
+    "durationExamples": [
+     {
+      "aid": "44:57",
+      "ms": 33131,
+      "expMs": 9229,
+      "ratio": 3.59,
+      "chars": 25
+     },
+     {
+      "aid": "16:46",
+      "ms": 2341,
+      "expMs": 11160,
+      "ratio": 0.21,
+      "chars": 28
+     },
+     {
+      "aid": "87:15",
+      "ms": 1211,
+      "expMs": 4734,
+      "ratio": 0.26,
+      "chars": 14
+     },
+     {
+      "aid": "48:19",
+      "ms": 3490,
+      "expMs": 11732,
+      "ratio": 0.3,
+      "chars": 37
+     }
+    ],
+    "impossibleShort": [],
+    "veryShort": [],
+    "extremeLong": [],
+    "longOutliers": 1,
+    "shortOutliers": 2,
+    "silenceGaps": 3,
+    "silenceExamples": [
+     {
+      "from": "30:36",
+      "to": "30:37",
+      "gapMs": 23500
+     },
+     {
+      "from": "12:2",
+      "to": "12:3",
+      "gapMs": 19300
+     },
+     {
+      "from": "26:184",
+      "to": "26:185",
+      "gapMs": 15620
+     }
+    ],
+    "surahsWithRate": 113
+   },
+   "audio": {
+    "audioReportsOnSha": 0,
+    "openersOnSha": false,
+    "errors": [
+     "لا حكمَ صوتيٍّ بعيّنةٍ على البصمة المنشورة",
+     "لا شاهدَ مطالعَ على البصمة المنشورة"
+    ],
+    "notes": [],
+    "samples": [],
+    "pooled": null,
+    "severeHi": null,
+    "otherShasWithSamples": [
+     "0078e2a1",
+     "1344e035",
+     "296c48d6",
+     "7002e167"
+    ],
+    "ok": false
+   }
+  }
+ ],
+ "summary": {
+  "indexes": 1,
+  "phase": "all",
+  "identityOk": 1,
+  "identityBad": [],
+  "structureOk": 1,
+  "structureBad": [],
+  "gapsOk": 1,
+  "gapsBad": [],
+  "audioOk": 0,
+  "audioBad": [
+   "timings-staging/hafs/zaki.b767acf5.jz"
+  ],
+  "durationOutliersTotal": 4,
+  "impossibleShortTotal": 0,
+  "indexesWithImpossibleShort": 0,
+  "veryShortTotal": 0,
+  "extremeLongTotal": 0,
+  "indexesWithExtremeLong": 0,
+  "mirrorStale": 0,
+  "silenceGapsTotal": 3,
+  "indexesWithDurationOutliers": 1,
+  "indexesWithSilenceGaps": 1,
+  "entriesTotal": 6236,
+  "missingTotal": 0
+ }
+}

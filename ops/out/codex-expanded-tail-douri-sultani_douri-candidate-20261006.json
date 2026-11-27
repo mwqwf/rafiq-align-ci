@@ -1,0 +1,143 @@
+{
+  "path": "ops/source-repair/candidates/codex-expanded-tail-douri-sultani_douri-20261006.jz",
+  "sha256": "198796c4814c726800569871fcd089246b075da68e89f99788842f0b4b6d8566",
+  "parentKey": "timings/douri/sultani_douri.jz",
+  "parentSha256": "7764ba71b8af3854bcea5ccf9bd21839bcd3a65acb1a45566cbf97be3ea260e3",
+  "op": "ctc_quran_window:80",
+  "changedEntries": 5,
+  "warnings": [
+    "مداخل مدتها > 120ث: 1 · مثال: 2:282 مدتها 151ث"
+  ],
+  "proof": {
+    "qualityClaim": false,
+    "contexts": [
+      {
+        "reportPath": "ops/out/codex-sultani-douri80-tail-report-20261006.json",
+        "reportSha256": "478fca14b2d80dd56cd8c5eaeff13e6c0e23d0a1fcadb5ba3aceedfd57dce513",
+        "bundlePath": "ops/out/codex-sultani-douri80-tail-complete-20261006.json.gz",
+        "bundleSha256": "c5974a6fa49d578098d061d6e7d74e32d336534f8a048b3057fb3bf54ce06435",
+        "jobId": 112140630421,
+        "id": "penultimate_douri_sultani_douri_80",
+        "targetAyahs": [
+          39,
+          40,
+          41,
+          42
+        ],
+        "sourceSha256": "8968c7a5947e65bf568f79c6504ffe7eb0535a6cb749f143dfc45e4a275135bc",
+        "provenance": {
+          "runId": "37424386611",
+          "runSha": "4469d698e74a5ccd14ff20075e8efe6c674d7c84",
+          "toolSha256": "9709b2bb449495ac28f7f618215cca94b8a5633fa1d81368ceeff9005455faee"
+        }
+      }
+    ],
+    "changes": [
+      {
+        "before": {
+          "ayahId": "80:38",
+          "fileRef": "https://server14.mp3quran.net/muftah_sultany/Rewayat-Aldori-A-n-Abi-Amr/080.mp3",
+          "startMs": 171450,
+          "endMs": 176185,
+          "conf": 0.68,
+          "confBand": "MED"
+        },
+        "after": {
+          "ayahId": "80:38",
+          "fileRef": "https://server14.mp3quran.net/muftah_sultany/Rewayat-Aldori-A-n-Abi-Amr/080.mp3",
+          "startMs": 171450,
+          "endMs": 176181,
+          "conf": 0.68,
+          "confBand": "MED"
+        }
+      },
+      {
+        "before": {
+          "ayahId": "80:39",
+          "fileRef": "https://server14.mp3quran.net/muftah_sultany/Rewayat-Aldori-A-n-Abi-Amr/080.mp3",
+          "startMs": 176185,
+          "endMs": 179577,
+          "conf": 0.729,
+          "confBand": "MED",
+          "startApprox": true
+        },
+        "after": {
+          "ayahId": "80:39",
+          "fileRef": "https://server14.mp3quran.net/muftah_sultany/Rewayat-Aldori-A-n-Abi-Amr/080.mp3",
+          "startMs": 176181,
+          "endMs": 180245,
+          "conf": 0.729,
+          "confBand": "MED",
+          "startApprox": true
+        }
+      },
+      {
+        "before": {
+          "ayahId": "80:40",
+          "fileRef": "https://server14.mp3quran.net/muftah_sultany/Rewayat-Aldori-A-n-Abi-Amr/080.mp3",
+          "startMs": 179577,
+          "endMs": 181339,
+          "conf": 0.0,
+          "confBand": "LOW",
+          "startApprox": true
+        },
+        "after": {
+          "ayahId": "80:40",
+          "fileRef": "https://server14.mp3quran.net/muftah_sultany/Rewayat-Aldori-A-n-Abi-Amr/080.mp3",
+          "startMs": 180245,
+          "endMs": 185770,
+          "conf": 0.0,
+          "confBand": "LOW",
+          "startApprox": true
+        }
+      },
+      {
+        "before": {
+          "ayahId": "80:41",
+          "fileRef": "https://server14.mp3quran.net/muftah_sultany/Rewayat-Aldori-A-n-Abi-Amr/080.mp3",
+          "startMs": 181339,
+          "endMs": 181839,
+          "conf": 0.0,
+          "confBand": "LOW",
+          "startApprox": true
+        },
+        "after": {
+          "ayahId": "80:41",
+          "fileRef": "https://server14.mp3quran.net/muftah_sultany/Rewayat-Aldori-A-n-Abi-Amr/080.mp3",
+          "startMs": 185770,
+          "endMs": 188813,
+          "conf": 0.0,
+          "confBand": "LOW",
+          "startApprox": true
+        }
+      },
+      {
+        "before": {
+          "ayahId": "80:42",
+          "fileRef": "https://server14.mp3quran.net/muftah_sultany/Rewayat-Aldori-A-n-Abi-Amr/080.mp3",
+          "startMs": 181839,
+          "endMs": 182880,
+          "conf": 0.0,
+          "confBand": "LOW",
+          "startApprox": true
+        },
+        "after": {
+          "ayahId": "80:42",
+          "fileRef": "https://server14.mp3quran.net/muftah_sultany/Rewayat-Aldori-A-n-Abi-Amr/080.mp3",
+          "startMs": 188813,
+          "endMs": 196179,
+          "conf": 0.0,
+          "confBand": "LOW",
+          "startApprox": true
+        }
+      }
+    ],
+    "decodedEofMs": {
+      "80": 196179
+    },
+    "limits": [
+      "الحد الأصلي لثقة المحاذاة0.45؛ لا تغيير لأي حارس أو ثقة منشورة.",
+      "الخواتيم المقيسة فقط؛ يلزم الفحص الأصلي الكامل للبصمة المرفوعة."
+    ]
+  }
+}

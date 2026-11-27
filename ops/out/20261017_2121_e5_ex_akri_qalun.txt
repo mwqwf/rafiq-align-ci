@@ -1,0 +1,14 @@
+# rc=0
+الأصل timings/qalun/akri_qalun.jz (b99e357370ad) · المنتَج extended.jz (2e2712196e8c)
+المداخل 6026 ⇒ 6026 ✅ · بصمةُ المداخل 06114ff854 ⇒ fa2635be14 (مختلفة ✅) · حدودٌ أُزيحت 7
+إلى timings-staging/qalun/akri_qalun.829ab095.jz (89013 بايت · بصمة 829ab095a51293cee055c7699524e4b4deed82910ec87ef8dbdb678f5be247e2)
+STAGE_RESULT {"key": "timings-staging/qalun/akri_qalun.829ab095.jz", "localCandidateSha256": "2e2712196e8c0ea3437954991afbc61a10534b54e6598e207f30e3e950f56d87", "manualQaOnly": false, "parentKey": "timings/qalun/akri_qalun.jz", "parentSha256": "b99e357370ad40c215a6d39e08ff26ce83f6883edf19dbbcef5607e705797bcd", "productionChanged": false, "readBackVerified": true, "sha256": "829ab095a51293cee055c7699524e4b4deed82910ec87ef8dbdb678f5be247e2", "sizeBytes": 89013}
+✅ 2:286: end=8563137 ترويسة=8563137 حقيقي=8575826 ذيل=-20.8dB — ok
+✅ 3:200: end=4894568 ترويسة=4894568 حقيقي=4901819 ذيل=-26.4dB — ok
+✅ 5:120: end=3789052 ترويسة=3789052 حقيقي=3794664 ذيل=-22.7dB — ok
+· 6:165: end=4606713 ترويسة=4606713 حقيقي=4613537 ذيل=-33.0dB — طاقة الذيل -33.0 ≤ -30.0dB — لا كلام بعده
+✅ 7:206: end=5670808 ترويسة=5670808 حقيقي=5679210 ذيل=-22.9dB — ok
+✅ 9:129: end=3945292 ترويسة=3945292 حقيقي=3951135 ذيل=-28.7dB — ok
+✅ 11:123: end=2919304 ترويسة=2919304 حقيقي=2923626 ذيل=-25.8dB — ok
+· 12:111: end=2389480 ترويسة=2389603 حقيقي=2393140 ذيل=-72.3dB — endMs 2389480 ليس عند الترويسة 2389603
+✅ 33:73: end=2052111 ترويسة=2052111 حقيقي=2055148 ذيل=-27.2dB — ok

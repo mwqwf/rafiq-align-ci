@@ -1,0 +1,202 @@
+{
+ "schema": 1,
+ "tool": "full_audit-1.0",
+ "date": "20261004",
+ "timestampUtc": "2026-10-04T14:54:14Z",
+ "elapsedSec": 53.5,
+ "phase": "all",
+ "manifestIndexes": 180,
+ "frozenBucket": 220,
+ "reportsRead": 10563,
+ "rows": [
+  {
+   "key": "timings-staging/hafs/i_sanankoua.81d03598.jz",
+   "sha256": "81d0359813d60711b1423883f022f0c23e363648e8a36136403d05aedbb9c0ed",
+   "riwaya": "hafs",
+   "reciterId": "i_sanankoua",
+   "bytes": 96389,
+   "engine": "ctc-seg-1",
+   "transformOp": "ctc_heardmap_splice:3,5,6,8,12,13,14,15,17,19,22,24,25,26,27,29,32,33,34,35,37,39,41,43,44,45,46,50,51,52,53,54,55,56,57,58,60,63,64,65,68,70,74,78,83",
+   "staging": true,
+   "identity": {
+    "sha256": "81d0359813d60711b1423883f022f0c23e363648e8a36136403d05aedbb9c0ed",
+    "staging": true,
+    "errors": [],
+    "ok": true
+   },
+   "structure": {
+    "entries": 6236,
+    "errors": [],
+    "examples": {},
+    "fileNoUnparsed": 0,
+    "structuralFatal": [],
+    "structuralWarn": [
+     "مداخل مدتها > 120ث: 1 · مثال: 2:282 مدتها 143ث",
+     "مطالع سور تبدأ دون 3ث — مرشّحون للمسبار الصوتي لا حكمٌ عليهم: 23:1=2952م.ث · 26:1=2153م.ث"
+    ],
+    "decision": [],
+    "engine": "ctc-seg-1",
+    "audioSha": 114,
+    "bands": {
+     "LOW": 847,
+     "MED": 5017,
+     "HIGH": 372
+    },
+    "ok": true
+   },
+   "gaps": {
+    "missingTotal": 0,
+    "internalGaps": [],
+    "headMissing": [],
+    "tailMissing": [],
+    "wholeMissing": [],
+    "declared": {
+     "transformOp": "ctc_heardmap_splice:3,5,6,8,12,13,14,15,17,19,22,24,25,26,27,29,32,33,34,35,37,39,41,43,44,45,46,50,51,52,53,54,55,56,57,58,60,63,64,65,68,70,74,78,83",
+     "transformReason": "fixT: إصلاحٌ دفعيٌّ لكبس الذيل — 55 سورةً مشتبهةً (فائضٌ ≥15ث بعد آخر مدخل · تدقيق الجولة الثانية 2026-10-03)، كلٌّ يُقاس بالسماع قبل أن يُمسّ",
+     "reasonCode": null,
+     "dropSurahs": [],
+     "byReason": {},
+     "declaredCount": 0,
+     "tagCount": 0,
+     "declaredIds": [],
+     "truncatedTail": null
+    },
+    "undeclaredEdge": [],
+    "errors": [],
+    "ok": true
+   },
+   "durations": {
+    "durationOutliers": 9,
+    "durationExamples": [
+     {
+      "aid": "20:35",
+      "ms": 9727,
+      "expMs": 2154,
+      "ratio": 4.52,
+      "chars": 14
+     },
+     {
+      "aid": "26:88",
+      "ms": 19583,
+      "expMs": 5438,
+      "ratio": 3.6,
+      "chars": 19
+     },
+     {
+      "aid": "20:45",
+      "ms": 17973,
+      "expMs": 5385,
+      "ratio": 3.34,
+      "chars": 35
+     },
+     {
+      "aid": "32:2",
+      "ms": 25357,
+      "expMs": 8316,
+      "ratio": 3.05,
+      "chars": 29
+     },
+     {
+      "aid": "78:26",
+      "ms": 7805,
+      "expMs": 2585,
+      "ratio": 3.02,
+      "chars": 8
+     },
+     {
+      "aid": "80:42",
+      "ms": 1601,
+      "expMs": 6189,
+      "ratio": 0.26,
+      "chars": 19
+     },
+     {
+      "aid": "80:41",
+      "ms": 901,
+      "expMs": 3257,
+      "ratio": 0.28,
+      "chars": 10
+     },
+     {
+      "aid": "40:54",
+      "ms": 1481,
+      "expMs": 5053,
+      "ratio": 0.29,
+      "chars": 19
+     },
+     {
+      "aid": "1:1",
+      "ms": 1591,
+      "expMs": 5320,
+      "ratio": 0.3,
+      "chars": 19
+     }
+    ],
+    "impossibleShort": [],
+    "veryShort": [
+     {
+      "aid": "80:41",
+      "ms": 901,
+      "expMs": 3257,
+      "ratio": 0.28,
+      "chars": 10
+     }
+    ],
+    "extremeLong": [],
+    "longOutliers": 5,
+    "shortOutliers": 3,
+    "silenceGaps": 0,
+    "silenceExamples": [],
+    "surahsWithRate": 113
+   },
+   "audio": {
+    "audioReportsOnSha": 0,
+    "openersOnSha": false,
+    "errors": [
+     "لا حكمَ صوتيٍّ بعيّنةٍ على البصمة المنشورة",
+     "لا شاهدَ مطالعَ على البصمة المنشورة"
+    ],
+    "notes": [],
+    "samples": [],
+    "pooled": null,
+    "severeHi": null,
+    "otherShasWithSamples": [
+     "0740ba16",
+     "4806065f",
+     "a66c166c",
+     "c53116ff",
+     "d42461a1",
+     "efd0f7b7",
+     "fcd58655"
+    ],
+    "ok": false
+   }
+  }
+ ],
+ "summary": {
+  "indexes": 1,
+  "phase": "all",
+  "identityOk": 1,
+  "identityBad": [],
+  "structureOk": 1,
+  "structureBad": [],
+  "gapsOk": 1,
+  "gapsBad": [],
+  "audioOk": 0,
+  "audioBad": [
+   "timings-staging/hafs/i_sanankoua.81d03598.jz"
+  ],
+  "durationOutliersTotal": 9,
+  "impossibleShortTotal": 0,
+  "indexesWithImpossibleShort": 0,
+  "veryShortTotal": 1,
+  "extremeLongTotal": 0,
+  "indexesWithExtremeLong": 0,
+  "mirrorStale": 0,
+  "silenceGapsTotal": 0,
+  "indexesWithDurationOutliers": 1,
+  "indexesWithSilenceGaps": 0,
+  "entriesTotal": 6236,
+  "missingTotal": 0
+ }
+}

@@ -1,0 +1,16 @@
+# rc=0
+  ✔ إعادةُ محاذاة [22, 31, 35, 36, 46]: 6127 ⇐ 6127 مدخلاً (‏+0)، وما خارجها لم يُمسّ
+  ⓘ إعفاءُ العتبة موروثٌ من صفّ موافقة الأصل لسورٍ محجوبةٍ فيه بالرمز نفسه: [10]
+الأصل timings/hafs/qurashi.jz (150b6e29d22b) · المنتَج patched.jz (d6189dceeb2e)
+المداخل 6127 ⇒ 6127 ✅ · بصمةُ المداخل a2a75f3755 ⇒ 3e7a89914b (مختلفة ✅) · حدودٌ أُزيحت 247
+إلى timings-staging/hafs/qurashi.55ecc2ee.jz (230563 بايت · بصمة 55ecc2ee4fd0aa2b2dac5fac090d49fac579de6cf2c90e8813bb44f2d10f7103)
+STAGE_RESULT {"key": "timings-staging/hafs/qurashi.55ecc2ee.jz", "localCandidateSha256": "d6189dceeb2e86d9f1ecf731ffb347880221903b29e3a215be3f42f230c1282f", "manualQaOnly": false, "parentKey": "timings/hafs/qurashi.jz", "parentSha256": "150b6e29d22b24ff9f3e96fe397a09596ad5ed77b8ded40bb398d9ad50bfdac5", "productionChanged": false, "readBackVerified": true, "sha256": "55ecc2ee4fd0aa2b2dac5fac090d49fac579de6cf2c90e8813bb44f2d10f7103", "sizeBytes": 230563}
+خطة الدمج:
+  س22: من timings-staging/hafs/qurashi.59b10caf.jz (59b10caf24a8)
+  س31: من timings-staging/hafs/qurashi.c58b83c6.jz (c58b83c6098e)
+  س35: من timings-staging/hafs/qurashi.2c64bcea.jz (2c64bcea37af)
+  س36: من timings-staging/hafs/qurashi.327ecb4f.jz (327ecb4f1763)
+  س46: من timings-staging/hafs/qurashi.6621d288.jz (6621d2881278)
+المداخل 6127 ⇐ 6127 · الغياب 109 ⇐ 109 · سور [22, 31, 35, 36, 46]
+✅ /tmp/union_45d206pl/patched.jz · sha256 ef93ac7a129c180f…
+المخرج /tmp/union_45d206pl/patched.jz · sha d6189dceeb2e86d9… · مداخل 6127 · غياب 109 · سور [22, 31, 35, 36, 46]

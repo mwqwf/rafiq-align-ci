@@ -1,0 +1,40 @@
+# rc=0
+📦 ctc-harthi-p0 · 2222 بايت
+── tools/alignment/work/batch_harthi/s089.json (3549 بايت)
+{"fileRef": "https://server8.mp3quran.net/harthi/089.mp3", "sha256": "80d56f198ff409e57709a212e08fc191b739ded4b7f7188394100ee7db63608c", "vadRel": 0.15, "vadVersion": "adaptive-2", "entries": [{"ayahIdx": 0, "startMs": 4743, "endMs": 6114, "conf": 0.74, "snapped": false, "matched": 0, "total": 1}, {"ayahIdx": 1, "startMs": 6114, "endMs": 8650, "conf": 0.685, "snapped": false, "matched": 0, "total": 2}, {"ayahIdx": 2, "startMs": 8650, "endMs": 10880, "conf": 0.788, "snapped": true, "matched": 0, "total": 2}, {"ayahIdx": 3, "startMs": 10880, "endMs": 13019, "conf": 0.653, "snapped": true, "matched": 0, "total": 3}, {"ayahIdx": 4, "startMs": 13019, "endMs": 17032, "conf": 0.74, "snapped": false, "matched": 0, "total": 6}, {"ayahIdx": 5, "startMs": 17032, "endMs": 22700, "conf": 0.648, "snapped": true, "matched": 0, "total": 6}, {"ayahIdx": 6, "startMs": 22700, "endMs": 26860, "conf": 0.725, "snapped": true, "matched": 0, "total": 3}, {"ayahIdx": 7, "startMs": 26860, "endMs": 32850, "conf": 0.713, "snapped": true, "matched": 0, "total": 6}, {"ayahIdx": 8, "startMs": 32850, "endMs": 37726, "conf": 0.677, "snapped": true, "matched": 0, "total": 5}, {"ayahIdx": 9, "startMs": 37726, "endMs": 40478, "conf": 0.648, "snapped": false, "matched": 0, "total": 3}, {"ayahIdx": 10, "startMs": 40478, "endMs": 43200, "conf": 0.706, "snapped": false, "matched": 0, "total": 4}, {"ayahIdx": 11, "startMs": 43200, "endMs": 47293, "conf": 0.66, "snapped": false, "matched": 0, "total": 3}, {"ayahIdx": 12, "startMs": 47293, "endMs": 52997, "conf": 0.728, "snapped": false, "matched": 0, "total": 5}, {"ayahIdx": 13, "startMs": 52997, "endMs": 57990, "conf": 0.696, "snapped": false, "matched": 0, "total": 3}, {"ayahIdx": 14, "startMs": 57990, "endMs": 68808, "conf": 0.493, "snapped": true, "matched": 0, "total": 11}, {"ayahIdx": 15, "startMs": 68808, "endMs": 77600, "conf": 0.546, "snapped": false, "matched": 0, "total": 10}, {"ayahIdx": 16, "startMs": 77600, "endMs": 81920, "conf": 0.605, "snapped": true, "matched": 0, "total": 5}, {"ayahIdx": 17, "startMs": 81920, "endMs": 88030, "conf": 0.804, "snapped": true, "matched": 0, "total": 5}, {"ayahIdx": 18, "startMs": 88030, "endMs": 92725, "conf": 0.597, "snapped": true, "matched": 0, "total": 4}, {"ayahIdx": 19, "startMs": 92725, "endMs": 97788, "conf": 0.634, "snapped": false, "matched": 0, "total": 4}, {"ayahIdx": 20, "startMs": 97788, "endMs": 103492, "conf": 0.525, "snapped": false, "matched": 0, "total": 6}, {"ayahIdx": 21, "startMs": 103492, "endMs": 110737, "conf": 0.458, "snapped": false, "matched": 0, "total": 5}, {"ayahIdx": 22, "startMs": 110737, "endMs": 125347, "conf": 0.701, "snapped": false, "matched": 0, "total": 9}, {"ayahIdx": 23, "startMs": 125347, "endMs": 129731, "conf": 0.639, "snapped": true, "matched": 0, "total": 4}, {"ayahIdx": 24, "startMs": 129731, "endMs": 134834, "conf": 0.69, "snapped": false, "matched": 0, "total": 5}, {"ayahIdx": 25, "startMs": 134834, "endMs": 138697, "conf": 0.698, "snapped": false, "matched": 0, "total": 4}, {"ayahIdx": 26, "startMs": 138697, "endMs": 143700, "conf": 0.677, "snapped": false, "matched": 0, "total": 3}, {"ayahIdx": 27, "startMs": 143700, "endMs": 150305, "conf": 0.673, "snapped": false, "matched": 0, "total": 5}, {"ayahIdx": 28, "startMs": 150305, "endMs": 153547, "conf": 0.74, "snapped": false, "matched": 0, "total": 3}, {"ayahIdx": 29, "startMs": 153547, "endMs": 155498, "conf": 0.688, "snapped": false, "matched": 0, "total": 2}], "issues": [], "bands": {"MED": 28, "HIGH": 2}, "totalMs": 159459}
+── logs/part0.log (2097 بايت)
+Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+
+Loading weights:   0%|          | 0/424 [00:00<?, ?it/s]
+Loading weights: 100%|██████████| 424/424 [00:00<00:00, 24745.84it/s]
+/opt/hostedtoolcache/Python/3.11.16/x64/lib/python3.11/site-packages/torch/ao/nn/quantized/modules/utils.py:72: UserWarning: torch.quantize_per_tensor, torch.quantize_per_channel and other quantized tensor creation functions that produce tensors with dtype torch.quint8, torch.qint8, and torch.qint32 are deprecated and will be removed in a future PyTorch release. Please see https://github.com/pytorch/pytorch/issues/184982 for more information. (Triggered internally at /__w/pytorch/pytorch/aten/src/ATen/quantized/Quantizer.cpp:111.)
+  qweight = torch.quantize_per_tensor(
+سورة  89: {'MED': 28, 'HIGH': 2} ✅ (42ث)
+⏱️ أطوارُ harthi: ffmpeg=0ث · vad=0ث · whisper=0ث · refine=0ث
+
+=== TimingIndex: /home/runner/work/rafiq-align-ci/rafiq-align-ci/tools/alignment/work/timings_hafs_harthi.jz (15ك.ب) ===
+آيات مفهرسة: 30 · نطاقات: {'MED': 28, 'HIGH': 2} · مخالفات: 0 · فشل سور: []
+	Command being timed: "python tools/alignment/batch_run.py --reciter harthi --riwaya hafs --base https://server8.mp3quran.net/harthi/{surah:03d}.mp3 --surahs 89"
+	User time (seconds): 142.83
+	System time (seconds): 4.16
+	Percent of CPU this job got: 339%
+	Elapsed (wall clock) time (h:mm:ss or m:ss): 0:43.34
+	Average shared text size (kbytes): 0
+	Average unshared data size (kbytes): 0
+	Average stack size (kbytes): 0
+	Average total size (kbytes): 0
+	Maximum resident set size (kbytes): 3962208
+	Average resident set size (kbytes): 0
+	Major (requiring I/O) page faults: 59
+	Minor (reclaiming a frame) page faults: 600001
+	Voluntary context switches: 27006
+	Involuntary context switches: 21156
+	Swaps: 0
+	File system inputs: 18760
+	File system outputs: 16936
+	Socket messages sent: 0
+	Socket messages received: 0
+	Signals delivered: 0
+	Page size (bytes): 4096
+	Exit status: 0
+

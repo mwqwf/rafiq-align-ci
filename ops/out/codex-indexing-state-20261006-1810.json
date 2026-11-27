@@ -1,0 +1,68 @@
+{
+  "schema": 1,
+  "generatedAt": "2026-10-06T18:10:28Z",
+  "baselineHead": "bb66200ca4c372864d830e9459d25beaa97d60e1",
+  "controlPlane": {
+    "repositoryVisibility": "public",
+    "topLevelPendingCommands": ["README.md"],
+    "inProgress": [
+      {
+        "runId": 37503905665,
+        "name": "keepalive",
+        "headSha": "bb66200ca4c372864d830e9459d25beaa97d60e1",
+        "scopeCollision": false
+      }
+    ],
+    "queued": [
+      {
+        "runId": 34748440538,
+        "name": "rafiq-agent-cmd",
+        "createdAt": "2026-09-13T08:45:25Z",
+        "stale": true,
+        "scopeCollision": false
+      }
+    ],
+    "newWorkflowDispatched": false,
+    "r2Writes": false,
+    "artifactWrites": false,
+    "cacheWrites": false
+  },
+  "productionBaseline": {
+    "report": "ops/out/full-audit-codex-after-thirty-nine-20261006.json",
+    "indexes": 180,
+    "identityOk": 180,
+    "structureOk": 180,
+    "gapContractOk": 180,
+    "entries": 1121595,
+    "missing": 885,
+    "impossibleShort": 1,
+    "durationOutliers": 3027,
+    "veryShort": 403,
+    "extremeLong": 114,
+    "completenessCertified": false
+  },
+  "work": {
+    "scope": "hafs/shamrani surah 79 source recovery",
+    "productionChanged": false,
+    "newFinding": "The Archive candidate and the previously measured Midad candidate decode to byte-identical mono 16 kHz PCM and the Archive measurement reproduces the middle source gap.",
+    "audit": "ops/source-repair/shamrani-79-source-audit-20261006.json",
+    "guard": {
+      "registry": "tools/ci_fleet/blocked_realigns.json",
+      "consumer": "tools/index_qa/quran_source_recovery.py",
+      "engine": "ctc-quran-surah-1",
+      "blockedExactSources": 2,
+      "differentSourceOrEngineStillEligible": true
+    }
+  },
+  "verification": {
+    "quranSourceRecoveryTests": "2/2 passed",
+    "restoreLoopTests": "25/25 passed",
+    "jsonParse": "passed",
+    "evidenceHashes": "5/5 matched",
+    "mirrorPcmEquality": "passed",
+    "blockedCliPreflight": "rejected exact source before audio/model work with recorded run 37389920485",
+    "gitDiffCheck": "passed"
+  },
+  "remainingBlocker": "No independently verified complete recording of surah 79 by the same reciter and riwaya has been found; all 46 production entries remain intentionally absent.",
+  "nextEligibleStep": "Find a distinct complete same-reciter/same-riwaya recording, then perform independent start, middle, tail and neighborhood measurements before any candidate or production change."
+}

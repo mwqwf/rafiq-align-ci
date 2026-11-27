@@ -1,0 +1,267 @@
+{
+  "path": "ops/source-repair/candidates/codex-expanded-tail-warsh-laghdaf_shinqiti-20261006.jz",
+  "sha256": "b4a79ff584ffb9a20bdf22bbff74da47160fd469d50b89a5cfadb6bca5d4f8bd",
+  "parentKey": "timings/warsh/laghdaf_shinqiti.jz",
+  "parentSha256": "3840d4aebfa883cd246b2cb7a66d4da6b5cf50c6cca906372ee32afbfdeed218",
+  "op": "ctc_quran_window:69",
+  "changedEntries": 11,
+  "warnings": [],
+  "proof": {
+    "qualityClaim": false,
+    "contexts": [
+      {
+        "reportPath": "ops/out/codex-laghdaf69-43-52-expanded-report-20261006.json",
+        "reportSha256": "9559666986deefa71d26903b5742c609fc17fda1736597b7f6a113b7b1907d87",
+        "bundlePath": "ops/out/codex-laghdaf69-43-52-expanded-complete-20261006.json.gz",
+        "bundleSha256": "2c35d607b28ef8f065baeed5d1fa1f7c3ed39bb0bdb8ed1171862a587653224f",
+        "jobId": 112113100297,
+        "id": "short_final_laghdaf69_43_52",
+        "sourceSha256": "10716657290a2e620b212d95dde9de6272f8227388e92d150180703dcd1ae9fc",
+        "targetAyahs": [
+          43,
+          44,
+          45,
+          46,
+          47,
+          48,
+          49,
+          50,
+          51,
+          52
+        ],
+        "provenance": {
+          "runId": "37415498655",
+          "runSha": "bb8489b4a1bee753ae1311c2a412a6d807c23080",
+          "toolSha256": "5004bcab6d6ed2c10ec91c9b20ca596e5d62d9c6fef7a42d8805d422f239a5ef"
+        }
+      }
+    ],
+    "changes": [
+      {
+        "before": {
+          "ayahId": "69:42",
+          "fileRef": "https://pub-2c2e1dcd92e84a2898820dd38d3e09e6.r2.dev/audio/warsh/laghdaf_shinqiti/069.mp3",
+          "startMs": 271256,
+          "endMs": 275679,
+          "conf": 0.253,
+          "confBand": "LOW",
+          "startApprox": true
+        },
+        "after": {
+          "ayahId": "69:42",
+          "fileRef": "https://pub-2c2e1dcd92e84a2898820dd38d3e09e6.r2.dev/audio/warsh/laghdaf_shinqiti/069.mp3",
+          "startMs": 271256,
+          "endMs": 286112,
+          "conf": 0.253,
+          "confBand": "LOW",
+          "startApprox": true
+        }
+      },
+      {
+        "before": {
+          "ayahId": "69:43",
+          "fileRef": "https://pub-2c2e1dcd92e84a2898820dd38d3e09e6.r2.dev/audio/warsh/laghdaf_shinqiti/069.mp3",
+          "startMs": 275679,
+          "endMs": 276399,
+          "conf": 0.0,
+          "confBand": "LOW",
+          "startApprox": true
+        },
+        "after": {
+          "ayahId": "69:43",
+          "fileRef": "https://pub-2c2e1dcd92e84a2898820dd38d3e09e6.r2.dev/audio/warsh/laghdaf_shinqiti/069.mp3",
+          "startMs": 286112,
+          "endMs": 293878,
+          "conf": 0.0,
+          "confBand": "LOW",
+          "startApprox": true
+        }
+      },
+      {
+        "before": {
+          "ayahId": "69:44",
+          "fileRef": "https://pub-2c2e1dcd92e84a2898820dd38d3e09e6.r2.dev/audio/warsh/laghdaf_shinqiti/069.mp3",
+          "startMs": 276399,
+          "endMs": 277700,
+          "conf": 0.0,
+          "confBand": "LOW",
+          "startApprox": true
+        },
+        "after": {
+          "ayahId": "69:44",
+          "fileRef": "https://pub-2c2e1dcd92e84a2898820dd38d3e09e6.r2.dev/audio/warsh/laghdaf_shinqiti/069.mp3",
+          "startMs": 293878,
+          "endMs": 298171,
+          "conf": 0.0,
+          "confBand": "LOW",
+          "startApprox": true
+        }
+      },
+      {
+        "before": {
+          "ayahId": "69:45",
+          "fileRef": "https://pub-2c2e1dcd92e84a2898820dd38d3e09e6.r2.dev/audio/warsh/laghdaf_shinqiti/069.mp3",
+          "startMs": 277700,
+          "endMs": 278741,
+          "conf": 0.0,
+          "confBand": "LOW",
+          "startApprox": true
+        },
+        "after": {
+          "ayahId": "69:45",
+          "fileRef": "https://pub-2c2e1dcd92e84a2898820dd38d3e09e6.r2.dev/audio/warsh/laghdaf_shinqiti/069.mp3",
+          "startMs": 298171,
+          "endMs": 300833,
+          "conf": 0.0,
+          "confBand": "LOW",
+          "startApprox": true
+        }
+      },
+      {
+        "before": {
+          "ayahId": "69:46",
+          "fileRef": "https://pub-2c2e1dcd92e84a2898820dd38d3e09e6.r2.dev/audio/warsh/laghdaf_shinqiti/069.mp3",
+          "startMs": 278741,
+          "endMs": 280262,
+          "conf": 0.061,
+          "confBand": "LOW",
+          "startApprox": true
+        },
+        "after": {
+          "ayahId": "69:46",
+          "fileRef": "https://pub-2c2e1dcd92e84a2898820dd38d3e09e6.r2.dev/audio/warsh/laghdaf_shinqiti/069.mp3",
+          "startMs": 300833,
+          "endMs": 306928,
+          "conf": 0.061,
+          "confBand": "LOW",
+          "startApprox": true
+        }
+      },
+      {
+        "before": {
+          "ayahId": "69:47",
+          "fileRef": "https://pub-2c2e1dcd92e84a2898820dd38d3e09e6.r2.dev/audio/warsh/laghdaf_shinqiti/069.mp3",
+          "startMs": 280262,
+          "endMs": 282584,
+          "conf": 0.158,
+          "confBand": "LOW",
+          "startApprox": true
+        },
+        "after": {
+          "ayahId": "69:47",
+          "fileRef": "https://pub-2c2e1dcd92e84a2898820dd38d3e09e6.r2.dev/audio/warsh/laghdaf_shinqiti/069.mp3",
+          "startMs": 306928,
+          "endMs": 312422,
+          "conf": 0.158,
+          "confBand": "LOW",
+          "startApprox": true
+        }
+      },
+      {
+        "before": {
+          "ayahId": "69:48",
+          "fileRef": "https://pub-2c2e1dcd92e84a2898820dd38d3e09e6.r2.dev/audio/warsh/laghdaf_shinqiti/069.mp3",
+          "startMs": 282584,
+          "endMs": 287967,
+          "conf": 0.233,
+          "confBand": "LOW",
+          "startApprox": true
+        },
+        "after": {
+          "ayahId": "69:48",
+          "fileRef": "https://pub-2c2e1dcd92e84a2898820dd38d3e09e6.r2.dev/audio/warsh/laghdaf_shinqiti/069.mp3",
+          "startMs": 312422,
+          "endMs": 319017,
+          "conf": 0.233,
+          "confBand": "LOW",
+          "startApprox": true
+        }
+      },
+      {
+        "before": {
+          "ayahId": "69:49",
+          "fileRef": "https://pub-2c2e1dcd92e84a2898820dd38d3e09e6.r2.dev/audio/warsh/laghdaf_shinqiti/069.mp3",
+          "startMs": 287967,
+          "endMs": 288968,
+          "conf": 0.0,
+          "confBand": "LOW",
+          "startApprox": true
+        },
+        "after": {
+          "ayahId": "69:49",
+          "fileRef": "https://pub-2c2e1dcd92e84a2898820dd38d3e09e6.r2.dev/audio/warsh/laghdaf_shinqiti/069.mp3",
+          "startMs": 319017,
+          "endMs": 327424,
+          "conf": 0.0,
+          "confBand": "LOW",
+          "startApprox": true
+        }
+      },
+      {
+        "before": {
+          "ayahId": "69:50",
+          "fileRef": "https://pub-2c2e1dcd92e84a2898820dd38d3e09e6.r2.dev/audio/warsh/laghdaf_shinqiti/069.mp3",
+          "startMs": 288968,
+          "endMs": 293902,
+          "conf": 0.0,
+          "confBand": "LOW",
+          "startApprox": true
+        },
+        "after": {
+          "ayahId": "69:50",
+          "fileRef": "https://pub-2c2e1dcd92e84a2898820dd38d3e09e6.r2.dev/audio/warsh/laghdaf_shinqiti/069.mp3",
+          "startMs": 327424,
+          "endMs": 332057,
+          "conf": 0.0,
+          "confBand": "LOW",
+          "startApprox": true
+        }
+      },
+      {
+        "before": {
+          "ayahId": "69:51",
+          "fileRef": "https://pub-2c2e1dcd92e84a2898820dd38d3e09e6.r2.dev/audio/warsh/laghdaf_shinqiti/069.mp3",
+          "startMs": 293902,
+          "endMs": 295232,
+          "conf": 0.0,
+          "confBand": "LOW"
+        },
+        "after": {
+          "ayahId": "69:51",
+          "fileRef": "https://pub-2c2e1dcd92e84a2898820dd38d3e09e6.r2.dev/audio/warsh/laghdaf_shinqiti/069.mp3",
+          "startMs": 332057,
+          "endMs": 335200,
+          "conf": 0.0,
+          "confBand": "LOW"
+        }
+      },
+      {
+        "before": {
+          "ayahId": "69:52",
+          "fileRef": "https://pub-2c2e1dcd92e84a2898820dd38d3e09e6.r2.dev/audio/warsh/laghdaf_shinqiti/069.mp3",
+          "startMs": 295232,
+          "endMs": 295973,
+          "conf": 0.0,
+          "confBand": "LOW",
+          "startApprox": true
+        },
+        "after": {
+          "ayahId": "69:52",
+          "fileRef": "https://pub-2c2e1dcd92e84a2898820dd38d3e09e6.r2.dev/audio/warsh/laghdaf_shinqiti/069.mp3",
+          "startMs": 335200,
+          "endMs": 339313,
+          "conf": 0.0,
+          "confBand": "LOW",
+          "startApprox": true
+        }
+      }
+    ],
+    "decodedEofMs": {
+      "69": 339313
+    },
+    "limits": [
+      "الحد الأصلي لثقة المحاذاة0.45؛ لا تغيير لأي حارس أو ثقة منشورة.",
+      "الخواتيم المقيسة فقط؛ يلزم الفحص الأصلي الكامل للبصمة المرفوعة."
+    ]
+  }
+}

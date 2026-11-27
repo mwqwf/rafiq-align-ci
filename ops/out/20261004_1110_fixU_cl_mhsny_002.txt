@@ -1,0 +1,21 @@
+# rc=1
+
+[stderr]
+Traceback (most recent call last):
+  File "/home/runner/work/rafiq-align-ci/rafiq-align-ci/tools/index_qa/clamp_file_end.py", line 117, in <module>
+    sys.exit(main())
+             ^^^^^^
+  File "/home/runner/work/rafiq-align-ci/rafiq-align-ci/tools/index_qa/clamp_file_end.py", line 92, in main
+    cuts, refused = plan(idx["entries"], surahs, dur_of)
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/rafiq-align-ci/rafiq-align-ci/tools/index_qa/clamp_file_end.py", line 43, in plan
+    fd = int(dur_of(u))
+             ^^^^^^^^^
+  File "/home/runner/work/rafiq-align-ci/rafiq-align-ci/tools/index_qa/clamp_file_end.py", line 89, in dur_of
+    cache[u] = len(run._full_decode_pcm(f.name)) * 1000.0 / 16000
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/rafiq-align-ci/rafiq-align-ci/tools/index_qa/run.py", line 1021, in _full_decode_pcm
+    raise RuntimeError(f"ffmpeg أبلغ خطأ فكٍّ كامل مع rc=0: {why}")
+RuntimeError: ffmpeg أبلغ خطأ فكٍّ كامل مع rc=0: a23437ba80] Error submitting packet to decoder: Invalid data found when processing input
+[mp3float @ 0x55a23437bc00] Header missing
+[aist#0:0/mp3 @ 0x55a23437ba80] Error submitting packet to decoder: Invalid data found when processing input

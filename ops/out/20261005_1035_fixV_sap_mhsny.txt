@@ -1,0 +1,59 @@
+# rc=0
+▶ timings/hafs/mhsny.jz · 410518285a446c7c · 6236 مدخلاً
+
+══ السورة 2
+  المنشور: 286 مدخلاً · fileRef=https://server11.mp3quran.net/mhsny/002.mp3
+     أوّلُ startMs=22605 · آخرُ endMs=4137548 · آخرُ آية 2:286 (4108989..4137548)
+
+  ── السورة 2: https://server11.mp3quran.net/mhsny/002.mp3
+     HEAD: 200 · Content-Length=131584576 · النهائيّ=https://cdn.mp3quran.net/audio/muhammad-muhaisni/r1/002.mp3
+     archive.org يُعلن: None
+     محاولة 1: 200 · {'Content-Length': '131584576', 'Transfer-Encoding': None, 'Content-Type': 'audio/mpeg', 'Accept-Ranges': 'bytes'} · وصل 131584576
+     محاولة 1: 200 · {'Content-Length': '131584576', 'Transfer-Encoding': None, 'Content-Type': 'audio/mpeg', 'Accept-Ranges': 'bytes'} · وصل 131584576
+     تنزيل1: معلَن 131584576 · منزَّل 131584576 · sha 6bb0178d58c52f53 · md5 ba76314787f1405ed50c212ecd84d9e8
+     تنزيل2: معلَن 131584576 · منزَّل 131584576 · md5 ba76314787f1405ed50c212ecd84d9e8 · متطابقان
+     mp3dur: 5723.232ث · 219092 إطاراً · info=(3, 3, 64, 44100) · 131584576 بايت
+     المدّةُ من الحجم بمعدّل 64ك.ب/ث: 16448.1ث
+     مشيُ الإطارات: {"sec": 5723.232, "frames": 219092, "bytes": 131584576, "bitrates": {"64": 2, "128": 26814, "192": 192243, "224": 24, "256": 3, "320": 3, "32": 3}, "gaps": 3, "gap_bytes": 691, "first_gaps": [[90321852, 90321900, 3959.59], [90322384, 90322587, 3959.6], [90323004, 90323444, 3959.65]], "last_gaps": [[90321852, 90321900, 3959.59], [90322384, 90322587, 3959.6], [90323004, 90323444, 3959.65]], "id3_mid": [], "gap_bytes_context": [{"offset": 90321852, "next": 90321900, "seconds": 3959.59, "first64Hex": "c9344ccf0f74a537a8e612a07a8a9662525d0d127c5bc9d1752e0414ec85f3173ac7be759ff169de6a6fffffffffffffffffaacfe6368740000208438d17735a", "before16Hex": "831f058890af909aeedb81ef7f9a4757", "next32Hex": "ffffaacfe6368740000208438d17735ad459c6ebde87ccc45d504ddc4ce48a3a", "tagAtOffset": "�4L"}, {"offset": 90322384, "next": 90322587, "seconds": 3959.6, "first64Hex": "44e8417e41433e4bf089289d1077067b3d3d5a5c991cd009b6f57e2232b8de997ccf36659a6965851e14a9f86fad5b46871b6b7132dc9f5978c58c46d6e7ac6d", "before16Hex": "29b3fd698d4f54fae1b94cdeaf622e68", "next32Hex": "fff480000028c28e99114d209be0c843526442740844a0805d898d5c66e0adb7", "tagAtOffset": "D�A"}, {"offset": 90323004, "next": 90323444, "seconds": 3959.65, "first64Hex": "6b5d130cbe49268e9c42623d0d77f08e605a214863e4eb4c75db8a3a1ab942eed118992237a656e2e6b76fdcd8cfcd71f2e1fa297ede338791c23e5fe94d3e1f", "before16Hex": "4c004c174d594bbe6d01566af35c9588", "next32Hex": "fffbb064e88ee45c52d50f65e0006345ea91e42c0058f96d4c159c8009569aea", "tagAtOffset": "k]\u0013"}], "tail_unframed": 128}
+     ffprobe: {     "programs": [      ],     "streams": [         {             "codec_name": "mp3",             "sample_rate": "44100",             "channels": 2,             "duration": "5723.036735"         },         {             "codec_name": "png",             "duration": "5723.036733"         }     ],     "format": {         "duration": "5723.036735",         "bit_rate": "183936"     } } 
+     ffmpeg version 6.1.1-3ubuntu5 Copyright (c) 2000-2023 the FFmpeg developers
+     فكٌّ كامل: rc=0 · 5723.115ث · stderr(6 سطراً)='[mp3float @ 0x55853b61ba40] Header missing\n[aist#0:0/mp3 @ 0x55853b61ec00] Error submitting packet to decoder: Invalid data found when processing input\n[mp3float @ 0x55853b61ba40] Header missing\n[aist#0:0/mp3 @ 0x55853b61ec00] Error submitting packet to decoder: Invalid data found when processing input\n[mp3float @ 0x55853b61ba40] Header missing\n[aist#0:0/mp3 @ 0x55853b61ec00] Error submitting packet to decoder: Invalid data found when processing input'
+     آخرُ stderr: '3 @ 0x55853b61ec00] Error submitting packet to decoder: Invalid data found when processing input\n[mp3float @ 0x55853b61ba40] Header missing\n[aist#0:0/mp3 @ 0x55853b61ec00] Error submitting packet to decoder: Invalid data found when processing input\n[mp3float @ 0x55853b61ba40] Header missing\n[aist#0:0/mp3 @ 0x55853b61ec00] Error submitting packet to decoder: Invalid data found when processing input'
+     فكٌّ متسامح (قياسٌ فقط): rc=0 · 5723.115ث · stderr='[mp3float @ 0x561bec623a00] Header missing\n[aist#0:0/mp3 @ 0x561bec626b00] Error submitting packet to decoder: Invalid data found when processing input\n[mp3float @ 0x561bec623a00] Header missing\n[aist'
+     أوّلُ 5ث وحدها: stderr='[mp3float @ 0x563d0a54fa00] Header missing\n[aist#0:0/mp3 @ 0x563d0a552bc0] Error submitting packet to decoder: Invalid data found when processing input\n[mp3float @ 0x563d0a54fa00] Header missing\n[aist#0:0/mp3 @ 0x563d0a552bc0] Error submitting packet to decoder: Invalid data found when processing in'
+     من الثانية 10 إلى الآخر: stderr='[aost#0:1/pcm_s16le @ 0x55f7f05ac9c0] Too many packets buffered for output stream 0:1.\n[aost#0:1/pcm_s16le @ 0x55f7f05ac9c0] Error submitting a packet to the muxer\n[aost#0:1/pcm_s16le @ 0x55f7f05ac9c0] Too many packets buffered for output stream 0:1.\n[aost#0:1/pcm_s16le @ 0x55f7f05ac9c0] Error submi'
+     طاقةُ كلّ 30ث (RMS): [0.094, 0.1079, 0.0901, 0.093, 0.0845, 0.0821, 0.0713, 0.0913, 0.1126, 0.0815, 0.0776, 0.094, 0.0867, 0.1088, 0.0853, 0.0862, 0.0994, 0.0941, 0.0724, 0.1263, 0.1168, 0.1102, 0.1163, 0.1029, 0.1064, 0.1127, 0.1192, 0.1134, 0.1185, 0.1051, 0.1116, 0.1066, 0.108, 0.1032, 0.1123, 0.0999, 0.1101, 0.1137, 0.1093, 0.0977, 0.0971, 0.136, 0.1065, 0.103, 0.1191, 0.1137, 0.1091, 0.0677, 0.08, 0.0746, 0.0729, 0.0753, 0.0727, 0.068, 0.0663, 0.0737, 0.0875, 0.0538, 0.0618, 0.0594, 0.0564, 0.0563, 0.0595, 0.0531, 0.0674, 0.0638, 0.0666, 0.0617, 0.066, 0.0679, 0.0782, 0.0663, 0.0683, 0.0648, 0.0758, 0.0629, 0.0702, 0.0642, 0.0616, 0.0645, 0.0622, 0.0613, 0.0645, 0.0578, 0.0564, 0.0551, 0.0677, 0.0685, 0.0698, 0.1522, 0.1966, 0.2119, 0.192, 0.2069, 0.2292, 0.2128, 0.2361, 0.1896, 0.1709, 0.192, 0.2508, 0.1579, 0.1315, 0.1192, 0.1177, 0.095, 0.0901, 0.0897, 0.108, 0.1454, 0.1634, 0.1856, 0.21, 0.1964, 0.2372, 0.2105, 0.2011, 0.2253, 0.2396, 0.2541, 0.2542, 0.1791, 0.124, 0.1223, 0.1304, 0.1376, 0.1434, 0.1446, 0.1669, 0.1266, 0.1234, 0.1187, 0.1179, 0.1089, 0.1109, 0.1149, 0.1147, 0.1062, 0.1111, 0.1007, 0.1105, 0.1071, 0.1063, 0.0925, 0.0898, 0.1088, 0.1237, 0.1239, 0.1218, 0.1304, 0.1255, 0.1424, 0.1342, 0.1354, 0.1392, 0.1283, 0.1298, 0.1308, 0.1345, 0.1442, 0.1323, 0.1257, 0.1477, 0.1376, 0.1308, 0.1512, 0.1504, 0.1606, 0.165, 0.1646, 0.1777, 0.158, 0.1521, 0.1646, 0.1685, 0.2086, 0.1686, 0.164, 0.1416, 0.1801, 0.1697, 0.1774, 0.1659, 0.1164, 0.1079, 0.1144, 0.1091, 0.1284, 0.1233, 0.1415, 0.1456]
+
+══ السورة 3
+  المنشور: 200 مدخلاً · fileRef=https://server11.mp3quran.net/mhsny/003.mp3
+     أوّلُ startMs=3010 · آخرُ endMs=3591543 · آخرُ آية 3:200 (3578912..3591543)
+
+  ── السورة 3: https://server11.mp3quran.net/mhsny/003.mp3
+     HEAD: 200 · Content-Length=81315495 · النهائيّ=https://cdn.mp3quran.net/audio/muhammad-muhaisni/r1/003.mp3
+     archive.org يُعلن: None
+     محاولة 1: 200 · {'Content-Length': '81315495', 'Transfer-Encoding': None, 'Content-Type': 'audio/mpeg', 'Accept-Ranges': 'bytes'} · وصل 81315495
+     محاولة 1: 200 · {'Content-Length': '81315495', 'Transfer-Encoding': None, 'Content-Type': 'audio/mpeg', 'Accept-Ranges': 'bytes'} · وصل 81315495
+     تنزيل1: معلَن 81315495 · منزَّل 81315495 · sha 64da322c23e80df8 · md5 28f9b65b6e8b228c3f4fdb24e9dd75f6
+     تنزيل2: معلَن 81315495 · منزَّل 81315495 · md5 28f9b65b6e8b228c3f4fdb24e9dd75f6 · متطابقان
+     mp3dur: 3594.292ث · 137594 إطاراً · info=(3, 3, 64, 44100) · 81315495 بايت
+     المدّةُ من الحجم بمعدّل 64ك.ب/ث: 10164.4ث
+     مشيُ الإطارات: {"sec": 3594.292, "frames": 137594, "bytes": 81315495, "bitrates": {"64": 1, "128": 23097, "192": 113065, "32": 6, "160": 352, "112": 221, "96": 37, "224": 797, "256": 18}, "gaps": 0, "gap_bytes": 0, "first_gaps": [], "last_gaps": [], "id3_mid": [], "gap_bytes_context": [], "tail_unframed": 128}
+     ffprobe: {     "programs": [      ],     "streams": [         {             "codec_name": "mp3",             "sample_rate": "44100",             "channels": 2,             "duration": "3594.344490"         },         {             "codec_name": "png",             "duration": "3594.344489"         }     ],     "format": {         "duration": "3594.344490",         "bit_rate": "180985"     } } 
+     ffmpeg version 6.1.1-3ubuntu5 Copyright (c) 2000-2023 the FFmpeg developers
+     فكٌّ كامل: rc=0 · 3594.266ث · stderr(0 سطراً)=''
+     فكٌّ متسامح (قياسٌ فقط): rc=0 · 3594.266ث · stderr=''
+     أوّلُ 5ث وحدها: stderr=''
+     من الثانية 10 إلى الآخر: stderr='[aost#0:1/pcm_s16le @ 0x55aa6560f9c0] Too many packets buffered for output stream 0:1.\n[aost#0:1/pcm_s16le @ 0x55aa6560f9c0] Error submitting a packet to the muxer\n[aost#0:1/pcm_s16le @ 0x55aa6560f9c0] Too many packets buffered for output stream 0:1.\n[aost#0:1/pcm_s16le @ 0x55aa6560f9c0] Error submi'
+     طاقةُ كلّ 30ث (RMS): [0.1269, 0.1388, 0.1207, 0.1412, 0.1271, 0.1215, 0.1233, 0.1435, 0.1485, 0.1276, 0.1296, 0.1153, 0.122, 0.1169, 0.1272, 0.1205, 0.1293, 0.1372, 0.154, 0.158, 0.1631, 0.1746, 0.1686, 0.1751, 0.1313, 0.1213, 0.1432, 0.1352, 0.1441, 0.1325, 0.1437, 0.1467, 0.1533, 0.1646, 0.1324, 0.1128, 0.1161, 0.1197, 0.1431, 0.1411, 0.1098, 0.1115, 0.1453, 0.1132, 0.1076, 0.1216, 0.1282, 0.1378, 0.1286, 0.136, 0.1606, 0.1449, 0.1417, 0.1171, 0.1311, 0.142, 0.1424, 0.1643, 0.1781, 0.2152, 0.1814, 0.1943, 0.1711, 0.1246, 0.113, 0.1263, 0.1358, 0.1311, 0.127, 0.1165, 0.1047, 0.1094, 0.1151, 0.1138, 0.1069, 0.1019, 0.1105, 0.125, 0.1432, 0.1394, 0.1722, 0.2398, 0.1847, 0.1591, 0.1568, 0.1659, 0.1692, 0.1631, 0.1631, 0.1693, 0.129, 0.1132, 0.1167, 0.1132, 0.1114, 0.1131, 0.1174, 0.1131, 0.1042, 0.1055, 0.1194, 0.1197, 0.1062, 0.1107, 0.1199, 0.1095, 0.1208, 0.1307, 0.1108, 0.1043, 0.1285, 0.1029, 0.1036, 0.1112, 0.1232, 0.1163, 0.1132, 0.1079, 0.1131, 0.1188]
+
+[stderr]
+
+Running kernel seems to be up-to-date.
+
+No services need to be restarted.
+
+No containers need to be restarted.
+
+No user sessions are running outdated binaries.
+
+No VM guests are running outdated hypervisor (qemu) binaries on this host.

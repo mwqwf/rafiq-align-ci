@@ -1,0 +1,341 @@
+{
+ "schema": 1,
+ "tool": "full_audit-1.0",
+ "date": "20261008",
+ "timestampUtc": "2026-10-08T21:49:52Z",
+ "elapsedSec": 26.2,
+ "phase": "all",
+ "manifestIndexes": 180,
+ "frozenBucket": 220,
+ "reportsRead": 11758,
+ "rows": [
+  {
+   "key": "timings-staging/hafs/a_binaoun.52b5441b.jz",
+   "sha256": "52b5441b5e6ea705431f38538f4e81b6db314c18bed665b9097311427f4d9a2a",
+   "riwaya": "hafs",
+   "reciterId": "a_binaoun",
+   "bytes": 93647,
+   "engine": "ctc-seg-1",
+   "transformOp": "ctc_quran_window:83",
+   "staging": true,
+   "identity": {
+    "sha256": "52b5441b5e6ea705431f38538f4e81b6db314c18bed665b9097311427f4d9a2a",
+    "staging": true,
+    "errors": [],
+    "ok": true
+   },
+   "structure": {
+    "entries": 6236,
+    "errors": [],
+    "examples": {},
+    "registeredFileNoMappings": {},
+    "fileNoUnparsed": 0,
+    "structuralFatal": [],
+    "structuralWarn": [
+     "مداخل مدتها > 120ث: 1 · مثال: 2:282 مدتها 141ث",
+     "مطالع سور تبدأ دون 3ث — مرشّحون للمسبار الصوتي لا حكمٌ عليهم: 24:1=2980م.ث"
+    ],
+    "decision": [],
+    "engine": "ctc-seg-1",
+    "audioSha": 114,
+    "bands": {
+     "HIGH": 74,
+     "MED": 5149,
+     "LOW": 1013
+    },
+    "ok": true
+   },
+   "gaps": {
+    "missingTotal": 0,
+    "internalGaps": [],
+    "headMissing": [],
+    "tailMissing": [],
+    "wholeMissing": [],
+    "declared": {
+     "transformOp": "ctc_quran_window:83",
+     "transformReason": "تصحيح الذيل المتصل من قبل بدء الانزياح باتفاق النموذجين والقناتين حتى نهاية المصدر؛ الثقة الأصلية محفوظة والفحص الكامل إلزامي.",
+     "reasonCode": null,
+     "dropSurahs": [],
+     "byReason": {},
+     "declaredCount": 0,
+     "tagCount": 0,
+     "declaredIds": [],
+     "truncatedTail": null
+    },
+    "undeclaredEdge": [],
+    "errors": [],
+    "ok": true
+   },
+   "durations": {
+    "durationOutliers": 51,
+    "durationExamples": [
+     {
+      "aid": "75:27",
+      "ms": 18314,
+      "expMs": 2564,
+      "ratio": 7.14,
+      "chars": 9
+     },
+     {
+      "aid": "70:15",
+      "ms": 17633,
+      "expMs": 2847,
+      "ratio": 6.19,
+      "chars": 10
+     },
+     {
+      "aid": "17:20",
+      "ms": 23776,
+      "expMs": 5343,
+      "ratio": 4.45,
+      "chars": 41
+     },
+     {
+      "aid": "69:30",
+      "ms": 11728,
+      "expMs": 2882,
+      "ratio": 4.07,
+      "chars": 9
+     },
+     {
+      "aid": "70:22",
+      "ms": 11308,
+      "expMs": 2847,
+      "ratio": 3.97,
+      "chars": 10
+     },
+     {
+      "aid": "23:56",
+      "ms": 28509,
+      "expMs": 7914,
+      "ratio": 3.6,
+      "chars": 26
+     },
+     {
+      "aid": "17:24",
+      "ms": 23655,
+      "expMs": 6646,
+      "ratio": 3.56,
+      "chars": 51
+     },
+     {
+      "aid": "52:13",
+      "ms": 17653,
+      "expMs": 5227,
+      "ratio": 3.38,
+      "chars": 21
+     },
+     {
+      "aid": "9:51",
+      "ms": 29849,
+      "expMs": 9660,
+      "ratio": 3.09,
+      "chars": 56
+     },
+     {
+      "aid": "11:83",
+      "ms": 25172,
+      "expMs": 8303,
+      "ratio": 3.03,
+      "chars": 30
+     },
+     {
+      "aid": "44:14",
+      "ms": 921,
+      "expMs": 8427,
+      "ratio": 0.11,
+      "chars": 25
+     },
+     {
+      "aid": "44:15",
+      "ms": 1601,
+      "expMs": 10112,
+      "ratio": 0.16,
+      "chars": 30
+     }
+    ],
+    "impossibleShort": [],
+    "veryShort": [
+     {
+      "aid": "44:14",
+      "ms": 921,
+      "expMs": 8427,
+      "ratio": 0.11,
+      "chars": 25
+     },
+     {
+      "aid": "37:136",
+      "ms": 741,
+      "expMs": 3876,
+      "ratio": 0.19,
+      "chars": 14
+     },
+     {
+      "aid": "56:94",
+      "ms": 801,
+      "expMs": 2888,
+      "ratio": 0.28,
+      "chars": 10
+     }
+    ],
+    "extremeLong": [
+     {
+      "aid": "75:27",
+      "ms": 18314,
+      "expMs": 2564,
+      "ratio": 7.14,
+      "chars": 9
+     },
+     {
+      "aid": "70:15",
+      "ms": 17633,
+      "expMs": 2847,
+      "ratio": 6.19,
+      "chars": 10
+     }
+    ],
+    "longOutliers": 10,
+    "shortOutliers": 39,
+    "silenceGaps": 0,
+    "silenceExamples": [],
+    "surahsWithRate": 113
+   },
+   "audio": {
+    "audioReportsOnSha": 4,
+    "openersOnSha": true,
+    "errors": [],
+    "notes": [],
+    "samples": [
+     {
+      "salt": "rs4",
+      "source": "ci",
+      "engine": "pywhispercpp/ggml-q8 (tiny-ar-quran)",
+      "verdict": "مقبول",
+      "m": 2,
+      "n": 200,
+      "rate": 0.01,
+      "hi": 0.02348964515158903,
+      "fatal": 0,
+      "ts": 1791493933.6072536
+     },
+     {
+      "salt": "rs2",
+      "source": "ci",
+      "engine": "pywhispercpp/ggml-q8 (tiny-ar-quran)",
+      "verdict": "مقبول",
+      "m": 0,
+      "n": 200,
+      "rate": 0.0,
+      "hi": 0.014867039231272083,
+      "fatal": 0,
+      "ts": 1791493938.3572464
+     },
+     {
+      "salt": "rs3",
+      "source": "ci",
+      "engine": "pywhispercpp/ggml-q8 (tiny-ar-quran)",
+      "verdict": "مقبول",
+      "m": 2,
+      "n": 200,
+      "rate": 0.01,
+      "hi": 0.02348964515158903,
+      "fatal": 0,
+      "ts": 1791493939.3788807
+     },
+     {
+      "salt": "rs1",
+      "source": "ci",
+      "engine": "pywhispercpp/ggml-q8 (tiny-ar-quran)",
+      "verdict": "مقبول",
+      "m": 1,
+      "n": 200,
+      "rate": 0.005,
+      "hi": 0.0148,
+      "fatal": 0,
+      "ts": 1791493948.3434565
+     }
+    ],
+    "pooled": {
+     "m": 5,
+     "n": 800,
+     "rate": 0.00625,
+     "hi": 0.013096055089993884,
+     "salts": [
+      "rs1",
+      "rs2",
+      "rs3",
+      "rs4"
+     ],
+     "seeds": 4,
+     "engine": "pywhispercpp/ggml-q8 (tiny-ar-quran)",
+     "rule": "D-098"
+    },
+    "severeHi": 0.013096055089993884,
+    "openers": {
+     "commit": "8c0d5e00935bc6c31ae29d07de90fa20e2c5e759",
+     "toolOk": true,
+     "scope": "full",
+     "checked": 112,
+     "hasLate": true,
+     "late": [],
+     "lateCtcRule": null,
+     "lateConfirmed": [],
+     "swallowed": [],
+     "suspect": [],
+     "tail": [],
+     "unknown": [
+      2,
+      3,
+      7,
+      13,
+      29,
+      30,
+      31,
+      32,
+      35,
+      79,
+      106
+     ],
+     "verdict": "clean"
+    },
+    "otherShasWithSamples": [
+     "3987d0e4",
+     "497df327",
+     "6498cf84",
+     "84ed7cef",
+     "99e2430f",
+     "9ad3dc7d",
+     "aa7c8df8",
+     "bad5ed03",
+     "bdde1119",
+     "c1a1be5e"
+    ],
+    "ok": true
+   }
+  }
+ ],
+ "summary": {
+  "indexes": 1,
+  "phase": "all",
+  "identityOk": 1,
+  "identityBad": [],
+  "structureOk": 1,
+  "structureBad": [],
+  "gapsOk": 1,
+  "gapsBad": [],
+  "audioOk": 1,
+  "audioBad": [],
+  "durationOutliersTotal": 51,
+  "impossibleShortTotal": 0,
+  "indexesWithImpossibleShort": 0,
+  "veryShortTotal": 3,
+  "extremeLongTotal": 2,
+  "indexesWithExtremeLong": 1,
+  "mirrorStale": 0,
+  "silenceGapsTotal": 0,
+  "indexesWithDurationOutliers": 1,
+  "indexesWithSilenceGaps": 0,
+  "entriesTotal": 6236,
+  "missingTotal": 0
+ }
+}

@@ -1,0 +1,94 @@
+{
+  "path": "ops/source-repair/candidates/codex-short_final_qalun_noah_qalun_93-20261006.jz",
+  "sha256": "19928408cffcd68520d104c35835e0261bcefed288088cced3dc849f61b50bd9",
+  "parentKey": "timings/qalun/noah_qalun.jz",
+  "parentSha256": "21ebad8421e4fdb407a920dd7564a73af0d1174d82012652c0e0f6bf77056c08",
+  "op": "ctc_quran_window:93",
+  "changedEntries": 3,
+  "warnings": [
+    "مداخل مدتها > 120ث: 1 · مثال: 2:282 مدتها 127ث",
+    "مطالع سور تبدأ دون 3ث — مرشّحون للمسبار الصوتي لا حكمٌ عليهم: 4:1=2902م.ث · 12:1=2931م.ث · 19:1=2971م.ث · 24:1=2891م.ث · 25:1=2771م.ث · 26:1=2611م.ث · 27:1=2951م.ث · 32:1=2691م.ث · 37:1=2742م.ث · 39:1=2611م.ث … و30 غيرها"
+  ],
+  "proof": {
+    "reportPath": "ops/out/codex-short-final-noah-qalun-93-report-20261006.json",
+    "reportSha256": "a07419b3364479b1eebef0446abc5dbb1a4d4b7fadad50d5da662c089d873c37",
+    "bundlePath": "ops/out/codex-short-final-noah-qalun-93-complete-20261006.json.gz",
+    "bundleSha256": "34763a723b78325fc56829263acaec9cd4fbbdf22bfa6d2331c8dbb3a9a36c03",
+    "jobId": 112109272312,
+    "id": "short_final_qalun_noah_qalun_93",
+    "qualityClaim": false,
+    "sourceSha256": "2a9ae897cba31581482316070c92fe0965ec36e265a51504a0c60a9c817d12ca",
+    "decodedEofMs": 44173,
+    "changes": [
+      {
+        "before": {
+          "ayahId": "93:9",
+          "fileRef": "https://archive.org/download/Al-Quran_Qaloon_tilawat_Yousuf_Nooh_Ahmad/093.mp3",
+          "startMs": 29992,
+          "endMs": 33225,
+          "conf": 0.438,
+          "confBand": "LOW",
+          "startApprox": true
+        },
+        "after": {
+          "ayahId": "93:9",
+          "fileRef": "https://archive.org/download/Al-Quran_Qaloon_tilawat_Yousuf_Nooh_Ahmad/093.mp3",
+          "startMs": 29992,
+          "endMs": 33334,
+          "conf": 0.438,
+          "confBand": "LOW",
+          "startApprox": true
+        }
+      },
+      {
+        "before": {
+          "ayahId": "93:10",
+          "fileRef": "https://archive.org/download/Al-Quran_Qaloon_tilawat_Yousuf_Nooh_Ahmad/093.mp3",
+          "startMs": 33225,
+          "endMs": 37438,
+          "conf": 0.542,
+          "confBand": "MED",
+          "startApprox": true
+        },
+        "after": {
+          "ayahId": "93:10",
+          "fileRef": "https://archive.org/download/Al-Quran_Qaloon_tilawat_Yousuf_Nooh_Ahmad/093.mp3",
+          "startMs": 33334,
+          "endMs": 37618,
+          "conf": 0.542,
+          "confBand": "MED",
+          "startApprox": true
+        }
+      },
+      {
+        "before": {
+          "ayahId": "93:11",
+          "fileRef": "https://archive.org/download/Al-Quran_Qaloon_tilawat_Yousuf_Nooh_Ahmad/093.mp3",
+          "startMs": 37438,
+          "endMs": 38158,
+          "conf": 0.0,
+          "confBand": "LOW",
+          "startApprox": true
+        },
+        "after": {
+          "ayahId": "93:11",
+          "fileRef": "https://archive.org/download/Al-Quran_Qaloon_tilawat_Yousuf_Nooh_Ahmad/093.mp3",
+          "startMs": 37618,
+          "endMs": 44173,
+          "conf": 0.0,
+          "confBand": "LOW",
+          "startApprox": true
+        }
+      }
+    ],
+    "provenance": {
+      "runId": "37414259961",
+      "runSha": "36d99a6987101f3d979b283dcf0ed445d4304a95",
+      "toolSha256": "10f7b31843eebabd132c28c5e9c9a216c47c66ecc4a143bbde98551c6c8705fe"
+    },
+    "limits": [
+      "توقيت آخر آيتين ونهاية السابقة فقط؛ الثقة الأصلية محفوظة.",
+      "التفريغ الحر روجع قبل البناء؛ يلزم فحص أصلي كامل على البصمة المرفوعة."
+    ]
+  }
+}

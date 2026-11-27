@@ -1,0 +1,253 @@
+{
+ "schema": 1,
+ "tool": "full_audit-1.0",
+ "date": "20261003",
+ "timestampUtc": "2026-10-03T10:24:28Z",
+ "elapsedSec": 30.3,
+ "phase": "all",
+ "manifestIndexes": 180,
+ "frozenBucket": 220,
+ "reportsRead": 9369,
+ "rows": [
+  {
+   "key": "timings-staging/hafs/shamrani.8676b1a7.jz",
+   "sha256": "8676b1a7a684b2c900248b9ac476b40d433c5f8383f63938a37559d8c25bbcea",
+   "riwaya": "hafs",
+   "reciterId": "shamrani",
+   "bytes": 71672,
+   "engine": "mp3quran-timing-v1",
+   "transformOp": "drop_surah:79",
+   "staging": true,
+   "identity": {
+    "sha256": "8676b1a7a684b2c900248b9ac476b40d433c5f8383f63938a37559d8c25bbcea",
+    "staging": true,
+    "errors": [],
+    "ok": true
+   },
+   "structure": {
+    "entries": 6190,
+    "errors": [],
+    "examples": {},
+    "fileNoUnparsed": 0,
+    "structuralFatal": [],
+    "structuralWarn": [
+     "مداخل ناقصة: 46 من 6236 (0.7%) — منها 46 بعذرٍ معلَن (بترٌ مصدري) ⇒ **غير المبرَّر 0 (0.0%)** — الحدّ 2% على غير المبرَّر",
+     "آيات بلا مدخل: 46 · وسيط طولها 4 كلمة (المصحف 11) — غيابٌ غير منحاز",
+     "مداخل مدتها > 120ث: 1 · مثال: 2:282 مدتها 144ث"
+    ],
+    "decision": [
+     "سورٌ محذوفةٌ **بإعلانٍ وسبب**: [79] (السبب: ملفُّ النازعات عند هذا القارئ ينقصه في وسطه 79:15 و79:17 و79:18: خريطةُ السماع لا تسمعها ولا تترك لها زمناً بين جاراتها (79:16 ينتهي 54957م.ث و79:19 يبدأ 54677م.ث)، ونافذتا CTC الضيّقة والأوسع ردّتاها بثقة 0.0. فجوةٌ في الوسط ⇒ تُسقط السورة كلُّها حتى يُصلح المصدر.) — قرارُ منتَجٍ يُعرض على المشرف، لا حكمُ جودة"
+    ],
+    "engine": "mp3quran-timing-v1",
+    "audioSha": 114,
+    "bands": {
+     "MED": 6190
+    },
+    "ok": true
+   },
+   "gaps": {
+    "missingTotal": 46,
+    "internalGaps": [],
+    "headMissing": [],
+    "tailMissing": [],
+    "wholeMissing": [
+     79
+    ],
+    "declared": {
+     "transformOp": "drop_surah:79",
+     "transformReason": "ملفُّ النازعات عند هذا القارئ ينقصه في وسطه 79:15 و79:17 و79:18: خريطةُ السماع لا تسمعها ولا تترك لها زمناً بين جاراتها (79:16 ينتهي 54957م.ث و79:19 يبدأ 54677م.ث)، ونافذتا CTC الضيّقة والأوسع ردّتاها بثقة 0.0. فجوةٌ في الوسط ⇒ تُسقط السورة كلُّها حتى يُصلح المصدر.",
+     "reasonCode": "SOURCE_CORRUPT",
+     "dropSurahs": [
+      79
+     ],
+     "byReason": {
+      "unknown": 0,
+      "source_truncated": 46
+     },
+     "declaredCount": 46,
+     "tagCount": 46,
+     "declaredIds": [
+      "79:1",
+      "79:2",
+      "79:3",
+      "79:4",
+      "79:5",
+      "79:6",
+      "79:7",
+      "79:8",
+      "79:9",
+      "79:10",
+      "79:11",
+      "79:12",
+      "79:13",
+      "79:14",
+      "79:15",
+      "79:16",
+      "79:17",
+      "79:18",
+      "79:19",
+      "79:20",
+      "79:21",
+      "79:22",
+      "79:23",
+      "79:24",
+      "79:25",
+      "79:26",
+      "79:27",
+      "79:28",
+      "79:29",
+      "79:30",
+      "79:31",
+      "79:32",
+      "79:33",
+      "79:34",
+      "79:35",
+      "79:36",
+      "79:37",
+      "79:38",
+      "79:39",
+      "79:40",
+      "79:41",
+      "79:42",
+      "79:43",
+      "79:44",
+      "79:45",
+      "79:46"
+     ],
+     "truncatedTail": null
+    },
+    "undeclaredEdge": [],
+    "errors": [],
+    "ok": true
+   },
+   "durations": {
+    "durationOutliers": 10,
+    "durationExamples": [
+     {
+      "aid": "35:7",
+      "ms": 75380,
+      "expMs": 15278,
+      "ratio": 4.93,
+      "chars": 60
+     },
+     {
+      "aid": "43:74",
+      "ms": 30840,
+      "expMs": 6277,
+      "ratio": 4.91,
+      "chars": 25
+     },
+     {
+      "aid": "26:24",
+      "ms": 37720,
+      "expMs": 9196,
+      "ratio": 4.1,
+      "chars": 38
+     },
+     {
+      "aid": "56:39",
+      "ms": 12360,
+      "expMs": 3285,
+      "ratio": 3.76,
+      "chars": 12
+     },
+     {
+      "aid": "43:17",
+      "ms": 43320,
+      "expMs": 11550,
+      "ratio": 3.75,
+      "chars": 46
+     },
+     {
+      "aid": "6:61",
+      "ms": 2220,
+      "expMs": 18604,
+      "ratio": 0.12,
+      "chars": 70
+     },
+     {
+      "aid": "6:62",
+      "ms": 2680,
+      "expMs": 12491,
+      "ratio": 0.21,
+      "chars": 47
+     },
+     {
+      "aid": "2:247",
+      "ms": 8480,
+      "expMs": 38910,
+      "ratio": 0.22,
+      "chars": 163
+     },
+     {
+      "aid": "6:63",
+      "ms": 4220,
+      "expMs": 18870,
+      "ratio": 0.22,
+      "chars": 71
+     },
+     {
+      "aid": "6:64",
+      "ms": 2640,
+      "expMs": 9568,
+      "ratio": 0.28,
+      "chars": 36
+     }
+    ],
+    "impossibleShort": [],
+    "veryShort": [],
+    "extremeLong": [],
+    "longOutliers": 5,
+    "shortOutliers": 5,
+    "silenceGaps": 0,
+    "silenceExamples": [],
+    "surahsWithRate": 112
+   },
+   "audio": {
+    "audioReportsOnSha": 0,
+    "openersOnSha": false,
+    "errors": [
+     "لا حكمَ صوتيٍّ بعيّنةٍ على البصمة المنشورة",
+     "لا شاهدَ مطالعَ على البصمة المنشورة"
+    ],
+    "notes": [],
+    "samples": [],
+    "pooled": null,
+    "severeHi": null,
+    "otherShasWithSamples": [
+     "1ddbb9a6",
+     "9ff06a9d",
+     "bcf14b00",
+     "ee66dcea"
+    ],
+    "ok": false
+   }
+  }
+ ],
+ "summary": {
+  "indexes": 1,
+  "phase": "all",
+  "identityOk": 1,
+  "identityBad": [],
+  "structureOk": 1,
+  "structureBad": [],
+  "gapsOk": 1,
+  "gapsBad": [],
+  "audioOk": 0,
+  "audioBad": [
+   "timings-staging/hafs/shamrani.8676b1a7.jz"
+  ],
+  "durationOutliersTotal": 10,
+  "impossibleShortTotal": 0,
+  "indexesWithImpossibleShort": 0,
+  "veryShortTotal": 0,
+  "extremeLongTotal": 0,
+  "indexesWithExtremeLong": 0,
+  "mirrorStale": 0,
+  "silenceGapsTotal": 0,
+  "indexesWithDurationOutliers": 1,
+  "indexesWithSilenceGaps": 0,
+  "entriesTotal": 6190,
+  "missingTotal": 46
+ }
+}

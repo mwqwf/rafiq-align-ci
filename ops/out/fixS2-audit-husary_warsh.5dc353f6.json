@@ -1,0 +1,317 @@
+{
+ "schema": 1,
+ "tool": "full_audit-1.0",
+ "date": "20261003",
+ "timestampUtc": "2026-10-03T09:43:04Z",
+ "elapsedSec": 17.9,
+ "phase": "all",
+ "manifestIndexes": 180,
+ "frozenBucket": 220,
+ "reportsRead": 9272,
+ "rows": [
+  {
+   "key": "timings-staging/warsh/husary_warsh.5dc353f6.jz",
+   "sha256": "5dc353f62c53f48eec9df4de24734a7c6810eb1227f8b0a3582ee3bfe77b83a4",
+   "riwaya": "warsh",
+   "reciterId": "husary_warsh",
+   "bytes": 91109,
+   "engine": "align-0.2",
+   "transformOp": "realign_surah:16",
+   "staging": true,
+   "identity": {
+    "sha256": "5dc353f62c53f48eec9df4de24734a7c6810eb1227f8b0a3582ee3bfe77b83a4",
+    "staging": true,
+    "errors": [],
+    "ok": true
+   },
+   "structure": {
+    "entries": 6236,
+    "errors": [],
+    "examples": {},
+    "fileNoUnparsed": 0,
+    "structuralFatal": [],
+    "structuralWarn": [
+     "مداخل مدتها > 120ث: 26 · مثال: 2:102 مدتها 130ث",
+     "فجوات > 15ث بين آيتين متتاليتين: 21 · مثال: 2:76→2:77 فجوة 47ث"
+    ],
+    "decision": [],
+    "engine": "align-0.2",
+    "audioSha": 114,
+    "bands": {
+     "HIGH": 5262,
+     "MED": 799,
+     "LOW": 175
+    },
+    "ok": true
+   },
+   "gaps": {
+    "missingTotal": 0,
+    "internalGaps": [],
+    "headMissing": [],
+    "tailMissing": [],
+    "wholeMissing": [],
+    "declared": {
+     "transformOp": "realign_surah:16",
+     "transformReason": "fixS2 موجة5 (مدخلٌ رابع غيرُ CTC): السور [16] عند husary_warsh فيها كبسُ ذيلٍ/رأسٍ قاسته خرائطُ السماع (المنشور ctc-seg يسبق المسموع بعشرات الثواني)، ونوافذُ CTC الثلاث رُدّت بحرّاسها (ثقة/مدّة) ⇒ إعادةُ محاذاةٍ كاملة للسورة بالمحرّك الآخر، بتخطّي البسملة المقيس من خريطة السماع (بدءُ الآية الأولى − 300م.ث)؛ والبواباتُ كاملةً وعتبة 5% كما هي.",
+     "reasonCode": null,
+     "dropSurahs": [],
+     "byReason": {},
+     "declaredCount": 0,
+     "tagCount": 0,
+     "declaredIds": [],
+     "truncatedTail": null
+    },
+    "undeclaredEdge": [],
+    "errors": [],
+    "ok": true
+   },
+   "durations": {
+    "durationOutliers": 36,
+    "durationExamples": [
+     {
+      "aid": "35:23",
+      "ms": 20894,
+      "expMs": 1692,
+      "ratio": 12.35,
+      "chars": 12
+     },
+     {
+      "aid": "35:3",
+      "ms": 42648,
+      "expMs": 11565,
+      "ratio": 3.69,
+      "chars": 82
+     },
+     {
+      "aid": "35:1",
+      "ms": 48212,
+      "expMs": 13116,
+      "ratio": 3.68,
+      "chars": 93
+     },
+     {
+      "aid": "16:16",
+      "ms": 28100,
+      "expMs": 8903,
+      "ratio": 3.16,
+      "chars": 20
+     },
+     {
+      "aid": "35:2",
+      "ms": 30300,
+      "expMs": 9590,
+      "ratio": 3.16,
+      "chars": 68
+     },
+     {
+      "aid": "55:73",
+      "ms": 1230,
+      "expMs": 9378,
+      "ratio": 0.13,
+      "chars": 18
+     },
+     {
+      "aid": "35:6",
+      "ms": 1401,
+      "expMs": 8039,
+      "ratio": 0.17,
+      "chars": 57
+     },
+     {
+      "aid": "35:7",
+      "ms": 1461,
+      "expMs": 8462,
+      "ratio": 0.17,
+      "chars": 60
+     },
+     {
+      "aid": "35:9",
+      "ms": 1822,
+      "expMs": 10436,
+      "ratio": 0.17,
+      "chars": 74
+     },
+     {
+      "aid": "35:12",
+      "ms": 3102,
+      "expMs": 17770,
+      "ratio": 0.17,
+      "chars": 126
+     },
+     {
+      "aid": "35:15",
+      "ms": 1100,
+      "expMs": 6346,
+      "ratio": 0.17,
+      "chars": 45
+     },
+     {
+      "aid": "35:19",
+      "ms": 501,
+      "expMs": 2962,
+      "ratio": 0.17,
+      "chars": 21
+     }
+    ],
+    "impossibleShort": [],
+    "veryShort": [
+     {
+      "aid": "35:19",
+      "ms": 501,
+      "expMs": 2962,
+      "ratio": 0.17,
+      "chars": 21
+     },
+     {
+      "aid": "35:16",
+      "ms": 581,
+      "expMs": 3244,
+      "ratio": 0.18,
+      "chars": 23
+     },
+     {
+      "aid": "35:20",
+      "ms": 420,
+      "expMs": 2398,
+      "ratio": 0.18,
+      "chars": 17
+     },
+     {
+      "aid": "35:21",
+      "ms": 400,
+      "expMs": 2256,
+      "ratio": 0.18,
+      "chars": 16
+     },
+     {
+      "aid": "35:17",
+      "ms": 480,
+      "expMs": 2539,
+      "ratio": 0.19,
+      "chars": 18
+     }
+    ],
+    "extremeLong": [
+     {
+      "aid": "35:23",
+      "ms": 20894,
+      "expMs": 1692,
+      "ratio": 12.35,
+      "chars": 12
+     }
+    ],
+    "longOutliers": 5,
+    "shortOutliers": 30,
+    "silenceGaps": 21,
+    "silenceExamples": [
+     {
+      "from": "9:33",
+      "to": "9:34",
+      "gapMs": 96160
+     },
+     {
+      "from": "4:35",
+      "to": "4:36",
+      "gapMs": 89820
+     },
+     {
+      "from": "27:58",
+      "to": "27:59",
+      "gapMs": 78340
+     },
+     {
+      "from": "2:195",
+      "to": "2:196",
+      "gapMs": 72120
+     },
+     {
+      "from": "3:132",
+      "to": "3:133",
+      "gapMs": 60840
+     },
+     {
+      "from": "51:42",
+      "to": "51:43",
+      "gapMs": 55340
+     },
+     {
+      "from": "46:25",
+      "to": "46:26",
+      "gapMs": 49860
+     },
+     {
+      "from": "20:52",
+      "to": "20:53",
+      "gapMs": 48500
+     },
+     {
+      "from": "16:110",
+      "to": "16:111",
+      "gapMs": 48340
+     },
+     {
+      "from": "22:2",
+      "to": "22:3",
+      "gapMs": 47540
+     },
+     {
+      "from": "5:64",
+      "to": "5:65",
+      "gapMs": 47140
+     },
+     {
+      "from": "2:76",
+      "to": "2:77",
+      "gapMs": 47000
+     }
+    ],
+    "surahsWithRate": 113
+   },
+   "audio": {
+    "audioReportsOnSha": 0,
+    "openersOnSha": false,
+    "errors": [
+     "لا حكمَ صوتيٍّ بعيّنةٍ على البصمة المنشورة",
+     "لا شاهدَ مطالعَ على البصمة المنشورة"
+    ],
+    "notes": [],
+    "samples": [],
+    "pooled": null,
+    "severeHi": null,
+    "otherShasWithSamples": [
+     "5de0a957",
+     "717b7a5a",
+     "a22f531b",
+     "fe66e731"
+    ],
+    "ok": false
+   }
+  }
+ ],
+ "summary": {
+  "indexes": 1,
+  "phase": "all",
+  "identityOk": 1,
+  "identityBad": [],
+  "structureOk": 1,
+  "structureBad": [],
+  "gapsOk": 1,
+  "gapsBad": [],
+  "audioOk": 0,
+  "audioBad": [
+   "timings-staging/warsh/husary_warsh.5dc353f6.jz"
+  ],
+  "durationOutliersTotal": 36,
+  "impossibleShortTotal": 0,
+  "indexesWithImpossibleShort": 0,
+  "veryShortTotal": 5,
+  "extremeLongTotal": 1,
+  "indexesWithExtremeLong": 1,
+  "mirrorStale": 0,
+  "silenceGapsTotal": 21,
+  "indexesWithDurationOutliers": 1,
+  "indexesWithSilenceGaps": 1,
+  "entriesTotal": 6236,
+  "missingTotal": 0
+ }
+}

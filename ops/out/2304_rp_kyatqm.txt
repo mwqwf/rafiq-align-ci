@@ -1,0 +1,11 @@
+# rc=0
+  ⚡ أحكامٌ من الذاكرة المحليّة: 8504 · نُزّل 12543
+أحكامٌ: 20993 · تعذّرت: 0
+
+## 25db7a17: 5 حكماً
+{"name": "state/timings-staging_hafs_kyat.25db7a17.jz.openers.json", "key": "timings-staging/hafs/kyat.25db7a17.jz", "salt": null, "seed": null, "engine": null, "source": "", "verdict": null, "severe": null, "fatal": null, "ts": null}
+{"name": "state/timings-staging_hafs_kyat.25db7a17.jz.audio-turkyatqm1", "key": "timings-staging/hafs/kyat.25db7a17.jz", "salt": "turkyatqm1", "seed": 48387502088938, "engine": "pywhispercpp/ggml-q8 (tiny-ar-quran)", "source": "ci", "verdict": "مقبول", "severe": [0, 200, [0.0, 0.0, 0.014867039231272083, "degenerate"]], "fatal": [], "ts": 1795123907.7890127}
+{"name": "state/timings-staging_hafs_kyat.25db7a17.jz.audio-turkyatqm2", "key": "timings-staging/hafs/kyat.25db7a17.jz", "salt": "turkyatqm2", "seed": 256385137008090, "engine": "pywhispercpp/ggml-q8 (tiny-ar-quran)", "source": "ci", "verdict": "مقبول", "severe": [0, 200, [0.0, 0.0, 0.014867039231272083, "degenerate"]], "fatal": [], "ts": 1795123915.4009726}
+{"name": "state/timings-staging_hafs_kyat.25db7a17.jz.audio-turkyatqm3", "key": "timings-staging/hafs/kyat.25db7a17.jz", "salt": "turkyatqm3", "seed": 108974124547884, "engine": "pywhispercpp/ggml-q8 (tiny-ar-quran)", "source": "ci", "verdict": "مقبول", "severe": [0, 200, [0.0, 0.0, 0.014867039231272083, "degenerate"]], "fatal": [], "ts": 1795123919.1707165}
+{"name": "state/timings-staging_hafs_kyat.25db7a17.jz.audio-turkyatqm4", "key": "timings-staging/hafs/kyat.25db7a17.jz", "salt": "turkyatqm4", "seed": 81182662194959, "engine": "pywhispercpp/ggml-q8 (tiny-ar-quran)", "source": "ci", "verdict": "مقبول", "severe": [0, 200, [0.0, 0.0, 0.014867039231272083, "degenerate"]], "fatal": [], "ts": 1795123926.0683684}
+pooled_samples => {"m": 0, "n": 800, "rate": 0.0, "hi": 0.003737662826100608, "parts": [[0, 200], [0, 200], [0, 200], [0, 200]], "salts": ["turkyatqm1", "turkyatqm2", "turkyatqm3", "turkyatqm4"], "seeds": 4, "engine": "pywhispercpp/ggml-q8 (tiny-ar-quran)", "rule": "D-098"}

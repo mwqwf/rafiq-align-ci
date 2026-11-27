@@ -1,0 +1,2856 @@
+# rc=0
+== timings/hafs/hatem.jz · 617f206399b3 · مداخل 6041
+{
+ "schema": 1,
+ "riwaya": "hafs",
+ "reciterId": "hatem",
+ "sourceKind": "SURAH_FILES",
+ "ayahCounting": "KUFI",
+ "ayahCount": 6236,
+ "method": "ASR_ALIGN",
+ "engineVersion": "ctc-seg-1",
+ "refineVersion": "none",
+ "refinedCount": 0,
+ "medTargeted": 0,
+ "refineStats": {},
+ "lowCount": 281,
+ "vad": {
+  "versions": {
+   "adaptive-2": 114
+  },
+  "rel": {
+   "min": 0.04,
+   "median": 0.25,
+   "max": 0.25,
+   "surahs": 114
+  }
+ },
+ "writerHostVadVersion": "adaptive-2",
+ "noSilenceShare": null,
+ "noSilenceToAnchor": null,
+ "sparsePauses": null,
+ "missing": {
+  "count": 195,
+  "byReason": {
+   "unknown": 0,
+   "source_truncated": 195
+  },
+  "ids": [
+   "6:1",
+   "6:2",
+   "6:3",
+   "6:4",
+   "6:5",
+   "6:6",
+   "6:7",
+   "6:8",
+   "6:9",
+   "6:10",
+   "6:11",
+   "6:12",
+   "6:13",
+   "6:14",
+   "6:15",
+   "6:16",
+   "6:17",
+   "6:18",
+   "6:19",
+   "6:20",
+   "6:21",
+   "6:22",
+   "6:23",
+   "6:24",
+   "6:25",
+   "6:26",
+   "6:27",
+   "6:28",
+   "6:29",
+   "6:30",
+   "6:31",
+   "6:32",
+   "6:33",
+   "6:34",
+   "6:35",
+   "6:36",
+   "6:37",
+   "6:38",
+   "6:39",
+   "6:40",
+   "6:41",
+   "6:42",
+   "6:43",
+   "6:44",
+   "6:45",
+   "6:46",
+   "6:47",
+   "6:48",
+   "6:49",
+   "6:50",
+   "6:51",
+   "6:52",
+   "6:53",
+   "6:54",
+   "6:55",
+   "6:56",
+   "6:57",
+   "6:58",
+   "6:59",
+   "6:60",
+   "… و135"
+  ],
+  "note": "الفهرس بُني قبل وسم الاكتمال، فسببُ غيابه غير مقيس"
+ },
+ "exactEnds": true,
+ "generatedAt": 1789783734605,
+ "audioSha256": "[114 بصمة]",
+ "notes": "",
+ "engineBySurah": {
+  "4": "ctc-heardmap-1",
+  "5": "ctc-heardmap-1",
+  "8": "ctc-heardmap-1",
+  "9": "ctc-heardmap-1",
+  "10": "ctc-heardmap-1",
+  "11": "ctc-heardmap-1",
+  "12": "ctc-heardmap-1",
+  "13": "ctc-heardmap-1",
+  "14": "ctc-heardmap-1",
+  "15": "ctc-heardmap-1",
+  "16": "ctc-heardmap-1",
+  "17": "ctc-heardmap-1",
+  "19": "ctc-heardmap-1",
+  "21": "ctc-heardmap-1",
+  "23": "ctc-heardmap-1",
+  "25": "ctc-heardmap-1",
+  "26": "ctc-heardmap-1",
+  "27": "ctc-heardmap-1",
+  "28": "ctc-heardmap-1",
+  "31": "ctc-heardmap-1",
+  "32": "ctc-heardmap-1",
+  "33": "ctc-heardmap-1",
+  "34": "ctc-heardmap-1",
+  "35": "ctc-heardmap-1",
+  "36": "ctc-heardmap-1",
+  "38": "ctc-heardmap-1",
+  "39": "ctc-heardmap-1",
+  "40": "ctc-heardmap-1",
+  "41": "ctc-heardmap-1",
+  "42": "ctc-heardmap-1",
+  "43": "ctc-heardmap-1",
+  "44": "ctc-heardmap-1",
+  "46": "ctc-heardmap-1",
+  "47": "ctc-heardmap-1",
+  "48": "ctc-heardmap-1",
+  "49": "ctc-heardmap-1",
+  "50": "ctc-heardmap-1",
+  "51": "ctc-heardmap-1",
+  "52": "ctc-heardmap-1",
+  "53": "ctc-heardmap-1",
+  "54": "ctc-quran-window-1",
+  "55": "ctc-heardmap-1",
+  "56": "ctc-heardmap-1",
+  "59": "ctc-heardmap-1",
+  "60": "ctc-heardmap-1",
+  "63": "ctc-heardmap-1",
+  "64": "ctc-heardmap-1",
+  "66": "ctc-heardmap-1",
+  "67": "ctc-heardmap-1",
+  "68": "ctc-heardmap-1",
+  "69": "ctc-heardmap-1",
+  "70": "ctc-heardmap-1",
+  "71": "ctc-heardmap-1",
+  "72": "ctc-heardmap-1",
+  "73": "ctc-heardmap-1",
+  "74": "ctc-heardmap-1",
+  "76": "ctc-heardmap-1",
+  "77": "ctc-heardmap-1",
+  "78": "ctc-heardmap-1",
+  "79": "ctc-heardmap-1",
+  "80": "ctc-gapsplit-1",
+  "83": "ctc-dualfix-1"
+ },
+ "transform": {
+  "op": "ctc_heardmap_splice:31",
+  "fromSha256": "5ef9c40d998504d150c1e9cd336eaec2890ab2b04edf00f68d326784e297067c",
+  "fromKey": "timings/hafs/hatem.jz",
+  "droppedEntries": 30,
+  "reason": "e6 hatem: س[31] فهرسُها ينتهي قبل صوتها وتُسمع عند مواضعها آياتٌ غيرُ المكتوبة (مسح الامتداد + تفريغ 2026-11-05) ⇒ محاذاةٌ كاملة بالسماع",
+  "reasonUser": "توقيتُ هذه السورة لهذا القارئ قيد الإصلاح، فحُجب مؤقّتاً حتى لا تُعرض آيةٌ على صوت غيرها.",
+  "reasonCode": "OTHER",
+  "at": 1793957628692,
+  "note": "مقارنة بالأصل: حدود متغيرة في 16 مدخلاً، ومداخل مضافة 0، ومداخل محذوفة 0. الرفع إلى الاختبار ليس حكم جودة؛ يلزم اجتياز حراس الجودة والسماع القائمة على بصمة المرشح نفسه.",
+  "dropSurah": [
+   6,
+   89
+  ],
+  "entriesSha256": "30617e04509a398e27a096e8f42b4baaa3fd266c6e977b033570b9f5e676e6ab",
+  "parentEntriesSha256": "53ad90ca625062f8960e9f399bd97db8edfa5d4b08f9dbfcfe39f444e1290f7e",
+  "movedEntries": 16,
+  "addedEntries": 0,
+  "removedEntries": 0,
+  "by": "github-ctc-splice"
+ },
+ "alignmentModelBySurah": {
+  "54": {
+   "id": "rabah2026/wav2vec2-large-xlsr-53-arabic-quran-v_final",
+   "revision": "b03a268c6ba1a693752307325ab376c86c3b12da",
+   "weightsSha256": "bf65674a26eb4ef7042cedade96c3c8f8cbd04f3a7d1a68eadceec8ed0f99ecb",
+   "license": "Apache-2.0",
+   "canonicalTextChanged": false
+  }
+ },
+ "dualFixEvidenceBySurah": {
+  "83": {
+   "engine": "ctc-dualfix-1",
+   "baseKey": "timings-staging/hafs/hatem.2ff9c9dc.jz",
+   "baseSha256": "2ff9c9dc877b23070caf5baadbd0a42fbb71f63ee2cc6818a221cdeb1a453171",
+   "baseEngine": "ctc-heardmap-1",
+   "sourceSha256": "a91855c4631d853d804846c2ea88d3240dc1344d7566a6c1f39ad55828d2e177",
+   "totalMs": 201273,
+   "models": {
+    "generic": {
+     "id": "jonatasgrosman/wav2vec2-large-xlsr-53-arabic",
+     "revision": "af46c2d8531b8dcbb5e23b952f739b372c2e5d2d",
+     "weightsSha256": "a0b26f6d9d3edfde1784aef863c192a8cc1e438a23b45910ab648531ebe1857b",
+     "license": "Apache-2.0"
+    },
+    "quran": {
+     "id": "rabah2026/wav2vec2-large-xlsr-53-arabic-quran-v_final",
+     "revision": "b03a268c6ba1a693752307325ab376c86c3b12da",
+     "weightsSha256": "bf65674a26eb4ef7042cedade96c3c8f8cbd04f3a7d1a68eadceec8ed0f99ecb",
+     "license": "Apache-2.0"
+    }
+   },
+   "runtime": {
+    "precision": "float32",
+    "threads": 2
+   },
+   "canonicalTextChanged": false,
+   "thresholds": {
+    "startTol": 500,
+    "endTol": 800,
+    "minConf": 0.6,
+    "durLo": 0.5,
+    "durHi": 2.0,
+    "rateMsPerChar": 258.8619047619047
+   },
+   "windows": {
+    "83:1": {
+     "contextAyahIds": [
+      "83:basmala",
+      "83:1",
+      "83:2"
+     ],
+     "windowMs": [
+      0,
+      11260
+     ]
+    },
+    "83:2": {
+     "contextAyahIds": [
+      "83:1",
+      "83:2",
+      "83:3"
+     ],
+     "windowMs": [
+      3230,
+      16145
+     ]
+    },
+    "83:3": {
+     "contextAyahIds": [
+      "83:2",
+      "83:3",
+      "83:4"
+     ],
+     "windowMs": [
+      5735,
+      23632
+     ]
+    },
+    "83:4": {
+     "contextAyahIds": [
+      "83:3",
+      "83:4",
+      "83:5"
+     ],
+     "windowMs": [
+      11260,
+      26175
+     ]
+    },
+    "83:5": {
+     "contextAyahIds": [
+      "83:4",
+      "83:5",
+      "83:6"
+     ],
+     "windowMs": [
+      16145,
+      31360
+     ]
+    },
+    "83:6": {
+     "contextAyahIds": [
+      "83:5",
+      "83:6",
+      "83:7"
+     ],
+     "windowMs": [
+      23632,
+      37025
+     ]
+    },
+    "83:7": {
+     "contextAyahIds": [
+      "83:6",
+      "83:7",
+      "83:8"
+     ],
+     "windowMs": [
+      26175,
+      40649
+     ]
+    },
+    "83:8": {
+     "contextAyahIds": [
+      "83:7",
+      "83:8",
+      "83:9"
+     ],
+     "windowMs": [
+      31360,
+      44112
+     ]
+    },
+    "83:9": {
+     "contextAyahIds": [
+      "83:8",
+      "83:9",
+      "83:10"
+     ],
+     "windowMs": [
+      37025,
+      49637
+     ]
+    },
+    "83:10": {
+     "contextAyahIds": [
+      "83:9",
+      "83:10",
+      "83:11"
+     ],
+     "windowMs": [
+      40649,
+      54402
+     ]
+    },
+    "83:11": {
+     "contextAyahIds": [
+      "83:10",
+      "83:11",
+      "83:12"
+     ],
+     "windowMs": [
+      44112,
+      60119
+     ]
+    },
+    "83:12": {
+     "contextAyahIds": [
+      "83:11",
+      "83:12",
+      "83:13"
+     ],
+     "windowMs": [
+      49637,
+      67694
+     ]
+    },
+    "83:13": {
+     "contextAyahIds": [
+      "83:12",
+      "83:13",
+      "83:14"
+     ],
+     "windowMs": [
+      54402,
+      74619
+     ]
+    },
+    "83:14": {
+     "contextAyahIds": [
+      "83:13",
+      "83:14",
+      "83:15"
+     ],
+     "windowMs": [
+      60119,
+      82074
+     ]
+    },
+    "83:15": {
+     "contextAyahIds": [
+      "83:14",
+      "83:15",
+      "83:16"
+     ],
+     "windowMs": [
+      67694,
+      88578
+     ]
+    },
+    "83:16": {
+     "contextAyahIds": [
+      "83:15",
+      "83:16",
+      "83:17"
+     ],
+     "windowMs": [
+      74619,
+      95563
+     ]
+    },
+    "83:17": {
+     "contextAyahIds": [
+      "83:16",
+      "83:17",
+      "83:18"
+     ],
+     "windowMs": [
+      82074,
+      102157
+     ]
+    },
+    "83:18": {
+     "contextAyahIds": [
+      "83:17",
+      "83:18",
+      "83:19"
+     ],
+     "windowMs": [
+      88578,
+      106040
+     ]
+    },
+    "83:19": {
+     "contextAyahIds": [
+      "83:18",
+      "83:19",
+      "83:20"
+     ],
+     "windowMs": [
+      95563,
+      109362
+     ]
+    },
+    "83:20": {
+     "contextAyahIds": [
+      "83:19",
+      "83:20",
+      "83:21"
+     ],
+     "windowMs": [
+      102157,
+      112964
+     ]
+    },
+    "83:21": {
+     "contextAyahIds": [
+      "83:20",
+      "83:21",
+      "83:22"
+     ],
+     "windowMs": [
+      106040,
+      117047
+     ]
+    },
+    "83:22": {
+     "contextAyahIds": [
+      "83:21",
+      "83:22",
+      "83:23"
+     ],
+     "windowMs": [
+      109362,
+      122451
+     ]
+    },
+    "83:23": {
+     "contextAyahIds": [
+      "83:22",
+      "83:23",
+      "83:24"
+     ],
+     "windowMs": [
+      112964,
+      127884
+     ]
+    },
+    "83:24": {
+     "contextAyahIds": [
+      "83:23",
+      "83:24",
+      "83:25"
+     ],
+     "windowMs": [
+      117047,
+      132497
+     ]
+    },
+    "83:25": {
+     "contextAyahIds": [
+      "83:24",
+      "83:25",
+      "83:26"
+     ],
+     "windowMs": [
+      122451,
+      139781
+     ]
+    },
+    "83:26": {
+     "contextAyahIds": [
+      "83:25",
+      "83:26",
+      "83:27"
+     ],
+     "windowMs": [
+      127884,
+      144004
+     ]
+    },
+    "83:27": {
+     "contextAyahIds": [
+      "83:26",
+      "83:27",
+      "83:28"
+     ],
+     "windowMs": [
+      132497,
+      148687
+     ]
+    },
+    "83:28": {
+     "contextAyahIds": [
+      "83:27",
+      "83:28",
+      "83:29"
+     ],
+     "windowMs": [
+      139781,
+      156892
+     ]
+    },
+    "83:29": {
+     "contextAyahIds": [
+      "83:28",
+      "83:29",
+      "83:30"
+     ],
+     "windowMs": [
+      144004,
+      161075
+     ]
+    },
+    "83:30": {
+     "contextAyahIds": [
+      "83:29",
+      "83:30",
+      "83:31"
+     ],
+     "windowMs": [
+      148687,
+      168000
+     ]
+    },
+    "83:31": {
+     "contextAyahIds": [
+      "83:30",
+      "83:31",
+      "83:32"
+     ],
+     "windowMs": [
+      156892,
+      178146
+     ]
+    },
+    "83:32": {
+     "contextAyahIds": [
+      "83:31",
+      "83:32",
+      "83:33"
+     ],
+     "windowMs": [
+      161075,
+      182669
+     ]
+    },
+    "83:33": {
+     "contextAyahIds": [
+      "83:32",
+      "83:33",
+      "83:34"
+     ],
+     "windowMs": [
+      168000,
+      188766
+     ]
+    },
+    "83:34": {
+     "contextAyahIds": [
+      "83:33",
+      "83:34",
+      "83:35"
+     ],
+     "windowMs": [
+      178146,
+      193613
+     ]
+    },
+    "83:35": {
+     "contextAyahIds": [
+      "83:34",
+      "83:35",
+      "83:36"
+     ],
+     "windowMs": [
+      182669,
+      201273
+     ]
+    },
+    "83:36": {
+     "contextAyahIds": [
+      "83:35",
+      "83:36"
+     ],
+     "windowMs": [
+      188766,
+      201273
+     ]
+    }
+   },
+   "measurements": {
+    "83:1": {
+     "generic": [
+      5239,
+      6080,
+      0.371
+     ],
+     "context": {
+      "generic": [
+       [
+        "83:basmala",
+        2986,
+        5239,
+        0.013
+       ],
+       [
+        "83:1",
+        5239,
+        6080,
+        0.371
+       ],
+       [
+        "83:2",
+        6080,
+        11229,
+        0.671
+       ]
+      ],
+      "quran": [
+       [
+        "83:basmala",
+        60,
+        2906,
+        0.857
+       ],
+       [
+        "83:1",
+        2906,
+        5720,
+        0.829
+       ],
+       [
+        "83:2",
+        5720,
+        11209,
+        0.656
+       ]
+      ]
+     },
+     "quran": [
+      2906,
+      5720,
+      0.829
+     ]
+    },
+    "83:2": {
+     "generic": [
+      5853,
+      11249,
+      0.584
+     ],
+     "context": {
+      "generic": [
+       [
+        "83:1",
+        3300,
+        5853,
+        0.847
+       ],
+       [
+        "83:2",
+        5853,
+        11249,
+        0.584
+       ],
+       [
+== timings-staging/hafs/hatem.617f2063.jz · 617f206399b3 · مداخل 6041
+{
+ "schema": 1,
+ "riwaya": "hafs",
+ "reciterId": "hatem",
+ "sourceKind": "SURAH_FILES",
+ "ayahCounting": "KUFI",
+ "ayahCount": 6236,
+ "method": "ASR_ALIGN",
+ "engineVersion": "ctc-seg-1",
+ "refineVersion": "none",
+ "refinedCount": 0,
+ "medTargeted": 0,
+ "refineStats": {},
+ "lowCount": 281,
+ "vad": {
+  "versions": {
+   "adaptive-2": 114
+  },
+  "rel": {
+   "min": 0.04,
+   "median": 0.25,
+   "max": 0.25,
+   "surahs": 114
+  }
+ },
+ "writerHostVadVersion": "adaptive-2",
+ "noSilenceShare": null,
+ "noSilenceToAnchor": null,
+ "sparsePauses": null,
+ "missing": {
+  "count": 195,
+  "byReason": {
+   "unknown": 0,
+   "source_truncated": 195
+  },
+  "ids": [
+   "6:1",
+   "6:2",
+   "6:3",
+   "6:4",
+   "6:5",
+   "6:6",
+   "6:7",
+   "6:8",
+   "6:9",
+   "6:10",
+   "6:11",
+   "6:12",
+   "6:13",
+   "6:14",
+   "6:15",
+   "6:16",
+   "6:17",
+   "6:18",
+   "6:19",
+   "6:20",
+   "6:21",
+   "6:22",
+   "6:23",
+   "6:24",
+   "6:25",
+   "6:26",
+   "6:27",
+   "6:28",
+   "6:29",
+   "6:30",
+   "6:31",
+   "6:32",
+   "6:33",
+   "6:34",
+   "6:35",
+   "6:36",
+   "6:37",
+   "6:38",
+   "6:39",
+   "6:40",
+   "6:41",
+   "6:42",
+   "6:43",
+   "6:44",
+   "6:45",
+   "6:46",
+   "6:47",
+   "6:48",
+   "6:49",
+   "6:50",
+   "6:51",
+   "6:52",
+   "6:53",
+   "6:54",
+   "6:55",
+   "6:56",
+   "6:57",
+   "6:58",
+   "6:59",
+   "6:60",
+   "… و135"
+  ],
+  "note": "الفهرس بُني قبل وسم الاكتمال، فسببُ غيابه غير مقيس"
+ },
+ "exactEnds": true,
+ "generatedAt": 1789783734605,
+ "audioSha256": "[114 بصمة]",
+ "notes": "",
+ "engineBySurah": {
+  "4": "ctc-heardmap-1",
+  "5": "ctc-heardmap-1",
+  "8": "ctc-heardmap-1",
+  "9": "ctc-heardmap-1",
+  "10": "ctc-heardmap-1",
+  "11": "ctc-heardmap-1",
+  "12": "ctc-heardmap-1",
+  "13": "ctc-heardmap-1",
+  "14": "ctc-heardmap-1",
+  "15": "ctc-heardmap-1",
+  "16": "ctc-heardmap-1",
+  "17": "ctc-heardmap-1",
+  "19": "ctc-heardmap-1",
+  "21": "ctc-heardmap-1",
+  "23": "ctc-heardmap-1",
+  "25": "ctc-heardmap-1",
+  "26": "ctc-heardmap-1",
+  "27": "ctc-heardmap-1",
+  "28": "ctc-heardmap-1",
+  "31": "ctc-heardmap-1",
+  "32": "ctc-heardmap-1",
+  "33": "ctc-heardmap-1",
+  "34": "ctc-heardmap-1",
+  "35": "ctc-heardmap-1",
+  "36": "ctc-heardmap-1",
+  "38": "ctc-heardmap-1",
+  "39": "ctc-heardmap-1",
+  "40": "ctc-heardmap-1",
+  "41": "ctc-heardmap-1",
+  "42": "ctc-heardmap-1",
+  "43": "ctc-heardmap-1",
+  "44": "ctc-heardmap-1",
+  "46": "ctc-heardmap-1",
+  "47": "ctc-heardmap-1",
+  "48": "ctc-heardmap-1",
+  "49": "ctc-heardmap-1",
+  "50": "ctc-heardmap-1",
+  "51": "ctc-heardmap-1",
+  "52": "ctc-heardmap-1",
+  "53": "ctc-heardmap-1",
+  "54": "ctc-quran-window-1",
+  "55": "ctc-heardmap-1",
+  "56": "ctc-heardmap-1",
+  "59": "ctc-heardmap-1",
+  "60": "ctc-heardmap-1",
+  "63": "ctc-heardmap-1",
+  "64": "ctc-heardmap-1",
+  "66": "ctc-heardmap-1",
+  "67": "ctc-heardmap-1",
+  "68": "ctc-heardmap-1",
+  "69": "ctc-heardmap-1",
+  "70": "ctc-heardmap-1",
+  "71": "ctc-heardmap-1",
+  "72": "ctc-heardmap-1",
+  "73": "ctc-heardmap-1",
+  "74": "ctc-heardmap-1",
+  "76": "ctc-heardmap-1",
+  "77": "ctc-heardmap-1",
+  "78": "ctc-heardmap-1",
+  "79": "ctc-heardmap-1",
+  "80": "ctc-gapsplit-1",
+  "83": "ctc-dualfix-1"
+ },
+ "transform": {
+  "op": "ctc_heardmap_splice:31",
+  "fromSha256": "5ef9c40d998504d150c1e9cd336eaec2890ab2b04edf00f68d326784e297067c",
+  "fromKey": "timings/hafs/hatem.jz",
+  "droppedEntries": 30,
+  "reason": "e6 hatem: س[31] فهرسُها ينتهي قبل صوتها وتُسمع عند مواضعها آياتٌ غيرُ المكتوبة (مسح الامتداد + تفريغ 2026-11-05) ⇒ محاذاةٌ كاملة بالسماع",
+  "reasonUser": "توقيتُ هذه السورة لهذا القارئ قيد الإصلاح، فحُجب مؤقّتاً حتى لا تُعرض آيةٌ على صوت غيرها.",
+  "reasonCode": "OTHER",
+  "at": 1793957628692,
+  "note": "مقارنة بالأصل: حدود متغيرة في 16 مدخلاً، ومداخل مضافة 0، ومداخل محذوفة 0. الرفع إلى الاختبار ليس حكم جودة؛ يلزم اجتياز حراس الجودة والسماع القائمة على بصمة المرشح نفسه.",
+  "dropSurah": [
+   6,
+   89
+  ],
+  "entriesSha256": "30617e04509a398e27a096e8f42b4baaa3fd266c6e977b033570b9f5e676e6ab",
+  "parentEntriesSha256": "53ad90ca625062f8960e9f399bd97db8edfa5d4b08f9dbfcfe39f444e1290f7e",
+  "movedEntries": 16,
+  "addedEntries": 0,
+  "removedEntries": 0,
+  "by": "github-ctc-splice"
+ },
+ "alignmentModelBySurah": {
+  "54": {
+   "id": "rabah2026/wav2vec2-large-xlsr-53-arabic-quran-v_final",
+   "revision": "b03a268c6ba1a693752307325ab376c86c3b12da",
+   "weightsSha256": "bf65674a26eb4ef7042cedade96c3c8f8cbd04f3a7d1a68eadceec8ed0f99ecb",
+   "license": "Apache-2.0",
+   "canonicalTextChanged": false
+  }
+ },
+ "dualFixEvidenceBySurah": {
+  "83": {
+   "engine": "ctc-dualfix-1",
+   "baseKey": "timings-staging/hafs/hatem.2ff9c9dc.jz",
+   "baseSha256": "2ff9c9dc877b23070caf5baadbd0a42fbb71f63ee2cc6818a221cdeb1a453171",
+   "baseEngine": "ctc-heardmap-1",
+   "sourceSha256": "a91855c4631d853d804846c2ea88d3240dc1344d7566a6c1f39ad55828d2e177",
+   "totalMs": 201273,
+   "models": {
+    "generic": {
+     "id": "jonatasgrosman/wav2vec2-large-xlsr-53-arabic",
+     "revision": "af46c2d8531b8dcbb5e23b952f739b372c2e5d2d",
+     "weightsSha256": "a0b26f6d9d3edfde1784aef863c192a8cc1e438a23b45910ab648531ebe1857b",
+     "license": "Apache-2.0"
+    },
+    "quran": {
+     "id": "rabah2026/wav2vec2-large-xlsr-53-arabic-quran-v_final",
+     "revision": "b03a268c6ba1a693752307325ab376c86c3b12da",
+     "weightsSha256": "bf65674a26eb4ef7042cedade96c3c8f8cbd04f3a7d1a68eadceec8ed0f99ecb",
+     "license": "Apache-2.0"
+    }
+   },
+   "runtime": {
+    "precision": "float32",
+    "threads": 2
+   },
+   "canonicalTextChanged": false,
+   "thresholds": {
+    "startTol": 500,
+    "endTol": 800,
+    "minConf": 0.6,
+    "durLo": 0.5,
+    "durHi": 2.0,
+    "rateMsPerChar": 258.8619047619047
+   },
+   "windows": {
+    "83:1": {
+     "contextAyahIds": [
+      "83:basmala",
+      "83:1",
+      "83:2"
+     ],
+     "windowMs": [
+      0,
+      11260
+     ]
+    },
+    "83:2": {
+     "contextAyahIds": [
+      "83:1",
+      "83:2",
+      "83:3"
+     ],
+     "windowMs": [
+      3230,
+      16145
+     ]
+    },
+    "83:3": {
+     "contextAyahIds": [
+      "83:2",
+      "83:3",
+      "83:4"
+     ],
+     "windowMs": [
+      5735,
+      23632
+     ]
+    },
+    "83:4": {
+     "contextAyahIds": [
+      "83:3",
+      "83:4",
+      "83:5"
+     ],
+     "windowMs": [
+      11260,
+      26175
+     ]
+    },
+    "83:5": {
+     "contextAyahIds": [
+      "83:4",
+      "83:5",
+      "83:6"
+     ],
+     "windowMs": [
+      16145,
+      31360
+     ]
+    },
+    "83:6": {
+     "contextAyahIds": [
+      "83:5",
+      "83:6",
+      "83:7"
+     ],
+     "windowMs": [
+      23632,
+      37025
+     ]
+    },
+    "83:7": {
+     "contextAyahIds": [
+      "83:6",
+      "83:7",
+      "83:8"
+     ],
+     "windowMs": [
+      26175,
+      40649
+     ]
+    },
+    "83:8": {
+     "contextAyahIds": [
+      "83:7",
+      "83:8",
+      "83:9"
+     ],
+     "windowMs": [
+      31360,
+      44112
+     ]
+    },
+    "83:9": {
+     "contextAyahIds": [
+      "83:8",
+      "83:9",
+      "83:10"
+     ],
+     "windowMs": [
+      37025,
+      49637
+     ]
+    },
+    "83:10": {
+     "contextAyahIds": [
+      "83:9",
+      "83:10",
+      "83:11"
+     ],
+     "windowMs": [
+      40649,
+      54402
+     ]
+    },
+    "83:11": {
+     "contextAyahIds": [
+      "83:10",
+      "83:11",
+      "83:12"
+     ],
+     "windowMs": [
+      44112,
+      60119
+     ]
+    },
+    "83:12": {
+     "contextAyahIds": [
+      "83:11",
+      "83:12",
+      "83:13"
+     ],
+     "windowMs": [
+      49637,
+      67694
+     ]
+    },
+    "83:13": {
+     "contextAyahIds": [
+      "83:12",
+      "83:13",
+      "83:14"
+     ],
+     "windowMs": [
+      54402,
+      74619
+     ]
+    },
+    "83:14": {
+     "contextAyahIds": [
+      "83:13",
+      "83:14",
+      "83:15"
+     ],
+     "windowMs": [
+      60119,
+      82074
+     ]
+    },
+    "83:15": {
+     "contextAyahIds": [
+      "83:14",
+      "83:15",
+      "83:16"
+     ],
+     "windowMs": [
+      67694,
+      88578
+     ]
+    },
+    "83:16": {
+     "contextAyahIds": [
+      "83:15",
+      "83:16",
+      "83:17"
+     ],
+     "windowMs": [
+      74619,
+      95563
+     ]
+    },
+    "83:17": {
+     "contextAyahIds": [
+      "83:16",
+      "83:17",
+      "83:18"
+     ],
+     "windowMs": [
+      82074,
+      102157
+     ]
+    },
+    "83:18": {
+     "contextAyahIds": [
+      "83:17",
+      "83:18",
+      "83:19"
+     ],
+     "windowMs": [
+      88578,
+      106040
+     ]
+    },
+    "83:19": {
+     "contextAyahIds": [
+      "83:18",
+      "83:19",
+      "83:20"
+     ],
+     "windowMs": [
+      95563,
+      109362
+     ]
+    },
+    "83:20": {
+     "contextAyahIds": [
+      "83:19",
+      "83:20",
+      "83:21"
+     ],
+     "windowMs": [
+      102157,
+      112964
+     ]
+    },
+    "83:21": {
+     "contextAyahIds": [
+      "83:20",
+      "83:21",
+      "83:22"
+     ],
+     "windowMs": [
+      106040,
+      117047
+     ]
+    },
+    "83:22": {
+     "contextAyahIds": [
+      "83:21",
+      "83:22",
+      "83:23"
+     ],
+     "windowMs": [
+      109362,
+      122451
+     ]
+    },
+    "83:23": {
+     "contextAyahIds": [
+      "83:22",
+      "83:23",
+      "83:24"
+     ],
+     "windowMs": [
+      112964,
+      127884
+     ]
+    },
+    "83:24": {
+     "contextAyahIds": [
+      "83:23",
+      "83:24",
+      "83:25"
+     ],
+     "windowMs": [
+      117047,
+      132497
+     ]
+    },
+    "83:25": {
+     "contextAyahIds": [
+      "83:24",
+      "83:25",
+      "83:26"
+     ],
+     "windowMs": [
+      122451,
+      139781
+     ]
+    },
+    "83:26": {
+     "contextAyahIds": [
+      "83:25",
+      "83:26",
+      "83:27"
+     ],
+     "windowMs": [
+      127884,
+      144004
+     ]
+    },
+    "83:27": {
+     "contextAyahIds": [
+      "83:26",
+      "83:27",
+      "83:28"
+     ],
+     "windowMs": [
+      132497,
+      148687
+     ]
+    },
+    "83:28": {
+     "contextAyahIds": [
+      "83:27",
+      "83:28",
+      "83:29"
+     ],
+     "windowMs": [
+      139781,
+      156892
+     ]
+    },
+    "83:29": {
+     "contextAyahIds": [
+      "83:28",
+      "83:29",
+      "83:30"
+     ],
+     "windowMs": [
+      144004,
+      161075
+     ]
+    },
+    "83:30": {
+     "contextAyahIds": [
+      "83:29",
+      "83:30",
+      "83:31"
+     ],
+     "windowMs": [
+      148687,
+      168000
+     ]
+    },
+    "83:31": {
+     "contextAyahIds": [
+      "83:30",
+      "83:31",
+      "83:32"
+     ],
+     "windowMs": [
+      156892,
+      178146
+     ]
+    },
+    "83:32": {
+     "contextAyahIds": [
+      "83:31",
+      "83:32",
+      "83:33"
+     ],
+     "windowMs": [
+      161075,
+      182669
+     ]
+    },
+    "83:33": {
+     "contextAyahIds": [
+      "83:32",
+      "83:33",
+      "83:34"
+     ],
+     "windowMs": [
+      168000,
+      188766
+     ]
+    },
+    "83:34": {
+     "contextAyahIds": [
+      "83:33",
+      "83:34",
+      "83:35"
+     ],
+     "windowMs": [
+      178146,
+      193613
+     ]
+    },
+    "83:35": {
+     "contextAyahIds": [
+      "83:34",
+      "83:35",
+      "83:36"
+     ],
+     "windowMs": [
+      182669,
+      201273
+     ]
+    },
+    "83:36": {
+     "contextAyahIds": [
+      "83:35",
+      "83:36"
+     ],
+     "windowMs": [
+      188766,
+      201273
+     ]
+    }
+   },
+   "measurements": {
+    "83:1": {
+     "generic": [
+      5239,
+      6080,
+      0.371
+     ],
+     "context": {
+      "generic": [
+       [
+        "83:basmala",
+        2986,
+        5239,
+        0.013
+       ],
+       [
+        "83:1",
+        5239,
+        6080,
+        0.371
+       ],
+       [
+        "83:2",
+        6080,
+        11229,
+        0.671
+       ]
+      ],
+      "quran": [
+       [
+        "83:basmala",
+        60,
+        2906,
+        0.857
+       ],
+       [
+        "83:1",
+        2906,
+        5720,
+        0.829
+       ],
+       [
+        "83:2",
+        5720,
+        11209,
+        0.656
+       ]
+      ]
+     },
+     "quran": [
+      2906,
+      5720,
+      0.829
+     ]
+    },
+    "83:2": {
+     "generic": [
+      5853,
+      11249,
+      0.584
+     ],
+     "context": {
+      "generic": [
+       [
+        "83:1",
+        3300,
+        5853,
+        0.847
+       ],
+       [
+        "83:2",
+        5853,
+        11249,
+        0.584
+       ],
+       [
+== timings-staging/hafs/hatem.5ef9c40d.jz · 5ef9c40d9985 · مداخل 6041
+{
+ "schema": 1,
+ "riwaya": "hafs",
+ "reciterId": "hatem",
+ "sourceKind": "SURAH_FILES",
+ "ayahCounting": "KUFI",
+ "ayahCount": 6236,
+ "method": "ASR_ALIGN",
+ "engineVersion": "ctc-seg-1",
+ "refineVersion": "none",
+ "refinedCount": 0,
+ "medTargeted": 0,
+ "refineStats": {},
+ "lowCount": 281,
+ "vad": {
+  "versions": {
+   "adaptive-2": 114
+  },
+  "rel": {
+   "min": 0.04,
+   "median": 0.25,
+   "max": 0.25,
+   "surahs": 114
+  }
+ },
+ "writerHostVadVersion": "adaptive-2",
+ "noSilenceShare": null,
+ "noSilenceToAnchor": null,
+ "sparsePauses": null,
+ "missing": {
+  "count": 195,
+  "byReason": {
+   "unknown": 0,
+   "source_truncated": 195
+  },
+  "ids": [
+   "6:1",
+   "6:2",
+   "6:3",
+   "6:4",
+   "6:5",
+   "6:6",
+   "6:7",
+   "6:8",
+   "6:9",
+   "6:10",
+   "6:11",
+   "6:12",
+   "6:13",
+   "6:14",
+   "6:15",
+   "6:16",
+   "6:17",
+   "6:18",
+   "6:19",
+   "6:20",
+   "6:21",
+   "6:22",
+   "6:23",
+   "6:24",
+   "6:25",
+   "6:26",
+   "6:27",
+   "6:28",
+   "6:29",
+   "6:30",
+   "6:31",
+   "6:32",
+   "6:33",
+   "6:34",
+   "6:35",
+   "6:36",
+   "6:37",
+   "6:38",
+   "6:39",
+   "6:40",
+   "6:41",
+   "6:42",
+   "6:43",
+   "6:44",
+   "6:45",
+   "6:46",
+   "6:47",
+   "6:48",
+   "6:49",
+   "6:50",
+   "6:51",
+   "6:52",
+   "6:53",
+   "6:54",
+   "6:55",
+   "6:56",
+   "6:57",
+   "6:58",
+   "6:59",
+   "6:60",
+   "… و135"
+  ],
+  "note": "الفهرس بُني قبل وسم الاكتمال، فسببُ غيابه غير مقيس"
+ },
+ "exactEnds": true,
+ "generatedAt": 1789783734605,
+ "audioSha256": "[114 بصمة]",
+ "notes": "",
+ "engineBySurah": {
+  "4": "ctc-heardmap-1",
+  "5": "ctc-heardmap-1",
+  "8": "ctc-heardmap-1",
+  "9": "ctc-heardmap-1",
+  "10": "ctc-heardmap-1",
+  "11": "ctc-heardmap-1",
+  "12": "ctc-heardmap-1",
+  "13": "ctc-heardmap-1",
+  "14": "ctc-heardmap-1",
+  "15": "ctc-heardmap-1",
+  "16": "ctc-heardmap-1",
+  "17": "ctc-heardmap-1",
+  "19": "ctc-heardmap-1",
+  "21": "ctc-heardmap-1",
+  "23": "ctc-heardmap-1",
+  "25": "ctc-heardmap-1",
+  "26": "ctc-heardmap-1",
+  "27": "ctc-heardmap-1",
+  "28": "ctc-heardmap-1",
+  "31": "ctc-heardmap-1",
+  "32": "ctc-heardmap-1",
+  "33": "ctc-heardmap-1",
+  "34": "ctc-heardmap-1",
+  "35": "ctc-heardmap-1",
+  "36": "ctc-heardmap-1",
+  "38": "ctc-heardmap-1",
+  "39": "ctc-heardmap-1",
+  "40": "ctc-heardmap-1",
+  "41": "ctc-heardmap-1",
+  "42": "ctc-heardmap-1",
+  "43": "ctc-heardmap-1",
+  "44": "ctc-heardmap-1",
+  "46": "ctc-heardmap-1",
+  "47": "ctc-heardmap-1",
+  "48": "ctc-heardmap-1",
+  "49": "ctc-heardmap-1",
+  "50": "ctc-heardmap-1",
+  "51": "ctc-heardmap-1",
+  "52": "ctc-heardmap-1",
+  "53": "ctc-heardmap-1",
+  "54": "ctc-quran-window-1",
+  "55": "ctc-heardmap-1",
+  "56": "ctc-heardmap-1",
+  "59": "ctc-heardmap-1",
+  "60": "ctc-heardmap-1",
+  "63": "ctc-heardmap-1",
+  "64": "ctc-heardmap-1",
+  "66": "ctc-heardmap-1",
+  "67": "ctc-heardmap-1",
+  "68": "ctc-heardmap-1",
+  "69": "ctc-heardmap-1",
+  "70": "ctc-heardmap-1",
+  "71": "ctc-heardmap-1",
+  "72": "ctc-heardmap-1",
+  "73": "ctc-heardmap-1",
+  "74": "ctc-heardmap-1",
+  "76": "ctc-heardmap-1",
+  "77": "ctc-heardmap-1",
+  "78": "ctc-heardmap-1",
+  "79": "ctc-heardmap-1",
+  "80": "ctc-gapsplit-1",
+  "83": "ctc-dualfix-1"
+ },
+ "transform": {
+  "op": "drop_surah:6,89",
+  "fromSha256": "05c4f7c1d3f1fa0b44e9e01c9b3f36ca514c68e710c638fcec4e1f205f7e385c",
+  "fromKey": "timings/hafs/hatem.jz",
+  "droppedEntries": 30,
+  "reason": "e6 2026-11-05: فهرسُ س6,89 عند hatem يضع آياتٍ على صوت غيرها (مسحُ الامتداد + تفريغٌ عند ثلاث آيات)، وردّت بوّابةُ السماع إعادةَ محاذاتها كاملةً ثمّ نوافذَها ⇒ حجبٌ مؤقّتٌ حتى يُصلح التوقيت",
+  "reasonUser": "توقيتُ هذه السورة لهذا القارئ قيد الإصلاح، فحُجب مؤقّتاً حتى لا تُعرض آيةٌ على صوت غيرها.",
+  "reasonCode": "OTHER",
+  "at": 1793917711323,
+  "note": "‏`refineStats` و`medTargeted` و`vad` تصف **البناء الأصلي** ولم تُعد حسابها؛ والمعاد حسابه: المداخل وعدّ LOW ووسم الاكتمال."
+ },
+ "alignmentModelBySurah": {
+  "54": {
+   "id": "rabah2026/wav2vec2-large-xlsr-53-arabic-quran-v_final",
+   "revision": "b03a268c6ba1a693752307325ab376c86c3b12da",
+   "weightsSha256": "bf65674a26eb4ef7042cedade96c3c8f8cbd04f3a7d1a68eadceec8ed0f99ecb",
+   "license": "Apache-2.0",
+   "canonicalTextChanged": false
+  }
+ },
+ "dualFixEvidenceBySurah": {
+  "83": {
+   "engine": "ctc-dualfix-1",
+   "baseKey": "timings-staging/hafs/hatem.2ff9c9dc.jz",
+   "baseSha256": "2ff9c9dc877b23070caf5baadbd0a42fbb71f63ee2cc6818a221cdeb1a453171",
+   "baseEngine": "ctc-heardmap-1",
+   "sourceSha256": "a91855c4631d853d804846c2ea88d3240dc1344d7566a6c1f39ad55828d2e177",
+   "totalMs": 201273,
+   "models": {
+    "generic": {
+     "id": "jonatasgrosman/wav2vec2-large-xlsr-53-arabic",
+     "revision": "af46c2d8531b8dcbb5e23b952f739b372c2e5d2d",
+     "weightsSha256": "a0b26f6d9d3edfde1784aef863c192a8cc1e438a23b45910ab648531ebe1857b",
+     "license": "Apache-2.0"
+    },
+    "quran": {
+     "id": "rabah2026/wav2vec2-large-xlsr-53-arabic-quran-v_final",
+     "revision": "b03a268c6ba1a693752307325ab376c86c3b12da",
+     "weightsSha256": "bf65674a26eb4ef7042cedade96c3c8f8cbd04f3a7d1a68eadceec8ed0f99ecb",
+     "license": "Apache-2.0"
+    }
+   },
+   "runtime": {
+    "precision": "float32",
+    "threads": 2
+   },
+   "canonicalTextChanged": false,
+   "thresholds": {
+    "startTol": 500,
+    "endTol": 800,
+    "minConf": 0.6,
+    "durLo": 0.5,
+    "durHi": 2.0,
+    "rateMsPerChar": 258.8619047619047
+   },
+   "windows": {
+    "83:1": {
+     "contextAyahIds": [
+      "83:basmala",
+      "83:1",
+      "83:2"
+     ],
+     "windowMs": [
+      0,
+      11260
+     ]
+    },
+    "83:2": {
+     "contextAyahIds": [
+      "83:1",
+      "83:2",
+      "83:3"
+     ],
+     "windowMs": [
+      3230,
+      16145
+     ]
+    },
+    "83:3": {
+     "contextAyahIds": [
+      "83:2",
+      "83:3",
+      "83:4"
+     ],
+     "windowMs": [
+      5735,
+      23632
+     ]
+    },
+    "83:4": {
+     "contextAyahIds": [
+      "83:3",
+      "83:4",
+      "83:5"
+     ],
+     "windowMs": [
+      11260,
+      26175
+     ]
+    },
+    "83:5": {
+     "contextAyahIds": [
+      "83:4",
+      "83:5",
+      "83:6"
+     ],
+     "windowMs": [
+      16145,
+      31360
+     ]
+    },
+    "83:6": {
+     "contextAyahIds": [
+      "83:5",
+      "83:6",
+      "83:7"
+     ],
+     "windowMs": [
+      23632,
+      37025
+     ]
+    },
+    "83:7": {
+     "contextAyahIds": [
+      "83:6",
+      "83:7",
+      "83:8"
+     ],
+     "windowMs": [
+      26175,
+      40649
+     ]
+    },
+    "83:8": {
+     "contextAyahIds": [
+      "83:7",
+      "83:8",
+      "83:9"
+     ],
+     "windowMs": [
+      31360,
+      44112
+     ]
+    },
+    "83:9": {
+     "contextAyahIds": [
+      "83:8",
+      "83:9",
+      "83:10"
+     ],
+     "windowMs": [
+      37025,
+      49637
+     ]
+    },
+    "83:10": {
+     "contextAyahIds": [
+      "83:9",
+      "83:10",
+      "83:11"
+     ],
+     "windowMs": [
+      40649,
+      54402
+     ]
+    },
+    "83:11": {
+     "contextAyahIds": [
+      "83:10",
+      "83:11",
+      "83:12"
+     ],
+     "windowMs": [
+      44112,
+      60119
+     ]
+    },
+    "83:12": {
+     "contextAyahIds": [
+      "83:11",
+      "83:12",
+      "83:13"
+     ],
+     "windowMs": [
+      49637,
+      67694
+     ]
+    },
+    "83:13": {
+     "contextAyahIds": [
+      "83:12",
+      "83:13",
+      "83:14"
+     ],
+     "windowMs": [
+      54402,
+      74619
+     ]
+    },
+    "83:14": {
+     "contextAyahIds": [
+      "83:13",
+      "83:14",
+      "83:15"
+     ],
+     "windowMs": [
+      60119,
+      82074
+     ]
+    },
+    "83:15": {
+     "contextAyahIds": [
+      "83:14",
+      "83:15",
+      "83:16"
+     ],
+     "windowMs": [
+      67694,
+      88578
+     ]
+    },
+    "83:16": {
+     "contextAyahIds": [
+      "83:15",
+      "83:16",
+      "83:17"
+     ],
+     "windowMs": [
+      74619,
+      95563
+     ]
+    },
+    "83:17": {
+     "contextAyahIds": [
+      "83:16",
+      "83:17",
+      "83:18"
+     ],
+     "windowMs": [
+      82074,
+      102157
+     ]
+    },
+    "83:18": {
+     "contextAyahIds": [
+      "83:17",
+      "83:18",
+      "83:19"
+     ],
+     "windowMs": [
+      88578,
+      106040
+     ]
+    },
+    "83:19": {
+     "contextAyahIds": [
+      "83:18",
+      "83:19",
+      "83:20"
+     ],
+     "windowMs": [
+      95563,
+      109362
+     ]
+    },
+    "83:20": {
+     "contextAyahIds": [
+      "83:19",
+      "83:20",
+      "83:21"
+     ],
+     "windowMs": [
+      102157,
+      112964
+     ]
+    },
+    "83:21": {
+     "contextAyahIds": [
+      "83:20",
+      "83:21",
+      "83:22"
+     ],
+     "windowMs": [
+      106040,
+      117047
+     ]
+    },
+    "83:22": {
+     "contextAyahIds": [
+      "83:21",
+      "83:22",
+      "83:23"
+     ],
+     "windowMs": [
+      109362,
+      122451
+     ]
+    },
+    "83:23": {
+     "contextAyahIds": [
+      "83:22",
+      "83:23",
+      "83:24"
+     ],
+     "windowMs": [
+      112964,
+      127884
+     ]
+    },
+    "83:24": {
+     "contextAyahIds": [
+      "83:23",
+      "83:24",
+      "83:25"
+     ],
+     "windowMs": [
+      117047,
+      132497
+     ]
+    },
+    "83:25": {
+     "contextAyahIds": [
+      "83:24",
+      "83:25",
+      "83:26"
+     ],
+     "windowMs": [
+      122451,
+      139781
+     ]
+    },
+    "83:26": {
+     "contextAyahIds": [
+      "83:25",
+      "83:26",
+      "83:27"
+     ],
+     "windowMs": [
+      127884,
+      144004
+     ]
+    },
+    "83:27": {
+     "contextAyahIds": [
+      "83:26",
+      "83:27",
+      "83:28"
+     ],
+     "windowMs": [
+      132497,
+      148687
+     ]
+    },
+    "83:28": {
+     "contextAyahIds": [
+      "83:27",
+      "83:28",
+      "83:29"
+     ],
+     "windowMs": [
+      139781,
+      156892
+     ]
+    },
+    "83:29": {
+     "contextAyahIds": [
+      "83:28",
+      "83:29",
+      "83:30"
+     ],
+     "windowMs": [
+      144004,
+      161075
+     ]
+    },
+    "83:30": {
+     "contextAyahIds": [
+      "83:29",
+      "83:30",
+      "83:31"
+     ],
+     "windowMs": [
+      148687,
+      168000
+     ]
+    },
+    "83:31": {
+     "contextAyahIds": [
+      "83:30",
+      "83:31",
+      "83:32"
+     ],
+     "windowMs": [
+      156892,
+      178146
+     ]
+    },
+    "83:32": {
+     "contextAyahIds": [
+      "83:31",
+      "83:32",
+      "83:33"
+     ],
+     "windowMs": [
+      161075,
+      182669
+     ]
+    },
+    "83:33": {
+     "contextAyahIds": [
+      "83:32",
+      "83:33",
+      "83:34"
+     ],
+     "windowMs": [
+      168000,
+      188766
+     ]
+    },
+    "83:34": {
+     "contextAyahIds": [
+      "83:33",
+      "83:34",
+      "83:35"
+     ],
+     "windowMs": [
+      178146,
+      193613
+     ]
+    },
+    "83:35": {
+     "contextAyahIds": [
+      "83:34",
+      "83:35",
+      "83:36"
+     ],
+     "windowMs": [
+      182669,
+      201273
+     ]
+    },
+    "83:36": {
+     "contextAyahIds": [
+      "83:35",
+      "83:36"
+     ],
+     "windowMs": [
+      188766,
+      201273
+     ]
+    }
+   },
+   "measurements": {
+    "83:1": {
+     "generic": [
+      5239,
+      6080,
+      0.371
+     ],
+     "context": {
+      "generic": [
+       [
+        "83:basmala",
+        2986,
+        5239,
+        0.013
+       ],
+       [
+        "83:1",
+        5239,
+        6080,
+        0.371
+       ],
+       [
+        "83:2",
+        6080,
+        11229,
+        0.671
+       ]
+      ],
+      "quran": [
+       [
+        "83:basmala",
+        60,
+        2906,
+        0.857
+       ],
+       [
+        "83:1",
+        2906,
+        5720,
+        0.829
+       ],
+       [
+        "83:2",
+        5720,
+        11209,
+        0.656
+       ]
+      ]
+     },
+     "quran": [
+      2906,
+      5720,
+      0.829
+     ]
+    },
+    "83:2": {
+     "generic": [
+      5853,
+      11249,
+      0.584
+     ],
+     "context": {
+      "generic": [
+       [
+        "83:1",
+        3300,
+        5853,
+        0.847
+       ],
+       [
+        "83:2",
+        5853,
+        11249,
+        0.584
+       ],
+       [
+        "83:3",
+        11249,
+        16014,
+        0.699
+       ]
+      ],
+      "quran": [
+       [
+        "83:1",
+        3300,
+        5702,
+        0.687
+       ],
+       [
+        "83:2",
+        5702,
+        11249,
+        0.588
+       ],
+       [
+        "83:3",
+        11249,
+        16014,
+   
+== timings-staging/hafs/hatem.05c4f7c1.jz · 05c4f7c1d3f1 · مداخل 6071
+{
+ "schema": 1,
+ "riwaya": "hafs",
+ "reciterId": "hatem",
+ "sourceKind": "SURAH_FILES",
+ "ayahCounting": "KUFI",
+ "ayahCount": 6236,
+ "method": "ASR_ALIGN",
+ "engineVersion": "ctc-seg-1",
+ "refineVersion": "none",
+ "refinedCount": 0,
+ "medTargeted": 0,
+ "refineStats": {},
+ "lowCount": 284,
+ "vad": {
+  "versions": {
+   "adaptive-2": 114
+  },
+  "rel": {
+   "min": 0.04,
+   "median": 0.25,
+   "max": 0.25,
+   "surahs": 114
+  }
+ },
+ "writerHostVadVersion": "adaptive-2",
+ "noSilenceShare": null,
+ "noSilenceToAnchor": null,
+ "sparsePauses": null,
+ "missing": {
+  "count": 165,
+  "byReason": {
+   "unknown": 0,
+   "source_truncated": 165
+  },
+  "ids": [
+   "6:1",
+   "6:2",
+   "6:3",
+   "6:4",
+   "6:5",
+   "6:6",
+   "6:7",
+   "6:8",
+   "6:9",
+   "6:10",
+   "6:11",
+   "6:12",
+   "6:13",
+   "6:14",
+   "6:15",
+   "6:16",
+   "6:17",
+   "6:18",
+   "6:19",
+   "6:20",
+   "6:21",
+   "6:22",
+   "6:23",
+   "6:24",
+   "6:25",
+   "6:26",
+   "6:27",
+   "6:28",
+   "6:29",
+   "6:30",
+   "6:31",
+   "6:32",
+   "6:33",
+   "6:34",
+   "6:35",
+   "6:36",
+   "6:37",
+   "6:38",
+   "6:39",
+   "6:40",
+   "6:41",
+   "6:42",
+   "6:43",
+   "6:44",
+   "6:45",
+   "6:46",
+   "6:47",
+   "6:48",
+   "6:49",
+   "6:50",
+   "6:51",
+   "6:52",
+   "6:53",
+   "6:54",
+   "6:55",
+   "6:56",
+   "6:57",
+   "6:58",
+   "6:59",
+   "6:60",
+   "… و105"
+  ],
+  "note": "الفهرس بُني قبل وسم الاكتمال، فسببُ غيابه غير مقيس"
+ },
+ "exactEnds": true,
+ "generatedAt": 1789783734605,
+ "audioSha256": "[114 بصمة]",
+ "notes": "",
+ "engineBySurah": {
+  "4": "ctc-heardmap-1",
+  "5": "ctc-heardmap-1",
+  "8": "ctc-heardmap-1",
+  "9": "ctc-heardmap-1",
+  "10": "ctc-heardmap-1",
+  "11": "ctc-heardmap-1",
+  "12": "ctc-heardmap-1",
+  "13": "ctc-heardmap-1",
+  "14": "ctc-heardmap-1",
+  "15": "ctc-heardmap-1",
+  "16": "ctc-heardmap-1",
+  "17": "ctc-heardmap-1",
+  "19": "ctc-heardmap-1",
+  "21": "ctc-heardmap-1",
+  "23": "ctc-heardmap-1",
+  "25": "ctc-heardmap-1",
+  "26": "ctc-heardmap-1",
+  "27": "ctc-heardmap-1",
+  "28": "ctc-heardmap-1",
+  "31": "ctc-heardmap-1",
+  "32": "ctc-heardmap-1",
+  "33": "ctc-heardmap-1",
+  "34": "ctc-heardmap-1",
+  "35": "ctc-heardmap-1",
+  "36": "ctc-heardmap-1",
+  "38": "ctc-heardmap-1",
+  "39": "ctc-heardmap-1",
+  "40": "ctc-heardmap-1",
+  "41": "ctc-heardmap-1",
+  "42": "ctc-heardmap-1",
+  "43": "ctc-heardmap-1",
+  "44": "ctc-heardmap-1",
+  "46": "ctc-heardmap-1",
+  "47": "ctc-heardmap-1",
+  "48": "ctc-heardmap-1",
+  "49": "ctc-heardmap-1",
+  "50": "ctc-heardmap-1",
+  "51": "ctc-heardmap-1",
+  "52": "ctc-heardmap-1",
+  "53": "ctc-heardmap-1",
+  "54": "ctc-quran-window-1",
+  "55": "ctc-heardmap-1",
+  "56": "ctc-heardmap-1",
+  "59": "ctc-heardmap-1",
+  "60": "ctc-heardmap-1",
+  "63": "ctc-heardmap-1",
+  "64": "ctc-heardmap-1",
+  "66": "ctc-heardmap-1",
+  "67": "ctc-heardmap-1",
+  "68": "ctc-heardmap-1",
+  "69": "ctc-heardmap-1",
+  "70": "ctc-heardmap-1",
+  "71": "ctc-heardmap-1",
+  "72": "ctc-heardmap-1",
+  "73": "ctc-heardmap-1",
+  "74": "ctc-heardmap-1",
+  "76": "ctc-heardmap-1",
+  "77": "ctc-heardmap-1",
+  "78": "ctc-heardmap-1",
+  "79": "ctc-heardmap-1",
+  "80": "ctc-gapsplit-1",
+  "89": "ctc-heardmap-1",
+  "83": "ctc-dualfix-1"
+ },
+ "transform": {
+  "op": "drop_surah:6",
+  "fromSha256": "c765757b039dac8af67c8bc234f6c56d49247add33777c9f17ae5a8e204047fa",
+  "fromKey": "timings/hafs/hatem.jz",
+  "droppedEntries": 165,
+  "reason": "e6 2026-11-05: فهرسُ س6 عند hatem يضع آياتٍ على صوت غيرها (مسحُ الامتداد + تفريغٌ عند ثلاث آيات)، وردّت بوّابةُ السماع إعادةَ محاذاتها كاملةً ثمّ نوافذَها ⇒ حجبٌ مؤقّتٌ حتى يُصلح التوقيت",
+  "reasonUser": "توقيتُ هذه السورة لهذا القارئ قيد الإصلاح، فحُجب مؤقّتاً حتى لا تُعرض آيةٌ على صوت غيرها.",
+  "reasonCode": "OTHER",
+  "at": 1793886792667,
+  "note": "‏`refineStats` و`medTargeted` و`vad` تصف **البناء الأصلي** ولم تُعد حسابها؛ والمعاد حسابه: المداخل وعدّ LOW ووسم الاكتمال."
+ },
+ "alignmentModelBySurah": {
+  "54": {
+   "id": "rabah2026/wav2vec2-large-xlsr-53-arabic-quran-v_final",
+   "revision": "b03a268c6ba1a693752307325ab376c86c3b12da",
+   "weightsSha256": "bf65674a26eb4ef7042cedade96c3c8f8cbd04f3a7d1a68eadceec8ed0f99ecb",
+   "license": "Apache-2.0",
+   "canonicalTextChanged": false
+  }
+ },
+ "dualFixEvidenceBySurah": {
+  "83": {
+   "engine": "ctc-dualfix-1",
+   "baseKey": "timings-staging/hafs/hatem.2ff9c9dc.jz",
+   "baseSha256": "2ff9c9dc877b23070caf5baadbd0a42fbb71f63ee2cc6818a221cdeb1a453171",
+   "baseEngine": "ctc-heardmap-1",
+   "sourceSha256": "a91855c4631d853d804846c2ea88d3240dc1344d7566a6c1f39ad55828d2e177",
+   "totalMs": 201273,
+   "models": {
+    "generic": {
+     "id": "jonatasgrosman/wav2vec2-large-xlsr-53-arabic",
+     "revision": "af46c2d8531b8dcbb5e23b952f739b372c2e5d2d",
+     "weightsSha256": "a0b26f6d9d3edfde1784aef863c192a8cc1e438a23b45910ab648531ebe1857b",
+     "license": "Apache-2.0"
+    },
+    "quran": {
+     "id": "rabah2026/wav2vec2-large-xlsr-53-arabic-quran-v_final",
+     "revision": "b03a268c6ba1a693752307325ab376c86c3b12da",
+     "weightsSha256": "bf65674a26eb4ef7042cedade96c3c8f8cbd04f3a7d1a68eadceec8ed0f99ecb",
+     "license": "Apache-2.0"
+    }
+   },
+   "runtime": {
+    "precision": "float32",
+    "threads": 2
+   },
+   "canonicalTextChanged": false,
+   "thresholds": {
+    "startTol": 500,
+    "endTol": 800,
+    "minConf": 0.6,
+    "durLo": 0.5,
+    "durHi": 2.0,
+    "rateMsPerChar": 258.8619047619047
+   },
+   "windows": {
+    "83:1": {
+     "contextAyahIds": [
+      "83:basmala",
+      "83:1",
+      "83:2"
+     ],
+     "windowMs": [
+      0,
+      11260
+     ]
+    },
+    "83:2": {
+     "contextAyahIds": [
+      "83:1",
+      "83:2",
+      "83:3"
+     ],
+     "windowMs": [
+      3230,
+      16145
+     ]
+    },
+    "83:3": {
+     "contextAyahIds": [
+      "83:2",
+      "83:3",
+      "83:4"
+     ],
+     "windowMs": [
+      5735,
+      23632
+     ]
+    },
+    "83:4": {
+     "contextAyahIds": [
+      "83:3",
+      "83:4",
+      "83:5"
+     ],
+     "windowMs": [
+      11260,
+      26175
+     ]
+    },
+    "83:5": {
+     "contextAyahIds": [
+      "83:4",
+      "83:5",
+      "83:6"
+     ],
+     "windowMs": [
+      16145,
+      31360
+     ]
+    },
+    "83:6": {
+     "contextAyahIds": [
+      "83:5",
+      "83:6",
+      "83:7"
+     ],
+     "windowMs": [
+      23632,
+      37025
+     ]
+    },
+    "83:7": {
+     "contextAyahIds": [
+      "83:6",
+      "83:7",
+      "83:8"
+     ],
+     "windowMs": [
+      26175,
+      40649
+     ]
+    },
+    "83:8": {
+     "contextAyahIds": [
+      "83:7",
+      "83:8",
+      "83:9"
+     ],
+     "windowMs": [
+      31360,
+      44112
+     ]
+    },
+    "83:9": {
+     "contextAyahIds": [
+      "83:8",
+      "83:9",
+      "83:10"
+     ],
+     "windowMs": [
+      37025,
+      49637
+     ]
+    },
+    "83:10": {
+     "contextAyahIds": [
+      "83:9",
+      "83:10",
+      "83:11"
+     ],
+     "windowMs": [
+      40649,
+      54402
+     ]
+    },
+    "83:11": {
+     "contextAyahIds": [
+      "83:10",
+      "83:11",
+      "83:12"
+     ],
+     "windowMs": [
+      44112,
+      60119
+     ]
+    },
+    "83:12": {
+     "contextAyahIds": [
+      "83:11",
+      "83:12",
+      "83:13"
+     ],
+     "windowMs": [
+      49637,
+      67694
+     ]
+    },
+    "83:13": {
+     "contextAyahIds": [
+      "83:12",
+      "83:13",
+      "83:14"
+     ],
+     "windowMs": [
+      54402,
+      74619
+     ]
+    },
+    "83:14": {
+     "contextAyahIds": [
+      "83:13",
+      "83:14",
+      "83:15"
+     ],
+     "windowMs": [
+      60119,
+      82074
+     ]
+    },
+    "83:15": {
+     "contextAyahIds": [
+      "83:14",
+      "83:15",
+      "83:16"
+     ],
+     "windowMs": [
+      67694,
+      88578
+     ]
+    },
+    "83:16": {
+     "contextAyahIds": [
+      "83:15",
+      "83:16",
+      "83:17"
+     ],
+     "windowMs": [
+      74619,
+      95563
+     ]
+    },
+    "83:17": {
+     "contextAyahIds": [
+      "83:16",
+      "83:17",
+      "83:18"
+     ],
+     "windowMs": [
+      82074,
+      102157
+     ]
+    },
+    "83:18": {
+     "contextAyahIds": [
+      "83:17",
+      "83:18",
+      "83:19"
+     ],
+     "windowMs": [
+      88578,
+      106040
+     ]
+    },
+    "83:19": {
+     "contextAyahIds": [
+      "83:18",
+      "83:19",
+      "83:20"
+     ],
+     "windowMs": [
+      95563,
+      109362
+     ]
+    },
+    "83:20": {
+     "contextAyahIds": [
+      "83:19",
+      "83:20",
+      "83:21"
+     ],
+     "windowMs": [
+      102157,
+      112964
+     ]
+    },
+    "83:21": {
+     "contextAyahIds": [
+      "83:20",
+      "83:21",
+      "83:22"
+     ],
+     "windowMs": [
+      106040,
+      117047
+     ]
+    },
+    "83:22": {
+     "contextAyahIds": [
+      "83:21",
+      "83:22",
+      "83:23"
+     ],
+     "windowMs": [
+      109362,
+      122451
+     ]
+    },
+    "83:23": {
+     "contextAyahIds": [
+      "83:22",
+      "83:23",
+      "83:24"
+     ],
+     "windowMs": [
+      112964,
+      127884
+     ]
+    },
+    "83:24": {
+     "contextAyahIds": [
+      "83:23",
+      "83:24",
+      "83:25"
+     ],
+     "windowMs": [
+      117047,
+      132497
+     ]
+    },
+    "83:25": {
+     "contextAyahIds": [
+      "83:24",
+      "83:25",
+      "83:26"
+     ],
+     "windowMs": [
+      122451,
+      139781
+     ]
+    },
+    "83:26": {
+     "contextAyahIds": [
+      "83:25",
+      "83:26",
+      "83:27"
+     ],
+     "windowMs": [
+      127884,
+      144004
+     ]
+    },
+    "83:27": {
+     "contextAyahIds": [
+      "83:26",
+      "83:27",
+      "83:28"
+     ],
+     "windowMs": [
+      132497,
+      148687
+     ]
+    },
+    "83:28": {
+     "contextAyahIds": [
+      "83:27",
+      "83:28",
+      "83:29"
+     ],
+     "windowMs": [
+      139781,
+      156892
+     ]
+    },
+    "83:29": {
+     "contextAyahIds": [
+      "83:28",
+      "83:29",
+      "83:30"
+     ],
+     "windowMs": [
+      144004,
+      161075
+     ]
+    },
+    "83:30": {
+     "contextAyahIds": [
+      "83:29",
+      "83:30",
+      "83:31"
+     ],
+     "windowMs": [
+      148687,
+      168000
+     ]
+    },
+    "83:31": {
+     "contextAyahIds": [
+      "83:30",
+      "83:31",
+      "83:32"
+     ],
+     "windowMs": [
+      156892,
+      178146
+     ]
+    },
+    "83:32": {
+     "contextAyahIds": [
+      "83:31",
+      "83:32",
+      "83:33"
+     ],
+     "windowMs": [
+      161075,
+      182669
+     ]
+    },
+    "83:33": {
+     "contextAyahIds": [
+      "83:32",
+      "83:33",
+      "83:34"
+     ],
+     "windowMs": [
+      168000,
+      188766
+     ]
+    },
+    "83:34": {
+     "contextAyahIds": [
+      "83:33",
+      "83:34",
+      "83:35"
+     ],
+     "windowMs": [
+      178146,
+      193613
+     ]
+    },
+    "83:35": {
+     "contextAyahIds": [
+      "83:34",
+      "83:35",
+      "83:36"
+     ],
+     "windowMs": [
+      182669,
+      201273
+     ]
+    },
+    "83:36": {
+     "contextAyahIds": [
+      "83:35",
+      "83:36"
+     ],
+     "windowMs": [
+      188766,
+      201273
+     ]
+    }
+   },
+   "measurements": {
+    "83:1": {
+     "generic": [
+      5239,
+      6080,
+      0.371
+     ],
+     "context": {
+      "generic": [
+       [
+        "83:basmala",
+        2986,
+        5239,
+        0.013
+       ],
+       [
+        "83:1",
+        5239,
+        6080,
+        0.371
+       ],
+       [
+        "83:2",
+        6080,
+        11229,
+        0.671
+       ]
+      ],
+      "quran": [
+       [
+        "83:basmala",
+        60,
+        2906,
+        0.857
+       ],
+       [
+        "83:1",
+        2906,
+        5720,
+        0.829
+       ],
+       [
+        "83:2",
+        5720,
+        11209,
+        0.656
+       ]
+      ]
+     },
+     "quran": [
+      2906,
+      5720,
+      0.829
+     ]
+    },
+    "83:2": {
+     "generic": [
+      5853,
+      11249,
+      0.584
+     ],
+     "context": {
+      "generic": [
+       [
+        "83:1",
+        3300,
+        5853,
+        0.847
+       ],
+       [
+        "83:2",
+        5853,
+        11249,
+        0.584
+       ],
+       [
+        "83:3",
+        11249,
+        16014,
+        0.699
+       ]
+      ],
+      "quran": [
+       [
+        "83:1",
+        3300,
+        5702,
+        0.687
+       ],
+       [
+        "83:2",
+        5702,
+        11249,
+        0.588
+       ],
+       [
+        "83:3",
+        1124

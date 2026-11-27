@@ -1,0 +1,20 @@
+# rc=0
+📦 ctc-zahrani-p0 · 3636 بايت
+── tools/alignment/work/batch_zahrani/s012.json (13020 بايت)
+{"fileRef": "https://server9.mp3quran.net/zahrani/012.mp3", "sha256": "843d667faf6b585cb1a96098ae4e84076b07dbd57e7a7283d27d23b6201d5085", "vadRel": 0.15, "vadVersion": "adaptive-2", "entries": [{"ayahIdx": 0, "startMs": 7740, "endMs": 21550, "conf": 0.79, "snapped": true, "matched": 0, "total": 5}, {"ayahIdx": 1, "startMs": 21550, "endMs": 34660, "conf": 0.736, "snapped": true, "matched": 0, "total": 6}, {"ayahIdx": 2, "startMs": 34660, "endMs": 58519, "conf": 0.671, "snapped": true, "matched": 0, "total": 16}, {"ayahIdx": 3, "startMs": 58519, "endMs": 79920, "conf": 0.638, "snapped": false, "matched": 0, "total": 15}, {"ayahIdx": 4, "startMs": 79920, "endMs": 103629, "conf": 0.754, "snapped": true, "matched": 0, "total": 15}, {"ayahIdx": 5, "startMs": 103629, "endMs": 144270, "conf": 0.743, "snapped": true, "matched": 0, "total": 25}, {"ayahIdx": 6, "startMs": 144270, "endMs": 157005, "conf": 0.833, "snapped": true, "matched": 0, "total": 7}, {"ayahIdx": 7, "startMs": 157005, "endMs": 177679, "conf": 0.74, "snapped": false, "matched": 0, "total": 15}, {"ayahIdx": 8, "startMs": 177679, "endMs": 198233, "conf": 0.665, "snapped": false, "matched": 0, "total": 14}, {"ayahIdx": 9, "startMs": 198233, "endMs": 226211, "conf": 0.714, "snapped": true, "matched": 0, "total": 16}, {"ayahIdx": 10, "startMs": 226211, "endMs": 241862, "conf": 0.74, "snapped": false, "matched": 0, "total": 11}, {"ayahIdx": 11, "startMs": 241862, "endMs": 253830, "conf": 0.74, "snapped": false, "matched": 0
+── logs/part0.log (2152 بايت)
+Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+
+Loading weights:   0%|          | 0/424 [00:00<?, ?it/s]
+Loading weights: 100%|██████████| 424/424 [00:00<00:00, 21680.22it/s]
+/opt/hostedtoolcache/Python/3.11.17/x64/lib/python3.11/site-packages/torch/ao/nn/quantized/modules/utils.py:72: UserWarning: torch.quantize_per_tensor, torch.quantize_per_channel and other quantized tensor creation functions that produce tensors with dtype torch.quint8, torch.qint8, and torch.qint32 are deprecated and will be removed in a future PyTorch release. Please see https://github.com/pytorch/pytorch/issues/184982 for more information. (Triggered internally at /__w/pytorch/pytorch/aten/src/ATen/quantized/Quantizer.cpp:111.)
+  qweight = torch.quantize_per_tensor(
+سورة  12: {'HIGH': 15, 'MED': 78, 'LOW': 18} ⚠️ 3 مخالفة (672ث)
+⏱️ أطوارُ zahrani: ffmpeg=0ث · vad=0ث · whisper=0ث · refine=0ث
+
+=== TimingIndex: /home/runner/work/rafiq-align-ci/rafiq-align-ci/tools/alignment/work/timings_hafs_zahrani.jz (16ك.ب) ===
+آيات مفهرسة: 111 · نطاقات: {'HIGH': 15, 'MED': 78, 'LOW': 18} · مخالفات: 3 · فشل سور: []
+	Command being timed: "python tools/alignment/batch_run.py --reciter zahrani --riwaya hafs --base https://server9.mp3quran.net/zahrani/{surah:03d}.mp3 --surahs 12"
+	User time (seconds): 2533.13
+	System time (seconds): 73.77
+	Percent 

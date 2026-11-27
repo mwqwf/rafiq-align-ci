@@ -1,0 +1,75 @@
+# rc=0
+📦 heard-probe-s104-37105625584 · 3808 بايت
+── out/heard_s104.json (2023 بايت)
+{"surah": 104, "riwaya": "hafs", "engine": "ctc-heardmap-1", "totalMs": 47311, "heardMap": {"1": {"anchorMs": [4942, 8044], "anchorQuality": 1.0, "heard": true, "heardMs": [4942, 8044], "score": 1.0, "occurrences": [[4942, 8044, 1.0], [30437, 32138, 0.571]]}, "2": {"anchorMs": [9145, 13928], "anchorQuality": 0.812, "heard": true, "heardMs": [9145, 11066], "score": 0.815, "occurrences": [[9145, 11066, 0.815]]}, "3": {"anchorMs": [13908, 19531], "anchorQuality": 0.867, "heard": true, "heardMs": [12627, 18350], "score": 0.867, "occurrences": [[180, 1240, 0.583], [12627, 18350, 0.867]]}, "4": {"anchorMs": [19511, 24934], "anchorQuality": 0.765, "heard": true, "heardMs": [19511, 24454], "score": 0.867, "occurrences": [[19511, 24454, 0.867]]}, "5": {"anchorMs": [25534, 29517], "anchorQuality": 0.812, "heard": true, "heardMs": [25534, 29517], "score": 0.867, "occurrences": [[25534, 29517, 0.867]]}, "6": {"anchorMs": [29677, 33619], "anchorQuality": 0.643, "heard": true, "heardMs": [30297, 33139], "score": 0.72, "occurrences": [[540, 4962, 0.571], [15369, 19911, 0.56], [30297, 33139, 0.72], [37762, 42044, 0.571]]}, "7": {"anchorMs": [34039, 37461], "anchorQuality": 0.882, "heard": true, "heardMs": [34039, 36761], "score": 0.903, "occurrences": [[34039, 36761, 0.903]]}, "8": {"anchorMs": [37762, 42284], "anchorQuality": 0.929, "heard": true, "heardMs": [38122, 42044], "score": 0.963, "occurrences": [[38122, 42044, 0.963]]}, "9": {"anchorMs": [42745, 46107], "anchorQuality": 0.8, "heard": true, "heardMs": [43165, 46107], "score": 0.9, "occurrences": [[43165, 46107, 0.9]]}}, "chunkMap": [[0, 15000, 0, 1.0, 51], [15000, 30000, 4, 0.812, 40], [30000, 45000, 7, 0.929, 58], [45000, 60000, null, 0.0, 4], [60000, 75000, null, 0.0, 0]], "heardChars": 153, "anchorQualityMedian": 0.812, "entries": [], "issues": [], "bands": {}, "fileRef": "https://server10.mp3quran.net/Abdullahk/104.mp3", "sha256": "68d60318e84e3e313c47ce850a64790e4eaa3d5562057f30d723386df0b40706", "vadRel": null, "vadVersion": "adaptive-2"}
+── logs/probe.log (3600 بايت)
+س104: 9 آية · الملفّ 47ث · فكّ CTC للملفّ كلِّه…
+
+Loading weights:   0%|          | 0/424 [00:00<?, ?it/s]
+Loading weights: 100%|██████████| 424/424 [00:00<00:00, 25850.87it/s]
+Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+/opt/hostedtoolcache/Python/3.11.16/x64/lib/python3.11/site-packages/torch/ao/nn/quantized/modules/utils.py:72: UserWarning: torch.quantize_per_tensor, torch.quantize_per_channel and other quantized tensor creation functions that produce tensors with dtype torch.quint8, torch.qint8, and torch.qint32 are deprecated and will be removed in a future PyTorch release. Please see https://github.com/pytorch/pytorch/issues/184982 for more information. (Triggered internally at /__w/pytorch/pytorch/aten/src/ATen/quantized/Quantizer.cpp:111.)
+  qweight = torch.quantize_per_tensor(
+المسموع: 153 حرفاً هيكليّاً على 2364 إطاراً (20.0م.ث/إطار)
+مراسٍ عامّة ≥0.3: 9/9 · وسيطُ الجودة 0.812
+# خريطةُ السماع س104 · 47311م.ث · 153 حرفاً مسموعاً
+# آية	مِرساةٌ عامّة بدء	نهاية	جودة	أداءٌ منفرد بدء	نهاية	تشابه	أداءاتٌ أخرى
+104:1	4.9	8.0	1.0	4.9	8.0	1.0	30–32s(0.571)
+104:2	9.1	13.9	0.812	9.1	11.1	0.815	
+104:3	13.9	19.5	0.867	12.6	18.4	0.867	0–1s(0.583)
+104:4	19.5	24.9	0.765	19.5	24.5	0.867	
+104:5	25.5	29.5	0.812	25.5	29.5	0.867	
+104:6	29.7	33.6	0.643	30.3	33.1	0.72	1–5s(0.571) · 15–20s(0.56) · 38–42s(0.571)
+104:7	34.0	37.5	0.882	34.0	36.8	0.903	
+104:8	37.8	42.3	0.929	38.1	42.0	0.963	
+104:9	42.7	46.1	0.8	43.2	46.1	0.9	
+# قطعُ الملفّ (15ث): أقربُ آيةٍ وتشابهُها — ما لا يقارب شيئاً مادّةٌ زائدة · ثمّ المسموعُ نفسُه
+0–15s	104:1	1.0	51حرفاً	«بِسمِ اللَّهِ الرَّحمَنِ رَحِي وَيلٌ لِكُلِّ هُمَزَةِ لُمَزَة الَّذِي جمعَ ما لَون وَعِبّدَ يَحْسَمُ أَ»
+15–30s	104:5	0.812	40حرفاً	«نَّ ما لَهُ أَخلَدَكلّ لَيُبَذَنَّ في لحُطَمَم وَما أَدراكَ مَلحُطَمَهْ وما»
+30–45s	104:8	0.929	58حرفاً	«نا وَللَّهِ لمُقَدَقَدْقَد أَلَّتِي تَطَلِعُ عَلَىلأَفئِذَهِدا إِنَّهَا عَلَيْهِممُؤْصَدَفوَدْفوَد فِي عَمَدِ مِ»
+45–60s	—	0.0	4حرفاً	«مُمَدَّدَ»
+60–75s	—	0.0	0حرفاً	«»
+كُتب: out/heard_s104.json · out/report.txt
+	Command being timed: "python tools/alignment_v3/ctc_heard_map.py --url https://server10.mp3quran.net/Abdullahk/104.mp3 --surah 104 --riwaya hafs --out-dir out --probe --report out/report.txt"
+	User time (seconds): 32.47
+	System time (seconds): 2.35
+	Percent of CPU this job got: 233%
+	Elapsed (wall clock) time (h:mm:ss or m:ss): 0:14.88
+	Average shared text size (kbytes): 0
+	Average unshared data size (kbytes): 0
+	Average stack size (kbytes): 0
+	Average total size (kbytes): 0
+	Maximum resident set size (kbytes): 3930892
+	Average resident set size (kbytes): 0
+	Major (requiring I/O) page faults: 58
+	Minor (reclaiming a frame) page faults: 352886
+	Voluntary context switches: 11786
+	Involuntary context switches: 3635
+	Swaps: 0
+	File system inputs: 17536
+	File system outputs: 7296
+	Socket messages sent: 0
+	Socket messages received: 0
+	Signals delivered: 0
+	Page size (bytes): 4096
+	Exit status: 0
+
+── out/report.txt (1547 بايت)
+# خريطةُ السماع س104 · 47311م.ث · 153 حرفاً مسموعاً
+# آية	مِرساةٌ عامّة بدء	نهاية	جودة	أداءٌ منفرد بدء	نهاية	تشابه	أداءاتٌ أخرى
+104:1	4.9	8.0	1.0	4.9	8.0	1.0	30–32s(0.571)
+104:2	9.1	13.9	0.812	9.1	11.1	0.815	
+104:3	13.9	19.5	0.867	12.6	18.4	0.867	0–1s(0.583)
+104:4	19.5	24.9	0.765	19.5	24.5	0.867	
+104:5	25.5	29.5	0.812	25.5	29.5	0.867	
+104:6	29.7	33.6	0.643	30.3	33.1	0.72	1–5s(0.571) · 15–20s(0.56) · 38–42s(0.571)
+104:7	34.0	37.5	0.882	34.0	36.8	0.903	
+104:8	37.8	42.3	0.929	38.1	42.0	0.963	
+104:9	42.7	46.1	0.8	43.2	46.1	0.9	
+# قطعُ الملفّ (15ث): أقربُ آيةٍ وتشابهُها — ما لا يقارب شيئاً مادّةٌ زائدة · ثمّ المسموعُ نفسُه
+0–15s	104:1	1.0	51حرفاً	«بِسمِ اللَّهِ الرَّحمَنِ رَحِي وَيلٌ لِكُلِّ هُمَزَةِ لُمَزَة الَّذِي جمعَ ما لَون وَعِبّدَ يَحْسَمُ أَ»
+15–30s	104:5	0.812	40حرفاً	«نَّ ما لَهُ أَخلَدَكلّ لَيُبَذَنَّ في لحُطَمَم وَما أَدراكَ مَلحُطَمَهْ وما»
+30–45s	104:8	0.929	58حرفاً	«نا وَللَّهِ لمُقَدَقَدْقَد أَلَّتِي تَطَلِعُ عَلَىلأَفئِذَهِدا إِنَّهَا عَلَيْهِممُؤْصَدَفوَدْفوَد فِي عَمَدِ مِ»
+45–60s	—	0.0	4حرفاً	«مُمَدَّدَ»
+60–75s	—	0.0	0حرفاً	«»
+

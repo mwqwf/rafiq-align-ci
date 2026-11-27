@@ -1,0 +1,143 @@
+{
+  "schema": 1,
+  "kind": "balilah-s69-full-gate-replay",
+  "generatedAt": "2026-10-06T12:35:00Z",
+  "qualityClaim": false,
+  "completionClaim": false,
+  "productionChanged": false,
+  "thresholdChanged": false,
+  "candidate": {
+    "stagingKey": "timings-staging/hafs/balilah.097eb5a0.jz",
+    "sha256": "097eb5a00ffb591653ce67820e3af2c26316bcd4b90cbd2a88f4d5f67317034c",
+    "parentSha256": "f1b40abe72f4f85bd41cc87166f2cf8785960c1e267f09816b99532851812207",
+    "runId": 37395140610,
+    "heardJobId": 112049309200,
+    "changedSurahs": [
+      69
+    ]
+  },
+  "exactGate": {
+    "thresholdMs": 1500,
+    "rows": 52,
+    "statusCounts": {
+      "ok": 47,
+      "unmeasured": 2,
+      "repeat": 2,
+      "dev": 1
+    },
+    "nonOkRows": [
+      {
+        "ayah": 2,
+        "startMs": 9628,
+        "anchorMs": 10126,
+        "q": 0.375,
+        "devMs": null,
+        "status": "unmeasured"
+      },
+      {
+        "ayah": 18,
+        "startMs": 186080,
+        "anchorMs": 179356,
+        "q": 0.846,
+        "devMs": 6724,
+        "status": "repeat"
+      },
+      {
+        "ayah": 26,
+        "startMs": 275598,
+        "anchorMs": 273977,
+        "q": 0.643,
+        "devMs": 1621,
+        "status": "dev"
+      },
+      {
+        "ayah": 29,
+        "startMs": 294751,
+        "anchorMs": 295251,
+        "q": 0.25,
+        "devMs": null,
+        "status": "unmeasured"
+      },
+      {
+        "ayah": 46,
+        "startMs": 420952,
+        "anchorMs": 423214,
+        "q": 0.765,
+        "devMs": -2262,
+        "status": "repeat"
+      }
+    ],
+    "verdict": "1 آيةً تنحرف عن موضعها المسموع > 1.5ث (أقصاها الآية 26: +1.6ث) · الآيات 26",
+    "onlyRejectingAyah": 26
+  },
+  "boundary26": {
+    "candidateStartMs": 275598,
+    "globalHeardAnchorMs": 273977,
+    "gateDeviationMs": 1621,
+    "overThresholdByMs": 121,
+    "nativeContextStarts": [
+      {
+        "model": "generic",
+        "channel": "native-1",
+        "startMs": 275626,
+        "confidence": 0.778
+      },
+      {
+        "model": "generic",
+        "channel": "native-2",
+        "startMs": 275626,
+        "confidence": 0.742
+      },
+      {
+        "model": "quran",
+        "channel": "native-1",
+        "startMs": 275626,
+        "confidence": 0.949
+      },
+      {
+        "model": "quran",
+        "channel": "native-2",
+        "startMs": 275626,
+        "confidence": 0.952
+      }
+    ],
+    "candidateVsNativeMs": -28,
+    "canonicalStartOffset": 651,
+    "crossingOpcode": [
+      "replace",
+      686,
+      690,
+      648,
+      652
+    ],
+    "mappedHeardCharacterIndex": 689,
+    "mappedHeardCharacterMs": 273977,
+    "firstEqualHeardCharacterIndex": 691,
+    "firstEqualHeardCharacterMs": 276299,
+    "conclusion": "The full candidate is not promotable. The sole rejecting row is 69:26; its global anchor begins inside a replace opcode crossing the verse boundary, while four independent native/model paths agree at 275626 ms. Do not nudge 121 ms, lower 1500 ms, or convert the row to unknown. A general measured boundary-refinement method must be validated before rerunning final-SHA QA."
+  },
+  "evidence": {
+    "fullGateReport": {
+      "path": "ops/out/codex-balilah-full-heard-report-37395140610.json",
+      "source": "workflow log chunks",
+      "runId": 37395140610,
+      "jobId": 112049309200,
+      "logDeclaredPayloadSha256": "d314989d4a16e1f27f8744f61f3343f60ef2bbf96af3b67dcd2a25a8df5bebc6",
+      "repositoryCopySha256": "008ea7f983b63627a2e0b1ad67951260fdf82e6e5567652893649ba7dbff027c",
+      "repositoryCopyNote": "Decoded payload with one terminating newline added for a canonical text file; parsed JSON is identical."
+    },
+    "anchorProvenance": {
+      "path": "ops/out/codex-balilah-anchor-provenance-report-20261006.json",
+      "sha256": "ac5ffd3fc6009659538452e51b87fa868fc2396e8ca811af94297c62093b1ba5"
+    },
+    "nativeBoundary": {
+      "path": "ops/out/codex-balilah69-boundary26-native-report-20261006.json",
+      "sha256": "81096d539b7ad00347908478d104fabe52c9d695f1b53791cf0877c4bb57902b"
+    },
+    "candidateBuild": {
+      "path": "ops/out/codex-balilah-recovered-candidate-20261006.json",
+      "sha256": "f8f51b82ab0bb58a42c23c466fc5cd259b09c5e5b5876bf44b7856963a9574be"
+    }
+  },
+  "next": "Design and locally test a general audio-only refinement for verse starts whose global edit opcode crosses a canonical verse boundary; preserve the 1500 ms gate and require end-to-end evidence before restaging."
+}

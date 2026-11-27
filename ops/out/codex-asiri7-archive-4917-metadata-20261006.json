@@ -1,0 +1,54 @@
+{
+  "schema": 1,
+  "generatedAt": "2026-10-06T05:18:00Z",
+  "kind": "session-measured-source-candidate",
+  "qualityClaim": false,
+  "coverageCertified": false,
+  "productionChanged": false,
+  "readerId": "3siri",
+  "riwaya": "hafs",
+  "surah": 7,
+  "archiveItem": "002_20230924_202309",
+  "archiveTitle": "المصحف كاملًا القارئ إبراهيم العسيري",
+  "requestedUrl": "https://archive.org/download/002_20230924_202309/007%20-%20%D8%B3%D9%88%D8%B1%D8%A9%20%D8%A7%D9%84%D8%A3%D8%B9%D8%B1%D8%A7%D9%81.mp3",
+  "measurementRuntime": "local-session",
+  "file": {
+    "bytes": 21220333,
+    "sha256": "897ad7e2c99472111722247f362d135da0c25c449806260269a792a12f52d3f1",
+    "durationSeconds": 4916.741224,
+    "codec": "mp3",
+    "sampleRateHz": 22050,
+    "channels": 2,
+    "embeddedCoverStream": true
+  },
+  "decodedPcmMono16k": {
+    "decodedWithoutErrors": true,
+    "samples": 78666987,
+    "sha256": "21529f5e3d69ecf17aaf0d649da92c5acdbf0f0be762b1e5aa03bedf8ead06c9",
+    "longSilenceThresholdDb": -45,
+    "longSilenceMinimumSeconds": 15,
+    "longSilences": []
+  },
+  "knownReaderReference": {
+    "url": "https://cdn.mp3quran.net/audio/ibrahim-asiri/r1/007.mp3",
+    "sha256": "eba546de36747d4ac3cc87db17415c0049d64d8a9fce030559d0fafc9e61bfd9",
+    "knownLongSilenceSeconds": 1119.2
+  },
+  "identityPerformanceMatch": {
+    "method": "normalized waveform correlation of 30-second mono windows at 1kHz with bounded time-offset search; no speech transcription",
+    "samples": [
+      {"candidateSecond": 100, "referenceSecond": 66.762, "correlation": 0.8955},
+      {"candidateSecond": 600, "referenceSecond": 567.662, "correlation": 0.8972},
+      {"candidateSecond": 1200, "referenceSecond": 1170.451, "correlation": 0.8497},
+      {"candidateSecond": 1800, "referenceSecond": 1773.808, "correlation": 0.9001},
+      {"candidateSecond": 2400, "referenceSecond": 2375.408, "correlation": 0.8348},
+      {"candidateSecond": 4000, "referenceSecond": 3970.483, "correlation": 0.9816},
+      {"candidateSecond": 4600, "referenceSecond": 4570.483, "correlation": 0.9822}
+    ],
+    "conclusion": "تطابق أداء القارئ نفسه قبل موضع الفجوة وبعده بدرجة قوية؛ اختلاف الإزاحة ناتج عن الفواصل/المقدمة. هذا يثبت مطابقة الأداء للمصدر المعروف ولا يثبت وحده تغطية الآيات 206."
+  },
+  "identityVerifiedAgainstKnownPerformance": true,
+  "identityAndVerseCoverageCertified": false,
+  "acceptedAsCompleteSource": false,
+  "next": "محاذاة رقمية كاملة بلا تفريغ نصي، ثم قياس مستقل للمطلع والوسط حول 7:123-159 والخاتمة قبل بناء أي مرشح."
+}

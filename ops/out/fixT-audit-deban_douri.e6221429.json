@@ -1,0 +1,169 @@
+{
+ "schema": 1,
+ "tool": "full_audit-1.0",
+ "date": "20261005",
+ "timestampUtc": "2026-10-05T06:19:36Z",
+ "elapsedSec": 40.7,
+ "phase": "all",
+ "manifestIndexes": 180,
+ "frozenBucket": 220,
+ "reportsRead": 10918,
+ "rows": [
+  {
+   "key": "timings-staging/douri/deban_douri.e6221429.jz",
+   "sha256": "e622142954c6f97b0290053ebc7d1c282a436ec28fb679ae9e48a1fc1f469580",
+   "riwaya": "douri",
+   "reciterId": "deban_douri",
+   "bytes": 94453,
+   "engine": "ctc-seg-1",
+   "transformOp": "ctc_heardmap_splice:8,14,15,16,18,19,21,25,27,31,32,34,35,36,38,39,40,41,42,43,44,45,46,47,48,50,51,52,53,57,58,59,61,63,64,65,67,68,71,72,74,77,78,79,83",
+   "staging": true,
+   "identity": {
+    "sha256": "e622142954c6f97b0290053ebc7d1c282a436ec28fb679ae9e48a1fc1f469580",
+    "staging": true,
+    "errors": [],
+    "ok": true
+   },
+   "structure": {
+    "entries": 6236,
+    "errors": [],
+    "examples": {},
+    "fileNoUnparsed": 0,
+    "structuralFatal": [],
+    "structuralWarn": [
+     "مداخل مدتها > 120ث: 1 · مثال: 2:282 مدتها 138ث"
+    ],
+    "decision": [],
+    "engine": "ctc-seg-1",
+    "audioSha": 114,
+    "bands": {
+     "MED": 5115,
+     "HIGH": 612,
+     "LOW": 509
+    },
+    "ok": true
+   },
+   "gaps": {
+    "missingTotal": 0,
+    "internalGaps": [],
+    "headMissing": [],
+    "tailMissing": [],
+    "wholeMissing": [],
+    "declared": {
+     "transformOp": "ctc_heardmap_splice:8,14,15,16,18,19,21,25,27,31,32,34,35,36,38,39,40,41,42,43,44,45,46,47,48,50,51,52,53,57,58,59,61,63,64,65,67,68,71,72,74,77,78,79,83",
+     "transformReason": "fixT: إصلاحٌ دفعيٌّ لكبس الذيل — 47 سورةً مشتبهةً (فائضٌ ≥15ث بعد آخر مدخل · تدقيق الجولة الثانية 2026-10-03)، كلٌّ يُقاس بالسماع قبل أن يُمسّ",
+     "reasonCode": null,
+     "dropSurahs": [],
+     "byReason": {},
+     "declaredCount": 0,
+     "tagCount": 0,
+     "declaredIds": [],
+     "truncatedTail": null
+    },
+    "undeclaredEdge": [],
+    "errors": [],
+    "ok": true
+   },
+   "durations": {
+    "durationOutliers": 4,
+    "durationExamples": [
+     {
+      "aid": "89:30",
+      "ms": 620,
+      "expMs": 2865,
+      "ratio": 0.22,
+      "chars": 10
+     },
+     {
+      "aid": "20:109",
+      "ms": 3122,
+      "expMs": 11554,
+      "ratio": 0.27,
+      "chars": 43
+     },
+     {
+      "aid": "20:105",
+      "ms": 2441,
+      "expMs": 8329,
+      "ratio": 0.29,
+      "chars": 31
+     },
+     {
+      "aid": "20:106",
+      "ms": 1195,
+      "expMs": 4030,
+      "ratio": 0.3,
+      "chars": 15
+     }
+    ],
+    "impossibleShort": [],
+    "veryShort": [
+     {
+      "aid": "89:30",
+      "ms": 620,
+      "expMs": 2865,
+      "ratio": 0.22,
+      "chars": 10
+     }
+    ],
+    "extremeLong": [],
+    "longOutliers": 0,
+    "shortOutliers": 3,
+    "silenceGaps": 0,
+    "silenceExamples": [],
+    "surahsWithRate": 113
+   },
+   "audio": {
+    "audioReportsOnSha": 0,
+    "openersOnSha": false,
+    "errors": [
+     "لا حكمَ صوتيٍّ بعيّنةٍ على البصمة المنشورة",
+     "لا شاهدَ مطالعَ على البصمة المنشورة"
+    ],
+    "notes": [],
+    "samples": [],
+    "pooled": null,
+    "severeHi": null,
+    "otherShasWithSamples": [
+     "1317afd8",
+     "37f09a70",
+     "4a83300b",
+     "68fc01a8",
+     "6cacb771",
+     "7cd26e16",
+     "84169bf8",
+     "88260d77",
+     "bfc83958",
+     "c63e3183"
+    ],
+    "ok": false
+   }
+  }
+ ],
+ "summary": {
+  "indexes": 1,
+  "phase": "all",
+  "identityOk": 1,
+  "identityBad": [],
+  "structureOk": 1,
+  "structureBad": [],
+  "gapsOk": 1,
+  "gapsBad": [],
+  "audioOk": 0,
+  "audioBad": [
+   "timings-staging/douri/deban_douri.e6221429.jz"
+  ],
+  "durationOutliersTotal": 4,
+  "impossibleShortTotal": 0,
+  "indexesWithImpossibleShort": 0,
+  "veryShortTotal": 1,
+  "extremeLongTotal": 0,
+  "indexesWithExtremeLong": 0,
+  "mirrorStale": 0,
+  "silenceGapsTotal": 0,
+  "indexesWithDurationOutliers": 1,
+  "indexesWithSilenceGaps": 0,
+  "entriesTotal": 6236,
+  "missingTotal": 0
+ }
+}

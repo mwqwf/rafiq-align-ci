@@ -1,0 +1,71 @@
+{
+  "schema": 1,
+  "generatedAt": "2026-10-07T09:50:17Z",
+  "scope": "qalun/fakhfakh_qalun/11",
+  "runId": 37599896584,
+  "jobId": 112721453787,
+  "runUrl": "https://github.com/mwqwf/rafiq-align-ci/actions/runs/37599896584",
+  "conclusion": "success",
+  "durationSeconds": 1807,
+  "artifactCount": 0,
+  "cacheWrite": false,
+  "r2Write": false,
+  "source": {
+    "url": "https://archive.org/download/48--kb--alhady--bn--altaher--alfakhfakh--by---qaloon---mp3--full--mushaf--qura/011Houd.mp3",
+    "sha256": "ec1ba4434cd5483a6ad43d1e1d057f513338b30bbfe1021bb3730afb592d088c"
+  },
+  "engine": "ctc-heardmap-1",
+  "resultSha256": "d82807247815cc2ed564a06833b13e9f69d9b0c6d95ee9d622e801268526de0f",
+  "resultBytes": 48360,
+  "entryCount": 123,
+  "anchorQualityMedian": 0.903,
+  "bands": {
+    "HIGH": 11,
+    "MED": 102,
+    "LOW": 10
+  },
+  "target": {
+    "ayahId": "11:19",
+    "published": {
+      "startMs": 411610,
+      "endMs": 423660,
+      "conf": 0.578,
+      "confBand": "MED",
+      "startApprox": true
+    },
+    "ctcEntry": {
+      "startMs": 409205,
+      "endMs": 423465,
+      "conf": 0.74,
+      "heard": true,
+      "snapped": false,
+      "boundary": "window"
+    },
+    "heardAnchor": {
+      "startMs": 409335,
+      "endMs": 422584,
+      "quality": 0.918
+    },
+    "heardOccurrence": {
+      "startMs": 409215,
+      "endMs": 422584,
+      "score": 0.918
+    },
+    "deltaPublishedToCtcStartMs": -2405,
+    "deltaPublishedToHeardAnchorStartMs": -2275,
+    "deltaPublishedToCtcEndMs": -195
+  },
+  "neighbors": {
+    "11:18": {
+      "startMs": 384580,
+      "endMs": 409205,
+      "conf": 0.576
+    },
+    "11:20": {
+      "startMs": 423465,
+      "endMs": 451004,
+      "conf": 0.745
+    }
+  },
+  "assessment": "الحد المحاذى يبدأ قبل المنشور بـ2405م.ث،ويتفق معه شاهد السماع المستقل بفارق130م.ث؛هذا يثبت الحاجة إلى مرشح إصلاح محدود وإعادة قياس الهدف والجوار،ولا يجيز اعتماداً مباشراً أو شهادة اكتمال."
+}

@@ -1,0 +1,79 @@
+{
+  "path": "ops/source-repair/candidates/codex-expanded-tail-hafs-nabil-20261006.jz",
+  "sha256": "c9bfa5cf8a20c449a09e47525a280c081d248385b28cebe0cb4f31d9e2f3935a",
+  "parentKey": "timings/hafs/nabil.jz",
+  "parentSha256": "eda04a24fee769a98246eccc484ba7eb7c1450fa3446753ea19a0d4da8fe8bb3",
+  "op": "ctc_quran_window:91",
+  "changedEntries": 2,
+  "warnings": [
+    "مداخل مدتها > 120ث: 1 · مثال: 2:282 مدتها 137ث",
+    "مطالع سور تبدأ دون 3ث — مرشّحون للمسبار الصوتي لا حكمٌ عليهم: 2:1=2702م.ث · 4:1=2922م.ث · 11:1=2802م.ث · 13:1=2782م.ث · 14:1=2742م.ث · 15:1=2722م.ث · 16:1=2862م.ث · 28:1=2702م.ث · 29:1=2982م.ث · 31:1=2782م.ث … و22 غيرها"
+  ],
+  "proof": {
+    "qualityClaim": false,
+    "contexts": [
+      {
+        "reportPath": "ops/out/codex-nabil91-final15-report-20261006.json",
+        "reportSha256": "72563d45461b6a7b57d281ae1199507312346cf97b9fea2302a949d804d0f41b",
+        "bundlePath": "ops/out/codex-nabil91-final15-complete-20261006.json.gz",
+        "bundleSha256": "bf32d715095d3683d6523cf0133fb913de9f28fe5ea17ce3aef32c143007fe1f",
+        "jobId": 112122506043,
+        "id": "nabil91_final15",
+        "targetAyahs": [
+          15
+        ],
+        "sourceSha256": "8b282084050df2ab7691b969d38cf925e9c031888e816e363e407193db1f6b65",
+        "provenance": {
+          "runId": "37418540699",
+          "runSha": "0894879cc214f8ce43c8bd61200b374ca4441d3b",
+          "toolSha256": "1a6bde4da84e4b6003c074015ee25ef04c53e48892142887057716b9b10c1575"
+        }
+      }
+    ],
+    "changes": [
+      {
+        "before": {
+          "ayahId": "91:14",
+          "fileRef": "https://server9.mp3quran.net/nabil/091.mp3",
+          "startMs": 50890,
+          "endMs": 59480,
+          "conf": 0.612,
+          "confBand": "MED"
+        },
+        "after": {
+          "ayahId": "91:14",
+          "fileRef": "https://server9.mp3quran.net/nabil/091.mp3",
+          "startMs": 50890,
+          "endMs": 65885,
+          "conf": 0.612,
+          "confBand": "MED"
+        }
+      },
+      {
+        "before": {
+          "ayahId": "91:15",
+          "fileRef": "https://server9.mp3quran.net/nabil/091.mp3",
+          "startMs": 59480,
+          "endMs": 60297,
+          "conf": 0.0,
+          "confBand": "LOW"
+        },
+        "after": {
+          "ayahId": "91:15",
+          "fileRef": "https://server9.mp3quran.net/nabil/091.mp3",
+          "startMs": 65885,
+          "endMs": 70295,
+          "conf": 0.0,
+          "confBand": "LOW"
+        }
+      }
+    ],
+    "decodedEofMs": {
+      "91": 70295
+    },
+    "limits": [
+      "الحد الأصلي لثقة المحاذاة0.45؛ لا تغيير لأي حارس أو ثقة منشورة.",
+      "الخواتيم المقيسة فقط؛ يلزم الفحص الأصلي الكامل للبصمة المرفوعة."
+    ]
+  }
+}

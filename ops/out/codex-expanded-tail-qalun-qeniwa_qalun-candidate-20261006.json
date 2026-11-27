@@ -1,0 +1,82 @@
+{
+  "path": "ops/source-repair/candidates/codex-expanded-tail-qalun-qeniwa_qalun-20261006.jz",
+  "sha256": "910a13a2ca2a48a933ad431675529390af6147099529da9efe0c2eb288c94435",
+  "parentKey": "timings/qalun/qeniwa_qalun.jz",
+  "parentSha256": "bbd2a48275460c0966d586b083dad2dc7ea00cc6417688af8168cd87d701445c",
+  "op": "ctc_quran_window:94",
+  "changedEntries": 2,
+  "warnings": [
+    "مداخل مدتها > 120ث: 1 · مثال: 2:282 مدتها 186ث",
+    "مطالع سور تبدأ دون 3ث — مرشّحون للمسبار الصوتي لا حكمٌ عليهم: 11:1=2961م.ث · 12:1=2791م.ث · 15:1=2971م.ث · 16:1=2811م.ث · 18:1=2622م.ث · 20:1=2671م.ث · 23:1=2692م.ث · 25:1=2951م.ث · 31:1=2971م.ث · 33:1=2581م.ث … و48 غيرها"
+  ],
+  "proof": {
+    "qualityClaim": false,
+    "contexts": [
+      {
+        "reportPath": "ops/out/codex-short-final-qeniwa-qalun-94-report-20261006.json",
+        "reportSha256": "8fd1c43ba2b0b6baeff55ad7e393e6462f8c6cfc4f64134d12c7b82c631c817b",
+        "bundlePath": "ops/out/codex-short-final-qeniwa-qalun-94-complete-20261006.json.gz",
+        "bundleSha256": "3bfc17a6f511f42b188f91bf88cb3fa24e804fb2f0fadc79820913f6765a962d",
+        "jobId": 112109273466,
+        "id": "short_final_qalun_qeniwa_qalun_94",
+        "targetAyahs": [
+          7,
+          8
+        ],
+        "sourceSha256": "8ffeb09d2ce4fb6ecee01bef21d3dde427e411fc5aa13527f0918b1b76d56b42",
+        "provenance": {
+          "runId": "37414259961",
+          "runSha": "36d99a6987101f3d979b283dcf0ed445d4304a95",
+          "toolSha256": "10f7b31843eebabd132c28c5e9c9a216c47c66ecc4a143bbde98551c6c8705fe"
+        }
+      }
+    ],
+    "changes": [
+      {
+        "before": {
+          "ayahId": "94:7",
+          "fileRef": "https://server16.mp3quran.net/qeniwa/Rewayat-Qalon-A-n-Nafi/094.mp3",
+          "startMs": 25594,
+          "endMs": 28487,
+          "conf": 0.581,
+          "confBand": "MED"
+        },
+        "after": {
+          "ayahId": "94:7",
+          "fileRef": "https://server16.mp3quran.net/qeniwa/Rewayat-Qalon-A-n-Nafi/094.mp3",
+          "startMs": 25594,
+          "endMs": 29228,
+          "conf": 0.581,
+          "confBand": "MED"
+        }
+      },
+      {
+        "before": {
+          "ayahId": "94:8",
+          "fileRef": "https://server16.mp3quran.net/qeniwa/Rewayat-Qalon-A-n-Nafi/094.mp3",
+          "startMs": 28487,
+          "endMs": 29368,
+          "conf": 0.44,
+          "confBand": "LOW",
+          "startApprox": true
+        },
+        "after": {
+          "ayahId": "94:8",
+          "fileRef": "https://server16.mp3quran.net/qeniwa/Rewayat-Qalon-A-n-Nafi/094.mp3",
+          "startMs": 29228,
+          "endMs": 33724,
+          "conf": 0.44,
+          "confBand": "LOW",
+          "startApprox": true
+        }
+      }
+    ],
+    "decodedEofMs": {
+      "94": 33724
+    },
+    "limits": [
+      "الحد الأصلي لثقة المحاذاة0.45؛ لا تغيير لأي حارس أو ثقة منشورة.",
+      "الخواتيم المقيسة فقط؛ يلزم الفحص الأصلي الكامل للبصمة المرفوعة."
+    ]
+  }
+}

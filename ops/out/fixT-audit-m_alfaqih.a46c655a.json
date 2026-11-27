@@ -1,0 +1,185 @@
+{
+ "schema": 1,
+ "tool": "full_audit-1.0",
+ "date": "20261004",
+ "timestampUtc": "2026-10-04T15:35:22Z",
+ "elapsedSec": 53.1,
+ "phase": "all",
+ "manifestIndexes": 180,
+ "frozenBucket": 220,
+ "reportsRead": 10573,
+ "rows": [
+  {
+   "key": "timings-staging/hafs/m_alfaqih.a46c655a.jz",
+   "sha256": "a46c655a1ce4c4fb9176234b11b758ee59c455b262fa84635efa53099e186fe7",
+   "riwaya": "hafs",
+   "reciterId": "m_alfaqih",
+   "bytes": 96080,
+   "engine": "ctc-seg-1",
+   "transformOp": "file_end_clamp",
+   "staging": true,
+   "identity": {
+    "sha256": "a46c655a1ce4c4fb9176234b11b758ee59c455b262fa84635efa53099e186fe7",
+    "staging": true,
+    "errors": [],
+    "ok": true
+   },
+   "structure": {
+    "entries": 6236,
+    "errors": [],
+    "examples": {},
+    "fileNoUnparsed": 0,
+    "structuralFatal": [],
+    "structuralWarn": [
+     "مداخل مدتها > 120ث: 1 · مثال: 2:282 مدتها 128ث"
+    ],
+    "decision": [],
+    "engine": "ctc-seg-1",
+    "audioSha": 114,
+    "bands": {
+     "MED": 4414,
+     "HIGH": 207,
+     "LOW": 1615
+    },
+    "ok": true
+   },
+   "gaps": {
+    "missingTotal": 0,
+    "internalGaps": [],
+    "headMissing": [],
+    "tailMissing": [],
+    "wholeMissing": [],
+    "declared": {
+     "transformOp": "file_end_clamp",
+     "transformReason": "قصُّ نهاية آخر مدخلٍ إلى نهاية ملفّه المقيسة بطول الفكّ: 38:88 −12م.ث · 44:59 −12م.ث · 54:55 −12م.ث · 77:50 −12م.ث",
+     "reasonCode": null,
+     "dropSurahs": [],
+     "byReason": {},
+     "declaredCount": 0,
+     "tagCount": 0,
+     "declaredIds": [],
+     "truncatedTail": null
+    },
+    "undeclaredEdge": [],
+    "errors": [],
+    "ok": true
+   },
+   "durations": {
+    "durationOutliers": 5,
+    "durationExamples": [
+     {
+      "aid": "83:35",
+      "ms": 800,
+      "expMs": 4675,
+      "ratio": 0.17,
+      "chars": 16
+     },
+     {
+      "aid": "54:39",
+      "ms": 650,
+      "expMs": 3497,
+      "ratio": 0.19,
+      "chars": 15
+     },
+     {
+      "aid": "83:34",
+      "ms": 2096,
+      "expMs": 8765,
+      "ratio": 0.24,
+      "chars": 30
+     },
+     {
+      "aid": "75:40",
+      "ms": 1721,
+      "expMs": 6441,
+      "ratio": 0.27,
+      "chars": 25
+     },
+     {
+      "aid": "89:30",
+      "ms": 701,
+      "expMs": 2590,
+      "ratio": 0.27,
+      "chars": 10
+     }
+    ],
+    "impossibleShort": [],
+    "veryShort": [
+     {
+      "aid": "83:35",
+      "ms": 800,
+      "expMs": 4675,
+      "ratio": 0.17,
+      "chars": 16
+     },
+     {
+      "aid": "54:39",
+      "ms": 650,
+      "expMs": 3497,
+      "ratio": 0.19,
+      "chars": 15
+     },
+     {
+      "aid": "89:30",
+      "ms": 701,
+      "expMs": 2590,
+      "ratio": 0.27,
+      "chars": 10
+     }
+    ],
+    "extremeLong": [],
+    "longOutliers": 0,
+    "shortOutliers": 5,
+    "silenceGaps": 0,
+    "silenceExamples": [],
+    "surahsWithRate": 113
+   },
+   "audio": {
+    "audioReportsOnSha": 0,
+    "openersOnSha": false,
+    "errors": [
+     "لا حكمَ صوتيٍّ بعيّنةٍ على البصمة المنشورة",
+     "لا شاهدَ مطالعَ على البصمة المنشورة"
+    ],
+    "notes": [],
+    "samples": [],
+    "pooled": null,
+    "severeHi": null,
+    "otherShasWithSamples": [
+     "4817540a",
+     "68e4b299",
+     "db994bba",
+     "e5763886",
+     "f28c9766"
+    ],
+    "ok": false
+   }
+  }
+ ],
+ "summary": {
+  "indexes": 1,
+  "phase": "all",
+  "identityOk": 1,
+  "identityBad": [],
+  "structureOk": 1,
+  "structureBad": [],
+  "gapsOk": 1,
+  "gapsBad": [],
+  "audioOk": 0,
+  "audioBad": [
+   "timings-staging/hafs/m_alfaqih.a46c655a.jz"
+  ],
+  "durationOutliersTotal": 5,
+  "impossibleShortTotal": 0,
+  "indexesWithImpossibleShort": 0,
+  "veryShortTotal": 3,
+  "extremeLongTotal": 0,
+  "indexesWithExtremeLong": 0,
+  "mirrorStale": 0,
+  "silenceGapsTotal": 0,
+  "indexesWithDurationOutliers": 1,
+  "indexesWithSilenceGaps": 0,
+  "entriesTotal": 6236,
+  "missingTotal": 0
+ }
+}

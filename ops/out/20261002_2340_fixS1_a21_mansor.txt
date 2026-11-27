@@ -1,0 +1,13 @@
+# rc=0
+📦 ctc-splice-37074545130 · 1217 بايت
+── tools/alignment/work/batch_mansor/s114.json (976 بايت)
+{"fileRef": "https://server14.mp3quran.net/mansor/114.mp3", "sha256": "1b586359a84073d67f5f16074fd51baabd2a3ac37cde6246ca60c7330011d481", "surah": 114, "engine": "ctc-gapsplit-1", "gapsplit": ["2"], "entries": [{"ayahIdx": 0, "startMs": 13689, "endMs": 17056, "conf": 0.6, "snapped": false, "inherited": false, "matched": 0, "total": 4}, {"ayahIdx": 1, "startMs": 17056, "endMs": 20472, "conf": 0.74, "snapped": false, "inherited": false, "matched": 0, "total": 2}, {"ayahIdx": 2, "startMs": 20472, "endMs": 23870, "conf": 0.705, "snapped": false, "inherited": false, "matched": 0, "total": 2}, {"ayahIdx": 3, "startMs": 23870, "endMs": 29597, "conf": 0.48, "snapped": false, "inherited": true, "matched": 0, "total": 4}, {"ayahIdx": 4, "startMs": 29597, "endMs": 38330, "conf": 0.504, "snapped": false, "inherited": true, "matched": 0, "total": 5}, {"ayahIdx": 5, "startMs": 38330, "endMs": 43880, "conf": 0.6, "snapped": false, "inherited": true, "matched": 0, "total": 3}]}
+── ctc.log (965 بايت)
+Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+
+Loading weights:   0%|          | 0/424 [00:00<?, ?it/s]
+Loading weights: 100%|██████████| 424/424 [00:00<00:00, 24195.05it/s]
+/opt/hostedtoolcache/Python/3.11.16/x64/lib/python3.11/site-packages/torch/ao/nn/quantized/modules/utils.py:72: UserWarning: torch.quantize_per_tensor, torch.quantize_per_channel and other quantized tensor creation functions that produce tensors with dtype torch.quint8, torch.qint8, and torch.qint32 are deprecated and will be removed in a future PyTorch release. Please see https://github.com/pytorch/pytorch/issues/184982 for more information. (Triggered internally at /__w/pytorch/pytorch/aten/src/ATen/quantized/Quantizer.cpp:111.)
+  qweight = torch.quantize_per_tensor(
+س114:2-2 (rewin): ✅ قُسمت · 114:1 13689–17056 · 114:2 17056–20472 · 114:3 20472–23870
+

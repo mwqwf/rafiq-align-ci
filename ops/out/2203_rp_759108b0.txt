@@ -1,0 +1,11 @@
+# rc=0
+  ⚡ أحكامٌ من الذاكرة المحليّة: 8504 · نُزّل 12608
+أحكامٌ: 21058 · تعذّرت: 0
+
+## 759108b0: 5 حكماً
+{"name": "state/timings-staging_hafs_rashad.759108b0.jz.openers.json", "key": "timings-staging/hafs/rashad.759108b0.jz", "salt": null, "seed": null, "engine": null, "source": "", "verdict": null, "severe": null, "fatal": null, "ts": null}
+{"name": "state/timings-staging_hafs_rashad.759108b0.jz.audio-turwrs1.", "key": "timings-staging/hafs/rashad.759108b0.jz", "salt": "turwrs1", "seed": 277007332879585, "engine": "pywhispercpp/ggml-q8 (tiny-ar-quran)", "source": "ci", "verdict": "مقبول", "severe": [0, 200, [0.0, 0.0, 0.014867039231272083, "degenerate"]], "fatal": [], "ts": 1795202227.3015609}
+{"name": "state/timings-staging_hafs_rashad.759108b0.jz.audio-turwrs2.", "key": "timings-staging/hafs/rashad.759108b0.jz", "salt": "turwrs2", "seed": 51050790254757, "engine": "pywhispercpp/ggml-q8 (tiny-ar-quran)", "source": "ci", "verdict": "مقبول", "severe": [0, 200, [0.0, 0.0, 0.014867039231272083, "degenerate"]], "fatal": [], "ts": 1795202243.6318583}
+{"name": "state/timings-staging_hafs_rashad.759108b0.jz.audio-turwrs3.", "key": "timings-staging/hafs/rashad.759108b0.jz", "salt": "turwrs3", "seed": 206096425854927, "engine": "pywhispercpp/ggml-q8 (tiny-ar-quran)", "source": "ci", "verdict": "مقبول", "severe": [0, 200, [0.0, 0.0, 0.014867039231272083, "degenerate"]], "fatal": [], "ts": 1795202312.0821173}
+{"name": "state/timings-staging_hafs_rashad.759108b0.jz.audio-turwrs4.", "key": "timings-staging/hafs/rashad.759108b0.jz", "salt": "turwrs4", "seed": 279977024180266, "engine": "pywhispercpp/ggml-q8 (tiny-ar-quran)", "source": "ci", "verdict": "مقبول", "severe": [0, 200, [0.0, 0.0, 0.014867039231272083, "degenerate"]], "fatal": [], "ts": 1795202224.3106155}
+pooled_samples => {"m": 0, "n": 800, "rate": 0.0, "hi": 0.003737662826100608, "parts": [[0, 200], [0, 200], [0, 200], [0, 200]], "salts": ["turwrs1", "turwrs2", "turwrs3", "turwrs4"], "seeds": 4, "engine": "pywhispercpp/ggml-q8 (tiny-ar-quran)", "rule": "D-098"}

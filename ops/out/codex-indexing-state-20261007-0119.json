@@ -1,0 +1,86 @@
+{
+  "schema": 1,
+  "generatedAt": "2026-10-07T01:19:00Z",
+  "scope": "qalun/fakhfakh_qalun/38",
+  "repository": {
+    "fullName": "mwqwf/rafiq-align-ci",
+    "visibility": "public",
+    "headBeforeWork": "5fec5d67a72b2f37eb25885e13dfd28b7e326fde"
+  },
+  "candidate": {
+    "path": "ops/source-repair/candidates/codex-fakhfakh38-archive-20261007.jz",
+    "sha256": "61d207912feef5df4041d9629d085642f0b1aadc53897959722d3b7ef82b8ed6",
+    "bytes": 91304,
+    "parentPath": "ops/source-repair/parents/codex-short-tail-qalun-fakhfakh_qalun-5bad920f.jz",
+    "parentSha256": "5bad920fd4994019caacc00b9edd6662941abae720ba0b3a2b41281016c23eef",
+    "entryCount": 6236,
+    "surahEntryCount": 88,
+    "timingChangedEntries": 84,
+    "outsideSurahPreserved": true,
+    "unpublishedLocalCandidate": true,
+    "productionChanged": false
+  },
+  "gitNativeQuality": {
+    "workflow": ".github/workflows/registered-source-quality.yml",
+    "request": "ops/source-repair/requests/20261007_fakhfakh38_archive.json",
+    "dispatchCommit": "f25af4ebc99729f09e99242656be0afe8842891a",
+    "runId": 37555905823,
+    "runUrl": "https://github.com/mwqwf/rafiq-align-ci/actions/runs/37555905823",
+    "headSha": "40bd84324e414674fb3aa88eaae631d62905a5ee",
+    "attempt": 1,
+    "status": "in_progress",
+    "matrix": ["openers", "census", "rs1", "rs2", "rs3", "rs4", "heard"],
+    "plan": "success",
+    "candidateShaVerifiedByPlan": true,
+    "parentShaVerifiedByPlan": true,
+    "results": {}
+  },
+  "localValidation": {
+    "targetedTestsBeforeDispatch": {"passed": 48, "failed": 0},
+    "localCandidateTestsAfterDispatch": {"passed": 3, "failed": 0},
+    "pythonCompile": "passed",
+    "structuralGate": "passed-with-inherited-warning",
+    "diffCheck": "passed"
+  },
+  "latestCompletionEvidence": {
+    "latestStableReport": "ops/out/completion-codex-after-twenty-five-20261006-summary.json",
+    "stableReportReady": false,
+    "stableReportProductionSha": "5bad920fd4994019caacc00b9edd6662941abae720ba0b3a2b41281016c23eef",
+    "stableReportFakhfakh": {
+      "startsReady": false,
+      "openersReady": true,
+      "unmeasuredStarts": 6078,
+      "missingEndEvidence": 6236,
+      "unknownEndEvidence": 6236,
+      "verifiedEndEvidence": 0
+    },
+    "newerReport": "ops/out/completion-codex-after-twenty-eight-20261006-summary.json",
+    "newerReportStable": false,
+    "newerReportErrors": [
+      "newObjectDuringAudit:state-heard/timings-staging_hafs_mohsin_harthi.b41274ae.jz.json",
+      "newObjectDuringAudit:state/timings-staging_warsh_kholti_warsh.606412d0.jz.openers.json",
+      "liveStabilityNotVerified"
+    ],
+    "generalAuditRepeated": false,
+    "reasonNotRepeated": "No production change; a repeated scan would not prove a new state."
+  },
+  "costControl": {
+    "runner": "ubuntu-latest",
+    "publicRepository": true,
+    "cacheRestoreOnly": true,
+    "cacheWrite": false,
+    "artifactWrite": false,
+    "r2Read": false,
+    "r2Write": false,
+    "privateRunnerUsed": false
+  },
+  "productionBaseline": {
+    "snapshot": "after-thirty-nine",
+    "entries": 1121595,
+    "missingAyahs": 885,
+    "impossibleShort": 1,
+    "unchangedByThisRun": true
+  },
+  "complete": false,
+  "next": "Wait for the already-running exact-SHA Git-native gates without rerunning them; if they pass, public/manifest/frozen readback and a new stable general audit still remain before any completion claim."
+}

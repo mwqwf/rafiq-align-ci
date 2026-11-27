@@ -1,0 +1,103 @@
+{
+  "schema": "codex-fakhfakh-followup-evidence-v1",
+  "generatedAt": "2026-10-07T12:30:00Z",
+  "candidate": {
+    "path": "ops/source-repair/candidates/codex-fakhfakh-boundaries-11-20-20261007.jz",
+    "sha256": "a906d8c1c4d1440884d8cc6917190a7de93c0dfebfe1de69cc1efd6f732b3e90"
+  },
+  "source": {
+    "url": "https://archive.org/download/48--kb--alhady--bn--altaher--alfakhfakh--by---qaloon---mp3--full--mushaf--qura/020Taha.mp3",
+    "sha256": "09b4306ed043ce8832506fc8b131cb7bd728bc8eb559e45ddb7bd47cb42d86a5"
+  },
+  "ctcEvidence": {
+    "runId": 37599193396,
+    "jobId": 112719130192,
+    "resultSha256": "d20c411a8b965dbd54d5457b334c7d69d31d67fd828dace3f5bc1b28d2fca85c",
+    "engine": "ctc-heardmap-1",
+    "entryCount": 135,
+    "artifactCount": 0,
+    "cacheWrite": false,
+    "r2Write": false
+  },
+  "findings": {
+    "20:101": {
+      "trigger": [
+        "rs2:LATE_START",
+        "census:LATE_START"
+      ],
+      "candidate": {
+        "startMs": 1211544,
+        "endMs": 1220850,
+        "conf": 0.531,
+        "confBand": "MED",
+        "startApprox": true
+      },
+      "ctc": {
+        "startMs": 1209785,
+        "endMs": 1220753,
+        "conf": 0.701,
+        "snapped": false,
+        "heard": true
+      },
+      "heardAnchor": {
+        "startMs": 1210186,
+        "endMs": 1219372,
+        "quality": 0.963
+      },
+      "heardOccurrence": {
+        "startMs": 1210666,
+        "endMs": 1219372,
+        "score": 0.926
+      },
+      "neighbors": {
+        "20:100": {
+          "ctcStartMs": 1202180,
+          "ctcEndMs": 1209785,
+          "conf": 0.672
+        },
+        "20:102": {
+          "ctcStartMs": 1220753,
+          "ctcEndMs": 1231730,
+          "conf": 0.791
+        }
+      },
+      "deltasMs": {
+        "candidateToCtcStart": -1759,
+        "candidateToHeardAnchorStart": -1358,
+        "ctcToHeardAnchorStart": 401,
+        "ctcToHeardOccurrenceStart": 881
+      },
+      "decision": "needs-targeted-boundary-witness-before-repair",
+      "reason": "The CTC start exceeds the unchanged 1500 ms discrepancy threshold and agrees in direction with both judges, but the heard occurrence is 881 ms from CTC and therefore does not satisfy the existing 150 ms agreement guard used for the accepted repairs."
+    },
+    "20:73": {
+      "trigger": "heard:repeat",
+      "candidateStartMs": 781220,
+      "heardGate": {
+        "anchorMs": 779619,
+        "quality": 0.898,
+        "deviationMs": 1601,
+        "status": "repeat"
+      },
+      "fullFileCtc": {
+        "startMs": 781220,
+        "endMs": 802695,
+        "conf": 0.706,
+        "snapped": true
+      },
+      "fullFileHeard": {
+        "anchorStartMs": 782481,
+        "occurrenceStartMs": 779479,
+        "quality": 0.864,
+        "score": 0.864
+      },
+      "decision": "unresolved-conflicting-witnesses-no-repair",
+      "reason": "The full-file CTC start equals the candidate exactly while the heard witnesses straddle it; the repeat status and conflicting anchors require a targeted independent probe."
+    }
+  },
+  "thresholdMs": 1500,
+  "thresholdChanged": false,
+  "candidateChanged": false,
+  "productionChanged": false,
+  "qualityClaim": false
+}

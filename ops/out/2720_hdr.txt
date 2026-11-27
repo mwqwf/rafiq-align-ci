@@ -1,0 +1,1211 @@
+# rc=0
+== timings-staging/warsh/laghdaf_shinqiti.9e06aae0.jz · 9e06aae00f57 · مداخل 5805
+{
+ "schema": 1,
+ "riwaya": "warsh",
+ "reciterId": "laghdaf_shinqiti",
+ "sourceKind": "SURAH_FILES",
+ "ayahCounting": "KUFI",
+ "ayahCount": 6236,
+ "method": "ASR_ALIGN",
+ "engineVersion": "ctc-seg-1",
+ "refineVersion": "none",
+ "refinedCount": 0,
+ "medTargeted": 0,
+ "refineStats": {},
+ "lowCount": 2289,
+ "vad": {
+  "versions": {
+   "adaptive-2": 114
+  },
+  "rel": {
+   "min": 0.04,
+   "median": 0.04,
+   "max": 0.04,
+   "surahs": 114
+  }
+ },
+ "writerHostVadVersion": "adaptive-2",
+ "noSilenceShare": null,
+ "noSilenceToAnchor": null,
+ "sparsePauses": null,
+ "missing": {
+  "count": 431,
+  "byReason": {
+   "unknown": 0,
+   "source_truncated": 431
+  },
+  "ids": [
+   "2:1",
+   "2:2",
+   "2:3",
+   "2:4",
+   "2:5",
+   "2:6",
+   "2:7",
+   "2:8",
+   "2:9",
+   "2:10",
+   "2:11",
+   "2:12",
+   "2:13",
+   "2:14",
+   "2:15",
+   "2:16",
+   "2:17",
+   "2:18",
+   "2:19",
+   "2:20",
+   "2:21",
+   "2:22",
+   "2:23",
+   "2:24",
+   "2:25",
+   "2:26",
+   "2:27",
+   "2:28",
+   "2:29",
+   "2:30",
+   "2:31",
+   "2:32",
+   "2:33",
+   "2:34",
+   "2:35",
+   "2:36",
+   "2:37",
+   "2:38",
+   "2:39",
+   "2:40",
+   "2:41",
+   "2:42",
+   "2:43",
+   "2:44",
+   "2:45",
+   "2:46",
+   "2:47",
+   "2:48",
+   "2:49",
+   "2:50",
+   "2:51",
+   "2:52",
+   "2:53",
+   "2:54",
+   "2:55",
+   "2:56",
+   "2:57",
+   "2:58",
+   "2:59",
+   "2:60",
+   "… و371"
+  ],
+  "note": "الفهرس بُني قبل وسم الاكتمال، فسببُ غيابه غير مقيس"
+ },
+ "exactEnds": true,
+ "generatedAt": 1790192366349,
+ "audioSha256": "[114 بصمة]",
+ "notes": "",
+ "engineBySurah": {
+  "4": "ctc-dualfix-1",
+  "6": "ctc-heardmap-1",
+  "9": "ctc-heardmap-1",
+  "10": "ctc-heardmap-1",
+  "11": "ctc-heardmap-1",
+  "13": "ctc-heardmap-1",
+  "14": "ctc-heardmap-1",
+  "15": "ctc-heardmap-1",
+  "17": "ctc-heardmap-1",
+  "18": "ctc-dualfix-1",
+  "19": "ctc-gapsplit-1",
+  "20": "ctc-heardmap-1",
+  "21": "ctc-heardmap-1",
+  "22": "ctc-dualfix-1",
+  "23": "ctc-heardmap-1",
+  "24": "ctc-heardmap-1",
+  "26": "ctc-heardmap-1",
+  "27": "ctc-heardmap-1",
+  "28": "ctc-dualfix-1",
+  "29": "ctc-heardmap-1",
+  "30": "ctc-gapsplit-1",
+  "32": "ctc-dualfix-1",
+  "33": "ctc-heardmap-1",
+  "34": "ctc-heardmap-1",
+  "35": "ctc-dualfix-1",
+  "36": "ctc-heardmap-1",
+  "37": "ctc-heardmap-1",
+  "38": "ctc-heardmap-1",
+  "39": "ctc-dualfix-1",
+  "40": "ctc-heardmap-1",
+  "41": "ctc-heardmap-1",
+  "42": "ctc-dualfix-1",
+  "43": "ctc-heardmap-1",
+  "45": "ctc-heardmap-1",
+  "46": "ctc-heardmap-1",
+  "47": "ctc-heardmap-1",
+  "48": "ctc-heardmap-1",
+  "49": "ctc-dualfix-1",
+  "50": "ctc-dualfix-1",
+  "51": "ctc-dualfix-1",
+  "52": "ctc-dualfix-1",
+  "53": "ctc-dualfix-1",
+  "54": "align-0.2",
+  "55": "align-0.2",
+  "56": "ctc-heardmap-1",
+  "57": "ctc-heardmap-1",
+  "58": "ctc-dualfix-1",
+  "59": "ctc-heardmap-1",
+  "60": "ctc-heardmap-1",
+  "63": "ctc-dualfix-1",
+  "65": "ctc-dualfix-1",
+  "66": "ctc-heardmap-1",
+  "67": "ctc-heardmap-1",
+  "68": "ctc-heardmap-1",
+  "69": "ctc-quran-window-1",
+  "70": "ctc-dualfix-1",
+  "72": "ctc-dualfix-1",
+  "74": "ctc-dualfix-1",
+  "75": "ctc-heardmap-1",
+  "76": "ctc-dualfix-1",
+  "77": "ctc-heardmap-1",
+  "78": "ctc-dualfix-1",
+  "79": "align-0.2",
+  "80": "ctc-dualfix-1",
+  "83": "ctc-dualfix-1",
+  "85": "ctc-dual-window-1",
+  "89": "align-0.2",
+  "103": "align-0.2",
+  "114": "ctc-dualfix-1"
+ },
+ "transform": {
+  "truncatedTail": {
+   "26": {
+    "published": 82,
+    "absentFrom": 83,
+    "absentTo": 227,
+    "reason": "source_truncated",
+    "tool": "truncate_tail",
+    "absorbedIntoLast": false,
+    "lastEndMs": [
+     763798,
+     763798
+    ]
+   }
+  },
+  "op": "declare_gap:26",
+  "fromSha256": "f0b91836ce18d38d902e01ccd18a035f37761177dea9660b20ad1a4fbf65f3dc",
+  "fromKey": "timings-staging/warsh/laghdaf_shinqiti.f0b91836.jz",
+  "droppedEntries": 145,
+  "gapAyahs": 145,
+  "reason": "laghdaf س26: ملفّ المصدر ينقطع بعد الآية 82 (المقيس بالسماع 82/227)؛ تُنشر الآيات 1..82 بحدودها المسموعة وتُعلَن 83..227 مبتورةً من المصدر",
+  "reasonUser": "تسجيلُ هذه السورة لهذا القارئ ينقطع بعد الآية 82، فتظهر الآيات من 1 إلى 82 وحدها وتغيب الباقية لأن الصوت المتاح لا يشملها.",
+  "reasonCode": "SOURCE_TRUNCATED",
+  "at": 1794255840912,
+  "note": "ذيلٌ غيرُ متلوٍّ في الملفّ حُذف وأُعلن؛ بدءُ كلّ آيةٍ منشورةٍ لم يتغيّر."
+ },
+ "dualAlignmentEvidenceBySurah": {
+  "85": {
+   "surah": 85,
+   "riwaya": "warsh",
+   "sourceSha256": "3379207275de071c5a1c32fd04e30e23498bf4eeebc2034f20235c41f7d01ddc",
+   "canonicalTextChanged": false,
+   "totalMs": 1823138,
+   "models": {
+    "quran": {
+     "id": "rabah2026/wav2vec2-large-xlsr-53-arabic-quran-v_final",
+     "revision": "b03a268c6ba1a693752307325ab376c86c3b12da",
+     "weightsSha256": "bf65674a26eb4ef7042cedade96c3c8f8cbd04f3a7d1a68eadceec8ed0f99ecb",
+     "license": "Apache-2.0",
+     "canonicalTextChanged": false
+    },
+    "generic": {
+     "id": "jonatasgrosman/wav2vec2-large-xlsr-53-arabic",
+     "revision": "af46c2d8531b8dcbb5e23b952f739b372c2e5d2d",
+     "weightsSha256": "a0b26f6d9d3edfde1784aef863c192a8cc1e438a23b45910ab648531ebe1857b",
+     "license": "Apache-2.0"
+    }
+   },
+   "baseMeasurements": [
+    {
+     "ayahId": "85:1",
+     "startMs": 138112,
+     "endMs": 142465,
+     "conf": 0.74,
+     "ayahIdx": 0,
+     "snapped": false
+    },
+    {
+     "ayahId": "85:2",
+     "startMs": 142465,
+     "endMs": 144086,
+     "conf": 0.74,
+     "ayahIdx": 1,
+     "snapped": false
+    },
+    {
+     "ayahId": "85:3",
+     "startMs": 144086,
+     "endMs": 149920,
+     "conf": 0.74,
+     "ayahIdx": 2,
+     "snapped": false
+    },
+    {
+     "ayahId": "85:4",
+     "startMs": 149920,
+     "endMs": 152792,
+     "conf": 0.74,
+     "ayahIdx": 3,
+     "snapped": false
+    },
+    {
+     "ayahId": "85:5",
+     "startMs": 152792,
+     "endMs": 155674,
+     "conf": 0.74,
+     "ayahIdx": 4,
+     "snapped": false
+    },
+    {
+     "ayahId": "85:6",
+     "startMs": 155674,
+     "endMs": 158065,
+     "conf": 0.74,
+     "ayahIdx": 5,
+     "snapped": false
+    },
+    {
+     "ayahId": "85:7",
+     "startMs": 158065,
+     "endMs": 166691,
+     "conf": 0.74,
+     "ayahIdx": 6,
+     "snapped": false
+    },
+    {
+     "ayahId": "85:8",
+     "startMs": 166691,
+     "endMs": 178639,
+     "conf": 0.74,
+     "ayahIdx": 7,
+     "snapped": false
+    },
+    {
+     "ayahId": "85:9",
+     "startMs": 178639,
+     "endMs": 189667,
+     "conf": 0.701,
+     "ayahIdx": 8,
+     "snapped": false
+    },
+    {
+     "ayahId": "85:10",
+     "startMs": 189667,
+     "endMs": 206978,
+     "conf": 0.74,
+     "ayahIdx": 9,
+     "snapped": false
+    },
+    {
+     "ayahId": "85:11",
+     "startMs": 206978,
+     "endMs": 225040,
+     "conf": 0.649,
+     "ayahIdx": 10,
+     "snapped": false
+    },
+    {
+     "ayahId": "85:12",
+     "startMs": 225040,
+     "endMs": 229633,
+     "conf": 0.74,
+     "ayahIdx": 11,
+     "snapped": false
+    },
+    {
+     "ayahId": "85:13",
+     "startMs": 229633,
+     "endMs": 233506,
+     "conf": 0.74,
+     "ayahIdx": 12,
+     "snapped": false
+    },
+    {
+     "ayahId": "85:14",
+     "startMs": 233506,
+     "endMs": 236057,
+     "conf": 0.74,
+     "ayahIdx": 13,
+     "snapped": false
+    },
+    {
+     "ayahId": "85:15",
+     "startMs": 236057,
+     "endMs": 239770,
+     "conf": 0.721,
+     "ayahIdx": 14,
+     "snapped": false
+    },
+    {
+     "ayahId": "85:16",
+     "startMs": 239770,
+     "endMs": 244003,
+     "conf": 0.74,
+     "ayahIdx": 15,
+     "snapped": false
+    },
+    {
+     "ayahId": "85:17",
+     "startMs": 244003,
+     "endMs": 247275,
+     "conf": 0.739,
+     "ayahIdx": 16,
+     "snapped": false
+    },
+    {
+     "ayahId": "85:18",
+     "startMs": 247275,
+     "endMs": 250707,
+     "conf": 0.74,
+     "ayahIdx": 17,
+     "snapped": false
+    },
+    {
+     "ayahId": "85:19",
+     "startMs": 250707,
+     "endMs": 254890,
+     "conf": 0.72,
+     "ayahIdx": 18,
+     "snapped": false
+    },
+    {
+     "ayahId": "85:20",
+     "startMs": 254890,
+     "endMs": 263416,
+     "conf": 0.69,
+     "ayahIdx": 19,
+     "snapped": false
+    },
+    {
+     "ayahId": "85:21",
+     "startMs": 263416,
+     "endMs": 267338,
+     "conf": 0.74,
+     "ayahIdx": 20,
+     "snapped": false
+    },
+    {
+     "ayahId": "85:22",
+     "startMs": 267338,
+     "endMs": 272702,
+     "conf": 0.74,
+     "ayahIdx": 21,
+     "snapped": false
+    }
+   ],
+   "measurements": [
+    {
+     "ayahId": "85:1",
+     "startMs": 138112,
+     "endMs": 142465,
+     "conf": 0.74,
+     "ayahIdx": 0,
+     "snapped": false,
+     "model": "quran"
+    },
+    {
+     "ayahId": "85:2",
+     "startMs": 142465,
+     "endMs": 144086,
+     "conf": 0.74,
+     "ayahIdx": 1,
+     "snapped": false,
+     "model": "quran"
+    },
+    {
+     "ayahId": "85:3",
+     "startMs": 144086,
+     "endMs": 149920,
+     "conf": 0.74,
+     "ayahIdx": 2,
+     "snapped": false,
+     "model": "quran"
+    },
+    {
+     "ayahId": "85:4",
+     "startMs": 149920,
+     "endMs": 152792,
+     "conf": 0.74,
+     "ayahIdx": 3,
+     "snapped": false,
+     "model": "quran"
+    },
+    {
+     "ayahIdx": 4,
+     "startMs": 152842,
+     "endMs": 155604,
+     "conf": 0.638,
+     "snapped": false,
+     "model": "generic"
+    },
+    {
+     "ayahIdx": 5,
+     "startMs": 155604,
+     "endMs": 158077,
+     "conf": 0.459,
+     "snapped": false,
+     "model": "generic"
+    },
+    {
+     "ayahIdx": 6,
+     "startMs": 158077,
+     "endMs": 166705,
+     "conf": 0.596,
+     "snapped": false,
+     "model": "generic"
+    },
+    {
+     "ayahIdx": 7,
+     "startMs": 166705,
+     "endMs": 178677,
+     "conf": 0.708,
+     "snapped": false,
+     "model": "generic"
+    },
+    {
+     "ayahIdx": 8,
+     "startMs": 178677,
+     "endMs": 188335,
+     "conf": 0.62,
+     "snapped": false,
+     "model": "generic"
+    },
+    {
+     "ayahId": "85:10",
+     "startMs": 189667,
+     "endMs": 206978,
+     "conf": 0.74,
+     "ayahIdx": 9,
+     "snapped": false,
+     "model": "quran"
+    },
+    {
+     "ayahId": "85:11",
+     "startMs": 206978,
+     "endMs": 225040,
+     "conf": 0.649,
+     "ayahIdx": 10,
+     "snapped": false,
+     "model": "quran"
+    },
+    {
+     "ayahId": "85:12",
+     "startMs": 225040,
+     "endMs": 229633,
+     "conf": 0.74,
+     "ayahIdx": 11,
+     "snapped": false,
+     "model": "quran"
+    },
+    {
+     "ayahId": "85:13",
+     "startMs": 229633,
+     "endMs": 233506,
+     "conf": 0.74,
+     "ayahIdx": 12,
+     "snapped": false,
+     "model": "quran"
+    },
+    {
+     "ayahId": "85:14",
+     "startMs": 233506,
+     "endMs": 236057,
+     "conf": 0.74,
+     "ayahIdx": 13,
+     "snapped": false,
+     "model": "quran"
+    },
+    {
+     "ayahId": "85:15",
+     "startMs": 236057,
+     "endMs": 239770,
+     "conf": 0.721,
+     "ayahIdx": 14,
+     "snapped": false,
+     "model": "quran"
+    },
+    {
+     "ayahId": "85:16",
+     "startMs": 239770,
+     "endMs": 244003,
+     "conf": 0.74,
+     "ayahIdx": 15,
+     "snapped": false,
+     "model": "quran"
+    },
+    {
+     "ayahId": "85:17",
+     "startMs": 244003,
+     "endMs": 247275,
+     "conf": 0.739,
+     "ayahIdx": 16,
+     "snapped": false,
+     "model": "quran"
+    },
+    {
+     "ayahId": "85:18",
+     "startMs": 247275,
+     "endMs": 250707,
+     "conf": 0.74,
+     "ayahIdx": 17,
+     "snapped": false,
+     "model": "quran"
+    },
+    {
+     "ayahId": "85:19",
+     "startMs": 250707,
+     "endMs": 254890,
+     "conf": 0.72,
+     "ayahIdx": 18,
+     "snapped": false,
+     "model": "quran"
+    },
+    {
+     "ayahId": "85:20",
+     "startMs": 254890,
+     "endMs": 263416,
+     "conf": 0.69,
+     "ayahIdx": 19,
+     "snapped": false,
+     "model": "quran"
+    },
+    {
+     "ayahId": "85:21",
+     "startMs": 263416,
+     "endMs": 267338,
+     "conf": 0.74,
+     "ayahIdx": 20,
+     "snapped": false,
+     "model": "quran"
+    },
+    {
+     "ayahId": "85:22",
+     "startMs": 267338,
+     "endMs": 272702,
+     "conf": 0.74,
+     "ayahIdx": 21,
+     "snapped": false,
+     "model": "quran"
+    }
+   ],
+   "windows": [
+    {
+     "reciterId": "laghdaf",
+     "surah": 85,
+     "riwaya": "warsh",
+     "range": [
+      5,
+      9
+     ],
+     "windowMs": [
+      152792,
+      189667
+     ],
+     "sourceSha256": "337920727
+== timings/warsh/laghdaf_shinqiti.jz · 5ad78aaab8a8 · مداخل 5723
+{
+ "schema": 1,
+ "riwaya": "warsh",
+ "reciterId": "laghdaf_shinqiti",
+ "sourceKind": "SURAH_FILES",
+ "ayahCounting": "KUFI",
+ "ayahCount": 6236,
+ "method": "ASR_ALIGN",
+ "engineVersion": "ctc-seg-1",
+ "refineVersion": "none",
+ "refinedCount": 0,
+ "medTargeted": 0,
+ "refineStats": {},
+ "lowCount": 2262,
+ "vad": {
+  "versions": {
+   "adaptive-2": 114
+  },
+  "rel": {
+   "min": 0.04,
+   "median": 0.04,
+   "max": 0.04,
+   "surahs": 114
+  }
+ },
+ "writerHostVadVersion": "adaptive-2",
+ "noSilenceShare": null,
+ "noSilenceToAnchor": null,
+ "sparsePauses": null,
+ "missing": {
+  "count": 513,
+  "byReason": {
+   "unknown": 0,
+   "source_truncated": 513
+  },
+  "ids": [
+   "2:1",
+   "2:2",
+   "2:3",
+   "2:4",
+   "2:5",
+   "2:6",
+   "2:7",
+   "2:8",
+   "2:9",
+   "2:10",
+   "2:11",
+   "2:12",
+   "2:13",
+   "2:14",
+   "2:15",
+   "2:16",
+   "2:17",
+   "2:18",
+   "2:19",
+   "2:20",
+   "2:21",
+   "2:22",
+   "2:23",
+   "2:24",
+   "2:25",
+   "2:26",
+   "2:27",
+   "2:28",
+   "2:29",
+   "2:30",
+   "2:31",
+   "2:32",
+   "2:33",
+   "2:34",
+   "2:35",
+   "2:36",
+   "2:37",
+   "2:38",
+   "2:39",
+   "2:40",
+   "2:41",
+   "2:42",
+   "2:43",
+   "2:44",
+   "2:45",
+   "2:46",
+   "2:47",
+   "2:48",
+   "2:49",
+   "2:50",
+   "2:51",
+   "2:52",
+   "2:53",
+   "2:54",
+   "2:55",
+   "2:56",
+   "2:57",
+   "2:58",
+   "2:59",
+   "2:60",
+   "… و453"
+  ],
+  "note": "الفهرس بُني قبل وسم الاكتمال، فسببُ غيابه غير مقيس"
+ },
+ "exactEnds": true,
+ "generatedAt": 1790192366349,
+ "audioSha256": "[114 بصمة]",
+ "notes": "",
+ "engineBySurah": {
+  "4": "ctc-dualfix-1",
+  "6": "ctc-heardmap-1",
+  "9": "ctc-heardmap-1",
+  "10": "ctc-heardmap-1",
+  "11": "ctc-heardmap-1",
+  "13": "ctc-heardmap-1",
+  "14": "ctc-heardmap-1",
+  "15": "ctc-heardmap-1",
+  "17": "ctc-heardmap-1",
+  "18": "ctc-dualfix-1",
+  "19": "ctc-gapsplit-1",
+  "20": "ctc-heardmap-1",
+  "21": "ctc-heardmap-1",
+  "22": "ctc-dualfix-1",
+  "23": "ctc-heardmap-1",
+  "24": "ctc-heardmap-1",
+  "27": "ctc-heardmap-1",
+  "28": "ctc-dualfix-1",
+  "29": "ctc-heardmap-1",
+  "30": "ctc-gapsplit-1",
+  "32": "ctc-dualfix-1",
+  "33": "ctc-heardmap-1",
+  "34": "ctc-heardmap-1",
+  "35": "ctc-dualfix-1",
+  "36": "ctc-heardmap-1",
+  "37": "ctc-heardmap-1",
+  "38": "ctc-heardmap-1",
+  "39": "ctc-dualfix-1",
+  "40": "ctc-heardmap-1",
+  "41": "ctc-heardmap-1",
+  "42": "ctc-dualfix-1",
+  "43": "ctc-heardmap-1",
+  "45": "ctc-heardmap-1",
+  "46": "ctc-heardmap-1",
+  "47": "ctc-heardmap-1",
+  "48": "ctc-heardmap-1",
+  "49": "ctc-dualfix-1",
+  "50": "ctc-dualfix-1",
+  "51": "ctc-dualfix-1",
+  "52": "ctc-dualfix-1",
+  "53": "ctc-dualfix-1",
+  "54": "align-0.2",
+  "55": "align-0.2",
+  "56": "ctc-heardmap-1",
+  "57": "ctc-heardmap-1",
+  "58": "ctc-dualfix-1",
+  "59": "ctc-heardmap-1",
+  "60": "ctc-heardmap-1",
+  "63": "ctc-dualfix-1",
+  "65": "ctc-dualfix-1",
+  "66": "ctc-heardmap-1",
+  "67": "ctc-heardmap-1",
+  "68": "ctc-heardmap-1",
+  "69": "ctc-quran-window-1",
+  "70": "ctc-dualfix-1",
+  "72": "ctc-dualfix-1",
+  "74": "ctc-dualfix-1",
+  "75": "ctc-heardmap-1",
+  "76": "ctc-dualfix-1",
+  "77": "ctc-heardmap-1",
+  "78": "ctc-dualfix-1",
+  "79": "align-0.2",
+  "80": "ctc-dualfix-1",
+  "83": "ctc-dualfix-1",
+  "85": "ctc-dual-window-1",
+  "89": "align-0.2",
+  "103": "align-0.2",
+  "114": "ctc-dualfix-1"
+ },
+ "transform": {
+  "op": "drop_surah:2,26",
+  "fromSha256": "986fe601d5a50cb518d7809f7af7c41aa8eecdbe80efdd931420ade61f38f0d3",
+  "fromKey": "timings/warsh/laghdaf_shinqiti.jz",
+  "droppedEntries": 513,
+  "reason": "e6 2026-11-05: فهرسُ س2,26 عند laghdaf_shinqiti يضع آياتٍ على صوت غيرها (مسحُ الامتداد + تفريغٌ عند ثلاث آيات)، وردّت بوّابةُ السماع إعادةَ محاذاتها كاملةً ثمّ نوافذَها ⇒ حجبٌ مؤقّتٌ حتى يُصلح التوقيت",
+  "reasonUser": "توقيتُ هذه السورة لهذا القارئ قيد الإصلاح، فحُجب مؤقّتاً حتى لا تُعرض آيةٌ على صوت غيرها.",
+  "reasonCode": "OTHER",
+  "at": 1793895382860,
+  "note": "‏`refineStats` و`medTargeted` و`vad` تصف **البناء الأصلي** ولم تُعد حسابها؛ والمعاد حسابه: المداخل وعدّ LOW ووسم الاكتمال."
+ },
+ "dualAlignmentEvidenceBySurah": {
+  "85": {
+   "surah": 85,
+   "riwaya": "warsh",
+   "sourceSha256": "3379207275de071c5a1c32fd04e30e23498bf4eeebc2034f20235c41f7d01ddc",
+   "canonicalTextChanged": false,
+   "totalMs": 1823138,
+   "models": {
+    "quran": {
+     "id": "rabah2026/wav2vec2-large-xlsr-53-arabic-quran-v_final",
+     "revision": "b03a268c6ba1a693752307325ab376c86c3b12da",
+     "weightsSha256": "bf65674a26eb4ef7042cedade96c3c8f8cbd04f3a7d1a68eadceec8ed0f99ecb",
+     "license": "Apache-2.0",
+     "canonicalTextChanged": false
+    },
+    "generic": {
+     "id": "jonatasgrosman/wav2vec2-large-xlsr-53-arabic",
+     "revision": "af46c2d8531b8dcbb5e23b952f739b372c2e5d2d",
+     "weightsSha256": "a0b26f6d9d3edfde1784aef863c192a8cc1e438a23b45910ab648531ebe1857b",
+     "license": "Apache-2.0"
+    }
+   },
+   "baseMeasurements": [
+    {
+     "ayahId": "85:1",
+     "startMs": 138112,
+     "endMs": 142465,
+     "conf": 0.74,
+     "ayahIdx": 0,
+     "snapped": false
+    },
+    {
+     "ayahId": "85:2",
+     "startMs": 142465,
+     "endMs": 144086,
+     "conf": 0.74,
+     "ayahIdx": 1,
+     "snapped": false
+    },
+    {
+     "ayahId": "85:3",
+     "startMs": 144086,
+     "endMs": 149920,
+     "conf": 0.74,
+     "ayahIdx": 2,
+     "snapped": false
+    },
+    {
+     "ayahId": "85:4",
+     "startMs": 149920,
+     "endMs": 152792,
+     "conf": 0.74,
+     "ayahIdx": 3,
+     "snapped": false
+    },
+    {
+     "ayahId": "85:5",
+     "startMs": 152792,
+     "endMs": 155674,
+     "conf": 0.74,
+     "ayahIdx": 4,
+     "snapped": false
+    },
+    {
+     "ayahId": "85:6",
+     "startMs": 155674,
+     "endMs": 158065,
+     "conf": 0.74,
+     "ayahIdx": 5,
+     "snapped": false
+    },
+    {
+     "ayahId": "85:7",
+     "startMs": 158065,
+     "endMs": 166691,
+     "conf": 0.74,
+     "ayahIdx": 6,
+     "snapped": false
+    },
+    {
+     "ayahId": "85:8",
+     "startMs": 166691,
+     "endMs": 178639,
+     "conf": 0.74,
+     "ayahIdx": 7,
+     "snapped": false
+    },
+    {
+     "ayahId": "85:9",
+     "startMs": 178639,
+     "endMs": 189667,
+     "conf": 0.701,
+     "ayahIdx": 8,
+     "snapped": false
+    },
+    {
+     "ayahId": "85:10",
+     "startMs": 189667,
+     "endMs": 206978,
+     "conf": 0.74,
+     "ayahIdx": 9,
+     "snapped": false
+    },
+    {
+     "ayahId": "85:11",
+     "startMs": 206978,
+     "endMs": 225040,
+     "conf": 0.649,
+     "ayahIdx": 10,
+     "snapped": false
+    },
+    {
+     "ayahId": "85:12",
+     "startMs": 225040,
+     "endMs": 229633,
+     "conf": 0.74,
+     "ayahIdx": 11,
+     "snapped": false
+    },
+    {
+     "ayahId": "85:13",
+     "startMs": 229633,
+     "endMs": 233506,
+     "conf": 0.74,
+     "ayahIdx": 12,
+     "snapped": false
+    },
+    {
+     "ayahId": "85:14",
+     "startMs": 233506,
+     "endMs": 236057,
+     "conf": 0.74,
+     "ayahIdx": 13,
+     "snapped": false
+    },
+    {
+     "ayahId": "85:15",
+     "startMs": 236057,
+     "endMs": 239770,
+     "conf": 0.721,
+     "ayahIdx": 14,
+     "snapped": false
+    },
+    {
+     "ayahId": "85:16",
+     "startMs": 239770,
+     "endMs": 244003,
+     "conf": 0.74,
+     "ayahIdx": 15,
+     "snapped": false
+    },
+    {
+     "ayahId": "85:17",
+     "startMs": 244003,
+     "endMs": 247275,
+     "conf": 0.739,
+     "ayahIdx": 16,
+     "snapped": false
+    },
+    {
+     "ayahId": "85:18",
+     "startMs": 247275,
+     "endMs": 250707,
+     "conf": 0.74,
+     "ayahIdx": 17,
+     "snapped": false
+    },
+    {
+     "ayahId": "85:19",
+     "startMs": 250707,
+     "endMs": 254890,
+     "conf": 0.72,
+     "ayahIdx": 18,
+     "snapped": false
+    },
+    {
+     "ayahId": "85:20",
+     "startMs": 254890,
+     "endMs": 263416,
+     "conf": 0.69,
+     "ayahIdx": 19,
+     "snapped": false
+    },
+    {
+     "ayahId": "85:21",
+     "startMs": 263416,
+     "endMs": 267338,
+     "conf": 0.74,
+     "ayahIdx": 20,
+     "snapped": false
+    },
+    {
+     "ayahId": "85:22",
+     "startMs": 267338,
+     "endMs": 272702,
+     "conf": 0.74,
+     "ayahIdx": 21,
+     "snapped": false
+    }
+   ],
+   "measurements": [
+    {
+     "ayahId": "85:1",
+     "startMs": 138112,
+     "endMs": 142465,
+     "conf": 0.74,
+     "ayahIdx": 0,
+     "snapped": false,
+     "model": "quran"
+    },
+    {
+     "ayahId": "85:2",
+     "startMs": 142465,
+     "endMs": 144086,
+     "conf": 0.74,
+     "ayahIdx": 1,
+     "snapped": false,
+     "model": "quran"
+    },
+    {
+     "ayahId": "85:3",
+     "startMs": 144086,
+     "endMs": 149920,
+     "conf": 0.74,
+     "ayahIdx": 2,
+     "snapped": false,
+     "model": "quran"
+    },
+    {
+     "ayahId": "85:4",
+     "startMs": 149920,
+     "endMs": 152792,
+     "conf": 0.74,
+     "ayahIdx": 3,
+     "snapped": false,
+     "model": "quran"
+    },
+    {
+     "ayahIdx": 4,
+     "startMs": 152842,
+     "endMs": 155604,
+     "conf": 0.638,
+     "snapped": false,
+     "model": "generic"
+    },
+    {
+     "ayahIdx": 5,
+     "startMs": 155604,
+     "endMs": 158077,
+     "conf": 0.459,
+     "snapped": false,
+     "model": "generic"
+    },
+    {
+     "ayahIdx": 6,
+     "startMs": 158077,
+     "endMs": 166705,
+     "conf": 0.596,
+     "snapped": false,
+     "model": "generic"
+    },
+    {
+     "ayahIdx": 7,
+     "startMs": 166705,
+     "endMs": 178677,
+     "conf": 0.708,
+     "snapped": false,
+     "model": "generic"
+    },
+    {
+     "ayahIdx": 8,
+     "startMs": 178677,
+     "endMs": 188335,
+     "conf": 0.62,
+     "snapped": false,
+     "model": "generic"
+    },
+    {
+     "ayahId": "85:10",
+     "startMs": 189667,
+     "endMs": 206978,
+     "conf": 0.74,
+     "ayahIdx": 9,
+     "snapped": false,
+     "model": "quran"
+    },
+    {
+     "ayahId": "85:11",
+     "startMs": 206978,
+     "endMs": 225040,
+     "conf": 0.649,
+     "ayahIdx": 10,
+     "snapped": false,
+     "model": "quran"
+    },
+    {
+     "ayahId": "85:12",
+     "startMs": 225040,
+     "endMs": 229633,
+     "conf": 0.74,
+     "ayahIdx": 11,
+     "snapped": false,
+     "model": "quran"
+    },
+    {
+     "ayahId": "85:13",
+     "startMs": 229633,
+     "endMs": 233506,
+     "conf": 0.74,
+     "ayahIdx": 12,
+     "snapped": false,
+     "model": "quran"
+    },
+    {
+     "ayahId": "85:14",
+     "startMs": 233506,
+     "endMs": 236057,
+     "conf": 0.74,
+     "ayahIdx": 13,
+     "snapped": false,
+     "model": "quran"
+    },
+    {
+     "ayahId": "85:15",
+     "startMs": 236057,
+     "endMs": 239770,
+     "conf": 0.721,
+     "ayahIdx": 14,
+     "snapped": false,
+     "model": "quran"
+    },
+    {
+     "ayahId": "85:16",
+     "startMs": 239770,
+     "endMs": 244003,
+     "conf": 0.74,
+     "ayahIdx": 15,
+     "snapped": false,
+     "model": "quran"
+    },
+    {
+     "ayahId": "85:17",
+     "startMs": 244003,
+     "endMs": 247275,
+     "conf": 0.739,
+     "ayahIdx": 16,
+     "snapped": false,
+     "model": "quran"
+    },
+    {
+     "ayahId": "85:18",
+     "startMs": 247275,
+     "endMs": 250707,
+     "conf": 0.74,
+     "ayahIdx": 17,
+     "snapped": false,
+     "model": "quran"
+    },
+    {
+     "ayahId": "85:19",
+     "startMs": 250707,
+     "endMs": 254890,
+     "conf": 0.72,
+     "ayahIdx": 18,
+     "snapped": false,
+     "model": "quran"
+    },
+    {
+     "ayahId": "85:20",
+     "startMs": 254890,
+     "endMs": 263416,
+     "conf": 0.69,
+     "ayahIdx": 19,
+     "snapped": false,
+     "model": "quran"
+    },
+    {
+     "ayahId": "85:21",
+     "startMs": 263416,
+     "endMs": 267338,
+     "conf": 0.74,
+     "ayahIdx": 20,
+     "snapped": false,
+     "model": "quran"
+    },
+    {
+     "ayahId": "85:22",
+     "startMs": 267338,
+     "endMs": 272702,
+     "conf": 0.74,
+     "ayahIdx": 21,
+     "snapped": false,
+     "model": "quran"
+    }
+   ],
+   "windows": [
+    {
+     "reciterId": "laghdaf",
+     "surah": 85,
+     "riwaya": "warsh",
+     "range": [
+      5,
+      9
+     ],
+     "windowMs": [
+      152792,
+      189667
+     ],
+     "sourceSha256": "3379207275de071c5a1c32fd04e30e23498bf4eeebc2034f20235c41f7d01ddc",
+     "alignmentModel": {
+      "id": "jonatasgrosman/wav2vec2-large-xlsr-53-arabic",
+      "revision": "af46c2d8531b8dcbb5e23b952f739b372c2e5d2d",
+      "weightsSha256": "a0b26f6d9d3edf

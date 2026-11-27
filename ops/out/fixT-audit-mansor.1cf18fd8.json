@@ -1,0 +1,141 @@
+{
+ "schema": 1,
+ "tool": "full_audit-1.0",
+ "date": "20261005",
+ "timestampUtc": "2026-10-05T16:09:54Z",
+ "elapsedSec": 76.1,
+ "phase": "all",
+ "manifestIndexes": 180,
+ "frozenBucket": 220,
+ "reportsRead": 11129,
+ "rows": [
+  {
+   "key": "timings-staging/hafs/mansor.1cf18fd8.jz",
+   "sha256": "1cf18fd8b9142499988d3e40819e108101d823300a5df6e7014995bcf27627a9",
+   "riwaya": "hafs",
+   "reciterId": "mansor",
+   "bytes": 89483,
+   "engine": "align-0.2",
+   "transformOp": "ctc_heardmap_splice:5,12,14,16,18,19,20,21,22,33,37,45,46,57",
+   "staging": true,
+   "identity": {
+    "sha256": "1cf18fd8b9142499988d3e40819e108101d823300a5df6e7014995bcf27627a9",
+    "staging": true,
+    "errors": [],
+    "ok": true
+   },
+   "structure": {
+    "entries": 6236,
+    "errors": [],
+    "examples": {},
+    "fileNoUnparsed": 0,
+    "structuralFatal": [],
+    "structuralWarn": [
+     "مداخل مدتها > 120ث: 2 · مثال: 2:282 مدتها 165ث"
+    ],
+    "decision": [],
+    "engine": "align-0.2",
+    "audioSha": 114,
+    "bands": {
+     "MED": 2385,
+     "HIGH": 3451,
+     "LOW": 400
+    },
+    "ok": true
+   },
+   "gaps": {
+    "missingTotal": 0,
+    "internalGaps": [],
+    "headMissing": [],
+    "tailMissing": [],
+    "wholeMissing": [],
+    "declared": {
+     "transformOp": "ctc_heardmap_splice:5,12,14,16,18,19,20,21,22,33,37,45,46,57",
+     "transformReason": "fixT: إصلاحٌ دفعيٌّ لكبس الذيل — 21 سورةً مشتبهةً (فائضٌ ≥15ث بعد آخر مدخل · تدقيق الجولة الثانية 2026-10-03)، كلٌّ يُقاس بالسماع قبل أن يُمسّ",
+     "reasonCode": null,
+     "dropSurahs": [],
+     "byReason": {
+      "no-align": 11
+     },
+     "declaredCount": 11,
+     "tagCount": 0,
+     "declaredIds": [],
+     "truncatedTail": null
+    },
+    "undeclaredEdge": [],
+    "errors": [],
+    "ok": true
+   },
+   "durations": {
+    "durationOutliers": 1,
+    "durationExamples": [
+     {
+      "aid": "99:7",
+      "ms": 2012,
+      "expMs": 6844,
+      "ratio": 0.29,
+      "chars": 22
+     }
+    ],
+    "impossibleShort": [],
+    "veryShort": [],
+    "extremeLong": [],
+    "longOutliers": 0,
+    "shortOutliers": 1,
+    "silenceGaps": 0,
+    "silenceExamples": [],
+    "surahsWithRate": 113
+   },
+   "audio": {
+    "audioReportsOnSha": 0,
+    "openersOnSha": false,
+    "errors": [
+     "لا حكمَ صوتيٍّ بعيّنةٍ على البصمة المنشورة",
+     "لا شاهدَ مطالعَ على البصمة المنشورة"
+    ],
+    "notes": [],
+    "samples": [],
+    "pooled": null,
+    "severeHi": null,
+    "otherShasWithSamples": [
+     "3730ca8b",
+     "5358da1a",
+     "58215bf4",
+     "598a0366",
+     "82c7df54",
+     "be348cd9",
+     "cc016489",
+     "def9f16d",
+     "e671689e"
+    ],
+    "ok": false
+   }
+  }
+ ],
+ "summary": {
+  "indexes": 1,
+  "phase": "all",
+  "identityOk": 1,
+  "identityBad": [],
+  "structureOk": 1,
+  "structureBad": [],
+  "gapsOk": 1,
+  "gapsBad": [],
+  "audioOk": 0,
+  "audioBad": [
+   "timings-staging/hafs/mansor.1cf18fd8.jz"
+  ],
+  "durationOutliersTotal": 1,
+  "impossibleShortTotal": 0,
+  "indexesWithImpossibleShort": 0,
+  "veryShortTotal": 0,
+  "extremeLongTotal": 0,
+  "indexesWithExtremeLong": 0,
+  "mirrorStale": 0,
+  "silenceGapsTotal": 0,
+  "indexesWithDurationOutliers": 1,
+  "indexesWithSilenceGaps": 0,
+  "entriesTotal": 6236,
+  "missingTotal": 0
+ }
+}

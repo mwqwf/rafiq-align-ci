@@ -1,0 +1,158 @@
+{
+ "schema": 1,
+ "tool": "full_audit-1.0",
+ "date": "20261004",
+ "timestampUtc": "2026-10-04T23:44:15Z",
+ "elapsedSec": 53.5,
+ "phase": "all",
+ "manifestIndexes": 180,
+ "frozenBucket": 220,
+ "reportsRead": 10732,
+ "rows": [
+  {
+   "key": "timings-staging/hafs/jormy.9fc642e3.jz",
+   "sha256": "9fc642e3aefa16444b204bed40c572d948792983104253763e864e38dbe93dd8",
+   "riwaya": "hafs",
+   "reciterId": "jormy",
+   "bytes": 95766,
+   "engine": "ctc-seg-1",
+   "transformOp": "ctc_heardmap_splice:5,10,11,14,15,17,19,23,24,25,26,29,31,32,33,34,35,36,37,39,40,41,42,43,44,45,47,49,50,51,52,53,54,56,57,58,59,60,61,66,67,68,70,71,72,74,75,78,79,83",
+   "staging": true,
+   "identity": {
+    "sha256": "9fc642e3aefa16444b204bed40c572d948792983104253763e864e38dbe93dd8",
+    "staging": true,
+    "errors": [],
+    "ok": true
+   },
+   "structure": {
+    "entries": 6236,
+    "errors": [],
+    "examples": {},
+    "fileNoUnparsed": 0,
+    "structuralFatal": [],
+    "structuralWarn": [
+     "مداخل مدتها > 120ث: 1 · مثال: 2:282 مدتها 162ث"
+    ],
+    "decision": [],
+    "engine": "ctc-seg-1",
+    "audioSha": 114,
+    "bands": {
+     "MED": 5099,
+     "HIGH": 511,
+     "LOW": 626
+    },
+    "ok": true
+   },
+   "gaps": {
+    "missingTotal": 0,
+    "internalGaps": [],
+    "headMissing": [],
+    "tailMissing": [],
+    "wholeMissing": [],
+    "declared": {
+     "transformOp": "ctc_heardmap_splice:5,10,11,14,15,17,19,23,24,25,26,29,31,32,33,34,35,36,37,39,40,41,42,43,44,45,47,49,50,51,52,53,54,56,57,58,59,60,61,66,67,68,70,71,72,74,75,78,79,83",
+     "transformReason": "fixT: إصلاحٌ دفعيٌّ لكبس الذيل — 55 سورةً مشتبهةً (فائضٌ ≥15ث بعد آخر مدخل · تدقيق الجولة الثانية 2026-10-03)، كلٌّ يُقاس بالسماع قبل أن يُمسّ",
+     "reasonCode": null,
+     "dropSurahs": [],
+     "byReason": {},
+     "declaredCount": 0,
+     "tagCount": 0,
+     "declaredIds": [],
+     "truncatedTail": null
+    },
+    "undeclaredEdge": [],
+    "errors": [],
+    "ok": true
+   },
+   "durations": {
+    "durationOutliers": 3,
+    "durationExamples": [
+     {
+      "aid": "80:41",
+      "ms": 741,
+      "expMs": 3362,
+      "ratio": 0.22,
+      "chars": 10
+     },
+     {
+      "aid": "80:40",
+      "ms": 1541,
+      "expMs": 6388,
+      "ratio": 0.24,
+      "chars": 19
+     },
+     {
+      "aid": "114:6",
+      "ms": 1241,
+      "expMs": 4139,
+      "ratio": 0.3,
+      "chars": 13
+     }
+    ],
+    "impossibleShort": [],
+    "veryShort": [
+     {
+      "aid": "80:41",
+      "ms": 741,
+      "expMs": 3362,
+      "ratio": 0.22,
+      "chars": 10
+     }
+    ],
+    "extremeLong": [],
+    "longOutliers": 0,
+    "shortOutliers": 2,
+    "silenceGaps": 0,
+    "silenceExamples": [],
+    "surahsWithRate": 113
+   },
+   "audio": {
+    "audioReportsOnSha": 0,
+    "openersOnSha": false,
+    "errors": [
+     "لا حكمَ صوتيٍّ بعيّنةٍ على البصمة المنشورة",
+     "لا شاهدَ مطالعَ على البصمة المنشورة"
+    ],
+    "notes": [],
+    "samples": [],
+    "pooled": null,
+    "severeHi": null,
+    "otherShasWithSamples": [
+     "5d6630a9",
+     "60af2397",
+     "6b784c25",
+     "a124d0b7",
+     "aa77623f",
+     "e46694f5"
+    ],
+    "ok": false
+   }
+  }
+ ],
+ "summary": {
+  "indexes": 1,
+  "phase": "all",
+  "identityOk": 1,
+  "identityBad": [],
+  "structureOk": 1,
+  "structureBad": [],
+  "gapsOk": 1,
+  "gapsBad": [],
+  "audioOk": 0,
+  "audioBad": [
+   "timings-staging/hafs/jormy.9fc642e3.jz"
+  ],
+  "durationOutliersTotal": 3,
+  "impossibleShortTotal": 0,
+  "indexesWithImpossibleShort": 0,
+  "veryShortTotal": 1,
+  "extremeLongTotal": 0,
+  "indexesWithExtremeLong": 0,
+  "mirrorStale": 0,
+  "silenceGapsTotal": 0,
+  "indexesWithDurationOutliers": 1,
+  "indexesWithSilenceGaps": 0,
+  "entriesTotal": 6236,
+  "missingTotal": 0
+ }
+}

@@ -1,0 +1,61 @@
+{
+  "path": "ops/source-repair/candidates/codex-asiri7-archive-20261006.jz",
+  "sha256": "745366ed006869883b81952d354720a68fc876b0fa47b53bf30512809e4f5700",
+  "key": "timings-staging/hafs/3siri.745366ed.jz",
+  "parentKey": "timings/hafs/3siri.jz",
+  "parentSha256": "fbf468c05fa3598df3103ce4f1cf53e093e9eb0ac719ad9b051d14c1a0cb1392",
+  "addedEntries": 206,
+  "changedEntries": 0,
+  "proof": {
+    "qualityClaim": false,
+    "coverageCertified": false,
+    "sourceUrl": "https://archive.org/download/002_20230924_202309/007%20-%20%D8%B3%D9%88%D8%B1%D8%A9%20%D8%A7%D9%84%D8%A3%D8%B9%D8%B1%D8%A7%D9%81.mp3",
+    "audioSha256": "897ad7e2c99472111722247f362d135da0c25c449806260269a792a12f52d3f1",
+    "metadata": {
+      "path": "ops/out/codex-asiri7-archive-4917-metadata-20261006.json",
+      "sha256": "3b8b08f02c7fa2575eb35791fc8fa750d94b1adff7b48eb9b49f9697e2bd0a6f"
+    },
+    "primary": {
+      "path": "ops/out/codex-asiri7-left-context-alignment-success-37433349375.json",
+      "sha256": "9426b3718b5b6a955ae6926263beeb66424a2dcad534c8b95172bbafdcdc8bac",
+      "runId": 37433349375
+    },
+    "independent": {
+      "path": "ops/out/codex-asiri7-independent-29x5-success-37435925698.json",
+      "sha256": "1bb5ae038f42bc29ac27308946602809c844afece2badb36dde53ed150360853",
+      "runId": 37435925698
+    },
+    "comparison": {
+      "path": "ops/out/codex-asiri7-independent-comparison-20261006.json",
+      "sha256": "1857b0b5d6d2ea416a5c1ac500d15fcf6d0ec148cebf2424c07a02da9b0b378b"
+    },
+    "rejectedShortContext": {
+      "path": "ops/out/codex-asiri7-low-five-targeted-rejection-37439371822.json",
+      "sha256": "1d51139908b8e5b2a3fb3d13ca7862a30706cfa4bf64c5f8bb957b61d2b6dbb1",
+      "runId": 37439371822
+    },
+    "expandedArbitration": {
+      "path": "ops/out/codex-asiri7-ayah48-expanded-success-37442850692.json",
+      "sha256": "6c91c2e891042c940aa19d56078558f6758dffb8210450993a1fc4e6cc5bde5a",
+      "runId": 37442850692
+    },
+    "alignmentIssues": [
+      "مدة شاذة لآية 1: 12638م.ث لـ4 حرفاً",
+      "مدة شاذة لآية 13: 49530م.ث لـ49 حرفاً",
+      "مدة شاذة لآية 48: 73282م.ث لـ71 حرفاً"
+    ],
+    "limits": [
+      "Exact repeated forced boundaries are repeatability evidence, not 100% acoustic certification.",
+      "Five LOW-confidence verses keep their measured confidences; none is upgraded.",
+      "The rejected short window is preserved; two wider windows show that its 7:48 end drift was context-induced.",
+      "Final-SHA audio QA, heard gate, public/manifest/frozen checks, and a stable general audit remain mandatory."
+    ]
+  },
+  "warnings": [
+    "مداخل مدتها > 120ث: 2 · مثال: 2:282 مدتها 149ث",
+    "مطالع سور تبدأ دون 3ث — مرشّحون للمسبار الصوتي لا حكمٌ عليهم: 5:1=2980م.ث · 6:1=620م.ث · 18:1=2960م.ث · 20:1=2780م.ث · 22:1=640م.ث · 25:1=900م.ث · 26:1=2980م.ث · 33:1=160م.ث · 34:1=2860م.ث · 35:1=2640م.ث … و66 غيرها"
+  ],
+  "qualityChecks": "pending",
+  "heardGate": "pending",
+  "unpublishedLocalCandidate": true
+}

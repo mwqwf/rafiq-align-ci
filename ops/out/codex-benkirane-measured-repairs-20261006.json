@@ -1,0 +1,1907 @@
+{
+  "path": "ops/source-repair/candidates/codex-benkirane-51-77-repair-20261006.jz",
+  "sha256": "20f6052e322bc3dc50a61c34fb2a07f86b1999563119fd533219679602b8e834",
+  "parentSha256": "f98bc7b302a415e1755ac319cb900f546ac25d3229d8a77e6014b4fe46fae300",
+  "changedEntries": 92,
+  "warnings": [
+    "مداخل مدتها > 120ث: 1 · مثال: 24:31 مدتها 121ث"
+  ],
+  "proof": {
+    "qualityClaim": false,
+    "sources": {
+      "51": {
+        "alignmentReportPath": "ops/out/codex-benkirane51-recovery-20261006.json",
+        "alignmentReportSha256": "a0fbec87d6ec5472ca05a80983d531bbc41ce8779146a0ace4c0fed070769549",
+        "nativeStarts": {
+          "51:52": [
+            367875,
+            367875
+          ],
+          "51:53": [
+            380807,
+            380807
+          ],
+          "51:54": [
+            387694,
+            387694
+          ],
+          "51:55": [
+            393720,
+            393720
+          ],
+          "51:56": [
+            402919,
+            402919,
+            402489,
+            402489
+          ],
+          "51:57": [
+            409754,
+            409754
+          ],
+          "51:58": [
+            420661,
+            420661
+          ],
+          "51:59": [
+            427426,
+            427426
+          ],
+          "51:60": [
+            437753,
+            437753
+          ]
+        },
+        "decodedEofMs": 445498,
+        "sourceSha256": "7edb05c3b0f7ebe2f37d5af3c9949727cef50772cbc4857b5745c7a92fab7dbf"
+      },
+      "77": {
+        "alignmentReportPath": "ops/out/codex-benkirane77-recovery-20261006.json",
+        "alignmentReportSha256": "14641e363f9c09c2cb09535d24e82338b6aa1aaaa862d0def3852a31bf553c14",
+        "nativeStarts": {
+          "77:43": [
+            218283,
+            218283
+          ],
+          "77:44": [
+            227628,
+            227628
+          ],
+          "77:45": [
+            233531,
+            233531
+          ],
+          "77:46": [
+            238634,
+            238634
+          ],
+          "77:47": [
+            245297,
+            245297
+          ],
+          "77:48": [
+            250460,
+            250460
+          ],
+          "77:49": [
+            256042,
+            256042
+          ],
+          "77:50": [
+            261425,
+            261425
+          ]
+        },
+        "decodedEofMs": 268829,
+        "sourceSha256": "b6c7c2949373d2285eea057fa2b63e987a66793dff0e491064dabcfebcbd81b4"
+      }
+    },
+    "contextReportsSha256": "05b10fb97669ca43b9edf939ffeacceb0952366bd76ce0a4462405eefcbf9f0b",
+    "contextRawBundleSha256": "5359e95e8537b707fca31841d7bb8aca1e3f3478fd08152d32e921940dcff6a1",
+    "changes": [
+      {
+        "before": {
+          "ayahId": "51:1",
+          "fileRef": "https://server16.mp3quran.net/A-Benkirane/Rewayat-Warsh-A-n-Nafi/051.mp3",
+          "startMs": 8935,
+          "endMs": 9726,
+          "conf": 0.0,
+          "confBand": "LOW",
+          "startApprox": true
+        },
+        "after": {
+          "ayahId": "51:1",
+          "fileRef": "https://server16.mp3quran.net/A-Benkirane/Rewayat-Warsh-A-n-Nafi/051.mp3",
+          "startMs": 5173,
+          "endMs": 7205,
+          "conf": 0.0,
+          "confBand": "LOW",
+          "startApprox": true
+        }
+      },
+      {
+        "before": {
+          "ayahId": "51:2",
+          "fileRef": "https://server16.mp3quran.net/A-Benkirane/Rewayat-Warsh-A-n-Nafi/051.mp3",
+          "startMs": 9726,
+          "endMs": 13309,
+          "conf": 0.488,
+          "confBand": "MED",
+          "startApprox": true
+        },
+        "after": {
+          "ayahId": "51:2",
+          "fileRef": "https://server16.mp3quran.net/A-Benkirane/Rewayat-Warsh-A-n-Nafi/051.mp3",
+          "startMs": 7205,
+          "endMs": 9746,
+          "conf": 0.488,
+          "confBand": "MED",
+          "startApprox": true
+        }
+      },
+      {
+        "before": {
+          "ayahId": "51:3",
+          "fileRef": "https://server16.mp3quran.net/A-Benkirane/Rewayat-Warsh-A-n-Nafi/051.mp3",
+          "startMs": 13309,
+          "endMs": 15790,
+          "conf": 0.66,
+          "confBand": "MED",
+          "startApprox": true
+        },
+        "after": {
+          "ayahId": "51:3",
+          "fileRef": "https://server16.mp3quran.net/A-Benkirane/Rewayat-Warsh-A-n-Nafi/051.mp3",
+          "startMs": 9746,
+          "endMs": 15790,
+          "conf": 0.66,
+          "confBand": "MED",
+          "startApprox": true
+        }
+      },
+      {
+        "before": {
+          "ayahId": "51:4",
+          "fileRef": "https://server16.mp3quran.net/A-Benkirane/Rewayat-Warsh-A-n-Nafi/051.mp3",
+          "startMs": 15790,
+          "endMs": 18072,
+          "conf": 0.567,
+          "confBand": "MED",
+          "startApprox": true
+        },
+        "after": {
+          "ayahId": "51:4",
+          "fileRef": "https://server16.mp3quran.net/A-Benkirane/Rewayat-Warsh-A-n-Nafi/051.mp3",
+          "startMs": 15790,
+          "endMs": 18042,
+          "conf": 0.567,
+          "confBand": "MED",
+          "startApprox": true
+        }
+      },
+      {
+        "before": {
+          "ayahId": "51:5",
+          "fileRef": "https://server16.mp3quran.net/A-Benkirane/Rewayat-Warsh-A-n-Nafi/051.mp3",
+          "startMs": 18072,
+          "endMs": 21814,
+          "conf": 0.74,
+          "confBand": "MED",
+          "startApprox": true
+        },
+        "after": {
+          "ayahId": "51:5",
+          "fileRef": "https://server16.mp3quran.net/A-Benkirane/Rewayat-Warsh-A-n-Nafi/051.mp3",
+          "startMs": 18042,
+          "endMs": 21814,
+          "conf": 0.74,
+          "confBand": "MED",
+          "startApprox": true
+        }
+      },
+      {
+        "before": {
+          "ayahId": "51:7",
+          "fileRef": "https://server16.mp3quran.net/A-Benkirane/Rewayat-Warsh-A-n-Nafi/051.mp3",
+          "startMs": 25657,
+          "endMs": 28789,
+          "conf": 0.715,
+          "confBand": "MED",
+          "startApprox": true
+        },
+        "after": {
+          "ayahId": "51:7",
+          "fileRef": "https://server16.mp3quran.net/A-Benkirane/Rewayat-Warsh-A-n-Nafi/051.mp3",
+          "startMs": 25657,
+          "endMs": 28849,
+          "conf": 0.715,
+          "confBand": "MED",
+          "startApprox": true
+        }
+      },
+      {
+        "before": {
+          "ayahId": "51:8",
+          "fileRef": "https://server16.mp3quran.net/A-Benkirane/Rewayat-Warsh-A-n-Nafi/051.mp3",
+          "startMs": 28789,
+          "endMs": 32702,
+          "conf": 0.678,
+          "confBand": "MED",
+          "startApprox": true
+        },
+        "after": {
+          "ayahId": "51:8",
+          "fileRef": "https://server16.mp3quran.net/A-Benkirane/Rewayat-Warsh-A-n-Nafi/051.mp3",
+          "startMs": 28849,
+          "endMs": 32722,
+          "conf": 0.678,
+          "confBand": "MED",
+          "startApprox": true
+        }
+      },
+      {
+        "before": {
+          "ayahId": "51:9",
+          "fileRef": "https://server16.mp3quran.net/A-Benkirane/Rewayat-Warsh-A-n-Nafi/051.mp3",
+          "startMs": 32702,
+          "endMs": 35704,
+          "conf": 0.74,
+          "confBand": "MED",
+          "startApprox": true
+        },
+        "after": {
+          "ayahId": "51:9",
+          "fileRef": "https://server16.mp3quran.net/A-Benkirane/Rewayat-Warsh-A-n-Nafi/051.mp3",
+          "startMs": 32722,
+          "endMs": 35704,
+          "conf": 0.74,
+          "confBand": "MED",
+          "startApprox": true
+        }
+      },
+      {
+        "before": {
+          "ayahId": "51:10",
+          "fileRef": "https://server16.mp3quran.net/A-Benkirane/Rewayat-Warsh-A-n-Nafi/051.mp3",
+          "startMs": 35704,
+          "endMs": 37915,
+          "conf": 0.74,
+          "confBand": "MED",
+          "startApprox": true
+        },
+        "after": {
+          "ayahId": "51:10",
+          "fileRef": "https://server16.mp3quran.net/A-Benkirane/Rewayat-Warsh-A-n-Nafi/051.mp3",
+          "startMs": 35704,
+          "endMs": 37975,
+          "conf": 0.74,
+          "confBand": "MED",
+          "startApprox": true
+        }
+      },
+      {
+        "before": {
+          "ayahId": "51:11",
+          "fileRef": "https://server16.mp3quran.net/A-Benkirane/Rewayat-Warsh-A-n-Nafi/051.mp3",
+          "startMs": 37915,
+          "endMs": 42889,
+          "conf": 0.644,
+          "confBand": "MED",
+          "startApprox": true
+        },
+        "after": {
+          "ayahId": "51:11",
+          "fileRef": "https://server16.mp3quran.net/A-Benkirane/Rewayat-Warsh-A-n-Nafi/051.mp3",
+          "startMs": 37975,
+          "endMs": 42889,
+          "conf": 0.644,
+          "confBand": "MED",
+          "startApprox": true
+        }
+      },
+      {
+        "before": {
+          "ayahId": "51:12",
+          "fileRef": "https://server16.mp3quran.net/A-Benkirane/Rewayat-Warsh-A-n-Nafi/051.mp3",
+          "startMs": 42889,
+          "endMs": 46280,
+          "conf": 0.697,
+          "confBand": "MED",
+          "startApprox": true
+        },
+        "after": {
+          "ayahId": "51:12",
+          "fileRef": "https://server16.mp3quran.net/A-Benkirane/Rewayat-Warsh-A-n-Nafi/051.mp3",
+          "startMs": 42889,
+          "endMs": 46320,
+          "conf": 0.697,
+          "confBand": "MED",
+          "startApprox": true
+        }
+      },
+      {
+        "before": {
+          "ayahId": "51:13",
+          "fileRef": "https://server16.mp3quran.net/A-Benkirane/Rewayat-Warsh-A-n-Nafi/051.mp3",
+          "startMs": 46280,
+          "endMs": 50674,
+          "conf": 0.658,
+          "confBand": "MED",
+          "startApprox": true
+        },
+        "after": {
+          "ayahId": "51:13",
+          "fileRef": "https://server16.mp3quran.net/A-Benkirane/Rewayat-Warsh-A-n-Nafi/051.mp3",
+          "startMs": 46320,
+          "endMs": 50694,
+          "conf": 0.658,
+          "confBand": "MED",
+          "startApprox": true
+        }
+      },
+      {
+        "before": {
+          "ayahId": "51:14",
+          "fileRef": "https://server16.mp3quran.net/A-Benkirane/Rewayat-Warsh-A-n-Nafi/051.mp3",
+          "startMs": 50674,
+          "endMs": 60200,
+          "conf": 0.74,
+          "confBand": "MED",
+          "startApprox": true
+        },
+        "after": {
+          "ayahId": "51:14",
+          "fileRef": "https://server16.mp3quran.net/A-Benkirane/Rewayat-Warsh-A-n-Nafi/051.mp3",
+          "startMs": 50694,
+          "endMs": 60200,
+          "conf": 0.74,
+          "confBand": "MED",
+          "startApprox": true
+        }
+      },
+      {
+        "before": {
+          "ayahId": "51:15",
+          "fileRef": "https://server16.mp3quran.net/A-Benkirane/Rewayat-Warsh-A-n-Nafi/051.mp3",
+          "startMs": 60200,
+          "endMs": 66474,
+          "conf": 0.667,
+          "confBand": "MED"
+        },
+        "after": {
+          "ayahId": "51:15",
+          "fileRef": "https://server16.mp3quran.net/A-Benkirane/Rewayat-Warsh-A-n-Nafi/051.mp3",
+          "startMs": 60200,
+          "endMs": 66434,
+          "conf": 0.667,
+          "confBand": "MED"
+        }
+      },
+      {
+        "before": {
+          "ayahId": "51:16",
+          "fileRef": "https://server16.mp3quran.net/A-Benkirane/Rewayat-Warsh-A-n-Nafi/051.mp3",
+          "startMs": 66474,
+          "endMs": 79110,
+          "conf": 0.74,
+          "confBand": "MED",
+          "startApprox": true
+        },
+        "after": {
+          "ayahId": "51:16",
+          "fileRef": "https://server16.mp3quran.net/A-Benkirane/Rewayat-Warsh-A-n-Nafi/051.mp3",
+          "startMs": 66434,
+          "endMs": 79110,
+          "conf": 0.74,
+          "confBand": "MED",
+          "startApprox": true
+        }
+      },
+      {
+        "before": {
+          "ayahId": "51:21",
+          "fileRef": "https://server16.mp3quran.net/A-Benkirane/Rewayat-Warsh-A-n-Nafi/051.mp3",
+          "startMs": 102669,
+          "endMs": 110093,
+          "conf": 0.74,
+          "confBand": "MED",
+          "startApprox": true
+        },
+        "after": {
+          "ayahId": "51:21",
+          "fileRef": "https://server16.mp3quran.net/A-Benkirane/Rewayat-Warsh-A-n-Nafi/051.mp3",
+          "startMs": 102669,
+          "endMs": 110123,
+          "conf": 0.74,
+          "confBand": "MED",
+          "startApprox": true
+        }
+      },
+      {
+        "before": {
+          "ayahId": "51:22",
+          "fileRef": "https://server16.mp3quran.net/A-Benkirane/Rewayat-Warsh-A-n-Nafi/051.mp3",
+          "startMs": 110093,
+          "endMs": 116047,
+          "conf": 0.74,
+          "confBand": "MED",
+          "startApprox": true
+        },
+        "after": {
+          "ayahId": "51:22",
+          "fileRef": "https://server16.mp3quran.net/A-Benkirane/Rewayat-Warsh-A-n-Nafi/051.mp3",
+          "startMs": 110123,
+          "endMs": 116107,
+          "conf": 0.74,
+          "confBand": "MED",
+          "startApprox": true
+        }
+      },
+      {
+        "before": {
+          "ayahId": "51:23",
+          "fileRef": "https://server16.mp3quran.net/A-Benkirane/Rewayat-Warsh-A-n-Nafi/051.mp3",
+          "startMs": 116047,
+          "endMs": 128546,
+          "conf": 0.739,
+          "confBand": "MED",
+          "startApprox": true
+        },
+        "after": {
+          "ayahId": "51:23",
+          "fileRef": "https://server16.mp3quran.net/A-Benkirane/Rewayat-Warsh-A-n-Nafi/051.mp3",
+          "startMs": 116107,
+          "endMs": 128526,
+          "conf": 0.739,
+          "confBand": "MED",
+          "startApprox": true
+        }
+      },
+      {
+        "before": {
+          "ayahId": "51:24",
+          "fileRef": "https://server16.mp3quran.net/A-Benkirane/Rewayat-Warsh-A-n-Nafi/051.mp3",
+          "startMs": 128546,
+          "endMs": 133319,
+          "conf": 0.74,
+          "confBand": "MED",
+          "startApprox": true
+        },
+        "after": {
+          "ayahId": "51:24",
+          "fileRef": "https://server16.mp3quran.net/A-Benkirane/Rewayat-Warsh-A-n-Nafi/051.mp3",
+          "startMs": 128526,
+          "endMs": 133379,
+          "conf": 0.74,
+          "confBand": "MED",
+          "startApprox": true
+        }
+      },
+      {
+        "before": {
+          "ayahId": "51:25",
+          "fileRef": "https://server16.mp3quran.net/A-Benkirane/Rewayat-Warsh-A-n-Nafi/051.mp3",
+          "startMs": 133319,
+          "endMs": 144650,
+          "conf": 0.728,
+          "confBand": "MED",
+          "startApprox": true
+        },
+        "after": {
+          "ayahId": "51:25",
+          "fileRef": "https://server16.mp3quran.net/A-Benkirane/Rewayat-Warsh-A-n-Nafi/051.mp3",
+          "startMs": 133379,
+          "endMs": 144650,
+          "conf": 0.728,
+          "confBand": "MED",
+          "startApprox": true
+        }
+      },
+      {
+        "before": {
+          "ayahId": "51:26",
+          "fileRef": "https://server16.mp3quran.net/A-Benkirane/Rewayat-Warsh-A-n-Nafi/051.mp3",
+          "startMs": 144650,
+          "endMs": 151561,
+          "conf": 0.809,
+          "confBand": "HIGH"
+        },
+        "after": {
+          "ayahId": "51:26",
+          "fileRef": "https://server16.mp3quran.net/A-Benkirane/Rewayat-Warsh-A-n-Nafi/051.mp3",
+          "startMs": 144650,
+          "endMs": 151581,
+          "conf": 0.809,
+          "confBand": "HIGH"
+        }
+      },
+      {
+        "before": {
+          "ayahId": "51:27",
+          "fileRef": "https://server16.mp3quran.net/A-Benkirane/Rewayat-Warsh-A-n-Nafi/051.mp3",
+          "startMs": 151561,
+          "endMs": 158026,
+          "conf": 0.636,
+          "confBand": "MED",
+          "startApprox": true
+        },
+        "after": {
+          "ayahId": "51:27",
+          "fileRef": "https://server16.mp3quran.net/A-Benkirane/Rewayat-Warsh-A-n-Nafi/051.mp3",
+          "startMs": 151581,
+          "endMs": 158026,
+          "conf": 0.636,
+          "confBand": "MED",
+          "startApprox": true
+        }
+      },
+      {
+        "before": {
+          "ayahId": "51:29",
+          "fileRef": "https://server16.mp3quran.net/A-Benkirane/Rewayat-Warsh-A-n-Nafi/051.mp3",
+          "startMs": 168260,
+          "endMs": 177759,
+          "conf": 0.531,
+          "confBand": "MED"
+        },
+        "after": {
+          "ayahId": "51:29",
+          "fileRef": "https://server16.mp3quran.net/A-Benkirane/Rewayat-Warsh-A-n-Nafi/051.mp3",
+          "startMs": 168260,
+          "endMs": 177779,
+          "conf": 0.531,
+          "confBand": "MED"
+        }
+      },
+      {
+        "before": {
+          "ayahId": "51:30",
+          "fileRef": "https://server16.mp3quran.net/A-Benkirane/Rewayat-Warsh-A-n-Nafi/051.mp3",
+          "startMs": 177759,
+          "endMs": 188290,
+          "conf": 0.698,
+          "confBand": "MED",
+          "startApprox": true
+        },
+        "after": {
+          "ayahId": "51:30",
+          "fileRef": "https://server16.mp3quran.net/A-Benkirane/Rewayat-Warsh-A-n-Nafi/051.mp3",
+          "startMs": 177779,
+          "endMs": 188290,
+          "conf": 0.698,
+          "confBand": "MED",
+          "startApprox": true
+        }
+      },
+      {
+        "before": {
+          "ayahId": "51:32",
+          "fileRef": "https://server16.mp3quran.net/A-Benkirane/Rewayat-Warsh-A-n-Nafi/051.mp3",
+          "startMs": 195170,
+          "endMs": 204606,
+          "conf": 0.601,
+          "confBand": "MED"
+        },
+        "after": {
+          "ayahId": "51:32",
+          "fileRef": "https://server16.mp3quran.net/A-Benkirane/Rewayat-Warsh-A-n-Nafi/051.mp3",
+          "startMs": 195170,
+          "endMs": 204666,
+          "conf": 0.601,
+          "confBand": "MED"
+        }
+      },
+      {
+        "before": {
+          "ayahId": "51:33",
+          "fileRef": "https://server16.mp3quran.net/A-Benkirane/Rewayat-Warsh-A-n-Nafi/051.mp3",
+          "startMs": 204606,
+          "endMs": 216445,
+          "conf": 0.056,
+          "confBand": "LOW",
+          "startApprox": true
+        },
+        "after": {
+          "ayahId": "51:33",
+          "fileRef": "https://server16.mp3quran.net/A-Benkirane/Rewayat-Warsh-A-n-Nafi/051.mp3",
+          "startMs": 204666,
+          "endMs": 216465,
+          "conf": 0.056,
+          "confBand": "LOW",
+          "startApprox": true
+        }
+      },
+      {
+        "before": {
+          "ayahId": "51:34",
+          "fileRef": "https://server16.mp3quran.net/A-Benkirane/Rewayat-Warsh-A-n-Nafi/051.mp3",
+          "startMs": 216445,
+          "endMs": 222289,
+          "conf": 0.545,
+          "confBand": "MED",
+          "startApprox": true
+        },
+        "after": {
+          "ayahId": "51:34",
+          "fileRef": "https://server16.mp3quran.net/A-Benkirane/Rewayat-Warsh-A-n-Nafi/051.mp3",
+          "startMs": 216465,
+          "endMs": 222289,
+          "conf": 0.545,
+          "confBand": "MED",
+          "startApprox": true
+        }
+      },
+      {
+        "before": {
+          "ayahId": "51:35",
+          "fileRef": "https://server16.mp3quran.net/A-Benkirane/Rewayat-Warsh-A-n-Nafi/051.mp3",
+          "startMs": 222289,
+          "endMs": 234116,
+          "conf": 0.151,
+          "confBand": "LOW",
+          "startApprox": true
+        },
+        "after": {
+          "ayahId": "51:35",
+          "fileRef": "https://server16.mp3quran.net/A-Benkirane/Rewayat-Warsh-A-n-Nafi/051.mp3",
+          "startMs": 222289,
+          "endMs": 227502,
+          "conf": 0.151,
+          "confBand": "LOW",
+          "startApprox": true
+        }
+      },
+      {
+        "before": {
+          "ayahId": "51:36",
+          "fileRef": "https://server16.mp3quran.net/A-Benkirane/Rewayat-Warsh-A-n-Nafi/051.mp3",
+          "startMs": 234116,
+          "endMs": 239700,
+          "conf": 0.583,
+          "confBand": "MED",
+          "startApprox": true
+        },
+        "after": {
+          "ayahId": "51:36",
+          "fileRef": "https://server16.mp3quran.net/A-Benkirane/Rewayat-Warsh-A-n-Nafi/051.mp3",
+          "startMs": 227502,
+          "endMs": 239770,
+          "conf": 0.583,
+          "confBand": "MED",
+          "startApprox": true
+        }
+      },
+      {
+        "before": {
+          "ayahId": "51:37",
+          "fileRef": "https://server16.mp3quran.net/A-Benkirane/Rewayat-Warsh-A-n-Nafi/051.mp3",
+          "startMs": 239700,
+          "endMs": 249547,
+          "conf": 0.68,
+          "confBand": "MED",
+          "startApprox": true
+        },
+        "after": {
+          "ayahId": "51:37",
+          "fileRef": "https://server16.mp3quran.net/A-Benkirane/Rewayat-Warsh-A-n-Nafi/051.mp3",
+          "startMs": 239770,
+          "endMs": 249547,
+          "conf": 0.68,
+          "confBand": "MED",
+          "startApprox": true
+        }
+      },
+      {
+        "before": {
+          "ayahId": "51:41",
+          "fileRef": "https://server16.mp3quran.net/A-Benkirane/Rewayat-Warsh-A-n-Nafi/051.mp3",
+          "startMs": 273640,
+          "endMs": 278376,
+          "conf": 0.46,
+          "confBand": "MED"
+        },
+        "after": {
+          "ayahId": "51:41",
+          "fileRef": "https://server16.mp3quran.net/A-Benkirane/Rewayat-Warsh-A-n-Nafi/051.mp3",
+          "startMs": 273640,
+          "endMs": 278416,
+          "conf": 0.46,
+          "confBand": "MED"
+        }
+      },
+      {
+        "before": {
+          "ayahId": "51:42",
+          "fileRef": "https://server16.mp3quran.net/A-Benkirane/Rewayat-Warsh-A-n-Nafi/051.mp3",
+          "startMs": 278376,
+          "endMs": 286391,
+          "conf": 0.554,
+          "confBand": "MED",
+          "startApprox": true
+        },
+        "after": {
+          "ayahId": "51:42",
+          "fileRef": "https://server16.mp3quran.net/A-Benkirane/Rewayat-Warsh-A-n-Nafi/051.mp3",
+          "startMs": 278416,
+          "endMs": 286391,
+          "conf": 0.554,
+          "confBand": "MED",
+          "startApprox": true
+        }
+      },
+      {
+        "before": {
+          "ayahId": "51:43",
+          "fileRef": "https://server16.mp3quran.net/A-Benkirane/Rewayat-Warsh-A-n-Nafi/051.mp3",
+          "startMs": 286391,
+          "endMs": 292235,
+          "conf": 0.642,
+          "confBand": "MED",
+          "startApprox": true
+        },
+        "after": {
+          "ayahId": "51:43",
+          "fileRef": "https://server16.mp3quran.net/A-Benkirane/Rewayat-Warsh-A-n-Nafi/051.mp3",
+          "startMs": 286391,
+          "endMs": 292255,
+          "conf": 0.642,
+          "confBand": "MED",
+          "startApprox": true
+        }
+      },
+      {
+        "before": {
+          "ayahId": "51:44",
+          "fileRef": "https://server16.mp3quran.net/A-Benkirane/Rewayat-Warsh-A-n-Nafi/051.mp3",
+          "startMs": 292235,
+          "endMs": 300101,
+          "conf": 0.484,
+          "confBand": "MED",
+          "startApprox": true
+        },
+        "after": {
+          "ayahId": "51:44",
+          "fileRef": "https://server16.mp3quran.net/A-Benkirane/Rewayat-Warsh-A-n-Nafi/051.mp3",
+          "startMs": 292255,
+          "endMs": 300081,
+          "conf": 0.484,
+          "confBand": "MED",
+          "startApprox": true
+        }
+      },
+      {
+        "before": {
+          "ayahId": "51:45",
+          "fileRef": "https://server16.mp3quran.net/A-Benkirane/Rewayat-Warsh-A-n-Nafi/051.mp3",
+          "startMs": 300101,
+          "endMs": 308526,
+          "conf": 0.74,
+          "confBand": "MED",
+          "startApprox": true
+        },
+        "after": {
+          "ayahId": "51:45",
+          "fileRef": "https://server16.mp3quran.net/A-Benkirane/Rewayat-Warsh-A-n-Nafi/051.mp3",
+          "startMs": 300081,
+          "endMs": 308526,
+          "conf": 0.74,
+          "confBand": "MED",
+          "startApprox": true
+        }
+      },
+      {
+        "before": {
+          "ayahId": "51:46",
+          "fileRef": "https://server16.mp3quran.net/A-Benkirane/Rewayat-Warsh-A-n-Nafi/051.mp3",
+          "startMs": 308526,
+          "endMs": 319514,
+          "conf": 0.74,
+          "confBand": "MED",
+          "startApprox": true
+        },
+        "after": {
+          "ayahId": "51:46",
+          "fileRef": "https://server16.mp3quran.net/A-Benkirane/Rewayat-Warsh-A-n-Nafi/051.mp3",
+          "startMs": 308526,
+          "endMs": 319964,
+          "conf": 0.74,
+          "confBand": "MED",
+          "startApprox": true
+        }
+      },
+      {
+        "before": {
+          "ayahId": "51:47",
+          "fileRef": "https://server16.mp3quran.net/A-Benkirane/Rewayat-Warsh-A-n-Nafi/051.mp3",
+          "startMs": 319514,
+          "endMs": 328349,
+          "conf": 0.74,
+          "confBand": "MED",
+          "startApprox": true
+        },
+        "after": {
+          "ayahId": "51:47",
+          "fileRef": "https://server16.mp3quran.net/A-Benkirane/Rewayat-Warsh-A-n-Nafi/051.mp3",
+          "startMs": 319964,
+          "endMs": 330421,
+          "conf": 0.74,
+          "confBand": "MED",
+          "startApprox": true
+        }
+      },
+      {
+        "before": {
+          "ayahId": "51:48",
+          "fileRef": "https://server16.mp3quran.net/A-Benkirane/Rewayat-Warsh-A-n-Nafi/051.mp3",
+          "startMs": 328349,
+          "endMs": 331291,
+          "conf": 0.0,
+          "confBand": "LOW",
+          "startApprox": true
+        },
+        "after": {
+          "ayahId": "51:48",
+          "fileRef": "https://server16.mp3quran.net/A-Benkirane/Rewayat-Warsh-A-n-Nafi/051.mp3",
+          "startMs": 330421,
+          "endMs": 337185,
+          "conf": 0.0,
+          "confBand": "LOW",
+          "startApprox": true
+        }
+      },
+      {
+        "before": {
+          "ayahId": "51:49",
+          "fileRef": "https://server16.mp3quran.net/A-Benkirane/Rewayat-Warsh-A-n-Nafi/051.mp3",
+          "startMs": 331291,
+          "endMs": 337085,
+          "conf": 0.0,
+          "confBand": "LOW",
+          "startApprox": true
+        },
+        "after": {
+          "ayahId": "51:49",
+          "fileRef": "https://server16.mp3quran.net/A-Benkirane/Rewayat-Warsh-A-n-Nafi/051.mp3",
+          "startMs": 337185,
+          "endMs": 345811,
+          "conf": 0.0,
+          "confBand": "LOW",
+          "startApprox": true
+        }
+      },
+      {
+        "before": {
+          "ayahId": "51:50",
+          "fileRef": "https://server16.mp3quran.net/A-Benkirane/Rewayat-Warsh-A-n-Nafi/051.mp3",
+          "startMs": 337085,
+          "endMs": 341638,
+          "conf": 0.0,
+          "confBand": "LOW",
+          "startApprox": true
+        },
+        "after": {
+          "ayahId": "51:50",
+          "fileRef": "https://server16.mp3quran.net/A-Benkirane/Rewayat-Warsh-A-n-Nafi/051.mp3",
+          "startMs": 345811,
+          "endMs": 356478,
+          "conf": 0.0,
+          "confBand": "LOW",
+          "startApprox": true
+        }
+      },
+      {
+        "before": {
+          "ayahId": "51:51",
+          "fileRef": "https://server16.mp3quran.net/A-Benkirane/Rewayat-Warsh-A-n-Nafi/051.mp3",
+          "startMs": 341638,
+          "endMs": 344360,
+          "conf": 0.0,
+          "confBand": "LOW",
+          "startApprox": true
+        },
+        "after": {
+          "ayahId": "51:51",
+          "fileRef": "https://server16.mp3quran.net/A-Benkirane/Rewayat-Warsh-A-n-Nafi/051.mp3",
+          "startMs": 356478,
+          "endMs": 367875,
+          "conf": 0.0,
+          "confBand": "LOW",
+          "startApprox": true
+        }
+      },
+      {
+        "before": {
+          "ayahId": "51:52",
+          "fileRef": "https://server16.mp3quran.net/A-Benkirane/Rewayat-Warsh-A-n-Nafi/051.mp3",
+          "startMs": 344360,
+          "endMs": 349663,
+          "conf": 0.0,
+          "confBand": "LOW",
+          "startApprox": true
+        },
+        "after": {
+          "ayahId": "51:52",
+          "fileRef": "https://server16.mp3quran.net/A-Benkirane/Rewayat-Warsh-A-n-Nafi/051.mp3",
+          "startMs": 367875,
+          "endMs": 380807,
+          "conf": 0.0,
+          "confBand": "LOW",
+          "startApprox": true
+        }
+      },
+      {
+        "before": {
+          "ayahId": "51:53",
+          "fileRef": "https://server16.mp3quran.net/A-Benkirane/Rewayat-Warsh-A-n-Nafi/051.mp3",
+          "startMs": 349663,
+          "endMs": 350744,
+          "conf": 0.0,
+          "confBand": "LOW",
+          "startApprox": true
+        },
+        "after": {
+          "ayahId": "51:53",
+          "fileRef": "https://server16.mp3quran.net/A-Benkirane/Rewayat-Warsh-A-n-Nafi/051.mp3",
+          "startMs": 380807,
+          "endMs": 387694,
+          "conf": 0.0,
+          "confBand": "LOW",
+          "startApprox": true
+        }
+      },
+      {
+        "before": {
+          "ayahId": "51:54",
+          "fileRef": "https://server16.mp3quran.net/A-Benkirane/Rewayat-Warsh-A-n-Nafi/051.mp3",
+          "startMs": 350744,
+          "endMs": 352806,
+          "conf": 0.0,
+          "confBand": "LOW",
+          "startApprox": true
+        },
+        "after": {
+          "ayahId": "51:54",
+          "fileRef": "https://server16.mp3quran.net/A-Benkirane/Rewayat-Warsh-A-n-Nafi/051.mp3",
+          "startMs": 387694,
+          "endMs": 393720,
+          "conf": 0.0,
+          "confBand": "LOW",
+          "startApprox": true
+        }
+      },
+      {
+        "before": {
+          "ayahId": "51:55",
+          "fileRef": "https://server16.mp3quran.net/A-Benkirane/Rewayat-Warsh-A-n-Nafi/051.mp3",
+          "startMs": 352806,
+          "endMs": 356478,
+          "conf": 0.0,
+          "confBand": "LOW",
+          "startApprox": true
+        },
+        "after": {
+          "ayahId": "51:55",
+          "fileRef": "https://server16.mp3quran.net/A-Benkirane/Rewayat-Warsh-A-n-Nafi/051.mp3",
+          "startMs": 393720,
+          "endMs": 402489,
+          "conf": 0.0,
+          "confBand": "LOW",
+          "startApprox": true
+        }
+      },
+      {
+        "before": {
+          "ayahId": "51:56",
+          "fileRef": "https://server16.mp3quran.net/A-Benkirane/Rewayat-Warsh-A-n-Nafi/051.mp3",
+          "startMs": 356478,
+          "endMs": 359190,
+          "conf": 0.0,
+          "confBand": "LOW",
+          "startApprox": true
+        },
+        "after": {
+          "ayahId": "51:56",
+          "fileRef": "https://server16.mp3quran.net/A-Benkirane/Rewayat-Warsh-A-n-Nafi/051.mp3",
+          "startMs": 402489,
+          "endMs": 409754,
+          "conf": 0.0,
+          "confBand": "LOW",
+          "startApprox": true
+        }
+      },
+      {
+        "before": {
+          "ayahId": "51:57",
+          "fileRef": "https://server16.mp3quran.net/A-Benkirane/Rewayat-Warsh-A-n-Nafi/051.mp3",
+          "startMs": 359190,
+          "endMs": 361872,
+          "conf": 0.0,
+          "confBand": "LOW",
+          "startApprox": true
+        },
+        "after": {
+          "ayahId": "51:57",
+          "fileRef": "https://server16.mp3quran.net/A-Benkirane/Rewayat-Warsh-A-n-Nafi/051.mp3",
+          "startMs": 409754,
+          "endMs": 420661,
+          "conf": 0.0,
+          "confBand": "LOW",
+          "startApprox": true
+        }
+      },
+      {
+        "before": {
+          "ayahId": "51:58",
+          "fileRef": "https://server16.mp3quran.net/A-Benkirane/Rewayat-Warsh-A-n-Nafi/051.mp3",
+          "startMs": 361872,
+          "endMs": 364513,
+          "conf": 0.0,
+          "confBand": "LOW",
+          "startApprox": true
+        },
+        "after": {
+          "ayahId": "51:58",
+          "fileRef": "https://server16.mp3quran.net/A-Benkirane/Rewayat-Warsh-A-n-Nafi/051.mp3",
+          "startMs": 420661,
+          "endMs": 427426,
+          "conf": 0.0,
+          "confBand": "LOW",
+          "startApprox": true
+        }
+      },
+      {
+        "before": {
+          "ayahId": "51:59",
+          "fileRef": "https://server16.mp3quran.net/A-Benkirane/Rewayat-Warsh-A-n-Nafi/051.mp3",
+          "startMs": 364513,
+          "endMs": 366355,
+          "conf": 0.0,
+          "confBand": "LOW",
+          "startApprox": true
+        },
+        "after": {
+          "ayahId": "51:59",
+          "fileRef": "https://server16.mp3quran.net/A-Benkirane/Rewayat-Warsh-A-n-Nafi/051.mp3",
+          "startMs": 427426,
+          "endMs": 437753,
+          "conf": 0.0,
+          "confBand": "LOW",
+          "startApprox": true
+        }
+      },
+      {
+        "before": {
+          "ayahId": "51:60",
+          "fileRef": "https://server16.mp3quran.net/A-Benkirane/Rewayat-Warsh-A-n-Nafi/051.mp3",
+          "startMs": 366355,
+          "endMs": 373499,
+          "conf": 0.358,
+          "confBand": "LOW",
+          "startApprox": true
+        },
+        "after": {
+          "ayahId": "51:60",
+          "fileRef": "https://server16.mp3quran.net/A-Benkirane/Rewayat-Warsh-A-n-Nafi/051.mp3",
+          "startMs": 437753,
+          "endMs": 445498,
+          "conf": 0.358,
+          "confBand": "LOW",
+          "startApprox": true
+        }
+      },
+      {
+        "before": {
+          "ayahId": "77:1",
+          "fileRef": "https://server16.mp3quran.net/A-Benkirane/Rewayat-Warsh-A-n-Nafi/077.mp3",
+          "startMs": 28187,
+          "endMs": 29028,
+          "conf": 0.0,
+          "confBand": "LOW",
+          "startApprox": true
+        },
+        "after": {
+          "ayahId": "77:1",
+          "fileRef": "https://server16.mp3quran.net/A-Benkirane/Rewayat-Warsh-A-n-Nafi/077.mp3",
+          "startMs": 5293,
+          "endMs": 7224,
+          "conf": 0.0,
+          "confBand": "LOW",
+          "startApprox": true
+        }
+      },
+      {
+        "before": {
+          "ayahId": "77:2",
+          "fileRef": "https://server16.mp3quran.net/A-Benkirane/Rewayat-Warsh-A-n-Nafi/077.mp3",
+          "startMs": 29028,
+          "endMs": 30330,
+          "conf": 0.316,
+          "confBand": "LOW",
+          "startApprox": true
+        },
+        "after": {
+          "ayahId": "77:2",
+          "fileRef": "https://server16.mp3quran.net/A-Benkirane/Rewayat-Warsh-A-n-Nafi/077.mp3",
+          "startMs": 7224,
+          "endMs": 9666,
+          "conf": 0.316,
+          "confBand": "LOW",
+          "startApprox": true
+        }
+      },
+      {
+        "before": {
+          "ayahId": "77:3",
+          "fileRef": "https://server16.mp3quran.net/A-Benkirane/Rewayat-Warsh-A-n-Nafi/077.mp3",
+          "startMs": 30330,
+          "endMs": 31649,
+          "conf": 0.166,
+          "confBand": "LOW"
+        },
+        "after": {
+          "ayahId": "77:3",
+          "fileRef": "https://server16.mp3quran.net/A-Benkirane/Rewayat-Warsh-A-n-Nafi/077.mp3",
+          "startMs": 9666,
+          "endMs": 16230,
+          "conf": 0.166,
+          "confBand": "LOW"
+        }
+      },
+      {
+        "before": {
+          "ayahId": "77:4",
+          "fileRef": "https://server16.mp3quran.net/A-Benkirane/Rewayat-Warsh-A-n-Nafi/077.mp3",
+          "startMs": 31649,
+          "endMs": 32370,
+          "conf": 0.0,
+          "confBand": "LOW",
+          "startApprox": true
+        },
+        "after": {
+          "ayahId": "77:4",
+          "fileRef": "https://server16.mp3quran.net/A-Benkirane/Rewayat-Warsh-A-n-Nafi/077.mp3",
+          "startMs": 16230,
+          "endMs": 19072,
+          "conf": 0.0,
+          "confBand": "LOW",
+          "startApprox": true
+        }
+      },
+      {
+        "before": {
+          "ayahId": "77:5",
+          "fileRef": "https://server16.mp3quran.net/A-Benkirane/Rewayat-Warsh-A-n-Nafi/077.mp3",
+          "startMs": 32370,
+          "endMs": 33290,
+          "conf": 0.269,
+          "confBand": "LOW",
+          "startApprox": true
+        },
+        "after": {
+          "ayahId": "77:5",
+          "fileRef": "https://server16.mp3quran.net/A-Benkirane/Rewayat-Warsh-A-n-Nafi/077.mp3",
+          "startMs": 19072,
+          "endMs": 24805,
+          "conf": 0.269,
+          "confBand": "LOW",
+          "startApprox": true
+        }
+      },
+      {
+        "before": {
+          "ayahId": "77:6",
+          "fileRef": "https://server16.mp3quran.net/A-Benkirane/Rewayat-Warsh-A-n-Nafi/077.mp3",
+          "startMs": 33290,
+          "endMs": 33991,
+          "conf": 0.06,
+          "confBand": "LOW",
+          "startApprox": true
+        },
+        "after": {
+          "ayahId": "77:6",
+          "fileRef": "https://server16.mp3quran.net/A-Benkirane/Rewayat-Warsh-A-n-Nafi/077.mp3",
+          "startMs": 24805,
+          "endMs": 26106,
+          "conf": 0.06,
+          "confBand": "LOW",
+          "startApprox": true
+        }
+      },
+      {
+        "before": {
+          "ayahId": "77:7",
+          "fileRef": "https://server16.mp3quran.net/A-Benkirane/Rewayat-Warsh-A-n-Nafi/077.mp3",
+          "startMs": 33991,
+          "endMs": 36312,
+          "conf": 0.088,
+          "confBand": "LOW",
+          "startApprox": true
+        },
+        "after": {
+          "ayahId": "77:7",
+          "fileRef": "https://server16.mp3quran.net/A-Benkirane/Rewayat-Warsh-A-n-Nafi/077.mp3",
+          "startMs": 26106,
+          "endMs": 30330,
+          "conf": 0.088,
+          "confBand": "LOW",
+          "startApprox": true
+        }
+      },
+      {
+        "before": {
+          "ayahId": "77:8",
+          "fileRef": "https://server16.mp3quran.net/A-Benkirane/Rewayat-Warsh-A-n-Nafi/077.mp3",
+          "startMs": 36312,
+          "endMs": 37073,
+          "conf": 0.014,
+          "confBand": "LOW",
+          "startApprox": true
+        },
+        "after": {
+          "ayahId": "77:8",
+          "fileRef": "https://server16.mp3quran.net/A-Benkirane/Rewayat-Warsh-A-n-Nafi/077.mp3",
+          "startMs": 30330,
+          "endMs": 33050,
+          "conf": 0.014,
+          "confBand": "LOW",
+          "startApprox": true
+        }
+      },
+      {
+        "before": {
+          "ayahId": "77:9",
+          "fileRef": "https://server16.mp3quran.net/A-Benkirane/Rewayat-Warsh-A-n-Nafi/077.mp3",
+          "startMs": 37073,
+          "endMs": 38724,
+          "conf": 0.237,
+          "confBand": "LOW",
+          "startApprox": true
+        },
+        "after": {
+          "ayahId": "77:9",
+          "fileRef": "https://server16.mp3quran.net/A-Benkirane/Rewayat-Warsh-A-n-Nafi/077.mp3",
+          "startMs": 33050,
+          "endMs": 36072,
+          "conf": 0.237,
+          "confBand": "LOW",
+          "startApprox": true
+        }
+      },
+      {
+        "before": {
+          "ayahId": "77:10",
+          "fileRef": "https://server16.mp3quran.net/A-Benkirane/Rewayat-Warsh-A-n-Nafi/077.mp3",
+          "startMs": 38724,
+          "endMs": 41255,
+          "conf": 0.675,
+          "confBand": "MED"
+        },
+        "after": {
+          "ayahId": "77:10",
+          "fileRef": "https://server16.mp3quran.net/A-Benkirane/Rewayat-Warsh-A-n-Nafi/077.mp3",
+          "startMs": 36072,
+          "endMs": 41315,
+          "conf": 0.675,
+          "confBand": "MED"
+        }
+      },
+      {
+        "before": {
+          "ayahId": "77:11",
+          "fileRef": "https://server16.mp3quran.net/A-Benkirane/Rewayat-Warsh-A-n-Nafi/077.mp3",
+          "startMs": 41255,
+          "endMs": 43407,
+          "conf": 0.513,
+          "confBand": "MED",
+          "startApprox": true
+        },
+        "after": {
+          "ayahId": "77:11",
+          "fileRef": "https://server16.mp3quran.net/A-Benkirane/Rewayat-Warsh-A-n-Nafi/077.mp3",
+          "startMs": 41315,
+          "endMs": 43477,
+          "conf": 0.513,
+          "confBand": "MED",
+          "startApprox": true
+        }
+      },
+      {
+        "before": {
+          "ayahId": "77:12",
+          "fileRef": "https://server16.mp3quran.net/A-Benkirane/Rewayat-Warsh-A-n-Nafi/077.mp3",
+          "startMs": 43407,
+          "endMs": 45608,
+          "conf": 0.554,
+          "confBand": "MED",
+          "startApprox": true
+        },
+        "after": {
+          "ayahId": "77:12",
+          "fileRef": "https://server16.mp3quran.net/A-Benkirane/Rewayat-Warsh-A-n-Nafi/077.mp3",
+          "startMs": 43477,
+          "endMs": 45658,
+          "conf": 0.554,
+          "confBand": "MED",
+          "startApprox": true
+        }
+      },
+      {
+        "before": {
+          "ayahId": "77:13",
+          "fileRef": "https://server16.mp3quran.net/A-Benkirane/Rewayat-Warsh-A-n-Nafi/077.mp3",
+          "startMs": 45608,
+          "endMs": 47510,
+          "conf": 0.577,
+          "confBand": "MED",
+          "startApprox": true
+        },
+        "after": {
+          "ayahId": "77:13",
+          "fileRef": "https://server16.mp3quran.net/A-Benkirane/Rewayat-Warsh-A-n-Nafi/077.mp3",
+          "startMs": 45658,
+          "endMs": 47510,
+          "conf": 0.577,
+          "confBand": "MED",
+          "startApprox": true
+        }
+      },
+      {
+        "before": {
+          "ayahId": "77:15",
+          "fileRef": "https://server16.mp3quran.net/A-Benkirane/Rewayat-Warsh-A-n-Nafi/077.mp3",
+          "startMs": 52913,
+          "endMs": 58640,
+          "conf": 0.669,
+          "confBand": "MED"
+        },
+        "after": {
+          "ayahId": "77:15",
+          "fileRef": "https://server16.mp3quran.net/A-Benkirane/Rewayat-Warsh-A-n-Nafi/077.mp3",
+          "startMs": 52913,
+          "endMs": 58740,
+          "conf": 0.669,
+          "confBand": "MED"
+        }
+      },
+      {
+        "before": {
+          "ayahId": "77:16",
+          "fileRef": "https://server16.mp3quran.net/A-Benkirane/Rewayat-Warsh-A-n-Nafi/077.mp3",
+          "startMs": 58640,
+          "endMs": 62650,
+          "conf": 0.612,
+          "confBand": "MED"
+        },
+        "after": {
+          "ayahId": "77:16",
+          "fileRef": "https://server16.mp3quran.net/A-Benkirane/Rewayat-Warsh-A-n-Nafi/077.mp3",
+          "startMs": 58740,
+          "endMs": 62650,
+          "conf": 0.612,
+          "confBand": "MED"
+        }
+      },
+      {
+        "before": {
+          "ayahId": "77:19",
+          "fileRef": "https://server16.mp3quran.net/A-Benkirane/Rewayat-Warsh-A-n-Nafi/077.mp3",
+          "startMs": 72620,
+          "endMs": 77969,
+          "conf": 0.673,
+          "confBand": "MED"
+        },
+        "after": {
+          "ayahId": "77:19",
+          "fileRef": "https://server16.mp3quran.net/A-Benkirane/Rewayat-Warsh-A-n-Nafi/077.mp3",
+          "startMs": 72620,
+          "endMs": 77949,
+          "conf": 0.673,
+          "confBand": "MED"
+        }
+      },
+      {
+        "before": {
+          "ayahId": "77:20",
+          "fileRef": "https://server16.mp3quran.net/A-Benkirane/Rewayat-Warsh-A-n-Nafi/077.mp3",
+          "startMs": 77969,
+          "endMs": 91030,
+          "conf": 0.418,
+          "confBand": "LOW"
+        },
+        "after": {
+          "ayahId": "77:20",
+          "fileRef": "https://server16.mp3quran.net/A-Benkirane/Rewayat-Warsh-A-n-Nafi/077.mp3",
+          "startMs": 77949,
+          "endMs": 85293,
+          "conf": 0.418,
+          "confBand": "LOW"
+        }
+      },
+      {
+        "before": {
+          "ayahId": "77:21",
+          "fileRef": "https://server16.mp3quran.net/A-Benkirane/Rewayat-Warsh-A-n-Nafi/077.mp3",
+          "startMs": 91030,
+          "endMs": 95139,
+          "conf": 0.692,
+          "confBand": "MED"
+        },
+        "after": {
+          "ayahId": "77:21",
+          "fileRef": "https://server16.mp3quran.net/A-Benkirane/Rewayat-Warsh-A-n-Nafi/077.mp3",
+          "startMs": 85293,
+          "endMs": 95109,
+          "conf": 0.692,
+          "confBand": "MED"
+        }
+      },
+      {
+        "before": {
+          "ayahId": "77:22",
+          "fileRef": "https://server16.mp3quran.net/A-Benkirane/Rewayat-Warsh-A-n-Nafi/077.mp3",
+          "startMs": 95139,
+          "endMs": 98302,
+          "conf": 0.74,
+          "confBand": "MED",
+          "startApprox": true
+        },
+        "after": {
+          "ayahId": "77:22",
+          "fileRef": "https://server16.mp3quran.net/A-Benkirane/Rewayat-Warsh-A-n-Nafi/077.mp3",
+          "startMs": 95109,
+          "endMs": 98322,
+          "conf": 0.74,
+          "confBand": "MED",
+          "startApprox": true
+        }
+      },
+      {
+        "before": {
+          "ayahId": "77:23",
+          "fileRef": "https://server16.mp3quran.net/A-Benkirane/Rewayat-Warsh-A-n-Nafi/077.mp3",
+          "startMs": 98302,
+          "endMs": 104380,
+          "conf": 0.703,
+          "confBand": "MED",
+          "startApprox": true
+        },
+        "after": {
+          "ayahId": "77:23",
+          "fileRef": "https://server16.mp3quran.net/A-Benkirane/Rewayat-Warsh-A-n-Nafi/077.mp3",
+          "startMs": 98322,
+          "endMs": 104380,
+          "conf": 0.703,
+          "confBand": "MED",
+          "startApprox": true
+        }
+      },
+      {
+        "before": {
+          "ayahId": "77:25",
+          "fileRef": "https://server16.mp3quran.net/A-Benkirane/Rewayat-Warsh-A-n-Nafi/077.mp3",
+          "startMs": 109750,
+          "endMs": 112220,
+          "conf": 0.636,
+          "confBand": "MED"
+        },
+        "after": {
+          "ayahId": "77:25",
+          "fileRef": "https://server16.mp3quran.net/A-Benkirane/Rewayat-Warsh-A-n-Nafi/077.mp3",
+          "startMs": 109750,
+          "endMs": 112200,
+          "conf": 0.636,
+          "confBand": "MED"
+        }
+      },
+      {
+        "before": {
+          "ayahId": "77:26",
+          "fileRef": "https://server16.mp3quran.net/A-Benkirane/Rewayat-Warsh-A-n-Nafi/077.mp3",
+          "startMs": 112220,
+          "endMs": 116073,
+          "conf": 0.608,
+          "confBand": "MED",
+          "startApprox": true
+        },
+        "after": {
+          "ayahId": "77:26",
+          "fileRef": "https://server16.mp3quran.net/A-Benkirane/Rewayat-Warsh-A-n-Nafi/077.mp3",
+          "startMs": 112200,
+          "endMs": 116073,
+          "conf": 0.608,
+          "confBand": "MED",
+          "startApprox": true
+        }
+      },
+      {
+        "before": {
+          "ayahId": "77:29",
+          "fileRef": "https://server16.mp3quran.net/A-Benkirane/Rewayat-Warsh-A-n-Nafi/077.mp3",
+          "startMs": 137907,
+          "endMs": 146081,
+          "conf": 0.664,
+          "confBand": "MED"
+        },
+        "after": {
+          "ayahId": "77:29",
+          "fileRef": "https://server16.mp3quran.net/A-Benkirane/Rewayat-Warsh-A-n-Nafi/077.mp3",
+          "startMs": 137907,
+          "endMs": 146141,
+          "conf": 0.664,
+          "confBand": "MED"
+        }
+      },
+      {
+        "before": {
+          "ayahId": "77:30",
+          "fileRef": "https://server16.mp3quran.net/A-Benkirane/Rewayat-Warsh-A-n-Nafi/077.mp3",
+          "startMs": 146081,
+          "endMs": 158889,
+          "conf": 0.5,
+          "confBand": "MED",
+          "startApprox": true
+        },
+        "after": {
+          "ayahId": "77:30",
+          "fileRef": "https://server16.mp3quran.net/A-Benkirane/Rewayat-Warsh-A-n-Nafi/077.mp3",
+          "startMs": 146141,
+          "endMs": 158889,
+          "conf": 0.5,
+          "confBand": "MED",
+          "startApprox": true
+        }
+      },
+      {
+        "before": {
+          "ayahId": "77:32",
+          "fileRef": "https://server16.mp3quran.net/A-Benkirane/Rewayat-Warsh-A-n-Nafi/077.mp3",
+          "startMs": 163840,
+          "endMs": 168776,
+          "conf": 0.744,
+          "confBand": "MED"
+        },
+        "after": {
+          "ayahId": "77:32",
+          "fileRef": "https://server16.mp3quran.net/A-Benkirane/Rewayat-Warsh-A-n-Nafi/077.mp3",
+          "startMs": 163840,
+          "endMs": 168816,
+          "conf": 0.744,
+          "confBand": "MED"
+        }
+      },
+      {
+        "before": {
+          "ayahId": "77:33",
+          "fileRef": "https://server16.mp3quran.net/A-Benkirane/Rewayat-Warsh-A-n-Nafi/077.mp3",
+          "startMs": 168776,
+          "endMs": 173169,
+          "conf": 0.629,
+          "confBand": "MED",
+          "startApprox": true
+        },
+        "after": {
+          "ayahId": "77:33",
+          "fileRef": "https://server16.mp3quran.net/A-Benkirane/Rewayat-Warsh-A-n-Nafi/077.mp3",
+          "startMs": 168816,
+          "endMs": 173169,
+          "conf": 0.629,
+          "confBand": "MED",
+          "startApprox": true
+        }
+      },
+      {
+        "before": {
+          "ayahId": "77:34",
+          "fileRef": "https://server16.mp3quran.net/A-Benkirane/Rewayat-Warsh-A-n-Nafi/077.mp3",
+          "startMs": 173169,
+          "endMs": 178592,
+          "conf": 0.671,
+          "confBand": "MED"
+        },
+        "after": {
+          "ayahId": "77:34",
+          "fileRef": "https://server16.mp3quran.net/A-Benkirane/Rewayat-Warsh-A-n-Nafi/077.mp3",
+          "startMs": 173169,
+          "endMs": 178580,
+          "conf": 0.671,
+          "confBand": "MED"
+        }
+      },
+      {
+        "before": {
+          "ayahId": "77:35",
+          "fileRef": "https://server16.mp3quran.net/A-Benkirane/Rewayat-Warsh-A-n-Nafi/077.mp3",
+          "startMs": 178592,
+          "endMs": 182124,
+          "conf": 0.885,
+          "confBand": "HIGH"
+        },
+        "after": {
+          "ayahId": "77:35",
+          "fileRef": "https://server16.mp3quran.net/A-Benkirane/Rewayat-Warsh-A-n-Nafi/077.mp3",
+          "startMs": 178580,
+          "endMs": 182184,
+          "conf": 0.885,
+          "confBand": "HIGH"
+        }
+      },
+      {
+        "before": {
+          "ayahId": "77:36",
+          "fileRef": "https://server16.mp3quran.net/A-Benkirane/Rewayat-Warsh-A-n-Nafi/077.mp3",
+          "startMs": 182124,
+          "endMs": 186957,
+          "conf": 0.74,
+          "confBand": "MED",
+          "startApprox": true
+        },
+        "after": {
+          "ayahId": "77:36",
+          "fileRef": "https://server16.mp3quran.net/A-Benkirane/Rewayat-Warsh-A-n-Nafi/077.mp3",
+          "startMs": 182184,
+          "endMs": 186957,
+          "conf": 0.74,
+          "confBand": "MED",
+          "startApprox": true
+        }
+      },
+      {
+        "before": {
+          "ayahId": "77:38",
+          "fileRef": "https://server16.mp3quran.net/A-Benkirane/Rewayat-Warsh-A-n-Nafi/077.mp3",
+          "startMs": 191941,
+          "endMs": 196633,
+          "conf": 0.72,
+          "confBand": "MED"
+        },
+        "after": {
+          "ayahId": "77:38",
+          "fileRef": "https://server16.mp3quran.net/A-Benkirane/Rewayat-Warsh-A-n-Nafi/077.mp3",
+          "startMs": 191941,
+          "endMs": 196693,
+          "conf": 0.72,
+          "confBand": "MED"
+        }
+      },
+      {
+        "before": {
+          "ayahId": "77:39",
+          "fileRef": "https://server16.mp3quran.net/A-Benkirane/Rewayat-Warsh-A-n-Nafi/077.mp3",
+          "startMs": 196633,
+          "endMs": 202247,
+          "conf": 0.74,
+          "confBand": "MED",
+          "startApprox": true
+        },
+        "after": {
+          "ayahId": "77:39",
+          "fileRef": "https://server16.mp3quran.net/A-Benkirane/Rewayat-Warsh-A-n-Nafi/077.mp3",
+          "startMs": 196693,
+          "endMs": 202247,
+          "conf": 0.74,
+          "confBand": "MED",
+          "startApprox": true
+        }
+      },
+      {
+        "before": {
+          "ayahId": "77:40",
+          "fileRef": "https://server16.mp3quran.net/A-Benkirane/Rewayat-Warsh-A-n-Nafi/077.mp3",
+          "startMs": 202247,
+          "endMs": 207911,
+          "conf": 0.74,
+          "confBand": "MED",
+          "startApprox": true
+        },
+        "after": {
+          "ayahId": "77:40",
+          "fileRef": "https://server16.mp3quran.net/A-Benkirane/Rewayat-Warsh-A-n-Nafi/077.mp3",
+          "startMs": 202247,
+          "endMs": 207891,
+          "conf": 0.74,
+          "confBand": "MED",
+          "startApprox": true
+        }
+      },
+      {
+        "before": {
+          "ayahId": "77:41",
+          "fileRef": "https://server16.mp3quran.net/A-Benkirane/Rewayat-Warsh-A-n-Nafi/077.mp3",
+          "startMs": 207911,
+          "endMs": 213534,
+          "conf": 0.723,
+          "confBand": "MED"
+        },
+        "after": {
+          "ayahId": "77:41",
+          "fileRef": "https://server16.mp3quran.net/A-Benkirane/Rewayat-Warsh-A-n-Nafi/077.mp3",
+          "startMs": 207891,
+          "endMs": 213534,
+          "conf": 0.723,
+          "confBand": "MED"
+        }
+      },
+      {
+        "before": {
+          "ayahId": "77:42",
+          "fileRef": "https://server16.mp3quran.net/A-Benkirane/Rewayat-Warsh-A-n-Nafi/077.mp3",
+          "startMs": 213534,
+          "endMs": 218620,
+          "conf": 0.539,
+          "confBand": "MED",
+          "startApprox": true
+        },
+        "after": {
+          "ayahId": "77:42",
+          "fileRef": "https://server16.mp3quran.net/A-Benkirane/Rewayat-Warsh-A-n-Nafi/077.mp3",
+          "startMs": 213534,
+          "endMs": 218283,
+          "conf": 0.539,
+          "confBand": "MED",
+          "startApprox": true
+        }
+      },
+      {
+        "before": {
+          "ayahId": "77:43",
+          "fileRef": "https://server16.mp3quran.net/A-Benkirane/Rewayat-Warsh-A-n-Nafi/077.mp3",
+          "startMs": 218620,
+          "endMs": 224190,
+          "conf": 0.533,
+          "confBand": "MED"
+        },
+        "after": {
+          "ayahId": "77:43",
+          "fileRef": "https://server16.mp3quran.net/A-Benkirane/Rewayat-Warsh-A-n-Nafi/077.mp3",
+          "startMs": 218283,
+          "endMs": 227628,
+          "conf": 0.533,
+          "confBand": "MED"
+        }
+      },
+      {
+        "before": {
+          "ayahId": "77:44",
+          "fileRef": "https://server16.mp3quran.net/A-Benkirane/Rewayat-Warsh-A-n-Nafi/077.mp3",
+          "startMs": 224190,
+          "endMs": 225952,
+          "conf": 0.0,
+          "confBand": "LOW",
+          "startApprox": true
+        },
+        "after": {
+          "ayahId": "77:44",
+          "fileRef": "https://server16.mp3quran.net/A-Benkirane/Rewayat-Warsh-A-n-Nafi/077.mp3",
+          "startMs": 227628,
+          "endMs": 233531,
+          "conf": 0.0,
+          "confBand": "LOW",
+          "startApprox": true
+        }
+      },
+      {
+        "before": {
+          "ayahId": "77:45",
+          "fileRef": "https://server16.mp3quran.net/A-Benkirane/Rewayat-Warsh-A-n-Nafi/077.mp3",
+          "startMs": 225952,
+          "endMs": 229414,
+          "conf": 0.103,
+          "confBand": "LOW",
+          "startApprox": true
+        },
+        "after": {
+          "ayahId": "77:45",
+          "fileRef": "https://server16.mp3quran.net/A-Benkirane/Rewayat-Warsh-A-n-Nafi/077.mp3",
+          "startMs": 233531,
+          "endMs": 238634,
+          "conf": 0.103,
+          "confBand": "LOW",
+          "startApprox": true
+        }
+      },
+      {
+        "before": {
+          "ayahId": "77:46",
+          "fileRef": "https://server16.mp3quran.net/A-Benkirane/Rewayat-Warsh-A-n-Nafi/077.mp3",
+          "startMs": 229414,
+          "endMs": 231115,
+          "conf": 0.0,
+          "confBand": "LOW",
+          "startApprox": true
+        },
+        "after": {
+          "ayahId": "77:46",
+          "fileRef": "https://server16.mp3quran.net/A-Benkirane/Rewayat-Warsh-A-n-Nafi/077.mp3",
+          "startMs": 238634,
+          "endMs": 245297,
+          "conf": 0.0,
+          "confBand": "LOW",
+          "startApprox": true
+        }
+      },
+      {
+        "before": {
+          "ayahId": "77:47",
+          "fileRef": "https://server16.mp3quran.net/A-Benkirane/Rewayat-Warsh-A-n-Nafi/077.mp3",
+          "startMs": 231115,
+          "endMs": 232015,
+          "conf": 0.0,
+          "confBand": "LOW",
+          "startApprox": true
+        },
+        "after": {
+          "ayahId": "77:47",
+          "fileRef": "https://server16.mp3quran.net/A-Benkirane/Rewayat-Warsh-A-n-Nafi/077.mp3",
+          "startMs": 245297,
+          "endMs": 250460,
+          "conf": 0.0,
+          "confBand": "LOW",
+          "startApprox": true
+        }
+      },
+      {
+        "before": {
+          "ayahId": "77:48",
+          "fileRef": "https://server16.mp3quran.net/A-Benkirane/Rewayat-Warsh-A-n-Nafi/077.mp3",
+          "startMs": 232015,
+          "endMs": 234817,
+          "conf": 0.0,
+          "confBand": "LOW",
+          "startApprox": true
+        },
+        "after": {
+          "ayahId": "77:48",
+          "fileRef": "https://server16.mp3quran.net/A-Benkirane/Rewayat-Warsh-A-n-Nafi/077.mp3",
+          "startMs": 250460,
+          "endMs": 256042,
+          "conf": 0.0,
+          "confBand": "LOW",
+          "startApprox": true
+        }
+      },
+      {
+        "before": {
+          "ayahId": "77:49",
+          "fileRef": "https://server16.mp3quran.net/A-Benkirane/Rewayat-Warsh-A-n-Nafi/077.mp3",
+          "startMs": 234817,
+          "endMs": 238910,
+          "conf": 0.562,
+          "confBand": "MED",
+          "startApprox": true
+        },
+        "after": {
+          "ayahId": "77:49",
+          "fileRef": "https://server16.mp3quran.net/A-Benkirane/Rewayat-Warsh-A-n-Nafi/077.mp3",
+          "startMs": 256042,
+          "endMs": 261425,
+          "conf": 0.562,
+          "confBand": "MED",
+          "startApprox": true
+        }
+      },
+      {
+        "before": {
+          "ayahId": "77:50",
+          "fileRef": "https://server16.mp3quran.net/A-Benkirane/Rewayat-Warsh-A-n-Nafi/077.mp3",
+          "startMs": 238910,
+          "endMs": 239980,
+          "conf": 0.0,
+          "confBand": "LOW"
+        },
+        "after": {
+          "ayahId": "77:50",
+          "fileRef": "https://server16.mp3quran.net/A-Benkirane/Rewayat-Warsh-A-n-Nafi/077.mp3",
+          "startMs": 261425,
+          "endMs": 268829,
+          "conf": 0.0,
+          "confBand": "LOW"
+        }
+      }
+    ],
+    "limits": [
+      "Original confidence retained; LOW measurements are not promoted.",
+      "500ms overlap spread remains subject to original full QA thresholds.",
+      "Complete final-SHA heard/census/quality review required."
+    ]
+  }
+}

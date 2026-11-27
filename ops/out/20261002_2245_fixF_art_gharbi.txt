@@ -1,0 +1,47 @@
+# rc=0
+📦 ctc-gharbi_warsh-p0 · 1086 بايت
+── logs/part0.log (2193 بايت)
+📇 أسماءُ الملفات من جدول files في الكتالوج — 114 مدخلاً (س1=ar_001_Mustapha_Gharbi_Warsh.mp3)
+سورة  30: ❌ HTTP Error 404: Not Found
+سورة  32: ❌ HTTP Error 404: Not Found
+سورة  68: ❌ HTTP Error 404: Not Found
+↻ إعادة 3 سورة فشلت: [30, 32, 68] — بعد 30ث
+سورة  30: ❌ HTTP Error 404: Not Found
+سورة  32: ❌ HTTP Error 404: Not Found
+سورة  68: ❌ HTTP Error 404: Not Found
+↻ إعادة 3 سورة فشلت: [30, 32, 68] — بعد 60ث
+سورة  30: ❌ HTTP Error 404: Not Found
+سورة  32: ❌ HTTP Error 404: Not Found
+سورة  68: ❌ HTTP Error 404: Not Found
+↻ إعادة 3 سورة فشلت: [30, 32, 68] — بعد 120ث
+سورة  30: ❌ HTTP Error 404: Not Found
+سورة  32: ❌ HTTP Error 404: Not Found
+سورة  68: ❌ HTTP Error 404: Not Found
+⏱️ أطوارُ gharbi_warsh: ffmpeg=0ث · vad=0ث · whisper=0ث · refine=0ث
+
+=== TimingIndex: /home/runner/work/rafiq-align-ci/rafiq-align-ci/tools/alignment/work/timings_warsh_gharbi_warsh.jz (15ك.ب) ===
+آيات مفهرسة: 0 · نطاقات: {} · مخالفات: 0 · فشل سور: [(30, 'HTTP Error 404: Not Found'), (32, 'HTTP Error 404: Not Found'), (68, 'HTTP Error 404: Not Found')]
+	Command being timed: "python tools/alignment/batch_run.py --reciter gharbi_warsh --riwaya warsh --base https://archive.org/download/128----kb-mustufa--gharby---by--warsh-mp3--full--mushaf--quran--114--sora---fr --surahs 30,32,68"
+	User time (seconds): 1.12
+	System time (seconds): 0.31
+	Percent of CPU this job got: 0%
+	Elapsed (wall clock) time (h:mm:ss or m:ss): 7:43.14
+	Average shared text size (kbytes): 0
+	Average unshared data size (kbytes): 0
+	Average stack size (kbytes): 0
+	Average total size (kbytes): 0
+	Maximum resident set size (kbytes): 55740
+	Average resident set size (kbytes): 0
+	Major (requiring I/O) page faults: 0
+	Minor (reclaiming a frame) page faults: 10280
+	Voluntary context switches: 564
+	Involuntary context switches: 41
+	Swaps: 0
+	File system inputs: 112
+	File system outputs: 328
+	Socket messages sent: 0
+	Socket messages received: 0
+	Signals delivered: 0
+	Page size (bytes): 4096
+	Exit status: 0
+

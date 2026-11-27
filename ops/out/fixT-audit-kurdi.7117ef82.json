@@ -1,0 +1,246 @@
+{
+ "schema": 1,
+ "tool": "full_audit-1.0",
+ "date": "20261005",
+ "timestampUtc": "2026-10-05T11:35:58Z",
+ "elapsedSec": 48.0,
+ "phase": "all",
+ "manifestIndexes": 180,
+ "frozenBucket": 220,
+ "reportsRead": 11012,
+ "rows": [
+  {
+   "key": "timings-staging/hafs/kurdi.7117ef82.jz",
+   "sha256": "7117ef8276680563d0b7dc9506ce5c859794675b3fd80ab38668cec7faef0591",
+   "riwaya": "hafs",
+   "reciterId": "kurdi",
+   "bytes": 97319,
+   "engine": "align-0.2",
+   "transformOp": "ctc_heardmap_splice:5,7,33,34,36,37,46",
+   "staging": true,
+   "identity": {
+    "sha256": "7117ef8276680563d0b7dc9506ce5c859794675b3fd80ab38668cec7faef0591",
+    "staging": true,
+    "errors": [],
+    "ok": true
+   },
+   "structure": {
+    "entries": 6236,
+    "errors": [
+     "رقمُ الملفّ لا يطابق السورة: 1"
+    ],
+    "examples": {
+     "fileNoMismatch": {
+      "16": "https://raw.githubusercontent.com/mwqwf/rafiq-align-ci/23d461f1c582699aa74927ce456fa6b09916667f/ops/source-repair/audio-fixtures/kurdi-nahl-c82dee87.mp3"
+     }
+    },
+    "fileNoUnparsed": 0,
+    "structuralFatal": [],
+    "structuralWarn": [
+     "مداخل مدتها > 120ث: 1 · مثال: 2:282 مدتها 181ث",
+     "مطالع سور تبدأ دون 3ث — مرشّحون للمسبار الصوتي لا حكمٌ عليهم: 4:1=0م.ث · 6:1=2120م.ث · 8:1=400م.ث · 10:1=2340م.ث · 15:1=780م.ث · 18:1=1880م.ث · 21:1=1360م.ث · 24:1=1260م.ث · 25:1=1360م.ث · 26:1=300م.ث … و19 غيرها",
+     "فجوات > 15ث بين آيتين متتاليتين: 12 · مثال: 6:50→6:51 فجوة 17ث"
+    ],
+    "decision": [],
+    "engine": "align-0.2",
+    "audioSha": 114,
+    "bands": {
+     "MED": 2494,
+     "HIGH": 3524,
+     "LOW": 218
+    },
+    "ok": false
+   },
+   "gaps": {
+    "missingTotal": 0,
+    "internalGaps": [],
+    "headMissing": [],
+    "tailMissing": [],
+    "wholeMissing": [],
+    "declared": {
+     "transformOp": "ctc_heardmap_splice:5,7,33,34,36,37,46",
+     "transformReason": "fixT: إصلاحٌ دفعيٌّ لكبس الذيل — 8 سورةً مشتبهةً (فائضٌ ≥15ث بعد آخر مدخل · تدقيق الجولة الثانية 2026-10-03)، كلٌّ يُقاس بالسماع قبل أن يُمسّ",
+     "reasonCode": "SOURCE_TRUNCATED",
+     "dropSurahs": [],
+     "byReason": {},
+     "declaredCount": 0,
+     "tagCount": 0,
+     "declaredIds": [],
+     "truncatedTail": null
+    },
+    "undeclaredEdge": [],
+    "errors": [],
+    "ok": true
+   },
+   "durations": {
+    "durationOutliers": 6,
+    "durationExamples": [
+     {
+      "aid": "5:29",
+      "ms": 65538,
+      "expMs": 18279,
+      "ratio": 3.59,
+      "chars": 54
+     },
+     {
+      "aid": "19:91",
+      "ms": 19590,
+      "expMs": 6189,
+      "ratio": 3.17,
+      "chars": 16
+     },
+     {
+      "aid": "4:127",
+      "ms": 6672,
+      "expMs": 59119,
+      "ratio": 0.11,
+      "chars": 170
+     },
+     {
+      "aid": "6:106",
+      "ms": 3714,
+      "expMs": 16980,
+      "ratio": 0.22,
+      "chars": 44
+     },
+     {
+      "aid": "64:12",
+      "ms": 4310,
+      "expMs": 19064,
+      "ratio": 0.23,
+      "chars": 58
+     },
+     {
+      "aid": "95:1",
+      "ms": 1483,
+      "expMs": 5384,
+      "ratio": 0.28,
+      "chars": 14
+     }
+    ],
+    "impossibleShort": [],
+    "veryShort": [],
+    "extremeLong": [],
+    "longOutliers": 2,
+    "shortOutliers": 4,
+    "silenceGaps": 12,
+    "silenceExamples": [
+     {
+      "from": "20:64",
+      "to": "20:65",
+      "gapMs": 49480
+     },
+     {
+      "from": "11:81",
+      "to": "11:82",
+      "gapMs": 41780
+     },
+     {
+      "from": "20:89",
+      "to": "20:90",
+      "gapMs": 34400
+     },
+     {
+      "from": "10:93",
+      "to": "10:94",
+      "gapMs": 29880
+     },
+     {
+      "from": "43:32",
+      "to": "43:33",
+      "gapMs": 29280
+     },
+     {
+      "from": "17:85",
+      "to": "17:86",
+      "gapMs": 23580
+     },
+     {
+      "from": "9:62",
+      "to": "9:63",
+      "gapMs": 17580
+     },
+     {
+      "from": "6:50",
+      "to": "6:51",
+      "gapMs": 17360
+     },
+     {
+      "from": "41:21",
+      "to": "41:22",
+      "gapMs": 16380
+     },
+     {
+      "from": "6:64",
+      "to": "6:65",
+      "gapMs": 16360
+     },
+     {
+      "from": "19:55",
+      "to": "19:56",
+      "gapMs": 15500
+     },
+     {
+      "from": "9:112",
+      "to": "9:113",
+      "gapMs": 15160
+     }
+    ],
+    "surahsWithRate": 113
+   },
+   "audio": {
+    "audioReportsOnSha": 0,
+    "openersOnSha": false,
+    "errors": [
+     "لا حكمَ صوتيٍّ بعيّنةٍ على البصمة المنشورة",
+     "لا شاهدَ مطالعَ على البصمة المنشورة"
+    ],
+    "notes": [],
+    "samples": [],
+    "pooled": null,
+    "severeHi": null,
+    "otherShasWithSamples": [
+     "330c85df",
+     "39296740",
+     "56308c28",
+     "57274b1a",
+     "589f74bf",
+     "590393ff",
+     "60dd5ae3",
+     "68a36712",
+     "6eb44523",
+     "7a544175"
+    ],
+    "ok": false
+   }
+  }
+ ],
+ "summary": {
+  "indexes": 1,
+  "phase": "all",
+  "identityOk": 1,
+  "identityBad": [],
+  "structureOk": 0,
+  "structureBad": [
+   "timings-staging/hafs/kurdi.7117ef82.jz"
+  ],
+  "gapsOk": 1,
+  "gapsBad": [],
+  "audioOk": 0,
+  "audioBad": [
+   "timings-staging/hafs/kurdi.7117ef82.jz"
+  ],
+  "durationOutliersTotal": 6,
+  "impossibleShortTotal": 0,
+  "indexesWithImpossibleShort": 0,
+  "veryShortTotal": 0,
+  "extremeLongTotal": 0,
+  "indexesWithExtremeLong": 0,
+  "mirrorStale": 0,
+  "silenceGapsTotal": 12,
+  "indexesWithDurationOutliers": 1,
+  "indexesWithSilenceGaps": 1,
+  "entriesTotal": 6236,
+  "missingTotal": 0
+ }
+}

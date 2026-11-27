@@ -1,0 +1,97 @@
+{
+  "schema": 1,
+  "kind": "codex-indexing-resume-state",
+  "measuredAtUtc": "2026-10-06T23:40:00Z",
+  "scope": {
+    "reciterId": "fakhfakh",
+    "riwaya": "qalun",
+    "surah": 38
+  },
+  "repository": {
+    "fullName": "mwqwf/rafiq-align-ci",
+    "private": false,
+    "headBeforeFinalDocumentation": "4404761737e2ef464d20a0bc45793f31779c109b"
+  },
+  "costControl": {
+    "standardGithubHostedRunner": "ubuntu-24.04",
+    "publicRepository": true,
+    "artifactUpload": false,
+    "cacheSave": false,
+    "r2Read": false,
+    "r2Write": false,
+    "persistentModelWrite": false,
+    "modelCacheOperation": "restore-only",
+    "commandRelayRunner": "ubuntu-latest",
+    "commandRelayWritesOnlyGitAnswer": true
+  },
+  "runs": {
+    "initialDispatch": 37543813256,
+    "guardFailure": 37543909104,
+    "guardFixDispatch": 37544416772,
+    "primaryMeasurement": 37544489570,
+    "independentAuditDispatch": 37545769859,
+    "independentAuditContextFailure": 37545872253,
+    "independentAuditRetryDispatch": 37546673608,
+    "independentAuditSuccess": 37546764143
+  },
+  "primaryMeasurement": {
+    "report": "ops/out/codex-fakhfakh38-archive-recovery-37544489570.json",
+    "fileSha256": "6fcad5cb6bd1354aae5d754274a3461b1ddf5ae4e6396f6464ce0776fb370c08",
+    "payloadSha256": "1a54c67830768358e2585da04d4f9ce655e9d8cc9613e9dedd0b276e2edfd906",
+    "measurementComplete": true,
+    "entryCount": 88,
+    "lowOrMissing": [],
+    "lastAyah": {
+      "ayahId": "38:88",
+      "startMs": 965839,
+      "endMs": 972313,
+      "confidence": 0.82
+    }
+  },
+  "independentAudit": {
+    "report": "ops/out/codex-fakhfakh38-independent-audit-37546764143.json",
+    "fileSha256": "ef80882e5e9379323459688e43072ed8fe44ea0428fe2e8ad41b0093db1489db",
+    "payloadSha256": "a72e0ded1011ccefb44828bc5679fdd15fda02263fc0430d6443d16638ab3010",
+    "measurementComplete": true,
+    "entryCount": 88,
+    "lowOrMissing": [],
+    "chunkGroups": 4,
+    "overlapAyahs": 15,
+    "maxStartDisagreementSeconds": 0.000028,
+    "maxEndDisagreementSeconds": 0.000029,
+    "numericWitnesses": {
+      "openingTargets": [2, 3, 4],
+      "middleTargets": [43, 44, 45],
+      "endingTargets": [84, 85, 86, 87],
+      "maxWindowVsAuditDeltaMs": 0,
+      "maxPrimaryVsAuditDeltaMs": 0
+    },
+    "boundaryWitnesses": {
+      "openingAyah": 1,
+      "endingAyah": 88,
+      "maxPrimaryVsAuditDeltaMs": 0
+    }
+  },
+  "failedAuditEvidence": {
+    "report": "ops/out/codex-fakhfakh38-independent-audit-37545872253.json",
+    "fileSha256": "4bf02bb70ff11a3f4dbeb0d31f2b92075444117f4c2dc72e1bdc8efd7a2d2957",
+    "cause": "numeric-window boundary targets lacked required preceding/following context",
+    "guardWeakened": false
+  },
+  "production": {
+    "changed": false,
+    "publishedEntries": 1121595,
+    "missingEntries": 885,
+    "impossibleShortEntries": 1,
+    "candidateBuilt": false,
+    "coverageCertified": false,
+    "qualityClaim": false
+  },
+  "remaining": [
+    "Build a read-only candidate for surah 38 from the two matching measurements.",
+    "Run exact-candidate heard and structural gates without weakening the five-second guard.",
+    "Before any adoption, prove the final write path is free and then re-read public, manifest, and frozen digests.",
+    "Run a fresh global completion audit with separate start and end witnesses for all 114 surahs."
+  ],
+  "completionClaim": false
+}

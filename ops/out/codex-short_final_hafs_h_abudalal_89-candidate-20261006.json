@@ -1,0 +1,89 @@
+{
+  "path": "ops/source-repair/candidates/codex-short_final_hafs_h_abudalal_89-20261006.jz",
+  "sha256": "1a062a5482574dab3dc0267893cf8f48442c47a9d5badbf340ba8afde7450800",
+  "parentKey": "timings/hafs/h_abudalal.jz",
+  "parentSha256": "13f195b2460b5333015c6ab9d54a4516ca2ef8ffc85fab4395dbea2853d51ed8",
+  "op": "ctc_quran_window:89",
+  "changedEntries": 3,
+  "warnings": [
+    "مداخل مدتها > 120ث: 1 · مثال: 2:282 مدتها 139ث"
+  ],
+  "proof": {
+    "reportPath": "ops/out/codex-short-final-h-abudalal-89-report-20261006.json",
+    "reportSha256": "e2eadebee97f64b206b40d5566fbe2dcbc5434c3acfab5fbf08d64a4dd69d4fd",
+    "bundlePath": "ops/out/codex-short-final-h-abudalal-89-complete-20261006.json.gz",
+    "bundleSha256": "483e7c55a171faf96a06d68e81edcf50291f86bd0611c8fa9315d270379e0c21",
+    "jobId": 112109272661,
+    "id": "short_final_hafs_h_abudalal_89",
+    "qualityClaim": false,
+    "sourceSha256": "14868dfc6a1b7d073f6683fa4ef85b14bba0c44bf18b6612971e19bc59cf9153",
+    "decodedEofMs": 206237,
+    "changes": [
+      {
+        "before": {
+          "ayahId": "89:28",
+          "fileRef": "https://server16.mp3quran.net/h_abudalal/Rewayat-Hafs-A-n-Assem/089.mp3",
+          "startMs": 181660,
+          "endMs": 190180,
+          "conf": 0.753,
+          "confBand": "MED"
+        },
+        "after": {
+          "ayahId": "89:28",
+          "fileRef": "https://server16.mp3quran.net/h_abudalal/Rewayat-Hafs-A-n-Assem/089.mp3",
+          "startMs": 181660,
+          "endMs": 190203,
+          "conf": 0.753,
+          "confBand": "MED"
+        }
+      },
+      {
+        "before": {
+          "ayahId": "89:29",
+          "fileRef": "https://server16.mp3quran.net/h_abudalal/Rewayat-Hafs-A-n-Assem/089.mp3",
+          "startMs": 190180,
+          "endMs": 192777,
+          "conf": 0.728,
+          "confBand": "MED"
+        },
+        "after": {
+          "ayahId": "89:29",
+          "fileRef": "https://server16.mp3quran.net/h_abudalal/Rewayat-Hafs-A-n-Assem/089.mp3",
+          "startMs": 190203,
+          "endMs": 194127,
+          "conf": 0.728,
+          "confBand": "MED"
+        }
+      },
+      {
+        "before": {
+          "ayahId": "89:30",
+          "fileRef": "https://server16.mp3quran.net/h_abudalal/Rewayat-Hafs-A-n-Assem/089.mp3",
+          "startMs": 192777,
+          "endMs": 193577,
+          "conf": 0.44,
+          "confBand": "LOW",
+          "startApprox": true
+        },
+        "after": {
+          "ayahId": "89:30",
+          "fileRef": "https://server16.mp3quran.net/h_abudalal/Rewayat-Hafs-A-n-Assem/089.mp3",
+          "startMs": 194127,
+          "endMs": 206237,
+          "conf": 0.44,
+          "confBand": "LOW",
+          "startApprox": true
+        }
+      }
+    ],
+    "provenance": {
+      "runId": "37414259961",
+      "runSha": "36d99a6987101f3d979b283dcf0ed445d4304a95",
+      "toolSha256": "10f7b31843eebabd132c28c5e9c9a216c47c66ecc4a143bbde98551c6c8705fe"
+    },
+    "limits": [
+      "توقيت آخر آيتين ونهاية السابقة فقط؛ الثقة الأصلية محفوظة.",
+      "التفريغ الحر روجع قبل البناء؛ يلزم فحص أصلي كامل على البصمة المرفوعة."
+    ]
+  }
+}

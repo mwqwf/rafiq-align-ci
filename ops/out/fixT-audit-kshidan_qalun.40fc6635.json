@@ -1,0 +1,141 @@
+{
+ "schema": 1,
+ "tool": "full_audit-1.0",
+ "date": "20261005",
+ "timestampUtc": "2026-10-05T07:15:21Z",
+ "elapsedSec": 38.1,
+ "phase": "all",
+ "manifestIndexes": 180,
+ "frozenBucket": 219,
+ "reportsRead": 10923,
+ "rows": [
+  {
+   "key": "timings-staging/qalun/kshidan_qalun.40fc6635.jz",
+   "sha256": "40fc663569c35cc6df5c4156387840dc0dee5682b6d444a58a6464cec81f1c88",
+   "riwaya": "qalun",
+   "reciterId": "kshidan_qalun",
+   "bytes": 94612,
+   "engine": "ctc-seg-1",
+   "transformOp": "ctc_heardmap_splice:8,10,13,14,17,18,20,21,23,24,25,27,28,29,30,31,34,35,36,37,38,39,40,41,42,43,46,47,48,50,51,53,54,55,56,57,58,59,60,66,67,68,71,72,77,83",
+   "staging": true,
+   "identity": {
+    "sha256": "40fc663569c35cc6df5c4156387840dc0dee5682b6d444a58a6464cec81f1c88",
+    "staging": true,
+    "errors": [],
+    "ok": true
+   },
+   "structure": {
+    "entries": 6236,
+    "errors": [],
+    "examples": {},
+    "fileNoUnparsed": 0,
+    "structuralFatal": [],
+    "structuralWarn": [
+     "مداخل مدتها > 120ث: 1 · مثال: 2:282 مدتها 146ث"
+    ],
+    "decision": [],
+    "engine": "ctc-seg-1",
+    "audioSha": 114,
+    "bands": {
+     "MED": 5125,
+     "HIGH": 569,
+     "LOW": 542
+    },
+    "ok": true
+   },
+   "gaps": {
+    "missingTotal": 0,
+    "internalGaps": [],
+    "headMissing": [],
+    "tailMissing": [],
+    "wholeMissing": [],
+    "declared": {
+     "transformOp": "ctc_heardmap_splice:8,10,13,14,17,18,20,21,23,24,25,27,28,29,30,31,34,35,36,37,38,39,40,41,42,43,46,47,48,50,51,53,54,55,56,57,58,59,60,66,67,68,71,72,77,83",
+     "transformReason": "fixT: إصلاحٌ دفعيٌّ لكبس الذيل — 47 سورةً مشتبهةً (فائضٌ ≥15ث بعد آخر مدخل · تدقيق الجولة الثانية 2026-10-03)، كلٌّ يُقاس بالسماع قبل أن يُمسّ",
+     "reasonCode": null,
+     "dropSurahs": [],
+     "byReason": {
+      "no-align": 2
+     },
+     "declaredCount": 2,
+     "tagCount": 0,
+     "declaredIds": [],
+     "truncatedTail": null
+    },
+    "undeclaredEdge": [],
+    "errors": [],
+    "ok": true
+   },
+   "durations": {
+    "durationOutliers": 1,
+    "durationExamples": [
+     {
+      "aid": "52:49",
+      "ms": 1281,
+      "expMs": 6888,
+      "ratio": 0.19,
+      "chars": 23
+     }
+    ],
+    "impossibleShort": [],
+    "veryShort": [],
+    "extremeLong": [],
+    "longOutliers": 0,
+    "shortOutliers": 1,
+    "silenceGaps": 0,
+    "silenceExamples": [],
+    "surahsWithRate": 113
+   },
+   "audio": {
+    "audioReportsOnSha": 0,
+    "openersOnSha": false,
+    "errors": [
+     "لا حكمَ صوتيٍّ بعيّنةٍ على البصمة المنشورة",
+     "لا شاهدَ مطالعَ على البصمة المنشورة"
+    ],
+    "notes": [],
+    "samples": [],
+    "pooled": null,
+    "severeHi": null,
+    "otherShasWithSamples": [
+     "0f5ec530",
+     "2af9e723",
+     "2f65eba6",
+     "4ac42a49",
+     "5408f514",
+     "9637ca89",
+     "9a16670d",
+     "bbd5820a",
+     "de059277"
+    ],
+    "ok": false
+   }
+  }
+ ],
+ "summary": {
+  "indexes": 1,
+  "phase": "all",
+  "identityOk": 1,
+  "identityBad": [],
+  "structureOk": 1,
+  "structureBad": [],
+  "gapsOk": 1,
+  "gapsBad": [],
+  "audioOk": 0,
+  "audioBad": [
+   "timings-staging/qalun/kshidan_qalun.40fc6635.jz"
+  ],
+  "durationOutliersTotal": 1,
+  "impossibleShortTotal": 0,
+  "indexesWithImpossibleShort": 0,
+  "veryShortTotal": 0,
+  "extremeLongTotal": 0,
+  "indexesWithExtremeLong": 0,
+  "mirrorStale": 0,
+  "silenceGapsTotal": 0,
+  "indexesWithDurationOutliers": 1,
+  "indexesWithSilenceGaps": 0,
+  "entriesTotal": 6236,
+  "missingTotal": 0
+ }
+}

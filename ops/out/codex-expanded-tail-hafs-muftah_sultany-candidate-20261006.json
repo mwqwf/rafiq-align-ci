@@ -1,0 +1,120 @@
+{
+  "path": "ops/source-repair/candidates/codex-expanded-tail-hafs-muftah_sultany-20261006.jz",
+  "sha256": "2da83383bb971b2edade599af4c2d6aa4153645cf0b5c4af601e1c26a0cfc698",
+  "parentKey": "timings/hafs/muftah_sultany.jz",
+  "parentSha256": "ebc247fd427ba1f9cbb62b09602076c00ebeb01c5a6180e2d412344ca4bff11d",
+  "op": "ctc_quran_window:77",
+  "changedEntries": 4,
+  "warnings": [],
+  "proof": {
+    "qualityClaim": false,
+    "contexts": [
+      {
+        "reportPath": "ops/out/codex-muftah77-last3-report-20261006.json",
+        "reportSha256": "088ad26ace3e1277b7db68d2c6415420162b0db0588c9afc151be47ebde92e57",
+        "bundlePath": "ops/out/codex-muftah77-last3-complete-20261006.json.gz",
+        "bundleSha256": "adf1fd60e6c91ab38e24dacdc9c9a2616433203e82a5ce6536cdc395d8ab5c7d",
+        "jobId": 112109272429,
+        "id": "short_final_hafs_muftah_sultany_77",
+        "targetAyahs": [
+          48,
+          49,
+          50
+        ],
+        "sourceSha256": "09d95b6175ac32020012d3d895acc9a6dccafe9a1ebf0870623dcaafa2fd5ffe",
+        "provenance": {
+          "runId": "37414259961",
+          "runSha": "36d99a6987101f3d979b283dcf0ed445d4304a95",
+          "toolSha256": "10f7b31843eebabd132c28c5e9c9a216c47c66ecc4a143bbde98551c6c8705fe"
+        }
+      }
+    ],
+    "changes": [
+      {
+        "before": {
+          "ayahId": "77:47",
+          "fileRef": "https://server14.mp3quran.net/muftah_sultany/Rewayat-Hafs-A-n-Assem/077.mp3",
+          "startMs": 177416,
+          "endMs": 178797,
+          "conf": 0.0,
+          "confBand": "LOW",
+          "startApprox": true
+        },
+        "after": {
+          "ayahId": "77:47",
+          "fileRef": "https://server14.mp3quran.net/muftah_sultany/Rewayat-Hafs-A-n-Assem/077.mp3",
+          "startMs": 177416,
+          "endMs": 181927,
+          "conf": 0.0,
+          "confBand": "LOW",
+          "startApprox": true
+        }
+      },
+      {
+        "before": {
+          "ayahId": "77:48",
+          "fileRef": "https://server14.mp3quran.net/muftah_sultany/Rewayat-Hafs-A-n-Assem/077.mp3",
+          "startMs": 178797,
+          "endMs": 179998,
+          "conf": 0.0,
+          "confBand": "LOW",
+          "startApprox": true
+        },
+        "after": {
+          "ayahId": "77:48",
+          "fileRef": "https://server14.mp3quran.net/muftah_sultany/Rewayat-Hafs-A-n-Assem/077.mp3",
+          "startMs": 181927,
+          "endMs": 186191,
+          "conf": 0.0,
+          "confBand": "LOW",
+          "startApprox": true
+        }
+      },
+      {
+        "before": {
+          "ayahId": "77:49",
+          "fileRef": "https://server14.mp3quran.net/muftah_sultany/Rewayat-Hafs-A-n-Assem/077.mp3",
+          "startMs": 179998,
+          "endMs": 182280,
+          "conf": 0.074,
+          "confBand": "LOW",
+          "startApprox": true
+        },
+        "after": {
+          "ayahId": "77:49",
+          "fileRef": "https://server14.mp3quran.net/muftah_sultany/Rewayat-Hafs-A-n-Assem/077.mp3",
+          "startMs": 186191,
+          "endMs": 190434,
+          "conf": 0.074,
+          "confBand": "LOW",
+          "startApprox": true
+        }
+      },
+      {
+        "before": {
+          "ayahId": "77:50",
+          "fileRef": "https://server14.mp3quran.net/muftah_sultany/Rewayat-Hafs-A-n-Assem/077.mp3",
+          "startMs": 182280,
+          "endMs": 183260,
+          "conf": 0.0,
+          "confBand": "LOW"
+        },
+        "after": {
+          "ayahId": "77:50",
+          "fileRef": "https://server14.mp3quran.net/muftah_sultany/Rewayat-Hafs-A-n-Assem/077.mp3",
+          "startMs": 190434,
+          "endMs": 196780,
+          "conf": 0.0,
+          "confBand": "LOW"
+        }
+      }
+    ],
+    "decodedEofMs": {
+      "77": 196780
+    },
+    "limits": [
+      "الحد الأصلي لثقة المحاذاة0.45؛ لا تغيير لأي حارس أو ثقة منشورة.",
+      "الخواتيم المقيسة فقط؛ يلزم الفحص الأصلي الكامل للبصمة المرفوعة."
+    ]
+  }
+}

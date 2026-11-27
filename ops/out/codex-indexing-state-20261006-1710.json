@@ -1,0 +1,54 @@
+{
+  "timestampUtc": "2026-10-06T17:10:49Z",
+  "headBeforeCommit": "91616bcc694aca4a6dd02723cfbf2c1dd0ccd1b7",
+  "status": "incomplete",
+  "newVerifiedWork": {
+    "report": "ops/source-repair/noah-warsh-54-source-audit-20261006.json",
+    "scope": "warsh/noah_warsh/54",
+    "alternateHostChecked": "Midad",
+    "alternateContainerSha256": "e694d9866a05c4b57680df25881aff9bc36666e37b83f995a8a9ae7537036e71",
+    "decodedPcmIdenticalToCanonicalSource": true,
+    "decodedPcmBytes": 11512268,
+    "decodedPcmSha256": "aed091a0c18b376db56b5beab9b93d6921b7bfe4e242bad1db5da31ae1c14c51",
+    "historicPublisherCorroboration": true,
+    "wasteGuardAdded": true,
+    "restoreLoopTestsPassed": 25
+  },
+  "productionTruth": {
+    "latestStableStructuralAudit": "ops/out/full-audit-codex-after-thirty-nine-20261006.json",
+    "entries": 1121595,
+    "missing": 885,
+    "impossibleShort": 1,
+    "noahWarsh54Missing": 55,
+    "readyIndexes": 0,
+    "verifiedEndEvidence": 0
+  },
+  "remaining": {
+    "noahWarsh54NeedsDistinctCompleteSameReciterWarshSource": true,
+    "sameAudioOnAlternateHostRejected": true,
+    "candidateOverlayMissingProjection": 679,
+    "finalShaQaRequired": [
+      "timings/hafs/3siri.jz",
+      "timings/hafs/balilah.jz"
+    ],
+    "freshStableCompletionAuditRequiredAfterAnyAdoption": true,
+    "r2PutFreeQuotaProven": false
+  },
+  "costAndWrites": {
+    "repositoryPublic": true,
+    "workflowDispatched": false,
+    "r2Written": false,
+    "artifactWritten": false,
+    "cacheWritten": false
+  },
+  "liveSnapshot": {
+    "inProgress": [
+      37498634791
+    ],
+    "queued": [
+      34748440538
+    ],
+    "pending": [],
+    "pendingCommandFiles": []
+  }
+}

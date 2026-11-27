@@ -1,0 +1,39 @@
+{
+  "path": "ops/source-repair/candidates/codex-tblawi7-publisher-20261006.jz",
+  "sha256": "865baec2b74e0a0fc648480da02f3394b11f0ba01c063ba63b4abb4fabfe7cea",
+  "parentKey": "timings/hafs/tblawi.jz",
+  "parentSha256": "3d4c52f080212f44ed7eb4861e15194843dd13997c9b253aa04db6bcd87871a2",
+  "op": "ctc_quran_surah_splice:7",
+  "changedEntries": 206,
+  "proof": {
+    "qualityClaim": false,
+    "sourceUrl": "https://www.nquran.com/audiof/quran/mohd_muh_tablawee/007.mp3",
+    "audioSha256": "76b0d10dbb33d90cdbb98e71786653a497dbe73f7af704bf2297848ce1fbc547",
+    "publisherIdentityUrl": "https://www.nquran.com/ar/view/10716",
+    "reportPath": "ops/out/codex-tblawi7-nquran-recovery-20261006.json",
+    "reportSha256": "d3911047369b537d662a28c3cc56bd6aa2f3d75f0e2473d1f650eba92a285622",
+    "contextPath": "ops/out/codex-tblawi-new-contexts-20261006.json",
+    "contextSha256": "b1654d32b184481a0a5f85547704ec7a5db5eaf7e00118c75e0b2aa47c1e694c",
+    "decodedEofMs": 4378096,
+    "originalFinalAlignment": {
+      "ayahIdx": 205,
+      "startMs": 4364720,
+      "endMs": 4377846,
+      "conf": 0.78,
+      "snapped": true,
+      "matched": 0,
+      "total": 11
+    },
+    "limits": [
+      "Publisher attribution and unforced model transcripts are preserved; no biometric reader certification claimed.",
+      "Full exact-SHA QA and independent heard/census remain mandatory.",
+      "All measured alignment confidences are retained; forced alignment alone is not coverage proof."
+    ],
+    "alignmentIssues": [
+      "مدة شاذة لآية 1: 11377م.ث لـ4 حرفاً"
+    ]
+  },
+  "warnings": [
+    "مداخل مدتها > 120ث: 2 · مثال: 2:282 مدتها 176ث"
+  ]
+}

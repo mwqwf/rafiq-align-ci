@@ -1,0 +1,425 @@
+{
+  "path": "ops/source-repair/candidates/codex-iraoui41-publisher-20261006.jz",
+  "sha256": "5b9ba5c28e90e522d1eb746627d0d4023c815f8344022cecd5b634d5ff9343bb",
+  "parentKey": "timings/warsh/iraoui_warsh.jz",
+  "parentSha256": "e708c65694a2cea0bc1b0eace830fcb5988dfae50f07295b917cd4b200a50bf0",
+  "op": "ctc_quran_surah_splice:41",
+  "changedEntries": 0,
+  "addedEntries": 54,
+  "proof": {
+    "qualityClaim": false,
+    "reportPath": "ops/out/codex-iraoui-new-archive-recovery-report-20261006.json",
+    "reportSha256": "bbe33f06eeac3974674ca93ab641cbb455d807a5927fa501a3f78a67ddd8fb2a",
+    "nativeContexts": [
+      {
+        "reportPath": "ops/out/codex-iraoui-new-15-16-report-20261006.json",
+        "reportSha256": "95006b195c6f6f731f0f9f316b951b6b3c78ce57a08841bb76b2dedbec854dfd",
+        "bundlePath": "ops/out/codex-iraoui-new-15-16-complete-20261006.json.gz",
+        "bundleSha256": "fad37a7689fcbffa131d96e5ca421d18fced924d3388e5aa1d8e7fff5ff24744",
+        "jobId": 112113117187,
+        "id": "iraoui41_new_15_16"
+      },
+      {
+        "reportPath": "ops/out/codex-iraoui-new-44-report-20261006.json",
+        "reportSha256": "0a79d7b657402959fd69a88c7d1c1a304eef196dca0faa40f9ebe1082e7d5a01",
+        "bundlePath": "ops/out/codex-iraoui-new-44-complete-20261006.json.gz",
+        "bundleSha256": "8732663a5842927bf58746e634150f14744d6e72caaebf4677be5f06be95df7c",
+        "jobId": 112113117161,
+        "id": "iraoui41_new_44"
+      },
+      {
+        "reportPath": "ops/out/codex-iraoui-new-47-48-report-20261006.json",
+        "reportSha256": "1240217d5920b5adc0f7c69f96135a09474700daf075bd5919e5dda32c2fa630",
+        "bundlePath": "ops/out/codex-iraoui-new-47-48-complete-20261006.json.gz",
+        "bundleSha256": "816f9ce439250418667da4aa1443403d0264376ae5201d28ce63ec776b08f341",
+        "jobId": 112113117194,
+        "id": "iraoui41_new_47_48"
+      },
+      {
+        "reportPath": "ops/out/codex-iraoui-new-49-50-report-20261006.json",
+        "reportSha256": "4b41af79bdb7c77d6ea4bc3ba760b0d5c704e137bb9c4182ab57a559b9e392c9",
+        "bundlePath": "ops/out/codex-iraoui-new-49-50-complete-20261006.json.gz",
+        "bundleSha256": "f9de7531b1fec76187c456c1cc44e56096ddb170b56a021dc6e47331f46fe3e3",
+        "jobId": 112113116965,
+        "id": "iraoui41_new_49_50"
+      },
+      {
+        "reportPath": "ops/out/codex-iraoui-new-51-52-report-20261006.json",
+        "reportSha256": "9e39d4ca6301390e852a6b2c40f9565a7b77cedcb88d6b5fc477d713a582fab1",
+        "bundlePath": "ops/out/codex-iraoui-new-51-52-complete-20261006.json.gz",
+        "bundleSha256": "d87e93fe179f54c7a43bcafc2519e2697a78c025f1ba5ce18f072ffe05832ba5",
+        "jobId": 112113117219,
+        "id": "iraoui41_new_51_52"
+      },
+      {
+        "reportPath": "ops/out/codex-iraoui-new-53-54-report-20261006.json",
+        "reportSha256": "b1e9f280cb6d8988b5ce4281ca42f0a90e2886fdf66923676fc9eb49526ffdf1",
+        "bundlePath": "ops/out/codex-iraoui-new-53-54-complete-20261006.json.gz",
+        "bundleSha256": "4080902e827806f24bf67d27f68537be4483e70ac17f44a9c3989aaa1601e6b3",
+        "jobId": 112113117202,
+        "id": "iraoui41_new_53_54"
+      },
+      {
+        "reportPath": "ops/out/codex-iraoui-new-50-full-report-20261006.json",
+        "reportSha256": "8a046131b183d0fed1992e72e42f0f9d780aec732e7c528e142e8892e831cc61",
+        "bundlePath": "ops/out/codex-iraoui-new-50-full-complete-20261006.json.gz",
+        "bundleSha256": "eb94e99e98279b5b64a2d50a7a6c1cfa296e84305695ac3963f6c0929a00a349",
+        "jobId": 112121575541,
+        "id": "iraoui41_new_50_full"
+      },
+      {
+        "reportPath": "ops/out/codex-iraoui-new-head-1-4-report-20261006.json",
+        "reportSha256": "66f6d8d9ccfe4377ba1aa648584cfb8e73cdfa5d2f8a30bbde4f7f8e40a70f45",
+        "bundlePath": "ops/out/codex-iraoui-new-head-1-4-complete-20261006.json.gz",
+        "bundleSha256": "09e0c742fa5d4eb8660b0d08e0e448d2a911d135ab300eaa69522b4db2a525e6",
+        "jobId": 112121575730,
+        "id": "iraoui41_new_head_1_4"
+      }
+    ],
+    "measuredRefinements": [
+      {
+        "ayah": 47,
+        "before": {
+          "ayahIdx": 46,
+          "startMs": 1057769,
+          "endMs": 1083055,
+          "conf": 0.0,
+          "snapped": true,
+          "matched": 0,
+          "total": 28
+        },
+        "afterMeasuredStartMs": 1057775,
+        "afterMeasuredConfidence": 0.662,
+        "context": "iraoui41_new_47_48",
+        "measurements": [
+          {
+            "ayahId": "41:47",
+            "startMs": 1057695,
+            "endMs": 1094576,
+            "conf": 0.367
+          },
+          {
+            "ayahId": "41:47",
+            "startMs": 1057755,
+            "endMs": 1094576,
+            "conf": 0.378
+          },
+          {
+            "ayahId": "41:47",
+            "startMs": 1057775,
+            "endMs": 1094576,
+            "conf": 0.666
+          },
+          {
+            "ayahId": "41:47",
+            "startMs": 1057775,
+            "endMs": 1094576,
+            "conf": 0.662
+          }
+        ]
+      },
+      {
+        "ayah": 48,
+        "before": {
+          "ayahIdx": 47,
+          "startMs": 1083055,
+          "endMs": 1089560,
+          "conf": 0.0,
+          "snapped": false,
+          "matched": 0,
+          "total": 12
+        },
+        "afterMeasuredStartMs": 1095067,
+        "afterMeasuredConfidence": 0.825,
+        "context": "iraoui41_new_47_48",
+        "measurements": [
+          {
+            "ayahId": "41:48",
+            "startMs": 1095067,
+            "endMs": 1109049,
+            "conf": 0.701
+          },
+          {
+            "ayahId": "41:48",
+            "startMs": 1095067,
+            "endMs": 1109049,
+            "conf": 0.815
+          },
+          {
+            "ayahId": "41:48",
+            "startMs": 1095067,
+            "endMs": 1109049,
+            "conf": 0.825
+          },
+          {
+            "ayahId": "41:48",
+            "startMs": 1095067,
+            "endMs": 1109049,
+            "conf": 0.828
+          }
+        ]
+      },
+      {
+        "ayah": 49,
+        "before": {
+          "ayahIdx": 48,
+          "startMs": 1089560,
+          "endMs": 1099326,
+          "conf": 0.0,
+          "snapped": false,
+          "matched": 0,
+          "total": 11
+        },
+        "afterMeasuredStartMs": 1109588,
+        "afterMeasuredConfidence": 0.619,
+        "context": "iraoui41_new_49_50",
+        "measurements": [
+          {
+            "ayahId": "41:49",
+            "startMs": 1109588,
+            "endMs": 1127953,
+            "conf": 0.509
+          },
+          {
+            "ayahId": "41:49",
+            "startMs": 1109588,
+            "endMs": 1127963,
+            "conf": 0.523
+          },
+          {
+            "ayahId": "41:49",
+            "startMs": 1109588,
+            "endMs": 1127973,
+            "conf": 0.713
+          },
+          {
+            "ayahId": "41:49",
+            "startMs": 1109588,
+            "endMs": 1127953,
+            "conf": 0.619
+          }
+        ]
+      },
+      {
+        "ayah": 50,
+        "before": {
+          "ayahIdx": 49,
+          "startMs": 1099326,
+          "endMs": 1128510,
+          "conf": 0.0,
+          "snapped": false,
+          "matched": 0,
+          "total": 32
+        },
+        "afterMeasuredStartMs": 1128507,
+        "afterMeasuredConfidence": 0.693,
+        "context": "iraoui41_new_50_full",
+        "measurements": [
+          {
+            "ayahId": "41:50",
+            "startMs": 1128527,
+            "endMs": 1179961,
+            "conf": 0.351
+          },
+          {
+            "ayahId": "41:50",
+            "startMs": 1128527,
+            "endMs": 1179961,
+            "conf": 0.333
+          },
+          {
+            "ayahId": "41:50",
+            "startMs": 1128507,
+            "endMs": 1179941,
+            "conf": 0.693
+          },
+          {
+            "ayahId": "41:50",
+            "startMs": 1128507,
+            "endMs": 1179921,
+            "conf": 0.699
+          }
+        ]
+      },
+      {
+        "ayah": 51,
+        "before": {
+          "ayahIdx": 50,
+          "startMs": 1128510,
+          "endMs": 1140874,
+          "conf": 0.0,
+          "snapped": true,
+          "matched": 0,
+          "total": 13
+        },
+        "afterMeasuredStartMs": 1180918,
+        "afterMeasuredConfidence": 0.792,
+        "context": "iraoui41_new_51_52",
+        "measurements": [
+          {
+            "ayahId": "41:51",
+            "startMs": 1180918,
+            "endMs": 1203787,
+            "conf": 0.654
+          },
+          {
+            "ayahId": "41:51",
+            "startMs": 1180918,
+            "endMs": 1203787,
+            "conf": 0.655
+          },
+          {
+            "ayahId": "41:51",
+            "startMs": 1180918,
+            "endMs": 1203787,
+            "conf": 0.792
+          },
+          {
+            "ayahId": "41:51",
+            "startMs": 1180918,
+            "endMs": 1203787,
+            "conf": 0.793
+          }
+        ]
+      },
+      {
+        "ayah": 52,
+        "before": {
+          "ayahIdx": 51,
+          "startMs": 1140874,
+          "endMs": 1155964,
+          "conf": 0.0,
+          "snapped": false,
+          "matched": 0,
+          "total": 17
+        },
+        "afterMeasuredStartMs": 1204378,
+        "afterMeasuredConfidence": 0.57,
+        "context": "iraoui41_new_51_52",
+        "measurements": [
+          {
+            "ayahId": "41:52",
+            "startMs": 1204378,
+            "endMs": 1229929,
+            "conf": 0.502
+          },
+          {
+            "ayahId": "41:52",
+            "startMs": 1204378,
+            "endMs": 1229929,
+            "conf": 0.507
+          },
+          {
+            "ayahId": "41:52",
+            "startMs": 1204378,
+            "endMs": 1229949,
+            "conf": 0.57
+          },
+          {
+            "ayahId": "41:52",
+            "startMs": 1204378,
+            "endMs": 1229929,
+            "conf": 0.582
+          }
+        ]
+      },
+      {
+        "ayah": 53,
+        "before": {
+          "ayahIdx": 52,
+          "startMs": 1155964,
+          "endMs": 1172135,
+          "conf": 0.0,
+          "snapped": false,
+          "matched": 0,
+          "total": 19
+        },
+        "afterMeasuredStartMs": 1231226,
+        "afterMeasuredConfidence": 0.607,
+        "context": "iraoui41_new_53_54",
+        "measurements": [
+          {
+            "ayahId": "41:53",
+            "startMs": 1231246,
+            "endMs": 1264318,
+            "conf": 0.664
+          },
+          {
+            "ayahId": "41:53",
+            "startMs": 1231246,
+            "endMs": 1264318,
+            "conf": 0.655
+          },
+          {
+            "ayahId": "41:53",
+            "startMs": 1231226,
+            "endMs": 1264318,
+            "conf": 0.607
+          },
+          {
+            "ayahId": "41:53",
+            "startMs": 1231226,
+            "endMs": 1264318,
+            "conf": 0.614
+          }
+        ]
+      },
+      {
+        "ayah": 54,
+        "before": {
+          "ayahIdx": 53,
+          "startMs": 1172135,
+          "endMs": 1187505,
+          "conf": 0.0,
+          "snapped": false,
+          "matched": 0,
+          "total": 12
+        },
+        "afterMeasuredStartMs": 1264728,
+        "afterMeasuredConfidence": 0.531,
+        "context": "iraoui41_new_53_54",
+        "measurements": [
+          {
+            "ayahId": "41:54",
+            "startMs": 1264728,
+            "endMs": 1289414,
+            "conf": 0.679
+          },
+          {
+            "ayahId": "41:54",
+            "startMs": 1264728,
+            "endMs": 1289414,
+            "conf": 0.699
+          },
+          {
+            "ayahId": "41:54",
+            "startMs": 1264728,
+            "endMs": 1289434,
+            "conf": 0.535
+          },
+          {
+            "ayahId": "41:54",
+            "startMs": 1264728,
+            "endMs": 1289434,
+            "conf": 0.531
+          }
+        ]
+      }
+    ],
+    "audioSha256": "f655b81ea9926ddd8c134ef04c197b550ffd954896c43229a2f01c6be1d1986b",
+    "sourceUrl": "https://archive.org/download/55555555555033alahzab_202004/041Fossilat.mp3",
+    "decodedEofMs": 1290945,
+    "publisherIdentityUrl": "https://archive.org/details/55555555555033alahzab_202004",
+    "publisherIdentityEvidencePath": "ops/out/20261006_codex_1030_verify_archive_identity_iraoui.txt",
+    "publisherIdentityEvidenceSha256": "f61d09bec2ee6f651fd381f71eb24952b42f84305b5d7389428f46afe90303b1",
+    "limits": [
+      "نسبة القارئ والرواية من تصريح الناشر؛ لا ندعي تعرفاً بيومترياً.",
+      "الثقة في الآيتين15و44تبقى ضعيفة كما قيست؛ لا ترفع لتسهيل القبول.",
+      "المحاذاة الكاملة أخفقت47..54 واستبدلت بقياسات سياقية فعلية مع حفظ الأصل.",
+      "يلزم الفحص المستقل الكامل للبصمة المرفوعة قبل أي اعتماد."
+    ]
+  },
+  "warnings": [
+    "مداخل مدتها > 120ث: 3 · مثال: 2:282 مدتها 183ث"
+  ]
+}

@@ -1,0 +1,440 @@
+{
+  "path": "ops/source-repair/candidates/codex-expanded-tail-hafs-a_albadr-20261006.jz",
+  "sha256": "d588663d7e322a0f21456329e6bf6fa04af2c61703002cb782d058e0f4b30d1e",
+  "parentKey": "timings/hafs/a_albadr.jz",
+  "parentSha256": "121d167d0f2e0d8bb222fac7c5dfb5d42b2fe8cdf14c2c2fce4244c9cd7a4717",
+  "op": "ctc_quran_window:56",
+  "changedEntries": 19,
+  "warnings": [
+    "مداخل مدتها > 120ث: 1 · مثال: 2:282 مدتها 139ث"
+  ],
+  "proof": {
+    "qualityClaim": false,
+    "contexts": [
+      {
+        "reportPath": "ops/out/codex-badr56-79-87-expanded-report-20261006.json",
+        "reportSha256": "5c68a6d4be74d4b2d11b5b77b7ee49a2c4751ddb69e1802b4fff3e3ff8f02dae",
+        "bundlePath": "ops/out/codex-badr56-79-87-expanded-complete-20261006.json.gz",
+        "bundleSha256": "434b38b48837e963072c992e390337894d2316b0e09aa962c0367810878f5fc6",
+        "jobId": 112112120970,
+        "id": "short_final_badr56_79_87",
+        "sourceSha256": "cbdb97e1d5428c153977fccb98760ed999e43e9d09d50bc7f34d78e8dff6d2b9",
+        "targetAyahs": [
+          79,
+          80,
+          81,
+          82,
+          83,
+          84,
+          85,
+          86,
+          87
+        ],
+        "provenance": {
+          "runId": "37415181297",
+          "runSha": "f25c8b787f9588d93b36081169dc06fb4ed801d1",
+          "toolSha256": "7de87e0a2f5843c8ce48c2093d8ecbef67eb0bc6ab92d7d42ecc15d6f505a8f3"
+        }
+      },
+      {
+        "reportPath": "ops/out/codex-badr56-87-96-expanded-report-20261006.json",
+        "reportSha256": "fc9a41096b3da43fee5c1ae2e298cdab824f8f8519ab3fd3be255f54d3e15f0c",
+        "bundlePath": "ops/out/codex-badr56-87-96-expanded-complete-20261006.json.gz",
+        "bundleSha256": "d4d3367fd6942e5612d57b8613bddb6d13a86520372eb630316bf33e7abd4c37",
+        "jobId": 112112121094,
+        "id": "short_final_badr56_87_96",
+        "sourceSha256": "cbdb97e1d5428c153977fccb98760ed999e43e9d09d50bc7f34d78e8dff6d2b9",
+        "targetAyahs": [
+          87,
+          88,
+          89,
+          90,
+          91,
+          92,
+          93,
+          94,
+          95,
+          96
+        ],
+        "provenance": {
+          "runId": "37415181297",
+          "runSha": "f25c8b787f9588d93b36081169dc06fb4ed801d1",
+          "toolSha256": "7de87e0a2f5843c8ce48c2093d8ecbef67eb0bc6ab92d7d42ecc15d6f505a8f3"
+        }
+      }
+    ],
+    "changes": [
+      {
+        "before": {
+          "ayahId": "56:78",
+          "fileRef": "https://server16.mp3quran.net/A-AlBadr/Rewayat-Hafs-A-n-Assem/056.mp3",
+          "startMs": 366400,
+          "endMs": 370510,
+          "conf": 0.736,
+          "confBand": "MED"
+        },
+        "after": {
+          "ayahId": "56:78",
+          "fileRef": "https://server16.mp3quran.net/A-AlBadr/Rewayat-Hafs-A-n-Assem/056.mp3",
+          "startMs": 366400,
+          "endMs": 370209,
+          "conf": 0.736,
+          "confBand": "MED"
+        }
+      },
+      {
+        "before": {
+          "ayahId": "56:79",
+          "fileRef": "https://server16.mp3quran.net/A-AlBadr/Rewayat-Hafs-A-n-Assem/056.mp3",
+          "startMs": 370510,
+          "endMs": 372525,
+          "conf": 0.0,
+          "confBand": "LOW"
+        },
+        "after": {
+          "ayahId": "56:79",
+          "fileRef": "https://server16.mp3quran.net/A-AlBadr/Rewayat-Hafs-A-n-Assem/056.mp3",
+          "startMs": 370209,
+          "endMs": 374893,
+          "conf": 0.0,
+          "confBand": "LOW"
+        }
+      },
+      {
+        "before": {
+          "ayahId": "56:80",
+          "fileRef": "https://server16.mp3quran.net/A-AlBadr/Rewayat-Hafs-A-n-Assem/056.mp3",
+          "startMs": 372525,
+          "endMs": 373285,
+          "conf": 0.0,
+          "confBand": "LOW",
+          "startApprox": true
+        },
+        "after": {
+          "ayahId": "56:80",
+          "fileRef": "https://server16.mp3quran.net/A-AlBadr/Rewayat-Hafs-A-n-Assem/056.mp3",
+          "startMs": 374893,
+          "endMs": 379897,
+          "conf": 0.0,
+          "confBand": "LOW",
+          "startApprox": true
+        }
+      },
+      {
+        "before": {
+          "ayahId": "56:81",
+          "fileRef": "https://server16.mp3quran.net/A-AlBadr/Rewayat-Hafs-A-n-Assem/056.mp3",
+          "startMs": 373285,
+          "endMs": 375200,
+          "conf": 0.0,
+          "confBand": "LOW",
+          "startApprox": true
+        },
+        "after": {
+          "ayahId": "56:81",
+          "fileRef": "https://server16.mp3quran.net/A-AlBadr/Rewayat-Hafs-A-n-Assem/056.mp3",
+          "startMs": 379897,
+          "endMs": 384941,
+          "conf": 0.0,
+          "confBand": "LOW",
+          "startApprox": true
+        }
+      },
+      {
+        "before": {
+          "ayahId": "56:82",
+          "fileRef": "https://server16.mp3quran.net/A-AlBadr/Rewayat-Hafs-A-n-Assem/056.mp3",
+          "startMs": 375200,
+          "endMs": 380150,
+          "conf": 0.421,
+          "confBand": "LOW"
+        },
+        "after": {
+          "ayahId": "56:82",
+          "fileRef": "https://server16.mp3quran.net/A-AlBadr/Rewayat-Hafs-A-n-Assem/056.mp3",
+          "startMs": 384941,
+          "endMs": 390446,
+          "conf": 0.421,
+          "confBand": "LOW"
+        }
+      },
+      {
+        "before": {
+          "ayahId": "56:83",
+          "fileRef": "https://server16.mp3quran.net/A-AlBadr/Rewayat-Hafs-A-n-Assem/056.mp3",
+          "startMs": 380150,
+          "endMs": 382071,
+          "conf": 0.0,
+          "confBand": "LOW"
+        },
+        "after": {
+          "ayahId": "56:83",
+          "fileRef": "https://server16.mp3quran.net/A-AlBadr/Rewayat-Hafs-A-n-Assem/056.mp3",
+          "startMs": 390446,
+          "endMs": 395290,
+          "conf": 0.0,
+          "confBand": "LOW"
+        }
+      },
+      {
+        "before": {
+          "ayahId": "56:84",
+          "fileRef": "https://server16.mp3quran.net/A-AlBadr/Rewayat-Hafs-A-n-Assem/056.mp3",
+          "startMs": 382071,
+          "endMs": 385190,
+          "conf": 0.268,
+          "confBand": "LOW",
+          "startApprox": true
+        },
+        "after": {
+          "ayahId": "56:84",
+          "fileRef": "https://server16.mp3quran.net/A-AlBadr/Rewayat-Hafs-A-n-Assem/056.mp3",
+          "startMs": 395290,
+          "endMs": 400875,
+          "conf": 0.268,
+          "confBand": "LOW",
+          "startApprox": true
+        }
+      },
+      {
+        "before": {
+          "ayahId": "56:85",
+          "fileRef": "https://server16.mp3quran.net/A-AlBadr/Rewayat-Hafs-A-n-Assem/056.mp3",
+          "startMs": 385190,
+          "endMs": 390447,
+          "conf": 0.014,
+          "confBand": "LOW"
+        },
+        "after": {
+          "ayahId": "56:85",
+          "fileRef": "https://server16.mp3quran.net/A-AlBadr/Rewayat-Hafs-A-n-Assem/056.mp3",
+          "startMs": 400875,
+          "endMs": 407401,
+          "conf": 0.014,
+          "confBand": "LOW"
+        }
+      },
+      {
+        "before": {
+          "ayahId": "56:86",
+          "fileRef": "https://server16.mp3quran.net/A-AlBadr/Rewayat-Hafs-A-n-Assem/056.mp3",
+          "startMs": 390447,
+          "endMs": 393959,
+          "conf": 0.0,
+          "confBand": "LOW"
+        },
+        "after": {
+          "ayahId": "56:86",
+          "fileRef": "https://server16.mp3quran.net/A-AlBadr/Rewayat-Hafs-A-n-Assem/056.mp3",
+          "startMs": 407401,
+          "endMs": 412929,
+          "conf": 0.0,
+          "confBand": "LOW"
+        }
+      },
+      {
+        "before": {
+          "ayahId": "56:87",
+          "fileRef": "https://server16.mp3quran.net/A-AlBadr/Rewayat-Hafs-A-n-Assem/056.mp3",
+          "startMs": 393959,
+          "endMs": 397522,
+          "conf": 0.45,
+          "confBand": "MED",
+          "startApprox": true
+        },
+        "after": {
+          "ayahId": "56:87",
+          "fileRef": "https://server16.mp3quran.net/A-AlBadr/Rewayat-Hafs-A-n-Assem/056.mp3",
+          "startMs": 412929,
+          "endMs": 418714,
+          "conf": 0.45,
+          "confBand": "MED",
+          "startApprox": true
+        }
+      },
+      {
+        "before": {
+          "ayahId": "56:88",
+          "fileRef": "https://server16.mp3quran.net/A-AlBadr/Rewayat-Hafs-A-n-Assem/056.mp3",
+          "startMs": 397522,
+          "endMs": 399503,
+          "conf": 0.0,
+          "confBand": "LOW",
+          "startApprox": true
+        },
+        "after": {
+          "ayahId": "56:88",
+          "fileRef": "https://server16.mp3quran.net/A-AlBadr/Rewayat-Hafs-A-n-Assem/056.mp3",
+          "startMs": 418714,
+          "endMs": 424019,
+          "conf": 0.0,
+          "confBand": "LOW",
+          "startApprox": true
+        }
+      },
+      {
+        "before": {
+          "ayahId": "56:89",
+          "fileRef": "https://server16.mp3quran.net/A-AlBadr/Rewayat-Hafs-A-n-Assem/056.mp3",
+          "startMs": 399503,
+          "endMs": 402925,
+          "conf": 0.465,
+          "confBand": "MED",
+          "startApprox": true
+        },
+        "after": {
+          "ayahId": "56:89",
+          "fileRef": "https://server16.mp3quran.net/A-AlBadr/Rewayat-Hafs-A-n-Assem/056.mp3",
+          "startMs": 424019,
+          "endMs": 429865,
+          "conf": 0.465,
+          "confBand": "MED",
+          "startApprox": true
+        }
+      },
+      {
+        "before": {
+          "ayahId": "56:90",
+          "fileRef": "https://server16.mp3quran.net/A-AlBadr/Rewayat-Hafs-A-n-Assem/056.mp3",
+          "startMs": 402925,
+          "endMs": 404687,
+          "conf": 0.0,
+          "confBand": "LOW",
+          "startApprox": true
+        },
+        "after": {
+          "ayahId": "56:90",
+          "fileRef": "https://server16.mp3quran.net/A-AlBadr/Rewayat-Hafs-A-n-Assem/056.mp3",
+          "startMs": 429865,
+          "endMs": 435430,
+          "conf": 0.0,
+          "confBand": "LOW",
+          "startApprox": true
+        }
+      },
+      {
+        "before": {
+          "ayahId": "56:91",
+          "fileRef": "https://server16.mp3quran.net/A-AlBadr/Rewayat-Hafs-A-n-Assem/056.mp3",
+          "startMs": 404687,
+          "endMs": 407680,
+          "conf": 0.329,
+          "confBand": "LOW",
+          "startApprox": true
+        },
+        "after": {
+          "ayahId": "56:91",
+          "fileRef": "https://server16.mp3quran.net/A-AlBadr/Rewayat-Hafs-A-n-Assem/056.mp3",
+          "startMs": 435430,
+          "endMs": 440094,
+          "conf": 0.329,
+          "confBand": "LOW",
+          "startApprox": true
+        }
+      },
+      {
+        "before": {
+          "ayahId": "56:92",
+          "fileRef": "https://server16.mp3quran.net/A-AlBadr/Rewayat-Hafs-A-n-Assem/056.mp3",
+          "startMs": 407680,
+          "endMs": 414273,
+          "conf": 0.346,
+          "confBand": "LOW"
+        },
+        "after": {
+          "ayahId": "56:92",
+          "fileRef": "https://server16.mp3quran.net/A-AlBadr/Rewayat-Hafs-A-n-Assem/056.mp3",
+          "startMs": 440094,
+          "endMs": 448782,
+          "conf": 0.346,
+          "confBand": "LOW"
+        }
+      },
+      {
+        "before": {
+          "ayahId": "56:93",
+          "fileRef": "https://server16.mp3quran.net/A-AlBadr/Rewayat-Hafs-A-n-Assem/056.mp3",
+          "startMs": 414273,
+          "endMs": 417055,
+          "conf": 0.529,
+          "confBand": "MED",
+          "startApprox": true
+        },
+        "after": {
+          "ayahId": "56:93",
+          "fileRef": "https://server16.mp3quran.net/A-AlBadr/Rewayat-Hafs-A-n-Assem/056.mp3",
+          "startMs": 448782,
+          "endMs": 452585,
+          "conf": 0.529,
+          "confBand": "MED",
+          "startApprox": true
+        }
+      },
+      {
+        "before": {
+          "ayahId": "56:94",
+          "fileRef": "https://server16.mp3quran.net/A-AlBadr/Rewayat-Hafs-A-n-Assem/056.mp3",
+          "startMs": 417055,
+          "endMs": 419090,
+          "conf": 0.522,
+          "confBand": "MED",
+          "startApprox": true
+        },
+        "after": {
+          "ayahId": "56:94",
+          "fileRef": "https://server16.mp3quran.net/A-AlBadr/Rewayat-Hafs-A-n-Assem/056.mp3",
+          "startMs": 452585,
+          "endMs": 455308,
+          "conf": 0.522,
+          "confBand": "MED",
+          "startApprox": true
+        }
+      },
+      {
+        "before": {
+          "ayahId": "56:95",
+          "fileRef": "https://server16.mp3quran.net/A-AlBadr/Rewayat-Hafs-A-n-Assem/056.mp3",
+          "startMs": 419090,
+          "endMs": 421738,
+          "conf": 0.071,
+          "confBand": "LOW"
+        },
+        "after": {
+          "ayahId": "56:95",
+          "fileRef": "https://server16.mp3quran.net/A-AlBadr/Rewayat-Hafs-A-n-Assem/056.mp3",
+          "startMs": 455308,
+          "endMs": 460212,
+          "conf": 0.071,
+          "confBand": "LOW"
+        }
+      },
+      {
+        "before": {
+          "ayahId": "56:96",
+          "fileRef": "https://server16.mp3quran.net/A-AlBadr/Rewayat-Hafs-A-n-Assem/056.mp3",
+          "startMs": 421738,
+          "endMs": 422399,
+          "conf": 0.0,
+          "confBand": "LOW",
+          "startApprox": true
+        },
+        "after": {
+          "ayahId": "56:96",
+          "fileRef": "https://server16.mp3quran.net/A-AlBadr/Rewayat-Hafs-A-n-Assem/056.mp3",
+          "startMs": 460212,
+          "endMs": 472363,
+          "conf": 0.0,
+          "confBand": "LOW",
+          "startApprox": true
+        }
+      }
+    ],
+    "decodedEofMs": {
+      "56": 472363
+    },
+    "limits": [
+      "الحد الأصلي لثقة المحاذاة0.45؛ لا تغيير لأي حارس أو ثقة منشورة.",
+      "الخواتيم المقيسة فقط؛ يلزم الفحص الأصلي الكامل للبصمة المرفوعة."
+    ]
+  }
+}

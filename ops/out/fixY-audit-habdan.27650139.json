@@ -1,0 +1,300 @@
+{
+ "schema": 1,
+ "tool": "full_audit-1.0",
+ "date": "20261009",
+ "timestampUtc": "2026-10-09T02:05:13Z",
+ "elapsedSec": 27.1,
+ "phase": "all",
+ "manifestIndexes": 180,
+ "frozenBucket": 220,
+ "reportsRead": 11828,
+ "rows": [
+  {
+   "key": "timings-staging/hafs/habdan.27650139.jz",
+   "sha256": "27650139dffae75c9c96d16603bc649865ae32606d26929fb21aea8a6dc7a7c3",
+   "riwaya": "hafs",
+   "reciterId": "habdan",
+   "bytes": 80823,
+   "engine": "mp3quran-timing-v1",
+   "transformOp": "ctc_heardmap_splice:12,23,26,37,38,50,55,80,83,84",
+   "staging": true,
+   "identity": {
+    "sha256": "27650139dffae75c9c96d16603bc649865ae32606d26929fb21aea8a6dc7a7c3",
+    "staging": true,
+    "errors": [],
+    "ok": true
+   },
+   "structure": {
+    "entries": 6236,
+    "errors": [],
+    "examples": {},
+    "registeredFileNoMappings": {},
+    "fileNoUnparsed": 0,
+    "structuralFatal": [],
+    "structuralWarn": [
+     "مداخل مدتها > 120ث: 2 · مثال: 2:282 مدتها 150ث",
+     "فجوات > 15ث بين آيتين متتاليتين: 1 · مثال: 36:49→36:50 فجوة 17ث"
+    ],
+    "decision": [],
+    "engine": "mp3quran-timing-v1",
+    "audioSha": 114,
+    "bands": {
+     "MED": 5827,
+     "HIGH": 86,
+     "LOW": 323
+    },
+    "ok": true
+   },
+   "gaps": {
+    "missingTotal": 0,
+    "internalGaps": [],
+    "headMissing": [],
+    "tailMissing": [],
+    "wholeMissing": [],
+    "declared": {
+     "transformOp": "ctc_heardmap_splice:12,23,26,37,38,50,55,80,83,84",
+     "transformReason": "fixY البند 5: مداخل مفرطة الطول وخريطة السماع (heard_pub) تُظهر انحرافاً > 1.5ث في السور المسمّاة ⇒ تُقاس وتُعاد على مراسٍ مسموعة",
+     "reasonCode": null,
+     "dropSurahs": [],
+     "byReason": {},
+     "declaredCount": 0,
+     "tagCount": 0,
+     "declaredIds": [],
+     "truncatedTail": null
+    },
+    "undeclaredEdge": [],
+    "errors": [],
+    "ok": true
+   },
+   "durations": {
+    "durationOutliers": 60,
+    "durationExamples": [
+     {
+      "aid": "56:95",
+      "ms": 56878,
+      "expMs": 5884,
+      "ratio": 9.67,
+      "chars": 16
+     },
+     {
+      "aid": "37:57",
+      "ms": 76387,
+      "expMs": 7915,
+      "ratio": 9.65,
+      "chars": 26
+     },
+     {
+      "aid": "56:94",
+      "ms": 32381,
+      "expMs": 3678,
+      "ratio": 8.8,
+      "chars": 10
+     },
+     {
+      "aid": "83:21",
+      "ms": 41929,
+      "expMs": 4873,
+      "ratio": 8.6,
+      "chars": 13
+     },
+     {
+      "aid": "70:13",
+      "ms": 32180,
+      "expMs": 4346,
+      "ratio": 7.4,
+      "chars": 15
+     },
+     {
+      "aid": "12:83",
+      "ms": 129786,
+      "expMs": 20275,
+      "ratio": 6.4,
+      "chars": 70
+     },
+     {
+      "aid": "39:56",
+      "ms": 76631,
+      "expMs": 13886,
+      "ratio": 5.52,
+      "chars": 49
+     },
+     {
+      "aid": "84:6",
+      "ms": 55829,
+      "expMs": 10120,
+      "ratio": 5.52,
+      "chars": 34
+     },
+     {
+      "aid": "55:44",
+      "ms": 40368,
+      "expMs": 7642,
+      "ratio": 5.28,
+      "chars": 21
+     },
+     {
+      "aid": "14:48",
+      "ms": 71996,
+      "expMs": 14039,
+      "ratio": 5.13,
+      "chars": 47
+     },
+     {
+      "aid": "76:8",
+      "ms": 55120,
+      "expMs": 11180,
+      "ratio": 4.93,
+      "chars": 37
+     },
+     {
+      "aid": "21:23",
+      "ms": 26273,
+      "expMs": 5410,
+      "ratio": 4.86,
+      "chars": 20
+     }
+    ],
+    "impossibleShort": [],
+    "veryShort": [
+     {
+      "aid": "84:2",
+      "ms": 881,
+      "expMs": 4167,
+      "ratio": 0.21,
+      "chars": 14
+     }
+    ],
+    "extremeLong": [
+     {
+      "aid": "56:95",
+      "ms": 56878,
+      "expMs": 5884,
+      "ratio": 9.67,
+      "chars": 16
+     },
+     {
+      "aid": "37:57",
+      "ms": 76387,
+      "expMs": 7915,
+      "ratio": 9.65,
+      "chars": 26
+     },
+     {
+      "aid": "56:94",
+      "ms": 32381,
+      "expMs": 3678,
+      "ratio": 8.8,
+      "chars": 10
+     },
+     {
+      "aid": "83:21",
+      "ms": 41929,
+      "expMs": 4873,
+      "ratio": 8.6,
+      "chars": 13
+     },
+     {
+      "aid": "70:13",
+      "ms": 32180,
+      "expMs": 4346,
+      "ratio": 7.4,
+      "chars": 15
+     },
+     {
+      "aid": "12:83",
+      "ms": 129786,
+      "expMs": 20275,
+      "ratio": 6.4,
+      "chars": 70
+     },
+     {
+      "aid": "39:56",
+      "ms": 76631,
+      "expMs": 13886,
+      "ratio": 5.52,
+      "chars": 49
+     },
+     {
+      "aid": "84:6",
+      "ms": 55829,
+      "expMs": 10120,
+      "ratio": 5.52,
+      "chars": 34
+     },
+     {
+      "aid": "55:44",
+      "ms": 40368,
+      "expMs": 7642,
+      "ratio": 5.28,
+      "chars": 21
+     },
+     {
+      "aid": "14:48",
+      "ms": 71996,
+      "expMs": 14039,
+      "ratio": 5.13,
+      "chars": 47
+     }
+    ],
+    "longOutliers": 59,
+    "shortOutliers": 1,
+    "silenceGaps": 1,
+    "silenceExamples": [
+     {
+      "from": "36:49",
+      "to": "36:50",
+      "gapMs": 16573
+     }
+    ],
+    "surahsWithRate": 113
+   },
+   "audio": {
+    "audioReportsOnSha": 0,
+    "openersOnSha": false,
+    "errors": [
+     "لا حكمَ صوتيٍّ بعيّنةٍ على البصمة المنشورة",
+     "لا شاهدَ مطالعَ على البصمة المنشورة"
+    ],
+    "notes": [],
+    "samples": [],
+    "pooled": null,
+    "severeHi": null,
+    "otherShasWithSamples": [
+     "0d01c5ee",
+     "16198316",
+     "3498f681",
+     "55808ff8",
+     "6de4aba5",
+     "9227d6ed"
+    ],
+    "ok": false
+   }
+  }
+ ],
+ "summary": {
+  "indexes": 1,
+  "phase": "all",
+  "identityOk": 1,
+  "identityBad": [],
+  "structureOk": 1,
+  "structureBad": [],
+  "gapsOk": 1,
+  "gapsBad": [],
+  "audioOk": 0,
+  "audioBad": [
+   "timings-staging/hafs/habdan.27650139.jz"
+  ],
+  "durationOutliersTotal": 60,
+  "impossibleShortTotal": 0,
+  "indexesWithImpossibleShort": 0,
+  "veryShortTotal": 1,
+  "extremeLongTotal": 10,
+  "indexesWithExtremeLong": 1,
+  "mirrorStale": 0,
+  "silenceGapsTotal": 1,
+  "indexesWithDurationOutliers": 1,
+  "indexesWithSilenceGaps": 1,
+  "entriesTotal": 6236,
+  "missingTotal": 0
+ }
+}

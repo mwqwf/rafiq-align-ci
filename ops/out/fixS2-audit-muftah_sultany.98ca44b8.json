@@ -1,0 +1,308 @@
+{
+ "schema": 1,
+ "tool": "full_audit-1.0",
+ "date": "20261003",
+ "timestampUtc": "2026-10-03T08:30:53Z",
+ "elapsedSec": 21.2,
+ "phase": "all",
+ "manifestIndexes": 180,
+ "frozenBucket": 220,
+ "reportsRead": 9129,
+ "rows": [
+  {
+   "key": "timings-staging/hafs/muftah_sultany.98ca44b8.jz",
+   "sha256": "98ca44b833553e719b384c96d90b4826522e87ac25199bc2b6ab5290fbdcbf7f",
+   "riwaya": "hafs",
+   "reciterId": "muftah_sultany",
+   "bytes": 95672,
+   "engine": "ctc-seg-1",
+   "transformOp": "ctc_gapsplit:56,83",
+   "staging": true,
+   "identity": {
+    "sha256": "98ca44b833553e719b384c96d90b4826522e87ac25199bc2b6ab5290fbdcbf7f",
+    "staging": true,
+    "errors": [],
+    "ok": true
+   },
+   "structure": {
+    "entries": 6236,
+    "errors": [],
+    "examples": {},
+    "fileNoUnparsed": 0,
+    "structuralFatal": [],
+    "structuralWarn": [],
+    "decision": [],
+    "engine": "ctc-seg-1",
+    "audioSha": 114,
+    "bands": {
+     "HIGH": 642,
+     "MED": 3951,
+     "LOW": 1643
+    },
+    "ok": true
+   },
+   "gaps": {
+    "missingTotal": 0,
+    "internalGaps": [],
+    "headMissing": [],
+    "tailMissing": [],
+    "wholeMissing": [],
+    "declared": {
+     "transformOp": "ctc_gapsplit:56,83",
+     "transformReason": "fixS2 موجة4 (مدخلٌ ثالث بخريطة السماع): مسابرُ ctc_heard_probe أثبتت أنّ الآيات بلا تلاوة طرفُ كبسٍ ممتدّ (المنشور يسبق المسموع بعشرات الثواني) ⇒ نافذةٌ واحدةٌ تغطّي مدى الانحراف كلَّه بين مراسٍ يطابق فيها المنشورُ المسموع (56:90-96,83:33-36) بحُرّاس الثقة والمدّة والجارة كما هي وعتبة 5% كما هي (إذن المالك 22:44Z).",
+     "reasonCode": null,
+     "dropSurahs": [],
+     "byReason": {},
+     "declaredCount": 0,
+     "tagCount": 0,
+     "declaredIds": [],
+     "truncatedTail": null
+    },
+    "undeclaredEdge": [],
+    "errors": [],
+    "ok": true
+   },
+   "durations": {
+    "durationOutliers": 24,
+    "durationExamples": [
+     {
+      "aid": "53:50",
+      "ms": 481,
+      "expMs": 3715,
+      "ratio": 0.13,
+      "chars": 18
+     },
+     {
+      "aid": "80:41",
+      "ms": 420,
+      "expMs": 3223,
+      "ratio": 0.13,
+      "chars": 10
+     },
+     {
+      "aid": "15:75",
+      "ms": 760,
+      "expMs": 5619,
+      "ratio": 0.14,
+      "chars": 20
+     },
+     {
+      "aid": "37:178",
+      "ms": 401,
+      "expMs": 2942,
+      "ratio": 0.14,
+      "chars": 14
+     },
+     {
+      "aid": "53:56",
+      "ms": 681,
+      "expMs": 4128,
+      "ratio": 0.16,
+      "chars": 20
+     },
+     {
+      "aid": "37:179",
+      "ms": 560,
+      "expMs": 3152,
+      "ratio": 0.18,
+      "chars": 15
+     },
+     {
+      "aid": "77:48",
+      "ms": 1201,
+      "expMs": 5675,
+      "ratio": 0.21,
+      "chars": 24
+     },
+     {
+      "aid": "15:78",
+      "ms": 1381,
+      "expMs": 6181,
+      "ratio": 0.22,
+      "chars": 22
+     },
+     {
+      "aid": "80:42",
+      "ms": 1341,
+      "expMs": 6124,
+      "ratio": 0.22,
+      "chars": 19
+     },
+     {
+      "aid": "77:50",
+      "ms": 980,
+      "expMs": 4257,
+      "ratio": 0.23,
+      "chars": 18
+     },
+     {
+      "aid": "53:59",
+      "ms": 941,
+      "expMs": 3922,
+      "ratio": 0.24,
+      "chars": 19
+     },
+     {
+      "aid": "70:44",
+      "ms": 2141,
+      "expMs": 8834,
+      "ratio": 0.24,
+      "chars": 42
+     }
+    ],
+    "impossibleShort": [],
+    "veryShort": [
+     {
+      "aid": "53:50",
+      "ms": 481,
+      "expMs": 3715,
+      "ratio": 0.13,
+      "chars": 18
+     },
+     {
+      "aid": "80:41",
+      "ms": 420,
+      "expMs": 3223,
+      "ratio": 0.13,
+      "chars": 10
+     },
+     {
+      "aid": "15:75",
+      "ms": 760,
+      "expMs": 5619,
+      "ratio": 0.14,
+      "chars": 20
+     },
+     {
+      "aid": "37:178",
+      "ms": 401,
+      "expMs": 2942,
+      "ratio": 0.14,
+      "chars": 14
+     },
+     {
+      "aid": "53:56",
+      "ms": 681,
+      "expMs": 4128,
+      "ratio": 0.16,
+      "chars": 20
+     },
+     {
+      "aid": "37:179",
+      "ms": 560,
+      "expMs": 3152,
+      "ratio": 0.18,
+      "chars": 15
+     },
+     {
+      "aid": "77:50",
+      "ms": 980,
+      "expMs": 4257,
+      "ratio": 0.23,
+      "chars": 18
+     },
+     {
+      "aid": "53:59",
+      "ms": 941,
+      "expMs": 3922,
+      "ratio": 0.24,
+      "chars": 19
+     },
+     {
+      "aid": "53:62",
+      "ms": 900,
+      "expMs": 3509,
+      "ratio": 0.26,
+      "chars": 17
+     },
+     {
+      "aid": "53:51",
+      "ms": 720,
+      "expMs": 2683,
+      "ratio": 0.27,
+      "chars": 13
+     },
+     {
+      "aid": "53:53",
+      "ms": 721,
+      "expMs": 2683,
+      "ratio": 0.27,
+      "chars": 13
+     },
+     {
+      "aid": "38:68",
+      "ms": 681,
+      "expMs": 2425,
+      "ratio": 0.28,
+      "chars": 13
+     },
+     {
+      "aid": "38:80",
+      "ms": 873,
+      "expMs": 3172,
+      "ratio": 0.28,
+      "chars": 17
+     },
+     {
+      "aid": "53:60",
+      "ms": 920,
+      "expMs": 3096,
+      "ratio": 0.3,
+      "chars": 15
+     }
+    ],
+    "extremeLong": [],
+    "longOutliers": 0,
+    "shortOutliers": 23,
+    "silenceGaps": 0,
+    "silenceExamples": [],
+    "surahsWithRate": 113
+   },
+   "audio": {
+    "audioReportsOnSha": 0,
+    "openersOnSha": false,
+    "errors": [
+     "لا حكمَ صوتيٍّ بعيّنةٍ على البصمة المنشورة",
+     "لا شاهدَ مطالعَ على البصمة المنشورة"
+    ],
+    "notes": [],
+    "samples": [],
+    "pooled": null,
+    "severeHi": null,
+    "otherShasWithSamples": [
+     "40da1e57",
+     "60984c42",
+     "c29cbdcf",
+     "d8c2487a"
+    ],
+    "ok": false
+   }
+  }
+ ],
+ "summary": {
+  "indexes": 1,
+  "phase": "all",
+  "identityOk": 1,
+  "identityBad": [],
+  "structureOk": 1,
+  "structureBad": [],
+  "gapsOk": 1,
+  "gapsBad": [],
+  "audioOk": 0,
+  "audioBad": [
+   "timings-staging/hafs/muftah_sultany.98ca44b8.jz"
+  ],
+  "durationOutliersTotal": 24,
+  "impossibleShortTotal": 0,
+  "indexesWithImpossibleShort": 0,
+  "veryShortTotal": 14,
+  "extremeLongTotal": 0,
+  "indexesWithExtremeLong": 0,
+  "mirrorStale": 0,
+  "silenceGapsTotal": 0,
+  "indexesWithDurationOutliers": 1,
+  "indexesWithSilenceGaps": 0,
+  "entriesTotal": 6236,
+  "missingTotal": 0
+ }
+}

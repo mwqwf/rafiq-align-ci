@@ -1,0 +1,13 @@
+# rc=0
+{
+ "verdict": "مقبول",
+ "sample.errors": 1,
+ "sample.errorWindows": {
+  "D|2:218": "RuntimeError: ffmpeg أبلغ خطأ فك مع rc=0: ket to decoder: Invalid data found when processing input\n[mp3float @ 0x55d5efed2880] Header missing\n[aist#0:0/mp3 @ 0x"
+ },
+ "sample.severe": [
+  2,
+  286,
+  null
+ ]
+}

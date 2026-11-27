@@ -1,0 +1,242 @@
+{
+  "schema": 1,
+  "generatedAt": "2026-10-07T14:02:02Z",
+  "scope": "qalun/fakhfakh_qalun severe census follow-up",
+  "candidate": {
+    "path": "ops/source-repair/candidates/codex-fakhfakh-boundaries-11-20-20261007.jz",
+    "sha256": "a906d8c1c4d1440884d8cc6917190a7de93c0dfebfe1de69cc1efd6f732b3e90",
+    "changedByTheseProbes": false
+  },
+  "dispatch": {
+    "commit": "0917724d06142adbe38b72152b5751748e02b513",
+    "workflow": "ctc_heard_probe.yml",
+    "evidence": "build-logs",
+    "runtime": "float32",
+    "repositoryPublic": true,
+    "runner": "ubuntu-latest",
+    "cacheRestoreOnly": true,
+    "artifactWrite": false,
+    "cacheWrite": false,
+    "r2Write": false
+  },
+  "unchangedGuards": {
+    "strictDeviationMs": 1500,
+    "minimumCtcConfidence": 0.7,
+    "maximumAnchorToCtcMs": 600,
+    "maximumOccurrenceToCtcMs": 150,
+    "requiresUnsnappedCtc": true,
+    "sampleThresholdPercent": 5
+  },
+  "completed": {
+    "10:60": {
+      "runId": 37626674629,
+      "jobId": 112810114527,
+      "sourceSha256": "6d306e334b76f41a8a54869e1532c937b0e4c0c5969e12070785be7f83f18c93",
+      "resultSha256": "59e7917d882730e764585b86c6e9c93a713bd1234605281d4494973944077259",
+      "resultBytes": 44090,
+      "resultDigestVerified": true,
+      "artifacts": 0,
+      "candidateStartMs": 1356148,
+      "ctcStartMs": 1356183,
+      "ctcDeltaMs": 35,
+      "ctcConfidence": 0.694,
+      "ctcSnapped": true,
+      "heardAnchorStartMs": 1356648,
+      "heardAnchorQuality": 0.893,
+      "heardOccurrenceStartMs": 1356648,
+      "heardOccurrenceScore": 0.893,
+      "ctcToAnchorMs": 465,
+      "ctcToOccurrenceMs": 465,
+      "probeIssues": [
+        "الآية 109 بلا حدود",
+        "نهاية آخر آية تتجاوز مدة الملف"
+      ],
+      "decision": "census-severe-not-confirmed-current-boundary-retained",
+      "reason": "الحد الحالي يبعد 35ms فقط عن CTC و500ms عن شاهد السماع؛ لا عطب جسيم عند 10:60 ولا إصلاح."
+    },
+    "16:16": {
+      "runId": 37626687488,
+      "jobId": 112810158826,
+      "sourceSha256": "d221ca97dcd9eaca821fffcd4a82fc2b045a57f66b7b132b93aaaba7d42fa8e9",
+      "resultSha256": "56b37d1e1f88bb6d3a41bf137d91c7fe74609861432cbb5c3f8d11bbefed7877",
+      "resultBytes": 52477,
+      "resultDigestVerified": true,
+      "artifacts": 0,
+      "candidateStartMs": 251923,
+      "ctcStartMs": 250386,
+      "ctcDeltaMs": -1537,
+      "ctcConfidence": 0.637,
+      "ctcSnapped": false,
+      "heardAnchorStartMs": 250587,
+      "heardAnchorQuality": 0.85,
+      "heardOccurrenceStartMs": 250587,
+      "heardOccurrenceScore": 0.85,
+      "ctcToAnchorMs": 201,
+      "ctcToOccurrenceMs": 201,
+      "decision": "boundary-suspect-single-boundary-repair-rejected",
+      "rejectionReasons": [
+        "ctc confidence below 0.70",
+        "heard deviation from the current boundary is 1336ms and does not independently cross the unchanged 1500ms severe threshold",
+        "ctc-to-occurrence difference exceeds 150ms"
+      ]
+    },
+    "16:28": {
+      "runId": 37626687488,
+      "jobId": 112810158826,
+      "sourceSha256": "d221ca97dcd9eaca821fffcd4a82fc2b045a57f66b7b132b93aaaba7d42fa8e9",
+      "resultSha256": "56b37d1e1f88bb6d3a41bf137d91c7fe74609861432cbb5c3f8d11bbefed7877",
+      "resultBytes": 52477,
+      "resultDigestVerified": true,
+      "artifacts": 0,
+      "candidateStartMs": 439953,
+      "ctcStartMs": 437321,
+      "ctcDeltaMs": -2632,
+      "ctcConfidence": 0.61,
+      "ctcSnapped": false,
+      "heardAnchorStartMs": 437452,
+      "heardAnchorQuality": 0.963,
+      "heardOccurrenceStartMs": 437952,
+      "heardOccurrenceScore": 0.912,
+      "ctcToAnchorMs": 131,
+      "ctcToOccurrenceMs": 631,
+      "decision": "boundary-defect-confirmed-single-boundary-repair-rejected",
+      "rejectionReasons": [
+        "ctc confidence below 0.70",
+        "ctc-to-occurrence difference exceeds 150ms"
+      ]
+    },
+    "16:32": {
+      "runId": 37626687488,
+      "jobId": 112810158826,
+      "sourceSha256": "d221ca97dcd9eaca821fffcd4a82fc2b045a57f66b7b132b93aaaba7d42fa8e9",
+      "resultSha256": "56b37d1e1f88bb6d3a41bf137d91c7fe74609861432cbb5c3f8d11bbefed7877",
+      "resultBytes": 52477,
+      "resultDigestVerified": true,
+      "artifacts": 0,
+      "candidateStartMs": 529310,
+      "ctcStartMs": 527521,
+      "ctcDeltaMs": -1789,
+      "ctcConfidence": 0.555,
+      "ctcSnapped": false,
+      "heardAnchorStartMs": 527632,
+      "heardAnchorQuality": 0.79,
+      "heardOccurrenceStartMs": 527492,
+      "heardOccurrenceScore": 0.838,
+      "ctcToAnchorMs": 111,
+      "ctcToOccurrenceMs": 29,
+      "decision": "boundary-defect-confirmed-single-boundary-repair-rejected",
+      "rejectionReasons": [
+        "ctc confidence below 0.70"
+      ],
+      "probeIssues": [
+        "الآية 128 بلا حدود",
+        "نهاية آخر آية تتجاوز مدة الملف"
+      ]
+    },
+    "37:137": {
+      "runId": 37626700009,
+      "jobId": 112810203978,
+      "sourceSha256": "40bc6868d978cee5dd88be790af0fedcc79f8681e99aa73aaf34bcf9fbf632fa",
+      "resultSha256": "6f0a03ca6ae2c8fb3c44be306dbe20e7fe46fe7bc96418ed31e5a54eb7796cba",
+      "resultBytes": 77689,
+      "resultDigestVerified": true,
+      "artifacts": 0,
+      "candidateStartMs": 972965,
+      "ctcStartMs": 979430,
+      "ctcDeltaMs": 6465,
+      "ctcConfidence": 0.653,
+      "ctcSnapped": true,
+      "heardAnchorStartMs": 979620,
+      "heardAnchorQuality": 0.955,
+      "heardOccurrenceStartMs": 979620,
+      "heardOccurrenceScore": 0.955,
+      "ctcToAnchorMs": 190,
+      "ctcToOccurrenceMs": 190,
+      "probeIssues": [
+        "الآية 182 بلا حدود",
+        "نهاية آخر آية تتجاوز مدة الملف"
+      ],
+      "decision": "range-defect-confirmed-single-boundary-repair-rejected",
+      "rejectionReasons": [
+        "ctc confidence below 0.70",
+        "ctc boundary is silence-snapped",
+        "ctc-to-occurrence difference exceeds 150ms"
+      ]
+    },
+    "42:47": {
+      "runId": 37626711579,
+      "jobId": 112810246894,
+      "sourceSha256": "dd4960fadb2503895772cd3b94def6b0aecc9ba88b0ddba2413c1f4f4ccc69d5",
+      "resultSha256": "eccb1a77962e59945a81628adc3205fc48d73e76cec8a0d5b455793c4c29a002",
+      "resultBytes": 20769,
+      "resultDigestVerified": true,
+      "artifacts": 0,
+      "candidateStartMs": 873871,
+      "ctcStartMs": 883420,
+      "ctcDeltaMs": 9549,
+      "ctcConfidence": 0.72,
+      "ctcSnapped": true,
+      "heardAnchorStartMs": 883688,
+      "heardAnchorQuality": 0.882,
+      "heardOccurrenceStartMs": 883688,
+      "heardOccurrenceScore": 0.892,
+      "ctcToAnchorMs": 268,
+      "ctcToOccurrenceMs": 268,
+      "probeIssues": [],
+      "rangeEvidence": "candidate 42:48 starts at 883420ms, exactly where the probe places 42:47; subsequent probe boundaries remain shifted",
+      "decision": "range-defect-confirmed-single-boundary-repair-rejected",
+      "rejectionReasons": [
+        "ctc boundary is silence-snapped",
+        "ctc-to-occurrence difference exceeds 150ms",
+        "neighbouring boundaries show a multi-ayah shift rather than an isolated boundary"
+      ]
+    },
+    "69:43": {
+      "runId": 37626725183,
+      "jobId": 112810288241,
+      "sourceSha256": "758f7383dfee9e1bf6040cf909dacac589f3e3bbc813d6dd67b3d79771e20880",
+      "resultSha256": "40380522f14ceb62c08d497a36647c1b25daf17eac04771da972648fc841c4ba",
+      "resultBytes": 20499,
+      "resultDigestVerified": true,
+      "artifacts": 0,
+      "candidateStartMs": 356867,
+      "ctcStartMs": 366864,
+      "ctcDeltaMs": 9997,
+      "ctcConfidence": 0.733,
+      "ctcSnapped": true,
+      "heardAnchorStartMs": 368405,
+      "heardAnchorQuality": 0.938,
+      "heardOccurrenceStartMs": 368405,
+      "heardOccurrenceScore": 0.938,
+      "ctcToAnchorMs": 1541,
+      "ctcToOccurrenceMs": 1541,
+      "probeIssues": [
+        "الآية 52 بلا حدود",
+        "نهاية آخر آية تتجاوز مدة الملف"
+      ],
+      "decision": "range-defect-confirmed-single-boundary-repair-rejected",
+      "rejectionReasons": [
+        "ctc boundary is silence-snapped",
+        "ctc-to-anchor difference exceeds 600ms",
+        "ctc-to-occurrence difference exceeds 150ms",
+        "the probe did not produce a complete final-verse boundary"
+      ]
+    }
+  },
+  "inProgress": {
+    "openers": {
+      "runId": 37619639313,
+      "jobId": 112786483903,
+      "status": "verified-archive-fallback-retry-running"
+    }
+  },
+  "remaining": [
+    "Treat 10:60 as exonerated by the independent probe; do not repair it.",
+    "Obtain an additional bounded witness for 16:16 and safe higher-confidence boundary evidence for 16:28 and 16:32 before any patch.",
+    "Use a bounded independent two-model range witness for 37, 42 and 69; do not turn these full-range shifts into invented single-boundary patches.",
+    "Read the openers retry report and keep every error or unknown as unfinished work.",
+    "After any guarded repair, remeasure the repaired ranges and neighbours on the new SHA, then rerun the general scan and separate opener from ending evidence."
+  ],
+  "productionChanged": false,
+  "completionClaim": false
+}
