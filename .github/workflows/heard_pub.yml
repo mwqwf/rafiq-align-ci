@@ -105,7 +105,7 @@ jobs:
               refs = {v[2] for v in cs[s].values()}
               if len(refs) != 1:
                   sys.exit(f"⛔ س{s}: أكثرُ من ملفّ {sorted(refs)[:2]}")
-              # ⭐ نافذةُ مدى السورة لملفٍّ تبدأ فيه السورةُ بعد 20ث (‏heard_window): الغلافُ وحدَه من الفهرس + هامش 120ث؛ وإلا يبقى الملفُّ كلُّه.
+              # ⭐ نافذةُ مدى السورة لملفٍّ تبدأ فيه السورةُ بعد 20ث (‏heard_window): الغلافُ وحدَه من الفهرس + هامش 70ث؛ وإلا يبقى الملفُّ كلُّه.
               import heard_window as HW
               win = HW.span_window(cs[s])
               item = [s, refs.pop()] + (list(win) if win else [])
