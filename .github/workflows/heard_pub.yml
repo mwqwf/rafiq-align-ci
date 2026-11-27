@@ -105,7 +105,11 @@ jobs:
               refs = {v[2] for v in cs[s].values()}
               if len(refs) != 1:
                   sys.exit(f"⛔ س{s}: أكثرُ من ملفّ {sorted(refs)[:2]}")
-              i = load.index(min(load)); bins[i].append([s, refs.pop()]); load[i] += W[s]
+              # ⭐ نافذةُ مدى السورة لملفٍّ تبدأ فيه السورةُ بعد 20ث (‏heard_window): الغلافُ وحدَه من الفهرس + هامش 70ث؛ وإلا يبقى الملفُّ كلُّه.
+              import heard_window as HW
+              win = HW.span_window(cs[s])
+              item = [s, refs.pop()] + (list(win) if win else [])
+              i = load.index(min(load)); bins[i].append(item); load[i] += W[s]
           inc = [{"src": key, "sha": sha, "items": json.dumps(b)} for b in bins if b]
           print(f"مدّةُ القياس الكلّيّة ≈ {sum(W.values())/3600000:.1f} ساعةَ صوت في {len(inc)} شريحة")
           with open(os.environ["GITHUB_OUTPUT"], "a") as f:
@@ -151,8 +155,9 @@ jobs:
           SRC="$(python -c "import json,sys; print(json.load(open('plan.json'))[int(sys.argv[1])]['src'])" "$K")"
           export ITEMS="$(python -c "import json,sys; print(json.load(open('plan.json'))[int(sys.argv[1])]['items'])" "$K")"
           d="hg/$(echo "$SRC" | tr '/' '_')"; mkdir -p "$d"; RIW="$(echo "$SRC" | cut -d/ -f2)"
-          python -c "import json,os; [print(s, u) for s, u in json.loads(os.environ['ITEMS'])]" | while read s u; do
-            CTC_INT8=0 python tools/alignment_v3/ctc_heard_map.py --url "$u" --surah "$s" --riwaya "$RIW" \
+          python -c "import json,os; [print(*it) for it in json.loads(os.environ['ITEMS'])]" | while read s u ws we; do
+            W=(); [ -n "$we" ] && W=(--start-ms "$ws" --end-ms "$we" --span-window)
+            CTC_INT8=0 python tools/alignment_v3/ctc_heard_map.py --url "$u" --surah "$s" --riwaya "$RIW" "${W[@]}" \
               --out-dir "$d" --probe --report "$d/heard_s$(printf %03d $s).txt" < /dev/null > /dev/null 2> "$d/err_$s.txt" \
               && echo "✓ س$s" || { echo "⚠️ س$s أخفق"; tail -5 "$d/err_$s.txt"; }
             rm -f "$d"/*.mp3 "$d"/*.wav "$d"/*.m4a "$d"/*.ogg
