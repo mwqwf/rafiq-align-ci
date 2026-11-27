@@ -38,7 +38,32 @@ def is_surah_index(idx, catalog_row):
     return ok, detail
 
 
+def normalize_only(only):
+    """`--only` يُقبل بصيغة `<رواية>/<قارئ>` أو بمفتاح مرشّحٍ مسرحيّ `timings-staging/<رواية>/<قارئ>.<بصمة8>.jz`.
+
+    ⛔ العطب المقيس 2026-11-27 (hatem.c911cc6f): `gate_promote*.sh` يمرّر مفتاحَ المرشّح إلى `diagnosis.yml`،
+    والتشخيص يصف **الفهرسَ المنشور** `timings/…` فلا مفتاحَ منشورٌ يحوي ذلك النصّ ⇒ «ختم تشخيص 0 فهرساً»
+    ونجاحُ الوظيفة بلا كتابة ⇒ تبقى الترقيةُ مردودةً بـ«تشخيص الكتالوج يصف فهرساً آخر» بلا أثرٍ يدلّ على السبب.
+    فيُردّ المفتاحُ المسرحيّ إلى `<رواية>/<قارئ>` (‏المطابقةُ نفسُها لا أوسع)."""
+    s = (only or "").strip()
+    if not s:
+        return s
+    parts = s.split("/")
+    if len(parts) == 3 and parts[0] == "timings-staging":
+        rid = parts[2]
+        if rid.endswith(".jz"):
+            rid = rid[:-3]
+        rid = rid.split(".", 1)[0]
+        return "{}/{}".format(parts[1], rid)
+    return s
+
+
 def self_test():
+    assert normalize_only("hafs/hatem") == "hafs/hatem"
+    assert normalize_only("timings-staging/hafs/hatem.c911cc6f.jz") == "hafs/hatem"
+    assert normalize_only("timings-staging/hafs/a_alhazmi.34b21302.jz") == "hafs/a_alhazmi"
+    assert normalize_only("timings-staging/qalun/janaini_qalun.366aa579.jz") == "qalun/janaini_qalun"
+    assert normalize_only("") == "" and normalize_only(None) == ""
     hashes = ["x"] * 114
     assert is_surah_index({"sourceKind": "SURAH_FILES"}, {"mode": "ayah"})[0]
     assert is_surah_index({"sourceKind": "surah"}, {"mode": "ayah"})[0]
@@ -65,7 +90,13 @@ def main():
     catalog = mf.load_catalog()
     keys = [k for k in mf.listing("timings/") if k.endswith(".jz")]
     if a.only:
-        keys = [k for k in keys if a.only in k]
+        only = normalize_only(a.only)
+        keys = [k for k in keys if only in k]
+        if not keys:
+            # ⛔ نجاحٌ صامتٌ بلا كتابة يترك الترقيةَ مردودةً بلا أثر — فيُفشَل صراحةً.
+            print("❌ --only {!r} (⇒ {!r}) لا يطابق أيّ فهرسٍ منشور — لم يُكتب تشخيص".format(a.only, only),
+                  flush=True)
+            sys.exit(2)
     print("=== ختم تشخيص {} فهرساً ===".format(len(keys)), flush=True)
     done = skipped = 0
     for key in sorted(keys):
