@@ -22,6 +22,8 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[2]
 SR = 16000
+TARTEEL_REPO = "tarteel-ai/whisper-base-ar-quran"
+TARTEEL_REV = "5c3c53fdf9272c4f6ee0bee09a1e5a4a615ee25c"
 
 
 def parse_windows(txt):
@@ -48,7 +50,7 @@ def main():
     ap.add_argument("--surah", type=int, required=True)
     ap.add_argument("--riwaya", default="hafs")
     ap.add_argument("--ayahs", required=True, help="آية:بدء-نهاية بالم.ث، مفصولةً بفواصل")
-    ap.add_argument("--model", default="small", choices=("small", "medium", "large-v3"))
+    ap.add_argument("--model", default="small", choices=("small", "medium", "large-v3", "tarteel"))
     ap.add_argument("--out", required=True)
     a = ap.parse_args()
     wins = parse_windows(a.ayahs)
@@ -67,8 +69,15 @@ def main():
         if w.getframerate() != SR or w.getnchannels() != 1:
             raise SystemExit("⛔ الصوتُ المفكوك ليس أحاديَّ 16ك.هز")
         pcm = np.frombuffer(w.readframes(w.getnframes()), np.int16).astype(np.float32) / 32768.0
-    model = WhisperModel(a.model, device="cpu", compute_type="float32", cpu_threads=os.cpu_count() or 2)
-    res = {"surah": a.surah, "riwaya": a.riwaya, "fileRef": a.url, "sha256": sha, "model": a.model,
+    path = a.model
+    if a.model == "tarteel":   # شاهدٌ مضبوطٌ على القرآن (‏ظلّ 20261127: 30/150 مقابل large-v3 27/150، قبولٌ كاذب 0) — مراجعةٌ مثبّتة
+        path = os.path.join(os.environ.get("HF_HOME", ".hf"), f"tarteel_ct2_{TARTEEL_REV[:8]}")
+        if not os.path.exists(os.path.join(path, "model.bin")):
+            import subprocess                                            # noqa: PLC0415
+            subprocess.run(["ct2-transformers-converter", "--model", TARTEEL_REPO, "--revision", TARTEEL_REV,
+                            "--output_dir", path, "--force"], check=True)
+    model = WhisperModel(path, device="cpu", compute_type="float32", cpu_threads=os.cpu_count() or 2)
+    res = {"surah": a.surah, "riwaya": a.riwaya, "fileRef": a.url, "sha256": sha, "model": a.model, **({"modelRevision": TARTEEL_REV} if a.model == "tarteel" else {}),
            "computeType": "float32", "fasterWhisper": getattr(faster_whisper, "__version__", ""),
            "ayahs": {}}
     for ay, (s, e) in sorted(wins.items()):

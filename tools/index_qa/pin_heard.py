@@ -173,7 +173,7 @@ W_AGREE_MS = 300         # أقصى فرقٍ بين بدء Whisper ومرساة�
 W_DUR_LO, W_DUR_HI = 0.5, 2.0     # مدّةُ الآية المثبَّتة نسبةً إلى المتوقَّع (‏وسيطِ النظراء بعد معايرة الوتيرة)
 W_NEIGHBOUR_MIN = 0.5    # الجارةُ السابقة لا تنكمش دون هذه النسبة من مدّتها في الأصل
 W_LEN_LO, W_LEN_HI = 0.7, 1.3     # عددُ كلمات Whisper بين الطرفين نسبةً إلى كلمات الآية المرجعيّة
-W_MODELS = ("small", "medium", "large-v3")   # large-v3 شاهدٌ أقوى (‏أمر القائد 2026-11-11)؛ والحرّاسُ كلُّها كما هي
+W_MODELS = ("small", "medium", "large-v3", "tarteel")   # large-v3 شاهدٌ أقوى (‏أمر القائد 2026-11-11)؛ والحرّاسُ كلُّها كما هي
 # ⭐ المسارُ المشابه (‏قرار خيط 2.0 · 2026-11-07، لدورة saad وحدها، خلف `--witness-fuzzy` المطفأ افتراضاً):
 #    Whisper يُخطئ حرفاً في كلمةٍ طرفيّة («يعقرون» لـ«يعقلون») فيردّ التطابقُ التامّ آيةً سليمة. فيُقبل بدلَه تشابهُ
 #    حروف الكلمات الطرفيّة بعد التطبيع ≥ W_FUZZ_SIM (‏أوّلُها وآخرُها معاً)، بقيدٍ معوِّض: عددُ كلمات Whisper من
@@ -297,6 +297,8 @@ def _whisper_check(wit, hmap, surah, ayah, ref, fuzzy=False, timing=None):
     rec = (wit.get("ayahs") or {}).get(str(ayah))
     if not rec:
         return None, "لا تفريغَ لهذه الآية في الشاهد"
+    if wit.get("model") == "tarteel" and int(ayah) == 1:
+        return None, "شاهدُ tarteel لا يُقبل لمطلع السورة (‏ظلّ 20261127: المطالع 2/30 دون large-v3 4/30)"
     if not ref:
         return None, "لا نصَّ مرجعيَّ للآية"
     toks = _norm_words(rec.get("words"))
