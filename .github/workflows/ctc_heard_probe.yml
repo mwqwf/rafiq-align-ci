@@ -22,6 +22,7 @@ on:
         default: artifacts
       source_sha256: {description: "بصمة مصدر كاملة مقيسة؛ لازمة مع build-logs", default: ""}
       start_ms: {description: "بدءُ النافذة بالم.ث (‏السبرُ وحده): يُفكّ من هنا إلى آخر الملفّ والأزمنةُ مطلقة ويُكتب windowStartMs؛ 0 = الملفُّ كلُّه كما كان", default: "0"}
+      spoken_openers: {description: "true = مطالعُ الحروف المقطّعة وحدها بأسماء حروفها المنطوقة (‏ctc_heard_map --spoken-openers؛ ظلٌّ مقيس)", default: "false"}
       reason: {description: "سببُ الإطلاق", default: ""}
 
 permissions:
@@ -79,6 +80,7 @@ jobs:
           EVIDENCE: ${{ inputs.evidence }}
           SOURCE_SHA256: ${{ inputs.source_sha256 }}
           START_MS: ${{ inputs.start_ms }}
+          SPOKEN: ${{ inputs.spoken_openers }}
           HF_HUB_OFFLINE: ${{ inputs.evidence != 'artifacts' && '1' || '0' }}
           TRANSFORMERS_OFFLINE: ${{ inputs.evidence != 'artifacts' && '1' || '0' }}
         run: |
@@ -98,6 +100,7 @@ jobs:
             P=""
             STRICT=(--strict-tol-ms 1500)
           fi
+          if [ "${SPOKEN:-false}" = "true" ]; then STRICT+=(--spoken-openers); fi
           /usr/bin/time -v python tools/alignment_v3/ctc_heard_map.py --url "$URL" --surah "$SURAH" \
             --riwaya "$RIW" --out-dir out $P "${STRICT[@]}" --report out/report.txt 2>&1 | tee logs/probe.log
       - name: خريطة كاملة قابلة للاستخراج من السجل

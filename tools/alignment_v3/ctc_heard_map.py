@@ -409,7 +409,18 @@ def _char_list():
     return cl, tok.pad_token_id, (tok.word_delimiter_token if hasattr(tok, "word_delimiter_token") else "|")
 
 
-def run(audio, surah, riwaya, log=print, probe=False, strict_tol_ms=0, absent=None, peer=None, start_ms=0, witnessed=None):
+def ref_texts(surah, canonical, spoken=False):
+    """نصوصُ الآيات للخريطة والمحاذاة. `spoken` (مطفأٌ افتراضاً): مطالعُ الحروف المقطّعة وحدها (‏2:1 · 29:1 · 42:2 …)
+    بأسماء حروفها المنطوقة («الم» ⇒ «الف لام ميم») عبر `spoken_letters.alignment_text`؛ ما سواها كما هو حرفاً."""
+    from common import norm
+    if not spoken:
+        return [norm(t) for t in canonical]
+    from spoken_letters import alignment_text
+    return [alignment_text(surah, k + 1, t) for k, t in enumerate(canonical)]
+
+
+def run(audio, surah, riwaya, log=print, probe=False, strict_tol_ms=0, absent=None, peer=None, start_ms=0, witnessed=None,
+        spoken_openers=False):
     """‏`absent` (‏آياتٌ 1-بدء مسمّاةٌ غائبة) و`peer` (‏خريطةُ نموذج التلاوة لنفس الملفّ) — بابٌ مستقلٌّ في `heard_absent`.
     بلا `absent` يبقى السلوكُ كما كان حرفاً.
     ‏`start_ms` (‏--probe وحده): يُفكّ الصوتُ من هذا الموضع إلى آخره، وتُزاح الأزمنةُ به فتبقى مطلقةً على الملفّ؛ 0 ⇒ كما كان حرفاً."""
@@ -424,7 +435,7 @@ def run(audio, surah, riwaya, log=print, probe=False, strict_tol_ms=0, absent=No
     index = load_index()
     a, b, _ = surah_slice(index, surah)
     canonical = load_text(riwaya)[a:b]
-    refs = [norm(t) for t in canonical]
+    refs = ref_texts(surah, canonical, spoken_openers)
     sks = [r.replace(" ", "") for r in refs]
     n = len(refs)
     wav = to_wav16k(audio)
@@ -707,6 +718,8 @@ def main() -> int:
     ap.add_argument("--absent-witness-runs", default="",
                     help="تشغيلتان أو أكثر لـwhisper_witness (float32) تُحمَّلان من مصدرهما: تثبتان غيابَ آيةٍ مسمّاةٍ غائبةٍ لكنّها مسموعةٌ في "
                          "الخريطة (ctc-absent-witnessed-1 · heard_gate.witnessed_absent_one) — البناءُ وحدَه مع --absent-ayahs")
+    ap.add_argument("--spoken-openers", action="store_true",
+                    help="مطالعُ الحروف المقطّعة وحدها بأسماء حروفها المنطوقة في الخريطة والمحاذاة (‏spoken_letters.alignment_text)؛ مطفأٌ افتراضاً")
     ap.add_argument("--quran-model", action="store_true",
                     help="يفكّ بنموذج التلاوة المثبَّت البصمة (‏quran_ctc_model) بدل النموذج العامّ؛ خريطةُ R في بوّابة السماع المزدوجة "
                          "(‏heard_gate.py · heard_dual.txt). يلزمه --probe (‏بلا مداخل ولا رفع) وتحمل الخريطةُ نسبَ النموذج في `quranModel`")
@@ -757,7 +770,8 @@ def main() -> int:
     try:
         res, report = run(audio, a.surah, a.riwaya, probe=a.probe, strict_tol_ms=a.strict_tol_ms, absent=absent, peer=peer,
                           **({"start_ms": a.start_ms} if a.start_ms else {}),
-                          **({"witnessed": witnessed} if witnessed else {}))
+                          **({"witnessed": witnessed} if witnessed else {}),
+                          **({"spoken_openers": True} if a.spoken_openers else {}))
     except Exception as ex:                                                  # noqa: BLE001
         if absent and type(ex).__name__ == "HeardAbsentError":
             print(f"⛔ رُدّت السورةُ: {ex}")

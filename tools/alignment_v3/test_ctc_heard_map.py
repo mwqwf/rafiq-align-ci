@@ -329,6 +329,27 @@ class QuranModelFlag(unittest.TestCase):
         self.assertNotIn("quranModel", out)
         fake_q.configure.assert_not_called()
 
+class SpokenOpeners(unittest.TestCase):
+    """`ref_texts(..., spoken=True)`: مطالعُ الحروف المقطّعة وحدها بأسماء حروفها؛ المطفأ = كالسابق حرفاً."""
+    CANON = ["الٓمٓ", "أَحَسِبَ ٱلنَّاسُ أَن يُتْرَكُوٓا۟"]
+
+    def test_default_is_written_form(self):
+        from common import norm
+        self.assertEqual(H.ref_texts(29, self.CANON), [norm(t) for t in self.CANON])
+        self.assertEqual(H.ref_texts(29, self.CANON, False), [norm(t) for t in self.CANON])
+
+    def test_spoken_expands_only_the_opener(self):
+        from common import norm
+        out = H.ref_texts(29, self.CANON, True)
+        self.assertEqual(out[0], "الف لام ميم")
+        self.assertEqual(out[1], norm(self.CANON[1]))
+
+    def test_non_opener_surah_unchanged(self):
+        from common import norm
+        c = ["بِسْمِ", "ٱلْحَمْدُ لِلَّهِ"]
+        self.assertEqual(H.ref_texts(1, c, True), [norm(t) for t in c])
+
+
 
 if __name__ == "__main__":
     unittest.main()
